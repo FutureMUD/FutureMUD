@@ -143,6 +143,13 @@ Account types are especially important because they hold much of the policy:
 
 Banks and bank accounts also register FutureProg variable support, so the system is designed to be scripted as well as built.
 
+### Virtual Establishment Balances and Ledgers
+Several economy systems can now operate without a live settlement bank account by using a persisted virtual cash reserve. Player-facing cash remains physical currency items at the character edge; establishment cash is stored as `VirtualCashBalance` rows keyed by owner type, owner id, and currency.
+
+Every successful movement through the generic reserve helper writes a `VirtualCashLedgerEntry` with the real timestamp, optional MUD timestamp, actor, counterparty, currency, signed amount, balance after, source and destination kind, optional linked bank account, optional reference entity, and reason text. Bank-account ledgers remain authoritative for account activity; the virtual ledger records the domain reason and links back to the bank account where a movement used one.
+
+Current users of this shared reserve/ledger path include auction houses, stables, hotel rentals, property-owner revenues, clan virtual treasuries, legal-authority fine and bail revenue, economic-zone retained revenue, estate fallback liquidation, and job coffer/audit movements. Arenas keep their existing `VirtualBalance` column but now write virtual-cash ledger rows for arena cash and bank settlement movements.
+
 ### Shops, Merchandise, and Payments
 Shops are one of the largest and most integrated pieces of the economy runtime.
 
@@ -232,7 +239,7 @@ The current implementation ties property to:
 - ownership records for characters or clans
 - sale and lease workflows
 - conveyancing cells where player workflows are surfaced
-- bank-account backed money movement for sale or rent collection
+- bank-account or virtual-reserve backed money movement for sale or rent collection
 - approved hotel-room rental workflows through the `roomrent` command
 
 Verified load-time constraint:
@@ -244,10 +251,10 @@ Verified current hotel-room rental behavior:
 - hotel-room rental is separate from leasing a whole property but is stored on `Property`
 - a property can request, surrender, or hold an approved hotel license through its `HotelLicenseStatus`
 - economic-zone managers approve requested hotel licenses
-- only approved hotel properties with a configured hotel bank account can rent listed rooms
+- approved hotel properties can rent listed rooms with either a configured hotel bank account or the property's virtual hotel reserve
 - hotel rooms are property cells with their own daily price, security deposit, minimum duration, maximum duration, assigned property keys, and furnishing list
-- property owners or authorised clan property managers configure hotel rooms, room keys, furnishing markers, bans, eligibility progs, lost-property retention, and the hotel bank account through `roomrent`
-- guests pay room rent, security deposit, and calculated hotel taxes up front; the hotel bank account receives the money and the property tracks outstanding hotel taxes until the manager remits them
+- property owners or authorised clan property managers configure hotel rooms, room keys, furnishing markers, bans, eligibility progs, lost-property retention, and the optional hotel bank account through `roomrent`
+- guests pay room rent, security deposit, and calculated hotel taxes up front; proceeds are credited to the hotel bank account when present, otherwise to the property's virtual hotel reserve, and the property tracks outstanding hotel taxes until the manager remits them
 - checkout returns held room keys, assesses missing keys and furnishing loss or damage against the deposit, and records any remaining patron balance with the hotel
 - a negative patron balance blocks future rentals at that hotel until paid
 - non-furnishing items left in the room are bundled into hotel lost property, logged out of the world, and can later be claimed by the patron
@@ -276,7 +283,7 @@ The current implementation ties each stable to:
 
 - one economic zone and its currency
 - one cell, advertised in room description and survey output
-- one nominated bank account for cash and bank-payment receipts
+- an optional nominated bank account for receipts, with a stable-level virtual cash reserve used when the account is absent
 - optional fixed or FutureProg-driven lodge and daily fees
 - optional FutureProg access control and failure text
 - employee records for proprietors, managers, and employees
@@ -284,7 +291,7 @@ The current implementation ties each stable to:
 
 Lodging a mount creates a `StableStay`, charges the lodge fee immediately, creates a singleton-generated stable ticket item, records a ledger entry, and quits the mount out of the active world. During boot, NPC loading excludes mount character ids that belong to active stable stays, so stabled mounts remain offline and in stasis until redeem or manager release restores them. Whole-day daily fees accrue against open stays by the economic zone calendar. Fee policy changes assess all open stays before applying the new policy, so older days are not repriced retroactively.
 
-Redeeming requires a valid stable ticket component whose stored stay id, ticket item id, and token still match an active stay. The redeemer may differ from the original lodger, but outstanding fees must be settled first by cash, bank-payment item, or an authorised stable account. Manager release closes the stay, invalidates existing tickets by changing the token, and logs the mount back into the stable location. Managers can waive outstanding fees or leave debt in the stay history.
+Redeeming requires a valid stable ticket component whose stored stay id, ticket item id, and token still match an active stay. The redeemer may differ from the original lodger, but outstanding fees must be settled first by cash, bank-payment item, or an authorised stable account. Cash receipts are credited to the stable reserve if there is no linked bank account. Manager release closes the stay, invalidates existing tickets by changing the token, and logs the mount back into the stable location. Managers can waive outstanding fees or leave debt in the stay history.
 
 Stable location and ownership integrate with property. A stable inside a property is claimed alongside shops when a lease or sale produces a single character controller; clan and multi-owner cases remain manual in the same way as shops.
 
@@ -295,9 +302,10 @@ Current verified runtime characteristics:
 
 - an auction house belongs to an economic zone
 - it is tied to a specific cell
-- it routes proceeds into a bank account
+- it routes proceeds into an optional bank account or its virtual cash reserve
 - it is surfaced through economy commands rather than being embedded into shops
 - configured flat and percentage auction fees are retained by the auction house, with sellers receiving net proceeds
+- bid receipts are retained in the auction house reserve first; refunds and seller payouts draw from virtual cash before falling back to the linked bank account
 - standard player auction commands now work for both item and property lots, including estate-liquidation property lots whose names are ordinary property names rather than inventory items
 - hotel lost-property bundles can be listed as item lots by the property when their retention period expires
 - buyout purchases immediately settle the lot rather than waiting for the normal auction end tick
@@ -329,20 +337,20 @@ Job listings currently include:
 The system is integrated with job-finding cells on economic zones and with command workflows in `EconomyModule`.
 
 ### Clan Finance, Budgets, and Payroll History
-Clan finance is implemented across the clan and economy layers. Clans can nominate a default bank account, use that account for payroll float, and now use it as the funding source for appointment budgets.
+Clan finance is implemented across the clan and economy layers. Clans can nominate a default bank account, use physical treasury rooms, and now maintain per-currency virtual treasury balances for payroll float and appointment-budget drawdowns.
 
 Appointment budgets are persisted as `ClanBudget` rows with:
 
 - a clan
 - an assigned appointment
-- a backing bank account and currency
+- an optional backing bank account and a currency
 - an amount per recurring period
 - the current period start, end, and drawdown
 - an active flag
 
-Budget drawdowns are persisted as `ClanBudgetTransaction` rows. Each transaction records the budget, actor, backing bank account, currency, amount, MUD time, period window, bank balance after withdrawal, and audit reason. The runtime rolls the current period forward lazily when a budget is reviewed or used; historical drawdown rows remain available for audit.
+Budget drawdowns are persisted as `ClanBudgetTransaction` rows and also write virtual treasury ledger records. Each transaction records the budget, actor, optional backing bank account, currency, amount, MUD time, period window, balance after withdrawal, and audit reason. The runtime rolls the current period forward lazily when a budget is reviewed or used; historical drawdown rows remain available for audit.
 
-Clan balance-sheet review is a reporting surface rather than a separate ledger. It aggregates currently loaded economy state from clan-owned bank accounts, owned and leased properties, property lease revenue and commitments, shops tied to clan property or clan bank accounts, controlled economic-zone revenues, payroll commitments, budget commitments, and outstanding backpay.
+Clan balance-sheet review is a reporting surface rather than a separate ledger. It aggregates currently loaded economy state from clan-owned bank accounts, virtual treasury balances, owned and leased properties, property lease revenue and commitments, shops tied to clan property or clan bank accounts, controlled economic-zone revenues, payroll commitments, budget commitments, and outstanding backpay.
 
 Clan payroll history is persisted separately from the employment/job subsystem. `ClanPayrollHistory` rows are written when clan payday processing accrues pay, when a character collects owed clan pay, and when authorised users make manual backpay adjustments. This gives clans an audit trail for their rank, appointment, and individual payroll activity without changing the broader `JobListingBase` / `OngoingJobListing` employment model.
 

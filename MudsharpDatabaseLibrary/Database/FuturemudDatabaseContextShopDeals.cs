@@ -11,6 +11,7 @@ namespace MudSharp.Database
             ConfigureComputerMail(modelBuilder);
             ConfigureStables(modelBuilder);
             ConfigureClanFinance(modelBuilder);
+            ConfigureVirtualCash(modelBuilder);
 
             modelBuilder.Entity<ShopDeal>(entity =>
             {
@@ -91,6 +92,115 @@ namespace MudSharp.Database
             });
         }
 
+        private static void ConfigureVirtualCash(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<VirtualCashBalance>(entity =>
+            {
+                entity.ToTable("VirtualCashBalances");
+                entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+                entity.HasIndex(e => new { e.OwnerType, e.OwnerId, e.CurrencyId })
+                      .IsUnique()
+                      .HasDatabaseName("IX_VirtualCashBalances_Owner_Currency");
+                entity.HasIndex(e => e.CurrencyId)
+                      .HasDatabaseName("FK_VirtualCashBalances_Currencies_idx");
+
+                entity.Property(e => e.Id).HasColumnType("bigint(20)");
+                entity.Property(e => e.OwnerType)
+                      .IsRequired()
+                      .HasColumnType("varchar(100)")
+                      .HasCharSet("utf8")
+                      .UseCollation("utf8_general_ci");
+                entity.Property(e => e.OwnerId).HasColumnType("bigint(20)");
+                entity.Property(e => e.CurrencyId).HasColumnType("bigint(20)");
+                entity.Property(e => e.Balance).HasColumnType("decimal(58,29)");
+
+                entity.HasOne(d => d.Currency)
+                      .WithMany()
+                      .HasForeignKey(d => d.CurrencyId)
+                      .HasConstraintName("FK_VirtualCashBalances_Currencies");
+            });
+
+            modelBuilder.Entity<VirtualCashLedgerEntry>(entity =>
+            {
+                entity.ToTable("VirtualCashLedgerEntries");
+                entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+                entity.HasIndex(e => new { e.OwnerType, e.OwnerId, e.RealDateTime })
+                      .HasDatabaseName("IX_VirtualCashLedgerEntries_Owner_Date");
+                entity.HasIndex(e => e.CurrencyId)
+                      .HasDatabaseName("FK_VirtualCashLedgerEntries_Currencies_idx");
+                entity.HasIndex(e => e.LinkedBankAccountId)
+                      .HasDatabaseName("FK_VirtualCashLedgerEntries_BankAccounts_idx");
+
+                entity.Property(e => e.Id).HasColumnType("bigint(20)");
+                entity.Property(e => e.OwnerType)
+                      .IsRequired()
+                      .HasColumnType("varchar(100)")
+                      .HasCharSet("utf8")
+                      .UseCollation("utf8_general_ci");
+                entity.Property(e => e.OwnerId).HasColumnType("bigint(20)");
+                entity.Property(e => e.CurrencyId).HasColumnType("bigint(20)");
+                entity.Property(e => e.RealDateTime).HasColumnType("datetime");
+                entity.Property(e => e.MudDateTime)
+                      .IsRequired()
+                      .HasColumnType("varchar(500)")
+                      .HasCharSet("utf8")
+                      .UseCollation("utf8_general_ci");
+                entity.Property(e => e.ActorId).HasColumnType("bigint(20)");
+                entity.Property(e => e.ActorName)
+                      .HasColumnType("mediumtext")
+                      .HasCharSet("utf8")
+                      .UseCollation("utf8_general_ci");
+                entity.Property(e => e.CounterpartyId).HasColumnType("bigint(20)");
+                entity.Property(e => e.CounterpartyType)
+                      .HasColumnType("varchar(100)")
+                      .HasCharSet("utf8")
+                      .UseCollation("utf8_general_ci");
+                entity.Property(e => e.CounterpartyName)
+                      .HasColumnType("mediumtext")
+                      .HasCharSet("utf8")
+                      .UseCollation("utf8_general_ci");
+                entity.Property(e => e.Amount).HasColumnType("decimal(58,29)");
+                entity.Property(e => e.BalanceAfter).HasColumnType("decimal(58,29)");
+                entity.Property(e => e.SourceKind)
+                      .IsRequired()
+                      .HasColumnType("varchar(100)")
+                      .HasCharSet("utf8")
+                      .UseCollation("utf8_general_ci");
+                entity.Property(e => e.DestinationKind)
+                      .IsRequired()
+                      .HasColumnType("varchar(100)")
+                      .HasCharSet("utf8")
+                      .UseCollation("utf8_general_ci");
+                entity.Property(e => e.LinkedBankAccountId).HasColumnType("bigint(20)");
+                entity.Property(e => e.ReferenceType)
+                      .HasColumnType("varchar(100)")
+                      .HasCharSet("utf8")
+                      .UseCollation("utf8_general_ci");
+                entity.Property(e => e.ReferenceId).HasColumnType("bigint(20)");
+                entity.Property(e => e.Reference)
+                      .HasColumnType("mediumtext")
+                      .HasCharSet("utf8")
+                      .UseCollation("utf8_general_ci");
+                entity.Property(e => e.Reason)
+                      .IsRequired()
+                      .HasColumnType("mediumtext")
+                      .HasCharSet("utf8")
+                      .UseCollation("utf8_general_ci");
+
+                entity.HasOne(d => d.Currency)
+                      .WithMany()
+                      .HasForeignKey(d => d.CurrencyId)
+                      .HasConstraintName("FK_VirtualCashLedgerEntries_Currencies");
+                entity.HasOne(d => d.LinkedBankAccount)
+                      .WithMany()
+                      .HasForeignKey(d => d.LinkedBankAccountId)
+                      .OnDelete(DeleteBehavior.SetNull)
+                      .HasConstraintName("FK_VirtualCashLedgerEntries_BankAccounts");
+            });
+        }
+
         private static void ConfigureClanFinance(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<ClanBudget>(entity =>
@@ -151,7 +261,7 @@ namespace MudSharp.Database
                 entity.HasOne(e => e.BankAccount)
                       .WithMany(e => e.ClanBudgets)
                       .HasForeignKey(e => e.BankAccountId)
-                      .OnDelete(DeleteBehavior.Cascade)
+                      .OnDelete(DeleteBehavior.SetNull)
                       .HasConstraintName("FK_ClanBudgets_BankAccounts");
                 entity.HasOne(e => e.Currency)
                       .WithMany(e => e.ClanBudgets)
@@ -215,7 +325,7 @@ namespace MudSharp.Database
                 entity.HasOne(e => e.BankAccount)
                       .WithMany(e => e.ClanBudgetTransactions)
                       .HasForeignKey(e => e.BankAccountId)
-                      .OnDelete(DeleteBehavior.Cascade)
+                      .OnDelete(DeleteBehavior.SetNull)
                       .HasConstraintName("FK_ClanBudgetTransactions_BankAccounts");
                 entity.HasOne(e => e.Currency)
                       .WithMany(e => e.ClanBudgetTransactions)

@@ -8,6 +8,8 @@ using MudSharp.TimeAndDate.Intervals;
 using System.Collections.Generic;
 using System.Linq;
 
+#nullable enable
+
 namespace MudSharp.Community;
 
 public class ClanBudget : SaveableItem, IClanBudget
@@ -15,8 +17,8 @@ public class ClanBudget : SaveableItem, IClanBudget
 	private MudDateTime _currentPeriodStart;
 	private MudDateTime _currentPeriodEnd;
 	private decimal _currentPeriodDrawdown;
-	private long _bankAccountId;
-	private IBankAccount _bankAccount;
+	private long? _bankAccountId;
+	private IBankAccount? _bankAccount;
 	private readonly List<IClanBudgetTransaction> _transactions = new();
 
 	public ClanBudget(MudSharp.Models.ClanBudget budget, IClan clan)
@@ -27,7 +29,7 @@ public class ClanBudget : SaveableItem, IClanBudget
 		Clan = clan;
 		Appointment = clan.Appointments.First(x => x.Id == budget.AppointmentId);
 		_bankAccountId = budget.BankAccountId;
-		Currency = Gameworld.Currencies.Get(budget.CurrencyId);
+		Currency = Gameworld.Currencies.Get(budget.CurrencyId)!;
 		AmountPerPeriod = budget.AmountPerPeriod;
 		PeriodInterval = new RecurringInterval
 		{
@@ -50,15 +52,15 @@ public class ClanBudget : SaveableItem, IClanBudget
 		}
 	}
 
-	public ClanBudget(Clan clan, IAppointment appointment, IBankAccount bankAccount, string name, decimal amount,
-		RecurringInterval interval)
+	public ClanBudget(Clan clan, IAppointment appointment, IBankAccount? bankAccount, ICurrency currency, string name,
+		decimal amount, RecurringInterval interval)
 	{
 		Gameworld = clan.Gameworld;
 		Clan = clan;
 		Appointment = appointment;
 		_bankAccount = bankAccount;
-		_bankAccountId = bankAccount.Id;
-		Currency = bankAccount.Currency;
+		_bankAccountId = bankAccount?.Id;
+		Currency = currency;
 		_name = name;
 		AmountPerPeriod = amount;
 		PeriodInterval = interval;
@@ -73,7 +75,7 @@ public class ClanBudget : SaveableItem, IClanBudget
 			{
 				ClanId = clan.Id,
 				AppointmentId = appointment.Id,
-				BankAccountId = bankAccount.Id,
+				BankAccountId = bankAccount?.Id,
 				CurrencyId = Currency.Id,
 				Name = name,
 				AmountPerPeriod = amount,
@@ -97,13 +99,13 @@ public class ClanBudget : SaveableItem, IClanBudget
 
 	public IClan Clan { get; }
 	public IAppointment Appointment { get; set; }
-	public IBankAccount BankAccount
+	public IBankAccount? BankAccount
 	{
-		get => _bankAccount ??= Gameworld.BankAccounts.Get(_bankAccountId);
+		get => _bankAccount ??= _bankAccountId.HasValue ? Gameworld.BankAccounts.Get(_bankAccountId.Value) : null;
 		set
 		{
 			_bankAccount = value;
-			_bankAccountId = value.Id;
+			_bankAccountId = value?.Id;
 			Changed = true;
 		}
 	}
@@ -167,9 +169,13 @@ public class ClanBudget : SaveableItem, IClanBudget
 		using (new FMDB())
 		{
 			var dbitem = FMDB.Context.ClanBudgets.Find(Id);
+			if (dbitem is null)
+			{
+				return;
+			}
 			dbitem.Name = Name;
 			dbitem.AppointmentId = Appointment.Id;
-			dbitem.BankAccountId = BankAccount.Id;
+			dbitem.BankAccountId = BankAccount?.Id;
 			dbitem.CurrencyId = Currency.Id;
 			dbitem.AmountPerPeriod = AmountPerPeriod;
 			dbitem.PeriodIntervalType = (int)PeriodInterval.Type;

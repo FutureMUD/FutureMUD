@@ -5,6 +5,7 @@ using MudSharp.Community;
 using MudSharp.Construction;
 using MudSharp.Database;
 using MudSharp.Economy.Currency;
+using MudSharp.Economy.Payment;
 using MudSharp.Economy.Property;
 using MudSharp.Economy.Tax;
 using MudSharp.Effects.Concrete;
@@ -12,6 +13,8 @@ using MudSharp.Framework;
 using MudSharp.Framework.Revision;
 using MudSharp.Framework.Save;
 using MudSharp.FutureProg.Statements;
+using MudSharp.GameItems;
+using MudSharp.GameItems.Prototypes;
 using MudSharp.Models;
 using MudSharp.TimeAndDate;
 using MudSharp.TimeAndDate.Date;
@@ -688,6 +691,9 @@ public class EconomicZone : SaveableItem, IEconomicZone
     {
         Changed = true;
         TotalRevenueHeld += amount;
+        VirtualCashLedger.Credit(this, Currency, amount, null, shop, "ShopTax",
+            $"Shop taxes paid by {shop.Name}",
+            FinancialPeriodReferenceCalendar.CurrentDateTime, shop);
         if (_shopsOutstandingSalesTaxes[shop.Id] >= amount)
         {
             _shopsOutstandingSalesTaxes[shop.Id] -= amount;
@@ -775,6 +781,8 @@ public class EconomicZone : SaveableItem, IEconomicZone
 	#3estatediscovery <time>#0 - sets how long estates remain undiscovered before probate opens
 	#3estateclaimperiod <time>#0 - sets how long claims remain open on discovered estates
 	#3estateauctionhouse <which>|none#0 - sets the default auction house for estate liquidation
+	#3revenue deposit|withdraw <amount>#0 - moves cash into or out of held economic-zone revenue
+	#3revenue ledger [count]#0 - reviews held-revenue ledger entries
 	#3taxinfo#0 - shows you information about tax revenues in this zone";
 
     public string ClanHelpInfo => @"You can use the following options with this command:
@@ -799,6 +807,8 @@ public class EconomicZone : SaveableItem, IEconomicZone
 	#3estatediscovery <time>#0 - sets how long estates remain undiscovered before probate opens
 	#3estateclaimperiod <time>#0 - sets how long claims remain open on discovered estates
 	#3estateauctionhouse <which>|none#0 - sets the default auction house for estate liquidation
+	#3revenue deposit|withdraw <amount>#0 - moves cash into or out of held economic-zone revenue
+	#3revenue ledger [count]#0 - reviews held-revenue ledger entries
 	#3taxinfo#0 - shows you information about tax revenues in this zone";
 
     public bool BuildingCommand(ICharacter actor, StringStack command)
@@ -868,6 +878,9 @@ public class EconomicZone : SaveableItem, IEconomicZone
                 return BuildingCommandEstateAuctionHouse(actor, command);
             case "taxinfo":
                 return BuildingCommandTaxInfo(actor, command);
+            case "revenue":
+            case "treasury":
+                return BuildingCommandRevenue(actor, command);
             default:
                 actor.OutputHandler.Send(HelpInfo.SubstituteANSIColour());
                 return false;
@@ -915,6 +928,9 @@ public class EconomicZone : SaveableItem, IEconomicZone
             case "taxinfo":
             case "tax":
                 return BuildingCommandTaxInfo(actor, command);
+            case "revenue":
+            case "treasury":
+                return BuildingCommandRevenue(actor, command);
             default:
                 actor.OutputHandler.Send(ClanHelpInfo.SubstituteANSIColour());
                 return false;
@@ -993,6 +1009,140 @@ public class EconomicZone : SaveableItem, IEconomicZone
             actor,
             Telnet.FunctionYellow));
         actor.OutputHandler.Send(sb.ToString());
+        return true;
+    }
+
+    private void EnsureRevenueLedgerBalance()
+    {
+        var balance = VirtualCashLedger.Balance(this, Currency);
+        if (TotalRevenueHeld > balance)
+        {
+            VirtualCashLedger.Credit(this, Currency, TotalRevenueHeld - balance, null, this, "OpeningBalance",
+                $"Opening held revenue balance for {Name}", FinancialPeriodReferenceCalendar.CurrentDateTime);
+        }
+    }
+
+    private bool BuildingCommandRevenue(ICharacter actor, StringStack command)
+    {
+        switch (command.PopForSwitch())
+        {
+            case "deposit":
+            case "add":
+                return BuildingCommandRevenueDeposit(actor, command);
+            case "withdraw":
+            case "remove":
+                return BuildingCommandRevenueWithdraw(actor, command);
+            case "ledger":
+            case "history":
+                return BuildingCommandRevenueLedger(actor, command);
+            default:
+                actor.OutputHandler.Send("Use DEPOSIT <amount>, WITHDRAW <amount>, or LEDGER [count].");
+                return false;
+        }
+    }
+
+    private bool BuildingCommandRevenueDeposit(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished || !Currency.TryGetBaseCurrency(command.SafeRemainingArgument, out var amount) ||
+            amount <= 0.0M)
+        {
+            actor.OutputHandler.Send($"How much {Currency.Name.ColourName()} do you want to deposit?");
+            return false;
+        }
+
+        var payment = new OtherCashPayment(Currency, actor);
+        var accessible = payment.AccessibleMoneyForPayment();
+        if (accessible < amount)
+        {
+            actor.OutputHandler.Send(
+                $"You only have {Currency.Describe(accessible, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()} available.");
+            return false;
+        }
+
+        payment.TakePayment(amount);
+        TotalRevenueHeld += amount;
+        VirtualCashLedger.Credit(this, Currency, amount, actor, actor, "Cash",
+            $"Manual held revenue deposit for {Name}", FinancialPeriodReferenceCalendar.CurrentDateTime);
+        actor.OutputHandler.Send(
+            $"You deposit {Currency.Describe(amount, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()} into held revenue for {Name.ColourName()}.");
+        return true;
+    }
+
+    private bool BuildingCommandRevenueWithdraw(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished || !Currency.TryGetBaseCurrency(command.SafeRemainingArgument, out var amount) ||
+            amount <= 0.0M)
+        {
+            actor.OutputHandler.Send($"How much {Currency.Name.ColourName()} do you want to withdraw?");
+            return false;
+        }
+
+        if (TotalRevenueHeld < amount)
+        {
+            actor.OutputHandler.Send(
+                $"{Name.ColourName()} only has {Currency.Describe(TotalRevenueHeld, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()} in held revenue.");
+            return false;
+        }
+
+        EnsureRevenueLedgerBalance();
+        if (!VirtualCashLedger.Debit(this, Currency, amount, actor, actor, "CashWithdrawal",
+                $"Manual held revenue withdrawal for {Name}", null, FinancialPeriodReferenceCalendar.CurrentDateTime,
+                out var error))
+        {
+            actor.OutputHandler.Send(error);
+            return false;
+        }
+
+        TotalRevenueHeld -= amount;
+        IGameItem cash = CurrencyGameItemComponentProto.CreateNewCurrencyPile(Currency,
+            Currency.FindCoinsForAmount(amount, out _));
+        if (actor.Body.CanGet(cash, 0))
+        {
+            actor.Body.Get(cash, silent: true);
+        }
+        else
+        {
+            cash.RoomLayer = actor.RoomLayer;
+            actor.Location.Insert(cash, true);
+            actor.OutputHandler.Send("You couldn't hold the money, so it is on the ground.");
+        }
+
+        actor.OutputHandler.Send(
+            $"You withdraw {Currency.Describe(amount, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()} from held revenue for {Name.ColourName()}.");
+        return true;
+    }
+
+    private bool BuildingCommandRevenueLedger(ICharacter actor, StringStack command)
+    {
+        EnsureRevenueLedgerBalance();
+        var count = 25;
+        if (!command.IsFinished && (!int.TryParse(command.SafeRemainingArgument, out count) || count <= 0))
+        {
+            actor.OutputHandler.Send("How many ledger entries do you want to review?");
+            return false;
+        }
+
+        var entries = VirtualCashLedger.LedgerEntries(this, count).ToList();
+        if (!entries.Any())
+        {
+            actor.OutputHandler.Send($"{Name.ColourName()} does not have any held revenue ledger entries.");
+            return false;
+        }
+
+        actor.OutputHandler.Send(StringUtilities.GetTextTable(
+            entries.Select(x => new List<string>
+            {
+                x.RealDateTime.ToString("g", actor),
+                x.ActorName ?? string.Empty,
+                Currency.Describe(x.Amount, CurrencyDescriptionPatternType.ShortDecimal),
+                Currency.Describe(x.BalanceAfter, CurrencyDescriptionPatternType.ShortDecimal),
+                $"{x.SourceKind}->{x.DestinationKind}",
+                x.Reason
+            }),
+            new List<string> { "When", "Actor", "Amount", "Balance", "Route", "Reason" },
+            actor.LineFormatLength,
+            colour: Telnet.Green,
+            unicodeTable: actor.Account.UseUnicode));
         return true;
     }
 

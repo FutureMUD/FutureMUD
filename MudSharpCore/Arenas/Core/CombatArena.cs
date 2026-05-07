@@ -286,10 +286,14 @@ public sealed class CombatArena : SaveableItem, ICombatArena
         if (BankAccount != null)
         {
             BankAccount.DepositFromTransaction(amount, reference);
+            VirtualCashLedger.Record(this, Currency, amount, _virtualBalance, null, BankAccount, "ArenaSettlement",
+                "Bank", reference, null, BankAccount);
             return;
         }
 
         _virtualBalance += amount;
+        VirtualCashLedger.Record(this, Currency, amount, _virtualBalance, null, null, "ArenaSettlement",
+            "VirtualCash", reference);
         Changed = true;
     }
 
@@ -305,6 +309,8 @@ public sealed class CombatArena : SaveableItem, ICombatArena
             decimal cashPortion = Math.Min(_virtualBalance, amount);
             _virtualBalance -= cashPortion;
             amount -= cashPortion;
+            VirtualCashLedger.Record(this, Currency, -cashPortion, _virtualBalance, null, null, "VirtualCash",
+                "ArenaSettlement", reference);
             Changed = true;
         }
 
@@ -316,10 +322,14 @@ public sealed class CombatArena : SaveableItem, ICombatArena
         if (BankAccount != null)
         {
             BankAccount.WithdrawFromTransaction(amount, reference);
+            VirtualCashLedger.Record(this, Currency, -amount, _virtualBalance, null, BankAccount, "Bank",
+                "ArenaSettlement", reference, null, BankAccount);
             return;
         }
 
         _virtualBalance -= amount;
+        VirtualCashLedger.Record(this, Currency, -amount, _virtualBalance, null, null, "VirtualCash",
+            "ArenaSettlement", reference);
         Changed = true;
     }
 
@@ -348,6 +358,8 @@ public sealed class CombatArena : SaveableItem, ICombatArena
         }
 
         _virtualBalance += amount;
+        VirtualCashLedger.Record(this, Currency, amount, _virtualBalance, null, null, "Cash", "ArenaCash",
+            reference);
         Changed = true;
     }
 
@@ -360,6 +372,8 @@ public sealed class CombatArena : SaveableItem, ICombatArena
         }
 
         _virtualBalance -= amount;
+        VirtualCashLedger.Record(this, Currency, -amount, _virtualBalance, null, null, "ArenaCash", "Cash",
+            reference);
         Changed = true;
     }
 

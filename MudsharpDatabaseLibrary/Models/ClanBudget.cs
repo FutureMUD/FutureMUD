@@ -12,7 +12,7 @@ public partial class ClanBudget
 	public long Id { get; set; }
 	public long ClanId { get; set; }
 	public long AppointmentId { get; set; }
-	public long BankAccountId { get; set; }
+	public long? BankAccountId { get; set; }
 	public long CurrencyId { get; set; }
 	public string Name { get; set; }
 	public decimal AmountPerPeriod { get; set; }

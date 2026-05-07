@@ -1,9 +1,13 @@
 ﻿using MudSharp.Character;
 using MudSharp.Construction;
+using MudSharp.Economy;
 using MudSharp.Economy.Currency;
+using MudSharp.Economy.Payment;
 using MudSharp.Effects.Concrete;
 using MudSharp.Framework;
 using MudSharp.FutureProg;
+using MudSharp.GameItems;
+using MudSharp.GameItems.Prototypes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -51,7 +55,9 @@ public partial class LegalAuthority
 	#3jailentry here|<room>#0 - sets the entry to the custodial jail
 	#3jail here|<room>#0 - toggles a location as a part of the custodial jail
 	#3court here|<room>#0 - sets the courtroom location for this authority
-	#3bankaccount <code>:<accn>#0 - sets the bank account for fines paid
+	#3bankaccount <code>:<accn>|none#0 - sets or clears the bank account for fines paid
+	#3revenue deposit|withdraw <amount>#0 - moves cash into or out of the authority revenue reserve
+	#3revenue ledger [count]#0 - reviews authority revenue ledger entries
 	#3autoconvict#0 - toggles automatic application of convictions
 	#3autoconvicttime <timespan>#0 - sets the delay before applying auto conviction
 	#3discord <channelid>|none#0 - sets or clears the discord announce channel
@@ -123,6 +129,9 @@ public partial class LegalAuthority
             case "bank":
             case "account":
                 return BuildingCommandBankAccount(actor, command);
+            case "revenue":
+            case "treasury":
+                return BuildingCommandRevenue(actor, command);
             case "autoconvict":
                 return BuildingCommandAutoConvict(actor, command);
             case "autoconvicttime":
@@ -263,8 +272,16 @@ public partial class LegalAuthority
         if (command.IsFinished)
         {
             actor.OutputHandler.Send(
-                $"You must specify a bank account in the form CODE:ACCN for fines to be paid into.");
+                $"You must specify a bank account in the form CODE:ACCN for fines to be paid into, or NONE.");
             return false;
+        }
+
+        if (command.SafeRemainingArgument.EqualToAny("none", "clear", "remove"))
+        {
+            BankAccount = null;
+            Changed = true;
+            actor.OutputHandler.Send("This legal authority no longer has a linked bank account. Fine and bail revenue will be held as virtual cash.");
+            return true;
         }
 
         (Economy.IBankAccount account, string error) = Economy.Banking.Bank.FindBankAccount(command.SafeRemainingArgument, null, actor);
@@ -278,6 +295,118 @@ public partial class LegalAuthority
         Changed = true;
         actor.OutputHandler.Send(
             $"This legal authority will now pay its fine revenue into the bank account {BankAccount.AccountReference.ColourValue()}.");
+        return true;
+    }
+
+    private bool BuildingCommandRevenue(ICharacter actor, StringStack command)
+    {
+        switch (command.PopForSwitch())
+        {
+            case "deposit":
+            case "add":
+                return BuildingCommandRevenueDeposit(actor, command);
+            case "withdraw":
+            case "remove":
+                return BuildingCommandRevenueWithdraw(actor, command);
+            case "ledger":
+            case "history":
+                return BuildingCommandRevenueLedger(actor, command);
+            default:
+                actor.OutputHandler.Send("Use DEPOSIT <amount>, WITHDRAW <amount>, or LEDGER [count].");
+                return false;
+        }
+    }
+
+    private bool BuildingCommandRevenueDeposit(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished || !Currency.TryGetBaseCurrency(command.SafeRemainingArgument, out var amount) ||
+            amount <= 0.0M)
+        {
+            actor.OutputHandler.Send($"How much {Currency.Name.ColourName()} do you want to deposit?");
+            return false;
+        }
+
+        var payment = new OtherCashPayment(Currency, actor);
+        var accessible = payment.AccessibleMoneyForPayment();
+        if (accessible < amount)
+        {
+            actor.OutputHandler.Send(
+                $"You only have {Currency.Describe(accessible, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()} available.");
+            return false;
+        }
+
+        payment.TakePayment(amount);
+        VirtualCashLedger.CreditBankOrVirtual(this, Currency, amount, actor, actor, "Cash",
+            $"Manual legal authority revenue deposit for {Name}", BankAccount, null);
+        actor.OutputHandler.Send(
+            $"You deposit {Currency.Describe(amount, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()} into revenue for {Name.ColourName()}.");
+        return true;
+    }
+
+    private bool BuildingCommandRevenueWithdraw(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished || !Currency.TryGetBaseCurrency(command.SafeRemainingArgument, out var amount) ||
+            amount <= 0.0M)
+        {
+            actor.OutputHandler.Send($"How much {Currency.Name.ColourName()} do you want to withdraw?");
+            return false;
+        }
+
+        if (!VirtualCashLedger.Debit(this, Currency, amount, actor, actor, "CashWithdrawal",
+                $"Manual legal authority revenue withdrawal for {Name}", BankAccount, null, out var error))
+        {
+            actor.OutputHandler.Send(error);
+            return false;
+        }
+
+        IGameItem cash = CurrencyGameItemComponentProto.CreateNewCurrencyPile(Currency,
+            Currency.FindCoinsForAmount(amount, out _));
+        if (actor.Body.CanGet(cash, 0))
+        {
+            actor.Body.Get(cash, silent: true);
+        }
+        else
+        {
+            cash.RoomLayer = actor.RoomLayer;
+            actor.Location.Insert(cash, true);
+            actor.OutputHandler.Send("You couldn't hold the money, so it is on the ground.");
+        }
+
+        actor.OutputHandler.Send(
+            $"You withdraw {Currency.Describe(amount, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()} from revenue for {Name.ColourName()}.");
+        return true;
+    }
+
+    private bool BuildingCommandRevenueLedger(ICharacter actor, StringStack command)
+    {
+        var count = 25;
+        if (!command.IsFinished && (!int.TryParse(command.SafeRemainingArgument, out count) || count <= 0))
+        {
+            actor.OutputHandler.Send("How many ledger entries do you want to review?");
+            return false;
+        }
+
+        var entries = VirtualCashLedger.LedgerEntries(this, count).ToList();
+        if (!entries.Any())
+        {
+            actor.OutputHandler.Send($"{Name.ColourName()} does not have any revenue ledger entries.");
+            return false;
+        }
+
+        actor.OutputHandler.Send(StringUtilities.GetTextTable(
+            entries.Select(x => new List<string>
+            {
+                x.RealDateTime.ToString("g", actor),
+                x.ActorName ?? string.Empty,
+                Currency.Describe(x.Amount, CurrencyDescriptionPatternType.ShortDecimal),
+                Currency.Describe(x.BalanceAfter, CurrencyDescriptionPatternType.ShortDecimal),
+                $"{x.SourceKind}->{x.DestinationKind}",
+                x.Reason
+            }),
+            new List<string> { "When", "Actor", "Amount", "Balance", "Route", "Reason" },
+            actor.LineFormatLength,
+            colour: Telnet.Green,
+            unicodeTable: actor.Account.UseUnicode));
         return true;
     }
 
@@ -1408,6 +1537,7 @@ public partial class LegalAuthority
         sb.AppendLine(
             $"Bail Calculation Prog: {BailCalculationProg?.MXPClickableFunctionName() ?? "None".Colour(Telnet.Red)}");
         sb.AppendLine($"Bank Account: {BankAccount?.AccountReference.ColourValue() ?? "None".Colour(Telnet.Red)}");
+        sb.AppendLine($"Virtual Cash: {Currency.Describe(CashBalance, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
         sb.AppendLine(
             $"Discord Channel: {DiscordChannelId?.ToString("N", actor).ColourValue() ?? "None".ColourError()}");
         sb.AppendLine();

@@ -247,6 +247,8 @@ namespace MudSharp.Database
         public virtual DbSet<ExternalClanControl> ExternalClanControls { get; set; }
         public virtual DbSet<ExternalClanControlsAppointment> ExternalClanControlsAppointments { get; set; }
         public virtual DbSet<FinancialPeriod> FinancialPeriods { get; set; }
+        public virtual DbSet<VirtualCashBalance> VirtualCashBalances { get; set; }
+        public virtual DbSet<VirtualCashLedgerEntry> VirtualCashLedgerEntries { get; set; }
         public virtual DbSet<ForagableProfile> ForagableProfiles { get; set; }
         public virtual DbSet<ForagableProfilesForagables> ForagableProfilesForagables { get; set; }
         public virtual DbSet<ForagableProfilesHourlyYieldGains> ForagableProfilesHourlyYieldGains { get; set; }

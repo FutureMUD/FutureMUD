@@ -967,10 +967,14 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
             switch (asset.Asset)
             {
                 case IBankAccount account when account.CurrentBalance > 0.0M:
-                    EconomicZone.TotalRevenueHeld += account.CurrentBalance;
-                    account.WithdrawFromTransaction(account.CurrentBalance, $"Estate finalisation for {Character.Id}");
+                    var value = account.CurrentBalance;
+                    EconomicZone.TotalRevenueHeld += value;
+                    VirtualCashLedger.Credit(EconomicZone, EconomicZone.Currency, value, null, this, "EstateFinalisation",
+                        $"Estate finalisation for {Character.Id}",
+                        EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime, account);
+                    account.WithdrawFromTransaction(value, $"Estate finalisation for {Character.Id}");
                     asset.IsLiquidated = true;
-                    asset.LiquidatedValue = account.CurrentBalance;
+                    asset.LiquidatedValue = value;
                     break;
             }
         }
@@ -1023,5 +1027,7 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
         }
 
         EconomicZone.TotalRevenueHeld += amount;
+        VirtualCashLedger.Credit(EconomicZone, EconomicZone.Currency, amount, null, this, "EstateResidual",
+            reference, EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime, this);
     }
 }

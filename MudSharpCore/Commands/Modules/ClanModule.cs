@@ -163,7 +163,9 @@ The following clan sub-commands are used to interact with clans:
 	#3clan payinterval <clan> ""<every x days|weeks|months|years>"" [<date time>]#0 - sets the pay interval and the reference date time
 	#3clan view <clan>#0 - views information about a clan
 	#3clan members <clan>#0 - views the member list for a clan
-	#3clan treasury <clan>#0 - sets your current location as a treasury cell for a clan (ADMIN ONLY)
+	#3clan treasury <clan> [toggle]#0 - sets your current location as a treasury cell for a clan (ADMIN ONLY)
+	#3clan treasury <clan> balance|ledger [count]#0 - reviews the clan's virtual treasury
+	#3clan treasury <clan> deposit|withdraw <amount>#0 - moves cash into or out of the clan's virtual treasury
 	#3clan admin <clan>#0 - sets your current location as an admin cell for a clan (ADMIN ONLY)
 	#3clan vassal appoint <who> <clan> <position> [<liege clan>]#0 - appoints a person to a clan appointment in a vassal clan
 	#3clan vassal dismiss <who> <clan> <position> [<liege clan>]#0 - dismisses a person from a clan appointment in a vassal clan
@@ -219,7 +221,7 @@ All of the following commands must happen with an edited clan selected:
 	#3clan set template#0 - toggles this clan being a template clan (admin only)
 	#3clan set notable#0 - toggles this clan appearing in WHO (admin only)
 	#3clan set notablemembers#0 - toggles the famous members of this clan appearing in NOTABLES (admin only)
-	#3clan set bankaccount <account>#0 - sets a bank account for this clan
+	#3clan set bankaccount <account>|none#0 - sets or clears a bank account for this clan
 	#3clan set calendar <which>#0 - changes the calendar that the clan uses";
 
     [PlayerCommand("Clan", "clan")]
@@ -937,12 +939,8 @@ All of the following commands must happen with an edited clan selected:
 
         foreach (IPropertyOwner owner in property.PropertyOwners)
         {
-            if (owner.RevenueAccount != null)
-            {
-                owner.RevenueAccount.DepositFromTransaction(depositAmount * owner.ShareOfOwnership,
-                    $"Lease of {property.Name}");
-                owner.RevenueAccount.Bank.CurrencyReserves[ez.Currency] += depositAmount * owner.ShareOfOwnership;
-            }
+            owner.CreditRevenue(ez.Currency, depositAmount * owner.ShareOfOwnership, actor, property,
+                $"Lease of {property.Name}", ez.FinancialPeriodReferenceCalendar.CurrentDateTime);
         }
 
         property.Lease = property.LeaseOrder.CreateLease(clan, duration);
@@ -1074,12 +1072,8 @@ All of the following commands must happen with an edited clan selected:
 
         foreach (IPropertyOwner owner in property.PropertyOwners)
         {
-            if (owner.RevenueAccount != null)
-            {
-                owner.RevenueAccount.DepositFromTransaction(amount * owner.ShareOfOwnership,
-                    $"Sale of {property.Name}");
-                owner.RevenueAccount.Bank.CurrencyReserves[ez.Currency] += amount * owner.ShareOfOwnership;
-            }
+            owner.CreditRevenue(ez.Currency, amount * owner.ShareOfOwnership, actor, property,
+                $"Sale of {property.Name}", ez.FinancialPeriodReferenceCalendar.CurrentDateTime);
         }
 
         property.SellProperty(clan);
@@ -2016,25 +2010,24 @@ Your next payday is {3}.
                 decimal amount = coins.Sum(x => x.Value.Sum(y => y.Value * y.Key.Value));
                 if (amount < pay.Value)
                 {
-                    // Bank accounts
-                    if (membership.Clan.ClanBankAccount is not null &&
-                        membership.Clan.ClanBankAccount.Currency == pay.Key &&
-                        membership.Clan.ClanBankAccount.CurrentBalance >= pay.Value - amount)
-                    {
-                        ICurrencyPile newPile = CurrencyGameItemComponentProto
-                                      .CreateNewCurrencyPile(pay.Key,
-                                          pay.Key.FindCoinsForAmount(pay.Value - amount, out _))
-                                      .GetItemType<ICurrencyPile>();
-                        coins.Add(newPile, newPile.Coins.ToDictionary(x => x.Item1, x => x.Item2));
-                        membership.Clan.ClanBankAccount.WithdrawFromTransaction(pay.Value - amount, "Payroll float");
-                    }
-                    else
+                    var floatAmount = pay.Value - amount;
+                    var bankAccount = membership.Clan.ClanBankAccount?.Currency == pay.Key
+                        ? membership.Clan.ClanBankAccount
+                        : null;
+                    if (!VirtualCashLedger.Debit(membership.Clan, pay.Key, floatAmount, actor, membership.Clan,
+                            "PayrollCash", "Payroll float", bankAccount, null, out var error))
                     {
                         actor.Send(
-                            "{0} does not have enough money to pay what they owe you in the {1} currency at the moment.",
-                            membership.Clan.FullName.Colour(Telnet.Green), pay.Key.Name.Colour(Telnet.Green));
+                            "{0} does not have enough money to pay what they owe you in the {1} currency at the moment. {2}",
+                            membership.Clan.FullName.Colour(Telnet.Green), pay.Key.Name.Colour(Telnet.Green), error);
                         continue;
                     }
+
+                    ICurrencyPile newPile = CurrencyGameItemComponentProto
+                                  .CreateNewCurrencyPile(pay.Key,
+                                      pay.Key.FindCoinsForAmount(floatAmount, out _))
+                                  .GetItemType<ICurrencyPile>();
+                    coins.Add(newPile, newPile.Coins.ToDictionary(x => x.Item1, x => x.Item2));
                 }
 
                 paymentMade = true;
@@ -4627,6 +4620,14 @@ return 0",
         {
             actor.OutputHandler.Send(
                 $"You are not authorised to manage bank accounts for the {clan.FullName.ColourName()} clan.");
+            return;
+        }
+
+        if (command.SafeRemainingArgument.EqualToAny("none", "clear", "remove"))
+        {
+            clan.ClanBankAccount = null;
+            actor.OutputHandler.Send(
+                $"The {clan.FullName.ColourName()} clan no longer has a default bank account and will use treasury cash where possible.");
             return;
         }
 
@@ -7338,7 +7339,7 @@ return 0",
     {
         if (command.IsFinished)
         {
-            actor.OutputHandler.Send("For which clan do you want to toggle a treasury cell?");
+            actor.OutputHandler.Send("Which clan's treasury do you want to manage?");
             return;
         }
 
@@ -7347,6 +7348,37 @@ return 0",
         {
             actor.OutputHandler.Send("There is no such clan.");
             return;
+        }
+
+        if (!command.IsFinished)
+        {
+            switch (command.PopForSwitch())
+            {
+                case "balance":
+                case "show":
+                case "view":
+                    ClanTreasuryBalance(actor, clan);
+                    return;
+                case "deposit":
+                case "add":
+                    ClanTreasuryDeposit(actor, clan, command);
+                    return;
+                case "withdraw":
+                case "remove":
+                    ClanTreasuryWithdraw(actor, clan, command);
+                    return;
+                case "ledger":
+                case "history":
+                    ClanTreasuryLedger(actor, clan, command);
+                    return;
+                case "toggle":
+                case "cell":
+                    break;
+                default:
+                    actor.OutputHandler.Send(
+                        "Use BALANCE, DEPOSIT <amount>, WITHDRAW <amount>, LEDGER [count], or TOGGLE.");
+                    return;
+            }
         }
 
         if (clan.TreasuryCells.Contains(actor.Location))
@@ -7361,6 +7393,186 @@ return 0",
         clan.AddTreasuryCell(actor.Location);
         clan.Changed = true;
         actor.Send($"Your current location is now a treasury cell for the {clan.FullName.Colour(Telnet.Green)} clan.");
+    }
+
+    private static bool CanViewClanTreasury(ICharacter actor, IClan clan)
+    {
+        return actor.IsAdministrator() ||
+               actor.ClanMemberships.FirstOrDefault(x => x.Clan == clan)?.NetPrivileges
+                    .HasFlag(ClanPrivilegeType.CanViewTreasury) == true;
+    }
+
+    private static bool CanManageClanTreasury(ICharacter actor, IClan clan)
+    {
+        return actor.IsAdministrator() ||
+               actor.ClanMemberships.FirstOrDefault(x => x.Clan == clan)?.NetPrivileges
+                    .HasFlag(ClanPrivilegeType.CanManageBankAccounts) == true;
+    }
+
+    private static void ClanTreasuryBalance(ICharacter actor, IClan clan)
+    {
+        if (!CanViewClanTreasury(actor, clan))
+        {
+            actor.OutputHandler.Send($"You are not authorised to view the treasury for {clan.FullName.ColourName()}.");
+            return;
+        }
+
+        var currencies = actor.Gameworld.Currencies
+                              .Select(x => (Currency: x, Balance: VirtualCashLedger.Balance(clan, x)))
+                              .Where(x => x.Balance != 0.0M)
+                              .ToList();
+        if (!currencies.Any() && actor.Currency is not null)
+        {
+            currencies.Add((actor.Currency, 0.0M));
+        }
+
+        if (!currencies.Any())
+        {
+            actor.OutputHandler.Send($"{clan.FullName.ColourName()} has no virtual treasury balances.");
+            return;
+        }
+
+        actor.OutputHandler.Send(StringUtilities.GetTextTable(
+            currencies.OrderBy(x => x.Currency.Name).Select(x => new List<string>
+            {
+                x.Currency.Name.TitleCase(),
+                x.Currency.Describe(x.Balance, CurrencyDescriptionPatternType.ShortDecimal),
+                x.Currency.Describe(VirtualCashLedger.AvailableFunds(clan, x.Currency,
+                    clan.ClanBankAccount?.Currency == x.Currency ? clan.ClanBankAccount : null),
+                    CurrencyDescriptionPatternType.ShortDecimal)
+            }),
+            new List<string> { "Currency", "Virtual Cash", "Available" },
+            actor.LineFormatLength,
+            colour: Telnet.Green,
+            unicodeTable: actor.Account.UseUnicode));
+    }
+
+    private static void ClanTreasuryDeposit(ICharacter actor, IClan clan, StringStack command)
+    {
+        if (!CanManageClanTreasury(actor, clan))
+        {
+            actor.OutputHandler.Send($"You are not authorised to manage the treasury for {clan.FullName.ColourName()}.");
+            return;
+        }
+
+        if (actor.Currency is null)
+        {
+            actor.OutputHandler.Send("You must set an active currency first.");
+            return;
+        }
+
+        if (command.IsFinished ||
+            !actor.Currency.TryGetBaseCurrency(command.SafeRemainingArgument, out var amount) ||
+            amount <= 0.0M)
+        {
+            actor.OutputHandler.Send($"How much {actor.Currency.Name.ColourName()} do you want to deposit?");
+            return;
+        }
+
+        var payment = new OtherCashPayment(actor.Currency, actor);
+        var accessible = payment.AccessibleMoneyForPayment();
+        if (accessible < amount)
+        {
+            actor.OutputHandler.Send(
+                $"You only have {actor.Currency.Describe(accessible, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()} available.");
+            return;
+        }
+
+        payment.TakePayment(amount);
+        VirtualCashLedger.Credit(clan, actor.Currency, amount, actor, actor, "Cash",
+            $"Clan treasury cash deposit for {clan.FullName}");
+        actor.OutputHandler.Send(
+            $"You deposit {actor.Currency.Describe(amount, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()} into the virtual treasury for {clan.FullName.ColourName()}.");
+    }
+
+    private static void ClanTreasuryWithdraw(ICharacter actor, IClan clan, StringStack command)
+    {
+        if (!CanManageClanTreasury(actor, clan))
+        {
+            actor.OutputHandler.Send($"You are not authorised to manage the treasury for {clan.FullName.ColourName()}.");
+            return;
+        }
+
+        if (actor.Currency is null)
+        {
+            actor.OutputHandler.Send("You must set an active currency first.");
+            return;
+        }
+
+        if (command.IsFinished ||
+            !actor.Currency.TryGetBaseCurrency(command.SafeRemainingArgument, out var amount) ||
+            amount <= 0.0M)
+        {
+            actor.OutputHandler.Send($"How much {actor.Currency.Name.ColourName()} do you want to withdraw?");
+            return;
+        }
+
+        if (!VirtualCashLedger.Debit(clan, actor.Currency, amount, actor, actor, "CashWithdrawal",
+                $"Clan treasury cash withdrawal for {clan.FullName}",
+                clan.ClanBankAccount?.Currency == actor.Currency ? clan.ClanBankAccount : null,
+                null, out var error))
+        {
+            actor.OutputHandler.Send(error);
+            return;
+        }
+
+        IGameItem cash = CurrencyGameItemComponentProto.CreateNewCurrencyPile(actor.Currency,
+            actor.Currency.FindCoinsForAmount(amount, out _));
+        if (actor.Body.CanGet(cash, 0))
+        {
+            actor.Body.Get(cash, silent: true);
+        }
+        else
+        {
+            cash.RoomLayer = actor.RoomLayer;
+            actor.Location.Insert(cash, true);
+            actor.OutputHandler.Send("You couldn't hold the money, so it is on the ground.");
+        }
+
+        actor.OutputHandler.Send(
+            $"You withdraw {actor.Currency.Describe(amount, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()} from the virtual treasury for {clan.FullName.ColourName()}.");
+    }
+
+    private static void ClanTreasuryLedger(ICharacter actor, IClan clan, StringStack command)
+    {
+        if (!CanViewClanTreasury(actor, clan))
+        {
+            actor.OutputHandler.Send($"You are not authorised to view the treasury for {clan.FullName.ColourName()}.");
+            return;
+        }
+
+        var count = 25;
+        if (!command.IsFinished && (!int.TryParse(command.SafeRemainingArgument, out count) || count <= 0))
+        {
+            actor.OutputHandler.Send("How many ledger entries do you want to review?");
+            return;
+        }
+
+        var entries = VirtualCashLedger.LedgerEntries(clan, count).ToList();
+        if (!entries.Any())
+        {
+            actor.OutputHandler.Send($"{clan.FullName.ColourName()} does not have any virtual treasury ledger entries.");
+            return;
+        }
+
+        actor.OutputHandler.Send(StringUtilities.GetTextTable(
+            entries.Select(x =>
+            {
+                var currency = actor.Gameworld.Currencies.Get(x.CurrencyId) ?? actor.Currency;
+                return new List<string>
+                {
+                    x.RealDateTime.ToString("g", actor),
+                    x.ActorName ?? string.Empty,
+                    currency?.Describe(x.Amount, CurrencyDescriptionPatternType.ShortDecimal) ?? x.Amount.ToString("N2", actor),
+                    currency?.Describe(x.BalanceAfter, CurrencyDescriptionPatternType.ShortDecimal) ?? x.BalanceAfter.ToString("N2", actor),
+                    $"{x.SourceKind}->{x.DestinationKind}",
+                    x.Reason
+                };
+            }),
+            new List<string> { "When", "Actor", "Amount", "Balance", "Route", "Reason" },
+            actor.LineFormatLength,
+            colour: Telnet.Green,
+            unicodeTable: actor.Account.UseUnicode));
     }
 
     private static void ClanAdministration(ICharacter actor, StringStack command)

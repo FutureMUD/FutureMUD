@@ -67,10 +67,11 @@ The options you can use with this command are as follows:
 	#3property claimkeys <name>#0 - claims all returned keys associated with the specified property
 	#3property returnbond <name>#0 - returns any unclaimed bond on an expired lease
 	#3property claimshops <name>#0 - claims all shops and stables associated with the specified property
+	#3property revenue <name> [ledger|withdraw <amount>]#0 - reviews or withdraws your virtual property revenue
 
 The following commands are specific to those who own a property (or who are managing a clan-owned property):
 
-	#3property setbank <name> <bankcode>:<account number>#0 - sets the bank account associated with any revenues you make on a property
+	#3property setbank <name> <bankcode>:<account number>|none#0 - sets the bank account associated with any revenues you make on a property
 	#3property sell <name> <price>#0 - lists a property that you own for sale
 	#3property delaysale <name> <timespan>#0 - delays the sale of a property for the specific amount of time from now
 	#3property delaysale <name> until <date>#0 - delays the sale of a property until a specific date
@@ -129,10 +130,11 @@ The options you can use with this command are as follows:
 	#3property claimkeys <name>#0 - claims all returned keys associated with the specified property
 	#3property returnbond <name>#0 - returns any unclaimed bond on an expired lease
 	#3property claimshops <name>#0 - claims all shops and stables associated with the specified property
+	#3property revenue <name> [ledger|withdraw <amount>]#0 - reviews or withdraws your virtual property revenue
 
 The following commands are specific to those who own a property (or who are managing a clan-owned property):
 
-	#3property setbank <name> <bankcode>:<account number>#0 - sets the bank account associated with any revenues you make on a property
+	#3property setbank <name> <bankcode>:<account number>|none#0 - sets the bank account associated with any revenues you make on a property
 	#3property sell <name> <price>#0 - lists a property that you own for sale
 	#3property delaysale <name> <timespan>#0 - delays the sale of a property for the specific amount of time from now
 	#3property delaysale <name> until <date>#0 - delays the sale of a property until a specific date
@@ -278,11 +280,122 @@ The following commands are specific to those who own a property (or who are mana
             case "claimshops":
                 PropertyClaimShops(actor, ss);
                 return;
+            case "revenue":
+                PropertyRevenue(actor, ss);
+                return;
             default:
                 actor.OutputHandler.Send((actor.IsAdministrator() ? PropertyHelpAdmins : PropertyHelpPlayers)
                     .SubstituteANSIColour());
                 return;
         }
+    }
+
+    private static IPropertyOwner ControlledPropertyOwner(ICharacter actor, IProperty property)
+    {
+        return property.PropertyOwners.FirstOrDefault(owner =>
+            owner.Owner == actor ||
+            (owner.Owner is IClan clan && actor.ClanMemberships.Any(x =>
+                x.Clan == clan && x.NetPrivileges.HasFlag(ClanPrivilegeType.CanManageClanProperty))));
+    }
+
+    private static void PropertyRevenue(ICharacter actor, StringStack ss)
+    {
+        IEconomicZone ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingCells.Contains(actor.Location));
+        if (ez == null)
+        {
+            actor.OutputHandler.Send("Your current location is not a conveyancing location for any economic zones.");
+            return;
+        }
+
+        if (ss.IsFinished)
+        {
+            actor.OutputHandler.Send("Which property revenue account do you want to review?");
+            return;
+        }
+
+        var property = actor.Gameworld.Properties
+                            .Where(x => x.EconomicZone == ez && x.IsAuthorisedOwner(actor))
+                            .ToList()
+                            .GetFromItemListByKeywordIncludingNames(ss.PopSpeech(), actor);
+        if (property is null)
+        {
+            actor.OutputHandler.Send("You do not own such a property.");
+            return;
+        }
+
+        var owner = ControlledPropertyOwner(actor, property);
+        if (owner is not IFrameworkItem ownerItem)
+        {
+            actor.OutputHandler.Send("You do not control a revenue record for that property.");
+            return;
+        }
+
+        if (ss.IsFinished)
+        {
+            actor.OutputHandler.Send(
+                $"Your virtual revenue balance for {property.Name.ColourName()} is {ez.Currency.Describe(owner.RevenueCashBalance(ez.Currency), CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}.");
+            return;
+        }
+
+        switch (ss.PopForSwitch())
+        {
+            case "withdraw":
+                if (ss.IsFinished || !ez.Currency.TryGetBaseCurrency(ss.SafeRemainingArgument, out var amount) || amount <= 0.0M)
+                {
+                    actor.OutputHandler.Send($"How much {ez.Currency.Name.ColourName()} do you want to withdraw?");
+                    return;
+                }
+
+                if (!VirtualCashLedger.Debit(ownerItem, ez.Currency, amount, actor, actor, "CashWithdrawal",
+                        $"Property revenue withdrawal from {property.Name}", owner.RevenueAccount,
+                        ez.FinancialPeriodReferenceCalendar.CurrentDateTime, out var error, property))
+                {
+                    actor.OutputHandler.Send(error);
+                    return;
+                }
+
+                var cash = CurrencyGameItemComponentProto.CreateNewCurrencyPile(ez.Currency,
+                    ez.Currency.FindCoinsForAmount(amount, out _));
+                if (actor.Body.CanGet(cash, 0))
+                {
+                    actor.Body.Get(cash, silent: true);
+                }
+                else
+                {
+                    cash.RoomLayer = actor.RoomLayer;
+                    actor.Location.Insert(cash, true);
+                    actor.OutputHandler.Send("You couldn't hold the money, so it is on the ground.");
+                }
+
+                actor.OutputHandler.Send(
+                    $"You withdraw {ez.Currency.Describe(amount, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()} from your virtual revenue for {property.Name.ColourName()}.");
+                return;
+            case "ledger":
+                var entries = VirtualCashLedger.LedgerEntries(ownerItem, 25).ToList();
+                if (!entries.Any())
+                {
+                    actor.OutputHandler.Send("There are no property revenue ledger entries.");
+                    return;
+                }
+
+                actor.OutputHandler.Send(StringUtilities.GetTextTable(
+                    entries.Select(x => new List<string>
+                    {
+                        x.RealDateTime.ToString("g", actor),
+                        x.ActorName ?? string.Empty,
+                        ez.Currency.Describe(x.Amount, CurrencyDescriptionPatternType.ShortDecimal),
+                        ez.Currency.Describe(x.BalanceAfter, CurrencyDescriptionPatternType.ShortDecimal),
+                        $"{x.SourceKind}->{x.DestinationKind}",
+                        x.Reason
+                    }),
+                    new List<string> { "When", "Actor", "Amount", "Balance", "Route", "Reason" },
+                    actor.LineFormatLength,
+                    colour: Telnet.Green,
+                    unicodeTable: actor.Account.UseUnicode));
+                return;
+        }
+
+        actor.OutputHandler.Send("Use REVENUE <property>, REVENUE <property> LEDGER, or REVENUE <property> WITHDRAW <amount>.");
     }
 
     private static void PropertyClaimShops(ICharacter actor, StringStack ss)
@@ -792,13 +905,9 @@ The following commands are specific to those who own a property (or who are mana
 
         foreach (IPropertyOwner owner in property.PropertyOwners)
         {
-            if (owner.RevenueAccount != null)
-            {
-                owner.RevenueAccount.DepositFromTransaction(amount * owner.ShareOfOwnership,
-                    $"Rent payment from {property.Name}");
-                owner.RevenueAccount.Bank.CurrencyReserves[property.EconomicZone.Currency] +=
-                    amount * owner.ShareOfOwnership;
-            }
+            owner.CreditRevenue(property.EconomicZone.Currency, amount * owner.ShareOfOwnership, actor, property,
+                $"Rent payment from {property.Name}",
+                property.EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime);
         }
 
         property.Lease!.PaymentBalance += amount;
@@ -1620,7 +1729,23 @@ The following commands are specific to those who own a property (or who are mana
         if (ss.IsFinished)
         {
             actor.OutputHandler.Send(
-                $"Which bank account do you want to set for your revenues with the {property.Name.ColourName()} property?");
+                $"Which bank account do you want to set for your revenues with the {property.Name.ColourName()} property, or NONE?");
+            return;
+        }
+
+        if (ss.SafeRemainingArgument.EqualToAny("none", "clear", "remove"))
+        {
+            foreach (IPropertyOwner owner in property.PropertyOwners)
+            {
+                if (owner.Owner == actor || (owner.Owner is IClan clan && actor.ClanMemberships.Any(x =>
+                        x.Clan == clan && x.NetPrivileges.HasFlag(ClanPrivilegeType.CanManageClanProperty))))
+                {
+                    owner.RevenueAccount = null;
+                }
+            }
+
+            actor.OutputHandler.Send(
+                $"You clear your revenue bank account for {property.Name.ColourName()}. Future proceeds will use your virtual property revenue balance.");
             return;
         }
 
@@ -1748,12 +1873,8 @@ The following commands are specific to those who own a property (or who are mana
 
         foreach (IPropertyOwner owner in property.PropertyOwners)
         {
-            if (owner.RevenueAccount != null)
-            {
-                owner.RevenueAccount.DepositFromTransaction(depositAmount * owner.ShareOfOwnership,
-                    $"Lease of {property.Name}");
-                owner.RevenueAccount.Bank.CurrencyReserves[ez.Currency] += depositAmount * owner.ShareOfOwnership;
-            }
+            owner.CreditRevenue(ez.Currency, depositAmount * owner.ShareOfOwnership, actor, property,
+                $"Lease of {property.Name}", ez.FinancialPeriodReferenceCalendar.CurrentDateTime);
         }
 
         property.Lease = property.LeaseOrder.CreateLease(actor, duration);
@@ -1955,12 +2076,8 @@ The following commands are specific to those who own a property (or who are mana
 
         foreach (IPropertyOwner owner in property.PropertyOwners)
         {
-            if (owner.RevenueAccount != null)
-            {
-                owner.RevenueAccount.DepositFromTransaction(amount * owner.ShareOfOwnership,
-                    $"Sale of {property.Name}");
-                owner.RevenueAccount.Bank.CurrencyReserves[ez.Currency] += amount * owner.ShareOfOwnership;
-            }
+            owner.CreditRevenue(ez.Currency, amount * owner.ShareOfOwnership, actor, property,
+                $"Sale of {property.Name}", ez.FinancialPeriodReferenceCalendar.CurrentDateTime);
         }
 
         property.SellProperty(actor);

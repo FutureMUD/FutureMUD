@@ -51,6 +51,8 @@ namespace MudSharp.RPG.Law
         IEnumerable<ICrime> ResolvedCrimesForIndividual(ICharacter individual);
 
         IEnumerable<ICrime> CheckPossibleCrime(ICharacter criminal, CrimeTypes crime, ICharacter victim, IGameItem item, string additionalInformation);
+        IEnumerable<ICrime> CheckPossibleCrime(ICharacter criminal, CrimeTypes crime, ICharacter victim, IGameItem item,
+            string additionalInformation, IEnumerable<ICharacter> witnesses, bool notifyVictim);
         bool WouldBeACrime(ICharacter criminal, CrimeTypes crime, ICharacter victim, IGameItem item,
             string additionalInformation);
         ILegalClass GetLegalClass(ICharacter character);

@@ -705,6 +705,12 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
     public IEnumerable<ICrime> CheckPossibleCrime(ICharacter criminal, CrimeTypes crime, ICharacter victim,
         IGameItem item, string additionalInformation)
     {
+        return CheckPossibleCrime(criminal, crime, victim, item, additionalInformation, null, true);
+    }
+
+    public IEnumerable<ICrime> CheckPossibleCrime(ICharacter criminal, CrimeTypes crime, ICharacter victim,
+        IGameItem item, string additionalInformation, IEnumerable<ICharacter> explicitWitnesses, bool notifyVictim)
+    {
         if (criminal.IsAdministrator())
         {
             return Enumerable.Empty<ICrime>();
@@ -740,8 +746,10 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
                 continue;
             }
 
-            List<ICharacter> witnesses = criminal.Location.LayerCharacters(criminal.RoomLayer).Except(criminal)
-                                    .Where(x => x.CanSee(criminal)).ToList();
+            List<ICharacter> witnesses = explicitWitnesses is null
+                ? criminal.Location.LayerCharacters(criminal.RoomLayer).Except(criminal)
+                          .Where(x => x.CanSee(criminal)).ToList()
+                : explicitWitnesses.Except(criminal).Distinct().ToList();
             Crime newCrime = new(criminal, victim, witnesses, law, item);
             _unknownCrimes.Add(newCrime);
             _unknownCrimesLookup.Add(criminal.Id, newCrime);
@@ -752,7 +760,10 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
                 witness.HandleEvent(Events.EventType.WitnessedCrime, criminal, victim, witness, newCrime);
             }
 
-            victim?.HandleEvent(Events.EventType.VictimOfCrime, criminal, victim, newCrime);
+            if (notifyVictim)
+            {
+                victim?.HandleEvent(Events.EventType.VictimOfCrime, criminal, victim, newCrime);
+            }
             Changed = true;
             crimes.Add(newCrime);
         }

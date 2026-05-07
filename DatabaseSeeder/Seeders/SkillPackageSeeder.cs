@@ -558,6 +558,7 @@ Please choose either #6simple#0 or #6complex#0: ", (context, answers) => true,
         TraitDefinition hideTrait = GetSkill("Hide", "Stealth");
         TraitDefinition sneakTrait = GetSkill("Sneak", "Stealth");
         TraitDefinition palmTrait = GetSkill("Palm", "Stealth");
+        TraitDefinition stealTrait = GetSkill("Steal", "Stealing", "Stealth");
         TraitDefinition lockpickTrait = GetSkill("Pick Locks", "Picklock", "Security");
         TraitDefinition swimTrait = GetSkill("Swim", "Swimming", "Athletics");
         TraitDefinition runTrait = GetSkill("Run", "Running", "Athletics");
@@ -739,6 +740,10 @@ Please choose either #6simple#0 or #6complex#0: ", (context, answers) => true,
                     continue;
                 case CheckType.PalmCheck:
                     AddCheck(check, new TraitExpression { Expression = $"palm:{palmTrait.Id}" },
+                        templates["Skill Check"].Id, Difficulty.Impossible);
+                    continue;
+                case CheckType.StealCheck:
+                    AddCheck(check, new TraitExpression { Expression = $"steal:{stealTrait.Id}" },
                         templates["Skill Check"].Id, Difficulty.Impossible);
                     continue;
                 case CheckType.HideItemCheck:

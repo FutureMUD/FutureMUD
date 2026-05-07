@@ -277,6 +277,7 @@ Again, the choices you make here can be fixed later so don't stress it too great
                 case CheckType.HideCheck:
                 case CheckType.SneakCheck:
                 case CheckType.PalmCheck:
+                case CheckType.StealCheck:
                 case CheckType.HideItemCheck:
                 case CheckType.UninstallDoorCheck:
                 case CheckType.SkillTeachCheck:

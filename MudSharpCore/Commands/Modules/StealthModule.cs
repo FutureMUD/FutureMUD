@@ -1,6 +1,7 @@
 ﻿using MoreLinq.Extensions;
 using MudSharp.Accounts;
 using MudSharp.Character;
+using MudSharp.Economy.Currency;
 using MudSharp.Effects.Concrete;
 using MudSharp.Effects.Interfaces;
 using MudSharp.Events;
@@ -12,8 +13,10 @@ using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.RPG.Checks;
+using MudSharp.RPG.Law;
 using Org.BouncyCastle.Asn1.X509;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace MudSharp.Commands.Modules;
@@ -304,6 +307,20 @@ The syntax is as follows:
     [DelayBlock("general", "You must first stop {0} before you can palm anything.")]
     [CommandPermission(PermissionLevel.NPC)]
     [RequiredCharacterState(CharacterState.Able)]
+    [HelpInfo("palm", @"The #3palm#0 command is used to secretly move items or money without a public echo unless someone notices what you are doing.
+
+The syntax is as follows:
+
+	#3palm [<quantity>] <item>#0 - secretly get an item from the room
+	#3palm [exactly] <currency>#0 - secretly get money from the room
+	#3palm [<quantity>] <item> from <container>#0 - secretly get an item from a container
+	#3palm [exactly] <currency> from <container>#0 - secretly get money from a container
+	#3palm [<quantity>] <item> from <person> <container>#0 - secretly get an item from someone's container
+	#3palm [exactly] <currency> from <person> <container>#0 - secretly get money from someone's container
+	#3palm [<quantity>] <item> into <container>#0 - secretly put an item into a container
+	#3palm [exactly] <currency> into <container>#0 - secretly put money into a container
+	#3palm [<quantity>] <item> into <person> <container>#0 - secretly put an item into someone's container
+	#3palm [exactly] <currency> into <person> <container>#0 - secretly put money into someone's container", AutoHelp.HelpArg)]
     protected static void Palm(ICharacter actor, string command)
     {
         if (actor.Combat != null)
@@ -312,7 +329,1063 @@ The syntax is as follows:
             return;
         }
 
-        actor.Send("Coming soon.");
+        var ss = new StringStack(command.RemoveFirstWord());
+        if (ss.IsFinished)
+        {
+            actor.OutputHandler.Send(
+                $"What do you want to palm?\nThe syntax is {"palm [<quantity>] <item>".ColourCommand()}, {"palm [<quantity>] <item> from <container>".ColourCommand()} or {"palm [<quantity>] <item> into [<person>] <container>".ColourCommand()}.");
+            return;
+        }
+
+        var text = ss.SafeRemainingArgument;
+        if (TrySplitOnKeyword(text, "into", out var targetText, out var destinationText))
+        {
+            PalmInto(actor, targetText, destinationText);
+            return;
+        }
+
+        if (TrySplitOnKeyword(text, "from", out targetText, out var sourceText))
+        {
+            PalmFrom(actor, targetText, sourceText);
+            return;
+        }
+
+        PalmFromRoom(actor, text);
+    }
+
+    [PlayerCommand("Steal", "steal")]
+    [DelayBlock("general", "You must first stop {0} before you can steal anything.")]
+    [CommandPermission(PermissionLevel.NPC)]
+    [RequiredCharacterState(CharacterState.Able)]
+    [HelpInfo("steal", @"The #3steal#0 command is used to secretly steal from another character's open worn or held containers, or cut a belted item free from one of their belts. Belt-cutting requires a held or wielded item tagged by the #6CutPurseToolTagName#0 static configuration.
+
+The syntax is as follows:
+
+	#3steal <person>#0 - steal a random item from an open container or belt
+	#3steal <person> <container|belt>#0 - steal a random item from a specific open container or belt
+	#3steal <person> from <container|belt>#0 - steal a random item from a specific open container or belt
+	#3steal <person> [<quantity>] <item>#0 - steal an item from any open container
+	#3steal <person> [<quantity>] <item> from <container>#0 - steal an item from a specific open container
+	#3steal <person> [exactly] <currency>#0 - steal money from any open container
+	#3steal <person> [exactly] <currency> from <container>#0 - steal money from a specific open container
+	#3steal <person> <belted item> from <belt>#0 - cut a belted item free", AutoHelp.HelpArg)]
+    protected static void Steal(ICharacter actor, string command)
+    {
+        if (actor.Combat != null)
+        {
+            actor.Send("You are too busy fighting to worry about that!");
+            return;
+        }
+
+        var ss = new StringStack(command.RemoveFirstWord());
+        if (ss.IsFinished)
+        {
+            actor.OutputHandler.Send(
+                $"Who do you want to steal from?\nThe syntax is {"steal <person> [[<quantity>] <item>|[exactly] <currency>|<container>]".ColourCommand()}.");
+            return;
+        }
+
+        var target = actor.TargetActor(ss.PopSpeech(), PerceiveIgnoreFlags.IgnoreSelf);
+        if (target is null)
+        {
+            actor.OutputHandler.Send("You don't see anyone like that to steal from.");
+            return;
+        }
+
+        if (target == actor)
+        {
+            actor.OutputHandler.Send("You cannot steal from yourself.");
+            return;
+        }
+
+        if (!actor.ColocatedWith(target))
+        {
+            actor.OutputHandler.Send($"{target.HowSeen(actor, true)} is not close enough for you to steal from.");
+            return;
+        }
+
+        var remaining = ss.SafeRemainingArgument;
+        if (string.IsNullOrWhiteSpace(remaining))
+        {
+            StealRandom(actor, target);
+            return;
+        }
+
+        if (TrySplitOnKeyword(remaining, "from", out var itemText, out var sourceText))
+        {
+            if (string.IsNullOrWhiteSpace(sourceText))
+            {
+                actor.OutputHandler.Send("Which container or belt do you want to steal from?");
+                return;
+            }
+
+            StealFromSource(actor, target, itemText, sourceText);
+            return;
+        }
+
+        if (TryResolveStealSource(actor, target, remaining, out var source))
+        {
+            StealFromSource(actor, target, string.Empty, remaining);
+            return;
+        }
+
+        StealSpecificFromAnyContainer(actor, target, remaining);
+    }
+
+    private enum StealthTransferKind
+    {
+        Item,
+        Currency
+    }
+
+    private enum StealSourceKind
+    {
+        Container,
+        Belt
+    }
+
+    private sealed class StealthTransferSpec
+    {
+        public StealthTransferKind Kind { get; set; }
+        public IGameItem Item { get; set; }
+        public int Quantity { get; set; }
+        public ICurrency Currency { get; set; }
+        public decimal Amount { get; set; }
+        public bool Exact { get; set; }
+        public string OriginalText { get; set; }
+
+        public string Describe(ICharacter actor)
+        {
+            return Kind == StealthTransferKind.Currency
+                ? Currency.Describe(Amount, CurrencyDescriptionPatternType.ShortDecimal)
+                : Quantity > 0
+                    ? $"{Quantity.ToString("N0", actor)} of {Item.HowSeen(actor)}"
+                    : Item.HowSeen(actor);
+        }
+    }
+
+    private sealed class StealthDetectionResult
+    {
+        public CheckOutcome ActorOutcome { get; set; } = CheckOutcome.NotTested(CheckType.None);
+        public List<ICharacter> Noticers { get; } = new();
+        public bool VictimStopped { get; set; }
+        public bool ActorSucceeded => ActorOutcome.IsPass();
+    }
+
+    private sealed class StealSource
+    {
+        public StealSourceKind Kind { get; set; }
+        public IGameItem Item { get; set; }
+    }
+
+    private sealed class StealCandidate
+    {
+        public StealSourceKind Kind { get; set; }
+        public IGameItem Source { get; set; }
+        public IGameItem Item { get; set; }
+    }
+
+    private static bool TrySplitOnKeyword(string text, string keyword, out string before, out string after)
+    {
+        text = text.Trim();
+        var start = $"{keyword} ";
+        if (text.StartsWith(start, StringComparison.InvariantCultureIgnoreCase))
+        {
+            before = string.Empty;
+            after = text[start.Length..].Trim();
+            return true;
+        }
+
+        var marker = $" {keyword} ";
+        var index = text.IndexOf(marker, StringComparison.InvariantCultureIgnoreCase);
+        if (index < 0)
+        {
+            before = text;
+            after = string.Empty;
+            return false;
+        }
+
+        before = text[..index].Trim();
+        after = text[(index + marker.Length)..].Trim();
+        return true;
+    }
+
+    private static bool TryParseCurrencyAmount(ICharacter actor, string text, out decimal amount, out bool exact)
+    {
+        amount = 0.0M;
+        exact = false;
+        text = text.Trim();
+        if (text.StartsWith("exactly ", StringComparison.InvariantCultureIgnoreCase))
+        {
+            exact = true;
+            text = text["exactly ".Length..].Trim();
+        }
+
+        text = text.Strip(x => x == '"');
+        if (string.IsNullOrWhiteSpace(text) || actor.Currency is null)
+        {
+            return false;
+        }
+
+        amount = actor.Currency.GetBaseCurrency(text, out var success);
+        return success && amount > 0.0M;
+    }
+
+    private static bool TryParseTransferSpec(ICharacter actor, string text, IEnumerable<IGameItem> items,
+        string locationDescription, out StealthTransferSpec spec, out string error)
+    {
+        spec = null;
+        error = string.Empty;
+        text = text.Trim();
+        if (string.IsNullOrWhiteSpace(text))
+        {
+            error = "You must specify what you want to move.";
+            return false;
+        }
+
+        if (!text.StartsWith("exactly ", StringComparison.InvariantCultureIgnoreCase))
+        {
+            var quantity = 0;
+            var itemText = text;
+            var ss = new StringStack(text);
+            var first = ss.PopSpeech();
+            if (int.TryParse(first, out var parsedQuantity))
+            {
+                if (parsedQuantity <= 0)
+                {
+                    error = "You must specify a positive quantity.";
+                    return false;
+                }
+
+                if (ss.IsFinished)
+                {
+                    error = "You must specify an item after the quantity.";
+                    return false;
+                }
+
+                quantity = parsedQuantity;
+                itemText = ss.SafeRemainingArgument;
+            }
+
+            var item = items
+                       .Where(x => actor.CanSee(x))
+                       .GetFromItemListByKeyword(itemText, actor);
+            if (item is not null)
+            {
+                spec = new StealthTransferSpec
+                {
+                    Kind = StealthTransferKind.Item,
+                    Item = item,
+                    Quantity = quantity,
+                    OriginalText = text
+                };
+                return true;
+            }
+        }
+
+        if (TryParseCurrencyAmount(actor, text, out var amount, out var exact))
+        {
+            spec = new StealthTransferSpec
+            {
+                Kind = StealthTransferKind.Currency,
+                Currency = actor.Currency,
+                Amount = amount,
+                Exact = exact,
+                OriginalText = text
+            };
+            return true;
+        }
+
+        error =
+            $"You don't see anything like {text.ColourCommand()} {locationDescription}, and that is not a valid amount of money.";
+        return false;
+    }
+
+    private static bool TryResolvePalmDestination(ICharacter actor, string text, out IGameItem containerItem,
+        out ICharacter containerOwner, out string error)
+    {
+        containerItem = null;
+        containerOwner = null;
+        error = string.Empty;
+        text = text.Trim();
+        if (string.IsNullOrWhiteSpace(text))
+        {
+            error = "Which container do you want to palm it into?";
+            return false;
+        }
+
+        var ss = new StringStack(text);
+        var first = ss.PopSpeech();
+        if (!ss.IsFinished)
+        {
+            var possibleOwner = actor.TargetActor(first);
+            if (possibleOwner is not null)
+            {
+                if (!actor.ColocatedWith(possibleOwner))
+                {
+                    error = $"{possibleOwner.HowSeen(actor, true)} is not close enough for you to palm anything into their belongings.";
+                    return false;
+                }
+
+                containerOwner = possibleOwner;
+                containerItem = possibleOwner.Body.ExternalItemsForOtherActors
+                                             .Where(x => actor.CanSee(x))
+                                             .GetFromItemListByKeyword(ss.SafeRemainingArgument, actor);
+                if (containerItem is null)
+                {
+                    error = $"{possibleOwner.HowSeen(actor, true)} does not seem to have any container like that.";
+                    return false;
+                }
+
+                if (!containerItem.IsItemType<IContainer>())
+                {
+                    error = $"{containerItem.HowSeen(actor, true)} is not a container.";
+                    return false;
+                }
+
+                return true;
+            }
+        }
+
+        containerItem = actor.TargetItem(text);
+        if (containerItem is null)
+        {
+            error = "You don't see any such container.";
+            return false;
+        }
+
+        if (!containerItem.IsItemType<IContainer>())
+        {
+            error = $"{containerItem.HowSeen(actor, true)} is not a container.";
+            return false;
+        }
+
+        containerOwner = containerItem.InInventoryOf?.Actor;
+        return true;
+    }
+
+    private static bool TryResolvePalmSource(ICharacter actor, string text, out IGameItem containerItem,
+        out ICharacter containerOwner, out string error)
+    {
+        containerItem = null;
+        containerOwner = null;
+        error = string.Empty;
+        text = text.Trim();
+        if (string.IsNullOrWhiteSpace(text))
+        {
+            error = "Which container do you want to palm something from?";
+            return false;
+        }
+
+        var ss = new StringStack(text);
+        var first = ss.PopSpeech();
+        if (!ss.IsFinished)
+        {
+            var possibleOwner = actor.TargetActor(first);
+            if (possibleOwner is not null)
+            {
+                if (!actor.ColocatedWith(possibleOwner))
+                {
+                    error = $"{possibleOwner.HowSeen(actor, true)} is not close enough for you to palm anything from their belongings.";
+                    return false;
+                }
+
+                containerOwner = possibleOwner;
+                containerItem = possibleOwner.Body.ExternalItemsForOtherActors
+                                             .Where(x => actor.CanSee(x))
+                                             .GetFromItemListByKeyword(ss.SafeRemainingArgument, actor);
+                if (containerItem is null)
+                {
+                    error = $"{possibleOwner.HowSeen(actor, true)} does not seem to have any container like that.";
+                    return false;
+                }
+
+                if (!containerItem.IsItemType<IContainer>())
+                {
+                    error = $"{containerItem.HowSeen(actor, true)} is not a container.";
+                    return false;
+                }
+
+                return true;
+            }
+        }
+
+        containerItem = actor.TargetItem(text);
+        if (containerItem is null)
+        {
+            error = "You don't see any such container.";
+            return false;
+        }
+
+        if (!containerItem.IsItemType<IContainer>())
+        {
+            error = $"{containerItem.HowSeen(actor, true)} is not a container.";
+            return false;
+        }
+
+        containerOwner = containerItem.InInventoryOf?.Actor;
+        return true;
+    }
+
+    private static void PalmFromRoom(ICharacter actor, string targetText)
+    {
+        var items = actor.Location.LayerGameItems(actor.RoomLayer);
+        if (!TryParseTransferSpec(actor, targetText, items, "here", out var spec, out var error))
+        {
+            actor.OutputHandler.Send(error);
+            return;
+        }
+
+        IGameItem previewItem;
+        if (spec.Kind == StealthTransferKind.Item)
+        {
+            previewItem = spec.Item;
+            if (!actor.Body.CanGet(spec.Item, spec.Quantity))
+            {
+                actor.OutputHandler.Send(actor.Body.WhyCannotGet(spec.Item, spec.Quantity));
+                return;
+            }
+        }
+        else
+        {
+            previewItem = null;
+            if (!actor.Body.CanGet(spec.Currency, spec.Amount, spec.Exact))
+            {
+                actor.OutputHandler.Send(actor.Body.WhyCannotGet(spec.Currency, spec.Amount, spec.Exact));
+                return;
+            }
+        }
+
+        if (!TryResolveStealth(actor, null, previewItem, CheckType.PalmCheck, null,
+                $"palm {spec.Describe(actor)}", out var detection))
+        {
+            return;
+        }
+
+        var moved = spec.Kind == StealthTransferKind.Item
+            ? actor.Body.Get(spec.Item, spec.Quantity, null, true, ItemCanGetIgnore.None,
+                detection.Noticers.Cast<IHandleEvents>())
+            : actor.Body.Get(spec.Currency, spec.Amount, spec.Exact, null, true,
+                detection.Noticers.Cast<IHandleEvents>());
+
+        if (moved is null)
+        {
+            return;
+        }
+
+        actor.OutputHandler.Send(
+            $"You palm {moved.HowSeen(actor)} without drawing attention.{NoticedSuffix(detection)}");
+        NotifyNoticers(actor, detection, witness =>
+            $"You notice {actor.HowSeen(witness, true)} palm {moved.HowSeen(witness)}.");
+    }
+
+    private static void PalmFrom(ICharacter actor, string targetText, string sourceText)
+    {
+        if (!TryResolvePalmSource(actor, sourceText, out var sourceItem, out var owner, out var error))
+        {
+            actor.OutputHandler.Send(error);
+            return;
+        }
+
+        var container = sourceItem.GetItemType<IContainer>();
+        if (!TryParseTransferSpec(actor, targetText, container.Contents, $"in {sourceItem.HowSeen(actor)}",
+                out var spec, out error))
+        {
+            actor.OutputHandler.Send(error);
+            return;
+        }
+
+        var crime = owner is not null && owner != actor ? CrimeTypes.Theft : (CrimeTypes?)null;
+        var previewItem = spec.Kind == StealthTransferKind.Item ? spec.Item : sourceItem;
+        if (WouldStopLawfulAction(actor, crime, owner, previewItem))
+        {
+            return;
+        }
+
+        if (spec.Kind == StealthTransferKind.Item)
+        {
+            if (!actor.Body.CanGet(spec.Item, sourceItem, spec.Quantity))
+            {
+                actor.OutputHandler.Send(actor.Body.WhyCannotGet(spec.Item, sourceItem, spec.Quantity));
+                return;
+            }
+        }
+        else if (!actor.Body.CanGet(spec.Currency, sourceItem, spec.Amount, spec.Exact))
+        {
+            actor.OutputHandler.Send(actor.Body.WhyCannotGet(spec.Currency, sourceItem, spec.Amount, spec.Exact));
+            return;
+        }
+
+        if (!TryResolveStealth(actor, owner == actor ? null : owner, previewItem, CheckType.PalmCheck, crime,
+                $"palm {spec.Describe(actor)} from {sourceItem.HowSeen(actor)}", out var detection))
+        {
+            return;
+        }
+
+        var moved = spec.Kind == StealthTransferKind.Item
+            ? actor.Body.Get(spec.Item, sourceItem, spec.Quantity, null, true, ItemCanGetIgnore.None,
+                detection.Noticers.Cast<IHandleEvents>())
+            : actor.Body.Get(spec.Currency, sourceItem, spec.Amount, spec.Exact, null, true,
+                detection.Noticers.Cast<IHandleEvents>());
+
+        if (moved is null)
+        {
+            return;
+        }
+
+        actor.OutputHandler.Send(
+            $"You palm {moved.HowSeen(actor)} from {sourceItem.HowSeen(actor)} without drawing attention.{NoticedSuffix(detection)}");
+        NotifyNoticers(actor, detection, witness =>
+            $"You notice {actor.HowSeen(witness, true)} palm {moved.HowSeen(witness)} from {sourceItem.HowSeen(witness)}.");
+        RecordStealthCrime(actor, crime, owner, moved, detection);
+    }
+
+    private static void PalmInto(ICharacter actor, string targetText, string destinationText)
+    {
+        if (!TryResolvePalmDestination(actor, destinationText, out var containerItem, out var containerOwner,
+                out var error))
+        {
+            actor.OutputHandler.Send(error);
+            return;
+        }
+
+        if (!TryParseTransferSpec(actor, targetText, actor.Body.ItemsInHands,
+                "in your hands", out var spec, out error))
+        {
+            actor.OutputHandler.Send(error);
+            return;
+        }
+
+        var victim = containerOwner == actor ? null : containerOwner;
+        var check = victim is null ? CheckType.PalmCheck : CheckType.StealCheck;
+        var crime = victim is null ? (CrimeTypes?)null : CrimeTypes.UnauthorisedDealing;
+        var previewItem = spec.Kind == StealthTransferKind.Item ? spec.Item : containerItem;
+        if (WouldStopLawfulAction(actor, crime, victim, previewItem))
+        {
+            return;
+        }
+
+        if (spec.Kind == StealthTransferKind.Item)
+        {
+            if (!actor.Body.CanPut(spec.Item, containerItem, containerOwner, spec.Quantity, true))
+            {
+                actor.OutputHandler.Send(actor.Body.WhyCannotPut(spec.Item, containerItem, containerOwner,
+                    spec.Quantity, true));
+                return;
+            }
+        }
+        else if (!actor.Body.CanPut(spec.Currency, containerItem, containerOwner, spec.Amount, spec.Exact))
+        {
+            actor.OutputHandler.Send(actor.Body.WhyCannotPut(spec.Currency, containerItem, containerOwner,
+                spec.Amount, spec.Exact));
+            return;
+        }
+
+        if (!TryResolveStealth(actor, victim, previewItem, check, crime,
+                $"palm {spec.Describe(actor)} into {containerItem.HowSeen(actor)}", out var detection))
+        {
+            return;
+        }
+
+        var moved = spec.Kind == StealthTransferKind.Item
+            ? actor.Body.Put(spec.Item, containerItem, containerOwner, spec.Quantity, null, true, true,
+                detection.Noticers.Cast<IHandleEvents>())
+            : actor.Body.Put(spec.Currency, containerItem, containerOwner, spec.Amount, spec.Exact, null, true,
+                detection.Noticers.Cast<IHandleEvents>());
+
+        if (moved is null)
+        {
+            return;
+        }
+
+        actor.OutputHandler.Send(
+            $"You palm {moved.HowSeen(actor)} into {containerItem.HowSeen(actor)} without drawing attention.{NoticedSuffix(detection)}");
+        NotifyNoticers(actor, detection, witness =>
+            $"You notice {actor.HowSeen(witness, true)} palm {moved.HowSeen(witness)} into {containerItem.HowSeen(witness)}.");
+        RecordStealthCrime(actor, crime, victim, moved, detection);
+    }
+
+    private static void StealRandom(ICharacter actor, ICharacter target)
+    {
+        var candidates = GetStealCandidates(actor, target, true).ToList();
+        if (!candidates.Any())
+        {
+            actor.OutputHandler.Send(
+                $"{target.HowSeen(actor, true)} does not have anything visible and accessible in an open container or on a belt for you to steal.");
+            return;
+        }
+
+        ExecuteStealCandidate(actor, target, candidates.GetRandomElement());
+    }
+
+    private static void StealFromSource(ICharacter actor, ICharacter target, string itemText, string sourceText)
+    {
+        if (!TryResolveStealSource(actor, target, sourceText, out var source))
+        {
+            actor.OutputHandler.Send(
+                $"{target.HowSeen(actor, true)} does not have any open container or belt like {sourceText.ColourCommand()}.");
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(itemText))
+        {
+            var candidates = GetStealCandidates(actor, target)
+                             .Where(x => x.Source == source.Item && x.Kind == source.Kind)
+                             .ToList();
+            if (!candidates.Any())
+            {
+                actor.OutputHandler.Send(
+                    $"{source.Item.HowSeen(actor, true)} does not have anything visible and accessible for you to steal.");
+                return;
+            }
+
+            ExecuteStealCandidate(actor, target, candidates.GetRandomElement());
+            return;
+        }
+
+        if (source.Kind == StealSourceKind.Belt)
+        {
+            var item = source.Item.GetItemType<IBelt>().ConnectedItems
+                             .Select(x => x.Parent)
+                             .Where(x => actor.CanSee(x))
+                             .GetFromItemListByKeyword(itemText, actor);
+            if (item is null)
+            {
+                actor.OutputHandler.Send($"{source.Item.HowSeen(actor, true)} does not have anything like that attached to it.");
+                return;
+            }
+
+            StealBeltedItem(actor, target, source.Item, item);
+            return;
+        }
+
+        StealSpecificFromContainer(actor, target, itemText, source.Item);
+    }
+
+    private static void StealSpecificFromAnyContainer(ICharacter actor, ICharacter target, string itemText)
+    {
+        var containers = GetOpenStealableContainers(actor, target).ToList();
+        if (!containers.Any())
+        {
+            actor.OutputHandler.Send($"{target.HowSeen(actor, true)} does not have any visible open containers you can steal from.");
+            return;
+        }
+
+        if (TryParseCurrencyAmount(actor, itemText, out var amount, out var exact))
+        {
+            var container = containers.FirstOrDefault(x => actor.Body.CanGet(actor.Currency, x, amount, exact));
+            if (container is null)
+            {
+                actor.OutputHandler.Send(
+                    $"{target.HowSeen(actor, true)} does not have that much accessible money in any visible open container.");
+                return;
+            }
+
+            StealCurrencyFromContainer(actor, target, actor.Currency, amount, exact, container);
+            return;
+        }
+
+        var allItems = containers.SelectMany(x => x.GetItemType<IContainer>().Contents).ToList();
+        if (!TryParseTransferSpec(actor, itemText, allItems, $"in {target.HowSeen(actor)}'s open containers",
+                out var spec, out var error) || spec.Kind != StealthTransferKind.Item)
+        {
+            actor.OutputHandler.Send(error);
+            return;
+        }
+
+        var source = containers.FirstOrDefault(x => x.GetItemType<IContainer>().Contents.Contains(spec.Item));
+        if (source is null)
+        {
+            actor.OutputHandler.Send("You cannot work out which container that item is in.");
+            return;
+        }
+
+        StealItemFromContainer(actor, target, spec.Item, spec.Quantity, source);
+    }
+
+    private static void StealSpecificFromContainer(ICharacter actor, ICharacter target, string itemText,
+        IGameItem containerItem)
+    {
+        var container = containerItem.GetItemType<IContainer>();
+        if (TryParseCurrencyAmount(actor, itemText, out var amount, out var exact))
+        {
+            StealCurrencyFromContainer(actor, target, actor.Currency, amount, exact, containerItem);
+            return;
+        }
+
+        if (!TryParseTransferSpec(actor, itemText, container.Contents, $"in {containerItem.HowSeen(actor)}",
+                out var spec, out var error))
+        {
+            actor.OutputHandler.Send(error);
+            return;
+        }
+
+        if (spec.Kind == StealthTransferKind.Currency)
+        {
+            StealCurrencyFromContainer(actor, target, spec.Currency, spec.Amount, spec.Exact, containerItem);
+            return;
+        }
+
+        StealItemFromContainer(actor, target, spec.Item, spec.Quantity, containerItem);
+    }
+
+    private static void ExecuteStealCandidate(ICharacter actor, ICharacter target, StealCandidate candidate)
+    {
+        if (candidate.Kind == StealSourceKind.Belt)
+        {
+            StealBeltedItem(actor, target, candidate.Source, candidate.Item);
+            return;
+        }
+
+        StealItemFromContainer(actor, target, candidate.Item, 0, candidate.Source);
+    }
+
+    private static void StealItemFromContainer(ICharacter actor, ICharacter target, IGameItem item, int quantity,
+        IGameItem containerItem)
+    {
+        if (!actor.Body.CanGet(item, containerItem, quantity))
+        {
+            actor.OutputHandler.Send(actor.Body.WhyCannotGet(item, containerItem, quantity));
+            return;
+        }
+
+        if (WouldStopLawfulAction(actor, CrimeTypes.Theft, target, item))
+        {
+            return;
+        }
+
+        if (!TryResolveStealth(actor, target, item, CheckType.StealCheck, CrimeTypes.Theft,
+                $"steal {DescribeItemQuantity(actor, item, quantity)} from {target.HowSeen(actor)}", out var detection))
+        {
+            return;
+        }
+
+        var moved = actor.Body.Get(item, containerItem, quantity, null, true, ItemCanGetIgnore.None,
+            detection.Noticers.Cast<IHandleEvents>());
+        if (moved is null)
+        {
+            return;
+        }
+
+        actor.OutputHandler.Send(
+            $"You steal {moved.HowSeen(actor)} from {containerItem.HowSeen(actor)}.{NoticedSuffix(detection)}");
+        NotifyNoticers(actor, detection, witness =>
+            $"You notice {actor.HowSeen(witness, true)} steal {moved.HowSeen(witness)} from {containerItem.HowSeen(witness)}.");
+        RecordStealthCrime(actor, CrimeTypes.Theft, target, moved, detection);
+    }
+
+    private static void StealCurrencyFromContainer(ICharacter actor, ICharacter target, ICurrency currency,
+        decimal amount, bool exact, IGameItem containerItem)
+    {
+        if (!actor.Body.CanGet(currency, containerItem, amount, exact))
+        {
+            actor.OutputHandler.Send(actor.Body.WhyCannotGet(currency, containerItem, amount, exact));
+            return;
+        }
+
+        if (WouldStopLawfulAction(actor, CrimeTypes.Theft, target, containerItem))
+        {
+            return;
+        }
+
+        var description = currency.Describe(amount, CurrencyDescriptionPatternType.ShortDecimal);
+        if (!TryResolveStealth(actor, target, containerItem, CheckType.StealCheck, CrimeTypes.Theft,
+                $"steal {description} from {target.HowSeen(actor)}", out var detection))
+        {
+            return;
+        }
+
+        var moved = actor.Body.Get(currency, containerItem, amount, exact, null, true,
+            detection.Noticers.Cast<IHandleEvents>());
+        if (moved is null)
+        {
+            return;
+        }
+
+        actor.OutputHandler.Send(
+            $"You steal {moved.HowSeen(actor)} from {containerItem.HowSeen(actor)}.{NoticedSuffix(detection)}");
+        NotifyNoticers(actor, detection, witness =>
+            $"You notice {actor.HowSeen(witness, true)} steal {moved.HowSeen(witness)} from {containerItem.HowSeen(witness)}.");
+        RecordStealthCrime(actor, CrimeTypes.Theft, target, moved, detection);
+    }
+
+    private static void StealBeltedItem(ICharacter actor, ICharacter target, IGameItem beltItem, IGameItem item)
+    {
+        if (!HasCutPurseTool(actor, out var error))
+        {
+            actor.OutputHandler.Send(error);
+            return;
+        }
+
+        var belt = beltItem.GetItemType<IBelt>();
+        var beltable = item.GetItemType<IBeltable>();
+        if (belt is null || beltable is null || beltable.ConnectedTo != belt)
+        {
+            actor.OutputHandler.Send($"{item.HowSeen(actor, true)} is not attached to {beltItem.HowSeen(actor)}.");
+            return;
+        }
+
+        if (!actor.Body.CanGet(item, 0))
+        {
+            actor.OutputHandler.Send(actor.Body.WhyCannotGet(item, 0));
+            return;
+        }
+
+        if (WouldStopLawfulAction(actor, CrimeTypes.Theft, target, item))
+        {
+            return;
+        }
+
+        if (!TryResolveStealth(actor, target, item, CheckType.StealCheck, CrimeTypes.Theft,
+                $"cut {item.HowSeen(actor)} free from {target.HowSeen(actor)}", out var detection))
+        {
+            return;
+        }
+
+        belt.RemoveConnectedItem(beltable);
+        var moved = actor.Body.Get(item, 0, null, true, ItemCanGetIgnore.None,
+            detection.Noticers.Cast<IHandleEvents>());
+        beltItem.InInventoryOf?.RecalculateItemHelpers();
+
+        if (moved is null)
+        {
+            return;
+        }
+
+        actor.OutputHandler.Send(
+            $"You cut {moved.HowSeen(actor)} free from {beltItem.HowSeen(actor)} and steal it.{NoticedSuffix(detection)}");
+        NotifyNoticers(actor, detection, witness =>
+            $"You notice {actor.HowSeen(witness, true)} cut {moved.HowSeen(witness)} free from {beltItem.HowSeen(witness)}.");
+        RecordStealthCrime(actor, CrimeTypes.Theft, target, moved, detection);
+    }
+
+    private static IEnumerable<IGameItem> GetOpenStealableContainers(ICharacter actor, ICharacter target)
+    {
+        return target.Body.ExternalItemsForOtherActors
+                     .Where(x => actor.CanSee(x))
+                     .Where(x => x.IsItemType<IContainer>())
+                     .Where(IsOpenContainer);
+    }
+
+    private static IEnumerable<IGameItem> GetStealableBelts(ICharacter actor, ICharacter target)
+    {
+        return target.Body.ExternalItemsForOtherActors
+                     .Where(x => actor.CanSee(x))
+                     .Where(x => x.IsItemType<IBelt>());
+    }
+
+    private static bool TryResolveStealSource(ICharacter actor, ICharacter target, string sourceText,
+        out StealSource source)
+    {
+        source = null;
+        var sourceItems = GetOpenStealableContainers(actor, target)
+                          .Concat(GetStealableBelts(actor, target))
+                          .Distinct()
+                          .ToList();
+        var item = sourceItems.GetFromItemListByKeyword(sourceText, actor);
+        if (item is null)
+        {
+            return false;
+        }
+
+        source = new StealSource
+        {
+            Item = item,
+            Kind = item.IsItemType<IContainer>() && IsOpenContainer(item)
+                ? StealSourceKind.Container
+                : StealSourceKind.Belt
+        };
+        return true;
+    }
+
+    private static IEnumerable<StealCandidate> GetStealCandidates(ICharacter actor, ICharacter target,
+        bool requireCutPurseToolForBelts = false)
+    {
+        foreach (var containerItem in GetOpenStealableContainers(actor, target))
+        {
+            foreach (var item in containerItem.GetItemType<IContainer>().Contents
+                                              .Where(x => actor.CanSee(x))
+                                              .Where(x => actor.Body.CanGet(x, containerItem, 0)))
+            {
+                yield return new StealCandidate
+                {
+                    Kind = StealSourceKind.Container,
+                    Source = containerItem,
+                    Item = item
+                };
+            }
+        }
+
+        if (requireCutPurseToolForBelts && !HasCutPurseTool(actor, out _))
+        {
+            yield break;
+        }
+
+        foreach (var beltItem in GetStealableBelts(actor, target))
+        {
+            foreach (var item in beltItem.GetItemType<IBelt>().ConnectedItems
+                                         .Select(x => x.Parent)
+                                         .Where(x => actor.CanSee(x))
+                                         .Where(x => actor.Body.CanGet(x, 0)))
+            {
+                yield return new StealCandidate
+                {
+                    Kind = StealSourceKind.Belt,
+                    Source = beltItem,
+                    Item = item
+                };
+            }
+        }
+    }
+
+    private static bool IsOpenContainer(IGameItem item)
+    {
+        return item.GetItemType<IOpenable>()?.IsOpen != false;
+    }
+
+    private static bool HasCutPurseTool(ICharacter actor, out string error)
+    {
+        error = string.Empty;
+        var tagText = actor.Gameworld.GetStaticConfiguration("CutPurseToolTagName");
+        if (string.IsNullOrWhiteSpace(tagText))
+        {
+            error = "No cut-purse tool tag is configured in the CutPurseToolTagName static configuration.";
+            return false;
+        }
+
+        var tag = long.TryParse(tagText, out var tagId)
+            ? actor.Gameworld.Tags.Get(tagId)
+            : actor.Gameworld.Tags.GetByName(tagText);
+        if (tag is null)
+        {
+            error =
+                $"The configured cut-purse tag {tagText.ColourCommand()} does not match any known tag.";
+            return false;
+        }
+
+        if (actor.Body.HeldOrWieldedItems.Any(x => x.IsA(tag)))
+        {
+            return true;
+        }
+
+        error =
+            $"You need to be holding or wielding something tagged {tag.FullName.ColourName()} to cut something loose.";
+        return false;
+    }
+
+    private static string DescribeItemQuantity(ICharacter actor, IGameItem item, int quantity)
+    {
+        return quantity > 0 ? $"{quantity.ToString("N0", actor)} of {item.HowSeen(actor)}" : item.HowSeen(actor);
+    }
+
+    private static bool WouldStopLawfulAction(ICharacter actor, CrimeTypes? crime, ICharacter victim, IGameItem item)
+    {
+        if (crime is null || actor.IsAdministrator())
+        {
+            return false;
+        }
+
+        if (!crime.Value.CheckWouldBeACrime(actor, victim, item, string.Empty) || !actor.Account.ActLawfully)
+        {
+            return false;
+        }
+
+        actor.OutputHandler.Send($"That action would be a crime.\n{CrimeExtensions.StandardDisableIllegalFlagText}");
+        return true;
+    }
+
+    private static bool TryResolveStealth(ICharacter actor, ICharacter victim, IGameItem focusItem, CheckType check,
+        CrimeTypes? crime, string actionDescription, out StealthDetectionResult detection)
+    {
+        detection = ResolveStealthDetection(actor, victim, focusItem, check);
+        if (!detection.ActorSucceeded)
+        {
+            actor.OutputHandler.Send($"You fumble your attempt to {actionDescription}.");
+            NotifyNoticers(actor, detection, witness =>
+                $"You notice {actor.HowSeen(witness, true)} trying to {actionDescription}.");
+            RecordStealthCrime(actor, crime, victim, focusItem, detection);
+            return false;
+        }
+
+        if (detection.VictimStopped)
+        {
+            actor.OutputHandler.Send($"{victim.HowSeen(actor, true)} notices what you are doing before you can finish.");
+            NotifyNoticers(actor, detection, witness =>
+                $"You notice {actor.HowSeen(witness, true)} trying to {actionDescription}.");
+            RecordStealthCrime(actor, crime, victim, focusItem, detection);
+            return false;
+        }
+
+        return true;
+    }
+
+    private static StealthDetectionResult ResolveStealthDetection(ICharacter actor, ICharacter victim,
+        IGameItem focusItem, CheckType check)
+    {
+        IPerceivable checkTarget = victim is not null ? victim : focusItem;
+        var result = new StealthDetectionResult
+        {
+            ActorOutcome = actor.Gameworld.GetCheck(check).Check(actor, Difficulty.Normal, checkTarget)
+        };
+
+        var observers = actor.Location.LayerCharacters(actor.RoomLayer)
+                            .Where(x => x != actor)
+                            .Where(x => x.CanSee(actor))
+                            .Distinct()
+                            .ToList();
+        if (victim is not null && victim != actor && !observers.Contains(victim) && victim.CanSee(actor))
+        {
+            observers.Add(victim);
+        }
+
+        foreach (var observer in observers)
+        {
+            var observerOutcome = actor.Gameworld.GetCheck(CheckType.SpotStealthCheck)
+                                       .Check(observer, observer.Location.SpotDifficulty(observer), actor);
+            var opposed = new OpposedOutcome(result.ActorOutcome.Outcome, observerOutcome.Outcome);
+            var notices = opposed.Outcome != OpposedOutcomeDirection.Proponent &&
+                          (observerOutcome.IsPass() || result.ActorOutcome.IsFail());
+            if (!notices)
+            {
+                continue;
+            }
+
+            result.Noticers.Add(observer);
+            if (observer == victim && result.ActorOutcome.IsPass() &&
+                opposed.Outcome == OpposedOutcomeDirection.Opponent &&
+                opposed.Degree >= OpposedOutcomeDegree.Major)
+            {
+                result.VictimStopped = true;
+            }
+        }
+
+        return result;
+    }
+
+    private static void NotifyNoticers(ICharacter actor, StealthDetectionResult detection,
+        Func<ICharacter, string> message)
+    {
+        foreach (var witness in detection.Noticers.Where(x => x != actor))
+        {
+            witness.OutputHandler.Send(message(witness));
+        }
+    }
+
+    private static string NoticedSuffix(StealthDetectionResult detection)
+    {
+        return detection.Noticers.Any() ? " You think someone may have noticed." : string.Empty;
+    }
+
+    private static void RecordStealthCrime(ICharacter actor, CrimeTypes? crime, ICharacter victim, IGameItem item,
+        StealthDetectionResult detection)
+    {
+        if (crime is null || !detection.Noticers.Any())
+        {
+            return;
+        }
+
+        CrimeExtensions.CheckPossibleCrimeAllAuthorities(actor, crime.Value, victim, item, string.Empty,
+            detection.Noticers, victim is not null && detection.Noticers.Contains(victim));
     }
 
     [PlayerCommand("Search", "search")]

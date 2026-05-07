@@ -335,6 +335,12 @@ public class AuctionHouse : SaveableItem, IAuctionHouse, IPostCharacterLoadFinal
             return true;
         }
 
+        if (payoutTarget is ICharacter character)
+        {
+            BidderRefundsOwed[character.Id] += amount;
+            return true;
+        }
+
         IBankAccount payoutAccount = Gameworld.BankAccounts.FirstOrDefault(x =>
             x.AccountStatus == BankAccountStatus.Active &&
             x.Currency == EconomicZone.Currency &&
@@ -351,12 +357,6 @@ public class AuctionHouse : SaveableItem, IAuctionHouse, IPostCharacterLoadFinal
             payoutAccount.DepositFromTransaction(amount, $"Proceeds from a successful auction of {assetDescription} with {Name}");
             payoutAccount.Bank.CurrencyReserves[EconomicZone.Currency] += amount;
             payoutAccount.Bank.Changed = true;
-            return true;
-        }
-
-        if (payoutTarget is ICharacter character)
-        {
-            BidderRefundsOwed[character.Id] += amount;
             return true;
         }
 

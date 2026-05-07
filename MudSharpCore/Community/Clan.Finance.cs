@@ -164,7 +164,8 @@ public partial class Clan
 		sb.AppendLine($"Budget #{budget.Id.ToString("N0", actor)} - {budget.Name.TitleCase().ColourName()}");
 		sb.AppendLine();
 		sb.AppendLine($"Appointment: {budget.Appointment.Name.TitleCase().ColourName()}");
-		sb.AppendLine($"Account: {budget.BankAccount.AccountReference.ColourName()}");
+		sb.AppendLine($"Account: {budget.BankAccount?.AccountReference.ColourName() ?? "Virtual Treasury".ColourName()}");
+		sb.AppendLine($"Treasury Balance: {DescribeAmount(budget.Currency, VirtualCashLedger.Balance(this, budget.Currency))}");
 		sb.AppendLine($"Status: {budget.IsActive.ToColouredString()}");
 		sb.AppendLine($"Period: {budget.PeriodInterval.Describe(Calendar).ColourValue()}");
 		sb.AppendLine($"Current Window: {budget.CurrentPeriodStart.ToString(CalendarDisplayMode.Short, TimeDisplayTypes.Short).ColourValue()} to {budget.CurrentPeriodEnd.ToString(CalendarDisplayMode.Short, TimeDisplayTypes.Short).ColourValue()}");
@@ -229,7 +230,7 @@ public partial class Clan
 				DescribeAmount(transaction.Currency, transaction.BankBalanceAfter),
 				transaction.Reason
 			},
-			new[] { "Date", "Budget", "Actor", "Amount", "Bank After", "Reason" },
+			new[] { "Date", "Budget", "Actor", "Amount", "Balance After", "Reason" },
 			actor.Account.LineFormatLength,
 			colour: Telnet.Green,
 			truncatableColumnIndex: 5,
@@ -244,15 +245,17 @@ public partial class Clan
 			return;
 		}
 
-		if (ClanBankAccount is null)
-		{
-			actor.OutputHandler.Send($"{FullName.ColourName()} does not have a default bank account configured.");
-			return;
-		}
-
 		if (command.IsFinished)
 		{
 			actor.OutputHandler.Send("Which appointment should this budget belong to?");
+			return;
+		}
+
+		var currency = ClanBankAccount?.Currency ?? actor.Currency;
+		if (currency is null)
+		{
+			actor.OutputHandler.Send(
+				$"{FullName.ColourName()} does not have a default bank account configured, so you must first set your active currency.");
 			return;
 		}
 
@@ -269,9 +272,9 @@ public partial class Clan
 			return;
 		}
 
-		if (!ClanBankAccount.Currency.TryGetBaseCurrency(command.PopSpeech(), out var amount) || amount <= 0.0M)
+		if (!currency.TryGetBaseCurrency(command.PopSpeech(), out var amount) || amount <= 0.0M)
 		{
-			actor.OutputHandler.Send($"That is not a valid positive amount of {ClanBankAccount.Currency.Name.ColourName()}.");
+			actor.OutputHandler.Send($"That is not a valid positive amount of {currency.Name.ColourName()}.");
 			return;
 		}
 
@@ -301,10 +304,10 @@ public partial class Clan
 			return;
 		}
 
-		var budget = new ClanBudget(this, appointment, ClanBankAccount, name, amount, interval);
+		var budget = new ClanBudget(this, appointment, ClanBankAccount, currency, name, amount, interval);
 		Budgets.Add(budget);
 		actor.OutputHandler.Send(
-			$"You create the {budget.Name.ColourName()} budget for {appointment.Name.ColourName()}, allowing {DescribeAmount(budget.Currency, amount)} {interval.Describe(Calendar).ColourValue()} from {ClanBankAccount.AccountReference.ColourName()}.");
+			$"You create the {budget.Name.ColourName()} budget for {appointment.Name.ColourName()}, allowing {DescribeAmount(budget.Currency, amount)} {interval.Describe(Calendar).ColourValue()} from {(budget.BankAccount?.AccountReference.ColourName() ?? "the virtual treasury".ColourName())}.");
 	}
 
 	private void BudgetClose(ICharacter actor, StringStack command)
@@ -364,12 +367,6 @@ public partial class Clan
 			return;
 		}
 
-		if (budget.BankAccount is null)
-		{
-			actor.OutputHandler.Send($"The {budget.Name.ColourName()} budget does not have a bank account configured.");
-			return;
-		}
-
 		if (command.IsFinished)
 		{
 			actor.OutputHandler.Send("How much do you want to draw from that budget?");
@@ -396,15 +393,14 @@ public partial class Clan
 			return;
 		}
 
-		var canWithdraw = budget.BankAccount.CanWithdraw(amount, false);
-		if (!canWithdraw.Truth)
+		var reason = command.SafeRemainingArgument;
+		if (!VirtualCashLedger.Debit(budget.Clan, budget.Currency, amount, actor, budget, "Cash",
+			    $"Clan budget {budget.Name}: {reason}", budget.BankAccount, Calendar.CurrentDateTime, out var error))
 		{
-			actor.OutputHandler.Send(canWithdraw.Error);
+			actor.OutputHandler.Send(error);
 			return;
 		}
 
-		var reason = command.SafeRemainingArgument;
-		budget.BankAccount.WithdrawFromTransaction(amount, $"Clan budget {budget.Name}: {reason}");
 		var transaction = new ClanBudgetTransaction(budget, actor, amount, reason);
 		budget.AddDrawdown(transaction);
 
@@ -489,6 +485,34 @@ public partial class Clan
 		else
 		{
 			sb.AppendLine("\tNo clan-owned bank accounts.");
+		}
+
+		var virtualTreasury = Gameworld.Currencies
+			.Select(x => (Currency: x, Balance: VirtualCashLedger.Balance(this, x)))
+			.Where(x => x.Balance != 0.0M)
+			.ToList();
+		sb.AppendLine();
+		sb.AppendLine("Virtual Treasury:");
+		if (virtualTreasury.Any())
+		{
+			sb.AppendLine(StringUtilities.GetTextTable(
+				from item in virtualTreasury.OrderBy(x => x.Currency.Name)
+				select new[]
+				{
+					item.Currency.Name.TitleCase(),
+					DescribeAmount(item.Currency, item.Balance),
+					DescribeAmount(item.Currency, VirtualCashLedger.AvailableFunds(this, item.Currency,
+						ClanBankAccount?.Currency == item.Currency ? ClanBankAccount : null))
+				},
+				new[] { "Currency", "Cash", "Available With Bank" },
+				actor.Account.LineFormatLength,
+				colour: Telnet.Green,
+				truncatableColumnIndex: 0,
+				unicodeTable: actor.Account.UseUnicode));
+		}
+		else
+		{
+			sb.AppendLine("\tNo virtual treasury balances.");
 		}
 
 		sb.AppendLine();

@@ -46,9 +46,9 @@ The current runtime supports a lot of optional depth, but the minimum viable pat
 3. Run `EconomySeeder` if a builder-facing template market, populations, and shoppers would save setup time.
 4. Review the seeded economic zone, market categories, populations, and shoppers and adjust them to fit the world's real geography, item tags, and intended simulation depth.
 5. Add any initial sales or profit taxes to each live economic zone.
-6. Create a bank if the world needs account-backed payments, property ownership, shop floats, or auction settlement.
+6. Create a bank if the world needs account-backed payments, bank-payment items, interest/fees, or formal account ownership; auction, hotel, stable, property, clan, and legal settlement can now fall back to virtual cash reserves when no account exists.
 7. Add bank account types before expecting players, clans, or shops to use accounts meaningfully.
-8. Assign clan bank accounts before using clan payroll float or appointment budgets.
+8. Assign clan bank accounts if clans should use bank-backed payroll float or budgets; otherwise fund the clan virtual treasury with `clan treasury`.
 9. Create at least one shop or other money sink/source if the world needs day-to-day commerce.
 10. Create stables in cells where players should be able to lodge mounts, if the game uses mounted travel.
 11. Point relevant shops at a market if pricing should reflect macroeconomic pressure rather than fixed local pricing only.
@@ -62,12 +62,12 @@ The current runtime supports a lot of optional depth, but the minimum viable pat
 - currencies are prerequisites for almost every downstream object
 - economic zones are the tax and time hub
 - the stock economy package depends on `UsefulSeeder` market tags plus the earlier time and currency layers
-- banks unlock multiple other systems, including payment instruments and property administration
-- clan budgets and payroll float depend on a clan bank account that already exists
+- banks unlock payment instruments, interest/fee policy, and account administration, but most establishment-facing settlement systems can now run bankless with virtual reserves
+- clan budgets and payroll float can draw from physical treasury rooms, clan virtual treasury balances, and then the default clan bank account when present
 - markets, shoppers, and jobs all assume earlier layers already exist
 - property and auctions depend heavily on cells, banks, and world-specific content
-- stables depend on mount-supporting cells, stable fee policy, and a stable bank account
-- hotel room rentals depend on property cells, property keys, bank accounts, auction houses for lost-property disposal, and optional estate setup for inherited claims
+- stables depend on mount-supporting cells and stable fee policy; a stable bank account is optional if managers use the stable reserve
+- hotel room rentals depend on property cells, property keys, optional bank accounts, auction houses for lost-property disposal, and optional estate setup for inherited claims
 
 ## What Builders Still Need To Hand-Build
 Even with the existing abstractions, much of the economy remains world-authored content rather than ready-made stock configuration.
@@ -86,7 +86,7 @@ Even with the existing abstractions, much of the economy remains world-authored 
 - auction houses
 - property portfolios and location mapping
 - stables, stable fee policy, and stable access rules
-- hotel rooms, hotel bank accounts, furnishings, and lost-property retention rules
+- hotel rooms, optional hotel bank accounts, furnishings, and lost-property retention rules
 - jobs, employers, and eligibility logic
 
 ### Why hand-building still dominates
@@ -129,6 +129,10 @@ Builders use economic zones to define:
 
 Tax creation is type-driven through the registered tax families, so the current builder workflow is already aligned with the factory pattern in the runtime. In addition to sales and profit taxes, economic zones can now create hotel rental taxes with `hoteltax` builder commands.
 
+Economic-zone managers can also use `revenue deposit <amount>`, `revenue withdraw <amount>`, and `revenue ledger [count]` from the economic-zone builder or clan-controlled economic-zone command path to manage held revenue as a virtual cash treasury. This is the cash-backed route for bankless tax, estate, and liquidation proceeds.
+
+Legal authorities follow the same reserve pattern for fine and bail revenue. Their builder command supports `bankaccount none` plus `revenue deposit <amount>`, `revenue withdraw <amount>`, and `revenue ledger [count]`; bank-account ledgers still record bank movements when a linked account exists.
+
 ### Banks and Bank Account Types
 Banks are a natural early investment if the world intends to use:
 
@@ -149,21 +153,22 @@ Current builder-facing bank work includes:
 - tuning fees, interest, and payment-item limits
 
 ### Clan Finance
-Clan finance depends on the clan system plus the bank/property/economic-zone layers. Builders should first create or select a clan-owned bank account with `clan set bankaccount <account>`, because appointment budgets and payroll float draw from that default account.
+Clan finance depends on the clan system plus the bank/property/economic-zone layers. Builders can create or select a clan-owned bank account with `clan set bankaccount <account>`, or clear it with `clan set bankaccount none` and operate from the clan's physical and virtual treasuries.
 
 Current player/admin-facing clan finance workflows include:
 
 - `clan budget <clan> list|view|audit|create|draw|close` for appointment budgets
 - `clan balance <clan>` or `clan balance sheet <clan>` for a cross-system balance sheet
 - `clan payroll <clan> [member|rank|appointment <which>]` for payroll audit history
+- `clan treasury <clan> balance|ledger|deposit|withdraw` for virtual treasury review and cash movements
 
 Budget creation and closure require the clan `CanCreateBudgets` privilege. Budget, balance-sheet, and payroll-history review require `CanViewTreasury`. Budget drawdown can also be performed by someone who holds or controls the budgeted appointment, so builders can give an office practical spending authority without exposing the whole treasury.
 
 Practical note:
 
 - appointment budgets are recurring-period allowances, not separate bank accounts
-- a drawdown withdraws from the clan bank account and issues cash to the actor
-- every drawdown stores an audit reason, actor, period window, amount, and bank balance after withdrawal
+- a drawdown issues cash to the actor and funds it from the clan virtual treasury first, then the default clan bank account when present
+- every drawdown stores an audit reason, actor, period window, amount, and balance after withdrawal, and also writes a virtual treasury ledger row
 - payroll history is clan payroll audit data, while the broader employment/job subsystem remains separate
 
 ### Markets, Categories, Influences, Populations, and Shoppers
@@ -228,14 +233,14 @@ Builders need:
 
 - a cell for the stable service point
 - an economic zone
-- a bank account in the zone currency
+- an optional bank account in the zone currency
 - fixed lodge and daily fees, or FutureProgs that return those fees from `(mount, owner)`
 - optional access and rejection-text FutureProgs using `(customer, mount)`
 - managers or proprietors if non-admin characters should operate the stable
 
 Player workflows are surfaced through `stable`, `stable quote`, `stable lodge`, `stable redeem`, `stable accountstatus`, and `stable payaccount`. Lodging issues a system-generated stable ticket item and removes the mount from the active world. Active stable stays also suppress their mount ids during NPC boot loading, so rebooted servers do not return lodged mounts to the stable room. Redeeming checks the ticket's stay id, item id, and token, then requires any outstanding fees to be settled before the mount is logged back into the stable cell.
 
-Manager workflows include active/history lists, stay inspection, ticketless release, fee setup, account setup, filtered account triage, employee management, bank-account assignment, open/close state, and access-prog setup. `stable account list [<filters>]` accepts composable filters for routine account operations: `suspended`, `active`, `overlimit` or `over limit`, `owing`, `prepaid` or `credit`, `owner <text>`, `name <text>`, `user <text>`, and `search <text>`. A property sale or lease can claim stables in the property for the single character controller in the same operational style as property shops.
+Manager workflows include active/history lists, stay inspection, ticketless release, fee setup, account setup, filtered account triage, employee management, bank-account assignment, open/close state, access-prog setup, and reserve `deposit`, `withdraw`, and `ledger` commands. `stable account list [<filters>]` accepts composable filters for routine account operations: `suspended`, `active`, `overlimit` or `over limit`, `owing`, `prepaid` or `credit`, `owner <text>`, `name <text>`, `user <text>`, and `search <text>`. A property sale or lease can claim stables in the property for the single character controller in the same operational style as property shops.
 
 ### Auctions
 Auction houses currently fit worlds that want formal auction spaces separate from ordinary shops.
@@ -244,7 +249,7 @@ Builders need:
 
 - a cell for the auction house
 - an economic zone
-- a settlement account
+- an optional settlement account, or a funded auction-house virtual reserve
 
 Practical estate note:
 
@@ -253,7 +258,9 @@ Practical estate note:
 Current player-facing capability note:
 
 - auction houses can now host both item lots and property-share lots, and ordinary character-listed property auctions sell whatever ownership share the listing character currently owns in that property
-- auction-house settlement keeps the configured flat plus percentage fee and pays the seller the net proceeds
+- auction-house settlement keeps the configured flat plus percentage fee and pays the seller the net proceeds from the virtual reserve first, then from the linked bank account if needed
+- sellers can choose a bank payout target or `cash`; cash seller proceeds are claimed from the auction house through the same cash-claim path as bidder refunds
+- builders can use `auction set bank none`, `auction set deposit <amount>`, `auction set withdraw <amount>`, and `auction set ledger [count]` to run or inspect a bankless auction house
 - buyout purchases complete the auction immediately and move item lots into the normal claim workflow
 
 Contributor note:
@@ -275,7 +282,7 @@ Property builders need:
 Hotel-room rental builders additionally need:
 
 - a property with one or more rooms mapped to property cells
-- a hotel bank account, set with `roomrent bank`
+- an optional hotel bank account, set with `roomrent bank <account>` or cleared with `roomrent bank none`
 - a requested and approved hotel license, using `roomrent request` and `roomrent approve`
 - listed hotel rooms with daily prices, security deposits, and min/max stays through `roomrent room`
 - property keys assigned to each rentable room through `roomrent key`
@@ -287,7 +294,8 @@ Operational hotel commands:
 
 - guests use `roomrent list`, `roomrent rent`, `roomrent checkout`, `roomrent claim`, and `roomrent pay`
 - managers use `roomrent lost` to view, extend, or release held bundles before automatic auction or liquidation
-- managers use `roomrent taxes` to remit accumulated hotel rental taxes from the hotel bank account to the economic zone
+- managers use `roomrent deposit`, `roomrent withdraw`, and `roomrent ledger` to manage the hotel virtual reserve
+- managers use `roomrent taxes` to remit accumulated hotel rental taxes from the hotel reserve and optional bank funds to the economic zone
 
 Contributor note:
 

@@ -6,10 +6,12 @@ using MudSharp.Database;
 using MudSharp.Economy.Banking;
 using MudSharp.Economy.Currency;
 using MudSharp.Economy.Estates;
+using MudSharp.Economy.Payment;
 using MudSharp.Economy.Property;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.GameItems;
+using MudSharp.GameItems.Prototypes;
 using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
@@ -50,7 +52,7 @@ public class AuctionHouse : SaveableItem, IAuctionHouse, IPostCharacterLoadFinal
         );
     }
 
-    public AuctionHouse(IEconomicZone zone, string name, ICell cell, IBankAccount account)
+    public AuctionHouse(IEconomicZone zone, string name, ICell cell, IBankAccount? account)
     {
         Gameworld = zone.Gameworld;
         EconomicZone = zone;
@@ -67,7 +69,7 @@ public class AuctionHouse : SaveableItem, IAuctionHouse, IPostCharacterLoadFinal
             {
                 Name = name,
                 EconomicZoneId = zone.Id,
-                ProfitsBankAccountId = account.Id,
+                ProfitsBankAccountId = account?.Id,
                 AuctionListingFeeFlat = AuctionListingFeeFlat,
                 AuctionListingFeeRate = AuctionListingFeeRate,
                 AuctionHouseCellId = cell.Id,
@@ -293,29 +295,49 @@ public class AuctionHouse : SaveableItem, IAuctionHouse, IPostCharacterLoadFinal
 
         if (payoutTarget is IEstate estate)
         {
-            if (!ProfitsBankAccount.CanWithdraw(amount, true).Truth)
+            if (!VirtualCashLedger.Debit(this, EconomicZone.Currency, amount, null, estate, "Estate",
+                    $"Auction proceeds held for estate #{estate.Id} from {assetDescription}",
+                    ProfitsBankAccount, EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime, out _))
             {
                 return false;
             }
 
-            ProfitsBankAccount.WithdrawFromTransaction(amount,
-                $"Auction proceeds held for estate #{estate.Id} from {assetDescription}");
-            ProfitsBankAccount.Bank.CurrencyReserves[ProfitsBankAccount.Currency] -= amount;
-            ProfitsBankAccount.Bank.Changed = true;
             return true;
         }
 
         if (payoutTarget is IBankAccount account)
         {
-            if (!ProfitsBankAccount.CanWithdraw(amount, true).Truth)
+            if (!VirtualCashLedger.Debit(this, EconomicZone.Currency, amount, null, account, "Bank",
+                    $"Payment for successful auction of {assetDescription}",
+                    ProfitsBankAccount, EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime, out _))
             {
                 return false;
             }
 
-            ProfitsBankAccount.WithdrawFromTransfer(amount, account.Bank.Code, account.AccountNumber,
-                $"Payment for successful auction of {assetDescription}");
-            account.DepositFromTransfer(amount, ProfitsBankAccount.Bank.Code, ProfitsBankAccount.AccountNumber,
-                $"Proceeds from a successful auction of {assetDescription} with {Name}");
+            account.DepositFromTransaction(amount, $"Proceeds from a successful auction of {assetDescription} with {Name}");
+            account.Bank.CurrencyReserves[EconomicZone.Currency] += amount;
+            account.Bank.Changed = true;
+            return true;
+        }
+
+        if (payoutTarget is IProperty property)
+        {
+            if (!VirtualCashLedger.Debit(this, EconomicZone.Currency, amount, null, property, "Property",
+                    $"Payment for successful auction of {assetDescription}",
+                    ProfitsBankAccount, EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime, out _))
+            {
+                return false;
+            }
+
+            VirtualCashLedger.CreditBankOrVirtual(property, EconomicZone.Currency, amount, null, this, "AuctionProceeds",
+                $"Proceeds from a successful auction of {assetDescription} with {Name}", property.HotelBankAccount,
+                EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime);
+            return true;
+        }
+
+        if (payoutTarget is ICharacter character)
+        {
+            BidderRefundsOwed[character.Id] += amount;
             return true;
         }
 
@@ -325,16 +347,16 @@ public class AuctionHouse : SaveableItem, IAuctionHouse, IPostCharacterLoadFinal
             x.IsAccountOwner(payoutTarget));
         if (payoutAccount != null)
         {
-            if (!ProfitsBankAccount.CanWithdraw(amount, true).Truth)
+            if (!VirtualCashLedger.Debit(this, EconomicZone.Currency, amount, null, payoutAccount, "Bank",
+                    $"Payment for successful auction of {assetDescription}",
+                    ProfitsBankAccount, EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime, out _))
             {
                 return false;
             }
 
-            ProfitsBankAccount.WithdrawFromTransfer(amount, payoutAccount.Bank.Code, payoutAccount.AccountNumber,
-                $"Payment for successful auction of {assetDescription}");
-            payoutAccount.DepositFromTransfer(amount, ProfitsBankAccount.Bank.Code,
-                ProfitsBankAccount.AccountNumber,
-                $"Proceeds from a successful auction of {assetDescription} with {Name}");
+            payoutAccount.DepositFromTransaction(amount, $"Proceeds from a successful auction of {assetDescription} with {Name}");
+            payoutAccount.Bank.CurrencyReserves[EconomicZone.Currency] += amount;
+            payoutAccount.Bank.Changed = true;
             return true;
         }
 
@@ -481,7 +503,7 @@ public class AuctionHouse : SaveableItem, IAuctionHouse, IPostCharacterLoadFinal
         _name = dbitem.Name;
         AuctionHouseCell = Gameworld.Cells.Get(dbitem.AuctionHouseCellId);
         AuctionHouseCell.CellProposedForDeletion += Cell_CellProposedForDeletion;
-        ProfitsBankAccount = Gameworld.BankAccounts.Get(dbitem.ProfitsBankAccountId);
+        ProfitsBankAccount = Gameworld.BankAccounts.Get(dbitem.ProfitsBankAccountId ?? 0L);
         AuctionListingFeeFlat = dbitem.AuctionListingFeeFlat;
         AuctionListingFeeRate = dbitem.AuctionListingFeeRate;
         DefaultListingTime = TimeSpan.FromSeconds(dbitem.DefaultListingTime);
@@ -594,7 +616,7 @@ public class AuctionHouse : SaveableItem, IAuctionHouse, IPostCharacterLoadFinal
         dbitem.AuctionHouseCellId = AuctionHouseCell.Id;
         dbitem.AuctionListingFeeFlat = AuctionListingFeeFlat;
         dbitem.AuctionListingFeeRate = AuctionListingFeeRate;
-        dbitem.ProfitsBankAccountId = ProfitsBankAccount.Id;
+        dbitem.ProfitsBankAccountId = ProfitsBankAccount?.Id;
         dbitem.DefaultListingTime = DefaultListingTime.TotalSeconds;
         dbitem.Definition = SaveDefinition().ToString();
         Changed = false;
@@ -618,6 +640,8 @@ public class AuctionHouse : SaveableItem, IAuctionHouse, IPostCharacterLoadFinal
     public IEconomicZone EconomicZone { get; set; }
     public ICell AuctionHouseCell { get; set; }
     public IBankAccount ProfitsBankAccount { get; set; }
+    public decimal CashBalance => VirtualCashLedger.Balance(this, EconomicZone.Currency);
+    public decimal AvailableFunds => VirtualCashLedger.AvailableFunds(this, EconomicZone.Currency, ProfitsBankAccount);
     public decimal AuctionListingFeeFlat { get; set; }
     public decimal AuctionListingFeeRate { get; set; }
     public TimeSpan DefaultListingTime { get; set; }
@@ -642,7 +666,7 @@ public class AuctionHouse : SaveableItem, IAuctionHouse, IPostCharacterLoadFinal
         Changed = true;
     }
 
-    public void AddBid(AuctionItem item, AuctionBid bid)
+    public void AddBid(AuctionItem item, AuctionBid bid, string sourceKind = "Cash")
     {
         AuctionBid highestExistingBid = AuctionBids[item].FirstMax(x => x.Bid);
         if (highestExistingBid != null)
@@ -651,15 +675,16 @@ public class AuctionHouse : SaveableItem, IAuctionHouse, IPostCharacterLoadFinal
         }
 
         AuctionBids.Add(item, bid);
-        ProfitsBankAccount.Deposit(bid.Bid);
-        ProfitsBankAccount.Bank.CurrencyReserves[EconomicZone.Currency] += bid.Bid;
-        ProfitsBankAccount.Bank.Changed = true;
+        var bidder = Gameworld.TryGetCharacter(bid.BidderId, true);
+        VirtualCashLedger.Credit(this, EconomicZone.Currency, bid.Bid, bidder, bidder, sourceKind,
+            $"Auction bid by {bidder?.Name ?? $"character #{bid.BidderId:N0}"} at {Name}",
+            EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime, item.Asset, DescribeLotPlain(item));
         Changed = true;
     }
 
-    public void BuyoutItem(AuctionItem item, AuctionBid bid)
+    public void BuyoutItem(AuctionItem item, AuctionBid bid, string sourceKind = "Cash")
     {
-        AddBid(item, bid);
+        AddBid(item, bid, sourceKind);
         CompleteAuction(item, bid, EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime);
     }
 
@@ -672,14 +697,13 @@ public class AuctionHouse : SaveableItem, IAuctionHouse, IPostCharacterLoadFinal
     public bool ClaimRefund(ICharacter actor)
     {
         decimal owed = BidderRefundsOwed[actor.Id];
-        if (!ProfitsBankAccount.CanWithdraw(owed, false).Truth)
+        if (!VirtualCashLedger.Debit(this, EconomicZone.Currency, owed, actor, actor, "Refund",
+                "Refund for failed bid", ProfitsBankAccount, EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime,
+                out _))
         {
             return false;
         }
 
-        ProfitsBankAccount.WithdrawFromTransaction(owed, "Refund for failed bid");
-        ProfitsBankAccount.Bank.CurrencyReserves[ProfitsBankAccount.Currency] -= owed;
-        ProfitsBankAccount.Bank.Changed = true;
         BidderRefundsOwed[actor.Id] = 0.0M;
         Changed = true;
         return true;
@@ -718,6 +742,12 @@ public class AuctionHouse : SaveableItem, IAuctionHouse, IPostCharacterLoadFinal
                 return BuildingCommandRate(actor, command);
             case "bank":
                 return BuildingCommandBank(actor, command);
+            case "deposit":
+                return BuildingCommandDeposit(actor, command);
+            case "withdraw":
+                return BuildingCommandWithdraw(actor, command);
+            case "ledger":
+                return BuildingCommandLedger(actor, command);
             case "time":
                 return BuildingCommandTime(actor, command);
             case "location":
@@ -730,9 +760,103 @@ public class AuctionHouse : SaveableItem, IAuctionHouse, IPostCharacterLoadFinal
   #3auction set economiczone <which>#0 - changes the economic zone
   #3auction set fee <amount>#0 - sets the flat fee for listing an item
   #3auction set rate <%>#0 - sets the percentage fee for listing an item
-  #3auction set bank <bank code>:<accn>#0 - changes the bank account for revenues
+  #3auction set bank <bank code>:<accn>|none#0 - changes the bank account for revenues
+  #3auction set deposit <amount>#0 - deposits held cash into the auction house virtual balance
+  #3auction set withdraw <amount>#0 - withdraws from virtual cash and bank fallback
+  #3auction set ledger [count]#0 - reviews the auction house cash ledger
   #3auction set time <time period>#0 - sets the amount of time auctions run for
   #3auction set location#0 - changes the location of the auction house to the current cell".SubstituteANSIColour());
+        return false;
+    }
+
+    private bool BuildingCommandDeposit(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished || !EconomicZone.Currency.TryGetBaseCurrency(command.SafeRemainingArgument, out var amount) || amount <= 0.0M)
+        {
+            actor.OutputHandler.Send($"How much {EconomicZone.Currency.Name.ColourName()} do you want to deposit?");
+            return false;
+        }
+
+        var payment = new OtherCashPayment(EconomicZone.Currency, actor);
+        if (payment.AccessibleMoneyForPayment() < amount)
+        {
+            actor.OutputHandler.Send(
+                $"You are only holding {EconomicZone.Currency.Describe(payment.AccessibleMoneyForPayment(), CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}.");
+            return false;
+        }
+
+        payment.TakePayment(amount);
+        VirtualCashLedger.Credit(this, EconomicZone.Currency, amount, actor, actor, "Cash", "Auction house cash deposit",
+            EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime);
+        actor.OutputHandler.Send(
+            $"You deposit {EconomicZone.Currency.Describe(amount, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()} into {Name.ColourName()}.");
+        return true;
+    }
+
+    private bool BuildingCommandWithdraw(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished || !EconomicZone.Currency.TryGetBaseCurrency(command.SafeRemainingArgument, out var amount) || amount <= 0.0M)
+        {
+            actor.OutputHandler.Send($"How much {EconomicZone.Currency.Name.ColourName()} do you want to withdraw?");
+            return false;
+        }
+
+        if (!VirtualCashLedger.Debit(this, EconomicZone.Currency, amount, actor, actor, "CashWithdrawal",
+                "Auction house cash withdrawal", ProfitsBankAccount,
+                EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime, out var error))
+        {
+            actor.OutputHandler.Send(error);
+            return false;
+        }
+
+        var cash = CurrencyGameItemComponentProto.CreateNewCurrencyPile(EconomicZone.Currency,
+            EconomicZone.Currency.FindCoinsForAmount(amount, out _));
+        if (actor.Body.CanGet(cash, 0))
+        {
+            actor.Body.Get(cash, silent: true);
+        }
+        else
+        {
+            cash.RoomLayer = actor.RoomLayer;
+            actor.Location.Insert(cash, true);
+            actor.OutputHandler.Send("You couldn't hold the money, so it is on the ground.");
+        }
+
+        actor.OutputHandler.Send(
+            $"You withdraw {EconomicZone.Currency.Describe(amount, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()} from {Name.ColourName()}.");
+        return true;
+    }
+
+    private bool BuildingCommandLedger(ICharacter actor, StringStack command)
+    {
+        var count = 25;
+        if (!command.IsFinished && (!int.TryParse(command.SafeRemainingArgument, out count) || count <= 0))
+        {
+            actor.OutputHandler.Send("How many ledger entries do you want to review?");
+            return false;
+        }
+
+        var entries = VirtualCashLedger.LedgerEntries(this, count);
+        if (!entries.Any())
+        {
+            actor.OutputHandler.Send($"{Name.ColourName()} does not have any cash ledger entries.");
+            return false;
+        }
+
+        actor.OutputHandler.Send(StringUtilities.GetTextTable(
+            entries.Select(x => new List<string>
+            {
+                x.RealDateTime.ToString("g", actor),
+                x.ActorName ?? string.Empty,
+                EconomicZone.Currency.Describe(x.Amount, CurrencyDescriptionPatternType.ShortDecimal),
+                EconomicZone.Currency.Describe(x.BalanceAfter, CurrencyDescriptionPatternType.ShortDecimal),
+                $"{x.SourceKind}->{x.DestinationKind}",
+                x.Reason
+            }),
+            new List<string> { "When", "Actor", "Amount", "Balance", "Route", "Reason" },
+            actor.LineFormatLength,
+            colour: Telnet.Green,
+            unicodeTable: actor.Account.UseUnicode));
         return false;
     }
 
@@ -770,8 +894,16 @@ public class AuctionHouse : SaveableItem, IAuctionHouse, IPostCharacterLoadFinal
         if (command.IsFinished)
         {
             actor.OutputHandler.Send(
-                "You must specify a bank account into which any revenue will be transferred. Use the format BANKCODE:ACCOUNT#.");
+                "You must specify a bank account into which any revenue will be transferred, or NONE to clear it.");
             return false;
+        }
+
+        if (command.SafeRemainingArgument.EqualToAny("none", "clear", "remove"))
+        {
+            ProfitsBankAccount = null;
+            Changed = true;
+            actor.OutputHandler.Send("This auction house no longer has a linked bank account. It will use its virtual cash balance for settlement.");
+            return true;
         }
 
         string bankString = command.SafeRemainingArgument;
@@ -931,14 +1063,18 @@ public class AuctionHouse : SaveableItem, IAuctionHouse, IPostCharacterLoadFinal
         sb.AppendLine(
             $"Location: {AuctionHouseCell.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreCanSee)} (#{AuctionHouseCell.Id.ToString("N0", actor)})");
         sb.AppendLine(
-            $"Bank Account: {ProfitsBankAccount.AccountNumber.ToString("F0", actor).ColourValue()} with {ProfitsBankAccount.Bank.Code.ColourName()}");
+            $"Bank Account: {(ProfitsBankAccount is null ? "None".ColourError() : $"{ProfitsBankAccount.AccountNumber.ToString("F0", actor).ColourValue()} with {ProfitsBankAccount.Bank.Code.ColourName()}")}");
         sb.AppendLine(
             $"Listing Fee: {EconomicZone.Currency.Describe(AuctionListingFeeFlat, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()} + {AuctionListingFeeRate.ToString("P3", actor).ColourValue()}");
         sb.AppendLine($"Listing Time: {DefaultListingTime.Describe(actor).ColourValue()}");
         sb.AppendLine();
         sb.AppendLine($"Current Listings: {ActiveAuctionItems.Count().ToString("N0", actor).ColourValue()}");
         sb.AppendLine(
-            $"Bank Account Balance: {EconomicZone.Currency.Describe(ProfitsBankAccount.CurrentBalance, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
+            $"Virtual Cash Balance: {EconomicZone.Currency.Describe(CashBalance, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
+        sb.AppendLine(
+            $"Bank Account Balance: {(ProfitsBankAccount is null ? "None".ColourError() : EconomicZone.Currency.Describe(ProfitsBankAccount.CurrentBalance, CurrencyDescriptionPatternType.ShortDecimal).ColourValue())}");
+        sb.AppendLine(
+            $"Available Settlement Funds: {EconomicZone.Currency.Describe(AvailableFunds, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
         sb.AppendLine(
             $"Refunds Owed: {EconomicZone.Currency.Describe(BidderRefundsOwed.Sum(x => x.Value), CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
         sb.AppendLine(

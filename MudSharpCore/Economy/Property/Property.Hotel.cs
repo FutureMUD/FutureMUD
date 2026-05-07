@@ -170,6 +170,9 @@ public partial class Property
 		}
 	}
 
+	public decimal HotelCashBalance => VirtualCashLedger.Balance(this, EconomicZone.Currency);
+	public decimal HotelAvailableFunds => VirtualCashLedger.AvailableFunds(this, EconomicZone.Currency, HotelBankAccount);
+
 	public IFutureProg HotelCanRentProg
 	{
 		get
@@ -313,12 +316,6 @@ public partial class Property
 		if (!IsApprovedHotel)
 		{
 			reason = "This property is not currently approved as a hotel.";
-			return false;
-		}
-
-		if (HotelBankAccount is null)
-		{
-			reason = "This hotel does not have a bank account configured.";
 			return false;
 		}
 
@@ -562,7 +559,7 @@ public partial class Property
 		{
 			Asset = lost.Bundle,
 			Seller = this,
-			PayoutTarget = HotelBankAccount,
+			PayoutTarget = this,
 			ListingDateTime = EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime,
 			FinishingDateTime = new MudDateTime(EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime) + auctionHouse.DefaultListingTime,
 			MinimumPrice = lost.ReservePrice,
@@ -612,11 +609,11 @@ public partial class Property
 	{
 		var bundle = lost.Bundle;
 		var value = Math.Max(lost.ReservePrice, HotelItemValue(bundle));
-		if (value > 0.0M && HotelBankAccount is not null)
+		if (value > 0.0M)
 		{
-			HotelBankAccount.DepositFromTransaction(value, $"Liquidated lost property from {Name}");
-			HotelBankAccount.Bank.CurrencyReserves[EconomicZone.Currency] += value;
-			HotelBankAccount.Bank.Changed = true;
+			VirtualCashLedger.CreditBankOrVirtual(this, EconomicZone.Currency, value, null, this, "Liquidation",
+				$"Liquidated lost property from {Name}", HotelBankAccount,
+				EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime, lost.Bundle, lost.Bundle?.Name);
 		}
 
 		bundle?.Delete();

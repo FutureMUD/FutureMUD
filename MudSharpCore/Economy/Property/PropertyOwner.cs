@@ -3,6 +3,7 @@ using MudSharp.Character;
 using MudSharp.Character.Name;
 using MudSharp.Community;
 using MudSharp.Database;
+using MudSharp.Economy.Currency;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using System;
@@ -11,6 +12,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using MudSharp.TimeAndDate;
 
 namespace MudSharp.Economy.Property;
 
@@ -159,6 +161,18 @@ public class PropertyOwner : SaveableItem, IPropertyOwner, ILazyLoadDuringIdleTi
             _revenueAccount = value;
             Changed = true;
         }
+    }
+
+    public decimal RevenueCashBalance(ICurrency currency)
+    {
+        return VirtualCashLedger.Balance(this, currency);
+    }
+
+    public void CreditRevenue(ICurrency currency, decimal amount, ICharacter actor, IFrameworkItem counterparty,
+        string reason, MudDateTime mudDateTime = null)
+    {
+        VirtualCashLedger.CreditBankOrVirtual(this, currency, amount, actor, counterparty, "PropertyRevenue", reason,
+            RevenueAccount, mudDateTime);
     }
 
     #endregion

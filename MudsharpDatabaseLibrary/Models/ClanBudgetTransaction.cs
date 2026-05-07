@@ -5,7 +5,7 @@ public partial class ClanBudgetTransaction
 	public long Id { get; set; }
 	public long ClanBudgetId { get; set; }
 	public long ActorId { get; set; }
-	public long BankAccountId { get; set; }
+	public long? BankAccountId { get; set; }
 	public long CurrencyId { get; set; }
 	public decimal Amount { get; set; }
 	public string TransactionTime { get; set; }

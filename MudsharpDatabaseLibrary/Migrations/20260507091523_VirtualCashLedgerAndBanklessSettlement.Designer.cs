@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MudSharp.Database;
 
@@ -11,9 +12,11 @@ using MudSharp.Database;
 namespace MudSharp.Migrations
 {
     [DbContext(typeof(FuturemudDatabaseContext))]
-    partial class FutureMUDContextModelSnapshot : ModelSnapshot
+    [Migration("20260507091523_VirtualCashLedgerAndBanklessSettlement")]
+    partial class VirtualCashLedgerAndBanklessSettlement
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -5942,7 +5945,7 @@ namespace MudSharp.Migrations
                     b.Property<long>("AppointmentId")
                         .HasColumnType("bigint(20)");
 
-                    b.Property<long?>("BankAccountId")
+                    b.Property<long>("BankAccountId")
                         .HasColumnType("bigint(20)");
 
                     b.Property<long>("ClanId")
@@ -6027,7 +6030,7 @@ namespace MudSharp.Migrations
                     b.Property<decimal>("Amount")
                         .HasColumnType("decimal(58,29)");
 
-                    b.Property<long?>("BankAccountId")
+                    b.Property<long>("BankAccountId")
                         .HasColumnType("bigint(20)");
 
                     b.Property<decimal>("BankBalanceAfter")
@@ -21619,7 +21622,8 @@ namespace MudSharp.Migrations
                     b.HasOne("MudSharp.Models.BankAccount", "BankAccount")
                         .WithMany("ClanBudgets")
                         .HasForeignKey("BankAccountId")
-                        .OnDelete(DeleteBehavior.SetNull)
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
                         .HasConstraintName("FK_ClanBudgets_BankAccounts");
 
                     b.HasOne("MudSharp.Models.Clan", "Clan")
@@ -21657,7 +21661,8 @@ namespace MudSharp.Migrations
                     b.HasOne("MudSharp.Models.BankAccount", "BankAccount")
                         .WithMany("ClanBudgetTransactions")
                         .HasForeignKey("BankAccountId")
-                        .OnDelete(DeleteBehavior.SetNull)
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
                         .HasConstraintName("FK_ClanBudgetTransactions_BankAccounts");
 
                     b.HasOne("MudSharp.Models.ClanBudget", "ClanBudget")

@@ -97,11 +97,11 @@ The classifications below are conservative. "Easy" means the current implementat
 | Stock shopper templates, especially `SimpleShopper` | Easy | Shopper loaders are registered by type, shopper definitions are persisted, and `SimpleShopper` already externalizes its behavior into configured progs |
 | Markets tied to seeded economic zones | Easy | A stock baseline now exists through `EconomySeeder`, although builders still need to decide how many zones and markets their live world should ultimately keep |
 | Jobs tied to seeded employers or clans | Possible | Runtime support exists, but good stock jobs require seeded institutions, currencies, and reusable eligibility progs |
-| Auction houses | Possible | The runtime is ready, but auction houses depend on chosen cells and settlement accounts, so they are best seeded only once a world layout exists |
-| Stables | Possible | The runtime is ready, but useful stable examples depend on chosen cells, bank accounts, mounted-travel assumptions, and local fee/access policy |
+| Auction houses | Possible | The runtime is ready and can operate bankless with a virtual reserve, but auction houses still depend on chosen cells and commercial geography |
+| Stables | Possible | The runtime is ready and can operate bankless with a virtual reserve, but useful stable examples depend on chosen cells, mounted-travel assumptions, and local fee/access policy |
 | Shops | Poor candidate without more design work | The runtime exists, but meaningful shop content depends on cells, stockrooms, tills, merchandise selection, item prototypes, payment items, and world-specific retail design |
 | Properties | Poor candidate without more design work | Property is location-specific, owner-specific, and strongly coupled to the world's map and institutions |
-| Hotel-room rental setups | Poor candidate without more design work | Runtime support exists, but useful hotel content depends on mapped property cells, keys, bank accounts, furnishings, auction houses, and local licensing policy |
+| Hotel-room rental setups | Poor candidate without more design work | Runtime support exists and bank accounts are optional, but useful hotel content depends on mapped property cells, keys, furnishings, auction houses, and local licensing policy |
 | Estates and morgues | Poor candidate without more design work | The runtime now exists, but setup still depends on world-specific cells, clans, legal authorities, auction houses, and ownership expectations |
 
 ## Easy Seeder Candidates in More Detail
@@ -220,10 +220,10 @@ Without that surrounding content, seeded jobs risk becoming disconnected example
 Auction houses need:
 
 - a real cell
-- a real settlement account
+- a decision about whether to seed an opening virtual reserve or attach a real settlement account later
 - a clear place in the world's commercial geography
 
-So they are practical only once the seeding workflow can reference world-specific cells and accounts safely.
+So they are practical only once the seeding workflow can reference world-specific cells safely. A bank account is no longer mandatory, but stock content still should not guess where an auction house physically belongs.
 
 ## Poor Candidates Without More Design Work
 ### Shops
@@ -252,7 +252,7 @@ Properties are even more world-specific because the seeded content would need to
 - which properties are approved hotels
 - which property cells are rentable rooms
 - which items count as furnishings for deposit claims
-- which bank account receives room rent, deposits, and tax remittance
+- whether a bank account or opening virtual reserve receives room rent, deposits, and tax remittance
 - which auction house should receive abandoned lost-property bundles
 
 ### Estates and Morgues

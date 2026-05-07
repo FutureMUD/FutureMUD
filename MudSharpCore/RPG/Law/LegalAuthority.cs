@@ -250,6 +250,7 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
     public bool PlayersKnowTheirCrimes { get; set; }
     public ulong? DiscordChannelId { get; set; }
     public IBankAccount BankAccount { get; set; }
+    public decimal CashBalance => VirtualCashLedger.Balance(this, Currency);
     public bool AutomaticallyConvict { get; set; }
     public TimeSpan AutomaticConvictionTime { get; set; }
 
@@ -696,7 +697,9 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
             return;
         }
 
-        BankAccount?.DepositFromTransaction(crime.FineRecorded, $"Fine paid by {criminal.PersonalName.GetName(NameStyle.FullName)}");
+        VirtualCashLedger.CreditBankOrVirtual(this, Currency, crime.FineRecorded, criminal, criminal, "Fine",
+            $"Fine paid by {criminal.PersonalName.GetName(NameStyle.FullName)}", BankAccount,
+            crime.TimeOfCrime);
 
         crime.FineHasBeenPaid = true;
         _finesOwed[criminal.Id] -= crime.FineRecorded;

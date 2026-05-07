@@ -80,18 +80,18 @@ The syntax is:
 			return;
 		}
 
-		if (tollkeeperAis.All(x => !x.IsReadyToBeUsed))
-		{
-			actor.OutputHandler.Send("Your tollkeeper AI is not ready to be used yet.");
-			return;
-		}
-
 		var ss = new StringStack(command.RemoveFirstWord());
 		if (ss.IsFinished)
 		{
 			if (actor.RemoveAllEffects<ITollkeeperModeEffect>(fireRemovalAction: true))
 			{
 				actor.OutputHandler.Handle(new EmoteOutput(new Emote("@ are|is no longer imposing a toll.", actor)));
+				return;
+			}
+
+			if (tollkeeperAis.All(x => !x.IsReadyToBeUsed))
+			{
+				actor.OutputHandler.Send("Your tollkeeper AI is not ready to be used yet.");
 				return;
 			}
 
@@ -108,6 +108,12 @@ The syntax is:
 			}
 
 			actor.OutputHandler.Send("You are not currently imposing a toll.");
+			return;
+		}
+
+		if (tollkeeperAis.All(x => !x.IsReadyToBeUsed))
+		{
+			actor.OutputHandler.Send("Your tollkeeper AI is not ready to be used yet.");
 			return;
 		}
 

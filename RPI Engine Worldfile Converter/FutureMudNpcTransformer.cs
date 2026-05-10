@@ -8,6 +8,7 @@ namespace RPI_Engine_Worldfile_Converter;
 
 public sealed class FutureMudNpcTransformer
 {
+	private const string BasicMountAiName = "BasicMount";
 	private static readonly Regex NonLettersRegex = new("[^A-Za-z]+", RegexOptions.Compiled);
 	private static readonly IReadOnlyList<(string RaceName, string[] Needles)> SpecificAnimalRaceLexicalMap =
 	[
@@ -50,6 +51,11 @@ public sealed class FutureMudNpcTransformer
 		("Rabbit", [" rabbit ", " bunny "]),
 		("Hare", [" hare "]),
 		("Deer", [" deer ", " stag ", " doe ", " fawn "]),
+		("Donkey", [" donkey "]),
+		("Mule", [" mule "]),
+		("Camel", [" camel ", " dromedary "]),
+		("Llama", [" llama "]),
+		("Elephant", [" elephant "]),
 		("Pig", [" pig ", " sow ", " piglet "]),
 		("Boar", [" boar "]),
 		("Sheep", [" sheep ", " ewe ", " ram ", " lamb "]),
@@ -68,6 +74,9 @@ public sealed class FutureMudNpcTransformer
 		"Warg",
 		"Mule",
 		"Donkey",
+		"Camel",
+		"Elephant",
+		"Llama",
 		"Dog",
 		"Cat",
 		"Snake",
@@ -84,6 +93,16 @@ public sealed class FutureMudNpcTransformer
 		"Nature Spirit",
 		"Elemental Spirit"
 	];
+	private static readonly HashSet<string> RideableMountRaceNames = new(StringComparer.OrdinalIgnoreCase)
+	{
+		"Horse",
+		"Donkey",
+		"Mule",
+		"Camel",
+		"Elephant",
+		"Llama",
+		"Warg",
+	};
 
 	private readonly IReadOnlyDictionary<int, (string GroupKey, string ZoneName)> _zoneEvidence;
 
@@ -146,7 +165,7 @@ public sealed class FutureMudNpcTransformer
 			new NpcAttributeValue("Constitution", npc.Constitution, "CON"),
 			new NpcAttributeValue("Agility", npc.Agility, "AGI"),
 		];
-		var aiNames = ResolveArtificialIntelligences(npc, warnings);
+		var aiNames = ResolveArtificialIntelligences(npc, resolution, warnings);
 		var deferredFlags = ResolveDeferredBehaviorFlags(npc, warnings);
 		var (heightMetres, weightKilograms) = ResolvePhysicals(npc, resolution.RaceName);
 
@@ -334,9 +353,27 @@ public sealed class FutureMudNpcTransformer
 		return traits;
 	}
 
-	private static IReadOnlyList<string> ResolveArtificialIntelligences(RpiNpcRecord npc, ICollection<NpcConversionWarning> warnings)
+	private static IReadOnlyList<string> ResolveArtificialIntelligences(
+		RpiNpcRecord npc,
+		RaceResolution resolution,
+		ICollection<NpcConversionWarning> warnings)
 	{
 		List<string> aiNames = [];
+
+		if (npc.ActFlags.HasFlag(RpiNpcActFlags.Mount))
+		{
+			if (!string.IsNullOrWhiteSpace(resolution.RaceName) &&
+			    RideableMountRaceNames.Contains(resolution.RaceName))
+			{
+				aiNames.Add(BasicMountAiName);
+			}
+			else
+			{
+				warnings.Add(new NpcConversionWarning(
+					"legacy-mount-unmapped",
+					"ACT_MOUNT was preserved as metadata because this pass only maps high-confidence seeded mount races to BasicMount."));
+			}
+		}
 
 		if (npc.ActFlags.HasFlag(RpiNpcActFlags.Aggressive))
 		{
@@ -407,6 +444,14 @@ public sealed class FutureMudNpcTransformer
 		{
 			flags.Add("stayput");
 			warnings.Add(new NpcConversionWarning("legacy-stayput", "ACT_STAYPUT was preserved as provenance only."));
+		}
+
+		if (npc.ActFlags.HasFlag(RpiNpcActFlags.PackAnimal))
+		{
+			flags.Add("packanimal");
+			warnings.Add(new NpcConversionWarning(
+				"legacy-pack-animal",
+				"ACT_PACKANIMAL was preserved as metadata because pack cargo and hitching behaviour are not converted in this pass."));
 		}
 
 		return flags;

@@ -38,6 +38,7 @@ public partial class UsefulSeeder : IDatabaseSeeder
         "VerminScavenge",
         "TrackingAggressiveToAllOtherSpecies",
         "BasicSelfCare",
+        "BasicMount",
         "ExampleArenaParticipant",
         "ExampleArborealWanderer",
         "ExampleDenBuilder",
@@ -113,7 +114,7 @@ public partial class UsefulSeeder : IDatabaseSeeder
             Func<string, FuturemudDatabaseContext, (bool Success, string error)> Validator)>
         {
             ("ai",
-                "Do you want to install the stock AI example package? This includes repeatable command, combat, scavenging and wandering examples, plus the newer arena, arboreal, den-builder and lair-scavenger samples.\n\nPlease answer #3yes#f or #3no#f: ",
+                "Do you want to install the stock AI example package? This includes repeatable command, combat, mount, scavenging and wandering examples, plus the newer arena, arboreal, den-builder and lair-scavenger samples.\n\nPlease answer #3yes#f or #3no#f: ",
                 (context, questions) => ClassifyAiPackagePresence(context) != ShouldSeedResult.MayAlreadyBeInstalled,
                 (answer, context) =>
                 {
@@ -844,6 +845,22 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
                 new XElement("BindingDelayDiceExpression", "3000+1d2000"),
                 new XElement("BleedingEmoteDelayDiceExpression", "3000+1d2000"),
                 new XElement("BleedingEmote", new XCData(@"@ shout|shouts out, ""I'm bleeding!"""))).ToString());
+        EnsureArtificialIntelligence(
+            context,
+            "BasicMount",
+            "Mount",
+            new XElement("Definition",
+                new XElement("PermitRiderProg", alwaysTrue.Id),
+                new XElement("PermitControlProg", alwaysTrue.Id),
+                new XElement("WhyCannotPermitRiderProg", 0),
+                new XElement("MountNonConsensualMountDifficulty", (int)Difficulty.Impossible),
+                new XElement("MountControlDifficulty", (int)Difficulty.Trivial),
+                new XElement("MountResistBuckDifficulty", (int)Difficulty.Normal),
+                new XElement("RawMountEmote", new XCData("$1 $1|mount|mounts $0.")),
+                new XElement("RawDismountEmote", new XCData("$1 $1|dismount|dismounts $0.")),
+                new XElement("RawBuckEmote", new XCData("$0 try|tries to buck $1!")),
+                new XElement("RawControlDeniedEmote", new XCData("$0 refuse|refuses to obey $1's order.")),
+                new XElement("MaximumNumberOfRiders", 1)).ToString());
         EnsureArtificialIntelligence(
             context,
             "ExampleArenaParticipant",

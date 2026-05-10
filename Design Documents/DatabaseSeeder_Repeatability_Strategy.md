@@ -40,7 +40,7 @@ This document is based on verified code behavior in the current stock repo, not 
   - additive rerun messaging is wired through seeder metadata rather than only color
   - contributor guidance for repeatability now lives in `DatabaseSeeder/AGENTS.md`
 - `AIStorytellerSeeder`, `UsefulSeeder`, `MythicalAnimalSeeder`, `RobotSeeder`, `CelestialSeeder`, `CurrencySeeder`, and `ClanSeeder` now explicitly set `SafeToRunMoreThanOnce`.
-- `UsefulSeeder` now exposes its AI examples as one repeatable stock package question instead of the older `ai` / `ai2` split, and that package installs or refreshes stock-owned AI examples by stable names.
+- `UsefulSeeder` now exposes its AI examples as one repeatable stock package question instead of the older `ai` / `ai2` split, and that package installs or refreshes stock-owned AI examples by stable names, including the `BasicMount` stock `MountAI` definition used by mount-capable NPC imports.
 - `CoreDataSeeder` now owns the stock terrain catalogue, terrain-tag taxonomy, and stock terrain forage-profile backfill so terrain-aware packages and animal grazing systems can rely on default terrain yield capacities without an extra prompt.
 - `StockMeritsSeeder` now provides a repair-capable stock merits and flaws package built around stable merit names and tag-driven helper FutureProgs.
 - Shared answer reuse is no longer combat-only. The live shared-answer wave covers combat message style, damage randomness, human health model, and non-human health model.

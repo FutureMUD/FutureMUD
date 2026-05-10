@@ -140,6 +140,77 @@ public class RpiNpcConversionTests
 		Assert.AreEqual("Spirit Court", wraith.CultureName);
 	}
 
+	[TestMethod]
+	public void NpcTransformer_MapsStructuredMountCreatures_ToBasicMountAi()
+	{
+		var transformer = new FutureMudNpcTransformer();
+		var conversion = transformer.Convert(
+		[
+			BuildMinimalNpc(2100, "bay horse mount", "a bay horse") with
+			{
+				RawActFlags = (long)RpiNpcActFlags.Mount,
+				ActFlags = RpiNpcActFlags.Mount,
+				LegacyRaceId = 12
+			},
+			BuildMinimalNpc(2101, "grey donkey mount", "a grey donkey") with
+			{
+				RawActFlags = (long)RpiNpcActFlags.Mount,
+				ActFlags = RpiNpcActFlags.Mount,
+				LegacyRaceId = 20
+			},
+			BuildMinimalNpc(2102, "sure footed mule mount", "a sure-footed mule") with
+			{
+				RawActFlags = (long)RpiNpcActFlags.Mount,
+				ActFlags = RpiNpcActFlags.Mount,
+				LegacyRaceId = 19
+			},
+			BuildMinimalNpc(2103, "war warg wolfspawn mount", "a massive warg") with
+			{
+				RawActFlags = (long)RpiNpcActFlags.Mount,
+				ActFlags = RpiNpcActFlags.Mount,
+				LegacyRaceId = 21
+			}
+		]);
+
+		foreach (var npc in conversion.Npcs)
+		{
+			Assert.AreEqual(NpcConversionStatus.Ready, npc.Status);
+			CollectionAssert.Contains(npc.ArtificialIntelligenceNames.ToList(), "BasicMount");
+			Assert.IsFalse(npc.Warnings.Any(x => x.Code == "legacy-mount-unmapped"));
+		}
+	}
+
+	[TestMethod]
+	public void NpcTransformer_WarnsForUnsupportedMountAndPackAnimalFlags()
+	{
+		var transformer = new FutureMudNpcTransformer();
+		var conversion = transformer.Convert(
+		[
+			BuildMinimalNpc(2110, "guard ACT_MOUNT", "a mounted guard") with
+			{
+				RawActFlags = (long)RpiNpcActFlags.Mount,
+				ActFlags = RpiNpcActFlags.Mount
+			},
+			BuildMinimalNpc(2111, "pack horse", "a pack horse") with
+			{
+				RawActFlags = (long)RpiNpcActFlags.PackAnimal,
+				ActFlags = RpiNpcActFlags.PackAnimal,
+				LegacyRaceId = 12
+			}
+		]);
+
+		var unsupportedMount = conversion.Npcs.Single(x => x.Vnum == 2110);
+		Assert.AreEqual(NpcConversionStatus.Ready, unsupportedMount.Status);
+		CollectionAssert.DoesNotContain(unsupportedMount.ArtificialIntelligenceNames.ToList(), "BasicMount");
+		Assert.IsTrue(unsupportedMount.Warnings.Any(x => x.Code == "legacy-mount-unmapped"));
+
+		var packAnimal = conversion.Npcs.Single(x => x.Vnum == 2111);
+		Assert.AreEqual(NpcConversionStatus.Ready, packAnimal.Status);
+		CollectionAssert.DoesNotContain(packAnimal.ArtificialIntelligenceNames.ToList(), "BasicMount");
+		CollectionAssert.Contains(packAnimal.DeferredBehaviorFlags.ToList(), "packanimal");
+		Assert.IsTrue(packAnimal.Warnings.Any(x => x.Code == "legacy-pack-animal"));
+	}
+
 	private static FutureMudNpcBaselineCatalog BuildBaseline()
 	{
 		return new FutureMudNpcBaselineCatalog
@@ -313,6 +384,7 @@ public class RpiNpcConversionTests
 			{
 				["AggressiveToAllOtherSpecies"] = 1,
 				["TrackingAggressiveToAllOtherSpecies"] = 2,
+				["BasicMount"] = 3,
 			},
 			NameProfilesByCultureId = new Dictionary<long, Dictionary<Gender, long>>
 			{

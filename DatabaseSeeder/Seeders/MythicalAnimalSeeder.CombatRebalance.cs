@@ -15,6 +15,77 @@ public partial class MythicalAnimalSeeder
 
 	private bool UsesCombatRebalance => _combatBalanceProfile == CombatBalanceProfile.CombatRebalance;
 
+	private const string DefaultMythicalCombatRebalanceReferenceKey = "*";
+
+	private static readonly IReadOnlyDictionary<string, string[]> MythicalCombatRebalanceReferenceBodyNames =
+		new Dictionary<string, string[]>(StringComparer.OrdinalIgnoreCase)
+		{
+			["Organic Humanoid"] =
+			[
+				"Organic Humanoid", "Quadruped Base", "Ungulate", "Toed Quadruped", "Avian", "Vermiform",
+				"Serpentine", "Piscine"
+			],
+			["Horned Humanoid"] =
+			[
+				"Organic Humanoid", "Quadruped Base", "Ungulate", "Toed Quadruped", "Avian", "Vermiform",
+				"Serpentine", "Piscine"
+			],
+			["Winged Humanoid"] =
+			[
+				"Organic Humanoid", "Quadruped Base", "Ungulate", "Toed Quadruped", "Avian", "Vermiform",
+				"Serpentine", "Piscine"
+			],
+			["Naga"] =
+			[
+				"Organic Humanoid", "Quadruped Base", "Ungulate", "Toed Quadruped", "Avian", "Vermiform",
+				"Serpentine", "Piscine"
+			],
+			["Mermaid"] =
+			[
+				"Organic Humanoid", "Quadruped Base", "Ungulate", "Toed Quadruped", "Avian", "Vermiform",
+				"Serpentine", "Piscine"
+			],
+			["Centaur"] =
+			[
+				"Organic Humanoid", "Quadruped Base", "Ungulate", "Toed Quadruped", "Avian", "Vermiform",
+				"Serpentine", "Piscine"
+			],
+			["Toed Quadruped"] = ["Toed Quadruped", "Quadruped Base", "Ungulate", "Avian", "Serpentine"],
+			["Ungulate"] = ["Ungulate", "Quadruped Base", "Toed Quadruped", "Avian"],
+			["Avian"] = ["Avian", "Toed Quadruped", "Quadruped Base", "Ungulate"],
+			["Serpentine"] = ["Serpentine", "Vermiform"],
+			["Vermiform"] = ["Vermiform", "Serpentine"],
+			["Insectoid"] = ["Insectoid", "Arachnid", "Scorpion", "Beetle", "Centipede"],
+			["Arachnid"] = ["Arachnid", "Scorpion", "Insectoid", "Centipede"],
+			["Beetle"] = ["Beetle", "Insectoid", "Centipede"],
+			["Centipede"] = ["Centipede", "Insectoid", "Beetle"],
+			["Scorpion"] = ["Scorpion", "Arachnid", "Insectoid", "Centipede"],
+			["Eastern Dragon"] =
+				["Quadruped Base", "Toed Quadruped", "Ungulate", "Avian", "Piscine", "Scorpion"],
+			["Griffin"] =
+				["Quadruped Base", "Toed Quadruped", "Ungulate", "Avian", "Piscine", "Scorpion"],
+			["Hippogriff"] =
+				["Quadruped Base", "Toed Quadruped", "Ungulate", "Avian", "Piscine", "Scorpion"],
+			["Manticore"] =
+				["Quadruped Base", "Toed Quadruped", "Ungulate", "Avian", "Piscine", "Scorpion"],
+			["Hippocamp"] =
+				["Quadruped Base", "Toed Quadruped", "Ungulate", "Avian", "Piscine", "Scorpion"],
+			["Wyvern"] = ["Avian", "Quadruped Base", "Toed Quadruped", "Ungulate"],
+			[DefaultMythicalCombatRebalanceReferenceKey] =
+			[
+				"Organic Humanoid", "Quadruped Base", "Toed Quadruped", "Ungulate", "Avian", "Insectoid",
+				"Arachnid", "Beetle", "Centipede", "Vermiform", "Serpentine", "Piscine", "Scorpion"
+			]
+		};
+
+	internal static IReadOnlyDictionary<string, string[]> MythicalCombatRebalanceReferenceBodyNamesForTesting =>
+		MythicalCombatRebalanceReferenceBodyNames;
+
+	internal static IReadOnlyCollection<string> MythicalCombatRebalanceBodyKeysForTesting =>
+		MythicalCombatRebalanceReferenceBodyNames.Keys
+			.Where(x => !x.Equals(DefaultMythicalCombatRebalanceReferenceKey, StringComparison.OrdinalIgnoreCase))
+			.ToArray();
+
 	private double ResolveMythicalHealthMultiplier(MythicalRaceTemplate template)
 	{
 		if (!UsesCombatRebalance)
@@ -105,89 +176,39 @@ public partial class MythicalAnimalSeeder
 			yield return countsAsBody;
 		}
 
-		switch (template.BodyKey)
+		if (!MythicalCombatRebalanceReferenceBodyNames.TryGetValue(template.BodyKey, out string[]? referenceBodyNames))
 		{
-			case "Organic Humanoid":
-			case "Horned Humanoid":
-			case "Winged Humanoid":
-			case "Naga":
-			case "Mermaid":
-			case "Centaur":
-				yield return _organicHumanoidBody;
-				yield return _quadrupedBody;
-				yield return _ungulateBody;
-				yield return _toedQuadrupedBody;
-				yield return _avianBody;
-				yield return _vermiformBody;
-				yield return _serpentineBody;
-				yield return _piscineBody;
-				break;
-			case "Insectoid":
-				yield return _insectoidBody;
-				yield return _arachnidBody;
-				yield return _scorpionBody;
-				yield return _beetleBody;
-				yield return _centipedeBody;
-				break;
-			case "Arachnid":
-				yield return _arachnidBody;
-				yield return _scorpionBody;
-				yield return _insectoidBody;
-				yield return _centipedeBody;
-				break;
-			case "Vermiform":
-				yield return _vermiformBody;
-				yield return _serpentineBody;
-				break;
-			case "Beetle":
-				yield return _beetleBody;
-				yield return _insectoidBody;
-				yield return _centipedeBody;
-				break;
-			case "Centipede":
-				yield return _centipedeBody;
-				yield return _insectoidBody;
-				yield return _beetleBody;
-				break;
-			case "Scorpion":
-				yield return _scorpionBody;
-				yield return _arachnidBody;
-				yield return _insectoidBody;
-				yield return _centipedeBody;
-				break;
-			case "Eastern Dragon":
-			case "Griffin":
-			case "Hippogriff":
-			case "Manticore":
-			case "Hippocamp":
-				yield return _quadrupedBody;
-				yield return _toedQuadrupedBody;
-				yield return _ungulateBody;
-				yield return _avianBody;
-				yield return _piscineBody;
-				yield return _scorpionBody;
-				break;
-			case "Wyvern":
-				yield return _avianBody;
-				yield return _quadrupedBody;
-				yield return _toedQuadrupedBody;
-				yield return _ungulateBody;
-				break;
-			default:
-				yield return _organicHumanoidBody;
-				yield return _quadrupedBody;
-				yield return _toedQuadrupedBody;
-				yield return _ungulateBody;
-				yield return _avianBody;
-				yield return _insectoidBody;
-				yield return _arachnidBody;
-				yield return _beetleBody;
-				yield return _centipedeBody;
-				yield return _vermiformBody;
-				yield return _serpentineBody;
-				yield return _piscineBody;
-				yield return _scorpionBody;
-				break;
+			referenceBodyNames = MythicalCombatRebalanceReferenceBodyNames[DefaultMythicalCombatRebalanceReferenceKey];
 		}
+
+		foreach (string referenceBodyName in referenceBodyNames)
+		{
+			BodyProto? referenceBody = ResolveMythicalReferenceBody(referenceBodyName);
+			if (referenceBody is not null)
+			{
+				yield return referenceBody;
+			}
+		}
+	}
+
+	private BodyProto? ResolveMythicalReferenceBody(string bodyName)
+	{
+		return bodyName switch
+		{
+			"Organic Humanoid" => _organicHumanoidBody,
+			"Quadruped Base" => _quadrupedBody,
+			"Ungulate" => _ungulateBody,
+			"Toed Quadruped" => _toedQuadrupedBody,
+			"Avian" => _avianBody,
+			"Insectoid" => _insectoidBody,
+			"Arachnid" => _arachnidBody,
+			"Beetle" => _beetleBody,
+			"Centipede" => _centipedeBody,
+			"Vermiform" => _vermiformBody,
+			"Serpentine" => _serpentineBody,
+			"Piscine" => _piscineBody,
+			"Scorpion" => _scorpionBody,
+			_ => null
+		};
 	}
 }

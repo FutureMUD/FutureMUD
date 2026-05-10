@@ -17,6 +17,33 @@ public partial class AnimalSeeder
 
 	private bool UsesCombatRebalance => _combatBalanceProfile == CombatBalanceProfile.CombatRebalance;
 
+	private static readonly string[] AnimalCombatRebalanceBodyNames =
+	[
+		"Quadruped Base",
+		"Ungulate",
+		"Toed Quadruped",
+		"Pinniped",
+		"Avian",
+		"Vermiform",
+		"Serpentine",
+		"Piscine",
+		"Decapod",
+		"Malacostracan",
+		"Cetacean",
+		"Cephalopod",
+		"Jellyfish",
+		"Insectoid",
+		"Winged Insectoid",
+		"Beetle",
+		"Centipede",
+		"Arachnid",
+		"Scorpion",
+		"Reptilian",
+		"Anuran"
+	];
+
+	internal static IReadOnlyList<string> AnimalCombatRebalanceBodyNamesForTesting => AnimalCombatRebalanceBodyNames;
+
 	private IReadOnlyDictionary<string, string> BuildAnimalDamageExpressions()
 	{
 		if (UsesCombatRebalance)
@@ -235,7 +262,9 @@ public partial class AnimalSeeder
 	private int ResolveAnimalRelativeHitChance(BodyProto body, string alias, BodypartTypeEnum type, SizeCategory size,
 		int fallback)
 	{
-		int baseChance = GetAnimalRelativeHitChance(body, alias, fallback);
+		int baseChance = UsesCombatRebalance
+			? GetAnimalCombatRebalanceRelativeHitChance(body, alias, fallback)
+			: GetAnimalRelativeHitChance(body, alias, fallback);
 		if (!UsesCombatRebalance)
 		{
 			return baseChance;
@@ -262,6 +291,60 @@ public partial class AnimalSeeder
 		};
 
 		return Math.Max(1, (int)Math.Round(baseChance * modifier, MidpointRounding.AwayFromZero));
+	}
+
+	private static int GetAnimalCombatRebalanceRelativeHitChance(BodyProto body, string alias, int fallback)
+	{
+		return body.Name switch
+		{
+			"Decapod" or "Malacostracan" => GetCrustaceanRelativeHitChance(alias, fallback),
+			"Arachnid" or "Scorpion" => GetArachnidRelativeHitChance(alias, fallback),
+			"Reptilian" or "Anuran" => GetToedQuadrupedRelativeHitChance(alias, fallback),
+			_ => GetAnimalRelativeHitChance(body, alias, fallback)
+		};
+	}
+
+	private static int GetCrustaceanRelativeHitChance(string alias, int fallback)
+	{
+		if (alias.StartsWith("rleg", StringComparison.OrdinalIgnoreCase) ||
+		    alias.StartsWith("lleg", StringComparison.OrdinalIgnoreCase))
+		{
+			return 10;
+		}
+
+		return alias switch
+		{
+			"carapace" => 65,
+			"underbelly" => 40,
+			"mouth" => 8,
+			"reye" or "leye" => 2,
+			"rantenna" or "lantenna" => 2,
+			"rclaw" or "lclaw" => 16,
+			"gillcluster" => 8,
+			"tail" => 18,
+			_ => fallback
+		};
+	}
+
+	private static int GetArachnidRelativeHitChance(string alias, int fallback)
+	{
+		if (alias.StartsWith("rleg", StringComparison.OrdinalIgnoreCase) ||
+		    alias.StartsWith("lleg", StringComparison.OrdinalIgnoreCase))
+		{
+			return 12;
+		}
+
+		return alias switch
+		{
+			"cephalothorax" => 55,
+			"abdomen" => 45,
+			"reye" or "leye" => 2,
+			"rfang" or "lfang" => 3,
+			"rclaw" or "lclaw" => 12,
+			"tail" => 18,
+			"stinger" => 3,
+			_ => fallback
+		};
 	}
 
 	private string? ResolveAnimalSeverFormula(string alias, SizeCategory size)
@@ -298,24 +381,7 @@ public partial class AnimalSeeder
 
 		RefreshDragonfireBreathDamageExpression(expressions);
 
-		foreach (string bodyName in new[]
-		         {
-			         "Quadruped Base",
-			         "Ungulate",
-			         "Toed Quadruped",
-			         "Pinniped",
-			         "Avian",
-			         "Vermiform",
-			         "Serpentine",
-			         "Piscine",
-			         "Cetacean",
-			         "Cephalopod",
-			         "Jellyfish",
-			         "Insectoid",
-			         "Winged Insectoid",
-			         "Beetle",
-			         "Centipede"
-		         })
+		foreach (string bodyName in AnimalCombatRebalanceBodyNames)
 		{
 			BodyProto? body = _context.BodyProtos.FirstOrDefault(x => x.Name == bodyName);
 			if (body is null)

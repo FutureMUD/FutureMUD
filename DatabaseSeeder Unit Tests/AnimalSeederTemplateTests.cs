@@ -639,6 +639,45 @@ public class AnimalSeederTemplateTests
     }
 
     [TestMethod]
+    public void AnimalCombatRebalanceBodyNamesForTesting_CoversEveryStockAnimalBodyFamily()
+    {
+        HashSet<string> coveredBodies = AnimalSeeder.AnimalCombatRebalanceBodyNamesForTesting
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+        string[] missingBodyKeys = AnimalSeeder.RaceTemplatesForTesting.Values
+            .Select(x => x.BodyKey)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .Where(x => !coveredBodies.Contains(x))
+            .OrderBy(x => x, StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+
+        Assert.AreEqual(0, missingBodyKeys.Length,
+            $"Every stock animal body key should be refreshed by combat-rebalance reruns. Missing: {string.Join(", ", missingBodyKeys)}");
+
+        foreach (string raceName in new[]
+                 {
+                     "Donkey",
+                     "Mule",
+                     "Spider",
+                     "Scorpion",
+                     "Small Crab",
+                     "Lobster",
+                     "Komodo Dragon",
+                     "Caiman",
+                     "Frog"
+                 })
+        {
+            string bodyKey = AnimalSeeder.RaceTemplatesForTesting[raceName].BodyKey;
+            Assert.IsTrue(coveredBodies.Contains(bodyKey),
+                $"{raceName} uses {bodyKey}, so the rebalance rerun body list should refresh that body family.");
+        }
+
+        CollectionAssert.Contains(AnimalSeeder.AnimalCombatRebalanceBodyNamesForTesting.ToArray(), "Quadruped Base",
+            "The shared quadruped base still needs direct rerun refreshes because multiple derived bodies clone from it.");
+        CollectionAssert.Contains(AnimalSeeder.AnimalCombatRebalanceBodyNamesForTesting.ToArray(), "Vermiform",
+            "Mythic worm-beasts reuse the stock vermiform body even though ordinary animal templates primarily use serpentine bodies.");
+    }
+
+    [TestMethod]
     public void RaceTemplatesForTesting_RegionalCoverageAddsIconicNonEuropeanAnimals()
     {
         string[] expectedMammals =

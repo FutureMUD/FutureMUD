@@ -738,6 +738,43 @@ public class MythicalAnimalSeederTemplateTests
     }
 
     [TestMethod]
+    public void MythicalCombatRebalanceReferenceBodyNamesForTesting_CoversEveryStockMythicBodyFamily()
+    {
+        HashSet<string> mappedBodyKeys = MythicalAnimalSeeder.MythicalCombatRebalanceBodyKeysForTesting
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+        string[] missingBodyKeys = MythicalAnimalSeeder.TemplatesForTesting.Values
+            .Select(x => x.BodyKey)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .Where(x => !mappedBodyKeys.Contains(x))
+            .OrderBy(x => x, StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+
+        Assert.AreEqual(0, missingBodyKeys.Length,
+            $"Every stock mythical body key should have an explicit combat-rebalance reference map. Missing: {string.Join(", ", missingBodyKeys)}");
+
+        Assert.IsTrue(
+            MythicalAnimalSeeder.MythicalCombatRebalanceReferenceBodyNamesForTesting["Arachnid"]
+                .Contains("Arachnid", StringComparer.OrdinalIgnoreCase),
+            "Giant spiders should refresh from the stock arachnid body under the rebalance profile.");
+        Assert.IsTrue(
+            MythicalAnimalSeeder.MythicalCombatRebalanceReferenceBodyNamesForTesting["Scorpion"]
+                .Contains("Scorpion", StringComparer.OrdinalIgnoreCase),
+            "Giant scorpions should refresh from the stock scorpion body under the rebalance profile.");
+        Assert.IsTrue(
+            MythicalAnimalSeeder.MythicalCombatRebalanceReferenceBodyNamesForTesting["Avian"]
+                .Contains("Avian", StringComparer.OrdinalIgnoreCase),
+            "Garuda and giant eagles should refresh from the stock avian body under the rebalance profile.");
+        Assert.IsTrue(
+            MythicalAnimalSeeder.MythicalCombatRebalanceReferenceBodyNamesForTesting["Ungulate"]
+                .Contains("Ungulate", StringComparer.OrdinalIgnoreCase),
+            "Qilin and equine mythics should refresh from the stock ungulate body under the rebalance profile.");
+        Assert.IsTrue(
+            MythicalAnimalSeeder.MythicalCombatRebalanceReferenceBodyNamesForTesting["Toed Quadruped"]
+                .Contains("Toed Quadruped", StringComparer.OrdinalIgnoreCase),
+            "Wargs, dire beasts, and bunyips should refresh from the stock toed quadruped body under the rebalance profile.");
+    }
+
+    [TestMethod]
     public void TemplatesForTesting_CombatStrategyKeys_MapRepresentativeMythicRacesToExpectedStyles()
     {
         Assert.AreEqual("Beast Artillery", MythicalAnimalSeeder.TemplatesForTesting["Dragon"].CombatStrategyKey);

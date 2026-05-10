@@ -320,6 +320,7 @@ Animal severing is now profile-aware:
 - `stock` continues to use legacy numeric thresholds
 - `combat-rebalance` leaves many major parts on thresholds but adds probabilistic sever formulas to minor appendages, tails, and wings where the seeded body family calls for it
 - size and bodypart role now also feed the seeded bodypart HP and hit-chance values for stock animal bodies
+- rebalance reruns refresh every stock animal body family used by the current catalogue, including later additions such as `Decapod`, `Malacostracan`, `Arachnid`, `Scorpion`, `Reptilian`, and `Anuran`; shared-body races such as donkeys and mules are covered through the `Ungulate` body
 
 ## Mythical Race Armour Inheritance
 Seeded mythical races now follow the stock model they are actually built from:
@@ -335,6 +336,8 @@ That removes the old accidental double-layering on animal-default mythics, where
 Humanoid-default mythics still inherit the human racial/bodypart/cranial split through their cloned humanoid body parts plus human-style racial tissue.
 
 Under `combat-rebalance`, reruns also refresh mythic bodyparts in place from their reference humanoid or animal bodies so the profile's HP, hit-chance, armour, and sever-formula tuning propagates without seeding duplicate races.
+
+The mythical refresh map is explicit for every stock mythical body key. Direct animal-body mythics such as `Giant Spider`, `Giant Scorpion`, `Giant Eagle`, `Qilin`, `Bunyip`, and `Yacumama` now resolve to their matching stock animal reference body first, while hybrid bodies keep their `CountsAs` parent plus a small fallback list of nearby humanoid or animal bodies for inherited aliases.
 
 ## Mythical Offensive and Durability Scaling
 Seeded mythical races now use row-backed racial attribute bonuses rather than the old shared all-zero prog.

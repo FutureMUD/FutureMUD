@@ -120,6 +120,7 @@ Current balance-profile behavior:
 - `stock` keeps the older FutureMUD combat formulas and still asks the legacy damage-randomness question where relevant
 - `combat-rebalance` suppresses that randomness question and rewrites stock-owned bodypart HP, hit chances, natural armour formulas, and shared damage expressions in place while keeping the same named attack and combat-message catalogues
 - reruns refresh stock-owned rows for the selected profile instead of seeding duplicate races, bodies, or attack suites
+- the non-human rerun coverage now tracks every stock animal body family used by the template catalogue, so later additions such as donkey and mule through `Ungulate`, crustaceans, arachnids, scorpions, reptiles, anurans, and animal-body mythics such as giant spiders stay aligned with the selected profile
 
 ## Tuning Surfaces
 The current runtime exposes health tuning in two different ways, depending on where the behavior lives.

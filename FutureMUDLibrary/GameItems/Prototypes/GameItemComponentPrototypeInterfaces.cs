@@ -125,7 +125,7 @@ public interface IChangeCharacteristicsPrototype : IExclusiveGameItemComponentPr
 {
 }
 
-public interface IChangeTraitsInInventoryPrototype : IExclusiveGameItemComponentPrototype<IChangeTraitsInInventory>
+public interface IChangeTraitsInInventoryPrototype : IAggregateGameItemComponentPrototype<IChangeTraitsInInventory>
 {
 }
 

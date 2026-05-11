@@ -21,6 +21,7 @@ public class GameItemComponentPrototypeExclusivityTests
 		typeof(ICanConnectToGrid),
 		typeof(ICanConnectToLiquidGrid),
 		typeof(ICanConnectToTelecommunicationsGrid),
+		typeof(IChangeTraitsInInventory),
 		typeof(IConnectable),
 		typeof(IConsumePower),
 		typeof(IOnOff),
@@ -73,6 +74,15 @@ public class GameItemComponentPrototypeExclusivityTests
 	{
 		var first = CreatePrototype<IConnectablePrototype>(1, "left connector");
 		var second = CreatePrototype<IConnectablePrototype>(2, "right connector");
+
+		Assert.IsFalse(GameItemComponentPrototypeExclusivity.FindConflicts([first.Object, second.Object]).Any());
+	}
+
+	[TestMethod]
+	public void FindConflicts_DuplicateAggregateWornTraitChanger_DoesNotConflict()
+	{
+		var first = CreatePrototype<IChangeTraitsInInventoryPrototype>(1, "heavy gloves");
+		var second = CreatePrototype<IChangeTraitsInInventoryPrototype>(2, "muffling boots");
 
 		Assert.IsFalse(GameItemComponentPrototypeExclusivity.FindConflicts([first.Object, second.Object]).Any());
 	}

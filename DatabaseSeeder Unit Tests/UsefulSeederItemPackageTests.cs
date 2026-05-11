@@ -10,6 +10,8 @@ using MudSharp.Models;
 using System;
 using System.Linq;
 using System.Xml.Linq;
+using TraitOwnerScope = MudSharp.Body.Traits.TraitOwnerScope;
+using TraitType = MudSharp.Body.Traits.TraitType;
 using SizeCategory = MudSharp.GameItems.SizeCategory;
 
 namespace MudSharp_Unit_Tests;
@@ -131,6 +133,21 @@ public class UsefulSeederItemPackageTests
 				ReviewerComment = "test",
 				ReviewerDate = DateTime.UtcNow
 			}
+		};
+	}
+
+	private static TraitDefinition CreateSkill(long id, string name)
+	{
+		return new TraitDefinition
+		{
+			Id = id,
+			Name = name,
+			Alias = name.Replace(" ", string.Empty).ToLowerInvariant(),
+			Type = (int)TraitType.Skill,
+			OwnerScope = (int)TraitOwnerScope.Character,
+			TraitGroup = "Test",
+			ChargenBlurb = string.Empty,
+			ValueExpression = string.Empty
 		};
 	}
 
@@ -267,5 +284,77 @@ public class UsefulSeederItemPackageTests
 		Assert.AreEqual(1, context.VariableDefinitions.Count(x => x.Property == "nicotineuntil"));
 		Assert.AreEqual(1, context.VariableDefaults.Count(x => x.Property == "nicotineuntil"));
 		Assert.AreEqual(0, context.GameItemComponentProtos.Count(x => x.Name.StartsWith("Food_")));
+	}
+
+	[TestMethod]
+	public void SeedWornTraitChangersForTesting_NoExpectedSkillPackageTraits_SkipsFamily()
+	{
+		using FuturemudDatabaseContext context = BuildContext();
+		SeedGeneralPrerequisites(context);
+		UsefulSeeder seeder = new();
+
+		seeder.SeedWornTraitChangersForTesting(context);
+
+		Assert.AreEqual(0,
+			context.GameItemComponentProtos.Count(x => x.Name.StartsWith("WornTraitChanger_") && x.Type == "WornTraitChanger"));
+	}
+
+	[TestMethod]
+	public void SeedWornTraitChangersForTesting_WithSkillPackageTraits_UpsertsGradedFamilies()
+	{
+		using FuturemudDatabaseContext context = BuildContext();
+		SeedGeneralPrerequisites(context);
+		context.TraitDefinitions.AddRange(
+			CreateSkill(101, "Hiding"),
+			CreateSkill(102, "Sneaking"),
+			CreateSkill(103, "Swimming"),
+			CreateSkill(104, "Climbing"),
+			CreateSkill(105, "Flying"),
+			CreateSkill(106, "Running"),
+			CreateSkill(107, "Palming"),
+			CreateSkill(108, "Lockpicking"),
+			CreateSkill(109, "Stealing"),
+			CreateSkill(110, "Surgery"),
+			CreateSkill(111, "First Aid"),
+			CreateSkill(112, "Spotting"),
+			CreateSkill(113, "Searching"),
+			CreateSkill(114, "Tracking"),
+			CreateSkill(115, "Listening"),
+			CreateSkill(116, "Handwriting"));
+		context.GameItemComponentProtos.Add(CreateComponentMarker(200,
+			"WornTraitChanger_StealthPenalty_Moderate", "OldType"));
+		context.SaveChanges();
+		UsefulSeeder seeder = new();
+
+		seeder.SeedWornTraitChangersForTesting(context);
+		seeder.SeedWornTraitChangersForTesting(context);
+
+		GameItemComponentProto stealthPenalty = context.GameItemComponentProtos.Single(x =>
+			x.Name == "WornTraitChanger_StealthPenalty_Moderate");
+		Assert.AreEqual("WornTraitChanger", stealthPenalty.Type);
+		Assert.AreEqual(1, context.GameItemComponentProtos.Count(x => x.Name == "WornTraitChanger_StealthPenalty_Moderate"));
+		Assert.AreEqual(-5.0, ModifierFor(stealthPenalty, 101));
+		Assert.AreEqual(-5.0, ModifierFor(stealthPenalty, 102));
+
+		Assert.AreEqual(-2.5, ModifierFor(Component("WornTraitChanger_SwimPenalty_Minor"), 103));
+		Assert.AreEqual(-10.0, ModifierFor(Component("WornTraitChanger_ClimbPenalty_Severe"), 104));
+		Assert.AreEqual(-7.5, ModifierFor(Component("WornTraitChanger_FlyPenalty_Major"), 105));
+		Assert.AreEqual(7.5, ModifierFor(Component("WornTraitChanger_RunningBonus_Major"), 106));
+		Assert.AreEqual(-5.0, ModifierFor(Component("WornTraitChanger_ManualDexterityPenalty_Moderate"), 107));
+		Assert.AreEqual(-5.0, ModifierFor(Component("WornTraitChanger_ManualDexterityPenalty_Moderate"), 108));
+		Assert.AreEqual(-10.0, ModifierFor(Component("WornTraitChanger_VisualPerceptionPenalty_Severe"), 112));
+		Assert.AreEqual(-2.5, ModifierFor(Component("WornTraitChanger_ListeningPenalty_Minor"), 115));
+		Assert.AreEqual(-7.5, ModifierFor(Component("WornTraitChanger_AwarenessPenalty_Major"), 115));
+		Assert.AreEqual(5.0, ModifierFor(Component("WornTraitChanger_StealthMobilityBonus_Moderate"), 106));
+
+		GameItemComponentProto Component(string name) => context.GameItemComponentProtos.Single(x => x.Name == name);
+	}
+
+	private static double ModifierFor(GameItemComponentProto component, long traitId)
+	{
+		XElement modifier = XElement.Parse(component.Definition)
+		                            .Elements("Modifier")
+		                            .Single(x => (long)x.Attribute("trait")! == traitId);
+		return (double)modifier.Attribute("bonus")!;
 	}
 }

@@ -142,6 +142,8 @@ Use:
 
 This is the normal developer validation path for checking whether a prototype, its components, and its runtime behaviour work together.
 
+For commodity piles, use the staff command `loadcommodity <weight> <material> [<tag>|tag <tag>] [characteristic <definition> <value>]...`. The optional characteristic clauses create commodity-owned `IHaveCharacteristics` values, such as a colour on a fabric bolt, without requiring a bespoke item prototype.
+
 ### Extra arguments
 The builder-facing load flow supports:
 - skin selection

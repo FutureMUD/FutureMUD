@@ -2166,7 +2166,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
 
         ICommodity thisCommodity = GetItemType<ICommodity>();
         ICommodity thatCommodity = otherItem.GetItemType<ICommodity>();
-        if (thisCommodity != null && thatCommodity != null && thisCommodity.Material == thatCommodity.Material && thisCommodity.Tag == thatCommodity.Tag)
+        if (thisCommodity != null && thatCommodity != null && CommodityCharacteristicRequirement.CommodityIdentityEqual(thisCommodity, thatCommodity))
         {
             thisCommodity.Weight += thatCommodity.Weight;
             return;
@@ -2367,7 +2367,8 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
         ICommodity commodity = GetItemType<ICommodity>();
         if (commodity != null)
         {
-            IGameItem newItem = CommodityGameItemComponentProto.CreateNewCommodity(commodity.Material, weight, commodity.Tag);
+            IGameItem newItem = CommodityGameItemComponentProto.CreateNewCommodity(commodity.Material, weight, commodity.Tag,
+                commodity.UseIndirectQuantityDescription, commodity.CommodityCharacteristics.Select(x => (x.Key, x.Value)));
             newItem.RoomLayer = RoomLayer;
             commodity.Weight -= weight;
             newItem.Drop(location);
@@ -2389,7 +2390,8 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
         ICommodity commodity = GetItemType<ICommodity>();
         if (commodity != null)
         {
-            IGameItem newItem = CommodityGameItemComponentProto.CreateNewCommodity(commodity.Material, weight, commodity.Tag);
+            IGameItem newItem = CommodityGameItemComponentProto.CreateNewCommodity(commodity.Material, weight, commodity.Tag,
+                commodity.UseIndirectQuantityDescription, commodity.CommodityCharacteristics.Select(x => (x.Key, x.Value)));
             newItem.RoomLayer = RoomLayer;
             commodity.Weight -= weight;
             newItem.Get(getter);
@@ -2415,7 +2417,8 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
         }
 
         IGameItem newItem =
-            CommodityGameItemComponentProto.CreateNewCommodity(commodity.Material, weight, commodity.Tag);
+            CommodityGameItemComponentProto.CreateNewCommodity(commodity.Material, weight, commodity.Tag,
+                commodity.UseIndirectQuantityDescription, commodity.CommodityCharacteristics.Select(x => (x.Key, x.Value)));
         newItem.RoomLayer = RoomLayer;
         return newItem;
     }
@@ -2470,14 +2473,15 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
         get
         {
             IVariable variable = GetItemType<IVariable>();
-            return variable == null
-                ? Enumerable.Empty<ICharacteristicDefinition>()
-                : variable.CharacteristicDefinitions;
+            ICommodity commodity = GetItemType<ICommodity>();
+            return (variable?.CharacteristicDefinitions ?? Enumerable.Empty<ICharacteristicDefinition>())
+                   .Concat(commodity?.CommodityCharacteristics.Keys ?? Enumerable.Empty<ICharacteristicDefinition>())
+                   .Distinct();
         }
     }
 
     public IEnumerable<ICharacteristicValue> RawCharacteristicValues =>
-        CharacteristicDefinitions.Select(x => GetItemType<IVariable>()?.GetCharacteristic(x));
+        CharacteristicDefinitions.Select(x => GetCharacteristic(x, null));
 
     public IEnumerable<(ICharacteristicDefinition Definition, ICharacteristicValue Value)> RawCharacteristics =>
         CharacteristicDefinitions
@@ -2523,12 +2527,25 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
     public ICharacteristicValue GetCharacteristic(ICharacteristicDefinition type, IPerceiver voyeur)
     {
         IChangeCharacteristicEffect effect = EffectsOfType<IChangeCharacteristicEffect>().FirstOrDefault(x => x.Applies(this) && x.ChangesCharacteristic(type));
-        return effect?.GetChangedCharacteristic(type) ?? GetItemType<IVariable>()?.GetCharacteristic(type);
+        IVariable variable = GetItemType<IVariable>();
+        if (variable?.CharacteristicDefinitions.Contains(type) == true)
+        {
+            return effect?.GetChangedCharacteristic(type) ?? variable.GetCharacteristic(type);
+        }
+
+        return effect?.GetChangedCharacteristic(type) ?? GetItemType<ICommodity>()?.GetCommodityCharacteristic(type);
     }
 
     public void SetCharacteristic(ICharacteristicDefinition type, ICharacteristicValue value)
     {
-        GetItemType<IVariable>()?.SetCharacteristic(type, value);
+        IVariable variable = GetItemType<IVariable>();
+        if (variable?.CharacteristicDefinitions.Contains(type) == true)
+        {
+            variable.SetCharacteristic(type, value);
+            return;
+        }
+
+        GetItemType<ICommodity>()?.SetCommodityCharacteristic(type, value);
     }
 
     public string DescribeCharacteristic(ICharacteristicDefinition definition, IPerceiver voyeur,
@@ -2569,6 +2586,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
     public void ExpireDefinition(ICharacteristicDefinition definition)
     {
         GetItemType<IVariable>()?.ExpireDefinition(definition);
+        GetItemType<ICommodity>()?.RemoveCommodityCharacteristic(definition);
     }
 
     public void RecalculateCharacteristicsDueToExternalChange()

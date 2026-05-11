@@ -908,7 +908,7 @@ The syntax to use this command is as follows:
     [PlayerCommand("LoadCommodity", "loadcommodity")]
     [CommandPermission(PermissionLevel.JuniorAdmin)]
     [HelpInfo("loadcommodity",
-        "This command allows you to load commodities, which are raw quantities of bulk materials. The syntax is #3loadcommodity <weight> <material> [<tag>]#0.",
+        "This command allows you to load commodities, which are raw quantities of bulk materials. The syntax is #3loadcommodity <weight> <material> [<tag>|tag <tag>] [characteristic <definition> <value>]...#0.",
         AutoHelp.HelpArgOrNoArg)]
     protected static void LoadCommodity(ICharacter actor, string input)
     {
@@ -938,18 +938,107 @@ The syntax to use this command is as follows:
         }
 
         ITag tag = null;
-        if (!ss.IsFinished)
+        List<(ICharacteristicDefinition Definition, ICharacteristicValue Value)> characteristics = new();
+        while (!ss.IsFinished)
         {
-            tag = actor.Gameworld.Tags.GetByIdOrName(ss.SafeRemainingArgument);
+            if (ss.PeekSpeech().EqualTo("tag"))
+            {
+                ss.PopSpeech();
+                if (ss.IsFinished)
+                {
+                    actor.OutputHandler.Send("Which tag do you want to use for this commodity pile?");
+                    return;
+                }
+
+                List<string> tagParts = new()
+                {
+                    ss.PopSpeech()
+                };
+                while (!ss.IsFinished && !ss.PeekSpeech().EqualToAny("characteristic", "characteristics", "char"))
+                {
+                    tagParts.Add(ss.PopSpeech());
+                }
+
+                string tagText = string.Join(" ", tagParts);
+                tag = actor.Gameworld.Tags.GetByIdOrName(tagText);
+                if (tag is null)
+                {
+                    actor.OutputHandler.Send($"There is no such tag identified by {tagText.ColourCommand()}.");
+                    return;
+                }
+
+                continue;
+            }
+
+            if (ss.PeekSpeech().EqualToAny("characteristic", "characteristics", "char"))
+            {
+                ss.PopSpeech();
+                if (ss.IsFinished)
+                {
+                    actor.OutputHandler.Send("Which characteristic definition do you want to set?");
+                    return;
+                }
+
+                string definitionText = ss.PopSpeech();
+                ICharacteristicDefinition definition = actor.Gameworld.Characteristics.GetByIdOrName(definitionText);
+                if (definition is null)
+                {
+                    actor.OutputHandler.Send($"There is no characteristic definition identified by {definitionText.ColourCommand()}.");
+                    return;
+                }
+
+                if (ss.IsFinished)
+                {
+                    actor.OutputHandler.Send($"Which value do you want to set for the {definition.Name.ColourName()} characteristic?");
+                    return;
+                }
+
+                List<string> valueParts = new()
+                {
+                    ss.PopSpeech()
+                };
+                while (!ss.IsFinished && !ss.PeekSpeech().EqualToAny("characteristic", "characteristics", "char"))
+                {
+                    valueParts.Add(ss.PopSpeech());
+                }
+
+                string valueText = string.Join(" ", valueParts);
+                ICharacteristicValue characteristicValue = CommodityCharacteristicRequirement.GetCharacteristicValue(actor.Gameworld, valueText);
+                if (characteristicValue is null || !definition.IsValue(characteristicValue))
+                {
+                    actor.OutputHandler.Send($"There is no {definition.Name.ColourName()} characteristic value identified by {valueText.ColourCommand()}.");
+                    return;
+                }
+
+                characteristics.RemoveAll(x => x.Definition == definition);
+                characteristics.Add((definition, characteristicValue));
+                continue;
+            }
+
+            if (tag is not null)
+            {
+                actor.OutputHandler.Send($"The text {ss.PeekSpeech().ColourCommand()} is not a valid commodity option. Use {("characteristic <definition> <value>").ColourCommand()} to add commodity characteristics.");
+                return;
+            }
+
+            string legacyTagText = ss.RemainingArgument.Contains(" characteristic ", StringComparison.InvariantCultureIgnoreCase)
+                ? ss.PopSpeech()
+                : ss.SafeRemainingArgument;
+            tag = actor.Gameworld.Tags.GetByIdOrName(legacyTagText);
             if (tag is null)
             {
                 actor.OutputHandler.Send(
-                    $"There is no such tag identified by {ss.SafeRemainingArgument.ColourCommand()}.");
+                    $"There is no such tag identified by {legacyTagText.ColourCommand()}.");
                 return;
+            }
+
+            if (legacyTagText.EqualTo(ss.SafeRemainingArgument))
+            {
+                break;
             }
         }
 
-        IGameItem commodity = CommodityGameItemComponentProto.CreateNewCommodity(material, amount, tag);
+        IGameItem commodity = CommodityGameItemComponentProto.CreateNewCommodity(material, amount, tag, false, characteristics);
         commodity.RoomLayer = actor.RoomLayer;
         actor.Gameworld.Add(commodity);
         actor.OutputHandler.Handle(new EmoteOutput(new Emote("@ load|loads $0.", actor, commodity),

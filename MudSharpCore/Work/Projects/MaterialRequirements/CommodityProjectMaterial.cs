@@ -26,6 +26,7 @@ public class CommodityProjectMaterial : MaterialRequirementBase
         RequiredAmount = int.Parse(root.Element("Amount").Value);
         MinimumQuality = (ItemQuality)int.Parse(root.Element("Quality").Value);
         RequiredMaterial = Gameworld.Materials.Get(long.Parse(root.Element("Material").Value));
+        CharacteristicRequirements.LoadFromXml(root.Element("Characteristics"), Gameworld);
     }
 
     public CommodityProjectMaterial(IFuturemud gameworld, IProjectPhase phase) : base(gameworld, phase, "commodity")
@@ -40,6 +41,7 @@ public class CommodityProjectMaterial : MaterialRequirementBase
         RequiredAmount = rhs.RequiredAmount;
         MinimumQuality = rhs.MinimumQuality;
         RequiredMaterial = rhs.RequiredMaterial;
+        CharacteristicRequirements.LoadFromXml(rhs.CharacteristicRequirements.SaveToXml(), Gameworld);
     }
 
     public override IProjectMaterialRequirement Duplicate(IProjectPhase newPhase)
@@ -53,7 +55,8 @@ public class CommodityProjectMaterial : MaterialRequirementBase
             new XElement("Material", RequiredMaterial?.Id ?? 0),
             new XElement("Tag", RequiredTag?.Id ?? 0),
             new XElement("Amount", RequiredAmount),
-            new XElement("Quality", (int)MinimumQuality)
+            new XElement("Quality", (int)MinimumQuality),
+            CharacteristicRequirements.SaveToXml()
         );
     }
 
@@ -63,6 +66,8 @@ public class CommodityProjectMaterial : MaterialRequirementBase
     public double RequiredAmount { get; protected set; }
 
     public ItemQuality MinimumQuality { get; protected set; }
+
+    public CommodityCharacteristicRequirement CharacteristicRequirements { get; } = new();
 
     public override double QuantityRequired => RequiredAmount;
 
@@ -74,6 +79,7 @@ public class CommodityProjectMaterial : MaterialRequirementBase
                    (RequiredTag is null && ic.Tag is null) ||
                    (ic.Tag?.IsA(RequiredTag) == true)
                ) &&
+               CharacteristicRequirements.Matches(ic) &&
                item.Weight >= RequiredAmount &&
                item.Quality >= MinimumQuality;
     }
@@ -109,12 +115,12 @@ public class CommodityProjectMaterial : MaterialRequirementBase
     public override string DescribeQuantity(ICharacter actor)
     {
         return
-            $"{Gameworld.UnitManager.DescribeExact(RequiredAmount, UnitType.Mass, actor)} of {RequiredMaterial?.Name.Colour(RequiredMaterial.ResidueColour) ?? "an unknown material".ColourError()}{RequiredTag?.Name.Pluralise().LeadingSpaceIfNotEmpty().Colour(Telnet.Cyan) ?? ""}";
+            $"{Gameworld.UnitManager.DescribeExact(RequiredAmount, UnitType.Mass, actor)} of {RequiredMaterial?.Name.Colour(RequiredMaterial.ResidueColour) ?? "an unknown material".ColourError()}{RequiredTag?.Name.Pluralise().LeadingSpaceIfNotEmpty().Colour(Telnet.Cyan) ?? ""} {CharacteristicRequirements.Describe()}";
     }
 
     protected override IInventoryPlanAction LocateMaterialAction()
     {
-        return new InventoryPlanActionHold(Gameworld, 0, 0, x => x.GetItemType<ICommodity>() is { } ic && ic.Material == RequiredMaterial && ((ic.Tag is null && RequiredTag is null) || (ic.Tag?.IsA(RequiredTag) == true)), null, 0)
+        return new InventoryPlanActionHold(Gameworld, 0, 0, x => x.GetItemType<ICommodity>() is { } ic && ic.Material == RequiredMaterial && ((ic.Tag is null && RequiredTag is null) || (ic.Tag?.IsA(RequiredTag) == true)) && CharacteristicRequirements.Matches(ic), null, 0)
         {
             ItemsAlreadyInPlaceOverrideFitnessScore = true,
             QuantityIsOptional = true,
@@ -128,6 +134,7 @@ public class CommodityProjectMaterial : MaterialRequirementBase
 	#3tag <tag>#0 - sets the tag the item that satisfies this requirement needs to have
 	#3amount <##>#0 - sets the weight of the material required
 	#3material <which>#0 - sets the material required
+	#3characteristic any|none|<definition> any|<definition> <value>|<definition> remove#0 - sets commodity characteristic requirements
 	#3quality <quality>#0 - sets the minimum quality of the materials";
 
     #endregion
@@ -147,6 +154,10 @@ public class CommodityProjectMaterial : MaterialRequirementBase
                 return BuildingCommandQuality(actor, command);
             case "material":
                 return BuildingCommandMaterial(actor, command);
+            case "characteristic":
+            case "characteristics":
+            case "char":
+                return CharacteristicRequirements.BuildingCommand(actor, command, "project material requirement", () => Changed = true);
         }
 
         return base.BuildingCommand(actor, new StringStack($"\"{command.Last}\" {command.RemainingArgument}"), phase);
@@ -262,6 +273,7 @@ public class CommodityProjectMaterial : MaterialRequirementBase
         sb.AppendLine($"Required Tag: {RequiredTag?.Name.Colour(Telnet.Cyan) ?? "None".Colour(Telnet.Red)}");
         sb.AppendLine($"Required Amount: {Gameworld.UnitManager.DescribeExact(RequiredAmount, UnitType.Mass, actor).ColourValue()}");
         sb.AppendLine($"Minimum Quality: {MinimumQuality.Describe().ColourValue()}");
+        sb.AppendLine($"Required Characteristics: {CharacteristicRequirements.Describe()}");
         sb.AppendLine($"Description: {Description}");
         actor.OutputHandler.Send(sb.ToString());
         return true;
@@ -280,12 +292,12 @@ public class CommodityProjectMaterial : MaterialRequirementBase
     public override string Show(ICharacter actor)
     {
         return
-            $"{Gameworld.UnitManager.DescribeExact(RequiredAmount, UnitType.Mass, actor)} of {RequiredMaterial?.Name.Colour(RequiredMaterial.ResidueColour) ?? "an unknown material".ColourError()}{RequiredTag?.Name.Pluralise().LeadingSpaceIfNotEmpty().Colour(Telnet.Cyan) ?? ""} (>={MinimumQuality.Describe().Colour(Telnet.Green)})";
+            $"{Gameworld.UnitManager.DescribeExact(RequiredAmount, UnitType.Mass, actor)} of {RequiredMaterial?.Name.Colour(RequiredMaterial.ResidueColour) ?? "an unknown material".ColourError()}{RequiredTag?.Name.Pluralise().LeadingSpaceIfNotEmpty().Colour(Telnet.Cyan) ?? ""} {CharacteristicRequirements.Describe()} (>={MinimumQuality.Describe().Colour(Telnet.Green)})";
     }
 
     public override string ShowToPlayer(ICharacter actor)
     {
         return
-            $"{Gameworld.UnitManager.DescribeExact(RequiredAmount, UnitType.Mass, actor)} of {RequiredMaterial?.Name.Colour(RequiredMaterial.ResidueColour) ?? "an unknown material".ColourError()}{RequiredTag?.Name.Pluralise().LeadingSpaceIfNotEmpty().Colour(Telnet.Cyan) ?? ""} (>={MinimumQuality.Describe().Colour(Telnet.Green)})";
+            $"{Gameworld.UnitManager.DescribeExact(RequiredAmount, UnitType.Mass, actor)} of {RequiredMaterial?.Name.Colour(RequiredMaterial.ResidueColour) ?? "an unknown material".ColourError()}{RequiredTag?.Name.Pluralise().LeadingSpaceIfNotEmpty().Colour(Telnet.Cyan) ?? ""} {CharacteristicRequirements.Describe()} (>={MinimumQuality.Describe().Colour(Telnet.Green)})";
     }
 }

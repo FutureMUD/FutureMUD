@@ -270,12 +270,15 @@ Shared material settings:
 | Keyword | What it does in play | Common extra commands |
 | --- | --- | --- |
 | `simple` | Counts discrete items by tag and minimum quality | `tag`, `amount`, `quality` |
-| `commodity` | Counts commodity mass by material, optional tag, and quality | `material`, `tag`, `amount`, `quality` |
+| `commodity` | Counts commodity mass by material, optional tag, optional characteristics, and quality | `material`, `tag`, `amount`, `quality`, `characteristic` |
 
 Builder notes:
 - `simple` requires a tag before submit
 - `commodity` requires a material before submit
 - `commodity` `amount` uses the game's mass parser, not a raw item count
+- commodity characteristic matching defaults to wildcard, so older requirements still accept characteristic-bearing piles
+- use `characteristic none` to require uncharacterised commodity piles
+- use `characteristic <definition> any`, `characteristic <definition> <value>`, or `characteristic <definition> remove` to require, pin, or remove a definition filter
 
 ### 7. Add completion actions
 Use:

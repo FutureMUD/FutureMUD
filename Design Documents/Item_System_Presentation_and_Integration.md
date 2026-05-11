@@ -31,6 +31,7 @@ This is how components add behavioural presentation without forcing all descript
 
 Examples include:
 - containers showing fullness, open state, and contents
+- commodity piles replacing the generated short/full description with quantity, commodity characteristics, material, and optional tag
 - locks or connections contributing extra information
 - connector-driven items showing their current grid membership and physical links
 - stable tickets showing the lodged mount, stable, lodger, and current outstanding fees when the ticket still points at an active stay
@@ -154,6 +155,8 @@ Any new component that changes item descriptions, energy state, or visibility ma
 Items and components can be discovered and manipulated through FutureProg-facing systems, while item prototypes can execute on-load progs and hold default register values.
 
 Variable-driven items are a common integration point between item content and scripting.
+
+Commodity piles participate in the same characteristic scripting surface once they have characteristic values. A FutureProg can call `loadcommodity(...)` to create the pile, then apply colour-like metadata with `setcharacteristic(item, definition, value)`. `characteristicvalue`, `characteristicid`, and item `.variables` read those commodity-owned values, and the description decorator renders values in stable definition-name order before the material/tag text.
 
 Items now also expose ownership metadata to FutureProg. The item `owner` property can be null and, when present, currently surfaces character or clan owners. Item ownership helper functions support direct ownership checks, property-trust checks, clan-aware trust checks, and ownership mutation for individual items or deep item trees.
 

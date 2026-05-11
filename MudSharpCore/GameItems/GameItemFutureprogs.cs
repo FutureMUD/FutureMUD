@@ -344,13 +344,14 @@ public partial class GameItem
                 return new BooleanVariable(IsItemType<ILiquidContainer>());
             case "variables":
                 Dictionary<string, IProgVariable> dict = new(StringComparer.InvariantCultureIgnoreCase);
-                IVariable variable = GetItemType<IVariable>();
-                if (variable is not null)
+                foreach ((ICharacteristicDefinition definition, ICharacteristicValue value) in RawCharacteristics)
                 {
-                    foreach (ICharacteristicDefinition item in variable.CharacteristicDefinitions)
+                    if (value is null)
                     {
-                        dict[item.Name.ToLowerInvariant()] = new TextVariable(variable.GetCharacteristic(item).GetValue.ToLowerInvariant());
+                        continue;
                     }
+
+                    dict[definition.Name.ToLowerInvariant()] = new TextVariable(value.GetValue.ToLowerInvariant());
                 }
                 return new DictionaryVariable(dict, ProgVariableTypes.Text);
             case "condition":

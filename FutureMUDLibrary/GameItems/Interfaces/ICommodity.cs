@@ -1,4 +1,5 @@
 ﻿using MudSharp.Form.Material;
+using MudSharp.Form.Characteristics;
 using MudSharp.Framework;
 using System;
 using System.Collections.Generic;
@@ -15,6 +16,11 @@ namespace MudSharp.GameItems.Interfaces
         double Weight { get; set; }
         ITag? Tag { get; set; }
         bool UseIndirectQuantityDescription { get; set; }
+        IReadOnlyDictionary<ICharacteristicDefinition, ICharacteristicValue> CommodityCharacteristics { get; }
+        ICharacteristicValue? GetCommodityCharacteristic(ICharacteristicDefinition definition);
+        bool SetCommodityCharacteristic(ICharacteristicDefinition definition, ICharacteristicValue value);
+        bool RemoveCommodityCharacteristic(ICharacteristicDefinition definition);
+        void ClearCommodityCharacteristics();
 
     }
 #nullable restore

@@ -697,6 +697,7 @@ namespace MudSharp.Database
                 entity.Property(e => e.LegalAuthorityId).HasColumnType("bigint(20)");
                 entity.Property(e => e.Name).HasColumnType("varchar(100)");
                 entity.Property(e => e.PatrolStrategy).HasColumnType("varchar(100)");
+                entity.Property(e => e.StrategyData).HasColumnType("longtext");
                 entity.Property(e => e.Priority).HasColumnType("int(11)");
                 entity.Property(e => e.IsReady).HasColumnType("bit(1)").HasDefaultValueSql("b'0'");
                 entity.Property(e => e.LingerTimeMajorNode).HasColumnType("DOUBLE");

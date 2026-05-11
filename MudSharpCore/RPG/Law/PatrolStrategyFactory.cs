@@ -14,10 +14,16 @@ public static class PatrolStrategyFactory
         "StationEnforcer",
         "Judge",
         "Sheriff",
-        "Prosecutor"
+        "Prosecutor",
+        "ExecutionPatrol"
     };
 
     public static IPatrolStrategy GetStrategy(string which, IFuturemud gameworld)
+    {
+        return GetStrategy(which, null, gameworld);
+    }
+
+    public static IPatrolStrategy GetStrategy(string which, string strategyData, IFuturemud gameworld)
     {
         switch (which.ToLowerInvariant())
         {
@@ -33,6 +39,9 @@ public static class PatrolStrategyFactory
                 return new SheriffPatrolStrategy(gameworld);
             case "prosecutor":
                 return new ProsectutorPatrolStrategy(gameworld);
+            case "execution":
+            case "executionpatrol":
+                return new ExecutionPatrolStrategy(gameworld, strategyData);
             default:
                 throw new NotImplementedException($"Unimplemented IPatrolStrategy '{which}' in PatrolStrategyFactory.");
         }

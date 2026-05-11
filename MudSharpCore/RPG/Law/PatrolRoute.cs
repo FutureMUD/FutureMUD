@@ -43,6 +43,7 @@ public class PatrolRoute : SaveableItem, IPatrolRoute, IEditableItem
                 LingerTimeMinorNode = LingerTimeMinorNode.TotalSeconds,
                 LegalAuthorityId = authority.Id,
                 PatrolStrategy = PatrolStrategy.Name,
+                StrategyData = (PatrolStrategy as IConfigurablePatrolStrategy)?.SaveStrategyData(),
                 Priority = Priority
             };
             FMDB.Context.PatrolRoutes.Add(dbitem);
@@ -66,7 +67,7 @@ public class PatrolRoute : SaveableItem, IPatrolRoute, IEditableItem
         LingerTimeMajorNode = TimeSpan.FromSeconds(route.LingerTimeMajorNode);
         LingerTimeMinorNode = TimeSpan.FromSeconds(route.LingerTimeMinorNode);
         _timeOfDays.AddRange(route.TimesOfDay.Select(x => (TimeOfDay)x.TimeOfDay));
-        PatrolStrategy = PatrolStrategyFactory.GetStrategy(route.PatrolStrategy, Gameworld);
+        PatrolStrategy = PatrolStrategyFactory.GetStrategy(route.PatrolStrategy, route.StrategyData, Gameworld);
         StartPatrolProg = Gameworld.FutureProgs.Get(route.StartPatrolProgId ?? 0);
         _patrolNodes.AddRange(route.PatrolRouteNodes.OrderBy(x => x.Order)
                                    .SelectNotNull(x => Gameworld.Cells.Get(x.CellId)));
@@ -96,6 +97,7 @@ public class PatrolRoute : SaveableItem, IPatrolRoute, IEditableItem
         Models.PatrolRoute dbitem = FMDB.Context.PatrolRoutes.Find(Id);
         dbitem.Name = Name;
         dbitem.PatrolStrategy = PatrolStrategy.Name;
+        dbitem.StrategyData = (PatrolStrategy as IConfigurablePatrolStrategy)?.SaveStrategyData();
         dbitem.LingerTimeMajorNode = LingerTimeMajorNode.TotalSeconds;
         dbitem.LingerTimeMinorNode = LingerTimeMinorNode.TotalSeconds;
         dbitem.Priority = Priority;
@@ -164,6 +166,7 @@ public class PatrolRoute : SaveableItem, IPatrolRoute, IEditableItem
         return
             IsReady &&
             PatrolNodes.Any() &&
+            (PatrolStrategy as IConfigurablePatrolStrategy)?.ReadyToBegin(this) != false &&
             StartPatrolProg?.Execute<bool?>() != false &&
             PatrollerNumbers.Any() &&
             TimeOfDays.Contains(LegalAuthority.EnforcementZones.First().CurrentTimeOfDay);
@@ -177,6 +180,7 @@ public class PatrolRoute : SaveableItem, IPatrolRoute, IEditableItem
 	#3time <list of time of days>#0 - sets the valid times of day
 	#3linger <major> <minor>#0 - sets the linger time on major and minor patrol nodes
 	#3strategy <which>#0 - sets the strategy for the patrol
+	#3config <...>#0 - edits strategy-specific configuration, if any
 	#3priority <number>#0 - sets the priority of resourcing this patrol
 	#3numbers <enforcement> <number>#0 - sets the numbers of a particular enforcer type required
 	#3prog <prog>#0 - sets the prog that controls whether the patrol can start
@@ -200,6 +204,10 @@ public class PatrolRoute : SaveableItem, IPatrolRoute, IEditableItem
                 return BuildingCommandLinger(actor, command);
             case "strategy":
                 return BuildingCommandStrategy(actor, command);
+            case "config":
+            case "strategyconfig":
+            case "execution":
+                return BuildingCommandStrategyConfig(actor, command);
             case "priority":
                 return BuildingCommandPriority(actor, command);
             case "node":
@@ -217,6 +225,29 @@ public class PatrolRoute : SaveableItem, IPatrolRoute, IEditableItem
                 actor.OutputHandler.Send(HelpInfo.SubstituteANSIColour());
                 return false;
         }
+    }
+
+    private bool BuildingCommandStrategyConfig(ICharacter actor, StringStack command)
+    {
+        if (PatrolStrategy is not IConfigurablePatrolStrategy configurable)
+        {
+            actor.OutputHandler.Send($"The {PatrolStrategy.Name.ColourName()} patrol strategy does not have any strategy-specific configuration.");
+            return false;
+        }
+
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send(configurable.HelpText.SubstituteANSIColour());
+            return false;
+        }
+
+        if (configurable.BuildingCommand(actor, this, command))
+        {
+            Changed = true;
+            return true;
+        }
+
+        return false;
     }
 
     private bool BuildingCommandReady(ICharacter actor, StringStack command)
@@ -600,6 +631,10 @@ public class PatrolRoute : SaveableItem, IPatrolRoute, IEditableItem
         sb.AppendLine($"Ready: {IsReady.ToColouredString()}");
         sb.AppendLine($"Priority: {Priority.ToString("N0", actor).ColourValue()}");
         sb.AppendLine($"Strategy: {PatrolStrategy.Name.ColourValue()}");
+        if (PatrolStrategy is IConfigurablePatrolStrategy configurable)
+        {
+            sb.Append(configurable.ShowConfiguration(actor, this));
+        }
         sb.AppendLine($"Linger (Major): {LingerTimeMajorNode.Describe(actor).ColourValue()}");
         sb.AppendLine($"Linger (Minor): {LingerTimeMinorNode.Describe(actor).ColourValue()}");
         sb.AppendLine($"Active Times: {TimeOfDays.Select(x => x.DescribeColour()).ListToString()}");

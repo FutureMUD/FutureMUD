@@ -22,6 +22,7 @@ namespace MudSharp.Models
         public double LingerTimeMinorNode { get; set; }
         public int Priority { get; set; }
         public string PatrolStrategy { get; set; }
+        public string StrategyData { get; set; }
         public long? StartPatrolProgId { get; set; }
         public bool IsReady { get; set; }
 

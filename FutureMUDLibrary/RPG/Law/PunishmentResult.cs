@@ -22,7 +22,8 @@ public class PunishmentResult
         {
             Fine = r1.Fine + r2.Fine,
             CustodialSentence = r1.CustodialSentence + r2.CustodialSentence,
-            GoodBehaviourBondLength = r1.GoodBehaviourBondLength + r2.GoodBehaviourBondLength
+            GoodBehaviourBondLength = r1.GoodBehaviourBondLength + r2.GoodBehaviourBondLength,
+            Execution = r1.Execution || r2.Execution
         };
     }
 
@@ -40,6 +41,10 @@ public class PunishmentResult
         if (GoodBehaviourBondLength > TimeAndDate.MudTimeSpan.Zero)
         {
             strings.Add($"a {GoodBehaviourBondLength.Describe(voyeur)} good behaviour bond".ColourValue());
+        }
+        if (Execution)
+        {
+            strings.Add("a death sentence".ColourValue());
         }
         return strings.ListToString();
     }

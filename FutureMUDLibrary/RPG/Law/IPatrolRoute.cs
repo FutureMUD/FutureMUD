@@ -12,6 +12,7 @@ namespace MudSharp.RPG.Law
 {
     public interface IPatrolRoute : IEditableItem
     {
+        ILegalAuthority LegalAuthority { get; }
         IEnumerable<ICell> PatrolNodes { get; }
         Counter<IEnforcementAuthority> PatrollerNumbers { get; }
         IEnumerable<TimeOfDay> TimeOfDays { get; }

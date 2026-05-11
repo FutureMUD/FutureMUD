@@ -270,7 +270,7 @@ Fully operational games need generic props, tools, consumables, components, and 
 ### NPC AI and Group AI
 Fully operational games benefit from reusable AI definitions and group behaviours so builders are not starting every NPC ecosystem from zero.
 
-- `Current State`: `UsefulSeeder` provides a starter individual-AI example package, while `AnimalSeeder` and `MythicalAnimalSeeder` now install grouped, repeatable individual `AnimalAI` templates for every seeded animal and mythical animal race recommendation. `AIStorytellerSeeder` covers one adjacent optional system, and other seeders create helper progs for their own needs.
+- `Current State`: `UsefulSeeder` provides a starter individual-AI example package, including a stock `BasicMount` `MountAI` definition, while `AnimalSeeder` and `MythicalAnimalSeeder` now install grouped, repeatable individual `AnimalAI` templates for every seeded animal and mythical animal race recommendation. `AIStorytellerSeeder` covers one adjacent optional system, and other seeders create helper progs for their own needs.
 - `Runtime Breadth vs Seeder Breadth`: the NPC runtime supports more reusable individual AI definitions, group AI templates, event hooks, and builder command workflows than the stock packages currently expose. The new animal templates deliberately skip group AI, live NPC populations, map-tied patrol routes, and bespoke social roles.
 - `Seeder Fit`: `Strong` for individual animal template packs; `Possible` for broader general AI and group AI packs
 - `Template Strategy`: reusable behaviour packs, not full live NPC populations

@@ -18,6 +18,7 @@ NPC parsing semantics come from:
 
 - `Old SOI Code/src/hash.cpp`
 - `Old SOI Code/src/create_mobile.cpp`
+- `Old SOI Code/src/structs.h` for legacy `ACT_*` flag values
 - the archived `mobs.*` files in `soiregions-main`
 
 The parser intentionally tolerates the shorter mob numeric blocks present in the preserved archive, even where newer `hash.cpp` paths contain extra fields.
@@ -130,9 +131,15 @@ Only clean FutureMUD fits are mapped in v1.
 
 - `ACT_AGGRESSIVE` => `AggressiveToAllOtherSpecies`
 - `ACT_AGGRESSIVE + ACT_MEMORY` => `TrackingAggressiveToAllOtherSpecies` with an approximation warning
+- `ACT_MOUNT` + a high-confidence seeded mount race => `BasicMount`, the UsefulSeeder stock AI whose runtime type is `Mount` / `MountAI`
+- supported `ACT_MOUNT` races in this pass are `Horse`, `Donkey`, `Mule`, `Camel`, `Elephant`, `Llama`, and `Warg`
 - `ACT_SENTINEL` is treated as stationary intent and preserved in provenance rather than requiring a bespoke AI
 - `ACT_ENFORCER` is preserved and warned unless a law baseline is explicitly available in a future pass
 - `ACT_WILDLIFE` is preserved and warned unless a cleaner wildlife AI path exists
+- `ACT_MOUNT` on any other resolved race emits `legacy-mount-unmapped` and does not attach mount AI
+- `ACT_PACKANIMAL` emits `legacy-pack-animal`; cargo, hitching, and pack-load semantics are preserved as audit metadata only
+
+The mount mapping is intentionally structured-data driven. Carts, wagons, horse teams, mounted troops, or prose-only references to riding do not receive `BasicMount` unless the source mob also carries `ACT_MOUNT` and resolves to one of the supported mount races above. `ACT_VEHICLE` records remain deferred rather than being treated as rideable NPC mounts.
 
 ## Deferred Data
 
@@ -145,6 +152,7 @@ The following are parsed and exported but not converted in this pass:
 - carcass and skinning metadata
 - fallback and home-room semantics
 - vehicle mobs
+- pack-animal cargo and hitching semantics
 
 These appear in the export JSON, audit sidecars, and builder comments so later passes can extend them without reparsing the archive.
 
@@ -163,6 +171,6 @@ Imported NPC templates are stamped with a provenance marker in `EditableItem.Bui
 - law-light enforcer AI or a formal `LawSeeder` baseline requirement
 - shop conversion and live shopkeeper AI import
 - memory-aware aggressor behavior closer to RPI `ACT_MEMORY`
-- better wildlife, herd, predator-prey, and mount AI coverage
+- better wildlife, herd, predator-prey, pack-animal cargo, and hitching coverage
 - spawn-time clan assignment for imported NPC templates
 - richer reconstruction of legacy variable description generation

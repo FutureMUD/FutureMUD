@@ -86,6 +86,12 @@ public class PatrolController : IPatrolController
         while (patrolsToLaunch.Count > 0)
         {
             IPatrolRoute whichPatrol = patrolsToLaunch.Dequeue();
+            if (LegalAuthority.Patrols.Any(x => x.PatrolRoute == whichPatrol) ||
+                !whichPatrol.ShouldBeginPatrol())
+            {
+                continue;
+            }
+
             if (whichPatrol.PatrollerNumbers.Any(x => enforcerCounts[x.Key].Count() < x.Value))
             {
                 continue;

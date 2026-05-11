@@ -157,6 +157,22 @@ public class UsefulSeederAiPackageTests
     }
 
     [TestMethod]
+    public void SeedAIExamplesForTesting_InstallsBasicMountRuntimeAi()
+    {
+        using FuturemudDatabaseContext context = BuildContext();
+        SeedAiPrerequisites(context);
+        UsefulSeeder seeder = new();
+
+        seeder.SeedAIExamplesForTesting(context);
+
+        ArtificialIntelligence ai = context.ArtificialIntelligences.Single(x => x.Name == "BasicMount");
+        Assert.AreEqual("Mount", ai.Type);
+        StringAssert.Contains(ai.Definition, "<PermitRiderProg>1</PermitRiderProg>");
+        StringAssert.Contains(ai.Definition, "<PermitControlProg>1</PermitControlProg>");
+        StringAssert.Contains(ai.Definition, "<MaximumNumberOfRiders>1</MaximumNumberOfRiders>");
+    }
+
+    [TestMethod]
     public void SeedAIExamplesForTesting_RerunRestoresMissingExamplesWithoutDuplicates()
     {
         using FuturemudDatabaseContext context = BuildContext();

@@ -36,7 +36,7 @@ Important contract consequences:
 
 - `ICraft` is the top-level revisable definition and exposes the player-facing lifecycle methods such as `CanDoCraft`, `BeginCraft`, `PauseCraft`, `CanResumeCraft`, `ResumeCraft`, `HandleCraftPhase`, `DisplayCraft`, and `CalculateCraftIsValid`.
 - `ICraftInput`, `ICraftTool`, and `ICraftProduct` are polymorphic extension seams. Most builder-visible craft variety comes from subtype instances rather than from branching inside `Craft` itself.
-- `IVariableInput` is the bridge for inputs that can supply characteristic values to variable-aware products.
+- `IVariableInput` is the bridge for inputs that can supply characteristic values to variable-aware products, including commodity inputs configured with a characteristic definition requirement.
 - `IActiveCraftGameItemComponent` is the persisted runtime state holder for a live craft in progress.
 
 ## Boot and Load Order
@@ -312,8 +312,8 @@ At runtime:
 | `simplematerial` | `SimpleMaterialInput` | Consume items made of a specific solid or a material tag | `material`, `tag`, `quantity`, `quality` | Accepts either an exact material or a material tag |
 | `tag` | `TagInput` | Consume items with a specified tag | `tag`, `quantity`, `quality` | Basic tag-driven input |
 | `tagvariable` | `TagVariableInput` | Consume tagged items that also supply characteristic definitions | `tag`, `quantity`, `variable`, `quality` | Implements `IVariableInput`; item must expose each declared definition |
-| `commodity` | `CommodityInput` | Consume a commodity pile of a specific solid and mass | `material`, `weight`, optional `tag`, `quality` | Requires both exact material and positive mass |
-| `commoditytag` | `CommodityTagInput` | Consume a commodity pile whose material matches a tag | `material`, `weight`, optional `tag`, `quality` | Uses a material tag instead of one exact solid |
+| `commodity` | `CommodityInput` | Consume a commodity pile of a specific solid and mass | `material`, `weight`, optional `tag`, `characteristic`, `quality` | Characteristic matching defaults to wildcard; `none` rejects characteristic-bearing piles; definition filters allow any value or one exact value |
+| `commoditytag` | `CommodityTagInput` | Consume a commodity pile whose material matches a tag | `material`, `weight`, optional `tag`, `characteristic`, `quality` | Uses a material tag instead of one exact solid; characteristic filters work like `commodity` inputs |
 | `liquid` | `LiquidUseInput` | Consume a specific liquid amount | `liquid`, `amount`, `quality` | Valid only with a target liquid and positive amount |
 | `tagliquid` | `LiquidTagUseInput` | Consume liquid from a tagged source item | `tag`, `amount`, `quality` | Useful for containers or apparatus tagged for the craft |
 | `repair` | `ConditionRepairInput` | Target an item to repair by condition percentage | `tag`, `repair`, `quality` | Uses a tagged input item as a repair target rather than raw material |
@@ -337,7 +337,7 @@ All tool types inherit shared builder options from `BaseTool`:
 | `cookedfood` | `CookedFoodProduct` | Load a prepared-food item prototype and initialise its ingredient ledger from consumed inputs | `item`, `skin`, `quantity`, `purify`, `ingredient` | Uses the same `PreparedFood` runtime component as direct-load food; `purify` removes input drugs and transferable food effects; the `cook` command filters to crafts with this product type |
 | `variable` | `SimpleVariableProduct` | Load items whose characteristic values come from `IVariableInput` sources | `item`, `skin`, `quantity`, `variable <definition> <input#>` | Each mapped input must be an `IVariableInput` that supplies the definition |
 | `inputvariable` | `InputVariableProduct` | Load items whose variable values depend on which item proto was used for an input | `item`, `skin`, `quantity`, `variable ...` | Supports per-input-index and per-item-to-value mappings |
-| `commodity` | `CommodityProduct` | Produce a commodity pile of a material, mass, and optional tag | `commodity`, `weight`, `tag`, `material` | Useful for intermediate materials and scrap |
+| `commodity` | `CommodityProduct` | Produce a commodity pile of a material, mass, optional tag, and optional characteristics | `commodity`, `weight`, `tag`, `material`, `characteristic` | Characteristic outputs can be fixed values or copied from a variable-capable input |
 | `money` | `MoneyProduct` | Produce money in a chosen currency | `currency`, `amount` | Valid only with currency plus positive amount |
 | `npc` | `NPCProduct` | Spawn one or more NPCs from an approved NPC template | `template`, `quantity`, optional `prog` | Optional on-load prog must be `void(Character)` |
 | `prog` | `ProgProduct` | Let a FutureProg decide which item or items are produced | `prog` | Prog must return item or collection of items and accept item/liquid input collections |
@@ -346,6 +346,16 @@ All tool types inherit shared builder options from `BaseTool`:
 | `scrap` | `ScrapInputProduct` | Convert part of a consumed item input into commodity scrap | `input`, `percentage`, `tag`, `material` | Target input must consume items; output is commodity-like salvage |
 | `dnatest` | `DNATestProduct` | Compare two liquid-consuming inputs and report whether they match | `input1`, `input2` | Both targeted inputs must consume liquids and must be different |
 | `bloodtyping` | `BloodTypingProduct` | Analyse one liquid-consuming input against a blood model and report the result | `input`, `bloodmodel` | Requires a configured `IBloodModel` plus a liquid-consuming input |
+
+Commodity input characteristic syntax is:
+
+- `characteristic any`: accept any commodity characteristic state. This is the default for old and newly created inputs.
+- `characteristic none`: require an uncharacterised commodity pile.
+- `characteristic <definition> any`: require that the commodity has a value for the definition, but accept any value.
+- `characteristic <definition> <value>`: require one exact value for the definition.
+- `characteristic <definition> remove`: remove that definition filter.
+
+When a commodity input requires a definition with `any` or an exact value, it implements `IVariableInput` for that definition. Commodity products can then use `characteristic <definition> from <input#>` to copy the consumed pile's value, or `characteristic <definition> <value>` to set a fixed output. `characteristic <definition> remove` clears the product rule. Commodity products with no characteristic rules produce uncharacterised commodity piles.
 
 ## Extension Workflow
 The following extension guidance is inferred from the current implementation style and is the safest pattern to follow when adding a new craft subtype.

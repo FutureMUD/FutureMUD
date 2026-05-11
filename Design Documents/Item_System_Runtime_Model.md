@@ -99,6 +99,10 @@ Blowgun use is breath-gated at the component level. A character must have a brea
 
 Hidden ranged fire is an explicit weapon capability, not a general ranged rule. `IRangedWeapon.CanFireWhileHidden` defaults to false, so existing ranged weapons still reveal the firer when combat engagement begins. Blowguns return true, and the `fire` command passes that through the combat engagement path so hide effects are preserved only for weapons that opted in. Their output uses the normal obscured-emote visibility path, so a hidden blowgun firer is not automatically named to observers but can still be discovered by ordinary perception.
 
+Commodity piles are system-generated items whose `Commodity` component overrides material and weight and now also owns optional characteristic definition/value pairs. A commodity pile's identity is material, weight, optional tag, indirect-quantity display flag, and its exact characteristic map; two commodity piles do not merge unless the maps match exactly. These pairs persist in the component XML, so older commodity XML simply loads with no commodity characteristics.
+
+Commodity characteristics are surfaced through the item `IHaveCharacteristics` contract alongside ordinary variable item components. FutureProg can therefore create an uncharacterised pile with `loadcommodity(...)`, then call `setcharacteristic(item, definition, value)` to apply values such as colour. `characteristicvalue`, `characteristicid`, and item `.variables` see commodity-owned characteristic values once they are present. Commodity short and full descriptions render characteristic values before the material/tag phrase, for example `cherry red linen fabric bolts`.
+
 This has two important consequences:
 - most game logic should depend on interfaces from `FutureMUDLibrary`, not concrete component classes
 - adding a new capability usually means adding a new component pair, not adding a new item class

@@ -1,5 +1,6 @@
 ﻿using MudSharp.Accounts;
 using MudSharp.Character;
+using MudSharp.Form.Characteristics;
 using MudSharp.Form.Material;
 using MudSharp.Framework;
 using MudSharp.GameItems;
@@ -14,7 +15,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.Work.Crafts.Inputs;
 
-public class CommodityTagInput : BaseInput, ICraftInputConsumesGameItem
+public class CommodityTagInput : BaseInput, ICraftInputConsumesGameItem, IVariableInput
 {
     internal class CommodityInputData : ICraftInputData
     {
@@ -87,6 +88,7 @@ public class CommodityTagInput : BaseInput, ICraftInputConsumesGameItem
 
     public ITag MaterialTag { get; set; }
     public ITag? CommodityPileTag { get; set; }
+    public CommodityCharacteristicRequirement CharacteristicRequirements { get; } = new();
 
     public double Weight { get; set; }
 
@@ -97,6 +99,7 @@ public class CommodityTagInput : BaseInput, ICraftInputConsumesGameItem
         MaterialTag = Gameworld.Tags.Get(long.Parse(root.Element("MaterialTag")?.Value ?? "0"));
         CommodityPileTag = Gameworld.Tags.Get(long.Parse(root.Element("CommodityPileTag")?.Value ?? "0"));
         Weight = double.Parse(root.Element("Weight").Value);
+        CharacteristicRequirements.LoadFromXml(root.Element("Characteristics"), Gameworld);
     }
 
     protected CommodityTagInput(ICraft craft, IFuturemud gameworld) : base(craft, gameworld)
@@ -116,7 +119,8 @@ public class CommodityTagInput : BaseInput, ICraftInputConsumesGameItem
         return new XElement("Definition",
             new XElement("MaterialTag", MaterialTag?.Id ?? 0),
             new XElement("CommodityPileTag", CommodityPileTag?.Id ?? 0),
-            new XElement("Weight", Weight)
+            new XElement("Weight", Weight),
+            CharacteristicRequirements.SaveToXml()
         ).ToString();
     }
 
@@ -150,7 +154,7 @@ public class CommodityTagInput : BaseInput, ICraftInputConsumesGameItem
             }
 
             return
-                $"{Gameworld.UnitManager.DescribeExact(Weight, Framework.Units.UnitType.Mass, DummyAccount.Instance).Colour(Telnet.Green)} of a material tagged as {MaterialTag.FullName.Colour(Telnet.Cyan)}";
+                $"{Gameworld.UnitManager.DescribeExact(Weight, Framework.Units.UnitType.Mass, DummyAccount.Instance).Colour(Telnet.Green)} of a material tagged as {MaterialTag.FullName.Colour(Telnet.Cyan)} {CharacteristicRequirements.Describe()}";
         }
     }
 
@@ -162,7 +166,7 @@ public class CommodityTagInput : BaseInput, ICraftInputConsumesGameItem
         }
 
         return
-            $"{Gameworld.UnitManager.DescribeExact(Weight, Framework.Units.UnitType.Mass, voyeur).Colour(Telnet.Green)} of a material tagged as {MaterialTag.FullName.Colour(Telnet.Cyan)}";
+            $"{Gameworld.UnitManager.DescribeExact(Weight, Framework.Units.UnitType.Mass, voyeur).Colour(Telnet.Green)} of a material tagged as {MaterialTag.FullName.Colour(Telnet.Cyan)} {CharacteristicRequirements.Describe()}";
     }
 
     private bool MatchesCommodityTag(ICommodity item)
@@ -176,7 +180,7 @@ public class CommodityTagInput : BaseInput, ICraftInputConsumesGameItem
         return character.DeepContextualItems
                         .Except(character.Body.WornItems)
                         .SelectNotNull(x => x.GetItemType<ICommodity>())
-                        .Where(x => x.Material.IsA(MaterialTag) && x.Weight >= Weight && MatchesCommodityTag(x))
+                        .Where(x => x.Material.IsA(MaterialTag) && x.Weight >= Weight && MatchesCommodityTag(x) && CharacteristicRequirements.Matches(x))
                         .Select(x => x.Parent)
                         .ToList();
     }
@@ -187,6 +191,7 @@ public class CommodityTagInput : BaseInput, ICraftInputConsumesGameItem
                gi.GetItemType<ICommodity>() is ICommodity ic &&
                ic.Material.IsA(MaterialTag) &&
                MatchesCommodityTag(ic) &&
+               CharacteristicRequirements.Matches(ic) &&
                ic.Weight >= Weight;
     }
 
@@ -216,6 +221,7 @@ public class CommodityTagInput : BaseInput, ICraftInputConsumesGameItem
 	#3quality <weighting>#0 - sets the weighting of this input in determining overall quality
 	#3material <material>#0 - sets the target material tag
 	#3piletag <tag>|none#0 - sets or clears the commodity tag the pile must have
+	#3characteristic any|none|<definition> any|<definition> <value>|<definition> remove#0 - sets commodity characteristic requirements
 	#3weight <weight>#0 - sets the required weight of material";
 
     public override bool BuildingCommand(ICharacter actor, StringStack command)
@@ -228,6 +234,12 @@ public class CommodityTagInput : BaseInput, ICraftInputConsumesGameItem
             case "tag":
             case "materialtag":
                 return BuildingCommandMaterial(actor, command);
+            case "characteristic":
+            case "characteristics":
+            case "char":
+            case "variable":
+            case "var":
+                return CharacteristicRequirements.BuildingCommand(actor, command, "craft input", () => InputChanged = true);
             case "weight":
             case "amount":
             case "quantity":
@@ -340,5 +352,16 @@ public class CommodityTagInput : BaseInput, ICraftInputConsumesGameItem
     public override bool RefersToTag(ITag tag)
     {
         return MaterialTag?.IsA(tag) == true;
+    }
+
+    public bool DeterminesVariable(ICharacteristicDefinition definition)
+    {
+        return CharacteristicRequirements.DeterminesVariable(definition);
+    }
+
+    public ICharacteristicValue GetValueForVariable(ICharacteristicDefinition definition, ICraftInputData data)
+    {
+        var commodity = ((CommodityInputData)data).ConsumedInput.GetItemType<ICommodity>();
+        return commodity is null ? null : CharacteristicRequirements.GetValueForVariable(definition, commodity);
     }
 }

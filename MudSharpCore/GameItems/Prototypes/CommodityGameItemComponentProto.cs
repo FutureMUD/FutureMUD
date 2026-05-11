@@ -1,6 +1,7 @@
 using MudSharp.Accounts;
 using MudSharp.Character;
 using MudSharp.Construction;
+using MudSharp.Form.Characteristics;
 using MudSharp.Form.Material;
 using MudSharp.Framework;
 using MudSharp.Framework.Revision;
@@ -43,7 +44,8 @@ public class CommodityGameItemComponentProto : GameItemComponentProto, ICommodit
         }
     }
 
-    public static IGameItem CreateNewCommodity(ISolid material, double weight, ITag tag, bool useIndirect = false)
+    public static IGameItem CreateNewCommodity(ISolid material, double weight, ITag? tag, bool useIndirect = false,
+        IEnumerable<(ICharacteristicDefinition Definition, ICharacteristicValue Value)>? characteristics = null)
     {
         IGameItem newItem = ItemPrototype.CreateNew();
         ICommodity commodity = newItem.GetItemType<ICommodity>();
@@ -51,6 +53,10 @@ public class CommodityGameItemComponentProto : GameItemComponentProto, ICommodit
         commodity.Weight = weight;
         commodity.Tag = tag;
         commodity.UseIndirectQuantityDescription = useIndirect;
+        foreach (var characteristic in characteristics ?? Enumerable.Empty<(ICharacteristicDefinition Definition, ICharacteristicValue Value)>())
+        {
+            commodity.SetCommodityCharacteristic(characteristic.Definition, characteristic.Value);
+        }
         return newItem;
     }
 

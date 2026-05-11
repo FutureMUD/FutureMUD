@@ -287,7 +287,8 @@ The syntax is simply #3testansi#0.", AutoHelp.HelpArg)]
             return;
         }
 
-        if (!target.CharacteristicDefinitions.Contains(definition))
+        bool targetIsCommodity = target is IGameItem item && item.IsItemType<ICommodity>();
+        if (!targetIsCommodity && !target.CharacteristicDefinitions.Contains(definition))
         {
             actor.Send(
                 $"{target.HowSeen(actor, true)} does not have the {definition.Name.Colour(Telnet.Green)} characteristic.");

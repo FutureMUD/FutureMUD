@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Formats.Tar;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -136,98 +137,391 @@ return ""There is no useful clay that is accessible in the biome you're in.""");
         _context.SaveChanges();
     }
 
-    private Regex ConversionRegex = new(@"(?<type>\w+?) - (?<details>.+)", RegexOptions.IgnoreCase);
+    private Regex ConversionRegex = new(@"^(?<type>\w+?) - (?<details>.+)$", RegexOptions.IgnoreCase);
 
-    private Regex TagInputRegex = new(@"(?<quantity>\d+)x an item with the (?<tag>.+) tag", RegexOptions.IgnoreCase);
+    private Regex TagInputRegex = new(@"^(?<quantity>\d+)x an item with the (?<tag>.+) tag$", RegexOptions.IgnoreCase);
 
-    private Regex SimpleItemInputRegex = new(@"(?<quantity>\d+)x (?<sdesc>.+) \(#(?<craftid>\d+)\)", RegexOptions.IgnoreCase);
+    private Regex TagVariableInputRegex = new(@"^(?<quantity>\d+)x an item with the (?<tag>.+?) tag(?: with variables? (?<variables>.+))?$", RegexOptions.IgnoreCase);
 
-    private Regex SimpleMaterialInputRegex = new(@"(?<quantity>\d+)x an item with material tagged as (?<tag>.+)", RegexOptions.IgnoreCase);
+    private Regex ConditionRepairInputRegex = new(@"^(?<repair>[0-9,.]+%) repair of an item with the (?<tag>.+) tag$", RegexOptions.IgnoreCase);
 
-    private Regex CommodityInputRegex = new(@"(?:(?<kgs>\d+) kilograms?)*\s*(?:(?<grams>\d+) grams?)* of (?<material>.+)\s*", RegexOptions.IgnoreCase);
+    private Regex SimpleItemInputRegex = new(@"^(?<quantity>\d+)x (?<sdesc>.+) \(#(?<craftid>\d+)\)$", RegexOptions.IgnoreCase);
 
-    private Regex CommodityTagInputRegex = new(@"(?:(?<kgs>\d+) kilograms?)*\s*(?:(?<grams>\d+) grams?)* of a material tagged as (?<material>.+)\s*", RegexOptions.IgnoreCase);
+    private Regex SimpleMaterialInputRegex = new(@"^(?<quantity>\d+)x an item with material tagged as (?<tag>.+)$", RegexOptions.IgnoreCase);
 
-    private Regex LiquidUseInputRegex = new(@"(?:(?<litres>\d+) litres?)*\s*(?:(?<millilitres>\d+) millilitres?)* of (?<liquid>.+)\s*", RegexOptions.IgnoreCase);
+    private Regex CommodityInputRegex = new(@"^(?:(?<kgs>\d+(?:\.\d+)?) kilograms?)*\s*(?:(?<grams>\d+(?:\.\d+)?) grams?)* of (?<material>.+)\s*$", RegexOptions.IgnoreCase);
 
-    private Regex LiquidTagUseInputRegex = new(@"(?:(?<litres>\d*\.*\d+) litres?)*\s*(?:(?<millilitres>\d+) millilitres?)* of a liquid tagged (?<liquid>.+)", RegexOptions.IgnoreCase);
+    private Regex CommodityTagInputRegex = new(@"^(?:(?<kgs>\d+(?:\.\d+)?) kilograms?)*\s*(?:(?<grams>\d+(?:\.\d+)?) grams?)* of a material tagged as (?<material>.+)\s*$", RegexOptions.IgnoreCase);
 
-    private CraftInput ConvertToInput(Craft craft, string text)
+    private Regex LiquidUseInputRegex = new(@"^(?:(?<litres>\d+(?:\.\d+)?) litres?)*\s*(?:(?<millilitres>\d+(?:\.\d+)?) millilitres?)* of (?<liquid>.+)\s*$", RegexOptions.IgnoreCase);
+
+    private Regex LiquidTagUseInputRegex = new(@"^(?:(?<litres>\d+(?:\.\d+)?) litres?)*\s*(?:(?<millilitres>\d+(?:\.\d+)?) millilitres?)* of a liquid tagged (?<liquid>.+)\s*$", RegexOptions.IgnoreCase);
+
+    private Regex ToolRegex = new(@"^(?<state>.+) - (?<details>.+)$", RegexOptions.IgnoreCase);
+
+    private Regex TagToolRegex = new(@"^an item with the (?<tag>.+) tag$", RegexOptions.IgnoreCase);
+
+    private Regex SimpleProductRegex = new(@"^(?<quantity>\d+)x (?<sdesc>.+) \(#(?<craftid>\d+)\)$", RegexOptions.IgnoreCase);
+
+    private Regex ItemReferenceRegex = new(@"^(?<sdesc>.+?)(?:\s*\(#(?<craftid>\d+)\))?$", RegexOptions.IgnoreCase);
+
+    private Regex CommodityProductRegex = new(@"^(?:(?<kgs>\d+(?:\.\d+)?) kilograms?)*\s*(?:(?<grams>\d+(?:\.\d+)?) grams?)* of (?<material>.+)\s* commodity$", RegexOptions.IgnoreCase);
+
+    private Regex ScrapInputProductRegex = new(@"^(?<percentage>[0-9,.]+%) by weight of (?<inputdesc>.+) \(\$i(?<input>\d+)\)$", RegexOptions.IgnoreCase);
+
+    private Regex UnusedInputProductRegex = new(@"^(?<percentage>[0-9,.]+%) of (?<inputdesc>.+) \(\$i(?<input>\d+)\)$", RegexOptions.IgnoreCase);
+
+    private Regex BloodTypingProductRegex = new(@"^test (?:(?<litres>\d+(?:\.\d+)?) litres?)*\s*(?:(?<millilitres>\d+(?:\.\d+)?) millilitres?)* of (?<liquid>.+) \(\$i(?<input>\d+)\) against the (?<model>.+) blood model$", RegexOptions.IgnoreCase);
+
+    private Regex SimpleBloodTypingProductRegex = new(@"^(?:test\s+)?\$i(?<input>\d+) against (?:the )?(?<model>.+?)(?: blood model)?$", RegexOptions.IgnoreCase);
+
+    private Regex DnaTestProductRegex = new(@"^(?:compare|test) \$i(?<input1>\d+) (?:and|against|with) \$i(?<input2>\d+)$", RegexOptions.IgnoreCase);
+
+    private Regex MoneyProductRegex = new(@"^(?<amount>[0-9,.]+) (?:of|in) (?<currency>.+)$", RegexOptions.IgnoreCase);
+
+    private Regex NpcProductRegex = new(@"^(?<quantity>\d+)x (?<template>.+?)(?: \(#(?<templateid>\d+)\))?$", RegexOptions.IgnoreCase);
+
+    private Regex VariableInputMappingRegex = new(@"^(?<definition>.+?)\s*(?:=|from)\s*\$i(?<input>\d+)$", RegexOptions.IgnoreCase);
+
+    private Regex InputVariableSpecificRegex = new(@"^(?<definition>.+?)\s*:\s*(?<specifics>.+)$", RegexOptions.IgnoreCase);
+
+    private Regex SpecificVariableMappingRegex = new(@"^(?<item>.+?)\s*=\s*(?<value>.+)$", RegexOptions.IgnoreCase);
+
+    private Regex ProgVariableMappingRegex = new(@"^(?<definition>.+?)\s*=\s*(?<prog>.+)$", RegexOptions.IgnoreCase);
+
+    private Regex IngredientSlotRegex = new(@"\$i(?<input>\d+)\s*(?:=|:|as)\s*(?<role>[^,;]+)", RegexOptions.IgnoreCase);
+
+    private static bool HasValue(Group group)
     {
-        Match match = ConversionRegex.Match(text);
-        string definition, typename = match.Groups["type"].Value;
+        return group.Success && !string.IsNullOrWhiteSpace(group.Value);
+    }
+
+    private static double ParseDoubleValue(string value)
+    {
+        return double.Parse(value.Replace(",", ""), NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture);
+    }
+
+    private static decimal ParseDecimalValue(string value)
+    {
+        return decimal.Parse(value.Replace(",", ""), NumberStyles.Number, System.Globalization.CultureInfo.InvariantCulture);
+    }
+
+    private static int ParseIntValue(string value)
+    {
+        return int.Parse(value.Replace(",", ""), NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture);
+    }
+
+    private static double ParseMass(Match match)
+    {
+        return (HasValue(match.Groups["kgs"]) ? 1000.0 * ParseDoubleValue(match.Groups["kgs"].Value) : 0.0) +
+               (HasValue(match.Groups["grams"]) ? ParseDoubleValue(match.Groups["grams"].Value) : 0.0);
+    }
+
+    private static double ParseVolume(Match match)
+    {
+        return (HasValue(match.Groups["litres"]) ? ParseDoubleValue(match.Groups["litres"].Value) : 0.0) +
+               (HasValue(match.Groups["millilitres"]) ? 0.001 * ParseDoubleValue(match.Groups["millilitres"].Value) : 0.0);
+    }
+
+    private static Match RequireMatch(Regex regex, string text, string error)
+    {
+        Match match = regex.Match(text.Trim());
+        if (!match.Success)
+        {
+            throw new ApplicationException(error);
+        }
+
+        return match;
+    }
+
+    private static (string Main, List<string> Options) SplitDetails(string details)
+    {
+        List<string> parts = details.Split(';', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
+                                    .ToList();
+        return (parts.FirstOrDefault() ?? string.Empty, parts.Skip(1).ToList());
+    }
+
+    private MudSharp.Models.Tag LookupTag(string text)
+    {
+        if (_tags.TryGetValue(text.Trim(), out MudSharp.Models.Tag? tag))
+        {
+            return tag;
+        }
+
+        throw new ApplicationException($"Unknown tag {text}");
+    }
+
+    private Material LookupMaterial(string text)
+    {
+        if (_materials.TryGetValue(text.Trim(), out Material? material))
+        {
+            return material;
+        }
+
+        throw new ApplicationException($"Unknown material {text}");
+    }
+
+    private Liquid LookupLiquid(string text)
+    {
+        if (_liquids.TryGetValue(text.Trim(), out Liquid? liquid))
+        {
+            return liquid;
+        }
+
+        throw new ApplicationException($"Unknown liquid {text}");
+    }
+
+    private GameItemProto? LookupItem(Match match)
+    {
+        if (HasValue(match.Groups["craftid"]) && long.TryParse(match.Groups["craftid"].Value, out long id))
+        {
+            return _context!.GameItemProtos.FirstOrDefault(x => x.Id == id);
+        }
+
+        return _items.TryGetValue(match.Groups["sdesc"].Value.Trim(), out GameItemProto? item) ? item : null;
+    }
+
+    private GameItemProto LookupItem(string text)
+    {
+        Match match = RequireMatch(ItemReferenceRegex, text, $"Invalid item reference {text}");
+        if (HasValue(match.Groups["craftid"]) && long.TryParse(match.Groups["craftid"].Value, out long id))
+        {
+            GameItemProto? itemById = _context!.GameItemProtos.FirstOrDefault(x => x.Id == id);
+            if (itemById is not null)
+            {
+                return itemById;
+            }
+        }
+
+        if (_items.TryGetValue(match.Groups["sdesc"].Value.Trim(), out GameItemProto? item))
+        {
+            return item;
+        }
+
+        throw new ApplicationException($"Unknown item {text}");
+    }
+
+    private CharacteristicDefinition LookupCharacteristicDefinition(string text)
+    {
+        string trimmed = text.Trim();
+        CharacteristicDefinition? definition = long.TryParse(trimmed.TrimStart('#'), out long id)
+            ? _context!.CharacteristicDefinitions.FirstOrDefault(x => x.Id == id)
+            : _context!.CharacteristicDefinitions.FirstOrDefault(x => x.Name.Equals(trimmed, StringComparison.OrdinalIgnoreCase));
+        return definition ?? throw new ApplicationException($"Unknown characteristic definition {text}");
+    }
+
+    private CharacteristicValue LookupCharacteristicValue(CharacteristicDefinition definition, string text)
+    {
+        string trimmed = text.Trim();
+        CharacteristicValue? value = long.TryParse(trimmed.TrimStart('#'), out long id)
+            ? _context!.CharacteristicValues.FirstOrDefault(x => x.Id == id && x.DefinitionId == definition.Id)
+            : _context!.CharacteristicValues.FirstOrDefault(x => x.DefinitionId == definition.Id && x.Name.Equals(trimmed, StringComparison.OrdinalIgnoreCase));
+        return value ?? throw new ApplicationException($"Unknown value {text} for characteristic {definition.Name}");
+    }
+
+    private GameItemSkin? LookupSkin(GameItemProto item, string text)
+    {
+        string trimmed = text.Trim();
+        if (trimmed.EqualToAny("none", "clear", "0"))
+        {
+            return null;
+        }
+
+        return long.TryParse(trimmed.TrimStart('#'), out long id)
+            ? _context!.GameItemSkins.FirstOrDefault(x => x.Id == id && x.ItemProtoId == item.Id)
+            : _context!.GameItemSkins.FirstOrDefault(x =>
+                x.ItemProtoId == item.Id &&
+                ((x.Name != null && x.Name.Equals(trimmed, StringComparison.OrdinalIgnoreCase)) ||
+                 (x.ShortDescription != null && x.ShortDescription.Equals(trimmed, StringComparison.OrdinalIgnoreCase))));
+    }
+
+    private FutureProg LookupProg(string text)
+    {
+        string trimmed = text.Trim();
+        if (_progs.TryGetValue(trimmed, out FutureProg? prog))
+        {
+            return prog;
+        }
+
+        FutureProg? contextProg = long.TryParse(trimmed.TrimStart('#'), out long id)
+            ? _context!.FutureProgs.FirstOrDefault(x => x.Id == id)
+            : _context!.FutureProgs.FirstOrDefault(x => x.FunctionName.Equals(trimmed, StringComparison.OrdinalIgnoreCase));
+        return contextProg ?? throw new ApplicationException($"Unknown prog {text}");
+    }
+
+    private BloodModel LookupBloodModel(string text)
+    {
+        string trimmed = text.Trim();
+        BloodModel? model = long.TryParse(trimmed.TrimStart('#'), out long id)
+            ? _context!.BloodModels.FirstOrDefault(x => x.Id == id)
+            : _context!.BloodModels.FirstOrDefault(x => x.Name.Equals(trimmed, StringComparison.OrdinalIgnoreCase));
+        return model ?? throw new ApplicationException($"Unknown blood model {text}");
+    }
+
+    private Currency LookupCurrency(string text)
+    {
+        string trimmed = text.Trim();
+        Currency? currency = long.TryParse(trimmed.TrimStart('#'), out long id)
+            ? _context!.Currencies.FirstOrDefault(x => x.Id == id)
+            : _context!.Currencies.FirstOrDefault(x => x.Name.Equals(trimmed, StringComparison.OrdinalIgnoreCase));
+        return currency ?? throw new ApplicationException($"Unknown currency {text}");
+    }
+
+    private NpcTemplate LookupNpcTemplate(Match match)
+    {
+        if (HasValue(match.Groups["templateid"]) && long.TryParse(match.Groups["templateid"].Value, out long id))
+        {
+            NpcTemplate? templateById = _context!.NpcTemplates.FirstOrDefault(x => x.Id == id);
+            if (templateById is not null)
+            {
+                return templateById;
+            }
+        }
+
+        string name = match.Groups["template"].Value.Trim();
+        return _context!.NpcTemplates.FirstOrDefault(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase)) ??
+               throw new ApplicationException($"Unknown NPC template {name}");
+    }
+
+    private long LookupSkinId(GameItemProto item, IEnumerable<string> options)
+    {
+        foreach (string option in options)
+        {
+            if (!option.StartsWith("skin ", StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            GameItemSkin? skin = LookupSkin(item, option[5..]);
+            if (skin is null)
+            {
+                return 0;
+            }
+
+            return skin.Id;
+        }
+
+        return 0;
+    }
+
+    private CraftInput GetInputByOneBasedIndex(Craft craft, int index)
+    {
+        if (index < 1)
+        {
+            throw new ApplicationException("Input indexes are one-based");
+        }
+
+        CraftInput? input = craft.CraftInputs
+                                 .OrderBy(x => x.OriginalAdditionTime)
+                                 .ThenBy(x => x.Id)
+                                 .ElementAtOrDefault(index - 1);
+        return input ?? throw new ApplicationException($"No input exists at index {index}");
+    }
+
+    private (string TypeName, string Definition) BuildInputDefinition(string text)
+    {
+        Match match = RequireMatch(ConversionRegex, text, "Invalid input definition");
+        string details = match.Groups["details"].Value;
         Match innerMatch;
-        switch (typename.ToLowerInvariant())
+        switch (match.Groups["type"].Value.ToLowerInvariant())
         {
             case "tag":
-                innerMatch = TagInputRegex.Match(match.Groups["details"].Value);
-                definition = new XElement("Definition",
-                    new XElement("TargetTagId", _tags[innerMatch.Groups["tag"].Value].Id),
-                    new XElement("Quantity", int.Parse(innerMatch.Groups["quantity"].Value))
-                ).ToString();
-                break;
-            case "commodity":
-                innerMatch = CommodityInputRegex.Match(match.Groups["details"].Value);
-                double weight =
-                    innerMatch.Groups["kgs"].Length > 0 ? 1000.0 * int.Parse(innerMatch.Groups["kgs"].Value) : 0.0 +
-                    innerMatch.Groups["grams"].Length > 0 ? 1.0 * int.Parse(innerMatch.Groups["grams"].Value) : 0.0;
-                definition = new XElement("Definition",
-                    new XElement("Material", _materials[innerMatch.Groups["material"].Value].Id),
-                    new XElement("Weight", weight),
-                    new XElement("CommodityPileTag", 0)
-                ).ToString();
-                break;
-            case "liquidtaguse":
-                innerMatch = LiquidTagUseInputRegex.Match(match.Groups["details"].Value);
-                double amount =
-                    innerMatch.Groups["litres"].Length > 0 ? double.Parse(innerMatch.Groups["litres"].Value) : 0.0 +
-                    innerMatch.Groups["millilitres"].Length > 0 ? 0.001 * double.Parse(innerMatch.Groups["millilitres"].Value) : 0.0;
-                definition = new XElement("Definition",
-                    new XElement("Tag", _tags[innerMatch.Groups["liquid"].Value].Id),
-                    new XElement("Amount", amount)
-                ).ToString();
-                break;
-            case "liquiduse":
-                innerMatch = LiquidUseInputRegex.Match(match.Groups["details"].Value);
-                amount =
-                    innerMatch.Groups["litres"].Length > 0 ? int.Parse(innerMatch.Groups["litres"].Value) : 0.0 +
-                    innerMatch.Groups["millilitres"].Length > 0 ? 0.001 * int.Parse(innerMatch.Groups["millilitres"].Value) : 0.0;
-                definition = new XElement("Definition",
-                    new XElement("Liquid", _liquids[innerMatch.Groups["liquid"].Value].Id),
-                    new XElement("Amount", amount)
-                ).ToString();
-                break;
-            case "commoditytag":
-                innerMatch = CommodityTagInputRegex.Match(match.Groups["details"].Value);
-                weight =
-                    innerMatch.Groups["kgs"].Length > 0 ? 1000.0 * int.Parse(innerMatch.Groups["kgs"].Value) : 0.0 +
-                    innerMatch.Groups["grams"].Length > 0 ? 1.0 * int.Parse(innerMatch.Groups["grams"].Value) : 0.0;
-                definition = new XElement("Definition",
-                    new XElement("MaterialTag", _tags[innerMatch.Groups["material"].Value].Id),
-                    new XElement("Weight", weight),
-                    new XElement("CommodityPileTag", 0)
-                ).ToString();
+                innerMatch = RequireMatch(TagInputRegex, details, "Invalid tag input definition");
+                return ("Tag", new XElement("Definition",
+                    new XElement("TargetTagId", LookupTag(innerMatch.Groups["tag"].Value).Id),
+                    new XElement("Quantity", ParseIntValue(innerMatch.Groups["quantity"].Value))
+                ).ToString());
+            case "tagvariable":
+                innerMatch = RequireMatch(TagVariableInputRegex, details, "Invalid tag variable input definition");
+                return ("TagVariable", new XElement("Definition",
+                    new XElement("TargetTagId", LookupTag(innerMatch.Groups["tag"].Value).Id),
+                    new XElement("Quantity", ParseIntValue(innerMatch.Groups["quantity"].Value)),
+                    from definition in ParseCharacteristicDefinitions(innerMatch.Groups["variables"].Value)
+                    select new XElement("Variable", definition.Id)
+                ).ToString());
+            case "conditionrepair":
+            case "repair":
+                innerMatch = RequireMatch(ConditionRepairInputRegex, details, "Invalid condition repair input definition");
+                if (!innerMatch.Groups["repair"].Value.TryParsePercentage(out double repairAmount))
+                {
+                    throw new ApplicationException("Invalid repair percentage");
+                }
 
-                break;
+                return ("ConditionRepair", new XElement("Definition",
+                    new XElement("TargetTagId", LookupTag(innerMatch.Groups["tag"].Value).Id),
+                    new XElement("RepairAmount", repairAmount)
+                ).ToString());
+            case "commodity":
+                innerMatch = RequireMatch(CommodityInputRegex, details, "Invalid commodity input definition");
+                return ("Commodity", new XElement("Definition",
+                    new XElement("Material", LookupMaterial(innerMatch.Groups["material"].Value).Id),
+                    new XElement("Weight", ParseMass(innerMatch)),
+                    new XElement("CommodityPileTag", 0),
+                    new XElement("Characteristics")
+                ).ToString());
+            case "liquidtaguse":
+            case "tagliquid":
+                innerMatch = RequireMatch(LiquidTagUseInputRegex, details, "Invalid tagged liquid input definition");
+                return ("LiquidTagUse", new XElement("Definition",
+                    new XElement("Tag", LookupTag(innerMatch.Groups["liquid"].Value).Id),
+                    new XElement("Amount", ParseVolume(innerMatch))
+                ).ToString());
+            case "liquiduse":
+            case "liquid":
+                innerMatch = RequireMatch(LiquidUseInputRegex, details, "Invalid liquid input definition");
+                return ("LiquidUse", new XElement("Definition",
+                    new XElement("Liquid", LookupLiquid(innerMatch.Groups["liquid"].Value).Id),
+                    new XElement("Amount", ParseVolume(innerMatch))
+                ).ToString());
+            case "commoditytag":
+                innerMatch = RequireMatch(CommodityTagInputRegex, details, "Invalid commodity tag input definition");
+                return ("CommodityTag", new XElement("Definition",
+                    new XElement("MaterialTag", LookupTag(innerMatch.Groups["material"].Value).Id),
+                    new XElement("Weight", ParseMass(innerMatch)),
+                    new XElement("CommodityPileTag", 0),
+                    new XElement("Characteristics")
+                ).ToString());
             case "simpleitem":
-                innerMatch = SimpleItemInputRegex.Match(match.Groups["details"].Value);
-                definition = new XElement("Definition",
-                    new XElement("TargetItemId", _items[innerMatch.Groups["sdesc"].Value].Id),
-                    new XElement("Quantity", int.Parse(innerMatch.Groups["quantity"].Value))
-                ).ToString();
-                break;
+            case "simple":
+                innerMatch = RequireMatch(SimpleItemInputRegex, details, "Invalid simple item input definition");
+                GameItemProto? item = LookupItem(innerMatch);
+                if (item is null)
+                {
+                    throw new ApplicationException("Unknown simple item input item");
+                }
+
+                return ("SimpleItem", new XElement("Definition",
+                    new XElement("TargetItemId", item.Id),
+                    new XElement("Quantity", ParseIntValue(innerMatch.Groups["quantity"].Value))
+                ).ToString());
             case "simplematerial":
-                innerMatch = SimpleMaterialInputRegex.Match(match.Groups["details"].Value);
-                definition = new XElement("Definition",
-                    new XElement("TargetMaterialTag", _tags[innerMatch.Groups["tag"].Value].Id),
+                innerMatch = RequireMatch(SimpleMaterialInputRegex, details, "Invalid simple material input definition");
+                return ("SimpleMaterial", new XElement("Definition",
+                    new XElement("TargetMaterialTag", LookupTag(innerMatch.Groups["tag"].Value).Id),
                     new XElement("TargetMaterial", 0),
-                    new XElement("Quantity", int.Parse(innerMatch.Groups["quantity"].Value))
-                ).ToString();
-                break;
+                    new XElement("Quantity", ParseIntValue(innerMatch.Groups["quantity"].Value))
+                ).ToString());
             default:
                 throw new ApplicationException("Unknown input type");
         }
+    }
 
+    private IEnumerable<CharacteristicDefinition> ParseCharacteristicDefinitions(string text)
+    {
+        if (string.IsNullOrWhiteSpace(text))
+        {
+            yield break;
+        }
+
+        foreach (string item in text.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries))
+        {
+            yield return LookupCharacteristicDefinition(item);
+        }
+    }
+
+    private CraftInput ConvertToInput(Craft craft, string text)
+    {
+        (string typename, string definition) = BuildInputDefinition(text);
         CraftInput input = new()
         {
             Craft = craft,
@@ -240,32 +534,37 @@ return ""There is no useful clay that is accessible in the biome you're in.""");
         return input;
     }
 
-    private Regex ToolRegex = new(@"(?<state>.+) - (?<details>.+)", RegexOptions.IgnoreCase);
-
-    private Regex TagToolRegex = new(@"an item with the (?<tag>.+) tag", RegexOptions.IgnoreCase);
-
-    private CraftTool ConvertToTool(Craft craft, string text)
+    private (string TypeName, DesiredItemState State, string Definition) BuildToolDefinition(string text)
     {
-        Match match = ConversionRegex.Match(text);
-        Match toolMatch = ToolRegex.Match(match.Groups["details"].Value);
-        string definition, typename = match.Groups["type"].Value;
-        Match innerMatch;
-        DesiredItemState state;
-        if (!toolMatch.Groups["state"].Value.TryParseEnum(out state))
+        Match match = RequireMatch(ConversionRegex, text, "Invalid tool definition");
+        Match toolMatch = RequireMatch(ToolRegex, match.Groups["details"].Value, "Invalid tool state definition");
+        if (!toolMatch.Groups["state"].Value.TryParseEnum(out DesiredItemState state))
         {
             throw new ApplicationException("Unknown State");
         }
-        switch (typename.ToLowerInvariant())
+
+        switch (match.Groups["type"].Value.ToLowerInvariant())
         {
             case "tagtool":
-                innerMatch = TagToolRegex.Match(toolMatch.Groups["details"].Value);
-                definition = new XElement("Definition",
-                    new XElement("TargetItemTag", _tags[innerMatch.Groups["tag"].Value].Id)
-                ).ToString();
-                break;
+            case "tag":
+                Match innerMatch = RequireMatch(TagToolRegex, toolMatch.Groups["details"].Value, "Invalid tag tool definition");
+                return ("TagTool", state, new XElement("Definition",
+                    new XElement("TargetItemTag", LookupTag(innerMatch.Groups["tag"].Value).Id)
+                ).ToString());
+            case "simpletool":
+            case "simple":
+                GameItemProto item = LookupItem(toolMatch.Groups["details"].Value);
+                return ("SimpleTool", state, new XElement("Definition",
+                    new XElement("TargetItemId", item.Id)
+                ).ToString());
             default:
                 throw new ApplicationException("Unknown tool type");
         }
+    }
+
+    private CraftTool ConvertToTool(Craft craft, string text)
+    {
+        (string typename, DesiredItemState state, string definition) = BuildToolDefinition(text);
         CraftTool tool = new()
         {
             Craft = craft,
@@ -280,84 +579,333 @@ return ""There is no useful clay that is accessible in the biome you're in.""");
         return tool;
     }
 
-    private Regex SimpleProductRegex = new(@"(?<quantity>\d+)x (?<sdesc>.+) \(#(?<craftid>\d+)\)", RegexOptions.IgnoreCase);
-
-    private Regex CommodityProductRegex = new(@"(?:(?<kgs>\d*\.*\d+) kilograms?)*\s*(?:(?<grams>\d*\.*\d+) grams?)* of (?<material>.+)\s* commodity", RegexOptions.IgnoreCase);
-
-    private Regex ScrapInputProductRegex = new(@"(?<percentage>[0-9,.]+%) by weight of (?<inputdesc>.+) \(\$i(?<input>\d+)\)", RegexOptions.IgnoreCase);
-
-    private Regex UnusedInputProductRegex = new(@"(?<percentage>[0-9,.]+%) of (?<inputdesc>.+) \(\$i(?<input>\d+)\)", RegexOptions.IgnoreCase);
-
-    private Regex BloodTypingProductRegex = new(@"test (?:(?<litres>\d*\.*\d+) litres?)*\s*(?:(?<millilitres>\d+) millilitres?)* of (?<liquid>.+) \(\$i(?<input>\d+)\) against the (?<model>.+) blood model", RegexOptions.IgnoreCase);
-
-    private CraftProduct? ConvertToProduct(Craft craft, string text, bool isFailProduct, int? materialDefiningInputIndex = null)
+    private (GameItemProto Item, int Quantity, long SkinId) ParseProductItem(string details, List<string> options)
     {
-        Match match = ConversionRegex.Match(text);
-        string definition, typename = match.Groups["type"].Value;
+        Match innerMatch = RequireMatch(SimpleProductRegex, details, "Invalid item product definition");
+        GameItemProto? item = LookupItem(innerMatch);
+        if (item is null)
+        {
+            throw new ApplicationException("Unknown product item");
+        }
+
+        return (item, ParseIntValue(innerMatch.Groups["quantity"].Value), LookupSkinId(item, options));
+    }
+
+    private XElement BuildItemProductDefinition(string details, List<string> options)
+    {
+        (GameItemProto item, int quantity, long skinId) = ParseProductItem(details, options);
+        return new XElement("Definition",
+            new XElement("ProductProducedId", item.Id),
+            new XElement("Quantity", quantity),
+            new XElement("Skin", skinId)
+        );
+    }
+
+    private XElement BuildCookedFoodProductDefinition(Craft craft, string details, List<string> options)
+    {
+        (GameItemProto item, int quantity, long skinId) = ParseProductItem(details, options);
+        bool removeEffects = false;
+        List<XElement> ingredientSlots = new();
+        foreach (string option in options)
+        {
+            if (option.StartsWith("purify", StringComparison.OrdinalIgnoreCase) ||
+                option.StartsWith("removedrugs", StringComparison.OrdinalIgnoreCase) ||
+                option.StartsWith("removeeffects", StringComparison.OrdinalIgnoreCase) ||
+                option.StartsWith("cleanse", StringComparison.OrdinalIgnoreCase))
+            {
+                string[] parts = option.Split(' ', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+                removeEffects = parts.Length == 1 || !parts[1].EqualToAny("off", "false", "no");
+                continue;
+            }
+
+            if (!option.StartsWith("ingredient", StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            foreach (Match slot in IngredientSlotRegex.Matches(option))
+            {
+                CraftInput input = GetInputByOneBasedIndex(craft, ParseIntValue(slot.Groups["input"].Value));
+                ingredientSlots.Add(new XElement("Slot",
+                    new XAttribute("input", input.Id),
+                    new XAttribute("role", slot.Groups["role"].Value.Trim().ToLowerInvariant())
+                ));
+            }
+        }
+
+        return new XElement("Definition",
+            new XElement("ProductProducedId", item.Id),
+            new XElement("Quantity", quantity),
+            new XElement("Skin", skinId),
+            new XElement("RemoveDrugsAndFoodEffects", removeEffects),
+            new XElement("IngredientSlots", ingredientSlots)
+        );
+    }
+
+    private IEnumerable<XElement> BuildSimpleVariableElements(List<string> options)
+    {
+        foreach (string option in options.Where(x => x.StartsWith("variable", StringComparison.OrdinalIgnoreCase)))
+        {
+            string text = Regex.Replace(option, @"^variables?\s+", "", RegexOptions.IgnoreCase);
+            foreach (string mapping in text.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries))
+            {
+                Match match = RequireMatch(VariableInputMappingRegex, mapping, "Invalid variable mapping");
+                CharacteristicDefinition definition = LookupCharacteristicDefinition(match.Groups["definition"].Value);
+                int inputIndex = ParseIntValue(match.Groups["input"].Value) - 1;
+                yield return new XElement("Variable",
+                    new XAttribute("inputindex", inputIndex),
+                    definition.Id
+                );
+            }
+        }
+    }
+
+    private XElement BuildSimpleVariableProductDefinition(string details, List<string> options)
+    {
+        XElement definition = BuildItemProductDefinition(details, options);
+        definition.Add(BuildSimpleVariableElements(options));
+        return definition;
+    }
+
+    private XElement BuildInputVariableProductDefinition(string details, List<string> options)
+    {
+        (GameItemProto item, int quantity, long skinId) = ParseProductItem(details, options);
+        Dictionary<CharacteristicDefinition, int> variableIndexes = new();
+        Dictionary<CharacteristicDefinition, List<(long Proto, long Value)>> variableSpecifics = new();
+
+        foreach (string option in options)
+        {
+            if (option.StartsWith("variable", StringComparison.OrdinalIgnoreCase))
+            {
+                string text = Regex.Replace(option, @"^variables?\s+", "", RegexOptions.IgnoreCase);
+                foreach (string mapping in text.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries))
+                {
+                    Match match = RequireMatch(VariableInputMappingRegex, mapping, "Invalid input-variable index mapping");
+                    variableIndexes[LookupCharacteristicDefinition(match.Groups["definition"].Value)] = ParseIntValue(match.Groups["input"].Value);
+                }
+                continue;
+            }
+
+            if (!option.StartsWith("specific", StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            Match specificMatch = RequireMatch(InputVariableSpecificRegex, option["specific".Length..].Trim(), "Invalid input-variable specific mapping");
+            CharacteristicDefinition definition = LookupCharacteristicDefinition(specificMatch.Groups["definition"].Value);
+            if (!variableSpecifics.ContainsKey(definition))
+            {
+                variableSpecifics[definition] = new List<(long Proto, long Value)>();
+            }
+
+            foreach (string mapping in specificMatch.Groups["specifics"].Value.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries))
+            {
+                Match itemMatch = RequireMatch(SpecificVariableMappingRegex, mapping, "Invalid item-to-value mapping");
+                GameItemProto specificItem = LookupItem(itemMatch.Groups["item"].Value);
+                CharacteristicValue value = LookupCharacteristicValue(definition, itemMatch.Groups["value"].Value);
+                variableSpecifics[definition].Add((specificItem.Id, value.Id));
+            }
+        }
+
+        return new XElement("Definition",
+            new XElement("ProductProducedId", item.Id),
+            new XElement("Quantity", quantity),
+            new XElement("Skin", skinId),
+            from entry in variableIndexes
+            select new XElement("Variable",
+                new XAttribute("definition", entry.Key.Id),
+                new XAttribute("index", entry.Value),
+                from specific in variableSpecifics.GetValueOrDefault(entry.Key, [])
+                select new XElement("Specific",
+                    new XAttribute("value", specific.Value),
+                    new XAttribute("proto", specific.Proto)
+                )
+            )
+        );
+    }
+
+    private XElement BuildProgVariableProductDefinition(string details, List<string> options)
+    {
+        XElement definition = BuildItemProductDefinition(details, options);
+        foreach (string option in options.Where(x => x.StartsWith("variable", StringComparison.OrdinalIgnoreCase)))
+        {
+            string text = Regex.Replace(option, @"^variables?\s+", "", RegexOptions.IgnoreCase);
+            foreach (string mapping in text.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries))
+            {
+                Match match = RequireMatch(ProgVariableMappingRegex, mapping, "Invalid prog-variable mapping");
+                CharacteristicDefinition variable = LookupCharacteristicDefinition(match.Groups["definition"].Value);
+                FutureProg prog = LookupProg(match.Groups["prog"].Value);
+                definition.Add(new XElement("Variable",
+                    new XAttribute("prog", prog.Id),
+                    new XAttribute("inputindex", prog.Id),
+                    variable.Id
+                ));
+            }
+        }
+
+        return definition;
+    }
+
+    private IEnumerable<XElement> BuildCommodityCharacteristicElements(Craft craft, List<string> options)
+    {
+        foreach (string option in options.Where(x => x.StartsWith("characteristic", StringComparison.OrdinalIgnoreCase)))
+        {
+            string text = option["characteristic".Length..].Trim();
+            Match fromMatch = Regex.Match(text, @"^(?<definition>.+?)\s+from\s+\$i(?<input>\d+)$", RegexOptions.IgnoreCase);
+            if (fromMatch.Success)
+            {
+                CharacteristicDefinition definition = LookupCharacteristicDefinition(fromMatch.Groups["definition"].Value);
+                yield return new XElement("Characteristic",
+                    new XAttribute("definition", definition.Id),
+                    new XAttribute("value", 0),
+                    new XAttribute("input", ParseIntValue(fromMatch.Groups["input"].Value) - 1)
+                );
+                continue;
+            }
+
+            Match valueMatch = RequireMatch(ProgVariableMappingRegex, text, "Invalid commodity characteristic mapping");
+            CharacteristicDefinition fixedDefinition = LookupCharacteristicDefinition(valueMatch.Groups["definition"].Value);
+            CharacteristicValue value = LookupCharacteristicValue(fixedDefinition, valueMatch.Groups["prog"].Value);
+            yield return new XElement("Characteristic",
+                new XAttribute("definition", fixedDefinition.Id),
+                new XAttribute("value", value.Id),
+                new XAttribute("input", -1)
+            );
+        }
+    }
+
+    private XElement BuildCommodityProductDefinition(Craft craft, string details, List<string> options)
+    {
+        Match innerMatch = RequireMatch(CommodityProductRegex, details, "Invalid commodity product definition");
+        long tagId = 0;
+        foreach (string option in options.Where(x => x.StartsWith("tag ", StringComparison.OrdinalIgnoreCase)))
+        {
+            tagId = LookupTag(option[4..]).Id;
+        }
+
+        return new XElement("Definition",
+            new XElement("Material", LookupMaterial(innerMatch.Groups["material"].Value).Id),
+            new XElement("Weight", ParseMass(innerMatch)),
+            new XElement("Tag", tagId),
+            new XElement("Characteristics", BuildCommodityCharacteristicElements(craft, options))
+        );
+    }
+
+    private (string TypeName, string Definition) BuildProductDefinition(Craft craft, string text)
+    {
+        Match match = RequireMatch(ConversionRegex, text, "Invalid product definition");
+        (string details, List<string> options) = SplitDetails(match.Groups["details"].Value);
         Match innerMatch;
-        switch (typename.ToLowerInvariant())
+        CraftInput input;
+        switch (match.Groups["type"].Value.ToLowerInvariant())
         {
             case "simpleproduct":
-                innerMatch = SimpleProductRegex.Match(match.Groups["details"].Value);
-                if (!_items.ContainsKey(innerMatch.Groups["sdesc"].Value))
-                {
-                    return null;
-                }
-                definition = new XElement("Definition",
-                    new XElement("ProductProducedId", _items[innerMatch.Groups["sdesc"].Value].Id),
-                    new XElement("Quantity", int.Parse(innerMatch.Groups["quantity"].Value)),
-                    new XElement("Skin", 0)
-                ).ToString();
-                break;
+            case "simple":
+                return ("SimpleProduct", BuildItemProductDefinition(details, options).ToString());
+            case "cookedfoodproduct":
+            case "cookedfood":
+            case "cooked":
+                return ("CookedFoodProduct", BuildCookedFoodProductDefinition(craft, details, options).ToString());
+            case "simplevariableproduct":
+            case "simplevariable":
+            case "variable":
+                return ("SimpleVariableProduct", BuildSimpleVariableProductDefinition(details, options).ToString());
+            case "inputvariableproduct":
+            case "inputvariable":
+                return ("InputVariable", BuildInputVariableProductDefinition(details, options).ToString());
+            case "progvariableproduct":
+            case "progvariable":
+                return ("ProgVariableProduct", BuildProgVariableProductDefinition(details, options).ToString());
             case "commodityproduct":
-                innerMatch = CommodityProductRegex.Match(match.Groups["details"].Value);
-                double weight =
-                    innerMatch.Groups["kgs"].Length > 0 ? 1000.0 * double.Parse(innerMatch.Groups["kgs"].Value) : 0.0 +
-                    innerMatch.Groups["grams"].Length > 0 ? 1.0 * double.Parse(innerMatch.Groups["grams"].Value) : 0.0;
-                definition = new XElement("Definition",
-                    new XElement("Material", _materials[innerMatch.Groups["material"].Value].Id),
-                    new XElement("Weight", weight),
-                    new XElement("Tag", 0)
-                ).ToString();
-                break;
+            case "commodity":
+                return ("CommodityProduct", BuildCommodityProductDefinition(craft, details, options).ToString());
+            case "moneyproduct":
+            case "money":
+                innerMatch = RequireMatch(MoneyProductRegex, details, "Invalid money product definition");
+                return ("MoneyProduct", new XElement("Definition",
+                    new XElement("Currency", LookupCurrency(innerMatch.Groups["currency"].Value).Id),
+                    new XElement("Amount", ParseDecimalValue(innerMatch.Groups["amount"].Value))
+                ).ToString());
+            case "npcproduct":
+            case "npc":
+                innerMatch = RequireMatch(NpcProductRegex, details, "Invalid NPC product definition");
+                NpcTemplate template = LookupNpcTemplate(innerMatch);
+                long onLoadProg = 0;
+                foreach (string option in options.Where(x => x.StartsWith("prog ", StringComparison.OrdinalIgnoreCase)))
+                {
+                    onLoadProg = LookupProg(option[5..]).Id;
+                }
+
+                return ("NPCProduct", new XElement("Definition",
+                    new XElement("Quantity", ParseIntValue(innerMatch.Groups["quantity"].Value)),
+                    new XElement("Template", template.Id),
+                    new XElement("OnLoadProg", onLoadProg)
+                ).ToString());
+            case "prog":
+            case "progproduct":
+                return ("Prog", new XElement("Definition",
+                    new XElement("ItemProg", LookupProg(details).Id)
+                ).ToString());
+            case "dnatest":
+                innerMatch = RequireMatch(DnaTestProductRegex, details, "Invalid DNA test product definition");
+                CraftInput input1 = GetInputByOneBasedIndex(craft, ParseIntValue(innerMatch.Groups["input1"].Value));
+                CraftInput input2 = GetInputByOneBasedIndex(craft, ParseIntValue(innerMatch.Groups["input2"].Value));
+                return ("DNATest", new XElement("Definition",
+                    new XElement("WhichInputId1", input1.Id),
+                    new XElement("WhichInputId2", input2.Id)
+                ).ToString());
             case "scrapinput":
-                innerMatch = ScrapInputProductRegex.Match(match.Groups["details"].Value);
+            case "scrap":
+                innerMatch = RequireMatch(ScrapInputProductRegex, details, "Invalid scrap input product definition");
                 if (!innerMatch.Groups["percentage"].Value.TryParsePercentage(out double percentage))
                 {
                     throw new ApplicationException("Invalid percentage");
                 }
 
-                CraftInput input = craft.CraftInputs.ElementAt(int.Parse(innerMatch.Groups["input"].Value) - 1);
-                definition = new XElement("Definition",
+                input = GetInputByOneBasedIndex(craft, ParseIntValue(innerMatch.Groups["input"].Value));
+                long scrapTagId = 0;
+                foreach (string option in options.Where(x => x.StartsWith("tag ", StringComparison.OrdinalIgnoreCase)))
+                {
+                    scrapTagId = LookupTag(option[4..]).Id;
+                }
+
+                return ("ScrapInput", new XElement("Definition",
                     new XElement("WhichInputId", input.Id),
                     new XElement("PercentageRecovered", percentage),
-                    new XElement("Tag", 0)
-                ).ToString();
-                break;
+                    new XElement("Tag", scrapTagId)
+                ).ToString());
             case "bloodtyping":
-                innerMatch = BloodTypingProductRegex.Match(match.Groups["details"].Value);
-                input = craft.CraftInputs.ElementAt(int.Parse(innerMatch.Groups["input"].Value) - 1);
-                definition = new XElement("Definition",
+                innerMatch = BloodTypingProductRegex.Match(details);
+                if (!innerMatch.Success)
+                {
+                    innerMatch = RequireMatch(SimpleBloodTypingProductRegex, details, "Invalid blood typing product definition");
+                }
+
+                input = GetInputByOneBasedIndex(craft, ParseIntValue(innerMatch.Groups["input"].Value));
+                return ("BloodTyping", new XElement("Definition",
                     new XElement("WhichInputId", input.Id),
-					new XElement("BloodModel", _context!.BloodModels.First(x => x.Name == innerMatch.Groups["model"].Value).Id)
-                ).ToString();
-                break;
+                    new XElement("BloodModel", LookupBloodModel(innerMatch.Groups["model"].Value).Id)
+                ).ToString());
             case "unusedinput":
-                innerMatch = UnusedInputProductRegex.Match(match.Groups["details"].Value);
+                innerMatch = RequireMatch(UnusedInputProductRegex, details, "Invalid unused input product definition");
                 if (!innerMatch.Groups["percentage"].Value.TryParsePercentage(out percentage))
                 {
                     throw new ApplicationException("Invalid percentage");
                 }
 
-                input = craft.CraftInputs.ElementAt(int.Parse(innerMatch.Groups["input"].Value) - 1);
-                definition = new XElement("Definition",
+                input = GetInputByOneBasedIndex(craft, ParseIntValue(innerMatch.Groups["input"].Value));
+                return ("UnusedInput", new XElement("Definition",
                     new XElement("WhichInputId", input.Id),
                     new XElement("PercentageRecovered", percentage)
-                ).ToString();
-                break;
+                ).ToString());
             default:
                 throw new ApplicationException("Unknown product type");
         }
+    }
+
+    private CraftProduct? ConvertToProduct(Craft craft, string text, bool isFailProduct, int? materialDefiningInputIndex = null)
+    {
+        (string typename, string definition) = BuildProductDefinition(craft, text);
         return new CraftProduct()
         {
             Craft = craft,
@@ -371,7 +919,11 @@ return ""There is no useful clay that is accessible in the biome you're in.""");
 
     private MudSharp.Models.Craft? AddCraft(string name, string category, string blurb, string action, string itemsdesc, string appearProg, string? canUseProg, string? whyCantProg, string? onFinishProg, MudSharp.Models.TraitDefinition trait, Difficulty difficulty, Outcome threshold, int freeChecks, int failPhase, bool interrupatable, IEnumerable<(int Seconds, string Echo, string FailEcho)> phases, IEnumerable<string> inputs, IEnumerable<string> tools, IEnumerable<string> products, IEnumerable<string> failProducts, List<(int Product, int Input)>? productMaterialInputIndexes = null, List<(int Product, int Input)>? failProductMaterialInputIndexes = null)
     {
-        if (!InputsAreValid(inputs, tools, products, failProducts))
+        List<string> inputList = inputs.ToList();
+        List<string> toolList = tools.ToList();
+        List<string> productList = products.ToList();
+        List<string> failProductList = failProducts.ToList();
+        if (!InputsAreValid(inputList, toolList, productList, failProductList))
         {
             return null;
         }
@@ -426,7 +978,7 @@ return ""There is no useful clay that is accessible in the biome you're in.""");
             });
         }
 
-        foreach (string input in inputs)
+        foreach (string input in inputList)
         {
             CraftInput? dbinput = ConvertToInput(dbitem, input);
             if (dbinput is null)
@@ -436,7 +988,7 @@ return ""There is no useful clay that is accessible in the biome you're in.""");
             dbitem.CraftInputs.Add(dbinput);
         }
 
-        foreach (string tool in tools)
+        foreach (string tool in toolList)
         {
             CraftTool? dbtool = ConvertToTool(dbitem, tool);
             if (dbtool is null)
@@ -450,10 +1002,10 @@ return ""There is no useful clay that is accessible in the biome you're in.""");
         _context.SaveChanges();
 
         i = 0;
-        foreach (string product in products)
+        foreach (string product in productList)
         {
             i++;
-            CraftProduct? dbproduct = ConvertToProduct(dbitem, product, false, productMaterialInputIndexes?.Any(x => x.Product == i) == true ? productMaterialInputIndexes.First(x => x.Product == 1).Input : null);
+            CraftProduct? dbproduct = ConvertToProduct(dbitem, product, false, GetMaterialDefiningInputIndex(productMaterialInputIndexes, i));
             if (dbproduct is null)
             {
                 return null;
@@ -462,10 +1014,10 @@ return ""There is no useful clay that is accessible in the biome you're in.""");
         }
 
         i = 0;
-        foreach (string product in failProducts)
+        foreach (string product in failProductList)
         {
             i++;
-            CraftProduct? dbproduct = ConvertToProduct(dbitem, product, true, failProductMaterialInputIndexes?.Any(x => x.Product == i) == true ? failProductMaterialInputIndexes.First(x => x.Product == 1).Input : null);
+            CraftProduct? dbproduct = ConvertToProduct(dbitem, product, true, GetMaterialDefiningInputIndex(failProductMaterialInputIndexes, i));
             if (dbproduct is null)
             {
                 return null;
@@ -475,145 +1027,50 @@ return ""There is no useful clay that is accessible in the biome you're in.""");
         return dbitem;
     }
 
+    private static int? GetMaterialDefiningInputIndex(List<(int Product, int Input)>? indexes, int productNumber)
+    {
+        (int Product, int Input) match = indexes?.FirstOrDefault(x => x.Product == productNumber) ?? default;
+        return match.Product == 0 ? null : Math.Max(0, match.Input - 1);
+    }
+
     bool InputsAreValid(IEnumerable<string> inputs, IEnumerable<string> tools, IEnumerable<string> products, IEnumerable<string> failproducts)
     {
-        foreach (string item in inputs)
+        try
         {
-            Match match = ConversionRegex.Match(item);
-            string typename = match.Groups["type"].Value;
-            Match innerMatch;
-            switch (typename)
+            Craft validationCraft = new();
+            var index = 1;
+            foreach (string item in inputs)
             {
-                case "tag":
-                    innerMatch = TagInputRegex.Match(match.Groups["details"].Value);
-                    if (!_tags.ContainsKey(innerMatch.Groups["tag"].Value))
-                    {
-                        return false;
-                    }
-
-                    continue;
-                case "commodity":
-                    innerMatch = CommodityInputRegex.Match(match.Groups["details"].Value);
-                    if (!_materials.ContainsKey(innerMatch.Groups["material"].Value))
-                    {
-                        return false;
-                    }
-
-                    continue;
-                case "liquidtaguse":
-                    innerMatch = LiquidTagUseInputRegex.Match(match.Groups["details"].Value);
-                    if (!_tags.ContainsKey(innerMatch.Groups["liquid"].Value))
-                    {
-                        return false;
-                    }
-
-                    continue;
-                case "liquiduse":
-                    innerMatch = LiquidUseInputRegex.Match(match.Groups["details"].Value);
-                    if (!_liquids.ContainsKey(innerMatch.Groups["liquid"].Value))
-                    {
-                        return false;
-                    }
-
-                    continue;
-                case "commoditytag":
-                    innerMatch = CommodityTagInputRegex.Match(match.Groups["details"].Value);
-                    if (!_tags.ContainsKey(innerMatch.Groups["material"].Value))
-                    {
-                        return false;
-                    }
-
-                    continue;
-                case "simpleitem":
-                    innerMatch = SimpleItemInputRegex.Match(match.Groups["details"].Value);
-                    if (!_items.ContainsKey(innerMatch.Groups["sdesc"].Value))
-                    {
-                        return false;
-                    }
-
-                    continue;
-                case "simplematerial":
-                    innerMatch = SimpleMaterialInputRegex.Match(match.Groups["details"].Value);
-                    if (!_tags.ContainsKey(innerMatch.Groups["tag"].Value))
-                    {
-                        return false;
-                    }
-
-                    continue;
+                BuildInputDefinition(item);
+                validationCraft.CraftInputs.Add(new CraftInput
+                {
+                    Id = index,
+                    OriginalAdditionTime = _now.AddTicks(index)
+                });
+                index++;
             }
-        }
 
-        foreach (string item in tools)
+            foreach (string item in tools)
+            {
+                BuildToolDefinition(item);
+            }
+
+            foreach (string item in products)
+            {
+                BuildProductDefinition(validationCraft, item);
+            }
+
+            foreach (string item in failproducts)
+            {
+                BuildProductDefinition(validationCraft, item);
+            }
+
+            return true;
+        }
+        catch (ApplicationException)
         {
-            Match match = ConversionRegex.Match(item);
-            Match toolMatch = ToolRegex.Match(match.Groups["details"].Value);
-            string typename = match.Groups["type"].Value;
-            switch (typename.ToLowerInvariant())
-            {
-                case "tagtool":
-                    Match innerMatch = TagToolRegex.Match(toolMatch.Groups["details"].Value);
-                    if (!_tags.ContainsKey(innerMatch.Groups["tag"].Value))
-                    {
-                        return false;
-                    }
-
-                    continue;
-            }
+            return false;
         }
-
-        foreach (string item in products)
-        {
-            Match match = ConversionRegex.Match(item);
-            string typename = match.Groups["type"].Value;
-            Match innerMatch;
-            switch (typename.ToLowerInvariant())
-            {
-                case "simpleproduct":
-                    innerMatch = SimpleProductRegex.Match(match.Groups["details"].Value);
-                    if (!_items.ContainsKey(innerMatch.Groups["sdesc"].Value))
-                    {
-                        return false;
-                    }
-
-                    continue;
-                case "commodityproduct":
-                    innerMatch = CommodityProductRegex.Match(match.Groups["details"].Value);
-                    if (!_materials.ContainsKey(innerMatch.Groups["material"].Value))
-                    {
-                        return false;
-                    }
-
-                    continue;
-            }
-        }
-
-        foreach (string item in failproducts)
-        {
-            Match match = ConversionRegex.Match(item);
-            string typename = match.Groups["type"].Value;
-            Match innerMatch;
-            switch (typename.ToLowerInvariant())
-            {
-                case "simpleproduct":
-                    innerMatch = SimpleProductRegex.Match(match.Groups["details"].Value);
-                    if (!_items.ContainsKey(innerMatch.Groups["sdesc"].Value))
-                    {
-                        return false;
-                    }
-
-                    continue;
-                case "commodityproduct":
-                    innerMatch = CommodityProductRegex.Match(match.Groups["details"].Value);
-                    if (!_materials.ContainsKey(innerMatch.Groups["material"].Value))
-                    {
-                        return false;
-                    }
-
-                    continue;
-            }
-        }
-
-        return true;
     }
 
     private void SeedCrafts()

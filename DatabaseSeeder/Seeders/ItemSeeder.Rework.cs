@@ -13695,12 +13695,1403 @@ namespace DatabaseSeeder.Seeders
             #endregion
         }
 
+        private void SeedAntiquityDoorsAndLocks()
+        {
+            CreateItem(
+    "antiquity_oak_house_door",
+    "door",
+    "a plain oak house door",
+    null,
+    "This broad door is built from vertical oak planks set into a simple cross-braced frame. The face is rubbed smooth from use, with darkened peg heads and a plain edge prepared for hanging hardware. It looks sturdy enough for an ordinary household entry without carrying much ornament.",
+    SizeCategory.Large,
+    ItemQuality.Standard,
+    45000.0,
+    120.0m,
+    true,
+    false,
+    "oak",
+    ["Market / Construction Materials / Worked Timber"],
+    ["Holdable", "Door_Normal_Large", "Destroyable_Door"],
+    null,
+    null,
+    null,
+    null
+);
+
+            CreateItem(
+                "antiquity_lockable_oak_house_door",
+                "door",
+                "a lockable oak house door",
+                null,
+                "This broad oak door is framed with cross-braces and bored for a lock plate near one edge. The planks are close fitted, their surface rubbed to a dull sheen around the hand-worn stile. It has the plain, durable look of a household door made for repeated daily use.",
+                SizeCategory.Large,
+                ItemQuality.Standard,
+                48000.0,
+                160.0m,
+                true,
+                false,
+                "oak",
+                ["Market / Construction Materials / Worked Timber"],
+                ["Holdable", "Door_Lockable_Normal_Large", "Destroyable_Door"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_cedar_panel_door",
+                "door",
+                "a cedar panel door",
+                null,
+                "This cedar door is made from inset panels held inside a squared wooden frame. The wood carries a warm resinous grain, with neat dowel heads and a lightly raised border around each panel. It suits a cleaner interior or courtyard entry where fitted carpentry matters more than brute thickness.",
+                SizeCategory.Large,
+                ItemQuality.Standard,
+                36000.0,
+                150.0m,
+                true,
+                false,
+                "cedar",
+                ["Market / Construction Materials / Worked Timber"],
+                ["Holdable", "Door_Normal_Large", "Destroyable_Door"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_lockable_cedar_panel_door",
+                "door",
+                "a lockable cedar panel door",
+                null,
+                "This cedar panel door has a squared frame, inset panels, and a prepared lock seat on the closing side. The reddish grain shows through a smooth rubbed finish, while small dowels and bronze-coloured stains mark where hardware has been fitted. It is a tidy, respectable door for a chamber, office, or storeroom.",
+                SizeCategory.Large,
+                ItemQuality.Good,
+                38500.0,
+                220.0m,
+                true,
+                false,
+                "cedar",
+                ["Market / Construction Materials / Worked Timber"],
+                ["Holdable", "Door_Lockable_Normal_Large", "Destroyable_Door"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_acacia_courtyard_door",
+                "door",
+                "an acacia courtyard door",
+                null,
+                "This acacia door is made from heavy planks laid close together and bound by stout crosspieces. The boards are uneven in colour, showing pale sapwood, darker knots, and weathered edges. It has the sun-dried toughness of a door meant to face a courtyard or compound yard.",
+                SizeCategory.Large,
+                ItemQuality.Standard,
+                52000.0,
+                130.0m,
+                true,
+                false,
+                "acacia",
+                ["Market / Construction Materials / Worked Timber"],
+                ["Holdable", "Door_Normal_Large", "Destroyable_Door"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_lockable_acacia_courtyard_door",
+                "door",
+                "a lockable acacia courtyard door",
+                null,
+                "This acacia courtyard door is thickly planked and reinforced with two uneven crossbars. A prepared lock socket and worn pull area mark one side, while the rest of the surface is dry, hard, and slightly splintered. It is plain but substantial, made for a practical compound entrance.",
+                SizeCategory.Large,
+                ItemQuality.Standard,
+                55000.0,
+                170.0m,
+                true,
+                false,
+                "acacia",
+                ["Market / Construction Materials / Worked Timber"],
+                ["Holdable", "Door_Lockable_Normal_Large", "Destroyable_Door"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_studded_plank_door",
+                "door",
+                "a studded plank door",
+                null,
+                "This heavy plank door is faced with rows of round metal studs set over thick oak boards. Broad cross-braces strengthen the back, and the outside face is darkened by weather, hands, and old repairs. It reads as a defensive household or storeroom door rather than a decorative interior fitting.",
+                SizeCategory.Large,
+                ItemQuality.Good,
+                68000.0,
+                260.0m,
+                true,
+                false,
+                "oak",
+                ["Market / Construction Materials / Worked Timber", "Market / Household Goods / Standard Wares"],
+                ["Holdable", "Door_Tough_Large", "Destroyable_Door"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_lockable_studded_plank_door",
+                "door",
+                "a lockable studded plank door",
+                null,
+                "This heavy oak door is faced with rows of metal studs and fitted for a lock near the closing edge. The planks are dark, thick, and tightly braced, with scrape marks around the hardware and a reinforced pull area. It has the practical severity of a door meant to resist casual force.",
+                SizeCategory.Large,
+                ItemQuality.Good,
+                72000.0,
+                340.0m,
+                true,
+                false,
+                "oak",
+                ["Market / Construction Materials / Worked Timber", "Market / Household Goods / Standard Wares"],
+                ["Holdable", "Door_Lockable_Tough_Large", "Destroyable_Door"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_cypress_shrine_door",
+                "door",
+                "a carved cypress shrine door",
+                null,
+                "This cypress door is narrow but tall, with shallow geometric carving worked into its panels. The wood is pale and close-grained, and the borders are smoothed with more care than the inner planks. It suggests a small shrine, formal room, or sacred cabinet entrance rather than an ordinary yard door.",
+                SizeCategory.Large,
+                ItemQuality.Good,
+                42000.0,
+                300.0m,
+                true,
+                false,
+                "cypress",
+                ["Market / Construction Materials / Worked Timber", "Market / Household Goods / Luxury Wares"],
+                ["Holdable", "Door_Normal_Large", "Destroyable_Door"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_lockable_cypress_shrine_door",
+                "door",
+                "a lockable cypress shrine door",
+                null,
+                "This cypress shrine door has carved panel borders and a neat lock plate set into the closing side. The pale wood is smoothed carefully around the fitted hardware, while the panel faces carry repeated geometric marks. It looks suitable for a protected sacred room, treasury niche, or formal inner chamber.",
+                SizeCategory.Large,
+                ItemQuality.Good,
+                45000.0,
+                390.0m,
+                true,
+                false,
+                "cypress",
+                ["Market / Construction Materials / Worked Timber", "Market / Household Goods / Luxury Wares"],
+                ["Holdable", "Door_Lockable_Normal_Large", "Destroyable_Door"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_bronze_clad_civic_door",
+                "door",
+                "a bronze-clad civic door",
+                null,
+                "This large door is faced with bronze sheeting over a heavy wooden core, its surface divided by raised bands and round nail heads. The metal is dulled by handling but still catches light along its edges and bosses. It has the imposing appearance of a public, temple, or council entrance.",
+                SizeCategory.Huge,
+                ItemQuality.Good,
+                420000.0,
+                2600.0m,
+                true,
+                false,
+                "bronze",
+                ["Market / Construction Materials", "Market / Household Goods / Luxury Wares"],
+                ["Holdable", "Door_Tough_Huge", "Destroyable_Door"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_lockable_bronze_clad_civic_door",
+                "door",
+                "a lockable bronze-clad door",
+                null,
+                "This huge bronze-clad door has raised bands, rounded bosses, and a reinforced area where a lock plate sits. The underlying wooden core gives the leaves thickness, while the bronze facing carries a green-brown patina along seams and nail heads. It looks made for a formal entrance that should appear as secure as it is grand.",
+                SizeCategory.Huge,
+                ItemQuality.Good,
+                450000.0,
+                3200.0m,
+                true,
+                false,
+                "bronze",
+                ["Market / Construction Materials", "Market / Household Goods / Luxury Wares"],
+                ["Holdable", "Door_Lockable_Secure_Huge", "Destroyable_Door"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_planked_courtyard_gate",
+                "gate",
+                "a planked courtyard gate",
+                null,
+                "This very large gate is made from two dense leaves of vertical planks held by heavy braces. The boards meet closely enough to block most view through the opening, and the outer face is scarred by weather and dust. It is the sort of broad gate used for animals, carts, and household compounds.",
+                SizeCategory.VeryLarge,
+                ItemQuality.Standard,
+                120000.0,
+                260.0m,
+                true,
+                false,
+                "oak",
+                ["Market / Construction Materials / Worked Timber", "Market / Construction Materials"],
+                ["Holdable", "Door_Normal_VeryLarge", "Destroyable_Door"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_lockable_planked_courtyard_gate",
+                "gate",
+                "a lockable courtyard gate",
+                null,
+                "This very large planked gate is braced with heavy timbers and prepared with a lock fitting at the meeting edge. The paired leaves are thick, weathered, and practical, with a rubbed pull area and broad boards that hide the space beyond. It is suitable for a compound, stable yard, or small civic enclosure.",
+                SizeCategory.VeryLarge,
+                ItemQuality.Standard,
+                128000.0,
+                340.0m,
+                true,
+                false,
+                "oak",
+                ["Market / Construction Materials / Worked Timber", "Market / Construction Materials"],
+                ["Holdable", "Door_Lockable_Normal_VeryLarge", "Destroyable_Door"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_palisade_camp_gate",
+                "gate",
+                "a barred palisade gate",
+                null,
+                "This very large gate is built from upright ash poles lashed and pinned into a rough rectangular frame. The gaps between the uprights leave the far side visible, while the points and rough bark give it a temporary defensive character. It suits a stockade, camp, animal pen, or frontier yard.",
+                SizeCategory.VeryLarge,
+                ItemQuality.Standard,
+                85000.0,
+                140.0m,
+                true,
+                false,
+                "ash",
+                ["Market / Construction Materials / Worked Timber", "Market / Construction Materials"],
+                ["Holdable", "Gate_Normal_VeryLarge", "Destroyable_Door"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_lockable_palisade_camp_gate",
+                "gate",
+                "a lockable palisade gate",
+                null,
+                "This very large palisade gate is made from ash poles fixed into a cross-braced frame. Open spaces remain between the uprights, but the meeting side is fitted for a lock or bar. It looks like a practical camp or stockade gate, sturdy without being refined.",
+                SizeCategory.VeryLarge,
+                ItemQuality.Standard,
+                90000.0,
+                190.0m,
+                true,
+                false,
+                "ash",
+                ["Market / Construction Materials / Worked Timber", "Market / Construction Materials"],
+                ["Holdable", "Gate_Lockable_Normal_VeryLarge", "Destroyable_Door"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_fortified_compound_gate",
+                "gate",
+                "a fortified compound gate",
+                null,
+                "This very large compound gate is made from thick oak boards reinforced by broad diagonal braces. Its outer face is scarred and studded, with a heavy lower rail that would scrape close to the ground when moved. It is not elegant, but it looks built to absorb hard use and occasional violence.",
+                SizeCategory.VeryLarge,
+                ItemQuality.Good,
+                160000.0,
+                420.0m,
+                true,
+                false,
+                "oak",
+                ["Market / Construction Materials / Worked Timber", "Market / Construction Materials"],
+                ["Holdable", "Door_Tough_VeryLarge", "Destroyable_Door"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_lockable_fortified_compound_gate",
+                "gate",
+                "a lockable fortified gate",
+                null,
+                "This very large gate is built from heavy oak boards, diagonal braces, and rows of reinforcing studs. A lock seat and bar marks are visible at the meeting side, with extra wear where hands and tools have worked the fittings. It has the plain strength of a gate for a defended compound or important courtyard.",
+                SizeCategory.VeryLarge,
+                ItemQuality.Good,
+                170000.0,
+                520.0m,
+                true,
+                false,
+                "oak",
+                ["Market / Construction Materials / Worked Timber", "Market / Construction Materials"],
+                ["Holdable", "Door_Lockable_Tough_VeryLarge", "Destroyable_Door"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_city_gate_leaf",
+                "gate",
+                "a massive timber gate leaf",
+                null,
+                "This huge gate leaf is built from enormous oak boards bound by deep braces and heavy edge timbers. The surface is dark, scarred, and uneven, with metal stains around the old fastening points. It is too massive for a household and plainly belongs to a fortified gateway or large enclosure.",
+                SizeCategory.Huge,
+                ItemQuality.Good,
+                360000.0,
+                900.0m,
+                true,
+                false,
+                "oak",
+                ["Market / Construction Materials / Worked Timber", "Market / Construction Materials"],
+                ["Holdable", "Door_Tough_Huge", "Destroyable_Door"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_lockable_city_gate_leaf",
+                "gate",
+                "a lockable timber gate leaf",
+                null,
+                "This huge timber gate leaf is built from massive oak boards and heavy edge timbers. The meeting side is reinforced for locking hardware and a broad bar, while the face shows deep gouges, patched knots, and old dark stains. It has the severe bulk of a city, fort, or palace gateway.",
+                SizeCategory.Huge,
+                ItemQuality.Good,
+                380000.0,
+                1100.0m,
+                true,
+                false,
+                "oak",
+                ["Market / Construction Materials / Worked Timber", "Market / Construction Materials"],
+                ["Holdable", "Door_Lockable_Tough_Huge", "Destroyable_Door"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_fur_door_hanging",
+                "hanging",
+                "a fur doorway hanging",
+                null,
+                "This doorway hanging is made from several overlapping furred skins stitched onto a leather header. The nap is thick, uneven, and weather-smoothed along the lower edge, with rawhide loops for suspending it across an opening. It would soften drafts and hide the far side more than it would stop determined entry.",
+                SizeCategory.Large,
+                ItemQuality.Standard,
+                6500.0,
+                36.0m,
+                true,
+                false,
+                "fur",
+                ["Market / Household Goods / Standard Decorations"],
+                ["Holdable", "Door_Bad_Large", "Destroyable_Door"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_woven_wool_door_curtain",
+                "curtain",
+                "a woven wool door curtain",
+                null,
+                "This heavy wool curtain is woven as a broad rectangle with a reinforced upper band. The cloth hangs in thick folds, its edges bound with simple stitching and its lower hem weighted by small knots. It is a soft doorway covering for halls, tents, workshops, or sleeping rooms.",
+                SizeCategory.Large,
+                ItemQuality.Standard,
+                4200.0,
+                28.0m,
+                true,
+                false,
+                "wool",
+                ["Market / Household Goods / Standard Decorations"],
+                ["Holdable", "Door_Bad_Large", "Destroyable_Door"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_heavy_linen_door_cloth",
+                "curtain",
+                "a heavy linen door cloth",
+                null,
+                "This linen door cloth is cut broad enough to cover a household opening and hemmed on all sides. The upper edge has loops for hanging from pegs or a rod, while the lower edge is faintly dust-stained from brushing the floor. It is lighter than wool but still gives a room some privacy and shade.",
+                SizeCategory.Large,
+                ItemQuality.Standard,
+                2600.0,
+                22.0m,
+                true,
+                false,
+                "linen",
+                ["Market / Household Goods / Standard Decorations"],
+                ["Holdable", "Door_Bad_Large", "Destroyable_Door"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_patterned_carpet_door_hanging",
+                "hanging",
+                "a patterned carpet hanging",
+                null,
+                "This thick wool hanging is woven like a small carpet, with compact borders and a dense face that drapes stiffly across a doorway. The top edge is reinforced for suspension, and the corners show wear where it has been taken down and rehung. It would make an interior passage feel warmer and more private.",
+                SizeCategory.Large,
+                ItemQuality.Good,
+                7800.0,
+                80.0m,
+                true,
+                false,
+                "wool",
+                ["Market / Household Goods / Luxury Decorations"],
+                ["Holdable", "Door_Bad_Large", "Destroyable_Door"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_bead_door_hanging",
+                "hanging",
+                "a bead doorway hanging",
+                null,
+                "This doorway hanging is made from many vertical strands of small glass and bone beads. The strands are tied to a narrow header and leave the space beyond partly visible through their moving gaps. It is more decorative and signalling than secure, clicking softly whenever it is brushed aside.",
+                SizeCategory.Large,
+                ItemQuality.Good,
+                3300.0,
+                90.0m,
+                true,
+                false,
+                "glass",
+                ["Market / Household Goods / Luxury Decorations"],
+                ["Holdable", "Gate_Bad_Large", "Destroyable_Door"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_reed_door_screen",
+                "screen",
+                "a reed doorway screen",
+                null,
+                "This light doorway screen is made from split papyrus stems bound into a loose hanging mat. Narrow gaps remain between many of the reeds, so light and movement can be seen through it. It is a cheap, airy covering for hot courtyards, river settlements, and work spaces.",
+                SizeCategory.Large,
+                ItemQuality.Standard,
+                1800.0,
+                10.0m,
+                true,
+                false,
+                "papyrus",
+                ["Market / Household Goods / Simple Decorations"],
+                ["Holdable", "Gate_Bad_Large", "Destroyable_Door"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_felt_tent_door_flap",
+                "flap",
+                "a felt tent door flap",
+                null,
+                "This felt flap is cut as a thick rounded rectangle with leather ties along its upper edge. The surface is dense, matted, and a little dusty, with crease lines showing where it has been rolled or tied back. It is a practical soft door for a tent or mobile shelter.",
+                SizeCategory.Large,
+                ItemQuality.Standard,
+                5200.0,
+                30.0m,
+                true,
+                false,
+                "felt",
+                ["Market / Household Goods / Standard Decorations"],
+                ["Holdable", "Door_Bad_Large", "Destroyable_Door"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_leather_tent_door_flap",
+                "flap",
+                "a leather tent door flap",
+                null,
+                "This leather tent flap is made from stitched hides with a reinforced top strip and tie points. The surface is smoke-darkened and supple at the fold lines, while the edges are stiffer from drying. It offers a tougher portable doorway covering than cloth or felt.",
+                SizeCategory.Large,
+                ItemQuality.Standard,
+                7000.0,
+                40.0m,
+                true,
+                false,
+                "leather",
+                ["Market / Household Goods / Standard Decorations"],
+                ["Holdable", "Door_Bad_Large", "Destroyable_Door"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_papyrus_lashed_light_door",
+                "door",
+                "a papyrus-lashed light door",
+                null,
+                "This light door is made from a slim wooden frame filled with papyrus strips and lashings. It is flexible at the edges and pale from sun exposure, with simple cord ties where heavier hardware would otherwise sit. It suits a dry climate, a store room, or a modest household rather than a defended entrance.",
+                SizeCategory.Large,
+                ItemQuality.Poor,
+                9000.0,
+                18.0m,
+                true,
+                false,
+                "papyrus",
+                ["Market / Household Goods / Simple Wares", "Market / Construction Materials"],
+                ["Holdable", "Door_Bad_Large", "Destroyable_Door"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_wooden_barred_wicket",
+                "wicket",
+                "a wooden barred wicket",
+                null,
+                "This barred wooden wicket is made from a narrow frame filled with evenly spaced ash slats. The construction leaves clear spaces through which a person can see and aim, but it still marks a controlled passage. It is suitable for pens, workshops, watch posts, or inner yards.",
+                SizeCategory.Large,
+                ItemQuality.Standard,
+                28000.0,
+                60.0m,
+                true,
+                false,
+                "ash",
+                ["Market / Construction Materials / Worked Timber", "Market / Construction Materials"],
+                ["Holdable", "Gate_Normal_Large", "Destroyable_Door"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_lockable_wooden_barred_wicket",
+                "wicket",
+                "a lockable barred wicket",
+                null,
+                "This wooden wicket has a stout ash frame filled with upright slats and a small lock fitting on the closing side. The gaps leave the far side visible, while the frame is firm enough to mark the passage as controlled. It looks like a simple guarded entrance for a pen, shop, or courtyard.",
+                SizeCategory.Large,
+                ItemQuality.Standard,
+                30000.0,
+                84.0m,
+                true,
+                false,
+                "ash",
+                ["Market / Construction Materials / Worked Timber", "Market / Construction Materials"],
+                ["Holdable", "Gate_Lockable_Normal_Large", "Destroyable_Door"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_bronze_latticed_gate",
+                "gate",
+                "a bronze latticed gate",
+                null,
+                "This bronze gate is built as a lattice of straight bars set into a rectangular frame. The open pattern leaves sightlines through the gateway, while the metalwork gives it more dignity than a timber wicket. It would suit a shrine, wealthy courtyard, or formal garden entry.",
+                SizeCategory.Large,
+                ItemQuality.Good,
+                52000.0,
+                420.0m,
+                true,
+                false,
+                "bronze",
+                ["Market / Construction Materials", "Market / Household Goods / Luxury Wares"],
+                ["Holdable", "Gate_Tough_Large", "Destroyable_Door"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_lockable_bronze_latticed_gate",
+                "gate",
+                "a lockable bronze lattice gate",
+                null,
+                "This bronze lattice gate has a rectangular frame, straight bars, and a fitted lock area at the meeting edge. Its open pattern leaves the far side visible while still giving the entry a formal barrier. The bronze is dulled at the hand points and greened in protected corners.",
+                SizeCategory.Large,
+                ItemQuality.Good,
+                56000.0,
+                520.0m,
+                true,
+                false,
+                "bronze",
+                ["Market / Construction Materials", "Market / Household Goods / Luxury Wares"],
+                ["Holdable", "Gate_Lockable_Tough_Large", "Destroyable_Door"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_wrought_iron_barred_gate",
+                "gate",
+                "a wrought-iron barred gate",
+                null,
+                "This very large gate is made from wrought-iron uprights crossed by flat horizontal bars. The gaps are wide enough to see and shoot through, but the bars are too substantial to mistake for decoration. Its surface is dark, hammered, and worn smooth around the pull points.",
+                SizeCategory.VeryLarge,
+                ItemQuality.Good,
+                95000.0,
+                480.0m,
+                true,
+                false,
+                "wrought iron",
+                ["Market / Construction Materials", "Market / Household Goods / Standard Wares"],
+                ["Holdable", "Gate_Tough_VeryLarge", "Destroyable_Door"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_lockable_wrought_iron_barred_gate",
+                "gate",
+                "a lockable iron barred gate",
+                null,
+                "This very large wrought-iron gate has upright bars, flat crosspieces, and a reinforced lock plate. The openwork leaves the approach visible, while the metal frame has enough weight to feel serious in the hand. It is a strong gate for a stable yard, prison court, treasury passage, or civic enclosure.",
+                SizeCategory.VeryLarge,
+                ItemQuality.Good,
+                102000.0,
+                580.0m,
+                true,
+                false,
+                "wrought iron",
+                ["Market / Construction Materials", "Market / Household Goods / Standard Wares"],
+                ["Holdable", "Gate_Lockable_Tough_VeryLarge", "Destroyable_Door"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_bronze_shrine_grille",
+                "grille",
+                "a bronze shrine grille",
+                null,
+                "This bronze grille is formed from small bars arranged in a repeated geometric pattern. The spaces between the bars leave a chamber or image visible beyond, while the frame is sturdy enough to serve as a proper barrier. It has a formal, carefully finished quality suited to sacred or elite interiors.",
+                SizeCategory.Large,
+                ItemQuality.Good,
+                38000.0,
+                500.0m,
+                true,
+                false,
+                "bronze",
+                ["Market / Construction Materials", "Market / Household Goods / Luxury Wares"],
+                ["Holdable", "Gate_Tough_Large", "Destroyable_Door"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_lockable_bronze_shrine_grille",
+                "grille",
+                "a lockable bronze shrine grille",
+                null,
+                "This bronze shrine grille has a repeated geometric pattern and a small lock fitting worked into one side of its frame. The openwork allows sight through it, but the fitted bars and reinforced edges make it more than a screen. It looks made to guard a sanctum, offering niche, or treasured image.",
+                SizeCategory.Large,
+                ItemQuality.Good,
+                41000.0,
+                620.0m,
+                true,
+                false,
+                "bronze",
+                ["Market / Construction Materials", "Market / Household Goods / Luxury Wares"],
+                ["Holdable", "Gate_Lockable_Tough_Large", "Destroyable_Door"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_city_sally_port_grate",
+                "grate",
+                "a sally-port iron grate",
+                null,
+                "This very large iron grate is built from square bars set close enough to make passage difficult but open enough to see through. The frame is deep and heavily riveted, with scrape marks along one side where it has moved against stone or timber. It feels like part of a fortification rather than a domestic gate.",
+                SizeCategory.VeryLarge,
+                ItemQuality.Good,
+                130000.0,
+                620.0m,
+                true,
+                false,
+                "wrought iron",
+                ["Market / Construction Materials", "Market / Household Goods / Standard Wares"],
+                ["Holdable", "Gate_Secure_VeryLarge", "Destroyable_Door"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_lockable_city_sally_port_grate",
+                "grate",
+                "a lockable sally-port grate",
+                null,
+                "This very large iron grate is framed with heavy square bars and a protected lock fitting. Its open spacing allows a clear view through the passage, but the construction is dense and defensive. The metal shows hammered seams, dark scale, and old marks from being pulled shut.",
+                SizeCategory.VeryLarge,
+                ItemQuality.Good,
+                138000.0,
+                760.0m,
+                true,
+                false,
+                "wrought iron",
+                ["Market / Construction Materials", "Market / Household Goods / Standard Wares"],
+                ["Holdable", "Gate_Lockable_Secure_VeryLarge", "Destroyable_Door"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_massive_barred_gateway",
+                "gate",
+                "a massive barred gateway",
+                null,
+                "This huge gateway leaf is made from heavy wrought-iron bars set into a deep rectangular frame. The open bars leave sight and missile paths through the opening, but the overall weight and scale make it a major barrier. It would suit a large civic gateway, animal enclosure, arsenal, or monumental court.",
+                SizeCategory.Huge,
+                ItemQuality.Good,
+                240000.0,
+                980.0m,
+                true,
+                false,
+                "wrought iron",
+                ["Market / Construction Materials", "Market / Household Goods / Standard Wares"],
+                ["Holdable", "Gate_Tough_Huge", "Destroyable_Door"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_lockable_massive_barred_gateway",
+                "gate",
+                "a lockable barred gateway",
+                null,
+                "This huge barred gateway is formed from heavy wrought-iron uprights and deep crossbars. The meeting edge carries a reinforced lock plate and worn contact points, while the open construction leaves the other side plainly visible. It has the weight and scale of an entrance intended for carts, animals, or troops.",
+                SizeCategory.Huge,
+                ItemQuality.Good,
+                255000.0,
+                1200.0m,
+                true,
+                false,
+                "wrought iron",
+                ["Market / Construction Materials", "Market / Household Goods / Standard Wares"],
+                ["Holdable", "Gate_Lockable_Tough_Huge", "Destroyable_Door"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_wooden_pin_lock",
+                "lock",
+                "a wooden pin door lock",
+                null,
+                "This wooden lock is built as a long box and sliding bolt, with small pin holes cut into its upper face. The wood is rubbed smooth around the bolt channel and darkened where hands have worked the mechanism. It is large for a lock, but the construction is simple and very old-fashioned.",
+                SizeCategory.Small,
+                ItemQuality.Standard,
+                2800.0,
+                36.0m,
+                true,
+                false,
+                "wood",
+                ["Market / Household Goods / Standard Wares"],
+                ["Holdable", "Warded_Lock_Normal", "Destroyable_WoodenHeavy"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_wooden_pin_lock_key",
+                "key",
+                "a wooden pin-lock key",
+                null,
+                "This wooden key has a squared handle and a projecting toothed end meant to lift pins inside a large wooden lock. The shaft is hand-smoothed, with small chips along the working teeth. It is too bulky for a purse but easy to find on a peg or cord.",
+                SizeCategory.VerySmall,
+                ItemQuality.Standard,
+                220.0,
+                8.0m,
+                true,
+                false,
+                "wood",
+                ["Market / Household Goods / Standard Wares"],
+                ["Holdable", "Warded_Key", "Destroyable_WoodenHeavy"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_bronze_warded_door_lock",
+                "lock",
+                "a bronze warded door lock",
+                null,
+                "This bronze lock has a compact case, a sliding bolt, and a warded keyhole cut into a raised plate. The surface is worn smooth around the mouth of the keyhole, with green-brown patina in the corners. It is a respectable mechanical lock for a door, chest, or important cabinet.",
+                SizeCategory.Small,
+                ItemQuality.Standard,
+                1800.0,
+                80.0m,
+                true,
+                false,
+                "bronze",
+                ["Market / Household Goods / Standard Wares"],
+                ["Holdable", "Warded_Lock_Normal", "Destroyable_HeavyMetal"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_bronze_warded_key",
+                "key",
+                "a bronze warded key",
+                null,
+                "This bronze key has a simple bow, a narrow stem, and a warded bit filed into stepped teeth. The metal is darkened by handling, especially along the bow and working edge. It is small enough to carry on a cord or ring.",
+                SizeCategory.VerySmall,
+                ItemQuality.Standard,
+                65.0,
+                14.0m,
+                true,
+                false,
+                "bronze",
+                ["Market / Household Goods / Standard Wares"],
+                ["Holdable", "Warded_Key", "Destroyable_HeavyMetal"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_wrought_iron_warded_door_lock",
+                "lock",
+                "an iron warded door lock",
+                null,
+                "This wrought-iron lock has a dark rectangular case, a sliding bolt, and a plain warded keyhole. Hammer marks remain on the case, and the edges are slightly uneven rather than cast smooth. It looks practical, durable, and intended for use rather than display.",
+                SizeCategory.Small,
+                ItemQuality.Standard,
+                2300.0,
+                64.0m,
+                true,
+                false,
+                "wrought iron",
+                ["Market / Household Goods / Standard Wares"],
+                ["Holdable", "Warded_Lock_Normal", "Destroyable_HeavyMetal"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_wrought_iron_warded_key",
+                "key",
+                "an iron warded key",
+                null,
+                "This wrought-iron key has a plain loop bow and a short bit cut with simple wards. The stem is dark and slightly hammered, with the working edge polished by use. It is a common, serviceable key for a mechanical lock.",
+                SizeCategory.VerySmall,
+                ItemQuality.Standard,
+                85.0,
+                10.0m,
+                true,
+                false,
+                "wrought iron",
+                ["Market / Household Goods / Standard Wares"],
+                ["Holdable", "Warded_Key", "Destroyable_HeavyMetal"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_small_casket_tumbler_lock",
+                "lock",
+                "a small tumbler casket lock",
+                null,
+                "This small bronze lock is built around a sliding bolt and a pierced face plate. Its compact size suggests a casket, strongbox, or portable shrine rather than a full door. The case is neatly worked, with enough patina to soften the edges of the metal.",
+                SizeCategory.VerySmall,
+                ItemQuality.Good,
+                650.0,
+                70.0m,
+                true,
+                false,
+                "bronze",
+                ["Market / Household Goods / Luxury Wares"],
+                ["Holdable", "Warded_Lock_Good", "Destroyable_HeavyMetal"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_small_casket_lift_key",
+                "key",
+                "a small lift key",
+                null,
+                "This small bronze key has an L-shaped working end and a simple flattened grip. Its bit is cut to lift or slide a compact lock bolt, and the working face is brighter than the rest of the metal. It is a delicate key suited to a casket or small lock.",
+                SizeCategory.VerySmall,
+                ItemQuality.Good,
+                35.0,
+                18.0m,
+                true,
+                false,
+                "bronze",
+                ["Market / Household Goods / Luxury Wares"],
+                ["Holdable", "Warded_Key", "Destroyable_HeavyMetal"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_large_gate_bar_lock",
+                "lock",
+                "a large gate bar lock",
+                null,
+                "This large wrought-iron lock is built to secure a heavy bar or gate bolt. The case is broad and dark, with a deep keyhole and a reinforced staple plate. It is too heavy for small furniture and clearly belongs on a gate, storehouse, or compound entry.",
+                SizeCategory.Small,
+                ItemQuality.Good,
+                6200.0,
+                180.0m,
+                true,
+                false,
+                "wrought iron",
+                ["Market / Household Goods / Standard Wares"],
+                ["Holdable", "Warded_Lock_Good", "Destroyable_HeavyMetal"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_large_gate_key",
+                "key",
+                "a long iron gate key",
+                null,
+                "This long wrought-iron key has a broad ring bow and a heavy warded bit. The stem is thick enough to serve a deep lock case, with hammer marks still visible under the polished handling wear. It looks made for a gate rather than a small chest.",
+                SizeCategory.Small,
+                ItemQuality.Standard,
+                310.0,
+                28.0m,
+                true,
+                false,
+                "wrought iron",
+                ["Market / Household Goods / Standard Wares"],
+                ["Holdable", "Warded_Key", "Destroyable_HeavyMetal"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_poor_iron_slide_lock",
+                "lock",
+                "a crude iron slide lock",
+                null,
+                "This crude iron lock is a rough case around a simple sliding bolt. The keyhole is uneven, the seams are visibly hammered, and the bolt rattles slightly in its track. It would deter casual hands but does not look finely made.",
+                SizeCategory.Small,
+                ItemQuality.Poor,
+                1700.0,
+                28.0m,
+                true,
+                false,
+                "wrought iron",
+                ["Market / Household Goods / Simple Wares"],
+                ["Holdable", "Warded_Lock_Bad", "Destroyable_HeavyMetal"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_plain_slide_key",
+                "key",
+                "a plain iron slide key",
+                null,
+                "This plain iron key is short, dark, and roughly filed at the bit. The bow is just a bent loop, with bright wear where a cord or ring has passed through it. It is a cheap key for an equally simple lock.",
+                SizeCategory.VerySmall,
+                ItemQuality.Poor,
+                70.0,
+                4.0m,
+                true,
+                false,
+                "wrought iron",
+                ["Market / Household Goods / Simple Wares"],
+                ["Holdable", "Warded_Key", "Destroyable_HeavyMetal"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_fine_bronze_tumbler_lock",
+                "lock",
+                "a fine bronze tumbler lock",
+                null,
+                "This fine bronze lock has a neatly cast case, a smooth sliding bolt, and a carefully cut keyhole. The face plate is framed by shallow incised lines, and the patina gathers darkly in the decoration. It is a well-made lock for a wealthy door, cabinet, or strong casket.",
+                SizeCategory.Small,
+                ItemQuality.Good,
+                1600.0,
+                180.0m,
+                true,
+                false,
+                "bronze",
+                ["Market / Household Goods / Luxury Wares"],
+                ["Holdable", "Warded_Lock_Good", "Destroyable_HeavyMetal"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_fine_bronze_lift_key",
+                "key",
+                "a fine bronze lift key",
+                null,
+                "This fine bronze key has a rounded bow, a straight stem, and an accurately cut lifting bit. The working surfaces are polished by use, while the bow retains a darker patina in its recesses. It is a small, careful piece of metalwork rather than a crude utility key.",
+                SizeCategory.VerySmall,
+                ItemQuality.Good,
+                55.0,
+                34.0m,
+                true,
+                false,
+                "bronze",
+                ["Market / Household Goods / Luxury Wares"],
+                ["Holdable", "Warded_Key", "Destroyable_HeavyMetal"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_bronze_lever_door_lock",
+                "lock",
+                "a bronze lever door lock",
+                null,
+                "This bronze lock is built around a visible sliding bolt and a levered internal plate protected by a compact case. The keyhole is cut with wards, and the face shows a simple border around the working parts. It gives the impression of a more carefully contrived door lock without becoming ornate.",
+                SizeCategory.Small,
+                ItemQuality.Good,
+                2100.0,
+                150.0m,
+                true,
+                false,
+                "bronze",
+                ["Market / Household Goods / Standard Wares"],
+                ["Holdable", "Warded_Lock_Good", "Destroyable_HeavyMetal"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_two_toothed_bronze_lever_key",
+                "key",
+                "a two-toothed bronze key",
+                null,
+                "This bronze key has two pronounced teeth at the end of a narrow stem. The bow is broad enough for a cord, and the bit is polished where it works against a lock's hidden plates. Its shape suggests a lock that needs lifting as much as turning.",
+                SizeCategory.VerySmall,
+                ItemQuality.Good,
+                75.0,
+                28.0m,
+                true,
+                false,
+                "bronze",
+                ["Market / Household Goods / Standard Wares"],
+                ["Holdable", "Warded_Key", "Destroyable_HeavyMetal"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_wrought_iron_gate_lever_lock",
+                "lock",
+                "an iron gate lever lock",
+                null,
+                "This wrought-iron lock has a heavy case, a deep bolt, and a protected lever plate visible through the mouth of the mechanism. Its surfaces are dark, hammered, and reinforced around the keyhole. It is sized for a gate, stable yard, or strong storeroom door.",
+                SizeCategory.Small,
+                ItemQuality.Good,
+                7800.0,
+                220.0m,
+                true,
+                false,
+                "wrought iron",
+                ["Market / Household Goods / Standard Wares"],
+                ["Holdable", "Warded_Lock_Good", "Destroyable_HeavyMetal"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_long_iron_gate_key",
+                "key",
+                "a long warded gate key",
+                null,
+                "This long iron key has a heavy loop bow and a large warded bit with deep cutouts. The stem is strong enough to reach through a thick gate lock, and the dark metal shows bright wear along the hand grip. It is large enough to feel ceremonial when carried openly.",
+                SizeCategory.Small,
+                ItemQuality.Standard,
+                420.0,
+                36.0m,
+                true,
+                false,
+                "wrought iron",
+                ["Market / Household Goods / Standard Wares"],
+                ["Holdable", "Warded_Key", "Destroyable_HeavyMetal"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_temple_bar_lever_lock",
+                "lock",
+                "a temple bar lever lock",
+                null,
+                "This bronze lock is made for a broad bar or sacred-room door, with a reinforced case and a carefully framed keyhole. The metal face carries shallow linework and a smooth worn patch around the bolt. It looks formal and substantial without being purely ceremonial.",
+                SizeCategory.Small,
+                ItemQuality.VeryGood,
+                5200.0,
+                360.0m,
+                true,
+                false,
+                "bronze",
+                ["Market / Household Goods / Luxury Wares"],
+                ["Holdable", "Warded_Lock_Excellent", "Destroyable_HeavyMetal"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_ceremonial_temple_key",
+                "key",
+                "a ceremonial bronze key",
+                null,
+                "This bronze key has an oversized bow and a neatly cut warded bit. The bow is shaped for display on a belt, chain, or keeper's ring, while the working end remains practical and polished. It looks like a key whose visibility matters almost as much as its use.",
+                SizeCategory.Small,
+                ItemQuality.Good,
+                180.0,
+                90.0m,
+                true,
+                false,
+                "bronze",
+                ["Market / Household Goods / Luxury Wares"],
+                ["Holdable", "Warded_Key", "Destroyable_HeavyMetal"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_wooden_crossbar_latch",
+                "latch",
+                "a wooden crossbar latch",
+                null,
+                "This simple wooden latch consists of a sliding crossbar and a small notched keeper. The wood is rough but serviceable, with hand-worn areas near the bar's end. It is a one-sided fastening for a shed, inner door, pen, or light gate.",
+                SizeCategory.Small,
+                ItemQuality.Standard,
+                1200.0,
+                10.0m,
+                true,
+                false,
+                "wood",
+                ["Market / Household Goods / Simple Wares"],
+                ["Holdable", "Latch_Normal", "Destroyable_WoodenHeavy"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_wrought_iron_draw_latch",
+                "latch",
+                "an iron draw latch",
+                null,
+                "This wrought-iron latch has a hooked draw bar, a keeper plate, and visible hammer marks along its dark surface. The handle is polished by repeated use, while the plates remain rougher at the edges. It is a durable one-sided fastening for a heavier door or gate.",
+                SizeCategory.Small,
+                ItemQuality.Good,
+                950.0,
+                30.0m,
+                true,
+                false,
+                "wrought iron",
+                ["Market / Household Goods / Standard Wares"],
+                ["Holdable", "Latch_Good", "Destroyable_HeavyMetal"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_bronze_shrine_latch",
+                "latch",
+                "a bronze shrine latch",
+                null,
+                "This bronze latch is small, tidy, and finished with a shallow incised border. Its bar moves through a neat keeper, and the face is worn smooth around the thumb grip. It would suit a shrine screen, cabinet door, or formal inner room where a simple one-sided fastening is enough.",
+                SizeCategory.VerySmall,
+                ItemQuality.Good,
+                420.0,
+                60.0m,
+                true,
+                false,
+                "bronze",
+                ["Market / Household Goods / Luxury Wares"],
+                ["Holdable", "Latch_Good", "Destroyable_HeavyMetal"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_small_bronze_keyring",
+                "keyring",
+                "a small bronze keyring",
+                null,
+                "This small bronze keyring is a simple loop with a narrow opening worked into the metal. The surface is bright along the inside where keys rub against it and darker along the outer curve. It is sized for a few household or chest keys.",
+                SizeCategory.VerySmall,
+                ItemQuality.Standard,
+                45.0,
+                8.0m,
+                true,
+                false,
+                "bronze",
+                ["Market / Household Goods / Standard Wares"],
+                ["Holdable", "Keyring_Small", "Destroyable_HeavyMetal"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_large_iron_keyring",
+                "keyring",
+                "a large iron keyring",
+                null,
+                "This large wrought-iron keyring is a thick dark loop sized for several heavy keys. Its surface is hammered and polished in patches, especially where it would hang from a belt or peg. It looks suitable for a gatekeeper, storehouse keeper, or household steward.",
+                SizeCategory.Small,
+                ItemQuality.Standard,
+                160.0,
+                16.0m,
+                true,
+                false,
+                "wrought iron",
+                ["Market / Household Goods / Standard Wares"],
+                ["Holdable", "Keyring_Large", "Destroyable_HeavyMetal"],
+                null,
+                null,
+                null,
+                null
+            );
+
+        }
+
         public void SeedReworkItems()
         {
             SeedAntiquityClothing();
             SeedAntiquityJewellery();
             SeedAntiquityArmour();
             SeedAntiquityContainers();
+            SeedAntiquityDoorsAndLocks();
         }
     }
 }

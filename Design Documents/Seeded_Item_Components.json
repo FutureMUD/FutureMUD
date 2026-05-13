@@ -3550,6 +3550,66 @@
         "Component Type":  "MeleeWeapon"
     },
     {
+        "Component Name":  "Melee_Quarterstaff",
+        "Component Description":  "Turns an item into a Quarterstaff melee weapon",
+        "Component Type":  "MeleeWeapon"
+    },
+    {
+        "Component Name":  "Melee_Training Quarterstaff",
+        "Component Description":  "Turns an item into a Training Quarterstaff melee weapon",
+        "Component Type":  "MeleeWeapon"
+    },
+    {
+        "Component Name":  "Melee_Pike",
+        "Component Description":  "Turns an item into a Pike melee weapon",
+        "Component Type":  "MeleeWeapon"
+    },
+    {
+        "Component Name":  "Melee_Training Pike",
+        "Component Description":  "Turns an item into a Training Pike melee weapon",
+        "Component Type":  "MeleeWeapon"
+    },
+    {
+        "Component Name":  "Melee_Two Handed Axe",
+        "Component Description":  "Turns an item into a Two Handed Axe melee weapon",
+        "Component Type":  "MeleeWeapon"
+    },
+    {
+        "Component Name":  "Melee_Training Two Handed Axe",
+        "Component Description":  "Turns an item into a Training Two Handed Axe melee weapon",
+        "Component Type":  "MeleeWeapon"
+    },
+    {
+        "Component Name":  "Melee_Flail",
+        "Component Description":  "Turns an item into a Flail melee weapon",
+        "Component Type":  "MeleeWeapon"
+    },
+    {
+        "Component Name":  "Melee_Training Flail",
+        "Component Description":  "Turns an item into a Training Flail melee weapon",
+        "Component Type":  "MeleeWeapon"
+    },
+    {
+        "Component Name":  "Melee_Military Pick",
+        "Component Description":  "Turns an item into a Military Pick melee weapon",
+        "Component Type":  "MeleeWeapon"
+    },
+    {
+        "Component Name":  "Melee_Training Military Pick",
+        "Component Description":  "Turns an item into a Training Military Pick melee weapon",
+        "Component Type":  "MeleeWeapon"
+    },
+    {
+        "Component Name":  "Melee_Estoc",
+        "Component Description":  "Turns an item into a Estoc melee weapon",
+        "Component Type":  "MeleeWeapon"
+    },
+    {
+        "Component Name":  "Melee_Training Estoc",
+        "Component Description":  "Turns an item into a Training Estoc melee weapon",
+        "Component Type":  "MeleeWeapon"
+    },
+    {
         "Component Name":  "Microcontroller_Basic",
         "Component Description":  "Turns an item into a simple programmable microcontroller with a daylight input example.",
         "Component Type":  "Microcontroller"
@@ -4118,6 +4178,106 @@
         "Component Name":  "Sheath_Small",
         "Component Description":  "Turns item into a sheath for melee weapons of up to size Small",
         "Component Type":  "Sheath"
+    },
+    {
+        "Component Name":  "Shield_Improvised",
+        "Component Description":  "Turns an item into a Improvised shield",
+        "Component Type":  "Shield"
+    },
+    {
+        "Component Name":  "Shield_Buckler",
+        "Component Description":  "Turns an item into a Buckler shield",
+        "Component Type":  "Shield"
+    },
+    {
+        "Component Name":  "Shield_Kite",
+        "Component Description":  "Turns an item into a Kite shield",
+        "Component Type":  "Shield"
+    },
+    {
+        "Component Name":  "Shield_Round",
+        "Component Description":  "Turns an item into a Round shield",
+        "Component Type":  "Shield"
+    },
+    {
+        "Component Name":  "Shield_Heater",
+        "Component Description":  "Turns an item into a Heater shield",
+        "Component Type":  "Shield"
+    },
+    {
+        "Component Name":  "Shield_Tower",
+        "Component Description":  "Turns an item into a Tower shield",
+        "Component Type":  "Shield"
+    },
+    {
+        "Component Name":  "Shield_Hide",
+        "Component Description":  "Turns an item into a Hide shield",
+        "Component Type":  "Shield"
+    },
+    {
+        "Component Name":  "Shield_Wicker",
+        "Component Description":  "Turns an item into a Wicker shield",
+        "Component Type":  "Shield"
+    },
+    {
+        "Component Name":  "Shield_Parma",
+        "Component Description":  "Turns an item into a Parma shield",
+        "Component Type":  "Shield"
+    },
+    {
+        "Component Name":  "Shield_Dhal",
+        "Component Description":  "Turns an item into a Dhal shield",
+        "Component Type":  "Shield"
+    },
+    {
+        "Component Name":  "Shield_Adarga",
+        "Component Description":  "Turns an item into a Adarga shield",
+        "Component Type":  "Shield"
+    },
+    {
+        "Component Name":  "Shield_Targe",
+        "Component Description":  "Turns an item into a Targe shield",
+        "Component Type":  "Shield"
+    },
+    {
+        "Component Name":  "Shield_Rotella",
+        "Component Description":  "Turns an item into a Rotella shield",
+        "Component Type":  "Shield"
+    },
+    {
+        "Component Name":  "Shield_Thureos",
+        "Component Description":  "Turns an item into a Thureos shield",
+        "Component Type":  "Shield"
+    },
+    {
+        "Component Name":  "Shield_Aspis",
+        "Component Description":  "Turns an item into a Aspis shield",
+        "Component Type":  "Shield"
+    },
+    {
+        "Component Name":  "Shield_Scutum",
+        "Component Description":  "Turns an item into a Scutum shield",
+        "Component Type":  "Shield"
+    },
+    {
+        "Component Name":  "Shield_Pavise",
+        "Component Description":  "Turns an item into a Pavise shield",
+        "Component Type":  "Shield"
+    },
+    {
+        "Component Name":  "Shield_Trench",
+        "Component Description":  "Turns an item into a Trench shield",
+        "Component Type":  "Shield"
+    },
+    {
+        "Component Name":  "Shield_Riot",
+        "Component Description":  "Turns an item into a Riot shield",
+        "Component Type":  "Shield"
+    },
+    {
+        "Component Name":  "Shield_Ballistic",
+        "Component Description":  "Turns an item into a Ballistic shield",
+        "Component Type":  "Shield"
     },
     {
         "Component Name":  "SignalCableSegment_Standard",

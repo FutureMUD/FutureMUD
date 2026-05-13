@@ -47,6 +47,8 @@ Melee-family strategies select active attacks through this order:
 3. Weighted attack-mode roll: weapon, natural weapon, magic, psychic, then auxiliary.
 4. Weapon/natural/magic attack selection constrained by combat settings, allowed classifications, preferred/forbidden intentions, stamina, target type, and current melee or clinch state.
 
+`SwordAndBoardOnly` is the engine's existing handedness term for weapon-and-shield fighting. A one-handed melee weapon can now select `SwordAndBoardOnly` attacks when the attacker also has a separately wielded shield, and ordinary `OneHandedOnly` attacks remain available in the same loadout. This is what lets shield-line spear attacks coexist with the normal spear thrust suite instead of replacing it.
+
 Auxiliary moves are selected by shared strategy code through `AttemptUseAuxilliaryAction`. The move list comes from the attacker's race combat actions and is filtered by position, intention requirements, forbidden intentions, usability prog, target, and stamina. If the selected channel has authored moves but the actor is too exhausted to pay for any of them, the strategy returns `TooExhaustedMove`.
 
 `StandardMeleeStrategy` now includes `AuxiliaryPercentage` in the normal weighted roll while keeping the old melee fallback: if no weighted channel produces a move, it may still try an auxiliary move before idling. This preserves older custom combat settings that left auxiliary probability at zero but relied on auxiliary moves as a last resort. Ranged-family strategies also include `AuxiliaryPercentage` in their weighted roll, but they retain the ranged no-move fallback when no ranged, natural, magic, psychic, or auxiliary channel is selected.

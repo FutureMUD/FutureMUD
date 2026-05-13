@@ -42,6 +42,19 @@ public class CombatSettingsSourceTests
         StringAssert.Contains(npcSource, "NPC Templates can only use global combat settings as defaults.");
     }
 
+    [TestMethod]
+    public void WeaponAttack_UsableAttack_AllowsSwordAndBoardWhenOneHandedWeaponHasSeparateShield()
+    {
+        string source = File.ReadAllText(GetSourcePath("MudSharpCore", "Combat", "WeaponAttack.cs"));
+
+        StringAssert.Contains(source, "private bool HandednessMatches");
+        StringAssert.Contains(source, "HandednessOptions == handedness");
+        StringAssert.Contains(source, "HandednessOptions == AttackHandednessOptions.SwordAndBoardOnly");
+        StringAssert.Contains(source, "handedness == AttackHandednessOptions.OneHandedOnly");
+        StringAssert.Contains(source, "character.Body.WieldedItems.Any(x => x != weapon && x.IsItemType<IShield>())");
+        StringAssert.Contains(source, "HandednessMatches(attacker, weapon, handedness)");
+    }
+
     private static string GetSourcePath(params string[] parts)
     {
         return Path.GetFullPath(Path.Combine(

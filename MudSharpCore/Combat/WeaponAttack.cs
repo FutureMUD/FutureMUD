@@ -12,6 +12,7 @@ using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.FutureProg;
 using MudSharp.GameItems;
+using MudSharp.GameItems.Interfaces;
 using MudSharp.Health;
 using MudSharp.Models;
 using MudSharp.RPG.Checks;
@@ -105,14 +106,28 @@ public class WeaponAttack : CombatAction, IWeaponAttack
 
     #endregion
     public override string ActionTypeName => "weapon attack";
+
+    private bool HandednessMatches(IPerceiver attacker, IGameItem weapon, AttackHandednessOptions handedness)
+    {
+        if (handedness == AttackHandednessOptions.Any || HandednessOptions == AttackHandednessOptions.Any ||
+            HandednessOptions == handedness)
+        {
+            return true;
+        }
+
+        return HandednessOptions == AttackHandednessOptions.SwordAndBoardOnly &&
+               handedness == AttackHandednessOptions.OneHandedOnly &&
+               attacker is ICharacter character &&
+               character.Body.WieldedItems.Any(x => x != weapon && x.IsItemType<IShield>());
+    }
+
     public virtual bool UsableAttack(IPerceiver attacker, IGameItem weapon, IPerceiver target,
         AttackHandednessOptions handedness,
         bool ignorePosition,
         params BuiltInCombatMoveType[] types)
     {
         return types.Contains(MoveType) &&
-               (handedness == AttackHandednessOptions.Any || HandednessOptions == AttackHandednessOptions.Any ||
-                HandednessOptions == handedness) &&
+               HandednessMatches(attacker, weapon, handedness) &&
                Intentions.HasFlag((attacker as ICharacter)?.CombatSettings.RequiredIntentions ??
                                   CombatMoveIntentions.None) &&
                (Intentions & (attacker as ICharacter)?.CombatSettings.ForbiddenIntentions ??

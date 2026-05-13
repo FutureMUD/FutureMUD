@@ -324,7 +324,7 @@ public partial class Character
                 .Where(x => x.Applies(this))
                 .Where(x => x.AppliesToTrait(characterTrait))
                 .Sum(x => x.GetBonus(characterTrait));
-        baseValue += Body.ExternalItems.SelectNotNull(x => x.GetItemType<IChangeTraitsInInventory>())
+        baseValue += Body.ExternalItems.SelectMany(x => x.GetItemTypes<IChangeTraitsInInventory>())
                               .Sum(x => x.BonusForTrait(trait, context));
         baseValue += CurrentProject.Labour?.LabourImpacts.Where(x => x.Applies(this))
                          .OfType<ILabourImpactTraits>().Sum(x => x.EffectOnTrait(characterTrait, context)) ?? 0.0;

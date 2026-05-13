@@ -83,7 +83,7 @@ It owns:
 - type help and builder help text
 - flags such as `WarnBeforePurge` and `PreventManualLoad`
 
-Component protos also advertise their runtime capability contracts through marker interfaces such as `IContainerPrototype`, `IWearablePrototype`, or `ILiquidContainerPrototype`. Item prototypes use these markers to reject duplicate exclusive capabilities when builders attach components or submit an item prototype for review.
+Component protos also advertise their runtime capability contracts through marker interfaces such as `IContainerPrototype`, `IWearablePrototype`, or `ILiquidContainerPrototype`. Item prototypes use these markers to reject duplicate exclusive capabilities when builders attach components or submit an item prototype for review. Aggregate markers remain intentionally stackable; for example, multiple worn trait-change components on the same item all contribute their bonuses or penalties while the item is worn.
 
 ## Composition Model
 ### Components define capabilities

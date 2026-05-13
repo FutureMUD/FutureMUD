@@ -5545,6 +5545,306 @@
         "Component Type":  "Wireless Modem"
     },
     {
+        "Component Name":  "WornTraitChanger_AwarenessPenalty_Minor",
+        "Component Description":  "Makes worn hoods, enclosed helmets, or heavy masks interfere with both seeing and hearing. This is the minor grade at -2.5 per affected trait.",
+        "Component Type":  "WornTraitChanger"
+    },
+    {
+        "Component Name":  "WornTraitChanger_AwarenessPenalty_Moderate",
+        "Component Description":  "Makes worn hoods, enclosed helmets, or heavy masks interfere with both seeing and hearing. This is the moderate grade at -5.0 per affected trait.",
+        "Component Type":  "WornTraitChanger"
+    },
+    {
+        "Component Name":  "WornTraitChanger_AwarenessPenalty_Major",
+        "Component Description":  "Makes worn hoods, enclosed helmets, or heavy masks interfere with both seeing and hearing. This is the major grade at -7.5 per affected trait.",
+        "Component Type":  "WornTraitChanger"
+    },
+    {
+        "Component Name":  "WornTraitChanger_AwarenessPenalty_Severe",
+        "Component Description":  "Makes worn hoods, enclosed helmets, or heavy masks interfere with both seeing and hearing. This is the severe grade at -10.0 per affected trait.",
+        "Component Type":  "WornTraitChanger"
+    },
+    {
+        "Component Name":  "WornTraitChanger_ClimbPenalty_Minor",
+        "Component Description":  "Makes worn items harder to climb in. This is the minor grade at -2.5 per affected trait.",
+        "Component Type":  "WornTraitChanger"
+    },
+    {
+        "Component Name":  "WornTraitChanger_ClimbPenalty_Moderate",
+        "Component Description":  "Makes worn items harder to climb in. This is the moderate grade at -5.0 per affected trait.",
+        "Component Type":  "WornTraitChanger"
+    },
+    {
+        "Component Name":  "WornTraitChanger_ClimbPenalty_Major",
+        "Component Description":  "Makes worn items harder to climb in. This is the major grade at -7.5 per affected trait.",
+        "Component Type":  "WornTraitChanger"
+    },
+    {
+        "Component Name":  "WornTraitChanger_ClimbPenalty_Severe",
+        "Component Description":  "Makes worn items harder to climb in. This is the severe grade at -10.0 per affected trait.",
+        "Component Type":  "WornTraitChanger"
+    },
+    {
+        "Component Name":  "WornTraitChanger_FlyPenalty_Minor",
+        "Component Description":  "Makes worn items harder to fly in. This is the minor grade at -2.5 per affected trait.",
+        "Component Type":  "WornTraitChanger"
+    },
+    {
+        "Component Name":  "WornTraitChanger_FlyPenalty_Moderate",
+        "Component Description":  "Makes worn items harder to fly in. This is the moderate grade at -5.0 per affected trait.",
+        "Component Type":  "WornTraitChanger"
+    },
+    {
+        "Component Name":  "WornTraitChanger_FlyPenalty_Major",
+        "Component Description":  "Makes worn items harder to fly in. This is the major grade at -7.5 per affected trait.",
+        "Component Type":  "WornTraitChanger"
+    },
+    {
+        "Component Name":  "WornTraitChanger_FlyPenalty_Severe",
+        "Component Description":  "Makes worn items harder to fly in. This is the severe grade at -10.0 per affected trait.",
+        "Component Type":  "WornTraitChanger"
+    },
+    {
+        "Component Name":  "WornTraitChanger_HidePenalty_Minor",
+        "Component Description":  "Makes worn items harder to hide in. This is the minor grade at -2.5 per affected trait.",
+        "Component Type":  "WornTraitChanger"
+    },
+    {
+        "Component Name":  "WornTraitChanger_HidePenalty_Moderate",
+        "Component Description":  "Makes worn items harder to hide in. This is the moderate grade at -5.0 per affected trait.",
+        "Component Type":  "WornTraitChanger"
+    },
+    {
+        "Component Name":  "WornTraitChanger_HidePenalty_Major",
+        "Component Description":  "Makes worn items harder to hide in. This is the major grade at -7.5 per affected trait.",
+        "Component Type":  "WornTraitChanger"
+    },
+    {
+        "Component Name":  "WornTraitChanger_HidePenalty_Severe",
+        "Component Description":  "Makes worn items harder to hide in. This is the severe grade at -10.0 per affected trait.",
+        "Component Type":  "WornTraitChanger"
+    },
+    {
+        "Component Name":  "WornTraitChanger_ListeningPenalty_Minor",
+        "Component Description":  "Makes worn earplugs, heavy helmets, or muffling gear interfere with listening. This is the minor grade at -2.5 per affected trait.",
+        "Component Type":  "WornTraitChanger"
+    },
+    {
+        "Component Name":  "WornTraitChanger_ListeningPenalty_Moderate",
+        "Component Description":  "Makes worn earplugs, heavy helmets, or muffling gear interfere with listening. This is the moderate grade at -5.0 per affected trait.",
+        "Component Type":  "WornTraitChanger"
+    },
+    {
+        "Component Name":  "WornTraitChanger_ListeningPenalty_Major",
+        "Component Description":  "Makes worn earplugs, heavy helmets, or muffling gear interfere with listening. This is the major grade at -7.5 per affected trait.",
+        "Component Type":  "WornTraitChanger"
+    },
+    {
+        "Component Name":  "WornTraitChanger_ListeningPenalty_Severe",
+        "Component Description":  "Makes worn earplugs, heavy helmets, or muffling gear interfere with listening. This is the severe grade at -10.0 per affected trait.",
+        "Component Type":  "WornTraitChanger"
+    },
+    {
+        "Component Name":  "WornTraitChanger_ManualDexterityPenalty_Minor",
+        "Component Description":  "Makes worn gloves, gauntlets, or similar gear interfere with manual dexterity work. This is the minor grade at -2.5 per affected trait.",
+        "Component Type":  "WornTraitChanger"
+    },
+    {
+        "Component Name":  "WornTraitChanger_ManualDexterityPenalty_Moderate",
+        "Component Description":  "Makes worn gloves, gauntlets, or similar gear interfere with manual dexterity work. This is the moderate grade at -5.0 per affected trait.",
+        "Component Type":  "WornTraitChanger"
+    },
+    {
+        "Component Name":  "WornTraitChanger_ManualDexterityPenalty_Major",
+        "Component Description":  "Makes worn gloves, gauntlets, or similar gear interfere with manual dexterity work. This is the major grade at -7.5 per affected trait.",
+        "Component Type":  "WornTraitChanger"
+    },
+    {
+        "Component Name":  "WornTraitChanger_ManualDexterityPenalty_Severe",
+        "Component Description":  "Makes worn gloves, gauntlets, or similar gear interfere with manual dexterity work. This is the severe grade at -10.0 per affected trait.",
+        "Component Type":  "WornTraitChanger"
+    },
+    {
+        "Component Name":  "WornTraitChanger_MovementBonus_Minor",
+        "Component Description":  "Helps fitted athletic gear support swimming, climbing, flying, or running. This is the minor grade at 2.5 per affected trait.",
+        "Component Type":  "WornTraitChanger"
+    },
+    {
+        "Component Name":  "WornTraitChanger_MovementBonus_Moderate",
+        "Component Description":  "Helps fitted athletic gear support swimming, climbing, flying, or running. This is the moderate grade at 5.0 per affected trait.",
+        "Component Type":  "WornTraitChanger"
+    },
+    {
+        "Component Name":  "WornTraitChanger_MovementBonus_Major",
+        "Component Description":  "Helps fitted athletic gear support swimming, climbing, flying, or running. This is the major grade at 7.5 per affected trait.",
+        "Component Type":  "WornTraitChanger"
+    },
+    {
+        "Component Name":  "WornTraitChanger_MovementBonus_Severe",
+        "Component Description":  "Helps fitted athletic gear support swimming, climbing, flying, or running. This is the severe grade at 10.0 per affected trait.",
+        "Component Type":  "WornTraitChanger"
+    },
+    {
+        "Component Name":  "WornTraitChanger_MovementPenalty_Minor",
+        "Component Description":  "Makes worn items harder to swim, climb, or fly in. This is the minor grade at -2.5 per affected trait.",
+        "Component Type":  "WornTraitChanger"
+    },
+    {
+        "Component Name":  "WornTraitChanger_MovementPenalty_Moderate",
+        "Component Description":  "Makes worn items harder to swim, climb, or fly in. This is the moderate grade at -5.0 per affected trait.",
+        "Component Type":  "WornTraitChanger"
+    },
+    {
+        "Component Name":  "WornTraitChanger_MovementPenalty_Major",
+        "Component Description":  "Makes worn items harder to swim, climb, or fly in. This is the major grade at -7.5 per affected trait.",
+        "Component Type":  "WornTraitChanger"
+    },
+    {
+        "Component Name":  "WornTraitChanger_MovementPenalty_Severe",
+        "Component Description":  "Makes worn items harder to swim, climb, or fly in. This is the severe grade at -10.0 per affected trait.",
+        "Component Type":  "WornTraitChanger"
+    },
+    {
+        "Component Name":  "WornTraitChanger_RunningBonus_Minor",
+        "Component Description":  "Helps good footwear or legwear support running. This is the minor grade at 2.5 per affected trait.",
+        "Component Type":  "WornTraitChanger"
+    },
+    {
+        "Component Name":  "WornTraitChanger_RunningBonus_Moderate",
+        "Component Description":  "Helps good footwear or legwear support running. This is the moderate grade at 5.0 per affected trait.",
+        "Component Type":  "WornTraitChanger"
+    },
+    {
+        "Component Name":  "WornTraitChanger_RunningBonus_Major",
+        "Component Description":  "Helps good footwear or legwear support running. This is the major grade at 7.5 per affected trait.",
+        "Component Type":  "WornTraitChanger"
+    },
+    {
+        "Component Name":  "WornTraitChanger_RunningBonus_Severe",
+        "Component Description":  "Helps good footwear or legwear support running. This is the severe grade at 10.0 per affected trait.",
+        "Component Type":  "WornTraitChanger"
+    },
+    {
+        "Component Name":  "WornTraitChanger_SneakPenalty_Minor",
+        "Component Description":  "Makes worn items noisier or more awkward for sneaking. This is the minor grade at -2.5 per affected trait.",
+        "Component Type":  "WornTraitChanger"
+    },
+    {
+        "Component Name":  "WornTraitChanger_SneakPenalty_Moderate",
+        "Component Description":  "Makes worn items noisier or more awkward for sneaking. This is the moderate grade at -5.0 per affected trait.",
+        "Component Type":  "WornTraitChanger"
+    },
+    {
+        "Component Name":  "WornTraitChanger_SneakPenalty_Major",
+        "Component Description":  "Makes worn items noisier or more awkward for sneaking. This is the major grade at -7.5 per affected trait.",
+        "Component Type":  "WornTraitChanger"
+    },
+    {
+        "Component Name":  "WornTraitChanger_SneakPenalty_Severe",
+        "Component Description":  "Makes worn items noisier or more awkward for sneaking. This is the severe grade at -10.0 per affected trait.",
+        "Component Type":  "WornTraitChanger"
+    },
+    {
+        "Component Name":  "WornTraitChanger_StealthBonus_Minor",
+        "Component Description":  "Helps worn camouflage, soft soles, or fitted clothing support stealth. This is the minor grade at 2.5 per affected trait.",
+        "Component Type":  "WornTraitChanger"
+    },
+    {
+        "Component Name":  "WornTraitChanger_StealthBonus_Moderate",
+        "Component Description":  "Helps worn camouflage, soft soles, or fitted clothing support stealth. This is the moderate grade at 5.0 per affected trait.",
+        "Component Type":  "WornTraitChanger"
+    },
+    {
+        "Component Name":  "WornTraitChanger_StealthBonus_Major",
+        "Component Description":  "Helps worn camouflage, soft soles, or fitted clothing support stealth. This is the major grade at 7.5 per affected trait.",
+        "Component Type":  "WornTraitChanger"
+    },
+    {
+        "Component Name":  "WornTraitChanger_StealthBonus_Severe",
+        "Component Description":  "Helps worn camouflage, soft soles, or fitted clothing support stealth. This is the severe grade at 10.0 per affected trait.",
+        "Component Type":  "WornTraitChanger"
+    },
+    {
+        "Component Name":  "WornTraitChanger_StealthMobilityBonus_Minor",
+        "Component Description":  "Helps specialised worn gear support stealth, swimming, climbing, flying, and running. This is the minor grade at 2.5 per affected trait.",
+        "Component Type":  "WornTraitChanger"
+    },
+    {
+        "Component Name":  "WornTraitChanger_StealthMobilityBonus_Moderate",
+        "Component Description":  "Helps specialised worn gear support stealth, swimming, climbing, flying, and running. This is the moderate grade at 5.0 per affected trait.",
+        "Component Type":  "WornTraitChanger"
+    },
+    {
+        "Component Name":  "WornTraitChanger_StealthMobilityBonus_Major",
+        "Component Description":  "Helps specialised worn gear support stealth, swimming, climbing, flying, and running. This is the major grade at 7.5 per affected trait.",
+        "Component Type":  "WornTraitChanger"
+    },
+    {
+        "Component Name":  "WornTraitChanger_StealthMobilityBonus_Severe",
+        "Component Description":  "Helps specialised worn gear support stealth, swimming, climbing, flying, and running. This is the severe grade at 10.0 per affected trait.",
+        "Component Type":  "WornTraitChanger"
+    },
+    {
+        "Component Name":  "WornTraitChanger_StealthPenalty_Minor",
+        "Component Description":  "Makes worn items harder to hide and sneak in. This is the minor grade at -2.5 per affected trait.",
+        "Component Type":  "WornTraitChanger"
+    },
+    {
+        "Component Name":  "WornTraitChanger_StealthPenalty_Moderate",
+        "Component Description":  "Makes worn items harder to hide and sneak in. This is the moderate grade at -5.0 per affected trait.",
+        "Component Type":  "WornTraitChanger"
+    },
+    {
+        "Component Name":  "WornTraitChanger_StealthPenalty_Major",
+        "Component Description":  "Makes worn items harder to hide and sneak in. This is the major grade at -7.5 per affected trait.",
+        "Component Type":  "WornTraitChanger"
+    },
+    {
+        "Component Name":  "WornTraitChanger_StealthPenalty_Severe",
+        "Component Description":  "Makes worn items harder to hide and sneak in. This is the severe grade at -10.0 per affected trait.",
+        "Component Type":  "WornTraitChanger"
+    },
+    {
+        "Component Name":  "WornTraitChanger_SwimPenalty_Minor",
+        "Component Description":  "Makes worn items harder to swim in. This is the minor grade at -2.5 per affected trait.",
+        "Component Type":  "WornTraitChanger"
+    },
+    {
+        "Component Name":  "WornTraitChanger_SwimPenalty_Moderate",
+        "Component Description":  "Makes worn items harder to swim in. This is the moderate grade at -5.0 per affected trait.",
+        "Component Type":  "WornTraitChanger"
+    },
+    {
+        "Component Name":  "WornTraitChanger_SwimPenalty_Major",
+        "Component Description":  "Makes worn items harder to swim in. This is the major grade at -7.5 per affected trait.",
+        "Component Type":  "WornTraitChanger"
+    },
+    {
+        "Component Name":  "WornTraitChanger_SwimPenalty_Severe",
+        "Component Description":  "Makes worn items harder to swim in. This is the severe grade at -10.0 per affected trait.",
+        "Component Type":  "WornTraitChanger"
+    },
+    {
+        "Component Name":  "WornTraitChanger_VisualPerceptionPenalty_Minor",
+        "Component Description":  "Makes worn masks, visors, or closed helmets interfere with visual perception. This is the minor grade at -2.5 per affected trait.",
+        "Component Type":  "WornTraitChanger"
+    },
+    {
+        "Component Name":  "WornTraitChanger_VisualPerceptionPenalty_Moderate",
+        "Component Description":  "Makes worn masks, visors, or closed helmets interfere with visual perception. This is the moderate grade at -5.0 per affected trait.",
+        "Component Type":  "WornTraitChanger"
+    },
+    {
+        "Component Name":  "WornTraitChanger_VisualPerceptionPenalty_Major",
+        "Component Description":  "Makes worn masks, visors, or closed helmets interfere with visual perception. This is the major grade at -7.5 per affected trait.",
+        "Component Type":  "WornTraitChanger"
+    },
+    {
+        "Component Name":  "WornTraitChanger_VisualPerceptionPenalty_Severe",
+        "Component Description":  "Makes worn masks, visors, or closed helmets interfere with visual perception. This is the severe grade at -10.0 per affected trait.",
+        "Component Type":  "WornTraitChanger"
+    },
+    {
         "Component Name":  "WornTraitChanger_Bonus",
         "Component Description":  "Provides a small bonus to a common trait while worn.",
         "Component Type":  "WornTraitChanger"

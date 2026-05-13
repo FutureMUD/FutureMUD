@@ -53,7 +53,7 @@ public partial class Body
                 .Where(x => x.AppliesToTrait(trait))
                 .Sum(x => x.GetBonus(trait));
         baseValue += Implants.OfType<IImplantTraitChange>().Sum(x => x.BonusForTrait(trait, context));
-        baseValue += ExternalItems.SelectNotNull(x => x.GetItemType<IChangeTraitsInInventory>())
+        baseValue += ExternalItems.SelectMany(x => x.GetItemTypes<IChangeTraitsInInventory>())
                                   .Sum(x => x.BonusForTrait(definition, context));
         baseValue += Actor.CurrentProject.Labour?.LabourImpacts.Where(x => x.Applies(Actor))
                           .OfType<ILabourImpactTraits>().Sum(x => x.EffectOnTrait(trait, context)) ?? 0.0;

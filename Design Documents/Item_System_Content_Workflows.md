@@ -67,7 +67,7 @@ Power, telecom, and modern medical examples also include:
 - `comp edit new defibrillator`
 - `comp edit new externalorgan`
 
-`UsefulSeeder` now ships stock component examples across those modern families, including lithium batteries, cellular devices, answering-machine tapes, computer/network gear, signal automation, gas containers, rebreathers, inhalers, defibrillators, and external-organ support machines. Its general item package also includes a broad furniture-container catalogue for tables, shelves, bookcases, racks, stands, cabinets, wardrobes, trunks, drawers, counters, bins, beds and display cases, plus size-labelled door, gate, glass-door, and locking-door component presets for door items intended to match exit `DoorSize` values from `Tiny` through `Gigantic`; the item prototype size itself must still be set on the item. Food presets now live in the dedicated `CookingSeeder` package, which installs `PreparedFood` examples for direct load, forageable stock, stackable servings, and cooking recipe products. Fax-machine examples and breathing-filter cartridge ecosystems remain later dedicated content passes.
+`UsefulSeeder` now ships stock component examples across those modern families, including lithium batteries, cellular devices, answering-machine tapes, computer/network gear, signal automation, gas containers, rebreathers, inhalers, defibrillators, and external-organ support machines. Its general item package also includes a broad furniture-container catalogue for tables, shelves, bookcases, racks, stands, cabinets, wardrobes, trunks, drawers, counters, bins, beds and display cases, size-labelled door, gate, glass-door, and locking-door component presets for door items intended to match exit `DoorSize` values from `Tiny` through `Gigantic`, and Skill-Package-aware `WornTraitChanger` presets for worn stealth, movement, dexterity, sight, hearing, and athletic bonuses or penalties; the item prototype size itself must still be set on the item. Food presets now live in the dedicated `CookingSeeder` package, which installs `PreparedFood` examples for direct load, forageable stock, stackable servings, and cooking recipe products. Fax-machine examples and breathing-filter cartridge ecosystems remain later dedicated content passes.
 
 Prepared-food examples include:
 - `comp edit new preparedfood`
@@ -106,7 +106,7 @@ Use:
 
 This is the key step that turns a generic item prototype into something functional.
 
-The attach and submit workflow enforces prototype-side capability exclusivity. If two attached component protos both advertise the same exclusive marker, such as `IContainerPrototype` or `IWearablePrototype`, the item prototype cannot be submitted until the duplicate role is removed. Aggregate markers such as connection, power, and signal-source roles can still appear more than once where the runtime intentionally aggregates them.
+The attach and submit workflow enforces prototype-side capability exclusivity. If two attached component protos both advertise the same exclusive marker, such as `IContainerPrototype` or `IWearablePrototype`, the item prototype cannot be submitted until the duplicate role is removed. Aggregate markers such as connection, power, signal-source, and worn trait-change roles can still appear more than once where the runtime intentionally aggregates them.
 
 ### Important item settings for developers
 Commonly relevant commands include:

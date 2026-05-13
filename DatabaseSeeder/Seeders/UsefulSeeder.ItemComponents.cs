@@ -76,6 +76,28 @@ public partial class UsefulSeeder
         return AddGameItemComponent(context, component);
     }
 
+    private GameItemComponentProto UpsertComponent(FuturemudDatabaseContext context,
+        ref long nextId, Account account, DateTime now, string type, string name,
+        string description, string definition)
+    {
+        if (!_itemProtos.TryGetValue(name, out GameItemComponentProto? existing))
+        {
+            existing = context.GameItemComponentProtos
+                .FirstOrDefault(x => x.Name == name && x.EditableItem.RevisionStatus == 4);
+        }
+
+        if (existing is not null)
+        {
+            existing.Type = type;
+            existing.Description = description;
+            existing.Definition = definition;
+            _itemProtos[existing.Name] = existing;
+            return existing;
+        }
+
+        return CreateComponent(context, ref nextId, account, now, type, name, description, definition);
+    }
+
     private GameItemComponentProto CreateTorchComponent(FuturemudDatabaseContext context,
     ref long nextId, Account account, DateTime now, string name, string description,
     int illuminationProvided, int secondsOfFuel, bool requiresIgnitionSource,
@@ -162,6 +184,17 @@ public partial class UsefulSeeder
         long nextId = context.GameItemComponentProtos.Any() ? context.GameItemComponentProtos.Max(x => x.Id) + 1 : 1;
         SeedAdditionalBuilderExamples(context, now, dbaccount, ref nextId);
         SeedSmokeables(context, now, dbaccount, ref nextId);
+        context.SaveChanges();
+    }
+
+    internal void SeedWornTraitChangersForTesting(FuturemudDatabaseContext context)
+    {
+        _context = context;
+        PrepareItemProtoCache(context);
+        DateTime now = DateTime.UtcNow;
+        Account dbaccount = context.Accounts.First();
+        long nextId = context.GameItemComponentProtos.Any() ? context.GameItemComponentProtos.Max(x => x.Id) + 1 : 1;
+        SeedWornTraitChangers(context, now, dbaccount, ref nextId, new List<string>());
         context.SaveChanges();
     }
 
@@ -2522,6 +2555,7 @@ public partial class UsefulSeeder
         SeedRangedCoverItemComponents(context, now, ref nextId);
         SeedTables(context, now, dbaccount, ref nextId);
         SeedWornExpansion(context, now, dbaccount, ref nextId);
+        SeedWornTraitChangers(context, now, dbaccount, ref nextId, errors);
         SeedHealthRelatedItems(context, now, dbaccount, ref nextId);
         SeedProsthetics(context, now, dbaccount, ref nextId);
         SeedDice(context, now, dbaccount, ref nextId);
@@ -4136,6 +4170,218 @@ public partial class UsefulSeeder
             Definition = @"<Definition StealthDrawDifficulty=""8"" MaximumSize=""7""/>"
         };
         AddGameItemComponent(context, component);
+        context.SaveChanges();
+
+        #endregion
+    }
+
+    private void SeedWornTraitChangers(FuturemudDatabaseContext context, DateTime now, Account dbaccount,
+        ref long nextId, ICollection<string> errors)
+    {
+        #region Worn Trait Changers
+
+        var allTraits = context.TraitDefinitions.AsEnumerable().ToList();
+        var skippedFamilies = new List<string>();
+        long currentId = nextId;
+        var grades = new[]
+        {
+            ("Minor", 2.5),
+            ("Moderate", 5.0),
+            ("Major", 7.5),
+            ("Severe", 10.0)
+        };
+
+        TraitDefinition? FindTrait(params string[] names)
+        {
+            foreach (string name in names)
+            {
+                TraitDefinition? trait = allTraits.FirstOrDefault(x =>
+                    string.Equals(x.Name, name, StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(x.Alias, name, StringComparison.OrdinalIgnoreCase));
+                if (trait is not null)
+                {
+                    return trait;
+                }
+            }
+
+            return null;
+        }
+
+        List<TraitDefinition> UniqueTraits(params TraitDefinition?[] traits)
+        {
+            var seen = new HashSet<long>();
+            var results = new List<TraitDefinition>();
+            foreach (TraitDefinition? trait in traits)
+            {
+                if (trait is null || !seen.Add(trait.Id))
+                {
+                    continue;
+                }
+
+                results.Add(trait);
+            }
+
+            return results;
+        }
+
+        XElement BuildDefinition(IEnumerable<TraitDefinition> traits, double modifier)
+        {
+            return new XElement("Definition",
+                from trait in traits
+                select new XElement("Modifier",
+                    new XAttribute("trait", trait.Id),
+                    new XAttribute("bonus", modifier),
+                    new XAttribute("context", (int)TraitBonusContext.None)));
+        }
+
+        void CreateGradedFamily(string key, string description, IReadOnlyCollection<TraitDefinition> traits,
+            double sign)
+        {
+            if (!traits.Any())
+            {
+                skippedFamilies.Add(key);
+                return;
+            }
+
+            foreach ((string grade, double magnitude) in grades)
+            {
+                double modifier = sign * magnitude;
+                UpsertComponent(context, ref currentId, dbaccount, now, "WornTraitChanger",
+                    $"WornTraitChanger_{key}_{grade}",
+                    $"{description} This is the {grade.ToLowerInvariant()} grade at {modifier:N1} per affected trait.",
+                    BuildDefinition(traits, modifier).ToString());
+            }
+        }
+
+        TraitDefinition? hideTrait = FindTrait("Hide", "Hiding", "Stealth");
+        TraitDefinition? sneakTrait = FindTrait("Sneak", "Sneaking", "Stealth");
+        List<TraitDefinition> stealthTraits = UniqueTraits(hideTrait, sneakTrait);
+        if (stealthTraits.Any())
+        {
+            if (hideTrait is not null && hideTrait.Id != sneakTrait?.Id)
+            {
+                CreateGradedFamily("HidePenalty", "Makes worn items harder to hide in.", [hideTrait], -1.0);
+            }
+
+            if (sneakTrait is not null && sneakTrait.Id != hideTrait?.Id)
+            {
+                CreateGradedFamily("SneakPenalty", "Makes worn items noisier or more awkward for sneaking.", [sneakTrait],
+                    -1.0);
+            }
+
+            CreateGradedFamily("StealthPenalty", "Makes worn items harder to hide and sneak in.", stealthTraits, -1.0);
+            CreateGradedFamily("StealthBonus", "Helps worn camouflage, soft soles, or fitted clothing support stealth.",
+                stealthTraits, 1.0);
+        }
+        else
+        {
+            skippedFamilies.Add("StealthPenalty");
+            skippedFamilies.Add("StealthBonus");
+        }
+
+        TraitDefinition? swimTrait = FindTrait("Swim", "Swimming", "Athletics");
+        TraitDefinition? climbTrait = FindTrait("Climb", "Climbing", "Athletics");
+        TraitDefinition? flyTrait = FindTrait("Fly", "Flying", "Athletics");
+        TraitDefinition? runTrait = FindTrait("Run", "Running", "Athletics");
+        List<TraitDefinition> movementPenaltyTraits = UniqueTraits(swimTrait, climbTrait, flyTrait);
+        if (movementPenaltyTraits.Any())
+        {
+            if (swimTrait is not null && swimTrait.Id != climbTrait?.Id && swimTrait.Id != flyTrait?.Id)
+            {
+                CreateGradedFamily("SwimPenalty", "Makes worn items harder to swim in.", [swimTrait], -1.0);
+            }
+
+            if (climbTrait is not null && climbTrait.Id != swimTrait?.Id && climbTrait.Id != flyTrait?.Id)
+            {
+                CreateGradedFamily("ClimbPenalty", "Makes worn items harder to climb in.", [climbTrait], -1.0);
+            }
+
+            if (flyTrait is not null && flyTrait.Id != swimTrait?.Id && flyTrait.Id != climbTrait?.Id)
+            {
+                CreateGradedFamily("FlyPenalty", "Makes worn items harder to fly in.", [flyTrait], -1.0);
+            }
+
+            CreateGradedFamily("MovementPenalty", "Makes worn items harder to swim, climb, or fly in.",
+                movementPenaltyTraits, -1.0);
+        }
+        else
+        {
+            skippedFamilies.Add("MovementPenalty");
+        }
+
+        List<TraitDefinition> movementBonusTraits = UniqueTraits(swimTrait, climbTrait, flyTrait, runTrait);
+        if (movementBonusTraits.Any())
+        {
+            CreateGradedFamily("MovementBonus", "Helps fitted athletic gear support swimming, climbing, flying, or running.",
+                movementBonusTraits, 1.0);
+        }
+        else
+        {
+            skippedFamilies.Add("MovementBonus");
+        }
+
+        if (runTrait is not null)
+        {
+            CreateGradedFamily("RunningBonus", "Helps good footwear or legwear support running.", [runTrait], 1.0);
+        }
+        else
+        {
+            skippedFamilies.Add("RunningBonus");
+        }
+
+        List<TraitDefinition> stealthMobilityBonusTraits = UniqueTraits(hideTrait, sneakTrait, swimTrait, climbTrait,
+            flyTrait, runTrait);
+        if (stealthMobilityBonusTraits.Any())
+        {
+            CreateGradedFamily("StealthMobilityBonus",
+                "Helps specialised worn gear support stealth, swimming, climbing, flying, and running.",
+                stealthMobilityBonusTraits, 1.0);
+        }
+        else
+        {
+            skippedFamilies.Add("StealthMobilityBonus");
+        }
+
+        List<TraitDefinition> manualDexterityTraits = UniqueTraits(
+            FindTrait("Palm", "Palming", "Sleight", "Security"),
+            FindTrait("Picklock", "Pick Locks", "Lockpicking", "Security"),
+            FindTrait("Steal", "Stealing", "Sleight", "Security"),
+            FindTrait("Surgery", "Medicine"),
+            FindTrait("First Aid", "Healing", "Medicine"),
+            FindTrait("Patient Care", "Medicine"),
+            FindTrait("Skin", "Skinning", "Survival"),
+            FindTrait("Tattoo", "Tattooing"),
+            FindTrait("Handwriting"));
+        CreateGradedFamily("ManualDexterityPenalty",
+            "Makes worn gloves, gauntlets, or similar gear interfere with manual dexterity work.",
+            manualDexterityTraits, -1.0);
+
+        TraitDefinition? spotTrait = FindTrait("Spot", "Spotting", "Scan", "Perception");
+        TraitDefinition? searchTrait = FindTrait("Search", "Searching", "Perception");
+        TraitDefinition? trackTrait = FindTrait("Track", "Tracking", "Perception");
+        List<TraitDefinition> visualPerceptionTraits = UniqueTraits(spotTrait, searchTrait, trackTrait);
+        CreateGradedFamily("VisualPerceptionPenalty",
+            "Makes worn masks, visors, or closed helmets interfere with visual perception.",
+            visualPerceptionTraits, -1.0);
+
+        TraitDefinition? listenTrait = FindTrait("Listen", "Listening", "Perception");
+        List<TraitDefinition> listeningTraits = UniqueTraits(listenTrait);
+        CreateGradedFamily("ListeningPenalty",
+            "Makes worn earplugs, heavy helmets, or muffling gear interfere with listening.",
+            listeningTraits, -1.0);
+
+        List<TraitDefinition> awarenessTraits = UniqueTraits(spotTrait, searchTrait, trackTrait, listenTrait);
+        CreateGradedFamily("AwarenessPenalty",
+            "Makes worn hoods, enclosed helmets, or heavy masks interfere with both seeing and hearing.",
+            awarenessTraits, -1.0);
+
+        if (skippedFamilies.Any())
+        {
+            errors.Add(
+                $"Skipped worn trait changer component families because the expected Skill Package traits were not found: {string.Join(", ", skippedFamilies.Distinct())}.");
+        }
+
+        nextId = currentId;
         context.SaveChanges();
 
         #endregion

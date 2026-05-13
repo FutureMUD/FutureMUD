@@ -43,6 +43,7 @@ This document is based on verified code behavior in the current stock repo, not 
 - `UsefulSeeder` now exposes its AI examples as one repeatable stock package question instead of the older `ai` / `ai2` split, and that package installs or refreshes stock-owned AI examples by stable names, including the `BasicMount` stock `MountAI` definition used by mount-capable NPC imports.
 - `CoreDataSeeder` now owns the stock terrain catalogue, terrain-tag taxonomy, and stock terrain forage-profile backfill so terrain-aware packages and animal grazing systems can rely on default terrain yield capacities without an extra prompt.
 - `StockMeritsSeeder` now provides a repair-capable stock merits and flaws package built around stable merit names and tag-driven helper FutureProgs.
+- `ItemSeeder` craft authoring now inserts missing stock craft rows by `Name + Category` and skips matching existing craft rows without adding duplicate phases, inputs, tools, or products. This is a narrow stock-craft install-missing behavior, not full `ItemSeeder` repeatability.
 - Shared answer reuse is no longer combat-only. The live shared-answer wave covers combat message style, damage randomness, human health model, and non-human health model.
 - Many legacy seeders still rely on coarse installed-state checks such as `Accounts.Any()`, `WeaponAttacks.Any()`, `ClimateModels.Any()`, `ChargenScreenStoryboards.Any()`, or `SurgicalProcedures.Any()`. Phase 2 is the wave intended to replace those with deterministic stock-key detection.
 - Duplicate `SortOrder` values were previously unstable in the menu flow; the structured assessment/menu work now gives that ordering deterministic tie-breaking.
@@ -72,7 +73,7 @@ This document is based on verified code behavior in the current stock repo, not 
 | `WeatherSeeder` | 300 | Requires account and at least one celestial | Deterministic stock-key check on seeded climate/weather markers | None | Upserts stock weather events, seasons, climate models, regional climates, and rain settings by stable names | Repairs seeded package in place | `Idempotent` / `RepairExisting` | Medium | Keep controller assignment builder-owned and expand regression coverage only where needed |
 | `MythicalAnimalSeeder` | 302 | Requires human and animal body frameworks, corpse models, characteristic profiles, and non-human strategies | `MayAlreadyBeInstalled` only when all stock mythic races exist | Non-human health model, damage randomness, and combat message style are now shareable | Installs incrementally and skips existing stock mythic races | Install-missing only | `Idempotent` / `InstallMissing` | Medium | Document exact skip behavior and preserve as repeatable package |
 | `RobotSeeder` | 305 | Requires humanoid and animal body frameworks, characteristic profiles, corpse models, tool tags, progs, and prerequisite attacks | `MayAlreadyBeInstalled` only when all tracked robot content exists | None | Installs incrementally and skips existing stock robot records | Install-missing only | `Idempotent` / `InstallMissing` | Medium | Document exact skip behavior and preserve as repeatable package |
-| `ItemSeeder` | 400 | Requires Useful item component prerequisites | Always `ReadyToInstall` once prerequisites exist | None | No installed-state guard despite large stock content surface | None | `OneShot` / `None` until dedicated plan | High | Create explicit stock package ownership model before declaring rerun support |
+| `ItemSeeder` | 400 | Requires Useful item component prerequisites | Always `ReadyToInstall` once prerequisites exist | None | Large item content remains broadly one-shot; `AddCraft` now installs missing stock craft rows by `Name + Category` and skips matching existing rows without duplicating children | Stock craft rows only: install missing / skip existing. No item-prototype repair or full craft refresh | Overall `OneShot`; craft rows have limited `InstallMissing` behavior | High | Keep the craft-row skip behavior narrow and create explicit stock package ownership before declaring broader ItemSeeder repeatability |
 | `LawSeeder` | 5000 | Requires account and currency | Deterministic stock-key check within legal authorities | None | Upserts named authorities, legal classes, witness profiles, enforcement groups, and stock laws by stable names | Repairs seeded package in place | `Idempotent` / `RepairExisting` | Medium | Add same-authority rerun tests and confirm live runtime references stay intact |
 
 ## Current Buckets
@@ -104,7 +105,7 @@ This document is based on verified code behavior in the current stock repo, not 
 - `CoreDataSeeder`
 - `HumanSeeder`
 - `CombatSeeder`
-- `ItemSeeder`
+- `ItemSeeder` overall, except the narrow stock-craft install-missing/skip-existing behavior in `AddCraft`
 - `AnimalSeeder`
 
 ## System-Level Findings

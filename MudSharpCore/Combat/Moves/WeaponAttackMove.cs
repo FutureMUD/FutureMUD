@@ -2,6 +2,7 @@
 using MudSharp.Body;
 using MudSharp.Body.Traits;
 using MudSharp.Character;
+using MudSharp.Combat;
 using MudSharp.Effects.Concrete;
 using MudSharp.Effects.Interfaces;
 using MudSharp.Form.Material;
@@ -830,6 +831,8 @@ public abstract class WeaponAttackMove : CombatMoveBase, IWeaponAttackMove
         {
             return;
         }
+
+        WeaponPoisonDeliveryHelper.DeliverFromWeapon(Assailant, Weapon.Parent, result.WoundsCaused);
 
         foreach (IWound curWound in result.WoundsCaused)
         {

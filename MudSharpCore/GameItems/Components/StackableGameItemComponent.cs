@@ -1,9 +1,12 @@
 ﻿using MudSharp.Construction;
+using MudSharp.Effects.Concrete;
+using MudSharp.Effects.Interfaces;
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Prototypes;
 using System;
+using System.Linq;
 using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Components;
@@ -127,8 +130,49 @@ public class StackableGameItemComponent : GameItemComponent, IStackable
         // partially purchased items do not reset their decay timers
         GameItem newItem = new((GameItem)Parent, temporary: false, preserveMorphTime: true);
         ((StackableGameItemComponent)newItem.GetItemType<IStackable>()).Quantity = quantity;
+        TransferWeaponPoisonCoatingToSplit(newItem, quantity);
         Quantity -= quantity;
         return newItem;
+    }
+
+    private void TransferWeaponPoisonCoatingToSplit(GameItem newItem, int quantity)
+    {
+        var originalQuantity = Math.Max(1, Quantity);
+        var proportion = Math.Clamp((double)quantity / originalQuantity, 0.0, 1.0);
+        if (proportion <= 0.0)
+        {
+            return;
+        }
+
+        foreach (var copiedCoating in newItem.EffectsOfType<IWeaponPoisonCoatingEffect>().ToList())
+        {
+            newItem.RemoveEffect(copiedCoating, true);
+        }
+
+        foreach (var coating in Parent.EffectsOfType<IWeaponPoisonCoatingEffect>().ToList())
+        {
+            var amount = coating.ContaminatingLiquid.TotalVolume * proportion;
+            if (amount <= 0.0)
+            {
+                continue;
+            }
+
+            var splitMixture = coating.RemovePoisonVolume(amount);
+            if (splitMixture is null || splitMixture.IsEmpty)
+            {
+                continue;
+            }
+
+            var splitCoating = new WeaponPoisonCoating(newItem, splitMixture);
+            var duration = Parent.ScheduledDuration(coating);
+            newItem.AddEffect(splitCoating,
+                duration > TimeSpan.Zero ? duration : LiquidContamination.EffectDuration(splitMixture));
+
+            if (coating.ContaminatingLiquid.IsEmpty)
+            {
+                Parent.RemoveEffect(coating, true);
+            }
+        }
     }
 
     public IGameItem PeekSplit(int quantity)

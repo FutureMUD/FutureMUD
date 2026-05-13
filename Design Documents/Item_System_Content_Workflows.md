@@ -155,6 +155,15 @@ Developers should use these to validate:
 - stackable behaviour
 - skin overrides
 
+For deliberate poison coatings, validate both command routes against real held melee weapons and ammunition:
+- `apply <source> to <weapon> [volume <amount>]`
+- `apply <source> to <ammo> [count <number|all>] [volume <amount>]`
+- `dip <weapon|ammo> in <source> [count <number|all>]`
+
+The source must be an open liquid container with a liquid whose drug supports the `Touched` or `Injected` vector. Failed `apply` checks waste the attempted dose and can contaminate the handling bodypart with touched-vector drugs; `dip` is easier but only causes accidental contact on major failure. Builders should confirm that ordinary spilled liquid contamination still cleans, dries, and describes as before, but does not create `WeaponPoisonCoating` and therefore does not deliver through combat.
+
+For combat validation, check a melee hit and an ammunition hit with the same coated liquid. Piercing, armour-piercing, and ballistic-armour-piercing damage use the default full injected multiplier; slashing, chopping, shearing, bite, claw, ballistic, and shrapnel use the default partial multiplier; all other damage types default to no injected delivery. The exact capacity fractions, dose per hit, delivery clamps, dip difficulty adjustment, damage multipliers, wound-severity multipliers, and wound-nature multipliers are all static configuration entries named with the `WeaponPoison...` prefix.
+
 For telecommunications content, also validate:
 - whether the phone number belongs to the handset or the connected endpoint
 - whether the device gets power from the correct source

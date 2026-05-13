@@ -476,6 +476,10 @@ public class AmmunitionGameItemComponent : GameItemComponent, IAmmo
             }
 
             wounds.AddRange(ihw.PassiveSufferDamage(damage) ?? Enumerable.Empty<IWound>());
+            if (obstruction is IHaveABody && wounds.Any())
+            {
+                WeaponPoisonDeliveryHelper.DeliverFromWeapon(actor, ammo, wounds, false);
+            }
             wounds.ProcessPassiveWounds();
         }
 
@@ -580,6 +584,8 @@ public class AmmunitionGameItemComponent : GameItemComponent, IAmmo
                 );
                 return;
             }
+
+            WeaponPoisonDeliveryHelper.DeliverFromWeapon(actor, ammo, wounds, false);
 
             if (wounds.Any(x => x.Lodged == ammo))
             {

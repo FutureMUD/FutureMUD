@@ -569,6 +569,7 @@ Please choose either #6simple#0 or #6complex#0: ", (context, answers) => true,
         TraitDefinition forageTrait = GetSkill("Forage", "Survival");
         TraitDefinition armourUseTrait = skills["Armour Use"];
         TraitDefinition trackTrait = GetSkill("Track", "Tracking", "Survival");
+        TraitDefinition poisonTrait = GetSkill("Poisoning", "Chemistry", "Herbalism", "Medicine");
         TraitDefinition? lawTrait = skills.GetValueOrDefault("Law");
 
         foreach (CheckType check in Enum.GetValues(typeof(CheckType)).OfType<CheckType>().Distinct().ToList())
@@ -1050,6 +1051,10 @@ Please choose either #6simple#0 or #6complex#0: ", (context, answers) => true,
                     continue;
                 case CheckType.DodgeSpillLiquidOnPerson:
                     AddCheck(check, new TraitExpression { Expression = $"agi:{agiAttribute.Id}*5" },
+                        templates["Skill Check"].Id, Difficulty.Impossible);
+                    continue;
+                case CheckType.ApplyPoisonToWeapon:
+                    AddCheck(check, new TraitExpression { Expression = $"poison:{poisonTrait.Id}" },
                         templates["Skill Check"].Id, Difficulty.Impossible);
                     continue;
                 case CheckType.DrawingImprovementCheck:

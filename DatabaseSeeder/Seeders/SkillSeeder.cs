@@ -381,6 +381,7 @@ Again, the choices you make here can be fixed later so don't stress it too great
                 case CheckType.EvaluateDiceFairnessCheck:
                 case CheckType.SpillLiquidOnPerson:
                 case CheckType.DodgeSpillLiquidOnPerson:
+                case CheckType.ApplyPoisonToWeapon:
                 case CheckType.DrawingImprovementCheck:
                 case CheckType.TakedownCheck:
                 case CheckType.BreakoutCheck:

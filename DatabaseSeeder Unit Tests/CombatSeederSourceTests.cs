@@ -41,6 +41,12 @@ public class CombatSeederSourceTests
             ["halberd"] = ["UseWeaponAttack", "UnbalancingBlow", "WardFreeAttack", "MeleeWeaponSmashItem", "CoupDeGrace"],
             ["spear"] = ["UseWeaponAttack", "UnbalancingBlow", "WardFreeAttack", "MeleeWeaponSmashItem", "CoupDeGrace"],
             ["longspear"] = ["UseWeaponAttack", "UnbalancingBlow", "WardFreeAttack", "MeleeWeaponSmashItem", "CoupDeGrace"],
+            ["quarterstaff"] = ["UseWeaponAttack", "UnbalancingBlow", "WardFreeAttack", "ClinchAttack", "MeleeWeaponSmashItem", "CoupDeGrace"],
+            ["pike"] = ["UseWeaponAttack", "UnbalancingBlow", "WardFreeAttack", "MeleeWeaponSmashItem", "CoupDeGrace"],
+            ["twoHandedAxe"] = ["UseWeaponAttack", "StaggeringBlow", "DownedAttack", "MeleeWeaponSmashItem", "CoupDeGrace"],
+            ["flail"] = ["UseWeaponAttack", "StaggeringBlow", "MeleeWeaponSmashItem", "CoupDeGrace"],
+            ["militaryPick"] = ["UseWeaponAttack", "StaggeringBlow", "MeleeWeaponSmashItem", "CoupDeGrace"],
+            ["estoc"] = ["UseWeaponAttack", "WardFreeAttack", "MeleeWeaponSmashItem", "CoupDeGrace"],
             ["mattock"] = ["UseWeaponAttack", "ClinchAttack", "DownedAttack", "CoupDeGrace"],
             ["warhammer"] = ["StaggeringBlow", "ClinchAttack", "MeleeWeaponSmashItem", "DownedAttack", "CoupDeGrace"],
             ["shield"] = ["UseWeaponAttack", "StaggeringBlow", "DownedAttack", "CoupDeGrace"]
@@ -83,6 +89,12 @@ public class CombatSeederSourceTests
             ["axe"] = "trainingaxe",
             ["halberd"] = "trainingHalberd",
             ["spear"] = "trainingspear",
+            ["quarterstaff"] = "trainingQuarterstaff",
+            ["pike"] = "trainingPike",
+            ["twoHandedAxe"] = "trainingTwoHandedAxe",
+            ["flail"] = "trainingFlail",
+            ["militaryPick"] = "trainingMilitaryPick",
+            ["estoc"] = "trainingEstoc",
             ["mattock"] = "trainingmattock",
             ["warhammer"] = "trainingwarhammer"
         };
@@ -343,6 +355,114 @@ public class CombatSeederSourceTests
 		StringAssert.Contains(source, "EnsureAmmoType(\"Blowgun Dart\"");
 		StringAssert.Contains(source, "EnsureAmmoType(\"Barbed Blowgun Dart\"");
 		StringAssert.Contains(source, "EnsureComponent(\"Ammunition\", $\"Ammo_{name.CollapseString()}\"");
+	}
+
+	[TestMethod]
+	public void CombatSeederSource_ExpandedShieldCatalogue_HasHistoricalAndModernTypes()
+	{
+		string source = File.ReadAllText(GetCombatSeederSourcePath());
+		Dictionary<string, (double BlockBonus, double Stamina)> expected = new(StringComparer.OrdinalIgnoreCase)
+		{
+			["Hide"] = (-1.0, 6.0),
+			["Wicker"] = (-0.5, 6.5),
+			["Parma"] = (-0.5, 5.0),
+			["Dhal"] = (0.0, 5.5),
+			["Adarga"] = (0.0, 6.0),
+			["Targe"] = (0.0, 5.0),
+			["Rotella"] = (0.0, 6.0),
+			["Thureos"] = (0.5, 7.5),
+			["Aspis"] = (1.0, 9.0),
+			["Scutum"] = (1.0, 9.5),
+			["Pavise"] = (1.5, 12.0),
+			["Trench"] = (0.5, 9.0),
+			["Riot"] = (1.0, 7.0),
+			["Ballistic"] = (1.5, 11.0)
+		};
+
+		Dictionary<string, (double BlockBonus, double Stamina)> actual = Regex
+			.Matches(source,
+				"""\("(?<name>Hide|Wicker|Parma|Dhal|Adarga|Targe|Rotella|Thureos|Aspis|Scutum|Pavise|Trench|Riot|Ballistic)",\s*(?<block>-?[0-9.]+),\s*(?<stamina>[0-9.]+)\)""",
+				RegexOptions.CultureInvariant)
+			.ToDictionary(
+				x => x.Groups["name"].Value,
+				x => (
+					double.Parse(x.Groups["block"].Value, CultureInfo.InvariantCulture),
+					double.Parse(x.Groups["stamina"].Value, CultureInfo.InvariantCulture)
+				),
+				StringComparer.OrdinalIgnoreCase);
+
+		foreach ((string name, (double blockBonus, double stamina)) in expected)
+		{
+			Assert.IsTrue(actual.TryGetValue(name, out (double BlockBonus, double Stamina) found),
+				$"{name} shield type was not present in the expanded shield catalogue.");
+			Assert.AreEqual(blockBonus, found.BlockBonus, 0.001, $"{name} block bonus drifted.");
+			Assert.AreEqual(stamina, found.Stamina, 0.001, $"{name} stamina cost drifted.");
+			StringAssert.Contains(source, $"Shield_{{type.Name.Replace(' ', '_')}}");
+		}
+
+		StringAssert.Contains(source, "ArmourType shieldArmour = context.ArmourTypes.First(x => x.Name == \"Shield Armour\")");
+		StringAssert.Contains(source, "EnsureShieldComponent(shield);");
+	}
+
+	[TestMethod]
+	public void CombatSeederSource_ExpandedWeaponCatalogue_SeedsDistinctPremodernClassesAndRerunHook()
+	{
+		string source = File.ReadAllText(GetCombatSeederSourcePath());
+		foreach (string weaponName in new[]
+		         {
+			         "Quarterstaff",
+			         "Pike",
+			         "Two Handed Axe",
+			         "Flail",
+			         "Military Pick",
+			         "Estoc"
+		         })
+		{
+			StringAssert.Contains(source, $"EnsureWeaponType(\"{weaponName}\"");
+			StringAssert.Contains(source, $"EnsureWeaponType(\"Training {weaponName}\"");
+			StringAssert.Contains(source, $"Melee_{{type.Name}}");
+		}
+
+		StringAssert.Contains(source, "EnsureExpandedStockCombatContent(context, effectiveAnswers, skills);");
+		StringAssert.Contains(source, "expandedStockResult = EnsureExpandedStockCombatContent(context, questionAnswers);");
+		StringAssert.Contains(source, "CombatStockExpansionResult");
+		StringAssert.Contains(source, "EnsureMeleeWeaponComponent(created);");
+	}
+
+	[TestMethod]
+	public void CombatSeederSource_SpearSuites_HaveShieldRequiredSwordAndBoardAttacks()
+	{
+		string source = File.ReadAllText(GetCombatSeederSourcePath());
+		IReadOnlyList<CombatAttackSeed> attacks = ParseCombatSeederAttacks();
+		string[] expectedAttackNames =
+		[
+			"Spear Shield-Line Thrust",
+			"Spear Shield-Line High Thrust",
+			"Spear Shield-Line Low Thrust",
+			"Spear Shield-Line Leg Thrust",
+			"Spear Shield-Line Counter Thrust",
+			"Long Spear Shield-Line Thrust",
+			"Long Spear Shield-Line High Thrust",
+			"Long Spear Shield-Line Low Thrust",
+			"Long Spear Shield-Line Leg Thrust",
+			"Long Spear Shield-Line Counter Thrust",
+			"Training Spear Shield-Line Thrust",
+			"Training Spear Shield-Line High Thrust",
+			"Training Spear Shield-Line Low Thrust",
+			"Training Spear Shield-Line Leg Thrust",
+			"Training Spear Shield-Line Counter Thrust"
+		];
+
+		foreach (string attackName in expectedAttackNames)
+		{
+			Assert.IsTrue(attacks.Any(x => x.Name.Equals(attackName, StringComparison.OrdinalIgnoreCase)),
+				$"{attackName} was not parsed from CombatSeeder AddAttack calls.");
+		}
+
+		Assert.IsTrue(
+			Regex.Matches(source, "handedness: AttackHandednessOptions\\.SwordAndBoardOnly").Count >=
+			expectedAttackNames.Length,
+			"The shield-line spear suite should explicitly require SwordAndBoardOnly handedness.");
 	}
 
     [TestMethod]

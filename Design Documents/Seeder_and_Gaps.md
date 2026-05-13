@@ -60,8 +60,18 @@ The stock live weapon suites are now seeded with clearer chassis expectations:
 - axes, clubs, maces, warhammers, mattocks, and improvised bludgeons stay heavier, more punishing, and less efficient in bad positions
 - spears and halberds stay reach and control focused
 - shields stay situational and defensive, with limited but real offensive coverage
+- quarterstaffs provide long, efficient staff parries, ward counters, sweeps, and close butt-strikes without becoming a sword variant
+- pikes extend the polearm catalogue into very long reach thrusting and set-counter work rather than duplicating halberd cuts
+- two-handed axes add a dedicated heavy chopping class separate from swords and mattocks
+- flails add hard-to-parry flexible-weapon attacks with poor defensive handling
+- military picks add armour-puncturing hooked blows distinct from hammers and axes
+- estocs add a rigid thrusting sword class with half-sword and counter-thrust coverage without adding cultural sword variants
 
 Training weapons remain intentionally weaker mirrors of the live suites. In stock seeding that now means lower damage bands and no extra move-category breadth over the corresponding live family, not a promise that every training motion is less accurate in isolation.
+
+The stock shield catalogue now includes both earlier and later historical forms. In addition to the older improvised, buckler, kite, round, heater, and tower shields, the combat seeder adds hide, wicker, parma, dhal, adarga, targe, rotella, thureos, aspis, scutum, pavise, trench, riot, and ballistic shield types. These all share the stock `Shield Armour` armour type but differ in block bonus and stamina cost so light shields remain quick and limited while formation, riot, and ballistic shields are more protective and more tiring.
+
+Spear suites now include `SwordAndBoardOnly` shield-line thrusts. Short spears, long spears, and training spears keep their ordinary one-handed and reach-control attacks, while shield-line high, low, leg, and counter-thrust options only appear when the attacker is wielding a shield in the other hand.
 
 ### Damage-band calibration
 The stock weapon damage tiers are still seeded as shared expressions rather than per-attack bespoke formulas. Their current calibration is intentionally anchored to the stock human severity thresholds.

@@ -24,8 +24,13 @@ namespace MudSharp.Work.Crafts.Products
             XElement root = XElement.Parse(product.Definition);
             foreach (XElement item in root.Elements("Variable"))
             {
-                Characteristics.Add((gameworld.Characteristics.Get(long.Parse(item.Value)),
-                    Gameworld.FutureProgs.Get(long.Parse(item.Attribute("inputindex").Value))));
+                var definition = gameworld.Characteristics.Get(long.Parse(item.Value));
+                var progId = long.Parse(item.Attribute("prog")?.Value ?? item.Attribute("inputindex")?.Value ?? "0");
+                var prog = Gameworld.FutureProgs.Get(progId);
+                if (definition is not null && prog is not null)
+                {
+                    Characteristics.Add((definition, prog));
+                }
             }
         }
 
@@ -50,6 +55,7 @@ namespace MudSharp.Work.Crafts.Products
             return new XElement("Definition",
                 new XElement("ProductProducedId", ProductProducedId),
                 new XElement("Quantity", Quantity),
+                new XElement("Skin", Skin?.Id ?? 0),
                 from item in Characteristics
                 select new XElement("Variable", new XAttribute("prog", item.Prog.Id), item.Definition.Id)
             ).ToString();
@@ -128,12 +134,21 @@ namespace MudSharp.Work.Crafts.Products
             return base.IsValid() &&
                 Characteristics.All(x =>
                     string.IsNullOrWhiteSpace(x.Prog.CompileError) &&
-                    x.Prog.ReturnType.CompatibleWith(ProgVariableTypes.Boolean) &&
-                    x.Prog.MatchesParameters(new ProgVariableTypes[]
-                    {
-                        ProgVariableTypes.Item | ProgVariableTypes.Collection
-                    })
+                    x.Prog.ReturnType.CompatibleWith(ProgVariableTypes.Number) &&
+                    ProgMatchesParameters(x.Prog)
                 );
+        }
+
+        private static bool ProgMatchesParameters(IFutureProg prog)
+        {
+            return prog.MatchesParameters(new[]
+                   {
+                       ProgVariableTypes.Item | ProgVariableTypes.Collection
+                   }) ||
+                   prog.MatchesParameters(new[]
+                   {
+                       ProgVariableTypes.Perceivable | ProgVariableTypes.Collection
+                   });
         }
 
         public override string WhyNotValid()
@@ -146,15 +161,12 @@ namespace MudSharp.Work.Crafts.Products
                     sb.AppendLine($"Variable Product Prog {prog.MXPClickableFunctionName()} is not compiled");
                 }
 
-                if (!prog.ReturnType.CompatibleWith(ProgVariableTypes.Boolean))
+                if (!prog.ReturnType.CompatibleWith(ProgVariableTypes.Number))
                 {
                     sb.AppendLine($"Variable Product Prog {prog.MXPClickableFunctionName()} does not return a number");
                 }
 
-                if (!prog.MatchesParameters(new ProgVariableTypes[]
-                    {
-                        ProgVariableTypes.Perceivable | ProgVariableTypes.Collection
-                    }))
+                if (!ProgMatchesParameters(prog))
                 {
                     sb.AppendLine($"Variable Product Prog {prog.MXPClickableFunctionName()} does not accept the right parameters");
                 }

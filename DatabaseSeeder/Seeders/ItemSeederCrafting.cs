@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using MudSharp.Database;
+using MudSharp.Body;
 using MudSharp.Framework;
 using MudSharp.FutureProg;
 using MudSharp.GameItems;
@@ -24,6 +25,117 @@ namespace DatabaseSeeder.Seeders;
 
 public partial class ItemSeeder
 {
+	internal sealed record CraftPhaseSpec
+	{
+		public int Seconds { get; init; }
+		public string Echo { get; init; } = string.Empty;
+		public string FailEcho { get; init; } = string.Empty;
+		public ExertionLevel Exertion { get; init; } = ExertionLevel.Stasis;
+		public double Stamina { get; init; }
+	}
+
+	internal sealed record CraftInputSpec(
+		string ImportText,
+		string InputType,
+		string Details,
+		IReadOnlyList<string> Options,
+		double QualityWeight);
+
+	internal sealed record CraftToolSpec(
+		string ImportText,
+		string ToolType,
+		string Details,
+		IReadOnlyList<string> Options,
+		double QualityWeight,
+		bool UseToolDuration);
+
+	internal sealed record CraftProductSpec(
+		string ImportText,
+		string ProductType,
+		string Details,
+		IReadOnlyList<string> Options,
+		bool IsFailProduct,
+		int? MaterialDefiningInputIndex);
+
+	internal sealed record CraftDefinitionSpec
+	{
+		public string Name { get; init; } = string.Empty;
+		public string Category { get; init; } = string.Empty;
+		public string Blurb { get; init; } = string.Empty;
+		public string Action { get; init; } = string.Empty;
+		public string ActiveCraftItemSdesc { get; init; } = string.Empty;
+		public FutureProg? AppearProg { get; init; }
+		public FutureProg? CanUseProg { get; init; }
+		public FutureProg? WhyCannotUseProg { get; init; }
+		public FutureProg? OnStartProg { get; init; }
+		public FutureProg? OnFinishProg { get; init; }
+		public FutureProg? OnCancelProg { get; init; }
+		public TraitDefinition? Trait { get; init; }
+		public Difficulty Difficulty { get; init; } = Difficulty.Normal;
+		public Outcome Threshold { get; init; } = Outcome.MinorFail;
+		public int FreeChecks { get; init; } = 5;
+		public int FailPhase { get; init; } = 1;
+		public bool Interruptable { get; init; }
+		public IReadOnlyList<CraftPhaseSpec> Phases { get; init; } = [];
+		public IReadOnlyList<CraftInputSpec> Inputs { get; init; } = [];
+		public IReadOnlyList<CraftToolSpec> Tools { get; init; } = [];
+		public IReadOnlyList<CraftProductSpec> Products { get; init; } = [];
+		public IReadOnlyList<CraftProductSpec> FailProducts { get; init; } = [];
+	}
+
+	private sealed record CraftValidationError(string CraftName, string Kind, string ImportText, string Message)
+	{
+		public override string ToString()
+		{
+			return $"Craft '{CraftName}' {Kind} '{ImportText}': {Message}";
+		}
+	}
+
+	private FutureProg EnsureFutureProg(string name, string category, string subcategory, ProgVariableTypes returnType,
+		string comment, IEnumerable<(ProgVariableTypes Type, string Name)> parameters, string text)
+	{
+		if (_progs.TryGetValue(name, out var existing))
+		{
+			return existing;
+		}
+
+		var contextProg = _context!.FutureProgs.Local.FirstOrDefault(x =>
+			x.FunctionName.Equals(name, StringComparison.OrdinalIgnoreCase)) ??
+			_context.FutureProgs.FirstOrDefault(x => x.FunctionName.Equals(name, StringComparison.OrdinalIgnoreCase));
+		if (contextProg is not null)
+		{
+			_progs[name] = contextProg;
+			return contextProg;
+		}
+
+		FutureProg prog = new()
+		{
+			FunctionName = name,
+			Category = category,
+			Subcategory = subcategory,
+			ReturnType = (long)returnType,
+			FunctionComment = comment,
+			FunctionText = text,
+			StaticType = (int)FutureProgStaticType.NotStatic,
+			AcceptsAnyParameters = false
+		};
+		_context.FutureProgs.Add(prog);
+		int index = 0;
+		foreach ((ProgVariableTypes type, string? varname) in parameters)
+		{
+			prog.FutureProgsParameters.Add(new FutureProgsParameter
+			{
+				FutureProg = prog,
+				ParameterIndex = index++,
+				ParameterType = (long)type,
+				ParameterName = varname
+			});
+		}
+
+		_progs[name] = prog;
+		return prog;
+	}
+
     private void CreateProgs()
     {
 		foreach (FutureProg prog in _context!.FutureProgs)
@@ -33,36 +145,7 @@ public partial class ItemSeeder
 
         void AddProg(string name, string category, string subcategory, ProgVariableTypes returnType, string comment, IEnumerable<(ProgVariableTypes Type, string Name)> parameters, string text)
         {
-            if (_progs.ContainsKey(name))
-            {
-                return;
-            }
-
-            FutureProg prog = new()
-            {
-                FunctionName = name,
-                Category = category,
-                Subcategory = subcategory,
-                ReturnType = (long)returnType,
-                FunctionComment = comment,
-                FunctionText = text,
-                StaticType = (int)FutureProgStaticType.NotStatic,
-                AcceptsAnyParameters = false
-            };
-            _context.FutureProgs.Add(prog);
-            int index = 0;
-            foreach ((ProgVariableTypes type, string? varname) in parameters)
-            {
-                prog.FutureProgsParameters.Add(new FutureProgsParameter
-                {
-                    FutureProg = prog,
-                    ParameterIndex = index++,
-                    ParameterType = (long)type,
-                    ParameterName = varname
-                });
-            }
-
-            _progs[name] = prog;
+			EnsureFutureProg(name, category, subcategory, returnType, comment, parameters, text);
         }
 
         if (_context.VariableDefinitions.All(x => x.Property != "constructioncooldown"))
@@ -148,6 +231,8 @@ return ""There is no useful clay that is accessible in the biome you're in.""");
     private Regex SimpleItemInputRegex = new(@"^(?<quantity>\d+)x (?<sdesc>.+) \(#(?<craftid>\d+)\)$", RegexOptions.IgnoreCase);
 
     private Regex SimpleMaterialInputRegex = new(@"^(?<quantity>\d+)x an item with material tagged as (?<tag>.+)$", RegexOptions.IgnoreCase);
+
+    private Regex SimpleMaterialExactInputRegex = new(@"^(?<quantity>\d+)x an item (?:made of|with material) (?<material>.+)$", RegexOptions.IgnoreCase);
 
     private Regex CommodityInputRegex = new(@"^(?:(?<kgs>\d+(?:\.\d+)?) kilograms?)*\s*(?:(?<grams>\d+(?:\.\d+)?) grams?)* of (?<material>.+)\s*$", RegexOptions.IgnoreCase);
 
@@ -241,6 +326,94 @@ return ""There is no useful clay that is accessible in the biome you're in.""");
         return (parts.FirstOrDefault() ?? string.Empty, parts.Skip(1).ToList());
     }
 
+	private (string Type, string Details, List<string> Options) ParseConversionImport(string text, string error)
+	{
+		Match match = RequireMatch(ConversionRegex, text, error);
+		(string details, List<string> options) = SplitDetails(match.Groups["details"].Value);
+		return (match.Groups["type"].Value.Trim(), details, options);
+	}
+
+	private static bool StartsWithOption(string option, string keyword)
+	{
+		return option.StartsWith(keyword, StringComparison.OrdinalIgnoreCase) &&
+		       (option.Length == keyword.Length || char.IsWhiteSpace(option[keyword.Length]));
+	}
+
+	private static string GetOptionRemainder(string option, string keyword)
+	{
+		return option.Length == keyword.Length ? string.Empty : option[keyword.Length..].Trim();
+	}
+
+	private static bool TryParseImportBoolean(string value, out bool result)
+	{
+		if (value.EqualToAny("on", "true", "yes", "1"))
+		{
+			result = true;
+			return true;
+		}
+
+		if (value.EqualToAny("off", "false", "no", "0"))
+		{
+			result = false;
+			return true;
+		}
+
+		result = false;
+		return false;
+	}
+
+	private static double ParseQualityWeight(IEnumerable<string> options, string importText)
+	{
+		double quality = 1.0;
+		foreach (string option in options.Where(x => StartsWithOption(x, "quality") || StartsWithOption(x, "qualityweight")))
+		{
+			string keyword = StartsWithOption(option, "qualityweight") ? "qualityweight" : "quality";
+			string valueText = GetOptionRemainder(option, keyword);
+			if (string.IsNullOrWhiteSpace(valueText) ||
+			    !double.TryParse(valueText.Replace(",", ""), NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out quality) ||
+			    quality < 0.0)
+			{
+				throw new ApplicationException($"Invalid quality weight in import '{importText}'");
+			}
+		}
+
+		return quality;
+	}
+
+	private static bool ParseUseToolDuration(IEnumerable<string> options, string importText)
+	{
+		bool useToolDuration = true;
+		foreach (string option in options.Where(x => StartsWithOption(x, "usetool")))
+		{
+			string valueText = GetOptionRemainder(option, "usetool");
+			if (string.IsNullOrWhiteSpace(valueText) || !TryParseImportBoolean(valueText, out useToolDuration))
+			{
+				throw new ApplicationException($"Invalid usetool option in import '{importText}'");
+			}
+		}
+
+		return useToolDuration;
+	}
+
+	private CraftInputSpec ParseInputSpec(string text)
+	{
+		(string type, string details, List<string> options) = ParseConversionImport(text, "Invalid input definition");
+		return new CraftInputSpec(text, type, details, options, ParseQualityWeight(options, text));
+	}
+
+	private CraftToolSpec ParseToolSpec(string text)
+	{
+		(string type, string details, List<string> options) = ParseConversionImport(text, "Invalid tool definition");
+		return new CraftToolSpec(text, type, details, options, ParseQualityWeight(options, text),
+			ParseUseToolDuration(options, text));
+	}
+
+	private CraftProductSpec ParseProductSpec(string text, bool isFailProduct, int? materialDefiningInputIndex = null)
+	{
+		(string type, string details, List<string> options) = ParseConversionImport(text, "Invalid product definition");
+		return new CraftProductSpec(text, type, details, options, isFailProduct, materialDefiningInputIndex);
+	}
+
     private MudSharp.Models.Tag LookupTag(string text)
     {
         if (_tags.TryGetValue(text.Trim(), out MudSharp.Models.Tag? tag))
@@ -318,6 +491,94 @@ return ""There is no useful clay that is accessible in the biome you're in.""");
             : _context!.CharacteristicValues.FirstOrDefault(x => x.DefinitionId == definition.Id && x.Name.Equals(trimmed, StringComparison.OrdinalIgnoreCase));
         return value ?? throw new ApplicationException($"Unknown value {text} for characteristic {definition.Name}");
     }
+
+	private long LookupCommodityPileTagId(IEnumerable<string> options)
+	{
+		long tagId = 0;
+		foreach (string option in options.Where(x => StartsWithOption(x, "piletag") || StartsWithOption(x, "pile tag")))
+		{
+			string keyword = StartsWithOption(option, "piletag") ? "piletag" : "pile tag";
+			string tagText = GetOptionRemainder(option, keyword);
+			if (tagText.EqualToAny("none", "clear", "0"))
+			{
+				tagId = 0;
+				continue;
+			}
+
+			tagId = LookupTag(tagText).Id;
+		}
+
+		return tagId;
+	}
+
+	private (CharacteristicDefinition Definition, string ValueText) ParseCommodityInputCharacteristicRequirement(string text)
+	{
+		int equalsIndex = text.IndexOf('=');
+		if (equalsIndex > 0)
+		{
+			return (LookupCharacteristicDefinition(text[..equalsIndex]), text[(equalsIndex + 1)..].Trim());
+		}
+
+		Match idMatch = Regex.Match(text, @"^(?<definition>#?\d+)\s+(?<value>.+)$", RegexOptions.IgnoreCase);
+		if (idMatch.Success)
+		{
+			return (LookupCharacteristicDefinition(idMatch.Groups["definition"].Value), idMatch.Groups["value"].Value.Trim());
+		}
+
+		foreach (CharacteristicDefinition definition in _context!.CharacteristicDefinitions.AsEnumerable()
+		                                            .OrderByDescending(x => x.Name.Length))
+		{
+			if (!text.StartsWith(definition.Name, StringComparison.OrdinalIgnoreCase))
+			{
+				continue;
+			}
+
+			if (text.Length <= definition.Name.Length || !char.IsWhiteSpace(text[definition.Name.Length]))
+			{
+				continue;
+			}
+
+			return (definition, text[definition.Name.Length..].Trim());
+		}
+
+		Match match = RequireMatch(ProgVariableMappingRegex, text, "Invalid commodity characteristic requirement");
+		return (LookupCharacteristicDefinition(match.Groups["definition"].Value), match.Groups["prog"].Value.Trim());
+	}
+
+	private XElement BuildCommodityInputCharacteristics(IEnumerable<string> options)
+	{
+		string mode = "any";
+		List<XElement> requirements = [];
+		foreach (string option in options.Where(x => StartsWithOption(x, "characteristic")))
+		{
+			string text = GetOptionRemainder(option, "characteristic");
+			if (text.EqualTo("any"))
+			{
+				mode = "any";
+				requirements.Clear();
+				continue;
+			}
+
+			if (text.EqualTo("none"))
+			{
+				mode = "none";
+				requirements.Clear();
+				continue;
+			}
+
+			(CharacteristicDefinition definition, string valueText) = ParseCommodityInputCharacteristicRequirement(text);
+			mode = "specific";
+			requirements.Add(new XElement("Characteristic",
+				new XAttribute("definition", definition.Id),
+				new XAttribute("value", valueText.EqualTo("any") ? 0 : LookupCharacteristicValue(definition, valueText).Id)
+			));
+		}
+
+		return new XElement("Characteristics",
+			new XAttribute("mode", mode),
+			mode.EqualTo("specific") ? requirements : Enumerable.Empty<XElement>()
+		);
+	}
 
     private GameItemSkin? LookupSkin(GameItemProto item, string text)
     {
@@ -419,11 +680,15 @@ return ""There is no useful clay that is accessible in the biome you're in.""");
     }
 
     private (string TypeName, string Definition) BuildInputDefinition(string text)
+	{
+		return BuildInputDefinition(ParseInputSpec(text));
+	}
+
+    private (string TypeName, string Definition) BuildInputDefinition(CraftInputSpec spec)
     {
-        Match match = RequireMatch(ConversionRegex, text, "Invalid input definition");
-        string details = match.Groups["details"].Value;
+        string details = spec.Details;
         Match innerMatch;
-        switch (match.Groups["type"].Value.ToLowerInvariant())
+        switch (spec.InputType.ToLowerInvariant())
         {
             case "tag":
                 innerMatch = RequireMatch(TagInputRegex, details, "Invalid tag input definition");
@@ -456,8 +721,8 @@ return ""There is no useful clay that is accessible in the biome you're in.""");
                 return ("Commodity", new XElement("Definition",
                     new XElement("Material", LookupMaterial(innerMatch.Groups["material"].Value).Id),
                     new XElement("Weight", ParseMass(innerMatch)),
-                    new XElement("CommodityPileTag", 0),
-                    new XElement("Characteristics")
+                    new XElement("CommodityPileTag", LookupCommodityPileTagId(spec.Options)),
+                    BuildCommodityInputCharacteristics(spec.Options)
                 ).ToString());
             case "liquidtaguse":
             case "tagliquid":
@@ -478,8 +743,8 @@ return ""There is no useful clay that is accessible in the biome you're in.""");
                 return ("CommodityTag", new XElement("Definition",
                     new XElement("MaterialTag", LookupTag(innerMatch.Groups["material"].Value).Id),
                     new XElement("Weight", ParseMass(innerMatch)),
-                    new XElement("CommodityPileTag", 0),
-                    new XElement("Characteristics")
+                    new XElement("CommodityPileTag", LookupCommodityPileTagId(spec.Options)),
+                    BuildCommodityInputCharacteristics(spec.Options)
                 ).ToString());
             case "simpleitem":
             case "simple":
@@ -495,10 +760,20 @@ return ""There is no useful clay that is accessible in the biome you're in.""");
                     new XElement("Quantity", ParseIntValue(innerMatch.Groups["quantity"].Value))
                 ).ToString());
             case "simplematerial":
-                innerMatch = RequireMatch(SimpleMaterialInputRegex, details, "Invalid simple material input definition");
+                innerMatch = SimpleMaterialInputRegex.Match(details);
+				if (innerMatch.Success)
+				{
+					return ("SimpleMaterial", new XElement("Definition",
+						new XElement("TargetMaterialTag", LookupTag(innerMatch.Groups["tag"].Value).Id),
+						new XElement("TargetMaterial", 0),
+						new XElement("Quantity", ParseIntValue(innerMatch.Groups["quantity"].Value))
+					).ToString());
+				}
+
+                innerMatch = RequireMatch(SimpleMaterialExactInputRegex, details, "Invalid simple material input definition");
                 return ("SimpleMaterial", new XElement("Definition",
-                    new XElement("TargetMaterialTag", LookupTag(innerMatch.Groups["tag"].Value).Id),
-                    new XElement("TargetMaterial", 0),
+                    new XElement("TargetMaterialTag", 0),
+                    new XElement("TargetMaterial", LookupMaterial(innerMatch.Groups["material"].Value).Id),
                     new XElement("Quantity", ParseIntValue(innerMatch.Groups["quantity"].Value))
                 ).ToString());
             default:
@@ -519,13 +794,13 @@ return ""There is no useful clay that is accessible in the biome you're in.""");
         }
     }
 
-    private CraftInput ConvertToInput(Craft craft, string text)
+    private CraftInput ConvertToInput(Craft craft, CraftInputSpec spec)
     {
-        (string typename, string definition) = BuildInputDefinition(text);
+        (string typename, string definition) = BuildInputDefinition(spec);
         CraftInput input = new()
         {
             Craft = craft,
-            InputQualityWeight = 1.0,
+            InputQualityWeight = spec.QualityWeight,
             OriginalAdditionTime = DateTime.UtcNow,
             Definition = definition,
             InputType = typename
@@ -535,15 +810,19 @@ return ""There is no useful clay that is accessible in the biome you're in.""");
     }
 
     private (string TypeName, DesiredItemState State, string Definition) BuildToolDefinition(string text)
+	{
+		return BuildToolDefinition(ParseToolSpec(text));
+	}
+
+    private (string TypeName, DesiredItemState State, string Definition) BuildToolDefinition(CraftToolSpec spec)
     {
-        Match match = RequireMatch(ConversionRegex, text, "Invalid tool definition");
-        Match toolMatch = RequireMatch(ToolRegex, match.Groups["details"].Value, "Invalid tool state definition");
+        Match toolMatch = RequireMatch(ToolRegex, spec.Details, "Invalid tool state definition");
         if (!toolMatch.Groups["state"].Value.TryParseEnum(out DesiredItemState state))
         {
             throw new ApplicationException("Unknown State");
         }
 
-        switch (match.Groups["type"].Value.ToLowerInvariant())
+        switch (spec.ToolType.ToLowerInvariant())
         {
             case "tagtool":
             case "tag":
@@ -562,16 +841,16 @@ return ""There is no useful clay that is accessible in the biome you're in.""");
         }
     }
 
-    private CraftTool ConvertToTool(Craft craft, string text)
+    private CraftTool ConvertToTool(Craft craft, CraftToolSpec spec)
     {
-        (string typename, DesiredItemState state, string definition) = BuildToolDefinition(text);
+        (string typename, DesiredItemState state, string definition) = BuildToolDefinition(spec);
         CraftTool tool = new()
         {
             Craft = craft,
             OriginalAdditionTime = DateTime.UtcNow,
             ToolType = typename,
-            ToolQualityWeight = 1.0,
-            UseToolDuration = true,
+            ToolQualityWeight = spec.QualityWeight,
+            UseToolDuration = spec.UseToolDuration,
             DesiredState = (int)state,
             Definition = definition
         };
@@ -792,12 +1071,17 @@ return ""There is no useful clay that is accessible in the biome you're in.""");
     }
 
     private (string TypeName, string Definition) BuildProductDefinition(Craft craft, string text)
+	{
+		return BuildProductDefinition(craft, ParseProductSpec(text, false));
+	}
+
+    private (string TypeName, string Definition) BuildProductDefinition(Craft craft, CraftProductSpec spec)
     {
-        Match match = RequireMatch(ConversionRegex, text, "Invalid product definition");
-        (string details, List<string> options) = SplitDetails(match.Groups["details"].Value);
+        string details = spec.Details;
+		List<string> options = spec.Options.ToList();
         Match innerMatch;
         CraftInput input;
-        switch (match.Groups["type"].Value.ToLowerInvariant())
+        switch (spec.ProductType.ToLowerInvariant())
         {
             case "simpleproduct":
             case "simple":
@@ -903,30 +1187,161 @@ return ""There is no useful clay that is accessible in the biome you're in.""");
         }
     }
 
-    private CraftProduct? ConvertToProduct(Craft craft, string text, bool isFailProduct, int? materialDefiningInputIndex = null)
+    private CraftProduct ConvertToProduct(Craft craft, CraftProductSpec spec)
     {
-        (string typename, string definition) = BuildProductDefinition(craft, text);
+        (string typename, string definition) = BuildProductDefinition(craft, spec);
         return new CraftProduct()
         {
             Craft = craft,
-            IsFailProduct = isFailProduct,
+            IsFailProduct = spec.IsFailProduct,
             OriginalAdditionTime = DateTime.UtcNow,
             ProductType = typename,
             Definition = definition,
-            MaterialDefiningInputIndex = materialDefiningInputIndex
+            MaterialDefiningInputIndex = spec.MaterialDefiningInputIndex
         };
     }
 
-    private MudSharp.Models.Craft? AddCraft(string name, string category, string blurb, string action, string itemsdesc, string appearProg, string? canUseProg, string? whyCantProg, string? onFinishProg, MudSharp.Models.TraitDefinition trait, Difficulty difficulty, Outcome threshold, int freeChecks, int failPhase, bool interrupatable, IEnumerable<(int Seconds, string Echo, string FailEcho)> phases, IEnumerable<string> inputs, IEnumerable<string> tools, IEnumerable<string> products, IEnumerable<string> failProducts, List<(int Product, int Input)>? productMaterialInputIndexes = null, List<(int Product, int Input)>? failProductMaterialInputIndexes = null)
+    private MudSharp.Models.Craft? AddCraft(string name, string category, string blurb, string action, string itemsdesc, string appearProg, string? canUseProg, string? whyCantProg, string? onFinishProg, MudSharp.Models.TraitDefinition trait, Difficulty difficulty, Outcome threshold, int freeChecks, int failPhase, bool interrupatable, IEnumerable<(int Seconds, string Echo, string FailEcho)> phases, IEnumerable<string> inputs, IEnumerable<string> tools, IEnumerable<string> products, IEnumerable<string> failProducts, List<(int Product, int Input)>? productMaterialInputIndexes = null, List<(int Product, int Input)>? failProductMaterialInputIndexes = null, string? onStartProg = null, string? onCancelProg = null)
     {
-        List<string> inputList = inputs.ToList();
-        List<string> toolList = tools.ToList();
-        List<string> productList = products.ToList();
-        List<string> failProductList = failProducts.ToList();
-        if (!InputsAreValid(inputList, toolList, productList, failProductList))
-        {
-            return null;
-        }
+		Craft? existing = FindExistingCraft(name, category);
+		if (existing is not null)
+		{
+			return existing;
+		}
+
+        List<CraftValidationError> importErrors = [];
+		var inputSpecs = ParseImportSpecs(inputs, name, "input", ParseInputSpec, importErrors);
+		var toolSpecs = ParseImportSpecs(tools, name, "tool", ParseToolSpec, importErrors);
+		var productSpecs = ParseProductSpecs(products, name, false, productMaterialInputIndexes, importErrors);
+		var failProductSpecs = ParseProductSpecs(failProducts, name, true, failProductMaterialInputIndexes, importErrors);
+
+		var spec = new CraftDefinitionSpec
+		{
+			Name = name,
+			Category = category,
+			Blurb = blurb,
+			Action = action,
+			ActiveCraftItemSdesc = itemsdesc,
+			AppearProg = LookupProg(appearProg),
+			CanUseProg = canUseProg is not null ? LookupProg(canUseProg) : null,
+			WhyCannotUseProg = whyCantProg is not null ? LookupProg(whyCantProg) : null,
+			OnStartProg = onStartProg is not null ? LookupProg(onStartProg) : null,
+			OnFinishProg = onFinishProg is not null ? LookupProg(onFinishProg) : null,
+			OnCancelProg = onCancelProg is not null ? LookupProg(onCancelProg) : null,
+			Trait = trait,
+			Difficulty = difficulty,
+			Threshold = threshold,
+			FreeChecks = freeChecks,
+			FailPhase = failPhase,
+			Interruptable = interrupatable,
+			Phases = phases.Select(x => new CraftPhaseSpec
+			{
+				Seconds = x.Seconds,
+				Echo = x.Echo,
+				FailEcho = x.FailEcho
+			}).ToList(),
+			Inputs = inputSpecs,
+			Tools = toolSpecs,
+			Products = productSpecs,
+			FailProducts = failProductSpecs
+		};
+
+		return AddCraft(spec, importErrors);
+    }
+
+	private MudSharp.Models.Craft? AddCraft(string name, string category, string blurb, string action, string itemsdesc, string traitName, int? minimumTraitValue, Difficulty difficulty, Outcome threshold, int freeChecks, int failPhase, bool interrupatable, IEnumerable<(int Seconds, string Echo, string FailEcho)> phases, IEnumerable<string> inputs, IEnumerable<string> tools, IEnumerable<string> products, IEnumerable<string> failProducts, List<(int Product, int Input)>? productMaterialInputIndexes = null, List<(int Product, int Input)>? failProductMaterialInputIndexes = null, string? onFinishProg = null, string? onStartProg = null, string? onCancelProg = null)
+	{
+		Craft? existing = FindExistingCraft(name, category);
+		if (existing is not null)
+		{
+			return existing;
+		}
+
+		(FutureProg appearProg, FutureProg canUseProg, FutureProg whyCannotUseProg, TraitDefinition trait) =
+			EnsureTraitGateProgs(traitName, minimumTraitValue);
+		return AddCraft(
+			name,
+			category,
+			blurb,
+			action,
+			itemsdesc,
+			appearProg.FunctionName,
+			canUseProg.FunctionName,
+			whyCannotUseProg.FunctionName,
+			onFinishProg,
+			trait,
+			difficulty,
+			threshold,
+			freeChecks,
+			failPhase,
+			interrupatable,
+			phases,
+			inputs,
+			tools,
+			products,
+			failProducts,
+			productMaterialInputIndexes,
+			failProductMaterialInputIndexes,
+			onStartProg,
+			onCancelProg
+		);
+	}
+
+	private List<TSpec> ParseImportSpecs<TSpec>(IEnumerable<string> imports, string craftName, string kind,
+		Func<string, TSpec> parser, List<CraftValidationError> errors)
+	{
+		List<TSpec> specs = [];
+		foreach (string import in imports)
+		{
+			try
+			{
+				specs.Add(parser(import));
+			}
+			catch (ApplicationException ex)
+			{
+				errors.Add(new CraftValidationError(craftName, kind, import, ex.Message));
+			}
+		}
+
+		return specs;
+	}
+
+	private List<CraftProductSpec> ParseProductSpecs(IEnumerable<string> imports, string craftName, bool isFailProduct,
+		List<(int Product, int Input)>? materialInputIndexes, List<CraftValidationError> errors)
+	{
+		List<CraftProductSpec> specs = [];
+		int index = 0;
+		foreach (string import in imports)
+		{
+			index++;
+			try
+			{
+				specs.Add(ParseProductSpec(import, isFailProduct, GetMaterialDefiningInputIndex(materialInputIndexes, index)));
+			}
+			catch (ApplicationException ex)
+			{
+				errors.Add(new CraftValidationError(craftName, isFailProduct ? "fail product" : "product", import, ex.Message));
+			}
+		}
+
+		return specs;
+	}
+
+	private MudSharp.Models.Craft AddCraft(CraftDefinitionSpec spec, IEnumerable<CraftValidationError>? importErrors = null)
+	{
+		Craft? existing = FindExistingCraft(spec.Name, spec.Category);
+		if (existing is not null)
+		{
+			return existing;
+		}
+
+		List<CraftValidationError> errors = importErrors?.ToList() ?? [];
+		errors.AddRange(ValidateCraftSpec(spec));
+		if (errors.Count > 0)
+		{
+			throw new ApplicationException(
+				$"Craft '{spec.Name}' has {errors.Count.ToString(System.Globalization.CultureInfo.InvariantCulture)} validation error(s):\n - {string.Join("\n - ", errors.Select(x => x.ToString()))}");
+		}
 
         Craft dbitem = new()
         {
@@ -943,21 +1358,24 @@ return ""There is no useful clay that is accessible in the biome you're in.""");
                 ReviewerComment = "Auto-generated by the system",
                 ReviewerDate = _now
             },
-            Name = name,
-            Category = category,
-            Blurb = blurb,
-            ActionDescription = action,
-            ActiveCraftItemSdesc = itemsdesc,
-            AppearInCraftsListProgId = _progs[appearProg].Id,
-            CanUseProgId = canUseProg is not null ? _progs[canUseProg].Id : null,
-            WhyCannotUseProgId = whyCantProg is not null ? _progs[whyCantProg].Id : null,
-            OnUseProgCompleteId = onFinishProg is not null ? _progs[onFinishProg].Id : null,
-            CheckTrait = trait,
-            CheckDifficulty = (int)difficulty,
-            FailThreshold = (int)threshold,
-            FreeSkillChecks = freeChecks,
-            FailPhase = failPhase,
-            Interruptable = interrupatable,
+            Name = spec.Name,
+            Category = spec.Category,
+            Blurb = spec.Blurb,
+            ActionDescription = spec.Action,
+            ActiveCraftItemSdesc = spec.ActiveCraftItemSdesc,
+            AppearInCraftsListProgId = spec.AppearProg!.Id,
+            CanUseProgId = spec.CanUseProg?.Id,
+            WhyCannotUseProgId = spec.WhyCannotUseProg?.Id,
+			OnUseProgStartId = spec.OnStartProg?.Id,
+            OnUseProgCompleteId = spec.OnFinishProg?.Id,
+			OnUseProgCancelId = spec.OnCancelProg?.Id,
+            CheckTrait = spec.Trait!,
+			CheckTraitId = spec.Trait!.Id,
+            CheckDifficulty = (int)spec.Difficulty,
+            FailThreshold = (int)spec.Threshold,
+            FreeSkillChecks = spec.FreeChecks,
+            FailPhase = spec.FailPhase,
+            Interruptable = spec.Interruptable,
             QualityFormula = "5 + (outcome/3) + (variable/20)",
             CheckQualityWeighting = 1.0,
             InputQualityWeighting = 1.0,
@@ -966,7 +1384,7 @@ return ""There is no useful clay that is accessible in the biome you're in.""");
         };
 		_context!.Crafts.Add(dbitem);
         int i = 1;
-        foreach ((int Seconds, string Echo, string FailEcho) phase in phases)
+        foreach (CraftPhaseSpec phase in spec.Phases)
         {
             dbitem.CraftPhases.Add(new CraftPhase
             {
@@ -974,58 +1392,40 @@ return ""There is no useful clay that is accessible in the biome you're in.""");
                 Echo = phase.Echo,
                 FailEcho = phase.FailEcho,
                 PhaseLengthInSeconds = phase.Seconds,
-                PhaseNumber = i++
+                PhaseNumber = i++,
+				ExertionLevel = (int)phase.Exertion,
+				StaminaUsage = phase.Stamina
             });
         }
 
-        foreach (string input in inputList)
+        foreach (CraftInputSpec input in spec.Inputs)
         {
-            CraftInput? dbinput = ConvertToInput(dbitem, input);
-            if (dbinput is null)
-            {
-                return null;
-            }
+            CraftInput dbinput = ConvertToInput(dbitem, input);
             dbitem.CraftInputs.Add(dbinput);
         }
 
-        foreach (string tool in toolList)
+        foreach (CraftToolSpec tool in spec.Tools)
         {
-            CraftTool? dbtool = ConvertToTool(dbitem, tool);
-            if (dbtool is null)
-            {
-                return null;
-            }
+            CraftTool dbtool = ConvertToTool(dbitem, tool);
             dbitem.CraftTools.Add(dbtool);
         }
 
         // We have to save before products because some of the product types depend on input IDs
         _context.SaveChanges();
 
-        i = 0;
-        foreach (string product in productList)
+        foreach (CraftProductSpec product in spec.Products)
         {
-            i++;
-            CraftProduct? dbproduct = ConvertToProduct(dbitem, product, false, GetMaterialDefiningInputIndex(productMaterialInputIndexes, i));
-            if (dbproduct is null)
-            {
-                return null;
-            }
-            dbitem.CraftProducts.Add(dbproduct);
+            dbitem.CraftProducts.Add(ConvertToProduct(dbitem, product));
         }
 
-        i = 0;
-        foreach (string product in failProductList)
+        foreach (CraftProductSpec product in spec.FailProducts)
         {
-            i++;
-            CraftProduct? dbproduct = ConvertToProduct(dbitem, product, true, GetMaterialDefiningInputIndex(failProductMaterialInputIndexes, i));
-            if (dbproduct is null)
-            {
-                return null;
-            }
-            dbitem.CraftProducts.Add(dbproduct);
+            dbitem.CraftProducts.Add(ConvertToProduct(dbitem, product));
         }
+
+		_context.SaveChanges();
         return dbitem;
-    }
+	}
 
     private static int? GetMaterialDefiningInputIndex(List<(int Product, int Input)>? indexes, int productNumber)
     {
@@ -1033,45 +1433,210 @@ return ""There is no useful clay that is accessible in the biome you're in.""");
         return match.Product == 0 ? null : Math.Max(0, match.Input - 1);
     }
 
-    bool InputsAreValid(IEnumerable<string> inputs, IEnumerable<string> tools, IEnumerable<string> products, IEnumerable<string> failproducts)
-    {
-        try
-        {
-            Craft validationCraft = new();
-            var index = 1;
-            foreach (string item in inputs)
-            {
-                BuildInputDefinition(item);
-                validationCraft.CraftInputs.Add(new CraftInput
-                {
-                    Id = index,
-                    OriginalAdditionTime = _now.AddTicks(index)
-                });
-                index++;
-            }
+	private Craft? FindExistingCraft(string name, string category)
+	{
+		return _context!.Crafts.Local.FirstOrDefault(x =>
+			       x.Name.Equals(name, StringComparison.OrdinalIgnoreCase) &&
+			       x.Category.Equals(category, StringComparison.OrdinalIgnoreCase)) ??
+		       _context.Crafts.AsEnumerable().FirstOrDefault(x =>
+			       x.Name.Equals(name, StringComparison.OrdinalIgnoreCase) &&
+			       x.Category.Equals(category, StringComparison.OrdinalIgnoreCase));
+	}
 
-            foreach (string item in tools)
-            {
-                BuildToolDefinition(item);
-            }
+	private IReadOnlyList<CraftValidationError> ValidateCraftSpec(CraftDefinitionSpec spec)
+	{
+		List<CraftValidationError> errors = [];
+		if (string.IsNullOrWhiteSpace(spec.Name))
+		{
+			errors.Add(new CraftValidationError(spec.Name, "craft", spec.Name, "Craft name cannot be blank"));
+		}
 
-            foreach (string item in products)
-            {
-                BuildProductDefinition(validationCraft, item);
-            }
+		if (string.IsNullOrWhiteSpace(spec.Category))
+		{
+			errors.Add(new CraftValidationError(spec.Name, "craft", spec.Category, "Craft category cannot be blank"));
+		}
 
-            foreach (string item in failproducts)
-            {
-                BuildProductDefinition(validationCraft, item);
-            }
+		if (spec.AppearProg is null)
+		{
+			errors.Add(new CraftValidationError(spec.Name, "craft", "appear prog", "Craft must have an appear prog"));
+		}
 
-            return true;
-        }
-        catch (ApplicationException)
-        {
-            return false;
-        }
-    }
+		if (spec.Trait is null)
+		{
+			errors.Add(new CraftValidationError(spec.Name, "craft", "trait", "Craft must have a check trait"));
+		}
+
+		if (spec.Phases.Count == 0)
+		{
+			errors.Add(new CraftValidationError(spec.Name, "phase", "phases", "Craft must have at least one phase"));
+		}
+
+		if (spec.FailPhase < 1 || spec.FailPhase > Math.Max(1, spec.Phases.Count))
+		{
+			errors.Add(new CraftValidationError(spec.Name, "phase", spec.FailPhase.ToString(System.Globalization.CultureInfo.InvariantCulture), "Fail phase must be a one-based phase number"));
+		}
+
+		for (int i = 0; i < spec.Phases.Count; i++)
+		{
+			CraftPhaseSpec phase = spec.Phases[i];
+			if (phase.Seconds <= 0)
+			{
+				errors.Add(new CraftValidationError(spec.Name, "phase", (i + 1).ToString(System.Globalization.CultureInfo.InvariantCulture), "Phase seconds must be positive"));
+			}
+
+			if (phase.Stamina < 0.0)
+			{
+				errors.Add(new CraftValidationError(spec.Name, "phase", (i + 1).ToString(System.Globalization.CultureInfo.InvariantCulture), "Phase stamina cannot be negative"));
+			}
+		}
+
+		Craft validationCraft = new();
+		for (int i = 0; i < spec.Inputs.Count; i++)
+		{
+			CraftInputSpec input = spec.Inputs[i];
+			try
+			{
+				BuildInputDefinition(input);
+			}
+			catch (ApplicationException ex)
+			{
+				errors.Add(new CraftValidationError(spec.Name, "input", input.ImportText, ex.Message));
+			}
+
+			validationCraft.CraftInputs.Add(new CraftInput
+			{
+				Id = i + 1,
+				InputType = input.InputType,
+				Definition = "<Definition />",
+				OriginalAdditionTime = _now.AddTicks(i + 1)
+			});
+		}
+
+		foreach (CraftToolSpec tool in spec.Tools)
+		{
+			try
+			{
+				BuildToolDefinition(tool);
+			}
+			catch (ApplicationException ex)
+			{
+				errors.Add(new CraftValidationError(spec.Name, "tool", tool.ImportText, ex.Message));
+			}
+		}
+
+		ValidateProductSpecs(spec, validationCraft, spec.Products, "product", errors);
+		ValidateProductSpecs(spec, validationCraft, spec.FailProducts, "fail product", errors);
+		return errors;
+	}
+
+	private void ValidateProductSpecs(CraftDefinitionSpec spec, Craft validationCraft, IEnumerable<CraftProductSpec> products,
+		string kind, List<CraftValidationError> errors)
+	{
+		foreach (CraftProductSpec product in products)
+		{
+			if (product.MaterialDefiningInputIndex is < 0 || product.MaterialDefiningInputIndex >= spec.Inputs.Count)
+			{
+				errors.Add(new CraftValidationError(spec.Name, kind, product.ImportText, "Material-defining input index is outside the craft input list"));
+			}
+
+			try
+			{
+				BuildProductDefinition(validationCraft, product);
+			}
+			catch (ApplicationException ex)
+			{
+				errors.Add(new CraftValidationError(spec.Name, kind, product.ImportText, ex.Message));
+			}
+		}
+	}
+
+	private TraitDefinition LookupTraitDefinition(string traitName)
+	{
+		return _traits.TryGetValue(traitName, out TraitDefinition? trait) && trait is not null
+			? trait
+			: throw new ApplicationException($"Unknown trait {traitName}");
+	}
+
+	private static string SanitiseFutureProgNamePart(string text)
+	{
+		string value = new(text.Where(char.IsLetterOrDigit).ToArray());
+		return string.IsNullOrWhiteSpace(value) ? "Trait" : value;
+	}
+
+	private static string EscapeFutureProgText(string text)
+	{
+		return text.Replace(@"\", @"\\").Replace("\"", "\\\"");
+	}
+
+	private (FutureProg AppearProg, FutureProg CanUseProg, FutureProg WhyCannotUseProg, TraitDefinition Trait) EnsureTraitGateProgs(string traitName, int? minimumTraitValue)
+	{
+		TraitDefinition trait = LookupTraitDefinition(traitName);
+		string suffix = $"{SanitiseFutureProgNamePart(trait.Name)}{(minimumTraitValue is null ? "" : minimumTraitValue.Value.ToString(System.Globalization.CultureInfo.InvariantCulture))}";
+		string booleanText = minimumTraitValue is null
+			? $@"return @ch.Skills.Any(x, @x.Id == {trait.Id.ToString(System.Globalization.CultureInfo.InvariantCulture)})"
+			: $@"return GetTrait(@ch, ToTrait(""{trait.Id.ToString(System.Globalization.CultureInfo.InvariantCulture)}"")) >= {minimumTraitValue.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)}";
+		string traitText = EscapeFutureProgText(trait.Name);
+		string whyText = minimumTraitValue is null
+			? $@"return ""You do not have the {traitText} skill."""
+			: $@"return ""You need at least {minimumTraitValue.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)} in {traitText} to do that craft.""";
+
+		FutureProg appearProg = EnsureFutureProg($"ItemSeederAppear{suffix}", "Crafting", "Access", ProgVariableTypes.Boolean, "",
+			[(ProgVariableTypes.Character, "ch")], booleanText);
+		FutureProg canUseProg = EnsureFutureProg($"ItemSeederCanUse{suffix}", "Crafting", "Access", ProgVariableTypes.Boolean, "",
+			[(ProgVariableTypes.Character, "ch")], booleanText);
+		FutureProg whyCannotUseProg = EnsureFutureProg($"ItemSeederWhyCannotUse{suffix}", "Crafting", "Access", ProgVariableTypes.Text, "",
+			[(ProgVariableTypes.Character, "ch")], whyText);
+		_context!.SaveChanges();
+		return (appearProg, canUseProg, whyCannotUseProg, trait);
+	}
+
+	private void InitialiseCraftAuthoringForTesting(FuturemudDatabaseContext context)
+	{
+		_context = context;
+		_questionAnswers = new Dictionary<string, string>();
+		_missingTags.Clear();
+		_progs = new Dictionary<string, FutureProg>(StringComparer.InvariantCultureIgnoreCase);
+		_traits = new DictionaryWithDefault<string, TraitDefinition>(StringComparer.OrdinalIgnoreCase);
+		InitialiseDependencies();
+		foreach (FutureProg prog in context.FutureProgs)
+		{
+			_progs[prog.FunctionName] = prog;
+		}
+		_nextId = context.Crafts.Select(x => x.Id).ToList().DefaultIfEmpty(0).Max(x => x) + 1;
+	}
+
+	internal MudSharp.Models.Craft AddCraftForTesting(FuturemudDatabaseContext context, CraftDefinitionSpec spec)
+	{
+		InitialiseCraftAuthoringForTesting(context);
+		return AddCraft(spec);
+	}
+
+	internal MudSharp.Models.Craft AddCraftFromImportsForTesting(FuturemudDatabaseContext context, string name, string category,
+		IEnumerable<(int Seconds, string Echo, string FailEcho)> phases, IEnumerable<string> inputs, IEnumerable<string> tools,
+		IEnumerable<string> products, IEnumerable<string> failProducts, List<(int Product, int Input)>? productMaterialInputIndexes = null,
+		List<(int Product, int Input)>? failProductMaterialInputIndexes = null, string traitName = "Crafting",
+		string appearProg = "AlwaysTrue", string? canUseProg = null, string? whyCantProg = null, string? onFinishProg = null,
+		string? onStartProg = null, string? onCancelProg = null, Difficulty difficulty = Difficulty.Normal,
+		Outcome threshold = Outcome.MinorFail, int freeChecks = 5, int failPhase = 1, bool interruptable = false,
+		string blurb = "test craft", string action = "testing", string itemSdesc = "a test craft event")
+	{
+		InitialiseCraftAuthoringForTesting(context);
+		return AddCraft(name, category, blurb, action, itemSdesc, appearProg, canUseProg, whyCantProg, onFinishProg,
+			       LookupTraitDefinition(traitName), difficulty, threshold, freeChecks, failPhase, interruptable, phases,
+			       inputs, tools, products, failProducts, productMaterialInputIndexes, failProductMaterialInputIndexes,
+			       onStartProg, onCancelProg) ??
+		       throw new ApplicationException($"Craft '{name}' was not created.");
+	}
+
+	internal MudSharp.Models.Craft AddTraitGatedCraftFromImportsForTesting(FuturemudDatabaseContext context, string name,
+		string category, string traitName, int? minimumTraitValue, IEnumerable<(int Seconds, string Echo, string FailEcho)> phases,
+		IEnumerable<string> inputs, IEnumerable<string> tools, IEnumerable<string> products, IEnumerable<string> failProducts)
+	{
+		InitialiseCraftAuthoringForTesting(context);
+		return AddCraft(name, category, "test craft", "testing", "a test craft event", traitName, minimumTraitValue,
+			       Difficulty.Normal, Outcome.MinorFail, 5, 1, false, phases, inputs, tools, products, failProducts) ??
+		       throw new ApplicationException($"Craft '{name}' was not created.");
+	}
 
     private void SeedCrafts()
     {

@@ -312,6 +312,7 @@ public abstract class FirearmBaseGameItemComponent : GameItemComponent, IRangedW
 
         IGameItem bullet = ammo.GetFiredItem ?? ammo.Parent;
         IGameItem shell = ammo.GetFiredWasteItem;
+        WeaponPoisonDeliveryHelper.CopyPoisonCoating(ammo.Parent, bullet);
 
         if (bullet != ammo.Parent)
         {

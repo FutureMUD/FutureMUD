@@ -1040,6 +1040,10 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
         {
             bullet.HandleEvent(EventType.ItemFinishedLoading, bullet);
             bullet.Login();
+            if (ball is not null)
+            {
+                WeaponPoisonDeliveryHelper.CopyPoisonCoating(ball, bullet);
+            }
         }
 
         ammo.Fire(actor, target, shotOutcome, coverOutcome, defenseOutcome, bodypart, bullet, WeaponType, defenseEmote);

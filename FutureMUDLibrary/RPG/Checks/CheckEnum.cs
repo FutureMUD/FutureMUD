@@ -207,6 +207,7 @@ namespace MudSharp.RPG.Checks
         SensitivityCapabilityRead = 198,
         PsychicBoltPower = 199,
         StealCheck = 200, // Called when someone uses the steal command or palms into someone else's belongings
+        ApplyPoisonToWeapon = 201, // Called when someone applies a poison coating to a melee weapon or ammunition
     }
 
     public enum FailIfTraitMissingType
@@ -334,6 +335,7 @@ namespace MudSharp.RPG.Checks
                 case CheckType.CheatAtDiceCheck:
                 case CheckType.SpillLiquidOnPerson:
                 case CheckType.DodgeSpillLiquidOnPerson:
+                case CheckType.ApplyPoisonToWeapon:
                 case CheckType.TakedownCheck:
                 case CheckType.BreakoutCheck:
                 case CheckType.OpposeBreakoutCheck:
@@ -655,6 +657,7 @@ namespace MudSharp.RPG.Checks
                 case CheckType.EvaluateDiceFairnessCheck:
                 case CheckType.SpillLiquidOnPerson:
                 case CheckType.DodgeSpillLiquidOnPerson:
+                case CheckType.ApplyPoisonToWeapon:
                 case CheckType.DrawingImprovementCheck:
                 case CheckType.ClimbTreetoTreeCheck:
                 case CheckType.SearchForTracksCheck:

@@ -50,7 +50,7 @@ public class LiquidContamination : Effect, ILiquidContaminationEffect, IDescript
 
     #region Implementation of ILiquidContaminationEffect
 
-    private LiquidMixture _contaminatingLiquid;
+    protected LiquidMixture _contaminatingLiquid;
 
     public LiquidMixture ContaminatingLiquid
     {
@@ -66,7 +66,12 @@ public class LiquidContamination : Effect, ILiquidContaminationEffect, IDescript
 
     private DateTime _lastDripEcho = DateTime.MinValue;
 
-    private void ContaminatingLiquidOnLiquidMixtureChanged(LiquidMixture mixture)
+    protected virtual double LiquidCapacityMultiplier(IGameItem ownerItem)
+    {
+        return 1.0;
+    }
+
+    protected virtual void ContaminatingLiquidOnLiquidMixtureChanged(LiquidMixture mixture)
     {
         if (mixture.IsEmpty)
         {
@@ -78,22 +83,23 @@ public class LiquidContamination : Effect, ILiquidContaminationEffect, IDescript
         (double coat, double absorb) = ownerItem.LiquidAbsorbtionAmounts;
         ItemSaturationLevel saturation = ownerItem.SaturationLevel;
         double maxAbsorbed = 0.0;
+        double capacityMultiplier = LiquidCapacityMultiplier(ownerItem);
         switch (saturation)
         {
             case ItemSaturationLevel.Dry:
-                maxAbsorbed = (coat + absorb) * 0.98;
+                maxAbsorbed = (coat + absorb) * capacityMultiplier * 0.98;
                 break;
             case ItemSaturationLevel.Damp:
-                maxAbsorbed = (coat + absorb) * 0.8;
+                maxAbsorbed = (coat + absorb) * capacityMultiplier * 0.8;
                 break;
             case ItemSaturationLevel.Wet:
-                maxAbsorbed = (coat + absorb) * 0.5;
+                maxAbsorbed = (coat + absorb) * capacityMultiplier * 0.5;
                 break;
             case ItemSaturationLevel.Soaked:
-                maxAbsorbed = (coat + absorb) * 0.35;
+                maxAbsorbed = (coat + absorb) * capacityMultiplier * 0.35;
                 break;
             case ItemSaturationLevel.Saturated:
-                maxAbsorbed = (coat + absorb) * 0.01;
+                maxAbsorbed = (coat + absorb) * capacityMultiplier * 0.01;
                 break;
             default:
                 throw new ArgumentOutOfRangeException();

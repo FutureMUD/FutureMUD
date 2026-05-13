@@ -2,6 +2,7 @@ using JetBrains.Annotations;
 using MudSharp.Accounts;
 using MudSharp.Character;
 using MudSharp.Character.Heritage;
+using MudSharp.Combat;
 using MudSharp.Combat.Moves;
 using MudSharp.Commands.Trees;
 using MudSharp.Construction;
@@ -60,6 +61,8 @@ internal class ManipulationModule : Module<ICharacter>
 	private readonly record struct FillCommandArguments(string Target, string Owner, string From, string Amount, string Emote);
 
 	private readonly record struct PourCommandArguments(string From, string Into, string Amount, string Emote);
+
+	private readonly record struct WeaponPoisonOptions(bool CountSpecified, bool AllCount, int Count, double? Volume, PlayerEmote Emote);
 
 	private ManipulationModule()
 		: base("Manipulation")
@@ -1181,7 +1184,15 @@ There are a couple of ways you can use this command:
 
 You must be holding a suitable item and the bodypart you're trying to apply it to must be accessible. The target must be helpless or consent to the application.
 
-If you don't specify an amount, you will use the whole amount of the cream.", AutoHelp.HelpArgOrNoArg)]
+If you don't specify an amount, you will use the whole amount of the cream.
+
+You can also apply a poisonous liquid from an open liquid container to a held melee weapon or held ammunition. This uses a skill check and a failed check can expose you to the poison.
+
+The syntax is as follows:
+
+	#3apply <source> <target> <bodypart> [amount]#0
+	#3apply <source> to <weapon> [volume <amount>]#0
+	#3apply <source> to <ammo> [count <number|all>] [volume <amount>]#0", AutoHelp.HelpArgOrNoArg)]
     protected static void Apply(ICharacter character, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
@@ -1195,6 +1206,13 @@ If you don't specify an amount, you will use the whole amount of the cream.", Au
         if (item == null)
         {
             character.Send("You are not holding anything like that to apply.");
+            return;
+        }
+
+        if (!ss.IsFinished && ss.PeekSpeech().EqualTo("to"))
+        {
+            ss.PopSpeech();
+            ApplyPoisonToWeapon(character, item, ss);
             return;
         }
 
@@ -1331,6 +1349,417 @@ If you don't specify an amount, you will use the whole amount of the cream.", Au
                 ? new MixedEmoteOutput(new Emote($"@ apply|applies $1 to &0's {bodypart.FullDescription()}", character, item), flags: OutputFlags.SuppressObscured).Append(pemote)
                 : new MixedEmoteOutput(new Emote($"@ apply|applies $1 to $2's {bodypart.FullDescription()}", character, item, targetCharacter), flags: OutputFlags.SuppressObscured).Append(pemote));
         applicable.Apply(targetCharacter.Body, bodypart, amount, character);
+    }
+
+    public const string DipHelpText = @"The #3dip#0 command is used to submerge a held melee weapon or ammunition in a larger source of poisonous liquid.
+
+Only liquid containers with a touched or injected drug liquid can envenom a weapon. Dipping is easier and fills more of the available coating capacity than #3apply#0, but it still uses a skill check and major failures can expose you to the poison.
+
+The syntax is as follows:
+
+	#3dip <weapon> in <source>#0
+	#3dip <ammo> in <source> [count <number|all>]#0";
+
+    [PlayerCommand("Dip", "dip")]
+    [RequiredCharacterState(CharacterState.Able)]
+    [DelayBlock("general", "You must first stop {0} before you can do that.")]
+    [NoMovementCommand]
+    [NoCombatCommand]
+    [HelpInfo("dip", DipHelpText, AutoHelp.HelpArgOrNoArg)]
+    protected static void Dip(ICharacter character, string command)
+    {
+        var ss = new StringStack(command.RemoveFirstWord());
+        if (ss.IsFinished)
+        {
+            character.OutputHandler.Send(DipHelpText.SubstituteANSIColour());
+            return;
+        }
+
+        var targetText = ss.PopSpeech();
+        if (ss.IsFinished || !ss.PopSpeech().EqualTo("in") || ss.IsFinished)
+        {
+            character.OutputHandler.Send(DipHelpText.SubstituteANSIColour());
+            return;
+        }
+
+        var sourceText = ss.PopSpeech();
+        var source = character.TargetItem(sourceText);
+        if (source is null)
+        {
+            character.OutputHandler.Send("You don't see anything like that to dip anything in.");
+            return;
+        }
+
+        if (!TryParseWeaponPoisonOptions(character, ss.SafeRemainingArgument, true, out var options))
+        {
+            return;
+        }
+
+        DipPoisonWeapon(character, source, targetText, options);
+    }
+
+    private static void ApplyPoisonToWeapon(ICharacter character, IGameItem source, StringStack ss)
+    {
+        if (ss.IsFinished)
+        {
+            character.OutputHandler.Send($"What do you want to apply the liquid from {source.HowSeen(character)} to?");
+            return;
+        }
+
+        var targetText = ss.PopSpeech();
+        if (!TryParseWeaponPoisonOptions(character, ss.SafeRemainingArgument, true, out var options))
+        {
+            return;
+        }
+
+        if (!TryGetWeaponPoisonSource(character, source, false, out var sourceContainer))
+        {
+            return;
+        }
+
+        if (!TryResolveWeaponPoisonTarget(character, targetText, options, out var target, out var quantity))
+        {
+            return;
+        }
+
+        var capacity = WeaponPoisonCapacity(target, quantity);
+        var remainingCapacity = Math.Max(0.0, capacity - ExistingWeaponPoisonVolume(target, quantity));
+        var desiredAmount = options.Volume ??
+                            Math.Min(remainingCapacity,
+	                            capacity * WeaponPoisonDeliveryHelper.StaticDouble(character.Gameworld,
+		                            WeaponPoisonDeliveryHelper.ApplyDefaultCapacityFraction));
+        var amount = Math.Min(remainingCapacity, Math.Min(sourceContainer.LiquidVolume, desiredAmount));
+        if (amount <= 0.0)
+        {
+            character.OutputHandler.Send($"{target.HowSeen(character, true)} cannot hold any more poison coating.");
+            return;
+        }
+
+        if (!CanSplitPoisonTarget(character, target, quantity))
+        {
+            return;
+        }
+
+        var outcome = character.Gameworld.GetCheck(CheckType.ApplyPoisonToWeapon)
+                               .Check(character, Difficulty.Normal, target);
+        var liquidDescription = sourceContainer.LiquidMixture.ColouredLiquidDescription;
+        var removedLiquid = sourceContainer.RemoveLiquidAmount(amount, character, "apply poison");
+        if (outcome.IsFail())
+        {
+            character.OutputHandler.Handle(new MixedEmoteOutput(new Emote(
+                $"@ slip|slips while applying {liquidDescription} from $1 to $2, wasting the dose.",
+                character, character, source, target), style: OutputStyle.IgnoreLiquidsAndFlags).Append(options.Emote));
+            HandleWeaponPoisonMishap(character, source, target, removedLiquid);
+            return;
+        }
+
+        var finalTarget = SplitPoisonTargetIfRequired(character, target, quantity);
+        WeaponPoisonDeliveryHelper.AddPoisonCoating(finalTarget, removedLiquid);
+        character.OutputHandler.Handle(new MixedEmoteOutput(new Emote(
+            $"@ carefully coat|coats $2 with {liquidDescription} from $1.",
+            character, character, source, finalTarget), style: OutputStyle.IgnoreLiquidsAndFlags).Append(options.Emote));
+    }
+
+    private static void DipPoisonWeapon(ICharacter character, IGameItem source, string targetText, WeaponPoisonOptions options)
+    {
+        if (!TryGetWeaponPoisonSource(character, source, true, out var sourceContainer))
+        {
+            return;
+        }
+
+        if (!TryResolveWeaponPoisonTarget(character, targetText, options, out var target, out var quantity))
+        {
+            return;
+        }
+
+        var capacity = WeaponPoisonCapacity(target, quantity);
+        var remainingCapacity = Math.Max(0.0,
+            capacity * WeaponPoisonDeliveryHelper.StaticDouble(character.Gameworld,
+                WeaponPoisonDeliveryHelper.DipCapacityFraction) -
+            ExistingWeaponPoisonVolume(target, quantity));
+        if (remainingCapacity <= 0.0)
+        {
+            character.OutputHandler.Send($"{target.HowSeen(character, true)} cannot hold any more poison coating.");
+            return;
+        }
+
+        if (sourceContainer.LiquidVolume < remainingCapacity)
+        {
+            character.OutputHandler.Send(
+                $"{source.HowSeen(character, true)} does not contain enough liquid to submerge {target.HowSeen(character)}.");
+            return;
+        }
+
+        if (!CanSplitPoisonTarget(character, target, quantity))
+        {
+            return;
+        }
+
+        var outcome = character.Gameworld.GetCheck(CheckType.ApplyPoisonToWeapon)
+                               .Check(character, WeaponPoisonDeliveryHelper.DipDifficulty(character.Gameworld, Difficulty.Normal),
+                                   target);
+        var liquidDescription = sourceContainer.LiquidMixture.ColouredLiquidDescription;
+        var removedLiquid = sourceContainer.RemoveLiquidAmount(remainingCapacity, character, "dip poison");
+        if (outcome.IsFail())
+        {
+            character.OutputHandler.Handle(new MixedEmoteOutput(new Emote(
+                $"@ fail|fails to get {liquidDescription} from $1 to adhere properly to $2.",
+                character, character, source, target), style: OutputStyle.IgnoreLiquidsAndFlags).Append(options.Emote));
+            if (outcome.Outcome == Outcome.MajorFail)
+            {
+                HandleWeaponPoisonMishap(character, source, target, removedLiquid);
+            }
+
+            return;
+        }
+
+        var finalTarget = SplitPoisonTargetIfRequired(character, target, quantity);
+        WeaponPoisonDeliveryHelper.AddPoisonCoating(finalTarget, removedLiquid);
+        character.OutputHandler.Handle(new MixedEmoteOutput(new Emote(
+            $"@ dip|dips $2 in {liquidDescription} from $1.",
+            character, character, source, finalTarget), style: OutputStyle.IgnoreLiquidsAndFlags).Append(options.Emote));
+    }
+
+    private static bool TryParseWeaponPoisonOptions(ICharacter character, string text, bool allowCount,
+        out WeaponPoisonOptions options)
+    {
+        options = new WeaponPoisonOptions(false, false, 1, null, null);
+        if (string.IsNullOrWhiteSpace(text))
+        {
+            return true;
+        }
+
+        if (!TryPopArgumentsAndEmote(text, out var tokens, out var emoteText))
+        {
+            character.OutputHandler.Send("You must use valid poison application syntax.");
+            return false;
+        }
+
+        PlayerEmote emote = null;
+        if (!string.IsNullOrEmpty(emoteText))
+        {
+            emote = new PlayerEmote(emoteText, character);
+            if (!emote.Valid)
+            {
+                character.OutputHandler.Send(emote.ErrorMessage);
+                return false;
+            }
+        }
+
+        var countSpecified = false;
+        var allCount = false;
+        var count = 1;
+        double? volume = null;
+        var i = 0;
+        while (i < tokens.Count)
+        {
+            if (tokens[i].EqualTo("count"))
+            {
+                if (!allowCount || countSpecified || i + 1 >= tokens.Count)
+                {
+                    character.OutputHandler.Send("You must specify a poison count as #3count <number|all>#0.".SubstituteANSIColour());
+                    return false;
+                }
+
+                countSpecified = true;
+                if (tokens[i + 1].EqualTo("all"))
+                {
+                    allCount = true;
+                }
+                else if (!int.TryParse(tokens[i + 1], out count) || count <= 0)
+                {
+                    character.OutputHandler.Send("The poison count must be a positive whole number, or #3all#0.".SubstituteANSIColour());
+                    return false;
+                }
+
+                i += 2;
+                continue;
+            }
+
+            if (tokens[i].EqualTo("volume"))
+            {
+                if (volume is not null || i + 1 >= tokens.Count)
+                {
+                    character.OutputHandler.Send("You must specify poison volume as #3volume <amount>#0.".SubstituteANSIColour());
+                    return false;
+                }
+
+                var amountText = JoinArguments(tokens.Skip(i + 1));
+                var amount = character.Gameworld.UnitManager.GetBaseUnits(amountText, UnitType.FluidVolume, out var success);
+                if (!success || amount <= 0.0)
+                {
+                    character.OutputHandler.Send("That is not a valid amount of liquid poison.");
+                    return false;
+                }
+
+                volume = amount;
+                i = tokens.Count;
+                continue;
+            }
+
+            character.OutputHandler.Send("You must use #3count <number|all>#0 or #3volume <amount>#0 for poison options.".SubstituteANSIColour());
+            return false;
+        }
+
+        options = new WeaponPoisonOptions(countSpecified, allCount, count, volume, emote);
+        return true;
+    }
+
+    private static bool TryGetWeaponPoisonSource(ICharacter character, IGameItem source, bool requireManipulation,
+        out ILiquidContainer sourceContainer)
+    {
+        sourceContainer = source.GetItemType<ILiquidContainer>();
+        if (sourceContainer is null)
+        {
+            character.OutputHandler.Send($"{source.HowSeen(character, true)} is not a liquid container.");
+            return false;
+        }
+
+        if (requireManipulation)
+        {
+            var (truth, error) = character.CanManipulateItem(source);
+            if (!truth)
+            {
+                character.OutputHandler.Send(error);
+                return false;
+            }
+        }
+
+        if (!sourceContainer.IsOpen)
+        {
+            character.OutputHandler.Send($"{source.HowSeen(character, true)} is not open.");
+            return false;
+        }
+
+        if (sourceContainer.LiquidMixture?.IsEmpty != false)
+        {
+            character.OutputHandler.Send($"{source.HowSeen(character, true)} is empty.");
+            return false;
+        }
+
+        if (!WeaponPoisonDeliveryHelper.HasDeliverableDrug(sourceContainer.LiquidMixture))
+        {
+            character.OutputHandler.Send(
+                $"The liquid in {source.HowSeen(character)} does not contain a touched or injected drug that can be used to poison weapons.");
+            return false;
+        }
+
+        return true;
+    }
+
+    private static bool TryResolveWeaponPoisonTarget(ICharacter character, string targetText, WeaponPoisonOptions options,
+        out IGameItem target, out int quantity)
+    {
+        target = character.TargetHeldItem(targetText);
+        quantity = 1;
+        if (target is null)
+        {
+            character.OutputHandler.Send("You must be holding the melee weapon or ammunition that you want to poison.");
+            return false;
+        }
+
+        if (!WeaponPoisonDeliveryHelper.IsValidPoisonableItem(target))
+        {
+            character.OutputHandler.Send("Only held melee weapons and ammunition can be poisoned in this way.");
+            return false;
+        }
+
+        var isAmmo = target.IsItemType<IAmmo>();
+        if (!isAmmo)
+        {
+            if (options.CountSpecified)
+            {
+                character.OutputHandler.Send("The #3count#0 option is only valid when poisoning ammunition.".SubstituteANSIColour());
+                return false;
+            }
+
+            quantity = target.Quantity;
+            return true;
+        }
+
+        quantity = options.AllCount ? target.Quantity : options.CountSpecified ? options.Count : 1;
+        if (quantity <= 0 || quantity > target.Quantity)
+        {
+            character.OutputHandler.Send(
+                $"You only have {target.Quantity.ToString("N0", character).ColourValue()} of {target.HowSeen(character)} to poison.");
+            return false;
+        }
+
+        if (quantity < target.Quantity && target.EffectsOfType<IWeaponPoisonCoatingEffect>().Any())
+        {
+            character.OutputHandler.Send(
+                $"Split {target.HowSeen(character)} before recoating it; partial coating of an already-poisoned ammunition stack would make the dose unclear.");
+            return false;
+        }
+
+        return true;
+    }
+
+    private static bool CanSplitPoisonTarget(ICharacter character, IGameItem target, int quantity)
+    {
+        if (!target.IsItemType<IAmmo>() || quantity >= target.Quantity)
+        {
+            return true;
+        }
+
+        if (target.GetItemType<IStackable>() is null)
+        {
+            character.OutputHandler.Send($"{target.HowSeen(character, true)} cannot be split into a separate poisoned stack.");
+            return false;
+        }
+
+        if (!character.Body.FunctioningFreeHands.Any())
+        {
+            character.OutputHandler.Send("You need a free hand to split off that ammunition before poisoning it.");
+            return false;
+        }
+
+        return true;
+    }
+
+    private static IGameItem SplitPoisonTargetIfRequired(ICharacter character, IGameItem target, int quantity)
+    {
+        if (!target.IsItemType<IAmmo>() || quantity >= target.Quantity)
+        {
+            return target;
+        }
+
+        var split = target.GetItemType<IStackable>().Split(quantity);
+        character.Body.Get(split, 0, null, true);
+        return split;
+    }
+
+    private static double WeaponPoisonCapacity(IGameItem target, int quantity)
+    {
+        return target.LiquidAbsorbtionAmounts.Coating * Math.Max(1, quantity);
+    }
+
+    private static double ExistingWeaponPoisonVolume(IGameItem target, int quantity)
+    {
+        if (!target.IsItemType<IAmmo>() || quantity >= target.Quantity)
+        {
+            return WeaponPoisonDeliveryHelper.ExistingPoisonVolume(target);
+        }
+
+        return 0.0;
+    }
+
+    private static void HandleWeaponPoisonMishap(ICharacter character, IGameItem source, IGameItem target,
+        LiquidMixture mixture)
+    {
+        if (mixture is null || mixture.IsEmpty)
+        {
+            return;
+        }
+
+        var handlingPart = character.Body.BodypartLocationOfInventoryItem(target) ??
+                           character.Body.BodypartLocationOfInventoryItem(source);
+        if (handlingPart is not null)
+        {
+            character.Body.ExposeToLiquid(mixture.Clone(), handlingPart, LiquidExposureDirection.FromOnTop);
+        }
+
+        WeaponPoisonDeliveryHelper.DoseContact(character.Body, mixture, source);
     }
 
     [PlayerCommand("Inject", "inject")]

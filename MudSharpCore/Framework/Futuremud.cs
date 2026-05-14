@@ -757,6 +757,12 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
         _auxiliaryCombatActions.Add(action);
     }
 
+    public void Add(IManualCombatCommand command)
+    {
+        _manualCombatCommands.Add(command);
+        ManualCombatCommandRegistry.Rebuild(this);
+    }
+
     public void Add(IBoard board)
     {
         _boards.Add(board);
@@ -1913,6 +1919,12 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
     public void Destroy(IWeaponAttack attack)
     {
         _weaponAttacks.Remove(attack);
+    }
+
+    public void Destroy(IManualCombatCommand command)
+    {
+        _manualCombatCommands.Remove(command);
+        ManualCombatCommandRegistry.Rebuild(this);
     }
 
     public void Destroy(ICombatMessage message)

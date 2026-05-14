@@ -5,6 +5,11 @@ namespace MudSharp.Models
 {
     public partial class CharacterCombatSetting
     {
+        public CharacterCombatSetting()
+        {
+            CharacterCombatSettingsManualCombatCommands = new HashSet<CharacterCombatSettingsManualCombatCommands>();
+        }
+
         public long Id { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
@@ -49,5 +54,6 @@ namespace MudSharp.Models
         public virtual FutureProg AvailabilityProg { get; set; }
         public virtual Character CharacterOwner { get; set; }
         public virtual FutureProg PriorityProg { get; set; }
+        public virtual ICollection<CharacterCombatSettingsManualCombatCommands> CharacterCombatSettingsManualCombatCommands { get; set; }
     }
 }

@@ -249,6 +249,34 @@ public class CombatSeederSourceTests
 	}
 
 	[TestMethod]
+	public void CombatSeederSource_StockManualCombatCommands_LinkBashAndKick()
+	{
+		string helper = File.ReadAllText(GetSeederSourcePath("ManualCombatCommandSeederHelper.cs"));
+		string auxiliary = File.ReadAllText(GetSeederSourcePath("CombatAuxiliarySeederHelper.cs"));
+		string combatSeeder = File.ReadAllText(GetCombatSeederSourcePath());
+
+		StringAssert.Contains(combatSeeder, "ManualCombatCommandSeederHelper.EnsureStockManualCombatCommands(context)");
+		StringAssert.Contains(combatSeeder, "stock manual combat command bindings");
+		StringAssert.Contains(helper, "EnsureStockManualCombatCommands");
+		StringAssert.Contains(helper, "primaryVerb: \"bash\"");
+		StringAssert.Contains(helper, "ManualCombatActionKind.AuxiliaryAction");
+		StringAssert.Contains(helper, "defaultAiMultiplier: 1.25");
+		StringAssert.Contains(helper, "primaryVerb: \"kick\"");
+		StringAssert.Contains(helper, "ManualCombatActionKind.WeaponAttack");
+		StringAssert.Contains(helper, "Snap Kick");
+		StringAssert.Contains(helper, "MeleeWeaponVerb.Kick");
+		StringAssert.Contains(helper, "CooldownSeconds = 0.0");
+		StringAssert.Contains(helper, "PlayerUsable = true");
+		StringAssert.Contains(helper, "NpcUsable = true");
+
+		StringAssert.Contains(auxiliary, "\"Bash\"");
+		StringAssert.Contains(auxiliary, "Def(\"Bash\"");
+		StringAssert.Contains(auxiliary, "PositionChange(t, 2.0, 0.5, 6.0)");
+		StringAssert.Contains(auxiliary, "Delay(t, 2.0, 0.5, 6.0)");
+		StringAssert.Contains(combatSeeder, "AddAttack(\"Snap Kick\", BuiltInCombatMoveType.NaturalWeaponAttack");
+	}
+
+	[TestMethod]
 	public void CombatAuxiliarySeederSource_NonHumanSeeders_LinkRaceAppropriateAuxiliaryMoves()
 	{
 		string helper = File.ReadAllText(GetSeederSourcePath("CombatAuxiliarySeederHelper.cs"));

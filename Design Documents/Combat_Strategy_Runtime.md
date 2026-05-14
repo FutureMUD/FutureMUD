@@ -60,6 +60,18 @@ Ranged-family strategies select active attacks through:
 
 Ranged firing normally reveals a hidden firer when out-of-combat fire engages the target. The exception is explicit weapon capability: `IRangedWeapon.CanFireWhileHidden` defaults false, and only weapons such as blowguns opt in. When that flag is true, `fire` passes `preserveHide` through `Engage` and `JoinCombat`, which skips removing `IHideEffect` while still removing other combat-start effects. This does not make the firer permanently undetectable; blowgun output uses the normal obscured-emote path and observers can still identify the firer if their perception allows it. Blowguns only reach this path if the component can ready/fire normally, which includes having active breath and an uncovered mouth.
 
+## Manual Combat Commands
+
+Manual combat commands are builder-authored `ManualCombatCommand` rows that register verbs such as `kick` or `bash` without hardcoding a command method per move. The loader brings them in after weapon attacks, auxiliary actions, FutureProgs, and dynamic magic verbs are available. Startup registration validates the primary verb and aliases against existing command trees and already-claimed manual words; invalid or colliding aliases are skipped with console warnings instead of preventing command loading.
+
+The player and NPC syntax is `<verb> [target]`. Version 1 is combat-only, targets characters only, rejects self-targeting, and uses the actor's current combat target when no explicit target is supplied. `CombatModule.ManualCombatGeneric` pre-validates the request with `ManualCombatCommandResolver` and then queues a `SelectedCombatAction`; the selected action resolves the binding again at execution time so race actions, stamina, target state, position, and usability progs are checked against the live combat state.
+
+`ManualCombatActionKind.AuxiliaryAction` requires the actor's race to currently expose the bound auxiliary action through `UsableAuxiliaryMoves`, then queues an `AuxiliaryMove`. `ManualCombatActionKind.WeaponAttack` scans ordinary melee weapon, active implant, active prosthetic, and natural attack sources in the combat setting's melee attack order, then creates the matching move through `CombatMoveFactory`. Direct-damage manual commands such as `kick` therefore use existing weapon or natural attack machinery, while knockdown or target-delay commands such as `bash` use auxiliary effects like `positionchange` and `targetdelay`.
+
+The move's existing `BaseDelay` remains the actor's combat recovery. Manual command cooldowns are optional command-delay effects only; they block the configured primary verb and aliases for a repeat attempt but do not replace combat scheduler timing. Victim delay, knockdown, stamina drain, and other target-side consequences remain data on the bound auxiliary action or weapon attack.
+
+NPC strategy integration does not add another percentage bucket. Existing weapon, natural, and auxiliary percentages still decide the action category. When a candidate action has one or more NPC-usable manual command bindings, the underlying action's normal weighting is multiplied by the highest applicable manual-command multiplier. The default comes from `ManualCombatCommand.DefaultAiWeightMultiplier`, and per-style overrides are persisted in `CharacterCombatSettings_ManualCombatCommands` through `combat config manual <verb> <multiplier|off|clear>`. A missing override row means the command's default multiplier applies.
+
 ## Strategy Rundown
 
 ### StandardMelee

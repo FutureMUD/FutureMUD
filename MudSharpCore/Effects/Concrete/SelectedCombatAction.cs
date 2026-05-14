@@ -428,6 +428,29 @@ public class SelectedCombatAction : CombatEffectBase, ISelectedCombatAction
         }
     }
 
+    internal class ManualCombatCommandAction : CombatActionType
+    {
+        public IManualCombatCommand Command { get; init; }
+        public ICharacter Target { get; init; }
+
+        public override ICombatMove GetCombatMove(ICharacter actor)
+        {
+            ManualCombatMoveResolution result = ManualCombatCommandResolver.TryResolve(actor, Command, Target, true);
+            if (!result.Success)
+            {
+                actor.Send(result.Error);
+                return null;
+            }
+
+            return result.Move;
+        }
+
+        public override string Describe(IPerceiver voyeur)
+        {
+            return $"{Command.PrimaryVerb} {Target.HowSeen(voyeur)}.";
+        }
+    }
+
     public static SelectedCombatAction GetEffectStruggle(ICharacter actor)
     {
         return new SelectedCombatAction(actor, new StruggleAction());
@@ -614,6 +637,16 @@ public class SelectedCombatAction : CombatEffectBase, ISelectedCombatAction
             Layer = layer,
             Weapon = weapon,
             NaturalAttack = naturalAttack
+        });
+    }
+
+    public static SelectedCombatAction GetEffectManualCombatCommand(
+        ICharacter actor, IManualCombatCommand command, ICharacter target)
+    {
+        return new SelectedCombatAction(actor, new ManualCombatCommandAction
+        {
+            Command = command,
+            Target = target
         });
     }
 

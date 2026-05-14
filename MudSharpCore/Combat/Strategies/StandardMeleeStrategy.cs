@@ -926,7 +926,9 @@ public class StandardMeleeStrategy : StrategyBase
                                                    Attacks: PossibleAttacksForWeapon(combatant, x, true)))
                                                .SelectMany(x =>
                                                    x.Attacks.Select(y => (Weapon: x.Weapon, Attack: y,
-                                                       Weighting: y.Weighting * multiplier)))
+                                                       Weighting: y.Weighting * multiplier *
+                                                                  ManualCombatCommandResolver.AiWeightMultiplier(combatant, y))))
+                                               .Where(x => x.Weighting > 0.0)
                                                .ToList();
             List<(IMeleeWeapon Weapon, IWeaponAttack Attack, double Weighting)> staminaAttacksThisIteration = possibleAttacksThisIteration
                                               .Where(x =>
@@ -1009,7 +1011,9 @@ public class StandardMeleeStrategy : StrategyBase
 
         List<INaturalAttack> possibleAttacks = combatant.Race
                                        .UsableNaturalWeaponAttacks(combatant, combatant.CombatTarget, false,
-                                           attackTypes).ToList();
+                                           attackTypes)
+                                       .Where(x => x.Attack.Weighting * ManualCombatCommandResolver.AiWeightMultiplier(combatant, x.Attack) > 0.0)
+                                       .ToList();
         List<INaturalAttack> attacks = possibleAttacks
                       .Where(x => combatant.CanSpendStamina(NaturalAttackMove.MoveStaminaCost(combatant, x.Attack)))
                       .ToList();
@@ -1026,7 +1030,8 @@ public class StandardMeleeStrategy : StrategyBase
         }
 
 
-        INaturalAttack attack = attacks.GetWeightedRandom(x => x.Attack.Weighting);
+        INaturalAttack attack = attacks.GetWeightedRandom(x =>
+            x.Attack.Weighting * ManualCombatCommandResolver.AiWeightMultiplier(combatant, x.Attack));
         if (attack == null)
         {
             return null;

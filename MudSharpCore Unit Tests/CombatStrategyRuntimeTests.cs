@@ -278,6 +278,93 @@ public class CombatStrategyRuntimeTests
 	}
 
 	[TestMethod]
+	public void ManualCombatResolver_AuxiliaryAction_ResolvesRaceMoveWithStamina()
+	{
+		Mock<IFuturemud> gameworld = CreateGameworld();
+		Mock<IAuxiliaryCombatAction> action = new();
+		Mock<IManualCombatCommand> command = new();
+		Mock<IRace> race = new();
+		Mock<ICombat> combat = new();
+		Mock<ICharacter> actor = new();
+		Mock<ICharacter> target = new();
+
+		action.SetupGet(x => x.Id).Returns(42);
+		action.SetupGet(x => x.Name).Returns("Bash");
+		action.SetupGet(x => x.StaminaCost).Returns(3.0);
+		command.SetupGet(x => x.ActionKind).Returns(ManualCombatActionKind.AuxiliaryAction);
+		command.SetupGet(x => x.AuxiliaryAction).Returns(action.Object);
+		command.Setup(x => x.IsUsableBy(actor.Object, target.Object)).Returns(true);
+		race.Setup(x => x.UsableAuxiliaryMoves(actor.Object, target.Object, false))
+		    .Returns(new[] { action.Object });
+		combat.SetupGet(x => x.Combatants).Returns(new IPerceiver[] { actor.Object, target.Object });
+		actor.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		actor.SetupGet(x => x.Race).Returns(race.Object);
+		actor.SetupProperty(x => x.Combat, combat.Object);
+		actor.SetupProperty(x => x.CombatTarget, null);
+		actor.SetupGet(x => x.Encumbrance).Returns(EncumbranceLevel.Unencumbered);
+		actor.SetupGet(x => x.EncumbrancePercentage).Returns(0.0);
+		actor.Setup(x => x.CanSpendStamina(It.IsAny<double>())).Returns(true);
+
+		ManualCombatMoveResolution result =
+			ManualCombatCommandResolver.TryResolve(actor.Object, command.Object, target.Object);
+
+		Assert.IsTrue(result.Success, result.Error);
+		Assert.AreEqual("AuxiliaryMove", result.Move.GetType().Name);
+		Assert.AreSame(target.Object, actor.Object.CombatTarget);
+		actor.Verify(x => x.CanSpendStamina(It.Is<double>(value => value > 0.0)), Times.Once);
+	}
+
+	[TestMethod]
+	public void ManualCombatResolver_AuxiliaryAction_RejectsMissingActionAndCanReturnExhaustedMove()
+	{
+		Mock<IFuturemud> gameworld = CreateGameworld();
+		Mock<IAuxiliaryCombatAction> action = new();
+		Mock<IManualCombatCommand> command = new();
+		Mock<IRace> race = new();
+		Mock<ICombat> combat = new();
+		Mock<ICharacter> actor = new();
+		Mock<ICharacter> target = new();
+		Mock<ICharacter> originalTarget = new();
+
+		action.SetupGet(x => x.Id).Returns(42);
+		action.SetupGet(x => x.StaminaCost).Returns(3.0);
+		command.SetupGet(x => x.ActionKind).Returns(ManualCombatActionKind.AuxiliaryAction);
+		command.SetupGet(x => x.AuxiliaryAction).Returns(action.Object);
+		command.Setup(x => x.IsUsableBy(actor.Object, target.Object)).Returns(true);
+		combat.SetupGet(x => x.Combatants).Returns(new IPerceiver[] { actor.Object, target.Object });
+		actor.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		actor.SetupGet(x => x.Race).Returns(race.Object);
+		actor.SetupProperty(x => x.Combat, combat.Object);
+		actor.SetupProperty(x => x.CombatTarget, originalTarget.Object);
+		actor.SetupGet(x => x.Encumbrance).Returns(EncumbranceLevel.Unencumbered);
+		actor.SetupGet(x => x.EncumbrancePercentage).Returns(0.0);
+
+		race.Setup(x => x.UsableAuxiliaryMoves(actor.Object, target.Object, false))
+		    .Returns(Array.Empty<IAuxiliaryCombatAction>());
+		ManualCombatMoveResolution unavailable =
+			ManualCombatCommandResolver.TryResolve(actor.Object, command.Object, target.Object);
+		Assert.IsFalse(unavailable.Success);
+		StringAssert.Contains(unavailable.Error, "Your race cannot use that auxiliary move");
+		Assert.AreSame(originalTarget.Object, actor.Object.CombatTarget);
+
+		race.Setup(x => x.UsableAuxiliaryMoves(actor.Object, target.Object, false))
+		    .Returns(new[] { action.Object });
+		actor.Setup(x => x.CanSpendStamina(It.IsAny<double>())).Returns(false);
+
+		ManualCombatMoveResolution playerAttempt =
+			ManualCombatCommandResolver.TryResolve(actor.Object, command.Object, target.Object);
+		Assert.IsFalse(playerAttempt.Success);
+		StringAssert.Contains(playerAttempt.Error, "too exhausted");
+		Assert.AreSame(originalTarget.Object, actor.Object.CombatTarget);
+
+		ManualCombatMoveResolution selectedActionAttempt =
+			ManualCombatCommandResolver.TryResolve(actor.Object, command.Object, target.Object, true);
+		Assert.IsTrue(selectedActionAttempt.Success, selectedActionAttempt.Error);
+		Assert.IsInstanceOfType(selectedActionAttempt.Move, typeof(TooExhaustedMove));
+		Assert.AreSame(target.Object, actor.Object.CombatTarget);
+	}
+
+	[TestMethod]
 	public void AuxiliaryCombatActionSource_LoadsAndDocumentsExpandedEffectTypes()
 	{
 		string actionSource = File.ReadAllText(GetCoreSourcePath("Combat", "AuxiliaryCombatAction.cs"));
@@ -386,6 +473,103 @@ public class CombatStrategyRuntimeTests
 			ranged.LastIndexOf("return null;", StringComparison.Ordinal) >
 			ranged.LastIndexOf("roll <= combatant.CombatSettings.AuxiliaryPercentage", StringComparison.Ordinal),
 			"Ranged strategies should keep their no-move fallback if no weighted auxiliary roll is selected.");
+	}
+
+	[TestMethod]
+	public void ManualCombatCommandSources_RegisterQueueResolveAndCooldownThroughSharedPath()
+	{
+		string contract = File.ReadAllText(GetSourcePath("FutureMUDLibrary", "Combat", "IManualCombatCommand.cs"));
+		string registry = File.ReadAllText(GetCoreSourcePath("Combat", "ManualCombatCommandRegistry.cs"));
+		string resolver = File.ReadAllText(GetCoreSourcePath("Combat", "ManualCombatCommandResolver.cs"));
+		string selected = File.ReadAllText(GetCoreSourcePath("Effects", "Concrete", "SelectedCombatAction.cs"));
+		string module = File.ReadAllText(GetCoreSourcePath("Commands", "Modules", "CombatModule.cs"));
+		string loader = File.ReadAllText(GetCoreSourcePath("Framework", "FuturemudLoaders.cs"));
+
+		StringAssert.Contains(contract, "ManualCombatActionKind");
+		StringAssert.Contains(contract, "WeaponAttack = 0");
+		StringAssert.Contains(contract, "AuxiliaryAction = 1");
+		StringAssert.Contains(registry, "HasReservedCommandCollision");
+		StringAssert.Contains(registry, "primary verb");
+		StringAssert.Contains(registry, "collides with an existing command");
+		StringAssert.Contains(registry, "duplicates");
+		StringAssert.Contains(registry, "CombatModule.ManualCombatGeneric");
+		StringAssert.Contains(registry, "CommandDisplayOptions.DisplayCommandWords");
+		StringAssert.Contains(loader, "LoadManualCombatCommands();");
+		StringAssert.Contains(loader, "ManualCombatCommandRegistry.Rebuild(this);");
+
+		StringAssert.Contains(module, "public static void ManualCombatGeneric");
+		StringAssert.Contains(module, "target = actor.CombatTarget as ICharacter");
+		StringAssert.Contains(module, "actor.TargetActor(ss.PopSpeech(), PerceiveIgnoreFlags.IgnoreSelf)");
+		StringAssert.Contains(module, "ManualCombatCommandResolver.TryResolve(actor, manualCommand, target)");
+		StringAssert.Contains(module, "SelectedCombatAction.GetEffectManualCombatCommand(actor, manualCommand, target)");
+		StringAssert.Contains(module, "new CommandDelay(actor, manualCommand.CommandWords, manualCommand.CooldownMessage)");
+
+		StringAssert.Contains(selected, "internal class ManualCombatCommandAction");
+		StringAssert.Contains(selected, "ManualCombatCommandResolver.TryResolve(actor, Command, Target, true)");
+		StringAssert.Contains(selected, "GetEffectManualCombatCommand");
+		StringAssert.Contains(resolver, "if (result.Success)");
+		StringAssert.Contains(resolver, "actor.CombatTarget = target");
+		StringAssert.Contains(resolver, "actor.Race.UsableAuxiliaryMoves(actor, target, false)");
+		StringAssert.Contains(resolver, "new AuxiliaryMove(actor, target, available)");
+		StringAssert.Contains(resolver, "AuxiliaryMove.MoveStaminaCost(actor, available)");
+		StringAssert.Contains(resolver, "WeaponSourcesInPreferenceOrder(actor)");
+		StringAssert.Contains(resolver, "CombatMoveFactory.CreateWeaponAttack");
+		StringAssert.Contains(resolver, "CombatMoveFactory.CreateNaturalWeaponAttack");
+	}
+
+	[TestMethod]
+	public void ManualCombatCommandSources_AiWeightingMultipliesExistingStrategyBuckets()
+	{
+		string settingsContract = File.ReadAllText(GetSourcePath("FutureMUDLibrary", "Combat", "ICharacterCombatSettings.cs"));
+		string settings = File.ReadAllText(GetCoreSourcePath("Combat", "CharacterCombatSettings.cs"));
+		string module = File.ReadAllText(GetCoreSourcePath("Commands", "Modules", "CombatModule.cs"));
+		string strategyBase = File.ReadAllText(GetCoreSourcePath("Combat", "Strategies", "StrategyBase.cs"));
+		string melee = File.ReadAllText(GetCoreSourcePath("Combat", "Strategies", "StandardMeleeStrategy.cs"));
+		string ranged = File.ReadAllText(GetCoreSourcePath("Combat", "Strategies", "RangeBaseStrategy.cs"));
+		string avoider = File.ReadAllText(GetCoreSourcePath("Combat", "Strategies", "PhysicalAvoiderStrategy.cs"));
+		string clinch = File.ReadAllText(GetCoreSourcePath("Combat", "Strategies", "ClinchStrategy.cs"));
+		string swooper = File.ReadAllText(GetCoreSourcePath("Combat", "Strategies", "SwooperStrategy.cs"));
+
+		StringAssert.Contains(settingsContract, "ManualCombatCommandPreferences");
+		StringAssert.Contains(settingsContract, "ManualCombatCommandWeightMultiplier");
+		StringAssert.Contains(settings, "CharacterCombatSettingsManualCombatCommands");
+		StringAssert.Contains(settings, "command.DefaultAiWeightMultiplier");
+		StringAssert.Contains(settings, "_manualCombatCommandPreferences[command.Id] = Math.Max(0.0, multiplier)");
+		StringAssert.Contains(module, "CombatConfigManual");
+		StringAssert.Contains(module, "SetManualCombatCommandWeightMultiplier");
+		StringAssert.Contains(module, "ClearManualCombatCommandWeightMultiplier");
+		StringAssert.Contains(strategyBase, "AuxiliaryMove.MoveStaminaCost(combatant, x)");
+		StringAssert.Contains(strategyBase, "ManualCombatCommandResolver.AiWeightMultiplier(combatant, x)");
+		StringAssert.Contains(strategyBase, "List<IAuxiliaryCombatAction> weightedMoves");
+		StringAssert.Contains(strategyBase, "return weightedMoves.Any() ? new TooExhaustedMove");
+		StringAssert.Contains(melee, "combatant.CombatSettings.WeaponUsePercentage");
+		StringAssert.Contains(melee, "combatant.CombatSettings.NaturalWeaponPercentage");
+		StringAssert.Contains(melee, "combatant.CombatSettings.AuxiliaryPercentage");
+		StringAssert.Contains(ranged, "combatant.CombatSettings.AuxiliaryPercentage");
+
+		foreach (string source in new[] { strategyBase, melee, avoider, clinch, swooper })
+		{
+			StringAssert.Contains(source, "ManualCombatCommandResolver.AiWeightMultiplier");
+			StringAssert.Contains(source, "GetWeightedRandom");
+		}
+
+		Assert.IsFalse(module.Contains("ManualCombatPercentage", StringComparison.Ordinal),
+			"Manual combat commands should not add a separate strategy percentage bucket.");
+		Assert.IsFalse(settingsContract.Contains("ManualCombatPercentage", StringComparison.Ordinal),
+			"Manual combat commands should stay as multipliers over existing action categories.");
+	}
+
+	private static string GetSourcePath(params string[] segments)
+	{
+		return Path.GetFullPath(Path.Combine(
+			new[]
+			{
+				AppContext.BaseDirectory,
+				"..",
+				"..",
+				"..",
+				".."
+			}.Concat(segments).ToArray()));
 	}
 
 	private static string GetCoreSourcePath(params string[] segments)

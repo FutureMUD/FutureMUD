@@ -5,6 +5,7 @@ using MudSharp.Framework.Save;
 using MudSharp.FutureProg;
 using MudSharp.Magic;
 using MudSharp.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,6 +15,8 @@ namespace MudSharp.Combat;
 public class CharacterCombatSettings : SaveableItem, ICharacterCombatSettings
 {
     private readonly List<WeaponClassification> _classificationsAllowed = new();
+
+    private readonly Dictionary<long, double> _manualCombatCommandPreferences = new();
 
     private CombatMoveIntentions _forbiddenIntentions;
 
@@ -134,7 +137,21 @@ public class CharacterCombatSettings : SaveableItem, ICharacterCombatSettings
             };
             FMDB.Context.CharacterCombatSettings.Add(dbitem);
             FMDB.Context.SaveChanges();
+            foreach (var preference in settingToCopy.ManualCombatCommandPreferences)
+            {
+                FMDB.Context.CharacterCombatSettingsManualCombatCommands.Add(new CharacterCombatSettingsManualCombatCommands
+                {
+                    CharacterCombatSettingId = dbitem.Id,
+                    ManualCombatCommandId = preference.Key,
+                    WeightMultiplier = preference.Value
+                });
+            }
+            FMDB.Context.SaveChanges();
             Load(dbitem, characterOwner?.Gameworld);
+            foreach (var preference in settingToCopy.ManualCombatCommandPreferences)
+            {
+                _manualCombatCommandPreferences[preference.Key] = preference.Value;
+            }
         }
     }
 
@@ -293,6 +310,8 @@ public class CharacterCombatSettings : SaveableItem, ICharacterCombatSettings
 
     public List<MeleeAttackOrderPreference> MeleeAttackOrderPreferences { get; } = new();
 
+    public IReadOnlyDictionary<long, double> ManualCombatCommandPreferences => _manualCombatCommandPreferences;
+
     private void Load(CharacterCombatSetting setting, IFuturemud gameworld)
     {
         _id = setting.Id;
@@ -357,6 +376,12 @@ public class CharacterCombatSettings : SaveableItem, ICharacterCombatSettings
         {
             MeleeAttackOrderPreferences.Add((MeleeAttackOrderPreference)int.Parse(value));
         }
+
+        _manualCombatCommandPreferences.Clear();
+        foreach (CharacterCombatSettingsManualCombatCommands item in setting.CharacterCombatSettingsManualCombatCommands)
+        {
+            _manualCombatCommandPreferences[item.ManualCombatCommandId] = item.WeightMultiplier;
+        }
     }
 
     public override void Save()
@@ -406,6 +431,34 @@ public class CharacterCombatSettings : SaveableItem, ICharacterCombatSettings
             dbitem.MeleeAttackOrderPreference = MeleeAttackOrderPreferences
                                                 .Select(x => ((int)x).ToString()).ListToCommaSeparatedValues(" ");
             dbitem.GrappleResponse = (int)GrappleResponse;
+            List<CharacterCombatSettingsManualCombatCommands> existing =
+                FMDB.Context.CharacterCombatSettingsManualCombatCommands
+                    .Where(x => x.CharacterCombatSettingId == Id)
+                    .ToList();
+            foreach (CharacterCombatSettingsManualCombatCommands item in existing
+                         .Where(x => !_manualCombatCommandPreferences.ContainsKey(x.ManualCombatCommandId)))
+            {
+                FMDB.Context.CharacterCombatSettingsManualCombatCommands.Remove(item);
+            }
+
+            foreach (var preference in _manualCombatCommandPreferences)
+            {
+                CharacterCombatSettingsManualCombatCommands item =
+                    existing.FirstOrDefault(x => x.ManualCombatCommandId == preference.Key);
+                if (item is null)
+                {
+                    FMDB.Context.CharacterCombatSettingsManualCombatCommands.Add(new CharacterCombatSettingsManualCombatCommands
+                    {
+                        CharacterCombatSettingId = Id,
+                        ManualCombatCommandId = preference.Key,
+                        WeightMultiplier = preference.Value
+                    });
+                    continue;
+                }
+
+                item.WeightMultiplier = preference.Value;
+            }
+
             FMDB.Context.SaveChanges();
             Changed = false;
         }
@@ -513,6 +566,24 @@ public class CharacterCombatSettings : SaveableItem, ICharacterCombatSettings
         sb.AppendLine(
             $"Melee Order: {MeleeAttackOrderPreferences.Select(x => x.DescribeEnum().Colour(Telnet.Yellow)).ListToString()}");
 
+        List<IManualCombatCommand> manualCommands = Gameworld.ManualCombatCommands
+                                                            .Where(x => x.NpcUsable)
+                                                            .Where(x =>
+                                                                _manualCombatCommandPreferences.ContainsKey(x.Id) ||
+                                                                Math.Abs(x.DefaultAiWeightMultiplier - 1.0) > 0.00001)
+                                                            .OrderBy(x => x.PrimaryVerb)
+                                                            .ToList();
+        if (manualCommands.Any())
+        {
+            sb.AppendLine("Manual Command AI Multipliers:");
+            foreach (IManualCombatCommand command in manualCommands)
+            {
+                double multiplier = ManualCombatCommandWeightMultiplier(command);
+                sb.AppendLine(
+                    $"\t{command.PrimaryVerb.ColourCommand()}: {multiplier.ToString("N2", voyeur).ColourValue()}x{(_manualCombatCommandPreferences.ContainsKey(command.Id) ? " (override)" : " (default)")}");
+            }
+        }
+
         sb.AppendLineColumns((uint)voyeur.LineFormatLength, 2,
             $"Melee Strategy: {PreferredMeleeMode.Describe().Colour(Telnet.Green)}",
             $"Range Strategy: {PreferredRangedMode.Describe().Colour(Telnet.Green)}");
@@ -533,5 +604,26 @@ public class CharacterCombatSettings : SaveableItem, ICharacterCombatSettings
     {
         _name = name;
         Changed = true;
+    }
+
+    public double ManualCombatCommandWeightMultiplier(IManualCombatCommand command)
+    {
+        return _manualCombatCommandPreferences.TryGetValue(command.Id, out double value)
+            ? value
+            : command.DefaultAiWeightMultiplier;
+    }
+
+    public void SetManualCombatCommandWeightMultiplier(IManualCombatCommand command, double multiplier)
+    {
+        _manualCombatCommandPreferences[command.Id] = Math.Max(0.0, multiplier);
+        Changed = true;
+    }
+
+    public void ClearManualCombatCommandWeightMultiplier(IManualCombatCommand command)
+    {
+        if (_manualCombatCommandPreferences.Remove(command.Id))
+        {
+            Changed = true;
+        }
     }
 }

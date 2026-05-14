@@ -77,9 +77,10 @@ public class PhysicalAvoiderStrategy : StandardMeleeStrategy
 		                   .SelectMany(x => x.WeaponType
 		                                    .UsableAttacks(ch, x.Parent, target, x.HandednessForWeapon(ch), false,
 			                                    BuiltInCombatMoveType.Pushback)
+		                                    .Where(y => y.Weighting * ManualCombatCommandResolver.AiWeightMultiplier(ch, y) > 0.0)
 		                                    .Where(y => ch.CanSpendStamina(MeleeWeaponAttack.MoveStaminaCost(ch, y)))
 		                                    .Select(y => (Weapon: x, Attack: y)))
-		                   .GetWeightedRandom(x => x.Attack.Weighting);
+		                   .GetWeightedRandom(x => x.Attack.Weighting * ManualCombatCommandResolver.AiWeightMultiplier(ch, x.Attack));
 		if (weaponMove != default)
 		{
 			return CombatMoveFactory.CreateWeaponAttack(ch, weaponMove.Weapon, weaponMove.Attack, target);
@@ -89,8 +90,9 @@ public class PhysicalAvoiderStrategy : StandardMeleeStrategy
 		                    .UsableNaturalWeaponAttacks(ch, target, false,
 			                    BuiltInCombatMoveType.PushbackUnarmed,
 			                    BuiltInCombatMoveType.PushbackClinch)
+		                    .Where(x => x.Attack.Weighting * ManualCombatCommandResolver.AiWeightMultiplier(ch, x.Attack) > 0.0)
 		                    .Where(x => ch.CanSpendStamina(NaturalAttackMove.MoveStaminaCost(ch, x.Attack)))
-		                    .GetWeightedRandom(x => x.Attack.Weighting);
+		                    .GetWeightedRandom(x => x.Attack.Weighting * ManualCombatCommandResolver.AiWeightMultiplier(ch, x.Attack));
 		return naturalMove is null ? null : CombatMoveFactory.CreateNaturalWeaponAttack(ch, naturalMove, target);
 	}
 
@@ -102,9 +104,10 @@ public class PhysicalAvoiderStrategy : StandardMeleeStrategy
 		                                    .UsableAttacks(ch, x.Parent, target, x.HandednessForWeapon(ch), false,
 			                                    BuiltInCombatMoveType.StaggeringBlow,
 			                                    BuiltInCombatMoveType.UnbalancingBlow)
+		                                    .Where(y => y.Weighting * ManualCombatCommandResolver.AiWeightMultiplier(ch, y) > 0.0)
 		                                    .Where(y => ch.CanSpendStamina(MeleeWeaponAttack.MoveStaminaCost(ch, y)))
 		                                    .Select(y => (Weapon: x, Attack: y)))
-		                   .GetWeightedRandom(x => x.Attack.Weighting);
+		                   .GetWeightedRandom(x => x.Attack.Weighting * ManualCombatCommandResolver.AiWeightMultiplier(ch, x.Attack));
 		if (weaponMove != default)
 		{
 			return CombatMoveFactory.CreateWeaponAttack(ch, weaponMove.Weapon, weaponMove.Attack, target);
@@ -116,8 +119,9 @@ public class PhysicalAvoiderStrategy : StandardMeleeStrategy
 			                    BuiltInCombatMoveType.StaggeringBlowClinch,
 			                    BuiltInCombatMoveType.UnbalancingBlowUnarmed,
 			                    BuiltInCombatMoveType.UnbalancingBlowClinch)
+		                    .Where(x => x.Attack.Weighting * ManualCombatCommandResolver.AiWeightMultiplier(ch, x.Attack) > 0.0)
 		                    .Where(x => ch.CanSpendStamina(NaturalAttackMove.MoveStaminaCost(ch, x.Attack)))
-		                    .GetWeightedRandom(x => x.Attack.Weighting);
+		                    .GetWeightedRandom(x => x.Attack.Weighting * ManualCombatCommandResolver.AiWeightMultiplier(ch, x.Attack));
 		return naturalMove is null ? null : CombatMoveFactory.CreateNaturalWeaponAttack(ch, naturalMove, target);
 	}
 }

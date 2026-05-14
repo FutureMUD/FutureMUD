@@ -180,6 +180,7 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 
         SeedArmourTypes(context, effectiveAnswers);
         CombatAuxiliarySeederHelper.EnsureStockAuxiliaryContent(context);
+        ManualCombatCommandSeederHelper.EnsureStockManualCombatCommands(context);
 
         context.Database.CommitTransaction();
 
@@ -233,6 +234,12 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
         {
             updates.Add(
                 $"refreshed auxiliary combat stock ({auxiliaryResult.Actions} actions, {auxiliaryResult.Messages} messages, {auxiliaryResult.RaceLinks} race links, {auxiliaryResult.Strategies} strategies)");
+        }
+
+        int manualCombatCommands = ManualCombatCommandSeederHelper.EnsureStockManualCombatCommands(context);
+        if (manualCombatCommands > 0)
+        {
+            updates.Add($"refreshed {manualCombatCommands} stock manual combat command bindings");
         }
 
         return updates.Count > 0

@@ -159,6 +159,10 @@ namespace MudSharp.Combat
         CombatMoveIntentions PreferredIntentions { get; set; }
         List<IMagicSchool> ForbiddenSchools { get; }
         List<MeleeAttackOrderPreference> MeleeAttackOrderPreferences { get; }
+        IReadOnlyDictionary<long, double> ManualCombatCommandPreferences { get; }
+        double ManualCombatCommandWeightMultiplier(IManualCombatCommand command);
+        void SetManualCombatCommandWeightMultiplier(IManualCombatCommand command, double multiplier);
+        void ClearManualCombatCommandWeightMultiplier(IManualCombatCommand command);
         bool AddClassification(WeaponClassification classification);
         bool RemoveClassification(WeaponClassification classification);
         bool ClearClassifications();

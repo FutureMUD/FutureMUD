@@ -12,6 +12,82 @@ namespace MudSharp.Database
     {
         protected static void OnModelCreatingThree(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<ManualCombatCommand>(entity =>
+            {
+                entity.HasIndex(e => e.CombatActionId)
+                    .HasDatabaseName("FK_ManualCombatCommands_CombatActions_idx");
+
+                entity.HasIndex(e => e.UsabilityProgId)
+                    .HasDatabaseName("FK_ManualCombatCommands_FutureProgs_idx");
+
+                entity.HasIndex(e => e.WeaponAttackId)
+                    .HasDatabaseName("FK_ManualCombatCommands_WeaponAttacks_idx");
+
+                entity.Property(e => e.Id).HasColumnType("bigint(20)");
+
+                entity.Property(e => e.ActionKind).HasColumnType("int(11)");
+
+                entity.Property(e => e.AdditionalVerbs)
+                    .IsRequired()
+                    .HasColumnType("varchar(500)")
+                    .HasDefaultValueSql("''")
+                    .HasCharSet("utf8mb4")
+                    .UseCollation("utf8mb4_unicode_ci");
+
+                entity.Property(e => e.CombatActionId).HasColumnType("bigint(20)");
+
+                entity.Property(e => e.CooldownMessage)
+                    .IsRequired()
+                    .HasColumnType("varchar(500)")
+                    .HasDefaultValueSql("'You must wait a short time before doing that again.'")
+                    .HasCharSet("utf8mb4")
+                    .UseCollation("utf8mb4_unicode_ci");
+
+                entity.Property(e => e.DefaultAiWeightMultiplier).HasDefaultValueSql("'1'");
+
+                entity.Property(e => e.Name)
+                    .IsRequired()
+                    .HasColumnType("varchar(100)")
+                    .HasCharSet("utf8mb4")
+                    .UseCollation("utf8mb4_unicode_ci");
+
+                entity.Property(e => e.NpcUsable)
+                    .HasColumnType("bit(1)")
+                    .HasDefaultValueSql("b'1'");
+
+                entity.Property(e => e.PlayerUsable)
+                    .HasColumnType("bit(1)")
+                    .HasDefaultValueSql("b'1'");
+
+                entity.Property(e => e.PrimaryVerb)
+                    .IsRequired()
+                    .HasColumnType("varchar(50)")
+                    .HasCharSet("utf8mb4")
+                    .UseCollation("utf8mb4_unicode_ci");
+
+                entity.Property(e => e.UsabilityProgId).HasColumnType("bigint(20)");
+
+                entity.Property(e => e.WeaponAttackId).HasColumnType("bigint(20)");
+
+                entity.HasOne(d => d.CombatAction)
+                    .WithMany()
+                    .HasForeignKey(d => d.CombatActionId)
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .HasConstraintName("FK_ManualCombatCommands_CombatActions");
+
+                entity.HasOne(d => d.UsabilityProg)
+                    .WithMany()
+                    .HasForeignKey(d => d.UsabilityProgId)
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .HasConstraintName("FK_ManualCombatCommands_FutureProgs");
+
+                entity.HasOne(d => d.WeaponAttack)
+                    .WithMany()
+                    .HasForeignKey(d => d.WeaponAttackId)
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .HasConstraintName("FK_ManualCombatCommands_WeaponAttacks");
+            });
+
             modelBuilder.Entity<Material>(entity =>
             {
                 entity.Property(e => e.Id).HasColumnType("bigint(20)");

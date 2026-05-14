@@ -3,6 +3,7 @@ using MudSharp.Character;
 using MudSharp.Character.Heritage;
 using MudSharp.Combat;
 using MudSharp.Commands.Helpers;
+using MudSharp.Database;
 using MudSharp.Effects.Concrete;
 using MudSharp.Framework;
 using MudSharp.GameItems;
@@ -69,6 +70,84 @@ Note, with the damage/pain/stun expressions, you can use the following variables
     {
         GenericBuildingCommand(actor, new StringStack(command.RemoveFirstWord()),
             EditableItemHelper.AmmunitionTypeHelper);
+    }
+
+    #endregion
+
+    #region Manual Combat Commands
+
+    public const string ManualCombatCommandHelp =
+        @"The #3ManualCombat#0 command is used to bind custom command verbs like #6kick#0 or #6bash#0 to existing combat moves without hardcoding a new command.
+
+Manual commands queue through the normal manual combat action path. The underlying move's base delay remains the combat recovery; the optional cooldown only blocks repeating the command verb or aliases.
+
+The syntax is:
+
+	#3manualcombat list#0 - lists all manual combat commands
+	#3manualcombat show <id|name>#0 - shows a manual combat command
+	#3manualcombat new <verb> [name]#0 - creates a new manual combat command
+	#3manualcombat clone <old> <new verb> [new name]#0 - clones an existing manual combat command
+	#3manualcombat edit <id|name>#0 - opens a manual combat command for editing
+	#3manualcombat close#0 - closes the currently edited command
+	#3manualcombat delete <id|name>#0 - permanently deletes a manual combat command
+	#3manualcombat set name <name>#0 - renames the command
+	#3manualcombat set verb <verb>#0 - changes the primary command verb
+	#3manualcombat set alias <alias>#0 - toggles an alias
+	#3manualcombat set removealias <alias>#0 - removes an alias
+	#3manualcombat set clearaliases#0 - removes all aliases
+	#3manualcombat set action weapon <attack>#0 - binds to a weapon or natural attack
+	#3manualcombat set action auxiliary <action>#0 - binds to an auxiliary combat action
+	#3manualcombat set players#0 - toggles player command registration
+	#3manualcombat set npcs#0 - toggles NPC command registration and AI weighting
+	#3manualcombat set cooldown <seconds>#0 - sets the optional command cooldown
+	#3manualcombat set message <message>#0 - sets the cooldown-block message
+	#3manualcombat set prog <prog|none>#0 - sets a boolean usability prog
+	#3manualcombat set aimultiplier <number>#0 - sets the default NPC weighting multiplier";
+
+    [PlayerCommand("ManualCombat", "manualcombat", "mcombat")]
+    [CommandPermission(PermissionLevel.SeniorAdmin)]
+    [HelpInfo("ManualCombat", ManualCombatCommandHelp, AutoHelp.HelpArgOrNoArg)]
+    protected static void ManualCombat(ICharacter actor, string command)
+    {
+        StringStack ss = new(command.RemoveFirstWord());
+        if (ss.Peek().EqualToAny("delete", "del", "destroy", "remove"))
+        {
+            ss.PopSpeech();
+            ManualCombatDelete(actor, ss);
+            return;
+        }
+
+        GenericBuildingCommand(actor, ss, EditableItemHelper.ManualCombatCommandHelper);
+    }
+
+    private static void ManualCombatDelete(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send("Which manual combat command do you want to delete?");
+            return;
+        }
+
+        IManualCombatCommand item = actor.Gameworld.ManualCombatCommands.GetByIdOrName(command.SafeRemainingArgument);
+        if (item is null)
+        {
+            actor.OutputHandler.Send("There is no such manual combat command.");
+            return;
+        }
+
+        using (new FMDB())
+        {
+            var dbitem = FMDB.Context.ManualCombatCommands.Find(item.Id);
+            if (dbitem is not null)
+            {
+                FMDB.Context.ManualCombatCommands.Remove(dbitem);
+                FMDB.Context.SaveChanges();
+            }
+        }
+
+        actor.RemoveAllEffects<BuilderEditingEffect<IManualCombatCommand>>(x => x.EditingItem == item);
+        actor.Gameworld.Destroy(item);
+        actor.OutputHandler.Send($"You delete the manual combat command {item.Name.ColourName()}.");
     }
 
     #endregion

@@ -9,6 +9,7 @@ using MudSharp.Database;
 using MudSharp.FutureProg;
 using MudSharp.Models;
 using MudSharp.RPG.Checks;
+using MudSharp.RPG.Knowledge;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -416,7 +417,6 @@ public class ItemSeederAddCraftTests
 				{
 					Seconds = 12,
 					Echo = "$0 carefully work|works.",
-					FailEcho = "$0 botch|botches it.",
 					Exertion = ExertionLevel.Heavy,
 					Stamina = 4.5
 				}
@@ -432,6 +432,7 @@ public class ItemSeederAddCraftTests
 		var phase = craft.CraftPhases.Single();
 		Assert.AreEqual((int)ExertionLevel.Heavy, phase.ExertionLevel);
 		Assert.AreEqual(4.5, phase.StaminaUsage);
+		Assert.AreEqual(phase.Echo, phase.FailEcho);
 	}
 
 	[TestMethod]
@@ -461,6 +462,83 @@ public class ItemSeederAddCraftTests
 		Assert.AreEqual(whyCannot.Id, craft.WhyCannotUseProgId);
 		Assert.IsTrue(appear.FunctionText.Contains(">= 40"));
 		Assert.IsTrue(whyCannot.FunctionText.Contains("You need at least 40"));
+	}
+
+	[TestMethod]
+	public void ItemSeeder_AddCraft_KnowledgeGateUpsertsKnowledgeAndChecksKnowledgeOnly()
+	{
+		using FuturemudDatabaseContext context = BuildContext();
+		SeedPrerequisites(context);
+
+		var craft = new ItemSeeder().AddKnowledgeGatedCraftFromImportsForTesting(
+			context,
+			"test knowledge gated craft",
+			"Testing",
+			"Advanced Stitching",
+			"Crafting",
+			null,
+			BasicPhases(),
+			BasicInputs(),
+			BasicTools(),
+			BasicProducts(),
+			[],
+			knowledgeType: "Crafting",
+			knowledgeSubtype: "Tailoring",
+			knowledgeDescription: "advanced stitching techniques",
+			knowledgeLongDescription: "Specialist knowledge for stronger seams and finishing stitches."
+		);
+
+		var knowledge = context.Knowledges.Single(x => x.Name == "Advanced Stitching");
+		Assert.AreEqual("Crafting", knowledge.Type);
+		Assert.AreEqual("Tailoring", knowledge.Subtype);
+		Assert.AreEqual("advanced stitching techniques", knowledge.Description);
+		Assert.AreEqual((int)(LearnableType.LearnableAtSkillUp | LearnableType.LearnableFromTeacher), knowledge.LearnableType);
+
+		var appear = context.FutureProgs.Single(x => x.FunctionName == "ItemSeederAppearKnowledgeAdvancedStitching");
+		var canUse = context.FutureProgs.Single(x => x.FunctionName == "ItemSeederCanUseKnowledgeAdvancedStitching");
+		var whyCannot = context.FutureProgs.Single(x => x.FunctionName == "ItemSeederWhyCannotUseKnowledgeAdvancedStitching");
+		Assert.AreEqual(appear.Id, craft.AppearInCraftsListProgId);
+		Assert.AreEqual(canUse.Id, craft.CanUseProgId);
+		Assert.AreEqual(whyCannot.Id, craft.WhyCannotUseProgId);
+		Assert.IsTrue(appear.FunctionText.Contains($"@x.Id == {knowledge.Id}"));
+		Assert.IsFalse(appear.FunctionText.Contains("GetTrait"));
+		Assert.IsTrue(whyCannot.FunctionText.Contains("Advanced Stitching"));
+	}
+
+	[TestMethod]
+	public void ItemSeeder_AddCraft_KnowledgeGateCanRequireMinimumSkillToo()
+	{
+		using FuturemudDatabaseContext context = BuildContext();
+		SeedPrerequisites(context);
+
+		var craft = new ItemSeeder().AddKnowledgeGatedCraftFromImportsForTesting(
+			context,
+			"test knowledge and skill gated craft",
+			"Testing",
+			"Master Pattern Cutting",
+			"Crafting",
+			55,
+			BasicPhases(),
+			BasicInputs(),
+			BasicTools(),
+			BasicProducts(),
+			[],
+			knowledgeType: "Crafting",
+			knowledgeSubtype: "Tailoring"
+		);
+
+		var knowledge = context.Knowledges.Single(x => x.Name == "Master Pattern Cutting");
+		var appear = context.FutureProgs.Single(x => x.FunctionName == "ItemSeederAppearKnowledgeMasterPatternCuttingCrafting55");
+		var canUse = context.FutureProgs.Single(x => x.FunctionName == "ItemSeederCanUseKnowledgeMasterPatternCuttingCrafting55");
+		var whyCannot = context.FutureProgs.Single(x => x.FunctionName == "ItemSeederWhyCannotUseKnowledgeMasterPatternCuttingCrafting55");
+		Assert.AreEqual(appear.Id, craft.AppearInCraftsListProgId);
+		Assert.AreEqual(canUse.Id, craft.CanUseProgId);
+		Assert.AreEqual(whyCannot.Id, craft.WhyCannotUseProgId);
+		Assert.IsTrue(appear.FunctionText.Contains($"@x.Id == {knowledge.Id}"));
+		Assert.IsTrue(appear.FunctionText.Contains("GetTrait"));
+		Assert.IsTrue(appear.FunctionText.Contains(">= 55"));
+		Assert.IsTrue(whyCannot.FunctionText.Contains("Master Pattern Cutting"));
+		Assert.IsTrue(whyCannot.FunctionText.Contains("at least 55"));
 	}
 
 	[TestMethod]

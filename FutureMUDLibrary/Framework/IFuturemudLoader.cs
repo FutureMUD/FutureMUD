@@ -74,6 +74,7 @@
         void LoadWeaponTypes();
         void LoadShieldTypes();
         void LoadCharacterCombatSettings();
+        void LoadManualCombatCommands();
         void LoadDrugs();
         void LoadKnowledges();
         void LoadSurgery();

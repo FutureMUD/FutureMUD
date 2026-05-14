@@ -155,6 +155,91 @@ The syntax is:
                 .Wrap(actor.InnerLineFormatLength));
     }
 
+    public static void ManualCombatGeneric(ICharacter actor, string command)
+    {
+        StringStack ss = new(command);
+        string invokedVerb = ss.PopSpeech().ToLowerInvariant();
+        if (string.IsNullOrWhiteSpace(invokedVerb))
+        {
+            actor.OutputHandler.Send("Which manual combat command did you want to use?");
+            return;
+        }
+
+        List<IManualCombatCommand> candidates = actor.Gameworld.ManualCombatCommands
+                                                    .Where(x => actor.IsPlayerCharacter ? x.PlayerUsable : x.NpcUsable)
+                                                    .Where(x => x.CommandWords.Any(y =>
+                                                        y.StartsWith(invokedVerb, StringComparison.InvariantCultureIgnoreCase)))
+                                                    .ToList();
+        List<IManualCombatCommand> exactMatches = candidates
+                                                  .Where(x => x.CommandWords.Any(y => y.EqualTo(invokedVerb)))
+                                                  .ToList();
+        if (exactMatches.Any())
+        {
+            candidates = exactMatches;
+        }
+
+        if (!candidates.Any())
+        {
+            actor.OutputHandler.Send("There is no manual combat command like that.");
+            return;
+        }
+
+        if (candidates.Count > 1)
+        {
+            actor.OutputHandler.Send(
+                $"That manual combat command is ambiguous. Did you mean {candidates.Select(x => x.PrimaryVerb.ColourCommand()).ListToString()}?");
+            return;
+        }
+
+        IManualCombatCommand manualCommand = candidates.Single();
+        if (actor.Combat is null)
+        {
+            actor.OutputHandler.Send("This command is only usable when you are in combat.");
+            return;
+        }
+
+        ICharacter target;
+        if (ss.IsFinished)
+        {
+            target = actor.CombatTarget as ICharacter;
+            if (target is null)
+            {
+                actor.OutputHandler.Send("You must specify a target for that combat command.");
+                return;
+            }
+        }
+        else
+        {
+            target = actor.TargetActor(ss.PopSpeech(), PerceiveIgnoreFlags.IgnoreSelf);
+            if (target is null)
+            {
+                actor.OutputHandler.Send("You don't see anyone like that to target.");
+                return;
+            }
+        }
+
+        ManualCombatMoveResolution result =
+            ManualCombatCommandResolver.TryResolve(actor, manualCommand, target);
+        if (!result.Success)
+        {
+            actor.OutputHandler.Send(result.Error);
+            return;
+        }
+
+        if (actor.TakeOrQueueCombatAction(SelectedCombatAction.GetEffectManualCombatCommand(actor, manualCommand, target)) &&
+            actor.Gameworld.GetStaticBool("EchoQueuedActions"))
+        {
+            actor.OutputHandler.Send(
+                $"{"[Queued Action]: ".ColourBold(Telnet.Yellow)}{manualCommand.PrimaryVerb.TitleCase()} {target.HowSeen(actor)}.");
+        }
+
+        if (manualCommand.CooldownSeconds > 0.0)
+        {
+            actor.AddEffect(new CommandDelay(actor, manualCommand.CommandWords, manualCommand.CooldownMessage),
+                TimeSpan.FromSeconds(manualCommand.CooldownSeconds));
+        }
+    }
+
     [PlayerCommand("Release", "release")]
     [HelpInfo("Release", @"The #3Release#0 command is used to let go of someone who you are grappling or dragging.
 
@@ -3368,6 +3453,7 @@ The syntax to use this command is as follows:");
 	#3natural <percentage>#0 - configures the percentage chance of you using a natural attack move
 	#3auxiliary <percentage>#0 - configures the percentage chance of you using an auxiliary move
 	#3magic <percentage>#0 - configures the percentage chance of you using a magic attack move
+	#3manual <verb> <multiplier|off|clear>#0 - overrides NPC weighting for manual combat command bindings
 	#3prefer_armed <true/false>#0 - configures whether you prefer to fight armed and will seek to wield a weapon
 	#3prefer_favourite <true/false>#0 - configures whether you prefer to retrieve the weapon you're wielding rather than drawing a new one if you lose it
 	#3prefer_shield <true/false>#0 - configures whether you prefer to fight with a shield
@@ -4456,6 +4542,64 @@ The following options refer to flags listed in the SHOW COMBATFLAGS list:
         return;
     }
 
+    private static void CombatConfigManual(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send("Which manual combat command do you want to configure?");
+            return;
+        }
+
+        string verb = command.PopSpeech();
+        IManualCombatCommand manualCommand = actor.Gameworld.ManualCombatCommands
+                                                  .Where(x => x.NpcUsable)
+                                                  .Where(x => x.CommandWords.Any(y =>
+                                                      y.Equals(verb, StringComparison.InvariantCultureIgnoreCase)))
+                                                  .FirstOrDefault() ??
+                                             actor.Gameworld.ManualCombatCommands
+                                                  .Where(x => x.NpcUsable)
+                                                  .Where(x => x.CommandWords.Any(y =>
+                                                      y.StartsWith(verb, StringComparison.InvariantCultureIgnoreCase)))
+                                                  .FirstOrDefault();
+        if (manualCommand is null)
+        {
+            actor.OutputHandler.Send("There is no NPC-usable manual combat command like that.");
+            return;
+        }
+
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send($"Do you want to set a multiplier, {"off".ColourCommand()} it, or {"clear".ColourCommand()} the override?");
+            return;
+        }
+
+        switch (command.PopSpeech().ToLowerInvariant())
+        {
+            case "clear":
+            case "none":
+            case "default":
+                actor.CombatSettings.ClearManualCombatCommandWeightMultiplier(manualCommand);
+                actor.OutputHandler.Send(
+                    $"The {manualCommand.PrimaryVerb.ColourCommand()} manual combat command will use its default AI multiplier of {manualCommand.DefaultAiWeightMultiplier.ToString("N2", actor).ColourValue()}x.");
+                return;
+            case "off":
+            case "disable":
+            case "disabled":
+                actor.CombatSettings.SetManualCombatCommandWeightMultiplier(manualCommand, 0.0);
+                actor.OutputHandler.Send(
+                    $"The {manualCommand.PrimaryVerb.ColourCommand()} manual combat command's underlying action will no longer be selected by this combat setting.");
+                return;
+            case var text when double.TryParse(text, out double multiplier) && multiplier >= 0.0:
+                actor.CombatSettings.SetManualCombatCommandWeightMultiplier(manualCommand, multiplier);
+                actor.OutputHandler.Send(
+                    $"The {manualCommand.PrimaryVerb.ColourCommand()} manual combat command's underlying action now has a {multiplier.ToString("N2", actor).ColourValue()}x AI weighting multiplier for this combat setting.");
+                return;
+            default:
+                actor.OutputHandler.Send("You must specify a non-negative multiplier, off, or clear.");
+                return;
+        }
+    }
+
     #endregion
 
     protected static void CombatPreferredDefense(ICharacter actor, StringStack command)
@@ -4542,6 +4686,11 @@ The following options refer to flags listed in the SHOW COMBATFLAGS list:
                 break;
             case "magic":
                 CombatConfigMagic(actor, command);
+                break;
+            case "manual":
+            case "manualcombat":
+            case "manual_combat":
+                CombatConfigManual(actor, command);
                 break;
             case "psychic":
                 CombatConfigPsychic(actor, command);

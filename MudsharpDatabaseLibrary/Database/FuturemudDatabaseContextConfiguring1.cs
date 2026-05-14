@@ -2677,6 +2677,35 @@ namespace MudSharp.Database
                     .HasConstraintName("FK_CharacterCombatSettings_Characters");
             });
 
+            modelBuilder.Entity<CharacterCombatSettingsManualCombatCommands>(entity =>
+            {
+                entity.HasKey(e => new { e.CharacterCombatSettingId, e.ManualCombatCommandId })
+                    .HasName("PRIMARY");
+
+                entity.ToTable("CharacterCombatSettings_ManualCombatCommands");
+
+                entity.HasIndex(e => e.ManualCombatCommandId)
+                    .HasDatabaseName("FK_CCS_ManualCombatCommands_ManualCombatCommands_idx");
+
+                entity.Property(e => e.CharacterCombatSettingId).HasColumnType("bigint(20)");
+
+                entity.Property(e => e.ManualCombatCommandId).HasColumnType("bigint(20)");
+
+                entity.Property(e => e.WeightMultiplier).HasDefaultValueSql("'1'");
+
+                entity.HasOne(d => d.CharacterCombatSetting)
+                    .WithMany(p => p.CharacterCombatSettingsManualCombatCommands)
+                    .HasForeignKey(d => d.CharacterCombatSettingId)
+                    .HasConstraintName("FK_CCS_ManualCombatCommands_CharacterCombatSettings")
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(d => d.ManualCombatCommand)
+                    .WithMany(p => p.CharacterCombatSettingsManualCombatCommands)
+                    .HasForeignKey(d => d.ManualCombatCommandId)
+                    .HasConstraintName("FK_CCS_ManualCombatCommands_ManualCombatCommands")
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
             modelBuilder.Entity<CharacterIntroTemplate>(entity =>
             {
                 entity.HasIndex(e => e.AppliesToCharacterProgId)

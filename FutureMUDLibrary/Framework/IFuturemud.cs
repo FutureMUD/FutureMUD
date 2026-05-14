@@ -266,6 +266,7 @@ namespace MudSharp.Framework
         IUneditableAll<IWriting> Writings { get; }
         IUneditableAll<IWeaponAttack> WeaponAttacks { get; }
         IUneditableAll<IAuxiliaryCombatAction> AuxiliaryCombatActions { get; }
+        IUneditableAll<IManualCombatCommand> ManualCombatCommands { get; }
         IUneditableAll<IShop> Shops { get; }
         IUneditableAll<IEconomicZone> EconomicZones { get; }
         IUneditableAll<IEstate> Estates { get; }
@@ -456,6 +457,7 @@ namespace MudSharp.Framework
         void Add(IWeatherController controller);
         void Add(ITraitExpression item);
         void Add(IWeaponAttack attack);
+        void Add(IManualCombatCommand command);
         void Add(IMagicSchool school);
         void Add(IMagicCapability capability);
         void Add(IMagicPower power);
@@ -594,6 +596,7 @@ namespace MudSharp.Framework
         void Destroy(IClimateModel model);
         void Destroy(ITraitExpression expression);
         void Destroy(IWeaponAttack attack);
+        void Destroy(IManualCombatCommand command);
         void Destroy(ICombatMessage message);
         void Destroy(IChargenAdvice advice);
         void Destroy(ICharacterIntroTemplate template);

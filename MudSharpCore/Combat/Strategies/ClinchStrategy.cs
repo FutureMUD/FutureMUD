@@ -160,7 +160,9 @@ public class ClinchStrategy : StandardMeleeStrategy
                 List<IWeaponAttack> possibleAttacks = weapon
                                       .WeaponType.UsableAttacks(ch, weapon.Parent, ch.CombatTarget,
                                           weapon.HandednessForWeapon(ch), false,
-                                          BuiltInCombatMoveType.ClinchAttack).ToList();
+                                          BuiltInCombatMoveType.ClinchAttack)
+                                      .Where(x => x.Weighting * ManualCombatCommandResolver.AiWeightMultiplier(ch, x) > 0.0)
+                                      .ToList();
                 attacks = possibleAttacks.Where(x => ch.CanSpendStamina(x.StaminaCost)).ToList();
                 if (possibleAttacks.Any())
                 {
@@ -203,7 +205,7 @@ public class ClinchStrategy : StandardMeleeStrategy
             attacks = preferredAttacks;
         }
 
-        IWeaponAttack attack = attacks.GetWeightedRandom(x => x.Weighting);
+        IWeaponAttack attack = attacks.GetWeightedRandom(x => x.Weighting * ManualCombatCommandResolver.AiWeightMultiplier(ch, x));
         if (attack == null)
         {
             return null;
@@ -223,7 +225,9 @@ public class ClinchStrategy : StandardMeleeStrategy
         List<INaturalAttack> possibleAttacks =
             ch.Race.UsableNaturalWeaponAttacks(ch, ch.CombatTarget, false, BuiltInCombatMoveType.ClinchUnarmedAttack,
                 BuiltInCombatMoveType.StaggeringBlowClinch, BuiltInCombatMoveType.UnbalancingBlowClinch,
-                BuiltInCombatMoveType.EnvenomingAttackClinch).ToList();
+                BuiltInCombatMoveType.EnvenomingAttackClinch)
+                   .Where(x => x.Attack.Weighting * ManualCombatCommandResolver.AiWeightMultiplier(ch, x.Attack) > 0.0)
+                   .ToList();
         List<INaturalAttack> attacks = possibleAttacks.Where(x => ch.CanSpendStamina(x.Attack.StaminaCost)).ToList();
 
         if (!attacks.Any())
@@ -238,7 +242,7 @@ public class ClinchStrategy : StandardMeleeStrategy
             attacks = preferredAttacks;
         }
 
-        INaturalAttack attack = attacks.GetWeightedRandom(x => x.Attack.Weighting);
+        INaturalAttack attack = attacks.GetWeightedRandom(x => x.Attack.Weighting * ManualCombatCommandResolver.AiWeightMultiplier(ch, x.Attack));
         if (attack == null)
         {
             return null;

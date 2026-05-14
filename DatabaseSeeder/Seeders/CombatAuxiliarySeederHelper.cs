@@ -69,6 +69,7 @@ internal static class CombatAuxiliarySeederHelper
 		"Shield Jostle",
 		"Shield Glint",
 		"Shoulder Check",
+		"Bash",
 		"Foot Sweep",
 		"Shove Off Balance",
 		"Pommel Beat",
@@ -365,6 +366,7 @@ internal static class CombatAuxiliarySeederHelper
 		yield return Def("Shield Jostle", CombatMoveIntentions.Disadvantage | CombatMoveIntentions.Shield | CombatMoveIntentions.Hinder, t => [Delay(t, 1.0, 0.5, 4.0), Stamina(t, 2.0, 1.0, 8.0)], "@ jostle|jostles $1 with a shield-side shove.", "@ try|tries to jostle $1, but cannot break their rhythm.");
 		yield return Def("Shield Glint", CombatMoveIntentions.Disadvantage | CombatMoveIntentions.Shield | CombatMoveIntentions.Distraction | CombatMoveIntentions.Flashy, t => [Delay(t, 1.5, 0.5, 5.0)], "@ flash|flashes reflected light toward $1's eyes.", "@ angle|angles for a flash of light, but $1 is not caught by it.", "Auxiliary_CanShieldGlint");
 		yield return Def("Shoulder Check", CombatMoveIntentions.Disadvantage | CombatMoveIntentions.Hinder, t => [Stamina(t, 3.0, 1.0, 10.0), Delay(t, 0.5, 0.3, 3.0)], "@ check|checks $1 hard with a shoulder.", "@ try|tries to check $1, but cannot shift them.");
+		yield return Def("Bash", CombatMoveIntentions.Trip | CombatMoveIntentions.Hinder | CombatMoveIntentions.Disadvantage, t => [PositionChange(t, 2.0, 0.5, 6.0), Delay(t, 2.0, 0.5, 6.0), Stamina(t, 3.0, 1.0, 10.0)], "@ bash|bashes $1 with a committed body-check.", "@ bash|bashes at $1, but cannot drive &1 down.");
 		yield return Def("Foot Sweep", CombatMoveIntentions.Trip | CombatMoveIntentions.Disadvantage, t => [PositionChange(t, 1.0, 0.4, 4.0)], "@ sweep|sweeps at $1's feet.", "@ sweep|sweeps low, but $1 stays upright.");
 		yield return Def("Shove Off Balance", CombatMoveIntentions.Trip | CombatMoveIntentions.Hinder, t => [PositionChange(t, 1.5, 0.5, 5.0)], "@ shove|shoves $1 off balance.", "@ shove|shoves at $1, but cannot topple them.");
 		yield return Def("Pommel Beat", CombatMoveIntentions.Disarm | CombatMoveIntentions.Disadvantage, t => [Disarm(t), Delay(t, 0.5, 0.2, 2.5)], "@ beat|beats at $1's weapon hand.", "@ beat|beats at $1's weapon hand, but $1 keeps hold.");

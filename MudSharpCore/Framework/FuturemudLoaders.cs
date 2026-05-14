@@ -358,6 +358,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 
             game.LoadUnits();
             game.LoadMagic(); // Needs to come before LoadMerits
+            game.LoadManualCombatCommands(); // Needs weapon attacks, auxiliary actions, FutureProgs, and dynamic magic verbs loaded first
             game.LoadMerits(); // ToDO - where should this be loaded?
             game.LoadAIs(); // Needs to come after LoadFutureProgs and LoadBodies
             game.LoadDisfigurements();
@@ -1384,6 +1385,31 @@ For information on the syntax to use in emotes (such as those included in bracke
         }
     }
 
+    void IFuturemudLoader.LoadManualCombatCommands()
+    {
+        ConsoleUtilities.WriteLine("\nLoading #5Manual Combat Commands#0...");
+#if DEBUG
+        Stopwatch sw = new();
+        sw.Start();
+#endif
+        List<Models.ManualCombatCommand> commands = FMDB.Context.ManualCombatCommands
+            .AsNoTracking()
+            .ToList();
+        foreach (Models.ManualCombatCommand item in commands)
+        {
+            _manualCombatCommands.Add(new Combat.ManualCombatCommand(item, this));
+        }
+
+        ManualCombatCommandRegistry.Rebuild(this);
+#if DEBUG
+        sw.Stop();
+        ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
+#endif
+        int count = commands.Count;
+        ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count,
+            count == 1 ? "Manual Combat Command" : "Manual Combat Commands");
+    }
+
     void IFuturemudLoader.LoadChargenAdvices()
     {
         ConsoleUtilities.WriteLine("\nLoading #5Chargen Advices#0...");
@@ -1899,7 +1925,10 @@ For information on the syntax to use in emotes (such as those included in bracke
         Stopwatch sw = new();
         sw.Start();
 #endif
-        List<CharacterCombatSetting> combatSettings = FMDB.Context.CharacterCombatSettings.AsNoTracking().ToList();
+        List<CharacterCombatSetting> combatSettings = FMDB.Context.CharacterCombatSettings
+            .Include(x => x.CharacterCombatSettingsManualCombatCommands)
+            .AsNoTracking()
+            .ToList();
         foreach (CharacterCombatSetting item in combatSettings)
         {
             _characterCombatSettings.Add(new CharacterCombatSettings(item, this));

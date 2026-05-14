@@ -416,20 +416,29 @@ public abstract class StrategyBase : ICombatStrategy
                                   BuiltInCombatMoveType.Pushback)))
                           .Where(x => x.Item2.Any())
                           .ToList();
+        List<INaturalAttack> weightedBreakers = breakers
+                                                .Where(x => x.Attack.Weighting * ManualCombatCommandResolver.AiWeightMultiplier(ch, x.Attack) > 0.0)
+                                                .ToList();
+        List<Tuple<IMeleeWeapon, IEnumerable<IWeaponAttack>>> weightedWbreakers = wbreakers
+            .Select(x => Tuple.Create(x.Item1,
+                x.Item2.Where(y => y.Weighting * ManualCombatCommandResolver.AiWeightMultiplier(ch, y) > 0.0)))
+            .Where(x => x.Item2.Any())
+            .ToList();
 
         // Prefer armed staggering or unbalancing blows first
-        if ((ch.CombatSettings.PreferToFightArmed || !breakers.Any()) && wbreakers.Any(x => x.Item2.Any()) &&
+        if ((ch.CombatSettings.PreferToFightArmed || !weightedBreakers.Any()) && weightedWbreakers.Any(x => x.Item2.Any()) &&
             !ch.CombatSettings.PreferNonContactClinchBreaking)
         {
-            Tuple<IMeleeWeapon, IEnumerable<IWeaponAttack>> weapon = wbreakers.GetRandomElement();
+            Tuple<IMeleeWeapon, IEnumerable<IWeaponAttack>> weapon = weightedWbreakers.GetRandomElement();
             return CombatMoveFactory.CreateWeaponAttack(ch, weapon.Item1,
-                weapon.Item2.GetWeightedRandom(x => x.Weighting), clinchers.First());
+                weapon.Item2.GetWeightedRandom(x => x.Weighting * ManualCombatCommandResolver.AiWeightMultiplier(ch, x)), clinchers.First());
         }
 
         // Secondly, prefer unarmed staggering or unbalancing blows
-        if (breakers.Any() && !ch.CombatSettings.PreferNonContactClinchBreaking)
+        if (weightedBreakers.Any() && !ch.CombatSettings.PreferNonContactClinchBreaking)
         {
-            return CombatMoveFactory.CreateNaturalWeaponAttack(ch, breakers.GetWeightedRandom(x => x.Attack.Weighting),
+            return CombatMoveFactory.CreateNaturalWeaponAttack(ch,
+                weightedBreakers.GetWeightedRandom(x => x.Attack.Weighting * ManualCombatCommandResolver.AiWeightMultiplier(ch, x.Attack)),
                 clinchers.First());
         }
 
@@ -809,7 +818,16 @@ public abstract class StrategyBase : ICombatStrategy
         }
 
 
-        INaturalAttack attack = attacks.GetWeightedRandom(x => x.Attack.Weighting);
+        attacks = attacks
+            .Where(x => x.Attack.Weighting * ManualCombatCommandResolver.AiWeightMultiplier(combatant, x.Attack) > 0.0)
+            .ToList();
+        if (!attacks.Any())
+        {
+            return null;
+        }
+
+        INaturalAttack attack = attacks.GetWeightedRandom(x =>
+            x.Attack.Weighting * ManualCombatCommandResolver.AiWeightMultiplier(combatant, x.Attack));
         if (attack == null)
         {
             return null;
@@ -850,10 +868,15 @@ public abstract class StrategyBase : ICombatStrategy
         }
 
         List<IAuxiliaryCombatAction> moves = combatant.Race.UsableAuxiliaryMoves(combatant, tch, false).ToList();
-        List<IAuxiliaryCombatAction> usableMoves = moves.Where(x => combatant.CanSpendStamina(x.StaminaCost)).ToList();
+        List<IAuxiliaryCombatAction> weightedMoves = moves
+                                                     .Where(x => ManualCombatCommandResolver.AiWeightMultiplier(combatant, x) > 0.0)
+                                                     .ToList();
+        List<IAuxiliaryCombatAction> usableMoves = weightedMoves
+                                                   .Where(x => combatant.CanSpendStamina(AuxiliaryMove.MoveStaminaCost(combatant, x)))
+                                                   .ToList();
         if (!usableMoves.Any())
         {
-            return moves.Any() ? new TooExhaustedMove { Assailant = combatant } : null;
+            return weightedMoves.Any() ? new TooExhaustedMove { Assailant = combatant } : null;
         }
 
         List<IAuxiliaryCombatAction> preferredMoves =
@@ -863,7 +886,8 @@ public abstract class StrategyBase : ICombatStrategy
             usableMoves = preferredMoves;
         }
 
-        IAuxiliaryCombatAction move = usableMoves.GetWeightedRandom(x => x.Weighting);
+        IAuxiliaryCombatAction move = usableMoves.GetWeightedRandom(x =>
+            x.Weighting * ManualCombatCommandResolver.AiWeightMultiplier(combatant, x));
         if (move is null)
         {
             return null;

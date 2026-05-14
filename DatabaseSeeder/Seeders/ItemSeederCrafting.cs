@@ -8,6 +8,7 @@ using MudSharp.GameItems;
 using MudSharp.GameItems.Inventory.Plans;
 using MudSharp.Models;
 using MudSharp.RPG.Checks;
+using MudSharp.RPG.Knowledge;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -1287,6 +1288,66 @@ return ""There is no useful clay that is accessible in the biome you're in.""");
 		);
 	}
 
+	private MudSharp.Models.Craft? AddCraft(string name, string category, string blurb, string action,
+		string itemsdesc, string knowledgeName, string traitName, int? minimumTraitValue, Difficulty difficulty,
+		Outcome threshold, int freeChecks, int failPhase, bool interrupatable,
+		IEnumerable<(int Seconds, string Echo, string FailEcho)> phases, IEnumerable<string> inputs,
+		IEnumerable<string> tools, IEnumerable<string> products, IEnumerable<string> failProducts,
+		List<(int Product, int Input)>? productMaterialInputIndexes = null,
+		List<(int Product, int Input)>? failProductMaterialInputIndexes = null, string? onFinishProg = null,
+		string? onStartProg = null, string? onCancelProg = null, string knowledgeType = "Crafting",
+		string knowledgeSubtype = "General", string? knowledgeDescription = null, string? knowledgeLongDescription = null,
+		int knowledgeLearningSessionsRequired = 1, Difficulty knowledgeLearnDifficulty = Difficulty.Normal,
+		Difficulty knowledgeTeachDifficulty = Difficulty.Normal,
+		LearnableType knowledgeLearnable = LearnableType.LearnableAtSkillUp | LearnableType.LearnableFromTeacher)
+	{
+		Craft? existing = FindExistingCraft(name, category);
+		if (existing is not null)
+		{
+			return existing;
+		}
+
+		(FutureProg appearProg, FutureProg canUseProg, FutureProg whyCannotUseProg, TraitDefinition trait, _) =
+			EnsureKnowledgeGateProgs(
+				knowledgeName,
+				traitName,
+				minimumTraitValue,
+				knowledgeType,
+				knowledgeSubtype,
+				knowledgeDescription,
+				knowledgeLongDescription,
+				knowledgeLearningSessionsRequired,
+				knowledgeLearnDifficulty,
+				knowledgeTeachDifficulty,
+				knowledgeLearnable);
+		return AddCraft(
+			name,
+			category,
+			blurb,
+			action,
+			itemsdesc,
+			appearProg.FunctionName,
+			canUseProg.FunctionName,
+			whyCannotUseProg.FunctionName,
+			onFinishProg,
+			trait,
+			difficulty,
+			threshold,
+			freeChecks,
+			failPhase,
+			interrupatable,
+			phases,
+			inputs,
+			tools,
+			products,
+			failProducts,
+			productMaterialInputIndexes,
+			failProductMaterialInputIndexes,
+			onStartProg,
+			onCancelProg
+		);
+	}
+
 	private List<TSpec> ParseImportSpecs<TSpec>(IEnumerable<string> imports, string craftName, string kind,
 		Func<string, TSpec> parser, List<CraftValidationError> errors)
 	{
@@ -1386,11 +1447,11 @@ return ""There is no useful clay that is accessible in the biome you're in.""");
         int i = 1;
         foreach (CraftPhaseSpec phase in spec.Phases)
         {
-            dbitem.CraftPhases.Add(new CraftPhase
+			dbitem.CraftPhases.Add(new CraftPhase
             {
                 Craft = dbitem,
                 Echo = phase.Echo,
-                FailEcho = phase.FailEcho,
+                FailEcho = string.IsNullOrWhiteSpace(phase.FailEcho) ? phase.Echo : phase.FailEcho,
                 PhaseLengthInSeconds = phase.Seconds,
                 PhaseNumber = i++,
 				ExertionLevel = (int)phase.Exertion,
@@ -1568,6 +1629,56 @@ return ""There is no useful clay that is accessible in the biome you're in.""");
 		return text.Replace(@"\", @"\\").Replace("\"", "\\\"");
 	}
 
+	private FutureProg EnsureAlwaysTrueProg()
+	{
+		return EnsureFutureProg("AlwaysTrue", "Utility", "General", ProgVariableTypes.Boolean, "",
+			[], "return true");
+	}
+
+	private MudSharp.Models.Knowledge EnsureCraftKnowledge(string knowledgeName, string knowledgeType,
+		string knowledgeSubtype, string? knowledgeDescription, string? knowledgeLongDescription,
+		int learningSessionsRequired, Difficulty learnDifficulty, Difficulty teachDifficulty, LearnableType learnable)
+	{
+		string trimmedName = knowledgeName.Trim();
+		if (string.IsNullOrWhiteSpace(trimmedName))
+		{
+			throw new ApplicationException("Knowledge name cannot be blank");
+		}
+
+		FutureProg alwaysTrueProg = EnsureAlwaysTrueProg();
+		string description = string.IsNullOrWhiteSpace(knowledgeDescription)
+			? $"Knowledge of {trimmedName}"
+			: knowledgeDescription.Trim();
+		string longDescription = string.IsNullOrWhiteSpace(knowledgeLongDescription)
+			? $"Specialised knowledge required to perform crafts gated by {trimmedName}."
+			: knowledgeLongDescription.Trim();
+
+		MudSharp.Models.Knowledge knowledge = SeederRepeatabilityHelper.EnsureNamedEntity(
+			_context!.Knowledges,
+			trimmedName,
+			x => x.Name,
+			() =>
+			{
+				MudSharp.Models.Knowledge created = new();
+				_context.Knowledges.Add(created);
+				return created;
+			});
+
+		knowledge.Name = trimmedName;
+		knowledge.Type = string.IsNullOrWhiteSpace(knowledgeType) ? "Crafting" : knowledgeType.Trim();
+		knowledge.Subtype = string.IsNullOrWhiteSpace(knowledgeSubtype) ? "General" : knowledgeSubtype.Trim();
+		knowledge.Description = description;
+		knowledge.LongDescription = longDescription;
+		knowledge.LearnableType = (int)learnable;
+		knowledge.LearnDifficulty = (int)learnDifficulty;
+		knowledge.TeachDifficulty = (int)teachDifficulty;
+		knowledge.LearningSessionsRequired = Math.Max(1, learningSessionsRequired);
+		knowledge.CanAcquireProg = alwaysTrueProg;
+		knowledge.CanLearnProg = alwaysTrueProg;
+		_context.SaveChanges();
+		return knowledge;
+	}
+
 	private (FutureProg AppearProg, FutureProg CanUseProg, FutureProg WhyCannotUseProg, TraitDefinition Trait) EnsureTraitGateProgs(string traitName, int? minimumTraitValue)
 	{
 		TraitDefinition trait = LookupTraitDefinition(traitName);
@@ -1588,6 +1699,54 @@ return ""There is no useful clay that is accessible in the biome you're in.""");
 			[(ProgVariableTypes.Character, "ch")], whyText);
 		_context!.SaveChanges();
 		return (appearProg, canUseProg, whyCannotUseProg, trait);
+	}
+
+	private (FutureProg AppearProg, FutureProg CanUseProg, FutureProg WhyCannotUseProg, TraitDefinition Trait,
+		MudSharp.Models.Knowledge Knowledge) EnsureKnowledgeGateProgs(string knowledgeName, string traitName,
+		int? minimumTraitValue, string knowledgeType, string knowledgeSubtype, string? knowledgeDescription,
+		string? knowledgeLongDescription, int knowledgeLearningSessionsRequired, Difficulty knowledgeLearnDifficulty,
+		Difficulty knowledgeTeachDifficulty, LearnableType knowledgeLearnable)
+	{
+		TraitDefinition trait = LookupTraitDefinition(traitName);
+		MudSharp.Models.Knowledge knowledge = EnsureCraftKnowledge(
+			knowledgeName,
+			knowledgeType,
+			knowledgeSubtype,
+			knowledgeDescription,
+			knowledgeLongDescription,
+			knowledgeLearningSessionsRequired,
+			knowledgeLearnDifficulty,
+			knowledgeTeachDifficulty,
+			knowledgeLearnable);
+
+		string suffix =
+			$"Knowledge{SanitiseFutureProgNamePart(knowledge.Name)}{(minimumTraitValue is null ? "" : $"{SanitiseFutureProgNamePart(trait.Name)}{minimumTraitValue.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)}")}";
+		string knowledgeId = knowledge.Id.ToString(System.Globalization.CultureInfo.InvariantCulture);
+		string traitId = trait.Id.ToString(System.Globalization.CultureInfo.InvariantCulture);
+		string knowledgeCheck = $@"@ch.Knowledges.Any(x, @x.Id == {knowledgeId})";
+		string booleanText = minimumTraitValue is null
+			? $@"return {knowledgeCheck}"
+			: $@"if (not({knowledgeCheck}))
+	return false
+end if
+return GetTrait(@ch, ToTrait(""{traitId}"")) >= {minimumTraitValue.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)}";
+		string knowledgeText = EscapeFutureProgText(knowledge.Name);
+		string traitText = EscapeFutureProgText(trait.Name);
+		string whyText = minimumTraitValue is null
+			? $@"return ""You do not know the {knowledgeText} knowledge."""
+			: $@"if (not({knowledgeCheck}))
+	return ""You do not know the {knowledgeText} knowledge.""
+end if
+return ""You need at least {minimumTraitValue.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)} in {traitText} to do that craft.""";
+
+		FutureProg appearProg = EnsureFutureProg($"ItemSeederAppear{suffix}", "Crafting", "Access", ProgVariableTypes.Boolean, "",
+			[(ProgVariableTypes.Character, "ch")], booleanText);
+		FutureProg canUseProg = EnsureFutureProg($"ItemSeederCanUse{suffix}", "Crafting", "Access", ProgVariableTypes.Boolean, "",
+			[(ProgVariableTypes.Character, "ch")], booleanText);
+		FutureProg whyCannotUseProg = EnsureFutureProg($"ItemSeederWhyCannotUse{suffix}", "Crafting", "Access", ProgVariableTypes.Text, "",
+			[(ProgVariableTypes.Character, "ch")], whyText);
+		_context!.SaveChanges();
+		return (appearProg, canUseProg, whyCannotUseProg, trait, knowledge);
 	}
 
 	private void InitialiseCraftAuthoringForTesting(FuturemudDatabaseContext context)
@@ -1635,6 +1794,21 @@ return ""There is no useful clay that is accessible in the biome you're in.""");
 		InitialiseCraftAuthoringForTesting(context);
 		return AddCraft(name, category, "test craft", "testing", "a test craft event", traitName, minimumTraitValue,
 			       Difficulty.Normal, Outcome.MinorFail, 5, 1, false, phases, inputs, tools, products, failProducts) ??
+		    throw new ApplicationException($"Craft '{name}' was not created.");
+	}
+
+	internal MudSharp.Models.Craft AddKnowledgeGatedCraftFromImportsForTesting(FuturemudDatabaseContext context,
+		string name, string category, string knowledgeName, string traitName, int? minimumTraitValue,
+		IEnumerable<(int Seconds, string Echo, string FailEcho)> phases, IEnumerable<string> inputs,
+		IEnumerable<string> tools, IEnumerable<string> products, IEnumerable<string> failProducts,
+		string knowledgeType = "Crafting", string knowledgeSubtype = "General", string? knowledgeDescription = null,
+		string? knowledgeLongDescription = null)
+	{
+		InitialiseCraftAuthoringForTesting(context);
+		return AddCraft(name, category, "test craft", "testing", "a test craft event", knowledgeName, traitName,
+			       minimumTraitValue, Difficulty.Normal, Outcome.MinorFail, 5, 1, false, phases, inputs, tools, products,
+			       failProducts, knowledgeType: knowledgeType, knowledgeSubtype: knowledgeSubtype,
+			       knowledgeDescription: knowledgeDescription, knowledgeLongDescription: knowledgeLongDescription) ??
 		       throw new ApplicationException($"Craft '{name}' was not created.");
 	}
 

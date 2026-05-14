@@ -71,6 +71,8 @@ Skins are important whenever:
 - content should be customised without cloning behaviour-heavy item prototypes
 - Players themselves can write the variants with optional admin review and approval, rather than relying solely on an admin builder workflow
 
+Admins can use `itemskin set suggestdesc [<optional extra context>]` to generate AI-assisted full-description override suggestions for a skin. This is not available to ordinary player skin authors because it can incur external API cost.
+
 ### Writing Blocks
 
 Writing blocks let item descriptions include readable text that depends on language, script, and skill.

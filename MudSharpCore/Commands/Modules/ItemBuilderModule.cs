@@ -1302,12 +1302,32 @@ The syntax to use this command is as follows:
 #3itemskin show <which>#0 - views information about an item skin
 #3itemskin show#0 - views information about your currently editing item skin
 #3itemskin set ...#0 - edits properties of an item skin
+
+{GenericReviewableSearchList}";
+
+        public const string ItemSkinAdminHelp =
+            @$"This command is used to make item skins, which can be applied to items to change their appearance. They can be manually added to items by admins, set to load that way through shops and created via crafts. Players with the correct permissions are allowed to create item skins of their own.
+
+When players are editing item skins they will only be able to edit skins that they originally created.
+
+The syntax to use this command is as follows:
+
+#3itemskin list#0 - lists all of the item skins
+#3itemskin protos#0 - lists all the items that players can create skins for
+#3itemskin edit <which>#0 - begins editing an item skin
+#3itemskin edit new <proto> <name>#0 - creates a new item skin
+#3itemskin clone <old> <new name>#0 - clones an existing item skin to a new one
+#3itemskin close#0 - stops editing an item skin
+#3itemskin show <which>#0 - views information about an item skin
+#3itemskin show#0 - views information about your currently editing item skin
+#3itemskin set ...#0 - edits properties of an item skin
+#3itemskin set suggestdesc [<optional extra context>]#0 - asks your configured AI model to suggest a full description override
 #3itemskin review all|mine|<builder name>|<id>#0 - opens the specified item skins for review and approval
 
 {GenericReviewableSearchList}";
 
         [PlayerCommand("ItemSkin", "itemskin", "is")]
-        [HelpInfo("itemskin", ItemSkinHelp, AutoHelp.HelpArgOrNoArg)]
+        [HelpInfo("itemskin", ItemSkinHelp, AutoHelp.HelpArgOrNoArg, ItemSkinAdminHelp)]
         protected static void ItemSkin(ICharacter actor, string input)
         {
             StringStack ss = new(input.RemoveFirstWord());

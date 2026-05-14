@@ -114,6 +114,7 @@ Commonly relevant commands include:
 - `item set sdesc`
 - `item set ldesc`
 - `item set desc`
+- `item set suggestdesc`
 - `item set size`
 - `item set weight`
 - `item set material`
@@ -285,6 +286,8 @@ Skins are item-prototype-adjacent content that override presentation details suc
 From a workflow perspective, skins matter when:
 - the base item prototype is intentionally generic
 - builders need controlled presentation variants without duplicating item behaviour
+
+Skin authors edit these variants with `itemskin set ...`. Admins can also use `itemskin set suggestdesc [<optional extra context>]` to ask the configured description AI for full-description override suggestions. That prompt is deliberately framed as a variant of the base item: it includes the prototype's physical properties and tags, the effective short and long descriptions, the skin's overrides, and the item-description markup available to full descriptions. The AI call is admin-only so ordinary player skin authors cannot create unbounded API cost.
 
 ### Item groups
 Item groups are content-side presentation tools for rooms. They let many similar items collapse into grouped room descriptions instead of flooding room output.

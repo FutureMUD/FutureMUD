@@ -125,6 +125,8 @@ Skins are important whenever:
 
 When changing item presentation flows, remember that skins may override prototype text.
 
+Admins can request AI-assisted full-description override suggestions with `itemskin set suggestdesc [<optional extra context>]` while editing a skin. The generated prompt treats the skin as a variant rather than a new prototype: it passes the base item properties, effective short and long descriptions, skin-specific overrides, tags, existing full descriptions, and supported item-description markup to the configured description AI. The command is intentionally admin-only because it can incur external API cost.
+
 ## Health, Magic, and Other System Integrations
 ### Health integration
 Items participate in the health system more directly than many engines would expect:

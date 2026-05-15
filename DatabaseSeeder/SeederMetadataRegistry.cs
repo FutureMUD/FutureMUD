@@ -317,6 +317,31 @@ public static class SeederMetadataRegistry
                         context.Tags.Any(x => x.Name == "Functions"))
                 ]
             ),
+            nameof(AnimalButcherySeeder) => new SeederMetadata(
+                SeederRepeatabilityMode.Idempotent,
+                SeederUpdateCapability.RepairExisting,
+                [
+                    Requirement("The Core seeder must have created at least one account.", context => context.Accounts.Any()),
+                    Requirement("The Item seeder must have installed the generic rotten meat item.", context =>
+                        context.GameItemProtos.Any(x => x.ShortDescription == "some rotten meat")),
+                    Requirement("Useful item component prerequisites must already include simple held, destroyable and stackable props.", context =>
+                        context.GameItemComponentProtos.Any(x => x.Name == "Holdable") &&
+                        context.GameItemComponentProtos.Any(x => x.Name == "Destroyable_Misc") &&
+                        context.GameItemComponentProtos.Any(x => x.Name == "Stack_Pile")),
+                    Requirement("Core animal product, cutting, meat, bone and skin foundations must already exist.", context =>
+                        context.Tags.Any(x => x.Name == "Animal Product") &&
+                        context.Tags.Any(x => x.Name == "Cutting") &&
+                        context.Materials.Any(x => x.Name == "meat") &&
+                        context.Materials.Any(x => x.Name == "bone") &&
+                        context.Materials.Any(x => x.Name == "animal skin")),
+                    Requirement("The Butchery skill and at least one stock animal race must already exist.", context =>
+                        context.TraitDefinitions.Any(x => x.Name == "Butchery") &&
+                        context.Races.Any())
+                ],
+                RerunSummary: "Reruns reuse stock animal butchery item, product and profile names, then attach missing eligible stock races.",
+                UpdateSummary: "Existing builder-authored butchery profiles are preserved; only stock-owned profiles and unassigned eligible stock races are repaired.",
+                OwnershipSummary: "Stock butchery content is tracked by the Stock Butchery profile/product prefix plus the Butchery Output tag."
+            ),
             nameof(LawSeeder) => new SeederMetadata(
                 SeederRepeatabilityMode.Idempotent,
                 SeederUpdateCapability.RepairExisting,

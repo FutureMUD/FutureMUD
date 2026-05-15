@@ -1,5 +1,7 @@
 using MudSharp.Body;
+using MudSharp.Framework;
 using MudSharp.GameItems.Interfaces;
+using MudSharp.RPG.Checks;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -41,6 +43,28 @@ public static class ButcheryExtensions
 
 		return product.RequiredBodyparts.All(requiredPart =>
 			target.Parts.Any(part => part.ButcheryBodypartMatches(requiredPart)));
+	}
+
+	public static bool MatchesButcherySubcategory(this IButcheryProduct product, string requestedSubcategory,
+		IEnumerable<string> alreadyButcheredSubcategories)
+	{
+		var productSubcategory = product.Subcategory.NormaliseButcherySubcategory();
+		var requested = requestedSubcategory.NormaliseButcherySubcategory();
+		if (!string.IsNullOrEmpty(requested))
+		{
+			return productSubcategory.EqualTo(requested);
+		}
+
+		return string.IsNullOrEmpty(productSubcategory) ||
+		       !alreadyButcheredSubcategories
+			       .Select(x => x.NormaliseButcherySubcategory())
+			       .Contains(productSubcategory);
+	}
+
+	public static bool ShouldUseDamagedButcheryProduct(double damageRatio, double damageThreshold, Outcome outcome)
+	{
+		return damageRatio >= damageThreshold ||
+		       outcome.In(Outcome.MajorFail, Outcome.Fail);
 	}
 
 	/// <summary>

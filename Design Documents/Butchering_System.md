@@ -41,6 +41,7 @@ A butchery product applies to a corpse or bodypart only when all of the followin
 - The target currently contains every required bodypart for the product.
 - The product's can-produce prog, if any, returns true for the actor and target item.
 - For subcategory commands, the product's subcategory matches the requested subcategory.
+- For final breakdowns, unprocessed subcategory products are still eligible, but any subcategory already harvested from that corpse or severed bodypart is skipped.
 
 This matters most for severed bodyparts and partially dismantled bodies. Products are evaluated against the actual remaining parts exposed by `IButcherable.Parts`, not merely the original race's full body plan.
 
@@ -73,6 +74,22 @@ Runtime corpse and severed-bodypart item component XML stores live progress:
 - Corpses and severed bodyparts store already-butchered subcategories.
 
 That live progress prevents repeated skinning or repeated subcategory harvesting after a save and reload.
+
+## Stock Animal Butchery Package
+
+`AnimalButcherySeeder` installs the stock animal butchery package after `ItemSeeder`. It is rerunnable and owns the stock butchery items, signature materials, products, profiles, checks, emotes, and eligible race-profile assignments.
+
+The seeder uses a signature-species model rather than creating a bespoke item set for every race:
+
+- Iconic or economically distinct races get named family outputs, such as pig quarters, draconic hide, mythic feathers, or giant arthropod chitin.
+- Minor or adjacent races share family-level outputs, such as small mammal cuts, canid pelts, bovine quarters, fish fillets, reptile skins, shell plates, or generic trophy parts.
+- Mythical humanoid, sapient, and plant-bodied races are intentionally excluded from the v1 stock package.
+
+The stock package keeps subcategories simple and command-readable: `organs`, `trophy`, `venom`, `shell`, `plume`, `blubber`, `ink`, and `silk`. These subcategories let builders or players extract useful organs, glands, shell, trophies, or other high-value parts before final butchery. If the final breakdown happens later, the runtime does not duplicate any subcategory that was already extracted.
+
+Soft organic outputs such as raw meat, offal, hides, glands, organs, blubber, fins, and ink sacs morph into the generic `some rotten meat` item after the stock spoil timer. Durable outputs such as bone, teeth, tusks, horns, antlers, shell, chitin, scales, feathers, beaks, claws, baleen, mandibles, and stingers do not spoil by default.
+
+The seeder only assigns a race when the race has no profile or already has a stock-owned profile. Builder-authored custom butchery profiles are preserved.
 
 ## Builder Workflow
 
@@ -166,4 +183,4 @@ Before attaching a profile to a race, verify:
 - The first staged action tick is currently scheduled by the command's initial delay, while phase delays control time between subsequent phase emotes.
 - Profiles and products are direct editable items rather than revisioned items, so changes affect live content after save.
 - Skinning is only supported on whole corpses, not severed bodyparts.
-- There is no stock-data wizard for generating complete butchery packages from a body prototype; builders author products and profiles explicitly.
+- The stock package covers seeded animal and beast-only mythical races, but arbitrary custom races still require builder-authored products and profiles or a later specialised seeder pass.

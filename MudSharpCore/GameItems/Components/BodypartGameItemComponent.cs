@@ -727,7 +727,7 @@ public class BodypartGameItemComponent : GameItemComponent, ISeveredBodypart, IL
 
         foreach (IButcheryProduct product in OriginalCharacter.Race.ButcheryProfile.Products.Where(x =>
                      !x.IsPelt && x.AppliesTo(this) && x.CanProduce(butcher, Parent) &&
-                     (string.IsNullOrEmpty(subcategory) || x.Subcategory.EqualTo(subcategory))))
+                     x.MatchesButcherySubcategory(subcategory, ButcheredSubcategories)))
         {
             List<IBodypart> productParts = product.MatchingBodyparts(this).ToList();
             double totalHitpoints = productParts.Sum(x => OriginalBody.HitpointsForBodypart(x));
@@ -740,7 +740,8 @@ public class BodypartGameItemComponent : GameItemComponent, ISeveredBodypart, IL
             foreach (IButcheryProductItem item in product.ProductItems)
             {
                 CheckOutcome result = check.Check(butcher, effect.CheckDifficulty, effect.Trait);
-                if (damageRatio >= item.DamagedThreshold || result.Outcome.In(Outcome.MajorFail, Outcome.Fail))
+                if (ButcheryExtensions.ShouldUseDamagedButcheryProduct(damageRatio, item.DamagedThreshold,
+	                    result.Outcome))
                 {
                     if (item.DamagedProto != null)
                     {

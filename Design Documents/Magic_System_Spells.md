@@ -174,14 +174,48 @@ Some effects now also rely on trigger-supplied additional parameters:
 - `exit` from the `exit` and `characterexit` triggers
 - `room` from the `progcharacterroom` and `progitemroom` triggers
 
-### 13. Exclusivity and lockouts
+### 13. FutureProg inspection and control
+FutureProg can inspect and manipulate the live spell state without going through player command parsing.
+
+Character dot-properties expose:
+
+- `magiccapabilities`
+- `knownspells`
+- `castablespells`
+- `castablespellsnow`
+
+The matching built-in functions are useful when the source character is not already the object being dereferenced:
+
+- `magiccapabilities(character)`
+- `knownspells(character)`
+- `castablespells(character)`
+- `castablespellsnow(character)`
+- `cancastspell(character, spell)`
+- `cancastspellnow(character, spell[, target][, power])`
+
+`cancastspell` checks the general command surface: capability school access, known-spell prog, spell readiness, and cast-trigger availability. `cancastspellnow` also checks current lockouts, available magic resources, material requirements, target-null rules, and the requested or any permitted spell power. It does not perform the random casting check, consume resources, execute material plans, run crimes, or consult target wards.
+
+Active spell parent effects on a character are exposed through:
+
+- `activespells(character)`
+- `activespelleffects(character)`
+- `activespelleffects(character, spell)`
+- `spellremainingduration(character, spell)` / `spellduration(character, spell)`
+- `setspellduration(character, spell, duration)`
+- `addspellduration(character, spell, duration)`
+- `subtractspellduration(character, spell, duration)`
+- `removespell(character, spell)`
+
+Duration helpers operate on retained `MagicSpellParent` effects. The retrieval helper returns the longest remaining scheduled duration, or zero when no matching effect is scheduled. Set can turn an unscheduled spell-parent effect into a scheduled one; add and subtract only alter already scheduled spell-parent effects. Remove clears the parent and its owned child effects.
+
+### 14. Exclusivity and lockouts
 Spells can enforce:
 
 - an `ExclusiveDelay`, which blocks all spell casting for a time
 - a `NonExclusiveDelay`, which blocks same-school spells for a time
 - exclusive applied effects, which replace prior parent effects from the same spell instead of stacking
 
-### 14. Ready-for-game validation
+### 15. Ready-for-game validation
 `MagicSpell.ReadyForGame` verifies that the spell has enough data to function safely.
 
 Current readiness checks include:

@@ -286,6 +286,18 @@ Practical builder guidance:
 - if a resource should exist only for characters, set the item and room predicates to false
 - use the short name for compact cost displays and prompts
 
+### FutureProg Resource Helpers
+FutureProg can inspect and alter live resource levels on any `IHaveMagicResource` holder, which means characters, items, and rooms/cells.
+
+Current helpers are:
+
+- `magicresourcelevel(thing, resource)`
+- `setmagicresource(thing, resource, amount)` / `setmagicresourcelevel(thing, resource, amount)`
+- `addmagicresource(thing, resource, amount)` / `addmagicresourcelevel(thing, resource, amount)`
+- `subtractmagicresource(thing, resource, amount)` / `subtractmagicresourcelevel(thing, resource, amount)`
+
+The `resource` argument can be the resource name/id as text or the numeric id. Mutations route through the holder's normal `AddResource` behavior, so the resulting level is clamped to the resource cap and never below zero. All mutation helpers return the resulting resource level.
+
 ### Seeder and Data Author Workflow
 There is no dedicated magic resource seeder in `DatabaseSeeder`.
 

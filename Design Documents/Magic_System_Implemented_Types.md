@@ -34,6 +34,22 @@ It is intended for:
 | `linear` | `LinearTimeBasedGenerator` | Regenerator | Switch dispatch in `MudSharpCore/Magic/Generators/BaseMagicResourceGenerator.cs` | Yes | Adds a fixed amount of one resource per minute |
 | `state` | `StateGenerator` | Regenerator | Switch dispatch in `MudSharpCore/Magic/Generators/BaseMagicResourceGenerator.cs` | Yes | Adds one or more resources per minute based on boolean state progs |
 
+## FutureProg Magic Helpers
+
+| Function or property | Subsystem | Purpose |
+| --- | --- | --- |
+| `magicresourcelevel` | Resources | Reads a character, item, or room magic resource level by resource name/id or numeric id |
+| `setmagicresource`, `setmagicresourcelevel` | Resources | Sets a character, item, or room magic resource level and returns the clamped result |
+| `addmagicresource`, `addmagicresourcelevel` | Resources | Adds to a character, item, or room magic resource level and returns the clamped result |
+| `subtractmagicresource`, `subtractmagicresourcelevel` | Resources | Subtracts from a character, item, or room magic resource level and returns the clamped result |
+| `magiccapabilities(character)`, `character.magiccapabilities` | Capabilities | Returns the character's currently applicable magic capabilities |
+| `knownspells(character)`, `character.knownspells` | Spells | Returns spells whose known-spell prog says the character knows them |
+| `castablespells(character)`, `character.castablespells` | Spells | Returns ready, known spells that use a cast trigger |
+| `castablespellsnow(character)`, `character.castablespellsnow` | Spells | Returns ready, known cast-trigger spells currently castable against the character at some permitted power |
+| `cancastspell`, `cancastspellnow` | Spells | Checks general spell availability or current lockout/resource/material preconditions without performing the cast |
+| `activespells`, `activespelleffects` | Spell effects | Reads retained `MagicSpellParent` state on a character |
+| `spellremainingduration`, `spellduration`, `setspellduration`, `addspellduration`, `subtractspellduration`, `removespell` | Spell effects | Reads, changes, or removes active spell-parent effects for a specific spell on a character |
+
 ## Power Types
 Current count: 32 power tokens, including 31 builder-creatable tokens and the non-builder `armor` runtime alias. V4 added 9 builder-creatable psionic powers, and the Old SOI parity slice added 7 more psionic power tokens in per-power files under `MudSharpCore/Magic/Powers/`.
 

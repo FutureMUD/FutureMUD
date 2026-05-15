@@ -63,7 +63,34 @@ The items and crafts are fairly universal and of approximately medieval to renei
 
         _components = _context.GameItemComponentProtos.ToDictionary(x => x.Name, x => x, StringComparer.OrdinalIgnoreCase);
         _tags = _context.Tags.ToDictionary(x => x.Name, x => x, StringComparer.OrdinalIgnoreCase);
-        // TODO - initialised _tagsByFullPath by combining tag names and all parent names separated by " / "
+        var tagList = _context.Tags.ToList();
+        var tagsById = tagList.ToDictionary(x => x.Id);
+        Dictionary<long, string> fullPathCache = new();
+        string BuildTagFullPath(MudSharp.Models.Tag tag)
+        {
+            if (fullPathCache.TryGetValue(tag.Id, out var cached))
+            {
+                return cached;
+            }
+
+            MudSharp.Models.Tag? parent = null;
+            if (tag.ParentId is not null)
+            {
+                tagsById.TryGetValue(tag.ParentId.Value, out parent);
+            }
+            else if (tag.Parent is not null)
+            {
+                parent = tag.Parent;
+            }
+
+            var path = parent is null
+                ? tag.Name
+                : $"{BuildTagFullPath(parent)} / {tag.Name}";
+            fullPathCache[tag.Id] = path;
+            return path;
+        }
+
+        _tagsByFullPath = tagList.ToDictionary(BuildTagFullPath, x => x, StringComparer.OrdinalIgnoreCase);
         _materials = _context.Materials.ToDictionary(x => x.Name, x => x, StringComparer.OrdinalIgnoreCase);
         _liquids = _context.Liquids.ToDictionary(x => x.Name, x => x, StringComparer.OrdinalIgnoreCase);
         _nextId = _context.GameItemProtos.Max(x => x.Id) + 1;

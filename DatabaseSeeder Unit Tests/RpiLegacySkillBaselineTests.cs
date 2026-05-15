@@ -29,6 +29,7 @@ public class RpiLegacySkillBaselineTests
 			"Metalcraft",
 			"Woodcraft",
 			"Textilecraft",
+			"Spinner",
 			"Cookery",
 			"Baking",
 			"Hideworking",

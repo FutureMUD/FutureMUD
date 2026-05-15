@@ -9,6 +9,345 @@ namespace DatabaseSeeder.Seeders
     {
         private void SeedAntiquityClothing()
         {
+            #region Antiquity Textile Tools
+            CreateItem(
+                "antiquity_bronze_textile_shears",
+                "shears",
+                "a pair of bronze textile shears",
+                null,
+                "These springy bronze shears have two leaf-shaped blades joined at the heel. They are sized for trimming woven cloth, cutting yarn, and clipping loose ends without relying on later pivoted scissors.",
+                SizeCategory.Small,
+                ItemQuality.Standard,
+                320.0,
+                18.0m,
+                false,
+                false,
+                "bronze",
+                ["Market / Professional Tools / Standard Tools", "Functions / Separation / Shearing / Shears"],
+                ["Holdable", "Destroyable_Misc"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_bronze_sewing_needle",
+                "needle",
+                "a bronze sewing needle",
+                null,
+                "This bronze sewing needle is slender, slightly flattened near the eye, and polished from repeated passage through cloth. It is suited to hemming, joining rectangular garments, working heavier wool edges, and setting beadwork into linen.",
+                SizeCategory.VerySmall,
+                ItemQuality.Standard,
+                15.0,
+                8.0m,
+                false,
+                false,
+                "bronze",
+                ["Market / Professional Tools / Standard Tools", "Functions / Tools / Textilecraft Tools / Sewing Needle", "Functions / Tools / Textilecraft Tools / Beading Needle", "Functions / Joining / Sewing"],
+                ["Holdable", "Destroyable_Misc"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_retting_trough",
+                "trough",
+                "an oak retting trough",
+                null,
+                "This long oak trough is made for steeping bundled flax stalks until the fibre loosens from the woody stem. Its inner boards are darkened by water, plant matter, and repeated retting work.",
+                SizeCategory.Large,
+                ItemQuality.Standard,
+                18000.0,
+                40.0m,
+                false,
+                false,
+                "oak",
+                ["Market / Professional Tools / Standard Tools", "Functions / Tools / Textilecraft Tools / Flax Processing Tools / Retting Trough"],
+                ["Holdable", "Destroyable_Furniture"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_flax_break",
+                "break",
+                "an oak flax break",
+                null,
+                "This simple flax break is a hinged wooden beater and slotted board. It is used to crack dried flax stems so the woody shive can be shaken away from the useful fibre.",
+                SizeCategory.Normal,
+                ItemQuality.Standard,
+                4200.0,
+                24.0m,
+                false,
+                false,
+                "oak",
+                ["Market / Professional Tools / Standard Tools", "Functions / Tools / Textilecraft Tools / Flax Processing Tools / Flax Break", "Functions / Tools / Textilecraft Tools / Flax Processing Tools / Flax Beater"],
+                ["Holdable", "Destroyable_Misc"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_fibre_hackle",
+                "hackle",
+                "a bronze-toothed fibre hackle",
+                null,
+                "This fibre hackle has rows of bronze teeth fixed into an oak board. Flax or wool can be drawn across it to separate coarse matter and align the fibres for spinning.",
+                SizeCategory.Small,
+                ItemQuality.Standard,
+                1200.0,
+                30.0m,
+                false,
+                false,
+                "bronze",
+                ["Market / Professional Tools / Standard Tools", "Functions / Tools / Textilecraft Tools / Flax Processing Tools / Hackle", "Functions / Tools / Textilecraft Tools / Flax Processing Tools / Fibre Comb"],
+                ["Holdable", "Destroyable_Misc"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_drop_spindle",
+                "spindle",
+                "a wooden drop spindle with a clay whorl",
+                null,
+                "This drop spindle has a smooth wooden shaft and a fired-clay whorl for weight. It is balanced for drawing prepared fibre into yarn by hand.",
+                SizeCategory.Small,
+                ItemQuality.Standard,
+                180.0,
+                10.0m,
+                false,
+                false,
+                "oak",
+                ["Market / Professional Tools / Standard Tools", "Functions / Tools / Textilecraft Tools / Spinning Tools / Spindle", "Functions / Tools / Textilecraft Tools / Spinning Tools / Drop Spindle"],
+                ["Holdable", "Destroyable_Misc"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_distaff",
+                "distaff",
+                "an oak distaff",
+                null,
+                "This plain oak distaff is a long, smooth staff for holding dressed flax or wool while it is drawn out and spun. Fine grooves near the head help bind the fibre in place.",
+                SizeCategory.Normal,
+                ItemQuality.Standard,
+                450.0,
+                8.0m,
+                false,
+                false,
+                "oak",
+                ["Market / Professional Tools / Standard Tools", "Functions / Tools / Textilecraft Tools / Spinning Tools / Distaff"],
+                ["Holdable", "Destroyable_Misc"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_warp_weighted_loom",
+                "loom",
+                "an oak warp-weighted loom",
+                null,
+                "This upright oak loom has a high beam, sturdy side posts, and space for hanging weighted warp threads. It is built for the broad rectangular cloth used in chitons, peploi, cloaks, and mantles.",
+                SizeCategory.VeryLarge,
+                ItemQuality.Standard,
+                45000.0,
+                120.0m,
+                false,
+                false,
+                "oak",
+                ["Market / Professional Tools / Standard Tools", "Functions / Tools / Textilecraft Tools / Loom", "Functions / Tools / Textilecraft Tools / Weaving Tools / Warp-Weighted Loom"],
+                ["Holdable", "Destroyable_Furniture"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_clay_loom_weight",
+                "weight",
+                "a clay loom weight",
+                null,
+                "This fired-clay loom weight is pierced near the top so it can hang from a bundle of warp threads. Its mass keeps the warp under tension on an upright loom.",
+                SizeCategory.Small,
+                ItemQuality.Standard,
+                650.0,
+                2.0m,
+                false,
+                false,
+                "fired clay",
+                ["Market / Professional Tools / Standard Tools", "Functions / Tools / Textilecraft Tools / Weaving Tools / Loom Weight"],
+                ["Holdable", "Destroyable_Misc"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_weaving_shuttle",
+                "shuttle",
+                "an oak weaving shuttle",
+                null,
+                "This narrow oak shuttle is smoothed at both ends and grooved to carry a length of yarn. It passes the weft back and forth through the shed of a loom.",
+                SizeCategory.Small,
+                ItemQuality.Standard,
+                160.0,
+                7.0m,
+                false,
+                false,
+                "oak",
+                ["Market / Professional Tools / Standard Tools", "Functions / Tools / Textilecraft Tools / Weaving Tools / Shuttle"],
+                ["Holdable", "Destroyable_Misc"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_weavers_sword",
+                "sword",
+                "an oak weaver's sword",
+                null,
+                "This flat oak weaver's sword is a blunt batten for beating each weft pass into place. Its edges are rounded from use rather than sharpened for violence.",
+                SizeCategory.Normal,
+                ItemQuality.Standard,
+                650.0,
+                12.0m,
+                false,
+                false,
+                "oak",
+                ["Market / Professional Tools / Standard Tools", "Functions / Tools / Textilecraft Tools / Weaving Tools / Weaver's Sword"],
+                ["Holdable", "Destroyable_Misc"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_dye_vat",
+                "vat",
+                "an earthenware dye vat",
+                null,
+                "This broad earthenware vat is large enough to soak lengths of cloth in a heated dye bath. Its interior is stained by old reds, blues, yellows, and muddy mordant residue.",
+                SizeCategory.Large,
+                ItemQuality.Standard,
+                22000.0,
+                48.0m,
+                false,
+                false,
+                "earthenware",
+                ["Market / Professional Tools / Standard Tools", "Functions / Tools / Textilecraft Tools / Dyeing Tools / Dye Vat"],
+                ["Holdable", "Destroyable_Furniture"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_mordant_cauldron",
+                "cauldron",
+                "a bronze mordant cauldron",
+                null,
+                "This bronze cauldron is blackened beneath from heating mordant baths before dyeing. Its rim is wide enough to stir cloth without spilling the liquor.",
+                SizeCategory.Normal,
+                ItemQuality.Standard,
+                8500.0,
+                85.0m,
+                false,
+                false,
+                "bronze",
+                ["Market / Professional Tools / Standard Tools", "Functions / Tools / Textilecraft Tools / Dyeing Tools / Mordant Cauldron"],
+                ["Holdable", "Destroyable_Misc"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_fullers_trough",
+                "trough",
+                "an oak fuller's trough",
+                null,
+                "This heavy oak trough is made for wet fulling woollen cloth. The boards are worn smooth inside where soaked cloth is pounded and turned.",
+                SizeCategory.Large,
+                ItemQuality.Standard,
+                20000.0,
+                44.0m,
+                false,
+                false,
+                "oak",
+                ["Market / Professional Tools / Standard Tools", "Functions / Tools / Textilecraft Tools / Fulling Tools / Fuller's Trough"],
+                ["Holdable", "Destroyable_Furniture"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_fullers_mallet",
+                "mallet",
+                "an oak fuller's mallet",
+                null,
+                "This broad-headed oak mallet is used to pound wet woollen cloth during fulling. Its faces are rounded and polished by repeated striking.",
+                SizeCategory.Normal,
+                ItemQuality.Standard,
+                1400.0,
+                10.0m,
+                false,
+                false,
+                "oak",
+                ["Market / Professional Tools / Standard Tools", "Functions / Tools / Textilecraft Tools / Fulling Tools / Fuller's Mallet", "Functions / Tools / Striking Tools / Mallet"],
+                ["Holdable", "Destroyable_Misc"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_tenter_frame",
+                "frame",
+                "an oak cloth tenter frame",
+                null,
+                "This oak tenter frame is set with pegs for stretching wet cloth while it dries. It keeps fulled wool broad and even instead of letting it shrink into a dense lump.",
+                SizeCategory.VeryLarge,
+                ItemQuality.Standard,
+                38000.0,
+                70.0m,
+                false,
+                false,
+                "oak",
+                ["Market / Professional Tools / Standard Tools", "Functions / Tools / Textilecraft Tools / Fulling Tools / Cloth Tenter Frame"],
+                ["Holdable", "Destroyable_Furniture"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            #endregion
+
             #region Common Antiquity
             CreateItem(
                 "antiquity_linen_loincloth",

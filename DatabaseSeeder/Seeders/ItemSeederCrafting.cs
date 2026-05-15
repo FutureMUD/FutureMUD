@@ -84,6 +84,172 @@ public partial class ItemSeeder
 		public IReadOnlyList<CraftProductSpec> FailProducts { get; init; } = [];
 	}
 
+	private static readonly IReadOnlyDictionary<string, string> HellenicAntiquityClothingStableReferences =
+		new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+		{
+			["antiquity_short_wool_chiton"] = "a short $colour wool chiton",
+			["antiquity_wool_himation"] = "a $colour wool himation",
+			["antiquity_fine_linen_chiton"] = "a fine $colour linen chiton",
+			["antiquity_fine_wool_himation"] = "a fine $colour himation",
+			["antiquity_short_wool_chlamys"] = "a short $colour wool chlamys",
+			["antiquity_full_length_wool_peplos"] = "a full-length $colour peplos",
+			["antiquity_full_wool_himation"] = "a full $colour wool himation",
+			["antiquity_fine_long_linen_chiton"] = "a fine long $colour chiton",
+			["antiquity_fine_full_wool_himation"] = "a fine full $colour himation",
+			["antiquity_light_linen_head_veil"] = "a $colour linen head veil"
+		};
+
+	private static readonly IReadOnlyDictionary<string, string> EgyptianAntiquityClothingStableReferences =
+		new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+		{
+			["adjacent_antiquity_narrow_linen_kilt"] = "a $colour narrow linen kilt",
+			["adjacent_antiquity_linen_shoulder_cloth"] = "a $colour linen shoulder cloth",
+			["adjacent_antiquity_sleeveless_linen_tunic"] = "a $colour sleeveless linen tunic",
+			["adjacent_antiquity_fringed_linen_robe"] = "a fine $colour fringed robe",
+			["adjacent_antiquity_tasseled_linen_shawl"] = "a fine $colour tasseled shawl",
+			["adjacent_antiquity_tall_linen_headdress"] = "a tall $colour linen headdress",
+			["adjacent_antiquity_beaded_linen_girdle"] = "a beaded $colour linen girdle",
+			["adjacent_antiquity_linen_bead_apron"] = "a beaded $colour linen apron"
+		};
+
+	private static readonly IReadOnlyDictionary<string, string> RomanAntiquityClothingStableReferences =
+		new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+		{
+			["antiquity_knee_length_wool_tunica"] = "a knee-length $colour tunica",
+			["antiquity_wool_travel_mantle"] = "a $colour wool travel mantle",
+			["antiquity_fine_linen_tunica"] = "a fine $colour linen tunica",
+			["antiquity_wool_toga"] = "a $colour wool toga",
+			["antiquity_long_wool_tunica"] = "a long $colour wool tunica",
+			["antiquity_wool_palla"] = "a $colour wool palla",
+			["antiquity_fine_long_linen_tunica"] = "a fine long $colour tunica",
+			["antiquity_wool_stola"] = "a $colour wool stola",
+			["antiquity_fine_wool_palla"] = "a fine $colour palla"
+		};
+
+	private static readonly IReadOnlyDictionary<string, string> CelticAntiquityClothingStableReferences =
+		new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+		{
+			["antiquity_sleeved_common_wool_tunic"] = "a $colour sleeved wool tunic",
+			["antiquity_wool_braccae"] = "a pair of $colour wool braccae",
+			["antiquity_rectangular_wool_cloak"] = "a $colour rectangular wool cloak",
+			["antiquity_fine_bordered_wool_tunic"] = "a fine $colour bordered tunic",
+			["antiquity_fine_wool_braccae"] = "a pair of fine $colour braccae",
+			["antiquity_fine_checked_wool_cloak"] = "a $colour1 and $colour2 checked cloak",
+			["antiquity_long_sleeved_wool_tunic"] = "a long $colour wool tunic",
+			["antiquity_wool_wrap_skirt"] = "a $colour wool wrap skirt",
+			["antiquity_broad_wool_mantle"] = "a $colour broad wool mantle",
+			["antiquity_fine_sleeved_wool_gown"] = "a fine $colour sleeved gown",
+			["antiquity_fine_bordered_wool_mantle"] = "a fine $colour bordered mantle",
+			["antiquity_linen_shoulder_veil"] = "a $colour linen veil"
+		};
+
+	private static readonly IReadOnlyDictionary<string, string> GermanicAntiquityClothingStableReferences =
+		new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+		{
+			["antiquity_straight_wool_tunic"] = "a straight $colour wool tunic",
+			["antiquity_narrow_wool_trousers"] = "a pair of narrow $colour trousers",
+			["antiquity_heavy_wool_cloak"] = "a heavy $colour wool cloak",
+			["antiquity_fine_banded_wool_tunic"] = "a fine $colour banded tunic",
+			["antiquity_fine_tapered_wool_trousers"] = "a pair of fine $colour trousers",
+			["antiquity_fur_lined_wool_cloak"] = "a $colour fur-lined cloak",
+			["antiquity_long_straight_wool_tunic"] = "a long straight $colour tunic",
+			["antiquity_overlapping_wool_skirt"] = "a $colour overlapping wool skirt",
+			["antiquity_checked_wool_scarf"] = "a $colour1 and $colour2 wool scarf",
+			["antiquity_woolly_skin_cape"] = "a woolly skin cape",
+			["antiquity_fine_long_wool_gown"] = "a fine $colour long gown",
+			["antiquity_fine_heavy_wool_mantle"] = "a fine $colour wool mantle",
+			["antiquity_linen_head_veil"] = "a $colour linen head veil"
+		};
+
+	private static readonly IReadOnlyDictionary<string, string> KushiteAntiquityClothingStableReferences =
+		new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+		{
+			["adjacent_antiquity_narrow_linen_kilt"] = "a $colour narrow linen kilt",
+			["adjacent_antiquity_linen_shoulder_cloth"] = "a $colour linen shoulder cloth",
+			["adjacent_antiquity_cotton_wrap_skirt"] = "a $colour cotton wrap skirt",
+			["adjacent_antiquity_sleeveless_linen_tunic"] = "a $colour sleeveless linen tunic",
+			["adjacent_antiquity_fringed_linen_robe"] = "a fine $colour fringed robe",
+			["adjacent_antiquity_tasseled_linen_shawl"] = "a fine $colour tasseled shawl",
+			["adjacent_antiquity_tall_linen_headdress"] = "a tall $colour linen headdress",
+			["adjacent_antiquity_beaded_linen_girdle"] = "a beaded $colour linen girdle",
+			["adjacent_antiquity_cotton_draped_dress"] = "a fine $colour draped cotton dress",
+			["adjacent_antiquity_linen_bead_apron"] = "a beaded $colour linen apron",
+			["adjacent_antiquity_plain_cotton_headcloth"] = "a $colour cotton headcloth"
+		};
+
+	private static readonly IReadOnlyDictionary<string, string> PunicAntiquityClothingStableReferences =
+		new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+		{
+			["antiquity_short_fitted_linen_tunic"] = "a short fitted $colour tunic",
+			["antiquity_patterned_linen_waistcloth"] = "a patterned $colour waistcloth",
+			["antiquity_short_sleeved_linen_overblouse"] = "a short-sleeved $colour overblouse",
+			["antiquity_long_linen_inner_robe"] = "a long $colour linen robe",
+			["antiquity_one_shoulder_wool_mantle"] = "a $colour one-shoulder mantle",
+			["antiquity_long_folded_linen_robe"] = "a long folded $colour robe",
+			["antiquity_loose_linen_hood"] = "a loose $colour linen hood",
+			["antiquity_fine_full_linen_gown"] = "a fine full $colour gown",
+			["antiquity_left_shoulder_overdrape"] = "a $colour left-shoulder overdrape",
+			["antiquity_star_bordered_linen_robe"] = "a star-bordered $colour robe"
+		};
+
+	private static readonly IReadOnlyDictionary<string, string> PersianAntiquityClothingStableReferences =
+		new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+		{
+			["antiquity_sarapis_wool_tunic"] = "a $colour wool sarapis",
+			["antiquity_fine_sarapis_linen_tunic"] = "a fine $colour sarapis",
+			["antiquity_anaxyrides_wool_trousers"] = "a pair of $colour anaxyrides",
+			["antiquity_fine_patterned_anaxyrides"] = "a pair of $colour1 and $colour2 anaxyrides",
+			["antiquity_wool_kandys"] = "a $colour wool kandys",
+			["antiquity_fine_wool_kandys"] = "a fine $colour kandys",
+			["antiquity_pleated_court_robe"] = "a pleated $colour court robe",
+			["antiquity_fine_pleated_court_gown"] = "a fine pleated $colour gown",
+			["antiquity_wide_cloth_belt"] = "a wide $colour cloth belt",
+			["antiquity_fine_wide_cloth_belt"] = "a fine wide $colour belt",
+			["antiquity_full_head_and_neck_veil"] = "a full $colour head veil"
+		};
+
+	private static readonly IReadOnlyDictionary<string, string> EtruscanAntiquityClothingStableReferences =
+		new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+		{
+			["adjacent_antiquity_short_sleeved_linen_tunic"] = "a $colour short-sleeved tunic",
+			["adjacent_antiquity_bordered_wool_tunic"] = "a fine $colour bordered tunic",
+			["adjacent_antiquity_curved_tebenna"] = "a $colour curved tebenna",
+			["adjacent_antiquity_fine_curved_tebenna"] = "a fine $colour tebenna",
+			["adjacent_antiquity_wrapped_linen_skirt"] = "a $colour wrapped linen skirt",
+			["adjacent_antiquity_rectangular_shoulder_cloak"] = "a $colour shoulder cloak",
+			["adjacent_antiquity_fitted_linen_gown"] = "a fine $colour fitted gown",
+			["adjacent_antiquity_linen_head_mantle"] = "a $colour linen head mantle"
+		};
+
+	private static readonly IReadOnlyDictionary<string, string> AnatolianAntiquityClothingStableReferences =
+		new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+		{
+			["adjacent_antiquity_belted_wool_tunic"] = "a $colour belted wool tunic",
+			["adjacent_antiquity_fine_banded_tunic"] = "a $colour1 and $colour2 banded tunic",
+			["adjacent_antiquity_banded_leg_wraps"] = "a pair of $colour leg wraps",
+			["adjacent_antiquity_hooded_wool_cloak"] = "a $colour hooded wool cloak",
+			["adjacent_antiquity_forward_pointing_felt_cap"] = "a $colour forward-pointing cap",
+			["adjacent_antiquity_short_wool_cape"] = "a short $colour wool cape",
+			["adjacent_antiquity_fine_patterned_wool_robe"] = "a fine $colour patterned robe",
+			["adjacent_antiquity_fringed_wool_mantle"] = "a fine $colour fringed mantle",
+			["adjacent_antiquity_wool_wrapped_skirt"] = "a $colour wrapped wool skirt",
+			["adjacent_antiquity_fine_rectangular_veil"] = "a fine $colour rectangular veil"
+		};
+
+	private static readonly IReadOnlyDictionary<string, string> ScythianSarmatianAntiquityClothingStableReferences =
+		new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+		{
+			["adjacent_antiquity_felt_riding_cap"] = "a $colour felt riding cap",
+			["adjacent_antiquity_tall_felt_cap"] = "a tall $colour felt cap",
+			["adjacent_antiquity_riding_tunic"] = "a $colour long-sleeved riding tunic",
+			["adjacent_antiquity_wool_riding_trousers"] = "a pair of $colour riding trousers",
+			["adjacent_antiquity_patterned_riding_trousers"] = "a pair of fine $colour trousers",
+			["adjacent_antiquity_open_riding_caftan"] = "a $colour open riding caftan",
+			["adjacent_antiquity_fur_trimmed_caftan"] = "a fine $colour fur-trimmed caftan",
+			["adjacent_antiquity_split_riding_skirt"] = "a $colour split riding skirt",
+			["adjacent_antiquity_long_felt_coat"] = "a long $colour felt coat"
+		};
+
 	private sealed record CraftValidationError(string CraftName, string Kind, string ImportText, string Message)
 	{
 		public override string ToString()
@@ -1816,6 +1982,18 @@ return ""You need at least {minimumTraitValue.Value.ToString(System.Globalizatio
     {
         // Reset nextID
 		_nextId = _context!.Crafts.Select(x => x.Id).ToList().DefaultIfEmpty(0).Max(x => x) + 1;
+
+		SeedAntiquityHellenicClothingCrafts();
+		SeedAntiquityEgyptianClothingCrafts();
+		SeedAntiquityRomanClothingCrafts();
+		SeedAntiquityCelticClothingCrafts();
+		SeedAntiquityGermanicClothingCrafts();
+		SeedAntiquityKushiteClothingCrafts();
+		SeedAntiquityPunicClothingCrafts();
+		SeedAntiquityPersianClothingCrafts();
+		SeedAntiquityEtruscanClothingCrafts();
+		SeedAntiquityAnatolianClothingCrafts();
+		SeedAntiquityScythianSarmatianClothingCrafts();
 
         AddCraft("sew padded vest", "Armorcrafting", "sew a padded cloth vest", "sewing a padded vest", "a padded vest armormaking event", "HasTailoring", null, null, null, _traits["Tailoring"] ?? _traits["Tailor"] ?? _traits.First().Value, Difficulty.Normal, Outcome.MinorFail, 5, 6, false, [(35, "$0 lay|lays out $i1 and begin|begins to divide it into three pieces - one large, and two smaller sheets, cutting away with $t2. Additionally, when that is done, $0 pick|picks up $t1 and thread|threads $i2 through the needle eye.", "$0 lay|lays out $i1 and begin|begins to divide it into three pieces - one large, and two smaller sheets, cutting away with $t2. Additionally, when that is done, $0 pick|picks up $t1 and thread|threads $i2 through the needle eye."), (30, "$0 set|sets aside the smaller pieces of cloth for the moment, focusing on the larger sheet. $0 further cut|cuts that larger piece into two more pieces, and then sew|sews those pieces together to form a rough sort of case.", "$0 set|sets aside the smaller pieces of cloth for the moment, focusing on the larger sheet. $0 further cut|cuts that larger piece into two more pieces, and then sew|sews those pieces together to form a rough sort of case."), (35, "$0 liberally stuff|stuffs that cloth case with $i3 until it is almost stiff and inflexible, then sew|sews it shut with $t1 to create a padded tube with a hole for someone's head, and two smaller holes for someone's arms.", "$0 liberally stuff|stuffs that cloth case with $i3 until it is almost stiff and inflexible, then sew|sews it shut with $t1 to create a padded tube with a hole for someone's head, and two smaller holes for someone's arms."), (40, "$0 turn|turns to the smaller sheets of cloth, cutting, sewing and padding these sheets until they are amply padded cloth tubes.", "$0 turn|turns to the smaller sheets of cloth, cutting, sewing and padding these sheets until they are amply padded cloth tubes."), (40, "$0 finally begin|begins to sew the padded sleeves to the shoulder arm-holes of the vest, using $i2 to tightly fix them in place.", "$0 finally begin|begins to sew the padded sleeves to the shoulder arm-holes of the vest, using $i2 to tightly fix them in place."), (40, "$0 hold|holds up $p1, checking the piece over critically before setting it aside.", "Unfortunately, shoddy craftsmanship means that $0 end|ends up shredding the terrible vest for $f1.")], ["CommodityTag - 1 kilogram 500 grams of a material tagged as Fabric", "Tag - 1x an item with the Thread tag", "Tag - 50x an item with the Padding tag"], ["TagTool - Held - an item with the Sewing Needle tag", "TagTool - Held - an item with the Scissors tag"], ["SimpleProduct - 1x a padded @material gambeson with long sleeves (#274)"], ["UnusedInput - 45.00% of 50x an item with the Padding tag ($i3)"], [(1, 1)]);
         AddCraft("sew padded cap", "Armorcrafting", "sew a padded cloth cap", "sewing a padded cap", "a padded cap armormaking event", "HasTailoring", null, null, null, _traits["Tailoring"] ?? _traits["Tailor"] ?? _traits.First().Value, Difficulty.Normal, Outcome.MinorFail, 5, 5, false, [(35, "$0 lay|lays out $i1 and begin|begins to divide it into two smaller pieces, cutting with $t2.", "$0 lay|lays out $i1 and begin|begins to divide it into two smaller pieces, cutting with $t2."), (30, "$0 set|sets aside the pattern-shaped pieces of cloth for a moment and instead reach|reaches for $t1 and $i2, threading the end of the thread through the needle.", "$0 set|sets aside the pattern-shaped pieces of cloth for a moment and instead reach|reaches for $t1 and $i2, threading the end of the thread through the needle."), (35, "$0 begin|begins to stitch the two smaller pieces of cloth together, leaving the bowl-shaped case open at one end.", "$0 begin|begins to stitch the two smaller pieces of cloth together, leaving the bowl-shaped case open at one end."), (40, "$0 begin|begins to stuff the case full of $i3 until it is stiff and firmly padded, then stitch|stitches the opening shut.", "$0 begin|begins to stuff the case full of $i3 until it is stiff and firmly padded, then stitch|stitches the opening shut."), (40, "$0 hold|holds up $p1, checking the piece over critically before setting it aside.", "Unfortunately, shoddy craftsmanship means that $0 end|ends up shredding the terrible cap for $f1.")], ["CommodityTag - 500 grams of a material tagged as Fabric", "Tag - 1x an item with the Thread tag", "Tag - 20x an item with the Padding tag"], ["TagTool - Held - an item with the Sewing Needle tag", "TagTool - Held - an item with the Scissors tag"], ["SimpleProduct - 1x a padded @material arming cap (#275)"], ["UnusedInput - 45.00% of 50x an item with the Padding tag ($i3)"], [(1, 1)]);

@@ -203,6 +203,19 @@ public partial class CoreDataSeeder
 			AddMaterial(name, MaterialBehaviourType.Powder, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, "Spice");
 		}
 
+		AddMaterial("madder root", MaterialBehaviourType.Plant, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500,
+			"Herb", "Textile Dye");
+		AddMaterial("indigo dye cake", MaterialBehaviourType.Powder, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500,
+			"Textile Dye");
+		AddMaterial("ochre pigment", MaterialBehaviourType.Powder, 2.8, false, 1000, 1000, 0.0, 0.14, 0.0001, 500,
+			"Textile Dye", "Stone");
+		AddMaterial("alum mordant", MaterialBehaviourType.Powder, 1.7, false, 1000, 1000, 0.0, 0.14, 0.0001, 500,
+			"Textile Mordant");
+		EnsureAlias(materials["madder root"], "madder");
+		EnsureAlias(materials["indigo dye cake"], "indigo");
+		EnsureAlias(materials["ochre pigment"], "ochre");
+		EnsureAlias(materials["alum mordant"], "alum");
+
 		foreach (var name in new[]
 		{
 			"flatbread", "biscuit", "cracker", "cake", "muffin", "bagel", "bun", "tortilla", "croissant",
@@ -462,6 +475,8 @@ public partial class CoreDataSeeder
         AddTag("Baked Good", "Food");
         AddTag("Herb", "Food");
         AddTag("Spice", "Food");
+        AddTag("Textile Dye", "Materials");
+        AddTag("Textile Mordant", "Materials");
         AddTag("Hair", "Natural Materials");
         AddTag("Agricultural Crop", "Natural Materials");
         AddTag("Food Crop", "Agricultural Crop");

@@ -67,6 +67,15 @@ namespace DatabaseSeeder.Seeders
             AddTag(context, "Ignition Source", "Material Functions");
             AddTag(context, "Fire", "Material Functions");
             AddTag(context, "Musket Wadding", "Material Functions");
+            AddTag(context, "Textile Commodity", "Material Functions");
+            AddTag(context, "Raw Textile Fibre", "Textile Commodity");
+            AddTag(context, "Prepared Textile Fibre", "Textile Commodity");
+            AddTag(context, "Spun Yarn", "Textile Commodity");
+            AddTag(context, "Garment Cloth", "Textile Commodity");
+            AddTag(context, "Woven Cloth", "Garment Cloth");
+            AddTag(context, "Dyed Cloth", "Garment Cloth");
+            AddTag(context, "Fulled Cloth", "Garment Cloth");
+            AddTag(context, "Bead Stock", "Material Functions");
 
             AddTag(context, "Repairing", "Functions");
             AddTag(context, "Sharpening", "Functions");
@@ -389,6 +398,12 @@ namespace DatabaseSeeder.Seeders
             AddTag(context, "Loom", "Textilecraft Tools");
             AddTag(context, "Knitting Needle", "Textilecraft Tools");
             AddTag(context, "Dress Form", "Textilecraft Tools");
+            AddTag(context, "Flax Processing Tools", "Textilecraft Tools");
+            AddTag(context, "Retting Trough", "Flax Processing Tools");
+            AddTag(context, "Flax Break", "Flax Processing Tools");
+            AddTag(context, "Flax Beater", "Flax Processing Tools");
+            AddTag(context, "Hackle", "Flax Processing Tools");
+            AddTag(context, "Fibre Comb", "Flax Processing Tools");
 
             // Woodcrafting Tools
             AddTag(context, "Woodcrafting Tools", "Tools");

@@ -568,7 +568,9 @@ Craft creation is insert-or-skip by stable `Name + Category`.
 
 If a matching craft already exists, `AddCraft` returns that existing row unchanged. It does not refresh the craft and does not add duplicate phases, inputs, tools, products, or fail products.
 
-The skip happens before parsing imports or generating/upserting trait and knowledge helper progs. If you need to repair an existing craft's access progs or knowledge metadata, do that as a deliberate separate migration rather than by rerunning the same craft call.
+The seed craft call is still the base install truth. If a craft has incorrect visible text, inputs, tools, products, or metadata, fix the `AddCraft` call or typed spec so a clean install creates the correct craft directly. Do not seed a wrong craft and then rely on a second correction pass for new databases.
+
+The skip happens before parsing imports or generating/upserting trait and knowledge helper progs. This protects already-installed craft rows from accidental duplicate child records. If an existing database needs a stock-craft compatibility update, implement that as explicit, narrow migration or compatibility work with documented stock ownership rather than by rerunning the same craft call.
 
 This is deliberate narrow repeatability for stock craft rows only. It is not a claim that all `ItemSeeder` item/component content is fully repeatable or repair-capable.
 

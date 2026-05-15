@@ -14,11 +14,26 @@ This document is based on verified code behavior in the current stock repo, not 
 
 ## Target Principles
 - Minimize questions. If multiple stock options can coexist safely, prefer shipping more stock content over asking the builder to choose only one path.
+- Treat stock seed definitions as the base install truth. Clean installs should receive corrected content directly from the source definitions, not from follow-up repair passes.
 - Reuse previous answers wherever practical. Shared setup answers should come from the generic `SeederChoice` answer-memory flow rather than bespoke helper logic.
 - Present honest rerun semantics. If a seeder is additive, idempotent, or one-shot, the menu and package details should say so clearly.
 - Prefer deterministic lookup-and-upsert behavior for stock-owned records. The default rule for repeatable seeders is: install missing stock records, update stock-owned canonical records when safe, and leave clearly user-customized records alone unless the seeder explicitly documents a different rule.
 - Keep prerequisites explicit. A blocked seeder should explain what is missing instead of relying only on broad boolean probes.
 - Treat the seeder framework as shared infrastructure. Foundational seeders should not solve repeatability in isolation.
+
+## Base Install Truth
+Stock seed definitions are the canonical output of a clean install. When stock content is wrong, incomplete, poorly named, or inconsistent with the authoring rules, fix the definition that creates it so a new database receives the corrected data immediately.
+
+Do not seed known-bad stock data and then rely on a follow-up correction method to make the install usable. Compatibility update paths are acceptable only when they serve existing databases that may already have old stock rows, or when a seeder has an explicitly documented `RepairExisting` or `FullReconcile` ownership model.
+
+Any repair-capable or compatibility update path must be:
+
+- narrow to stock-owned rows with stable lookup keys
+- documented in this strategy and in the affected seeder or subsystem design note
+- safe for builder-customized data
+- unnecessary for a clean install to be correct
+
+For source-only catalogue fixes, prefer invariant tests that scan the seed definitions or generated specs so regressions fail before they become seeded data.
 
 ## Taxonomy
 ### Repeatability mode
@@ -163,7 +178,9 @@ These five seeders need separate design work before repeatability claims are exp
 
 ## Contributor Checklist
 - When adding or changing a seeder, update both its metadata and any shared-answer mapping that applies.
+- Fix incorrect stock content at the seed definition first. Do not add a correction layer that is required for a clean install to be correct.
 - If a seeder becomes safely rerunnable, document whether it is additive, install-missing, repair-capable, or full-reconcile.
+- Add compatibility repair/update code only for existing databases or explicitly owned rerun reconciliation, and keep it narrow and documented.
 - Do not rely on `ExtraPackagesAvailable` alone to communicate rerun safety.
 - Do not pass `StringComparison`-based predicates directly into EF-translated seeder queries. Use `AsEnumerable()` explicitly or shape the query so EF only handles the safe prefilter.
 - Prefer deterministic, stock-owned lookup keys over “anything exists” installed-state checks.

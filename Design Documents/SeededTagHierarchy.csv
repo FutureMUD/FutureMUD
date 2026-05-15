@@ -141,6 +141,16 @@ Padding	Material Functions	Functions / Material Functions / Padding
 Salvagable Fabric	Material Functions	Functions / Material Functions / Salvagable Fabric
 String	Material Functions	Functions / Material Functions / String
 Tanning Agent	Material Functions	Functions / Material Functions / Tanning Agent
+Leather Commodity	Material Functions	Functions / Material Functions / Leather Commodity
+Prepared Hide	Leather Commodity	Functions / Material Functions / Leather Commodity / Prepared Hide
+Tanned Leather	Leather Commodity	Functions / Material Functions / Leather Commodity / Tanned Leather
+Leather Sole	Leather Commodity	Functions / Material Functions / Leather Commodity / Leather Sole
+Leather Strap	Leather Commodity	Functions / Material Functions / Leather Commodity / Leather Strap
+Leather Thong	Leather Commodity	Functions / Material Functions / Leather Commodity / Leather Thong
+Leather Panel	Leather Commodity	Functions / Material Functions / Leather Commodity / Leather Panel
+Hardened Leather Panel	Leather Commodity	Functions / Material Functions / Leather Commodity / Hardened Leather Panel
+Leather Scale	Leather Commodity	Functions / Material Functions / Leather Commodity / Leather Scale
+Sealed Leather Panel	Leather Commodity	Functions / Material Functions / Leather Commodity / Sealed Leather Panel
 Reflective	Functions	Functions / Reflective
 Repairing	Functions	Functions / Repairing
 Separation	Functions	Functions / Separation
@@ -545,6 +555,8 @@ Edge Beveller	Leatherworking Tools	Functions / Tools / Leatherworking Tools / Ed
 Leather Creaser	Leatherworking Tools	Functions / Tools / Leatherworking Tools / Leather Creaser
 Leather Gouge	Leatherworking Tools	Functions / Tools / Leatherworking Tools / Leather Gouge
 Leather Stitching Pony	Leatherworking Tools	Functions / Tools / Leatherworking Tools / Leather Stitching Pony
+Shoe Last	Leatherworking Tools	Functions / Tools / Leatherworking Tools / Shoe Last
+Leather Wax Pot	Leatherworking Tools	Functions / Tools / Leatherworking Tools / Leather Wax Pot
 Locksmithing Tools	Tools	Functions / Tools / Locksmithing Tools
 Impressioning File	Locksmithing Tools	Functions / Tools / Locksmithing Tools / Impressioning File
 Key Gauge	Locksmithing Tools	Functions / Tools / Locksmithing Tools / Key Gauge

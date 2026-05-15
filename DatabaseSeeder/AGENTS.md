@@ -18,6 +18,7 @@ Interactive installer that seeds initial database data and configuration for a n
 
 ## Seeder Policy
 - Treat repeatability as a first-class design concern. New or modified seeders should declare honest repeatability and update semantics through the seeder metadata, not only through prose or warning colors.
+- Treat stock seed definitions as the base install truth. Fix bad stock content at the source definition; use repair/update paths only for existing databases or explicitly documented stock-owned rerun reconciliation.
 - Prefer additive installs and deterministic lookup-and-upsert behavior over one-shot seeders whenever the stock data has stable ownership boundaries.
 - Ask as few questions as practical. If multiple stock options can coexist safely, prefer installing multiple options over forcing an early fork in the setup flow.
 - Reuse prior answers through shared answer keys and the generic `SeederChoice` answer-memory flow instead of ad hoc per-seeder lookup code.

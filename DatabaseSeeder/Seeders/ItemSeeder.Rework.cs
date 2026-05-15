@@ -111,6 +111,8 @@ namespace DatabaseSeeder.Seeders
                 SeedAntiquityArmour();
                 SeedAntiquityContainers();
                 SeedAntiquityDoorsAndLocks();
+                SeedAntiquityHouseholdFurniture();
+                SeedAntiquityWeaponsShieldsAccessories();
             }
 
             if (_questionAnswers["eras"].Contains("medieval", StringComparison.InvariantCultureIgnoreCase))

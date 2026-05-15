@@ -1348,6 +1348,77 @@ public class MagicSpell : SaveableItem, IMagicSpell
     public OutputFlags CastingEmoteFlags { get; set; }
     public OutputFlags TargetEmoteFlags { get; set; }
 
+    public bool CharacterKnowsSpell(ICharacter magician)
+    {
+        if (magician is null || SpellKnownProg is null)
+        {
+            return false;
+        }
+
+        if (magician.Capabilities.Select(x => x.School).Distinct().All(x => x != School))
+        {
+            return false;
+        }
+
+        return SpellKnownProg.Execute<bool?>(magician, this) == true;
+    }
+
+    public bool CharacterCanCast(ICharacter magician, IPerceivable target)
+    {
+        if (Trigger is not ICastMagicTrigger castTrigger)
+        {
+            return false;
+        }
+
+        return Enum.GetValues<SpellPower>()
+                   .Where(x => x >= castTrigger.MinimumPower && x <= castTrigger.MaximumPower)
+                   .Any(x => CharacterCanCast(magician, target, x));
+    }
+
+    public bool CharacterCanCast(ICharacter magician, IPerceivable target, SpellPower power)
+    {
+        if (magician is null || !ReadyForGame || !CharacterKnowsSpell(magician))
+        {
+            return false;
+        }
+
+        if (Trigger is not ICastMagicTrigger castTrigger ||
+            power < castTrigger.MinimumPower ||
+            power > castTrigger.MaximumPower)
+        {
+            return false;
+        }
+
+        if (magician.CombinedEffectsOfType<MagicSpellLockout>().Any(x => x.Applies(School)))
+        {
+            return false;
+        }
+
+        foreach ((IMagicResource resource, ITraitExpression expression) in _castingCosts)
+        {
+            expression.Formula.Parameters["power"] = (int)power;
+            expression.Formula.Parameters["self"] = magician == target ? 1 : 0;
+            double cost = expression.Evaluate(magician, CastingTrait, TraitBonusContext.SpellCost);
+            if (!magician.CanUseResource(resource, cost))
+            {
+                return false;
+            }
+        }
+
+        if (InventoryPlanTemplate is null ||
+            InventoryPlanTemplate.CreatePlan(magician).PlanIsFeasible() != InventoryPlanFeasibility.Feasible)
+        {
+            return false;
+        }
+
+        if (target is null && SpellEffects.Any(x => x.RequiresTarget))
+        {
+            return false;
+        }
+
+        return true;
+    }
+
     public void CastSpell(ICharacter magician, IPerceivable target, SpellPower power,
         params SpellAdditionalParameter[] additionalParameters)
     {

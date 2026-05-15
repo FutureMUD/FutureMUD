@@ -348,6 +348,282 @@ namespace DatabaseSeeder.Seeders
 
             #endregion
 
+            #region Antiquity Leatherworking Tools
+            CreateItem(
+                "antiquity_bronze_awl_punch",
+                "awl",
+                "a bronze awl punch",
+                null,
+                "This bronze awl punch has a narrow tapered point set into a plain wooden grip. It is made for opening stitch holes in leather straps, soles, belts, and soft footwear without tearing the hide.",
+                SizeCategory.VerySmall,
+                ItemQuality.Standard,
+                90.0,
+                12.0m,
+                false,
+                false,
+                "bronze",
+                ["Market / Professional Tools / Standard Tools", "Functions / Tools / Leatherworking Tools / Awl Punch"],
+                ["Holdable", "Destroyable_Misc"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_oak_stitching_pony",
+                "clamp",
+                "an oak leather stitching clamp",
+                null,
+                "This oak stitching clamp has two smooth jaws and a wedge for holding leather while it is sewn. It frees both hands for awl work, thonging, and close stitching along soles or belt edges.",
+                SizeCategory.Normal,
+                ItemQuality.Standard,
+                3200.0,
+                24.0m,
+                false,
+                false,
+                "oak",
+                ["Market / Professional Tools / Standard Tools", "Functions / Tools / Leatherworking Tools / Leather Stitching Pony"],
+                ["Holdable", "Destroyable_Misc"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_bronze_edge_beveller",
+                "beveller",
+                "a bronze leather edge beveller",
+                null,
+                "This small bronze edge beveller has a hooked cutting lip for shaving the harsh corners from leather soles and straps. Its wooden handle is darkened from oily hands and tanning work.",
+                SizeCategory.VerySmall,
+                ItemQuality.Standard,
+                85.0,
+                14.0m,
+                false,
+                false,
+                "bronze",
+                ["Market / Professional Tools / Standard Tools", "Functions / Tools / Leatherworking Tools / Edge Beveller"],
+                ["Holdable", "Destroyable_Misc"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_bronze_leather_gouge",
+                "gouge",
+                "a bronze leather gouge",
+                null,
+                "This bronze leather gouge is narrow and slightly curved, suited to drawing straight cuts for straps and thinning channels where leather will fold or stitch.",
+                SizeCategory.VerySmall,
+                ItemQuality.Standard,
+                95.0,
+                16.0m,
+                false,
+                false,
+                "bronze",
+                ["Market / Professional Tools / Standard Tools", "Functions / Tools / Leatherworking Tools / Leather Gouge"],
+                ["Holdable", "Destroyable_Misc"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_bronze_leather_creaser",
+                "creaser",
+                "a bronze leather creaser",
+                null,
+                "This blunt bronze creaser presses guide lines and fold marks into damp leather. Its working end is rounded rather than sharp so it can set a line without cutting the grain.",
+                SizeCategory.VerySmall,
+                ItemQuality.Standard,
+                80.0,
+                12.0m,
+                false,
+                false,
+                "bronze",
+                ["Market / Professional Tools / Standard Tools", "Functions / Tools / Leatherworking Tools / Leather Creaser"],
+                ["Holdable", "Destroyable_Misc"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_oak_shoe_last",
+                "last",
+                "an oak shoe last",
+                null,
+                "This simple oak shoe last is shaped like a low foot form with a rounded toe and narrow heel. It gives soft shoes, sandals, and ankle boots a steady shape while straps and uppers are stitched.",
+                SizeCategory.Small,
+                ItemQuality.Standard,
+                850.0,
+                18.0m,
+                false,
+                false,
+                "oak",
+                ["Market / Professional Tools / Standard Tools", "Functions / Tools / Leatherworking Tools / Shoe Last"],
+                ["Holdable", "Destroyable_Misc"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_bronze_leather_wax_pot",
+                "pot",
+                "a bronze leather wax pot",
+                null,
+                "This small bronze pot has a rounded base, soot-darkened sides, and a short pouring lip for warming beeswax and oils used in leather hardening and vessel sealing. Its handle is wrapped in worn leather so it can be shifted near a hot fire.",
+                SizeCategory.Small,
+                ItemQuality.Standard,
+                650.0,
+                28.0m,
+                false,
+                false,
+                "bronze",
+                ["Market / Professional Tools / Standard Tools", "Functions / Tools / Leatherworking Tools / Leather Wax Pot"],
+                ["Holdable", "Destroyable_Misc"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_bronze_hide_scraper",
+                "scraper",
+                "a bronze hide scraper",
+                null,
+                "This bronze hide scraper has a broad dull edge for pushing fat, flesh, and membrane away from raw skin. Its back is heavy enough to lean into the work without cutting through the hide.",
+                SizeCategory.Small,
+                ItemQuality.Standard,
+                420.0,
+                18.0m,
+                false,
+                false,
+                "bronze",
+                ["Market / Professional Tools / Standard Tools", "Functions / Tools / Tanning Tools / Hide Scraper"],
+                ["Holdable", "Destroyable_Misc"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_oak_tanning_beam",
+                "beam",
+                "an oak tanning beam",
+                null,
+                "This rounded oak beam is braced low for scraping hides. Its surface is slick and dark from water, fat, bark liquor, and years of hard pressure from scrapers.",
+                SizeCategory.Large,
+                ItemQuality.Standard,
+                18000.0,
+                32.0m,
+                false,
+                false,
+                "oak",
+                ["Market / Professional Tools / Standard Tools", "Functions / Tools / Tanning Tools / Tanning Beam"],
+                ["Holdable", "Destroyable_Furniture"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_oak_tanning_rack",
+                "rack",
+                "an oak tanning rack",
+                null,
+                "This oak rack has pegged rails and tie points for stretching wet hides as they dry. It keeps leather broad and even while scraping, oiling, and curing finish the work.",
+                SizeCategory.VeryLarge,
+                ItemQuality.Standard,
+                26000.0,
+                45.0m,
+                false,
+                false,
+                "oak",
+                ["Market / Professional Tools / Standard Tools", "Functions / Tools / Tanning Tools / Tanning Rack"],
+                ["Holdable", "Destroyable_Furniture"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_oak_tanning_paddle",
+                "paddle",
+                "an oak tanning paddle",
+                null,
+                "This flat oak paddle is used to turn hides through water and tanning liquor. Its blade is broad and smooth so it can move soaked leather without tearing it.",
+                SizeCategory.Normal,
+                ItemQuality.Standard,
+                900.0,
+                10.0m,
+                false,
+                false,
+                "oak",
+                ["Market / Professional Tools / Standard Tools", "Functions / Tools / Tanning Tools / Tanning Paddle"],
+                ["Holdable", "Destroyable_Misc"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_bronze_dehairing_knife",
+                "knife",
+                "a bronze dehairing knife",
+                null,
+                "This bronze dehairing knife has a long dull blade made for pushing hair from soaked skins. It is safer against the hide than a sharp cutting knife, but still firm enough to strip stubborn patches.",
+                SizeCategory.Small,
+                ItemQuality.Standard,
+                260.0,
+                16.0m,
+                false,
+                false,
+                "bronze",
+                ["Market / Professional Tools / Standard Tools", "Functions / Tools / Tanning Tools / Leather Dehairing Knife"],
+                ["Holdable", "Destroyable_Misc"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_oak_brain_tanning_bucket",
+                "bucket",
+                "an oak brain-tanning bucket",
+                null,
+                "This tight oak bucket is made for mixing oily tanning liquor before it is worked into prepared hide. Its staves are stained by bark, fat, smoke, and repeated hide dressing.",
+                SizeCategory.Normal,
+                ItemQuality.Standard,
+                2800.0,
+                18.0m,
+                false,
+                false,
+                "oak",
+                ["Market / Professional Tools / Standard Tools", "Functions / Tools / Tanning Tools / Brain Tanning Bucket"],
+                ["Holdable", "Destroyable_Misc"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            #endregion
+
             #region Common Antiquity
             CreateItem(
                 "antiquity_linen_loincloth",

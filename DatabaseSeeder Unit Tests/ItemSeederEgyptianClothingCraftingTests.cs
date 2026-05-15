@@ -24,7 +24,7 @@ public class ItemSeederEgyptianClothingCraftingTests
 	[TestMethod]
 	public void EgyptianClothingCrafts_ProduceEveryCurrentEgyptianClothingPrototype()
 	{
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.Egyptian.cs");
+		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.Antiquity.cs");
 		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.Antiquity.cs");
 
 		foreach (var stableReference in EgyptianClothingStableReferences)
@@ -39,7 +39,7 @@ public class ItemSeederEgyptianClothingCraftingTests
 	[TestMethod]
 	public void EgyptianFinishedGarmentCrafts_UseEgyptianKnowledgeGate()
 	{
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.Egyptian.cs");
+		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.Antiquity.cs");
 		var itemCraftingSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.cs");
 
 		AssertContains(craftSource, "const string egyptianKnowledge = \"Egyptian Textilecraft\"");
@@ -52,7 +52,7 @@ public class ItemSeederEgyptianClothingCraftingTests
 	[TestMethod]
 	public void EgyptianBeadedGarments_UseCommodityBeadStockAndPeriodNeedle()
 	{
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.Egyptian.cs");
+		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.Antiquity.cs");
 		var tagSource = ReadSource("DatabaseSeeder", "Seeders", "UsefulSeeder.Tags.cs");
 		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.Antiquity.cs");
 
@@ -67,7 +67,7 @@ public class ItemSeederEgyptianClothingCraftingTests
 	[TestMethod]
 	public void EgyptianGarmentCrafts_UseSharedTextileCommoditiesAndCopyColours()
 	{
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.Egyptian.cs");
+		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.Antiquity.cs");
 
 		foreach (var expected in new[]
 		{

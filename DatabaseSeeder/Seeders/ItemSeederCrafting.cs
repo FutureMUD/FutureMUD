@@ -270,6 +270,14 @@ public partial class ItemSeeder
 	private static readonly IReadOnlyDictionary<string, string> AntiquityLeatherArmourStableReferences =
 		new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
 		{
+			["antiquity_shield_common_round_hide_shield"] = "a round hide shield",
+			["antiquity_shield_punic_round_hide_shield"] = "a round hide-faced shield",
+			["antiquity_shield_persian_round_dhal"] = "a round hide dhal shield",
+			["antiquity_shield_egyptian_hide_shield"] = "a tall hide shield",
+			["antiquity_shield_anatolian_tall_hide_shield"] = "a tall hide body shield",
+			["antiquity_shield_scythian_small_hide_shield"] = "a small hide horseman shield",
+			["antiquity_shield_sarmatian_round_targe"] = "a round leather targe",
+			["antiquity_shield_kushite_large_oxhide_shield"] = "a large oxhide shield",
 			["antiquity_celtic_dyed_leather_scale_vest"] = "a $colour leather scale vest",
 			["antiquity_celtic_bronze_studded_leather_belt"] = "a bronze-studded leather war belt",
 			["antiquity_celtic_leather_war_bracers"] = "a pair of leather war bracers",
@@ -305,6 +313,48 @@ public partial class ItemSeeder
 	private static readonly IReadOnlyDictionary<string, string> AntiquityLeatherContainerStableReferences =
 		new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
 		{
+			["antiquity_accessory_common_leather_arrow_quiver"] = "a $colour leather arrow quiver",
+			["antiquity_accessory_common_tall_arrow_quiver"] = "a tall leather arrow quiver",
+			["antiquity_accessory_common_sling_bullet_pouch"] = "a sling-stone pouch",
+			["antiquity_accessory_common_lead_bullet_pouch"] = "a reinforced bullet pouch",
+			["antiquity_accessory_common_small_knife_sheath"] = "a small leather knife sheath",
+			["antiquity_accessory_common_dagger_sheath"] = "a leather dagger sheath",
+			["antiquity_accessory_common_straight_sword_scabbard"] = "a straight leather sword scabbard",
+			["antiquity_accessory_common_long_sword_scabbard"] = "a long leather sword scabbard",
+			["antiquity_accessory_common_large_weapon_sling"] = "a large leather weapon sling",
+			["antiquity_accessory_common_javelin_quiver"] = "a leather javelin quiver",
+			["antiquity_accessory_common_broad_weapon_belt"] = "a broad leather weapon belt",
+			["antiquity_accessory_celtic_decorated_sword_scabbard"] = "a decorated sword scabbard",
+			["antiquity_accessory_celtic_broad_baldric"] = "a broad leather sword baldric",
+			["antiquity_accessory_germanic_seax_sheath"] = "a broad seax sheath",
+			["antiquity_accessory_germanic_axe_belt_loop"] = "a leather axe belt loop",
+			["antiquity_accessory_roman_gladius_scabbard"] = "a fitted gladius scabbard",
+			["antiquity_accessory_roman_pugio_sheath"] = "a decorated pugio sheath",
+			["antiquity_accessory_roman_spatha_scabbard"] = "a long spatha scabbard",
+			["antiquity_accessory_roman_pilum_carrying_sleeve"] = "a pilum carrying sleeve",
+			["antiquity_accessory_roman_plumbata_pouch"] = "a weighted dart pouch",
+			["antiquity_accessory_roman_military_weapon_belt"] = "a fitted military weapon belt",
+			["antiquity_accessory_hellenic_xiphos_scabbard"] = "a short xiphos scabbard",
+			["antiquity_accessory_hellenic_kopis_sheath"] = "a curved kopis sheath",
+			["antiquity_accessory_hellenic_bolt_quiver"] = "a short bolt quiver",
+			["antiquity_accessory_punic_javelin_quiver"] = "a back-slung javelin quiver",
+			["antiquity_accessory_punic_short_sword_sheath"] = "a bronze-fitted sword sheath",
+			["antiquity_accessory_persian_gorytos_quiver"] = "a decorated leather gorytos",
+			["antiquity_accessory_persian_akinakes_scabbard"] = "a short decorated scabbard",
+			["antiquity_accessory_persian_bowcase_strap"] = "a leather bowcase strap",
+			["antiquity_accessory_persian_arrow_pouch"] = "a small arrowhead pouch",
+			["antiquity_accessory_egyptian_khopesh_sheath"] = "a curved khopesh sheath",
+			["antiquity_accessory_egyptian_linen_arrow_quiver"] = "a linen-covered arrow quiver",
+			["antiquity_accessory_etruscan_bronze_fitted_scabbard"] = "a bronze-fitted sword scabbard",
+			["antiquity_accessory_etruscan_spear_sling"] = "a leather spear carrying sling",
+			["antiquity_accessory_etruscan_dagger_sheath"] = "a small bronze-edged sheath",
+			["antiquity_accessory_anatolian_arrow_quiver"] = "a patterned arrow quiver",
+			["antiquity_accessory_anatolian_curved_sword_sheath"] = "a curved sword sheath",
+			["antiquity_accessory_scythian_gorytos"] = "a tooled leather gorytos",
+			["antiquity_accessory_scythian_axe_loop"] = "a horseman axe loop",
+			["antiquity_accessory_scythian_akinakes_scabbard"] = "a short akinakes scabbard",
+			["antiquity_accessory_kushite_tall_arrow_quiver"] = "a tall leather arrow quiver",
+			["antiquity_accessory_kushite_bow_carrying_sling"] = "a leather bow carrying sling",
 			["antiquity_smoked_hide_meat_bag"] = "a smoked hide provision bag",
 			["antiquity_leather_document_case"] = "a folded leather document case",
 			["antiquity_leather_mirror_case"] = "a tooled leather mirror case",
@@ -339,6 +389,9 @@ public partial class ItemSeeder
 	private static readonly IReadOnlyDictionary<string, string> AntiquityLeatherFurnishingStableReferences =
 		new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
 		{
+			["antiquity_hide_sleeping_roll"] = "a hide sleeping roll",
+			["antiquity_leather_floor_cover"] = "a leather floor cover",
+			["antiquity_fur_throw"] = "a soft fur throw",
 			["antiquity_fur_door_hanging"] = "a fur doorway hanging",
 			["antiquity_leather_tent_door_flap"] = "a leather tent door flap"
 		};
@@ -2087,6 +2140,7 @@ return ""You need at least {minimumTraitValue.Value.ToString(System.Globalizatio
 		SeedAntiquityEtruscanClothingCrafts();
 		SeedAntiquityAnatolianClothingCrafts();
 		SeedAntiquityScythianSarmatianClothingCrafts();
+		SeedAntiquityFurnitureAndContainerCrafts();
 		SeedAntiquityLeatherPreparationCrafts();
 		SeedAntiquityLeatherClothingCrafts();
 		SeedAntiquityLeatherArmourCrafts();

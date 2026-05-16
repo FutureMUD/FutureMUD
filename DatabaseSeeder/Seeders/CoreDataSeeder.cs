@@ -8974,6 +8974,31 @@ return IsAdmin(@ch)",
             Pluralisation = 0
         });
 
+        var nextColourCharacteristicValue = 316;
+        foreach (var value in new[]
+                 {
+                     "madder red", "kermes scarlet", "lac crimson", "alkanet purple", "orchil violet",
+                     "tyrian purple", "woad blue", "egyptian blue", "azurite blue", "lapis blue",
+                     "malachite green", "verdigris green", "orpiment yellow", "realgar orange",
+                     "hematite red", "cinnabar red", "red ochre", "yellow ochre", "lamp black",
+                     "bone black", "lead white", "chalk white", "walnut brown", "oak-gall black",
+                     "pomegranate yellow", "saffron yellow", "henna orange", "faded madder red",
+                     "dull ochre", "dusty red ochre", "dull egyptian blue", "faded woad blue",
+                     "smoky lamp black", "chalky white", "tarnished lead white", "muddy walnut brown",
+                     "dull verdigris green", "faded tyrian purple", "stained saffron yellow"
+                 })
+        {
+            context.CharacteristicValues.Add(new CharacteristicValue
+            {
+                Id = nextId++,
+                Name = value,
+                DefinitionId = colourDef.Id,
+                Value = (nextColourCharacteristicValue++).ToString(),
+                Default = false,
+                Pluralisation = 0
+            });
+        }
+
         string[] gemColours =
         [
             "aquamarine",
@@ -9043,6 +9068,93 @@ return IsAdmin(@ch)",
             return $"<Values> {string.Join(" ", values.Select(x => $"<Value>{x}</Value>"))} </Values>";
         }
 
+        var ancientPigmentFineColours = new[]
+        {
+            "madder red", "kermes scarlet", "lac crimson", "alkanet purple", "orchil violet",
+            "tyrian purple", "woad blue", "egyptian blue", "azurite blue", "lapis blue",
+            "malachite green", "verdigris green", "orpiment yellow", "realgar orange",
+            "hematite red", "cinnabar red", "red ochre", "yellow ochre", "lamp black",
+            "bone black", "lead white", "chalk white", "walnut brown", "oak-gall black",
+            "pomegranate yellow", "saffron yellow", "henna orange"
+        };
+
+        var ancientPigmentDrabColours = new[]
+        {
+            "faded madder red", "dull ochre", "dusty red ochre", "dull egyptian blue",
+            "faded woad blue", "smoky lamp black", "chalky white", "tarnished lead white",
+            "muddy walnut brown", "dull verdigris green", "faded tyrian purple",
+            "stained saffron yellow"
+        };
+
+        var basicColourProfileValues = new[]
+        {
+            "black", "white", "grey", "light grey", "dark grey", "red", "dark red", "blue", "dark blue",
+            "green", "brown", "dark green", "orange", "light blue", "light green", "yellow", "light red",
+            "purple", "pink", "olive"
+        };
+
+        var fineColourProfileValues = new[]
+        {
+            "light grey", "dark grey", "red", "dark red", "blue", "dark blue", "green", "brown",
+            "dark green", "pale white", "olive", "caramel", "ebony", "emerald green", "cerulean",
+            "violet", "sandy brown", "light brown", "dark brown", "auburn", "onyx", "obsidian",
+            "midnight black", "ink black", "jet black", "pitch black", "ivory", "seashell", "snow white",
+            "gleaming white", "pure white", "pearl white", "bright white", "bone white", "ghost white",
+            "mist grey", "charcoal grey", "thistle grey", "smoky grey", "slate grey", "silver grey",
+            "soft grey", "ash grey", "crimson", "scarlet", "ruby red", "blood red", "rose red",
+            "wine red", "flame red", "coral", "copper", "fiery orange", "ochre", "sunset orange",
+            "amber", "goldenrod", "pale yellow", "golden yellow", "sand yellow", "topaz hued",
+            "gold-coloured", "spring green", "sea green", "hunter green", "olive green", "sage green",
+            "pine green", "bright green", "rich green", "pale green", "verdant green", "forest green",
+            "chartreuse", "slate blue", "bright blue", "powder blue", "sapphire blue", "royal blue",
+            "ocean blue", "teal", "cornflour blue", "sky blue", "azure", "beryl", "cobalt",
+            "rich indigo", "deep indigo", "vivid indigo", "earthen brown", "deep brown", "rich brown",
+            "burnt sienna", "chocolate", "cinnamon", "mahogany", "nut brown", "umber", "amethyst",
+            "mauve", "mulbery", "plum", "lavender", "royal purple", "orange", "light blue",
+            "light green", "pale blue", "yellow", "cyan", "navy blue", "reddish brown", "beige"
+        }.Concat(ancientPigmentFineColours);
+
+        var drabColourProfileValues = new[]
+        {
+            "faded black", "tattered black", "shabby black", "grimy black", "off-white", "dingy grey",
+            "bland yellow", "faded green", "faded blue", "faded indigo", "drab brown", "dim grey",
+            "dusky slate grey", "sooty grey", "chalky pale grey", "dull mist grey", "ashen off-white",
+            "dirty bone-white", "wan ivory", "spotted white", "stained white", "blotched white",
+            "dingy off-white", "stained ivory", "shabby sallow-coloured", "lurid pale yellow",
+            "dingy yellow", "gaudy mustard yellow", "sickly pale yellow", "shabby pale yellow",
+            "murky brown", "stained brown", "dreary brown", "bland brown", "spotted muddy brown",
+            "dismal sand brown", "dreary beige", "grimy beige", "shabby beige", "dirty beige",
+            "tattered beige", "bland wheat-coloured", "drab olive", "murky olive", "dim olive",
+            "dingy green", "shabby green", "dull green", "sickly greyish-green", "grisly brownish-green",
+            "discoloured green", "blotchy green", "grimy rust-red", "blotchy rust-red", "grimy salmon",
+            "stained salmon", "blotched red", "dull red", "faded red", "stained red", "dingy red",
+            "faded salmon", "well-worn blue", "faded slate blue", "pallid blue", "stained blue",
+            "grimy blue", "dim blue-black", "faded blue-black", "dreary blue-black", "dull orange",
+            "faded reddish-orange", "tattered reddish-orange", "discoloured orange", "stained orange-red",
+            "drab peach-coloured", "lurid peach-coloured", "sickly peach-coloured", "tattered violet",
+            "grimy lavender", "spotted lavender", "discoloured purple", "dirty purple", "dingy purple",
+            "faded purple", "stained purple", "dusty faded purple"
+        }.Concat(ancientPigmentDrabColours);
+
+        var mostColourProfileValues = new[]
+        {
+            "indian red", "light pink", "pink", "pale violet", "violet red", "lavender pink", "hot pink",
+            "deep pink", "maroon red", "orchid pink", "thistle grey", "plum purple", "fuchsia pink",
+            "magenta red", "purple", "slate blue", "blue", "navy blue", "midnight blue", "cobalt blue",
+            "royal blue", "cornflower blue", "light steel blue", "steel blue", "slate gray", "gray",
+            "sky blue", "turquoise blue", "azure blue", "cyan blue", "sea green", "green", "aquamarine",
+            "spring green", "spring green", "emerald green", "cobalt green", "mint green", "pale green",
+            "forest green", "pale blue", "lime green", "chartreuse green", "olive green", "ivory white",
+            "white", "yellow", "light yellow", "goldenrod yellow", "khaki", "dark khaki", "gold",
+            "banana yellow", "cornsilk yellow", "orange", "orange red", "off-white", "wheat yellow",
+            "moccasin brown", "eggshell white", "tan yellow", "tan brown", "brick brown", "brick red",
+            "carrot orange", "dark orange", "peachpuff pink", "seashell gray", "sandy brown",
+            "sienna brown", "chocolate brown", "saddle brown", "burnt sienna", "light salmon pink",
+            "salmon pink", "coral orange", "sepia brown", "orange brown", "rose red", "snow white",
+            "light brown", "dark brown", "brown", "fire brick brown", "beet red", "teal blue",
+            "smoky white", "dark gray", "black", "pitch black", "gray black"
+        }.Concat(ancientPigmentFineColours);
+
         AddCharacteristicValues(gemDef, gemColours);
         AddCharacteristicValues(fineGemDef, fineGemColours);
         AddCharacteristicValues(commonStoneDef, commonStones);
@@ -9060,8 +9172,7 @@ return IsAdmin(@ch)",
         {
             Name = "Basic_Colours",
             Type = "Standard",
-            Definition =
-                "<Values> <Value>black</Value> <Value>white</Value> <Value>grey</Value> <Value>light grey</Value> <Value>dark grey</Value> <Value>red</Value> <Value>dark red</Value> <Value>blue</Value> <Value>dark blue</Value> <Value>green</Value> <Value>brown</Value> <Value>dark green</Value> <Value>orange</Value> <Value>light blue</Value> <Value>light green</Value> <Value>yellow</Value> <Value>light red</Value> <Value>purple</Value> <Value>pink</Value> </Values>",
+            Definition = BuildCharacteristicProfileDefinition(basicColourProfileValues),
             TargetDefinitionId = colourDef.Id,
             Description = "Just basic colours like red, blue, brown etc"
         });
@@ -9070,8 +9181,7 @@ return IsAdmin(@ch)",
         {
             Name = "Fine_Colours",
             Type = "Standard",
-            Definition =
-                "<Values> <Value>light grey</Value> <Value>dark grey</Value> <Value>red</Value> <Value>dark red</Value> <Value>blue</Value> <Value>dark blue</Value> <Value>green</Value> <Value>brown</Value> <Value>dark green</Value> <Value>pale white</Value> <Value>olive</Value> <Value>caramel</Value> <Value>ebony</Value> <Value>emerald green</Value> <Value>cerulean</Value> <Value>violet</Value> <Value>sandy brown</Value> <Value>light brown</Value> <Value>dark brown</Value> <Value>auburn</Value> <Value>onyx</Value> <Value>obsidian</Value> <Value>midnight black</Value> <Value>ink black</Value> <Value>jet black</Value> <Value>pitch black</Value> <Value>ivory</Value> <Value>seashell</Value> <Value>snow white</Value> <Value>gleaming white</Value> <Value>pure white</Value> <Value>pearl white</Value> <Value>bright white</Value> <Value>bone white</Value> <Value>ghost white</Value> <Value>mist grey</Value> <Value>charcoal grey</Value> <Value>thistle grey</Value> <Value>smoky grey</Value> <Value>slate grey</Value> <Value>silver grey</Value> <Value>soft grey</Value> <Value>ash grey</Value> <Value>crimson</Value> <Value>scarlet</Value> <Value>ruby red</Value> <Value>blood red</Value> <Value>rose red</Value> <Value>wine red</Value> <Value>flame red</Value> <Value>coral</Value> <Value>copper</Value> <Value>fiery orange</Value> <Value>ochre</Value> <Value>sunset orange</Value> <Value>amber</Value> <Value>goldenrod</Value> <Value>pale yellow</Value> <Value>golden yellow</Value> <Value>sand yellow</Value> <Value>topaz hued</Value> <Value>gold-coloured</Value> <Value>spring green</Value> <Value>sea green</Value> <Value>hunter green</Value> <Value>olive green</Value> <Value>sage green</Value> <Value>pine green</Value> <Value>bright green</Value> <Value>rich green</Value> <Value>pale green</Value> <Value>verdant green</Value> <Value>forest green</Value> <Value>chartreuse</Value> <Value>slate blue</Value> <Value>bright blue</Value> <Value>powder blue</Value> <Value>sapphire blue</Value> <Value>royal blue</Value> <Value>ocean blue</Value> <Value>teal</Value> <Value>cornflour blue</Value> <Value>sky blue</Value> <Value>azure</Value> <Value>beryl</Value> <Value>cobalt</Value> <Value>rich indigo</Value> <Value>deep indigo</Value> <Value>vivid indigo</Value> <Value>earthen brown</Value> <Value>deep brown</Value> <Value>rich brown</Value> <Value>burnt sienna</Value> <Value>chocolate</Value> <Value>cinnamon</Value> <Value>mahogany</Value> <Value>nut brown</Value> <Value>umber</Value> <Value>amethyst</Value> <Value>mauve</Value> <Value>mulbery</Value> <Value>plum</Value> <Value>lavender</Value> <Value>royal purple</Value> <Value>orange</Value> <Value>light blue</Value> <Value>light green</Value> <Value>pale blue</Value> <Value>yellow</Value> <Value>cyan</Value> <Value>navy blue</Value> <Value>reddish brown</Value> <Value>beige</Value> </Values>",
+            Definition = BuildCharacteristicProfileDefinition(fineColourProfileValues),
             TargetDefinitionId = colourDef.Id,
             Description = "All of the colours from the RPI Engine's $finecolor variable"
         });
@@ -9080,8 +9190,7 @@ return IsAdmin(@ch)",
         {
             Name = "Drab_Colours",
             Type = "Standard",
-            Definition =
-                "<Values> <Value>faded black</Value> <Value>tattered black</Value> <Value>shabby black</Value> <Value>grimy black</Value> <Value>off-white</Value> <Value>dingy grey</Value> <Value>bland yellow</Value> <Value>faded green</Value> <Value>faded blue</Value> <Value>faded indigo</Value> <Value>drab brown</Value> <Value>dim grey</Value> <Value>dusky slate grey</Value> <Value>sooty grey</Value> <Value>chalky pale grey</Value> <Value>dull mist grey</Value> <Value>ashen off-white</Value> <Value>dirty bone-white</Value> <Value>wan ivory</Value> <Value>spotted white</Value> <Value>stained white</Value> <Value>blotched white</Value> <Value>dingy off-white</Value> <Value>stained ivory</Value> <Value>shabby sallow-coloured</Value> <Value>lurid pale yellow</Value> <Value>dingy yellow</Value> <Value>gaudy mustard yellow</Value> <Value>sickly pale yellow</Value> <Value>shabby pale yellow</Value> <Value>murky brown</Value> <Value>stained brown</Value> <Value>dreary brown</Value> <Value>bland brown</Value> <Value>spotted muddy brown</Value> <Value>dismal sand brown</Value> <Value>dreary beige</Value> <Value>grimy beige</Value> <Value>shabby beige</Value> <Value>dirty beige</Value> <Value>tattered beige</Value> <Value>bland wheat-coloured</Value> <Value>drab olive</Value> <Value>murky olive</Value> <Value>dim olive</Value> <Value>dingy green</Value> <Value>shabby green</Value> <Value>dull green</Value> <Value>sickly greyish-green</Value> <Value>grisly brownish-green</Value> <Value>discoloured green</Value> <Value>blotchy green</Value> <Value>grimy rust-red</Value> <Value>blotchy rust-red</Value> <Value>grimy salmon</Value> <Value>stained salmon</Value> <Value>blotched red</Value> <Value>dull red</Value> <Value>faded red</Value> <Value>stained red</Value> <Value>dingy red</Value> <Value>faded salmon</Value> <Value>well-worn blue</Value> <Value>faded slate blue</Value> <Value>pallid blue</Value> <Value>stained blue</Value> <Value>grimy blue</Value> <Value>dim blue-black</Value> <Value>faded blue-black</Value> <Value>dreary blue-black</Value> <Value>dull orange</Value> <Value>faded reddish-orange</Value> <Value>tattered reddish-orange</Value> <Value>discoloured orange</Value> <Value>stained orange-red</Value> <Value>drab peach-coloured</Value> <Value>lurid peach-coloured</Value> <Value>sickly peach-coloured</Value> <Value>tattered violet</Value> <Value>grimy lavender</Value> <Value>spotted lavender</Value> <Value>discoloured purple</Value> <Value>dirty purple</Value> <Value>dingy purple</Value> <Value>faded purple</Value> <Value>stained purple</Value> <Value>dusty faded purple</Value> </Values>",
+            Definition = BuildCharacteristicProfileDefinition(drabColourProfileValues),
             TargetDefinitionId = colourDef.Id,
             Description = "All of the colours from the RPI Engine's $drabcolor variable"
         });
@@ -9117,8 +9226,7 @@ return IsAdmin(@ch)",
         {
             Name = "Most_Colours",
             Type = "Standard",
-            Definition =
-                "<Values> <Value>indian red</Value> <Value>light pink</Value> <Value>pink</Value> <Value>pale violet</Value> <Value>violet red</Value> <Value>lavender pink</Value> <Value>hot pink</Value> <Value>deep pink</Value> <Value>maroon red</Value> <Value>orchid pink</Value> <Value>thistle grey</Value> <Value>plum purple</Value> <Value>fuchsia pink</Value> <Value>magenta red</Value> <Value>purple</Value> <Value>slate blue</Value> <Value>blue</Value> <Value>navy blue</Value> <Value>midnight blue</Value> <Value>cobalt blue</Value> <Value>royal blue</Value> <Value>cornflower blue</Value> <Value>light steel blue</Value> <Value>steel blue</Value> <Value>slate gray</Value> <Value>gray</Value> <Value>sky blue</Value> <Value>turquoise blue</Value> <Value>azure blue</Value> <Value>cyan blue</Value> <Value>sea green</Value> <Value>green</Value> <Value>aquamarine</Value> <Value>spring green</Value> <Value>spring green</Value> <Value>emerald green</Value> <Value>cobalt green</Value> <Value>mint green</Value> <Value>pale green</Value> <Value>forest green</Value> <Value>pale blue</Value> <Value>lime green</Value> <Value>chartreuse green</Value> <Value>olive green</Value> <Value>ivory white</Value> <Value>white</Value> <Value>yellow</Value> <Value>light yellow</Value> <Value>goldenrod yellow</Value> <Value>khaki</Value> <Value>dark khaki</Value> <Value>gold</Value> <Value>banana yellow</Value> <Value>cornsilk yellow</Value> <Value>orange</Value> <Value>orange red</Value> <Value>off-white</Value> <Value>wheat yellow</Value> <Value>moccasin brown</Value> <Value>eggshell white</Value> <Value>tan yellow</Value> <Value>tan brown</Value> <Value>brick brown</Value> <Value>brick red</Value> <Value>carrot orange</Value> <Value>dark orange</Value> <Value>peachpuff pink</Value> <Value>seashell gray</Value> <Value>sandy brown</Value> <Value>sienna brown</Value> <Value>chocolate brown</Value> <Value>saddle brown</Value> <Value>burnt sienna</Value> <Value>light salmon pink</Value> <Value>salmon pink</Value> <Value>coral orange</Value> <Value>sepia brown</Value> <Value>orange brown</Value> <Value>rose red</Value> <Value>snow white</Value> <Value>light brown</Value> <Value>dark brown</Value> <Value>brown</Value> <Value>fire brick brown</Value> <Value>beet red</Value> <Value>teal blue</Value> <Value>smoky white</Value> <Value>dark gray</Value> <Value>black</Value> <Value>pitch black</Value> <Value>gray black</Value> </Values>",
+            Definition = BuildCharacteristicProfileDefinition(mostColourProfileValues),
             TargetDefinitionId = colourDef.Id,
             Description = "Mostly all colours without the $drabcolor inclusions"
         });

@@ -68,7 +68,8 @@ public class ItemSeederHellenicClothingCraftingTests
 			"characteristic Colour from $i1",
 			"characteristic Fine Colour from $i1",
 			"characteristic Colour={basicColour}",
-			"\"red\", \"crimson\"",
+			"\"red\", \"madder red\"",
+			"piletag Textile Dye Stock",
 			"deep indigo"
 		})
 		{
@@ -91,6 +92,7 @@ public class ItemSeederHellenicClothingCraftingTests
 			"AddTag(context, \"Woven Cloth\", \"Garment Cloth\")",
 			"AddTag(context, \"Dyed Cloth\", \"Garment Cloth\")",
 			"AddTag(context, \"Fulled Cloth\", \"Garment Cloth\")",
+			"AddTag(context, \"Textile Dye Stock\", \"Textile Commodity\")",
 			"AddTag(context, \"Retting Trough\", \"Flax Processing Tools\")",
 			"AddTag(context, \"Flax Break\", \"Flax Processing Tools\")",
 			"AddTag(context, \"Hackle\", \"Flax Processing Tools\")",

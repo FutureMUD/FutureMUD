@@ -107,6 +107,7 @@ namespace DatabaseSeeder.Seeders
             if (_questionAnswers["eras"].Contains("antiquity", StringComparison.InvariantCultureIgnoreCase))
             {
                 SeedAntiquityClothing();
+                SeedAntiquityHouseholdCraftTools();
                 SeedAntiquityJewellery();
                 SeedAntiquityArmour();
                 SeedAntiquityContainers();

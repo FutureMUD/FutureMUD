@@ -901,6 +901,14 @@ public partial class ItemSeeder
 
         foreach (var armourCraft in new[]
         {
+            new AntiquityLeatherArmourCraftSpec("antiquity_shield_common_round_hide_shield", "assemble a round hide shield", "a round hide shield", 620, 900, 0, 0, 160, 90, 0, 0, 80, "bronze", false, 25, Difficulty.Normal),
+            new AntiquityLeatherArmourCraftSpec("antiquity_shield_punic_round_hide_shield", "assemble a round hide-faced shield", "a round hide-faced shield", 650, 960, 0, 0, 170, 90, 0, 0, 90, "bronze", false, 30, Difficulty.Normal),
+            new AntiquityLeatherArmourCraftSpec("antiquity_shield_persian_round_dhal", "assemble a round hide dhal shield", "a round hide dhal shield", 580, 840, 0, 0, 150, 80, 0, 0, 90, "bronze", false, 30, Difficulty.Normal),
+            new AntiquityLeatherArmourCraftSpec("antiquity_shield_egyptian_hide_shield", "assemble a tall hide shield", "a tall hide shield", 820, 1150, 0, 0, 210, 120, 0, 0, 100, "bronze", false, 30, Difficulty.Hard),
+            new AntiquityLeatherArmourCraftSpec("antiquity_shield_anatolian_tall_hide_shield", "assemble a tall hide body shield", "a tall hide body shield", 940, 1320, 0, 0, 240, 140, 0, 0, 110, "bronze", false, 35, Difficulty.Hard),
+            new AntiquityLeatherArmourCraftSpec("antiquity_shield_scythian_small_hide_shield", "assemble a small hide horseman shield", "a small hide horseman shield", 420, 620, 0, 0, 130, 70, 0, 0, 70, "bronze", false, 25, Difficulty.Normal),
+            new AntiquityLeatherArmourCraftSpec("antiquity_shield_sarmatian_round_targe", "assemble a round leather targe", "a round leather targe", 520, 760, 0, 0, 150, 80, 0, 0, 80, "bronze", false, 25, Difficulty.Normal),
+            new AntiquityLeatherArmourCraftSpec("antiquity_shield_kushite_large_oxhide_shield", "assemble a large oxhide shield", "a large oxhide shield", 1050, 1450, 0, 0, 260, 150, 0, 0, 120, "bronze", false, 35, Difficulty.Hard),
             new AntiquityLeatherArmourCraftSpec("antiquity_celtic_dyed_leather_scale_vest", "assemble a dyed leather scale vest", "a dyed leather scale vest", 450, 0, 1100, 0, 180, 180, 70, 0, 0, "bronze", true, 35, Difficulty.Hard),
             new AntiquityLeatherArmourCraftSpec("antiquity_celtic_bronze_studded_leather_belt", "assemble a bronze-studded war belt", "a bronze-studded war belt", 0, 260, 0, 0, 240, 60, 0, 0, 90, "bronze", false, 25, Difficulty.Normal),
             new AntiquityLeatherArmourCraftSpec("antiquity_celtic_leather_war_bracers", "assemble leather war bracers", "leather war bracers", 0, 360, 0, 0, 120, 50, 0, 0, 40, "bronze", false, 25, Difficulty.Normal),
@@ -988,7 +996,8 @@ public partial class ItemSeeder
         string MetalMaterial,
         bool Liquid,
         int Minimum,
-        Difficulty Difficulty);
+        Difficulty Difficulty,
+        bool VariableProduct = false);
 
     private void SeedAntiquityLeatherContainerCrafts()
     {
@@ -1036,6 +1045,48 @@ public partial class ItemSeeder
 
         foreach (var containerCraft in new[]
         {
+            new AntiquityLeatherContainerCraftSpec("antiquity_accessory_common_leather_arrow_quiver", "assemble a leather arrow quiver", "a leather arrow quiver", 360, 0, 150, 55, 30, 0, 30, 0, "bronze", false, 20, Difficulty.Normal, true),
+            new AntiquityLeatherContainerCraftSpec("antiquity_accessory_common_tall_arrow_quiver", "assemble a tall leather arrow quiver", "a tall leather arrow quiver", 520, 0, 190, 70, 35, 0, 35, 0, "bronze", false, 25, Difficulty.Normal),
+            new AntiquityLeatherContainerCraftSpec("antiquity_accessory_common_sling_bullet_pouch", "assemble a sling-stone pouch", "a sling-stone pouch", 95, 0, 45, 20, 15, 0, 15, 0, "bronze", false, 10, Difficulty.Easy),
+            new AntiquityLeatherContainerCraftSpec("antiquity_accessory_common_lead_bullet_pouch", "assemble a reinforced bullet pouch", "a reinforced bullet pouch", 130, 0, 55, 25, 20, 0, 20, 20, "bronze", false, 15, Difficulty.Normal),
+            new AntiquityLeatherContainerCraftSpec("antiquity_accessory_common_small_knife_sheath", "assemble a small leather knife sheath", "a small leather knife sheath", 70, 0, 35, 15, 10, 0, 10, 15, "bronze", false, 10, Difficulty.Easy),
+            new AntiquityLeatherContainerCraftSpec("antiquity_accessory_common_dagger_sheath", "assemble a leather dagger sheath", "a leather dagger sheath", 130, 0, 45, 20, 15, 0, 15, 25, "bronze", false, 15, Difficulty.Normal),
+            new AntiquityLeatherContainerCraftSpec("antiquity_accessory_common_straight_sword_scabbard", "assemble a straight leather sword scabbard", "a straight leather sword scabbard", 360, 0, 110, 45, 25, 0, 25, 60, "bronze", false, 25, Difficulty.Normal),
+            new AntiquityLeatherContainerCraftSpec("antiquity_accessory_common_long_sword_scabbard", "assemble a long leather sword scabbard", "a long leather sword scabbard", 460, 0, 130, 55, 30, 0, 30, 75, "bronze", false, 30, Difficulty.Hard),
+            new AntiquityLeatherContainerCraftSpec("antiquity_accessory_common_large_weapon_sling", "assemble a large leather weapon sling", "a large leather weapon sling", 260, 0, 220, 75, 30, 0, 25, 0, "bronze", false, 25, Difficulty.Normal),
+            new AntiquityLeatherContainerCraftSpec("antiquity_accessory_common_javelin_quiver", "assemble a leather javelin quiver", "a leather javelin quiver", 650, 0, 210, 80, 35, 0, 35, 0, "bronze", false, 30, Difficulty.Hard),
+            new AntiquityLeatherContainerCraftSpec("antiquity_accessory_common_broad_weapon_belt", "assemble a broad leather weapon belt", "a broad leather weapon belt", 0, 0, 360, 70, 35, 0, 25, 70, "bronze", false, 25, Difficulty.Normal),
+            new AntiquityLeatherContainerCraftSpec("antiquity_accessory_celtic_decorated_sword_scabbard", "assemble a decorated sword scabbard", "a decorated sword scabbard", 420, 0, 130, 55, 35, 0, 30, 90, "bronze", false, 35, Difficulty.Hard),
+            new AntiquityLeatherContainerCraftSpec("antiquity_accessory_celtic_broad_baldric", "assemble a broad leather sword baldric", "a broad leather sword baldric", 120, 0, 420, 80, 35, 0, 25, 45, "bronze", false, 25, Difficulty.Normal),
+            new AntiquityLeatherContainerCraftSpec("antiquity_accessory_germanic_seax_sheath", "assemble a broad seax sheath", "a broad seax sheath", 210, 0, 70, 30, 20, 0, 20, 35, "bronze", false, 20, Difficulty.Normal),
+            new AntiquityLeatherContainerCraftSpec("antiquity_accessory_germanic_axe_belt_loop", "assemble a leather axe belt loop", "a leather axe belt loop", 60, 0, 150, 25, 10, 0, 15, 25, "bronze", false, 15, Difficulty.Normal),
+            new AntiquityLeatherContainerCraftSpec("antiquity_accessory_roman_gladius_scabbard", "assemble a fitted gladius scabbard", "a fitted gladius scabbard", 340, 0, 110, 45, 25, 0, 25, 90, "bronze", false, 35, Difficulty.Hard),
+            new AntiquityLeatherContainerCraftSpec("antiquity_accessory_roman_pugio_sheath", "assemble a decorated pugio sheath", "a decorated pugio sheath", 160, 0, 55, 25, 20, 0, 20, 55, "bronze", false, 30, Difficulty.Normal),
+            new AntiquityLeatherContainerCraftSpec("antiquity_accessory_roman_spatha_scabbard", "assemble a long spatha scabbard", "a long spatha scabbard", 480, 0, 140, 55, 35, 0, 30, 95, "bronze", false, 35, Difficulty.Hard),
+            new AntiquityLeatherContainerCraftSpec("antiquity_accessory_roman_pilum_carrying_sleeve", "assemble a pilum carrying sleeve", "a pilum carrying sleeve", 430, 0, 180, 70, 25, 0, 25, 20, "bronze", false, 25, Difficulty.Normal),
+            new AntiquityLeatherContainerCraftSpec("antiquity_accessory_roman_plumbata_pouch", "assemble a weighted dart pouch", "a weighted dart pouch", 170, 0, 65, 25, 20, 0, 20, 35, "bronze", false, 20, Difficulty.Normal),
+            new AntiquityLeatherContainerCraftSpec("antiquity_accessory_roman_military_weapon_belt", "assemble a fitted military weapon belt", "a fitted military weapon belt", 0, 0, 420, 90, 35, 0, 30, 110, "bronze", false, 35, Difficulty.Hard),
+            new AntiquityLeatherContainerCraftSpec("antiquity_accessory_hellenic_xiphos_scabbard", "assemble a short xiphos scabbard", "a short xiphos scabbard", 260, 0, 85, 35, 25, 0, 20, 60, "bronze", false, 30, Difficulty.Normal),
+            new AntiquityLeatherContainerCraftSpec("antiquity_accessory_hellenic_kopis_sheath", "assemble a curved kopis sheath", "a curved kopis sheath", 300, 0, 90, 40, 25, 0, 25, 60, "bronze", false, 30, Difficulty.Hard),
+            new AntiquityLeatherContainerCraftSpec("antiquity_accessory_hellenic_bolt_quiver", "assemble a short bolt quiver", "a short bolt quiver", 300, 0, 130, 45, 25, 0, 25, 0, "bronze", false, 20, Difficulty.Normal),
+            new AntiquityLeatherContainerCraftSpec("antiquity_accessory_punic_javelin_quiver", "assemble a back-slung javelin quiver", "a back-slung javelin quiver", 680, 0, 230, 80, 35, 0, 35, 0, "bronze", false, 30, Difficulty.Hard),
+            new AntiquityLeatherContainerCraftSpec("antiquity_accessory_punic_short_sword_sheath", "assemble a bronze-fitted sword sheath", "a bronze-fitted sword sheath", 280, 0, 90, 35, 25, 0, 25, 70, "bronze", false, 30, Difficulty.Normal),
+            new AntiquityLeatherContainerCraftSpec("antiquity_accessory_persian_gorytos_quiver", "assemble a decorated leather gorytos", "a decorated leather gorytos", 620, 0, 240, 90, 40, 0, 35, 50, "bronze", false, 35, Difficulty.Hard),
+            new AntiquityLeatherContainerCraftSpec("antiquity_accessory_persian_akinakes_scabbard", "assemble a short decorated scabbard", "a short decorated scabbard", 230, 0, 80, 35, 25, 0, 25, 65, "bronze", false, 30, Difficulty.Normal),
+            new AntiquityLeatherContainerCraftSpec("antiquity_accessory_persian_bowcase_strap", "assemble a leather bowcase strap", "a leather bowcase strap", 0, 0, 260, 55, 20, 0, 20, 20, "bronze", false, 20, Difficulty.Normal),
+            new AntiquityLeatherContainerCraftSpec("antiquity_accessory_persian_arrow_pouch", "assemble a small arrowhead pouch", "a small arrowhead pouch", 90, 0, 40, 20, 15, 0, 15, 15, "bronze", false, 15, Difficulty.Normal),
+            new AntiquityLeatherContainerCraftSpec("antiquity_accessory_egyptian_khopesh_sheath", "assemble a curved khopesh sheath", "a curved khopesh sheath", 360, 0, 100, 45, 25, 0, 25, 70, "bronze", false, 30, Difficulty.Hard),
+            new AntiquityLeatherContainerCraftSpec("antiquity_accessory_egyptian_linen_arrow_quiver", "assemble a linen-covered arrow quiver", "a linen-covered arrow quiver", 360, 0, 150, 55, 80, 0, 30, 0, "bronze", false, 25, Difficulty.Normal),
+            new AntiquityLeatherContainerCraftSpec("antiquity_accessory_etruscan_bronze_fitted_scabbard", "assemble a bronze-fitted sword scabbard", "a bronze-fitted sword scabbard", 360, 0, 110, 45, 25, 0, 25, 95, "bronze", false, 35, Difficulty.Hard),
+            new AntiquityLeatherContainerCraftSpec("antiquity_accessory_etruscan_spear_sling", "assemble a leather spear carrying sling", "a leather spear carrying sling", 120, 0, 260, 65, 25, 0, 20, 20, "bronze", false, 20, Difficulty.Normal),
+            new AntiquityLeatherContainerCraftSpec("antiquity_accessory_etruscan_dagger_sheath", "assemble a small bronze-edged sheath", "a small bronze-edged sheath", 130, 0, 45, 20, 15, 0, 15, 45, "bronze", false, 25, Difficulty.Normal),
+            new AntiquityLeatherContainerCraftSpec("antiquity_accessory_anatolian_arrow_quiver", "assemble a patterned arrow quiver", "a patterned arrow quiver", 420, 0, 170, 60, 35, 0, 30, 30, "bronze", false, 30, Difficulty.Normal),
+            new AntiquityLeatherContainerCraftSpec("antiquity_accessory_anatolian_curved_sword_sheath", "assemble a curved sword sheath", "a curved sword sheath", 330, 0, 100, 40, 25, 0, 25, 60, "bronze", false, 30, Difficulty.Hard),
+            new AntiquityLeatherContainerCraftSpec("antiquity_accessory_scythian_gorytos", "assemble a tooled leather gorytos", "a tooled leather gorytos", 650, 0, 250, 95, 40, 0, 35, 45, "bronze", false, 35, Difficulty.Hard),
+            new AntiquityLeatherContainerCraftSpec("antiquity_accessory_scythian_axe_loop", "assemble a horseman axe loop", "a horseman axe loop", 60, 0, 160, 30, 10, 0, 15, 25, "bronze", false, 20, Difficulty.Normal),
+            new AntiquityLeatherContainerCraftSpec("antiquity_accessory_scythian_akinakes_scabbard", "assemble a short akinakes scabbard", "a short akinakes scabbard", 230, 0, 80, 35, 25, 0, 25, 65, "bronze", false, 30, Difficulty.Normal),
+            new AntiquityLeatherContainerCraftSpec("antiquity_accessory_kushite_tall_arrow_quiver", "assemble a tall leather arrow quiver", "a tall leather arrow quiver", 560, 0, 200, 70, 35, 0, 35, 0, "bronze", false, 25, Difficulty.Normal),
+            new AntiquityLeatherContainerCraftSpec("antiquity_accessory_kushite_bow_carrying_sling", "assemble a leather bow carrying sling", "a leather bow carrying sling", 120, 0, 260, 65, 25, 0, 20, 20, "bronze", false, 20, Difficulty.Normal),
             new AntiquityLeatherContainerCraftSpec("antiquity_smoked_hide_meat_bag", "assemble a smoked hide provision bag", "a smoked hide provision bag", 480, 0, 120, 60, 40, 80, 0, 0, "bronze", false, 20, Difficulty.Normal),
             new AntiquityLeatherContainerCraftSpec("antiquity_leather_document_case", "assemble a folded leather document case", "a folded leather document case", 260, 0, 40, 30, 25, 0, 0, 0, "bronze", false, 20, Difficulty.Normal),
             new AntiquityLeatherContainerCraftSpec("antiquity_leather_mirror_case", "assemble a tooled leather mirror case", "a tooled leather mirror case", 220, 0, 0, 30, 20, 0, 20, 0, "bronze", false, 25, Difficulty.Normal),
@@ -1102,7 +1153,11 @@ public partial class ItemSeeder
                 containerCraft.Liquid ? liquidPhases : dryPhases,
                 inputs,
                 containerCraft.Liquid ? liquidTools : dryTools,
-                [StableSimpleProduct(containerCraft.StableReference)]);
+                [
+                    containerCraft.VariableProduct
+                        ? StableVariableProduct(containerCraft.StableReference, false)
+                        : StableSimpleProduct(containerCraft.StableReference)
+                ]);
         }
     }
 
@@ -1128,6 +1183,70 @@ public partial class ItemSeeder
             "TagTool - Held - an item with the Edge Beveller tag",
             "TagTool - Held - an item with the Leather Creaser tag"
         };
+
+        AddAntiquityLeatherCraft(
+            "assemble a hide sleeping roll",
+            "assemble a hide sleeping roll from broad leather panels and tie stock",
+            "assemble a hide sleeping roll",
+            "hide panels being assembled into a sleeping roll",
+            25,
+            Difficulty.Normal,
+            [
+                (35, "$0 lay|lays out broad hide panels and mark|marks the rolled edge and tie points.", "$0 lay|lays the panels unevenly, leaving the roll out of line."),
+                (45, "$0 punch|punches tie and stitching holes with $t1, smoothing the edges with $t3 and $t4.", "$0 punch|punches with $t1, but the tie points wander."),
+                (55, "$0 stitch|stitches the panels together on $t2 and draw|draws the thongs tight.", "$0 stitch|stitches on $t2, but the seams pull loose."),
+                (30, "$0 roll|rolls $p1 up and check|checks that the ties hold.", "$0 salvage|salvages only $f1 from the failed sleeping roll.")
+            ],
+            [
+                "Commodity - 1 kilogram 700 grams of leather; piletag Leather Panel; characteristic Colour any; characteristic Fine Colour any",
+                "Commodity - 240 grams of leather; piletag Leather Strap; characteristic Colour any; characteristic Fine Colour any",
+                "Commodity - 120 grams of leather; piletag Leather Thong; characteristic Colour any; characteristic Fine Colour any"
+            ],
+            hangingTools,
+            [StableSimpleProduct("antiquity_hide_sleeping_roll")]);
+
+        AddAntiquityLeatherCraft(
+            "assemble a leather floor cover",
+            "assemble a leather floor cover from flat leather panels",
+            "assemble a leather floor cover",
+            "leather panels being assembled into a floor cover",
+            25,
+            Difficulty.Normal,
+            [
+                (35, "$0 match|matches broad leather panels for grain and thickness.", "$0 match|matches the panels poorly, leaving awkward ridges."),
+                (45, "$0 punch|punches stitching holes with $t1 and finish|finishes the edges with $t3 and $t4.", "$0 punch|punches with $t1, but the edges drift apart."),
+                (60, "$0 stitch|stitches the panels together on $t2 into a broad floor cover.", "$0 stitch|stitches on $t2, but the panels pucker and twist."),
+                (30, "$0 spread|spreads $p1 flat and check|checks the finished surface.", "$0 salvage|salvages only $f1 from the failed cover.")
+            ],
+            [
+                "Commodity - 1 kilogram 900 grams of leather; piletag Leather Panel; characteristic Colour any; characteristic Fine Colour any",
+                "Commodity - 180 grams of leather; piletag Leather Thong; characteristic Colour any; characteristic Fine Colour any",
+                "Commodity - 80 grams of beeswax"
+            ],
+            hangingTools,
+            [StableSimpleProduct("antiquity_leather_floor_cover")]);
+
+        AddAntiquityLeatherCraft(
+            "assemble a soft fur throw",
+            "assemble a soft fur throw from hair-on skins and leather binding",
+            "assemble a soft fur throw",
+            "hair-on skins being assembled into a fur throw",
+            20,
+            Difficulty.Normal,
+            [
+                (35, "$0 sort|sorts the hair-on skins and trim|trims them into overlapping panels.", "$0 sort|sorts the skins poorly, leaving uneven patches."),
+                (45, "$0 punch|punches stitching holes with $t1 and smooth|smooths the binding with $t3 and $t4.", "$0 punch|punches with $t1, but the binding line wanders."),
+                (55, "$0 stitch|stitches the skins and binding together on $t2.", "$0 stitch|stitches on $t2, but the skins pull loose."),
+                (25, "$0 shake|shakes out $p1 and check|checks the fall of the fur.", "$0 salvage|salvages only $f1 from the failed throw.")
+            ],
+            [
+                "CommodityTag - 1 kilogram 400 grams of a material tagged as Animal Skin",
+                "CommodityTag - 500 grams of a material tagged as Hair",
+                "Commodity - 160 grams of leather; piletag Leather Strap; characteristic Colour any; characteristic Fine Colour any",
+                "Commodity - 90 grams of leather; piletag Leather Thong; characteristic Colour any; characteristic Fine Colour any"
+            ],
+            hangingTools,
+            [StableSimpleProduct("antiquity_fur_throw")]);
 
         AddAntiquityLeatherCraft(
             "assemble a fur doorway hanging",
@@ -1524,6 +1643,62 @@ public partial class ItemSeeder
             ["CommodityProduct - 380 grams of cotton commodity; tag Woven Cloth; characteristic Colour from $i1; characteristic Fine Colour from $i1"],
             ["CommodityProduct - 140 grams of cotton commodity; tag Woven Cloth; characteristic Colour from $i1; characteristic Fine Colour from $i1"]);
 
+        void AddTextileDyeStockCraft(string name, string dyeMaterial, string basicColour, string fineColour,
+            bool usesMordant = true, IEnumerable<string>? additionalInputs = null, IEnumerable<string>? additionalTools = null)
+        {
+            var inputs = new List<string>
+            {
+                $"Commodity - 320 grams of {dyeMaterial}",
+                "LiquidUse - 4 litres of Water"
+            };
+
+            if (usesMordant)
+            {
+                inputs.Add("Commodity - 40 grams of alum mordant");
+            }
+
+            if (additionalInputs is not null)
+            {
+                inputs.AddRange(additionalInputs);
+            }
+
+            var tools = new List<string>
+            {
+                "TagTool - InRoom - an item with the Dye Vat tag",
+                "TagTool - InRoom - an item with the Mordant Cauldron tag",
+                "TagTool - Held - an item with the Dye Strainer tag"
+            };
+
+            if (additionalTools is not null)
+            {
+                tools.AddRange(additionalTools);
+            }
+
+            AddAncientTextileCraft(
+                name,
+                "Dyeing",
+                $"prepare {fineColour} textile dye stock",
+                $"preparing {fineColour} dye stock",
+                $"{fineColour} dye stock being prepared",
+                "Dyeing",
+                10,
+                Difficulty.Normal,
+                [
+                    (30, "$0 crush|crushes and sort|sorts $i1 for the dye bath.", "$0 crush|crushes $i1 poorly, wasting much of the colour-bearing material."),
+                    (45, "$0 steep|steeps $i1 in $t1 and work|works the colour into solution.", "$0 steep|steeps $i1 unevenly, leaving the dye weak and muddy."),
+                    (35, "$0 strain|strains the dyebath through $t3 and settle|settles the coloured stock.", "$0 strain|strains the dyebath poorly, leaving grit and spent fibre in it."),
+                    (25, "$0 set|sets aside $p1.", "$0 salvage|salvages only $f1 from the failed dye stock.")
+                ],
+                inputs,
+                tools,
+                [
+                    $"CommodityProduct - 220 grams of {dyeMaterial} commodity; tag Textile Dye Stock; characteristic Colour={basicColour}; characteristic Fine Colour={fineColour}"
+                ],
+                [
+                    $"CommodityProduct - 80 grams of {dyeMaterial} commodity; tag Textile Dye Stock; characteristic Colour={basicColour}; characteristic Fine Colour={fineColour}"
+                ]);
+        }
+
         void AddDyeCraft(string name, string material, string dyeMaterial, string basicColour, string fineColour)
         {
             AddAncientTextileCraft(
@@ -1536,14 +1711,14 @@ public partial class ItemSeeder
                 10,
                 Difficulty.Normal,
                 [
-                    (35, "$0 heat|heats water and mordant in $t2, stirring $i3 into the bath.", "$0 heat|heats the mordant bath unevenly in $t2."),
+                    (35, "$0 heat|heats water and mordant in $t2, stirring $i2 into the bath.", "$0 heat|heats the mordant bath unevenly in $t2."),
                     (35, "$0 steep|steeps $i2 in $t1, drawing colour into the dye bath.", "$0 steep|steeps $i2 poorly in $t1, leaving weak colour."),
                     (45, "$0 immerse|immerses $i1 in the dye bath, turning the cloth steadily.", "$0 immerse|immerses $i1 unevenly, leaving blotched patches."),
                     (25, "$0 lift|lifts out $p1 and set|sets it to drain.", "$0 lift|lifts out only $f1 from the spoiled dyeing.")
                 ],
                 [
                     $"Commodity - 420 grams of {material}; piletag Garment Cloth; characteristic Colour any; characteristic Fine Colour any",
-                    $"Commodity - 100 grams of {dyeMaterial}",
+                    $"Commodity - 100 grams of {dyeMaterial}; piletag Textile Dye Stock; characteristic Colour any; characteristic Fine Colour={fineColour}",
                     "Commodity - 40 grams of alum mordant",
                     "LiquidUse - 8 litres of Water"
                 ],
@@ -1559,12 +1734,60 @@ public partial class ItemSeeder
                 ]);
         }
 
-        AddDyeCraft("dye wool cloth madder red", "wool", "madder root", "red", "crimson");
+        AddTextileDyeStockCraft("prepare madder red dye stock", "madder root", "red", "madder red");
+        AddTextileDyeStockCraft("prepare kermes scarlet dye stock", "kermes grain", "red", "kermes scarlet");
+        AddTextileDyeStockCraft("prepare lac crimson dye stock", "lac dye cake", "red", "lac crimson");
+        AddTextileDyeStockCraft("prepare alkanet purple dye stock", "alkanet root", "purple", "alkanet purple");
+        AddTextileDyeStockCraft("prepare orchil violet dye stock", "orchil lichen", "purple", "orchil violet");
+        AddTextileDyeStockCraft("prepare tyrian purple dye stock", "murex purple dye", "purple", "tyrian purple",
+            false);
+        AddTextileDyeStockCraft("prepare indigo dye stock", "indigo dye cake", "dark blue", "deep indigo", false,
+            ["Commodity - 100 grams of wood ash"],
+            ["TagTool - Held - an item with the Indigo Beating Paddle tag"]);
+        AddTextileDyeStockCraft("prepare woad blue dye stock", "woad leaves", "blue", "woad blue", false,
+            ["Commodity - 100 grams of wood ash"],
+            ["TagTool - Held - an item with the Indigo Beating Paddle tag"]);
+        AddTextileDyeStockCraft("prepare weld golden dye stock", "weld", "yellow", "golden yellow");
+        AddTextileDyeStockCraft("prepare saffron yellow dye stock", "saffron", "yellow", "saffron yellow");
+        AddTextileDyeStockCraft("prepare pomegranate yellow dye stock", "pomegranate rind", "yellow",
+            "pomegranate yellow");
+        AddTextileDyeStockCraft("prepare henna orange dye stock", "henna leaf", "orange", "henna orange");
+        AddTextileDyeStockCraft("prepare walnut brown dye stock", "walnut hull", "brown", "walnut brown", false);
+        AddTextileDyeStockCraft("prepare oak-gall black dye stock", "oak gall", "black", "oak-gall black", false,
+            ["Commodity - 50 grams of wrought iron"]);
+
+        AddDyeCraft("dye wool cloth madder red", "wool", "madder root", "red", "madder red");
+        AddDyeCraft("dye wool cloth kermes scarlet", "wool", "kermes grain", "red", "kermes scarlet");
+        AddDyeCraft("dye wool cloth lac crimson", "wool", "lac dye cake", "red", "lac crimson");
         AddDyeCraft("dye wool cloth indigo blue", "wool", "indigo dye cake", "dark blue", "deep indigo");
-        AddDyeCraft("dye linen cloth ochre yellow", "linen", "ochre pigment", "yellow", "ochre");
-        AddDyeCraft("dye linen cloth saffron yellow", "linen", "saffron", "yellow", "golden yellow");
-        AddDyeCraft("dye cotton cloth madder red", "cotton", "madder root", "red", "crimson");
+        AddDyeCraft("dye wool cloth woad blue", "wool", "woad leaves", "blue", "woad blue");
+        AddDyeCraft("dye wool cloth weld yellow", "wool", "weld", "yellow", "golden yellow");
+        AddDyeCraft("dye wool cloth alkanet purple", "wool", "alkanet root", "purple", "alkanet purple");
+        AddDyeCraft("dye wool cloth orchil violet", "wool", "orchil lichen", "purple", "orchil violet");
+        AddDyeCraft("dye wool cloth tyrian purple", "wool", "murex purple dye", "purple", "tyrian purple");
+        AddDyeCraft("dye wool cloth walnut brown", "wool", "walnut hull", "brown", "walnut brown");
+        AddDyeCraft("dye wool cloth oak-gall black", "wool", "oak gall", "black", "oak-gall black");
+        AddDyeCraft("dye linen cloth madder red", "linen", "madder root", "red", "madder red");
+        AddDyeCraft("dye linen cloth indigo blue", "linen", "indigo dye cake", "dark blue", "deep indigo");
+        AddDyeCraft("dye linen cloth woad blue", "linen", "woad leaves", "blue", "woad blue");
+        AddDyeCraft("dye linen cloth weld yellow", "linen", "weld", "yellow", "golden yellow");
+        AddDyeCraft("dye linen cloth saffron yellow", "linen", "saffron", "yellow", "saffron yellow");
+        AddDyeCraft("dye linen cloth pomegranate yellow", "linen", "pomegranate rind", "yellow", "pomegranate yellow");
+        AddDyeCraft("dye linen cloth henna orange", "linen", "henna leaf", "orange", "henna orange");
+        AddDyeCraft("dye linen cloth oak-gall black", "linen", "oak gall", "black", "oak-gall black");
+        AddDyeCraft("dye linen cloth tyrian purple", "linen", "murex purple dye", "purple", "tyrian purple");
+        AddDyeCraft("dye cotton cloth madder red", "cotton", "madder root", "red", "madder red");
         AddDyeCraft("dye cotton cloth indigo blue", "cotton", "indigo dye cake", "dark blue", "deep indigo");
+        AddDyeCraft("dye cotton cloth weld yellow", "cotton", "weld", "yellow", "golden yellow");
+        AddDyeCraft("dye cotton cloth saffron yellow", "cotton", "saffron", "yellow", "saffron yellow");
+        AddDyeCraft("dye cotton cloth pomegranate yellow", "cotton", "pomegranate rind", "yellow", "pomegranate yellow");
+        AddDyeCraft("dye cotton cloth henna orange", "cotton", "henna leaf", "orange", "henna orange");
+        AddDyeCraft("dye cotton cloth walnut brown", "cotton", "walnut hull", "brown", "walnut brown");
+        AddDyeCraft("dye felt cloth madder red", "felt", "madder root", "red", "madder red");
+        AddDyeCraft("dye felt cloth indigo blue", "felt", "indigo dye cake", "dark blue", "deep indigo");
+        AddDyeCraft("dye felt cloth woad blue", "felt", "woad leaves", "blue", "woad blue");
+        AddDyeCraft("dye felt cloth walnut brown", "felt", "walnut hull", "brown", "walnut brown");
+        AddDyeCraft("dye felt cloth oak-gall black", "felt", "oak gall", "black", "oak-gall black");
 
         AddAncientTextileCraft(
             "full wool garment cloth",

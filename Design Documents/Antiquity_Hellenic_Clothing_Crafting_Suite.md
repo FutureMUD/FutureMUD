@@ -341,7 +341,7 @@ All final garments use `Tailoring` plus `Scythian-Sarmatian Textilecraft`. Felt 
 
 ## Full Leather Item Suite
 
-The leather item suite uses `Leathermaking`, the `Leatherworking` craft category, and the `Ancient Hide and Leatherworking` knowledge gate. It now covers the full antiquity leather item surface: clothing leather, armour, containers, liquid vessels, tableware, and doorway fittings. The only fur or hide item in the clothing tables outside this shared method is `antiquity_woolly_skin_cape`, which remains with the Germanic textile slice because it is assembled as a hair-on skin garment rather than tanned leatherwork.
+The leather item suite uses `Leathermaking`, the `Leatherworking` craft category, and the `Ancient Hide and Leatherworking` knowledge gate. It now covers the full antiquity leather item surface: clothing leather, armour, hide shields, military leather accessories, containers, liquid vessels, tableware, bedding, floor covers, and doorway fittings. The only fur or hide item in the clothing tables outside this shared method is `antiquity_woolly_skin_cape`, which remains with the Germanic textile slice because it is assembled as a hair-on skin garment rather than tanned leatherwork.
 
 Upstream crafts:
 
@@ -377,6 +377,14 @@ Final leather armour crafts:
 
 | Stable Reference | Item |
 | --- | --- |
+| `antiquity_shield_common_round_hide_shield` | Round hide shield |
+| `antiquity_shield_punic_round_hide_shield` | Round hide-faced shield |
+| `antiquity_shield_persian_round_dhal` | Round hide dhal shield |
+| `antiquity_shield_egyptian_hide_shield` | Tall hide shield |
+| `antiquity_shield_anatolian_tall_hide_shield` | Tall hide body shield |
+| `antiquity_shield_scythian_small_hide_shield` | Small hide horseman shield |
+| `antiquity_shield_sarmatian_round_targe` | Round leather targe |
+| `antiquity_shield_kushite_large_oxhide_shield` | Large oxhide shield |
 | `antiquity_celtic_dyed_leather_scale_vest` | Dyed leather scale vest |
 | `antiquity_celtic_bronze_studded_leather_belt` | Bronze-studded war belt |
 | `antiquity_celtic_leather_war_bracers` | Leather war bracers |
@@ -412,6 +420,48 @@ Final leather container and vessel crafts:
 
 | Stable Reference | Item |
 | --- | --- |
+| `antiquity_accessory_common_leather_arrow_quiver` | Leather arrow quiver |
+| `antiquity_accessory_common_tall_arrow_quiver` | Tall leather arrow quiver |
+| `antiquity_accessory_common_sling_bullet_pouch` | Sling-stone pouch |
+| `antiquity_accessory_common_lead_bullet_pouch` | Reinforced bullet pouch |
+| `antiquity_accessory_common_small_knife_sheath` | Small leather knife sheath |
+| `antiquity_accessory_common_dagger_sheath` | Leather dagger sheath |
+| `antiquity_accessory_common_straight_sword_scabbard` | Straight leather sword scabbard |
+| `antiquity_accessory_common_long_sword_scabbard` | Long leather sword scabbard |
+| `antiquity_accessory_common_large_weapon_sling` | Large leather weapon sling |
+| `antiquity_accessory_common_javelin_quiver` | Leather javelin quiver |
+| `antiquity_accessory_common_broad_weapon_belt` | Broad leather weapon belt |
+| `antiquity_accessory_celtic_decorated_sword_scabbard` | Decorated sword scabbard |
+| `antiquity_accessory_celtic_broad_baldric` | Broad leather sword baldric |
+| `antiquity_accessory_germanic_seax_sheath` | Broad seax sheath |
+| `antiquity_accessory_germanic_axe_belt_loop` | Leather axe belt loop |
+| `antiquity_accessory_roman_gladius_scabbard` | Fitted gladius scabbard |
+| `antiquity_accessory_roman_pugio_sheath` | Decorated pugio sheath |
+| `antiquity_accessory_roman_spatha_scabbard` | Long spatha scabbard |
+| `antiquity_accessory_roman_pilum_carrying_sleeve` | Pilum carrying sleeve |
+| `antiquity_accessory_roman_plumbata_pouch` | Weighted dart pouch |
+| `antiquity_accessory_roman_military_weapon_belt` | Fitted military weapon belt |
+| `antiquity_accessory_hellenic_xiphos_scabbard` | Short xiphos scabbard |
+| `antiquity_accessory_hellenic_kopis_sheath` | Curved kopis sheath |
+| `antiquity_accessory_hellenic_bolt_quiver` | Short bolt quiver |
+| `antiquity_accessory_punic_javelin_quiver` | Back-slung javelin quiver |
+| `antiquity_accessory_punic_short_sword_sheath` | Bronze-fitted sword sheath |
+| `antiquity_accessory_persian_gorytos_quiver` | Decorated leather gorytos |
+| `antiquity_accessory_persian_akinakes_scabbard` | Short decorated scabbard |
+| `antiquity_accessory_persian_bowcase_strap` | Leather bowcase strap |
+| `antiquity_accessory_persian_arrow_pouch` | Small arrowhead pouch |
+| `antiquity_accessory_egyptian_khopesh_sheath` | Curved khopesh sheath |
+| `antiquity_accessory_egyptian_linen_arrow_quiver` | Linen-covered arrow quiver |
+| `antiquity_accessory_etruscan_bronze_fitted_scabbard` | Bronze-fitted sword scabbard |
+| `antiquity_accessory_etruscan_spear_sling` | Leather spear carrying sling |
+| `antiquity_accessory_etruscan_dagger_sheath` | Small bronze-edged sheath |
+| `antiquity_accessory_anatolian_arrow_quiver` | Patterned arrow quiver |
+| `antiquity_accessory_anatolian_curved_sword_sheath` | Curved sword sheath |
+| `antiquity_accessory_scythian_gorytos` | Tooled leather gorytos |
+| `antiquity_accessory_scythian_axe_loop` | Horseman axe loop |
+| `antiquity_accessory_scythian_akinakes_scabbard` | Short akinakes scabbard |
+| `antiquity_accessory_kushite_tall_arrow_quiver` | Tall leather arrow quiver |
+| `antiquity_accessory_kushite_bow_carrying_sling` | Leather bow carrying sling |
 | `antiquity_smoked_hide_meat_bag` | Smoked hide provision bag |
 | `antiquity_leather_document_case` | Folded leather document case |
 | `antiquity_leather_mirror_case` | Tooled leather mirror case |
@@ -442,10 +492,13 @@ Final leather container and vessel crafts:
 | `antiquity_liquid_tooled_leather_flask` | Tooled leather flask |
 | `antiquity_tableware_scythian_leather_travel_cup` | Folded leather travel cup |
 
-Final leather doorway fitting crafts:
+Final leather furnishing and doorway fitting crafts:
 
 | Stable Reference | Item |
 | --- | --- |
+| `antiquity_hide_sleeping_roll` | Hide sleeping roll |
+| `antiquity_leather_floor_cover` | Leather floor cover |
+| `antiquity_fur_throw` | Soft fur throw |
 | `antiquity_fur_door_hanging` | Fur doorway hanging |
 | `antiquity_leather_tent_door_flap` | Leather tent door flap |
 

@@ -23,6 +23,8 @@ namespace MudSharp.Health.Wounds;
 public class SimpleWound : PerceivedItem, IWound
 {
     private IBody _ownerBody;
+    private long? _vehicleId;
+    private long? _vehicleDamageZoneId;
 
     public SimpleWound(IHaveWounds parent, Wound wound, IFuturemud gameworld, IBody ownerBody = null)
     {
@@ -35,7 +37,8 @@ public class SimpleWound : PerceivedItem, IWound
     }
 
     public SimpleWound(IFuturemud gameworld, IHaveWounds owner, double damage, DamageType damageType,
-        IBodypart bodypart, IGameItem lodged, IGameItem toolOrigin, ICharacter actorOrigin)
+        IBodypart bodypart, IGameItem lodged, IGameItem toolOrigin, ICharacter actorOrigin,
+        long? vehicleId = null, long? vehicleDamageZoneId = null)
     {
         if (owner == null)
         {
@@ -57,6 +60,8 @@ public class SimpleWound : PerceivedItem, IWound
         _lodged = lodged;
         _actorOriginId = actorOrigin?.Id ?? 0;
         _toolOriginId = toolOrigin?.Id ?? 0;
+        _vehicleId = vehicleId;
+        _vehicleDamageZoneId = vehicleDamageZoneId;
         BleedStatus = BleedStatus.NeverBled;
         if (actorOrigin?.Combat?.Friendly == true)
         {
@@ -79,6 +84,8 @@ public class SimpleWound : PerceivedItem, IWound
         Wound dbitem = FMDB.Context.Wounds.Find(Id);
         dbitem.BodyId = _ownerBody?.Id;
         dbitem.GameItemId = (Parent as IGameItem)?.Id;
+        dbitem.VehicleId = _vehicleId;
+        dbitem.VehicleDamageZoneId = _vehicleDamageZoneId;
         dbitem.BodypartProtoId = Bodypart?.Id;
         dbitem.CurrentDamage = CurrentDamage;
         dbitem.OriginalDamage = OriginalDamage;
@@ -207,6 +214,8 @@ public class SimpleWound : PerceivedItem, IWound
         dbitem.WoundType = "Simple";
         dbitem.BodyId = _ownerBody?.Id;
         dbitem.GameItemId = (Parent as IGameItem)?.Id;
+        dbitem.VehicleId = _vehicleId;
+        dbitem.VehicleDamageZoneId = _vehicleDamageZoneId;
         dbitem.OriginalDamage = OriginalDamage;
         dbitem.CurrentDamage = _currentDamage;
         dbitem.DamageType = (int)DamageType;
@@ -240,6 +249,8 @@ public class SimpleWound : PerceivedItem, IWound
 
         _actorOriginId = wound.ActorOriginId ?? 0;
         _toolOriginId = wound.ToolOriginId ?? 0;
+        _vehicleId = wound.VehicleId;
+        _vehicleDamageZoneId = wound.VehicleDamageZoneId;
         XElement root = XElement.Parse(wound.ExtraInformation ?? "<Empty/>");
         IsFriendlyWound = bool.Parse(root.Element("IsFriendlyWound")?.Value ?? "false");
     }
@@ -258,6 +269,8 @@ public class SimpleWound : PerceivedItem, IWound
 
             dbwound.BodyId = (newOwner as ICharacter)?.Body?.Id;
             dbwound.GameItemId = (newOwner as IGameItem)?.Id;
+            dbwound.VehicleId = _vehicleId;
+            dbwound.VehicleDamageZoneId = _vehicleDamageZoneId;
             FMDB.Context.SaveChanges();
         }
 

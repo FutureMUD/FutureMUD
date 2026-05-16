@@ -25,6 +25,7 @@ using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.RPG.Checks;
 using MudSharp.RPG.Law;
+using MudSharp.Vehicles;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -3716,6 +3717,13 @@ The syntax is as follows:
             return;
         }
 
+        IVehicleInstallable targetAsVehicleInstallable = target.GetItemType<IVehicleInstallable>();
+        if (targetAsVehicleInstallable != null)
+        {
+            InstallVehicleModule(character, ss, target, targetAsVehicleInstallable);
+            return;
+        }
+
         IDoor targetAsDoor = target.GetItemType<IDoor>();
         if (targetAsDoor != null)
         {
@@ -3731,6 +3739,69 @@ The syntax is as follows:
         }
 
         character.Send("{0} is not something that can be installed.", target.HowSeen(character, true));
+    }
+
+    private static void InstallVehicleModule(ICharacter character, StringStack ss, IGameItem moduleItem,
+        IVehicleInstallable installable)
+    {
+        var vehicleItem = character.TargetLocalItem(ss.PopSpeech());
+        if (vehicleItem is null)
+        {
+            character.Send("You do not see any vehicle like that here.");
+            return;
+        }
+
+        var vehicle = vehicleItem.GetItemType<IVehicleExterior>()?.Vehicle;
+        if (vehicle is null)
+        {
+            character.Send("{0} is not a linked vehicle.", vehicleItem.HowSeen(character, true));
+            return;
+        }
+
+        IVehicleInstallation installation = null;
+        if (!ss.IsFinished)
+        {
+            var pointText = ss.SafeRemainingArgument;
+            installation = ResolveVehicleInstallation(vehicle, pointText);
+            if (installation is null)
+            {
+                character.Send("There is no such installation point on that vehicle.");
+                return;
+            }
+        }
+        else
+        {
+            installation = vehicle.Installations.FirstOrDefault(x => x.CanInstall(character, moduleItem, out _));
+        }
+
+        if (installation is null)
+        {
+            character.Send("There is no compatible empty installation point on that vehicle.");
+            return;
+        }
+
+        if (!installation.CanInstall(character, moduleItem, out var reason))
+        {
+            character.Send(reason);
+            return;
+        }
+
+        installation.Install(character, moduleItem);
+        character.OutputHandler.Handle(new EmoteOutput(new Emote("@ install|installs $1 into $2.", character, character,
+            moduleItem, vehicleItem)));
+    }
+
+    private static IVehicleInstallation ResolveVehicleInstallation(IVehicle vehicle, string text)
+    {
+        if (long.TryParse(text, out var id))
+        {
+            return vehicle.Installations.FirstOrDefault(x => x.Id == id || x.Prototype.Id == id);
+        }
+
+        return vehicle.Installations.FirstOrDefault(x =>
+                   x.Prototype.Name.StartsWith(text, StringComparison.InvariantCultureIgnoreCase)) ??
+               vehicle.Installations.FirstOrDefault(x =>
+                   x.Prototype.MountType.StartsWith(text, StringComparison.InvariantCultureIgnoreCase));
     }
 
     private static void InstallLock(ICharacter character, StringStack ss, IGameItem lockItem, ILock theLock)
@@ -3975,6 +4046,13 @@ The syntax is as follows:
                 UninstallDoor(character, targetItem, targetAsDoor, exit);
                 return;
             }
+
+            var targetAsVehicleInstallable = targetItem.GetItemType<IVehicleInstallable>();
+            if (targetAsVehicleInstallable?.Installation is not null)
+            {
+                UninstallVehicleModule(character, targetItem, targetAsVehicleInstallable);
+                return;
+            }
         }
 
         ILockable targetAsLockable = targetItem.GetItemType<ILockable>();
@@ -3986,6 +4064,35 @@ The syntax is as follows:
 
         character.Send("{0} is not something that can be a target of an uninstallation.",
             targetItem.HowSeen(character, true));
+    }
+
+    private static void UninstallVehicleModule(ICharacter character, IGameItem moduleItem,
+        IVehicleInstallable installable)
+    {
+        var installation = installable.Installation;
+        if (installation is null)
+        {
+            character.Send("{0} is not installed in a vehicle.", moduleItem.HowSeen(character, true));
+            return;
+        }
+
+        if (!installation.CanRemove(character, out var reason))
+        {
+            character.Send(reason);
+            return;
+        }
+
+        var vehicle = installation.Vehicle;
+        var removed = installation.Remove(character);
+        if (removed is null)
+        {
+            character.Send("Something went wrong trying to uninstall that module.");
+            return;
+        }
+
+        character.Body.Get(removed, silent: true);
+        character.OutputHandler.Handle(new EmoteOutput(new Emote("@ uninstall|uninstalls $1 from $2.", character,
+            character, removed, vehicle.ExteriorItem)));
     }
 
     private static void UninstallLock(ICharacter character, StringStack ss, IGameItem lockableItem,

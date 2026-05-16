@@ -66,6 +66,7 @@ using MudSharp.RPG.ScriptedEvents;
 using MudSharp.TimeAndDate.Date;
 using MudSharp.TimeAndDate.Listeners;
 using MudSharp.TimeAndDate.Time;
+using MudSharp.Vehicles;
 using MudSharp.Work.Butchering;
 using MudSharp.Work.Crafts;
 using MudSharp.Work.Foraging;
@@ -184,6 +185,8 @@ public sealed partial class Futuremud : IDisposable
     private readonly All<IGameItemGroup> _itemGroups = new();
     private readonly RevisableAll<IGameItemProto> _itemProtos = new();
     private readonly All<IGameItem> _items = new();
+    private readonly RevisableAll<IVehiclePrototype> _vehiclePrototypes = new();
+    private readonly All<IVehicle> _vehicles = new();
     private readonly RevisableAll<IGameItemSkin> _itemSkins = new();
     private readonly All<IJobListing> _jobListings = new();
     private readonly All<IActiveJob> _activeJobs = new();
@@ -436,6 +439,8 @@ public sealed partial class Futuremud : IDisposable
     public IUneditableRevisableAll<IGameItemProto> ItemProtos => _itemProtos;
 
     public IUneditableAll<IGameItem> Items => _items;
+    public IUneditableRevisableAll<IVehiclePrototype> VehiclePrototypes => _vehiclePrototypes;
+    public IUneditableAll<IVehicle> Vehicles => _vehicles;
     public IUneditableRevisableAll<IGameItemSkin> ItemSkins => _itemSkins;
 
     public IUneditableAll<IJobListing> JobListings => _jobListings;

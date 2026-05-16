@@ -70,6 +70,7 @@ using MudSharp.RPG.ScriptedEvents;
 using MudSharp.TimeAndDate.Date;
 using MudSharp.TimeAndDate.Listeners;
 using MudSharp.TimeAndDate.Time;
+using MudSharp.Vehicles;
 using MudSharp.Work.Butchering;
 using MudSharp.Work.Crafts;
 using MudSharp.Work.Foraging;
@@ -1355,6 +1356,16 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
         _itemComponentProtos.Add(proto);
     }
 
+    public void Add(IVehiclePrototype proto)
+    {
+        _vehiclePrototypes.Add(proto);
+    }
+
+    public void Add(IVehicle vehicle)
+    {
+        _vehicles.Add(vehicle);
+    }
+
     public void Add(ITemporalListener listener)
     {
         _listeners.Add(listener);
@@ -1703,6 +1714,42 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
             }
 
             return newItem;
+        }
+    }
+
+    public IVehicle TryGetVehicle(long id)
+    {
+        if (id == 0)
+        {
+            return null;
+        }
+
+        if (_vehicles.Has(id))
+        {
+            return _vehicles.Get(id);
+        }
+
+        using (new FMDB())
+        {
+		var dbitem = FMDB.Context.Vehicles
+		                 .Include(x => x.Occupancies)
+		                 .Include(x => x.AccessStates)
+		                 .Include(x => x.AccessPoints).ThenInclude(x => x.Locks)
+		                 .Include(x => x.CargoSpaces)
+		                 .Include(x => x.Installations)
+		                 .Include(x => x.SourceTowLinks)
+		                 .Include(x => x.TargetTowLinks)
+		                 .Include(x => x.DamageZones).ThenInclude(x => x.Wounds)
+		                 .AsNoTracking()
+		                 .FirstOrDefault(x => x.Id == id);
+            if (dbitem is null)
+            {
+                return null;
+            }
+
+            var vehicle = new MudSharp.Vehicles.Vehicle(dbitem, this);
+            _vehicles.Add(vehicle);
+            return vehicle;
         }
     }
 
@@ -2216,6 +2263,16 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
     public void Destroy(IGameItemComponentProto proto)
     {
         _itemComponentProtos.Remove(proto);
+    }
+
+    public void Destroy(IVehiclePrototype proto)
+    {
+        _vehiclePrototypes.Remove(proto);
+    }
+
+    public void Destroy(IVehicle vehicle)
+    {
+        _vehicles.Remove(vehicle);
     }
 
     public void Destroy(IAccount account)

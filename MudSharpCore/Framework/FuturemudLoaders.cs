@@ -68,6 +68,7 @@ using MudSharp.RPG.Hints;
 using MudSharp.RPG.Law;
 using MudSharp.RPG.Merits;
 using MudSharp.TimeAndDate.Time;
+using MudSharp.Vehicles;
 using MudSharp.Work.Butchering;
 using MudSharp.Work.Projects;
 using System;
@@ -340,6 +341,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
             game.LoadGameItemComponentProtos(); // Depends on LoadWearProfiles and LoadStackDecorators
             game.LoadGameItemGroups(); // Depends on LoadWorld
             game.LoadGameItemProtos(); // Depends on LoadHealthStrategies, LoadGameItemComponentProtos and LoadGameItemGroups
+            game.LoadVehiclePrototypes(); // Depends on LoadGameItemProtos and Vehicle Exterior item components
             game.LoadGameItemSkins();
 
             // End Game Item Related Loads
@@ -383,6 +385,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
             game.LoadWorldItems(); // Depends on LoadWorld and LoadGameItemProtos and LoadRaces
             SetCharacterMaterialisationBootPhase(CharacterMaterialisationBootPhase.Allowed);
             game.LoadNPCs(); // Needs to come after InitialiseCharacterClass and LightModel loading
+            game.LoadVehicles(); // Needs world items and characters available for exterior/occupant recovery
             FinalisePostCharacterLoadObjects();
             game.LoadGroupAIs(); // Needs to come after LoadNPCs
             ExitManager.PreloadCriticalExits(); // Needs to come after LoadGameItemProtos
@@ -3909,6 +3912,71 @@ For information on the syntax to use in emotes (such as those included in bracke
 
         int count = _itemProtos.Count();
         ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Game Item Proto" : "Game Item Protos");
+    }
+
+    void IFuturemudLoader.LoadVehiclePrototypes()
+    {
+        ConsoleUtilities.WriteLine("\nLoading #5Vehicle Prototypes#0...");
+#if DEBUG
+        Stopwatch sw = new();
+        sw.Start();
+#endif
+        List<Models.VehicleProto> protos = (from proto in FMDB.Context.VehicleProtos
+                                            .Include(x => x.EditableItem)
+                                            .Include(x => x.Compartments)
+                                            .Include(x => x.OccupantSlots)
+                                            .Include(x => x.ControlStations)
+                                            .Include(x => x.MovementProfiles)
+                                            .Include(x => x.AccessPoints)
+                                            .Include(x => x.CargoSpaces)
+                                            .Include(x => x.InstallationPoints)
+                                            .Include(x => x.TowPoints)
+                                            .Include(x => x.DamageZones).ThenInclude(x => x.Effects)
+                                            .AsNoTracking()
+                                            select proto).ToList();
+        foreach (Models.VehicleProto proto in protos)
+        {
+            _vehiclePrototypes.Add(new VehiclePrototype(proto, this));
+        }
+#if DEBUG
+        sw.Stop();
+        ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
+#endif
+        int count = _vehiclePrototypes.Count();
+        ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Vehicle Prototype" : "Vehicle Prototypes");
+    }
+
+    void IFuturemudLoader.LoadVehicles()
+    {
+        ConsoleUtilities.WriteLine("\nLoading #5Vehicles#0...");
+#if DEBUG
+        Stopwatch sw = new();
+        sw.Start();
+#endif
+        List<Models.Vehicle> vehicles = (from vehicle in FMDB.Context.Vehicles
+                                         .Include(x => x.Occupancies)
+                                         .Include(x => x.AccessStates)
+                                         .Include(x => x.AccessPoints).ThenInclude(x => x.Locks)
+                                         .Include(x => x.CargoSpaces)
+                                         .Include(x => x.Installations)
+                                         .Include(x => x.SourceTowLinks)
+                                         .Include(x => x.TargetTowLinks)
+                                         .Include(x => x.DamageZones).ThenInclude(x => x.Wounds)
+                                         .AsNoTracking()
+                                         select vehicle).ToList();
+        foreach (Models.Vehicle vehicle in vehicles)
+        {
+            var newVehicle = new MudSharp.Vehicles.Vehicle(vehicle, this);
+            _vehicles.Add(newVehicle);
+            newVehicle.RecoverInterruptedMovement();
+            newVehicle.SynchroniseExteriorItemToLocation();
+        }
+#if DEBUG
+        sw.Stop();
+        ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
+#endif
+        int count = _vehicles.Count;
+        ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Vehicle" : "Vehicles");
     }
 
     void IFuturemudLoader.LoadGameItemSkins()

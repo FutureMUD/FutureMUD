@@ -71,6 +71,7 @@ using MudSharp.RPG.ScriptedEvents;
 using MudSharp.TimeAndDate.Date;
 using MudSharp.TimeAndDate.Listeners;
 using MudSharp.TimeAndDate.Time;
+using MudSharp.Vehicles;
 using MudSharp.Work.Butchering;
 using MudSharp.Work.Crafts;
 using MudSharp.Work.Foraging;
@@ -257,6 +258,8 @@ namespace MudSharp.Framework
         IUneditableAll<ITraitDefinition> Traits { get; }
         IUneditableAll<ITraitExpression> TraitExpressions { get; }
         IUneditableAll<ITrack> Tracks { get; }
+        IUneditableRevisableAll<IVehiclePrototype> VehiclePrototypes { get; }
+        IUneditableAll<IVehicle> Vehicles { get; }
         IUneditableAll<IWearProfile> WearProfiles { get; }
         IUneditableAll<IZone> Zones { get; }
         IEnumerable<ISocial> Socials { get; }
@@ -521,6 +524,8 @@ namespace MudSharp.Framework
         void Add(ICellOverlayPackage package);
         void Add(IGameItemProto proto);
         void Add(IGameItemComponentProto proto);
+        void Add(IVehiclePrototype proto);
+        void Add(IVehicle vehicle);
         void Add(ITemporalListener listener);
         void Add(IHelpfile helpfile);
         void Add(ITraitDefinition trait);
@@ -559,6 +564,7 @@ namespace MudSharp.Framework
 
         IGameItem TryGetItem(Models.GameItem dbitem, bool addToGameworld);
         IGameItem TryGetItem(long id, bool addToGameworld = false);
+        IVehicle TryGetVehicle(long id);
 
         void Destroy(object obj);
         void Destroy(IAIStoryteller item);
@@ -654,6 +660,8 @@ namespace MudSharp.Framework
         void Destroy(IGameItem item);
         void Destroy(IGameItemProto proto);
         void Destroy(IGameItemComponentProto proto);
+        void Destroy(IVehiclePrototype proto);
+        void Destroy(IVehicle vehicle);
         void Destroy(IAccount account);
         void Destroy(ICell cell);
         void Destroy(IRoom room);

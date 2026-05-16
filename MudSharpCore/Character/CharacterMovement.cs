@@ -662,6 +662,16 @@ public partial class Character
 
     private CanMoveResponse CanMoveInternal(CanMoveFlags flags, IPositionState movingPositionOverride)
     {
+        var vehicle = Gameworld.Vehicles.FirstOrDefault(x => x.IsOccupant(this));
+        if (vehicle is not null)
+        {
+            return new CanMoveResponse
+            {
+                Result = false,
+                ErrorMessage = $"You cannot move while you are aboard {vehicle.Name.ColourName()}. Use {"disembark".ColourCommand()} first."
+            };
+        }
+
         if (EffectsOfType<IImmwalkEffect>().Any())
         {
             return CanMoveResponse.True;
@@ -921,6 +931,13 @@ public partial class Character
     public (bool Success, IPositionState MovingState, IMoveSpeed Speed) CouldMove(bool ignoreBlockingEffects,
         IPositionState fixedPosition)
     {
+        var vehicle = Gameworld.Vehicles.FirstOrDefault(x => x.IsOccupant(this));
+        if (vehicle is not null)
+        {
+            _cannotMoveReason = $"You cannot move while you are aboard {vehicle.Name.ColourName()}. Use {"disembark".ColourCommand()} first.";
+            return (false, null, null);
+        }
+
         if (!ignoreBlockingEffects && Effects.Any(x => x.IsBlockingEffect("movement")))
         {
             _cannotMoveReason =

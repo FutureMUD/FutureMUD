@@ -30,7 +30,7 @@ The same character can own multiple bodies, but only `CurrentBody` is active in 
 
 ### Form
 
-A form is an owned body plus per-character metadata. Runtime form contracts live in [ICharacter.cs](../FutureMUDLibrary/Character/ICharacter.cs), and the concrete loading, saving, creation, and switching orchestration lives primarily in [CharacterForms.cs](../MudSharpCore/Character/CharacterForms.cs).
+A form is an owned body plus per-character metadata. Runtime form contracts live in [ICharacter.cs](../../FutureMUDLibrary/Character/ICharacter.cs), and the concrete loading, saving, creation, and switching orchestration lives primarily in [CharacterForms.cs](../../MudSharpCore/Character/CharacterForms.cs).
 
 Form metadata currently includes:
 
@@ -50,7 +50,7 @@ Form metadata currently includes:
 
 A form source is a stable mapping between a character and the content that provisioned a form. Source mappings are stored separately from form metadata so that a merit or spell can find the same body again without owning the form's later edits.
 
-Supported source identities are defined in [CharacterFormProvisioning.cs](../FutureMUDLibrary/Character/CharacterFormProvisioning.cs):
+Supported source identities are defined in [CharacterFormProvisioning.cs](../../FutureMUDLibrary/Character/CharacterFormProvisioning.cs):
 
 | Source Type | Current Use |
 | --- | --- |
@@ -120,7 +120,7 @@ Single-body characters are normalised into a default form at load time. The defa
 
 ### Switching Pipeline
 
-Switch preparation and application are implemented in [BodyFormSwitching.cs](../MudSharpCore/Body/Implementations/BodyFormSwitching.cs) and coordinated by [CharacterForms.cs](../MudSharpCore/Character/CharacterForms.cs).
+Switch preparation and application are implemented in [BodyFormSwitching.cs](../../MudSharpCore/Body/Implementations/BodyFormSwitching.cs) and coordinated by [CharacterForms.cs](../../MudSharpCore/Character/CharacterForms.cs).
 
 The high-level switch flow is:
 
@@ -187,7 +187,7 @@ The player command is an engine fallback and validation surface. Games can wrap 
 
 ### Admin Command Surface
 
-The implementor-oriented command surface lives in [CharacterInformation.cs](../MudSharpCore/Commands/Modules/CharacterInformation.cs):
+The implementor-oriented command surface lives in [CharacterInformation.cs](../../MudSharpCore/Commands/Modules/CharacterInformation.cs):
 
 | Command | Behaviour |
 | --- | --- |
@@ -205,7 +205,7 @@ The implementor-oriented command surface lives in [CharacterInformation.cs](../M
 
 ### Merit Provisioning
 
-The `Additional Body Form` merit type is implemented by [AdditionalBodyFormMerit.cs](../MudSharpCore/RPG/Merits/CharacterMerits/AdditionalBodyFormMerit.cs).
+The `Additional Body Form` merit type is implemented by [AdditionalBodyFormMerit.cs](../../MudSharpCore/RPG/Merits/CharacterMerits/AdditionalBodyFormMerit.cs).
 
 The merit provisions a form when the character is created, loaded, or receives the merit. Removing the merit does not delete the cached body. Re-adding the merit reuses the existing source-mapped body.
 
@@ -228,7 +228,7 @@ Auto-transforming merits are the current racial or intrinsic transformation path
 
 ### Spell Provisioning
 
-The `transformform` spell effect is implemented by [TransformFormEffect.cs](../MudSharpCore/Magic/SpellEffects/TransformFormEffect.cs) and its active runtime effect [SpellTransformFormEffect.cs](../MudSharpCore/Effects/Concrete/SpellEffects/SpellTransformFormEffect.cs).
+The `transformform` spell effect is implemented by [TransformFormEffect.cs](../../MudSharpCore/Magic/SpellEffects/TransformFormEffect.cs) and its active runtime effect [SpellTransformFormEffect.cs](../../MudSharpCore/Effects/Concrete/SpellEffects/SpellTransformFormEffect.cs).
 
 The spell effect ensures or reuses a keyed form and contributes a forced transformation demand while the spell effect applies. The spell stores the prior body id so it can revert after expiry or save/load. If the prior body is unavailable or cannot be switched into, the resolver attempts another valid owned form. If no fallback works, the character remains in the current form and staff-facing diagnostics are emitted rather than deleting the cached form.
 
@@ -236,7 +236,7 @@ Spell builders can configure the same first-creation form metadata as merits, pl
 
 ### Forced Transformation Resolution
 
-Mandatory transformations are resolved in [CharacterForcedTransformations.cs](../MudSharpCore/Character/CharacterForcedTransformations.cs).
+Mandatory transformations are resolved in [CharacterForcedTransformations.cs](../../MudSharpCore/Character/CharacterForcedTransformations.cs).
 
 The resolver gathers active forced transformation demands from:
 
@@ -386,9 +386,9 @@ Multiple forms exposed older assumptions where character and body data were inte
 
 ## Related Documents
 
-- [Character Creation Runtime](Character_Creation_Runtime.md)
-- [Character Creation Builder Workflows](Character_Creation_Builder_Workflows.md)
-- [Character Description System](Character_Description_System.md)
-- [Magic System Spells](Magic_System_Spells.md)
-- [Magic System Implemented Types](Magic_System_Implemented_Types.md)
-- [Health System Design](Health_System_Design.md)
+- [Character Creation Runtime](./Character_Creation_Runtime.md)
+- [Character Creation Builder Workflows](./Character_Creation_Builder_Workflows.md)
+- [Character Description System](../Markup/Character_Description_System.md)
+- [Magic System Spells](../Magic/Magic_System_Spells.md)
+- [Magic System Implemented Types](../Magic/Magic_System_Implemented_Types.md)
+- [Health System Design](../Health/Health_System_Design.md)

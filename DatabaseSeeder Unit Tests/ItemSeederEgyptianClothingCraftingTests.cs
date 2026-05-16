@@ -85,7 +85,7 @@ public class ItemSeederEgyptianClothingCraftingTests
 	[TestMethod]
 	public void AntiquityClothingDesignDocument_DocumentsEgyptianCraftingSlice()
 	{
-		var designSource = ReadSource("Design Documents", "Antiquity_Hellenic_Clothing_Crafting_Suite.md");
+		var designSource = ReadSource("Design Documents", "Crafting", "Antiquity_Hellenic_Clothing_Crafting_Suite.md");
 
 		AssertContains(designSource, "Egyptian Textilecraft");
 		AssertContains(designSource, "## Egyptian Garment Matrix");

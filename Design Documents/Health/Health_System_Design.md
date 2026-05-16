@@ -11,11 +11,11 @@ The intended audience is:
 ## Reading Guide
 This is the head document for the health system set:
 
-- [Damage_System_Design.md](./Damage_System_Design.md) covers end-to-end damage flow, seeded damage formulas, armour layering, bodypart and internal routing, and worked examples.
-- [Core_Runtime.md](./Core_Runtime.md) covers `IBody`, biology, health strategies, wounds, infections, and health-related merits.
-- [Medical_Interactions.md](./Medical_Interactions.md) covers bedside treatment, surgery, CPR, defibrillation, drugs, and the main command surface.
-- [Adjacencies_and_Items.md](./Adjacencies_and_Items.md) covers breathing, needs, corpses, severed bodyparts, implants, artificial organs, rebreathers, cannulae, prosthetics, and cross-cutting effects.
-- [Seeder_and_Gaps.md](./Seeder_and_Gaps.md) covers how stock content is currently seeded and where the current implementation is partial, broader than the stock data, or a natural extension point.
+- [Damage System Design](./Damage_System_Design.md) covers end-to-end damage flow, seeded damage formulas, armour layering, bodypart and internal routing, and worked examples.
+- [Health Core Runtime](./Health_Core_Runtime.md) covers `IBody`, biology, health strategies, wounds, infections, and health-related merits.
+- [Health Medical Interactions](./Health_Medical_Interactions.md) covers bedside treatment, surgery, CPR, defibrillation, drugs, and the main command surface.
+- [Health Adjacencies and Items](./Health_Adjacencies_and_Items.md) covers breathing, needs, corpses, severed bodyparts, implants, artificial organs, rebreathers, cannulae, prosthetics, and cross-cutting effects.
+- [Health Seeder State and Gaps](./Health_Seeder_State_and_Gaps.md) covers how stock content is currently seeded and where the current implementation is partial, broader than the stock data, or a natural extension point.
 
 ## Core Mental Model
 FutureMUD health is not a single subsystem. It is a set of cooperating systems centered on `IBody` and `IHaveWounds`.

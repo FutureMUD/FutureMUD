@@ -65,7 +65,7 @@ The work stayed in seeder and static-data authoring. It did not change the runti
 - Culture-specific fantasy race intelligence is intentionally not forced down; these are sapient stock races rather than animal templates.
 
 ## Validation Snapshot
-Validation used [nonhuman-damage-balance-first-pass.ps1](/C:/Users/luker/OneDrive/source/repos/FutureMUD/scripts/nonhuman-damage-balance-first-pass.ps1), which applies deterministic seeded formulas in static mode.
+Validation used [nonhuman-damage-balance-first-pass.ps1](../../scripts/nonhuman-damage-balance-first-pass.ps1), which applies deterministic seeded formulas in static mode.
 
 Representative before/after outcomes:
 

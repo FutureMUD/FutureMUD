@@ -27,8 +27,8 @@ It inherits from:
   Handles nomination, voting, installation, and runoff logic for elected appointments.
 
 ## Text Markup Reference
-- [Character Description System](../../Design%20Documents/Character_Description_System.md)
-- [Human Seeder Description Patterns](../../Design%20Documents/Human_Seeder_Description_Patterns.md)
+- [Character Description System](../../Design%20Documents/Markup/Character_Description_System.md)
+- [Human Seeder Description Patterns](../../Design%20Documents/Markup/Human_Seeder_Description_Patterns.md)
 
 ## Design Guidance
 - Prefer rank to represent a member's durable place in the organisation.

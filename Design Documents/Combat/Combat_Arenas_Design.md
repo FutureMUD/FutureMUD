@@ -1,4 +1,4 @@
-# System Design Document: Combat Arenas (FutureMUD) - **Repository-Agnostic Revision**
+# FutureMUD Combat Arenas Design
 
 > **Note for Codex Agent**
 > This document intentionally **omits concrete interface/class definitions and method signatures**. Implementations must align with the existing FutureMUD codebase patterns (projects, namespaces, base interfaces, event/callback mechanisms, EF models, scheduler, finance, prog hooks, combat events). Where this document mentions concepts like "interfaces," "events," or "models," treat them as **contracts and responsibilities**, not prescriptive code.

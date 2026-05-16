@@ -1,4 +1,4 @@
-# Emote System
+# FutureMUD Emote System
 
 ## Scope
 

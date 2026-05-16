@@ -27,7 +27,7 @@ public class ItemSeederHellenicClothingCraftingTests
 	[TestMethod]
 	public void HellenicClothingCrafts_ProduceEveryCurrentHellenicClothingPrototype()
 	{
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.Hellenic.cs");
+		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.Antiquity.cs");
 		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.Antiquity.cs");
 
 		foreach (var stableReference in HellenicClothingStableReferences)
@@ -43,7 +43,7 @@ public class ItemSeederHellenicClothingCraftingTests
 	[TestMethod]
 	public void HellenicFinishedGarmentCrafts_UseHellenicKnowledgeGate()
 	{
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.Hellenic.cs");
+		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.Antiquity.cs");
 
 		AssertContains(craftSource, "const string hellenicKnowledge = \"Hellenic Textilecraft\"");
 		AssertContains(craftSource, "knowledgeSubtype: \"Hellenic\"");
@@ -54,7 +54,7 @@ public class ItemSeederHellenicClothingCraftingTests
 	[TestMethod]
 	public void UpstreamTextileCrafts_UseCommodityStateTagsAndPreserveColours()
 	{
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.Hellenic.cs");
+		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.Antiquity.cs");
 
 		foreach (var expected in new[]
 		{
@@ -68,7 +68,8 @@ public class ItemSeederHellenicClothingCraftingTests
 			"characteristic Colour from $i1",
 			"characteristic Fine Colour from $i1",
 			"characteristic Colour={basicColour}",
-			"\"red\", \"crimson\"",
+			"\"red\", \"madder red\"",
+			"piletag Textile Dye Stock",
 			"deep indigo"
 		})
 		{
@@ -91,6 +92,7 @@ public class ItemSeederHellenicClothingCraftingTests
 			"AddTag(context, \"Woven Cloth\", \"Garment Cloth\")",
 			"AddTag(context, \"Dyed Cloth\", \"Garment Cloth\")",
 			"AddTag(context, \"Fulled Cloth\", \"Garment Cloth\")",
+			"AddTag(context, \"Textile Dye Stock\", \"Textile Commodity\")",
 			"AddTag(context, \"Retting Trough\", \"Flax Processing Tools\")",
 			"AddTag(context, \"Flax Break\", \"Flax Processing Tools\")",
 			"AddTag(context, \"Hackle\", \"Flax Processing Tools\")",

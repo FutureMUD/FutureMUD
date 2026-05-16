@@ -211,10 +211,60 @@ public partial class CoreDataSeeder
 			"Textile Dye", "Stone");
 		AddMaterial("alum mordant", MaterialBehaviourType.Powder, 1.7, false, 1000, 1000, 0.0, 0.14, 0.0001, 500,
 			"Textile Mordant");
+		foreach (var name in new[]
+		         {
+			         "woad leaves", "weld", "kermes grain", "alkanet root", "henna leaf", "pomegranate rind",
+			         "walnut hull", "oak gall", "orchil lichen"
+		         })
+		{
+			AddMaterial(name, MaterialBehaviourType.Plant, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500,
+				"Herb", "Textile Dye");
+		}
+
+		AddMaterial("lac dye cake", MaterialBehaviourType.Powder, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500,
+			"Textile Dye");
+		AddMaterial("murex purple dye", MaterialBehaviourType.Powder, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500,
+			"Textile Dye");
+		AddMaterial("orpiment", MaterialBehaviourType.Powder, 3.5, false, 1000, 1000, 0.0, 0.14, 0.0001, 500,
+			"Stone");
+		AddMaterial("realgar", MaterialBehaviourType.Powder, 3.6, false, 1000, 1000, 0.0, 0.14, 0.0001, 500,
+			"Stone");
+		AddMaterial("verdigris pigment", MaterialBehaviourType.Powder, 1.9, false, 1000, 1000, 0.0, 0.14, 0.0001,
+			500, "Stone");
+		AddMaterial("lead white pigment", MaterialBehaviourType.Powder, 6.1, false, 1000, 1000, 0.0, 0.14, 0.0001,
+			500, "Stone");
+		AddMaterial("red ochre pigment", MaterialBehaviourType.Powder, 2.8, false, 1000, 1000, 0.0, 0.14, 0.0001,
+			500, "Textile Dye", "Stone");
+		AddMaterial("yellow ochre pigment", MaterialBehaviourType.Powder, 2.8, false, 1000, 1000, 0.0, 0.14,
+			0.0001, 500, "Textile Dye", "Stone");
+		AddMaterial("egyptian blue frit", MaterialBehaviourType.Powder, 2.8, false, 1000, 1000, 0.0, 0.14, 0.0001,
+			500, "Stone");
+		AddMaterial("bone black pigment", MaterialBehaviourType.Powder, 1.8, true, 1000, 1000, 0.2, 0.08, 0.0001,
+			1000, "Textile Dye");
+		EnsureTag(materials["saffron"], "Textile Dye");
 		EnsureAlias(materials["madder root"], "madder");
 		EnsureAlias(materials["indigo dye cake"], "indigo");
 		EnsureAlias(materials["ochre pigment"], "ochre");
 		EnsureAlias(materials["alum mordant"], "alum");
+		EnsureAlias(materials["saffron"], "crocus");
+		EnsureAlias(materials["woad leaves"], "woad", "isatis");
+		EnsureAlias(materials["weld"], "dyer's weld", "dyers weld", "dyer's rocket");
+		EnsureAlias(materials["kermes grain"], "kermes", "scarlet grain");
+		EnsureAlias(materials["alkanet root"], "alkanet", "dyer's bugloss", "dyers bugloss");
+		EnsureAlias(materials["henna leaf"], "henna");
+		EnsureAlias(materials["pomegranate rind"], "pomegranate peel");
+		EnsureAlias(materials["walnut hull"], "walnut husk");
+		EnsureAlias(materials["oak gall"], "gallnut", "oak apple");
+		EnsureAlias(materials["orchil lichen"], "orchil", "orseille");
+		EnsureAlias(materials["lac dye cake"], "lac dye", "lac");
+		EnsureAlias(materials["murex purple dye"], "tyrian purple", "royal purple", "murex dye");
+		EnsureAlias(materials["verdigris pigment"], "verdigris");
+		EnsureAlias(materials["lead white pigment"], "lead white");
+		EnsureAlias(materials["red ochre pigment"], "red ochre");
+		EnsureAlias(materials["yellow ochre pigment"], "yellow ochre");
+		EnsureAlias(materials["egyptian blue frit"], "egyptian blue", "blue frit");
+		EnsureAlias(materials["bone black pigment"], "bone black");
+		EnsureAlias(materials["soot"], "lamp black", "carbon black");
 
 		foreach (var name in new[]
 		{

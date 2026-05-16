@@ -80,7 +80,7 @@ public class ItemSeederRemainingAntiquityClothingCraftingTests
 	[TestMethod]
 	public void RemainingAntiquityClothingCrafts_ProduceEveryCurrentCultureGarmentPrototype()
 	{
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.RemainingAntiquity.cs");
+		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.Antiquity.cs");
 		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.Antiquity.cs");
 		var itemCraftingSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.cs");
 
@@ -106,7 +106,7 @@ public class ItemSeederRemainingAntiquityClothingCraftingTests
 	[TestMethod]
 	public void RemainingAntiquityFinishedGarmentCrafts_UseCultureKnowledgeGates()
 	{
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.RemainingAntiquity.cs");
+		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.Antiquity.cs");
 
 		foreach (var expected in new[]
 		{
@@ -129,7 +129,7 @@ public class ItemSeederRemainingAntiquityClothingCraftingTests
 	[TestMethod]
 	public void SharedUpstreamTextileCrafts_AddFeltCommodityPath()
 	{
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.Hellenic.cs");
+		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.Antiquity.cs");
 		var materialSource = ReadSource("DatabaseSeeder", "Seeders", "CoreDataSeeder.Materials.cs");
 
 		foreach (var expected in new[]
@@ -149,7 +149,7 @@ public class ItemSeederRemainingAntiquityClothingCraftingTests
 	[TestMethod]
 	public void RemainingAntiquitySpecialGarments_UseCommodityInputsAndGeneratedProducts()
 	{
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.RemainingAntiquity.cs");
+		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.Antiquity.cs");
 
 		foreach (var expected in new[]
 		{

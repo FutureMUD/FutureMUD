@@ -793,6 +793,62 @@ public partial class ItemSeeder
             ["CommodityProduct - 380 grams of cotton commodity; tag Woven Cloth; characteristic Colour from $i1; characteristic Fine Colour from $i1"],
             ["CommodityProduct - 140 grams of cotton commodity; tag Woven Cloth; characteristic Colour from $i1; characteristic Fine Colour from $i1"]);
 
+        void AddTextileDyeStockCraft(string name, string dyeMaterial, string basicColour, string fineColour,
+            bool usesMordant = true, IEnumerable<string>? additionalInputs = null, IEnumerable<string>? additionalTools = null)
+        {
+            var inputs = new List<string>
+            {
+                $"Commodity - 320 grams of {dyeMaterial}",
+                "LiquidUse - 4 litres of Water"
+            };
+
+            if (usesMordant)
+            {
+                inputs.Add("Commodity - 40 grams of alum mordant");
+            }
+
+            if (additionalInputs is not null)
+            {
+                inputs.AddRange(additionalInputs);
+            }
+
+            var tools = new List<string>
+            {
+                "TagTool - InRoom - an item with the Dye Vat tag",
+                "TagTool - InRoom - an item with the Mordant Cauldron tag",
+                "TagTool - Held - an item with the Dye Strainer tag"
+            };
+
+            if (additionalTools is not null)
+            {
+                tools.AddRange(additionalTools);
+            }
+
+            AddAncientTextileCraft(
+                name,
+                "Dyeing",
+                $"prepare {fineColour} textile dye stock",
+                $"preparing {fineColour} dye stock",
+                $"{fineColour} dye stock being prepared",
+                "Dyeing",
+                10,
+                Difficulty.Normal,
+                [
+                    (30, "$0 crush|crushes and sort|sorts $i1 for the dye bath.", "$0 crush|crushes $i1 poorly, wasting much of the colour-bearing material."),
+                    (45, "$0 steep|steeps $i1 in $t1 and work|works the colour into solution.", "$0 steep|steeps $i1 unevenly, leaving the dye weak and muddy."),
+                    (35, "$0 strain|strains the dyebath through $t3 and settle|settles the coloured stock.", "$0 strain|strains the dyebath poorly, leaving grit and spent fibre in it."),
+                    (25, "$0 set|sets aside $p1.", "$0 salvage|salvages only $f1 from the failed dye stock.")
+                ],
+                inputs,
+                tools,
+                [
+                    $"CommodityProduct - 220 grams of {dyeMaterial} commodity; tag Textile Dye Stock; characteristic Colour={basicColour}; characteristic Fine Colour={fineColour}"
+                ],
+                [
+                    $"CommodityProduct - 80 grams of {dyeMaterial} commodity; tag Textile Dye Stock; characteristic Colour={basicColour}; characteristic Fine Colour={fineColour}"
+                ]);
+        }
+
         void AddDyeCraft(string name, string material, string dyeMaterial, string basicColour, string fineColour)
         {
             AddAncientTextileCraft(
@@ -805,14 +861,14 @@ public partial class ItemSeeder
                 10,
                 Difficulty.Normal,
                 [
-                    (35, "$0 heat|heats water and mordant in $t2, stirring $i3 into the bath.", "$0 heat|heats the mordant bath unevenly in $t2."),
+                    (35, "$0 heat|heats water and mordant in $t2, stirring $i2 into the bath.", "$0 heat|heats the mordant bath unevenly in $t2."),
                     (35, "$0 steep|steeps $i2 in $t1, drawing colour into the dye bath.", "$0 steep|steeps $i2 poorly in $t1, leaving weak colour."),
                     (45, "$0 immerse|immerses $i1 in the dye bath, turning the cloth steadily.", "$0 immerse|immerses $i1 unevenly, leaving blotched patches."),
                     (25, "$0 lift|lifts out $p1 and set|sets it to drain.", "$0 lift|lifts out only $f1 from the spoiled dyeing.")
                 ],
                 [
                     $"Commodity - 420 grams of {material}; piletag Garment Cloth; characteristic Colour any; characteristic Fine Colour any",
-                    $"Commodity - 100 grams of {dyeMaterial}",
+                    $"Commodity - 100 grams of {dyeMaterial}; piletag Textile Dye Stock; characteristic Colour any; characteristic Fine Colour={fineColour}",
                     "Commodity - 40 grams of alum mordant",
                     "LiquidUse - 8 litres of Water"
                 ],
@@ -828,12 +884,60 @@ public partial class ItemSeeder
                 ]);
         }
 
-        AddDyeCraft("dye wool cloth madder red", "wool", "madder root", "red", "crimson");
+        AddTextileDyeStockCraft("prepare madder red dye stock", "madder root", "red", "madder red");
+        AddTextileDyeStockCraft("prepare kermes scarlet dye stock", "kermes grain", "red", "kermes scarlet");
+        AddTextileDyeStockCraft("prepare lac crimson dye stock", "lac dye cake", "red", "lac crimson");
+        AddTextileDyeStockCraft("prepare alkanet purple dye stock", "alkanet root", "purple", "alkanet purple");
+        AddTextileDyeStockCraft("prepare orchil violet dye stock", "orchil lichen", "purple", "orchil violet");
+        AddTextileDyeStockCraft("prepare tyrian purple dye stock", "murex purple dye", "purple", "tyrian purple",
+            false);
+        AddTextileDyeStockCraft("prepare indigo dye stock", "indigo dye cake", "dark blue", "deep indigo", false,
+            ["Commodity - 100 grams of wood ash"],
+            ["TagTool - Held - an item with the Indigo Beating Paddle tag"]);
+        AddTextileDyeStockCraft("prepare woad blue dye stock", "woad leaves", "blue", "woad blue", false,
+            ["Commodity - 100 grams of wood ash"],
+            ["TagTool - Held - an item with the Indigo Beating Paddle tag"]);
+        AddTextileDyeStockCraft("prepare weld golden dye stock", "weld", "yellow", "golden yellow");
+        AddTextileDyeStockCraft("prepare saffron yellow dye stock", "saffron", "yellow", "saffron yellow");
+        AddTextileDyeStockCraft("prepare pomegranate yellow dye stock", "pomegranate rind", "yellow",
+            "pomegranate yellow");
+        AddTextileDyeStockCraft("prepare henna orange dye stock", "henna leaf", "orange", "henna orange");
+        AddTextileDyeStockCraft("prepare walnut brown dye stock", "walnut hull", "brown", "walnut brown", false);
+        AddTextileDyeStockCraft("prepare oak-gall black dye stock", "oak gall", "black", "oak-gall black", false,
+            ["Commodity - 50 grams of wrought iron"]);
+
+        AddDyeCraft("dye wool cloth madder red", "wool", "madder root", "red", "madder red");
+        AddDyeCraft("dye wool cloth kermes scarlet", "wool", "kermes grain", "red", "kermes scarlet");
+        AddDyeCraft("dye wool cloth lac crimson", "wool", "lac dye cake", "red", "lac crimson");
         AddDyeCraft("dye wool cloth indigo blue", "wool", "indigo dye cake", "dark blue", "deep indigo");
-        AddDyeCraft("dye linen cloth ochre yellow", "linen", "ochre pigment", "yellow", "ochre");
-        AddDyeCraft("dye linen cloth saffron yellow", "linen", "saffron", "yellow", "golden yellow");
-        AddDyeCraft("dye cotton cloth madder red", "cotton", "madder root", "red", "crimson");
+        AddDyeCraft("dye wool cloth woad blue", "wool", "woad leaves", "blue", "woad blue");
+        AddDyeCraft("dye wool cloth weld yellow", "wool", "weld", "yellow", "golden yellow");
+        AddDyeCraft("dye wool cloth alkanet purple", "wool", "alkanet root", "purple", "alkanet purple");
+        AddDyeCraft("dye wool cloth orchil violet", "wool", "orchil lichen", "purple", "orchil violet");
+        AddDyeCraft("dye wool cloth tyrian purple", "wool", "murex purple dye", "purple", "tyrian purple");
+        AddDyeCraft("dye wool cloth walnut brown", "wool", "walnut hull", "brown", "walnut brown");
+        AddDyeCraft("dye wool cloth oak-gall black", "wool", "oak gall", "black", "oak-gall black");
+        AddDyeCraft("dye linen cloth madder red", "linen", "madder root", "red", "madder red");
+        AddDyeCraft("dye linen cloth indigo blue", "linen", "indigo dye cake", "dark blue", "deep indigo");
+        AddDyeCraft("dye linen cloth woad blue", "linen", "woad leaves", "blue", "woad blue");
+        AddDyeCraft("dye linen cloth weld yellow", "linen", "weld", "yellow", "golden yellow");
+        AddDyeCraft("dye linen cloth saffron yellow", "linen", "saffron", "yellow", "saffron yellow");
+        AddDyeCraft("dye linen cloth pomegranate yellow", "linen", "pomegranate rind", "yellow", "pomegranate yellow");
+        AddDyeCraft("dye linen cloth henna orange", "linen", "henna leaf", "orange", "henna orange");
+        AddDyeCraft("dye linen cloth oak-gall black", "linen", "oak gall", "black", "oak-gall black");
+        AddDyeCraft("dye linen cloth tyrian purple", "linen", "murex purple dye", "purple", "tyrian purple");
+        AddDyeCraft("dye cotton cloth madder red", "cotton", "madder root", "red", "madder red");
         AddDyeCraft("dye cotton cloth indigo blue", "cotton", "indigo dye cake", "dark blue", "deep indigo");
+        AddDyeCraft("dye cotton cloth weld yellow", "cotton", "weld", "yellow", "golden yellow");
+        AddDyeCraft("dye cotton cloth saffron yellow", "cotton", "saffron", "yellow", "saffron yellow");
+        AddDyeCraft("dye cotton cloth pomegranate yellow", "cotton", "pomegranate rind", "yellow", "pomegranate yellow");
+        AddDyeCraft("dye cotton cloth henna orange", "cotton", "henna leaf", "orange", "henna orange");
+        AddDyeCraft("dye cotton cloth walnut brown", "cotton", "walnut hull", "brown", "walnut brown");
+        AddDyeCraft("dye felt cloth madder red", "felt", "madder root", "red", "madder red");
+        AddDyeCraft("dye felt cloth indigo blue", "felt", "indigo dye cake", "dark blue", "deep indigo");
+        AddDyeCraft("dye felt cloth woad blue", "felt", "woad leaves", "blue", "woad blue");
+        AddDyeCraft("dye felt cloth walnut brown", "felt", "walnut hull", "brown", "walnut brown");
+        AddDyeCraft("dye felt cloth oak-gall black", "felt", "oak gall", "black", "oak-gall black");
 
         AddAncientTextileCraft(
             "full wool garment cloth",

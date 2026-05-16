@@ -75,7 +75,30 @@ namespace DatabaseSeeder.Seeders
             AddTag(context, "Woven Cloth", "Garment Cloth");
             AddTag(context, "Dyed Cloth", "Garment Cloth");
             AddTag(context, "Fulled Cloth", "Garment Cloth");
+            AddTag(context, "Textile Dye Stock", "Textile Commodity");
             AddTag(context, "Bead Stock", "Material Functions");
+            AddTag(context, "Household Craft Stock", "Material Functions");
+            AddTag(context, "Furniture Timber Stock", "Household Craft Stock");
+            AddTag(context, "Furniture Panel Stock", "Household Craft Stock");
+            AddTag(context, "Carved Wood Stock", "Household Craft Stock");
+            AddTag(context, "Coopered Staves", "Household Craft Stock");
+            AddTag(context, "Hoop Stock", "Household Craft Stock");
+            AddTag(context, "Basketry Splint", "Household Craft Stock");
+            AddTag(context, "Reed Matting", "Household Craft Stock");
+            AddTag(context, "Prepared Leather Panel", "Household Craft Stock");
+            AddTag(context, "Lamp Wick", "Household Craft Stock");
+            AddTag(context, "Prepared Pitch", "Household Craft Stock");
+            AddTag(context, "Pottery Clay Body", "Household Craft Stock");
+            AddTag(context, "Wet Vessel Blank", "Household Craft Stock");
+            AddTag(context, "Bisque Vessel Blank", "Household Craft Stock");
+            AddTag(context, "Glass Batch", "Household Craft Stock");
+            AddTag(context, "Glass Vessel Blank", "Household Craft Stock");
+            AddTag(context, "Cast Vessel Blank", "Household Craft Stock");
+            AddTag(context, "Stone Vessel Blank", "Household Craft Stock");
+            AddTag(context, "Inlay Stock", "Household Craft Stock");
+            AddTag(context, "Paint Pigment", "Household Craft Stock");
+            AddTag(context, "Lake Pigment", "Paint Pigment");
+            AddTag(context, "Lacquer Finish", "Household Craft Stock");
 
             AddTag(context, "Repairing", "Functions");
             AddTag(context, "Sharpening", "Functions");
@@ -381,6 +404,9 @@ namespace DatabaseSeeder.Seeders
             AddTag(context, "Crucible", "Metalworking Tools");
             AddTag(context, "Forge Tongs", "Metalworking Tools");
             AddTag(context, "Forge Hammer", "Metalworking Tools");
+            AddTag(context, "Casting Mould", "Metalworking Tools");
+            AddTag(context, "Vessel Casting Mould", "Casting Mould");
+            AddTag(context, "Bronze Burnisher", "Metalworking Tools");
 
             // Textilecraft Tools
             AddTag(context, "Textilecraft Tools", "Tools");
@@ -434,6 +460,7 @@ namespace DatabaseSeeder.Seeders
             AddTag(context, "Sandpaper", "Woodcrafting Tools");
             AddTag(context, "Rasp", "Woodcrafting Tools");
             AddTag(context, "Trammel", "Woodcrafting Tools");
+            AddTag(context, "Bow Drill", "Woodcrafting Tools");
 
             // Tattoos
             AddTag(context, "Tattooing Tools", "Tools");
@@ -453,6 +480,7 @@ namespace DatabaseSeeder.Seeders
             AddTag(context, "Stone Mallet", "Stoneworking Tools");
             AddTag(context, "Plug and Feathers", "Stoneworking Tools");
             AddTag(context, "Bush Hammer", "Stoneworking Tools");
+            AddTag(context, "Polishing Stone", "Stoneworking Tools");
 
             // Spinning
             AddTag(context, "Spinning Tools", "Textilecraft Tools");
@@ -742,6 +770,11 @@ namespace DatabaseSeeder.Seeders
             AddTag(context, "Marlinespike", "Ropemaking Tools");
             AddTag(context, "Fid", "Ropemaking Tools");
             AddTag(context, "Twine Shuttle", "Ropemaking Tools");
+
+            // Candlemaking and lamps
+            AddTag(context, "Candlemaking Tools", "Tools");
+            AddTag(context, "Candle Mould", "Candlemaking Tools");
+            AddTag(context, "Lamp Mould", "Candlemaking Tools");
 
             // Fishing
             AddTag(context, "Fishing Tools", "Tools");

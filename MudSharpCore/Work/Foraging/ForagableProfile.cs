@@ -18,7 +18,7 @@ public class ForagableProfile : EditableItem, IForagableProfile
 {
     public override bool CanSubmit()
     {
-        return MaximumYieldPoints.Any();
+        return MaximumYieldPoints.Any(x => x.Value > 0.0 && HourlyYieldPoints.ContainsKey(x.Key));
     }
 
     public override string WhyCannotSubmit()
@@ -33,38 +33,50 @@ public class ForagableProfile : EditableItem, IForagableProfile
             $"Foragable Profile #{Id.ToString("N0", actor)}r{RevisionNumber.ToString("N0", actor)} - {Name.ColourName()} - {Status.DescribeColour()}");
         sb.AppendLine();
         sb.AppendLine("Yield types:");
-        foreach (string type in MaximumYieldPoints.Keys)
+        foreach (string type in MaximumYieldPoints.Keys.OrderBy(x => x))
         {
+            HourlyYieldPoints.TryGetValue(type, out var hourlyYield);
             sb.AppendLine(
-                $"\t{type.ColourName()} - maximum {MaximumYieldPoints[type].ToString("N2", actor).ColourValue()}, recover {HourlyYieldPoints[type].ToString("N2", actor).ColourValue()} per hour");
+                $"\t{type.ColourName()} - maximum {MaximumYieldPoints[type].ToString("N2", actor).ColourValue()}, recover {hourlyYield.ToString("N2", actor).ColourValue()} per hour");
         }
 
         sb.AppendLine();
-        sb.Append(StringUtilities.GetTextTable(
-            from item in Foragables
-            select new[]
-            {
-                item.Id.ToString("N0", actor),
-                item.Name,
-                $"{item.ItemProto.Name} {item.ItemProto.Id:N0}r{item.ItemProto.RevisionNumber:N0}",
-                item.QuantityDiceExpression,
-                item.MinimumOutcome.Describe(),
-                item.MaximumOutcome.Describe(),
-                item.RelativeChance.ToString("N0", actor),
-                item.ForagableTypes.Any(x => _maximumYieldPoints.ContainsKey(x)) ? "Y" : "N"
-            },
-            new[]
-            {
-                "ID",
-                "Name",
-                "Item Proto",
-                "Quantity",
-                "Min Outcome",
-                "Max Outcome",
-                "Chances",
-                "Has Yield?"
-            },
-            actor.LineFormatLength, colour: Telnet.Green, unicodeTable: actor.Account.UseUnicode));
+        var foragables = Foragables.ToList();
+        if (!foragables.Any())
+        {
+            sb.AppendLine("No foragables are linked to this profile.".Colour(Telnet.Yellow));
+        }
+        else
+        {
+            sb.Append(StringUtilities.GetTextTable(
+                from item in foragables
+                let proto = item.ItemProto
+                select new[]
+                {
+                    item.Id.ToString("N0", actor),
+                    item.Name,
+                    proto != null
+                        ? $"{proto.Name} {proto.Id.ToString("N0", actor)}r{proto.RevisionNumber.ToString("N0", actor)}"
+                        : "Missing".ColourError(),
+                    item.QuantityDiceExpression,
+                    item.MinimumOutcome.Describe(),
+                    item.MaximumOutcome.Describe(),
+                    item.RelativeChance.ToString("N0", actor),
+                    item.ForagableTypes.Any(x => _maximumYieldPoints.ContainsKey(x)).ToColouredString()
+                },
+                new[]
+                {
+                    "ID",
+                    "Name",
+                    "Item Proto",
+                    "Quantity",
+                    "Min Outcome",
+                    "Max Outcome",
+                    "Chance",
+                    "Has Yield?"
+                },
+                actor.LineFormatLength, colour: Telnet.Green, unicodeTable: actor.Account.UseUnicode));
+        }
 
         return sb.ToString();
     }
@@ -198,10 +210,8 @@ public class ForagableProfile : EditableItem, IForagableProfile
             _foragableIds.Add(item.ForagableId);
         }
 
-        _maximumYieldPoints = profile.ForagableProfilesMaximumYields.ToDictionary(item => item.ForageType.ToLowerInvariant(),
-            item => item.Yield, StringComparer.InvariantCultureIgnoreCase);
-        _hourlyYieldPoints = profile.ForagableProfilesHourlyYieldGains.ToDictionary(item => item.ForageType.ToLowerInvariant(),
-            item => item.Yield, StringComparer.InvariantCultureIgnoreCase);
+        _maximumYieldPoints = BuildYieldDictionary(profile.ForagableProfilesMaximumYields.Select(x => (x.ForageType, x.Yield)));
+        _hourlyYieldPoints = BuildYieldDictionary(profile.ForagableProfilesHourlyYieldGains.Select(x => (x.ForageType, x.Yield)));
     }
 
     public ForagableProfile(IAccount originator) : base(originator)
@@ -244,9 +254,12 @@ public class ForagableProfile : EditableItem, IForagableProfile
     private const string BuildingHelpText = @"You can use the following options with this command:
 
 	#3name <name>#0 - renames this foragable profile
-	#3yield <which> <max> <hourly regain>#0 - sets up a yield for this profile
+	#3yield <which> <max> <hourly regain>#0 - sets or updates a yield for this profile
 	#3yield <which> 0#0 - removes a yield from this profile
-	#3foragable <which>#0 - toggles a foragable belonging to this profile";
+	#3yield <which> clear#0 - removes a yield from this profile
+	#3foragable <which>#0 - toggles a foragable belonging to this profile
+
+Yield types are the resource pools in a location. Foragables are the item results that can appear when a player uses #3forage <yield>#0. A foragable linked to this profile will only appear if at least one of its types has a matching yield here.";
 
     public override bool BuildingCommand(ICharacter actor, StringStack command)
     {
@@ -276,9 +289,8 @@ public class ForagableProfile : EditableItem, IForagableProfile
             return false;
         }
 
-        IForagable foragable = long.TryParse(command.PopSpeech(), out long value)
-            ? actor.Gameworld.Foragables.Get(value)
-            : actor.Gameworld.Foragables.GetByName(command.Last, true);
+        string targetText = command.SafeRemainingArgument;
+        IForagable foragable = actor.Gameworld.Foragables.GetByIdOrName(targetText);
 
         if (foragable == null)
         {
@@ -290,7 +302,7 @@ public class ForagableProfile : EditableItem, IForagableProfile
         {
             _foragableIds.RemoveAll(x => x == foragable.Id);
             Changed = true;
-            actor.Send("You remove foragable {0} {1:N0} from the foragable profile.", foragable.Name, foragable.Id);
+            actor.Send("You remove foragable {0} {1:N0} from the foragable profile.", foragable.Name.ColourName(), foragable.Id);
             return true;
         }
 
@@ -304,7 +316,14 @@ public class ForagableProfile : EditableItem, IForagableProfile
 
         _foragableIds.Add(foragable.Id);
         Changed = true;
-        actor.Send("You add foragable {0} {1:N0} from the foragable profile.", foragable.Name, foragable.Id);
+        actor.Send("You add foragable {0} {1:N0} to the foragable profile.", foragable.Name.ColourName(), foragable.Id);
+        if (!foragable.ForagableTypes.Any(x => MaximumYieldPoints.ContainsKey(x)))
+        {
+            actor.Send(
+                "Warning: this foragable does not currently share any yield types with this profile, so players will not find it here until you add a matching yield."
+                     .Colour(Telnet.Yellow));
+        }
+
         return true;
     }
 
@@ -316,14 +335,26 @@ public class ForagableProfile : EditableItem, IForagableProfile
             return false;
         }
 
-        string forageType = command.PopSpeech().ToLowerInvariant();
+        string forageType = command.PopSpeech().Trim().ToLowerInvariant();
+        if (string.IsNullOrWhiteSpace(forageType))
+        {
+            actor.Send("Which forage type do you want to set the yield for?");
+            return false;
+        }
+
         if (command.IsFinished)
         {
             actor.Send("You must specify both a maximum yield and yield recovery per hour.");
             return false;
         }
 
-        if (!double.TryParse(command.PopSpeech(), out double maximumYield))
+        string maximumText = command.PopSpeech();
+        if (maximumText.EqualTo("clear") || maximumText.EqualTo("remove") || maximumText.EqualTo("none"))
+        {
+            return RemoveYield(actor, forageType);
+        }
+
+        if (!double.TryParse(maximumText, out double maximumYield))
         {
             actor.Send("The maximum yield must be a number.");
             return false;
@@ -331,19 +362,7 @@ public class ForagableProfile : EditableItem, IForagableProfile
 
         if (maximumYield <= 0.0)
         {
-            if (!_maximumYieldPoints.ContainsKey(forageType))
-            {
-                actor.OutputHandler.Send(
-                    "There is no such yield to remove. If you're trying to add a new yield, it must have a maximum of greater than zero.");
-                return false;
-            }
-
-            _maximumYieldPoints.Remove(forageType);
-            _hourlyYieldPoints.Remove(forageType);
-            Changed = true;
-            actor.OutputHandler.Send(
-                $"This foragable profile will no longer contain the {forageType.ColourName()} yield type.");
-            return true;
+            return RemoveYield(actor, forageType);
         }
 
         if (command.IsFinished)
@@ -358,11 +377,34 @@ public class ForagableProfile : EditableItem, IForagableProfile
             return false;
         }
 
+        if (hourlyGain < 0.0)
+        {
+            actor.Send("The hourly yield recovery cannot be negative.");
+            return false;
+        }
+
         _maximumYieldPoints[forageType] = maximumYield;
         _hourlyYieldPoints[forageType] = hourlyGain;
         actor.OutputHandler.Send(
             $"You set the maximum yield for the {forageType.ColourName()} forage type to {maximumYield.ToString("N2", actor).ColourValue()} and the hourly yield recovery to {hourlyGain.ToString("N2", actor).ColourValue()}.");
         Changed = true;
+        return true;
+    }
+
+    private bool RemoveYield(ICharacter actor, string forageType)
+    {
+        if (!_maximumYieldPoints.ContainsKey(forageType))
+        {
+            actor.OutputHandler.Send(
+                "There is no such yield to remove. If you're trying to add a new yield, it must have a maximum of greater than zero.");
+            return false;
+        }
+
+        _maximumYieldPoints.Remove(forageType);
+        _hourlyYieldPoints.Remove(forageType);
+        Changed = true;
+        actor.OutputHandler.Send(
+            $"This foragable profile will no longer contain the {forageType.ColourName()} yield type.");
         return true;
     }
 
@@ -395,15 +437,29 @@ public class ForagableProfile : EditableItem, IForagableProfile
     private readonly List<long> _foragableIds = new();
     public IEnumerable<IForagable> Foragables => _foragableIds.SelectNotNull(x => Gameworld.Foragables.Get(x));
 
+    private static Dictionary<string, double> BuildYieldDictionary(IEnumerable<(string ForageType, double Yield)> yields)
+    {
+        return yields.Where(x => !string.IsNullOrWhiteSpace(x.ForageType))
+                     .GroupBy(x => x.ForageType.Trim().ToLowerInvariant(), StringComparer.InvariantCultureIgnoreCase)
+                     .ToDictionary(x => x.Key, x => x.Last().Yield, StringComparer.InvariantCultureIgnoreCase);
+    }
+
     public IForagable GetForageResult(ICharacter character, IReadOnlyDictionary<Difficulty, CheckOutcome> forageOutcome,
         string foragableType)
     {
+        if (!MaximumYieldPoints.ContainsKey(foragableType))
+        {
+            return null;
+        }
+
         return
             Foragables.Where(
                           x =>
+                              x.ItemProto != null &&
                               x.ForagableTypes.Any(y =>
                                   y.Equals(foragableType, StringComparison.InvariantCultureIgnoreCase)) &&
-                              x.CanForage(character, forageOutcome[x.ForageDifficulty]))
+                              forageOutcome.TryGetValue(x.ForageDifficulty, out var outcome) &&
+                              x.CanForage(character, outcome))
                       .GetWeightedRandom(x => x.RelativeChance);
     }
 

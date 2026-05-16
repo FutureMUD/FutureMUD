@@ -1361,11 +1361,13 @@ The following additional models require you to specify a liquid to go with them:
         if (command.IsFinished)
         {
             actor.OutputHandler.Send(
-                "You must either specify a foragable profile to use for this terrain, or 'none' to remove an existing foreable profile.");
+                "You must either specify a foragable profile to use for this terrain, or 'none' to remove an existing foragable profile.");
             return false;
         }
 
-        if (command.Peek().EqualTo("none"))
+        if (command.SafeRemainingArgument.EqualTo("none") ||
+            command.SafeRemainingArgument.EqualTo("clear") ||
+            command.SafeRemainingArgument.EqualTo("remove"))
         {
             _foragableProfile = null;
             _foragableProfileId = 0;
@@ -1374,9 +1376,7 @@ The following additional models require you to specify a liquid to go with them:
             return true;
         }
 
-        IForagableProfile profile = long.TryParse(command.PopSpeech(), out long value)
-            ? Gameworld.ForagableProfiles.Get(value)
-            : Gameworld.ForagableProfiles.GetByName(command.Last);
+        IForagableProfile profile = Gameworld.ForagableProfiles.GetByIdOrName(command.SafeRemainingArgument);
         if (profile == null)
         {
             actor.OutputHandler.Send("There is no such foragable profile.");

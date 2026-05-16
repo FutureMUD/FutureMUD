@@ -520,8 +520,8 @@ return ""There is no useful clay that is accessible in the biome you're in.""");
         AddProg("HasButchering", "Crafting", "Access", ProgVariableTypes.Boolean, "", [(ProgVariableTypes.Character, "ch")], $@"return @ch.Skills.Any(x, @x.Id == {_traits["Butchering"]?.Id ?? _traits["Butcher"]?.Id ?? _traits["Surviving"]?.Id ?? _traits["Survival"]?.Id ?? _traits.First().Value.Id})");
         AddProg("HasCooking", "Crafting", "Access", ProgVariableTypes.Boolean, "", [(ProgVariableTypes.Character, "ch")], $@"return @ch.Skills.Any(x, @x.Id == {_traits["Cooking"]?.Id ?? _traits["Cook"]?.Id ?? _traits["Surviving"]?.Id ?? _traits["Survival"]?.Id ?? _traits.First().Value.Id})");
         AddProg("HasBlacksmithing", "Crafting", "Access", ProgVariableTypes.Boolean, "", [(ProgVariableTypes.Character, "ch")], $@"return @ch.Skills.Any(x, @x.Id == {_traits["Blacksmithing"]?.Id ?? _traits["Blacksmith"]?.Id ?? _traits.First().Value.Id})");
-        AddProg("HasWeaponcrafting", "Crafting", "Access", ProgVariableTypes.Boolean, "", [(ProgVariableTypes.Character, "ch")], $@"return @ch.Skills.Any(x, @x.Id == {_traits["Armourcrafting"]?.Id ?? _traits["Armourer"]?.Id ?? _traits.First().Value.Id})");
-        AddProg("HasArmourcrafting", "Crafting", "Access", ProgVariableTypes.Boolean, "", [(ProgVariableTypes.Character, "ch")], $@"return @ch.Skills.Any(x, @x.Id == {_traits["Weaponcrafting"]?.Id ?? _traits["Weaponsmith"]?.Id ?? _traits.First().Value.Id})");
+        AddProg("HasWeaponcrafting", "Crafting", "Access", ProgVariableTypes.Boolean, "", [(ProgVariableTypes.Character, "ch")], $@"return @ch.Skills.Any(x, @x.Id == {_traits["Weaponcrafting"]?.Id ?? _traits["Weaponsmith"]?.Id ?? _traits.First().Value.Id})");
+        AddProg("HasArmourcrafting", "Crafting", "Access", ProgVariableTypes.Boolean, "", [(ProgVariableTypes.Character, "ch")], $@"return @ch.Skills.Any(x, @x.Id == {_traits["Armourcrafting"]?.Id ?? _traits["Armourer"]?.Id ?? _traits.First().Value.Id})");
         AddProg("HasSurvival", "Crafting", "Access", ProgVariableTypes.Boolean, "", [(ProgVariableTypes.Character, "ch")], $@"return @ch.Skills.Any(x, @x.Id == {_traits["Surviving"]?.Id ?? _traits["Survival"]?.Id ?? _traits.First().Value.Id})");
         AddProg("HasTailoring", "Crafting", "Access", ProgVariableTypes.Boolean, "", [(ProgVariableTypes.Character, "ch")], $@"return @ch.Skills.Any(x, @x.Id == {_traits["Tailoring"]?.Id ?? _traits["Tailor"]?.Id ?? _traits.First().Value.Id})");
         AddProg("HasLeatherworking", "Crafting", "Access", ProgVariableTypes.Boolean, "", [(ProgVariableTypes.Character, "ch")], $@"return @ch.Skills.Any(x, @x.Id == {_traits["Leathermaking"]?.Id ?? _traits["Tanner"]?.Id ?? _traits.First().Value.Id})");
@@ -2140,6 +2140,7 @@ return ""You need at least {minimumTraitValue.Value.ToString(System.Globalizatio
 		SeedAntiquityEtruscanClothingCrafts();
 		SeedAntiquityAnatolianClothingCrafts();
 		SeedAntiquityScythianSarmatianClothingCrafts();
+		SeedAntiquityEquipmentCrafts();
 		SeedAntiquityFurnitureAndContainerCrafts();
 		SeedAntiquityLeatherPreparationCrafts();
 		SeedAntiquityLeatherClothingCrafts();

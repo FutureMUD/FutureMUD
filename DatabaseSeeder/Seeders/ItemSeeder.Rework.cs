@@ -132,6 +132,7 @@ namespace DatabaseSeeder.Seeders
                 SeedAntiquityClothing();
                 SeedAntiquityHouseholdCraftTools();
                 SeedAntiquityWritingImplementsAndDocuments();
+                SeedAntiquityMedicalItems();
                 SeedAntiquityJewellery();
                 SeedAntiquityArmour();
                 SeedAntiquityContainers();

@@ -83,6 +83,16 @@ Wax Tablet	Writing Surface	Functions / Writing Surface / Wax Tablet
 Clay Tablet	Writing Surface	Functions / Writing Surface / Clay Tablet
 Wooden Writing Block	Writing Surface	Functions / Writing Surface / Wooden Writing Block
 Ostracon	Writing Surface	Functions / Writing Surface / Ostracon
+Medical Treatment	Functions	Functions / Medical Treatment
+Bandage	Medical Treatment	Functions / Medical Treatment / Bandage
+Splint	Medical Treatment	Functions / Medical Treatment / Splint
+Tend Kit	Medical Treatment	Functions / Medical Treatment / Tend Kit
+Wound Cleaning	Medical Treatment	Functions / Medical Treatment / Wound Cleaning
+Antiseptic Dressing	Medical Treatment	Functions / Medical Treatment / Antiseptic Dressing
+Suture Kit	Medical Treatment	Functions / Medical Treatment / Suture Kit
+Prosthetic	Medical Treatment	Functions / Medical Treatment / Prosthetic
+Mobility Aid	Medical Treatment	Functions / Medical Treatment / Mobility Aid
+Herbal Remedy	Medical Treatment	Functions / Medical Treatment / Herbal Remedy
 Joining	Functions	Functions / Joining
 Adhesion	Joining	Functions / Joining / Adhesion
 Cement	Adhesion	Functions / Joining / Adhesion / Cement
@@ -175,6 +185,17 @@ Ink Stock	Writing Craft Stock	Functions / Material Functions / Writing Craft Sto
 Pen Blank	Writing Craft Stock	Functions / Material Functions / Writing Craft Stock / Pen Blank
 Bookbinding Stock	Writing Craft Stock	Functions / Material Functions / Writing Craft Stock / Bookbinding Stock
 Scrollmaking Stock	Writing Craft Stock	Functions / Material Functions / Writing Craft Stock / Scrollmaking Stock
+Medical Craft Stock	Material Functions	Functions / Material Functions / Medical Craft Stock
+Dressing Stock	Medical Craft Stock	Functions / Material Functions / Medical Craft Stock / Dressing Stock
+Poultice Stock	Medical Craft Stock	Functions / Material Functions / Medical Craft Stock / Poultice Stock
+Salve Stock	Medical Craft Stock	Functions / Material Functions / Medical Craft Stock / Salve Stock
+Decoction Stock	Medical Craft Stock	Functions / Material Functions / Medical Craft Stock / Decoction Stock
+Fumigation Stock	Medical Craft Stock	Functions / Material Functions / Medical Craft Stock / Fumigation Stock
+Suture Stock	Medical Craft Stock	Functions / Material Functions / Medical Craft Stock / Suture Stock
+Splint Stock	Medical Craft Stock	Functions / Material Functions / Medical Craft Stock / Splint Stock
+Prosthetic Stock	Medical Craft Stock	Functions / Material Functions / Medical Craft Stock / Prosthetic Stock
+Surgical Tool Blank	Medical Craft Stock	Functions / Material Functions / Medical Craft Stock / Surgical Tool Blank
+Herbal Remedy Stock	Medical Craft Stock	Functions / Material Functions / Medical Craft Stock / Herbal Remedy Stock
 Leather Commodity	Material Functions	Functions / Material Functions / Leather Commodity
 Prepared Hide	Leather Commodity	Functions / Material Functions / Leather Commodity / Prepared Hide
 Tanned Leather	Leather Commodity	Functions / Material Functions / Leather Commodity / Tanned Leather
@@ -602,6 +623,7 @@ Safe Dial Manipulator	Locksmithing Tools	Functions / Tools / Locksmithing Tools 
 Torsion Wrench	Locksmithing Tools	Functions / Tools / Locksmithing Tools / Torsion Wrench
 Medical Tools	Tools	Functions / Tools / Medical Tools
 Blood Pressure Monitor	Medical Tools	Functions / Tools / Medical Tools / Blood Pressure Monitor
+Cupping Vessel	Medical Tools	Functions / Tools / Medical Tools / Cupping Vessel
 Dermatoscope	Medical Tools	Functions / Tools / Medical Tools / Dermatoscope
 Electrocardiogram	Medical Tools	Functions / Tools / Medical Tools / Electrocardiogram
 Electroencephalogram	Medical Tools	Functions / Tools / Medical Tools / Electroencephalogram
@@ -609,6 +631,8 @@ Glucometer	Medical Tools	Functions / Tools / Medical Tools / Glucometer
 Height Measuring Scale	Medical Tools	Functions / Tools / Medical Tools / Height Measuring Scale
 Human Blood Typing	Medical Tools	Functions / Tools / Medical Tools / Human Blood Typing
 Mechanical Scale	Medical Tools	Functions / Tools / Medical Tools / Mechanical Scale
+Medicine Strainer	Medical Tools	Functions / Tools / Medical Tools / Medicine Strainer
+Ointment Spatula	Medical Tools	Functions / Tools / Medical Tools / Ointment Spatula
 Ophthalmoscope	Medical Tools	Functions / Tools / Medical Tools / Ophthalmoscope
 Otascope	Medical Tools	Functions / Tools / Medical Tools / Otascope
 Spirometer	Medical Tools	Functions / Tools / Medical Tools / Spirometer
@@ -859,6 +883,7 @@ Mallet	Striking Tools	Functions / Tools / Striking Tools / Mallet
 Surgical Tools	Tools	Functions / Tools / Surgical Tools
 Arterial Clamp	Surgical Tools	Functions / Tools / Surgical Tools / Arterial Clamp
 Bonesaw	Surgical Tools	Functions / Tools / Surgical Tools / Bonesaw
+Cautery Iron	Surgical Tools	Functions / Tools / Surgical Tools / Cautery Iron
 Curette	Surgical Tools	Functions / Tools / Surgical Tools / Curette
 Forceps	Surgical Tools	Functions / Tools / Surgical Tools / Forceps
 DeBakey Forceps	Forceps	Functions / Tools / Surgical Tools / Forceps / DeBakey Forceps
@@ -868,6 +893,7 @@ Tissue Forceps	Forceps	Functions / Tools / Surgical Tools / Forceps / Tissue For
 Intestinal Clamp	Surgical Tools	Functions / Tools / Surgical Tools / Intestinal Clamp
 Scalpel	Surgical Tools	Functions / Tools / Surgical Tools / Scalpel
 Speculum	Surgical Tools	Functions / Tools / Surgical Tools / Speculum
+Surgical Probe	Surgical Tools	Functions / Tools / Surgical Tools / Surgical Probe
 Surgical Retractor	Surgical Tools	Functions / Tools / Surgical Tools / Surgical Retractor
 Surgical Stapler	Surgical Tools	Functions / Tools / Surgical Tools / Surgical Stapler
 Surgical Staples	Surgical Tools	Functions / Tools / Surgical Tools / Surgical Staples
@@ -1136,8 +1162,12 @@ Coffee	Luxury Drinks	Market / Luxury Drinks / Coffee
 Tea	Luxury Drinks	Market / Luxury Drinks / Tea
 Medicine	Market	Market / Medicine
 High-Quality Medicine	Medicine	Market / Medicine / High-Quality Medicine
+Herbal Medicine	Medicine	Market / Medicine / Herbal Medicine
+Prosthetics and Mobility	Medicine	Market / Medicine / Prosthetics and Mobility
 Simple Medicine	Medicine	Market / Medicine / Simple Medicine
 Standard Medicine	Medicine	Market / Medicine / Standard Medicine
+Surgical Supplies	Medicine	Market / Medicine / Surgical Supplies
+Treatment Supplies	Medicine	Market / Medicine / Treatment Supplies
 Military Goods	Market	Market / Military Goods
 Ammunition	Military Goods	Market / Military Goods / Ammunition
 Arrows	Ammunition	Market / Military Goods / Ammunition / Arrows

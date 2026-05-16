@@ -160,7 +160,7 @@ public class HealthSeederTests
             new Drug { Id = 1, Name = "IngestedOnly", DrugVectors = (int)DrugVector.Ingested, IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
             new Drug { Id = 2, Name = "TouchedOnly", DrugVectors = (int)DrugVector.Touched, IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
             new Drug { Id = 3, Name = "InhaledOnly", DrugVectors = (int)DrugVector.Inhaled, IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
-            new Drug { Id = 4, Name = "BothDrug", DrugVectors = (int)(DrugVector.Ingested | DrugVector.Touched), IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 });
+            new Drug { Id = 4, Name = "BothDrug", DrugVectors = (int)(DrugVector.Ingested | DrugVector.Touched | DrugVector.Inhaled), IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 });
         context.SaveChanges();
 
         HealthSeeder seeder = new();
@@ -172,8 +172,10 @@ public class HealthSeederTests
         Assert.AreEqual(1, context.GameItemComponentProtos.Count(x => x.Name == "TopicalCream_TouchedOnly"));
         Assert.AreEqual(0, context.GameItemComponentProtos.Count(x => x.Name == "Pill_InhaledOnly"));
         Assert.AreEqual(0, context.GameItemComponentProtos.Count(x => x.Name == "TopicalCream_InhaledOnly"));
+        Assert.AreEqual(1, context.GameItemComponentProtos.Count(x => x.Name == "Smokeable_InhaledOnly"));
         Assert.AreEqual(1, context.GameItemComponentProtos.Count(x => x.Name == "Pill_BothDrug"));
         Assert.AreEqual(1, context.GameItemComponentProtos.Count(x => x.Name == "TopicalCream_BothDrug"));
+        Assert.AreEqual(1, context.GameItemComponentProtos.Count(x => x.Name == "Smokeable_BothDrug"));
     }
 
     [TestMethod]
@@ -214,7 +216,8 @@ public class HealthSeederTests
             new GameItemComponentProto { Id = 4, Name = "TopicalCream_Antibiotic_Ointment", Type = "TopicalCream", Description = "TopicalCream_Antibiotic_Ointment", Definition = "<Definition />", EditableItem = new EditableItem() },
             new GameItemComponentProto { Id = 5, Name = "Pill_Antifungal_Course", Type = "Pill", Description = "Pill_Antifungal_Course", Definition = "<Definition />", EditableItem = new EditableItem() },
             new GameItemComponentProto { Id = 6, Name = "TopicalCream_Antifungal_Course", Type = "TopicalCream", Description = "TopicalCream_Antifungal_Course", Definition = "<Definition />", EditableItem = new EditableItem() },
-            new GameItemComponentProto { Id = 7, Name = "TopicalCream_Burn_Gel", Type = "TopicalCream", Description = "TopicalCream_Burn_Gel", Definition = "<Definition />", EditableItem = new EditableItem() });
+            new GameItemComponentProto { Id = 7, Name = "TopicalCream_Burn_Gel", Type = "TopicalCream", Description = "TopicalCream_Burn_Gel", Definition = "<Definition />", EditableItem = new EditableItem() },
+            new GameItemComponentProto { Id = 8, Name = "Smokeable_General_Anaesthetic", Type = "Smokeable", Description = "Smokeable_General_Anaesthetic", Definition = "<Definition />", EditableItem = new EditableItem() });
 
         context.SaveChanges();
 
@@ -246,7 +249,11 @@ public class HealthSeederTests
             new Drug { Id = 4, Name = "Garlic Salve", DrugVectors = (int)(DrugVector.Ingested | DrugVector.Touched), IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
             new Drug { Id = 5, Name = "Mint Infusion", DrugVectors = (int)DrugVector.Ingested, IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
             new Drug { Id = 6, Name = "Ephedra Brew", DrugVectors = (int)DrugVector.Ingested, IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
-            new Drug { Id = 7, Name = "Foxglove Tincture", DrugVectors = (int)DrugVector.Ingested, IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 });
+            new Drug { Id = 7, Name = "Foxglove Tincture", DrugVectors = (int)DrugVector.Ingested, IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
+            new Drug { Id = 8, Name = "Aloe Burn Salve", DrugVectors = (int)DrugVector.Touched, IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
+            new Drug { Id = 9, Name = "Poppy Latex Draught", DrugVectors = (int)DrugVector.Ingested, IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
+            new Drug { Id = 10, Name = "Henbane Smoke", DrugVectors = (int)DrugVector.Inhaled, IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
+            new Drug { Id = 11, Name = "Yarrow Styptic", DrugVectors = (int)DrugVector.Touched, IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 });
 
         context.GameItemComponentProtos.AddRange(
             new GameItemComponentProto { Id = 1, Name = "Pill_Willow_Bark_Tea", Type = "Pill", Description = "Pill_Willow_Bark_Tea", Definition = "<Definition />", EditableItem = new EditableItem() },
@@ -256,7 +263,12 @@ public class HealthSeederTests
             new GameItemComponentProto { Id = 5, Name = "TopicalCream_Garlic_Salve", Type = "TopicalCream", Description = "TopicalCream_Garlic_Salve", Definition = "<Definition />", EditableItem = new EditableItem() },
             new GameItemComponentProto { Id = 6, Name = "Pill_Mint_Infusion", Type = "Pill", Description = "Pill_Mint_Infusion", Definition = "<Definition />", EditableItem = new EditableItem() },
             new GameItemComponentProto { Id = 7, Name = "Pill_Ephedra_Brew", Type = "Pill", Description = "Pill_Ephedra_Brew", Definition = "<Definition />", EditableItem = new EditableItem() },
-            new GameItemComponentProto { Id = 8, Name = "Pill_Foxglove_Tincture", Type = "Pill", Description = "Pill_Foxglove_Tincture", Definition = "<Definition />", EditableItem = new EditableItem() });
+            new GameItemComponentProto { Id = 8, Name = "Pill_Foxglove_Tincture", Type = "Pill", Description = "Pill_Foxglove_Tincture", Definition = "<Definition />", EditableItem = new EditableItem() },
+            new GameItemComponentProto { Id = 9, Name = "Smokeable_Mandrake_Draught", Type = "Smokeable", Description = "Smokeable_Mandrake_Draught", Definition = "<Definition />", EditableItem = new EditableItem() },
+            new GameItemComponentProto { Id = 10, Name = "TopicalCream_Aloe_Burn_Salve", Type = "TopicalCream", Description = "TopicalCream_Aloe_Burn_Salve", Definition = "<Definition />", EditableItem = new EditableItem() },
+            new GameItemComponentProto { Id = 11, Name = "Pill_Poppy_Latex_Draught", Type = "Pill", Description = "Pill_Poppy_Latex_Draught", Definition = "<Definition />", EditableItem = new EditableItem() },
+            new GameItemComponentProto { Id = 12, Name = "Smokeable_Henbane_Smoke", Type = "Smokeable", Description = "Smokeable_Henbane_Smoke", Definition = "<Definition />", EditableItem = new EditableItem() },
+            new GameItemComponentProto { Id = 13, Name = "TopicalCream_Yarrow_Styptic", Type = "TopicalCream", Description = "TopicalCream_Yarrow_Styptic", Definition = "<Definition />", EditableItem = new EditableItem() });
 
         context.SaveChanges();
 

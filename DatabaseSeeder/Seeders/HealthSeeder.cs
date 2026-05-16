@@ -97,7 +97,11 @@ namespace DatabaseSeeder.Seeders
             "Garlic Salve",
             "Mint Infusion",
             "Ephedra Brew",
-            "Foxglove Tincture"
+            "Foxglove Tincture",
+            "Aloe Burn Salve",
+            "Poppy Latex Draught",
+            "Henbane Smoke",
+            "Yarrow Styptic"
         ];
         private static readonly string[] PreModernHealthDrugs =
         [
@@ -1883,6 +1887,26 @@ Please answer #3primitive#F, #3pre-modern#0, or #3modern#F: ",
                                 new XAttribute("grams", 0.1),
                                 new XAttribute("absorption", 0.75)))));
             }
+
+            foreach (Drug? drug in _context.Drugs
+                         .Where(x => ((DrugVector)x.DrugVectors).HasFlag(DrugVector.Inhaled))
+                         .OrderBy(x => x.Name)
+                         .ToList())
+            {
+                UpsertComponent("Smokeable", $"Smokeable_{SanitizeDrugComponentName(drug.Name)}",
+                    $"Turns an item into an inhaled remedy delivering {drug.Name}.",
+                    new XElement("Definition",
+                        new XElement("SecondsOfFuel", 900),
+                        new XElement("SecondsPerDrag", 30),
+                        new XElement("SecondsOfEffectPerSecondOfFuel", 3),
+                        new XElement("OnDragProg", 0),
+                        new XElement("PlayerDescriptionEffectString",
+                            new XCData($"The bitter, herbal smell of {drug.Name.ToLowerInvariant()} smoke clings to this individual.")),
+                        new XElement("RoomDescriptionEffectString",
+                            new XCData($"The bitter, herbal smell of {drug.Name.ToLowerInvariant()} smoke hangs in the air here.")),
+                        new XElement("Drug", drug.Id),
+                        new XElement("GramsPerDrag", 0.05)));
+            }
         }
 
         private static string SanitizeDrugComponentName(string text)
@@ -2015,6 +2039,11 @@ Please answer #3primitive#F, #3pre-modern#0, or #3modern#F: ",
                 {
                     yield return $"TopicalCream_{SanitizeDrugComponentName(drug.Name)}";
                 }
+
+                if (vectors.HasFlag(DrugVector.Inhaled))
+                {
+                    yield return $"Smokeable_{SanitizeDrugComponentName(drug.Name)}";
+                }
             }
         }
 
@@ -2045,6 +2074,22 @@ Please answer #3primitive#F, #3pre-modern#0, or #3modern#F: ",
                     new OrganFunctionAdditionalInfo { OrganTypes = [BodypartTypeEnum.Heart] }.DatabaseString),
                 (DrugType.Nausea, 0.25, string.Empty),
                 (DrugType.VisionImpairment, 0.10, string.Empty));
+            AddDrug("Aloe Burn Salve", 0.7, 0.12, DrugVector.Touched,
+                (DrugType.Analgesic, 0.18, string.Empty),
+                (DrugType.HealingRate, 0.18,
+                    new HealingRateAdditionalInfo { HealingRateIntensity = 0.12, HealingDifficultyIntensity = 0.0 }.DatabaseString));
+            AddDrug("Poppy Latex Draught", 0.8, 0.09, DrugVector.Ingested,
+                (DrugType.Analgesic, 0.85, string.Empty),
+                (DrugType.Pacifism, 0.10, string.Empty),
+                (DrugType.Nausea, 0.20, string.Empty));
+            AddDrug("Henbane Smoke", 0.7, 0.07, DrugVector.Inhaled,
+                (DrugType.Anesthesia, 0.35, string.Empty),
+                (DrugType.VisionImpairment, 0.30, string.Empty),
+                (DrugType.Nausea, 0.20, string.Empty));
+            AddDrug("Yarrow Styptic", 0.6, 0.12, DrugVector.Touched,
+                (DrugType.HealingRate, 0.16,
+                    new HealingRateAdditionalInfo { HealingRateIntensity = 0.08, HealingDifficultyIntensity = 0.0 }.DatabaseString),
+                (DrugType.Analgesic, 0.12, string.Empty));
         }
 
         private void SeedPreModernDrugs()

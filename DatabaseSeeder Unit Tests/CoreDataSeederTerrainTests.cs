@@ -349,7 +349,8 @@ public class CoreDataSeederTerrainTests
                      "sea-grass", "algae", "plankton", "insects", "grubs-worms", "crustaceans", "shellfish",
                      "molluscs", "tiny-fish", "leaves-detritus", "vines", "branches-brushwood", "deadwood",
                      "mature-trees", "pebbles", "rocks", "boulders", "sand", "clay", "shells", "coral", "ice",
-                     "trash", "discarded-food"
+                     "trash", "discarded-food", "medicinal-herbs", "yarrow", "mint", "willow-bark",
+                     "foxglove-leaves", "mandrake-root", "aloe-leaves", "ephedra-stems", "aromatic-resins"
                  })
         {
             Assert.IsTrue(CoreDataSeeder.StockTerrainForageYieldTypesForTesting.Contains(yieldType),
@@ -416,8 +417,10 @@ public class CoreDataSeederTerrainTests
             }
         }
 
-        AssertTerrainHasYields("Grasslands", "grass", "insects", "seeds");
-        AssertTerrainHasYields("Boreal Forest", "high-trees", "mature-trees", "branches-brushwood", "mushrooms");
+        AssertTerrainHasYields("Grasslands", "grass", "insects", "seeds", "medicinal-herbs", "yarrow");
+        AssertTerrainHasYields("Boreal Forest", "high-trees", "mature-trees", "branches-brushwood", "mushrooms", "willow-bark", "foxglove-leaves");
+        AssertTerrainHasYields("Sandy Desert", "aloe-leaves", "ephedra-stems", "aromatic-resins");
+        AssertTerrainHasYields("Riverbank", "willow-bark", "mint", "yarrow");
         AssertTerrainHasYields("Ocean", "plankton", "algae", "tiny-fish");
         AssertTerrainHasYields("Coral Reef", "coral", "shellfish", "tiny-fish");
         AssertTerrainHasYields("Garbage Dump", "trash", "discarded-food", "grubs-worms");

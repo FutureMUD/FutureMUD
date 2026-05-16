@@ -135,9 +135,31 @@ namespace DatabaseSeeder.Seeders
             AddTag(context, "Pen Blank", "Writing Craft Stock");
             AddTag(context, "Bookbinding Stock", "Writing Craft Stock");
             AddTag(context, "Scrollmaking Stock", "Writing Craft Stock");
+            AddTag(context, "Medical Craft Stock", "Material Functions");
+            AddTag(context, "Dressing Stock", "Medical Craft Stock");
+            AddTag(context, "Poultice Stock", "Medical Craft Stock");
+            AddTag(context, "Salve Stock", "Medical Craft Stock");
+            AddTag(context, "Decoction Stock", "Medical Craft Stock");
+            AddTag(context, "Fumigation Stock", "Medical Craft Stock");
+            AddTag(context, "Suture Stock", "Medical Craft Stock");
+            AddTag(context, "Splint Stock", "Medical Craft Stock");
+            AddTag(context, "Prosthetic Stock", "Medical Craft Stock");
+            AddTag(context, "Surgical Tool Blank", "Medical Craft Stock");
+            AddTag(context, "Herbal Remedy Stock", "Medical Craft Stock");
 
             AddTag(context, "Repairing", "Functions");
             AddTag(context, "Sharpening", "Functions");
+
+            AddTag(context, "Medical Treatment", "Functions");
+            AddTag(context, "Bandage", "Medical Treatment");
+            AddTag(context, "Splint", "Medical Treatment");
+            AddTag(context, "Tend Kit", "Medical Treatment");
+            AddTag(context, "Wound Cleaning", "Medical Treatment");
+            AddTag(context, "Antiseptic Dressing", "Medical Treatment");
+            AddTag(context, "Suture Kit", "Medical Treatment");
+            AddTag(context, "Prosthetic", "Medical Treatment");
+            AddTag(context, "Mobility Aid", "Medical Treatment");
+            AddTag(context, "Herbal Remedy", "Medical Treatment");
 
             // Clothing
             AddTag(context, "Worn Items", "Functions");
@@ -1045,6 +1067,9 @@ namespace DatabaseSeeder.Seeders
 
             // Medical Tools
             AddTag(context, "Medical Tools", "Tools");
+            AddTag(context, "Medicine Strainer", "Medical Tools");
+            AddTag(context, "Ointment Spatula", "Medical Tools");
+            AddTag(context, "Cupping Vessel", "Medical Tools");
             AddTag(context, "Stethoscope", "Medical Tools");
             AddTag(context, "Blood Pressure Monitor", "Medical Tools");
             AddTag(context, "Ophthalmoscope", "Medical Tools");
@@ -1064,6 +1089,8 @@ namespace DatabaseSeeder.Seeders
             AddTag(context, "Scalpel", "Surgical Tools");
             AddTag(context, "Bonesaw", "Surgical Tools");
             AddTag(context, "Forceps", "Surgical Tools");
+            AddTag(context, "Surgical Probe", "Surgical Tools");
+            AddTag(context, "Cautery Iron", "Surgical Tools");
             AddTag(context, "Tissue Forceps", "Forceps");
             AddTag(context, "Dissecting Forceps", "Forceps");
             AddTag(context, "Kelly Forceps", "Forceps");
@@ -1335,6 +1362,10 @@ namespace DatabaseSeeder.Seeders
             AddTag(context, "Simple Medicine", "Medicine");
             AddTag(context, "Standard Medicine", "Medicine");
             AddTag(context, "High-Quality Medicine", "Medicine");
+            AddTag(context, "Herbal Medicine", "Medicine");
+            AddTag(context, "Treatment Supplies", "Medicine");
+            AddTag(context, "Surgical Supplies", "Medicine");
+            AddTag(context, "Prosthetics and Mobility", "Medicine");
 
             AddTag(context, "Writing Materials", "Market");
             AddTag(context, "Wax Tablets", "Writing Materials");

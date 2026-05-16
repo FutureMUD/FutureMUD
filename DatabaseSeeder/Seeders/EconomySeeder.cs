@@ -31,8 +31,8 @@ public class EconomySeeder : IDatabaseSeeder
             ["Nourishment"] = ["Staple Food", "Standard Food", "Luxury Food", "Seasonings", "Salt", "Spices"],
             ["Domestic Heating"] = ["Combustion Heating", "Oil Heating", "Electric Heating"],
             ["Lighting"] = ["Candles", "Torches", "Lamps"],
-            ["Medicine"] = ["Simple Medicine", "Standard Medicine", "High-Quality Medicine"],
-            ["Writing Materials"] = ["Wax Tablets", "Parchment", "Paper", "Ink"],
+            ["Medicine"] = ["Simple Medicine", "Standard Medicine", "High-Quality Medicine", "Herbal Medicine", "Treatment Supplies", "Surgical Supplies", "Prosthetics and Mobility"],
+            ["Writing Materials"] = ["Wax Tablets", "Papyrus", "Parchment", "Paper", "Ink", "Clay Tablets", "Writing Implements", "Document Containers", "Scrolls", "Codices"],
             ["Clothing"] = ["Simple Clothing", "Standard Clothing", "Luxury Clothing", "Winter Clothing", "Military Uniforms"],
             ["Intoxicants"] = ["Beer", "Wine", "Mead", "Spirits"],
             ["Luxury Drinks"] = ["Tea", "Coffee"],
@@ -114,16 +114,26 @@ public class EconomySeeder : IDatabaseSeeder
 		{
 			["Medicine"] =
 			[
-				("Simple Medicine", 0.55m),
-				("Standard Medicine", 0.30m),
-				("High-Quality Medicine", 0.15m)
+				("Simple Medicine", 0.35m),
+				("Treatment Supplies", 0.20m),
+				("Herbal Medicine", 0.16m),
+				("Standard Medicine", 0.14m),
+				("Surgical Supplies", 0.07m),
+				("Prosthetics and Mobility", 0.05m),
+				("High-Quality Medicine", 0.03m)
 			],
 			["Writing Materials"] =
 			[
-				("Wax Tablets", 0.15m),
-				("Parchment", 0.35m),
-				("Paper", 0.30m),
-				("Ink", 0.20m)
+				("Parchment", 0.18m),
+				("Papyrus", 0.15m),
+				("Wax Tablets", 0.12m),
+				("Paper", 0.12m),
+				("Ink", 0.12m),
+				("Writing Implements", 0.10m),
+				("Clay Tablets", 0.08m),
+				("Document Containers", 0.05m),
+				("Scrolls", 0.05m),
+				("Codices", 0.03m)
 			],
 			["Clothing"] =
 			[

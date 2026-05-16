@@ -264,7 +264,6 @@ public partial class CoreDataSeeder
 		EnsureAlias(materials["yellow ochre pigment"], "yellow ochre");
 		EnsureAlias(materials["egyptian blue frit"], "egyptian blue", "blue frit");
 		EnsureAlias(materials["bone black pigment"], "bone black");
-		EnsureAlias(materials["soot"], "lamp black", "carbon black");
 
 		foreach (var name in new[]
 		{
@@ -380,6 +379,8 @@ public partial class CoreDataSeeder
 
 		AddMaterial("bone", MaterialBehaviourType.Bone, 1.8, true, 25000, 60000, 0.05, 0.32, 0.0001, 1300,
 			"Animal Product");
+		AddMaterial("gut", MaterialBehaviourType.Food, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500,
+			"Animal Product");
 		AddMaterial("muscle", MaterialBehaviourType.Muscle, 1.05, true, 12000, 15000, 0.05, 0.5, 0.0001, 3400,
 			"Animal Product");
 		AddMaterial("blood", MaterialBehaviourType.Blood, 1.06, true, 1000, 1000, 0.0, 0.5, 0.7, 3600,
@@ -404,6 +405,7 @@ public partial class CoreDataSeeder
 			"Natural Materials");
 		AddMaterial("soot", MaterialBehaviourType.Powder, 0.25, true, 1000, 1000, 0.2, 0.08, 0.0001, 900,
 			"Natural Materials");
+		EnsureAlias(materials["soot"], "lamp black", "carbon black");
 		AddMaterial("chalk dust", MaterialBehaviourType.Powder, 0.7, false, 1000, 1000, 0.1, 0.16, 0.0001, 900,
 			"Stone");
 		AddMaterial("sponge", MaterialBehaviourType.Fabric, 0.3, true, 2000, 5000, 5.0, 0.05, 0.0001, 600,
@@ -1385,6 +1387,18 @@ public partial class CoreDataSeeder
         AddMaterial("peppermint", MaterialBehaviourType.Plant, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, null,
             "Herb");
         AddMaterial("aloe vera", MaterialBehaviourType.Plant, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, null,
+            "Herb");
+        AddMaterial("yarrow", MaterialBehaviourType.Plant, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, null,
+            "Herb");
+        AddMaterial("mandrake", MaterialBehaviourType.Plant, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, null,
+            "Herb");
+        AddMaterial("henbane", MaterialBehaviourType.Plant, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, null,
+            "Herb");
+        AddMaterial("foxglove", MaterialBehaviourType.Plant, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, null,
+            "Herb");
+        AddMaterial("ephedra", MaterialBehaviourType.Plant, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, null,
+            "Herb");
+        AddMaterial("poppy latex", MaterialBehaviourType.Paste, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, null,
             "Herb");
 
         AddMaterial("spice", MaterialBehaviourType.Powder, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, null,

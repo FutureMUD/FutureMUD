@@ -16,6 +16,7 @@ This is the head document for the health system set:
 - [Medical_Interactions.md](./Medical_Interactions.md) covers bedside treatment, surgery, CPR, defibrillation, drugs, and the main command surface.
 - [Adjacencies_and_Items.md](./Adjacencies_and_Items.md) covers breathing, needs, corpses, severed bodyparts, implants, artificial organs, rebreathers, cannulae, prosthetics, and cross-cutting effects.
 - [Seeder_and_Gaps.md](./Seeder_and_Gaps.md) covers how stock content is currently seeded and where the current implementation is partial, broader than the stock data, or a natural extension point.
+- [Antiquity_Medical_Crafting_Suite.md](./Antiquity_Medical_Crafting_Suite.md) records the antiquity medical item and craft pass, including low-tech treatment goods, herbal remedies, prosthetics, and forage yield hooks.
 
 ## Core Mental Model
 FutureMUD health is not a single subsystem. It is a set of cooperating systems centered on `IBody` and `IHaveWounds`.
@@ -108,6 +109,8 @@ Builders and administrators currently configure or consume health through:
 One important current-state fact is that the dedicated `HealthSeeder` is now enabled. In practice, stock health behavior is still assembled across multiple seeders rather than coming from one medical step alone, but surgery and drugs now have a release-ready stock entry point.
 
 Another important current-state fact is that `HealthSeeder` now behaves as a rerunnable stock package rather than a strict one-shot bootstrap. The seeded medical knowledges, procedures, phases, and drugs are reused by stable names, same-tech reruns repair missing stock rows in place, and higher-tech reruns add or refresh higher-tech stock content without deleting lower-tech content.
+
+Another important current-state fact is that the antiquity item suite now has a medical slice. It seeds component-backed bandages, tend kits, cleaning and antiseptic kits, sutures, surgical tools, herbal drug items, crutches, canes, and simple prosthetics, with crafts and upstream commodity stock. Primitive drugs now include aloe, poppy latex, henbane smoke, and yarrow preparations, and inhaled drugs receive `Smokeable_*` delivery components.
 
 Another important current-state fact is that robot health is no longer only a dormant runtime capability. The stock repo now seeds robot races, robot bodies, robot strategies, robot corpse models, and robot maintenance procedures through `RobotSeeder`, while still reusing the existing humanoid and selected animal body semantics for compatibility.
 

@@ -905,7 +905,7 @@ public partial class Cell : Location, IDisposable, ICell
         Models.Cell dbcell = FMDB.Context.Cells.Find(Id);
         dbcell.CurrentOverlayId = CurrentOverlay.Id;
         dbcell.RoomId = Room.Id;
-        dbcell.ForagableProfileId = ForagableProfile?.Id;
+        dbcell.ForagableProfileId = ExplicitForagableProfileId;
         SaveEffects();
         if (ContentsChanged)
         {
@@ -1759,30 +1759,44 @@ public partial class Cell : Location, IDisposable, ICell
 
     private long _foragableProfileId;
     private IForagableProfile _foragableProfile;
+    private long _foragableYieldProfileId;
+    private int _foragableYieldProfileRevision;
 
     public IForagableProfile ForagableProfile
     {
         get
         {
-            if (_foragableProfileId != 0)
-            {
-                _foragableProfile = Gameworld.ForagableProfiles.Get(_foragableProfileId);
-                _foragableProfileId = 0;
-            }
-
-            return _foragableProfile ?? Room.Zone.ForagableProfile ?? CurrentOverlay.Terrain.ForagableProfile;
+            var profile = ResolveForagableProfile();
+            SynchroniseForagableYields(profile);
+            return profile;
         }
         set
         {
             _foragableProfile = value;
+            _foragableProfileId = 0;
+            SynchroniseForagableYields(ResolveForagableProfile());
             Changed = true;
         }
+    }
+
+    private long? ExplicitForagableProfileId => _foragableProfile?.Id ?? (_foragableProfileId == 0 ? null : _foragableProfileId);
+
+    private IForagableProfile ResolveForagableProfile()
+    {
+        if (_foragableProfileId != 0)
+        {
+            _foragableProfile = Gameworld.ForagableProfiles.Get(_foragableProfileId);
+            _foragableProfileId = 0;
+        }
+
+        return _foragableProfile ?? Room?.Zone?.ForagableProfile ?? CurrentOverlay?.Terrain?.ForagableProfile;
     }
 
     private readonly Dictionary<string, double> _foragableYields = new(StringComparer.InvariantCultureIgnoreCase);
 
     public double GetForagableYield(string foragableType)
     {
+        SynchroniseForagableYields(ResolveForagableProfile());
         return _foragableYields.ContainsKey(foragableType) ? _foragableYields[foragableType] : 0.0;
     }
 
@@ -1790,7 +1804,7 @@ public partial class Cell : Location, IDisposable, ICell
     {
         foreach (string type in foragable.ForagableTypes.Where(type => _foragableYields.ContainsKey(type)))
         {
-            _foragableYields[type] -= 1.0;
+            _foragableYields[type] = Math.Max(0.0, _foragableYields[type] - 1.0);
         }
 
         YieldsChanged = true;
@@ -1800,7 +1814,7 @@ public partial class Cell : Location, IDisposable, ICell
 
     public void ConsumeYield(string foragableType, double yield)
     {
-        _foragableYields[foragableType] -= yield;
+        _foragableYields[foragableType] = Math.Max(0.0, GetForagableYield(foragableType) - yield);
         YieldsChanged = true;
         Gameworld.HeartbeatManager.HourHeartbeat -= YieldTick;
         Gameworld.HeartbeatManager.HourHeartbeat += YieldTick;
@@ -1808,22 +1822,24 @@ public partial class Cell : Location, IDisposable, ICell
 
     private double GetMaxYield(string type)
     {
-        if (!(ForagableProfile?.MaximumYieldPoints.ContainsKey(type) ?? false))
+        var profile = ResolveForagableProfile();
+        if (!(profile?.MaximumYieldPoints.ContainsKey(type) ?? false))
         {
             return 0.0;
         }
 
-        return ForagableProfile.MaximumYieldPoints[type];
+        return profile.MaximumYieldPoints[type];
     }
 
     private double GetHourlyYield(string type)
     {
-        if (!ForagableProfile?.HourlyYieldPoints.ContainsKey(type) ?? false)
+        var profile = ResolveForagableProfile();
+        if (!(profile?.HourlyYieldPoints.ContainsKey(type) ?? false))
         {
             return 0.0;
         }
 
-        return ForagableProfile.HourlyYieldPoints[type];
+        return profile.HourlyYieldPoints[type];
     }
 
     private void YieldTick()
@@ -1848,11 +1864,19 @@ public partial class Cell : Location, IDisposable, ICell
         }
     }
 
-    public IEnumerable<string> ForagableTypes => _foragableYields.Select(x => x.Key);
+    public IEnumerable<string> ForagableTypes
+    {
+        get
+        {
+            SynchroniseForagableYields(ResolveForagableProfile());
+            return _foragableYields.Select(x => x.Key);
+        }
+    }
 
     public void PostLoadTasks(MudSharp.Models.Cell cell)
     {
-        if (ForagableProfile == null)
+        var profile = ResolveForagableProfile();
+        if (profile == null)
         {
             return;
         }
@@ -1862,16 +1886,60 @@ public partial class Cell : Location, IDisposable, ICell
             _foragableYields[foragable.ForagableType] = foragable.Yield;
         }
 
-        foreach (
-            KeyValuePair<string, double> yield in
-            ForagableProfile.MaximumYieldPoints.Where(x => !_foragableYields.ContainsKey(x.Key)).ToList())
+        SynchroniseForagableYields(profile, markChanged: false);
+    }
+
+    private void SynchroniseForagableYields(IForagableProfile profile, bool markChanged = true)
+    {
+        var profileId = profile?.Id ?? 0;
+        var profileRevision = profile?.RevisionNumber ?? 0;
+        if (_foragableYieldProfileId == profileId && _foragableYieldProfileRevision == profileRevision)
         {
-            _foragableYields[yield.Key] = yield.Value;
+            return;
         }
 
-        if (!_foragableYields.All(x => GetMaxYield(x.Key) <= x.Value))
+        var changed = false;
+        if (profile == null)
         {
-            Gameworld.HeartbeatManager.HourHeartbeat += YieldTick;
+            if (_foragableYields.Any())
+            {
+                _foragableYields.Clear();
+                changed = true;
+            }
+
+            Gameworld.HeartbeatManager.HourHeartbeat -= YieldTick;
+        }
+        else
+        {
+            var validTypes = profile.MaximumYieldPoints.Keys.ToHashSet(StringComparer.InvariantCultureIgnoreCase);
+            foreach (var type in _foragableYields.Keys.Where(x => !validTypes.Contains(x)).ToList())
+            {
+                _foragableYields.Remove(type);
+                changed = true;
+            }
+
+            foreach (var yield in profile.MaximumYieldPoints.Where(x => !_foragableYields.ContainsKey(x.Key)))
+            {
+                _foragableYields[yield.Key] = yield.Value;
+                changed = true;
+            }
+
+            if (_foragableYields.Any(x => GetMaxYield(x.Key) > x.Value))
+            {
+                Gameworld.HeartbeatManager.HourHeartbeat -= YieldTick;
+                Gameworld.HeartbeatManager.HourHeartbeat += YieldTick;
+            }
+            else
+            {
+                Gameworld.HeartbeatManager.HourHeartbeat -= YieldTick;
+            }
+        }
+
+        _foragableYieldProfileId = profileId;
+        _foragableYieldProfileRevision = profileRevision;
+        if (changed && markChanged)
+        {
+            YieldsChanged = true;
         }
     }
 

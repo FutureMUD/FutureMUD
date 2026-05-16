@@ -933,7 +933,9 @@ The syntax for this command is as follows:
     #region Foragables
 
     private const string ForagableHelpText =
-        @$"This command is used to view and edit foragables. Foragables are records of items that can be loaded by the foraging system. The items need to be first built using the item system, and you also need to add the foragable record to a foragable profile before it will show up in the world. A single foragable record can be shared between multiple foragable profiles.
+        @$"This command is used to view and edit foragables. Foragables are records of item results that can be loaded by the #3forage#0 command. The item prototype must be built first, and the foragable must be linked to a foragable profile before players can find it. A single foragable can be shared between multiple profiles.
+
+The #3types#0 on a foragable must match the #3yield#0 names on the profile where you link it. For example, a foragable with type #6wood#0 can be found by #3forage wood#0 anywhere that profile has a #6wood#0 yield.
 
 You can use the following options with this command:
 
@@ -952,7 +954,7 @@ You can use the following options with this command:
 	#3foragable set name <name>#0 - renames this foragable
 	#3foragable set proto <which>#0 - sets the proto for this foragable to load
 	#3foragable set chance <#>#0 - the relative weight of this option being found
-	#3foragable set quanity <# or dice>#0 - a number or dice expression for the quantity found
+	#3foragable set quantity <# or dice>#0 - a number or dice expression for the quantity found
 	#3foragable set difficulty <difficulty>#0 - the difficulty that the result is evaluated against for this item
 	#3foragable set outcome <min> <max>#0 - the minimum and maximum check outcome that this item can appear on
 	#3foragable set types <type1> [<type2>] ... [<typen>]#0 - sets the yield types that this foragable appears against
@@ -999,13 +1001,13 @@ You can use the following options with this command:
     private const string ForagableProfileHelpText =
         @$"This command is used to view and edit foragable profiles. 
 
-Foragable profiles are attached typically to zones or terrain types, and control both what yield types appear in that location and what items can be foraged by players. Each zone or terrain type has a maximum of one foragable profile. The foragable profile controls what things can be found in that area with foraging and how fast the resources regenerate.
+Foragable profiles are attached to terrain types, zones or individual cells, and control both what yield types exist in that location and what item results can be foraged by players. Cells inherit from their zone, and zones usually inherit from terrain defaults unless a builder sets a more specific override.
 
-The individual foraged items are built using the #Bforagable#0 command. These foragables can be shared between multiple foragable profiles. 
+The individual foraged items are built using the #Bforagable#0 command. These foragables can be shared between multiple foragable profiles. A profile yield without matching linked foragables can still support grazing/eating systems, but players will not gather items from it with #3forage#0 until you link matching foragables.
 
 See #6terrain set forage <id|name>#0 to set a default foragable profile for a terrain type
-See #6zone set <which> forage <id|name>#0 to set a default foragable profile for a zone
-See #6cell set forage <id|name>#0 to set a foragable profile at a room level.
+See #6zone set <which> forage <id|name>#0 to set a foragable profile for a zone
+See #6cell set forage <id|name>#0 to set a foragable profile at a cell level.
 
 You can use the following options with this command:
 
@@ -1019,11 +1021,12 @@ You can use the following options with this command:
 	#3fp edit delete#0 - deletes a non-approved revision
 	#3fp edit obsolete#0 - marks a foragable profile as obsolete
 	#3fp review all|mine|<which>#0 - opens a foragable profile for review
-	#3fp review list#0 - shows all the foragable profile due to review
+	#3fp review list#0 - shows all the foragable profiles due to review
 	#3fp review history <which>#0 - shows the history of a foragable profile
 	#3fp set name <name>#0 - renames this foragable profile
-	#3fp set yield <which> <max> <hourly regain>#0 - sets up a yield for this profile
+	#3fp set yield <which> <max> <hourly regain>#0 - sets or updates a yield for this profile
 	#3fp set yield <which> 0#0 - removes a yield from this profile
+	#3fp set yield <which> clear#0 - removes a yield from this profile
 	#3fp set foragable <which>#0 - toggles a foragable belonging to this profile
 
 {GenericReviewableSearchList}";

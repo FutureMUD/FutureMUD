@@ -50,7 +50,7 @@ namespace MudSharp.Work.Foraging
 
         /// <summary>
         ///     An optional prog to execute whenever this item is foraged
-        ///     The parameters to the prog are Character, Quantity
+        ///     The parameters to the prog are Character, Foragable ID, Item and Quantity
         /// </summary>
         IFutureProg OnForageProg { get; }
 

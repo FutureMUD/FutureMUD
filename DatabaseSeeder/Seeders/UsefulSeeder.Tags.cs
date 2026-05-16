@@ -76,6 +76,16 @@ namespace DatabaseSeeder.Seeders
             AddTag(context, "Dyed Cloth", "Garment Cloth");
             AddTag(context, "Fulled Cloth", "Garment Cloth");
             AddTag(context, "Textile Dye Stock", "Textile Commodity");
+            AddTag(context, "Leather Commodity", "Material Functions");
+            AddTag(context, "Prepared Hide", "Leather Commodity");
+            AddTag(context, "Tanned Leather", "Leather Commodity");
+            AddTag(context, "Leather Sole", "Leather Commodity");
+            AddTag(context, "Leather Strap", "Leather Commodity");
+            AddTag(context, "Leather Thong", "Leather Commodity");
+            AddTag(context, "Leather Panel", "Leather Commodity");
+            AddTag(context, "Hardened Leather Panel", "Leather Commodity");
+            AddTag(context, "Leather Scale", "Leather Commodity");
+            AddTag(context, "Sealed Leather Panel", "Leather Commodity");
             AddTag(context, "Bead Stock", "Material Functions");
             AddTag(context, "Household Craft Stock", "Material Functions");
             AddTag(context, "Furniture Timber Stock", "Household Craft Stock");
@@ -473,6 +483,8 @@ namespace DatabaseSeeder.Seeders
             AddTag(context, "Edge Beveller", "Leatherworking Tools");
             AddTag(context, "Leather Gouge", "Leatherworking Tools");
             AddTag(context, "Leather Creaser", "Leatherworking Tools");
+            AddTag(context, "Shoe Last", "Leatherworking Tools");
+            AddTag(context, "Leather Wax Pot", "Leatherworking Tools");
 
             // Stoneworking
             AddTag(context, "Stoneworking Tools", "Tools");

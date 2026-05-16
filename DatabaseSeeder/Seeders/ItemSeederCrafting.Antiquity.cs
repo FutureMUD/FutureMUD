@@ -31,7 +31,11 @@ public partial class ItemSeeder
             !PersianAntiquityClothingStableReferences.TryGetValue(stableReference, out shortDescription) &&
             !EtruscanAntiquityClothingStableReferences.TryGetValue(stableReference, out shortDescription) &&
             !AnatolianAntiquityClothingStableReferences.TryGetValue(stableReference, out shortDescription) &&
-            !ScythianSarmatianAntiquityClothingStableReferences.TryGetValue(stableReference, out shortDescription))
+            !ScythianSarmatianAntiquityClothingStableReferences.TryGetValue(stableReference, out shortDescription) &&
+            !AntiquityLeatherClothingStableReferences.TryGetValue(stableReference, out shortDescription) &&
+            !AntiquityLeatherArmourStableReferences.TryGetValue(stableReference, out shortDescription) &&
+            !AntiquityLeatherContainerStableReferences.TryGetValue(stableReference, out shortDescription) &&
+            !AntiquityLeatherFurnishingStableReferences.TryGetValue(stableReference, out shortDescription))
         {
             item = null!;
             return false;
@@ -76,6 +80,50 @@ public partial class ItemSeeder
         var item = LookupReworkItem(stableReference);
         return $"SimpleProduct - 1x {item.ShortDescription} (#{item.Id})";
     }
+
+    private MudSharp.Models.Craft? AddAntiquityCraft(
+        string name,
+        string category,
+        string blurb,
+        string action,
+        string itemDescription,
+        string knowledgeName,
+        string traitName,
+        int? minimumTraitValue,
+        Difficulty difficulty,
+        IEnumerable<(int Seconds, string Echo, string FailEcho)> phases,
+        IEnumerable<string> inputs,
+        IEnumerable<string> tools,
+        IEnumerable<string> products,
+        IEnumerable<string>? failProducts = null,
+        string knowledgeSubtype = "General",
+        string? knowledgeDescription = null,
+        string? knowledgeLongDescription = null)
+    {
+        return AddCraft(
+            name,
+            category,
+            blurb,
+            action,
+            itemDescription,
+            knowledgeName,
+            traitName,
+            minimumTraitValue,
+            difficulty,
+            Outcome.MinorFail,
+            5,
+            3,
+            false,
+            phases,
+            inputs,
+            tools,
+            products,
+            failProducts ?? [],
+            knowledgeSubtype: knowledgeSubtype,
+            knowledgeDescription: knowledgeDescription,
+            knowledgeLongDescription: knowledgeLongDescription);
+    }
+
     private sealed record AntiquityCultureGarmentCraftSpec(
         string StableReference,
         string Name,
@@ -110,7 +158,7 @@ public partial class ItemSeeder
             IEnumerable<(int Seconds, string Echo, string FailEcho)> phases, IEnumerable<string> inputs,
             IEnumerable<string> tools, IEnumerable<string> products)
         {
-            AddCraft(
+            AddAntiquityCraft(
                 name,
                 "Tailoring",
                 blurb,
@@ -120,15 +168,10 @@ public partial class ItemSeeder
                 "Tailoring",
                 minimumTraitValue,
                 difficulty,
-                Outcome.MinorFail,
-                5,
-                3,
-                false,
                 phases,
                 inputs,
                 tools,
                 products,
-                [],
                 knowledgeSubtype: knowledgeSubtype,
                 knowledgeDescription: knowledgeDescription,
                 knowledgeLongDescription: knowledgeDescription);
@@ -186,7 +229,7 @@ public partial class ItemSeeder
                 garment.Name,
                 $"assemble {garment.DisplayName} from {garment.Material} garment cloth",
                 garment.Name,
-                $"{garment.Material} cloth being assembled into {knowledgeSubtype} clothing",
+                $"{garment.Material} cloth being assembled into clothing",
                 garment.Minimum,
                 garment.Difficulty,
                 garment.Hair > 0 ? furTrimmedAssemblyPhases : garment.GeneratedProduct ? patternedAssemblyPhases : assemblyPhases,
@@ -220,7 +263,7 @@ public partial class ItemSeeder
             IEnumerable<(int Seconds, string Echo, string FailEcho)> phases, IEnumerable<string> inputs,
             IEnumerable<string> tools, IEnumerable<string> products)
         {
-            AddCraft(
+            AddAntiquityCraft(
                 name,
                 "Tailoring",
                 blurb,
@@ -230,15 +273,10 @@ public partial class ItemSeeder
                 "Tailoring",
                 minimumTraitValue,
                 difficulty,
-                Outcome.MinorFail,
-                5,
-                3,
-                false,
                 phases,
                 inputs,
                 tools,
                 products,
-                [],
                 knowledgeSubtype: "Roman",
                 knowledgeDescription: romanKnowledgeDescription,
                 knowledgeLongDescription: romanKnowledgeDescription);
@@ -246,7 +284,7 @@ public partial class ItemSeeder
 
         var romanAssemblyPhases = new (int Seconds, string Echo, string FailEcho)[]
         {
-            (35, "$0 lay|lays out $i1 and mark|marks the Roman garment dimensions and drape lines.", "$0 lay|lays out $i1, but mark|marks the garment dimensions unevenly."),
+            (35, "$0 lay|lays out $i1 and mark|marks the garment dimensions and drape lines.", "$0 lay|lays out $i1, but mark|marks the garment dimensions unevenly."),
             (35, "$0 cut|cuts the cloth with $t2 and shape|shapes the edges, openings, or rounded fall required by the garment.", "$0 cut|cuts with $t2, but the edges and openings sit awkwardly."),
             (40, "$0 thread|threads $t1 and finish|finishes hems, straps, joins, or weighted fold points as needed.", "$0 thread|threads $t1, but the hems and joins pull out of line."),
             (30, "$0 arrange|arranges $p1, checking the weight and drape.", "$0 arrange|arranges only $f1 after the cloth is spoiled.")
@@ -259,15 +297,15 @@ public partial class ItemSeeder
 
         foreach (var garment in new[]
         {
-            (StableReference: "antiquity_knee_length_wool_tunica", Name: "assemble a Roman knee-length wool tunica", DisplayName: "a Roman knee-length wool tunica", Material: "wool", Cloth: 540, Yarn: 25, Fine: false, Minimum: 15, Difficulty: Difficulty.Easy),
-            (StableReference: "antiquity_wool_travel_mantle", Name: "assemble a Roman wool travel mantle", DisplayName: "a Roman wool travel mantle", Material: "wool", Cloth: 920, Yarn: 35, Fine: false, Minimum: 15, Difficulty: Difficulty.Normal),
-            (StableReference: "antiquity_fine_linen_tunica", Name: "assemble a Roman fine linen tunica", DisplayName: "a Roman fine linen tunica", Material: "linen", Cloth: 360, Yarn: 25, Fine: true, Minimum: 35, Difficulty: Difficulty.Normal),
-            (StableReference: "antiquity_wool_toga", Name: "assemble a Roman wool toga", DisplayName: "a Roman wool toga", Material: "wool", Cloth: 2800, Yarn: 90, Fine: true, Minimum: 40, Difficulty: Difficulty.Hard),
-            (StableReference: "antiquity_long_wool_tunica", Name: "assemble a Roman long wool tunica", DisplayName: "a Roman long wool tunica", Material: "wool", Cloth: 650, Yarn: 30, Fine: false, Minimum: 20, Difficulty: Difficulty.Normal),
-            (StableReference: "antiquity_wool_palla", Name: "assemble a Roman wool palla", DisplayName: "a Roman wool palla", Material: "wool", Cloth: 870, Yarn: 35, Fine: false, Minimum: 20, Difficulty: Difficulty.Normal),
-            (StableReference: "antiquity_fine_long_linen_tunica", Name: "assemble a Roman fine long linen tunica", DisplayName: "a Roman fine long linen tunica", Material: "linen", Cloth: 400, Yarn: 30, Fine: true, Minimum: 40, Difficulty: Difficulty.Hard),
-            (StableReference: "antiquity_wool_stola", Name: "assemble a Roman wool stola", DisplayName: "a Roman wool stola", Material: "wool", Cloth: 860, Yarn: 40, Fine: true, Minimum: 40, Difficulty: Difficulty.Hard),
-            (StableReference: "antiquity_fine_wool_palla", Name: "assemble a Roman fine wool palla", DisplayName: "a Roman fine wool palla", Material: "wool", Cloth: 820, Yarn: 35, Fine: true, Minimum: 40, Difficulty: Difficulty.Hard)
+            (StableReference: "antiquity_knee_length_wool_tunica", Name: "assemble a knee-length wool tunica", DisplayName: "a knee-length wool tunica", Material: "wool", Cloth: 540, Yarn: 25, Fine: false, Minimum: 15, Difficulty: Difficulty.Easy),
+            (StableReference: "antiquity_wool_travel_mantle", Name: "assemble a wool travel mantle", DisplayName: "a wool travel mantle", Material: "wool", Cloth: 920, Yarn: 35, Fine: false, Minimum: 15, Difficulty: Difficulty.Normal),
+            (StableReference: "antiquity_fine_linen_tunica", Name: "assemble a fine linen tunica", DisplayName: "a fine linen tunica", Material: "linen", Cloth: 360, Yarn: 25, Fine: true, Minimum: 35, Difficulty: Difficulty.Normal),
+            (StableReference: "antiquity_wool_toga", Name: "assemble a wool toga", DisplayName: "a wool toga", Material: "wool", Cloth: 2800, Yarn: 90, Fine: true, Minimum: 40, Difficulty: Difficulty.Hard),
+            (StableReference: "antiquity_long_wool_tunica", Name: "assemble a long wool tunica", DisplayName: "a long wool tunica", Material: "wool", Cloth: 650, Yarn: 30, Fine: false, Minimum: 20, Difficulty: Difficulty.Normal),
+            (StableReference: "antiquity_wool_palla", Name: "assemble a wool palla", DisplayName: "a wool palla", Material: "wool", Cloth: 870, Yarn: 35, Fine: false, Minimum: 20, Difficulty: Difficulty.Normal),
+            (StableReference: "antiquity_fine_long_linen_tunica", Name: "assemble a fine long linen tunica", DisplayName: "a fine long linen tunica", Material: "linen", Cloth: 400, Yarn: 30, Fine: true, Minimum: 40, Difficulty: Difficulty.Hard),
+            (StableReference: "antiquity_wool_stola", Name: "assemble a wool stola", DisplayName: "a wool stola", Material: "wool", Cloth: 860, Yarn: 40, Fine: true, Minimum: 40, Difficulty: Difficulty.Hard),
+            (StableReference: "antiquity_fine_wool_palla", Name: "assemble a fine wool palla", DisplayName: "a fine wool palla", Material: "wool", Cloth: 820, Yarn: 35, Fine: true, Minimum: 40, Difficulty: Difficulty.Hard)
         })
         {
             var characteristicRequirements = garment.Fine
@@ -277,7 +315,7 @@ public partial class ItemSeeder
                 garment.Name,
                 $"assemble {garment.DisplayName} from {garment.Material} garment cloth",
                 garment.Name,
-                $"{garment.Material} cloth being assembled into Roman clothing",
+                $"{garment.Material} cloth being assembled into clothing",
                 garment.Minimum,
                 garment.Difficulty,
                 romanAssemblyPhases,
@@ -307,16 +345,16 @@ public partial class ItemSeeder
             "Punic",
             punicKnowledgeDescription,
             [
-                new("antiquity_short_fitted_linen_tunic", "assemble a Punic short fitted linen tunic", "a Punic short fitted linen tunic", "linen", 340, 20, false, 15, Difficulty.Normal),
-                new("antiquity_patterned_linen_waistcloth", "assemble a Punic patterned linen waistcloth", "a Punic patterned linen waistcloth", "linen", 220, 15, true, 30, Difficulty.Normal),
-                new("antiquity_short_sleeved_linen_overblouse", "assemble a Punic short sleeved linen overblouse", "a Punic short sleeved linen overblouse", "linen", 300, 20, true, 35, Difficulty.Normal),
-                new("antiquity_long_linen_inner_robe", "assemble a Punic long linen inner robe", "a Punic long linen inner robe", "linen", 670, 30, false, 20, Difficulty.Normal),
-                new("antiquity_one_shoulder_wool_mantle", "assemble a Punic one shoulder wool mantle", "a Punic one shoulder wool mantle", "wool", 940, 35, false, 20, Difficulty.Normal),
-                new("antiquity_long_folded_linen_robe", "assemble a Punic long folded linen robe", "a Punic long folded linen robe", "linen", 745, 35, false, 25, Difficulty.Normal),
-                new("antiquity_loose_linen_hood", "assemble a Punic loose linen hood", "a Punic loose linen hood", "linen", 125, 10, false, 15, Difficulty.Easy),
-                new("antiquity_fine_full_linen_gown", "assemble a Punic fine full linen gown", "a Punic fine full linen gown", "linen", 820, 40, true, 40, Difficulty.Hard),
-                new("antiquity_left_shoulder_overdrape", "assemble a Punic left shoulder overdrape", "a Punic left shoulder overdrape", "linen", 280, 20, true, 35, Difficulty.Normal),
-                new("antiquity_star_bordered_linen_robe", "assemble a Punic star bordered linen robe", "a Punic star bordered linen robe", "linen", 780, 40, true, 40, Difficulty.Hard)
+                new("antiquity_short_fitted_linen_tunic", "assemble a short fitted linen tunic", "a short fitted linen tunic", "linen", 340, 20, false, 15, Difficulty.Normal),
+                new("antiquity_patterned_linen_waistcloth", "assemble a patterned linen waistcloth", "a patterned linen waistcloth", "linen", 220, 15, true, 30, Difficulty.Normal),
+                new("antiquity_short_sleeved_linen_overblouse", "assemble a short sleeved linen overblouse", "a short sleeved linen overblouse", "linen", 300, 20, true, 35, Difficulty.Normal),
+                new("antiquity_long_linen_inner_robe", "assemble a long linen inner robe", "a long linen inner robe", "linen", 670, 30, false, 20, Difficulty.Normal),
+                new("antiquity_one_shoulder_wool_mantle", "assemble a one shoulder wool mantle", "a one shoulder wool mantle", "wool", 940, 35, false, 20, Difficulty.Normal),
+                new("antiquity_long_folded_linen_robe", "assemble a long folded linen robe", "a long folded linen robe", "linen", 745, 35, false, 25, Difficulty.Normal),
+                new("antiquity_loose_linen_hood", "assemble a loose linen hood", "a loose linen hood", "linen", 125, 10, false, 15, Difficulty.Easy),
+                new("antiquity_fine_full_linen_gown", "assemble a fine full linen gown", "a fine full linen gown", "linen", 820, 40, true, 40, Difficulty.Hard),
+                new("antiquity_left_shoulder_overdrape", "assemble a left shoulder overdrape", "a left shoulder overdrape", "linen", 280, 20, true, 35, Difficulty.Normal),
+                new("antiquity_star_bordered_linen_robe", "assemble a star bordered linen robe", "a star bordered linen robe", "linen", 780, 40, true, 40, Difficulty.Hard)
             ]);
     }
 
@@ -337,17 +375,17 @@ public partial class ItemSeeder
             "Persian",
             persianKnowledgeDescription,
             [
-                new("antiquity_sarapis_wool_tunic", "assemble a Persian wool sarapis", "a Persian wool sarapis", "wool", 690, 35, false, 20, Difficulty.Normal),
-                new("antiquity_fine_sarapis_linen_tunic", "assemble a Persian fine linen sarapis", "a Persian fine linen sarapis", "linen", 495, 30, true, 35, Difficulty.Normal),
-                new("antiquity_anaxyrides_wool_trousers", "assemble Persian wool anaxyrides", "Persian wool anaxyrides", "wool", 590, 30, false, 20, Difficulty.Normal),
-                new("antiquity_fine_patterned_anaxyrides", "assemble Persian fine patterned anaxyrides", "Persian fine patterned anaxyrides", "wool", 440, 35, true, 40, Difficulty.Hard, true, 120),
-                new("antiquity_wool_kandys", "assemble a Persian wool kandys", "a Persian wool kandys", "wool", 1290, 50, false, 25, Difficulty.Hard),
-                new("antiquity_fine_wool_kandys", "assemble a Persian fine wool kandys", "a Persian fine wool kandys", "wool", 1190, 50, true, 45, Difficulty.Hard),
-                new("antiquity_pleated_court_robe", "assemble a Persian pleated court robe", "a Persian pleated court robe", "linen", 930, 50, true, 45, Difficulty.Hard),
-                new("antiquity_fine_pleated_court_gown", "assemble a Persian fine pleated court gown", "a Persian fine pleated court gown", "linen", 835, 45, true, 45, Difficulty.Hard),
-                new("antiquity_wide_cloth_belt", "assemble a Persian wide cloth belt", "a Persian wide cloth belt", "linen", 150, 10, false, 15, Difficulty.Easy),
-                new("antiquity_fine_wide_cloth_belt", "assemble a Persian fine wide cloth belt", "a Persian fine wide cloth belt", "linen", 135, 10, true, 30, Difficulty.Normal),
-                new("antiquity_full_head_and_neck_veil", "assemble a Persian full head and neck veil", "a Persian full head and neck veil", "linen", 175, 15, true, 35, Difficulty.Normal)
+                new("antiquity_sarapis_wool_tunic", "assemble a wool sarapis", "a wool sarapis", "wool", 690, 35, false, 20, Difficulty.Normal),
+                new("antiquity_fine_sarapis_linen_tunic", "assemble a fine linen sarapis", "a fine linen sarapis", "linen", 495, 30, true, 35, Difficulty.Normal),
+                new("antiquity_anaxyrides_wool_trousers", "assemble wool anaxyrides", "wool anaxyrides", "wool", 590, 30, false, 20, Difficulty.Normal),
+                new("antiquity_fine_patterned_anaxyrides", "assemble fine patterned anaxyrides", "fine patterned anaxyrides", "wool", 440, 35, true, 40, Difficulty.Hard, true, 120),
+                new("antiquity_wool_kandys", "assemble a wool kandys", "a wool kandys", "wool", 1290, 50, false, 25, Difficulty.Hard),
+                new("antiquity_fine_wool_kandys", "assemble a fine wool kandys", "a fine wool kandys", "wool", 1190, 50, true, 45, Difficulty.Hard),
+                new("antiquity_pleated_court_robe", "assemble a pleated court robe", "a pleated court robe", "linen", 930, 50, true, 45, Difficulty.Hard),
+                new("antiquity_fine_pleated_court_gown", "assemble a fine pleated court gown", "a fine pleated court gown", "linen", 835, 45, true, 45, Difficulty.Hard),
+                new("antiquity_wide_cloth_belt", "assemble a wide cloth belt", "a wide cloth belt", "linen", 150, 10, false, 15, Difficulty.Easy),
+                new("antiquity_fine_wide_cloth_belt", "assemble a fine wide cloth belt", "a fine wide cloth belt", "linen", 135, 10, true, 30, Difficulty.Normal),
+                new("antiquity_full_head_and_neck_veil", "assemble a full head and neck veil", "a full head and neck veil", "linen", 175, 15, true, 35, Difficulty.Normal)
             ]);
     }
 
@@ -368,14 +406,14 @@ public partial class ItemSeeder
             "Etruscan",
             etruscanKnowledgeDescription,
             [
-                new("adjacent_antiquity_short_sleeved_linen_tunic", "assemble an Etruscan short sleeved linen tunic", "an Etruscan short sleeved linen tunic", "linen", 395, 25, false, 15, Difficulty.Normal),
-                new("adjacent_antiquity_bordered_wool_tunic", "assemble an Etruscan bordered wool tunic", "an Etruscan bordered wool tunic", "wool", 530, 30, true, 35, Difficulty.Normal),
-                new("adjacent_antiquity_curved_tebenna", "assemble an Etruscan curved wool tebenna", "an Etruscan curved wool tebenna", "wool", 860, 35, false, 25, Difficulty.Normal),
-                new("adjacent_antiquity_fine_curved_tebenna", "assemble an Etruscan fine curved wool tebenna", "an Etruscan fine curved wool tebenna", "wool", 780, 35, true, 40, Difficulty.Hard),
-                new("adjacent_antiquity_wrapped_linen_skirt", "assemble an Etruscan wrapped linen skirt", "an Etruscan wrapped linen skirt", "linen", 340, 20, false, 15, Difficulty.Normal),
-                new("adjacent_antiquity_rectangular_shoulder_cloak", "assemble an Etruscan rectangular shoulder cloak", "an Etruscan rectangular shoulder cloak", "wool", 740, 35, false, 20, Difficulty.Normal),
-                new("adjacent_antiquity_fitted_linen_gown", "assemble an Etruscan fitted linen gown", "an Etruscan fitted linen gown", "linen", 590, 35, true, 40, Difficulty.Hard),
-                new("adjacent_antiquity_linen_head_mantle", "assemble an Etruscan linen head mantle", "an Etruscan linen head mantle", "linen", 165, 15, true, 30, Difficulty.Normal)
+                new("adjacent_antiquity_short_sleeved_linen_tunic", "assemble a short sleeved linen tunic", "a short sleeved linen tunic", "linen", 395, 25, false, 15, Difficulty.Normal),
+                new("adjacent_antiquity_bordered_wool_tunic", "assemble a bordered wool tunic", "a bordered wool tunic", "wool", 530, 30, true, 35, Difficulty.Normal),
+                new("adjacent_antiquity_curved_tebenna", "assemble a curved wool tebenna", "a curved wool tebenna", "wool", 860, 35, false, 25, Difficulty.Normal),
+                new("adjacent_antiquity_fine_curved_tebenna", "assemble a fine curved wool tebenna", "a fine curved wool tebenna", "wool", 780, 35, true, 40, Difficulty.Hard),
+                new("adjacent_antiquity_wrapped_linen_skirt", "assemble a wrapped linen skirt", "a wrapped linen skirt", "linen", 340, 20, false, 15, Difficulty.Normal),
+                new("adjacent_antiquity_rectangular_shoulder_cloak", "assemble a rectangular shoulder cloak", "a rectangular shoulder cloak", "wool", 740, 35, false, 20, Difficulty.Normal),
+                new("adjacent_antiquity_fitted_linen_gown", "assemble a fitted linen gown", "a fitted linen gown", "linen", 590, 35, true, 40, Difficulty.Hard),
+                new("adjacent_antiquity_linen_head_mantle", "assemble a linen head mantle", "a linen head mantle", "linen", 165, 15, true, 30, Difficulty.Normal)
             ]);
     }
 
@@ -396,16 +434,16 @@ public partial class ItemSeeder
             "Anatolian",
             anatolianKnowledgeDescription,
             [
-                new("adjacent_antiquity_belted_wool_tunic", "assemble an Anatolian belted wool tunic", "an Anatolian belted wool tunic", "wool", 590, 30, false, 20, Difficulty.Normal),
-                new("adjacent_antiquity_fine_banded_tunic", "assemble an Anatolian fine banded wool tunic", "an Anatolian fine banded wool tunic", "wool", 450, 35, true, 40, Difficulty.Hard, true, 130),
-                new("adjacent_antiquity_banded_leg_wraps", "assemble Anatolian banded wool leg wraps", "Anatolian banded wool leg wraps", "wool", 160, 10, false, 15, Difficulty.Easy),
-                new("adjacent_antiquity_hooded_wool_cloak", "assemble an Anatolian hooded wool cloak", "an Anatolian hooded wool cloak", "wool", 1000, 45, false, 25, Difficulty.Hard),
-                new("adjacent_antiquity_forward_pointing_felt_cap", "assemble an Anatolian forward pointing felt cap", "an Anatolian forward pointing felt cap", "felt", 105, 8, false, 20, Difficulty.Normal),
-                new("adjacent_antiquity_short_wool_cape", "assemble an Anatolian short wool cape", "an Anatolian short wool cape", "wool", 495, 25, false, 20, Difficulty.Normal),
-                new("adjacent_antiquity_fine_patterned_wool_robe", "assemble an Anatolian fine patterned wool robe", "an Anatolian fine patterned wool robe", "wool", 855, 45, true, 45, Difficulty.Hard),
-                new("adjacent_antiquity_fringed_wool_mantle", "assemble an Anatolian fringed wool mantle", "an Anatolian fringed wool mantle", "wool", 720, 40, true, 40, Difficulty.Hard),
-                new("adjacent_antiquity_wool_wrapped_skirt", "assemble an Anatolian wrapped wool skirt", "an Anatolian wrapped wool skirt", "wool", 515, 25, false, 20, Difficulty.Normal),
-                new("adjacent_antiquity_fine_rectangular_veil", "assemble an Anatolian fine rectangular linen veil", "an Anatolian fine rectangular linen veil", "linen", 110, 10, true, 30, Difficulty.Normal)
+                new("adjacent_antiquity_belted_wool_tunic", "assemble a belted wool tunic", "a belted wool tunic", "wool", 590, 30, false, 20, Difficulty.Normal),
+                new("adjacent_antiquity_fine_banded_tunic", "assemble a highland fine banded wool tunic", "a highland fine banded wool tunic", "wool", 450, 35, true, 40, Difficulty.Hard, true, 130),
+                new("adjacent_antiquity_banded_leg_wraps", "assemble banded wool leg wraps", "banded wool leg wraps", "wool", 160, 10, false, 15, Difficulty.Easy),
+                new("adjacent_antiquity_hooded_wool_cloak", "assemble a hooded wool cloak", "a hooded wool cloak", "wool", 1000, 45, false, 25, Difficulty.Hard),
+                new("adjacent_antiquity_forward_pointing_felt_cap", "assemble a forward pointing felt cap", "a forward pointing felt cap", "felt", 105, 8, false, 20, Difficulty.Normal),
+                new("adjacent_antiquity_short_wool_cape", "assemble a short wool cape", "a short wool cape", "wool", 495, 25, false, 20, Difficulty.Normal),
+                new("adjacent_antiquity_fine_patterned_wool_robe", "assemble a fine patterned wool robe", "a fine patterned wool robe", "wool", 855, 45, true, 45, Difficulty.Hard),
+                new("adjacent_antiquity_fringed_wool_mantle", "assemble a fringed wool mantle", "a fringed wool mantle", "wool", 720, 40, true, 40, Difficulty.Hard),
+                new("adjacent_antiquity_wool_wrapped_skirt", "assemble a wrapped wool skirt", "a wrapped wool skirt", "wool", 515, 25, false, 20, Difficulty.Normal),
+                new("adjacent_antiquity_fine_rectangular_veil", "assemble a fine rectangular linen veil", "a fine rectangular linen veil", "linen", 110, 10, true, 30, Difficulty.Normal)
             ]);
     }
 
@@ -426,16 +464,714 @@ public partial class ItemSeeder
             "Scythian-Sarmatian",
             scythianKnowledgeDescription,
             [
-                new("adjacent_antiquity_felt_riding_cap", "assemble a Scythian felt riding cap", "a Scythian felt riding cap", "felt", 90, 8, false, 20, Difficulty.Normal),
-                new("adjacent_antiquity_tall_felt_cap", "assemble a Scythian tall felt cap", "a Scythian tall felt cap", "felt", 130, 10, true, 35, Difficulty.Hard),
-                new("adjacent_antiquity_riding_tunic", "assemble a Scythian riding tunic", "a Scythian riding tunic", "wool", 645, 35, false, 20, Difficulty.Normal),
-                new("adjacent_antiquity_wool_riding_trousers", "assemble Scythian wool riding trousers", "Scythian wool riding trousers", "wool", 495, 25, false, 20, Difficulty.Normal),
-                new("adjacent_antiquity_patterned_riding_trousers", "assemble Scythian patterned riding trousers", "Scythian patterned riding trousers", "wool", 470, 30, true, 35, Difficulty.Hard),
-                new("adjacent_antiquity_open_riding_caftan", "assemble a Scythian open riding caftan", "a Scythian open riding caftan", "wool", 820, 40, false, 25, Difficulty.Hard),
-                new("adjacent_antiquity_fur_trimmed_caftan", "assemble a Scythian fur trimmed caftan", "a Scythian fur trimmed caftan", "wool", 1060, 45, true, 45, Difficulty.Hard, Hair: 140),
-                new("adjacent_antiquity_split_riding_skirt", "assemble a Scythian split riding skirt", "a Scythian split riding skirt", "wool", 590, 30, false, 20, Difficulty.Normal),
-                new("adjacent_antiquity_long_felt_coat", "assemble a Scythian long felt coat", "a Scythian long felt coat", "felt", 1270, 50, true, 45, Difficulty.Hard)
+                new("adjacent_antiquity_felt_riding_cap", "assemble a felt riding cap", "a felt riding cap", "felt", 90, 8, false, 20, Difficulty.Normal),
+                new("adjacent_antiquity_tall_felt_cap", "assemble a tall felt cap", "a tall felt cap", "felt", 130, 10, true, 35, Difficulty.Hard),
+                new("adjacent_antiquity_riding_tunic", "assemble a riding tunic", "a riding tunic", "wool", 645, 35, false, 20, Difficulty.Normal),
+                new("adjacent_antiquity_wool_riding_trousers", "assemble wool riding trousers", "wool riding trousers", "wool", 495, 25, false, 20, Difficulty.Normal),
+                new("adjacent_antiquity_patterned_riding_trousers", "assemble patterned riding trousers", "patterned riding trousers", "wool", 470, 30, true, 35, Difficulty.Hard),
+                new("adjacent_antiquity_open_riding_caftan", "assemble an open riding caftan", "an open riding caftan", "wool", 820, 40, false, 25, Difficulty.Hard),
+                new("adjacent_antiquity_fur_trimmed_caftan", "assemble a fur trimmed caftan", "a fur trimmed caftan", "wool", 1060, 45, true, 45, Difficulty.Hard, Hair: 140),
+                new("adjacent_antiquity_split_riding_skirt", "assemble a split riding skirt", "a split riding skirt", "wool", 590, 30, false, 20, Difficulty.Normal),
+                new("adjacent_antiquity_long_felt_coat", "assemble a long felt coat", "a long felt coat", "felt", 1270, 50, true, 45, Difficulty.Hard)
             ]);
+    }
+
+    private const string AntiquityLeatherKnowledge = "Ancient Hide and Leatherworking";
+
+    private const string AntiquityLeatherKnowledgeDescription =
+        "Shared ancient hideworking knowledge for scraping, dehairing, tanning, cutting leather stock, and assembling leather clothing, armour, containers, and camp fittings.";
+
+    private void AddAntiquityLeatherCraft(
+        string name,
+        string blurb,
+        string action,
+        string itemDescription,
+        int minimumTraitValue,
+        Difficulty difficulty,
+        IEnumerable<(int Seconds, string Echo, string FailEcho)> phases,
+        IEnumerable<string> inputs,
+        IEnumerable<string> tools,
+        IEnumerable<string> products,
+        IEnumerable<string>? failProducts = null)
+    {
+        AddAntiquityCraft(
+            name,
+            "Leatherworking",
+            blurb,
+            action,
+            itemDescription,
+            AntiquityLeatherKnowledge,
+            "Leathermaking",
+            minimumTraitValue,
+            difficulty,
+            phases,
+            inputs,
+            tools,
+            products,
+            failProducts,
+            knowledgeSubtype: "Leatherworking",
+            knowledgeDescription: AntiquityLeatherKnowledgeDescription,
+            knowledgeLongDescription: AntiquityLeatherKnowledgeDescription);
+    }
+
+    private static void AddLeatherCommodityInput(ICollection<string> inputs, int grams, string pileTag)
+    {
+        if (grams <= 0)
+        {
+            return;
+        }
+
+        inputs.Add($"Commodity - {grams} grams of leather; piletag {pileTag}; characteristic Colour any; characteristic Fine Colour any");
+    }
+
+    private sealed record AntiquityLeatherClothingCraftSpec(
+        string StableReference,
+        string Name,
+        string DisplayName,
+        int Leather,
+        int Soles,
+        int Straps,
+        int Thongs,
+        int LinenYarn,
+        bool VariableProduct,
+        int Minimum,
+        Difficulty Difficulty,
+        bool Footwear = true);
+
+    private void SeedAntiquityLeatherPreparationCrafts()
+    {
+        if (!ShouldSeedAntiquityCrafts())
+        {
+            return;
+        }
+
+        AddAntiquityLeatherCraft(
+            "scrape and dehair animal hides",
+            "scrape and dehair raw animal hides into prepared hide stock",
+            "scraping and dehairing animal hides",
+            "animal hides being scraped into prepared hide stock",
+            1,
+            Difficulty.Easy,
+            [
+                (30, "$0 spread|spreads $i1 over $t1 and rinse|rinses it with clean water.", "$0 spread|spreads $i1 over $t1, but leave|leaves dirt and blood through the hide."),
+                (40, "$0 scrape|scrapes flesh and fat away with $t2.", "$0 scrape|scrapes with $t2, but gouge|gouges and weakens the hide."),
+                (40, "$0 work|works $t3 along the hair side until the loose hair is stripped away.", "$0 work|works $t3 unevenly and leave|leaves stubborn patches behind."),
+                (25, "$0 fold|folds $p1 into a clean prepared hide bundle.", "$0 salvage|salvages only $f1 from the damaged hide.")
+            ],
+            [
+                "CommodityTag - 1 kilogram 600 grams of a material tagged as Animal Skin",
+                "LiquidUse - 2 litres of Water"
+            ],
+            [
+                "TagTool - InRoom - an item with the Tanning Beam tag",
+                "TagTool - Held - an item with the Hide Scraper tag",
+                "TagTool - Held - an item with the Leather Dehairing Knife tag"
+            ],
+            ["CommodityProduct - 1 kilogram 200 grams of animal skin commodity; tag Prepared Hide; characteristic Colour=brown; characteristic Fine Colour=light brown"],
+            ["CommodityProduct - 400 grams of animal skin commodity; tag Prepared Hide; characteristic Colour=brown; characteristic Fine Colour=light brown"]);
+
+        AddAntiquityLeatherCraft(
+            "tan prepared hides into leather",
+            "tan prepared hides into supple leather stock",
+            "tanning prepared hides",
+            "prepared hides being tanned into leather",
+            10,
+            Difficulty.Normal,
+            [
+                (35, "$0 soak|soaks $i1 in clean water and work|works the hide open.", "$0 soak|soaks $i1 unevenly, leaving stiff dry patches."),
+                (50, "$0 steep|steeps the hide with $i3, turning it with $t2 and keeping the tanning liquor even.", "$0 steep|steeps the hide poorly and leave|leaves the tanning liquor uneven."),
+                (45, "$0 stretch|stretches the treated hide over $t1 and scrape|scrapes it smooth.", "$0 stretch|stretches the hide poorly over $t1, warping the grain."),
+                (30, "$0 oil|oils and fold|folds $p1 into usable leather stock.", "$0 salvage|salvages only $f1 from the uneven tanning.")
+            ],
+            [
+                "Commodity - 1 kilogram 200 grams of animal skin; piletag Prepared Hide; characteristic Colour any; characteristic Fine Colour any",
+                "LiquidUse - 3 litres of Water",
+                "LiquidTagUse - 2 litres of a liquid tagged Tanning Agent"
+            ],
+            [
+                "TagTool - InRoom - an item with the Tanning Rack tag",
+                "TagTool - Held - an item with the Tanning Paddle tag",
+                "TagTool - InRoom - an item with the Brain Tanning Bucket tag"
+            ],
+            ["CommodityProduct - 1 kilogram of leather commodity; tag Tanned Leather; characteristic Colour from $i1; characteristic Fine Colour from $i1"],
+            ["CommodityProduct - 300 grams of leather commodity; tag Tanned Leather; characteristic Colour from $i1; characteristic Fine Colour from $i1"]);
+
+        AddAntiquityLeatherCraft(
+            "cut leather soles",
+            "cut tanned leather into matched sole blanks",
+            "cutting leather soles",
+            "tanned leather being cut into sole blanks",
+            10,
+            Difficulty.Normal,
+            [
+                (25, "$0 flatten|flattens $i1 and mark|marks matched sole outlines.", "$0 flatten|flattens $i1 poorly and mark|marks mismatched soles."),
+                (35, "$0 cut|cuts the sole blanks free with $t1.", "$0 cut|cuts with $t1, but the sole edges pull ragged."),
+                (30, "$0 trim|trims and bevel|bevels the edges with $t2.", "$0 trim|trims with $t2, but the edges remain uneven."),
+                (20, "$0 stack|stacks $p1 for footwear assembly.", "$0 salvage|salvages only $f1 from the miscut leather.")
+            ],
+            ["Commodity - 700 grams of leather; piletag Tanned Leather; characteristic Colour any; characteristic Fine Colour any"],
+            [
+                "TagTool - Held - an item with the Leather Gouge tag",
+                "TagTool - Held - an item with the Edge Beveller tag"
+            ],
+            ["CommodityProduct - 560 grams of leather commodity; tag Leather Sole; characteristic Colour from $i1; characteristic Fine Colour from $i1"],
+            ["CommodityProduct - 120 grams of leather commodity; tag Tanned Leather; characteristic Colour from $i1; characteristic Fine Colour from $i1"]);
+
+        AddAntiquityLeatherCraft(
+            "cut leather straps and thongs",
+            "cut tanned leather into straps and narrow thongs",
+            "cutting leather straps and thongs",
+            "tanned leather being cut into straps and thongs",
+            10,
+            Difficulty.Normal,
+            [
+                (25, "$0 measure|measures strap widths along $i1.", "$0 measure|measures $i1 unevenly."),
+                (35, "$0 draw|draws $t1 along the leather, cutting long straps.", "$0 draw|draws $t1 poorly and split|splits the straps."),
+                (35, "$0 cut|cuts narrower tying thongs and crease|creases the wider straps with $t3.", "$0 cut|cuts the thongs ragged and overwork|overworks the straps."),
+                (20, "$0 coil|coils $p1 with the matching thongs for assembly work.", "$0 salvage|salvages only $f1 from the ruined offcuts.")
+            ],
+            ["Commodity - 500 grams of leather; piletag Tanned Leather; characteristic Colour any; characteristic Fine Colour any"],
+            [
+                "TagTool - Held - an item with the Leather Gouge tag",
+                "TagTool - Held - an item with the Edge Beveller tag",
+                "TagTool - Held - an item with the Leather Creaser tag"
+            ],
+            [
+                "CommodityProduct - 320 grams of leather commodity; tag Leather Strap; characteristic Colour from $i1; characteristic Fine Colour from $i1",
+                "CommodityProduct - 120 grams of leather commodity; tag Leather Thong; characteristic Colour from $i1; characteristic Fine Colour from $i1"
+            ],
+            ["CommodityProduct - 80 grams of leather commodity; tag Leather Thong; characteristic Colour from $i1; characteristic Fine Colour from $i1"]);
+
+        AddAntiquityLeatherCraft(
+            "cut leather panels",
+            "cut tanned leather into broad panels for armour and containers",
+            "cutting leather panels",
+            "tanned leather being cut into broad panels",
+            15,
+            Difficulty.Normal,
+            [
+                (30, "$0 square|squares $i1 and mark|marks broad panel lines across the grain.", "$0 square|squares $i1 poorly, leaving the panel marks crooked."),
+                (40, "$0 draw|draws $t1 along the marks, cutting panel blanks free.", "$0 draw|draws $t1 unevenly and split|splits the panel edges."),
+                (30, "$0 bevel|bevels and crease|creases the panel edges with $t2 and $t3.", "$0 bevel|bevels the panels poorly, leaving thick and ragged edges."),
+                (20, "$0 stack|stacks $p1 for armour and container work.", "$0 salvage|salvages only $f1 from the miscut panels.")
+            ],
+            ["Commodity - 1 kilogram 100 grams of leather; piletag Tanned Leather; characteristic Colour any; characteristic Fine Colour any"],
+            [
+                "TagTool - Held - an item with the Leather Gouge tag",
+                "TagTool - Held - an item with the Edge Beveller tag",
+                "TagTool - Held - an item with the Leather Creaser tag"
+            ],
+            ["CommodityProduct - 920 grams of leather commodity; tag Leather Panel; characteristic Colour from $i1; characteristic Fine Colour from $i1"],
+            ["CommodityProduct - 160 grams of leather commodity; tag Tanned Leather; characteristic Colour from $i1; characteristic Fine Colour from $i1"]);
+
+        AddAntiquityLeatherCraft(
+            "harden leather panels",
+            "wax-harden leather panels for armour plates",
+            "hardening leather panels",
+            "leather panels being wax-hardened",
+            25,
+            Difficulty.Hard,
+            [
+                (35, "$0 soak|soaks $i1 in clean water and warm|warms beeswax in $t1.", "$0 soak|soaks $i1 unevenly and overheat|overheats patches of wax."),
+                (45, "$0 soften|softens the panels near $t2 and work|works wax into the grain.", "$0 soften|softens the panels poorly, leaving brittle and limp patches together."),
+                (45, "$0 shape|shapes the panels over $t3 as they cool and stiffen.", "$0 shape|shapes the panels carelessly, warping the hardened faces."),
+                (25, "$0 set|sets aside $p1 for armour assembly.", "$0 salvage|salvages only $f1 from the spoiled hardening.")
+            ],
+            [
+                "Commodity - 800 grams of leather; piletag Leather Panel; characteristic Colour any; characteristic Fine Colour any",
+                "Commodity - 120 grams of beeswax",
+                "LiquidUse - 1 litre of Water"
+            ],
+            [
+                "TagTool - InRoom - an item with the Leather Wax Pot tag",
+                "TagTool - InRoom - an item with the Hot Fire tag",
+                "TagTool - InRoom - an item with the Tanning Rack tag"
+            ],
+            ["CommodityProduct - 760 grams of leather commodity; tag Hardened Leather Panel; characteristic Colour from $i1; characteristic Fine Colour from $i1"],
+            ["CommodityProduct - 250 grams of leather commodity; tag Leather Panel; characteristic Colour from $i1; characteristic Fine Colour from $i1"]);
+
+        AddAntiquityLeatherCraft(
+            "cut hardened leather scales",
+            "cut hardened panels into lacing-ready leather scales",
+            "cutting hardened leather scales",
+            "hardened leather panels being cut into scales",
+            30,
+            Difficulty.Hard,
+            [
+                (30, "$0 mark|marks even scale rows across $i1.", "$0 mark|marks $i1 unevenly, leaving mismatched scale sizes."),
+                (45, "$0 cut|cuts the scales free with $t1 and smooth|smooths their lower edges with $t2.", "$0 cut|cuts with $t1, but the scales chip and split."),
+                (40, "$0 punch|punches lacing holes with $t3, keeping each scale aligned.", "$0 punch|punches the holes unevenly so the scales will not lace flat."),
+                (25, "$0 gather|gathers $p1 into measured scale stock.", "$0 salvage|salvages only $f1 from the broken scale stock.")
+            ],
+            ["Commodity - 650 grams of leather; piletag Hardened Leather Panel; characteristic Colour any; characteristic Fine Colour any"],
+            [
+                "TagTool - Held - an item with the Leather Gouge tag",
+                "TagTool - Held - an item with the Edge Beveller tag",
+                "TagTool - Held - an item with the Awl Punch tag"
+            ],
+            ["CommodityProduct - 520 grams of leather commodity; tag Leather Scale; characteristic Colour from $i1; characteristic Fine Colour from $i1"],
+            ["CommodityProduct - 120 grams of leather commodity; tag Hardened Leather Panel; characteristic Colour from $i1; characteristic Fine Colour from $i1"]);
+
+        AddAntiquityLeatherCraft(
+            "seal leather panels for vessels",
+            "wax-seal leather panels for waterskins, flasks, and travel cups",
+            "sealing leather panels for vessels",
+            "leather panels being sealed for liquid containers",
+            20,
+            Difficulty.Normal,
+            [
+                (30, "$0 warm|warms beeswax in $t1 and wipe|wipes $i1 clean.", "$0 warm|warms the wax unevenly and leave|leaves grit on the leather."),
+                (40, "$0 work|works wax across the grain and seams of each panel.", "$0 work|works wax into the panels poorly, leaving dry streaks."),
+                (35, "$0 flex|flexes the panels while the wax sets, checking for cracks.", "$0 flex|flexes the panels too sharply and crack|cracks the sealed surface."),
+                (20, "$0 stack|stacks $p1 for vessel assembly.", "$0 salvage|salvages only $f1 from the failed sealing.")
+            ],
+            [
+                "Commodity - 650 grams of leather; piletag Leather Panel; characteristic Colour any; characteristic Fine Colour any",
+                "Commodity - 90 grams of beeswax"
+            ],
+            [
+                "TagTool - InRoom - an item with the Leather Wax Pot tag",
+                "TagTool - InRoom - an item with the Hot Fire tag",
+                "TagTool - Held - an item with the Leather Creaser tag"
+            ],
+            ["CommodityProduct - 600 grams of leather commodity; tag Sealed Leather Panel; characteristic Colour from $i1; characteristic Fine Colour from $i1"],
+            ["CommodityProduct - 180 grams of leather commodity; tag Leather Panel; characteristic Colour from $i1; characteristic Fine Colour from $i1"]);
+    }
+
+    private void SeedAntiquityLeatherClothingCrafts()
+    {
+        if (!ShouldSeedAntiquityCrafts())
+        {
+            return;
+        }
+
+        var missingGarments = AntiquityLeatherClothingStableReferences.Keys
+            .Where(x => !TryLookupReworkItem(x, out _))
+            .ToList();
+        if (missingGarments.Count > 0)
+        {
+            return;
+        }
+
+        var beltTools = new[]
+        {
+            "TagTool - Held - an item with the Awl Punch tag",
+            "TagTool - Held - an item with the Leather Stitching Pony tag",
+            "TagTool - Held - an item with the Edge Beveller tag"
+        };
+        var footwearTools = new[]
+        {
+            "TagTool - Held - an item with the Awl Punch tag",
+            "TagTool - Held - an item with the Leather Stitching Pony tag",
+            "TagTool - Held - an item with the Edge Beveller tag",
+            "TagTool - Held - an item with the Shoe Last tag"
+        };
+        var assemblyPhases = new (int Seconds, string Echo, string FailEcho)[]
+        {
+            (35, "$0 mark|marks the leather pieces, straps, and stitching lines.", "$0 mark|marks the leather unevenly."),
+            (40, "$0 punch|punches stitch holes with $t1 and smooth|smooths exposed edges with $t3.", "$0 punch|punches with $t1, but the holes wander out of line."),
+            (50, "$0 stitch|stitches the pieces together on $t2, drawing the thongs tight.", "$0 stitch|stitches on $t2, but the joins sit weakly."),
+            (30, "$0 flex|flexes $p1 and check|checks the fit and finish.", "$0 salvage|salvages only $f1 from the failed leatherwork.")
+        };
+
+        foreach (var leatherCraft in new[]
+        {
+            new AntiquityLeatherClothingCraftSpec("antiquity_plain_leather_belt", "assemble a plain leather belt", "a plain leather belt", 140, 0, 80, 20, 0, false, 10, Difficulty.Easy, false),
+            new AntiquityLeatherClothingCraftSpec("antiquity_bronze_buckled_leather_belt", "assemble a bronze-buckled leather belt", "a bronze-buckled leather belt", 170, 0, 95, 25, 0, true, 25, Difficulty.Normal, false),
+            new AntiquityLeatherClothingCraftSpec("antiquity_plain_leather_sandals", "assemble plain leather sandals", "plain leather sandals", 120, 210, 120, 30, 0, false, 10, Difficulty.Easy),
+            new AntiquityLeatherClothingCraftSpec("antiquity_fine_leather_sandals", "assemble fine leather sandals", "fine leather sandals", 110, 190, 130, 35, 0, true, 30, Difficulty.Normal),
+            new AntiquityLeatherClothingCraftSpec("antiquity_soft_leather_shoes", "assemble soft leather shoes", "soft leather shoes", 260, 220, 90, 40, 0, false, 20, Difficulty.Normal),
+            new AntiquityLeatherClothingCraftSpec("antiquity_ankle_leather_boots", "assemble ankle leather boots", "ankle leather boots", 420, 300, 130, 55, 0, false, 25, Difficulty.Hard),
+            new AntiquityLeatherClothingCraftSpec("antiquity_low_strapped_leather_shoes", "assemble strapped leather shoes", "strapped leather shoes", 230, 210, 150, 40, 0, false, 20, Difficulty.Normal),
+            new AntiquityLeatherClothingCraftSpec("antiquity_soft_leather_riding_boots", "assemble soft leather riding boots", "soft leather riding boots", 520, 320, 160, 65, 0, false, 30, Difficulty.Hard),
+            new AntiquityLeatherClothingCraftSpec("adjacent_antiquity_pointed_leather_shoes", "assemble pointed leather shoes", "pointed leather shoes", 250, 200, 80, 35, 0, false, 20, Difficulty.Normal),
+            new AntiquityLeatherClothingCraftSpec("adjacent_antiquity_fine_pointed_leather_shoes", "assemble fine pointed leather shoes", "fine pointed leather shoes", 240, 190, 90, 40, 0, true, 35, Difficulty.Hard),
+            new AntiquityLeatherClothingCraftSpec("adjacent_antiquity_soft_riding_boots", "assemble soft riding boots", "soft riding boots", 440, 280, 140, 55, 0, false, 25, Difficulty.Hard),
+            new AntiquityLeatherClothingCraftSpec("adjacent_antiquity_fine_linen_sandals", "assemble fine linen-strapped sandals", "fine linen-strapped sandals", 80, 180, 40, 25, 45, false, 25, Difficulty.Normal)
+        })
+        {
+            var inputs = new List<string>();
+            if (leatherCraft.Leather > 0)
+            {
+                inputs.Add($"Commodity - {leatherCraft.Leather} grams of leather; piletag Tanned Leather; characteristic Colour any; characteristic Fine Colour any");
+            }
+
+            if (leatherCraft.Soles > 0)
+            {
+                inputs.Add($"Commodity - {leatherCraft.Soles} grams of leather; piletag Leather Sole; characteristic Colour any; characteristic Fine Colour any");
+            }
+
+            if (leatherCraft.Straps > 0)
+            {
+                inputs.Add($"Commodity - {leatherCraft.Straps} grams of leather; piletag Leather Strap; characteristic Colour any; characteristic Fine Colour any");
+            }
+
+            if (leatherCraft.Thongs > 0)
+            {
+                inputs.Add($"Commodity - {leatherCraft.Thongs} grams of leather; piletag Leather Thong; characteristic Colour any; characteristic Fine Colour any");
+            }
+
+            if (leatherCraft.LinenYarn > 0)
+            {
+                inputs.Add($"Commodity - {leatherCraft.LinenYarn} grams of linen; piletag Spun Yarn; characteristic Colour any; characteristic Fine Colour any");
+            }
+
+            AddAntiquityLeatherCraft(
+                leatherCraft.Name,
+                $"assemble {leatherCraft.DisplayName} from prepared leather pieces",
+                leatherCraft.Name,
+                $"leather pieces being assembled into {leatherCraft.DisplayName}",
+                leatherCraft.Minimum,
+                leatherCraft.Difficulty,
+                assemblyPhases,
+                inputs,
+                leatherCraft.Footwear ? footwearTools : beltTools,
+                [
+                    leatherCraft.VariableProduct
+                        ? StableVariableProduct(leatherCraft.StableReference, true)
+                        : StableSimpleProduct(leatherCraft.StableReference)
+                ]);
+        }
+    }
+
+    private sealed record AntiquityLeatherArmourCraftSpec(
+        string StableReference,
+        string Name,
+        string DisplayName,
+        int Panels,
+        int HardenedPanels,
+        int Scales,
+        int Soles,
+        int Straps,
+        int Thongs,
+        int LinenYarn,
+        int Hair,
+        int Metal,
+        string MetalMaterial,
+        bool VariableProduct,
+        int Minimum,
+        Difficulty Difficulty,
+        bool Footwear = false,
+        bool FineProduct = false);
+
+    private void SeedAntiquityLeatherArmourCrafts()
+    {
+        if (!ShouldSeedAntiquityCrafts())
+        {
+            return;
+        }
+
+        var missingArmour = AntiquityLeatherArmourStableReferences.Keys
+            .Where(x => !TryLookupReworkItem(x, out _))
+            .ToList();
+        if (missingArmour.Count > 0)
+        {
+            return;
+        }
+
+        var armourTools = new[]
+        {
+            "TagTool - Held - an item with the Awl Punch tag",
+            "TagTool - Held - an item with the Leather Stitching Pony tag",
+            "TagTool - Held - an item with the Edge Beveller tag",
+            "TagTool - Held - an item with the Mallet tag"
+        };
+        var footwearTools = new[]
+        {
+            "TagTool - Held - an item with the Awl Punch tag",
+            "TagTool - Held - an item with the Leather Stitching Pony tag",
+            "TagTool - Held - an item with the Edge Beveller tag",
+            "TagTool - Held - an item with the Shoe Last tag",
+            "TagTool - Held - an item with the Mallet tag"
+        };
+        var armourPhases = new (int Seconds, string Echo, string FailEcho)[]
+        {
+            (40, "$0 lay|lays out the leather panels, scales, straps, and lacing in fitted order.", "$0 lay|lays out the leather pieces poorly, leaving the fit confused."),
+            (45, "$0 punch|punches holes with $t1 and smooth|smooths exposed edges with $t3.", "$0 punch|punches with $t1, but the holes wander and the edges stay ragged."),
+            (55, "$0 lace|laces and stitch|stitches the armour on $t2, drawing each thong tight.", "$0 lace|laces on $t2, but the rows sit loose and uneven."),
+            (35, "$0 set|sets fittings with $t4 and check|checks the finished balance of $p1.", "$0 salvage|salvages only $f1 from the failed armour work.")
+        };
+        var footwearPhases = new (int Seconds, string Echo, string FailEcho)[]
+        {
+            (35, "$0 fit|fits the leather uppers, soles, straps, and guards around $t4.", "$0 fit|fits the leather around $t4 poorly, throwing the pair out of shape."),
+            (40, "$0 punch|punches stitch holes with $t1 and smooth|smooths the exposed edges with $t3.", "$0 punch|punches with $t1, but the holes wander and the straps pull unevenly."),
+            (50, "$0 stitch|stitches the pair on $t2, setting studs or reinforcements with $t5 where needed.", "$0 stitch|stitches on $t2, but the joins sit weakly."),
+            (30, "$0 flex|flexes $p1 and check|checks the sole, strap, and armour fit.", "$0 salvage|salvages only $f1 from the failed armoured footwear.")
+        };
+
+        foreach (var armourCraft in new[]
+        {
+            new AntiquityLeatherArmourCraftSpec("antiquity_celtic_dyed_leather_scale_vest", "assemble a dyed leather scale vest", "a dyed leather scale vest", 450, 0, 1100, 0, 180, 180, 70, 0, 0, "bronze", true, 35, Difficulty.Hard),
+            new AntiquityLeatherArmourCraftSpec("antiquity_celtic_bronze_studded_leather_belt", "assemble a bronze-studded war belt", "a bronze-studded war belt", 0, 260, 0, 0, 240, 60, 0, 0, 90, "bronze", false, 25, Difficulty.Normal),
+            new AntiquityLeatherArmourCraftSpec("antiquity_celtic_leather_war_bracers", "assemble leather war bracers", "leather war bracers", 0, 360, 0, 0, 120, 50, 0, 0, 40, "bronze", false, 25, Difficulty.Normal),
+            new AntiquityLeatherArmourCraftSpec("antiquity_celtic_fur_lined_war_boots", "assemble fur-lined war boots", "fur-lined war boots", 520, 240, 0, 320, 160, 70, 0, 150, 60, "bronze", false, 30, Difficulty.Hard, true),
+            new AntiquityLeatherArmourCraftSpec("antiquity_germanic_broad_leather_war_belt", "assemble a broad leather war belt", "a broad leather war belt", 0, 360, 0, 0, 260, 60, 0, 0, 80, "wrought iron", false, 25, Difficulty.Normal),
+            new AntiquityLeatherArmourCraftSpec("antiquity_germanic_hide_war_bracers", "assemble hide war bracers", "hide war bracers", 180, 420, 0, 0, 0, 70, 0, 0, 0, "bronze", false, 25, Difficulty.Normal),
+            new AntiquityLeatherArmourCraftSpec("antiquity_germanic_fur_cuffed_high_boots", "assemble fur-cuffed high boots", "fur-cuffed high boots", 650, 300, 0, 360, 180, 80, 0, 200, 0, "bronze", false, 35, Difficulty.Hard, true),
+            new AntiquityLeatherArmourCraftSpec("antiquity_hellenic_leather_pteruges_girdle", "assemble a leather pteruges girdle", "a leather pteruges girdle", 300, 420, 0, 0, 240, 120, 0, 0, 90, "bronze", false, 30, Difficulty.Hard),
+            new AntiquityLeatherArmourCraftSpec("antiquity_hellenic_bronze_studded_sandals", "assemble bronze-studded leather sandals", "bronze-studded leather sandals", 0, 120, 0, 260, 220, 60, 0, 0, 60, "bronze", false, 25, Difficulty.Normal, true),
+            new AntiquityLeatherArmourCraftSpec("antiquity_etruscan_pteruges_leather_girdle", "assemble a studded pteruges girdle", "a studded pteruges girdle", 300, 430, 0, 0, 240, 120, 0, 0, 110, "bronze", false, 30, Difficulty.Hard),
+            new AntiquityLeatherArmourCraftSpec("antiquity_etruscan_bronze_studded_sandals", "assemble fitted bronze-studded sandals", "fitted bronze-studded sandals", 0, 140, 0, 270, 220, 60, 0, 0, 65, "bronze", false, 25, Difficulty.Normal, true),
+            new AntiquityLeatherArmourCraftSpec("antiquity_roman_plated_military_belt", "assemble a plated military belt", "a plated military belt", 0, 480, 0, 0, 300, 100, 0, 0, 180, "bronze", false, 35, Difficulty.Hard),
+            new AntiquityLeatherArmourCraftSpec("antiquity_roman_aproned_military_belt", "assemble an apron-fronted military belt", "an apron-fronted military belt", 250, 520, 0, 0, 320, 130, 0, 0, 240, "bronze", false, 40, Difficulty.Hard),
+            new AntiquityLeatherArmourCraftSpec("antiquity_roman_reinforced_caligae", "assemble reinforced leather caligae", "reinforced leather caligae", 0, 120, 0, 300, 260, 60, 0, 0, 80, "bronze", false, 25, Difficulty.Normal, true),
+            new AntiquityLeatherArmourCraftSpec("antiquity_roman_leather_field_boots", "assemble leather field boots", "leather field boots", 600, 360, 0, 360, 180, 80, 0, 0, 60, "bronze", false, 30, Difficulty.Hard, true),
+            new AntiquityLeatherArmourCraftSpec("antiquity_punic_bronze_studded_girdle", "assemble a bronze-studded leather girdle", "a bronze-studded leather girdle", 260, 420, 0, 0, 260, 100, 0, 0, 120, "bronze", false, 30, Difficulty.Hard),
+            new AntiquityLeatherArmourCraftSpec("antiquity_persian_scale_anaxyrides", "assemble scale anaxyrides", "scale anaxyrides", 550, 0, 1200, 0, 160, 180, 80, 0, 0, "bronze", false, 40, Difficulty.Hard),
+            new AntiquityLeatherArmourCraftSpec("antiquity_persian_soft_riding_boots", "assemble armoured riding boots", "armoured riding boots", 650, 420, 0, 340, 170, 80, 0, 0, 0, "bronze", false, 35, Difficulty.Hard, true),
+            new AntiquityLeatherArmourCraftSpec("antiquity_egyptian_leather_scale_cuirass", "assemble a leather scale cuirass", "a leather scale cuirass", 650, 0, 1500, 0, 260, 220, 100, 0, 0, "bronze", false, 40, Difficulty.Hard),
+            new AntiquityLeatherArmourCraftSpec("antiquity_egyptian_scale_kilt_guard", "assemble a scale kilt guard", "a scale kilt guard", 300, 0, 600, 0, 240, 140, 70, 0, 0, "bronze", false, 35, Difficulty.Hard),
+            new AntiquityLeatherArmourCraftSpec("antiquity_egyptian_leather_archer_bracer", "assemble a leather archer bracer", "a leather archer bracer", 70, 180, 0, 0, 80, 30, 0, 0, 0, "bronze", false, 20, Difficulty.Normal),
+            new AntiquityLeatherArmourCraftSpec("antiquity_anatolian_leather_cavalry_boots", "assemble leather cavalry boots", "leather cavalry boots", 620, 360, 0, 320, 200, 80, 0, 0, 0, "bronze", false, 35, Difficulty.Hard, true),
+            new AntiquityLeatherArmourCraftSpec("antiquity_scythian_leather_scale_corselet", "assemble a leather scale corselet", "a leather scale corselet", 550, 0, 1300, 0, 220, 220, 90, 0, 0, "bronze", false, 40, Difficulty.Hard),
+            new AntiquityLeatherArmourCraftSpec("antiquity_scythian_conical_scale_cap", "assemble a conical scale war cap", "a conical scale war cap", 220, 0, 420, 0, 0, 100, 60, 0, 0, "bronze", false, 35, Difficulty.Hard),
+            new AntiquityLeatherArmourCraftSpec("antiquity_scythian_scale_trousers", "assemble leather scale trousers", "leather scale trousers", 700, 0, 1450, 0, 220, 220, 110, 0, 0, "bronze", false, 45, Difficulty.Hard),
+            new AntiquityLeatherArmourCraftSpec("antiquity_scythian_high_riding_boots", "assemble high riding boots", "high riding boots", 780, 520, 0, 420, 220, 90, 0, 0, 0, "bronze", false, 40, Difficulty.Hard, true),
+            new AntiquityLeatherArmourCraftSpec("antiquity_kushite_leather_scale_breastguard", "assemble a leather scale breastguard", "a leather scale breastguard", 250, 0, 650, 0, 200, 120, 50, 0, 0, "bronze", false, 35, Difficulty.Hard),
+            new AntiquityLeatherArmourCraftSpec("antiquity_kushite_leather_archer_bracer", "assemble a river-valley leather archer bracer", "a river-valley leather archer bracer", 70, 180, 0, 0, 80, 30, 0, 0, 0, "bronze", false, 20, Difficulty.Normal),
+            new AntiquityLeatherArmourCraftSpec("antiquity_kushite_leather_kilt_guard", "assemble a leather kilt guard", "a leather kilt guard", 300, 520, 0, 0, 240, 120, 60, 0, 0, "bronze", false, 35, Difficulty.Hard),
+            new AntiquityLeatherArmourCraftSpec("antiquity_kushite_sand_armoured_sandals", "assemble armoured leather sandals", "armoured leather sandals", 0, 160, 0, 260, 220, 60, 0, 0, 0, "bronze", false, 25, Difficulty.Normal, true)
+        })
+        {
+            var inputs = new List<string>();
+            AddLeatherCommodityInput(inputs, armourCraft.Panels, "Leather Panel");
+            AddLeatherCommodityInput(inputs, armourCraft.HardenedPanels, "Hardened Leather Panel");
+            AddLeatherCommodityInput(inputs, armourCraft.Scales, "Leather Scale");
+            AddLeatherCommodityInput(inputs, armourCraft.Soles, "Leather Sole");
+            AddLeatherCommodityInput(inputs, armourCraft.Straps, "Leather Strap");
+            AddLeatherCommodityInput(inputs, armourCraft.Thongs, "Leather Thong");
+            if (armourCraft.LinenYarn > 0)
+            {
+                inputs.Add($"Commodity - {armourCraft.LinenYarn} grams of linen; piletag Spun Yarn; characteristic Colour any");
+            }
+
+            if (armourCraft.Hair > 0)
+            {
+                inputs.Add($"CommodityTag - {armourCraft.Hair} grams of a material tagged as Hair");
+            }
+
+            if (armourCraft.Metal > 0)
+            {
+                inputs.Add($"Commodity - {armourCraft.Metal} grams of {armourCraft.MetalMaterial}");
+            }
+
+            AddAntiquityLeatherCraft(
+                armourCraft.Name,
+                $"assemble {armourCraft.DisplayName} from prepared leather armour pieces",
+                armourCraft.Name,
+                $"leather armour pieces being assembled into {armourCraft.DisplayName}",
+                armourCraft.Minimum,
+                armourCraft.Difficulty,
+                armourCraft.Footwear ? footwearPhases : armourPhases,
+                inputs,
+                armourCraft.Footwear ? footwearTools : armourTools,
+                [
+                    armourCraft.VariableProduct
+                        ? StableVariableProduct(armourCraft.StableReference, armourCraft.FineProduct)
+                        : StableSimpleProduct(armourCraft.StableReference)
+                ]);
+        }
+    }
+
+    private sealed record AntiquityLeatherContainerCraftSpec(
+        string StableReference,
+        string Name,
+        string DisplayName,
+        int Panels,
+        int SealedPanels,
+        int Straps,
+        int Thongs,
+        int LinenYarn,
+        int Hair,
+        int Beeswax,
+        int Metal,
+        string MetalMaterial,
+        bool Liquid,
+        int Minimum,
+        Difficulty Difficulty);
+
+    private void SeedAntiquityLeatherContainerCrafts()
+    {
+        if (!ShouldSeedAntiquityCrafts())
+        {
+            return;
+        }
+
+        var missingContainers = AntiquityLeatherContainerStableReferences.Keys
+            .Where(x => !TryLookupReworkItem(x, out _))
+            .ToList();
+        if (missingContainers.Count > 0)
+        {
+            return;
+        }
+
+        var dryTools = new[]
+        {
+            "TagTool - Held - an item with the Awl Punch tag",
+            "TagTool - Held - an item with the Leather Stitching Pony tag",
+            "TagTool - Held - an item with the Edge Beveller tag",
+            "TagTool - Held - an item with the Leather Creaser tag"
+        };
+        var liquidTools = new[]
+        {
+            "TagTool - Held - an item with the Awl Punch tag",
+            "TagTool - Held - an item with the Leather Stitching Pony tag",
+            "TagTool - InRoom - an item with the Leather Wax Pot tag",
+            "TagTool - Held - an item with the Edge Beveller tag"
+        };
+        var dryPhases = new (int Seconds, string Echo, string FailEcho)[]
+        {
+            (30, "$0 mark|marks the leather panels, straps, flap, and closure lines.", "$0 mark|marks the leather unevenly."),
+            (40, "$0 punch|punches stitch holes with $t1 and finish|finishes the edges with $t3 and $t4.", "$0 punch|punches with $t1, but the holes and edges wander."),
+            (50, "$0 stitch|stitches the container on $t2, drawing the thongs snug.", "$0 stitch|stitches on $t2, but the container twists out of shape."),
+            (25, "$0 test|tests the closure and set|sets aside $p1.", "$0 salvage|salvages only $f1 from the failed container work.")
+        };
+        var liquidPhases = new (int Seconds, string Echo, string FailEcho)[]
+        {
+            (30, "$0 match|matches sealed panels for a tight liquid-holding body.", "$0 match|matches the sealed panels poorly, leaving gaps at the neck and seams."),
+            (45, "$0 punch|punches close stitch holes with $t1 and sew|sews the vessel on $t2.", "$0 punch|punches with $t1, but the seam line wanders."),
+            (40, "$0 warm|warms wax in $t3 and work|works it into the seams and mouth.", "$0 warm|warms the wax poorly and leave|leaves dry leaking seams."),
+            (30, "$0 flex|flexes $p1 and check|checks the sealed shape.", "$0 salvage|salvages only $f1 from the leaking vessel.")
+        };
+
+        foreach (var containerCraft in new[]
+        {
+            new AntiquityLeatherContainerCraftSpec("antiquity_smoked_hide_meat_bag", "assemble a smoked hide provision bag", "a smoked hide provision bag", 480, 0, 120, 60, 40, 80, 0, 0, "bronze", false, 20, Difficulty.Normal),
+            new AntiquityLeatherContainerCraftSpec("antiquity_leather_document_case", "assemble a folded leather document case", "a folded leather document case", 260, 0, 40, 30, 25, 0, 0, 0, "bronze", false, 20, Difficulty.Normal),
+            new AntiquityLeatherContainerCraftSpec("antiquity_leather_mirror_case", "assemble a tooled leather mirror case", "a tooled leather mirror case", 220, 0, 0, 30, 20, 0, 20, 0, "bronze", false, 25, Difficulty.Normal),
+            new AntiquityLeatherContainerCraftSpec("antiquity_plain_leather_belt_pouch", "assemble a plain leather belt pouch", "a plain leather belt pouch", 140, 0, 50, 25, 20, 0, 0, 0, "bronze", false, 10, Difficulty.Easy),
+            new AntiquityLeatherContainerCraftSpec("antiquity_double_strap_travel_pack", "assemble a double-strapped leather pack", "a double-strapped leather pack", 950, 0, 420, 100, 80, 0, 0, 60, "bronze", false, 30, Difficulty.Hard),
+            new AntiquityLeatherContainerCraftSpec("antiquity_fur_lined_forager_bag", "assemble a fur-lined forager bag", "a fur-lined forager bag", 480, 0, 200, 70, 50, 180, 0, 0, "bronze", false, 25, Difficulty.Normal),
+            new AntiquityLeatherContainerCraftSpec("antiquity_deer_leather_game_bag", "assemble a deer-leather game bag", "a deer-leather game bag", 480, 0, 220, 70, 50, 0, 0, 0, "bronze", false, 25, Difficulty.Normal),
+            new AntiquityLeatherContainerCraftSpec("antiquity_folded_tablet_wallet", "assemble a folded leather tablet wallet", "a folded leather tablet wallet", 160, 0, 0, 35, 20, 0, 0, 0, "bronze", false, 15, Difficulty.Normal),
+            new AntiquityLeatherContainerCraftSpec("antiquity_round_coin_purse", "assemble a round leather coin purse", "a round leather coin purse", 80, 0, 0, 35, 10, 0, 0, 0, "bronze", false, 10, Difficulty.Easy),
+            new AntiquityLeatherContainerCraftSpec("antiquity_leather_dispatch_satchel", "assemble a leather dispatch satchel", "a leather dispatch satchel", 520, 0, 220, 70, 55, 0, 0, 0, "bronze", false, 30, Difficulty.Hard),
+            new AntiquityLeatherContainerCraftSpec("antiquity_wide_belt_document_pouch", "assemble a wide leather document pouch", "a wide leather document pouch", 320, 0, 120, 45, 35, 0, 0, 0, "bronze", false, 20, Difficulty.Normal),
+            new AntiquityLeatherContainerCraftSpec("antiquity_steppe_saddlebag_pack", "assemble a saddlebag leather pack", "a saddlebag leather pack", 1000, 0, 320, 140, 80, 0, 0, 0, "bronze", false, 35, Difficulty.Hard),
+            new AntiquityLeatherContainerCraftSpec("antiquity_steppe_gorytos_case", "assemble a tooled gorytos case", "a tooled gorytos case", 650, 0, 220, 100, 60, 0, 25, 0, "bronze", false, 35, Difficulty.Hard),
+            new AntiquityLeatherContainerCraftSpec("antiquity_fur_provision_pouch", "assemble a fur provision pouch", "a fur provision pouch", 180, 0, 60, 35, 20, 120, 0, 0, "bronze", false, 20, Difficulty.Normal),
+            new AntiquityLeatherContainerCraftSpec("antiquity_liquid_steppe_milk_skin", "assemble a leather milk skin", "a leather milk skin", 0, 430, 100, 60, 0, 0, 40, 0, "bronze", true, 20, Difficulty.Normal),
+            new AntiquityLeatherContainerCraftSpec("antiquity_liquid_plain_leather_waterskin", "assemble a plain leather waterskin", "a plain leather waterskin", 0, 360, 100, 50, 0, 0, 35, 0, "bronze", true, 15, Difficulty.Normal),
+            new AntiquityLeatherContainerCraftSpec("antiquity_liquid_wide_mouth_waterskin", "assemble a wide-mouthed waterskin", "a wide-mouthed waterskin", 0, 450, 140, 60, 0, 0, 45, 0, "bronze", true, 20, Difficulty.Normal),
+            new AntiquityLeatherContainerCraftSpec("antiquity_liquid_leather_belt_oil_flask", "assemble a leather belt oil flask", "a leather belt oil flask", 0, 160, 45, 25, 0, 0, 30, 0, "bronze", true, 20, Difficulty.Normal),
+            new AntiquityLeatherContainerCraftSpec("antiquity_liquid_hide_ale_skin", "assemble a hide ale skin", "a hide ale skin", 0, 480, 120, 70, 0, 0, 45, 0, "bronze", true, 25, Difficulty.Normal),
+            new AntiquityLeatherContainerCraftSpec("antiquity_liquid_birch_stoppered_mead_skin", "assemble a birch-stoppered mead skin", "a birch-stoppered mead skin", 0, 420, 120, 60, 0, 0, 40, 0, "bronze", true, 25, Difficulty.Normal),
+            new AntiquityLeatherContainerCraftSpec("antiquity_liquid_soldier_shoulder_canteen", "assemble a leather-covered shoulder canteen", "a leather-covered shoulder canteen", 0, 520, 180, 70, 0, 0, 45, 0, "bronze", true, 25, Difficulty.Hard),
+            new AntiquityLeatherContainerCraftSpec("antiquity_liquid_sailor_water_skin", "assemble a tar-dark waterskin", "a tar-dark waterskin", 0, 520, 120, 70, 0, 0, 60, 0, "bronze", true, 25, Difficulty.Normal),
+            new AntiquityLeatherContainerCraftSpec("antiquity_liquid_caravan_waterskin", "assemble a large caravan waterskin", "a large caravan waterskin", 0, 750, 220, 100, 0, 0, 70, 0, "bronze", true, 30, Difficulty.Hard),
+            new AntiquityLeatherContainerCraftSpec("antiquity_liquid_silver_tipped_belt_flask", "assemble a silver-tipped belt flask", "a silver-tipped belt flask", 0, 180, 60, 30, 0, 0, 40, 30, "silver", true, 35, Difficulty.Hard),
+            new AntiquityLeatherContainerCraftSpec("antiquity_liquid_felt_covered_riding_canteen", "assemble a felt-covered riding canteen", "a felt-covered riding canteen", 0, 520, 200, 80, 0, 80, 45, 0, "bronze", true, 30, Difficulty.Hard),
+            new AntiquityLeatherContainerCraftSpec("antiquity_liquid_saddle_waterskin", "assemble a saddle-hung waterskin", "a saddle-hung waterskin", 0, 850, 300, 120, 0, 0, 75, 0, "bronze", true, 35, Difficulty.Hard),
+            new AntiquityLeatherContainerCraftSpec("antiquity_liquid_steppe_kumis_skin", "assemble a patched fermented-milk skin", "a patched fermented-milk skin", 0, 500, 120, 80, 0, 0, 40, 0, "bronze", true, 25, Difficulty.Normal),
+            new AntiquityLeatherContainerCraftSpec("antiquity_liquid_tooled_leather_flask", "assemble a tooled leather flask", "a tooled leather flask", 0, 180, 50, 30, 0, 0, 35, 0, "bronze", true, 25, Difficulty.Normal),
+            new AntiquityLeatherContainerCraftSpec("antiquity_tableware_scythian_leather_travel_cup", "assemble a folded leather travel cup", "a folded leather travel cup", 0, 160, 0, 20, 15, 0, 30, 0, "bronze", true, 20, Difficulty.Normal)
+        })
+        {
+            var inputs = new List<string>();
+            AddLeatherCommodityInput(inputs, containerCraft.Panels, "Leather Panel");
+            AddLeatherCommodityInput(inputs, containerCraft.SealedPanels, "Sealed Leather Panel");
+            AddLeatherCommodityInput(inputs, containerCraft.Straps, "Leather Strap");
+            AddLeatherCommodityInput(inputs, containerCraft.Thongs, "Leather Thong");
+            if (containerCraft.LinenYarn > 0)
+            {
+                inputs.Add($"Commodity - {containerCraft.LinenYarn} grams of linen; piletag Spun Yarn; characteristic Colour any");
+            }
+
+            if (containerCraft.Hair > 0)
+            {
+                inputs.Add($"CommodityTag - {containerCraft.Hair} grams of a material tagged as Hair");
+            }
+
+            if (containerCraft.Beeswax > 0)
+            {
+                inputs.Add($"Commodity - {containerCraft.Beeswax} grams of beeswax");
+            }
+
+            if (containerCraft.Metal > 0)
+            {
+                inputs.Add($"Commodity - {containerCraft.Metal} grams of {containerCraft.MetalMaterial}");
+            }
+
+            AddAntiquityLeatherCraft(
+                containerCraft.Name,
+                $"assemble {containerCraft.DisplayName} from prepared leather container pieces",
+                containerCraft.Name,
+                $"leather container pieces being assembled into {containerCraft.DisplayName}",
+                containerCraft.Minimum,
+                containerCraft.Difficulty,
+                containerCraft.Liquid ? liquidPhases : dryPhases,
+                inputs,
+                containerCraft.Liquid ? liquidTools : dryTools,
+                [StableSimpleProduct(containerCraft.StableReference)]);
+        }
+    }
+
+    private void SeedAntiquityLeatherFurnishingCrafts()
+    {
+        if (!ShouldSeedAntiquityCrafts())
+        {
+            return;
+        }
+
+        var missingFurnishings = AntiquityLeatherFurnishingStableReferences.Keys
+            .Where(x => !TryLookupReworkItem(x, out _))
+            .ToList();
+        if (missingFurnishings.Count > 0)
+        {
+            return;
+        }
+
+        var hangingTools = new[]
+        {
+            "TagTool - Held - an item with the Awl Punch tag",
+            "TagTool - Held - an item with the Leather Stitching Pony tag",
+            "TagTool - Held - an item with the Edge Beveller tag",
+            "TagTool - Held - an item with the Leather Creaser tag"
+        };
+
+        AddAntiquityLeatherCraft(
+            "assemble a fur doorway hanging",
+            "assemble a fur doorway hanging from hair-on skins and leather header stock",
+            "assemble a fur doorway hanging",
+            "hair-on skins being assembled into a doorway hanging",
+            25,
+            Difficulty.Normal,
+            [
+                (35, "$0 sort|sorts the hair-on skins and mark|marks a leather header strip.", "$0 sort|sorts the skins poorly, leaving mismatched panels."),
+                (45, "$0 punch|punches hanging and stitching holes with $t1, smoothing the header with $t3 and $t4.", "$0 punch|punches with $t1, but the hanging holes sit unevenly."),
+                (55, "$0 stitch|stitches the skins onto the header on $t2 and draw|draws the thongs tight.", "$0 stitch|stitches on $t2, but the skins sag and pull loose."),
+                (30, "$0 lift|lifts $p1 to check its fall and overlap.", "$0 salvage|salvages only $f1 from the failed hanging.")
+            ],
+            [
+                "CommodityTag - 1 kilogram 800 grams of a material tagged as Animal Skin",
+                "CommodityTag - 600 grams of a material tagged as Hair",
+                "Commodity - 220 grams of leather; piletag Leather Strap; characteristic Colour any; characteristic Fine Colour any",
+                "Commodity - 120 grams of leather; piletag Leather Thong; characteristic Colour any; characteristic Fine Colour any"
+            ],
+            hangingTools,
+            [StableSimpleProduct("antiquity_fur_door_hanging")]);
+
+        AddAntiquityLeatherCraft(
+            "assemble a leather tent door flap",
+            "assemble a leather tent door flap from broad panels and tie stock",
+            "assemble a leather tent door flap",
+            "leather panels being assembled into a tent door flap",
+            30,
+            Difficulty.Hard,
+            [
+                (40, "$0 lay|lays out broad leather panels and mark|marks the top strip and overlap.", "$0 lay|lays out the panels poorly, leaving the flap out of square."),
+                (45, "$0 punch|punches tie and seam holes with $t1, smoothing panel edges with $t3 and $t4.", "$0 punch|punches with $t1, but the holes wander through the flap."),
+                (60, "$0 stitch|stitches the panels and top strip together on $t2.", "$0 stitch|stitches on $t2, but the panels buckle and pull apart."),
+                (35, "$0 fold|folds $p1 and check|checks that the tie points sit evenly.", "$0 salvage|salvages only $f1 from the failed door flap.")
+            ],
+            [
+                "Commodity - 1 kilogram 800 grams of leather; piletag Leather Panel; characteristic Colour any; characteristic Fine Colour any",
+                "Commodity - 360 grams of leather; piletag Leather Strap; characteristic Colour any; characteristic Fine Colour any",
+                "Commodity - 180 grams of leather; piletag Leather Thong; characteristic Colour any; characteristic Fine Colour any",
+                "Commodity - 80 grams of beeswax"
+            ],
+            hangingTools,
+            [StableSimpleProduct("antiquity_leather_tent_door_flap")]);
     }
     
     private void SeedAntiquityHellenicClothingCrafts()
@@ -486,7 +1222,7 @@ public partial class ItemSeeder
             IEnumerable<(int Seconds, string Echo, string FailEcho)> phases, IEnumerable<string> inputs,
             IEnumerable<string> tools, IEnumerable<string> products)
         {
-            AddCraft(
+            AddAntiquityCraft(
                 name,
                 "Tailoring",
                 blurb,
@@ -496,15 +1232,10 @@ public partial class ItemSeeder
                 "Tailoring",
                 minimumTraitValue,
                 difficulty,
-                Outcome.MinorFail,
-                5,
-                3,
-                false,
                 phases,
                 inputs,
                 tools,
                 products,
-                [],
                 knowledgeSubtype: "Hellenic",
                 knowledgeDescription: hellenicKnowledgeDescription,
                 knowledgeLongDescription: hellenicKnowledgeDescription);
@@ -1035,7 +1766,7 @@ public partial class ItemSeeder
                 garment.Name,
                 $"assemble {garment.Name["assemble a ".Length..]} from rectangular {garment.Material} cloth",
                 garment.Name,
-                $"{garment.Material} cloth being assembled into Hellenic clothing",
+                $"{garment.Material} cloth being assembled into clothing",
                 garment.Minimum,
                 garment.Difficulty,
                 assemblyPhases,
@@ -1072,7 +1803,7 @@ public partial class ItemSeeder
 			IEnumerable<(int Seconds, string Echo, string FailEcho)> phases, IEnumerable<string> inputs,
 			IEnumerable<string> tools, IEnumerable<string> products)
 		{
-			AddCraft(
+			AddAntiquityCraft(
 				name,
 				"Tailoring",
 				blurb,
@@ -1082,23 +1813,18 @@ public partial class ItemSeeder
 				"Tailoring",
 				minimumTraitValue,
 				difficulty,
-				Outcome.MinorFail,
-				5,
-				3,
-				false,
 				phases,
 				inputs,
 				tools,
 				products,
-				[],
-				knowledgeSubtype: "Celtic",
+                knowledgeSubtype: "Celtic",
 				knowledgeDescription: celticKnowledgeDescription,
 				knowledgeLongDescription: celticKnowledgeDescription);
 		}
 
 		var celticAssemblyPhases = new (int Seconds, string Echo, string FailEcho)[]
 		{
-			(35, "$0 lay|lays out $i1 and mark|marks a rectangular Celtic garment pattern.", "$0 lay|lays out $i1, but mark|marks the garment unevenly."),
+			(35, "$0 lay|lays out $i1 and mark|marks a rectangular garment pattern.", "$0 lay|lays out $i1, but mark|marks the garment unevenly."),
 			(35, "$0 cut|cuts the cloth with $t2 and turn|turns the main edges into hems.", "$0 cut|cuts with $t2, but the edges wander out of line."),
 			(45, "$0 stitch|stitches seams, folds, and fastening points with $t1, using $i2 for the strongest joins.", "$0 stitch|stitches with $t1, but the joins sit awkwardly and weakly."),
 			(30, "$0 shake|shakes out $p1, checking the drape and fit over a belted layer.", "$0 shake|shakes out only $f1 after spoiling the cloth.")
@@ -1118,18 +1844,18 @@ public partial class ItemSeeder
 
 		foreach (var garment in new[]
 		{
-			(StableReference: "antiquity_sleeved_common_wool_tunic", Name: "assemble a Celtic sleeved wool tunic", DisplayName: "a Celtic sleeved wool tunic", Material: "wool", Cloth: 590, SecondaryCloth: 0, Yarn: 30, Fine: false, GeneratedProduct: false, Minimum: 15, Difficulty: Difficulty.Easy),
-			(StableReference: "antiquity_wool_braccae", Name: "assemble Celtic wool braccae", DisplayName: "Celtic wool braccae", Material: "wool", Cloth: 500, SecondaryCloth: 0, Yarn: 25, Fine: false, GeneratedProduct: false, Minimum: 15, Difficulty: Difficulty.Normal),
-			(StableReference: "antiquity_rectangular_wool_cloak", Name: "assemble a Celtic rectangular wool cloak", DisplayName: "a Celtic rectangular wool cloak", Material: "wool", Cloth: 1160, SecondaryCloth: 0, Yarn: 40, Fine: false, GeneratedProduct: false, Minimum: 15, Difficulty: Difficulty.Normal),
-			(StableReference: "antiquity_fine_bordered_wool_tunic", Name: "assemble a Celtic fine bordered wool tunic", DisplayName: "a Celtic fine bordered wool tunic", Material: "wool", Cloth: 530, SecondaryCloth: 0, Yarn: 30, Fine: true, GeneratedProduct: false, Minimum: 35, Difficulty: Difficulty.Normal),
-			(StableReference: "antiquity_fine_wool_braccae", Name: "assemble Celtic fine wool braccae", DisplayName: "Celtic fine wool braccae", Material: "wool", Cloth: 470, SecondaryCloth: 0, Yarn: 30, Fine: true, GeneratedProduct: false, Minimum: 35, Difficulty: Difficulty.Hard),
-			(StableReference: "antiquity_fine_checked_wool_cloak", Name: "assemble a Celtic fine checked wool cloak", DisplayName: "a Celtic fine checked wool cloak", Material: "wool", Cloth: 900, SecondaryCloth: 250, Yarn: 45, Fine: true, GeneratedProduct: true, Minimum: 40, Difficulty: Difficulty.Hard),
-			(StableReference: "antiquity_long_sleeved_wool_tunic", Name: "assemble a Celtic long sleeved wool tunic", DisplayName: "a Celtic long sleeved wool tunic", Material: "wool", Cloth: 650, SecondaryCloth: 0, Yarn: 30, Fine: false, GeneratedProduct: false, Minimum: 20, Difficulty: Difficulty.Normal),
-			(StableReference: "antiquity_wool_wrap_skirt", Name: "assemble a Celtic wool wrap skirt", DisplayName: "a Celtic wool wrap skirt", Material: "wool", Cloth: 535, SecondaryCloth: 0, Yarn: 25, Fine: false, GeneratedProduct: false, Minimum: 15, Difficulty: Difficulty.Normal),
-			(StableReference: "antiquity_broad_wool_mantle", Name: "assemble a Celtic broad wool mantle", DisplayName: "a Celtic broad wool mantle", Material: "wool", Cloth: 960, SecondaryCloth: 0, Yarn: 35, Fine: false, GeneratedProduct: false, Minimum: 20, Difficulty: Difficulty.Normal),
-			(StableReference: "antiquity_fine_sleeved_wool_gown", Name: "assemble a Celtic fine sleeved wool gown", DisplayName: "a Celtic fine sleeved wool gown", Material: "wool", Cloth: 740, SecondaryCloth: 0, Yarn: 40, Fine: true, GeneratedProduct: false, Minimum: 40, Difficulty: Difficulty.Hard),
-			(StableReference: "antiquity_fine_bordered_wool_mantle", Name: "assemble a Celtic fine bordered wool mantle", DisplayName: "a Celtic fine bordered wool mantle", Material: "wool", Cloth: 910, SecondaryCloth: 0, Yarn: 40, Fine: true, GeneratedProduct: false, Minimum: 40, Difficulty: Difficulty.Hard),
-			(StableReference: "antiquity_linen_shoulder_veil", Name: "assemble a Celtic linen shoulder veil", DisplayName: "a Celtic linen shoulder veil", Material: "linen", Cloth: 110, SecondaryCloth: 0, Yarn: 10, Fine: true, GeneratedProduct: false, Minimum: 30, Difficulty: Difficulty.Normal)
+			(StableReference: "antiquity_sleeved_common_wool_tunic", Name: "assemble a sleeved wool tunic", DisplayName: "a sleeved wool tunic", Material: "wool", Cloth: 590, SecondaryCloth: 0, Yarn: 30, Fine: false, GeneratedProduct: false, Minimum: 15, Difficulty: Difficulty.Easy),
+			(StableReference: "antiquity_wool_braccae", Name: "assemble wool braccae", DisplayName: "wool braccae", Material: "wool", Cloth: 500, SecondaryCloth: 0, Yarn: 25, Fine: false, GeneratedProduct: false, Minimum: 15, Difficulty: Difficulty.Normal),
+			(StableReference: "antiquity_rectangular_wool_cloak", Name: "assemble a rectangular wool cloak", DisplayName: "a rectangular wool cloak", Material: "wool", Cloth: 1160, SecondaryCloth: 0, Yarn: 40, Fine: false, GeneratedProduct: false, Minimum: 15, Difficulty: Difficulty.Normal),
+			(StableReference: "antiquity_fine_bordered_wool_tunic", Name: "assemble a fine bordered wool tunic", DisplayName: "a fine bordered wool tunic", Material: "wool", Cloth: 530, SecondaryCloth: 0, Yarn: 30, Fine: true, GeneratedProduct: false, Minimum: 35, Difficulty: Difficulty.Normal),
+			(StableReference: "antiquity_fine_wool_braccae", Name: "assemble fine wool braccae", DisplayName: "fine wool braccae", Material: "wool", Cloth: 470, SecondaryCloth: 0, Yarn: 30, Fine: true, GeneratedProduct: false, Minimum: 35, Difficulty: Difficulty.Hard),
+			(StableReference: "antiquity_fine_checked_wool_cloak", Name: "assemble a fine checked wool cloak", DisplayName: "a fine checked wool cloak", Material: "wool", Cloth: 900, SecondaryCloth: 250, Yarn: 45, Fine: true, GeneratedProduct: true, Minimum: 40, Difficulty: Difficulty.Hard),
+			(StableReference: "antiquity_long_sleeved_wool_tunic", Name: "assemble a long sleeved wool tunic", DisplayName: "a long sleeved wool tunic", Material: "wool", Cloth: 650, SecondaryCloth: 0, Yarn: 30, Fine: false, GeneratedProduct: false, Minimum: 20, Difficulty: Difficulty.Normal),
+			(StableReference: "antiquity_wool_wrap_skirt", Name: "assemble a wool wrap skirt", DisplayName: "a wool wrap skirt", Material: "wool", Cloth: 535, SecondaryCloth: 0, Yarn: 25, Fine: false, GeneratedProduct: false, Minimum: 15, Difficulty: Difficulty.Normal),
+			(StableReference: "antiquity_broad_wool_mantle", Name: "assemble a broad wool mantle", DisplayName: "a broad wool mantle", Material: "wool", Cloth: 960, SecondaryCloth: 0, Yarn: 35, Fine: false, GeneratedProduct: false, Minimum: 20, Difficulty: Difficulty.Normal),
+			(StableReference: "antiquity_fine_sleeved_wool_gown", Name: "assemble a fine sleeved wool gown", DisplayName: "a fine sleeved wool gown", Material: "wool", Cloth: 740, SecondaryCloth: 0, Yarn: 40, Fine: true, GeneratedProduct: false, Minimum: 40, Difficulty: Difficulty.Hard),
+			(StableReference: "antiquity_fine_bordered_wool_mantle", Name: "assemble a fine bordered wool mantle", DisplayName: "a fine bordered wool mantle", Material: "wool", Cloth: 910, SecondaryCloth: 0, Yarn: 40, Fine: true, GeneratedProduct: false, Minimum: 40, Difficulty: Difficulty.Hard),
+			(StableReference: "antiquity_linen_shoulder_veil", Name: "assemble a linen shoulder veil", DisplayName: "a linen shoulder veil", Material: "linen", Cloth: 110, SecondaryCloth: 0, Yarn: 10, Fine: true, GeneratedProduct: false, Minimum: 30, Difficulty: Difficulty.Normal)
 		})
 		{
 			var characteristicRequirements = garment.Fine
@@ -1149,7 +1875,7 @@ public partial class ItemSeeder
 				garment.Name,
 				$"assemble {garment.DisplayName} from {garment.Material} garment cloth",
 				garment.Name,
-				$"{garment.Material} cloth being assembled into Celtic clothing",
+				$"{garment.Material} cloth being assembled into clothing",
 				garment.Minimum,
 				garment.Difficulty,
 				garment.GeneratedProduct ? checkedAssemblyPhases : celticAssemblyPhases,
@@ -1183,7 +1909,7 @@ public partial class ItemSeeder
 			IEnumerable<(int Seconds, string Echo, string FailEcho)> phases, IEnumerable<string> inputs,
 			IEnumerable<string> tools, IEnumerable<string> products)
 		{
-			AddCraft(
+			AddAntiquityCraft(
 				name,
 				"Tailoring",
 				blurb,
@@ -1193,16 +1919,11 @@ public partial class ItemSeeder
 				"Tailoring",
 				minimumTraitValue,
 				difficulty,
-				Outcome.MinorFail,
-				5,
-				3,
-				false,
 				phases,
 				inputs,
 				tools,
 				products,
-				[],
-				knowledgeSubtype: "Germanic",
+                knowledgeSubtype: "Germanic",
 				knowledgeDescription: germanicKnowledgeDescription,
 				knowledgeLongDescription: germanicKnowledgeDescription);
 		}
@@ -1243,17 +1964,17 @@ public partial class ItemSeeder
 
 		foreach (var garment in new[]
 		{
-			(StableReference: "antiquity_straight_wool_tunic", Name: "assemble a Germanic straight wool tunic", DisplayName: "a Germanic straight wool tunic", Material: "wool", Cloth: 620, SecondaryCloth: 0, Yarn: 30, Fine: false, GeneratedProduct: false, Minimum: 15, Difficulty: Difficulty.Easy),
-			(StableReference: "antiquity_narrow_wool_trousers", Name: "assemble Germanic narrow wool trousers", DisplayName: "Germanic narrow wool trousers", Material: "wool", Cloth: 515, SecondaryCloth: 0, Yarn: 25, Fine: false, GeneratedProduct: false, Minimum: 15, Difficulty: Difficulty.Normal),
-			(StableReference: "antiquity_heavy_wool_cloak", Name: "assemble a Germanic heavy wool cloak", DisplayName: "a Germanic heavy wool cloak", Material: "wool", Cloth: 1210, SecondaryCloth: 0, Yarn: 45, Fine: false, GeneratedProduct: false, Minimum: 20, Difficulty: Difficulty.Normal),
-			(StableReference: "antiquity_fine_banded_wool_tunic", Name: "assemble a Germanic fine banded wool tunic", DisplayName: "a Germanic fine banded wool tunic", Material: "wool", Cloth: 570, SecondaryCloth: 0, Yarn: 35, Fine: true, GeneratedProduct: false, Minimum: 35, Difficulty: Difficulty.Normal),
-			(StableReference: "antiquity_fine_tapered_wool_trousers", Name: "assemble Germanic fine tapered wool trousers", DisplayName: "Germanic fine tapered wool trousers", Material: "wool", Cloth: 495, SecondaryCloth: 0, Yarn: 30, Fine: true, GeneratedProduct: false, Minimum: 35, Difficulty: Difficulty.Hard),
-			(StableReference: "antiquity_long_straight_wool_tunic", Name: "assemble a Germanic long straight wool tunic", DisplayName: "a Germanic long straight wool tunic", Material: "wool", Cloth: 670, SecondaryCloth: 0, Yarn: 30, Fine: false, GeneratedProduct: false, Minimum: 20, Difficulty: Difficulty.Normal),
-			(StableReference: "antiquity_overlapping_wool_skirt", Name: "assemble a Germanic overlapping wool skirt", DisplayName: "a Germanic overlapping wool skirt", Material: "wool", Cloth: 570, SecondaryCloth: 0, Yarn: 25, Fine: false, GeneratedProduct: false, Minimum: 15, Difficulty: Difficulty.Normal),
-			(StableReference: "antiquity_checked_wool_scarf", Name: "assemble a Germanic checked wool scarf", DisplayName: "a Germanic checked wool scarf", Material: "wool", Cloth: 210, SecondaryCloth: 40, Yarn: 12, Fine: false, GeneratedProduct: true, Minimum: 20, Difficulty: Difficulty.Normal),
-			(StableReference: "antiquity_fine_long_wool_gown", Name: "assemble a Germanic fine long wool gown", DisplayName: "a Germanic fine long wool gown", Material: "wool", Cloth: 780, SecondaryCloth: 0, Yarn: 40, Fine: true, GeneratedProduct: false, Minimum: 40, Difficulty: Difficulty.Hard),
-			(StableReference: "antiquity_fine_heavy_wool_mantle", Name: "assemble a Germanic fine heavy wool mantle", DisplayName: "a Germanic fine heavy wool mantle", Material: "wool", Cloth: 1010, SecondaryCloth: 0, Yarn: 40, Fine: true, GeneratedProduct: false, Minimum: 40, Difficulty: Difficulty.Hard),
-			(StableReference: "antiquity_linen_head_veil", Name: "assemble a Germanic linen head veil", DisplayName: "a Germanic linen head veil", Material: "linen", Cloth: 120, SecondaryCloth: 0, Yarn: 10, Fine: true, GeneratedProduct: false, Minimum: 30, Difficulty: Difficulty.Normal)
+			(StableReference: "antiquity_straight_wool_tunic", Name: "assemble a straight wool tunic", DisplayName: "a straight wool tunic", Material: "wool", Cloth: 620, SecondaryCloth: 0, Yarn: 30, Fine: false, GeneratedProduct: false, Minimum: 15, Difficulty: Difficulty.Easy),
+			(StableReference: "antiquity_narrow_wool_trousers", Name: "assemble narrow wool trousers", DisplayName: "narrow wool trousers", Material: "wool", Cloth: 515, SecondaryCloth: 0, Yarn: 25, Fine: false, GeneratedProduct: false, Minimum: 15, Difficulty: Difficulty.Normal),
+			(StableReference: "antiquity_heavy_wool_cloak", Name: "assemble a heavy wool cloak", DisplayName: "a heavy wool cloak", Material: "wool", Cloth: 1210, SecondaryCloth: 0, Yarn: 45, Fine: false, GeneratedProduct: false, Minimum: 20, Difficulty: Difficulty.Normal),
+			(StableReference: "antiquity_fine_banded_wool_tunic", Name: "assemble a fine banded wool tunic", DisplayName: "a fine banded wool tunic", Material: "wool", Cloth: 570, SecondaryCloth: 0, Yarn: 35, Fine: true, GeneratedProduct: false, Minimum: 35, Difficulty: Difficulty.Normal),
+			(StableReference: "antiquity_fine_tapered_wool_trousers", Name: "assemble fine tapered wool trousers", DisplayName: "fine tapered wool trousers", Material: "wool", Cloth: 495, SecondaryCloth: 0, Yarn: 30, Fine: true, GeneratedProduct: false, Minimum: 35, Difficulty: Difficulty.Hard),
+			(StableReference: "antiquity_long_straight_wool_tunic", Name: "assemble a long straight wool tunic", DisplayName: "a long straight wool tunic", Material: "wool", Cloth: 670, SecondaryCloth: 0, Yarn: 30, Fine: false, GeneratedProduct: false, Minimum: 20, Difficulty: Difficulty.Normal),
+			(StableReference: "antiquity_overlapping_wool_skirt", Name: "assemble an overlapping wool skirt", DisplayName: "an overlapping wool skirt", Material: "wool", Cloth: 570, SecondaryCloth: 0, Yarn: 25, Fine: false, GeneratedProduct: false, Minimum: 15, Difficulty: Difficulty.Normal),
+			(StableReference: "antiquity_checked_wool_scarf", Name: "assemble a checked wool scarf", DisplayName: "a checked wool scarf", Material: "wool", Cloth: 210, SecondaryCloth: 40, Yarn: 12, Fine: false, GeneratedProduct: true, Minimum: 20, Difficulty: Difficulty.Normal),
+			(StableReference: "antiquity_fine_long_wool_gown", Name: "assemble a fine long wool gown", DisplayName: "a fine long wool gown", Material: "wool", Cloth: 780, SecondaryCloth: 0, Yarn: 40, Fine: true, GeneratedProduct: false, Minimum: 40, Difficulty: Difficulty.Hard),
+			(StableReference: "antiquity_fine_heavy_wool_mantle", Name: "assemble a fine heavy wool mantle", DisplayName: "a fine heavy wool mantle", Material: "wool", Cloth: 1010, SecondaryCloth: 0, Yarn: 40, Fine: true, GeneratedProduct: false, Minimum: 40, Difficulty: Difficulty.Hard),
+			(StableReference: "antiquity_linen_head_veil", Name: "assemble a linen head veil", DisplayName: "a linen head veil", Material: "linen", Cloth: 120, SecondaryCloth: 0, Yarn: 10, Fine: true, GeneratedProduct: false, Minimum: 30, Difficulty: Difficulty.Normal)
 		})
 		{
 			var characteristicRequirements = garment.Fine
@@ -1273,7 +1994,7 @@ public partial class ItemSeeder
 				garment.Name,
 				$"assemble {garment.DisplayName} from {garment.Material} garment cloth",
 				garment.Name,
-				$"{garment.Material} cloth being assembled into Germanic clothing",
+				$"{garment.Material} cloth being assembled into clothing",
 				garment.Minimum,
 				garment.Difficulty,
 				garment.GeneratedProduct ? patternedAssemblyPhases : germanicAssemblyPhases,
@@ -1283,10 +2004,10 @@ public partial class ItemSeeder
 		}
 
 		AddGermanicGarmentCraft(
-			"assemble a Germanic fur-lined wool cloak",
-			"assemble a Germanic fur-lined wool cloak from fine wool cloth and fur lining stock",
-			"assemble a Germanic fur-lined wool cloak",
-			"fine wool and fur being assembled into Germanic winter clothing",
+			"assemble a fur-lined wool cloak",
+			"assemble a fur-lined wool cloak from fine wool cloth and fur lining stock",
+			"assemble a fur-lined wool cloak",
+			"fine wool and fur being assembled into winter clothing",
 			40,
 			Difficulty.Hard,
 			furLinedAssemblyPhases,
@@ -1299,10 +2020,10 @@ public partial class ItemSeeder
 			[StableVariableProduct("antiquity_fur_lined_wool_cloak", true)]);
 
 		AddGermanicGarmentCraft(
-			"assemble a Germanic woolly skin cape",
-			"assemble a Germanic woolly skin cape from processed hair-on skin",
-			"assemble a Germanic woolly skin cape",
-			"hair-on animal skin being assembled into Germanic winter clothing",
+			"assemble a woolly skin cape",
+			"assemble a woolly skin cape from processed hair-on skin",
+			"assemble a woolly skin cape",
+			"hair-on animal skin being assembled into winter clothing",
 			25,
 			Difficulty.Normal,
 			skinCapePhases,
@@ -1339,7 +2060,7 @@ public partial class ItemSeeder
 			IEnumerable<(int Seconds, string Echo, string FailEcho)> phases, IEnumerable<string> inputs,
 			IEnumerable<string> tools, IEnumerable<string> products)
 		{
-			AddCraft(
+			AddAntiquityCraft(
 				name,
 				"Tailoring",
 				blurb,
@@ -1349,16 +2070,11 @@ public partial class ItemSeeder
 				"Tailoring",
 				minimumTraitValue,
 				difficulty,
-				Outcome.MinorFail,
-				5,
-				3,
-				false,
 				phases,
 				inputs,
 				tools,
 				products,
-				[],
-				knowledgeSubtype: "Kushite",
+                knowledgeSubtype: "Kushite",
 				knowledgeDescription: kushiteKnowledgeDescription,
 				knowledgeLongDescription: kushiteKnowledgeDescription);
 		}
@@ -1390,17 +2106,17 @@ public partial class ItemSeeder
 
 		foreach (var garment in new[]
 		{
-			(StableReference: "adjacent_antiquity_narrow_linen_kilt", Name: "assemble a Kushite narrow linen kilt", DisplayName: "a Kushite narrow linen kilt", Material: "linen", Cloth: 210, Yarn: 15, BeadStock: 0, Fine: false, Minimum: 10, Difficulty: Difficulty.Easy),
-			(StableReference: "adjacent_antiquity_linen_shoulder_cloth", Name: "assemble a Kushite linen shoulder cloth", DisplayName: "a Kushite linen shoulder cloth", Material: "linen", Cloth: 170, Yarn: 10, BeadStock: 0, Fine: false, Minimum: 10, Difficulty: Difficulty.Easy),
-			(StableReference: "adjacent_antiquity_cotton_wrap_skirt", Name: "assemble a Kushite cotton wrap skirt", DisplayName: "a Kushite cotton wrap skirt", Material: "cotton", Cloth: 310, Yarn: 20, BeadStock: 0, Fine: false, Minimum: 15, Difficulty: Difficulty.Normal),
-			(StableReference: "adjacent_antiquity_sleeveless_linen_tunic", Name: "assemble a Kushite sleeveless linen tunic", DisplayName: "a Kushite sleeveless linen tunic", Material: "linen", Cloth: 285, Yarn: 25, BeadStock: 0, Fine: false, Minimum: 15, Difficulty: Difficulty.Normal),
-			(StableReference: "adjacent_antiquity_fringed_linen_robe", Name: "assemble a Kushite fringed linen robe", DisplayName: "a Kushite fringed linen robe", Material: "linen", Cloth: 500, Yarn: 40, BeadStock: 0, Fine: true, Minimum: 35, Difficulty: Difficulty.Hard),
-			(StableReference: "adjacent_antiquity_tasseled_linen_shawl", Name: "assemble a Kushite tasseled linen shawl", DisplayName: "a Kushite tasseled linen shawl", Material: "linen", Cloth: 190, Yarn: 30, BeadStock: 0, Fine: true, Minimum: 30, Difficulty: Difficulty.Normal),
-			(StableReference: "adjacent_antiquity_tall_linen_headdress", Name: "assemble a Kushite tall linen headdress", DisplayName: "a Kushite tall linen headdress", Material: "linen", Cloth: 235, Yarn: 25, BeadStock: 0, Fine: true, Minimum: 35, Difficulty: Difficulty.Hard),
-			(StableReference: "adjacent_antiquity_beaded_linen_girdle", Name: "assemble a Kushite beaded linen girdle", DisplayName: "a Kushite beaded linen girdle", Material: "linen", Cloth: 210, Yarn: 25, BeadStock: 40, Fine: true, Minimum: 40, Difficulty: Difficulty.Hard),
-			(StableReference: "adjacent_antiquity_cotton_draped_dress", Name: "assemble a Kushite cotton draped dress", DisplayName: "a Kushite cotton draped dress", Material: "cotton", Cloth: 430, Yarn: 30, BeadStock: 0, Fine: true, Minimum: 35, Difficulty: Difficulty.Hard),
-			(StableReference: "adjacent_antiquity_linen_bead_apron", Name: "assemble a Kushite linen bead apron", DisplayName: "a Kushite linen bead apron", Material: "linen", Cloth: 150, Yarn: 20, BeadStock: 50, Fine: true, Minimum: 35, Difficulty: Difficulty.Normal),
-			(StableReference: "adjacent_antiquity_plain_cotton_headcloth", Name: "assemble a Kushite plain cotton headcloth", DisplayName: "a Kushite plain cotton headcloth", Material: "cotton", Cloth: 80, Yarn: 8, BeadStock: 0, Fine: false, Minimum: 10, Difficulty: Difficulty.Easy)
+			(StableReference: "adjacent_antiquity_narrow_linen_kilt", Name: "assemble a river-valley narrow linen kilt", DisplayName: "a river-valley narrow linen kilt", Material: "linen", Cloth: 210, Yarn: 15, BeadStock: 0, Fine: false, Minimum: 10, Difficulty: Difficulty.Easy),
+			(StableReference: "adjacent_antiquity_linen_shoulder_cloth", Name: "assemble a river-valley linen shoulder cloth", DisplayName: "a river-valley linen shoulder cloth", Material: "linen", Cloth: 170, Yarn: 10, BeadStock: 0, Fine: false, Minimum: 10, Difficulty: Difficulty.Easy),
+			(StableReference: "adjacent_antiquity_cotton_wrap_skirt", Name: "assemble a river-valley cotton wrap skirt", DisplayName: "a river-valley cotton wrap skirt", Material: "cotton", Cloth: 310, Yarn: 20, BeadStock: 0, Fine: false, Minimum: 15, Difficulty: Difficulty.Normal),
+			(StableReference: "adjacent_antiquity_sleeveless_linen_tunic", Name: "assemble a river-valley sleeveless linen tunic", DisplayName: "a river-valley sleeveless linen tunic", Material: "linen", Cloth: 285, Yarn: 25, BeadStock: 0, Fine: false, Minimum: 15, Difficulty: Difficulty.Normal),
+			(StableReference: "adjacent_antiquity_fringed_linen_robe", Name: "assemble a river-valley fringed linen robe", DisplayName: "a river-valley fringed linen robe", Material: "linen", Cloth: 500, Yarn: 40, BeadStock: 0, Fine: true, Minimum: 35, Difficulty: Difficulty.Hard),
+			(StableReference: "adjacent_antiquity_tasseled_linen_shawl", Name: "assemble a river-valley tasseled linen shawl", DisplayName: "a river-valley tasseled linen shawl", Material: "linen", Cloth: 190, Yarn: 30, BeadStock: 0, Fine: true, Minimum: 30, Difficulty: Difficulty.Normal),
+			(StableReference: "adjacent_antiquity_tall_linen_headdress", Name: "assemble a river-valley tall linen headdress", DisplayName: "a river-valley tall linen headdress", Material: "linen", Cloth: 235, Yarn: 25, BeadStock: 0, Fine: true, Minimum: 35, Difficulty: Difficulty.Hard),
+			(StableReference: "adjacent_antiquity_beaded_linen_girdle", Name: "assemble a river-valley beaded linen girdle", DisplayName: "a river-valley beaded linen girdle", Material: "linen", Cloth: 210, Yarn: 25, BeadStock: 40, Fine: true, Minimum: 40, Difficulty: Difficulty.Hard),
+			(StableReference: "adjacent_antiquity_cotton_draped_dress", Name: "assemble a river-valley cotton draped dress", DisplayName: "a river-valley cotton draped dress", Material: "cotton", Cloth: 430, Yarn: 30, BeadStock: 0, Fine: true, Minimum: 35, Difficulty: Difficulty.Hard),
+			(StableReference: "adjacent_antiquity_linen_bead_apron", Name: "assemble a river-valley linen bead apron", DisplayName: "a river-valley linen bead apron", Material: "linen", Cloth: 150, Yarn: 20, BeadStock: 50, Fine: true, Minimum: 35, Difficulty: Difficulty.Normal),
+			(StableReference: "adjacent_antiquity_plain_cotton_headcloth", Name: "assemble a river-valley plain cotton headcloth", DisplayName: "a river-valley plain cotton headcloth", Material: "cotton", Cloth: 80, Yarn: 8, BeadStock: 0, Fine: false, Minimum: 10, Difficulty: Difficulty.Easy)
 		})
 		{
 			var characteristicRequirements = garment.Fine
@@ -1421,7 +2137,7 @@ public partial class ItemSeeder
 				garment.Name,
 				$"assemble {garment.DisplayName} from {garment.Material} garment cloth",
 				garment.Name,
-				$"{garment.Material} cloth being assembled into Kushite clothing",
+				$"{garment.Material} cloth being assembled into clothing",
 				garment.Minimum,
 				garment.Difficulty,
 				garment.BeadStock > 0 ? kushiteBeadedPhases : kushiteAssemblyPhases,
@@ -1485,7 +2201,7 @@ public partial class ItemSeeder
             IEnumerable<(int Seconds, string Echo, string FailEcho)> phases, IEnumerable<string> inputs,
             IEnumerable<string> tools, IEnumerable<string> products)
         {
-            AddCraft(
+            AddAntiquityCraft(
                 name,
                 "Tailoring",
                 blurb,
@@ -1495,15 +2211,10 @@ public partial class ItemSeeder
                 "Tailoring",
                 minimumTraitValue,
                 difficulty,
-                Outcome.MinorFail,
-                5,
-                3,
-                false,
                 phases,
                 inputs,
                 tools,
                 products,
-                [],
                 knowledgeSubtype: "Egyptian",
                 knowledgeDescription: egyptianKnowledgeDescription,
                 knowledgeLongDescription: egyptianKnowledgeDescription);
@@ -1536,14 +2247,14 @@ public partial class ItemSeeder
 
         foreach (var garment in new[]
         {
-            (StableReference: "adjacent_antiquity_narrow_linen_kilt", Name: "assemble an Egyptian narrow linen kilt", DisplayName: "an Egyptian narrow linen kilt", Cloth: 210, Yarn: 15, BeadStock: 0, Fine: false, Minimum: 10, Difficulty: Difficulty.Easy),
-            (StableReference: "adjacent_antiquity_linen_shoulder_cloth", Name: "assemble an Egyptian linen shoulder cloth", DisplayName: "an Egyptian linen shoulder cloth", Cloth: 170, Yarn: 10, BeadStock: 0, Fine: false, Minimum: 10, Difficulty: Difficulty.Easy),
-            (StableReference: "adjacent_antiquity_sleeveless_linen_tunic", Name: "assemble an Egyptian sleeveless linen tunic", DisplayName: "an Egyptian sleeveless linen tunic", Cloth: 285, Yarn: 25, BeadStock: 0, Fine: false, Minimum: 15, Difficulty: Difficulty.Normal),
-            (StableReference: "adjacent_antiquity_fringed_linen_robe", Name: "assemble an Egyptian fringed linen robe", DisplayName: "an Egyptian fringed linen robe", Cloth: 500, Yarn: 40, BeadStock: 0, Fine: true, Minimum: 35, Difficulty: Difficulty.Hard),
-            (StableReference: "adjacent_antiquity_tasseled_linen_shawl", Name: "assemble an Egyptian tasseled linen shawl", DisplayName: "an Egyptian tasseled linen shawl", Cloth: 190, Yarn: 30, BeadStock: 0, Fine: true, Minimum: 30, Difficulty: Difficulty.Normal),
-            (StableReference: "adjacent_antiquity_tall_linen_headdress", Name: "assemble an Egyptian tall linen headdress", DisplayName: "an Egyptian tall linen headdress", Cloth: 235, Yarn: 25, BeadStock: 0, Fine: true, Minimum: 35, Difficulty: Difficulty.Hard),
-            (StableReference: "adjacent_antiquity_beaded_linen_girdle", Name: "assemble an Egyptian beaded linen girdle", DisplayName: "an Egyptian beaded linen girdle", Cloth: 210, Yarn: 25, BeadStock: 40, Fine: true, Minimum: 40, Difficulty: Difficulty.Hard),
-            (StableReference: "adjacent_antiquity_linen_bead_apron", Name: "assemble an Egyptian linen bead apron", DisplayName: "an Egyptian linen bead apron", Cloth: 150, Yarn: 20, BeadStock: 50, Fine: true, Minimum: 35, Difficulty: Difficulty.Normal)
+            (StableReference: "adjacent_antiquity_narrow_linen_kilt", Name: "assemble a narrow linen kilt", DisplayName: "a narrow linen kilt", Cloth: 210, Yarn: 15, BeadStock: 0, Fine: false, Minimum: 10, Difficulty: Difficulty.Easy),
+            (StableReference: "adjacent_antiquity_linen_shoulder_cloth", Name: "assemble a linen shoulder cloth", DisplayName: "a linen shoulder cloth", Cloth: 170, Yarn: 10, BeadStock: 0, Fine: false, Minimum: 10, Difficulty: Difficulty.Easy),
+            (StableReference: "adjacent_antiquity_sleeveless_linen_tunic", Name: "assemble a sleeveless linen tunic", DisplayName: "a sleeveless linen tunic", Cloth: 285, Yarn: 25, BeadStock: 0, Fine: false, Minimum: 15, Difficulty: Difficulty.Normal),
+            (StableReference: "adjacent_antiquity_fringed_linen_robe", Name: "assemble a fringed linen robe", DisplayName: "a fringed linen robe", Cloth: 500, Yarn: 40, BeadStock: 0, Fine: true, Minimum: 35, Difficulty: Difficulty.Hard),
+            (StableReference: "adjacent_antiquity_tasseled_linen_shawl", Name: "assemble a tasseled linen shawl", DisplayName: "a tasseled linen shawl", Cloth: 190, Yarn: 30, BeadStock: 0, Fine: true, Minimum: 30, Difficulty: Difficulty.Normal),
+            (StableReference: "adjacent_antiquity_tall_linen_headdress", Name: "assemble a tall linen headdress", DisplayName: "a tall linen headdress", Cloth: 235, Yarn: 25, BeadStock: 0, Fine: true, Minimum: 35, Difficulty: Difficulty.Hard),
+            (StableReference: "adjacent_antiquity_beaded_linen_girdle", Name: "assemble a beaded linen girdle", DisplayName: "a beaded linen girdle", Cloth: 210, Yarn: 25, BeadStock: 40, Fine: true, Minimum: 40, Difficulty: Difficulty.Hard),
+            (StableReference: "adjacent_antiquity_linen_bead_apron", Name: "assemble a linen bead apron", DisplayName: "a linen bead apron", Cloth: 150, Yarn: 20, BeadStock: 50, Fine: true, Minimum: 35, Difficulty: Difficulty.Normal)
         })
         {
             var characteristicRequirements = garment.Fine
@@ -1564,7 +2275,7 @@ public partial class ItemSeeder
                 garment.Name,
                 $"assemble {garment.DisplayName} from linen garment cloth",
                 garment.Name,
-                "linen cloth being assembled into Egyptian clothing",
+                "linen cloth being assembled into clothing",
                 garment.Minimum,
                 garment.Difficulty,
                 garment.BeadStock > 0 ? beadedAssemblyPhases : linenAssemblyPhases,

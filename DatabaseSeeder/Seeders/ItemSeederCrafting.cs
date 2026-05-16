@@ -250,6 +250,99 @@ public partial class ItemSeeder
 			["adjacent_antiquity_long_felt_coat"] = "a long $colour felt coat"
 		};
 
+	private static readonly IReadOnlyDictionary<string, string> AntiquityLeatherClothingStableReferences =
+		new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+		{
+			["antiquity_plain_leather_belt"] = "a plain brown leather belt",
+			["antiquity_bronze_buckled_leather_belt"] = "a $colour bronze-buckled belt",
+			["antiquity_plain_leather_sandals"] = "a pair of plain leather sandals",
+			["antiquity_fine_leather_sandals"] = "a pair of fine $colour sandals",
+			["antiquity_soft_leather_shoes"] = "a pair of soft leather shoes",
+			["antiquity_ankle_leather_boots"] = "a pair of ankle leather boots",
+			["antiquity_low_strapped_leather_shoes"] = "a pair of strapped leather shoes",
+			["antiquity_soft_leather_riding_boots"] = "a pair of soft leather riding boots",
+			["adjacent_antiquity_pointed_leather_shoes"] = "a pair of pointed leather shoes",
+			["adjacent_antiquity_fine_pointed_leather_shoes"] = "a pair of fine $colour pointed shoes",
+			["adjacent_antiquity_soft_riding_boots"] = "a pair of soft riding boots",
+			["adjacent_antiquity_fine_linen_sandals"] = "a pair of fine linen-strapped sandals"
+		};
+
+	private static readonly IReadOnlyDictionary<string, string> AntiquityLeatherArmourStableReferences =
+		new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+		{
+			["antiquity_celtic_dyed_leather_scale_vest"] = "a $colour leather scale vest",
+			["antiquity_celtic_bronze_studded_leather_belt"] = "a bronze-studded leather war belt",
+			["antiquity_celtic_leather_war_bracers"] = "a pair of leather war bracers",
+			["antiquity_celtic_fur_lined_war_boots"] = "a pair of fur-lined war boots",
+			["antiquity_germanic_broad_leather_war_belt"] = "a broad leather war belt",
+			["antiquity_germanic_hide_war_bracers"] = "a pair of hide war bracers",
+			["antiquity_germanic_fur_cuffed_high_boots"] = "a pair of fur-cuffed high boots",
+			["antiquity_etruscan_pteruges_leather_girdle"] = "a leather pteruges girdle",
+			["antiquity_etruscan_bronze_studded_sandals"] = "a pair of bronze-studded sandals",
+			["antiquity_roman_plated_military_belt"] = "a plated leather military belt",
+			["antiquity_roman_aproned_military_belt"] = "an apron-fronted military belt",
+			["antiquity_roman_reinforced_caligae"] = "a pair of reinforced leather caligae",
+			["antiquity_roman_leather_field_boots"] = "a pair of leather field boots",
+			["antiquity_hellenic_leather_pteruges_girdle"] = "a leather pteruges girdle",
+			["antiquity_hellenic_bronze_studded_sandals"] = "a pair of bronze-studded sandals",
+			["antiquity_punic_bronze_studded_girdle"] = "a bronze-studded leather girdle",
+			["antiquity_persian_scale_anaxyrides"] = "a pair of scale anaxyrides",
+			["antiquity_persian_soft_riding_boots"] = "a pair of armoured riding boots",
+			["antiquity_egyptian_leather_scale_cuirass"] = "a leather scale cuirass",
+			["antiquity_egyptian_scale_kilt_guard"] = "a leather scale kilt guard",
+			["antiquity_egyptian_leather_archer_bracer"] = "a leather archer bracer",
+			["antiquity_anatolian_leather_cavalry_boots"] = "a pair of leather cavalry boots",
+			["antiquity_scythian_leather_scale_corselet"] = "a leather scale corselet",
+			["antiquity_scythian_conical_scale_cap"] = "a conical scale war cap",
+			["antiquity_scythian_scale_trousers"] = "a pair of leather scale trousers",
+			["antiquity_scythian_high_riding_boots"] = "a pair of high riding boots",
+			["antiquity_kushite_leather_scale_breastguard"] = "a leather scale breastguard",
+			["antiquity_kushite_leather_archer_bracer"] = "a leather archer bracer",
+			["antiquity_kushite_leather_kilt_guard"] = "a leather kilt guard",
+			["antiquity_kushite_sand_armoured_sandals"] = "a pair of armoured leather sandals"
+		};
+
+	private static readonly IReadOnlyDictionary<string, string> AntiquityLeatherContainerStableReferences =
+		new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+		{
+			["antiquity_smoked_hide_meat_bag"] = "a smoked hide provision bag",
+			["antiquity_leather_document_case"] = "a folded leather document case",
+			["antiquity_leather_mirror_case"] = "a tooled leather mirror case",
+			["antiquity_plain_leather_belt_pouch"] = "a plain leather belt pouch",
+			["antiquity_double_strap_travel_pack"] = "a double-strapped leather pack",
+			["antiquity_fur_lined_forager_bag"] = "a fur-lined forager's bag",
+			["antiquity_deer_leather_game_bag"] = "a deer-leather game bag",
+			["antiquity_folded_tablet_wallet"] = "a folded leather tablet wallet",
+			["antiquity_round_coin_purse"] = "a round leather coin purse",
+			["antiquity_leather_dispatch_satchel"] = "a leather dispatch satchel",
+			["antiquity_wide_belt_document_pouch"] = "a wide leather document pouch",
+			["antiquity_steppe_saddlebag_pack"] = "a steppe leather saddlebag pack",
+			["antiquity_steppe_gorytos_case"] = "a tooled leather gorytos case",
+			["antiquity_fur_provision_pouch"] = "a fur provision pouch",
+			["antiquity_liquid_steppe_milk_skin"] = "a dark leather milk skin",
+			["antiquity_liquid_plain_leather_waterskin"] = "a plain leather waterskin",
+			["antiquity_liquid_wide_mouth_waterskin"] = "a wide-mouthed waterskin",
+			["antiquity_liquid_leather_belt_oil_flask"] = "a leather belt oil flask",
+			["antiquity_liquid_hide_ale_skin"] = "a hide ale skin",
+			["antiquity_liquid_birch_stoppered_mead_skin"] = "a birch-stoppered mead skin",
+			["antiquity_liquid_soldier_shoulder_canteen"] = "a leather-covered shoulder canteen",
+			["antiquity_liquid_sailor_water_skin"] = "a tar-dark sailor waterskin",
+			["antiquity_liquid_caravan_waterskin"] = "a large caravan waterskin",
+			["antiquity_liquid_silver_tipped_belt_flask"] = "a silver-tipped belt flask",
+			["antiquity_liquid_felt_covered_riding_canteen"] = "a felt-covered riding canteen",
+			["antiquity_liquid_saddle_waterskin"] = "a saddle-hung waterskin",
+			["antiquity_liquid_steppe_kumis_skin"] = "a patched fermented-milk skin",
+			["antiquity_liquid_tooled_leather_flask"] = "a tooled leather flask",
+			["antiquity_tableware_scythian_leather_travel_cup"] = "a folded leather travel cup"
+		};
+
+	private static readonly IReadOnlyDictionary<string, string> AntiquityLeatherFurnishingStableReferences =
+		new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+		{
+			["antiquity_fur_door_hanging"] = "a fur doorway hanging",
+			["antiquity_leather_tent_door_flap"] = "a leather tent door flap"
+		};
+
 	private sealed record CraftValidationError(string CraftName, string Kind, string ImportText, string Message)
 	{
 		public override string ToString()
@@ -1995,6 +2088,11 @@ return ""You need at least {minimumTraitValue.Value.ToString(System.Globalizatio
 		SeedAntiquityAnatolianClothingCrafts();
 		SeedAntiquityScythianSarmatianClothingCrafts();
 		SeedAntiquityFurnitureAndContainerCrafts();
+		SeedAntiquityLeatherPreparationCrafts();
+		SeedAntiquityLeatherClothingCrafts();
+		SeedAntiquityLeatherArmourCrafts();
+		SeedAntiquityLeatherContainerCrafts();
+		SeedAntiquityLeatherFurnishingCrafts();
 
         AddCraft("sew padded vest", "Armorcrafting", "sew a padded cloth vest", "sewing a padded vest", "a padded vest armormaking event", "HasTailoring", null, null, null, _traits["Tailoring"] ?? _traits["Tailor"] ?? _traits.First().Value, Difficulty.Normal, Outcome.MinorFail, 5, 6, false, [(35, "$0 lay|lays out $i1 and begin|begins to divide it into three pieces - one large, and two smaller sheets, cutting away with $t2. Additionally, when that is done, $0 pick|picks up $t1 and thread|threads $i2 through the needle eye.", "$0 lay|lays out $i1 and begin|begins to divide it into three pieces - one large, and two smaller sheets, cutting away with $t2. Additionally, when that is done, $0 pick|picks up $t1 and thread|threads $i2 through the needle eye."), (30, "$0 set|sets aside the smaller pieces of cloth for the moment, focusing on the larger sheet. $0 further cut|cuts that larger piece into two more pieces, and then sew|sews those pieces together to form a rough sort of case.", "$0 set|sets aside the smaller pieces of cloth for the moment, focusing on the larger sheet. $0 further cut|cuts that larger piece into two more pieces, and then sew|sews those pieces together to form a rough sort of case."), (35, "$0 liberally stuff|stuffs that cloth case with $i3 until it is almost stiff and inflexible, then sew|sews it shut with $t1 to create a padded tube with a hole for someone's head, and two smaller holes for someone's arms.", "$0 liberally stuff|stuffs that cloth case with $i3 until it is almost stiff and inflexible, then sew|sews it shut with $t1 to create a padded tube with a hole for someone's head, and two smaller holes for someone's arms."), (40, "$0 turn|turns to the smaller sheets of cloth, cutting, sewing and padding these sheets until they are amply padded cloth tubes.", "$0 turn|turns to the smaller sheets of cloth, cutting, sewing and padding these sheets until they are amply padded cloth tubes."), (40, "$0 finally begin|begins to sew the padded sleeves to the shoulder arm-holes of the vest, using $i2 to tightly fix them in place.", "$0 finally begin|begins to sew the padded sleeves to the shoulder arm-holes of the vest, using $i2 to tightly fix them in place."), (40, "$0 hold|holds up $p1, checking the piece over critically before setting it aside.", "Unfortunately, shoddy craftsmanship means that $0 end|ends up shredding the terrible vest for $f1.")], ["CommodityTag - 1 kilogram 500 grams of a material tagged as Fabric", "Tag - 1x an item with the Thread tag", "Tag - 50x an item with the Padding tag"], ["TagTool - Held - an item with the Sewing Needle tag", "TagTool - Held - an item with the Scissors tag"], ["SimpleProduct - 1x a padded @material gambeson with long sleeves (#274)"], ["UnusedInput - 45.00% of 50x an item with the Padding tag ($i3)"], [(1, 1)]);
         AddCraft("sew padded cap", "Armorcrafting", "sew a padded cloth cap", "sewing a padded cap", "a padded cap armormaking event", "HasTailoring", null, null, null, _traits["Tailoring"] ?? _traits["Tailor"] ?? _traits.First().Value, Difficulty.Normal, Outcome.MinorFail, 5, 5, false, [(35, "$0 lay|lays out $i1 and begin|begins to divide it into two smaller pieces, cutting with $t2.", "$0 lay|lays out $i1 and begin|begins to divide it into two smaller pieces, cutting with $t2."), (30, "$0 set|sets aside the pattern-shaped pieces of cloth for a moment and instead reach|reaches for $t1 and $i2, threading the end of the thread through the needle.", "$0 set|sets aside the pattern-shaped pieces of cloth for a moment and instead reach|reaches for $t1 and $i2, threading the end of the thread through the needle."), (35, "$0 begin|begins to stitch the two smaller pieces of cloth together, leaving the bowl-shaped case open at one end.", "$0 begin|begins to stitch the two smaller pieces of cloth together, leaving the bowl-shaped case open at one end."), (40, "$0 begin|begins to stuff the case full of $i3 until it is stiff and firmly padded, then stitch|stitches the opening shut.", "$0 begin|begins to stuff the case full of $i3 until it is stiff and firmly padded, then stitch|stitches the opening shut."), (40, "$0 hold|holds up $p1, checking the piece over critically before setting it aside.", "Unfortunately, shoddy craftsmanship means that $0 end|ends up shredding the terrible cap for $f1.")], ["CommodityTag - 500 grams of a material tagged as Fabric", "Tag - 1x an item with the Thread tag", "Tag - 20x an item with the Padding tag"], ["TagTool - Held - an item with the Sewing Needle tag", "TagTool - Held - an item with the Scissors tag"], ["SimpleProduct - 1x a padded @material arming cap (#275)"], ["UnusedInput - 45.00% of 50x an item with the Padding tag ($i3)"], [(1, 1)]);

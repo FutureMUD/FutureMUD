@@ -1,6 +1,6 @@
 # Antiquity Clothing Crafting Suite
 
-This document records the antiquity clothing craft suite as it grows through culture-specific garment slices. The shared upstream chain takes agricultural or animal-fibre commodities through prepared fibre, yarn, cloth, dyeing, fulling, and final assembly. Finished garments are split by culture knowledge so builders can decide which cultural clothing sets appear in their game.
+This document records the antiquity clothing craft suite as it grows through culture-specific garment slices. The shared upstream textile chain takes agricultural or animal-fibre commodities through prepared fibre, yarn, cloth, dyeing, fulling, and final assembly. The leather suite takes raw animal skin through prepared hide, tanned leather, cut soles, straps, thongs, panels, hardened panels, leather scales, and sealed panels before assembling leather clothing, armour, containers, liquid vessels, tableware, and doorway fittings. Finished textile garments remain split by culture knowledge so builders can decide which cultural clothing sets appear in their game.
 
 Historical anchors:
 
@@ -39,7 +39,7 @@ Historical anchors:
 
 `Celtic Textilecraft` covers culturally specific finished garments for the Celtic antiquity slice: sleeved wool tunics, braccae, rectangular cloaks, checked cloaks, mantles, gowns, skirts, and linen veils. The source anchor here is the broad archaeological and iconographic pattern of tunic-trouser-cloak dress, with checked and bordered cloth represented as textile finish rather than as full intermediate item panels.
 
-`Germanic Textilecraft` covers culturally specific finished garments for the northern Germanic antiquity slice: straight wool tunics, narrow trousers, heavy cloaks, checked scarves, gowns, mantles, linen veils, fur-lined cloaks, and woolly skin capes. Hair-on skins and fur lining use existing `Animal Skin` and `Hair` material tags as commodity inputs in this slice; a full tanning/fur-processing chain belongs to a later leather and hide pass.
+`Germanic Textilecraft` covers culturally specific finished garments for the northern Germanic antiquity slice: straight wool tunics, narrow trousers, heavy cloaks, checked scarves, gowns, mantles, linen veils, fur-lined cloaks, and woolly skin capes. Hair-on skins and fur lining use existing `Animal Skin` and `Hair` material tags as commodity inputs in this textile slice; the separate leather chain now handles hide scraping, tanning, and cut leather stock.
 
 `Kushite Textilecraft` covers culturally specific finished garments for the Kushite/Nubian Nile Valley slice: linen kilts, shoulder cloths, tunics, robes, shawls, headdresses, beaded girdles and aprons, cotton wrap skirts, cotton draped dresses, and cotton headcloths. Shared linen production remains culture-neutral, while cotton is added to the shared textile commodity chain so Kushite cotton garments can be craftable from agricultural stock.
 
@@ -51,7 +51,9 @@ Historical anchors:
 
 `Anatolian Textilecraft` covers culturally specific finished garments for Anatolian and Phrygian-adjacent dress: belted wool tunics, banded tunics, leg wraps, hooded cloaks, forward-pointing felt caps, wool capes, patterned robes, fringed mantles, wrapped skirts, and rectangular veils.
 
-`Scythian-Sarmatian Textilecraft` covers culturally specific finished garments for steppe riding dress: felt riding caps, tall felt caps, riding tunics and trousers, open caftans, fur-trimmed caftans, split riding skirts, and long felt coats. The leather riding boots remain out of this pass because hide footwear belongs with the later hide and footwear craft suite.
+`Scythian-Sarmatian Textilecraft` covers culturally specific finished garments for steppe riding dress: felt riding caps, tall felt caps, riding tunics and trousers, open caftans, fur-trimmed caftans, split riding skirts, and long felt coats.
+
+`Ancient Hide and Leatherworking` covers the shared leather path: scraping and dehairing raw animal skin, tanning prepared hides, cutting leather soles, straps, thongs, panels, hardened armour plates, leather scales, and sealed vessel panels, and assembling leather clothing, armour, containers, liquid vessels, tableware, and doorway fittings. It is culture-neutral so the same stock leather economy can support multiple antiquity item sets without duplicating hide preparation.
 
 ## Commodity Tags
 
@@ -69,6 +71,21 @@ The textile commodity hierarchy is seeded under `Material Functions`:
 `Woven Cloth`, `Dyed Cloth`, and `Fulled Cloth` are children of `Garment Cloth`. Finished garment crafts therefore ask for the broad `Garment Cloth` pile tag and can accept undyed woven cloth, dyed cloth, or fulled cloth through tag ancestry.
 
 `Bead Stock` is also seeded under `Material Functions` for lightweight commodity handling of garment beadwork. It is intentionally separate from the textile hierarchy because the stock can be glass or another bead material, but the craft input can still require the commodity pile tag rather than a full item.
+
+The leather commodity hierarchy is also seeded under `Material Functions`:
+
+- `Leather Commodity`
+- `Prepared Hide`
+- `Tanned Leather`
+- `Leather Sole`
+- `Leather Strap`
+- `Leather Thong`
+- `Leather Panel`
+- `Hardened Leather Panel`
+- `Leather Scale`
+- `Sealed Leather Panel`
+
+`Prepared Hide` is produced from commodities tagged `Animal Skin`. `Tanned Leather` carries the colour characteristics from the prepared hide, and the cut sole, strap, thong, panel, hardened-panel, scale, and sealed-panel commodities copy those characteristics forward so variable leather items can inherit their colour from the leather stock.
 
 ## Tool Prototypes
 
@@ -90,6 +107,19 @@ The antiquity rework item seeder adds period-appropriate full item tools where c
 - Oak fuller's trough
 - Oak fuller's mallet
 - Oak cloth tenter frame
+- Bronze awl punch
+- Oak leather stitching clamp
+- Bronze leather edge beveller
+- Bronze leather gouge
+- Bronze leather creaser
+- Oak shoe last
+- Bronze leather wax pot (`Leather Wax Pot`)
+- Bronze hide scraper
+- Oak tanning beam
+- Oak tanning rack
+- Oak tanning paddle
+- Bronze dehairing knife
+- Oak brain-tanning bucket
 
 The missing supporting tool tags are seeded under `Textilecraft Tools / Flax Processing Tools`: `Retting Trough`, `Flax Break`, `Flax Beater`, `Hackle`, and `Fibre Comb`.
 
@@ -263,7 +293,7 @@ All final garments use `Tailoring` plus `Persian Textilecraft`. One-colour texti
 
 ## Etruscan Garment Matrix
 
-All final garments use `Tailoring` plus `Etruscan Textilecraft`. The slice focuses on linen tunics and gowns, wool tebennas and shoulder cloaks, and head mantles. Pointed leather shoes from the same item block remain out of this clothing pass.
+All final garments use `Tailoring` plus `Etruscan Textilecraft`. The slice focuses on linen tunics and gowns, wool tebennas and shoulder cloaks, and head mantles. Pointed leather shoes from the same item block are handled by the shared leather clothing suite.
 
 | Stable Reference | Garment | Material | Cloth Input | Yarn Input | Product Variable Copy |
 | --- | --- | --- | --- | --- | --- |
@@ -295,7 +325,7 @@ All final garments use `Tailoring` plus `Anatolian Textilecraft`. Felt caps cons
 
 ## Scythian-Sarmatian Garment Matrix
 
-All final garments use `Tailoring` plus `Scythian-Sarmatian Textilecraft`. Felt caps and felt coats rely on the shared felt commodity path. The fur-trimmed caftan uses a commodity input tagged `Hair` rather than a full fur trim item. Leather footwear remains out of this clothing pass and belongs in the hide/footwear suite.
+All final garments use `Tailoring` plus `Scythian-Sarmatian Textilecraft`. Felt caps and felt coats rely on the shared felt commodity path. The fur-trimmed caftan uses a commodity input tagged `Hair` rather than a full fur trim item. Leather riding boots from the same catalogue are handled by the shared leather clothing suite.
 
 | Stable Reference | Garment | Material | Cloth Input | Yarn Input | Other Input | Product Variable Copy |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -309,12 +339,120 @@ All final garments use `Tailoring` plus `Scythian-Sarmatian Textilecraft`. Felt 
 | `adjacent_antiquity_split_riding_skirt` | Split riding skirt | Wool | 590g `Garment Cloth` | 30g `Spun Yarn` | None | `Colour` |
 | `adjacent_antiquity_long_felt_coat` | Long felt coat | Felt | 1270g `Garment Cloth` | 50g `Spun Yarn` | None | `Colour`, `Fine Colour` |
 
+## Full Leather Item Suite
+
+The leather item suite uses `Leathermaking`, the `Leatherworking` craft category, and the `Ancient Hide and Leatherworking` knowledge gate. It now covers the full antiquity leather item surface: clothing leather, armour, containers, liquid vessels, tableware, and doorway fittings. The only fur or hide item in the clothing tables outside this shared method is `antiquity_woolly_skin_cape`, which remains with the Germanic textile slice because it is assembled as a hair-on skin garment rather than tanned leatherwork.
+
+Upstream crafts:
+
+| Craft | Inputs | Tools | Products |
+| --- | --- | --- | --- |
+| Scrape and dehair animal hides | 1.6kg material tagged `Animal Skin`, 2L `Water` | Tanning beam, hide scraper, dehairing knife | 1.2kg `Prepared Hide` |
+| Tan prepared hides into leather | 1.2kg `Prepared Hide`, 3L `Water`, 2L liquid tagged `Tanning Agent` | Tanning rack, tanning paddle, brain-tanning bucket | 1kg `Tanned Leather` |
+| Cut leather soles | 700g `Tanned Leather` | Leather gouge, edge beveller | 560g `Leather Sole` |
+| Cut leather straps and thongs | 500g `Tanned Leather` | Leather gouge, edge beveller, leather creaser | 320g `Leather Strap`, 120g `Leather Thong` |
+| Cut leather panels | 1.1kg `Tanned Leather` | Leather gouge, edge beveller, leather creaser | 920g `Leather Panel` |
+| Harden leather panels | 800g `Leather Panel`, 120g beeswax, 1L `Water` | Leather wax pot, hot fire, tanning rack | 760g `Hardened Leather Panel` |
+| Cut hardened leather scales | 650g `Hardened Leather Panel` | Leather gouge, edge beveller, awl punch | 520g `Leather Scale` |
+| Seal leather panels for vessels | 650g `Leather Panel`, 90g beeswax | Leather wax pot, hot fire, leather creaser | 600g `Sealed Leather Panel` |
+
+Final leather clothing crafts:
+
+| Stable Reference | Item | Leather Input | Sole Input | Strap Input | Thong Input | Other Input | Product Helper |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `antiquity_plain_leather_belt` | Plain leather belt | 140g `Tanned Leather` | None | 80g `Leather Strap` | 20g `Leather Thong` | None | `StableSimpleProduct` |
+| `antiquity_bronze_buckled_leather_belt` | Bronze-buckled leather belt | 170g `Tanned Leather` | None | 95g `Leather Strap` | 25g `Leather Thong` | None | `StableVariableProduct` |
+| `antiquity_plain_leather_sandals` | Plain leather sandals | 120g `Tanned Leather` | 210g `Leather Sole` | 120g `Leather Strap` | 30g `Leather Thong` | None | `StableSimpleProduct` |
+| `antiquity_fine_leather_sandals` | Fine leather sandals | 110g `Tanned Leather` | 190g `Leather Sole` | 130g `Leather Strap` | 35g `Leather Thong` | None | `StableVariableProduct` |
+| `antiquity_soft_leather_shoes` | Soft leather shoes | 260g `Tanned Leather` | 220g `Leather Sole` | 90g `Leather Strap` | 40g `Leather Thong` | None | `StableSimpleProduct` |
+| `antiquity_ankle_leather_boots` | Ankle leather boots | 420g `Tanned Leather` | 300g `Leather Sole` | 130g `Leather Strap` | 55g `Leather Thong` | None | `StableSimpleProduct` |
+| `antiquity_low_strapped_leather_shoes` | Strapped leather shoes | 230g `Tanned Leather` | 210g `Leather Sole` | 150g `Leather Strap` | 40g `Leather Thong` | None | `StableSimpleProduct` |
+| `antiquity_soft_leather_riding_boots` | Soft leather riding boots | 520g `Tanned Leather` | 320g `Leather Sole` | 160g `Leather Strap` | 65g `Leather Thong` | None | `StableSimpleProduct` |
+| `adjacent_antiquity_pointed_leather_shoes` | Pointed leather shoes | 250g `Tanned Leather` | 200g `Leather Sole` | 80g `Leather Strap` | 35g `Leather Thong` | None | `StableSimpleProduct` |
+| `adjacent_antiquity_fine_pointed_leather_shoes` | Fine pointed leather shoes | 240g `Tanned Leather` | 190g `Leather Sole` | 90g `Leather Strap` | 40g `Leather Thong` | None | `StableVariableProduct` |
+| `adjacent_antiquity_soft_riding_boots` | Soft riding boots | 440g `Tanned Leather` | 280g `Leather Sole` | 140g `Leather Strap` | 55g `Leather Thong` | None | `StableSimpleProduct` |
+| `adjacent_antiquity_fine_linen_sandals` | Fine linen-strapped sandals | 80g `Tanned Leather` | 180g `Leather Sole` | 40g `Leather Strap` | 25g `Leather Thong` | 45g linen `Spun Yarn` | `StableSimpleProduct` |
+
+Final leather armour crafts:
+
+| Stable Reference | Item |
+| --- | --- |
+| `antiquity_celtic_dyed_leather_scale_vest` | Dyed leather scale vest |
+| `antiquity_celtic_bronze_studded_leather_belt` | Bronze-studded war belt |
+| `antiquity_celtic_leather_war_bracers` | Leather war bracers |
+| `antiquity_celtic_fur_lined_war_boots` | Fur-lined war boots |
+| `antiquity_germanic_broad_leather_war_belt` | Broad leather war belt |
+| `antiquity_germanic_hide_war_bracers` | Hide war bracers |
+| `antiquity_germanic_fur_cuffed_high_boots` | Fur-cuffed high boots |
+| `antiquity_hellenic_leather_pteruges_girdle` | Leather pteruges girdle |
+| `antiquity_hellenic_bronze_studded_sandals` | Bronze-studded leather sandals |
+| `antiquity_etruscan_pteruges_leather_girdle` | Studded pteruges girdle |
+| `antiquity_etruscan_bronze_studded_sandals` | Fitted bronze-studded sandals |
+| `antiquity_roman_plated_military_belt` | Plated military belt |
+| `antiquity_roman_aproned_military_belt` | Apron-fronted military belt |
+| `antiquity_roman_reinforced_caligae` | Reinforced leather caligae |
+| `antiquity_roman_leather_field_boots` | Leather field boots |
+| `antiquity_punic_bronze_studded_girdle` | Bronze-studded leather girdle |
+| `antiquity_persian_scale_anaxyrides` | Scale anaxyrides |
+| `antiquity_persian_soft_riding_boots` | Armoured riding boots |
+| `antiquity_egyptian_leather_scale_cuirass` | Leather scale cuirass |
+| `antiquity_egyptian_scale_kilt_guard` | Scale kilt guard |
+| `antiquity_egyptian_leather_archer_bracer` | Leather archer bracer |
+| `antiquity_anatolian_leather_cavalry_boots` | Leather cavalry boots |
+| `antiquity_scythian_leather_scale_corselet` | Leather scale corselet |
+| `antiquity_scythian_conical_scale_cap` | Conical scale war cap |
+| `antiquity_scythian_scale_trousers` | Leather scale trousers |
+| `antiquity_scythian_high_riding_boots` | High riding boots |
+| `antiquity_kushite_leather_scale_breastguard` | Leather scale breastguard |
+| `antiquity_kushite_leather_archer_bracer` | River-valley leather archer bracer |
+| `antiquity_kushite_leather_kilt_guard` | Leather kilt guard |
+| `antiquity_kushite_sand_armoured_sandals` | Armoured leather sandals |
+
+Final leather container and vessel crafts:
+
+| Stable Reference | Item |
+| --- | --- |
+| `antiquity_smoked_hide_meat_bag` | Smoked hide provision bag |
+| `antiquity_leather_document_case` | Folded leather document case |
+| `antiquity_leather_mirror_case` | Tooled leather mirror case |
+| `antiquity_plain_leather_belt_pouch` | Plain leather belt pouch |
+| `antiquity_double_strap_travel_pack` | Double-strapped leather pack |
+| `antiquity_fur_lined_forager_bag` | Fur-lined forager bag |
+| `antiquity_deer_leather_game_bag` | Deer-leather game bag |
+| `antiquity_folded_tablet_wallet` | Folded leather tablet wallet |
+| `antiquity_round_coin_purse` | Round leather coin purse |
+| `antiquity_leather_dispatch_satchel` | Leather dispatch satchel |
+| `antiquity_wide_belt_document_pouch` | Wide leather document pouch |
+| `antiquity_steppe_saddlebag_pack` | Saddlebag leather pack |
+| `antiquity_steppe_gorytos_case` | Tooled gorytos case |
+| `antiquity_fur_provision_pouch` | Fur provision pouch |
+| `antiquity_liquid_steppe_milk_skin` | Leather milk skin |
+| `antiquity_liquid_plain_leather_waterskin` | Plain leather waterskin |
+| `antiquity_liquid_wide_mouth_waterskin` | Wide-mouthed waterskin |
+| `antiquity_liquid_leather_belt_oil_flask` | Leather belt oil flask |
+| `antiquity_liquid_hide_ale_skin` | Hide ale skin |
+| `antiquity_liquid_birch_stoppered_mead_skin` | Birch-stoppered mead skin |
+| `antiquity_liquid_soldier_shoulder_canteen` | Leather-covered shoulder canteen |
+| `antiquity_liquid_sailor_water_skin` | Tar-dark waterskin |
+| `antiquity_liquid_caravan_waterskin` | Large caravan waterskin |
+| `antiquity_liquid_silver_tipped_belt_flask` | Silver-tipped belt flask |
+| `antiquity_liquid_felt_covered_riding_canteen` | Felt-covered riding canteen |
+| `antiquity_liquid_saddle_waterskin` | Saddle-hung waterskin |
+| `antiquity_liquid_steppe_kumis_skin` | Patched fermented-milk skin |
+| `antiquity_liquid_tooled_leather_flask` | Tooled leather flask |
+| `antiquity_tableware_scythian_leather_travel_cup` | Folded leather travel cup |
+
+Final leather doorway fitting crafts:
+
+| Stable Reference | Item |
+| --- | --- |
+| `antiquity_fur_door_hanging` | Fur doorway hanging |
+| `antiquity_leather_tent_door_flap` | Leather tent door flap |
+
 ## Implementation Notes
 
 The craft suite keeps cloth bolts, yarn spools, and garment panels as commodities in this slice. Full item prototypes are only used for finished garments and durable tools.
 
-The item craft helper resolves rework stable references to generated prototype IDs when constructing `SimpleVariableProduct` and `SimpleProduct` import strings. If an existing database has the garment prototype by short description but not in the in-memory stable-reference dictionary, the helper can still resolve it by short description. The helper currently knows the Hellenic, Egyptian, Roman, Celtic, Germanic, Kushite, Punic, Persian, Etruscan, Anatolian, and Scythian-Sarmatian antiquity clothing stable-reference maps.
+The item craft helper resolves rework stable references to generated prototype IDs when constructing `SimpleVariableProduct` and `SimpleProduct` import strings. If an existing database has the item prototype by short description but not in the in-memory stable-reference dictionary, the helper can still resolve it by short description. The helper currently knows the Hellenic, Egyptian, Roman, Celtic, Germanic, Kushite, Punic, Persian, Etruscan, Anatolian, Scythian-Sarmatian, leather clothing, leather armour, leather container, and leather furnishing stable-reference maps.
 
-Leather footwear remains out of this clothing pass. It needs its own hide and footwear suite so sandal, shoe, boot, sole, strap, thong, awl, last, and leather-preparation inputs can be handled coherently rather than bolted onto textilecraft.
-
-The craft row repeatability rule remains the existing `Name + Category` skip. This slice does not attempt full repair of already-seeded item prototypes in older databases.
+The craft row repeatability rule remains the existing `Name + Category` skip described in `ItemSeeder_AddCraft_Guide.md`. This suite follows the general base-install-truth rule in `DatabaseSeeder_Repeatability_Strategy.md`: culture-neutral names, blurbs, actions, active craft item descriptions, phase echoes, and fail echoes are written directly in the seed data rather than normalized by a follow-up correction layer.

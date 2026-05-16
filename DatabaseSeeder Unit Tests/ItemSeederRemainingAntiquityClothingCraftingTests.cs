@@ -184,7 +184,7 @@ public class ItemSeederRemainingAntiquityClothingCraftingTests
 			"## Anatolian Garment Matrix",
 			"## Scythian-Sarmatian Garment Matrix",
 			"Felt prepared wool fibre into garment felt",
-			"Leather footwear remains out of this clothing pass"
+			"## Full Leather Item Suite"
 		})
 		{
 			AssertContains(designSource, expected);

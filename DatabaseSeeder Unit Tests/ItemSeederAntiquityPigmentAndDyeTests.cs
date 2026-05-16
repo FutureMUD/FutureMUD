@@ -223,7 +223,7 @@ public class ItemSeederAntiquityPigmentAndDyeTests
 	[TestMethod]
 	public void AntiquityHouseholdDesignDoc_DescribesPigmentAndDyeSuite()
 	{
-		var designDoc = ReadSource("Design Documents", "Antiquity_Furniture_Container_Crafting_Suite.md");
+		var designDoc = ReadSource("Design Documents", "Crafting", "Antiquity_Furniture_Container_Crafting_Suite.md");
 
 		foreach (var expected in new[]
 		         {

@@ -102,7 +102,7 @@ public class ItemSeederAntiquityRemainingCraftingTests
 	{
 		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.AntiquityEquipment.cs");
 		var tagSource = ReadSource("DatabaseSeeder", "Seeders", "UsefulSeeder.Tags.cs");
-		var tagHierarchy = ReadSource("Design Documents", "SeededTagHierarchy.csv");
+		var tagHierarchy = ReadSource("Design Documents", "Data", "SeededTagHierarchy.csv");
 
 		foreach (var expected in ExpectedEquipmentStockTags())
 		{

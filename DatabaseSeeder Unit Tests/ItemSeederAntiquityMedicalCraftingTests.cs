@@ -134,7 +134,7 @@ public class ItemSeederAntiquityMedicalCraftingTests
 	{
 		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.AntiquityMedical.cs");
 		var tagSource = ReadSource("DatabaseSeeder", "Seeders", "UsefulSeeder.Tags.cs");
-		var tagHierarchy = ReadSource("Design Documents", "SeededTagHierarchy.csv");
+		var tagHierarchy = ReadSource("Design Documents", "Data", "SeededTagHierarchy.csv");
 
 		foreach (var expected in ExpectedMedicalStockTags())
 		{

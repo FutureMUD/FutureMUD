@@ -28,18 +28,18 @@ Interactive installer that seeds initial database data and configuration for a n
 - Editable-item entities that use composite `(Id, RevisionNumber)` keys are not guaranteed to have database-generated entity IDs. Check the EF mapping or migration before assuming `Id` auto-increments; some tables, such as `DisfigurementTemplates`, need the seeder to allocate the next available entity `Id` manually.
 
 ## Seeder Strategy Reference
-- The full repeatability strategy, audit matrix, and backlog live in [../Design Documents/DatabaseSeeder_Repeatability_Strategy.md](../Design%20Documents/DatabaseSeeder_Repeatability_Strategy.md).
+- The full repeatability strategy, audit matrix, and backlog live in [../Design Documents/Seeding/DatabaseSeeder_Repeatability_Strategy.md](../Design%20Documents/Seeding/DatabaseSeeder_Repeatability_Strategy.md).
 
 ## Economy Seeder Reference
 - The economy documentation suite lives in:
-  - [../Design Documents/Economy_System_Runtime.md](../Design%20Documents/Economy_System_Runtime.md)
-  - [../Design Documents/Economy_System_Workflows_and_Integration.md](../Design%20Documents/Economy_System_Workflows_and_Integration.md)
-  - [../Design Documents/Economy_System_Seeder_State_and_Gaps.md](../Design%20Documents/Economy_System_Seeder_State_and_Gaps.md)
+  - [../Design Documents/Economy/Economy_System_Runtime.md](../Design%20Documents/Economy/Economy_System_Runtime.md)
+  - [../Design Documents/Economy/Economy_System_Workflows_and_Integration.md](../Design%20Documents/Economy/Economy_System_Workflows_and_Integration.md)
+  - [../Design Documents/Economy/Economy_System_Seeder_State_and_Gaps.md](../Design%20Documents/Economy/Economy_System_Seeder_State_and_Gaps.md)
 - `CurrencySeeder` is currently the only dedicated economy seeder. Treat broader economy seeding as an explicit product decision and ground new work in the seeder opportunity matrix documented above.
 
 ## Text Markup Reference
-- [Character Description System](../Design%20Documents/Character_Description_System.md)
-- [Human Seeder Description Patterns](../Design%20Documents/Human_Seeder_Description_Patterns.md)
+- [Character Description System](../Design%20Documents/Markup/Character_Description_System.md)
+- [Human Seeder Description Patterns](../Design%20Documents/Markup/Human_Seeder_Description_Patterns.md)
 
 ## Notes
 - All modules inherit both the solution-level and project-level rules unless explicitly overridden.

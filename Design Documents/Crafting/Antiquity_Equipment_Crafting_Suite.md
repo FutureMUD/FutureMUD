@@ -36,7 +36,7 @@ The suite follows the same stock pattern as the textile, leather, jewellery, and
 
 ## Commodity Tags
 
-All equipment stock tags are seeded under `Functions / Material Functions / Antiquity Equipment Stock` and exported to `Design Documents/SeededTagHierarchy.csv`.
+All equipment stock tags are seeded under `Functions / Material Functions / Antiquity Equipment Stock` and exported to `Design Documents/Data/SeededTagHierarchy.csv`.
 
 | Tag | Purpose |
 | --- | --- |

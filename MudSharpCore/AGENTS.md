@@ -26,15 +26,15 @@ Implements the core FutureMUD game engine and console server handling gameplay, 
 
 ## Economy Documentation Reference
 * For economy runtime work, consult and update:
-  * `../Design Documents/Economy_System_Runtime.md`
-  * `../Design Documents/Economy_System_Workflows_and_Integration.md`
-  * `../Design Documents/Economy_System_Seeder_State_and_Gaps.md`
+  * `../Design Documents/Economy/Economy_System_Runtime.md`
+  * `../Design Documents/Economy/Economy_System_Workflows_and_Integration.md`
+  * `../Design Documents/Economy/Economy_System_Seeder_State_and_Gaps.md`
 * This applies to changes in `MudSharpCore/Economy`, economy command modules, economy-related FutureProg functions, and economy-related game-item or effect integrations.
 
 ## Text Markup Reference
-* [Emote System](../Design%20Documents/Emote%20System.md)
-* [Character Description System](../Design%20Documents/Character_Description_System.md)
-* [Room Description Markup](../Design%20Documents/Room_Description_Markup.md)
+* [Emote System](../Design%20Documents/Markup/Emote_System.md)
+* [Character Description System](../Design%20Documents/Markup/Character_Description_System.md)
+* [Room Description Markup](../Design%20Documents/Markup/Room_Description_Markup.md)
 
 ## Notes
 

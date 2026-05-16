@@ -1,8 +1,8 @@
-# Implementation Plan: Combat Arenas (FutureMUD)
+# FutureMUD Combat Arenas Implementation Plan
 
 Status: Draft for implementation handoff  
 Audience: Specialized implementers (engine, DB, finance, combat, perception, commands, QA, docs)  
-Source Design: `Design Documents/Combat_Arenas_Design.md`
+Source Design: [Combat Arenas Design](./Combat_Arenas_Design.md)
 
 Current Runtime Snapshot (2026-04-10)
 - Elimination terms are now explicit via `ArenaEliminationMode` (`NoElimination`, `PointsElimination`, `KnockDown`, `Knockout`, `Death`).
@@ -700,7 +700,7 @@ Deliverables
 Owner: Tech Lead
 
 Checklist
-- Matches requirements in `Design Documents/Combat_Arenas_Design.md` (features, safety, data‑driven design, business integration).
+- Matches requirements in `Design Documents/Combat/Combat_Arenas_Design.md` (features, safety, data‑driven design, business integration).
 - Crash safety verified; no double‑payouts/refunds; inventory restored.
 - Performance reasonable under typical event sizes; echo mirroring does not overwhelm observers.
 - Docs and seeder enable end‑to‑end run on a fresh database.

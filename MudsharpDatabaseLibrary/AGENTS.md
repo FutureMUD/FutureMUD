@@ -29,8 +29,8 @@ Houses the Entity Framework Core `DbContext`, models, and migrations for the Fut
 
 ## Economy Persistence Reference
 * When changing economy persistence models or migrations, consult and update:
-  * `../Design Documents/Economy_System_Runtime.md`
-  * `../Design Documents/Economy_System_Seeder_State_and_Gaps.md`
+  * `../Design Documents/Economy/Economy_System_Runtime.md`
+  * `../Design Documents/Economy/Economy_System_Seeder_State_and_Gaps.md`
 * This applies to currencies, banks, economic zones, taxes, markets, shoppers, shops, property, auctions, employment, and any future estate persistence work.
 
 ## Notes

@@ -270,7 +270,7 @@ Stock seeders currently bias toward:
 - standard corpses
 - broad anatomical detail for humans and animals
 
-Detailed stock surgery and drugs are handled separately and are described in [Seeder_and_Gaps.md](./Seeder_and_Gaps.md).
+Detailed stock surgery and drugs are handled separately and are described in [Health Seeder State and Gaps](./Health_Seeder_State_and_Gaps.md).
 
 ## Gaps and Extension Pressure
 The current runtime already suggests several extension paths:

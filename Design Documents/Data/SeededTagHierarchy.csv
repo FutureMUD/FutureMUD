@@ -75,6 +75,24 @@ Airtight Container	Container	Functions / Container / Airtight Container
 Open Container	Container	Functions / Container / Open Container
 Porous Container	Container	Functions / Container / Porous Container
 Watertight Container	Container	Functions / Container / Watertight Container
+Writing Surface	Functions	Functions / Writing Surface
+Loose Sheet	Writing Surface	Functions / Writing Surface / Loose Sheet
+Scroll	Writing Surface	Functions / Writing Surface / Scroll
+Codex	Writing Surface	Functions / Writing Surface / Codex
+Wax Tablet	Writing Surface	Functions / Writing Surface / Wax Tablet
+Clay Tablet	Writing Surface	Functions / Writing Surface / Clay Tablet
+Wooden Writing Block	Writing Surface	Functions / Writing Surface / Wooden Writing Block
+Ostracon	Writing Surface	Functions / Writing Surface / Ostracon
+Medical Treatment	Functions	Functions / Medical Treatment
+Bandage	Medical Treatment	Functions / Medical Treatment / Bandage
+Splint	Medical Treatment	Functions / Medical Treatment / Splint
+Tend Kit	Medical Treatment	Functions / Medical Treatment / Tend Kit
+Wound Cleaning	Medical Treatment	Functions / Medical Treatment / Wound Cleaning
+Antiseptic Dressing	Medical Treatment	Functions / Medical Treatment / Antiseptic Dressing
+Suture Kit	Medical Treatment	Functions / Medical Treatment / Suture Kit
+Prosthetic	Medical Treatment	Functions / Medical Treatment / Prosthetic
+Mobility Aid	Medical Treatment	Functions / Medical Treatment / Mobility Aid
+Herbal Remedy	Medical Treatment	Functions / Medical Treatment / Herbal Remedy
 Joining	Functions	Functions / Joining
 Adhesion	Joining	Functions / Joining / Adhesion
 Cement	Adhesion	Functions / Joining / Adhesion / Cement
@@ -141,6 +159,43 @@ Padding	Material Functions	Functions / Material Functions / Padding
 Salvagable Fabric	Material Functions	Functions / Material Functions / Salvagable Fabric
 String	Material Functions	Functions / Material Functions / String
 Tanning Agent	Material Functions	Functions / Material Functions / Tanning Agent
+Antiquity Equipment Stock	Material Functions	Functions / Material Functions / Antiquity Equipment Stock
+Weapon Blade Stock	Antiquity Equipment Stock	Functions / Material Functions / Antiquity Equipment Stock / Weapon Blade Stock
+Weapon Head Stock	Antiquity Equipment Stock	Functions / Material Functions / Antiquity Equipment Stock / Weapon Head Stock
+Weapon Shaft Stock	Antiquity Equipment Stock	Functions / Material Functions / Antiquity Equipment Stock / Weapon Shaft Stock
+Bow Stave	Antiquity Equipment Stock	Functions / Material Functions / Antiquity Equipment Stock / Bow Stave
+Fletching Stock	Antiquity Equipment Stock	Functions / Material Functions / Antiquity Equipment Stock / Fletching Stock
+Military Cord Stock	Antiquity Equipment Stock	Functions / Material Functions / Antiquity Equipment Stock / Military Cord Stock
+Shield Board Stock	Antiquity Equipment Stock	Functions / Material Functions / Antiquity Equipment Stock / Shield Board Stock
+Shield Facing Stock	Antiquity Equipment Stock	Functions / Material Functions / Antiquity Equipment Stock / Shield Facing Stock
+Helmet Bowl Stock	Antiquity Equipment Stock	Functions / Material Functions / Antiquity Equipment Stock / Helmet Bowl Stock
+Armour Plate Stock	Antiquity Equipment Stock	Functions / Material Functions / Antiquity Equipment Stock / Armour Plate Stock
+Armour Ring Stock	Antiquity Equipment Stock	Functions / Material Functions / Antiquity Equipment Stock / Armour Ring Stock
+Armour Scale Stock	Antiquity Equipment Stock	Functions / Material Functions / Antiquity Equipment Stock / Armour Scale Stock
+Armour Lamella Stock	Antiquity Equipment Stock	Functions / Material Functions / Antiquity Equipment Stock / Armour Lamella Stock
+Armour Textile Padding	Antiquity Equipment Stock	Functions / Material Functions / Antiquity Equipment Stock / Armour Textile Padding
+Tool Blank Stock	Antiquity Equipment Stock	Functions / Material Functions / Antiquity Equipment Stock / Tool Blank Stock
+Door Hardware Stock	Antiquity Equipment Stock	Functions / Material Functions / Antiquity Equipment Stock / Door Hardware Stock
+Writing Craft Stock	Material Functions	Functions / Material Functions / Writing Craft Stock
+Papyrus Sheet Stock	Writing Craft Stock	Functions / Material Functions / Writing Craft Stock / Papyrus Sheet Stock
+Parchment Sheet Stock	Writing Craft Stock	Functions / Material Functions / Writing Craft Stock / Parchment Sheet Stock
+Tablet Blank	Writing Craft Stock	Functions / Material Functions / Writing Craft Stock / Tablet Blank
+Waxed Tablet Board	Writing Craft Stock	Functions / Material Functions / Writing Craft Stock / Waxed Tablet Board
+Ink Stock	Writing Craft Stock	Functions / Material Functions / Writing Craft Stock / Ink Stock
+Pen Blank	Writing Craft Stock	Functions / Material Functions / Writing Craft Stock / Pen Blank
+Bookbinding Stock	Writing Craft Stock	Functions / Material Functions / Writing Craft Stock / Bookbinding Stock
+Scrollmaking Stock	Writing Craft Stock	Functions / Material Functions / Writing Craft Stock / Scrollmaking Stock
+Medical Craft Stock	Material Functions	Functions / Material Functions / Medical Craft Stock
+Dressing Stock	Medical Craft Stock	Functions / Material Functions / Medical Craft Stock / Dressing Stock
+Poultice Stock	Medical Craft Stock	Functions / Material Functions / Medical Craft Stock / Poultice Stock
+Salve Stock	Medical Craft Stock	Functions / Material Functions / Medical Craft Stock / Salve Stock
+Decoction Stock	Medical Craft Stock	Functions / Material Functions / Medical Craft Stock / Decoction Stock
+Fumigation Stock	Medical Craft Stock	Functions / Material Functions / Medical Craft Stock / Fumigation Stock
+Suture Stock	Medical Craft Stock	Functions / Material Functions / Medical Craft Stock / Suture Stock
+Splint Stock	Medical Craft Stock	Functions / Material Functions / Medical Craft Stock / Splint Stock
+Prosthetic Stock	Medical Craft Stock	Functions / Material Functions / Medical Craft Stock / Prosthetic Stock
+Surgical Tool Blank	Medical Craft Stock	Functions / Material Functions / Medical Craft Stock / Surgical Tool Blank
+Herbal Remedy Stock	Medical Craft Stock	Functions / Material Functions / Medical Craft Stock / Herbal Remedy Stock
 Leather Commodity	Material Functions	Functions / Material Functions / Leather Commodity
 Prepared Hide	Leather Commodity	Functions / Material Functions / Leather Commodity / Prepared Hide
 Tanned Leather	Leather Commodity	Functions / Material Functions / Leather Commodity / Tanned Leather
@@ -568,6 +623,7 @@ Safe Dial Manipulator	Locksmithing Tools	Functions / Tools / Locksmithing Tools 
 Torsion Wrench	Locksmithing Tools	Functions / Tools / Locksmithing Tools / Torsion Wrench
 Medical Tools	Tools	Functions / Tools / Medical Tools
 Blood Pressure Monitor	Medical Tools	Functions / Tools / Medical Tools / Blood Pressure Monitor
+Cupping Vessel	Medical Tools	Functions / Tools / Medical Tools / Cupping Vessel
 Dermatoscope	Medical Tools	Functions / Tools / Medical Tools / Dermatoscope
 Electrocardiogram	Medical Tools	Functions / Tools / Medical Tools / Electrocardiogram
 Electroencephalogram	Medical Tools	Functions / Tools / Medical Tools / Electroencephalogram
@@ -575,6 +631,8 @@ Glucometer	Medical Tools	Functions / Tools / Medical Tools / Glucometer
 Height Measuring Scale	Medical Tools	Functions / Tools / Medical Tools / Height Measuring Scale
 Human Blood Typing	Medical Tools	Functions / Tools / Medical Tools / Human Blood Typing
 Mechanical Scale	Medical Tools	Functions / Tools / Medical Tools / Mechanical Scale
+Medicine Strainer	Medical Tools	Functions / Tools / Medical Tools / Medicine Strainer
+Ointment Spatula	Medical Tools	Functions / Tools / Medical Tools / Ointment Spatula
 Ophthalmoscope	Medical Tools	Functions / Tools / Medical Tools / Ophthalmoscope
 Otascope	Medical Tools	Functions / Tools / Medical Tools / Otascope
 Spirometer	Medical Tools	Functions / Tools / Medical Tools / Spirometer
@@ -787,6 +845,7 @@ Watch Glass	Specialised Vessels	Functions / Tools / Scientific Tools / Specialis
 Scribing Tools	Tools	Functions / Tools / Scribing Tools
 Ink Brush	Scribing Tools	Functions / Tools / Scribing Tools / Ink Brush
 Inkwell	Scribing Tools	Functions / Tools / Scribing Tools / Inkwell
+Charcoal Stick	Scribing Tools	Functions / Tools / Scribing Tools / Charcoal Stick
 Pen Knife	Scribing Tools	Functions / Tools / Scribing Tools / Pen Knife
 Quill Pen	Scribing Tools	Functions / Tools / Scribing Tools / Quill Pen
 Reed Pen	Scribing Tools	Functions / Tools / Scribing Tools / Reed Pen
@@ -824,6 +883,7 @@ Mallet	Striking Tools	Functions / Tools / Striking Tools / Mallet
 Surgical Tools	Tools	Functions / Tools / Surgical Tools
 Arterial Clamp	Surgical Tools	Functions / Tools / Surgical Tools / Arterial Clamp
 Bonesaw	Surgical Tools	Functions / Tools / Surgical Tools / Bonesaw
+Cautery Iron	Surgical Tools	Functions / Tools / Surgical Tools / Cautery Iron
 Curette	Surgical Tools	Functions / Tools / Surgical Tools / Curette
 Forceps	Surgical Tools	Functions / Tools / Surgical Tools / Forceps
 DeBakey Forceps	Forceps	Functions / Tools / Surgical Tools / Forceps / DeBakey Forceps
@@ -833,6 +893,7 @@ Tissue Forceps	Forceps	Functions / Tools / Surgical Tools / Forceps / Tissue For
 Intestinal Clamp	Surgical Tools	Functions / Tools / Surgical Tools / Intestinal Clamp
 Scalpel	Surgical Tools	Functions / Tools / Surgical Tools / Scalpel
 Speculum	Surgical Tools	Functions / Tools / Surgical Tools / Speculum
+Surgical Probe	Surgical Tools	Functions / Tools / Surgical Tools / Surgical Probe
 Surgical Retractor	Surgical Tools	Functions / Tools / Surgical Tools / Surgical Retractor
 Surgical Stapler	Surgical Tools	Functions / Tools / Surgical Tools / Surgical Stapler
 Surgical Staples	Surgical Tools	Functions / Tools / Surgical Tools / Surgical Staples
@@ -1101,8 +1162,12 @@ Coffee	Luxury Drinks	Market / Luxury Drinks / Coffee
 Tea	Luxury Drinks	Market / Luxury Drinks / Tea
 Medicine	Market	Market / Medicine
 High-Quality Medicine	Medicine	Market / Medicine / High-Quality Medicine
+Herbal Medicine	Medicine	Market / Medicine / Herbal Medicine
+Prosthetics and Mobility	Medicine	Market / Medicine / Prosthetics and Mobility
 Simple Medicine	Medicine	Market / Medicine / Simple Medicine
 Standard Medicine	Medicine	Market / Medicine / Standard Medicine
+Surgical Supplies	Medicine	Market / Medicine / Surgical Supplies
+Treatment Supplies	Medicine	Market / Medicine / Treatment Supplies
 Military Goods	Market	Market / Military Goods
 Ammunition	Military Goods	Market / Military Goods / Ammunition
 Arrows	Ammunition	Market / Military Goods / Ammunition / Arrows
@@ -1183,9 +1248,15 @@ Wagon Passage	Passenger Transportation	Market / Transportation / Passenger Trans
 Warehousing	Market	Market / Warehousing
 Writing Materials	Market	Market / Writing Materials
 Ink	Writing Materials	Market / Writing Materials / Ink
+Papyrus	Writing Materials	Market / Writing Materials / Papyrus
 Paper	Writing Materials	Market / Writing Materials / Paper
 Parchment	Writing Materials	Market / Writing Materials / Parchment
 Wax Tablets	Writing Materials	Market / Writing Materials / Wax Tablets
+Clay Tablets	Writing Materials	Market / Writing Materials / Clay Tablets
+Writing Implements	Writing Materials	Market / Writing Materials / Writing Implements
+Document Containers	Writing Materials	Market / Writing Materials / Document Containers
+Scrolls	Writing Materials	Market / Writing Materials / Scrolls
+Codices	Writing Materials	Market / Writing Materials / Codices
 Materials		Materials
 Animal Product	Materials	Materials / Animal Product
 Elastomer	Materials	Materials / Elastomer

@@ -259,6 +259,34 @@ public partial class CoreDataSeeder
 			Yield("sand", 85.0, 0.05)
 		];
 
+		StockForageYield[] medicinalField =
+		[
+			Yield("medicinal-herbs", 22.0, 1.6),
+			Yield("yarrow", 12.0, 0.8),
+			Yield("mint", 10.0, 0.7)
+		];
+
+		StockForageYield[] woodlandMedicinals =
+		[
+			Yield("willow-bark", 15.0, 0.4),
+			Yield("foxglove-leaves", 8.0, 0.4),
+			Yield("mandrake-root", 6.0, 0.2)
+		];
+
+		StockForageYield[] aridMedicinals =
+		[
+			Yield("aloe-leaves", 14.0, 0.8),
+			Yield("ephedra-stems", 12.0, 0.7),
+			Yield("aromatic-resins", 10.0, 0.3)
+		];
+
+		StockForageYield[] wetlandMedicinals =
+		[
+			Yield("willow-bark", 18.0, 0.5),
+			Yield("mint", 12.0, 0.9),
+			Yield("yarrow", 10.0, 0.7)
+		];
+
 		StockForageYield[] upland =
 		[
 			Yield("grass", 75.0, 4.0),
@@ -610,38 +638,38 @@ public partial class CoreDataSeeder
 		Add(["Rooftop", "Ghetto Street", "Slum Street", "Poor Street", "Urban Street", "Suburban Street",
 			"Wealthy Street", "Marketplace", "Courtyard", "Forum", "Public Square", "Outdoor Mall", "Alleyway",
 			"Battlement", "Asphalt Road"], urbanScavenge);
-		Add(["Park", "Garden"], urbanNatural, urbanScavenge);
-		Add(["Lawn", "Showground"], lawnLike, urbanScavenge);
+		Add(["Park", "Garden"], urbanNatural, medicinalField, urbanScavenge);
+		Add(["Lawn", "Showground"], lawnLike, medicinalField, urbanScavenge);
 		Add(["Garbage Dump", "Midden Heap"], garbage);
 		Add(["Village Street", "Rural Street", "Animal Trail", "Trail", "Dirt Road"], ruralRoadEdge);
 		Add(["Compacted Dirt Road", "Gravel Road", "Cobblestone Road"], gravelRoadEdge);
 
-		Add(["Grasslands", "Steppe", "Shortgrass Prairie", "Pasture"], openGrassland);
-		Add(["Tallgrass Prairie", "Meadow", "Field"], richGrassland);
+		Add(["Grasslands", "Steppe", "Shortgrass Prairie", "Pasture"], openGrassland, medicinalField);
+		Add(["Tallgrass Prairie", "Meadow", "Field"], richGrassland, medicinalField);
 		Add(["Savannah"], savannah);
-		Add(["Shrublands", "Heath", "Chaparral"], scrub);
+		Add(["Shrublands", "Heath", "Chaparral"], scrub, medicinalField, aridMedicinals);
 		Add(["Tundra"], tundra);
-		Add(["Flood Plain"], richGrassland, freshwaterEdge);
-		Add(["Badlands", "Salt Flat"], sparseArid);
+		Add(["Flood Plain"], richGrassland, medicinalField, freshwaterEdge, wetlandMedicinals);
+		Add(["Badlands", "Salt Flat"], sparseArid, aridMedicinals);
 
 		Add(["Hills", "Foothills", "Mound", "Drumlin", "Butte", "Kuppe", "Mesa", "Canyon", "Knoll", "Moor",
-			"Tell", "Plateau", "Mountainside", "Mountain Pass"], upland);
-		Add(["Dunes"], sparseArid, [Yield("sand", 140.0, 0.05)]);
+			"Tell", "Plateau", "Mountainside", "Mountain Pass"], upland, medicinalField);
+		Add(["Dunes"], sparseArid, aridMedicinals, [Yield("sand", 140.0, 0.05)]);
 		Add(["Escarpment", "Scree Slope", "Talus Field", "Mountain Ridge", "Cliff Face", "Cliff Edge"], rocky);
-		Add(["Valley", "Vale", "Dell", "Glen", "Strath", "Combe", "Ravine", "Gorge", "Gully"], valley);
+		Add(["Valley", "Vale", "Dell", "Glen", "Strath", "Combe", "Ravine", "Gorge", "Gully"], valley, medicinalField, woodlandMedicinals);
 
-		Add(["Boreal Forest", "Broadleaf Forest", "Temperate Coniferous Forest"], forest);
+		Add(["Boreal Forest", "Broadleaf Forest", "Temperate Coniferous Forest"], forest, woodlandMedicinals);
 		Add(["Temperate Rainforest", "Tropical Rainforest"], rainforest);
-		Add(["Bramble"], scrub, [Yield("vines", 90.0, 3.0), Yield("fruit", 55.0, 3.0)]);
-		Add(["Plantation Forest", "Grove", "Woodland"], forest);
+		Add(["Bramble"], scrub, medicinalField, [Yield("vines", 90.0, 3.0), Yield("fruit", 55.0, 3.0)]);
+		Add(["Plantation Forest", "Grove", "Woodland"], forest, woodlandMedicinals);
 		Add(["Orchard"], orchard);
 
-		Add(["Bog", "Fen", "Marsh", "Salt Marsh", "Wetland"], wetland);
-		Add(["Mangrove Swamp", "Swamp Forest", "Tropical Freshwater Swamp", "Temperate Freshwater Swamp"], wetlandForest);
+		Add(["Bog", "Fen", "Marsh", "Salt Marsh", "Wetland"], wetland, wetlandMedicinals);
+		Add(["Mangrove Swamp", "Swamp Forest", "Tropical Freshwater Swamp", "Temperate Freshwater Swamp"], wetlandForest, wetlandMedicinals);
 
-		Add(["Sandy Desert", "Rocky Desert"], sparseArid);
+		Add(["Sandy Desert", "Rocky Desert"], sparseArid, aridMedicinals);
 		Add(["Coastal Desert"], sparseArid, shore);
-		Add(["Oasis"], oasis);
+		Add(["Oasis"], oasis, aridMedicinals, wetlandMedicinals);
 		Add(["Volcanic Plain", "Caldera", "Crater"], volcanic);
 		Add(["Lava Field"], rocky, [Yield("lichen", 20.0, 0.8)]);
 		Add(["Glacier", "Ice Field"], ice);
@@ -653,7 +681,7 @@ public partial class CoreDataSeeder
 
 		Add(["Sandy Beach"], shore);
 		Add(["Rocky Beach", "Beachrock"], rockyShore);
-		Add(["Riverbank", "Lake Shore", "Mudflat"], freshwaterEdge);
+		Add(["Riverbank", "Lake Shore", "Mudflat"], freshwaterEdge, wetlandMedicinals);
 		Add(["Ocean Shallows", "Ocean Surf", "Cove", "Tide Pool", "Shoal"], saltwater);
 		Add(["Ocean", "Bay", "Sound", "Deep Ocean"], openOcean);
 		Add(["Lagoon", "Estuary"], saltwater, freshwater);

@@ -1,29 +1,30 @@
 # Antiquity Furniture and Container Crafting Suite
 
-This document is the implementation plan for making the antiquity furniture, storage, vessel, tableware, lighting, and household furnishing items craftable from `ItemSeeder.Rework.cs` and `ItemSeeder.Rework.Antiquity.cs`.
+This document records the implementation plan for making the antiquity furniture, storage, vessel, tableware, lighting, domestic heating, writing-storage, religious-storage, door, gate, and household furnishing items craftable from `ItemSeeder.Rework.cs` and `ItemSeeder.Rework.Antiquity.cs`.
 
 The current target inventory is:
 
 - `SeedAntiquityContainers`: 243 final item prototypes.
+- `SeedAntiquityDoorsAndLocks`: 66 final item prototypes.
 - `SeedAntiquityHouseholdFurniture`: 89 final item prototypes.
-- Total coverage target: 332 final item crafts, plus the shared tools and commodity/intermediate crafts required to support them.
+- Total coverage target: 398 final item crafts, plus the shared tools and commodity/intermediate crafts required to support them.
 
-The implementation lives in `DatabaseSeeder/Seeders/ItemSeederCrafting.AntiquityHousehold.cs`, with supporting stock tools in `ItemSeeder.Rework.AntiquityHouseholdTools.cs`, new commodity/tool tags in `UsefulSeeder.Tags.cs`, and new skills in `SkillPackageSeeder.cs`.
+The implementation lives in `DatabaseSeeder/Seeders/ItemSeederCrafting.AntiquityHousehold.cs`, with supporting stock tools in `ItemSeeder.Rework.AntiquityHouseholdTools.cs`, new commodity/tool tags in `UsefulSeeder.Tags.cs`, new skills in `SkillPackageSeeder.cs`, and shared construction hardware stock supplied by `ItemSeederCrafting.AntiquityEquipment.cs`.
 
 ## Design Goals
 
-1. Every item currently seeded by `SeedAntiquityContainers` and `SeedAntiquityHouseholdFurniture` should have a stock craft path.
+1. Every item currently seeded by `SeedAntiquityContainers`, `SeedAntiquityDoorsAndLocks`, and `SeedAntiquityHouseholdFurniture` should have a stock craft path when it is tagged as household, writing, religious, lighting, heating, construction, or writing-product stock.
 2. Commodity inputs should be preferred over full-item inputs wherever the input is a mass of material, fittings, fasteners, panels, cloth, clay, wax, glass, metal, reed, leather, or stone stock.
 3. Full items should be used for tools and final products. Full item intermediates should only be used where the object is worth exposing as its own gameplay item.
 4. Final crafts should be knowledge-gated so builders can control which shared techniques and which cultural household suites appear in a game.
-5. The implementation should be testable by comparing the live target catalogue against a dynamic craft discovery pass that covers all antiquity items tagged under `Market / Household Goods / ...`.
+5. The implementation should be testable by comparing the live target catalogue against a dynamic craft discovery pass that covers all antiquity items tagged under the supported domestic and construction roots.
 
 ## Implementation Plan
 
 1. Discover the target item groups dynamically.
-   - Rather than maintaining a 332-row stable-reference dictionary, the implemented craft suite discovers antiquity rework items whose seeded tags sit under `Market / Household Goods / ...`.
-   - This keeps the coverage tied to the furniture/container catalogue itself and means future household additions are craftable as long as they are tagged consistently.
-   - Focused tests assert the current target methods still contain 243 container and 89 household-furniture prototypes, and that the craft suite uses household market-tag discovery.
+   - Rather than maintaining a 398-row stable-reference dictionary, the implemented craft suite discovers antiquity rework items whose seeded tags sit under `Market / Household Goods`, `Market / Writing Materials`, `Market / Religious Goods`, `Market / Lighting`, `Market / Domestic Heating`, `Market / Construction Materials`, or `Materials / Writing Product`.
+   - This keeps the coverage tied to the furniture/container/door catalogue itself and means future household additions are craftable as long as they are tagged consistently.
+   - Focused tests assert the current target methods still contain 243 container, 66 door/lock, and 89 household-furniture prototypes, and that the craft suite uses the expanded tag-root discovery.
 
 2. Seed missing tool prototypes.
    - Add period-appropriate tools in `SeedAntiquityHouseholdFurniture` or a new nearby helper such as `SeedAntiquityHouseholdCraftTools`.
@@ -141,6 +142,8 @@ Add the following reusable commodity tags:
 | `Inlay Stock` | `Household Craft Stock` | Ivory, shell, glass, stone, metal, or coloured detail stock. |
 | `Paint Pigment` | `Household Craft Stock` | Pigment stock for painted vessels, plaques, and furniture. |
 | `Lacquer Finish` | `Household Craft Stock` | Lacquer stock for lacquered boxes and polished finishes. |
+
+The expanded door and gate surface also consumes `Door Hardware Stock`, seeded under `Antiquity Equipment Stock`, for hinges, straps, bars, latches, and similar construction fittings.
 
 Add the following tool tags if they do not already exist:
 

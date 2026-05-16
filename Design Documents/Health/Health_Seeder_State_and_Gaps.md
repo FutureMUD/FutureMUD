@@ -335,6 +335,10 @@ Primitive examples include:
 - `Mint Infusion`
 - `Ephedra Brew`
 - `Foxglove Tincture`
+- `Aloe Burn Salve`
+- `Poppy Latex Draught`
+- `Henbane Smoke`
+- `Yarrow Styptic`
 
 Pre-modern examples include:
 
@@ -367,6 +371,8 @@ Modern examples include:
 
 These stock drugs now exercise a much larger share of the runtime drug framework, including analgesia, anesthesia, antibiotics, antifungals, nausea control, paralysis, adrenaline, stamina support, organ support, healing-rate modifiers, immunosuppression, and drug neutralisation.
 
+Drug delivery component seeding now covers ingested, touched, and inhaled vectors through `Pill_*`, `TopicalCream_*`, and `Smokeable_*` component prototypes.
+
 This is much broader than the old stock seeding, but it is still narrower than the full runtime drug framework.
 
 ### Item seeders
@@ -382,6 +388,8 @@ Representative seeded content includes:
 - suturing kits and needles
 - forceps and related minor surgical tools
 - cannula items
+
+The antiquity rework layer adds a dedicated medical package on top of those generic examples. It seeds low-tech component-backed treatment supplies, surgical tools, herbal remedy items, drug smoke/fumigation items, crutches, canes, and simple prosthetics, and it registers the matching upstream commodity and final crafts through `SeedAntiquityMedicalCrafts()`.
 
 `UsefulSeeder` also seeds treatment component prototypes and support content such as:
 

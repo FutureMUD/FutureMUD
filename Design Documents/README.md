@@ -35,7 +35,10 @@ This folder is organised by subsystem so implementation notes, builder workflows
 
 ## Crafting
 - [Antiquity Clothing Crafting Suite](./Crafting/Antiquity_Hellenic_Clothing_Crafting_Suite.md)
+- [Antiquity Equipment Crafting Suite](./Crafting/Antiquity_Equipment_Crafting_Suite.md)
 - [Antiquity Furniture and Container Crafting Suite](./Crafting/Antiquity_Furniture_Container_Crafting_Suite.md)
+- [Antiquity Medical Crafting Suite](./Crafting/Antiquity_Medical_Crafting_Suite.md)
+- [Antiquity Writing Implements and Documents Crafting Suite](./Crafting/Antiquity_Writing_Implements_Crafting_Suite.md)
 - [Butchering System](./Crafting/Butchering_System.md)
 - [Crafting System Overview](./Crafting/Crafting_System_Overview.md)
 - [Crafting System Runtime and Extensibility](./Crafting/Crafting_System_Runtime_and_Extensibility.md)

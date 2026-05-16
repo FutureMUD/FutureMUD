@@ -26,7 +26,13 @@ public class ItemSeederAntiquityHouseholdCraftingTests
 		var craftRoot = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.cs");
 
 		AssertContains(craftRoot, "SeedAntiquityFurnitureAndContainerCrafts();");
-		AssertContains(craftSource, "Market / Household Goods /");
+		AssertContains(craftSource, "Market / Household Goods");
+		AssertContains(craftSource, "Market / Writing Materials");
+		AssertContains(craftSource, "Market / Religious Goods");
+		AssertContains(craftSource, "Market / Lighting");
+		AssertContains(craftSource, "Market / Domestic Heating");
+		AssertContains(craftSource, "Market / Construction Materials");
+		AssertContains(craftSource, "Materials / Writing Product");
 		AssertContains(craftSource, "GameItemProtosTags.Any");
 		AssertContains(craftSource, "SeedAntiquityHouseholdIntermediateCommodityCrafts();");
 		AssertContains(craftSource, "targetItems");
@@ -56,6 +62,7 @@ public class ItemSeederAntiquityHouseholdCraftingTests
 			"Inlay Stock",
 			"Paint Pigment",
 			"Lacquer Finish",
+			"Door Hardware Stock",
 			"SimpleVariableProduct - 1x"
 		})
 		{

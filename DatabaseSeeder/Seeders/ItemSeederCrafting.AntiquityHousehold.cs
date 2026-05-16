@@ -19,6 +19,17 @@ public partial class ItemSeeder
 	private const string AncientStoneCarvingKnowledge = "Ancient Stone Bone and Horn Carving";
 	private const string AncientLightingKnowledge = "Ancient Lighting and Heating";
 
+	private static readonly string[] AntiquityHouseholdCraftMarketRoots =
+	[
+		"Market / Household Goods",
+		"Market / Writing Materials",
+		"Market / Religious Goods",
+		"Market / Lighting",
+		"Market / Domestic Heating",
+		"Market / Construction Materials",
+		"Materials / Writing Product"
+	];
+
 	private sealed record AntiquityHouseholdCraftPath(
 		string Category,
 		string Skill,
@@ -111,13 +122,11 @@ public partial class ItemSeeder
 
 		SeedAntiquityHouseholdIntermediateCommodityCrafts();
 
-		var householdTagIds = _tagsByFullPath
-			.Where(x => x.Key.StartsWith("Market / Household Goods /", StringComparison.OrdinalIgnoreCase))
-			.Select(x => x.Value.Id)
-			.ToHashSet();
+		var householdTagIds = GetTagIdsUnderRoots(AntiquityHouseholdCraftMarketRoots);
 
 		var targetItems = _items
 			.Where(x => x.Key.StartsWith("antiquity_", StringComparison.OrdinalIgnoreCase))
+			.Where(x => !IsAntiquityWritingSuiteStableReference(x.Key))
 			.Where(x => x.Value.GameItemProtosTags.Any(y => householdTagIds.Contains(y.TagId)))
 			.OrderBy(x => x.Key, StringComparer.OrdinalIgnoreCase)
 			.ToList();
@@ -684,6 +693,14 @@ public partial class ItemSeeder
 		    !material.Equals("bronze", StringComparison.OrdinalIgnoreCase))
 		{
 			AddInput(CommodityInput(250.0, "bronze", "Cast Vessel Blank"));
+		}
+
+		if (ContainsAny(lowerStable, "door", "gate", "wicket") ||
+		    ContainsAny(lowerDescription, "door", "gate", "wicket"))
+		{
+			AddInput(CommodityInput(350.0,
+				lowerDescription.Contains("iron", StringComparison.OrdinalIgnoreCase) ? "wrought iron" : "bronze",
+				"Door Hardware Stock"));
 		}
 
 		if (lowerDescription.Contains("gold", StringComparison.OrdinalIgnoreCase) &&

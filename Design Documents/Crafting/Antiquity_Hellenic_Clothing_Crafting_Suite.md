@@ -2,6 +2,8 @@
 
 This document records the antiquity clothing craft suite as it grows through culture-specific garment slices. The shared upstream textile chain takes agricultural or animal-fibre commodities through prepared fibre, yarn, cloth, dyeing, fulling, and final assembly. The leather suite takes raw animal skin through prepared hide, tanned leather, cut soles, straps, thongs, panels, hardened panels, leather scales, and sealed panels before assembling leather clothing, armour, containers, liquid vessels, tableware, and doorway fittings. Finished textile garments remain split by culture knowledge so builders can decide which cultural clothing sets appear in their game.
 
+The remaining common, culture-neutral clothing/accessory items from `SeedAntiquityClothing` now live in the equipment craft pass rather than in the culture-specific garment matrices: loincloths, breastbands, woven sashes, papyrus sandals, linen headcloths and shawls, front-knotted girdles, felt caps, the kyrbasia-style cap, the fluted felt hat, and the glass usekh collar. That same pass also makes the 29 antiquity textile/leather craft-tool prototypes craftable from reusable tool-blank stock. Visible craft names and echoes for these common/equipment crafts stay culture-neutral; any cultural specificity remains in seeded item descriptions or knowledge metadata.
+
 Historical anchors:
 
 - [Met Museum: Ancient Greek Dress](https://www.metmuseum.org/essays/ancient-greek-dress)
@@ -54,6 +56,8 @@ Historical anchors:
 `Scythian-Sarmatian Textilecraft` covers culturally specific finished garments for steppe riding dress: felt riding caps, tall felt caps, riding tunics and trousers, open caftans, fur-trimmed caftans, split riding skirts, and long felt coats.
 
 `Ancient Hide and Leatherworking` covers the shared leather path: scraping and dehairing raw animal skin, tanning prepared hides, cutting leather soles, straps, thongs, panels, hardened armour plates, leather scales, and sealed vessel panels, and assembling leather clothing, armour, containers, liquid vessels, tableware, and doorway fittings. It is culture-neutral so the same stock leather economy can support multiple antiquity item sets without duplicating hide preparation.
+
+`Ancient Common Clothing Crafting` covers the remaining culture-neutral standard clothing and accessory items from the antiquity rework file. It reuses the textile, basketry, bead, military cord, and leather-sole commodities already seeded by the clothing, household, and equipment passes.
 
 ## Commodity Tags
 

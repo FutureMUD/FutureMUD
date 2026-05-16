@@ -138,6 +138,8 @@ Readable documents follow the same copy-on-load principle. `IReadableContentTemp
 
 This distinction is important for persistence. A prototype-authored book page is reusable content; a loaded book page is mutable instance state. Fresh books create independent `PrintedWriting` rows, copied books copy readable rows rather than sharing them, and ordinary handwritten writing can still be added later through the existing `IWriteable` contract if the page has spare capacity. Printed writing rows allow `Writings.AuthorId` to be null, with provenance carried in the writing definition and exposed to FutureProg as `.provenance`.
 
+Ancient and non-paper writing surfaces use the same readable/writeable runtime contract. `ScribingImplement` is a configurable `IWritingImplement` for reed pens, quills, brushes, charcoal sticks, styluses, and similar tools. `InscribableSurface` is a writable/readable component for wax, clay, wood, and ostraca; it stores readable ids in component XML, enforces a configured capacity, and only accepts the configured writing implement types. Non-consuming tools such as styluses use a total-use value of `0`, while ink or charcoal implements can consume use as writing is added.
+
 ### Computers and signal automation pattern
 The planned computer-programs subsystem follows the same composition rules:
 - shared contracts live in `FutureMUDLibrary/Computers`

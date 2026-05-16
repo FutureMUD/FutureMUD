@@ -29,6 +29,22 @@ namespace DatabaseSeeder.Seeders
                                                   TimeSpan? morphTimer,
                                                   string? destroyedItemUniqueReference)
         {
+            if (_items.TryGetValue(stableReference, out var existing))
+            {
+                return existing;
+            }
+
+            existing = _context!.GameItemProtos.Local
+                .FirstOrDefault(x => x.ShortDescription.Equals(sdesc, StringComparison.OrdinalIgnoreCase)) ??
+                       _context.GameItemProtos
+                           .FirstOrDefault(x => x.ShortDescription.Equals(sdesc, StringComparison.OrdinalIgnoreCase));
+            if (existing is not null)
+            {
+                _items[stableReference] = existing;
+                _items[existing.ShortDescription] = existing;
+                return existing;
+            }
+
             GameItemProto dbitem = new()
             {
                 Id = _nextId++,
@@ -98,16 +114,25 @@ namespace DatabaseSeeder.Seeders
 
             _context!.GameItemProtos.Add(dbitem);
             _items[stableReference] = dbitem;
+            _items[dbitem.ShortDescription] = dbitem;
             return dbitem;
         }
 
         
         public void SeedReworkItems()
         {
-            if (_questionAnswers["eras"].Contains("antiquity", StringComparison.InvariantCultureIgnoreCase))
+            if (_questionAnswers?.TryGetValue("eras", out var eras) != true ||
+                string.IsNullOrWhiteSpace(eras))
+            {
+                return;
+            }
+
+            if (eras.Contains("antiquity", StringComparison.InvariantCultureIgnoreCase))
             {
                 SeedAntiquityClothing();
                 SeedAntiquityHouseholdCraftTools();
+                SeedAntiquityWritingImplementsAndDocuments();
+                SeedAntiquityMedicalItems();
                 SeedAntiquityJewellery();
                 SeedAntiquityArmour();
                 SeedAntiquityContainers();
@@ -116,27 +141,27 @@ namespace DatabaseSeeder.Seeders
                 SeedAntiquityWeaponsShieldsAccessories();
             }
 
-            if (_questionAnswers["eras"].Contains("medieval", StringComparison.InvariantCultureIgnoreCase))
+            if (eras.Contains("medieval", StringComparison.InvariantCultureIgnoreCase))
             {
 
             }
 
-            if (_questionAnswers["eras"].Contains("renaissance", StringComparison.InvariantCultureIgnoreCase))
+            if (eras.Contains("renaissance", StringComparison.InvariantCultureIgnoreCase))
             {
 
             }
 
-            if (_questionAnswers["eras"].Contains("earlymodern", StringComparison.InvariantCultureIgnoreCase))
+            if (eras.Contains("earlymodern", StringComparison.InvariantCultureIgnoreCase))
             {
 
             }
 
-            if (_questionAnswers["eras"].Contains("imperial", StringComparison.InvariantCultureIgnoreCase))
+            if (eras.Contains("imperial", StringComparison.InvariantCultureIgnoreCase))
             {
 
             }
 
-            if (_questionAnswers["eras"].Contains("modern", StringComparison.InvariantCultureIgnoreCase))
+            if (eras.Contains("modern", StringComparison.InvariantCultureIgnoreCase))
             {
 
             }

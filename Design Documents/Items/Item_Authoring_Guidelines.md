@@ -1,4 +1,4 @@
-# Item Authoring Guidelines
+# FutureMUD Item Authoring Guidelines
 
 Items in FutureMUD are composed of Item Components that give them functionality. For example, the ability to be worn is given by an IWearable component.
 
@@ -48,9 +48,9 @@ Items in FutureMUD are composed of Item Components that give them functionality.
 
 - Some item component types are mutually exclusive with each other and you can usually only put one of each type on an item (e.g. no more than one IContainer, IOpenable, IMeleeWeapon etc).
 
-- A full list of item component types available is in [Item Component Types](./Item_Component_Types.json)
+- A full list of item component types available is in [Item Component Types](../Data/Item_Component_Types.json)
 
-- A full list of available item component prototypes to attach to items is in [Seeded Item Components](./Seeded_Item_Components.json)
+- A full list of available item component prototypes to attach to items is in [Seeded Item Components](../Data/Seeded_Item_Components.json)
 
 ## Supporting Information
 

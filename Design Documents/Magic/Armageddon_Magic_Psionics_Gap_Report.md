@@ -9,9 +9,9 @@ This report compares the Armageddon spell and psionic inventory in:
 
 against the current FutureMUD magic subsystem as documented in:
 
-- `Design Documents/Magic_System_Implemented_Types.md`
-- `Design Documents/Magic_System_Spells.md`
-- `Design Documents/Magic_System_Powers.md`
+- `Design Documents/Magic/Magic_System_Implemented_Types.md`
+- `Design Documents/Magic/Magic_System_Spells.md`
+- `Design Documents/Magic/Magic_System_Powers.md`
 
 and the current runtime implementations under `MudSharpCore/Magic`.
 

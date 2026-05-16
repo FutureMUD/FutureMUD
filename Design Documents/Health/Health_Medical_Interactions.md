@@ -109,7 +109,7 @@ Stock surgery content is now authored in two places:
 - `HealthSeeder` installs the organic human and veterinary catalogue, including knowledges, procedures, procedure phases, and tech-level variants
 - `RobotSeeder` installs robot knowledges and the stock robot maintenance suite for articulated, quadruped, insectoid, and utility robot bodies
 
-The seeded surgery matrix is detailed in [Seeder_and_Gaps.md](./Seeder_and_Gaps.md).
+The seeded surgery matrix is detailed in [Health Seeder State and Gaps](./Health_Seeder_State_and_Gaps.md).
 
 ### Robot maintenance suite
 The stock robot procedures are intentionally parallel to the organic surgery model rather than a separate ad hoc repair minigame.

@@ -682,7 +682,7 @@ cell meeting AlwaysTrue Public
 
 Room names and descriptions support runtime substitutions. These are resolved when a character sees the room.
 
-For deeper markup details, see [Room Description Markup](./Room_Description_Markup.md).
+For deeper markup details, see [Room Description Markup](../Markup/Room_Description_Markup.md).
 
 Substitution order:
 

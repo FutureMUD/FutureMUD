@@ -6,9 +6,9 @@ This guide documents the craft-authoring slice in `DatabaseSeeder/Seeders/ItemSe
 
 For the broader runtime and builder model, see:
 
-- `Design Documents/Crafting_System_Overview.md`
-- `Design Documents/Crafting_System_Runtime_and_Extensibility.md`
-- `Design Documents/Crafting_System_Builder_Workflows.md`
+- `Design Documents/Crafting/Crafting_System_Overview.md`
+- `Design Documents/Crafting/Crafting_System_Runtime_and_Extensibility.md`
+- `Design Documents/Crafting/Crafting_System_Builder_Workflows.md`
 
 ## Typed Shape
 

@@ -137,7 +137,7 @@ This project contains the long-running climate and weather regression checks use
 
 ###
 
-- [Project Temporary Work App](./Temporary Work App/Agents.MD)
+- [Project Temporary Scratch App](./Temporary%20Scratch%20App/Agents.MD)
 
 ## Code Style
 - Use **tabs** for indentation.
@@ -157,13 +157,13 @@ This project contains the long-running climate and weather regression checks use
 - The interface IFrameworkItem is the base interface for most things in the engine. It provides a 64 bit integer ID, string Name and a string representing the type. Nearly anything that gets saved in the database will implement this interface.
 - The interface IPerceivable is the base interface for anything that physically exists somewhere in the game and should interact with the perception system - characters, items, rooms, exits, etc. It extends IFrameworkItem. Broadly speaking, a perceivable is a good way to represent "things that can be seen or interacted with".
 - The interface IPerceiver is used as a base for a small number of things that can see echoes and perceive things around them, such as characters and items. It extends IPerceivable.
-- When creating text for an IEmote, refer to [Emote System](./Design Documents/Emote System.md)
+- When creating text for an IEmote, refer to [Emote System](./Design%20Documents/Markup/Emote_System.md)
 
 ## Text Markup Reference
-- [Emote System](./Design%20Documents/Emote%20System.md)
-- [Character Description System](./Design%20Documents/Character_Description_System.md)
-- [Human Seeder Description Patterns](./Design%20Documents/Human_Seeder_Description_Patterns.md)
-- [Room Description Markup](./Design%20Documents/Room_Description_Markup.md)
+- [Emote System](./Design%20Documents/Markup/Emote_System.md)
+- [Character Description System](./Design%20Documents/Markup/Character_Description_System.md)
+- [Human Seeder Description Patterns](./Design%20Documents/Markup/Human_Seeder_Description_Patterns.md)
+- [Room Description Markup](./Design%20Documents/Markup/Room_Description_Markup.md)
 
 ## Style Preferences and Internal Helper Conventions
 - Always prefer to present numbers, times, dates and the like using localised formatting where you know the IPerceiver the message is being presented to. Conventionally an IPerceiver passed to a method for this reason is called a `voyeur`. 
@@ -186,7 +186,7 @@ This project contains the long-running climate and weather regression checks use
 - Use the method `StringUtilities.GetTextTable()` to present tabular data to players rather than building tables manually.
 - Use the extension method `ListToString()` on IEnumerable collections to present lists of things to players rather than building lists manually. Similarly, you can use `ListToCommaSeparatedValues()` to get a comma-separated string.
 - Rooms vs Cells: the legacy distinction is being removed; wherever possible prefer targeting `ICell`/`Cell` rather than `IRoom`/`Room` (and treat "room" mentions in designs as meaning cell) so future merges are simpler.
-- When documenting or implementing room-building workflows, see [Room Building Builder Guide](./Design%20Documents/Room_Building_Builder_Guide.md) for the builder-facing command model.
+- When documenting or implementing room-building workflows, see [Room Building Builder Guide](./Design%20Documents/Building/Room_Building_Builder_Guide.md) for the builder-facing command model.
 
 ## Notes
 - When in doubt, defer to this file unless overridden at a lower level.
@@ -229,7 +229,7 @@ Notes:
 
 ## Instructions for Codex when Changing Subsystems with Design Documents
 
-When changing a subsystem that has a design document in `Design Documents/`:
+When changing a subsystem that has a design document in `Design Documents/`, start from the [Design Documents index](./Design%20Documents/README.md) to find the owning subsystem folder:
 
 1. Update the relevant design document(s) as part of the same task.
 2. Ensure the document reflects the new runtime behavior, command surface, and persistence implications.
@@ -239,11 +239,11 @@ When changing a subsystem that has a design document in `Design Documents/`:
 
 When changing item-related systems, treat the following documents as the primary design references and keep them in sync with the code:
 
-- [Item System Overview](./Design%20Documents/Item_System_Overview.md)
-- [Item System Runtime Model](./Design%20Documents/Item_System_Runtime_Model.md)
-- [Item System Component Authoring](./Design%20Documents/Item_System_Component_Authoring.md)
-- [Item System Content Workflows](./Design%20Documents/Item_System_Content_Workflows.md)
-- [Item System Presentation and Integration](./Design%20Documents/Item_System_Presentation_and_Integration.md)
+- [Item System Overview](./Design%20Documents/Items/Item_System_Overview.md)
+- [Item System Runtime Model](./Design%20Documents/Items/Item_System_Runtime_Model.md)
+- [Item System Component Authoring](./Design%20Documents/Items/Item_System_Component_Authoring.md)
+- [Item System Content Workflows](./Design%20Documents/Items/Item_System_Content_Workflows.md)
+- [Item System Presentation and Integration](./Design%20Documents/Items/Item_System_Presentation_and_Integration.md)
 
 For the purposes of this instruction, "item-related" includes work in or directly coupled to:
 
@@ -258,9 +258,9 @@ For the purposes of this instruction, "item-related" includes work in or directl
 
 When changing economy-related systems, treat the following documents as the primary design references and keep them in sync with the code:
 
-- `Design Documents/Economy_System_Runtime.md`
-- `Design Documents/Economy_System_Workflows_and_Integration.md`
-- `Design Documents/Economy_System_Seeder_State_and_Gaps.md`
+- `Design Documents/Economy/Economy_System_Runtime.md`
+- `Design Documents/Economy/Economy_System_Workflows_and_Integration.md`
+- `Design Documents/Economy/Economy_System_Seeder_State_and_Gaps.md`
 
 For the purposes of this instruction, "economy-related" includes work in or directly coupled to:
 

@@ -75,7 +75,7 @@ Prepared-food examples include:
 - stackable `per-stack-unit` serving profiles for berries and mushrooms
 - recipe target profiles for `CookedFoodProduct`
 
-See [Food And Cooking System](./Food_and_Cooking_System.md) for the runtime model and builder-facing template tokens.
+See [Food And Cooking System](../Crafting/Food_and_Cooking_System.md) for the runtime model and builder-facing template tokens.
 
 This goes through `GameItemComponentManager`, so failure here often means:
 - the type was not registered
@@ -364,7 +364,7 @@ For the live player workflow on an already loaded composed item, a practical end
 15. Confirm administrator characters bypass the tool, check, and delay layer for those live item actions while still respecting visibility and service-access gating.
 16. When testing movement-driven automation, use an ordinary mover rather than an administrator with `IImmwalkEffect`, because immwalk movement no longer emits the witnessed movement events that motion sensors consume.
 
-For broader manual regression coverage of the current shipped automation slice, use the dedicated [Automation End-To-End Test Scenarios](./Automation_End_To_End_Test_Scenarios.md) document.
+For broader manual regression coverage of the current shipped automation slice, use the dedicated [Automation End-To-End Test Scenarios](../Technology/Automation_End_To_End_Test_Scenarios.md) document.
 
 For the standalone player-owned computer-program workflow in the current phase, a practical pass is:
 1. Use `programming help` to inspect the computer-safe subset of FutureProg types, statements, functions, and collection helpers.

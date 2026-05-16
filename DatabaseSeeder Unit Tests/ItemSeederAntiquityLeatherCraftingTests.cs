@@ -210,7 +210,7 @@ public class ItemSeederAntiquityLeatherCraftingTests
 	public void LeatherCrafts_HaveSupportingTagsAndPeriodTools()
 	{
 		var tagSource = ReadSource("DatabaseSeeder", "Seeders", "UsefulSeeder.Tags.cs");
-		var hierarchySource = ReadSource("Design Documents", "SeededTagHierarchy.csv");
+		var hierarchySource = ReadSource("Design Documents", "Data", "SeededTagHierarchy.csv");
 		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.Antiquity.cs");
 
 		foreach (var expected in new[]
@@ -324,7 +324,7 @@ public class ItemSeederAntiquityLeatherCraftingTests
 	[TestMethod]
 	public void AntiquityDesignDocument_DocumentsFullLeatherSlice()
 	{
-		var designSource = ReadSource("Design Documents", "Antiquity_Hellenic_Clothing_Crafting_Suite.md");
+		var designSource = ReadSource("Design Documents", "Crafting", "Antiquity_Hellenic_Clothing_Crafting_Suite.md");
 
 		foreach (var expected in new[]
 		{

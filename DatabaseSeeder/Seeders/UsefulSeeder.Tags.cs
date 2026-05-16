@@ -126,6 +126,15 @@ namespace DatabaseSeeder.Seeders
             AddTag(context, "Paint Pigment", "Household Craft Stock");
             AddTag(context, "Lake Pigment", "Paint Pigment");
             AddTag(context, "Lacquer Finish", "Household Craft Stock");
+            AddTag(context, "Writing Craft Stock", "Material Functions");
+            AddTag(context, "Papyrus Sheet Stock", "Writing Craft Stock");
+            AddTag(context, "Parchment Sheet Stock", "Writing Craft Stock");
+            AddTag(context, "Tablet Blank", "Writing Craft Stock");
+            AddTag(context, "Waxed Tablet Board", "Writing Craft Stock");
+            AddTag(context, "Ink Stock", "Writing Craft Stock");
+            AddTag(context, "Pen Blank", "Writing Craft Stock");
+            AddTag(context, "Bookbinding Stock", "Writing Craft Stock");
+            AddTag(context, "Scrollmaking Stock", "Writing Craft Stock");
 
             AddTag(context, "Repairing", "Functions");
             AddTag(context, "Sharpening", "Functions");
@@ -219,6 +228,16 @@ namespace DatabaseSeeder.Seeders
             AddTag(context, "Watertight Container", "Container");
             AddTag(context, "Airtight Container", "Container");
             AddTag(context, "Open Container", "Container");
+
+            // Writing Surfaces
+            AddTag(context, "Writing Surface", "Functions");
+            AddTag(context, "Loose Sheet", "Writing Surface");
+            AddTag(context, "Scroll", "Writing Surface");
+            AddTag(context, "Codex", "Writing Surface");
+            AddTag(context, "Wax Tablet", "Writing Surface");
+            AddTag(context, "Clay Tablet", "Writing Surface");
+            AddTag(context, "Wooden Writing Block", "Writing Surface");
+            AddTag(context, "Ostracon", "Writing Surface");
 
             // Tools
             AddTag(context, "Tools", "Functions");
@@ -824,6 +843,7 @@ namespace DatabaseSeeder.Seeders
             AddTag(context, "Reed Pen", "Scribing Tools");
             AddTag(context, "Quill Pen", "Scribing Tools");
             AddTag(context, "Ink Brush", "Scribing Tools");
+            AddTag(context, "Charcoal Stick", "Scribing Tools");
             AddTag(context, "Pen Knife", "Scribing Tools");
             AddTag(context, "Scraper Knife", "Scribing Tools");
             AddTag(context, "Wax Spatula", "Scribing Tools");
@@ -1318,9 +1338,15 @@ namespace DatabaseSeeder.Seeders
 
             AddTag(context, "Writing Materials", "Market");
             AddTag(context, "Wax Tablets", "Writing Materials");
+            AddTag(context, "Papyrus", "Writing Materials");
             AddTag(context, "Parchment", "Writing Materials");
             AddTag(context, "Paper", "Writing Materials");
             AddTag(context, "Ink", "Writing Materials");
+            AddTag(context, "Clay Tablets", "Writing Materials");
+            AddTag(context, "Writing Implements", "Writing Materials");
+            AddTag(context, "Document Containers", "Writing Materials");
+            AddTag(context, "Scrolls", "Writing Materials");
+            AddTag(context, "Codices", "Writing Materials");
 
             AddTag(context, "Warehousing", "Market");
 

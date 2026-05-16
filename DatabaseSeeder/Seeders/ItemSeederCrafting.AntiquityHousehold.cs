@@ -126,6 +126,7 @@ public partial class ItemSeeder
 
 		var targetItems = _items
 			.Where(x => x.Key.StartsWith("antiquity_", StringComparison.OrdinalIgnoreCase))
+			.Where(x => !IsAntiquityWritingSuiteStableReference(x.Key))
 			.Where(x => x.Value.GameItemProtosTags.Any(y => householdTagIds.Contains(y.TagId)))
 			.OrderBy(x => x.Key, StringComparer.OrdinalIgnoreCase)
 			.ToList();

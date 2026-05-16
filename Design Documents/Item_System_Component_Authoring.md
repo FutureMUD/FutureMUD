@@ -128,6 +128,14 @@ Current builder-facing ranged component loaders include `bow`, `crossbow`, `fire
 
 Do not create bespoke ammunition components for ordinary projectile variants. Sling bullets and blowgun darts use the generic `Ammunition` component and rely on the `AmmunitionType` row's `RangedWeaponTypes` and `SpecificType` fields to match the weapon's `RangedWeaponType` and specific ammunition grade. Poisoned or drugged darts should be layered later through the existing wound, liquid, or drug systems instead of changing the base ammunition contract.
 
+### Writing and inscribing components
+
+Use `PaperSheet` for paper-like loose sheets and scrolls, and `Book` for paged codex-style objects. Both expose the standard `IWriteable` and `IReadable` contracts.
+
+Use `ScribingImplement` when an implement should behave like a configurable writing tool instead of one of the modern fixed components such as `Biro`, `Pencil`, or `Crayon`. The prototype stores `ImplementType`, `Colour` or `ColourCharacteristic`, and `TotalUses`. Set `TotalUses` to `0` for non-consuming stylus-style tools.
+
+Use `InscribableSurface` for wax, clay, wood, ostraca, or other non-paper surfaces. The prototype stores `MaximumCharacterLengthOfText` and an `AllowedImplementTypes` list. Builders should configure the accepted implement types narrowly: wax and clay generally use `Stylus`, wooden blocks may use `Stylus`, `Chisel`, or `Charcoal`, and ostraca may use ink or charcoal implements.
+
 `BlowgunGameItemComponent` also enforces the physical breathing requirement. It cannot be readied or fired by a body that does not breathe, cannot currently breathe, lacks a mouth bodypart, or has anything worn over the mouth. This covers breathing filters and apparatus without a separate item-type check because those components are supplied by mouth-worn items in the breathing system.
 
 `IRangedWeapon.CanFireWhileHidden` is deliberately narrow. Leave the default false for normal ranged weapons. Only components that should preserve hiding through `fire -> Engage/JoinCombat`, such as `BlowgunGameItemComponent`, should return true and use obscured output for ready/load/fire emotes.

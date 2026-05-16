@@ -75,6 +75,14 @@ Airtight Container	Container	Functions / Container / Airtight Container
 Open Container	Container	Functions / Container / Open Container
 Porous Container	Container	Functions / Container / Porous Container
 Watertight Container	Container	Functions / Container / Watertight Container
+Writing Surface	Functions	Functions / Writing Surface
+Loose Sheet	Writing Surface	Functions / Writing Surface / Loose Sheet
+Scroll	Writing Surface	Functions / Writing Surface / Scroll
+Codex	Writing Surface	Functions / Writing Surface / Codex
+Wax Tablet	Writing Surface	Functions / Writing Surface / Wax Tablet
+Clay Tablet	Writing Surface	Functions / Writing Surface / Clay Tablet
+Wooden Writing Block	Writing Surface	Functions / Writing Surface / Wooden Writing Block
+Ostracon	Writing Surface	Functions / Writing Surface / Ostracon
 Joining	Functions	Functions / Joining
 Adhesion	Joining	Functions / Joining / Adhesion
 Cement	Adhesion	Functions / Joining / Adhesion / Cement
@@ -158,6 +166,15 @@ Armour Lamella Stock	Antiquity Equipment Stock	Functions / Material Functions / 
 Armour Textile Padding	Antiquity Equipment Stock	Functions / Material Functions / Antiquity Equipment Stock / Armour Textile Padding
 Tool Blank Stock	Antiquity Equipment Stock	Functions / Material Functions / Antiquity Equipment Stock / Tool Blank Stock
 Door Hardware Stock	Antiquity Equipment Stock	Functions / Material Functions / Antiquity Equipment Stock / Door Hardware Stock
+Writing Craft Stock	Material Functions	Functions / Material Functions / Writing Craft Stock
+Papyrus Sheet Stock	Writing Craft Stock	Functions / Material Functions / Writing Craft Stock / Papyrus Sheet Stock
+Parchment Sheet Stock	Writing Craft Stock	Functions / Material Functions / Writing Craft Stock / Parchment Sheet Stock
+Tablet Blank	Writing Craft Stock	Functions / Material Functions / Writing Craft Stock / Tablet Blank
+Waxed Tablet Board	Writing Craft Stock	Functions / Material Functions / Writing Craft Stock / Waxed Tablet Board
+Ink Stock	Writing Craft Stock	Functions / Material Functions / Writing Craft Stock / Ink Stock
+Pen Blank	Writing Craft Stock	Functions / Material Functions / Writing Craft Stock / Pen Blank
+Bookbinding Stock	Writing Craft Stock	Functions / Material Functions / Writing Craft Stock / Bookbinding Stock
+Scrollmaking Stock	Writing Craft Stock	Functions / Material Functions / Writing Craft Stock / Scrollmaking Stock
 Leather Commodity	Material Functions	Functions / Material Functions / Leather Commodity
 Prepared Hide	Leather Commodity	Functions / Material Functions / Leather Commodity / Prepared Hide
 Tanned Leather	Leather Commodity	Functions / Material Functions / Leather Commodity / Tanned Leather
@@ -804,6 +821,7 @@ Watch Glass	Specialised Vessels	Functions / Tools / Scientific Tools / Specialis
 Scribing Tools	Tools	Functions / Tools / Scribing Tools
 Ink Brush	Scribing Tools	Functions / Tools / Scribing Tools / Ink Brush
 Inkwell	Scribing Tools	Functions / Tools / Scribing Tools / Inkwell
+Charcoal Stick	Scribing Tools	Functions / Tools / Scribing Tools / Charcoal Stick
 Pen Knife	Scribing Tools	Functions / Tools / Scribing Tools / Pen Knife
 Quill Pen	Scribing Tools	Functions / Tools / Scribing Tools / Quill Pen
 Reed Pen	Scribing Tools	Functions / Tools / Scribing Tools / Reed Pen
@@ -1200,9 +1218,15 @@ Wagon Passage	Passenger Transportation	Market / Transportation / Passenger Trans
 Warehousing	Market	Market / Warehousing
 Writing Materials	Market	Market / Writing Materials
 Ink	Writing Materials	Market / Writing Materials / Ink
+Papyrus	Writing Materials	Market / Writing Materials / Papyrus
 Paper	Writing Materials	Market / Writing Materials / Paper
 Parchment	Writing Materials	Market / Writing Materials / Parchment
 Wax Tablets	Writing Materials	Market / Writing Materials / Wax Tablets
+Clay Tablets	Writing Materials	Market / Writing Materials / Clay Tablets
+Writing Implements	Writing Materials	Market / Writing Materials / Writing Implements
+Document Containers	Writing Materials	Market / Writing Materials / Document Containers
+Scrolls	Writing Materials	Market / Writing Materials / Scrolls
+Codices	Writing Materials	Market / Writing Materials / Codices
 Materials		Materials
 Animal Product	Materials	Materials / Animal Product
 Elastomer	Materials	Materials / Elastomer

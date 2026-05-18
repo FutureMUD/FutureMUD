@@ -8,7 +8,7 @@ The goal is to verify the supported vehicle shapes end to end:
 
 - `ItemScale` vehicles with an exterior item, one driver slot, one control station, boarding, driving, and disembarking.
 - `RoomContainer` vehicles with compartments, access points, cargo projections, install points, damage effects, and towing.
-- `CellExit` movement through ordinary adjacent cell exits.
+- `CellExit` movement through ordinary adjacent cell exits, using either `drive <direction>` or normal movement commands while controlling a vehicle.
 
 `RoomScale`, route movement, coordinate movement, player-facing vehicle repair gameplay, dynamic trailer breakage, and richer fuel or power networks are not fully supported by this runbook.
 
@@ -160,9 +160,9 @@ vehicle list
 vehicle show <vehicle id>
 look
 embark bicycle driver
-drive north
+north
 vehicle show <vehicle id>
-drive south
+south
 disembark
 ```
 
@@ -171,7 +171,9 @@ Expected result:
 - `vehicle show` lists the canonical vehicle state and linked exterior item.
 - The exterior item moves with the vehicle.
 - The driver moves with the vehicle.
-- `disembark` returns the character to ordinary cell presence beside the exterior item.
+- `north` and `south` work as aliases for `drive north` and `drive south` while the rider controls the bicycle.
+- Vehicle movement has the normal movement rhythm: a begin/departure echo, movement delay, arrival echo, and a refreshed look after arrival.
+- `disembark` with no arguments executes the command and returns the character to ordinary cell presence beside the exterior item; it should not show the help file unless you ask for help.
 
 ## RoomContainer Vehicle Test
 
@@ -224,7 +226,7 @@ embark car driver
 open hatch@car
 embark car driver via hatch
 close hatch@car
-drive north
+north
 open hatch@car
 disembark
 item load <engine-module-proto>
@@ -234,7 +236,7 @@ install engine car engine
 embark car driver via hatch
 close hatch@car
 drive north
-drive south
+south
 disembark
 open hatch@car
 uninstall engine@car
@@ -246,6 +248,7 @@ Expected result:
 - Opening `hatch@car` allows boarding.
 - Movement is blocked until the required `engine` role is installed.
 - Closing the hatch allows movement when the movement profile requires access points closed.
+- `drive north` and ordinary direction commands both invoke delayed vehicle movement while you control the car.
 - `engine@car` resolves as an installed module projection.
 
 Verify cargo projection behaviour:
@@ -309,7 +312,7 @@ hitch rear@car front@trailer with towbar
 vehicle show <car vehicle id>
 embark car driver via hatch
 close hatch@car
-drive north
+north
 vehicle show <car vehicle id>
 vehicle show <trailer vehicle id>
 drive south
@@ -335,12 +338,13 @@ item load <car-hull-proto>
 ```text
 disembark
 drive north
+north
 ```
 
 ```text
 open hatch@car
 embark car driver via hatch
-drive north
+north
 close hatch@car
 ```
 
@@ -355,7 +359,7 @@ vehicle repair <vehicle id> damage all
 Expected result:
 
 - Generic item loading of a vehicle exterior shell is blocked.
-- Driving while not controlling a vehicle is blocked.
+- Driving while not controlling a vehicle is blocked; ordinary movement commands fall back to normal walking when you are not controlling a vehicle.
 - Driving with required access points open is blocked.
 - Damage-linked systems are reported as disabled in `vehicle show`; in this runbook's car prototype, the body damage zone disables access, cargo, install, tow, and movement together.
 - Admin damage repair restores damage-derived access and movement if the only blocking cause was damage-derived disablement.

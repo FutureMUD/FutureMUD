@@ -109,7 +109,7 @@ Syntax:
 	[RequiredCharacterState(CharacterState.Able)]
 	[NoMovementCommand]
 	[NoHideCommand]
-	[HelpInfo("disembark", "Use #3disembark#0 to leave the vehicle you are currently aboard.", AutoHelp.HelpArgOrNoArg)]
+	[HelpInfo("disembark", "Use #3disembark#0 to leave the vehicle you are currently aboard.", AutoHelp.HelpArg)]
 	protected static void Disembark(ICharacter actor, string input)
 	{
 		var vehicle = actor.Gameworld.Vehicles.FirstOrDefault(x => x.IsOccupant(actor));
@@ -131,39 +131,12 @@ Syntax:
 
 	[PlayerCommand("Drive", "drive")]
 	[RequiredCharacterState(CharacterState.Able)]
-	[NoMovementCommand]
+	[DelayBlock("movement", "You cannot move until you stop {0}.")]
 	[NoHideCommand]
-	[HelpInfo("drive", "Use #3drive <direction>#0 while in a driver slot to move your vehicle through a normal exit.", AutoHelp.HelpArgOrNoArg)]
+	[HelpInfo("drive", "Use #3drive <direction>#0 while in a driver slot to move your vehicle through a normal exit. Ordinary movement commands like #3north#0 and #3east#0 do the same thing while you are controlling a vehicle.", AutoHelp.HelpArgOrNoArg)]
 	protected static void Drive(ICharacter actor, string input)
 	{
-		var ss = new StringStack(input.RemoveFirstWord());
-		if (ss.IsFinished)
-		{
-			actor.OutputHandler.Send("Which direction do you want to drive?");
-			return;
-		}
-
-		var vehicle = actor.Gameworld.Vehicles.FirstOrDefault(x => x.Controller == actor);
-		if (vehicle is null)
-		{
-			actor.OutputHandler.Send("You are not controlling a vehicle.");
-			return;
-		}
-
-		var exit = vehicle.Location?.GetExit(ss.PopSpeech(), string.Empty, actor);
-		if (exit is null)
-		{
-			actor.OutputHandler.Send("There is no such exit for the vehicle to use.");
-			return;
-		}
-
-		if (!vehicle.CanMove(actor, exit, out var reason))
-		{
-			actor.OutputHandler.Send(reason);
-			return;
-		}
-
-		vehicle.Move(actor, exit);
+		VehicleMovementCommand.TryMoveControlledVehicle(actor, input.RemoveFirstWord(), true);
 	}
 
 	[PlayerCommand("Hitch", "hitch")]

@@ -9,6 +9,7 @@ using MudSharp.GameItems;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.Health;
 using MudSharp.Health.Wounds;
+using MudSharp.Movement;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -409,15 +410,20 @@ public class Vehicle : SaveableItem, IVehicle
 		Changed = true;
 	}
 
-	public void MoveToCell(ICell destination, RoomLayer layer, ICellExit exit)
+	public void BeginMoveToCell(ICell destination, RoomLayer layer, ICellExit exit)
 	{
-		var origin = Location;
 		_locationType = VehicleLocationType.CellExitTransit;
 		_movementStatus = VehicleMovementStatus.Moving;
 		_currentExitId = exit?.Exit.Id;
 		_destinationCellId = destination?.Id;
 		Changed = true;
 		Gameworld.SaveManager.Flush();
+	}
+
+	public void MoveToCell(ICell destination, RoomLayer layer, ICellExit exit, IMovement movement = null)
+	{
+		var origin = Location;
+		BeginMoveToCell(destination, layer, exit);
 
 		if (ExteriorItem is not null)
 		{
@@ -428,7 +434,14 @@ public class Vehicle : SaveableItem, IVehicle
 
 		foreach (var occupant in Occupants.ToList())
 		{
-			occupant.Teleport(destination, layer, false, false);
+			origin?.Leave(occupant);
+			occupant.RoomLayer = layer;
+			occupant.Moved(movement);
+			destination.Enter(occupant, exit, roomLayer: layer);
+			if (movement is null)
+			{
+				occupant.Body.Look(true);
+			}
 		}
 
 		_currentCellId = destination.Id;

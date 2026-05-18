@@ -4,6 +4,7 @@ using MudSharp.Construction.Boundary;
 using MudSharp.Framework;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Interfaces;
+using MudSharp.Movement;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -166,29 +167,70 @@ public class CellExitVehicleMovementStrategy : IVehicleMovementStrategy
 
 	public bool Move(IVehicle vehicle, ICharacter actor, ICellExit exit)
 	{
-		if (!CanMove(vehicle, actor, exit, out _))
+		if (!TryPrepareMove(vehicle, actor, exit, out var towTrain, out var transition, out _))
 		{
 			return false;
 		}
 
-		var transition = exit.MovementTransition(actor);
-		if (!_towService.CanMoveTowTrain(vehicle, exit, out var towTrain, out _))
+		EchoDeparture(vehicle, actor, exit, towTrain);
+		BeginMove(vehicle, exit, towTrain, transition);
+		CompleteMove(vehicle, exit, towTrain, transition);
+		EchoArrival(vehicle, actor, exit, towTrain, transition.TargetLayer);
+		return true;
+	}
+
+	public bool TryPrepareMove(IVehicle vehicle, ICharacter actor, ICellExit exit, out IReadOnlyList<IVehicle> towTrain,
+		out (CellMovementTransition TransitionType, RoomLayer TargetLayer) transition, out string reason)
+	{
+		towTrain = [];
+		transition = (CellMovementTransition.NoViableTransition, RoomLayer.GroundLevel);
+		if (!CanMove(vehicle, actor, exit, out reason))
 		{
 			return false;
 		}
 
-		var towedVehicles = towTrain.Skip(1).ToList();
+		transition = exit.MovementTransition(actor);
+		if (!_towService.CanMoveTowTrain(vehicle, exit, out var train, out reason))
+		{
+			return false;
+		}
+
+		towTrain = train.ToList();
+		reason = string.Empty;
+		return true;
+	}
+
+	public void EchoDeparture(IVehicle vehicle, ICharacter actor, ICellExit exit, IReadOnlyList<IVehicle> towTrain)
+	{
+		exit.Origin.HandleRoomEcho($"{vehicle.ExteriorItem?.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreSelf) ?? vehicle.Name} moves {exit.OutboundMovementSuffix}{TowEchoSuffix(towTrain.Skip(1), actor)}.", vehicle.RoomLayer);
+	}
+
+	public void EchoArrival(IVehicle vehicle, ICharacter actor, ICellExit exit, IReadOnlyList<IVehicle> towTrain,
+		RoomLayer targetLayer)
+	{
+		exit.Destination.HandleRoomEcho($"{vehicle.ExteriorItem?.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreSelf) ?? vehicle.Name} arrives {exit.InboundMovementSuffix}{TowEchoSuffix(towTrain.Skip(1), actor)}.", targetLayer);
+	}
+
+	public void BeginMove(IVehicle vehicle, ICellExit exit, IReadOnlyList<IVehicle> towTrain,
+		(CellMovementTransition TransitionType, RoomLayer TargetLayer) transition)
+	{
+		foreach (var linkedVehicle in towTrain.DefaultIfEmpty(vehicle))
+		{
+			linkedVehicle.BeginMoveToCell(exit.Destination, transition.TargetLayer, exit);
+		}
+	}
+
+	public void CompleteMove(IVehicle vehicle, ICellExit exit, IReadOnlyList<IVehicle> towTrain,
+		(CellMovementTransition TransitionType, RoomLayer TargetLayer) transition, IMovement movement = null)
+	{
+		var vehicles = towTrain.Any() ? towTrain : [vehicle];
 		var towLinks = _towService.TowLinksFrom(vehicle).ToList();
-		exit.Origin.HandleRoomEcho($"{vehicle.ExteriorItem?.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreSelf) ?? vehicle.Name} moves {exit.OutboundMovementSuffix}{TowEchoSuffix(towedVehicles, actor)}.", vehicle.RoomLayer);
 		ConsumeMovementRequirements(vehicle);
-		vehicle.MoveToCell(exit.Destination, transition.TargetLayer, exit);
-		foreach (var linkedVehicle in towedVehicles)
+		foreach (var linkedVehicle in vehicles)
 		{
-			linkedVehicle.MoveToCell(exit.Destination, transition.TargetLayer, exit);
+			linkedVehicle.MoveToCell(exit.Destination, transition.TargetLayer, exit, movement);
 		}
 		MoveHitchItems(towLinks, exit.Destination, transition.TargetLayer);
-		exit.Destination.HandleRoomEcho($"{vehicle.ExteriorItem?.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreSelf) ?? vehicle.Name} arrives {exit.InboundMovementSuffix}{TowEchoSuffix(towedVehicles, actor)}.", transition.TargetLayer);
-		return true;
 	}
 
 	private static IVehicleMovementProfilePrototype MovementProfile(IVehicle vehicle)

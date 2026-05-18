@@ -24,7 +24,7 @@ Phase 1 and the first three Phase 2 vehicle-systems slices are present:
 - Projection components for access points, cargo spaces, and installable vehicle modules.
 - `thing@vehicle` targeting for projected access/cargo/module items through the exterior item.
 - `ItemScale` and `RoomContainer` authoring through compartments, slots, stations, and cell-visible exterior item projection.
-- Player commands: `embark`, `disembark`, and `drive`.
+- Player commands: `embark`, `disembark`, `drive`, and ordinary movement commands while controlling a vehicle.
 - Admin/builder commands: `vehicleproto` for prototype authoring and creation, `vehicle` for live diagnostics and relinking.
 - Cell-exit movement strategy with controller, location, profile, exit-size, transition, disabled/destroyed, closed-access, required installation, required role, fuel, power, and recursive tow-train validation.
 - Tow-train service for hitch validation, cycle prevention, tow-point usage checks, recursive train weight checks, hitch-item validity, and loaded broken-link diagnostics.
@@ -229,6 +229,7 @@ Current player commands:
 - `embark <vehicle> [slot] via <access id|name>`
 - `disembark`
 - `drive <direction>`
+- ordinary movement commands such as `north`, `east`, `enter`, or `leave` while controlling a vehicle
 - `install <held module> <vehicle> [install point]`
 - `uninstall <module@vehicle>`
 - `hitch <towpoint>@<vehicle> <towpoint>@<target> [with <item>]`
@@ -261,6 +262,8 @@ Driving rules currently check:
 - required installed modules and roles are present
 - configured fuel and power are available
 - recursive tow-train links are valid, tow points are not damage-disabled, hitch items are co-located, and all towed vehicles fit through the exit
+
+When a controller enters an ordinary movement command, character movement redirects it to vehicle movement before walking movement is attempted. This means a bicycle rider can type `north` instead of `drive north`; the explicit `drive` command remains available for clarity. Vehicle movement uses the normal movement pipeline shape: it sets the actor's current `IMovement`, applies a movement delay, supports turn-around cancellation and queued follow-up movement commands, marks the vehicle as moving while in transit, and resolves the movement after the scheduled step.
 
 ## Vehicle Scales
 
@@ -319,18 +322,20 @@ Current validation:
 
 Current movement behaviour:
 
-- emit origin echo
+- create a vehicle `IMovement` for player-driven movement commands
+- emit begin/departure echo
 - mark vehicle as `CellExitTransit` and `Moving`
 - persist transit state before movement
+- schedule the movement delay through the normal movement scheduler
 - move the exterior item to the destination cell and target layer
-- teleport occupants to the destination cell and layer without ordinary character movement queues
+- move occupants to the destination cell and layer as participants in the vehicle movement
 - consume configured fuel and power
 - move all recursively towed vehicles, hitch items, and occupants
 - mark vehicle as `Cell` and `Stationary`
 - clear current exit and destination fields
 - emit destination echo
 
-This intentionally uses a vehicle movement strategy rather than forcing vehicles through the character-centric `IMovement` pipeline.
+This intentionally keeps route validation and vehicle state changes in the vehicle movement strategy, while player-driven cell-exit driving is represented as an `IMovement` so it cooperates with movement delay, movement blocking, queued movement commands, group movement state, and room movement diagnostics.
 
 ## Admin Diagnostics
 

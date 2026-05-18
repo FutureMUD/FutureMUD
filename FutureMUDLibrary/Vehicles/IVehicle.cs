@@ -7,6 +7,7 @@ using MudSharp.Framework.Save;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.Health;
+using MudSharp.Movement;
 using System.Collections.Generic;
 
 namespace MudSharp.Vehicles;
@@ -45,7 +46,9 @@ public interface IVehicle : IFrameworkItem, IHaveFuturemud, ISaveable
 	bool Leave(ICharacter actor);
 	bool CanMove(ICharacter actor, ICellExit exit, out string reason);
 	bool Move(ICharacter actor, ICellExit exit);
-	void MoveToCell(ICell destination, RoomLayer layer, ICellExit exit);
+	void BeginMoveToCell(ICell destination, RoomLayer layer, ICellExit exit);
+	void MoveToCell(ICell destination, RoomLayer layer, ICellExit exit, IMovement movement = null);
+	void RecoverInterruptedMovement();
 	void LinkExteriorItem(IGameItem item);
 	void SynchroniseExteriorItemToLocation();
 	IEnumerable<IWound> SufferDamage(IDamage damage);

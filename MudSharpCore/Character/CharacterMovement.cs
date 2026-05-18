@@ -27,6 +27,7 @@ using MudSharp.Planes;
 using MudSharp.RPG.Checks;
 using MudSharp.RPG.Merits.CharacterMerits;
 using MudSharp.RPG.Merits.Interfaces;
+using MudSharp.Vehicles;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -1224,6 +1225,12 @@ public partial class Character
 
     public bool Move(string rawInput)
     {
+        var vehicleMoveResult = VehicleMovementCommand.TryMoveControlledVehicle(this, rawInput, false);
+        if (vehicleMoveResult != VehicleMovementCommandResult.NotVehicleController)
+        {
+            return vehicleMoveResult == VehicleMovementCommandResult.StartedOrQueued;
+        }
+
         StringStack ss = new(rawInput);
         string direction = ss.PopSpeech();
         bool force = false;

@@ -411,6 +411,8 @@ Still to implement:
 - Player-facing repair workflows, rich trailer mechanics, and fuller fuel/power topologies.
 - Route, coordinate 2D, coordinate 3D, and RoomScale systems.
 
+For a fresh-world manual verification path, including the supporting item and component prototype authoring steps, see [Vehicle System Fresh MUD Test Runbook](./Vehicle_System_Fresh_MUD_Test_Runbook.md).
+
 ## Implementation Phases
 
 ### Phase 1: Core Hybrid Vehicle Framework

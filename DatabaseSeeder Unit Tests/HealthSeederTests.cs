@@ -98,6 +98,183 @@ public class HealthSeederTests
         context.SaveChanges();
     }
 
+    private static FuturemudDatabaseContext BuildHealthSeederInstallContext()
+    {
+        FuturemudDatabaseContext context = BuildContext();
+        SeedAccount(context);
+        context.FutureProgs.Add(new FutureProg
+        {
+            Id = 1,
+            FunctionName = "AlwaysTrue",
+            FunctionComment = "Always true test prog",
+            FunctionText = "return true",
+            ReturnTypeDefinition = "Boolean",
+            Category = "Test",
+            Subcategory = "Test",
+            Public = true,
+            AcceptsAnyParameters = true,
+            StaticType = 0
+        });
+        context.Tags.AddRange(
+            new Tag { Id = 1, Name = "Arterial Clamp" },
+            new Tag { Id = 2, Name = "Bonesaw" },
+            new Tag { Id = 3, Name = "Forceps" },
+            new Tag { Id = 4, Name = "Scalpel" },
+            new Tag { Id = 5, Name = "Surgical Suture Needle" });
+
+        BodyProto humanoidBody = CreateBody(1, "Humanoid");
+        BodyProto organicHumanoidBody = CreateBody(2, "Organic Humanoid");
+        organicHumanoidBody.CountsAs = humanoidBody;
+        organicHumanoidBody.CountsAsId = humanoidBody.Id;
+        BodyProto quadrupedBody = CreateBody(3, "Quadruped Base");
+        context.BodyProtos.AddRange(humanoidBody, organicHumanoidBody, quadrupedBody);
+
+        long nextBodypartId = 100;
+        nextBodypartId = AddBodyparts(context, humanoidBody, nextBodypartId,
+            "lupperarm", "rupperarm", "lforearm", "rforearm", "lhand", "rhand",
+            "lthigh", "rthigh", "lshin", "rshin", "lfoot", "rfoot",
+            "lthumb", "rthumb", "lindexfinger", "rindexfinger", "lmiddlefinger", "rmiddlefinger",
+            "lringfinger", "rringfinger", "lpinkyfinger", "rpinkyfinger",
+            "lbigtoe", "rbigtoe", "lindextoe", "rindextoe", "lmiddletoe", "rmiddletoe",
+            "lringtoe", "rringtoe", "lpinkytoe", "rpinkytoe");
+        nextBodypartId = AddBodyparts(context, organicHumanoidBody, nextBodypartId,
+            "brain", "heart", "liver", "spleen", "stomach", "lintestines", "sintestines",
+            "rkidney", "lkidney", "rlung", "llung", "trachea", "esophagus",
+            "uspinalcord", "mspinalcord", "lspinalcord", "rinnerear", "linnerear");
+        AddBodyparts(context, quadrupedBody, nextBodypartId,
+            "ruforeleg", "luforeleg", "rfknee", "lfknee", "rlforeleg", "llforeleg",
+            "rfhock", "lfhock", "ruhindleg", "luhindleg", "rrknee", "rlknee",
+            "rlhindleg", "llhindleg", "rrhock", "lrhock");
+
+        context.SaveChanges();
+        return context;
+    }
+
+    private static BodyProto CreateBody(long id, string name)
+    {
+        return new BodyProto
+        {
+            Id = id,
+            Name = name,
+            WielderDescriptionPlural = "hands",
+            WielderDescriptionSingle = "hand",
+            ConsiderString = string.Empty,
+            LegDescriptionSingular = "leg",
+            LegDescriptionPlural = "legs",
+            NameForTracking = name,
+            PlanarData = string.Empty
+        };
+    }
+
+    private static long AddBodyparts(FuturemudDatabaseContext context, BodyProto body, long nextId,
+        params string[] aliases)
+    {
+        foreach (string alias in aliases)
+        {
+            context.BodypartProtos.Add(new BodypartProto
+            {
+                Id = nextId++,
+                Body = body,
+                BodyId = body.Id,
+                Name = alias,
+                Description = alias,
+                SeverFormula = string.Empty
+            });
+        }
+
+        return nextId;
+    }
+
+    private static IReadOnlyList<string> ValidateSeededSurgicalDefinitions(FuturemudDatabaseContext context)
+    {
+        List<string> issues = new();
+        HashSet<long> validBodypartIds = context.BodypartProtos
+            .Select(x => x.Id)
+            .ToHashSet();
+
+        foreach (SurgicalProcedure procedure in context.SurgicalProcedures.OrderBy(x => x.Name))
+        {
+            if (string.IsNullOrWhiteSpace(procedure.Definition))
+            {
+                continue;
+            }
+
+            XElement root;
+            try
+            {
+                root = XElement.Parse(procedure.Definition);
+            }
+            catch (Exception ex)
+            {
+                issues.Add($"{procedure.Name} has invalid XML in its definition: {ex.Message}");
+                continue;
+            }
+
+            if (root.Name != "Definition")
+            {
+                issues.Add($"{procedure.Name} has a {root.Name} root instead of Definition.");
+                continue;
+            }
+
+            XElement? partsElement = root.Element("Parts");
+            if (partsElement is null)
+            {
+                issues.Add($"{procedure.Name} is missing a Parts element.");
+                continue;
+            }
+
+            XAttribute? forbiddenAttribute = partsElement.Attribute("forbidden");
+            if (forbiddenAttribute is null || !bool.TryParse(forbiddenAttribute.Value, out bool forbidden))
+            {
+                issues.Add($"{procedure.Name} has a Parts element without a valid forbidden attribute.");
+                continue;
+            }
+
+            List<XElement> partElements = partsElement.Elements("Part").ToList();
+            if (!forbidden && !partElements.Any())
+            {
+                issues.Add($"{procedure.Name} allows only listed targets, but it does not list any Parts.");
+            }
+
+            foreach (XElement partElement in partElements)
+            {
+                if (!long.TryParse(partElement.Value, out long partId) || !validBodypartIds.Contains(partId))
+                {
+                    issues.Add($"{procedure.Name} references invalid bodypart id '{partElement.Value}'.");
+                }
+            }
+
+            foreach (XElement unexpectedElement in partsElement.Elements().Where(x => x.Name != "Part"))
+            {
+                issues.Add($"{procedure.Name} has unexpected element {unexpectedElement.Name} inside Parts.");
+            }
+
+            if ((SurgicalProcedureType)procedure.Procedure == SurgicalProcedureType.OrganStabilisation &&
+                root.Attribute("requireunconcious") is XAttribute requiresUnconsciousAttribute &&
+                !bool.TryParse(requiresUnconsciousAttribute.Value, out _))
+            {
+                issues.Add($"{procedure.Name} has an invalid requireunconcious attribute.");
+            }
+
+            if ((SurgicalProcedureType)procedure.Procedure == SurgicalProcedureType.Decannulation)
+            {
+                ValidateOptionalBooleanElement("DestroyCannula");
+                ValidateOptionalBooleanElement("RequiresFinalisation");
+            }
+
+            void ValidateOptionalBooleanElement(string elementName)
+            {
+                if (root.Element(elementName) is XElement element &&
+                    !bool.TryParse(element.Value, out _))
+                {
+                    issues.Add($"{procedure.Name} has an invalid {elementName} element.");
+                }
+            }
+        }
+
+        return issues;
+    }
+
     [TestMethod]
     public void ValidateDefaultSurgeryTargetAliasesForTesting_CurrentTargets_HasNoIssues()
     {
@@ -149,6 +326,24 @@ public class HealthSeederTests
             .ToArray();
 
         CollectionAssert.AreEqual(new long[] { 10, 11 }, targetIds);
+    }
+
+    [DataTestMethod]
+    [DataRow("primitive")]
+    [DataRow("pre-modern")]
+    [DataRow("modern")]
+    public void SeedData_AllTechLevels_ProducesValidSurgicalProcedureDefinitions(string techLevel)
+    {
+        using FuturemudDatabaseContext context = BuildHealthSeederInstallContext();
+        HealthSeeder seeder = new();
+
+        seeder.SeedData(context, new Dictionary<string, string>
+        {
+            ["techlevel"] = techLevel
+        });
+
+        IReadOnlyList<string> issues = ValidateSeededSurgicalDefinitions(context);
+        Assert.AreEqual(0, issues.Count, string.Join(Environment.NewLine, issues));
     }
 
     [TestMethod]

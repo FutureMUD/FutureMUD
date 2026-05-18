@@ -160,6 +160,7 @@ vehicle list
 vehicle show <vehicle id>
 look
 embark bicycle driver
+look
 north
 vehicle show <vehicle id>
 south
@@ -171,8 +172,9 @@ Expected result:
 - `vehicle show` lists the canonical vehicle state and linked exterior item.
 - The exterior item moves with the vehicle.
 - The driver moves with the vehicle.
+- After boarding, the rider's room long description shows them riding the bicycle, and the bicycle is not repeated as a separate item line while it is already mentioned in that rider line.
 - `north` and `south` work as aliases for `drive north` and `drive south` while the rider controls the bicycle.
-- Vehicle movement has the normal movement rhythm: a begin/departure echo, movement delay, arrival echo, and a refreshed look after arrival.
+- Vehicle movement has the normal movement rhythm: a begin/departure echo naming the rider and bicycle, movement delay, arrival echo, and a refreshed look after arrival.
 - `disembark` with no arguments executes the command and returns the character to ordinary cell presence beside the exterior item; it should not show the help file unless you ask for help.
 
 ## RoomContainer Vehicle Test

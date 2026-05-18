@@ -252,6 +252,12 @@ public class VehicleMovement : IMovement
 
 	public string Describe(IPerceiver voyeur)
 	{
+		var riders = VisibleVehicleOccupants(voyeur);
+		if (riders.Any())
+		{
+			return $"{RiderDescription(riders, voyeur)} {BeVerb(riders, voyeur)} riding {VehicleDescription(voyeur)} {Exit.OutboundMovementSuffix}{TowEchoSuffix(voyeur)}.".Proper().Colour(Telnet.Yellow);
+		}
+
 		return $"{VehicleDescription(voyeur)} is moving {Exit.OutboundMovementSuffix}{TowEchoSuffix(voyeur)}.".Proper().Colour(Telnet.Yellow);
 	}
 
@@ -382,17 +388,66 @@ public class VehicleMovement : IMovement
 
 	private string DescribeBeginMove(IPerceiver voyeur)
 	{
+		var riders = VisibleVehicleOccupants(voyeur);
+		if (riders.Any())
+		{
+			return $"{RiderDescription(riders, voyeur)} {BeginVerb(riders, voyeur)} riding {VehicleDescription(voyeur)} {Exit.OutboundMovementSuffix}{TowEchoSuffix(voyeur)}.".Proper();
+		}
+
 		return $"{VehicleDescription(voyeur)} begins moving {Exit.OutboundMovementSuffix}{TowEchoSuffix(voyeur)}.".Proper();
 	}
 
 	private string DescribeEnterMove(IPerceiver voyeur)
 	{
+		var riders = VisibleVehicleOccupants(voyeur);
+		if (riders.Any())
+		{
+			return $"{RiderDescription(riders, voyeur)} {ArriveVerb(riders, voyeur)} {Exit.InboundMovementSuffix} riding {VehicleDescription(voyeur)}{TowEchoSuffix(voyeur)}.".Proper();
+		}
+
 		return $"{VehicleDescription(voyeur)} arrives {Exit.InboundMovementSuffix}{TowEchoSuffix(voyeur)}.".Proper();
 	}
 
 	private string VehicleDescription(IPerceiver voyeur)
 	{
 		return _vehicle.ExteriorItem?.HowSeen(voyeur) ?? _vehicle.Name;
+	}
+
+	private List<ICharacter> VisibleVehicleOccupants(IPerceiver voyeur)
+	{
+		if (_vehicle.ExteriorItem is not null && !voyeur.CanSee(_vehicle.ExteriorItem))
+		{
+			return [];
+		}
+
+		return _characterMovers
+		       .Where(_vehicle.IsOccupant)
+		       .Where(x => voyeur.CanSee(x))
+		       .Distinct()
+		       .ToList();
+	}
+
+	private static string RiderDescription(List<ICharacter> riders, IPerceiver voyeur)
+	{
+		return riders
+		       .OrderBy(x => x == voyeur)
+		       .Select(x => x.HowSeen(voyeur))
+		       .ListToString();
+	}
+
+	private static string BeginVerb(List<ICharacter> riders, IPerceiver voyeur)
+	{
+		return riders.Count == 1 && !riders[0].IsSelf(voyeur) ? "begins" : "begin";
+	}
+
+	private static string ArriveVerb(List<ICharacter> riders, IPerceiver voyeur)
+	{
+		return riders.Count == 1 && !riders[0].IsSelf(voyeur) ? "arrives" : "arrive";
+	}
+
+	private static string BeVerb(List<ICharacter> riders, IPerceiver voyeur)
+	{
+		return riders.Count == 1 && !riders[0].IsSelf(voyeur) ? "is" : "are";
 	}
 
 	private string TowEchoSuffix(IPerceiver voyeur)

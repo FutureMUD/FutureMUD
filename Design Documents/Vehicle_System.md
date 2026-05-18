@@ -265,6 +265,8 @@ Driving rules currently check:
 
 When a controller enters an ordinary movement command, character movement redirects it to vehicle movement before walking movement is attempted. This means a bicycle rider can type `north` instead of `drive north`; the explicit `drive` command remains available for clarity. Vehicle movement uses the normal movement pipeline shape: it sets the actor's current `IMovement`, applies a movement delay, supports turn-around cancellation and queued follow-up movement commands, marks the vehicle as moving while in transit, and resolves the movement after the scheduled step.
 
+Visible occupants of a vehicle are presented in the same style as mounted riders. If a character is visibly occupying a vehicle whose exterior item is also visible in the same cell and layer, their long description says they are riding that vehicle, and the exterior item is suppressed from the separate item list to avoid duplicate room lines. If occupants are not visible in the cell, the exterior item remains the room-facing presentation.
+
 ## Vehicle Scales
 
 ### ItemScale
@@ -323,7 +325,7 @@ Current validation:
 Current movement behaviour:
 
 - create a vehicle `IMovement` for player-driven movement commands
-- emit begin/departure echo
+- emit begin/departure echo that names visible riders for item-scale/station vehicles, or the vehicle itself when occupants are not visible
 - mark vehicle as `CellExitTransit` and `Moving`
 - persist transit state before movement
 - schedule the movement delay through the normal movement scheduler
@@ -333,7 +335,7 @@ Current movement behaviour:
 - move all recursively towed vehicles, hitch items, and occupants
 - mark vehicle as `Cell` and `Stationary`
 - clear current exit and destination fields
-- emit destination echo
+- emit destination echo with the same visible-rider versus vehicle-only distinction
 
 This intentionally keeps route validation and vehicle state changes in the vehicle movement strategy, while player-driven cell-exit driving is represented as an `IMovement` so it cooperates with movement delay, movement blocking, queued movement commands, group movement state, and room movement diagnostics.
 

@@ -126,6 +126,8 @@ The component exists only as a bridge:
 
 The component's prototype sets `PreventManualLoad = true`. This prevents builders or item-load commands from creating orphan vehicle shells through normal item loading. The `vehicleproto set exterior <item proto>` command automatically creates and attaches the required internal component when it links the exterior item prototype.
 
+An occupied exterior item cannot be picked up or otherwise normally repositioned through the item inventory flow. If an exterior item is forcibly moved through the item force-move hook, the vehicle reconciles canonical state from the exterior item: if the item is still in a cell, visible occupants are moved with it and vehicle location state is updated; if the item has been put into inventory, contained, deleted, destroyed, or otherwise removed from cell presence, all occupants are forcibly disembarked and their vehicle occupancy rows are cleared. Exterior item deletion/destruction therefore fails safe by removing occupants from vehicle occupancy rather than leaving them linked to a missing shell.
+
 ## Persistence
 
 Vehicle persistence is EF-backed.
@@ -326,6 +328,7 @@ Current movement behaviour:
 
 - create a vehicle `IMovement` for player-driven movement commands
 - emit begin/departure echo that names visible riders for item-scale/station vehicles, or the vehicle itself when occupants are not visible
+- emit arrival echoes as riding language for visible riders, for example `rides in from the south on <vehicle>`, rather than character-arrival wording glued to vehicle wording
 - mark vehicle as `CellExitTransit` and `Moving`
 - persist transit state before movement
 - schedule the movement delay through the normal movement scheduler
@@ -395,6 +398,8 @@ Currently covered by implementation:
 - Vehicle and exterior item have bidirectional links after factory creation.
 - Save/load preserves prototype, exterior item id, canonical location, room layer, movement state, occupancies, and access rows.
 - ItemScale vehicles can be boarded, controlled, moved through a valid cell exit, and exited.
+- Occupied exterior items reject normal item pickup/repositioning.
+- Forced relocation of the exterior item either moves visible occupants with the exterior to its new cell or clears occupancy if the exterior no longer has a cell location.
 - RoomContainer vehicles support multiple authored compartments, slots, and stations.
 - Invalid cell-exit movement is blocked for controller mismatch, missing movement profile, too-small exit, invalid origin, and non-viable transition.
 - Reboot recovery resynchronises the exterior item projection to the vehicle's canonical cell and layer.
@@ -412,7 +417,7 @@ Currently covered by implementation:
 
 Still to implement:
 
-- Robust destruction/deletion flows for vehicles, exterior items, and occupants.
+- Full player-facing vehicle deletion/destruction lifecycle beyond the current exterior-item fail-safe disembark behaviour.
 - Rich access control authoring and enforcement.
 - Terrain/layer restrictions beyond the existing exit transition rules.
 - Player-facing repair workflows, rich trailer mechanics, and fuller fuel/power topologies.

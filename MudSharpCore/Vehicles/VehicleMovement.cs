@@ -402,7 +402,7 @@ public class VehicleMovement : IMovement
 		var riders = VisibleVehicleOccupants(voyeur);
 		if (riders.Any())
 		{
-			return $"{RiderDescription(riders, voyeur)} {ArriveVerb(riders, voyeur)} {Exit.InboundMovementSuffix} riding {VehicleDescription(voyeur)}{TowEchoSuffix(voyeur)}.".Proper();
+			return $"{RiderDescription(riders, voyeur)} {RideVerb(riders, voyeur)} {Exit.InboundMovementSuffix} on {VehicleDescription(voyeur)}{TowEchoSuffix(voyeur)}.".Proper();
 		}
 
 		return $"{VehicleDescription(voyeur)} arrives {Exit.InboundMovementSuffix}{TowEchoSuffix(voyeur)}.".Proper();
@@ -440,9 +440,9 @@ public class VehicleMovement : IMovement
 		return riders.Count == 1 && !riders[0].IsSelf(voyeur) ? "begins" : "begin";
 	}
 
-	private static string ArriveVerb(List<ICharacter> riders, IPerceiver voyeur)
+	private static string RideVerb(List<ICharacter> riders, IPerceiver voyeur)
 	{
-		return riders.Count == 1 && !riders[0].IsSelf(voyeur) ? "arrives" : "arrive";
+		return riders.Count == 1 && !riders[0].IsSelf(voyeur) ? "rides" : "ride";
 	}
 
 	private static string BeVerb(List<ICharacter> riders, IPerceiver voyeur)

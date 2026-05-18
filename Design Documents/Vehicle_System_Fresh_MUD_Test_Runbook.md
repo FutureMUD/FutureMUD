@@ -161,10 +161,12 @@ vehicle show <vehicle id>
 look
 embark bicycle driver
 look
+get bicycle
 north
 vehicle show <vehicle id>
 south
 disembark
+get bicycle
 ```
 
 Expected result:
@@ -173,9 +175,11 @@ Expected result:
 - The exterior item moves with the vehicle.
 - The driver moves with the vehicle.
 - After boarding, the rider's room long description shows them riding the bicycle, and the bicycle is not repeated as a separate item line while it is already mentioned in that rider line.
+- `get bicycle` while someone is riding it is rejected because the exterior item is occupied.
 - `north` and `south` work as aliases for `drive north` and `drive south` while the rider controls the bicycle.
-- Vehicle movement has the normal movement rhythm: a begin/departure echo naming the rider and bicycle, movement delay, arrival echo, and a refreshed look after arrival.
+- Vehicle movement has the normal movement rhythm: a begin/departure echo naming the rider and bicycle, movement delay, riding-style arrival echo such as `rides in from the South on a QA test bicycle`, and a refreshed look after arrival.
 - `disembark` with no arguments executes the command and returns the character to ordinary cell presence beside the exterior item; it should not show the help file unless you ask for help.
+- After disembarking, `get bicycle` follows ordinary item rules for the exterior item prototype. If the hull prototype was made holdable, staff/players with normal permissions can pick it up; if it was not holdable, the usual item-system refusal is expected.
 
 ## RoomContainer Vehicle Test
 
@@ -358,6 +362,12 @@ embark car driver via hatch
 vehicle repair <vehicle id> damage all
 ```
 
+```text
+embark bicycle driver
+get bicycle
+disembark
+```
+
 Expected result:
 
 - Generic item loading of a vehicle exterior shell is blocked.
@@ -365,6 +375,7 @@ Expected result:
 - Driving with required access points open is blocked.
 - Damage-linked systems are reported as disabled in `vehicle show`; in this runbook's car prototype, the body damage zone disables access, cargo, install, tow, and movement together.
 - Admin damage repair restores damage-derived access and movement if the only blocking cause was damage-derived disablement.
+- Occupied vehicle exteriors cannot be picked up or normally repositioned.
 
 ## Currently Fully Supported Vehicle Kinds
 

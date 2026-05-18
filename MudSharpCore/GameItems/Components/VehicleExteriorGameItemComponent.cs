@@ -70,6 +70,27 @@ public class VehicleExteriorGameItemComponent : GameItemComponent, IVehicleExter
 		return new VehicleExteriorGameItemComponent(this, newParent, temporary);
 	}
 
+	public override bool PreventsRepositioning()
+	{
+		return Vehicle?.Occupants.Any() == true;
+	}
+
+	public override string WhyPreventsRepositioning()
+	{
+		return " is currently occupied.";
+	}
+
+	public override void ForceMove()
+	{
+		Vehicle?.HandleExteriorItemForceMoved();
+	}
+
+	public override void Delete()
+	{
+		Vehicle?.ForceDisembarkAll();
+		base.Delete();
+	}
+
 	public override bool DescriptionDecorator(DescriptionType type)
 	{
 		return type is DescriptionType.Evaluate or DescriptionType.Full;

@@ -375,6 +375,41 @@ public class Vehicle : SaveableItem, IVehicle
 		return true;
 	}
 
+	public void ForceDisembarkAll()
+	{
+		SetStationaryAfterForcedExteriorChange();
+		foreach (var occupancy in _occupancies.ToList())
+		{
+			ClearForcedOccupantMovement(occupancy.Occupant);
+			using (new FMDB())
+			{
+				var dbitem = FMDB.Context.VehicleOccupancies.Find(occupancy.Id);
+				if (dbitem is not null)
+				{
+					FMDB.Context.VehicleOccupancies.Remove(dbitem);
+					FMDB.Context.SaveChanges();
+				}
+			}
+
+			_occupancies.Remove(occupancy);
+		}
+
+		Changed = true;
+	}
+
+	private void SetStationaryAfterForcedExteriorChange()
+	{
+		_locationType = VehicleLocationType.Cell;
+		_movementStatus = VehicleMovementStatus.Stationary;
+		_currentExitId = null;
+		_destinationCellId = null;
+	}
+
+	private static void ClearForcedOccupantMovement(ICharacter occupant)
+	{
+		occupant?.Movement?.CancelForMoverOnly(occupant);
+	}
+
 	public bool CanMove(ICharacter actor, ICellExit exit, out string reason)
 	{
 		return _cellExitMovementStrategy.CanMove(this, actor, exit, out reason);
@@ -450,6 +485,33 @@ public class Vehicle : SaveableItem, IVehicle
 		_movementStatus = VehicleMovementStatus.Stationary;
 		_currentExitId = null;
 		_destinationCellId = null;
+		Changed = true;
+	}
+
+	public void HandleExteriorItemForceMoved()
+	{
+		if (ExteriorItem is null || ExteriorItem.Deleted || ExteriorItem.Destroyed ||
+		    ExteriorItem.InInventoryOf is not null || ExteriorItem.ContainedIn is not null ||
+		    ExteriorItem.Location is null)
+		{
+			ForceDisembarkAll();
+			return;
+		}
+
+		var origin = Location;
+		var destination = ExteriorItem.Location;
+		var layer = ExteriorItem.RoomLayer;
+		SetStationaryAfterForcedExteriorChange();
+		foreach (var occupant in Occupants.ToList())
+		{
+			ClearForcedOccupantMovement(occupant);
+			origin?.Leave(occupant);
+			occupant.RoomLayer = layer;
+			destination.Enter(occupant, null, roomLayer: layer);
+		}
+
+		_currentCellId = destination.Id;
+		_roomLayer = layer;
 		Changed = true;
 	}
 

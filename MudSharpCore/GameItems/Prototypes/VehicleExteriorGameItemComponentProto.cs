@@ -28,6 +28,7 @@ public class VehicleExteriorGameItemComponentProto : GameItemComponentProto, IVe
 
 	public override string TypeDescription => "Vehicle Exterior";
 	public override bool PreventManualLoad => true;
+	public override string ShowBuildingHelp => BuildingHelpText;
 
 	public IVehiclePrototype VehiclePrototype => VehiclePrototypeId is null
 		? null

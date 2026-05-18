@@ -28,6 +28,7 @@ public class VehicleAccessPointGameItemComponentProto : GameItemComponentProto, 
 
 	public override string TypeDescription => "Vehicle Access Point";
 	public override bool PreventManualLoad => true;
+	public override string ShowBuildingHelp => BuildingHelpText;
 
 	public IVehiclePrototype VehiclePrototype => VehiclePrototypeId is null
 		? null

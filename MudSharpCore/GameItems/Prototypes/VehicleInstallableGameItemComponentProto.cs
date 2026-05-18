@@ -25,6 +25,7 @@ public class VehicleInstallableGameItemComponentProto : GameItemComponentProto, 
 	}
 
 	public override string TypeDescription => "Vehicle Installable";
+	public override string ShowBuildingHelp => BuildingHelpText;
 
 	public static void RegisterComponentInitialiser(GameItemComponentManager manager)
 	{

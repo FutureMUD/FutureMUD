@@ -28,6 +28,7 @@ public class VehicleCargoSpaceGameItemComponentProto : GameItemComponentProto, I
 
 	public override string TypeDescription => "Vehicle Cargo Space";
 	public override bool PreventManualLoad => true;
+	public override string ShowBuildingHelp => BuildingHelpText;
 
 	public IVehiclePrototype VehiclePrototype => VehiclePrototypeId is null
 		? null

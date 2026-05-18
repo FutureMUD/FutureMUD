@@ -52,6 +52,8 @@ The vehicle builder commands create and attach those internal components automat
 Create this component only if you want to test installed vehicle modules:
 
 ```text
+comp typehelp VehicleInstallable
+comp typehelp vehicle installable
 comp edit new vehicle installable
 comp set name QA Vehicle Engine Installable
 comp set desc Makes a QA test engine installable in vehicle engine mounts.
@@ -63,6 +65,21 @@ accept edit fresh vehicle runbook module component
 ```
 
 Record the approved component id as `<engine-installable-component-id>`.
+
+Expected result:
+
+- Both type-help commands show the same vehicle installable help, including `mount <type>` and `role <role>`.
+- `comp edit new vehicle installable` opens a `Vehicle Installable` component, not a `Vehicle Exterior` component.
+- `comp set` or `comp set ?` while editing the component shows the type-specific help instead of the generic "does not yet have specific help" message.
+
+If an older build has already created an accidental `Vehicle Exterior` component from `comp edit new vehicle installable`, clean it up before continuing:
+
+```text
+comp edit <bad component id>
+comp edit delete
+```
+
+If the bad component has already been approved or attached to an item prototype, obsolete or detach it through the normal item/component builder workflow and create a fresh `Vehicle Installable` component with the commands above.
 
 ## Item Prototype Authoring Pattern
 

@@ -514,7 +514,8 @@ Please answer #3primitive#F, #3pre-modern#0, or #3modern#F: ",
             AddPrimitiveOrganExtraction("Organ Extraction", "organ extraction", "Medicine", "Human Medicine", _humanBody,
                 -5.0);
             AddPrimitiveOrganRepair("Crude Organ Repair", "organ repair", "Medicine", "Human Medicine", _humanBody, -5.0,
-                "A crude attempt to pack, trim, and secure damaged internal organs.", "<Surgery requireunconcious='true'/>");
+                "A crude attempt to pack, trim, and secure damaged internal organs.",
+                BuildUnrestrictedSurgeryDefinition(requiresUnconsciousPatient: true));
             AddPrimitiveOrganRepair("Trepanation", "trepanation", "Medicine", "Human Medicine", _humanBody, -3.5,
                 "A specialised primitive cranial procedure used to relieve pressure and work on the brain.",
                 GetDefinitionForTargets(_humanBody, HumanBrainTargets));
@@ -1609,6 +1610,25 @@ Please answer #3primitive#F, #3pre-modern#0, or #3modern#F: ",
                     select new XElement("Part", targetPart.Id)
                 )
             ).ToString();
+        }
+
+        private static string BuildUnrestrictedSurgeryDefinition(bool? requiresUnconsciousPatient = null)
+        {
+            XElement root = new(
+                "Definition",
+                new XElement(
+                    "Parts",
+                    new XAttribute("forbidden", true)
+                )
+            );
+
+            if (requiresUnconsciousPatient.HasValue)
+            {
+                root.SetAttributeValue("requireunconcious",
+                    requiresUnconsciousPatient.Value.ToString().ToLowerInvariant());
+            }
+
+            return root.ToString();
         }
 
         internal static IReadOnlyList<string> ValidateDefaultSurgeryTargetAliasesForTesting()

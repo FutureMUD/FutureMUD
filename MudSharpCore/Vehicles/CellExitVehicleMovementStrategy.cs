@@ -94,8 +94,19 @@ public class CellExitVehicleMovementStrategy : IVehicleMovementStrategy
 			return false;
 		}
 
-		if (!_towService.CanMoveTowTrain(vehicle, exit, out _, out reason))
+		if (!_towService.CanMoveTowTrain(vehicle, exit, out var towTrain, out reason))
 		{
+			return false;
+		}
+
+		foreach (var linkedVehicle in towTrain.DefaultIfEmpty(vehicle))
+		{
+			if (linkedVehicle.ExteriorItem?.PreventsMovement() != true)
+			{
+				continue;
+			}
+
+			reason = linkedVehicle.ExteriorItem.WhyPreventsMovement(actor);
 			return false;
 		}
 

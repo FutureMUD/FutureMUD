@@ -333,6 +333,27 @@ Expected result:
 - If the hitch item is removed from the train location, destroyed, or deleted, movement should block and `vehicle show` should report an invalid tow-link cause.
 - `unhitch <vehicle>` removes all links involving that vehicle, while `unhitch <towpoint>@<vehicle>` removes only links using that point.
 
+## Mount-Hitched Cart Status
+
+A true horse-drawn cart or wagon is not currently a fully supported end-to-end vehicle type.
+
+The current `hitch` and tow-train implementation links one vehicle tow point to another vehicle tow point:
+
+```text
+hitch <towpoint>@<vehicle> <towpoint>@<target> [with <item>]
+```
+
+It does not link a mount, animal, NPC, or character to a vehicle tow point. A mounted rider can currently use ordinary `drag <cart> [by <drag aid>]` mechanics if the cart exterior is a holdable/draggable item, and recent vehicle exterior relocation handling means the cart vehicle's canonical location should follow its exterior item when dragged. That is only a drag/force-move compatibility check, not a proper animal-drawn cart test:
+
+- the link is not persistent;
+- `vehicle show` has no horse-to-cart tow link to diagnose;
+- the tow train service is not involved;
+- the movement is not blocked or validated through vehicle tow points;
+- drag capacity is based on the character dragger and optional `DragAid`, not a dedicated mount-harness pull model;
+- `unhitch` does not apply.
+
+Do not use a horse-and-cart scenario as an acceptance test for the current vehicle tow system. Treat animal-drawn carts, wagons, chariots, and similar mount-hitched vehicles as a future slice that needs an authored mount/vehicle hitch contract, mount-aware pull capacity, movement validation, diagnostics, persistence, and safe recovery.
+
 ## Negative Tests
 
 Run these as separate checks after the positive path:
@@ -377,6 +398,53 @@ Expected result:
 - Admin damage repair restores damage-derived access and movement if the only blocking cause was damage-derived disablement.
 - Occupied vehicle exteriors cannot be picked up or normally repositioned.
 
+## Edge Case Checks
+
+These checks focus on hardcoded movement and item-manipulation paths that can bypass ordinary `drive` and `disembark` flows.
+
+Run these against the `QA Bicycle` after the basic `ItemScale` test:
+
+```text
+embark bicycle driver
+sit
+```
+
+Expected result: the position command is rejected with a message telling you to disembark first.
+
+```text
+goto <different-test-cell>
+vehicle show <vehicle id>
+```
+
+Expected result: the character transfers normally, the bicycle does not follow, and `vehicle show` no longer lists the transferred character as an occupant or controller. Return to the bicycle's cell before continuing.
+
+```text
+embark bicycle driver
+drag bicycle north
+look
+south
+drag bicycle south
+```
+
+Expected result: if the bicycle exterior is holdable/draggable and the normal drag rules allow the drag, the bicycle and rider arrive together. The vehicle's canonical location follows the exterior item.
+
+```text
+embark bicycle driver
+haul bicycle <container>
+```
+
+Expected result: hauling the occupied bicycle into a container is rejected. Disembarking first restores ordinary haul/get/container behaviour according to the item prototype's normal rules.
+
+If your test world has a connectable charger/outlet item and a connectable vehicle exterior, add this optional check:
+
+```text
+connect <charger> bicycle
+embark bicycle driver
+north
+```
+
+Expected result: if the connection itself blocks movement, driving is rejected with the item-system blocker. If it does not block movement, the independent connection is disconnected when the vehicle exterior changes cells; it should not remain logically connected to an item in the previous room.
+
 ## Currently Fully Supported Vehicle Kinds
 
 The current implementation should be considered fully supported for:
@@ -389,5 +457,6 @@ The current implementation should not yet be considered fully supported for:
 
 - route-based buses, trains, or ferries;
 - coordinate-positioned vehicles;
+- animal-drawn carts or wagons hitched to mounts;
 - aircraft, spacecraft, elevators, or ships with large moving interiors;
 - vehicles that need rich player repair gameplay, dynamic crash/catastrophe handling, or detailed fuel/power topology.

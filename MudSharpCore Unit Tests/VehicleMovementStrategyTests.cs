@@ -76,6 +76,23 @@ public class VehicleMovementStrategyTests
 	}
 
 	[TestMethod]
+	public void CanMove_WhenExteriorItemPreventsMovement_Fails()
+	{
+		var strategy = new CellExitVehicleMovementStrategy();
+		var controller = new Mock<ICharacter>();
+		var vehicle = CreateVehicle(controller.Object, [VehicleMovementProfileType.CellExit], SizeCategory.Large);
+		Mock.Get(vehicle.ExteriorItem).Setup(x => x.PreventsMovement()).Returns(true);
+		Mock.Get(vehicle.ExteriorItem).Setup(x => x.WhyPreventsMovement(controller.Object))
+		    .Returns("the charging lead is still connected");
+		var exit = CreateExit(vehicle.Location, SizeCategory.Huge);
+
+		var result = strategy.CanMove(vehicle, controller.Object, exit, out var reason);
+
+		Assert.IsFalse(result);
+		Assert.AreEqual("the charging lead is still connected", reason);
+	}
+
+	[TestMethod]
 	public void CanMove_WhenMovementProfileDisabledByDamage_Fails()
 	{
 		var strategy = new CellExitVehicleMovementStrategy();

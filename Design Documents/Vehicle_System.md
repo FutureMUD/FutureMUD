@@ -31,6 +31,8 @@ Phase 1 and the first three Phase 2 vehicle-systems slices are present:
 - Exterior item wound override that routes hull damage into vehicle damage zones and persists vehicle/zone ids on wounds.
 - Damage-zone effects that disable linked access points, cargo spaces, installation points, tow points, movement profiles, or whole-vehicle movement at configured damage statuses.
 - Admin damage repair for clearing canonical vehicle damage-zone wounds and status without clearing manual disabled flags.
+- Occupancy reconciliation when a rider/driver is moved independently from the vehicle by teleport, transfer, arrest-like relocation, combat knockdown, grapple/drag movement, or other hardcoded cell-leave paths.
+- Exterior relocation hardening for dragged or force-moved vehicle items, including carrying visible occupants with a still-cell-present exterior and clearing occupancy when the exterior is contained, inventoried, deleted, or destroyed.
 - Reboot recovery through persisted vehicle location, movement status, exterior item id, occupancies, and projection resynchronisation on load.
 
 The following areas are deliberately scaffolded rather than fully built:
@@ -126,7 +128,11 @@ The component exists only as a bridge:
 
 The component's prototype sets `PreventManualLoad = true`. This prevents builders or item-load commands from creating orphan vehicle shells through normal item loading. The `vehicleproto set exterior <item proto>` command automatically creates and attaches the required internal component when it links the exterior item prototype.
 
-An occupied exterior item cannot be picked up or otherwise normally repositioned through the item inventory flow. If an exterior item is forcibly moved through the item force-move hook, the vehicle reconciles canonical state from the exterior item: if the item is still in a cell, visible occupants are moved with it and vehicle location state is updated; if the item has been put into inventory, contained, deleted, destroyed, or otherwise removed from cell presence, all occupants are forcibly disembarked and their vehicle occupancy rows are cleared. Exterior item deletion/destruction therefore fails safe by removing occupants from vehicle occupancy rather than leaving them linked to a missing shell.
+An occupied exterior item cannot be picked up or otherwise normally repositioned through the item inventory flow, and cannot be hauled into a container while occupied. Dragging an occupied exterior through an exit is allowed when the normal drag rules allow it; the item force-move hook then reconciles the canonical vehicle and moves visible occupants with the exterior.
+
+If an exterior item is forcibly moved through the item force-move hook, the vehicle reconciles canonical state from the exterior item: if the item is still in a cell, visible occupants are moved with it and vehicle location state is updated; if the item has been put into inventory, contained, deleted, destroyed, or otherwise removed from cell presence, all occupants are forcibly disembarked and their vehicle occupancy rows are cleared. Exterior item deletion/destruction therefore fails safe by removing occupants from vehicle occupancy rather than leaving them linked to a missing shell.
+
+If a character aboard an item-scale or station-style vehicle is moved independently from the exterior item by teleport, transfer, arrest-like relocation, grapple dragging, ordinary forced movement, or a combat knockdown, the character is forcibly disembarked as they leave the exterior item's cell. This prevents stale occupancy and controller links while letting the character movement continue. Voluntary position changes while aboard a vehicle are blocked; forced position changes disembark first and then continue.
 
 ## Persistence
 
@@ -319,6 +325,7 @@ Current validation:
 - vehicle prototype must support `CellExit`
 - movement profile must not be damage-disabled
 - exterior item must fit through the exit's maximum size
+- exterior item components must not block movement
 - exit transition must be viable
 - vehicle must not be disabled or destroyed
 - configured access points that must be closed are closed
@@ -333,6 +340,7 @@ Current movement behaviour:
 - persist transit state before movement
 - schedule the movement delay through the normal movement scheduler
 - move the exterior item to the destination cell and target layer
+- invoke exterior `IConnectable` force-move cleanup so cables, chargers, and similar independent connections do not remain logically connected across cells
 - move occupants to the destination cell and layer as participants in the vehicle movement
 - consume configured fuel and power
 - move all recursively towed vehicles, hitch items, and occupants
@@ -399,7 +407,10 @@ Currently covered by implementation:
 - Save/load preserves prototype, exterior item id, canonical location, room layer, movement state, occupancies, and access rows.
 - ItemScale vehicles can be boarded, controlled, moved through a valid cell exit, and exited.
 - Occupied exterior items reject normal item pickup/repositioning.
+- Occupied exterior items reject being hauled into containers.
 - Forced relocation of the exterior item either moves visible occupants with the exterior to its new cell or clears occupancy if the exterior no longer has a cell location.
+- Independent relocation of an occupant by teleport, transfer, arrest-like hardcoded moves, grapple dragging, combat knockdown, or similar cell-leave paths clears that occupant's vehicle occupancy.
+- Vehicle cell-exit movement honours exterior item movement blockers and disconnects independent `IConnectable` links that would otherwise span cells.
 - RoomContainer vehicles support multiple authored compartments, slots, and stations.
 - Invalid cell-exit movement is blocked for controller mismatch, missing movement profile, too-small exit, invalid origin, and non-viable transition.
 - Reboot recovery resynchronises the exterior item projection to the vehicle's canonical cell and layer.

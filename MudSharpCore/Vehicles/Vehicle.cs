@@ -380,20 +380,36 @@ public class Vehicle : SaveableItem, IVehicle
 		SetStationaryAfterForcedExteriorChange();
 		foreach (var occupancy in _occupancies.ToList())
 		{
-			ClearForcedOccupantMovement(occupancy.Occupant);
-			using (new FMDB())
-			{
-				var dbitem = FMDB.Context.VehicleOccupancies.Find(occupancy.Id);
-				if (dbitem is not null)
-				{
-					FMDB.Context.VehicleOccupancies.Remove(dbitem);
-					FMDB.Context.SaveChanges();
-				}
-			}
-
-			_occupancies.Remove(occupancy);
+			ForceDisembark(occupancy.Occupant);
 		}
 
+		Changed = true;
+	}
+
+	public void ForceDisembark(ICharacter actor, bool cancelMovement = true)
+	{
+		var occupancy = _occupancies.FirstOrDefault(x => x.Occupant == actor);
+		if (occupancy is null)
+		{
+			return;
+		}
+
+		if (cancelMovement)
+		{
+			ClearForcedOccupantMovement(occupancy.Occupant);
+		}
+
+		using (new FMDB())
+		{
+			var dbitem = FMDB.Context.VehicleOccupancies.Find(occupancy.Id);
+			if (dbitem is not null)
+			{
+				FMDB.Context.VehicleOccupancies.Remove(dbitem);
+				FMDB.Context.SaveChanges();
+			}
+		}
+
+		_occupancies.Remove(occupancy);
 		Changed = true;
 	}
 
@@ -465,6 +481,7 @@ public class Vehicle : SaveableItem, IVehicle
 			origin?.Extract(ExteriorItem);
 			ExteriorItem.RoomLayer = layer;
 			destination.Insert(ExteriorItem, true);
+			ForceExteriorConnectablesMoved();
 		}
 
 		foreach (var occupant in Occupants.ToList())
@@ -486,6 +503,19 @@ public class Vehicle : SaveableItem, IVehicle
 		_currentExitId = null;
 		_destinationCellId = null;
 		Changed = true;
+	}
+
+	private void ForceExteriorConnectablesMoved()
+	{
+		if (ExteriorItem is null)
+		{
+			return;
+		}
+
+		foreach (var connectable in ExteriorItem.GetItemTypes<IConnectable>())
+		{
+			connectable.ForceMove();
+		}
 	}
 
 	public void HandleExteriorItemForceMoved()

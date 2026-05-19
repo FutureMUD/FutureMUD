@@ -324,6 +324,13 @@ You can also use this command to remove similarly large items from containers. I
             }
         }
 
+        var vehicle = targetItem.GetItemType<IVehicleExterior>()?.Vehicle;
+        if (vehicle?.Occupants.Any() == true)
+        {
+            actor.Send($"You cannot haul {targetItem.HowSeen(actor)} into {targetContainer.HowSeen(actor)} while it is occupied.");
+            return;
+        }
+
         DragTarget dragging = targetItem.EffectsOfType<DragTarget>().FirstOrDefault();
         if (dragging?.TheDrag.CharacterDraggers.Contains(actor) == true)
         {

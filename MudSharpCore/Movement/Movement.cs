@@ -893,6 +893,7 @@ public class Movement : IMovement
                 Exit.Origin.Extract(targetItem);
                 targetItem.RoomLayer = Draggers.First().RoomLayer;
                 Exit.Destination.Insert(targetItem, true);
+                targetItem.ForceMove();
             }
         }
 

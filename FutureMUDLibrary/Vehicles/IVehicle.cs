@@ -50,6 +50,7 @@ public interface IVehicle : IFrameworkItem, IHaveFuturemud, ISaveable
 	void MoveToCell(ICell destination, RoomLayer layer, ICellExit exit, IMovement movement = null);
 	void RecoverInterruptedMovement();
 	void HandleExteriorItemForceMoved();
+	void ForceDisembark(ICharacter actor, bool cancelMovement = true);
 	void ForceDisembarkAll();
 	void LinkExteriorItem(IGameItem item);
 	void SynchroniseExteriorItemToLocation();

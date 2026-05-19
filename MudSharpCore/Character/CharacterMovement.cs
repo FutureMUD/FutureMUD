@@ -545,6 +545,8 @@ public partial class Character
             DoFallOffHorse();
         }
 
+        Gameworld.Vehicles.FirstOrDefault(x => x.IsOccupant(this))?.ForceDisembark(this, false);
+
         // TODO - check sprawled is a valid position and maybe give a chance (skill based?) to land in another position
         SetPosition(PositionSprawled.Instance, PositionModifier.None, PositionTarget, null);
     }

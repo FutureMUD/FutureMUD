@@ -402,6 +402,7 @@ public partial class ItemSeeder
 				[
 					"TagTool - Held - an item with the Blowpipe tag",
 					"TagTool - Held - an item with the Pontil Rod tag",
+					"TagTool - InRoom - an item with the Lit Glory Hole tag",
 					"TagTool - InRoom - an item with the Lit Annealing Lehr tag"
 				],
 				[
@@ -896,6 +897,7 @@ public partial class ItemSeeder
 		[
 			"TagTool - Held - an item with the Blowpipe tag",
 			"TagTool - Held - an item with the Pontil Rod tag",
+			"TagTool - InRoom - an item with the Lit Glory Hole tag",
 			"TagTool - InRoom - an item with the Lit Annealing Lehr tag"
 		]);
 

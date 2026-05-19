@@ -43,7 +43,8 @@ public class ItemSeederAntiquityRemainingCraftingTests
 			ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.Antiquity.cs") +
 			ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.AntiquityHousehold.cs");
 		var equipmentCraftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.AntiquityEquipment.cs");
-		var allCraftSource = existingCraftSource + equipmentCraftSource;
+		var jewelleryCraftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.AntiquityJewellery.cs");
+		var allCraftSource = existingCraftSource + equipmentCraftSource + jewelleryCraftSource;
 
 		var items = AntiquityReworkMethods
 			.SelectMany(method => ParseItemsInMethod(itemSource, method))
@@ -58,12 +59,80 @@ public class ItemSeederAntiquityRemainingCraftingTests
 		Assert.AreEqual(398, items.Count(IsHouseholdDynamicTarget));
 
 		var uncovered = items
-			.Where(item => !IsCoveredByCraftSuites(item, existingCraftSource, equipmentCraftSource, allCraftSource))
+			.Where(item => !IsCoveredByCraftSuites(item, existingCraftSource, equipmentCraftSource, jewelleryCraftSource,
+				allCraftSource))
 			.Select(item => $"{item.MethodName}:{item.StableReference}")
 			.ToList();
 
 		Assert.AreEqual(0, uncovered.Count,
 			$"Expected every antiquity prototype to be covered by an existing or new craft suite. Missing: {string.Join(", ", uncovered)}");
+	}
+
+	[TestMethod]
+	public void AntiquityJewelleryCrafts_RegisterDynamicKnowledgeGatedSuiteAndCatalogue()
+	{
+		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.Antiquity.cs");
+		var craftRoot = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.cs");
+		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.AntiquityJewellery.cs");
+		var tagSource = ReadSource("DatabaseSeeder", "Seeders", "UsefulSeeder.Tags.cs");
+		var tagHierarchy = ReadSource("Design Documents", "Data", "SeededTagHierarchy.csv");
+		var jewelleryDoc = ReadSource("Design Documents", "Crafting", "Antiquity_Jewellery_Crafting_Suite.md");
+
+		var jewelleryItems = ParseItemsInMethod(itemSource, "SeedAntiquityJewellery");
+		Assert.AreEqual(162, jewelleryItems.Count, "The jewellery craft catalogue should track the current stock jewellery set.");
+		var usekhBlock = ExtractCallBlockContaining(itemSource, "jewellery_gold_usekh_collar");
+		AssertContains(usekhBlock, "carnelian, turquoise and lapis-coloured beads");
+
+		foreach (var expected in new[]
+		{
+			"SeedAntiquityJewelleryCrafts();",
+			"private void SeedAntiquityJewelleryCrafts()",
+			"SeedAntiquityJewelleryIntermediateCommodityCrafts();",
+			"Ancient Jewellery Crafting",
+			"Jewellery Metal Stock",
+			"Jewellery Wire Stock",
+			"Jewellery Bead Stock",
+			"Jewellery Setting Stock",
+			"Wooden Bead Jewellery",
+			"Functions / Worn Items / Jewellery",
+			"var materialScanText = $\"{stableReference} {item.ShortDescription} {item.FullDescription}\".ToLowerInvariant();",
+			"GetAntiquityJewelleryCraftPath(material, materialScanText)",
+			"BuildAntiquityJewelleryFinalInputs(item, material, materialScanText, path)",
+			"(\"lapis\", \"lapis lazuli\")",
+			"AddAntiquityCraft(",
+			"knowledgeSubtype:",
+			"SanitiseAntiquityJewelleryVisibleName(item.ShortDescription)",
+			"BuildUniqueAntiquityEquipmentCraftName"
+		})
+		{
+			Assert.IsTrue(craftRoot.Contains(expected, StringComparison.Ordinal) ||
+			              craftSource.Contains(expected, StringComparison.Ordinal),
+				$"Expected source to contain: {expected}");
+		}
+
+		foreach (var expected in new[]
+		{
+			"Jewellery Craft Stock",
+			"Jewellery Metal Stock",
+			"Jewellery Wire Stock",
+			"Jewellery Bead Stock",
+			"Jewellery Setting Stock"
+		})
+		{
+			AssertContains(tagSource, $"AddTag(context, \"{expected}\",");
+			AssertContains(tagHierarchy, expected.Equals("Jewellery Craft Stock", StringComparison.Ordinal)
+				? $"Material Functions / {expected}"
+				: $"Jewellery Craft Stock / {expected}");
+			if (!expected.Equals("Jewellery Craft Stock", StringComparison.Ordinal))
+			{
+				AssertContains(craftSource, expected);
+			}
+		}
+
+		foreach (var item in jewelleryItems)
+		{
+			AssertContains(jewelleryDoc, $"`{item.StableReference}`");
+		}
 	}
 
 	[TestMethod]
@@ -136,6 +205,57 @@ public class ItemSeederAntiquityRemainingCraftingTests
 	}
 
 	[TestMethod]
+	public void AntiquityEquipmentCrafts_MakeSupportToolsAndUnlitApparatusCraftable()
+	{
+		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.AntiquityEquipment.cs");
+		var householdToolSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.AntiquityHouseholdTools.cs");
+
+		foreach (var expected in new[]
+		{
+			"professionalToolTagIds",
+			"Market / Professional Tools / Standard Tools",
+			"AntiquityUnlitWorkshopApparatusStableReferences",
+			"AntiquityLitWorkshopApparatusStableReferences",
+			"antiquity_workshop_hearth",
+			"antiquity_updraft_kiln",
+			"antiquity_glory_hole_furnace",
+			"antiquity_annealing_lehr",
+			"antiquity_clay_smelting_furnace",
+			"Pottery Clay Body",
+			"Tool Blank Stock",
+			"AntiquityEquipmentToolBlankMaterials",
+			"GetToolBlankSkill(material)",
+			"ToolBlankShapingTools(material)",
+			"\"glass\"",
+			"\"shell\"",
+			"\"stone\""
+		})
+		{
+			AssertContains(craftSource, expected);
+		}
+
+		foreach (var litOnly in new[]
+		{
+			"antiquity_lit_workshop_hearth",
+			"antiquity_lit_updraft_kiln",
+			"antiquity_lit_glory_hole_furnace",
+			"antiquity_lit_annealing_lehr",
+			"antiquity_lit_clay_smelting_furnace"
+		})
+		{
+			AssertContains(householdToolSource, litOnly);
+			AssertContains(craftSource, litOnly);
+		}
+
+		var stoneBlankToolBranch = ExtractBlockContaining(craftSource,
+			"if (material.Equals(\"stone\", StringComparison.OrdinalIgnoreCase))");
+		AssertContains(stoneBlankToolBranch, "TagTool - Held - an item with the Stone Chisel tag");
+		AssertContains(stoneBlankToolBranch, "TagTool - Held - an item with the Stone Mallet tag");
+		Assert.IsFalse(stoneBlankToolBranch.Contains("Polishing Stone", StringComparison.Ordinal),
+			"Stone tool blank stock must not require an existing polishing stone because it bootstraps the polishing stone tool itself.");
+	}
+
+	[TestMethod]
 	public void AntiquityEquipmentCrafts_KeepVisibleCraftStringsCultureNeutral()
 	{
 		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.AntiquityEquipment.cs");
@@ -204,6 +324,7 @@ public class ItemSeederAntiquityRemainingCraftingTests
 			(Lit: "antiquity_lit_workshop_hearth", Unlit: "antiquity_workshop_hearth", ToolTag: "Functions / Material Functions / Fire"),
 			(Lit: "antiquity_lit_clay_smelting_furnace", Unlit: "antiquity_clay_smelting_furnace", ToolTag: "Functions / Tools / Smelting Tools / Smelting Furnace / Lit Smelting Furnace"),
 			(Lit: "antiquity_lit_updraft_kiln", Unlit: "antiquity_updraft_kiln", ToolTag: "Functions / Tools / Pottery Tools / Kiln / Lit Kiln"),
+			(Lit: "antiquity_lit_glory_hole_furnace", Unlit: "antiquity_glory_hole_furnace", ToolTag: "Functions / Tools / Glassblowing Tools / Glory Hole / Lit Glory Hole"),
 			(Lit: "antiquity_lit_annealing_lehr", Unlit: "antiquity_annealing_lehr", ToolTag: "Functions / Tools / Glassblowing Tools / Annealing Lehr / Lit Annealing Lehr")
 		})
 		{
@@ -219,6 +340,7 @@ public class ItemSeederAntiquityRemainingCraftingTests
 			"light a workshop hearth",
 			"stoke an updraft pottery kiln",
 			"stoke a clay smelting furnace",
+			"stoke a glassworking glory hole",
 			"stoke an annealing lehr",
 			"CommodityInput(charcoalGrams, \"charcoal\")",
 			"lay|lays $i2 into the fire bed",
@@ -236,6 +358,7 @@ public class ItemSeederAntiquityRemainingCraftingTests
 		var docsSource =
 			ReadSource("Design Documents", "Crafting", "Antiquity_Equipment_Crafting_Suite.md") +
 			ReadSource("Design Documents", "Crafting", "Antiquity_Furniture_Container_Crafting_Suite.md") +
+			ReadSource("Design Documents", "Crafting", "Antiquity_Jewellery_Crafting_Suite.md") +
 			ReadSource("Design Documents", "Crafting", "Antiquity_Writing_Implements_Crafting_Suite.md") +
 			ReadSource("Design Documents", "Crafting", "Antiquity_Medical_Crafting_Suite.md");
 
@@ -290,16 +413,17 @@ public class ItemSeederAntiquityRemainingCraftingTests
 	}
 
 	[TestMethod]
-	public void AntiquityCrafting_CatalogueAuditDocumentsRemainingLogicalGaps()
+	public void AntiquityCrafting_CatalogueAuditDocumentsSecondPassResolution()
 	{
 		var auditDoc = ReadSource("Design Documents", "Crafting", "Antiquity_Crafting_Audit.md");
 
 		foreach (var expected in new[]
 		{
-			"SeedAntiquityJewellery",
-			"support tools and unlit workshop apparatus",
-			"glass furnace",
-			"maintained rather than generated"
+			"Second-Pass Resolution",
+			"SeedAntiquityJewelleryCrafts",
+			"Support tools and unlit workshop apparatus are now craftable",
+			"glassworking glory-hole furnace",
+			"source-backed regression tests"
 		})
 		{
 			AssertContains(auditDoc, expected);
@@ -307,14 +431,21 @@ public class ItemSeederAntiquityRemainingCraftingTests
 	}
 
 	private static bool IsCoveredByCraftSuites(SeededAntiquityItem item, string existingCraftSource,
-		string equipmentCraftSource, string allCraftSource)
+		string equipmentCraftSource, string jewelleryCraftSource, string allCraftSource)
 	{
-		return item.MethodName.Equals("SeedAntiquityJewellery", StringComparison.Ordinal) ||
+		return IsJewelleryDynamicTarget(item, jewelleryCraftSource) ||
 		       existingCraftSource.Contains($"\"{item.StableReference}\"", StringComparison.Ordinal) ||
 		       IsHouseholdDynamicTarget(item) ||
 		       equipmentCraftSource.Contains($"\"{item.StableReference}\"", StringComparison.Ordinal) ||
 		       IsMilitaryEquipmentTarget(item, existingCraftSource) ||
 		       allCraftSource.Contains($"\"{item.StableReference}\"", StringComparison.Ordinal);
+	}
+
+	private static bool IsJewelleryDynamicTarget(SeededAntiquityItem item, string jewelleryCraftSource)
+	{
+		return item.MethodName.Equals("SeedAntiquityJewellery", StringComparison.Ordinal) &&
+		       HasRoot(item.Tags, "Functions / Worn Items / Jewellery") &&
+		       jewelleryCraftSource.Contains("SeedAntiquityJewelleryCrafts()", StringComparison.Ordinal);
 	}
 
 	private static bool IsHouseholdDynamicTarget(SeededAntiquityItem item)
@@ -415,6 +546,35 @@ public class ItemSeederAntiquityRemainingCraftingTests
 		}
 
 		Assert.Fail($"Could not extract body for method {methodName}.");
+		return string.Empty;
+	}
+
+	private static string ExtractBlockContaining(string source, string marker)
+	{
+		var start = source.IndexOf(marker, StringComparison.Ordinal);
+		Assert.IsTrue(start >= 0, $"Could not find source block for {marker}.");
+		var openBrace = source.IndexOf('{', start);
+		Assert.IsTrue(openBrace >= 0, $"Could not find body for {marker}.");
+
+		var depth = 0;
+		for (var i = openBrace; i < source.Length; i++)
+		{
+			switch (source[i])
+			{
+				case '{':
+					depth++;
+					break;
+				case '}':
+					depth--;
+					if (depth == 0)
+					{
+						return source[(openBrace + 1)..i];
+					}
+					break;
+			}
+		}
+
+		Assert.Fail($"Could not extract block for {marker}.");
 		return string.Empty;
 	}
 

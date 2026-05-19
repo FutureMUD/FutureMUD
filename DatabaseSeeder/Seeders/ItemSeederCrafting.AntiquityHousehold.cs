@@ -370,7 +370,7 @@ public partial class ItemSeeder
 				"Ceramics",
 				$"bisque fire a {material} vessel blank",
 				[CommodityInput(1000.0, material, "Wet Vessel Blank", colour: true, fineColour: true)],
-				["TagTool - InRoom - an item with the Kiln tag"],
+				["TagTool - InRoom - an item with the Lit Kiln tag"],
 				[
 					$"CommodityProduct - {FormatCommodityAmount(900.0)} of {material} commodity; tag Bisque Vessel Blank; characteristic Colour from $i1; characteristic Fine Colour from $i1"
 				]);
@@ -402,7 +402,7 @@ public partial class ItemSeeder
 				[
 					"TagTool - Held - an item with the Blowpipe tag",
 					"TagTool - Held - an item with the Pontil Rod tag",
-					"TagTool - InRoom - an item with the Annealing Lehr tag"
+					"TagTool - InRoom - an item with the Lit Annealing Lehr tag"
 				],
 				[
 					$"CommodityProduct - {FormatCommodityAmount(850.0)} of {material} commodity; tag Glass Vessel Blank; characteristic Colour from $i1; characteristic Fine Colour from $i1"
@@ -422,6 +422,7 @@ public partial class ItemSeeder
 				[
 					"TagTool - Held - an item with the Crucible tag",
 					"TagTool - Held - an item with the Crucible Tongs tag",
+					"TagTool - InRoom - an item with the Lit Smelting Furnace tag",
 					"TagTool - InRoom - an item with the Vessel Casting Mould tag"
 				],
 				[$"CommodityProduct - {FormatCommodityAmount(1000.0)} of {material} commodity; tag Cast Vessel Blank"]);
@@ -886,7 +887,7 @@ public partial class ItemSeeder
 		[
 			"TagTool - InRoom - an item with the Potter's Wheel tag",
 			"TagTool - Held - an item with the Potter's Rib tag",
-			"TagTool - InRoom - an item with the Kiln tag"
+			"TagTool - InRoom - an item with the Lit Kiln tag"
 		]);
 
 	private static AntiquityHouseholdCraftPath GlassPath() => new(
@@ -895,7 +896,7 @@ public partial class ItemSeeder
 		[
 			"TagTool - Held - an item with the Blowpipe tag",
 			"TagTool - Held - an item with the Pontil Rod tag",
-			"TagTool - InRoom - an item with the Annealing Lehr tag"
+			"TagTool - InRoom - an item with the Lit Annealing Lehr tag"
 		]);
 
 	private static AntiquityHouseholdCraftPath MetalPath(string material) => new(
@@ -911,6 +912,7 @@ public partial class ItemSeeder
 		[
 			"TagTool - Held - an item with the Crucible tag",
 			"TagTool - Held - an item with the Crucible Tongs tag",
+			"TagTool - InRoom - an item with the Lit Smelting Furnace tag",
 			"TagTool - Held - an item with the Bronze Burnisher tag"
 		]);
 

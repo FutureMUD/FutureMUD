@@ -153,6 +153,159 @@ public class ItemSeederAntiquityRemainingCraftingTests
 		}
 	}
 
+	[TestMethod]
+	public void AntiquityCrafting_AllCurrentTagToolsHaveSeededItemCoverage()
+	{
+		var craftSource = ReadSeederSources("ItemSeederCrafting.Antiquity*.cs");
+		var itemSource = ReadSeederSources("ItemSeeder.Rework.Antiquity*.cs");
+
+		var toolTags = Regex.Matches(craftSource,
+				@"TagTool\s*-\s*(?:Held|InRoom|In Room|Wielded)\s*-\s*an item with the (?<tag>.+?) tag",
+				RegexOptions.IgnoreCase)
+			.Select(x => x.Groups["tag"].Value.Trim())
+			.Where(x => !string.IsNullOrWhiteSpace(x))
+			.Distinct(StringComparer.OrdinalIgnoreCase)
+			.OrderBy(x => x, StringComparer.OrdinalIgnoreCase)
+			.ToList();
+
+		var seededToolTagLeafs = Regex.Matches(itemSource, @"""(?<tag>Functions / [^""]+)""")
+			.Select(x => x.Groups["tag"].Value.Split(" / ").Last().Trim())
+			.Where(x => !string.IsNullOrWhiteSpace(x))
+			.ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+		var missing = toolTags
+			.Where(x => !seededToolTagLeafs.Contains(x))
+			.ToList();
+
+		Assert.AreEqual(0, missing.Count,
+			$"Every current antiquity TagTool should have at least one seeded rework item carrying the exact tool tag. Missing: {string.Join(", ", missing)}");
+	}
+
+	[TestMethod]
+	public void AntiquityCrafting_LitWorkshopItemsHaveMorphTargetsTimersAndToolTags()
+	{
+		var createItemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.cs");
+		var householdToolSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.AntiquityHouseholdTools.cs");
+		var equipmentCraftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.AntiquityEquipment.cs");
+
+		foreach (var expected in new[]
+		{
+			"item.MorphGameItemProtoId = morphItem.Id;",
+			"item.MorphTimeSeconds = (int)morphTimer.Value.TotalSeconds;",
+			"item.MorphEmote = morphEmote;",
+			"item.OnDestroyedGameItemProtoId = destroyedItem.Id;"
+		})
+		{
+			AssertContains(createItemSource, expected);
+		}
+
+		foreach (var spec in new[]
+		{
+			(Lit: "antiquity_lit_workshop_hearth", Unlit: "antiquity_workshop_hearth", ToolTag: "Functions / Material Functions / Fire"),
+			(Lit: "antiquity_lit_clay_smelting_furnace", Unlit: "antiquity_clay_smelting_furnace", ToolTag: "Functions / Tools / Smelting Tools / Smelting Furnace / Lit Smelting Furnace"),
+			(Lit: "antiquity_lit_updraft_kiln", Unlit: "antiquity_updraft_kiln", ToolTag: "Functions / Tools / Pottery Tools / Kiln / Lit Kiln"),
+			(Lit: "antiquity_lit_annealing_lehr", Unlit: "antiquity_annealing_lehr", ToolTag: "Functions / Tools / Glassblowing Tools / Annealing Lehr / Lit Annealing Lehr")
+		})
+		{
+			var block = ExtractCallBlockContaining(householdToolSource, spec.Lit);
+			AssertContains(block, spec.Unlit);
+			AssertContains(block, spec.ToolTag);
+			AssertContains(block, "TimeSpan.FromHours(");
+		}
+
+		foreach (var expected in new[]
+		{
+			"SeedAntiquityWorkshopHeatSourceCrafts();",
+			"light a workshop hearth",
+			"stoke an updraft pottery kiln",
+			"stoke a clay smelting furnace",
+			"stoke an annealing lehr",
+			"CommodityInput(charcoalGrams, \"charcoal\")",
+			"lay|lays $i2 into the fire bed",
+			"StableUnusedInputProduct(unlitStableReference, 1)"
+		})
+		{
+			AssertContains(equipmentCraftSource, expected);
+		}
+	}
+
+	[TestMethod]
+	public void AntiquityCrafting_ProducedIntermediateTagsAreConsumedOrDocumentedReusableStock()
+	{
+		var craftSource = ReadSeederSources("ItemSeederCrafting.Antiquity*.cs");
+		var docsSource =
+			ReadSource("Design Documents", "Crafting", "Antiquity_Equipment_Crafting_Suite.md") +
+			ReadSource("Design Documents", "Crafting", "Antiquity_Furniture_Container_Crafting_Suite.md") +
+			ReadSource("Design Documents", "Crafting", "Antiquity_Writing_Implements_Crafting_Suite.md") +
+			ReadSource("Design Documents", "Crafting", "Antiquity_Medical_Crafting_Suite.md");
+
+		var producedTags = ExtractLiteralCommodityProductTags(craftSource);
+		var consumedTags = ExtractLiteralCommodityInputTags(craftSource);
+
+		var undocumentedReusableOutputs = producedTags
+			.Where(x => !consumedTags.Contains(x))
+			.Where(x => !docsSource.Contains($"`{x}`", StringComparison.Ordinal))
+			.OrderBy(x => x, StringComparer.OrdinalIgnoreCase)
+			.ToList();
+
+		Assert.AreEqual(0, undocumentedReusableOutputs.Count,
+			$"Produced intermediate tags should be consumed downstream or documented as reusable stock outputs. Missing docs: {string.Join(", ", undocumentedReusableOutputs)}");
+	}
+
+	[TestMethod]
+	public void AntiquityCrafting_DocumentationMentionsEveryCraftSourceStableReference()
+	{
+		var craftSource = ReadSeederSources("ItemSeederCrafting.Antiquity*.cs");
+		var docsSource = ReadDesignDocumentSources("Antiquity_*.md");
+
+		var craftStableReferences = ExtractStableReferences(craftSource)
+			.OrderBy(x => x, StringComparer.OrdinalIgnoreCase)
+			.ToList();
+		var documentedStableReferences = ExtractStableReferences(docsSource);
+
+		var missing = craftStableReferences
+			.Where(x => !documentedStableReferences.Contains(x))
+			.ToList();
+
+		Assert.AreEqual(0, missing.Count,
+			$"Every stable reference explicitly named by current antiquity craft source should be catalogued in the antiquity docs. Missing: {string.Join(", ", missing)}");
+	}
+
+	[TestMethod]
+	public void AntiquityMedicalCookingPotCrafts_RequireLitFireState()
+	{
+		var medicalCraftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.AntiquityMedical.cs");
+
+		foreach (var craftName in new[]
+		{
+			"prepare clean dressing stock",
+			"render herbal salve stock",
+			"steep medicinal decoction stock"
+		})
+		{
+			var block = ExtractCallBlockContaining(medicalCraftSource, craftName);
+			AssertContains(block, "TagTool - InRoom - an item with the Cooking Pot tag");
+			AssertContains(block, "TagTool - InRoom - an item with the Fire tag");
+		}
+	}
+
+	[TestMethod]
+	public void AntiquityCrafting_CatalogueAuditDocumentsRemainingLogicalGaps()
+	{
+		var auditDoc = ReadSource("Design Documents", "Crafting", "Antiquity_Crafting_Audit.md");
+
+		foreach (var expected in new[]
+		{
+			"SeedAntiquityJewellery",
+			"support tools and unlit workshop apparatus",
+			"glass furnace",
+			"maintained rather than generated"
+		})
+		{
+			AssertContains(auditDoc, expected);
+		}
+	}
+
 	private static bool IsCoveredByCraftSuites(SeededAntiquityItem item, string existingCraftSource,
 		string equipmentCraftSource, string allCraftSource)
 	{
@@ -268,6 +421,68 @@ public class ItemSeederAntiquityRemainingCraftingTests
 	private static void AssertContains(string source, string expected)
 	{
 		Assert.IsTrue(source.Contains(expected, StringComparison.Ordinal), $"Expected source to contain: {expected}");
+	}
+
+	private static string ExtractCallBlockContaining(string source, string marker)
+	{
+		var start = source.IndexOf(marker, StringComparison.Ordinal);
+		Assert.IsTrue(start >= 0, $"Could not find source block for {marker}.");
+		var end = source.IndexOf(");", start, StringComparison.Ordinal);
+		Assert.IsTrue(end >= 0, $"Could not find end of source block for {marker}.");
+		return source[start..end];
+	}
+
+	private static HashSet<string> ExtractLiteralCommodityProductTags(string source)
+	{
+		return Regex.Matches(source, @"CommodityProduct\s*-\s*[^""\]]*?;\s*tag\s+(?<tag>[^;""\]\}]+)")
+			.Select(x => x.Groups["tag"].Value.Trim())
+			.Where(IsLiteralTagReference)
+			.ToHashSet(StringComparer.OrdinalIgnoreCase);
+	}
+
+	private static HashSet<string> ExtractLiteralCommodityInputTags(string source)
+	{
+		var pileTags = Regex.Matches(source, @"piletag\s+(?<tag>[^;""\]\)]+)")
+			.Select(x => x.Groups["tag"].Value.Trim());
+		var helperTags = Regex.Matches(source, @"CommodityInput\([^,\)]*,\s*""[^""]+""\s*,\s*""(?<tag>[^""]+)""")
+			.Select(x => x.Groups["tag"].Value.Trim());
+
+		return pileTags
+			.Concat(helperTags)
+			.Where(IsLiteralTagReference)
+			.ToHashSet(StringComparer.OrdinalIgnoreCase);
+	}
+
+	private static bool IsLiteralTagReference(string tag)
+	{
+		return !string.IsNullOrWhiteSpace(tag) &&
+		       !tag.Contains('{', StringComparison.Ordinal) &&
+		       !tag.Contains('$', StringComparison.Ordinal);
+	}
+
+	private static HashSet<string> ExtractStableReferences(string source)
+	{
+		return Regex.Matches(source, @"\b(?:antiquity|adjacent_antiquity|jewellery)_[a-z0-9_]+\b")
+			.Select(x => x.Value)
+			.ToHashSet(StringComparer.OrdinalIgnoreCase);
+	}
+
+	private static string ReadSeederSources(string pattern)
+	{
+		var sourceRoot = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", ".."));
+		return string.Concat(Directory
+			.EnumerateFiles(Path.Combine(sourceRoot, "DatabaseSeeder", "Seeders"), pattern)
+			.OrderBy(x => x, StringComparer.OrdinalIgnoreCase)
+			.Select(File.ReadAllText));
+	}
+
+	private static string ReadDesignDocumentSources(string pattern)
+	{
+		var sourceRoot = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", ".."));
+		return string.Concat(Directory
+			.EnumerateFiles(Path.Combine(sourceRoot, "Design Documents", "Crafting"), pattern)
+			.OrderBy(x => x, StringComparer.OrdinalIgnoreCase)
+			.Select(File.ReadAllText));
 	}
 
 	private static string ReadSource(params string[] parts)

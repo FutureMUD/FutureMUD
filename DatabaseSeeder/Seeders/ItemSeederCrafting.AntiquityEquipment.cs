@@ -191,12 +191,105 @@ public partial class ItemSeeder
 			return;
 		}
 
+		SeedAntiquityWorkshopHeatSourceCrafts();
 		SeedAntiquityEquipmentIntermediateCommodityCrafts();
 
 		var usedCraftNames = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
 		SeedAntiquityCommonClothingCrafts(usedCraftNames);
 		SeedAntiquityCraftToolCrafts(usedCraftNames);
 		SeedAntiquityMilitaryEquipmentCrafts(usedCraftNames);
+	}
+
+	private void SeedAntiquityWorkshopHeatSourceCrafts()
+	{
+		AddAntiquityHeatSourceCraft(
+			"light a workshop hearth",
+			"Survival",
+			"Surviving",
+			AncientLightingKnowledge,
+			"Workshop Heat",
+			"light a clay workshop hearth",
+			"antiquity_workshop_hearth",
+			"antiquity_lit_workshop_hearth",
+			500.0,
+			5,
+			Difficulty.Easy);
+
+		AddAntiquityHeatSourceCraft(
+			"stoke an updraft pottery kiln",
+			"Pottery",
+			"Pottery",
+			AncientCeramicVesselmakingKnowledge,
+			"Ceramics",
+			"stoke an updraft pottery kiln",
+			"antiquity_updraft_kiln",
+			"antiquity_lit_updraft_kiln",
+			2400.0,
+			15,
+			Difficulty.Normal);
+
+		AddAntiquityHeatSourceCraft(
+			"stoke a clay smelting furnace",
+			"Blacksmithing",
+			"Blacksmithing",
+			AncientToolmakingKnowledge,
+			"Metal Heat",
+			"stoke a clay smelting furnace",
+			"antiquity_clay_smelting_furnace",
+			"antiquity_lit_clay_smelting_furnace",
+			2600.0,
+			20,
+			Difficulty.Normal);
+
+		AddAntiquityHeatSourceCraft(
+			"stoke an annealing lehr",
+			"Glassworking",
+			"Glassworking",
+			AncientGlassworkingKnowledge,
+			"Glassworking",
+			"stoke an annealing lehr",
+			"antiquity_annealing_lehr",
+			"antiquity_lit_annealing_lehr",
+			1800.0,
+			20,
+			Difficulty.Normal);
+	}
+
+	private void AddAntiquityHeatSourceCraft(string name, string category, string traitName, string knowledgeName,
+		string knowledgeSubtype, string blurb, string unlitStableReference, string litStableReference, double charcoalGrams,
+		int minimumTraitValue, Difficulty difficulty)
+	{
+		AddAntiquityCraft(
+			name,
+			category,
+			blurb,
+			name,
+			$"{blurb} in progress",
+			knowledgeName,
+			traitName,
+			minimumTraitValue,
+			difficulty,
+			AntiquityHeatSourcePhases(),
+			[
+				StableSimpleItemInput(unlitStableReference),
+				CommodityInput(charcoalGrams, "charcoal")
+			],
+			[],
+			[StableSimpleProduct(litStableReference)],
+			[StableUnusedInputProduct(unlitStableReference, 1)],
+			knowledgeSubtype: knowledgeSubtype,
+			knowledgeDescription: $"{knowledgeName} covers lighting, stoking, and maintaining reusable antiquity workshop heat sources.",
+			knowledgeLongDescription: $"{knowledgeName} covers lighting, stoking, and maintaining reusable antiquity workshop heat sources.");
+	}
+
+	private static (int Seconds, string Echo, string FailEcho)[] AntiquityHeatSourcePhases()
+	{
+		return
+		[
+			(20, "$0 clear|clears ash from $i1 and lay|lays $i2 into the fire bed.", "$0 clear|clears ash from $i1, but pack|packs the charcoal poorly."),
+			(35, "$0 coax|coaxes the charcoal into a steady working heat.", "$0 coax|coaxes the charcoal, but the heat gutters and chokes."),
+			(25, "$0 settle|settles $p1 into a usable heat.", "$0 lose|loses the heat before the work is ready, leaving only $f1 usable.")
+		];
 	}
 
 	private void SeedAntiquityEquipmentIntermediateCommodityCrafts()
@@ -451,7 +544,7 @@ public partial class ItemSeeder
 				[CommodityInput(1000.0, material)],
 				[
 					"TagTool - InRoom - an item with the Potter's Wheel tag",
-					"TagTool - InRoom - an item with the Kiln tag"
+					"TagTool - InRoom - an item with the Lit Kiln tag"
 				],
 				[$"CommodityProduct - {FormatCommodityAmount(820.0)} of {material} commodity; tag Tool Blank Stock"]);
 		}
@@ -809,7 +902,7 @@ public partial class ItemSeeder
 				"form", "forming", 15, Difficulty.Normal,
 				[
 					"TagTool - InRoom - an item with the Potter's Wheel tag",
-					"TagTool - InRoom - an item with the Kiln tag"
+					"TagTool - InRoom - an item with the Lit Kiln tag"
 				]);
 		}
 
@@ -1198,7 +1291,7 @@ public partial class ItemSeeder
 	{
 		return
 		[
-			"TagTool - InRoom - an item with the Hot Fire tag",
+			"TagTool - InRoom - an item with the Lit Smelting Furnace tag",
 			"TagTool - InRoom - an item with the Bellows tag",
 			"TagTool - Held - an item with the Forge Tongs tag",
 			"TagTool - InRoom - an item with the Anvil tag",

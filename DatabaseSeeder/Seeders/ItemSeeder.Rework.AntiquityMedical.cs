@@ -61,6 +61,32 @@ public partial class ItemSeeder
 		];
 
 		AddMedicalItem(
+			"antiquity_medicine_strainer",
+			"strainer",
+			"a linen medicine strainer",
+			"This tight linen strainer is stretched over a small willow hoop for separating steeped herbs, resin flecks, and grit from draughts and salves.",
+			SizeCategory.VerySmall,
+			ItemQuality.Standard,
+			80.0,
+			5.0m,
+			"linen",
+			["Functions / Tools / Medical Tools / Medicine Strainer", "Market / Professional Tools / Standard Tools", "Market / Medicine / Herbal Medicine"],
+			["Holdable", "Destroyable_Misc"]);
+
+		AddMedicalItem(
+			"antiquity_stone_mortar_and_pestle",
+			"mortar",
+			"a stone mortar and pestle",
+			"This compact stone mortar is paired with a blunt pestle worn smooth from crushing herbs, minerals, resins, and dried medicine stock.",
+			SizeCategory.Small,
+			ItemQuality.Standard,
+			1450.0,
+			10.0m,
+			"stone",
+			["Functions / Tools / Cooking / Cooking Utensils / Mortar and Pestle", "Market / Professional Tools / Standard Tools", "Market / Medicine / Herbal Medicine"],
+			["Holdable", "Destroyable_Misc"]);
+
+		AddMedicalItem(
 			"antiquity_linen_bandage_roll",
 			"roll",
 			"a roll of clean linen bandage",

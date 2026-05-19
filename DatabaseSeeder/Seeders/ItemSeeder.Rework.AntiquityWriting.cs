@@ -53,6 +53,186 @@ public partial class ItemSeeder
 		var reedStylus = EnsureAntiquityScribingImplementComponent("Antiquity_Reed_Stylus",
 			"Turns an item into a non-consuming reed stylus", WritingImplementType.Stylus, "black", 0);
 
+		void AddWritingCraftTool(string stableReference, string noun, string shortDescription,
+			string fullDescription, SizeCategory size, double weightInGrams, decimal cost, string material,
+			string[] functionalTags)
+		{
+			CreateItem(
+				stableReference,
+				noun,
+				shortDescription,
+				null,
+				fullDescription,
+				size,
+				ItemQuality.Standard,
+				weightInGrams,
+				cost,
+				false,
+				false,
+				material,
+				["Market / Professional Tools / Standard Tools", .. functionalTags],
+				["Holdable", (int)size >= (int)SizeCategory.Large ? "Destroyable_Furniture" : "Destroyable_Misc"],
+				null,
+				null,
+				null,
+				null
+			);
+		}
+
+		AddWritingCraftTool(
+			"antiquity_papyrus_strip_knife",
+			"knife",
+			"a bronze papyrus strip knife",
+			"A narrow bronze knife with a straight edge, kept for slicing soaked papyrus pith into long even strips before pressing.",
+			SizeCategory.VerySmall,
+			85.0,
+			7.0m,
+			"bronze",
+			["Functions / Tools / Papyrusmaking Tools / Papyrus Strip Knife"]);
+
+		AddWritingCraftTool(
+			"antiquity_papyrus_pressing_board",
+			"board",
+			"a papyrus pressing board",
+			"A flat cedar board darkened by damp papyrus sheets, used with weights or clamps to press crossed pith strips into a firm writing sheet.",
+			SizeCategory.Normal,
+			1800.0,
+			10.0m,
+			"cedar",
+			["Functions / Tools / Papyrusmaking Tools / Papyrus Pressing Board"]);
+
+		AddWritingCraftTool(
+			"antiquity_papyrus_burnishing_shell",
+			"shell",
+			"a smooth papyrus burnishing shell",
+			"A polished shell worn satin-smooth along one edge, used to burnish dried papyrus sheets until ink will sit cleanly on the surface.",
+			SizeCategory.Tiny,
+			35.0,
+			4.0m,
+			"shell",
+			["Functions / Tools / Papyrusmaking Tools / Papyrus Burnishing Shell"]);
+
+		AddWritingCraftTool(
+			"antiquity_parchment_scraping_knife",
+			"knife",
+			"a curved parchment scraping knife",
+			"A curved bronze scraping knife with a dulled back and keen working edge, made for thinning stretched parchment without cutting through it.",
+			SizeCategory.VerySmall,
+			120.0,
+			9.0m,
+			"bronze",
+			["Functions / Tools / Parchmentmaking Tools / Parchment Scraping Knife"]);
+
+		AddWritingCraftTool(
+			"antiquity_parchment_stretching_frame",
+			"frame",
+			"a wooden parchment stretching frame",
+			"A rectangular wooden frame pierced around the edges for cords, used to stretch wet hide taut while it is scraped into parchment.",
+			SizeCategory.Large,
+			6200.0,
+			22.0m,
+			"wood",
+			["Functions / Tools / Parchmentmaking Tools / Parchment Stretching Frame"]);
+
+		AddWritingCraftTool(
+			"antiquity_parchment_pumice",
+			"pumice",
+			"a piece of parchment pumice",
+			"A light abrasive stone used to smooth parchment, remove grease, and prepare a surface to take ink evenly.",
+			SizeCategory.Tiny,
+			55.0,
+			3.0m,
+			"stone",
+			["Functions / Tools / Parchmentmaking Tools / Parchment Pumice"]);
+
+		AddWritingCraftTool(
+			"antiquity_bookbinders_needle",
+			"needle",
+			"a bronze bookbinder's needle",
+			"A stout bronze needle with a broad eye, sized for sewing parchment quires, scroll ties, and leather document cases.",
+			SizeCategory.Tiny,
+			18.0,
+			5.0m,
+			"bronze",
+			["Functions / Tools / Bookbinding Tools / Bookbinder's Needle"]);
+
+		AddWritingCraftTool(
+			"antiquity_bookbinders_punch",
+			"punch",
+			"a bronze bookbinder's punch",
+			"A short bronze punch with a wooden grip, made for opening clean sewing holes through quires, boards, and leather covers.",
+			SizeCategory.VerySmall,
+			110.0,
+			7.0m,
+			"bronze",
+			["Functions / Tools / Bookbinding Tools / Bookbinder's Punch"]);
+
+		AddWritingCraftTool(
+			"antiquity_scroll_roller_rod",
+			"rod",
+			"a cedar scroll roller rod",
+			"A slender cedar rod smoothed for winding sheets into a scroll, with enough stiffness to keep the document from creasing.",
+			SizeCategory.Small,
+			90.0,
+			4.0m,
+			"cedar",
+			["Functions / Tools / Scrollmaking Tools / Scroll Roller Rod"]);
+
+		AddWritingCraftTool(
+			"antiquity_scroll_smoothing_stone",
+			"stone",
+			"a scroll smoothing stone",
+			"A flat, rounded stone used to ease joins, press glued sheets, and smooth scroll surfaces without tearing the fibres.",
+			SizeCategory.Tiny,
+			180.0,
+			3.0m,
+			"stone",
+			["Functions / Tools / Scrollmaking Tools / Scroll Smoothing Stone"]);
+
+		AddWritingCraftTool(
+			"antiquity_quill_curing_sand",
+			"sand",
+			"a tray of quill curing sand",
+			"A shallow fired-clay tray filled with clean hot-work sand, used to dry and harden quills before trimming them into pens.",
+			SizeCategory.Small,
+			950.0,
+			5.0m,
+			"fired clay",
+			["Functions / Tools / Calligraphy Tools / Quill Curing Sand"]);
+
+		AddWritingCraftTool(
+			"antiquity_wax_spatula",
+			"spatula",
+			"a bronze wax spatula",
+			"A small bronze spatula with a flattened blade, used for spreading warm wax into tablet recesses and scraping it level again.",
+			SizeCategory.Tiny,
+			55.0,
+			5.0m,
+			"bronze",
+			["Functions / Tools / Scribing Tools / Wax Spatula"]);
+
+		AddWritingCraftTool(
+			"antiquity_pigment_muller",
+			"muller",
+			"a stone pigment muller",
+			"A rounded stone muller with a worn flat underside, used to grind soot, minerals, and lake pigments into fine ink and paint stock.",
+			SizeCategory.Small,
+			620.0,
+			6.0m,
+			"stone",
+			["Functions / Tools / Illumination Tools / Pigment Muller"]);
+
+		AddWritingCraftTool(
+			"antiquity_pigment_shell",
+			"shell",
+			"a pigment mixing shell",
+			"A shallow shell with a polished hollow, used as a tiny palette for wet pigment, ink binder, and writing colour.",
+			SizeCategory.Tiny,
+			28.0,
+			3.0m,
+			"shell",
+			["Functions / Tools / Illumination Tools / Pigment Shell"]);
+
 		CreateItem(
 			"antiquity_loose_papyrus_sheet",
 			"sheet",

@@ -616,6 +616,7 @@ namespace DatabaseSeeder.Seeders
             AddTag(context, "Punty Paddle", "Glassblowing Tools");
             AddTag(context, "Glory Hole", "Glassblowing Tools");
             AddTag(context, "Annealing Lehr", "Glassblowing Tools");
+            AddTag(context, "Lit Annealing Lehr", "Annealing Lehr");
 
             // Locksmithing
             AddTag(context, "Locksmithing Tools", "Tools");
@@ -750,10 +751,12 @@ namespace DatabaseSeeder.Seeders
             AddTag(context, "Extruder", "Pottery Tools");
             AddTag(context, "Slab Roller", "Pottery Tools");
             AddTag(context, "Kiln", "Pottery Tools");
+            AddTag(context, "Lit Kiln", "Kiln");
 
             // Smelting
             AddTag(context, "Smelting Tools", "Tools");
             AddTag(context, "Smelting Furnace", "Smelting Tools");
+            AddTag(context, "Lit Smelting Furnace", "Smelting Furnace");
             AddTag(context, "Crucible Tongs", "Smelting Tools");
             AddTag(context, "Slag Skimmer", "Smelting Tools");
             AddTag(context, "Furnace Bellows", "Smelting Tools");

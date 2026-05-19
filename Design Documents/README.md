@@ -34,6 +34,7 @@ This folder is organised by subsystem so implementation notes, builder workflows
 - [Patch Notes Authoring Guide](./Core/Patch_Notes_Authoring_Guide.md)
 
 ## Crafting
+- [Antiquity Crafting Catalogue Audit](./Crafting/Antiquity_Crafting_Audit.md)
 - [Antiquity Clothing Crafting Suite](./Crafting/Antiquity_Hellenic_Clothing_Crafting_Suite.md)
 - [Antiquity Equipment Crafting Suite](./Crafting/Antiquity_Equipment_Crafting_Suite.md)
 - [Antiquity Furniture and Container Crafting Suite](./Crafting/Antiquity_Furniture_Container_Crafting_Suite.md)

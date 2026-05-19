@@ -30,8 +30,51 @@ Implements and support goods:
 - Reed pens, quills, ink brushes, charcoal sticks
 - Bone, bronze, and reed styluses
 - Bronze pen knives and scraper knives
+- Papyrus strip knives, pressing boards, burnishing shells
+- Parchment scraping knives, stretching frames, and pumice
+- Bookbinder's needles and punches
+- Scroll roller rods and smoothing stones
+- Quill curing sand, wax spatulas, pigment mullers, and pigment shells
 - Soot ink cakes, small inkwells, and prepared black ink pots
 - Scroll cases, document pouches, tablet wraps, and scroll ties
+
+Source-audited final product catalogue:
+
+| Stable Reference | Source Catalogue Name |
+| --- | --- |
+| `antiquity_bone_stylus` | a polished bone stylus |
+| `antiquity_bronze_pen_knife` | a small bronze pen knife |
+| `antiquity_bronze_scraper_knife` | a bronze parchment scraper |
+| `antiquity_bronze_stylus` | a bronze stylus |
+| `antiquity_cedar_scroll_case` | a cedar scroll case |
+| `antiquity_charcoal_writing_stick` | a charcoal writing stick |
+| `antiquity_clay_tablet_envelope` | a clay tablet envelope |
+| `antiquity_fired_clay_tablet` | a fired clay writing tablet |
+| `antiquity_hinged_wax_diptych` | a hinged wax tablet diptych |
+| `antiquity_ink_brush` | a fine ink brush |
+| `antiquity_leather_codex_pouch` | a leather document pouch |
+| `antiquity_linen_tablet_wrap` | a linen tablet wrap |
+| `antiquity_liquid_black_ink_pot` | a small inkwell of black ink |
+| `antiquity_loose_papyrus_sheet` | a loose papyrus sheet |
+| `antiquity_loose_parchment_sheet` | a loose parchment sheet |
+| `antiquity_papyrus_scroll_tie` | a narrow linen scroll tie |
+| `antiquity_papyrus_sheet_bundle` | a bundle of loose papyrus sheets |
+| `antiquity_parchment_bifolium` | a folded parchment bifolium |
+| `antiquity_parchment_codex` | a small parchment codex |
+| `antiquity_parchment_quire` | a nested parchment quire |
+| `antiquity_parchment_scroll` | a parchment scroll |
+| `antiquity_potsherd_ostracon` | a smoothed potsherd ostracon |
+| `antiquity_quill_pen` | a trimmed quill pen |
+| `antiquity_reed_pen` | a cut reed pen |
+| `antiquity_reed_stylus` | a sharpened reed stylus |
+| `antiquity_sealed_papyrus_scroll` | a tied and sealed papyrus scroll |
+| `antiquity_simple_papyrus_scroll` | a simple papyrus scroll |
+| `antiquity_small_inkwell` | a small clay inkwell |
+| `antiquity_smoothed_wooden_writing_block` | a smoothed wooden writing block |
+| `antiquity_soot_ink_cake` | a soot-black ink cake |
+| `antiquity_unfired_clay_tablet` | an unfired clay writing tablet |
+| `antiquity_wax_triptych` | a three-leaf wax tablet triptych |
+| `antiquity_wax_writing_tablet` | a waxed wooden writing tablet |
 
 ## Crafting Chains
 
@@ -51,3 +94,7 @@ Final crafts are knowledge-gated through the shared `AddCraft` overload used by 
 ## Discovery Boundary
 
 The household craft suite still covers older document furniture and generic household containers. New writing-surface and writing-implement stable references are excluded from household dynamic discovery so final crafts are not duplicated.
+
+## One-Step-Back Boundary
+
+The May 2026 one-step-back pass seeds every writing/book/pigment tool currently named by `ItemSeederCrafting.AntiquityWriting.cs` as a `TagTool` prerequisite. Those tool prototypes are stock prerequisites for the current suite. Crafts to make the newly introduced tool prototypes themselves remain a second-pass task unless they are already part of a current finished-product craft family.

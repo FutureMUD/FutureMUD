@@ -146,6 +146,11 @@ namespace DatabaseSeeder.Seeders
             AddTag(context, "Prosthetic Stock", "Medical Craft Stock");
             AddTag(context, "Surgical Tool Blank", "Medical Craft Stock");
             AddTag(context, "Herbal Remedy Stock", "Medical Craft Stock");
+            AddTag(context, "Jewellery Craft Stock", "Material Functions");
+            AddTag(context, "Jewellery Metal Stock", "Jewellery Craft Stock");
+            AddTag(context, "Jewellery Wire Stock", "Jewellery Craft Stock");
+            AddTag(context, "Jewellery Bead Stock", "Jewellery Craft Stock");
+            AddTag(context, "Jewellery Setting Stock", "Jewellery Craft Stock");
 
             AddTag(context, "Repairing", "Functions");
             AddTag(context, "Sharpening", "Functions");
@@ -615,6 +620,7 @@ namespace DatabaseSeeder.Seeders
             AddTag(context, "Snap Tool", "Glassblowing Tools");
             AddTag(context, "Punty Paddle", "Glassblowing Tools");
             AddTag(context, "Glory Hole", "Glassblowing Tools");
+            AddTag(context, "Lit Glory Hole", "Glory Hole");
             AddTag(context, "Annealing Lehr", "Glassblowing Tools");
             AddTag(context, "Lit Annealing Lehr", "Annealing Lehr");
 

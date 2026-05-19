@@ -122,7 +122,36 @@ public partial class ItemSeeder
 	[
 		"earthenware",
 		"fired clay",
+		"glazed ceramic",
 		"terracotta"
+	];
+
+	private static readonly string[] AntiquityEquipmentToolBlankMaterials =
+	[
+		"bone",
+		"glass",
+		"horn",
+		"ivory",
+		"shell",
+		"stone"
+	];
+
+	private static readonly string[] AntiquityUnlitWorkshopApparatusStableReferences =
+	[
+		"antiquity_workshop_hearth",
+		"antiquity_updraft_kiln",
+		"antiquity_glory_hole_furnace",
+		"antiquity_annealing_lehr",
+		"antiquity_clay_smelting_furnace"
+	];
+
+	private static readonly string[] AntiquityLitWorkshopApparatusStableReferences =
+	[
+		"antiquity_lit_workshop_hearth",
+		"antiquity_lit_updraft_kiln",
+		"antiquity_lit_glory_hole_furnace",
+		"antiquity_lit_annealing_lehr",
+		"antiquity_lit_clay_smelting_furnace"
 	];
 
 	private static readonly string[] AntiquityEquipmentCultureTerms =
@@ -238,6 +267,19 @@ public partial class ItemSeeder
 			"antiquity_clay_smelting_furnace",
 			"antiquity_lit_clay_smelting_furnace",
 			2600.0,
+			20,
+			Difficulty.Normal);
+
+		AddAntiquityHeatSourceCraft(
+			"stoke a glassworking glory hole",
+			"Glassworking",
+			"Glassworking",
+			AncientGlassworkingKnowledge,
+			"Glassworking",
+			"stoke a glassworking glory hole",
+			"antiquity_glory_hole_furnace",
+			"antiquity_lit_glory_hole_furnace",
+			2400.0,
 			20,
 			Difficulty.Normal);
 
@@ -532,6 +574,20 @@ public partial class ItemSeeder
 				[$"CommodityProduct - {FormatCommodityAmount(760.0)} of {material} commodity; tag Weapon Head Stock"]);
 		}
 
+		foreach (var material in AntiquityEquipmentToolBlankMaterials)
+		{
+			AddAntiquityEquipmentCommodityCraft(
+				$"shape {material} tool blank stock",
+				GetToolBlankSkill(material),
+				GetToolBlankSkill(material),
+				AncientToolmakingKnowledge,
+				"Toolmaking Stock",
+				$"shape {material} into tool blank stock",
+				[CommodityInput(1000.0, material)],
+				ToolBlankShapingTools(material),
+				[$"CommodityProduct - {FormatCommodityAmount(780.0)} of {material} commodity; tag Tool Blank Stock"]);
+		}
+
 		foreach (var material in AntiquityEquipmentCeramicMaterials)
 		{
 			AddAntiquityEquipmentCommodityCraft(
@@ -566,7 +622,21 @@ public partial class ItemSeeder
 
 	private void SeedAntiquityCraftToolCrafts(IDictionary<string, int> usedCraftNames)
 	{
-		foreach (var stableReference in AntiquityCraftToolStableReferences)
+		var professionalToolTagIds = GetTagIdsUnderRoots(["Market / Professional Tools / Standard Tools"]);
+		var stableReferences = AntiquityCraftToolStableReferences
+			.Concat(_items
+				.Where(x => x.Key.StartsWith("antiquity_", StringComparison.OrdinalIgnoreCase))
+				.Where(x => !AntiquityWritingStableReferences.Contains(x.Key, StringComparer.OrdinalIgnoreCase))
+				.Where(x => !AntiquityMedicalStableReferences.Contains(x.Key, StringComparer.OrdinalIgnoreCase))
+				.Where(x => !AntiquityLitWorkshopApparatusStableReferences.Contains(x.Key, StringComparer.OrdinalIgnoreCase))
+				.Where(x => x.Value.GameItemProtosTags.Any(y => professionalToolTagIds.Contains(y.TagId)))
+				.Select(x => x.Key))
+			.Concat(AntiquityUnlitWorkshopApparatusStableReferences)
+			.Distinct(StringComparer.OrdinalIgnoreCase)
+			.OrderBy(x => x, StringComparer.OrdinalIgnoreCase)
+			.ToList();
+
+		foreach (var stableReference in stableReferences)
 		{
 			if (!TryLookupReworkItem(stableReference, out var item))
 			{
@@ -655,7 +725,7 @@ public partial class ItemSeeder
 				BuildCommonClothingInputs(inputs, AddInput, material, lowerText, primaryAmount, needsColour);
 				break;
 			case AntiquityEquipmentCraftFamily.CraftTool:
-				BuildCraftToolInputs(inputs, AddInput, material, lowerText, primaryAmount);
+				BuildCraftToolInputs(inputs, AddInput, material, lowerText, primaryAmount, path.PrimaryStockTag);
 				break;
 			case AntiquityEquipmentCraftFamily.Shield:
 				AddInput(CommodityInput(primaryAmount * 0.65, GetEquipmentWoodMaterial(material, lowerText), "Shield Board Stock"));
@@ -740,8 +810,20 @@ public partial class ItemSeeder
 	}
 
 	private static void BuildCraftToolInputs(List<string> inputs, Action<string, bool> addInput,
-		string material, string lowerText, double primaryAmount)
+		string material, string lowerText, double primaryAmount, string primaryStockTag)
 	{
+		if (!primaryStockTag.Equals("Tool Blank Stock", StringComparison.OrdinalIgnoreCase))
+		{
+			addInput(CommodityInput(primaryAmount, material, primaryStockTag), false);
+			if (ContainsAny(lowerText, "hearth", "kiln", "furnace", "lehr"))
+			{
+				addInput(CommodityInput(Math.Max(500.0, primaryAmount * 0.15), "clay"), false);
+				addInput(CommodityInput(Math.Max(250.0, primaryAmount * 0.05), "charcoal"), false);
+			}
+
+			return;
+		}
+
 		if (IsWoodEquipmentMaterial(material))
 		{
 			addInput(CommodityInput(primaryAmount, material, "Tool Blank Stock"), false);
@@ -878,6 +960,27 @@ public partial class ItemSeeder
 	private AntiquityEquipmentCraftPath GetCraftToolPath(string stableReference, GameItemProto item)
 	{
 		var material = GetMaterialName(item);
+		var text = $"{stableReference} {item.ShortDescription}".ToLowerInvariant();
+		if (AntiquityUnlitWorkshopApparatusStableReferences.Contains(stableReference, StringComparer.OrdinalIgnoreCase))
+		{
+			return new AntiquityEquipmentCraftPath(
+				AntiquityEquipmentCraftFamily.CraftTool,
+				stableReference.Contains("glory", StringComparison.OrdinalIgnoreCase) ? "Glassworking" : "Pottery",
+				stableReference.Contains("glory", StringComparison.OrdinalIgnoreCase) ? "Glassworking" : "Pottery",
+				AncientToolmakingKnowledge,
+				"Workshop Apparatus",
+				"Pottery Clay Body",
+				"build",
+				"building",
+				25,
+				stableReference.Contains("hearth", StringComparison.OrdinalIgnoreCase) ? Difficulty.Normal : Difficulty.Hard,
+				[
+					"TagTool - Held - an item with the Clay Knife tag",
+					"TagTool - Held - an item with the Stone Mallet tag",
+					"TagTool - Held - an item with the Trowel tag"
+				]);
+		}
+
 		if (IsMetalEquipmentMaterial(material))
 		{
 			return new AntiquityEquipmentCraftPath(
@@ -904,6 +1007,17 @@ public partial class ItemSeeder
 					"TagTool - InRoom - an item with the Potter's Wheel tag",
 					"TagTool - InRoom - an item with the Lit Kiln tag"
 				]);
+		}
+
+		if (AntiquityEquipmentToolBlankMaterials.Contains(material, StringComparer.OrdinalIgnoreCase))
+		{
+			return new AntiquityEquipmentCraftPath(
+				AntiquityEquipmentCraftFamily.CraftTool,
+				GetToolBlankSkill(material), GetToolBlankSkill(material), AncientToolmakingKnowledge, "Craft Tools",
+				"Tool Blank Stock",
+				ContainsAny(text, "muller", "stone", "shell", "bone", "ivory") ? "polish" : "shape",
+				ContainsAny(text, "muller", "stone", "shell", "bone", "ivory") ? "polishing" : "shaping",
+				15, Difficulty.Normal, ToolBlankShapingTools(material));
 		}
 
 		return new AntiquityEquipmentCraftPath(
@@ -1335,6 +1449,65 @@ public partial class ItemSeeder
 			"TagTool - Held - an item with the Awl Punch tag",
 			"TagTool - InRoom - an item with the Leather Stitching Pony tag",
 			"TagTool - Held - an item with the Edge Beveller tag"
+		];
+	}
+
+	private static string GetToolBlankSkill(string material)
+	{
+		if (material.Equals("glass", StringComparison.OrdinalIgnoreCase))
+		{
+			return "Glassworking";
+		}
+
+		if (material.Equals("bone", StringComparison.OrdinalIgnoreCase) ||
+		    material.Equals("horn", StringComparison.OrdinalIgnoreCase) ||
+		    material.Equals("ivory", StringComparison.OrdinalIgnoreCase) ||
+		    material.Equals("shell", StringComparison.OrdinalIgnoreCase))
+		{
+			return "Bonecarving";
+		}
+
+		return "Masonry";
+	}
+
+	private static string[] ToolBlankShapingTools(string material)
+	{
+		if (material.Equals("glass", StringComparison.OrdinalIgnoreCase))
+		{
+			return
+			[
+				"TagTool - Held - an item with the Glass Shears tag",
+				"TagTool - Held - an item with the Polishing Stone tag",
+				"TagTool - InRoom - an item with the Lit Glory Hole tag"
+			];
+		}
+
+		if (material.Equals("bone", StringComparison.OrdinalIgnoreCase) ||
+		    material.Equals("horn", StringComparison.OrdinalIgnoreCase) ||
+		    material.Equals("ivory", StringComparison.OrdinalIgnoreCase) ||
+		    material.Equals("shell", StringComparison.OrdinalIgnoreCase))
+		{
+			return
+			[
+				"TagTool - Held - an item with the Bow Drill tag",
+				"TagTool - Held - an item with the Polishing Stone tag"
+			];
+		}
+
+		if (material.Equals("stone", StringComparison.OrdinalIgnoreCase))
+		{
+			return
+			[
+				"TagTool - Held - an item with the Stone Chisel tag",
+				"TagTool - Held - an item with the Stone Mallet tag"
+			];
+		}
+
+		return
+		[
+			"TagTool - Held - an item with the Stone Chisel tag",
+			"TagTool - Held - an item with the Stone Mallet tag",
+			"TagTool - Held - an item with the Polishing Stone tag"
 		];
 	}
 }

@@ -204,6 +204,8 @@ The household-tool source now owns the shared antiquity workshop tool catalogue 
 | `antiquity_marver_slab` | `Marver Table` | a stone marver slab |
 | `antiquity_glassworking_jacks` | `Jacks` | a pair of bronze glassworking jacks |
 | `antiquity_glass_shears` | `Glass Shears` | a pair of bronze glass shears |
+| `antiquity_glory_hole_furnace` | `Glory Hole` | an unlit glassworking glory-hole furnace |
+| `antiquity_lit_glory_hole_furnace` | `Glory Hole`, `Lit Glory Hole`, `Hot Fire` | a lit glassworking glory-hole furnace |
 | `antiquity_annealing_lehr` | `Annealing Lehr` | a small annealing lehr |
 | `antiquity_lit_annealing_lehr` | `Annealing Lehr`, `Lit Annealing Lehr`, `Hot Fire` | a lit annealing lehr |
 | `antiquity_casting_crucible` | `Crucible` | a bronze casting crucible |
@@ -244,8 +246,8 @@ These are the upstream craft families to implement before final products. The ex
 | Prepare pottery clay body | Pottery | Ancient Ceramic Vesselmaking | Clay or earthenware commodity, water | Pug mill or hand tools | Commodity tagged `Pottery Clay Body`. |
 | Form wet vessel blanks | Pottery | Ancient Ceramic Vesselmaking | `Pottery Clay Body` | Potter's wheel, rib, clay knife | Commodity tagged `Wet Vessel Blank`. |
 | Fire bisque vessel blanks | Pottery | Ancient Ceramic Vesselmaking | `Wet Vessel Blank`, fuel | Lit kiln | Commodity tagged `Bisque Vessel Blank`. |
-| Prepare glass batch | Glassworking | Ancient Glassworking | Soda-lime glass inputs or glass commodity | Crucible, kiln/glory heat | Commodity tagged `Glass Batch`. |
-| Blow glass vessel blanks | Glassworking | Ancient Glassworking | `Glass Batch` | Blowpipe, pontil, marver, jacks, lit annealing lehr | Commodity tagged `Glass Vessel Blank`. |
+| Prepare glass batch | Glassworking | Ancient Glassworking | Soda-lime glass inputs or glass commodity | Crucible and cold batch tools | Commodity tagged `Glass Batch`. |
+| Blow glass vessel blanks | Glassworking | Ancient Glassworking | `Glass Batch` | Blowpipe, pontil, marver, jacks, lit glory-hole furnace, lit annealing lehr | Commodity tagged `Glass Vessel Blank`. |
 | Cast vessel blanks | Blacksmithing or Silversmithing | Ancient Metal Vesselmaking | Bronze, iron, silver, or gold commodity | Crucible, tongs, mould, lit smelting furnace | Commodity tagged `Cast Vessel Blank`. |
 | Carve stone vessel blanks | Masonry or Scrimshawing | Ancient Stone Bone and Horn Carving | Alabaster, calcite, horn, or ivory commodity | Chisel, mallet, bow drill, polishing stone | Commodity tagged `Stone Vessel Blank`. |
 | Prepare inlay stock | Scrimshawing, Glassworking, or Silversmithing | Ancient Household Crafting | Ivory, glass, shell, metal, or coloured stone commodity | Saw, chisel, polishing stone | Commodity tagged `Inlay Stock`. |
@@ -262,7 +264,7 @@ Each final craft should use one row from this family table and one stable produc
 | Textile and Leather Goods | 57 | Tailoring or Leathermaking | Ancient Leather Containers, Ancient Household Crafting, or culture-specific household knowledge | `Garment Cloth`, `Spun Yarn`, `Prepared Leather Panel`, hide/fur commodity, optional `Lamp Wick`, optional `Bead Stock`. | Sewing needle, shears, leather awl, stitching pony, edge beveller. | Stable simple/variable product. |
 | Coopering | 7 | Coopering | Ancient Coopering | `Coopered Staves`, `Hoop Stock`, optional pitch or wax seal. | Cooper's adze, croze, hoop driver, bung borer, mallet. | Dry or liquid container stable product. |
 | Pottery and Fired Clay | 85 | Pottery | Ancient Ceramic Vesselmaking or culture-specific household knowledge | `Pottery Clay Body`, `Wet Vessel Blank`, `Bisque Vessel Blank`, optional slip/glaze/pigment, optional wick for lamps. | Potter's wheel, rib, clay knife, loop tool, stamp, lit kiln. | Stable product; variable colour products when painted/glazed descriptors require it. |
-| Glassworking | 10 | Glassworking | Ancient Glassworking or culture-specific household knowledge | `Glass Batch`, `Glass Vessel Blank`, optional `Glass Panes`, optional pigment/colour stock. | Blowpipe, pontil, marver, jacks, shears, lit annealing lehr. | Stable product. |
+| Glassworking | 10 | Glassworking | Ancient Glassworking or culture-specific household knowledge | `Glass Batch`, `Glass Vessel Blank`, optional `Glass Panes`, optional pigment/colour stock. | Blowpipe, pontil, marver, jacks, shears, lit glory-hole furnace, lit annealing lehr. | Stable product. |
 | Metal Vesselmaking and Casting | 49 | Blacksmithing or Silversmithing | Ancient Metal Vesselmaking or culture-specific household knowledge | Bronze/iron/silver/gold `Cast Vessel Blank`, optional `Rivet`, `Hoop Stock`, `Inlay Stock`, lamp wick. | Crucible, tongs, lit smelting furnace, hammer, anvil, burnisher. | Stable product. |
 | Stone Bone and Horn Carving | 12 | Masonry or Scrimshawing | Ancient Stone Bone and Horn Carving or culture-specific household knowledge | `Stone Vessel Blank`, exact alabaster/calcite/horn/ivory commodity, optional polish/inlay. | Stone chisel, stone mallet, bow drill, polishing stone. | Stable product. |
 | Candlemaking and Wicks | 2 | Candlemaking | Ancient Lighting and Heating | Beeswax commodity, `Lamp Wick`, optional dye/pigment. | Candle mould, knife. | Stable product. |

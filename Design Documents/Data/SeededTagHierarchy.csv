@@ -196,6 +196,11 @@ Splint Stock	Medical Craft Stock	Functions / Material Functions / Medical Craft 
 Prosthetic Stock	Medical Craft Stock	Functions / Material Functions / Medical Craft Stock / Prosthetic Stock
 Surgical Tool Blank	Medical Craft Stock	Functions / Material Functions / Medical Craft Stock / Surgical Tool Blank
 Herbal Remedy Stock	Medical Craft Stock	Functions / Material Functions / Medical Craft Stock / Herbal Remedy Stock
+Jewellery Craft Stock	Material Functions	Functions / Material Functions / Jewellery Craft Stock
+Jewellery Metal Stock	Jewellery Craft Stock	Functions / Material Functions / Jewellery Craft Stock / Jewellery Metal Stock
+Jewellery Wire Stock	Jewellery Craft Stock	Functions / Material Functions / Jewellery Craft Stock / Jewellery Wire Stock
+Jewellery Bead Stock	Jewellery Craft Stock	Functions / Material Functions / Jewellery Craft Stock / Jewellery Bead Stock
+Jewellery Setting Stock	Jewellery Craft Stock	Functions / Material Functions / Jewellery Craft Stock / Jewellery Setting Stock
 Leather Commodity	Material Functions	Functions / Material Functions / Leather Commodity
 Prepared Hide	Leather Commodity	Functions / Material Functions / Leather Commodity / Prepared Hide
 Tanned Leather	Leather Commodity	Functions / Material Functions / Leather Commodity / Tanned Leather
@@ -540,6 +545,7 @@ Blowpipe	Glassblowing Tools	Functions / Tools / Glassblowing Tools / Blowpipe
 Glass Shears	Glassblowing Tools	Functions / Tools / Glassblowing Tools / Glass Shears
 Glassblower's Bench	Glassblowing Tools	Functions / Tools / Glassblowing Tools / Glassblower's Bench
 Glory Hole	Glassblowing Tools	Functions / Tools / Glassblowing Tools / Glory Hole
+Lit Glory Hole	Glory Hole	Functions / Tools / Glassblowing Tools / Glory Hole / Lit Glory Hole
 Jacks	Glassblowing Tools	Functions / Tools / Glassblowing Tools / Jacks
 Marver Table	Glassblowing Tools	Functions / Tools / Glassblowing Tools / Marver Table
 Optic Mold	Glassblowing Tools	Functions / Tools / Glassblowing Tools / Optic Mold

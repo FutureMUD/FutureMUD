@@ -190,6 +190,17 @@ public partial class ItemSeeder
 			"Heavy bronze shears with long handles, made to cut hot glass threads and trim vessel mouths before annealing.",
 			SizeCategory.Small, 820.0, 24.0m, "bronze",
 			["Functions / Tools / Glassblowing Tools / Glass Shears"]);
+		CreateAntiquityHouseholdCraftTool("antiquity_glory_hole_furnace", "furnace", "an unlit glassworking glory-hole furnace",
+			"A compact clay glory-hole furnace with a round working mouth, charcoal chamber, and blackened side vents for reheating glass gathers during shaping.",
+			SizeCategory.Huge, 68000.0, 130.0m, "earthenware",
+			["Functions / Tools / Glassblowing Tools / Glory Hole"]);
+		CreateAntiquityHouseholdCraftTool("antiquity_lit_glory_hole_furnace", "furnace", "a lit glassworking glory-hole furnace",
+			"This compact clay glory-hole furnace burns with a deep charcoal heat at its round working mouth, ready to keep glass gathers soft while they are shaped.",
+			SizeCategory.Huge, 68200.0, 140.0m, "earthenware",
+			["Functions / Tools / Glassblowing Tools / Glory Hole", "Functions / Tools / Glassblowing Tools / Glory Hole / Lit Glory Hole", "Functions / Material Functions / Hot Fire"],
+			"antiquity_glory_hole_furnace",
+			"$0 cools and dies back into $1.",
+			TimeSpan.FromHours(3));
 		CreateAntiquityHouseholdCraftTool("antiquity_annealing_lehr", "lehr", "a small annealing lehr",
 			"A long earthenware annealing lehr that holds finished glass at a gentler heat so vessels can cool without cracking.",
 			SizeCategory.Huge, 52000.0, 110.0m, "earthenware",

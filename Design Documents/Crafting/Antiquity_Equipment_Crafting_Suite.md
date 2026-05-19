@@ -1,16 +1,18 @@
 # Antiquity Equipment Crafting Suite
 
-This document records the craft suite that closes the remaining non-household antiquity gaps from `ItemSeeder.Rework.Antiquity.cs`: common clothing/accessories, textile and leather craft tools, non-leather armour, weapons, shields, ammunition, slings, and the construction hardware used by doors and gates.
+This document records the craft suite that closes the remaining non-household antiquity gaps from `ItemSeeder.Rework.Antiquity.cs`: common clothing/accessories, textile and leather craft tools, support tools, unlit workshop apparatus, non-leather armour, weapons, shields, ammunition, slings, and the construction hardware used by doors and gates.
 
 ## Target Surface
 
 - 29 antiquity craft-tool prototypes from `SeedAntiquityClothing`.
+- Support tool prototypes discovered from `Market / Professional Tools / Standard Tools`, excluding writing and medical products already owned by their dedicated suites.
+- Unlit workshop apparatus prototypes for the hearth, kiln, glory-hole furnace, annealing lehr, and smelting furnace.
 - 18 common culture-neutral clothing/accessory prototypes from `SeedAntiquityClothing`.
 - 76 non-leather armour prototypes from `SeedAntiquityArmour`.
 - 117 weapon, shield, ammunition, sling, and military-accessory prototypes from `SeedAntiquityWeaponsShieldsAccessories`.
 - Shared `Door Hardware Stock` used by the expanded household/door suite.
 
-Existing jewellery, culture-specific textile clothing, leather clothing, leather armour, leather containers, leather furnishings, and household goods stay on their existing suites. The equipment suite discovers military goods dynamically from `Market / Military Goods` tags and excludes stable references already handled by the culture/leather suites.
+Existing jewellery, culture-specific textile clothing, leather clothing, leather armour, leather containers, leather furnishings, medical goods, writing goods, and household goods stay on their existing suites. The equipment suite discovers military goods dynamically from `Market / Military Goods` tags, discovers support tools dynamically from `Market / Professional Tools / Standard Tools`, and excludes stable references already handled by the culture/leather/writing/medical suites.
 
 ## Implementation
 
@@ -33,7 +35,7 @@ The May 2026 one-step-back pass audits the full `ItemSeederCrafting.Antiquity*.c
 - every literal commodity product tag produced by an antiquity craft
 - every literal commodity input pile tag that should be produced upstream or intentionally remain a reusable stock output
 
-The seeded tool closure now includes the previously missing heat and metal tools (`Fire`, `Bellows`, `Forge Tongs`, `Anvil`, `Hammer`, `Pliers`, `Cooking Pot`, `Sharpening`, and lit high-heat apparatus), dye/textile/leather tools (`Dye Strainer`, `Indigo Beating Paddle`, `Leather Paring Knife`, `Rope Hook`, `Twine Shuttle`), writing/book/pigment tools, and medical preparation tools. These are seeded as stock prerequisites; crafts to manufacture newly introduced support tools are the explicit second-pass boundary unless a support item already belongs to a current craft-product suite.
+The seeded tool closure now includes the previously missing heat and metal tools (`Fire`, `Bellows`, `Forge Tongs`, `Anvil`, `Hammer`, `Pliers`, `Cooking Pot`, `Sharpening`, and lit high-heat apparatus), dye/textile/leather tools (`Dye Strainer`, `Indigo Beating Paddle`, `Leather Paring Knife`, `Rope Hook`, `Twine Shuttle`), writing/book/pigment tools, and medical preparation tools. The second-pass implementation now makes the equipment-owned support tools and unlit workshop apparatus craftable; writing and medical support items remain owned by their dedicated craft files.
 
 Lit workshop objects are craft-tool state markers, not runtime heat/light components. Current stock pairs are:
 
@@ -42,9 +44,10 @@ Lit workshop objects are craft-tool state markers, not runtime heat/light compon
 | `antiquity_workshop_hearth` | `antiquity_lit_workshop_hearth` | `Fire` |
 | `antiquity_clay_smelting_furnace` | `antiquity_lit_clay_smelting_furnace` | `Lit Smelting Furnace`, `Hot Fire` |
 | `antiquity_updraft_kiln` | `antiquity_lit_updraft_kiln` | `Lit Kiln`, `Hot Fire` |
+| `antiquity_glory_hole_furnace` | `antiquity_lit_glory_hole_furnace` | `Lit Glory Hole`, `Hot Fire` |
 | `antiquity_annealing_lehr` | `antiquity_lit_annealing_lehr` | `Lit Annealing Lehr`, `Hot Fire` |
 
-Reusable intermediate outputs that are intentionally allowed to sit at a stock boundary are: `Armour Lamella Stock`, `Armour Plate Stock`, `Armour Ring Stock`, `Armour Scale Stock`, `Bisque Vessel Blank`, `Bookbinding Stock`, `Bow Stave`, `Carved Wood Stock`, `Coopered Staves`, `Decoction Stock`, `Door Hardware Stock`, `Dyed Cloth`, `Fulled Cloth`, `Glass Batch`, `Glass Vessel Blank`, `Helmet Bowl Stock`, `Herbal Remedy Stock`, `Ink Stock`, `Lake Pigment`, `Leather Scale`, `Paint Pigment`, `Papyrus Sheet Stock`, `Pen Blank`, `Prosthetic Stock`, `Sealed Leather Panel`, `Shield Board Stock`, `Shield Facing Stock`, `Splint Stock`, `Stone Vessel Blank`, `Surgical Tool Blank`, `Suture Stock`, `Tablet Blank`, `Waxed Tablet Board`, `Weapon Blade Stock`, `Weapon Head Stock`, `Weapon Shaft Stock`, `Wet Vessel Blank`, and `Woven Cloth`.
+Reusable intermediate outputs that are intentionally allowed to sit at a stock boundary are: `Armour Lamella Stock`, `Armour Plate Stock`, `Armour Ring Stock`, `Armour Scale Stock`, `Bisque Vessel Blank`, `Bookbinding Stock`, `Bow Stave`, `Carved Wood Stock`, `Coopered Staves`, `Decoction Stock`, `Door Hardware Stock`, `Dyed Cloth`, `Fulled Cloth`, `Glass Batch`, `Glass Vessel Blank`, `Helmet Bowl Stock`, `Herbal Remedy Stock`, `Ink Stock`, `Jewellery Bead Stock`, `Jewellery Metal Stock`, `Jewellery Setting Stock`, `Jewellery Wire Stock`, `Lake Pigment`, `Leather Scale`, `Paint Pigment`, `Papyrus Sheet Stock`, `Pen Blank`, `Prosthetic Stock`, `Sealed Leather Panel`, `Shield Board Stock`, `Shield Facing Stock`, `Splint Stock`, `Stone Vessel Blank`, `Surgical Tool Blank`, `Suture Stock`, `Tablet Blank`, `Tool Blank Stock`, `Waxed Tablet Board`, `Weapon Blade Stock`, `Weapon Head Stock`, `Weapon Shaft Stock`, `Wet Vessel Blank`, and `Woven Cloth`.
 
 ## Knowledge Gates
 
@@ -53,7 +56,7 @@ Reusable intermediate outputs that are intentionally allowed to sit at a stock b
 | `Ancient Equipment Crafting` | Shared construction and equipment stock, especially door and gate hardware. |
 | `Ancient Weaponcrafting` | Weapon blade/head stock, shafts, bow staves, fletching stock, cord stock, ammunition, bows, slings, spears, blades, hafted weapons, and wooden weapons. |
 | `Ancient Armourcrafting` | Helmet bowls, armour plates, rings, scales, lamellae, textile padding, shields, and final armour assembly. |
-| `Ancient Toolmaking` | Metal, wooden, textile, and leather tool blanks plus final craft-tool prototypes. |
+| `Ancient Toolmaking` | Metal, wooden, textile, leather, stone, bone, shell, glass, support-tool, and unlit apparatus prototypes. |
 | `Ancient Common Clothing Crafting` | Culture-neutral common clothing and accessories left outside the culture garment suites. |
 
 ## Commodity Tags
@@ -76,7 +79,7 @@ All equipment stock tags are seeded under `Functions / Material Functions / Anti
 | `Armour Scale Stock` | Scale armour stock. |
 | `Armour Lamella Stock` | Lamellar armour stock. |
 | `Armour Textile Padding` | Layered textile padding for armour and armour linings. |
-| `Tool Blank Stock` | Reusable metal, wooden, textile, or leather stock for craft tools. |
+| `Tool Blank Stock` | Reusable metal, wooden, textile, leather, ceramic, stone, bone, shell, and glass stock for craft tools. |
 | `Door Hardware Stock` | Hinges, straps, latch plates, bars, and fittings for doors and gates. |
 
 ## Source-Audited Product Catalogue

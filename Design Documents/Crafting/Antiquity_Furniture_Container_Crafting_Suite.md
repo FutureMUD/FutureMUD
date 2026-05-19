@@ -156,53 +156,73 @@ Add the following tool tags if they do not already exist:
 
 ## Tool Prototypes
 
-The following full item tool prototypes should be seeded before the craft suite. Names are suggested stable references; exact descriptions can follow the style already used for textile tools.
+The household-tool source now owns the shared antiquity workshop tool catalogue for household, equipment, textile, leather, heat, and metal-adjacent crafts. The table below lists the exact leaf tool tags seeded on each prototype; parent tags are implied by the seeded tag hierarchy rather than repeated here.
 
-| Stable Reference | Tags | Used By |
+| Stable Reference | Exact Seeded Tool Tags | Source Catalogue Name |
 | --- | --- | --- |
-| `antiquity_bronze_hand_saw` | `Hand Saw`, `Saws`, `Woodcrafting Tools` | Plank cutting, furniture, shelving, boxes. |
-| `antiquity_bronze_adze` | `Adze`, `Woodcrafting Tools` | Shaping boards, bowls, planks, furniture frames. |
-| `antiquity_bronze_wood_chisel` | `Wood Chisel`, `Chisel`, `Woodcrafting Tools` | Joinery, carving, inlay recesses. |
-| `antiquity_bronze_wood_auger` | `Wood Auger`, `Woodcrafting Tools` | Peg holes, dowel holes, coopering bungs. |
-| `antiquity_wooden_smoothing_plane` | `Planer`, `Woodcrafting Tools` | Dressed timber and finished furniture surfaces. |
-| `antiquity_wooden_joinery_clamp` | `Wood Clamp`, `Clamp`, `Woodcrafting Tools` | Panel glue-ups, cases, doors, furniture frames. |
-| `antiquity_bow_drill` | `Bow Drill`, `Woodcrafting Tools`, `Stoneworking Tools` | Fine boring in wood, bone, horn, stone, and inlay. |
-| `antiquity_wood_rasp` | `Rasp`, `Wood File`, `Woodcrafting Tools` | Carving, shaping, smoothing. |
-| `antiquity_coopers_adze` | `Cooper's Adze`, `Coopering Tools` | Staves and casks. |
-| `antiquity_coopers_croze` | `Croze`, `Coopering Tools` | Barrel head grooves. |
-| `antiquity_hoop_driver` | `Hoop Driver`, `Coopering Tools` | Driving hoops onto casks/barrels. |
-| `antiquity_bung_borer` | `Bung Borer`, `Coopering Tools` | Wet casks and liquid barrels. |
-| `antiquity_basket_knife` | `Basket Knife`, `Basketry Tools` | Basketry splints and plaiting. |
-| `antiquity_reed_splitter` | `Reed Splitter`, `Basketry Tools` | Reed/papyrus/willow stock preparation. |
-| `antiquity_weaving_bodkin` | `Weaving Bodkin`, `Basketry Tools` | Tight basket and reed mat weaving. |
-| `antiquity_packing_bone` | `Packing Bone`, `Basketry Tools` | Packing woven rows tight. |
-| `antiquity_leather_awl_punch` | `Awl Punch`, `Leatherworking Tools` | Pouches, skins, cases, strap holes. |
-| `antiquity_leather_stitching_pony` | `Leather Stitching Pony`, `Leatherworking Tools` | Sewn leather goods. |
-| `antiquity_leather_edge_beveller` | `Edge Beveller`, `Leatherworking Tools` | Finished leather edges. |
-| `antiquity_slow_potters_wheel` | `Potter's Wheel`, `Pottery Tools` | Cups, bowls, jars, amphorae. |
-| `antiquity_clay_knife` | `Clay Knife`, `Pottery Tools` | Cutting clay bodies and vessels. |
-| `antiquity_potters_rib` | `Potter's Rib`, `Pottery Tools` | Smoothing vessel walls. |
-| `antiquity_loop_tool` | `Loop Tool`, `Pottery Tools` | Trimming feet, rims, and reliefs. |
-| `antiquity_wire_cutter` | `Wire Cutter`, `Pottery Tools` | Cutting vessels from wheel and clay blocks. |
-| `antiquity_clay_stamp` | `Clay Stamp`, `Pottery Tools` | Moulded or stamped decoration. |
-| `antiquity_updraft_kiln` | `Kiln`, `Pottery Tools`, `Hot Fire` | Firing clay, terracotta, ceramic, and glass-adjacent work. |
-| `antiquity_glass_blowpipe` | `Blowpipe`, `Glassblowing Tools` | Blown glass vessels. |
-| `antiquity_pontil_rod` | `Pontil Rod`, `Glassblowing Tools` | Glass finishing. |
-| `antiquity_marver_slab` | `Marver Table`, `Glassblowing Tools` | Shaping hot glass. |
-| `antiquity_glassworking_jacks` | `Jacks`, `Glassblowing Tools` | Glass mouths, necks, and feet. |
-| `antiquity_glass_shears` | `Glass Shears`, `Glassblowing Tools` | Cutting hot glass. |
-| `antiquity_annealing_lehr` | `Annealing Lehr`, `Glassblowing Tools` | Cooling glass vessels and panes. |
-| `antiquity_casting_crucible` | `Crucible`, `Metalworking Tools`, `Smelting Tools` | Bronze/silver/gold casting. |
-| `antiquity_crucible_tongs` | `Crucible Tongs`, `Smelting Tools` | Handling hot crucibles. |
-| `antiquity_vessel_casting_mould` | `Casting Mould`, `Metalworking Tools` | Cast vessel and lamp blanks. |
-| `antiquity_bronze_burnisher` | `Burnisher`, `Engraving Tools` | Polishing metal and stone surfaces. |
-| `antiquity_stone_chisel` | `Stone Chisel`, `Stoneworking Tools` | Alabaster, calcite, stone bowl shaping. |
-| `antiquity_stone_mallet` | `Stone Mallet`, `Stoneworking Tools` | Stone carving. |
-| `antiquity_polishing_stone` | `Lacquer Polishing Stone`, `Stoneworking Tools` | Lacquer, stone, and fine finish polishing. |
-| `antiquity_candle_mould` | `Candle Mould`, `Candlemaking Tools` | Moulded beeswax candles. |
-| `antiquity_lamp_mould` | `Press Mold`, `Pottery Tools` | Moulded clay lamps. |
-| `antiquity_lacquer_brush` | `Lacquerer's Brush`, `Lacquerwork Tools` | Painted/lacquered boxes and furniture. |
-| `antiquity_lacquer_spatula` | `Lacquer Spatula`, `Lacquerwork Tools` | Lacquer application. |
+| `antiquity_bronze_hand_saw` | `Hand Saw` | a bronze hand saw |
+| `antiquity_bronze_adze` | `Adze` | a bronze woodworking adze |
+| `antiquity_bronze_wood_chisel` | `Wood Chisel` | a bronze wood chisel |
+| `antiquity_bronze_workshop_chisel` | `Chisel` | a bronze workshop chisel |
+| `antiquity_bronze_workshop_hammer` | `Hammer`, `Forge Hammer` | a bronze workshop hammer |
+| `antiquity_bronze_workshop_pliers` | `Pliers` | a pair of bronze workshop pliers |
+| `antiquity_bronze_plaster_trowel` | `Trowel` | a bronze finishing trowel |
+| `antiquity_sharpening_whetstone` | `Sharpening` | a grooved sharpening whetstone |
+| `antiquity_bronze_wood_auger` | `Wood Auger` | a bronze wood auger |
+| `antiquity_wooden_smoothing_plane` | `Planer` | a wooden smoothing plane with a bronze iron |
+| `antiquity_wooden_joinery_clamp` | `Wood Clamp` | a wooden joinery clamp |
+| `antiquity_bow_drill` | `Bow Drill` | a bow drill with a bronze bit |
+| `antiquity_wood_rasp` | `Rasp` | a bronze-toothed wood rasp |
+| `antiquity_coopers_adze` | `Cooper's Adze` | a cooper's bronze adze |
+| `antiquity_coopers_croze` | `Croze` | a cooper's croze |
+| `antiquity_hoop_driver` | `Hoop Driver` | a wooden hoop driver |
+| `antiquity_bung_borer` | `Bung Borer` | a bronze bung borer |
+| `antiquity_basket_knife` | `Basket Knife` | a bronze basket knife |
+| `antiquity_reed_splitter` | `Reed Splitter` | a bronze reed splitter |
+| `antiquity_weaving_bodkin` | `Weaving Bodkin` | a bronze weaving bodkin |
+| `antiquity_packing_bone` | `Packing Bone` | a polished packing bone |
+| `antiquity_linen_dye_strainer` | `Dye Strainer` | a linen dye strainer |
+| `antiquity_indigo_beating_paddle` | `Indigo Beating Paddle` | an indigo beating paddle |
+| `antiquity_rope_hook_bar` | `Rope Hook` | a bronze rope hook |
+| `antiquity_twine_shuttle` | `Twine Shuttle` | a wooden twine shuttle |
+| `antiquity_leather_awl_punch` | `Awl Punch` | a bronze leather awl punch |
+| `antiquity_leather_stitching_pony` | `Leather Stitching Pony` | a wooden leather stitching pony |
+| `antiquity_leather_edge_beveller` | `Edge Beveller` | a bronze leather edge beveller |
+| `antiquity_bronze_leather_paring_knife` | `Leather Paring Knife` | a bronze leather paring knife |
+| `antiquity_slow_potters_wheel` | `Potter's Wheel` | a slow wooden potter's wheel |
+| `antiquity_workshop_hearth` | None; unlit apparatus only | an unlit clay workshop hearth |
+| `antiquity_lit_workshop_hearth` | `Fire` | a lit clay workshop hearth |
+| `antiquity_clay_knife` | `Clay Knife` | a bronze clay knife |
+| `antiquity_potters_rib` | `Potter's Rib` | a wooden potter's rib |
+| `antiquity_loop_tool` | `Loop Tool` | a bronze loop tool |
+| `antiquity_wire_cutter` | `Wire Cutter` | a linen-cord clay wire cutter |
+| `antiquity_clay_stamp` | `Clay Stamp` | a carved clay stamp |
+| `antiquity_updraft_kiln` | `Kiln` | an updraft pottery kiln |
+| `antiquity_lit_updraft_kiln` | `Kiln`, `Lit Kiln`, `Hot Fire` | a lit updraft pottery kiln |
+| `antiquity_glass_blowpipe` | `Blowpipe` | a bronze glass blowpipe |
+| `antiquity_pontil_rod` | `Pontil Rod` | a bronze pontil rod |
+| `antiquity_marver_slab` | `Marver Table` | a stone marver slab |
+| `antiquity_glassworking_jacks` | `Jacks` | a pair of bronze glassworking jacks |
+| `antiquity_glass_shears` | `Glass Shears` | a pair of bronze glass shears |
+| `antiquity_annealing_lehr` | `Annealing Lehr` | a small annealing lehr |
+| `antiquity_lit_annealing_lehr` | `Annealing Lehr`, `Lit Annealing Lehr`, `Hot Fire` | a lit annealing lehr |
+| `antiquity_casting_crucible` | `Crucible` | a bronze casting crucible |
+| `antiquity_crucible_tongs` | `Crucible Tongs` | a pair of bronze crucible tongs |
+| `antiquity_clay_smelting_furnace` | `Smelting Furnace` | an unlit clay smelting furnace |
+| `antiquity_lit_clay_smelting_furnace` | `Smelting Furnace`, `Lit Smelting Furnace`, `Hot Fire` | a lit clay smelting furnace |
+| `antiquity_bronze_forge_tongs` | `Forge Tongs` | a pair of bronze forge tongs |
+| `antiquity_goatskin_bellows` | `Bellows`, `Furnace Bellows` | a goatskin workshop bellows |
+| `antiquity_bronze_anvil` | `Anvil` | a low bronze workshop anvil |
+| `antiquity_bronze_cooking_pot` | `Cooking Pot` | a bronze cooking pot |
+| `antiquity_vessel_casting_mould` | `Vessel Casting Mould` | a clay vessel casting mould |
+| `antiquity_bronze_burnisher` | `Bronze Burnisher` | a polished bronze burnisher |
+| `antiquity_stone_chisel` | `Stone Chisel` | a bronze stone chisel |
+| `antiquity_stone_mallet` | `Stone Mallet`, `Mallet` | a wooden stoneworking mallet |
+| `antiquity_polishing_stone` | `Polishing Stone` | a smooth polishing stone |
+| `antiquity_candle_mould` | `Candle Mould` | a clay candle mould |
+| `antiquity_lamp_mould` | `Lamp Mould` | a clay lamp mould |
+| `antiquity_lacquer_brush` | `Lacquerer's Brush` | a fine lacquerer's brush |
+| `antiquity_lacquer_spatula` | `Lacquer Spatula` | a wooden lacquer spatula |
 
 ## Shared Upstream Crafts
 
@@ -223,10 +243,10 @@ These are the upstream craft families to implement before final products. The ex
 | Prepare pitch stock | Ropemaking | Ancient Lighting and Heating | Resin/pitch commodity | Heating vessel, stirring tool | Commodity tagged `Prepared Pitch`. |
 | Prepare pottery clay body | Pottery | Ancient Ceramic Vesselmaking | Clay or earthenware commodity, water | Pug mill or hand tools | Commodity tagged `Pottery Clay Body`. |
 | Form wet vessel blanks | Pottery | Ancient Ceramic Vesselmaking | `Pottery Clay Body` | Potter's wheel, rib, clay knife | Commodity tagged `Wet Vessel Blank`. |
-| Fire bisque vessel blanks | Pottery | Ancient Ceramic Vesselmaking | `Wet Vessel Blank`, fuel | Kiln | Commodity tagged `Bisque Vessel Blank`. |
+| Fire bisque vessel blanks | Pottery | Ancient Ceramic Vesselmaking | `Wet Vessel Blank`, fuel | Lit kiln | Commodity tagged `Bisque Vessel Blank`. |
 | Prepare glass batch | Glassworking | Ancient Glassworking | Soda-lime glass inputs or glass commodity | Crucible, kiln/glory heat | Commodity tagged `Glass Batch`. |
-| Blow glass vessel blanks | Glassworking | Ancient Glassworking | `Glass Batch` | Blowpipe, pontil, marver, jacks, annealing lehr | Commodity tagged `Glass Vessel Blank`. |
-| Cast vessel blanks | Blacksmithing or Silversmithing | Ancient Metal Vesselmaking | Bronze, iron, silver, or gold commodity | Crucible, tongs, mould, hot fire | Commodity tagged `Cast Vessel Blank`. |
+| Blow glass vessel blanks | Glassworking | Ancient Glassworking | `Glass Batch` | Blowpipe, pontil, marver, jacks, lit annealing lehr | Commodity tagged `Glass Vessel Blank`. |
+| Cast vessel blanks | Blacksmithing or Silversmithing | Ancient Metal Vesselmaking | Bronze, iron, silver, or gold commodity | Crucible, tongs, mould, lit smelting furnace | Commodity tagged `Cast Vessel Blank`. |
 | Carve stone vessel blanks | Masonry or Scrimshawing | Ancient Stone Bone and Horn Carving | Alabaster, calcite, horn, or ivory commodity | Chisel, mallet, bow drill, polishing stone | Commodity tagged `Stone Vessel Blank`. |
 | Prepare inlay stock | Scrimshawing, Glassworking, or Silversmithing | Ancient Household Crafting | Ivory, glass, shell, metal, or coloured stone commodity | Saw, chisel, polishing stone | Commodity tagged `Inlay Stock`. |
 | Prepare painted or lacquered finish | Dyeing or Lacquerwork | Ancient Household Crafting | Pigment/lacquer commodity | Brush, spatula, polishing stone | Commodity tagged `Paint Pigment` or `Lacquer Finish`. |
@@ -241,9 +261,9 @@ Each final craft should use one row from this family table and one stable produc
 | Basketry and Reedwork | 9 | Basketry | Ancient Basketry or culture-specific household knowledge | Willow/papyrus/reed `Basketry Splint`, `Reed Matting`, optional yarn/tie. | Basket knife, reed splitter, bodkin, packing bone, basket clamp. | Stable product. |
 | Textile and Leather Goods | 57 | Tailoring or Leathermaking | Ancient Leather Containers, Ancient Household Crafting, or culture-specific household knowledge | `Garment Cloth`, `Spun Yarn`, `Prepared Leather Panel`, hide/fur commodity, optional `Lamp Wick`, optional `Bead Stock`. | Sewing needle, shears, leather awl, stitching pony, edge beveller. | Stable simple/variable product. |
 | Coopering | 7 | Coopering | Ancient Coopering | `Coopered Staves`, `Hoop Stock`, optional pitch or wax seal. | Cooper's adze, croze, hoop driver, bung borer, mallet. | Dry or liquid container stable product. |
-| Pottery and Fired Clay | 85 | Pottery | Ancient Ceramic Vesselmaking or culture-specific household knowledge | `Pottery Clay Body`, `Wet Vessel Blank`, `Bisque Vessel Blank`, optional slip/glaze/pigment, optional wick for lamps. | Potter's wheel, rib, clay knife, loop tool, stamp, kiln. | Stable product; variable colour products when painted/glazed descriptors require it. |
-| Glassworking | 10 | Glassworking | Ancient Glassworking or culture-specific household knowledge | `Glass Batch`, `Glass Vessel Blank`, optional `Glass Panes`, optional pigment/colour stock. | Blowpipe, pontil, marver, jacks, shears, annealing lehr. | Stable product. |
-| Metal Vesselmaking and Casting | 49 | Blacksmithing or Silversmithing | Ancient Metal Vesselmaking or culture-specific household knowledge | Bronze/iron/silver/gold `Cast Vessel Blank`, optional `Rivet`, `Hoop Stock`, `Inlay Stock`, lamp wick. | Crucible, tongs, mould, hammer, anvil, burnisher. | Stable product. |
+| Pottery and Fired Clay | 85 | Pottery | Ancient Ceramic Vesselmaking or culture-specific household knowledge | `Pottery Clay Body`, `Wet Vessel Blank`, `Bisque Vessel Blank`, optional slip/glaze/pigment, optional wick for lamps. | Potter's wheel, rib, clay knife, loop tool, stamp, lit kiln. | Stable product; variable colour products when painted/glazed descriptors require it. |
+| Glassworking | 10 | Glassworking | Ancient Glassworking or culture-specific household knowledge | `Glass Batch`, `Glass Vessel Blank`, optional `Glass Panes`, optional pigment/colour stock. | Blowpipe, pontil, marver, jacks, shears, lit annealing lehr. | Stable product. |
+| Metal Vesselmaking and Casting | 49 | Blacksmithing or Silversmithing | Ancient Metal Vesselmaking or culture-specific household knowledge | Bronze/iron/silver/gold `Cast Vessel Blank`, optional `Rivet`, `Hoop Stock`, `Inlay Stock`, lamp wick. | Crucible, tongs, lit smelting furnace, hammer, anvil, burnisher. | Stable product. |
 | Stone Bone and Horn Carving | 12 | Masonry or Scrimshawing | Ancient Stone Bone and Horn Carving or culture-specific household knowledge | `Stone Vessel Blank`, exact alabaster/calcite/horn/ivory commodity, optional polish/inlay. | Stone chisel, stone mallet, bow drill, polishing stone. | Stable product. |
 | Candlemaking and Wicks | 2 | Candlemaking | Ancient Lighting and Heating | Beeswax commodity, `Lamp Wick`, optional dye/pigment. | Candle mould, knife. | Stable product. |
 | Torchmaking and Pitchwork | 2 | Ropemaking or Carpentry | Ancient Lighting and Heating | Pine/wood shaft commodity, cloth/fibre, `Prepared Pitch`, `Lamp Wick`. | Knife, binding tool, heating vessel. | Stable product. |
@@ -286,6 +306,20 @@ The following stable references are the design-audit coverage list from the impl
 ### Coopering
 
 `antiquity_liquid_ash_ale_cask`, `antiquity_liquid_hooped_trade_barrel`, `antiquity_liquid_oak_hogshead`, `antiquity_liquid_oak_wet_cask`, `antiquity_liquid_small_coopered_rundlet`, `antiquity_oak_stave_dry_cask`, `antiquity_tall_hooped_trade_barrel`
+
+### Doors, Gates, Locks, and Keys
+
+`antiquity_oak_house_door`, `antiquity_lockable_oak_house_door`, `antiquity_cedar_panel_door`, `antiquity_lockable_cedar_panel_door`, `antiquity_acacia_courtyard_door`, `antiquity_lockable_acacia_courtyard_door`, `antiquity_studded_plank_door`, `antiquity_lockable_studded_plank_door`, `antiquity_cypress_shrine_door`, `antiquity_lockable_cypress_shrine_door`, `antiquity_bronze_clad_civic_door`, `antiquity_lockable_bronze_clad_civic_door`
+
+`antiquity_planked_courtyard_gate`, `antiquity_lockable_planked_courtyard_gate`, `antiquity_palisade_camp_gate`, `antiquity_lockable_palisade_camp_gate`, `antiquity_fortified_compound_gate`, `antiquity_lockable_fortified_compound_gate`, `antiquity_city_gate_leaf`, `antiquity_lockable_city_gate_leaf`, `antiquity_fur_door_hanging`, `antiquity_woven_wool_door_curtain`, `antiquity_heavy_linen_door_cloth`, `antiquity_patterned_carpet_door_hanging`
+
+`antiquity_bead_door_hanging`, `antiquity_reed_door_screen`, `antiquity_felt_tent_door_flap`, `antiquity_leather_tent_door_flap`, `antiquity_papyrus_lashed_light_door`, `antiquity_wooden_barred_wicket`, `antiquity_lockable_wooden_barred_wicket`, `antiquity_bronze_latticed_gate`, `antiquity_lockable_bronze_latticed_gate`, `antiquity_wrought_iron_barred_gate`, `antiquity_lockable_wrought_iron_barred_gate`, `antiquity_bronze_shrine_grille`
+
+`antiquity_lockable_bronze_shrine_grille`, `antiquity_city_sally_port_grate`, `antiquity_lockable_city_sally_port_grate`, `antiquity_massive_barred_gateway`, `antiquity_lockable_massive_barred_gateway`, `antiquity_wooden_pin_lock`, `antiquity_wooden_pin_lock_key`, `antiquity_bronze_warded_door_lock`, `antiquity_bronze_warded_key`, `antiquity_wrought_iron_warded_door_lock`, `antiquity_wrought_iron_warded_key`, `antiquity_small_casket_tumbler_lock`
+
+`antiquity_small_casket_lift_key`, `antiquity_large_gate_bar_lock`, `antiquity_large_gate_key`, `antiquity_poor_iron_slide_lock`, `antiquity_plain_slide_key`, `antiquity_fine_bronze_tumbler_lock`, `antiquity_fine_bronze_lift_key`, `antiquity_bronze_lever_door_lock`, `antiquity_two_toothed_bronze_lever_key`, `antiquity_wrought_iron_gate_lever_lock`, `antiquity_long_iron_gate_key`, `antiquity_temple_bar_lever_lock`
+
+`antiquity_ceremonial_temple_key`, `antiquity_wooden_crossbar_latch`, `antiquity_wrought_iron_draw_latch`, `antiquity_bronze_shrine_latch`, `antiquity_small_bronze_keyring`, `antiquity_large_iron_keyring`
 
 ### Glassworking
 

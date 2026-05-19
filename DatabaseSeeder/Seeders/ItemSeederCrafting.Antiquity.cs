@@ -81,6 +81,22 @@ public partial class ItemSeeder
         return $"SimpleProduct - 1x {item.ShortDescription} (#{item.Id})";
     }
 
+    private string StableSimpleItemDescription(string stableReference)
+    {
+        var item = LookupReworkItem(stableReference);
+        return $"1x {item.ShortDescription} (#{item.Id})";
+    }
+
+    private string StableSimpleItemInput(string stableReference)
+    {
+        return $"SimpleItem - {StableSimpleItemDescription(stableReference)}";
+    }
+
+    private string StableUnusedInputProduct(string stableReference, int inputIndex)
+    {
+        return $"UnusedInput - 100.00% of {StableSimpleItemDescription(stableReference)} ($i{inputIndex})";
+    }
+
     private MudSharp.Models.Craft? AddAntiquityCraft(
         string name,
         string category,
@@ -684,7 +700,7 @@ public partial class ItemSeeder
             ],
             [
                 "TagTool - InRoom - an item with the Leather Wax Pot tag",
-                "TagTool - InRoom - an item with the Hot Fire tag",
+                "TagTool - InRoom - an item with the Fire tag",
                 "TagTool - InRoom - an item with the Tanning Rack tag"
             ],
             ["CommodityProduct - 760 grams of leather commodity; tag Hardened Leather Panel; characteristic Colour from $i1; characteristic Fine Colour from $i1"],
@@ -731,7 +747,7 @@ public partial class ItemSeeder
             ],
             [
                 "TagTool - InRoom - an item with the Leather Wax Pot tag",
-                "TagTool - InRoom - an item with the Hot Fire tag",
+                "TagTool - InRoom - an item with the Fire tag",
                 "TagTool - Held - an item with the Leather Creaser tag"
             ],
             ["CommodityProduct - 600 grams of leather commodity; tag Sealed Leather Panel; characteristic Colour from $i1; characteristic Fine Colour from $i1"],

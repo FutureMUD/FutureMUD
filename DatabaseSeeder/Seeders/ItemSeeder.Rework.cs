@@ -31,6 +31,7 @@ namespace DatabaseSeeder.Seeders
         {
             if (_items.TryGetValue(stableReference, out var existing))
             {
+                ApplyItemLifecycleSettings(existing, morphToUniqueReference, morphEmote, morphTimer, destroyedItemUniqueReference);
                 return existing;
             }
 
@@ -42,6 +43,7 @@ namespace DatabaseSeeder.Seeders
             {
                 _items[stableReference] = existing;
                 _items[existing.ShortDescription] = existing;
+                ApplyItemLifecycleSettings(existing, morphToUniqueReference, morphEmote, morphTimer, destroyedItemUniqueReference);
                 return existing;
             }
 
@@ -73,6 +75,8 @@ namespace DatabaseSeeder.Seeders
                 PermitPlayerSkins = skinnable,
                 CostInBaseCurrency = inherentCost,
                 IsHiddenFromPlayers = hideFromPlayers,
+                MorphTimeSeconds = 0,
+                MorphEmote = "$0 $?1|morphs into $1|decays into nothing$.",
             };
             foreach (string item in tags)
             {
@@ -115,7 +119,45 @@ namespace DatabaseSeeder.Seeders
             _context!.GameItemProtos.Add(dbitem);
             _items[stableReference] = dbitem;
             _items[dbitem.ShortDescription] = dbitem;
+            ApplyItemLifecycleSettings(dbitem, morphToUniqueReference, morphEmote, morphTimer, destroyedItemUniqueReference);
             return dbitem;
+        }
+
+        private void ApplyItemLifecycleSettings(GameItemProto item,
+                                                string? morphToUniqueReference,
+                                                string? morphEmote,
+                                                TimeSpan? morphTimer,
+                                                string? destroyedItemUniqueReference)
+        {
+            if (string.IsNullOrWhiteSpace(morphToUniqueReference) &&
+                string.IsNullOrWhiteSpace(morphEmote) &&
+                morphTimer is null &&
+                string.IsNullOrWhiteSpace(destroyedItemUniqueReference))
+            {
+                return;
+            }
+
+            if (!string.IsNullOrWhiteSpace(morphToUniqueReference) &&
+                _items.TryGetValue(morphToUniqueReference, out var morphItem))
+            {
+                item.MorphGameItemProtoId = morphItem.Id;
+            }
+
+            if (morphTimer is not null)
+            {
+                item.MorphTimeSeconds = (int)morphTimer.Value.TotalSeconds;
+            }
+
+            if (!string.IsNullOrWhiteSpace(morphEmote))
+            {
+                item.MorphEmote = morphEmote;
+            }
+
+            if (!string.IsNullOrWhiteSpace(destroyedItemUniqueReference) &&
+                _items.TryGetValue(destroyedItemUniqueReference, out var destroyedItem))
+            {
+                item.OnDestroyedGameItemProtoId = destroyedItem.Id;
+            }
         }
 
         

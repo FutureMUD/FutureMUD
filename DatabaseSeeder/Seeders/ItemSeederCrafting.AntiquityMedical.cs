@@ -104,7 +104,8 @@ public partial class ItemSeeder
 			],
 			[
 				"TagTool - Held - an item with the Shears tag",
-				"TagTool - InRoom - an item with the Cooking Pot tag"
+				"TagTool - InRoom - an item with the Cooking Pot tag",
+				"TagTool - InRoom - an item with the Fire tag"
 			],
 			[$"CommodityProduct - {FormatCommodityAmount(720.0)} of linen commodity; tag Dressing Stock; characteristic Colour from $i1; characteristic Fine Colour from $i1"]);
 
@@ -140,6 +141,7 @@ public partial class ItemSeeder
 			],
 			[
 				"TagTool - InRoom - an item with the Cooking Pot tag",
+				"TagTool - InRoom - an item with the Fire tag",
 				"TagTool - Held - an item with the Ointment Spatula tag"
 			],
 			[$"CommodityProduct - {FormatCommodityAmount(430.0)} of resin commodity; tag Salve Stock"]);
@@ -159,6 +161,7 @@ public partial class ItemSeeder
 			],
 			[
 				"TagTool - InRoom - an item with the Cooking Pot tag",
+				"TagTool - InRoom - an item with the Fire tag",
 				"TagTool - Held - an item with the Medicine Strainer tag"
 			],
 			[$"CommodityProduct - {FormatCommodityAmount(320.0)} of herb commodity; tag Decoction Stock"]);
@@ -520,7 +523,7 @@ public partial class ItemSeeder
 	{
 		return
 		[
-			"TagTool - InRoom - an item with the Hot Fire tag",
+			"TagTool - InRoom - an item with the Lit Smelting Furnace tag",
 			"TagTool - InRoom - an item with the Anvil tag",
 			"TagTool - Held - an item with the Hammer tag",
 			"TagTool - Held - an item with the Forge Tongs tag"

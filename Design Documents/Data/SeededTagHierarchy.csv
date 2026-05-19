@@ -534,6 +534,7 @@ Net Gauge	Fishing Tools	Functions / Tools / Fishing Tools / Net Gauge
 Net Needle	Fishing Tools	Functions / Tools / Fishing Tools / Net Needle
 Glassblowing Tools	Tools	Functions / Tools / Glassblowing Tools
 Annealing Lehr	Glassblowing Tools	Functions / Tools / Glassblowing Tools / Annealing Lehr
+Lit Annealing Lehr	Annealing Lehr	Functions / Tools / Glassblowing Tools / Annealing Lehr / Lit Annealing Lehr
 Blocks	Glassblowing Tools	Functions / Tools / Glassblowing Tools / Blocks
 Blowpipe	Glassblowing Tools	Functions / Tools / Glassblowing Tools / Blowpipe
 Glass Shears	Glassblowing Tools	Functions / Tools / Glassblowing Tools / Glass Shears
@@ -706,6 +707,7 @@ Clay Stamp	Pottery Tools	Functions / Tools / Pottery Tools / Clay Stamp
 Extruder	Pottery Tools	Functions / Tools / Pottery Tools / Extruder
 Hump Mold	Pottery Tools	Functions / Tools / Pottery Tools / Hump Mold
 Kiln	Pottery Tools	Functions / Tools / Pottery Tools / Kiln
+Lit Kiln	Kiln	Functions / Tools / Pottery Tools / Kiln / Lit Kiln
 Loop Tool	Pottery Tools	Functions / Tools / Pottery Tools / Loop Tool
 Needle Tool	Pottery Tools	Functions / Tools / Pottery Tools / Needle Tool
 Potter's Rib	Pottery Tools	Functions / Tools / Pottery Tools / Potter's Rib
@@ -871,6 +873,7 @@ Ore Roaster	Smelting Tools	Functions / Tools / Smelting Tools / Ore Roaster
 Slag Hammer	Smelting Tools	Functions / Tools / Smelting Tools / Slag Hammer
 Slag Skimmer	Smelting Tools	Functions / Tools / Smelting Tools / Slag Skimmer
 Smelting Furnace	Smelting Tools	Functions / Tools / Smelting Tools / Smelting Furnace
+Lit Smelting Furnace	Smelting Furnace	Functions / Tools / Smelting Tools / Smelting Furnace / Lit Smelting Furnace
 Tap Rod	Smelting Tools	Functions / Tools / Smelting Tools / Tap Rod
 Stoneworking Tools	Tools	Functions / Tools / Stoneworking Tools
 Bush Hammer	Stoneworking Tools	Functions / Tools / Stoneworking Tools / Bush Hammer

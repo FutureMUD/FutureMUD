@@ -1,4 +1,5 @@
 using MudSharp.GameItems;
+using System;
 using System.Collections.Generic;
 
 namespace DatabaseSeeder.Seeders;
@@ -19,6 +20,26 @@ public partial class ItemSeeder
 			"A narrow bronze chisel with a faceted wooden handle, kept sharp for cutting mortises, trimming pegs, and carving small household fittings.",
 			SizeCategory.Small, 280.0, 18.0m, "bronze",
 			["Functions / Tools / Woodcrafting Tools / Wood Chisel"]);
+		CreateAntiquityHouseholdCraftTool("antiquity_bronze_workshop_chisel", "chisel", "a bronze workshop chisel",
+			"A general bronze chisel with a plain wooden handle, useful for rough shaping, small notches, and tool finishing where a specialist edge is not needed.",
+			SizeCategory.Small, 320.0, 16.0m, "bronze",
+			["Functions / Tools / Cutting and Shaping Tools / Chisel"]);
+		CreateAntiquityHouseholdCraftTool("antiquity_bronze_workshop_hammer", "hammer", "a bronze workshop hammer",
+			"A compact bronze hammer with a square face and a smooth wooden haft, heavy enough for peening, riveting, and general workshop striking.",
+			SizeCategory.Small, 760.0, 20.0m, "bronze",
+			["Functions / Tools / Striking Tools / Hammer", "Functions / Tools / Metalworking Tools / Forge Hammer"]);
+		CreateAntiquityHouseholdCraftTool("antiquity_bronze_workshop_pliers", "pliers", "a pair of bronze workshop pliers",
+			"A pair of bronze pliers with short jaws and a wrapped grip, made for bending wire, holding hot fittings briefly, and closing small rings.",
+			SizeCategory.Small, 360.0, 14.0m, "bronze",
+			["Functions / Tools / Gripping Tools / Pliers"]);
+		CreateAntiquityHouseholdCraftTool("antiquity_bronze_plaster_trowel", "trowel", "a bronze finishing trowel",
+			"A flat bronze trowel with a stubby wooden handle, used to smooth plaster, clay slips, pigments, and other spread workshop mixtures.",
+			SizeCategory.Small, 310.0, 11.0m, "bronze",
+			["Functions / Tools / Finishing Tools / Trowel"]);
+		CreateAntiquityHouseholdCraftTool("antiquity_sharpening_whetstone", "whetstone", "a grooved sharpening whetstone",
+			"A palm-sized stone worn into shallow grooves by knives, chisels, and needles. It is kept damp when used to freshen working edges.",
+			SizeCategory.Tiny, 220.0, 4.0m, "stone",
+			["Functions / Sharpening"]);
 		CreateAntiquityHouseholdCraftTool("antiquity_bronze_wood_auger", "auger", "a bronze wood auger",
 			"A bronze auger with a simple cross-grip, used to bore peg holes, hinge sockets, bung holes, and narrow openings in wooden vessels.",
 			SizeCategory.Small, 470.0, 26.0m, "bronze",
@@ -71,6 +92,22 @@ public partial class ItemSeeder
 			"A polished bone tool for pressing weavers close, creasing folds, and settling splints without cutting their fibres.",
 			SizeCategory.Small, 90.0, 5.0m, "horn",
 			["Functions / Tools / Textilecraft Tools / Basketry Tools / Packing Bone"]);
+		CreateAntiquityHouseholdCraftTool("antiquity_linen_dye_strainer", "strainer", "a linen dye strainer",
+			"A tight linen strainer stretched over a light willow hoop, used to separate dregs, lake pigment, and plant matter from prepared dye liquor.",
+			SizeCategory.Small, 95.0, 5.0m, "linen",
+			["Functions / Tools / Textilecraft Tools / Dyeing Tools / Dye Strainer"]);
+		CreateAntiquityHouseholdCraftTool("antiquity_indigo_beating_paddle", "paddle", "an indigo beating paddle",
+			"A flat wooden paddle with a dark-stained face, made for beating indigo vats and lifting oxygen through the liquor until the colour takes.",
+			SizeCategory.Normal, 540.0, 7.0m, "oak",
+			["Functions / Tools / Textilecraft Tools / Dyeing Tools / Indigo Beating Paddle"]);
+		CreateAntiquityHouseholdCraftTool("antiquity_rope_hook_bar", "hook", "a bronze rope hook",
+			"A stout bronze hook mounted on a short wooden bar, useful for twisting cordage, holding tension, and starting small rope lays.",
+			SizeCategory.Small, 410.0, 10.0m, "bronze",
+			["Functions / Tools / Textilecraft Tools / Ropemaking Tools / Rope Hook"]);
+		CreateAntiquityHouseholdCraftTool("antiquity_twine_shuttle", "shuttle", "a wooden twine shuttle",
+			"A flat wooden twine shuttle notched at both ends, sized for carrying cord through tight turns and binding lamp wicks, nets, or small ropes.",
+			SizeCategory.Tiny, 70.0, 3.0m, "wood",
+			["Functions / Tools / Textilecraft Tools / Ropemaking Tools / Twine Shuttle"]);
 		CreateAntiquityHouseholdCraftTool("antiquity_leather_awl_punch", "awl", "a bronze leather awl punch",
 			"A tapered bronze awl punch with a sturdy wooden grip, used to open stitch holes in leather panels, straps, and fitted covers.",
 			SizeCategory.Small, 140.0, 9.0m, "bronze",
@@ -83,10 +120,25 @@ public partial class ItemSeeder
 			"A small bronze edge beveller for shaving hard corners from straps, pouches, buckets, and leather-covered boxes.",
 			SizeCategory.VerySmall, 90.0, 8.0m, "bronze",
 			["Functions / Tools / Leatherworking Tools / Edge Beveller"]);
+		CreateAntiquityHouseholdCraftTool("antiquity_bronze_leather_paring_knife", "knife", "a bronze leather paring knife",
+			"A thin bronze paring knife with a slanted edge, used to shave leather edges thin for covers, cases, straps, and joined panels.",
+			SizeCategory.VerySmall, 120.0, 9.0m, "bronze",
+			["Functions / Tools / Bookbinding Tools / Leather Paring Knife"]);
 		CreateAntiquityHouseholdCraftTool("antiquity_slow_potters_wheel", "wheel", "a slow wooden potter's wheel",
 			"A heavy wooden turntable set on a low pivot, spun by hand for shaping small bowls, jars, lamps, and household vessels.",
 			SizeCategory.Large, 18000.0, 42.0m, "oak",
 			["Functions / Tools / Pottery Tools / Potter's Wheel"]);
+		CreateAntiquityHouseholdCraftTool("antiquity_workshop_hearth", "hearth", "an unlit clay workshop hearth",
+			"A low fired-clay hearth with a shallow bed for charcoal and a battered lip for resting small pots, wax vessels, or light workshop work.",
+			SizeCategory.Large, 28000.0, 42.0m, "fired clay",
+			[]);
+		CreateAntiquityHouseholdCraftTool("antiquity_lit_workshop_hearth", "hearth", "a lit clay workshop hearth",
+			"This low fired-clay hearth holds a bed of glowing charcoal. It gives steady workshop heat for wax, pitch, glue, small pots, and other gentle heating jobs.",
+			SizeCategory.Large, 28200.0, 46.0m, "fired clay",
+			["Functions / Material Functions / Fire"],
+			"antiquity_workshop_hearth",
+			"$0 burns low and settles back into $1.",
+			TimeSpan.FromHours(2));
 		CreateAntiquityHouseholdCraftTool("antiquity_clay_knife", "knife", "a bronze clay knife",
 			"A blunt-edged bronze clay knife for cutting wet clay, trimming vessel mouths, and cleaning the foot of a pot before firing.",
 			SizeCategory.Small, 160.0, 8.0m, "bronze",
@@ -111,6 +163,13 @@ public partial class ItemSeeder
 			"A squat earthenware updraft kiln with a low firebox and a pierced setting floor for firing small batches of vessels, lamps, and tiles.",
 			SizeCategory.Huge, 65000.0, 120.0m, "earthenware",
 			["Functions / Tools / Pottery Tools / Kiln"]);
+		CreateAntiquityHouseholdCraftTool("antiquity_lit_updraft_kiln", "kiln", "a lit updraft pottery kiln",
+			"This squat earthenware updraft kiln is stoked with charcoal heat, drawing fire up through a pierced setting floor for vessel and tile firing.",
+			SizeCategory.Huge, 65200.0, 128.0m, "earthenware",
+			["Functions / Tools / Pottery Tools / Kiln", "Functions / Tools / Pottery Tools / Kiln / Lit Kiln", "Functions / Material Functions / Hot Fire"],
+			"antiquity_updraft_kiln",
+			"$0 cools and dies back into $1.",
+			TimeSpan.FromHours(4));
 		CreateAntiquityHouseholdCraftTool("antiquity_glass_blowpipe", "blowpipe", "a bronze glass blowpipe",
 			"A long bronze blowpipe with a flared mouthpiece and a heat-darkened working end for gathering and inflating molten glass.",
 			SizeCategory.Normal, 1800.0, 38.0m, "bronze",
@@ -135,6 +194,13 @@ public partial class ItemSeeder
 			"A long earthenware annealing lehr that holds finished glass at a gentler heat so vessels can cool without cracking.",
 			SizeCategory.Huge, 52000.0, 110.0m, "earthenware",
 			["Functions / Tools / Glassblowing Tools / Annealing Lehr"]);
+		CreateAntiquityHouseholdCraftTool("antiquity_lit_annealing_lehr", "lehr", "a lit annealing lehr",
+			"This long earthenware annealing lehr is held at a steady charcoal heat, ready to take hot glass vessels and let them cool without cracking.",
+			SizeCategory.Huge, 52200.0, 116.0m, "earthenware",
+			["Functions / Tools / Glassblowing Tools / Annealing Lehr", "Functions / Tools / Glassblowing Tools / Annealing Lehr / Lit Annealing Lehr", "Functions / Material Functions / Hot Fire"],
+			"antiquity_annealing_lehr",
+			"$0 cools and dies back into $1.",
+			TimeSpan.FromHours(4));
 		CreateAntiquityHouseholdCraftTool("antiquity_casting_crucible", "crucible", "a bronze casting crucible",
 			"A thick-walled bronze crucible with a darkened lip for melting small charges of metal for vessels, fittings, and decorative mounts.",
 			SizeCategory.Small, 1600.0, 36.0m, "bronze",
@@ -143,6 +209,33 @@ public partial class ItemSeeder
 			"Long bronze tongs with hooked jaws, shaped to grip hot crucibles and carry them clear of the furnace mouth.",
 			SizeCategory.Normal, 1450.0, 28.0m, "bronze",
 			["Functions / Tools / Smelting Tools / Crucible Tongs"]);
+		CreateAntiquityHouseholdCraftTool("antiquity_clay_smelting_furnace", "furnace", "an unlit clay smelting furnace",
+			"A squat clay smelting furnace with a charcoal chamber, tuyere opening, and a blackened working mouth for small charges of metal or high-heat tool work.",
+			SizeCategory.Huge, 74000.0, 135.0m, "earthenware",
+			["Functions / Tools / Smelting Tools / Smelting Furnace"]);
+		CreateAntiquityHouseholdCraftTool("antiquity_lit_clay_smelting_furnace", "furnace", "a lit clay smelting furnace",
+			"This squat clay smelting furnace roars with charcoal heat through its tuyere opening, hot enough for metal blank work, casting, and other demanding furnace tasks.",
+			SizeCategory.Huge, 74200.0, 146.0m, "earthenware",
+			["Functions / Tools / Smelting Tools / Smelting Furnace", "Functions / Tools / Smelting Tools / Smelting Furnace / Lit Smelting Furnace", "Functions / Material Functions / Hot Fire"],
+			"antiquity_clay_smelting_furnace",
+			"$0 cools and dies back into $1.",
+			TimeSpan.FromHours(3));
+		CreateAntiquityHouseholdCraftTool("antiquity_bronze_forge_tongs", "tongs", "a pair of bronze forge tongs",
+			"Long bronze forge tongs with squared jaws and wrapped grips, shaped for shifting heated blanks between furnace mouth and anvil.",
+			SizeCategory.Normal, 1280.0, 24.0m, "bronze",
+			["Functions / Tools / Metalworking Tools / Forge Tongs"]);
+		CreateAntiquityHouseholdCraftTool("antiquity_goatskin_bellows", "bellows", "a goatskin workshop bellows",
+			"A goatskin bellows fixed between wooden boards with a narrow bronze nozzle, used to drive air into hearths and small furnaces.",
+			SizeCategory.Normal, 1600.0, 18.0m, "leather",
+			["Functions / Tools / Metalworking Tools / Bellows", "Functions / Tools / Smelting Tools / Furnace Bellows"]);
+		CreateAntiquityHouseholdCraftTool("antiquity_bronze_anvil", "anvil", "a low bronze workshop anvil",
+			"A low bronze anvil with a broad working face and a simple stake foot, suited to small blades, fittings, rings, and sheet work.",
+			SizeCategory.Large, 34000.0, 55.0m, "bronze",
+			["Functions / Tools / Metalworking Tools / Anvil"]);
+		CreateAntiquityHouseholdCraftTool("antiquity_bronze_cooking_pot", "pot", "a bronze cooking pot",
+			"A rounded bronze cooking pot with two small loop handles and a smoke-darkened base, large enough for wax, pitch, herbs, or kitchen stewing.",
+			SizeCategory.Normal, 1800.0, 28.0m, "bronze",
+			["Functions / Tools / Cooking / Cookware / Cooking Pot"]);
 		CreateAntiquityHouseholdCraftTool("antiquity_vessel_casting_mould", "mould", "a clay vessel casting mould",
 			"A two-part fired-clay mould for rough-casting simple cups, bowls, trays, and lamp bodies before hammering and burnishing.",
 			SizeCategory.Normal, 4200.0, 32.0m, "fired clay",
@@ -183,7 +276,10 @@ public partial class ItemSeeder
 
 	private void CreateAntiquityHouseholdCraftTool(string stableReference, string noun, string shortDescription,
 		string fullDescription, SizeCategory size, double weightInGrams, decimal cost, string material,
-		IEnumerable<string> functionalTags)
+		IEnumerable<string> functionalTags,
+		string? morphToUniqueReference = null,
+		string? morphEmote = null,
+		TimeSpan? morphTimer = null)
 	{
 		var tags = new List<string> { "Market / Professional Tools / Standard Tools" };
 		tags.AddRange(functionalTags);
@@ -202,9 +298,9 @@ public partial class ItemSeeder
 			material,
 			tags,
 			["Holdable", (int)size >= (int)SizeCategory.Large ? "Destroyable_Furniture" : "Destroyable_Misc"],
-			null,
-			null,
-			null,
+			morphToUniqueReference,
+			morphEmote,
+			morphTimer,
 			null
 		);
 	}

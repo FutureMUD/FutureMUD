@@ -1779,14 +1779,19 @@ public class VehiclePrototype : EditableItem, IVehiclePrototype
 	{
 		using (new FMDB())
 		{
+			var newRevisionNumber = FMDB.Context.VehicleProtos.Where(x => x.Id == Id).Select(x => x.RevisionNumber)
+			                                  .AsEnumerable()
+			                                  .DefaultIfEmpty(0)
+			                                  .Max() + 1;
 			var dbnew = new DB.VehicleProto
 			{
 				Id = Id,
-				RevisionNumber = FMDB.Context.VehicleProtos.Where(x => x.Id == Id).Select(x => x.RevisionNumber).AsEnumerable().DefaultIfEmpty(0).Max() + 1,
+				RevisionNumber = newRevisionNumber,
 				EditableItem = new DB.EditableItem
 				{
 					BuilderAccountId = initiator.Account.Id,
 					BuilderDate = DateTime.UtcNow,
+					RevisionNumber = newRevisionNumber,
 					RevisionStatus = (int)RevisionStatus.UnderDesign
 				},
 				Name = Name,

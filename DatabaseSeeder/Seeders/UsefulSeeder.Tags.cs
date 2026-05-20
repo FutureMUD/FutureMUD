@@ -75,10 +75,96 @@ namespace DatabaseSeeder.Seeders
             AddTag(context, "Woven Cloth", "Garment Cloth");
             AddTag(context, "Dyed Cloth", "Garment Cloth");
             AddTag(context, "Fulled Cloth", "Garment Cloth");
+            AddTag(context, "Textile Dye Stock", "Textile Commodity");
+            AddTag(context, "Leather Commodity", "Material Functions");
+            AddTag(context, "Prepared Hide", "Leather Commodity");
+            AddTag(context, "Tanned Leather", "Leather Commodity");
+            AddTag(context, "Leather Sole", "Leather Commodity");
+            AddTag(context, "Leather Strap", "Leather Commodity");
+            AddTag(context, "Leather Thong", "Leather Commodity");
+            AddTag(context, "Leather Panel", "Leather Commodity");
+            AddTag(context, "Hardened Leather Panel", "Leather Commodity");
+            AddTag(context, "Leather Scale", "Leather Commodity");
+            AddTag(context, "Sealed Leather Panel", "Leather Commodity");
             AddTag(context, "Bead Stock", "Material Functions");
+            AddTag(context, "Antiquity Equipment Stock", "Material Functions");
+            AddTag(context, "Weapon Blade Stock", "Antiquity Equipment Stock");
+            AddTag(context, "Weapon Head Stock", "Antiquity Equipment Stock");
+            AddTag(context, "Weapon Shaft Stock", "Antiquity Equipment Stock");
+            AddTag(context, "Bow Stave", "Antiquity Equipment Stock");
+            AddTag(context, "Fletching Stock", "Antiquity Equipment Stock");
+            AddTag(context, "Military Cord Stock", "Antiquity Equipment Stock");
+            AddTag(context, "Shield Board Stock", "Antiquity Equipment Stock");
+            AddTag(context, "Shield Facing Stock", "Antiquity Equipment Stock");
+            AddTag(context, "Helmet Bowl Stock", "Antiquity Equipment Stock");
+            AddTag(context, "Armour Plate Stock", "Antiquity Equipment Stock");
+            AddTag(context, "Armour Ring Stock", "Antiquity Equipment Stock");
+            AddTag(context, "Armour Scale Stock", "Antiquity Equipment Stock");
+            AddTag(context, "Armour Lamella Stock", "Antiquity Equipment Stock");
+            AddTag(context, "Armour Textile Padding", "Antiquity Equipment Stock");
+            AddTag(context, "Tool Blank Stock", "Antiquity Equipment Stock");
+            AddTag(context, "Door Hardware Stock", "Antiquity Equipment Stock");
+            AddTag(context, "Household Craft Stock", "Material Functions");
+            AddTag(context, "Furniture Timber Stock", "Household Craft Stock");
+            AddTag(context, "Furniture Panel Stock", "Household Craft Stock");
+            AddTag(context, "Carved Wood Stock", "Household Craft Stock");
+            AddTag(context, "Coopered Staves", "Household Craft Stock");
+            AddTag(context, "Hoop Stock", "Household Craft Stock");
+            AddTag(context, "Basketry Splint", "Household Craft Stock");
+            AddTag(context, "Reed Matting", "Household Craft Stock");
+            AddTag(context, "Prepared Leather Panel", "Household Craft Stock");
+            AddTag(context, "Lamp Wick", "Household Craft Stock");
+            AddTag(context, "Prepared Pitch", "Household Craft Stock");
+            AddTag(context, "Pottery Clay Body", "Household Craft Stock");
+            AddTag(context, "Wet Vessel Blank", "Household Craft Stock");
+            AddTag(context, "Bisque Vessel Blank", "Household Craft Stock");
+            AddTag(context, "Glass Batch", "Household Craft Stock");
+            AddTag(context, "Glass Vessel Blank", "Household Craft Stock");
+            AddTag(context, "Cast Vessel Blank", "Household Craft Stock");
+            AddTag(context, "Stone Vessel Blank", "Household Craft Stock");
+            AddTag(context, "Inlay Stock", "Household Craft Stock");
+            AddTag(context, "Paint Pigment", "Household Craft Stock");
+            AddTag(context, "Lake Pigment", "Paint Pigment");
+            AddTag(context, "Lacquer Finish", "Household Craft Stock");
+            AddTag(context, "Writing Craft Stock", "Material Functions");
+            AddTag(context, "Papyrus Sheet Stock", "Writing Craft Stock");
+            AddTag(context, "Parchment Sheet Stock", "Writing Craft Stock");
+            AddTag(context, "Tablet Blank", "Writing Craft Stock");
+            AddTag(context, "Waxed Tablet Board", "Writing Craft Stock");
+            AddTag(context, "Ink Stock", "Writing Craft Stock");
+            AddTag(context, "Pen Blank", "Writing Craft Stock");
+            AddTag(context, "Bookbinding Stock", "Writing Craft Stock");
+            AddTag(context, "Scrollmaking Stock", "Writing Craft Stock");
+            AddTag(context, "Medical Craft Stock", "Material Functions");
+            AddTag(context, "Dressing Stock", "Medical Craft Stock");
+            AddTag(context, "Poultice Stock", "Medical Craft Stock");
+            AddTag(context, "Salve Stock", "Medical Craft Stock");
+            AddTag(context, "Decoction Stock", "Medical Craft Stock");
+            AddTag(context, "Fumigation Stock", "Medical Craft Stock");
+            AddTag(context, "Suture Stock", "Medical Craft Stock");
+            AddTag(context, "Splint Stock", "Medical Craft Stock");
+            AddTag(context, "Prosthetic Stock", "Medical Craft Stock");
+            AddTag(context, "Surgical Tool Blank", "Medical Craft Stock");
+            AddTag(context, "Herbal Remedy Stock", "Medical Craft Stock");
+            AddTag(context, "Jewellery Craft Stock", "Material Functions");
+            AddTag(context, "Jewellery Metal Stock", "Jewellery Craft Stock");
+            AddTag(context, "Jewellery Wire Stock", "Jewellery Craft Stock");
+            AddTag(context, "Jewellery Bead Stock", "Jewellery Craft Stock");
+            AddTag(context, "Jewellery Setting Stock", "Jewellery Craft Stock");
 
             AddTag(context, "Repairing", "Functions");
             AddTag(context, "Sharpening", "Functions");
+
+            AddTag(context, "Medical Treatment", "Functions");
+            AddTag(context, "Bandage", "Medical Treatment");
+            AddTag(context, "Splint", "Medical Treatment");
+            AddTag(context, "Tend Kit", "Medical Treatment");
+            AddTag(context, "Wound Cleaning", "Medical Treatment");
+            AddTag(context, "Antiseptic Dressing", "Medical Treatment");
+            AddTag(context, "Suture Kit", "Medical Treatment");
+            AddTag(context, "Prosthetic", "Medical Treatment");
+            AddTag(context, "Mobility Aid", "Medical Treatment");
+            AddTag(context, "Herbal Remedy", "Medical Treatment");
 
             // Clothing
             AddTag(context, "Worn Items", "Functions");
@@ -169,6 +255,16 @@ namespace DatabaseSeeder.Seeders
             AddTag(context, "Watertight Container", "Container");
             AddTag(context, "Airtight Container", "Container");
             AddTag(context, "Open Container", "Container");
+
+            // Writing Surfaces
+            AddTag(context, "Writing Surface", "Functions");
+            AddTag(context, "Loose Sheet", "Writing Surface");
+            AddTag(context, "Scroll", "Writing Surface");
+            AddTag(context, "Codex", "Writing Surface");
+            AddTag(context, "Wax Tablet", "Writing Surface");
+            AddTag(context, "Clay Tablet", "Writing Surface");
+            AddTag(context, "Wooden Writing Block", "Writing Surface");
+            AddTag(context, "Ostracon", "Writing Surface");
 
             // Tools
             AddTag(context, "Tools", "Functions");
@@ -381,6 +477,9 @@ namespace DatabaseSeeder.Seeders
             AddTag(context, "Crucible", "Metalworking Tools");
             AddTag(context, "Forge Tongs", "Metalworking Tools");
             AddTag(context, "Forge Hammer", "Metalworking Tools");
+            AddTag(context, "Casting Mould", "Metalworking Tools");
+            AddTag(context, "Vessel Casting Mould", "Casting Mould");
+            AddTag(context, "Bronze Burnisher", "Metalworking Tools");
 
             // Textilecraft Tools
             AddTag(context, "Textilecraft Tools", "Tools");
@@ -434,6 +533,7 @@ namespace DatabaseSeeder.Seeders
             AddTag(context, "Sandpaper", "Woodcrafting Tools");
             AddTag(context, "Rasp", "Woodcrafting Tools");
             AddTag(context, "Trammel", "Woodcrafting Tools");
+            AddTag(context, "Bow Drill", "Woodcrafting Tools");
 
             // Tattoos
             AddTag(context, "Tattooing Tools", "Tools");
@@ -446,6 +546,8 @@ namespace DatabaseSeeder.Seeders
             AddTag(context, "Edge Beveller", "Leatherworking Tools");
             AddTag(context, "Leather Gouge", "Leatherworking Tools");
             AddTag(context, "Leather Creaser", "Leatherworking Tools");
+            AddTag(context, "Shoe Last", "Leatherworking Tools");
+            AddTag(context, "Leather Wax Pot", "Leatherworking Tools");
 
             // Stoneworking
             AddTag(context, "Stoneworking Tools", "Tools");
@@ -453,6 +555,7 @@ namespace DatabaseSeeder.Seeders
             AddTag(context, "Stone Mallet", "Stoneworking Tools");
             AddTag(context, "Plug and Feathers", "Stoneworking Tools");
             AddTag(context, "Bush Hammer", "Stoneworking Tools");
+            AddTag(context, "Polishing Stone", "Stoneworking Tools");
 
             // Spinning
             AddTag(context, "Spinning Tools", "Textilecraft Tools");
@@ -517,7 +620,9 @@ namespace DatabaseSeeder.Seeders
             AddTag(context, "Snap Tool", "Glassblowing Tools");
             AddTag(context, "Punty Paddle", "Glassblowing Tools");
             AddTag(context, "Glory Hole", "Glassblowing Tools");
+            AddTag(context, "Lit Glory Hole", "Glory Hole");
             AddTag(context, "Annealing Lehr", "Glassblowing Tools");
+            AddTag(context, "Lit Annealing Lehr", "Annealing Lehr");
 
             // Locksmithing
             AddTag(context, "Locksmithing Tools", "Tools");
@@ -652,10 +757,12 @@ namespace DatabaseSeeder.Seeders
             AddTag(context, "Extruder", "Pottery Tools");
             AddTag(context, "Slab Roller", "Pottery Tools");
             AddTag(context, "Kiln", "Pottery Tools");
+            AddTag(context, "Lit Kiln", "Kiln");
 
             // Smelting
             AddTag(context, "Smelting Tools", "Tools");
             AddTag(context, "Smelting Furnace", "Smelting Tools");
+            AddTag(context, "Lit Smelting Furnace", "Smelting Furnace");
             AddTag(context, "Crucible Tongs", "Smelting Tools");
             AddTag(context, "Slag Skimmer", "Smelting Tools");
             AddTag(context, "Furnace Bellows", "Smelting Tools");
@@ -743,6 +850,11 @@ namespace DatabaseSeeder.Seeders
             AddTag(context, "Fid", "Ropemaking Tools");
             AddTag(context, "Twine Shuttle", "Ropemaking Tools");
 
+            // Candlemaking and lamps
+            AddTag(context, "Candlemaking Tools", "Tools");
+            AddTag(context, "Candle Mould", "Candlemaking Tools");
+            AddTag(context, "Lamp Mould", "Candlemaking Tools");
+
             // Fishing
             AddTag(context, "Fishing Tools", "Tools");
             AddTag(context, "Fish Hook", "Fishing Tools");
@@ -762,6 +874,7 @@ namespace DatabaseSeeder.Seeders
             AddTag(context, "Reed Pen", "Scribing Tools");
             AddTag(context, "Quill Pen", "Scribing Tools");
             AddTag(context, "Ink Brush", "Scribing Tools");
+            AddTag(context, "Charcoal Stick", "Scribing Tools");
             AddTag(context, "Pen Knife", "Scribing Tools");
             AddTag(context, "Scraper Knife", "Scribing Tools");
             AddTag(context, "Wax Spatula", "Scribing Tools");
@@ -963,6 +1076,9 @@ namespace DatabaseSeeder.Seeders
 
             // Medical Tools
             AddTag(context, "Medical Tools", "Tools");
+            AddTag(context, "Medicine Strainer", "Medical Tools");
+            AddTag(context, "Ointment Spatula", "Medical Tools");
+            AddTag(context, "Cupping Vessel", "Medical Tools");
             AddTag(context, "Stethoscope", "Medical Tools");
             AddTag(context, "Blood Pressure Monitor", "Medical Tools");
             AddTag(context, "Ophthalmoscope", "Medical Tools");
@@ -982,6 +1098,8 @@ namespace DatabaseSeeder.Seeders
             AddTag(context, "Scalpel", "Surgical Tools");
             AddTag(context, "Bonesaw", "Surgical Tools");
             AddTag(context, "Forceps", "Surgical Tools");
+            AddTag(context, "Surgical Probe", "Surgical Tools");
+            AddTag(context, "Cautery Iron", "Surgical Tools");
             AddTag(context, "Tissue Forceps", "Forceps");
             AddTag(context, "Dissecting Forceps", "Forceps");
             AddTag(context, "Kelly Forceps", "Forceps");
@@ -1253,12 +1371,22 @@ namespace DatabaseSeeder.Seeders
             AddTag(context, "Simple Medicine", "Medicine");
             AddTag(context, "Standard Medicine", "Medicine");
             AddTag(context, "High-Quality Medicine", "Medicine");
+            AddTag(context, "Herbal Medicine", "Medicine");
+            AddTag(context, "Treatment Supplies", "Medicine");
+            AddTag(context, "Surgical Supplies", "Medicine");
+            AddTag(context, "Prosthetics and Mobility", "Medicine");
 
             AddTag(context, "Writing Materials", "Market");
             AddTag(context, "Wax Tablets", "Writing Materials");
+            AddTag(context, "Papyrus", "Writing Materials");
             AddTag(context, "Parchment", "Writing Materials");
             AddTag(context, "Paper", "Writing Materials");
             AddTag(context, "Ink", "Writing Materials");
+            AddTag(context, "Clay Tablets", "Writing Materials");
+            AddTag(context, "Writing Implements", "Writing Materials");
+            AddTag(context, "Document Containers", "Writing Materials");
+            AddTag(context, "Scrolls", "Writing Materials");
+            AddTag(context, "Codices", "Writing Materials");
 
             AddTag(context, "Warehousing", "Market");
 

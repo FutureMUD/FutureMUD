@@ -20,8 +20,8 @@ Provide shared interfaces, extension methods, and utility types used across mult
 
 ## Economy Contract Reference
 * When changing economy interfaces or shared economy-adjacent item interfaces, consult and update:
-  * `../Design Documents/Economy_System_Runtime.md`
-  * `../Design Documents/Economy_System_Workflows_and_Integration.md`
+  * `../Design Documents/Economy/Economy_System_Runtime.md`
+  * `../Design Documents/Economy/Economy_System_Workflows_and_Integration.md`
 * This especially applies to `FutureMUDLibrary/Economy`, `FutureMUDLibrary/Economy/Currency`, `FutureMUDLibrary/Economy/Property`, and economy-related game-item interfaces.
 
 ## Notes

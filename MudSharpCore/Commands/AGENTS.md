@@ -35,9 +35,9 @@ It inherits from:
 - Regular expressions are allowed only when whole-input shape branching is substantially clearer than StringStack parsing.
 
 ## Text Markup Reference
-- [Emote System](../../Design%20Documents/Emote%20System.md)
-- [Character Description System](../../Design%20Documents/Character_Description_System.md)
-- [Room Description Markup](../../Design%20Documents/Room_Description_Markup.md)
+- [Emote System](../../Design%20Documents/Markup/Emote_System.md)
+- [Character Description System](../../Design%20Documents/Markup/Character_Description_System.md)
+- [Room Description Markup](../../Design%20Documents/Markup/Room_Description_Markup.md)
 
 
 ## Notes

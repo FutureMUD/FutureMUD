@@ -1044,6 +1044,7 @@ The items and crafts are fairly universal and of approximately medieval to renei
         InitialiseDependencies();
 
         SeedItems();
+        SeedReworkItems();
         CreateProgs();
         SeedCrafts();
         _context.SaveChanges();

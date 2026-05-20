@@ -1230,7 +1230,7 @@ The syntax is #3tagsearch <tag>#0.", AutoHelp.HelpArgOrNoArg)]
     }
 
     [PlayerCommand("Forage", "forage")]
-    [DelayBlock("general", "You must first stop {0} before you can quit.")]
+    [DelayBlock("general", "You must first stop {0} before you can forage.")]
     [RequiredCharacterState(CharacterState.Conscious)]
     [NoHideCommand]
     [NoCombatCommand]
@@ -1241,6 +1241,7 @@ The syntax is #3tagsearch <tag>#0.", AutoHelp.HelpArgOrNoArg)]
 The syntax to use with this command is as follows:
 
 	forage <yield> [into <container>]
+	forage <yield> for <specific result> [into <container>]
 
 You can also type 'forage' on its own to see what kinds of yields you can search for in the area.", AutoHelp.HelpArg)]
     protected static void Forage(ICharacter actor, string input)
@@ -1254,66 +1255,61 @@ You can also type 'forage' on its own to see what kinds of yields you can search
 
         List<string> forageTypes =
             profile.Foragables.SelectMany(x => x.ForagableTypes)
-                   .Select(x => x.ToLowerInvariant())
-                   .Where(x => !string.IsNullOrEmpty(x))
-                   .Distinct()
-                   .ToList();
+                    .Select(x => x.ToLowerInvariant())
+                    .Where(x => !string.IsNullOrWhiteSpace(x) && profile.MaximumYieldPoints.ContainsKey(x))
+                    .Distinct()
+                    .OrderBy(x => x)
+                    .ToList();
         StringStack ss = new(input.RemoveFirstWord());
         if (ss.IsFinished)
         {
+            if (!forageTypes.Any())
+            {
+                actor.Send("There do not seem to be any useful items that can be foraged in this location.");
+                return;
+            }
+
             actor.Send("You must specify whether you want to forage for {0} in this location.",
                 forageTypes.Select(x => x.Colour(Telnet.Green)).ListToString());
             return;
         }
 
-        string type = ss.PopSpeech();
-        IGameItem targetContainer = null;
-        if (!ss.IsFinished)
+        string type = ss.PopSpeech().ToLowerInvariant();
+        if (!forageTypes.Contains(type, StringComparer.InvariantCultureIgnoreCase))
         {
-            if (ss.Peek().Equals("into", StringComparison.InvariantCultureIgnoreCase))
-            {
-                ss.PopSpeech();
-                if (ss.IsFinished)
-                {
-                    actor.Send("Into what container do you want to forage for items?");
-                    return;
-                }
+            actor.Send("You cannot forage for {0} here. You can forage for {1}.", type.ColourCommand(),
+                forageTypes.Select(x => x.Colour(Telnet.Green)).ListToString());
+            return;
+        }
 
-                targetContainer = actor.TargetItem(ss.PopSpeech());
-                if (targetContainer == null)
-                {
-                    actor.Send("There is no such container into which you can forage.");
-                    return;
-                }
-
-                if (!targetContainer.IsItemType<IContainer>())
-                {
-                    actor.Send("{0} is not a container.", targetContainer.HowSeen(actor, true));
-                    return;
-                }
-
-                (bool truth, string error) = actor.CanManipulateItem(targetContainer);
-                if (!truth)
-                {
-                    actor.OutputHandler.Send(error);
-                    return;
-                }
-            }
-            else
-            {
-                actor.Send("Foraging for specific items is coming soon.");
-                return;
-            }
+        IGameItem targetContainer = null;
+        IForagable specificForagable = null;
+        if (!TryParseForageOptions(actor, ss, profile, type, out specificForagable, out targetContainer))
+        {
+            return;
         }
 
         int time = Dice.Roll(Foragable.BaseForageTimeExpression);
         actor.AddEffect(new SimpleCharacterAction(actor, perceivable =>
             {
-                ICheck forageCheck = actor.Gameworld.GetCheck(CheckType.ForageCheck);
+                ICheck forageCheck = actor.Gameworld.GetCheck(specificForagable == null ? CheckType.ForageCheck : CheckType.ForageSpecificCheck);
                 Dictionary<Difficulty, CheckOutcome> forageOutcome =
                     forageCheck.CheckAgainstAllDifficulties(actor, Difficulty.Normal, null,
                         customParameters: ("yield", type));
-                IForagable foragable = profile.GetForageResult(actor, forageOutcome, type);
+                IForagable foragable = specificForagable;
+                if (foragable != null)
+                {
+                    if (!forageOutcome.TryGetValue(foragable.ForageDifficulty, out var specificOutcome) ||
+                        !foragable.CanForage(actor, specificOutcome))
+                    {
+                        foragable = null;
+                    }
+                }
+                else
+                {
+                    foragable = profile.GetForageResult(actor, forageOutcome, type);
+                }
+
                 if (foragable == null)
                 {
                     actor.OutputHandler.Handle(
@@ -1324,7 +1320,7 @@ You can also type 'forage' on its own to see what kinds of yields you can search
                     return;
                 }
 
-                if (foragable.ForagableTypes.All(x => actor.Location.GetForagableYield(x) <= 0.0))
+                if (actor.Location.GetForagableYield(type) <= 0.0)
                 {
                     actor.OutputHandler.Handle(
                         new EmoteOutput(
@@ -1341,12 +1337,22 @@ You can also type 'forage' on its own to see what kinds of yields you can search
                     return;
                 }
 
-                actor.Location.ConsumeYieldFor(foragable);
                 List<IGameItem> newItems = new();
                 int quantity =
                     (int)Math.Floor(new TraitExpression(foragable.QuantityDiceExpression, actor.Gameworld).EvaluateWith(
                         actor,
                         values: ("outcome", forageOutcome[foragable.ForageDifficulty])));
+                if (quantity <= 0)
+                {
+                    actor.OutputHandler.Handle(
+                        new EmoteOutput(
+                            new Emote(
+                                "@ finish|finishes foraging, but are|is not successful in finding what #0 were|was looking for.",
+                                actor, actor)));
+                    return;
+                }
+
+                actor.Location.ConsumeYield(type, 1.0);
                 if (foragable.ItemProto.IsItemType<StackableGameItemComponentProto>())
                 {
                     IGameItem newItem = foragable.ItemProto.CreateNew(actor);
@@ -1368,9 +1374,8 @@ You can also type 'forage' on its own to see what kinds of yields you can search
                 {
                     foreach (IGameItem item in newItems)
                     {
-                        foragable.OnForageProg.Execute(actor, foragable.Id, item, 1);
-                        item.HandleEvent(EventType.ItemFinishedLoading, item);
-                        item.Login();
+                        var progQuantity = item.IsItemType<IStackable>() ? item.GetItemType<IStackable>().Quantity : 1;
+                        foragable.OnForageProg.Execute(actor, foragable.Id, item, progQuantity);
                     }
                 }
 
@@ -1432,6 +1437,12 @@ You can also type 'forage' on its own to see what kinds of yields you can search
                             targetContainer.HowSeen(actor));
                     }
 
+                    foreach (IGameItem item in newItems)
+                    {
+                        item.HandleEvent(Events.EventType.ItemFinishedLoading, item);
+                        item.Login();
+                    }
+
                     return;
                 }
 
@@ -1460,7 +1471,122 @@ You can also type 'forage' on its own to see what kinds of yields you can search
             }, "foraging for " + type, new[] { "general", "movement" }, "foraging about the area"),
             TimeSpan.FromSeconds(time));
 
-        actor.OutputHandler.Handle(new EmoteOutput(new Emote("@ begin|begins foraging about the area.", actor)));
+        actor.OutputHandler.Handle(new EmoteOutput(new Emote($"@ begin|begins foraging for {type}.", actor)));
+    }
+
+    private static bool TryParseForageOptions(ICharacter actor, StringStack command, IForagableProfile profile,
+        string forageType, out IForagable specificForagable, out IGameItem targetContainer)
+    {
+        specificForagable = null;
+        targetContainer = null;
+        if (command.IsFinished)
+        {
+            return true;
+        }
+
+        var specificWords = new List<string>();
+        while (!command.IsFinished)
+        {
+            var token = command.PopSpeech();
+            if (token.EqualTo("into"))
+            {
+                if (command.IsFinished)
+                {
+                    actor.Send("Into what container do you want to forage for items?");
+                    return false;
+                }
+
+                targetContainer = ResolveForageContainer(actor, command.SafeRemainingArgument);
+                if (targetContainer == null)
+                {
+                    return false;
+                }
+
+                break;
+            }
+
+            if (token.EqualTo("for") && !specificWords.Any())
+            {
+                continue;
+            }
+
+            specificWords.Add(token);
+        }
+
+        if (!specificWords.Any())
+        {
+            return true;
+        }
+
+        specificForagable = ResolveSpecificForagable(actor, profile, forageType, string.Join(" ", specificWords));
+        return specificForagable != null;
+    }
+
+    private static IGameItem ResolveForageContainer(ICharacter actor, string targetText)
+    {
+        IGameItem targetContainer = actor.TargetItem(targetText);
+        if (targetContainer == null)
+        {
+            actor.Send("There is no such container into which you can forage.");
+            return null;
+        }
+
+        if (!targetContainer.IsItemType<IContainer>())
+        {
+            actor.Send("{0} is not a container.", targetContainer.HowSeen(actor, true));
+            return null;
+        }
+
+        (bool truth, string error) = actor.CanManipulateItem(targetContainer);
+        if (!truth)
+        {
+            actor.OutputHandler.Send(error);
+            return null;
+        }
+
+        return targetContainer;
+    }
+
+    private static IForagable ResolveSpecificForagable(ICharacter actor, IForagableProfile profile, string forageType,
+        string targetText)
+    {
+        var candidates = profile.Foragables
+                                .Where(x => x.ItemProto != null)
+                                .Where(x => x.ForageDifficulty != Difficulty.Impossible)
+                                .Where(x => x.ForagableTypes.Any(y => y.EqualTo(forageType)))
+                                .ToList();
+        List<IForagable> matches;
+        if (long.TryParse(targetText, out var id))
+        {
+            matches = candidates.Where(x => x.Id == id).ToList();
+        }
+        else
+        {
+            matches = candidates.Where(x =>
+                                  x.Name.EqualTo(targetText) ||
+                                  x.Name.StartsWith(targetText, StringComparison.InvariantCultureIgnoreCase) ||
+                                  (x.ItemProto?.Name.EqualTo(targetText) ?? false) ||
+                                  (x.ItemProto?.Name.StartsWith(targetText, StringComparison.InvariantCultureIgnoreCase) ?? false) ||
+                                  (x.ItemProto?.ShortDescription.EqualTo(targetText) ?? false) ||
+                                  (x.ItemProto?.ShortDescription.StartsWith(targetText, StringComparison.InvariantCultureIgnoreCase) ?? false))
+                              .Distinct()
+                              .ToList();
+        }
+
+        if (!matches.Any())
+        {
+            actor.Send("You cannot specifically forage for {0} here.", targetText.ColourCommand());
+            return null;
+        }
+
+        if (matches.Count > 1)
+        {
+            actor.Send("That matched more than one foragable result: {0}.",
+                matches.Select(x => $"{x.Name.ColourName()} (#{x.Id.ToString("N0", actor)})").ListToString());
+            return null;
+        }
+
+        return matches.Single();
     }
 
     [PlayerCommand("Implant", "implant")]

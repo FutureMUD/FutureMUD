@@ -29,6 +29,24 @@ namespace DatabaseSeeder.Seeders
                                                   TimeSpan? morphTimer,
                                                   string? destroyedItemUniqueReference)
         {
+            if (_items.TryGetValue(stableReference, out var existing))
+            {
+                ApplyItemLifecycleSettings(existing, morphToUniqueReference, morphEmote, morphTimer, destroyedItemUniqueReference);
+                return existing;
+            }
+
+            existing = _context!.GameItemProtos.Local
+                .FirstOrDefault(x => x.ShortDescription.Equals(sdesc, StringComparison.OrdinalIgnoreCase)) ??
+                       _context.GameItemProtos
+                           .FirstOrDefault(x => x.ShortDescription.Equals(sdesc, StringComparison.OrdinalIgnoreCase));
+            if (existing is not null)
+            {
+                _items[stableReference] = existing;
+                _items[existing.ShortDescription] = existing;
+                ApplyItemLifecycleSettings(existing, morphToUniqueReference, morphEmote, morphTimer, destroyedItemUniqueReference);
+                return existing;
+            }
+
             GameItemProto dbitem = new()
             {
                 Id = _nextId++,
@@ -57,6 +75,8 @@ namespace DatabaseSeeder.Seeders
                 PermitPlayerSkins = skinnable,
                 CostInBaseCurrency = inherentCost,
                 IsHiddenFromPlayers = hideFromPlayers,
+                MorphTimeSeconds = 0,
+                MorphEmote = "$0 $?1|morphs into $1|decays into nothing$.",
             };
             foreach (string item in tags)
             {
@@ -98,42 +118,92 @@ namespace DatabaseSeeder.Seeders
 
             _context!.GameItemProtos.Add(dbitem);
             _items[stableReference] = dbitem;
+            _items[dbitem.ShortDescription] = dbitem;
+            ApplyItemLifecycleSettings(dbitem, morphToUniqueReference, morphEmote, morphTimer, destroyedItemUniqueReference);
             return dbitem;
+        }
+
+        private void ApplyItemLifecycleSettings(GameItemProto item,
+                                                string? morphToUniqueReference,
+                                                string? morphEmote,
+                                                TimeSpan? morphTimer,
+                                                string? destroyedItemUniqueReference)
+        {
+            if (string.IsNullOrWhiteSpace(morphToUniqueReference) &&
+                string.IsNullOrWhiteSpace(morphEmote) &&
+                morphTimer is null &&
+                string.IsNullOrWhiteSpace(destroyedItemUniqueReference))
+            {
+                return;
+            }
+
+            if (!string.IsNullOrWhiteSpace(morphToUniqueReference) &&
+                _items.TryGetValue(morphToUniqueReference, out var morphItem))
+            {
+                item.MorphGameItemProtoId = morphItem.Id;
+            }
+
+            if (morphTimer is not null)
+            {
+                item.MorphTimeSeconds = (int)morphTimer.Value.TotalSeconds;
+            }
+
+            if (!string.IsNullOrWhiteSpace(morphEmote))
+            {
+                item.MorphEmote = morphEmote;
+            }
+
+            if (!string.IsNullOrWhiteSpace(destroyedItemUniqueReference) &&
+                _items.TryGetValue(destroyedItemUniqueReference, out var destroyedItem))
+            {
+                item.OnDestroyedGameItemProtoId = destroyedItem.Id;
+            }
         }
 
         
         public void SeedReworkItems()
         {
-            if (_questionAnswers["eras"].Contains("antiquity", StringComparison.InvariantCultureIgnoreCase))
+            if (_questionAnswers?.TryGetValue("eras", out var eras) != true ||
+                string.IsNullOrWhiteSpace(eras))
+            {
+                return;
+            }
+
+            if (eras.Contains("antiquity", StringComparison.InvariantCultureIgnoreCase))
             {
                 SeedAntiquityClothing();
+                SeedAntiquityHouseholdCraftTools();
+                SeedAntiquityWritingImplementsAndDocuments();
+                SeedAntiquityMedicalItems();
                 SeedAntiquityJewellery();
                 SeedAntiquityArmour();
                 SeedAntiquityContainers();
                 SeedAntiquityDoorsAndLocks();
+                SeedAntiquityHouseholdFurniture();
+                SeedAntiquityWeaponsShieldsAccessories();
             }
 
-            if (_questionAnswers["eras"].Contains("medieval", StringComparison.InvariantCultureIgnoreCase))
+            if (eras.Contains("medieval", StringComparison.InvariantCultureIgnoreCase))
             {
 
             }
 
-            if (_questionAnswers["eras"].Contains("renaissance", StringComparison.InvariantCultureIgnoreCase))
+            if (eras.Contains("renaissance", StringComparison.InvariantCultureIgnoreCase))
             {
 
             }
 
-            if (_questionAnswers["eras"].Contains("earlymodern", StringComparison.InvariantCultureIgnoreCase))
+            if (eras.Contains("earlymodern", StringComparison.InvariantCultureIgnoreCase))
             {
 
             }
 
-            if (_questionAnswers["eras"].Contains("imperial", StringComparison.InvariantCultureIgnoreCase))
+            if (eras.Contains("imperial", StringComparison.InvariantCultureIgnoreCase))
             {
 
             }
 
-            if (_questionAnswers["eras"].Contains("modern", StringComparison.InvariantCultureIgnoreCase))
+            if (eras.Contains("modern", StringComparison.InvariantCultureIgnoreCase))
             {
 
             }

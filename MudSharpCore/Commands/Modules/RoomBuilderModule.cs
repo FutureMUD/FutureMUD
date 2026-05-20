@@ -1436,7 +1436,9 @@ See the #3CELL#0 command for more information about #3CELL PACKAGES#0.";
             return;
         }
 
-        if (command.Peek().Equals("clear", StringComparison.InvariantCultureIgnoreCase))
+        if (command.SafeRemainingArgument.EqualTo("clear") ||
+            command.SafeRemainingArgument.EqualTo("none") ||
+            command.SafeRemainingArgument.EqualTo("remove"))
         {
             if (zone.ForagableProfile == null)
             {
@@ -1449,9 +1451,7 @@ See the #3CELL#0 command for more information about #3CELL PACKAGES#0.";
             return;
         }
 
-        IForagableProfile profile = long.TryParse(command.PopSpeech(), out long value)
-            ? actor.Gameworld.ForagableProfiles.Get(value)
-            : actor.Gameworld.ForagableProfiles.GetByName(command.Last, true);
+        IForagableProfile profile = actor.Gameworld.ForagableProfiles.GetByIdOrName(command.SafeRemainingArgument);
 
         if (profile == null)
         {
@@ -2009,16 +2009,20 @@ Note: reverse any condition with a ! (e.g. !dawn, !snow, !*rain, !summer)");
             return;
         }
 
-        if (input.Peek().Equals("clear", StringComparison.InvariantCultureIgnoreCase))
+        if (input.SafeRemainingArgument.EqualTo("clear") ||
+            input.SafeRemainingArgument.EqualTo("none") ||
+            input.SafeRemainingArgument.EqualTo("remove"))
         {
+            actor.Location.ForagableProfile = null;
             if (actor.Location.ForagableProfile == null)
             {
-                actor.Send("Your location does not have a foragable profile to clear.");
-                return;
+                actor.Send("You clear the foragable profile from this cell.");
             }
-
-            actor.Location.ForagableProfile = null;
-            actor.Send("You clear the foragable profile from this cell.");
+            else
+            {
+                actor.Send("You clear the cell-level foragable profile override. This cell will now inherit {0} ({1:N0}).",
+                    actor.Location.ForagableProfile.Name.ColourName(), actor.Location.ForagableProfile.Id);
+            }
             return;
         }
 

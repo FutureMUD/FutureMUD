@@ -7,6 +7,7 @@ using MudSharp.Effects.Concrete;
 using MudSharp.Framework;
 using MudSharp.FutureProg;
 using MudSharp.FutureProg.Variables;
+using MudSharp.Magic;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -227,6 +228,20 @@ public partial class Character
                 return RidingMount;
             case "riders":
                 return new CollectionVariable(Riders.ToList(), ProgVariableTypes.Character);
+            case "magiccapabilities":
+                return new CollectionVariable(Capabilities.ToList(), ProgVariableTypes.MagicCapability);
+            case "knownspells":
+                return new CollectionVariable(
+                    Gameworld.MagicSpells.Where(x => x.CharacterKnowsSpell(this)).ToList(),
+                    ProgVariableTypes.MagicSpell);
+            case "castablespells":
+                return new CollectionVariable(
+                    Gameworld.MagicSpells.Where(x => x.CharacterKnowsSpell(this) && x.ReadyForGame && x.Trigger is ICastMagicTrigger).ToList(),
+                    ProgVariableTypes.MagicSpell);
+            case "castablespellsnow":
+                return new CollectionVariable(
+                    Gameworld.MagicSpells.Where(x => x.CharacterCanCast(this, this)).ToList(),
+                    ProgVariableTypes.MagicSpell);
             default:
                 return base.GetProperty(property);
         }
@@ -307,6 +322,10 @@ public partial class Character
             { "writings", ProgVariableTypes.Writing | ProgVariableTypes.Collection },
             { "mount", ProgVariableTypes.Character },
             { "riders", ProgVariableTypes.Character | ProgVariableTypes.Collection },
+            { "magiccapabilities", ProgVariableTypes.MagicCapability | ProgVariableTypes.Collection },
+            { "knownspells", ProgVariableTypes.MagicSpell | ProgVariableTypes.Collection },
+            { "castablespells", ProgVariableTypes.MagicSpell | ProgVariableTypes.Collection },
+            { "castablespellsnow", ProgVariableTypes.MagicSpell | ProgVariableTypes.Collection },
         };
     }
 
@@ -380,6 +399,10 @@ public partial class Character
             { "possessednpc", "Returns true if this character is an NPC and has an admin possessing / switched into them"},
             { "mount", "returns the mount this character is riding, if any (can be null)" },
             { "riders", "returns a collection of all characters currently riding this character" },
+            { "magiccapabilities", "A collection of all magic capabilities currently applying to the character" },
+            { "knownspells", "A collection of all ready or unready magic spells whose known-spell prog says the character knows them" },
+            { "castablespells", "A collection of all ready, known magic spells that use a cast trigger" },
+            { "castablespellsnow", "A collection of all ready, known cast-trigger spells the character can cast right now against themself at any permitted power" },
         };
     }
 

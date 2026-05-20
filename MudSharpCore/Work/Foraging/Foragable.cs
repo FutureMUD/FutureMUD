@@ -48,7 +48,9 @@ public class Foragable : EditableItem, IForagable
                 : "Not Selected".Colour(Telnet.Red));
         sb.AppendLineFormat("Quantity Expression: {0}", QuantityDiceExpression.Colour(Telnet.Yellow));
         sb.AppendLineFormat("Foragable Types: {0}",
-            ForagableTypes.Select(x => x.Colour(Telnet.Green)).ListToString());
+            ForagableTypes.Any()
+                ? ForagableTypes.Select(x => x.Colour(Telnet.Green)).ListToString()
+                : "None".Colour(Telnet.Red));
         sb.Append(new List<string>
         {
             $"Can Forage Prog: {CanForageProg?.MXPClickableFunctionNameWithId() ?? "None".Colour(Telnet.Yellow)}",
@@ -71,7 +73,7 @@ public class Foragable : EditableItem, IForagable
                 Name = Name,
                 CanForageProgId = CanForageProg?.Id,
                 OnForageProgId = OnForageProg?.Id,
-                ForagableTypes = ForagableTypes.ListToString(separator: ",", conjunction: "", twoItemJoiner: ","),
+                ForagableTypes = SerialisedForagableTypes,
                 ForageDifficulty = (int)ForageDifficulty,
                 ItemProtoId = ItemProto?.Id ?? 0,
                 MinimumOutcome = (int)MinimumOutcome,
@@ -111,7 +113,7 @@ public class Foragable : EditableItem, IForagable
             return "You must set at least one foragable type.";
         }
 
-        return ItemProto == null ? "You must set a item prototype." : "I don't know why you can't submit.";
+        return ItemProto == null ? "You must set an item prototype." : "I don't know why you can't submit.";
     }
 
     public override string FrameworkItemType => "Foragable";
@@ -129,7 +131,7 @@ public class Foragable : EditableItem, IForagable
             dbitem.Name = Name;
             dbitem.CanForageProgId = CanForageProg?.Id;
             dbitem.OnForageProgId = OnForageProg?.Id;
-            dbitem.ForagableTypes = ForagableTypes.ListToString(separator: ",", conjunction: "", twoItemJoiner: ",");
+            dbitem.ForagableTypes = SerialisedForagableTypes;
             dbitem.ForageDifficulty = (int)ForageDifficulty;
             dbitem.ItemProtoId = ItemProto?.Id ?? 0;
             dbitem.MinimumOutcome = (int)MinimumOutcome;
@@ -193,7 +195,7 @@ public class Foragable : EditableItem, IForagable
     {
         _id = foragable.Id;
         _name = foragable.Name;
-        _foragabaleTypes = foragable.ForagableTypes.Split(',').ToList();
+        _foragableTypes = ParseForagableTypes(foragable.ForagableTypes);
         _forageDifficulty = (Difficulty)foragable.ForageDifficulty;
         _relativeChance = foragable.RelativeChance;
         _minimumOutcome = (Outcome)foragable.MinimumOutcome;
@@ -216,13 +218,13 @@ public class Foragable : EditableItem, IForagable
     private const string BuildingCommandHelp = @"You can use the following options with this command:
 
 	#3name <name>#0 - renames this foragable
-	#3proto <which>#0 - sets the proto for this foragable to load
+	#3proto <which>#0 - sets the item prototype for this foragable to load
 	#3chance <#>#0 - the relative weight of this option being found
-	#3quanity <# or dice>#0 - a number or dice expression for the quantity found
+	#3quantity <# or dice>#0 - a number or dice expression for the quantity found
 	#3difficulty <difficulty>#0 - the difficulty that the result is evaluated against for this item
 	#3outcome <min> <max>#0 - the minimum and maximum check outcome that this item can appear on
 	#3types <type1> [<type2>] ... [<typen>]#0 - sets the yield types that this foragable appears against
-	#3canforage <prog>#0 - sets a prog that controls whether this foragable can be found
+	#3canforage <prog>#0 - sets a boolean prog that controls whether this foragable can be found
 	#3canforage clear#0 - clears the can-forage prog
 	#3onforage <prog>#0 - sets a prog that will run when this item is foraged
 	#3onforage clear#0 - clears the on-forage prog";
@@ -285,9 +287,8 @@ public class Foragable : EditableItem, IForagable
             return false;
         }
 
-        IGameItemProto proto = long.TryParse(command.PopSpeech(), out long value)
-            ? Gameworld.ItemProtos.Get(value)
-            : Gameworld.ItemProtos.GetByName(command.Last, true);
+        string targetText = command.SafeRemainingArgument;
+        IGameItemProto proto = Gameworld.ItemProtos.GetByIdOrName(targetText);
 
         if (proto == null)
         {
@@ -322,7 +323,7 @@ public class Foragable : EditableItem, IForagable
             return false;
         }
 
-        if (command.Peek().Equals("clear", StringComparison.InvariantCultureIgnoreCase))
+        if (command.SafeRemainingArgument.EqualTo("clear"))
         {
             if (CanForageProg == null)
             {
@@ -335,9 +336,8 @@ public class Foragable : EditableItem, IForagable
             return true;
         }
 
-        IFutureProg prog = long.TryParse(command.PopSpeech(), out long value)
-            ? Gameworld.FutureProgs.Get(value)
-            : Gameworld.FutureProgs.GetByName(command.Last);
+        string targetText = command.SafeRemainingArgument;
+        IFutureProg prog = Gameworld.FutureProgs.GetByIdOrName(targetText);
 
         if (prog == null)
         {
@@ -360,7 +360,7 @@ public class Foragable : EditableItem, IForagable
             }))
         {
             actor.Send(
-                "The CanForage prog must accept a single Character parameter and a Number. {0} does not match that pattern.",
+                "The CanForage prog must accept a Character and a Number parameter. {0} does not match that pattern.",
                 prog.FunctionName);
             return false;
         }
@@ -379,7 +379,7 @@ public class Foragable : EditableItem, IForagable
             return false;
         }
 
-        if (command.Peek().Equals("clear", StringComparison.InvariantCultureIgnoreCase))
+        if (command.SafeRemainingArgument.EqualTo("clear"))
         {
             if (OnForageProg == null)
             {
@@ -392,9 +392,8 @@ public class Foragable : EditableItem, IForagable
             return true;
         }
 
-        IFutureProg prog = long.TryParse(command.PopSpeech(), out long value)
-            ? Gameworld.FutureProgs.Get(value)
-            : Gameworld.FutureProgs.GetByName(command.Last);
+        string targetText = command.SafeRemainingArgument;
+        IFutureProg prog = Gameworld.FutureProgs.GetByIdOrName(targetText);
 
         if (prog == null)
         {
@@ -526,7 +525,17 @@ public class Foragable : EditableItem, IForagable
 
         command = new StringStack(command.RemainingArgument);
         command.PopSpeechAll();
-        List<string> choices = command.Memory.Select(x => x.ToLowerInvariant()).ToList();
+        List<string> choices = command.Memory
+                                       .Select(x => x.Trim().ToLowerInvariant())
+                                       .Where(x => !string.IsNullOrWhiteSpace(x))
+                                       .Distinct(StringComparer.InvariantCultureIgnoreCase)
+                                       .ToList();
+        if (!choices.Any())
+        {
+            actor.Send("You must enter at least one non-blank forage type.");
+            return false;
+        }
+
         actor.Send("This foragable can now be found using the keywords {0}",
             choices.Select(x => x.Colour(Telnet.Green)).ListToString(conjunction: "or "));
         List<string> existing =
@@ -536,7 +545,7 @@ public class Foragable : EditableItem, IForagable
                      .Distinct()
                      .ToList();
         List<string> newChoices =
-            choices.Where(x => existing.Any(y => y.Equals(x, StringComparison.InvariantCultureIgnoreCase))).ToList();
+            choices.Where(x => !existing.Any(y => y.Equals(x, StringComparison.InvariantCultureIgnoreCase))).ToList();
         if (newChoices.Any())
         {
             actor.Send(
@@ -544,8 +553,8 @@ public class Foragable : EditableItem, IForagable
                 newChoices.ListToString());
         }
 
-        _foragabaleTypes.Clear();
-        _foragabaleTypes.AddRange(choices);
+        _foragableTypes.Clear();
+        _foragableTypes.AddRange(choices);
         Changed = true;
         return true;
     }
@@ -554,7 +563,7 @@ public class Foragable : EditableItem, IForagable
     {
         if (command.IsFinished)
         {
-            actor.Send("You must specify a name to set for this foragabale.");
+            actor.Send("You must specify a name to set for this foragable.");
             return false;
         }
 
@@ -568,8 +577,23 @@ public class Foragable : EditableItem, IForagable
 
     #region IForagable Members
 
-    private List<string> _foragabaleTypes = new();
-    public IEnumerable<string> ForagableTypes => _foragabaleTypes;
+    private List<string> _foragableTypes = new();
+    public IEnumerable<string> ForagableTypes => _foragableTypes;
+
+    private string SerialisedForagableTypes =>
+        ForagableTypes.Where(x => !string.IsNullOrWhiteSpace(x))
+                      .Select(x => x.Trim().ToLowerInvariant())
+                      .Distinct(StringComparer.InvariantCultureIgnoreCase)
+                      .ListToString(separator: ",", conjunction: "", twoItemJoiner: ",");
+
+    private static List<string> ParseForagableTypes(string types)
+    {
+        return (types ?? string.Empty).Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                                      .Where(x => !string.IsNullOrWhiteSpace(x))
+                                      .Select(x => x.ToLowerInvariant())
+                                      .Distinct(StringComparer.InvariantCultureIgnoreCase)
+                                      .ToList();
+    }
 
     private Difficulty _forageDifficulty;
 

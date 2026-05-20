@@ -406,7 +406,7 @@ public class CorpseGameItemComponent : GameItemComponent, ICorpse, ILazyLoadDuri
         Butchering effect = butcher.EffectsOfType<Butchering>().First();
         foreach (IButcheryProduct product in OriginalCharacter.Race.ButcheryProfile.Products.Where(x =>
                      !x.IsPelt && x.AppliesTo(this) && x.CanProduce(butcher, Parent) &&
-                     (string.IsNullOrEmpty(subcategory) || x.Subcategory.EqualTo(subcategory))))
+                     x.MatchesButcherySubcategory(subcategory, ButcheredSubcategories)))
         {
             List<IBodypart> productParts = product.MatchingBodyparts(this).ToList();
             double totalHitpoints = productParts.Sum(x => OriginalBody.HitpointsForBodypart(x));
@@ -419,7 +419,8 @@ public class CorpseGameItemComponent : GameItemComponent, ICorpse, ILazyLoadDuri
             foreach (IButcheryProductItem item in product.ProductItems)
             {
                 CheckOutcome result = check.Check(butcher, effect.CheckDifficulty, effect.Trait);
-                if (damageRatio >= item.DamagedThreshold || result.Outcome.In(Outcome.MajorFail, Outcome.Fail))
+                if (ButcheryExtensions.ShouldUseDamagedButcheryProduct(damageRatio, item.DamagedThreshold,
+	                    result.Outcome))
                 {
                     if (item.DamagedProto != null)
                     {
@@ -506,15 +507,13 @@ public class CorpseGameItemComponent : GameItemComponent, ICorpse, ILazyLoadDuri
             foreach (IButcheryProductItem item in product.ProductItems)
             {
                 CheckOutcome result = check.Check(skinner, effect.CheckDifficulty, effect.Trait);
-                if (damageRatio >= item.DamagedThreshold || result.Outcome.In(Outcome.MajorFail, Outcome.Fail))
+                if (ButcheryExtensions.ShouldUseDamagedButcheryProduct(damageRatio, item.DamagedThreshold,
+	                    result.Outcome))
                 {
-                    if (damageRatio >= item.DamagedThreshold)
+                    if (item.DamagedProto != null)
                     {
-                        if (item.DamagedProto != null)
-                        {
-                            LoadItem(item.DamagedProto, item.DamagedQuantity);
-                            continue;
-                        }
+                        LoadItem(item.DamagedProto, item.DamagedQuantity);
+                        continue;
                     }
                 }
 

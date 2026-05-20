@@ -14,7 +14,9 @@ namespace MudSharp.GameItems.Interfaces
         Brush,
         Chisel,
         Crayon,
-        Printed
+        Printed,
+        ReedPen,
+        Charcoal
     }
 
     public static class WritingImplementTypeExtensions
@@ -41,6 +43,10 @@ namespace MudSharp.GameItems.Interfaces
                     return "Crayon";
                 case WritingImplementType.Printed:
                     return "Printed";
+                case WritingImplementType.ReedPen:
+                    return "Reed Pen";
+                case WritingImplementType.Charcoal:
+                    return "Charcoal";
                 default:
                     throw new ApplicationException($"Unknown WritingImplementType {type} in WritingImplementTypeExtensions.Describe");
             }
@@ -68,6 +74,10 @@ namespace MudSharp.GameItems.Interfaces
                     return "chisel";
                 case WritingImplementType.Printed:
                     return "printed text";
+                case WritingImplementType.ReedPen:
+                    return $"{colour?.Name?.Colour(ansiColour)} ink";
+                case WritingImplementType.Charcoal:
+                    return $"{colour?.Name?.Colour(ansiColour)} charcoal";
                 default:
                     throw new ApplicationException($"Unknown WritingImplementType {type} in WritingImplementTypeExtensions.Describe");
             }

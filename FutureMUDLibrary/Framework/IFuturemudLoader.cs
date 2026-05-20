@@ -46,6 +46,7 @@
         void LoadGameItemProtos();
         void LoadVehiclePrototypes();
         void LoadVehicles();
+        void LoadVehicleHitchLinks();
         void LoadGameItemSkins();
         void LoadGameItemGroups();
         void LoadTraits();

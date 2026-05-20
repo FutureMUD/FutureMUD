@@ -6,6 +6,7 @@ using MudSharp.Body;
 using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
+using MudSharp.Effects.Concrete;
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
@@ -248,6 +249,141 @@ public class VehicleTowServiceTests
 		Assert.IsTrue(link.IsBroken);
 		Assert.IsTrue(link.IsDisabled);
 		Assert.AreEqual("the source vehicle is missing", link.WhyInvalid);
+	}
+
+	[TestMethod]
+	public void VehicleHitchService_CanPersistCharacterHitch_WithPlayerEndpoint_Fails()
+	{
+		var service = new VehicleHitchService();
+		var source = new Mock<ICharacter>();
+		source.SetupGet(x => x.IsPlayerCharacter).Returns(true);
+		var target = new Mock<ICharacter>();
+
+		var result = service.CanPersistCharacterHitch(source.Object, target.Object, out var reason);
+
+		Assert.IsFalse(result);
+		Assert.AreEqual("Player-character hitch endpoints remain transient and are not persisted.", reason);
+	}
+
+	[TestMethod]
+	public void VehicleHitchLink_WhenLoadedWithMissingSourceCharacter_IsInvalidWithoutThrowing()
+	{
+		var gameworld = new Mock<IFuturemud>();
+		gameworld.SetupGet(x => x.Characters).Returns(new All<ICharacter>());
+
+		var link = new VehicleHitchLink(gameworld.Object, new DB.VehicleHitchLink
+		{
+			Id = 10,
+			SourceType = (int)VehicleHitchEndpointType.Character,
+			SourceCharacterId = 99,
+			TargetType = (int)VehicleHitchEndpointType.Character,
+			TargetCharacterId = 100
+		});
+
+		Assert.IsTrue(link.IsBroken);
+		Assert.IsTrue(link.IsDisabled);
+		Assert.AreEqual("the source character is missing", link.WhyInvalid);
+	}
+
+	[TestMethod]
+	public void VehicleHitchLink_WithHitchItemWornByEndpoint_IsValid()
+	{
+		var location = new Mock<ICell>().Object;
+		var hitchItem = new Mock<IGameItem>();
+		hitchItem.SetupGet(x => x.Id).Returns(50);
+		var sourceBody = new Mock<IBody>();
+		sourceBody.SetupGet(x => x.ExternalItems).Returns([hitchItem.Object]);
+		var targetBody = new Mock<IBody>();
+		targetBody.SetupGet(x => x.ExternalItems).Returns([]);
+		var source = new Mock<ICharacter>();
+		source.SetupGet(x => x.Id).Returns(1);
+		source.SetupGet(x => x.Location).Returns(location);
+		source.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
+		source.SetupGet(x => x.Body).Returns(sourceBody.Object);
+		var target = new Mock<ICharacter>();
+		target.SetupGet(x => x.Id).Returns(2);
+		target.SetupGet(x => x.Location).Returns(location);
+		target.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
+		target.SetupGet(x => x.Body).Returns(targetBody.Object);
+		var characters = new All<ICharacter>();
+		characters.Add(source.Object);
+		characters.Add(target.Object);
+		var gameworld = new Mock<IFuturemud>();
+		gameworld.SetupGet(x => x.Characters).Returns(characters);
+		gameworld.Setup(x => x.TryGetItem(50, true)).Returns(hitchItem.Object);
+
+		var link = new VehicleHitchLink(gameworld.Object, new DB.VehicleHitchLink
+		{
+			Id = 10,
+			SourceType = (int)VehicleHitchEndpointType.Character,
+			SourceCharacterId = 1,
+			TargetType = (int)VehicleHitchEndpointType.Character,
+			TargetCharacterId = 2,
+			HitchItemId = 50
+		});
+
+		Assert.IsFalse(link.IsBroken, link.WhyInvalid);
+		Assert.AreEqual(string.Empty, link.WhyInvalid);
+	}
+
+	[TestMethod]
+	public void VehicleHitchLink_WithHitchItemHeldByNonEndpoint_IsInvalid()
+	{
+		var location = new Mock<ICell>().Object;
+		var bystanderBody = new Mock<IBody>().Object;
+		var hitchItem = new Mock<IGameItem>();
+		hitchItem.SetupGet(x => x.Id).Returns(50);
+		hitchItem.SetupGet(x => x.Location).Returns(location);
+		hitchItem.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
+		hitchItem.SetupGet(x => x.InInventoryOf).Returns(bystanderBody);
+		var sourceBody = new Mock<IBody>();
+		sourceBody.SetupGet(x => x.ExternalItems).Returns([]);
+		var targetBody = new Mock<IBody>();
+		targetBody.SetupGet(x => x.ExternalItems).Returns([]);
+		var source = new Mock<ICharacter>();
+		source.SetupGet(x => x.Id).Returns(1);
+		source.SetupGet(x => x.Location).Returns(location);
+		source.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
+		source.SetupGet(x => x.Body).Returns(sourceBody.Object);
+		var target = new Mock<ICharacter>();
+		target.SetupGet(x => x.Id).Returns(2);
+		target.SetupGet(x => x.Location).Returns(location);
+		target.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
+		target.SetupGet(x => x.Body).Returns(targetBody.Object);
+		var characters = new All<ICharacter>();
+		characters.Add(source.Object);
+		characters.Add(target.Object);
+		var gameworld = new Mock<IFuturemud>();
+		gameworld.SetupGet(x => x.Characters).Returns(characters);
+		gameworld.Setup(x => x.TryGetItem(50, true)).Returns(hitchItem.Object);
+
+		var link = new VehicleHitchLink(gameworld.Object, new DB.VehicleHitchLink
+		{
+			Id = 10,
+			SourceType = (int)VehicleHitchEndpointType.Character,
+			SourceCharacterId = 1,
+			TargetType = (int)VehicleHitchEndpointType.Character,
+			TargetCharacterId = 2,
+			HitchItemId = 50
+		});
+
+		Assert.IsTrue(link.IsBroken);
+		Assert.AreEqual("the hitch item is not with the hitch chain", link.WhyInvalid);
+	}
+
+	[TestMethod]
+	public void CharacterHitch_RemovalEffect_DoesNotDeletePersistentLink()
+	{
+		var gameworld = new Mock<IFuturemud>();
+		var owner = new Mock<ICharacter>();
+		owner.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		var target = new Mock<IPerceivable>();
+		target.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		var effect = new CharacterHitch(owner.Object, target.Object, 1.0, vehicleHitchLinkId: 10);
+
+		effect.RemovalEffect();
+
+		gameworld.Verify(x => x.Destroy(It.IsAny<IVehicleHitchLink>()), Times.Never);
 	}
 
 	[TestMethod]

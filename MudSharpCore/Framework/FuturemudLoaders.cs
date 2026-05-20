@@ -386,6 +386,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
             SetCharacterMaterialisationBootPhase(CharacterMaterialisationBootPhase.Allowed);
             game.LoadNPCs(); // Needs to come after InitialiseCharacterClass and LightModel loading
             game.LoadVehicles(); // Needs world items and characters available for exterior/occupant recovery
+            game.LoadVehicleHitchLinks(); // Needs vehicles, world items and NPCs available for endpoint recovery
             FinalisePostCharacterLoadObjects();
             game.LoadGroupAIs(); // Needs to come after LoadNPCs
             ExitManager.PreloadCriticalExits(); // Needs to come after LoadGameItemProtos
@@ -3977,6 +3978,30 @@ For information on the syntax to use in emotes (such as those included in bracke
 #endif
         int count = _vehicles.Count;
         ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Vehicle" : "Vehicles");
+    }
+
+    void IFuturemudLoader.LoadVehicleHitchLinks()
+    {
+        ConsoleUtilities.WriteLine("\nLoading #5Vehicle Hitch Links#0...");
+#if DEBUG
+        Stopwatch sw = new();
+        sw.Start();
+#endif
+        List<Models.VehicleHitchLink> links = (from link in FMDB.Context.VehicleHitchLinks
+                                               .AsNoTracking()
+                                               select link).ToList();
+        foreach (Models.VehicleHitchLink link in links)
+        {
+            _vehicleHitchLinks.Add(new MudSharp.Vehicles.VehicleHitchLink(this, link));
+        }
+
+        new VehicleHitchService().RecoverPersistentLinks(this);
+#if DEBUG
+        sw.Stop();
+        ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
+#endif
+        int count = _vehicleHitchLinks.Count;
+        ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Vehicle Hitch Link" : "Vehicle Hitch Links");
     }
 
     void IFuturemudLoader.LoadGameItemSkins()

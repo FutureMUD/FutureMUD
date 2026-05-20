@@ -14,7 +14,7 @@ using System.Linq;
 
 namespace MudSharp.Effects.Concrete;
 
-public class Dragging : Effect, IDragging
+public class Dragging : Effect, IDragging, INoQuitEffect, INoTimeOutEffect
 {
     public class DragHelper : Effect, ILDescSuffixEffect, IDragParticipant
     {
@@ -62,7 +62,7 @@ public class Dragging : Effect, IDragging
         #endregion
     }
 
-    public class DragTarget : Effect, ILDescSuffixEffect, IDragParticipant, IRemoveOnGet
+    public class DragTarget : Effect, ILDescSuffixEffect, IDragParticipant, IRemoveOnGet, INoQuitEffect, INoTimeOutEffect
     {
         public override bool IsBlockingEffect(string blockingType)
         {
@@ -78,6 +78,8 @@ public class Dragging : Effect, IDragging
 
         public IDragging Drag { get; set; }
         public IDragging TheDrag => Drag;
+        public string NoQuitReason => "You cannot quit while you are being dragged.";
+        public string NoTimeOutReason => "You cannot be timed out while you are being dragged.";
 
         public DragTarget(IPerceivable owner, IDragging drag) : base(owner)
         {
@@ -142,6 +144,8 @@ public class Dragging : Effect, IDragging
     }
 
     public override bool CanBeStoppedByPlayer => true;
+    public string NoQuitReason => $"You cannot quit while you are dragging {Target.HowSeen(CharacterOwner)}.";
+    public string NoTimeOutReason => $"You cannot be timed out while you are dragging {Target.HowSeen(CharacterOwner)}.";
 
     public IPerceivable Target { get; set; }
 

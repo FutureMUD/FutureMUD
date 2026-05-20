@@ -29,6 +29,7 @@ internal class VehicleModule : Module<ICharacter>
 
 	public static VehicleModule Instance { get; } = new();
 	private static readonly IVehicleTowService TowService = new VehicleTowService();
+	private static readonly IVehicleHitchService HitchService = new VehicleHitchService();
 
 	private const string EmbarkHelp = @"The #3embark#0 command lets you board a vehicle exterior item.
 
@@ -340,7 +341,7 @@ Syntax:
 
 		if (CanActorDirectlyHitchSource(actor, source))
 		{
-			ApplyCharacterHitch(actor, source, target, targetTowPoint, hitchItem, dragAid);
+			ApplyCharacterHitch(actor, source, target, targetVehicle, targetTowPoint, hitchItem, dragAid);
 			return;
 		}
 
@@ -442,6 +443,7 @@ Syntax:
 
 	private static bool RemoveCharacterHitches(ICharacter actor, ICharacter character)
 	{
+		var persistentLinks = HitchService.LinksInvolving(actor.Gameworld, character).ToList();
 		var hitches = character.EffectsOfType<Dragging>().ToList();
 		var targetHitches = actor.Location.LayerCharacters(actor.RoomLayer)
 		                         .SelectMany(x => x.EffectsOfType<Dragging>())
@@ -449,9 +451,14 @@ Syntax:
 		                         .ToList();
 		hitches.AddRange(targetHitches);
 		hitches = hitches.Distinct().ToList();
-		if (!hitches.Any())
+		if (!hitches.Any() && !persistentLinks.Any())
 		{
 			return false;
+		}
+
+		foreach (var link in persistentLinks)
+		{
+			HitchService.DeletePersistentLink(actor.Gameworld, link.Id);
 		}
 
 		foreach (var hitch in hitches)
@@ -466,15 +473,25 @@ Syntax:
 
 	private static bool RemoveCharacterHitchesTargeting(ICharacter actor, IPerceivable target, long? targetTowPointId = null)
 	{
+		var persistentLinks = HitchService.LinksInvolving(actor.Gameworld, target)
+		                                .Where(x => targetTowPointId is null ||
+		                                            x.TargetTowPointPrototypeId == targetTowPointId ||
+		                                            x.SourceTowPointPrototypeId == targetTowPointId)
+		                                .ToList();
 		var hitches = actor.Location.LayerCharacters(actor.RoomLayer)
 		                  .SelectMany(x => x.EffectsOfType<CharacterHitch>().Select(y => (Character: x, Hitch: y)))
 		                  .Where(x => x.Hitch.Target == target &&
 		                              (targetTowPointId is null || x.Hitch.TargetTowPointId == targetTowPointId))
 		                  .Distinct()
 		                  .ToList();
-		if (!hitches.Any())
+		if (!hitches.Any() && !persistentLinks.Any())
 		{
 			return false;
+		}
+
+		foreach (var link in persistentLinks)
+		{
+			HitchService.DeletePersistentLink(actor.Gameworld, link.Id);
 		}
 
 		foreach (var hitch in hitches)
@@ -555,11 +572,83 @@ Syntax:
 		return false;
 	}
 
-	private static void ApplyCharacterHitch(ICharacter actor, ICharacter source, IPerceivable target,
-		IVehicleTowPointPrototype targetTowPoint, IGameItem hitchItem, IDragAid dragAid)
+	private static bool PersistentHitchItemIsOnEndpoint(ICharacter source, IPerceivable target, IGameItem hitchItem)
 	{
+		return source.Body.ExternalItems.Any(x => x.Id == hitchItem.Id) ||
+		       (target as ICharacter)?.Body.ExternalItems.Any(x => x.Id == hitchItem.Id) == true;
+	}
+
+	private static bool PreparePersistentCharacterHitchItem(ICharacter actor, ICharacter source, IPerceivable target,
+		IGameItem hitchItem, out string reason)
+	{
+		if (hitchItem is null)
+		{
+			reason = string.Empty;
+			return true;
+		}
+
+		if (PersistentHitchItemIsOnEndpoint(source, target, hitchItem))
+		{
+			reason = string.Empty;
+			return true;
+		}
+
+		if (hitchItem.Location == source.Location && hitchItem.RoomLayer == source.RoomLayer &&
+		    hitchItem.ContainedIn is null && hitchItem.InInventoryOf is null)
+		{
+			reason = string.Empty;
+			return true;
+		}
+
+		if (hitchItem.InInventoryOf == actor.Body)
+		{
+			if (!actor.Body.CanDrop(hitchItem, 0))
+			{
+				reason = actor.Body.WhyCannotDrop(hitchItem, 0);
+				return false;
+			}
+
+			actor.Body.Drop(hitchItem, silent: true);
+			if (hitchItem.Location != source.Location || hitchItem.RoomLayer != source.RoomLayer)
+			{
+				hitchItem.Location?.Extract(hitchItem);
+				hitchItem.RoomLayer = source.RoomLayer;
+				source.Location.Insert(hitchItem, true);
+			}
+
+			reason = string.Empty;
+			return true;
+		}
+
+		reason = $"{hitchItem.HowSeen(actor, true)} must be with the hitch chain or worn or carried by one of the hitch endpoints.";
+		return false;
+	}
+
+	private static void ApplyCharacterHitch(ICharacter actor, ICharacter source, IPerceivable target,
+		IVehicle targetVehicle, IVehicleTowPointPrototype targetTowPoint, IGameItem hitchItem, IDragAid dragAid)
+	{
+		long? persistentLinkId = null;
+		if (HitchService.CanPersistCharacterHitch(source, target, out _))
+		{
+			if (!PreparePersistentCharacterHitchItem(actor, source, target, hitchItem, out var hitchItemReason))
+			{
+				actor.OutputHandler.Send(hitchItemReason);
+				return;
+			}
+
+			var link = HitchService.CreatePersistentCharacterHitch(actor, source, target, targetVehicle, targetTowPoint,
+				hitchItem, out var persistentReason);
+			if (link is null)
+			{
+				actor.OutputHandler.Send(persistentReason);
+				return;
+			}
+
+			persistentLinkId = link.Id;
+		}
+
 		var pullMultiplier = targetTowPoint?.CharacterPullMultiplier ?? 1.0;
-		source.AddEffect(new CharacterHitch(source, target, pullMultiplier, targetTowPoint?.Id));
+		source.AddEffect(new CharacterHitch(source, target, pullMultiplier, targetTowPoint?.Id, persistentLinkId));
 		source.AddEffect(new Dragging(source, dragAid, target));
 		actor.OutputHandler.Handle(new EmoteOutput(new Emote("@ hitch|hitches $1 to $2$?3| with $3||.", actor, actor,
 			source, target, hitchItem)));
@@ -597,7 +686,7 @@ Syntax:
 
 				source.OutputHandler.Handle(new EmoteOutput(new Emote("@ accept|accepts $1's proposal to be hitched to $2$?3| with $3||.",
 					source, source, actor, target, hitchItem)));
-				ApplyCharacterHitch(actor, source, target, targetTowPoint, hitchItem, currentDragAid);
+				ApplyCharacterHitch(actor, source, target, targetVehicle, targetTowPoint, hitchItem, currentDragAid);
 			},
 			RejectAction = text =>
 			{
@@ -645,6 +734,14 @@ Syntax:
 			return false;
 		}
 
+		if (actor.Gameworld.VehicleHitchLinks?.Any(x =>
+			    x.SourceType == VehicleHitchEndpointType.Character &&
+			    x.SourceCharacterId == source.Id) == true)
+		{
+			reason = $"{source.HowSeen(actor, true)} already has a persistent hitch link.";
+			return false;
+		}
+
 		if (source.Movement is not null)
 		{
 			reason = $"{source.HowSeen(actor, true)} is already moving.";
@@ -665,6 +762,14 @@ Syntax:
 
 		if (target is ICharacter targetCharacter)
 		{
+			if (actor.Gameworld.VehicleHitchLinks?.Any(x =>
+				    x.TargetType == VehicleHitchEndpointType.Character &&
+				    x.TargetCharacterId == targetCharacter.Id) == true)
+			{
+				reason = $"{targetCharacter.HowSeen(actor, true)} already has a persistent hitch link.";
+				return false;
+			}
+
 			if (targetCharacter.Location != source.Location || targetCharacter.RoomLayer != source.RoomLayer)
 			{
 				reason = $"{targetCharacter.HowSeen(actor, true)} must be in the same location and layer.";
@@ -743,6 +848,14 @@ Syntax:
 		if (targetVehicle.ExteriorItem is null)
 		{
 			reason = "That vehicle does not have a linked exterior item.";
+			return false;
+		}
+
+		if (actor.Gameworld.VehicleHitchLinks?.Any(x =>
+			    x.TargetType == VehicleHitchEndpointType.Vehicle &&
+			    x.TargetVehicleId == targetVehicle.Id) == true)
+		{
+			reason = $"{targetVehicle.ExteriorItem.HowSeen(actor, true)} already has a persistent hitch link.";
 			return false;
 		}
 
@@ -1050,6 +1163,16 @@ Syntax:
 			? vehicle.TowLinks.Select(x => DescribeTowLink(actor, x)).ListToString(separator: "\n", conjunction: "", twoItemJoiner: "\n")
 			: "\tNone");
 		sb.AppendLine();
+		var hitchLinks = (actor.Gameworld.VehicleHitchLinks ?? Enumerable.Empty<IVehicleHitchLink>())
+		                                  .Where(x => x.SourceVehicleId == vehicle.Id ||
+		                                              x.TargetVehicleId == vehicle.Id)
+		                                  .OrderBy(x => x.Id)
+		                                  .ToList();
+		sb.AppendLine("Mixed Hitch Links:");
+		sb.AppendLine(hitchLinks.Any()
+			? hitchLinks.Select(x => DescribeHitchLink(actor, x)).ListToString(separator: "\n", conjunction: "", twoItemJoiner: "\n")
+			: "\tNone");
+		sb.AppendLine();
 		sb.AppendLine("Damage Zones:");
 		sb.AppendLine(vehicle.DamageZones.Any()
 			? vehicle.DamageZones.Select(x => $"\t#{x.Id.ToString("N0", actor)} {x.Name.ColourName()} {x.Status.DescribeEnum().ColourValue()} damage {x.CurrentDamage.ToString("N2", actor).ColourValue()}/{x.Prototype.MaximumDamage.ToString("N2", actor).ColourValue()} wounds {x.Wounds.Count().ToString("N0", actor).ColourValue()}").ListToString(separator: "\n", conjunction: "", twoItemJoiner: "\n")
@@ -1122,6 +1245,40 @@ Syntax:
 		}
 
 		return $" disabled ({causes.ListToString()})".Colour(Telnet.Red);
+	}
+
+	private static string DescribeHitchLink(ICharacter actor, IVehicleHitchLink link)
+	{
+		var hitchItem = link.HitchItem;
+		return
+			$"\t#{link.Id.ToString("N0", actor)} {DescribeHitchEndpoint(actor, link.SourceType, link.SourceVehicle, link.SourceCharacter, link.SourceTowPoint)} -> {DescribeHitchEndpoint(actor, link.TargetType, link.TargetVehicle, link.TargetCharacter, link.TargetTowPoint)} hitch {(hitchItem is null ? "none".ColourError() : hitchItem.HowSeen(actor))}{HitchLinkDisabledCause(link)}";
+	}
+
+	private static string DescribeHitchEndpoint(ICharacter actor, VehicleHitchEndpointType type, IVehicle vehicle,
+		ICharacter character, IVehicleTowPointPrototype towPoint)
+	{
+		return type switch
+		{
+			VehicleHitchEndpointType.Vehicle =>
+				$"{vehicle?.Name.ColourName() ?? "missing".ColourError()}:{towPoint?.Name.ColourName() ?? "missing".ColourError()}",
+			VehicleHitchEndpointType.Character => character?.HowSeen(actor) ?? "missing".ColourError(),
+			_ => "invalid".ColourError()
+		};
+	}
+
+	private static string HitchLinkDisabledCause(IVehicleHitchLink link)
+	{
+		if (!link.IsDisabled)
+		{
+			return string.Empty;
+		}
+
+		if (!string.IsNullOrWhiteSpace(link.WhyInvalid))
+		{
+			return $" invalid ({link.WhyInvalid})".Colour(Telnet.Red);
+		}
+
+		return link.IsManuallyDisabled ? " disabled (manual)".Colour(Telnet.Red) : string.Empty;
 	}
 
 	private static void VehicleRepair(ICharacter actor, StringStack ss)

@@ -1366,6 +1366,11 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
         _vehicles.Add(vehicle);
     }
 
+    public void Add(IVehicleHitchLink link)
+    {
+        _vehicleHitchLinks.Add(link);
+    }
+
     public void Add(ITemporalListener listener)
     {
         _listeners.Add(listener);
@@ -2273,6 +2278,11 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
     public void Destroy(IVehicle vehicle)
     {
         _vehicles.Remove(vehicle);
+    }
+
+    public void Destroy(IVehicleHitchLink link)
+    {
+        _vehicleHitchLinks.Remove(link);
     }
 
     public void Destroy(IAccount account)

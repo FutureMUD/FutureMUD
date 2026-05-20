@@ -260,6 +260,7 @@ namespace MudSharp.Framework
         IUneditableAll<ITrack> Tracks { get; }
         IUneditableRevisableAll<IVehiclePrototype> VehiclePrototypes { get; }
         IUneditableAll<IVehicle> Vehicles { get; }
+        IUneditableAll<IVehicleHitchLink> VehicleHitchLinks { get; }
         IUneditableAll<IWearProfile> WearProfiles { get; }
         IUneditableAll<IZone> Zones { get; }
         IEnumerable<ISocial> Socials { get; }
@@ -526,6 +527,7 @@ namespace MudSharp.Framework
         void Add(IGameItemComponentProto proto);
         void Add(IVehiclePrototype proto);
         void Add(IVehicle vehicle);
+        void Add(IVehicleHitchLink link);
         void Add(ITemporalListener listener);
         void Add(IHelpfile helpfile);
         void Add(ITraitDefinition trait);
@@ -662,6 +664,7 @@ namespace MudSharp.Framework
         void Destroy(IGameItemComponentProto proto);
         void Destroy(IVehiclePrototype proto);
         void Destroy(IVehicle vehicle);
+        void Destroy(IVehicleHitchLink link);
         void Destroy(IAccount account);
         void Destroy(ICell cell);
         void Destroy(IRoom room);

@@ -737,8 +737,7 @@ public class VehicleHitchLink : FrameworkItem, IVehicleHitchLink
 					return "the hitch item is destroyed";
 				}
 
-				if (item.ContainedIn is not null || item.InInventoryOf is not null ||
-				    item.Location != sourceLocation || item.RoomLayer != SourceRoomLayer())
+				if (!HitchItemIsWithChain(item, sourceLocation, SourceRoomLayer()))
 				{
 					return "the hitch item is not with the hitch chain";
 				}
@@ -858,6 +857,23 @@ public class VehicleHitchLink : FrameworkItem, IVehicleHitchLink
 			VehicleHitchEndpointType.Character => TargetCharacter?.RoomLayer ?? RoomLayer.GroundLevel,
 			_ => RoomLayer.GroundLevel
 		};
+	}
+
+	private bool HitchItemIsWithChain(IGameItem item, ICell sourceLocation, RoomLayer sourceLayer)
+	{
+		if (item.Location == sourceLocation && item.RoomLayer == sourceLayer && item.ContainedIn is null &&
+		    item.InInventoryOf is null)
+		{
+			return true;
+		}
+
+		if (SourceCharacter?.Body.ExternalItems.Any(x => x.Id == item.Id) == true ||
+		    TargetCharacter?.Body.ExternalItems.Any(x => x.Id == item.Id) == true)
+		{
+			return true;
+		}
+
+		return false;
 	}
 }
 

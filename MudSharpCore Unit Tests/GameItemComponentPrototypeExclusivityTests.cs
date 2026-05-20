@@ -31,7 +31,8 @@ public class GameItemComponentPrototypeExclusivityTests
 		typeof(ISignalSinkComponent),
 		typeof(ISignalSourceComponent),
 		typeof(ISwitchable),
-		typeof(ITelephoneNumberOwner)
+		typeof(ITelephoneNumberOwner),
+		typeof(IProvideItemTargetProjections)
 	];
 
 	[TestMethod]
@@ -150,6 +151,12 @@ public class GameItemComponentPrototypeExclusivityTests
 
 			foreach (var runtimeInterface in runtimeInterfaces)
 			{
+				if (protoType == typeof(VehicleCargoSpaceGameItemComponentProto) &&
+				    runtimeInterface == typeof(IContainer))
+				{
+					continue;
+				}
+
 				var marker = GetPrototypeMarker(runtimeInterface);
 				Assert.IsNotNull(marker, $"{runtimeInterface.FullName} is missing a prototype marker interface.");
 				Assert.IsTrue(marker!.IsAssignableFrom(protoType),

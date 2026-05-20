@@ -86,6 +86,7 @@ public readonly struct ProgVariableTypes : IEquatable<ProgVariableTypes>
 	public static readonly ProgVariableTypes Writing = FromLegacyBitIndex(61);
 	public static readonly ProgVariableTypes Area = FromLegacyBitIndex(62);
 	public static readonly ProgVariableTypes LegalClass = FromLegacyBitIndex(63);
+	public static readonly ProgVariableTypes AgricultureField = FromLegacyBitIndex(64);
 
     public static readonly ProgVariableTypes CollectionItem =
         Number | Boolean | Gender | Text | DateTime | TimeSpan | Character | Item | Chargen | Location | Zone |
@@ -94,7 +95,7 @@ public readonly struct ProgVariableTypes : IEquatable<ProgVariableTypes>
 		WeatherEvent | Shop | Merchandise | Outfit | OutfitItem | OverlayPackage | Terrain | Project | Solid |
 		Liquid | Gas | MagicSchool | MagicCapability | MagicSpell | Bank | BankAccount | BankAccountType |
 		LegalAuthority | Law | Crime | Market | MarketCategory | LiquidMixture | Script | Writing | Area |
-		LegalClass;
+		LegalClass | AgricultureField;
 
     public static readonly ProgVariableTypes Perceivable = Item | Character | Location | Zone | Shard;
     public static readonly ProgVariableTypes Perceiver = Item | Character;

@@ -66,6 +66,7 @@ using MudSharp.RPG.ScriptedEvents;
 using MudSharp.TimeAndDate.Date;
 using MudSharp.TimeAndDate.Listeners;
 using MudSharp.TimeAndDate.Time;
+using MudSharp.Work.Agriculture;
 using MudSharp.Vehicles;
 using MudSharp.Work.Butchering;
 using MudSharp.Work.Crafts;
@@ -88,6 +89,12 @@ public sealed partial class Futuremud : IDisposable
     private readonly All<IAccent> _accents = new();
     private readonly All<IAccount> _accounts = new();
     private readonly All<ICharacter> _actors = new();
+    private readonly All<IAgricultureField> _agricultureFields = new();
+    private readonly All<IAgricultureFieldProfile> _agricultureFieldProfiles = new();
+    private readonly All<IAgricultureCropDefinition> _agricultureCropDefinitions = new();
+    private readonly All<IAgricultureHerdDefinition> _agricultureHerdDefinitions = new();
+    private readonly All<IAgricultureWoodlandDefinition> _agricultureWoodlandDefinitions = new();
+    private readonly All<IAgricultureOperation> _agricultureOperations = new();
     private readonly All<ICharacter> _cachedActors = new();
     private readonly All<IAIStoryteller> _aiStorytellers = new();
     private readonly All<IAIStorytellerReferenceDocument> _aiStorytellerReferenceDocuments = new();
@@ -279,6 +286,18 @@ public sealed partial class Futuremud : IDisposable
     /// This collection contains all Actor (NPCs and Characters) that have been loaded into the game
     /// </summary>
     public IUneditableAll<ICharacter> Actors => _actors;
+
+    public IUneditableAll<IAgricultureField> AgricultureFields => _agricultureFields;
+
+    public IUneditableAll<IAgricultureFieldProfile> AgricultureFieldProfiles => _agricultureFieldProfiles;
+
+    public IUneditableAll<IAgricultureCropDefinition> AgricultureCropDefinitions => _agricultureCropDefinitions;
+
+    public IUneditableAll<IAgricultureHerdDefinition> AgricultureHerdDefinitions => _agricultureHerdDefinitions;
+
+    public IUneditableAll<IAgricultureWoodlandDefinition> AgricultureWoodlandDefinitions => _agricultureWoodlandDefinitions;
+
+    public IUneditableAll<IAgricultureOperation> AgricultureOperations => _agricultureOperations;
 
     public IUneditableAll<ICharacter> CachedActors => _cachedActors;
 

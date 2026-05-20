@@ -10,6 +10,7 @@ using MudSharp.FutureProg.Variables;
 using MudSharp.Health;
 using MudSharp.Models;
 using MudSharp.RPG.Checks;
+using MudSharp.Work.Agriculture;
 using MudSharp.Work.Foraging;
 using System;
 using System.Collections.Generic;
@@ -23,8 +24,10 @@ public class Terrain : SaveableItem, ITerrain
 {
     private readonly List<IRangedCover> _terrainCovers = new();
     private IForagableProfile _foragableProfile;
+    private IAgricultureFieldProfile _defaultAgricultureFieldProfile;
 
     private long _foragableProfileId;
+    private long _defaultAgricultureFieldProfileId;
     public string TerrainBehaviourString { get; private set; }
 
     public Terrain(Models.Terrain terrain, IFuturemud gameworld)
@@ -43,6 +46,7 @@ public class Terrain : SaveableItem, ITerrain
         SpotDifficulty = (Difficulty)terrain.SpotDifficulty;
         StaminaCost = terrain.StaminaCost;
         _foragableProfileId = terrain.ForagableProfileId;
+        _defaultAgricultureFieldProfileId = terrain.DefaultAgricultureFieldProfileId ?? 0;
         InfectionMultiplier = terrain.InfectionMultiplier;
         InfectionVirulence = (Difficulty)terrain.InfectionVirulence;
         PrimaryInfection = (InfectionType)terrain.InfectionType;
@@ -428,6 +432,7 @@ public class Terrain : SaveableItem, ITerrain
             dbitem.CanHaveTracks = true;
             dbitem.GravityModel = (int)MudSharp.Construction.GravityModel.Normal;
             dbitem.TagInformation = "";
+            dbitem.DefaultAgricultureFieldProfileId = null;
 
             FMDB.Context.SaveChanges();
             LoadFromDB(dbitem);
@@ -457,6 +462,7 @@ public class Terrain : SaveableItem, ITerrain
             dbitem.InfectionType = (int)rhs.PrimaryInfection;
             dbitem.WeatherControllerId = rhs.OverrideWeatherController?.Id;
             dbitem.ForagableProfileId = rhs.ForagableProfile?.Id ?? 0;
+            dbitem.DefaultAgricultureFieldProfileId = rhs.DefaultAgricultureFieldProfile?.Id;
             dbitem.TerrainBehaviourMode = rhsItem.TerrainBehaviourMode;
             dbitem.TerrainEditorColour = rhsItem.TerrainEditorColour;
             dbitem.DefaultCellOutdoorsType = rhsItem.DefaultCellOutdoorsType;
@@ -494,6 +500,7 @@ public class Terrain : SaveableItem, ITerrain
         dbitem.InfectionType = (int)PrimaryInfection;
         dbitem.WeatherControllerId = _overrideWeatherControllerId;
         dbitem.ForagableProfileId = ForagableProfile?.Id ?? 0;
+        dbitem.DefaultAgricultureFieldProfileId = DefaultAgricultureFieldProfile?.Id;
         dbitem.TerrainBehaviourMode = TerrainBehaviourString;
         dbitem.TerrainANSIColour = TerrainANSIColour;
         dbitem.DefaultCellOutdoorsType = (int)DefaultCellOutdoorsType;
@@ -541,6 +548,25 @@ public class Terrain : SaveableItem, ITerrain
         {
             _foragableProfile = value;
             _foragableProfileId = 0;
+        }
+    }
+
+    public IAgricultureFieldProfile DefaultAgricultureFieldProfile
+    {
+        get
+        {
+            if (_defaultAgricultureFieldProfileId != 0)
+            {
+                _defaultAgricultureFieldProfile = Gameworld.AgricultureFieldProfiles.Get(_defaultAgricultureFieldProfileId);
+                _defaultAgricultureFieldProfileId = 0;
+            }
+
+            return _defaultAgricultureFieldProfile;
+        }
+        private set
+        {
+            _defaultAgricultureFieldProfile = value;
+            _defaultAgricultureFieldProfileId = 0;
         }
     }
 
@@ -653,6 +679,10 @@ public class Terrain : SaveableItem, ITerrain
                 return new NumberVariable((int)InfectionVirulence);
             case "foragableprofile":
                 return new NumberVariable(_foragableProfileId);
+            case "agricultureprofile":
+                return DefaultAgricultureFieldProfile == null
+                    ? new NullVariable(ProgVariableTypes.Number)
+                    : new NumberVariable(DefaultAgricultureFieldProfile.Id);
             case "atmosphereid":
                 return Atmosphere == null
                     ? (IProgVariable)new NullVariable(ProgVariableTypes.Number)
@@ -685,6 +715,7 @@ public class Terrain : SaveableItem, ITerrain
             { "primaryinfection", ProgVariableTypes.Text },
             { "infectionvirulence", ProgVariableTypes.Number },
             { "foragableprofile", ProgVariableTypes.Number },
+            { "agricultureprofile", ProgVariableTypes.Number },
             { "atmosphereid", ProgVariableTypes.Number },
             { "default", ProgVariableTypes.Boolean },
             { "hidedifficulty", ProgVariableTypes.Number },
@@ -705,6 +736,7 @@ public class Terrain : SaveableItem, ITerrain
             { "primaryinfection", "The type of infection people catch here" },
             { "infectionvirulence", "Initial virulence of infections" },
             { "foragableprofile", "The id (or null) of the foragable profile for this terrain" },
+            { "agricultureprofile", "The id (or null) of the default agriculture field profile for this terrain" },
             { "atmosphereid", "The default atmospheric fluid id" },
             { "default", "True if this is the MUD's default terrain" },
             { "hidedifficulty", "The difficulty of hiding in this terrain" },
@@ -737,6 +769,7 @@ public class Terrain : SaveableItem, ITerrain
         sb.AppendLine(
             $"Weather: {OverrideWeatherController?.Name.Colour(Telnet.BoldCyan) ?? "None".Colour(Telnet.Red)}");
         sb.AppendLine($"Foragable Profile: {ForagableProfile?.Name.Colour(Telnet.Green) ?? "None".Colour(Telnet.Red)}");
+        sb.AppendLine($"Default Agriculture Profile: {DefaultAgricultureFieldProfile?.Name.ColourName() ?? "None".Colour(Telnet.Red)}");
         sb.AppendLine(
             $"Infection: {PrimaryInfection.Describe().Colour(Telnet.Magenta)} @ {InfectionVirulence.Describe().ColourValue()} {InfectionMultiplier.ToString("P2", actor).ColourValue()} Intensity");
         sb.AppendLine($"Model: {TerrainBehaviourString.ColourCommand()}");
@@ -807,6 +840,11 @@ public class Terrain : SaveableItem, ITerrain
                 return BuildingCommandSpot(actor, command);
             case "forage":
                 return BuildingCommandForage(actor, command);
+            case "agriculture":
+            case "agricultural":
+            case "farm":
+            case "field":
+                return BuildingCommandAgriculture(actor, command);
             case "weather":
                 return BuildingCommandWeather(actor, command);
             case "cover":
@@ -861,6 +899,8 @@ public class Terrain : SaveableItem, ITerrain
 	#3spot <difficulty>#0 - sets the minimum spot difficulty
 	#3forage none#0 - removes the forage profile from this terrain
 	#3forage <profile>#0 - sets the foragable profile
+	#3agriculture none#0 - removes the default agriculture field profile
+	#3agriculture <profile>#0 - sets the profile used by FIELD CREATE defaults
 	#3weather none#0 - removes a weather controller
 	#3weather <controller>#0 - sets the weather controller
 	#3cover <cover>#0 - toggles a ranged cover
@@ -1395,6 +1435,41 @@ The following additional models require you to specify a liquid to go with them:
         Changed = true;
         actor.OutputHandler.Send(
             $"The {Name.Colour(Telnet.Cyan)} terrain now uses the {profile.Name.ColourValue()} foragable profile.");
+        return true;
+    }
+
+    private bool BuildingCommandAgriculture(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send(
+                "You must either specify an agriculture field profile to use as the terrain default, or 'none' to remove the default.");
+            return false;
+        }
+
+        if (command.SafeRemainingArgument.EqualTo("none") ||
+            command.SafeRemainingArgument.EqualTo("clear") ||
+            command.SafeRemainingArgument.EqualTo("remove"))
+        {
+            _defaultAgricultureFieldProfile = null;
+            _defaultAgricultureFieldProfileId = 0;
+            Changed = true;
+            actor.OutputHandler.Send($"The {Name.Colour(Telnet.Cyan)} terrain no longer has a default agriculture field profile.");
+            return true;
+        }
+
+        var profile = Gameworld.AgricultureFieldProfiles.GetByIdOrName(command.SafeRemainingArgument);
+        if (profile == null)
+        {
+            actor.OutputHandler.Send("There is no such agriculture field profile.");
+            return false;
+        }
+
+        _defaultAgricultureFieldProfile = profile;
+        _defaultAgricultureFieldProfileId = profile.Id;
+        Changed = true;
+        actor.OutputHandler.Send(
+            $"The {Name.Colour(Telnet.Cyan)} terrain will now default to the {profile.Name.ColourName()} agriculture field profile.");
         return true;
     }
 

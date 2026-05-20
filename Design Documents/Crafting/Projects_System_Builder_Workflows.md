@@ -5,6 +5,8 @@ This document explains how builders and admins currently create, revise, approve
 
 This is a builder-facing guide. It describes the command workflows that exist today, including current limitations and implementation quirks.
 
+Agriculture uses this project system for field labour. See [Agriculture Builder Workflows](../Agriculture/Agriculture_Builder_Workflows.md) for the field-facing commands and the extra agriculture project context written when `field start` creates a local project.
+
 ## Builder Mental Model
 Keep these three layers separate in your head:
 - A catalogue project is the revisioned template that players see in `project catalog`.
@@ -294,6 +296,7 @@ Use:
 | --- | --- | --- |
 | `prog` | Executes a FutureProg when the phase completes | `prog <prog>` |
 | `skilluse` | Grants free checks against a trait when the phase completes | `trait`, `checks`, `difficulty` |
+| `agriculture` | Applies a field operation linked through `AgricultureProjectContext` | normally created through `field start` |
 
 Current implementation warning:
 - actions execute in ascending `sort` order
@@ -306,7 +309,7 @@ Current implementation warning:
 | Project | `personal`, `local` |
 | Labour | `simple`, `endless`, `supervision` |
 | Material | `simple`, `commodity` |
-| Action | `prog`, `skilluse` |
+| Action | `prog`, `skilluse`, `agriculture` |
 | Impact | `trait`, `healing`, `job`, `cap` |
 
 ## Troubleshooting

@@ -714,6 +714,478 @@ namespace MudSharp.Migrations
                     b.ToTable("ActiveProjectMaterials");
                 });
 
+            modelBuilder.Entity("MudSharp.Models.AgricultureCropDefinition", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasColumnType("varchar(100)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Category"), "utf8");
+
+                    b.Property<string>("Definition")
+                        .IsRequired()
+                        .HasColumnType("mediumtext")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Definition"), "utf8");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("mediumtext")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Description"), "utf8");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("varchar(200)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Name"), "utf8");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.ToTable("AgricultureCropDefinitions", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.AgricultureField", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CellId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<int>("Condition")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CurrentUse")
+                        .HasColumnType("int(11)");
+
+                    b.Property<string>("Definition")
+                        .IsRequired()
+                        .HasColumnType("mediumtext")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Definition"), "utf8");
+
+                    b.Property<int>("Drainage")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Fence")
+                        .HasColumnType("int");
+
+                    b.Property<string>("LastTickMudDateTime")
+                        .HasColumnType("varchar(500)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("LastTickMudDateTime"), "utf8");
+
+                    b.Property<int>("Moisture")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Nutrients")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Pasture")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Pests")
+                        .HasColumnType("int");
+
+                    b.Property<long>("ProfileId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<int>("Rockiness")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Salinity")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Tilth")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Topsoil")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Weeds")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("CellId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_AgricultureFields_CellId");
+
+                    b.HasIndex("ProfileId")
+                        .HasDatabaseName("FK_AgricultureFields_Profiles_idx");
+
+                    b.ToTable("AgricultureFields", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.AgricultureFieldCrop", b =>
+                {
+                    b.Property<long>("AgricultureFieldId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("CropDefinitionId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<string>("Definition")
+                        .IsRequired()
+                        .HasColumnType("mediumtext")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Definition"), "utf8");
+
+                    b.Property<int>("GrowthDays")
+                        .HasColumnType("int(11)");
+
+                    b.Property<int>("Health")
+                        .HasColumnType("int(11)");
+
+                    b.Property<string>("PlantedMudDateTime")
+                        .HasColumnType("varchar(500)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("PlantedMudDateTime"), "utf8");
+
+                    b.Property<int>("Stage")
+                        .HasColumnType("int(11)");
+
+                    b.Property<int>("YieldPotential")
+                        .HasColumnType("int(11)");
+
+                    b.HasKey("AgricultureFieldId")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("CropDefinitionId")
+                        .HasDatabaseName("FK_AgricultureFieldCrops_Crops_idx");
+
+                    b.ToTable("AgricultureFieldCrops", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.AgricultureFieldHerd", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("AgricultureFieldId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<double>("Condition")
+                        .HasColumnType("double");
+
+                    b.Property<string>("Definition")
+                        .IsRequired()
+                        .HasColumnType("mediumtext")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Definition"), "utf8");
+
+                    b.Property<int>("HeadCount")
+                        .HasColumnType("int(11)");
+
+                    b.Property<long>("HerdDefinitionId")
+                        .HasColumnType("bigint(20)");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("AgricultureFieldId")
+                        .HasDatabaseName("FK_AgricultureFieldHerds_Fields_idx");
+
+                    b.HasIndex("HerdDefinitionId")
+                        .HasDatabaseName("FK_AgricultureFieldHerds_Herds_idx");
+
+                    b.ToTable("AgricultureFieldHerds", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.AgricultureFieldProfile", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Definition")
+                        .IsRequired()
+                        .HasColumnType("mediumtext")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Definition"), "utf8");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("mediumtext")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Description"), "utf8");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("varchar(200)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Name"), "utf8");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.ToTable("AgricultureFieldProfiles", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.AgricultureFieldWoodland", b =>
+                {
+                    b.Property<long>("AgricultureFieldId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<string>("Definition")
+                        .IsRequired()
+                        .HasColumnType("mediumtext")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Definition"), "utf8");
+
+                    b.Property<int>("GrowthDays")
+                        .HasColumnType("int(11)");
+
+                    b.Property<int>("Health")
+                        .HasColumnType("int(11)");
+
+                    b.Property<string>("PlantedMudDateTime")
+                        .HasColumnType("varchar(500)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("PlantedMudDateTime"), "utf8");
+
+                    b.Property<long>("WoodlandDefinitionId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<int>("YieldPotential")
+                        .HasColumnType("int(11)");
+
+                    b.HasKey("AgricultureFieldId")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("WoodlandDefinitionId")
+                        .HasDatabaseName("FK_AgricultureFieldWoodlands_Woodlands_idx");
+
+                    b.ToTable("AgricultureFieldWoodlands", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.AgricultureHerdDefinition", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Definition")
+                        .IsRequired()
+                        .HasColumnType("mediumtext")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Definition"), "utf8");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("mediumtext")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Description"), "utf8");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("varchar(200)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Name"), "utf8");
+
+                    b.Property<long?>("NpcTemplateId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<int?>("NpcTemplateRevisionNumber")
+                        .HasColumnType("int(11)");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("NpcTemplateId", "NpcTemplateRevisionNumber")
+                        .HasDatabaseName("FK_AgricultureHerdDefinitions_NpcTemplates_idx");
+
+                    b.ToTable("AgricultureHerdDefinitions", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.AgricultureOperation", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<long?>("CompletionProgId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<string>("Definition")
+                        .IsRequired()
+                        .HasColumnType("mediumtext")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Definition"), "utf8");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("mediumtext")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Description"), "utf8");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("varchar(200)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Name"), "utf8");
+
+                    b.Property<int>("OperationType")
+                        .HasColumnType("int(11)");
+
+                    b.Property<long>("ProjectId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<int>("ProjectRevisionNumber")
+                        .HasColumnType("int(11)");
+
+                    b.Property<int>("RequiredUse")
+                        .HasColumnType("int(11)");
+
+                    b.Property<int>("ResultUse")
+                        .HasColumnType("int(11)");
+
+                    b.Property<int>("TargetType")
+                        .HasColumnType("int(11)");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("CompletionProgId")
+                        .HasDatabaseName("FK_AgricultureOperations_FutureProgs_idx");
+
+                    b.HasIndex("ProjectId", "ProjectRevisionNumber")
+                        .HasDatabaseName("FK_AgricultureOperations_Projects_idx");
+
+                    b.ToTable("AgricultureOperations", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.AgricultureProjectContext", b =>
+                {
+                    b.Property<long>("ActiveProjectId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long?>("ActorId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("AgricultureFieldId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<string>("Definition")
+                        .IsRequired()
+                        .HasColumnType("mediumtext")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Definition"), "utf8");
+
+                    b.Property<long>("OperationId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long?>("TargetId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<string>("TargetText")
+                        .HasColumnType("varchar(500)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("TargetText"), "utf8");
+
+                    b.Property<int>("TargetType")
+                        .HasColumnType("int(11)");
+
+                    b.HasKey("ActiveProjectId")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("ActorId")
+                        .HasDatabaseName("FK_AgricultureProjectContexts_Actors_idx");
+
+                    b.HasIndex("AgricultureFieldId")
+                        .HasDatabaseName("FK_AgricultureProjectContexts_Fields_idx");
+
+                    b.HasIndex("OperationId")
+                        .HasDatabaseName("FK_AgricultureProjectContexts_Operations_idx");
+
+                    b.ToTable("AgricultureProjectContexts", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.AgricultureWoodlandDefinition", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Definition")
+                        .IsRequired()
+                        .HasColumnType("mediumtext")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Definition"), "utf8");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("mediumtext")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Description"), "utf8");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("varchar(200)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Name"), "utf8");
+
+                    b.Property<string>("WoodlandType")
+                        .IsRequired()
+                        .HasColumnType("varchar(100)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("WoodlandType"), "utf8");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.ToTable("AgricultureWoodlandDefinitions", (string)null);
+                });
+
             modelBuilder.Entity("MudSharp.Models.Ally", b =>
                 {
                     b.Property<long>("CharacterId")
@@ -17182,6 +17654,9 @@ namespace MudSharp.Migrations
                         .HasColumnType("bit(1)")
                         .HasDefaultValue(1ul);
 
+                    b.Property<long?>("DefaultAgricultureFieldProfileId")
+                        .HasColumnType("bigint(20)");
+
                     b.Property<int>("DefaultCellOutdoorsType")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int(11)")
@@ -17277,6 +17752,9 @@ namespace MudSharp.Migrations
                         .HasColumnType("bigint(20)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("DefaultAgricultureFieldProfileId")
+                        .HasDatabaseName("FK_Terrains_AgricultureFieldProfiles_idx");
 
                     b.HasIndex("WeatherControllerId")
                         .HasDatabaseName("FK_Terrains_WeatherControllers_idx");
@@ -20254,6 +20732,159 @@ namespace MudSharp.Migrations
                     b.Navigation("ActiveProject");
 
                     b.Navigation("ProjectMaterialRequirements");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.AgricultureField", b =>
+                {
+                    b.HasOne("MudSharp.Models.Cell", "Cell")
+                        .WithOne("AgricultureField")
+                        .HasForeignKey("MudSharp.Models.AgricultureField", "CellId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_AgricultureFields_Cells");
+
+                    b.HasOne("MudSharp.Models.AgricultureFieldProfile", "Profile")
+                        .WithMany("AgricultureFields")
+                        .HasForeignKey("ProfileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_AgricultureFields_Profiles");
+
+                    b.Navigation("Cell");
+
+                    b.Navigation("Profile");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.AgricultureFieldCrop", b =>
+                {
+                    b.HasOne("MudSharp.Models.AgricultureField", "AgricultureField")
+                        .WithOne("AgricultureFieldCrop")
+                        .HasForeignKey("MudSharp.Models.AgricultureFieldCrop", "AgricultureFieldId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_AgricultureFieldCrops_Fields");
+
+                    b.HasOne("MudSharp.Models.AgricultureCropDefinition", "CropDefinition")
+                        .WithMany()
+                        .HasForeignKey("CropDefinitionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_AgricultureFieldCrops_Crops");
+
+                    b.Navigation("AgricultureField");
+
+                    b.Navigation("CropDefinition");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.AgricultureFieldHerd", b =>
+                {
+                    b.HasOne("MudSharp.Models.AgricultureField", "AgricultureField")
+                        .WithMany("AgricultureFieldHerds")
+                        .HasForeignKey("AgricultureFieldId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_AgricultureFieldHerds_Fields");
+
+                    b.HasOne("MudSharp.Models.AgricultureHerdDefinition", "HerdDefinition")
+                        .WithMany()
+                        .HasForeignKey("HerdDefinitionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_AgricultureFieldHerds_Herds");
+
+                    b.Navigation("AgricultureField");
+
+                    b.Navigation("HerdDefinition");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.AgricultureFieldWoodland", b =>
+                {
+                    b.HasOne("MudSharp.Models.AgricultureField", "AgricultureField")
+                        .WithOne("AgricultureFieldWoodland")
+                        .HasForeignKey("MudSharp.Models.AgricultureFieldWoodland", "AgricultureFieldId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_AgricultureFieldWoodlands_Fields");
+
+                    b.HasOne("MudSharp.Models.AgricultureWoodlandDefinition", "WoodlandDefinition")
+                        .WithMany()
+                        .HasForeignKey("WoodlandDefinitionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_AgricultureFieldWoodlands_Woodlands");
+
+                    b.Navigation("AgricultureField");
+
+                    b.Navigation("WoodlandDefinition");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.AgricultureHerdDefinition", b =>
+                {
+                    b.HasOne("MudSharp.Models.NpcTemplate", "NpcTemplate")
+                        .WithMany()
+                        .HasForeignKey("NpcTemplateId", "NpcTemplateRevisionNumber")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK_AgricultureHerdDefinitions_NpcTemplates");
+
+                    b.Navigation("NpcTemplate");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.AgricultureOperation", b =>
+                {
+                    b.HasOne("MudSharp.Models.FutureProg", "CompletionProg")
+                        .WithMany()
+                        .HasForeignKey("CompletionProgId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK_AgricultureOperations_FutureProgs");
+
+                    b.HasOne("MudSharp.Models.Project", "Project")
+                        .WithMany()
+                        .HasForeignKey("ProjectId", "ProjectRevisionNumber")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_AgricultureOperations_Projects");
+
+                    b.Navigation("CompletionProg");
+
+                    b.Navigation("Project");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.AgricultureProjectContext", b =>
+                {
+                    b.HasOne("MudSharp.Models.ActiveProject", "ActiveProject")
+                        .WithOne("AgricultureProjectContext")
+                        .HasForeignKey("MudSharp.Models.AgricultureProjectContext", "ActiveProjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_AgricultureProjectContexts_ActiveProjects");
+
+                    b.HasOne("MudSharp.Models.Character", "Actor")
+                        .WithMany()
+                        .HasForeignKey("ActorId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK_AgricultureProjectContexts_Characters");
+
+                    b.HasOne("MudSharp.Models.AgricultureField", "AgricultureField")
+                        .WithMany("AgricultureProjectContexts")
+                        .HasForeignKey("AgricultureFieldId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_AgricultureProjectContexts_Fields");
+
+                    b.HasOne("MudSharp.Models.AgricultureOperation", "Operation")
+                        .WithMany()
+                        .HasForeignKey("OperationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_AgricultureProjectContexts_Operations");
+
+                    b.Navigation("ActiveProject");
+
+                    b.Navigation("Actor");
+
+                    b.Navigation("AgricultureField");
+
+                    b.Navigation("Operation");
                 });
 
             modelBuilder.Entity("MudSharp.Models.Ally", b =>
@@ -27656,11 +28287,19 @@ namespace MudSharp.Migrations
 
             modelBuilder.Entity("MudSharp.Models.Terrain", b =>
                 {
+                    b.HasOne("MudSharp.Models.AgricultureFieldProfile", "DefaultAgricultureFieldProfile")
+                        .WithMany()
+                        .HasForeignKey("DefaultAgricultureFieldProfileId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK_Terrains_AgricultureFieldProfiles");
+
                     b.HasOne("MudSharp.Models.WeatherController", "WeatherController")
                         .WithMany("Terrains")
                         .HasForeignKey("WeatherControllerId")
                         .OnDelete(DeleteBehavior.SetNull)
                         .HasConstraintName("FK_Terrains_WeatherControllers");
+
+                    b.Navigation("DefaultAgricultureFieldProfile");
 
                     b.Navigation("WeatherController");
                 });
@@ -28853,9 +29492,27 @@ namespace MudSharp.Migrations
 
                     b.Navigation("ActiveProjectMaterials");
 
+                    b.Navigation("AgricultureProjectContext");
+
                     b.Navigation("Characters");
 
                     b.Navigation("ProjectLabourQueues");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.AgricultureField", b =>
+                {
+                    b.Navigation("AgricultureFieldCrop");
+
+                    b.Navigation("AgricultureFieldHerds");
+
+                    b.Navigation("AgricultureFieldWoodland");
+
+                    b.Navigation("AgricultureProjectContexts");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.AgricultureFieldProfile", b =>
+                {
+                    b.Navigation("AgricultureFields");
                 });
 
             modelBuilder.Entity("MudSharp.Models.Appointment", b =>
@@ -29161,6 +29818,8 @@ namespace MudSharp.Migrations
             modelBuilder.Entity("MudSharp.Models.Cell", b =>
                 {
                     b.Navigation("ActiveProjects");
+
+                    b.Navigation("AgricultureField");
 
                     b.Navigation("CellOverlays");
 

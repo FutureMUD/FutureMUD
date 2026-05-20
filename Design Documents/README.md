@@ -2,6 +2,11 @@
 
 This folder is organised by subsystem so implementation notes, builder workflows, reference catalogues, and audit reports live near the systems they describe.
 
+## Agriculture
+- [Agriculture System Overview](./Agriculture/Agriculture_System_Overview.md)
+- [Agriculture Runtime Model](./Agriculture/Agriculture_Runtime_Model.md)
+- [Agriculture Builder Workflows](./Agriculture/Agriculture_Builder_Workflows.md)
+
 ## AI
 - [AI Storyteller Design](./AI/AI_Storyteller_Design.md)
 - [AI Storyteller Implementation Plan](./AI/AI_Storyteller_Implementation_Plan.md)

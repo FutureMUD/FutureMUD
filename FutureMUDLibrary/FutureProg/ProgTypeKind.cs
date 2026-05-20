@@ -65,5 +65,6 @@ public enum ProgTypeKind
 	Script,
 	Writing,
 	Area,
-	LegalClass
+	LegalClass,
+	AgricultureField
 }

@@ -63,6 +63,7 @@ internal class ActorCommandTree : ICharacterCommandTree
         Commands.AddFrom(LegalModule.Instance.Commands);
         Commands.AddFrom(CrimeModule.Instance.Commands);
         Commands.AddFrom(WeatherModule.Instance.Commands);
+        Commands.AddFrom(AgricultureModule.Instance.Commands);
         Commands.AddFrom(HeritageBuilderModule.Instance.Commands);
         Commands.AddFrom(SharedModule.Instance.Commands);
         Commands.AddFrom(RidingModule.Instance.Commands);

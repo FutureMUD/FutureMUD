@@ -12,6 +12,7 @@ namespace MudSharp.Database
             ConfigureStables(modelBuilder);
             ConfigureClanFinance(modelBuilder);
             ConfigureVirtualCash(modelBuilder);
+            ConfigureAgriculture(modelBuilder);
             ConfigureVehicles(modelBuilder);
 
             modelBuilder.Entity<ShopDeal>(entity =>
@@ -90,6 +91,222 @@ namespace MudSharp.Database
 
                 entity.Property(e => e.StressFlickerThreshold)
                       .HasDefaultValue(0.01m);
+            });
+        }
+
+        private static void ConfigureAgriculture(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<AgricultureFieldProfile>(entity =>
+            {
+                entity.ToTable("AgricultureFieldProfiles");
+                entity.HasKey(e => e.Id).HasName("PRIMARY");
+                entity.Property(e => e.Id).HasColumnType("bigint(20)");
+                entity.Property(e => e.Name).IsRequired().HasColumnType("varchar(200)").HasCharSet("utf8").UseCollation("utf8_general_ci");
+                entity.Property(e => e.Description).IsRequired().HasColumnType("mediumtext").HasCharSet("utf8").UseCollation("utf8_general_ci");
+                entity.Property(e => e.Definition).IsRequired().HasColumnType("mediumtext").HasCharSet("utf8").UseCollation("utf8_general_ci");
+            });
+
+            modelBuilder.Entity<AgricultureCropDefinition>(entity =>
+            {
+                entity.ToTable("AgricultureCropDefinitions");
+                entity.HasKey(e => e.Id).HasName("PRIMARY");
+                entity.Property(e => e.Id).HasColumnType("bigint(20)");
+                entity.Property(e => e.Name).IsRequired().HasColumnType("varchar(200)").HasCharSet("utf8").UseCollation("utf8_general_ci");
+                entity.Property(e => e.Description).IsRequired().HasColumnType("mediumtext").HasCharSet("utf8").UseCollation("utf8_general_ci");
+                entity.Property(e => e.Category).IsRequired().HasColumnType("varchar(100)").HasCharSet("utf8").UseCollation("utf8_general_ci");
+                entity.Property(e => e.Definition).IsRequired().HasColumnType("mediumtext").HasCharSet("utf8").UseCollation("utf8_general_ci");
+            });
+
+            modelBuilder.Entity<AgricultureHerdDefinition>(entity =>
+            {
+                entity.ToTable("AgricultureHerdDefinitions");
+                entity.HasKey(e => e.Id).HasName("PRIMARY");
+                entity.HasIndex(e => new { e.NpcTemplateId, e.NpcTemplateRevisionNumber }).HasDatabaseName("FK_AgricultureHerdDefinitions_NpcTemplates_idx");
+                entity.Property(e => e.Id).HasColumnType("bigint(20)");
+                entity.Property(e => e.Name).IsRequired().HasColumnType("varchar(200)").HasCharSet("utf8").UseCollation("utf8_general_ci");
+                entity.Property(e => e.Description).IsRequired().HasColumnType("mediumtext").HasCharSet("utf8").UseCollation("utf8_general_ci");
+                entity.Property(e => e.Definition).IsRequired().HasColumnType("mediumtext").HasCharSet("utf8").UseCollation("utf8_general_ci");
+                entity.Property(e => e.NpcTemplateId).HasColumnType("bigint(20)");
+                entity.Property(e => e.NpcTemplateRevisionNumber).HasColumnType("int(11)");
+                entity.HasOne(e => e.NpcTemplate)
+                      .WithMany()
+                      .HasForeignKey(e => new { e.NpcTemplateId, e.NpcTemplateRevisionNumber })
+                      .OnDelete(DeleteBehavior.SetNull)
+                      .HasConstraintName("FK_AgricultureHerdDefinitions_NpcTemplates");
+            });
+
+            modelBuilder.Entity<AgricultureWoodlandDefinition>(entity =>
+            {
+                entity.ToTable("AgricultureWoodlandDefinitions");
+                entity.HasKey(e => e.Id).HasName("PRIMARY");
+                entity.Property(e => e.Id).HasColumnType("bigint(20)");
+                entity.Property(e => e.Name).IsRequired().HasColumnType("varchar(200)").HasCharSet("utf8").UseCollation("utf8_general_ci");
+                entity.Property(e => e.Description).IsRequired().HasColumnType("mediumtext").HasCharSet("utf8").UseCollation("utf8_general_ci");
+                entity.Property(e => e.WoodlandType).IsRequired().HasColumnType("varchar(100)").HasCharSet("utf8").UseCollation("utf8_general_ci");
+                entity.Property(e => e.Definition).IsRequired().HasColumnType("mediumtext").HasCharSet("utf8").UseCollation("utf8_general_ci");
+            });
+
+            modelBuilder.Entity<AgricultureOperation>(entity =>
+            {
+                entity.ToTable("AgricultureOperations");
+                entity.HasKey(e => e.Id).HasName("PRIMARY");
+                entity.HasIndex(e => new { e.ProjectId, e.ProjectRevisionNumber }).HasDatabaseName("FK_AgricultureOperations_Projects_idx");
+                entity.HasIndex(e => e.CompletionProgId).HasDatabaseName("FK_AgricultureOperations_FutureProgs_idx");
+                entity.Property(e => e.Id).HasColumnType("bigint(20)");
+                entity.Property(e => e.Name).IsRequired().HasColumnType("varchar(200)").HasCharSet("utf8").UseCollation("utf8_general_ci");
+                entity.Property(e => e.Description).IsRequired().HasColumnType("mediumtext").HasCharSet("utf8").UseCollation("utf8_general_ci");
+                entity.Property(e => e.OperationType).HasColumnType("int(11)");
+                entity.Property(e => e.TargetType).HasColumnType("int(11)");
+                entity.Property(e => e.RequiredUse).HasColumnType("int(11)");
+                entity.Property(e => e.ResultUse).HasColumnType("int(11)");
+                entity.Property(e => e.ProjectId).HasColumnType("bigint(20)");
+                entity.Property(e => e.ProjectRevisionNumber).HasColumnType("int(11)");
+                entity.Property(e => e.CompletionProgId).HasColumnType("bigint(20)");
+                entity.Property(e => e.Definition).IsRequired().HasColumnType("mediumtext").HasCharSet("utf8").UseCollation("utf8_general_ci");
+                entity.HasOne(e => e.Project)
+                      .WithMany()
+                      .HasForeignKey(e => new { e.ProjectId, e.ProjectRevisionNumber })
+                      .HasConstraintName("FK_AgricultureOperations_Projects");
+                entity.HasOne(e => e.CompletionProg)
+                      .WithMany()
+                      .HasForeignKey(e => e.CompletionProgId)
+                      .OnDelete(DeleteBehavior.SetNull)
+                      .HasConstraintName("FK_AgricultureOperations_FutureProgs");
+            });
+
+            modelBuilder.Entity<AgricultureField>(entity =>
+            {
+                entity.ToTable("AgricultureFields");
+                entity.HasKey(e => e.Id).HasName("PRIMARY");
+                entity.HasIndex(e => e.CellId).IsUnique().HasDatabaseName("IX_AgricultureFields_CellId");
+                entity.HasIndex(e => e.ProfileId).HasDatabaseName("FK_AgricultureFields_Profiles_idx");
+                entity.Property(e => e.Id).HasColumnType("bigint(20)");
+                entity.Property(e => e.CellId).HasColumnType("bigint(20)");
+                entity.Property(e => e.ProfileId).HasColumnType("bigint(20)");
+                entity.Property(e => e.CurrentUse).HasColumnType("int(11)");
+                entity.Property(e => e.LastTickMudDateTime).HasColumnType("varchar(500)").HasCharSet("utf8").UseCollation("utf8_general_ci");
+                entity.Property(e => e.Definition).IsRequired().HasColumnType("mediumtext").HasCharSet("utf8").UseCollation("utf8_general_ci");
+                entity.HasOne(e => e.Cell)
+                      .WithOne(e => e.AgricultureField)
+                      .HasForeignKey<AgricultureField>(e => e.CellId)
+                      .HasConstraintName("FK_AgricultureFields_Cells");
+                entity.HasOne(e => e.Profile)
+                      .WithMany(e => e.AgricultureFields)
+                      .HasForeignKey(e => e.ProfileId)
+                      .HasConstraintName("FK_AgricultureFields_Profiles");
+            });
+
+            modelBuilder.Entity<AgricultureFieldCrop>(entity =>
+            {
+                entity.ToTable("AgricultureFieldCrops");
+                entity.HasKey(e => e.AgricultureFieldId).HasName("PRIMARY");
+                entity.HasIndex(e => e.CropDefinitionId).HasDatabaseName("FK_AgricultureFieldCrops_Crops_idx");
+                entity.Property(e => e.AgricultureFieldId).HasColumnType("bigint(20)");
+                entity.Property(e => e.CropDefinitionId).HasColumnType("bigint(20)");
+                entity.Property(e => e.Stage).HasColumnType("int(11)");
+                entity.Property(e => e.GrowthDays).HasColumnType("int(11)");
+                entity.Property(e => e.Health).HasColumnType("int(11)");
+                entity.Property(e => e.YieldPotential).HasColumnType("int(11)");
+                entity.Property(e => e.PlantedMudDateTime).HasColumnType("varchar(500)").HasCharSet("utf8").UseCollation("utf8_general_ci");
+                entity.Property(e => e.Definition).IsRequired().HasColumnType("mediumtext").HasCharSet("utf8").UseCollation("utf8_general_ci");
+                entity.HasOne(e => e.AgricultureField)
+                      .WithOne(e => e.AgricultureFieldCrop)
+                      .HasForeignKey<AgricultureFieldCrop>(e => e.AgricultureFieldId)
+                      .HasConstraintName("FK_AgricultureFieldCrops_Fields");
+                entity.HasOne(e => e.CropDefinition)
+                      .WithMany()
+                      .HasForeignKey(e => e.CropDefinitionId)
+                      .HasConstraintName("FK_AgricultureFieldCrops_Crops");
+            });
+
+            modelBuilder.Entity<AgricultureFieldHerd>(entity =>
+            {
+                entity.ToTable("AgricultureFieldHerds");
+                entity.HasKey(e => e.Id).HasName("PRIMARY");
+                entity.HasIndex(e => e.AgricultureFieldId).HasDatabaseName("FK_AgricultureFieldHerds_Fields_idx");
+                entity.HasIndex(e => e.HerdDefinitionId).HasDatabaseName("FK_AgricultureFieldHerds_Herds_idx");
+                entity.Property(e => e.Id).HasColumnType("bigint(20)");
+                entity.Property(e => e.AgricultureFieldId).HasColumnType("bigint(20)");
+                entity.Property(e => e.HerdDefinitionId).HasColumnType("bigint(20)");
+                entity.Property(e => e.HeadCount).HasColumnType("int(11)");
+                entity.Property(e => e.Condition).HasColumnType("double");
+                entity.Property(e => e.Definition).IsRequired().HasColumnType("mediumtext").HasCharSet("utf8").UseCollation("utf8_general_ci");
+                entity.HasOne(e => e.AgricultureField)
+                      .WithMany(e => e.AgricultureFieldHerds)
+                      .HasForeignKey(e => e.AgricultureFieldId)
+                      .HasConstraintName("FK_AgricultureFieldHerds_Fields");
+                entity.HasOne(e => e.HerdDefinition)
+                      .WithMany()
+                      .HasForeignKey(e => e.HerdDefinitionId)
+                      .HasConstraintName("FK_AgricultureFieldHerds_Herds");
+            });
+
+            modelBuilder.Entity<AgricultureFieldWoodland>(entity =>
+            {
+                entity.ToTable("AgricultureFieldWoodlands");
+                entity.HasKey(e => e.AgricultureFieldId).HasName("PRIMARY");
+                entity.HasIndex(e => e.WoodlandDefinitionId).HasDatabaseName("FK_AgricultureFieldWoodlands_Woodlands_idx");
+                entity.Property(e => e.AgricultureFieldId).HasColumnType("bigint(20)");
+                entity.Property(e => e.WoodlandDefinitionId).HasColumnType("bigint(20)");
+                entity.Property(e => e.GrowthDays).HasColumnType("int(11)");
+                entity.Property(e => e.Health).HasColumnType("int(11)");
+                entity.Property(e => e.YieldPotential).HasColumnType("int(11)");
+                entity.Property(e => e.PlantedMudDateTime).HasColumnType("varchar(500)").HasCharSet("utf8").UseCollation("utf8_general_ci");
+                entity.Property(e => e.Definition).IsRequired().HasColumnType("mediumtext").HasCharSet("utf8").UseCollation("utf8_general_ci");
+                entity.HasOne(e => e.AgricultureField)
+                      .WithOne(e => e.AgricultureFieldWoodland)
+                      .HasForeignKey<AgricultureFieldWoodland>(e => e.AgricultureFieldId)
+                      .HasConstraintName("FK_AgricultureFieldWoodlands_Fields");
+                entity.HasOne(e => e.WoodlandDefinition)
+                      .WithMany()
+                      .HasForeignKey(e => e.WoodlandDefinitionId)
+                      .HasConstraintName("FK_AgricultureFieldWoodlands_Woodlands");
+            });
+
+            modelBuilder.Entity<AgricultureProjectContext>(entity =>
+            {
+                entity.ToTable("AgricultureProjectContexts");
+                entity.HasKey(e => e.ActiveProjectId).HasName("PRIMARY");
+                entity.HasIndex(e => e.AgricultureFieldId).HasDatabaseName("FK_AgricultureProjectContexts_Fields_idx");
+                entity.HasIndex(e => e.OperationId).HasDatabaseName("FK_AgricultureProjectContexts_Operations_idx");
+                entity.HasIndex(e => e.ActorId).HasDatabaseName("FK_AgricultureProjectContexts_Actors_idx");
+                entity.Property(e => e.ActiveProjectId).HasColumnType("bigint(20)");
+                entity.Property(e => e.AgricultureFieldId).HasColumnType("bigint(20)");
+                entity.Property(e => e.OperationId).HasColumnType("bigint(20)");
+                entity.Property(e => e.TargetType).HasColumnType("int(11)");
+                entity.Property(e => e.TargetId).HasColumnType("bigint(20)");
+                entity.Property(e => e.TargetText).HasColumnType("varchar(500)").HasCharSet("utf8").UseCollation("utf8_general_ci");
+                entity.Property(e => e.ActorId).HasColumnType("bigint(20)");
+                entity.Property(e => e.Definition).IsRequired().HasColumnType("mediumtext").HasCharSet("utf8").UseCollation("utf8_general_ci");
+                entity.HasOne(e => e.ActiveProject)
+                      .WithOne(e => e.AgricultureProjectContext)
+                      .HasForeignKey<AgricultureProjectContext>(e => e.ActiveProjectId)
+                      .HasConstraintName("FK_AgricultureProjectContexts_ActiveProjects");
+                entity.HasOne(e => e.AgricultureField)
+                      .WithMany(e => e.AgricultureProjectContexts)
+                      .HasForeignKey(e => e.AgricultureFieldId)
+                      .HasConstraintName("FK_AgricultureProjectContexts_Fields");
+                entity.HasOne(e => e.Operation)
+                      .WithMany()
+                      .HasForeignKey(e => e.OperationId)
+                      .HasConstraintName("FK_AgricultureProjectContexts_Operations");
+                entity.HasOne(e => e.Actor)
+                      .WithMany()
+                      .HasForeignKey(e => e.ActorId)
+                      .OnDelete(DeleteBehavior.SetNull)
+                      .HasConstraintName("FK_AgricultureProjectContexts_Characters");
+            });
+
+            modelBuilder.Entity<Terrain>(entity =>
+            {
+                entity.HasIndex(e => e.DefaultAgricultureFieldProfileId)
+                      .HasDatabaseName("FK_Terrains_AgricultureFieldProfiles_idx");
+                entity.Property(e => e.DefaultAgricultureFieldProfileId).HasColumnType("bigint(20)");
+                entity.HasOne(e => e.DefaultAgricultureFieldProfile)
+                      .WithMany()
+                      .HasForeignKey(e => e.DefaultAgricultureFieldProfileId)
+                      .OnDelete(DeleteBehavior.SetNull)
+                      .HasConstraintName("FK_Terrains_AgricultureFieldProfiles");
             });
         }
 

@@ -99,6 +99,7 @@
         void LoadEconomy();
 
         void LoadProjects();
+        void LoadAgriculture();
         void LoadJobs();
         void LoadGrids();
         void LoadLegal();

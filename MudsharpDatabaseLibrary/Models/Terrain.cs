@@ -35,7 +35,9 @@ namespace MudSharp.Models
         public double TrackIntensityMultiplierOlfactory { get; set; }
         public string TagInformation { get; set; }
         public int GravityModel { get; set; }
+        public long? DefaultAgricultureFieldProfileId { get; set; }
 
+        public virtual AgricultureFieldProfile DefaultAgricultureFieldProfile { get; set; }
         public virtual WeatherController WeatherController { get; set; }
         public virtual ICollection<CellOverlay> CellOverlays { get; set; }
         public virtual ICollection<TerrainsRangedCovers> TerrainsRangedCovers { get; set; }

@@ -117,12 +117,14 @@ public static class ProjectFactory
                 return new Actions.ProgAction(phase, gameworld);
             case "skilluse":
                 return new Actions.SkillUseAction(phase, gameworld);
+            case "agriculture":
+                return new Actions.AgricultureOperationAction(phase, gameworld);
         }
 
         return null;
     }
 
-    public static IEnumerable<string> ValidActionTypes => new[] { "prog", "skilluse" };
+    public static IEnumerable<string> ValidActionTypes => new[] { "prog", "skilluse", "agriculture" };
 
     public static IProjectAction LoadAction(Models.ProjectAction action, IFuturemud gameworld)
     {
@@ -132,6 +134,8 @@ public static class ProjectFactory
                 return new Actions.ProgAction(action, gameworld);
             case "skilluse":
                 return new Actions.SkillUseAction(action, gameworld);
+            case "agriculture":
+                return new Actions.AgricultureOperationAction(action, gameworld);
         }
 
         throw new NotImplementedException(

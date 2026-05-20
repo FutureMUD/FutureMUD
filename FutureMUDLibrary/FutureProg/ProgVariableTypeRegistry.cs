@@ -100,6 +100,7 @@ public static class ProgVariableTypeRegistry
 		RegisterExact(ProgTypeKind.Writing, ProgVariableTypes.Writing, "Writing", "writing");
 		RegisterExact(ProgTypeKind.Area, ProgVariableTypes.Area, "Area", "area");
 		RegisterExact(ProgTypeKind.LegalClass, ProgVariableTypes.LegalClass, "LegalClass", "legalclass");
+		RegisterExact(ProgTypeKind.AgricultureField, ProgVariableTypes.AgricultureField, "AgricultureField", "agriculturefield", "field");
 
         RegisterNamed(ProgVariableTypes.CollectionItem, "CollectionItem", false, "collectionitem");
         RegisterNamed(ProgVariableTypes.Perceivable, "Perceivable", false, "perceivable");

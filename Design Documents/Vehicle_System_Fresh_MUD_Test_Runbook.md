@@ -355,14 +355,16 @@ vehicleproto show <vehicle proto id>
 vehicleproto set slot add <cart-compartment-id> driver 1 cart handle
 vehicleproto set station add <cart-driver-slot-id> handles
 vehicleproto set movement cell
-vehicleproto set tow add none hand towed 300 pull 4 shafts
-vehicleproto set tow add none yoke towed 600 pull 6 yoke
+vehicleproto set tow add none hand towed 300000 pull 4 shafts
+vehicleproto set tow add none yoke towed 600000 pull 6 yoke
 vehicleproto set damage add 50 1 30 50 false frame
 vehicleproto submit fresh vehicle runbook mount cart
 vehicleproto approve <vehicle proto id> fresh vehicle runbook mount cart
 vehicleproto create <vehicle proto id>
 vehicle show <cart vehicle id>
 ```
+
+The tow point maximum weight argument is currently entered in the engine's base mass units. For the suggested `120 kg` cart item, use `300000` and `600000` rather than `300` and `600`.
 
 Direct hand/shaft hitch test:
 

@@ -605,18 +605,18 @@ public partial class Body
                               .SelectMany(x => x.Targets)
                               .OfType<IGameItem>()
                               .ToHashSet();
-        var vehiclesDescribedByVisibleOccupants = Gameworld.Vehicles
-                                                           .Where(x => x.ExteriorItem is not null &&
-                                                                       x.ExteriorItem.Location == Location &&
-                                                                       x.ExteriorItem.RoomLayer == RoomLayer &&
-                                                                       CanSee(x.ExteriorItem) &&
-                                                                       visibleCharacters.Any(x.IsOccupant))
-                                                           .Select(x => x.ExteriorItem)
-                                                           .ToHashSet();
+        var vehiclesDescribedByOccupants = Gameworld.Vehicles
+                                                    .Where(x => x.ExteriorItem is not null &&
+                                                                x.ExteriorItem.Location == Location &&
+                                                                x.ExteriorItem.RoomLayer == RoomLayer &&
+                                                                CanSee(x.ExteriorItem) &&
+                                                                (x.IsOccupant(Actor) || visibleCharacters.Any(x.IsOccupant)))
+                                                    .Select(x => x.ExteriorItem)
+                                                    .ToHashSet();
         List<IGameItem> items = Location.LayerGameItems(RoomLayer)
                                         .Where(x => CanSee(x))
                                         .Where(x => !movementTargets.Contains(x))
-                                        .Where(x => !vehiclesDescribedByVisibleOccupants.Contains(x))
+                                        .Where(x => !vehiclesDescribedByOccupants.Contains(x))
                                         .ToList();
         if (items.GroupBy(x => x.ItemGroup?.Forms.Any() == true ? x.ItemGroup : null).Sum(x => x.Key != null ? 1 : x.Count()) > 25 &&
             GameItemProto.TooManyItemsGroup != null)

@@ -954,6 +954,92 @@ public class AgricultureField : SaveableItem, IAgricultureField
 		return true;
 	}
 
+	public bool DriveHerdTo(IAgricultureField destinationField, IAgricultureHerdDefinition definition, int count,
+		ICharacter actor, out string result)
+	{
+		if (destinationField is not AgricultureField destination)
+		{
+			result = "There is no destination agriculture field.";
+			return false;
+		}
+
+		if (destination.Id == Id)
+		{
+			result = "The herd is already in this field.";
+			return false;
+		}
+
+		if (!CanActorUseField(actor, this, "drive herds from", out result) ||
+		    !CanActorUseField(actor, destination, "drive herds into", out result))
+		{
+			return false;
+		}
+
+		if (!destination.Profile.AllowsUse(AgricultureFieldUse.Pasture))
+		{
+			result = $"The {destination.Profile.Name} profile does not support pasture use.";
+			return false;
+		}
+
+		if (destination.CurrentUse is not (AgricultureFieldUse.Fallow or AgricultureFieldUse.Pasture))
+		{
+			result = "You can only drive herds into fallow or pasture fields.";
+			return false;
+		}
+
+		var sourceHerd = _herds.FirstOrDefault(x => x.Definition.Id == definition.Id);
+		if (sourceHerd == null || sourceHerd.HeadCount <= 0)
+		{
+			result = "There are no animals of that herd in this field.";
+			return false;
+		}
+
+		var moveCount = count <= 0 ? sourceHerd.HeadCount : count;
+		if (moveCount > sourceHerd.HeadCount)
+		{
+			result = "There are not enough animals in that herd.";
+			return false;
+		}
+
+		var destinationHerd = destination._herds.FirstOrDefault(x => x.Definition.Id == definition.Id);
+		if (destinationHerd == null)
+		{
+			destinationHerd = new AgricultureFieldHerd(0, definition, 0, destination.Condition);
+			destination._herds.Add(destinationHerd);
+		}
+
+		destinationHerd.Condition = Math.Min(definition.MaximumCondition,
+			(destinationHerd.Condition * destinationHerd.HeadCount + sourceHerd.Condition * moveCount) /
+			(destinationHerd.HeadCount + moveCount));
+		destinationHerd.HeadCount += moveCount;
+		sourceHerd.HeadCount -= moveCount;
+		if (sourceHerd.HeadCount <= 0)
+		{
+			_herds.Remove(sourceHerd);
+		}
+
+		destination.CurrentUse = AgricultureFieldUse.Pasture;
+		Changed = true;
+		destination.Changed = true;
+		var destinationName = actor == null ? destination.Cell.Name : destination.Cell.GetFriendlyReference(actor);
+		result = $"You drive {moveCount.ToString("N0", actor)} {definition.Name} to {destinationName}.";
+		return true;
+	}
+
+	private bool CanActorUseField(ICharacter actor, IAgricultureField field, string action, out string reason)
+	{
+		var property = Gameworld.Properties.FirstOrDefault(x => x.PropertyLocations.Contains(field.Cell));
+		if (property != null &&
+		    (actor == null || !actor.IsAdministrator() && !property.IsAuthorisedOwner(actor) && !property.IsAuthorisedLeaseHolder(actor)))
+		{
+			reason = $"You can only {action} unowned fields or fields you are authorised to use.";
+			return false;
+		}
+
+		reason = string.Empty;
+		return true;
+	}
+
 	public override void Save()
 	{
 		var dbitem = FMDB.Context.AgricultureFields

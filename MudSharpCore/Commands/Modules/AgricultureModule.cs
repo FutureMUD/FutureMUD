@@ -26,6 +26,7 @@ internal class AgricultureModule : Module<ICharacter>
 	#3field harvest#0
 	#3field herd draw <herd> [count]#0
 	#3field herd absorb <npc> <herd>#0
+	#3field herd drive <herd> <direction> [count]#0
 
 Admin Syntax:
 	#3field create [profile]#0
@@ -395,7 +396,7 @@ Admin Syntax:
 	{
 		if (ss.IsFinished)
 		{
-			actor.OutputHandler.Send("Do you want to draw animals out of a herd or absorb an NPC into one?");
+			actor.OutputHandler.Send("Do you want to draw animals out of a herd, absorb an NPC into one, or drive a herd to another field?");
 			return;
 		}
 
@@ -408,9 +409,13 @@ Admin Syntax:
 			case "absorb":
 				FieldHerdAbsorb(actor, ss);
 				return;
+			case "drive":
+			case "move":
+				FieldHerdDrive(actor, ss);
+				return;
 		}
 
-		actor.OutputHandler.Send("Do you want to draw animals out of a herd or absorb an NPC into one?");
+		actor.OutputHandler.Send("Do you want to draw animals out of a herd, absorb an NPC into one, or drive a herd to another field?");
 	}
 
 	private static void FieldHerdDraw(ICharacter actor, StringStack ss)
@@ -504,6 +509,69 @@ Admin Syntax:
 			return;
 		}
 
+		actor.OutputHandler.Send(result);
+	}
+
+	private static void FieldHerdDrive(ICharacter actor, StringStack ss)
+	{
+		var field = actor.Location.AgricultureField;
+		if (field == null)
+		{
+			actor.OutputHandler.Send("There is no agriculture field here.");
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which herd do you want to drive to another field?");
+			return;
+		}
+
+		var herd = actor.Gameworld.AgricultureHerdDefinitions.GetByIdOrName(ss.PopSpeech());
+		if (herd == null)
+		{
+			actor.OutputHandler.Send("There is no such herd definition.");
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which direction do you want to drive the herd?");
+			return;
+		}
+
+		var exit = actor.Location.GetExitKeyword(ss.PopSpeech(), actor);
+		if (exit == null)
+		{
+			actor.OutputHandler.Send("There is no exit in that direction.");
+			return;
+		}
+
+		var destination = exit.Destination.AgricultureField;
+		if (destination == null)
+		{
+			actor.OutputHandler.Send("There is no agriculture field in that direction.");
+			return;
+		}
+
+		var count = 0;
+		if (!ss.IsFinished)
+		{
+			var countText = ss.PopSpeech();
+			if (!countText.EqualTo("all") && (!int.TryParse(countText, out count) || count <= 0))
+			{
+				actor.OutputHandler.Send("The count must be a positive number, or all.");
+				return;
+			}
+		}
+
+		if (!ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Syntax: field herd drive <herd> <direction> [count]");
+			return;
+		}
+
+		field.DriveHerdTo(destination, herd, count, actor, out var result);
 		actor.OutputHandler.Send(result);
 	}
 
@@ -936,11 +1004,22 @@ Growth Days: {crop.BaseGrowthDays.ToString("N0", actor).ColourValue()}
 Perennial: {crop.IsPerennial.ToColouredString()}
 Harvest Cycle Days: {crop.HarvestCycleDays.ToString("N0", actor).ColourValue()}
 Harvest Window: {crop.HarvestWindowDays.ToString("N0", actor).ColourValue()}
+Planting: {DescribePlantingWindows(crop.PlantingWindows, actor)}
 Moisture: {crop.MinimumMoisture.ToString("N0", actor).ColourValue()} to {crop.MaximumMoisture.ToString("N0", actor).ColourValue()}
 Temperature: {crop.MinimumTemperature.ToString("N0", actor).ColourValue()} to {crop.MaximumTemperature.ToString("N0", actor).ColourValue()} C
 Score Ranges: {DescribeScoreRanges(crop.ScoreRanges, actor)}
 Seeds: {DescribeCommodityOutputs(crop.SeedRequirements, actor)}
 Outputs: {DescribeCommodityOutputs(crop.YieldOutputs, actor)}");
+	}
+
+	private static string DescribePlantingWindows(IReadOnlyCollection<AgriculturePlantingWindow> windows, ICharacter actor)
+	{
+		if (windows.Count == 0)
+		{
+			return "Unrestricted".ColourValue();
+		}
+
+		return windows.Select(x => $"{x.Type.DescribeEnum().ColourName()} {x.Value.ColourValue()}").ListToString();
 	}
 
 	private static string DescribeCommodityOutputs(IReadOnlyCollection<AgricultureCommodityYield> outputs, ICharacter actor)
@@ -994,7 +1073,7 @@ Outputs: {DescribeCommodityOutputs(crop.YieldOutputs, actor)}");
 
 		if (ss.IsFinished)
 		{
-			actor.OutputHandler.Send("Do you want to set name, description, category, growth, perennial, cycle, window, moisture, temperature, or score?");
+			actor.OutputHandler.Send("Do you want to set name, description, category, growth, perennial, cycle, window, planting, moisture, temperature, or score?");
 			return;
 		}
 
@@ -1056,6 +1135,12 @@ Outputs: {DescribeCommodityOutputs(crop.YieldOutputs, actor)}");
 
 				concrete.BuildingSetHarvestWindowDays(window);
 				actor.OutputHandler.Send($"You set the harvest window to {concrete.HarvestWindowDays.ToStringN0Colour(actor)} days.");
+				return;
+			case "planting":
+			case "plant":
+			case "seasons":
+			case "season":
+				SetCropPlanting(actor, concrete, ss);
 				return;
 			case "moisture":
 				if (ss.IsFinished || !int.TryParse(ss.PopSpeech(), out var minMoisture) || ss.IsFinished || !int.TryParse(ss.PopSpeech(), out var maxMoisture))
@@ -1125,7 +1210,51 @@ Outputs: {DescribeCommodityOutputs(crop.YieldOutputs, actor)}");
 				return;
 		}
 
-		actor.OutputHandler.Send("Do you want to set name, description, category, growth, perennial, cycle, window, moisture, temperature, or score?");
+		actor.OutputHandler.Send("Do you want to set name, description, category, growth, perennial, cycle, window, planting, moisture, temperature, or score?");
+	}
+
+	private static void SetCropPlanting(ICharacter actor, AgricultureCropDefinition crop, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Syntax: field crop set <crop> planting group|season <name> [<name> ...], or field crop set <crop> planting none.");
+			return;
+		}
+
+		var mode = ss.PopSpeech().ToLowerInvariant();
+		if (mode.EqualTo("none") || mode.EqualTo("clear"))
+		{
+			crop.BuildingClearPlantingWindows();
+			actor.OutputHandler.Send("This crop no longer has planting season restrictions.");
+			return;
+		}
+
+		var type = mode switch
+		{
+			"group" or "groups" => AgriculturePlantingWindowType.Group,
+			"season" or "seasons" => AgriculturePlantingWindowType.Season,
+			_ => (AgriculturePlantingWindowType?)null
+		};
+		if (type == null)
+		{
+			actor.OutputHandler.Send("Do you want to set planting windows by season group, exact season, or none?");
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which planting window names do you want to allow?");
+			return;
+		}
+
+		var windows = new List<AgriculturePlantingWindow>();
+		while (!ss.IsFinished)
+		{
+			windows.Add(new AgriculturePlantingWindow(type.Value, ss.PopSpeech()));
+		}
+
+		crop.BuildingSetPlantingWindows(windows);
+		actor.OutputHandler.Send($"You set the crop planting windows to {DescribePlantingWindows(crop.PlantingWindows, actor)}.");
 	}
 
 	private static void DeleteCrop(ICharacter actor, StringStack ss)

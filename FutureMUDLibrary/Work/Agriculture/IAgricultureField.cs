@@ -49,6 +49,7 @@ public interface IAgricultureField : IFrameworkItem, ISaveable, IHaveFuturemud, 
 	bool ConsumeWoodlandYield(int amount, out string reason);
 	bool DrawDownHerd(IAgricultureHerdDefinition definition, int count, ICharacter actor, out string result);
 	bool AbsorbNpcIntoHerd(ICharacter npc, IAgricultureHerdDefinition definition, ICharacter actor, out string result);
+	bool DriveHerdTo(IAgricultureField destination, IAgricultureHerdDefinition definition, int count, ICharacter actor, out string result);
 }
 
 public interface IAgricultureFieldHerd : IFrameworkItem

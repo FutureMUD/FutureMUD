@@ -100,6 +100,17 @@ public class AgricultureSeederTests
 		context.SaveChanges();
 	}
 
+	private static void AssertPlantingGroups(FuturemudDatabaseContext context, string cropName, params string[] expected)
+	{
+		var definition = XElement.Parse(context.AgricultureCropDefinitions.Single(x => x.Name == cropName).Definition);
+		var actual = definition.Element("PlantingWindows")!
+		                       .Elements("Window")
+		                       .Where(x => x.Attribute("type")!.Value == "group")
+		                       .Select(x => x.Attribute("value")!.Value)
+		                       .ToArray();
+		CollectionAssert.AreEquivalent(expected, actual, cropName);
+	}
+
 	[TestMethod]
 	public void AgricultureSeeder_InstallsStockDefinitionsOperationsAndProjectsIdempotently()
 	{
@@ -115,6 +126,17 @@ public class AgricultureSeederTests
 		var customScoreDefaults = XElement.Parse(MudSharp.Framework.DefaultStaticSettings.DefaultStaticConfigurations[AgricultureScoreTypeExtensions.CustomScoreConfigurationStaticConfiguration]);
 		Assert.AreEqual(12, customScoreDefaults.Elements("Score").Count());
 		Assert.IsFalse(customScoreDefaults.Elements("Score").Any(x => (bool)x.Attribute("enabled")!));
+		Assert.IsTrue(MudSharp.Framework.DefaultStaticSettings.DefaultStaticConfigurations.ContainsKey(AgriculturePlantingWindowExtensions.SeasonGroupWindowsStaticConfiguration));
+		var seasonGroupDefaults = XElement.Parse(MudSharp.Framework.DefaultStaticSettings.DefaultStaticConfigurations[AgriculturePlantingWindowExtensions.SeasonGroupWindowsStaticConfiguration]);
+		CollectionAssert.AreEquivalent(
+			new[] { "Winter", "Spring", "Summer", "Autumn" },
+			seasonGroupDefaults.Elements("Group").Select(x => x.Attribute("name")!.Value).ToArray());
+		Assert.IsTrue(seasonGroupDefaults.Elements("Group")
+		                                 .Single(x => x.Attribute("name")!.Value == "Winter")
+		                                 .Elements("Range")
+		                                 .Any(x =>
+			                                 double.Parse(x.Attribute("start")!.Value, System.Globalization.CultureInfo.InvariantCulture) >
+			                                 double.Parse(x.Attribute("end")!.Value, System.Globalization.CultureInfo.InvariantCulture)));
 
 		seeder.SeedData(context, new Dictionary<string, string>());
 		seeder.SeedData(context, new Dictionary<string, string>());
@@ -124,6 +146,46 @@ public class AgricultureSeederTests
 		Assert.AreEqual(4, context.AgricultureHerdDefinitions.Count());
 		Assert.AreEqual(8, context.AgricultureWoodlandDefinitions.Count());
 		Assert.AreEqual(18, context.AgricultureOperations.Count());
+		foreach (var cropName in new[]
+		         {
+			         "Wheat", "Barley", "Rye", "Oats", "Quinoa", "Field Beans", "Peas", "Lentils", "Potatoes",
+			         "Carrots", "Beetroot", "Turnips", "Onions", "Cabbage", "Lettuce", "Sugar Beet", "Canola",
+			         "Flax"
+		         })
+		{
+			AssertPlantingGroups(context, cropName, "Autumn", "Spring");
+		}
+
+		AssertPlantingGroups(context, "Garlic", "Autumn", "Winter");
+		foreach (var cropName in new[]
+		         {
+			         "Rice", "Maize", "Sorghum", "Millet", "Buckwheat", "Chickpeas", "Soybeans", "Peanuts",
+			         "Sweet Potatoes", "Tomatoes", "Cucumbers", "Pumpkins", "Squash", "Peppers", "Sunflower",
+			         "Hemp"
+		         })
+		{
+			AssertPlantingGroups(context, cropName, "Spring", "Summer");
+		}
+
+		foreach (var cropName in new[] { "Cassava", "Taro", "Yams", "Sugarcane", "Sesame", "Cotton", "Jute", "Ramie", "Sisal" })
+		{
+			AssertPlantingGroups(context, cropName, "Spring", "Summer", "Autumn");
+		}
+
+		foreach (var cropName in new[] { "Grapes", "Apples", "Pears", "Peaches", "Plums", "Cherries", "Almonds", "Hazelnuts" })
+		{
+			AssertPlantingGroups(context, cropName, "Autumn", "Winter", "Spring");
+		}
+
+		foreach (var cropName in new[] { "Olives", "Figs", "Oranges", "Lemons" })
+		{
+			AssertPlantingGroups(context, cropName, "Autumn", "Spring");
+		}
+
+		foreach (var cropName in new[] { "Dates", "Bananas" })
+		{
+			AssertPlantingGroups(context, cropName, "Spring", "Summer", "Autumn");
+		}
 
 		var pastureDefinition = XElement.Parse(context.AgricultureFieldProfiles.Single(x => x.Name == "Pasture").Definition);
 		Assert.AreEqual("Fallow,Pasture", pastureDefinition.Attribute("uses")!.Value);

@@ -33,6 +33,15 @@ public sealed class AgricultureSeeder : IDatabaseSeeder
 		int WoodlandYieldCost = 0);
 
 	private static AgricultureCommodityYield Yield(string materialName, double baseWeight, string tagName = "") => new(materialName, baseWeight, tagName);
+
+	private static readonly string[] CoolSeasonPlanting = ["Autumn", "Spring"];
+	private static readonly string[] OverwinteringPlanting = ["Autumn", "Winter"];
+	private static readonly string[] WarmSeasonPlanting = ["Spring", "Summer"];
+	private static readonly string[] HotLongSeasonPlanting = ["Spring", "Summer", "Autumn"];
+	private static readonly string[] DormantPerennialPlanting = ["Autumn", "Winter", "Spring"];
+	private static readonly string[] MediterraneanPerennialPlanting = ["Autumn", "Spring"];
+	private static readonly string[] TropicalPerennialPlanting = ["Spring", "Summer", "Autumn"];
+
 	private static AgricultureCommodityYield SeedRequirement(CropSeed definition)
 	{
 		var primary = definition.Outputs.First();
@@ -56,6 +65,27 @@ public sealed class AgricultureSeeder : IDatabaseSeeder
 		}
 
 		yield return SeedOutput(definition);
+	}
+
+	private static IReadOnlyCollection<string> PlantingGroupsFor(CropSeed definition)
+	{
+		return definition.Name switch
+		{
+			"Wheat" or "Barley" or "Rye" or "Oats" or "Quinoa" or "Field Beans" or "Peas" or "Lentils" or
+				"Potatoes" or "Carrots" or "Beetroot" or "Turnips" or "Onions" or "Cabbage" or "Lettuce" or
+				"Sugar Beet" or "Canola" or "Flax" => CoolSeasonPlanting,
+			"Garlic" => OverwinteringPlanting,
+			"Rice" or "Maize" or "Sorghum" or "Millet" or "Buckwheat" or "Chickpeas" or "Soybeans" or
+				"Peanuts" or "Sweet Potatoes" or "Tomatoes" or "Cucumbers" or "Pumpkins" or "Squash" or
+				"Peppers" or "Sunflower" or "Hemp" => WarmSeasonPlanting,
+			"Cassava" or "Taro" or "Yams" or "Sugarcane" or "Sesame" or "Cotton" or "Jute" or "Ramie" or
+				"Sisal" => HotLongSeasonPlanting,
+			"Grapes" or "Apples" or "Pears" or "Peaches" or "Plums" or "Cherries" or "Almonds" or
+				"Hazelnuts" => DormantPerennialPlanting,
+			"Olives" or "Figs" or "Oranges" or "Lemons" => MediterraneanPerennialPlanting,
+			"Dates" or "Bananas" => TropicalPerennialPlanting,
+			_ => Array.Empty<string>()
+		};
 	}
 
 	private static readonly (string Name, string Description, AgricultureFieldUse[] Uses, (AgricultureScoreType Score, int Value)[] Scores)[] Profiles =
@@ -329,6 +359,10 @@ public sealed class AgricultureSeeder : IDatabaseSeeder
 			new XAttribute("maxMoisture", definition.MaxMoisture),
 			new XAttribute("minTemperature", definition.MinTemp),
 			new XAttribute("maxTemperature", definition.MaxTemp),
+			new XElement("PlantingWindows",
+				PlantingGroupsFor(definition).Select(x => new XElement("Window",
+					new XAttribute("type", "group"),
+					new XAttribute("value", x)))),
 			new XElement("Seeds",
 				new XElement("Commodity",
 					new XAttribute("material", SeedRequirement(definition).MaterialName),

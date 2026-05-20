@@ -15,6 +15,7 @@ public interface IAgricultureCropDefinition : IFrameworkItem, IHaveFuturemud
 	int MaximumTemperature { get; }
 	bool IsPerennial { get; }
 	int HarvestCycleDays { get; }
+	IReadOnlyCollection<AgriculturePlantingWindow> PlantingWindows { get; }
 	IReadOnlyCollection<AgricultureScoreRange> ScoreRanges { get; }
 	IReadOnlyCollection<AgricultureCommodityYield> YieldOutputs { get; }
 	IReadOnlyCollection<AgricultureCommodityYield> SeedRequirements { get; }

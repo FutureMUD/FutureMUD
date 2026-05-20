@@ -55,6 +55,9 @@ field profile set Pasture score Fence 80
 field profile set Pasture use Crop on
 field crop set "Wheat" growth 115
 field crop set "Wheat" moisture 35 80
+field crop set "Wheat" planting group Autumn Spring
+field crop set "Moonwheat" planting season "Early Thaw"
+field crop set "Moonwheat" planting none
 field crop set "Apples" perennial true
 field crop set "Apples" cycle 220
 field herds set "Cattle Herd" npc cattle
@@ -87,6 +90,21 @@ field operation set "Irradiate Field" delta "Hard Radiation" 8
 ```
 
 Custom score labels are presentation and parsing aliases over stable enum slots like `Custom1`. Existing XML keeps using the slot name, so renaming a custom score does not break saved data.
+
+## Planting Seasons
+Crop definitions can restrict when they may be planted:
+
+```text
+field crop set "Wheat" planting group Autumn Spring
+field crop set "Moonwheat" planting season "Early Thaw" "Mid Thaw"
+field crop set "Moonwheat" planting none
+```
+
+Group windows are broad labels such as Winter, Spring, Summer, and Autumn. They match the current local season's group when the cell has weather. If there is no local weather season, group windows use the `AgricultureSeasonGroupWindows` static configuration and the current celestial-year fraction as a fallback.
+
+Season windows are exact local season names or display names. Use these when a game has detailed local seasons and a crop should only be planted during specific named seasons.
+
+Planting windows are hard gates for `Sow Crop` and `Plant Orchard`. They are checked when the field project starts and again when the project completion action applies the operation.
 
 ## Starting Field Work
 Players and admins start work with:
@@ -122,9 +140,12 @@ Use herd operations to put abstract livestock onto a field. Once a field has abs
 ```text
 field herd draw <herd> [count]
 field herd absorb <npc> <herd>
+field herd drive <herd> <direction> [count]
 ```
 
 Drawdown requires the herd definition to have an NPC template. Absorb is for turning live livestock back into abstract field stock after validation.
+
+Driving a herd moves abstract animals from the current field into an adjacent field through the named exit. Omit the count, or use `all`, to move the whole herd. The destination field must already exist, support pasture use, and be fallow or pasture. Herders can drive animals into unowned fields or fields they are authorised to use, which allows wild grazing grounds and semi-nomadic pastoral movement without making owned fields freely available.
 
 ## Managed Woodland
 Managed woodland is a field use rather than a separate subsystem. Builders can represent:

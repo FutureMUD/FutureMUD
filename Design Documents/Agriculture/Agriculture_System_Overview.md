@@ -17,7 +17,7 @@ The core abstraction is `IAgricultureField`: zero or one field can exist in a ce
 | --- | --- |
 | Field profile | Default score package and allowed uses for new fields. |
 | Field | Persisted cell-bound state, one per cell at most. |
-| Crop definition | Builder-editable crop parameters for annual crops and perennial orchard/vineyard crops, including seed requirements and commodity outputs. |
+| Crop definition | Builder-editable crop parameters for annual crops and perennial orchard/vineyard crops, including planting windows, seed requirements, and commodity outputs. |
 | Herd definition | Abstract livestock definition with animal-unit pressure and optional NPC template for drawdown. |
 | Woodland definition | Managed tree stand or coppice definition with establishment timings, harvest cycle timings, and commodity outputs. |
 | Operation | Project-backed field operation such as sowing, drainage, weeding, harvesting, grazing, coppicing, felling, or clearing land. Woodland operations can release and consume yield. |
@@ -43,6 +43,7 @@ Key workflows:
 - `field harvest` finds an applicable harvest operation for the current crop.
 - `field herd draw <herd> [count]` materialises live NPC livestock from an abstract herd when the herd definition has a template.
 - `field herd absorb <npc> <herd>` removes an eligible NPC from the live world and adds it to the abstract herd.
+- `field herd drive <herd> <direction> [count]` moves abstract animals into an adjacent fallow or pasture field when the destination is unowned or the actor is authorised there.
 
 ## Builder Surface
 Administrators can use `field` to manage cell fields and agriculture definitions:
@@ -62,6 +63,7 @@ Terrain defaults do not create fields automatically. They are a builder convenie
 - Projects supply the labour/material structure and long-running work cadence.
 - Agriculture project completion records Farming-weighted worker contribution, including skilled supervision, and uses it to adjust field effects, crop yield, seed recovery, and commodity quality.
 - Weather supplies coarse daily moisture, stress, and growth pressure.
+- Crop planting windows use the local weather season when one exists, with static celestial-year group windows as a fallback for games without regional climate setup.
 - Commodity piles carry harvested crop, seed stock, and woodland products into the item economy.
 - Crafts can require and consume live crop or woodland yield through the `field` input type.
 - Generic commodity crafts can convert tagged agricultural yield into seed-tagged commodity piles.

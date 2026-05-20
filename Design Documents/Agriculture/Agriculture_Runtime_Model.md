@@ -71,7 +71,13 @@ A crop field can hold one `AgricultureFieldCrop` row:
 
 Crop stages are `Planted`, `Germinating`, `Growing`, `Setting`, `Harvestable`, `Overripe`, and `Failed`. Sowing creates annual crop state, ticks advance it, and annual harvest operations clear it back to fallow.
 
-Crop definitions can include seed requirements and one or more commodity outputs in their XML definition. Harvesting creates commodity piles in the field cell, scaled by the crop's current health and yield potential. Overripe crops can still be harvested, but their output multiplier is lower than a clean harvest.
+Crop definitions can include planting windows, seed requirements, and one or more commodity outputs in their XML definition. Planting windows are saved as stable group or season names under `<PlantingWindows>`. No planting windows means unrestricted, which preserves older custom crops.
+
+Sow and orchard planting operations check the crop's planting windows against the field's current local season before a project starts. The agriculture completion action revalidates through the same operation path, so a long-running project that finishes after the valid planting window has closed does not bypass the crop rule.
+
+When a cell has a weather controller, the current season is matched by season group, season name, or display name. If the cell has no current season, group windows fall back to the `AgricultureSeasonGroupWindows` static configuration, which maps broad groups such as Winter, Spring, Summer, and Autumn to normalized celestial-year fractions. Exact season-name windows require a live local season and do not use the fallback.
+
+Harvesting creates commodity piles in the field cell, scaled by the crop's current health and yield potential. Overripe crops can still be harvested, but their output multiplier is lower than a clean harvest.
 
 Seed stock is represented as ordinary commodity piles with a secondary `Seeds` tag. Stock crop definitions also tag their main edible or usable yield as `Seeded Yield`, which lets the generic `select seed stock` craft convert a portion of harvested commodity into seed-tagged commodity of the same material.
 
@@ -92,6 +98,8 @@ Pasture fields can hold one or more `AgricultureFieldHerd` rows. Herds are abstr
 Animal-unit and daily-graze settings translate head count into pressure. Moderate grazing can be beneficial through nutrient cycling, while overstocking damages pasture biomass, topsoil, tilth, condition, and fencing.
 
 When builders attach an NPC template to a herd definition, `field herd draw` can materialise live NPC livestock and decrement the abstract count. `field herd absorb` validates an eligible NPC, removes it from the active world, and increments the abstract herd.
+
+Herders can also drive abstract herds between adjacent agriculture fields with `field herd drive`. The destination must already have an agriculture field, must support pasture use, and must currently be fallow or pasture. Owned destination fields require the actor to be authorised for the property; unowned fields can receive herds, which supports wild pasture or semi-nomadic pastoral use cases.
 
 ## Woodland State
 Woodland fields hold one `AgricultureFieldWoodland` row:

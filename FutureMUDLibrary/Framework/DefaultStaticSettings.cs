@@ -18,6 +18,7 @@ public static class DefaultStaticSettings
         {
             { "CPRAllowed", "true" },
             { AgricultureScoreTypeExtensions.CustomScoreConfigurationStaticConfiguration, AgricultureScoreTypeExtensions.DefaultCustomScoreConfigurationText },
+            { AgriculturePlantingWindowExtensions.SeasonGroupWindowsStaticConfiguration, AgriculturePlantingWindowExtensions.DefaultSeasonGroupWindowsConfigurationText },
             { "AdvantagePerLayerSwoopAttack", "1.0"},
             { "TimeIsFrozen", "false"},
             { "DefaultNonCardinalExitForDwellings", "1"},

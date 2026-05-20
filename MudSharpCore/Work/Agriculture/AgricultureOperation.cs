@@ -226,6 +226,12 @@ public class AgricultureOperation : SaveableItem, IAgricultureOperation
 			{
 				return "Annual field crops must be sown with a crop sowing operation.";
 			}
+
+			if (OperationType is AgricultureOperationType.Sow or AgricultureOperationType.PlantOrchard &&
+			    !crop.CanPlantIn(field, out var seasonReason))
+			{
+				return seasonReason;
+			}
 		}
 
 		return TargetType switch

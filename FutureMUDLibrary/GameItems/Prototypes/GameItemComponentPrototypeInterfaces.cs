@@ -533,6 +533,22 @@ public interface IVariablePrototype : IExclusiveGameItemComponentPrototype<IVari
 {
 }
 
+public interface IVehicleExteriorPrototype : IExclusiveGameItemComponentPrototype<IVehicleExterior>
+{
+}
+
+public interface IVehicleAccessPointItemPrototype : IExclusiveGameItemComponentPrototype<IVehicleAccessPointItem>, IOpenablePrototype, ILockablePrototype
+{
+}
+
+public interface IVehicleCargoSpaceItemPrototype : IExclusiveGameItemComponentPrototype<IVehicleCargoSpaceItem>
+{
+}
+
+public interface IVehicleInstallablePrototype : IExclusiveGameItemComponentPrototype<IVehicleInstallable>
+{
+}
+
 public interface IVendingMachinePrototype : IExclusiveGameItemComponentPrototype<IVendingMachine>, ISelectablePrototype, IListablePrototype
 {
 }

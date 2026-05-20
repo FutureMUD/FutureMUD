@@ -12,6 +12,7 @@ namespace MudSharp.Database
             ConfigureStables(modelBuilder);
             ConfigureClanFinance(modelBuilder);
             ConfigureVirtualCash(modelBuilder);
+            ConfigureVehicles(modelBuilder);
 
             modelBuilder.Entity<ShopDeal>(entity =>
             {

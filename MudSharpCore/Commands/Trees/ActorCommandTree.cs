@@ -66,6 +66,7 @@ internal class ActorCommandTree : ICharacterCommandTree
         Commands.AddFrom(HeritageBuilderModule.Instance.Commands);
         Commands.AddFrom(SharedModule.Instance.Commands);
         Commands.AddFrom(RidingModule.Instance.Commands);
+        Commands.AddFrom(VehicleModule.Instance.Commands);
         Commands.AddFrom(ElectronicsModule.Instance.Commands);
     }
 }

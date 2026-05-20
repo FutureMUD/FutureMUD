@@ -16,48 +16,54 @@ namespace MudSharp.Character;
 
 public partial class Character : ITarget
 {
+    private IGameItem? TargetItemWithinItem(IGameItem itemTarget, string keyword)
+    {
+        List<IGameItem> contents = new();
+        if (itemTarget.GetItemType<ILockable>() is ILockable lockableItem)
+        {
+            contents.AddRange(lockableItem.Locks.Select(x => x.Parent));
+        }
+
+        if (itemTarget.GetItemType<IContainer>() is IContainer containerItem &&
+            (itemTarget.GetItemType<IOpenable>() is not IOpenable io || io.IsOpen))
+        {
+            contents.AddRange(containerItem.Contents);
+        }
+
+        if (itemTarget.AttachedAndConnectedItems.Any())
+        {
+            contents.AddRange(itemTarget.AttachedAndConnectedItems);
+        }
+
+        return contents.GetFromItemListByKeyword(keyword, this);
+    }
+
+    private IGameItem? TargetItemWithinContainer(string containerKeyword, string itemKeyword)
+    {
+        IPerceivable? container = Target(containerKeyword);
+        if (container == null)
+        {
+            return null;
+        }
+
+        if (container is ICharacter charTarget)
+        {
+            return charTarget.Body.ExternalItemsForOtherActors.Where(x => CanSee(x))
+                             .GetFromItemListByKeyword(itemKeyword, this);
+        }
+
+        IGameItem? itemTarget = container as IGameItem ??
+                                Location.GetExit(containerKeyword, "", this)?.Exit.Door?.Parent;
+        return itemTarget is null ? null : TargetItemWithinItem(itemTarget, itemKeyword);
+    }
+
     public IPerceivable? Target(string keyword)
     {
         string[] split = keyword.Split('@', 2, StringSplitOptions.RemoveEmptyEntries);
         if (split.Length == 2 && split.All(x => x.Length > 0))
         {
-            string containerTarget = split[0];
-            keyword = split[1];
-            IPerceivable? container = Target(containerTarget);
-            if (container == null)
-            {
-                return null;
-            }
-
-            if (container is ICharacter charTarget)
-            {
-                return charTarget.Body.ExternalItemsForOtherActors.Where(x => CanSee(x))
-                                 .GetFromItemListByKeyword(keyword, this);
-            }
-
-            if (container is IGameItem itemTarget)
-            {
-                List<IGameItem> contents = new();
-                if (itemTarget.GetItemType<ILockable>() is ILockable lockableItem)
-                {
-                    contents.AddRange(lockableItem.Locks.Select(x => x.Parent));
-                }
-
-                if (itemTarget.GetItemType<IContainer>() is IContainer containerItem &&
-                    (itemTarget.GetItemType<IOpenable>() is not IOpenable io || io.IsOpen))
-                {
-                    contents.AddRange(containerItem.Contents);
-                }
-
-                if (itemTarget.AttachedAndConnectedItems.Any())
-                {
-                    contents.AddRange(itemTarget.AttachedAndConnectedItems);
-                }
-
-                return contents.GetFromItemListByKeyword(keyword, this);
-            }
-
-            return null;
+            return TargetItemWithinContainer(split[0], split[1]) ??
+                   TargetItemWithinContainer(split[1], split[0]);
         }
 
         if (keyword.Equals("me", StringComparison.InvariantCultureIgnoreCase) ||
@@ -205,46 +211,8 @@ public partial class Character : ITarget
         string[] split = keyword.Split('@', 2, StringSplitOptions.RemoveEmptyEntries);
         if (split.Length == 2 && split.All(x => x.Length > 0))
         {
-            string containerTarget = split[0];
-            keyword = split[1];
-            IPerceivable? container = Target(containerTarget);
-            if (container == null)
-            {
-                return null;
-            }
-
-            if (container is ICharacter charTarget)
-            {
-                return charTarget.Body.ExternalItemsForOtherActors.Where(x => CanSee(x))
-                                 .GetFromItemListByKeyword(keyword, this);
-            }
-
-            IGameItem? itemTarget = container as IGameItem ??
-                             Location.GetExit(containerTarget, "", this)?.Exit.Door?.Parent;
-
-            if (itemTarget != null)
-            {
-                List<IGameItem> contents = new();
-                if (itemTarget.GetItemType<ILockable>() is ILockable lockableItem)
-                {
-                    contents.AddRange(lockableItem.Locks.Select(x => x.Parent));
-                }
-
-                if (itemTarget.GetItemType<IContainer>() is IContainer containerItem &&
-                    (itemTarget.GetItemType<IOpenable>() is not IOpenable io || io.IsOpen))
-                {
-                    contents.AddRange(containerItem.Contents);
-                }
-
-                if (itemTarget.AttachedAndConnectedItems.Any())
-                {
-                    contents.AddRange(itemTarget.AttachedAndConnectedItems);
-                }
-
-                return contents.GetFromItemListByKeyword(keyword, this);
-            }
-
-            return null;
+            return TargetItemWithinContainer(split[0], split[1]) ??
+                   TargetItemWithinContainer(split[1], split[0]);
         }
 
         ICellExit targetExit = Location.GetExitKeyword(keyword, this);

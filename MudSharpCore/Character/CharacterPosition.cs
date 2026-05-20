@@ -13,6 +13,7 @@ using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.RPG.Checks;
 using MudSharp.RPG.Merits.Interfaces;
 using MudSharp.ThirdPartyCode;
+using MudSharp.Vehicles;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -169,6 +170,11 @@ public partial class Character
             return;
         }
 
+        if (!ignoreMovementRestrictions && !PrepareVehicleOccupancyForPositionChange(false))
+        {
+            return;
+        }
+
         if (!ignoreMovementRestrictions && Combat != null)
         {
             if (TakeOrQueueCombatAction(
@@ -187,6 +193,11 @@ public partial class Character
         {
             OutputHandler.Send(WhyCannotMovePosition(whichPosition, whichModifier, target,
                 ignoreMovementRestrictions));
+            return;
+        }
+
+        if (ignoreMovementRestrictions && !PrepareVehicleOccupancyForPositionChange(true))
+        {
             return;
         }
 
@@ -228,6 +239,11 @@ public partial class Character
         if (RidingMount is not null && RidingMount.IsPrimaryRider(this))
         {
             RidingMount.RiderMovePosition(whichPosition, PositionModifier, PositionTarget, this, playerEmote, playerPmote);
+            return;
+        }
+
+        if (!PrepareVehicleOccupancyForPositionChange(false))
+        {
             return;
         }
 
@@ -438,6 +454,11 @@ public partial class Character
             return false;
         }
 
+        if (!ignoreMovementRestrictions && OccupiedVehicle is not null)
+        {
+            return false;
+        }
+
         if (!ignoreMovementRestrictions && (whichModifier != PositionModifier || target != PositionTarget) &&
             PositionState.MoveRestrictions == MovementAbility.Restricted)
         {
@@ -498,6 +519,12 @@ public partial class Character
             return "That is not a valid position for you.";
         }
 
+        var occupiedVehicle = OccupiedVehicle;
+        if (!ignoreMovementRestrictions && occupiedVehicle is not null)
+        {
+            return VehiclePositionBlocker(occupiedVehicle);
+        }
+
         if (!ignoreMovement && Movement != null)
         {
             return "You must first stop moving.";
@@ -551,6 +578,31 @@ public partial class Character
         }
 
         return "You cannot take that position.";
+    }
+
+    private IVehicle? OccupiedVehicle => Gameworld.Vehicles.FirstOrDefault(x => x.IsOccupant(this));
+
+    private bool PrepareVehicleOccupancyForPositionChange(bool ignoreMovementRestrictions)
+    {
+        var vehicle = OccupiedVehicle;
+        if (vehicle is null)
+        {
+            return true;
+        }
+
+        if (ignoreMovementRestrictions)
+        {
+            vehicle.ForceDisembark(this, false);
+            return true;
+        }
+
+        OutputHandler.Send(VehiclePositionBlocker(vehicle));
+        return false;
+    }
+
+    private string VehiclePositionBlocker(IVehicle vehicle)
+    {
+        return $"You must disembark from {vehicle.ExteriorItem?.HowSeen(this) ?? vehicle.Name} first.";
     }
 
     public void Awaken(IEmote? emote = null)

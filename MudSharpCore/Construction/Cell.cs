@@ -37,6 +37,7 @@ using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.RPG.Checks;
 using MudSharp.TimeAndDate.Date;
 using MudSharp.TimeAndDate.Time;
+using MudSharp.Vehicles;
 using MudSharp.Work.Foraging;
 using MudSharp.Work.Projects;
 using Parlot;
@@ -713,6 +714,7 @@ public partial class Cell : Location, IDisposable, ICell
 
     public override void Leave(ICharacter movingCharacter)
     {
+        ForceDisembarkVehicleOccupantLeavingWithoutVehicle(movingCharacter);
         base.Leave(movingCharacter);
         Room.Leave(movingCharacter);
         DoLeaveEvent(movingCharacter);
@@ -731,6 +733,30 @@ public partial class Cell : Location, IDisposable, ICell
         }
 
         CheckFallExitStatus();
+    }
+
+    private void ForceDisembarkVehicleOccupantLeavingWithoutVehicle(ICharacter movingCharacter)
+    {
+        if (movingCharacter is null)
+        {
+            return;
+        }
+
+        foreach (var vehicle in GameItems
+                                     .Select(x => x.GetItemType<IVehicleExterior>()?.Vehicle)
+                                     .Where(x => x is not null)
+                                     .Distinct()
+                                     .Where(x => x.IsOccupant(movingCharacter))
+                                     .ToList())
+        {
+            if (movingCharacter.Movement is VehicleMovement vehicleMovement &&
+                vehicleMovement.Targets.Contains(vehicle.ExteriorItem))
+            {
+                continue;
+            }
+
+            vehicle.ForceDisembark(movingCharacter, false);
+        }
     }
 
     public IFluid Atmosphere => CurrentOverlay.Atmosphere;

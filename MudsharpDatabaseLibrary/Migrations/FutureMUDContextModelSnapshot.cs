@@ -17862,6 +17862,1066 @@ namespace MudSharp.Migrations
                     b.ToTable("VariableValues");
                 });
 
+            modelBuilder.Entity("MudSharp.Models.Vehicle", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("CreatedDateTime")
+                        .HasColumnType("datetime");
+
+                    b.Property<long?>("CurrentCellId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long?>("CurrentExitId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<int>("CurrentRoomLayer")
+                        .HasColumnType("int(11)");
+
+                    b.Property<long?>("DestinationCellId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long?>("ExteriorItemId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<DateTime?>("LastMovementDateTime")
+                        .HasColumnType("datetime");
+
+                    b.Property<int>("LocationType")
+                        .HasColumnType("int(11)");
+
+                    b.Property<long?>("MovementProfileProtoId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<int>("MovementStatus")
+                        .HasColumnType("int(11)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("varchar(200)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Name"), "utf8");
+
+                    b.Property<long>("VehicleProtoId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<int>("VehicleProtoRevision")
+                        .HasColumnType("int(11)");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("CurrentCellId")
+                        .HasDatabaseName("FK_Vehicles_Cells_Current_idx");
+
+                    b.HasIndex("CurrentExitId")
+                        .HasDatabaseName("FK_Vehicles_Exits_idx");
+
+                    b.HasIndex("DestinationCellId")
+                        .HasDatabaseName("FK_Vehicles_Cells_Destination_idx");
+
+                    b.HasIndex("ExteriorItemId")
+                        .IsUnique()
+                        .HasDatabaseName("FK_Vehicles_GameItems_Exterior_idx");
+
+                    b.HasIndex("MovementProfileProtoId")
+                        .HasDatabaseName("FK_Vehicles_MovementProfileProtos_idx");
+
+                    b.HasIndex("VehicleProtoId", "VehicleProtoRevision")
+                        .HasDatabaseName("FK_Vehicles_VehicleProtos_idx");
+
+                    b.ToTable("Vehicles", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.VehicleAccessPoint", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<ulong>("IsDisabled")
+                        .HasColumnType("bit(1)");
+
+                    b.Property<ulong>("IsOpen")
+                        .HasColumnType("bit(1)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("varchar(200)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Name"), "utf8");
+
+                    b.Property<long?>("ProjectionItemId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("VehicleAccessPointProtoId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("VehicleId")
+                        .HasColumnType("bigint(20)");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("ProjectionItemId")
+                        .IsUnique()
+                        .HasDatabaseName("FK_VehicleAccessPoints_GameItems_idx");
+
+                    b.HasIndex("VehicleAccessPointProtoId")
+                        .HasDatabaseName("FK_VehicleAccessPoints_Protos_idx");
+
+                    b.HasIndex("VehicleId")
+                        .HasDatabaseName("FK_VehicleAccessPoints_Vehicles_idx");
+
+                    b.ToTable("VehicleAccessPoints", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.VehicleAccessPointLock", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("LockItemId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("VehicleAccessPointId")
+                        .HasColumnType("bigint(20)");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("LockItemId")
+                        .IsUnique()
+                        .HasDatabaseName("FK_VehicleAccessPointLocks_GameItems_idx");
+
+                    b.HasIndex("VehicleAccessPointId")
+                        .HasDatabaseName("FK_VehicleAccessPointLocks_AccessPoints_idx");
+
+                    b.ToTable("VehicleAccessPointLocks", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.VehicleAccessPointProto", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<int>("AccessPointType")
+                        .HasColumnType("int(11)");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("mediumtext")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Description"), "utf8");
+
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("int(11)");
+
+                    b.Property<ulong>("MustBeClosedForMovement")
+                        .HasColumnType("bit(1)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("varchar(200)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Name"), "utf8");
+
+                    b.Property<long?>("ProjectionItemProtoId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<int?>("ProjectionItemProtoRevision")
+                        .HasColumnType("int(11)");
+
+                    b.Property<ulong>("StartsOpen")
+                        .HasColumnType("bit(1)");
+
+                    b.Property<long?>("VehicleCompartmentProtoId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("VehicleProtoId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<int>("VehicleProtoRevision")
+                        .HasColumnType("int(11)");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("VehicleCompartmentProtoId")
+                        .HasDatabaseName("FK_VehicleAccessPointProtos_Compartments_idx");
+
+                    b.HasIndex("ProjectionItemProtoId", "ProjectionItemProtoRevision")
+                        .HasDatabaseName("FK_VehicleAccessPointProtos_ItemProtos_idx");
+
+                    b.HasIndex("VehicleProtoId", "VehicleProtoRevision")
+                        .HasDatabaseName("FK_VehicleAccessPointProtos_VehicleProtos_idx");
+
+                    b.ToTable("VehicleAccessPointProtos", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.VehicleAccessState", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<int>("AccessLevel")
+                        .HasColumnType("int(11)");
+
+                    b.Property<string>("AccessTag")
+                        .IsRequired()
+                        .HasColumnType("varchar(200)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("AccessTag"), "utf8");
+
+                    b.Property<long?>("CharacterId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("VehicleId")
+                        .HasColumnType("bigint(20)");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("CharacterId")
+                        .HasDatabaseName("FK_VehicleAccessStates_Characters_idx");
+
+                    b.HasIndex("VehicleId")
+                        .HasDatabaseName("FK_VehicleAccessStates_Vehicles_idx");
+
+                    b.ToTable("VehicleAccessStates", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.VehicleCargoSpace", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<ulong>("IsDisabled")
+                        .HasColumnType("bit(1)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("varchar(200)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Name"), "utf8");
+
+                    b.Property<long?>("ProjectionItemId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("VehicleCargoSpaceProtoId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("VehicleId")
+                        .HasColumnType("bigint(20)");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("ProjectionItemId")
+                        .IsUnique()
+                        .HasDatabaseName("FK_VehicleCargoSpaces_GameItems_idx");
+
+                    b.HasIndex("VehicleCargoSpaceProtoId")
+                        .HasDatabaseName("FK_VehicleCargoSpaces_Protos_idx");
+
+                    b.HasIndex("VehicleId")
+                        .HasDatabaseName("FK_VehicleCargoSpaces_Vehicles_idx");
+
+                    b.ToTable("VehicleCargoSpaces", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.VehicleCargoSpaceProto", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("mediumtext")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Description"), "utf8");
+
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("int(11)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("varchar(200)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Name"), "utf8");
+
+                    b.Property<long?>("ProjectionItemProtoId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<int?>("ProjectionItemProtoRevision")
+                        .HasColumnType("int(11)");
+
+                    b.Property<long?>("RequiredAccessPointProtoId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long?>("VehicleCompartmentProtoId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("VehicleProtoId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<int>("VehicleProtoRevision")
+                        .HasColumnType("int(11)");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("RequiredAccessPointProtoId")
+                        .HasDatabaseName("FK_VehicleCargoSpaceProtos_AccessPoints_idx");
+
+                    b.HasIndex("VehicleCompartmentProtoId")
+                        .HasDatabaseName("FK_VehicleCargoSpaceProtos_Compartments_idx");
+
+                    b.HasIndex("ProjectionItemProtoId", "ProjectionItemProtoRevision")
+                        .HasDatabaseName("FK_VehicleCargoSpaceProtos_ItemProtos_idx");
+
+                    b.HasIndex("VehicleProtoId", "VehicleProtoRevision")
+                        .HasDatabaseName("FK_VehicleCargoSpaceProtos_VehicleProtos_idx");
+
+                    b.ToTable("VehicleCargoSpaceProtos", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.VehicleCompartment", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("varchar(200)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Name"), "utf8");
+
+                    b.Property<long>("VehicleCompartmentProtoId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("VehicleId")
+                        .HasColumnType("bigint(20)");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("VehicleCompartmentProtoId")
+                        .HasDatabaseName("FK_VehicleCompartments_Protos_idx");
+
+                    b.HasIndex("VehicleId")
+                        .HasDatabaseName("FK_VehicleCompartments_Vehicles_idx");
+
+                    b.ToTable("VehicleCompartments", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.VehicleCompartmentProto", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("mediumtext")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Description"), "utf8");
+
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("int(11)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("varchar(200)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Name"), "utf8");
+
+                    b.Property<long>("VehicleProtoId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<int>("VehicleProtoRevision")
+                        .HasColumnType("int(11)");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("VehicleProtoId", "VehicleProtoRevision")
+                        .HasDatabaseName("FK_VehicleCompartmentProtos_VehicleProtos_idx");
+
+                    b.ToTable("VehicleCompartmentProtos", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.VehicleControlStationProto", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<ulong>("IsPrimary")
+                        .HasColumnType("bit(1)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("varchar(200)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Name"), "utf8");
+
+                    b.Property<long>("VehicleOccupantSlotProtoId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("VehicleProtoId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<int>("VehicleProtoRevision")
+                        .HasColumnType("int(11)");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("VehicleOccupantSlotProtoId")
+                        .HasDatabaseName("FK_VehicleControlStationProtos_Slots_idx");
+
+                    b.HasIndex("VehicleProtoId", "VehicleProtoRevision")
+                        .HasDatabaseName("FK_VehicleControlStationProtos_VehicleProtos_idx");
+
+                    b.ToTable("VehicleControlStationProtos", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.VehicleDamageZone", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<double>("CurrentDamage")
+                        .HasColumnType("double");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("varchar(200)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Name"), "utf8");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int(11)");
+
+                    b.Property<long>("VehicleDamageZoneProtoId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("VehicleId")
+                        .HasColumnType("bigint(20)");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("VehicleDamageZoneProtoId")
+                        .HasDatabaseName("FK_VehicleDamageZones_Protos_idx");
+
+                    b.HasIndex("VehicleId")
+                        .HasDatabaseName("FK_VehicleDamageZones_Vehicles_idx");
+
+                    b.ToTable("VehicleDamageZones", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.VehicleDamageZoneEffectProto", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<int>("MinimumStatus")
+                        .HasColumnType("int(11)");
+
+                    b.Property<long?>("TargetProtoId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<int>("TargetType")
+                        .HasColumnType("int(11)");
+
+                    b.Property<long>("VehicleDamageZoneProtoId")
+                        .HasColumnType("bigint(20)");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("VehicleDamageZoneProtoId")
+                        .HasDatabaseName("FK_VehicleDamageZoneEffectProtos_DamageZones_idx");
+
+                    b.ToTable("VehicleDamageZoneEffectProtos", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.VehicleDamageZoneProto", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("mediumtext")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Description"), "utf8");
+
+                    b.Property<double>("DestroyedThreshold")
+                        .HasColumnType("double");
+
+                    b.Property<double>("DisabledThreshold")
+                        .HasColumnType("double");
+
+                    b.Property<ulong>("DisablesMovement")
+                        .HasColumnType("bit(1)");
+
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("int(11)");
+
+                    b.Property<double>("HitWeight")
+                        .HasColumnType("double");
+
+                    b.Property<double>("MaximumDamage")
+                        .HasColumnType("double");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("varchar(200)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Name"), "utf8");
+
+                    b.Property<long>("VehicleProtoId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<int>("VehicleProtoRevision")
+                        .HasColumnType("int(11)");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("VehicleProtoId", "VehicleProtoRevision")
+                        .HasDatabaseName("FK_VehicleDamageZoneProtos_VehicleProtos_idx");
+
+                    b.ToTable("VehicleDamageZoneProtos", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.VehicleHitchLink", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("CreatedDateTime")
+                        .HasColumnType("datetime");
+
+                    b.Property<long?>("HitchItemId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<ulong>("IsDisabled")
+                        .HasColumnType("bit(1)");
+
+                    b.Property<long?>("SourceCharacterId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long?>("SourceTowPointProtoId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<int>("SourceType")
+                        .HasColumnType("int(11)");
+
+                    b.Property<long?>("SourceVehicleId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long?>("TargetCharacterId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long?>("TargetTowPointProtoId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<int>("TargetType")
+                        .HasColumnType("int(11)");
+
+                    b.Property<long?>("TargetVehicleId")
+                        .HasColumnType("bigint(20)");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("HitchItemId")
+                        .HasDatabaseName("FK_VehicleHitchLinks_GameItems_idx");
+
+                    b.HasIndex("SourceCharacterId")
+                        .HasDatabaseName("FK_VehicleHitchLinks_SourceCharacters_idx");
+
+                    b.HasIndex("SourceTowPointProtoId")
+                        .HasDatabaseName("FK_VehicleHitchLinks_SourceTowPointProtos_idx");
+
+                    b.HasIndex("SourceVehicleId")
+                        .HasDatabaseName("FK_VehicleHitchLinks_SourceVehicles_idx");
+
+                    b.HasIndex("TargetCharacterId")
+                        .HasDatabaseName("FK_VehicleHitchLinks_TargetCharacters_idx");
+
+                    b.HasIndex("TargetTowPointProtoId")
+                        .HasDatabaseName("FK_VehicleHitchLinks_TargetTowPointProtos_idx");
+
+                    b.HasIndex("TargetVehicleId")
+                        .HasDatabaseName("FK_VehicleHitchLinks_TargetVehicles_idx");
+
+                    b.ToTable("VehicleHitchLinks", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.VehicleInstallation", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<long?>("InstalledItemId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<ulong>("IsDisabled")
+                        .HasColumnType("bit(1)");
+
+                    b.Property<long>("VehicleId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("VehicleInstallationPointProtoId")
+                        .HasColumnType("bigint(20)");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("InstalledItemId")
+                        .IsUnique()
+                        .HasDatabaseName("FK_VehicleInstallations_GameItems_idx");
+
+                    b.HasIndex("VehicleId")
+                        .HasDatabaseName("FK_VehicleInstallations_Vehicles_idx");
+
+                    b.HasIndex("VehicleInstallationPointProtoId")
+                        .HasDatabaseName("FK_VehicleInstallations_Protos_idx");
+
+                    b.ToTable("VehicleInstallations", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.VehicleInstallationPointProto", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("mediumtext")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Description"), "utf8");
+
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("int(11)");
+
+                    b.Property<string>("MountType")
+                        .IsRequired()
+                        .HasColumnType("varchar(200)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("MountType"), "utf8");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("varchar(200)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Name"), "utf8");
+
+                    b.Property<long?>("RequiredAccessPointProtoId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<ulong>("RequiredForMovement")
+                        .HasColumnType("bit(1)");
+
+                    b.Property<string>("RequiredRole")
+                        .IsRequired()
+                        .HasColumnType("varchar(200)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("RequiredRole"), "utf8");
+
+                    b.Property<long>("VehicleProtoId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<int>("VehicleProtoRevision")
+                        .HasColumnType("int(11)");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("RequiredAccessPointProtoId")
+                        .HasDatabaseName("FK_VehicleInstallationPointProtos_AccessPoints_idx");
+
+                    b.HasIndex("VehicleProtoId", "VehicleProtoRevision")
+                        .HasDatabaseName("FK_VehicleInstallationPointProtos_VehicleProtos_idx");
+
+                    b.ToTable("VehicleInstallationPointProtos", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.VehicleMovementProfileProto", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<long?>("FuelLiquidId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<double>("FuelVolumePerMove")
+                        .HasColumnType("double");
+
+                    b.Property<ulong>("IsDefault")
+                        .HasColumnType("bit(1)");
+
+                    b.Property<int>("MovementType")
+                        .HasColumnType("int(11)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("varchar(200)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Name"), "utf8");
+
+                    b.Property<string>("RequiredInstalledRole")
+                        .IsRequired()
+                        .HasColumnType("varchar(200)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("RequiredInstalledRole"), "utf8");
+
+                    b.Property<double>("RequiredPowerSpikeInWatts")
+                        .HasColumnType("double");
+
+                    b.Property<ulong>("RequiresAccessPointsClosed")
+                        .HasColumnType("bit(1)");
+
+                    b.Property<ulong>("RequiresTowLinksClosed")
+                        .HasColumnType("bit(1)");
+
+                    b.Property<long>("VehicleProtoId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<int>("VehicleProtoRevision")
+                        .HasColumnType("int(11)");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("VehicleProtoId", "VehicleProtoRevision")
+                        .HasDatabaseName("FK_VehicleMovementProfileProtos_VehicleProtos_idx");
+
+                    b.ToTable("VehicleMovementProfileProtos", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.VehicleOccupancy", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CharacterId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<ulong>("IsController")
+                        .HasColumnType("bit(1)");
+
+                    b.Property<long>("VehicleId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("VehicleOccupantSlotProtoId")
+                        .HasColumnType("bigint(20)");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("CharacterId")
+                        .HasDatabaseName("FK_VehicleOccupancies_Characters_idx");
+
+                    b.HasIndex("VehicleId")
+                        .HasDatabaseName("FK_VehicleOccupancies_Vehicles_idx");
+
+                    b.HasIndex("VehicleOccupantSlotProtoId")
+                        .HasDatabaseName("FK_VehicleOccupancies_Slots_idx");
+
+                    b.HasIndex("VehicleId", "CharacterId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_VehicleOccupancies_Vehicle_Character");
+
+                    b.ToTable("VehicleOccupancies", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.VehicleOccupantSlotProto", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<int>("Capacity")
+                        .HasColumnType("int(11)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("varchar(200)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Name"), "utf8");
+
+                    b.Property<ulong>("RequiredForMovement")
+                        .HasColumnType("bit(1)");
+
+                    b.Property<int>("SlotType")
+                        .HasColumnType("int(11)");
+
+                    b.Property<long>("VehicleCompartmentProtoId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("VehicleProtoId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<int>("VehicleProtoRevision")
+                        .HasColumnType("int(11)");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("VehicleCompartmentProtoId")
+                        .HasDatabaseName("FK_VehicleOccupantSlotProtos_Compartments_idx");
+
+                    b.HasIndex("VehicleProtoId", "VehicleProtoRevision")
+                        .HasDatabaseName("FK_VehicleOccupantSlotProtos_VehicleProtos_idx");
+
+                    b.ToTable("VehicleOccupantSlotProtos", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.VehicleProto", b =>
+                {
+                    b.Property<long>("Id")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<int>("RevisionNumber")
+                        .HasColumnType("int(11)");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("mediumtext")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Description"), "utf8");
+
+                    b.Property<long>("EditableItemId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long?>("ExteriorItemProtoId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<int?>("ExteriorItemProtoRevision")
+                        .HasColumnType("int(11)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("varchar(200)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Name"), "utf8");
+
+                    b.Property<int>("VehicleScale")
+                        .HasColumnType("int(11)");
+
+                    b.HasKey("Id", "RevisionNumber")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("EditableItemId")
+                        .HasDatabaseName("FK_VehicleProtos_EditableItems_idx");
+
+                    b.HasIndex("ExteriorItemProtoId", "ExteriorItemProtoRevision")
+                        .HasDatabaseName("FK_VehicleProtos_GameItemProtos_idx");
+
+                    b.ToTable("VehicleProtos", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.VehicleTowLink", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("CreatedDateTime")
+                        .HasColumnType("datetime");
+
+                    b.Property<long?>("HitchItemId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<ulong>("IsDisabled")
+                        .HasColumnType("bit(1)");
+
+                    b.Property<long>("SourceTowPointProtoId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("SourceVehicleId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("TargetTowPointProtoId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("TargetVehicleId")
+                        .HasColumnType("bigint(20)");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("HitchItemId")
+                        .HasDatabaseName("FK_VehicleTowLinks_GameItems_idx");
+
+                    b.HasIndex("SourceTowPointProtoId")
+                        .HasDatabaseName("FK_VehicleTowLinks_SourceTowPointProtos_idx");
+
+                    b.HasIndex("SourceVehicleId")
+                        .HasDatabaseName("FK_VehicleTowLinks_SourceVehicles_idx");
+
+                    b.HasIndex("TargetTowPointProtoId")
+                        .HasDatabaseName("FK_VehicleTowLinks_TargetTowPointProtos_idx");
+
+                    b.HasIndex("TargetVehicleId")
+                        .HasDatabaseName("FK_VehicleTowLinks_TargetVehicles_idx");
+
+                    b.ToTable("VehicleTowLinks", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.VehicleTowPointProto", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<ulong>("CanBeTowed")
+                        .HasColumnType("bit(1)");
+
+                    b.Property<ulong>("CanTow")
+                        .HasColumnType("bit(1)");
+
+                    b.Property<double>("CharacterPullMultiplier")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("double")
+                        .HasDefaultValue(1.0);
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("mediumtext")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Description"), "utf8");
+
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("int(11)");
+
+                    b.Property<double>("MaximumTowedWeight")
+                        .HasColumnType("double");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("varchar(200)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Name"), "utf8");
+
+                    b.Property<long?>("RequiredAccessPointProtoId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<string>("TowType")
+                        .IsRequired()
+                        .HasColumnType("varchar(200)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("TowType"), "utf8");
+
+                    b.Property<long>("VehicleProtoId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<int>("VehicleProtoRevision")
+                        .HasColumnType("int(11)");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("RequiredAccessPointProtoId")
+                        .HasDatabaseName("FK_VehicleTowPointProtos_AccessPoints_idx");
+
+                    b.HasIndex("VehicleProtoId", "VehicleProtoRevision")
+                        .HasDatabaseName("FK_VehicleTowPointProtos_VehicleProtos_idx");
+
+                    b.ToTable("VehicleTowPointProtos", (string)null);
+                });
+
             modelBuilder.Entity("MudSharp.Models.VirtualCashBalance", b =>
                 {
                     b.Property<long>("Id")
@@ -18757,6 +19817,12 @@ namespace MudSharp.Migrations
                     b.Property<long?>("ToolOriginId")
                         .HasColumnType("bigint(20)");
 
+                    b.Property<long?>("VehicleDamageZoneId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long?>("VehicleId")
+                        .HasColumnType("bigint(20)");
+
                     b.Property<string>("WoundType")
                         .IsRequired()
                         .HasColumnType("varchar(50)")
@@ -18780,6 +19846,12 @@ namespace MudSharp.Migrations
 
                     b.HasIndex("ToolOriginId")
                         .HasDatabaseName("FK_Wounds_GameItems_Tool_idx");
+
+                    b.HasIndex("VehicleDamageZoneId")
+                        .HasDatabaseName("FK_Wounds_VehicleDamageZones_idx");
+
+                    b.HasIndex("VehicleId")
+                        .HasDatabaseName("FK_Wounds_Vehicles_idx");
 
                     b.ToTable("Wounds");
                 });
@@ -26782,6 +27854,578 @@ namespace MudSharp.Migrations
                     b.Navigation("TraitExpression");
                 });
 
+            modelBuilder.Entity("MudSharp.Models.Vehicle", b =>
+                {
+                    b.HasOne("MudSharp.Models.Cell", "CurrentCell")
+                        .WithMany()
+                        .HasForeignKey("CurrentCellId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK_Vehicles_Cells_Current");
+
+                    b.HasOne("MudSharp.Models.Exit", "CurrentExit")
+                        .WithMany()
+                        .HasForeignKey("CurrentExitId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK_Vehicles_Exits");
+
+                    b.HasOne("MudSharp.Models.Cell", "DestinationCell")
+                        .WithMany()
+                        .HasForeignKey("DestinationCellId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK_Vehicles_Cells_Destination");
+
+                    b.HasOne("MudSharp.Models.GameItem", "ExteriorItem")
+                        .WithMany()
+                        .HasForeignKey("ExteriorItemId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK_Vehicles_GameItems_Exterior");
+
+                    b.HasOne("MudSharp.Models.VehicleMovementProfileProto", "MovementProfileProto")
+                        .WithMany()
+                        .HasForeignKey("MovementProfileProtoId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK_Vehicles_MovementProfileProtos");
+
+                    b.HasOne("MudSharp.Models.VehicleProto", "VehicleProto")
+                        .WithMany("Vehicles")
+                        .HasForeignKey("VehicleProtoId", "VehicleProtoRevision")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_Vehicles_VehicleProtos");
+
+                    b.Navigation("CurrentCell");
+
+                    b.Navigation("CurrentExit");
+
+                    b.Navigation("DestinationCell");
+
+                    b.Navigation("ExteriorItem");
+
+                    b.Navigation("MovementProfileProto");
+
+                    b.Navigation("VehicleProto");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.VehicleAccessPoint", b =>
+                {
+                    b.HasOne("MudSharp.Models.GameItem", "ProjectionItem")
+                        .WithMany()
+                        .HasForeignKey("ProjectionItemId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK_VehicleAccessPoints_GameItems");
+
+                    b.HasOne("MudSharp.Models.VehicleAccessPointProto", "VehicleAccessPointProto")
+                        .WithMany()
+                        .HasForeignKey("VehicleAccessPointProtoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_VehicleAccessPoints_Protos");
+
+                    b.HasOne("MudSharp.Models.Vehicle", "Vehicle")
+                        .WithMany("AccessPoints")
+                        .HasForeignKey("VehicleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_VehicleAccessPoints_Vehicles");
+
+                    b.Navigation("ProjectionItem");
+
+                    b.Navigation("Vehicle");
+
+                    b.Navigation("VehicleAccessPointProto");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.VehicleAccessPointLock", b =>
+                {
+                    b.HasOne("MudSharp.Models.GameItem", "LockItem")
+                        .WithMany()
+                        .HasForeignKey("LockItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_VehicleAccessPointLocks_GameItems");
+
+                    b.HasOne("MudSharp.Models.VehicleAccessPoint", "VehicleAccessPoint")
+                        .WithMany("Locks")
+                        .HasForeignKey("VehicleAccessPointId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_VehicleAccessPointLocks_AccessPoints");
+
+                    b.Navigation("LockItem");
+
+                    b.Navigation("VehicleAccessPoint");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.VehicleAccessPointProto", b =>
+                {
+                    b.HasOne("MudSharp.Models.VehicleCompartmentProto", "VehicleCompartmentProto")
+                        .WithMany()
+                        .HasForeignKey("VehicleCompartmentProtoId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK_VehicleAccessPointProtos_Compartments");
+
+                    b.HasOne("MudSharp.Models.GameItemProto", "ProjectionItemProto")
+                        .WithMany()
+                        .HasForeignKey("ProjectionItemProtoId", "ProjectionItemProtoRevision")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK_VehicleAccessPointProtos_ItemProtos");
+
+                    b.HasOne("MudSharp.Models.VehicleProto", "VehicleProto")
+                        .WithMany("AccessPoints")
+                        .HasForeignKey("VehicleProtoId", "VehicleProtoRevision")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_VehicleAccessPointProtos_VehicleProtos");
+
+                    b.Navigation("ProjectionItemProto");
+
+                    b.Navigation("VehicleCompartmentProto");
+
+                    b.Navigation("VehicleProto");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.VehicleAccessState", b =>
+                {
+                    b.HasOne("MudSharp.Models.Character", "Character")
+                        .WithMany()
+                        .HasForeignKey("CharacterId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK_VehicleAccessStates_Characters");
+
+                    b.HasOne("MudSharp.Models.Vehicle", "Vehicle")
+                        .WithMany("AccessStates")
+                        .HasForeignKey("VehicleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_VehicleAccessStates_Vehicles");
+
+                    b.Navigation("Character");
+
+                    b.Navigation("Vehicle");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.VehicleCargoSpace", b =>
+                {
+                    b.HasOne("MudSharp.Models.GameItem", "ProjectionItem")
+                        .WithMany()
+                        .HasForeignKey("ProjectionItemId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK_VehicleCargoSpaces_GameItems");
+
+                    b.HasOne("MudSharp.Models.VehicleCargoSpaceProto", "VehicleCargoSpaceProto")
+                        .WithMany()
+                        .HasForeignKey("VehicleCargoSpaceProtoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_VehicleCargoSpaces_Protos");
+
+                    b.HasOne("MudSharp.Models.Vehicle", "Vehicle")
+                        .WithMany("CargoSpaces")
+                        .HasForeignKey("VehicleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_VehicleCargoSpaces_Vehicles");
+
+                    b.Navigation("ProjectionItem");
+
+                    b.Navigation("Vehicle");
+
+                    b.Navigation("VehicleCargoSpaceProto");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.VehicleCargoSpaceProto", b =>
+                {
+                    b.HasOne("MudSharp.Models.VehicleAccessPointProto", "RequiredAccessPointProto")
+                        .WithMany()
+                        .HasForeignKey("RequiredAccessPointProtoId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK_VehicleCargoSpaceProtos_AccessPoints");
+
+                    b.HasOne("MudSharp.Models.VehicleCompartmentProto", "VehicleCompartmentProto")
+                        .WithMany()
+                        .HasForeignKey("VehicleCompartmentProtoId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK_VehicleCargoSpaceProtos_Compartments");
+
+                    b.HasOne("MudSharp.Models.GameItemProto", "ProjectionItemProto")
+                        .WithMany()
+                        .HasForeignKey("ProjectionItemProtoId", "ProjectionItemProtoRevision")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK_VehicleCargoSpaceProtos_ItemProtos");
+
+                    b.HasOne("MudSharp.Models.VehicleProto", "VehicleProto")
+                        .WithMany("CargoSpaces")
+                        .HasForeignKey("VehicleProtoId", "VehicleProtoRevision")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_VehicleCargoSpaceProtos_VehicleProtos");
+
+                    b.Navigation("ProjectionItemProto");
+
+                    b.Navigation("RequiredAccessPointProto");
+
+                    b.Navigation("VehicleCompartmentProto");
+
+                    b.Navigation("VehicleProto");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.VehicleCompartment", b =>
+                {
+                    b.HasOne("MudSharp.Models.VehicleCompartmentProto", "VehicleCompartmentProto")
+                        .WithMany()
+                        .HasForeignKey("VehicleCompartmentProtoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_VehicleCompartments_Protos");
+
+                    b.HasOne("MudSharp.Models.Vehicle", "Vehicle")
+                        .WithMany("Compartments")
+                        .HasForeignKey("VehicleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_VehicleCompartments_Vehicles");
+
+                    b.Navigation("Vehicle");
+
+                    b.Navigation("VehicleCompartmentProto");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.VehicleCompartmentProto", b =>
+                {
+                    b.HasOne("MudSharp.Models.VehicleProto", "VehicleProto")
+                        .WithMany("Compartments")
+                        .HasForeignKey("VehicleProtoId", "VehicleProtoRevision")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_VehicleCompartmentProtos_VehicleProtos");
+
+                    b.Navigation("VehicleProto");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.VehicleControlStationProto", b =>
+                {
+                    b.HasOne("MudSharp.Models.VehicleOccupantSlotProto", "VehicleOccupantSlotProto")
+                        .WithMany()
+                        .HasForeignKey("VehicleOccupantSlotProtoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_VehicleControlStationProtos_Slots");
+
+                    b.HasOne("MudSharp.Models.VehicleProto", "VehicleProto")
+                        .WithMany("ControlStations")
+                        .HasForeignKey("VehicleProtoId", "VehicleProtoRevision")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_VehicleControlStationProtos_VehicleProtos");
+
+                    b.Navigation("VehicleOccupantSlotProto");
+
+                    b.Navigation("VehicleProto");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.VehicleDamageZone", b =>
+                {
+                    b.HasOne("MudSharp.Models.VehicleDamageZoneProto", "VehicleDamageZoneProto")
+                        .WithMany()
+                        .HasForeignKey("VehicleDamageZoneProtoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_VehicleDamageZones_Protos");
+
+                    b.HasOne("MudSharp.Models.Vehicle", "Vehicle")
+                        .WithMany("DamageZones")
+                        .HasForeignKey("VehicleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_VehicleDamageZones_Vehicles");
+
+                    b.Navigation("Vehicle");
+
+                    b.Navigation("VehicleDamageZoneProto");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.VehicleDamageZoneEffectProto", b =>
+                {
+                    b.HasOne("MudSharp.Models.VehicleDamageZoneProto", "VehicleDamageZoneProto")
+                        .WithMany("Effects")
+                        .HasForeignKey("VehicleDamageZoneProtoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_VehicleDamageZoneEffectProtos_DamageZones");
+
+                    b.Navigation("VehicleDamageZoneProto");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.VehicleDamageZoneProto", b =>
+                {
+                    b.HasOne("MudSharp.Models.VehicleProto", "VehicleProto")
+                        .WithMany("DamageZones")
+                        .HasForeignKey("VehicleProtoId", "VehicleProtoRevision")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_VehicleDamageZoneProtos_VehicleProtos");
+
+                    b.Navigation("VehicleProto");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.VehicleHitchLink", b =>
+                {
+                    b.HasOne("MudSharp.Models.GameItem", "HitchItem")
+                        .WithMany()
+                        .HasForeignKey("HitchItemId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK_VehicleHitchLinks_GameItems");
+
+                    b.HasOne("MudSharp.Models.Character", "SourceCharacter")
+                        .WithMany()
+                        .HasForeignKey("SourceCharacterId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK_VehicleHitchLinks_SourceCharacters");
+
+                    b.HasOne("MudSharp.Models.VehicleTowPointProto", "SourceTowPointProto")
+                        .WithMany()
+                        .HasForeignKey("SourceTowPointProtoId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK_VehicleHitchLinks_SourceTowPointProtos");
+
+                    b.HasOne("MudSharp.Models.Vehicle", "SourceVehicle")
+                        .WithMany()
+                        .HasForeignKey("SourceVehicleId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK_VehicleHitchLinks_SourceVehicles");
+
+                    b.HasOne("MudSharp.Models.Character", "TargetCharacter")
+                        .WithMany()
+                        .HasForeignKey("TargetCharacterId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK_VehicleHitchLinks_TargetCharacters");
+
+                    b.HasOne("MudSharp.Models.VehicleTowPointProto", "TargetTowPointProto")
+                        .WithMany()
+                        .HasForeignKey("TargetTowPointProtoId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK_VehicleHitchLinks_TargetTowPointProtos");
+
+                    b.HasOne("MudSharp.Models.Vehicle", "TargetVehicle")
+                        .WithMany()
+                        .HasForeignKey("TargetVehicleId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK_VehicleHitchLinks_TargetVehicles");
+
+                    b.Navigation("HitchItem");
+
+                    b.Navigation("SourceCharacter");
+
+                    b.Navigation("SourceTowPointProto");
+
+                    b.Navigation("SourceVehicle");
+
+                    b.Navigation("TargetCharacter");
+
+                    b.Navigation("TargetTowPointProto");
+
+                    b.Navigation("TargetVehicle");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.VehicleInstallation", b =>
+                {
+                    b.HasOne("MudSharp.Models.GameItem", "InstalledItem")
+                        .WithMany()
+                        .HasForeignKey("InstalledItemId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK_VehicleInstallations_GameItems");
+
+                    b.HasOne("MudSharp.Models.Vehicle", "Vehicle")
+                        .WithMany("Installations")
+                        .HasForeignKey("VehicleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_VehicleInstallations_Vehicles");
+
+                    b.HasOne("MudSharp.Models.VehicleInstallationPointProto", "VehicleInstallationPointProto")
+                        .WithMany()
+                        .HasForeignKey("VehicleInstallationPointProtoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_VehicleInstallations_Protos");
+
+                    b.Navigation("InstalledItem");
+
+                    b.Navigation("Vehicle");
+
+                    b.Navigation("VehicleInstallationPointProto");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.VehicleInstallationPointProto", b =>
+                {
+                    b.HasOne("MudSharp.Models.VehicleAccessPointProto", "RequiredAccessPointProto")
+                        .WithMany()
+                        .HasForeignKey("RequiredAccessPointProtoId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK_VehicleInstallationPointProtos_AccessPoints");
+
+                    b.HasOne("MudSharp.Models.VehicleProto", "VehicleProto")
+                        .WithMany("InstallationPoints")
+                        .HasForeignKey("VehicleProtoId", "VehicleProtoRevision")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_VehicleInstallationPointProtos_VehicleProtos");
+
+                    b.Navigation("RequiredAccessPointProto");
+
+                    b.Navigation("VehicleProto");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.VehicleMovementProfileProto", b =>
+                {
+                    b.HasOne("MudSharp.Models.VehicleProto", "VehicleProto")
+                        .WithMany("MovementProfiles")
+                        .HasForeignKey("VehicleProtoId", "VehicleProtoRevision")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_VehicleMovementProfileProtos_VehicleProtos");
+
+                    b.Navigation("VehicleProto");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.VehicleOccupancy", b =>
+                {
+                    b.HasOne("MudSharp.Models.Character", "Character")
+                        .WithMany()
+                        .HasForeignKey("CharacterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_VehicleOccupancies_Characters");
+
+                    b.HasOne("MudSharp.Models.Vehicle", "Vehicle")
+                        .WithMany("Occupancies")
+                        .HasForeignKey("VehicleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_VehicleOccupancies_Vehicles");
+
+                    b.HasOne("MudSharp.Models.VehicleOccupantSlotProto", "VehicleOccupantSlotProto")
+                        .WithMany()
+                        .HasForeignKey("VehicleOccupantSlotProtoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_VehicleOccupancies_Slots");
+
+                    b.Navigation("Character");
+
+                    b.Navigation("Vehicle");
+
+                    b.Navigation("VehicleOccupantSlotProto");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.VehicleOccupantSlotProto", b =>
+                {
+                    b.HasOne("MudSharp.Models.VehicleCompartmentProto", "VehicleCompartmentProto")
+                        .WithMany()
+                        .HasForeignKey("VehicleCompartmentProtoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_VehicleOccupantSlotProtos_Compartments");
+
+                    b.HasOne("MudSharp.Models.VehicleProto", "VehicleProto")
+                        .WithMany("OccupantSlots")
+                        .HasForeignKey("VehicleProtoId", "VehicleProtoRevision")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_VehicleOccupantSlotProtos_VehicleProtos");
+
+                    b.Navigation("VehicleCompartmentProto");
+
+                    b.Navigation("VehicleProto");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.VehicleProto", b =>
+                {
+                    b.HasOne("MudSharp.Models.EditableItem", "EditableItem")
+                        .WithMany()
+                        .HasForeignKey("EditableItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_VehicleProtos_EditableItems");
+
+                    b.HasOne("MudSharp.Models.GameItemProto", "ExteriorItemProto")
+                        .WithMany()
+                        .HasForeignKey("ExteriorItemProtoId", "ExteriorItemProtoRevision")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK_VehicleProtos_GameItemProtos");
+
+                    b.Navigation("EditableItem");
+
+                    b.Navigation("ExteriorItemProto");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.VehicleTowLink", b =>
+                {
+                    b.HasOne("MudSharp.Models.GameItem", "HitchItem")
+                        .WithMany()
+                        .HasForeignKey("HitchItemId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK_VehicleTowLinks_GameItems");
+
+                    b.HasOne("MudSharp.Models.VehicleTowPointProto", "SourceTowPointProto")
+                        .WithMany()
+                        .HasForeignKey("SourceTowPointProtoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_VehicleTowLinks_SourceTowPointProtos");
+
+                    b.HasOne("MudSharp.Models.Vehicle", "SourceVehicle")
+                        .WithMany("SourceTowLinks")
+                        .HasForeignKey("SourceVehicleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_VehicleTowLinks_SourceVehicles");
+
+                    b.HasOne("MudSharp.Models.VehicleTowPointProto", "TargetTowPointProto")
+                        .WithMany()
+                        .HasForeignKey("TargetTowPointProtoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_VehicleTowLinks_TargetTowPointProtos");
+
+                    b.HasOne("MudSharp.Models.Vehicle", "TargetVehicle")
+                        .WithMany("TargetTowLinks")
+                        .HasForeignKey("TargetVehicleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_VehicleTowLinks_TargetVehicles");
+
+                    b.Navigation("HitchItem");
+
+                    b.Navigation("SourceTowPointProto");
+
+                    b.Navigation("SourceVehicle");
+
+                    b.Navigation("TargetTowPointProto");
+
+                    b.Navigation("TargetVehicle");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.VehicleTowPointProto", b =>
+                {
+                    b.HasOne("MudSharp.Models.VehicleAccessPointProto", "RequiredAccessPointProto")
+                        .WithMany()
+                        .HasForeignKey("RequiredAccessPointProtoId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK_VehicleTowPointProtos_AccessPoints");
+
+                    b.HasOne("MudSharp.Models.VehicleProto", "VehicleProto")
+                        .WithMany("TowPoints")
+                        .HasForeignKey("VehicleProtoId", "VehicleProtoRevision")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_VehicleTowPointProtos_VehicleProtos");
+
+                    b.Navigation("RequiredAccessPointProto");
+
+                    b.Navigation("VehicleProto");
+                });
+
             modelBuilder.Entity("MudSharp.Models.VirtualCashBalance", b =>
                 {
                     b.HasOne("MudSharp.Models.Currency", "Currency")
@@ -27064,6 +28708,18 @@ namespace MudSharp.Migrations
                         .OnDelete(DeleteBehavior.SetNull)
                         .HasConstraintName("FK_Wounds_GameItems_Tool");
 
+                    b.HasOne("MudSharp.Models.VehicleDamageZone", "VehicleDamageZone")
+                        .WithMany("Wounds")
+                        .HasForeignKey("VehicleDamageZoneId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .HasConstraintName("FK_Wounds_VehicleDamageZones");
+
+                    b.HasOne("MudSharp.Models.Vehicle", "Vehicle")
+                        .WithMany()
+                        .HasForeignKey("VehicleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .HasConstraintName("FK_Wounds_Vehicles");
+
                     b.Navigation("ActorOrigin");
 
                     b.Navigation("Body");
@@ -27073,6 +28729,10 @@ namespace MudSharp.Migrations
                     b.Navigation("LodgedItem");
 
                     b.Navigation("ToolOrigin");
+
+                    b.Navigation("Vehicle");
+
+                    b.Navigation("VehicleDamageZone");
                 });
 
             modelBuilder.Entity("MudSharp.Models.Writing", b =>
@@ -28853,6 +30513,65 @@ namespace MudSharp.Migrations
                     b.Navigation("WeaponAttacksPainExpression");
 
                     b.Navigation("WeaponAttacksStunExpression");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.Vehicle", b =>
+                {
+                    b.Navigation("AccessPoints");
+
+                    b.Navigation("AccessStates");
+
+                    b.Navigation("CargoSpaces");
+
+                    b.Navigation("Compartments");
+
+                    b.Navigation("DamageZones");
+
+                    b.Navigation("Installations");
+
+                    b.Navigation("Occupancies");
+
+                    b.Navigation("SourceTowLinks");
+
+                    b.Navigation("TargetTowLinks");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.VehicleAccessPoint", b =>
+                {
+                    b.Navigation("Locks");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.VehicleDamageZone", b =>
+                {
+                    b.Navigation("Wounds");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.VehicleDamageZoneProto", b =>
+                {
+                    b.Navigation("Effects");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.VehicleProto", b =>
+                {
+                    b.Navigation("AccessPoints");
+
+                    b.Navigation("CargoSpaces");
+
+                    b.Navigation("Compartments");
+
+                    b.Navigation("ControlStations");
+
+                    b.Navigation("DamageZones");
+
+                    b.Navigation("InstallationPoints");
+
+                    b.Navigation("MovementProfiles");
+
+                    b.Navigation("OccupantSlots");
+
+                    b.Navigation("TowPoints");
+
+                    b.Navigation("Vehicles");
                 });
 
             modelBuilder.Entity("MudSharp.Models.WeaponAttack", b =>

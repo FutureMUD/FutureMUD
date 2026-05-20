@@ -44,6 +44,9 @@
         void LoadStackDecorators();
         void LoadGameItemComponentProtos();
         void LoadGameItemProtos();
+        void LoadVehiclePrototypes();
+        void LoadVehicles();
+        void LoadVehicleHitchLinks();
         void LoadGameItemSkins();
         void LoadGameItemGroups();
         void LoadTraits();

@@ -132,6 +132,11 @@ public class Movement : IMovement
 
         considered.Add(character);
 
+        if (ignoreNotLeadDragger)
+        {
+            effect = character.EffectsOfType<Dragging>().FirstOrDefault() ?? effect;
+        }
+
         if (effect is Dragging.DragTarget)
         {
             targets.Add(character);
@@ -861,11 +866,20 @@ public class Movement : IMovement
             ICharacter dragLeader = Draggers.First(x => effect.CharacterDraggers.Contains(x));
             IPerceivable target = effect.Target;
             List<Dragger> draggers = effect.Draggers.Where(x => movers.Contains(x.Character)).ToList();
+            var pullMultiplier = draggers
+                                 .Select(x => x.Character.EffectsOfType<CharacterHitch>()
+                                              .Where(y => y.Target == target)
+                                              .Select(y => y.PullMultiplier)
+                                              .DefaultIfEmpty(1.0)
+                                              .Max())
+                                 .DefaultIfEmpty(1.0)
+                                 .Max();
             double dragCapacity = draggers.Sum(x =>
                 (x.Character.MaximumDragWeight - x.Character.Body.ExternalItems.Sum(y => y.Weight)) *
                 (x.Aid?.EffortMultiplier ?? 1.0));
             IHaveWeight weightThing = (IHaveWeight)target;
-            if ((dragCapacity >= weightThing.Weight))
+            var effectiveWeight = weightThing.Weight / pullMultiplier;
+            if (dragCapacity >= effectiveWeight)
             {
                 continue;
             }
@@ -893,6 +907,7 @@ public class Movement : IMovement
                 Exit.Origin.Extract(targetItem);
                 targetItem.RoomLayer = Draggers.First().RoomLayer;
                 Exit.Destination.Insert(targetItem, true);
+                targetItem.ForceMove();
             }
         }
 

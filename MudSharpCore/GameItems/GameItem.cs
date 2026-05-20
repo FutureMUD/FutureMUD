@@ -1382,6 +1382,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
     public IEnumerable<IGameItem> AttachedAndConnectedItems => (GetItemType<IConnectable>()?.ConnectedItems.Select(x => x.Item2.Parent) ??
                     Enumerable.Empty<IGameItem>())
                    .Concat(GetItemType<IBelt>()?.ConnectedItems.Select(x => x.Parent) ?? [])
+                   .Concat(Components.OfType<IProvideItemTargetProjections>().SelectMany(x => x.TargetProjections))
                    .Concat(Wounds.SelectNotNull(x => x.Lodged));
 
     public IEnumerable<IGameItem> LodgedItems => Wounds.SelectNotNull(x => x.Lodged).ToArray();
@@ -1773,6 +1774,14 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
             using (new FMDB())
             {
                 Gameworld.SaveManager.Flush();
+                var towLinks = FMDB.Context.VehicleTowLinks
+                                      .Where(x => x.HitchItemId == Id && !x.IsDisabled)
+                                      .ToList();
+                foreach (var link in towLinks)
+                {
+                    link.IsDisabled = true;
+                }
+
                 Models.GameItem dbitem = FMDB.Context.GameItems.Find(Id);
                 if (dbitem != null)
                 {
@@ -1852,6 +1861,24 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
 
     public T GetItemType<T>() where T : IGameItemComponent
     {
+        if (typeof(T) == typeof(IContainer))
+        {
+            T vehicleCargo = _components.OfType<T>().FirstOrDefault(x => x is IVehicleCargoSpaceItem);
+            if (vehicleCargo != null)
+            {
+                return vehicleCargo;
+            }
+        }
+
+        if (typeof(T) == typeof(IOpenable) || typeof(T) == typeof(ILockable))
+        {
+            T vehicleAccess = _components.OfType<T>().FirstOrDefault(x => x is IVehicleAccessPointItem);
+            if (vehicleAccess != null)
+            {
+                return vehicleAccess;
+            }
+        }
+
         return _components.OfType<T>().FirstOrDefault();
     }
 

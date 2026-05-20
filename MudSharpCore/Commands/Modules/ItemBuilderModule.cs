@@ -381,7 +381,9 @@ Note: The following two subcommands take a long time and can sometimes cause iss
             }
 
             string which = input.SafeRemainingArgument;
-            (string Name, string Blurb, string Help) type = actor.Gameworld.GameItemComponentManager.TypeHelpInfo.FirstOrDefault(x => x.Name.EqualTo(which));
+            string normalisedWhich = ComponentTypeHelpLookupText(which);
+            (string Name, string Blurb, string Help) type = actor.Gameworld.GameItemComponentManager.TypeHelpInfo.FirstOrDefault(x =>
+                x.Name.EqualTo(which) || ComponentTypeHelpLookupText(x.Name).EqualTo(normalisedWhich));
             if (string.IsNullOrEmpty(type.Help))
             {
                 actor.OutputHandler.Send(
@@ -791,7 +793,7 @@ Help:
 
         private static void Component_Edit_New(ICharacter actor, StringStack input)
         {
-            string cmd = input.PopSpeech().ToLowerInvariant();
+            string cmd = ComponentEditNewTypeText(input);
             if (cmd.Length == 0)
             {
                 actor.OutputHandler.Send("What sort of item component do you wish to create?");
@@ -808,6 +810,16 @@ Help:
             actor.SetEditingItem(result);
             actor.Gameworld.Add(result);
             actor.OutputHandler.Send($"You create a new item component prototype with ID {result.Id}.");
+        }
+
+        internal static string ComponentEditNewTypeText(StringStack input)
+        {
+            return input.SafeRemainingArgument.Trim().ToLowerInvariant();
+        }
+
+        internal static string ComponentTypeHelpLookupText(string input)
+        {
+            return input.Trim().CollapseString().ToLowerInvariant();
         }
 
         private static void Component_Edit_Default(ICharacter actor, StringStack input)

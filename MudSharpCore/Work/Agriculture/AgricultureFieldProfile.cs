@@ -101,7 +101,7 @@ public class AgricultureFieldProfile : SaveableItem, IAgricultureFieldProfile
 			_defaultScores[score.Key] = score.Value;
 		}
 
-		foreach (AgricultureScoreType score in System.Enum.GetValues(typeof(AgricultureScoreType)))
+		foreach (var score in AgricultureScoreTypeExtensions.ActiveScoreTypes(Gameworld))
 		{
 			_defaultScores.TryAdd(score, 50);
 		}

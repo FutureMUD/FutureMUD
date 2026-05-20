@@ -76,6 +76,9 @@ namespace DatabaseSeeder.Seeders
             AddTag(context, "Dyed Cloth", "Garment Cloth");
             AddTag(context, "Fulled Cloth", "Garment Cloth");
             AddTag(context, "Textile Dye Stock", "Textile Commodity");
+            AddTag(context, "Agriculture", "Material Functions");
+            AddTag(context, "Seeds", "Agriculture");
+            AddTag(context, "Seeded Yield", "Agriculture");
             AddTag(context, "Leather Commodity", "Material Functions");
             AddTag(context, "Prepared Hide", "Leather Commodity");
             AddTag(context, "Tanned Leather", "Leather Commodity");

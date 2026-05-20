@@ -229,6 +229,9 @@ If both are missing, the labour requirement cannot be submitted.
 ### Supervision labour note
 `supervision` exposes:
 - `project set phase <phase> labour <labour> multiplier <percent>`
+- `project set phase <phase> labour <labour> scaled`
+
+When `scaled` is enabled and the supervision labour has a required trait, the best active supervisor's project-labour check target scales the multiplier between `100%` and the configured multiplier. This lets a skilled foreman improve lower-skilled labour without making an unskilled supervisor grant the full bonus.
 
 Current compatibility note:
 - the multiplier now persists correctly
@@ -273,11 +276,14 @@ Shared material settings:
 | --- | --- | --- |
 | `simple` | Counts discrete items by tag and minimum quality | `tag`, `amount`, `quality` |
 | `commodity` | Counts commodity mass by material, optional tag, optional characteristics, and quality | `material`, `tag`, `amount`, `quality`, `characteristic` |
+| `commoditytag` | Counts commodity mass where the material has a required material tag, with optional pile tag, characteristics, and quality | `material`, `materialtag`, `tag`, `piletag`, `amount`, `quality`, `characteristic` |
 
 Builder notes:
 - `simple` requires a tag before submit
 - `commodity` requires a material before submit
+- `commoditytag` requires a material tag before submit
 - `commodity` `amount` uses the game's mass parser, not a raw item count
+- `commoditytag` `amount` also uses the game's mass parser
 - commodity characteristic matching defaults to wildcard, so older requirements still accept characteristic-bearing piles
 - use `characteristic none` to require uncharacterised commodity piles
 - use `characteristic <definition> any`, `characteristic <definition> <value>`, or `characteristic <definition> remove` to require, pin, or remove a definition filter
@@ -308,7 +314,7 @@ Current implementation warning:
 | --- | --- |
 | Project | `personal`, `local` |
 | Labour | `simple`, `endless`, `supervision` |
-| Material | `simple`, `commodity` |
+| Material | `simple`, `commodity`, `commoditytag` |
 | Action | `prog`, `skilluse`, `agriculture` |
 | Impact | `trait`, `healing`, `job`, `cap` |
 

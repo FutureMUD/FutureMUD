@@ -281,7 +281,7 @@ internal class SetFieldScoreFunction : BuiltInFunction
 		var field = (IAgricultureField)ParameterFunctions[0].Result?.GetObject;
 		var scoreText = (string)ParameterFunctions[1].Result?.GetObject;
 		var value = Convert.ToInt32(ParameterFunctions[2].Result?.GetObject ?? 0);
-		if (field == null || !Enum.TryParse<AgricultureScoreType>(scoreText, true, out var score))
+		if (field == null || !AgricultureScoreTypeExtensions.TryParseScoreType(scoreText, field.Gameworld, out var score))
 		{
 			Result = new BooleanVariable(false);
 			return StatementResult.Normal;
@@ -321,6 +321,51 @@ internal class SetFieldScoreFunction : BuiltInFunction
 			"Adjusts one of a field's agriculture scores.",
 			"Agriculture",
 			ProgVariableTypes.Boolean));
+	}
+}
+
+internal class FieldScoreFunction : BuiltInFunction
+{
+	private FieldScoreFunction(IList<IFunction> parameterFunctions) : base(parameterFunctions)
+	{
+	}
+
+	public override ProgVariableTypes ReturnType
+	{
+		get => ProgVariableTypes.Number;
+		protected set { }
+	}
+
+	public override StatementResult Execute(IVariableSpace variables)
+	{
+		if (base.Execute(variables) == StatementResult.Error)
+		{
+			return StatementResult.Error;
+		}
+
+		var field = (IAgricultureField)ParameterFunctions[0].Result?.GetObject;
+		var scoreText = (string)ParameterFunctions[1].Result?.GetObject;
+		if (field == null || !AgricultureScoreTypeExtensions.TryParseScoreType(scoreText, field.Gameworld, out var score))
+		{
+			Result = new NumberVariable(0);
+			return StatementResult.Normal;
+		}
+
+		Result = new NumberVariable(field.Score(score));
+		return StatementResult.Normal;
+	}
+
+	public static void RegisterFunctionCompiler()
+	{
+		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
+			"FieldScore".ToLowerInvariant(),
+			new[] { ProgVariableTypes.AgricultureField, ProgVariableTypes.Text },
+			(pars, _) => new FieldScoreFunction(pars),
+			new[] { "field", "score" },
+			new[] { "The agriculture field", "The score name" },
+			"Returns one of a field's agriculture scores.",
+			"Agriculture",
+			ProgVariableTypes.Number));
 	}
 }
 

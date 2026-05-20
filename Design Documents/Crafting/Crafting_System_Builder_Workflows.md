@@ -173,6 +173,7 @@ Use:
 | `liquid` | Specific liquid input | `liquid`, `amount`, `quality` | Must set liquid and positive amount |
 | `tagliquid` | Liquid input from a tagged source | `tag`, `amount`, `quality` | Useful for tagged vessels or apparatus |
 | `repair` | Target item to repair | `tag`, `repair`, `quality` | Targets a tagged item and repairs condition by a percentage |
+| `field` | Local agriculture field input | `use`, `crop`, `woodland`, `condition`, `health`, `yield`, `consume` | Requires a matching field in the crafter's current cell and can consume crop or woodland yield |
 
 ## Builder Reference: Tools
 All tools also support the shared base tool options:

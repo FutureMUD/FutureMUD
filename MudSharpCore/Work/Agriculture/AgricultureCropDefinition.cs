@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using System.Xml.Linq;
 using MudSharp.Database;
 using MudSharp.Framework;
@@ -7,6 +9,11 @@ namespace MudSharp.Work.Agriculture;
 
 public class AgricultureCropDefinition : SaveableItem, IAgricultureCropDefinition
 {
+	private readonly List<AgricultureCommodityYield> _yieldOutputs = new();
+	private readonly List<AgricultureCommodityYield> _seedRequirements = new();
+	private readonly List<AgriculturePlantingWindow> _plantingWindows = new();
+	private readonly Dictionary<AgricultureScoreType, AgricultureScoreRange> _scoreRanges = new();
+
 	public AgricultureCropDefinition(Models.AgricultureCropDefinition definition, IFuturemud gameworld)
 	{
 		Gameworld = gameworld;
@@ -19,7 +26,10 @@ public class AgricultureCropDefinition : SaveableItem, IAgricultureCropDefinitio
 
 	public AgricultureCropDefinition(IFuturemud gameworld, string name, string description, string category,
 		int baseGrowthDays, int harvestWindowDays, int minimumMoisture, int maximumMoisture, int minimumTemperature,
-		int maximumTemperature)
+		int maximumTemperature, IEnumerable<AgricultureCommodityYield> yieldOutputs = null,
+		IEnumerable<AgricultureCommodityYield> seedRequirements = null, bool isPerennial = false,
+		int harvestCycleDays = 0, IEnumerable<AgricultureScoreRange> scoreRanges = null,
+		IEnumerable<AgriculturePlantingWindow> plantingWindows = null)
 	{
 		Gameworld = gameworld;
 		_name = name;
@@ -31,6 +41,16 @@ public class AgricultureCropDefinition : SaveableItem, IAgricultureCropDefinitio
 		MaximumMoisture = maximumMoisture;
 		MinimumTemperature = minimumTemperature;
 		MaximumTemperature = maximumTemperature;
+		IsPerennial = isPerennial;
+		HarvestCycleDays = System.Math.Clamp(harvestCycleDays <= 0 ? baseGrowthDays : harvestCycleDays, 1, 10000);
+		_yieldOutputs.AddRange(yieldOutputs ?? Enumerable.Empty<AgricultureCommodityYield>());
+		_seedRequirements.AddRange(seedRequirements ?? Enumerable.Empty<AgricultureCommodityYield>());
+		_plantingWindows.AddRange(plantingWindows ?? Enumerable.Empty<AgriculturePlantingWindow>());
+		foreach (var range in scoreRanges ?? Enumerable.Empty<AgricultureScoreRange>())
+		{
+			_scoreRanges[range.Score] = range;
+		}
+
 		using (new FMDB())
 		{
 			var dbitem = new Models.AgricultureCropDefinition
@@ -55,6 +75,12 @@ public class AgricultureCropDefinition : SaveableItem, IAgricultureCropDefinitio
 	public int MaximumMoisture { get; private set; }
 	public int MinimumTemperature { get; private set; }
 	public int MaximumTemperature { get; private set; }
+	public bool IsPerennial { get; private set; }
+	public int HarvestCycleDays { get; private set; }
+	public IReadOnlyCollection<AgriculturePlantingWindow> PlantingWindows => _plantingWindows;
+	public IReadOnlyCollection<AgricultureScoreRange> ScoreRanges => _scoreRanges.Values;
+	public IReadOnlyCollection<AgricultureCommodityYield> YieldOutputs => _yieldOutputs;
+	public IReadOnlyCollection<AgricultureCommodityYield> SeedRequirements => _seedRequirements;
 
 	public void BuildingSetName(string name)
 	{
@@ -86,6 +112,18 @@ public class AgricultureCropDefinition : SaveableItem, IAgricultureCropDefinitio
 		Changed = true;
 	}
 
+	public void BuildingSetPerennial(bool value)
+	{
+		IsPerennial = value;
+		Changed = true;
+	}
+
+	public void BuildingSetHarvestCycleDays(int value)
+	{
+		HarvestCycleDays = System.Math.Clamp(value, 1, 10000);
+		Changed = true;
+	}
+
 	public void BuildingSetMoistureRange(int minimum, int maximum)
 	{
 		MinimumMoisture = minimum.ClampScore();
@@ -110,15 +148,91 @@ public class AgricultureCropDefinition : SaveableItem, IAgricultureCropDefinitio
 		Changed = true;
 	}
 
+	public void BuildingSetScoreRange(AgricultureScoreType score, int minimum, int maximum)
+	{
+		_scoreRanges[score] = new AgricultureScoreRange(score, minimum, maximum);
+		Changed = true;
+	}
+
+	public void BuildingRemoveScoreRange(AgricultureScoreType score)
+	{
+		if (_scoreRanges.Remove(score))
+		{
+			Changed = true;
+		}
+	}
+
+	public void BuildingSetPlantingWindows(IEnumerable<AgriculturePlantingWindow> windows)
+	{
+		_plantingWindows.Clear();
+		_plantingWindows.AddRange(windows
+			.Where(x => !string.IsNullOrWhiteSpace(x.Value))
+			.DistinctBy(x => (x.Type, NormalisePlantingWindowValue(x.Value))));
+		Changed = true;
+	}
+
+	public void BuildingClearPlantingWindows()
+	{
+		if (_plantingWindows.Count == 0)
+		{
+			return;
+		}
+
+		_plantingWindows.Clear();
+		Changed = true;
+	}
+
 	private void LoadDefinition(string definition)
 	{
 		var root = AgricultureXmlExtensions.RootOrDefault(definition, "Crop");
 		BaseGrowthDays = System.Math.Clamp((int?)root.Attribute("growthDays") ?? 30, 1, 10000);
 		HarvestWindowDays = System.Math.Clamp((int?)root.Attribute("harvestWindowDays") ?? 7, 1, 10000);
+		IsPerennial = (bool?)root.Attribute("perennial") ?? false;
+		HarvestCycleDays = System.Math.Clamp((int?)root.Attribute("harvestCycleDays") ?? BaseGrowthDays, 1, 10000);
 		MinimumMoisture = ((int?)root.Attribute("minMoisture") ?? 20).ClampScore();
 		MaximumMoisture = ((int?)root.Attribute("maxMoisture") ?? 85).ClampScore();
 		MinimumTemperature = (int?)root.Attribute("minTemperature") ?? 0;
 		MaximumTemperature = (int?)root.Attribute("maxTemperature") ?? 45;
+		_plantingWindows.Clear();
+		foreach (var element in root.Element("PlantingWindows")?.Elements("Window") ?? Enumerable.Empty<XElement>())
+		{
+			if (element.TryLoadPlantingWindow(out var window) && window != null)
+			{
+				_plantingWindows.Add(window);
+			}
+		}
+
+		_scoreRanges.Clear();
+		foreach (var range in root.Element("ScoreRanges")?.LoadScoreRanges().Values ?? Enumerable.Empty<AgricultureScoreRange>())
+		{
+			_scoreRanges[range.Score] = range;
+		}
+
+		_yieldOutputs.Clear();
+		foreach (var element in root.Element("Outputs")?.Elements("Commodity") ?? Enumerable.Empty<XElement>())
+		{
+			var material = (string)element.Attribute("material");
+			var weight = (double?)element.Attribute("weight") ?? 0.0;
+			if (string.IsNullOrWhiteSpace(material) || weight <= 0.0)
+			{
+				continue;
+			}
+
+			_yieldOutputs.Add(new AgricultureCommodityYield(material, weight, (string)element.Attribute("tag") ?? string.Empty));
+		}
+
+		_seedRequirements.Clear();
+		foreach (var element in root.Element("Seeds")?.Elements("Commodity") ?? Enumerable.Empty<XElement>())
+		{
+			var material = (string)element.Attribute("material");
+			var weight = (double?)element.Attribute("weight") ?? 0.0;
+			if (string.IsNullOrWhiteSpace(material) || weight <= 0.0)
+			{
+				continue;
+			}
+
+			_seedRequirements.Add(new AgricultureCommodityYield(material, weight, (string)element.Attribute("tag") ?? string.Empty));
+		}
 	}
 
 	private XElement SaveDefinition()
@@ -126,10 +240,29 @@ public class AgricultureCropDefinition : SaveableItem, IAgricultureCropDefinitio
 		return new XElement("Crop",
 			new XAttribute("growthDays", BaseGrowthDays),
 			new XAttribute("harvestWindowDays", HarvestWindowDays),
+			new XAttribute("perennial", IsPerennial),
+			new XAttribute("harvestCycleDays", HarvestCycleDays),
 			new XAttribute("minMoisture", MinimumMoisture),
 			new XAttribute("maxMoisture", MaximumMoisture),
 			new XAttribute("minTemperature", MinimumTemperature),
-			new XAttribute("maxTemperature", MaximumTemperature));
+			new XAttribute("maxTemperature", MaximumTemperature),
+			new XElement("PlantingWindows",
+				_plantingWindows.Select(x => x.SaveToXml())),
+			new XElement("ScoreRanges",
+				_scoreRanges.Values.OrderBy(x => x.Score).Select(x => new XElement("Score",
+					new XAttribute("type", x.Score.ToString()),
+					new XAttribute("min", x.Minimum),
+					new XAttribute("max", x.Maximum)))),
+			new XElement("Seeds",
+				_seedRequirements.Select(x => new XElement("Commodity",
+					new XAttribute("material", x.MaterialName),
+					new XAttribute("weight", x.BaseWeight),
+					string.IsNullOrWhiteSpace(x.TagName) ? null : new XAttribute("tag", x.TagName)))),
+			new XElement("Outputs",
+				_yieldOutputs.Select(x => new XElement("Commodity",
+					new XAttribute("material", x.MaterialName),
+					new XAttribute("weight", x.BaseWeight),
+					string.IsNullOrWhiteSpace(x.TagName) ? null : new XAttribute("tag", x.TagName)))));
 	}
 
 	public override void Save()
@@ -140,5 +273,10 @@ public class AgricultureCropDefinition : SaveableItem, IAgricultureCropDefinitio
 		dbitem.Category = Category;
 		dbitem.Definition = SaveDefinition().ToString();
 		Changed = false;
+	}
+
+	private static string NormalisePlantingWindowValue(string value)
+	{
+		return value.Trim().ToLowerInvariant();
 	}
 }

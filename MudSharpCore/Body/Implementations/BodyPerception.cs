@@ -27,6 +27,7 @@ using MudSharp.Planes;
 using MudSharp.RPG.Checks;
 using MudSharp.RPG.Law;
 using MudSharp.RPG.Merits.Interfaces;
+using MudSharp.Vehicles;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -388,6 +389,10 @@ public partial class Body
         {
             parts.Add($"riding {Actor.RidingMount.HowSeen(voyeur)}");
         }
+        else if (VisibleVehicleOccupancy(voyeur) is { } vehicle)
+        {
+            parts.Add($"riding {vehicle.ExteriorItem.HowSeen(voyeur)}");
+        }
         else
         {
             parts.Add(DescribePosition(voyeur, true));
@@ -419,6 +424,16 @@ public partial class Body
 
         bool usePlural = voyeur.IsSelf(this) && !flags.HasFlag(PerceiveIgnoreFlags.IgnoreSelf) || !IsSingleEntity;
         return $"{HowSeen(voyeur, proper, DescriptionType.Short, colour, flags)} {(usePlural ? "are" : "is")} {parts.ListToCommaSeparatedValues(", ")}";
+    }
+
+    private IVehicle VisibleVehicleOccupancy(IPerceiver voyeur)
+    {
+        return Gameworld.Vehicles.FirstOrDefault(x =>
+            x.IsOccupant(Actor) &&
+            x.ExteriorItem is not null &&
+            x.ExteriorItem.Location == Location &&
+            x.ExteriorItem.RoomLayer == RoomLayer &&
+            voyeur.CanSee(x.ExteriorItem));
     }
 
     public override string HowSeen(IPerceiver voyeur, bool proper = false, DescriptionType type = DescriptionType.Short,
@@ -566,13 +581,13 @@ public partial class Body
         StringBuilder sb = new();
         sb.AppendLine(Location.HowSeen(Actor,
             type: fromMovement && Actor.BriefRoomDescs ? DescriptionType.Long : DescriptionType.Full));
-        foreach (
-            IMovement move in
-            Location.Characters.Where(x => x != Actor && x.Movement != null && x.RoomLayer == RoomLayer)
-                    .Select(x => x.Movement)
-                    .Distinct()
-                    .Where(move => move.SeenBy(Actor))
-                    .ToList())
+        var visibleMovements = Location.Characters
+                                       .Where(x => x != Actor && x.Movement != null && x.RoomLayer == RoomLayer)
+                                       .Select(x => x.Movement)
+                                       .Distinct()
+                                       .Where(move => move.SeenBy(Actor))
+                                       .ToList();
+        foreach (var move in visibleMovements)
         {
             sb.AppendLine(move.Describe(Actor).Wrap(InnerLineFormatLength).Colour(Telnet.Yellow));
         }
@@ -583,7 +598,26 @@ public partial class Body
             sb.AppendLine($"There is graffiti in this location. Use LOOK GRAFFITI to view it.".Colour(Telnet.BoldCyan));
         }
 
-        List<IGameItem> items = Location.LayerGameItems(RoomLayer).Where(x => CanSee(x)).ToList();
+        var visibleCharacters = Location.Characters
+                                        .Where(x => x != Actor && x.Movement == null && x.RoomLayer == RoomLayer && CanSee(x))
+                                        .ToList();
+        var movementTargets = visibleMovements
+                              .SelectMany(x => x.Targets)
+                              .OfType<IGameItem>()
+                              .ToHashSet();
+        var vehiclesDescribedByVisibleOccupants = Gameworld.Vehicles
+                                                           .Where(x => x.ExteriorItem is not null &&
+                                                                       x.ExteriorItem.Location == Location &&
+                                                                       x.ExteriorItem.RoomLayer == RoomLayer &&
+                                                                       CanSee(x.ExteriorItem) &&
+                                                                       visibleCharacters.Any(x.IsOccupant))
+                                                           .Select(x => x.ExteriorItem)
+                                                           .ToHashSet();
+        List<IGameItem> items = Location.LayerGameItems(RoomLayer)
+                                        .Where(x => CanSee(x))
+                                        .Where(x => !movementTargets.Contains(x))
+                                        .Where(x => !vehiclesDescribedByVisibleOccupants.Contains(x))
+                                        .ToList();
         if (items.GroupBy(x => x.ItemGroup?.Forms.Any() == true ? x.ItemGroup : null).Sum(x => x.Key != null ? 1 : x.Count()) > 25 &&
             GameItemProto.TooManyItemsGroup != null)
         {
@@ -641,8 +675,7 @@ public partial class Body
             }
         }
 
-        foreach (ICharacter ch in Location.Characters.Where(x =>
-                     x != Actor && x.Movement == null && x.RoomLayer == RoomLayer && CanSee(x)))
+        foreach (ICharacter ch in visibleCharacters)
         {
             sb.AppendLine(ch.HowSeen(Actor, true, DescriptionType.Long).Wrap(InnerLineFormatLength));
         }

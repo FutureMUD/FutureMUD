@@ -13,6 +13,8 @@ namespace MudSharp.Models
         public long Id { get; set; }
         public long? BodyId { get; set; }
         public long? GameItemId { get; set; }
+        public long? VehicleId { get; set; }
+        public long? VehicleDamageZoneId { get; set; }
         public double OriginalDamage { get; set; }
         public double CurrentDamage { get; set; }
         public double CurrentPain { get; set; }
@@ -30,6 +32,8 @@ namespace MudSharp.Models
         public virtual Character ActorOrigin { get; set; }
         public virtual Body Body { get; set; }
         public virtual GameItem GameItem { get; set; }
+        public virtual Vehicle Vehicle { get; set; }
+        public virtual VehicleDamageZone VehicleDamageZone { get; set; }
         public virtual GameItem LodgedItem { get; set; }
         public virtual GameItem ToolOrigin { get; set; }
         public virtual ICollection<Infection> Infections { get; set; }

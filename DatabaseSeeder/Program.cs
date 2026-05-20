@@ -91,7 +91,7 @@ Please press enter to begin.".WriteLineConsole();
         SafeClear();
 #if DEBUG
         ConnectionString =
-            "server=localhost;port=3307;database=rpi_engine;uid=futuremud;password=rpiengine2020;SslMode=None;AllowPublicKeyRetrieval=True;Default Command Timeout=300000;";
+            "server=localhost;port=3307;database=demo_dbo;uid=futuremud;password=rpiengine2020;SslMode=None;AllowPublicKeyRetrieval=True;Default Command Timeout=300000;";
 #else
 		Console.WriteLine("Please enter the connection string for your database: ");
 		Console.Write("This is very likely to be in the following format: ");

@@ -2139,6 +2139,12 @@ namespace MudSharp.Database
                 entity.HasIndex(e => e.GameItemId)
                     .HasDatabaseName("FK_Wounds_GameItemOwner_idx");
 
+                entity.HasIndex(e => e.VehicleId)
+                    .HasDatabaseName("FK_Wounds_Vehicles_idx");
+
+                entity.HasIndex(e => e.VehicleDamageZoneId)
+                    .HasDatabaseName("FK_Wounds_VehicleDamageZones_idx");
+
                 entity.HasIndex(e => e.LodgedItemId)
                     .HasDatabaseName("FK_Wounds_GameItems_idx");
 
@@ -2161,6 +2167,10 @@ namespace MudSharp.Database
                     .UseCollation("utf8mb4_general_ci");
 
                 entity.Property(e => e.GameItemId).HasColumnType("bigint(20)");
+
+                entity.Property(e => e.VehicleId).HasColumnType("bigint(20)");
+
+                entity.Property(e => e.VehicleDamageZoneId).HasColumnType("bigint(20)");
 
                 entity.Property(e => e.Internal)
                     .HasColumnType("bit(1)")
@@ -2193,6 +2203,18 @@ namespace MudSharp.Database
                     .HasForeignKey(d => d.GameItemId)
                     .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK_Wounds_GameItemOwner");
+
+                entity.HasOne(d => d.Vehicle)
+                    .WithMany()
+                    .HasForeignKey(d => d.VehicleId)
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .HasConstraintName("FK_Wounds_Vehicles");
+
+                entity.HasOne(d => d.VehicleDamageZone)
+                    .WithMany(p => p.Wounds)
+                    .HasForeignKey(d => d.VehicleDamageZoneId)
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .HasConstraintName("FK_Wounds_VehicleDamageZones");
 
                 entity.HasOne(d => d.LodgedItem)
                     .WithMany(p => p.WoundsLodgedItem)

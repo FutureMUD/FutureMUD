@@ -68,36 +68,45 @@ public class ConnectableGameItemComponent : GameItemComponent, IConnectable
 
     public override bool PreventsMovement()
     {
-        return (Parent.InInventoryOf != null && ConnectedItems.Any(x => x.Item2.Independent)) ||
-               ConnectedItems.Any(x => x.Item2.Independent && x.Item2.Parent.InInventoryOf != Parent.InInventoryOf);
+        return MovementBreakingConnections().Any();
     }
 
     public override string WhyPreventsMovement(ICharacter mover)
     {
-        List<Tuple<ConnectorType, IConnectable>> preventingItems =
-            ConnectedItems.Where(
-                              x =>
-                                  x.Item2.Independent &&
-                                  (x.Item2.Parent.InInventoryOf == null ||
-                                   x.Item2.Parent.InInventoryOf != Parent.InInventoryOf))
-                          .ToList();
+        List<Tuple<ConnectorType, IConnectable>> preventingItems = MovementBreakingConnections().ToList();
         return
             $"{Parent.HowSeen(mover)} is still connected to {preventingItems.Select(x => x.Item2.Parent.HowSeen(mover)).ListToString()}.";
     }
 
     public override void ForceMove()
     {
-        List<Tuple<ConnectorType, IConnectable>> preventingItems =
-            ConnectedItems.Where(
-                              x =>
-                                  x.Item2.Independent &&
-                                  (x.Item2.Parent.InInventoryOf == null ||
-                                   x.Item2.Parent.InInventoryOf != Parent.InInventoryOf))
-                          .ToList();
+        List<Tuple<ConnectorType, IConnectable>> preventingItems = MovementBreakingConnections().ToList();
         foreach (Tuple<ConnectorType, IConnectable> item in preventingItems)
         {
             RawDisconnect(item.Item2, true);
         }
+    }
+
+    private IEnumerable<Tuple<ConnectorType, IConnectable>> MovementBreakingConnections()
+    {
+        return ConnectedItems.Where(x => x.Item2.Independent &&
+                                         (Parent.InInventoryOf != null ||
+                                          !ItemsRemainCoLocated(Parent, x.Item2.Parent)));
+    }
+
+    private static bool ItemsRemainCoLocated(IGameItem parent, IGameItem other)
+    {
+        if (parent.InInventoryOf != null || other.InInventoryOf != null)
+        {
+            return parent.InInventoryOf == other.InInventoryOf;
+        }
+
+        if (parent.ContainedIn != null || other.ContainedIn != null)
+        {
+            return parent.ContainedIn == other.ContainedIn;
+        }
+
+        return parent.Location == other.Location && parent.RoomLayer == other.RoomLayer;
     }
 
     public override bool DescriptionDecorator(DescriptionType type)

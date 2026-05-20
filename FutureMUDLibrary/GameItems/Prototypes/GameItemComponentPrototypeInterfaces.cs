@@ -393,6 +393,10 @@ public interface IProvideGasForBreathingPrototype : IExclusiveGameItemComponentP
 {
 }
 
+public interface IProvideItemTargetProjectionsPrototype : IAggregateGameItemComponentPrototype<IProvideItemTargetProjections>
+{
+}
+
 public interface IPuffablePrototype : IExclusiveGameItemComponentPrototype<IPuffable>
 {
 }
@@ -530,6 +534,22 @@ public interface ITurnablePrototype : IExclusiveGameItemComponentPrototype<ITurn
 }
 
 public interface IVariablePrototype : IExclusiveGameItemComponentPrototype<IVariable>
+{
+}
+
+public interface IVehicleExteriorPrototype : IExclusiveGameItemComponentPrototype<IVehicleExterior>, IProvideItemTargetProjectionsPrototype
+{
+}
+
+public interface IVehicleAccessPointItemPrototype : IExclusiveGameItemComponentPrototype<IVehicleAccessPointItem>, IOpenablePrototype, ILockablePrototype
+{
+}
+
+public interface IVehicleCargoSpaceItemPrototype : IExclusiveGameItemComponentPrototype<IVehicleCargoSpaceItem>
+{
+}
+
+public interface IVehicleInstallablePrototype : IExclusiveGameItemComponentPrototype<IVehicleInstallable>
 {
 }
 

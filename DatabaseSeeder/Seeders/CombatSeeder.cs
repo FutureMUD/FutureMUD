@@ -387,6 +387,7 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
             }
 
             return context.TraitDefinitions
+                .AsEnumerable()
                 .FirstOrDefault(x => names.Contains(x.Name, StringComparer.OrdinalIgnoreCase));
         }
 

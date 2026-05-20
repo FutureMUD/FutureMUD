@@ -70,6 +70,7 @@ using MudSharp.RPG.ScriptedEvents;
 using MudSharp.TimeAndDate.Date;
 using MudSharp.TimeAndDate.Listeners;
 using MudSharp.TimeAndDate.Time;
+using MudSharp.Work.Agriculture;
 using MudSharp.Work.Butchering;
 using MudSharp.Work.Crafts;
 using MudSharp.Work.Foraging;
@@ -1466,6 +1467,37 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
     {
         _aiStorytellers.Add(item);
     }
+
+    public void Add(IAgricultureField field)
+    {
+        _agricultureFields.Add(field);
+    }
+
+    public void Add(IAgricultureFieldProfile profile)
+    {
+        _agricultureFieldProfiles.Add(profile);
+    }
+
+    public void Add(IAgricultureCropDefinition definition)
+    {
+        _agricultureCropDefinitions.Add(definition);
+    }
+
+    public void Add(IAgricultureHerdDefinition definition)
+    {
+        _agricultureHerdDefinitions.Add(definition);
+    }
+
+    public void Add(IAgricultureWoodlandDefinition definition)
+    {
+        _agricultureWoodlandDefinitions.Add(definition);
+    }
+
+    public void Add(IAgricultureOperation operation)
+    {
+        _agricultureOperations.Add(operation);
+    }
+
     public void Add(IAIStorytellerReferenceDocument item)
     {
         _aiStorytellerReferenceDocuments.Add(item);
@@ -1726,6 +1758,36 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
     public void Destroy(IAIStoryteller item)
     {
         _aiStorytellers.Remove(item);
+    }
+
+    public void Destroy(IAgricultureField field)
+    {
+        _agricultureFields.Remove(field);
+    }
+
+    public void Destroy(IAgricultureFieldProfile profile)
+    {
+        _agricultureFieldProfiles.Remove(profile);
+    }
+
+    public void Destroy(IAgricultureCropDefinition definition)
+    {
+        _agricultureCropDefinitions.Remove(definition);
+    }
+
+    public void Destroy(IAgricultureHerdDefinition definition)
+    {
+        _agricultureHerdDefinitions.Remove(definition);
+    }
+
+    public void Destroy(IAgricultureWoodlandDefinition definition)
+    {
+        _agricultureWoodlandDefinitions.Remove(definition);
+    }
+
+    public void Destroy(IAgricultureOperation operation)
+    {
+        _agricultureOperations.Remove(operation);
     }
 
     public void Destroy(IAIStorytellerReferenceDocument item)

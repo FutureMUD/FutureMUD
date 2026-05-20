@@ -17,6 +17,7 @@ FutureMUD locations are built from a small set of concepts:
 | Overlay | A versioned set of room presentation and exit data. Builders edit overlays rather than directly overwriting live room state. |
 | Overlay Package | A named collection of overlays that move through review, approval, and swap workflows together. |
 | Terrain | The mechanical and presentation baseline for a room: movement, layers, natural light expectations, atmosphere, tracks, weather override, forage defaults, and editor display. |
+| Agriculture Field | Optional field state attached to a cell for crops, pasture, herds, or managed woodland. A cell can have at most one field. |
 | Exit | A connection between rooms. Exits can be cardinal, non-cardinal, door-capable, climbable, fall exits, layer-blocking, hidden by prog, or limited by character size/posture. |
 
 Most building sessions follow this shape:
@@ -113,6 +114,7 @@ A cell has:
 - Safe quit flag.
 - Exits.
 - Variable register values for progs.
+- Optional agriculture field.
 - Optional landmark or meeting-place effect.
 
 Key inspection commands:
@@ -128,6 +130,13 @@ show exittemplates
 ```
 
 `cell overlay` is a builder view/edit helper. It lets you view a specific overlay revision for your current room. `cell overlay clear` returns you to the default current overlay. You will see the information associated with your current overlay when you look at the room, but others will still see the room's default current. This way, you can be working on changes to an area live without impacting on what others are seeing.
+
+Agriculture note:
+
+- agriculture fields are live cell state, not overlay text
+- terrain can define a default agriculture profile with `terrain set agriculture <profile|none>`
+- builders create and maintain actual fields with `field create`, `field set`, `field reset`, and `field tick`
+- see [Agriculture Builder Workflows](../Agriculture/Agriculture_Builder_Workflows.md) for the full field workflow
 
 ### Areas
 

@@ -37,6 +37,7 @@ using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.RPG.Checks;
 using MudSharp.TimeAndDate.Date;
 using MudSharp.TimeAndDate.Time;
+using MudSharp.Work.Agriculture;
 using MudSharp.Work.Foraging;
 using MudSharp.Work.Projects;
 using Parlot;
@@ -1778,6 +1779,8 @@ public partial class Cell : Location, IDisposable, ICell
             Changed = true;
         }
     }
+
+    public IAgricultureField AgricultureField => Gameworld.AgricultureFields.FirstOrDefault(x => x.Cell?.Id == Id);
 
     private long? ExplicitForagableProfileId => _foragableProfile?.Id ?? (_foragableProfileId == 0 ? null : _foragableProfileId);
 

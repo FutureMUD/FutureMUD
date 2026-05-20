@@ -103,6 +103,12 @@ using Effect = MudSharp.Effects.Effect;
 using EntityDescriptionPattern = MudSharp.Form.Shape.EntityDescriptionPattern;
 using Ethnicity = MudSharp.Character.Heritage.Ethnicity;
 using ExternalClanControl = MudSharp.Community.ExternalClanControl;
+using AgricultureCropDefinitionModel = MudSharp.Models.AgricultureCropDefinition;
+using AgricultureFieldModel = MudSharp.Models.AgricultureField;
+using AgricultureFieldProfileModel = MudSharp.Models.AgricultureFieldProfile;
+using AgricultureHerdDefinitionModel = MudSharp.Models.AgricultureHerdDefinition;
+using AgricultureOperationModel = MudSharp.Models.AgricultureOperation;
+using AgricultureWoodlandDefinitionModel = MudSharp.Models.AgricultureWoodlandDefinition;
 using Foragable = MudSharp.Work.Foraging.Foragable;
 using ForagableProfile = MudSharp.Work.Foraging.ForagableProfile;
 using GameItem = MudSharp.Models.GameItem;
@@ -369,6 +375,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
 
 
             game.LoadProjects(); // Needs to come before LoadNPCs
+            game.LoadAgriculture(); // Needs projects and world cells loaded
 
             Character.Character.InitialiseCharacterClass(this);
             LightModel = PerceptionEngine.Light.LightModel.LoadLightModel(this);
@@ -475,6 +482,14 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
                 }
             }, ScheduleType.System, TimeSpan.FromMinutes(GetStaticDouble("ProjectTickMinutes")),
             "Main ActiveProjects Tick"));
+        Scheduler.AddSchedule(new RepeatingSchedule<IFuturemud>(this, this, fm =>
+            {
+                foreach (var field in fm.AgricultureFields.ToList())
+                {
+                    field.DailyTick();
+                }
+            }, ScheduleType.System, TimeSpan.FromMinutes(60),
+            "Main Agriculture Tick"));
         Scheduler.AddSchedule(new RepeatingSchedule<IFuturemud>(this, this,
             fm => { fm.GameStatistics.DoPlayerActivitySnapshot(); }, ScheduleType.System, TimeSpan.FromMinutes(15),
             "Update Online Snapshot"));
@@ -4170,6 +4185,69 @@ For information on the syntax to use in emotes (such as those included in bracke
 #endif
         count = projects.Count;
         ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Active Project" : "Active Projects");
+    }
+
+    void IFuturemudLoader.LoadAgriculture()
+    {
+        ConsoleUtilities.WriteLine("\nLoading #5Agriculture#0...");
+#if DEBUG
+        Stopwatch sw = new();
+        sw.Start();
+#endif
+
+        List<AgricultureFieldProfileModel> profiles = FMDB.Context.AgricultureFieldProfiles.AsNoTracking().ToList();
+        foreach (var profile in profiles)
+        {
+            _agricultureFieldProfiles.Add(new MudSharp.Work.Agriculture.AgricultureFieldProfile(profile, this));
+        }
+
+        List<AgricultureCropDefinitionModel> crops = FMDB.Context.AgricultureCropDefinitions.AsNoTracking().ToList();
+        foreach (var crop in crops)
+        {
+            _agricultureCropDefinitions.Add(new MudSharp.Work.Agriculture.AgricultureCropDefinition(crop, this));
+        }
+
+        List<AgricultureHerdDefinitionModel> herds = FMDB.Context.AgricultureHerdDefinitions.AsNoTracking().ToList();
+        foreach (var herd in herds)
+        {
+            _agricultureHerdDefinitions.Add(new MudSharp.Work.Agriculture.AgricultureHerdDefinition(herd, this));
+        }
+
+        List<AgricultureWoodlandDefinitionModel> woodlands = FMDB.Context.AgricultureWoodlandDefinitions.AsNoTracking().ToList();
+        foreach (var woodland in woodlands)
+        {
+            _agricultureWoodlandDefinitions.Add(new MudSharp.Work.Agriculture.AgricultureWoodlandDefinition(woodland, this));
+        }
+
+        List<AgricultureOperationModel> operations = FMDB.Context.AgricultureOperations.AsNoTracking().ToList();
+        foreach (var operation in operations)
+        {
+            _agricultureOperations.Add(new MudSharp.Work.Agriculture.AgricultureOperation(operation, this));
+        }
+
+        List<AgricultureFieldModel> fields = FMDB.Context.AgricultureFields
+                                                   .Include(x => x.AgricultureFieldCrop)
+                                                   .Include(x => x.AgricultureFieldHerds)
+                                                   .Include(x => x.AgricultureFieldWoodland)
+                                                   .AsSplitQuery()
+                                                   .AsNoTracking()
+                                                   .ToList();
+        foreach (var field in fields)
+        {
+            _agricultureFields.Add(new MudSharp.Work.Agriculture.AgricultureField(field, this));
+        }
+
+#if DEBUG
+        sw.Stop();
+        ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
+#endif
+        ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 agriculture profile{1}, #2{2:N0}#0 crop{3}, #2{4:N0}#0 herd{5}, #2{6:N0}#0 woodland definition{7}, #2{8:N0}#0 operation{9}, and #2{10:N0}#0 field{11}.",
+            profiles.Count, profiles.Count == 1 ? "" : "s",
+            crops.Count, crops.Count == 1 ? "" : "s",
+            herds.Count, herds.Count == 1 ? "" : "s",
+            woodlands.Count, woodlands.Count == 1 ? "" : "s",
+            operations.Count, operations.Count == 1 ? "" : "s",
+            fields.Count, fields.Count == 1 ? "" : "s");
     }
 
     void IFuturemudLoader.LoadJobs()

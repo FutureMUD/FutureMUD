@@ -72,6 +72,7 @@ using MudSharp.TimeAndDate.Date;
 using MudSharp.TimeAndDate.Listeners;
 using MudSharp.TimeAndDate.Time;
 using MudSharp.Work.Butchering;
+using MudSharp.Work.Agriculture;
 using MudSharp.Work.Crafts;
 using MudSharp.Work.Foraging;
 using MudSharp.Work.Projects;
@@ -106,6 +107,12 @@ namespace MudSharp.Framework
         /// This collection contains all Actor (NPCs and Characters) that have been loaded into the game
         /// </summary>
         IUneditableAll<ICharacter> Actors { get; }
+        IUneditableAll<IAgricultureField> AgricultureFields { get; }
+        IUneditableAll<IAgricultureFieldProfile> AgricultureFieldProfiles { get; }
+        IUneditableAll<IAgricultureCropDefinition> AgricultureCropDefinitions { get; }
+        IUneditableAll<IAgricultureHerdDefinition> AgricultureHerdDefinitions { get; }
+        IUneditableAll<IAgricultureWoodlandDefinition> AgricultureWoodlandDefinitions { get; }
+        IUneditableAll<IAgricultureOperation> AgricultureOperations { get; }
         IUneditableAll<IAIStoryteller> AIStorytellers { get; }
         IUneditableAll<IAIStorytellerReferenceDocument> AIStorytellerReferenceDocuments { get; }
         IUneditableAll<ICharacter> CachedActors { get; }
@@ -392,6 +399,12 @@ namespace MudSharp.Framework
 
         void AddGuest(ICharacter character);
         void Add(IAIStoryteller item);
+        void Add(IAgricultureField field);
+        void Add(IAgricultureFieldProfile profile);
+        void Add(IAgricultureCropDefinition definition);
+        void Add(IAgricultureHerdDefinition definition);
+        void Add(IAgricultureWoodlandDefinition definition);
+        void Add(IAgricultureOperation operation);
         void Add(IAIStorytellerReferenceDocument item);
         void Add(IDrug drug);
         void Add(IShopper shopper);
@@ -562,6 +575,12 @@ namespace MudSharp.Framework
 
         void Destroy(object obj);
         void Destroy(IAIStoryteller item);
+        void Destroy(IAgricultureField field);
+        void Destroy(IAgricultureFieldProfile profile);
+        void Destroy(IAgricultureCropDefinition definition);
+        void Destroy(IAgricultureHerdDefinition definition);
+        void Destroy(IAgricultureWoodlandDefinition definition);
+        void Destroy(IAgricultureOperation operation);
         void Destroy(IAIStorytellerReferenceDocument item);
         void Destroy(IShopper shopper);
         void Destroy(IHeightWeightModel model);

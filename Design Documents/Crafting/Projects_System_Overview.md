@@ -7,6 +7,7 @@ The intended audience is engine developers, maintainers, and agents working on t
 
 ## Document Map
 - [Projects System Builder Workflows](./Projects_System_Builder_Workflows.md) explains the in-game builder and admin command surface for authoring and operating projects.
+- [Agriculture Runtime Model](../Agriculture/Agriculture_Runtime_Model.md) explains how farming operations use normal local projects plus `AgricultureProjectContext` and the `agriculture` completion action.
 
 ## Core Idea
 Projects model long-running, mostly off-screen work.
@@ -75,6 +76,7 @@ These are implemented by `ActiveProject.RegisterFutureProgCompiler()` and return
 | --- | --- | --- |
 | `prog` | `ProgAction` | Executes a FutureProg when the phase completes |
 | `skilluse` | `SkillUseAction` | Grants one or more free skill checks to the project owner when the phase completes |
+| `agriculture` | `AgricultureOperationAction` | Applies a field operation from `AgricultureProjectContext` when a local agriculture project completes |
 
 ### Labour impact types
 | Builder keyword | Runtime type | Purpose |

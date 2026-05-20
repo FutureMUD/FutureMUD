@@ -175,6 +175,17 @@ public static class SeederMetadataRegistry
                 UpdateSummary: "Reruns also refresh the stock wilderness autobuilder room template, area template, and supporting terrain-feature tags by stable names.",
                 OwnershipSummary: "Kickstart now owns stock items, AI, helper tags, the wilderness autobuilder room+area starter package, ranged covers, hints, and dream content; core terrain foundations are seeded separately."
             ),
+            nameof(AgricultureSeeder) => new SeederMetadata(
+                SeederRepeatabilityMode.Idempotent,
+                SeederUpdateCapability.RepairExisting,
+                [
+                    Requirement("The Core seeder must have created at least one account.", context => context.Accounts.Any()),
+                    Requirement("Core utility progs must include AlwaysTrue.", context => context.FutureProgs.Any(x => x.FunctionName == "AlwaysTrue"))
+                ],
+                RerunSummary: "Reruns reuse stock agriculture definitions, operation rows, and their project templates by stable names.",
+                UpdateSummary: "Reruns refresh stock field profiles, crops, herds, woodlands, operations, and project-backed labour templates without duplicating rows.",
+                OwnershipSummary: "Stock agriculture content is tracked by stable profile, crop, herd, woodland, operation, and project names."
+            ),
             nameof(CookingSeeder) => new SeederMetadata(
                 SeederRepeatabilityMode.Idempotent,
                 SeederUpdateCapability.InstallMissing,

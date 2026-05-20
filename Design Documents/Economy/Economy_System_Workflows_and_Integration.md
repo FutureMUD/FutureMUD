@@ -66,6 +66,7 @@ The current runtime supports a lot of optional depth, but the minimum viable pat
 - clan budgets and payroll float can draw from physical treasury rooms, clan virtual treasury balances, and then the default clan bank account when present
 - markets, shoppers, and jobs all assume earlier layers already exist
 - property and auctions depend heavily on cells, banks, and world-specific content
+- agriculture fields can use property ownership and leaseholder controls for who may work a field in a mapped property cell
 - stables depend on mount-supporting cells and stable fee policy; a stable bank account is optional if managers use the stable reserve
 - hotel room rentals depend on property cells, property keys, optional bank accounts, auction houses for lost-property disposal, and optional estate setup for inherited claims
 

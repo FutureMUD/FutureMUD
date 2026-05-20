@@ -14,6 +14,7 @@ using MudSharp.GameItems;
 using MudSharp.Magic;
 using MudSharp.Movement;
 using MudSharp.RPG.Checks;
+using MudSharp.Work.Agriculture;
 using MudSharp.Work.Foraging;
 using MudSharp.Work.Projects;
 using System;
@@ -40,6 +41,7 @@ namespace MudSharp.Construction
         IEnumerable<ICellOverlay> Overlays { get; }
 
         IForagableProfile ForagableProfile { get; set; }
+        IAgricultureField AgricultureField { get; }
 
         IFluid Atmosphere { get; }
 

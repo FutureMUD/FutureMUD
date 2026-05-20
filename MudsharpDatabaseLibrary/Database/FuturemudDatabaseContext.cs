@@ -43,6 +43,16 @@ namespace MudSharp.Database
         public virtual DbSet<AIStorytellerReferenceDocument> AIStorytellerReferenceDocuments { get; set; }
         public virtual DbSet<AIStorytellerSituation> AIStorytellerSituations { get; set; }
         public virtual DbSet<AIStorytellerCharacterMemory> AIStorytellerCharacterMemories { get; set; }
+        public virtual DbSet<AgricultureCropDefinition> AgricultureCropDefinitions { get; set; }
+        public virtual DbSet<AgricultureField> AgricultureFields { get; set; }
+        public virtual DbSet<AgricultureFieldCrop> AgricultureFieldCrops { get; set; }
+        public virtual DbSet<AgricultureFieldHerd> AgricultureFieldHerds { get; set; }
+        public virtual DbSet<AgricultureFieldProfile> AgricultureFieldProfiles { get; set; }
+        public virtual DbSet<AgricultureFieldWoodland> AgricultureFieldWoodlands { get; set; }
+        public virtual DbSet<AgricultureHerdDefinition> AgricultureHerdDefinitions { get; set; }
+        public virtual DbSet<AgricultureOperation> AgricultureOperations { get; set; }
+        public virtual DbSet<AgricultureProjectContext> AgricultureProjectContexts { get; set; }
+        public virtual DbSet<AgricultureWoodlandDefinition> AgricultureWoodlandDefinitions { get; set; }
         public virtual DbSet<Ally> Allies { get; set; }
         public virtual DbSet<AmmunitionTypes> AmmunitionTypes { get; set; }
         public virtual DbSet<Appointment> Appointments { get; set; }

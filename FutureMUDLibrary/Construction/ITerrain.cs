@@ -7,6 +7,7 @@ using MudSharp.Framework.Save;
 using MudSharp.FutureProg;
 using MudSharp.Health;
 using MudSharp.RPG.Checks;
+using MudSharp.Work.Agriculture;
 using MudSharp.Work.Foraging;
 using System;
 using System.Collections.Generic;
@@ -24,6 +25,7 @@ namespace MudSharp.Construction
         InfectionType PrimaryInfection { get; }
         Difficulty InfectionVirulence { get; }
         IForagableProfile ForagableProfile { get; }
+        IAgricultureFieldProfile DefaultAgricultureFieldProfile { get; }
         bool DefaultTerrain { get; set; }
         IFluid Atmosphere { get; }
         Difficulty HideDifficulty { get; }

@@ -36,6 +36,7 @@ namespace MudSharp.Models
 
         public virtual CellOverlay CurrentOverlay { get; set; }
         public virtual Room Room { get; set; }
+        public virtual AgricultureField AgricultureField { get; set; }
         public virtual ICollection<ActiveProject> ActiveProjects { get; set; }
         public virtual ICollection<CellOverlay> CellOverlays { get; set; }
         public virtual ICollection<CellsForagableYield> CellsForagableYields { get; set; }

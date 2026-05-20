@@ -22,6 +22,7 @@ public partial class Cell
             { "id", ProgVariableTypes.Number },
             { "characters", ProgVariableTypes.Collection | ProgVariableTypes.Character },
             { "items", ProgVariableTypes.Collection | ProgVariableTypes.Item },
+            { "field", ProgVariableTypes.AgricultureField },
             { "surrounds", ProgVariableTypes.Collection | ProgVariableTypes.Location },
             { "exits", ProgVariableTypes.Collection | ProgVariableTypes.Exit },
             { "zone", ProgVariableTypes.Zone },
@@ -64,6 +65,7 @@ public partial class Cell
             { "id", "The ID of the room" },
             { "characters", "A collection of characters who are in the room (all layers)" },
             { "items", "A collection of items that are in the room (all layers)" },
+            { "field", "The agriculture field in this room, if any" },
             { "surrounds", "A collection of all rooms directly adjacent to this one" },
             { "exits", "A collection of all the exits from this room" },
             { "zone", "The zone that this room is in" },
@@ -142,6 +144,11 @@ public partial class Cell
                 break;
             case "items":
                 returnVar = new CollectionVariable(GameItems.ToList(), ProgVariableTypes.Item);
+                break;
+            case "field":
+                returnVar = AgricultureField == null
+                    ? new NullVariable(ProgVariableTypes.AgricultureField)
+                    : AgricultureField;
                 break;
             case "surrounds":
                 returnVar = new CollectionVariable(Surrounds.ToList(), ProgVariableTypes.Location);

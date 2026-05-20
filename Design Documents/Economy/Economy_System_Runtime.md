@@ -240,6 +240,7 @@ The current implementation ties property to:
 - sale and lease workflows
 - conveyancing cells where player workflows are surfaced
 - bank-account or virtual-reserve backed money movement for sale or rent collection
+- agriculture field work permissions when a field cell belongs to a property
 - approved hotel-room rental workflows through the `roomrent` command
 
 Verified load-time constraint:

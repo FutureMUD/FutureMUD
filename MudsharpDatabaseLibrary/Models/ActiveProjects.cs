@@ -24,6 +24,7 @@ namespace MudSharp.Models
         public virtual Character Character { get; set; }
         public virtual ProjectPhase CurrentPhase { get; set; }
         public virtual Project Project { get; set; }
+        public virtual AgricultureProjectContext AgricultureProjectContext { get; set; }
         public virtual ICollection<ActiveProjectLabour> ActiveProjectLabours { get; set; }
         public virtual ICollection<ActiveProjectMaterial> ActiveProjectMaterials { get; set; }
         public virtual ICollection<Character> Characters { get; set; }

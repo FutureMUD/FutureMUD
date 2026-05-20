@@ -16,6 +16,7 @@ using MudSharp.FutureProg;
 using MudSharp.FutureProg.Variables;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Interfaces;
+using MudSharp.GameItems.Prototypes;
 using MudSharp.NPC;
 
 namespace MudSharp.Work.Agriculture;
@@ -23,12 +24,14 @@ namespace MudSharp.Work.Agriculture;
 public class AgricultureField : SaveableItem, IAgricultureField
 {
 	private readonly List<AgricultureFieldHerd> _herds = new();
+	private readonly Dictionary<AgricultureScoreType, int> _customScores = new();
 	private long _cellId;
 	private long _profileId;
 	private IAgricultureFieldProfile _profile;
 	private long _cropDefinitionId;
 	private IAgricultureCropDefinition _cropDefinition;
 	private int _cropGrowthDays;
+	private int _cropHarvestCount;
 	private int _cropHealth;
 	private int _cropYieldPotential;
 	private long _woodlandDefinitionId;
@@ -50,7 +53,7 @@ public class AgricultureField : SaveableItem, IAgricultureField
 		_cellId = cell.Id;
 		Profile = profile;
 		CurrentUse = AgricultureFieldUse.Fallow;
-		foreach (AgricultureScoreType score in Enum.GetValues(typeof(AgricultureScoreType)))
+		foreach (var score in AgricultureScoreTypeExtensions.ActiveScoreTypes(Gameworld))
 		{
 			SetScore(score, profile.DefaultScores.TryGetValue(score, out var value) ? value : 50);
 		}
@@ -74,7 +77,7 @@ public class AgricultureField : SaveableItem, IAgricultureField
 				Fence = Fence,
 				Pasture = Pasture,
 				Condition = Condition,
-				Definition = "<Field />"
+				Definition = SaveFieldDefinition().ToString()
 			};
 			FMDB.Context.AgricultureFields.Add(dbitem);
 			FMDB.Context.SaveChanges();
@@ -106,6 +109,13 @@ public class AgricultureField : SaveableItem, IAgricultureField
 
 	public AgricultureFieldUse CurrentUse { get; private set; }
 	public AgricultureCropStage CropStage { get; private set; }
+	public int CropGrowthDays => _cropGrowthDays;
+	public int CropHarvestCount => _cropHarvestCount;
+	public int CropHealth => _cropHealth;
+	public int CropYieldPotential => _cropYieldPotential;
+	public int WoodlandGrowthDays => _woodlandGrowthDays;
+	public int WoodlandHealth => _woodlandHealth;
+	public int WoodlandYieldPotential => _woodlandYieldPotential;
 
 	public IAgricultureCropDefinition CurrentCrop
 	{
@@ -167,6 +177,15 @@ public class AgricultureField : SaveableItem, IAgricultureField
 		Fence = field.Fence.ClampScore();
 		Pasture = field.Pasture.ClampScore();
 		Condition = field.Condition.ClampScore();
+		var fieldRoot = AgricultureXmlExtensions.RootOrDefault(field.Definition, "Field");
+		foreach (var score in fieldRoot.Element("CustomScores")?.LoadScores() ?? new Dictionary<AgricultureScoreType, int>())
+		{
+			if (score.Key.IsCustomScore())
+			{
+				_customScores[score.Key] = score.Value;
+			}
+		}
+
 		if (field.AgricultureFieldCrop != null)
 		{
 			_cropDefinitionId = field.AgricultureFieldCrop.CropDefinitionId;
@@ -174,6 +193,8 @@ public class AgricultureField : SaveableItem, IAgricultureField
 			_cropGrowthDays = field.AgricultureFieldCrop.GrowthDays;
 			_cropHealth = field.AgricultureFieldCrop.Health.ClampScore();
 			_cropYieldPotential = field.AgricultureFieldCrop.YieldPotential.ClampScore();
+			var cropRoot = AgricultureXmlExtensions.RootOrDefault(field.AgricultureFieldCrop.Definition, "Crop");
+			_cropHarvestCount = Math.Max(0, (int?)cropRoot.Attribute("harvestCount") ?? 0);
 		}
 
 		if (field.AgricultureFieldWoodland != null)
@@ -210,6 +231,11 @@ public class AgricultureField : SaveableItem, IAgricultureField
 			AgricultureScoreType.Fence => Fence,
 			AgricultureScoreType.Pasture => Pasture,
 			AgricultureScoreType.Condition => Condition,
+			_ when score.IsCustomScore() => _customScores.TryGetValue(score, out var value)
+				? value
+				: Profile?.DefaultScores.TryGetValue(score, out value) == true
+					? value
+					: 50,
 			_ => 0
 		};
 	}
@@ -255,6 +281,13 @@ public class AgricultureField : SaveableItem, IAgricultureField
 			case AgricultureScoreType.Condition:
 				Condition = value;
 				break;
+			default:
+				if (score.IsCustomScore())
+				{
+					_customScores[score] = value;
+				}
+
+				break;
 		}
 	}
 
@@ -272,12 +305,15 @@ public class AgricultureField : SaveableItem, IAgricultureField
 		sb.AppendLine($"Use: {CurrentUse.DescribeEnum().ColourName()}");
 		if (CurrentCrop != null)
 		{
-			sb.AppendLine($"Crop: {CurrentCrop.Name.ColourName()} ({CropStage.DescribeEnum().ColourValue()}, health {_cropHealth.ToStringN0Colour(voyeur)}, yield {_cropYieldPotential.ToStringN0Colour(voyeur)})");
+			var harvestText = CurrentCrop.IsPerennial
+				? $", harvests {_cropHarvestCount.ToString("N0", voyeur).ColourValue()}"
+				: string.Empty;
+			sb.AppendLine($"Crop: {CurrentCrop.Name.ColourName()} ({CropStage.DescribeEnum().ColourValue()}, health {_cropHealth.ToStringN0Colour(voyeur)}, yield {_cropYieldPotential.ToStringN0Colour(voyeur)}{harvestText})");
 		}
 
 		if (CurrentWoodland != null)
 		{
-			sb.AppendLine($"Woodland: {CurrentWoodland.Name.ColourName()} ({_woodlandGrowthDays.ToString("N0", voyeur).ColourValue()} managed days, health {_woodlandHealth.ToStringN0Colour(voyeur)})");
+			sb.AppendLine($"Woodland: {CurrentWoodland.Name.ColourName()} ({_woodlandGrowthDays.ToString("N0", voyeur).ColourValue()} managed days, health {_woodlandHealth.ToStringN0Colour(voyeur)}, yield {_woodlandYieldPotential.ToStringN0Colour(voyeur)})");
 		}
 
 		if (_herds.Any())
@@ -291,11 +327,11 @@ public class AgricultureField : SaveableItem, IAgricultureField
 
 		sb.AppendLine();
 		sb.AppendLine("Field State:");
-		foreach (AgricultureScoreType score in Enum.GetValues(typeof(AgricultureScoreType)))
+		foreach (var score in AgricultureScoreTypeExtensions.ActiveScoreTypes(Gameworld))
 		{
 			var value = Score(score);
 			var display = exact ? $"{value.ToString("N0", voyeur).ColourValue()} ({value.DescribeBandColoured()})" : value.DescribeBandColoured();
-			sb.AppendLine($"\t{score.DescribeEnum().ColourName()}: {display}");
+			sb.AppendLine($"\t{score.DescribeFor(Gameworld).ColourName()}: {display}");
 		}
 
 		return sb.ToString();
@@ -356,7 +392,8 @@ public class AgricultureField : SaveableItem, IAgricultureField
 		var temperature = Cell.CurrentTemperature(null);
 		var stressed = Moisture < crop.MinimumMoisture || Moisture > crop.MaximumMoisture ||
 		               temperature < crop.MinimumTemperature || temperature > crop.MaximumTemperature ||
-		               Weeds > 75 || Pests > 75 || Salinity > 80;
+		               Weeds > 75 || Pests > 75 || Salinity > 80 ||
+		               crop.ScoreRanges.Any(x => x.Score.IsEnabledScore(Gameworld) && !x.Contains(Score(x.Score)));
 		if (stressed)
 		{
 			_cropHealth = (_cropHealth - 4).ClampScore();
@@ -379,19 +416,20 @@ public class AgricultureField : SaveableItem, IAgricultureField
 			return;
 		}
 
-		if (_cropGrowthDays >= crop.BaseGrowthDays + crop.HarvestWindowDays)
+		var harvestDays = crop.IsPerennial && _cropHarvestCount > 0 ? crop.HarvestCycleDays : crop.BaseGrowthDays;
+		if (_cropGrowthDays >= harvestDays + crop.HarvestWindowDays)
 		{
 			CropStage = AgricultureCropStage.Overripe;
 		}
-		else if (_cropGrowthDays >= crop.BaseGrowthDays)
+		else if (_cropGrowthDays >= harvestDays)
 		{
 			CropStage = AgricultureCropStage.Harvestable;
 		}
-		else if (_cropGrowthDays >= crop.BaseGrowthDays * 2 / 3)
+		else if (_cropGrowthDays >= harvestDays * 2 / 3)
 		{
 			CropStage = AgricultureCropStage.Setting;
 		}
-		else if (_cropGrowthDays >= crop.BaseGrowthDays / 3)
+		else if (_cropGrowthDays >= harvestDays / 3)
 		{
 			CropStage = AgricultureCropStage.Growing;
 		}
@@ -505,6 +543,12 @@ public class AgricultureField : SaveableItem, IAgricultureField
 
 	public bool ApplyOperation(IAgricultureOperation operation, IFrameworkItem target, ICharacter actor, bool enforceActorAccess, out string result)
 	{
+		return ApplyOperation(operation, target, actor, enforceActorAccess, AgricultureWorkOutcome.Neutral, out result);
+	}
+
+	public bool ApplyOperation(IAgricultureOperation operation, IFrameworkItem target, ICharacter actor, bool enforceActorAccess,
+		AgricultureWorkOutcome outcome, out string result)
+	{
 		if (!CanBeginOperation(actor, operation, target, enforceActorAccess, out result))
 		{
 			return false;
@@ -517,9 +561,15 @@ public class AgricultureField : SaveableItem, IAgricultureField
 			return false;
 		}
 
+		outcome ??= AgricultureWorkOutcome.Neutral;
 		foreach (var delta in operation.ScoreDeltas)
 		{
-			AdjustScore(delta.Key, delta.Value);
+			if (!delta.Key.IsEnabledScore(Gameworld))
+			{
+				continue;
+			}
+
+			ApplySkillAdjustedScoreDelta(delta.Key, delta.Value, outcome);
 		}
 
 		switch (operation.OperationType)
@@ -530,10 +580,23 @@ public class AgricultureField : SaveableItem, IAgricultureField
 				_cropDefinitionId = crop.Id;
 				CropStage = AgricultureCropStage.Planted;
 				_cropGrowthDays = 0;
-				_cropHealth = Condition;
-				_cropYieldPotential = (Condition + Nutrients + Topsoil - Weeds - Pests).ClampScore();
+				_cropHarvestCount = 0;
+				_cropHealth = (Condition + outcome.CropHealthDelta).ClampScore();
+				_cropYieldPotential = (Condition + Nutrients + Topsoil - Weeds - Pests + outcome.CropYieldDelta).ClampScore();
 				CurrentUse = AgricultureFieldUse.Crop;
-				result = $"The field has been sown with {crop.Name}.";
+				result = $"The field has been sown with {crop.Name}.{outcome.DescribeEffect()}";
+				break;
+			case AgricultureOperationType.PlantOrchard:
+				var orchardCrop = (IAgricultureCropDefinition)target;
+				_cropDefinition = orchardCrop;
+				_cropDefinitionId = orchardCrop.Id;
+				CropStage = AgricultureCropStage.Planted;
+				_cropGrowthDays = 0;
+				_cropHarvestCount = 0;
+				_cropHealth = (Condition + outcome.CropHealthDelta).ClampScore();
+				_cropYieldPotential = ((Condition + Nutrients + Topsoil - Weeds - Pests + outcome.CropYieldDelta).ClampScore() / 2).ClampScore();
+				CurrentUse = AgricultureFieldUse.Orchard;
+				result = $"The field has been planted as {orchardCrop.Name}.{outcome.DescribeEffect()}";
 				break;
 			case AgricultureOperationType.Harvest:
 				if (CurrentCrop == null || CropStage is not (AgricultureCropStage.Harvestable or AgricultureCropStage.Overripe))
@@ -542,9 +605,25 @@ public class AgricultureField : SaveableItem, IAgricultureField
 					return false;
 				}
 
-				result = $"The {CurrentCrop.Name} crop is harvested with an estimated yield quality of {_cropYieldPotential.DescribeBand()}.";
-				ClearCrop();
-				CurrentUse = AgricultureFieldUse.Fallow;
+				var cropName = CurrentCrop.Name;
+				var perennialHarvest = CurrentUse == AgricultureFieldUse.Orchard && CurrentCrop.IsPerennial;
+				var cropOutputs = ReleaseCommodityOutputs(CurrentCrop.YieldOutputs, _cropHealth, _cropYieldPotential,
+					CropStage == AgricultureCropStage.Overripe ? 0.75 : 1.0, outcome);
+				result = $"The {cropName} crop is harvested with an estimated yield quality of {_cropYieldPotential.DescribeBand()}.{outcome.DescribeEffect()}{DescribeOutputResult(cropOutputs)}";
+				if (perennialHarvest)
+				{
+					_cropHarvestCount++;
+					_cropGrowthDays = 0;
+					_cropHealth = (_cropHealth + outcome.CropHealthDelta).ClampScore();
+					_cropYieldPotential = (_cropYieldPotential - 20 + outcome.CropYieldDelta).ClampScore();
+					CropStage = AgricultureCropStage.Growing;
+					CurrentUse = AgricultureFieldUse.Orchard;
+				}
+				else
+				{
+					ClearCrop();
+					CurrentUse = AgricultureFieldUse.Fallow;
+				}
 				break;
 			case AgricultureOperationType.Graze:
 			case AgricultureOperationType.Herd:
@@ -567,21 +646,46 @@ public class AgricultureField : SaveableItem, IAgricultureField
 				result = $"The field is now being managed as {woodland.Name}.";
 				break;
 			case AgricultureOperationType.Clear:
+				var clearOutputs = ReleaseWoodlandOutputs(operation, outcome);
 				ClearCrop();
 				ClearWoodland();
 				_herds.Clear();
 				CurrentUse = AgricultureFieldUse.Fallow;
-				result = "The field has been cleared back to fallow land.";
+				result = $"The field has been cleared back to fallow land.{outcome.DescribeEffect()}{DescribeOutputResult(clearOutputs)}";
 				break;
 			default:
 				CurrentUse = operation.ResultUse;
-				result = $"The {operation.Name} operation has been applied to the field.";
+				var woodlandOutputs = ReleaseWoodlandOutputs(operation, outcome);
+				result = $"The {operation.Name} operation has been applied to the field.{outcome.DescribeEffect()}{DescribeOutputResult(woodlandOutputs)}";
 				break;
 		}
 
 		RunCompletionProg(operation, actor);
 		Changed = true;
 		return true;
+	}
+
+	private void ApplySkillAdjustedScoreDelta(AgricultureScoreType score, int delta, AgricultureWorkOutcome outcome)
+	{
+		if (delta == 0)
+		{
+			return;
+		}
+
+		var beneficial = IsBeneficialDelta(score, delta);
+		var multiplier = beneficial ? outcome.BeneficialScoreMultiplier : outcome.HarmfulScoreMultiplier;
+		var adjusted = (int)Math.Round(delta * multiplier);
+		if (adjusted == 0)
+		{
+			adjusted = Math.Sign(delta);
+		}
+
+		AdjustScore(score, adjusted);
+	}
+
+	private bool IsBeneficialDelta(AgricultureScoreType score, int delta)
+	{
+		return score.HigherIsGood(Gameworld) ? delta > 0 : delta < 0;
 	}
 
 	private string WhyCannotCompleteOperation(IAgricultureOperation operation, IFrameworkItem target)
@@ -603,6 +707,72 @@ public class AgricultureField : SaveableItem, IAgricultureField
 		{
 			ReleaseCompletionOutputToField(item);
 		}
+	}
+
+	private IReadOnlyList<IGameItem> ReleaseWoodlandOutputs(IAgricultureOperation operation, AgricultureWorkOutcome outcome)
+	{
+		if (operation.WoodlandYieldMultiplier <= 0.0 || CurrentWoodland == null)
+		{
+			return Array.Empty<IGameItem>();
+		}
+
+		var outputs = ReleaseCommodityOutputs(CurrentWoodland.YieldOutputs, _woodlandHealth, _woodlandYieldPotential,
+			operation.WoodlandYieldMultiplier, outcome);
+		if (operation.WoodlandYieldCost > 0)
+		{
+			_woodlandYieldPotential = (_woodlandYieldPotential - Math.Min(_woodlandYieldPotential, operation.WoodlandYieldCost)).ClampScore();
+		}
+
+		return outputs;
+	}
+
+	private IReadOnlyList<IGameItem> ReleaseCommodityOutputs(IEnumerable<AgricultureCommodityYield> outputs, int health,
+		int yieldPotential, double multiplier, AgricultureWorkOutcome outcome)
+	{
+		var outputList = outputs?.ToList() ?? [];
+		if (outputList.Count == 0 || multiplier <= 0.0 || health <= 0 || yieldPotential <= 0)
+		{
+			return Array.Empty<IGameItem>();
+		}
+
+		if (CommodityGameItemComponentProto.ItemPrototype == null)
+		{
+			CommodityGameItemComponentProto.InitialiseItemType(Gameworld);
+		}
+
+		var items = new List<IGameItem>();
+		var healthFactor = health.ClampScore() / 100.0;
+		var yieldFactor = yieldPotential.ClampScore() / 100.0;
+		foreach (var output in outputList)
+		{
+			var material = Gameworld.Materials.GetByName(output.MaterialName);
+			if (material == null)
+			{
+				continue;
+			}
+
+			var skillMultiplier = output.TagName.EqualTo("Seeds") ? outcome.SeedYieldMultiplier : outcome.CropYieldMultiplier;
+			var weight = output.BaseWeight * healthFactor * yieldFactor * multiplier * skillMultiplier;
+			if (weight < 1.0)
+			{
+				continue;
+			}
+
+			var tag = string.IsNullOrWhiteSpace(output.TagName) ? null : Gameworld.Tags.GetByName(output.TagName);
+			var item = CommodityGameItemComponentProto.CreateNewCommodity(material, weight, tag);
+			item.Quality = outcome.OutputQuality;
+			item.RoomLayer = RoomLayer.GroundLevel;
+			Gameworld.Add(item);
+			Cell.Insert(item, true);
+			items.Add(item);
+		}
+
+		return items;
+	}
+
+	private static string DescribeOutputResult(IReadOnlyCollection<IGameItem> outputs)
+	{
+		return outputs.Count == 0 ? string.Empty : " Harvested commodities are left in the field.";
 	}
 
 	private IEnumerable<IGameItem> CompletionOutputItems(object output)
@@ -661,6 +831,7 @@ public class AgricultureField : SaveableItem, IAgricultureField
 		_cropDefinitionId = 0;
 		CropStage = AgricultureCropStage.None;
 		_cropGrowthDays = 0;
+		_cropHarvestCount = 0;
 		_cropHealth = 0;
 		_cropYieldPotential = 0;
 	}
@@ -672,6 +843,60 @@ public class AgricultureField : SaveableItem, IAgricultureField
 		_woodlandGrowthDays = 0;
 		_woodlandHealth = 0;
 		_woodlandYieldPotential = 0;
+	}
+
+	public bool ConsumeCropYield(int amount, out string reason)
+	{
+		amount = Math.Max(0, amount);
+		if (amount == 0)
+		{
+			reason = string.Empty;
+			return true;
+		}
+
+		if (CurrentCrop == null)
+		{
+			reason = "There is no crop in this field.";
+			return false;
+		}
+
+		if (_cropYieldPotential < amount)
+		{
+			reason = "The crop does not have enough remaining yield.";
+			return false;
+		}
+
+		_cropYieldPotential = (_cropYieldPotential - amount).ClampScore();
+		Changed = true;
+		reason = string.Empty;
+		return true;
+	}
+
+	public bool ConsumeWoodlandYield(int amount, out string reason)
+	{
+		amount = Math.Max(0, amount);
+		if (amount == 0)
+		{
+			reason = string.Empty;
+			return true;
+		}
+
+		if (CurrentWoodland == null)
+		{
+			reason = "There is no woodland in this field.";
+			return false;
+		}
+
+		if (_woodlandYieldPotential < amount)
+		{
+			reason = "The woodland does not have enough remaining yield.";
+			return false;
+		}
+
+		_woodlandYieldPotential = (_woodlandYieldPotential - amount).ClampScore();
+		Changed = true;
+		reason = string.Empty;
+		return true;
 	}
 
 	public bool DrawDownHerd(IAgricultureHerdDefinition definition, int count, ICharacter actor, out string result)
@@ -750,7 +975,7 @@ public class AgricultureField : SaveableItem, IAgricultureField
 		dbitem.Fence = Fence;
 		dbitem.Pasture = Pasture;
 		dbitem.Condition = Condition;
-		dbitem.Definition = "<Field />";
+		dbitem.Definition = SaveFieldDefinition().ToString();
 
 		FMDB.Context.AgricultureFieldCrops.RemoveRange(dbitem.AgricultureFieldCrop != null ? new[] { dbitem.AgricultureFieldCrop } : Array.Empty<Models.AgricultureFieldCrop>());
 		if (CurrentCrop != null)
@@ -763,7 +988,8 @@ public class AgricultureField : SaveableItem, IAgricultureField
 				GrowthDays = _cropGrowthDays,
 				Health = _cropHealth,
 				YieldPotential = _cropYieldPotential,
-				Definition = "<Crop />"
+				Definition = new XElement("Crop",
+					new XAttribute("harvestCount", _cropHarvestCount)).ToString()
 			};
 		}
 
@@ -797,6 +1023,18 @@ public class AgricultureField : SaveableItem, IAgricultureField
 		Changed = false;
 	}
 
+	private XElement SaveFieldDefinition()
+	{
+		return new XElement("Field",
+			new XElement("CustomScores",
+				_customScores
+					.Where(x => x.Key.IsCustomScore())
+					.OrderBy(x => x.Key)
+					.Select(x => new XElement("Score",
+						new XAttribute("type", x.Key.ToString()),
+						new XAttribute("value", x.Value.ClampScore())))));
+	}
+
 	#region FutureProgs
 
 	public ProgVariableTypes Type => ProgVariableTypes.AgricultureField;
@@ -812,6 +1050,12 @@ public class AgricultureField : SaveableItem, IAgricultureField
 			"use" => new TextVariable(CurrentUse.DescribeEnum()),
 			"crop" => new TextVariable(CurrentCrop?.Name ?? string.Empty),
 			"cropstage" => new TextVariable(CropStage.DescribeEnum()),
+			"cropharvests" => new NumberVariable(_cropHarvestCount),
+			"crophealth" => new NumberVariable(_cropHealth),
+			"cropyield" => new NumberVariable(_cropYieldPotential),
+			"woodland" => new TextVariable(CurrentWoodland?.Name ?? string.Empty),
+			"woodlandhealth" => new NumberVariable(_woodlandHealth),
+			"woodlandyield" => new NumberVariable(_woodlandYieldPotential),
 			"moisture" => new NumberVariable(Moisture),
 			"drainage" => new NumberVariable(Drainage),
 			"nutrients" => new NumberVariable(Nutrients),
@@ -839,6 +1083,12 @@ public class AgricultureField : SaveableItem, IAgricultureField
 			{ "use", ProgVariableTypes.Text },
 			{ "crop", ProgVariableTypes.Text },
 			{ "cropstage", ProgVariableTypes.Text },
+			{ "cropharvests", ProgVariableTypes.Number },
+			{ "crophealth", ProgVariableTypes.Number },
+			{ "cropyield", ProgVariableTypes.Number },
+			{ "woodland", ProgVariableTypes.Text },
+			{ "woodlandhealth", ProgVariableTypes.Number },
+			{ "woodlandyield", ProgVariableTypes.Number },
 			{ "moisture", ProgVariableTypes.Number },
 			{ "drainage", ProgVariableTypes.Number },
 			{ "nutrients", ProgVariableTypes.Number },

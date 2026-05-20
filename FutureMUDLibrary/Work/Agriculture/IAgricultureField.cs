@@ -14,7 +14,14 @@ public interface IAgricultureField : IFrameworkItem, ISaveable, IHaveFuturemud, 
 	AgricultureFieldUse CurrentUse { get; }
 	IAgricultureCropDefinition CurrentCrop { get; }
 	AgricultureCropStage CropStage { get; }
+	int CropGrowthDays { get; }
+	int CropHarvestCount { get; }
+	int CropHealth { get; }
+	int CropYieldPotential { get; }
 	IAgricultureWoodlandDefinition CurrentWoodland { get; }
+	int WoodlandGrowthDays { get; }
+	int WoodlandHealth { get; }
+	int WoodlandYieldPotential { get; }
 	IEnumerable<IAgricultureFieldHerd> Herds { get; }
 	int Moisture { get; set; }
 	int Drainage { get; set; }
@@ -36,6 +43,10 @@ public interface IAgricultureField : IFrameworkItem, ISaveable, IHaveFuturemud, 
 	bool CanBeginOperation(ICharacter actor, IAgricultureOperation operation, IFrameworkItem target, out string reason);
 	bool ApplyOperation(IAgricultureOperation operation, IFrameworkItem target, ICharacter actor, out string result);
 	bool ApplyOperation(IAgricultureOperation operation, IFrameworkItem target, ICharacter actor, bool enforceActorAccess, out string result);
+	bool ApplyOperation(IAgricultureOperation operation, IFrameworkItem target, ICharacter actor, bool enforceActorAccess,
+		AgricultureWorkOutcome outcome, out string result);
+	bool ConsumeCropYield(int amount, out string reason);
+	bool ConsumeWoodlandYield(int amount, out string reason);
 	bool DrawDownHerd(IAgricultureHerdDefinition definition, int count, ICharacter actor, out string result);
 	bool AbsorbNpcIntoHerd(ICharacter npc, IAgricultureHerdDefinition definition, ICharacter actor, out string result);
 }

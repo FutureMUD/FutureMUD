@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using System.Xml.Linq;
 using MudSharp.Database;
 using MudSharp.Framework;
@@ -7,6 +9,8 @@ namespace MudSharp.Work.Agriculture;
 
 public class AgricultureWoodlandDefinition : SaveableItem, IAgricultureWoodlandDefinition
 {
+	private readonly List<AgricultureCommodityYield> _yieldOutputs = new();
+
 	public AgricultureWoodlandDefinition(Models.AgricultureWoodlandDefinition definition, IFuturemud gameworld)
 	{
 		Gameworld = gameworld;
@@ -18,7 +22,7 @@ public class AgricultureWoodlandDefinition : SaveableItem, IAgricultureWoodlandD
 	}
 
 	public AgricultureWoodlandDefinition(IFuturemud gameworld, string name, string description, string woodlandType,
-		int establishmentDays, int harvestCycleDays)
+		int establishmentDays, int harvestCycleDays, IEnumerable<AgricultureCommodityYield> yieldOutputs = null)
 	{
 		Gameworld = gameworld;
 		_name = name;
@@ -26,6 +30,7 @@ public class AgricultureWoodlandDefinition : SaveableItem, IAgricultureWoodlandD
 		WoodlandType = woodlandType;
 		EstablishmentDays = establishmentDays;
 		HarvestCycleDays = harvestCycleDays;
+		_yieldOutputs.AddRange(yieldOutputs ?? Enumerable.Empty<AgricultureCommodityYield>());
 		using (new FMDB())
 		{
 			var dbitem = new Models.AgricultureWoodlandDefinition
@@ -46,6 +51,7 @@ public class AgricultureWoodlandDefinition : SaveableItem, IAgricultureWoodlandD
 	public string WoodlandType { get; private set; }
 	public int EstablishmentDays { get; private set; }
 	public int HarvestCycleDays { get; private set; }
+	public IReadOnlyCollection<AgricultureCommodityYield> YieldOutputs => _yieldOutputs;
 
 	public void BuildingSetName(string name)
 	{
@@ -82,13 +88,30 @@ public class AgricultureWoodlandDefinition : SaveableItem, IAgricultureWoodlandD
 		var root = AgricultureXmlExtensions.RootOrDefault(definition, "Woodland");
 		EstablishmentDays = System.Math.Clamp((int?)root.Attribute("establishmentDays") ?? 90, 1, 100000);
 		HarvestCycleDays = System.Math.Clamp((int?)root.Attribute("harvestCycleDays") ?? 365, 1, 100000);
+		_yieldOutputs.Clear();
+		foreach (var element in root.Element("Outputs")?.Elements("Commodity") ?? Enumerable.Empty<XElement>())
+		{
+			var material = (string)element.Attribute("material");
+			var weight = (double?)element.Attribute("weight") ?? 0.0;
+			if (string.IsNullOrWhiteSpace(material) || weight <= 0.0)
+			{
+				continue;
+			}
+
+			_yieldOutputs.Add(new AgricultureCommodityYield(material, weight, (string)element.Attribute("tag") ?? string.Empty));
+		}
 	}
 
 	private XElement SaveDefinition()
 	{
 		return new XElement("Woodland",
 			new XAttribute("establishmentDays", EstablishmentDays),
-			new XAttribute("harvestCycleDays", HarvestCycleDays));
+			new XAttribute("harvestCycleDays", HarvestCycleDays),
+			new XElement("Outputs",
+				_yieldOutputs.Select(x => new XElement("Commodity",
+					new XAttribute("material", x.MaterialName),
+					new XAttribute("weight", x.BaseWeight),
+					string.IsNullOrWhiteSpace(x.TagName) ? null : new XAttribute("tag", x.TagName)))));
 	}
 
 	public override void Save()

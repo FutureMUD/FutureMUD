@@ -63,13 +63,14 @@ These are implemented by `ActiveProject.RegisterFutureProgCompiler()` and return
 | --- | --- | --- |
 | `simple` | `SimpleProjectLabour` | Ordinary progress-producing labour |
 | `endless` | `EndlessProjectLabour` | Labour that never completes and contributes no direct phase progress |
-| `supervision` | `SupervisionProjectLabour` | Labour that contributes no direct progress, multiplies other workers' output, and is always treated as non-mandatory |
+| `supervision` | `SupervisionProjectLabour` | Labour that contributes no direct progress, multiplies other workers' output, can optionally scale that multiplier by the supervisor's trait check target, and is always treated as non-mandatory |
 
 ### Material requirement types
 | Builder keyword | Runtime type | Purpose |
 | --- | --- | --- |
 | `simple` | `SimpleProjectMaterial` | Counted items matched by tag and minimum quality |
 | `commodity` | `CommodityProjectMaterial` | Weighted commodity inputs matched by material, optional tag, and quality |
+| `commoditytag` | `CommodityTagProjectMaterial` | Weighted commodity inputs matched by material tag, optional pile tag, characteristics, and quality |
 
 ### Completion action types
 | Builder keyword | Runtime type | Purpose |
@@ -402,6 +403,6 @@ For every new family member, the expected minimum implementation work is:
 ## Known Quirks And Edge Cases
 - Queue entries are intentionally current-phase-only. If a local project advances phase, old queued labour entries for the previous phase become stale and are removed rather than being remapped.
 - For backwards compatibility, characters loaded from worlds that predate `CurrentProjectProjectHours` bootstrap that value from `CurrentProjectHours` if they are already assigned to a current project.
-- Older supervision labour definitions that predate multiplier persistence may have no saved multiplier value. Those now load with a safe default of `100%` rather than preserving the prior broken zero-multiplier behavior.
+- Older supervision labour definitions that predate multiplier persistence may have no saved multiplier value. Those now load with a safe default of `100%` rather than preserving the prior broken zero-multiplier behavior. Older definitions also default to non-scaled supervision until a builder enables the `scaled` option.
 - `JobEffortImpact` is created from the builder keyword `job`, but its concrete type stores and loads using the runtime type string `JobEffort`. Treat the builder keyword list in `ProjectFactory` as the source of truth for authoring.
 - Starting a project does not auto-join labour. A project may be active, visible in `projects`, and still have nobody currently working on any labour requirement.

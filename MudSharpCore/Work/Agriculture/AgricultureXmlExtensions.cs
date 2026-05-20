@@ -22,11 +22,25 @@ internal static class AgricultureXmlExtensions
 	{
 		return root.Elements("Score")
 		           .Select(x => (
-			           Success: Enum.TryParse<AgricultureScoreType>((string)x.Attribute("type"), true, out var type),
+			           Success: AgricultureScoreTypeExtensions.TryParseScoreType((string)x.Attribute("type"), null,
+				           out var type, true),
 			           Type: type,
 			           Value: (int?)x.Attribute("value") ?? 50))
 		           .Where(x => x.Success)
 		           .ToDictionary(x => x.Type, x => Math.Clamp(x.Value, 0, 100));
+	}
+
+	public static Dictionary<AgricultureScoreType, AgricultureScoreRange> LoadScoreRanges(this XElement root)
+	{
+		return root.Elements("Score")
+		           .Select(x => (
+			           Success: AgricultureScoreTypeExtensions.TryParseScoreType((string)x.Attribute("type"), null,
+				           out var type, true),
+			           Type: type,
+			           Minimum: (int?)x.Attribute("min") ?? 0,
+			           Maximum: (int?)x.Attribute("max") ?? 100))
+		           .Where(x => x.Success)
+		           .ToDictionary(x => x.Type, x => new AgricultureScoreRange(x.Type, x.Minimum, x.Maximum));
 	}
 
 	public static XElement SaveScores(string rootName, IReadOnlyDictionary<AgricultureScoreType, int> scores)
@@ -55,6 +69,7 @@ internal static class AgricultureXmlExtensions
 			result.Add(AgricultureFieldUse.Crop);
 			result.Add(AgricultureFieldUse.Pasture);
 			result.Add(AgricultureFieldUse.Woodland);
+			result.Add(AgricultureFieldUse.Orchard);
 		}
 
 		return result;

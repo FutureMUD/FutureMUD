@@ -139,7 +139,7 @@ public class ScrapInputProduct : BaseProduct
 
         IGameItem newItem =
             GameItems.Prototypes.CommodityGameItemComponentProto.CreateNewCommodity(material,
-                totalWeight * PercentageRecovered, null);
+                totalWeight * PercentageRecovered, Tag);
         newItem.RoomLayer = component.Parent.RoomLayer;
         Gameworld.Add(newItem);
         return new UnusedInputProductData(new[] { newItem });

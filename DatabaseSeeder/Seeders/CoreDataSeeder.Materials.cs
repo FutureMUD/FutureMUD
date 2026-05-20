@@ -306,6 +306,33 @@ public partial class CoreDataSeeder
 				"Oil Crop");
 		}
 
+		foreach (var name in new[] { "almond", "hazelnut", "sugar beet", "beetroot", "squash" })
+		{
+			AddMaterial(name, MaterialBehaviourType.Food, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500,
+				"Food Crop");
+		}
+
+		foreach (var name in new[] { "straw", "hay" })
+		{
+			AddMaterial(name, MaterialBehaviourType.Plant, 0.2, true, 1000, 1000, 0.1, 0.08, 0.0001, 500,
+				"Vegetation", "Agricultural Crop");
+		}
+
+		AddMaterial("firewood", MaterialBehaviourType.Wood, 0.5, true, 10000, 10000, 0.02, 0.15, 0.0001, 500,
+			"Wood");
+		AddMaterial("hazel", MaterialBehaviourType.Wood, 0.5, true, 40000, 10000, 0.05, 0.14, 0.0001, 420,
+			"Hardwood");
+
+		EnsureAlias(materials["corn"], "maize");
+
+		foreach (var name in AgricultureSeeder.StockSeedMaterialNamesForTesting)
+		{
+			if (materials.TryGetValue(name, out var material))
+			{
+				EnsureTag(material, "Agriculture Seedable");
+			}
+		}
+
 		foreach (var name in new[]
 		{
 			"acacia", "applewood", "birch", "blackwood", "cypress", "holly", "hornbeam", "juniper", "larch",
@@ -531,6 +558,7 @@ public partial class CoreDataSeeder
         AddTag("Textile Mordant", "Materials");
         AddTag("Hair", "Natural Materials");
         AddTag("Agricultural Crop", "Natural Materials");
+        AddTag("Agriculture Seedable", "Agricultural Crop");
         AddTag("Food Crop", "Agricultural Crop");
         AddTag("Fiber Crop", "Agricultural Crop");
         AddTag("Oil Crop", "Agricultural Crop");

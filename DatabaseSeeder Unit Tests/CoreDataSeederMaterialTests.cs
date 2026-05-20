@@ -180,6 +180,38 @@ public class CoreDataSeederMaterialTests
     }
 
     [TestMethod]
+    public void SeedMaterials_IncludesAllAgricultureCommodityOutputs()
+    {
+        using FuturemudDatabaseContext context = BuildContext();
+        SeedMaterials(context);
+
+        HashSet<string> materialNames = context.Materials
+            .Select(x => x.Name)
+            .ToHashSet(StringComparer.InvariantCultureIgnoreCase);
+
+        string[] missingMaterials = AgricultureSeeder.StockCommodityOutputMaterialsForTesting
+            .Where(x => !materialNames.Contains(x))
+            .ToArray();
+
+        Assert.AreEqual(0, missingMaterials.Length,
+            $"Agriculture stock output materials should be seeded by CoreDataSeeder. Missing: {string.Join(", ", missingMaterials)}");
+
+        HashSet<string> seedableMaterials = context.Materials
+            .Include(x => x.MaterialsTags)
+            .ThenInclude(x => x.Tag)
+            .Where(x => x.MaterialsTags.Any(y => y.Tag.Name == "Agriculture Seedable"))
+            .Select(x => x.Name)
+            .ToHashSet(StringComparer.InvariantCultureIgnoreCase);
+
+        string[] missingSeedTags = AgricultureSeeder.StockSeedMaterialNamesForTesting
+            .Where(x => !seedableMaterials.Contains(x))
+            .ToArray();
+
+        Assert.AreEqual(0, missingSeedTags.Length,
+            $"Agriculture stock seed materials should be tagged as Agriculture Seedable. Missing: {string.Join(", ", missingSeedTags)}");
+    }
+
+    [TestMethod]
     public void SeedMaterialsBase_DoesNotAssumeWaterHasLiquidIdOne()
     {
         using FuturemudDatabaseContext context = BuildContext();

@@ -37,7 +37,8 @@ public class AgricultureOperation : SaveableItem, IAgricultureOperation
 
 	public AgricultureOperation(IFuturemud gameworld, string name, string description,
 		AgricultureOperationType operationType, AgricultureTargetType targetType, AgricultureFieldUse requiredUse,
-		AgricultureFieldUse resultUse, IProject project, IReadOnlyDictionary<AgricultureScoreType, int> deltas)
+		AgricultureFieldUse resultUse, IProject project, IReadOnlyDictionary<AgricultureScoreType, int> deltas,
+		double woodlandYieldMultiplier = 0.0, int woodlandYieldCost = 0)
 	{
 		Gameworld = gameworld;
 		_name = name;
@@ -49,6 +50,8 @@ public class AgricultureOperation : SaveableItem, IAgricultureOperation
 		_project = project;
 		_projectId = project?.Id ?? 0;
 		_projectRevisionNumber = project?.RevisionNumber ?? 0;
+		WoodlandYieldMultiplier = Math.Max(0.0, woodlandYieldMultiplier);
+		WoodlandYieldCost = System.Math.Clamp(woodlandYieldCost, 0, 100);
 		foreach (var delta in deltas)
 		{
 			_scoreDeltas[delta.Key] = delta.Value;
@@ -82,6 +85,8 @@ public class AgricultureOperation : SaveableItem, IAgricultureOperation
 	public AgricultureFieldUse RequiredUse { get; private set; }
 	public AgricultureFieldUse ResultUse { get; private set; }
 	public IReadOnlyDictionary<AgricultureScoreType, int> ScoreDeltas => _scoreDeltas;
+	public double WoodlandYieldMultiplier { get; private set; }
+	public int WoodlandYieldCost { get; private set; }
 
 	public void BuildingSetName(string name)
 	{
@@ -140,6 +145,13 @@ public class AgricultureOperation : SaveableItem, IAgricultureOperation
 		Changed = true;
 	}
 
+	public void BuildingSetWoodlandYield(double multiplier, int cost)
+	{
+		WoodlandYieldMultiplier = Math.Max(0.0, multiplier);
+		WoodlandYieldCost = System.Math.Clamp(cost, 0, 100);
+		Changed = true;
+	}
+
 	public IProject Project
 	{
 		get
@@ -180,8 +192,7 @@ public class AgricultureOperation : SaveableItem, IAgricultureOperation
 			return "There is no field to apply this operation to.";
 		}
 
-		if (RequiredUse != field.CurrentUse && OperationType != AgricultureOperationType.Improve &&
-		    OperationType != AgricultureOperationType.Clear)
+		if (RequiredUse != field.CurrentUse)
 		{
 			return $"This operation can only be used on {RequiredUse.DescribeEnum().ToLowerInvariant()} fields.";
 		}
@@ -203,6 +214,20 @@ public class AgricultureOperation : SaveableItem, IAgricultureOperation
 			return $"This operation needs a {TargetType.DescribeEnum().ToLowerInvariant()} target.";
 		}
 
+		if (TargetType == AgricultureTargetType.Crop &&
+		    target is IAgricultureCropDefinition crop)
+		{
+			if (OperationType == AgricultureOperationType.Sow && crop.IsPerennial)
+			{
+				return "Perennial orchard and vineyard crops must be planted with an orchard planting operation.";
+			}
+
+			if (OperationType == AgricultureOperationType.PlantOrchard && !crop.IsPerennial)
+			{
+				return "Annual field crops must be sown with a crop sowing operation.";
+			}
+		}
+
 		return TargetType switch
 		{
 			AgricultureTargetType.Crop when target is not IAgricultureCropDefinition => "This operation needs a crop target.",
@@ -215,9 +240,11 @@ public class AgricultureOperation : SaveableItem, IAgricultureOperation
 	private void LoadDefinition(string definition)
 	{
 		var root = AgricultureXmlExtensions.RootOrDefault(definition, "Operation");
+		WoodlandYieldMultiplier = Math.Max(0.0, (double?)root.Attribute("woodlandYieldMultiplier") ?? 0.0);
+		WoodlandYieldCost = System.Math.Clamp((int?)root.Attribute("woodlandYieldCost") ?? 0, 0, 100);
 		foreach (var element in root.Elements("Score"))
 		{
-			if (!Enum.TryParse<AgricultureScoreType>((string)element.Attribute("type"), true, out var type))
+			if (!AgricultureScoreTypeExtensions.TryParseScoreType((string)element.Attribute("type"), Gameworld, out var type, true))
 			{
 				continue;
 			}
@@ -229,6 +256,8 @@ public class AgricultureOperation : SaveableItem, IAgricultureOperation
 	private XElement SaveDefinition()
 	{
 		return new XElement("Operation",
+			new XAttribute("woodlandYieldMultiplier", WoodlandYieldMultiplier),
+			new XAttribute("woodlandYieldCost", WoodlandYieldCost),
 			_scoreDeltas.Select(x => new XElement("Score",
 				new XAttribute("type", x.Key.ToString()),
 				new XAttribute("value", x.Value))));

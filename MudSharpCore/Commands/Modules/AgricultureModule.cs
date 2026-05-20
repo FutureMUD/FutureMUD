@@ -34,6 +34,7 @@ Admin Syntax:
 	#3field reset#0
 	#3field tick#0
 	#3field profiles|crops|herds|woodlands|operations#0
+	#3field scoretype list|set|disable ...#0
 	#3field profile show|create|set|delete ...#0
 	#3field crop show|create|set|delete ...#0
 	#3field herds show|create|set|delete ...#0
@@ -86,6 +87,11 @@ Admin Syntax:
 			case "profiles":
 			case "profile":
 				FieldProfiles(actor, ss);
+				return;
+			case "scoretypes":
+			case "scoretype":
+			case "scores":
+				FieldScoreTypes(actor, ss);
 				return;
 			case "crops":
 			case "crop":
@@ -201,9 +207,9 @@ Admin Syntax:
 			return;
 		}
 
-		if (!Enum.TryParse<AgricultureScoreType>(ss.PopSpeech(), true, out var score))
+		if (!AgricultureScoreTypeExtensions.TryParseScoreType(ss.PopSpeech(), actor.Gameworld, out var score))
 		{
-			actor.OutputHandler.Send($"That is not a valid field score. Valid scores are {Enum.GetValues(typeof(AgricultureScoreType)).OfType<AgricultureScoreType>().Select(x => x.DescribeEnum().ColourName()).ListToString()}.");
+			actor.OutputHandler.Send($"That is not a valid field score. Valid scores are {ValidScoreTypesText(actor)}.");
 			return;
 		}
 
@@ -215,7 +221,7 @@ Admin Syntax:
 
 		field.SetScore(score, value);
 		field.Changed = true;
-		actor.OutputHandler.Send($"You set the field's {score.DescribeEnum().ColourName()} score to {value.ToStringN0Colour(actor)}.");
+		actor.OutputHandler.Send($"You set the field's {score.DescribeFor(actor.Gameworld).ColourName()} score to {value.ToStringN0Colour(actor)}.");
 	}
 
 	private static void FieldReset(ICharacter actor)
@@ -233,7 +239,7 @@ Admin Syntax:
 			return;
 		}
 
-		foreach (AgricultureScoreType score in Enum.GetValues(typeof(AgricultureScoreType)))
+		foreach (var score in AgricultureScoreTypeExtensions.ActiveScoreTypes(actor.Gameworld))
 		{
 			field.SetScore(score, field.Profile.DefaultScores.TryGetValue(score, out var value) ? value : 50);
 		}
@@ -550,6 +556,162 @@ Admin Syntax:
 		}
 	}
 
+	private static string ValidScoreTypesText(ICharacter actor)
+	{
+		return AgricultureScoreTypeExtensions.ActiveScoreTypes(actor.Gameworld)
+		                                    .Select(x => x.DescribeFor(actor.Gameworld).ColourName())
+		                                    .ListToString();
+	}
+
+	private static void FieldScoreTypes(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			ListScoreTypes(actor);
+			return;
+		}
+
+		switch (ss.PopSpeech().ToLowerInvariant())
+		{
+			case "list":
+			case "show":
+				ListScoreTypes(actor);
+				return;
+			case "set":
+				SetScoreType(actor, ss);
+				return;
+			case "disable":
+			case "remove":
+				DisableScoreType(actor, ss);
+				return;
+		}
+
+		actor.OutputHandler.Send("Syntax: field scoretype list|set|disable");
+	}
+
+	private static void ListScoreTypes(ICharacter actor)
+	{
+		var definitions = AgricultureScoreTypeExtensions.GetCustomScoreConfiguration(actor.Gameworld);
+		actor.OutputHandler.Send(StringUtilities.GetTextTable(
+			AgricultureScoreTypeExtensions.CustomScores.Select(x =>
+			{
+				var definition = definitions[x];
+				return new[]
+				{
+					x.DescribeEnum(true),
+					definition.Enabled.ToColouredString(),
+					definition.Name,
+					definition.HigherIsGood ? "higher is beneficial" : "higher is harmful"
+				};
+			}),
+			new[] { "Slot", "Enabled", "Name", "Direction" },
+			actor.LineFormatLength,
+			colour: Telnet.Green,
+			unicodeTable: actor.Account.UseUnicode));
+	}
+
+	private static void SetScoreType(ICharacter actor, StringStack ss)
+	{
+		if (!RequireAdministrator(actor))
+		{
+			return;
+		}
+
+		if (ss.IsFinished || !AgricultureScoreTypeExtensions.TryParseCustomSlot(ss.PopSpeech(), out var score))
+		{
+			actor.OutputHandler.Send("Which custom score slot do you want to enable? Use custom1 through custom12.");
+			return;
+		}
+
+		if (ss.IsFinished || !TryParseScoreDirection(ss.PopSpeech(), out var higherIsGood))
+		{
+			actor.OutputHandler.Send("Should higher values be good or bad? Use good or bad.");
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("What name should this custom agriculture score use?");
+			return;
+		}
+
+		var definitions = AgricultureScoreTypeExtensions.GetCustomScoreConfiguration(actor.Gameworld).ToDictionary(x => x.Key, x => x.Value);
+		var name = ss.SafeRemainingArgument;
+		definitions[score] = new AgricultureCustomScoreDefinition(score, true, name, higherIsGood);
+		SaveCustomScoreDefinitions(actor, definitions);
+		actor.OutputHandler.Send($"You enable {score.DescribeEnum(true).ColourName()} as {name.ColourName()} where higher values are {(higherIsGood ? "beneficial" : "harmful").ColourValue()}.");
+	}
+
+	private static void DisableScoreType(ICharacter actor, StringStack ss)
+	{
+		if (!RequireAdministrator(actor))
+		{
+			return;
+		}
+
+		if (ss.IsFinished || !AgricultureScoreTypeExtensions.TryParseCustomSlot(ss.PopSpeech(), out var score))
+		{
+			actor.OutputHandler.Send("Which custom score slot do you want to disable? Use custom1 through custom12.");
+			return;
+		}
+
+		var definitions = AgricultureScoreTypeExtensions.GetCustomScoreConfiguration(actor.Gameworld).ToDictionary(x => x.Key, x => x.Value);
+		var current = definitions[score];
+		definitions[score] = current with { Enabled = false };
+		SaveCustomScoreDefinitions(actor, definitions);
+		actor.OutputHandler.Send($"You disable {score.DescribeEnum(true).ColourName()}.");
+	}
+
+	private static bool TryParseScoreDirection(string text, out bool higherIsGood)
+	{
+		switch (text.ToLowerInvariant())
+		{
+			case "good":
+			case "beneficial":
+			case "benefit":
+			case "highergood":
+			case "higherisgood":
+				higherIsGood = true;
+				return true;
+			case "bad":
+			case "harmful":
+			case "harm":
+			case "higherbad":
+			case "higherisbad":
+				higherIsGood = false;
+				return true;
+			default:
+				higherIsGood = true;
+				return false;
+		}
+	}
+
+	private static void SaveCustomScoreDefinitions(ICharacter actor,
+		IReadOnlyDictionary<AgricultureScoreType, AgricultureCustomScoreDefinition> definitions)
+	{
+		var text = AgricultureScoreTypeExtensions.SaveCustomScoreConfiguration(definitions).ToString();
+		using (new FMDB())
+		{
+			var dbitem = FMDB.Context.StaticConfigurations.Find(AgricultureScoreTypeExtensions.CustomScoreConfigurationStaticConfiguration);
+			if (dbitem == null)
+			{
+				FMDB.Context.StaticConfigurations.Add(new MudSharp.Models.StaticConfiguration
+				{
+					SettingName = AgricultureScoreTypeExtensions.CustomScoreConfigurationStaticConfiguration,
+					Definition = text
+				});
+			}
+			else
+			{
+				dbitem.Definition = text;
+			}
+
+			FMDB.Context.SaveChanges();
+		}
+
+		actor.Gameworld.UpdateStaticConfiguration(AgricultureScoreTypeExtensions.CustomScoreConfigurationStaticConfiguration, text);
+	}
+
 	private static void FieldProfiles(ICharacter actor, StringStack ss)
 	{
 		if (ss.IsFinished)
@@ -594,7 +756,7 @@ Admin Syntax:
 		actor.OutputHandler.Send($@"{profile.Name.ColourName()} (#{profile.Id.ToString("N0", actor)})
 {profile.Description}
 Allowed Uses: {Enum.GetValues(typeof(AgricultureFieldUse)).OfType<AgricultureFieldUse>().Where(profile.AllowsUse).Select(x => x.DescribeEnum().ColourName()).ListToString()}
-Scores: {profile.DefaultScores.OrderBy(x => x.Key).Select(x => $"{x.Key.DescribeEnum()} {x.Value.ToString("N0", actor)}").ListToString()}");
+Scores: {profile.DefaultScores.Where(x => x.Key.IsEnabledScore(actor.Gameworld)).OrderBy(x => x.Key).Select(x => $"{x.Key.DescribeFor(actor.Gameworld)} {x.Value.ToString("N0", actor)}").ListToString()}");
 	}
 
 	private static void CreateProfile(ICharacter actor, StringStack ss)
@@ -610,8 +772,7 @@ Scores: {profile.DefaultScores.OrderBy(x => x.Key).Select(x => $"{x.Key.Describe
 			return;
 		}
 
-		var scores = Enum.GetValues(typeof(AgricultureScoreType))
-		                 .OfType<AgricultureScoreType>()
+		var scores = AgricultureScoreTypeExtensions.ActiveScoreTypes(actor.Gameworld)
 		                 .ToDictionary(x => x, _ => 50);
 		var uses = Enum.GetValues(typeof(AgricultureFieldUse)).OfType<AgricultureFieldUse>();
 		var profile = new AgricultureFieldProfile(actor.Gameworld, ss.SafeRemainingArgument, "A custom agriculture field profile.", scores, uses);
@@ -651,9 +812,9 @@ Scores: {profile.DefaultScores.OrderBy(x => x.Key).Select(x => $"{x.Key.Describe
 				actor.OutputHandler.Send("You update the field profile description.");
 				return;
 			case "score":
-				if (ss.IsFinished || !Enum.TryParse<AgricultureScoreType>(ss.PopSpeech(), true, out var score))
+				if (ss.IsFinished || !AgricultureScoreTypeExtensions.TryParseScoreType(ss.PopSpeech(), actor.Gameworld, out var score))
 				{
-					actor.OutputHandler.Send("Which agriculture score should be changed?");
+					actor.OutputHandler.Send($"Which agriculture score should be changed? Valid scores are {ValidScoreTypesText(actor)}.");
 					return;
 				}
 
@@ -664,7 +825,7 @@ Scores: {profile.DefaultScores.OrderBy(x => x.Key).Select(x => $"{x.Key.Describe
 				}
 
 				concrete.BuildingSetDefaultScore(score, value);
-				actor.OutputHandler.Send($"You set the default {score.DescribeEnum().ColourName()} score to {value.ToStringN0Colour(actor)}.");
+				actor.OutputHandler.Send($"You set the default {score.DescribeFor(actor.Gameworld).ColourName()} score to {value.ToStringN0Colour(actor)}.");
 				return;
 			case "use":
 				if (ss.IsFinished || !Enum.TryParse<AgricultureFieldUse>(ss.PopSpeech(), true, out var use))
@@ -772,9 +933,31 @@ Scores: {profile.DefaultScores.OrderBy(x => x.Key).Select(x => $"{x.Key.Describe
 {crop.Description}
 Category: {crop.Category.ColourValue()}
 Growth Days: {crop.BaseGrowthDays.ToString("N0", actor).ColourValue()}
+Perennial: {crop.IsPerennial.ToColouredString()}
+Harvest Cycle Days: {crop.HarvestCycleDays.ToString("N0", actor).ColourValue()}
 Harvest Window: {crop.HarvestWindowDays.ToString("N0", actor).ColourValue()}
 Moisture: {crop.MinimumMoisture.ToString("N0", actor).ColourValue()} to {crop.MaximumMoisture.ToString("N0", actor).ColourValue()}
-Temperature: {crop.MinimumTemperature.ToString("N0", actor).ColourValue()} to {crop.MaximumTemperature.ToString("N0", actor).ColourValue()} C");
+Temperature: {crop.MinimumTemperature.ToString("N0", actor).ColourValue()} to {crop.MaximumTemperature.ToString("N0", actor).ColourValue()} C
+Score Ranges: {DescribeScoreRanges(crop.ScoreRanges, actor)}
+Seeds: {DescribeCommodityOutputs(crop.SeedRequirements, actor)}
+Outputs: {DescribeCommodityOutputs(crop.YieldOutputs, actor)}");
+	}
+
+	private static string DescribeCommodityOutputs(IReadOnlyCollection<AgricultureCommodityYield> outputs, ICharacter actor)
+	{
+		return outputs.Count == 0
+			? "None".ColourError()
+			: outputs.Select(x => $"{actor.Gameworld.UnitManager.DescribeMostSignificantExact(x.BaseWeight, MudSharp.Framework.Units.UnitType.Mass, actor).ColourValue()} {x.MaterialName.ColourName()}{(string.IsNullOrWhiteSpace(x.TagName) ? string.Empty : $" [{x.TagName.ColourName()}]")}").ListToString();
+	}
+
+	private static string DescribeScoreRanges(IReadOnlyCollection<AgricultureScoreRange> ranges, ICharacter actor)
+	{
+		var activeRanges = ranges
+		                   .Where(x => x.Score.IsEnabledScore(actor.Gameworld))
+		                   .OrderBy(x => x.Score)
+		                   .Select(x => $"{x.Score.DescribeFor(actor.Gameworld).ColourName()} {x.Minimum.ToStringN0Colour(actor)}-{x.Maximum.ToStringN0Colour(actor)}")
+		                   .ToList();
+		return activeRanges.Count == 0 ? "None".ColourError() : activeRanges.ListToString();
 	}
 
 	private static void CreateCrop(ICharacter actor, StringStack ss)
@@ -811,7 +994,7 @@ Temperature: {crop.MinimumTemperature.ToString("N0", actor).ColourValue()} to {c
 
 		if (ss.IsFinished)
 		{
-			actor.OutputHandler.Send("Do you want to set name, description, category, growth, window, moisture, or temperature?");
+			actor.OutputHandler.Send("Do you want to set name, description, category, growth, perennial, cycle, window, moisture, temperature, or score?");
 			return;
 		}
 
@@ -831,14 +1014,37 @@ Temperature: {crop.MinimumTemperature.ToString("N0", actor).ColourValue()} to {c
 				actor.OutputHandler.Send($"You set the crop category to {concrete.Category.ColourValue()}.");
 				return;
 			case "growth":
+			case "establishment":
 				if (ss.IsFinished || !int.TryParse(ss.PopSpeech(), out var growth))
 				{
-					actor.OutputHandler.Send("How many growth days should this crop need?");
+					actor.OutputHandler.Send("How many growth or establishment days should this crop need?");
 					return;
 				}
 
 				concrete.BuildingSetGrowthDays(growth);
 				actor.OutputHandler.Send($"You set the crop growth time to {concrete.BaseGrowthDays.ToStringN0Colour(actor)} days.");
+				return;
+			case "perennial":
+			case "orchard":
+				if (ss.IsFinished || !bool.TryParse(ss.PopSpeech(), out var perennial))
+				{
+					actor.OutputHandler.Send("Should this crop be perennial? True or false?");
+					return;
+				}
+
+				concrete.BuildingSetPerennial(perennial);
+				actor.OutputHandler.Send($"This crop is now {(concrete.IsPerennial ? "perennial".ColourValue() : "annual".ColourValue())}.");
+				return;
+			case "cycle":
+			case "harvestcycle":
+				if (ss.IsFinished || !int.TryParse(ss.PopSpeech(), out var cycle))
+				{
+					actor.OutputHandler.Send("How many days should this perennial crop need between harvests?");
+					return;
+				}
+
+				concrete.BuildingSetHarvestCycleDays(cycle);
+				actor.OutputHandler.Send($"You set the crop harvest cycle time to {concrete.HarvestCycleDays.ToStringN0Colour(actor)} days.");
 				return;
 			case "window":
 			case "harvest":
@@ -872,9 +1078,54 @@ Temperature: {crop.MinimumTemperature.ToString("N0", actor).ColourValue()} to {c
 				concrete.BuildingSetTemperatureRange(minTemperature, maxTemperature);
 				actor.OutputHandler.Send("You update the crop temperature range.");
 				return;
+			case "score":
+			case "scorerange":
+			case "range":
+				if (ss.IsFinished)
+				{
+					actor.OutputHandler.Send($"Which score should have a growing range? Valid scores are {ValidScoreTypesText(actor)}.");
+					return;
+				}
+
+				var scoreText = ss.PopSpeech();
+				if (ss.IsFinished)
+				{
+					actor.OutputHandler.Send("Do you want to specify a minimum and maximum score, or none to remove the requirement?");
+					return;
+				}
+
+				if (ss.SafeRemainingArgument.EqualTo("none"))
+				{
+					if (!AgricultureScoreTypeExtensions.TryParseScoreType(scoreText, actor.Gameworld, out var removeScore, true))
+					{
+						actor.OutputHandler.Send("That is not a valid agriculture score.");
+						return;
+					}
+
+					concrete.BuildingRemoveScoreRange(removeScore);
+					actor.OutputHandler.Send($"You remove the {removeScore.DescribeFor(actor.Gameworld).ColourName()} growing range from this crop.");
+					return;
+				}
+
+				if (!AgricultureScoreTypeExtensions.TryParseScoreType(scoreText, actor.Gameworld, out var cropScore))
+				{
+					actor.OutputHandler.Send($"That is not a valid enabled agriculture score. Valid scores are {ValidScoreTypesText(actor)}.");
+					return;
+				}
+
+				if (!int.TryParse(ss.PopSpeech(), out var minScore) || ss.IsFinished || !int.TryParse(ss.PopSpeech(), out var maxScore))
+				{
+					actor.OutputHandler.Send("You must specify minimum and maximum 0-100 scores.");
+					return;
+				}
+
+				var range = new AgricultureScoreRange(cropScore, minScore, maxScore);
+				concrete.BuildingSetScoreRange(cropScore, range.Minimum, range.Maximum);
+				actor.OutputHandler.Send($"You set this crop's {cropScore.DescribeFor(actor.Gameworld).ColourName()} growing range to {range.Minimum.ToStringN0Colour(actor)}-{range.Maximum.ToStringN0Colour(actor)}.");
+				return;
 		}
 
-		actor.OutputHandler.Send("Do you want to set name, description, category, growth, window, moisture, or temperature?");
+		actor.OutputHandler.Send("Do you want to set name, description, category, growth, perennial, cycle, window, moisture, temperature, or score?");
 	}
 
 	private static void DeleteCrop(ICharacter actor, StringStack ss)
@@ -1162,7 +1413,8 @@ NPC Template: {(herd.NpcTemplate?.Name ?? "None").ColourName()}");
 {woodland.Description}
 Type: {woodland.WoodlandType.ColourValue()}
 Establishment Days: {woodland.EstablishmentDays.ToStringN0Colour(actor)}
-Harvest Cycle Days: {woodland.HarvestCycleDays.ToStringN0Colour(actor)}");
+Harvest Cycle Days: {woodland.HarvestCycleDays.ToStringN0Colour(actor)}
+Outputs: {DescribeCommodityOutputs(woodland.YieldOutputs, actor)}");
 	}
 
 	private static void CreateWoodland(ICharacter actor, StringStack ss)
@@ -1335,7 +1587,8 @@ Required Use: {operation.RequiredUse.DescribeEnum().ColourName()}
 Result Use: {operation.ResultUse.DescribeEnum().ColourName()}
 Project: {(operation.Project?.Name ?? "None").ColourName()}
 Completion Prog: {(operation.CompletionProg?.FunctionName ?? "None").ColourName()}
-Deltas: {operation.ScoreDeltas.OrderBy(x => x.Key).Select(x => $"{x.Key.DescribeEnum()} {x.Value.ToString("N0", actor)}").ListToString()}");
+Woodland Yield: x{operation.WoodlandYieldMultiplier.ToString("N2", actor).ColourValue()}, consumes {operation.WoodlandYieldCost.ToString("N0", actor).ColourValue()} yield
+Deltas: {operation.ScoreDeltas.Where(x => x.Key.IsEnabledScore(actor.Gameworld)).OrderBy(x => x.Key).Select(x => $"{x.Key.DescribeFor(actor.Gameworld)} {x.Value.ToString("N0", actor)}").ListToString()}");
 	}
 
 	private static void CreateOperation(ICharacter actor, StringStack ss)
@@ -1388,7 +1641,7 @@ Deltas: {operation.ScoreDeltas.OrderBy(x => x.Key).Select(x => $"{x.Key.Describe
 
 		if (ss.IsFinished)
 		{
-			actor.OutputHandler.Send("Do you want to set name, description, type, target, required, result, project, prog, or delta?");
+			actor.OutputHandler.Send("Do you want to set name, description, type, target, required, result, project, prog, delta, or woodlandyield?");
 			return;
 		}
 
@@ -1489,9 +1742,9 @@ Deltas: {operation.ScoreDeltas.OrderBy(x => x.Key).Select(x => $"{x.Key.Describe
 				return;
 			case "delta":
 			case "score":
-				if (ss.IsFinished || !Enum.TryParse<AgricultureScoreType>(ss.PopSpeech(), true, out var score))
+				if (ss.IsFinished || !AgricultureScoreTypeExtensions.TryParseScoreType(ss.PopSpeech(), actor.Gameworld, out var score))
 				{
-					actor.OutputHandler.Send("Which field score should this operation adjust?");
+					actor.OutputHandler.Send($"Which field score should this operation adjust? Valid scores are {ValidScoreTypesText(actor)}.");
 					return;
 				}
 
@@ -1502,11 +1755,22 @@ Deltas: {operation.ScoreDeltas.OrderBy(x => x.Key).Select(x => $"{x.Key.Describe
 				}
 
 				concrete.BuildingSetScoreDelta(score, delta);
-				actor.OutputHandler.Send($"You set the {score.DescribeEnum().ColourName()} delta to {delta.ToString("N0", actor).ColourValue()}.");
+				actor.OutputHandler.Send($"You set the {score.DescribeFor(actor.Gameworld).ColourName()} delta to {delta.ToString("N0", actor).ColourValue()}.");
+				return;
+			case "woodlandyield":
+			case "yield":
+				if (ss.IsFinished || !double.TryParse(ss.PopSpeech(), out var multiplier) || ss.IsFinished || !int.TryParse(ss.PopSpeech(), out var cost))
+				{
+					actor.OutputHandler.Send("You must specify a commodity multiplier and a 0-100 woodland yield cost.");
+					return;
+				}
+
+				concrete.BuildingSetWoodlandYield(multiplier, cost);
+				actor.OutputHandler.Send($"You set woodland product output to x{concrete.WoodlandYieldMultiplier.ToString("N2", actor).ColourValue()} and yield cost to {concrete.WoodlandYieldCost.ToString("N0", actor).ColourValue()}.");
 				return;
 		}
 
-		actor.OutputHandler.Send("Do you want to set name, description, type, target, required, result, project, prog, or delta?");
+		actor.OutputHandler.Send("Do you want to set name, description, type, target, required, result, project, prog, delta, or woodlandyield?");
 	}
 
 	private static void DeleteOperation(ICharacter actor, StringStack ss)

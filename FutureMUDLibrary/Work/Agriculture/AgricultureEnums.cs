@@ -7,7 +7,8 @@ public enum AgricultureFieldUse
 	Fallow = 0,
 	Crop = 1,
 	Pasture = 2,
-	Woodland = 3
+	Woodland = 3,
+	Orchard = 4
 }
 
 public enum AgricultureCropStage
@@ -30,7 +31,8 @@ public enum AgricultureOperationType
 	Graze = 3,
 	Herd = 4,
 	Woodland = 5,
-	Clear = 6
+	Clear = 6,
+	PlantOrchard = 7
 }
 
 public enum AgricultureTargetType
@@ -54,7 +56,19 @@ public enum AgricultureScoreType
 	Pests = 8,
 	Fence = 9,
 	Pasture = 10,
-	Condition = 11
+	Condition = 11,
+	Custom1 = 100,
+	Custom2 = 101,
+	Custom3 = 102,
+	Custom4 = 103,
+	Custom5 = 104,
+	Custom6 = 105,
+	Custom7 = 106,
+	Custom8 = 107,
+	Custom9 = 108,
+	Custom10 = 109,
+	Custom11 = 110,
+	Custom12 = 111
 }
 
 public static class AgricultureScoreExtensions

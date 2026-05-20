@@ -87,12 +87,14 @@ public static class ProjectFactory
                 return new SimpleProjectMaterial(gameworld, phase);
             case "commodity":
                 return new CommodityProjectMaterial(gameworld, phase);
+            case "commoditytag":
+                return new CommodityTagProjectMaterial(gameworld, phase);
         }
 
         return null;
     }
 
-    public static IEnumerable<string> ValidMaterialTypes => new[] { "simple", "commodity" };
+    public static IEnumerable<string> ValidMaterialTypes => new[] { "simple", "commodity", "commoditytag" };
 
     public static IProjectMaterialRequirement LoadMaterial(Models.ProjectMaterialRequirement material,
         IFuturemud gameworld)
@@ -103,6 +105,8 @@ public static class ProjectFactory
                 return new SimpleProjectMaterial(material, gameworld);
             case "commodity":
                 return new CommodityProjectMaterial(material, gameworld);
+            case "commoditytag":
+                return new CommodityTagProjectMaterial(material, gameworld);
         }
 
         throw new NotImplementedException(

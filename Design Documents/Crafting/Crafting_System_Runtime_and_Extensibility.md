@@ -317,6 +317,7 @@ At runtime:
 | `liquid` | `LiquidUseInput` | Consume a specific liquid amount | `liquid`, `amount`, `quality` | Valid only with a target liquid and positive amount |
 | `tagliquid` | `LiquidTagUseInput` | Consume liquid from a tagged source item | `tag`, `amount`, `quality` | Useful for containers or apparatus tagged for the craft |
 | `repair` | `ConditionRepairInput` | Target an item to repair by condition percentage | `tag`, `repair`, `quality` | Uses a tagged input item as a repair target rather than raw material |
+| `field` | `AgricultureFieldInput` | Require the agriculture field in the crafter's current cell | `use`, `crop`, `woodland`, `condition`, `health`, `yield`, `consume` | Can require crop or woodland state and consume crop or woodland yield during input reservation |
 
 ### Tools
 All tool types inherit shared builder options from `BaseTool`:

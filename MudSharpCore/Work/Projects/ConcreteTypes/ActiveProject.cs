@@ -7,6 +7,7 @@ using MudSharp.Framework.Save;
 using MudSharp.FutureProg;
 using MudSharp.FutureProg.Variables;
 using MudSharp.Models;
+using MudSharp.Work.Agriculture;
 using MudSharp.Work.Projects.Impacts;
 using System;
 using System.Collections.Generic;
@@ -303,12 +304,16 @@ public abstract class ActiveProject : LateInitialisingItem, IActiveProject, ILaz
     public virtual void DoProjectsTick()
     {
         double multiplier = Gameworld.GetStaticDouble("ProjectProgressMultiplier");
-        foreach ((ICharacter Character, IProjectLabourRequirement Labour) labour in ActiveLabour)
+        var activeLabour = ActiveLabour.ToList();
+        foreach ((ICharacter Character, IProjectLabourRequirement Labour) labour in activeLabour)
         {
-            double supervisorMultiplier = ActiveLabour.Aggregate(1.0,
+            double supervisorMultiplier = activeLabour.Aggregate(1.0,
                 (sum, y) => sum * y.Labour.ProgressMultiplierForOtherLabourPerPercentageComplete(labour.Labour, this));
-            if (FulfilLabour(labour.Labour,
-                    labour.Labour.HourlyProgress(labour.Character) * multiplier * supervisorMultiplier))
+            var hourlyProgress = labour.Labour.HourlyProgress(labour.Character);
+            var progress = hourlyProgress * multiplier * supervisorMultiplier;
+            AgricultureProjectSkillTracker.RecordLabourTick(this, labour.Character, labour.Labour, 1.0 * multiplier,
+                progress);
+            if (FulfilLabour(labour.Labour, progress))
             {
                 break;
             }

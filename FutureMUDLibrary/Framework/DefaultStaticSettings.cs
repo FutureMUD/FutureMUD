@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using MudSharp.Work.Agriculture;
 
 namespace MudSharp.Framework;
 
@@ -16,6 +17,7 @@ public static class DefaultStaticSettings
         new Dictionary<string, string>
         {
             { "CPRAllowed", "true" },
+            { AgricultureScoreTypeExtensions.CustomScoreConfigurationStaticConfiguration, AgricultureScoreTypeExtensions.DefaultCustomScoreConfigurationText },
             { "AdvantagePerLayerSwoopAttack", "1.0"},
             { "TimeIsFrozen", "false"},
             { "DefaultNonCardinalExitForDwellings", "1"},

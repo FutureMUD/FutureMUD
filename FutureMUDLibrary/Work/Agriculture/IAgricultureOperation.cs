@@ -15,6 +15,8 @@ public interface IAgricultureOperation : IFrameworkItem, IHaveFuturemud
 	IProject Project { get; }
 	IFutureProg CompletionProg { get; }
 	IReadOnlyDictionary<AgricultureScoreType, int> ScoreDeltas { get; }
+	double WoodlandYieldMultiplier { get; }
+	int WoodlandYieldCost { get; }
 	bool CanApply(IAgricultureField field, IFrameworkItem target);
 	string WhyCannotApply(IAgricultureField field, IFrameworkItem target);
 }

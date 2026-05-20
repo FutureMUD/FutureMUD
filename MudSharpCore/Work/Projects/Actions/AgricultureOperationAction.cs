@@ -56,7 +56,8 @@ public class AgricultureOperationAction : BaseAction
 			}
 
 			var actor = ResolveCompletionActor(project, context);
-			if (field.ApplyOperation(operation, target, actor, false, out var result))
+			var outcome = AgricultureProjectSkillTracker.OutcomeFor(context.Definition);
+			if (field.ApplyOperation(operation, target, actor, false, outcome, out var result))
 			{
 				field.Cell.Handle(result);
 			}

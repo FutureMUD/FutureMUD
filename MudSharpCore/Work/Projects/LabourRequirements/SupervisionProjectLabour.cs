@@ -1,6 +1,7 @@
 ﻿using MudSharp.Character;
 using MudSharp.Framework;
 using MudSharp.RPG.Checks;
+using System;
 using System.Linq;
 using System.Text;
 using System.Xml.Linq;
@@ -15,6 +16,7 @@ public class SupervisionProjectLabour : ProjectLabourBase
         XElement root = XElement.Parse(labour.Definition);
         MultiplierForOtherLabours =
             double.TryParse(root.Element("MultiplierForOtherLabours")?.Value, out var value) ? value : 1.0;
+        TraitScaledMultiplier = bool.TryParse(root.Element("TraitScaledMultiplier")?.Value, out var scaled) && scaled;
         IsMandatoryForProjectCompletion = false;
     }
 
@@ -23,6 +25,7 @@ public class SupervisionProjectLabour : ProjectLabourBase
         MultiplierForOtherLabours = rhs is SupervisionProjectLabour supervision
             ? supervision.MultiplierForOtherLabours
             : 1.0;
+        TraitScaledMultiplier = rhs is SupervisionProjectLabour scaled && scaled.TraitScaledMultiplier;
         IsMandatoryForProjectCompletion = false;
     }
 
@@ -30,6 +33,7 @@ public class SupervisionProjectLabour : ProjectLabourBase
         "supervision", name)
     {
         MultiplierForOtherLabours = 1.0;
+        TraitScaledMultiplier = false;
         IsMandatoryForProjectCompletion = false;
     }
 
@@ -40,19 +44,45 @@ public class SupervisionProjectLabour : ProjectLabourBase
 
     public double MultiplierForOtherLabours { get; protected set; }
 
+    public bool TraitScaledMultiplier { get; protected set; }
+
     public override double ProgressMultiplierForOtherLabourPerPercentageComplete(IProjectLabourRequirement other,
         IActiveProject project)
     {
-        if (project.ActiveLabour.All(x => x.Labour != this))
+        var supervisors = project.ActiveLabour
+                                 .Where(x => x.Labour == this)
+                                 .Select(x => x.Character)
+                                 .Where(x => x != null)
+                                 .ToList();
+        if (!supervisors.Any())
         {
             return 1.0;
+        }
+
+        if (TraitScaledMultiplier && RequiredTrait != null)
+        {
+            return supervisors.Max(ScaledMultiplierFor);
         }
 
         return MultiplierForOtherLabours;
     }
 
+    private double ScaledMultiplierFor(ICharacter actor)
+    {
+        var target = Math.Clamp(
+            Gameworld.GetCheck(CheckType.ProjectLabourCheck).TargetNumber(actor, TraitCheckDifficulty, RequiredTrait),
+            0.0,
+            100.0);
+        return 1.0 + (MultiplierForOtherLabours - 1.0) * target / 100.0;
+    }
+
     public override double HourlyProgress(ICharacter actor, bool previewOnly = false)
     {
+        if (!previewOnly && TraitScaledMultiplier && RequiredTrait != null)
+        {
+            Gameworld.GetCheck(CheckType.ProjectLabourCheck).Check(actor, TraitCheckDifficulty, RequiredTrait);
+        }
+
         return previewOnly ? double.Epsilon : 0.0;
     }
 
@@ -67,18 +97,20 @@ public class SupervisionProjectLabour : ProjectLabourBase
     {
         var root = base.SaveDefinition();
         root.Add(new XElement("MultiplierForOtherLabours", MultiplierForOtherLabours));
+        root.Add(new XElement("TraitScaledMultiplier", TraitScaledMultiplier));
         return root;
     }
 
     public override string Show(ICharacter actor)
     {
+        var scaleText = TraitScaledMultiplier ? " skill-scaled" : string.Empty;
         if (RequiredTrait == null)
         {
-            return $"Supervisory labour ({MultiplierForOtherLabours.ToString("P2", actor).ColourValue()} Multiplier)";
+            return $"Supervisory labour ({MultiplierForOtherLabours.ToString("P2", actor).ColourValue()}{scaleText} Multiplier)";
         }
 
         return
-            $"Supervisory labour of {RequiredTrait.Name.ColourValue()}(>={MinimumTraitValue.ToString("N2", actor).ColourValue()})@{TraitCheckDifficulty.Describe().ColourValue()}({MultiplierForOtherLabours.ToString("P2", actor).ColourValue()} Multiplier)";
+            $"Supervisory labour of {RequiredTrait.Name.ColourValue()}(>={MinimumTraitValue.ToString("N2", actor).ColourValue()})@{TraitCheckDifficulty.Describe().ColourValue()}({MultiplierForOtherLabours.ToString("P2", actor).ColourValue()}{scaleText} Multiplier)";
     }
 
     public override string ShowToPlayer(ICharacter actor)
@@ -99,6 +131,7 @@ public class SupervisionProjectLabour : ProjectLabourBase
             $"Supervision Project Labour {Id.ToString("N0", actor).ColourValue()} - {Name.Colour(Telnet.Cyan)}");
         sb.AppendLine($"Phase {phase.PhaseNumber.ToString("N0", actor).ColourValue()}");
         sb.AppendLine($"Impact on Others: {MultiplierForOtherLabours.ToString("P2", actor).ColourValue()}");
+        sb.AppendLine($"Skill-Scaled Multiplier: {TraitScaledMultiplier.ToColouredString()}");
         sb.AppendLine($"Maximum Workers: {MaximumSimultaneousWorkers.ToString("N0", actor).ColourValue()}");
         sb.AppendLine(
             $"IsQualifiedProg: {IsQualifiedProg?.MXPClickableFunctionNameWithId() ?? "None".Colour(Telnet.Red)}");
@@ -125,9 +158,26 @@ public class SupervisionProjectLabour : ProjectLabourBase
             case "multiplier":
             case "mult":
                 return BuildingCommandMultiplier(actor, command, phase);
+            case "skillmultiplier":
+            case "skill multiplier":
+            case "skill_multiplier":
+            case "traitmultiplier":
+            case "trait multiplier":
+            case "trait_multiplier":
+            case "scaled":
+                return BuildingCommandTraitScaledMultiplier(actor);
         }
 
         return base.BuildingCommand(actor, new StringStack($"\"{command.Last}\" {command.RemainingArgument}"), phase);
+    }
+
+    private bool BuildingCommandTraitScaledMultiplier(ICharacter actor)
+    {
+        TraitScaledMultiplier = !TraitScaledMultiplier;
+        Changed = true;
+        actor.OutputHandler.Send(
+            $"This supervisory labour will {(TraitScaledMultiplier ? "now" : "no longer")} scale its multiplier by the supervisor's trait check target.");
+        return true;
     }
 
     private bool BuildingCommandMultiplier(ICharacter actor, StringStack command, IProjectPhase phase)

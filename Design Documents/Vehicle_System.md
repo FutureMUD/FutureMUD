@@ -13,7 +13,7 @@ This keeps vehicle logic out of component XML while preserving normal item-world
 
 ## Current Implementation Status
 
-Phase 1 and the first three Phase 2 vehicle-systems slices are present:
+Phase 1 and the first four Phase 2 vehicle-systems slices are present:
 
 - Vehicle domain interfaces: `IVehiclePrototype`, `IVehicle`, `IVehicleMovementStrategy`, `IVehicleMovementState`, `IVehicleOccupancy`, and `IVehicleAccessState`.
 - Vehicle enums: `VehicleScale`, `VehicleLocationType`, `VehicleOccupantSlotType`, `VehicleMovementProfileType`, and `VehicleMovementStatus`.
@@ -28,6 +28,9 @@ Phase 1 and the first three Phase 2 vehicle-systems slices are present:
 - Admin/builder commands: `vehicleproto` for prototype authoring and creation, `vehicle` for live diagnostics and relinking.
 - Cell-exit movement strategy with controller, location, profile, exit-size, transition, disabled/destroyed, closed-access, required installation, required role, fuel, power, and recursive tow-train validation.
 - Tow-train service for hitch validation, cycle prevention, tow-point usage checks, recursive train weight checks, hitch-item validity, and loaded broken-link diagnostics.
+- Active character/mount hitching through the normal drag movement system, including character-to-character chains and character/mount-to-vehicle tow-point hitches.
+- Tow point authoring includes a character pull multiplier that scales effective pull capacity for mounts, animals, or people pulling that vehicle point.
+- Persistent mixed hitch graph foundation: `VehicleHitchEndpointType`, `IVehicleHitchLink`, `VehicleHitchLinks` EF schema, and runtime invalid-link diagnostic object.
 - Exterior item wound override that routes hull damage into vehicle damage zones and persists vehicle/zone ids on wounds.
 - Damage-zone effects that disable linked access points, cargo spaces, installation points, tow points, movement profiles, or whole-vehicle movement at configured damage statuses.
 - Admin damage repair for clearing canonical vehicle damage-zone wounds and status without clearing manual disabled flags.
@@ -38,7 +41,7 @@ Phase 1 and the first three Phase 2 vehicle-systems slices are present:
 The following areas are deliberately scaffolded rather than fully built:
 
 - Rich access rules beyond explicit persisted access rows.
-- Dynamic tow breakage/catastrophe, rich access-device authoring, player-facing repair workflows, and fuller fuel/power networks.
+- Dynamic tow breakage/catastrophe, persistent hitch service command/movement integration beyond the foundation schema, rich access-device authoring, player-facing repair workflows, and fuller fuel/power networks.
 - Route, coordinate, and `RoomScale` movement.
 - Dedicated FutureProg vehicle functions.
 - Interior cell networks for `RoomScale` vehicles.
@@ -75,7 +78,7 @@ Child definitions:
 - `VehicleAccessPointPrototype` defines doors, hatches, ramps, canopies, and service panels projected as targetable items.
 - `VehicleCargoSpacePrototype` links a canonical cargo space to a targetable container projection item.
 - `VehicleInstallationPointPrototype` defines installable module mount type, optional role, and movement-required slots.
-- `VehicleTowPointPrototype` defines tow/towed capability and maximum towed weight.
+- `VehicleTowPointPrototype` defines tow/towed capability, maximum towed weight, and the character pull multiplier used when a character or mount pulls a vehicle through that tow point.
 - `VehicleDamageZonePrototype` defines weighted hit zones, damage thresholds, legacy movement-disable behaviour, and authored damage effects.
 - `VehicleDamageZoneEffectPrototype` links a damage zone to a target system family and optional prototype child id.
 
@@ -163,6 +166,7 @@ Live tables:
 - `VehicleCargoSpaces`
 - `VehicleInstallations`
 - `VehicleTowLinks`
+- `VehicleHitchLinks`
 - `VehicleDamageZones`
 
 The initial migration is `VehiclesHybridModel`; Phase 2 system tables are added in `VehicleSystemsPhase2`.
@@ -177,6 +181,8 @@ Important persistence rules:
 - `VehicleExteriorGameItemComponent.VehicleId` is a repairable bridge value, not the source of truth.
 - Access and cargo projection components store only repairable bridge ids; their canonical state lives on the vehicle records.
 - Cargo contents remain ordinary item/container state on the cargo projection item.
+- `VehicleTowLinks` persist vehicle-to-vehicle tow links with vehicle-only endpoints.
+- `VehicleHitchLinks` are the planned canonical persistent graph for mixed vehicle/character hitching. The first implementation slice adds the schema and contracts; command/runtime integration is still staged.
 - Vehicle damage-zone wounds are ordinary wound records with optional `VehicleId` and `VehicleDamageZoneId`.
 - Damage-zone effects are prototype state. Live system disablement from damage is derived at runtime from canonical zone status, so manual disabled flags remain separate.
 
@@ -190,10 +196,13 @@ Current load order is:
 4. World items.
 5. Characters/NPCs.
 6. Live vehicles.
+7. Persistent vehicle hitch graph finalisation.
 
 This order allows vehicle prototypes to resolve item prototypes, live vehicles to resolve exterior items, and vehicle occupancies to resolve characters.
 
 When vehicles load, they call `SynchroniseExteriorItemToLocation()` so the exterior item projection returns to the vehicle's canonical cell and room layer after reboot.
+
+Persistent hitch links are loaded or finalised after vehicles, world items, and NPCs are available. Endpoints resolve lazily and invalid rows must remain diagnosable rather than crashing boot. Missing vehicles, NPCs, tow points, hitch items, or co-location failures make the link invalid until repaired or unhitched. PC endpoints are not persisted; any PC-inclusive hitch is treated as a transient runtime hitch and must block voluntary quit or timeout while active.
 
 ## Creation Flow
 
@@ -241,8 +250,10 @@ Current player commands:
 - `install <held module> <vehicle> [install point]`
 - `uninstall <module@vehicle>`
 - `hitch <towpoint>@<vehicle> <towpoint>@<target> [with <item>]`
+- `hitch <character> <character|towpoint@vehicle> [with <drag aid>]`
 - `unhitch <vehicle>`
 - `unhitch <towpoint>@<vehicle>`
+- `unhitch <character>`
 
 Projected vehicle system items are exposed through ordinary item targeting. The preferred form is `thing@vehicle`, for example `open hatch@car`, `unlock hatch@car`, `put crate trunk@car`, and `get crate trunk@car`. The older generic attached-item form `vehicle@thing` is also accepted for compatibility, but vehicle documentation and builder examples should use `thing@vehicle`.
 
@@ -274,6 +285,76 @@ Driving rules currently check:
 When a controller enters an ordinary movement command, character movement redirects it to vehicle movement before walking movement is attempted. This means a bicycle rider can type `north` instead of `drive north`; the explicit `drive` command remains available for clarity. Vehicle movement uses the normal movement pipeline shape: it sets the actor's current `IMovement`, applies a movement delay, supports turn-around cancellation and queued follow-up movement commands, marks the vehicle as moving while in transit, and resolves the movement after the scheduled step.
 
 Visible occupants of a vehicle are presented in the same style as mounted riders. If a character is visibly occupying a vehicle whose exterior item is also visible in the same cell and layer, their long description says they are riding that vehicle, and the exterior item is suppressed from the separate item list to avoid duplicate room lines. If occupants are not visible in the cell, the exterior item remains the room-facing presentation.
+
+### Character And Mount Hitching
+
+Character/mount hitching is implemented as an active movement-state bridge over the normal `Dragging` effect rather than as a persisted vehicle tow link. This supports cases such as a horse pulling a cart, an ox pulling a wagon, a person pulling a rickshaw or tuk-tuk, and short character-to-character hitch chains.
+
+Supported forms:
+
+- `hitch <character> <towpoint@vehicle>`
+- `hitch <character> <towpoint@vehicle> with <drag aid>`
+- `hitch <character> <character>`
+- `hitch <character> <character> with <drag aid>`
+- `unhitch <character>`
+- `unhitch <vehicle>`
+- `unhitch <towpoint@vehicle>`
+
+For vehicle targets, the target tow point must be authored as `towed` or `both`, must not be damage-disabled, must pass required access checks, and the vehicle must be in the same cell and layer. Tow point types `hand`, `manual`, `direct`, `none`, and `pull` are treated as direct hitches that do not require a drag-aid item. Other tow point types, such as `hitch`, `yoke`, or `harness`, require `with <drag aid>` and the named item must expose `IDragAid`.
+
+Pull capacity is:
+
+```text
+(source maximum drag weight - source external carried/worn weight)
+* optional drag-aid effort multiplier
+* vehicle tow-point character pull multiplier
+```
+
+The multiplier is represented internally by dividing the vehicle exterior's effective pulled weight by the tow point multiplier. This deliberately reuses character and mount drag capacity so race/body tuning for animals immediately affects vehicle pulling.
+
+Character-to-character links can form chains, so a leader can pull or lead another character/mount that is itself pulling a cart. A target can only have one incoming drag/hitch relationship at a time, and a source can only actively pull one target at a time. The actor can hitch themselves, a source that trusts them as an ally, a helpless source, or a mount they can currently control or mount. Other conscious sources receive an `accept` proposal before the hitch is applied, and the command revalidates location, capacity, hitch item availability, and vehicle tow-point state when the proposal is accepted. Character hitch chains are active runtime effects and are not reboot-persistent diagnostics in the same way that vehicle-to-vehicle tow links are. Builders should use normal vehicle tow links for parked or persistent trailer connections, and character/mount hitches for live movement scenes.
+
+### Persistent Hitch Graph Plan
+
+Status: first persistence foundation slice implemented for schema, contracts, and runtime diagnostics; service, command, and movement integration are planned.
+
+The long-term Phase 2 target is a shared directed hitch graph that covers vehicle-to-vehicle, character-to-vehicle, character-to-character, and eventually vehicle-to-character links with one validation service. The graph should preserve the existing live command syntax while moving reboot-persistent state out of `CharacterHitch` and `Dragging` effects.
+
+Canonical persistent links use typed endpoints:
+
+- `SourceType`: vehicle or character.
+- `SourceVehicleId` / `SourceCharacterId`: one is populated according to source type.
+- `SourceTowPointPrototypeId`: required only for vehicle sources.
+- `TargetType`: vehicle or character.
+- `TargetVehicleId` / `TargetCharacterId`: one is populated according to target type.
+- `TargetTowPointPrototypeId`: required only for vehicle targets.
+- `HitchItemId`: optional physical hitch reference.
+- `IsDisabled`: manual/admin disabled state.
+- `CreatedDateTime`: diagnostics and repair context.
+
+PC endpoints are intentionally not persisted. If either endpoint is a PC, the hitch remains transient and applies a no-quit/no-timeout guard while active. On crash or reboot those PC-inclusive hitches are safely lost rather than attempting to resurrect offline player state. NPC and vehicle endpoints can be persisted because they load into the world at boot and can be resolved after the normal vehicle/NPC/item loaders have run.
+
+The persistent hitch service should own:
+
+- endpoint resolution and invalid-link diagnostics
+- cycle detection across mixed vehicle/character nodes
+- source and target usage checks
+- hitch consent through trust-ally, mount-control/mountable logic, helplessness, or `accept`
+- hitch item validation and co-location checks
+- recursive train discovery and weight validation
+- movement validation for both character-root and vehicle-root movement
+- conversion between canonical links and runtime projection effects used for presentation, dragging, no-quit, and no-timeout behaviour
+
+The implementation sequence is:
+
+1. Add endpoint enums, `IVehicleHitchLink`, EF model, and migration.
+2. Add a central hitch/tow registry or service loaded after vehicles, NPCs, and items.
+3. Refactor vehicle-to-vehicle tow traversal to read through the central graph while preserving existing `VehicleTowLinks`.
+4. Persist NPC/vehicle character hitches after consent or direct-authority validation.
+5. Keep PC-inclusive hitches transient and add quit/timeout guards while active.
+6. Integrate mixed hitch trains with character-root movement and vehicle-root `CellExitVehicleMovementStrategy`.
+7. Add admin diagnostics and repair/unhitch commands for invalid persistent links.
+8. Add reboot, missing-endpoint, cycle, movement, and hitch-item regression tests.
 
 ## Vehicle Scales
 
@@ -425,6 +506,7 @@ Currently covered by implementation:
 - Damage-zone effects disable linked access, cargo, installation, tow-point, movement-profile, or whole-vehicle movement targets.
 - Admin `vehicle repair <vehicle> damage <zone|all>` clears vehicle damage-zone wounds/status while preserving manually disabled system flags.
 - Hitch/unhitch persists tow links, validates recursive tow trains, records optional physical hitch items, and moves all linked towed vehicles.
+- Active character/mount hitches let characters or mounts pull another character or a vehicle tow point through ordinary cell-exit movement, with optional `IDragAid` items and tow-point pull multipliers.
 
 Still to implement:
 
@@ -472,13 +554,15 @@ Implemented scope:
 - live diagnostics that report manual versus damage-derived disable causes
 - admin damage repair that clears zone wounds/status without clearing manual disabled flags
 - robust hitch/unhitch commands, loaded broken-link diagnostics, hitch-item validity, and recursive tow-train movement
+- active character/mount hitches and character hitch chains for live mount-drawn carts, hand-pulled vehicles, and similar cell-exit movement scenes
+- persistent mixed hitch graph foundation with typed endpoints, nullable load-safe references, and invalid-link diagnostics
 
 Remaining Phase 2 scope:
 
 - richer access-device authoring and permissions
 - module health/function checks beyond installed/disabled state
 - fuller fuel/power topology support
-- dynamic trailer breakage/catastrophe and richer hitch item mechanics
+- central hitch/tow service integration for persistent NPC/vehicle hitch chains, PC no-quit/no-timeout transient guards, dynamic trailer breakage/catastrophe, and richer hitch item mechanics
 - player-facing repair workflows and deeper builder diagnostics for all system records
 
 Cargo and installed systems should reuse existing item/container/component infrastructure, but the vehicle decides which compartment or attachment point exposes each item capability.

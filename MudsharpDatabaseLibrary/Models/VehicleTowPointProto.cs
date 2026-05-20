@@ -12,6 +12,7 @@ public class VehicleTowPointProto
 	public bool CanTow { get; set; }
 	public bool CanBeTowed { get; set; }
 	public double MaximumTowedWeight { get; set; }
+	public double CharacterPullMultiplier { get; set; }
 	public int DisplayOrder { get; set; }
 
 	public virtual VehicleProto VehicleProto { get; set; }

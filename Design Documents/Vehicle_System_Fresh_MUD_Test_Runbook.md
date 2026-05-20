@@ -9,8 +9,9 @@ The goal is to verify the supported vehicle shapes end to end:
 - `ItemScale` vehicles with an exterior item, one driver slot, one control station, boarding, driving, and disembarking.
 - `RoomContainer` vehicles with compartments, access points, cargo projections, install points, damage effects, and towing.
 - `CellExit` movement through ordinary adjacent cell exits, using either `drive <direction>` or normal movement commands while controlling a vehicle.
+- Active character/mount hitches where a person, animal, or mount pulls a vehicle tow point or leads another hitched character.
 
-`RoomScale`, route movement, coordinate movement, player-facing vehicle repair gameplay, dynamic trailer breakage, and richer fuel or power networks are not fully supported by this runbook.
+`RoomScale`, route movement, coordinate movement, player-facing vehicle repair gameplay, dynamic trailer breakage, persistent parked mount harness diagnostics, and richer fuel or power networks are not fully supported by this runbook.
 
 ## Prerequisites
 
@@ -32,12 +33,14 @@ Confirm these seeded components exist:
 comp list holdable
 comp list container
 comp list +trunk
+comp list dragaid
 ```
 
 The runbook uses:
 
 - `Holdable` for crate, towbar, and installable module test items.
 - `Container_Trunk` for the cargo projection item.
+- `DragAid_Harness` or another `DragAid` component for yoke/harness hitch tests.
 
 If `Container_Trunk` is not installed, use any current component prototype of type `Container` instead.
 
@@ -122,6 +125,8 @@ Build these item prototypes before creating vehicles:
 | `<engine-module-proto>` | installable module item | noun `engine`, sdesc `a QA test engine module`, size `normal`, weight `80 kg` | `Holdable`, `<engine-installable-component-id>` |
 | `<towbar-proto>` | physical hitch item | noun `towbar`, sdesc `a QA test towbar`, size `normal`, weight `10 kg` | `Holdable` |
 | `<crate-proto>` | cargo contents | noun `crate`, sdesc `a QA test crate`, size `small`, weight `5 kg` | `Holdable` |
+| `<cart-hull-proto>` | mount-pulled cart exterior item | noun `cart`, sdesc `a QA test hand cart`, size `normal`, weight `120 kg` | none |
+| `<yoke-proto>` | optional mount hitch aid | noun `yoke`, sdesc `a QA test yoke`, size `normal`, weight `8 kg` | `Holdable`, `DragAid_Harness` or another `DragAid` component |
 
 After `vehicleproto set exterior`, `vehicleproto set access add`, or `vehicleproto set cargo add`, try this negative test:
 
@@ -333,26 +338,94 @@ Expected result:
 - If the hitch item is removed from the train location, destroyed, or deleted, movement should block and `vehicle show` should report an invalid tow-link cause.
 - `unhitch <vehicle>` removes all links involving that vehicle, while `unhitch <towpoint>@<vehicle>` removes only links using that point.
 
-## Mount-Hitched Cart Status
+## Mount-Hitched Cart Test
 
-A true horse-drawn cart or wagon is not currently a fully supported end-to-end vehicle type.
+This is now an active movement hitch, not a persisted vehicle-to-vehicle tow link. It is intended for live scenes such as a horse pulling a cart, an ox team pulling a wagon, or a person pulling a hand cart. The relationship uses the normal drag/movement system, so it is cleared by `unhitch`, `stop`, drag invalidation, reboot, or ordinary effect cleanup. Use persisted vehicle tow links for parked trailer chains between vehicles.
 
-The current `hitch` and tow-train implementation links one vehicle tow point to another vehicle tow point:
+Prepare one local character, NPC, or mount with enough drag capacity to pull the cart. The examples below call it `horse`; replace that keyword with whatever mount or test character exists in your fresh world. If your fresh world has no mount/NPC creation workflow prepared yet, use a second staff-controlled test character with high enough drag capacity for the smoke test.
+
+Create a simple cart vehicle:
 
 ```text
-hitch <towpoint>@<vehicle> <towpoint>@<target> [with <item>]
+vehicleproto new QA Hand Cart
+vehicleproto set scale itemscale
+vehicleproto set exterior <cart-hull-proto>
+vehicleproto set compartment add cart
+vehicleproto show <vehicle proto id>
+vehicleproto set slot add <cart-compartment-id> driver 1 cart handle
+vehicleproto set station add <cart-driver-slot-id> handles
+vehicleproto set movement cell
+vehicleproto set tow add none hand towed 300 pull 4 shafts
+vehicleproto set tow add none yoke towed 600 pull 6 yoke
+vehicleproto set damage add 50 1 30 50 false frame
+vehicleproto submit fresh vehicle runbook mount cart
+vehicleproto approve <vehicle proto id> fresh vehicle runbook mount cart
+vehicleproto create <vehicle proto id>
+vehicle show <cart vehicle id>
 ```
 
-It does not link a mount, animal, NPC, or character to a vehicle tow point. A mounted rider can currently use ordinary `drag <cart> [by <drag aid>]` mechanics if the cart exterior is a holdable/draggable item, and recent vehicle exterior relocation handling means the cart vehicle's canonical location should follow its exterior item when dragged. That is only a drag/force-move compatibility check, not a proper animal-drawn cart test:
+Direct hand/shaft hitch test:
 
-- the link is not persistent;
-- `vehicle show` has no horse-to-cart tow link to diagnose;
-- the tow train service is not involved;
-- the movement is not blocked or validated through vehicle tow points;
-- drag capacity is based on the character dragger and optional `DragAid`, not a dedicated mount-harness pull model;
-- `unhitch` does not apply.
+```text
+look
+hitch horse shafts@cart
+north
+look
+vehicle show <cart vehicle id>
+south
+unhitch horse
+```
 
-Do not use a horse-and-cart scenario as an acceptance test for the current vehicle tow system. Treat animal-drawn carts, wagons, chariots, and similar mount-hitched vehicles as a future slice that needs an authored mount/vehicle hitch contract, mount-aware pull capacity, movement validation, diagnostics, persistence, and safe recovery.
+Expected result:
+
+- `hitch horse shafts@cart` succeeds without a hitch item because `hand` tow points are direct character/mount hitches.
+- If `horse` does not trust the actor, is not helpless, and is not a mount the actor can control or mount, the command creates an `accept` proposal on `horse` instead of applying the hitch immediately.
+- Moving the horse, rider, or controlled mount through an ordinary direction command pulls the cart exterior through the exit.
+- The cart vehicle's canonical location follows the exterior item after movement.
+- `unhitch horse` clears the active hitch. `stop` should also clear the ordinary drag effect and its vehicle hitch multiplier.
+
+Item-required yoke/harness test:
+
+```text
+hitch horse yoke@cart
+item load <yoke-proto>
+get yoke
+hitch horse yoke@cart with yoke
+north
+vehicle show <cart vehicle id>
+unhitch yoke@cart
+```
+
+Expected result:
+
+- `hitch horse yoke@cart` is rejected because `yoke` tow points require a drag-aid item.
+- `hitch horse yoke@cart with yoke` succeeds if the yoke item has an approved `DragAid` component and is visible/available to the actor.
+- The tow point's `pull <multiplier>` setting reduces the cart's effective pulled weight for the horse/mount capacity check.
+- `unhitch yoke@cart` removes the active character/mount hitch for that tow point.
+
+Character chain test:
+
+```text
+hitch horse ox
+hitch ox shafts@cart
+north
+look
+south
+unhitch horse
+unhitch ox
+```
+
+Expected result:
+
+- A hitched character/mount can itself be the source for another hitch, so chains such as `horse -> ox -> cart` can move through normal cell exits.
+- Each target can only have one incoming drag/hitch link, and each source can only pull one target at a time.
+- Movement still uses normal character and mount movement validation. Combat, blocking position changes, closed required vehicle access, damage-disabled tow points, or insufficient drag capacity should block the hitch or movement.
+
+Current limitations:
+
+- Active character/mount hitches are not persisted reboot-safe tow-link records and do not appear as durable tow links in `vehicle show`.
+- A character/mount hitch cannot currently pull a vehicle that already has persisted vehicle-to-vehicle tow links.
+- The hitch item is used as a normal `IDragAid` reference for the active drag effect. It is not consumed or converted into a persistent tow-link record.
 
 ## Negative Tests
 
@@ -451,12 +524,12 @@ The current implementation should be considered fully supported for:
 
 - simple `ItemScale` vehicles that board one or more occupants, expose a driver station, and move through cell exits;
 - `RoomContainer` vehicles represented by one exterior item, with authored compartments, slots, stations, access projections, cargo projections, installation points, damage effects, tow points, and cell-exit movement;
-- recursive tow trains made from cell-visible vehicles, provided they stay within cell-exit movement and use simple co-located hitch items.
+- recursive tow trains made from cell-visible vehicles, provided they stay within cell-exit movement and use simple co-located hitch items;
+- active mount/character-pulled carts, wagons, rickshaws, hand carts, and similar vehicle exteriors while the hitch is a live movement effect and not expected to persist through reboot.
 
 The current implementation should not yet be considered fully supported for:
 
 - route-based buses, trains, or ferries;
 - coordinate-positioned vehicles;
-- animal-drawn carts or wagons hitched to mounts;
 - aircraft, spacecraft, elevators, or ships with large moving interiors;
-- vehicles that need rich player repair gameplay, dynamic crash/catastrophe handling, or detailed fuel/power topology.
+- vehicles that need reboot-persistent mount harness records, rich player repair gameplay, dynamic crash/catastrophe handling, or detailed fuel/power topology.

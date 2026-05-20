@@ -434,6 +434,7 @@ public class Dragging : Effect, IDragging
         ReleaseDraggerEvents();
         ReleaseTargetEvents();
         Target.RemoveAllEffects(x => x.IsEffectType<DragTarget>());
+        Owner.RemoveAllEffects<CharacterHitch>(x => x.Target == Target, true);
         Owner.RemoveEffect(this);
     }
 

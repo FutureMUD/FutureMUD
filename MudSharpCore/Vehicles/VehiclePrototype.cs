@@ -350,7 +350,7 @@ public class VehiclePrototype : EditableItem, IVehiclePrototype
 		sb.AppendLine();
 		sb.AppendLine("Tow Points:");
 		sb.AppendLine(_towPoints.Any()
-			? _towPoints.Select(x => $"\t#{x.Id.ToString("N0", actor)} {x.Name.ColourName()} [{x.TowType.ColourCommand()}] {(x.CanTow ? "tow".Colour(Telnet.Green) : "")}{(x.CanBeTowed ? " towed".Colour(Telnet.Green) : "")} max {x.MaximumTowedWeight.ToString("N2", actor).ColourValue()}").ListToString(separator: "\n", conjunction: "", twoItemJoiner: "\n")
+			? _towPoints.Select(x => $"\t#{x.Id.ToString("N0", actor)} {x.Name.ColourName()} [{x.TowType.ColourCommand()}] {(x.CanTow ? "tow".Colour(Telnet.Green) : "")}{(x.CanBeTowed ? " towed".Colour(Telnet.Green) : "")} max {x.MaximumTowedWeight.ToString("N2", actor).ColourValue()} pull x{x.CharacterPullMultiplier.ToString("N2", actor).ColourValue()}").ListToString(separator: "\n", conjunction: "", twoItemJoiner: "\n")
 			: "\tNone");
 		sb.AppendLine();
 		sb.AppendLine("Damage Zones:");
@@ -452,7 +452,7 @@ public class VehiclePrototype : EditableItem, IVehiclePrototype
 	#3cargo remove <id>#0 - removes a cargo space
 	#3installpoint add <access id|none> <mount type> <required role|none> <required true|false> <name>#0 - adds an install point
 	#3installpoint remove <id>#0 - removes an install point
-	#3tow add <access id|none> <tow type> <tow|towed|both> <max weight> <name>#0 - adds a tow point
+	#3tow add <access id|none> <tow type> <tow|towed|both> <max weight> [pull <multiplier>] <name>#0 - adds a tow point
 	#3tow remove <id>#0 - removes a tow point
 	#3damage add <max damage> <hit weight> <disable threshold> <destroy threshold> <disables movement true|false> <name>#0 - adds a damage zone
 	#3damage <zone id> effect add <wholemovement|movement|access|cargo|install|tow> <id|all> [disabled|destroyed]#0 - adds a damage effect
@@ -1379,6 +1379,17 @@ public class VehiclePrototype : EditableItem, IVehiclePrototype
 			return false;
 		}
 
+		var pullMultiplier = 1.0;
+		if (command.PeekSpeech().EqualTo("pull"))
+		{
+			command.PopSpeech();
+			if (!double.TryParse(command.PopSpeech(), out pullMultiplier) || pullMultiplier <= 0.0)
+			{
+				actor.OutputHandler.Send("You must specify a positive pull multiplier.");
+				return false;
+			}
+		}
+
 		if (command.IsFinished)
 		{
 			actor.OutputHandler.Send("What should this tow point be called?");
@@ -1398,6 +1409,7 @@ public class VehiclePrototype : EditableItem, IVehiclePrototype
 				CanTow = canTow,
 				CanBeTowed = canBeTowed,
 				MaximumTowedWeight = maxWeight,
+				CharacterPullMultiplier = pullMultiplier,
 				DisplayOrder = _towPoints.Count + 1
 			};
 			FMDB.Context.VehicleTowPointProtos.Add(dbitem);
@@ -1943,6 +1955,7 @@ public class VehiclePrototype : EditableItem, IVehiclePrototype
 					CanTow = tow.CanTow,
 					CanBeTowed = tow.CanBeTowed,
 					MaximumTowedWeight = tow.MaximumTowedWeight,
+					CharacterPullMultiplier = tow.CharacterPullMultiplier,
 					DisplayOrder = tow.DisplayOrder
 				};
 				FMDB.Context.VehicleTowPointProtos.Add(dbtow);
@@ -2232,6 +2245,7 @@ public class VehicleTowPointPrototype : FrameworkItem, IVehicleTowPointPrototype
 		CanTow = dbitem.CanTow;
 		CanBeTowed = dbitem.CanBeTowed;
 		MaximumTowedWeight = dbitem.MaximumTowedWeight;
+		CharacterPullMultiplier = dbitem.CharacterPullMultiplier <= 0.0 ? 1.0 : dbitem.CharacterPullMultiplier;
 		DisplayOrder = dbitem.DisplayOrder;
 	}
 
@@ -2242,6 +2256,7 @@ public class VehicleTowPointPrototype : FrameworkItem, IVehicleTowPointPrototype
 	public bool CanTow { get; }
 	public bool CanBeTowed { get; }
 	public double MaximumTowedWeight { get; }
+	public double CharacterPullMultiplier { get; }
 	public int DisplayOrder { get; }
 }
 

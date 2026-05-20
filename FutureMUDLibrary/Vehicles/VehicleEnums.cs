@@ -65,3 +65,9 @@ public enum VehicleDamageEffectTargetType
 	InstallationPoint = 4,
 	TowPoint = 5
 }
+
+public enum VehicleHitchEndpointType
+{
+	Vehicle = 0,
+	Character = 1
+}

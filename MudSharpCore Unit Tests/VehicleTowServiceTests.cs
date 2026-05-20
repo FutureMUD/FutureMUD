@@ -23,6 +23,29 @@ namespace MudSharp_Unit_Tests;
 public class VehicleTowServiceTests
 {
 	[TestMethod]
+	public void VehicleTowPointPrototype_LoadsCharacterPullMultiplier()
+	{
+		var dbitem = new DB.VehicleTowPointProto
+		{
+			Id = 1,
+			Name = "shafts",
+			Description = "Cart shafts.",
+			TowType = "hand",
+			CanBeTowed = true,
+			CharacterPullMultiplier = 4.5
+		};
+
+		var point = new VehicleTowPointPrototype(dbitem, Enumerable.Empty<IVehicleAccessPointPrototype>());
+
+		Assert.AreEqual(4.5, point.CharacterPullMultiplier);
+
+		dbitem.CharacterPullMultiplier = 0.0;
+		var fallback = new VehicleTowPointPrototype(dbitem, Enumerable.Empty<IVehicleAccessPointPrototype>());
+
+		Assert.AreEqual(1.0, fallback.CharacterPullMultiplier);
+	}
+
+	[TestMethod]
 	public void CanHitch_WhenTargetAlreadyTowed_Fails()
 	{
 		var service = new VehicleTowService();
@@ -354,6 +377,7 @@ public class VehicleTowServiceTests
 		point.SetupGet(x => x.CanTow).Returns(canTow);
 		point.SetupGet(x => x.CanBeTowed).Returns(canBeTowed);
 		point.SetupGet(x => x.MaximumTowedWeight).Returns(maxWeight);
+		point.SetupGet(x => x.CharacterPullMultiplier).Returns(1.0);
 		point.SetupGet(x => x.RequiredAccessPoint).Returns(requiredAccess!);
 		return point;
 	}

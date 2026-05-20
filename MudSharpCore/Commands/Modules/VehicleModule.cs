@@ -2,11 +2,13 @@ using MudSharp.Accounts;
 using MudSharp.Character;
 using MudSharp.Commands.Trees;
 using MudSharp.Database;
+using MudSharp.Effects.Concrete;
 using MudSharp.Framework;
 using MudSharp.Framework.Revision;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.PerceptionEngine;
+using MudSharp.PerceptionEngine.Lists;
 using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.Vehicles;
@@ -144,7 +146,7 @@ Syntax:
 	[NoHideCommand]
 	[NoCombatCommand]
 	[NoMovementCommand]
-	[HelpInfo("hitch", "Use #3hitch <towpoint>@<vehicle> <towpoint>@<target> [with <item>]#0 to link vehicles for towing.", AutoHelp.HelpArgOrNoArg)]
+	[HelpInfo("hitch", "Use #3hitch <towpoint>@<vehicle> <towpoint>@<target> [with <item>]#0 to link vehicles for towing, or #3hitch <character> <character|towpoint@vehicle> [with <drag aid>]#0 to hitch a character or mount to pull something.", AutoHelp.HelpArgOrNoArg)]
 	protected static void Hitch(ICharacter actor, string input)
 	{
 		var ss = new StringStack(input.RemoveFirstWord());
@@ -154,13 +156,38 @@ Syntax:
 			return;
 		}
 
-		if (!ResolveTowPoint(actor, ss.PopSpeech(), true, out var sourceVehicle, out var sourcePoint))
+		var sourceText = ss.PopSpeech();
+		if (!sourceText.Contains('@'))
+		{
+			HitchCharacter(actor, ss, sourceText);
+			return;
+		}
+
+		if (!ResolveTowPoint(actor, sourceText, true, out var sourceVehicle, out var sourcePoint))
 		{
 			return;
 		}
 
 		if (!ResolveTowPoint(actor, ss.PopSpeech(), false, out var targetVehicle, out var targetPoint))
 		{
+			return;
+		}
+
+		if (sourceVehicle.ExteriorItem is null || targetVehicle.ExteriorItem is null)
+		{
+			actor.OutputHandler.Send("Both vehicles must have linked exterior items to be hitched.");
+			return;
+		}
+
+		if (sourceVehicle.ExteriorItem?.AffectedBy<Dragging.DragTarget>() == true)
+		{
+			actor.OutputHandler.Send($"{sourceVehicle.ExteriorItem.HowSeen(actor, true)} is already being pulled or dragged.");
+			return;
+		}
+
+		if (targetVehicle.ExteriorItem?.AffectedBy<Dragging.DragTarget>() == true)
+		{
+			actor.OutputHandler.Send($"{targetVehicle.ExteriorItem.HowSeen(actor, true)} is already being pulled or dragged.");
 			return;
 		}
 
@@ -230,12 +257,102 @@ Syntax:
 			sourceVehicle.ExteriorItem, targetVehicle.ExteriorItem)));
 	}
 
+	private static void HitchCharacter(ICharacter actor, StringStack ss, string sourceText)
+	{
+		var source = ResolveHitchCharacter(actor, sourceText);
+		if (source is null)
+		{
+			actor.OutputHandler.Send("You do not see any character or mount like that to hitch.");
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send($"What do you want to hitch {source.HowSeen(actor)} to?");
+			return;
+		}
+
+		var targetText = ss.PopSpeech();
+		IPerceivable target;
+		IVehicle targetVehicle = null;
+		IVehicleTowPointPrototype targetTowPoint = null;
+		if (targetText.Contains('@'))
+		{
+			if (!ResolveTowPoint(actor, targetText, false, out targetVehicle, out targetTowPoint))
+			{
+				return;
+			}
+
+			if (targetVehicle.ExteriorItem is null)
+			{
+				actor.OutputHandler.Send("That vehicle does not have a linked exterior item.");
+				return;
+			}
+
+			target = targetVehicle.ExteriorItem;
+		}
+		else
+		{
+			target = ResolveHitchCharacter(actor, targetText);
+			if (target is null)
+			{
+				actor.OutputHandler.Send("You do not see any character, mount, or vehicle tow point like that to hitch to.");
+				return;
+			}
+		}
+
+		IGameItem hitchItem = null;
+		IDragAid dragAid = null;
+		if (!ss.IsFinished)
+		{
+			if (!ss.PopSpeech().EqualTo("with"))
+			{
+				actor.OutputHandler.Send("Use #3with <item>#0 to specify a hitch item.".SubstituteANSIColour());
+				return;
+			}
+
+			hitchItem = ResolveCharacterHitchItem(actor, source, target as ICharacter, ss.SafeRemainingArgument);
+			if (hitchItem is null)
+			{
+				actor.OutputHandler.Send("You do not see any available hitch item like that.");
+				return;
+			}
+
+			dragAid = hitchItem.GetItemType<IDragAid>();
+			if (dragAid is null)
+			{
+				actor.OutputHandler.Send($"{hitchItem.HowSeen(actor, true)} is not a usable drag aid.");
+				return;
+			}
+		}
+
+		if (targetVehicle is not null && TowPointRequiresCharacterHitchItem(targetTowPoint) && dragAid is null)
+		{
+			actor.OutputHandler.Send($"That {targetTowPoint.TowType.ColourCommand()} tow point requires a hitch item. Use #3with <item>#0.".SubstituteANSIColour());
+			return;
+		}
+
+		if (!CanCharacterHitch(actor, source, target, targetVehicle, targetTowPoint, dragAid, out var reason))
+		{
+			actor.OutputHandler.Send(reason);
+			return;
+		}
+
+		if (CanActorDirectlyHitchSource(actor, source))
+		{
+			ApplyCharacterHitch(actor, source, target, targetTowPoint, hitchItem, dragAid);
+			return;
+		}
+
+		OfferCharacterHitch(actor, source, target, targetVehicle, targetTowPoint, hitchItem, dragAid);
+	}
+
 	[PlayerCommand("Unhitch", "unhitch")]
 	[RequiredCharacterState(CharacterState.Able)]
 	[NoHideCommand]
 	[NoCombatCommand]
 	[NoMovementCommand]
-	[HelpInfo("unhitch", "Use #3unhitch <vehicle>#0 or #3unhitch <towpoint>@<vehicle>#0 to remove tow links.", AutoHelp.HelpArgOrNoArg)]
+	[HelpInfo("unhitch", "Use #3unhitch <vehicle>#0, #3unhitch <towpoint>@<vehicle>#0, or #3unhitch <character>#0 to remove tow or character hitches.", AutoHelp.HelpArgOrNoArg)]
 	protected static void Unhitch(ICharacter actor, string input)
 	{
 		var ss = new StringStack(input.RemoveFirstWord());
@@ -257,17 +374,33 @@ Syntax:
 			}
 
 			item = vehicle.ExteriorItem;
+			if (item is not null && RemoveCharacterHitchesTargeting(actor, item, towPoint.Id))
+			{
+				return;
+			}
+
 			links = vehicle.TowLinks.Where(x =>
 				(x.SourceVehicle == vehicle && x.SourceTowPoint?.Id == towPoint.Id) ||
 				(x.TargetVehicle == vehicle && x.TargetTowPoint?.Id == towPoint.Id)).ToList();
 		}
 		else
 		{
+			var character = ResolveHitchCharacter(actor, text);
+			if (character is not null && RemoveCharacterHitches(actor, character))
+			{
+				return;
+			}
+
 			item = actor.TargetLocalItem(text);
 			vehicle = item?.GetItemType<IVehicleExterior>()?.Vehicle;
 			if (vehicle is null)
 			{
 				actor.OutputHandler.Send("You do not see any linked vehicle like that here.");
+				return;
+			}
+
+			if (RemoveCharacterHitchesTargeting(actor, item))
+			{
 				return;
 			}
 
@@ -305,6 +438,367 @@ Syntax:
 		}
 
 		actor.OutputHandler.Handle(new EmoteOutput(new Emote("@ unhitch|unhitches $1.", actor, actor, item)));
+	}
+
+	private static bool RemoveCharacterHitches(ICharacter actor, ICharacter character)
+	{
+		var hitches = character.EffectsOfType<Dragging>().ToList();
+		var targetHitches = actor.Location.LayerCharacters(actor.RoomLayer)
+		                         .SelectMany(x => x.EffectsOfType<Dragging>())
+		                         .Where(x => x.Target == character)
+		                         .ToList();
+		hitches.AddRange(targetHitches);
+		hitches = hitches.Distinct().ToList();
+		if (!hitches.Any())
+		{
+			return false;
+		}
+
+		foreach (var hitch in hitches)
+		{
+			hitch.CharacterOwner.RemoveAllEffects(x => x == hitch, true);
+			hitch.CharacterOwner.RemoveAllEffects<CharacterHitch>(x => x.Target == hitch.Target, true);
+		}
+
+		actor.OutputHandler.Handle(new EmoteOutput(new Emote("@ unhitch|unhitches $1.", actor, actor, character)));
+		return true;
+	}
+
+	private static bool RemoveCharacterHitchesTargeting(ICharacter actor, IPerceivable target, long? targetTowPointId = null)
+	{
+		var hitches = actor.Location.LayerCharacters(actor.RoomLayer)
+		                  .SelectMany(x => x.EffectsOfType<CharacterHitch>().Select(y => (Character: x, Hitch: y)))
+		                  .Where(x => x.Hitch.Target == target &&
+		                              (targetTowPointId is null || x.Hitch.TargetTowPointId == targetTowPointId))
+		                  .Distinct()
+		                  .ToList();
+		if (!hitches.Any())
+		{
+			return false;
+		}
+
+		foreach (var hitch in hitches)
+		{
+			hitch.Character.RemoveAllEffects<Dragging>(x => x.Target == hitch.Hitch.Target, true);
+			hitch.Character.RemoveAllEffects(x => x == hitch.Hitch, true);
+		}
+
+		actor.OutputHandler.Handle(new EmoteOutput(new Emote("@ unhitch|unhitches $1.", actor, actor, target)));
+		return true;
+	}
+
+	private static ICharacter ResolveHitchCharacter(ICharacter actor, string text)
+	{
+		if (text.EqualToAny("me", "self"))
+		{
+			return actor;
+		}
+
+		return actor.TargetActor(text);
+	}
+
+	private static IGameItem ResolveCharacterHitchItem(ICharacter actor, ICharacter source, ICharacter target, string text)
+	{
+		var candidates = actor.Body.ExternalItems
+		                      .Concat(source.Body.ExternalItemsForOtherActors)
+		                      .Concat(target?.Body.ExternalItemsForOtherActors ?? Enumerable.Empty<IGameItem>())
+		                      .Concat(actor.Location.LayerGameItems(actor.RoomLayer))
+		                      .Where(x => actor.CanSee(x))
+		                      .Distinct()
+		                      .ToList();
+		return candidates.GetFromItemListByKeyword(text, actor);
+	}
+
+	private static bool TowPointRequiresCharacterHitchItem(IVehicleTowPointPrototype towPoint)
+	{
+		return !towPoint.TowType.EqualToAny("hand", "manual", "direct", "none", "pull");
+	}
+
+	private static bool CanActorDirectlyHitchSource(ICharacter actor, ICharacter source)
+	{
+		return source == actor ||
+		       source.IsTrustedAlly(actor) ||
+		       source.IsHelpless ||
+		       source.IsPrimaryRider(actor) && source.PermitControl(actor) ||
+		       source.CanBeMountedBy(actor) && source.PermitControl(actor);
+	}
+
+	private static bool CharacterHitchItemAvailable(ICharacter actor, ICharacter source, ICharacter target,
+		IGameItem hitchItem, out string reason)
+	{
+		if (hitchItem is null)
+		{
+			reason = string.Empty;
+			return true;
+		}
+
+		if (hitchItem.Deleted || hitchItem.Destroyed)
+		{
+			reason = $"{hitchItem.HowSeen(actor, true)} is not usable.";
+			return false;
+		}
+
+		var candidates = actor.Body.ExternalItems
+		                      .Concat(source.Body.ExternalItemsForOtherActors)
+		                      .Concat(target?.Body.ExternalItemsForOtherActors ?? Enumerable.Empty<IGameItem>())
+		                      .Concat(actor.Location.LayerGameItems(actor.RoomLayer))
+		                      .Where(x => actor.CanSee(x))
+		                      .Distinct()
+		                      .ToList();
+		if (candidates.Contains(hitchItem))
+		{
+			reason = string.Empty;
+			return true;
+		}
+
+		reason = $"{hitchItem.HowSeen(actor, true)} is no longer available to use as a hitch item.";
+		return false;
+	}
+
+	private static void ApplyCharacterHitch(ICharacter actor, ICharacter source, IPerceivable target,
+		IVehicleTowPointPrototype targetTowPoint, IGameItem hitchItem, IDragAid dragAid)
+	{
+		var pullMultiplier = targetTowPoint?.CharacterPullMultiplier ?? 1.0;
+		source.AddEffect(new CharacterHitch(source, target, pullMultiplier, targetTowPoint?.Id));
+		source.AddEffect(new Dragging(source, dragAid, target));
+		actor.OutputHandler.Handle(new EmoteOutput(new Emote("@ hitch|hitches $1 to $2$?3| with $3||.", actor, actor,
+			source, target, hitchItem)));
+	}
+
+	private static void OfferCharacterHitch(ICharacter actor, ICharacter source, IPerceivable target,
+		IVehicle targetVehicle, IVehicleTowPointPrototype targetTowPoint, IGameItem hitchItem, IDragAid dragAid)
+	{
+		source.AddEffect(new Accept(source, new GenericProposal
+		{
+			AcceptAction = text =>
+			{
+				if (!CharacterHitchItemAvailable(actor, source, target as ICharacter, hitchItem, out var itemReason))
+				{
+					actor.OutputHandler.Send(itemReason);
+					source.OutputHandler.Send(itemReason);
+					return;
+				}
+
+				var currentDragAid = hitchItem?.GetItemType<IDragAid>() ?? dragAid;
+				if (hitchItem is not null && currentDragAid is null)
+				{
+					var dragAidReason = $"{hitchItem.HowSeen(actor, true)} is no longer a usable drag aid.";
+					actor.OutputHandler.Send(dragAidReason);
+					source.OutputHandler.Send(dragAidReason);
+					return;
+				}
+
+				if (!CanCharacterHitch(actor, source, target, targetVehicle, targetTowPoint, currentDragAid, out var reason))
+				{
+					actor.OutputHandler.Send(reason);
+					source.OutputHandler.Send(reason);
+					return;
+				}
+
+				source.OutputHandler.Handle(new EmoteOutput(new Emote("@ accept|accepts $1's proposal to be hitched to $2$?3| with $3||.",
+					source, source, actor, target, hitchItem)));
+				ApplyCharacterHitch(actor, source, target, targetTowPoint, hitchItem, currentDragAid);
+			},
+			RejectAction = text =>
+			{
+				source.OutputHandler.Handle(new EmoteOutput(new Emote("@ decline|declines $1's proposal to be hitched to $2.",
+					source, source, actor, target)));
+			},
+			ExpireAction = () =>
+			{
+				source.OutputHandler.Handle(new EmoteOutput(new Emote("@ decline|declines $1's proposal to be hitched to $2.",
+					source, source, actor, target)));
+			},
+			DescriptionString = $"proposal to hitch {source.HowSeen(source)} to {target.HowSeen(source)}",
+			Keywords = new List<string> { "hitch", target.Name }
+		}), TimeSpan.FromSeconds(60));
+
+		actor.OutputHandler.Handle(new EmoteOutput(new Emote("@ propose|proposes to hitch $1 to $2$?3| with $3||.",
+			actor, actor, source, target, hitchItem)));
+		source.OutputHandler.Send(Accept.StandardAcceptPhrasing);
+	}
+
+	private static bool CanCharacterHitch(ICharacter actor, ICharacter source, IPerceivable target,
+		IVehicle targetVehicle, IVehicleTowPointPrototype targetTowPoint, IDragAid dragAid, out string reason)
+	{
+		if (target is null)
+		{
+			reason = "That is not a valid hitch target.";
+			return false;
+		}
+
+		if (source == target)
+		{
+			reason = "You cannot hitch someone to themselves.";
+			return false;
+		}
+
+		if (source.Location != actor.Location || source.RoomLayer != actor.RoomLayer)
+		{
+			reason = $"{source.HowSeen(actor, true)} must be here to hitch them.";
+			return false;
+		}
+
+		if (source.EffectsOfType<Dragging>().Any())
+		{
+			reason = $"{source.HowSeen(actor, true)} is already hitched to pull something.";
+			return false;
+		}
+
+		if (source.Movement is not null)
+		{
+			reason = $"{source.HowSeen(actor, true)} is already moving.";
+			return false;
+		}
+
+		if (source.Combat is not null && source.IsEngagedInMelee)
+		{
+			reason = $"{source.HowSeen(actor, true)} cannot be hitched while engaged in melee.";
+			return false;
+		}
+
+		if (target.AffectedBy<Dragging.DragTarget>())
+		{
+			reason = $"{target.HowSeen(actor, true)} is already being pulled or dragged.";
+			return false;
+		}
+
+		if (target is ICharacter targetCharacter)
+		{
+			if (targetCharacter.Location != source.Location || targetCharacter.RoomLayer != source.RoomLayer)
+			{
+				reason = $"{targetCharacter.HowSeen(actor, true)} must be in the same location and layer.";
+				return false;
+			}
+
+			var ally = targetCharacter.IsAlly(actor);
+			if (CharacterState.Able.HasFlag(targetCharacter.State) && !ally && !targetCharacter.IsHelpless)
+			{
+				reason = "You cannot hitch someone who is conscious and unwilling.";
+				return false;
+			}
+
+			if (targetCharacter.Effects.Any(x => x.Applies() && x.IsBlockingEffect("general")))
+			{
+				reason = $"You cannot hitch someone while they are {targetCharacter.Effects.First(x => x.Applies() && x.IsBlockingEffect("general")).BlockingDescription("general", actor)}.";
+				return false;
+			}
+
+			if (targetCharacter.Combat is not null && targetCharacter.MeleeRange)
+			{
+				reason = $"{targetCharacter.HowSeen(actor, true)} cannot be hitched while in melee combat.";
+				return false;
+			}
+
+			return CanPullWeight(actor, source, targetCharacter, dragAid, 1.0, out reason);
+		}
+
+		if (targetVehicle is null || targetTowPoint is null)
+		{
+			reason = "That is not a valid hitch target.";
+			return false;
+		}
+
+		if (targetVehicle.Destroyed)
+		{
+			reason = "Destroyed vehicles cannot be hitched.";
+			return false;
+		}
+
+		if (!targetTowPoint.CanBeTowed)
+		{
+			reason = "That tow point cannot be towed.";
+			return false;
+		}
+
+		if (targetVehicle.Location != source.Location || targetVehicle.RoomLayer != source.RoomLayer)
+		{
+			reason = "The vehicle must be in the same location and layer.";
+			return false;
+		}
+
+		if (!RequiredTowPointAccessAvailable(actor, targetVehicle, targetTowPoint, out reason))
+		{
+			return false;
+		}
+
+		if (targetVehicle.TowLinks.Any())
+		{
+			reason = "Character hitches cannot currently pull a vehicle that already has vehicle tow links.";
+			return false;
+		}
+
+		if (targetVehicle.IsDisabledByDamage(VehicleDamageEffectTargetType.TowPoint, targetTowPoint.Id))
+		{
+			reason = $"{targetTowPoint.Name} is disabled because {targetVehicle.DamageDisabledReason(VehicleDamageEffectTargetType.TowPoint, targetTowPoint.Id)}.";
+			return false;
+		}
+
+		if (targetVehicle.ExteriorItem?.AffectedBy<Dragging.DragTarget>() == true)
+		{
+			reason = $"{targetVehicle.ExteriorItem.HowSeen(actor, true)} is already being pulled or dragged.";
+			return false;
+		}
+
+		if (targetVehicle.ExteriorItem is null)
+		{
+			reason = "That vehicle does not have a linked exterior item.";
+			return false;
+		}
+
+		var weight = targetVehicle.ExteriorItem.Weight;
+		if (weight > targetTowPoint.MaximumTowedWeight)
+		{
+			reason = $"That tow point can only handle {targetTowPoint.MaximumTowedWeight.ToString("N2", actor)} weight, but the vehicle weighs {weight.ToString("N2", actor)}.";
+			return false;
+		}
+
+		return CanPullWeight(actor, source, targetVehicle.ExteriorItem, dragAid, targetTowPoint.CharacterPullMultiplier,
+			out reason);
+	}
+
+	private static bool RequiredTowPointAccessAvailable(ICharacter actor, IVehicle vehicle,
+		IVehicleTowPointPrototype towPoint, out string reason)
+	{
+		reason = string.Empty;
+		var required = towPoint.RequiredAccessPoint;
+		if (required is null)
+		{
+			return true;
+		}
+
+		var access = vehicle.AccessPoints.FirstOrDefault(x => x.Prototype.Id == required.Id);
+		if (access is null)
+		{
+			reason = $"{towPoint.Name} requires an access point that is missing on {vehicle.Name}.";
+			return false;
+		}
+
+		if (access.CanUse(actor, out reason))
+		{
+			return true;
+		}
+
+		reason = $"{towPoint.Name} is unavailable: {reason}";
+		return false;
+	}
+
+	private static bool CanPullWeight(ICharacter actor, ICharacter source, IHaveWeight target, IDragAid dragAid,
+		double pullMultiplier, out string reason)
+	{
+		pullMultiplier = Math.Max(1.0, pullMultiplier);
+		var capacity = (source.MaximumDragWeight - source.Body.ExternalItems.Sum(x => x.Weight)) *
+		               (dragAid?.EffortMultiplier ?? 1.0);
+		var effectiveWeight = target.Weight / pullMultiplier;
+		if (capacity >= effectiveWeight)
+		{
+			reason = string.Empty;
+			return true;
+		}
+
+		var targetDescription = target is IPerceivable perceivable ? perceivable.HowSeen(actor) : "the target";
+		reason = $"{source.HowSeen(actor, true)} can only pull {capacity.ToString("N2", actor)} effective weight, but {targetDescription} needs {effectiveWeight.ToString("N2", actor)}.";
+		return false;
 	}
 
 	private static IVehicleOccupantSlotPrototype ResolveSlot(ICharacter actor, IVehicle vehicle, string text)

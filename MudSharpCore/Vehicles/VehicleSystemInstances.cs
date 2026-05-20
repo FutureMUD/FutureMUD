@@ -1,6 +1,7 @@
 #nullable enable
 
 using MudSharp.Character;
+using MudSharp.Construction;
 using MudSharp.Database;
 using MudSharp.Framework;
 using MudSharp.GameItems;
@@ -611,6 +612,252 @@ public class VehicleTowLink : FrameworkItem, IVehicleTowLink
 
 			return string.Empty;
 		}
+	}
+}
+
+public class VehicleHitchLink : FrameworkItem, IVehicleHitchLink
+{
+	private readonly VehicleHitchEndpointType _sourceType;
+	private readonly long? _sourceVehicleId;
+	private readonly long? _sourceCharacterId;
+	private readonly long? _sourceTowPointProtoId;
+	private readonly VehicleHitchEndpointType _targetType;
+	private readonly long? _targetVehicleId;
+	private readonly long? _targetCharacterId;
+	private readonly long? _targetTowPointProtoId;
+	private readonly long? _hitchItemId;
+	private readonly bool _isDisabled;
+	private readonly DateTime _createdDateTime;
+	private IGameItem? _hitchItem;
+
+	public VehicleHitchLink(IFuturemud gameworld, DB.VehicleHitchLink dbitem)
+	{
+		Gameworld = gameworld;
+		_id = dbitem.Id;
+		_name = $"Vehicle Hitch Link #{dbitem.Id:N0}";
+		_sourceType = (VehicleHitchEndpointType)dbitem.SourceType;
+		_sourceVehicleId = dbitem.SourceVehicleId;
+		_sourceCharacterId = dbitem.SourceCharacterId;
+		_sourceTowPointProtoId = dbitem.SourceTowPointProtoId;
+		_targetType = (VehicleHitchEndpointType)dbitem.TargetType;
+		_targetVehicleId = dbitem.TargetVehicleId;
+		_targetCharacterId = dbitem.TargetCharacterId;
+		_targetTowPointProtoId = dbitem.TargetTowPointProtoId;
+		_hitchItemId = dbitem.HitchItemId;
+		_isDisabled = dbitem.IsDisabled;
+		_createdDateTime = dbitem.CreatedDateTime;
+	}
+
+	public IFuturemud Gameworld { get; }
+	public override string FrameworkItemType => "VehicleHitchLink";
+	public VehicleHitchEndpointType SourceType => _sourceType;
+	public long? SourceVehicleId => _sourceVehicleId;
+	public long? SourceCharacterId => _sourceCharacterId;
+	public long? SourceTowPointPrototypeId => _sourceTowPointProtoId;
+	public VehicleHitchEndpointType TargetType => _targetType;
+	public long? TargetVehicleId => _targetVehicleId;
+	public long? TargetCharacterId => _targetCharacterId;
+	public long? TargetTowPointPrototypeId => _targetTowPointProtoId;
+	public long? HitchItemId => _hitchItemId;
+	public bool IsManuallyDisabled => _isDisabled;
+	public bool IsDisabled => IsBroken;
+	public DateTime CreatedDateTime => _createdDateTime;
+	public IVehicle? SourceVehicle => _sourceVehicleId is null ? null : Gameworld.TryGetVehicle(_sourceVehicleId.Value);
+	public ICharacter? SourceCharacter => _sourceCharacterId is null ? null : Gameworld.Characters.Get(_sourceCharacterId.Value);
+	public IVehicleTowPointPrototype? SourceTowPoint => SourceVehicle?.Prototype.TowPoints.FirstOrDefault(x => x.Id == _sourceTowPointProtoId);
+	public IVehicle? TargetVehicle => _targetVehicleId is null ? null : Gameworld.TryGetVehicle(_targetVehicleId.Value);
+	public ICharacter? TargetCharacter => _targetCharacterId is null ? null : Gameworld.Characters.Get(_targetCharacterId.Value);
+	public IVehicleTowPointPrototype? TargetTowPoint => TargetVehicle?.Prototype.TowPoints.FirstOrDefault(x => x.Id == _targetTowPointProtoId);
+
+	public IGameItem? HitchItem
+	{
+		get
+		{
+			if (_hitchItem is not null)
+			{
+				return _hitchItem;
+			}
+
+			_hitchItem = _hitchItemId is null ? null : Gameworld.TryGetItem(_hitchItemId.Value, true);
+			return _hitchItem;
+		}
+	}
+
+	public bool IsBroken => !string.IsNullOrWhiteSpace(WhyInvalid);
+
+	public string WhyInvalid
+	{
+		get
+		{
+			if (_isDisabled)
+			{
+				return "the link is manually disabled";
+			}
+
+			var sourceReason = EndpointInvalidReason(true);
+			if (!string.IsNullOrWhiteSpace(sourceReason))
+			{
+				return sourceReason;
+			}
+
+			var targetReason = EndpointInvalidReason(false);
+			if (!string.IsNullOrWhiteSpace(targetReason))
+			{
+				return targetReason;
+			}
+
+			if (SourceTowPoint is not null && TargetTowPoint is not null &&
+			    !SourceTowPoint.TowType.Equals(TargetTowPoint.TowType, StringComparison.InvariantCultureIgnoreCase))
+			{
+				return "the tow point types are incompatible";
+			}
+
+			var sourceLocation = SourceLocation();
+			var targetLocation = TargetLocation();
+			if (sourceLocation is null || targetLocation is null)
+			{
+				return "one of the hitch endpoints is not in the world";
+			}
+
+			if (sourceLocation != targetLocation || SourceRoomLayer() != TargetRoomLayer())
+			{
+				return "the hitch endpoints are not in the same location and layer";
+			}
+
+			if (_hitchItemId is not null)
+			{
+				var item = HitchItem;
+				if (item is null)
+				{
+					return "the hitch item is missing";
+				}
+
+				if (item.Deleted || item.Destroyed)
+				{
+					return "the hitch item is destroyed";
+				}
+
+				if (item.ContainedIn is not null || item.InInventoryOf is not null ||
+				    item.Location != sourceLocation || item.RoomLayer != SourceRoomLayer())
+				{
+					return "the hitch item is not with the hitch chain";
+				}
+			}
+
+			return string.Empty;
+		}
+	}
+
+	private string EndpointInvalidReason(bool source)
+	{
+		var type = source ? SourceType : TargetType;
+		var vehicle = source ? SourceVehicle : TargetVehicle;
+		var character = source ? SourceCharacter : TargetCharacter;
+		var towPoint = source ? SourceTowPoint : TargetTowPoint;
+		var vehicleId = source ? _sourceVehicleId : _targetVehicleId;
+		var characterId = source ? _sourceCharacterId : _targetCharacterId;
+		var towPointId = source ? _sourceTowPointProtoId : _targetTowPointProtoId;
+		var label = source ? "source" : "target";
+
+		switch (type)
+		{
+			case VehicleHitchEndpointType.Vehicle:
+				if (vehicleId is null)
+				{
+					return $"the {label} vehicle id is missing";
+				}
+
+				if (vehicle is null)
+				{
+					return $"the {label} vehicle is missing";
+				}
+
+				if (towPointId is null)
+				{
+					return $"the {label} tow point id is missing";
+				}
+
+				if (towPoint is null)
+				{
+					return $"the {label} tow point is missing";
+				}
+
+				if (source && !towPoint.CanTow)
+				{
+					return "the source tow point cannot tow";
+				}
+
+				if (!source && !towPoint.CanBeTowed)
+				{
+					return "the target tow point cannot be towed";
+				}
+
+				if (vehicle.Destroyed)
+				{
+					return $"the {label} vehicle is destroyed";
+				}
+
+				if (vehicle.IsDisabledByDamage(VehicleDamageEffectTargetType.TowPoint, towPoint.Id))
+				{
+					return $"{towPoint.Name} is disabled because {vehicle.DamageDisabledReason(VehicleDamageEffectTargetType.TowPoint, towPoint.Id)}";
+				}
+
+				return string.Empty;
+			case VehicleHitchEndpointType.Character:
+				if (characterId is null)
+				{
+					return $"the {label} character id is missing";
+				}
+
+				if (character is null)
+				{
+					return $"the {label} character is missing";
+				}
+
+				return string.Empty;
+			default:
+				return $"the {label} endpoint type is invalid";
+		}
+	}
+
+	private ICell? SourceLocation()
+	{
+		return SourceType switch
+		{
+			VehicleHitchEndpointType.Vehicle => SourceVehicle?.Location,
+			VehicleHitchEndpointType.Character => SourceCharacter?.Location,
+			_ => null
+		};
+	}
+
+	private ICell? TargetLocation()
+	{
+		return TargetType switch
+		{
+			VehicleHitchEndpointType.Vehicle => TargetVehicle?.Location,
+			VehicleHitchEndpointType.Character => TargetCharacter?.Location,
+			_ => null
+		};
+	}
+
+	private RoomLayer SourceRoomLayer()
+	{
+		return SourceType switch
+		{
+			VehicleHitchEndpointType.Vehicle => SourceVehicle?.RoomLayer ?? RoomLayer.GroundLevel,
+			VehicleHitchEndpointType.Character => SourceCharacter?.RoomLayer ?? RoomLayer.GroundLevel,
+			_ => RoomLayer.GroundLevel
+		};
+	}
+
+	private RoomLayer TargetRoomLayer()
+	{
+		return TargetType switch
+		{
+			VehicleHitchEndpointType.Vehicle => TargetVehicle?.RoomLayer ?? RoomLayer.GroundLevel,
+			VehicleHitchEndpointType.Character => TargetCharacter?.RoomLayer ?? RoomLayer.GroundLevel,
+			_ => RoomLayer.GroundLevel
+		};
 	}
 }
 

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MudSharp.Database;
 
@@ -11,9 +12,11 @@ using MudSharp.Database;
 namespace MudSharp.Migrations
 {
     [DbContext(typeof(FuturemudDatabaseContext))]
-    partial class FutureMUDContextModelSnapshot : ModelSnapshot
+    [Migration("20260519132419_VehicleCharacterHitchPullMultiplier")]
+    partial class VehicleCharacterHitchPullMultiplier
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -18450,74 +18453,6 @@ namespace MudSharp.Migrations
                     b.ToTable("VehicleDamageZoneProtos", (string)null);
                 });
 
-            modelBuilder.Entity("MudSharp.Models.VehicleHitchLink", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint(20)");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<DateTime>("CreatedDateTime")
-                        .HasColumnType("datetime");
-
-                    b.Property<long?>("HitchItemId")
-                        .HasColumnType("bigint(20)");
-
-                    b.Property<ulong>("IsDisabled")
-                        .HasColumnType("bit(1)");
-
-                    b.Property<long?>("SourceCharacterId")
-                        .HasColumnType("bigint(20)");
-
-                    b.Property<long?>("SourceTowPointProtoId")
-                        .HasColumnType("bigint(20)");
-
-                    b.Property<int>("SourceType")
-                        .HasColumnType("int(11)");
-
-                    b.Property<long?>("SourceVehicleId")
-                        .HasColumnType("bigint(20)");
-
-                    b.Property<long?>("TargetCharacterId")
-                        .HasColumnType("bigint(20)");
-
-                    b.Property<long?>("TargetTowPointProtoId")
-                        .HasColumnType("bigint(20)");
-
-                    b.Property<int>("TargetType")
-                        .HasColumnType("int(11)");
-
-                    b.Property<long?>("TargetVehicleId")
-                        .HasColumnType("bigint(20)");
-
-                    b.HasKey("Id")
-                        .HasName("PRIMARY");
-
-                    b.HasIndex("HitchItemId")
-                        .HasDatabaseName("FK_VehicleHitchLinks_GameItems_idx");
-
-                    b.HasIndex("SourceCharacterId")
-                        .HasDatabaseName("FK_VehicleHitchLinks_SourceCharacters_idx");
-
-                    b.HasIndex("SourceTowPointProtoId")
-                        .HasDatabaseName("FK_VehicleHitchLinks_SourceTowPointProtos_idx");
-
-                    b.HasIndex("SourceVehicleId")
-                        .HasDatabaseName("FK_VehicleHitchLinks_SourceVehicles_idx");
-
-                    b.HasIndex("TargetCharacterId")
-                        .HasDatabaseName("FK_VehicleHitchLinks_TargetCharacters_idx");
-
-                    b.HasIndex("TargetTowPointProtoId")
-                        .HasDatabaseName("FK_VehicleHitchLinks_TargetTowPointProtos_idx");
-
-                    b.HasIndex("TargetVehicleId")
-                        .HasDatabaseName("FK_VehicleHitchLinks_TargetVehicles_idx");
-
-                    b.ToTable("VehicleHitchLinks", (string)null);
-                });
-
             modelBuilder.Entity("MudSharp.Models.VehicleInstallation", b =>
                 {
                     b.Property<long>("Id")
@@ -28166,65 +28101,6 @@ namespace MudSharp.Migrations
                         .HasConstraintName("FK_VehicleDamageZoneProtos_VehicleProtos");
 
                     b.Navigation("VehicleProto");
-                });
-
-            modelBuilder.Entity("MudSharp.Models.VehicleHitchLink", b =>
-                {
-                    b.HasOne("MudSharp.Models.GameItem", "HitchItem")
-                        .WithMany()
-                        .HasForeignKey("HitchItemId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .HasConstraintName("FK_VehicleHitchLinks_GameItems");
-
-                    b.HasOne("MudSharp.Models.Character", "SourceCharacter")
-                        .WithMany()
-                        .HasForeignKey("SourceCharacterId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .HasConstraintName("FK_VehicleHitchLinks_SourceCharacters");
-
-                    b.HasOne("MudSharp.Models.VehicleTowPointProto", "SourceTowPointProto")
-                        .WithMany()
-                        .HasForeignKey("SourceTowPointProtoId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .HasConstraintName("FK_VehicleHitchLinks_SourceTowPointProtos");
-
-                    b.HasOne("MudSharp.Models.Vehicle", "SourceVehicle")
-                        .WithMany()
-                        .HasForeignKey("SourceVehicleId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .HasConstraintName("FK_VehicleHitchLinks_SourceVehicles");
-
-                    b.HasOne("MudSharp.Models.Character", "TargetCharacter")
-                        .WithMany()
-                        .HasForeignKey("TargetCharacterId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .HasConstraintName("FK_VehicleHitchLinks_TargetCharacters");
-
-                    b.HasOne("MudSharp.Models.VehicleTowPointProto", "TargetTowPointProto")
-                        .WithMany()
-                        .HasForeignKey("TargetTowPointProtoId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .HasConstraintName("FK_VehicleHitchLinks_TargetTowPointProtos");
-
-                    b.HasOne("MudSharp.Models.Vehicle", "TargetVehicle")
-                        .WithMany()
-                        .HasForeignKey("TargetVehicleId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .HasConstraintName("FK_VehicleHitchLinks_TargetVehicles");
-
-                    b.Navigation("HitchItem");
-
-                    b.Navigation("SourceCharacter");
-
-                    b.Navigation("SourceTowPointProto");
-
-                    b.Navigation("SourceVehicle");
-
-                    b.Navigation("TargetCharacter");
-
-                    b.Navigation("TargetTowPointProto");
-
-                    b.Navigation("TargetVehicle");
                 });
 
             modelBuilder.Entity("MudSharp.Models.VehicleInstallation", b =>

@@ -94,6 +94,7 @@ public interface IVehicleTowPointPrototype : IFrameworkItem
 	bool CanTow { get; }
 	bool CanBeTowed { get; }
 	double MaximumTowedWeight { get; }
+	double CharacterPullMultiplier { get; }
 	int DisplayOrder { get; }
 }
 

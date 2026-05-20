@@ -25,6 +25,7 @@ public partial class FuturemudDatabaseContext
 	public virtual DbSet<VehicleCargoSpace> VehicleCargoSpaces { get; set; }
 	public virtual DbSet<VehicleInstallation> VehicleInstallations { get; set; }
 	public virtual DbSet<VehicleTowLink> VehicleTowLinks { get; set; }
+	public virtual DbSet<VehicleHitchLink> VehicleHitchLinks { get; set; }
 	public virtual DbSet<VehicleDamageZone> VehicleDamageZones { get; set; }
 
 	private static void ConfigureVehicles(ModelBuilder modelBuilder)
@@ -291,6 +292,7 @@ public partial class FuturemudDatabaseContext
 			entity.Property(e => e.CanTow).HasColumnType("bit(1)");
 			entity.Property(e => e.CanBeTowed).HasColumnType("bit(1)");
 			entity.Property(e => e.MaximumTowedWeight).HasColumnType("double");
+			entity.Property(e => e.CharacterPullMultiplier).HasColumnType("double").HasDefaultValue(1.0);
 			entity.Property(e => e.DisplayOrder).HasColumnType("int(11)");
 
 			entity.HasOne(d => d.VehicleProto)
@@ -650,6 +652,74 @@ public partial class FuturemudDatabaseContext
 			      .HasForeignKey(d => d.HitchItemId)
 			      .OnDelete(DeleteBehavior.SetNull)
 			      .HasConstraintName("FK_VehicleTowLinks_GameItems");
+		});
+
+		modelBuilder.Entity<VehicleHitchLink>(entity =>
+		{
+			entity.ToTable("VehicleHitchLinks");
+			entity.HasKey(e => e.Id).HasName("PRIMARY");
+			entity.HasIndex(e => e.SourceVehicleId).HasDatabaseName("FK_VehicleHitchLinks_SourceVehicles_idx");
+			entity.HasIndex(e => e.SourceCharacterId).HasDatabaseName("FK_VehicleHitchLinks_SourceCharacters_idx");
+			entity.HasIndex(e => e.SourceTowPointProtoId).HasDatabaseName("FK_VehicleHitchLinks_SourceTowPointProtos_idx");
+			entity.HasIndex(e => e.TargetVehicleId).HasDatabaseName("FK_VehicleHitchLinks_TargetVehicles_idx");
+			entity.HasIndex(e => e.TargetCharacterId).HasDatabaseName("FK_VehicleHitchLinks_TargetCharacters_idx");
+			entity.HasIndex(e => e.TargetTowPointProtoId).HasDatabaseName("FK_VehicleHitchLinks_TargetTowPointProtos_idx");
+			entity.HasIndex(e => e.HitchItemId).HasDatabaseName("FK_VehicleHitchLinks_GameItems_idx");
+
+			entity.Property(e => e.Id).HasColumnType("bigint(20)");
+			entity.Property(e => e.SourceType).HasColumnType("int(11)");
+			entity.Property(e => e.SourceVehicleId).HasColumnType("bigint(20)");
+			entity.Property(e => e.SourceCharacterId).HasColumnType("bigint(20)");
+			entity.Property(e => e.SourceTowPointProtoId).HasColumnType("bigint(20)");
+			entity.Property(e => e.TargetType).HasColumnType("int(11)");
+			entity.Property(e => e.TargetVehicleId).HasColumnType("bigint(20)");
+			entity.Property(e => e.TargetCharacterId).HasColumnType("bigint(20)");
+			entity.Property(e => e.TargetTowPointProtoId).HasColumnType("bigint(20)");
+			entity.Property(e => e.HitchItemId).HasColumnType("bigint(20)");
+			entity.Property(e => e.IsDisabled).HasColumnType("bit(1)");
+			entity.Property(e => e.CreatedDateTime).HasColumnType("datetime");
+
+			entity.HasOne(d => d.SourceVehicle)
+			      .WithMany()
+			      .HasForeignKey(d => d.SourceVehicleId)
+			      .OnDelete(DeleteBehavior.SetNull)
+			      .HasConstraintName("FK_VehicleHitchLinks_SourceVehicles");
+
+			entity.HasOne(d => d.SourceCharacter)
+			      .WithMany()
+			      .HasForeignKey(d => d.SourceCharacterId)
+			      .OnDelete(DeleteBehavior.SetNull)
+			      .HasConstraintName("FK_VehicleHitchLinks_SourceCharacters");
+
+			entity.HasOne(d => d.SourceTowPointProto)
+			      .WithMany()
+			      .HasForeignKey(d => d.SourceTowPointProtoId)
+			      .OnDelete(DeleteBehavior.SetNull)
+			      .HasConstraintName("FK_VehicleHitchLinks_SourceTowPointProtos");
+
+			entity.HasOne(d => d.TargetVehicle)
+			      .WithMany()
+			      .HasForeignKey(d => d.TargetVehicleId)
+			      .OnDelete(DeleteBehavior.SetNull)
+			      .HasConstraintName("FK_VehicleHitchLinks_TargetVehicles");
+
+			entity.HasOne(d => d.TargetCharacter)
+			      .WithMany()
+			      .HasForeignKey(d => d.TargetCharacterId)
+			      .OnDelete(DeleteBehavior.SetNull)
+			      .HasConstraintName("FK_VehicleHitchLinks_TargetCharacters");
+
+			entity.HasOne(d => d.TargetTowPointProto)
+			      .WithMany()
+			      .HasForeignKey(d => d.TargetTowPointProtoId)
+			      .OnDelete(DeleteBehavior.SetNull)
+			      .HasConstraintName("FK_VehicleHitchLinks_TargetTowPointProtos");
+
+			entity.HasOne(d => d.HitchItem)
+			      .WithMany()
+			      .HasForeignKey(d => d.HitchItemId)
+			      .OnDelete(DeleteBehavior.SetNull)
+			      .HasConstraintName("FK_VehicleHitchLinks_GameItems");
 		});
 
 		modelBuilder.Entity<VehicleDamageZone>(entity =>

@@ -29,31 +29,33 @@ Historical anchors:
 - [National Archaeological Museum: Barbarian Clothing](https://www.namuseum.gr/en/monthly_artefact/barbarian-clothing-or-the-garments-of-the-foreigners/)
 - [World History Encyclopedia: Etruscan Clothing](https://www.worldhistory.org/article/1018/etruscan-clothing/)
 
+The May 2026 supplemental clothing scripts in `GPT Antiquity Clothing Stuff` were reviewed as source material and then integrated manually into the existing catalogue, craft, and documentation seams. Their historical-basis notes are kept here as context rather than as separate generated markdown files. The additions deliberately use cautious wording: occupational and religious garments are plausible extensions from known dress forms, not claims of fixed uniforms for every culture.
+
 ## Knowledge Gates
 
 `Ancient Textile Production` covers shared upstream work: sorting fibre, retting and hackling flax, scouring and combing wool, spindle spinning, warp-weighted loom weaving, dyeing, and wool fulling. This knowledge is intentionally culture-neutral so builders do not need duplicate "spin wool yarn" crafts for every antiquity culture.
 
-`Hellenic Textilecraft` covers culturally specific finished garments. It is used for Hellenic rectangular garment assembly: chitons, himatia, chlamydes, peploi, and linen head veils. This lets builders include or exclude Hellenic clothing independently from the shared textile economy.
+`Hellenic Textilecraft` covers culturally specific finished garments. It is used for Hellenic rectangular garment assembly: chitons, himatia, chlamydes, peploi, exomides, heavy zeirai, hand and leg wraps, and linen head veils. This lets builders include or exclude Hellenic clothing independently from the shared textile economy.
 
-`Egyptian Textilecraft` covers culturally specific finished garments for the linen-dominant Egyptian/Nilotic clothing slice: narrow kilts, shoulder cloths, sleeveless tunics, fringed robes, tasseled shawls, linen headdresses, and beaded linen dress pieces. The upstream linen production remains shared; only finished garment assembly is culture-gated.
+`Egyptian Textilecraft` covers culturally specific finished garments for the linen-dominant Egyptian/Nilotic clothing slice: narrow kilts, scribe kilts, shoulder cloths, sleeveless tunics, temple shifts, fringed robes, tasseled shawls, linen headdresses, and beaded linen dress pieces. The upstream linen production remains shared; only finished garment assembly is culture-gated.
 
-`Roman Textilecraft` covers culturally specific finished garments for the Italic/Roman clothing slice: tunicae, togae, pallae, stolae, and practical woollen mantles. The shared upstream chain supplies wool and linen cloth; the Roman gate controls the civic and matronal garment forms.
+`Roman Textilecraft` covers culturally specific finished garments for the Italic/Roman clothing slice: tunicae, togae, pallae, stolae, paenulae, udones, hand wraps, and practical woollen mantles. The shared upstream chain supplies wool and linen cloth; the Roman gate controls the civic, matronal, travel, and cold-weather garment forms.
 
-`Celtic Textilecraft` covers culturally specific finished garments for the Celtic antiquity slice: sleeved wool tunics, braccae, rectangular cloaks, checked cloaks, mantles, gowns, skirts, and linen veils. The source anchor here is the broad archaeological and iconographic pattern of tunic-trouser-cloak dress, with checked and bordered cloth represented as textile finish rather than as full intermediate item panels.
+`Celtic Textilecraft` covers culturally specific finished garments for the Celtic antiquity slice: sleeved wool tunics, braccae, rectangular and hooded cloaks, work smocks, mantles, gowns, skirts, mittens, leg wraps, and linen veils. The source anchor here is the broad archaeological and iconographic pattern of tunic-trouser-cloak dress, with checked and bordered cloth represented as textile finish rather than as full intermediate item panels.
 
-`Germanic Textilecraft` covers culturally specific finished garments for the northern Germanic antiquity slice: straight wool tunics, narrow trousers, heavy cloaks, checked scarves, gowns, mantles, linen veils, fur-lined cloaks, and woolly skin capes. Hair-on skins and fur lining use existing `Animal Skin` and `Hair` material tags as commodity inputs in this textile slice; the separate leather chain now handles hide scraping, tanning, and cut leather stock.
+`Germanic Textilecraft` covers culturally specific finished garments for the northern Germanic antiquity slice: straight wool tunics, narrow trousers, heavy cloaks, felt hoods, hand-mitts, footwraps, ear bands, checked scarves, gowns, mantles, linen veils, fur-lined cloaks, and woolly skin capes. Hair-on skins and fur lining use existing `Animal Skin` and `Hair` material tags as commodity inputs in this textile slice; the separate leather chain now handles hide scraping, tanning, and cut leather stock.
 
-`Kushite Textilecraft` covers culturally specific finished garments for the Kushite/Nubian Nile Valley slice: linen kilts, shoulder cloths, tunics, robes, shawls, headdresses, beaded girdles and aprons, cotton wrap skirts, cotton draped dresses, and cotton headcloths. Shared linen production remains culture-neutral, while cotton is added to the shared textile commodity chain so Kushite cotton garments can be craftable from agricultural stock.
+`Kushite Textilecraft` covers culturally specific finished garments for the Kushite/Nubian Nile Valley slice: linen kilts, shoulder cloths, tunics, robes, shawls, headdresses, beaded girdles and aprons, cotton wrap skirts, cotton field wraps, cotton draped dresses, ritual cotton mantles, and cotton headcloths. Shared linen production remains culture-neutral, while cotton is added to the shared textile commodity chain so Kushite cotton garments can be craftable from agricultural stock.
 
-`Punic Textilecraft` covers culturally specific finished garments for the Punic and Phoenician western Mediterranean slice: fitted linen tunics, waistcloths, short overblouses, folded robes, hoods, one-shoulder mantles, overdrapes, and star-bordered robes. The craft design leans into the mixed Mediterranean visual language of Punic art while keeping the production chain linen- and wool-based.
+`Punic Textilecraft` covers culturally specific finished garments for the Punic and Phoenician western Mediterranean slice: fitted linen tunics, waistcloths, short overblouses, folded robes, hoods, one-shoulder mantles, sailor wind cloaks, temple veils, overdrapes, and star-bordered robes. The craft design leans into the mixed Mediterranean visual language of Punic art while keeping the production chain linen- and wool-based.
 
-`Persian Textilecraft` covers culturally specific finished garments for Persian and Median dress: sarapis tunics, anaxyrides trousers, kandyes, pleated court robes and gowns, wide cloth belts, and full head-and-neck veils. The product set follows the Achaemenid clothing pattern of tunic, trousers, headgear, overgarment, and formal pleated robes.
+`Persian Textilecraft` covers culturally specific finished garments for Persian and Median dress: sarapis tunics, anaxyrides trousers, kandyes, felt riding coats, riding mittens, boot liners, magian robes, pleated court robes and gowns, wide cloth belts, and full head-and-neck veils. The product set follows the Achaemenid clothing pattern of tunic, trousers, headgear, overgarment, and formal pleated robes.
 
-`Etruscan Textilecraft` covers culturally specific finished garments for Etruscan dress: short-sleeved linen tunics, bordered wool tunics, curved tebennas, wrapped skirts, rectangular shoulder cloaks, fitted gowns, and linen head mantles. The tebenna and curved cloak forms are the distinctive cultural centre of this slice.
+`Etruscan Textilecraft` covers culturally specific finished garments for Etruscan dress: short-sleeved linen tunics, bordered and craftsman wool tunics, curved tebennas, wrapped skirts, rectangular shoulder cloaks, fitted gowns, priestly linen veils, and linen head mantles. The tebenna and curved cloak forms are the distinctive cultural centre of this slice.
 
-`Anatolian Textilecraft` covers culturally specific finished garments for Anatolian and Phrygian-adjacent dress: belted wool tunics, banded tunics, leg wraps, hooded cloaks, forward-pointing felt caps, wool capes, patterned robes, fringed mantles, wrapped skirts, and rectangular veils.
+`Anatolian Textilecraft` covers culturally specific finished garments for Anatolian and Phrygian-adjacent dress: belted wool tunics, banded tunics, leg wraps, hooded cloaks, forward-pointing and winter felt caps, felt hand-mitts, wool neck wraps, wool capes, patterned and priestly robes, fringed mantles, wrapped skirts, and rectangular veils.
 
-`Scythian-Sarmatian Textilecraft` covers culturally specific finished garments for steppe riding dress: felt riding caps, tall felt caps, riding tunics and trousers, open caftans, fur-trimmed caftans, split riding skirts, and long felt coats.
+`Scythian-Sarmatian Textilecraft` covers culturally specific finished garments for steppe riding dress: felt riding caps, tall and ritual felt caps, riding tunics and trousers, horseherder tunics, open caftans, fur-trimmed caftans, split riding skirts, felt mittens, boot liners, and long felt coats.
 
 `Ancient Hide and Leatherworking` covers the shared leather path: scraping and dehairing raw animal skin, tanning prepared hides, cutting leather soles, straps, thongs, panels, hardened armour plates, leather scales, and sealed vessel panels, and assembling leather clothing, armour, containers, liquid vessels, tableware, and doorway fittings. It is culture-neutral so the same stock leather economy can support multiple antiquity item sets without duplicating hide preparation.
 
@@ -154,6 +156,59 @@ The antiquity bronze sewing needle is also tagged as a `Beading Needle` so Egypt
 | Full wool garment cloth | Weaving | Ancient Textile Production | Wool garment cloth, water | Fuller's trough, fuller's mallet, tenter frame | Wool commodity tagged `Fulled Cloth`, copying `Colour` and `Fine Colour` |
 | Felt prepared wool fibre into garment felt | Weaving | Ancient Textile Production | Prepared wool fibre commodity, water | Fuller's trough, fuller's mallet, tenter frame | Felt commodity tagged `Fulled Cloth`, copying `Colour` and `Fine Colour` |
 | Sort glass beads for textile edging | Tailoring | Ancient Textile Production | Glass commodity | Beading needle | Glass commodity tagged `Bead Stock` |
+
+## Supplemental Cultural Garment Matrix
+
+These rows preserve the supplied expansion notes in the main clothing suite. The occupational and religious examples are conservative catalogue additions based on existing cultural silhouettes: exomis and paenula forms where named, and otherwise cautious extensions from known tunic, cloak, robe, veil, cap, and mantle patterns. All rows use the same commodity-first final assembly model as the older culture matrices.
+
+| Culture | Stable Reference | Garment | Role | Material | Cloth Input | Yarn Input | Product Variable Copy | Source Context |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Hellenic | `antiquity_wool_exomis` | Wool exomis | Occupational | Wool | 420g `Garment Cloth` | 25g `Spun Yarn` | `Colour` | Greek exomis as a one-shouldered working and light-infantry tunic. |
+| Hellenic | `antiquity_heavy_wool_zeira` | Heavy wool zeira | Cold weather | Wool | 1350g `Garment Cloth` | 45g `Spun Yarn` | `Colour` | Plausible heavy Greek outer wrap extending the existing himation/chlamys cloak logic. |
+| Hellenic | `antiquity_fine_ritual_wool_peplos` | Fine ritual wool peplos | Religious | Wool | 820g `Garment Cloth` | 40g `Spun Yarn` | `Colour`, `Fine Colour` | Formal peplos for sanctuary or festival dress, not a universal priestly uniform. |
+| Roman | `antiquity_hooded_wool_paenula` | Hooded wool paenula | Cold weather | Wool | 1450g `Garment Cloth` | 50g `Spun Yarn` | `Colour` | Roman paenula as an enclosing hooded cloak for travel and weather. |
+| Roman | `antiquity_fine_toga_praetexta` | Fine toga praetexta | Religious/formal | Wool | 2900g `Garment Cloth` | 90g `Spun Yarn` | `Colour`, `Fine Colour` | Bordered formal garment associated with magistrates, priests, and privileged youths. |
+| Egyptian | `adjacent_antiquity_linen_scribe_kilt` | Linen scribe's kilt | Occupational | Linen | 240g `Garment Cloth` | 18g `Spun Yarn` | `Colour` | Occupational inference from Egyptian kilt forms used by officials, scribes, and workers. |
+| Egyptian | `adjacent_antiquity_temple_linen_shift` | Fine temple linen shift | Religious | Linen | 430g `Garment Cloth` | 28g `Spun Yarn` | `Colour`, `Fine Colour` | Linen temple dress inference consistent with Egyptian ritual-purity conventions. |
+| Celtic | `antiquity_heavy_hooded_wool_cloak` | Heavy hooded wool cloak | Cold weather | Wool | 1420g `Garment Cloth` | 50g `Spun Yarn` | `Colour` | Plausible northern hooded cloak extension of the existing Celtic wool cloak set. |
+| Celtic | `antiquity_wool_work_smock` | Wool work smock | Occupational | Wool | 700g `Garment Cloth` | 35g `Spun Yarn` | `Colour` | Occupational inference from northern sleeved tunics and protective over-garment use. |
+| Celtic | `antiquity_fine_ritual_wool_mantle` | Fine ritual wool mantle | Religious | Wool | 1010g `Garment Cloth` | 45g `Spun Yarn` | `Colour`, `Fine Colour` | Plausible ritual or elite mantle rather than a fixed druid uniform. |
+| Germanic | `antiquity_heavy_felt_hood` | Heavy felt hood | Cold weather | Felt | 260g `Garment Cloth` | 12g `Spun Yarn` | `Colour` | Cold-weather inference from felt and northern hooded head coverings. |
+| Germanic | `antiquity_fine_seeress_wool_mantle` | Fine seeress wool mantle | Religious | Wool | 1050g `Garment Cloth` | 45g `Spun Yarn` | `Colour`, `Fine Colour` | Plausible ritual mantle from elite northern wool wraps and later textual imagery. |
+| Kushite | `adjacent_antiquity_cotton_field_wrap` | Cotton field wrap | Occupational | Cotton | 330g `Garment Cloth` | 22g `Spun Yarn` | `Colour` | River-valley occupational inference using the existing Kushite cotton cloth path. |
+| Kushite | `adjacent_antiquity_fine_ritual_cotton_mantle` | Fine ritual cotton mantle | Religious | Cotton | 360g `Garment Cloth` | 30g `Spun Yarn` | `Colour`, `Fine Colour` | Plausible Kushite ritual mantle paired with the existing river-valley shawl conventions. |
+| Punic | `antiquity_sailor_wool_wind_cloak` | Sailor's wool cloak | Occupational | Wool | 1180g `Garment Cloth` | 45g `Spun Yarn` | `Colour` | Maritime occupational cloak inferred from Punic seafaring and one-shoulder mantle forms. |
+| Punic | `antiquity_fine_temple_linen_veil` | Fine temple linen veil | Religious | Linen | 170g `Garment Cloth` | 15g `Spun Yarn` | `Colour`, `Fine Colour` | Phoenician/Punic temple veil inference from Near Eastern veiled ritual dress patterns. |
+| Persian | `antiquity_heavy_felt_riding_coat` | Heavy felt riding coat | Cold weather | Felt | 1200g `Garment Cloth` | 45g `Spun Yarn` | `Colour` | Median/Achaemenid cavalry-dress inference: coat, trousers, cap, and riding layers. |
+| Persian | `antiquity_fine_magian_linen_robe` | Fine magian linen robe | Religious | Linen | 720g `Garment Cloth` | 40g `Spun Yarn` | `Colour`, `Fine Colour` | Iranian priestly dress inference kept as a robe, not a precise uniform claim. |
+| Etruscan | `adjacent_antiquity_wool_craftsman_tunic` | Craftsman's wool tunic | Occupational | Wool | 560g `Garment Cloth` | 30g `Spun Yarn` | `Colour` | Occupational extension of the short-sleeved tunic and wool bordered tunic set. |
+| Etruscan | `adjacent_antiquity_priestly_linen_veil` | Fine priestly linen veil | Religious | Linen | 220g `Garment Cloth` | 18g `Spun Yarn` | `Colour`, `Fine Colour` | Etruscan/Romanate ritual head-covering inference, kept as a veil rather than a fixed vestment. |
+| Anatolian | `adjacent_antiquity_heavy_felt_winter_cap` | Heavy felt winter cap | Cold weather | Felt | 230g `Garment Cloth` | 10g `Spun Yarn` | `Colour` | Upland Anatolian felt-cap inference from the existing pointed cap and hooded cloak set. |
+| Anatolian | `adjacent_antiquity_priestly_banded_wool_robe` | Fine priestly banded wool robe | Religious | Wool | 980g `Garment Cloth` | 50g `Spun Yarn` | `Colour`, `Fine Colour` | Anatolian ritual inference from banded tunics, robes, and Near Eastern temple dress. |
+| Scythian-Sarmatian | `adjacent_antiquity_horseherder_wool_tunic` | Horseherder's wool tunic | Occupational | Wool | 720g `Garment Cloth` | 35g `Spun Yarn` | `Colour` | Steppe occupational inference from existing riding tunic, trousers, and caftan forms. |
+| Scythian-Sarmatian | `adjacent_antiquity_ritual_felt_cap` | Fine ritual felt cap | Religious | Felt | 180g `Garment Cloth` | 12g `Spun Yarn` | `Colour`, `Fine Colour` | Ritual headwear inference from steppe felt caps and tall ceremonial cap forms. |
+
+## Cold-Weather Accessory Matrix
+
+These small winter pieces fill coverage gaps that full cloaks and coats do not cover. The generated summary originally used more generic glove components for mittens and hand wraps; the integrated source uses the more precise wear components listed below.
+
+| Culture | Stable Reference | Item | Coverage | Material | Cloth Input | Yarn Input | Wear Component | Product Variable Copy |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Roman | `antiquity_wool_udones` | Wool udones | Feet | Wool | 95g `Garment Cloth` | 12g `Spun Yarn` | `Wear_Socks` | `Colour` |
+| Roman | `antiquity_wool_hand_wraps` | Wool hand wraps | Hands | Wool | 120g `Garment Cloth` | 10g `Spun Yarn` | `Wear_Fingerless_Gloves` | `Colour` |
+| Hellenic | `antiquity_wool_travel_leg_wraps` | Wool travel leg wraps | Lower legs | Wool | 180g `Garment Cloth` | 10g `Spun Yarn` | `Wear_Chausses` | `Colour` |
+| Hellenic | `antiquity_wool_hand_wraps_hellenic` | Wool travel hand wraps | Hands | Wool | 115g `Garment Cloth` | 10g `Spun Yarn` | `Wear_Fingerless_Gloves` | `Colour` |
+| Celtic | `antiquity_wool_winter_mittens` | Wool winter mittens | Hands | Wool | 170g `Garment Cloth` | 15g `Spun Yarn` | `Wear_Mittens` | `Colour` |
+| Celtic | `antiquity_checked_wool_leg_wraps` | Wool leg wraps | Lower legs | Wool | 210g `Garment Cloth` | 12g `Spun Yarn` | `Wear_Chausses` | `Colour` |
+| Germanic | `antiquity_felt_hand_mitts` | Felt hand-mitts | Hands | Felt | 190g `Garment Cloth` | 12g `Spun Yarn` | `Wear_Mittens` | `Colour` |
+| Germanic | `antiquity_wool_footwraps` | Wool footwraps | Feet | Wool | 140g `Garment Cloth` | 8g `Spun Yarn` | `Wear_Socks` | `Colour` |
+| Germanic | `antiquity_wool_ear_band` | Wool ear band | Ears/forehead | Wool | 70g `Garment Cloth` | 6g `Spun Yarn` | `Wear_Headband` | `Colour` |
+| Anatolian | `adjacent_antiquity_felt_hand_mitts` | Upland felt hand-mitts | Hands | Felt | 180g `Garment Cloth` | 12g `Spun Yarn` | `Wear_Mittens` | `Colour` |
+| Anatolian | `adjacent_antiquity_wool_neck_wrap` | Wool neck wrap | Neck/lower face | Wool | 190g `Garment Cloth` | 12g `Spun Yarn` | `Wear_Scarf` | `Colour` |
+| Persian | `antiquity_felt_riding_mittens` | Felt riding mittens | Hands | Felt | 175g `Garment Cloth` | 12g `Spun Yarn` | `Wear_Mittens` | `Colour` |
+| Persian | `antiquity_wool_boot_liners` | Wool boot liners | Feet | Wool | 145g `Garment Cloth` | 10g `Spun Yarn` | `Wear_Socks` | `Colour` |
+| Scythian-Sarmatian | `adjacent_antiquity_felt_mittens` | Felt mittens | Hands | Felt | 180g `Garment Cloth` | 12g `Spun Yarn` | `Wear_Mittens` | `Colour` |
+| Scythian-Sarmatian | `adjacent_antiquity_felt_boot_liners` | Felt boot liners | Feet | Felt | 170g `Garment Cloth` | 10g `Spun Yarn` | `Wear_Socks` | `Colour` |
 
 ## Hellenic Garment Matrix
 

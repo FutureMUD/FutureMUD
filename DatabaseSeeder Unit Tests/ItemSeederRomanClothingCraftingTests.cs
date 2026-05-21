@@ -19,7 +19,11 @@ public class ItemSeederRomanClothingCraftingTests
 		"antiquity_wool_palla",
 		"antiquity_fine_long_linen_tunica",
 		"antiquity_wool_stola",
-		"antiquity_fine_wool_palla"
+		"antiquity_fine_wool_palla",
+		"antiquity_hooded_wool_paenula",
+		"antiquity_fine_toga_praetexta",
+		"antiquity_wool_udones",
+		"antiquity_wool_hand_wraps"
 	];
 
 	[TestMethod]

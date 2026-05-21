@@ -18,7 +18,9 @@ public class ItemSeederEgyptianClothingCraftingTests
 		"adjacent_antiquity_tasseled_linen_shawl",
 		"adjacent_antiquity_tall_linen_headdress",
 		"adjacent_antiquity_beaded_linen_girdle",
-		"adjacent_antiquity_linen_bead_apron"
+		"adjacent_antiquity_linen_bead_apron",
+		"adjacent_antiquity_linen_scribe_kilt",
+		"adjacent_antiquity_temple_linen_shift"
 	];
 
 	[TestMethod]

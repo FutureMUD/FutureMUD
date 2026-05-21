@@ -8,11 +8,11 @@ Current item definitions are seeded from:
 
 | Source | Current Item Definitions |
 | --- | ---: |
-| `DatabaseSeeder/Seeders/ItemSeeder.Rework.Antiquity.cs` | 995 |
+| `DatabaseSeeder/Seeders/ItemSeeder.Rework.Antiquity.cs` | 1034 |
 | `DatabaseSeeder/Seeders/ItemSeeder.Rework.AntiquityHouseholdTools.cs` | 65 |
 | `DatabaseSeeder/Seeders/ItemSeeder.Rework.AntiquityMedical.cs` | 41 |
 | `DatabaseSeeder/Seeders/ItemSeeder.Rework.AntiquityWriting.cs` | 33 |
-| Total | 1134 |
+| Total | 1173 |
 
 Current craft definitions are seeded from:
 
@@ -30,7 +30,7 @@ The suite-specific docs now catalogue every stable reference explicitly named by
 - 398 household/container/door/furniture targets discovered from household, writing, religious, lighting, heating, construction, and writing-product tag roots.
 - 162 jewellery targets discovered from jewellery tags and catalogued in the dedicated jewellery suite.
 - 193 military equipment targets discovered from `Market / Military Goods`, split into 76 armour prototypes and 117 weapon, shield, ammunition, sling, and accessory prototypes.
-- 356 stable references explicitly named in the current non-jewellery antiquity craft source files, plus the dynamically discovered jewellery catalogue.
+- 395 stable references explicitly named in the current non-jewellery antiquity craft source files, plus the dynamically discovered jewellery catalogue.
 
 ## Verified Invariants
 

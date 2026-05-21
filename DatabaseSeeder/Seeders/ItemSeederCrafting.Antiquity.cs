@@ -264,7 +264,7 @@ public partial class ItemSeeder
 
         const string romanKnowledge = "Roman Textilecraft";
         const string romanKnowledgeDescription =
-            "Roman garment knowledge for assembling tunicae, togae, pallae, stolae, and practical woollen mantles.";
+            "Roman garment knowledge for assembling tunicae, togae, pallae, stolae, paenulae, udones, practical hand wraps, and woollen mantles.";
 
         var missingGarments = RomanAntiquityClothingStableReferences.Keys
             .Where(x => !TryLookupReworkItem(x, out _))
@@ -321,7 +321,11 @@ public partial class ItemSeeder
             (StableReference: "antiquity_wool_palla", Name: "assemble a wool palla", DisplayName: "a wool palla", Material: "wool", Cloth: 870, Yarn: 35, Fine: false, Minimum: 20, Difficulty: Difficulty.Normal),
             (StableReference: "antiquity_fine_long_linen_tunica", Name: "assemble a fine long linen tunica", DisplayName: "a fine long linen tunica", Material: "linen", Cloth: 400, Yarn: 30, Fine: true, Minimum: 40, Difficulty: Difficulty.Hard),
             (StableReference: "antiquity_wool_stola", Name: "assemble a wool stola", DisplayName: "a wool stola", Material: "wool", Cloth: 860, Yarn: 40, Fine: true, Minimum: 40, Difficulty: Difficulty.Hard),
-            (StableReference: "antiquity_fine_wool_palla", Name: "assemble a fine wool palla", DisplayName: "a fine wool palla", Material: "wool", Cloth: 820, Yarn: 35, Fine: true, Minimum: 40, Difficulty: Difficulty.Hard)
+            (StableReference: "antiquity_fine_wool_palla", Name: "assemble a fine wool palla", DisplayName: "a fine wool palla", Material: "wool", Cloth: 820, Yarn: 35, Fine: true, Minimum: 40, Difficulty: Difficulty.Hard),
+            (StableReference: "antiquity_hooded_wool_paenula", Name: "assemble a hooded wool paenula", DisplayName: "a hooded wool paenula", Material: "wool", Cloth: 1450, Yarn: 50, Fine: false, Minimum: 30, Difficulty: Difficulty.Hard),
+            (StableReference: "antiquity_fine_toga_praetexta", Name: "assemble a fine toga praetexta", DisplayName: "a fine toga praetexta", Material: "wool", Cloth: 2900, Yarn: 90, Fine: true, Minimum: 50, Difficulty: Difficulty.Hard),
+            (StableReference: "antiquity_wool_udones", Name: "assemble wool udones", DisplayName: "wool udones", Material: "wool", Cloth: 95, Yarn: 12, Fine: false, Minimum: 15, Difficulty: Difficulty.Easy),
+            (StableReference: "antiquity_wool_hand_wraps", Name: "assemble wool hand wraps", DisplayName: "wool hand wraps", Material: "wool", Cloth: 120, Yarn: 10, Fine: false, Minimum: 15, Difficulty: Difficulty.Easy)
         })
         {
             var characteristicRequirements = garment.Fine
@@ -353,7 +357,7 @@ public partial class ItemSeeder
 
         const string punicKnowledge = "Punic Textilecraft";
         const string punicKnowledgeDescription =
-            "Punic and Phoenician garment knowledge for assembling fitted linen tunics, waistcloths, overblouses, folded robes, hoods, mantles, gowns, overdrapes, and star-bordered linen robes.";
+            "Punic and Phoenician garment knowledge for assembling fitted linen tunics, waistcloths, overblouses, folded robes, hoods, mantles, sea-cloaks, temple veils, gowns, overdrapes, and star-bordered linen robes.";
 
         SeedAntiquityCultureGarmentCrafts(
             PunicAntiquityClothingStableReferences,
@@ -370,7 +374,9 @@ public partial class ItemSeeder
                 new("antiquity_loose_linen_hood", "assemble a loose linen hood", "a loose linen hood", "linen", 125, 10, false, 15, Difficulty.Easy),
                 new("antiquity_fine_full_linen_gown", "assemble a fine full linen gown", "a fine full linen gown", "linen", 820, 40, true, 40, Difficulty.Hard),
                 new("antiquity_left_shoulder_overdrape", "assemble a left shoulder overdrape", "a left shoulder overdrape", "linen", 280, 20, true, 35, Difficulty.Normal),
-                new("antiquity_star_bordered_linen_robe", "assemble a star bordered linen robe", "a star bordered linen robe", "linen", 780, 40, true, 40, Difficulty.Hard)
+                new("antiquity_star_bordered_linen_robe", "assemble a star bordered linen robe", "a star bordered linen robe", "linen", 780, 40, true, 40, Difficulty.Hard),
+                new("antiquity_sailor_wool_wind_cloak", "assemble a sailor's wool cloak", "a sailor's wool cloak", "wool", 1180, 45, false, 20, Difficulty.Normal),
+                new("antiquity_fine_temple_linen_veil", "assemble a fine temple linen veil", "a fine temple linen veil", "linen", 170, 15, true, 35, Difficulty.Normal)
             ]);
     }
 
@@ -383,7 +389,7 @@ public partial class ItemSeeder
 
         const string persianKnowledge = "Persian Textilecraft";
         const string persianKnowledgeDescription =
-            "Persian and Median garment knowledge for assembling sarapis tunics, anaxyrides trousers, kandyes, pleated court robes and gowns, cloth belts, and head-and-neck veils.";
+            "Persian and Median garment knowledge for assembling sarapis tunics, anaxyrides trousers, kandyes, felt riding coats and mittens, pleated court robes and gowns, cloth belts, boot liners, and head-and-neck veils.";
 
         SeedAntiquityCultureGarmentCrafts(
             PersianAntiquityClothingStableReferences,
@@ -401,7 +407,11 @@ public partial class ItemSeeder
                 new("antiquity_fine_pleated_court_gown", "assemble a fine pleated court gown", "a fine pleated court gown", "linen", 835, 45, true, 45, Difficulty.Hard),
                 new("antiquity_wide_cloth_belt", "assemble a wide cloth belt", "a wide cloth belt", "linen", 150, 10, false, 15, Difficulty.Easy),
                 new("antiquity_fine_wide_cloth_belt", "assemble a fine wide cloth belt", "a fine wide cloth belt", "linen", 135, 10, true, 30, Difficulty.Normal),
-                new("antiquity_full_head_and_neck_veil", "assemble a full head and neck veil", "a full head and neck veil", "linen", 175, 15, true, 35, Difficulty.Normal)
+                new("antiquity_full_head_and_neck_veil", "assemble a full head and neck veil", "a full head and neck veil", "linen", 175, 15, true, 35, Difficulty.Normal),
+                new("antiquity_heavy_felt_riding_coat", "assemble a heavy felt riding coat", "a heavy felt riding coat", "felt", 1200, 45, false, 35, Difficulty.Hard),
+                new("antiquity_fine_magian_linen_robe", "assemble a fine magian linen robe", "a fine magian linen robe", "linen", 720, 40, true, 45, Difficulty.Hard),
+                new("antiquity_felt_riding_mittens", "assemble felt riding mittens", "felt riding mittens", "felt", 175, 12, false, 20, Difficulty.Normal),
+                new("antiquity_wool_boot_liners", "assemble wool boot liners", "wool boot liners", "wool", 145, 10, false, 15, Difficulty.Easy)
             ]);
     }
 
@@ -414,7 +424,7 @@ public partial class ItemSeeder
 
         const string etruscanKnowledge = "Etruscan Textilecraft";
         const string etruscanKnowledgeDescription =
-            "Etruscan garment knowledge for assembling short-sleeved linen tunics, bordered wool tunics, curved tebennas, wrapped skirts, shoulder cloaks, fitted gowns, and linen head mantles.";
+            "Etruscan garment knowledge for assembling short-sleeved linen tunics, bordered wool tunics, work tunics, curved tebennas, wrapped skirts, shoulder cloaks, fitted gowns, priestly veils, and linen head mantles.";
 
         SeedAntiquityCultureGarmentCrafts(
             EtruscanAntiquityClothingStableReferences,
@@ -429,7 +439,9 @@ public partial class ItemSeeder
                 new("adjacent_antiquity_wrapped_linen_skirt", "assemble a wrapped linen skirt", "a wrapped linen skirt", "linen", 340, 20, false, 15, Difficulty.Normal),
                 new("adjacent_antiquity_rectangular_shoulder_cloak", "assemble a rectangular shoulder cloak", "a rectangular shoulder cloak", "wool", 740, 35, false, 20, Difficulty.Normal),
                 new("adjacent_antiquity_fitted_linen_gown", "assemble a fitted linen gown", "a fitted linen gown", "linen", 590, 35, true, 40, Difficulty.Hard),
-                new("adjacent_antiquity_linen_head_mantle", "assemble a linen head mantle", "a linen head mantle", "linen", 165, 15, true, 30, Difficulty.Normal)
+                new("adjacent_antiquity_linen_head_mantle", "assemble a linen head mantle", "a linen head mantle", "linen", 165, 15, true, 30, Difficulty.Normal),
+                new("adjacent_antiquity_wool_craftsman_tunic", "assemble a craftsman's wool tunic", "a craftsman's wool tunic", "wool", 560, 30, false, 15, Difficulty.Normal),
+                new("adjacent_antiquity_priestly_linen_veil", "assemble a fine priestly linen veil", "a fine priestly linen veil", "linen", 220, 18, true, 40, Difficulty.Hard)
             ]);
     }
 
@@ -442,7 +454,7 @@ public partial class ItemSeeder
 
         const string anatolianKnowledge = "Anatolian Textilecraft";
         const string anatolianKnowledgeDescription =
-            "Anatolian garment knowledge for assembling belted wool tunics, banded tunics, leg wraps, hooded cloaks, forward-pointing felt caps, wool capes, patterned robes, fringed mantles, wrapped skirts, and rectangular veils.";
+            "Anatolian garment knowledge for assembling belted wool tunics, banded tunics, leg wraps, hooded cloaks, forward-pointing and winter felt caps, felt hand-mitts, wool capes, neck wraps, patterned and priestly robes, fringed mantles, wrapped skirts, and rectangular veils.";
 
         SeedAntiquityCultureGarmentCrafts(
             AnatolianAntiquityClothingStableReferences,
@@ -459,7 +471,11 @@ public partial class ItemSeeder
                 new("adjacent_antiquity_fine_patterned_wool_robe", "assemble a fine patterned wool robe", "a fine patterned wool robe", "wool", 855, 45, true, 45, Difficulty.Hard),
                 new("adjacent_antiquity_fringed_wool_mantle", "assemble a fringed wool mantle", "a fringed wool mantle", "wool", 720, 40, true, 40, Difficulty.Hard),
                 new("adjacent_antiquity_wool_wrapped_skirt", "assemble a wrapped wool skirt", "a wrapped wool skirt", "wool", 515, 25, false, 20, Difficulty.Normal),
-                new("adjacent_antiquity_fine_rectangular_veil", "assemble a fine rectangular linen veil", "a fine rectangular linen veil", "linen", 110, 10, true, 30, Difficulty.Normal)
+                new("adjacent_antiquity_fine_rectangular_veil", "assemble a fine rectangular linen veil", "a fine rectangular linen veil", "linen", 110, 10, true, 30, Difficulty.Normal),
+                new("adjacent_antiquity_heavy_felt_winter_cap", "assemble a heavy felt winter cap", "a heavy felt winter cap", "felt", 230, 10, false, 20, Difficulty.Normal),
+                new("adjacent_antiquity_priestly_banded_wool_robe", "assemble a fine priestly banded wool robe", "a fine priestly banded wool robe", "wool", 980, 50, true, 45, Difficulty.Hard),
+                new("adjacent_antiquity_felt_hand_mitts", "assemble upland felt hand-mitts", "upland felt hand-mitts", "felt", 180, 12, false, 20, Difficulty.Normal),
+                new("adjacent_antiquity_wool_neck_wrap", "assemble a wool neck wrap", "a wool neck wrap", "wool", 190, 12, false, 15, Difficulty.Easy)
             ]);
     }
 
@@ -472,7 +488,7 @@ public partial class ItemSeeder
 
         const string scythianKnowledge = "Scythian-Sarmatian Textilecraft";
         const string scythianKnowledgeDescription =
-            "Scythian and Sarmatian garment knowledge for assembling felt riding caps, riding tunics and trousers, open caftans, fur-trimmed caftans, split riding skirts, and long felt coats.";
+            "Scythian and Sarmatian garment knowledge for assembling felt riding and ritual caps, riding tunics and trousers, open caftans, fur-trimmed caftans, split riding skirts, felt mittens, boot liners, and long felt coats.";
 
         SeedAntiquityCultureGarmentCrafts(
             ScythianSarmatianAntiquityClothingStableReferences,
@@ -488,7 +504,11 @@ public partial class ItemSeeder
                 new("adjacent_antiquity_open_riding_caftan", "assemble an open riding caftan", "an open riding caftan", "wool", 820, 40, false, 25, Difficulty.Hard),
                 new("adjacent_antiquity_fur_trimmed_caftan", "assemble a fur trimmed caftan", "a fur trimmed caftan", "wool", 1060, 45, true, 45, Difficulty.Hard, Hair: 140),
                 new("adjacent_antiquity_split_riding_skirt", "assemble a split riding skirt", "a split riding skirt", "wool", 590, 30, false, 20, Difficulty.Normal),
-                new("adjacent_antiquity_long_felt_coat", "assemble a long felt coat", "a long felt coat", "felt", 1270, 50, true, 45, Difficulty.Hard)
+                new("adjacent_antiquity_long_felt_coat", "assemble a long felt coat", "a long felt coat", "felt", 1270, 50, true, 45, Difficulty.Hard),
+                new("adjacent_antiquity_horseherder_wool_tunic", "assemble a horseherder's wool tunic", "a horseherder's wool tunic", "wool", 720, 35, false, 20, Difficulty.Normal),
+                new("adjacent_antiquity_ritual_felt_cap", "assemble a fine ritual felt cap", "a fine ritual felt cap", "felt", 180, 12, true, 40, Difficulty.Hard),
+                new("adjacent_antiquity_felt_mittens", "assemble felt mittens", "felt mittens", "felt", 180, 12, false, 20, Difficulty.Normal),
+                new("adjacent_antiquity_felt_boot_liners", "assemble felt boot liners", "felt boot liners", "felt", 170, 10, false, 20, Difficulty.Normal)
             ]);
     }
 
@@ -1321,7 +1341,7 @@ public partial class ItemSeeder
         const string ancientKnowledgeDescription =
             "Shared ancient techniques for preparing textile fibres, spinning yarn, weaving cloth, dyeing, and fulling.";
         const string hellenicKnowledgeDescription =
-            "Hellenic garment knowledge for assembling rectangular wool and linen dress such as chitons, peploi, chlamydes, himatia, and veils.";
+            "Hellenic garment knowledge for assembling rectangular wool and linen dress such as chitons, peploi, chlamydes, himatia, exomides, zeirai, hand and leg wraps, and veils.";
 
         void AddAncientTextileCraft(string name, string category, string blurb, string action, string itemDescription,
             string traitName, int minimumTraitValue, Difficulty difficulty,
@@ -1891,15 +1911,25 @@ public partial class ItemSeeder
             (StableReference: "antiquity_full_wool_himation", Name: "assemble a full wool himation", Material: "wool", Cloth: 960, Yarn: 40, Fine: false, Minimum: 20, Difficulty: Difficulty.Normal),
             (StableReference: "antiquity_fine_long_linen_chiton", Name: "assemble a fine long linen chiton", Material: "linen", Cloth: 410, Yarn: 30, Fine: true, Minimum: 40, Difficulty: Difficulty.Hard),
             (StableReference: "antiquity_fine_full_wool_himation", Name: "assemble a fine full wool himation", Material: "wool", Cloth: 880, Yarn: 35, Fine: true, Minimum: 40, Difficulty: Difficulty.Hard),
-            (StableReference: "antiquity_light_linen_head_veil", Name: "assemble a light linen head veil", Material: "linen", Cloth: 130, Yarn: 10, Fine: true, Minimum: 30, Difficulty: Difficulty.Normal)
+            (StableReference: "antiquity_light_linen_head_veil", Name: "assemble a light linen head veil", Material: "linen", Cloth: 130, Yarn: 10, Fine: true, Minimum: 30, Difficulty: Difficulty.Normal),
+            (StableReference: "antiquity_wool_exomis", Name: "assemble a wool exomis", Material: "wool", Cloth: 420, Yarn: 25, Fine: false, Minimum: 15, Difficulty: Difficulty.Easy),
+            (StableReference: "antiquity_heavy_wool_zeira", Name: "assemble a heavy wool zeira", Material: "wool", Cloth: 1350, Yarn: 45, Fine: false, Minimum: 25, Difficulty: Difficulty.Normal),
+            (StableReference: "antiquity_fine_ritual_wool_peplos", Name: "assemble a fine ritual wool peplos", Material: "wool", Cloth: 820, Yarn: 40, Fine: true, Minimum: 45, Difficulty: Difficulty.Hard),
+            (StableReference: "antiquity_wool_travel_leg_wraps", Name: "assemble wool travel leg wraps", Material: "wool", Cloth: 180, Yarn: 10, Fine: false, Minimum: 15, Difficulty: Difficulty.Easy),
+            (StableReference: "antiquity_wool_hand_wraps_hellenic", Name: "assemble wool travel hand wraps", Material: "wool", Cloth: 115, Yarn: 10, Fine: false, Minimum: 15, Difficulty: Difficulty.Easy)
         })
         {
             var characteristicRequirements = garment.Fine
                 ? "characteristic Colour any; characteristic Fine Colour any"
                 : "characteristic Colour any";
+            var displayName = garment.Name.StartsWith("assemble a ", StringComparison.OrdinalIgnoreCase)
+                ? garment.Name["assemble a ".Length..]
+                : garment.Name.StartsWith("assemble ", StringComparison.OrdinalIgnoreCase)
+                    ? garment.Name["assemble ".Length..]
+                    : garment.Name;
             AddHellenicGarmentCraft(
                 garment.Name,
-                $"assemble {garment.Name["assemble a ".Length..]} from rectangular {garment.Material} cloth",
+                $"assemble {displayName} from rectangular {garment.Material} cloth",
                 garment.Name,
                 $"{garment.Material} cloth being assembled into clothing",
                 garment.Minimum,
@@ -1923,7 +1953,7 @@ public partial class ItemSeeder
 
 		const string celticKnowledge = "Celtic Textilecraft";
 		const string celticKnowledgeDescription =
-			"Celtic garment knowledge for assembling sleeved wool tunics, braccae, checked cloaks, mantles, gowns, skirts, and linen veils.";
+			"Celtic garment knowledge for assembling sleeved wool tunics, braccae, checked cloaks, work smocks, mantles, gowns, skirts, mittens, leg wraps, and linen veils.";
 
 		var missingGarments = CelticAntiquityClothingStableReferences.Keys
 			.Where(x => !TryLookupReworkItem(x, out _))
@@ -1990,7 +2020,12 @@ public partial class ItemSeeder
 			(StableReference: "antiquity_broad_wool_mantle", Name: "assemble a broad wool mantle", DisplayName: "a broad wool mantle", Material: "wool", Cloth: 960, SecondaryCloth: 0, Yarn: 35, Fine: false, GeneratedProduct: false, Minimum: 20, Difficulty: Difficulty.Normal),
 			(StableReference: "antiquity_fine_sleeved_wool_gown", Name: "assemble a fine sleeved wool gown", DisplayName: "a fine sleeved wool gown", Material: "wool", Cloth: 740, SecondaryCloth: 0, Yarn: 40, Fine: true, GeneratedProduct: false, Minimum: 40, Difficulty: Difficulty.Hard),
 			(StableReference: "antiquity_fine_bordered_wool_mantle", Name: "assemble a fine bordered wool mantle", DisplayName: "a fine bordered wool mantle", Material: "wool", Cloth: 910, SecondaryCloth: 0, Yarn: 40, Fine: true, GeneratedProduct: false, Minimum: 40, Difficulty: Difficulty.Hard),
-			(StableReference: "antiquity_linen_shoulder_veil", Name: "assemble a linen shoulder veil", DisplayName: "a linen shoulder veil", Material: "linen", Cloth: 110, SecondaryCloth: 0, Yarn: 10, Fine: true, GeneratedProduct: false, Minimum: 30, Difficulty: Difficulty.Normal)
+			(StableReference: "antiquity_linen_shoulder_veil", Name: "assemble a linen shoulder veil", DisplayName: "a linen shoulder veil", Material: "linen", Cloth: 110, SecondaryCloth: 0, Yarn: 10, Fine: true, GeneratedProduct: false, Minimum: 30, Difficulty: Difficulty.Normal),
+			(StableReference: "antiquity_heavy_hooded_wool_cloak", Name: "assemble a heavy hooded wool cloak", DisplayName: "a heavy hooded wool cloak", Material: "wool", Cloth: 1420, SecondaryCloth: 0, Yarn: 50, Fine: false, GeneratedProduct: false, Minimum: 25, Difficulty: Difficulty.Hard),
+			(StableReference: "antiquity_wool_work_smock", Name: "assemble a wool work smock", DisplayName: "a wool work smock", Material: "wool", Cloth: 700, SecondaryCloth: 0, Yarn: 35, Fine: false, GeneratedProduct: false, Minimum: 15, Difficulty: Difficulty.Normal),
+			(StableReference: "antiquity_fine_ritual_wool_mantle", Name: "assemble a fine ritual wool mantle", DisplayName: "a fine ritual wool mantle", Material: "wool", Cloth: 1010, SecondaryCloth: 0, Yarn: 45, Fine: true, GeneratedProduct: false, Minimum: 45, Difficulty: Difficulty.Hard),
+			(StableReference: "antiquity_wool_winter_mittens", Name: "assemble wool winter mittens", DisplayName: "wool winter mittens", Material: "wool", Cloth: 170, SecondaryCloth: 0, Yarn: 15, Fine: false, GeneratedProduct: false, Minimum: 20, Difficulty: Difficulty.Normal),
+			(StableReference: "antiquity_checked_wool_leg_wraps", Name: "assemble wool leg wraps", DisplayName: "wool leg wraps", Material: "wool", Cloth: 210, SecondaryCloth: 0, Yarn: 12, Fine: false, GeneratedProduct: false, Minimum: 15, Difficulty: Difficulty.Easy)
 		})
 		{
 			var characteristicRequirements = garment.Fine
@@ -2029,7 +2064,7 @@ public partial class ItemSeeder
 
 		const string germanicKnowledge = "Germanic Textilecraft";
 		const string germanicKnowledgeDescription =
-			"Germanic garment knowledge for assembling wool tunics, trousers, cloaks, scarves, gowns, mantles, veils, and skin capes for northern antiquity dress.";
+			"Germanic garment knowledge for assembling wool tunics, trousers, cloaks, felt hoods, hand-mitts, footwraps, ear bands, scarves, gowns, mantles, veils, and skin capes for northern antiquity dress.";
 
 		var missingGarments = GermanicAntiquityClothingStableReferences.Keys
 			.Where(x => !TryLookupReworkItem(x, out _))
@@ -2109,7 +2144,12 @@ public partial class ItemSeeder
 			(StableReference: "antiquity_checked_wool_scarf", Name: "assemble a checked wool scarf", DisplayName: "a checked wool scarf", Material: "wool", Cloth: 210, SecondaryCloth: 40, Yarn: 12, Fine: false, GeneratedProduct: true, Minimum: 20, Difficulty: Difficulty.Normal),
 			(StableReference: "antiquity_fine_long_wool_gown", Name: "assemble a fine long wool gown", DisplayName: "a fine long wool gown", Material: "wool", Cloth: 780, SecondaryCloth: 0, Yarn: 40, Fine: true, GeneratedProduct: false, Minimum: 40, Difficulty: Difficulty.Hard),
 			(StableReference: "antiquity_fine_heavy_wool_mantle", Name: "assemble a fine heavy wool mantle", DisplayName: "a fine heavy wool mantle", Material: "wool", Cloth: 1010, SecondaryCloth: 0, Yarn: 40, Fine: true, GeneratedProduct: false, Minimum: 40, Difficulty: Difficulty.Hard),
-			(StableReference: "antiquity_linen_head_veil", Name: "assemble a linen head veil", DisplayName: "a linen head veil", Material: "linen", Cloth: 120, SecondaryCloth: 0, Yarn: 10, Fine: true, GeneratedProduct: false, Minimum: 30, Difficulty: Difficulty.Normal)
+			(StableReference: "antiquity_linen_head_veil", Name: "assemble a linen head veil", DisplayName: "a linen head veil", Material: "linen", Cloth: 120, SecondaryCloth: 0, Yarn: 10, Fine: true, GeneratedProduct: false, Minimum: 30, Difficulty: Difficulty.Normal),
+			(StableReference: "antiquity_heavy_felt_hood", Name: "assemble a heavy felt hood", DisplayName: "a heavy felt hood", Material: "felt", Cloth: 260, SecondaryCloth: 0, Yarn: 12, Fine: false, GeneratedProduct: false, Minimum: 20, Difficulty: Difficulty.Normal),
+			(StableReference: "antiquity_fine_seeress_wool_mantle", Name: "assemble a fine seeress wool mantle", DisplayName: "a fine seeress wool mantle", Material: "wool", Cloth: 1050, SecondaryCloth: 0, Yarn: 45, Fine: true, GeneratedProduct: false, Minimum: 45, Difficulty: Difficulty.Hard),
+			(StableReference: "antiquity_felt_hand_mitts", Name: "assemble felt hand-mitts", DisplayName: "felt hand-mitts", Material: "felt", Cloth: 190, SecondaryCloth: 0, Yarn: 12, Fine: false, GeneratedProduct: false, Minimum: 20, Difficulty: Difficulty.Normal),
+			(StableReference: "antiquity_wool_footwraps", Name: "assemble wool footwraps", DisplayName: "wool footwraps", Material: "wool", Cloth: 140, SecondaryCloth: 0, Yarn: 8, Fine: false, GeneratedProduct: false, Minimum: 10, Difficulty: Difficulty.Easy),
+			(StableReference: "antiquity_wool_ear_band", Name: "assemble a wool ear band", DisplayName: "a wool ear band", Material: "wool", Cloth: 70, SecondaryCloth: 0, Yarn: 6, Fine: false, GeneratedProduct: false, Minimum: 10, Difficulty: Difficulty.Easy)
 		})
 		{
 			var characteristicRequirements = garment.Fine
@@ -2180,7 +2220,7 @@ public partial class ItemSeeder
 
 		const string kushiteKnowledge = "Kushite Textilecraft";
 		const string kushiteKnowledgeDescription =
-			"Kushite garment knowledge for assembling Nile Valley linen and cotton kilts, shoulder cloths, robes, shawls, headdresses, beadwork, skirts, dresses, and headcloths.";
+			"Kushite garment knowledge for assembling Nile Valley linen and cotton kilts, field wraps, shoulder cloths, robes, shawls, headdresses, beadwork, skirts, dresses, ritual mantles, and headcloths.";
 
 		var missingGarments = KushiteAntiquityClothingStableReferences.Keys
 			.Where(x => !TryLookupReworkItem(x, out _))
@@ -2251,7 +2291,9 @@ public partial class ItemSeeder
 			(StableReference: "adjacent_antiquity_beaded_linen_girdle", Name: "assemble a river-valley beaded linen girdle", DisplayName: "a river-valley beaded linen girdle", Material: "linen", Cloth: 210, Yarn: 25, BeadStock: 40, Fine: true, Minimum: 40, Difficulty: Difficulty.Hard),
 			(StableReference: "adjacent_antiquity_cotton_draped_dress", Name: "assemble a river-valley cotton draped dress", DisplayName: "a river-valley cotton draped dress", Material: "cotton", Cloth: 430, Yarn: 30, BeadStock: 0, Fine: true, Minimum: 35, Difficulty: Difficulty.Hard),
 			(StableReference: "adjacent_antiquity_linen_bead_apron", Name: "assemble a river-valley linen bead apron", DisplayName: "a river-valley linen bead apron", Material: "linen", Cloth: 150, Yarn: 20, BeadStock: 50, Fine: true, Minimum: 35, Difficulty: Difficulty.Normal),
-			(StableReference: "adjacent_antiquity_plain_cotton_headcloth", Name: "assemble a river-valley plain cotton headcloth", DisplayName: "a river-valley plain cotton headcloth", Material: "cotton", Cloth: 80, Yarn: 8, BeadStock: 0, Fine: false, Minimum: 10, Difficulty: Difficulty.Easy)
+			(StableReference: "adjacent_antiquity_plain_cotton_headcloth", Name: "assemble a river-valley plain cotton headcloth", DisplayName: "a river-valley plain cotton headcloth", Material: "cotton", Cloth: 80, Yarn: 8, BeadStock: 0, Fine: false, Minimum: 10, Difficulty: Difficulty.Easy),
+			(StableReference: "adjacent_antiquity_cotton_field_wrap", Name: "assemble a river-valley cotton field wrap", DisplayName: "a river-valley cotton field wrap", Material: "cotton", Cloth: 330, Yarn: 22, BeadStock: 0, Fine: false, Minimum: 15, Difficulty: Difficulty.Normal),
+			(StableReference: "adjacent_antiquity_fine_ritual_cotton_mantle", Name: "assemble a river-valley fine ritual cotton mantle", DisplayName: "a river-valley fine ritual cotton mantle", Material: "cotton", Cloth: 360, Yarn: 30, BeadStock: 0, Fine: true, Minimum: 40, Difficulty: Difficulty.Hard)
 		})
 		{
 			var characteristicRequirements = garment.Fine
@@ -2294,7 +2336,7 @@ public partial class ItemSeeder
         const string ancientKnowledgeDescription =
             "Shared ancient techniques for preparing textile fibres, spinning yarn, weaving cloth, dyeing, fulling, and textile ornament stock.";
         const string egyptianKnowledgeDescription =
-            "Egyptian garment knowledge for assembling linen kilts, shoulder cloths, sleeveless tunics, robes, shawls, headdresses, and beaded linen dress pieces.";
+            "Egyptian garment knowledge for assembling linen kilts, scribe kilts, shoulder cloths, sleeveless tunics, temple shifts, robes, shawls, headdresses, and beaded linen dress pieces.";
 
         AddCraft(
             "sort glass beads for textile edging",
@@ -2389,7 +2431,9 @@ public partial class ItemSeeder
             (StableReference: "adjacent_antiquity_tasseled_linen_shawl", Name: "assemble a tasseled linen shawl", DisplayName: "a tasseled linen shawl", Cloth: 190, Yarn: 30, BeadStock: 0, Fine: true, Minimum: 30, Difficulty: Difficulty.Normal),
             (StableReference: "adjacent_antiquity_tall_linen_headdress", Name: "assemble a tall linen headdress", DisplayName: "a tall linen headdress", Cloth: 235, Yarn: 25, BeadStock: 0, Fine: true, Minimum: 35, Difficulty: Difficulty.Hard),
             (StableReference: "adjacent_antiquity_beaded_linen_girdle", Name: "assemble a beaded linen girdle", DisplayName: "a beaded linen girdle", Cloth: 210, Yarn: 25, BeadStock: 40, Fine: true, Minimum: 40, Difficulty: Difficulty.Hard),
-            (StableReference: "adjacent_antiquity_linen_bead_apron", Name: "assemble a linen bead apron", DisplayName: "a linen bead apron", Cloth: 150, Yarn: 20, BeadStock: 50, Fine: true, Minimum: 35, Difficulty: Difficulty.Normal)
+            (StableReference: "adjacent_antiquity_linen_bead_apron", Name: "assemble a linen bead apron", DisplayName: "a linen bead apron", Cloth: 150, Yarn: 20, BeadStock: 50, Fine: true, Minimum: 35, Difficulty: Difficulty.Normal),
+            (StableReference: "adjacent_antiquity_linen_scribe_kilt", Name: "assemble a linen scribe's kilt", DisplayName: "a linen scribe's kilt", Cloth: 240, Yarn: 18, BeadStock: 0, Fine: false, Minimum: 15, Difficulty: Difficulty.Normal),
+            (StableReference: "adjacent_antiquity_temple_linen_shift", Name: "assemble a fine temple linen shift", DisplayName: "a fine temple linen shift", Cloth: 430, Yarn: 28, BeadStock: 0, Fine: true, Minimum: 35, Difficulty: Difficulty.Hard)
         })
         {
             var characteristicRequirements = garment.Fine

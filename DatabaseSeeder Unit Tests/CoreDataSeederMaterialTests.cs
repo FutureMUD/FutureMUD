@@ -209,6 +209,15 @@ public class CoreDataSeederMaterialTests
 
         Assert.AreEqual(0, missingSeedTags.Length,
             $"Agriculture stock seed materials should be tagged as Agriculture Seedable. Missing: {string.Join(", ", missingSeedTags)}");
+
+        MudSharp.Models.Material walnutWood = context.Materials.Single(x => x.Name == "walnut");
+        MudSharp.Models.Material walnutNut = context.Materials
+            .Include(x => x.MaterialsTags)
+            .ThenInclude(x => x.Tag)
+            .Single(x => x.Name == "walnut nut");
+        Assert.AreEqual((int)MaterialBehaviourType.Wood, walnutWood.BehaviourType);
+        Assert.AreEqual((int)MaterialBehaviourType.Food, walnutNut.BehaviourType);
+        Assert.IsTrue(walnutNut.MaterialsTags.Any(x => x.Tag.Name == "Agriculture Seedable"));
     }
 
     [TestMethod]

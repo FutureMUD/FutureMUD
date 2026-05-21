@@ -8,7 +8,12 @@ namespace MudSharp.Effects.Concrete;
 
 public class GeneralActiveCheckBonus : Effect, ICheckBonusEffect
 {
-    public GeneralActiveCheckBonus(XElement effect, IPerceivable owner) : base(effect, owner)
+	public static void InitialiseEffectType()
+	{
+		RegisterFactory("GeneralActiveCheckBonus", (effect, owner) => new GeneralActiveCheckBonus(effect, owner));
+	}
+
+	protected GeneralActiveCheckBonus(XElement effect, IPerceivable owner) : base(effect, owner)
     {
         CheckBonus = double.Parse(effect.Element("Bonus").Value);
     }

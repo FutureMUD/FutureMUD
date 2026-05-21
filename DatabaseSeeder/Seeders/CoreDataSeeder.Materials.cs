@@ -325,6 +325,91 @@ public partial class CoreDataSeeder
 
 		EnsureAlias(materials["corn"], "maize");
 
+		foreach (var name in new[]
+		{
+			"emmer wheat", "einkorn wheat", "spelt wheat", "naked barley", "new glume wheat", "teff",
+			"fonio", "finger millet", "pearl millet", "foxtail millet", "proso millet", "amaranth",
+			"canihua", "pitseed goosefoot", "maygrass", "little barley", "erect knotweed", "african rice"
+		})
+		{
+			AddMaterial(name, MaterialBehaviourType.Food, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500,
+				"Food Crop");
+		}
+
+		foreach (var name in new[]
+		{
+			"grass pea", "cowpea", "mung bean", "pigeon pea", "bambara groundnut", "lupin", "adzuki bean"
+		})
+		{
+			AddMaterial(name, MaterialBehaviourType.Food, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500,
+				"Food Crop");
+		}
+
+		foreach (var name in new[]
+		{
+			"oca", "ulluco", "mashua", "arrowroot", "lotus root", "water chestnut", "jerusalem artichoke",
+			"bottle gourd"
+		})
+		{
+			AddMaterial(name, MaterialBehaviourType.Food, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500,
+				"Vegetable", "Food Crop");
+		}
+
+		foreach (var name in new[] { "chia", "marshelder seed", "niger seed" })
+		{
+			AddMaterial(name, MaterialBehaviourType.Plant, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500,
+				"Oil Crop");
+		}
+
+		foreach (var name in new[] { "kenaf" })
+		{
+			AddMaterial(name, MaterialBehaviourType.Plant, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500,
+				"Fiber Crop");
+		}
+
+		foreach (var name in new[] { "indigo crop" })
+		{
+			AddMaterial(name, MaterialBehaviourType.Plant, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500,
+				"Textile Dye");
+		}
+
+		foreach (var name in new[] { "breadfruit", "mulberry", "jackfruit", "tamarind" })
+		{
+			AddMaterial(name, MaterialBehaviourType.Food, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500,
+				"Fruit");
+		}
+
+		foreach (var name in new[] { "walnut nut", "pistachio", "cashew", "pecan", "macadamia", "kola nut" })
+		{
+			AddMaterial(name, MaterialBehaviourType.Food, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500,
+				"Food Crop");
+		}
+
+		foreach (var name in new[] { "carob pod" })
+		{
+			AddMaterial(name, MaterialBehaviourType.Food, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500,
+				"Food Crop");
+		}
+
+		foreach (var name in new[] { "cinnamon bark" })
+		{
+			AddMaterial(name, MaterialBehaviourType.Plant, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500,
+				"Spice");
+		}
+
+		EnsureAlias(materials["canihua"], "canahua", "kaniwa");
+		EnsureAlias(materials["pitseed goosefoot"], "goosefoot", "chenopod");
+		EnsureAlias(materials["marshelder seed"], "sumpweed", "marsh elder");
+		EnsureAlias(materials["bambara groundnut"], "bambara nut", "earth pea");
+		EnsureAlias(materials["african rice"], "oryza glaberrima");
+		EnsureAlias(materials["mulberry"], "mulberry fruit");
+		EnsureAlias(materials["macadamia"], "macadamia nut");
+		EnsureAlias(materials["carob pod"], "carob");
+		EnsureAlias(materials["cinnamon bark"], "cinnamon");
+		EnsureAlias(materials["kola nut"], "cola nut");
+		EnsureAlias(materials["kiwi fruit"], "kiwifruit");
+		EnsureAlias(materials["walnut nut"], "walnut kernel", "walnut meat");
+
 		foreach (var name in AgricultureSeeder.StockSeedMaterialNamesForTesting)
 		{
 			if (materials.TryGetValue(name, out var material))

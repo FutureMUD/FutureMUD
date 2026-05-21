@@ -4,13 +4,16 @@
 Run `AgricultureSeeder` after core utility progs exist. It installs:
 
 - stock field profiles for arable fields, garden beds, orchards/groves, pasture, wet fields, rocky fields, saline coastal fields, and managed woodland
-- specific annual crop and perennial orchard/vineyard definitions with seed requirements and commodity outputs
+- additional cultivated, marginal, natural, and unimproved field profiles for paddies, dryland fields, terraces, floodplains, old fallows, scrub, woodland clearings, marshes, saline edges, heavy clay, eroded slopes, and similar land-expansion starting points
+- specific annual crop and perennial orchard/vineyard/plantation definitions with seed requirements and commodity outputs, including broad temperate, tropical, dryland, wetland, archaic, and regional crop examples
 - generic herd definitions
 - specific managed woodland definitions with commodity outputs
 - stock operations, including woodland yield multipliers and yield costs
 - local project templates with agriculture completion actions, seed stock material requirements, deliberately substantial labour requirements, and Farming-based supervision labour
 
 The stock package is idempotent. Reruns refresh stock-owned rows by stable names instead of duplicating them.
+
+The stock agriculture catalogue is intentionally broad rather than setting-specific. Builders can use the installed profiles as starter land conditions and then tune or delete examples that do not fit their world.
 
 ## Terrain Defaults
 Use terrain defaults to make field creation fast:

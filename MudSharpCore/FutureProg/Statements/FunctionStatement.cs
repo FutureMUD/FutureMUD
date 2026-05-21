@@ -1,8 +1,16 @@
-﻿namespace MudSharp.FutureProg.Statements;
+﻿using MudSharp.FutureProg.Functions;
+using System.Collections.Generic;
+
+namespace MudSharp.FutureProg.Statements;
 
 internal class FunctionStatement : Statement
 {
-    public FunctionStatement(IFunction function)
+	public static void RegisterCompiler()
+	{
+		// NOOP for FunctionStatement, only used directly by compiler
+	}
+
+	public FunctionStatement(IFunction function)
     {
         Function = function;
     }

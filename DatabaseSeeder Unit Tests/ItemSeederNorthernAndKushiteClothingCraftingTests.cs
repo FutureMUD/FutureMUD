@@ -22,7 +22,12 @@ public class ItemSeederNorthernAndKushiteClothingCraftingTests
 		"antiquity_broad_wool_mantle",
 		"antiquity_fine_sleeved_wool_gown",
 		"antiquity_fine_bordered_wool_mantle",
-		"antiquity_linen_shoulder_veil"
+		"antiquity_linen_shoulder_veil",
+		"antiquity_heavy_hooded_wool_cloak",
+		"antiquity_wool_work_smock",
+		"antiquity_fine_ritual_wool_mantle",
+		"antiquity_wool_winter_mittens",
+		"antiquity_checked_wool_leg_wraps"
 	];
 
 	private static readonly string[] GermanicClothingStableReferences =
@@ -39,7 +44,12 @@ public class ItemSeederNorthernAndKushiteClothingCraftingTests
 		"antiquity_woolly_skin_cape",
 		"antiquity_fine_long_wool_gown",
 		"antiquity_fine_heavy_wool_mantle",
-		"antiquity_linen_head_veil"
+		"antiquity_linen_head_veil",
+		"antiquity_heavy_felt_hood",
+		"antiquity_fine_seeress_wool_mantle",
+		"antiquity_felt_hand_mitts",
+		"antiquity_wool_footwraps",
+		"antiquity_wool_ear_band"
 	];
 
 	private static readonly string[] KushiteClothingStableReferences =
@@ -54,7 +64,9 @@ public class ItemSeederNorthernAndKushiteClothingCraftingTests
 		"adjacent_antiquity_beaded_linen_girdle",
 		"adjacent_antiquity_cotton_draped_dress",
 		"adjacent_antiquity_linen_bead_apron",
-		"adjacent_antiquity_plain_cotton_headcloth"
+		"adjacent_antiquity_plain_cotton_headcloth",
+		"adjacent_antiquity_cotton_field_wrap",
+		"adjacent_antiquity_fine_ritual_cotton_mantle"
 	];
 
 	[TestMethod]

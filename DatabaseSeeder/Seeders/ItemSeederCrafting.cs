@@ -96,7 +96,12 @@ public partial class ItemSeeder
 			["antiquity_full_wool_himation"] = "a full $colour wool himation",
 			["antiquity_fine_long_linen_chiton"] = "a fine long $colour chiton",
 			["antiquity_fine_full_wool_himation"] = "a fine full $colour himation",
-			["antiquity_light_linen_head_veil"] = "a $colour linen head veil"
+			["antiquity_light_linen_head_veil"] = "a $colour linen head veil",
+			["antiquity_wool_exomis"] = "a $colour wool exomis",
+			["antiquity_heavy_wool_zeira"] = "a heavy $colour wool zeira",
+			["antiquity_fine_ritual_wool_peplos"] = "a fine $colour ritual peplos",
+			["antiquity_wool_travel_leg_wraps"] = "a pair of $colour wool travel leg wraps",
+			["antiquity_wool_hand_wraps_hellenic"] = "a pair of $colour wool hand wraps"
 		};
 
 	private static readonly IReadOnlyDictionary<string, string> EgyptianAntiquityClothingStableReferences =
@@ -109,7 +114,9 @@ public partial class ItemSeeder
 			["adjacent_antiquity_tasseled_linen_shawl"] = "a fine $colour tasseled shawl",
 			["adjacent_antiquity_tall_linen_headdress"] = "a tall $colour linen headdress",
 			["adjacent_antiquity_beaded_linen_girdle"] = "a beaded $colour linen girdle",
-			["adjacent_antiquity_linen_bead_apron"] = "a beaded $colour linen apron"
+			["adjacent_antiquity_linen_bead_apron"] = "a beaded $colour linen apron",
+			["adjacent_antiquity_linen_scribe_kilt"] = "a $colour linen scribe's kilt",
+			["adjacent_antiquity_temple_linen_shift"] = "a fine $colour temple linen shift"
 		};
 
 	private static readonly IReadOnlyDictionary<string, string> RomanAntiquityClothingStableReferences =
@@ -123,7 +130,11 @@ public partial class ItemSeeder
 			["antiquity_wool_palla"] = "a $colour wool palla",
 			["antiquity_fine_long_linen_tunica"] = "a fine long $colour tunica",
 			["antiquity_wool_stola"] = "a $colour wool stola",
-			["antiquity_fine_wool_palla"] = "a fine $colour palla"
+			["antiquity_fine_wool_palla"] = "a fine $colour palla",
+			["antiquity_hooded_wool_paenula"] = "a hooded $colour wool paenula",
+			["antiquity_fine_toga_praetexta"] = "a fine $colour toga praetexta",
+			["antiquity_wool_udones"] = "a pair of $colour wool udones",
+			["antiquity_wool_hand_wraps"] = "a pair of $colour wool hand wraps"
 		};
 
 	private static readonly IReadOnlyDictionary<string, string> CelticAntiquityClothingStableReferences =
@@ -140,7 +151,12 @@ public partial class ItemSeeder
 			["antiquity_broad_wool_mantle"] = "a $colour broad wool mantle",
 			["antiquity_fine_sleeved_wool_gown"] = "a fine $colour sleeved gown",
 			["antiquity_fine_bordered_wool_mantle"] = "a fine $colour bordered mantle",
-			["antiquity_linen_shoulder_veil"] = "a $colour linen veil"
+			["antiquity_linen_shoulder_veil"] = "a $colour linen veil",
+			["antiquity_heavy_hooded_wool_cloak"] = "a heavy $colour hooded cloak",
+			["antiquity_wool_work_smock"] = "a $colour wool work smock",
+			["antiquity_fine_ritual_wool_mantle"] = "a fine $colour ritual mantle",
+			["antiquity_wool_winter_mittens"] = "a pair of $colour wool winter mittens",
+			["antiquity_checked_wool_leg_wraps"] = "a pair of $colour wool leg wraps"
 		};
 
 	private static readonly IReadOnlyDictionary<string, string> GermanicAntiquityClothingStableReferences =
@@ -158,7 +174,12 @@ public partial class ItemSeeder
 			["antiquity_woolly_skin_cape"] = "a woolly skin cape",
 			["antiquity_fine_long_wool_gown"] = "a fine $colour long gown",
 			["antiquity_fine_heavy_wool_mantle"] = "a fine $colour wool mantle",
-			["antiquity_linen_head_veil"] = "a $colour linen head veil"
+			["antiquity_linen_head_veil"] = "a $colour linen head veil",
+			["antiquity_heavy_felt_hood"] = "a heavy $colour felt hood",
+			["antiquity_fine_seeress_wool_mantle"] = "a fine $colour seeress mantle",
+			["antiquity_felt_hand_mitts"] = "a pair of $colour felt hand-mitts",
+			["antiquity_wool_footwraps"] = "a pair of $colour wool footwraps",
+			["antiquity_wool_ear_band"] = "a $colour wool ear band"
 		};
 
 	private static readonly IReadOnlyDictionary<string, string> KushiteAntiquityClothingStableReferences =
@@ -174,7 +195,9 @@ public partial class ItemSeeder
 			["adjacent_antiquity_beaded_linen_girdle"] = "a beaded $colour linen girdle",
 			["adjacent_antiquity_cotton_draped_dress"] = "a fine $colour draped cotton dress",
 			["adjacent_antiquity_linen_bead_apron"] = "a beaded $colour linen apron",
-			["adjacent_antiquity_plain_cotton_headcloth"] = "a $colour cotton headcloth"
+			["adjacent_antiquity_plain_cotton_headcloth"] = "a $colour cotton headcloth",
+			["adjacent_antiquity_cotton_field_wrap"] = "a $colour cotton field wrap",
+			["adjacent_antiquity_fine_ritual_cotton_mantle"] = "a fine $colour ritual cotton mantle"
 		};
 
 	private static readonly IReadOnlyDictionary<string, string> PunicAntiquityClothingStableReferences =
@@ -189,7 +212,9 @@ public partial class ItemSeeder
 			["antiquity_loose_linen_hood"] = "a loose $colour linen hood",
 			["antiquity_fine_full_linen_gown"] = "a fine full $colour gown",
 			["antiquity_left_shoulder_overdrape"] = "a $colour left-shoulder overdrape",
-			["antiquity_star_bordered_linen_robe"] = "a star-bordered $colour robe"
+			["antiquity_star_bordered_linen_robe"] = "a star-bordered $colour robe",
+			["antiquity_sailor_wool_wind_cloak"] = "a $colour sailor's wool cloak",
+			["antiquity_fine_temple_linen_veil"] = "a fine $colour temple veil"
 		};
 
 	private static readonly IReadOnlyDictionary<string, string> PersianAntiquityClothingStableReferences =
@@ -205,7 +230,11 @@ public partial class ItemSeeder
 			["antiquity_fine_pleated_court_gown"] = "a fine pleated $colour gown",
 			["antiquity_wide_cloth_belt"] = "a wide $colour cloth belt",
 			["antiquity_fine_wide_cloth_belt"] = "a fine wide $colour belt",
-			["antiquity_full_head_and_neck_veil"] = "a full $colour head veil"
+			["antiquity_full_head_and_neck_veil"] = "a full $colour head veil",
+			["antiquity_heavy_felt_riding_coat"] = "a heavy $colour felt riding coat",
+			["antiquity_fine_magian_linen_robe"] = "a fine $colour magian robe",
+			["antiquity_felt_riding_mittens"] = "a pair of $colour felt riding mittens",
+			["antiquity_wool_boot_liners"] = "a pair of $colour wool boot liners"
 		};
 
 	private static readonly IReadOnlyDictionary<string, string> EtruscanAntiquityClothingStableReferences =
@@ -218,7 +247,9 @@ public partial class ItemSeeder
 			["adjacent_antiquity_wrapped_linen_skirt"] = "a $colour wrapped linen skirt",
 			["adjacent_antiquity_rectangular_shoulder_cloak"] = "a $colour shoulder cloak",
 			["adjacent_antiquity_fitted_linen_gown"] = "a fine $colour fitted gown",
-			["adjacent_antiquity_linen_head_mantle"] = "a $colour linen head mantle"
+			["adjacent_antiquity_linen_head_mantle"] = "a $colour linen head mantle",
+			["adjacent_antiquity_wool_craftsman_tunic"] = "a $colour craftsman's wool tunic",
+			["adjacent_antiquity_priestly_linen_veil"] = "a fine $colour priestly veil"
 		};
 
 	private static readonly IReadOnlyDictionary<string, string> AnatolianAntiquityClothingStableReferences =
@@ -233,7 +264,11 @@ public partial class ItemSeeder
 			["adjacent_antiquity_fine_patterned_wool_robe"] = "a fine $colour patterned robe",
 			["adjacent_antiquity_fringed_wool_mantle"] = "a fine $colour fringed mantle",
 			["adjacent_antiquity_wool_wrapped_skirt"] = "a $colour wrapped wool skirt",
-			["adjacent_antiquity_fine_rectangular_veil"] = "a fine $colour rectangular veil"
+			["adjacent_antiquity_fine_rectangular_veil"] = "a fine $colour rectangular veil",
+			["adjacent_antiquity_heavy_felt_winter_cap"] = "a heavy $colour felt winter cap",
+			["adjacent_antiquity_priestly_banded_wool_robe"] = "a fine $colour priestly banded robe",
+			["adjacent_antiquity_felt_hand_mitts"] = "a pair of $colour felt hand-mitts",
+			["adjacent_antiquity_wool_neck_wrap"] = "a $colour wool neck wrap"
 		};
 
 	private static readonly IReadOnlyDictionary<string, string> ScythianSarmatianAntiquityClothingStableReferences =
@@ -247,7 +282,11 @@ public partial class ItemSeeder
 			["adjacent_antiquity_open_riding_caftan"] = "a $colour open riding caftan",
 			["adjacent_antiquity_fur_trimmed_caftan"] = "a fine $colour fur-trimmed caftan",
 			["adjacent_antiquity_split_riding_skirt"] = "a $colour split riding skirt",
-			["adjacent_antiquity_long_felt_coat"] = "a long $colour felt coat"
+			["adjacent_antiquity_long_felt_coat"] = "a long $colour felt coat",
+			["adjacent_antiquity_horseherder_wool_tunic"] = "a $colour horseherder's wool tunic",
+			["adjacent_antiquity_ritual_felt_cap"] = "a fine $colour ritual felt cap",
+			["adjacent_antiquity_felt_mittens"] = "a pair of $colour felt mittens",
+			["adjacent_antiquity_felt_boot_liners"] = "a pair of $colour felt boot liners"
 		};
 
 	private static readonly IReadOnlyDictionary<string, string> AntiquityLeatherClothingStableReferences =

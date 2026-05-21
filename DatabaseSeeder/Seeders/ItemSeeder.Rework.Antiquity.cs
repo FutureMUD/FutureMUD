@@ -1424,6 +1424,111 @@ namespace DatabaseSeeder.Seeders
                 null,
                 null
             );
+
+            CreateItem(
+                "antiquity_heavy_hooded_wool_cloak",
+                "cloak",
+                "a heavy $colour hooded cloak",
+                null,
+                "This heavy $colour wool cloak has a deep hood and enough body to wrap fully around the wearer. The cloth is dense, warm, and meant for cold travel or exposed weather rather than indoor ceremony. Its reinforced front edges can overlap when drawn shut, making the cloak more sheltered than a plain mantle.",
+                SizeCategory.Normal,
+                ItemQuality.Standard,
+                1420.0,
+                42.0m,
+                true,
+                false,
+                "wool",
+                ["Market / Clothing / Winter Clothing", "Functions / Worn Items / Bodywear"],
+                ["Holdable", "Wear_Cloak_(Closed)", "Destroyable_Clothing", "Insulation_Strong", "Armour_HeavyClothing", "Variable_BasicColour"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_wool_work_smock",
+                "smock",
+                "a $colour wool work smock",
+                null,
+                "This $colour wool work smock is a loose over-tunic with long sleeves and a plain body. It is cut to sit over ordinary clothes, protecting them from cold, dust, and rough work without pretending to be fine dress. The hems are sturdy, and the garment is easy to belt or shrug off as the labour changes.",
+                SizeCategory.Normal,
+                ItemQuality.Standard,
+                700.0,
+                22.0m,
+                true,
+                false,
+                "wool",
+                ["Market / Clothing / Simple Clothing", "Functions / Worn Items / Bodywear"],
+                ["Holdable", "Wear_Long-Sleeved_Tunic", "Destroyable_Clothing", "Insulation_Moderate", "Armour_LightClothing", "Variable_BasicColour"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_fine_ritual_wool_mantle",
+                "mantle",
+                "a fine $colour ritual mantle",
+                null,
+                "This fine $colour wool mantle is broad, weighty, and made to settle in clean ceremonial folds. The edges are worked more carefully than on a common cloak, and the cloth has enough finish to frame brooches, torcs, or other display pieces. It remains a practical rectangular garment, but one meant to be seen.",
+                SizeCategory.Normal,
+                ItemQuality.Good,
+                1040.0,
+                92.0m,
+                true,
+                false,
+                "wool",
+                ["Market / Clothing / Luxury Clothing", "Functions / Worn Items / Bodywear"],
+                ["Holdable", "Wear_Mantle", "Destroyable_Clothing", "Insulation_Balanced_Warm", "Armour_HeavyClothing", "Variable_FineColour"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_wool_winter_mittens",
+                "mittens",
+                "a pair of $colour wool winter mittens",
+                null,
+                "These $colour wool mittens cover the fingers together in a warm pouch, with a separate thumb for grip. They are simple, soft, and much warmer than open hand wraps, though less nimble for delicate work. The cuffs are long enough to tuck beneath a cloak or sleeve.",
+                SizeCategory.Small,
+                ItemQuality.Standard,
+                180.0,
+                18.0m,
+                true,
+                false,
+                "wool",
+                ["Market / Clothing / Winter Clothing", "Functions / Worn Items / Gloves"],
+                ["Holdable", "Wear_Mittens", "Destroyable_Clothing", "Insulation_Moderate", "Armour_LightClothing", "Variable_BasicColour"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_checked_wool_leg_wraps",
+                "wraps",
+                "a pair of $colour wool leg wraps",
+                null,
+                "These $colour wool leg wraps are long narrow bands for binding around the lower legs. Their checked weave gives them a lively edge without changing their practical purpose: warmth, support, and keeping loose clothing away from mud and brush. The ends are finished so the wraps can be tied securely.",
+                SizeCategory.Small,
+                ItemQuality.Standard,
+                210.0,
+                16.0m,
+                true,
+                false,
+                "wool",
+                ["Market / Clothing / Winter Clothing", "Functions / Worn Items / Legwear"],
+                ["Holdable", "Wear_Chausses", "Destroyable_Clothing", "Insulation_Moderate", "Armour_LightClothing", "Variable_BasicColour"],
+                null,
+                null,
+                null,
+                null
+            );
             #endregion
 
             #region Germanic Antiquity
@@ -1699,6 +1804,111 @@ namespace DatabaseSeeder.Seeders
                 null,
                 null
             );
+
+            CreateItem(
+                "antiquity_heavy_felt_hood",
+                "hood",
+                "a heavy $colour felt hood",
+                null,
+                "This heavy $colour felt hood covers the crown, ears, and back of the neck in a dense weatherproof layer. It can be worn beneath a cloak or on its own when wind cuts through lighter headcloths. The felt is thick but plain, with a simple face opening and a short shoulder fall.",
+                SizeCategory.Small,
+                ItemQuality.Standard,
+                260.0,
+                18.0m,
+                true,
+                false,
+                "felt",
+                ["Market / Clothing / Winter Clothing", "Functions / Worn Items / Headwear"],
+                ["Holdable", "Wear_Hat", "Destroyable_Clothing", "Insulation_Strong", "Armour_LightClothing", "Variable_BasicColour"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_fine_seeress_wool_mantle",
+                "mantle",
+                "a fine $colour seeress mantle",
+                null,
+                "This fine $colour wool mantle is a high-status wrap with a broad, quiet fall. It is shaped by drape and careful edge work rather than sewn ornament, giving it a solemn presence over a gown or tunic. The cloth is warm, smooth, and meant to frame a figure in formal or ritual settings.",
+                SizeCategory.Normal,
+                ItemQuality.Good,
+                1050.0,
+                86.0m,
+                true,
+                false,
+                "wool",
+                ["Market / Clothing / Luxury Clothing", "Functions / Worn Items / Bodywear"],
+                ["Holdable", "Wear_Mantle", "Destroyable_Clothing", "Insulation_Balanced_Warm", "Armour_HeavyClothing", "Variable_FineColour"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_felt_hand_mitts",
+                "mitts",
+                "a pair of $colour felt hand-mitts",
+                null,
+                "These $colour felt hand-mitts cover the hand in thick, warm felt with a separate thumb and a simple open cuff. They are warmer than wraps but still plain enough for travel and winter chores. The felted body has very little decoration, relying on thickness and close shaping for its use.",
+                SizeCategory.Small,
+                ItemQuality.Standard,
+                190.0,
+                20.0m,
+                true,
+                false,
+                "felt",
+                ["Market / Clothing / Winter Clothing", "Functions / Worn Items / Gloves"],
+                ["Holdable", "Wear_Mittens", "Destroyable_Clothing", "Insulation_Moderate", "Armour_LightClothing", "Variable_BasicColour"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_wool_footwraps",
+                "footwraps",
+                "a pair of $colour wool footwraps",
+                null,
+                "These $colour wool footwraps are soft rectangular pieces for wrapping around the feet before shoes or boots are put on. They add warmth and reduce rubbing, especially in cold or damp travel. The fabric is plain, with firm edges so the wraps do not quickly unravel.",
+                SizeCategory.Small,
+                ItemQuality.Standard,
+                140.0,
+                12.0m,
+                true,
+                false,
+                "wool",
+                ["Market / Clothing / Winter Clothing", "Functions / Worn Items / Socks"],
+                ["Holdable", "Wear_Socks", "Destroyable_Clothing", "Insulation_Moderate", "Armour_LightClothing", "Variable_BasicColour"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_wool_ear_band",
+                "band",
+                "a $colour wool ear band",
+                null,
+                "This $colour wool ear band is a narrow cloth strip for wrapping around the brow and ears. It gives useful warmth without covering the whole head, making it easy to wear beneath a hood or helmet-like cap. The ends are short enough to tuck flat at the side.",
+                SizeCategory.VerySmall,
+                ItemQuality.Standard,
+                70.0,
+                8.0m,
+                true,
+                false,
+                "wool",
+                ["Market / Clothing / Winter Clothing", "Functions / Worn Items / Headwear"],
+                ["Holdable", "Wear_Headband", "Destroyable_Clothing", "Insulation_Moderate", "Armour_LightClothing", "Variable_BasicColour"],
+                null,
+                null,
+                null,
+                null
+            );
             #endregion
 
             #region Italic Antiquity
@@ -1885,6 +2095,90 @@ namespace DatabaseSeeder.Seeders
                 "wool",
                 ["Market / Clothing / Luxury Clothing", "Functions / Worn Items / Bodywear"],
                 ["Holdable", "Wear_Mantle", "Destroyable_Clothing", "Insulation_Balanced_Warm", "Armour_HeavyClothing", "Variable_FineColour"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_hooded_wool_paenula",
+                "paenula",
+                "a hooded $colour wool paenula",
+                null,
+                "This $colour wool paenula is a heavy travelling cloak cut to fall around the body with a practical hood. The cloth closes into a sheltered cone of warmth rather than hanging open like a mantle. Its edges are plainly finished, and the hood is deep enough to shield the face from cold rain or wind.",
+                SizeCategory.Normal,
+                ItemQuality.Standard,
+                1450.0,
+                44.0m,
+                true,
+                false,
+                "wool",
+                ["Market / Clothing / Winter Clothing", "Functions / Worn Items / Bodywear"],
+                ["Holdable", "Wear_Cloak_(Closed)", "Destroyable_Clothing", "Insulation_Strong", "Armour_HeavyClothing", "Variable_BasicColour"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_fine_toga_praetexta",
+                "toga",
+                "a fine $colour toga praetexta",
+                null,
+                "This fine $colour toga praetexta is a large formal wool wrap with a carefully controlled border. It requires practiced arrangement to fall correctly across the shoulder and chest, and the sheer volume of cloth gives it public weight and ceremony. The weave is smooth, the edge is neat, and the garment is meant for status rather than labour.",
+                SizeCategory.Normal,
+                ItemQuality.Good,
+                2850.0,
+                190.0m,
+                true,
+                false,
+                "wool",
+                ["Market / Clothing / Luxury Clothing", "Functions / Worn Items / Bodywear"],
+                ["Holdable", "Wear_Mantle", "Destroyable_Clothing", "Insulation_Balanced_Warm", "Armour_HeavyClothing", "Variable_FineColour"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_wool_udones",
+                "udones",
+                "a pair of $colour wool udones",
+                null,
+                "These $colour wool udones are soft foot coverings meant to be worn inside sandals, shoes, or light boots when the weather turns cold. They are shaped simply from cloth and stitching rather than heavy soles. The wool cushions the foot and adds warmth without replacing proper footwear.",
+                SizeCategory.Small,
+                ItemQuality.Standard,
+                95.0,
+                10.0m,
+                true,
+                false,
+                "wool",
+                ["Market / Clothing / Winter Clothing", "Functions / Worn Items / Socks"],
+                ["Holdable", "Wear_Socks", "Destroyable_Clothing", "Insulation_Moderate", "Armour_LightClothing", "Variable_BasicColour"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_wool_hand_wraps",
+                "wraps",
+                "a pair of $colour wool hand wraps",
+                null,
+                "These $colour wool hand wraps are narrow cloth pieces that wind around the wrists and hands, leaving the fingers mostly free. They give a traveller or labourer a little warmth while preserving enough movement for tools, reins, or fastenings. The ends are tapered so they can be tucked back into the wrap.",
+                SizeCategory.Small,
+                ItemQuality.Standard,
+                120.0,
+                12.0m,
+                true,
+                false,
+                "wool",
+                ["Market / Clothing / Winter Clothing", "Functions / Worn Items / Gloves"],
+                ["Holdable", "Wear_Fingerless_Gloves", "Destroyable_Clothing", "Insulation_Moderate", "Armour_LightClothing", "Variable_BasicColour"],
                 null,
                 null,
                 null,
@@ -2103,6 +2397,111 @@ namespace DatabaseSeeder.Seeders
                 null
             );
 
+            CreateItem(
+                "antiquity_wool_exomis",
+                "exomis",
+                "a $colour wool exomis",
+                null,
+                "This $colour wool exomis is a short one-shouldered working tunic. One shoulder is left bare for freedom of movement, while the opposite shoulder is pinned or stitched into a firm fall. The wool is plain, sturdy, and easy to belt for workshop, field, or light marching use.",
+                SizeCategory.Normal,
+                ItemQuality.Standard,
+                390.0,
+                14.0m,
+                true,
+                false,
+                "wool",
+                ["Market / Clothing / Simple Clothing", "Functions / Worn Items / Bodywear"],
+                ["Holdable", "Wear_Tunic", "Destroyable_Clothing", "Insulation_Minor", "Armour_LightClothing", "Variable_BasicColour"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_heavy_wool_zeira",
+                "zeira",
+                "a heavy $colour wool zeira",
+                null,
+                "This heavy $colour wool zeira is a thick rectangular cloak for cold travel and rough weather. The dense wool falls in deep folds from the shoulders and can be drawn close around the body without needing close tailoring. Its hems are strongly worked so the cloak can serve as bedding, shelter, or outerwear.",
+                SizeCategory.Normal,
+                ItemQuality.Standard,
+                1350.0,
+                38.0m,
+                true,
+                false,
+                "wool",
+                ["Market / Clothing / Winter Clothing", "Functions / Worn Items / Bodywear"],
+                ["Holdable", "Wear_Cloak_(Closed)", "Destroyable_Clothing", "Insulation_Strong", "Armour_HeavyClothing", "Variable_BasicColour"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_fine_ritual_wool_peplos",
+                "peplos",
+                "a fine $colour ritual peplos",
+                null,
+                "This fine $colour wool peplos is made as a full folded rectangle with clean vertical lines and a carefully settled overfold. The fabric is smoother and more regular than everyday working wool, giving the garment a ceremonial dignity while keeping the older rectangular form. Close hems and neat fastening points let it hang with deliberate order.",
+                SizeCategory.Normal,
+                ItemQuality.Good,
+                760.0,
+                110.0m,
+                true,
+                false,
+                "wool",
+                ["Market / Clothing / Luxury Clothing", "Functions / Worn Items / Bodywear"],
+                ["Holdable", "Wear_Sleeveless_Dress", "Destroyable_Clothing", "Insulation_Moderate", "Armour_LightClothing", "Variable_FineColour"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_wool_travel_leg_wraps",
+                "wraps",
+                "a pair of $colour wool travel leg wraps",
+                null,
+                "These $colour wool leg wraps are long bands intended to spiral around the lower legs before travel. They add warmth beneath a cloak and help keep dust, cold wind, and loose hems away from the calves. The edges are narrow and firm so the wraps can be tied without fraying.",
+                SizeCategory.Small,
+                ItemQuality.Standard,
+                180.0,
+                12.0m,
+                true,
+                false,
+                "wool",
+                ["Market / Clothing / Winter Clothing", "Functions / Worn Items / Legwear"],
+                ["Holdable", "Wear_Chausses", "Destroyable_Clothing", "Insulation_Moderate", "Armour_LightClothing", "Variable_BasicColour"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_wool_hand_wraps_hellenic",
+                "wraps",
+                "a pair of $colour wool hand wraps",
+                null,
+                "These $colour wool hand wraps are simple strips of soft cloth that wind across the palms, wrists, and backs of the hands while leaving the fingers mostly free. They give a little warmth and protection without the enclosed bulk of mittens. The ends tuck neatly so they can be used while travelling or working.",
+                SizeCategory.Small,
+                ItemQuality.Standard,
+                115.0,
+                11.0m,
+                true,
+                false,
+                "wool",
+                ["Market / Clothing / Winter Clothing", "Functions / Worn Items / Gloves"],
+                ["Holdable", "Wear_Fingerless_Gloves", "Destroyable_Clothing", "Insulation_Moderate", "Armour_LightClothing", "Variable_BasicColour"],
+                null,
+                null,
+                null,
+                null
+            );
+
             #endregion
 
             #region Punic Antiquity
@@ -2310,6 +2709,48 @@ namespace DatabaseSeeder.Seeders
                 "linen",
                 ["Market / Clothing / Luxury Clothing", "Functions / Worn Items / Bodywear"],
                 ["Holdable", "Wear_Robe", "Destroyable_Clothing", "Insulation_Reflector", "Armour_LightClothing", "Variable_FineColour"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_sailor_wool_wind_cloak",
+                "cloak",
+                "a $colour sailor's wool cloak",
+                null,
+                "This $colour sailor's wool cloak is cut as a heavy rectangle that can be wrapped close against sea wind. The wool is dense enough to hold warmth when damp air blows across a deck or quay, and the edges are finished for repeated handling. It is plain, practical outerwear rather than a formal mantle.",
+                SizeCategory.Normal,
+                ItemQuality.Standard,
+                1180.0,
+                36.0m,
+                true,
+                false,
+                "wool",
+                ["Market / Clothing / Winter Clothing", "Functions / Worn Items / Bodywear"],
+                ["Holdable", "Wear_Cloak_(Closed)", "Destroyable_Clothing", "Insulation_Balanced_Warm", "Armour_HeavyClothing", "Variable_BasicColour"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_fine_temple_linen_veil",
+                "veil",
+                "a fine $colour temple veil",
+                null,
+                "This fine $colour linen temple veil is a broad rectangular head covering with a smooth, light fall. It can be drawn over the hair and shoulders while leaving the face open, giving ceremony without hiding expression. The close hems and clean cloth mark it as a careful dress piece.",
+                SizeCategory.Small,
+                ItemQuality.Good,
+                170.0,
+                42.0m,
+                true,
+                false,
+                "linen",
+                ["Market / Clothing / Luxury Clothing", "Functions / Worn Items / Headwear"],
+                ["Holdable", "Wear_Veil", "Destroyable_Clothing", "Insulation_Reflector", "Armour_LightClothing", "Variable_FineColour"],
                 null,
                 null,
                 null,
@@ -2548,6 +2989,90 @@ namespace DatabaseSeeder.Seeders
                 null,
                 null
             );
+
+            CreateItem(
+                "antiquity_heavy_felt_riding_coat",
+                "coat",
+                "a heavy $colour felt riding coat",
+                null,
+                "This heavy $colour felt riding coat has long sleeves, a dense body, and enough overlap to close warmly across the front. It is cut for use over trousers and a tunic, falling low enough to shelter the thighs without trapping a rider. The felted surface is plain, matte, and substantial against cold wind.",
+                SizeCategory.Normal,
+                ItemQuality.Standard,
+                1200.0,
+                66.0m,
+                true,
+                false,
+                "felt",
+                ["Market / Clothing / Winter Clothing", "Functions / Worn Items / Bodywear"],
+                ["Holdable", "Wear_Long_Coat", "Destroyable_Clothing", "Insulation_Strong", "Armour_HeavyClothing", "Variable_BasicColour"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_fine_magian_linen_robe",
+                "robe",
+                "a fine $colour magian robe",
+                null,
+                "This fine $colour linen robe is long, clean, and deliberately restrained. The body falls in straight panels with neat sleeves and a controlled front, suiting ritual or scholarly dress more than labour. Its fine cloth and careful hems give it dignity without heavy ornament.",
+                SizeCategory.Normal,
+                ItemQuality.Good,
+                720.0,
+                104.0m,
+                true,
+                false,
+                "linen",
+                ["Market / Clothing / Luxury Clothing", "Functions / Worn Items / Bodywear"],
+                ["Holdable", "Wear_Robe", "Destroyable_Clothing", "Insulation_Minor", "Armour_LightClothing", "Variable_FineColour"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_felt_riding_mittens",
+                "mittens",
+                "a pair of $colour felt riding mittens",
+                null,
+                "These $colour felt riding mittens are cut with a warm mitten body and a firm thumb for gripping reins. The felt is thick enough to block cold air but soft enough to flex at the palm. Their cuffs tuck beneath a coat sleeve to keep wind from entering at the wrist.",
+                SizeCategory.Small,
+                ItemQuality.Standard,
+                175.0,
+                22.0m,
+                true,
+                false,
+                "felt",
+                ["Market / Clothing / Winter Clothing", "Functions / Worn Items / Gloves"],
+                ["Holdable", "Wear_Mittens", "Destroyable_Clothing", "Insulation_Moderate", "Armour_LightClothing", "Variable_BasicColour"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_wool_boot_liners",
+                "liners",
+                "a pair of $colour wool boot liners",
+                null,
+                "These $colour wool boot liners are soft inner foot coverings for placing inside boots. They warm the foot and smooth the feel of a stiff boot without acting as shoes on their own. The tops rise just high enough to fold against the ankle.",
+                SizeCategory.Small,
+                ItemQuality.Standard,
+                145.0,
+                14.0m,
+                true,
+                false,
+                "wool",
+                ["Market / Clothing / Winter Clothing", "Functions / Worn Items / Socks"],
+                ["Holdable", "Wear_Socks", "Destroyable_Clothing", "Insulation_Moderate", "Armour_LightClothing", "Variable_BasicColour"],
+                null,
+                null,
+                null,
+                null
+            );
             #endregion
 
             #region Other Antiquity
@@ -2750,6 +3275,48 @@ namespace DatabaseSeeder.Seeders
                 ItemQuality.Good,
                 180.0,
                 40m,
+                true,
+                false,
+                "linen",
+                ["Market / Clothing / Luxury Clothing", "Functions / Worn Items / Headwear"],
+                ["Holdable", "Wear_Veil", "Destroyable_Clothing", "Insulation_Minor", "Armour_LightClothing", "Variable_FineColour"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "adjacent_antiquity_wool_craftsman_tunic",
+                "tunic",
+                "a $colour craftsman's wool tunic",
+                null,
+                "This $colour wool craftsman's tunic is short-sleeved, straight-bodied, and cut for work rather than display. It leaves the forearms free and sits well beneath an apron, belt, or light mantle. The seams are stout, the hem is practical, and the garment has enough warmth for a workshop in cool weather.",
+                SizeCategory.Normal,
+                ItemQuality.Standard,
+                560.0,
+                32.0m,
+                true,
+                false,
+                "wool",
+                ["Market / Clothing / Standard Clothing", "Functions / Worn Items / Bodywear"],
+                ["Holdable", "Wear_Tunic", "Destroyable_Clothing", "Insulation_Moderate", "Armour_LightClothing", "Variable_BasicColour"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "adjacent_antiquity_priestly_linen_veil",
+                "veil",
+                "a fine $colour priestly veil",
+                null,
+                "This fine $colour linen veil is long enough to cover the hair, shoulders, and upper back in a clean ceremonial fall. It is made from smooth cloth with close hems, so it reads as deliberate ritual dress rather than a rough headcloth. The face remains visible while the veil frames the wearer.",
+                SizeCategory.Small,
+                ItemQuality.Good,
+                220.0,
+                54.0m,
                 true,
                 false,
                 "linen",
@@ -2972,6 +3539,90 @@ namespace DatabaseSeeder.Seeders
             );
 
             CreateItem(
+                "adjacent_antiquity_heavy_felt_winter_cap",
+                "cap",
+                "a heavy $colour felt winter cap",
+                null,
+                "This heavy $colour felt cap has a close crown and a low edge that can be drawn down against cold weather. The felt is thicker than an ordinary riding cap and sits firmly without needing straps. It is plain, compact, and useful beneath a hooded cloak.",
+                SizeCategory.Small,
+                ItemQuality.Standard,
+                230.0,
+                20.0m,
+                true,
+                false,
+                "felt",
+                ["Market / Clothing / Winter Clothing", "Functions / Worn Items / Headwear"],
+                ["Holdable", "Wear_Hat", "Destroyable_Clothing", "Insulation_Strong", "Armour_LightClothing", "Variable_BasicColour"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "adjacent_antiquity_priestly_banded_wool_robe",
+                "robe",
+                "a fine $colour priestly banded robe",
+                null,
+                "This fine $colour wool robe is long and straight, with controlled bands along the openings and hem. It has the warmth of a heavy robe but is finished carefully enough for ceremonial use. The sleeves are generous, the fall is orderly, and the banded edges give the garment a formal outline.",
+                SizeCategory.Normal,
+                ItemQuality.Good,
+                980.0,
+                130.0m,
+                true,
+                false,
+                "wool",
+                ["Market / Clothing / Luxury Clothing", "Functions / Worn Items / Bodywear"],
+                ["Holdable", "Wear_Robe", "Destroyable_Clothing", "Insulation_Moderate", "Armour_HeavyClothing", "Variable_FineColour"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "adjacent_antiquity_felt_hand_mitts",
+                "mitts",
+                "a pair of $colour felt hand-mitts",
+                null,
+                "These $colour felt hand-mitts are thick hand coverings for cold upland travel. The fingers share a warm felt pocket while the thumb is cut separately for grip. The mitts are simple, dense, and meant to tuck under coat or cloak sleeves.",
+                SizeCategory.Small,
+                ItemQuality.Standard,
+                180.0,
+                20.0m,
+                true,
+                false,
+                "felt",
+                ["Market / Clothing / Winter Clothing", "Functions / Worn Items / Gloves"],
+                ["Holdable", "Wear_Mittens", "Destroyable_Clothing", "Insulation_Moderate", "Armour_LightClothing", "Variable_BasicColour"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "adjacent_antiquity_wool_neck_wrap",
+                "wrap",
+                "a $colour wool neck wrap",
+                null,
+                "This $colour wool neck wrap is a long, narrow rectangle meant to wind around the throat and lower face in cold wind. It can sit beneath a cloak, cap, or hood without much bulk. The ends are hemmed plainly so they can be tucked down the front of the garment.",
+                SizeCategory.Small,
+                ItemQuality.Standard,
+                190.0,
+                16.0m,
+                true,
+                false,
+                "wool",
+                ["Market / Clothing / Winter Clothing", "Functions / Worn Items / Scarves"],
+                ["Holdable", "Wear_Scarf", "Destroyable_Clothing", "Insulation_Moderate", "Armour_LightClothing", "Variable_BasicColour"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
                 "adjacent_antiquity_soft_riding_boots",
                 "boots",
                 "a pair of soft riding boots",
@@ -3175,6 +3826,90 @@ namespace DatabaseSeeder.Seeders
                 "felt",
                 ["Market / Clothing / Luxury Clothing", "Functions / Worn Items / Bodywear"],
                 ["Holdable", "Wear_Long_Coat", "Destroyable_Clothing", "Insulation_Strong", "Armour_HeavyClothing", "Variable_FineColour"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "adjacent_antiquity_horseherder_wool_tunic",
+                "tunic",
+                "a $colour horseherder's wool tunic",
+                null,
+                "This $colour wool tunic is a rugged riding garment with long sleeves, a belted body, and enough side ease to sit astride a mount. The cloth is warm without becoming a coat, making it useful beneath caftans or cloaks. Its plain finish suits daily herding and travel.",
+                SizeCategory.Normal,
+                ItemQuality.Standard,
+                720.0,
+                46.0m,
+                true,
+                false,
+                "wool",
+                ["Market / Clothing / Standard Clothing", "Functions / Worn Items / Bodywear"],
+                ["Holdable", "Wear_Long-Sleeved_Tunic", "Destroyable_Clothing", "Insulation_Moderate", "Armour_LightClothing", "Variable_BasicColour"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "adjacent_antiquity_ritual_felt_cap",
+                "cap",
+                "a fine $colour ritual felt cap",
+                null,
+                "This fine $colour felt cap is tall, shaped, and carefully blocked so it keeps its ritual profile. The surface is smooth for felt, and the lower edge is neatly finished. It gives warmth, but its height and finish make it a visible dress piece rather than an ordinary travel cap.",
+                SizeCategory.Small,
+                ItemQuality.Good,
+                180.0,
+                74.0m,
+                true,
+                false,
+                "felt",
+                ["Market / Clothing / Luxury Clothing", "Functions / Worn Items / Headwear"],
+                ["Holdable", "Wear_Hat", "Destroyable_Clothing", "Insulation_Moderate", "Armour_LightClothing", "Variable_FineColour"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "adjacent_antiquity_felt_mittens",
+                "mittens",
+                "a pair of $colour felt mittens",
+                null,
+                "These $colour felt mittens cover the hand in a warm, simple pouch with a separate thumb. They are dense, plain, and practical for winter riding or camp work. The cuffs are soft enough to slip under a coat sleeve while still blocking cold air.",
+                SizeCategory.Small,
+                ItemQuality.Standard,
+                180.0,
+                22.0m,
+                true,
+                false,
+                "felt",
+                ["Market / Clothing / Winter Clothing", "Functions / Worn Items / Gloves"],
+                ["Holdable", "Wear_Mittens", "Destroyable_Clothing", "Insulation_Moderate", "Armour_LightClothing", "Variable_BasicColour"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "adjacent_antiquity_felt_boot_liners",
+                "liners",
+                "a pair of $colour felt boot liners",
+                null,
+                "These $colour felt boot liners are soft inner layers for cold-weather boots. They cushion the foot, add warmth, and can be pulled out to dry near a fire. The felt is plain and flexible, with a low ankle rise that does not fight the boot shaft.",
+                SizeCategory.Small,
+                ItemQuality.Standard,
+                170.0,
+                18.0m,
+                true,
+                false,
+                "felt",
+                ["Market / Clothing / Winter Clothing", "Functions / Worn Items / Socks"],
+                ["Holdable", "Wear_Socks", "Destroyable_Clothing", "Insulation_Moderate", "Armour_LightClothing", "Variable_BasicColour"],
                 null,
                 null,
                 null,
@@ -3406,6 +4141,90 @@ namespace DatabaseSeeder.Seeders
                 "cotton",
                 ["Market / Clothing / Standard Clothing", "Functions / Worn Items / Headwear"],
                 ["Holdable", "Wear_Kerchief", "Destroyable_Clothing", "Insulation_Reflector", "Armour_LightClothing", "Variable_BasicColour"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "adjacent_antiquity_linen_scribe_kilt",
+                "kilt",
+                "a $colour linen scribe's kilt",
+                null,
+                "This $colour linen scribe's kilt is a neat wrapped garment with a straight front and cleanly folded waist. It is short enough for seated work and walking through warm rooms, but tidier than a rough labourer's wrap. The linen is plain, smooth, and easy to pair with a shoulder cloth or head covering.",
+                SizeCategory.Small,
+                ItemQuality.Standard,
+                240.0,
+                18.0m,
+                true,
+                false,
+                "linen",
+                ["Market / Clothing / Standard Clothing", "Functions / Worn Items / Bodywear"],
+                ["Holdable", "Wear_Shorts", "Destroyable_Clothing", "Insulation_Reflector", "Armour_LightClothing", "Variable_BasicColour"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "adjacent_antiquity_temple_linen_shift",
+                "shift",
+                "a fine $colour temple linen shift",
+                null,
+                "This fine $colour linen shift is a clean, straight temple garment with a modest neckline and a light full-length fall. It is simple in outline but made from smoother cloth than everyday linen. Close hems and careful proportions make it suitable beneath ritual mantles or formal jewellery.",
+                SizeCategory.Normal,
+                ItemQuality.Good,
+                430.0,
+                74.0m,
+                true,
+                false,
+                "linen",
+                ["Market / Clothing / Luxury Clothing", "Functions / Worn Items / Bodywear"],
+                ["Holdable", "Wear_Robe", "Destroyable_Clothing", "Insulation_Reflector", "Armour_LightClothing", "Variable_FineColour"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "adjacent_antiquity_cotton_field_wrap",
+                "wrap",
+                "a $colour cotton field wrap",
+                null,
+                "This $colour cotton field wrap is a light working garment for hot weather. It wraps around the hips and lower body with enough overlap to move through fields or yards without heavy cloth clinging to the legs. The fabric is plain, breathable, and easy to wash.",
+                SizeCategory.Normal,
+                ItemQuality.Standard,
+                330.0,
+                24.0m,
+                true,
+                false,
+                "cotton",
+                ["Market / Clothing / Simple Clothing", "Functions / Worn Items / Bodywear"],
+                ["Holdable", "Wear_Long_Skirt", "Destroyable_Clothing", "Insulation_Minor", "Armour_LightClothing", "Variable_BasicColour"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "adjacent_antiquity_fine_ritual_cotton_mantle",
+                "mantle",
+                "a fine $colour ritual cotton mantle",
+                null,
+                "This fine $colour cotton mantle is broad, light, and cleanly hemmed for ritual or high-status warm-weather dress. It settles across the shoulders without the weight of wool, giving shade and ceremony while keeping the wearer cool. The cloth is smooth enough to frame jewellery or a formal robe beneath it.",
+                SizeCategory.Normal,
+                ItemQuality.Good,
+                380.0,
+                72.0m,
+                true,
+                false,
+                "cotton",
+                ["Market / Clothing / Luxury Clothing", "Functions / Worn Items / Bodywear"],
+                ["Holdable", "Wear_Mantle", "Destroyable_Clothing", "Insulation_Reflector", "Armour_LightClothing", "Variable_FineColour"],
                 null,
                 null,
                 null,

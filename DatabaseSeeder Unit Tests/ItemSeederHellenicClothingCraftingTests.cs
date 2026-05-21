@@ -21,7 +21,12 @@ public class ItemSeederHellenicClothingCraftingTests
 		"antiquity_full_wool_himation",
 		"antiquity_fine_long_linen_chiton",
 		"antiquity_fine_full_wool_himation",
-		"antiquity_light_linen_head_veil"
+		"antiquity_light_linen_head_veil",
+		"antiquity_wool_exomis",
+		"antiquity_heavy_wool_zeira",
+		"antiquity_fine_ritual_wool_peplos",
+		"antiquity_wool_travel_leg_wraps",
+		"antiquity_wool_hand_wraps_hellenic"
 	];
 
 	[TestMethod]

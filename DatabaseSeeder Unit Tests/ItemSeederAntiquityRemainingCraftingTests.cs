@@ -50,7 +50,7 @@ public class ItemSeederAntiquityRemainingCraftingTests
 			.SelectMany(method => ParseItemsInMethod(itemSource, method))
 			.ToList();
 
-		Assert.AreEqual(995, items.Count, "The audit should track the current antiquity item catalogue.");
+		Assert.AreEqual(1034, items.Count, "The audit should track the current antiquity item catalogue.");
 		Assert.AreEqual(29, items.Count(IsAntiquityCraftToolTarget));
 		Assert.AreEqual(18, items.Count(x => equipmentCraftSource.Contains($"\"{x.StableReference}\"", StringComparison.Ordinal) &&
 		                                     x.MethodName.Equals("SeedAntiquityClothing", StringComparison.Ordinal) &&

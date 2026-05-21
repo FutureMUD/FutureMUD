@@ -76,3 +76,5 @@ Custom agriculture score slots are reserved in the `AgricultureScoreType` enum a
 
 ## Seed Content
 `AgricultureSeeder` installs stock profiles, specific crop definitions, herd definitions, specific managed woodland definitions, operation definitions, and project templates. The stock project templates include general field labour and an optional Farming-based supervision role so skilled farmers can improve the final result without being the only source of labour. The stock package is still builder-editable, but it now covers many common crop and woodland products so new games can start from concrete commodities instead of broad placeholder categories.
+
+The stock profile set includes both ready-use cultivated land and rougher land-expansion starting points such as old fallows, scrub, wetland margins, heavy clay flats, eroded slopes, salt marsh edges, and woodland clearings. The crop catalogue likewise spans common temperate staples, tropical and wetland crops, dryland cereals and pulses, archaic crops, orchard fruit, nuts, vines, and plantation spices.

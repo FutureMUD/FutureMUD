@@ -81,6 +81,8 @@ Harvesting creates commodity piles in the field cell, scaled by the crop's curre
 
 Seed stock is represented as ordinary commodity piles with a secondary `Seeds` tag. Stock crop definitions also tag their main edible or usable yield as `Seeded Yield`, which lets the generic `select seed stock` craft convert a portion of harvested commodity into seed-tagged commodity of the same material.
 
+Stock crop outputs use the ordinary seeded material catalogue. Where a crop name would collide with a non-food material, such as walnut wood, the agriculture output uses a distinct food material such as `walnut nut`.
+
 Optional crop score ranges are saved under `<ScoreRanges>`. They are independent of moisture and temperature, so a non-terrestrial crop can require a configured field score such as magical saturation, radiation, nutrient medium quality, or other setting-specific resources.
 
 ## Orchard State

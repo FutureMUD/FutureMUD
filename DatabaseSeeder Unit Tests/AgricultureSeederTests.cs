@@ -141,8 +141,8 @@ public class AgricultureSeederTests
 		seeder.SeedData(context, new Dictionary<string, string>());
 		seeder.SeedData(context, new Dictionary<string, string>());
 
-		Assert.AreEqual(8, context.AgricultureFieldProfiles.Count());
-		Assert.AreEqual(58, context.AgricultureCropDefinitions.Count());
+		Assert.AreEqual(45, context.AgricultureFieldProfiles.Count());
+		Assert.AreEqual(136, context.AgricultureCropDefinitions.Count());
 		Assert.AreEqual(4, context.AgricultureHerdDefinitions.Count());
 		Assert.AreEqual(8, context.AgricultureWoodlandDefinitions.Count());
 		Assert.AreEqual(18, context.AgricultureOperations.Count());
@@ -151,6 +151,16 @@ public class AgricultureSeederTests
 			         "Wheat", "Barley", "Rye", "Oats", "Quinoa", "Field Beans", "Peas", "Lentils", "Potatoes",
 			         "Carrots", "Beetroot", "Turnips", "Onions", "Cabbage", "Lettuce", "Sugar Beet", "Canola",
 			         "Flax"
+		         })
+		{
+			AssertPlantingGroups(context, cropName, "Autumn", "Spring");
+		}
+
+		foreach (var cropName in new[]
+		         {
+			         "Emmer Wheat", "Einkorn Wheat", "Spelt Wheat", "Naked Barley", "New Glume Wheat", "Bitter Vetch",
+			         "Grass Peas", "Lupins", "Canihua", "Pitseed Goosefoot", "Maygrass", "Little Barley", "Erect Knotweed",
+			         "Oca", "Ulluco", "Mashua", "Jerusalem Artichokes", "Mustard", "Woad"
 		         })
 		{
 			AssertPlantingGroups(context, cropName, "Autumn", "Spring");
@@ -167,7 +177,22 @@ public class AgricultureSeederTests
 			AssertPlantingGroups(context, cropName, "Spring", "Summer");
 		}
 
+		foreach (var cropName in new[]
+		         {
+			         "Cowpeas", "Mung Beans", "Bambara Groundnuts", "Adzuki Beans", "Teff", "Fonio", "Finger Millet",
+			         "Pearl Millet", "Foxtail Millet", "Proso Millet", "Amaranth", "Chia", "Marshelder", "African Rice",
+			         "Eggplants", "Okra", "Bottle Gourds", "Safflower", "Niger Seed"
+		         })
+		{
+			AssertPlantingGroups(context, cropName, "Spring", "Summer");
+		}
+
 		foreach (var cropName in new[] { "Cassava", "Taro", "Yams", "Sugarcane", "Sesame", "Cotton", "Jute", "Ramie", "Sisal" })
+		{
+			AssertPlantingGroups(context, cropName, "Spring", "Summer", "Autumn");
+		}
+
+		foreach (var cropName in new[] { "Pigeon Peas", "Arrowroot", "Lotus Root", "Water Chestnuts", "Kenaf", "Indigo" })
 		{
 			AssertPlantingGroups(context, cropName, "Spring", "Summer", "Autumn");
 		}
@@ -177,12 +202,32 @@ public class AgricultureSeederTests
 			AssertPlantingGroups(context, cropName, "Autumn", "Winter", "Spring");
 		}
 
+		foreach (var cropName in new[] { "Quinces", "Apricots", "Walnuts", "Persimmons", "Mulberries", "Chestnuts", "Pecans", "Kiwifruit" })
+		{
+			AssertPlantingGroups(context, cropName, "Autumn", "Winter", "Spring");
+		}
+
 		foreach (var cropName in new[] { "Olives", "Figs", "Oranges", "Lemons" })
 		{
 			AssertPlantingGroups(context, cropName, "Autumn", "Spring");
 		}
 
+		foreach (var cropName in new[] { "Pomegranates", "Pistachios", "Limes", "Grapefruits", "Mandarins", "Carob" })
+		{
+			AssertPlantingGroups(context, cropName, "Autumn", "Spring");
+		}
+
 		foreach (var cropName in new[] { "Dates", "Bananas" })
+		{
+			AssertPlantingGroups(context, cropName, "Spring", "Summer", "Autumn");
+		}
+
+		foreach (var cropName in new[]
+		         {
+			         "Mangoes", "Coconuts", "Plantains", "Breadfruit", "Avocados", "Cacao", "Coffee", "Tea", "Cashews",
+			         "Macadamias", "Guavas", "Lychees", "Jackfruit", "Papayas", "Passionfruit", "Cinnamon", "Cloves",
+			         "Nutmeg", "Kola Nuts", "Tamarinds"
+		         })
 		{
 			AssertPlantingGroups(context, cropName, "Spring", "Summer", "Autumn");
 		}
@@ -193,6 +238,10 @@ public class AgricultureSeederTests
 
 		var orchardProfile = XElement.Parse(context.AgricultureFieldProfiles.Single(x => x.Name == "Orchard Grove").Definition);
 		Assert.AreEqual("Fallow,Orchard", orchardProfile.Attribute("uses")!.Value);
+
+		var paddyDefinition = XElement.Parse(context.AgricultureFieldProfiles.Single(x => x.Name == "Paddy Field").Definition);
+		Assert.AreEqual("Fallow,Crop", paddyDefinition.Attribute("uses")!.Value);
+		Assert.AreEqual("90", paddyDefinition.Elements("Score").Single(x => x.Attribute("type")!.Value == "Moisture").Attribute("value")!.Value);
 
 		var wheatDefinition = XElement.Parse(context.AgricultureCropDefinitions.Single(x => x.Name == "Wheat").Definition);
 		Assert.AreEqual("110", wheatDefinition.Attribute("growthDays")!.Value);
@@ -212,6 +261,11 @@ public class AgricultureSeederTests
 		Assert.AreEqual("220", applesDefinition.Attribute("harvestCycleDays")!.Value);
 		Assert.IsTrue(applesDefinition.Element("Outputs")!.Elements("Commodity").Any(x =>
 			x.Attribute("material")!.Value == "apple" &&
+			x.Attribute("tag")!.Value == "Seeded Yield"));
+
+		var walnutsDefinition = XElement.Parse(context.AgricultureCropDefinitions.Single(x => x.Name == "Walnuts").Definition);
+		Assert.IsTrue(walnutsDefinition.Element("Outputs")!.Elements("Commodity").Any(x =>
+			x.Attribute("material")!.Value == "walnut nut" &&
 			x.Attribute("tag")!.Value == "Seeded Yield"));
 
 		var hazelDefinition = XElement.Parse(context.AgricultureWoodlandDefinitions.Single(x => x.Name == "Hazel Coppice").Definition);

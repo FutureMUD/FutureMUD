@@ -37,6 +37,18 @@
                  ]
     },
     {
+        "Material Name":  "adzuki bean",
+        "Tags":  [
+                     "Materials / Natural Materials / Agricultural Crop / Food Crop"
+                 ]
+    },
+    {
+        "Material Name":  "african rice",
+        "Tags":  [
+                     "Materials / Natural Materials / Agricultural Crop / Food Crop"
+                 ]
+    },
+    {
         "Material Name":  "agate",
         "Tags":  [
                      "Materials / Natural Materials / Stone / Economically Useful Stone / Gemstone"
@@ -106,6 +118,12 @@
         "Material Name":  "aluminium",
         "Tags":  [
                      "Materials / Manufactured Materials / Manufactured Metal / Modern Age"
+                 ]
+    },
+    {
+        "Material Name":  "amaranth",
+        "Tags":  [
+                     "Materials / Natural Materials / Agricultural Crop / Food Crop"
                  ]
     },
     {
@@ -229,6 +247,13 @@
                  ]
     },
     {
+        "Material Name":  "arrowroot",
+        "Tags":  [
+                     "Materials / Natural Materials / Agricultural Crop / Food Crop",
+                     "Materials / Natural Materials / Food / Vegetable"
+                 ]
+    },
+    {
         "Material Name":  "arsenic",
         "Tags":  [
                      "Materials / Manufactured Materials / Manufactured Metal / Bronze Age"
@@ -298,6 +323,12 @@
         "Material Name":  "bagel",
         "Tags":  [
                      "Materials / Natural Materials / Food / Baked Good"
+                 ]
+    },
+    {
+        "Material Name":  "bambara groundnut",
+        "Tags":  [
+                     "Materials / Natural Materials / Agricultural Crop / Food Crop"
                  ]
     },
     {
@@ -574,6 +605,13 @@
                  ]
     },
     {
+        "Material Name":  "bottle gourd",
+        "Tags":  [
+                     "Materials / Natural Materials / Agricultural Crop / Food Crop",
+                     "Materials / Natural Materials / Food / Vegetable"
+                 ]
+    },
+    {
         "Material Name":  "boxwood",
         "Tags":  [
                      "Materials / Natural Materials / Wood / Hardwood"
@@ -595,6 +633,12 @@
         "Material Name":  "bread",
         "Tags":  [
                      "Materials / Natural Materials / Food / Baked Good"
+                 ]
+    },
+    {
+        "Material Name":  "breadfruit",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Fruit"
                  ]
     },
     {
@@ -750,6 +794,12 @@
                  ]
     },
     {
+        "Material Name":  "canihua",
+        "Tags":  [
+                     "Materials / Natural Materials / Agricultural Crop / Food Crop"
+                 ]
+    },
+    {
         "Material Name":  "canola",
         "Tags":  [
                      "Materials / Natural Materials / Agricultural Crop / Oil Crop"
@@ -804,9 +854,21 @@
                  ]
     },
     {
+        "Material Name":  "carob pod",
+        "Tags":  [
+                     "Materials / Natural Materials / Agricultural Crop / Food Crop"
+                 ]
+    },
+    {
         "Material Name":  "carrot",
         "Tags":  [
                      "Materials / Natural Materials / Food / Vegetable"
+                 ]
+    },
+    {
+        "Material Name":  "cashew",
+        "Tags":  [
+                     "Materials / Natural Materials / Agricultural Crop / Food Crop"
                  ]
     },
     {
@@ -1005,6 +1067,12 @@
                  ]
     },
     {
+        "Material Name":  "chia",
+        "Tags":  [
+                     "Materials / Natural Materials / Agricultural Crop / Oil Crop"
+                 ]
+    },
+    {
         "Material Name":  "chicken",
         "Tags":  [
                      "Materials / Natural Materials / Food / Meat"
@@ -1078,6 +1146,12 @@
     },
     {
         "Material Name":  "cinnamon",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Spice"
+                 ]
+    },
+    {
+        "Material Name":  "cinnamon bark",
         "Tags":  [
                      "Materials / Natural Materials / Food / Spice"
                  ]
@@ -1268,6 +1342,12 @@
         "Material Name":  "cow leather",
         "Tags":  [
                      "Materials / Natural Materials / Leather"
+                 ]
+    },
+    {
+        "Material Name":  "cowpea",
+        "Tags":  [
+                     "Materials / Natural Materials / Agricultural Crop / Food Crop"
                  ]
     },
     {
@@ -1609,6 +1689,12 @@
                  ]
     },
     {
+        "Material Name":  "einkorn wheat",
+        "Tags":  [
+                     "Materials / Natural Materials / Agricultural Crop / Food Crop"
+                 ]
+    },
+    {
         "Material Name":  "electrum",
         "Tags":  [
                      "Materials / Manufactured Materials / Manufactured Metal / Bronze Age"
@@ -1645,6 +1731,12 @@
                  ]
     },
     {
+        "Material Name":  "emmer wheat",
+        "Tags":  [
+                     "Materials / Natural Materials / Agricultural Crop / Food Crop"
+                 ]
+    },
+    {
         "Material Name":  "enamelware",
         "Tags":  [
                      "Materials / Manufactured Materials / Ceramic"
@@ -1654,6 +1746,12 @@
         "Material Name":  "epoxy resin",
         "Tags":  [
                      "Materials / Manufactured Materials / Plastic"
+                 ]
+    },
+    {
+        "Material Name":  "erect knotweed",
+        "Tags":  [
+                     "Materials / Natural Materials / Agricultural Crop / Food Crop"
                  ]
     },
     {
@@ -1738,6 +1836,12 @@
                  ]
     },
     {
+        "Material Name":  "finger millet",
+        "Tags":  [
+                     "Materials / Natural Materials / Agricultural Crop / Food Crop"
+                 ]
+    },
+    {
         "Material Name":  "fir",
         "Tags":  [
                      "Materials / Natural Materials / Wood / Softwood"
@@ -1816,6 +1920,12 @@
                  ]
     },
     {
+        "Material Name":  "fonio",
+        "Tags":  [
+                     "Materials / Natural Materials / Agricultural Crop / Food Crop"
+                 ]
+    },
+    {
         "Material Name":  "food",
         "Tags":  [
                      "Materials / Natural Materials / Food"
@@ -1837,6 +1947,12 @@
         "Material Name":  "fox leather",
         "Tags":  [
                      "Materials / Natural Materials / Leather"
+                 ]
+    },
+    {
+        "Material Name":  "foxtail millet",
+        "Tags":  [
+                     "Materials / Natural Materials / Agricultural Crop / Food Crop"
                  ]
     },
     {
@@ -2023,6 +2139,12 @@
                  ]
     },
     {
+        "Material Name":  "grass pea",
+        "Tags":  [
+                     "Materials / Natural Materials / Agricultural Crop / Food Crop"
+                 ]
+    },
+    {
         "Material Name":  "grease",
         "Tags":  [
                      "Materials / Manufactured Materials"
@@ -2206,6 +2328,12 @@
                  ]
     },
     {
+        "Material Name":  "indigo crop",
+        "Tags":  [
+                     "Materials / Textile Dye"
+                 ]
+    },
+    {
         "Material Name":  "indium",
         "Tags":  [
                      "Materials / Manufactured Materials / Manufactured Metal / Industrial Age"
@@ -2249,6 +2377,12 @@
                  ]
     },
     {
+        "Material Name":  "jackfruit",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Fruit"
+                 ]
+    },
+    {
         "Material Name":  "jade",
         "Tags":  [
                      "Materials / Natural Materials / Stone / Economically Useful Stone / Gemstone"
@@ -2270,6 +2404,13 @@
         "Material Name":  "jersey knit",
         "Tags":  [
                      "Materials / Manufactured Materials / Fabric / Synthetic Fiber Fabric"
+                 ]
+    },
+    {
+        "Material Name":  "jerusalem artichoke",
+        "Tags":  [
+                     "Materials / Natural Materials / Agricultural Crop / Food Crop",
+                     "Materials / Natural Materials / Food / Vegetable"
                  ]
     },
     {
@@ -2321,6 +2462,12 @@
                  ]
     },
     {
+        "Material Name":  "kenaf",
+        "Tags":  [
+                     "Materials / Natural Materials / Agricultural Crop / Fiber Crop"
+                 ]
+    },
+    {
         "Material Name":  "keratin",
         "Tags":  [
                      "Materials / Animal Product"
@@ -2336,6 +2483,12 @@
         "Material Name":  "kiwi fruit",
         "Tags":  [
                      "Materials / Natural Materials / Food / Fruit"
+                 ]
+    },
+    {
+        "Material Name":  "kola nut",
+        "Tags":  [
+                     "Materials / Natural Materials / Agricultural Crop / Food Crop"
                  ]
     },
     {
@@ -2533,6 +2686,12 @@
                  ]
     },
     {
+        "Material Name":  "little barley",
+        "Tags":  [
+                     "Materials / Natural Materials / Agricultural Crop / Food Crop"
+                 ]
+    },
+    {
         "Material Name":  "lizard",
         "Tags":  [
                      "Materials / Natural Materials / Food / Meat"
@@ -2557,9 +2716,22 @@
                  ]
     },
     {
+        "Material Name":  "lotus root",
+        "Tags":  [
+                     "Materials / Natural Materials / Agricultural Crop / Food Crop",
+                     "Materials / Natural Materials / Food / Vegetable"
+                 ]
+    },
+    {
         "Material Name":  "low-density polyethylene",
         "Tags":  [
                      "Materials / Manufactured Materials / Plastic"
+                 ]
+    },
+    {
+        "Material Name":  "lupin",
+        "Tags":  [
+                     "Materials / Natural Materials / Agricultural Crop / Food Crop"
                  ]
     },
     {
@@ -2572,6 +2744,12 @@
         "Material Name":  "lye",
         "Tags":  [
                      "Materials / Manufactured Materials"
+                 ]
+    },
+    {
+        "Material Name":  "macadamia",
+        "Tags":  [
+                     "Materials / Natural Materials / Agricultural Crop / Food Crop"
                  ]
     },
     {
@@ -2662,6 +2840,25 @@
         "Material Name":  "marlstone",
         "Tags":  [
                      "Materials / Natural Materials / Stone"
+                 ]
+    },
+    {
+        "Material Name":  "marshelder seed",
+        "Tags":  [
+                     "Materials / Natural Materials / Agricultural Crop / Oil Crop"
+                 ]
+    },
+    {
+        "Material Name":  "mashua",
+        "Tags":  [
+                     "Materials / Natural Materials / Agricultural Crop / Food Crop",
+                     "Materials / Natural Materials / Food / Vegetable"
+                 ]
+    },
+    {
+        "Material Name":  "maygrass",
+        "Tags":  [
+                     "Materials / Natural Materials / Agricultural Crop / Food Crop"
                  ]
     },
     {
@@ -2813,9 +3010,21 @@
                  ]
     },
     {
+        "Material Name":  "mulberry",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Fruit"
+                 ]
+    },
+    {
         "Material Name":  "mulch",
         "Tags":  [
                      "Materials / Natural Materials"
+                 ]
+    },
+    {
+        "Material Name":  "mung bean",
+        "Tags":  [
+                     "Materials / Natural Materials / Agricultural Crop / Food Crop"
                  ]
     },
     {
@@ -2858,6 +3067,12 @@
         "Material Name":  "mutton",
         "Tags":  [
                      "Materials / Natural Materials / Food / Meat"
+                 ]
+    },
+    {
+        "Material Name":  "naked barley",
+        "Tags":  [
+                     "Materials / Natural Materials / Agricultural Crop / Food Crop"
                  ]
     },
     {
@@ -2927,6 +3142,12 @@
                  ]
     },
     {
+        "Material Name":  "new glume wheat",
+        "Tags":  [
+                     "Materials / Natural Materials / Agricultural Crop / Food Crop"
+                 ]
+    },
+    {
         "Material Name":  "nickel",
         "Tags":  [
                      "Materials / Manufactured Materials / Manufactured Metal / Bronze Age"
@@ -2936,6 +3157,12 @@
         "Material Name":  "nickel brass",
         "Tags":  [
                      "Materials / Manufactured Materials / Manufactured Metal / Bronze Age"
+                 ]
+    },
+    {
+        "Material Name":  "niger seed",
+        "Tags":  [
+                     "Materials / Natural Materials / Agricultural Crop / Oil Crop"
                  ]
     },
     {
@@ -2973,6 +3200,13 @@
         "Material Name":  "obsidian",
         "Tags":  [
                      "Materials / Natural Materials / Stone"
+                 ]
+    },
+    {
+        "Material Name":  "oca",
+        "Tags":  [
+                     "Materials / Natural Materials / Agricultural Crop / Food Crop",
+                     "Materials / Natural Materials / Food / Vegetable"
                  ]
     },
     {
@@ -3203,6 +3437,12 @@
                  ]
     },
     {
+        "Material Name":  "pearl millet",
+        "Tags":  [
+                     "Materials / Natural Materials / Agricultural Crop / Food Crop"
+                 ]
+    },
+    {
         "Material Name":  "pearwood",
         "Tags":  [
                      "Materials / Natural Materials / Wood / Hardwood"
@@ -3212,6 +3452,12 @@
         "Material Name":  "peat",
         "Tags":  [
                      "Materials / Natural Materials / Soil"
+                 ]
+    },
+    {
+        "Material Name":  "pecan",
+        "Tags":  [
+                     "Materials / Natural Materials / Agricultural Crop / Food Crop"
                  ]
     },
     {
@@ -3329,6 +3575,12 @@
                  ]
     },
     {
+        "Material Name":  "pigeon pea",
+        "Tags":  [
+                     "Materials / Natural Materials / Agricultural Crop / Food Crop"
+                 ]
+    },
+    {
         "Material Name":  "pine",
         "Tags":  [
                      "Materials / Natural Materials / Wood / Softwood"
@@ -3341,9 +3593,21 @@
                  ]
     },
     {
+        "Material Name":  "pistachio",
+        "Tags":  [
+                     "Materials / Natural Materials / Agricultural Crop / Food Crop"
+                 ]
+    },
+    {
         "Material Name":  "pitch",
         "Tags":  [
                      "Materials / Manufactured Materials"
+                 ]
+    },
+    {
+        "Material Name":  "pitseed goosefoot",
+        "Tags":  [
+                     "Materials / Natural Materials / Agricultural Crop / Food Crop"
                  ]
     },
     {
@@ -3503,6 +3767,12 @@
         "Material Name":  "pozzolanic ash",
         "Tags":  [
                      "Materials / Natural Materials"
+                 ]
+    },
+    {
+        "Material Name":  "proso millet",
+        "Tags":  [
+                     "Materials / Natural Materials / Agricultural Crop / Food Crop"
                  ]
     },
     {
@@ -4220,6 +4490,12 @@
                  ]
     },
     {
+        "Material Name":  "spelt wheat",
+        "Tags":  [
+                     "Materials / Natural Materials / Agricultural Crop / Food Crop"
+                 ]
+    },
+    {
         "Material Name":  "spelter",
         "Tags":  [
                      "Materials / Manufactured Materials / Manufactured Metal / Industrial Age"
@@ -4426,6 +4702,12 @@
                  ]
     },
     {
+        "Material Name":  "tamarind",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Fruit"
+                 ]
+    },
+    {
         "Material Name":  "tamarind wood",
         "Tags":  [
                      "Materials / Natural Materials / Wood / Hardwood"
@@ -4477,6 +4759,12 @@
         "Material Name":  "teak",
         "Tags":  [
                      "Materials / Natural Materials / Wood / Hardwood"
+                 ]
+    },
+    {
+        "Material Name":  "teff",
+        "Tags":  [
+                     "Materials / Natural Materials / Agricultural Crop / Food Crop"
                  ]
     },
     {
@@ -4700,6 +4988,13 @@
                  ]
     },
     {
+        "Material Name":  "ulluco",
+        "Tags":  [
+                     "Materials / Natural Materials / Agricultural Crop / Food Crop",
+                     "Materials / Natural Materials / Food / Vegetable"
+                 ]
+    },
+    {
         "Material Name":  "unakite",
         "Tags":  [
                      "Materials / Natural Materials / Stone / Economically Useful Stone / Gemstone"
@@ -4797,9 +5092,22 @@
                  ]
     },
     {
+        "Material Name":  "walnut nut",
+        "Tags":  [
+                     "Materials / Natural Materials / Agricultural Crop / Food Crop"
+                 ]
+    },
+    {
         "Material Name":  "wasabi",
         "Tags":  [
                      "Materials / Natural Materials / Food / Spice"
+                 ]
+    },
+    {
+        "Material Name":  "water chestnut",
+        "Tags":  [
+                     "Materials / Natural Materials / Agricultural Crop / Food Crop",
+                     "Materials / Natural Materials / Food / Vegetable"
                  ]
     },
     {
@@ -4855,6 +5163,13 @@
         "Material Name":  "witherite",
         "Tags":  [
                      "Materials / Natural Materials / Stone / Metal Ore / Barium Ore"
+                 ]
+    },
+    {
+        "Material Name":  "woad leaves",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Herb",
+                     "Materials / Textile Dye"
                  ]
     },
     {

@@ -89,6 +89,10 @@ public interface IBoardItemPrototype : IExclusiveGameItemComponentPrototype<IBoa
 {
 }
 
+public interface IBodyRemainsPrototype : IExclusiveGameItemComponentPrototype<IBodyRemains>, IButcherablePrototype
+{
+}
+
 public interface IButcherablePrototype : IExclusiveGameItemComponentPrototype<IButcherable>
 {
 }
@@ -145,7 +149,7 @@ public interface IContainerPrototype : IExclusiveGameItemComponentPrototype<ICon
 {
 }
 
-public interface ICorpsePrototype : IExclusiveGameItemComponentPrototype<ICorpse>, IButcherablePrototype
+public interface ICorpsePrototype : IExclusiveGameItemComponentPrototype<ICorpse>, IBodyRemainsPrototype
 {
 }
 

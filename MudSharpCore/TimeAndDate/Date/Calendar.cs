@@ -2,6 +2,7 @@
 using MudSharp.Effects.Concrete;
 using MudSharp.Economy.Currency;
 using MudSharp.Character;
+using MudSharp.Celestial;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.FutureProg;
@@ -10,6 +11,7 @@ using MudSharp.Models;
 using MudSharp.TimeAndDate.Time;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -209,6 +211,9 @@ public class Calendar : SaveableItem, ICalendar
                 _intercalaries.Add(intercalary);
             }
         }
+
+        LoadDayBoundary(root.Element("dayboundary"));
+        _algorithm = CalendarAlgorithmFactory.LoadFromXml(root.Element("algorithm"), AuthorityLocation);
     }
 
     public XElement SaveToXml()
@@ -240,7 +245,58 @@ public class Calendar : SaveableItem, ICalendar
                     from ic in _intercalaries
                     select ic.SaveToXml()
                 }
-            ));
+            ), Algorithm.SaveToXml(), SaveDayBoundaryToXml());
+    }
+
+    private void LoadDayBoundary(XElement element)
+    {
+        DayBoundary = CalendarDayBoundaryType.ClockMidnight;
+        _fixedDayBoundaryTimeText = null;
+        AuthorityLocation = null;
+        if (element is null)
+        {
+            return;
+        }
+
+        var typeText = element.Attribute("type")?.Value ?? element.Element("type")?.Value;
+        if (!string.IsNullOrWhiteSpace(typeText) &&
+            Enum.TryParse(typeText.Replace("-", string.Empty), true, out CalendarDayBoundaryType type))
+        {
+            DayBoundary = type;
+        }
+
+        _fixedDayBoundaryTimeText = element.Attribute("fixedTime")?.Value ?? element.Element("fixedTime")?.Value;
+
+        var authority = element.Element("authority");
+        if (authority is null)
+        {
+            return;
+        }
+
+        var latitude = (authority.Attribute("latitude")?.Value ?? "0").GetDouble() ?? 0.0;
+        var longitude = (authority.Attribute("longitude")?.Value ?? "0").GetDouble() ?? 0.0;
+        var elevation = (authority.Attribute("elevation")?.Value ?? "0").GetDouble() ?? 0.0;
+        var radius = (authority.Attribute("radius")?.Value ?? "0").GetDouble() ?? 0.0;
+        AuthorityLocation = new GeographicCoordinate(latitude, longitude, elevation, radius);
+    }
+
+    private XElement SaveDayBoundaryToXml()
+    {
+        var element = new XElement("dayboundary",
+            new XAttribute("type", DayBoundary.ToString()),
+            string.IsNullOrWhiteSpace(_fixedDayBoundaryTimeText)
+                ? null
+                : new XAttribute("fixedTime", _fixedDayBoundaryTimeText));
+        if (AuthorityLocation is not null)
+        {
+            element.Add(new XElement("authority",
+                new XAttribute("latitude", AuthorityLocation.Latitude.ToString(System.Globalization.CultureInfo.InvariantCulture)),
+                new XAttribute("longitude", AuthorityLocation.Longitude.ToString(System.Globalization.CultureInfo.InvariantCulture)),
+                new XAttribute("elevation", AuthorityLocation.Elevation.ToString(System.Globalization.CultureInfo.InvariantCulture)),
+                new XAttribute("radius", AuthorityLocation.Radius.ToString(System.Globalization.CultureInfo.InvariantCulture))));
+        }
+
+        return element;
     }
 
     #region Overrides of FrameworkItem
@@ -380,13 +436,10 @@ public class Calendar : SaveableItem, ICalendar
         get => _feedClock;
         set
         {
-            _feedClock?.DaysUpdated -= CurrentDate.AdvanceDays;
+            UnsubscribeFromFeedClock();
 
             _feedClock = value;
-            if (CurrentDate != null)
-            {
-                _feedClock.DaysUpdated += CurrentDate.AdvanceDays;
-            }
+            SubscribeToFeedClock();
 
             if (_clockID == 0)
             {
@@ -425,18 +478,145 @@ public class Calendar : SaveableItem, ICalendar
         get => _currentDate;
         protected set
         {
-            if (_currentDate != null && FeedClock != null)
-            {
-                FeedClock.DaysUpdated -= _currentDate.AdvanceDays;
-            }
+            UnsubscribeFromFeedClock();
 
             _currentDate = value;
+            _clockDaysSinceCalendarAdvance = 0;
 
-            FeedClock?.DaysUpdated += _currentDate.AdvanceDays;
+            SubscribeToFeedClock();
         }
     }
 
     public MudDateTime CurrentDateTime => new(CurrentDate, FeedClock.CurrentTime, FeedClock.PrimaryTimezone);
+
+    public MudInstant CurrentInstant => CurrentClockDateTime() is { Date: not null } dateTime
+        ? MudInstant.FromMudDateTime(dateTime)
+        : MudInstant.Never;
+
+    private int _clockDaysSinceCalendarAdvance;
+
+    private void SubscribeToFeedClock()
+    {
+        if (_feedClock is null || _currentDate is null)
+        {
+            return;
+        }
+
+        _feedClock.DaysUpdated += FeedClockOnDaysUpdated;
+        _feedClock.MinutesUpdated += FeedClockOnMinutesUpdated;
+    }
+
+    private void UnsubscribeFromFeedClock()
+    {
+        if (_feedClock is null || _currentDate is null)
+        {
+            return;
+        }
+
+        _feedClock.DaysUpdated -= FeedClockOnDaysUpdated;
+        _feedClock.MinutesUpdated -= FeedClockOnMinutesUpdated;
+    }
+
+    private void FeedClockOnDaysUpdated(int days)
+    {
+        if (_currentDate is null)
+        {
+            return;
+        }
+
+        if (DayBoundary == CalendarDayBoundaryType.ClockMidnight)
+        {
+            _currentDate.AdvanceDays(days);
+            return;
+        }
+
+        _clockDaysSinceCalendarAdvance += days;
+        AdvanceCalendarToCurrentBoundary();
+    }
+
+    private void FeedClockOnMinutesUpdated()
+    {
+        if (DayBoundary == CalendarDayBoundaryType.ClockMidnight)
+        {
+            return;
+        }
+
+        AdvanceCalendarToCurrentBoundary();
+    }
+
+    private MudDateTime CurrentClockDateTime(IMudTimeZone timezone = null)
+    {
+        if (_currentDate is null || FeedClock is null)
+        {
+            return MudDateTime.Never;
+        }
+
+        timezone ??= FeedClock.PrimaryTimezone;
+        var date = new MudDate(_currentDate);
+        if (_clockDaysSinceCalendarAdvance != 0)
+        {
+            date.AdvanceDays(_clockDaysSinceCalendarAdvance);
+        }
+
+        var time = FeedClock.CurrentTime.GetTimeByTimezone(timezone);
+        if (time.DaysOffsetFromDatum != 0)
+        {
+            date.AdvanceDays(time.DaysOffsetFromDatum);
+        }
+
+        return new MudDateTime(date, time, timezone);
+    }
+
+    private void AdvanceCalendarToCurrentBoundary()
+    {
+        if (_currentDate is null || FeedClock is null)
+        {
+            return;
+        }
+
+        var timezone = FeedClock.PrimaryTimezone;
+        var guard = Math.Abs(_clockDaysSinceCalendarAdvance) + 3;
+        while (guard-- > 0)
+        {
+            if (_clockDaysSinceCalendarAdvance < 0)
+            {
+                var currentBoundary = StartOfCalendarDay(_currentDate, timezone);
+                var currentDateTime = CurrentClockDateTime(timezone);
+                if (currentBoundary.Date is null || currentDateTime >= currentBoundary)
+                {
+                    return;
+                }
+
+                _currentDate.AdvanceDays(-1);
+                _clockDaysSinceCalendarAdvance++;
+                continue;
+            }
+
+            var nextDate = new MudDate(_currentDate);
+            nextDate.AdvanceDays(1);
+            var nextBoundary = StartOfCalendarDay(nextDate, timezone);
+            var now = CurrentClockDateTime(timezone);
+            if (nextBoundary.Date is null || now < nextBoundary)
+            {
+                return;
+            }
+
+            _currentDate.AdvanceDays(1);
+            _clockDaysSinceCalendarAdvance--;
+        }
+    }
+
+    private ICalendarAlgorithm _algorithm = new FixedMonthCalendarAlgorithm();
+
+    public ICalendarAlgorithm Algorithm => _algorithm;
+
+    public CalendarAlgorithmType AlgorithmType => Algorithm.Type;
+
+    public CalendarDayBoundaryType DayBoundary { get; protected set; } = CalendarDayBoundaryType.ClockMidnight;
+
+    protected string _fixedDayBoundaryTimeText;
+
+    public GeographicCoordinate AuthorityLocation { get; protected set; }
 
     /// <summary>
     ///     The year in which this calendar's other epoch data (such as first weekday) begins. This should be as close to the
@@ -636,12 +816,7 @@ public class Calendar : SaveableItem, ICalendar
             return year;
         }
 
-        List<Month> returnList = new();
-        returnList.AddRange(Months.Select(x => new Month(x, whichYear)));
-        returnList.AddRange(
-            Intercalaries.Where(x => x.Rule.IsIntercalaryYear(whichYear)).Select(x => new Month(x.Month, whichYear)));
-        returnList = returnList.OrderBy(x => x.NominalOrder).ToList();
-        Year newYear = new(returnList, whichYear, this);
+        Year newYear = Algorithm.CreateYear(this, whichYear);
         _cachedYears[whichYear] = newYear;
         return newYear;
     }
@@ -661,27 +836,7 @@ public class Calendar : SaveableItem, ICalendar
             return year;
         }
 
-        int sum = _months.Sum(x => x.NormalDays - x.NonWeekdays.Count)
-               +
-               Months.Sum(
-                   x =>
-                       x.Intercalaries.Sum(
-                           y =>
-                               y.Rule.IsIntercalaryYear(whichYear)
-                                   ? y.InsertNumnewDays - y.NonWeekdays.Count + y.RemoveNonWeekdays.Count
-                                   : 0))
-               +
-               Intercalaries.Sum(
-                   x =>
-                       x.Rule.IsIntercalaryYear(whichYear)
-                           ? x.Month.NormalDays - x.Month.NonWeekdays.Count +
-                             x.Month.Intercalaries.Sum(
-                                 y =>
-                                     y.Rule.IsIntercalaryYear(whichYear)
-                                         ? y.InsertNumnewDays - y.NonWeekdays.Count + y.RemoveNonWeekdays.Count
-                                         : 0)
-                           : 0)
-            ;
+        int sum = Algorithm.CountWeekdaysInYear(this, whichYear);
         _cachedWeekdaysInYear[whichYear] = sum;
         return sum;
     }
@@ -700,19 +855,7 @@ public class Calendar : SaveableItem, ICalendar
         {
             return year;
         }
-        int sum = _months.Sum(x => x.NormalDays)
-               +
-               Months.Sum(
-                   x => x.Intercalaries.Sum(y => y.Rule.IsIntercalaryYear(whichYear) ? y.InsertNumnewDays : 0))
-               +
-               Intercalaries.Sum(
-                   x =>
-                       x.Rule.IsIntercalaryYear(whichYear)
-                           ? x.Month.NormalDays +
-                             x.Month.Intercalaries.Sum(
-                                 y => y.Rule.IsIntercalaryYear(whichYear) ? y.InsertNumnewDays : 0)
-                           : 0)
-            ;
+        int sum = Algorithm.CountDaysInYear(this, whichYear);
         _cachedDaysInYear[whichYear] = sum;
         return sum;
     }
@@ -736,7 +879,8 @@ public class Calendar : SaveableItem, ICalendar
             (startYear, endYear) = (endYear, startYear);
         }
 
-        if (_cachedDaysBetweenYears.TryGetValue((startYear, endYear), out int count))
+        var cacheKey = (startYear, endYear);
+        if (_cachedDaysBetweenYears.TryGetValue(cacheKey, out int count))
         {
             return count;
         }
@@ -747,7 +891,7 @@ public class Calendar : SaveableItem, ICalendar
             count += CountDaysInYear(startYear++);
         }
 
-        _cachedDaysBetweenYears[(startYear, endYear)] = count;
+        _cachedDaysBetweenYears[cacheKey] = count;
         return count;
     }
 
@@ -851,6 +995,47 @@ public class Calendar : SaveableItem, ICalendar
         Year year = CreateYear(CurrentDate.Year - age);
         Month month = year.Months.GetWeightedRandom(x => x.Days);
         return new MudDate(this, Constants.Random.Next(1, month.Days + 1), year.YearName, month, year, false);
+    }
+
+    public MudDateTime StartOfCalendarDay(MudDate date, IMudTimeZone timezone = null)
+    {
+        if (date is null || FeedClock is null)
+        {
+            return MudDateTime.Never;
+        }
+
+        timezone ??= FeedClock.PrimaryTimezone;
+        if (DayBoundary == CalendarDayBoundaryType.FixedClockTime &&
+            !string.IsNullOrWhiteSpace(_fixedDayBoundaryTimeText) &&
+            MudTime.TryParseLocalTime(_fixedDayBoundaryTimeText, FeedClock, out var fixedTime, out _))
+        {
+            return new MudDateTime(date, fixedTime.GetTimeByTimezone(timezone), timezone);
+        }
+
+        if (DayBoundary.In(CalendarDayBoundaryType.SunriseAtAuthorityLocation,
+                CalendarDayBoundaryType.SunsetAtAuthorityLocation) &&
+            AuthorityLocation is not null &&
+            Gameworld?.CelestialObjects.OfType<ISolarEphemeris>().FirstOrDefault() is { } sun)
+        {
+            var reference = MudInstant.FromMudDateTime(new MudDateTime(date,
+                MudTime.FromLocalTime(0, 0, 0, FeedClock.PrimaryTimezone, FeedClock),
+                FeedClock.PrimaryTimezone));
+            if (AstronomicalEventService.Instance.TryFindNext(
+                    DayBoundary == CalendarDayBoundaryType.SunriseAtAuthorityLocation
+                        ? AstronomicalEventType.Sunrise
+                        : AstronomicalEventType.Sunset,
+                    reference,
+                    1,
+                    sun,
+                    AuthorityLocation,
+                    out var instant,
+                    out _))
+            {
+                return instant.ToMudDateTime(this, FeedClock, timezone);
+            }
+        }
+
+        return new MudDateTime(date, MudTime.FromLocalTime(0, 0, 0, timezone, FeedClock), timezone);
     }
 
     /// <summary>
@@ -1471,6 +1656,9 @@ You can also use #3/#0, #3-#0 or spaces to separate the three parts of your date
 	#3plane <plane>#0 - changes the intended plane alias
 	#3clock <clock>#0 - changes the feed clock
 	#3date <date>#0 - sets the current date
+	#3algorithm <type>#0 - sets the calendar algorithm type
+	#3dayboundary <midnight|fixed|sunset|sunrise> [time]#0 - sets the official day boundary
+	#3authority <latitude> <longitude> [elevation] [radius]#0 - sets the authority location for astronomical boundaries
 	#3epoch <year> <weekday>#0 - sets the epoch year and first weekday
 	#3short|long|wordy <mask>#0 - changes display masks
 	#3era <ancient|modern> <short|long> <text>#0 - changes era text
@@ -1503,6 +1691,15 @@ You can also use #3/#0, #3-#0 or spaces to separate the three parts of your date
             case "date":
             case "current":
                 return BuildingCommandDate(actor, command);
+            case "algorithm":
+            case "alg":
+                return BuildingCommandAlgorithm(actor, command);
+            case "dayboundary":
+            case "boundary":
+                return BuildingCommandDayBoundary(actor, command);
+            case "authority":
+            case "authoritylocation":
+                return BuildingCommandAuthority(actor, command);
             case "epoch":
                 return BuildingCommandEpoch(actor, command);
             case "short":
@@ -1651,6 +1848,135 @@ You can also use #3/#0, #3-#0 or spaces to separate the three parts of your date
         CurrentDate.IsPrimaryDate = true;
         Changed = true;
         actor.OutputHandler.Send($"This calendar's current date is now {DisplayDate(CurrentDate, CalendarDisplayMode.Long).ColourValue()}.");
+        return true;
+    }
+
+    private bool BuildingCommandAlgorithm(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send("Which algorithm should this calendar use? Options are fixed-months, tabular-lunar, calculated-hebrew, solar-equinox, astronomical-lunar and east-asian-lunisolar.");
+            return false;
+        }
+
+        var text = command.PopSpeech();
+        if (!CalendarAlgorithmFactory.TryParseType(text, out var type))
+        {
+            actor.OutputHandler.Send("That is not a valid calendar algorithm type.");
+            return false;
+        }
+
+        return ConfirmStructuralChange(actor, $"change calendar algorithm to {type.DescribeEnum()}", () =>
+        {
+            _algorithm = CalendarAlgorithmFactory.Create(type, AuthorityLocation);
+            ClearDateCaches();
+            NormaliseCurrentDate();
+            Changed = true;
+            actor.OutputHandler.Send($"This calendar now uses the {Algorithm.DisplayName.ColourName()} algorithm.");
+        });
+    }
+
+    private bool BuildingCommandDayBoundary(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send("Which day boundary should this calendar use? Options are midnight, fixed, sunset, sunrise and event.");
+            return false;
+        }
+
+        var boundaryText = command.PopForSwitch();
+        CalendarDayBoundaryType boundary;
+        switch (boundaryText)
+        {
+            case "midnight":
+            case "clockmidnight":
+                boundary = CalendarDayBoundaryType.ClockMidnight;
+                break;
+            case "fixed":
+            case "fixedtime":
+                boundary = CalendarDayBoundaryType.FixedClockTime;
+                break;
+            case "sunset":
+                boundary = CalendarDayBoundaryType.SunsetAtAuthorityLocation;
+                break;
+            case "sunrise":
+                boundary = CalendarDayBoundaryType.SunriseAtAuthorityLocation;
+                break;
+            case "event":
+            case "astronomical":
+                boundary = CalendarDayBoundaryType.AstronomicalEvent;
+                break;
+            default:
+                actor.OutputHandler.Send("That is not a valid day-boundary type.");
+                return false;
+        }
+
+        string fixedTime = null;
+        if (boundary == CalendarDayBoundaryType.FixedClockTime)
+        {
+            if (command.IsFinished)
+            {
+                actor.OutputHandler.Send("What fixed clock time should begin the calendar day?");
+                return false;
+            }
+
+            fixedTime = command.SafeRemainingArgument;
+            if (!MudTime.TryParseLocalTime(fixedTime, FeedClock, out _, out var error))
+            {
+                actor.OutputHandler.Send(error);
+                return false;
+            }
+        }
+
+        DayBoundary = boundary;
+        _fixedDayBoundaryTimeText = fixedTime;
+        Changed = true;
+        actor.OutputHandler.Send($"This calendar now uses {DayBoundary.DescribeEnum().ColourValue()} day boundaries.");
+        return true;
+    }
+
+    private bool BuildingCommandAuthority(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send("What latitude should this calendar's authority location use, in degrees?");
+            return false;
+        }
+
+        if (!double.TryParse(command.PopSpeech(), out var latitude))
+        {
+            actor.OutputHandler.Send("The latitude must be a valid number of degrees.");
+            return false;
+        }
+
+        if (command.IsFinished || !double.TryParse(command.PopSpeech(), out var longitude))
+        {
+            actor.OutputHandler.Send("The longitude must be a valid number of degrees.");
+            return false;
+        }
+
+        var elevation = 0.0;
+        var radius = 0.0;
+        if (!command.IsFinished && !double.TryParse(command.PopSpeech(), out elevation))
+        {
+            actor.OutputHandler.Send("The elevation must be a valid number.");
+            return false;
+        }
+
+        if (!command.IsFinished && !double.TryParse(command.PopSpeech(), out radius))
+        {
+            actor.OutputHandler.Send("The radius must be a valid number.");
+            return false;
+        }
+
+        AuthorityLocation = new GeographicCoordinate(latitude.DegreesToRadians(), longitude.DegreesToRadians(), elevation, radius);
+        if (Algorithm is IAstronomicalCalendarAlgorithm)
+        {
+            _algorithm = CalendarAlgorithmFactory.Create(AlgorithmType, AuthorityLocation);
+        }
+
+        Changed = true;
+        actor.OutputHandler.Send($"This calendar's authority location is now {latitude.ToString("N3", actor).ColourValue()}, {longitude.ToString("N3", actor).ColourValue()}.");
         return true;
     }
 
@@ -2382,6 +2708,13 @@ You can also use #3/#0, #3-#0 or spaces to separate the three parts of your date
         sb.AppendLine($"Plane: {Plane.ColourValue()}");
         sb.AppendLine($"Feed Clock: {FeedClock?.Name.ColourName() ?? "None".ColourError()}");
         sb.AppendLine($"Current Date: {(CurrentDate is null ? "None".ColourError() : DisplayDate(CurrentDate, CalendarDisplayMode.Long).ColourValue())}");
+        sb.AppendLine($"MudInstant: {CurrentInstant.GetStorageString().ColourValue()}");
+        sb.AppendLine($"Algorithm: {Algorithm.DisplayName.ColourName()} ({Algorithm.Summary})");
+        sb.AppendLine($"Day Boundary: {DayBoundary.DescribeEnum().ColourValue()}{(string.IsNullOrWhiteSpace(_fixedDayBoundaryTimeText) ? "" : $" at {_fixedDayBoundaryTimeText.ColourCommand()}")}");
+        if (AuthorityLocation is not null)
+        {
+            sb.AppendLine($"Authority Location: {AuthorityLocation.Latitude.RadiansToDegrees().ToString("N3", actor).ColourValue()}, {AuthorityLocation.Longitude.RadiansToDegrees().ToString("N3", actor).ColourValue()}");
+        }
         sb.AppendLine($"Epoch: {EpochYear.ToStringN0(actor).ColourValue()} / {(Weekdays.Count > FirstWeekdayAtEpoch ? Weekdays[FirstWeekdayAtEpoch].ColourValue() : "Invalid".ColourError())}");
         sb.AppendLine($"Short Mask: {ShortString.ColourCommand()}");
         sb.AppendLine($"Long Mask: {LongString.ColourCommand()}");
@@ -2423,6 +2756,10 @@ You can also use #3/#0, #3-#0 or spaces to separate the three parts of your date
                 return new MudDateTime(CurrentDate, FeedClock.CurrentTime, FeedClock.PrimaryTimezone);
             case "clock":
                 return FeedClock;
+            case "algorithm":
+                return new TextVariable(Algorithm.DisplayName);
+            case "mudinstant":
+                return new TextVariable(CurrentInstant.GetStorageString());
             default:
                 throw new NotSupportedException($"Unsupported property type {property} in Calendar.GetProperty");
         }
@@ -2444,6 +2781,10 @@ You can also use #3/#0, #3-#0 or spaces to separate the three parts of your date
                 return ProgVariableTypes.MudDateTime;
             case "clock":
                 return ProgVariableTypes.Clock;
+            case "algorithm":
+                return ProgVariableTypes.Text;
+            case "mudinstant":
+                return ProgVariableTypes.Text;
             default:
                 return ProgVariableTypes.Error;
         }
@@ -2456,7 +2797,9 @@ You can also use #3/#0, #3-#0 or spaces to separate the three parts of your date
             { "id", ProgVariableTypes.Number },
             { "name", ProgVariableTypes.Text },
             { "date", ProgVariableTypes.MudDateTime },
-            { "clock", ProgVariableTypes.Clock }
+            { "clock", ProgVariableTypes.Clock },
+            { "algorithm", ProgVariableTypes.Text },
+            { "mudinstant", ProgVariableTypes.Text }
         };
     }
 
@@ -2467,7 +2810,9 @@ You can also use #3/#0, #3-#0 or spaces to separate the three parts of your date
             { "id", "" },
             { "name", "" },
             { "date", "" },
-            { "clock", "" }
+            { "clock", "" },
+            { "algorithm", "The calendar algorithm display name." },
+            { "mudinstant", "The current absolute MudInstant storage string." }
         };
     }
 

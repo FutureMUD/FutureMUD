@@ -222,6 +222,37 @@ public class FutureProgDateTimeFunctionTests
 		Assert.IsTrue(result.Equals(MudDateTime.Never));
 	}
 
+	[TestMethod]
+	public void AstronomicalEventFunctions_CompileWithNthNextOverloads()
+	{
+		Compile<MudDateTime>(
+			"NextSunriseCompile",
+			ProgVariableTypes.MudDateTime,
+			[
+				Tuple.Create(ProgVariableTypes.Zone, "zone"),
+				Tuple.Create(ProgVariableTypes.Calendar, "calendar")
+			],
+			"return NextSunrise(@zone, 1, @calendar, 2)");
+
+		Compile<MudDateTime>(
+			"NextSolarLongitudeCompile",
+			ProgVariableTypes.MudDateTime,
+			[
+				Tuple.Create(ProgVariableTypes.Zone, "zone"),
+				Tuple.Create(ProgVariableTypes.Calendar, "calendar")
+			],
+			"return NextSolarLongitude(@zone, 1, @calendar, 180, 2)");
+
+		Compile<MudDateTime>(
+			"NextVisibleCrescentCompile",
+			ProgVariableTypes.MudDateTime,
+			[
+				Tuple.Create(ProgVariableTypes.Zone, "zone"),
+				Tuple.Create(ProgVariableTypes.Calendar, "calendar")
+			],
+			"return NextVisibleCrescent(@zone, 1, 2, @calendar, 2)");
+	}
+
 	private static FutureProg Compile<T>(string name, ProgVariableTypes returnType,
 		IEnumerable<Tuple<ProgVariableTypes, string>> parameters, string functionText)
 	{

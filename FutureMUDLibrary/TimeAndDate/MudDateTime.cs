@@ -831,6 +831,8 @@ For example, #33:15pm#0, #315:15:00#0 and #315:15:00 UTC#0 would all be valid da
                     return Clock;
                 case "timezone":
                     return new TextVariable(TimeZone?.Alias ?? "None");
+                case "mudinstant":
+                    return new TextVariable(MudInstant.FromMudDateTime(this).GetStorageString());
             }
 
             throw new NotSupportedException($"Unsupported property type {property} in MudDateTime.GetProperty");
@@ -866,6 +868,8 @@ For example, #33:15pm#0, #315:15:00#0 and #315:15:00 UTC#0 would all be valid da
                     return ProgVariableTypes.Clock;
                 case "timezone":
                     return ProgVariableTypes.Text;
+                case "mudinstant":
+                    return ProgVariableTypes.Text;
                 default:
                     return ProgVariableTypes.Error;
             }
@@ -886,6 +890,7 @@ For example, #33:15pm#0, #315:15:00#0 and #315:15:00 UTC#0 would all be valid da
                 {"calendar", ProgVariableTypes.Calendar},
                 {"clock", ProgVariableTypes.Clock},
                 {"timezone", ProgVariableTypes.Text},
+                {"mudinstant", ProgVariableTypes.Text},
             };
         }
 
@@ -904,6 +909,7 @@ For example, #33:15pm#0, #315:15:00#0 and #315:15:00 UTC#0 would all be valid da
                 {"calendar", ""},
                 {"clock", ""},
                 {"timezone", ""},
+                {"mudinstant", "Returns the absolute MudInstant storage string for this mud date/time"},
             };
         }
 

@@ -26,6 +26,7 @@ The modern runtime coverage lives in four focused suites:
 The intent is no longer "basic smoke coverage". Each supported modern model has deterministic numeric regression rows with at least three fixed data points. Those rows assert concrete outputs such as:
 
 - current day number
+- arbitrary-instant ephemeris day numbers
 - right ascension and declination when available or practically accessible
 - elevation
 - azimuth
@@ -40,6 +41,8 @@ The linked models also assert relationships back to their source objects, such a
 - `PlanetFromMoon` remaining opposite the linked moon in equatorial coordinates
 - `PlanetFromMoon` illumination remaining complementary to the linked moon
 - `SunFromPlanetaryMoon` remaining close to, but not identical to, the root solar direction near conjunction
+
+`CelestialTests.cs` also covers the astronomical event solver. The current solver coverage checks nth-next sunrise advancement plus supported solar longitude, new moon, full moon, and deterministic visible-crescent event searches.
 
 ## Direction Sampling Coverage
 All four runtime suites retain explicit non-24x60 clock coverage for movement direction sampling.
@@ -79,6 +82,8 @@ Add or expand numeric regression coverage whenever a change touches:
 - eclipse thresholds
 - illumination formulas
 - day-number or fractional-day handling
+- arbitrary-instant ephemeris APIs
+- astronomical event search or nth-next behavior
 
 Seeder tests should be updated whenever a change touches:
 

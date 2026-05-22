@@ -3,6 +3,7 @@ using MudSharp.Framework.Revision;
 using MudSharp.Framework.Save;
 using MudSharp.FutureProg;
 using MudSharp.TimeAndDate.Time;
+using MudSharp.Celestial;
 using System;
 using System.Collections.Generic;
 
@@ -38,8 +39,13 @@ namespace MudSharp.TimeAndDate.Date
         string AncientEraLongString { get; set; }
         MudDate CurrentDate { get; }
         MudDateTime CurrentDateTime { get; }
+        MudInstant CurrentInstant { get; }
         int EpochYear { get; }
         int FirstWeekdayAtEpoch { get; }
+        CalendarAlgorithmType AlgorithmType { get; }
+        ICalendarAlgorithm Algorithm { get; }
+        CalendarDayBoundaryType DayBoundary { get; }
+        GeographicCoordinate AuthorityLocation { get; }
         List<string> Weekdays { get; }
         List<MonthDefinition> Months { get; }
         List<IntercalaryMonth> Intercalaries { get; }
@@ -98,6 +104,7 @@ namespace MudSharp.TimeAndDate.Date
         MudDate GetDateInYear(int day, string month, int year);
         MudDate GetBirthday(int day, string month, int age);
         MudDate GetRandomBirthday(int age);
+        MudDateTime StartOfCalendarDay(MudDate date, IMudTimeZone timezone = null);
 
         /// <summary>
         ///     Creates a new Date based on a date string. Throws an exception if it runs into an error.

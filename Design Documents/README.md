@@ -117,6 +117,7 @@ This folder is organised by subsystem so implementation notes, builder workflows
 - [Computer Program Concept Design](./Technology/FutureMUD_Computer_Programs_Concept_Design.md)
 
 ## World
+- [Astronomical Time Calendar Refactor](./World/Astronomical_Time_Calendar_Refactor.md)
 - [Celestial System Overview](./World/Celestial_System_Overview.md)
 - [Celestial System Seeder](./World/Celestial_System_Seeder.md)
 - [Celestial System Tests](./World/Celestial_System_Tests.md)

@@ -37,7 +37,17 @@ public class TimeSeederTests
         "republicain",
         "tranquility",
         "mission",
-        "seasonal-360"
+        "seasonal-360",
+        "islamic-hijri",
+        "hebrew",
+        "old-persian",
+        "babylonian",
+        "chinese-minguo",
+        "chinese-lunisolar",
+        "korean-dangi",
+        "korean-lunisolar",
+        "japanese-koki",
+        "japanese-lunisolar"
     ];
 
     private static FuturemudDatabaseContext BuildContext()
@@ -129,8 +139,77 @@ public class TimeSeederTests
                                                   x.Element("SecondsPerMinute")?.Value == "100"),
                         $"{mode}: expected the decimal clock.");
                     break;
+                case "islamic-hijri":
+                    AssertAlgorithmAndBoundary(calendars, mode, "astronomical-lunar",
+                        "SunsetAtAuthorityLocation");
+                    break;
+                case "hebrew":
+                    AssertAlgorithmAndBoundary(calendars, mode, "calculated-hebrew",
+                        "SunsetAtAuthorityLocation");
+                    Assert.IsTrue(calendars.Any(x => MonthAliases(x).Contains("adar-i") &&
+                                                     MonthAliases(x).Contains("adar-ii")),
+                        $"{mode}: expected Hebrew leap-month definitions.");
+                    break;
+                case "old-persian":
+                    AssertAlgorithmAndBoundary(calendars, mode, "solar-equinox", "ClockMidnight");
+                    Assert.IsTrue(calendars.Any(x => MonthAliases(x).Contains("gatha")),
+                        $"{mode}: expected epagomenal Gatha days.");
+                    break;
+                case "babylonian":
+                    AssertAlgorithmAndBoundary(calendars, mode, "astronomical-lunar",
+                        "SunsetAtAuthorityLocation");
+                    Assert.IsTrue(calendars.Any(x => MonthAliases(x).Contains("addaru-ii") &&
+                                                     MonthAliases(x).Contains("ululu-ii")),
+                        $"{mode}: expected Babylonian leap-month definitions.");
+                    break;
+                case "chinese-minguo":
+                    AssertAlgorithmAndBoundary(calendars, mode, "fixed-months", "ClockMidnight");
+                    Assert.IsTrue(calendars.Any(x => MonthAliases(x).Contains("yi-yue")),
+                        $"{mode}: expected Latin1-safe romanised Chinese month aliases.");
+                    break;
+                case "korean-dangi":
+                case "japanese-koki":
+                    AssertAlgorithmAndBoundary(calendars, mode, "fixed-months", "ClockMidnight");
+                    break;
+                case "chinese-lunisolar":
+                case "korean-lunisolar":
+                case "japanese-lunisolar":
+                    AssertAlgorithmAndBoundary(calendars, mode, "east-asian-lunisolar",
+                        "ClockMidnight");
+                    Assert.IsTrue(calendars.Any(x => MonthAliases(x).Any(y => y.StartsWith("leap-"))),
+                        $"{mode}: expected an East Asian leap-month definition.");
+                    break;
             }
         }
+    }
+
+    [DataTestMethod]
+    [DataRow("islamic-hijri")]
+    [DataRow("hebrew")]
+    [DataRow("old-persian")]
+    [DataRow("babylonian")]
+    [DataRow("chinese-minguo")]
+    [DataRow("chinese-lunisolar")]
+    [DataRow("korean-dangi")]
+    [DataRow("korean-lunisolar")]
+    [DataRow("japanese-koki")]
+    [DataRow("japanese-lunisolar")]
+    public void SeedData_AstronomicalAndHistoricalModes_RerunIsIdempotent(string mode)
+    {
+        using FuturemudDatabaseContext context = BuildContext();
+        TimeSeeder seeder = new();
+        Dictionary<string, string> answers = Answers(mode);
+
+        seeder.SeedData(context, answers);
+        int clockCount = context.Clocks.Count();
+        int timezoneCount = context.Timezones.Count();
+        int calendarCount = context.Calendars.Count();
+
+        seeder.SeedData(context, answers);
+
+        Assert.AreEqual(clockCount, context.Clocks.Count(), $"{mode}: clock count changed on rerun.");
+        Assert.AreEqual(timezoneCount, context.Timezones.Count(), $"{mode}: timezone count changed on rerun.");
+        Assert.AreEqual(calendarCount, context.Calendars.Count(), $"{mode}: calendar count changed on rerun.");
     }
 
     [TestMethod]
@@ -209,6 +288,23 @@ public class TimeSeederTests
     {
         Assert.IsFalse(string.IsNullOrWhiteSpace(definition.Element(elementName)?.Value),
             $"{mode}: missing or empty {elementName}.");
+    }
+
+    private static void AssertAlgorithmAndBoundary(List<XElement> calendars, string mode, string algorithmType,
+        string boundaryType)
+    {
+        Assert.IsTrue(calendars.Any(x => x.Element("algorithm")?.Attribute("type")?.Value == algorithmType),
+            $"{mode}: expected algorithm type {algorithmType}.");
+        Assert.IsTrue(calendars.Any(x => x.Element("dayboundary")?.Attribute("type")?.Value == boundaryType),
+            $"{mode}: expected day-boundary type {boundaryType}.");
+    }
+
+    private static List<string> MonthAliases(XElement calendar)
+    {
+        return calendar.Element("months")!
+            .Elements("month")
+            .Select(x => x.Element("alias")!.Value)
+            .ToList();
     }
 
     private static void AssertRuntimeLoadable(FuturemudDatabaseContext context, string mode)

@@ -18,7 +18,7 @@ namespace MudSharp.Celestial;
 ///     mirrors the approach used in <see cref="NewSun"/> where calculations are based on the
 ///     current day number rather than updating each minute.
 /// </summary>
-public class PlanetaryMoon : PerceivedItem, ICelestialObject
+public class PlanetaryMoon : PerceivedItem, ICelestialObject, ILunarEphemeris
 {
     public override string FrameworkItemType => "Celestial";
 
@@ -141,6 +141,17 @@ public class PlanetaryMoon : PerceivedItem, ICelestialObject
     public double CurrentDayNumber => (Calendar.CurrentDate - EpochDate).Days + Clock.CurrentTime.TimeFraction +
                                       DayNumberAtEpoch;
 
+    public double DayNumberAt(MudInstant instant)
+    {
+        if (instant.IsNever)
+        {
+            return CurrentDayNumber;
+        }
+
+        var dateTime = instant.ToMudDateTime(Calendar, Clock, Clock.PrimaryTimezone);
+        return (dateTime.Date - EpochDate).Days + dateTime.Time.TimeFraction + DayNumberAtEpoch;
+    }
+
     public double CurrentCelestialDay =>
         ((Calendar.CurrentDate - EpochDate).Days + Clock.CurrentTime.TimeFraction).Modulus(CelestialDaysPerYear);
 
@@ -218,6 +229,18 @@ public class PlanetaryMoon : PerceivedItem, ICelestialObject
         return (ra, dec);
     }
 
+    private double EclipticLongitude(double dayNumber)
+    {
+        double v = TrueAnomaly(dayNumber);
+        double wv = v + ArgumentOfPeriapsis;
+
+        double x = Math.Cos(LongitudeOfAscendingNode) * Math.Cos(wv) -
+                   Math.Sin(LongitudeOfAscendingNode) * Math.Sin(wv) * Math.Cos(OrbitalInclination);
+        double y = Math.Sin(LongitudeOfAscendingNode) * Math.Cos(wv) +
+                   Math.Cos(LongitudeOfAscendingNode) * Math.Sin(wv) * Math.Cos(OrbitalInclination);
+        return Math.Atan2(y, x).Modulus(2 * Math.PI);
+    }
+
     public (double X, double Y, double Z) PositionVector(double dayNumber)
     {
         double radius = OrbitalRadius(dayNumber);
@@ -261,6 +284,44 @@ public class PlanetaryMoon : PerceivedItem, ICelestialObject
     public double CurrentElevationAngle(GeographicCoordinate geography)
     {
         return ElevationAngle(CurrentDayNumber, geography);
+    }
+
+    public double EclipticLongitudeAt(MudInstant instant)
+    {
+        return EclipticLongitude(DayNumberAt(instant));
+    }
+
+    public double RightAscensionAt(MudInstant instant)
+    {
+        var (rightAscension, _) = EquatorialCoordinates(DayNumberAt(instant));
+        return rightAscension;
+    }
+
+    public double DeclinationAt(MudInstant instant)
+    {
+        var (_, declination) = EquatorialCoordinates(DayNumberAt(instant));
+        return declination;
+    }
+
+    public double ApparentAltitudeAt(MudInstant instant, GeographicCoordinate observer)
+    {
+        return ElevationAngle(DayNumberAt(instant), observer);
+    }
+
+    public double ApparentAzimuthAt(MudInstant instant, GeographicCoordinate observer)
+    {
+        return AzimuthAngle(DayNumberAt(instant), observer);
+    }
+
+    public double IlluminationAt(MudInstant instant, GeographicCoordinate observer)
+    {
+        return PeakIllumination * (1 + Math.Cos(PhaseAngleAt(instant))) / 2.0;
+    }
+
+    public double PhaseAngleAt(MudInstant instant)
+    {
+        var cycleDay = (DayNumberAt(instant) - DayNumberAtEpoch - FullMoonReferenceDay).Modulus(CelestialDaysPerYear);
+        return 2 * Math.PI * (cycleDay / CelestialDaysPerYear);
     }
 
     public double CurrentAzimuthAngle(GeographicCoordinate geography, double elevationAngle)

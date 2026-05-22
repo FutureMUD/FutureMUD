@@ -3,6 +3,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MudSharp.Celestial;
 using MudSharp.Construction;
+using MudSharp.TimeAndDate;
 using System.Collections.Generic;
 
 namespace MudSharp_Unit_Tests;
@@ -85,6 +86,46 @@ public class CelestialTests
 
         context.SetDateTime("20/mar/2000", 19, 0, 0);
         Assert.AreEqual(TimeOfDay.Night, context.Sun.CurrentTimeOfDay(context.ZeroGeography));
+    }
+
+    [TestMethod]
+    public void AstronomicalEventService_NthNextSunriseAdvances()
+    {
+        CelestialTestContext context = CelestialTestFactory.CreateEarthSystem();
+        context.SetDateTime("1/jan/2000", 12, 0, 0);
+        MudInstant reference = MudInstant.FromLegacyState(context.Calendar, context.Clock);
+
+        Assert.IsTrue(AstronomicalEventService.Instance.TryFindNext(AstronomicalEventType.Sunrise, reference, 1,
+            context.Sun, context.ZeroGeography, out MudInstant first, out string firstError), firstError);
+        Assert.IsTrue(AstronomicalEventService.Instance.TryFindNext(AstronomicalEventType.Sunrise, reference, 2,
+            context.Sun, context.ZeroGeography, out MudInstant second, out string secondError), secondError);
+
+        Assert.IsTrue(second > first);
+        Assert.IsTrue(second.Ticks - first.Ticks > 12 * 60 * 60);
+        Assert.IsFalse(second.ToMudDateTime(context.Calendar, context.Clock).Equals(MudDateTime.Never));
+    }
+
+    [TestMethod]
+    public void AstronomicalEventService_SolarLunarAndVisibleCrescentEventsResolve()
+    {
+        CelestialTestContext context = CelestialTestFactory.CreateEarthSystem();
+        context.SetDateTime("1/jan/2000", 12, 0, 0);
+        MudInstant reference = MudInstant.FromLegacyState(context.Calendar, context.Clock);
+
+        Assert.IsTrue(AstronomicalEventService.Instance.TryFindNext(AstronomicalEventType.SolarLongitude, reference, 1,
+            context.Sun, context.ZeroGeography, out MudInstant solstice, out string solarError, 0.0), solarError);
+        Assert.IsTrue(AstronomicalEventService.Instance.TryFindNext(AstronomicalEventType.NewMoon, reference, 1,
+            context.Moon, context.ZeroGeography, out MudInstant newMoon, out string newMoonError), newMoonError);
+        Assert.IsTrue(AstronomicalEventService.Instance.TryFindNext(AstronomicalEventType.FullMoon, reference, 1,
+            context.Moon, context.ZeroGeography, out MudInstant fullMoon, out string fullMoonError), fullMoonError);
+        Assert.IsTrue(AstronomicalEventService.Instance.TryFindNext(AstronomicalEventType.VisibleCrescent, reference, 1,
+            context.Sun, context.ZeroGeography, out MudInstant crescent, out string crescentError, 0.0,
+            context.Moon), crescentError);
+
+        Assert.IsTrue(solstice > reference);
+        Assert.IsTrue(newMoon > reference);
+        Assert.IsTrue(fullMoon > reference);
+        Assert.IsTrue(crescent > reference);
     }
 
     [TestMethod]

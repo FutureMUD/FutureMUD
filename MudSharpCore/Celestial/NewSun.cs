@@ -24,7 +24,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.Celestial;
 
-public class NewSun : PerceivedItem, ICelestialObject
+public class NewSun : PerceivedItem, ICelestialObject, ISolarEphemeris
 {
     public override string FrameworkItemType => "Celestial";
 
@@ -288,6 +288,17 @@ public class NewSun : PerceivedItem, ICelestialObject
     public double CurrentDayNumber => (Calendar.CurrentDate - EpochDate).Days + Clock.CurrentTime.TimeFraction +
                                       DayNumberAtEpoch + CurrentDayNumberOffset;
 
+    public double DayNumberAt(MudInstant instant)
+    {
+        if (instant.IsNever)
+        {
+            return CurrentDayNumber;
+        }
+
+        var dateTime = instant.ToMudDateTime(Calendar, Clock, Clock.PrimaryTimezone);
+        return (dateTime.Date - EpochDate).Days + dateTime.Time.TimeFraction + DayNumberAtEpoch + CurrentDayNumberOffset;
+    }
+
     public double CelestialDaysPerYear { get; set; }
 
     public event CelestialUpdateHandler MinuteUpdateEvent;
@@ -295,6 +306,42 @@ public class NewSun : PerceivedItem, ICelestialObject
     public double CurrentElevationAngle(GeographicCoordinate geography)
     {
         return Altitude(CurrentDayNumber, geography);
+    }
+
+    public double EclipticLongitudeAt(MudInstant instant)
+    {
+        return EclipticLongitudeOfSun(DayNumberAt(instant));
+    }
+
+    public double RightAscensionAt(MudInstant instant)
+    {
+        return RightAscension(DayNumberAt(instant));
+    }
+
+    public double DeclinationAt(MudInstant instant)
+    {
+        return Declension(DayNumberAt(instant));
+    }
+
+    public double ApparentAltitudeAt(MudInstant instant, GeographicCoordinate observer)
+    {
+        return Altitude(DayNumberAt(instant), observer);
+    }
+
+    public double ApparentAzimuthAt(MudInstant instant, GeographicCoordinate observer)
+    {
+        return Azimuth(DayNumberAt(instant), observer);
+    }
+
+    public double IlluminationAt(MudInstant instant, GeographicCoordinate observer)
+    {
+        var angle = ApparentAltitudeAt(instant, observer);
+        if (double.IsNaN(angle))
+        {
+            return PeakIllumination;
+        }
+
+        return LightLevelParameterE1(angle) + LightLevelParameterE2(angle);
     }
 
     public double CurrentAzimuthAngle(GeographicCoordinate geography, double elevationAngle)

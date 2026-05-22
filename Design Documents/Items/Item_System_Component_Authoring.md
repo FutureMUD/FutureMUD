@@ -99,6 +99,7 @@ For example:
 - a runtime component that implements `IContainer` should have a proto that implements `IContainerPrototype`
 - a runtime component that implements `IWearable` should have a proto that implements `IWearablePrototype`
 - a runtime component that implements `ILiquidContainer` should have a proto that implements `ILiquidContainerPrototype`, which also implies the relevant parent capability markers
+- inherited public component capabilities need markers too; for example `ICorpsePrototype` also advertises `IBodyRemainsPrototype` and `IButcherablePrototype`
 
 These markers let item prototypes catch invalid component combinations before review. Most capability markers are exclusive, because runtime code usually calls `GetItemType<T>()` or `IsItemType<T>()` and expects one authoritative component. Aggregate service markers such as `IConnectablePrototype`, `IConsumePowerPrototype`, `IProducePowerPrototype`, `ISignalSourceComponentPrototype`, `IChangeTraitsInInventoryPrototype`, and grid-connection markers remain composable.
 

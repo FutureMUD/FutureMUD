@@ -2542,8 +2542,15 @@ There is a certain stigma associated with Romanising amongst the more traditiona
 
 Romanised Barbarians adopt Roman names and depending on the era they may be able to achieve some form of citizenship.");
         AddCulture("Unassimilated Gaul", "Gaulish Male", "Gaulish Female", @"");
-        AddCulture("Unassimilated Punic", "Phoenician", @"");
+        AddCulture("Unassimilated Celtic", "Celtic Male", "Celtic Female", @"");
+        AddCulture("Unassimilated Punic", "Punic", @"");
         AddCulture("Unassimilated German", "Germanic Male", "Germanic Female", @"");
+        AddCulture("Unassimilated Etruscan", "Etruscan", @"");
+        AddCulture("Unassimilated Egyptian", "Egyptian", @"");
+        AddCulture("Unassimilated Kushite", "Kushite", @"");
+        AddCulture("Unassimilated Persian", "Ancient Persian", @"");
+        AddCulture("Unassimilated Anatolian", "Anatolian", @"");
+        AddCulture("Unassimilated Scythian-Sarmatian", "Scythian-Sarmatian", @"");
         AddCulture("Hellenic", "Hellenic", @"");
         AddCulture("Syrian", "Hellenic", @"");
         AddCulture("Jewish", "Jewish Male", "Jewish Female", @"");

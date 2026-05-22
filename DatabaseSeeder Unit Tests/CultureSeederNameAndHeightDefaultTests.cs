@@ -13,6 +13,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
+using System.Xml.Linq;
 using DbNameCulture = MudSharp.Models.NameCulture;
 
 namespace MudSharp_Unit_Tests;
@@ -172,6 +174,111 @@ public class CultureSeederNameAndHeightDefaultTests
 		AssertProfileHasWeightedElement(context, "Basque Female", NameUsage.Surname, "Goikoetxea", 6);
 		AssertProfileHasWeightedElement(context, "Albanian Male", NameUsage.Patronym, "Gjergji", 10);
 		AssertProfileHasWeightedElement(context, "Albanian Female", NameUsage.Patronym, "Marke", 10);
+	}
+
+	[TestMethod]
+	public void RomanAntiquityNameSeeder_CoversCatalogueCultureProfiles()
+	{
+		using FuturemudDatabaseContext context = BuildContext();
+		CultureSeeder seeder = new();
+		SetSeederContext(seeder, context);
+
+		InvokePrivate(seeder, "SeedLatinNames", context);
+
+		foreach ((string cultureName, Gender gender) in AntiquityExpectedNameCultureProfiles())
+		{
+			AssertCultureHasReadyCompatibleProfile(context, cultureName, gender);
+		}
+
+		foreach ((string profileName, NameUsage usage, int minimumCount) in AntiquityProfileElementMinimums())
+		{
+			AssertProfileHasMinimumElementCount(context, profileName, usage, minimumCount);
+		}
+
+		AssertProfileHasWeightedElement(context, "Punic Male", NameUsage.BirthName, "Hannibal", 100);
+		AssertProfileHasWeightedElement(context, "Persian Antiquity Female", NameUsage.BirthName, "Atossa", 100);
+		AssertProfileHasWeightedElement(context, "Egyptian Female", NameUsage.BirthName, "Hatshepsut", 100);
+		AssertProfileHasWeightedElement(context, "Kushite Female", NameUsage.BirthName, "Amanirenas", 100);
+		AssertProfileHasWeightedElement(context, "Etruscan Female", NameUsage.BirthName, "Thanchvil", 100);
+		AssertProfileHasWeightedElement(context, "Scythian-Sarmatian Male", NameUsage.BirthName, "Idanthyrsus", 100);
+		AssertProfileDoesNotHaveElement(context, "Germanic Male", NameUsage.BirthName, "Aelfgifu");
+	}
+
+	[TestMethod]
+	public void RomanAntiquityNameSeeder_NameCultureDefinitionsAndProfilesUseValidElements()
+	{
+		using FuturemudDatabaseContext context = BuildContext();
+		CultureSeeder seeder = new();
+		SetSeederContext(seeder, context);
+
+		InvokePrivate(seeder, "SeedLatinNames", context);
+
+		foreach (DbNameCulture culture in context.NameCultures.ToList())
+		{
+			XElement root = XElement.Parse(culture.Definition);
+			HashSet<int> definedUsages = root.Element("Elements")!
+				.Elements("Element")
+				.Select(x => int.Parse(x.Attribute("Usage")!.Value))
+				.ToHashSet();
+
+			foreach (XElement pattern in root.Element("Patterns")!.Elements("Pattern"))
+			{
+				List<int> parameters = pattern.Attribute("Params")!.Value
+					.Split(',', StringSplitOptions.RemoveEmptyEntries)
+					.Select(int.Parse)
+					.ToList();
+				foreach (int parameter in parameters)
+				{
+					Assert.IsTrue(definedUsages.Contains(parameter),
+						$"{culture.Name} pattern {pattern.Attribute("Style")!.Value} references undefined usage {(NameUsage)parameter}.");
+				}
+
+				int highestPlaceholder = Regex.Matches(pattern.Attribute("Text")!.Value, @"\{(\d+)\}")
+					.Select(x => int.Parse(x.Groups[1].Value))
+					.DefaultIfEmpty(-1)
+					.Max();
+				Assert.IsTrue(highestPlaceholder < parameters.Count,
+					$"{culture.Name} pattern {pattern.Attribute("Style")!.Value} has more placeholders than parameters.");
+			}
+
+			string regexText = root.Element("NameEntryRegex")!.Value.Trim();
+			Regex nameRegex = new(regexText);
+			foreach (string groupName in nameRegex.GetGroupNames().Where(x => !int.TryParse(x, out _)))
+			{
+				Assert.IsTrue(Enum.TryParse(groupName, true, out NameUsage usage),
+					$"{culture.Name} regex uses unknown name element group {groupName}.");
+				Assert.IsTrue(definedUsages.Contains((int)usage),
+					$"{culture.Name} regex captures {usage.DescribeEnum()} but does not define that element.");
+			}
+		}
+
+		foreach (MudSharp.Models.RandomNameProfile profile in context.RandomNameProfiles.ToList())
+		{
+			DbNameCulture culture = context.NameCultures.Single(x => x.Id == profile.NameCultureId);
+			HashSet<int> definedUsages = XElement.Parse(culture.Definition)
+				.Element("Elements")!
+				.Elements("Element")
+				.Select(x => int.Parse(x.Attribute("Usage")!.Value))
+				.ToHashSet();
+
+			foreach (RandomNameProfilesDiceExpressions dice in context.RandomNameProfilesDiceExpressions
+				         .Where(x => x.RandomNameProfileId == profile.Id))
+			{
+				Assert.IsTrue(definedUsages.Contains(dice.NameUsage),
+					$"{profile.Name} has dice for undefined {((NameUsage)dice.NameUsage).DescribeEnum()}.");
+				Assert.IsTrue(context.RandomNameProfilesElements.Any(x =>
+						x.RandomNameProfileId == profile.Id &&
+						x.NameUsage == dice.NameUsage),
+					$"{profile.Name} has dice for {((NameUsage)dice.NameUsage).DescribeEnum()} but no elements.");
+			}
+
+			foreach (RandomNameProfilesElements element in context.RandomNameProfilesElements
+				         .Where(x => x.RandomNameProfileId == profile.Id))
+			{
+				Assert.IsTrue(definedUsages.Contains(element.NameUsage),
+					$"{profile.Name} has element {element.Name} for undefined {((NameUsage)element.NameUsage).DescribeEnum()}.");
+			}
+		}
 	}
 
 	[TestMethod]
@@ -399,6 +506,54 @@ public class CultureSeederNameAndHeightDefaultTests
 			.Distinct(StringComparer.OrdinalIgnoreCase);
 	}
 
+	private static IEnumerable<(string CultureName, Gender Gender)> AntiquityExpectedNameCultureProfiles()
+	{
+		yield return ("Roman", Gender.Male);
+		yield return ("Roman", Gender.Female);
+		yield return ("Hellenic", Gender.Male);
+		yield return ("Hellenic", Gender.Female);
+		yield return ("Celtic Male", Gender.Male);
+		yield return ("Celtic Female", Gender.Female);
+		yield return ("Germanic Male", Gender.Male);
+		yield return ("Germanic Female", Gender.Female);
+		yield return ("Punic", Gender.Male);
+		yield return ("Punic", Gender.Female);
+		yield return ("Ancient Persian", Gender.Male);
+		yield return ("Ancient Persian", Gender.Female);
+		yield return ("Egyptian", Gender.Male);
+		yield return ("Egyptian", Gender.Female);
+		yield return ("Etruscan", Gender.Male);
+		yield return ("Etruscan", Gender.Female);
+		yield return ("Anatolian", Gender.Male);
+		yield return ("Anatolian", Gender.Female);
+		yield return ("Scythian-Sarmatian", Gender.Male);
+		yield return ("Scythian-Sarmatian", Gender.Female);
+		yield return ("Kushite", Gender.Male);
+		yield return ("Kushite", Gender.Female);
+	}
+
+	private static IEnumerable<(string ProfileName, NameUsage Usage, int MinimumCount)> AntiquityProfileElementMinimums()
+	{
+		yield return ("Celtic Male", NameUsage.BirthName, 20);
+		yield return ("Celtic Female", NameUsage.BirthName, 20);
+		yield return ("Germanic Male", NameUsage.BirthName, 20);
+		yield return ("Germanic Female", NameUsage.BirthName, 20);
+		yield return ("Punic Male", NameUsage.BirthName, 20);
+		yield return ("Punic Female", NameUsage.BirthName, 20);
+		yield return ("Persian Antiquity Male", NameUsage.BirthName, 20);
+		yield return ("Persian Antiquity Female", NameUsage.BirthName, 15);
+		yield return ("Egyptian Male", NameUsage.BirthName, 20);
+		yield return ("Egyptian Female", NameUsage.BirthName, 20);
+		yield return ("Etruscan Male", NameUsage.BirthName, 12);
+		yield return ("Etruscan Female", NameUsage.BirthName, 12);
+		yield return ("Anatolian Male", NameUsage.BirthName, 20);
+		yield return ("Anatolian Female", NameUsage.BirthName, 15);
+		yield return ("Scythian-Sarmatian Male", NameUsage.BirthName, 15);
+		yield return ("Scythian-Sarmatian Female", NameUsage.BirthName, 10);
+		yield return ("Kushite Male", NameUsage.BirthName, 20);
+		yield return ("Kushite Female", NameUsage.BirthName, 15);
+	}
+
 	private static IReadOnlyDictionary<string, (string Male, string Female)> MedievalExpectedMappings()
 	{
 		return new Dictionary<string, (string Male, string Female)>(StringComparer.OrdinalIgnoreCase)
@@ -547,6 +702,21 @@ public class CultureSeederNameAndHeightDefaultTests
 			$"Expected {profileName} to have at least {surnameMinimum} surnames but found {surnameCount}.");
 	}
 
+	private static void AssertProfileHasMinimumElementCount(
+		FuturemudDatabaseContext context,
+		string profileName,
+		NameUsage usage,
+		int minimumCount)
+	{
+		MudSharp.Models.RandomNameProfile profile = context.RandomNameProfiles.Single(x => x.Name == profileName);
+		int count = context.RandomNameProfilesElements.Count(x =>
+			x.RandomNameProfileId == profile.Id &&
+			x.NameUsage == (int)usage);
+
+		Assert.IsTrue(count >= minimumCount,
+			$"Expected {profileName} to have at least {minimumCount} {usage.DescribeEnum()} elements but found {count}.");
+	}
+
 	private static void AssertProfileHasWeightedElement(
 		FuturemudDatabaseContext context,
 		string profileName,
@@ -563,6 +733,20 @@ public class CultureSeederNameAndHeightDefaultTests
 		Assert.IsNotNull(element, $"Expected {profileName} to seed {usage.DescribeEnum()} element {name}.");
 		Assert.AreEqual(expectedWeight, element.Weighting,
 			$"Expected {profileName} {usage.DescribeEnum()} element {name} to use weighting {expectedWeight}.");
+	}
+
+	private static void AssertProfileDoesNotHaveElement(
+		FuturemudDatabaseContext context,
+		string profileName,
+		NameUsage usage,
+		string name)
+	{
+		MudSharp.Models.RandomNameProfile profile = context.RandomNameProfiles.Single(x => x.Name == profileName);
+		Assert.IsFalse(context.RandomNameProfilesElements.Any(x =>
+				x.RandomNameProfileId == profile.Id &&
+				x.NameUsage == (int)usage &&
+				x.Name == name),
+			$"Did not expect {profileName} to seed {usage.DescribeEnum()} element {name}.");
 	}
 
 	private static string BuildNameCultureDefinition(params (NameUsage Usage, int Minimum, int Maximum)[] elements)

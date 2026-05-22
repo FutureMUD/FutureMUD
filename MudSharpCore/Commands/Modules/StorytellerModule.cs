@@ -2197,7 +2197,7 @@ Note: most often you will want to use the #3TRAITEXPRESSION#0 command to edit th
             // First, check to see if there are any corpses of this character already in the world
             foreach (ICorpse corpseitem in actor.Gameworld.Items.SelectNotNull(x => x.GetItemType<ICorpse>()).ToList())
             {
-                if (corpseitem.OriginalCharacter.Id != value)
+                if (!corpseitem.RepresentsFinalCharacterDeath || corpseitem.OriginalCharacter.Id != value)
                 {
                     continue;
                 }
@@ -2218,6 +2218,12 @@ Note: most often you will want to use the #3TRAITEXPRESSION#0 command to edit th
             if (corpse == null)
             {
                 actor.Send("{0} is not a corpse.", item.HowSeen(actor, true));
+                return;
+            }
+
+            if (!corpse.RepresentsFinalCharacterDeath)
+            {
+                actor.Send("{0} is body remains rather than the final corpse of a dead character.", item.HowSeen(actor, true));
                 return;
             }
 

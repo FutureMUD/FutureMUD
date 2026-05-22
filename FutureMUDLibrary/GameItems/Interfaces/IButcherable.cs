@@ -1,5 +1,6 @@
 ﻿using MudSharp.Body;
 using MudSharp.Character;
+using MudSharp.Character.Heritage;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,6 +12,7 @@ namespace MudSharp.GameItems.Interfaces
     public interface IButcherable : IGameItemComponent
     {
         ICharacter OriginalCharacter { get; }
+        IRace OriginalRace { get; }
         long OriginalBodyId { get; }
         IBody OriginalBody { get; }
         DecayState Decay { get; }

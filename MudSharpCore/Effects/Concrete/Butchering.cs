@@ -57,7 +57,7 @@ public class Butchering : StagedCharacterActionWithTarget, IAffectProximity
 
     public ICharacter Butcher { get; set; }
     public IButcherable Butcherable { get; set; }
-    public IRaceButcheryProfile Profile => Butcherable.OriginalCharacter.Race.ButcheryProfile;
+    public IRaceButcheryProfile Profile => Butcherable.OriginalRace.ButcheryProfile;
     public IGameItem Tool { get; set; }
     public string Subcategory { get; set; }
 
@@ -194,7 +194,7 @@ public class Butchering : StagedCharacterActionWithTarget, IAffectProximity
     {
         if (target is IRace race)
         {
-            return Butcherable.OriginalCharacter.Race == race;
+            return Butcherable.OriginalRace == race;
         }
 
         return base.Applies(target);

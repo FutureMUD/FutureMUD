@@ -44,6 +44,11 @@ public static class MorgueService
             return null;
         }
 
+        if (!corpse.RepresentsFinalCharacterDeath)
+        {
+            return null;
+        }
+
         IEstate estate = EnsureEstate(zone, corpse.OriginalCharacter);
 
         corpseItem.ContainedIn?.Take(corpseItem);

@@ -142,6 +142,11 @@ public class ResurrectionEffect : IMagicSpellEffectTemplate
             return null;
         }
 
+        if (!corpse.RepresentsFinalCharacterDeath)
+        {
+            return null;
+        }
+
         if (HealWounds)
         {
             corpse.Body.CureAllWounds();

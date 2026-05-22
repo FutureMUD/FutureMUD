@@ -441,6 +441,12 @@ The syntax for this command is as follows:
             return;
         }
 
+        if (!corpse.RepresentsFinalCharacterDeath)
+        {
+            actor.OutputHandler.Send("Those are body remains rather than the final corpse of a dead character, and cannot be reported to the morgue.");
+            return;
+        }
+
         ICell sourceCell = corpseItem.Location ?? corpseItem.TrueLocations.FirstOrDefault();
         if (sourceCell == null)
         {

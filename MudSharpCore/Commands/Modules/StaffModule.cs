@@ -1073,33 +1073,15 @@ The syntax is simply #3testansi#0.", AutoHelp.HelpArg)]
             return;
         }
 
-        IPerceivable target = actor.Target(ss.PopSpeech());
+        BodyTargetResult target = actor.TargetActorOrCorpseBody(ss.PopSpeech());
         if (target == null)
         {
             actor.Send("There is nobody like that to sober up.");
             return;
         }
 
-        if (target is not ICharacter targetCharacter)
-        {
-            if (target is not IGameItem targetItem)
-            {
-                actor.Send("You can only sober up living characters or corpses.");
-                return;
-            }
-
-            ICorpse targetCorpse = targetItem.GetItemType<ICorpse>();
-            if (targetCorpse == null)
-            {
-                actor.Send("You can only sober up living characters or corpses.");
-                return;
-            }
-
-            targetCharacter = targetCorpse.OriginalCharacter;
-        }
-
-        targetCharacter.Body.Sober();
-        actor.OutputHandler.Handle(new EmoteOutput(new Emote("@ sober|sobers up $0.", actor, targetCharacter)));
+        target.Body.Sober();
+        actor.OutputHandler.Handle(new EmoteOutput(new Emote("@ sober|sobers up $0.", actor, target.Perceivable)));
     }
 
     [PlayerCommand("Effect", "effect")]

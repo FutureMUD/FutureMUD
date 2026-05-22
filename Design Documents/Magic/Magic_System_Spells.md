@@ -416,6 +416,8 @@ The `transformform` builder effect currently supports:
 - `priorityband <merit|drug|spell|admin>`
 - `priorityoffset <number>`
 
+The `bodybackup` builder effect uses the same stable form provisioning idea for clone or sleeve magic, but it does not force a transformation while active. It readies the keyed form at the recipient's current cell and room layer as a non-permanent death-transfer target. Builders can configure the provisioned race/ethnicity/gender/alias/sort order, backup priority, non-final old-body remains context, whether the backup is consumed on use, and old-location, new-location, and self echoes.
+
 ### Engine V2 dispels, portals, item enchantments, and recipes
 Engine V2 adds a deeper parity layer without introducing true simultaneous-body possession or projection.
 
@@ -594,6 +596,7 @@ The V4 spell-side catalogue adds 2 tag-aware ward tokens: `roomtagward` and `per
 | --- | --- | --- |
 | `blindness` | `BlindnessEffect` | Applies blindness |
 | `boost` | `TraitBoostEffect` | Boosts a trait |
+| `bodybackup` | `BodyBackupSpellEffect` | Ensures or reuses a keyed alternate body form and readies it as a death backup with configurable non-final remains context and transfer echoes |
 | `changecharacteristic` | `ChangeCharacteristicEffect` | Changes a characteristic |
 | `comprehendlanguage` | `ComprehendLanguageEffect` | Grants broad spoken and written language comprehension without overriding literacy or script limits |
 | `createitem` | `CreateItemEffect` | Creates an item |

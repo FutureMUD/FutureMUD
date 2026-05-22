@@ -4,7 +4,9 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using MudSharp.Body;
 using MudSharp.Character;
+using MudSharp.Effects.Concrete;
 using MudSharp.FutureProg;
+using MudSharp.GameItems.Interfaces;
 using MudSharp.Magic;
 using MudSharp.RPG.Merits;
 using System.Linq;
@@ -93,6 +95,38 @@ public class BodyFormProvisioningTests
 	}
 
 	[TestMethod]
+	public void SpellEffectFactory_RegistersBodyBackupEffect()
+	{
+		Assert.IsTrue(SpellEffectFactory.MagicEffectTypes.Contains("bodybackup"));
+		var info = SpellEffectFactory.BuilderInfoForType("bodybackup");
+		Assert.IsTrue(info.BuilderHelp.Contains("formkey"));
+		Assert.IsTrue(info.BuilderHelp.Contains("remains"));
+		Assert.IsTrue(info.BuilderHelp.Contains("oldecho"));
+		Assert.IsTrue(info.BuilderHelp.Contains("newecho"));
+		Assert.IsTrue(info.BuilderHelp.Contains("selfecho"));
+		Assert.IsTrue(info.MatchingTriggers.Any());
+	}
+
+	[TestMethod]
+	public void BodyBackupEffect_ParsesContextsAndNormalisesEchoes()
+	{
+		Assert.IsTrue(BodyBackupEffect.TryParseRemainsContext("spent clone", out var context));
+		Assert.AreEqual(BodyRemainsContext.SpentClone, context);
+		Assert.IsFalse(BodyBackupEffect.TryParseBackupRemainsContext("final death", out context));
+		Assert.AreEqual(BodyRemainsContext.SleeveDeath, context);
+		Assert.AreEqual(BodyRemainsContext.SleeveDeath,
+			BodyBackupEffect.NormaliseBackupRemainsContext(BodyRemainsContext.FinalCharacterDeath));
+		Assert.AreEqual(BodyBackupEffect.DefaultSelfEcho,
+			BodyBackupEffect.NormaliseEcho("default", BodyBackupEffect.DefaultSelfEcho));
+		Assert.AreEqual(string.Empty,
+			BodyBackupEffect.NormaliseEcho("none", BodyBackupEffect.DefaultSelfEcho));
+		Assert.AreEqual(BodyBackupEffect.DefaultNoRemainsOldLocationEcho,
+			BodyBackupEffect.OldLocationEchoForRemains(BodyBackupEffect.DefaultOldLocationEcho, false));
+		Assert.AreEqual("custom $1",
+			BodyBackupEffect.OldLocationEchoForRemains("custom $1", false));
+	}
+
+	[TestMethod]
 	public void MeritFactory_RegistersAdditionalBodyFormMerit()
 	{
 		MeritFactory.InitialiseMerits();
@@ -135,5 +169,8 @@ public class BodyFormProvisioningTests
 		Assert.AreEqual(2, infos.Count(x => x.FunctionName == "clearformcanswitchprog"));
 		Assert.AreEqual(4, infos.Count(x => x.FunctionName == "setformwhycantprog"));
 		Assert.AreEqual(2, infos.Count(x => x.FunctionName == "clearformwhycantprog"));
+		Assert.AreEqual(8, infos.Count(x => x.FunctionName == "readybodybackup"));
+		Assert.AreEqual(3, infos.Count(x => x.FunctionName == "clearbodybackup"));
+		Assert.AreEqual(3, infos.Count(x => x.FunctionName == "hasbodybackup"));
 	}
 }

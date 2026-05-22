@@ -47,6 +47,11 @@ public partial class Character
             return null;
         }
 
+        if (TryTransferToBodyBackupOnDeath(out IGameItem backupRemains))
+        {
+            return backupRemains;
+        }
+
         IBoard deathBoard = Gameworld.Boards.Get(Gameworld.GetStaticLong("DeathsBoardId"));
         if (deathBoard != null)
         {

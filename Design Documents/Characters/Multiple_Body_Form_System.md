@@ -106,11 +106,44 @@ The current implementation adds or uses these main persistence concepts:
 | `Bodies` | Physical body records, including per-body handedness and description pattern ids. |
 | `CharacterTraits` | Character-scoped skill trait storage. |
 | `TraitDefinitions.OwnerScope` | Distinguishes character-scoped skills from body-scoped attributes. |
-| Effect XML | Stores active spell transform body ids and forced transformation baselines. |
+| Effect XML | Stores active spell transform body ids, forced transformation baselines, and ready body backups. |
 
 Skills, derived skills, and theoretical skills are character-scoped. Attributes and derived attributes remain body-scoped. This lets a wolf form have different strength or agility without erasing the character's language, weapon, craft, or knowledge skills.
 
 Corpses and severed-part style systems snapshot or retain the source body identity rather than resolving anatomy through the character's current form later. This prevents butchery, surgery, and remains descriptions from changing because the character transformed after the corpse or bodypart item was created.
+
+### Body Remains and Corpses
+
+Corpse items now distinguish final character death from other body-remains contexts. A corpse is treated as the remains of a specific body, with the original character kept as provenance. `OriginalBody` is the authoritative physical identity for wounds, organs, implants, inventory, bodypart state, weight, butchery products, and corpse descriptions. `OriginalCharacter` identifies who the body belonged to and remains the legacy route for final-death resurrection, estate, morgue, and death-record workflows.
+
+The shipped remains contexts are:
+
+| Context | Meaning |
+| --- | --- |
+| `FinalCharacterDeath` | The existing permadeath corpse path. The character is dead, the corpse may be used for legacy resurrection, estates, morgue storage, and final-death cleanup. |
+| `AbandonedBody` | A body was left behind without being the final death of the character. This is the default helper for future shell, sleeve, or remote-presence work. |
+| `SleeveDeath` | Reserved for a body killed during a sleeve or clone death-transfer flow. |
+| `SpentClone` | Reserved for clone bodies or failed vessels that remain physically meaningful but are not a dead character. |
+| `Other` | Fallback for game-specific remains contexts. |
+
+Legacy targeting that asks for an actor-or-corpse only resolves final-death corpses back to their original character. Body-specific command paths should use the body-target helper and operate on the corpse's body instead. This avoids the sleeve bug where a command targets an old corpse but accidentally mutates the surviving character's new current body.
+
+Butchery and skinning use the original body's race and butchery profile. This matters for transformation and sleeve stories where the surviving character's current race or body may differ from the remains in the room.
+
+### Body Backups and Non-Permanent Death Transfer
+
+Ready death-transfer bodies are represented by `IBodyBackupEffect`. A backup points at one owned inactive form body, a destination cell and layer, a priority, a non-final remains context for the dying body, and three optional echoes: the old-body location echo, the new-body location echo, and the private self echo. Multiple backups may be ready at once; the highest-priority applicable backup wins, with newer effects breaking ties.
+
+Two authoring paths are currently supported:
+
+- Prog content can use `ReadyBodyBackup` to mark an existing form as a death backup, `ClearBodyBackup` to remove prog-created backups, and `HasBodyBackup` to inspect both prog and spell backups.
+- Magic content can use the `bodybackup` spell effect, which ensures or reuses a keyed spell-owned form and readies it at the target's current location and room layer for the spell duration.
+
+The transfer hook runs at the start of `Character.Die()`, before permanent-death side effects such as death-board posts, estate creation, morgue/legal recovery, final character corpse assignment, dead state persistence, and world-cache destruction. If a usable backup exists, the old body is killed, converted into non-final remains with the configured `BodyRemainsContext`, left in the old room, and retired from the character's form list. Backup authoring rejects `FinalCharacterDeath`, and the runtime defensively normalises any old saved backup with that value to `SleeveDeath`. The character then becomes active in the backup body at the recorded destination, the backup effect is consumed if configured, and `CurrentBodyChanged` is fired.
+
+This is still a one-active-body system. The old body remains in world as a corpse/remains item when the dying body's race produces corpses, but it is no longer a controllable form and does not keep character heartbeats, command routing, or perception routing alive. If the race produces no corpse item, the retired body is immediately eligible for cleanup after the transfer. True simultaneous bodies, projection, possession, and vulnerability routing remain future work.
+
+Retired body cleanup is reference-driven. Deleting non-final remains asks the original character to reclaim the old body, but the body is only deleted if it is not the current body, no longer appears in the character's runtime forms or sources, is not targeted by an active body backup, and no other loaded corpse or severed bodypart still points at the same `OriginalBodyId`. Corpse deletion and severed-part deletion both use this path, so a butchered sleeve is retained while any physical trace remains and is reclaimed once the last trace is gone.
 
 ### Loading and Compatibility
 
@@ -234,6 +267,8 @@ The spell effect ensures or reuses a keyed form and contributes a forced transfo
 
 Spell builders can configure the same first-creation form metadata as merits, plus a stable `FormKey`, priority band, and priority offset. Repeated casts of the same spell and key reuse the same body.
 
+The `bodybackup` spell effect is implemented by [BodyBackupSpellEffect.cs](../../MudSharpCore/Magic/SpellEffects/BodyBackupSpellEffect.cs) and its active runtime effect [SpellBodyBackupEffect.cs](../../MudSharpCore/Effects/Concrete/SpellEffects/SpellBodyBackupEffect.cs). It uses the same keyed provisioning model but does not force a transformation while active. Instead, it readies the form as a backup for non-permanent death transfer.
+
 ### Forced Transformation Resolution
 
 Mandatory transformations are resolved in [CharacterForcedTransformations.cs](../../MudSharpCore/Character/CharacterForcedTransformations.cs).
@@ -289,6 +324,9 @@ Provisioning and metadata functions:
 | `SetFormWhyCantProg` / `ClearFormWhyCantProg` | Edit voluntary denial text. |
 | `SetFormShortDescriptionPattern` / `RandomiseFormShortDescriptionPattern` / `ClearFormShortDescriptionPattern` | Edit short description pattern. |
 | `SetFormFullDescriptionPattern` / `RandomiseFormFullDescriptionPattern` / `ClearFormFullDescriptionPattern` | Edit full description pattern. |
+| `ReadyBodyBackup(character, form, location[, priority[, remainsContext[, oldEcho, newEcho, selfEcho]]])` | Marks an inactive form as a death backup at a spawn location. |
+| `ClearBodyBackup(character[, form])` | Clears prog-created body backups. |
+| `HasBodyBackup(character[, form])` | Checks whether any applicable prog or spell backup exists. |
 
 ## Supported User Stories
 
@@ -315,6 +353,10 @@ A werewolf merit has an applicability prog that is true during the full moon and
 ### A Spell Temporarily Overrides Another Form
 
 A character is currently forced into a wolf-man form by a merit. A spell with a higher priority band or offset applies `transformform` into a sheep. The forced resolver picks the higher-priority spell demand. When the spell expires, the resolver re-evaluates and returns the character to the still-applicable wolf-man form, or to baseline if no forced demands remain.
+
+### A Clone or Sleeve Takes Over on Death
+
+A prog or spell readies an inactive backup form in a facility cell. When the active body dies, `Character.Die()` selects the best applicable backup before permanent-death processing. The old body becomes configured body remains in the death location, nearby observers see the old-body echo, the character awakens in the backup body at the recorded destination, and the player receives the configured self echo.
 
 ### Organic and Inorganic Forms Do Not Corrupt Each Other
 
@@ -345,6 +387,7 @@ Owned forms, form metadata, source mappings, character-scoped skills, body-scope
 - Only one body is active at a time.
 - Inactive bodies do not occupy rooms, perceive, act, fight, or receive independent effects.
 - Remote vessel jumping, astral projection with a shell left behind, and ghost bodies that coexist with corpses are not implemented.
+- Non-final body remains can exist as corpse items, but body-remains surgery and full reactivation of an abandoned body are not yet implemented.
 - Source mappings find cached bodies; they do not continuously sync form metadata from the source definition.
 - Hidden forms are hidden only from owner-facing player resolution. Scripts, admin commands, and forced transform resolution can still see all owned forms.
 - Drug and chemical transformation priority is modelled, but a dedicated first-class drug transformation demand source is not yet implemented.

@@ -269,6 +269,8 @@ public class BodypartGameItemComponent : GameItemComponent, ISeveredBodypart, IL
 
     public override void Delete()
     {
+        ICharacter originalCharacter = OriginalCharacter;
+        IBody originalBody = OriginalBody;
         base.Delete();
         foreach (IGameItem item in Contents.ToList())
         {
@@ -291,6 +293,7 @@ public class BodypartGameItemComponent : GameItemComponent, ISeveredBodypart, IL
 
         _tattoos.Clear();
         Gameworld.HeartbeatManager.MinuteHeartbeat -= HeartbeatManagerOnMinuteHeartbeat;
+        originalCharacter.TryCleanupRetiredBody(originalBody, Parent);
     }
 
     public override void Quit()
@@ -625,6 +628,8 @@ public class BodypartGameItemComponent : GameItemComponent, ISeveredBodypart, IL
 
     public long OriginalBodyId => _originalBodyId;
 
+    public MudSharp.Character.Heritage.IRace OriginalRace => OriginalBody.Race;
+
     public IBody OriginalBody
     {
         get
@@ -725,7 +730,7 @@ public class BodypartGameItemComponent : GameItemComponent, ISeveredBodypart, IL
         ICheck check = Gameworld.GetCheck(CheckType.ButcheryCheck);
         Butchering effect = butcher.EffectsOfType<Butchering>().First();
 
-        foreach (IButcheryProduct product in OriginalCharacter.Race.ButcheryProfile.Products.Where(x =>
+        foreach (IButcheryProduct product in OriginalRace.ButcheryProfile.Products.Where(x =>
                      !x.IsPelt && x.AppliesTo(this) && x.CanProduce(butcher, Parent) &&
                      x.MatchesButcherySubcategory(subcategory, ButcheredSubcategories)))
         {

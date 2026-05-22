@@ -1468,7 +1468,7 @@ Note: See the closely related #3projects#0 command for information about your cu
         }
 
         IButcherable targetAsButcherable = target.GetItemType<IButcherable>();
-        if (targetAsButcherable?.OriginalCharacter?.Race.ButcheryProfile == null)
+        if (targetAsButcherable?.OriginalRace?.ButcheryProfile == null)
         {
             actor.Send($"{target.HowSeen(actor, true)} is not something that can be butchered.");
             return;
@@ -1480,7 +1480,7 @@ Note: See the closely related #3projects#0 command for information about your cu
             return;
         }
 
-        IRaceButcheryProfile profile = targetAsButcherable.OriginalCharacter.Race.ButcheryProfile;
+        IRaceButcheryProfile profile = targetAsButcherable.OriginalRace.ButcheryProfile;
         if (profile.Verb != ButcheryVerb.Butcher)
         {
             actor.Send($"{target.HowSeen(actor, true)} is not something that can be butchered, but rather salvaged.");
@@ -1559,7 +1559,7 @@ Note: See the closely related #3projects#0 command for information about your cu
         }
 
         IButcherable targetAsButcherable = target.GetItemType<IButcherable>();
-        if (targetAsButcherable?.OriginalCharacter?.Race.ButcheryProfile == null)
+        if (targetAsButcherable?.OriginalRace?.ButcheryProfile == null)
         {
             actor.Send($"{target.HowSeen(actor, true)} is not something that can be salvaged.");
             return;
@@ -1571,7 +1571,7 @@ Note: See the closely related #3projects#0 command for information about your cu
             return;
         }
 
-        IRaceButcheryProfile profile = targetAsButcherable.OriginalCharacter.Race.ButcheryProfile;
+        IRaceButcheryProfile profile = targetAsButcherable.OriginalRace.ButcheryProfile;
         if (profile.Verb != ButcheryVerb.Salvage)
         {
             actor.Send(
@@ -1651,7 +1651,7 @@ Note: See the closely related #3projects#0 command for information about your cu
         }
 
         IButcherable targetAsButcherable = target.GetItemType<IButcherable>();
-        if (targetAsButcherable?.OriginalCharacter?.Race.ButcheryProfile == null)
+        if (targetAsButcherable?.OriginalRace?.ButcheryProfile == null)
         {
             actor.Send($"{target.HowSeen(actor, true)} is not something that can be skinned.");
             return;
@@ -1669,7 +1669,7 @@ Note: See the closely related #3projects#0 command for information about your cu
             return;
         }
 
-        IRaceButcheryProfile profile = targetAsButcherable.OriginalCharacter.Race.ButcheryProfile;
+        IRaceButcheryProfile profile = targetAsButcherable.OriginalRace.ButcheryProfile;
         if (!profile.Products.Where(x => x.IsPelt && x.AppliesTo(targetAsButcherable)).Any(x => x.CanProduce(actor, target)))
         {
             actor.Send($"{target.HowSeen(actor, true)} does not have a pelt that you can remove intact.");

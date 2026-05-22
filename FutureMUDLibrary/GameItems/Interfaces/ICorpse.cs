@@ -3,6 +3,15 @@ using System;
 
 namespace MudSharp.GameItems.Interfaces
 {
+	public enum BodyRemainsContext
+	{
+		FinalCharacterDeath = 0,
+		AbandonedBody = 1,
+		SleeveDeath = 2,
+		SpentClone = 3,
+		Other = 99
+	}
+
     public enum DecayState
     {
         Fresh,
@@ -13,7 +22,13 @@ namespace MudSharp.GameItems.Interfaces
         Skeletal
     }
 
-    public interface ICorpse : IButcherable, IOverrideItemWoundBehaviour, IHaveABody
+	public interface IBodyRemains : IButcherable, IOverrideItemWoundBehaviour, IHaveABody
+	{
+		BodyRemainsContext RemainsContext { get; set; }
+		bool RepresentsFinalCharacterDeath { get; }
+	}
+
+    public interface ICorpse : IBodyRemains
     {
         double DecayPoints { get; set; }
 

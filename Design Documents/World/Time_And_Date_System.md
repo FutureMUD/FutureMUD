@@ -184,6 +184,46 @@ The first weekday of a year is computed from:
 
 This is what allows calendars with five-day, six-day, eight-day, or other custom week lengths to work correctly.
 
+## MudInstant And Calendar Algorithms
+`MudInstant` is the absolute mud-time value used when a caller needs an ordered, storage-safe instant rather than a calendar-relative string. It stores a versioned epoch plus clock-second ticks from the owning calendar's epoch year and round-trips as:
+
+```text
+mudinstant:v1:<ticks>
+```
+
+`MudInstant.FromLegacyState(calendar, clock)` back-calculates the current absolute instant from an existing calendar's current date and feed clock time. This is the boot/backfill path for existing worlds: no database migration or seeder rerun is required, and old `MudDate`, `MudTime`, `MudDateTime`, recurring intervals, and stored strings remain authoritative. `MudInstant.ToMudDateTime(calendar, clock, timezone)` projects an instant back through the selected calendar algorithm and clock.
+
+Calendar XML now has optional algorithm and day-boundary metadata:
+
+```xml
+<algorithm type="fixed-months" />
+<dayboundary type="ClockMidnight" />
+```
+
+Missing `algorithm` or `dayboundary` elements preserve the legacy behavior: fixed authored months/intercalaries and clock-midnight day starts. The runtime currently supports these algorithm types:
+
+- `fixed-months`: legacy authored month and intercalary rules
+- `tabular-lunar`: alternating 30/29 day lunar months with a deterministic 30-year leap-day cycle
+- `calculated-hebrew`: calculated Hebrew month generation with Metonic leap years, postponement-derived year lengths, Heshvan/Kislev variation, and Adar I/II handling
+- `solar-equinox`: deterministic solar/equinox approximation, including Old Persian/Zoroastrian-style epagomenal days
+- `astronomical-lunar`: deterministic mean-lunation calendars, including Hijri-style and Babylonian regulated variants
+- `east-asian-lunisolar`: deterministic East Asian lunisolar approximation with mean new moons and a predictable leap-month placement rule
+
+The algorithm object owns generated-year shape. Calendar metadata still owns display masks, aliases, eras, weekdays, authored month names, and builder presentation.
+
+### Day Boundaries And Authority Locations
+Calendar day starts are separately configured through `CalendarDayBoundaryType`.
+
+Supported boundary types are:
+
+- `ClockMidnight`
+- `FixedClockTime`
+- `SunsetAtAuthorityLocation`
+- `SunriseAtAuthorityLocation`
+- `AstronomicalEvent`
+
+Legacy calendars default to `ClockMidnight`. Sunrise and sunset boundaries use the calendar's authority location and the first available solar ephemeris when present; otherwise they fall back to clock midnight so old worlds keep booting. Authority locations are stored as `GeographicCoordinate` values in calendar XML and can be inspected or edited by builders.
+
 ## Months, Intercalaries, And Weekdays
 `MonthDefinition` is the authored month template. `Month` is the generated month for a specific year.
 
@@ -396,6 +436,7 @@ FutureProg exposes three related date/time surfaces:
 - `calendar`
 - `clock`
 - `timezone`
+- `mudinstant`
 
 Important built-in Date/Time functions include:
 
@@ -408,6 +449,17 @@ Important built-in Date/Time functions include:
 - `between(...)` for `TimeSpan`, `DateTime`, and `MudDateTime`
 - arithmetic operators for date/time plus or minus spans
 - `GameSecondsPerRealSeconds(clock)` for clock speed introspection
+
+Celestial event FutureProg functions return `MudDateTime` values projected from `MudInstant` event searches:
+
+- `nextsunrise(location|zone, celestialId, calendar[, occurrence])`
+- `nextsunset(location|zone, celestialId, calendar[, occurrence])`
+- `nextsolarlongitude(location|zone, celestialId, calendar, longitudeDegrees[, occurrence])`
+- `nextnewmoon(location|zone, moonId, calendar[, occurrence])`
+- `nextfullmoon(location|zone, moonId, calendar[, occurrence])`
+- `nextvisiblecrescent(location|zone, sunId, moonId, calendar[, occurrence])`
+
+The optional `occurrence` parameter is the nth next matching event. These functions return `MudDateTime.Never` when the zone, calendar, celestial ephemeris, or bounded event search cannot produce a deterministic result.
 
 FutureProg schedules persist a recurrence, a reference `MudDateTime`, and the target FutureProg. On load, a schedule advances the persisted reference to the next future occurrence and creates an in-memory listener. When the listener fires, the schedule executes the FutureProg, computes the next reference time, creates the next listener, and marks itself changed.
 
@@ -440,7 +492,19 @@ Clock editing supports metadata, display masks, clock units, in-game speed, fixe
 
 Time-zone editing supports name/alias, description, and offset hours/minutes. Existing time zones cannot be moved between clocks; builders should clone to the target clock instead.
 
-Calendar editing supports metadata, display masks, feed clock, current date, epoch year and first weekday, era display text, weekday and month editing, normal special/non-weekday days, intercalary days/months, generated-year preview, and validation. Structural edits clear generated-year caches, normalize the current date, and mark the calendar changed.
+Calendar editing supports metadata, display masks, feed clock, current date, epoch year and first weekday, era display text, weekday and month editing, normal special/non-weekday days, intercalary days/months, generated-year preview, validation, algorithm selection, day-boundary selection, and authority-location editing. Structural edits clear generated-year caches, normalize the current date, and mark the calendar changed.
+
+Admin time displays now expose the current `MudInstant`, calendar algorithm type, day-boundary type, authority location when set, and celestial ephemeris support. Admins can preview deterministic astronomical events with:
+
+```text
+time instant
+time event sunrise <sun> [occurrence]
+time event sunset <sun> [occurrence]
+time event solarlongitude <sun> <degrees> [occurrence]
+time event newmoon <moon> [occurrence]
+time event fullmoon <moon> [occurrence]
+time event visiblecrescent <sun> <moon> [occurrence]
+```
 
 Builders changing live calendars or clocks should preview and validate before closing the edit session, then watch for Discord fallback notifications after reboot/load cycles. Those notifications identify affected saved objects so humans can repair data that was made invalid by the definition change.
 
@@ -455,6 +519,21 @@ It asks for:
 - additional package-specific choices, such as Middle-earth age selection
 
 The seeder includes stock calendars such as Gregorian, Julian, Roman, Tranquility, French Republican, Mission, Seasonal 360, and several Tolkien-inspired calendars.
+
+It also includes deterministic astronomical and historical approximation packages:
+
+- Islamic Hijri
+- Hebrew
+- Old Persian
+- Babylonian
+- Chinese Minguo
+- Chinese lunisolar
+- Korean modern/Dangi
+- Korean lunisolar
+- Japanese modern/Koki
+- Japanese lunisolar
+
+Those packages use Latin1-safe romanised aliases and descriptions. The lunisolar and historical packages are deterministic approximations for engine repeatability; they do not implement manual observation ledgers, local weather-dependent official decisions, or historically variable human authority rulings.
 
 The seeder is repair-capable for canonical stock time data. Other seeders rely on at least one clock and calendar being present.
 
@@ -490,6 +569,9 @@ These are important rules to preserve when changing the system:
 - Persistent scheduling should store recurrence/reference data and recreate listeners rather than expecting listeners themselves to persist.
 - Stored-value fallback helpers must be used for persisted round-trip strings that may have been invalidated by builder edits.
 - Fallback reporting must be no-throw; bad telemetry should never prevent the owning object from loading.
+- Missing calendar algorithm/day-boundary XML must continue to load as fixed-month, clock-midnight calendars.
+- `MudInstant` must remain additive over existing calendar/clock state; existing persisted mud date/time strings stay valid and are not replaced in-place.
+- Calculated and astronomical calendar algorithms must produce deterministic generated years from authored metadata without storing generated years or observation ledgers.
 
 ## Test Coverage
 The normal unit-test suites now include focused coverage for:
@@ -499,8 +581,13 @@ The normal unit-test suites now include focused coverage for:
 - recurring interval parsing, descriptions, round-trip text, forward/backward search, high ordinal weekdays, exact-month skipping, and "or last" fallback
 - runtime listeners, interval extension helpers, and FutureProg date/time helper functions
 - clock, time-zone, and calendar builder command paths for high-value edits
+- `MudInstant` storage, ordering, conversion, and legacy backfill
+- legacy calendar XML loading without an algorithm element
+- fixed, calculated, and astronomical calendar algorithm generation
+- astronomical event solver nth-next behavior and supported solar/lunar/visible-crescent events
+- FutureProg celestial event function registration with nth-next overloads
 - stored-value fallback behavior and Discord admin notification payloads
-- every seeded clock/calendar package produced by `TimeSeeder`, including runtime loading and idempotent reruns
+- every seeded clock/calendar package produced by `TimeSeeder`, including runtime loading and idempotent reruns for the new astronomical/historical modes
 
 ## Current Limitations
 The system is flexible, but there are areas where current support is incomplete or intentionally narrow:
@@ -512,6 +599,8 @@ The system is flexible, but there are areas where current support is incomplete 
 - cross-calendar conversion is based on each calendar's current date anchor, which is useful for live worlds but should be treated carefully for historical absolute chronology
 - `MudTimeSpan` month and year components are calendar-like approximations until applied to a concrete `MudDateTime`
 - major structural edits rely on fallback notification and human repair rather than a bulk migration wizard
+- astronomical calendars currently use deterministic approximations rather than observational or jurisdiction-specific historical calendars
+- visible crescent detection is geometric and deterministic; it deliberately ignores manual sightings and weather
 
 ## Future Work
 Useful extensions include:

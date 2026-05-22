@@ -41,6 +41,20 @@ The runtime flow is:
 
 `PositionVector(dayNumber)` returns a physical vector using the authored orbital semi-major axis and eccentricity so linked moon-view transforms can work with relative positions rather than unit directions.
 
+## Arbitrary-Instant Ephemeris
+`PlanetaryMoon` implements `ILunarEphemeris` for deterministic calculations at an arbitrary `MudInstant`.
+
+The arbitrary-instant surface exposes:
+
+- ecliptic longitude
+- right ascension
+- declination
+- apparent altitude and azimuth
+- illumination
+- phase angle
+
+This is the lunar input used by astronomical event searches for new moon, full moon, visible crescent approximation, `time event` previews, and FutureProg event functions.
+
 ## Phase Naming
 The phase cycle is anchored at `FullMoonReferenceDay`.
 

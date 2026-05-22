@@ -1290,7 +1290,8 @@ public class ShowModule : Module<ICharacter>
                 calendar.Alias,
                 calendar.FullName,
                 calendar.FeedClock.Alias,
-                calendar.CurrentDate.Display(CalendarDisplayMode.Short)
+                calendar.CurrentDate.Display(CalendarDisplayMode.Short),
+                calendar.Algorithm.DisplayName
             },
             new List<string>
             {
@@ -1298,7 +1299,8 @@ public class ShowModule : Module<ICharacter>
                 "Alias",
                 "Name",
                 "Clock",
-                "Current Date"
+                "Current Date",
+                "Algorithm"
             },
             actor,
             Telnet.Green

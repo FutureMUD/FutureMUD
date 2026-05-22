@@ -35,6 +35,19 @@ The runtime flow is:
 
 `PositionVector(dayNumber)` returns a physical observer-frame vector using the configured orbital radius, not just a unit direction. That vector is used by `SunFromPlanetaryMoon`.
 
+## Arbitrary-Instant Ephemeris
+`NewSun` implements `ISolarEphemeris` for deterministic calculations at an arbitrary `MudInstant`.
+
+The arbitrary-instant surface exposes:
+
+- ecliptic longitude
+- right ascension
+- declination
+- apparent altitude and azimuth
+- illumination
+
+This is the solar input used by calendar day-boundary searches, `time event` previews, and FutureProg functions such as `nextsunrise`, `nextsunset`, and `nextsolarlongitude`.
+
 ## Time of Day
 `CurrentTimeOfDay(...)` is gameplay-facing and uses:
 

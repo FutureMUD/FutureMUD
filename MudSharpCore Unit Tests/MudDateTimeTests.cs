@@ -181,6 +181,177 @@ public class MudDateTimeTests
         Assert.IsFalse(calendar.BuildingCommand(actor.Object, new StringStack("preview 34")));
     }
 
+    [TestMethod]
+    public void CalendarBuilder_CanEditAstronomicalMetadata()
+    {
+        var actor = CreateBuilder();
+        var calendar = new Calendar(XElement.Parse(_testCalendar.SaveToXml().ToString()), _gameworld) { Id = 525 };
+        calendar.FeedClock = _testClock;
+        calendar.SetDate("27/jun/34");
+
+        Assert.IsTrue(calendar.BuildingCommand(actor.Object, new StringStack("authority 10 20 0 0")));
+        Assert.IsNotNull(calendar.AuthorityLocation);
+
+        Assert.IsTrue(calendar.BuildingCommand(actor.Object, new StringStack("dayboundary fixed 6:00:00")));
+        Assert.AreEqual(CalendarDayBoundaryType.FixedClockTime, calendar.DayBoundary);
+
+        Assert.IsTrue(calendar.BuildingCommand(actor.Object, new StringStack("algorithm tabular-lunar")));
+        Assert.AreEqual(CalendarAlgorithmType.TabularLunar, calendar.AlgorithmType);
+        Assert.IsTrue(calendar.Show(actor.Object).Contains("MudInstant"));
+        Assert.IsTrue(calendar.Show(actor.Object).Contains("Algorithm"));
+    }
+
+    [TestMethod]
+    public void MudInstant_RoundTripsStorageOrderingAndLegacyBackfill()
+    {
+        _testCalendar.SetDate("27/jun/34");
+        _testClock.SetTime(MudTime.CreatePrimaryTime(30, 59, 23, _utcTimezone, _testClock));
+        var dateTime = new MudDateTime(_testCalendar.CurrentDate, _testClock.CurrentTime, _utcTimezone);
+
+        var instant = MudInstant.FromMudDateTime(dateTime);
+
+        Assert.IsTrue(MudInstant.TryParse(instant.GetStorageString(), out var parsed));
+        Assert.AreEqual(instant, parsed);
+        Assert.AreEqual(_testCalendar.Id, parsed.SourceCalendarId);
+        Assert.AreEqual(_testClock.Id, parsed.SourceClockId);
+        Assert.IsTrue(MudInstant.TryParse($"mudinstant:v1:{instant.Ticks}", out var legacyParsed));
+        Assert.AreEqual(0, legacyParsed.SourceCalendarId);
+        Assert.IsTrue(new MudInstant(instant.Epoch, instant.Ticks + 1) > instant);
+        Assert.AreEqual(instant, MudInstant.FromLegacyState(_testCalendar, _testClock));
+
+        var roundTrip = parsed.ToMudDateTime(_testCalendar, _testClock, _utcTimezone);
+
+        Assert.AreEqual(dateTime.Date.GetDateString(), roundTrip.Date.GetDateString());
+        Assert.AreEqual(dateTime.Time.Hours, roundTrip.Time.Hours);
+        Assert.AreEqual(dateTime.Time.Minutes, roundTrip.Time.Minutes);
+        Assert.AreEqual(dateTime.Time.Seconds, roundTrip.Time.Seconds);
+    }
+
+    [TestMethod]
+    public void MudInstant_ConvertsAcrossSourceCalendarContext()
+    {
+        All<IClock> clocks = new();
+        All<ICalendar> calendars = new();
+        Mock<IFuturemud> mock = new();
+        mock.SetupGet(x => x.Clocks).Returns(clocks);
+        mock.SetupGet(x => x.Calendars).Returns(calendars);
+        Mock<ISaveManager> saveManager = new();
+        saveManager.Setup(x => x.Add(It.IsAny<ISaveable>()));
+        mock.SetupGet(x => x.SaveManager).Returns(saveManager.Object);
+
+        var clock = CreateTestClock(mock.Object, 904, out var utc);
+        clocks.Add(clock);
+        var months = string.Join("", Enumerable.Range(1, 12).Select(x => MonthXml($"month{x}", x, 30)));
+        var source = new Calendar(XElement.Parse(BuildCalendarXml(string.Empty, months)), mock.Object) { Id = 901 };
+        source.FeedClock = clock;
+        source.SetDate("10/month1/1200");
+        calendars.Add(source);
+
+        var target = new Calendar(XElement.Parse(BuildCalendarXml(string.Empty, months)), mock.Object) { Id = 902 };
+        target.FeedClock = clock;
+        target.SetDate("5/month5/1300");
+        calendars.Add(target);
+
+        clock.SetTime(MudTime.CreatePrimaryTime(0, 30, 12, utc, clock));
+        var instant = MudInstant.FromMudDateTime(new MudDateTime(source.CurrentDate, clock.CurrentTime, utc));
+        var converted = instant.ToMudDateTime(target, clock, utc);
+
+        Assert.AreEqual(source.Id, instant.SourceCalendarId);
+        Assert.AreEqual(target.CurrentDate.GetDateString(), converted.Date.GetDateString());
+        Assert.AreEqual(12, converted.Time.Hours);
+        Assert.AreEqual(30, converted.Time.Minutes);
+    }
+
+    [TestMethod]
+    public void Calendar_FixedDayBoundaryAdvancesOnBoundaryInsteadOfMidnight()
+    {
+        All<IClock> clocks = new();
+        All<ICalendar> calendars = new();
+        Mock<IFuturemud> mock = new();
+        mock.SetupGet(x => x.Clocks).Returns(clocks);
+        mock.SetupGet(x => x.Calendars).Returns(calendars);
+        Mock<ISaveManager> saveManager = new();
+        saveManager.Setup(x => x.Add(It.IsAny<ISaveable>()));
+        mock.SetupGet(x => x.SaveManager).Returns(saveManager.Object);
+
+        var clock = CreateTestClock(mock.Object, 905, out var utc);
+        clocks.Add(clock);
+        var months = string.Join("", Enumerable.Range(1, 12).Select(x => MonthXml($"month{x}", x, 30)));
+        var calendar = new Calendar(XElement.Parse(BuildCalendarXml(string.Empty, months,
+            @"<dayboundary type=""FixedClockTime"" fixedTime=""6:0:0"" />")), mock.Object)
+        {
+            Id = 903
+        };
+        calendar.FeedClock = clock;
+        calendar.SetDate("1/month1/1200");
+        calendars.Add(calendar);
+        clock.SetTime(MudTime.CreatePrimaryTime(0, 59, 23, utc, clock));
+
+        clock.CurrentTime.AddSeconds(60);
+
+        Assert.AreEqual("1/month1/1200", $"{calendar.CurrentDate.Day}/{calendar.CurrentDate.Month.Alias}/{calendar.CurrentDate.Year}");
+        var physicalAfterMidnight = calendar.CurrentInstant.ToMudDateTime(calendar, clock, utc);
+        Assert.AreEqual("2/month1/1200", $"{physicalAfterMidnight.Date.Day}/{physicalAfterMidnight.Date.Month.Alias}/{physicalAfterMidnight.Date.Year}");
+
+        clock.CurrentTime.AddSeconds(6 * 60 * 60);
+
+        Assert.AreEqual("2/month1/1200", $"{calendar.CurrentDate.Day}/{calendar.CurrentDate.Month.Alias}/{calendar.CurrentDate.Year}");
+    }
+
+    [TestMethod]
+    public void Calendar_LegacyXmlWithoutAlgorithm_LoadsFixedMonthBehaviour()
+    {
+        Assert.AreEqual(CalendarAlgorithmType.FixedMonths, _testCalendar.AlgorithmType);
+        Assert.AreEqual(CalendarDayBoundaryType.ClockMidnight, _testCalendar.DayBoundary);
+        Assert.AreEqual(14, _testCalendar.CreateYear(34).Months.Count);
+        Assert.AreEqual(365, _testCalendar.CountDaysInYear(34));
+    }
+
+    [TestMethod]
+    public void CalendarAlgorithms_GenerateCalculatedAndAstronomicalLeapMonths()
+    {
+        var hebrew = new Calendar(XElement.Parse(BuildCalendarXml(
+            @"<algorithm type=""calculated-hebrew"" />",
+            string.Join("", new[]
+            {
+                MonthXml("nisan", 1, 30),
+                MonthXml("iyyar", 2, 29),
+                MonthXml("sivan", 3, 30),
+                MonthXml("tammuz", 4, 29),
+                MonthXml("av", 5, 30),
+                MonthXml("elul", 6, 29),
+                MonthXml("tishrei", 7, 30),
+                MonthXml("heshvan", 8, 29),
+                MonthXml("kislev", 9, 30),
+                MonthXml("tevet", 10, 29),
+                MonthXml("shevat", 11, 30),
+                MonthXml("adar", 12, 29),
+                MonthXml("adar-i", 13, 30),
+                MonthXml("adar-ii", 14, 29)
+            }),
+            @"<dayboundary type=""SunsetAtAuthorityLocation"" />")), _gameworld);
+        hebrew.FeedClock = _testClock;
+        var hebrewLeapYear = Enumerable.Range(1200, 19).First(CalculatedHebrewCalendarAlgorithm.IsLeapYear);
+        var hebrewYear = hebrew.CreateYear(hebrewLeapYear);
+
+        Assert.AreEqual(CalendarAlgorithmType.CalculatedHebrew, hebrew.AlgorithmType);
+        Assert.AreEqual(CalendarDayBoundaryType.SunsetAtAuthorityLocation, hebrew.DayBoundary);
+        Assert.IsTrue(hebrewYear.Months.Any(x => x.Alias.EqualTo("adar-i")));
+        Assert.IsTrue(hebrewYear.Months.Any(x => x.Alias.EqualTo("adar-ii")));
+
+        var babylonian = new Calendar(XElement.Parse(BuildCalendarXml(
+            @"<algorithm type=""astronomical-lunar"" variant=""babylonian-regulated"" />",
+            string.Join("", Enumerable.Range(1, 12).Select(x => MonthXml($"month{x}", x, x % 2 == 1 ? 30 : 29)))
+            + MonthXml("addaru-ii", 13, 29)
+            + MonthXml("ululu-ii", 14, 29))), _gameworld);
+        babylonian.FeedClock = _testClock;
+        var babylonianLeapYear = Enumerable.Range(1200, 19).First(AstronomicalLunarCalendarAlgorithm.IsMetonicLeapYear);
+        var babylonianYear = babylonian.CreateYear(babylonianLeapYear);
+
+        Assert.AreEqual(CalendarAlgorithmType.AstronomicalLunar, babylonian.AlgorithmType);
+        Assert.IsTrue(babylonianYear.Months.Any(x => x.Alias.EqualTo("addaru-ii") || x.Alias.EqualTo("ululu-ii")));
+    }
+
     private static Mock<ICharacter> CreateBuilder()
     {
         var output = new Mock<IOutputHandler>();
@@ -194,6 +365,54 @@ public class MudDateTimeTests
         actor.SetupGet(x => x.Account).Returns(account.Object);
         actor.SetupGet(x => x.InnerLineFormatLength).Returns(120);
         return actor;
+    }
+
+    private static string BuildCalendarXml(string algorithmXml, string monthsXml, string dayBoundaryXml = @"<dayboundary type=""ClockMidnight"" />")
+    {
+        return $@"<calendar>
+  <alias>test-calendar</alias>
+  <shortname>Test Calendar</shortname>
+  <fullname>Test Calendar</fullname>
+  <description>Test</description>
+  <shortstring>$dd/$mo/$yy</shortstring>
+  <longstring>$dd $mo $yy</longstring>
+  <wordystring>$dd $mo $yy</wordystring>
+  <plane>earth</plane>
+  <feedclock>0</feedclock>
+  <epochyear>1200</epochyear>
+  <weekdayatepoch>0</weekdayatepoch>
+  <ancienterashortstring>BE</ancienterashortstring>
+  <ancienteralongstring>before era</ancienteralongstring>
+  <modernerashortstring>AE</modernerashortstring>
+  <moderneralongstring>after era</moderneralongstring>
+  <weekdays>
+    <weekday>First</weekday>
+    <weekday>Second</weekday>
+    <weekday>Third</weekday>
+    <weekday>Fourth</weekday>
+    <weekday>Fifth</weekday>
+    <weekday>Sixth</weekday>
+    <weekday>Seventh</weekday>
+  </weekdays>
+  <months>{monthsXml}</months>
+  <intercalarymonths />
+  {algorithmXml}
+  {dayBoundaryXml}
+</calendar>";
+    }
+
+    private static string MonthXml(string alias, int order, int days)
+    {
+        return $@"<month><alias>{alias}</alias><shortname>{alias}</shortname><fullname>{alias}</fullname><nominalorder>{order}</nominalorder><normaldays>{days}</normaldays><intercalarydays /><specialdays /><nonweekdays /></month>";
+    }
+
+    private static Clock CreateTestClock(IFuturemud gameworld, long id, out IMudTimeZone utc)
+    {
+        var clock = new Clock(XElement.Parse(@"<Clock>  <Alias>UTC</Alias>  <Description>Universal Time Clock</Description>  <ShortDisplayString>$j:$m:$s $i</ShortDisplayString>  <SuperDisplayString>$j:$m:$s $i $t</SuperDisplayString>  <LongDisplayString>$c $i</LongDisplayString>  <SecondsPerMinute>60</SecondsPerMinute>  <MinutesPerHour>60</MinutesPerHour>  <HoursPerDay>24</HoursPerDay>  <InGameSecondsPerRealSecond>2</InGameSecondsPerRealSecond>  <SecondFixedDigits>2</SecondFixedDigits>  <MinuteFixedDigits>2</MinuteFixedDigits>  <HourFixedDigits>0</HourFixedDigits>  <NoZeroHour>true</NoZeroHour>  <NumberOfHourIntervals>2</NumberOfHourIntervals>  <HourIntervalNames>    <HourIntervalName>a.m</HourIntervalName>    <HourIntervalName>p.m</HourIntervalName>  </HourIntervalNames>  <HourIntervalLongNames>    <HourIntervalLongName>in the morning</HourIntervalLongName>    <HourIntervalLongName>in the afternoon</HourIntervalLongName>  </HourIntervalLongNames>  <CrudeTimeIntervals>    <CrudeTimeInterval text=""night"" Lower=""-2"" Upper=""4""/>    <CrudeTimeInterval text=""morning"" Lower=""4"" Upper=""12""/>    <CrudeTimeInterval text=""afternoon"" Lower=""12"" Upper=""18""/>    <CrudeTimeInterval text=""evening"" Lower=""18"" Upper=""22""/>  </CrudeTimeIntervals></Clock>"), gameworld) { Id = id };
+        utc = new MudTimeZone((int)id + 1, 0, 0, "Universal Time Clock", "UTC", clock);
+        clock.AddTimezone(utc);
+        clock.SetTime(MudTime.CreatePrimaryTime(0, 0, 0, utc, clock));
+        return clock;
     }
 
     [TestMethod]

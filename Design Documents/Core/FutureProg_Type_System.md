@@ -96,6 +96,21 @@ Builder-facing parsing now routes through `ProgVariableTypes.TryParse(...)` rath
 
 Type display and description logic is centralised through the registry-backed `Describe()` behavior. Existing player/builder output continues to use the same symbolic type names where possible.
 
+## Date, Time, And Celestial Event Values
+
+`ProgVariableTypes.MudDateTime` remains the FutureProg type for in-game dates and times. `MudDateTime` values now expose a `mudinstant` dot reference that returns the absolute `MudInstant` storage string for the value.
+
+Celestial event built-ins return `MudDateTime` and use the supplied room or zone as the observer geography:
+
+- `nextsunrise(location|zone, celestialId, calendar[, occurrence])`
+- `nextsunset(location|zone, celestialId, calendar[, occurrence])`
+- `nextsolarlongitude(location|zone, celestialId, calendar, longitudeDegrees[, occurrence])`
+- `nextnewmoon(location|zone, moonId, calendar[, occurrence])`
+- `nextfullmoon(location|zone, moonId, calendar[, occurrence])`
+- `nextvisiblecrescent(location|zone, sunId, moonId, calendar[, occurrence])`
+
+The optional `occurrence` argument returns the nth next event. Invalid zones, calendars, celestial IDs, unsupported ephemeris types, or bounded-search failures return `MudDateTime.Never`.
+
 ## Migration Expectations
 
 EF migrations for this subsystem should:

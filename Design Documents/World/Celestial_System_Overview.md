@@ -46,6 +46,26 @@ At the interface level, a celestial is anything implementing `ICelestialObject`.
 - the last local altitude/elevation angle
 - the current movement direction
 
+Some celestial types also expose arbitrary-instant ephemeris interfaces for calendar and FutureProg event solving:
+
+- `ICelestialEphemeris`
+- `ISolarEphemeris`
+- `ILunarEphemeris`
+
+`Sun`/`NewSun` implements the solar ephemeris. `PlanetaryMoon` implements the lunar ephemeris. These interfaces answer right ascension, declination, apparent altitude/azimuth, illumination, ecliptic longitude, and lunar phase angle for any supplied `MudInstant` rather than only the current clock/calendar state.
+
+`AstronomicalEventService` provides deterministic bounded searches for:
+
+- sunrise
+- sunset
+- solar longitude crossings
+- lunar conjunction/new moon
+- full moon
+- visible crescent approximation
+- nth-next occurrence of each supported event
+
+The solver is intentionally deterministic and engine-local. Visible crescent detection uses geometric thresholds at sunset; it does not consult manual observation ledgers or weather-dependent official calendar decisions.
+
 ## Observer Frames
 The subsystem deliberately models observer frames rather than only physical bodies.
 
@@ -93,3 +113,14 @@ FutureProgs can inspect the cached sky state with:
 The function looks up the celestial by ID in the supplied room's zone or the supplied zone and returns the current elevation angle in radians. Positive values are above the horizon and negative values are below it. If the zone or celestial cannot be found, the function returns `0`.
 
 This is intended for environmental gating such as sunlight-sensitive combat moves, outdoor ceremonies, or weather/season logic that needs to know whether a sun-like celestial is high enough above the horizon.
+
+FutureProgs can also ask for deterministic event times as `MudDateTime` values:
+
+- `nextsunrise(location|zone, celestialId, calendar[, occurrence])`
+- `nextsunset(location|zone, celestialId, calendar[, occurrence])`
+- `nextsolarlongitude(location|zone, celestialId, calendar, longitudeDegrees[, occurrence])`
+- `nextnewmoon(location|zone, moonId, calendar[, occurrence])`
+- `nextfullmoon(location|zone, moonId, calendar[, occurrence])`
+- `nextvisiblecrescent(location|zone, sunId, moonId, calendar[, occurrence])`
+
+These functions use the supplied room or zone geography as the observer and project the found `MudInstant` back through the supplied calendar, feed clock, and local zone time zone. They return `MudDateTime.Never` when the requested celestial does not support the required ephemeris or no event is found inside the bounded deterministic search window.

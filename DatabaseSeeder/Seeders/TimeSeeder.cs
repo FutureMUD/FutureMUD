@@ -27,7 +27,17 @@ public class TimeSeeder : IDatabaseSeeder
         "new-reckoning",
         "orc-reckoning",
         "rivendell",
-        "kings-reckoning"
+        "kings-reckoning",
+        "islamic-hijri",
+        "hebrew",
+        "old-persian",
+        "babylonian",
+        "chinese-minguo",
+        "chinese-lunisolar",
+        "korean-dangi",
+        "korean-lunisolar",
+        "japanese-koki",
+        "japanese-lunisolar"
     ];
 
     public IEnumerable<(string Id, string Question,
@@ -65,6 +75,7 @@ Broadly speaking, there are eight calendars for you to choose from:
 #ACalendare Republicain#F: The French Republican calendar (including decimal clock) from the French Revolution
 #AMission#F: A sci-fi generation ship calendar with 360 day years, 36 day months and 6 day weeks
 #ASeasonal 360#F: A simple 360 day fantasy calendar with three months per season and a 6 day week
+#AAstronomical and Historical Approximations#F: deterministic Hijri, Hebrew, Old Persian, Babylonian and East Asian calendar packages
 
 The specific available calendars are as follows:
 
@@ -81,6 +92,16 @@ The specific available calendars are as follows:
 	#Brepublicain#F: The French Republican calendar (including decimal clock) from the French Revolution
 	#Bmission#F: A sci-fi generation ship calendar with 360 day years, 36 day months and 6 day weeks
 	#Bseasonal-360#F: A simple 360 day fantasy calendar with Early/Mid/Late seasons and First Day through Sixth Day weekdays
+	#Bislamic-hijri#F: Deterministic visible-crescent Hijri approximation with sunset day boundaries
+	#Bhebrew#F: Calculated Hebrew calendar with deterministic postponement/leap-month rules
+	#Bold-persian#F: Old Persian/Zoroastrian-style solar calendar with epagomenal days
+	#Bbabylonian#F: Regulated deterministic Babylonian lunisolar approximation
+	#Bchinese-minguo#F: Gregorian-derived Chinese Minguo civil calendar
+	#Bchinese-lunisolar#F: Deterministic Chinese lunisolar approximation
+	#Bkorean-dangi#F: Gregorian-derived Korean Dangi civil calendar
+	#Bkorean-lunisolar#F: Deterministic Korean lunisolar approximation
+	#Bjapanese-koki#F: Gregorian-derived Japanese Koki civil calendar
+	#Bjapanese-lunisolar#F: Deterministic Japanese lunisolar approximation
 ", (context, answers) => true, (answer, context) =>
                 {
                     switch (answer.ToLowerInvariant())
@@ -98,6 +119,18 @@ The specific available calendars are as follows:
                         case "tranquility":
                         case "mission":
                         case "seasonal-360":
+                        case "islamic-hijri":
+                        case "hebrew":
+                        case "old-persian":
+                        case "babylonian":
+                        case "chinese-minguo":
+                        case "chinese-lunisolar":
+                        case "korean-dangi":
+                        case "korean-modern":
+                        case "korean-lunisolar":
+                        case "japanese-koki":
+                        case "japanese-modern":
+                        case "japanese-lunisolar":
                             return (true, string.Empty);
                     }
 
@@ -169,6 +202,38 @@ Your answer: ", (context, answers) => answers["mode"].EqualTo("middle-earth"), (
                 break;
             case "seasonal-360":
                 SetupSeasonal360Calendar(context, clock, questionAnswers);
+                break;
+            case "islamic-hijri":
+                SetupIslamicHijri(context, clock, questionAnswers);
+                break;
+            case "hebrew":
+                SetupHebrew(context, clock, questionAnswers);
+                break;
+            case "old-persian":
+                SetupOldPersian(context, clock, questionAnswers);
+                break;
+            case "babylonian":
+                SetupBabylonian(context, clock, questionAnswers);
+                break;
+            case "chinese-minguo":
+                SetupChineseMinguo(context, clock, questionAnswers);
+                break;
+            case "chinese-lunisolar":
+                SetupChineseLunisolar(context, clock, questionAnswers);
+                break;
+            case "korean-dangi":
+            case "korean-modern":
+                SetupKoreanDangi(context, clock, questionAnswers);
+                break;
+            case "korean-lunisolar":
+                SetupKoreanLunisolar(context, clock, questionAnswers);
+                break;
+            case "japanese-koki":
+            case "japanese-modern":
+                SetupJapaneseKoki(context, clock, questionAnswers);
+                break;
+            case "japanese-lunisolar":
+                SetupJapaneseLunisolar(context, clock, questionAnswers);
                 break;
             case "republicain":
                 clock = EnsureClock(
@@ -267,6 +332,18 @@ Your answer: ", (context, answers) => answers["mode"].EqualTo("middle-earth"), (
             "seasonal-360" => "seasonal-360",
             "republicain" => "republicain",
             "tranquility" => "tranquility",
+            "islamic-hijri" => "islamic-hijri",
+            "hebrew" => "hebrew",
+            "old-persian" => "old-persian",
+            "babylonian" => "babylonian",
+            "chinese-minguo" => "chinese-minguo",
+            "chinese-lunisolar" => "chinese-lunisolar",
+            "korean-dangi" => "korean-dangi",
+            "korean-modern" => "korean-dangi",
+            "korean-lunisolar" => "korean-lunisolar",
+            "japanese-koki" => "japanese-koki",
+            "japanese-modern" => "japanese-koki",
+            "japanese-lunisolar" => "japanese-lunisolar",
             "latin-ancient" => "julian",
             "latin-7day" => "julian",
             "latin-8day" => "julian",
@@ -405,6 +482,409 @@ Your answer: ", (context, answers) => answers["mode"].EqualTo("middle-earth"), (
                 }
             }
         }
+    }
+
+    private readonly record struct MonthSpec(string Alias, string ShortName, string FullName, int Days);
+
+    private static readonly string[] SevenDayWeek =
+    [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+        "Sunday"
+    ];
+
+    private static string BuildCalendarDefinition(string alias, string shortName, string fullName, string description,
+        string shortMask, string longMask, string wordyMask, string ancientEraShort, string ancientEraLong,
+        string modernEraShort, string modernEraLong, int epochYear, int firstWeekday, IEnumerable<string> weekdays,
+        IEnumerable<MonthSpec> months, XElement algorithm, XElement dayBoundary)
+    {
+        return new XElement("calendar",
+            new XElement("alias", alias),
+            new XElement("shortname", shortName),
+            new XElement("fullname", fullName),
+            new XElement("description", new XCData(description)),
+            new XElement("shortstring", shortMask),
+            new XElement("longstring", longMask),
+            new XElement("wordystring", wordyMask),
+            new XElement("plane", "earth"),
+            new XElement("feedclock", 0),
+            new XElement("epochyear", epochYear),
+            new XElement("weekdayatepoch", firstWeekday),
+            new XElement("ancienterashortstring", ancientEraShort),
+            new XElement("ancienteralongstring", ancientEraLong),
+            new XElement("modernerashortstring", modernEraShort),
+            new XElement("moderneralongstring", modernEraLong),
+            new XElement("weekdays", weekdays.Select(x => new XElement("weekday", x))),
+            new XElement("months", months.Select((x, i) => BuildMonthElement(x, i + 1))),
+            new XElement("intercalarymonths"),
+            algorithm,
+            dayBoundary).ToString(SaveOptions.DisableFormatting);
+    }
+
+    private static XElement BuildMonthElement(MonthSpec month, int order)
+    {
+        return new XElement("month",
+            new XElement("alias", month.Alias),
+            new XElement("shortname", month.ShortName),
+            new XElement("fullname", month.FullName),
+            new XElement("nominalorder", order),
+            new XElement("normaldays", month.Days),
+            new XElement("intercalarydays"),
+            new XElement("specialdays"),
+            new XElement("nonweekdays"));
+    }
+
+    private static XElement Algorithm(string type, string? variant = null)
+    {
+        var element = new XElement("algorithm", new XAttribute("type", type));
+        if (!string.IsNullOrWhiteSpace(variant))
+        {
+            element.Add(new XAttribute("variant", variant));
+        }
+
+        return element;
+    }
+
+    private static XElement DayBoundary(string type, bool includeAuthority = false)
+    {
+        var element = new XElement("dayboundary", new XAttribute("type", type));
+        if (includeAuthority)
+        {
+            element.Add(new XElement("authority",
+                new XAttribute("latitude", "0"),
+                new XAttribute("longitude", "0"),
+                new XAttribute("elevation", "0"),
+                new XAttribute("radius", "0")));
+        }
+
+        return element;
+    }
+
+    private static IReadOnlyList<MonthSpec> GregorianMonths(string prefix = "")
+    {
+        return
+        [
+            new($"{prefix}january", "Jan", "January", 31),
+            new($"{prefix}february", "Feb", "February", 28),
+            new($"{prefix}march", "Mar", "March", 31),
+            new($"{prefix}april", "Apr", "April", 30),
+            new($"{prefix}may", "May", "May", 31),
+            new($"{prefix}june", "Jun", "June", 30),
+            new($"{prefix}july", "Jul", "July", 31),
+            new($"{prefix}august", "Aug", "August", 31),
+            new($"{prefix}september", "Sep", "September", 30),
+            new($"{prefix}october", "Oct", "October", 31),
+            new($"{prefix}november", "Nov", "November", 30),
+            new($"{prefix}december", "Dec", "December", 31)
+        ];
+    }
+
+    private static string BuildGregorianDerivedCalendar(string alias, string shortName, string fullName,
+        string description, string startYear, string ancientShort, string ancientLong, string modernShort,
+        string modernLong, IReadOnlyList<MonthSpec> months)
+    {
+        var root = XElement.Parse(BuildCalendarDefinition(alias, shortName, fullName, description, "$dd/$mo/$yy $ee",
+            "$nz$ww the $dt of $mf, $yy $EE", "$NZ$ww on this $DT day of the month of $mf, in year $yy $EE",
+            ancientShort, ancientLong, modernShort, modernLong, int.Parse(startYear), 0, SevenDayWeek, months,
+            Algorithm("fixed-months"), DayBoundary("ClockMidnight")));
+        var february = root.Element("months")!.Elements("month").ElementAt(1);
+        february.Element("intercalarydays")!.Add(new XElement("intercalary",
+            new XElement("insertdays", 1),
+            new XElement("specialdays"),
+            new XElement("nonweekdays"),
+            new XElement("removenonweekdays"),
+            new XElement("removespecialdays"),
+            new XElement("intercalaryrule",
+                new XElement("offset", 0),
+                new XElement("divisor", 4),
+                new XElement("exceptions",
+                    new XElement("intercalaryrule",
+                        new XElement("offset", 0),
+                        new XElement("divisor", 100),
+                        new XElement("exceptions",
+                            new XElement("intercalaryrule",
+                                new XElement("offset", 0),
+                                new XElement("divisor", 400),
+                                new XElement("exceptions"),
+                                new XElement("ands"),
+                                new XElement("ors"))),
+                        new XElement("ands"),
+                        new XElement("ors"))),
+                new XElement("ands"),
+                new XElement("ors"))));
+        return root.ToString(SaveOptions.DisableFormatting);
+    }
+
+    private void SetupIslamicHijri(FuturemudDatabaseContext context, Clock clock,
+        IReadOnlyDictionary<string, string> questionAnswers)
+    {
+        var months = new[]
+        {
+            new MonthSpec("muharram", "Muh", "Muharram", 30),
+            new MonthSpec("safar", "Saf", "Safar", 29),
+            new MonthSpec("rabi-awwal", "RAw", "Rabi al-Awwal", 30),
+            new MonthSpec("rabi-thani", "RTh", "Rabi al-Thani", 29),
+            new MonthSpec("jumada-ula", "JUl", "Jumada al-Ula", 30),
+            new MonthSpec("jumada-akhirah", "JAk", "Jumada al-Akhirah", 29),
+            new MonthSpec("rajab", "Raj", "Rajab", 30),
+            new MonthSpec("shaban", "Sha", "Shaban", 29),
+            new MonthSpec("ramadan", "Ram", "Ramadan", 30),
+            new MonthSpec("shawwal", "Shw", "Shawwal", 29),
+            new MonthSpec("dhu-qadah", "DQa", "Dhu al-Qadah", 30),
+            new MonthSpec("dhu-hijjah", "DHi", "Dhu al-Hijjah", 29)
+        };
+        var definition = BuildCalendarDefinition("islamic-hijri", "Islamic Hijri Calendar",
+            "Deterministic Islamic Hijri Calendar",
+            "A deterministic Hijri approximation using mean astronomical lunar month starts and visible-crescent-style sunset day boundaries. It is not a manual observation ledger.",
+            "$dd/$mm/$yy AH", "$nz$ww the $dt of $mf, $yy AH", "$NZ$ww on the $DT day of $mf, in year $yy AH",
+            "BH", "before Hijrah", "AH", "after Hijrah", int.Parse(questionAnswers["startyear"]), 0, SevenDayWeek,
+            months, Algorithm("astronomical-lunar", "visible-crescent-approximation"),
+            DayBoundary("SunsetAtAuthorityLocation", true));
+        EnsureCalendar(context, clock, $"1/muharram/{questionAnswers["startyear"]}", definition);
+    }
+
+    private void SetupHebrew(FuturemudDatabaseContext context, Clock clock,
+        IReadOnlyDictionary<string, string> questionAnswers)
+    {
+        var months = new[]
+        {
+            new MonthSpec("nisan", "Nis", "Nisan", 30),
+            new MonthSpec("iyyar", "Iyy", "Iyyar", 29),
+            new MonthSpec("sivan", "Siv", "Sivan", 30),
+            new MonthSpec("tammuz", "Tam", "Tammuz", 29),
+            new MonthSpec("av", "Av", "Av", 30),
+            new MonthSpec("elul", "Elu", "Elul", 29),
+            new MonthSpec("tishrei", "Tis", "Tishrei", 30),
+            new MonthSpec("heshvan", "Hes", "Heshvan", 29),
+            new MonthSpec("kislev", "Kis", "Kislev", 30),
+            new MonthSpec("tevet", "Tev", "Tevet", 29),
+            new MonthSpec("shevat", "She", "Shevat", 30),
+            new MonthSpec("adar", "Ada", "Adar", 29),
+            new MonthSpec("adar-i", "Ad1", "Adar I", 30),
+            new MonthSpec("adar-ii", "Ad2", "Adar II", 29)
+        };
+        var definition = BuildCalendarDefinition("hebrew", "Calculated Hebrew Calendar",
+            "Calculated Hebrew Calendar",
+            "A deterministic calculated Hebrew calendar with a 19-year Metonic cycle, postponement rules and Adar I/II leap-month handling.",
+            "$dd/$mm/$yy AM", "$nz$ww the $dt of $mf, $yy AM", "$NZ$ww on the $DT day of $mf, in year $yy AM",
+            "BM", "before creation", "AM", "anno mundi", int.Parse(questionAnswers["startyear"]), 0, SevenDayWeek,
+            months, Algorithm("calculated-hebrew"), DayBoundary("SunsetAtAuthorityLocation", true));
+        EnsureCalendar(context, clock, $"1/nisan/{questionAnswers["startyear"]}", definition);
+    }
+
+    private void SetupOldPersian(FuturemudDatabaseContext context, Clock clock,
+        IReadOnlyDictionary<string, string> questionAnswers)
+    {
+        var months = new[]
+        {
+            new MonthSpec("farvardin", "Far", "Farvardin", 30),
+            new MonthSpec("ardwahisht", "Ard", "Ardwahisht", 30),
+            new MonthSpec("hordad", "Hor", "Hordad", 30),
+            new MonthSpec("tir", "Tir", "Tir", 30),
+            new MonthSpec("amurdad", "Amu", "Amurdad", 30),
+            new MonthSpec("shahrewar", "Sha", "Shahrewar", 30),
+            new MonthSpec("mihr", "Mih", "Mihr", 30),
+            new MonthSpec("aban", "Aba", "Aban", 30),
+            new MonthSpec("adar", "Ada", "Adar", 30),
+            new MonthSpec("dae", "Dae", "Dae", 30),
+            new MonthSpec("wahman", "Wah", "Wahman", 30),
+            new MonthSpec("spendarmad", "Spe", "Spendarmad", 30),
+            new MonthSpec("gatha", "Gat", "Gatha Days", 5)
+        };
+        var definition = BuildCalendarDefinition("old-persian", "Old Persian Solar Calendar",
+            "Old Persian/Zoroastrian-Style Solar Calendar",
+            "A deterministic Old Persian/Zoroastrian-style solar approximation using twelve 30-day months plus epagomenal Gatha days. Leap epagomenal days follow a deterministic solar-equinox cycle.",
+            "$dd/$mm/$yy", "$nz$ww the $dt of $mf, $yy", "$NZ$ww on the $DT day of $mf, in year $yy",
+            "BE", "before era", "AE", "after era", int.Parse(questionAnswers["startyear"]), 0, SevenDayWeek,
+            months, Algorithm("solar-equinox", "old-persian-epagomenal"), DayBoundary("ClockMidnight"));
+        EnsureCalendar(context, clock, $"1/farvardin/{questionAnswers["startyear"]}", definition);
+    }
+
+    private void SetupBabylonian(FuturemudDatabaseContext context, Clock clock,
+        IReadOnlyDictionary<string, string> questionAnswers)
+    {
+        var months = new[]
+        {
+            new MonthSpec("nisannu", "Nis", "Nisannu", 30),
+            new MonthSpec("aiaru", "Aia", "Aiaru", 29),
+            new MonthSpec("simanu", "Sim", "Simanu", 30),
+            new MonthSpec("duzu", "Duz", "Duzu", 29),
+            new MonthSpec("abu", "Abu", "Abu", 30),
+            new MonthSpec("ululu", "Ulu", "Ululu", 29),
+            new MonthSpec("tashritu", "Tas", "Tashritu", 30),
+            new MonthSpec("arahsamnu", "Ara", "Arahsamnu", 29),
+            new MonthSpec("kislimu", "Kis", "Kislimu", 30),
+            new MonthSpec("tebetu", "Teb", "Tebetu", 29),
+            new MonthSpec("shabatu", "Sha", "Shabatu", 30),
+            new MonthSpec("addaru", "Add", "Addaru", 29),
+            new MonthSpec("addaru-ii", "Ad2", "Addaru II", 29),
+            new MonthSpec("ululu-ii", "Ul2", "Ululu II", 29)
+        };
+        var definition = BuildCalendarDefinition("babylonian", "Babylonian Lunisolar Calendar",
+            "Deterministic Babylonian Lunisolar Calendar",
+            "A regulated deterministic Babylonian lunisolar approximation with Addaru II and Ululu II leap months in a 19-year cycle. It is not a historical observation ledger.",
+            "$dd/$mm/$yy", "$nz$ww the $dt of $mf, $yy", "$NZ$ww on the $DT day of $mf, in year $yy",
+            "BE", "before era", "AE", "after era", int.Parse(questionAnswers["startyear"]), 0, SevenDayWeek,
+            months, Algorithm("astronomical-lunar", "babylonian-regulated"),
+            DayBoundary("SunsetAtAuthorityLocation", true));
+        EnsureCalendar(context, clock, $"1/nisannu/{questionAnswers["startyear"]}", definition);
+    }
+
+    private void SetupChineseMinguo(FuturemudDatabaseContext context, Clock clock,
+        IReadOnlyDictionary<string, string> questionAnswers)
+    {
+        var months = new[]
+        {
+            new MonthSpec("yi-yue", "Yi", "Yi Yue", 31),
+            new MonthSpec("er-yue", "Er", "Er Yue", 28),
+            new MonthSpec("san-yue", "San", "San Yue", 31),
+            new MonthSpec("si-yue", "Si", "Si Yue", 30),
+            new MonthSpec("wu-yue", "Wu", "Wu Yue", 31),
+            new MonthSpec("liu-yue", "Liu", "Liu Yue", 30),
+            new MonthSpec("qi-yue", "Qi", "Qi Yue", 31),
+            new MonthSpec("ba-yue", "Ba", "Ba Yue", 31),
+            new MonthSpec("jiu-yue", "Jiu", "Jiu Yue", 30),
+            new MonthSpec("shi-yue", "Shi", "Shi Yue", 31),
+            new MonthSpec("shiyi-yue", "Shy", "Shiyi Yue", 30),
+            new MonthSpec("shier-yue", "She", "Shier Yue", 31)
+        };
+        var definition = BuildGregorianDerivedCalendar("chinese-minguo", "Chinese Minguo Calendar",
+            "Chinese Minguo Civil Calendar",
+            "A Gregorian-derived Chinese Minguo civil calendar package with Latin1-safe month names.",
+            questionAnswers["startyear"], "BM", "before Minguo", "Minguo", "Minguo era", months);
+        EnsureCalendar(context, clock, $"1/yi-yue/{questionAnswers["startyear"]}", definition);
+    }
+
+    private void SetupKoreanDangi(FuturemudDatabaseContext context, Clock clock,
+        IReadOnlyDictionary<string, string> questionAnswers)
+    {
+        var months = new[]
+        {
+            new MonthSpec("ilwol", "Il", "Ilwol", 31),
+            new MonthSpec("iwol", "Iw", "Iwol", 28),
+            new MonthSpec("samwol", "Sam", "Samwol", 31),
+            new MonthSpec("sawol", "Sa", "Sawol", 30),
+            new MonthSpec("owol", "O", "Owol", 31),
+            new MonthSpec("yuwol", "Yu", "Yuwol", 30),
+            new MonthSpec("chirwol", "Chi", "Chirwol", 31),
+            new MonthSpec("parwol", "Par", "Parwol", 31),
+            new MonthSpec("guwol", "Gu", "Guwol", 30),
+            new MonthSpec("siwol", "Si", "Siwol", 31),
+            new MonthSpec("sibirwol", "SbI", "Sibirwol", 30),
+            new MonthSpec("sibiwol", "Sb", "Sibiwol", 31)
+        };
+        var definition = BuildGregorianDerivedCalendar("korean-dangi", "Korean Dangi Calendar",
+            "Korean Dangi Civil Calendar",
+            "A Gregorian-derived Korean Dangi civil calendar package with Latin1-safe month names.",
+            questionAnswers["startyear"], "BD", "before Dangi", "Dangi", "Dangi era", months);
+        EnsureCalendar(context, clock, $"1/ilwol/{questionAnswers["startyear"]}", definition);
+    }
+
+    private void SetupJapaneseKoki(FuturemudDatabaseContext context, Clock clock,
+        IReadOnlyDictionary<string, string> questionAnswers)
+    {
+        var months = new[]
+        {
+            new MonthSpec("ichigatsu", "Ich", "Ichigatsu", 31),
+            new MonthSpec("nigatsu", "Ni", "Nigatsu", 28),
+            new MonthSpec("sangatsu", "San", "Sangatsu", 31),
+            new MonthSpec("shigatsu", "Shi", "Shigatsu", 30),
+            new MonthSpec("gogatsu", "Go", "Gogatsu", 31),
+            new MonthSpec("rokugatsu", "Rok", "Rokugatsu", 30),
+            new MonthSpec("shichigatsu", "Shc", "Shichigatsu", 31),
+            new MonthSpec("hachigatsu", "Hac", "Hachigatsu", 31),
+            new MonthSpec("kugatsu", "Ku", "Kugatsu", 30),
+            new MonthSpec("jugatsu", "Ju", "Jugatsu", 31),
+            new MonthSpec("juichigatsu", "Jui", "Juichigatsu", 30),
+            new MonthSpec("junigatsu", "Jun", "Junigatsu", 31)
+        };
+        var definition = BuildGregorianDerivedCalendar("japanese-koki", "Japanese Koki Calendar",
+            "Japanese Koki Civil Calendar",
+            "A Gregorian-derived Japanese Koki civil calendar package with Latin1-safe month names.",
+            questionAnswers["startyear"], "BK", "before Koki", "Koki", "Koki era", months);
+        EnsureCalendar(context, clock, $"1/ichigatsu/{questionAnswers["startyear"]}", definition);
+    }
+
+    private void SetupChineseLunisolar(FuturemudDatabaseContext context, Clock clock,
+        IReadOnlyDictionary<string, string> questionAnswers)
+    {
+        SetupEastAsianLunisolar(context, clock, questionAnswers, "chinese-lunisolar", "Chinese Lunisolar Calendar",
+            "Deterministic Chinese Lunisolar Calendar", "chinese-lunisolar",
+            [
+                new MonthSpec("zhengyue", "Zhe", "Zhengyue", 30),
+                new MonthSpec("eryue", "Er", "Eryue", 29),
+                new MonthSpec("sanyue", "San", "Sanyue", 30),
+                new MonthSpec("siyue", "Si", "Siyue", 29),
+                new MonthSpec("wuyue", "Wu", "Wuyue", 30),
+                new MonthSpec("liuyue", "Liu", "Liuyue", 29),
+                new MonthSpec("qiyue", "Qi", "Qiyue", 30),
+                new MonthSpec("bayue", "Ba", "Bayue", 29),
+                new MonthSpec("jiuyue", "Jiu", "Jiuyue", 30),
+                new MonthSpec("shiyue", "Shi", "Shiyue", 29),
+                new MonthSpec("dongyue", "Don", "Dongyue", 30),
+                new MonthSpec("layue", "La", "Layue", 29),
+                new MonthSpec("leap-liuyue", "Run", "Run Liuyue", 29)
+            ]);
+    }
+
+    private void SetupKoreanLunisolar(FuturemudDatabaseContext context, Clock clock,
+        IReadOnlyDictionary<string, string> questionAnswers)
+    {
+        SetupEastAsianLunisolar(context, clock, questionAnswers, "korean-lunisolar", "Korean Lunisolar Calendar",
+            "Deterministic Korean Lunisolar Calendar", "korean-lunisolar",
+            [
+                new MonthSpec("jeongwol", "Jeo", "Jeongwol", 30),
+                new MonthSpec("iwol", "Iw", "Iwol", 29),
+                new MonthSpec("samwol", "Sam", "Samwol", 30),
+                new MonthSpec("sawol", "Sa", "Sawol", 29),
+                new MonthSpec("owol", "O", "Owol", 30),
+                new MonthSpec("yuwol", "Yu", "Yuwol", 29),
+                new MonthSpec("chirwol", "Chi", "Chirwol", 30),
+                new MonthSpec("parwol", "Par", "Parwol", 29),
+                new MonthSpec("guwol", "Gu", "Guwol", 30),
+                new MonthSpec("siwol", "Si", "Siwol", 29),
+                new MonthSpec("dongjiwol", "Don", "Dongjiwol", 30),
+                new MonthSpec("seotdal", "Seo", "Seotdal", 29),
+                new MonthSpec("leap-yuwol", "Yun", "Yun Yuwol", 29)
+            ]);
+    }
+
+    private void SetupJapaneseLunisolar(FuturemudDatabaseContext context, Clock clock,
+        IReadOnlyDictionary<string, string> questionAnswers)
+    {
+        SetupEastAsianLunisolar(context, clock, questionAnswers, "japanese-lunisolar", "Japanese Lunisolar Calendar",
+            "Deterministic Japanese Lunisolar Calendar", "japanese-lunisolar",
+            [
+                new MonthSpec("mutsuki", "Mut", "Mutsuki", 30),
+                new MonthSpec("kisaragi", "Kis", "Kisaragi", 29),
+                new MonthSpec("yayoi", "Yay", "Yayoi", 30),
+                new MonthSpec("uzuki", "Uzu", "Uzuki", 29),
+                new MonthSpec("satsuki", "Sat", "Satsuki", 30),
+                new MonthSpec("minazuki", "Min", "Minazuki", 29),
+                new MonthSpec("fumizuki", "Fum", "Fumizuki", 30),
+                new MonthSpec("hazuki", "Haz", "Hazuki", 29),
+                new MonthSpec("nagatsuki", "Nag", "Nagatsuki", 30),
+                new MonthSpec("kannazuki", "Kan", "Kannazuki", 29),
+                new MonthSpec("shimotsuki", "Shi", "Shimotsuki", 30),
+                new MonthSpec("shiwasu", "Shw", "Shiwasu", 29),
+                new MonthSpec("leap-minazuki", "Uru", "Uru Minazuki", 29)
+            ]);
+    }
+
+    private void SetupEastAsianLunisolar(FuturemudDatabaseContext context, Clock clock,
+        IReadOnlyDictionary<string, string> questionAnswers, string alias, string shortName, string fullName, string variant,
+        IReadOnlyList<MonthSpec> months)
+    {
+        var definition = BuildCalendarDefinition(alias, shortName, fullName,
+            "A deterministic East Asian lunisolar approximation using mean astronomical new moons, principal solar-term style leap-month placement and Latin1-safe names.",
+            "$dd/$mm/$yy", "$nz$ww the $dt of $mf, $yy", "$NZ$ww on the $DT day of $mf, in year $yy",
+            "BE", "before era", "AE", "after era", int.Parse(questionAnswers["startyear"]), 0, SevenDayWeek,
+            months, Algorithm("east-asian-lunisolar", variant), DayBoundary("ClockMidnight"));
+        EnsureCalendar(context, clock, $"1/{months[0].Alias}/{questionAnswers["startyear"]}", definition);
     }
 
     private void SetupMissionCalendar(FuturemudDatabaseContext context, Clock clock, IReadOnlyDictionary<string, string> questionAnswers)

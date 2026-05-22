@@ -397,6 +397,7 @@ public partial class EditableItemHelper
             "Name",
             "Clock",
             "Current Date",
+            "Algorithm",
             "Months",
             "Weekdays"
         },
@@ -408,6 +409,7 @@ public partial class EditableItemHelper
                                                              calendar.Name,
                                                              calendar.FeedClock?.Alias ?? string.Empty,
                                                              calendar.CurrentDate?.GetDateString() ?? string.Empty,
+                                                             calendar.Algorithm.DisplayName,
                                                              calendar.Months.Count.ToString("N0", character),
                                                              calendar.Weekdays.Count.ToString("N0", character)
                                                          },

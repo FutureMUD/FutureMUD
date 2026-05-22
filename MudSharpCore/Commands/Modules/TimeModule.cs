@@ -8,6 +8,7 @@ using MudSharp.Framework;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.PerceptionEngine;
 using MudSharp.RPG.Checks;
+using MudSharp.TimeAndDate;
 using MudSharp.TimeAndDate.Date;
 using MudSharp.TimeAndDate.Time;
 using System;
@@ -32,6 +33,22 @@ internal class TimeModule : Module<ICharacter>
     [RequiredCharacterState(CharacterState.Conscious)]
     protected static void Time(ICharacter actor, string input)
     {
+        var command = new StringStack(input.RemoveFirstWord());
+        if (!command.IsFinished && actor.IsAdministrator())
+        {
+            switch (command.PopForSwitch())
+            {
+                case "event":
+                case "events":
+                    TimeEvent(actor, command);
+                    return;
+                case "instant":
+                case "mudinstant":
+                    TimeInstant(actor);
+                    return;
+            }
+        }
+
         StringBuilder sb = new();
         sb.AppendLine("You know the following things about time:");
         sb.AppendLine();
@@ -50,7 +67,11 @@ internal class TimeModule : Module<ICharacter>
                 string description = info.Origin.Describe(info).Fullstop().Wrap(actor.InnerLineFormatLength, "\t");
                 if (actor.IsAdministrator())
                 {
-                    description += $" (Asc: {$"{info.LastAscensionAngle.RadiansToDegrees().ToString("N3", actor)}°".ColourValue()} Azi: {$"{info.LastAzimuthAngle.RadiansToDegrees().ToString("N3", actor)}°".ColourValue()} DN: {info.Origin.CurrentCelestialDay.ToString("N2", actor).ColourValue()})";
+                    var ephemeris = info.Origin is ISolarEphemeris ? "solar" :
+                        info.Origin is ILunarEphemeris ? "lunar" :
+                        info.Origin is ICelestialEphemeris ? "generic" :
+                        "current-only";
+                    description += $" (Asc: {$"{info.LastAscensionAngle.RadiansToDegrees().ToString("N3", actor)}°".ColourValue()} Azi: {$"{info.LastAzimuthAngle.RadiansToDegrees().ToString("N3", actor)}°".ColourValue()} DN: {info.Origin.CurrentCelestialDay.ToString("N2", actor).ColourValue()} Ephem: {ephemeris.ColourValue()})";
                 }
 
                 sb.AppendLine(description);
@@ -98,6 +119,112 @@ internal class TimeModule : Module<ICharacter>
         actor.OutputHandler.Send(sb.ToString());
     }
 
+    private static void TimeInstant(ICharacter actor)
+    {
+        var sb = new StringBuilder();
+        foreach (var calendar in actor.Location.Calendars)
+        {
+            sb.AppendLine($"{calendar.Name.ColourName()}: {calendar.CurrentInstant.GetStorageString().ColourValue()}");
+        }
+
+        actor.OutputHandler.Send(sb.ToString());
+    }
+
+    private static void TimeEvent(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send("Which event do you want to preview? Options are sunrise, sunset, solarlongitude, newmoon, fullmoon and visiblecrescent.");
+            return;
+        }
+
+        var eventText = command.PopForSwitch();
+        var eventType = eventText switch
+        {
+            "sunrise" => AstronomicalEventType.Sunrise,
+            "sunset" => AstronomicalEventType.Sunset,
+            "solarlongitude" or "longitude" => AstronomicalEventType.SolarLongitude,
+            "newmoon" or "conjunction" => AstronomicalEventType.NewMoon,
+            "fullmoon" => AstronomicalEventType.FullMoon,
+            "visiblecrescent" or "crescent" => AstronomicalEventType.VisibleCrescent,
+            _ => (AstronomicalEventType?)null
+        };
+        if (eventType is null)
+        {
+            actor.OutputHandler.Send("That is not a valid astronomical event type.");
+            return;
+        }
+
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send("Which celestial object should be used for the event search?");
+            return;
+        }
+
+        var primary = actor.Gameworld.CelestialObjects.GetByIdOrName(command.PopSpeech()) as ICelestialEphemeris;
+        if (primary is null)
+        {
+            actor.OutputHandler.Send("There is no such celestial object with arbitrary-instant ephemeris support.");
+            return;
+        }
+
+        ICelestialEphemeris secondary = null;
+        if (eventType == AstronomicalEventType.VisibleCrescent)
+        {
+            if (command.IsFinished)
+            {
+                actor.OutputHandler.Send("Which moon should be used for the visible crescent search?");
+                return;
+            }
+
+            secondary = actor.Gameworld.CelestialObjects.GetByIdOrName(command.PopSpeech()) as ICelestialEphemeris;
+            if (secondary is not ILunarEphemeris)
+            {
+                actor.OutputHandler.Send("The second celestial must be a moon with lunar ephemeris support.");
+                return;
+            }
+        }
+
+        var targetLongitude = 0.0;
+        if (eventType == AstronomicalEventType.SolarLongitude)
+        {
+            if (command.IsFinished || !double.TryParse(command.PopSpeech(), out var degrees))
+            {
+                actor.OutputHandler.Send("Solar longitude events require a target longitude in degrees.");
+                return;
+            }
+
+            targetLongitude = degrees.DegreesToRadians();
+        }
+
+        var occurrence = 1;
+        if (!command.IsFinished && int.TryParse(command.PeekSpeech(), out var parsedOccurrence))
+        {
+            occurrence = parsedOccurrence;
+            command.PopSpeech();
+        }
+
+        var calendar = actor.Location.Calendars.FirstOrDefault();
+        if (calendar is null)
+        {
+            actor.OutputHandler.Send("This location does not have a calendar to display the result with.");
+            return;
+        }
+
+        var reference = calendar.CurrentInstant;
+        var observer = actor.Location.Zone.Geography;
+        if (!AstronomicalEventService.Instance.TryFindNext(eventType.Value, reference, occurrence, primary, observer,
+                out var instant, out var error, targetLongitude, secondary))
+        {
+            actor.OutputHandler.Send(error);
+            return;
+        }
+
+        var timezone = actor.Location.TimeZone(calendar.FeedClock);
+        var dateTime = instant.ToMudDateTime(calendar, calendar.FeedClock, timezone);
+        actor.OutputHandler.Send($"The {occurrence.ToOrdinal().ColourValue()} next {eventText.ColourName()} is at {dateTime.ToString(CalendarDisplayMode.Long, TimeDisplayTypes.Long).ColourValue()} ({instant.GetStorageString().ColourValue()}).");
+    }
+
     #region Calendars
     public const string CalendarAdminHelpText = @"This command is used to create and edit in-game calendars.
 
@@ -131,6 +258,12 @@ The syntax for this command is as follows:
 
         sb.AppendLine($"Ancient Epoch: {calendar.AncientEraLongString.Colour(Telnet.Green)}");
         sb.AppendLine($"Modern Epoch: {calendar.ModernEraLongString.Colour(Telnet.Green)}");
+        sb.AppendLine($"Algorithm: {calendar.Algorithm.DisplayName.Colour(Telnet.Green)} - {calendar.Algorithm.Summary}");
+        sb.AppendLine($"Day Boundary: {calendar.DayBoundary.DescribeEnum().Colour(Telnet.Green)}");
+        if (actor.IsAdministrator())
+        {
+            sb.AppendLine($"MudInstant: {calendar.CurrentInstant.GetStorageString().Colour(Telnet.Green)}");
+        }
         sb.AppendLine($"Weekdays: {calendar.Weekdays.Select(x => x.Colour(Telnet.Green)).ListToString()}");
         sb.AppendLine(
             $"Days in Normal Year: {(calendar.Months.Sum(x => x.NormalDays) + calendar.Intercalaries.Where(x => x.Rule.DivisibleBy == 1).Sum(x => x.Month.NormalDays)).ToString("N0", actor).Colour(Telnet.Green)}");

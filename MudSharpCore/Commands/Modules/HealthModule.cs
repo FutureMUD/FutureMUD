@@ -1820,9 +1820,15 @@ The syntax is as follows:
             {
                 target = ch;
             }
-            else if (targetPerceivable is IGameItem gi && gi.IsItemType<ICorpse>())
+            else if (targetPerceivable is IGameItem gi && gi.GetItemType<ICorpse>() is { } corpse)
             {
-                target = gi.GetItemType<ICorpse>().OriginalCharacter;
+                if (!corpse.RepresentsFinalCharacterDeath)
+                {
+                    actor.Send("This procedure can only be used on living people or final-death corpses. Body-remains surgery needs a body-specific procedure path.");
+                    return;
+                }
+
+                target = corpse.OriginalCharacter;
             }
             else
             {
@@ -2048,11 +2054,6 @@ The syntax is as follows:
         {
             actor.Send("There is nothing like that for you to cure.");
             return;
-        }
-
-        if ((target as IGameItem)?.IsItemType<ICorpse>() == true)
-        {
-            target = (target as IGameItem).GetItemType<ICorpse>().OriginalCharacter;
         }
 
         if (target is not IHaveWounds targetAsHaveWounds)
@@ -2572,12 +2573,9 @@ Your options are to name the specific bodypart, #3random#0 for a random part, #3
             return;
         }
 
-        ICharacter targetAsCharacter = target as ICharacter ??
-                                (target as IGameItem)?.GetItemType<ICorpse>()?.OriginalCharacter;
-        if ((target as IGameItem)?.IsItemType<ICorpse>() ?? false)
-        {
-            targetWoundable = (target as IGameItem).GetItemType<ICorpse>().OriginalCharacter;
-        }
+        ICorpse targetAsCorpse = (target as IGameItem)?.GetItemType<ICorpse>();
+        ICharacter targetAsCharacter = target as ICharacter;
+        IBody targetBody = targetAsCorpse?.OriginalBody ?? targetAsCharacter?.Body ?? (target as IHaveABody)?.Body;
 
         StringBuilder sb = new();
         sb.AppendLine($"Health information for {target.HowSeen(actor)}:".GetLineWithTitle(actor, Telnet.Red, Telnet.BoldWhite));
@@ -2599,7 +2597,7 @@ Your options are to name the specific bodypart, #3random#0 for a random part, #3
         }
 
         sb.AppendLine();
-        if (targetAsCharacter != null)
+        if (targetBody != null)
         {
             sb.AppendLine("Organ Function".GetLineWithTitle(actor, Telnet.Red, Telnet.BoldWhite));
             sb.AppendLine();
@@ -2623,7 +2621,7 @@ Your options are to name the specific bodypart, #3random#0 for a random part, #3
 
             foreach (Type type in types.ToList())
             {
-                if (targetAsCharacter.Body.Prototype.AllBodypartsBonesAndOrgans.All(x => !type.IsInstanceOfType(x)))
+                if (targetBody.Prototype.AllBodypartsBonesAndOrgans.All(x => !type.IsInstanceOfType(x)))
                 {
                     types.Remove(type);
                 }
@@ -2635,46 +2633,46 @@ Your options are to name the specific bodypart, #3random#0 for a random part, #3
                 switch (type.Name)
                 {
                     case nameof(BrainProto):
-                        strings.Add($"Brain: {targetAsCharacter.Body.OrganFunction<BrainProto>().ToString("P2", actor).ColourValue()}");
+                        strings.Add($"Brain: {targetBody.OrganFunction<BrainProto>().ToString("P2", actor).ColourValue()}");
                         continue;
                     case nameof(PositronicBrain):
-                        strings.Add($"Positronic Brain: {targetAsCharacter.Body.OrganFunction<PositronicBrain>().ToString("P2", actor).ColourValue()}");
+                        strings.Add($"Positronic Brain: {targetBody.OrganFunction<PositronicBrain>().ToString("P2", actor).ColourValue()}");
                         continue;
                     case nameof(HeartProto):
-                        strings.Add($"Heart: {targetAsCharacter.Body.OrganFunction<HeartProto>().ToString("P2", actor).ColourValue()}");
+                        strings.Add($"Heart: {targetBody.OrganFunction<HeartProto>().ToString("P2", actor).ColourValue()}");
                         continue;
                     case nameof(PowerCore):
-                        strings.Add($"Power Core: {targetAsCharacter.Body.OrganFunction<PowerCore>().ToString("P2", actor).ColourValue()}");
+                        strings.Add($"Power Core: {targetBody.OrganFunction<PowerCore>().ToString("P2", actor).ColourValue()}");
                         continue;
                     case nameof(LungProto):
-                        strings.Add($"Lungs: {targetAsCharacter.Body.OrganFunction<LungProto>().ToString("P2", actor).ColourValue()}");
+                        strings.Add($"Lungs: {targetBody.OrganFunction<LungProto>().ToString("P2", actor).ColourValue()}");
                         continue;
                     case nameof(LiverProto):
-                        strings.Add($"Liver: {targetAsCharacter.Body.OrganFunction<LiverProto>().ToString("P2", actor).ColourValue()}");
+                        strings.Add($"Liver: {targetBody.OrganFunction<LiverProto>().ToString("P2", actor).ColourValue()}");
                         continue;
                     case nameof(SpleenProto):
-                        strings.Add($"Spleen: {targetAsCharacter.Body.OrganFunction<SpleenProto>().ToString("P2", actor).ColourValue()}");
+                        strings.Add($"Spleen: {targetBody.OrganFunction<SpleenProto>().ToString("P2", actor).ColourValue()}");
                         continue;
                     case nameof(KidneyProto):
-                        strings.Add($"Kidneys: {targetAsCharacter.Body.OrganFunction<KidneyProto>().ToString("P2", actor).ColourValue()}");
+                        strings.Add($"Kidneys: {targetBody.OrganFunction<KidneyProto>().ToString("P2", actor).ColourValue()}");
                         continue;
                     case nameof(TracheaProto):
-                        strings.Add($"Trachea: {targetAsCharacter.Body.OrganFunction<TracheaProto>().ToString("P2", actor).ColourValue()}");
+                        strings.Add($"Trachea: {targetBody.OrganFunction<TracheaProto>().ToString("P2", actor).ColourValue()}");
                         continue;
                     case nameof(EsophagusProto):
-                        strings.Add($"Esophagus: {targetAsCharacter.Body.OrganFunction<EsophagusProto>().ToString("P2", actor).ColourValue()}");
+                        strings.Add($"Esophagus: {targetBody.OrganFunction<EsophagusProto>().ToString("P2", actor).ColourValue()}");
                         continue;
                     case nameof(IntestinesProto):
-                        strings.Add($"Intestines: {targetAsCharacter.Body.OrganFunction<IntestinesProto>().ToString("P2", actor).ColourValue()}");
+                        strings.Add($"Intestines: {targetBody.OrganFunction<IntestinesProto>().ToString("P2", actor).ColourValue()}");
                         continue;
                     case nameof(EarProto):
-                        strings.Add($"Ears: {targetAsCharacter.Body.OrganFunction<EarProto>().ToString("P2", actor).ColourValue()}");
+                        strings.Add($"Ears: {targetBody.OrganFunction<EarProto>().ToString("P2", actor).ColourValue()}");
                         continue;
                     case nameof(SensorArray):
-                        strings.Add($"Sensor Array: {targetAsCharacter.Body.OrganFunction<SensorArray>().ToString("P2", actor).ColourValue()}");
+                        strings.Add($"Sensor Array: {targetBody.OrganFunction<SensorArray>().ToString("P2", actor).ColourValue()}");
                         continue;
                     case nameof(SpeechSynthesizer):
-                        strings.Add($"Speech Synthesizer: {targetAsCharacter.Body.OrganFunction<SpeechSynthesizer>().ToString("P2", actor).ColourValue()}");
+                        strings.Add($"Speech Synthesizer: {targetBody.OrganFunction<SpeechSynthesizer>().ToString("P2", actor).ColourValue()}");
                         continue;
                 }
             }
@@ -2788,24 +2786,16 @@ Your options are to name the specific bodypart, #3random#0 for a random part, #3
             return;
         }
 
-        ICharacter target = actor.TargetActorOrCorpse(ss.PopSpeech());
+        BodyTargetResult target = actor.TargetActorOrCorpseBody(ss.PopSpeech());
         if (target == null)
         {
-            IGameItem targetItem = actor.TargetItem(ss.Last);
-            if (targetItem?.IsItemType<ICorpse>() ?? false)
-            {
-                target = targetItem?.GetItemType<ICorpse>().OriginalCharacter;
-            }
-            else
-            {
-                actor.Send("You don't see anyone like that to sever from.");
-                return;
-            }
+            actor.Send("You don't see anyone like that to sever from.");
+            return;
         }
 
         if (ss.IsFinished)
         {
-            actor.Send($"Which bodypart do you want to sever from {target.HowSeen(actor)}?");
+            actor.Send($"Which bodypart do you want to sever from {target.Perceivable.HowSeen(actor)}?");
             return;
         }
 
@@ -2857,7 +2847,7 @@ Your options are to name the specific bodypart, #3random#0 for a random part, #3
         }
 
         actor.OutputHandler.Handle(
-            new EmoteOutput(new Emote($"@ {verb} $0's {targetBodypart.ShortDescription()}!", actor, target)));
+            new EmoteOutput(new Emote($"@ {verb} $0's {targetBodypart.ShortDescription()}!", actor, target.Perceivable)));
 
         if (item != null)
         {
@@ -2883,24 +2873,16 @@ Your options are to name the specific bodypart, #3random#0 for a random part, #3
             return;
         }
 
-        ICharacter target = actor.TargetActorOrCorpse(ss.PopSpeech());
+        BodyTargetResult target = actor.TargetActorOrCorpseBody(ss.PopSpeech());
         if (target == null)
         {
-            IGameItem targetItem = actor.TargetItem(ss.Last);
-            if (targetItem?.IsItemType<ICorpse>() ?? false)
-            {
-                target = targetItem?.GetItemType<ICorpse>().OriginalCharacter;
-            }
-            else
-            {
-                actor.Send("You don't see anyone like that to restore severed bodyparts to.");
-                return;
-            }
+            actor.Send("You don't see anyone like that to restore severed bodyparts to.");
+            return;
         }
 
         if (ss.IsFinished)
         {
-            actor.Send($"Which bodypart do you want to restore to {target.HowSeen(actor)}?");
+            actor.Send($"Which bodypart do you want to restore to {target.Perceivable.HowSeen(actor)}?");
             return;
         }
 
@@ -2911,7 +2893,7 @@ Your options are to name the specific bodypart, #3random#0 for a random part, #3
             target.Body.RestoreAllBodypartsOrgansAndBones();
             actor.OutputHandler.Handle(
                 new EmoteOutput(new Emote($"@ restore|restores all of $0's severed bodyparts, organs and bones!", actor,
-                    target)));
+                    target.Perceivable)));
             return;
         }
 
@@ -2952,7 +2934,7 @@ Your options are to name the specific bodypart, #3random#0 for a random part, #3
 
         actor.OutputHandler.Handle(
             new EmoteOutput(new Emote($"@ restore|restores $0's severed {targetBodypart.ShortDescription()}!", actor,
-                target)));
+                target.Perceivable)));
     }
 
     [PlayerCommand("InstallImplant", "installimplant")]
@@ -2985,7 +2967,7 @@ Your options are to name the specific bodypart, #3random#0 for a random part, #3
             return;
         }
 
-        ICharacter target = actor.TargetActorOrCorpse(ss.PopSpeech());
+        BodyTargetResult target = actor.TargetActorOrCorpseBody(ss.PopSpeech());
         if (target == null)
         {
             actor.Send("You don't see anyone like that to install that implant into.");
@@ -3018,7 +3000,7 @@ Your options are to name the specific bodypart, #3random#0 for a random part, #3
             implant.TargetBodypart = bodypart;
         }
 
-        actor.Send($"You install {item.HowSeen(actor)} into {target.HowSeen(actor)}.");
+        actor.Send($"You install {item.HowSeen(actor)} into {target.Perceivable.HowSeen(actor)}.");
     }
 
 
@@ -3033,7 +3015,7 @@ Your options are to name the specific bodypart, #3random#0 for a random part, #3
             return;
         }
 
-        ICharacter target = actor.TargetActorOrCorpse(ss.PopSpeech());
+        BodyTargetResult target = actor.TargetActorOrCorpseBody(ss.PopSpeech());
         if (target == null)
         {
             actor.Send("You don't see anyone like that to change the implant powering arrangements for.");
@@ -3050,7 +3032,7 @@ Your options are to name the specific bodypart, #3random#0 for a random part, #3
                             ?.GetItemType<IImplant>();
         if (implant == null)
         {
-            actor.Send($"{target.HowSeen(actor, true)} has no such implant.");
+            actor.Send($"{target.Perceivable.HowSeen(actor, true)} has no such implant.");
             return;
         }
 
@@ -3071,13 +3053,13 @@ Your options are to name the specific bodypart, #3random#0 for a random part, #3
                                ?.GetItemType<IImplantPowerPlant>();
         if (powerplant == null)
         {
-            actor.Send($"{target.HowSeen(actor, true)} has no such power plant implant.");
+            actor.Send($"{target.Perceivable.HowSeen(actor, true)} has no such power plant implant.");
             return;
         }
 
         implantPower.PowerPlant = powerplant;
         actor.Send(
-            $"{target.HowSeen(actor, true, DescriptionType.Possessive)} implant {implant.Parent.HowSeen(actor)} will now be powered by {powerplant.Parent.HowSeen(actor)}.");
+            $"{target.Perceivable.HowSeen(actor, true, DescriptionType.Possessive)} implant {implant.Parent.HowSeen(actor)} will now be powered by {powerplant.Parent.HowSeen(actor)}.");
     }
 
     [PlayerCommand("ConnectImplants", "connectimplant")]
@@ -3091,7 +3073,7 @@ Your options are to name the specific bodypart, #3random#0 for a random part, #3
             return;
         }
 
-        ICharacter target = actor.TargetActorOrCorpse(ss.PopSpeech());
+        BodyTargetResult target = actor.TargetActorOrCorpseBody(ss.PopSpeech());
         if (target == null)
         {
             actor.Send("You don't see anyone like that to change the implant connection arrangements for.");
@@ -3108,7 +3090,7 @@ Your options are to name the specific bodypart, #3random#0 for a random part, #3
                             ?.GetItemType<IImplant>();
         if (implant == null)
         {
-            actor.Send($"{target.HowSeen(actor, true)} has no such implant.");
+            actor.Send($"{target.Perceivable.HowSeen(actor, true)} has no such implant.");
             return;
         }
 
@@ -3128,14 +3110,14 @@ Your options are to name the specific bodypart, #3random#0 for a random part, #3
                            ?.GetItemType<IImplantNeuralLink>();
         if (neural == null)
         {
-            actor.Send($"{target.HowSeen(actor, true)} has no such neural implant.");
+            actor.Send($"{target.Perceivable.HowSeen(actor, true)} has no such neural implant.");
             return;
         }
 
         if (neural.IsLinkedTo(implant))
         {
             actor.OutputHandler.Send(
-                $"{target.HowSeen(actor, true, DescriptionType.Possessive)} implant {implant.Parent.HowSeen(actor)} is already connected to {neural.Parent.HowSeen(actor)}.");
+                $"{target.Perceivable.HowSeen(actor, true, DescriptionType.Possessive)} implant {implant.Parent.HowSeen(actor)} is already connected to {neural.Parent.HowSeen(actor)}.");
             return;
         }
 
@@ -3151,7 +3133,7 @@ Your options are to name the specific bodypart, #3random#0 for a random part, #3
         }
 
         actor.Send(
-            $"You connect {target.HowSeen(actor, false, DescriptionType.Possessive)} implant {implant.Parent.HowSeen(actor)} to the neural interface implant {neural.Parent.HowSeen(actor)}.");
+            $"You connect {target.Perceivable.HowSeen(actor, false, DescriptionType.Possessive)} implant {implant.Parent.HowSeen(actor)} to the neural interface implant {neural.Parent.HowSeen(actor)}.");
     }
 
     [PlayerCommand("Implants", "implants")]
@@ -3165,7 +3147,7 @@ Your options are to name the specific bodypart, #3random#0 for a random part, #3
             return;
         }
 
-        ICharacter target = actor.TargetActorOrCorpse(ss.PopSpeech());
+        BodyTargetResult target = actor.TargetActorOrCorpseBody(ss.PopSpeech());
         if (target == null)
         {
             actor.OutputHandler.Send("You don't see anyone like that to view the implants for.");
@@ -3174,7 +3156,7 @@ Your options are to name the specific bodypart, #3random#0 for a random part, #3
 
         StringBuilder sb = new();
         sb.AppendLine(
-            $"{target.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreSelf)} has the following implants:");
+            $"{target.Perceivable.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreSelf)} has the following implants:");
         List<IImplantNeuralLink> dnis = target.Body.Implants.OfType<IImplantNeuralLink>().ToList();
         foreach (IImplant implant in target.Body.Implants)
         {

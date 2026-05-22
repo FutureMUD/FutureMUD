@@ -1,4 +1,5 @@
 using MudSharp.Accounts;
+using MudSharp.Body;
 using MudSharp.Character;
 using MudSharp.Events;
 using MudSharp.Framework;
@@ -37,6 +38,18 @@ public class CorpseGameItemComponentProto : GameItemComponentProto, ICorpseProto
 
     public static IGameItem CreateNewCorpse(ICharacter character, bool temporary = false)
     {
+        return CreateNewCorpse(character, character.Body, BodyRemainsContext.FinalCharacterDeath, temporary);
+    }
+
+    public static IGameItem CreateNewBodyRemains(ICharacter character, IBody body,
+        BodyRemainsContext context = BodyRemainsContext.AbandonedBody, bool temporary = false)
+    {
+        return CreateNewCorpse(character, body, context, temporary);
+    }
+
+    public static IGameItem CreateNewCorpse(ICharacter character, IBody body, BodyRemainsContext context,
+        bool temporary = false)
+    {
         IGameItem newItem = ItemProto.CreateNew();
         if (newItem.GetItemType<ICorpse>() is not CorpseGameItemComponent corpseItem)
         {
@@ -45,8 +58,9 @@ public class CorpseGameItemComponentProto : GameItemComponentProto, ICorpseProto
         }
 
         corpseItem.OriginalCharacter = character;
-        corpseItem.OriginalBody = character.Body;
-        corpseItem.Model = character.Race.CorpseModel;
+        corpseItem.OriginalBody = body;
+        corpseItem.RemainsContext = context;
+        corpseItem.Model = body.Race.CorpseModel;
         corpseItem.Parent.RoomLayer = character.RoomLayer;
         corpseItem.Changed = true;
         newItem.Login();

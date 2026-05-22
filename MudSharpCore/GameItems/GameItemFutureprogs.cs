@@ -61,6 +61,9 @@ public partial class GameItem
             { "locked", ProgVariableTypes.Boolean },
             { "locks", ProgVariableTypes.Collection | ProgVariableTypes.Item },
             { "corpsecharacter", ProgVariableTypes.Character },
+            { "corpsebodyid", ProgVariableTypes.Number },
+            { "corpseremainscontext", ProgVariableTypes.Text },
+            { "corpsefinaldeath", ProgVariableTypes.Boolean },
             { "location", ProgVariableTypes.Location },
             { "tags", ProgVariableTypes.Collection | ProgVariableTypes.Text },
             { "iscommodity", ProgVariableTypes.Boolean },
@@ -126,6 +129,9 @@ public partial class GameItem
             { "locked", "True if the item is currently locked" },
             { "locks", "A collection of the locks on this item" },
             { "corpsecharacter", "If the item is a corpse, this is the original character" },
+            { "corpsebodyid", "If the item is a corpse, this is the original body ID represented by the remains" },
+            { "corpseremainscontext", "If the item is a corpse, this is the body-remains context" },
+            { "corpsefinaldeath", "True if the item is a corpse from a final character death rather than abandoned body remains" },
             { "location", "The room that the item is in" },
             { "tags", "A collection of the tags that this item has" },
             { "iscommodity", "True if the item is a commodity pile" },
@@ -301,6 +307,12 @@ public partial class GameItem
                     ProgVariableTypes.Item);
             case "corpsecharacter":
                 return GetItemType<ICorpse>()?.OriginalCharacter;
+            case "corpsebodyid":
+                return new NumberVariable(GetItemType<ICorpse>()?.OriginalBodyId ?? 0);
+            case "corpseremainscontext":
+                return new TextVariable(GetItemType<ICorpse>()?.RemainsContext.DescribeEnum() ?? "");
+            case "corpsefinaldeath":
+                return new BooleanVariable(GetItemType<ICorpse>()?.RepresentsFinalCharacterDeath == true);
             case "location":
                 return Location;
             case "tags":

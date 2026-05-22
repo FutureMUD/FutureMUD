@@ -29,6 +29,7 @@ namespace MudSharp.GameItems.Components;
 public class CorpseGameItemComponent : GameItemComponent, ICorpse, ILazyLoadDuringIdleTime
 {
     protected CorpseGameItemComponentProto _prototype;
+    private BodyRemainsContext _remainsContext = BodyRemainsContext.FinalCharacterDeath;
 
     public override bool PreventsMerging(IGameItemComponent component)
     {
@@ -96,6 +97,7 @@ public class CorpseGameItemComponent : GameItemComponent, ICorpse, ILazyLoadDuri
         return new XElement("Definition",
             new XElement("OriginalCharacter", _originalCharacterId),
             new XElement("OriginalBody", _originalBodyId),
+            new XElement("RemainsContext", (int)RemainsContext),
             new XElement("Model", Model?.Id ?? 0),
             new XElement("DecayPoints", DecayPoints),
             new XElement("DecayState", (int)Decay),
@@ -113,6 +115,7 @@ public class CorpseGameItemComponent : GameItemComponent, ICorpse, ILazyLoadDuri
     {
         _originalCharacterId = long.Parse(definition.Element("OriginalCharacter").Value);
         _originalBodyId = long.Parse(definition.Element("OriginalBody")?.Value ?? "0");
+        _remainsContext = (BodyRemainsContext)int.Parse(definition.Element("RemainsContext")?.Value ?? "0");
         Model = Gameworld.CorpseModels.Get(long.Parse(definition.Element("Model").Value));
         DecayPoints = double.Parse(definition.Element("DecayPoints").Value);
         Decay = (DecayState)int.Parse(definition.Element("DecayState").Value);
@@ -159,6 +162,7 @@ public class CorpseGameItemComponent : GameItemComponent, ICorpse, ILazyLoadDuri
         _originalCharacter = rhs._originalCharacter;
         _originalBodyId = rhs._originalBodyId;
         _originalBody = rhs._originalBody;
+        _remainsContext = rhs._remainsContext;
         Model = rhs.Model;
         Decay = rhs.Decay;
         DecayPoints = rhs.DecayPoints;
@@ -198,16 +202,30 @@ public class CorpseGameItemComponent : GameItemComponent, ICorpse, ILazyLoadDuri
 
     public override void Delete()
     {
-        OriginalCharacter.Corpse = null;
+        ICharacter originalCharacter = OriginalCharacter;
+        IBody originalBody = OriginalBody;
+        bool finalDeath = RepresentsFinalCharacterDeath;
+        if (finalDeath && originalCharacter.Corpse == this)
+        {
+            originalCharacter.Corpse = null;
+        }
+
         base.Delete();
         Gameworld.HeartbeatManager.MinuteHeartbeat -= HeartbeatManagerOnMinuteHeartbeat;
-        // If a corpse is deleted and its owner is still dead (i.e. hasn't been resurrected), delete the inventory
-        if (OriginalCharacter.Status == CharacterStatus.Deceased)
+        // If a final-death corpse is deleted and its owner is still dead (i.e. hasn't been resurrected), delete the inventory.
+        // Non-final remains own their physical contents independently of the surviving character, so deleting the remains
+        // deletes the old body's inventory too.
+        if (!finalDeath || originalCharacter.Status == CharacterStatus.Deceased)
         {
-            foreach (IGameItem item in OriginalBody.ExternalItems.ToList())
+            foreach (IGameItem item in originalBody.ExternalItems.ToList())
             {
                 item.Delete();
             }
+        }
+
+        if (!finalDeath)
+        {
+            originalCharacter.TryCleanupRetiredBody(originalBody, Parent);
         }
     }
 
@@ -251,10 +269,31 @@ public class CorpseGameItemComponent : GameItemComponent, ICorpse, ILazyLoadDuri
 
     public double RemainingEdibleWeight => OriginalBody.Weight * Model.EdiblePercentage - EatenWeight;
 
+    public BodyRemainsContext RemainsContext
+    {
+        get => _remainsContext;
+        set
+        {
+            if (_remainsContext == value)
+            {
+                return;
+            }
+
+            _remainsContext = value;
+            Changed = true;
+        }
+    }
+
+    public bool RepresentsFinalCharacterDeath => RemainsContext == BodyRemainsContext.FinalCharacterDeath;
+
     private void LoadOriginalReferences(bool viaSaveManager)
     {
         _originalCharacter = Gameworld.TryGetCharacter(_originalCharacterId, true);
-        _originalCharacter?.Corpse = this;
+        if (RepresentsFinalCharacterDeath)
+        {
+            _originalCharacter?.Corpse = this;
+        }
+
         _originalBody = Gameworld.Bodies.Get(_originalBodyId) ??
                         _originalCharacter?.Bodies.FirstOrDefault(x => x.Id == _originalBodyId);
         if (_originalBody == null && _originalCharacter != null)
@@ -293,6 +332,8 @@ public class CorpseGameItemComponent : GameItemComponent, ICorpse, ILazyLoadDuri
     }
 
     public long OriginalBodyId => _originalBodyId;
+
+    public MudSharp.Character.Heritage.IRace OriginalRace => OriginalBody.Race;
 
     public IBody OriginalBody
     {
@@ -404,7 +445,7 @@ public class CorpseGameItemComponent : GameItemComponent, ICorpse, ILazyLoadDuri
 
         ICheck check = Gameworld.GetCheck(CheckType.ButcheryCheck);
         Butchering effect = butcher.EffectsOfType<Butchering>().First();
-        foreach (IButcheryProduct product in OriginalCharacter.Race.ButcheryProfile.Products.Where(x =>
+        foreach (IButcheryProduct product in OriginalRace.ButcheryProfile.Products.Where(x =>
                      !x.IsPelt && x.AppliesTo(this) && x.CanProduce(butcher, Parent) &&
                      x.MatchesButcherySubcategory(subcategory, ButcheredSubcategories)))
         {
@@ -493,7 +534,7 @@ public class CorpseGameItemComponent : GameItemComponent, ICorpse, ILazyLoadDuri
 
         ICheck check = Gameworld.GetCheck(CheckType.SkinningCheck);
         Skinning effect = skinner.EffectsOfType<Skinning>().First();
-        foreach (IButcheryProduct product in OriginalCharacter.Race.ButcheryProfile.Products.Where(x =>
+        foreach (IButcheryProduct product in OriginalRace.ButcheryProfile.Products.Where(x =>
                      x.IsPelt && x.AppliesTo(this) && x.CanProduce(skinner, Parent)))
         {
             List<IBodypart> productParts = product.MatchingBodyparts(this).ToList();

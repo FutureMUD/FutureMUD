@@ -53,7 +53,7 @@ public class Skinning : StagedCharacterActionWithTarget, IAffectProximity
 
     public ICharacter Skinner { get; set; }
     public IButcherable Skinnable { get; set; }
-    public IRaceButcheryProfile Profile => Skinnable.OriginalCharacter.Race.ButcheryProfile;
+    public IRaceButcheryProfile Profile => Skinnable.OriginalRace.ButcheryProfile;
     public IGameItem Tool { get; set; }
 
     public ITraitDefinition Trait { get; set; }

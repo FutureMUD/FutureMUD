@@ -2291,22 +2291,26 @@ public partial class Body
         givenItem.InvokeInventoryChange(wasWielded ? InventoryState.Wielded : InventoryState.Held,
             InventoryState.Dropped);
 
-        // Handle events
-        HandleEvent(EventType.CharacterGiveItemGiver, Actor, target.OriginalCharacter, givenItem);
-        target.OriginalCharacter.HandleEvent(EventType.CharacterGiveItemReceiver, Actor, target.OriginalCharacter,
-            givenItem);
-        givenItem.HandleEvent(EventType.ItemGiven, Actor, target.OriginalCharacter, givenItem);
-        foreach (IHandleEvents witness in Location.EventHandlers.Except(new IHandleEvents[] { Actor, target.OriginalCharacter })
-                )
+        // Final-death corpses preserve the old legacy character-gift event path. Non-final remains are a body item,
+        // not the live owner, so do not dispatch character receiver/witness events against the surviving character.
+        if (target.RepresentsFinalCharacterDeath)
         {
-            witness.HandleEvent(EventType.CharacterGiveItemWitness, Actor, target.OriginalCharacter, givenItem,
-                witness);
-        }
+            HandleEvent(EventType.CharacterGiveItemGiver, Actor, target.OriginalCharacter, givenItem);
+            target.OriginalCharacter.HandleEvent(EventType.CharacterGiveItemReceiver, Actor, target.OriginalCharacter,
+                givenItem);
+            givenItem.HandleEvent(EventType.ItemGiven, Actor, target.OriginalCharacter, givenItem);
+            foreach (IHandleEvents witness in Location.EventHandlers.Except(new IHandleEvents[] { Actor, target.OriginalCharacter })
+                    )
+            {
+                witness.HandleEvent(EventType.CharacterGiveItemWitness, Actor, target.OriginalCharacter, givenItem,
+                    witness);
+            }
 
-        foreach (IGameItem witness in ExternalItems)
-        {
-            witness.HandleEvent(EventType.CharacterGiveItemWitness, Actor, target.OriginalCharacter, givenItem,
-                witness);
+            foreach (IGameItem witness in ExternalItems)
+            {
+                witness.HandleEvent(EventType.CharacterGiveItemWitness, Actor, target.OriginalCharacter, givenItem,
+                    witness);
+            }
         }
     }
 

@@ -2162,6 +2162,11 @@ div.function-generalhelp {
             List<ICorpse> corpses = actor.Gameworld.Items.SelectNotNull(x => x.GetItemType<ICorpse>()).ToList();
             foreach (ICorpse corpse in corpses)
             {
+                if (!corpse.RepresentsFinalCharacterDeath)
+                {
+                    continue;
+                }
+
                 if (corpse.OriginalCharacter.Status != CharacterStatus.Deceased)
                 {
                     corpse.Parent.Delete();
@@ -2191,7 +2196,7 @@ div.function-generalhelp {
                 foreach (Npc npc in FMDB.Context.Npcs.Include(x => x.Character.Body)
                                         .Where(x => x.Character.State == (int)CharacterState.Dead).ToList())
                 {
-                    if (corpses.Any(x => x.OriginalCharacter.Id == npc.CharacterId))
+                    if (corpses.Any(x => x.RepresentsFinalCharacterDeath && x.OriginalCharacter.Id == npc.CharacterId))
                     {
                         continue;
                     }

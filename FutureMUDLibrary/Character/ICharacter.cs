@@ -445,6 +445,7 @@ namespace MudSharp.Character
         bool SwitchToBody(IBody target, BodySwitchIntent intent);
         bool EnsureForm(ICharacterFormSpecification specification, ICharacterFormSource source, out ICharacterForm form,
             out string whyNot);
+        bool TryCleanupRetiredBody(IBody body, IGameItem? excludingReference = null);
         bool HasActiveForcedTransformationDemand { get; }
         bool TryGetCurrentForcedTransformationTarget(out IBody body);
         void ReevaluateForcedBodyTransformation();

@@ -142,8 +142,12 @@ public partial class Character : ITarget
             var body = Body!;
             return location.Characters
                            .Except(this)
-                           .Concat(location.GameItems.Select(x => x.GetItemType<ICorpse>()?.OriginalCharacter).OfType<ICharacter>())
-                           .Concat(body.ExternalItems.Select(x => x.GetItemType<ICorpse>()?.OriginalCharacter).OfType<ICharacter>())
+                           .Concat(location.GameItems.Select(x => x.GetItemType<ICorpse>())
+                                           .Where(x => x is { RepresentsFinalCharacterDeath: true })
+                                           .Select(x => x!.OriginalCharacter))
+                           .Concat(body.ExternalItems.Select(x => x.GetItemType<ICorpse>())
+                                       .Where(x => x is { RepresentsFinalCharacterDeath: true })
+                                       .Select(x => x!.OriginalCharacter))
                            .Where(x => CanSee(x, ignoreFlags))
                            .GetFromItemListByKeyword(keyword, this);
         }
@@ -153,8 +157,12 @@ public partial class Character : ITarget
         return localLocation.LayerCharacters(RoomLayer)
                        .Except(this)
                        .Concat(localLocation.LayerGameItems(RoomLayer)
-                                       .Select(x => x.GetItemType<ICorpse>()?.OriginalCharacter).OfType<ICharacter>())
-                       .Concat(localBody.ExternalItems.Select(x => x.GetItemType<ICorpse>()?.OriginalCharacter).OfType<ICharacter>())
+                                       .Select(x => x.GetItemType<ICorpse>())
+                                       .Where(x => x is { RepresentsFinalCharacterDeath: true })
+                                       .Select(x => x!.OriginalCharacter))
+                       .Concat(localBody.ExternalItems.Select(x => x.GetItemType<ICorpse>())
+                                      .Where(x => x is { RepresentsFinalCharacterDeath: true })
+                                      .Select(x => x!.OriginalCharacter))
                        .Where(x => CanSee(x, ignoreFlags))
                        .GetFromItemListByKeyword(keyword, this);
     }

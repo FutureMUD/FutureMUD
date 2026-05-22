@@ -1294,7 +1294,6 @@ The syntax is as follows:
             }
 
             targetCorpse = (target as IGameItem).GetItemType<ICorpse>();
-            targetActor = (target as IGameItem).GetItemType<ICorpse>().OriginalCharacter;
         }
 
         string emoteText = weightMatch.Success ? weightMatch.Groups["emote"].Value :
@@ -1310,7 +1309,7 @@ The syntax is as follows:
             }
         }
 
-        if (!targetActor.IsAlly(actor) && (actor.Combat != null || targetActor.Combat != null))
+        if (targetActor != null && !targetActor.IsAlly(actor) && (actor.Combat != null || targetActor.Combat != null))
         {
             actor.Send(
                 "You cannot give things to people who aren't your allies while you or the recipient are in combat."
@@ -1606,7 +1605,14 @@ The syntax is as follows:
             IGameItem citem = actor.TargetItem(cmd);
             if (citem?.IsItemType<ICorpse>() == true)
             {
-                target = citem.GetItemType<ICorpse>().OriginalCharacter;
+                ICorpse corpse = citem.GetItemType<ICorpse>();
+                if (!corpse.RepresentsFinalCharacterDeath)
+                {
+                    actor.Send("That is body remains, not the current body of a dead character. Body-remains dressing is not yet supported by this command.");
+                    return;
+                }
+
+                target = corpse.OriginalCharacter;
             }
             else
             {

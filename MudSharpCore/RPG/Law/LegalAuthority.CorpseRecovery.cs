@@ -2,6 +2,7 @@ using MudSharp.Character;
 using MudSharp.Economy;
 using MudSharp.Framework;
 using MudSharp.GameItems;
+using MudSharp.GameItems.Interfaces;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -21,6 +22,12 @@ public partial class LegalAuthority
 
     public ICorpseRecoveryReport ReportCorpse(IGameItem corpse, IEconomicZone zone, ICharacter reporter)
     {
+        ICorpse corpseComponent = corpse.GetItemType<ICorpse>();
+        if (corpseComponent == null || !corpseComponent.RepresentsFinalCharacterDeath)
+        {
+            return null;
+        }
+
         ICorpseRecoveryReport existing = ActiveCorpseRecoveryReport(corpse);
         if (existing != null)
         {

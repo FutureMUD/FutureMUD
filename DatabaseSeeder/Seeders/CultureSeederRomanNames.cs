@@ -2989,7 +2989,7 @@ public partial class CultureSeeder
         #region Greek
 
         NameCulture greek = AddNameCulture("Hellenic",
-            @"<NameCulture><Patterns><Pattern Style=""0"" Text=""{0}"" Params=""0""/> <Pattern Style=""1"" Text=""{0} {1}"" Params=""0,13""/> <Pattern Style=""2"" Text=""{0} {1}"" Params=""0,7""/>    <Pattern Style=""3"" Text=""{0}"" Params=""0""/>    <Pattern Style=""4"" Text=""{0}"" Params=""6""/><Pattern Style=""5"" Text=""{0} {1} {2}"" Params=""0,7,13""/></Patterns><Elements><Element Usage=""0"" MinimumCount=""1"" MaximumCount=""1"" Name=""Given Name""><![CDATA[The Given Name is a name given to the child by their father on their tenth day of life. Typically, they will be named after a relative or a famous figure, and more rarely, after their same-gendered parent.]]></Element><Element Usage=""7"" MinimumCount=""1"" MaximumCount=""1"" Name=""Patronym""><![CDATA[The patronym is the name of a person's father, or, in the case of a married woman, she adopts her husband's name as her patronym.]]></Element>    <Element Usage=""13"" MinimumCount=""1"" MaximumCount=""1"" Name=""Toponym""><![CDATA[The toponym reflects the tribe, village, city or some other descriptor of a person's origin. It is often used in formal legal contexts outside of that place to differentiate the individual from others who might have the same name.]]></Element>    	 </Elements>  <NameEntryRegex><![CDATA[^(?:(?<birthname>[\w'-]+) )(?<patronym>(?<= )[\w'-]+)*?(?: (?<toponym>[\w'-]+))$]]></NameEntryRegex></NameCulture>");
+            @"<NameCulture><Patterns><Pattern Style=""0"" Text=""{0}"" Params=""0""/> <Pattern Style=""1"" Text=""{0} {1}"" Params=""0,13""/> <Pattern Style=""2"" Text=""{0} {1}"" Params=""0,7""/>    <Pattern Style=""3"" Text=""{0}"" Params=""0""/>    <Pattern Style=""4"" Text=""{0}"" Params=""13""/><Pattern Style=""5"" Text=""{0} {1} {2}"" Params=""0,7,13""/></Patterns><Elements><Element Usage=""0"" MinimumCount=""1"" MaximumCount=""1"" Name=""Given Name""><![CDATA[The Given Name is a name given to the child by their father on their tenth day of life. Typically, they will be named after a relative or a famous figure, and more rarely, after their same-gendered parent.]]></Element><Element Usage=""7"" MinimumCount=""1"" MaximumCount=""1"" Name=""Patronym""><![CDATA[The patronym is the name of a person's father, or, in the case of a married woman, she adopts her husband's name as her patronym.]]></Element>    <Element Usage=""13"" MinimumCount=""1"" MaximumCount=""1"" Name=""Toponym""><![CDATA[The toponym reflects the tribe, village, city or some other descriptor of a person's origin. It is often used in formal legal contexts outside of that place to differentiate the individual from others who might have the same name.]]></Element>    	 </Elements>  <NameEntryRegex><![CDATA[^(?:(?<birthname>[\w'-]+) )(?<patronym>(?<= )[\w'-]+)*?(?: (?<toponym>[\w'-]+))$]]></NameEntryRegex></NameCulture>");
 
         #region Greek Male
 
@@ -12019,6 +12019,487 @@ A mother never gives her daughters her own name in this system, so your matronym
 
         #endregion
 
-        // TODO - more barbarian names
+		SeedAdditionalAntiquityNames(germanicMale, germanicFemale);
+		context.SaveChanges();
     }
+
+	private void SeedAdditionalAntiquityNames(NameCulture germanicMale, NameCulture germanicFemale)
+	{
+		SeedCelticAntiquityNames();
+		SeedPunicAntiquityNames();
+		SeedPersianAntiquityNames();
+		SeedEgyptianAntiquityNames();
+		SeedEtruscanAntiquityNames();
+		SeedAnatolianAntiquityNames();
+		SeedScythianSarmatianAntiquityNames();
+		SeedKushiteAntiquityNames();
+		RefreshGermanicAntiquityProfiles(germanicMale, germanicFemale);
+	}
+
+	private void SeedCelticAntiquityNames()
+	{
+		NameCulture maleCulture = AddAntiquityTwoElementNameCulture(
+			"Celtic Male",
+			NameUsage.Patronym,
+			"Patronym",
+			@"^(?<birthname>[\w'-]+)\s+(?<patronym>[\w'-]+)$",
+			"Celtic personal names are usually single given names, often compound names known through Gaulish, Brittonic, Celtiberian, and Roman-era inscriptions.",
+			"The patronym is a genitive form of the father's personal name, used here as a compact stock approximation of the attested Celtic patronymic formulas.");
+		SeedAntiquityTwoElementProfile("Celtic Male", Gender.Male, maleCulture, NameUsage.Patronym,
+			CelticMaleGivenNames(), CelticMalePatronyms());
+
+		NameCulture femaleCulture = AddAntiquityTwoElementNameCulture(
+			"Celtic Female",
+			NameUsage.Matronym,
+			"Matronym",
+			@"^(?<birthname>[\w'-]+)\s+(?<matronym>[\w'-]+)$",
+			"Celtic personal names are usually single given names, often compound names known through Gaulish, Brittonic, Celtiberian, and Roman-era inscriptions.",
+			"The matronym is a genitive form of the mother's personal name, included so female stock profiles do not draw lineage names from the male pool.");
+		SeedAntiquityTwoElementProfile("Celtic Female", Gender.Female, femaleCulture, NameUsage.Matronym,
+			CelticFemaleGivenNames(), CelticFemaleMatronyms());
+	}
+
+	private void SeedPunicAntiquityNames()
+	{
+		NameCulture culture = AddAntiquityTwoElementNameCulture(
+			"Punic",
+			NameUsage.Patronym,
+			"Patronym",
+			@"^(?<birthname>[\w'-]+)\s+(?<patronym>Ben-[\w'-]+)$",
+			"Punic given names draw from the western Phoenician and Carthaginian naming pool, with many theophoric names invoking Baal, Melqart, Eshmun, Tanit, or Astarte.",
+			"Punic inscriptions commonly identify people by filiation. The seeded patronyms use the readable Ben- prefix as a stock 'child of' form.");
+		SeedAntiquityTwoElementProfile("Punic Male", Gender.Male, culture, NameUsage.Patronym,
+			PunicMaleGivenNames(), PunicPatronyms());
+		SeedAntiquityTwoElementProfile("Punic Female", Gender.Female, culture, NameUsage.Patronym,
+			PunicFemaleGivenNames(), PunicPatronyms());
+	}
+
+	private void SeedPersianAntiquityNames()
+	{
+		NameCulture culture = AddAntiquityTwoElementNameCulture(
+			"Ancient Persian",
+			NameUsage.Patronym,
+			"Patronym",
+			@"^(?<birthname>[\w'-]+)\s+(?<patronym>[\w'-]+)$",
+			"Ancient Persian personal names here use the familiar Greek and Latin transliterations of Achaemenid and early Iranian names.",
+			"The patronym is the father's personal name, reflecting the common royal and aristocratic formula 'X son of Y' without forcing a translated particle into the name.");
+		SeedAntiquityTwoElementProfile("Persian Antiquity Male", Gender.Male, culture, NameUsage.Patronym,
+			PersianMaleGivenNames(), PersianMaleGivenNames());
+		SeedAntiquityTwoElementProfile("Persian Antiquity Female", Gender.Female, culture, NameUsage.Patronym,
+			PersianFemaleGivenNames(), PersianMaleGivenNames());
+	}
+
+	private void SeedEgyptianAntiquityNames()
+	{
+		NameCulture culture = AddAntiquitySingleGivenNameCulture(
+			"Egyptian",
+			"Ancient Egyptian personal names are seeded as single names, many of them theophoric or royal-administrative names known from Egyptian and Graeco-Roman sources.");
+		SeedAntiquitySingleElementProfile("Egyptian Male", Gender.Male, culture, EgyptianMaleGivenNames());
+		SeedAntiquitySingleElementProfile("Egyptian Female", Gender.Female, culture, EgyptianFemaleGivenNames());
+	}
+
+	private void SeedEtruscanAntiquityNames()
+	{
+		NameCulture culture = AddAntiquityTwoElementNameCulture(
+			"Etruscan",
+			NameUsage.Surname,
+			"Family Name",
+			@"^(?<birthname>[\w'-]+)\s+(?<surname>[\w'-]+)$",
+			"Etruscan personal names use a praenomen-style given name; unlike Roman women, Etruscan women also regularly retained personal names in inscriptions.",
+			"The family name is the gentilicium or clan name. Full Etruscan inscriptions may add patronymics, matronymics, or marriage identifiers, but this stock profile keeps the reusable core two-name form.");
+		SeedAntiquityTwoElementProfile("Etruscan Male", Gender.Male, culture, NameUsage.Surname,
+			EtruscanMaleGivenNames(), EtruscanFamilyNames());
+		SeedAntiquityTwoElementProfile("Etruscan Female", Gender.Female, culture, NameUsage.Surname,
+			EtruscanFemaleGivenNames(), EtruscanFamilyNames());
+	}
+
+	private void SeedAnatolianAntiquityNames()
+	{
+		NameCulture culture = AddAntiquityTwoElementNameCulture(
+			"Anatolian",
+			NameUsage.Toponym,
+			"Toponym",
+			@"^(?<birthname>[\w'-]+)\s+(?<toponym>[\w' -]+)$",
+			"Anatolian names cover Lydian, Phrygian, Carian, Lycian, Cappadocian, and Hellenistic Anatolian stock names used by the antiquity item cultures.",
+			"The toponym records the city, district, or royal centre most useful for distinguishing people across the many Anatolian naming traditions.");
+		SeedAntiquityTwoElementProfile("Anatolian Male", Gender.Male, culture, NameUsage.Toponym,
+			AnatolianMaleGivenNames(), AnatolianToponyms());
+		SeedAntiquityTwoElementProfile("Anatolian Female", Gender.Female, culture, NameUsage.Toponym,
+			AnatolianFemaleGivenNames(), AnatolianToponyms());
+	}
+
+	private void SeedScythianSarmatianAntiquityNames()
+	{
+		NameCulture culture = AddAntiquityTwoElementNameCulture(
+			"Scythian-Sarmatian",
+			NameUsage.Toponym,
+			"Tribal Identifier",
+			@"^(?<birthname>[\w'-]+)\s+(?<toponym>[\w' -]+)$",
+			"Scythian and Sarmatian names use Greek and Latin source forms for Iranic steppe peoples around the Black Sea and Pontic-Caspian frontier.",
+			"The tribal identifier distinguishes the broad nomadic, royal, and client groupings that Roman and Greek observers used for steppe peoples.");
+		SeedAntiquityTwoElementProfile("Scythian-Sarmatian Male", Gender.Male, culture, NameUsage.Toponym,
+			ScythianSarmatianMaleGivenNames(), ScythianSarmatianToponyms());
+		SeedAntiquityTwoElementProfile("Scythian-Sarmatian Female", Gender.Female, culture, NameUsage.Toponym,
+			ScythianSarmatianFemaleGivenNames(), ScythianSarmatianToponyms());
+	}
+
+	private void SeedKushiteAntiquityNames()
+	{
+		NameCulture culture = AddAntiquitySingleGivenNameCulture(
+			"Kushite",
+			"Kushite names are seeded as single Meroitic and Napatan-style personal names, drawing heavily from royal names because those are the best-attested stock source.");
+		SeedAntiquitySingleElementProfile("Kushite Male", Gender.Male, culture, KushiteMaleGivenNames());
+		SeedAntiquitySingleElementProfile("Kushite Female", Gender.Female, culture, KushiteFemaleGivenNames());
+	}
+
+	private void RefreshGermanicAntiquityProfiles(NameCulture germanicMale, NameCulture germanicFemale)
+	{
+		SeedAntiquityTwoElementProfile("Germanic Male", Gender.Male, germanicMale, NameUsage.Patronym,
+			GermanicMaleGivenNames(), GermanicMaleGivenNames());
+		SeedAntiquityTwoElementProfile("Germanic Female", Gender.Female, germanicFemale, NameUsage.Matronym,
+			GermanicFemaleGivenNames(), GermanicFemaleGivenNames());
+	}
+
+	private NameCulture AddAntiquitySingleGivenNameCulture(string name, string description)
+	{
+		return AddNameCulture(name, @"^(?<birthname>[\w'-]+)$",
+			new[]
+			{
+				("Given Name", 1, 1, description, NameUsage.BirthName)
+			},
+			SingleGivenNamePatterns());
+	}
+
+	private NameCulture AddAntiquityTwoElementNameCulture(
+		string name,
+		NameUsage secondaryUsage,
+		string secondaryElementName,
+		string regex,
+		string givenDescription,
+		string secondaryDescription)
+	{
+		return AddNameCulture(name, regex,
+			new[]
+			{
+				("Given Name", 1, 1, givenDescription, NameUsage.BirthName),
+				(secondaryElementName, 1, 1, secondaryDescription, secondaryUsage)
+			},
+			TwoElementNamePatterns(secondaryUsage));
+	}
+
+	private static (NameStyle Style, string Pattern, NameUsage[] Parameters)[] SingleGivenNamePatterns()
+	{
+		return new[]
+		{
+			(NameStyle.GivenOnly, "{0}", new[] { NameUsage.BirthName }),
+			(NameStyle.SimpleFull, "{0}", new[] { NameUsage.BirthName }),
+			(NameStyle.FullName, "{0}", new[] { NameUsage.BirthName }),
+			(NameStyle.Affectionate, "{0}", new[] { NameUsage.BirthName }),
+			(NameStyle.SurnameOnly, "{0}", new[] { NameUsage.BirthName }),
+			(NameStyle.FullWithNickname, "{0}", new[] { NameUsage.BirthName })
+		};
+	}
+
+	private static (NameStyle Style, string Pattern, NameUsage[] Parameters)[] TwoElementNamePatterns(NameUsage secondaryUsage)
+	{
+		return new[]
+		{
+			(NameStyle.GivenOnly, "{0}", new[] { NameUsage.BirthName }),
+			(NameStyle.SimpleFull, "{0} {1}", new[] { NameUsage.BirthName, secondaryUsage }),
+			(NameStyle.FullName, "{0} {1}", new[] { NameUsage.BirthName, secondaryUsage }),
+			(NameStyle.Affectionate, "{0}", new[] { NameUsage.BirthName }),
+			(NameStyle.SurnameOnly, "{0}", new[] { secondaryUsage }),
+			(NameStyle.FullWithNickname, "{0} {1}", new[] { NameUsage.BirthName, secondaryUsage })
+		};
+	}
+
+	private void SeedAntiquitySingleElementProfile(string profileName, Gender gender, NameCulture culture, string[] givenNames)
+	{
+		RandomNameProfile profile = AddRandomNameProfile(profileName, gender, culture);
+		AddRandomNameDice(profile, NameUsage.BirthName, "1");
+		AddRandomNameElements(profile, NameUsage.BirthName, givenNames);
+	}
+
+	private void SeedAntiquityTwoElementProfile(
+		string profileName,
+		Gender gender,
+		NameCulture culture,
+		NameUsage secondaryUsage,
+		string[] givenNames,
+		string[] secondaryNames)
+	{
+		RandomNameProfile profile = AddRandomNameProfile(profileName, gender, culture);
+		AddRandomNameDice(profile, NameUsage.BirthName, "1");
+		AddRandomNameDice(profile, secondaryUsage, "1");
+		AddRandomNameElements(profile, NameUsage.BirthName, givenNames);
+		AddRandomNameElements(profile, secondaryUsage, secondaryNames);
+	}
+
+	private void AddRandomNameElements(RandomNameProfile profile, NameUsage usage, string[] names)
+	{
+		foreach (string name in names)
+		{
+			AddRandomNameElement(profile, usage, name, 100);
+		}
+	}
+
+	private static string[] CelticMaleGivenNames()
+	{
+		return new[]
+		{
+			"Abarix", "Acedillos", "Adiatumaros", "Ambiorix", "Ategnatos", "Boduognatos",
+			"Brennos", "Casticos", "Catuvolcos", "Celtillos", "Commius", "Critognatos",
+			"Diviciacus", "Dumnorix", "Eporedorix", "Gobannitio", "Litaviccos", "Luernios",
+			"Mandubracius", "Orgetorix", "Segovax", "Tasciovanus", "Teutomatos",
+			"Vercassivellaunos", "Vercingetorix", "Viridomaros"
+		};
+	}
+
+	private static string[] CelticMalePatronyms()
+	{
+		return new[]
+		{
+			"Abarici", "Acedilli", "Adiatumari", "Ambiorigi", "Ategnati", "Boduognati",
+			"Brenni", "Catuvolci", "Celtilli", "Commii", "Critognati", "Diviciaci",
+			"Dumnorigi", "Eporedorigi", "Gobannitionis", "Litavicci", "Luernii",
+			"Mandubraci", "Orgetorigis", "Segovaci", "Tasciovani", "Teutomati",
+			"Vercassivellauni", "Vercingetorigis", "Viridomari"
+		};
+	}
+
+	private static string[] CelticFemaleGivenNames()
+	{
+		return new[]
+		{
+			"Abrezta", "Acca", "Adbugissa", "Adginna", "Adiania", "Adianta", "Aesica",
+			"Agedia", "Albisia", "Aleasiumara", "Allia", "Allouira", "Ambada", "Andarta",
+			"Ariola", "Atebodua", "Ategenta", "Ategnissa", "Audata", "Banona", "Banna",
+			"Betudaca", "Boudica", "Cartimandua", "Chiomara", "Eponina"
+		};
+	}
+
+	private static string[] CelticFemaleMatronyms()
+	{
+		return new[]
+		{
+			"Abrezta", "Acca", "Adbugissae", "Adginnae", "Adianiae", "Adiantiae", "Aesicae",
+			"Agediae", "Albisiae", "Aleasiumarae", "Alliae", "Allouirae", "Ambadae",
+			"Andartae", "Ariolae", "Ateboduae", "Ategentae", "Ategnissae", "Audatae",
+			"Banonae", "Bannae", "Betudacae", "Boudicae", "Cartimanduae", "Chiomarae",
+			"Eponinae"
+		};
+	}
+
+	private static string[] PunicMaleGivenNames()
+	{
+		return new[]
+		{
+			"Abdastartus", "Abdeshmun", "Abdmelqart", "Abibaal", "Adonibaal", "Baalhanno",
+			"Bodashtart", "Bomilcar", "Bostar", "Carthalo", "Gisco", "Hamilcar", "Hannibal",
+			"Hanno", "Hasdrubal", "Himilco", "Maharbal", "Mago", "Malchus", "Melqartshama",
+			"Milkherem", "Milkyaton", "Naravas", "Sakarbaal", "Tabnit"
+		};
+	}
+
+	private static string[] PunicFemaleGivenNames()
+	{
+		return new[]
+		{
+			"Adonia", "Amatashtart", "Amatbal", "Arishat", "Asherah", "Ashtoreth", "Astarte",
+			"Athirat", "Baalat", "Batnoam", "Birkana", "Dido", "Elissa", "Jezebel", "Melita",
+			"Mitunbaal", "Nikkal", "Shapash", "Sophonisba", "Tanit", "Tanith", "Ummashtart",
+			"Yasha", "Zibqet"
+		};
+	}
+
+	private static string[] PunicPatronyms()
+	{
+		return new[]
+		{
+			"Ben-Abdmelqart", "Ben-Abibaal", "Ben-Adonibaal", "Ben-Baalhanno", "Ben-Bodashtart",
+			"Ben-Bomilcar", "Ben-Bostar", "Ben-Carthalo", "Ben-Gisco", "Ben-Hamilcar",
+			"Ben-Hannibal", "Ben-Hanno", "Ben-Hasdrubal", "Ben-Himilco", "Ben-Maharbal",
+			"Ben-Mago", "Ben-Malchus", "Ben-Melqartshama", "Ben-Milkherem", "Ben-Milkyaton",
+			"Ben-Sakarbaal", "Ben-Tabnit"
+		};
+	}
+
+	private static string[] PersianMaleGivenNames()
+	{
+		return new[]
+		{
+			"Achaemenes", "Ariaramnes", "Arsames", "Artabanus", "Artaphernes", "Artaxerxes",
+			"Artayntes", "Aspathines", "Bardiya", "Bessus", "Cambyses", "Cyrus", "Darius",
+			"Gobryas", "Hystaspes", "Hydarnes", "Intaphernes", "Mardonius", "Megabazus",
+			"Megabyzus", "Mithradates", "Otanes", "Pharnabazus", "Pharnaces", "Tissaphernes",
+			"Xerxes", "Zopyrus"
+		};
+	}
+
+	private static string[] PersianFemaleGivenNames()
+	{
+		return new[]
+		{
+			"Amastris", "Amestris", "Amytis", "Apama", "Artazostre", "Artystone", "Atossa",
+			"Barsine", "Cassandane", "Damaspia", "Drypetis", "Irdabama", "Mandane", "Parysatis",
+			"Phaedymia", "Roxane", "Sisygambis", "Stateira"
+		};
+	}
+
+	private static string[] EgyptianMaleGivenNames()
+	{
+		return new[]
+		{
+			"Ahmose", "Amenemhat", "Amenhotep", "Ankhefensekhmet", "Djedhor", "Harkhebi",
+			"Horemheb", "Hori", "Huy", "Imhotep", "Kagemni", "Khaemwaset", "Khafra", "Khufu",
+			"Mentuhotep", "Nakht", "Nebamun", "Neferhotep", "Panehsy", "Pashedu", "Paser",
+			"Ptahhotep", "Ramesses", "Senenmut", "Seti", "Thutmose", "Tutankhamun", "Userkaf"
+		};
+	}
+
+	private static string[] EgyptianFemaleGivenNames()
+	{
+		return new[]
+		{
+			"Ahhotep", "Ahmose-Nefertari", "Ankhesenamun", "Benerib", "Bintanath", "Hatshepsut",
+			"Henuttawy", "Isetnofret", "Kiya", "Maathorneferure", "Meritaten", "Meritamun",
+			"Mutemwiya", "Nefertari", "Nefertiti", "Neferure", "Nitocris", "Sobekneferu",
+			"Tawosret", "Tiye", "Tuya"
+		};
+	}
+
+	private static string[] EtruscanMaleGivenNames()
+	{
+		return new[]
+		{
+			"Arnth", "Aule", "Avle", "Caile", "Cae", "Larce", "Laris", "Larth", "Marce",
+			"Sethre", "Spurie", "Thefarie", "Tite", "Vel", "Velthur", "Venel", "Vipie"
+		};
+	}
+
+	private static string[] EtruscanFemaleGivenNames()
+	{
+		return new[]
+		{
+			"Arnthi", "Ati", "Fasti", "Hasti", "Larthia", "Ramtha", "Ravnthu", "Seianti",
+			"Thanunia", "Thanchvil", "Titi", "Velia", "Velelia", "Vesi"
+		};
+	}
+
+	private static string[] EtruscanFamilyNames()
+	{
+		return new[]
+		{
+			"Caecna", "Ceicna", "Cilnie", "Clevsina", "Cuclni", "Felsnas", "Lecne", "Porsenna",
+			"Pumpu", "Spurinna", "Tarchna", "Tetnie", "Tlesna", "Velcha", "Velimna", "Vetna",
+			"Vipina", "Vulca"
+		};
+	}
+
+	private static string[] AnatolianMaleGivenNames()
+	{
+		return new[]
+		{
+			"Adrastus", "Alyattes", "Arbinas", "Atys", "Candaules", "Croesus", "Gordias",
+			"Gyges", "Hecatomnus", "Kherei", "Kheriga", "Kuprlli", "Lygdamis", "Manes",
+			"Mausolus", "Midas", "Mithrapata", "Myrsilos", "Pantaleon", "Pericles", "Pixodarus",
+			"Sadyattes", "Sandanis", "Syennesis", "Tarkasnawa"
+		};
+	}
+
+	private static string[] AnatolianFemaleGivenNames()
+	{
+		return new[]
+		{
+			"Aba", "Ada", "Amastris", "Antiochis", "Apollonis", "Aryenis", "Artemisia",
+			"Dynamis", "Eurydice", "Glaphyra", "Laodice", "Mania", "Nysa", "Omphale",
+			"Pythodoris", "Stratonice"
+		};
+	}
+
+	private static string[] AnatolianToponyms()
+	{
+		return new[]
+		{
+			"of Sardis", "of Gordion", "of Mylasa", "of Halicarnassus", "of Xanthos", "of Telmessos",
+			"of Pessinus", "of Celaenae", "of Ancyra", "of Tarsus", "of Sinope", "of Pergamon",
+			"of Lydia", "of Phrygia", "of Caria", "of Lycia", "of Cappadocia", "of Cilicia"
+		};
+	}
+
+	private static string[] ScythianSarmatianMaleGivenNames()
+	{
+		return new[]
+		{
+			"Anacharsis", "Ariapeithes", "Ateas", "Gnurus", "Idanthyrsus", "Ininthimeus",
+			"Inismeus", "Lycus", "Octamasades", "Oricus", "Palacus", "Pharzoios", "Rasparaganus",
+			"Saulius", "Scyles", "Scylurus", "Spargapeithes", "Targitaus", "Tasius", "Taxacis",
+			"Zorsines"
+		};
+	}
+
+	private static string[] ScythianSarmatianFemaleGivenNames()
+	{
+		return new[]
+		{
+			"Amage", "Amastris", "Apama", "Artystone", "Atossa", "Barsine", "Roxane", "Sparethra",
+			"Stateira", "Tirgatao", "Tomyris", "Zarinaea"
+		};
+	}
+
+	private static string[] ScythianSarmatianToponyms()
+	{
+		return new[]
+		{
+			"of the Royal Scythians", "of the Nomad Scythians", "of the Maeotians", "of the Tauri",
+			"of the Sauromatae", "of the Sarmatians", "of the Roxolani", "of the Iazyges",
+			"of the Aorsi", "of the Siraces", "of the Alans", "of the Pontic Steppe",
+			"of the Tanais", "of the Borysthenes"
+		};
+	}
+
+	private static string[] KushiteMaleGivenNames()
+	{
+		return new[]
+		{
+			"Adikhalamani", "Akinidad", "Alara", "Amanineteyerike", "Anlamani", "Analmaye",
+			"Aramatleqo", "Arkamani", "Arqamani", "Aspelta", "Atlanersa", "Harsiotef", "Kashta",
+			"Malonaqen", "Nastasen", "Natakamani", "Piye", "Senkamanisken", "Shabaka", "Shebitku",
+			"Shorkaror", "Taharqa", "Tantamani", "Tanyidamani", "Teqerideamani", "Teriteqas"
+		};
+	}
+
+	private static string[] KushiteFemaleGivenNames()
+	{
+		return new[]
+		{
+			"Amanikhalika", "Amanikhatashan", "Amanirenas", "Amanishakheto", "Amanitaraqide",
+			"Amanitenmemide", "Amanitore", "Atakhebasken", "Bartare", "Maleqorobar", "Madiqen",
+			"Nasalsa", "Nawidemak", "Pebatjma", "Peksater", "Piankharty", "Qalhata",
+			"Shanakdakhete", "Tabiry"
+		};
+	}
+
+	private static string[] GermanicMaleGivenNames()
+	{
+		return new[]
+		{
+			"Alaric", "Ardaric", "Ariovistus", "Arminius", "Athanaric", "Catualda", "Chariomerus",
+			"Childeric", "Chlodio", "Clovis", "Ermanaric", "Flavus", "Fritigern", "Geiseric",
+			"Genseric", "Gundahar", "Inguiomer", "Italicus", "Mallovendus", "Marbod", "Merovech",
+			"Odoacer", "Radagaisus", "Ricimer", "Segestes", "Segimer", "Segimundus", "Theodoric",
+			"Thumelicus", "Vannius", "Widukind", "Wulfila"
+		};
+	}
+
+	private static string[] GermanicFemaleGivenNames()
+	{
+		return new[]
+		{
+			"Amalafrida", "Amalasuintha", "Audofleda", "Baduhenna", "Bertha", "Brunhild",
+			"Chrodechild", "Fredegund", "Galswintha", "Ganna", "Gudrun", "Gunnhild", "Hildegund",
+			"Ildico", "Ostrogotho", "Radegund", "Sunigilda", "Theudelinda", "Thusnelda", "Veleda",
+			"Waldrada", "Wisigarda"
+		};
+	}
 }

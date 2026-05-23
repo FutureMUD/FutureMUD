@@ -146,13 +146,7 @@ public class PhotocopierGameItemComponentProto : PoweredMachineBaseGameItemCompo
             return false;
         }
 
-        if (!long.TryParse(command.PopSpeech(), out long value))
-        {
-            actor.OutputHandler.Send("You must enter a valid ID number.");
-            return false;
-        }
-
-        IGameItemProto proto = Gameworld.ItemProtos.Get(value);
+        IGameItemProto proto = Gameworld.ItemProtos.GetByIdOrUniqueNameOrName(command.PopSpeech());
         if (proto == null)
         {
             actor.OutputHandler.Send("There is no such item prototype.");
@@ -226,13 +220,7 @@ public class PhotocopierGameItemComponentProto : PoweredMachineBaseGameItemCompo
             return false;
         }
 
-        if (!long.TryParse(command.PopSpeech(), out long value))
-        {
-            actor.OutputHandler.Send("You must enter a valid ID number.");
-            return false;
-        }
-
-        IGameItemProto proto = Gameworld.ItemProtos.Get(value);
+        IGameItemProto proto = Gameworld.ItemProtos.GetByIdOrUniqueNameOrName(command.PopSpeech());
         if (proto == null)
         {
             actor.OutputHandler.Send("There is no such item prototype.");

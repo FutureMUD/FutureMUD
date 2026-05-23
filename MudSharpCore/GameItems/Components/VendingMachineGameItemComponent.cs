@@ -213,9 +213,7 @@ public class VendingMachineGameItemComponent : GameItemComponent, IContainer, IV
             return;
         }
 
-        IGameItemProto proto = long.TryParse(command.PopSpeech(), out long value)
-            ? Gameworld.ItemProtos.Get(value)
-            : Gameworld.ItemProtos.GetByName(command.Last, true);
+        IGameItemProto proto = Gameworld.ItemProtos.GetByIdOrUniqueNameOrName(command.PopSpeech());
         if (proto == null)
         {
             character.Send(StringUtilities.HMark + "That is not a valid prototype to load in the vending machine.");
@@ -282,9 +280,10 @@ public class VendingMachineGameItemComponent : GameItemComponent, IContainer, IV
             extraText = command.PopSpeech();
             if (!command.IsFinished)
             {
-                onloadProg = long.TryParse(command.PopSpeech(), out value)
-                    ? Gameworld.FutureProgs.Get(value)
-                    : Gameworld.FutureProgs.GetByName(command.Last);
+                var onloadText = command.PopSpeech();
+                onloadProg = long.TryParse(onloadText, out var onloadProgId)
+                    ? Gameworld.FutureProgs.Get(onloadProgId)
+                    : Gameworld.FutureProgs.GetByName(onloadText);
                 if (onloadProg == null)
                 {
                     character.Send(StringUtilities.HMark + "There is no such prog for you to use as an OnLoadProg.");

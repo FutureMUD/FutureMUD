@@ -17,6 +17,8 @@ namespace MudSharp.GameItems
     public interface IGameItemProto : IEditableRevisableItem, IHaveTags, IHavePlanarPresence
     {
         IHealthStrategy HealthStrategy { get; }
+        string? UniqueName { get; }
+        string? BuilderNotes { get; }
         string ShortDescription { get; }
         string FullDescription { get; }
         SizeCategory Size { get; }

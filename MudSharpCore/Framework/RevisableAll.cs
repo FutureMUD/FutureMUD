@@ -1,4 +1,5 @@
 ﻿using MudSharp.Framework.Revision;
+using MudSharp.GameItems;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -131,6 +132,13 @@ public class RevisableAll<T> : IRevisableAll<T>, IUneditableRevisableAll<T> wher
 
     public T? GetByIdOrName(string value, bool permitAbbreviations = true)
     {
+        if (typeof(IGameItemProto).IsAssignableFrom(typeof(T)))
+        {
+            return _iterlist
+                   .Cast<IGameItemProto>()
+                   .GetByIdOrUniqueNameOrName(value, permitAbbreviations) as T;
+        }
+
         if (long.TryParse(value, out long id))
         {
             return Get(id);
@@ -158,6 +166,14 @@ public class RevisableAll<T> : IRevisableAll<T>, IUneditableRevisableAll<T> wher
 
     public List<T> GetAllByIdOrName(string value, bool permitAbbreviations = true)
     {
+        if (typeof(IGameItemProto).IsAssignableFrom(typeof(T)))
+        {
+            var match = _iterlist
+                        .Cast<IGameItemProto>()
+                        .GetByIdOrUniqueNameOrName(value, permitAbbreviations);
+            return match is null ? [] : GetAll(match.Id);
+        }
+
         if (long.TryParse(value, out long id))
         {
             return GetAll(id);

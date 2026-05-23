@@ -93,9 +93,7 @@ public class SimpleTool : BaseTool
             return false;
         }
 
-        IGameItemProto item = long.TryParse(command.SafeRemainingArgument, out long value)
-            ? Gameworld.ItemProtos.Get(value)
-            : Gameworld.ItemProtos.GetByName(command.SafeRemainingArgument);
+        IGameItemProto item = Gameworld.ItemProtos.GetByIdOrUniqueNameOrName(command.SafeRemainingArgument);
         if (item == null)
         {
             actor.OutputHandler.Send("There is no such item prototype.");

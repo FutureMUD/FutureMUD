@@ -254,9 +254,7 @@ public class DwellingGameItemComponentProto : GameItemComponentProto
             return true;
         }
 
-        IGameItemProto proto = long.TryParse(command.PopSpeech(), out long value)
-            ? Gameworld.ItemProtos.Get(value)
-            : Gameworld.ItemProtos.GetByName(command.Last);
+        IGameItemProto proto = Gameworld.ItemProtos.GetByIdOrUniqueNameOrName(command.PopSpeech());
         if (proto == null)
         {
             actor.Send("There is no such game item template to use for the door.");

@@ -566,7 +566,8 @@ If you do not wish to approve or decline, you may type {"abort edit".Colour(Teln
 
                         protos = protos.Where(x =>
                             x.HasKeyword(subcmd, character.Body, true) ||
-                            x.Name.Contains(subcmd, StringComparison.InvariantCultureIgnoreCase)).ToList();
+                            x.Name.Contains(subcmd, StringComparison.InvariantCultureIgnoreCase) ||
+                            x is IGameItemProto itemProto && itemProto.HasBuilderSearchText(subcmd)).ToList();
                         break;
                     }
 
@@ -581,7 +582,8 @@ If you do not wish to approve or decline, you may type {"abort edit".Colour(Teln
 
                         protos = protos.Where(x =>
                             !x.HasKeyword(subcmd, character.Body, true) &&
-                            !x.Name.Contains(subcmd, StringComparison.InvariantCultureIgnoreCase)).ToList();
+                            !x.Name.Contains(subcmd, StringComparison.InvariantCultureIgnoreCase) &&
+                            (x is not IGameItemProto itemProto || !itemProto.HasBuilderSearchText(subcmd))).ToList();
                         break;
                     }
 
@@ -930,30 +932,28 @@ If you do not wish to approve or decline, you may type {"abort edit".Colour(Teln
     protected static void Item_Load(ICharacter actor, StringStack input)
     {
         IGameItemProto proto;
-        int quantity;
-        if (!long.TryParse(input.PopSpeech(), out long value))
+        var quantity = 1;
+        var first = input.PopSpeech();
+        if (first.Length == 0)
         {
-            actor.OutputHandler.Send("What is the ID of the item you wish to load?");
+            actor.OutputHandler.Send("What is the ID or unique name of the item you wish to load?");
             return;
         }
 
-        if (!input.IsFinished && long.TryParse(input.Peek(), out long value2))
+        var targetText = first;
+        if (!input.IsFinished && int.TryParse(first, out var possibleQuantity) && possibleQuantity > 0)
         {
-            if (value <= 0)
+            var possibleTarget = input.PeekSpeech();
+            if (!possibleTarget.StartsWith("*") &&
+                !possibleTarget.Contains('=') &&
+                actor.Gameworld.ItemProtos.GetByIdOrUniqueNameOrName(possibleTarget) is not null)
             {
-                actor.OutputHandler.Send("The quantity of items to load must be greater than 0.");
-                return;
+                quantity = possibleQuantity;
+                targetText = input.PopSpeech();
             }
+        }
 
-            proto = actor.Gameworld.ItemProtos.Get(value2);
-            quantity = (int)value;
-            input.PopSpeech();
-        }
-        else
-        {
-            proto = actor.Gameworld.ItemProtos.Get(value);
-            quantity = 1;
-        }
+        proto = actor.Gameworld.ItemProtos.GetByIdOrUniqueNameOrName(targetText);
 
         if (proto == null)
         {

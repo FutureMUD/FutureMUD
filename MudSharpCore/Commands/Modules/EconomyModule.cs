@@ -4249,14 +4249,9 @@ Additionally, you can use the following shop admin subcommands:
 
         string text = ss.PopSpeech();
         IGameItemProto proto;
-        if (actor.IsAdministrator() && long.TryParse(text, out long value))
+        if (actor.IsAdministrator() && actor.Gameworld.ItemProtos.GetByIdOrUniqueNameOrName(text) is { } itemProto)
         {
-            proto = actor.Gameworld.ItemProtos.Get(value);
-            if (proto == null)
-            {
-                actor.OutputHandler.Send("There is no such item prototype.");
-                return;
-            }
+            proto = itemProto;
         }
         else
         {

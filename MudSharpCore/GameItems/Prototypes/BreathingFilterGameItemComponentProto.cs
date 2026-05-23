@@ -234,16 +234,10 @@ public class BreathingFilterGameItemComponentProto : GameItemComponentProto, IPr
             return false;
         }
 
-        if (!long.TryParse(command.PopSpeech(), out long value))
-        {
-            actor.OutputHandler.Send("You must enter a valid item prototype ID.");
-            return false;
-        }
-
-        IGameItemProto proto = Gameworld.ItemProtos.Get(value);
+        IGameItemProto proto = Gameworld.ItemProtos.GetByIdOrUniqueNameOrName(command.PopSpeech());
         if (proto == null)
         {
-            actor.OutputHandler.Send("That is not a valid item prototype ID.");
+            actor.OutputHandler.Send("That is not a valid item prototype.");
             return false;
         }
 

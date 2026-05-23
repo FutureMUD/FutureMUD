@@ -948,7 +948,7 @@ public partial class ItemSeeder
 	private GameItemComponentProto EnsureAntiquityScribingImplementComponent(string name, string description,
 		WritingImplementType implementType, string colourName, int totalUses)
 	{
-		var colour = _context!.Colours.FirstOrDefault(x => x.Name.Equals(colourName, StringComparison.OrdinalIgnoreCase));
+		var colour = _context!.Colours.AsEnumerable().FirstOrDefault(x => x.Name.Equals(colourName, StringComparison.OrdinalIgnoreCase));
 		return EnsureAntiquityWritingComponent("ScribingImplement", name, description,
 			new XElement("Definition",
 				new XElement("ImplementType", implementType.ToString()),

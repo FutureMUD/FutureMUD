@@ -1583,7 +1583,7 @@ Please answer #3primitive#F, #3pre-modern#0, or #3modern#F: ",
             {
                 BodypartProto? targetPart = bodyChain
                     .Select(body => context.BodypartProtos.Local.FirstOrDefault(x => x.BodyId == body.Id && x.Name == partName) ??
-                                    context.BodypartProtos.FirstOrDefault(x => x.BodyId == body.Id && x.Name == partName))
+                                    context.BodypartProtos.AsEnumerable().FirstOrDefault(x => x.BodyId == body.Id && x.Name == partName))
                     .FirstOrDefault(x => x is not null);
 
                 if (targetPart is null)
@@ -1788,7 +1788,7 @@ Please answer #3primitive#F, #3pre-modern#0, or #3modern#F: ",
                 currentBody = currentBody.CountsAs ??
                               (currentBody.CountsAsId is long parentId
                                   ? context.BodyProtos.Local.FirstOrDefault(x => x.Id == parentId) ??
-                                    context.BodyProtos.FirstOrDefault(x => x.Id == parentId)
+                                    context.BodyProtos.AsEnumerable().FirstOrDefault(x => x.Id == parentId)
                                   : null);
             }
         }

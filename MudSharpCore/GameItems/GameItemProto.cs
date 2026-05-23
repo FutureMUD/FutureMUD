@@ -52,6 +52,8 @@ public class GameItemProto : EditableItem, IGameItemProto
                 MaterialId = 0, // TODO
                 Keywords = "new object",
                 Name = name,
+                UniqueName = null,
+                BuilderNotes = null,
                 Size = (int)SizeCategory.Normal,
                 Weight = 1.0,
                 IsHiddenFromPlayers = false,
@@ -99,6 +101,8 @@ public class GameItemProto : EditableItem, IGameItemProto
     public static IGameItemGroup TooManyItemsGroup { get; set; }
     public static IHealthStrategy DefaultItemHealthStrategy { get; set; }
     public string ShortDescription { get; private set; }
+    public string? UniqueName { get; private set; }
+    public string? BuilderNotes { get; private set; }
     public string FullDescription { get; private set; }
     public decimal CostInBaseCurrency { get; private set; }
     public bool IsHiddenFromPlayers { get; private set; }
@@ -137,6 +141,7 @@ public class GameItemProto : EditableItem, IGameItemProto
         int maxRevision = Gameworld.ItemProtos.GetAll(Id).Max(x => x.RevisionNumber);
         sb.AppendLine($"Item Prototype #{Id.ToString("N0", actor)} - Revision {RevisionNumber.ToString("N0", actor)} / {maxRevision.ToString("N0", actor)}".GetLineWithTitle(actor, Telnet.Cyan, Telnet.BoldWhite));
         sb.AppendLine($"Status: {Status.DescribeColour()}");
+        sb.AppendLine($"Unique Name: {(string.IsNullOrEmpty(UniqueName) ? "None".ColourCommand() : UniqueName.ColourValue())}");
         sb.AppendLine($"Noun: {Name.Proper().ColourValue()}");
         sb.AppendLine($"Short Description: {ShortDescription.ColourObject()}");
         if (OverridesLongDescription)
@@ -188,6 +193,12 @@ public class GameItemProto : EditableItem, IGameItemProto
         sb.AppendLine("Full Description:");
         sb.AppendLine();
         sb.AppendLine(FullDescription.Wrap(actor.InnerLineFormatLength, "  "));
+        sb.AppendLine();
+        sb.AppendLine("Builder Comment:");
+        sb.AppendLine();
+        sb.AppendLine(string.IsNullOrWhiteSpace(BuilderNotes)
+            ? "\tNone".ColourName()
+            : BuilderNotes.Wrap(actor.InnerLineFormatLength, "  "));
         sb.AppendLine();
         sb.AppendLine("Tags:");
         if (Tags.Any())
@@ -413,6 +424,8 @@ public class GameItemProto : EditableItem, IGameItemProto
                 MaterialId = Material?.Id ?? 0,
                 EditableItemId = 0,
                 Name = Name.Proper(),
+                UniqueName = UniqueName,
+                BuilderNotes = BuilderNotes,
                 Size = (int)Size,
                 Weight = Weight,
                 ReadOnly = false,
@@ -521,6 +534,8 @@ public class GameItemProto : EditableItem, IGameItemProto
                     conjunction: ""),
                 MaterialId = Material?.Id ?? 0,
                 Name = Name.Proper(),
+                UniqueName = null,
+                BuilderNotes = BuilderNotes,
                 Size = (int)Size,
                 Weight = Weight,
                 ReadOnly = ReadOnly,
@@ -625,6 +640,8 @@ public class GameItemProto : EditableItem, IGameItemProto
     public override bool CanSubmit()
     {
         return Material != null &&
+               GameItemProtoLookupExtensions.IsValidUniqueName(UniqueName) &&
+               Gameworld.ItemProtos.GetActiveUniqueNameConflict(UniqueName, Id) is null &&
                !GameItemComponentPrototypeExclusivity.FindConflicts(_components).Any();
     }
 
@@ -633,6 +650,18 @@ public class GameItemProto : EditableItem, IGameItemProto
         if (Material == null)
         {
             return "You must first set a material.";
+        }
+
+        if (!GameItemProtoLookupExtensions.IsValidUniqueName(UniqueName))
+        {
+            return "The unique name cannot be entirely numeric, because numeric item prototype input is reserved for IDs.";
+        }
+
+        var uniqueNameConflict = Gameworld.ItemProtos.GetActiveUniqueNameConflict(UniqueName, Id);
+        if (uniqueNameConflict is not null)
+        {
+            return
+                $"The unique name {UniqueName!.ColourCommand()} is already used by {uniqueNameConflict.EditHeaderColour(null)}.";
         }
 
         var conflict = GameItemComponentPrototypeExclusivity.FindConflicts(_components).FirstOrDefault();
@@ -649,6 +678,8 @@ public class GameItemProto : EditableItem, IGameItemProto
         Gameworld = gameworld;
         _id = proto.Id;
         _name = proto.Name;
+        UniqueName = GameItemProtoLookupExtensions.NormaliseUniqueName(proto.UniqueName);
+        BuilderNotes = string.IsNullOrWhiteSpace(proto.BuilderNotes) ? null : proto.BuilderNotes;
         _keywords = new Lazy<List<string>>(() => (from keyword in proto.Keywords.Split(' ') select keyword).ToList());
         foreach (GameItemProtosGameItemComponentProtos component in proto.GameItemProtosGameItemComponentProtos)
         {
@@ -722,6 +753,8 @@ public class GameItemProto : EditableItem, IGameItemProto
             Models.GameItemProto dbproto = FMDB.Context.GameItemProtos.Find(Id, RevisionNumber);
             dbproto.Keywords = Keywords.ListToString(separator: " ", conjunction: "");
             dbproto.Name = Name.Proper();
+            dbproto.UniqueName = UniqueName;
+            dbproto.BuilderNotes = BuilderNotes;
             dbproto.Weight = Weight;
             dbproto.ShortDescription = ShortDescription;
             dbproto.FullDescription = FullDescription;
@@ -1042,6 +1075,15 @@ public class GameItemProto : EditableItem, IGameItemProto
                 return BuildingCommandSubmit(actor, command);
             case "sdesc":
                 return BuildingCommandSDesc(actor, command);
+            case "unique":
+            case "uniquename":
+            case "key":
+                return BuildingCommandUniqueName(actor, command);
+            case "comment":
+            case "notes":
+            case "buildercomment":
+            case "buildernotes":
+                return BuildingCommandBuilderNotes(actor, command);
             case "ldesc":
                 return BuildingCommandLDesc(actor, command);
             case "name":
@@ -1102,6 +1144,12 @@ public class GameItemProto : EditableItem, IGameItemProto
 
 	#3add <id|name>#0 - adds the specified component to this item
 	#3remove <id|name>#0 - removes the specified component from this item
+	#3unique <name>#0 - sets a unique lookup name for this item template
+	#3unique clear#0 - clears the unique lookup name
+	#3comment <text>#0 - overwrites the builder comment for this item template
+	#3comment append [<text>]#0 - appends to the builder comment, using an editor if no text is supplied
+	#3comment edit#0 - edits the builder comment in an editor
+	#3comment clear#0 - clears the builder comment
 	#3noun <noun>#0 - sets the primary noun for this item. Single word only.
 	#3sdesc <sdesc>#0 - sets the short description (e.g. a solid iron sword)
 	#3ldesc <ldesc>#0 - sets an overrided long description (in room) for this item
@@ -1124,7 +1172,7 @@ public class GameItemProto : EditableItem, IGameItemProto
 	#3planar default|corporeal|noncorporeal|xml ...#0 - sets the item prototype's planar defaults
 	#3register <variable name> <default value>#0 - sets a default value for a register variable for this item
 	#3register delete <variable name>#0 - deletes a default value for a register variable
-	#3morph <item##|none> <seconds> [<emote>]#0 - sets item morph information. The 'none' value makes the item disappear.
+	#3morph <item##|unique name|none> <seconds> [<emote>]#0 - sets item morph information. The 'none' value makes the item disappear.
 	#3morph clear#0 - clears any morph info for this item
 	#3hidden#0 - toggles this item being hidden from players in information/searching commands
 	#3group <id|name>#0 - sets this item's item group (for in-room grouping)
@@ -1948,9 +1996,7 @@ public class GameItemProto : EditableItem, IGameItemProto
             return true;
         }
 
-        IGameItemProto item = long.TryParse(command.Last, out long value)
-            ? Gameworld.ItemProtos.Get(value)
-            : Gameworld.ItemProtos.GetByName(command.Last);
+        IGameItemProto item = Gameworld.ItemProtos.GetByIdOrUniqueNameOrName(command.Last);
         if (item == null)
         {
             actor.Send("There is no item proto like that which you can set as a destroyed item for another item.");
@@ -2115,6 +2161,122 @@ public class GameItemProto : EditableItem, IGameItemProto
         Changed = true;
         actor.OutputHandler.Send("You set the noun for " + EditHeader() + " to " + cmd);
         return true;
+    }
+
+    private bool BuildingCommandUniqueName(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send("What unique name do you want to set for this item prototype?");
+            return false;
+        }
+
+        var uniqueName = GameItemProtoLookupExtensions.NormaliseUniqueName(command.SafeRemainingArgument);
+        if (uniqueName is null || uniqueName.EqualToAny("none", "clear", "delete", "remove"))
+        {
+            UniqueName = null;
+            Changed = true;
+            actor.OutputHandler.Send("This item prototype no longer has a unique lookup name.");
+            return true;
+        }
+
+        if (!GameItemProtoLookupExtensions.IsValidUniqueName(uniqueName))
+        {
+            actor.OutputHandler.Send("Unique names cannot be entirely numeric, because numeric item prototype input is reserved for IDs.");
+            return false;
+        }
+
+        var conflict = Gameworld.ItemProtos.GetActiveUniqueNameConflict(uniqueName, Id);
+        if (conflict is not null)
+        {
+            actor.OutputHandler.Send(
+                $"The unique name {uniqueName.ColourCommand()} is already used by {conflict.EditHeaderColour(actor)}.");
+            return false;
+        }
+
+        UniqueName = uniqueName;
+        Changed = true;
+        actor.OutputHandler.Send($"This item prototype can now be looked up by the unique name {UniqueName.ColourCommand()}.");
+        return true;
+    }
+
+    private bool BuildingCommandBuilderNotes(ICharacter actor, StringStack command)
+    {
+        var subCommand = command.PopSpeech();
+        if (subCommand.Length == 0)
+        {
+            actor.OutputHandler.Send("Do you want to set, append, edit or clear the builder comment?");
+            return false;
+        }
+
+        switch (subCommand.ToLowerInvariant())
+        {
+            case "clear":
+            case "none":
+            case "delete":
+            case "remove":
+                BuilderNotes = null;
+                Changed = true;
+                actor.OutputHandler.Send("You clear the builder comment for this item prototype.");
+                return true;
+            case "edit":
+                actor.OutputHandler.Send("Enter the builder comment in the editor below.");
+                actor.EditorMode(BuildingCommandBuilderNotesPost, BuildingCommandBuilderNotesCancel, 1.0,
+                    BuilderNotes, suppliedArguments: [false]);
+                return true;
+            case "append":
+                if (command.IsFinished)
+                {
+                    actor.OutputHandler.Send("Enter the text to append to the builder comment in the editor below.");
+                    actor.EditorMode(BuildingCommandBuilderNotesPost, BuildingCommandBuilderNotesCancel, 1.0,
+                        null, suppliedArguments: [true]);
+                    return true;
+                }
+
+                AppendBuilderNotes(command.SafeRemainingArgument);
+                actor.OutputHandler.Send("You append to the builder comment for this item prototype.");
+                return true;
+        }
+
+        var text = command.IsFinished ? subCommand : $"{subCommand} {command.SafeRemainingArgument}";
+        BuilderNotes = string.IsNullOrWhiteSpace(text) ? null : text.Trim();
+        Changed = true;
+        actor.OutputHandler.Send("You set the builder comment for this item prototype.");
+        return true;
+    }
+
+    private void BuildingCommandBuilderNotesPost(string text, IOutputHandler handler, object[] arguments)
+    {
+        var append = (bool)arguments[0];
+        if (append)
+        {
+            AppendBuilderNotes(text);
+            handler.Send("You append to the builder comment for this item prototype.");
+            return;
+        }
+
+        BuilderNotes = string.IsNullOrWhiteSpace(text) ? null : text.Trim();
+        Changed = true;
+        handler.Send("You set the builder comment for this item prototype.");
+    }
+
+    private void BuildingCommandBuilderNotesCancel(IOutputHandler handler, object[] arguments)
+    {
+        handler.Send("You decide not to change the builder comment.");
+    }
+
+    private void AppendBuilderNotes(string text)
+    {
+        var trimmed = text.Trim();
+        if (trimmed.Length == 0)
+        {
+            return;
+        }
+
+        BuilderNotes = string.IsNullOrWhiteSpace(BuilderNotes)
+            ? trimmed
+            : $"{BuilderNotes.TrimEnd()}\n{trimmed}";
+        Changed = true;
     }
 
     private bool BuildingCommandKeywords(ICharacter actor, StringStack command)
@@ -2386,7 +2548,7 @@ public class GameItemProto : EditableItem, IGameItemProto
         if (command.IsFinished)
         {
             actor.Send(
-                $"Correct syntax is {"item set morph clear".Colour(Telnet.Yellow)} or {"item set morph <item#/none> <seconds> [<emote>]".Colour(Telnet.Yellow)}.");
+                    $"Correct syntax is {"item set morph clear".Colour(Telnet.Yellow)} or {"item set morph <item#/unique name/none> <seconds> [<emote>]".Colour(Telnet.Yellow)}.");
             return false;
         }
 
@@ -2416,18 +2578,15 @@ public class GameItemProto : EditableItem, IGameItemProto
         }
         else
         {
-            if (!long.TryParse(command.PopSpeech(), out value))
-            {
-                actor.Send(
-                    $"Correct syntax is {"item set morph clear".Colour(Telnet.Yellow)} or {"item set morph <item#/none> <seconds> [<emote>]".Colour(Telnet.Yellow)}.");
-                return false;
-            }
-
-            if (Gameworld.ItemProtos.Get(value) == null)
+            var morphText = command.PopSpeech();
+            var morphProto = Gameworld.ItemProtos.GetByIdOrUniqueNameOrName(morphText);
+            if (morphProto is null)
             {
                 actor.Send("There is no such item prototype for this item to morph into.");
                 return false;
             }
+
+            value = morphProto.Id;
         }
 
         if (command.IsFinished)

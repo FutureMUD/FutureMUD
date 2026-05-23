@@ -451,9 +451,11 @@ public partial class ItemSeeder
 			return existing;
 		}
 
-		var contextProg = _context!.FutureProgs.Local.FirstOrDefault(x =>
+		var contextProg = _context!.FutureProgs.Local
+			.AsEnumerable()
+			.FirstOrDefault(x =>
 			x.FunctionName.Equals(name, StringComparison.OrdinalIgnoreCase)) ??
-			_context.FutureProgs.FirstOrDefault(x => x.FunctionName.Equals(name, StringComparison.OrdinalIgnoreCase));
+			_context.FutureProgs.AsEnumerable().FirstOrDefault(x => x.FunctionName.Equals(name, StringComparison.OrdinalIgnoreCase));
 		if (contextProg is not null)
 		{
 			_progs[name] = contextProg;
@@ -1882,7 +1884,7 @@ return ""There is no useful clay that is accessible in the biome you're in.""");
 
 	private Craft? FindExistingCraft(string name, string category)
 	{
-		return _context!.Crafts.Local.FirstOrDefault(x =>
+		return _context!.Crafts.Local.AsEnumerable().FirstOrDefault(x =>
 			       x.Name.Equals(name, StringComparison.OrdinalIgnoreCase) &&
 			       x.Category.Equals(category, StringComparison.OrdinalIgnoreCase)) ??
 		       _context.Crafts.AsEnumerable().FirstOrDefault(x =>

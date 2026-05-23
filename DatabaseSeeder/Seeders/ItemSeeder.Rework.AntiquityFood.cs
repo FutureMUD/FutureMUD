@@ -748,8 +748,8 @@ public partial class ItemSeeder
 	private void EnsureCommoditySpoilageRule(string name, string description, Material? material, Tag? materialTag,
 		Tag? commodityTag, Material resultMaterial, Tag? resultCommodityTag, TimeSpan spoilTime, string? echo)
 	{
-		var existing = _context!.CommoditySpoilageRules.FirstOrDefault(x => x.Name == name) ??
-		               _context.CommoditySpoilageRules.Local.FirstOrDefault(x => x.Name == name);
+		var existing = _context!.CommoditySpoilageRules.AsEnumerable().FirstOrDefault(x => x.Name == name) ??
+		               _context.CommoditySpoilageRules.Local.AsEnumerable().FirstOrDefault(x => x.Name == name);
 		if (existing is null)
 		{
 			existing = new CommoditySpoilageRule

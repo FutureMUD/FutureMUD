@@ -96,8 +96,10 @@ Because component prototypes are revisioned content, do not think of them as raw
 ### Create or edit an item prototype
 Use:
 - `item edit new`
-- `item edit <id>`
-- `item clone <id>`
+- `item edit <id|unique name>`
+- `item clone <id|unique name>`
+
+Item prototype lookup prefers numeric ids, then exact `UniqueName`, then the legacy noun/name matching that older builder commands expect. Unique names are optional, case-insensitively unique among active revisions, and cannot be entirely numeric.
 
 ### Attach or detach components
 Use:
@@ -115,6 +117,12 @@ Commonly relevant commands include:
 - `item set ldesc`
 - `item set desc`
 - `item set suggestdesc`
+- `item set unique <name>`
+- `item set unique clear`
+- `item set comment <text>`
+- `item set comment append [<text>]`
+- `item set comment edit`
+- `item set comment clear`
 - `item set size`
 - `item set weight`
 - `item set material`
@@ -135,11 +143,16 @@ These matter because many component features only make sense in combination with
 - morph and destroyed settings affect component replacement behaviour
 - registers and on-load progs can feed variable-style components
 - skinnability affects how content can be customised by players
+- unique names give builders, scripts, and content references a stable lookup key that is not the item noun
+- builder comments preserve design intent, associations, and maintenance notes without changing runtime behaviour
+
+### Listing and searching item prototypes
+`item list` includes the unique name column. The `+<text>` and `-<text>` filters match ordinary keywords and noun/name text, and also search unique names and builder comments. Use `comment:<text>` to search builder comments directly.
 
 ## Loading and Testing Live Items
 ### Manual load workflow
 Use:
-- `item load [<quantity>] <id> [<extra args>]`
+- `item load [<quantity>] <id|unique name> [<extra args>]`
 
 This is the normal developer validation path for checking whether a prototype, its components, and its runtime behaviour work together.
 

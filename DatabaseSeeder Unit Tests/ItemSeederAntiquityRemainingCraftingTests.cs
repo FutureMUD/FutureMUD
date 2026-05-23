@@ -89,6 +89,7 @@ public class ItemSeederAntiquityRemainingCraftingTests
 		AssertContains(partialStableReferences, "antiquity_honey_press");
 		AssertContains(partialStableReferences, "antiquity_food_serving_amphora");
 		AssertContains(partialStableReferences, "antiquity_food_finished_beer_amphora");
+		AssertContains(partialStableReferences, "antiquity_food_finished_spiced_kumis_amphora");
 
 		var uncoveredPartialReferences = partialStableReferences
 			.Where(stableReference => !IsCoveredPartialStableReference(stableReference, partialItemSource,
@@ -503,7 +504,7 @@ public class ItemSeederAntiquityRemainingCraftingTests
 	{
 		return allCraftSource.Contains($"\"{stableReference}\"", StringComparison.Ordinal) ||
 		       IsDynamicStandardToolHelperReference(stableReference, partialItemSource, equipmentCraftSource) ||
-		       IsFoodFinishedBeerMorphTarget(stableReference, partialItemSource);
+		       IsFoodFinishedBeverageMorphTarget(stableReference, partialItemSource);
 	}
 
 	private static bool IsDynamicStandardToolHelperReference(string stableReference, string partialItemSource,
@@ -537,11 +538,12 @@ public class ItemSeederAntiquityRemainingCraftingTests
 		return itemBlock?.Contains("Market / Professional Tools / Standard Tools", StringComparison.Ordinal) == true;
 	}
 
-	private static bool IsFoodFinishedBeerMorphTarget(string stableReference, string partialItemSource)
+	private static bool IsFoodFinishedBeverageMorphTarget(string stableReference, string partialItemSource)
 	{
-		return stableReference.Equals("antiquity_food_finished_beer_amphora", StringComparison.OrdinalIgnoreCase) &&
-		       partialItemSource.Contains("beerFinished is null ? null : \"antiquity_food_finished_beer_amphora\"",
-			       StringComparison.Ordinal);
+		return stableReference.StartsWith("antiquity_food_finished_", StringComparison.OrdinalIgnoreCase) &&
+		       stableReference.EndsWith("_amphora", StringComparison.OrdinalIgnoreCase) &&
+		       partialItemSource.Contains($"\"{stableReference}\"", StringComparison.Ordinal) &&
+		       partialItemSource.Contains("finished is null ? null : finishedStableReference", StringComparison.Ordinal);
 	}
 
 	private static IEnumerable<string> ExpectedEquipmentStockTags()

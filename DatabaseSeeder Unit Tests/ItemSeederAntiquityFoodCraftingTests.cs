@@ -344,9 +344,68 @@ public class ItemSeederAntiquityFoodCraftingTests
 			AssertContains(craftSource, expected);
 		}
 
-		AssertContains(itemSource, "beerFinished is null ? null : \"antiquity_food_finished_beer_amphora\"");
+		AssertContains(itemSource, "CreateAntiquityFermentingFoodVessel(\"antiquity_food_fermenting_beer_amphora\"");
 		Assert.IsFalse(craftSource.Contains("StableSimpleProduct(\"antiquity_food_finished_beer_amphora\")", StringComparison.Ordinal),
 			"The finished beer amphora should remain a morph target, not a direct craft output.");
+	}
+
+	[TestMethod]
+	public void AntiquityFoodCrafting_UsesFermentingMorphVesselsForFermentedBeverages()
+	{
+		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.AntiquityFood.cs");
+		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.AntiquityFood.cs");
+
+		foreach (var active in new[]
+		         {
+			         "antiquity_food_fermenting_beer_amphora",
+			         "antiquity_food_fermenting_date_beer_amphora",
+			         "antiquity_food_fermenting_red_wine_amphora",
+			         "antiquity_food_fermenting_white_wine_amphora",
+			         "antiquity_food_fermenting_kumis_amphora",
+			         "antiquity_food_fermenting_garum_amphora",
+			         "antiquity_food_aging_spiced_wine_amphora",
+			         "antiquity_food_aging_spiced_beer_amphora",
+			         "antiquity_food_aging_spiced_kumis_amphora"
+		         })
+		{
+			AssertContains(itemSource, active);
+			AssertContains(craftSource, active);
+		}
+
+		foreach (var finished in new[]
+		         {
+			         "antiquity_food_finished_beer_amphora",
+			         "antiquity_food_finished_date_beer_amphora",
+			         "antiquity_food_finished_red_wine_amphora",
+			         "antiquity_food_finished_white_wine_amphora",
+			         "antiquity_food_finished_kumis_amphora",
+			         "antiquity_food_finished_garum_amphora",
+			         "antiquity_food_finished_spiced_wine_amphora",
+			         "antiquity_food_finished_spiced_beer_amphora",
+			         "antiquity_food_finished_spiced_kumis_amphora"
+		         })
+		{
+			AssertContains(itemSource, finished);
+			Assert.IsFalse(craftSource.Contains($"StableSimpleProduct(\"{finished}\")", StringComparison.Ordinal),
+				$"{finished} should be a morph target, not a direct craft output.");
+		}
+
+		AssertContains(itemSource, "finished is null ? null : finishedStableReference");
+		AssertContains(craftSource, "StableSimpleProduct(CultureBeverageFermentingStableReference(culture))");
+		AssertContains(craftSource, "StableSimpleProduct(CultureLuxuryBeverageAgingStableReference(culture))");
+		AssertContains(craftSource, "TagTool - Held - an item with the Fermentation Amphora tag");
+		foreach (var directLiquid in new[]
+		         {
+			         "filled with 3 litres of barley beer",
+			         "filled with 3 litres of date beer",
+			         "filled with 3 litres of garum sauce",
+			         "filled with 3 litres of {culture.BeverageLiquid}",
+			         "filled with 3 litres of {CultureLuxuryBeverageLiquid(culture)}"
+		         })
+		{
+			Assert.IsFalse(craftSource.Contains(directLiquid, StringComparison.Ordinal),
+				$"Fermented beverage craft should use morphing amphorae instead of direct LiquidProduct output: {directLiquid}");
+		}
 	}
 
 	[TestMethod]

@@ -22,7 +22,7 @@ The shared chains are intentionally broad and tag-driven:
 - oilseed crushing, vegetable/olive oil pressing, oilseed cake, and rendered-fat stock preparation
 - raw meat and offal breakdown from `AnimalButcherySeeder` outputs
 - raw meat cooking, salting, drying, smoking, rendering, and broth boiling
-- beer, date beer, wine-style fruit beverages, kumis, spiced luxury beverages, broth, and garum-style sauce filling
+- beer, date beer, wine-style fruit beverages, kumis, spiced luxury beverages, and garum-style sauce fermenting or aging amphora workflows, plus broth filling
 - ceramic serving and fermenting amphora finishing from the household pottery blank pipeline
 - apiary equipment and raw honeycomb processing into reusable honey and beeswax stock
 - agricultural seed-stock selection from `Seeded Yield` commodity into `Seeds` commodity
@@ -42,7 +42,7 @@ Empty food vessels are explicit pottery crafts:
 
 - `antiquity_food_serving_amphora` is finished from fired-clay `Bisque Vessel Blank` stock and sealed with `Prepared Pitch`.
 - `antiquity_food_fermenting_amphora` is finished from fired-clay `Bisque Vessel Blank` stock with heavier `Prepared Pitch` lining and carries the fermentation amphora tool tag.
-- `antiquity_food_finished_beer_amphora` is intentionally a morph target for `antiquity_food_fermenting_beer_amphora`, not a direct craft output.
+- Finished beverage and sauce amphorae are intentionally morph targets, not direct craft outputs. Active fermenting or aging amphorae cover barley beer, date beer, red wine, white wine, kumis, garum sauce, spiced wine, spiced beer, and spiced kumis.
 
 ## Culture Coverage
 
@@ -64,7 +64,7 @@ The culture-gated final craft suites use `Foodways` knowledge gates:
 
 Each culture gets fourteen foodway crafts: the original flatbread, porridge, pulse stew, meat-grain dish, preserved meat ration, fruit sweet, and beverage amphora plus fresh fruit platter, oilseed cakes, spiced meat stew, honeyed pastry, fish sauce relish, stuffed flatbread, and spiced beverage amphora. Five of the seven new entries are high-end preparations distinguished by imported spices, honey, oil, fermented sauce, broth, brined fruit, or multi-stage cooking. Visible craft names are plain food actions; culture-specific access is enforced by the knowledge gate.
 
-Wine cultures consume `Fruit Must Commodity` and rely on the core liquids `red wine` and `white wine` from `CoreDataSeeder.Materials.cs`; the food seeder does not duplicate those base liquids. The Scythian-Sarmatian kumis path consumes `LiquidUse - 3 litres of milk` for the beverage stock rather than the grain-wort fallback. A future species-specific livestock pass can split out mare's milk as a more specific stock source without changing the current foodway craft surface.
+Wine cultures consume `Fruit Must Commodity` and rely on the core liquids `red wine` and `white wine` from `CoreDataSeeder.Materials.cs`; the food seeder does not duplicate those base liquids. The Scythian-Sarmatian kumis path consumes `LiquidUse - 3 litres of milk` for the beverage stock rather than the grain-wort fallback. Beverage foodway crafts now produce sealed fermenting or aging amphorae that morph into finished serving amphorae, so wine, beer, date beer, kumis, garum, and spiced luxury beverages all use the same delayed production pattern. A future species-specific livestock pass can split out mare's milk as a more specific stock source without changing the current foodway craft surface.
 
 The agriculture pass now supplies the broader antiquity luxury inputs used by all cultures: coriander, cumin, saffron crocus, and black pepper are stock crops, and saffron crocus is processed into saffron. Pomegranate and walnut orchard outputs can be stripped into dye stock, indigo crop can be fermented into indigo dye cake, madder, weld, alkanet, and henna are stock dye crops, and managed woodland definitions cover kermes grain, orchil lichen, and lac dye cake. These are culture-neutral upstream crafts and field definitions so Hellenic, Egyptian, Roman, Celtic, Germanic, Kushite, Punic, Persian, Etruscan, Anatolian, and Scythian-Sarmatian recipes can share the same source paths.
 
@@ -97,6 +97,22 @@ The craft source explicitly names the shared vessel references:
 - `antiquity_food_fermenting_amphora`
 - `antiquity_food_fermenting_beer_amphora`
 - `antiquity_food_finished_beer_amphora`
+- `antiquity_food_fermenting_date_beer_amphora`
+- `antiquity_food_finished_date_beer_amphora`
+- `antiquity_food_fermenting_red_wine_amphora`
+- `antiquity_food_finished_red_wine_amphora`
+- `antiquity_food_fermenting_white_wine_amphora`
+- `antiquity_food_finished_white_wine_amphora`
+- `antiquity_food_fermenting_kumis_amphora`
+- `antiquity_food_finished_kumis_amphora`
+- `antiquity_food_fermenting_garum_amphora`
+- `antiquity_food_finished_garum_amphora`
+- `antiquity_food_aging_spiced_wine_amphora`
+- `antiquity_food_finished_spiced_wine_amphora`
+- `antiquity_food_aging_spiced_beer_amphora`
+- `antiquity_food_finished_spiced_beer_amphora`
+- `antiquity_food_aging_spiced_kumis_amphora`
+- `antiquity_food_finished_spiced_kumis_amphora`
 
 The food tool stable references are:
 
@@ -148,7 +164,7 @@ where `<culture>` is one of `hellenic`, `egyptian`, `roman`, `celtic`, `germanic
 
 The food pass also seeds builder-owned `CommoditySpoilageRule` rows for raw meat, prepared meat, salted meat, dried meat, smoked meat, and broth-base commodities. These rules turn matching commodity piles into rotten food commodities on heartbeat instead of relying on item morphs or static JSON.
 
-`LiquidProduct` is the craft-product type used where a craft should create a concrete liquid container already filled with a named liquid, such as barley beer, date beer, meat broth, garum sauce, spiced wine, spiced beer, or spiced kumis.
+`LiquidProduct` remains the craft-product type for non-fermenting filled liquid containers such as oils, meat broth, and strained milk. Fermented beverages, garum sauce, and aged spiced beverages instead produce sealed fermenting or aging amphora item prototypes; those prototypes morph into finished filled amphorae after their configured fermentation or steeping timer.
 
 ## Deferred Source Systems
 

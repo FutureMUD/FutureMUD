@@ -9,11 +9,11 @@ Current item definitions are seeded from:
 | Source | Current Item Definitions |
 | --- | ---: |
 | `DatabaseSeeder/Seeders/ItemSeeder.Rework.Antiquity.cs` | 1034 |
-| `DatabaseSeeder/Seeders/ItemSeeder.Rework.AntiquityFood.cs` | 151 |
+| `DatabaseSeeder/Seeders/ItemSeeder.Rework.AntiquityFood.cs` | 167 |
 | `DatabaseSeeder/Seeders/ItemSeeder.Rework.AntiquityHouseholdTools.cs` | 65 |
 | `DatabaseSeeder/Seeders/ItemSeeder.Rework.AntiquityMedical.cs` | 41 |
 | `DatabaseSeeder/Seeders/ItemSeeder.Rework.AntiquityWriting.cs` | 33 |
-| Total | 1324 |
+| Total | 1340 |
 
 Current craft definitions are seeded from:
 
@@ -34,7 +34,7 @@ The suite-specific docs now catalogue every stable reference explicitly named by
 - 398 household/container/door/furniture targets discovered from household, writing, religious, lighting, heating, construction, and writing-product tag roots.
 - 162 jewellery targets discovered from jewellery tags and catalogued in the dedicated jewellery suite.
 - 193 military equipment targets discovered from `Market / Military Goods`, split into 76 armour prototypes and 117 weapon, shield, ammunition, sling, and accessory prototypes.
-- the food and beverage suite documents the explicit `antiquity_food_` stable-reference prefix plus the shared amphora references used by `LiquidProduct` and fermentation crafts.
+- the food and beverage suite documents the explicit `antiquity_food_` stable-reference prefix plus the shared amphora references used by liquid filling, fermentation, and aging crafts.
 - 395 stable references explicitly named in the pre-food non-jewellery antiquity craft source files, plus the dynamically discovered jewellery catalogue, the food prefix catalogue, and source-audited partial seeder coverage for food, household tools, medical items, and writing items.
 
 ## Verified Invariants
@@ -50,7 +50,7 @@ The suite-specific docs now catalogue every stable reference explicitly named by
 - Glassworking now uses a lit glory-hole furnace for hot working and a lit annealing lehr for cooling finished glass.
 - Food and beverage crafts now add commodity-first grain, pulse, meat, preservation, broth, fermented drink, condiment, luxury beverage, and culture-gated prepared-food chains in the `ItemSeeder` rework path, assuming the butchery package has seeded its raw animal outputs.
 - Food tools now carry `Market / Professional Tools / Standard Tools` in addition to their functional tags, so the dynamic equipment toolmaking suite covers them.
-- Empty food serving and fermenting amphorae are craftable through pottery recipes that consume fired-clay `Bisque Vessel Blank` and `Prepared Pitch`; the finished beer amphora remains a fermentation morph target.
+- Empty food serving and fermenting amphorae are craftable through pottery recipes that consume fired-clay `Bisque Vessel Blank` and `Prepared Pitch`; finished beer, date beer, wine, kumis, garum, and spiced beverage amphorae remain fermentation or aging morph targets.
 - Kumis beverage stock consumes milk instead of grain wort. Red and white wine remain core liquids supplied by `CoreDataSeeder.Materials.cs`, not duplicate food-seeder liquids.
 - Raw hides from `AnimalButcherySeeder` now have a bridge craft into raw `animal skin` commodity stock before the existing prepared-hide and tanning chain.
 - Agriculture herd definitions now define secondary outputs and the stock `Collect Herd Products` operation can release milk, wool, eggs, and manure commodity piles from established pasture herds, including a horse-herd milk path for kumis-facing cultures.
@@ -64,7 +64,7 @@ The next-pass implementation resolves the earlier follow-up gaps as follows:
 - The expanded equipment craft pass discovers stock support tools from `Market / Professional Tools / Standard Tools` and explicitly includes unlit workshop apparatus. Support tools and unlit workshop apparatus are now craftable instead of remaining stock-only prerequisites.
 - Glassworking now has a glassworking glory-hole furnace pair, `antiquity_glory_hole_furnace` and `antiquity_lit_glory_hole_furnace`. Hot glassworking crafts require the lit glory-hole furnace, while annealing still requires the lit annealing lehr.
 - The food pass is kept wholly in `ItemSeeder` partials: item, liquid, prepared-food and spoilage-rule setup runs with rework items, and the matching crafts run with the normal ItemSeeder craft pass.
-- The food gap closure keeps this pattern: food tools use the standard tool market root, empty amphorae use the household pottery stock chain, `antiquity_food_finished_beer_amphora` stays a morph target, and culture beverage inputs now branch kumis to milk before the grain-wort fallback.
+- The food gap closure keeps this pattern: food tools use the standard tool market root, empty amphorae use the household pottery stock chain, fermented beverages and garum finish through morphing amphorae, and culture beverage inputs now branch kumis to milk before the grain-wort fallback.
 - The pastoral and derivative closure keeps the same commodity-first style: AgricultureSeeder owns crop, herd, and managed woodland production, while ItemSeeder owns reusable processing crafts that turn field outputs into seed stock, liquid milk, compost, textile dye stock, or saffron.
 - The external-catalogue risk is handled with source-backed regression tests rather than a generated file pipeline: tests parse the live seeder source, compare counts, inspect the partial seeder files, and verify that dynamic catalogues are represented in the dedicated design documents.
 

@@ -43,6 +43,11 @@ public partial class AnimalSeeder
 			return true;
 		}
 
+		if (HasLegacyAnimalFluidNames(context))
+		{
+			return true;
+		}
+
 		Race? beetleRace = context.Races.FirstOrDefault(x => x.Name == "Beetle");
 		if (beetleRace is not null && context.BodyProtos.FirstOrDefault(x => x.Id == beetleRace.BaseBodyId)?.Name != "Beetle")
 		{
@@ -57,6 +62,7 @@ public partial class AnimalSeeder
 		SetupHeightWeightModels();
 		SetupAttacks(false);
 		RefreshExistingAnimalBaseBodies();
+		RepairLegacyAnimalFluidNames(_context);
 
 		Dictionary<string, BodyProto> bodyLookup = EnsureBackfillAnimalBodies();
 		MigrateBeetleRace(bodyLookup["Beetle"]);

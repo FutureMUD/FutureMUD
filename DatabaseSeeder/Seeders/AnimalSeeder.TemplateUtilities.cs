@@ -481,6 +481,27 @@ public partial class AnimalSeeder
             "treehaul"
         };
 
+		AddDuplicateGeneratedFluidKeyIssues(
+			RaceTemplates.Values.Select(x => (x.Name, Key: GetRaceBloodMaterialName(x.Name))),
+			"blood residue material",
+			issues);
+		AddDuplicateGeneratedFluidKeyIssues(
+			RaceTemplates.Values.Select(x => (x.Name, Key: GetRaceBloodLiquidName(x.Name))),
+			"blood liquid",
+			issues);
+		AddDuplicateGeneratedFluidKeyIssues(
+			RaceTemplates.Values
+				.Where(x => x.Sweats)
+				.Select(x => (x.Name, Key: GetRaceSweatMaterialName(x.Name))),
+			"sweat residue material",
+			issues);
+		AddDuplicateGeneratedFluidKeyIssues(
+			RaceTemplates.Values
+				.Where(x => x.Sweats)
+				.Select(x => (x.Name, Key: GetRaceSweatLiquidName(x.Name))),
+			"sweat liquid",
+			issues);
+
         foreach ((string? raceName, AnimalRaceTemplate? template) in RaceTemplates)
         {
             if (string.IsNullOrWhiteSpace(template.CombatStrategyKey))
@@ -705,6 +726,18 @@ public partial class AnimalSeeder
                 issues.Add($"Race {raceName} has a blank short or full description variant.");
             }
         }
+
+		static void AddDuplicateGeneratedFluidKeyIssues(
+			IEnumerable<(string RaceName, string Key)> generatedKeys,
+			string keyType,
+			List<string> issues)
+		{
+			foreach (var group in generatedKeys.GroupBy(x => x.Key, StringComparer.OrdinalIgnoreCase).Where(x => x.Count() > 1))
+			{
+				issues.Add(
+					$"Generated animal {keyType} name {group.Key} is reused by {string.Join(", ", group.Select(x => x.RaceName))}.");
+			}
+		}
     }
 
     private void SeedAnimalRaces(IEnumerable<AnimalRaceTemplate> templates, params (string Key, BodyProto Body)[] bodies)

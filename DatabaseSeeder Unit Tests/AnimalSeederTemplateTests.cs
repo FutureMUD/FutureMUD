@@ -48,6 +48,43 @@ public class AnimalSeederTemplateTests
         };
     }
 
+	private static Material Material(long id, string name, string description)
+	{
+		return new Material
+		{
+			Id = id,
+			Name = name,
+			MaterialDescription = description,
+			ResidueDesc = string.Empty,
+			ResidueColour = string.Empty
+		};
+	}
+
+	private static Liquid Liquid(long id, string name, string description, Material driedResidue)
+	{
+		return new Liquid
+		{
+			Id = id,
+			Name = name,
+			Description = description,
+			LongDescription = description,
+			TasteText = string.Empty,
+			VagueTasteText = string.Empty,
+			SmellText = string.Empty,
+			VagueSmellText = string.Empty,
+			DisplayColour = string.Empty,
+			DampDescription = string.Empty,
+			WetDescription = string.Empty,
+			DrenchedDescription = string.Empty,
+			DampShortDescription = string.Empty,
+			WetShortDescription = string.Empty,
+			DrenchedShortDescription = string.Empty,
+			SurfaceReactionInfo = string.Empty,
+			DriedResidue = driedResidue,
+			DriedResidueId = driedResidue.Id
+		};
+	}
+
     private static void SeedAnimalAiPrerequisiteProgs(FuturemudDatabaseContext context)
     {
         context.FutureProgs.AddRange(
@@ -285,12 +322,115 @@ public class AnimalSeederTemplateTests
             "Drink satiation maxima should preserve the intended cadence before becoming parched.");
     }
 
+	private static void AssertNoDuplicateNames(IEnumerable<string> names, string label)
+	{
+		var duplicates = names
+			.GroupBy(x => x, StringComparer.OrdinalIgnoreCase)
+			.Where(x => x.Count() > 1)
+			.Select(x => x.Key)
+			.OrderBy(x => x, StringComparer.OrdinalIgnoreCase)
+			.ToList();
+
+		Assert.AreEqual(0, duplicates.Count,
+			$"Generated animal {label} names should be unique. Duplicates: {string.Join(", ", duplicates)}");
+	}
+
     [TestMethod]
     public void ValidateTemplateCatalogForTesting_CurrentCatalog_HasNoIssues()
     {
         IReadOnlyList<string> issues = AnimalSeeder.ValidateTemplateCatalogForTesting();
         Assert.AreEqual(0, issues.Count, string.Join("\n", issues));
     }
+
+	[TestMethod]
+	public void RaceTemplatesForTesting_SharedAdjectives_GenerateUniqueFluidNames()
+	{
+		var sharedAdjectives = AnimalSeeder.RaceTemplatesForTesting.Values
+			.GroupBy(x => x.Adjective, StringComparer.OrdinalIgnoreCase)
+			.Where(x => x.Count() > 1)
+			.ToDictionary(x => x.Key, x => x.Select(y => y.Name).ToList(), StringComparer.OrdinalIgnoreCase);
+
+		Assert.IsTrue(sharedAdjectives.ContainsKey("Macropod"),
+			"Macropod remains a shared adjective and should be covered by the generated-name invariant.");
+		Assert.IsTrue(sharedAdjectives.ContainsKey("Canine"),
+			"Canine remains a shared adjective and should be covered by the generated-name invariant.");
+
+		AssertNoDuplicateNames(
+			AnimalSeeder.RaceTemplatesForTesting.Keys.Select(AnimalSeeder.RaceBloodMaterialNameForTesting),
+			"blood residue material");
+		AssertNoDuplicateNames(
+			AnimalSeeder.RaceTemplatesForTesting.Keys.Select(AnimalSeeder.RaceBloodLiquidNameForTesting),
+			"blood liquid");
+		AssertNoDuplicateNames(
+			AnimalSeeder.RaceTemplatesForTesting.Values
+				.Where(x => x.Sweats)
+				.Select(x => AnimalSeeder.RaceSweatMaterialNameForTesting(x.Name)),
+			"sweat residue material");
+		AssertNoDuplicateNames(
+			AnimalSeeder.RaceTemplatesForTesting.Values
+				.Where(x => x.Sweats)
+				.Select(x => AnimalSeeder.RaceSweatLiquidNameForTesting(x.Name)),
+			"sweat liquid");
+	}
+
+	[TestMethod]
+	public void RepairLegacyAnimalFluidNames_RenamesSharedAdjectiveRowsForExistingCatalogues()
+	{
+		using FuturemudDatabaseContext context = BuildExpandedAnimalCatalogueContext();
+		long nextMaterialId = 1;
+		long nextLiquidId = 1;
+
+		foreach ((string RaceName, string Adjective) in new[]
+		         {
+			         ("Kangaroo", "Macropod"),
+			         ("Wallaby", "Macropod"),
+			         ("Dog", "Canine"),
+			         ("Dingo", "Canine")
+		         })
+		{
+			var bloodResidue = Material(nextMaterialId++, $"dried {Adjective.ToLowerInvariant()} blood", "dried blood");
+			var sweatResidue = Material(nextMaterialId++, $"dried {Adjective.ToLowerInvariant()} sweat", "dried sweat");
+			var blood = Liquid(nextLiquidId++, $"{Adjective} Blood", "blood", bloodResidue);
+			var sweat = Liquid(nextLiquidId++, $"{Adjective} Sweat", "sweat", sweatResidue);
+			context.Materials.AddRange(bloodResidue, sweatResidue);
+			context.Liquids.AddRange(blood, sweat);
+
+			Race race = context.Races.Single(x => x.Name == RaceName);
+			race.BloodLiquid = blood;
+			race.BloodLiquidId = blood.Id;
+			race.SweatLiquid = sweat;
+			race.SweatLiquidId = sweat.Id;
+		}
+
+		context.SaveChanges();
+
+		Assert.IsTrue(AnimalSeeder.HasLegacyAnimalFluidNamesForTesting(context),
+			"The legacy adjective-keyed rows should be detected as stock catalogue drift.");
+
+		AnimalSeeder.RepairLegacyAnimalFluidNamesForTesting(context);
+
+		Assert.IsFalse(AnimalSeeder.HasLegacyAnimalFluidNamesForTesting(context),
+			"The repair should leave the stock animal fluid keys in their current race-specific form.");
+		foreach (string raceName in new[] { "Kangaroo", "Wallaby", "Dog", "Dingo" })
+		{
+			string bloodLiquidName = AnimalSeeder.RaceBloodLiquidNameForTesting(raceName);
+			string sweatLiquidName = AnimalSeeder.RaceSweatLiquidNameForTesting(raceName);
+			string bloodMaterialName = AnimalSeeder.RaceBloodMaterialNameForTesting(raceName);
+			string sweatMaterialName = AnimalSeeder.RaceSweatMaterialNameForTesting(raceName);
+
+			Assert.IsTrue(context.Liquids.Any(x => x.Name == bloodLiquidName));
+			Assert.IsTrue(context.Liquids.Any(x => x.Name == sweatLiquidName));
+			Assert.IsTrue(context.Materials.Any(x =>
+				x.Name == bloodMaterialName &&
+				x.MaterialDescription == "dried blood"));
+			Assert.IsTrue(context.Materials.Any(x =>
+				x.Name == sweatMaterialName &&
+				x.MaterialDescription == "dried sweat"));
+		}
+
+		AssertNoDuplicateNames(context.Materials.Select(x => x.Name), "material");
+		AssertNoDuplicateNames(context.Liquids.Select(x => x.Name), "liquid");
+	}
 
     [TestMethod]
     public void AnimalAIRecommendations_CoverEverySeededAnimalRace()

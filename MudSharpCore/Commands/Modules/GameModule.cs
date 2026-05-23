@@ -1236,7 +1236,7 @@ The syntax is #3tagsearch <tag>#0.", AutoHelp.HelpArgOrNoArg)]
     [NoCombatCommand]
     [NoMovementCommand]
     [HelpInfo("forage",
-        @"The forage command is used to look for useful items in your location. You must always forage against a 'yield type', for example you might be foraging for 'food', or for 'wood'. As you forage items from these categories there is less of it to find in the current location, and it may or may not regenerate over time.
+        @"The forage command is used to look for useful items or commodities in your location. You must always forage against a 'yield type', for example you might be foraging for 'food', or for 'wood'. As you forage items from these categories there is less of it to find in the current location, and it may or may not regenerate over time.
 
 The syntax to use with this command is as follows:
 
@@ -1254,7 +1254,8 @@ You can also type 'forage' on its own to see what kinds of yields you can search
         }
 
         List<string> forageTypes =
-            profile.Foragables.SelectMany(x => x.ForagableTypes)
+            profile.Foragables.Where(ForagableCanProduceOutput)
+                    .SelectMany(x => x.ForagableTypes)
                     .Select(x => x.ToLowerInvariant())
                     .Where(x => !string.IsNullOrWhiteSpace(x) && profile.MaximumYieldPoints.ContainsKey(x))
                     .Distinct()
@@ -1265,7 +1266,7 @@ You can also type 'forage' on its own to see what kinds of yields you can search
         {
             if (!forageTypes.Any())
             {
-                actor.Send("There do not seem to be any useful items that can be foraged in this location.");
+                actor.Send("There do not seem to be any useful outputs that can be foraged in this location.");
                 return;
             }
 
@@ -1338,11 +1339,67 @@ You can also type 'forage' on its own to see what kinds of yields you can search
                 }
 
                 List<IGameItem> newItems = new();
-                int quantity =
-                    (int)Math.Floor(new TraitExpression(foragable.QuantityDiceExpression, actor.Gameworld).EvaluateWith(
+                if (foragable.ItemProto != null)
+                {
+                    int quantity =
+                        (int)Math.Floor(new TraitExpression(foragable.QuantityDiceExpression, actor.Gameworld).EvaluateWith(
+                            actor,
+                            values: ("outcome", forageOutcome[foragable.ForageDifficulty])));
+                    if (quantity <= 0)
+                    {
+                        actor.OutputHandler.Handle(
+                            new EmoteOutput(
+                                new Emote(
+                                    "@ finish|finishes foraging, but are|is not successful in finding what #0 were|was looking for.",
+                                    actor, actor)));
+                        return;
+                    }
+
+                    actor.Location.ConsumeYield(type, 1.0);
+                    if (foragable.ItemProto.IsItemType<StackableGameItemComponentProto>())
+                    {
+                        IGameItem newItem = foragable.ItemProto.CreateNew(actor);
+                        newItem.GetItemType<IStackable>().Quantity = quantity;
+                        newItems.Add(newItem);
+                        actor.Gameworld.Add(newItem);
+                    }
+                    else
+                    {
+                        for (int i = 0; i < quantity; i++)
+                        {
+                            IGameItem newItem = foragable.ItemProto.CreateNew(actor);
+                            newItems.Add(newItem);
+                            actor.Gameworld.Add(newItem);
+                        }
+                    }
+                }
+                else if (foragable.CommodityMaterial != null)
+                {
+                    var weight = new TraitExpression(foragable.CommodityWeightExpression, actor.Gameworld).EvaluateWith(
                         actor,
-                        values: ("outcome", forageOutcome[foragable.ForageDifficulty])));
-                if (quantity <= 0)
+                        values: ("outcome", forageOutcome[foragable.ForageDifficulty]));
+                    if (weight <= 0.0)
+                    {
+                        actor.OutputHandler.Handle(
+                            new EmoteOutput(
+                                new Emote(
+                                    "@ finish|finishes foraging, but are|is not successful in finding what #0 were|was looking for.",
+                                    actor, actor)));
+                        return;
+                    }
+
+                    actor.Location.ConsumeYield(type, 1.0);
+                    if (CommodityGameItemComponentProto.ItemPrototype == null)
+                    {
+                        CommodityGameItemComponentProto.InitialiseItemType(actor.Gameworld);
+                    }
+
+                    IGameItem newItem = CommodityGameItemComponentProto.CreateNewCommodity(foragable.CommodityMaterial,
+                        weight, foragable.CommodityTag);
+                    newItems.Add(newItem);
+                    actor.Gameworld.Add(newItem);
+                }
+                else
                 {
                     actor.OutputHandler.Handle(
                         new EmoteOutput(
@@ -1352,29 +1409,11 @@ You can also type 'forage' on its own to see what kinds of yields you can search
                     return;
                 }
 
-                actor.Location.ConsumeYield(type, 1.0);
-                if (foragable.ItemProto.IsItemType<StackableGameItemComponentProto>())
-                {
-                    IGameItem newItem = foragable.ItemProto.CreateNew(actor);
-                    newItem.GetItemType<IStackable>().Quantity = quantity;
-                    newItems.Add(newItem);
-                    actor.Gameworld.Add(newItem);
-                }
-                else
-                {
-                    for (int i = 0; i < quantity; i++)
-                    {
-                        IGameItem newItem = foragable.ItemProto.CreateNew(actor);
-                        newItems.Add(newItem);
-                        actor.Gameworld.Add(newItem);
-                    }
-                }
-
                 if (foragable.OnForageProg != null)
                 {
                     foreach (IGameItem item in newItems)
                     {
-                        var progQuantity = item.IsItemType<IStackable>() ? item.GetItemType<IStackable>().Quantity : 1;
+                        var progQuantity = GetForageProgQuantity(item);
                         foragable.OnForageProg.Execute(actor, foragable.Id, item, progQuantity);
                     }
                 }
@@ -1474,6 +1513,22 @@ You can also type 'forage' on its own to see what kinds of yields you can search
         actor.OutputHandler.Handle(new EmoteOutput(new Emote($"@ begin|begins foraging for {type}.", actor)));
     }
 
+    private static bool ForagableCanProduceOutput(IForagable foragable)
+    {
+        return foragable.ItemProto != null ||
+               foragable.CommodityMaterial != null && !string.IsNullOrWhiteSpace(foragable.CommodityWeightExpression);
+    }
+
+    private static double GetForageProgQuantity(IGameItem item)
+    {
+        if (item.GetItemType<ICommodity>() is { } commodity)
+        {
+            return commodity.Weight;
+        }
+
+        return item.IsItemType<IStackable>() ? item.GetItemType<IStackable>().Quantity : 1;
+    }
+
     private static bool TryParseForageOptions(ICharacter actor, StringStack command, IForagableProfile profile,
         string forageType, out IForagable specificForagable, out IGameItem targetContainer)
     {
@@ -1551,7 +1606,7 @@ You can also type 'forage' on its own to see what kinds of yields you can search
         string targetText)
     {
         var candidates = profile.Foragables
-                                .Where(x => x.ItemProto != null)
+                                .Where(ForagableCanProduceOutput)
                                 .Where(x => x.ForageDifficulty != Difficulty.Impossible)
                                 .Where(x => x.ForagableTypes.Any(y => y.EqualTo(forageType)))
                                 .ToList();
@@ -1568,7 +1623,13 @@ You can also type 'forage' on its own to see what kinds of yields you can search
                                   (x.ItemProto?.Name.EqualTo(targetText) ?? false) ||
                                   (x.ItemProto?.Name.StartsWith(targetText, StringComparison.InvariantCultureIgnoreCase) ?? false) ||
                                   (x.ItemProto?.ShortDescription.EqualTo(targetText) ?? false) ||
-                                  (x.ItemProto?.ShortDescription.StartsWith(targetText, StringComparison.InvariantCultureIgnoreCase) ?? false))
+                                  (x.ItemProto?.ShortDescription.StartsWith(targetText, StringComparison.InvariantCultureIgnoreCase) ?? false) ||
+                                  (x.CommodityMaterial?.Name.EqualTo(targetText) ?? false) ||
+                                  (x.CommodityMaterial?.Name.StartsWith(targetText, StringComparison.InvariantCultureIgnoreCase) ?? false) ||
+                                  (x.CommodityTag?.Name.EqualTo(targetText) ?? false) ||
+                                  (x.CommodityTag?.Name.StartsWith(targetText, StringComparison.InvariantCultureIgnoreCase) ?? false) ||
+                                  (x.CommodityTag?.FullName.EqualTo(targetText) ?? false) ||
+                                  (x.CommodityTag?.FullName.StartsWith(targetText, StringComparison.InvariantCultureIgnoreCase) ?? false))
                               .Distinct()
                               .ToList();
         }

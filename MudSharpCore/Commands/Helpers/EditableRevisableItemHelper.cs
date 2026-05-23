@@ -341,14 +341,16 @@ internal class EditableRevisableItemHelper
                                        ? string.Format(actor, "{0} {1:N0}r{2:N0}", proto.ItemProto.Name,
                                            proto.ItemProto.Id,
                                            proto.ItemProto.RevisionNumber)
-                                       : "None",
-                                   proto.QuantityDiceExpression,
+                                       : proto.CommodityMaterial != null
+                                           ? $"Commodity: {proto.CommodityMaterial.Name}{(proto.CommodityTag != null ? $" [{proto.CommodityTag.FullName}]" : "")}"
+                                           : "None",
+                                   proto.ItemProto != null ? proto.QuantityDiceExpression : proto.CommodityWeightExpression,
                                    FMDB.Context.Accounts.Find(proto.BuilderAccountID).Name, proto.BuilderComment ?? ""
                                };
                 }
             },
             GetReviewTableHeaderFunc =
-                character => new[] { "ID#", "Rev#", "Name", "Proto", "Quantity", "Builder", "Comment" },
+                character => new[] { "ID#", "Rev#", "Name", "Output", "Amount", "Builder", "Comment" },
             GetListTableContentsFunc = (character, protos) => from proto in protos.OfType<IForagable>()
                                                               select
                                                                   new[]
@@ -361,11 +363,13 @@ internal class EditableRevisableItemHelper
                                                                               "{0} {1:N0}r{2:N0}", proto.ItemProto.Name,
                                                                               proto.ItemProto.Id,
                                                                               proto.ItemProto.RevisionNumber)
-                                                                          : "None",
-                                                                      proto.QuantityDiceExpression,
+                                                                          : proto.CommodityMaterial != null
+                                                                              ? $"Commodity: {proto.CommodityMaterial.Name}{(proto.CommodityTag != null ? $" [{proto.CommodityTag.FullName}]" : "")}"
+                                                                              : "None",
+                                                                      proto.ItemProto != null ? proto.QuantityDiceExpression : proto.CommodityWeightExpression,
                                                                       proto.Status.Describe()
                                                                   },
-            GetListTableHeaderFunc = character => new[] { "ID#", "Rev#", "Name", "Proto", "Quantity", "Status" },
+            GetListTableHeaderFunc = character => new[] { "ID#", "Rev#", "Name", "Output", "Amount", "Status" },
             GetReviewProposalEffectFunc =
                 (protos, character) =>
                     new Accept(character,

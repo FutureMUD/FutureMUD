@@ -886,6 +886,9 @@ CREATE TABLE `Foragables` (
     `MaximumOutcome` int(11) NOT NULL,
     `QuantityDiceExpression` varchar(200) CHARACTER SET utf8mb4 NOT NULL,
     `ItemProtoId` bigint(20) NOT NULL,
+    `CommodityMaterialId` bigint(20) NULL,
+    `CommodityTagId` bigint(20) NULL,
+    `CommodityWeightExpression` varchar(200) CHARACTER SET utf8mb4 NULL,
     `OnForageProgId` bigint(20) NULL,
     `CanForageProgId` bigint(20) NULL,
     `EditableItemId` bigint(20) NOT NULL,
@@ -5479,6 +5482,8 @@ ALTER TABLE `FutureProgs` MODIFY COLUMN `FunctionComment` text CHARACTER SET utf
 ALTER TABLE `FutureProgs` MODIFY COLUMN `Category` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL;
 
 ALTER TABLE `Foragables` MODIFY COLUMN `QuantityDiceExpression` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL;
+
+ALTER TABLE `Foragables` MODIFY COLUMN `CommodityWeightExpression` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL;
 
 ALTER TABLE `Foragables` MODIFY COLUMN `Name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL;
 

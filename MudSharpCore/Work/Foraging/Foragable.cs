@@ -1,4 +1,6 @@
 ﻿using ExpressionEngine;
+using MudSharp.Form.Material;
+using MudSharp.Framework.Units;
 using MudSharp.Accounts;
 using MudSharp.Body.Traits;
 using MudSharp.Character;
@@ -11,6 +13,7 @@ using MudSharp.PerceptionEngine;
 using MudSharp.RPG.Checks;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 
@@ -24,6 +27,39 @@ public class Foragable : EditableItem, IForagable
         => Futuremud.Games.First().GetStaticConfiguration("BaseForageTimeExpression");
 
     #endregion
+
+    private string DescribeOutput(ICharacter actor)
+    {
+        if (ItemProto != null)
+        {
+            return string.Format(actor, "item #{0:N0}r{1:N0} - {2} ({3})", ItemProto.Id, ItemProto.RevisionNumber,
+                ItemProto.ShortDescription, QuantityDiceExpression.ColourCommand());
+        }
+
+        if (CommodityMaterial != null)
+        {
+            return $"{DescribeCommodityWeightExpression(actor)} of {CommodityMaterial.Name.Colour(CommodityMaterial.ResidueColour)}{(CommodityTag != null ? $" tagged {CommodityTag.FullName.ColourName()}" : "")}";
+        }
+
+        return "Not Selected".ColourError();
+    }
+
+    private string DescribeCommodityWeightExpression(ICharacter actor)
+    {
+        if (string.IsNullOrWhiteSpace(CommodityWeightExpression))
+        {
+            return "Not Selected".ColourError();
+        }
+
+        return double.TryParse(CommodityWeightExpression, NumberStyles.Float, CultureInfo.InvariantCulture, out var weight)
+            ? Gameworld.UnitManager.DescribeExact(weight, UnitType.Mass, actor).ColourValue()
+            : CommodityWeightExpression.ColourCommand();
+    }
+
+    private bool HasItemOutput => ItemProto != null;
+    private bool HasCommodityMaterial => CommodityMaterial != null;
+    private bool HasCommodityOutput => HasCommodityMaterial && !string.IsNullOrWhiteSpace(CommodityWeightExpression);
+    private bool HasExactlyOneOutput => HasItemOutput && !HasCommodityMaterial || !HasItemOutput && HasCommodityOutput;
 
     public override string Show(ICharacter actor)
     {
@@ -41,12 +77,7 @@ public class Foragable : EditableItem, IForagable
             $"Forage Difficulty: {ForageDifficulty.Describe().Colour(Telnet.Green)}",
             $"Relative Chance: {RelativeChance.ToString("N0", actor).ColourValue()}"
         }.ArrangeStringsOntoLines(2, (uint)actor.LineFormatLength));
-        sb.AppendLineFormat("Item Proto: {0}",
-            ItemProto != null
-                ? string.Format(actor, "{0:N0}r{1:N0} - {2}", ItemProto.Id, ItemProto.RevisionNumber,
-                    ItemProto.ShortDescription)
-                : "Not Selected".Colour(Telnet.Red));
-        sb.AppendLineFormat("Quantity Expression: {0}", QuantityDiceExpression.Colour(Telnet.Yellow));
+        sb.AppendLineFormat("Output: {0}", DescribeOutput(actor));
         sb.AppendLineFormat("Foragable Types: {0}",
             ForagableTypes.Any()
                 ? ForagableTypes.Select(x => x.Colour(Telnet.Green)).ListToString()
@@ -79,6 +110,9 @@ public class Foragable : EditableItem, IForagable
                 MinimumOutcome = (int)MinimumOutcome,
                 MaximumOutcome = (int)MaximumOutcome,
                 QuantityDiceExpression = QuantityDiceExpression,
+                CommodityMaterialId = CommodityMaterial?.Id,
+                CommodityTagId = HasCommodityMaterial ? CommodityTag?.Id : null,
+                CommodityWeightExpression = HasCommodityMaterial ? CommodityWeightExpression : null,
                 RelativeChance = RelativeChance,
                 EditableItem = new Models.EditableItem()
             };
@@ -103,7 +137,7 @@ public class Foragable : EditableItem, IForagable
 
     public override bool CanSubmit()
     {
-        return ForagableTypes.Any() && ItemProto != null;
+        return ForagableTypes.Any() && HasExactlyOneOutput;
     }
 
     public override string WhyCannotSubmit()
@@ -113,7 +147,19 @@ public class Foragable : EditableItem, IForagable
             return "You must set at least one foragable type.";
         }
 
-        return ItemProto == null ? "You must set an item prototype." : "I don't know why you can't submit.";
+        if (HasItemOutput && HasCommodityMaterial)
+        {
+            return "You must set either an item prototype or a commodity output, not both.";
+        }
+
+        if (HasCommodityMaterial && string.IsNullOrWhiteSpace(CommodityWeightExpression))
+        {
+            return "You must set a commodity weight expression.";
+        }
+
+        return !HasItemOutput && !HasCommodityMaterial
+            ? "You must set either an item prototype or a commodity output."
+            : "I don't know why you can't submit.";
     }
 
     public override string FrameworkItemType => "Foragable";
@@ -134,6 +180,9 @@ public class Foragable : EditableItem, IForagable
             dbitem.ForagableTypes = SerialisedForagableTypes;
             dbitem.ForageDifficulty = (int)ForageDifficulty;
             dbitem.ItemProtoId = ItemProto?.Id ?? 0;
+            dbitem.CommodityMaterialId = CommodityMaterial?.Id;
+            dbitem.CommodityTagId = HasCommodityMaterial ? CommodityTag?.Id : null;
+            dbitem.CommodityWeightExpression = HasCommodityMaterial ? CommodityWeightExpression : null;
             dbitem.MinimumOutcome = (int)MinimumOutcome;
             dbitem.MaximumOutcome = (int)MaximumOutcome;
             dbitem.QuantityDiceExpression = QuantityDiceExpression ?? "1";
@@ -171,6 +220,7 @@ public class Foragable : EditableItem, IForagable
             _minimumOutcome = Outcome.MajorFail;
             _maximumOutcome = Outcome.MajorPass;
             _quantityDiceExpression = "1";
+            _commodityWeightExpression = null;
 
             dbitem.Name = _name;
             dbitem.RelativeChance = RelativeChance;
@@ -204,6 +254,9 @@ public class Foragable : EditableItem, IForagable
         _canForageProg = Gameworld.FutureProgs.Get(foragable.CanForageProgId ?? 0);
         _quantityDiceExpression = foragable.QuantityDiceExpression;
         _itemProtoId = foragable.ItemProtoId;
+        _commodityMaterialId = foragable.CommodityMaterialId ?? 0;
+        _commodityTagId = foragable.CommodityTagId ?? 0;
+        _commodityWeightExpression = foragable.CommodityWeightExpression;
     }
 
     protected override IEnumerable<IEditableRevisableItem> GetAllSameId()
@@ -218,10 +271,17 @@ public class Foragable : EditableItem, IForagable
     private const string BuildingCommandHelp = @"You can use the following options with this command:
 
 	#3name <name>#0 - renames this foragable
-	#3proto <which>#0 - sets the item prototype for this foragable to load
+	#3proto <which>#0 - sets the item prototype for this foragable to load and clears commodity output
+	#3commodity material <material> [tag <tag>|notag] weight <weight>#0 - switches this foragable to commodity output
+	#3commodity clear#0 - clears commodity output
+	#3material <which>#0 - sets the commodity material and clears item prototype output
+	#3tag <which>#0 - sets the commodity tag
+	#3tag none#0 - clears the commodity tag
+	#3weight <weight>#0 - sets a fixed commodity weight
+	#3weight variable <expression>#0 - sets a variable commodity weight expression, in base mass units, with #6outcome#0 available
 	#3chance <#>#0 - the relative weight of this option being found
-	#3quantity <# or dice>#0 - a number or dice expression for the quantity found
-	#3difficulty <difficulty>#0 - the difficulty that the result is evaluated against for this item
+	#3quantity <# or dice>#0 - a number or dice expression for the item quantity found
+	#3difficulty <difficulty>#0 - the difficulty that the result is evaluated against for this output
 	#3outcome <min> <max>#0 - the minimum and maximum check outcome that this item can appear on
 	#3types <type1> [<type2>] ... [<typen>]#0 - sets the yield types that this foragable appears against
 	#3canforage <prog>#0 - sets a boolean prog that controls whether this foragable can be found
@@ -249,12 +309,276 @@ public class Foragable : EditableItem, IForagable
                 return BuildingCommandCanForage(actor, command);
             case "proto":
                 return BuildingCommandProto(actor, command);
+            case "commodity":
+                return BuildingCommandCommodity(actor, command);
+            case "material":
+                return BuildingCommandMaterial(actor, command);
+            case "tag":
+                return BuildingCommandTag(actor, command);
+            case "weight":
+                return BuildingCommandWeight(actor, command);
             case "quantity":
                 return BuildingCommandQuantity(actor, command);
             default:
                 actor.OutputHandler.Send(BuildingCommandHelp.SubstituteANSIColour());
                 return false;
         }
+    }
+
+    private bool BuildingCommandCommodity(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.Send("Use {0} to set commodity output.", "commodity material <material> [tag <tag>|notag] weight <weight>".ColourCommand());
+            return false;
+        }
+
+        if (command.SafeRemainingArgument.EqualTo("clear"))
+        {
+            if (CommodityMaterial == null && CommodityTag == null)
+            {
+                actor.Send("This foragable does not have any commodity output to clear.");
+                return false;
+            }
+
+            ClearCommodityOutput();
+            actor.Send("You clear the commodity output from this foragable.");
+            return true;
+        }
+
+        ISolid material = null;
+        ITag tag = null;
+        string weightExpression = null;
+        string weightDescription = null;
+        while (!command.IsFinished)
+        {
+            var token = command.PopSpeech();
+            if (token.EqualTo("material"))
+            {
+                var materialText = ConsumeUntilKeyword(command, "tag", "notag", "none", "weight");
+                if (string.IsNullOrWhiteSpace(materialText))
+                {
+                    actor.Send("Which commodity material do you want this foragable to produce?");
+                    return false;
+                }
+
+                material = Gameworld.Materials.GetByIdOrName(materialText);
+                if (material == null)
+                {
+                    actor.Send("There is no material identified by {0}.", materialText.ColourCommand());
+                    return false;
+                }
+
+                continue;
+            }
+
+            if (token.EqualTo("tag"))
+            {
+                var tagText = ConsumeUntilKeyword(command, "weight", "material");
+                if (string.IsNullOrWhiteSpace(tagText))
+                {
+                    actor.Send("Which commodity tag do you want this foragable to use?");
+                    return false;
+                }
+
+                tag = Gameworld.Tags.GetByIdOrName(tagText);
+                if (tag == null)
+                {
+                    actor.Send("There is no tag identified by {0}.", tagText.ColourCommand());
+                    return false;
+                }
+
+                continue;
+            }
+
+            if (token.EqualToAny("notag", "none"))
+            {
+                tag = null;
+                continue;
+            }
+
+            if (token.EqualTo("weight"))
+            {
+                if (!TryParseCommodityWeightExpression(actor, command.SafeRemainingArgument, out weightExpression, out weightDescription))
+                {
+                    return false;
+                }
+
+                break;
+            }
+
+            actor.Send("The option {0} is not valid for commodity output. Use {1}.", token.ColourCommand(), "commodity material <material> [tag <tag>|notag] weight <weight>".ColourCommand());
+            return false;
+        }
+
+        if (material == null)
+        {
+            actor.Send("You must specify a commodity material.");
+            return false;
+        }
+
+        if (string.IsNullOrWhiteSpace(weightExpression))
+        {
+            actor.Send("You must specify a commodity weight.");
+            return false;
+        }
+
+        SetCommodityOutput(material, tag, weightExpression);
+        actor.Send("This foragable will now produce {0} of {1}{2} when foraged.", weightDescription,
+            material.Name.Colour(material.ResidueColour), tag != null ? $" tagged {tag.FullName.ColourName()}" : "");
+        return true;
+    }
+
+    private bool BuildingCommandMaterial(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.Send("Which commodity material do you want this foragable to produce?");
+            return false;
+        }
+
+        var materialText = command.SafeRemainingArgument;
+        var material = Gameworld.Materials.GetByIdOrName(materialText);
+        if (material == null)
+        {
+            actor.Send("There is no material identified by {0}.", materialText.ColourCommand());
+            return false;
+        }
+
+        _itemProtoId = 0;
+        CommodityMaterial = material;
+        actor.Send("This foragable will now produce commodity piles of {0} instead of item prototypes.", material.Name.Colour(material.ResidueColour));
+        if (string.IsNullOrWhiteSpace(CommodityWeightExpression))
+        {
+            actor.Send("Warning: you still need to set a commodity weight before this foragable can be submitted.".Colour(Telnet.Yellow));
+        }
+
+        return true;
+    }
+
+    private bool BuildingCommandTag(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.Send("Which commodity tag do you want this foragable to use? Use {0} to clear it.", "none".ColourCommand());
+            return false;
+        }
+
+        if (command.SafeRemainingArgument.EqualToAny("clear", "none", "notag"))
+        {
+            _itemProtoId = 0;
+            CommodityTag = null;
+            actor.Send("This foragable will now produce an untagged commodity pile.");
+            return true;
+        }
+
+        var tagText = command.SafeRemainingArgument;
+        var tag = Gameworld.Tags.GetByIdOrName(tagText);
+        if (tag == null)
+        {
+            actor.Send("There is no tag identified by {0}.", tagText.ColourCommand());
+            return false;
+        }
+
+        _itemProtoId = 0;
+        CommodityTag = tag;
+        actor.Send("This foragable will now apply the {0} tag to its commodity output.", tag.FullName.ColourName());
+        return true;
+    }
+
+    private bool BuildingCommandWeight(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.Send("What weight of commodity should this foragable produce?");
+            return false;
+        }
+
+        if (!TryParseCommodityWeightExpression(actor, command.SafeRemainingArgument, out var expression, out var description))
+        {
+            return false;
+        }
+
+        _itemProtoId = 0;
+        CommodityWeightExpression = expression;
+        actor.Send("This foragable will now produce {0} of commodity when foraged.", description);
+        if (CommodityMaterial == null)
+        {
+            actor.Send("Warning: you still need to set a commodity material before this foragable can be submitted.".Colour(Telnet.Yellow));
+        }
+
+        return true;
+    }
+
+    private bool TryParseCommodityWeightExpression(ICharacter actor, string text, out string expression, out string description)
+    {
+        expression = null;
+        description = null;
+        var command = new StringStack(text);
+        var isFormula = command.PeekSpeech().EqualToAny("variable", "formula", "expression");
+        if (isFormula)
+        {
+            command.PopSpeech();
+            text = command.SafeRemainingArgument;
+        }
+
+        if (string.IsNullOrWhiteSpace(text))
+        {
+            actor.Send("What weight expression do you want to use for this commodity output?");
+            return false;
+        }
+
+        if (!isFormula && Gameworld.UnitManager.TryGetBaseUnits(text, UnitType.Mass, actor, out var weight))
+        {
+            if (weight <= 0.0)
+            {
+                actor.Send("Commodity weight must be greater than zero.");
+                return false;
+            }
+
+            expression = weight.ToString("R", CultureInfo.InvariantCulture);
+            description = Gameworld.UnitManager.DescribeExact(weight, UnitType.Mass, actor).ColourValue();
+            return true;
+        }
+
+        TraitExpression testExpression = new(text, Gameworld);
+        if (testExpression.HasErrors())
+        {
+            actor.OutputHandler.Send($"Your formula had the following error: {testExpression.Error.ColourCommand()}");
+            return false;
+        }
+
+        expression = text;
+        description = text.ColourCommand();
+        return true;
+    }
+
+    private static string ConsumeUntilKeyword(StringStack command, params string[] keywords)
+    {
+        List<string> parts = new();
+        while (!command.IsFinished && !command.PeekSpeech().EqualToAny(keywords))
+        {
+            parts.Add(command.PopSpeech());
+        }
+
+        return string.Join(" ", parts);
+    }
+
+    private void SetCommodityOutput(ISolid material, ITag tag, string weightExpression)
+    {
+        _itemProtoId = 0;
+        _commodityMaterialId = material?.Id ?? 0;
+        _commodityTagId = tag?.Id ?? 0;
+        _commodityWeightExpression = weightExpression;
+        Changed = true;
+    }
+
+    private void ClearCommodityOutput()
+    {
+        _commodityMaterialId = 0;
+        _commodityTagId = 0;
+        _commodityWeightExpression = null;
+        Changed = true;
     }
 
     private bool BuildingCommandQuantity(ICharacter actor, StringStack command)
@@ -309,6 +633,7 @@ public class Foragable : EditableItem, IForagable
         }
 
         ItemProto = proto;
+        ClearCommodityOutput();
         actor.OutputHandler.Send(
             $"This foragable will now load item prototype {proto.Name} (#{proto.Id}) when foraged.");
         return true;
@@ -411,7 +736,7 @@ public class Foragable : EditableItem, IForagable
             }))
         {
             actor.Send(
-                "The OnForage prog must accept a Character, Number, Item and Number parameter. {0} does not match that pattern.",
+                "The OnForage prog must accept a Character, Number, Item and Number parameter. The final number is item quantity or commodity weight. {0} does not match that pattern.",
                 prog.FunctionName);
             return false;
         }
@@ -651,6 +976,42 @@ public class Foragable : EditableItem, IForagable
         set
         {
             _quantityDiceExpression = value;
+            Changed = true;
+        }
+    }
+
+    private long _commodityMaterialId;
+
+    public ISolid CommodityMaterial
+    {
+        get => Gameworld.Materials.Get(_commodityMaterialId);
+        set
+        {
+            _commodityMaterialId = value?.Id ?? 0;
+            Changed = true;
+        }
+    }
+
+    private long _commodityTagId;
+
+    public ITag CommodityTag
+    {
+        get => Gameworld.Tags.Get(_commodityTagId);
+        set
+        {
+            _commodityTagId = value?.Id ?? 0;
+            Changed = true;
+        }
+    }
+
+    private string _commodityWeightExpression;
+
+    public string CommodityWeightExpression
+    {
+        get => _commodityWeightExpression;
+        set
+        {
+            _commodityWeightExpression = value;
             Changed = true;
         }
     }

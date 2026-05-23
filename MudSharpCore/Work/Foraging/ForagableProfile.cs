@@ -3,11 +3,13 @@ using MudSharp.Character;
 using MudSharp.Database;
 using MudSharp.Framework;
 using MudSharp.Framework.Revision;
+using MudSharp.Framework.Units;
 using MudSharp.Models;
 using MudSharp.PerceptionEngine;
 using MudSharp.RPG.Checks;
 using System;
 using System.Collections.Generic;
+using CultureInfo = System.Globalization.CultureInfo;
 using System.Linq;
 using System.Text;
 using EditableItem = MudSharp.Framework.Revision.EditableItem;
@@ -50,15 +52,11 @@ public class ForagableProfile : EditableItem, IForagableProfile
         {
             sb.Append(StringUtilities.GetTextTable(
                 from item in foragables
-                let proto = item.ItemProto
                 select new[]
                 {
                     item.Id.ToString("N0", actor),
                     item.Name,
-                    proto != null
-                        ? $"{proto.Name} {proto.Id.ToString("N0", actor)}r{proto.RevisionNumber.ToString("N0", actor)}"
-                        : "Missing".ColourError(),
-                    item.QuantityDiceExpression,
+                    DescribeForagableOutput(item, actor),
                     item.MinimumOutcome.Describe(),
                     item.MaximumOutcome.Describe(),
                     item.RelativeChance.ToString("N0", actor),
@@ -68,8 +66,7 @@ public class ForagableProfile : EditableItem, IForagableProfile
                 {
                     "ID",
                     "Name",
-                    "Item Proto",
-                    "Quantity",
+                    "Output",
                     "Min Outcome",
                     "Max Outcome",
                     "Chance",
@@ -143,6 +140,42 @@ public class ForagableProfile : EditableItem, IForagableProfile
     }
 
     public override string FrameworkItemType => "ForagableProfile";
+
+    private static bool CanProduceOutput(IForagable item)
+    {
+        return item.ItemProto != null ||
+               item.CommodityMaterial != null && !string.IsNullOrWhiteSpace(item.CommodityWeightExpression);
+    }
+
+    private string DescribeForagableOutput(IForagable item, ICharacter actor)
+    {
+        var proto = item.ItemProto;
+        if (proto != null)
+        {
+            return $"{proto.Name} {proto.Id.ToString("N0", actor)}r{proto.RevisionNumber.ToString("N0", actor)} x {item.QuantityDiceExpression.ColourCommand()}";
+        }
+
+        var material = item.CommodityMaterial;
+        if (material != null)
+        {
+            var weight = DescribeCommodityWeight(item, actor);
+            return $"{weight} {material.Name.Colour(material.ResidueColour)}{(item.CommodityTag != null ? $" [{item.CommodityTag.FullName.ColourName()}]" : string.Empty)}";
+        }
+
+        return "Missing".ColourError();
+    }
+
+    private string DescribeCommodityWeight(IForagable item, ICharacter actor)
+    {
+        if (string.IsNullOrWhiteSpace(item.CommodityWeightExpression))
+        {
+            return "missing weight".ColourError();
+        }
+
+        return double.TryParse(item.CommodityWeightExpression, System.Globalization.NumberStyles.Float, CultureInfo.InvariantCulture, out var weight)
+            ? Gameworld.UnitManager.DescribeExact(weight, UnitType.Mass, actor).ColourValue()
+            : item.CommodityWeightExpression.ColourCommand();
+    }
 
     public override void Save()
     {
@@ -259,7 +292,7 @@ public class ForagableProfile : EditableItem, IForagableProfile
 	#3yield <which> clear#0 - removes a yield from this profile
 	#3foragable <which>#0 - toggles a foragable belonging to this profile
 
-Yield types are the resource pools in a location. Foragables are the item results that can appear when a player uses #3forage <yield>#0. A foragable linked to this profile will only appear if at least one of its types has a matching yield here.";
+Yield types are the resource pools in a location. Foragables are the item or commodity results that can appear when a player uses #3forage <yield>#0. A foragable linked to this profile will only appear if at least one of its types has a matching yield here.";
 
     public override bool BuildingCommand(ICharacter actor, StringStack command)
     {
@@ -455,7 +488,7 @@ Yield types are the resource pools in a location. Foragables are the item result
         return
             Foragables.Where(
                           x =>
-                              x.ItemProto != null &&
+                              CanProduceOutput(x) &&
                               x.ForagableTypes.Any(y =>
                                   y.Equals(foragableType, StringComparison.InvariantCultureIgnoreCase)) &&
                               forageOutcome.TryGetValue(x.ForageDifficulty, out var outcome) &&

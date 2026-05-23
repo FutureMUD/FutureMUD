@@ -2869,6 +2869,15 @@ namespace MudSharp.Database
 
                 entity.Property(e => e.CanForageProgId).HasColumnType("bigint(20)");
 
+                entity.Property(e => e.CommodityMaterialId).HasColumnType("bigint(20)");
+
+                entity.Property(e => e.CommodityTagId).HasColumnType("bigint(20)");
+
+                entity.Property(e => e.CommodityWeightExpression)
+                    .HasColumnType("varchar(200)")
+                    .HasCharSet("utf8mb4")
+                    .UseCollation("utf8mb4_unicode_ci");
+
                 entity.Property(e => e.EditableItemId).HasColumnType("bigint(20)");
 
                 entity.Property(e => e.ForagableTypes)

@@ -14,6 +14,9 @@ namespace MudSharp.Models
         public int MaximumOutcome { get; set; }
         public string QuantityDiceExpression { get; set; }
         public long ItemProtoId { get; set; }
+        public long? CommodityMaterialId { get; set; }
+        public long? CommodityTagId { get; set; }
+        public string CommodityWeightExpression { get; set; }
         public long? OnForageProgId { get; set; }
         public long? CanForageProgId { get; set; }
         public long EditableItemId { get; set; }

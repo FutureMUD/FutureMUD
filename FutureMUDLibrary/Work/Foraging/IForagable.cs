@@ -1,4 +1,6 @@
 ﻿using MudSharp.Character;
+using MudSharp.Form.Material;
+using MudSharp.Framework;
 using MudSharp.Framework.Revision;
 using MudSharp.FutureProg;
 using MudSharp.GameItems;
@@ -49,8 +51,23 @@ namespace MudSharp.Work.Foraging
         IGameItemProto ItemProto { get; }
 
         /// <summary>
+        ///     The commodity material to load when this foragable produces a commodity instead of an item prototype
+        /// </summary>
+        ISolid CommodityMaterial { get; }
+
+        /// <summary>
+        ///     The optional commodity tag to apply when this foragable produces a commodity
+        /// </summary>
+        ITag CommodityTag { get; }
+
+        /// <summary>
+        ///     A string containing a dice expression for how much commodity weight to load
+        /// </summary>
+        string CommodityWeightExpression { get; }
+
+        /// <summary>
         ///     An optional prog to execute whenever this item is foraged
-        ///     The parameters to the prog are Character, Foragable ID, Item and Quantity
+        ///     The parameters to the prog are Character, Foragable ID, Item and Quantity or Weight
         /// </summary>
         IFutureProg OnForageProg { get; }
 

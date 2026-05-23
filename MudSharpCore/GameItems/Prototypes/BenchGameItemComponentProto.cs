@@ -301,9 +301,7 @@ public class BenchGameItemComponentProto : GameItemComponentProto, ITablePrototy
             return false;
         }
 
-        IGameItemProto proto = long.TryParse(command.PopSpeech(), out long value)
-            ? Gameworld.ItemProtos.Get(value)
-            : Gameworld.ItemProtos.GetByName(command.Last);
+        IGameItemProto proto = Gameworld.ItemProtos.GetByIdOrUniqueNameOrName(command.PopSpeech());
         if (proto == null)
         {
             actor.Send("There is no such component prototype.");

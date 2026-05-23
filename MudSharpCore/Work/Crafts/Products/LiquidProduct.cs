@@ -228,9 +228,7 @@ public class LiquidProduct : BaseProduct
 			return false;
 		}
 
-		var proto = long.TryParse(command.SafeRemainingArgument, out var value)
-			? Gameworld.ItemProtos.Get(value)
-			: Gameworld.ItemProtos.GetByName(command.SafeRemainingArgument);
+		var proto = Gameworld.ItemProtos.GetByIdOrUniqueNameOrName(command.SafeRemainingArgument);
 		if (proto is null)
 		{
 			actor.OutputHandler.Send("There is no such item prototype.");

@@ -18,6 +18,8 @@ namespace MudSharp.Models
 
         public long Id { get; set; }
         public string Name { get; set; }
+        public string UniqueName { get; set; }
+        public string BuilderNotes { get; set; }
         public string Keywords { get; set; }
         public long MaterialId { get; set; }
         public long EditableItemId { get; set; }

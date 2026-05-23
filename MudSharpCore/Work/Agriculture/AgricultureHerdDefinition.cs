@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using System.Xml.Linq;
 using MudSharp.Database;
 using MudSharp.Framework;
@@ -8,6 +10,7 @@ namespace MudSharp.Work.Agriculture;
 
 public class AgricultureHerdDefinition : SaveableItem, IAgricultureHerdDefinition
 {
+	private readonly List<AgricultureCommodityYield> _secondaryOutputs = new();
 	private long _npcTemplateId;
 	private int _npcTemplateRevisionNumber;
 	private INPCTemplate _npcTemplate;
@@ -24,7 +27,8 @@ public class AgricultureHerdDefinition : SaveableItem, IAgricultureHerdDefinitio
 	}
 
 	public AgricultureHerdDefinition(IFuturemud gameworld, string name, string description, INPCTemplate npcTemplate,
-		double animalUnits, double dailyGraze, int maximumCondition)
+		double animalUnits, double dailyGraze, int maximumCondition,
+		IEnumerable<AgricultureCommodityYield> secondaryOutputs = null)
 	{
 		Gameworld = gameworld;
 		_name = name;
@@ -35,6 +39,7 @@ public class AgricultureHerdDefinition : SaveableItem, IAgricultureHerdDefinitio
 		AnimalUnits = animalUnits;
 		DailyGraze = dailyGraze;
 		MaximumCondition = maximumCondition;
+		_secondaryOutputs.AddRange(secondaryOutputs ?? Enumerable.Empty<AgricultureCommodityYield>());
 		using (new FMDB())
 		{
 			var dbitem = new Models.AgricultureHerdDefinition
@@ -56,6 +61,7 @@ public class AgricultureHerdDefinition : SaveableItem, IAgricultureHerdDefinitio
 	public double AnimalUnits { get; private set; }
 	public double DailyGraze { get; private set; }
 	public int MaximumCondition { get; private set; }
+	public IReadOnlyCollection<AgricultureCommodityYield> SecondaryOutputs => _secondaryOutputs;
 
 	public void BuildingSetName(string name)
 	{
@@ -84,6 +90,13 @@ public class AgricultureHerdDefinition : SaveableItem, IAgricultureHerdDefinitio
 	public void BuildingSetMaximumCondition(int value)
 	{
 		MaximumCondition = value.ClampScore();
+		Changed = true;
+	}
+
+	public void BuildingSetSecondaryOutputs(IEnumerable<AgricultureCommodityYield> outputs)
+	{
+		_secondaryOutputs.Clear();
+		_secondaryOutputs.AddRange(outputs ?? Enumerable.Empty<AgricultureCommodityYield>());
 		Changed = true;
 	}
 
@@ -118,6 +131,19 @@ public class AgricultureHerdDefinition : SaveableItem, IAgricultureHerdDefinitio
 		AnimalUnits = (double?)root.Attribute("animalUnits") ?? 1.0;
 		DailyGraze = (double?)root.Attribute("dailyGraze") ?? 1.0;
 		MaximumCondition = ((int?)root.Attribute("maximumCondition") ?? 100).ClampScore();
+		_secondaryOutputs.Clear();
+		foreach (var element in root.Element("SecondaryOutputs")?.Elements("Commodity") ?? Enumerable.Empty<XElement>())
+		{
+			var material = (string)element.Attribute("material");
+			var weight = (double?)element.Attribute("weight") ?? 0.0;
+			if (string.IsNullOrWhiteSpace(material) || weight <= 0.0)
+			{
+				continue;
+			}
+
+			_secondaryOutputs.Add(new AgricultureCommodityYield(material, weight,
+				(string)element.Attribute("tag") ?? string.Empty));
+		}
 	}
 
 	private XElement SaveDefinition()
@@ -125,7 +151,12 @@ public class AgricultureHerdDefinition : SaveableItem, IAgricultureHerdDefinitio
 		return new XElement("Herd",
 			new XAttribute("animalUnits", AnimalUnits),
 			new XAttribute("dailyGraze", DailyGraze),
-			new XAttribute("maximumCondition", MaximumCondition));
+			new XAttribute("maximumCondition", MaximumCondition),
+			new XElement("SecondaryOutputs",
+				_secondaryOutputs.Select(x => new XElement("Commodity",
+					new XAttribute("material", x.MaterialName),
+					new XAttribute("weight", x.BaseWeight),
+					string.IsNullOrWhiteSpace(x.TagName) ? null : new XAttribute("tag", x.TagName)))));
 	}
 
 	public override void Save()

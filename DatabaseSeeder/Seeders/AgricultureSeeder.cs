@@ -23,6 +23,10 @@ public sealed class AgricultureSeeder : IDatabaseSeeder
 	private const string RawHoneycombTagName = "Raw Honeycomb";
 	private const string PressedHoneyTagName = "Pressed Honey";
 	private const string RenderedBeeswaxTagName = "Rendered Beeswax";
+	private const string RawMilkTagName = "Raw Milk";
+	private const string RawTextileFibreTagName = "Raw Textile Fibre";
+	private const string EggProductTagName = "Egg Product";
+	private const string ManureCommodityTagName = "Manure Commodity";
 	private const string FarmingTraitName = "Farming";
 
 	private sealed record CropSeed(string Name, string Description, string Category, int Growth, int Window,
@@ -32,10 +36,14 @@ public sealed class AgricultureSeeder : IDatabaseSeeder
 	private sealed record WoodlandSeed(string Name, string Description, string Type, int Establishment, int Cycle,
 		AgricultureCommodityYield[] Outputs);
 
+	private sealed record HerdSeed(string Name, string Description, double AnimalUnits, double DailyGraze,
+		int MaximumCondition, AgricultureCommodityYield[] SecondaryOutputs);
+
 	private sealed record OperationSeed(string Name, string Description, AgricultureOperationType Type,
 		AgricultureTargetType Target, AgricultureFieldUse Required, AgricultureFieldUse Result, double Hours,
 		(AgricultureScoreType Score, int Delta)[] Deltas, double WoodlandYieldMultiplier = 0.0,
-		int WoodlandYieldCost = 0, AgricultureFieldUse[]? AllowedUses = null, int ApiaryInstallHiveCount = 0,
+		int WoodlandYieldCost = 0, double HerdYieldMultiplier = 0.0, int HerdYieldCost = 0,
+		AgricultureFieldUse[]? AllowedUses = null, int ApiaryInstallHiveCount = 0,
 		int ApiaryPollinationRadius = 0, int ApiaryTendHealthDelta = 0, int ApiaryTendStoresDelta = 0,
 		int ApiaryTendYieldDelta = 0, double ApiaryYieldMultiplier = 0.0, int ApiaryYieldCost = 0,
 		AgricultureCommodityYield[]? ApiaryOutputs = null);
@@ -84,14 +92,15 @@ public sealed class AgricultureSeeder : IDatabaseSeeder
 				"Bitter Vetch" or "Grass Peas" or "Lupins" or "Canihua" or "Pitseed Goosefoot" or "Maygrass" or
 				"Little Barley" or "Erect Knotweed" or "Potatoes" or "Oca" or "Ulluco" or "Mashua" or
 				"Jerusalem Artichokes" or "Carrots" or "Beetroot" or "Turnips" or "Onions" or "Cabbage" or
-				"Lettuce" or "Sugar Beet" or "Canola" or "Mustard" or "Flax" or "Woad" => CoolSeasonPlanting,
+				"Lettuce" or "Sugar Beet" or "Canola" or "Mustard" or "Flax" or "Madder" or "Weld" or
+				"Alkanet" or "Woad" or "Coriander" or "Saffron Crocus" => CoolSeasonPlanting,
 			"Garlic" => OverwinteringPlanting,
 			"Rice" or "Maize" or "Sorghum" or "Millet" or "Buckwheat" or "Chickpeas" or "Soybeans" or
 				"Peanuts" or "Cowpeas" or "Mung Beans" or "Bambara Groundnuts" or "Adzuki Beans" or "Teff" or
 				"Fonio" or "Finger Millet" or "Pearl Millet" or "Foxtail Millet" or "Proso Millet" or
 				"Amaranth" or "Chia" or "Marshelder" or "African Rice" or "Sweet Potatoes" or "Tomatoes" or
 				"Eggplants" or "Cucumbers" or "Pumpkins" or "Squash" or "Okra" or "Bottle Gourds" or
-				"Peppers" or "Sunflower" or "Safflower" or "Niger Seed" or "Hemp" => WarmSeasonPlanting,
+				"Peppers" or "Sunflower" or "Safflower" or "Niger Seed" or "Hemp" or "Cumin" => WarmSeasonPlanting,
 			"Cassava" or "Taro" or "Yams" or "Sugarcane" or "Sesame" or "Cotton" or "Jute" or "Ramie" or
 				"Sisal" or "Pigeon Peas" or "Arrowroot" or "Lotus Root" or "Water Chestnuts" or "Kenaf" or
 				"Indigo" => HotLongSeasonPlanting,
@@ -103,7 +112,7 @@ public sealed class AgricultureSeeder : IDatabaseSeeder
 			"Dates" or "Bananas" or "Mangoes" or "Coconuts" or "Plantains" or "Breadfruit" or "Avocados" or
 				"Cacao" or "Coffee" or "Tea" or "Cashews" or "Macadamias" or "Guavas" or "Lychees" or
 				"Jackfruit" or "Papayas" or "Passionfruit" or "Cinnamon" or "Cloves" or "Nutmeg" or
-				"Kola Nuts" or "Tamarinds" => TropicalPerennialPlanting,
+				"Kola Nuts" or "Tamarinds" or "Black Pepper" or "Henna" => TropicalPerennialPlanting,
 			_ => Array.Empty<string>()
 		};
 	}
@@ -257,6 +266,9 @@ public sealed class AgricultureSeeder : IDatabaseSeeder
 		new("Safflower", "A dryland oilseed and dye crop with thistle-like flower heads.", "oilseed", 120, 18, 15, 60, 8, 38, [Yield("safflower", 900000), Yield("straw", 300000)]),
 		new("Niger Seed", "A warm oilseed crop important in parts of Ethiopia and India.", "oilseed", 100, 14, 25, 70, 12, 36, [Yield("niger seed", 700000), Yield("straw", 250000)]),
 		new("Mustard", "A brassica seed crop for spice, greens, and oil.", "oilseed", 90, 14, 30, 80, 2, 30, [Yield("mustard seed", 900000), Yield("straw", 300000)]),
+		new("Coriander", "A seed-spice and herb crop suited to irrigated gardens and cool-season fields.", "spice", 90, 14, 30, 75, 5, 32, [Yield("coriander", 450000), Yield("vegetation", 200000)]),
+		new("Cumin", "A warm dryland seed-spice crop for aromatic cumin seed.", "spice", 110, 16, 20, 65, 10, 38, [Yield("cumin", 350000), Yield("straw", 150000)]),
+		new("Saffron Crocus", "A cool-season crocus grown for labour-intensive saffron stigmas.", "spice", 150, 18, 20, 65, -2, 30, [Yield("saffron crocus", 80000), Yield("vegetation", 100000)]),
 		new("Cotton", "A warm-season fibre crop producing cotton bolls.", "fibre", 160, 24, 35, 75, 15, 40, [Yield("cotton crop", 1800000), Yield("straw", 700000)]),
 		new("Flax", "A cool-season fibre and seed crop.", "fibre", 110, 18, 35, 75, 2, 30, [Yield("flax", 1400000), Yield("straw", 800000)]),
 		new("Hemp", "A tall bast-fibre crop for fibre, seed, or biomass.", "fibre", 120, 18, 35, 80, 8, 35, [Yield("hemp crop", 2500000), Yield("straw", 1200000)]),
@@ -264,6 +276,9 @@ public sealed class AgricultureSeeder : IDatabaseSeeder
 		new("Ramie", "A perennial nettle-family fibre crop.", "fibre", 130, 20, 45, 90, 12, 38, [Yield("ramie", 1800000), Yield("straw", 800000)]),
 		new("Sisal", "A dryland leaf-fibre crop.", "fibre", 240, 35, 15, 55, 12, 42, [Yield("sisal", 2000000)]),
 		new("Kenaf", "A hot-season bast-fibre crop related to hibiscus.", "fibre", 140, 20, 45, 90, 16, 40, [Yield("kenaf", 1800000), Yield("straw", 800000)]),
+		new("Madder", "A deep-rooted dye crop grown for red dye roots.", "industrial", 730, 45, 25, 70, 0, 35, [Yield("madder root", 900000), Yield("vegetation", 300000)]),
+		new("Weld", "A cool-season yellow dye crop grown for flowering stems and leaves.", "industrial", 120, 18, 25, 70, 0, 32, [Yield("weld", 900000), Yield("vegetation", 250000)]),
+		new("Alkanet", "A dryland dye herb grown for purple-red roots.", "industrial", 240, 28, 20, 60, 2, 36, [Yield("alkanet root", 650000), Yield("vegetation", 200000)]),
 		new("Indigo", "A hot-climate dye crop grown for leaves used in blue dye production.", "industrial", 130, 20, 35, 85, 16, 40, [Yield("indigo crop", 1200000), Yield("vegetation", 400000)]),
 		new("Woad", "A cool-season dye crop grown for blue-dye leaves in temperate fields.", "industrial", 110, 18, 35, 80, 0, 30, [Yield("woad leaves", 1000000), Yield("vegetation", 300000)])
 	];
@@ -314,18 +329,41 @@ public sealed class AgricultureSeeder : IDatabaseSeeder
 		new("Kiwifruit", "A temperate climbing-vine orchard crop for fuzzy fruit.", "orchard", 730, 24, 45, 85, -5, 32, [Yield("kiwi fruit", 6000000)], true, 210),
 		new("Passionfruit", "A warm-climate climbing-vine orchard crop for aromatic fruit.", "orchard", 450, 24, 45, 90, 8, 36, [Yield("passionfruit", 5000000)], true, 180),
 		new("Cinnamon", "A tropical spice-tree plantation crop harvested for aromatic bark.", "orchard", 1095, 28, 60, 95, 18, 38, [Yield("cinnamon bark", 1200000)], true, 365),
+		new("Black Pepper", "A tropical climbing pepper vine grown for dried peppercorns.", "orchard", 1095, 28, 60, 95, 18, 40, [Yield("black pepper", 700000)], true, 300),
 		new("Cloves", "A humid tropical spice-tree crop for aromatic flower buds.", "orchard", 1460, 30, 65, 100, 18, 38, [Yield("cloves", 800000)], true, 300),
 		new("Nutmeg", "A tropical spice-tree crop for nutmeg seed and mace.", "orchard", 1460, 30, 65, 100, 18, 38, [Yield("nutmeg", 900000)], true, 300),
+		new("Henna", "A hot dry-climate dye shrub grown for orange-red leaves.", "orchard", 730, 24, 15, 60, 14, 42, [Yield("henna leaf", 900000), Yield("vegetation", 200000)], true, 220),
 		new("Kola Nuts", "A humid tropical kola tree crop for stimulant nuts.", "orchard", 1460, 30, 60, 95, 18, 38, [Yield("kola nut", 1200000)], true, 300),
 		new("Tamarinds", "A drought-tolerant tropical tamarind tree crop for sour-sweet pods.", "orchard", 1095, 28, 20, 70, 12, 42, [Yield("tamarind", 5000000)], true, 260)
 	];
 
-	private static readonly (string Name, string Description, double AnimalUnits, double DailyGraze, int MaximumCondition)[] Herds =
+	private static readonly HerdSeed[] Herds =
 	[
-		("Cattle Herd", "A generic cattle, aurochs, buffalo, or large grazing herd.", 1.0, 1.0, 100),
-		("Sheep or Goat Flock", "A generic flock of sheep, goats, or other small browsers.", 0.2, 0.3, 100),
-		("Pig Herd", "A generic pig, boar, or omnivorous rooting herd.", 0.4, 0.45, 100),
-		("Poultry Flock", "A generic flock of chickens, ducks, geese, or similar fowl.", 0.03, 0.05, 100)
+		new("Cattle Herd", "A generic cattle, aurochs, buffalo, or large grazing herd.", 1.0, 1.0, 100,
+		[
+			Yield("milk", 3500, RawMilkTagName),
+			Yield("feces", 2500, ManureCommodityTagName)
+		]),
+		new("Sheep or Goat Flock", "A generic flock of sheep, goats, or other small browsers.", 0.2, 0.3, 100,
+		[
+			Yield("milk", 900, RawMilkTagName),
+			Yield("wool", 450, RawTextileFibreTagName),
+			Yield("feces", 700, ManureCommodityTagName)
+		]),
+		new("Pig Herd", "A generic pig, boar, or omnivorous rooting herd.", 0.4, 0.45, 100,
+		[
+			Yield("feces", 1800, ManureCommodityTagName)
+		]),
+		new("Horse Herd", "A generic horse, pony, ass, onager, or other equine herd for mobile pastoral cultures.", 0.8, 0.8, 100,
+		[
+			Yield("milk", 1200, RawMilkTagName),
+			Yield("feces", 1600, ManureCommodityTagName)
+		]),
+		new("Poultry Flock", "A generic flock of chickens, ducks, geese, or similar fowl.", 0.03, 0.05, 100,
+		[
+			Yield("egg", 60, EggProductTagName),
+			Yield("feces", 45, ManureCommodityTagName)
+		])
 	];
 
 	private static readonly WoodlandSeed[] Woodlands =
@@ -334,6 +372,9 @@ public sealed class AgricultureSeeder : IDatabaseSeeder
 		new("Willow Coppice", "A damp-ground willow coppice for withies, rods, basketry material, and firewood.", "coppice", 150, 240, [Yield("willow", 2200000), Yield("firewood", 700000)]),
 		new("Bamboo Grove", "A fast-growing bamboo grove for canes, poles, shoots, and light structural material.", "coppice", 120, 180, [Yield("bamboo", 3500000), Yield("vegetation", 500000)]),
 		new("Oak Timber Stand", "A long-cycle hardwood timber stand managed for heavy oak logs and firewood.", "timber", 730, 3650, [Yield("oak", 9000000), Yield("firewood", 2500000), Yield("oak gall", 100000)]),
+		new("Kermes Oak Scrub", "A Mediterranean scrub woodland managed for small oak wood, fuel, galls, and kermes dye insects.", "coppice", 420, 900, [Yield("oak", 2000000), Yield("firewood", 900000), Yield("oak gall", 80000), Yield("kermes grain", 45000)]),
+		new("Dye Lichen Grove", "A damp stone-and-tree woodland managed for dye-bearing orchil lichens.", "coppice", 365, 730, [Yield("orchil lichen", 120000), Yield("moss", 200000), Yield("firewood", 400000)]),
+		new("Lac Host Grove", "A warm host-tree grove managed for lac dye encrustations and light fuel wood.", "coppice", 365, 730, [Yield("lac dye cake", 70000), Yield("firewood", 450000)]),
 		new("Pine Timber Stand", "A softwood timber stand grown for pine logs, poles, and fuel.", "timber", 540, 2555, [Yield("pine", 8500000), Yield("firewood", 2000000)]),
 		new("Cedar Timber Stand", "A managed cedar stand for aromatic softwood timber.", "timber", 650, 3285, [Yield("cedar", 7000000), Yield("firewood", 1600000)]),
 		new("Pollarded Willow Grove", "A pollarded willow grove cut above browsing height for poles and fuel.", "pollard", 240, 730, [Yield("willow", 3200000), Yield("firewood", 1000000)]),
@@ -364,6 +405,7 @@ public sealed class AgricultureSeeder : IDatabaseSeeder
 		new("Harvest Crop", "Harvest a crop that is ready to be gathered.", AgricultureOperationType.Harvest, AgricultureTargetType.None, AgricultureFieldUse.Crop, AgricultureFieldUse.Fallow, 96.0, [(AgricultureScoreType.Nutrients, -4), (AgricultureScoreType.Weeds, 4)]),
 		new("Harvest Orchard", "Harvest a ready perennial crop while leaving the orchard or vineyard in place.", AgricultureOperationType.Harvest, AgricultureTargetType.None, AgricultureFieldUse.Orchard, AgricultureFieldUse.Orchard, 128.0, [(AgricultureScoreType.Nutrients, -3), (AgricultureScoreType.Weeds, 3)]),
 		new("Rotate Grazing", "Move or settle an abstract herd onto pasture.", AgricultureOperationType.Herd, AgricultureTargetType.Herd, AgricultureFieldUse.Fallow, AgricultureFieldUse.Pasture, 32.0, [(AgricultureScoreType.Fence, -2), (AgricultureScoreType.Pasture, -4)]),
+		new("Collect Herd Products", "Collect milk, fleece, eggs, manure, or other configured secondary products from an established herd.", AgricultureOperationType.HarvestHerdProducts, AgricultureTargetType.Herd, AgricultureFieldUse.Pasture, AgricultureFieldUse.Pasture, 24.0, [(AgricultureScoreType.Pasture, -1)], HerdYieldMultiplier: 1.0, HerdYieldCost: 55),
 		new("Plant Woodland", "Plant or establish a managed woodland, coppice, pollard, or timber stand.", AgricultureOperationType.Woodland, AgricultureTargetType.Woodland, AgricultureFieldUse.Fallow, AgricultureFieldUse.Woodland, 480.0, [(AgricultureScoreType.Topsoil, -2), (AgricultureScoreType.Weeds, -4), (AgricultureScoreType.Condition, 2)]),
 		new("Coppice Woodland", "Cut a coppice stand back on cycle to produce poles, rods, or firewood while preserving the stand.", AgricultureOperationType.Improve, AgricultureTargetType.None, AgricultureFieldUse.Woodland, AgricultureFieldUse.Woodland, 160.0, [(AgricultureScoreType.Nutrients, -2), (AgricultureScoreType.Condition, 1)], 0.45, 45),
 		new("Thin Woodland", "Thin a woodland stand to produce small timber and improve remaining growth.", AgricultureOperationType.Improve, AgricultureTargetType.None, AgricultureFieldUse.Woodland, AgricultureFieldUse.Woodland, 240.0, [(AgricultureScoreType.Pests, -4), (AgricultureScoreType.Condition, 2)], 0.25, 25),
@@ -378,6 +420,7 @@ public sealed class AgricultureSeeder : IDatabaseSeeder
 	public static IReadOnlyCollection<string> StockCommodityOutputMaterialsForTesting =>
 		Crops.SelectMany(x => x.Outputs)
 		     .Concat(Orchards.SelectMany(x => x.Outputs))
+		     .Concat(Herds.SelectMany(x => x.SecondaryOutputs))
 		     .Concat(Woodlands.SelectMany(x => x.Outputs))
 		     .Concat(Operations.SelectMany(x => x.ApiaryOutputs ?? []))
 		     .Select(x => x.MaterialName)
@@ -411,6 +454,10 @@ public sealed class AgricultureSeeder : IDatabaseSeeder
 		    !context.Tags.Any(x => x.Name == RawHoneycombTagName) ||
 		    !context.Tags.Any(x => x.Name == PressedHoneyTagName) ||
 		    !context.Tags.Any(x => x.Name == RenderedBeeswaxTagName) ||
+		    !context.Tags.Any(x => x.Name == RawMilkTagName) ||
+		    !context.Tags.Any(x => x.Name == RawTextileFibreTagName) ||
+		    !context.Tags.Any(x => x.Name == EggProductTagName) ||
+		    !context.Tags.Any(x => x.Name == ManureCommodityTagName) ||
 		    !context.TraitDefinitions.Any(x => x.Name == FarmingTraitName))
 		{
 			return ShouldSeedResult.PrerequisitesNotMet;
@@ -553,7 +600,7 @@ public sealed class AgricultureSeeder : IDatabaseSeeder
 					string.IsNullOrWhiteSpace(x.TagName) ? null : new XAttribute("tag", x.TagName))))).ToString();
 	}
 
-	private static void EnsureHerd(FuturemudDatabaseContext context, (string Name, string Description, double AnimalUnits, double DailyGraze, int MaximumCondition) definition)
+	private static void EnsureHerd(FuturemudDatabaseContext context, HerdSeed definition)
 	{
 		var herd = context.AgricultureHerdDefinitions.FirstOrDefault(x => x.Name == definition.Name);
 		if (herd == null)
@@ -568,7 +615,12 @@ public sealed class AgricultureSeeder : IDatabaseSeeder
 		herd.Definition = new XElement("Herd",
 			new XAttribute("animalUnits", definition.AnimalUnits),
 			new XAttribute("dailyGraze", definition.DailyGraze),
-			new XAttribute("maximumCondition", definition.MaximumCondition)).ToString();
+			new XAttribute("maximumCondition", definition.MaximumCondition),
+			new XElement("SecondaryOutputs",
+				definition.SecondaryOutputs.Select(x => new XElement("Commodity",
+					new XAttribute("material", x.MaterialName),
+					new XAttribute("weight", x.BaseWeight),
+					string.IsNullOrWhiteSpace(x.TagName) ? null : new XAttribute("tag", x.TagName))))).ToString();
 	}
 
 	private static void EnsureWoodland(FuturemudDatabaseContext context, WoodlandSeed definition)
@@ -834,6 +886,8 @@ public sealed class AgricultureSeeder : IDatabaseSeeder
 		operation.Definition = new XElement("Operation",
 			new XAttribute("woodlandYieldMultiplier", definition.WoodlandYieldMultiplier),
 			new XAttribute("woodlandYieldCost", definition.WoodlandYieldCost),
+			new XAttribute("herdYieldMultiplier", definition.HerdYieldMultiplier),
+			new XAttribute("herdYieldCost", definition.HerdYieldCost),
 			new XElement("AllowedUses",
 				new XAttribute("uses", string.Join(",", (definition.AllowedUses ?? [definition.Required]).Select(x => x.ToString())))),
 			new XElement("Apiary",

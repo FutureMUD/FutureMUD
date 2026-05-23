@@ -36,7 +36,7 @@ Player-facing output shows qualitative bands. Administrators see exact values th
 
 The enum also reserves `Custom1` through `Custom12`. These slots are disabled by default through the `AgricultureCustomScoreTypes` static configuration. When a slot is enabled, the configuration supplies its display name and whether higher values are beneficial or harmful. Built-in scores remain stored in their existing `AgricultureFields` columns; custom live field values are stored in the field definition XML under `<CustomScores>`.
 
-Apiary adjunct state is also stored in the field definition XML, under `<Apiary>`. This keeps hive count, colony health, stores, yield potential, pollination radius, and derived pollination strength beside the field state without adding another EF table.
+Apiary adjunct state is also stored in the field definition XML, under `<Apiary>`. This keeps hive count, colony health, stores, yield potential, pollination radius, and derived pollination strength beside the field state without adding another EF table. Herd rows continue to use the existing `AgricultureFieldHerds` table and store secondary product yield potential in their definition XML.
 
 Profiles, operations, and crop definitions persist score references by stable enum slot name. This means a builder can rename `Custom1` from one local term to another without rewriting existing field profile, operation, crop, or field XML.
 
@@ -56,7 +56,8 @@ The tick applies coarse pressure:
 - crop definitions can include additional score ranges, including custom score ranges, and out-of-range values count as stress.
 - happy apiaries build stores and yield potential, and crop or orchard fields can receive capped pollination support from the best happy apiary within range.
 - unmanaged weeds and pests increase slowly.
-- herds consume pasture biomass and can damage fences, topsoil, compaction, and condition when overstocked.
+- fed herds consume pasture biomass, improve condition, and build secondary product yield potential when their definition has outputs.
+- overstocked herds can damage fences, topsoil, compaction, condition, and secondary product yield potential.
 - managed woodlands gain growth and yield potential slowly, with pest and condition pressure.
 
 The point is to create agricultural consequences and timing, not a detailed soil simulator.
@@ -101,8 +102,11 @@ Pasture fields can hold one or more `AgricultureFieldHerd` rows. Herds are abstr
 - herd definition
 - head count
 - condition
+- secondary product yield potential
 
-Animal-unit and daily-graze settings translate head count into pressure. Moderate grazing can be beneficial through nutrient cycling, while overstocking damages pasture biomass, topsoil, tilth, condition, and fencing.
+Animal-unit and daily-graze settings translate head count into pressure. Moderate grazing can be beneficial through nutrient cycling, while overstocking damages pasture biomass, topsoil, tilth, condition, fencing, and any pending secondary product yield.
+
+Herd definitions can define per-head secondary commodity outputs, such as raw milk, wool, eggs, and manure. Stock cattle, sheep/goat, horse, pig, and poultry definitions use this for culture-neutral pastoral products, including a horse-herd milk path for kumis-facing foodways. Fed herds build a 0-100 secondary yield potential over daily ticks. The `HarvestHerdProducts` operation releases the configured outputs scaled by head count, herd condition, yield potential, and operation multiplier, then consumes the operation's herd yield cost.
 
 When builders attach an NPC template to a herd definition, `field herd draw` can materialise live NPC livestock and decrement the abstract count. `field herd absorb` validates an eligible NPC, removes it from the active world, and increments the abstract herd.
 
@@ -119,7 +123,7 @@ Woodland fields hold one `AgricultureFieldWoodland` row:
 
 The same field model supports coppice, pollards, timber stands, and clearing. Orchards and vineyards are represented by the `Orchard` field use instead of woodland because they behave like perennial crop systems with harvest windows.
 
-Woodland definitions can include commodity outputs such as poles, rods, timber, fruitwood, bamboo, and firewood. Woodland operations can define a yield multiplier and a yield cost. When such an operation completes, the field releases commodities scaled by woodland health, current yield potential, and the operation multiplier, then consumes the configured amount of woodland yield.
+Woodland definitions can include commodity outputs such as poles, rods, timber, fruitwood, bamboo, firewood, galls, dye insects, lichens, and lac stock. Woodland operations can define a yield multiplier and a yield cost. When such an operation completes, the field releases commodities scaled by woodland health, current yield potential, and the operation multiplier, then consumes the configured amount of woodland yield.
 
 ## Apiary State
 Apiaries are field adjuncts rather than a primary `AgricultureFieldUse`. A field can remain fallow, crop, orchard, pasture, or woodland while also carrying hive state:
@@ -155,6 +159,7 @@ During each project tick, agriculture projects record a Farming-weighted labour 
 - seed-tagged outputs receive their own seed recovery multiplier
 - released commodities receive an output quality based on the Farming outcome
 - apiary operations can install hives, improve or weaken colony state, harvest commodity outputs, or remove hive state
+- herd product operations can release configured secondary herd commodities and consume herd yield potential
 
 This means hired labour still supplies scale, but skilled farmers and supervisors influence the result that comes out of the project.
 
@@ -162,7 +167,7 @@ The completion FutureProg receives the field and the best available character co
 
 This keeps project labour/material requirements generic while preserving dynamic agriculture state outside the project template.
 
-Crafts can also depend on agriculture state through the `field` / `AgricultureField` craft input. It resolves the current cell's agriculture field, can require a particular field use, crop, orchard, woodland, minimum field condition, minimum crop or woodland health, and minimum crop or woodland yield, and can consume a configured amount of crop or woodland yield during reservation. Use this for forestry, orchard, or gathering crafts that should operate on a live field rather than consuming a pre-existing commodity pile.
+Crafts can also depend on agriculture state through the `field` / `AgricultureField` craft input. It resolves the current cell's agriculture field, can require a particular field use, crop, orchard, woodland, minimum field condition, minimum crop or woodland health, and minimum crop or woodland yield, and can consume a configured amount of crop or woodland yield during reservation. Use this for forestry, orchard, or gathering crafts that should operate on a live field rather than consuming a pre-existing commodity pile. Herd secondary products are currently exposed through field operations that create commodity piles, after which ordinary craft inputs consume those piles.
 
 ## Permission Model
 When a field's cell belongs to a property, field work is allowed for administrators, authorised owners, and authorised leaseholders. Fields outside property are currently open to ordinary field commands unless the operation or project template applies its own FutureProg gates.

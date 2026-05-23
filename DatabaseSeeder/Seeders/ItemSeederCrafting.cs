@@ -2225,6 +2225,7 @@ return ""You need at least {minimumTraitValue.Value.ToString(System.Globalizatio
 		SeedAntiquityLeatherContainerCrafts();
 		SeedAntiquityLeatherFurnishingCrafts();
 		SeedAntiquityApiaryCrafts();
+		SeedAntiquityAgriculturalProcessingCrafts();
 		SeedAntiquityFoodCrafts();
 	}
 

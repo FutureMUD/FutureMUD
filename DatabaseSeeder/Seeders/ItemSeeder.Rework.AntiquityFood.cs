@@ -276,6 +276,9 @@ public partial class ItemSeeder
 		CreateAntiquityFoodTool("antiquity_food_winnowing_basket", "basket", "a broad woven winnowing basket",
 			"A broad, shallow basket for tossing grain and chaff into a breeze.", SizeCategory.Normal, 900, "willow",
 			"Functions / Tools / Agricultural Tools / Winnowing Basket");
+		CreateAntiquityFoodTool("antiquity_food_pitchfork", "fork", "a long wooden pitchfork",
+			"A long-handled wooden fork used to turn straw, fodder and compost heaps.", SizeCategory.Normal, 2200,
+			"oak", "Functions / Tools / Agricultural Tools / Pitchfork");
 		CreateAntiquityFoodTool("antiquity_food_quern", "quern", "a heavy rotary hand quern",
 			"A paired stone quern for grinding cleaned grain into flour or meal.", SizeCategory.Large, 18000, "basalt",
 			"Functions / Tools / Foodmaking Tools / Hand Quern");

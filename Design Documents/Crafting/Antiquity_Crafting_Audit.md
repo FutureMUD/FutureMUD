@@ -20,6 +20,8 @@ Current craft definitions are seeded from:
 | Source | Craft Surface |
 | --- | --- |
 | `ItemSeederCrafting.Antiquity.cs` | Textile, leather, and older shared antiquity craft chains. |
+| `ItemSeederCrafting.AntiquityAgriculture.cs` | Seed-stock selection, raw milk straining, and crop derivative stock for dyes and saffron. |
+| `ItemSeederCrafting.AntiquityApiary.cs` | Apiary tools, hive equipment, and honeycomb processing. |
 | `ItemSeederCrafting.AntiquityEquipment.cs` | Common clothing/accessories, equipment stock, military goods, and heat-source lighting crafts. |
 | `ItemSeederCrafting.AntiquityFood.cs` | Grain, pulse, meat, preservation, beverage, and culture-gated foodway crafts. |
 | `ItemSeederCrafting.AntiquityHousehold.cs` | Household, container, vessel, door, gate, and furnishing craft discovery. |
@@ -51,6 +53,8 @@ The suite-specific docs now catalogue every stable reference explicitly named by
 - Empty food serving and fermenting amphorae are craftable through pottery recipes that consume fired-clay `Bisque Vessel Blank` and `Prepared Pitch`; the finished beer amphora remains a fermentation morph target.
 - Kumis beverage stock consumes milk instead of grain wort. Red and white wine remain core liquids supplied by `CoreDataSeeder.Materials.cs`, not duplicate food-seeder liquids.
 - Raw hides from `AnimalButcherySeeder` now have a bridge craft into raw `animal skin` commodity stock before the existing prepared-hide and tanning chain.
+- Agriculture herd definitions now define secondary outputs and the stock `Collect Herd Products` operation can release milk, wool, eggs, and manure commodity piles from established pasture herds, including a horse-herd milk path for kumis-facing cultures.
+- Active antiquity craft paths now convert `Seeded Yield` agricultural commodity back into `Seeds`, strain raw milk into liquid milk amphorae, compost raw manure with crop refuse, and process indigo crop, pomegranate, walnut, and saffron crocus into derivative dye or spice stock.
 
 ## Second-Pass Resolution
 
@@ -61,10 +65,11 @@ The next-pass implementation resolves the earlier follow-up gaps as follows:
 - Glassworking now has a glassworking glory-hole furnace pair, `antiquity_glory_hole_furnace` and `antiquity_lit_glory_hole_furnace`. Hot glassworking crafts require the lit glory-hole furnace, while annealing still requires the lit annealing lehr.
 - The food pass is kept wholly in `ItemSeeder` partials: item, liquid, prepared-food and spoilage-rule setup runs with rework items, and the matching crafts run with the normal ItemSeeder craft pass.
 - The food gap closure keeps this pattern: food tools use the standard tool market root, empty amphorae use the household pottery stock chain, `antiquity_food_finished_beer_amphora` stays a morph target, and culture beverage inputs now branch kumis to milk before the grain-wort fallback.
+- The pastoral and derivative closure keeps the same commodity-first style: AgricultureSeeder owns crop, herd, and managed woodland production, while ItemSeeder owns reusable processing crafts that turn field outputs into seed stock, liquid milk, compost, textile dye stock, or saffron.
 - The external-catalogue risk is handled with source-backed regression tests rather than a generated file pipeline: tests parse the live seeder source, compare counts, inspect the partial seeder files, and verify that dynamic catalogues are represented in the dedicated design documents.
 
 ## Deferred Upstream Systems
 
-The current closure is an ItemSeeder craftability pass plus a first apiary source slice. Apiculture now has seeded upstream support through agriculture apiary operations, raw honeycomb, pressed honey, rendered beeswax, and antiquity hives, stands, smoke pots, honey knives, presses, and strainers. Those paths close the honey and beeswax source gap for existing food, medical, writing, leather, and household crafts.
+The current closure is an ItemSeeder craftability pass plus agriculture source slices for apiaries, secondary herd outputs, seed stock, and common agricultural derivatives. Apiculture now has seeded upstream support through agriculture apiary operations, raw honeycomb, pressed honey, rendered beeswax, and antiquity hives, stands, smoke pots, honey knives, presses, and strainers. Herd operations now provide milk, wool, eggs, and manure; crop, woodland, and antiquity processing paths now cover seed selection, compost, indigo dye cake, pomegranate rind, walnut hull, saffron, madder root, weld, alkanet root, henna leaf, kermes grain, orchil lichen, and lac dye cake.
 
-The pass deliberately does not add full primary-production systems for pastoral secondary products, mining and quarrying, dye and spice derivative supply, or other broad source chains. Those remain future subsystem expansions. The current antiquity recipes are closed against existing source truth: AgricultureSeeder commodities, apiary outputs, AnimalButcherySeeder raw animal outputs, core liquids and materials, household pottery stock, and the dynamic equipment toolmaking surface.
+The pass deliberately does not add full primary-production systems for mining and quarrying, marine shellfish harvesting for murex purple, regional livestock breeds, queen breeding, or every local dye/spice crop. Those remain future subsystem expansions. The current antiquity recipes are closed against existing source truth: AgricultureSeeder crop, herd, woodland, and apiary commodities; AnimalButcherySeeder raw animal outputs; core liquids and materials; household pottery stock; and the dynamic equipment toolmaking surface.

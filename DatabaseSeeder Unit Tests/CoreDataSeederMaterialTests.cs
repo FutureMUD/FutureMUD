@@ -168,6 +168,26 @@ public class CoreDataSeederMaterialTests
             .Include(x => x.MaterialsTags)
             .ThenInclude(x => x.Tag)
             .Single(x => x.Name == "beeswax");
+        MudSharp.Models.Material milk = context.Materials
+            .Include(x => x.MaterialsTags)
+            .ThenInclude(x => x.Tag)
+            .Single(x => x.Name == "milk");
+        MudSharp.Models.Material egg = context.Materials
+            .Include(x => x.MaterialsTags)
+            .ThenInclude(x => x.Tag)
+            .Single(x => x.Name == "egg");
+        MudSharp.Models.Material wool = context.Materials
+            .Include(x => x.MaterialsTags)
+            .ThenInclude(x => x.Tag)
+            .Single(x => x.Name == "wool");
+        MudSharp.Models.Material feces = context.Materials
+            .Include(x => x.MaterialsTags)
+            .ThenInclude(x => x.Tag)
+            .Single(x => x.Name == "feces");
+        MudSharp.Models.Material compost = context.Materials
+            .Include(x => x.MaterialsTags)
+            .ThenInclude(x => x.Tag)
+            .Single(x => x.Name == "compost");
         MudSharp.Models.Material salt = context.Materials.Single(x => x.Name == "salt");
         MudSharp.Models.Material guano = context.Materials.Single(x => x.Name == "guano");
         MudSharp.Models.Material cream = context.Materials.Single(x => x.Name == "cream");
@@ -195,6 +215,16 @@ public class CoreDataSeederMaterialTests
         Assert.IsTrue(honey.MaterialsTags.Any(x => x.Tag.Name == "Apiary Product"));
         Assert.IsTrue(honeycomb.MaterialsTags.Any(x => x.Tag.Name == "Apiary Product"));
         Assert.IsTrue(beeswax.MaterialsTags.Any(x => x.Tag.Name == "Apiary Product"));
+        Assert.IsTrue(context.Tags.Any(x => x.Name == "Pastoral Product"));
+        Assert.IsTrue(context.Tags.Any(x => x.Name == "Raw Milk"));
+        Assert.IsTrue(context.Tags.Any(x => x.Name == "Egg Product"));
+        Assert.IsTrue(context.Tags.Any(x => x.Name == "Manure Product"));
+        Assert.IsTrue(milk.MaterialsTags.Any(x => x.Tag.Name == "Raw Milk"));
+        Assert.IsTrue(egg.MaterialsTags.Any(x => x.Tag.Name == "Egg Product"));
+        Assert.IsTrue(wool.MaterialsTags.Any(x => x.Tag.Name == "Raw Wool"));
+        Assert.IsTrue(feces.MaterialsTags.Any(x => x.Tag.Name == "Manure Product"));
+        Assert.IsTrue(compost.MaterialsTags.Any(x => x.Tag.Name == "Manure Product"));
+        Assert.IsTrue(context.Materials.Any(x => x.Name == "saffron crocus"));
     }
 
     [TestMethod]

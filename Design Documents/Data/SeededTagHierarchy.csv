@@ -1295,6 +1295,12 @@ Apiary Product	Animal Product	Materials / Animal Product / Apiary Product
 Pressed Honey	Apiary Product	Materials / Animal Product / Apiary Product / Pressed Honey
 Raw Honeycomb	Apiary Product	Materials / Animal Product / Apiary Product / Raw Honeycomb
 Rendered Beeswax	Apiary Product	Materials / Animal Product / Apiary Product / Rendered Beeswax
+Pastoral Product	Animal Product	Materials / Animal Product / Pastoral Product
+Egg Product	Pastoral Product	Materials / Animal Product / Pastoral Product / Egg Product
+Manure Commodity	Pastoral Product	Materials / Animal Product / Pastoral Product / Manure Commodity
+Manure Product	Pastoral Product	Materials / Animal Product / Pastoral Product / Manure Product
+Raw Milk	Pastoral Product	Materials / Animal Product / Pastoral Product / Raw Milk
+Raw Wool	Pastoral Product	Materials / Animal Product / Pastoral Product / Raw Wool
 Elastomer	Materials	Materials / Elastomer
 Elemental Materials	Materials	Materials / Elemental Materials
 Gases	Materials	Materials / Gases

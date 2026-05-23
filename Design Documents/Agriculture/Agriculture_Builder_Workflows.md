@@ -6,9 +6,9 @@ Run `AgricultureSeeder` after core utility progs exist. It installs:
 - stock field profiles for arable fields, garden beds, orchards/groves, pasture, wet fields, rocky fields, saline coastal fields, and managed woodland
 - additional cultivated, marginal, natural, and unimproved field profiles for paddies, dryland fields, terraces, floodplains, old fallows, scrub, woodland clearings, marshes, saline edges, heavy clay, eroded slopes, and similar land-expansion starting points
 - specific annual crop and perennial orchard/vineyard/plantation definitions with seed requirements, commodity outputs, and concrete pollination metadata, including broad temperate, tropical, dryland, wetland, archaic, and regional crop examples
-- generic herd definitions
-- specific managed woodland definitions with commodity outputs
-- stock operations, including woodland yield multipliers, yield costs, and apiary install, tend, harvest, and removal operations
+- generic herd definitions with secondary product outputs for milk, wool, eggs, and manure, including horse herds for pastoral milk
+- specific managed woodland definitions with commodity outputs, including dye woodland products
+- stock operations, including woodland and herd yield multipliers, yield costs, and apiary install, tend, harvest, and removal operations
 - local project templates with agriculture completion actions, seed stock material requirements, apiary installation requirements, deliberately substantial labour requirements, and Farming-based supervision labour
 
 The stock package is idempotent. Reruns refresh stock-owned rows by stable names instead of duplicating them.
@@ -65,10 +65,12 @@ field crop set "Apples" pollination Strong 1 2
 field crop set "Apples" perennial true
 field crop set "Apples" cycle 220
 field herds set "Cattle Herd" npc cattle
+field herds set "Cattle Herd" output add 3500 milk tag Raw Milk
 field woodland set "Hazel Coppice" cycle 365
 field operation set "Sow Crop" delta Moisture -3
 field operation set "Sow Crop" project "Stock Agriculture: Sow Crop"
 field operation set "Coppice Woodland" woodlandyield 0.45 45
+field operation set "Collect Herd Products" herdyield 1.0 55
 field operation set "Install Apiary" allowed Crop on
 ```
 
@@ -169,11 +171,14 @@ Use herd operations to put abstract livestock onto a field. Once a field has abs
 field herd draw <herd> [count]
 field herd absorb <npc> <herd>
 field herd drive <herd> <direction> [count]
+field start "Collect Herd Products" <herd>
 ```
 
 Drawdown requires the herd definition to have an NPC template. Absorb is for turning live livestock back into abstract field stock after validation.
 
 Driving a herd moves abstract animals from the current field into an adjacent field through the named exit. Omit the count, or use `all`, to move the whole herd. The destination field must already exist, support pasture use, and be fallow or pasture. Herders can drive animals into unowned fields or fields they are authorised to use, which allows wild grazing grounds and semi-nomadic pastoral movement without making owned fields freely available.
+
+Herd definitions can also define per-head secondary commodity outputs. Stock herds use this to provide raw milk, wool, eggs, and manure; the horse herd is the stock pastoral milk source for kumis-facing cultures. Fed herds build secondary yield potential on the daily tick, and `Collect Herd Products` releases the configured commodities without changing the pasture use.
 
 ## Managed Woodland
 Managed woodland is a field use rather than a separate subsystem. Builders can represent:
@@ -187,14 +192,14 @@ Orchards, vineyards, nut groves, and plantation crops use the separate `Orchard`
 
 Use woodland definitions for growth cadence and operations for planting, coppicing, thinning, felling, and clearing.
 
-Stock woodland definitions also define commodity outputs. Woodland operations can release a fraction of the stand's products and consume part of the stand's current yield, so coppicing, thinning, felling, and clearing can all be tuned separately.
+Stock woodland definitions also define commodity outputs. Woodland operations can release a fraction of the stand's products and consume part of the stand's current yield, so coppicing, thinning, felling, and clearing can all be tuned separately. The stock dye woodland examples cover kermes grain, orchil lichen, and lac dye cake as managed woodland products.
 
 Crafts can use the `field` craft input when a craft should require a local field state rather than a loose commodity pile. This is useful for actions such as collecting firewood, cutting poles, tapping or gathering from a managed grove, or any craft that should require a particular crop, orchard, or woodland, minimum health, minimum yield, and optionally consume some of that yield.
 
 ## Seeds and Planting Stock
 Seed stock is modelled as commodity piles with the secondary `Seeds` tag. Seedable crop materials are tagged `Agriculture Seedable`, and stock sowing/planting projects require `commoditytag` material requirements that accept any commodity whose material has that tag and whose pile tag is `Seeds`.
 
-Stock harvests also produce a small seed-tagged commodity output, and they tag the main yield as `Seeded Yield`. The generic `select seed stock` craft takes `Seeded Yield` agricultural commodity and returns a smaller `Seeds` commodity pile of the same material.
+Stock harvests also produce a small seed-tagged commodity output, and they tag the main yield as `Seeded Yield`. The active antiquity `select antiquity seed stock` craft takes `Seeded Yield` agricultural commodity and returns a smaller `Seeds` commodity pile of the same material, which lets harvested grain, pulses, roots, orchard crops, spice crops, and dye crops bootstrap future sowing projects. The companion compost craft turns raw herd manure and crop refuse into reusable compost stock for games that want a visible manure-to-fertiliser economy.
 
 ## Project Authoring Notes
 Agriculture operations should use local projects. Put labour, tools, seeds, fencing, fertiliser, drainage materials, and other inputs on the project template. The operation only stores the field-side effects and dynamic target context.

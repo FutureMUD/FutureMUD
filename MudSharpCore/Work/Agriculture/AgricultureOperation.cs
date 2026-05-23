@@ -41,6 +41,7 @@ public class AgricultureOperation : SaveableItem, IAgricultureOperation
 		AgricultureOperationType operationType, AgricultureTargetType targetType, AgricultureFieldUse requiredUse,
 		AgricultureFieldUse resultUse, IProject project, IReadOnlyDictionary<AgricultureScoreType, int> deltas,
 		double woodlandYieldMultiplier = 0.0, int woodlandYieldCost = 0,
+		double herdYieldMultiplier = 0.0, int herdYieldCost = 0,
 		IEnumerable<AgricultureFieldUse> allowedUses = null, int apiaryInstallHiveCount = 0,
 		int apiaryPollinationRadius = 0, int apiaryTendHealthDelta = 0, int apiaryTendStoresDelta = 0,
 		int apiaryTendYieldDelta = 0, double apiaryYieldMultiplier = 0.0, int apiaryYieldCost = 0,
@@ -63,6 +64,8 @@ public class AgricultureOperation : SaveableItem, IAgricultureOperation
 		_projectRevisionNumber = project?.RevisionNumber ?? 0;
 		WoodlandYieldMultiplier = Math.Max(0.0, woodlandYieldMultiplier);
 		WoodlandYieldCost = System.Math.Clamp(woodlandYieldCost, 0, 100);
+		HerdYieldMultiplier = Math.Max(0.0, herdYieldMultiplier);
+		HerdYieldCost = System.Math.Clamp(herdYieldCost, 0, 100);
 		ApiaryInstallHiveCount = Math.Max(0, apiaryInstallHiveCount);
 		ApiaryPollinationRadius = Math.Max(0, apiaryPollinationRadius);
 		ApiaryTendHealthDelta = apiaryTendHealthDelta;
@@ -107,6 +110,8 @@ public class AgricultureOperation : SaveableItem, IAgricultureOperation
 	public IReadOnlyDictionary<AgricultureScoreType, int> ScoreDeltas => _scoreDeltas;
 	public double WoodlandYieldMultiplier { get; private set; }
 	public int WoodlandYieldCost { get; private set; }
+	public double HerdYieldMultiplier { get; private set; }
+	public int HerdYieldCost { get; private set; }
 	public int ApiaryInstallHiveCount { get; private set; }
 	public int ApiaryPollinationRadius { get; private set; }
 	public int ApiaryTendHealthDelta { get; private set; }
@@ -179,6 +184,13 @@ public class AgricultureOperation : SaveableItem, IAgricultureOperation
 	{
 		WoodlandYieldMultiplier = Math.Max(0.0, multiplier);
 		WoodlandYieldCost = System.Math.Clamp(cost, 0, 100);
+		Changed = true;
+	}
+
+	public void BuildingSetHerdYield(double multiplier, int cost)
+	{
+		HerdYieldMultiplier = Math.Max(0.0, multiplier);
+		HerdYieldCost = System.Math.Clamp(cost, 0, 100);
 		Changed = true;
 	}
 
@@ -310,6 +322,29 @@ public class AgricultureOperation : SaveableItem, IAgricultureOperation
 				}
 
 				break;
+			case AgricultureOperationType.HarvestHerdProducts:
+				if (target is not IAgricultureHerdDefinition herdDefinition)
+				{
+					return "This operation needs a herd target.";
+				}
+
+				if (herdDefinition.SecondaryOutputs.Count == 0)
+				{
+					return "That herd definition does not have any secondary products configured.";
+				}
+
+				var herd = field.Herds.FirstOrDefault(x => x.Definition.Id == herdDefinition.Id);
+				if (herd == null || herd.HeadCount <= 0)
+				{
+					return "There are no animals of that herd in this field.";
+				}
+
+				if (herd.SecondaryYieldPotential <= 0)
+				{
+					return "That herd does not have any secondary products ready to collect.";
+				}
+
+				break;
 		}
 
 		if (TargetType == AgricultureTargetType.None)
@@ -356,6 +391,8 @@ public class AgricultureOperation : SaveableItem, IAgricultureOperation
 		var root = AgricultureXmlExtensions.RootOrDefault(definition, "Operation");
 		WoodlandYieldMultiplier = Math.Max(0.0, (double?)root.Attribute("woodlandYieldMultiplier") ?? 0.0);
 		WoodlandYieldCost = System.Math.Clamp((int?)root.Attribute("woodlandYieldCost") ?? 0, 0, 100);
+		HerdYieldMultiplier = Math.Max(0.0, (double?)root.Attribute("herdYieldMultiplier") ?? 0.0);
+		HerdYieldCost = System.Math.Clamp((int?)root.Attribute("herdYieldCost") ?? 0, 0, 100);
 		_allowedUses.Clear();
 		var allowedRoot = root.Element("AllowedUses");
 		foreach (var use in allowedRoot?.LoadUses(defaultAll: false) ?? Enumerable.Empty<AgricultureFieldUse>())
@@ -405,6 +442,8 @@ public class AgricultureOperation : SaveableItem, IAgricultureOperation
 		return new XElement("Operation",
 			new XAttribute("woodlandYieldMultiplier", WoodlandYieldMultiplier),
 			new XAttribute("woodlandYieldCost", WoodlandYieldCost),
+			new XAttribute("herdYieldMultiplier", HerdYieldMultiplier),
+			new XAttribute("herdYieldCost", HerdYieldCost),
 			new XElement("AllowedUses",
 				new XAttribute("uses", _allowedUses.OrderBy(x => (int)x).Select(x => x.ToString()).ListToCommaSeparatedValues())),
 			new XElement("Apiary",

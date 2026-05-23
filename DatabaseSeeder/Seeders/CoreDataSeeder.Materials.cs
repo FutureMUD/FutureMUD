@@ -35,7 +35,7 @@ public partial class CoreDataSeeder
 		void EnsureTag(Material material, string tagName)
 		{
 			var tag = tags[tagName];
-			if (material.MaterialsTags.Any(x => x.TagId == tag.Id))
+			if (material.MaterialsTags.Any(x => x.TagId == tag.Id || x.Tag?.Id == tag.Id))
 			{
 				return;
 			}
@@ -283,6 +283,27 @@ public partial class CoreDataSeeder
 			AddMaterial(name, MaterialBehaviourType.Food, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, "Food",
 				"Animal Product");
 		}
+
+		AddMaterial("milk", MaterialBehaviourType.Food, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, "Food",
+			"Animal Product", "Pastoral Product", "Raw Milk");
+		AddMaterial("egg", MaterialBehaviourType.Food, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, "Food",
+			"Animal Product", "Pastoral Product", "Egg Product");
+		AddMaterial("saffron crocus", MaterialBehaviourType.Plant, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500,
+			"Herb", "Textile Dye");
+		EnsureTag(materials["milk"], "Pastoral Product");
+		EnsureTag(materials["milk"], "Raw Milk");
+		EnsureTag(materials["egg"], "Pastoral Product");
+		EnsureTag(materials["egg"], "Egg Product");
+		EnsureTag(materials["wool"], "Animal Product");
+		EnsureTag(materials["wool"], "Pastoral Product");
+		EnsureTag(materials["wool"], "Raw Wool");
+		EnsureTag(materials["feces"], "Pastoral Product");
+		EnsureTag(materials["feces"], "Manure Product");
+		EnsureTag(materials["compost"], "Animal Product");
+		EnsureTag(materials["compost"], "Pastoral Product");
+		EnsureTag(materials["compost"], "Manure Product");
+		EnsureAlias(materials["egg"], "eggs");
+		EnsureAlias(materials["saffron crocus"], "crocus flower", "saffron flower");
 
 		foreach (var name in new[]
 		{
@@ -560,6 +581,11 @@ public partial class CoreDataSeeder
         AddTag("Raw Honeycomb", "Apiary Product");
         AddTag("Pressed Honey", "Apiary Product");
         AddTag("Rendered Beeswax", "Apiary Product");
+        AddTag("Pastoral Product", "Animal Product");
+        AddTag("Raw Milk", "Pastoral Product");
+        AddTag("Raw Wool", "Pastoral Product");
+        AddTag("Egg Product", "Pastoral Product");
+        AddTag("Manure Product", "Pastoral Product");
         AddTag("Natural Materials", "Materials");
         AddTag("Manufactured Materials", "Materials");
         AddTag("Stone", "Natural Materials");

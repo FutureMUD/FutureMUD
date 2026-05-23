@@ -18,6 +18,8 @@ public interface IAgricultureOperation : IFrameworkItem, IHaveFuturemud
 	IReadOnlyDictionary<AgricultureScoreType, int> ScoreDeltas { get; }
 	double WoodlandYieldMultiplier { get; }
 	int WoodlandYieldCost { get; }
+	double HerdYieldMultiplier { get; }
+	int HerdYieldCost { get; }
 	int ApiaryInstallHiveCount { get; }
 	int ApiaryPollinationRadius { get; }
 	int ApiaryTendHealthDelta { get; }

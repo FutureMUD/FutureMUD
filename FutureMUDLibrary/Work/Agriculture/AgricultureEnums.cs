@@ -36,7 +36,8 @@ public enum AgricultureOperationType
 	InstallApiary = 8,
 	TendApiary = 9,
 	HarvestApiary = 10,
-	RemoveApiary = 11
+	RemoveApiary = 11,
+	HarvestHerdProducts = 12
 }
 
 public enum AgricultureTargetType

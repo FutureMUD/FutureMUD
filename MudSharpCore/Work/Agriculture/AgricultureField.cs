@@ -221,7 +221,10 @@ public class AgricultureField : SaveableItem, IAgricultureField
 			var definition = Gameworld.AgricultureHerdDefinitions.Get(herd.HerdDefinitionId);
 			if (definition != null)
 			{
-				_herds.Add(new AgricultureFieldHerd(herd.Id, definition, herd.HeadCount, herd.Condition));
+				var herdRoot = AgricultureXmlExtensions.RootOrDefault(herd.Definition, "Herd");
+				var secondaryYieldPotential = ((int?)herdRoot.Attribute("secondaryYield") ?? 0).ClampScore();
+				_herds.Add(new AgricultureFieldHerd(herd.Id, definition, herd.HeadCount, herd.Condition,
+					secondaryYieldPotential));
 			}
 		}
 	}
@@ -332,7 +335,7 @@ public class AgricultureField : SaveableItem, IAgricultureField
 			sb.AppendLine("Herds:");
 			foreach (var herd in _herds)
 			{
-				sb.AppendLine($"\t{herd.Definition.Name.ColourName()} - {herd.HeadCount.ToString("N0", voyeur).ColourValue()} head, condition {herd.Condition.ToString("N0", voyeur).ColourValue()}");
+				sb.AppendLine($"\t{herd.Definition.Name.ColourName()} - {herd.HeadCount.ToString("N0", voyeur).ColourValue()} head, condition {herd.Condition.ToString("N0", voyeur).ColourValue()}, secondary yield {herd.SecondaryYieldPotential.ToStringN0Colour(voyeur)}");
 			}
 		}
 
@@ -601,6 +604,11 @@ public class AgricultureField : SaveableItem, IAgricultureField
 			foreach (var herd in _herds)
 			{
 				herd.Condition = Math.Min(herd.Definition.MaximumCondition, herd.Condition + 1.0);
+				if (herd.HeadCount > 0 && herd.Definition.SecondaryOutputs.Count > 0 && herd.Condition >= 35.0)
+				{
+					var yieldDelta = Math.Max(1, (int)Math.Ceiling(herd.Condition / 25.0));
+					herd.SecondaryYieldPotential = (herd.SecondaryYieldPotential + yieldDelta).ClampScore();
+				}
 			}
 		}
 		else
@@ -613,6 +621,7 @@ public class AgricultureField : SaveableItem, IAgricultureField
 			foreach (var herd in _herds)
 			{
 				herd.Condition = Math.Max(0.0, herd.Condition - 3.0);
+				herd.SecondaryYieldPotential = (herd.SecondaryYieldPotential - 8).ClampScore();
 			}
 		}
 
@@ -790,6 +799,12 @@ public class AgricultureField : SaveableItem, IAgricultureField
 				_apiary = null;
 				result = $"The apiary installation has been removed from the field.{outcome.DescribeEffect()}";
 				break;
+			case AgricultureOperationType.HarvestHerdProducts:
+				var herdTarget = (IAgricultureHerdDefinition)target;
+				var herdOutputs = ReleaseHerdOutputs(operation, herdTarget, outcome);
+				var harvestedHerd = _herds.First(x => x.Definition.Id == herdTarget.Id);
+				result = $"The {harvestedHerd.Definition.Name} herd products are collected with an estimated condition of {((int)Math.Round(harvestedHerd.Condition)).DescribeBand()}.{outcome.DescribeEffect()}{DescribeOutputResult(herdOutputs)}";
+				break;
 			case AgricultureOperationType.Graze:
 			case AgricultureOperationType.Herd:
 				CurrentUse = AgricultureFieldUse.Pasture;
@@ -868,6 +883,16 @@ public class AgricultureField : SaveableItem, IAgricultureField
 			return "The apiary does not have harvestable stores.";
 		}
 
+		if (operation.OperationType == AgricultureOperationType.HarvestHerdProducts &&
+		    target is IAgricultureHerdDefinition herdDefinition)
+		{
+			var herd = _herds.FirstOrDefault(x => x.Definition.Id == herdDefinition.Id);
+			if (herd == null || herd.SecondaryYieldPotential <= 0)
+			{
+				return "That herd does not have any secondary products ready to collect.";
+			}
+		}
+
 		return string.Empty;
 	}
 
@@ -892,6 +917,35 @@ public class AgricultureField : SaveableItem, IAgricultureField
 		if (operation.WoodlandYieldCost > 0)
 		{
 			_woodlandYieldPotential = (_woodlandYieldPotential - Math.Min(_woodlandYieldPotential, operation.WoodlandYieldCost)).ClampScore();
+		}
+
+		return outputs;
+	}
+
+	private IReadOnlyList<IGameItem> ReleaseHerdOutputs(IAgricultureOperation operation,
+		IAgricultureHerdDefinition definition, AgricultureWorkOutcome outcome)
+	{
+		if (operation.HerdYieldMultiplier <= 0.0 || definition == null)
+		{
+			return Array.Empty<IGameItem>();
+		}
+
+		var herd = _herds.FirstOrDefault(x => x.Definition.Id == definition.Id);
+		if (herd == null || herd.HeadCount <= 0 || herd.SecondaryYieldPotential <= 0)
+		{
+			return Array.Empty<IGameItem>();
+		}
+
+		var perHerdOutputs = herd.Definition.SecondaryOutputs
+		                         .Select(x => new AgricultureCommodityYield(x.MaterialName,
+			                         x.BaseWeight * herd.HeadCount, x.TagName))
+		                         .ToList();
+		var outputs = ReleaseCommodityOutputs(perHerdOutputs, (int)Math.Round(herd.Condition),
+			herd.SecondaryYieldPotential, operation.HerdYieldMultiplier, outcome);
+		if (operation.HerdYieldCost > 0)
+		{
+			herd.SecondaryYieldPotential = (herd.SecondaryYieldPotential -
+			                                Math.Min(herd.SecondaryYieldPotential, operation.HerdYieldCost)).ClampScore();
 		}
 
 		return outputs;
@@ -1259,7 +1313,8 @@ public class AgricultureField : SaveableItem, IAgricultureField
 				HerdDefinitionId = herd.Definition.Id,
 				HeadCount = herd.HeadCount,
 				Condition = herd.Condition,
-				Definition = "<Herd />"
+				Definition = new XElement("Herd",
+					new XAttribute("secondaryYield", herd.SecondaryYieldPotential)).ToString()
 			});
 		}
 

@@ -129,6 +129,35 @@ public class AgricultureOperationTests
 	}
 
 	[TestMethod]
+	public void HerdDefinition_LoadsAndSavesSecondaryOutputs()
+	{
+		var herd = new AgricultureHerdDefinition(new MudSharp.Models.AgricultureHerdDefinition
+		{
+			Id = 1,
+			Name = "Test Herd",
+			Description = "A test herd.",
+			Definition = @"<Herd animalUnits=""1"" dailyGraze=""1"" maximumCondition=""100""><SecondaryOutputs><Commodity material=""milk"" weight=""3500"" tag=""Raw Milk"" /><Commodity material=""feces"" weight=""2500"" tag=""Manure Commodity"" /></SecondaryOutputs></Herd>"
+		}, BuildGameworldWithCustomScore(enabled: true).Object);
+
+		Assert.AreEqual(2, herd.SecondaryOutputs.Count);
+		Assert.IsTrue(herd.SecondaryOutputs.Any(x =>
+			x.MaterialName == "milk" &&
+			x.BaseWeight == 3500 &&
+			x.TagName == "Raw Milk"));
+
+		var saveMethod = typeof(AgricultureHerdDefinition).GetMethod("SaveDefinition",
+			BindingFlags.Instance | BindingFlags.NonPublic);
+		var saved = (XElement)saveMethod!.Invoke(herd, null)!;
+		var outputs = saved.Element("SecondaryOutputs")!.Elements("Commodity").ToArray();
+		Assert.IsTrue(outputs.Any(x =>
+			x.Attribute("material")!.Value == "milk" &&
+			x.Attribute("tag")!.Value == "Raw Milk"));
+		Assert.IsTrue(outputs.Any(x =>
+			x.Attribute("material")!.Value == "feces" &&
+			x.Attribute("tag")!.Value == "Manure Commodity"));
+	}
+
+	[TestMethod]
 	public void WhyCannotApply_SowWithoutPlantingWindowsIsUnrestricted()
 	{
 		var gameworld = BuildFieldGameworld(enabled: false);
@@ -404,6 +433,46 @@ public class AgricultureOperationTests
 	}
 
 	[TestMethod]
+	public void HerdTick_FedHerdBuildsSecondaryYieldPotential()
+	{
+		var (gameworld, herd) = BuildTwoFieldGameworld();
+		var field = BuildFieldWithHerd(gameworld.Object, 1, 1, AgricultureFieldUse.Pasture, herd, 10, 60.0,
+			secondaryYield: 10);
+
+		field.DailyTick();
+
+		Assert.IsTrue(field.Herds.Single().SecondaryYieldPotential > 10);
+	}
+
+	[TestMethod]
+	public void WhyCannotApply_HarvestHerdProductsRequiresReadySecondaryYield()
+	{
+		var herd = new Mock<IAgricultureHerdDefinition>();
+		herd.SetupGet(x => x.Id).Returns(1);
+		herd.SetupGet(x => x.Name).Returns("Cattle Herd");
+		herd.SetupGet(x => x.SecondaryOutputs).Returns([
+			new AgricultureCommodityYield("milk", 3500, "Raw Milk")
+		]);
+		var field = new Mock<IAgricultureField>();
+		field.SetupGet(x => x.CurrentUse).Returns(AgricultureFieldUse.Pasture);
+		field.SetupGet(x => x.Herds).Returns([
+			new AgricultureFieldHerd(1, herd.Object, 4, 60.0, 0)
+		]);
+		var operation = BuildOperation(AgricultureOperationType.HarvestHerdProducts, AgricultureFieldUse.Pasture,
+			AgricultureFieldUse.Pasture, AgricultureTargetType.Herd, herdYieldMultiplier: 1.0, herdYieldCost: 55);
+
+		var reason = operation.WhyCannotApply(field.Object, herd.Object);
+
+		Assert.AreEqual("That herd does not have any secondary products ready to collect.", reason);
+
+		field.SetupGet(x => x.Herds).Returns([
+			new AgricultureFieldHerd(1, herd.Object, 4, 60.0, 40)
+		]);
+
+		Assert.AreEqual(string.Empty, operation.WhyCannotApply(field.Object, herd.Object));
+	}
+
+	[TestMethod]
 	public void WhyCannotApply_ImproveOperationRequiresConfiguredFieldUse()
 	{
 		var operation = BuildOperation(AgricultureOperationType.Improve, AgricultureFieldUse.Woodland, AgricultureFieldUse.Woodland);
@@ -542,9 +611,13 @@ public class AgricultureOperationTests
 		int apiaryRadius = 0,
 		int apiaryTendHealth = 0,
 		int apiaryTendStores = 0,
-		int apiaryTendYield = 0)
+		int apiaryTendYield = 0,
+		double herdYieldMultiplier = 0.0,
+		int herdYieldCost = 0)
 	{
 		var root = new XElement("Operation",
+			new XAttribute("herdYieldMultiplier", herdYieldMultiplier),
+			new XAttribute("herdYieldCost", herdYieldCost),
 			scoreDeltas?.Select(x => new XElement("Score",
 				new XAttribute("type", x.Score.ToString()),
 				new XAttribute("value", x.Delta))) ?? Enumerable.Empty<XElement>());
@@ -728,6 +801,11 @@ public class AgricultureOperationTests
 		herd.SetupGet(x => x.Name).Returns("Cattle Herd");
 		herd.SetupGet(x => x.FrameworkItemType).Returns("AgricultureHerdDefinition");
 		herd.SetupGet(x => x.MaximumCondition).Returns(100);
+		herd.SetupGet(x => x.AnimalUnits).Returns(1.0);
+		herd.SetupGet(x => x.DailyGraze).Returns(1.0);
+		herd.SetupGet(x => x.SecondaryOutputs).Returns([
+			new AgricultureCommodityYield("milk", 3500, "Raw Milk")
+		]);
 		var herds = new All<IAgricultureHerdDefinition>();
 		herds.Add(herd.Object);
 		gameworld.SetupGet(x => x.AgricultureHerdDefinitions).Returns(herds);
@@ -758,7 +836,8 @@ public class AgricultureOperationTests
 	}
 
 	private static AgricultureField BuildFieldWithHerd(IFuturemud gameworld, long id, long cellId,
-		AgricultureFieldUse use, IAgricultureHerdDefinition herd, int count, double herdCondition)
+		AgricultureFieldUse use, IAgricultureHerdDefinition herd, int count, double herdCondition,
+		int secondaryYield = 0)
 	{
 		var model = new MudSharp.Models.AgricultureField
 		{
@@ -789,7 +868,8 @@ public class AgricultureOperationTests
 				HerdDefinitionId = herd.Id,
 				HeadCount = count,
 				Condition = herdCondition,
-				Definition = "<Herd />"
+				Definition = new XElement("Herd",
+					new XAttribute("secondaryYield", secondaryYield)).ToString()
 			});
 		}
 

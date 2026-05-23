@@ -10,6 +10,7 @@ The implementation files are:
 - `DatabaseSeeder/Seeders/ItemSeeder.Rework.AntiquityApiary.cs`
 - `DatabaseSeeder/Seeders/ItemSeederCrafting.AntiquityFood.cs`
 - `DatabaseSeeder/Seeders/ItemSeederCrafting.AntiquityApiary.cs`
+- `DatabaseSeeder/Seeders/ItemSeederCrafting.AntiquityAgriculture.cs`
 
 ## Processing Chains
 
@@ -24,14 +25,18 @@ The shared chains are intentionally broad and tag-driven:
 - beer, date beer, wine-style fruit beverages, kumis, spiced luxury beverages, broth, and garum-style sauce filling
 - ceramic serving and fermenting amphora finishing from the household pottery blank pipeline
 - apiary equipment and raw honeycomb processing into reusable honey and beeswax stock
+- agricultural seed-stock selection from `Seeded Yield` commodity into `Seeds` commodity
+- pastoral milk straining from raw herd milk commodity into liquid milk amphorae
+- pastoral manure composting from raw herd manure and crop refuse
+- agricultural derivative processing for indigo dye cake, pomegranate rind, walnut hull, and saffron stock, with crop or woodland sources for the common antiquity dye plants
 
-The skill split is deliberately narrower than Farming: threshing and winnowing use `Threshing`, flour/meal/pulse/oil milling uses `Milling`, and wort or beer work uses `Brewing`. Fruit must pressing uses `Brewing`, while chopped vegetables, fruit serving, brining, cooked meat, broth, preserved foods, and most finished dishes remain cooking-led. Flatbread uses `Baking`.
+The skill split is deliberately narrower than Farming: threshing and winnowing use `Threshing`, flour/meal/pulse/oil milling uses `Milling`, and wort or beer work uses `Brewing`. Fruit must pressing uses `Brewing`, dye derivatives use `Dyeing`, seed selection uses `Farming`, while chopped vegetables, fruit serving, milk straining, brining, cooked meat, broth, preserved foods, and most finished dishes remain cooking-led. Flatbread uses `Baking`.
 
 Crafts prefer commodity inputs such as `Raw Meat Commodity`, `Prepared Meat Commodity`, `Flour Commodity`, and `Pulse Meal Commodity` so one tagged chain can serve beef, lamb, goat, fish, or other seeded meat families without creating species-specific recipe explosions.
 
 ## Tool And Vessel Closure
 
-Food tools are tagged with their exact functional tool tags and `Market / Professional Tools / Standard Tools`, so the shared antiquity equipment toolmaking suite discovers and crafts them without duplicating one-off recipes in the food file. This covers the butcher's knife, cooking knife, threshing flail, winnowing basket, hand quern, mortar and pestle, grain sieve, fruit press, oil press, mash tun, drying rack, smoking rack, and salting trough.
+Food tools are tagged with their exact functional tool tags and `Market / Professional Tools / Standard Tools`, so the shared antiquity equipment toolmaking suite discovers and crafts them without duplicating one-off recipes in the food file. This covers the butcher's knife, cooking knife, threshing flail, winnowing basket, pitchfork, hand quern, mortar and pestle, grain sieve, fruit press, oil press, mash tun, drying rack, smoking rack, and salting trough.
 
 Empty food vessels are explicit pottery crafts:
 
@@ -59,7 +64,9 @@ The culture-gated final craft suites use `Foodways` knowledge gates:
 
 Each culture gets fourteen foodway crafts: the original flatbread, porridge, pulse stew, meat-grain dish, preserved meat ration, fruit sweet, and beverage amphora plus fresh fruit platter, oilseed cakes, spiced meat stew, honeyed pastry, fish sauce relish, stuffed flatbread, and spiced beverage amphora. Five of the seven new entries are high-end preparations distinguished by imported spices, honey, oil, fermented sauce, broth, brined fruit, or multi-stage cooking. Visible craft names are plain food actions; culture-specific access is enforced by the knowledge gate.
 
-Wine cultures consume `Fruit Must Commodity` and rely on the core liquids `red wine` and `white wine` from `CoreDataSeeder.Materials.cs`; the food seeder does not duplicate those base liquids. The Scythian-Sarmatian kumis path consumes `LiquidUse - 3 litres of milk` for the beverage stock rather than the grain-wort fallback. A future pastoral pass can split out mare's milk as a more specific stock source without changing the current foodway craft surface.
+Wine cultures consume `Fruit Must Commodity` and rely on the core liquids `red wine` and `white wine` from `CoreDataSeeder.Materials.cs`; the food seeder does not duplicate those base liquids. The Scythian-Sarmatian kumis path consumes `LiquidUse - 3 litres of milk` for the beverage stock rather than the grain-wort fallback. A future species-specific livestock pass can split out mare's milk as a more specific stock source without changing the current foodway craft surface.
+
+The agriculture pass now supplies the broader antiquity luxury inputs used by all cultures: coriander, cumin, saffron crocus, and black pepper are stock crops, and saffron crocus is processed into saffron. Pomegranate and walnut orchard outputs can be stripped into dye stock, indigo crop can be fermented into indigo dye cake, madder, weld, alkanet, and henna are stock dye crops, and managed woodland definitions cover kermes grain, orchil lichen, and lac dye cake. These are culture-neutral upstream crafts and field definitions so Hellenic, Egyptian, Roman, Celtic, Germanic, Kushite, Punic, Persian, Etruscan, Anatolian, and Scythian-Sarmatian recipes can share the same source paths.
 
 ## Reusable Stock Outputs
 
@@ -71,6 +78,12 @@ Most intermediate products are consumed downstream by other food crafts. The fol
 - `Brined Fruit Commodity`
 - `Pressed Honey`
 - `Rendered Beeswax`
+- `Raw Milk`
+- `Egg Product`
+- `Manure Commodity`
+- `compost` tagged as manure commodity stock
+- `Textile Dye Stock`
+- `Seeds`
 
 These remain commodity stock because they are useful in multiple future recipe families and should not require one-off item prototypes.
 
@@ -91,6 +104,7 @@ The food tool stable references are:
 - `antiquity_food_cooking_knife`
 - `antiquity_food_threshing_flail`
 - `antiquity_food_winnowing_basket`
+- `antiquity_food_pitchfork`
 - `antiquity_food_quern`
 - `antiquity_food_mortar`
 - `antiquity_food_grain_sieve`
@@ -138,6 +152,6 @@ The food pass also seeds builder-owned `CommoditySpoilageRule` rows for raw meat
 
 ## Deferred Source Systems
 
-This pass closes current ItemSeeder craftability gaps and now has a seeded apiculture source path. Agriculture apiary operations can produce raw honeycomb, pressed honey, and rendered beeswax, and antiquity crafts can build the hives, stands, smoke pots, honey knives, presses, and strainers that support that chain. Existing honeyed food, medical, writing, leather, and household crafts can therefore trace honey and beeswax back to seeded field work.
+This pass closes current ItemSeeder craftability gaps and now has seeded source paths for apiculture, seed stock, pastoral secondary products, and common agricultural derivatives. Agriculture apiary operations can produce raw honeycomb, pressed honey, and rendered beeswax, while herd operations can produce milk, wool, eggs, and manure from cattle, sheep/goat, horse, pig, and poultry herd definitions. Antiquity crafts build the hives, stands, smoke pots, honey knives, presses, strainers, and agricultural processing steps that support those chains.
 
-It still does not add new primary-production systems for pastoral secondary products, mining and quarrying, dye and spice derivative supply, and similar upstream source systems. Current recipes use existing core liquids, materials, agricultural commodities, apiary commodities, butchery outputs, and household pottery stock.
+It still does not add new primary-production systems for mining and quarrying, marine shellfish harvesting for murex, or every possible regional crop specialization. Current recipes use existing core liquids, materials, agricultural commodities, herd secondary outputs, apiary commodities, butchery outputs, and household pottery stock.

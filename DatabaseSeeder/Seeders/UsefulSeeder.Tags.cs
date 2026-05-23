@@ -83,6 +83,11 @@ namespace DatabaseSeeder.Seeders
             AddTag(context, "Raw Honeycomb", "Apiary Product");
             AddTag(context, "Pressed Honey", "Apiary Product");
             AddTag(context, "Rendered Beeswax", "Apiary Product");
+            AddTag(context, "Pastoral Product", "Agriculture");
+            AddTag(context, "Raw Milk", "Pastoral Product");
+            AddTag(context, "Raw Wool", "Pastoral Product");
+            AddTag(context, "Egg Product", "Pastoral Product");
+            AddTag(context, "Manure Commodity", "Pastoral Product");
             AddTag(context, "Leather Commodity", "Material Functions");
             AddTag(context, "Prepared Hide", "Leather Commodity");
             AddTag(context, "Tanned Leather", "Leather Commodity");

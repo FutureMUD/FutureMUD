@@ -61,6 +61,7 @@ public interface IAgricultureFieldHerd : IFrameworkItem
 	IAgricultureHerdDefinition Definition { get; }
 	int HeadCount { get; }
 	double Condition { get; }
+	int SecondaryYieldPotential { get; }
 }
 
 public interface IAgricultureFieldApiary

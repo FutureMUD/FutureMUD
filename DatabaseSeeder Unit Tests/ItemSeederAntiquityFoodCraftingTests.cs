@@ -106,6 +106,81 @@ public class ItemSeederAntiquityFoodCraftingTests
 	}
 
 	[TestMethod]
+	public void AntiquityAgricultureCrafting_BackfillsSeedPastoralAndDerivativeProcessing()
+	{
+		var craftRootSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.cs");
+		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.AntiquityAgriculture.cs");
+		var agricultureSource = ReadSource("DatabaseSeeder", "Seeders", "AgricultureSeeder.cs");
+		var tagSource = ReadSource("DatabaseSeeder", "Seeders", "UsefulSeeder.Tags.cs");
+		var materialSource = ReadSource("DatabaseSeeder", "Seeders", "CoreDataSeeder.Materials.cs");
+
+		AssertContains(craftRootSource, "SeedAntiquityAgriculturalProcessingCrafts();");
+		AssertContains(craftSource, "select antiquity seed stock");
+		AssertContains(craftSource, "CommodityTag - 5 kilograms of a material tagged as Agriculture Seedable; tag Seeded Yield");
+		AssertContains(craftSource, "ScrapInput - 25.00% by weight of 5 kilograms of a material tagged as Agriculture Seedable ($i1); tag Seeds");
+		AssertContains(craftSource, "strain fresh milk into amphora");
+		AssertContains(craftSource, "Commodity - 3 kilograms of milk; piletag Raw Milk");
+		AssertContains(craftSource, "filled with 3 litres of milk");
+		AssertContains(craftSource, "heap herd manure compost");
+		AssertContains(craftSource, "Commodity - 3 kilograms of feces; piletag Manure Commodity");
+		AssertContains(craftSource, "CommodityProduct - 3 kilograms 500 grams of compost commodity; tag Manure Commodity");
+
+		foreach (var expected in new[]
+		         {
+			         "ferment indigo dye cakes",
+			         "strip pomegranate rind dye stock",
+			         "separate walnut hull dye stock",
+			         "dry saffron threads",
+			         "CommodityProduct - 500 grams of indigo dye cake commodity; tag Textile Dye Stock",
+			         "CommodityProduct - 350 grams of pomegranate rind commodity; tag Textile Dye Stock",
+			         "CommodityProduct - 300 grams of walnut hull commodity; tag Textile Dye Stock",
+			         "CommodityProduct - 45 grams of saffron commodity; tag Textile Dye Stock"
+		         })
+		{
+			AssertContains(craftSource, expected);
+		}
+
+		foreach (var expected in new[]
+		         {
+			         "Raw Milk",
+			         "Raw Wool",
+			         "Egg Product",
+			         "Manure Commodity"
+		         })
+		{
+			AssertContains(tagSource, expected);
+		}
+
+		foreach (var expected in new[]
+		         {
+			         "Yield(\"milk\", 3500, RawMilkTagName)",
+			         "Yield(\"wool\", 450, RawTextileFibreTagName)",
+			         "new(\"Horse Herd\"",
+			         "Yield(\"egg\", 60, EggProductTagName)",
+			         "Yield(\"feces\", 2500, ManureCommodityTagName)",
+			         "AgricultureOperationType.HarvestHerdProducts",
+			         "new(\"Madder\"",
+			         "new(\"Weld\"",
+			         "new(\"Alkanet\"",
+			         "new(\"Henna\"",
+			         "new(\"Coriander\"",
+			         "new(\"Cumin\"",
+			         "new(\"Saffron Crocus\"",
+			         "new(\"Black Pepper\"",
+			         "new(\"Kermes Oak Scrub\"",
+			         "new(\"Dye Lichen Grove\"",
+			         "new(\"Lac Host Grove\""
+		         })
+		{
+			AssertContains(agricultureSource, expected);
+		}
+
+		AssertContains(materialSource, "AddMaterial(\"milk\"");
+		AssertContains(materialSource, "AddMaterial(\"egg\"");
+		AssertContains(materialSource, "AddMaterial(\"saffron crocus\"");
+	}
+
+	[TestMethod]
 	public void AntiquityFoodCrafting_RunsThroughItemSeederReworkPath()
 	{
 		var shimPath = SourcePath("DatabaseSeeder", "Seeders", "AntiquityFoodBeverageSeeder.cs");
@@ -213,6 +288,7 @@ public class ItemSeederAntiquityFoodCraftingTests
 			         "antiquity_food_cooking_knife",
 			         "antiquity_food_threshing_flail",
 			         "antiquity_food_winnowing_basket",
+			         "antiquity_food_pitchfork",
 			         "antiquity_food_quern",
 			         "antiquity_food_mortar",
 			         "antiquity_food_grain_sieve",
@@ -233,6 +309,7 @@ public class ItemSeederAntiquityFoodCraftingTests
 			         "Functions / Tools / Cooking / Cooking Utensils / Cooking Knife",
 			         "Functions / Tools / Foodmaking Tools / Threshing Flail",
 			         "Functions / Tools / Agricultural Tools / Winnowing Basket",
+			         "Functions / Tools / Agricultural Tools / Pitchfork",
 			         "Functions / Tools / Foodmaking Tools / Hand Quern",
 			         "Functions / Tools / Cooking / Cooking Utensils / Mortar and Pestle",
 			         "Functions / Tools / Milling Tools / Grain Sieve",

@@ -45,7 +45,7 @@ The suite-specific docs now catalogue every stable reference explicitly named by
 - Jewellery uses a dedicated `Ancient Jewellery Crafting` knowledge gate with metal, wire, bead, and setting stock.
 - Support tools and unlit workshop apparatus are now craftable through the expanded equipment toolmaking pass.
 - Glassworking now uses a lit glory-hole furnace for hot working and a lit annealing lehr for cooling finished glass.
-- Food and beverage crafts now add commodity-first grain, pulse, meat, preservation, broth, fermented drink, condiment, and culture-gated prepared-food chains in the `ItemSeeder` rework path, assuming the butchery package has seeded its raw animal outputs.
+- Food and beverage crafts now add commodity-first grain, pulse, meat, preservation, broth, fermented drink, condiment, luxury beverage, and culture-gated prepared-food chains in the `ItemSeeder` rework path, assuming the butchery package has seeded its raw animal outputs.
 
 ## Second-Pass Resolution
 

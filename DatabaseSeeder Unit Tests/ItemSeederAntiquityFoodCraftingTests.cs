@@ -118,6 +118,9 @@ public class ItemSeederAntiquityFoodCraftingTests
 			         "mare's milk kumis",
 			         "meat broth",
 			         "garum sauce",
+			         "spiced wine",
+			         "spiced beer",
+			         "spiced kumis",
 			         "PreparedFood_Antiquity_Bread",
 			         "PreparedFood_Antiquity_Porridge",
 			         "PreparedFood_Antiquity_Stew",
@@ -125,6 +128,10 @@ public class ItemSeederAntiquityFoodCraftingTests
 			         "PreparedFood_Antiquity_Sweet",
 			         "PreparedFood_Antiquity_Fruit",
 			         "PreparedFood_Antiquity_BrinedFruit",
+			         "PreparedFood_Antiquity_LuxuryStew",
+			         "PreparedFood_Antiquity_LuxuryBread",
+			         "PreparedFood_Antiquity_LuxurySweet",
+			         "PreparedFood_Antiquity_Condiment",
 			         "prepared_fruit",
 			         "brined_fruit",
 			         "Ready Fruit Crop",
@@ -174,6 +181,56 @@ public class ItemSeederAntiquityFoodCraftingTests
 	}
 
 	[TestMethod]
+	public void AntiquityFoodCrafting_DoublesCultureSuiteWithLuxuryFoodsAndBeverages()
+	{
+		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.AntiquityFood.cs");
+		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.AntiquityFood.cs");
+		var tagHierarchy = ReadSource("Design Documents", "Data", "SeededTagHierarchy.csv");
+
+		Assert.AreEqual(14, Regex.Matches(craftSource, @"AddCultureFoodCraft\(culture,").Count,
+			"Each culture should now get the original seven foodway crafts plus seven expanded dishes or beverages.");
+		AssertContains(itemSource, "Luxury Prepared Foods");
+		AssertContains(tagHierarchy,
+			"Luxury Prepared Foods\tPrepared Foods\tFood and Drink / Antiquity Food / Prepared Foods / Luxury Prepared Foods");
+
+		foreach (var suffix in new[]
+		         {
+			         "fruit_platter",
+			         "oilseed_cake",
+			         "spiced_meat_stew",
+			         "honeyed_pastry",
+			         "fish_sauce_relish",
+			         "stuffed_flatbread"
+		         })
+		{
+			AssertContains(itemSource, $"{{culture.Key}}_{suffix}");
+			AssertContains(craftSource, $"{{key}}_{suffix}");
+		}
+
+		foreach (var luxuryCraft in new[]
+		         {
+			         "cook {culture.Display.ToLowerInvariant()} spiced meat stew",
+			         "bake {culture.Display.ToLowerInvariant()} honeyed pastry",
+			         "prepare {culture.Display.ToLowerInvariant()} fish sauce relish",
+			         "bake {culture.Display.ToLowerInvariant()} stuffed flatbread",
+			         "fill {culture.Display.ToLowerInvariant()} spiced beverage amphora"
+		         })
+		{
+			AssertContains(craftSource, luxuryCraft);
+		}
+
+		AssertContains(craftSource, "Commodity - 25 grams of coriander");
+		AssertContains(craftSource, "Commodity - 10 grams of cumin");
+		AssertContains(craftSource, "Commodity - 5 grams of saffron");
+		AssertContains(craftSource, "LiquidUse - 250 millilitres of garum sauce");
+		AssertContains(craftSource, "Commodity - 15 grams of black pepper");
+		AssertContains(craftSource, "LiquidUse - 100 millilitres of olive oil");
+		AssertContains(craftSource, "CultureLuxuryBeverageLiquid(culture)");
+		AssertContains(craftSource, "Difficulty.Hard");
+		AssertContains(craftSource, "LuxuryFoodPhases");
+	}
+
+	[TestMethod]
 	public void AntiquityFoodCrafting_CoversAllCulturesWithVariableMeatAndPreparedFoodProducts()
 	{
 		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.AntiquityFood.cs");
@@ -187,7 +244,10 @@ public class ItemSeederAntiquityFoodCraftingTests
 		AssertContains(craftSource, "foreach (var culture in AntiquityFoodCultures)");
 		AssertContains(craftSource, "bake {culture.Display.ToLowerInvariant()} flatbread");
 		AssertContains(craftSource, "cook {culture.Display.ToLowerInvariant()} meat grain dish");
+		AssertContains(craftSource, "cook {culture.Display.ToLowerInvariant()} spiced meat stew");
+		AssertContains(craftSource, "prepare {culture.Display.ToLowerInvariant()} fish sauce relish");
 		AssertContains(craftSource, "fill {culture.Display.ToLowerInvariant()} beverage amphora");
+		AssertContains(craftSource, "fill {culture.Display.ToLowerInvariant()} spiced beverage amphora");
 		AssertContains(craftSource, "CommodityTag - 500 grams of a material tagged as Meat; piletag Prepared Meat Commodity");
 		AssertContains(craftSource, "CookedFoodProduct - 1x");
 		AssertContains(craftSource, "LiquidProduct - 1x");

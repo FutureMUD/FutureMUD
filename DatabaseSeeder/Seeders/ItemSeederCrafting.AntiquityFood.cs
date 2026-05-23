@@ -428,25 +428,139 @@ public partial class ItemSeeder
 			CookedProduct($"antiquity_food_{key}_sweet", "ingredient $i1 = fruit, $i2 = grain"),
 			cooking, [(1, 1)]);
 
+		AddCultureFoodCraft(culture, $"serve {culture.Display.ToLowerInvariant()} fruit platter", "prepare a fresh fruit platter",
+			"preparing a fresh fruit platter", "a fresh fruit platter preparation task",
+			[
+				$"Commodity - {FormatCommodityAmount(500.0)} of {culture.SweetMaterial}"
+			],
+			["TagTool - Held - an item with the Cooking Knife tag"],
+			CookedProduct($"antiquity_food_{key}_fruit_platter", "ingredient $i1 = fruit"),
+			cooking, [(1, 1)]);
+
+		AddCultureFoodCraft(culture, $"bake {culture.Display.ToLowerInvariant()} oilseed cakes", "bake oilseed meal cakes",
+			"baking oilseed cakes", "an oilseed cake baking task",
+			[
+				"CommodityTag - 300 grams of a material tagged as Oilseed Crop; piletag Oilseed Cake Commodity",
+				$"Commodity - {FormatCommodityAmount(300.0)} of {culture.GrainMaterial}; piletag Flour Commodity",
+				"LiquidUse - 150 millilitres of Water"
+			],
+			["TagTool - InRoom - an item with the Cooking Pot tag", "TagTool - InRoom - an item with the Fire tag"],
+			CookedProduct($"antiquity_food_{key}_oilseed_cake", "ingredient $i1 = oilseed, $i2 = grain, $i3 = water"),
+			baking, [(1, 1)]);
+
+		AddCultureFoodCraft(culture, $"cook {culture.Display.ToLowerInvariant()} spiced meat stew",
+			"cook a luxury spiced meat stew", "cooking a spiced meat stew", "a luxury meat stew cooking task",
+			[
+				"CommodityTag - 500 grams of a material tagged as Meat; piletag Prepared Meat Commodity",
+				$"Commodity - {FormatCommodityAmount(350.0)} of {culture.PulseMaterial}; piletag Pulse Meal Commodity",
+				"CommodityTag - 250 grams of a material tagged as Vegetable Prep Crop; piletag Vegetable Prep Commodity",
+				"LiquidUse - 750 millilitres of meat broth",
+				"Commodity - 25 grams of coriander",
+				"Commodity - 10 grams of cumin"
+			],
+			[
+				"TagTool - InRoom - an item with the Cooking Pot tag",
+				"TagTool - InRoom - an item with the Fire tag",
+				"TagTool - Held - an item with the Mortar and Pestle tag"
+			],
+			CookedProduct($"antiquity_food_{key}_spiced_meat_stew",
+				"ingredient $i1 = meat, $i2 = pulse, $i3 = vegetable, $i4 = broth, $i5 = spice, $i6 = spice"),
+			cooking,
+			materialInputs: [(1, 1)],
+			phases: LuxuryFoodPhases("$0 toast|toasts $i5 and $i6 with $t3 until the spice wakes.",
+				"$0 simmer|simmers meat, pulses, vegetables and broth together in $t1.",
+				"$0 finish|finishes the rich stew and set|sets aside $p1."),
+			difficulty: Difficulty.Hard);
+
+		AddCultureFoodCraft(culture, $"bake {culture.Display.ToLowerInvariant()} honeyed pastry",
+			"bake a honeyed luxury pastry", "baking honeyed pastry", "a honeyed pastry baking task",
+			[
+				$"Commodity - {FormatCommodityAmount(400.0)} of {culture.GrainMaterial}; piletag Flour Commodity",
+				"Commodity - 200 grams of honey",
+				"LiquidUse - 150 millilitres of olive oil",
+				"Commodity - 5 grams of saffron"
+			],
+			["TagTool - InRoom - an item with the Cooking Pot tag", "TagTool - InRoom - an item with the Fire tag"],
+			CookedProduct($"antiquity_food_{key}_honeyed_pastry",
+				"ingredient $i1 = grain, $i2 = honey, $i3 = oil, $i4 = spice"),
+			baking,
+			materialInputs: [(1, 1)],
+			phases: LuxuryFoodPhases("$0 knead|kneads flour with honey and olive oil.",
+				"$0 tint|tints the pastry with $i4 and shape|shapes it carefully.",
+				"$0 bake|bakes the pastry near $t2 and set|sets aside $p1."),
+			difficulty: Difficulty.Hard);
+
+		AddCultureFoodCraft(culture, $"prepare {culture.Display.ToLowerInvariant()} fish sauce relish",
+			"prepare a fish sauce luxury relish", "preparing fish sauce relish", "a fish sauce relish preparation task",
+			[
+				"LiquidUse - 250 millilitres of garum sauce",
+				"CommodityTag - 200 grams of a material tagged as Fruit Brining Crop; piletag Brined Fruit Commodity",
+				"CommodityTag - 200 grams of a material tagged as Vegetable Prep Crop; piletag Vegetable Prep Commodity",
+				"Commodity - 15 grams of black pepper"
+			],
+			["TagTool - Held - an item with the Mortar and Pestle tag", "TagTool - Held - an item with the Cooking Knife tag"],
+			CookedProduct($"antiquity_food_{key}_fish_sauce_relish",
+				"ingredient $i1 = sauce, $i2 = fruit, $i3 = vegetable, $i4 = spice"),
+			cooking,
+			phases: LuxuryFoodPhases("$0 mince|minces $i2 and $i3 with $t2.",
+				"$0 pound|pounds pepper and garum together in $t1.",
+				"$0 fold|folds the relish together and set|sets aside $p1."),
+			difficulty: Difficulty.Hard);
+
+		AddCultureFoodCraft(culture, $"bake {culture.Display.ToLowerInvariant()} stuffed flatbread",
+			"bake a luxury stuffed flatbread", "baking stuffed flatbread", "a stuffed flatbread baking task",
+			[
+				$"Commodity - {FormatCommodityAmount(350.0)} of {culture.GrainMaterial}; piletag Flour Commodity",
+				"CommodityTag - 300 grams of a material tagged as Meat; piletag Prepared Meat Commodity",
+				$"Commodity - {FormatCommodityAmount(150.0)} of {culture.SweetMaterial}",
+				"LiquidUse - 100 millilitres of olive oil",
+				"Commodity - 10 grams of cumin"
+			],
+			["TagTool - InRoom - an item with the Cooking Pot tag", "TagTool - InRoom - an item with the Fire tag"],
+			CookedProduct($"antiquity_food_{key}_stuffed_flatbread",
+				"ingredient $i1 = grain, $i2 = meat, $i3 = fruit, $i4 = oil, $i5 = spice"),
+			baking,
+			materialInputs: [(1, 1)],
+			phases: LuxuryFoodPhases("$0 roll|rolls flour dough thin and oil|oils it with $i4.",
+				"$0 fill|fills the dough with meat, fruit and $i5.",
+				"$0 bake|bakes the stuffed bread near $t2 and set|sets aside $p1."),
+			difficulty: Difficulty.Hard);
+
 		AddCultureFoodCraft(culture, $"fill {culture.Display.ToLowerInvariant()} beverage amphora", "fill a staple beverage amphora",
 			"filling a beverage amphora", "a beverage filling task",
 			[
-				culture.BeverageLiquid.Contains("wine", StringComparison.OrdinalIgnoreCase)
-					? $"Commodity - {FormatCommodityAmount(1200.0)} of {culture.SweetMaterial}; piletag Fruit Must Commodity"
-					: "CommodityTag - 1 kilogram of a material tagged as Grain Crop; piletag Wort Commodity"
+				CultureBeverageStockInput(culture, 1200.0, 1000.0)
 			],
 			[],
 			$"LiquidProduct - 1x {_items["antiquity_food_serving_amphora"].ShortDescription} (#{_items["antiquity_food_serving_amphora"].Id}) filled with 3 litres of {culture.BeverageLiquid}",
 			brewing);
+
+		AddCultureFoodCraft(culture, $"fill {culture.Display.ToLowerInvariant()} spiced beverage amphora",
+			"fill a luxury spiced beverage amphora", "filling a spiced beverage amphora",
+			"a spiced beverage filling task",
+			[
+				CultureBeverageStockInput(culture, 1200.0, 1000.0),
+				"Commodity - 250 grams of honey",
+				"Commodity - 15 grams of coriander"
+			],
+			["TagTool - Held - an item with the Mortar and Pestle tag"],
+			$"LiquidProduct - 1x {_items["antiquity_food_serving_amphora"].ShortDescription} (#{_items["antiquity_food_serving_amphora"].Id}) filled with 3 litres of {CultureLuxuryBeverageLiquid(culture)}",
+			brewing,
+			phases: LuxuryFoodPhases("$0 bruise|bruises $i3 in $t1 and stir|stirs it with honey.",
+				"$0 blend|blends the sweet spice into the beverage stock.",
+				"$0 strain|strains the luxury drink into $p1 and seal|seals it."),
+			difficulty: Difficulty.Hard);
 	}
 
 	private void AddCultureFoodCraft(AntiquityFoodCultureSpec culture, string name, string blurb, string action,
 		string itemSdesc, IEnumerable<string> inputs, IEnumerable<string> tools, string product,
-		MudSharp.Models.TraitDefinition trait, List<(int Product, int Input)>? materialInputs = null)
+		MudSharp.Models.TraitDefinition trait, List<(int Product, int Input)>? materialInputs = null,
+		IEnumerable<(int Seconds, string Echo, string FailEcho)>? phases = null,
+		Difficulty difficulty = Difficulty.Normal)
 	{
-		AddCraft(name, "Cooking", blurb, action, itemSdesc, culture.Knowledge, trait.Name, null, Difficulty.Normal,
+		AddCraft(name, "Cooking", blurb, action, itemSdesc, culture.Knowledge, trait.Name, null, difficulty,
 			Outcome.MinorFail, 5, 3, false,
-			SimpleFoodPhases("$0 prepare|prepares $i1 and the other ingredients.",
+			phases ?? SimpleFoodPhases("$0 prepare|prepares $i1 and the other ingredients.",
 				"$0 finish|finishes the dish and set|sets aside $p1."),
 			inputs,
 			tools,
@@ -458,6 +572,28 @@ public partial class ItemSeeder
 			knowledgeSubtype: "Foodways",
 			knowledgeDescription: $"Knowledge of {culture.Display} foodways.",
 			knowledgeLongDescription: $"This knowledge covers staple, preserved, sweet and beverage preparations associated with {culture.Display} foodways.");
+	}
+
+	private string CultureBeverageStockInput(AntiquityFoodCultureSpec culture, double wineFruitGrams, double wortGrams)
+	{
+		return culture.BeverageLiquid.Contains("wine", StringComparison.OrdinalIgnoreCase)
+			? $"Commodity - {FormatCommodityAmount(wineFruitGrams)} of {culture.SweetMaterial}; piletag Fruit Must Commodity"
+			: $"CommodityTag - {FormatCommodityAmount(wortGrams)} of a material tagged as Grain Crop; piletag Wort Commodity";
+	}
+
+	private static string CultureLuxuryBeverageLiquid(AntiquityFoodCultureSpec culture)
+	{
+		if (culture.BeverageLiquid.Contains("wine", StringComparison.OrdinalIgnoreCase))
+		{
+			return "spiced wine";
+		}
+
+		if (culture.BeverageLiquid.Contains("kumis", StringComparison.OrdinalIgnoreCase))
+		{
+			return "spiced kumis";
+		}
+
+		return "spiced beer";
 	}
 
 	private string CookedProduct(string stableReference, string ingredientOptions)
@@ -472,6 +608,16 @@ public partial class ItemSeeder
 		[
 			(20, first, first),
 			(25, second, second)
+		];
+	}
+
+	private static IEnumerable<(int Seconds, string Echo, string FailEcho)> LuxuryFoodPhases(string first, string second, string third)
+	{
+		return
+		[
+			(25, first, first),
+			(30, second, second),
+			(25, third, third)
 		];
 	}
 }

@@ -1278,6 +1278,7 @@ Food and Drink		Food and Drink
 Antiquity Food	Food and Drink	Food and Drink / Antiquity Food
 Fermenting Foods	Antiquity Food	Food and Drink / Antiquity Food / Fermenting Foods
 Prepared Foods	Antiquity Food	Food and Drink / Antiquity Food / Prepared Foods
+Luxury Prepared Foods	Prepared Foods	Food and Drink / Antiquity Food / Prepared Foods / Luxury Prepared Foods
 Vessels	Food and Drink	Food and Drink / Vessels
 Beverage Serving Vessel	Vessels	Food and Drink / Vessels / Beverage Serving Vessel
 Fermenting Vessel	Vessels	Food and Drink / Vessels / Fermenting Vessel

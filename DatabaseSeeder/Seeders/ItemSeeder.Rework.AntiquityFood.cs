@@ -89,6 +89,7 @@ public partial class ItemSeeder
 	{
 		EnsureAntiquityTagPath(AntiquityFoodRootTagPath);
 		EnsureAntiquityTagPath($"{AntiquityFoodRootTagPath} / Prepared Foods");
+		EnsureAntiquityTagPath($"{AntiquityFoodRootTagPath} / Prepared Foods / Luxury Prepared Foods");
 		EnsureAntiquityTagPath($"{AntiquityFoodRootTagPath} / Fermenting Foods");
 		EnsureAntiquityTagPath(AntiquityFoodToolsTagPath);
 		EnsureAntiquityTagPath($"{AntiquityFoodToolsTagPath} / Grain Processing Tools");
@@ -180,6 +181,15 @@ public partial class ItemSeeder
 			"It tastes savoury, salty and meaty.", "It smells of boiled bones and herbs", "yellow", 0.0, 0.55, "Beverage");
 		EnsureAntiquityLiquid("garum sauce", "a dark salty fish sauce", "a dark, pungent and salty fish sauce",
 			"It tastes intensely salty and savoury.", "It smells pungently of fermented fish", "yellow", 0.0, 0.05, "Beverage");
+		EnsureAntiquityLiquid("spiced wine", "a dark spiced wine", "a dark wine steeped with honey and costly spices",
+			"It tastes sweet, warming and strongly spiced.", "It smells of wine, honey and imported spice", "red",
+			0.09, 0.8, "Beverage", "Alcoholic", "Luxury Food");
+		EnsureAntiquityLiquid("spiced beer", "a cloudy spiced beer", "a cloudy beer sweetened with honey and spice",
+			"It tastes grainy, sweet and warmly spiced.", "It smells of malt, honey and coriander", "yellow", 0.04,
+			0.75, "Beverage", "Alcoholic", "Luxury Food");
+		EnsureAntiquityLiquid("spiced kumis", "a cloudy spiced kumis", "a cloudy fermented milk drink scented with spice",
+			"It tastes tart, creamy, sweet and faintly spiced.", "It smells sour, milky and lightly spiced", "white",
+			0.025, 0.65, "Beverage", "Alcoholic", "Luxury Food");
 	}
 
 	private void EnsureAntiquityFoodPreparedComponents()
@@ -226,6 +236,30 @@ public partial class ItemSeeder
 				"$sdesc",
 				"$sdesc\nIt is brined fruit prepared from $ingredients.",
 				("fruit", "brined fruit", "salty brined fruit")));
+		EnsureAntiquityPreparedFoodComponent("PreparedFood_Antiquity_LuxuryStew", "Antiquity luxury stews",
+			FoodDefinition("Item", 6.0, 0.35, 0.05, 0.0, 8, 1.1, 0.7, 0.25, 0.6, 4, 8,
+				"It tastes rich, savoury and warmly spiced.",
+				"$sdesc",
+				"$sdesc\nIt is an elaborate cooked dish made from $ingredients.",
+				("ingredient", "spiced luxury ingredients", "rich spiced ingredients")));
+		EnsureAntiquityPreparedFoodComponent("PreparedFood_Antiquity_LuxuryBread", "Antiquity filled luxury breads",
+			FoodDefinition("Item", 4.5, 0.1, -0.05, 0.0, 7, 1.1, 0.8, 0.25, 0.25, 5, 12,
+				"It tastes of toasted grain, oil, meat and spice.",
+				"$sdesc",
+				"$sdesc\nIt is a filled bread made from $ingredients.",
+				("ingredient", "filled bread ingredients", "filled bread ingredients")));
+		EnsureAntiquityPreparedFoodComponent("PreparedFood_Antiquity_LuxurySweet", "Antiquity luxury sweets",
+			FoodDefinition("Item", 4.0, 0.1, -0.05, 0.0, 6, 1.1, 0.85, 0.35, 0.2, 7, 18,
+				"It tastes sweet, oily and fragrant with expensive spice.",
+				"$sdesc",
+				"$sdesc\nIt is a luxury sweet prepared from $ingredients.",
+				("ingredient", "honeyed luxury ingredients", "honeyed luxury ingredients")));
+		EnsureAntiquityPreparedFoodComponent("PreparedFood_Antiquity_Condiment", "Antiquity condiments and relishes",
+			FoodDefinition("Item", 1.0, 0.1, -0.2, 0.0, 5, 1.0, 0.9, 0.5, 0.1, 12, 45,
+				"It tastes sharp, salty, savoury and spiced.",
+				"$sdesc",
+				"$sdesc\nIt is a condiment prepared from $ingredients.",
+				("ingredient", "condiment ingredients", "sharp condiment ingredients")));
 	}
 
 	private void SeedAntiquityFoodToolsAndItems()
@@ -324,6 +358,30 @@ public partial class ItemSeeder
 				$"a {culture.Display.ToLowerInvariant()} fruit and nut sweet",
 				"A dense sweet made from fruit, grain and nuts.", culture.SweetMaterial,
 				"PreparedFood_Antiquity_Sweet");
+			CreateAntiquityPreparedFoodItem($"{culture.Key}_fruit_platter", "fruit",
+				$"a {culture.Display.ToLowerInvariant()} fresh fruit platter",
+				"Fresh fruit has been cut, seeded and arranged for an immediate table serving.", culture.SweetMaterial,
+				"PreparedFood_Antiquity_Fruit");
+			CreateAntiquityPreparedFoodItem($"{culture.Key}_oilseed_cake", "cake",
+				$"a {culture.Display.ToLowerInvariant()} oilseed cake",
+				"A compact cake of grain flour and pressed oilseed meal, browned for a common table.", "bread",
+				"PreparedFood_Antiquity_Bread");
+			CreateAntiquityPreparedFoodItem($"{culture.Key}_spiced_meat_stew", "stew",
+				$"a {culture.Display.ToLowerInvariant()} spiced meat stew",
+				"A rich stew of prepared meat, pulses, vegetables, broth and costly spices.", "meat",
+				"PreparedFood_Antiquity_LuxuryStew", true);
+			CreateAntiquityPreparedFoodItem($"{culture.Key}_honeyed_pastry", "pastry",
+				$"a {culture.Display.ToLowerInvariant()} honeyed pastry",
+				"A delicate grain pastry enriched with honey, oil and precious spice.", "honey",
+				"PreparedFood_Antiquity_LuxurySweet", true);
+			CreateAntiquityPreparedFoodItem($"{culture.Key}_fish_sauce_relish", "relish",
+				$"a {culture.Display.ToLowerInvariant()} fish sauce relish",
+				"A sharp relish of fermented fish sauce, brined fruit, vegetables and spice.", "salt",
+				"PreparedFood_Antiquity_Condiment", true);
+			CreateAntiquityPreparedFoodItem($"{culture.Key}_stuffed_flatbread", "bread",
+				$"a {culture.Display.ToLowerInvariant()} stuffed flatbread",
+				"A filled flatbread stuffed with meat, fruit, oil and warm spice.", "bread",
+				"PreparedFood_Antiquity_LuxuryBread", true);
 		}
 	}
 
@@ -342,12 +400,15 @@ public partial class ItemSeeder
 	}
 
 	private GameItemProto? CreateAntiquityPreparedFoodItem(string stableSuffix, string noun, string sdesc, string fdesc,
-		string material, string preparedComponent)
+		string material, string preparedComponent, bool luxury = false)
 	{
 		var stableReference = $"antiquity_food_{stableSuffix}";
+		string[] tags = luxury
+			? [$"{AntiquityFoodRootTagPath} / Prepared Foods", $"{AntiquityFoodRootTagPath} / Prepared Foods / Luxury Prepared Foods"]
+			: [$"{AntiquityFoodRootTagPath} / Prepared Foods"];
 		return CreateItem(stableReference, noun, sdesc, null, fdesc, SizeCategory.Small, ItemQuality.Standard, 450, 4M,
 			false, false, material,
-			[$"{AntiquityFoodRootTagPath} / Prepared Foods"],
+			tags,
 			["Holdable", "Destroyable_Misc", preparedComponent], null, null, null, null);
 	}
 

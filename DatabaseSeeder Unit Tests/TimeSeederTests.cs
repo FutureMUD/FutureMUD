@@ -213,6 +213,53 @@ public class TimeSeederTests
     }
 
     [TestMethod]
+    public void SeedData_AdditionalCalendarPackage_PreservesExistingShardBindings()
+    {
+        using FuturemudDatabaseContext context = BuildContext();
+        AddTestShardAndZone(context);
+
+        TimeSeeder seeder = new();
+        seeder.SeedData(context, Answers("latin-ancient"));
+        seeder.SeedData(context, Answers("old-persian"));
+
+        Dictionary<long, string> calendarAliases = context.Calendars
+            .ToDictionary(x => x.Id, CalendarAlias);
+        List<string> shardCalendarAliases = context.ShardsCalendars
+            .Where(x => x.ShardId == 1)
+            .Select(x => calendarAliases[x.CalendarId])
+            .OrderBy(x => x)
+            .ToList();
+
+        CollectionAssert.AreEquivalent(new[] { "julian", "old-persian" }, shardCalendarAliases);
+        Assert.AreEqual(1, context.ShardsClocks.Count(x => x.ShardId == 1));
+        Assert.AreEqual(1, context.ZonesTimezones.Count(x => x.ZoneId == 1));
+    }
+
+    [TestMethod]
+    public void SeedData_AdditionalClockPackage_PreservesExistingZoneTimezoneBindings()
+    {
+        using FuturemudDatabaseContext context = BuildContext();
+        AddTestShardAndZone(context);
+
+        TimeSeeder seeder = new();
+        seeder.SeedData(context, Answers("latin-ancient"));
+        seeder.SeedData(context, Answers("republicain"));
+
+        Assert.AreEqual(2, context.ShardsClocks.Count(x => x.ShardId == 1));
+        Assert.AreEqual(2, context.ZonesTimezones.Count(x => x.ZoneId == 1));
+
+        Dictionary<long, string> clockAliases = context.Clocks
+            .ToDictionary(x => x.Id, ClockAlias);
+        List<string> shardClockAliases = context.ShardsClocks
+            .Where(x => x.ShardId == 1)
+            .Select(x => clockAliases[x.ClockId])
+            .OrderBy(x => x)
+            .ToList();
+
+        CollectionAssert.AreEquivalent(new[] { "Decimal", "UTC" }, shardClockAliases);
+    }
+
+    [TestMethod]
     public void SeedData_MissionCalendar_RerunIsIdempotent()
     {
         using FuturemudDatabaseContext context = BuildContext();
@@ -284,6 +331,29 @@ public class TimeSeederTests
         };
     }
 
+    private static void AddTestShardAndZone(FuturemudDatabaseContext context)
+    {
+        context.Shards.Add(new Shard
+        {
+            Id = 1,
+            Name = "Test Shard",
+            MinimumTerrestrialLux = 0.0,
+            SkyDescriptionTemplateId = 1,
+            SphericalRadiusMetres = 6371000.0
+        });
+        context.Zones.Add(new Zone
+        {
+            Id = 1,
+            Name = "Test Zone",
+            ShardId = 1,
+            Latitude = 0.0,
+            Longitude = 0.0,
+            Elevation = 0.0,
+            AmbientLightPollution = 0.0
+        });
+        context.SaveChanges();
+    }
+
     private static void AssertHasValue(XElement definition, string elementName, string mode)
     {
         Assert.IsFalse(string.IsNullOrWhiteSpace(definition.Element(elementName)?.Value),
@@ -299,12 +369,26 @@ public class TimeSeederTests
             $"{mode}: expected day-boundary type {boundaryType}.");
     }
 
+    private static string ClockAlias(Clock clock)
+    {
+        return XElement.Parse(clock.Definition)
+            .Element("Alias")!
+            .Value;
+    }
+
     private static List<string> MonthAliases(XElement calendar)
     {
         return calendar.Element("months")!
             .Elements("month")
             .Select(x => x.Element("alias")!.Value)
             .ToList();
+    }
+
+    private static string CalendarAlias(Calendar calendar)
+    {
+        return XElement.Parse(calendar.Definition)
+            .Element("alias")!
+            .Value;
     }
 
     private static void AssertRuntimeLoadable(FuturemudDatabaseContext context, string mode)

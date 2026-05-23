@@ -443,43 +443,34 @@ Your answer: ", (context, answers) => answers["mode"].EqualTo("middle-earth"), (
     {
         foreach (Shard? shard in context.Shards.Include(x => x.Zones).ToList())
         {
-            ShardsCalendars? shardCalendar = context.ShardsCalendars.FirstOrDefault(x => x.ShardId == shard.Id);
-            if (shardCalendar is null)
-            {
-                context.ShardsCalendars.Add(new ShardsCalendars { Shard = shard, CalendarId = calendar.Id });
-            }
-            else
-            {
-                shardCalendar.CalendarId = calendar.Id;
-            }
+            SeederRepeatabilityHelper.EnsureLink(
+                context.ShardsCalendars,
+                x => x.ShardId == shard.Id && x.CalendarId == calendar.Id,
+                () => new ShardsCalendars { Shard = shard, CalendarId = calendar.Id });
 
-            ShardsClocks? shardClock = context.ShardsClocks.FirstOrDefault(x => x.ShardId == shard.Id);
-            if (shardClock is null)
-            {
-                context.ShardsClocks.Add(new ShardsClocks { Shard = shard, ClockId = clock.Id });
-            }
-            else
-            {
-                shardClock.ClockId = clock.Id;
-            }
+            SeederRepeatabilityHelper.EnsureLink(
+                context.ShardsClocks,
+                x => x.ShardId == shard.Id && x.ClockId == clock.Id,
+                () => new ShardsClocks { Shard = shard, ClockId = clock.Id });
 
             foreach (Zone? zone in shard.Zones)
             {
-                ZonesTimezones? zoneTimezone = context.ZonesTimezones.FirstOrDefault(x => x.ZoneId == zone.Id);
-                if (zoneTimezone is null)
+                List<ZonesTimezones> zoneTimezones = context.ZonesTimezones
+                    .Where(x => x.ZoneId == zone.Id && x.ClockId == clock.Id)
+                    .ToList();
+                if (zoneTimezones.Any(x => x.TimezoneId == timezone.Id))
                 {
-                    context.ZonesTimezones.Add(new ZonesTimezones
-                    {
-                        Zone = zone,
-                        ClockId = clock.Id,
-                        TimezoneId = timezone.Id
-                    });
+                    context.ZonesTimezones.RemoveRange(zoneTimezones.Where(x => x.TimezoneId != timezone.Id));
+                    continue;
                 }
-                else
+
+                context.ZonesTimezones.RemoveRange(zoneTimezones);
+                context.ZonesTimezones.Add(new ZonesTimezones
                 {
-                    zoneTimezone.ClockId = clock.Id;
-                    zoneTimezone.TimezoneId = timezone.Id;
-                }
+                    Zone = zone,
+                    ClockId = clock.Id,
+                    TimezoneId = timezone.Id
+                });
             }
         }
     }

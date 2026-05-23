@@ -535,9 +535,9 @@ It also includes deterministic astronomical and historical approximation package
 
 Those packages use Latin1-safe romanised aliases and descriptions. The lunisolar and historical packages are deterministic approximations for engine repeatability; they do not implement manual observation ledgers, local weather-dependent official decisions, or historically variable human authority rulings.
 
-The seeder is repair-capable for canonical stock time data. Other seeders rely on at least one clock and calendar being present.
+The seeder is repair-capable for canonical stock time data. When a later rerun installs another calendar package, it adds the selected clock/calendar links to existing shards without removing older shard calendar assignments; zone time-zone links are reconciled per clock. Other seeders rely on at least one clock and calendar being present.
 
-Seeder regression tests cover all stock `TimeSeeder` modes, including XML shape, runtime loading of generated clock/calendar rows, non-seven-day week packages, decimal clocks, Middle-earth multi-calendar output, and idempotent reruns.
+Seeder regression tests cover all stock `TimeSeeder` modes, including XML shape, runtime loading of generated clock/calendar rows, non-seven-day week packages, decimal clocks, Middle-earth multi-calendar output, idempotent reruns, and additive calendar/clock package reruns against existing shard/zone bindings.
 
 ## Integration Points
 The time and date system is used broadly across FutureMUD:

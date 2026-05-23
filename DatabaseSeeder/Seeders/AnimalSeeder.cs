@@ -4013,7 +4013,7 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
 
         Material driedBlood = new()
         {
-            Name = $"dried {adjective.ToLowerInvariant()} blood",
+            Name = GetRaceBloodMaterialName(name),
             MaterialDescription = "dried blood",
             Density = 1520,
             Organic = true,
@@ -4040,7 +4040,7 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
         _context.Materials.Add(driedBlood);
         Liquid bloodLiquid = new()
         {
-            Name = $"{adjective} Blood",
+            Name = GetRaceBloodLiquidName(name),
             Description = "blood",
             LongDescription = "a virtually opaque dark red fluid",
             TasteText = "It has a sharply metallic, umami taste",
@@ -4083,7 +4083,7 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
         {
             Material driedSweat = new()
             {
-                Name = $"dried {adjective.ToLowerInvariant()} sweat",
+                Name = GetRaceSweatMaterialName(name),
                 MaterialDescription = "dried sweat",
                 Density = 1520,
                 Organic = true,
@@ -4110,7 +4110,7 @@ Warning: There is an enormous amount of data contained in this seeder, and it ma
             _context.Materials.Add(driedSweat);
             sweat = new Liquid
             {
-                Name = $"{adjective} Sweat",
+                Name = GetRaceSweatLiquidName(name),
                 Description = "sweat",
                 LongDescription = "a relatively clear, translucent fluid that smells strongly of wild animal odor",
                 TasteText = "It tastes like a pungent, salty lick of someone's underarms",

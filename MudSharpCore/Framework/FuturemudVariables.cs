@@ -182,6 +182,7 @@ public sealed partial class Futuremud : IDisposable
     private readonly All<IHook> _hooks = new();
     private readonly All<IKnowledge> _knowledges = new();
     private readonly All<ISolid> _materials = new();
+    private readonly All<ICommoditySpoilageRule> _commoditySpoilageRules = new();
     private readonly All<IArtificialIntelligence> _AIs = new();
     private readonly RevisableAll<INPCTemplate> _npcTemplates = new();
     private readonly All<IImprovementModel> _improvementModels = new();
@@ -493,6 +494,7 @@ public sealed partial class Futuremud : IDisposable
     public IUneditableAll<IMarketPopulation> MarketPopulations => _marketPopulations;
 
     public IUneditableAll<ISolid> Materials => _materials;
+    public IUneditableAll<ICommoditySpoilageRule> CommoditySpoilageRules => _commoditySpoilageRules;
 
     public IUneditableAll<IMerit> Merits => _merits;
 

@@ -9,6 +9,7 @@ using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -67,6 +68,12 @@ public class CommodityGameItemComponent : GameItemComponent, ICommodity
 
 #nullable enable
     public IReadOnlyDictionary<ICharacteristicDefinition, ICharacteristicValue> CommodityCharacteristics => _characteristics;
+
+    private ICommoditySpoilageRule? _activeSpoilageRule;
+    private DateTime? _spoilageTime;
+
+    public ICommoditySpoilageRule? ActiveSpoilageRule => _activeSpoilageRule;
+    public DateTime? SpoilageTime => _spoilageTime;
 
     public ICharacteristicValue? GetCommodityCharacteristic(ICharacteristicDefinition definition)
     {
@@ -147,6 +154,8 @@ public class CommodityGameItemComponent : GameItemComponent, ICommodity
         _tag = rhs._tag;
         _useIndirectQuantityDescription = rhs._useIndirectQuantityDescription;
         _weight = rhs._weight;
+        _activeSpoilageRule = rhs._activeSpoilageRule;
+        _spoilageTime = rhs._spoilageTime;
         foreach (var item in rhs._characteristics)
         {
             _characteristics[item.Key] = item.Value;
@@ -159,6 +168,13 @@ public class CommodityGameItemComponent : GameItemComponent, ICommodity
         _weight = double.Parse(root.Element("Weight").Value);
         _tag = Gameworld.Tags.Get(long.Parse(root.Element("Tag")?.Value ?? "0"));
         _useIndirectQuantityDescription = bool.Parse(root.Element("UseIndirect")?.Value ?? "false");
+        var spoilageRuleId = long.Parse(root.Element("SpoilageRule")?.Value ?? "0");
+        _activeSpoilageRule = spoilageRuleId > 0 ? Gameworld.CommoditySpoilageRules.Get(spoilageRuleId) : null;
+        if (DateTime.TryParse(root.Element("SpoilageTime")?.Value, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind, out var spoilageTime))
+        {
+            _spoilageTime = spoilageTime;
+        }
+
         foreach (var element in root.Element("Characteristics")?.Elements("Characteristic") ?? Enumerable.Empty<XElement>())
         {
             var definition = Gameworld.Characteristics.Get(long.Parse(element.Attribute("definition")?.Value ?? element.Attribute("Definition")?.Value ?? "0"));
@@ -188,6 +204,8 @@ public class CommodityGameItemComponent : GameItemComponent, ICommodity
             new XElement("Weight", Weight),
             new XElement("Tag", Tag?.Id ?? 0L),
             new XElement("UseIndirect", UseIndirectQuantityDescription),
+            new XElement("SpoilageRule", ActiveSpoilageRule?.Id ?? 0L),
+            new XElement("SpoilageTime", SpoilageTime?.ToString("O", CultureInfo.InvariantCulture) ?? ""),
             new XElement("Characteristics",
                 from characteristic in _characteristics.OrderBy(x => x.Key.Id)
                 select new XElement("Characteristic",
@@ -310,13 +328,86 @@ public class CommodityGameItemComponent : GameItemComponent, ICommodity
         return base.Decorate(voyeur, name, description, type, colour, flags);
     }
 
+    public void EvaluateSpoilageRule()
+    {
+        var bestRule = Gameworld.CommoditySpoilageRules
+            .Select(x => (Rule: x, Specificity: x.MatchSpecificity(this)))
+            .Where(x => x.Specificity >= 0 && !x.Rule.ValidationWarnings.Any())
+            .OrderByDescending(x => x.Specificity)
+            .ThenBy(x => x.Rule.Priority)
+            .ThenBy(x => x.Rule.Id)
+            .Select(x => x.Rule)
+            .FirstOrDefault();
+
+        _activeSpoilageRule = bestRule;
+        _spoilageTime = bestRule is null ? null : DateTime.UtcNow + bestRule.SecondsUntilSpoiled;
+        Changed = true;
+    }
+
+    public void CopySpoilageFrom(ICommodity other)
+    {
+        _activeSpoilageRule = other.ActiveSpoilageRule;
+        _spoilageTime = other.SpoilageTime;
+        Changed = true;
+    }
+
+    public bool CanMergeSpoilage(ICommodity other)
+    {
+        return ActiveSpoilageRule?.HasCompatibleResult(other.ActiveSpoilageRule) ??
+               other.ActiveSpoilageRule?.HasCompatibleResult(ActiveSpoilageRule) ??
+               true;
+    }
+
+    public void MergeSpoilageFrom(ICommodity other)
+    {
+        if (!CanMergeSpoilage(other))
+        {
+            return;
+        }
+
+        if (other.ActiveSpoilageRule is null)
+        {
+            return;
+        }
+
+        if (ActiveSpoilageRule is null ||
+            (other.SpoilageTime.HasValue && (!SpoilageTime.HasValue || other.SpoilageTime.Value < SpoilageTime.Value)))
+        {
+            _activeSpoilageRule = other.ActiveSpoilageRule;
+            _spoilageTime = other.SpoilageTime;
+            Changed = true;
+        }
+    }
+
+    public bool CheckSpoilage(DateTime currentTime)
+    {
+        if (ActiveSpoilageRule is null || SpoilageTime is null || SpoilageTime.Value > currentTime)
+        {
+            return false;
+        }
+
+        var rule = ActiveSpoilageRule;
+        if (!string.IsNullOrWhiteSpace(rule.SpoilEcho))
+        {
+            Parent.OutputHandler?.Handle(new EmoteOutput(new Emote(rule.SpoilEcho, Parent, Parent)));
+        }
+
+        Material = rule.ResultMaterial;
+        Tag = rule.ResultCommodityTag;
+        _activeSpoilageRule = null;
+        _spoilageTime = null;
+        Changed = true;
+        return true;
+    }
+
     public override bool PreventsMerging(IGameItemComponent component)
     {
         return component is CommodityGameItemComponent cc &&
                (cc.Material != Material ||
                 cc.Tag != Tag ||
                 cc.UseIndirectQuantityDescription != UseIndirectQuantityDescription ||
-                !CommodityCharacteristicRequirement.CommodityCharacteristicsEqual(this, cc));
+                !CommodityCharacteristicRequirement.CommodityCharacteristicsEqual(this, cc) ||
+                !CanMergeSpoilage(cc));
     }
 
     public override bool ExposeToLiquid(LiquidMixture mixture)

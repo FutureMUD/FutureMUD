@@ -1,5 +1,5 @@
 {
   "ProductVersion": "2.3.0.0",
-  "LatestMigrationId": "20260520011927_AgricultureSystem",
-  "GeneratedUtc": "2026-05-20T01:19:27Z"
+  "LatestMigrationId": "20260523000000_CommoditySpoilageRules",
+  "GeneratedUtc": "2026-05-23T00:00:00Z"
 }

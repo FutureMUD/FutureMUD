@@ -17,10 +17,17 @@ namespace MudSharp.GameItems.Interfaces
         ITag? Tag { get; set; }
         bool UseIndirectQuantityDescription { get; set; }
         IReadOnlyDictionary<ICharacteristicDefinition, ICharacteristicValue> CommodityCharacteristics { get; }
+        ICommoditySpoilageRule? ActiveSpoilageRule { get; }
+        DateTime? SpoilageTime { get; }
         ICharacteristicValue? GetCommodityCharacteristic(ICharacteristicDefinition definition);
         bool SetCommodityCharacteristic(ICharacteristicDefinition definition, ICharacteristicValue value);
         bool RemoveCommodityCharacteristic(ICharacteristicDefinition definition);
         void ClearCommodityCharacteristics();
+        void EvaluateSpoilageRule();
+        void CopySpoilageFrom(ICommodity other);
+        bool CanMergeSpoilage(ICommodity other);
+        void MergeSpoilageFrom(ICommodity other);
+        bool CheckSpoilage(DateTime currentTime);
 
     }
 #nullable restore

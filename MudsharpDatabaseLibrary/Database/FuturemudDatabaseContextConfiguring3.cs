@@ -133,6 +133,86 @@ namespace MudSharp.Database
                 entity.Property(e => e.Type).HasColumnType("int(11)");
             });
 
+            modelBuilder.Entity<CommoditySpoilageRule>(entity =>
+            {
+                entity.HasIndex(e => e.Name)
+                    .HasDatabaseName("IX_CommoditySpoilageRules_Name")
+                    .IsUnique();
+
+                entity.HasIndex(e => e.MaterialId)
+                    .HasDatabaseName("FK_CommoditySpoilageRules_Materials_idx");
+
+                entity.HasIndex(e => e.MaterialTagId)
+                    .HasDatabaseName("FK_CommoditySpoilageRules_MaterialTags_idx");
+
+                entity.HasIndex(e => e.CommodityTagId)
+                    .HasDatabaseName("FK_CommoditySpoilageRules_CommodityTags_idx");
+
+                entity.HasIndex(e => e.ResultMaterialId)
+                    .HasDatabaseName("FK_CommoditySpoilageRules_ResultMaterials_idx");
+
+                entity.HasIndex(e => e.ResultCommodityTagId)
+                    .HasDatabaseName("FK_CommoditySpoilageRules_ResultTags_idx");
+
+                entity.Property(e => e.Id).HasColumnType("bigint(20)");
+                entity.Property(e => e.Name)
+                    .IsRequired()
+                    .HasColumnType("varchar(100)")
+                    .HasCharSet("utf8mb4")
+                    .UseCollation("utf8mb4_unicode_ci");
+                entity.Property(e => e.Description)
+                    .IsRequired()
+                    .HasColumnType("text")
+                    .HasCharSet("utf8mb4")
+                    .UseCollation("utf8mb4_unicode_ci");
+                entity.Property(e => e.Enabled)
+                    .HasColumnType("bit(1)")
+                    .HasDefaultValueSql("b'1'");
+                entity.Property(e => e.Priority)
+                    .HasColumnType("int(11)")
+                    .HasDefaultValueSql("'0'");
+                entity.Property(e => e.MaterialId).HasColumnType("bigint(20)");
+                entity.Property(e => e.MaterialTagId).HasColumnType("bigint(20)");
+                entity.Property(e => e.CommodityTagId).HasColumnType("bigint(20)");
+                entity.Property(e => e.ResultMaterialId).HasColumnType("bigint(20)");
+                entity.Property(e => e.ResultCommodityTagId).HasColumnType("bigint(20)");
+                entity.Property(e => e.SecondsUntilSpoiled).HasColumnType("bigint(20)");
+                entity.Property(e => e.SpoilEcho)
+                    .HasColumnType("text")
+                    .HasCharSet("utf8mb4")
+                    .UseCollation("utf8mb4_unicode_ci");
+
+                entity.HasOne(d => d.Material)
+                    .WithMany()
+                    .HasForeignKey(d => d.MaterialId)
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .HasConstraintName("FK_CommoditySpoilageRules_Materials");
+
+                entity.HasOne(d => d.MaterialTag)
+                    .WithMany()
+                    .HasForeignKey(d => d.MaterialTagId)
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .HasConstraintName("FK_CommoditySpoilageRules_MaterialTags");
+
+                entity.HasOne(d => d.CommodityTag)
+                    .WithMany()
+                    .HasForeignKey(d => d.CommodityTagId)
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .HasConstraintName("FK_CommoditySpoilageRules_CommodityTags");
+
+                entity.HasOne(d => d.ResultMaterial)
+                    .WithMany()
+                    .HasForeignKey(d => d.ResultMaterialId)
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .HasConstraintName("FK_CommoditySpoilageRules_ResultMaterials");
+
+                entity.HasOne(d => d.ResultCommodityTag)
+                    .WithMany()
+                    .HasForeignKey(d => d.ResultCommodityTagId)
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .HasConstraintName("FK_CommoditySpoilageRules_ResultTags");
+            });
+
             modelBuilder.Entity<MaterialAlias>(entity =>
             {
                 entity.HasKey(e => new { e.MaterialId, e.Alias })

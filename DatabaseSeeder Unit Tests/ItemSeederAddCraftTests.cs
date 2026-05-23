@@ -326,6 +326,7 @@ public class ItemSeederAddCraftTests
 			[
 				"SimpleProduct - 1x a simple test product (#101)",
 				"CookedFoodProduct - 1x a cooked test product (#102); ingredient $i1=vegetable; purify off",
+				"LiquidProduct - 1x a simple test product (#101) filled with 750 millilitres of Water",
 				"SimpleVariableProduct - 1x a variable test product (#103); variable Colour=$i2",
 				"InputVariableProduct - 1x an input-variable test product (#104); variable Colour=$i2; specific Colour: a plain input item (#100)=red",
 				"ProgVariableProduct - 1x a prog-variable test product (#105); variable Colour=SelectColour",
@@ -344,7 +345,7 @@ public class ItemSeederAddCraftTests
 
 		Assert.AreEqual(10, craft.CraftInputs.Count);
 		Assert.AreEqual(2, craft.CraftTools.Count);
-		Assert.AreEqual(14, craft.CraftProducts.Count);
+		Assert.AreEqual(15, craft.CraftProducts.Count);
 		Assert.AreEqual(2.5, craft.CraftInputs.OrderBy(x => x.OriginalAdditionTime).First().InputQualityWeight);
 
 		var exactMaterial = XElement.Parse(craft.CraftInputs.Single(x =>
@@ -373,7 +374,7 @@ public class ItemSeederAddCraftTests
 		CollectionAssert.IsSubsetOf(
 			new[]
 			{
-				"SimpleProduct", "CookedFoodProduct", "SimpleVariableProduct", "InputVariable", "ProgVariableProduct",
+				"SimpleProduct", "CookedFoodProduct", "LiquidProduct", "SimpleVariableProduct", "InputVariable", "ProgVariableProduct",
 				"CommodityProduct", "MoneyProduct", "NPCProduct", "Prog", "DNATest", "BloodTyping", "ScrapInput",
 				"UnusedInput"
 			},
@@ -383,6 +384,10 @@ public class ItemSeederAddCraftTests
 		var commodityProduct = XElement.Parse(craft.CraftProducts.Single(x => x.ProductType == "CommodityProduct").Definition);
 		Assert.AreEqual("9", commodityProduct.Element("Tag")!.Value);
 		Assert.AreEqual("6", commodityProduct.Element("Characteristics")!.Elements("Characteristic").Single(x => x.Attribute("definition")!.Value == "2").Attribute("input")!.Value);
+		var liquidProduct = XElement.Parse(craft.CraftProducts.Single(x => x.ProductType == "LiquidProduct").Definition);
+		Assert.AreEqual("101", liquidProduct.Element("ProductProducedId")!.Value);
+		Assert.AreEqual("1", liquidProduct.Element("Liquid")!.Value);
+		Assert.AreEqual("0.75", liquidProduct.Element("LiquidVolume")!.Value);
 		Assert.AreEqual(4, craft.CraftProducts.Single(x => x.IsFailProduct).MaterialDefiningInputIndex);
 	}
 

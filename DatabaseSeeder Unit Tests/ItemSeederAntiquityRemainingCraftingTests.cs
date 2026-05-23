@@ -357,6 +357,7 @@ public class ItemSeederAntiquityRemainingCraftingTests
 		var craftSource = ReadSeederSources("ItemSeederCrafting.Antiquity*.cs");
 		var docsSource =
 			ReadSource("Design Documents", "Crafting", "Antiquity_Equipment_Crafting_Suite.md") +
+			ReadSource("Design Documents", "Crafting", "Antiquity_Food_Beverage_Crafting_Suite.md") +
 			ReadSource("Design Documents", "Crafting", "Antiquity_Furniture_Container_Crafting_Suite.md") +
 			ReadSource("Design Documents", "Crafting", "Antiquity_Jewellery_Crafting_Suite.md") +
 			ReadSource("Design Documents", "Crafting", "Antiquity_Writing_Implements_Crafting_Suite.md") +

@@ -286,6 +286,14 @@ Mash Tun	Brewing Tools	Functions / Tools / Brewing Tools / Mash Tun
 Mashing Paddle	Brewing Tools	Functions / Tools / Brewing Tools / Mashing Paddle
 Sparging Ladle	Brewing Tools	Functions / Tools / Brewing Tools / Sparging Ladle
 Wort Grant	Brewing Tools	Functions / Tools / Brewing Tools / Wort Grant
+Foodmaking Tools	Tools	Functions / Tools / Foodmaking Tools
+Fermentation Amphora	Foodmaking Tools	Functions / Tools / Foodmaking Tools / Fermentation Amphora
+Fruit Press	Foodmaking Tools	Functions / Tools / Foodmaking Tools / Fruit Press
+Hand Quern	Foodmaking Tools	Functions / Tools / Foodmaking Tools / Hand Quern
+Oil Press	Foodmaking Tools	Functions / Tools / Foodmaking Tools / Oil Press
+Salting Trough	Foodmaking Tools	Functions / Tools / Foodmaking Tools / Salting Trough
+Smoking Rack	Foodmaking Tools	Functions / Tools / Foodmaking Tools / Smoking Rack
+Threshing Flail	Foodmaking Tools	Functions / Tools / Foodmaking Tools / Threshing Flail
 Butcher Tools	Tools	Functions / Tools / Butcher Tools
 Butcher Cleaning Tools	Butcher Tools	Functions / Tools / Butcher Tools / Butcher Cleaning Tools
 Carcass Scraper	Butcher Cleaning Tools	Functions / Tools / Butcher Tools / Butcher Cleaning Tools / Carcass Scraper
@@ -1266,6 +1274,14 @@ Writing Implements	Writing Materials	Market / Writing Materials / Writing Implem
 Document Containers	Writing Materials	Market / Writing Materials / Document Containers
 Scrolls	Writing Materials	Market / Writing Materials / Scrolls
 Codices	Writing Materials	Market / Writing Materials / Codices
+Food and Drink		Food and Drink
+Antiquity Food	Food and Drink	Food and Drink / Antiquity Food
+Fermenting Foods	Antiquity Food	Food and Drink / Antiquity Food / Fermenting Foods
+Prepared Foods	Antiquity Food	Food and Drink / Antiquity Food / Prepared Foods
+Luxury Prepared Foods	Prepared Foods	Food and Drink / Antiquity Food / Prepared Foods / Luxury Prepared Foods
+Vessels	Food and Drink	Food and Drink / Vessels
+Beverage Serving Vessel	Vessels	Food and Drink / Vessels / Beverage Serving Vessel
+Fermenting Vessel	Vessels	Food and Drink / Vessels / Fermenting Vessel
 Materials		Materials
 Animal Product	Materials	Materials / Animal Product
 Elastomer	Materials	Materials / Elastomer
@@ -1289,6 +1305,31 @@ Disgusting	Liquids	Materials / Liquids / Disgusting
 Fuel	Liquids	Materials / Liquids / Fuel
 Water	Liquids	Materials / Liquids / Water
 Water Soluble	Liquids	Materials / Liquids / Water Soluble
+Food Products	Materials	Materials / Food Products
+Antiquity Food Commodities	Food Products	Materials / Food Products / Antiquity Food Commodities
+Bone Stock Commodity	Antiquity Food Commodities	Materials / Food Products / Antiquity Food Commodities / Bone Stock Commodity
+Bran Commodity	Antiquity Food Commodities	Materials / Food Products / Antiquity Food Commodities / Bran Commodity
+Brined Fruit Commodity	Antiquity Food Commodities	Materials / Food Products / Antiquity Food Commodities / Brined Fruit Commodity
+Broth Base Commodity	Antiquity Food Commodities	Materials / Food Products / Antiquity Food Commodities / Broth Base Commodity
+Cleaned Grain Commodity	Antiquity Food Commodities	Materials / Food Products / Antiquity Food Commodities / Cleaned Grain Commodity
+Dried Meat Commodity	Antiquity Food Commodities	Materials / Food Products / Antiquity Food Commodities / Dried Meat Commodity
+Fermenting Food Commodity	Antiquity Food Commodities	Materials / Food Products / Antiquity Food Commodities / Fermenting Food Commodity
+Finished Beverage Stock	Antiquity Food Commodities	Materials / Food Products / Antiquity Food Commodities / Finished Beverage Stock
+Flour Commodity	Antiquity Food Commodities	Materials / Food Products / Antiquity Food Commodities / Flour Commodity
+Fruit Must Commodity	Antiquity Food Commodities	Materials / Food Products / Antiquity Food Commodities / Fruit Must Commodity
+Grain Cleaning Stock	Antiquity Food Commodities	Materials / Food Products / Antiquity Food Commodities / Grain Cleaning Stock
+Meal Commodity	Antiquity Food Commodities	Materials / Food Products / Antiquity Food Commodities / Meal Commodity
+Oilseed Cake Commodity	Antiquity Food Commodities	Materials / Food Products / Antiquity Food Commodities / Oilseed Cake Commodity
+Oilseed Mash Commodity	Antiquity Food Commodities	Materials / Food Products / Antiquity Food Commodities / Oilseed Mash Commodity
+Prepared Meat Commodity	Antiquity Food Commodities	Materials / Food Products / Antiquity Food Commodities / Prepared Meat Commodity
+Pulse Meal Commodity	Antiquity Food Commodities	Materials / Food Products / Antiquity Food Commodities / Pulse Meal Commodity
+Raw Meat Commodity	Antiquity Food Commodities	Materials / Food Products / Antiquity Food Commodities / Raw Meat Commodity
+Rendered Fat Commodity	Antiquity Food Commodities	Materials / Food Products / Antiquity Food Commodities / Rendered Fat Commodity
+Rotten Food Commodity	Antiquity Food Commodities	Materials / Food Products / Antiquity Food Commodities / Rotten Food Commodity
+Salted Meat Commodity	Antiquity Food Commodities	Materials / Food Products / Antiquity Food Commodities / Salted Meat Commodity
+Smoked Meat Commodity	Antiquity Food Commodities	Materials / Food Products / Antiquity Food Commodities / Smoked Meat Commodity
+Vegetable Prep Commodity	Antiquity Food Commodities	Materials / Food Products / Antiquity Food Commodities / Vegetable Prep Commodity
+Wort Commodity	Antiquity Food Commodities	Materials / Food Products / Antiquity Food Commodities / Wort Commodity
 Manufactured Materials	Materials	Materials / Manufactured Materials
 Ceramic	Manufactured Materials	Materials / Manufactured Materials / Ceramic
 Fabric	Manufactured Materials	Materials / Manufactured Materials / Fabric
@@ -1319,16 +1360,23 @@ Thick Animal Skin	Animal Skin	Materials / Natural Materials / Animal Skin / Thic
 Elemental Metal	Natural Materials	Materials / Natural Materials / Elemental Metal
 Food	Natural Materials	Materials / Natural Materials / Food
 Baked Good	Food	Materials / Natural Materials / Food / Baked Good
+Fruit Brining Crop	Food	Materials / Natural Materials / Food / Fruit Brining Crop
 Fruit	Food	Materials / Natural Materials / Food / Fruit
+Fruit Must Crop	Food	Materials / Natural Materials / Food / Fruit Must Crop
+Grain Crop	Food	Materials / Natural Materials / Food / Grain Crop
 Herb	Food	Materials / Natural Materials / Food / Herb
 Meat	Food	Materials / Natural Materials / Food / Meat
+Oilseed Crop	Food	Materials / Natural Materials / Food / Oilseed Crop
 Prepared Food	Food	Materials / Natural Materials / Food / Prepared Food
 Cooking Ingredient	Prepared Food	Materials / Natural Materials / Food / Prepared Food / Cooking Ingredient
 Stock Cooking Apple	Cooking Ingredient	Materials / Natural Materials / Food / Prepared Food / Cooking Ingredient / Stock Cooking Apple
 Stock Cooking Fruit	Cooking Ingredient	Materials / Natural Materials / Food / Prepared Food / Cooking Ingredient / Stock Cooking Fruit
 Forageable Food	Prepared Food	Materials / Natural Materials / Food / Prepared Food / Forageable Food
+Pulse Crop	Food	Materials / Natural Materials / Food / Pulse Crop
+Ready Fruit Crop	Food	Materials / Natural Materials / Food / Ready Fruit Crop
 Spice	Food	Materials / Natural Materials / Food / Spice
 Vegetable	Food	Materials / Natural Materials / Food / Vegetable
+Vegetable Prep Crop	Food	Materials / Natural Materials / Food / Vegetable Prep Crop
 Hair	Natural Materials	Materials / Natural Materials / Hair
 Leather	Natural Materials	Materials / Natural Materials / Leather
 Soil	Natural Materials	Materials / Natural Materials / Soil

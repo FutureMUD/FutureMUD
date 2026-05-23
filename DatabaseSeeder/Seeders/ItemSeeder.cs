@@ -176,7 +176,7 @@ The items and crafts are fairly universal and of approximately medieval to renei
         return dbitem;
     }
 
-    private void SeedItems()
+    private void SeedItemsLegacy()
     {
 		if (_context!.GameItemProtos.Any(x => x.ShortDescription == "a double-edged @material fighting knife"))
         {
@@ -1043,9 +1043,9 @@ The items and crafts are fairly universal and of approximately medieval to renei
         _questionAnswers = questionAnswers;
         InitialiseDependencies();
 
-        SeedItems();
+        //SeedItemsLegacy();
         SeedReworkItems();
-        CreateProgs();
+        //CreateProgs();
         SeedCrafts();
         _context.SaveChanges();
 

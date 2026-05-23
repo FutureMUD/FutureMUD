@@ -79,6 +79,15 @@ namespace DatabaseSeeder.Seeders
             AddTag(context, "Agriculture", "Material Functions");
             AddTag(context, "Seeds", "Agriculture");
             AddTag(context, "Seeded Yield", "Agriculture");
+            AddTag(context, "Apiary Product", "Agriculture");
+            AddTag(context, "Raw Honeycomb", "Apiary Product");
+            AddTag(context, "Pressed Honey", "Apiary Product");
+            AddTag(context, "Rendered Beeswax", "Apiary Product");
+            AddTag(context, "Pastoral Product", "Agriculture");
+            AddTag(context, "Raw Milk", "Pastoral Product");
+            AddTag(context, "Raw Wool", "Pastoral Product");
+            AddTag(context, "Egg Product", "Pastoral Product");
+            AddTag(context, "Manure Commodity", "Pastoral Product");
             AddTag(context, "Leather Commodity", "Material Functions");
             AddTag(context, "Prepared Hide", "Leather Commodity");
             AddTag(context, "Tanned Leather", "Leather Commodity");
@@ -795,6 +804,13 @@ namespace DatabaseSeeder.Seeders
             AddTag(context, "Yoke", "Agricultural Tools");
             AddTag(context, "Drover's Goad", "Agricultural Tools");
             AddTag(context, "Pruning Hook", "Agricultural Tools");
+            AddTag(context, "Beekeeping Tools", "Agricultural Tools");
+            AddTag(context, "Bee Hive", "Beekeeping Tools");
+            AddTag(context, "Hive Stand", "Beekeeping Tools");
+            AddTag(context, "Bee Smoke Pot", "Beekeeping Tools");
+            AddTag(context, "Honey Knife", "Beekeeping Tools");
+            AddTag(context, "Honey Press", "Beekeeping Tools");
+            AddTag(context, "Honey Strainer", "Beekeeping Tools");
 
             // Masonry
             AddTag(context, "Masonry Tools", "Construction Tools");

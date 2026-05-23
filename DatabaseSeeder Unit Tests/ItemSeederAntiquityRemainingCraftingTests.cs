@@ -38,13 +38,21 @@ public class ItemSeederAntiquityRemainingCraftingTests
 	public void AntiquityRemainingCrafts_SourceAuditCoversAllCurrentTargets()
 	{
 		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.Antiquity.cs");
+		var partialItemSource =
+			ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.AntiquityApiary.cs") +
+			ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.AntiquityFood.cs") +
+			ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.AntiquityHouseholdTools.cs") +
+			ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.AntiquityMedical.cs") +
+			ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.AntiquityWriting.cs");
 		var existingCraftSource =
 			ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.cs") +
 			ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.Antiquity.cs") +
 			ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.AntiquityHousehold.cs");
 		var equipmentCraftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.AntiquityEquipment.cs");
 		var jewelleryCraftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.AntiquityJewellery.cs");
-		var allCraftSource = existingCraftSource + equipmentCraftSource + jewelleryCraftSource;
+		var allCraftSource =
+			ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.cs") +
+			ReadSeederSources("ItemSeederCrafting.Antiquity*.cs");
 
 		var items = AntiquityReworkMethods
 			.SelectMany(method => ParseItemsInMethod(itemSource, method))
@@ -66,6 +74,30 @@ public class ItemSeederAntiquityRemainingCraftingTests
 
 		Assert.AreEqual(0, uncovered.Count,
 			$"Expected every antiquity prototype to be covered by an existing or new craft suite. Missing: {string.Join(", ", uncovered)}");
+
+		var partialStableReferences = ExtractExplicitStringStableReferences(partialItemSource)
+			.OrderBy(x => x, StringComparer.OrdinalIgnoreCase)
+			.ToList();
+
+		AssertContains(partialItemSource, "CreateAntiquityFoodTool");
+		AssertContains(partialItemSource, "SeedAntiquityApiaryItems");
+		AssertContains(partialItemSource, "CreateAntiquityHouseholdCraftTool");
+		AssertContains(partialItemSource, "SeedAntiquityMedicalItems");
+		AssertContains(partialItemSource, "SeedAntiquityWritingImplementsAndDocuments");
+		AssertContains(partialStableReferences, "antiquity_food_butchers_knife");
+		AssertContains(partialStableReferences, "antiquity_wicker_beehive");
+		AssertContains(partialStableReferences, "antiquity_honey_press");
+		AssertContains(partialStableReferences, "antiquity_food_serving_amphora");
+		AssertContains(partialStableReferences, "antiquity_food_finished_beer_amphora");
+		AssertContains(partialStableReferences, "antiquity_food_finished_spiced_kumis_amphora");
+
+		var uncoveredPartialReferences = partialStableReferences
+			.Where(stableReference => !IsCoveredPartialStableReference(stableReference, partialItemSource,
+				allCraftSource, equipmentCraftSource))
+			.ToList();
+
+		Assert.AreEqual(0, uncoveredPartialReferences.Count,
+			$"Expected every explicitly named item in antiquity partial seeders to be craft-covered, dynamically craftable, or a documented morph target. Missing: {string.Join(", ", uncoveredPartialReferences)}");
 	}
 
 	[TestMethod]
@@ -467,6 +499,53 @@ public class ItemSeederAntiquityRemainingCraftingTests
 		       HasRoot(item.Tags, "Market / Professional Tools / Standard Tools");
 	}
 
+	private static bool IsCoveredPartialStableReference(string stableReference, string partialItemSource,
+		string allCraftSource, string equipmentCraftSource)
+	{
+		return allCraftSource.Contains($"\"{stableReference}\"", StringComparison.Ordinal) ||
+		       IsDynamicStandardToolHelperReference(stableReference, partialItemSource, equipmentCraftSource) ||
+		       IsFoodFinishedBeverageMorphTarget(stableReference, partialItemSource);
+	}
+
+	private static bool IsDynamicStandardToolHelperReference(string stableReference, string partialItemSource,
+		string equipmentCraftSource)
+	{
+		if (!equipmentCraftSource.Contains("professionalToolTagIds", StringComparison.Ordinal))
+		{
+			return false;
+		}
+
+		var escapedStableReference = Regex.Escape(stableReference);
+		if (Regex.IsMatch(partialItemSource, $@"CreateAntiquityHouseholdCraftTool\(\s*""{escapedStableReference}""") &&
+		    partialItemSource.Contains("var tags = new List<string> { \"Market / Professional Tools / Standard Tools\" };", StringComparison.Ordinal))
+		{
+			return true;
+		}
+
+		if (Regex.IsMatch(partialItemSource, $@"CreateAntiquityFoodTool\(\s*""{escapedStableReference}""") &&
+		    partialItemSource.Contains("[toolTag, \"Market / Professional Tools / Standard Tools\"]", StringComparison.Ordinal))
+		{
+			return true;
+		}
+
+		if (Regex.IsMatch(partialItemSource, $@"AddWritingCraftTool\(\s*""{escapedStableReference}""") &&
+		    partialItemSource.Contains("[\"Market / Professional Tools / Standard Tools\", .. functionalTags]", StringComparison.Ordinal))
+		{
+			return true;
+		}
+
+		var itemBlock = TryExtractCallBlockContaining(partialItemSource, $"\"{stableReference}\"");
+		return itemBlock?.Contains("Market / Professional Tools / Standard Tools", StringComparison.Ordinal) == true;
+	}
+
+	private static bool IsFoodFinishedBeverageMorphTarget(string stableReference, string partialItemSource)
+	{
+		return stableReference.StartsWith("antiquity_food_finished_", StringComparison.OrdinalIgnoreCase) &&
+		       stableReference.EndsWith("_amphora", StringComparison.OrdinalIgnoreCase) &&
+		       partialItemSource.Contains($"\"{stableReference}\"", StringComparison.Ordinal) &&
+		       partialItemSource.Contains("finished is null ? null : finishedStableReference", StringComparison.Ordinal);
+	}
+
 	private static IEnumerable<string> ExpectedEquipmentStockTags()
 	{
 		return
@@ -584,6 +663,12 @@ public class ItemSeederAntiquityRemainingCraftingTests
 		Assert.IsTrue(source.Contains(expected, StringComparison.Ordinal), $"Expected source to contain: {expected}");
 	}
 
+	private static void AssertContains(IReadOnlyCollection<string> source, string expected)
+	{
+		Assert.IsTrue(source.Contains(expected, StringComparer.OrdinalIgnoreCase),
+			$"Expected source collection to contain: {expected}");
+	}
+
 	private static string ExtractCallBlockContaining(string source, string marker)
 	{
 		var start = source.IndexOf(marker, StringComparison.Ordinal);
@@ -591,6 +676,18 @@ public class ItemSeederAntiquityRemainingCraftingTests
 		var end = source.IndexOf(");", start, StringComparison.Ordinal);
 		Assert.IsTrue(end >= 0, $"Could not find end of source block for {marker}.");
 		return source[start..end];
+	}
+
+	private static string? TryExtractCallBlockContaining(string source, string marker)
+	{
+		var start = source.IndexOf(marker, StringComparison.Ordinal);
+		if (start < 0)
+		{
+			return null;
+		}
+
+		var end = source.IndexOf(");", start, StringComparison.Ordinal);
+		return end < 0 ? null : source[start..end];
 	}
 
 	private static HashSet<string> ExtractLiteralCommodityProductTags(string source)
@@ -625,6 +722,14 @@ public class ItemSeederAntiquityRemainingCraftingTests
 	{
 		return Regex.Matches(source, @"\b(?:antiquity|adjacent_antiquity|jewellery)_[a-z0-9_]+\b")
 			.Select(x => x.Value)
+			.ToHashSet(StringComparer.OrdinalIgnoreCase);
+	}
+
+	private static HashSet<string> ExtractExplicitStringStableReferences(string source)
+	{
+		return Regex.Matches(source,
+				@"""(?<stable>(?:antiquity|adjacent_antiquity|jewellery)_[a-z0-9]+(?:_[a-z0-9]+)+)""")
+			.Select(x => x.Groups["stable"].Value)
 			.ToHashSet(StringComparer.OrdinalIgnoreCase);
 	}
 

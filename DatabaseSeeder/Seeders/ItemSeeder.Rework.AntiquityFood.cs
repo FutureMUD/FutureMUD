@@ -276,6 +276,9 @@ public partial class ItemSeeder
 		CreateAntiquityFoodTool("antiquity_food_winnowing_basket", "basket", "a broad woven winnowing basket",
 			"A broad, shallow basket for tossing grain and chaff into a breeze.", SizeCategory.Normal, 900, "willow",
 			"Functions / Tools / Agricultural Tools / Winnowing Basket");
+		CreateAntiquityFoodTool("antiquity_food_pitchfork", "fork", "a long wooden pitchfork",
+			"A long-handled wooden fork used to turn straw, fodder and compost heaps.", SizeCategory.Normal, 2200,
+			"oak", "Functions / Tools / Agricultural Tools / Pitchfork");
 		CreateAntiquityFoodTool("antiquity_food_quern", "quern", "a heavy rotary hand quern",
 			"A paired stone quern for grinding cleaned grain into flour or meal.", SizeCategory.Large, 18000, "basalt",
 			"Functions / Tools / Foodmaking Tools / Hand Quern");
@@ -321,16 +324,51 @@ public partial class ItemSeeder
 			"Bitter fruit has been cured in brine until it is ready to eat.", "olive",
 			"PreparedFood_Antiquity_BrinedFruit");
 
-		var beerFinished = CreateAntiquityFoodVessel("antiquity_food_finished_beer_amphora", "amphora", "an amphora of finished barley beer",
-			"A sealed amphora marked as containing finished barley beer.", "fired clay", "LContainer_Amphora_Congius",
-			$"{AntiquityFoodVesselTagPath} / Beverage Serving Vessel");
-		CreateItem("antiquity_food_fermenting_beer_amphora", "amphora", "a sealed beer-fermenting amphora", null,
-			"A sealed amphora with a fermenting grain mash inside it.", SizeCategory.Large, ItemQuality.Standard, 5200, 12M,
-			false, false, "fired clay",
-			[$"{AntiquityFoodRootTagPath} / Fermenting Foods", $"{AntiquityFoodVesselTagPath} / Fermenting Vessel"],
-			["Holdable", "Destroyable_Misc", "LContainer_Amphora_Congius"],
-			beerFinished is null ? null : "antiquity_food_finished_beer_amphora",
-			"$0 finishes fermenting into $1.", TimeSpan.FromDays(3), null);
+		CreateAntiquityFermentingFoodVessel("antiquity_food_fermenting_beer_amphora",
+			"antiquity_food_finished_beer_amphora", "a sealed beer-fermenting amphora",
+			"A sealed amphora with a fermenting grain mash inside it.",
+			"an amphora of finished barley beer", "A sealed amphora marked as containing finished barley beer.",
+			"$0 finishes fermenting into $1.", TimeSpan.FromDays(3));
+		CreateAntiquityFermentingFoodVessel("antiquity_food_fermenting_date_beer_amphora",
+			"antiquity_food_finished_date_beer_amphora", "a sealed date-beer-fermenting amphora",
+			"A sealed amphora with date-sweetened grain wort fermenting inside it.",
+			"an amphora of finished date beer", "A sealed amphora marked as containing finished date beer.",
+			"$0 finishes fermenting into $1.", TimeSpan.FromDays(3));
+		CreateAntiquityFermentingFoodVessel("antiquity_food_fermenting_red_wine_amphora",
+			"antiquity_food_finished_red_wine_amphora", "a sealed red-wine-fermenting amphora",
+			"A sealed amphora with pressed red fruit must fermenting inside it.",
+			"an amphora of finished red wine", "A sealed amphora marked as containing finished red wine.",
+			"$0 finishes fermenting into $1.", TimeSpan.FromDays(14));
+		CreateAntiquityFermentingFoodVessel("antiquity_food_fermenting_white_wine_amphora",
+			"antiquity_food_finished_white_wine_amphora", "a sealed white-wine-fermenting amphora",
+			"A sealed amphora with pale fruit must fermenting inside it.",
+			"an amphora of finished white wine", "A sealed amphora marked as containing finished white wine.",
+			"$0 finishes fermenting into $1.", TimeSpan.FromDays(14));
+		CreateAntiquityFermentingFoodVessel("antiquity_food_fermenting_kumis_amphora",
+			"antiquity_food_finished_kumis_amphora", "a sealed kumis-fermenting amphora",
+			"A sealed amphora with milk fermenting into tart kumis inside it.",
+			"an amphora of finished kumis", "A sealed amphora marked as containing finished kumis.",
+			"$0 finishes fermenting into $1.", TimeSpan.FromDays(2));
+		CreateAntiquityFermentingFoodVessel("antiquity_food_fermenting_garum_amphora",
+			"antiquity_food_finished_garum_amphora", "a sealed fish-sauce-fermenting amphora",
+			"A sealed amphora packed with salted fish fermenting into sauce.",
+			"an amphora of finished garum sauce", "A sealed amphora marked as containing finished garum sauce.",
+			"$0 finishes fermenting into $1.", TimeSpan.FromDays(10));
+		CreateAntiquityFermentingFoodVessel("antiquity_food_aging_spiced_wine_amphora",
+			"antiquity_food_finished_spiced_wine_amphora", "a sealed spiced-wine-aging amphora",
+			"A sealed amphora where wine, honey and spice are settling together.",
+			"an amphora of aged spiced wine", "A sealed amphora marked as containing aged spiced wine.",
+			"$0 finishes steeping into $1.", TimeSpan.FromDays(2));
+		CreateAntiquityFermentingFoodVessel("antiquity_food_aging_spiced_beer_amphora",
+			"antiquity_food_finished_spiced_beer_amphora", "a sealed spiced-beer-aging amphora",
+			"A sealed amphora where beer, honey and spice are settling together.",
+			"an amphora of aged spiced beer", "A sealed amphora marked as containing aged spiced beer.",
+			"$0 finishes steeping into $1.", TimeSpan.FromDays(2));
+		CreateAntiquityFermentingFoodVessel("antiquity_food_aging_spiced_kumis_amphora",
+			"antiquity_food_finished_spiced_kumis_amphora", "a sealed spiced-kumis-aging amphora",
+			"A sealed amphora where kumis, honey and spice are settling together.",
+			"an amphora of aged spiced kumis", "A sealed amphora marked as containing aged spiced kumis.",
+			"$0 finishes steeping into $1.", TimeSpan.FromDays(2));
 
 		foreach (var culture in AntiquityFoodCultures)
 		{
@@ -389,7 +427,8 @@ public partial class ItemSeeder
 		SizeCategory size, double weight, string material, string toolTag)
 	{
 		return CreateItem(stableReference, noun, sdesc, null, fdesc, size, ItemQuality.Standard, weight, 6M, false,
-			false, material, [toolTag], ["Holdable", "Destroyable_Misc"], null, null, null, null);
+			false, material, [toolTag, "Market / Professional Tools / Standard Tools"],
+			["Holdable", "Destroyable_Misc"], null, null, null, null);
 	}
 
 	private GameItemProto? CreateAntiquityFoodVessel(string stableReference, string noun, string sdesc, string fdesc,
@@ -397,6 +436,19 @@ public partial class ItemSeeder
 	{
 		return CreateItem(stableReference, noun, sdesc, null, fdesc, SizeCategory.Large, ItemQuality.Standard, 5000, 10M,
 			false, false, material, vesselTags, ["Holdable", "Destroyable_Misc", liquidComponent], null, null, null, null);
+	}
+
+	private GameItemProto? CreateAntiquityFermentingFoodVessel(string activeStableReference,
+		string finishedStableReference, string activeSdesc, string activeFdesc, string finishedSdesc, string finishedFdesc,
+		string morphEmote, TimeSpan morphTimer)
+	{
+		var finished = CreateAntiquityFoodVessel(finishedStableReference, "amphora", finishedSdesc, finishedFdesc,
+			"fired clay", "LContainer_Amphora_Congius", $"{AntiquityFoodVesselTagPath} / Beverage Serving Vessel");
+		return CreateItem(activeStableReference, "amphora", activeSdesc, null, activeFdesc, SizeCategory.Large,
+			ItemQuality.Standard, 5200, 12M, false, false, "fired clay",
+			[$"{AntiquityFoodRootTagPath} / Fermenting Foods", $"{AntiquityFoodVesselTagPath} / Fermenting Vessel"],
+			["Holdable", "Destroyable_Misc", "LContainer_Amphora_Congius"],
+			finished is null ? null : finishedStableReference, morphEmote, morphTimer, null);
 	}
 
 	private GameItemProto? CreateAntiquityPreparedFoodItem(string stableSuffix, string noun, string sdesc, string fdesc,

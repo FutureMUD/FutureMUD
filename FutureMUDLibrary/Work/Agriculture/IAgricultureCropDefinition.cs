@@ -13,6 +13,9 @@ public interface IAgricultureCropDefinition : IFrameworkItem, IHaveFuturemud
 	int MaximumMoisture { get; }
 	int MinimumTemperature { get; }
 	int MaximumTemperature { get; }
+	AgriculturePollinationDependency PollinationDependency { get; }
+	int PollinationHealthBonus { get; }
+	int PollinationYieldBonus { get; }
 	bool IsPerennial { get; }
 	int HarvestCycleDays { get; }
 	IReadOnlyCollection<AgriculturePlantingWindow> PlantingWindows { get; }

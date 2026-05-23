@@ -431,6 +431,7 @@
         "Material Name":  "beeswax",
         "Tags":  [
                      "Materials / Animal Product",
+                     "Materials / Animal Product / Apiary Product",
                      "Materials / Natural Materials"
                  ]
     },
@@ -1262,6 +1263,7 @@
     {
         "Material Name":  "compost",
         "Tags":  [
+                     "Materials / Animal Product / Pastoral Product / Manure Product",
                      "Materials / Natural Materials"
                  ]
     },
@@ -1773,6 +1775,15 @@
                  ]
     },
     {
+        "Material Name":  "egg",
+        "Tags":  [
+                     "Materials / Animal Product",
+                     "Materials / Animal Product / Pastoral Product",
+                     "Materials / Animal Product / Pastoral Product / Egg Product",
+                     "Materials / Natural Materials / Food"
+                 ]
+    },
+    {
         "Material Name":  "fatty flesh",
         "Tags":  [
 
@@ -1789,6 +1800,8 @@
         "Material Name":  "feces",
         "Tags":  [
                      "Materials / Animal Product",
+                     "Materials / Animal Product / Pastoral Product",
+                     "Materials / Animal Product / Pastoral Product / Manure Product",
                      "Materials / Natural Materials"
                  ]
     },
@@ -2276,6 +2289,15 @@
         "Material Name":  "honey",
         "Tags":  [
                      "Materials / Animal Product",
+                     "Materials / Animal Product / Apiary Product",
+                     "Materials / Natural Materials / Food"
+                 ]
+    },
+    {
+        "Material Name":  "honeycomb",
+        "Tags":  [
+                     "Materials / Animal Product",
+                     "Materials / Animal Product / Apiary Product",
                      "Materials / Natural Materials / Food"
                  ]
     },
@@ -2916,6 +2938,15 @@
         "Material Name":  "mild steel",
         "Tags":  [
                      "Materials / Manufactured Materials / Manufactured Metal / Modern Age"
+                 ]
+    },
+    {
+        "Material Name":  "milk",
+        "Tags":  [
+                     "Materials / Animal Product",
+                     "Materials / Animal Product / Pastoral Product",
+                     "Materials / Animal Product / Pastoral Product / Raw Milk",
+                     "Materials / Natural Materials / Food"
                  ]
     },
     {
@@ -4090,6 +4121,13 @@
                  ]
     },
     {
+        "Material Name":  "saffron crocus",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Herb",
+                     "Materials / Textile Dye"
+                 ]
+    },
+    {
         "Material Name":  "sage",
         "Tags":  [
                      "Materials / Natural Materials / Food / Herb"
@@ -5212,6 +5250,9 @@
     {
         "Material Name":  "wool",
         "Tags":  [
+                     "Materials / Animal Product",
+                     "Materials / Animal Product / Pastoral Product",
+                     "Materials / Animal Product / Pastoral Product / Raw Wool",
                      "Materials / Manufactured Materials / Fabric / Animal Fiber Fabric"
                  ]
     },

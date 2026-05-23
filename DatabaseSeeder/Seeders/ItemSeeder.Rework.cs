@@ -182,6 +182,7 @@ namespace DatabaseSeeder.Seeders
                 SeedAntiquityDoorsAndLocks();
                 SeedAntiquityHouseholdFurniture();
                 SeedAntiquityWeaponsShieldsAccessories();
+                SeedAntiquityApiaryItems();
                 SeedAntiquityFoodAndBeverageItems();
             }
 

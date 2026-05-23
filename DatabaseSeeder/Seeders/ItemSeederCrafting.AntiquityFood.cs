@@ -16,10 +16,66 @@ public partial class ItemSeeder
 			return;
 		}
 
+		SeedAntiquityFoodVesselCrafts();
 		SeedAntiquityFoodProcessingCrafts();
 		SeedAntiquityButcheryFoodCrafts();
 		SeedAntiquityBeverageCrafts();
 		SeedAntiquityCultureFoodCrafts();
+	}
+
+	private void SeedAntiquityFoodVesselCrafts()
+	{
+		AddAntiquityCraft(
+			"finish clay serving amphora",
+			"Pottery",
+			"finish a sealed clay serving amphora",
+			"finishing a clay serving amphora",
+			"a clay serving amphora being finished",
+			AncientCeramicVesselmakingKnowledge,
+			"Ceramics",
+			20,
+			Difficulty.Normal,
+			SimpleFoodPhases("$0 turn|turns $i1 on $t1 and smooth|smooths the shoulders with $t2.",
+				"$0 fire|fires and seal|seals $p1 in $t3 with prepared pitch."),
+			[
+				CommodityInput(900.0, "fired clay", "Bisque Vessel Blank"),
+				CommodityInput(80.0, "pitch", "Prepared Pitch")
+			],
+			[
+				"TagTool - InRoom - an item with the Potter's Wheel tag",
+				"TagTool - Held - an item with the Potter's Rib tag",
+				"TagTool - InRoom - an item with the Lit Kiln tag"
+			],
+			[StableSimpleProduct("antiquity_food_serving_amphora")],
+			knowledgeSubtype: "Ceramics",
+			knowledgeDescription: "Ancient ceramic vesselmaking for domestic and food-storage vessels.",
+			knowledgeLongDescription: "This knowledge covers shaping, firing, lining, and finishing ancient ceramic vessels used for household and food-production workflows.");
+
+		AddAntiquityCraft(
+			"line pitch fermenting amphora",
+			"Pottery",
+			"finish a pitch-lined fermenting amphora",
+			"lining a fermenting amphora",
+			"a fermenting amphora being lined with pitch",
+			AncientCeramicVesselmakingKnowledge,
+			"Ceramics",
+			25,
+			Difficulty.Normal,
+			SimpleFoodPhases("$0 shape|shapes the mouth and belly of $i1 on $t1, smoothing it with $t2.",
+				"$0 warm|warms prepared pitch and line|lines $p1 before setting it in $t3."),
+			[
+				CommodityInput(900.0, "fired clay", "Bisque Vessel Blank"),
+				CommodityInput(240.0, "pitch", "Prepared Pitch")
+			],
+			[
+				"TagTool - InRoom - an item with the Potter's Wheel tag",
+				"TagTool - Held - an item with the Potter's Rib tag",
+				"TagTool - InRoom - an item with the Lit Kiln tag"
+			],
+			[StableSimpleProduct("antiquity_food_fermenting_amphora")],
+			knowledgeSubtype: "Ceramics",
+			knowledgeDescription: "Ancient ceramic vesselmaking for domestic and food-storage vessels.",
+			knowledgeLongDescription: "This knowledge covers shaping, firing, lining, and finishing ancient ceramic vessels used for household and food-production workflows.");
 	}
 
 	private void SeedAntiquityFoodProcessingCrafts()
@@ -311,43 +367,33 @@ public partial class ItemSeeder
 				"$0 set|sets aside $p1 to ferment."),
 			["CommodityTag - 2 kilograms of a material tagged as Grain Crop; piletag Wort Commodity"],
 			["TagTool - Held - an item with the Fermentation Amphora tag"],
-			[$"SimpleProduct - 1x {_items["antiquity_food_fermenting_beer_amphora"].ShortDescription} (#{_items["antiquity_food_fermenting_beer_amphora"].Id})"],
+			[StableSimpleProduct("antiquity_food_fermenting_beer_amphora")],
 			[]);
 
-		AddCraft("fill amphora with barley beer", "Brewing", "fill a serving amphora with barley beer",
-			"filling an amphora with barley beer", "a beer filling task", "HasBrewing", null, null, null, brewing,
-			Difficulty.Easy, Outcome.MinorFail, 5, 1, false,
-			SimpleFoodPhases("$0 strain|strains beer into $p1.",
-				"$0 seal|seals the beer amphora."),
-			["CommodityTag - 2 kilograms of a material tagged as Grain Crop; piletag Wort Commodity"],
-			[],
-			[$"LiquidProduct - 1x {_items["antiquity_food_serving_amphora"].ShortDescription} (#{_items["antiquity_food_serving_amphora"].Id}) filled with 3 litres of barley beer"],
-			[]);
-
-		AddCraft("fill amphora with date beer", "Brewing", "fill a serving amphora with date beer",
-			"filling an amphora with date beer", "a date beer filling task", "HasBrewing", null, null, null, brewing,
-			Difficulty.Easy, Outcome.MinorFail, 5, 1, false,
-			SimpleFoodPhases("$0 strain|strains date beer into $p1.",
-				"$0 seal|seals the date beer amphora."),
+		AddCraft("fill date beer fermenting amphora", "Brewing", "fill a date beer fermenting amphora",
+			"filling a date beer fermenting amphora", "a date beer fermentation task", "HasBrewing", null, null, null,
+			brewing, Difficulty.Normal, Outcome.MinorFail, 5, 2, false,
+			SimpleFoodPhases("$0 pour|pours $i1 and $i2 into $t1 and seal|seals it.",
+				"$0 set|sets aside $p1 to ferment."),
 			[
 				"CommodityTag - 1 kilogram of a material tagged as Grain Crop; piletag Wort Commodity",
 				"Commodity - 500 grams of date"
 			],
-			[],
-			[$"LiquidProduct - 1x {_items["antiquity_food_serving_amphora"].ShortDescription} (#{_items["antiquity_food_serving_amphora"].Id}) filled with 3 litres of date beer"],
+			["TagTool - Held - an item with the Fermentation Amphora tag"],
+			[StableSimpleProduct("antiquity_food_fermenting_date_beer_amphora")],
 			[]);
 
 		AddCraft("fill amphora with fish sauce", "Food Processing", "fill an amphora with fermented fish sauce",
 			"filling an amphora with fish sauce", "a fish sauce filling task", "HasCooking", null, null, null, cooking,
 			Difficulty.Normal, Outcome.MinorFail, 5, 2, false,
 			SimpleFoodPhases("$0 pack|packs fish and salt down for fermentation.",
-				"$0 strain|strains the sauce into $p1."),
+				"$0 seal|seals the fish sauce in $p1 to ferment."),
 			[
 				"CommodityTag - 1 kilogram of a material tagged as Meat; piletag Raw Meat Commodity",
 				"Commodity - 300 grams of salt"
 			],
-			[],
-			[$"LiquidProduct - 1x {_items["antiquity_food_serving_amphora"].ShortDescription} (#{_items["antiquity_food_serving_amphora"].Id}) filled with 3 litres of garum sauce"],
+			["TagTool - Held - an item with the Fermentation Amphora tag"],
+			[StableSimpleProduct("antiquity_food_fermenting_garum_amphora")],
 			[]);
 	}
 
@@ -527,28 +573,33 @@ public partial class ItemSeeder
 			difficulty: Difficulty.Hard);
 
 		AddCultureFoodCraft(culture, $"fill {culture.Display.ToLowerInvariant()} beverage amphora", "fill a staple beverage amphora",
-			"filling a beverage amphora", "a beverage filling task",
+			"filling a beverage amphora", "a beverage fermentation task",
 			[
 				CultureBeverageStockInput(culture, 1200.0, 1000.0)
 			],
-			[],
-			$"LiquidProduct - 1x {_items["antiquity_food_serving_amphora"].ShortDescription} (#{_items["antiquity_food_serving_amphora"].Id}) filled with 3 litres of {culture.BeverageLiquid}",
-			brewing);
+			["TagTool - Held - an item with the Fermentation Amphora tag"],
+			StableSimpleProduct(CultureBeverageFermentingStableReference(culture)),
+			brewing,
+			phases: SimpleFoodPhases("$0 pour|pours the beverage stock into $t1 and seal|seals it.",
+				"$0 set|sets aside $p1 to ferment."));
 
 		AddCultureFoodCraft(culture, $"fill {culture.Display.ToLowerInvariant()} spiced beverage amphora",
 			"fill a luxury spiced beverage amphora", "filling a spiced beverage amphora",
-			"a spiced beverage filling task",
+			"a spiced beverage aging task",
 			[
 				CultureBeverageStockInput(culture, 1200.0, 1000.0),
 				"Commodity - 250 grams of honey",
 				"Commodity - 15 grams of coriander"
 			],
-			["TagTool - Held - an item with the Mortar and Pestle tag"],
-			$"LiquidProduct - 1x {_items["antiquity_food_serving_amphora"].ShortDescription} (#{_items["antiquity_food_serving_amphora"].Id}) filled with 3 litres of {CultureLuxuryBeverageLiquid(culture)}",
+			[
+				"TagTool - Held - an item with the Mortar and Pestle tag",
+				"TagTool - Held - an item with the Fermentation Amphora tag"
+			],
+			StableSimpleProduct(CultureLuxuryBeverageAgingStableReference(culture)),
 			brewing,
 			phases: LuxuryFoodPhases("$0 bruise|bruises $i3 in $t1 and stir|stirs it with honey.",
 				"$0 blend|blends the sweet spice into the beverage stock.",
-				"$0 strain|strains the luxury drink into $p1 and seal|seals it."),
+				"$0 strain|strains the luxury drink into $t2 and set|sets aside $p1 to age."),
 			difficulty: Difficulty.Hard);
 	}
 
@@ -576,6 +627,11 @@ public partial class ItemSeeder
 
 	private string CultureBeverageStockInput(AntiquityFoodCultureSpec culture, double wineFruitGrams, double wortGrams)
 	{
+		if (culture.BeverageLiquid.Contains("kumis", StringComparison.OrdinalIgnoreCase))
+		{
+			return "LiquidUse - 3 litres of milk";
+		}
+
 		return culture.BeverageLiquid.Contains("wine", StringComparison.OrdinalIgnoreCase)
 			? $"Commodity - {FormatCommodityAmount(wineFruitGrams)} of {culture.SweetMaterial}; piletag Fruit Must Commodity"
 			: $"CommodityTag - {FormatCommodityAmount(wortGrams)} of a material tagged as Grain Crop; piletag Wort Commodity";
@@ -594,6 +650,41 @@ public partial class ItemSeeder
 		}
 
 		return "spiced beer";
+	}
+
+	private static string CultureBeverageFermentingStableReference(AntiquityFoodCultureSpec culture)
+	{
+		if (culture.BeverageLiquid.Equals("red wine", StringComparison.OrdinalIgnoreCase))
+		{
+			return "antiquity_food_fermenting_red_wine_amphora";
+		}
+
+		if (culture.BeverageLiquid.Equals("white wine", StringComparison.OrdinalIgnoreCase))
+		{
+			return "antiquity_food_fermenting_white_wine_amphora";
+		}
+
+		if (culture.BeverageLiquid.Contains("date beer", StringComparison.OrdinalIgnoreCase))
+		{
+			return "antiquity_food_fermenting_date_beer_amphora";
+		}
+
+		if (culture.BeverageLiquid.Contains("kumis", StringComparison.OrdinalIgnoreCase))
+		{
+			return "antiquity_food_fermenting_kumis_amphora";
+		}
+
+		return "antiquity_food_fermenting_beer_amphora";
+	}
+
+	private static string CultureLuxuryBeverageAgingStableReference(AntiquityFoodCultureSpec culture)
+	{
+		return CultureLuxuryBeverageLiquid(culture) switch
+		{
+			"spiced wine" => "antiquity_food_aging_spiced_wine_amphora",
+			"spiced kumis" => "antiquity_food_aging_spiced_kumis_amphora",
+			_ => "antiquity_food_aging_spiced_beer_amphora"
+		};
 	}
 
 	private string CookedProduct(string stableReference, string ingredientOptions)

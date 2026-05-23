@@ -309,7 +309,8 @@ Admin Syntax:
 		}
 
 		var operation = actor.Gameworld.AgricultureOperations
-		                     .Where(x => x.OperationType == AgricultureOperationType.Harvest)
+		                     .Where(x => x.OperationType is AgricultureOperationType.Harvest or AgricultureOperationType.HarvestApiary)
+		                     .OrderBy(x => x.OperationType == AgricultureOperationType.Harvest ? 0 : 1)
 		                     .FirstOrDefault(x => field.CanBeginOperation(actor, x, null, out _));
 		if (operation == null)
 		{
@@ -1007,9 +1008,20 @@ Harvest Window: {crop.HarvestWindowDays.ToString("N0", actor).ColourValue()}
 Planting: {DescribePlantingWindows(crop.PlantingWindows, actor)}
 Moisture: {crop.MinimumMoisture.ToString("N0", actor).ColourValue()} to {crop.MaximumMoisture.ToString("N0", actor).ColourValue()}
 Temperature: {crop.MinimumTemperature.ToString("N0", actor).ColourValue()} to {crop.MaximumTemperature.ToString("N0", actor).ColourValue()} C
+Pollination: {DescribePollination(crop, actor)}
 Score Ranges: {DescribeScoreRanges(crop.ScoreRanges, actor)}
 Seeds: {DescribeCommodityOutputs(crop.SeedRequirements, actor)}
 Outputs: {DescribeCommodityOutputs(crop.YieldOutputs, actor)}");
+	}
+
+	private static string DescribePollination(IAgricultureCropDefinition crop, ICharacter actor)
+	{
+		if (crop.PollinationDependency == AgriculturePollinationDependency.None)
+		{
+			return "None".ColourError();
+		}
+
+		return $"{crop.PollinationDependency.DescribeEnum().ColourName()} (+{crop.PollinationHealthBonus.ToString("N0", actor).ColourValue()} health, +{crop.PollinationYieldBonus.ToString("N0", actor).ColourValue()} yield)";
 	}
 
 	private static string DescribePlantingWindows(IReadOnlyCollection<AgriculturePlantingWindow> windows, ICharacter actor)
@@ -1073,7 +1085,7 @@ Outputs: {DescribeCommodityOutputs(crop.YieldOutputs, actor)}");
 
 		if (ss.IsFinished)
 		{
-			actor.OutputHandler.Send("Do you want to set name, description, category, growth, perennial, cycle, window, planting, moisture, temperature, or score?");
+			actor.OutputHandler.Send("Do you want to set name, description, category, growth, perennial, cycle, window, planting, moisture, temperature, pollination, or score?");
 			return;
 		}
 
@@ -1163,6 +1175,31 @@ Outputs: {DescribeCommodityOutputs(crop.YieldOutputs, actor)}");
 				concrete.BuildingSetTemperatureRange(minTemperature, maxTemperature);
 				actor.OutputHandler.Send("You update the crop temperature range.");
 				return;
+			case "pollination":
+			case "pollinate":
+				if (ss.IsFinished || !Enum.TryParse<AgriculturePollinationDependency>(ss.PopSpeech(), true, out var dependency))
+				{
+					actor.OutputHandler.Send($"Valid pollination dependencies are {Enum.GetValues(typeof(AgriculturePollinationDependency)).OfType<AgriculturePollinationDependency>().Select(x => x.DescribeEnum().ColourName()).ListToString()}.");
+					return;
+				}
+
+				var healthBonus = dependency == AgriculturePollinationDependency.Beneficial ? 0 : 1;
+				var yieldBonus = dependency == AgriculturePollinationDependency.Beneficial ? 1 : 2;
+				if (!ss.IsFinished && (!int.TryParse(ss.PopSpeech(), out healthBonus) || healthBonus < 0 || healthBonus > 1))
+				{
+					actor.OutputHandler.Send("The pollination health bonus must be 0 or 1.");
+					return;
+				}
+
+				if (!ss.IsFinished && (!int.TryParse(ss.PopSpeech(), out yieldBonus) || yieldBonus < 0 || yieldBonus > 2))
+				{
+					actor.OutputHandler.Send("The pollination yield bonus must be 0, 1, or 2.");
+					return;
+				}
+
+				concrete.BuildingSetPollination(dependency, healthBonus, yieldBonus);
+				actor.OutputHandler.Send($"You set crop pollination to {DescribePollination(concrete, actor)}.");
+				return;
 			case "score":
 			case "scorerange":
 			case "range":
@@ -1210,7 +1247,7 @@ Outputs: {DescribeCommodityOutputs(crop.YieldOutputs, actor)}");
 				return;
 		}
 
-		actor.OutputHandler.Send("Do you want to set name, description, category, growth, perennial, cycle, window, planting, moisture, temperature, or score?");
+		actor.OutputHandler.Send("Do you want to set name, description, category, growth, perennial, cycle, window, planting, moisture, temperature, pollination, or score?");
 	}
 
 	private static void SetCropPlanting(ICharacter actor, AgricultureCropDefinition crop, StringStack ss)
@@ -1343,6 +1380,7 @@ Outputs: {DescribeCommodityOutputs(crop.YieldOutputs, actor)}");
 Animal Units: {herd.AnimalUnits.ToString("N2", actor).ColourValue()}
 Daily Graze: {herd.DailyGraze.ToString("N2", actor).ColourValue()}
 Maximum Condition: {herd.MaximumCondition.ToString("N0", actor).ColourValue()}
+Secondary Outputs: {DescribeCommodityOutputs(herd.SecondaryOutputs, actor)}
 NPC Template: {(herd.NpcTemplate?.Name ?? "None").ColourName()}");
 	}
 
@@ -1380,7 +1418,7 @@ NPC Template: {(herd.NpcTemplate?.Name ?? "None").ColourName()}");
 
 		if (ss.IsFinished)
 		{
-			actor.OutputHandler.Send("Do you want to set name, description, animalunits, graze, condition, or npc?");
+			actor.OutputHandler.Send("Do you want to set name, description, animalunits, graze, condition, output, or npc?");
 			return;
 		}
 
@@ -1427,6 +1465,11 @@ NPC Template: {(herd.NpcTemplate?.Name ?? "None").ColourName()}");
 				concrete.BuildingSetMaximumCondition(condition);
 				actor.OutputHandler.Send($"You set maximum condition to {concrete.MaximumCondition.ToStringN0Colour(actor)}.");
 				return;
+			case "output":
+			case "outputs":
+			case "secondary":
+				SetHerdDefinitionOutput(actor, concrete, ss);
+				return;
 			case "npc":
 			case "template":
 				if (ss.IsFinished)
@@ -1454,7 +1497,66 @@ NPC Template: {(herd.NpcTemplate?.Name ?? "None").ColourName()}");
 				return;
 		}
 
-		actor.OutputHandler.Send("Do you want to set name, description, animalunits, graze, condition, or npc?");
+		actor.OutputHandler.Send("Do you want to set name, description, animalunits, graze, condition, output, or npc?");
+	}
+
+	private static void SetHerdDefinitionOutput(ICharacter actor, AgricultureHerdDefinition herd, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Syntax: field herds set <herd> output clear|add <weight grams> <material> [tag <tag>]");
+			return;
+		}
+
+		switch (ss.PopSpeech().ToLowerInvariant())
+		{
+			case "clear":
+				herd.BuildingSetSecondaryOutputs(Array.Empty<AgricultureCommodityYield>());
+				actor.OutputHandler.Send("You clear the secondary product outputs for this herd definition.");
+				return;
+			case "add":
+				if (ss.IsFinished || !double.TryParse(ss.PopSpeech(), out var weight) || weight <= 0.0)
+				{
+					actor.OutputHandler.Send("What positive output weight in grams should each head produce at full condition?");
+					return;
+				}
+
+				var tagName = string.Empty;
+				var remaining = ss.SafeRemainingArgument;
+				var tagIndex = remaining.LastIndexOf(" tag ", StringComparison.InvariantCultureIgnoreCase);
+				if (tagIndex >= 0)
+				{
+					tagName = remaining[(tagIndex + 5)..].Trim().Trim('"');
+					remaining = remaining[..tagIndex].Trim();
+				}
+
+				if (string.IsNullOrWhiteSpace(remaining))
+				{
+					actor.OutputHandler.Send("Which material should this secondary output use?");
+					return;
+				}
+
+				if (actor.Gameworld.Materials.GetByName(remaining) == null)
+				{
+					actor.OutputHandler.Send("There is no such material.");
+					return;
+				}
+
+				if (!string.IsNullOrWhiteSpace(tagName) && actor.Gameworld.Tags.GetByName(tagName) == null)
+				{
+					actor.OutputHandler.Send("There is no such tag.");
+					return;
+				}
+
+				herd.BuildingSetSecondaryOutputs(herd.SecondaryOutputs.Concat(new[]
+				{
+					new AgricultureCommodityYield(remaining, weight, tagName)
+				}));
+				actor.OutputHandler.Send($"You add {actor.Gameworld.UnitManager.DescribeMostSignificantExact(weight, MudSharp.Framework.Units.UnitType.Mass, actor).ColourValue()} of {remaining.ColourName()} per head to this herd's secondary outputs.");
+				return;
+		}
+
+		actor.OutputHandler.Send("Syntax: field herds set <herd> output clear|add <weight grams> <material> [tag <tag>]");
 	}
 
 	private static void DeleteHerdDefinition(ICharacter actor, StringStack ss)
@@ -1713,10 +1815,13 @@ Outputs: {DescribeCommodityOutputs(woodland.YieldOutputs, actor)}");
 Type: {operation.OperationType.DescribeEnum().ColourName()}
 Target: {operation.TargetType.DescribeEnum().ColourName()}
 Required Use: {operation.RequiredUse.DescribeEnum().ColourName()}
+Allowed Uses: {operation.AllowedUses.OrderBy(x => (int)x).Select(x => x.DescribeEnum().ColourName()).ListToString()}
 Result Use: {operation.ResultUse.DescribeEnum().ColourName()}
 Project: {(operation.Project?.Name ?? "None").ColourName()}
 Completion Prog: {(operation.CompletionProg?.FunctionName ?? "None").ColourName()}
 Woodland Yield: x{operation.WoodlandYieldMultiplier.ToString("N2", actor).ColourValue()}, consumes {operation.WoodlandYieldCost.ToString("N0", actor).ColourValue()} yield
+Herd Yield: x{operation.HerdYieldMultiplier.ToString("N2", actor).ColourValue()}, consumes {operation.HerdYieldCost.ToString("N0", actor).ColourValue()} yield
+Apiary: install {operation.ApiaryInstallHiveCount.ToString("N0", actor).ColourValue()} hives, radius {operation.ApiaryPollinationRadius.ToString("N0", actor).ColourValue()}, tend {operation.ApiaryTendHealthDelta.ToString("N0", actor).ColourValue()}/{operation.ApiaryTendStoresDelta.ToString("N0", actor).ColourValue()}/{operation.ApiaryTendYieldDelta.ToString("N0", actor).ColourValue()}, harvest x{operation.ApiaryYieldMultiplier.ToString("N2", actor).ColourValue()} cost {operation.ApiaryYieldCost.ToString("N0", actor).ColourValue()} [{DescribeCommodityOutputs(operation.ApiaryYieldOutputs, actor)}]
 Deltas: {operation.ScoreDeltas.Where(x => x.Key.IsEnabledScore(actor.Gameworld)).OrderBy(x => x.Key).Select(x => $"{x.Key.DescribeFor(actor.Gameworld)} {x.Value.ToString("N0", actor)}").ListToString()}");
 	}
 
@@ -1770,7 +1875,7 @@ Deltas: {operation.ScoreDeltas.Where(x => x.Key.IsEnabledScore(actor.Gameworld))
 
 		if (ss.IsFinished)
 		{
-			actor.OutputHandler.Send("Do you want to set name, description, type, target, required, result, project, prog, delta, or woodlandyield?");
+			actor.OutputHandler.Send("Do you want to set name, description, type, target, required, allowed, result, project, prog, delta, woodlandyield, or herdyield?");
 			return;
 		}
 
@@ -1815,6 +1920,25 @@ Deltas: {operation.ScoreDeltas.Where(x => x.Key.IsEnabledScore(actor.Gameworld))
 
 				concrete.BuildingSetRequiredUse(requiredUse);
 				actor.OutputHandler.Send($"You set the required field use to {requiredUse.DescribeEnum().ColourName()}.");
+				return;
+			case "allowed":
+			case "allowuse":
+			case "alloweduse":
+				if (ss.IsFinished || !Enum.TryParse<AgricultureFieldUse>(ss.PopSpeech(), true, out var allowedUse))
+				{
+					actor.OutputHandler.Send($"Valid field uses are {Enum.GetValues(typeof(AgricultureFieldUse)).OfType<AgricultureFieldUse>().Select(x => x.DescribeEnum().ColourName()).ListToString()}.");
+					return;
+				}
+
+				var allowed = true;
+				if (!ss.IsFinished && !TryParseOnOff(ss.PopSpeech(), out allowed))
+				{
+					actor.OutputHandler.Send("Do you want to allow or disallow that field use?");
+					return;
+				}
+
+				concrete.BuildingSetAllowedUse(allowedUse, allowed);
+				actor.OutputHandler.Send($"You {(allowed ? "allow" : "disallow")} this operation on {allowedUse.DescribeEnum().ColourName()} fields.");
 				return;
 			case "result":
 			case "resultuse":
@@ -1897,9 +2021,19 @@ Deltas: {operation.ScoreDeltas.Where(x => x.Key.IsEnabledScore(actor.Gameworld))
 				concrete.BuildingSetWoodlandYield(multiplier, cost);
 				actor.OutputHandler.Send($"You set woodland product output to x{concrete.WoodlandYieldMultiplier.ToString("N2", actor).ColourValue()} and yield cost to {concrete.WoodlandYieldCost.ToString("N0", actor).ColourValue()}.");
 				return;
+			case "herdyield":
+				if (ss.IsFinished || !double.TryParse(ss.PopSpeech(), out var herdMultiplier) || ss.IsFinished || !int.TryParse(ss.PopSpeech(), out var herdCost))
+				{
+					actor.OutputHandler.Send("You must specify a commodity multiplier and a 0-100 herd yield cost.");
+					return;
+				}
+
+				concrete.BuildingSetHerdYield(herdMultiplier, herdCost);
+				actor.OutputHandler.Send($"You set herd product output to x{concrete.HerdYieldMultiplier.ToString("N2", actor).ColourValue()} and yield cost to {concrete.HerdYieldCost.ToString("N0", actor).ColourValue()}.");
+				return;
 		}
 
-		actor.OutputHandler.Send("Do you want to set name, description, type, target, required, result, project, prog, delta, or woodlandyield?");
+		actor.OutputHandler.Send("Do you want to set name, description, type, target, required, allowed, result, project, prog, delta, woodlandyield, or herdyield?");
 	}
 
 	private static void DeleteOperation(ICharacter actor, StringStack ss)

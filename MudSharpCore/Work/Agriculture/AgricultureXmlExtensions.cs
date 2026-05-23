@@ -51,7 +51,7 @@ internal static class AgricultureXmlExtensions
 				new XAttribute("value", Math.Clamp(x.Value, 0, 100)))));
 	}
 
-	public static HashSet<AgricultureFieldUse> LoadUses(this XElement root)
+	public static HashSet<AgricultureFieldUse> LoadUses(this XElement root, bool defaultAll = true)
 	{
 		var text = (string)root.Attribute("uses") ?? string.Empty;
 		var result = new HashSet<AgricultureFieldUse>();
@@ -63,7 +63,7 @@ internal static class AgricultureXmlExtensions
 			}
 		}
 
-		if (!result.Any())
+		if (!result.Any() && defaultAll)
 		{
 			result.Add(AgricultureFieldUse.Fallow);
 			result.Add(AgricultureFieldUse.Crop);

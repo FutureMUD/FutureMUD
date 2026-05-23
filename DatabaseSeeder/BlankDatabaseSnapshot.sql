@@ -10155,7 +10155,40 @@ CREATE INDEX `FK_AgricultureProjectContexts_Operations_idx` ON `AgricultureProje
 
 ALTER TABLE `Terrains` ADD CONSTRAINT `FK_Terrains_AgricultureFieldProfiles` FOREIGN KEY (`DefaultAgricultureFieldProfileId`) REFERENCES `AgricultureFieldProfiles` (`Id`) ON DELETE SET NULL;
 
+CREATE TABLE `CommoditySpoilageRules` (
+    `Id` bigint(20) NOT NULL AUTO_INCREMENT,
+    `Name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+    `Description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+    `Enabled` bit(1) NOT NULL DEFAULT b'1',
+    `Priority` int(11) NOT NULL DEFAULT '0',
+    `MaterialId` bigint(20) NULL,
+    `MaterialTagId` bigint(20) NULL,
+    `CommodityTagId` bigint(20) NULL,
+    `ResultMaterialId` bigint(20) NOT NULL,
+    `ResultCommodityTagId` bigint(20) NULL,
+    `SecondsUntilSpoiled` bigint(20) NOT NULL,
+    `SpoilEcho` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL,
+    CONSTRAINT `PRIMARY` PRIMARY KEY (`Id`),
+    CONSTRAINT `FK_CommoditySpoilageRules_CommodityTags` FOREIGN KEY (`CommodityTagId`) REFERENCES `Tags` (`Id`) ON DELETE SET NULL,
+    CONSTRAINT `FK_CommoditySpoilageRules_MaterialTags` FOREIGN KEY (`MaterialTagId`) REFERENCES `Tags` (`Id`) ON DELETE SET NULL,
+    CONSTRAINT `FK_CommoditySpoilageRules_Materials` FOREIGN KEY (`MaterialId`) REFERENCES `Materials` (`Id`) ON DELETE SET NULL,
+    CONSTRAINT `FK_CommoditySpoilageRules_ResultMaterials` FOREIGN KEY (`ResultMaterialId`) REFERENCES `Materials` (`Id`) ON DELETE CASCADE,
+    CONSTRAINT `FK_CommoditySpoilageRules_ResultTags` FOREIGN KEY (`ResultCommodityTagId`) REFERENCES `Tags` (`Id`) ON DELETE SET NULL
+) CHARACTER SET=utf8mb4;
+
+CREATE INDEX `FK_CommoditySpoilageRules_CommodityTags_idx` ON `CommoditySpoilageRules` (`CommodityTagId`);
+
+CREATE INDEX `FK_CommoditySpoilageRules_MaterialTags_idx` ON `CommoditySpoilageRules` (`MaterialTagId`);
+
+CREATE INDEX `FK_CommoditySpoilageRules_Materials_idx` ON `CommoditySpoilageRules` (`MaterialId`);
+
+CREATE INDEX `FK_CommoditySpoilageRules_ResultMaterials_idx` ON `CommoditySpoilageRules` (`ResultMaterialId`);
+
+CREATE INDEX `FK_CommoditySpoilageRules_ResultTags_idx` ON `CommoditySpoilageRules` (`ResultCommodityTagId`);
+
+CREATE UNIQUE INDEX `IX_CommoditySpoilageRules_Name` ON `CommoditySpoilageRules` (`Name`);
+
 INSERT INTO `__EFMigrationsHistory` (`MigrationId`, `ProductVersion`)
-VALUES ('20260520011927_AgricultureSystem', '9.0.11');
+VALUES ('20260523000000_CommoditySpoilageRules', '9.0.11');
 
 COMMIT;

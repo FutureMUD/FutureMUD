@@ -42,6 +42,7 @@ This folder is organised by subsystem so implementation notes, builder workflows
 - [Antiquity Crafting Catalogue Audit](./Crafting/Antiquity_Crafting_Audit.md)
 - [Antiquity Clothing Crafting Suite](./Crafting/Antiquity_Hellenic_Clothing_Crafting_Suite.md)
 - [Antiquity Equipment Crafting Suite](./Crafting/Antiquity_Equipment_Crafting_Suite.md)
+- [Antiquity Food and Beverage Crafting Suite](./Crafting/Antiquity_Food_Beverage_Crafting_Suite.md)
 - [Antiquity Furniture and Container Crafting Suite](./Crafting/Antiquity_Furniture_Container_Crafting_Suite.md)
 - [Antiquity Jewellery Crafting Suite](./Crafting/Antiquity_Jewellery_Crafting_Suite.md)
 - [Antiquity Medical Crafting Suite](./Crafting/Antiquity_Medical_Crafting_Suite.md)

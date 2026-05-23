@@ -374,6 +374,111 @@ public class CommodityCharacteristicRequirementTests
 	}
 
 	[TestMethod]
+	public void CommodityComponent_EvaluateSpoilageRule_ChoosesSpecificPriorityThenIdOrder()
+	{
+		ISolid material = Material(100, "meat");
+		ITag tag = Tag(200, "raw meat");
+		var lowSpecificity = SpoilageRule(10, 1, 0, TimeSpan.FromDays(10), material, tag).Object;
+		var slowerSpecific = SpoilageRule(11, 3, 5, TimeSpan.FromDays(8), material, tag).Object;
+		var best = SpoilageRule(12, 3, 0, TimeSpan.FromDays(2), material, tag).Object;
+		IFuturemud gameworld = ComponentGameworld(material, [], [], tag, [lowSpecificity, slowerSpecific, best]);
+		var component = new CommodityGameItemComponent(CommodityProto(gameworld), Parent(gameworld), true)
+		{
+			Material = material,
+			Tag = tag
+		};
+
+		var before = DateTime.UtcNow;
+		component.EvaluateSpoilageRule();
+
+		Assert.AreSame(best, component.ActiveSpoilageRule);
+		Assert.IsNotNull(component.SpoilageTime);
+		Assert.IsTrue(component.SpoilageTime.Value >= before.AddDays(2).AddSeconds(-1));
+		Assert.IsTrue(component.SpoilageTime.Value <= DateTime.UtcNow.AddDays(2).AddSeconds(1));
+	}
+
+	[TestMethod]
+	public void CommodityComponent_MergeSpoilage_PreservesEarliestCompatibleExpiry()
+	{
+		ISolid material = Material(100, "meat");
+		ITag tag = Tag(200, "raw meat");
+		var rule = SpoilageRule(10, 1, 0, TimeSpan.FromDays(2), material, tag).Object;
+		IFuturemud gameworld = ComponentGameworld(material, [], [], tag, [rule]);
+		var lhs = new CommodityGameItemComponent(CommodityProto(gameworld), Parent(gameworld), true)
+		{
+			Material = material,
+			Tag = tag
+		};
+		var rhs = new CommodityGameItemComponent(CommodityProto(gameworld), Parent(gameworld), true)
+		{
+			Material = material,
+			Tag = tag
+		};
+		var later = DateTime.UtcNow.AddDays(5);
+		var earlier = DateTime.UtcNow.AddDays(1);
+		SetSpoilage(lhs, rule, later);
+		SetSpoilage(rhs, rule, earlier);
+
+		Assert.IsTrue(lhs.CanMergeSpoilage(rhs));
+		lhs.MergeSpoilageFrom(rhs);
+
+		Assert.AreSame(rule, lhs.ActiveSpoilageRule);
+		Assert.AreEqual(earlier, lhs.SpoilageTime);
+	}
+
+	[TestMethod]
+	public void CommodityComponent_PreventsMerging_WhenSpoilageResultsAreIncompatible()
+	{
+		ISolid material = Material(100, "meat");
+		ITag tag = Tag(200, "raw meat");
+		var firstRule = SpoilageRule(10, 1, 0, TimeSpan.FromDays(2), material, tag, compatible: false).Object;
+		var secondRule = SpoilageRule(11, 1, 0, TimeSpan.FromDays(2), material, tag, compatible: false).Object;
+		IFuturemud gameworld = ComponentGameworld(material, [], [], tag, [firstRule, secondRule]);
+		var lhs = new CommodityGameItemComponent(CommodityProto(gameworld), Parent(gameworld), true)
+		{
+			Material = material,
+			Tag = tag
+		};
+		var rhs = new CommodityGameItemComponent(CommodityProto(gameworld), Parent(gameworld), true)
+		{
+			Material = material,
+			Tag = tag
+		};
+		SetSpoilage(lhs, firstRule, DateTime.UtcNow.AddDays(1));
+		SetSpoilage(rhs, secondRule, DateTime.UtcNow.AddDays(1));
+
+		Assert.IsFalse(lhs.CanMergeSpoilage(rhs));
+		Assert.IsTrue(lhs.PreventsMerging(rhs));
+	}
+
+	[TestMethod]
+	public void CommodityComponent_CheckSpoilage_ChangesMaterialAndTagAndClearsExpiry()
+	{
+		ISolid fresh = Material(100, "meat");
+		ISolid rotten = Material(101, "rotten meat");
+		ITag rawTag = Tag(200, "raw meat");
+		ITag rottenTag = Tag(201, "rotten food");
+		var rule = SpoilageRule(10, 1, 0, TimeSpan.FromDays(2), rotten, rottenTag).Object;
+		IFuturemud gameworld = ComponentGameworld(fresh, [], [], rawTag, [rule], rotten, rottenTag);
+		var component = new CommodityGameItemComponent(CommodityProto(gameworld), Parent(gameworld), true)
+		{
+			Material = fresh,
+			Tag = rawTag,
+			Weight = 250.0
+		};
+		SetSpoilage(component, rule, DateTime.UtcNow.AddMinutes(-1));
+
+		Assert.IsTrue(component.CheckSpoilage(DateTime.UtcNow));
+
+		Assert.AreSame(rotten, component.Material);
+		Assert.AreSame(rottenTag, component.Tag);
+		Assert.AreEqual(250.0, component.Weight);
+		Assert.IsNull(component.ActiveSpoilageRule);
+		Assert.IsNull(component.SpoilageTime);
+		Assert.IsFalse(component.CheckSpoilage(DateTime.UtcNow));
+	}
+
+	[TestMethod]
 	public void CommodityComponent_Decorate_RendersCharacteristicsBeforeMaterialAndTag()
 	{
 		var colour = new TestCharacteristicDefinition(1, "colour");
@@ -476,13 +581,17 @@ public class CommodityCharacteristicRequirementTests
 		ISolid material,
 		IEnumerable<ICharacteristicDefinition> definitions,
 		IEnumerable<ICharacteristicValue> values,
-		ITag tag = null)
+		ITag tag = null,
+		IEnumerable<ICommoditySpoilageRule> spoilageRules = null,
+		ISolid additionalMaterial = null,
+		ITag additionalTag = null)
 	{
 		var mock = new Mock<IFuturemud>();
-		mock.SetupGet(x => x.Materials).Returns(Repository(new[] { material }).Object);
-		mock.SetupGet(x => x.Tags).Returns(Repository(tag is null ? Array.Empty<ITag>() : new[] { tag }).Object);
+		mock.SetupGet(x => x.Materials).Returns(Repository(new[] { material, additionalMaterial }.Where(x => x is not null)).Object);
+		mock.SetupGet(x => x.Tags).Returns(Repository(new[] { tag, additionalTag }.Where(x => x is not null)).Object);
 		mock.SetupGet(x => x.Characteristics).Returns(Repository(definitions).Object);
 		mock.SetupGet(x => x.CharacteristicValues).Returns(Repository(values).Object);
+		mock.SetupGet(x => x.CommoditySpoilageRules).Returns(Repository(spoilageRules ?? Array.Empty<ICommoditySpoilageRule>()).Object);
 		mock.Setup(x => x.GetStaticDouble(It.IsAny<string>())).Returns(1000000.0);
 		return mock.Object;
 	}
@@ -513,5 +622,35 @@ public class CommodityCharacteristicRequirementTests
 				    : list.FirstOrDefault(x => x.Name.Equals(text, StringComparison.InvariantCultureIgnoreCase)));
 		mock.SetupGet(x => x.Count).Returns(list.Count);
 		return mock;
+	}
+
+	private static Mock<ICommoditySpoilageRule> SpoilageRule(long id, int specificity, int priority, TimeSpan delay,
+		ISolid resultMaterial, ITag resultTag, bool compatible = true)
+	{
+		var mock = new Mock<ICommoditySpoilageRule>();
+		mock.SetupGet(x => x.Id).Returns(id);
+		mock.SetupGet(x => x.Name).Returns($"rule {id}");
+		mock.SetupGet(x => x.FrameworkItemType).Returns("CommoditySpoilageRule");
+		mock.SetupGet(x => x.Priority).Returns(priority);
+		mock.SetupGet(x => x.SecondsUntilSpoiled).Returns(delay);
+		mock.SetupGet(x => x.ResultMaterial).Returns(resultMaterial);
+		mock.SetupGet(x => x.ResultCommodityTag).Returns(resultTag);
+		mock.SetupGet(x => x.ValidationWarnings).Returns(Array.Empty<string>());
+		mock.Setup(x => x.MatchSpecificity(It.IsAny<ICommodity>())).Returns(specificity);
+		mock.Setup(x => x.HasCompatibleResult(It.IsAny<ICommoditySpoilageRule>()))
+		    .Returns<ICommoditySpoilageRule>(other => compatible && (other is null ||
+		                                                             (other.ResultMaterial == resultMaterial &&
+		                                                              other.ResultCommodityTag == resultTag)));
+		return mock;
+	}
+
+	private static void SetSpoilage(CommodityGameItemComponent component, ICommoditySpoilageRule rule, DateTime? expiry)
+	{
+		typeof(CommodityGameItemComponent)
+			.GetField("_activeSpoilageRule", BindingFlags.Instance | BindingFlags.NonPublic)!
+			.SetValue(component, rule);
+		typeof(CommodityGameItemComponent)
+			.GetField("_spoilageTime", BindingFlags.Instance | BindingFlags.NonPublic)!
+			.SetValue(component, expiry);
 	}
 }

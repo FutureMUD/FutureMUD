@@ -144,7 +144,7 @@ public class CommodityProduct : BaseProduct
     public override ICraftProductData ProduceProduct(IActiveCraftGameItemComponent component,
         ItemQuality referenceQuality)
     {
-        IGameItem newitem = GameItems.Prototypes.CommodityGameItemComponentProto.CreateNewCommodity(Material, Weight, Tag, false,
+        IGameItem newitem = GameItems.Prototypes.CommodityGameItemComponentProto.CreateNewCommodity(DetermineOverrideMaterial(component) ?? Material, Weight, Tag, false,
             ResolveProductCharacteristics(component));
         newitem.RoomLayer = component.Parent.RoomLayer;
         Gameworld.Add(newitem);

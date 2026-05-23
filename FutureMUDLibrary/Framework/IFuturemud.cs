@@ -225,6 +225,7 @@ namespace MudSharp.Framework
         IUneditableAll<IMarketPopulation> MarketPopulations { get; }
 
         IUneditableAll<ISolid> Materials { get; }
+        IUneditableAll<ICommoditySpoilageRule> CommoditySpoilageRules { get; }
         IUneditableAll<IMerit> Merits { get; }
         IUneditableAll<IMoveSpeed> MoveSpeeds { get; }
         IUneditableAll<INameCulture> NameCultures { get; }
@@ -557,6 +558,7 @@ namespace MudSharp.Framework
         void Add(IMarketInfluenceTemplate item);
         void Add(IMarketInfluence item);
         void Add(IMarketPopulation item);
+        void Add(ICommoditySpoilageRule item);
         void RegisterPostCharacterLoadFinalisable(IPostCharacterLoadFinalisable finalisable);
 
         ICheck GetCheck(CheckType type);
@@ -713,6 +715,7 @@ namespace MudSharp.Framework
         void Destroy(IMarketCategory category);
         void Destroy(IMarketInfluenceTemplate template);
         void Destroy(IMarketInfluence influence);
+        void Destroy(ICommoditySpoilageRule item);
         void Dispose();
         void ForceOutgoingMessages();
         string ToString();

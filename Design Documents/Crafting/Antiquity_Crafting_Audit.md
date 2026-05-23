@@ -20,6 +20,7 @@ Current craft definitions are seeded from:
 | --- | --- |
 | `ItemSeederCrafting.Antiquity.cs` | Textile, leather, and older shared antiquity craft chains. |
 | `ItemSeederCrafting.AntiquityEquipment.cs` | Common clothing/accessories, equipment stock, military goods, and heat-source lighting crafts. |
+| `ItemSeederCrafting.AntiquityFood.cs` | Grain, pulse, meat, preservation, beverage, and culture-gated foodway crafts. |
 | `ItemSeederCrafting.AntiquityHousehold.cs` | Household, container, vessel, door, gate, and furnishing craft discovery. |
 | `ItemSeederCrafting.AntiquityJewellery.cs` | Jewellery stock, beads, settings, wire, and final jewellery craft discovery. |
 | `ItemSeederCrafting.AntiquityMedical.cs` | Medical supplies, remedies, surgical tools, mobility aids, and prosthetics. |
@@ -30,7 +31,8 @@ The suite-specific docs now catalogue every stable reference explicitly named by
 - 398 household/container/door/furniture targets discovered from household, writing, religious, lighting, heating, construction, and writing-product tag roots.
 - 162 jewellery targets discovered from jewellery tags and catalogued in the dedicated jewellery suite.
 - 193 military equipment targets discovered from `Market / Military Goods`, split into 76 armour prototypes and 117 weapon, shield, ammunition, sling, and accessory prototypes.
-- 395 stable references explicitly named in the current non-jewellery antiquity craft source files, plus the dynamically discovered jewellery catalogue.
+- the food and beverage suite documents the explicit `antiquity_food_` stable-reference prefix plus the shared amphora references used by `LiquidProduct` and fermentation crafts.
+- 395 stable references explicitly named in the pre-food non-jewellery antiquity craft source files, plus the dynamically discovered jewellery catalogue and the food prefix catalogue.
 
 ## Verified Invariants
 
@@ -43,6 +45,7 @@ The suite-specific docs now catalogue every stable reference explicitly named by
 - Jewellery uses a dedicated `Ancient Jewellery Crafting` knowledge gate with metal, wire, bead, and setting stock.
 - Support tools and unlit workshop apparatus are now craftable through the expanded equipment toolmaking pass.
 - Glassworking now uses a lit glory-hole furnace for hot working and a lit annealing lehr for cooling finished glass.
+- Food and beverage crafts now add commodity-first grain, pulse, meat, preservation, broth, fermented drink, condiment, and culture-gated prepared-food chains in the `ItemSeeder` rework path, assuming the butchery package has seeded its raw animal outputs.
 
 ## Second-Pass Resolution
 
@@ -51,4 +54,5 @@ The next-pass implementation resolves the earlier follow-up gaps as follows:
 - `SeedAntiquityJewelleryCrafts()` now discovers all 162 `SeedAntiquityJewellery` prototypes and `Antiquity_Jewellery_Crafting_Suite.md` catalogues every stable reference.
 - The expanded equipment craft pass discovers stock support tools from `Market / Professional Tools / Standard Tools` and explicitly includes unlit workshop apparatus. Support tools and unlit workshop apparatus are now craftable instead of remaining stock-only prerequisites.
 - Glassworking now has a glassworking glory-hole furnace pair, `antiquity_glory_hole_furnace` and `antiquity_lit_glory_hole_furnace`. Hot glassworking crafts require the lit glory-hole furnace, while annealing still requires the lit annealing lehr.
+- The food pass is kept wholly in `ItemSeeder` partials: item, liquid, prepared-food and spoilage-rule setup runs with rework items, and the matching crafts run with the normal ItemSeeder craft pass.
 - The external-catalogue risk is handled with source-backed regression tests rather than a generated file pipeline: tests parse the live seeder source, compare counts, and verify that dynamic catalogues are represented in the dedicated design documents.

@@ -558,6 +558,9 @@ return ""There is no useful clay that is accessible in the biome you're in.""");
         AddProg("HasConstruction", "Crafting", "Access", ProgVariableTypes.Boolean, "", [(ProgVariableTypes.Character, "ch")], $@"return @ch.Skills.Any(x, @x.Id == {_traits["Constructing"]?.Id ?? _traits["Construction"]?.Id ?? _traits.First().Value.Id})");
         AddProg("HasButchering", "Crafting", "Access", ProgVariableTypes.Boolean, "", [(ProgVariableTypes.Character, "ch")], $@"return @ch.Skills.Any(x, @x.Id == {_traits["Butchering"]?.Id ?? _traits["Butcher"]?.Id ?? _traits["Surviving"]?.Id ?? _traits["Survival"]?.Id ?? _traits.First().Value.Id})");
         AddProg("HasCooking", "Crafting", "Access", ProgVariableTypes.Boolean, "", [(ProgVariableTypes.Character, "ch")], $@"return @ch.Skills.Any(x, @x.Id == {_traits["Cooking"]?.Id ?? _traits["Cook"]?.Id ?? _traits["Surviving"]?.Id ?? _traits["Survival"]?.Id ?? _traits.First().Value.Id})");
+        AddProg("HasThreshing", "Crafting", "Access", ProgVariableTypes.Boolean, "", [(ProgVariableTypes.Character, "ch")], $@"return @ch.Skills.Any(x, @x.Id == {_traits["Threshing"]?.Id ?? _traits["Thresher"]?.Id ?? _traits["Farming"]?.Id ?? _traits["Agriculture"]?.Id ?? _traits.First().Value.Id})");
+        AddProg("HasMilling", "Crafting", "Access", ProgVariableTypes.Boolean, "", [(ProgVariableTypes.Character, "ch")], $@"return @ch.Skills.Any(x, @x.Id == {_traits["Milling"]?.Id ?? _traits["Miller"]?.Id ?? _traits["Cooking"]?.Id ?? _traits["Cook"]?.Id ?? _traits.First().Value.Id})");
+        AddProg("HasBrewing", "Crafting", "Access", ProgVariableTypes.Boolean, "", [(ProgVariableTypes.Character, "ch")], $@"return @ch.Skills.Any(x, @x.Id == {_traits["Brewing"]?.Id ?? _traits["Brewer"]?.Id ?? _traits["Cooking"]?.Id ?? _traits["Cook"]?.Id ?? _traits.First().Value.Id})");
         AddProg("HasBlacksmithing", "Crafting", "Access", ProgVariableTypes.Boolean, "", [(ProgVariableTypes.Character, "ch")], $@"return @ch.Skills.Any(x, @x.Id == {_traits["Blacksmithing"]?.Id ?? _traits["Blacksmith"]?.Id ?? _traits.First().Value.Id})");
         AddProg("HasWeaponcrafting", "Crafting", "Access", ProgVariableTypes.Boolean, "", [(ProgVariableTypes.Character, "ch")], $@"return @ch.Skills.Any(x, @x.Id == {_traits["Weaponcrafting"]?.Id ?? _traits["Weaponsmith"]?.Id ?? _traits.First().Value.Id})");
         AddProg("HasArmourcrafting", "Crafting", "Access", ProgVariableTypes.Boolean, "", [(ProgVariableTypes.Character, "ch")], $@"return @ch.Skills.Any(x, @x.Id == {_traits["Armourcrafting"]?.Id ?? _traits["Armourer"]?.Id ?? _traits.First().Value.Id})");
@@ -600,6 +603,8 @@ return ""There is no useful clay that is accessible in the biome you're in.""");
     private Regex TagToolRegex = new(@"^an item with the (?<tag>.+) tag$", RegexOptions.IgnoreCase);
 
     private Regex SimpleProductRegex = new(@"^(?<quantity>\d+)x (?<sdesc>.+) \(#(?<craftid>\d+)\)$", RegexOptions.IgnoreCase);
+
+    private Regex LiquidProductRegex = new(@"^(?<quantity>\d+)x (?<sdesc>.+) \(#(?<craftid>\d+)\) filled with (?:(?<litres>\d+(?:\.\d+)?) litres?)*\s*(?:(?<millilitres>\d+(?:\.\d+)?) millilitres?)* of (?<liquid>.+)$", RegexOptions.IgnoreCase);
 
     private Regex ItemReferenceRegex = new(@"^(?<sdesc>.+?)(?:\s*\(#(?<craftid>\d+)\))?$", RegexOptions.IgnoreCase);
 
@@ -1274,6 +1279,30 @@ return ""There is no useful clay that is accessible in the biome you're in.""");
         );
     }
 
+    private XElement BuildLiquidProductDefinition(string details, List<string> options)
+    {
+        Match innerMatch = RequireMatch(LiquidProductRegex, details, "Invalid liquid product definition");
+        GameItemProto? item = LookupItem(innerMatch);
+        if (item is null)
+        {
+            throw new ApplicationException("Unknown liquid product item");
+        }
+
+        double volume = ParseVolume(innerMatch);
+        if (volume <= 0.0)
+        {
+            throw new ApplicationException("Liquid product volume must be positive");
+        }
+
+        return new XElement("Definition",
+            new XElement("ProductProducedId", item.Id),
+            new XElement("Quantity", ParseIntValue(innerMatch.Groups["quantity"].Value)),
+            new XElement("Liquid", LookupLiquid(innerMatch.Groups["liquid"].Value).Id),
+            new XElement("LiquidVolume", volume),
+            new XElement("Skin", LookupSkinId(item, options))
+        );
+    }
+
     private IEnumerable<XElement> BuildSimpleVariableElements(List<string> options)
     {
         foreach (string option in options.Where(x => x.StartsWith("variable", StringComparison.OrdinalIgnoreCase)))
@@ -1443,6 +1472,11 @@ return ""There is no useful clay that is accessible in the biome you're in.""");
             case "cookedfood":
             case "cooked":
                 return ("CookedFoodProduct", BuildCookedFoodProductDefinition(craft, details, options).ToString());
+            case "liquidproduct":
+            case "liquid":
+            case "liquidoutput":
+            case "filledliquid":
+                return ("LiquidProduct", BuildLiquidProductDefinition(details, options).ToString());
             case "simplevariableproduct":
             case "simplevariable":
             case "variable":
@@ -2190,6 +2224,7 @@ return ""You need at least {minimumTraitValue.Value.ToString(System.Globalizatio
 		SeedAntiquityLeatherArmourCrafts();
 		SeedAntiquityLeatherContainerCrafts();
 		SeedAntiquityLeatherFurnishingCrafts();
+		SeedAntiquityFoodCrafts();
 
         AddCraft("sew padded vest", "Armorcrafting", "sew a padded cloth vest", "sewing a padded vest", "a padded vest armormaking event", "HasTailoring", null, null, null, _traits["Tailoring"] ?? _traits["Tailor"] ?? _traits.First().Value, Difficulty.Normal, Outcome.MinorFail, 5, 6, false, [(35, "$0 lay|lays out $i1 and begin|begins to divide it into three pieces - one large, and two smaller sheets, cutting away with $t2. Additionally, when that is done, $0 pick|picks up $t1 and thread|threads $i2 through the needle eye.", "$0 lay|lays out $i1 and begin|begins to divide it into three pieces - one large, and two smaller sheets, cutting away with $t2. Additionally, when that is done, $0 pick|picks up $t1 and thread|threads $i2 through the needle eye."), (30, "$0 set|sets aside the smaller pieces of cloth for the moment, focusing on the larger sheet. $0 further cut|cuts that larger piece into two more pieces, and then sew|sews those pieces together to form a rough sort of case.", "$0 set|sets aside the smaller pieces of cloth for the moment, focusing on the larger sheet. $0 further cut|cuts that larger piece into two more pieces, and then sew|sews those pieces together to form a rough sort of case."), (35, "$0 liberally stuff|stuffs that cloth case with $i3 until it is almost stiff and inflexible, then sew|sews it shut with $t1 to create a padded tube with a hole for someone's head, and two smaller holes for someone's arms.", "$0 liberally stuff|stuffs that cloth case with $i3 until it is almost stiff and inflexible, then sew|sews it shut with $t1 to create a padded tube with a hole for someone's head, and two smaller holes for someone's arms."), (40, "$0 turn|turns to the smaller sheets of cloth, cutting, sewing and padding these sheets until they are amply padded cloth tubes.", "$0 turn|turns to the smaller sheets of cloth, cutting, sewing and padding these sheets until they are amply padded cloth tubes."), (40, "$0 finally begin|begins to sew the padded sleeves to the shoulder arm-holes of the vest, using $i2 to tightly fix them in place.", "$0 finally begin|begins to sew the padded sleeves to the shoulder arm-holes of the vest, using $i2 to tightly fix them in place."), (40, "$0 hold|holds up $p1, checking the piece over critically before setting it aside.", "Unfortunately, shoddy craftsmanship means that $0 end|ends up shredding the terrible vest for $f1.")], ["CommodityTag - 1 kilogram 500 grams of a material tagged as Fabric", "Tag - 1x an item with the Thread tag", "Tag - 50x an item with the Padding tag"], ["TagTool - Held - an item with the Sewing Needle tag", "TagTool - Held - an item with the Scissors tag"], ["SimpleProduct - 1x a padded @material gambeson with long sleeves (#274)"], ["UnusedInput - 45.00% of 50x an item with the Padding tag ($i3)"], [(1, 1)]);
         AddCraft("sew padded cap", "Armorcrafting", "sew a padded cloth cap", "sewing a padded cap", "a padded cap armormaking event", "HasTailoring", null, null, null, _traits["Tailoring"] ?? _traits["Tailor"] ?? _traits.First().Value, Difficulty.Normal, Outcome.MinorFail, 5, 5, false, [(35, "$0 lay|lays out $i1 and begin|begins to divide it into two smaller pieces, cutting with $t2.", "$0 lay|lays out $i1 and begin|begins to divide it into two smaller pieces, cutting with $t2."), (30, "$0 set|sets aside the pattern-shaped pieces of cloth for a moment and instead reach|reaches for $t1 and $i2, threading the end of the thread through the needle.", "$0 set|sets aside the pattern-shaped pieces of cloth for a moment and instead reach|reaches for $t1 and $i2, threading the end of the thread through the needle."), (35, "$0 begin|begins to stitch the two smaller pieces of cloth together, leaving the bowl-shaped case open at one end.", "$0 begin|begins to stitch the two smaller pieces of cloth together, leaving the bowl-shaped case open at one end."), (40, "$0 begin|begins to stuff the case full of $i3 until it is stiff and firmly padded, then stitch|stitches the opening shut.", "$0 begin|begins to stuff the case full of $i3 until it is stiff and firmly padded, then stitch|stitches the opening shut."), (40, "$0 hold|holds up $p1, checking the piece over critically before setting it aside.", "Unfortunately, shoddy craftsmanship means that $0 end|ends up shredding the terrible cap for $f1.")], ["CommodityTag - 500 grams of a material tagged as Fabric", "Tag - 1x an item with the Thread tag", "Tag - 20x an item with the Padding tag"], ["TagTool - Held - an item with the Sewing Needle tag", "TagTool - Held - an item with the Scissors tag"], ["SimpleProduct - 1x a padded @material arming cap (#275)"], ["UnusedInput - 45.00% of 50x an item with the Padding tag ($i3)"], [(1, 1)]);

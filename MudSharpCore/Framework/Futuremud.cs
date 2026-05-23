@@ -43,6 +43,7 @@ using MudSharp.Framework.Save;
 using MudSharp.Framework.Scheduling;
 using MudSharp.FutureProg;
 using MudSharp.GameItems;
+using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Inventory;
 using MudSharp.GameItems.Inventory.Size;
 using MudSharp.Health;
@@ -1230,6 +1231,11 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
         _materials.Add(material);
     }
 
+    public void Add(ICommoditySpoilageRule item)
+    {
+        _commoditySpoilageRules.Add(item);
+    }
+
     public void Add(ICell cell)
     {
         _cells.Add(cell);
@@ -2229,6 +2235,11 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
     public void Destroy(ISolid material)
     {
         _materials.Remove(material);
+    }
+
+    public void Destroy(ICommoditySpoilageRule item)
+    {
+        _commoditySpoilageRules.Remove(item);
     }
 
     public void Destroy(INPCTemplate template)

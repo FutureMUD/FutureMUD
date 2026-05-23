@@ -2418,6 +2418,18 @@ For information on the syntax to use in emotes (such as those included in bracke
 #endif
         count = gases.Count;
         ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Gas" : "Gases");
+
+        ConsoleUtilities.WriteLine("\nLoading #5Commodity Spoilage Rules#0...");
+        var spoilageRules = (from item in FMDB.Context.CommoditySpoilageRules.AsNoTracking()
+                             select item).ToList();
+
+        foreach (var item in spoilageRules)
+        {
+            _commoditySpoilageRules.Add(new MudSharp.GameItems.CommoditySpoilageRule(item, this));
+        }
+
+        count = spoilageRules.Count;
+        ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Commodity Spoilage Rule" : "Commodity Spoilage Rules");
     }
 
     void IFuturemudLoader.LoadSocials()

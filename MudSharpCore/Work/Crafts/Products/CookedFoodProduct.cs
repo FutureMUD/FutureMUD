@@ -199,6 +199,20 @@ public class CookedFoodProduct : BaseProduct
 				}
 			}
 		}
+		else if (inputItem.GetItemType<ICommodity>() is { } commodity)
+		{
+			var description = CommodityIngredientDescription(commodity);
+			prepared.AddIngredient(new FoodIngredientInstance
+			{
+				Role = role,
+				Description = description,
+				TasteText = description,
+				SourceItemProtoId = inputItem.Prototype.Id,
+				MaterialId = commodity.Material.Id,
+				Weight = commodity.Weight,
+				Quality = inputItem.Quality
+			});
+		}
 		else
 		{
 			prepared.AddIngredient(new FoodIngredientInstance
@@ -222,6 +236,16 @@ public class CookedFoodProduct : BaseProduct
 		{
 			effect.TransferToFood(prepared, servingMultiplier);
 		}
+	}
+
+	private static string CommodityIngredientDescription(ICommodity commodity)
+	{
+		var materialDescription = commodity.CommodityCharacteristics.Count == 0
+			? commodity.Material.MaterialDescription
+			: $"{string.Join(" ", commodity.CommodityCharacteristics.OrderBy(x => x.Key.Name).ThenBy(x => x.Key.Id).Select(x => x.Value.GetValue.ToLowerInvariant()))} {commodity.Material.MaterialDescription}";
+		return commodity.Tag is null
+			? materialDescription
+			: $"{materialDescription} {commodity.Tag.Name.ToLowerInvariant().Pluralise()}";
 	}
 
 	public override string HowSeen(IPerceiver voyeur)

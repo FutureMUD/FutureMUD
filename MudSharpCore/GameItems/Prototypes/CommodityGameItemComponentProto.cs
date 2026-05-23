@@ -57,6 +57,7 @@ public class CommodityGameItemComponentProto : GameItemComponentProto, ICommodit
         {
             commodity.SetCommodityCharacteristic(characteristic.Definition, characteristic.Value);
         }
+        commodity.EvaluateSpoilageRule();
         return newItem;
     }
 
@@ -67,9 +68,15 @@ public class CommodityGameItemComponentProto : GameItemComponentProto, ICommodit
         {
             gameworld.DebugMessage("Commodity Pile (Residue) hourly cleanup routine started.");
             ITag residueTag = PuddleGameItemComponent.PuddleResidueTag(gameworld);
-            int affectedCount = 0, deletedCount = 0;
+            int affectedCount = 0, deletedCount = 0, spoiledCount = 0;
+            DateTime now = DateTime.UtcNow;
             foreach (CommodityGameItemComponent item in gameworld.Items.SelectNotNull(x => x.GetItemType<CommodityGameItemComponent>()).ToList())
             {
+                if (item.CheckSpoilage(now))
+                {
+                    spoiledCount += 1;
+                }
+
                 if (item.Tag != residueTag)
                 {
                     continue;
@@ -93,7 +100,7 @@ public class CommodityGameItemComponentProto : GameItemComponentProto, ICommodit
                 }
             }
 
-            gameworld.DebugMessage($"Affected #2{affectedCount:N0}#0 piles and deleted #2{deletedCount:N0}#0.".SubstituteANSIColour());
+            gameworld.DebugMessage($"Spoiled #2{spoiledCount:N0}#0 piles, affected #2{affectedCount:N0}#0 residue piles and deleted #2{deletedCount:N0}#0.".SubstituteANSIColour());
         };
     }
 

@@ -194,6 +194,7 @@ namespace MudSharp.Database
         public virtual DbSet<Clock> Clocks { get; set; }
         public virtual DbSet<Coin> Coins { get; set; }
         public virtual DbSet<Colour> Colours { get; set; }
+        public virtual DbSet<CommoditySpoilageRule> CommoditySpoilageRules { get; set; }
         public virtual DbSet<CombatAction> CombatActions { get; set; }
         public virtual DbSet<CombatMessage> CombatMessages { get; set; }
         public virtual DbSet<CombatMessagesCombatActions> CombatMessagesCombatActions { get; set; }

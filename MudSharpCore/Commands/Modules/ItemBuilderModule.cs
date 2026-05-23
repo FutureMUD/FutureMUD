@@ -165,6 +165,44 @@ The valid sub-commands and their syntaxes are as follows:
         }
         #endregion
 
+        #region Commodity Spoilage Rules
+
+        public const string CommoditySpoilageHelp = @"The commodityspoilage command is used to create, edit and view the rules that make commodity piles spoil over time.
+
+The valid subcommands and their syntaxes are as follows:
+
+	#3commodityspoilage list [<filters>]#0 - lists all commodity spoilage rules
+	#3commodityspoilage show <id|name>#0 - shows details about a commodity spoilage rule
+	#3commodityspoilage new <name>#0 - creates a new commodity spoilage rule
+	#3commodityspoilage clone <old> <new>#0 - clones an existing rule to a new rule
+	#3commodityspoilage edit <id|name>#0 - opens a rule for editing
+	#3commodityspoilage close#0 - closes the currently edited rule
+	#3commodityspoilage set <field> <value>#0 - changes the currently edited rule
+
+The editable fields are:
+
+	#3set name <name>#0 - renames the rule
+	#3set desc <description>#0 - sets the builder description
+	#3set enabled [true|false]#0 - toggles or sets whether the rule applies
+	#3set priority <number>#0 - sets match priority, with lower numbers winning ties
+	#3set material <material|none>#0 - sets or clears an exact material match
+	#3set materialtag <tag|none>#0 - sets or clears a material-tag match
+	#3set tag <tag|none>#0 - sets or clears an optional commodity pile tag
+	#3set resultmaterial <material>#0 - sets the material produced by spoilage
+	#3set resulttag <tag|none>#0 - sets or clears the output commodity pile tag
+	#3set seconds <duration>#0 - sets how long the commodity takes to spoil
+	#3set echo <text|none>#0 - sets or clears an optional room echo";
+
+        [PlayerCommand("CommoditySpoilage", "commodityspoilage", "commodspoil")]
+        [CommandPermission(PermissionLevel.Admin)]
+        [HelpInfo("commodityspoilage", CommoditySpoilageHelp, AutoHelp.HelpArgOrNoArg)]
+        protected static void CommoditySpoilage(ICharacter actor, string input)
+        {
+            GenericBuildingCommand(actor, new StringStack(input.RemoveFirstWord()), EditableItemHelper.CommoditySpoilageRuleHelper);
+        }
+
+        #endregion
+
         #region Item Component Prototypes
 
         public const string ComponentHelp = @"The component command is used to edit and view item components. Item components are shared definitions that can be added to items to give them some kind of functionality, like turning them into a container, making them into a weapon or giving them the ability to provide power.

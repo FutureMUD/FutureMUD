@@ -64,6 +64,8 @@ Cooking recipes that enable `CookedFoodProduct` purification omit propagated dru
 ## Cooking Crafts
 Cooking uses the existing craft system. `CookedFoodProduct` is a craft product type that loads a prepared-food item prototype and initializes the same runtime component from consumed craft inputs.
 
+`LiquidProduct` is the companion craft product for recipes that should create an item and fill its liquid-container component with a concrete liquid at completion time. It is used by stock beverage, broth, and condiment crafts where the product is an amphora or similar vessel already containing beer, wine, broth, or sauce. It validates that the target item has a liquid container, the target liquid exists, and the configured volume can fit.
+
 Builders can use:
 
 - `cook list`
@@ -90,3 +92,5 @@ Likewise, FutureProg `loaditem`, spell `createitem`, shop prototype loading, and
 - a sample `bake apple` craft with `CookedFoodProduct`
 
 The package is idempotent and tracks its own records by stable component names, item short descriptions, tags, and recipe names.
+
+The antiquity food and beverage package is intentionally not in `CookingSeeder`. It runs through the `ItemSeeder` rework path and assumes `AnimalButcherySeeder` output tags are already present. That package seeds grain, pulse, fruit, oilseed, meat, preservation, broth, beverage, condiment, and culture-gated foodway chains using commodity tags and `PreparedFood` recipe products. It also seeds builder-owned `CommoditySpoilageRule` rows so raw and prepared meat commodities can spoil into rotten-food commodities without requiring static JSON configuration.

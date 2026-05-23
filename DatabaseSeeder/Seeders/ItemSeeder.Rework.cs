@@ -181,6 +181,7 @@ namespace DatabaseSeeder.Seeders
                 SeedAntiquityDoorsAndLocks();
                 SeedAntiquityHouseholdFurniture();
                 SeedAntiquityWeaponsShieldsAccessories();
+                SeedAntiquityFoodAndBeverageItems();
             }
 
             if (eras.Contains("medieval", StringComparison.InvariantCultureIgnoreCase))

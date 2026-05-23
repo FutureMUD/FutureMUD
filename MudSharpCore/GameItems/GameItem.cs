@@ -2196,6 +2196,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
         if (thisCommodity != null && thatCommodity != null && CommodityCharacteristicRequirement.CommodityIdentityEqual(thisCommodity, thatCommodity))
         {
             thisCommodity.Weight += thatCommodity.Weight;
+            thisCommodity.MergeSpoilageFrom(thatCommodity);
             return;
         }
         // TODO - anything else that might occur on merging?
@@ -2397,6 +2398,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
             IGameItem newItem = CommodityGameItemComponentProto.CreateNewCommodity(commodity.Material, weight, commodity.Tag,
                 commodity.UseIndirectQuantityDescription, commodity.CommodityCharacteristics.Select(x => (x.Key, x.Value)));
             newItem.RoomLayer = RoomLayer;
+            newItem.GetItemType<ICommodity>().CopySpoilageFrom(commodity);
             commodity.Weight -= weight;
             newItem.Drop(location);
             newItem.Login();
@@ -2420,6 +2422,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
             IGameItem newItem = CommodityGameItemComponentProto.CreateNewCommodity(commodity.Material, weight, commodity.Tag,
                 commodity.UseIndirectQuantityDescription, commodity.CommodityCharacteristics.Select(x => (x.Key, x.Value)));
             newItem.RoomLayer = RoomLayer;
+            newItem.GetItemType<ICommodity>().CopySpoilageFrom(commodity);
             commodity.Weight -= weight;
             newItem.Get(getter);
             newItem.Login();
@@ -2447,6 +2450,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
             CommodityGameItemComponentProto.CreateNewCommodity(commodity.Material, weight, commodity.Tag,
                 commodity.UseIndirectQuantityDescription, commodity.CommodityCharacteristics.Select(x => (x.Key, x.Value)));
         newItem.RoomLayer = RoomLayer;
+        newItem.GetItemType<ICommodity>().CopySpoilageFrom(commodity);
         return newItem;
     }
 

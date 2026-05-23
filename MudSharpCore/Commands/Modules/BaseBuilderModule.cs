@@ -10,6 +10,7 @@ using MudSharp.Framework.Revision;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Prototypes;
+using MudSharp.NPC.Templates;
 using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Lists;
 using MudSharp.PerceptionEngine.Outputs;
@@ -567,7 +568,8 @@ If you do not wish to approve or decline, you may type {"abort edit".Colour(Teln
                         protos = protos.Where(x =>
                             x.HasKeyword(subcmd, character.Body, true) ||
                             x.Name.Contains(subcmd, StringComparison.InvariantCultureIgnoreCase) ||
-                            x is IGameItemProto itemProto && itemProto.HasBuilderSearchText(subcmd)).ToList();
+                            (x is IGameItemProto itemProto && itemProto.HasBuilderSearchText(subcmd)) ||
+                            (x is INPCTemplate npcTemplate && npcTemplate.HasBuilderSearchText(subcmd))).ToList();
                         break;
                     }
 
@@ -583,7 +585,8 @@ If you do not wish to approve or decline, you may type {"abort edit".Colour(Teln
                         protos = protos.Where(x =>
                             !x.HasKeyword(subcmd, character.Body, true) &&
                             !x.Name.Contains(subcmd, StringComparison.InvariantCultureIgnoreCase) &&
-                            (x is not IGameItemProto itemProto || !itemProto.HasBuilderSearchText(subcmd))).ToList();
+                            (x is not IGameItemProto itemProto || !itemProto.HasBuilderSearchText(subcmd)) &&
+                            (x is not INPCTemplate npcTemplate || !npcTemplate.HasBuilderSearchText(subcmd))).ToList();
                         break;
                     }
 

@@ -1944,9 +1944,7 @@ div.function-generalhelp {
             return;
         }
 
-        INPCTemplate template = long.TryParse(ss.PopSpeech(), out long value)
-            ? actor.Gameworld.NpcTemplates.Get(value)
-            : actor.Gameworld.NpcTemplates.GetByName(ss.Last, true);
+        INPCTemplate template = actor.Gameworld.NpcTemplates.GetByIdOrUniqueNameOrName(ss.SafeRemainingArgument);
 
         if (template == null)
         {

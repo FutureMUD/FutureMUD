@@ -146,7 +146,7 @@ field herd absorb <npc> <herd>
 field herd drive <herd> <direction> [count]
 ```
 
-Drawdown requires the herd definition to have an NPC template. Absorb is for turning live livestock back into abstract field stock after validation.
+Drawdown requires the herd definition to have an NPC template. Builders may select that template by numeric id or by its unique template name. Absorb is for turning live livestock back into abstract field stock after validation.
 
 Driving a herd moves abstract animals from the current field into an adjacent field through the named exit. Omit the count, or use `all`, to move the whole herd. The destination field must already exist, support pasture use, and be fallow or pasture. Herders can drive animals into unowned fields or fields they are authorised to use, which allows wild grazing grounds and semi-nomadic pastoral movement without making owned fields freely available.
 

@@ -1,5 +1,6 @@
 ﻿using MudSharp.Framework.Revision;
 using MudSharp.GameItems;
+using MudSharp.NPC.Templates;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -139,6 +140,13 @@ public class RevisableAll<T> : IRevisableAll<T>, IUneditableRevisableAll<T> wher
                    .GetByIdOrUniqueNameOrName(value, permitAbbreviations) as T;
         }
 
+        if (typeof(INPCTemplate).IsAssignableFrom(typeof(T)))
+        {
+            return _iterlist
+                   .Cast<INPCTemplate>()
+                   .GetByIdOrUniqueNameOrName(value, permitAbbreviations) as T;
+        }
+
         if (long.TryParse(value, out long id))
         {
             return Get(id);
@@ -170,6 +178,14 @@ public class RevisableAll<T> : IRevisableAll<T>, IUneditableRevisableAll<T> wher
         {
             var match = _iterlist
                         .Cast<IGameItemProto>()
+                        .GetByIdOrUniqueNameOrName(value, permitAbbreviations);
+            return match is null ? [] : GetAll(match.Id);
+        }
+
+        if (typeof(INPCTemplate).IsAssignableFrom(typeof(T)))
+        {
+            var match = _iterlist
+                        .Cast<INPCTemplate>()
                         .GetByIdOrUniqueNameOrName(value, permitAbbreviations);
             return match is null ? [] : GetAll(match.Id);
         }

@@ -15,6 +15,8 @@ namespace MudSharp.NPC.Templates
     public interface INPCTemplate : IEditableRevisableItem
     {
         string NPCTemplateType { get; }
+        string? UniqueName { get; }
+        string? BuilderNotes { get; }
         IFutureProg? OnLoadProg { get; }
         IHealthStrategy? HealthStrategy { get; }
         ICharacterCombatSettings? DefaultCombatSetting { get; }

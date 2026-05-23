@@ -105,6 +105,7 @@ internal class EditableRevisableItemHelper
                                new[]
                                {
                                    item.Id.ToString(character), item.RevisionNumber.ToString(character),
+                                   item.UniqueName ?? "",
                                    item.Name.Proper(),
                                    item.Keywords.ListToString(separator: ", ", conjunction: "", twoItemJoiner: ""),
                                    item.NPCTemplateType,
@@ -114,13 +115,14 @@ internal class EditableRevisableItemHelper
                 }
             },
             GetReviewTableHeaderFunc =
-                character => new[] { "ID#", "Rev#", "Name", "Keywords", "Type", "Builder", "Comment" },
+                character => new[] { "ID#", "Rev#", "Unique Name", "Name", "Keywords", "Type", "Builder", "Comment" },
             GetListTableContentsFunc = (character, items) => from item in items.OfType<INPCTemplate>()
                                                              select
                                                                  new[]
                                                                  {
                                                                      item.Id.ToString(character),
                                                                      item.RevisionNumber.ToString(character),
+                                                                     item.UniqueName ?? "",
                                                                      item.Name.Proper(),
                                                                      item.NPCTemplateType,
                                                                      item.Status.Describe(),
@@ -128,7 +130,7 @@ internal class EditableRevisableItemHelper
                                                                               .Count(x => x.Template == item)
                                                                               .ToString(character).MXPSend($"npc instances {item.Id}", "View the instances")
                                                                  },
-            GetListTableHeaderFunc = character => new[] { "ID#", "Rev#", "Name", "Type", "Status", "Instances" },
+            GetListTableHeaderFunc = character => new[] { "ID#", "Rev#", "Unique Name", "Name", "Type", "Status", "Instances" },
             GetReviewProposalEffectFunc =
                 (protos, character) =>
                     new Accept(character,
@@ -146,6 +148,14 @@ internal class EditableRevisableItemHelper
                     }
                     return protos.OfType<INPCTemplate>()
                                  .Where(x => x.ArtificialIntelligences.Contains(ai))
+                                 .ToList<IEditableRevisableItem>();
+                }
+
+                if (keyword.StartsWith("comment:", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    keyword = keyword["comment:".Length..];
+                    return protos.OfType<INPCTemplate>()
+                                 .Where(x => x.BuilderNotes?.Contains(keyword, StringComparison.InvariantCultureIgnoreCase) == true)
                                  .ToList<IEditableRevisableItem>();
                 }
 

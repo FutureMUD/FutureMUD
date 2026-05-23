@@ -86,6 +86,8 @@ public class VariableNPCTemplate : NPCTemplateBase
                 Id = Gameworld.NpcTemplates.NextID(),
                 RevisionNumber = 0,
                 Name = Name,
+                UniqueName = null,
+                BuilderNotes = BuilderNotes,
                 Type = "Variable",
                 Definition = SaveDefinition()
             };
@@ -359,7 +361,8 @@ public class VariableNPCTemplate : NPCTemplateBase
                         _nameProfiles.Any(y => y.Key == x.Value)) &&
                _race != null &&
                _culture != null &&
-               Gameworld.Ethnicities.Any(x => _race.SameRace(x.ParentRace));
+               Gameworld.Ethnicities.Any(x => _race.SameRace(x.ParentRace)) &&
+               base.CanSubmit();
     }
 
     public override string WhyCannotSubmit()
@@ -402,6 +405,11 @@ public class VariableNPCTemplate : NPCTemplateBase
                 errors.Add(
                     $"You are missing name profiles for the following genders: {genders.Select(x => x.DescribeEnum()).ListToString()}");
             }
+        }
+
+        if (!base.CanSubmit())
+        {
+            errors.Add(base.WhyCannotSubmit());
         }
 
         return errors.Select(x => x.ColourIncludingReset(Telnet.Red)).ListToLines(true);
@@ -563,7 +571,8 @@ public class VariableNPCTemplate : NPCTemplateBase
                         : "N/A",
                     "Reviewed By"),
                 string.Format("{1}: {0}", Status.Describe().Colour(Telnet.Green),
-                    "Status")
+                    "Status"),
+                $"Unique Name: {(string.IsNullOrEmpty(UniqueName) ? "None".ColourCommand() : UniqueName.ColourValue())}"
             }.ArrangeStringsOntoLines(3, Math.Min(120u, (uint)actor.Account.LineFormatLength)));
         }
 
@@ -587,6 +596,14 @@ public class VariableNPCTemplate : NPCTemplateBase
 
         sb.AppendLine($"Sdesc Pattern: {(_sdescPattern != null ? $"{_sdescPattern.Pattern.ColourCharacter()} (#{_sdescPattern.Id.ToStringN0Colour(actor)})" : "Random".Colour(Telnet.Red))}");
         sb.AppendLine($"Fdesc Pattern: {(_fdescPattern != null ? _fdescPattern.Id.ToStringN0Colour(actor) : "Random".Colour(Telnet.Red))}");
+
+        sb.AppendLine();
+        sb.AppendLine("Builder Comment:");
+        sb.AppendLine();
+        sb.AppendLine(string.IsNullOrWhiteSpace(BuilderNotes)
+            ? "\tNone".ColourName()
+            : BuilderNotes.Wrap(actor.InnerLineFormatLength, "  "));
+        sb.AppendLine();
 
         sb.AppendLine();
         sb.AppendLine("Gender Chances:");
@@ -729,6 +746,8 @@ public class VariableNPCTemplate : NPCTemplateBase
                                      .DefaultIfEmpty(0)
                                      .Max() + 1,
                 Name = Name,
+                UniqueName = UniqueName,
+                BuilderNotes = BuilderNotes,
                 Type = "Variable",
                 Definition = SaveDefinition()
             };
@@ -763,6 +782,8 @@ public class VariableNPCTemplate : NPCTemplateBase
             NpcTemplate dbItem = FMDB.Context.NpcTemplates.Find(Id, RevisionNumber);
             dbItem.Definition = SaveDefinition();
             dbItem.Name = _name;
+            dbItem.UniqueName = UniqueName;
+            dbItem.BuilderNotes = BuilderNotes;
             FMDB.Context.NpctemplatesArtificalIntelligences.RemoveRange(dbItem.NpctemplatesArtificalIntelligences);
             foreach (IArtificialIntelligence item in ArtificialIntelligences)
             {

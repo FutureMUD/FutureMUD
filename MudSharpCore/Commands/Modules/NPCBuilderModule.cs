@@ -36,9 +36,13 @@ namespace MudSharp.Commands.Modules
 
         private static void NPCLoad(ICharacter character, StringStack command)
         {
-            INPCTemplate template = long.TryParse(command.PopSpeech(), out long value)
-                ? character.Gameworld.NpcTemplates.Get(value)
-                : character.Gameworld.NpcTemplates.GetByName(command.Last, true);
+            if (command.IsFinished)
+            {
+                character.OutputHandler.Send("Which NPC Template would you like to load?");
+                return;
+            }
+
+            INPCTemplate template = character.Gameworld.NpcTemplates.GetByIdOrUniqueNameOrName(command.SafeRemainingArgument);
             if (template == null)
             {
                 character.OutputHandler.Send("There is no such NPC Template to load.");
@@ -154,18 +158,18 @@ namespace MudSharp.Commands.Modules
 The core syntax to use this command is as follows:
 
 	#3npc edit new simple|variable#0 - creates a new NPC prototype
-	#3npc edit <id>#0 - opens prototype with ID for editing
+	#3npc edit <id|unique name>#0 - opens prototype for editing
 	#3npc edit#0 - shows the currently open NPC. Equivalent to doing NPC SHOW <ID> on it.
 	#3npc edit submit#0 - submits the open NPC for review
 	#3npc edit close#0 - closes the open NPC
 	#3npc edit delete#0 - deletes the open NPC prototype (only if not yet approved)
 	#3npc edit obsolete#0 - marks the NPC as obsolete, and no longer loadable
-	#3npc show <ID>#0 - shows info about prototype with ID
+	#3npc show <id|unique name>#0 - shows info about prototype
 	#3npc review all|mine|<admin name>|<id>#0 - opens the specified NPC prototypes for review and approval
-	#3npc clone <id>#0 - clones an existing prototype to a new one (also opens for editing)
+	#3npc clone <id|unique name>#0 - clones an existing prototype to a new one (also opens for editing)
 	#3npc set <parameters>#0 - makes a specific edit to an NPC. See NPC SET HELP for more info
 	#3npc make <id>|<target>#0 - clones a PC into a simple NPC Template (also opens for editing)
-	#3npc load <which>#0 - creates a new NPC character from the specified template
+	#3npc load <id|unique name>#0 - creates a new NPC character from the specified template
 	#3npc instances <template>#0 - lists all NPCs that have the specified template
 	#3npc list [<filters>]#0 - lists all NPC prototypes. See below for filters:
 
@@ -173,8 +177,9 @@ The core syntax to use this command is as follows:
 		#6mine#0 - only shows NPCs you personally created
 		#6by <account>#0 - only shows NPCs the nominated account created
 		#6reviewed <account>#0 - only shows NPCs the nominated account has approved
-		#6+<keyword>#0 - only shows NPCs with that keyword in their name or description
-		#6-<keyword>#0 - only shows NPCs without that keyword in their name or description
+		#6+<keyword>#0 - only shows NPCs with that keyword in their name, unique name or builder comment
+		#6-<keyword>#0 - only shows NPCs without that keyword in their name, unique name or builder comment
+		#6comment:<text>#0 - only shows NPCs with that text in their builder comment
 		#6&<ai>#0 - only shows NPCs with that AI attached";
 
         [PlayerCommand("NPC", "npc")]

@@ -133,6 +133,13 @@ Each AI row stores:
 `Type` is the runtime loader discriminator. `Definition` is XML owned by the concrete AI class.
 
 #### NPC Attachments
+NPC templates persist through `NPCTemplates` rows. In addition to the template `Name`, `Type`, revision state, and XML `Definition`, templates may carry two builder-only metadata fields:
+
+- `UniqueName`: optional stable lookup key for builder commands and `loadnpc(text)`
+- `BuilderNotes`: optional free-form builder comment for design intent and maintenance notes
+
+Blank unique names are treated as unset. Nonblank unique names are trimmed, cannot be entirely numeric, and must be unique case-insensitively among active template revisions: `Current`, `PendingRevision`, and `UnderDesign`. Historical `Rejected`, `Revised`, and `Obsolete` revisions may duplicate them.
+
 NPC-template and live-NPC attachment are separate:
 
 - template linkage: `NpcTemplatesArtificalIntelligences`
@@ -209,6 +216,8 @@ Group AI instances subscribe themselves directly on creation/load:
 
 - `npc set ai add <which>`
 - `npc set ai remove <which>`
+
+NPC-template lookup resolves numeric ids first, exact `UniqueName` second, then legacy name matching. This applies to normal builder surfaces such as `npc show`, `npc edit`, `npc clone`, `npc load`, spawners, magic effects, agriculture herd templates, and craft NPC products.
 
 When a new `NPC` is created from a template, the template's AI list is copied into the NPC's `_AIs` collection. The references still point at shared AI definitions.
 
@@ -330,6 +339,17 @@ NPC templates attach and remove reusable AI definitions with:
 - `npc set ai remove <which>`
 
 This is the normal way to make future spawns of a template inherit a behavior package.
+
+NPC templates also support builder-facing metadata:
+
+- `npc set unique <name>`
+- `npc set unique clear`
+- `npc set comment <text>`
+- `npc set comment append <text>`
+- `npc set comment edit`
+- `npc set comment clear`
+
+`npc show` displays the unique name and builder comment. `npc list` includes the unique-name column; `+<text>` and `-<text>` search names, unique names, and builder comments, while `comment:<text>` searches builder comments directly.
 
 ### `ai add` / `ai remove`
 Live NPC instances can be modified directly:

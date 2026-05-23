@@ -58,12 +58,13 @@ public class SimpleNPCTemplate : NPCTemplateBase
         }
     }
 
-    public SimpleNPCTemplate(IFuturemud gameworld, IAccount originator, ICharacterTemplate template, string name) :
+    public SimpleNPCTemplate(IFuturemud gameworld, IAccount originator, ICharacterTemplate template, string name, string builderNotes = null) :
         base(
             gameworld, originator, "Simple")
     {
         Initialise();
         _name = string.IsNullOrEmpty(name) ? template.SelectedName.GetName(NameStyle.FullName) : name;
+        BuilderNotes = string.IsNullOrWhiteSpace(builderNotes) ? null : builderNotes;
         SelectedGender = template.SelectedGender;
         SelectedAccents = template.SelectedAccents.ToList();
         SelectedBirthday = template.SelectedBirthday;
@@ -89,6 +90,7 @@ public class SimpleNPCTemplate : NPCTemplateBase
             dbitem.EditableItem.RevisionStatus = (int)RevisionStatus.Current;
             dbitem.EditableItem.ReviewerAccountId = originator.Id;
             dbitem.EditableItem.ReviewerDate = date;
+            dbitem.BuilderNotes = BuilderNotes;
             dbitem.Definition = SaveDefinition();
             FMDB.Context.SaveChanges();
         }
@@ -100,7 +102,7 @@ public class SimpleNPCTemplate : NPCTemplateBase
 
     public override INPCTemplate Clone(ICharacter builder)
     {
-        return new SimpleNPCTemplate(Gameworld, builder.Account, GetCharacterTemplate(null), Name);
+        return new SimpleNPCTemplate(Gameworld, builder.Account, GetCharacterTemplate(null), Name, BuilderNotes);
     }
 
     public override string FrameworkItemType => "SimpleNPCTemplate";
@@ -267,7 +269,8 @@ public class SimpleNPCTemplate : NPCTemplateBase
             {
                 $"Created By: {FMDB.Context.Accounts.Find(BuilderAccountID).Name.Proper().Colour(Telnet.Green)}",
                 $"Reviewed By: {(ReviewerAccountID.HasValue ? FMDB.Context.Accounts.Find(ReviewerAccountID.Value).Name.Proper().Colour(Telnet.Green) : "N/A")}",
-                $"Status: {Status.Describe().Colour(Telnet.Green)}"
+                $"Status: {Status.Describe().Colour(Telnet.Green)}",
+                $"Unique Name: {(string.IsNullOrEmpty(UniqueName) ? "None".ColourCommand() : UniqueName.ColourValue())}"
             }.ArrangeStringsOntoLines(3, (uint)actor.LineFormatLength));
 
             sb.Append(new[]
@@ -331,6 +334,12 @@ public class SimpleNPCTemplate : NPCTemplateBase
                     $"Birthday: {SelectedBirthday.Display(CalendarDisplayMode.Long).ColourValue()} ({SelectedBirthday.Calendar.CurrentDate.YearsDifference(SelectedBirthday).ToString("N0", actor).ColourValue()} years old)");
             }
 
+            sb.AppendLine();
+            sb.AppendLine("Builder Comment:");
+            sb.AppendLine();
+            sb.AppendLine(string.IsNullOrWhiteSpace(BuilderNotes)
+                ? "\tNone".ColourName()
+                : BuilderNotes.Wrap(actor.InnerLineFormatLength, "  "));
             sb.AppendLine();
             sb.AppendLine("Attributes:");
             foreach (ITrait item in SelectedAttributes.OrderBy(x => ((IAttributeDefinition)x.Definition).DisplayOrder))
@@ -442,6 +451,8 @@ public class SimpleNPCTemplate : NPCTemplateBase
                                      .DefaultIfEmpty(0)
                                      .Max() + 1,
                 Name = Name,
+                UniqueName = UniqueName,
+                BuilderNotes = BuilderNotes,
                 Definition = SaveDefinition()
             };
             foreach (IArtificialIntelligence item in ArtificialIntelligences)
@@ -477,6 +488,8 @@ public class SimpleNPCTemplate : NPCTemplateBase
             dbItem.Name = SelectedName != null
                 ? SelectedName.GetName(NameStyle.FullWithNickname)
                 : "Unnamed NPC Template #" + Id;
+            dbItem.UniqueName = UniqueName;
+            dbItem.BuilderNotes = BuilderNotes;
             dbItem.Definition = SaveDefinition();
             FMDB.Context.NpctemplatesArtificalIntelligences.RemoveRange(dbItem.NpctemplatesArtificalIntelligences);
             foreach (IArtificialIntelligence item in ArtificialIntelligences)
@@ -799,7 +812,8 @@ public class SimpleNPCTemplate : NPCTemplateBase
                              .All(x => SelectedAccents.Any(y => y.Language.LinkedTrait == x)) &&
                !string.IsNullOrEmpty(SelectedSdesc) &&
                SelectedRace.HandednessOptions.Contains(Handedness) &&
-               !string.IsNullOrEmpty(SelectedFullDesc);
+               !string.IsNullOrEmpty(SelectedFullDesc) &&
+               base.CanSubmit();
     }
 
     public override string WhyCannotSubmit()

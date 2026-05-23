@@ -431,6 +431,7 @@
         "Material Name":  "beeswax",
         "Tags":  [
                      "Materials / Animal Product",
+                     "Materials / Animal Product / Apiary Product",
                      "Materials / Natural Materials"
                  ]
     },
@@ -2276,6 +2277,15 @@
         "Material Name":  "honey",
         "Tags":  [
                      "Materials / Animal Product",
+                     "Materials / Animal Product / Apiary Product",
+                     "Materials / Natural Materials / Food"
+                 ]
+    },
+    {
+        "Material Name":  "honeycomb",
+        "Tags":  [
+                     "Materials / Animal Product",
+                     "Materials / Animal Product / Apiary Product",
                      "Materials / Natural Materials / Food"
                  ]
     },

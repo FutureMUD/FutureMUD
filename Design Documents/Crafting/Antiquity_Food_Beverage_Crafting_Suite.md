@@ -7,7 +7,9 @@ The antiquity food and beverage pass lives in `ItemSeeder` partials and runs in 
 The implementation files are:
 
 - `DatabaseSeeder/Seeders/ItemSeeder.Rework.AntiquityFood.cs`
+- `DatabaseSeeder/Seeders/ItemSeeder.Rework.AntiquityApiary.cs`
 - `DatabaseSeeder/Seeders/ItemSeederCrafting.AntiquityFood.cs`
+- `DatabaseSeeder/Seeders/ItemSeederCrafting.AntiquityApiary.cs`
 
 ## Processing Chains
 
@@ -21,6 +23,7 @@ The shared chains are intentionally broad and tag-driven:
 - raw meat cooking, salting, drying, smoking, rendering, and broth boiling
 - beer, date beer, wine-style fruit beverages, kumis, spiced luxury beverages, broth, and garum-style sauce filling
 - ceramic serving and fermenting amphora finishing from the household pottery blank pipeline
+- apiary equipment and raw honeycomb processing into reusable honey and beeswax stock
 
 The skill split is deliberately narrower than Farming: threshing and winnowing use `Threshing`, flour/meal/pulse/oil milling uses `Milling`, and wort or beer work uses `Brewing`. Fruit must pressing uses `Brewing`, while chopped vegetables, fruit serving, brining, cooked meat, broth, preserved foods, and most finished dishes remain cooking-led. Flatbread uses `Baking`.
 
@@ -66,6 +69,8 @@ Most intermediate products are consumed downstream by other food crafts. The fol
 - `Smoked Meat Commodity`
 - `Oilseed Mash Commodity`
 - `Brined Fruit Commodity`
+- `Pressed Honey`
+- `Rendered Beeswax`
 
 These remain commodity stock because they are useful in multiple future recipe families and should not require one-off item prototypes.
 
@@ -96,6 +101,16 @@ The food tool stable references are:
 - `antiquity_food_smoking_rack`
 - `antiquity_food_salting_trough`
 
+The apiary stable references are:
+
+- `antiquity_wicker_beehive`
+- `antiquity_clay_tube_hive`
+- `antiquity_wooden_hive_stand`
+- `antiquity_bee_smoke_pot`
+- `antiquity_honey_knife`
+- `antiquity_honey_press`
+- `antiquity_honey_strainer`
+
 Culture-specific prepared-food prototypes are generated with the `antiquity_food_` stable-reference prefix. The current suffix set is:
 
 - `<culture>_flatbread`
@@ -123,4 +138,6 @@ The food pass also seeds builder-owned `CommoditySpoilageRule` rows for raw meat
 
 ## Deferred Source Systems
 
-This pass closes current ItemSeeder craftability gaps, but it does not add new primary-production systems. Pastoral secondary products, apiculture, mining and quarrying, dye and spice derivative supply, and similar upstream source systems remain future expansion work. Current recipes use existing core liquids, materials, agricultural commodities, butchery outputs, and household pottery stock.
+This pass closes current ItemSeeder craftability gaps and now has a seeded apiculture source path. Agriculture apiary operations can produce raw honeycomb, pressed honey, and rendered beeswax, and antiquity crafts can build the hives, stands, smoke pots, honey knives, presses, and strainers that support that chain. Existing honeyed food, medical, writing, leather, and household crafts can therefore trace honey and beeswax back to seeded field work.
+
+It still does not add new primary-production systems for pastoral secondary products, mining and quarrying, dye and spice derivative supply, and similar upstream source systems. Current recipes use existing core liquids, materials, agricultural commodities, apiary commodities, butchery outputs, and household pottery stock.

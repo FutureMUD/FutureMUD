@@ -22,6 +22,10 @@ public interface IAgricultureField : IFrameworkItem, ISaveable, IHaveFuturemud, 
 	int WoodlandGrowthDays { get; }
 	int WoodlandHealth { get; }
 	int WoodlandYieldPotential { get; }
+	IAgricultureFieldApiary Apiary { get; }
+	bool HasActiveApiary { get; }
+	bool IsApiaryHappy { get; }
+	int PollinationStrength { get; }
 	IEnumerable<IAgricultureFieldHerd> Herds { get; }
 	int Moisture { get; set; }
 	int Drainage { get; set; }
@@ -57,4 +61,14 @@ public interface IAgricultureFieldHerd : IFrameworkItem
 	IAgricultureHerdDefinition Definition { get; }
 	int HeadCount { get; }
 	double Condition { get; }
+}
+
+public interface IAgricultureFieldApiary
+{
+	int HiveCount { get; }
+	int ColonyHealth { get; }
+	int Stores { get; }
+	int YieldPotential { get; }
+	int PollinationRadius { get; }
+	int PollinationStrength { get; }
 }

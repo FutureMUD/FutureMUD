@@ -65,4 +65,6 @@ The next-pass implementation resolves the earlier follow-up gaps as follows:
 
 ## Deferred Upstream Systems
 
-The current closure is an ItemSeeder craftability pass. It deliberately does not add full primary-production systems for pastoral secondary products, apiculture, mining and quarrying, dye and spice derivative supply, or other broad source chains. Those remain future subsystem expansions. The current antiquity recipes are closed against existing source truth: AgricultureSeeder commodities, AnimalButcherySeeder raw animal outputs, core liquids and materials, household pottery stock, and the dynamic equipment toolmaking surface.
+The current closure is an ItemSeeder craftability pass plus a first apiary source slice. Apiculture now has seeded upstream support through agriculture apiary operations, raw honeycomb, pressed honey, rendered beeswax, and antiquity hives, stands, smoke pots, honey knives, presses, and strainers. Those paths close the honey and beeswax source gap for existing food, medical, writing, leather, and household crafts.
+
+The pass deliberately does not add full primary-production systems for pastoral secondary products, mining and quarrying, dye and spice derivative supply, or other broad source chains. Those remain future subsystem expansions. The current antiquity recipes are closed against existing source truth: AgricultureSeeder commodities, apiary outputs, AnimalButcherySeeder raw animal outputs, core liquids and materials, household pottery stock, and the dynamic equipment toolmaking surface.

@@ -3,7 +3,7 @@
 ## Purpose
 Agriculture is a first-class subsystem for fields, crops, pastures, herds, and managed woodlands. It deliberately sits beside crafting, projects, weather, property, terrain, and NPC systems rather than replacing any of them.
 
-The core abstraction is `IAgricultureField`: zero or one field can exist in a cell, and multiple fields are represented by multiple cells. A field holds visible 0-100 scores, an active use, and optional crop, perennial crop, herd, or woodland state.
+The core abstraction is `IAgricultureField`: zero or one field can exist in a cell, and multiple fields are represented by multiple cells. A field holds visible 0-100 scores, an active use, optional crop, perennial crop, herd, or woodland state, and optional apiary adjunct state.
 
 ## Design Goals
 - Give farmers meaningful choices without requiring soil-science simulation.
@@ -18,6 +18,7 @@ The core abstraction is `IAgricultureField`: zero or one field can exist in a ce
 | Field profile | Default score package and allowed uses for new fields. |
 | Field | Persisted cell-bound state, one per cell at most. |
 | Crop definition | Builder-editable crop parameters for annual crops and perennial orchard/vineyard crops, including planting windows, seed requirements, and commodity outputs. |
+| Apiary state | Optional hive installation on a field, independent of the primary field use, producing honeycomb, honey, beeswax, and pollination support. |
 | Herd definition | Abstract livestock definition with animal-unit pressure and optional NPC template for drawdown. |
 | Woodland definition | Managed tree stand or coppice definition with establishment timings, harvest cycle timings, and commodity outputs. |
 | Operation | Project-backed field operation such as sowing, drainage, weeding, harvesting, grazing, coppicing, felling, or clearing land. Woodland operations can release and consume yield. |
@@ -32,6 +33,8 @@ The core abstraction is `IAgricultureField`: zero or one field can exist in a ce
 - `Woodland`: coppice, pollard, timber stands, managed groves, and land clearing.
 
 A field has one primary use at a time. Temporary transitions, such as grazing fallow land or stubble, are modelled through operations that change the field's use.
+
+Apiaries are not a primary field use. They are nullable field state so hives can coexist with fallow ground, crops, orchards, pasture, or managed woodland. Apiary operations use `AllowedUses` to run across those primary uses without making bees compete with the land use they support.
 
 ## Player Surface
 The player-facing command is `field`.
@@ -65,6 +68,7 @@ Terrain defaults do not create fields automatically. They are a builder convenie
 - Weather supplies coarse daily moisture, stress, and growth pressure.
 - Crop planting windows use the local weather season when one exists, with static celestial-year group windows as a fallback for games without regional climate setup.
 - Commodity piles carry harvested crop, seed stock, and woodland products into the item economy.
+- Apiaries can release raw honeycomb, pressed honey, and rendered beeswax commodities, and happy colonies can improve pollination-sensitive crop and orchard yield.
 - Crafts can require and consume live crop or woodland yield through the `field` input type.
 - Generic commodity crafts can convert tagged agricultural yield into seed-tagged commodity piles.
 - Terrain supplies a default field profile.
@@ -75,6 +79,6 @@ Terrain defaults do not create fields automatically. They are a builder convenie
 Custom agriculture score slots are reserved in the `AgricultureScoreType` enum as `Custom1` through `Custom12`. They are disabled by default and named per game through static configuration, which lets fantasy or science-fiction games model unusual growing pressures without schema changes or stock crop assumptions.
 
 ## Seed Content
-`AgricultureSeeder` installs stock profiles, specific crop definitions, herd definitions, specific managed woodland definitions, operation definitions, and project templates. The stock project templates include general field labour and an optional Farming-based supervision role so skilled farmers can improve the final result without being the only source of labour. The stock package is still builder-editable, but it now covers many common crop and woodland products so new games can start from concrete commodities instead of broad placeholder categories.
+`AgricultureSeeder` installs stock profiles, specific crop definitions, herd definitions, specific managed woodland definitions, operation definitions, and project templates. The stock project templates include general field labour and an optional Farming-based supervision role so skilled farmers can improve the final result without being the only source of labour. The stock package is still builder-editable, but it now covers many common crop, woodland, and apiary products so new games can start from concrete commodities instead of broad placeholder categories.
 
-The stock profile set includes both ready-use cultivated land and rougher land-expansion starting points such as old fallows, scrub, wetland margins, heavy clay flats, eroded slopes, salt marsh edges, and woodland clearings. The crop catalogue likewise spans common temperate staples, tropical and wetland crops, dryland cereals and pulses, archaic crops, orchard fruit, nuts, vines, and plantation spices.
+The stock profile set includes both ready-use cultivated land and rougher land-expansion starting points such as old fallows, scrub, wetland margins, heavy clay flats, eroded slopes, salt marsh edges, woodland clearings, and an `Apiary Yard` profile for dedicated beeyards. The crop catalogue likewise spans common temperate staples, tropical and wetland crops, dryland cereals and pulses, archaic crops, orchard fruit, nuts, vines, and plantation spices, with concrete pollination metadata on crops that benefit from or require bee support.

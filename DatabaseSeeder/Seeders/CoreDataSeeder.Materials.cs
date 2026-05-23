@@ -556,6 +556,10 @@ public partial class CoreDataSeeder
         AddTag("Materials", null);
         AddTag("Simplified", "Materials");
         AddTag("Animal Product", "Materials");
+        AddTag("Apiary Product", "Animal Product");
+        AddTag("Raw Honeycomb", "Apiary Product");
+        AddTag("Pressed Honey", "Apiary Product");
+        AddTag("Rendered Beeswax", "Apiary Product");
         AddTag("Natural Materials", "Materials");
         AddTag("Manufactured Materials", "Materials");
         AddTag("Stone", "Natural Materials");
@@ -1562,7 +1566,9 @@ public partial class CoreDataSeeder
         AddMaterial("cheese", MaterialBehaviourType.Food, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, null, "Food",
             "Animal Product");
         AddMaterial("honey", MaterialBehaviourType.Food, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, null, "Food",
-            "Animal Product");
+            "Animal Product", "Apiary Product");
+        AddMaterial("honeycomb", MaterialBehaviourType.Food, 0.95, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, null, "Food",
+            "Animal Product", "Apiary Product");
         AddMaterial("yoghurt", MaterialBehaviourType.Food, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, null, "Food",
             "Animal Product");
 
@@ -1870,7 +1876,7 @@ public partial class CoreDataSeeder
         AddMaterial("soap", MaterialBehaviourType.Soap, 0.2, true, 1000, 1000, 0.05, 0.14, 0.0001, 500, null,
             "Natural Materials", "Animal Product");
         AddMaterial("beeswax", MaterialBehaviourType.Wax, 0.2, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, null,
-            "Natural Materials", "Animal Product");
+            "Natural Materials", "Animal Product", "Apiary Product");
         AddMaterial("guano", MaterialBehaviourType.Wax, 0.2, true, 1000, 1000, 0.0, 0.14, 0.0001, 500, null,
             "Natural Materials", "Animal Product");
         AddMaterial("paraffin wax", MaterialBehaviourType.Wax, 0.2, false, 1000, 1000, 0.0, 0.14, 0.0001, 500, null,

@@ -239,10 +239,17 @@ Extension Ladder	Ladder	Functions / Tools / Access Equipment / Ladder / Extensio
 Stepladder	Ladder	Functions / Tools / Access Equipment / Ladder / Stepladder
 Agricultural Tools	Tools	Functions / Tools / Agricultural Tools
 Ard	Agricultural Tools	Functions / Tools / Agricultural Tools / Ard
+Beekeeping Tools	Agricultural Tools	Functions / Tools / Agricultural Tools / Beekeeping Tools
+Bee Hive	Beekeeping Tools	Functions / Tools / Agricultural Tools / Beekeeping Tools / Bee Hive
+Bee Smoke Pot	Beekeeping Tools	Functions / Tools / Agricultural Tools / Beekeeping Tools / Bee Smoke Pot
 Digging Fork	Agricultural Tools	Functions / Tools / Agricultural Tools / Digging Fork
 Drover's Goad	Agricultural Tools	Functions / Tools / Agricultural Tools / Drover's Goad
 Grain Flail	Agricultural Tools	Functions / Tools / Agricultural Tools / Grain Flail
 Hay Rake	Agricultural Tools	Functions / Tools / Agricultural Tools / Hay Rake
+Hive Stand	Beekeeping Tools	Functions / Tools / Agricultural Tools / Beekeeping Tools / Hive Stand
+Honey Knife	Beekeeping Tools	Functions / Tools / Agricultural Tools / Beekeeping Tools / Honey Knife
+Honey Press	Beekeeping Tools	Functions / Tools / Agricultural Tools / Beekeeping Tools / Honey Press
+Honey Strainer	Beekeeping Tools	Functions / Tools / Agricultural Tools / Beekeeping Tools / Honey Strainer
 Pitchfork	Agricultural Tools	Functions / Tools / Agricultural Tools / Pitchfork
 Plough	Agricultural Tools	Functions / Tools / Agricultural Tools / Plough
 Ploughshare	Agricultural Tools	Functions / Tools / Agricultural Tools / Ploughshare
@@ -1284,6 +1291,10 @@ Beverage Serving Vessel	Vessels	Food and Drink / Vessels / Beverage Serving Vess
 Fermenting Vessel	Vessels	Food and Drink / Vessels / Fermenting Vessel
 Materials		Materials
 Animal Product	Materials	Materials / Animal Product
+Apiary Product	Animal Product	Materials / Animal Product / Apiary Product
+Pressed Honey	Apiary Product	Materials / Animal Product / Apiary Product / Pressed Honey
+Raw Honeycomb	Apiary Product	Materials / Animal Product / Apiary Product / Raw Honeycomb
+Rendered Beeswax	Apiary Product	Materials / Animal Product / Apiary Product / Rendered Beeswax
 Elastomer	Materials	Materials / Elastomer
 Elemental Materials	Materials	Materials / Elemental Materials
 Gases	Materials	Materials / Gases

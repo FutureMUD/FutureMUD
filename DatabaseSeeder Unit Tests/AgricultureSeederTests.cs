@@ -85,7 +85,12 @@ public class AgricultureSeederTests
 		context.Tags.AddRange(
 			new Tag { Id = 1, Name = "Seeds" },
 			new Tag { Id = 2, Name = "Seeded Yield" },
-			new Tag { Id = 3, Name = "Agriculture Seedable" });
+			new Tag { Id = 3, Name = "Agriculture Seedable" },
+			new Tag { Id = 4, Name = "Bee Hive" },
+			new Tag { Id = 5, Name = "Hive Stand" },
+			new Tag { Id = 6, Name = "Raw Honeycomb" },
+			new Tag { Id = 7, Name = "Pressed Honey" },
+			new Tag { Id = 8, Name = "Rendered Beeswax" });
 		context.TraitDefinitions.Add(new TraitDefinition
 		{
 			Id = 10,
@@ -141,11 +146,11 @@ public class AgricultureSeederTests
 		seeder.SeedData(context, new Dictionary<string, string>());
 		seeder.SeedData(context, new Dictionary<string, string>());
 
-		Assert.AreEqual(45, context.AgricultureFieldProfiles.Count());
+		Assert.AreEqual(46, context.AgricultureFieldProfiles.Count());
 		Assert.AreEqual(136, context.AgricultureCropDefinitions.Count());
 		Assert.AreEqual(4, context.AgricultureHerdDefinitions.Count());
 		Assert.AreEqual(8, context.AgricultureWoodlandDefinitions.Count());
-		Assert.AreEqual(18, context.AgricultureOperations.Count());
+		Assert.AreEqual(22, context.AgricultureOperations.Count());
 		foreach (var cropName in new[]
 		         {
 			         "Wheat", "Barley", "Rye", "Oats", "Quinoa", "Field Beans", "Peas", "Lentils", "Potatoes",
@@ -243,6 +248,9 @@ public class AgricultureSeederTests
 		Assert.AreEqual("Fallow,Crop", paddyDefinition.Attribute("uses")!.Value);
 		Assert.AreEqual("90", paddyDefinition.Elements("Score").Single(x => x.Attribute("type")!.Value == "Moisture").Attribute("value")!.Value);
 
+		var apiaryYardDefinition = XElement.Parse(context.AgricultureFieldProfiles.Single(x => x.Name == "Apiary Yard").Definition);
+		Assert.AreEqual("Fallow,Crop,Orchard,Pasture,Woodland", apiaryYardDefinition.Attribute("uses")!.Value);
+
 		var wheatDefinition = XElement.Parse(context.AgricultureCropDefinitions.Single(x => x.Name == "Wheat").Definition);
 		Assert.AreEqual("110", wheatDefinition.Attribute("growthDays")!.Value);
 		Assert.AreEqual("18", wheatDefinition.Attribute("harvestWindowDays")!.Value);
@@ -254,6 +262,7 @@ public class AgricultureSeederTests
 			x.Attribute("material")!.Value == "wheat" &&
 			x.Attribute("weight")!.Value == "2500000" &&
 			x.Attribute("tag")!.Value == "Seeded Yield"));
+		Assert.AreEqual("None", wheatDefinition.Element("Pollination")!.Attribute("dependency")!.Value);
 
 		var applesDefinition = XElement.Parse(context.AgricultureCropDefinitions.Single(x => x.Name == "Apples").Definition);
 		Assert.AreEqual("true", applesDefinition.Attribute("perennial")!.Value);
@@ -262,6 +271,12 @@ public class AgricultureSeederTests
 		Assert.IsTrue(applesDefinition.Element("Outputs")!.Elements("Commodity").Any(x =>
 			x.Attribute("material")!.Value == "apple" &&
 			x.Attribute("tag")!.Value == "Seeded Yield"));
+		Assert.AreEqual("Strong", applesDefinition.Element("Pollination")!.Attribute("dependency")!.Value);
+		Assert.AreEqual("1", applesDefinition.Element("Pollination")!.Attribute("healthBonus")!.Value);
+		Assert.AreEqual("2", applesDefinition.Element("Pollination")!.Attribute("yieldBonus")!.Value);
+
+		var cucumberDefinition = XElement.Parse(context.AgricultureCropDefinitions.Single(x => x.Name == "Cucumbers").Definition);
+		Assert.AreEqual("Required", cucumberDefinition.Element("Pollination")!.Attribute("dependency")!.Value);
 
 		var walnutsDefinition = XElement.Parse(context.AgricultureCropDefinitions.Single(x => x.Name == "Walnuts").Definition);
 		Assert.IsTrue(walnutsDefinition.Element("Outputs")!.Elements("Commodity").Any(x =>
@@ -296,11 +311,25 @@ public class AgricultureSeederTests
 		Assert.AreEqual("0.45", coppiceDefinition.Attribute("woodlandYieldMultiplier")!.Value);
 		Assert.AreEqual("45", coppiceDefinition.Attribute("woodlandYieldCost")!.Value);
 
+		var installApiary = context.AgricultureOperations.Single(x => x.Name == "Install Apiary");
+		Assert.AreEqual((int)AgricultureOperationType.InstallApiary, installApiary.OperationType);
+		var installApiaryDefinition = XElement.Parse(installApiary.Definition);
+		Assert.AreEqual("Fallow,Crop,Orchard,Pasture,Woodland", installApiaryDefinition.Element("AllowedUses")!.Attribute("uses")!.Value);
+		Assert.AreEqual("2", installApiaryDefinition.Element("Apiary")!.Attribute("installHives")!.Value);
+		Assert.AreEqual("2", installApiaryDefinition.Element("Apiary")!.Attribute("pollinationRadius")!.Value);
+
+		var harvestApiary = context.AgricultureOperations.Single(x => x.Name == "Harvest Apiary");
+		Assert.AreEqual((int)AgricultureOperationType.HarvestApiary, harvestApiary.OperationType);
+		var apiaryOutputs = XElement.Parse(harvestApiary.Definition).Element("Apiary")!.Element("Outputs")!.Elements("Commodity").ToArray();
+		Assert.IsTrue(apiaryOutputs.Any(x => x.Attribute("material")!.Value == "honeycomb" && x.Attribute("tag")!.Value == "Raw Honeycomb"));
+		Assert.IsTrue(apiaryOutputs.Any(x => x.Attribute("material")!.Value == "honey" && x.Attribute("tag")!.Value == "Pressed Honey"));
+		Assert.IsTrue(apiaryOutputs.Any(x => x.Attribute("material")!.Value == "beeswax" && x.Attribute("tag")!.Value == "Rendered Beeswax"));
+
 		var projectIds = context.Projects
 			.Where(x => x.Name.StartsWith("Stock Agriculture:"))
 			.Select(x => x.Id)
 			.ToHashSet();
-		Assert.AreEqual(18, projectIds.Count);
+		Assert.AreEqual(22, projectIds.Count);
 		Assert.IsTrue(projectIds.Contains(sow.ProjectId));
 
 		var phaseIds = context.ProjectPhases
@@ -342,6 +371,17 @@ public class AgricultureSeederTests
 			x.ProjectRevisionNumber == orchardProject.RevisionNumber);
 		var orchardSeedRequirement = context.ProjectMaterialRequirements.Single(x => x.ProjectPhaseId == orchardPhase.Id && x.Name == "Seed Stock");
 		Assert.AreEqual("250000", XElement.Parse(orchardSeedRequirement.Definition).Element("Amount")!.Value);
+
+		var apiaryPhase = context.ProjectPhases.Single(x =>
+			x.ProjectId == installApiary.ProjectId &&
+			x.ProjectRevisionNumber == installApiary.ProjectRevisionNumber);
+		var beeHives = context.ProjectMaterialRequirements.Single(x => x.ProjectPhaseId == apiaryPhase.Id && x.Name == "Bee Hives");
+		Assert.AreEqual("simple", beeHives.Type);
+		Assert.AreEqual("4", XElement.Parse(beeHives.Definition).Element("Tag")!.Value);
+		Assert.AreEqual("2", XElement.Parse(beeHives.Definition).Element("Amount")!.Value);
+		var hiveStand = context.ProjectMaterialRequirements.Single(x => x.ProjectPhaseId == apiaryPhase.Id && x.Name == "Hive Stand");
+		Assert.AreEqual("5", XElement.Parse(hiveStand.Definition).Element("Tag")!.Value);
+		Assert.AreEqual("1", XElement.Parse(hiveStand.Definition).Element("Amount")!.Value);
 
 		Assert.AreEqual(ShouldSeedResult.MayAlreadyBeInstalled, seeder.ShouldSeedData(context));
 	}
@@ -399,6 +439,15 @@ public class AgricultureSeederTests
 			new Tag { Id = 1, Name = "Seeds" },
 			new Tag { Id = 2, Name = "Seeded Yield" },
 			new Tag { Id = 3, Name = "Agriculture Seedable" });
+		context.SaveChanges();
+		Assert.AreEqual(ShouldSeedResult.PrerequisitesNotMet, seeder.ShouldSeedData(context));
+
+		context.Tags.AddRange(
+			new Tag { Id = 4, Name = "Bee Hive" },
+			new Tag { Id = 5, Name = "Hive Stand" },
+			new Tag { Id = 6, Name = "Raw Honeycomb" },
+			new Tag { Id = 7, Name = "Pressed Honey" },
+			new Tag { Id = 8, Name = "Rendered Beeswax" });
 		context.SaveChanges();
 		Assert.AreEqual(ShouldSeedResult.PrerequisitesNotMet, seeder.ShouldSeedData(context));
 

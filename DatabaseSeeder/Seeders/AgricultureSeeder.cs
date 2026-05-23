@@ -18,6 +18,11 @@ public sealed class AgricultureSeeder : IDatabaseSeeder
 	private const string SeedTagName = "Seeds";
 	private const string SeededYieldTagName = "Seeded Yield";
 	private const string SeedableMaterialTagName = "Agriculture Seedable";
+	private const string BeeHiveTagName = "Bee Hive";
+	private const string HiveStandTagName = "Hive Stand";
+	private const string RawHoneycombTagName = "Raw Honeycomb";
+	private const string PressedHoneyTagName = "Pressed Honey";
+	private const string RenderedBeeswaxTagName = "Rendered Beeswax";
 	private const string FarmingTraitName = "Farming";
 
 	private sealed record CropSeed(string Name, string Description, string Category, int Growth, int Window,
@@ -30,7 +35,10 @@ public sealed class AgricultureSeeder : IDatabaseSeeder
 	private sealed record OperationSeed(string Name, string Description, AgricultureOperationType Type,
 		AgricultureTargetType Target, AgricultureFieldUse Required, AgricultureFieldUse Result, double Hours,
 		(AgricultureScoreType Score, int Delta)[] Deltas, double WoodlandYieldMultiplier = 0.0,
-		int WoodlandYieldCost = 0);
+		int WoodlandYieldCost = 0, AgricultureFieldUse[]? AllowedUses = null, int ApiaryInstallHiveCount = 0,
+		int ApiaryPollinationRadius = 0, int ApiaryTendHealthDelta = 0, int ApiaryTendStoresDelta = 0,
+		int ApiaryTendYieldDelta = 0, double ApiaryYieldMultiplier = 0.0, int ApiaryYieldCost = 0,
+		AgricultureCommodityYield[]? ApiaryOutputs = null);
 
 	private static AgricultureCommodityYield Yield(string materialName, double baseWeight, string tagName = "") => new(materialName, baseWeight, tagName);
 
@@ -100,6 +108,24 @@ public sealed class AgricultureSeeder : IDatabaseSeeder
 		};
 	}
 
+	private static (AgriculturePollinationDependency Dependency, int HealthBonus, int YieldBonus) PollinationFor(CropSeed definition)
+	{
+		return definition.Name switch
+		{
+			"Cucumbers" or "Pumpkins" or "Squash" or "Bottle Gourds" or "Melons" or "Watermelons" or
+				"Kiwifruit" or "Passionfruit" => (AgriculturePollinationDependency.Required, 1, 2),
+			"Apples" or "Pears" or "Peaches" or "Plums" or "Cherries" or "Almonds" or "Apricots" or
+				"Blueberries" or "Raspberries" or "Blackberries" or "Strawberries" or "Cacao" =>
+				(AgriculturePollinationDependency.Strong, 1, 2),
+			"Figs" or "Oranges" or "Lemons" or "Limes" or "Grapefruits" or "Mandarins" or "Mangoes" or
+				"Avocados" or "Pomegranates" or "Quinces" or "Persimmons" or "Mulberries" or "Chestnuts" or
+				"Pecans" or "Macadamias" or "Guavas" or "Lychees" or "Papayas" or "Coffee" or "Tea" or
+				"Sunflower" or "Safflower" or "Sesame" or "Cotton" =>
+				(AgriculturePollinationDependency.Beneficial, 0, 1),
+			_ => (AgriculturePollinationDependency.None, 0, 0)
+		};
+	}
+
 	private static readonly (string Name, string Description, AgricultureFieldUse[] Uses, (AgricultureScoreType Score, int Value)[] Scores)[] Profiles =
 	[
 		("Arable Field", "A general-purpose field suited to broadacre cropping and periodic improvement.", [AgricultureFieldUse.Fallow, AgricultureFieldUse.Crop], [(AgricultureScoreType.Moisture, 55), (AgricultureScoreType.Drainage, 60), (AgricultureScoreType.Nutrients, 55), (AgricultureScoreType.Salinity, 10), (AgricultureScoreType.Topsoil, 65), (AgricultureScoreType.Tilth, 50), (AgricultureScoreType.Rockiness, 20), (AgricultureScoreType.Weeds, 35), (AgricultureScoreType.Pests, 25), (AgricultureScoreType.Fence, 35), (AgricultureScoreType.Pasture, 35), (AgricultureScoreType.Condition, 60)]),
@@ -146,7 +172,8 @@ public sealed class AgricultureSeeder : IDatabaseSeeder
 		("Heavy Clay Flat", "A compact heavy-clay flat with decent fertility but poor drainage and weak tilth.", [AgricultureFieldUse.Fallow, AgricultureFieldUse.Crop, AgricultureFieldUse.Pasture], [(AgricultureScoreType.Moisture, 70), (AgricultureScoreType.Drainage, 20), (AgricultureScoreType.Nutrients, 55), (AgricultureScoreType.Salinity, 10), (AgricultureScoreType.Topsoil, 55), (AgricultureScoreType.Tilth, 15), (AgricultureScoreType.Rockiness, 10), (AgricultureScoreType.Weeds, 55), (AgricultureScoreType.Pests, 30), (AgricultureScoreType.Fence, 10), (AgricultureScoreType.Pasture, 40), (AgricultureScoreType.Condition, 30)]),
 		("Stony Alluvial Fan", "A coarse alluvial fan or wash with sharp drainage, gravel, and low fine topsoil.", [AgricultureFieldUse.Fallow, AgricultureFieldUse.Crop, AgricultureFieldUse.Pasture], [(AgricultureScoreType.Moisture, 25), (AgricultureScoreType.Drainage, 85), (AgricultureScoreType.Nutrients, 25), (AgricultureScoreType.Salinity, 10), (AgricultureScoreType.Topsoil, 30), (AgricultureScoreType.Tilth, 20), (AgricultureScoreType.Rockiness, 70), (AgricultureScoreType.Weeds, 35), (AgricultureScoreType.Pests, 15), (AgricultureScoreType.Fence, 5), (AgricultureScoreType.Pasture, 20), (AgricultureScoreType.Condition, 20)]),
 		("Eroded Hillslope", "A depleted slope with lost topsoil, exposed stone, and continuing erosion risk.", [AgricultureFieldUse.Fallow, AgricultureFieldUse.Pasture, AgricultureFieldUse.Orchard], [(AgricultureScoreType.Moisture, 35), (AgricultureScoreType.Drainage, 70), (AgricultureScoreType.Nutrients, 20), (AgricultureScoreType.Salinity, 5), (AgricultureScoreType.Topsoil, 20), (AgricultureScoreType.Tilth, 15), (AgricultureScoreType.Rockiness, 65), (AgricultureScoreType.Weeds, 45), (AgricultureScoreType.Pests, 15), (AgricultureScoreType.Fence, 5), (AgricultureScoreType.Pasture, 25), (AgricultureScoreType.Condition, 15)]),
-		("Lateritic Scrubland", "A tropical lateritic scrub profile with weathered low-fertility soil and hard seasonal limits.", [AgricultureFieldUse.Fallow, AgricultureFieldUse.Pasture, AgricultureFieldUse.Orchard, AgricultureFieldUse.Woodland], [(AgricultureScoreType.Moisture, 55), (AgricultureScoreType.Drainage, 60), (AgricultureScoreType.Nutrients, 20), (AgricultureScoreType.Salinity, 5), (AgricultureScoreType.Topsoil, 35), (AgricultureScoreType.Tilth, 20), (AgricultureScoreType.Rockiness, 35), (AgricultureScoreType.Weeds, 65), (AgricultureScoreType.Pests, 45), (AgricultureScoreType.Fence, 5), (AgricultureScoreType.Pasture, 30), (AgricultureScoreType.Condition, 25)])
+		("Lateritic Scrubland", "A tropical lateritic scrub profile with weathered low-fertility soil and hard seasonal limits.", [AgricultureFieldUse.Fallow, AgricultureFieldUse.Pasture, AgricultureFieldUse.Orchard, AgricultureFieldUse.Woodland], [(AgricultureScoreType.Moisture, 55), (AgricultureScoreType.Drainage, 60), (AgricultureScoreType.Nutrients, 20), (AgricultureScoreType.Salinity, 5), (AgricultureScoreType.Topsoil, 35), (AgricultureScoreType.Tilth, 20), (AgricultureScoreType.Rockiness, 35), (AgricultureScoreType.Weeds, 65), (AgricultureScoreType.Pests, 45), (AgricultureScoreType.Fence, 5), (AgricultureScoreType.Pasture, 30), (AgricultureScoreType.Condition, 25)]),
+		("Apiary Yard", "A managed beeyard profile for placing hives alongside fallow ground, crops, orchards, pasture, or woodland.", [AgricultureFieldUse.Fallow, AgricultureFieldUse.Crop, AgricultureFieldUse.Orchard, AgricultureFieldUse.Pasture, AgricultureFieldUse.Woodland], [(AgricultureScoreType.Moisture, 50), (AgricultureScoreType.Drainage, 55), (AgricultureScoreType.Nutrients, 50), (AgricultureScoreType.Salinity, 5), (AgricultureScoreType.Topsoil, 55), (AgricultureScoreType.Tilth, 35), (AgricultureScoreType.Rockiness, 20), (AgricultureScoreType.Weeds, 45), (AgricultureScoreType.Pests, 25), (AgricultureScoreType.Fence, 40), (AgricultureScoreType.Pasture, 45), (AgricultureScoreType.Condition, 60)])
 	];
 
 	private static readonly CropSeed[] Crops =
@@ -313,6 +340,15 @@ public sealed class AgricultureSeeder : IDatabaseSeeder
 		new("Fruitwood Pollard Grove", "A pollarded mixed fruitwood grove that yields prunings, light timber, and modest fruitwood.", "pollard", 300, 900, [Yield("applewood", 1500000), Yield("pearwood", 1000000), Yield("firewood", 1000000)])
 	];
 
+	private static readonly AgricultureFieldUse[] ApiaryAllowedUses =
+	[
+		AgricultureFieldUse.Fallow,
+		AgricultureFieldUse.Crop,
+		AgricultureFieldUse.Orchard,
+		AgricultureFieldUse.Pasture,
+		AgricultureFieldUse.Woodland
+	];
+
 	private static readonly OperationSeed[] Operations =
 	[
 		new("Plough Field", "Break and turn the soil to gradually improve tilth and suppress weeds.", AgricultureOperationType.Improve, AgricultureTargetType.None, AgricultureFieldUse.Fallow, AgricultureFieldUse.Fallow, 80.0, [(AgricultureScoreType.Tilth, 8), (AgricultureScoreType.Weeds, -4), (AgricultureScoreType.Moisture, -3), (AgricultureScoreType.Condition, 1)]),
@@ -332,13 +368,18 @@ public sealed class AgricultureSeeder : IDatabaseSeeder
 		new("Coppice Woodland", "Cut a coppice stand back on cycle to produce poles, rods, or firewood while preserving the stand.", AgricultureOperationType.Improve, AgricultureTargetType.None, AgricultureFieldUse.Woodland, AgricultureFieldUse.Woodland, 160.0, [(AgricultureScoreType.Nutrients, -2), (AgricultureScoreType.Condition, 1)], 0.45, 45),
 		new("Thin Woodland", "Thin a woodland stand to produce small timber and improve remaining growth.", AgricultureOperationType.Improve, AgricultureTargetType.None, AgricultureFieldUse.Woodland, AgricultureFieldUse.Woodland, 240.0, [(AgricultureScoreType.Pests, -4), (AgricultureScoreType.Condition, 2)], 0.25, 25),
 		new("Fell Woodland", "Fell a managed woodland stand and return the field to fallow use.", AgricultureOperationType.Clear, AgricultureTargetType.None, AgricultureFieldUse.Woodland, AgricultureFieldUse.Fallow, 360.0, [(AgricultureScoreType.Topsoil, -4), (AgricultureScoreType.Weeds, 4), (AgricultureScoreType.Condition, -4)], 1.0, 100),
-		new("Clear Land", "Clear brush, stumps, scrub, or unmanaged growth for future field use.", AgricultureOperationType.Clear, AgricultureTargetType.None, AgricultureFieldUse.Woodland, AgricultureFieldUse.Fallow, 480.0, [(AgricultureScoreType.Weeds, -6), (AgricultureScoreType.Topsoil, -3), (AgricultureScoreType.Condition, -3)], 0.15, 20)
+		new("Clear Land", "Clear brush, stumps, scrub, or unmanaged growth for future field use.", AgricultureOperationType.Clear, AgricultureTargetType.None, AgricultureFieldUse.Woodland, AgricultureFieldUse.Fallow, 480.0, [(AgricultureScoreType.Weeds, -6), (AgricultureScoreType.Topsoil, -3), (AgricultureScoreType.Condition, -3)], 0.15, 20),
+		new("Install Apiary", "Place hives and a stand so bees can establish alongside the field's existing use.", AgricultureOperationType.InstallApiary, AgricultureTargetType.None, AgricultureFieldUse.Fallow, AgricultureFieldUse.Fallow, 48.0, [(AgricultureScoreType.Condition, 1)], AllowedUses: ApiaryAllowedUses, ApiaryInstallHiveCount: 2, ApiaryPollinationRadius: 2),
+		new("Tend Apiary", "Inspect and tend the hives, calming the colony and reducing pest pressure near the field.", AgricultureOperationType.TendApiary, AgricultureTargetType.None, AgricultureFieldUse.Fallow, AgricultureFieldUse.Fallow, 16.0, [(AgricultureScoreType.Pests, -2), (AgricultureScoreType.Condition, 1)], AllowedUses: ApiaryAllowedUses, ApiaryTendHealthDelta: 8, ApiaryTendStoresDelta: 4, ApiaryTendYieldDelta: 8),
+		new("Harvest Apiary", "Harvest honeycomb, honey, and wax from a healthy apiary without changing the field's use.", AgricultureOperationType.HarvestApiary, AgricultureTargetType.None, AgricultureFieldUse.Fallow, AgricultureFieldUse.Fallow, 24.0, [(AgricultureScoreType.Pests, 1)], AllowedUses: ApiaryAllowedUses, ApiaryYieldMultiplier: 1.0, ApiaryYieldCost: 45, ApiaryOutputs: [Yield("honeycomb", 60000, RawHoneycombTagName), Yield("honey", 30000, PressedHoneyTagName), Yield("beeswax", 6000, RenderedBeeswaxTagName)]),
+		new("Remove Apiary", "Remove the hives and stand from the field while leaving the primary field use alone.", AgricultureOperationType.RemoveApiary, AgricultureTargetType.None, AgricultureFieldUse.Fallow, AgricultureFieldUse.Fallow, 16.0, [], AllowedUses: ApiaryAllowedUses)
 	];
 
 	public static IReadOnlyCollection<string> StockCommodityOutputMaterialsForTesting =>
 		Crops.SelectMany(x => x.Outputs)
 		     .Concat(Orchards.SelectMany(x => x.Outputs))
 		     .Concat(Woodlands.SelectMany(x => x.Outputs))
+		     .Concat(Operations.SelectMany(x => x.ApiaryOutputs ?? []))
 		     .Select(x => x.MaterialName)
 		     .Distinct(StringComparer.InvariantCultureIgnoreCase)
 		     .OrderBy(x => x, StringComparer.InvariantCultureIgnoreCase)
@@ -365,6 +406,11 @@ public sealed class AgricultureSeeder : IDatabaseSeeder
 		    !context.Tags.Any(x => x.Name == SeedTagName) ||
 		    !context.Tags.Any(x => x.Name == SeededYieldTagName) ||
 		    !context.Tags.Any(x => x.Name == SeedableMaterialTagName) ||
+		    !context.Tags.Any(x => x.Name == BeeHiveTagName) ||
+		    !context.Tags.Any(x => x.Name == HiveStandTagName) ||
+		    !context.Tags.Any(x => x.Name == RawHoneycombTagName) ||
+		    !context.Tags.Any(x => x.Name == PressedHoneyTagName) ||
+		    !context.Tags.Any(x => x.Name == RenderedBeeswaxTagName) ||
 		    !context.TraitDefinitions.Any(x => x.Name == FarmingTraitName))
 		{
 			return ShouldSeedResult.PrerequisitesNotMet;
@@ -477,6 +523,7 @@ public sealed class AgricultureSeeder : IDatabaseSeeder
 
 		crop.Description = definition.Description;
 		crop.Category = definition.Category;
+		var pollination = PollinationFor(definition);
 		crop.Definition = new XElement("Crop",
 			new XAttribute("growthDays", definition.Growth),
 			new XAttribute("harvestWindowDays", definition.Window),
@@ -486,6 +533,10 @@ public sealed class AgricultureSeeder : IDatabaseSeeder
 			new XAttribute("maxMoisture", definition.MaxMoisture),
 			new XAttribute("minTemperature", definition.MinTemp),
 			new XAttribute("maxTemperature", definition.MaxTemp),
+			new XElement("Pollination",
+				new XAttribute("dependency", pollination.Dependency.ToString()),
+				new XAttribute("healthBonus", pollination.HealthBonus),
+				new XAttribute("yieldBonus", pollination.YieldBonus)),
 			new XElement("PlantingWindows",
 				PlantingGroupsFor(definition).Select(x => new XElement("Window",
 					new XAttribute("type", "group"),
@@ -663,6 +714,7 @@ public sealed class AgricultureSeeder : IDatabaseSeeder
 		action.Description = "Apply the agriculture operation when the project completes.";
 		action.Definition = "<Action />";
 		EnsureSeedRequirement(context, phase, operation);
+		EnsureApiaryInstallRequirements(context, phase, operation);
 		context.SaveChanges();
 		return project;
 	}
@@ -714,6 +766,54 @@ public sealed class AgricultureSeeder : IDatabaseSeeder
 			new XElement("Characteristics")).ToString();
 	}
 
+	private static void EnsureApiaryInstallRequirements(FuturemudDatabaseContext context, ProjectPhase phase, OperationSeed operation)
+	{
+		if (operation.Type != AgricultureOperationType.InstallApiary)
+		{
+			RemoveMaterialRequirement(context, phase, "Bee Hives");
+			RemoveMaterialRequirement(context, phase, "Hive Stand");
+			return;
+		}
+
+		EnsureTaggedItemRequirement(context, phase, "Bee Hives", "Two reusable bee hives for the apiary installation.",
+			BeeHiveTagName, 2);
+		EnsureTaggedItemRequirement(context, phase, "Hive Stand", "A stand or rack to keep the installed hives off the ground.",
+			HiveStandTagName, 1);
+	}
+
+	private static void RemoveMaterialRequirement(FuturemudDatabaseContext context, ProjectPhase phase, string name)
+	{
+		var existing = context.ProjectMaterialRequirements.FirstOrDefault(x => x.ProjectPhaseId == phase.Id && x.Name == name);
+		if (existing != null)
+		{
+			context.ProjectMaterialRequirements.Remove(existing);
+		}
+	}
+
+	private static void EnsureTaggedItemRequirement(FuturemudDatabaseContext context, ProjectPhase phase, string name,
+		string description, string tagName, int amount)
+	{
+		var tag = context.Tags.First(x => x.Name == tagName);
+		var existing = context.ProjectMaterialRequirements.FirstOrDefault(x => x.ProjectPhaseId == phase.Id && x.Name == name);
+		if (existing == null)
+		{
+			existing = new ProjectMaterialRequirement
+			{
+				ProjectPhaseId = phase.Id,
+				Name = name
+			};
+			context.ProjectMaterialRequirements.Add(existing);
+		}
+
+		existing.Type = "simple";
+		existing.Description = description;
+		existing.IsMandatoryForProjectCompletion = true;
+		existing.Definition = new XElement("Material",
+			new XElement("Tag", tag.Id),
+			new XElement("Amount", amount),
+			new XElement("Quality", (int)ItemQuality.Terrible)).ToString();
+	}
+
 	private static void EnsureOperation(FuturemudDatabaseContext context, OperationSeed definition, Project project)
 	{
 		var operation = context.AgricultureOperations.FirstOrDefault(x => x.Name == definition.Name);
@@ -734,6 +834,21 @@ public sealed class AgricultureSeeder : IDatabaseSeeder
 		operation.Definition = new XElement("Operation",
 			new XAttribute("woodlandYieldMultiplier", definition.WoodlandYieldMultiplier),
 			new XAttribute("woodlandYieldCost", definition.WoodlandYieldCost),
+			new XElement("AllowedUses",
+				new XAttribute("uses", string.Join(",", (definition.AllowedUses ?? [definition.Required]).Select(x => x.ToString())))),
+			new XElement("Apiary",
+				new XAttribute("installHives", definition.ApiaryInstallHiveCount),
+				new XAttribute("pollinationRadius", definition.ApiaryPollinationRadius),
+				new XAttribute("tendHealthDelta", definition.ApiaryTendHealthDelta),
+				new XAttribute("tendStoresDelta", definition.ApiaryTendStoresDelta),
+				new XAttribute("tendYieldDelta", definition.ApiaryTendYieldDelta),
+				new XAttribute("yieldMultiplier", definition.ApiaryYieldMultiplier),
+				new XAttribute("yieldCost", definition.ApiaryYieldCost),
+				new XElement("Outputs",
+					(definition.ApiaryOutputs ?? []).Select(x => new XElement("Commodity",
+						new XAttribute("material", x.MaterialName),
+						new XAttribute("weight", x.BaseWeight),
+						string.IsNullOrWhiteSpace(x.TagName) ? null : new XAttribute("tag", x.TagName))))),
 			definition.Deltas.Select(x => new XElement("Score",
 				new XAttribute("type", x.Score.ToString()),
 				new XAttribute("value", x.Delta)))).ToString();

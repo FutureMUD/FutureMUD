@@ -54,6 +54,58 @@ public class ItemSeederAntiquityFoodCraftingTests
 	];
 
 	[TestMethod]
+	public void AntiquityApiaryCrafting_BackfillsApicultureItemsAndProcessing()
+	{
+		var reworkSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.cs");
+		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.AntiquityApiary.cs");
+		var craftRootSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.cs");
+		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.AntiquityApiary.cs");
+		var tagSource = ReadSource("DatabaseSeeder", "Seeders", "UsefulSeeder.Tags.cs");
+		var materialSource = ReadSource("DatabaseSeeder", "Seeders", "CoreDataSeeder.Materials.cs");
+
+		AssertContains(reworkSource, "SeedAntiquityApiaryItems();");
+		AssertContains(craftRootSource, "SeedAntiquityApiaryCrafts();");
+		foreach (var expected in new[]
+		         {
+			         "antiquity_wicker_beehive",
+			         "antiquity_clay_tube_hive",
+			         "antiquity_wooden_hive_stand",
+			         "antiquity_bee_smoke_pot",
+			         "antiquity_honey_knife",
+			         "antiquity_honey_press",
+			         "antiquity_honey_strainer"
+		         })
+		{
+			AssertContains(itemSource, expected);
+			AssertContains(craftSource, expected);
+		}
+
+		foreach (var expected in new[]
+		         {
+			         "Beekeeping Tools",
+			         "Bee Hive",
+			         "Hive Stand",
+			         "Bee Smoke Pot",
+			         "Honey Knife",
+			         "Honey Press",
+			         "Honey Strainer",
+			         "Raw Honeycomb",
+			         "Pressed Honey",
+			         "Rendered Beeswax"
+		         })
+		{
+			AssertContains(tagSource, expected);
+		}
+
+		AssertContains(materialSource, "AddMaterial(\"honeycomb\"");
+		AssertContains(materialSource, "\"Animal Product\", \"Apiary Product\"");
+		AssertContains(craftSource, "press raw honeycomb");
+		AssertContains(craftSource, "Commodity - 2 kilograms of honeycomb; piletag Raw Honeycomb");
+		AssertContains(craftSource, "CommodityProduct - 1 kilogram 200 grams of honey commodity; tag Pressed Honey");
+		AssertContains(craftSource, "CommodityProduct - 350 grams of beeswax commodity; tag Rendered Beeswax");
+	}
+
+	[TestMethod]
 	public void AntiquityFoodCrafting_RunsThroughItemSeederReworkPath()
 	{
 		var shimPath = SourcePath("DatabaseSeeder", "Seeders", "AntiquityFoodBeverageSeeder.cs");

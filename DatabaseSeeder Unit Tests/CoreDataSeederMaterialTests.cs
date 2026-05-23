@@ -156,6 +156,18 @@ public class CoreDataSeederMaterialTests
             .Include(x => x.MaterialsTags)
             .ThenInclude(x => x.Tag)
             .Single(x => x.Name == "paraffin wax");
+        MudSharp.Models.Material honey = context.Materials
+            .Include(x => x.MaterialsTags)
+            .ThenInclude(x => x.Tag)
+            .Single(x => x.Name == "honey");
+        MudSharp.Models.Material honeycomb = context.Materials
+            .Include(x => x.MaterialsTags)
+            .ThenInclude(x => x.Tag)
+            .Single(x => x.Name == "honeycomb");
+        MudSharp.Models.Material beeswax = context.Materials
+            .Include(x => x.MaterialsTags)
+            .ThenInclude(x => x.Tag)
+            .Single(x => x.Name == "beeswax");
         MudSharp.Models.Material salt = context.Materials.Single(x => x.Name == "salt");
         MudSharp.Models.Material guano = context.Materials.Single(x => x.Name == "guano");
         MudSharp.Models.Material cream = context.Materials.Single(x => x.Name == "cream");
@@ -177,6 +189,12 @@ public class CoreDataSeederMaterialTests
         Assert.IsTrue(context.Materials.Any(x => x.Name == "bone"));
         Assert.IsTrue(context.Materials.Any(x => x.Name == "blood"));
         Assert.IsTrue(context.Materials.Any(x => x.Name == "rosewood"));
+        Assert.IsTrue(context.Tags.Any(x => x.Name == "Apiary Product"));
+        Assert.IsTrue(context.Tags.Any(x => x.Name == "Raw Honeycomb"));
+        Assert.AreEqual((int)MaterialBehaviourType.Food, honeycomb.BehaviourType);
+        Assert.IsTrue(honey.MaterialsTags.Any(x => x.Tag.Name == "Apiary Product"));
+        Assert.IsTrue(honeycomb.MaterialsTags.Any(x => x.Tag.Name == "Apiary Product"));
+        Assert.IsTrue(beeswax.MaterialsTags.Any(x => x.Tag.Name == "Apiary Product"));
     }
 
     [TestMethod]

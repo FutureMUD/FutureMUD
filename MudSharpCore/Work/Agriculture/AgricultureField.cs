@@ -39,6 +39,7 @@ public class AgricultureField : SaveableItem, IAgricultureField
 	private int _woodlandGrowthDays;
 	private int _woodlandHealth;
 	private int _woodlandYieldPotential;
+	private AgricultureFieldApiary _apiary;
 
 	public AgricultureField(Models.AgricultureField field, IFuturemud gameworld)
 	{
@@ -116,6 +117,10 @@ public class AgricultureField : SaveableItem, IAgricultureField
 	public int WoodlandGrowthDays => _woodlandGrowthDays;
 	public int WoodlandHealth => _woodlandHealth;
 	public int WoodlandYieldPotential => _woodlandYieldPotential;
+	public IAgricultureFieldApiary Apiary => _apiary;
+	public bool HasActiveApiary => _apiary?.HiveCount > 0;
+	public bool IsApiaryHappy => IsApiaryHappyForPollination();
+	public int PollinationStrength => IsApiaryHappy ? _apiary.PollinationStrength : 0;
 
 	public IAgricultureCropDefinition CurrentCrop
 	{
@@ -184,6 +189,12 @@ public class AgricultureField : SaveableItem, IAgricultureField
 			{
 				_customScores[score.Key] = score.Value;
 			}
+		}
+
+		var apiaryRoot = fieldRoot.Element("Apiary");
+		if (apiaryRoot != null)
+		{
+			_apiary = AgricultureFieldApiary.LoadFromXml(apiaryRoot);
 		}
 
 		if (field.AgricultureFieldCrop != null)
@@ -325,6 +336,11 @@ public class AgricultureField : SaveableItem, IAgricultureField
 			}
 		}
 
+		if (_apiary != null)
+		{
+			sb.AppendLine($"Apiary: {_apiary.HiveCount.ToString("N0", voyeur).ColourValue()} hives, colony health {_apiary.ColonyHealth.ToStringN0Colour(voyeur)}, stores {_apiary.Stores.ToStringN0Colour(voyeur)}, yield {_apiary.YieldPotential.ToStringN0Colour(voyeur)}, pollination radius {_apiary.PollinationRadius.ToStringN0Colour(voyeur)}");
+		}
+
 		sb.AppendLine();
 		sb.AppendLine("Field State:");
 		foreach (var score in AgricultureScoreTypeExtensions.ActiveScoreTypes(Gameworld))
@@ -376,9 +392,29 @@ public class AgricultureField : SaveableItem, IAgricultureField
 			AdjustScore(AgricultureScoreType.Condition, -1);
 		}
 
+		TickApiary();
 		TickCrop();
 		TickHerds();
 		TickWoodland();
+	}
+
+	private void TickApiary()
+	{
+		if (_apiary == null)
+		{
+			return;
+		}
+
+		var temperature = Cell.CurrentTemperature(null);
+		var temperate = temperature >= 5.0 && temperature <= 40.0;
+		var wellSituated = Condition >= 40 && Pests <= 70 && temperate;
+		var healthDelta = wellSituated ? 1 : -3;
+		var storesDelta = temperate && _apiary.ColonyHealth >= 40
+			? Math.Max(1, _apiary.HiveCount * 2)
+			: -2;
+		var yieldDelta = IsApiaryHappyForPollination() ? 2 : (_apiary.ColonyHealth < 40 ? -1 : 0);
+		_apiary.Adjust(healthDelta, storesDelta, yieldDelta);
+		Changed = true;
 	}
 
 	private void TickCrop()
@@ -390,10 +426,15 @@ public class AgricultureField : SaveableItem, IAgricultureField
 		}
 
 		var temperature = Cell.CurrentTemperature(null);
+		var pollinationSupport = CurrentPollinationSupport(crop);
+		var lacksRequiredPollination = crop.PollinationDependency == AgriculturePollinationDependency.Required &&
+		                                CropStage == AgricultureCropStage.Setting &&
+		                                pollinationSupport <= 0;
 		var stressed = Moisture < crop.MinimumMoisture || Moisture > crop.MaximumMoisture ||
 		               temperature < crop.MinimumTemperature || temperature > crop.MaximumTemperature ||
 		               Weeds > 75 || Pests > 75 || Salinity > 80 ||
-		               crop.ScoreRanges.Any(x => x.Score.IsEnabledScore(Gameworld) && !x.Contains(Score(x.Score)));
+		               crop.ScoreRanges.Any(x => x.Score.IsEnabledScore(Gameworld) && !x.Contains(Score(x.Score))) ||
+		               lacksRequiredPollination;
 		if (stressed)
 		{
 			_cropHealth = (_cropHealth - 4).ClampScore();
@@ -403,6 +444,12 @@ public class AgricultureField : SaveableItem, IAgricultureField
 		{
 			_cropHealth = (_cropHealth + 1).ClampScore();
 			_cropYieldPotential = (_cropYieldPotential + Math.Sign(Nutrients - 50)).ClampScore();
+			if (pollinationSupport > 0)
+			{
+				_cropHealth = (_cropHealth + crop.PollinationHealthBonus).ClampScore();
+				_cropYieldPotential = (_cropYieldPotential + crop.PollinationYieldBonus).ClampScore();
+			}
+
 			_cropGrowthDays++;
 		}
 
@@ -439,6 +486,99 @@ public class AgricultureField : SaveableItem, IAgricultureField
 		}
 
 		Changed = true;
+	}
+
+	private int CurrentPollinationSupport(IAgricultureCropDefinition crop)
+	{
+		if (crop.PollinationDependency == AgriculturePollinationDependency.None ||
+		    CropStage is not (AgricultureCropStage.Growing or AgricultureCropStage.Setting))
+		{
+			return 0;
+		}
+
+		var best = 0;
+		foreach (var field in Gameworld.AgricultureFields)
+		{
+			if (field?.HasActiveApiary != true || !field.IsApiaryHappy || field.Apiary == null)
+			{
+				continue;
+			}
+
+			var distance = DistanceBetweenCells(Cell, field.Cell, field.Apiary.PollinationRadius);
+			if (distance < 0)
+			{
+				continue;
+			}
+
+			best = Math.Max(best, Math.Max(1, field.Apiary.PollinationStrength - distance * 15));
+		}
+
+		return best;
+	}
+
+	private static int DistanceBetweenCells(ICell origin, ICell destination, int maximumDistance)
+	{
+		if (origin == null || destination == null)
+		{
+			return -1;
+		}
+
+		if (origin.Id == destination.Id)
+		{
+			return 0;
+		}
+
+		if (maximumDistance <= 0)
+		{
+			return -1;
+		}
+
+		var seen = new HashSet<long> { origin.Id };
+		var queue = new Queue<(ICell Cell, int Distance)>();
+		queue.Enqueue((origin, 0));
+		while (queue.Count > 0)
+		{
+			var current = queue.Dequeue();
+			if (current.Distance >= maximumDistance)
+			{
+				continue;
+			}
+
+			foreach (var exit in current.Cell.ExitsFor(null, true))
+			{
+				var next = exit.Destination;
+				if (next == null || !seen.Add(next.Id))
+				{
+					continue;
+				}
+
+				var distance = current.Distance + 1;
+				if (next.Id == destination.Id)
+				{
+					return distance;
+				}
+
+				queue.Enqueue((next, distance));
+			}
+		}
+
+		return -1;
+	}
+
+	private bool IsApiaryHappyForPollination()
+	{
+		if (_apiary == null || _apiary.HiveCount <= 0)
+		{
+			return false;
+		}
+
+		var temperature = Cell.CurrentTemperature(null);
+		return _apiary.ColonyHealth >= 50 &&
+		       _apiary.Stores >= 25 &&
+		       Condition >= 40 &&
+		       Pests <= 70 &&
+		       temperature >= 5.0 &&
+		       temperature <= 40.0;
 	}
 
 	private void TickHerds()
@@ -625,6 +765,31 @@ public class AgricultureField : SaveableItem, IAgricultureField
 					CurrentUse = AgricultureFieldUse.Fallow;
 				}
 				break;
+			case AgricultureOperationType.InstallApiary:
+				_apiary = new AgricultureFieldApiary(
+					Math.Max(1, operation.ApiaryInstallHiveCount),
+					(Condition + outcome.CropHealthDelta).ClampScore(),
+					(35 + outcome.CropYieldDelta).ClampScore(),
+					(40 + outcome.CropYieldDelta).ClampScore(),
+					operation.ApiaryPollinationRadius <= 0 ? 2 : operation.ApiaryPollinationRadius);
+				result = $"The field has been fitted with an apiary installation of {_apiary.HiveCount.ToString("N0", actor)} hives.{outcome.DescribeEffect()}";
+				break;
+			case AgricultureOperationType.TendApiary:
+				_apiary.Adjust(operation.ApiaryTendHealthDelta + outcome.CropHealthDelta,
+					operation.ApiaryTendStoresDelta,
+					operation.ApiaryTendYieldDelta + outcome.CropYieldDelta);
+				result = $"The apiary has been tended. Colony health is now {_apiary.ColonyHealth.DescribeBand()}, stores are {_apiary.Stores.DescribeBand()}, and yield potential is {_apiary.YieldPotential.DescribeBand()}.{outcome.DescribeEffect()}";
+				break;
+			case AgricultureOperationType.HarvestApiary:
+				var apiaryOutputs = ReleaseCommodityOutputs(operation.ApiaryYieldOutputs, _apiary.ColonyHealth,
+					Math.Min(_apiary.Stores, _apiary.YieldPotential), operation.ApiaryYieldMultiplier, outcome);
+				_apiary.Adjust(0, -operation.ApiaryYieldCost, -operation.ApiaryYieldCost);
+				result = $"The apiary is harvested with an estimated stores quality of {_apiary.Stores.DescribeBand()}.{outcome.DescribeEffect()}{DescribeOutputResult(apiaryOutputs)}";
+				break;
+			case AgricultureOperationType.RemoveApiary:
+				_apiary = null;
+				result = $"The apiary installation has been removed from the field.{outcome.DescribeEffect()}";
+				break;
 			case AgricultureOperationType.Graze:
 			case AgricultureOperationType.Herd:
 				CurrentUse = AgricultureFieldUse.Pasture;
@@ -695,6 +860,12 @@ public class AgricultureField : SaveableItem, IAgricultureField
 		     CropStage is not (AgricultureCropStage.Harvestable or AgricultureCropStage.Overripe)))
 		{
 			return "There is no harvest-ready crop in this field.";
+		}
+
+		if (operation.OperationType == AgricultureOperationType.HarvestApiary &&
+		    (_apiary == null || _apiary.Stores <= 0 || _apiary.YieldPotential <= 0))
+		{
+			return "The apiary does not have harvestable stores.";
 		}
 
 		return string.Empty;
@@ -1112,6 +1283,7 @@ public class AgricultureField : SaveableItem, IAgricultureField
 	private XElement SaveFieldDefinition()
 	{
 		return new XElement("Field",
+			_apiary?.SaveToXml(),
 			new XElement("CustomScores",
 				_customScores
 					.Where(x => x.Key.IsCustomScore())
@@ -1142,6 +1314,13 @@ public class AgricultureField : SaveableItem, IAgricultureField
 			"woodland" => new TextVariable(CurrentWoodland?.Name ?? string.Empty),
 			"woodlandhealth" => new NumberVariable(_woodlandHealth),
 			"woodlandyield" => new NumberVariable(_woodlandYieldPotential),
+			"hasapiary" => new BooleanVariable(HasActiveApiary),
+			"apiaryhappy" => new BooleanVariable(IsApiaryHappy),
+			"apiaryhives" => new NumberVariable(_apiary?.HiveCount ?? 0),
+			"apiaryhealth" => new NumberVariable(_apiary?.ColonyHealth ?? 0),
+			"apiarystores" => new NumberVariable(_apiary?.Stores ?? 0),
+			"apiaryyield" => new NumberVariable(_apiary?.YieldPotential ?? 0),
+			"pollinationstrength" => new NumberVariable(PollinationStrength),
 			"moisture" => new NumberVariable(Moisture),
 			"drainage" => new NumberVariable(Drainage),
 			"nutrients" => new NumberVariable(Nutrients),
@@ -1175,6 +1354,13 @@ public class AgricultureField : SaveableItem, IAgricultureField
 			{ "woodland", ProgVariableTypes.Text },
 			{ "woodlandhealth", ProgVariableTypes.Number },
 			{ "woodlandyield", ProgVariableTypes.Number },
+			{ "hasapiary", ProgVariableTypes.Boolean },
+			{ "apiaryhappy", ProgVariableTypes.Boolean },
+			{ "apiaryhives", ProgVariableTypes.Number },
+			{ "apiaryhealth", ProgVariableTypes.Number },
+			{ "apiarystores", ProgVariableTypes.Number },
+			{ "apiaryyield", ProgVariableTypes.Number },
+			{ "pollinationstrength", ProgVariableTypes.Number },
 			{ "moisture", ProgVariableTypes.Number },
 			{ "drainage", ProgVariableTypes.Number },
 			{ "nutrients", ProgVariableTypes.Number },

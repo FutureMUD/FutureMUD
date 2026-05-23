@@ -29,7 +29,9 @@ public class AgricultureCropDefinition : SaveableItem, IAgricultureCropDefinitio
 		int maximumTemperature, IEnumerable<AgricultureCommodityYield> yieldOutputs = null,
 		IEnumerable<AgricultureCommodityYield> seedRequirements = null, bool isPerennial = false,
 		int harvestCycleDays = 0, IEnumerable<AgricultureScoreRange> scoreRanges = null,
-		IEnumerable<AgriculturePlantingWindow> plantingWindows = null)
+		IEnumerable<AgriculturePlantingWindow> plantingWindows = null,
+		AgriculturePollinationDependency pollinationDependency = AgriculturePollinationDependency.None,
+		int pollinationHealthBonus = 0, int pollinationYieldBonus = 0)
 	{
 		Gameworld = gameworld;
 		_name = name;
@@ -41,6 +43,9 @@ public class AgricultureCropDefinition : SaveableItem, IAgricultureCropDefinitio
 		MaximumMoisture = maximumMoisture;
 		MinimumTemperature = minimumTemperature;
 		MaximumTemperature = maximumTemperature;
+		PollinationDependency = pollinationDependency;
+		PollinationHealthBonus = System.Math.Clamp(pollinationHealthBonus, 0, 1);
+		PollinationYieldBonus = System.Math.Clamp(pollinationYieldBonus, 0, 2);
 		IsPerennial = isPerennial;
 		HarvestCycleDays = System.Math.Clamp(harvestCycleDays <= 0 ? baseGrowthDays : harvestCycleDays, 1, 10000);
 		_yieldOutputs.AddRange(yieldOutputs ?? Enumerable.Empty<AgricultureCommodityYield>());
@@ -75,6 +80,9 @@ public class AgricultureCropDefinition : SaveableItem, IAgricultureCropDefinitio
 	public int MaximumMoisture { get; private set; }
 	public int MinimumTemperature { get; private set; }
 	public int MaximumTemperature { get; private set; }
+	public AgriculturePollinationDependency PollinationDependency { get; private set; }
+	public int PollinationHealthBonus { get; private set; }
+	public int PollinationYieldBonus { get; private set; }
 	public bool IsPerennial { get; private set; }
 	public int HarvestCycleDays { get; private set; }
 	public IReadOnlyCollection<AgriculturePlantingWindow> PlantingWindows => _plantingWindows;
@@ -148,6 +156,14 @@ public class AgricultureCropDefinition : SaveableItem, IAgricultureCropDefinitio
 		Changed = true;
 	}
 
+	public void BuildingSetPollination(AgriculturePollinationDependency dependency, int healthBonus, int yieldBonus)
+	{
+		PollinationDependency = dependency;
+		PollinationHealthBonus = dependency == AgriculturePollinationDependency.None ? 0 : System.Math.Clamp(healthBonus, 0, 1);
+		PollinationYieldBonus = dependency == AgriculturePollinationDependency.None ? 0 : System.Math.Clamp(yieldBonus, 0, 2);
+		Changed = true;
+	}
+
 	public void BuildingSetScoreRange(AgricultureScoreType score, int minimum, int maximum)
 	{
 		_scoreRanges[score] = new AgricultureScoreRange(score, minimum, maximum);
@@ -193,6 +209,19 @@ public class AgricultureCropDefinition : SaveableItem, IAgricultureCropDefinitio
 		MaximumMoisture = ((int?)root.Attribute("maxMoisture") ?? 85).ClampScore();
 		MinimumTemperature = (int?)root.Attribute("minTemperature") ?? 0;
 		MaximumTemperature = (int?)root.Attribute("maxTemperature") ?? 45;
+		var pollination = root.Element("Pollination");
+		PollinationDependency = System.Enum.TryParse<AgriculturePollinationDependency>(
+			(string)pollination?.Attribute("dependency") ?? nameof(AgriculturePollinationDependency.None),
+			true,
+			out var dependency)
+			? dependency
+			: AgriculturePollinationDependency.None;
+		PollinationHealthBonus = PollinationDependency == AgriculturePollinationDependency.None
+			? 0
+			: System.Math.Clamp((int?)pollination?.Attribute("healthBonus") ?? 0, 0, 1);
+		PollinationYieldBonus = PollinationDependency == AgriculturePollinationDependency.None
+			? 0
+			: System.Math.Clamp((int?)pollination?.Attribute("yieldBonus") ?? 0, 0, 2);
 		_plantingWindows.Clear();
 		foreach (var element in root.Element("PlantingWindows")?.Elements("Window") ?? Enumerable.Empty<XElement>())
 		{
@@ -246,6 +275,10 @@ public class AgricultureCropDefinition : SaveableItem, IAgricultureCropDefinitio
 			new XAttribute("maxMoisture", MaximumMoisture),
 			new XAttribute("minTemperature", MinimumTemperature),
 			new XAttribute("maxTemperature", MaximumTemperature),
+			new XElement("Pollination",
+				new XAttribute("dependency", PollinationDependency.ToString()),
+				new XAttribute("healthBonus", PollinationHealthBonus),
+				new XAttribute("yieldBonus", PollinationYieldBonus)),
 			new XElement("PlantingWindows",
 				_plantingWindows.Select(x => x.SaveToXml())),
 			new XElement("ScoreRanges",

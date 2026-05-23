@@ -39,6 +39,7 @@ public class ItemSeederAntiquityRemainingCraftingTests
 	{
 		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.Antiquity.cs");
 		var partialItemSource =
+			ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.AntiquityApiary.cs") +
 			ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.AntiquityFood.cs") +
 			ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.AntiquityHouseholdTools.cs") +
 			ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.AntiquityMedical.cs") +
@@ -79,10 +80,13 @@ public class ItemSeederAntiquityRemainingCraftingTests
 			.ToList();
 
 		AssertContains(partialItemSource, "CreateAntiquityFoodTool");
+		AssertContains(partialItemSource, "SeedAntiquityApiaryItems");
 		AssertContains(partialItemSource, "CreateAntiquityHouseholdCraftTool");
 		AssertContains(partialItemSource, "SeedAntiquityMedicalItems");
 		AssertContains(partialItemSource, "SeedAntiquityWritingImplementsAndDocuments");
 		AssertContains(partialStableReferences, "antiquity_food_butchers_knife");
+		AssertContains(partialStableReferences, "antiquity_wicker_beehive");
+		AssertContains(partialStableReferences, "antiquity_honey_press");
 		AssertContains(partialStableReferences, "antiquity_food_serving_amphora");
 		AssertContains(partialStableReferences, "antiquity_food_finished_beer_amphora");
 

@@ -5,15 +5,15 @@ Run `AgricultureSeeder` after core utility progs exist. It installs:
 
 - stock field profiles for arable fields, garden beds, orchards/groves, pasture, wet fields, rocky fields, saline coastal fields, and managed woodland
 - additional cultivated, marginal, natural, and unimproved field profiles for paddies, dryland fields, terraces, floodplains, old fallows, scrub, woodland clearings, marshes, saline edges, heavy clay, eroded slopes, and similar land-expansion starting points
-- specific annual crop and perennial orchard/vineyard/plantation definitions with seed requirements and commodity outputs, including broad temperate, tropical, dryland, wetland, archaic, and regional crop examples
+- specific annual crop and perennial orchard/vineyard/plantation definitions with seed requirements, commodity outputs, and concrete pollination metadata, including broad temperate, tropical, dryland, wetland, archaic, and regional crop examples
 - generic herd definitions
 - specific managed woodland definitions with commodity outputs
-- stock operations, including woodland yield multipliers and yield costs
-- local project templates with agriculture completion actions, seed stock material requirements, deliberately substantial labour requirements, and Farming-based supervision labour
+- stock operations, including woodland yield multipliers, yield costs, and apiary install, tend, harvest, and removal operations
+- local project templates with agriculture completion actions, seed stock material requirements, apiary installation requirements, deliberately substantial labour requirements, and Farming-based supervision labour
 
 The stock package is idempotent. Reruns refresh stock-owned rows by stable names instead of duplicating them.
 
-The stock agriculture catalogue is intentionally broad rather than setting-specific. Builders can use the installed profiles as starter land conditions and then tune or delete examples that do not fit their world.
+The stock agriculture catalogue is intentionally broad rather than setting-specific. Builders can use the installed profiles as starter land conditions and then tune or delete examples that do not fit their world. It includes an `Apiary Yard` profile for dedicated beeyards, but apiaries can also be installed on suitable crop, orchard, pasture, woodland, or fallow fields.
 
 ## Terrain Defaults
 Use terrain defaults to make field creation fast:
@@ -61,6 +61,7 @@ field crop set "Wheat" moisture 35 80
 field crop set "Wheat" planting group Autumn Spring
 field crop set "Moonwheat" planting season "Early Thaw"
 field crop set "Moonwheat" planting none
+field crop set "Apples" pollination Strong 1 2
 field crop set "Apples" perennial true
 field crop set "Apples" cycle 220
 field herds set "Cattle Herd" npc cattle
@@ -68,6 +69,7 @@ field woodland set "Hazel Coppice" cycle 365
 field operation set "Sow Crop" delta Moisture -3
 field operation set "Sow Crop" project "Stock Agriculture: Sow Crop"
 field operation set "Coppice Woodland" woodlandyield 0.45 45
+field operation set "Install Apiary" allowed Crop on
 ```
 
 Deleting a definition is blocked while live fields or active agriculture contexts still reference it.
@@ -108,6 +110,29 @@ Group windows are broad labels such as Winter, Spring, Summer, and Autumn. They 
 Season windows are exact local season names or display names. Use these when a game has detailed local seasons and a crop should only be planted during specific named seasons.
 
 Planting windows are hard gates for `Sow Crop` and `Plant Orchard`. They are checked when the field project starts and again when the project completion action applies the operation.
+
+## Apiaries and Pollination
+Apiaries are installed on fields as adjunct state instead of changing the field's primary use. This lets hives support nearby crops, orchards, pasture edges, woodland clearings, or a dedicated `Apiary Yard` without making bees compete with the land use they support.
+
+Crop definitions can declare how much they care about pollination:
+
+```text
+field crop set "Wheat" pollination None
+field crop set "Apples" pollination Strong 1 2
+field crop set "Cucumbers" pollination Required 1 2
+```
+
+The optional numbers are capped daily health and yield bonuses while the crop is `Growing` or `Setting`. Required crops take a stress penalty during `Setting` when no happy apiary is in range.
+
+Apiary operations use `AllowedUses`, so a single operation can run on fallow, crop, orchard, pasture, or woodland fields:
+
+```text
+field operation set "Install Apiary" allowed Crop on
+field operation set "Install Apiary" allowed Orchard on
+field operation set "Harvest Apiary" allowed Woodland on
+```
+
+The stock install project consumes two bee hives and one hive stand. Tend, harvest, and remove apiary operations are labour and skill operations; their reusable tools are represented through ordinary item and craft paths rather than consumed project materials.
 
 ## Starting Field Work
 Players and admins start work with:

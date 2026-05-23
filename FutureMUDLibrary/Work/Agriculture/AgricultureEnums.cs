@@ -32,7 +32,11 @@ public enum AgricultureOperationType
 	Herd = 4,
 	Woodland = 5,
 	Clear = 6,
-	PlantOrchard = 7
+	PlantOrchard = 7,
+	InstallApiary = 8,
+	TendApiary = 9,
+	HarvestApiary = 10,
+	RemoveApiary = 11
 }
 
 public enum AgricultureTargetType
@@ -41,6 +45,14 @@ public enum AgricultureTargetType
 	Crop = 1,
 	Herd = 2,
 	Woodland = 3
+}
+
+public enum AgriculturePollinationDependency
+{
+	None = 0,
+	Beneficial = 1,
+	Strong = 2,
+	Required = 3
 }
 
 public enum AgricultureScoreType

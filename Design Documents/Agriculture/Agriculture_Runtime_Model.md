@@ -36,6 +36,8 @@ Player-facing output shows qualitative bands. Administrators see exact values th
 
 The enum also reserves `Custom1` through `Custom12`. These slots are disabled by default through the `AgricultureCustomScoreTypes` static configuration. When a slot is enabled, the configuration supplies its display name and whether higher values are beneficial or harmful. Built-in scores remain stored in their existing `AgricultureFields` columns; custom live field values are stored in the field definition XML under `<CustomScores>`.
 
+Apiary adjunct state is also stored in the field definition XML, under `<Apiary>`. This keeps hive count, colony health, stores, yield potential, pollination radius, and derived pollination strength beside the field state without adding another EF table.
+
 Profiles, operations, and crop definitions persist score references by stable enum slot name. This means a builder can rename `Custom1` from one local term to another without rewriting existing field profile, operation, crop, or field XML.
 
 ## Daily Tick
@@ -52,6 +54,7 @@ The tick applies coarse pressure:
 - crops gain growth days when conditions are reasonable.
 - crop stress reduces health and yield potential.
 - crop definitions can include additional score ranges, including custom score ranges, and out-of-range values count as stress.
+- happy apiaries build stores and yield potential, and crop or orchard fields can receive capped pollination support from the best happy apiary within range.
 - unmanaged weeds and pests increase slowly.
 - herds consume pasture biomass and can damage fences, topsoil, compaction, and condition when overstocked.
 - managed woodlands gain growth and yield potential slowly, with pest and condition pressure.
@@ -85,6 +88,8 @@ Stock crop outputs use the ordinary seeded material catalogue. Where a crop name
 
 Optional crop score ranges are saved under `<ScoreRanges>`. They are independent of moisture and temperature, so a non-terrestrial crop can require a configured field score such as magical saturation, radiation, nutrient medium quality, or other setting-specific resources.
 
+Crop definitions can also save pollination metadata. `None` crops ignore apiaries, `Beneficial` and `Strong` crops can receive capped daily health and yield bonuses during `Growing` and `Setting`, and `Required` crops take a stress penalty while setting fruit if no happy apiary support is in range. The stock crop catalogue uses concrete crop rules instead of assigning pollination to whole crop families.
+
 ## Orchard State
 Orchards, vineyards, nut groves, and similar perennial crops use the `Orchard` field use and the same `AgricultureFieldCrop` persistence row as annual crops. Their crop definitions set `perennial=true`, use `growthDays` for establishment time, and use `harvestCycleDays` for recurring harvest cadence after the first successful harvest.
 
@@ -116,6 +121,20 @@ The same field model supports coppice, pollards, timber stands, and clearing. Or
 
 Woodland definitions can include commodity outputs such as poles, rods, timber, fruitwood, bamboo, and firewood. Woodland operations can define a yield multiplier and a yield cost. When such an operation completes, the field releases commodities scaled by woodland health, current yield potential, and the operation multiplier, then consumes the configured amount of woodland yield.
 
+## Apiary State
+Apiaries are field adjuncts rather than a primary `AgricultureFieldUse`. A field can remain fallow, crop, orchard, pasture, or woodland while also carrying hive state:
+
+- hive count
+- colony health
+- stores
+- yield potential
+- pollination radius
+- pollination strength
+
+A happy apiary requires colony health of at least 50, stores of at least 25, field condition of at least 40, pests no higher than 70, and an acceptable field temperature. Happy apiaries supply pollination support out to their configured radius, defaulting to two cell hops in seeded operations.
+
+Install, tend, harvest, and remove apiary operations use `AllowedUses` so they can run across suitable primary uses without changing the field's current use. Harvesting can release raw honeycomb, pressed honey, and rendered beeswax commodity piles, scaled by colony state and the operation's harvest settings.
+
 ## Operations and Projects
 Agriculture operations are definition rows backed by normal project templates. Starting an operation creates an `ActiveLocalProject` and writes an `AgricultureProjectContext` row with:
 
@@ -135,6 +154,7 @@ During each project tick, agriculture projects record a Farming-weighted labour 
 - crop, orchard, and woodland outputs adjust commodity weight
 - seed-tagged outputs receive their own seed recovery multiplier
 - released commodities receive an output quality based on the Farming outcome
+- apiary operations can install hives, improve or weaken colony state, harvest commodity outputs, or remove hive state
 
 This means hired labour still supplies scale, but skilled farmers and supervisors influence the result that comes out of the project.
 
@@ -162,4 +182,4 @@ Agriculture registers the `field` FutureProg variable type and exposes `location
 
 These are intended for land expansion, scripted estates, controlled wilderness development, seasonal events, and builder automation.
 
-Field dot properties include crop and woodland state such as health, yield, growth days, crop stage, and whether the current crop is harvest-ready.
+Field dot properties include crop, woodland, and apiary state such as health, yield, growth days, crop stage, harvest readiness, hive count, apiary happiness, apiary stores, and pollination strength.

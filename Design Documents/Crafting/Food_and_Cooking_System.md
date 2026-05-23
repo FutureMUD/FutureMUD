@@ -1,4 +1,4 @@
-# FutureMUD Food And Cooking System
+﻿# FutureMUD Food And Cooking System
 
 ## Scope
 This document describes the current new-style food system centred on `PreparedFood`, recipe-initialised prepared foods, and the `cook` command facade over crafts.
@@ -78,7 +78,7 @@ Builders can use:
 The `cook` command only filters and dispatches cooking crafts. Tools, phases, echoes, checks, availability progs, and interruption behaviour remain ordinary craft behaviour.
 
 ## Foraging And Direct Creation
-Forageable item yields do not need a new forage process. Point the `Foragable` at a prepared-food item prototype, and the normal forage item-loading path produces usable food.
+Forageable item yields do not need a new forage process. Point the `Foragable` at a prepared-food item prototype, and the normal forage item-loading path produces usable food. Foragables can also produce commodity piles by specifying a material, optional commodity tag, and weight expression; this is useful for raw harvested foodstuffs that should enter craft and spoilage chains as commodities instead of full item prototypes.
 
 Likewise, FutureProg `loaditem`, spell `createitem`, shop prototype loading, and direct builder load all work with prepared food because the item prototype itself owns a complete food profile.
 

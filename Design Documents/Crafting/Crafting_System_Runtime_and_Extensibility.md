@@ -341,7 +341,7 @@ All tool types inherit shared builder options from `BaseTool`:
 | `inputvariable` | `InputVariableProduct` | Load items whose variable values depend on which item proto was used for an input | `item`, `skin`, `quantity`, `variable ...` | Supports per-input-index and per-item-to-value mappings |
 | `commodity` | `CommodityProduct` | Produce a commodity pile of a material, mass, optional tag, and optional characteristics | `commodity`, `weight`, `tag`, `material`, `characteristic` | Characteristic outputs can be fixed values or copied from a variable-capable input |
 | `money` | `MoneyProduct` | Produce money in a chosen currency | `currency`, `amount` | Valid only with currency plus positive amount |
-| `npc` | `NPCProduct` | Spawn one or more NPCs from an approved NPC template | `template`, `quantity`, optional `prog` | Optional on-load prog must be `void(Character)` |
+| `npc` | `NPCProduct` | Spawn one or more NPCs from an approved NPC template | `template`, `quantity`, optional `prog` | Template accepts an id or unique name. Optional on-load prog must be `void(Character)` |
 | `prog` | `ProgProduct` | Let a FutureProg decide which item or items are produced | `prog` | Prog must return item or collection of items and accept item/liquid input collections |
 | `progvariable` | `ProgVariableProduct` | Load an item and fill characteristics through per-definition progs | `item`, `quantity`, `variable <definition> <prog>` | Uses progs instead of input indexes for characteristic resolution |
 | `unusedinput` | `UnusedInputProduct` | Return copies of an unused portion of a consumed item input | `input`, `percentage` | Target input must consume items or item groups |

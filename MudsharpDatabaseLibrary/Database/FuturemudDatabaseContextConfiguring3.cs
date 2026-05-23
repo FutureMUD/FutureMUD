@@ -714,6 +714,9 @@ namespace MudSharp.Database
                 entity.HasIndex(e => e.EditableItemId)
                     .HasDatabaseName("FK_NPCTemplates_EditableItems");
 
+                entity.HasIndex(e => e.UniqueName)
+                    .HasDatabaseName("IX_NPCTemplates_UniqueName");
+
                 entity.Property(e => e.Id).HasColumnType("bigint(20)");
 
                 entity.Property(e => e.RevisionNumber).HasColumnType("int(11)");
@@ -729,6 +732,16 @@ namespace MudSharp.Database
                 entity.Property(e => e.Name)
                     .IsRequired()
                     .HasColumnType("varchar(255)")
+                    .HasCharSet("utf8")
+                    .UseCollation("utf8_general_ci");
+
+                entity.Property(e => e.UniqueName)
+                    .HasColumnType("varchar(255)")
+                    .HasCharSet("utf8")
+                    .UseCollation("utf8_general_ci");
+
+                entity.Property(e => e.BuilderNotes)
+                    .HasColumnType("text")
                     .HasCharSet("utf8")
                     .UseCollation("utf8_general_ci");
 

@@ -30,17 +30,33 @@ internal class LoadNpcFunction : BuiltInFunction
             return StatementResult.Error;
         }
 
-        long vnum = (long)(decimal)(ParameterFunctions[0].Result?.GetObject ?? 0);
-        INPCTemplate proto = _gameworld.NpcTemplates.Get(vnum);
-        if (proto == null)
+        var templateParameter = ParameterFunctions[0].Result?.GetObject;
+        var templateLabel = templateParameter?.ToString() ?? "<null>";
+        INPCTemplate proto;
+        if (templateParameter is decimal number)
         {
-            ErrorMessage = "There was no prototype " + vnum;
-            return StatementResult.Error;
+            var vnum = (long)number;
+            proto = _gameworld.NpcTemplates.Get(vnum);
+            if (proto == null)
+            {
+                ErrorMessage = "There was no prototype " + vnum;
+                return StatementResult.Error;
+            }
+        }
+        else
+        {
+            var uniqueName = templateParameter?.ToString();
+            proto = _gameworld.NpcTemplates.FindByUniqueName(uniqueName);
+            if (proto == null)
+            {
+                ErrorMessage = "There was no prototype with the unique name " + (uniqueName ?? "<null>");
+                return StatementResult.Error;
+            }
         }
 
         if (proto.Status != RevisionStatus.Current)
         {
-            ErrorMessage = "Prototype " + vnum + " is not approved for use.";
+            ErrorMessage = "Prototype " + templateLabel + " is not approved for use.";
             return StatementResult.Error;
         }
 
@@ -91,12 +107,38 @@ internal class LoadNpcFunction : BuiltInFunction
 
         FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
             "loadnpc",
+            new[] { ProgVariableTypes.Text, ProgVariableTypes.Location },
+            (pars, gameworld) => new LoadNpcFunction(pars, gameworld),
+            new List<string> { "UniqueName", "Location" },
+            new List<string> { "The unique name of the NPC template to load", "The location into which they will be loaded" },
+            "This function loads an NPC from a specified template into a location.",
+            "NPCs",
+            ProgVariableTypes.Character
+        ));
+
+        FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
+            "loadnpc",
             new[] { ProgVariableTypes.Number, ProgVariableTypes.Location, ProgVariableTypes.Text },
             (pars, gameworld) => new LoadNpcFunction(pars, gameworld),
             new List<string> { "Id", "Location", "Layer" },
             new List<string>
             {
                 "The Id of the NPC template to load", "The location into which they will be loaded",
+                "The layer into which to load the NPC"
+            },
+            "This function loads an NPC from a specified template into a location.",
+            "NPCs",
+            ProgVariableTypes.Character
+        ));
+
+        FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
+            "loadnpc",
+            new[] { ProgVariableTypes.Text, ProgVariableTypes.Location, ProgVariableTypes.Text },
+            (pars, gameworld) => new LoadNpcFunction(pars, gameworld),
+            new List<string> { "UniqueName", "Location", "Layer" },
+            new List<string>
+            {
+                "The unique name of the NPC template to load", "The location into which they will be loaded",
                 "The layer into which to load the NPC"
             },
             "This function loads an NPC from a specified template into a location.",

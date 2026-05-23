@@ -14,6 +14,8 @@ namespace MudSharp.Models
         public long Id { get; set; }
         public string Type { get; set; }
         public string Name { get; set; }
+        public string UniqueName { get; set; }
+        public string BuilderNotes { get; set; }
         public string Definition { get; set; }
         public long EditableItemId { get; set; }
         public int RevisionNumber { get; set; }

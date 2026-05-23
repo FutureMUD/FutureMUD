@@ -2432,13 +2432,7 @@ public class ShowModule : Module<ICharacter>
                     return;
                 }
 
-                if (!long.TryParse(ss.PopSpeech(), out value))
-                {
-                    actor.Send("That is not a valid ID number for an NPC template.");
-                    return;
-                }
-
-                INPCTemplate template = actor.Gameworld.NpcTemplates.Get(value);
+                INPCTemplate template = actor.Gameworld.NpcTemplates.GetByIdOrUniqueNameOrName(ss.SafeRemainingArgument);
                 if (template == null)
                 {
                     actor.Send("There is no such NPC Template.");
@@ -2560,13 +2554,7 @@ public class ShowModule : Module<ICharacter>
                     return;
                 }
 
-                if (!long.TryParse(ss.PopSpeech(), out value))
-                {
-                    actor.Send("That is not a valid ID number for an NPC template.");
-                    return;
-                }
-
-                INPCTemplate template = actor.Gameworld.NpcTemplates.Get(value);
+                INPCTemplate template = actor.Gameworld.NpcTemplates.GetByIdOrUniqueNameOrName(ss.SafeRemainingArgument);
                 if (template == null)
                 {
                     actor.Send("There is no such NPC Template.");

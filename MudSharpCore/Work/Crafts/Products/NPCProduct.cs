@@ -242,7 +242,7 @@ internal class NPCProduct : BaseProduct
             return false;
         }
 
-        INPCTemplate template = Gameworld.NpcTemplates.GetByRevisableId(command.SafeRemainingArgument);
+        INPCTemplate template = Gameworld.NpcTemplates.GetByIdOrUniqueNameOrName(command.SafeRemainingArgument);
         if (template is null)
         {
             actor.OutputHandler.Send("There is no such NPC Template.");

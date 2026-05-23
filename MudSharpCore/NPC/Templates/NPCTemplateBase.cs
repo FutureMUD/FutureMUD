@@ -32,6 +32,8 @@ public abstract class NPCTemplateBase : EditableItem, INPCTemplate
         Gameworld = gameworld;
         _id = template.Id;
         _name = template.Name;
+        UniqueName = NPCTemplateLookupExtensions.NormaliseUniqueName(template.UniqueName);
+        BuilderNotes = string.IsNullOrWhiteSpace(template.BuilderNotes) ? null : template.BuilderNotes;
         RevisionNumber = template.RevisionNumber;
         XElement definition = XElement.Parse(template.Definition);
         XElement element = definition.Element("OnLoadProg");
@@ -69,7 +71,9 @@ public abstract class NPCTemplateBase : EditableItem, INPCTemplate
                 Id = Gameworld.NpcTemplates.NextID(),
                 Name = _name,
                 Type = type,
-                Definition = "<Definition/>"
+                Definition = "<Definition/>",
+                UniqueName = null,
+                BuilderNotes = null
             };
             FMDB.Context.NpcTemplates.Add(dbnew);
             dbnew.EditableItem = new Models.EditableItem();
@@ -107,8 +111,23 @@ public abstract class NPCTemplateBase : EditableItem, INPCTemplate
             case "combatsetting":
             case "combat":
                 return BuildingCommandCombatSetting(actor, command);
+            case "unique":
+            case "uniquename":
+            case "key":
+                return BuildingCommandUniqueName(actor, command);
+            case "comment":
+            case "notes":
+            case "buildercomment":
+            case "buildernotes":
+                return BuildingCommandBuilderNotes(actor, command);
             default:
                 actor.OutputHandler.Send($@"{HelpText}
+	#3unique <name>#0 - sets a unique lookup name for this NPC template
+	#3unique clear#0 - clears the unique lookup name
+	#3comment <text>#0 - overwrites the builder comment
+	#3comment append <text>#0 - appends to the builder comment
+	#3comment edit#0 - edits the builder comment in the editor
+	#3comment clear#0 - clears the builder comment
 	#3onload <prog>#0 - adds an onload prog to this NPC
 	#3onload clear#0 - clears an onload prog
 	#3combatsetting <setting>#0 - sets the default combat setting for this NPC
@@ -161,6 +180,122 @@ public abstract class NPCTemplateBase : EditableItem, INPCTemplate
             default:
                 throw new NotSupportedException();
         }
+    }
+
+    private bool BuildingCommandUniqueName(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send("What unique name do you want to set for this NPC template?");
+            return false;
+        }
+
+        var uniqueName = NPCTemplateLookupExtensions.NormaliseUniqueName(command.SafeRemainingArgument);
+        if (uniqueName is null || uniqueName.EqualToAny("none", "clear", "delete", "remove"))
+        {
+            UniqueName = null;
+            Changed = true;
+            actor.OutputHandler.Send("This NPC template no longer has a unique lookup name.");
+            return true;
+        }
+
+        if (!NPCTemplateLookupExtensions.IsValidUniqueName(uniqueName))
+        {
+            actor.OutputHandler.Send("Unique names cannot be entirely numeric, because numeric NPC template input is reserved for IDs.");
+            return false;
+        }
+
+        var conflict = Gameworld.NpcTemplates.GetActiveUniqueNameConflict(uniqueName, Id);
+        if (conflict is not null)
+        {
+            actor.OutputHandler.Send(
+                $"The unique name {uniqueName.ColourCommand()} is already used by {conflict.EditHeader().ColourName()}.");
+            return false;
+        }
+
+        UniqueName = uniqueName;
+        Changed = true;
+        actor.OutputHandler.Send($"This NPC template can now be looked up by the unique name {UniqueName.ColourCommand()}.");
+        return true;
+    }
+
+    private bool BuildingCommandBuilderNotes(ICharacter actor, StringStack command)
+    {
+        var subCommand = command.PopSpeech();
+        if (subCommand.Length == 0)
+        {
+            actor.OutputHandler.Send("Do you want to set, append, edit or clear the builder comment?");
+            return false;
+        }
+
+        switch (subCommand.ToLowerInvariant())
+        {
+            case "clear":
+            case "none":
+            case "delete":
+            case "remove":
+                BuilderNotes = null;
+                Changed = true;
+                actor.OutputHandler.Send("You clear the builder comment for this NPC template.");
+                return true;
+            case "edit":
+                actor.OutputHandler.Send("Enter the builder comment in the editor below.");
+                actor.EditorMode(BuildingCommandBuilderNotesPost, BuildingCommandBuilderNotesCancel, 1.0,
+                    BuilderNotes, suppliedArguments: [false]);
+                return true;
+            case "append":
+                if (command.IsFinished)
+                {
+                    actor.OutputHandler.Send("Enter the text to append to the builder comment in the editor below.");
+                    actor.EditorMode(BuildingCommandBuilderNotesPost, BuildingCommandBuilderNotesCancel, 1.0,
+                        null, suppliedArguments: [true]);
+                    return true;
+                }
+
+                AppendBuilderNotes(command.SafeRemainingArgument);
+                actor.OutputHandler.Send("You append to the builder comment for this NPC template.");
+                return true;
+        }
+
+        var text = command.IsFinished ? subCommand : $"{subCommand} {command.SafeRemainingArgument}";
+        BuilderNotes = string.IsNullOrWhiteSpace(text) ? null : text.Trim();
+        Changed = true;
+        actor.OutputHandler.Send("You set the builder comment for this NPC template.");
+        return true;
+    }
+
+    private void BuildingCommandBuilderNotesPost(string text, IOutputHandler handler, object[] arguments)
+    {
+        var append = (bool)arguments[0];
+        if (append)
+        {
+            AppendBuilderNotes(text);
+            handler.Send("You append to the builder comment for this NPC template.");
+            return;
+        }
+
+        BuilderNotes = string.IsNullOrWhiteSpace(text) ? null : text.Trim();
+        Changed = true;
+        handler.Send("You set the builder comment for this NPC template.");
+    }
+
+    private void BuildingCommandBuilderNotesCancel(IOutputHandler handler, object[] arguments)
+    {
+        handler.Send("You decide not to change the builder comment.");
+    }
+
+    private void AppendBuilderNotes(string text)
+    {
+        var trimmed = text.Trim();
+        if (trimmed.Length == 0)
+        {
+            return;
+        }
+
+        BuilderNotes = string.IsNullOrWhiteSpace(BuilderNotes)
+            ? trimmed
+            : $"{BuilderNotes.TrimEnd()}\n{trimmed}";
+        Changed = true;
     }
 
     private bool BuildingCommandCombatSetting(ICharacter actor, StringStack command)
@@ -365,6 +500,10 @@ public abstract class NPCTemplateBase : EditableItem, INPCTemplate
 
     #region INPCTemplate Members
 
+    public string? UniqueName { get; protected set; }
+
+    public string? BuilderNotes { get; protected set; }
+
     public ICharacterTemplate GetCharacterTemplate(ICell cell = null)
     {
         return CharacterTemplate(cell);
@@ -386,4 +525,27 @@ public abstract class NPCTemplateBase : EditableItem, INPCTemplate
     public abstract INPCTemplate Clone(ICharacter builder);
 
     #endregion
+
+    public override bool CanSubmit()
+    {
+        return NPCTemplateLookupExtensions.IsValidUniqueName(UniqueName) &&
+               Gameworld.NpcTemplates.GetActiveUniqueNameConflict(UniqueName, Id) is null;
+    }
+
+    public override string WhyCannotSubmit()
+    {
+        if (!NPCTemplateLookupExtensions.IsValidUniqueName(UniqueName))
+        {
+            return "The unique name cannot be entirely numeric, because numeric NPC template input is reserved for IDs.";
+        }
+
+        var uniqueNameConflict = Gameworld.NpcTemplates.GetActiveUniqueNameConflict(UniqueName, Id);
+        if (uniqueNameConflict is not null)
+        {
+            return
+                $"The unique name {UniqueName!.ColourCommand()} is already used by {uniqueNameConflict.EditHeader().ColourName()}.";
+        }
+
+        return base.WhyCannotSubmit();
+    }
 }

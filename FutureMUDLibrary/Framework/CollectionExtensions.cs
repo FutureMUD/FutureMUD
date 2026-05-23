@@ -2,6 +2,7 @@
 using MudSharp.Construction;
 using MudSharp.Framework.Revision;
 using MudSharp.GameItems;
+using MudSharp.NPC.Templates;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -1147,6 +1148,14 @@ namespace MudSharp.Framework
                 return match is null ? default : (T)(object)match;
             }
 
+            if (typeof(INPCTemplate).IsAssignableFrom(typeof(T)))
+            {
+                var match = items
+                            .Cast<INPCTemplate>()
+                            .GetByIdOrUniqueNameOrNameForEditing(text);
+                return match is null ? default : (T)(object)match;
+            }
+
             List<T> filteredItems;
             if (long.TryParse(text, out long id))
             {
@@ -1192,6 +1201,14 @@ namespace MudSharp.Framework
             {
                 var match = items
                             .Cast<IGameItemProto>()
+                            .GetByIdOrUniqueNameOrNameRevisable(text);
+                return match is null ? default : (T)(object)match;
+            }
+
+            if (typeof(INPCTemplate).IsAssignableFrom(typeof(T)))
+            {
+                var match = items
+                            .Cast<INPCTemplate>()
                             .GetByIdOrUniqueNameOrNameRevisable(text);
                 return match is null ? default : (T)(object)match;
             }

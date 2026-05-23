@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MudSharp.Database;
 
@@ -11,9 +12,11 @@ using MudSharp.Database;
 namespace MudSharp.Migrations
 {
     [DbContext(typeof(FuturemudDatabaseContext))]
-    partial class FutureMUDContextModelSnapshot : ModelSnapshot
+    [Migration("20260523134149_NpcTemplateUniqueNameBuilderNotes")]
+    partial class NpcTemplateUniqueNameBuilderNotes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -9887,18 +9890,6 @@ namespace MudSharp.Migrations
 
                     b.Property<long?>("CanForageProgId")
                         .HasColumnType("bigint(20)");
-
-                    b.Property<long?>("CommodityMaterialId")
-                        .HasColumnType("bigint(20)");
-
-                    b.Property<long?>("CommodityTagId")
-                        .HasColumnType("bigint(20)");
-
-                    b.Property<string>("CommodityWeightExpression")
-                        .HasColumnType("varchar(200)")
-                        .UseCollation("utf8mb4_unicode_ci");
-
-                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("CommodityWeightExpression"), "utf8mb4");
 
                     b.Property<long>("EditableItemId")
                         .HasColumnType("bigint(20)");

@@ -36,8 +36,9 @@ namespace DatabaseSeeder.Seeders
             }
 
             existing = _context!.GameItemProtos.Local
+                .AsEnumerable()
                 .FirstOrDefault(x => x.ShortDescription.Equals(sdesc, StringComparison.OrdinalIgnoreCase)) ??
-                       _context.GameItemProtos
+                       _context.GameItemProtos.AsEnumerable()
                            .FirstOrDefault(x => x.ShortDescription.Equals(sdesc, StringComparison.OrdinalIgnoreCase));
             if (existing is not null)
             {
@@ -199,7 +200,7 @@ namespace DatabaseSeeder.Seeders
 
             }
 
-            if (eras.Contains("imperial", StringComparison.InvariantCultureIgnoreCase))
+            if (eras.Contains("revolution", StringComparison.InvariantCultureIgnoreCase))
             {
 
             }
@@ -208,6 +209,16 @@ namespace DatabaseSeeder.Seeders
             {
 
             }
-        }
+
+			if (eras.Contains("atomic", StringComparison.InvariantCultureIgnoreCase))
+			{
+
+			}
+
+			if (eras.Contains("computer", StringComparison.InvariantCultureIgnoreCase))
+			{
+
+			}
+		}
     }
 }

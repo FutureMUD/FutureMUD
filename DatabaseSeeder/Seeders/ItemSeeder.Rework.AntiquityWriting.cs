@@ -981,9 +981,10 @@ public partial class ItemSeeder
 		}
 
 		existing = _context!.GameItemComponentProtos.Local
+			.AsEnumerable()
 			.FirstOrDefault(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase)) ??
-		           _context.GameItemComponentProtos
-			           .FirstOrDefault(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase) &&
+		           _context.GameItemComponentProtos.AsEnumerable()
+					   .FirstOrDefault(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase) &&
 			                                x.EditableItem.RevisionStatus == 4);
 		if (existing is not null)
 		{

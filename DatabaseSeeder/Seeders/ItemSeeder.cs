@@ -19,8 +19,43 @@ public partial class ItemSeeder : IDatabaseSeeder
             Func<FuturemudDatabaseContext, IReadOnlyDictionary<string, string>, bool> Filter,
             Func<string, FuturemudDatabaseContext, (bool Success, string error)> Validator)>
     {
+		("eras",
+				@"The item seeder includes items from a variety of eras, but you may want to limit the selection to better fit your world. The options are:
 
-    };
+    #BAntiquity#0 - Classical antiquity prior to the fall of rome, for europe and near east
+    #BMedieval#0 - The medieval period, roughly 500 to 1400 CE
+    #BRenaissance#0 - The renaissance period, roughly 1400 to 1600 CE
+    #BEarlyModern#0 - The enlightenment and early modern period, roughly 1600 to 1750 CE
+    #BRevolution#0 - The age of revolutions, roughly 1750 to 1850 CE
+    #BModern#0 - The modern era, roughly 1850 CE to 1945 CE
+    #BAtomic#0 - The atomic age, roughly 1945 CE to 1990 CE
+    #BComputer#0 - Computer and digital age, roughly 1990 CE to present day
+
+
+Please enter the eras that you want to be created, separated by spaces.
+
+What is your choice? ", (context, answers) => true,
+				(text, context) =>
+				{
+					string[] split = text.Split(new[] { ' ', ',' }, StringSplitOptions.RemoveEmptyEntries);
+					foreach (string item in split) { switch (item.ToLowerInvariant())
+						{
+							case "antiquity":
+							case "medieval":
+							case "renaissance":
+							case "earlymodern":
+							case "revolution":
+							case "modern":
+							case "atomic":
+							case "computer":
+								continue;
+							default:
+								return (false,
+									$"The option '{item.ToLowerInvariant()}' is not a valid era selection.");
+						} } return (true, string.Empty);
+				}
+			),
+	};
 
     /// <inheritdoc />
     public int SortOrder => 400;

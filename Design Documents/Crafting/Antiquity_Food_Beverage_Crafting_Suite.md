@@ -20,10 +20,21 @@ The shared chains are intentionally broad and tag-driven:
 - raw meat and offal breakdown from `AnimalButcherySeeder` outputs
 - raw meat cooking, salting, drying, smoking, rendering, and broth boiling
 - beer, date beer, wine-style fruit beverages, kumis, spiced luxury beverages, broth, and garum-style sauce filling
+- ceramic serving and fermenting amphora finishing from the household pottery blank pipeline
 
 The skill split is deliberately narrower than Farming: threshing and winnowing use `Threshing`, flour/meal/pulse/oil milling uses `Milling`, and wort or beer work uses `Brewing`. Fruit must pressing uses `Brewing`, while chopped vegetables, fruit serving, brining, cooked meat, broth, preserved foods, and most finished dishes remain cooking-led. Flatbread uses `Baking`.
 
 Crafts prefer commodity inputs such as `Raw Meat Commodity`, `Prepared Meat Commodity`, `Flour Commodity`, and `Pulse Meal Commodity` so one tagged chain can serve beef, lamb, goat, fish, or other seeded meat families without creating species-specific recipe explosions.
+
+## Tool And Vessel Closure
+
+Food tools are tagged with their exact functional tool tags and `Market / Professional Tools / Standard Tools`, so the shared antiquity equipment toolmaking suite discovers and crafts them without duplicating one-off recipes in the food file. This covers the butcher's knife, cooking knife, threshing flail, winnowing basket, hand quern, mortar and pestle, grain sieve, fruit press, oil press, mash tun, drying rack, smoking rack, and salting trough.
+
+Empty food vessels are explicit pottery crafts:
+
+- `antiquity_food_serving_amphora` is finished from fired-clay `Bisque Vessel Blank` stock and sealed with `Prepared Pitch`.
+- `antiquity_food_fermenting_amphora` is finished from fired-clay `Bisque Vessel Blank` stock with heavier `Prepared Pitch` lining and carries the fermentation amphora tool tag.
+- `antiquity_food_finished_beer_amphora` is intentionally a morph target for `antiquity_food_fermenting_beer_amphora`, not a direct craft output.
 
 ## Culture Coverage
 
@@ -45,6 +56,8 @@ The culture-gated final craft suites use `Foodways` knowledge gates:
 
 Each culture gets fourteen foodway crafts: the original flatbread, porridge, pulse stew, meat-grain dish, preserved meat ration, fruit sweet, and beverage amphora plus fresh fruit platter, oilseed cakes, spiced meat stew, honeyed pastry, fish sauce relish, stuffed flatbread, and spiced beverage amphora. Five of the seven new entries are high-end preparations distinguished by imported spices, honey, oil, fermented sauce, broth, brined fruit, or multi-stage cooking. Visible craft names are plain food actions; culture-specific access is enforced by the knowledge gate.
 
+Wine cultures consume `Fruit Must Commodity` and rely on the core liquids `red wine` and `white wine` from `CoreDataSeeder.Materials.cs`; the food seeder does not duplicate those base liquids. The Scythian-Sarmatian kumis path consumes `LiquidUse - 3 litres of milk` for the beverage stock rather than the grain-wort fallback. A future pastoral pass can split out mare's milk as a more specific stock source without changing the current foodway craft surface.
+
 ## Reusable Stock Outputs
 
 Most intermediate products are consumed downstream by other food crafts. The following are deliberately reusable stock outputs for later cuisine, economy, or preservation passes:
@@ -63,7 +76,25 @@ These remain commodity stock because they are useful in multiple future recipe f
 The craft source explicitly names the shared vessel references:
 
 - `antiquity_food_serving_amphora`
+- `antiquity_food_fermenting_amphora`
 - `antiquity_food_fermenting_beer_amphora`
+- `antiquity_food_finished_beer_amphora`
+
+The food tool stable references are:
+
+- `antiquity_food_butchers_knife`
+- `antiquity_food_cooking_knife`
+- `antiquity_food_threshing_flail`
+- `antiquity_food_winnowing_basket`
+- `antiquity_food_quern`
+- `antiquity_food_mortar`
+- `antiquity_food_grain_sieve`
+- `antiquity_food_fruit_press`
+- `antiquity_food_oil_press`
+- `antiquity_food_mash_tun`
+- `antiquity_food_drying_rack`
+- `antiquity_food_smoking_rack`
+- `antiquity_food_salting_trough`
 
 Culture-specific prepared-food prototypes are generated with the `antiquity_food_` stable-reference prefix. The current suffix set is:
 
@@ -89,3 +120,7 @@ where `<culture>` is one of `hellenic`, `egyptian`, `roman`, `celtic`, `germanic
 The food pass also seeds builder-owned `CommoditySpoilageRule` rows for raw meat, prepared meat, salted meat, dried meat, smoked meat, and broth-base commodities. These rules turn matching commodity piles into rotten food commodities on heartbeat instead of relying on item morphs or static JSON.
 
 `LiquidProduct` is the craft-product type used where a craft should create a concrete liquid container already filled with a named liquid, such as barley beer, date beer, meat broth, garum sauce, spiced wine, spiced beer, or spiced kumis.
+
+## Deferred Source Systems
+
+This pass closes current ItemSeeder craftability gaps, but it does not add new primary-production systems. Pastoral secondary products, apiculture, mining and quarrying, dye and spice derivative supply, and similar upstream source systems remain future expansion work. Current recipes use existing core liquids, materials, agricultural commodities, butchery outputs, and household pottery stock.

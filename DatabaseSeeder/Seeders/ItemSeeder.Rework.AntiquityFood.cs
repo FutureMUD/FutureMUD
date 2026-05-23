@@ -389,7 +389,8 @@ public partial class ItemSeeder
 		SizeCategory size, double weight, string material, string toolTag)
 	{
 		return CreateItem(stableReference, noun, sdesc, null, fdesc, size, ItemQuality.Standard, weight, 6M, false,
-			false, material, [toolTag], ["Holdable", "Destroyable_Misc"], null, null, null, null);
+			false, material, [toolTag, "Market / Professional Tools / Standard Tools"],
+			["Holdable", "Destroyable_Misc"], null, null, null, null);
 	}
 
 	private GameItemProto? CreateAntiquityFoodVessel(string stableReference, string noun, string sdesc, string fdesc,

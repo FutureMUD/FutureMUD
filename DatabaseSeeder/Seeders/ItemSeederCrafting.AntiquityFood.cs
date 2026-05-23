@@ -16,10 +16,66 @@ public partial class ItemSeeder
 			return;
 		}
 
+		SeedAntiquityFoodVesselCrafts();
 		SeedAntiquityFoodProcessingCrafts();
 		SeedAntiquityButcheryFoodCrafts();
 		SeedAntiquityBeverageCrafts();
 		SeedAntiquityCultureFoodCrafts();
+	}
+
+	private void SeedAntiquityFoodVesselCrafts()
+	{
+		AddAntiquityCraft(
+			"finish clay serving amphora",
+			"Pottery",
+			"finish a sealed clay serving amphora",
+			"finishing a clay serving amphora",
+			"a clay serving amphora being finished",
+			AncientCeramicVesselmakingKnowledge,
+			"Ceramics",
+			20,
+			Difficulty.Normal,
+			SimpleFoodPhases("$0 turn|turns $i1 on $t1 and smooth|smooths the shoulders with $t2.",
+				"$0 fire|fires and seal|seals $p1 in $t3 with prepared pitch."),
+			[
+				CommodityInput(900.0, "fired clay", "Bisque Vessel Blank"),
+				CommodityInput(80.0, "pitch", "Prepared Pitch")
+			],
+			[
+				"TagTool - InRoom - an item with the Potter's Wheel tag",
+				"TagTool - Held - an item with the Potter's Rib tag",
+				"TagTool - InRoom - an item with the Lit Kiln tag"
+			],
+			[StableSimpleProduct("antiquity_food_serving_amphora")],
+			knowledgeSubtype: "Ceramics",
+			knowledgeDescription: "Ancient ceramic vesselmaking for domestic and food-storage vessels.",
+			knowledgeLongDescription: "This knowledge covers shaping, firing, lining, and finishing ancient ceramic vessels used for household and food-production workflows.");
+
+		AddAntiquityCraft(
+			"line pitch fermenting amphora",
+			"Pottery",
+			"finish a pitch-lined fermenting amphora",
+			"lining a fermenting amphora",
+			"a fermenting amphora being lined with pitch",
+			AncientCeramicVesselmakingKnowledge,
+			"Ceramics",
+			25,
+			Difficulty.Normal,
+			SimpleFoodPhases("$0 shape|shapes the mouth and belly of $i1 on $t1, smoothing it with $t2.",
+				"$0 warm|warms prepared pitch and line|lines $p1 before setting it in $t3."),
+			[
+				CommodityInput(900.0, "fired clay", "Bisque Vessel Blank"),
+				CommodityInput(240.0, "pitch", "Prepared Pitch")
+			],
+			[
+				"TagTool - InRoom - an item with the Potter's Wheel tag",
+				"TagTool - Held - an item with the Potter's Rib tag",
+				"TagTool - InRoom - an item with the Lit Kiln tag"
+			],
+			[StableSimpleProduct("antiquity_food_fermenting_amphora")],
+			knowledgeSubtype: "Ceramics",
+			knowledgeDescription: "Ancient ceramic vesselmaking for domestic and food-storage vessels.",
+			knowledgeLongDescription: "This knowledge covers shaping, firing, lining, and finishing ancient ceramic vessels used for household and food-production workflows.");
 	}
 
 	private void SeedAntiquityFoodProcessingCrafts()
@@ -576,6 +632,11 @@ public partial class ItemSeeder
 
 	private string CultureBeverageStockInput(AntiquityFoodCultureSpec culture, double wineFruitGrams, double wortGrams)
 	{
+		if (culture.BeverageLiquid.Contains("kumis", StringComparison.OrdinalIgnoreCase))
+		{
+			return "LiquidUse - 3 litres of milk";
+		}
+
 		return culture.BeverageLiquid.Contains("wine", StringComparison.OrdinalIgnoreCase)
 			? $"Commodity - {FormatCommodityAmount(wineFruitGrams)} of {culture.SweetMaterial}; piletag Fruit Must Commodity"
 			: $"CommodityTag - {FormatCommodityAmount(wortGrams)} of a material tagged as Grain Crop; piletag Wort Commodity";

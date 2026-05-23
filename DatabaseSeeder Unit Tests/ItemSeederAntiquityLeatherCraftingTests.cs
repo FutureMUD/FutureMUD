@@ -175,6 +175,9 @@ public class ItemSeederAntiquityLeatherCraftingTests
 			"private const string AntiquityLeatherKnowledge = \"Ancient Hide and Leatherworking\"",
 			"\"Leatherworking\"",
 			"\"Leathermaking\"",
+			"break down raw hides into tanning stock",
+			"Tag - 1x an item with the Raw Hide tag",
+			"CommodityProduct - 1 kilogram 600 grams of animal skin commodity",
 			"CommodityTag - 1 kilogram 600 grams of a material tagged as Animal Skin",
 			"LiquidUse - 2 litres of Water",
 			"LiquidUse - 3 litres of Water",
@@ -204,6 +207,35 @@ public class ItemSeederAntiquityLeatherCraftingTests
 		{
 			AssertContains(craftSource, expected);
 		}
+	}
+
+	[TestMethod]
+	public void LeatherCrafts_BridgeAnimalButcheryRawHidesIntoCommodityPipeline()
+	{
+		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.Antiquity.cs");
+		var butcherySource = ReadSource("DatabaseSeeder", "Seeders", "AnimalButcherySeeder.cs");
+
+		AssertContains(butcherySource, "private const string RawHideTag = \"Raw Hide\";");
+
+		foreach (var expected in new[]
+		         {
+			         "break down raw hides into tanning stock",
+			         "break raw hide items into animal skin commodity stock",
+			         "Tag - 1x an item with the Raw Hide tag",
+			         "TagTool - InRoom - an item with the Tanning Beam tag",
+			         "TagTool - Held - an item with the Hide Scraper tag",
+			         "CommodityProduct - 1 kilogram 600 grams of animal skin commodity",
+			         "CommodityProduct - 400 grams of animal skin commodity",
+			         "scrape and dehair animal hides",
+			         "CommodityTag - 1 kilogram 600 grams of a material tagged as Animal Skin"
+		         })
+		{
+			AssertContains(craftSource, expected);
+		}
+
+		var bridgeBlock = ExtractCallBlockContaining(craftSource, "break down raw hides into tanning stock");
+		Assert.IsFalse(bridgeBlock.Contains("tag Prepared Hide", StringComparison.Ordinal),
+			"The raw-hide bridge should produce raw animal-skin commodity stock; the existing scrape craft creates Prepared Hide.");
 	}
 
 	[TestMethod]
@@ -406,6 +438,15 @@ public class ItemSeederAntiquityLeatherCraftingTests
 	private static void AssertContains(string source, string expected)
 	{
 		Assert.IsTrue(source.Contains(expected, StringComparison.Ordinal), $"Expected source to contain: {expected}");
+	}
+
+	private static string ExtractCallBlockContaining(string source, string marker)
+	{
+		var start = source.IndexOf(marker, StringComparison.Ordinal);
+		Assert.IsTrue(start >= 0, $"Could not find source block for {marker}.");
+		var end = source.IndexOf(");", start, StringComparison.Ordinal);
+		Assert.IsTrue(end >= 0, $"Could not find end of source block for {marker}.");
+		return source[start..end];
 	}
 
 	private static string ReadSource(params string[] parts)

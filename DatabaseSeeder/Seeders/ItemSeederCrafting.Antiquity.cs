@@ -582,6 +582,26 @@ public partial class ItemSeeder
         }
 
         AddAntiquityLeatherCraft(
+            "break down raw hides into tanning stock",
+            "break raw hide items into animal skin commodity stock",
+            "breaking down raw hides",
+            "raw hides being cut into tanning stock",
+            1,
+            Difficulty.Easy,
+            [
+                (25, "$0 spread|spreads $i1 across $t1 and inspect|inspects the hide edges.", "$0 spread|spreads $i1 across $t1, but miss|misses torn and fouled edges."),
+                (35, "$0 scrape|scrapes loose flesh and fat away with $t2.", "$0 scrape|scrapes with $t2, but leave|leaves ragged patches in the hide."),
+                (25, "$0 cut|cuts the hide into workable animal-skin stock.", "$0 cut|cuts unevenly and salvage|salvages only $f1.")
+            ],
+            ["Tag - 1x an item with the Raw Hide tag"],
+            [
+                "TagTool - InRoom - an item with the Tanning Beam tag",
+                "TagTool - Held - an item with the Hide Scraper tag"
+            ],
+            ["CommodityProduct - 1 kilogram 600 grams of animal skin commodity"],
+            ["CommodityProduct - 400 grams of animal skin commodity"]);
+
+        AddAntiquityLeatherCraft(
             "scrape and dehair animal hides",
             "scrape and dehair raw animal hides into prepared hide stock",
             "scraping and dehairing animal hides",

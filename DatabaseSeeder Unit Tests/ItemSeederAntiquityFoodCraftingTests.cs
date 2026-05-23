@@ -149,6 +149,101 @@ public class ItemSeederAntiquityFoodCraftingTests
 	}
 
 	[TestMethod]
+	public void AntiquityFoodCrafting_MakesFoodToolsAndEmptyVesselsCraftable()
+	{
+		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.AntiquityFood.cs");
+		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.AntiquityFood.cs");
+
+		AssertContains(itemSource, "[toolTag, \"Market / Professional Tools / Standard Tools\"]");
+		foreach (var expected in new[]
+		         {
+			         "antiquity_food_butchers_knife",
+			         "antiquity_food_cooking_knife",
+			         "antiquity_food_threshing_flail",
+			         "antiquity_food_winnowing_basket",
+			         "antiquity_food_quern",
+			         "antiquity_food_mortar",
+			         "antiquity_food_grain_sieve",
+			         "antiquity_food_fruit_press",
+			         "antiquity_food_oil_press",
+			         "antiquity_food_mash_tun",
+			         "antiquity_food_drying_rack",
+			         "antiquity_food_smoking_rack",
+			         "antiquity_food_salting_trough"
+		         })
+		{
+			AssertContains(itemSource, expected);
+		}
+
+		foreach (var expected in new[]
+		         {
+			         "Functions / Tools / Butcher Tools / Meat Cutting Tools / Butcher's Knife",
+			         "Functions / Tools / Cooking / Cooking Utensils / Cooking Knife",
+			         "Functions / Tools / Foodmaking Tools / Threshing Flail",
+			         "Functions / Tools / Agricultural Tools / Winnowing Basket",
+			         "Functions / Tools / Foodmaking Tools / Hand Quern",
+			         "Functions / Tools / Cooking / Cooking Utensils / Mortar and Pestle",
+			         "Functions / Tools / Milling Tools / Grain Sieve",
+			         "Functions / Tools / Foodmaking Tools / Fruit Press",
+			         "Functions / Tools / Foodmaking Tools / Oil Press",
+			         "Functions / Tools / Brewing Tools / Mash Tun",
+			         "Functions / Tools / Cooking / Cooking Utensils / Drying Rack",
+			         "Functions / Tools / Foodmaking Tools / Smoking Rack",
+			         "Functions / Tools / Foodmaking Tools / Salting Trough"
+		         })
+		{
+			AssertContains(itemSource, expected);
+		}
+
+		foreach (var expected in new[]
+		         {
+			         "SeedAntiquityFoodVesselCrafts();",
+			         "private void SeedAntiquityFoodVesselCrafts()",
+			         "finish clay serving amphora",
+			         "line pitch fermenting amphora",
+			         "AncientCeramicVesselmakingKnowledge",
+			         "CommodityInput(900.0, \"fired clay\", \"Bisque Vessel Blank\")",
+			         "CommodityInput(80.0, \"pitch\", \"Prepared Pitch\")",
+			         "CommodityInput(240.0, \"pitch\", \"Prepared Pitch\")",
+			         "TagTool - InRoom - an item with the Potter's Wheel tag",
+			         "TagTool - Held - an item with the Potter's Rib tag",
+			         "TagTool - InRoom - an item with the Lit Kiln tag",
+			         "StableSimpleProduct(\"antiquity_food_serving_amphora\")",
+			         "StableSimpleProduct(\"antiquity_food_fermenting_amphora\")"
+		         })
+		{
+			AssertContains(craftSource, expected);
+		}
+
+		AssertContains(itemSource, "beerFinished is null ? null : \"antiquity_food_finished_beer_amphora\"");
+		Assert.IsFalse(craftSource.Contains("StableSimpleProduct(\"antiquity_food_finished_beer_amphora\")", StringComparison.Ordinal),
+			"The finished beer amphora should remain a morph target, not a direct craft output.");
+	}
+
+	[TestMethod]
+	public void AntiquityFoodCrafting_UsesMilkForKumisAndKeepsCoreWineLiquidsInCoreData()
+	{
+		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.AntiquityFood.cs");
+		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.AntiquityFood.cs");
+		var materialSource = ReadSource("DatabaseSeeder", "Seeders", "CoreDataSeeder.Materials.cs");
+
+		var beverageStockBody = ExtractMethodBody(craftSource, "CultureBeverageStockInput");
+		AssertContains(beverageStockBody, "culture.BeverageLiquid.Contains(\"kumis\", StringComparison.OrdinalIgnoreCase)");
+		AssertContains(beverageStockBody, "return \"LiquidUse - 3 litres of milk\";");
+		Assert.IsTrue(beverageStockBody.IndexOf("\"kumis\"", StringComparison.Ordinal) <
+		              beverageStockBody.IndexOf("Wort Commodity", StringComparison.Ordinal),
+			"Kumis should be handled before the fallback grain-wort branch.");
+
+		var foodLiquidsBody = ExtractMethodBody(itemSource, "EnsureAntiquityFoodLiquids");
+		AssertContains(materialSource, "AddLiquid(\"red wine\"");
+		AssertContains(materialSource, "AddLiquid(\"white wine\"");
+		Assert.IsFalse(foodLiquidsBody.Contains("EnsureAntiquityLiquid(\"red wine\"", StringComparison.Ordinal),
+			"Red wine is a core liquid and should not be duplicated by the food seeder.");
+		Assert.IsFalse(foodLiquidsBody.Contains("EnsureAntiquityLiquid(\"white wine\"", StringComparison.Ordinal),
+			"White wine is a core liquid and should not be duplicated by the food seeder.");
+	}
+
+	[TestMethod]
 	public void AntiquityFoodCrafting_AddsOilAndFruitCommodityPaths()
 	{
 		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.AntiquityFood.cs");
@@ -263,6 +358,55 @@ public class ItemSeederAntiquityFoodCraftingTests
 	private static void AssertRegexContains(string source, string expected)
 	{
 		Assert.IsTrue(Regex.IsMatch(source, expected), $"Expected source to match: {expected}");
+	}
+
+	private static string ExtractMethodBody(string source, string methodName)
+	{
+		var start = FindMethodDeclarationStart(source, methodName);
+		var openBrace = source.IndexOf('{', start);
+		Assert.IsTrue(openBrace >= 0, $"Could not find body for method {methodName}.");
+
+		var depth = 0;
+		for (var i = openBrace; i < source.Length; i++)
+		{
+			switch (source[i])
+			{
+				case '{':
+					depth++;
+					break;
+				case '}':
+					depth--;
+					if (depth == 0)
+					{
+						return source[(openBrace + 1)..i];
+					}
+					break;
+			}
+		}
+
+		Assert.Fail($"Could not extract body for method {methodName}.");
+		return string.Empty;
+	}
+
+	private static int FindMethodDeclarationStart(string source, string methodName)
+	{
+		var search = $"{methodName}(";
+		var index = source.IndexOf(search, StringComparison.Ordinal);
+		while (index >= 0)
+		{
+			var lineStart = source.LastIndexOf('\n', index);
+			lineStart = lineStart < 0 ? 0 : lineStart + 1;
+			var declarationPrefix = source[lineStart..index];
+			if (declarationPrefix.Contains("private ", StringComparison.Ordinal))
+			{
+				return lineStart;
+			}
+
+			index = source.IndexOf(search, index + search.Length, StringComparison.Ordinal);
+		}
+
+		Assert.Fail($"Could not find declaration for method {methodName}.");
+		return 0;
 	}
 
 	private static string ReadSource(params string[] parts)

@@ -135,6 +135,9 @@ namespace MudSharp.Database
 
             modelBuilder.Entity<CommoditySpoilageRule>(entity =>
             {
+                entity.HasKey(e => e.Id)
+                    .HasName("PRIMARY");
+
                 entity.HasIndex(e => e.Name)
                     .HasDatabaseName("IX_CommoditySpoilageRules_Name")
                     .IsUnique();

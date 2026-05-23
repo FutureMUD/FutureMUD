@@ -1,6 +1,7 @@
 ﻿using JetBrains.Annotations;
 using MudSharp.Construction;
 using MudSharp.Framework.Revision;
+using MudSharp.GameItems;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -1138,6 +1139,14 @@ namespace MudSharp.Framework
         /// </returns>
         public static T? GetByIdOrNameRevisableForEditing<T>(this IEnumerable<T> items, string text) where T : IRevisableItem
         {
+            if (typeof(IGameItemProto).IsAssignableFrom(typeof(T)))
+            {
+                var match = items
+                            .Cast<IGameItemProto>()
+                            .GetByIdOrUniqueNameOrNameForEditing(text);
+                return match is null ? default : (T)(object)match;
+            }
+
             List<T> filteredItems;
             if (long.TryParse(text, out long id))
             {
@@ -1179,6 +1188,14 @@ namespace MudSharp.Framework
         /// </returns>
         public static T? GetByIdOrNameRevisable<T>(this IEnumerable<T> items, string text) where T : IRevisableItem
         {
+            if (typeof(IGameItemProto).IsAssignableFrom(typeof(T)))
+            {
+                var match = items
+                            .Cast<IGameItemProto>()
+                            .GetByIdOrUniqueNameOrNameRevisable(text);
+                return match is null ? default : (T)(object)match;
+            }
+
             List<T> filteredItems;
             if (long.TryParse(text, out long id))
             {

@@ -42,6 +42,7 @@ When adding a new item event, keep the `EventInfoAttribute` metadata in `FutureM
 
 It owns the reusable definition of:
 - name and descriptive text
+- optional builder-facing unique lookup name and builder comment
 - base quality, weight, material, and size
 - health strategy
 - default registers
@@ -53,6 +54,10 @@ It owns the reusable definition of:
 - default `PlanarData` for corporeality and metaphysical visibility
 
 Prototype methods like `CreateNew(...)` instantiate a `GameItem`, create one runtime component per attached component prototype, apply variable initialisation, and execute on-load progs.
+
+`UniqueName` is a nullable, builder-facing identifier for the item template. It exists because the inherited `Name` property is the item noun in most builder workflows. Nonblank unique names are trimmed, must not be entirely numeric, and must be unique case-insensitively among active builder-visible revisions: `Current`, `PendingRevision`, and `UnderDesign`. Historical `Rejected`, `Revised`, and `Obsolete` revisions may duplicate active or historical unique names. Lookup code resolves item prototypes by numeric id first, exact unique name second, and legacy noun/name matching last.
+
+`BuilderNotes` is nullable free-form metadata for builders. It is displayed in `item show`, copied through revisions and clones, and searchable through item list filters, but it does not affect live item behaviour.
 
 If `PlanarData` is null or invalid, the item prototype resolves as ordinary Prime Material corporeal matter. Builders can use the item prototype `planar` command to make special items present on another plane, visible-only to another plane, or fully noncorporeal.
 

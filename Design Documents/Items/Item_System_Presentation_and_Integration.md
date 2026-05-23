@@ -12,13 +12,17 @@ The focus is on:
 ## Description Model
 ### Item-level descriptions
 Item prototypes provide the base descriptive layer:
+- builder-visible unique lookup name
 - noun
 - short description
 - full description
 - optional long description override
 - extra descriptions gated by progs
+- builder comment metadata
 
 Skins can override several of these presentation values without replacing the underlying item behaviour.
+
+`item show` displays the prototype's unique name and builder comment alongside the runtime-facing description fields. `item list` and item review tables include the unique name to make active templates easier to distinguish when nouns are intentionally generic. Builder comments are intentionally visible only in builder/admin workflows and are searchable with `comment:<text>` or the normal item-list text filters.
 
 ### Component-driven description decoration
 Components can decorate item descriptions by overriding:

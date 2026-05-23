@@ -160,9 +160,7 @@ public class AmmunitionGameItemComponentProto : GameItemComponentProto, IAmmoPro
             return false;
         }
 
-        IGameItemProto proto = long.TryParse(command.SafeRemainingArgument, out long value)
-            ? Gameworld.ItemProtos.Get(value)
-            : Gameworld.ItemProtos.GetByName(command.SafeRemainingArgument);
+        IGameItemProto proto = Gameworld.ItemProtos.GetByIdOrUniqueNameOrName(command.SafeRemainingArgument);
         if (proto == null)
         {
             actor.Send("There is no such proto.");
@@ -191,9 +189,7 @@ public class AmmunitionGameItemComponentProto : GameItemComponentProto, IAmmoPro
             return false;
         }
 
-        IGameItemProto proto = long.TryParse(command.SafeRemainingArgument, out long value)
-            ? Gameworld.ItemProtos.Get(value)
-            : Gameworld.ItemProtos.GetByName(command.SafeRemainingArgument);
+        IGameItemProto proto = Gameworld.ItemProtos.GetByIdOrUniqueNameOrName(command.SafeRemainingArgument);
         if (proto == null)
         {
             actor.Send("There is no such proto.");

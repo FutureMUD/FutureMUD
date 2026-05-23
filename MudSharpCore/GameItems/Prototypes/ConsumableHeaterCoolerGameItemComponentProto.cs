@@ -148,9 +148,7 @@ public class ConsumableHeaterCoolerGameItemComponentProto : ThermalSourceGameIte
             return true;
         }
 
-        IGameItemProto? proto = long.TryParse(command.SafeRemainingArgument, out long value)
-            ? Gameworld.ItemProtos.Get(value)
-            : Gameworld.ItemProtos.GetByName(command.SafeRemainingArgument);
+        IGameItemProto? proto = Gameworld.ItemProtos.GetByIdOrUniqueNameOrName(command.SafeRemainingArgument);
         if (proto is null)
         {
             actor.OutputHandler.Send("There is no such item prototype.");

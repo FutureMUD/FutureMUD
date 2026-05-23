@@ -222,7 +222,8 @@ internal class EditableRevisableItemHelper
                            select
                                new[]
                                {
-                                   proto.Id.ToString(), proto.RevisionNumber.ToString(), proto.Name.Proper(),
+                                   proto.Id.ToString(), proto.RevisionNumber.ToString(), proto.UniqueName ?? "",
+                                   proto.Name.Proper(),
                                    proto.ShortDescription,
                                    proto.Keywords.ListToString(separator: " ", conjunction: "", twoItemJoiner: ""),
                                    FMDB.Context.Accounts.Find(proto.BuilderAccountID).Name, proto.BuilderComment ?? ""
@@ -230,18 +231,19 @@ internal class EditableRevisableItemHelper
                 }
             },
             GetReviewTableHeaderFunc =
-                character => new[] { "ID#", "Rev#", "Name", "Short Description", "Keywords", "Builder", "Comment" },
+                character => new[] { "ID#", "Rev#", "Unique Name", "Name", "Short Description", "Keywords", "Builder", "Comment" },
             GetListTableContentsFunc = (character, protos) => from proto in protos.OfType<IGameItemProto>()
                                                               select
                                                                   new[]
                                                                   {
                                                                       proto.Id.ToString(),
                                                                       proto.RevisionNumber.ToString(),
+                                                                      proto.UniqueName ?? "",
                                                                       proto.Name.Proper(),
                                                                       proto.ShortDescription,
                                                                       proto.Status.Describe()
                                                                   },
-            GetListTableHeaderFunc = character => new[] { "ID#", "Rev#", "Name", "Short Description", "Status" },
+            GetListTableHeaderFunc = character => new[] { "ID#", "Rev#", "Unique Name", "Name", "Short Description", "Status" },
             GetReviewProposalEffectFunc =
                 (protos, character) =>
                     new Accept(character,
@@ -256,6 +258,14 @@ internal class EditableRevisableItemHelper
                     List<ITag> tags = gameworld.Tags.FindMatchingTags(keyword);
                     return protos.OfType<IGameItemProto>()
                                  .Where(x => x.Tags.Any(y => tags.Any(z => y.IsA(z))))
+                                 .ToList<IEditableRevisableItem>();
+                }
+
+                if (keyword.StartsWith("comment:", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    keyword = keyword["comment:".Length..];
+                    return protos.OfType<IGameItemProto>()
+                                 .Where(x => x.BuilderNotes?.Contains(keyword, StringComparison.InvariantCultureIgnoreCase) == true)
                                  .ToList<IEditableRevisableItem>();
                 }
 
@@ -879,13 +889,8 @@ internal class EditableRevisableItemHelper
                     return;
                 }
 
-                if (!long.TryParse(input.PopSpeech(), out long protoid))
-                {
-                    actor.OutputHandler.Send("You must enter a valid id number for the item prototype.");
-                    return;
-                }
-
-                IGameItemProto proto = actor.Gameworld.ItemProtos.Get(protoid);
+                var protoText = input.PopSpeech();
+                IGameItemProto proto = actor.Gameworld.ItemProtos.GetByIdOrUniqueNameOrName(protoText);
                 if (proto is null || (!actor.IsAdministrator() && !proto.PermitPlayerSkins))
                 {
                     actor.OutputHandler.Send(

@@ -345,14 +345,9 @@ public class Merchandise : LateInitialisingItem, IMerchandise
 
         IGameItemProto proto;
         string text = command.PopSpeech();
-        if (actor.IsAdministrator() && long.TryParse(text, out long value))
+        if (actor.IsAdministrator() && Gameworld.ItemProtos.GetByIdOrUniqueNameOrName(text) is { } itemProto)
         {
-            proto = Gameworld.ItemProtos.Get(value);
-            if (proto == null)
-            {
-                actor.OutputHandler.Send("There is no such item prototype.");
-                return false;
-            }
+            proto = itemProto;
         }
         else
         {

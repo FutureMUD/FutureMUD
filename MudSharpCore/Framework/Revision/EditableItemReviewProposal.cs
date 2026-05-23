@@ -82,6 +82,12 @@ public class EditableItemReviewProposal<T> : Proposal, IProposal where T : IEdit
 
     public override void Accept(string message = "")
     {
+        foreach (T item in _reviewItems.Where(x => !x.CanSubmit()))
+        {
+            _proponent.OutputHandler.Send($"{item.EditHeader().ColourName()} cannot be approved: {item.WhyCannotSubmit()}");
+            return;
+        }
+
         foreach (T item in _reviewItems)
         {
             foreach (

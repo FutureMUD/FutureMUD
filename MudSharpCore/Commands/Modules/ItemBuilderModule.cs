@@ -43,19 +43,20 @@ The valid sub-commands and their syntaxes are as follows:
 		#6mine#0 - only shows items you personally created
 		#6by <account>#0 - only shows items the nominated account created
 		#6reviewed <account>#0 - only shows items the nominated account has approved
-		#6+<keyword>#0 - only shows items with the nominated keyword
-		#6-<keyword>#0 - excludes items with the nominated keyword
+		#6+<keyword>#0 - only shows items with the nominated keyword, unique name or builder comment text
+		#6-<keyword>#0 - excludes items with the nominated keyword, unique name or builder comment text
+		#6comment:<text>#0 - shows only items whose builder comment contains the text
 		#6<type>#0 - shows only items that have a component of the specified type
 		#6*<tag>#0 - shows only items that 'are' the specified tag
 
-	#3item load [<quantity>] <id> [<extra args>]#0 - loads an item into the game. See below for extra args:
+	#3item load [<quantity>] <id|unique name> [<extra args>]#0 - loads an item into the game. See below for extra args:
 
 		#6variable=value|id#0 - sets a specific variable
 		#6variable=""value""#0 - same as above, for variable values with spaces
 		#6*<skin name|id>#0 - sets a skin for the item. Must be the first extra argument
 
 	#3item edit new#0 - creates a new item prototype
-	#3item edit <id>#0 - opens prototype with ID for editing
+	#3item edit <id|unique name>#0 - opens a prototype for editing
 	#3item edit#0 - shows the currently open item. Equivalent to doing ITEM SHOW <ID> on it.
 	#3item edit submit#0 - submits the open item for review
 	#3item edit close#0 - closes the open item
@@ -63,9 +64,15 @@ The valid sub-commands and their syntaxes are as follows:
 	#3item edit obsolete#0 - marks the item as obsolete, and no longer loadable
 	#3item show <ID>#0 - shows info about prototype with ID
 	#3item review all|mine|<admin name>|<id>#0 - opens the specified item prototypes for review and approval
-	#3item clone <id>#0 - clones an existing prototype to a new one (also opens for editing)
+	#3item clone <id|unique name>#0 - clones an existing prototype to a new one (also opens for editing)
 	#3item set add <id|name>#0 - adds the specified component to this item
 	#3item set remove <id|name>#0 - removes the specified component from this item
+	#3item set unique <name>#0 - sets an optional unique lookup name for this item template
+	#3item set unique clear#0 - clears the unique lookup name
+	#3item set comment <text>#0 - overwrites the builder comment for this item template
+	#3item set comment append [<text>]#0 - appends to the builder comment, using an editor if no text is supplied
+	#3item set comment edit#0 - edits the builder comment in an editor
+	#3item set comment clear#0 - clears the builder comment
 	#3item set noun <noun>#0 - sets the primary noun for this item. Single word only.
 	#3item set sdesc <sdesc>#0 - sets the short description (e.g. a solid iron sword)
 	#3item set ldesc <ldesc>#0 - sets an overrided long description (in room) for this item
@@ -86,7 +93,7 @@ The valid sub-commands and their syntaxes are as follows:
 	#3item set canskin#0 - toggles whether players can make skins for this item
 	#3item set register <variable name> <default value>#0 - sets a default value for a register variable for this item
 	#3item set register delete <variable name>#0 - deletes a default value for a register variable
-	#3item set morph <item##|none> <seconds> [<emote>]#0 - sets item morph information. The 'none' value makes the item disappear.
+	#3item set morph <item##|unique name|none> <seconds> [<emote>]#0 - sets item morph information. The 'none' value makes the item disappear.
 	#3item set morph clear#0 - clears any morph info for this item
 	#3item set group <id|name>#0 - sets this item's item group (for in-room grouping)
 	#3item set group none#0 - clears this item's item group
@@ -147,9 +154,7 @@ The valid sub-commands and their syntaxes are as follows:
                 return;
             }
 
-            IGameItemProto proto = long.TryParse(ss.SafeRemainingArgument, out long value)
-                ? actor.Gameworld.ItemProtos.Get(value)
-                : actor.Gameworld.ItemProtos.GetByName(ss.SafeRemainingArgument, true);
+            IGameItemProto proto = actor.Gameworld.ItemProtos.GetByIdOrUniqueNameOrName(ss.SafeRemainingArgument);
             if (proto == null)
             {
                 actor.Send("There is no such item prototype for you to clone.");

@@ -662,13 +662,7 @@ public class BankAccountType : SaveableItem, IBankAccountType
             return true;
         }
 
-        if (!long.TryParse(command.SafeRemainingArgument, out long value))
-        {
-            actor.OutputHandler.Send("You must enter the id number of the item prototype.");
-            return false;
-        }
-
-        IGameItemProto item = Gameworld.ItemProtos.Get(value);
+        IGameItemProto item = Gameworld.ItemProtos.GetByIdOrUniqueNameOrName(command.SafeRemainingArgument);
         if (item is null)
         {
             actor.OutputHandler.Send("There is no such item prototype.");
@@ -684,7 +678,7 @@ public class BankAccountType : SaveableItem, IBankAccountType
         PaymentItemPrototype = item.Id;
         Changed = true;
         actor.OutputHandler.Send(
-            $"This bank account type will now use item #{value.ToString("N0", actor)} ({item.ShortDescription.Colour(item.CustomColour ?? Telnet.Green)}) as its payment item.");
+            $"This bank account type will now use item #{item.Id.ToString("N0", actor)} ({item.ShortDescription.Colour(item.CustomColour ?? Telnet.Green)}) as its payment item.");
         return true;
     }
 

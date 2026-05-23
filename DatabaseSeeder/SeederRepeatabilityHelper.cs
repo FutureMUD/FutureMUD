@@ -39,7 +39,7 @@ internal static class SeederRepeatabilityHelper
         where T : class
     {
         Func<T, bool> localPredicate = predicate.Compile();
-        return set.Local.FirstOrDefault(localPredicate) ??
+        return set.Local.AsEnumerable().FirstOrDefault(localPredicate) ??
                set.AsEnumerable().FirstOrDefault(localPredicate) ??
                create();
     }
@@ -51,7 +51,7 @@ internal static class SeederRepeatabilityHelper
         Func<T> create)
         where T : class
     {
-        return set.Local.FirstOrDefault(localPredicate) ??
+        return set.Local.AsEnumerable().FirstOrDefault(localPredicate) ??
                set.Where(queryPredicate).AsEnumerable().FirstOrDefault(localPredicate) ??
                create();
     }

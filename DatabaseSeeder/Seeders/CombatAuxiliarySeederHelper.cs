@@ -259,7 +259,7 @@ internal static class CombatAuxiliarySeederHelper
 
 	private static Tag EnsureTag(FuturemudDatabaseContext context, string name, Tag? parent)
 	{
-		var tag = context.Tags.Local.FirstOrDefault(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase)) ??
+		var tag = context.Tags.Local.AsEnumerable().FirstOrDefault(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase)) ??
 		          context.Tags.AsEnumerable().FirstOrDefault(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
 		if (tag is not null)
 		{

@@ -6,10 +6,12 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MudSharp.Database;
+using MudSharp.Health;
 using MudSharp.Models;
 using System;
 using System.Linq;
 using System.Xml.Linq;
+using MaterialBehaviourType = MudSharp.Form.Material.MaterialBehaviourType;
 using TraitOwnerScope = MudSharp.Body.Traits.TraitOwnerScope;
 using TraitType = MudSharp.Body.Traits.TraitType;
 using SizeCategory = MudSharp.GameItems.SizeCategory;
@@ -151,6 +153,68 @@ public class UsefulSeederItemPackageTests
 		};
 	}
 
+	private static Tag CreateTag(long id, string name)
+	{
+		return new Tag
+		{
+			Id = id,
+			Name = name
+		};
+	}
+
+	private static Material CreateMaterial(long id, string name, MaterialBehaviourType behaviourType)
+	{
+		return new Material
+		{
+			Id = id,
+			Name = name,
+			MaterialDescription = name,
+			BehaviourType = (int)behaviourType,
+			ResidueSdesc = string.Empty,
+			ResidueDesc = string.Empty,
+			ResidueColour = string.Empty
+		};
+	}
+
+	private static void SeedRepairKitPrerequisites(FuturemudDatabaseContext context)
+	{
+		context.Tags.AddRange(
+			CreateTag(1, "Armour"),
+			CreateTag(2, "Weapons"),
+			CreateTag(3, "Tools"));
+
+		context.TraitDefinitions.AddRange(
+			CreateSkill(101, "Tailoring"),
+			CreateSkill(102, "Armourcrafting"),
+			CreateSkill(103, "Weaponcrafting"),
+			CreateSkill(104, "Blacksmithing"),
+			CreateSkill(105, "Carpentry"),
+			CreateSkill(106, "Masonry"),
+			CreateSkill(107, "Pottery"),
+			CreateSkill(108, "Scrimshawing"),
+			CreateSkill(109, "Salvaging"));
+
+		context.Materials.AddRange(
+			CreateMaterial(201, "linen", MaterialBehaviourType.Fabric),
+			CreateMaterial(202, "hair", MaterialBehaviourType.Hair),
+			CreateMaterial(203, "feather", MaterialBehaviourType.Feather),
+			CreateMaterial(204, "leather", MaterialBehaviourType.Leather),
+			CreateMaterial(205, "skin", MaterialBehaviourType.Skin),
+			CreateMaterial(206, "flesh", MaterialBehaviourType.Flesh),
+			CreateMaterial(207, "bronze", MaterialBehaviourType.Metal),
+			CreateMaterial(208, "oak", MaterialBehaviourType.Wood),
+			CreateMaterial(209, "limestone", MaterialBehaviourType.Stone),
+			CreateMaterial(210, "earthenware", MaterialBehaviourType.Ceramic),
+			CreateMaterial(211, "bone", MaterialBehaviourType.Bone),
+			CreateMaterial(212, "shell", MaterialBehaviourType.Shell),
+			CreateMaterial(213, "horn", MaterialBehaviourType.Horn),
+			CreateMaterial(214, "tooth", MaterialBehaviourType.Tooth),
+			CreateMaterial(215, "scale", MaterialBehaviourType.Scale),
+			CreateMaterial(216, "claw", MaterialBehaviourType.Claw),
+			CreateMaterial(217, "beak", MaterialBehaviourType.Beak));
+		context.SaveChanges();
+	}
+
 	private static void AssertContainerDefinition(GameItemComponentProto component, double weight, SizeCategory maxSize, string preposition, bool closable, bool transparent)
 	{
 		XElement definition = XElement.Parse(component.Definition);
@@ -287,6 +351,64 @@ public class UsefulSeederItemPackageTests
 	}
 
 	[TestMethod]
+	public void SeedRepairKitsForTesting_RerunDoesNotDuplicateAndAddsGeneralMaterialFamilies()
+	{
+		using FuturemudDatabaseContext context = BuildContext();
+		SeedGeneralPrerequisites(context);
+		SeedRepairKitPrerequisites(context);
+		UsefulSeeder seeder = new();
+
+		seeder.SeedRepairKitsForTesting(context);
+		seeder.SeedRepairKitsForTesting(context);
+
+		foreach (var name in new[]
+		{
+			"Repair_Wood",
+			"Repair_Wood_Good",
+			"Repair_Wood_Poor",
+			"Repair_Metal",
+			"Repair_Metal_Good",
+			"Repair_Metal_Poor",
+			"Repair_Stone",
+			"Repair_Stone_Good",
+			"Repair_Stone_Poor",
+			"Repair_Ceramic",
+			"Repair_Ceramic_Good",
+			"Repair_Ceramic_Poor",
+			"Repair_Hard_Organic",
+			"Repair_Hard_Organic_Good",
+			"Repair_Hard_Organic_Poor"
+		})
+		{
+			Assert.AreEqual(1, context.GameItemComponentProtos.Count(x => x.Name == name), $"Expected one component named {name}.");
+			Assert.AreEqual("RepairKit", context.GameItemComponentProtos.Single(x => x.Name == name).Type);
+		}
+
+		AssertRepairKitDefinition(context, "Repair_Wood", "Carpentry", WoundSeverity.Grievous, 1000.0, 0.0, "oak");
+		AssertRepairKitDefinition(context, "Repair_Wood_Good", "Carpentry", WoundSeverity.Horrifying, 1500.0, 1.0, "oak");
+		AssertRepairKitDefinition(context, "Repair_Wood_Poor", "Carpentry", WoundSeverity.Severe, 600.0, -1.0, "oak");
+
+		AssertRepairKitDefinition(context, "Repair_Metal", "Blacksmithing", WoundSeverity.Grievous, 1000.0, 0.0, "bronze");
+		AssertRepairKitDefinition(context, "Repair_Metal_Good", "Blacksmithing", WoundSeverity.Horrifying, 1500.0, 1.0, "bronze");
+		AssertRepairKitDefinition(context, "Repair_Metal_Poor", "Blacksmithing", WoundSeverity.Severe, 600.0, -1.0, "bronze");
+
+		AssertRepairKitDefinition(context, "Repair_Stone", "Masonry", WoundSeverity.Grievous, 1000.0, 0.0, "limestone");
+		AssertRepairKitDefinition(context, "Repair_Stone_Good", "Masonry", WoundSeverity.Horrifying, 1500.0, 1.0, "limestone");
+		AssertRepairKitDefinition(context, "Repair_Stone_Poor", "Masonry", WoundSeverity.Severe, 600.0, -1.0, "limestone");
+
+		AssertRepairKitDefinition(context, "Repair_Ceramic", "Pottery", WoundSeverity.Grievous, 1000.0, 0.0, "earthenware");
+		AssertRepairKitDefinition(context, "Repair_Ceramic_Good", "Pottery", WoundSeverity.Horrifying, 1500.0, 1.0, "earthenware");
+		AssertRepairKitDefinition(context, "Repair_Ceramic_Poor", "Pottery", WoundSeverity.Severe, 600.0, -1.0, "earthenware");
+
+		AssertRepairKitDefinition(context, "Repair_Hard_Organic", "Scrimshawing", WoundSeverity.Grievous, 1000.0, 0.0,
+			"beak", "bone", "claw", "horn", "scale", "shell", "tooth");
+		AssertRepairKitDefinition(context, "Repair_Hard_Organic_Good", "Scrimshawing", WoundSeverity.Horrifying, 1500.0, 1.0,
+			"beak", "bone", "claw", "horn", "scale", "shell", "tooth");
+		AssertRepairKitDefinition(context, "Repair_Hard_Organic_Poor", "Scrimshawing", WoundSeverity.Severe, 600.0, -1.0,
+			"beak", "bone", "claw", "horn", "scale", "shell", "tooth");
+	}
+
+	[TestMethod]
 	public void SeedWornTraitChangersForTesting_NoExpectedSkillPackageTraits_SkipsFamily()
 	{
 		using FuturemudDatabaseContext context = BuildContext();
@@ -348,6 +470,30 @@ public class UsefulSeederItemPackageTests
 		Assert.AreEqual(5.0, ModifierFor(Component("WornTraitChanger_StealthMobilityBonus_Moderate"), 106));
 
 		GameItemComponentProto Component(string name) => context.GameItemComponentProtos.Single(x => x.Name == name);
+	}
+
+	private static void AssertRepairKitDefinition(FuturemudDatabaseContext context, string componentName, string traitName,
+		WoundSeverity maximumSeverity, double repairPoints, double checkBonus, params string[] expectedMaterials)
+	{
+		var component = context.GameItemComponentProtos.Single(x => x.Name == componentName);
+		XElement definition = XElement.Parse(component.Definition);
+		Assert.AreEqual((int)maximumSeverity, (int)definition.Element("MaximumSeverity")!);
+		Assert.AreEqual(repairPoints, (double)definition.Element("RepairPoints")!);
+		Assert.AreEqual(context.TraitDefinitions.Single(x => x.Name == traitName).Id, (long)definition.Element("CheckTrait")!);
+		Assert.AreEqual(checkBonus, (double)definition.Element("CheckBonus")!);
+		Assert.AreEqual(0, definition.Element("Tags")!.Elements("Tag").Count(), $"{componentName} should not require category tags.");
+
+		var materialIds = definition.Element("Materials")!
+		                            .Elements("Material")
+		                            .Select(x => (long)x)
+		                            .ToHashSet();
+		var materialNames = context.Materials
+		                           .AsEnumerable()
+		                           .Where(x => materialIds.Contains(x.Id))
+		                           .Select(x => x.Name)
+		                           .OrderBy(x => x, StringComparer.OrdinalIgnoreCase)
+		                           .ToArray();
+		CollectionAssert.AreEqual(expectedMaterials.OrderBy(x => x, StringComparer.OrdinalIgnoreCase).ToArray(), materialNames);
 	}
 
 	private static double ModifierFor(GameItemComponentProto component, long traitId)

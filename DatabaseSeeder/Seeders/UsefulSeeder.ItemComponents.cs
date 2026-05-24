@@ -198,6 +198,18 @@ public partial class UsefulSeeder
         context.SaveChanges();
     }
 
+    internal void SeedRepairKitsForTesting(FuturemudDatabaseContext context)
+    {
+        _context = context;
+        PrepareItemProtoCache(context);
+        _tags = context.Tags.ToDictionaryWithDefault(x => x.Name, x => x, StringComparer.OrdinalIgnoreCase);
+        DateTime now = DateTime.UtcNow;
+        Account dbaccount = context.Accounts.First();
+        long nextId = context.GameItemComponentProtos.Any() ? context.GameItemComponentProtos.Max(x => x.Id) + 1 : 1;
+        SeedRepairKits(context, now, dbaccount, ref nextId);
+        context.SaveChanges();
+    }
+
     internal void SeedContainersForTesting(FuturemudDatabaseContext context)
     {
         _context = context;
@@ -6635,6 +6647,26 @@ public partial class UsefulSeeder
         AddRepairKitType("Metal_Tool", "a repair kit that repairs metal tools", WoundSeverity.Grievous, 1000, (skills["Blacksmithing"] ?? skills["Blacksmith"])?.Id, 0.0, ["Metal"], ["Tools"]);
         AddRepairKitType("Metal_Tool_Good", "a good-quality repair kit that repairs metal tools", WoundSeverity.Horrifying, 1500, (skills["Blacksmithing"] ?? skills["Blacksmith"])?.Id, 1.0, ["Metal"], ["Tools"]);
         AddRepairKitType("Metal_Tool_Poor", "a poor-quality repair kit that repairs metal tools", WoundSeverity.Severe, 600, (skills["Blacksmithing"] ?? skills["Blacksmith"])?.Id, -1.0, ["Metal"], ["Tools"]);
+
+        AddRepairKitType("Wood", "a repair kit that repairs wooden items", WoundSeverity.Grievous, 1000, (skills["Carpentry"] ?? skills["Woodcraft"] ?? skills["Constructing"] ?? skills["Construction"])?.Id, 0.0, ["Wood"], []);
+        AddRepairKitType("Wood_Good", "a good-quality repair kit that repairs wooden items", WoundSeverity.Horrifying, 1500, (skills["Carpentry"] ?? skills["Woodcraft"] ?? skills["Constructing"] ?? skills["Construction"])?.Id, 1.0, ["Wood"], []);
+        AddRepairKitType("Wood_Poor", "a poor-quality repair kit that repairs wooden items", WoundSeverity.Severe, 600, (skills["Carpentry"] ?? skills["Woodcraft"] ?? skills["Constructing"] ?? skills["Construction"])?.Id, -1.0, ["Wood"], []);
+
+        AddRepairKitType("Metal", "a repair kit that repairs metal items", WoundSeverity.Grievous, 1000, (skills["Blacksmithing"] ?? skills["Metalcraft"] ?? skills["Blacksmith"])?.Id, 0.0, ["Metal"], []);
+        AddRepairKitType("Metal_Good", "a good-quality repair kit that repairs metal items", WoundSeverity.Horrifying, 1500, (skills["Blacksmithing"] ?? skills["Metalcraft"] ?? skills["Blacksmith"])?.Id, 1.0, ["Metal"], []);
+        AddRepairKitType("Metal_Poor", "a poor-quality repair kit that repairs metal items", WoundSeverity.Severe, 600, (skills["Blacksmithing"] ?? skills["Metalcraft"] ?? skills["Blacksmith"])?.Id, -1.0, ["Metal"], []);
+
+        AddRepairKitType("Stone", "a repair kit that repairs stone items", WoundSeverity.Grievous, 1000, (skills["Masonry"] ?? skills["Stonecraft"] ?? skills["Constructing"] ?? skills["Construction"])?.Id, 0.0, ["Stone"], []);
+        AddRepairKitType("Stone_Good", "a good-quality repair kit that repairs stone items", WoundSeverity.Horrifying, 1500, (skills["Masonry"] ?? skills["Stonecraft"] ?? skills["Constructing"] ?? skills["Construction"])?.Id, 1.0, ["Stone"], []);
+        AddRepairKitType("Stone_Poor", "a poor-quality repair kit that repairs stone items", WoundSeverity.Severe, 600, (skills["Masonry"] ?? skills["Stonecraft"] ?? skills["Constructing"] ?? skills["Construction"])?.Id, -1.0, ["Stone"], []);
+
+        AddRepairKitType("Ceramic", "a repair kit that repairs ceramic items", WoundSeverity.Grievous, 1000, (skills["Pottery"] ?? skills["Potter"] ?? skills["Masonry"] ?? skills["Stonecraft"])?.Id, 0.0, ["Ceramic"], []);
+        AddRepairKitType("Ceramic_Good", "a good-quality repair kit that repairs ceramic items", WoundSeverity.Horrifying, 1500, (skills["Pottery"] ?? skills["Potter"] ?? skills["Masonry"] ?? skills["Stonecraft"])?.Id, 1.0, ["Ceramic"], []);
+        AddRepairKitType("Ceramic_Poor", "a poor-quality repair kit that repairs ceramic items", WoundSeverity.Severe, 600, (skills["Pottery"] ?? skills["Potter"] ?? skills["Masonry"] ?? skills["Stonecraft"])?.Id, -1.0, ["Ceramic"], []);
+
+        AddRepairKitType("Hard_Organic", "a repair kit that repairs hard organic items", WoundSeverity.Grievous, 1000, (skills["Scrimshawing"] ?? skills["Scrimshaw"] ?? skills["Carpentry"] ?? skills["Woodcraft"])?.Id, 0.0, ["Bone", "Shell", "Horn", "Tooth", "Scale", "Claw", "Beak"], []);
+        AddRepairKitType("Hard_Organic_Good", "a good-quality repair kit that repairs hard organic items", WoundSeverity.Horrifying, 1500, (skills["Scrimshawing"] ?? skills["Scrimshaw"] ?? skills["Carpentry"] ?? skills["Woodcraft"])?.Id, 1.0, ["Bone", "Shell", "Horn", "Tooth", "Scale", "Claw", "Beak"], []);
+        AddRepairKitType("Hard_Organic_Poor", "a poor-quality repair kit that repairs hard organic items", WoundSeverity.Severe, 600, (skills["Scrimshawing"] ?? skills["Scrimshaw"] ?? skills["Carpentry"] ?? skills["Woodcraft"])?.Id, -1.0, ["Bone", "Shell", "Horn", "Tooth", "Scale", "Claw", "Beak"], []);
 
         AddRepairKitType("Universal", "a repair kit that repairs anything", WoundSeverity.Severe, 250, (skills["Salvaging"] ?? skills["Salvage"])?.Id, -1.0, [], []);
         AddRepairKitType("Universal_Good", "a good-quality repair kit that repairs anything", WoundSeverity.VerySevere, 350, (skills["Salvaging"] ?? skills["Salvage"])?.Id, 0.0, [], []);

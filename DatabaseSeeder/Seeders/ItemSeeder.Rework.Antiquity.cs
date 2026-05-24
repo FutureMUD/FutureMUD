@@ -16425,6 +16425,177 @@ namespace DatabaseSeeder.Seeders
 
         }
 
+        private void SeedAntiquityRepairKits()
+        {
+            CreateItem(
+                "antiquity_textile_repair_kit",
+                "kit",
+                "a linen textile repair kit",
+                null,
+                "This compact repair kit is wrapped in a roll of sturdy linen and tied with braided cord. Inside are packets of thread, folded patches, spare ties, small needles, and a few smooth tools for setting cloth back into shape. It is arranged for quick repairs to garments, padding, coverings, and other fabric goods.",
+                SizeCategory.Normal,
+                ItemQuality.Standard,
+                450.0,
+                35.0m,
+                true,
+                false,
+                "linen",
+                ["Market / Professional Tools / Standard Tools", "Functions / Repairing"],
+                ["Holdable", "Destroyable_Misc", "Repair_Cloth"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_leather_repair_kit",
+                "kit",
+                "a leather repair kit",
+                null,
+                "This leather repair kit is packed into a soft deer-leather pouch with rows of narrow pockets stitched inside. It holds waxed thread, thongs, small patches, awls, burnishers, and scraps suitable for binding split seams or replacing worn straps. The contents are practical and field-ready rather than ornamental.",
+                SizeCategory.Normal,
+                ItemQuality.Standard,
+                700.0,
+                45.0m,
+                true,
+                false,
+                "deer leather",
+                ["Market / Professional Tools / Standard Tools", "Functions / Repairing"],
+                ["Holdable", "Destroyable_Misc", "Repair_Leather"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_wood_repair_kit",
+                "kit",
+                "a woodwork repair kit",
+                null,
+                "This oak repair kit keeps wedges, pegs, binding cord, small clamps, and dressed slips of wood bundled inside a shallow tool tray. Its contents are suited to splinting cracks, tightening joints, and replacing small worn fittings on doors, furniture, tools, and wooden weapons. The kit smells faintly of resin and scraped hardwood.",
+                SizeCategory.Normal,
+                ItemQuality.Standard,
+                1200.0,
+                38.0m,
+                true,
+                false,
+                "oak",
+                ["Market / Professional Tools / Standard Tools", "Functions / Repairing"],
+                ["Holdable", "Destroyable_Misc", "Repair_Wood"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_metal_repair_kit",
+                "kit",
+                "a bronze metal repair kit",
+                null,
+                "This bronze repair kit carries small rivets, binding strips, soft wire, polishing grit, and compact shaping tools in a compartmented leather-lined case. It is meant for mending ordinary metal fittings, tool heads, hinges, studs, trim, and battered household hardware. The pieces inside are scuffed from repeated use around forge and workshop benches.",
+                SizeCategory.Normal,
+                ItemQuality.Standard,
+                1600.0,
+                80.0m,
+                true,
+                false,
+                "bronze",
+                ["Market / Professional Tools / Standard Tools", "Functions / Repairing"],
+                ["Holdable", "Destroyable_Misc", "Repair_Metal"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_stone_repair_kit",
+                "kit",
+                "a stone repair kit",
+                null,
+                "This limestone repair kit is a heavy bundle of fitted chips, fine abrasive, wedges, binding cord, and small smoothing tools. The pieces are chosen for patching chipped stoneware, heavy fittings, work surfaces, and shaped tool parts without needing a full quarrying setup. Its wrapping is dusted pale from the stone grit inside.",
+                SizeCategory.Normal,
+                ItemQuality.Standard,
+                1800.0,
+                50.0m,
+                true,
+                false,
+                "limestone",
+                ["Market / Professional Tools / Standard Tools", "Functions / Repairing"],
+                ["Holdable", "Destroyable_Misc", "Repair_Stone"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_ceramic_repair_kit",
+                "kit",
+                "a ceramic repair kit",
+                null,
+                "This earthenware repair kit keeps powdered clay, slip, burnishing stones, small smoothing ribs, and wrapped sherd patches together in a padded basket. It is suited to stabilising cracked vessels, tablets, lamps, and fired-clay fittings before more complete workshop repair. The contents are dry, powdery, and carefully cushioned.",
+                SizeCategory.Normal,
+                ItemQuality.Standard,
+                1000.0,
+                36.0m,
+                true,
+                false,
+                "earthenware",
+                ["Market / Professional Tools / Standard Tools", "Functions / Repairing"],
+                ["Holdable", "Destroyable_Misc", "Repair_Ceramic"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_hard_organic_repair_kit",
+                "kit",
+                "a bone and horn repair kit",
+                null,
+                "This bone repair kit holds smooth pegs, small slivers of horn and shell, binding sinew, abrasive grit, and a few fine scraping tools. It is built for mending hard organic pieces such as handles, fittings, pins, gaming pieces, tools, and light decorative parts. The kit is neat, pale, and faintly polished from handling.",
+                SizeCategory.Normal,
+                ItemQuality.Standard,
+                900.0,
+                55.0m,
+                true,
+                false,
+                "bone",
+                ["Market / Professional Tools / Standard Tools", "Functions / Repairing"],
+                ["Holdable", "Destroyable_Misc", "Repair_Hard_Organic"],
+                null,
+                null,
+                null,
+                null
+            );
+
+            CreateItem(
+                "antiquity_field_repair_bundle",
+                "bundle",
+                "a mixed field repair bundle",
+                null,
+                "This leather bundle is tied around a mixed assortment of patches, cord, wedges, pins, scraps, grit, glue, and small hand tools. Nothing inside is specialised, but the bundle gives a traveller or quartermaster a way to make temporary repairs to almost any damaged object. It is bulky, useful, and plainly meant for hard use.",
+                SizeCategory.Normal,
+                ItemQuality.Standard,
+                1400.0,
+                60.0m,
+                true,
+                false,
+                "leather",
+                ["Market / Professional Tools / Standard Tools", "Functions / Repairing"],
+                ["Holdable", "Destroyable_Misc", "Repair_Universal"],
+                null,
+                null,
+                null,
+                null
+            );
+        }
+
         private void SeedAntiquityHouseholdFurniture()
         {
             CreateItem(

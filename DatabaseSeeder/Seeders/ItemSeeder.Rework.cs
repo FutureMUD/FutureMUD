@@ -180,6 +180,7 @@ namespace DatabaseSeeder.Seeders
                 SeedAntiquityArmour();
                 SeedAntiquityContainers();
                 SeedAntiquityDoorsAndLocks();
+                SeedAntiquityRepairKits();
                 SeedAntiquityHouseholdFurniture();
                 SeedAntiquityWeaponsShieldsAccessories();
                 SeedAntiquityApiaryItems();

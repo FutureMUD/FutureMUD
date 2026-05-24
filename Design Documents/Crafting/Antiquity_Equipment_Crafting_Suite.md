@@ -11,12 +11,13 @@ This document records the craft suite that closes the remaining non-household an
 - 76 non-leather armour prototypes from `SeedAntiquityArmour`.
 - 117 weapon, shield, ammunition, sling, and military-accessory prototypes from `SeedAntiquityWeaponsShieldsAccessories`.
 - Shared `Door Hardware Stock` used by the expanded household/door suite.
+- Eight portable repair-kit prototypes from `SeedAntiquityRepairKits`.
 
 Existing jewellery, culture-specific textile clothing, leather clothing, leather armour, leather containers, leather furnishings, medical goods, writing goods, and household goods stay on their existing suites. The equipment suite discovers military goods dynamically from `Market / Military Goods` tags, discovers support tools dynamically from `Market / Professional Tools / Standard Tools`, and excludes stable references already handled by the culture/leather/writing/medical suites.
 
 ## Implementation
 
-The implementation lives in `DatabaseSeeder/Seeders/ItemSeederCrafting.AntiquityEquipment.cs` and is registered from `SeedCrafts()` through `SeedAntiquityEquipmentCrafts()`.
+The implementation lives primarily in `DatabaseSeeder/Seeders/ItemSeederCrafting.AntiquityEquipment.cs` and is registered from `SeedCrafts()` through `SeedAntiquityEquipmentCrafts()`. Portable repair kits live in `ItemSeederCrafting.AntiquityRepairKits.cs` and are registered through `SeedAntiquityRepairKitCrafts()`.
 
 The suite follows the same stock pattern as the textile, leather, jewellery, and household work:
 
@@ -58,6 +59,21 @@ Reusable intermediate outputs that are intentionally allowed to sit at a stock b
 | `Ancient Armourcrafting` | Helmet bowls, armour plates, rings, scales, lamellae, textile padding, shields, and final armour assembly. |
 | `Ancient Toolmaking` | Metal, wooden, textile, leather, stone, bone, shell, glass, support-tool, and unlit apparatus prototypes. |
 | `Ancient Common Clothing Crafting` | Culture-neutral common clothing and accessories left outside the culture garment suites. |
+
+## Repair Kits
+
+Repair kits use general material-family `RepairKit` components instead of era-specific components. The stock antiquity items are standard-quality kits; good and poor component grades are also seeded for future item variants.
+
+| Stable Reference | Component | Primary Coverage |
+| --- | --- | --- |
+| `antiquity_textile_repair_kit` | `Repair_Cloth` | fabric armour padding, clothing, soft furnishings, and textile tools |
+| `antiquity_leather_repair_kit` | `Repair_Leather` | leather armour, containers, straps, furnishings, and tools |
+| `antiquity_wood_repair_kit` | `Repair_Wood` | wooden weapons, shields, furniture, doors, tool handles, and fixtures |
+| `antiquity_metal_repair_kit` | `Repair_Metal` | metal furniture, doors, fittings, tools, and general hardware |
+| `antiquity_stone_repair_kit` | `Repair_Stone` | stone tools, work surfaces, furniture, and fittings |
+| `antiquity_ceramic_repair_kit` | `Repair_Ceramic` | ceramic vessels, lamps, tablets, containers, and fired-clay fittings |
+| `antiquity_hard_organic_repair_kit` | `Repair_Hard_Organic` | bone, horn, shell, tooth, scale, claw, and beak fittings or tools |
+| `antiquity_field_repair_bundle` | `Repair_Universal` | low-grade mixed emergency repair across odd or composite items |
 
 ## Commodity Tags
 

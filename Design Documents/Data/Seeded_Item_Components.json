@@ -4130,6 +4130,171 @@
         "Component Type":  "Relay Switch"
     },
     {
+        "Component Name":  "Repair_Ceramic",
+        "Component Description":  "Turns an item into a repair kit that repairs ceramic items",
+        "Component Type":  "RepairKit"
+    },
+    {
+        "Component Name":  "Repair_Ceramic_Good",
+        "Component Description":  "Turns an item into a good-quality repair kit that repairs ceramic items",
+        "Component Type":  "RepairKit"
+    },
+    {
+        "Component Name":  "Repair_Ceramic_Poor",
+        "Component Description":  "Turns an item into a poor-quality repair kit that repairs ceramic items",
+        "Component Type":  "RepairKit"
+    },
+    {
+        "Component Name":  "Repair_Cloth",
+        "Component Description":  "Turns an item into a repair kit that repairs cloth items",
+        "Component Type":  "RepairKit"
+    },
+    {
+        "Component Name":  "Repair_Cloth_Good",
+        "Component Description":  "Turns an item into a good-quality repair kit that repairs cloth items",
+        "Component Type":  "RepairKit"
+    },
+    {
+        "Component Name":  "Repair_Cloth_Poor",
+        "Component Description":  "Turns an item into a poor-quality repair kit that repairs cloth items",
+        "Component Type":  "RepairKit"
+    },
+    {
+        "Component Name":  "Repair_Hard_Organic",
+        "Component Description":  "Turns an item into a repair kit that repairs hard organic items",
+        "Component Type":  "RepairKit"
+    },
+    {
+        "Component Name":  "Repair_Hard_Organic_Good",
+        "Component Description":  "Turns an item into a good-quality repair kit that repairs hard organic items",
+        "Component Type":  "RepairKit"
+    },
+    {
+        "Component Name":  "Repair_Hard_Organic_Poor",
+        "Component Description":  "Turns an item into a poor-quality repair kit that repairs hard organic items",
+        "Component Type":  "RepairKit"
+    },
+    {
+        "Component Name":  "Repair_Leather",
+        "Component Description":  "Turns an item into a repair kit that repairs leather items",
+        "Component Type":  "RepairKit"
+    },
+    {
+        "Component Name":  "Repair_Leather_Good",
+        "Component Description":  "Turns an item into a good-quality repair kit that repairs leather items",
+        "Component Type":  "RepairKit"
+    },
+    {
+        "Component Name":  "Repair_Leather_Poor",
+        "Component Description":  "Turns an item into a poor-quality repair kit that repairs leather items",
+        "Component Type":  "RepairKit"
+    },
+    {
+        "Component Name":  "Repair_Metal",
+        "Component Description":  "Turns an item into a repair kit that repairs metal items",
+        "Component Type":  "RepairKit"
+    },
+    {
+        "Component Name":  "Repair_Metal_Armour",
+        "Component Description":  "Turns an item into a repair kit that repairs metal armour",
+        "Component Type":  "RepairKit"
+    },
+    {
+        "Component Name":  "Repair_Metal_Armour_Good",
+        "Component Description":  "Turns an item into a good-quality repair kit that repairs metal armour",
+        "Component Type":  "RepairKit"
+    },
+    {
+        "Component Name":  "Repair_Metal_Armour_Poor",
+        "Component Description":  "Turns an item into a poor-quality repair kit that repairs metal armour",
+        "Component Type":  "RepairKit"
+    },
+    {
+        "Component Name":  "Repair_Metal_Good",
+        "Component Description":  "Turns an item into a good-quality repair kit that repairs metal items",
+        "Component Type":  "RepairKit"
+    },
+    {
+        "Component Name":  "Repair_Metal_Poor",
+        "Component Description":  "Turns an item into a poor-quality repair kit that repairs metal items",
+        "Component Type":  "RepairKit"
+    },
+    {
+        "Component Name":  "Repair_Metal_Tool",
+        "Component Description":  "Turns an item into a repair kit that repairs metal tools",
+        "Component Type":  "RepairKit"
+    },
+    {
+        "Component Name":  "Repair_Metal_Tool_Good",
+        "Component Description":  "Turns an item into a good-quality repair kit that repairs metal tools",
+        "Component Type":  "RepairKit"
+    },
+    {
+        "Component Name":  "Repair_Metal_Tool_Poor",
+        "Component Description":  "Turns an item into a poor-quality repair kit that repairs metal tools",
+        "Component Type":  "RepairKit"
+    },
+    {
+        "Component Name":  "Repair_Metal_Weapon",
+        "Component Description":  "Turns an item into a repair kit that repairs metal weapons",
+        "Component Type":  "RepairKit"
+    },
+    {
+        "Component Name":  "Repair_Metal_Weapon_Good",
+        "Component Description":  "Turns an item into a good-quality repair kit that repairs metal weapons",
+        "Component Type":  "RepairKit"
+    },
+    {
+        "Component Name":  "Repair_Metal_Weapon_Poor",
+        "Component Description":  "Turns an item into a poor-quality repair kit that repairs metal weapons",
+        "Component Type":  "RepairKit"
+    },
+    {
+        "Component Name":  "Repair_Stone",
+        "Component Description":  "Turns an item into a repair kit that repairs stone items",
+        "Component Type":  "RepairKit"
+    },
+    {
+        "Component Name":  "Repair_Stone_Good",
+        "Component Description":  "Turns an item into a good-quality repair kit that repairs stone items",
+        "Component Type":  "RepairKit"
+    },
+    {
+        "Component Name":  "Repair_Stone_Poor",
+        "Component Description":  "Turns an item into a poor-quality repair kit that repairs stone items",
+        "Component Type":  "RepairKit"
+    },
+    {
+        "Component Name":  "Repair_Universal",
+        "Component Description":  "Turns an item into a repair kit that repairs anything",
+        "Component Type":  "RepairKit"
+    },
+    {
+        "Component Name":  "Repair_Universal_Good",
+        "Component Description":  "Turns an item into a good-quality repair kit that repairs anything",
+        "Component Type":  "RepairKit"
+    },
+    {
+        "Component Name":  "Repair_Universal_Poor",
+        "Component Description":  "Turns an item into a poor-quality repair kit that repairs anything",
+        "Component Type":  "RepairKit"
+    },
+    {
+        "Component Name":  "Repair_Wood",
+        "Component Description":  "Turns an item into a repair kit that repairs wooden items",
+        "Component Type":  "RepairKit"
+    },
+    {
+        "Component Name":  "Repair_Wood_Good",
+        "Component Description":  "Turns an item into a good-quality repair kit that repairs wooden items",
+        "Component Type":  "RepairKit"
+    },
+    {
+        "Component Name":  "Repair_Wood_Poor",
+        "Component Description":  "Turns an item into a poor-quality repair kit that repairs wooden items",
+        "Component Type":  "RepairKit"
+    },
+    {
         "Component Name":  "Restraint",
         "Component Description":  "Turns an item into a restraint when combined with the wearables that are named \"Bound \u003cX\u003e\"",
         "Component Type":  "Restraint"

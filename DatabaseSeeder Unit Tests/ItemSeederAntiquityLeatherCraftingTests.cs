@@ -147,7 +147,9 @@ public class ItemSeederAntiquityLeatherCraftingTests
 	[TestMethod]
 	public void LeatherCrafts_CoverEveryAntiquityLeatherMaterialItem()
 	{
-		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.Antiquity.cs");
+		var craftSource =
+			ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.Antiquity.cs") +
+			ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.AntiquityRepairKits.cs");
 		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.Antiquity.cs");
 		var leatherItemStableReferences = FindAntiquityLeatherMaterialItemStableReferences(itemSource)
 			.ToArray();

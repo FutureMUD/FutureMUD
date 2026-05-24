@@ -629,6 +629,7 @@ public partial class ItemSeeder
 				.Where(x => !AntiquityWritingStableReferences.Contains(x.Key, StringComparer.OrdinalIgnoreCase))
 				.Where(x => !AntiquityMedicalStableReferences.Contains(x.Key, StringComparer.OrdinalIgnoreCase))
 				.Where(x => !AntiquityLitWorkshopApparatusStableReferences.Contains(x.Key, StringComparer.OrdinalIgnoreCase))
+				.Where(x => !AntiquityRepairKitStableReferences.Contains(x.Key, StringComparer.OrdinalIgnoreCase))
 				.Where(x => x.Value.GameItemProtosTags.Any(y => professionalToolTagIds.Contains(y.TagId)))
 				.Select(x => x.Key))
 			.Concat(AntiquityUnlitWorkshopApparatusStableReferences)

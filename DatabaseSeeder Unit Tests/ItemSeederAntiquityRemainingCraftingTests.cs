@@ -19,6 +19,7 @@ public class ItemSeederAntiquityRemainingCraftingTests
 		"SeedAntiquityArmour",
 		"SeedAntiquityContainers",
 		"SeedAntiquityDoorsAndLocks",
+		"SeedAntiquityRepairKits",
 		"SeedAntiquityHouseholdFurniture",
 		"SeedAntiquityWeaponsShieldsAccessories"
 	];
@@ -58,7 +59,7 @@ public class ItemSeederAntiquityRemainingCraftingTests
 			.SelectMany(method => ParseItemsInMethod(itemSource, method))
 			.ToList();
 
-		Assert.AreEqual(1034, items.Count, "The audit should track the current antiquity item catalogue.");
+		Assert.AreEqual(1042, items.Count, "The audit should track the current antiquity item catalogue.");
 		Assert.AreEqual(29, items.Count(IsAntiquityCraftToolTarget));
 		Assert.AreEqual(18, items.Count(x => equipmentCraftSource.Contains($"\"{x.StableReference}\"", StringComparison.Ordinal) &&
 		                                     x.MethodName.Equals("SeedAntiquityClothing", StringComparison.Ordinal) &&
@@ -98,6 +99,68 @@ public class ItemSeederAntiquityRemainingCraftingTests
 
 		Assert.AreEqual(0, uncoveredPartialReferences.Count,
 			$"Expected every explicitly named item in antiquity partial seeders to be craft-covered, dynamically craftable, or a documented morph target. Missing: {string.Join(", ", uncoveredPartialReferences)}");
+	}
+
+	[TestMethod]
+	public void AntiquityRepairKitCrafts_RegisterGeneralMaterialCoverage()
+	{
+		var reworkRoot = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.cs");
+		var craftRoot = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.cs");
+		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.Antiquity.cs");
+		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.AntiquityRepairKits.cs");
+		var equipmentCraftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.AntiquityEquipment.cs");
+		var componentSource = ReadSource("DatabaseSeeder", "Seeders", "UsefulSeeder.ItemComponents.cs");
+		var componentCatalogue = ReadSource("Design Documents", "Data", "Seeded_Item_Components.json");
+		var equipmentDoc = ReadSource("Design Documents", "Crafting", "Antiquity_Equipment_Crafting_Suite.md");
+
+		AssertContains(reworkRoot, "SeedAntiquityRepairKits();");
+		AssertContains(craftRoot, "SeedAntiquityRepairKitCrafts();");
+		AssertContains(itemSource, "private void SeedAntiquityRepairKits()");
+		AssertContains(craftSource, "private void SeedAntiquityRepairKitCrafts()");
+		AssertContains(craftSource, "AncientToolmakingKnowledge");
+		AssertContains(craftSource, "Repair Kits");
+		AssertContains(equipmentCraftSource, "!AntiquityRepairKitStableReferences.Contains");
+
+		var repairItems = ParseItemsInMethod(itemSource, "SeedAntiquityRepairKits");
+		Assert.AreEqual(8, repairItems.Count, "The antiquity repair-kit stock surface should stay intentionally compact.");
+
+		foreach (var expected in new[]
+		{
+			(Stable: "antiquity_textile_repair_kit", Component: "Repair_Cloth", Material: "linen", Skill: "Tailoring"),
+			(Stable: "antiquity_leather_repair_kit", Component: "Repair_Leather", Material: "deer leather", Skill: "Leathermaking"),
+			(Stable: "antiquity_wood_repair_kit", Component: "Repair_Wood", Material: "oak", Skill: "Carpentry"),
+			(Stable: "antiquity_metal_repair_kit", Component: "Repair_Metal", Material: "bronze", Skill: "Blacksmithing"),
+			(Stable: "antiquity_stone_repair_kit", Component: "Repair_Stone", Material: "limestone", Skill: "Masonry"),
+			(Stable: "antiquity_ceramic_repair_kit", Component: "Repair_Ceramic", Material: "earthenware", Skill: "Pottery"),
+			(Stable: "antiquity_hard_organic_repair_kit", Component: "Repair_Hard_Organic", Material: "bone", Skill: "Scrimshawing"),
+			(Stable: "antiquity_field_repair_bundle", Component: "Repair_Universal", Material: "leather", Skill: "Salvaging")
+		})
+		{
+			var block = ExtractCallBlockContaining(itemSource, expected.Stable);
+			AssertContains(block, expected.Component);
+			AssertContains(block, expected.Material);
+			AssertContains(block, "Market / Professional Tools / Standard Tools");
+			AssertContains(block, "Functions / Repairing");
+			AssertContains(craftSource, $"\"{expected.Stable}\"");
+			AssertContains(craftSource, $"\"{expected.Skill}\"");
+			AssertContains(equipmentDoc, $"`{expected.Stable}`");
+			AssertContains(componentCatalogue, expected.Component);
+		}
+
+		foreach (var expectedComponent in new[]
+		{
+			"Repair_Wood",
+			"Repair_Metal",
+			"Repair_Stone",
+			"Repair_Ceramic",
+			"Repair_Hard_Organic"
+		})
+		{
+			AssertContains(componentSource, $"AddRepairKitType(\"{expectedComponent["Repair_".Length..]}\"");
+			AssertContains(componentCatalogue, expectedComponent);
+			AssertContains(componentCatalogue, $"{expectedComponent}_Good");
+			AssertContains(componentCatalogue, $"{expectedComponent}_Poor");
+		}
 	}
 
 	[TestMethod]

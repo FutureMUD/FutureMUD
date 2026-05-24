@@ -1,4 +1,5 @@
-﻿using MudSharp.Framework;
+﻿using MudSharp.Database;
+using MudSharp.Framework;
 using MudSharp.GameItems;
 using MudSharp.Models;
 using System;
@@ -27,23 +28,32 @@ namespace DatabaseSeeder.Seeders
                                                   string? morphToUniqueReference,
                                                   string? morphEmote,
                                                   TimeSpan? morphTimer,
-                                                  string? destroyedItemUniqueReference)
+                                                  string? destroyedItemUniqueReference,
+                                                  string? builderNotes = null)
         {
+            var tagList = BuildReworkItemTagList(tags);
+            var componentList = components as IReadOnlyCollection<string> ?? components.ToArray();
+
             if (_items.TryGetValue(stableReference, out var existing))
             {
+                ApplyReworkItemMetadata(existing, stableReference, tagList, builderNotes);
                 ApplyItemLifecycleSettings(existing, morphToUniqueReference, morphEmote, morphTimer, destroyedItemUniqueReference);
                 return existing;
             }
 
             existing = _context!.GameItemProtos.Local
                 .AsEnumerable()
-                .FirstOrDefault(x => x.ShortDescription.Equals(sdesc, StringComparison.OrdinalIgnoreCase)) ??
+                .FirstOrDefault(x => x.UniqueName?.Equals(stableReference, StringComparison.OrdinalIgnoreCase) == true) ??
                        _context.GameItemProtos.AsEnumerable()
-                           .FirstOrDefault(x => x.ShortDescription.Equals(sdesc, StringComparison.OrdinalIgnoreCase));
+                           .FirstOrDefault(x => x.UniqueName?.Equals(stableReference, StringComparison.OrdinalIgnoreCase) == true) ??
+                       _context.GameItemProtos.AsEnumerable()
+                           .FirstOrDefault(x =>
+                               string.IsNullOrWhiteSpace(x.UniqueName) &&
+                               x.ShortDescription.Equals(sdesc, StringComparison.OrdinalIgnoreCase));
             if (existing is not null)
             {
-                _items[stableReference] = existing;
-                _items[existing.ShortDescription] = existing;
+                ApplyReworkItemMetadata(existing, stableReference, tagList, builderNotes);
+                CacheReworkItem(stableReference, existing);
                 ApplyItemLifecycleSettings(existing, morphToUniqueReference, morphEmote, morphTimer, destroyedItemUniqueReference);
                 return existing;
             }
@@ -52,6 +62,8 @@ namespace DatabaseSeeder.Seeders
             {
                 Id = _nextId++,
                 Name = noun.ToLowerInvariant(),
+                UniqueName = GameItemProtoLookupExtensions.NormaliseUniqueName(stableReference),
+                BuilderNotes = BuildReworkItemBuilderNotes(stableReference, tagList, builderNotes),
                 Keywords = new ExplodedString(sdesc.Strip_A_An()).Words.Distinct().ListToCommaSeparatedValues(" "),
                 MaterialId = _materials[material].Id,
                 EditableItem = new EditableItem
@@ -79,7 +91,7 @@ namespace DatabaseSeeder.Seeders
                 MorphTimeSeconds = 0,
                 MorphEmote = "$0 $?1|morphs into $1|decays into nothing$.",
             };
-            foreach (string item in tags)
+            foreach (string item in tagList)
             {
                 if (string.IsNullOrEmpty(item))
                 {
@@ -98,7 +110,7 @@ namespace DatabaseSeeder.Seeders
                 });
             }
 
-            foreach (string item in components)
+            foreach (string item in componentList)
             {
                 if (string.IsNullOrEmpty(item))
                 {
@@ -118,10 +130,354 @@ namespace DatabaseSeeder.Seeders
             }
 
             _context!.GameItemProtos.Add(dbitem);
-            _items[stableReference] = dbitem;
-            _items[dbitem.ShortDescription] = dbitem;
+            CacheReworkItem(stableReference, dbitem);
             ApplyItemLifecycleSettings(dbitem, morphToUniqueReference, morphEmote, morphTimer, destroyedItemUniqueReference);
             return dbitem;
+        }
+
+        private void CacheReworkItem(string stableReference, GameItemProto item)
+        {
+            _items[stableReference] = item;
+            _items[item.ShortDescription] = item;
+            if (!string.IsNullOrWhiteSpace(item.UniqueName))
+            {
+                _items[item.UniqueName] = item;
+            }
+        }
+
+        private static readonly (string Token, string Culture)[] ReworkStableReferenceCultureTokens =
+        [
+            ("_hellenic_", "Hellenic"),
+            ("_roman_", "Roman"),
+            ("_italic_", "Italic/Roman"),
+            ("_celtic_", "Celtic"),
+            ("_germanic_", "Germanic"),
+            ("_punic_", "Punic"),
+            ("_phoenician_", "Punic/Phoenician"),
+            ("_persian_", "Persian"),
+            ("_median_", "Persian/Median"),
+            ("_egyptian_", "Egyptian"),
+            ("_kushite_", "Kushite"),
+            ("_nubian_", "Kushite/Nubian"),
+            ("_etruscan_", "Etruscan"),
+            ("_anatolian_", "Anatolian"),
+            ("_scythian_", "Scythian-Sarmatian"),
+            ("_sarmatian_", "Scythian-Sarmatian"),
+            ("_steppe_", "Scythian-Sarmatian")
+        ];
+
+        private static readonly (string SourceRoot, string FunctionalTag)[] ReworkFunctionalTagMappings =
+        [
+            ("Market / Professional Tools", "Functions / Tools"),
+            ("Market / Military Goods", "Functions / Military Equipment"),
+            ("Market / Military Goods / Weapons", "Functions / Military Equipment / Military Weapons"),
+            ("Market / Military Goods / Ammunition", "Functions / Military Equipment / Military Ammunition"),
+            ("Market / Military Goods / Armour", "Functions / Military Equipment / Military Armour"),
+            ("Market / Military Goods / Armour / Shields", "Functions / Military Equipment / Military Armour / Military Shields"),
+            ("Market / Household Goods", "Functions / Household Items"),
+            ("Market / Household Goods / Simple Furniture", "Functions / Household Items / Household Furniture"),
+            ("Market / Household Goods / Standard Furniture", "Functions / Household Items / Household Furniture"),
+            ("Market / Household Goods / Luxury Furniture", "Functions / Household Items / Household Furniture"),
+            ("Market / Household Goods / Simple Decorations", "Functions / Household Items / Household Decorations"),
+            ("Market / Household Goods / Standard Decorations", "Functions / Household Items / Household Decorations"),
+            ("Market / Household Goods / Luxury Decorations", "Functions / Household Items / Household Decorations"),
+            ("Market / Household Goods / Simple Wares", "Functions / Household Items / Household Wares"),
+            ("Market / Household Goods / Standard Wares", "Functions / Household Items / Household Wares"),
+            ("Market / Household Goods / Luxury Wares", "Functions / Household Items / Household Wares"),
+            ("Market / Religious Goods", "Functions / Household Items / Household Religious Items"),
+            ("Market / Lighting", "Functions / Household Items / Household Lighting"),
+            ("Market / Domestic Heating", "Functions / Household Items / Household Heating"),
+            ("Market / Construction Materials", "Functions / Household Items / Household Construction Materials"),
+            ("Market / Writing Materials", "Functions / Writing Goods"),
+            ("Materials / Writing Product", "Functions / Writing Goods")
+        ];
+
+        private IReadOnlyCollection<string> BuildReworkItemTagList(IEnumerable<string> tags)
+        {
+            var tagList = new List<string>();
+
+            void AddTag(string tag, bool requireKnownTag)
+            {
+                if (string.IsNullOrWhiteSpace(tag))
+                {
+                    return;
+                }
+
+                var trimmedTag = tag.Trim();
+                if (requireKnownTag && !_tagsByFullPath.ContainsKey(trimmedTag))
+                {
+                    return;
+                }
+
+                if (tagList.Any(x => x.Equals(trimmedTag, StringComparison.InvariantCultureIgnoreCase)))
+                {
+                    return;
+                }
+
+                tagList.Add(trimmedTag);
+            }
+
+            foreach (var tag in tags)
+            {
+                AddTag(tag, false);
+                foreach (var functionalTag in InferReworkFunctionalTags(tag))
+                {
+                    AddTag(functionalTag, true);
+                }
+            }
+
+            return tagList;
+        }
+
+        private static IEnumerable<string> InferReworkFunctionalTags(string tag)
+        {
+            foreach (var (sourceRoot, functionalTag) in ReworkFunctionalTagMappings)
+            {
+                if (ReworkTagPathMatchesRoot(tag, sourceRoot))
+                {
+                    yield return functionalTag;
+                }
+            }
+        }
+
+        private static bool ReworkTagPathMatchesRoot(string tagPath, string root)
+        {
+            return tagPath.Equals(root, StringComparison.OrdinalIgnoreCase) ||
+                   tagPath.StartsWith($"{root} /", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private void ApplyReworkItemMetadata(GameItemProto item,
+                                             string stableReference,
+                                             IEnumerable<string> tags,
+                                             string? builderNotes)
+        {
+            item.UniqueName = string.IsNullOrWhiteSpace(item.UniqueName)
+                ? GameItemProtoLookupExtensions.NormaliseUniqueName(stableReference)
+                : item.UniqueName;
+            item.BuilderNotes = MergeBuilderNotes(
+                item.BuilderNotes,
+                BuildReworkItemBuilderNotes(stableReference, tags, builderNotes));
+            ApplyReworkItemTags(item, tags);
+        }
+
+        private void ApplyReworkItemTags(GameItemProto item, IEnumerable<string> tags)
+        {
+            var existingTagIds = item.GameItemProtosTags
+                .Select(x => x.TagId)
+                .ToHashSet();
+
+            foreach (var tag in tags)
+            {
+                if (string.IsNullOrWhiteSpace(tag) ||
+                    !_tagsByFullPath.TryGetValue(tag, out var dbtag) ||
+                    !existingTagIds.Add(dbtag.Id))
+                {
+                    continue;
+                }
+
+                item.GameItemProtosTags.Add(new GameItemProtosTags
+                {
+                    GameItemProto = item,
+                    TagId = dbtag.Id
+                });
+            }
+        }
+
+        private static string BuildReworkItemBuilderNotes(string stableReference, IEnumerable<string> tags, string? builderNotes)
+        {
+            var notes = new List<string>
+            {
+                $"Stock unique reference: {stableReference}."
+            };
+
+            var cultures = GetReworkItemCultureContexts(stableReference);
+            if (cultures.Count > 0)
+            {
+                notes.Add($"Cultures: {string.Join(", ", cultures)}.");
+            }
+
+            var category = GetReworkItemBuilderCategory(stableReference, tags);
+            if (!string.IsNullOrWhiteSpace(category))
+            {
+                notes.Add($"Seeder category: {category}.");
+            }
+
+            if (!string.IsNullOrWhiteSpace(builderNotes))
+            {
+                notes.Add(builderNotes.Trim());
+            }
+
+            return string.Join("\n", notes);
+        }
+
+        private static string? MergeBuilderNotes(string? existingNotes, string? additionalNotes)
+        {
+            if (string.IsNullOrWhiteSpace(additionalNotes))
+            {
+                return string.IsNullOrWhiteSpace(existingNotes) ? null : existingNotes.Trim();
+            }
+
+            var trimmedAdditional = additionalNotes.Trim();
+            if (string.IsNullOrWhiteSpace(existingNotes))
+            {
+                return trimmedAdditional;
+            }
+
+            var trimmedExisting = existingNotes.Trim();
+            var newLines = trimmedAdditional
+                .Split(["\r\n", "\n"], StringSplitOptions.RemoveEmptyEntries)
+                .Select(x => x.Trim())
+                .Where(x => !string.IsNullOrWhiteSpace(x))
+                .Where(x => !trimmedExisting.Contains(x, StringComparison.InvariantCultureIgnoreCase))
+                .ToList();
+
+            return newLines.Count == 0
+                ? trimmedExisting
+                : $"{trimmedExisting}\n{string.Join("\n", newLines)}";
+        }
+
+        private static IReadOnlyList<string> GetReworkItemCultureContexts(string stableReference)
+        {
+            var cultures = new List<string>();
+
+            void AddCulture(string culture)
+            {
+                if (!cultures.Any(x => x.Equals(culture, StringComparison.InvariantCultureIgnoreCase)))
+                {
+                    cultures.Add(culture);
+                }
+            }
+
+            void AddIfStableReferenceIn(IReadOnlyDictionary<string, string> stableReferences, string culture)
+            {
+                if (stableReferences.ContainsKey(stableReference))
+                {
+                    AddCulture(culture);
+                }
+            }
+
+            AddIfStableReferenceIn(HellenicAntiquityClothingStableReferences, "Hellenic");
+            AddIfStableReferenceIn(EgyptianAntiquityClothingStableReferences, "Egyptian");
+            AddIfStableReferenceIn(RomanAntiquityClothingStableReferences, "Roman");
+            AddIfStableReferenceIn(CelticAntiquityClothingStableReferences, "Celtic");
+            AddIfStableReferenceIn(GermanicAntiquityClothingStableReferences, "Germanic");
+            AddIfStableReferenceIn(KushiteAntiquityClothingStableReferences, "Kushite");
+            AddIfStableReferenceIn(PunicAntiquityClothingStableReferences, "Punic");
+            AddIfStableReferenceIn(PersianAntiquityClothingStableReferences, "Persian");
+            AddIfStableReferenceIn(EtruscanAntiquityClothingStableReferences, "Etruscan");
+            AddIfStableReferenceIn(AnatolianAntiquityClothingStableReferences, "Anatolian");
+            AddIfStableReferenceIn(ScythianSarmatianAntiquityClothingStableReferences, "Scythian-Sarmatian");
+
+            foreach (var culture in AntiquityFoodCultures)
+            {
+                if (stableReference.StartsWith($"antiquity_food_{culture.Key}_", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    AddCulture(culture.Display);
+                }
+            }
+
+            foreach (var (token, culture) in ReworkStableReferenceCultureTokens)
+            {
+                if (stableReference.Contains(token, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    AddCulture(culture);
+                }
+            }
+
+            return cultures;
+        }
+
+        private static string? GetReworkItemBuilderCategory(string stableReference, IEnumerable<string> tags)
+        {
+            var tagList = tags.ToList();
+            bool HasTagText(string text)
+            {
+                return tagList.Any(x => x.Contains(text, StringComparison.InvariantCultureIgnoreCase));
+            }
+
+            if (stableReference.StartsWith("antiquity_food_", StringComparison.InvariantCultureIgnoreCase))
+            {
+                return "antiquity food and beverage stock";
+            }
+
+            if (stableReference.StartsWith("jewellery_", StringComparison.InvariantCultureIgnoreCase) ||
+                HasTagText("Jewellery"))
+            {
+                return "antiquity jewellery stock";
+            }
+
+            if (HasTagText("Professional Tools"))
+            {
+                return "antiquity tool or workshop support stock";
+            }
+
+            if (HasTagText("Military Goods"))
+            {
+                return "antiquity military stock";
+            }
+
+            if (HasTagText("Furniture"))
+            {
+                return "antiquity furniture stock";
+            }
+
+            if (HasTagText("Food and Drink"))
+            {
+                return "antiquity food and drink stock";
+            }
+
+            return null;
+        }
+
+        internal static string BuildReworkItemBuilderNotesForTesting(string stableReference,
+                                                                     IEnumerable<string> tags,
+                                                                     string? builderNotes = null)
+        {
+            return BuildReworkItemBuilderNotes(stableReference, tags, builderNotes);
+        }
+
+        internal static IReadOnlyList<string> InferReworkFunctionalTagsForTesting(IEnumerable<string> tags)
+        {
+            return tags
+                .SelectMany(InferReworkFunctionalTags)
+                .Distinct(StringComparer.InvariantCultureIgnoreCase)
+                .ToList();
+        }
+
+        internal MudSharp.Models.GameItemProto? CreateReworkItemForTesting(FuturemudDatabaseContext context,
+                                                                           string stableReference,
+                                                                           string noun,
+                                                                           string shortDescription,
+                                                                           string material,
+                                                                           string? builderNotes = null,
+                                                                           IEnumerable<string>? tags = null)
+        {
+            if (!ReferenceEquals(_context, context))
+            {
+                _context = context;
+                InitialiseDependencies();
+            }
+
+            return CreateItem(
+                stableReference,
+                noun,
+                shortDescription,
+                null,
+                "A test item.",
+                SizeCategory.Small,
+                ItemQuality.Standard,
+                1.0,
+                1.0M,
+                false,
+                false,
+                material,
+                tags ?? [],
+                [],
+                null,
+                null,
+                null,
+                null,
+                builderNotes);
         }
 
         private void ApplyItemLifecycleSettings(GameItemProto item,

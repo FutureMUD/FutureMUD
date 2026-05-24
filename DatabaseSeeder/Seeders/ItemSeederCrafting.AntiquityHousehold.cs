@@ -19,15 +19,10 @@ public partial class ItemSeeder
 	private const string AncientStoneCarvingKnowledge = "Ancient Stone Bone and Horn Carving";
 	private const string AncientLightingKnowledge = "Ancient Lighting and Heating";
 
-	private static readonly string[] AntiquityHouseholdCraftMarketRoots =
+	private static readonly string[] AntiquityHouseholdCraftFunctionalRoots =
 	[
-		"Market / Household Goods",
-		"Market / Writing Materials",
-		"Market / Religious Goods",
-		"Market / Lighting",
-		"Market / Domestic Heating",
-		"Market / Construction Materials",
-		"Materials / Writing Product"
+		"Functions / Household Items",
+		"Functions / Writing Goods"
 	];
 
 	private sealed record AntiquityHouseholdCraftPath(
@@ -122,7 +117,7 @@ public partial class ItemSeeder
 
 		SeedAntiquityHouseholdIntermediateCommodityCrafts();
 
-		var householdTagIds = GetTagIdsUnderRoots(AntiquityHouseholdCraftMarketRoots);
+		var householdTagIds = GetTagIdsUnderRoots(AntiquityHouseholdCraftFunctionalRoots);
 
 		var targetItems = _items
 			.Where(x => x.Key.StartsWith("antiquity_", StringComparison.OrdinalIgnoreCase))

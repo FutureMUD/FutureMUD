@@ -128,7 +128,9 @@ The items and crafts are fairly universal and of approximately medieval to renei
         _tagsByFullPath = tagList.ToDictionary(BuildTagFullPath, x => x, StringComparer.OrdinalIgnoreCase);
         _materials = _context.Materials.ToDictionary(x => x.Name, x => x, StringComparer.OrdinalIgnoreCase);
         _liquids = _context.Liquids.ToDictionary(x => x.Name, x => x, StringComparer.OrdinalIgnoreCase);
-        _nextId = _context.GameItemProtos.Max(x => x.Id) + 1;
+        _nextId = _context.GameItemProtos.Any()
+            ? _context.GameItemProtos.Max(x => x.Id) + 1
+            : 1;
         _dbAccount = _context.Accounts.First();
 
         foreach (TraitDefinition trait in _context.TraitDefinitions)
@@ -139,6 +141,10 @@ The items and crafts are fairly universal and of approximately medieval to renei
         foreach (GameItemProto item in _context.GameItemProtos)
         {
             _items[item.ShortDescription] = item;
+            if (!string.IsNullOrWhiteSpace(item.UniqueName))
+            {
+                _items[item.UniqueName] = item;
+            }
         }
     }
 

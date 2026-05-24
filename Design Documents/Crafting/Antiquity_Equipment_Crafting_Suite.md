@@ -5,14 +5,14 @@ This document records the craft suite that closes the remaining non-household an
 ## Target Surface
 
 - 29 antiquity craft-tool prototypes from `SeedAntiquityClothing`.
-- Support tool prototypes discovered from `Market / Professional Tools / Standard Tools`, excluding writing and medical products already owned by their dedicated suites.
+- Support tool prototypes discovered from functional tool roots (`Functions / Tools`, `Functions / Separation`, `Functions / Joining`, and `Functions / Sharpening`), excluding writing and medical products already owned by their dedicated suites.
 - Unlit workshop apparatus prototypes for the hearth, kiln, glory-hole furnace, annealing lehr, and smelting furnace.
 - 18 common culture-neutral clothing/accessory prototypes from `SeedAntiquityClothing`.
 - 76 non-leather armour prototypes from `SeedAntiquityArmour`.
 - 117 weapon, shield, ammunition, sling, and military-accessory prototypes from `SeedAntiquityWeaponsShieldsAccessories`.
 - Shared `Door Hardware Stock` used by the expanded household/door suite.
 
-Existing jewellery, culture-specific textile clothing, leather clothing, leather armour, leather containers, leather furnishings, medical goods, writing goods, and household goods stay on their existing suites. The equipment suite discovers military goods dynamically from `Market / Military Goods` tags, discovers support tools dynamically from `Market / Professional Tools / Standard Tools`, and excludes stable references already handled by the culture/leather/writing/medical suites.
+Existing jewellery, culture-specific textile clothing, leather clothing, leather armour, leather containers, leather furnishings, medical goods, writing goods, and household goods stay on their existing suites. The equipment suite discovers military goods dynamically from `Functions / Military Equipment` tags, discovers support tools dynamically from functional tool roots, and excludes stable references already handled by the culture/leather/writing/medical suites. Market tags remain on items for economy and pricing use, but craft discovery is functional-tag based.
 
 ## Implementation
 
@@ -84,7 +84,7 @@ All equipment stock tags are seeded under `Functions / Material Functions / Anti
 
 ## Source-Audited Product Catalogue
 
-The equipment suite has two product surfaces. The military surface is discovered dynamically from `Market / Military Goods` tags, while common clothing and craft-tool products are explicitly named in `ItemSeederCrafting.AntiquityEquipment.cs`.
+The equipment suite has two product surfaces. The military surface is discovered dynamically from `Functions / Military Equipment` tags, while common clothing and craft-tool products are explicitly named or discovered from functional tool tags in `ItemSeederCrafting.AntiquityEquipment.cs`.
 
 ### Armour
 

@@ -101,6 +101,8 @@ Use:
 
 Item prototype lookup prefers numeric ids, then exact `UniqueName`, then the legacy noun/name matching that older builder commands expect. Unique names are optional, case-insensitively unique among active revisions, and cannot be entirely numeric.
 
+Stock rework items seeded by `ItemSeeder` use their stable seeder reference as `UniqueName`. Their builder comments also carry stock-only metadata such as the stable reference, culture context when the catalogue item belongs to a culture-specific slice, and broad seeder package notes.
+
 ### Attach or detach components
 Use:
 - `item set add <id|name>`

@@ -13,7 +13,7 @@ The implementation lives in `DatabaseSeeder/Seeders/ItemSeederCrafting.Antiquity
 
 ## Design Goals
 
-1. Every item currently seeded by `SeedAntiquityContainers`, `SeedAntiquityDoorsAndLocks`, and `SeedAntiquityHouseholdFurniture` should have a stock craft path when it is tagged as household, writing, religious, lighting, heating, construction, or writing-product stock.
+1. Every item currently seeded by `SeedAntiquityContainers`, `SeedAntiquityDoorsAndLocks`, and `SeedAntiquityHouseholdFurniture` should have a stock craft path when it is tagged with the functional household or writing roots generated from the item catalogue.
 2. Commodity inputs should be preferred over full-item inputs wherever the input is a mass of material, fittings, fasteners, panels, cloth, clay, wax, glass, metal, reed, leather, or stone stock.
 3. Full items should be used for tools and final products. Full item intermediates should only be used where the object is worth exposing as its own gameplay item.
 4. Final crafts should be knowledge-gated so builders can control which shared techniques and which cultural household suites appear in a game.
@@ -22,8 +22,8 @@ The implementation lives in `DatabaseSeeder/Seeders/ItemSeederCrafting.Antiquity
 ## Implementation Plan
 
 1. Discover the target item groups dynamically.
-   - Rather than maintaining a 398-row stable-reference dictionary, the implemented craft suite discovers antiquity rework items whose seeded tags sit under `Market / Household Goods`, `Market / Writing Materials`, `Market / Religious Goods`, `Market / Lighting`, `Market / Domestic Heating`, `Market / Construction Materials`, or `Materials / Writing Product`.
-   - This keeps the coverage tied to the furniture/container/door catalogue itself and means future household additions are craftable as long as they are tagged consistently.
+   - Rather than maintaining a 398-row stable-reference dictionary, the implemented craft suite discovers antiquity rework items whose seeded tags sit under `Functions / Household Items` or `Functions / Writing Goods`.
+   - This keeps the coverage tied to the furniture/container/door catalogue itself and means future household additions are craftable as long as they carry functional tags. Market tags may still be present for price and commodity-category tuning, but they are not craft selectors.
    - Focused tests assert the current target methods still contain 243 container, 66 door/lock, and 89 household-furniture prototypes, and that the craft suite uses the expanded tag-root discovery.
 
 2. Seed missing tool prototypes.
@@ -395,7 +395,7 @@ Add focused DatabaseSeeder tests:
 | Test | Purpose |
 | --- | --- |
 | `AntiquityHouseholdSeeder_CurrentCatalogueHasFurnitureAndContainerTargets` | Extracts the two target seeder methods and asserts the current 243 container plus 89 household-furniture prototype counts. |
-| `AntiquityHouseholdCrafts_DiscoverAllHouseholdGoodsByMarketTags` | Asserts the craft suite discovers target products through `Market / Household Goods / ...` tags rather than a stale hand-maintained reference list. |
+| `AntiquityHouseholdCrafts_DiscoverAllHouseholdGoodsByFunctionalTags` | Asserts the craft suite discovers target products through functional household/writing tags rather than a stale hand-maintained reference list or market roots. |
 | `ItemSeeder_AntiquityFurnitureAndContainers_KnowledgeGatesAreSeeded` | Asserts shared and culture-specific knowledge names are created and used by at least one craft. |
 | `ItemSeeder_AntiquityFurnitureAndContainers_ToolTagsResolve` | Asserts every `TagTool` referenced by the craft suite has a seeded tag and at least one seeded tool prototype where appropriate. |
 | `ItemSeeder_AntiquityFurnitureAndContainers_NewSkillsResolve` | Asserts `Basketry`, `Coopering`, `Ropemaking`, and `Lacquerwork` exist when the stock skill package is installed. |

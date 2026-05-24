@@ -1,5 +1,6 @@
 #nullable enable
 
+using DatabaseSeeder.Seeders;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
@@ -24,15 +25,18 @@ public class ItemSeederAntiquityRemainingCraftingTests
 		"SeedAntiquityWeaponsShieldsAccessories"
 	];
 
-	private static readonly string[] HouseholdCraftRoots =
+	private static readonly string[] HouseholdCraftFunctionalRoots =
 	[
-		"Market / Household Goods",
-		"Market / Writing Materials",
-		"Market / Religious Goods",
-		"Market / Lighting",
-		"Market / Domestic Heating",
-		"Market / Construction Materials",
-		"Materials / Writing Product"
+		"Functions / Household Items",
+		"Functions / Writing Goods"
+	];
+
+	private static readonly string[] CraftToolFunctionalRoots =
+	[
+		"Functions / Tools",
+		"Functions / Separation",
+		"Functions / Joining",
+		"Functions / Sharpening"
 	];
 
 	[TestMethod]
@@ -254,7 +258,7 @@ public class ItemSeederAntiquityRemainingCraftingTests
 			"AddAntiquityCraft(",
 			"knowledgeSubtype:",
 			"knowledgeDescription:",
-			"Market / Military Goods"
+			"Functions / Military Equipment"
 		})
 		{
 			AssertContains(equipmentCraftSource, expected);
@@ -307,8 +311,10 @@ public class ItemSeederAntiquityRemainingCraftingTests
 
 		foreach (var expected in new[]
 		{
-			"professionalToolTagIds",
-			"Market / Professional Tools / Standard Tools",
+			"craftToolTagIds",
+			"AntiquityCraftToolFunctionalRoots",
+			"Functions / Tools",
+			"Functions / Sharpening",
 			"AntiquityUnlitWorkshopApparatusStableReferences",
 			"AntiquityLitWorkshopApparatusStableReferences",
 			"antiquity_workshop_hearth",
@@ -547,19 +553,19 @@ public class ItemSeederAntiquityRemainingCraftingTests
 	private static bool IsHouseholdDynamicTarget(SeededAntiquityItem item)
 	{
 		return item.MethodName is "SeedAntiquityContainers" or "SeedAntiquityDoorsAndLocks" or "SeedAntiquityHouseholdFurniture" &&
-		       HasAnyRoot(item.Tags, HouseholdCraftRoots);
+		       HasAnyRoot(item.Tags, HouseholdCraftFunctionalRoots);
 	}
 
 	private static bool IsMilitaryEquipmentTarget(SeededAntiquityItem item, string existingCraftSource)
 	{
-		return HasRoot(item.Tags, "Market / Military Goods") &&
+		return HasRoot(item.Tags, "Functions / Military Equipment") &&
 		       !existingCraftSource.Contains($"\"{item.StableReference}\"", StringComparison.Ordinal);
 	}
 
 	private static bool IsAntiquityCraftToolTarget(SeededAntiquityItem item)
 	{
 		return item.MethodName.Equals("SeedAntiquityClothing", StringComparison.Ordinal) &&
-		       HasRoot(item.Tags, "Market / Professional Tools / Standard Tools");
+		       HasAnyRoot(item.Tags, CraftToolFunctionalRoots);
 	}
 
 	private static bool IsCoveredPartialStableReference(string stableReference, string partialItemSource,
@@ -573,14 +579,14 @@ public class ItemSeederAntiquityRemainingCraftingTests
 	private static bool IsDynamicStandardToolHelperReference(string stableReference, string partialItemSource,
 		string equipmentCraftSource)
 	{
-		if (!equipmentCraftSource.Contains("professionalToolTagIds", StringComparison.Ordinal))
+		if (!equipmentCraftSource.Contains("AntiquityCraftToolFunctionalRoots", StringComparison.Ordinal))
 		{
 			return false;
 		}
 
 		var escapedStableReference = Regex.Escape(stableReference);
 		if (Regex.IsMatch(partialItemSource, $@"CreateAntiquityHouseholdCraftTool\(\s*""{escapedStableReference}""") &&
-		    partialItemSource.Contains("var tags = new List<string> { \"Market / Professional Tools / Standard Tools\" };", StringComparison.Ordinal))
+		    partialItemSource.Contains("tags.AddRange(functionalTags);", StringComparison.Ordinal))
 		{
 			return true;
 		}
@@ -592,13 +598,14 @@ public class ItemSeederAntiquityRemainingCraftingTests
 		}
 
 		if (Regex.IsMatch(partialItemSource, $@"AddWritingCraftTool\(\s*""{escapedStableReference}""") &&
-		    partialItemSource.Contains("[\"Market / Professional Tools / Standard Tools\", .. functionalTags]", StringComparison.Ordinal))
+		    partialItemSource.Contains(".. functionalTags", StringComparison.Ordinal))
 		{
 			return true;
 		}
 
 		var itemBlock = TryExtractCallBlockContaining(partialItemSource, $"\"{stableReference}\"");
-		return itemBlock?.Contains("Market / Professional Tools / Standard Tools", StringComparison.Ordinal) == true;
+		return itemBlock is not null &&
+		       CraftToolFunctionalRoots.Any(root => itemBlock.Contains(root, StringComparison.Ordinal));
 	}
 
 	private static bool IsFoodFinishedBeverageMorphTarget(string stableReference, string partialItemSource)
@@ -645,10 +652,18 @@ public class ItemSeederAntiquityRemainingCraftingTests
 				match.Groups["ref"].Value,
 				match.Groups["short"].Value,
 				match.Groups["material"].Value,
-				Regex.Matches(match.Groups["tags"].Value, @"""(?<tag>[^""]+)""")
-					.Select(tagMatch => tagMatch.Groups["tag"].Value)
+				ExpandInferredFunctionalTags(Regex.Matches(match.Groups["tags"].Value, @"""(?<tag>[^""]+)""")
+					.Select(tagMatch => tagMatch.Groups["tag"].Value))
 					.ToList()))
 			.ToList();
+	}
+
+	private static IEnumerable<string> ExpandInferredFunctionalTags(IEnumerable<string> tags)
+	{
+		var tagList = tags.ToList();
+		return tagList
+			.Concat(ItemSeeder.InferReworkFunctionalTagsForTesting(tagList))
+			.Distinct(StringComparer.OrdinalIgnoreCase);
 	}
 
 	private static bool HasAnyRoot(IEnumerable<string> tags, IEnumerable<string> roots)

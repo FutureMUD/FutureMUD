@@ -36,7 +36,7 @@ Crafts prefer commodity inputs such as `Raw Meat Commodity`, `Prepared Meat Comm
 
 ## Tool And Vessel Closure
 
-Food tools are tagged with their exact functional tool tags and `Market / Professional Tools / Standard Tools`, so the shared antiquity equipment toolmaking suite discovers and crafts them without duplicating one-off recipes in the food file. This covers the butcher's knife, cooking knife, threshing flail, winnowing basket, pitchfork, hand quern, mortar and pestle, grain sieve, fruit press, oil press, mash tun, drying rack, smoking rack, and salting trough.
+Food tools are tagged with their exact functional tool tags and retain `Market / Professional Tools / Standard Tools` for economy use. The shared antiquity equipment toolmaking suite discovers and crafts them through functional tool roots without duplicating one-off recipes in the food file. This covers the butcher's knife, cooking knife, threshing flail, winnowing basket, pitchfork, hand quern, mortar and pestle, grain sieve, fruit press, oil press, mash tun, drying rack, smoking rack, and salting trough.
 
 Empty food vessels are explicit pottery crafts:
 

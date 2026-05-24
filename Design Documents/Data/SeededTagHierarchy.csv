@@ -93,6 +93,20 @@ Suture Kit	Medical Treatment	Functions / Medical Treatment / Suture Kit
 Prosthetic	Medical Treatment	Functions / Medical Treatment / Prosthetic
 Mobility Aid	Medical Treatment	Functions / Medical Treatment / Mobility Aid
 Herbal Remedy	Medical Treatment	Functions / Medical Treatment / Herbal Remedy
+Military Equipment	Functions	Functions / Military Equipment
+Military Weapons	Military Equipment	Functions / Military Equipment / Military Weapons
+Military Ammunition	Military Equipment	Functions / Military Equipment / Military Ammunition
+Military Armour	Military Equipment	Functions / Military Equipment / Military Armour
+Military Shields	Military Armour	Functions / Military Equipment / Military Armour / Military Shields
+Household Items	Functions	Functions / Household Items
+Household Furniture	Household Items	Functions / Household Items / Household Furniture
+Household Decorations	Household Items	Functions / Household Items / Household Decorations
+Household Wares	Household Items	Functions / Household Items / Household Wares
+Household Religious Items	Household Items	Functions / Household Items / Household Religious Items
+Household Lighting	Household Items	Functions / Household Items / Household Lighting
+Household Heating	Household Items	Functions / Household Items / Household Heating
+Household Construction Materials	Household Items	Functions / Household Items / Household Construction Materials
+Writing Goods	Functions	Functions / Writing Goods
 Joining	Functions	Functions / Joining
 Adhesion	Joining	Functions / Joining / Adhesion
 Cement	Adhesion	Functions / Joining / Adhesion / Cement

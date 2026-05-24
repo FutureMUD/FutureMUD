@@ -178,6 +178,23 @@ namespace DatabaseSeeder.Seeders
             AddTag(context, "Mobility Aid", "Medical Treatment");
             AddTag(context, "Herbal Remedy", "Medical Treatment");
 
+            // Functional catalogue roles distinct from market/pricing categories
+            AddTag(context, "Military Equipment", "Functions");
+            AddTag(context, "Military Weapons", "Military Equipment");
+            AddTag(context, "Military Ammunition", "Military Equipment");
+            AddTag(context, "Military Armour", "Military Equipment");
+            AddTag(context, "Military Shields", "Military Armour");
+
+            AddTag(context, "Household Items", "Functions");
+            AddTag(context, "Household Furniture", "Household Items");
+            AddTag(context, "Household Decorations", "Household Items");
+            AddTag(context, "Household Wares", "Household Items");
+            AddTag(context, "Household Religious Items", "Household Items");
+            AddTag(context, "Household Lighting", "Household Items");
+            AddTag(context, "Household Heating", "Household Items");
+            AddTag(context, "Household Construction Materials", "Household Items");
+            AddTag(context, "Writing Goods", "Functions");
+
             // Clothing
             AddTag(context, "Worn Items", "Functions");
             AddTag(context, "Footwear", "Worn Items");

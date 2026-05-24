@@ -14,9 +14,17 @@ public partial class ItemSeeder
 	private const string AncientToolmakingKnowledge = "Ancient Toolmaking";
 	private const string AncientCommonClothingKnowledge = "Ancient Common Clothing Crafting";
 
-	private static readonly string[] AntiquityMilitaryCraftMarketRoots =
+	private static readonly string[] AntiquityMilitaryCraftFunctionalRoots =
 	[
-		"Market / Military Goods"
+		"Functions / Military Equipment"
+	];
+
+	private static readonly string[] AntiquityCraftToolFunctionalRoots =
+	[
+		"Functions / Tools",
+		"Functions / Separation",
+		"Functions / Joining",
+		"Functions / Sharpening"
 	];
 
 	private static readonly string[] AntiquityCommonClothingStableReferences =
@@ -622,7 +630,7 @@ public partial class ItemSeeder
 
 	private void SeedAntiquityCraftToolCrafts(IDictionary<string, int> usedCraftNames)
 	{
-		var professionalToolTagIds = GetTagIdsUnderRoots(["Market / Professional Tools / Standard Tools"]);
+		var craftToolTagIds = GetTagIdsUnderRoots(AntiquityCraftToolFunctionalRoots);
 		var stableReferences = AntiquityCraftToolStableReferences
 			.Concat(_items
 				.Where(x => x.Key.StartsWith("antiquity_", StringComparison.OrdinalIgnoreCase))
@@ -630,7 +638,7 @@ public partial class ItemSeeder
 				.Where(x => !AntiquityMedicalStableReferences.Contains(x.Key, StringComparer.OrdinalIgnoreCase))
 				.Where(x => !AntiquityLitWorkshopApparatusStableReferences.Contains(x.Key, StringComparer.OrdinalIgnoreCase))
 				.Where(x => !AntiquityRepairKitStableReferences.Contains(x.Key, StringComparer.OrdinalIgnoreCase))
-				.Where(x => x.Value.GameItemProtosTags.Any(y => professionalToolTagIds.Contains(y.TagId)))
+				.Where(x => x.Value.GameItemProtosTags.Any(y => craftToolTagIds.Contains(y.TagId)))
 				.Select(x => x.Key))
 			.Concat(AntiquityUnlitWorkshopApparatusStableReferences)
 			.Distinct(StringComparer.OrdinalIgnoreCase)
@@ -651,7 +659,7 @@ public partial class ItemSeeder
 
 	private void SeedAntiquityMilitaryEquipmentCrafts(IDictionary<string, int> usedCraftNames)
 	{
-		var militaryTagIds = GetTagIdsUnderRoots(AntiquityMilitaryCraftMarketRoots);
+		var militaryTagIds = GetTagIdsUnderRoots(AntiquityMilitaryCraftFunctionalRoots);
 		var targetItems = _items
 			.Where(x => x.Key.StartsWith("antiquity_", StringComparison.OrdinalIgnoreCase))
 			.Where(x => x.Value.GameItemProtosTags.Any(y => militaryTagIds.Contains(y.TagId)))

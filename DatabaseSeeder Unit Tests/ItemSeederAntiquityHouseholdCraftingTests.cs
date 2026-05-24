@@ -20,22 +20,19 @@ public class ItemSeederAntiquityHouseholdCraftingTests
 	}
 
 	[TestMethod]
-	public void AntiquityHouseholdCrafts_DiscoverAllHouseholdGoodsByMarketTags()
+	public void AntiquityHouseholdCrafts_DiscoverAllHouseholdGoodsByFunctionalTags()
 	{
 		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.AntiquityHousehold.cs");
 		var craftRoot = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.cs");
 
 		AssertContains(craftRoot, "SeedAntiquityFurnitureAndContainerCrafts();");
-		AssertContains(craftSource, "Market / Household Goods");
-		AssertContains(craftSource, "Market / Writing Materials");
-		AssertContains(craftSource, "Market / Religious Goods");
-		AssertContains(craftSource, "Market / Lighting");
-		AssertContains(craftSource, "Market / Domestic Heating");
-		AssertContains(craftSource, "Market / Construction Materials");
-		AssertContains(craftSource, "Materials / Writing Product");
+		AssertContains(craftSource, "Functions / Household Items");
+		AssertContains(craftSource, "Functions / Writing Goods");
 		AssertContains(craftSource, "GameItemProtosTags.Any");
 		AssertContains(craftSource, "SeedAntiquityHouseholdIntermediateCommodityCrafts();");
 		AssertContains(craftSource, "targetItems");
+		Assert.IsFalse(craftSource.Contains("Market /", StringComparison.Ordinal),
+			"Household crafts should discover products through functional tags rather than market tags.");
 	}
 
 	[TestMethod]

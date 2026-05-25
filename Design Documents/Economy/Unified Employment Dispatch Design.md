@@ -2,7 +2,7 @@
 
 ## 1. Purpose
 
-The economy system currently has several independent concepts that are all variations of the same idea: a business or institution has proprietors, managers, employees, money, inventory, duties, operating policies, and recurring work. Shops, auction houses, arenas, banks, stables, and room-rental or hotel systems each expose some subset of these behaviours, but they do not share a common employment and task-dispatch model.
+The economy system currently has several independent concepts that are all variations of the same idea: a business or institution has proprietors, managers, employees, money, inventory, duties, operating policies, and recurring work. Shops, auction houses, arenas, banks, stables, and hotel businesses each expose some subset of these behaviours, but they do not share a common employment and task-dispatch model.
 
 This design introduces a unified employment layer, a manager-goal layer, and a composable task-dispatch layer.
 
@@ -14,40 +14,44 @@ The task-dispatch layer answers: what conditions create work, what action steps 
 
 The immediate intent is to create a foundation that can support store deliveries, stock purchasing, cash handling, crafting triggers, employee and manager delegation, board communication, and future organisation-specific work without duplicating the same mechanics in each business system.
 
-## 2. Boundary with the existing `IJob` system
+## 2. Boundary with the existing PC-facing job system
 
-The existing `IJob` system is out of scope for this change.
+The existing PC-facing job system is out of scope for this change.
 
-`IJob` should be treated as a similar but unrelated system whose current purpose is primarily player-character employment, clan membership, or other PC-facing organisational affiliation. This design should not require `IJob` to be replaced, renamed, refactored, or made to implement the new employment-host model.
+Current code has PC-facing job concepts such as `IJobListing`, `IActiveJob`, job-finding cells, payroll/coffer arrangements, and the `job` command surface. Those systems are intended for player-character job discovery, active PC jobs, and related payroll workflows. They should be treated as similar but unrelated systems whose semantics do not define the new host-level employment model.
 
-A future project may bridge the systems so that an `IJob` can grant employee, manager, proprietor, or other employment status in an `IEmploymentHost`. That bridge is deliberately not part of this implementation slice. Until such a bridge exists, the new employment system should define its own contracts, roles, job openings, authority model, payment terms, and task eligibility without depending on `IJob` semantics.
+This design should not require `IJobListing`, `IActiveJob`, job-finding cells, payroll/coffer code, or the `job` commands to be replaced, renamed, refactored, or made to implement the new employment-host model.
 
-Terminology note: this document uses “job opening” in the ordinary labour-market sense. A job opening is not an `IJob`.
+A future project may bridge the systems so that a PC-facing job can grant employee, manager, proprietor, or other employment status in an `IEmploymentHost`. That bridge is deliberately not part of this implementation slice. Until such a bridge exists, the new employment system should define its own contracts, roles, employment openings, authority model, payment terms, applications, and task eligibility without depending on current PC job semantics.
+
+Terminology note: this document uses **employment opening** for the new host-level labour-market posting. The design should avoid legacy job-posting names for new concepts unless a later bridge explicitly needs them.
 
 ## 3. Scope
 
 ### In scope for the first production slice
 
 - A common employment-host interface named `IEmploymentHost`.
-- `IEmploymentHost` support for at least shops, auction houses, arenas, banks, stables, and room-rental or hotel systems.
-- Common domain objects for employment contracts, roles, manager authority, job openings, applications, payment terms, working hours, and employment duration.
+- Host shells first: shops, auction houses, arenas, banks, stables, and hotels expose `IEmploymentHost` with contracts, authority, employment openings, a real host board reference, task board, manager-goal board, and operational register support before real dispatcher execution is required.
+- Common domain objects for employment contracts, roles, manager authority, employment openings, applications, payment terms, working hours, and employment duration.
 - A simple employment status model with no probation concept.
-- Manager delegation: authorised managers can manage employees within their granted authority, including hiring, firing, creating job openings, and eventually assigning or creating tasks.
-- NPC-facing job openings, with requirements expressed in skills, knowledges, and AI capability types.
-- An NPC employment-seeking AI behaviour that can find suitable job openings, compare offers, apply, and refuse jobs below its reservation wage.
+- Manager delegation: authorised managers can manage employees within their granted authority, including hiring, firing, creating employment openings, and eventually assigning or creating tasks.
+- NPC-facing employment openings, with requirements expressed in skills, knowledges, and AI capability types.
+- An NPC employment-seeking AI behaviour that can find suitable employment openings, compare offers, apply, and refuse offers below its reservation wage.
 - Employee payment handling: cash payment, payment to an employee bank account, specified employer or employee account arrangements, and future support for employee payment items or floats.
-- A host-level `IBoard` that employees can view and post to without requiring a separate in-world board item link.
+- A host-level reference to a real persisted `IBoard` that employees can view and post to without requiring a separate in-world board item link.
 - A composable task-board model based on scheduled rules, condition types, action plans, and active task instances.
-- Initial condition and action-step definitions for stock thresholds, time triggers, manual orders, purchasing, delivery/logistics, command execution, bank deposit/withdrawal, store-account payment, board posting, and craft triggering.
+- Initial condition and action-step definitions for stock thresholds, time triggers, manual orders, purchasing, delivery/logistics, command execution, bank deposit/withdrawal, store-account payment, board posting, and craft triggering. These definitions should be designed and persisted where needed during the host-shell slice, but actual dispatcher execution can be deferred to a later milestone.
 - Manager goals that allow manager AIs to create active tasks or scheduled rules in pursuit of business objectives such as maintaining stock, paying accounts, paying taxes, or adjusting prices.
-- Ledger/register integration for employment, wages, manager actions, task orders, purchasing, cash movements, store-account payments, board-post actions, and task outcomes.
+- Integration with existing financial ledgers/transaction records plus a new operational employment/task/register layer for employment, wages, manager actions, task orders, purchasing, cash movements, store-account payments, board-post actions, and task outcomes.
+- Separate persisted `IHotel`/`Hotel` entities as economy hosts, with properties remaining the ownership, location, and access-control anchor for hotel rooms.
 - Command compatibility where practical, using adapters/shims during adoption if direct replacement would create avoidable regressions.
 
 ### Explicitly out of scope
 
-- Changes to the existing `IJob` system.
+- Changes to existing `IJobListing`, `IActiveJob`, job-finding cell, payroll/coffer, or `job` command behaviour.
 - Migration of legacy employment data.
 - Preservation of obsolete legacy employee, manager, proprietor, wage, or employment records.
+- Migration of current property-hosted hotel XML into separate hotel entities unless it is deliberately included in the first hotel persistence milestone.
 - Perfect optimisation of employee routing, vehicle loading, delivery batching, or market arbitrage.
 - Full autonomous hiring strategy for every business type.
 - Sophisticated labour economics, worker unions, employment law, morale systems, or probationary employment beyond a basic reservation wage and market-rate linkage.
@@ -55,12 +59,13 @@ Terminology note: this document uses “job opening” in the ordinary labour-ma
 
 ## 4. Legacy data stance
 
-Legacy employment data does not need to be migrated. Existing MUDs using the engine are not relying on the current employment-like mechanics in a way that should constrain this redesign. It is acceptable for legacy employment records to be discarded, ignored, or made obsolete by the new system.
+Legacy employment data does not need to be migrated into the new contract model. Existing MUDs using the engine are not relying on the current employment-like mechanics in a way that should constrain this redesign. It is acceptable for legacy employment records to be discarded, ignored, or made obsolete by the new system.
 
 The implementation should still avoid unnecessary crashes when loading old saved data. The preferred stance is:
 
-- Preserve non-employment business data where it remains meaningful, such as shop inventory, bank account balances, auction listings, room definitions, and tax/accounting records that are not part of obsolete employment state.
-- Initialise new employment contracts, job openings, task boards, manager goals, and host boards from clean defaults.
+- Preserve non-employment business data where it remains meaningful, such as shop inventory, bank account balances, auction listings, room definitions, hotel/property state, and tax/accounting records that are not part of obsolete employment state.
+- Initialise new employment contracts, employment openings, task boards, manager goals, host board references, and operational registers from clean defaults.
+- Do not import existing shop/stable employee XML, bank manager lists, or arena manager lists into new employment contracts.
 - Do not spend implementation time building elaborate legacy employment-data migration code.
 - If obsolete fields remain in save files, either ignore them or map them only when doing so is trivial.
 - If removing obsolete fields is cleaner than adapting them, removal is acceptable provided the new baseline loads and operates correctly.
@@ -69,25 +74,26 @@ This stance applies specifically to legacy employment-like data. It is not permi
 
 ## 5. Design principles
 
-1. **One employment model, many host adapters.** Each business type may keep its specific behaviour, but staff, roles, job openings, manager goals, boards, and task assignment should route through common services.
+1. **One employment model, many host adapters.** Each business type may keep its specific behaviour, but staff, roles, employment openings, manager goals, boards, and task assignment should route through common services.
 2. **Relationships are records, not flags.** Employment should be represented by an explicit contract/relationship object rather than scattered character references or ad hoc owner fields.
 3. **Authority is delegated, not implied.** A manager can only do what their role/contract permits, and cannot delegate authority they do not possess.
 4. **Tasks are composable action plans.** The system should not depend on large hardcoded end-to-end task types that each combine a trigger and a full workflow. Scheduled rules evaluate conditions; active tasks execute ordered action steps.
 5. **Manager goals create operational work.** Some business objectives are better represented as delegated manager goals than as simple condition/action schedules.
-6. **Tasks are auditable work orders.** Any task that spends money, moves inventory, pays wages, posts official notices, alters accounts, or changes prices must leave ledger/register evidence as appropriate.
-7. **Scheduled rules spawn active work.** A standing rule such as “buy butter when stock is low” should be distinct from the active task that an employee is currently performing.
+6. **Tasks are auditable work orders.** Any task that spends money, moves inventory, pays wages, posts official notices, alters accounts, or changes prices must write through the existing financial evidence systems and the new operational register as appropriate.
+7. **Scheduled rules spawn active work.** A standing rule such as "buy butter when stock is low" should be distinct from the active task that an employee is currently performing.
 8. **Command compatibility before command replacement.** Existing player-facing commands can become wrappers around common services where practical.
 9. **Economic exploit resistance.** NPC workers should reject implausibly low pay, employer spending must be authorised, and payments must be traceable.
 
 ## 6. Terminology
 
-- **Employment host / `IEmploymentHost`:** A shop, auction house, arena, bank, stable, room-rental business, hotel, or future organisation that can employ NPCs or player characters through the new employment model.
+- **Employment host / `IEmploymentHost`:** A shop, auction house, arena, bank, stable, hotel, or future organisation that can employ NPCs or player characters through the new employment model.
+- **Hotel / `IHotel`:** A separate persisted economy host for hotel business state. A hotel links to property/cell data for ownership, location, and access control, but owns hotel rooms, rentals, patron balances, lost property, tax configuration, manager workflows, bank account, virtual reserve, and operational state.
 - **Employee agent:** A character, usually an NPC for this design, capable of accepting work and performing action steps.
 - **Employment contract:** The active or historical relationship between an employment host and an employee agent, including role, pay, schedule, duration, status, payment method, and authority.
 - **Employment role:** Employee, manager, proprietor, or a more specific host role. Roles may grant default authority, but the final authority must be explicit.
-- **Manager authority:** The set of actions a manager can perform on behalf of the host, such as hiring employees, firing employees, changing pay within limits, creating job openings, approving store-account use, creating scheduled rules, or assigning tasks.
-- **Job opening:** A posted position with requirements, pay terms, schedule, duration, role type, and application rules. It is unrelated to `IJob`.
-- **Host board / `IBoard`:** A board associated directly with an `IEmploymentHost`, visible to employees through their employment relationship rather than through a physical board item.
+- **Manager authority:** The set of actions a manager can perform on behalf of the host, such as hiring employees, firing employees, changing pay within limits, creating employment openings, approving store-account use, creating scheduled rules, or assigning tasks.
+- **Employment opening / `IEmploymentOpening`:** A posted position with requirements, pay terms, schedule, duration, role type, and application rules. It is unrelated to `IJobListing` and `IActiveJob`.
+- **Host board / `IBoard`:** A real persisted board record referenced by an `IEmploymentHost`, visible to employees through their employment relationship rather than through a physical board item.
 - **Manager goal:** A standing objective delegated to a manager AI, such as maintaining minimum stock levels or keeping store accounts paid. Manager goals may create scheduled rules, create active tasks, alter prices, or post board notices when the manager has authority.
 - **Scheduled task rule:** A recurring, conditional, or manual rule that evaluates condition types and spawns active tasks from an action plan.
 - **Condition type:** A reusable predicate or trigger input, such as time of day, stock below threshold, account balance below threshold, tax due, store account overdue, manual order, or market price condition.
@@ -95,8 +101,8 @@ This stance applies specifically to legacy employment-like data. It is not permi
 - **Action step:** A single operation in an action plan, such as move to location, find supplier, reserve funds, purchase commodity, load container, deliver item, trigger craft, deposit money, pay account, execute command, or write board post.
 - **Active task:** A concrete work item created from a scheduled rule, manager goal, proprietor order, manager order, or system event.
 - **Task dispatcher:** The service that evaluates active tasks, chooses eligible employees, assigns work, advances action steps, and records outcomes.
-- **Ledger:** Financial record used for tax/accounting: wages, purchases, deposits, withdrawals, store-account payments, craft material costs, tax payments, and other money movements.
-- **Register:** Operational audit record: job openings, applications, hires/fires, manager actions, goal changes, task creation, task assignment, task completion/failure, board posts, and authorisations.
+- **Financial evidence:** Existing financial records used for tax/accounting, such as bank account transactions, shop transaction records, stable ledgers, arena finance records, `VirtualCashLedger`, and other host-specific money movement records. This design should reuse these instead of introducing a parallel generic financial ledger.
+- **Register:** New operational audit record: employment openings, applications, hires/fires, manager actions, goal changes, task creation, task assignment, task completion/failure, board posts, and authorisations.
 
 ## 7. Core interfaces and domain model
 
@@ -110,15 +116,14 @@ public interface IEmploymentHost
     EmploymentHostType EmploymentHostType { get; }
     IMarket? Market { get; }
 
-    ILedger BusinessLedger { get; }
+    IBoard HostBoard { get; }
     IEmploymentRegister EmploymentRegister { get; }
 
-    IBoard Board { get; }
     ITaskBoard TaskBoard { get; }
     IManagerGoalBoard ManagerGoalBoard { get; }
 
     IReadOnlyCollection<IEmploymentContract> EmploymentContracts { get; }
-    IReadOnlyCollection<IJobOpening> JobOpenings { get; }
+    IReadOnlyCollection<IEmploymentOpening> EmploymentOpenings { get; }
 
     bool CanEmploy(ICharacter candidate, EmploymentRole role, out string reason);
     IEmploymentContract Hire(ICharacter candidate, EmploymentOffer offer, ICharacter? authorisedBy);
@@ -154,21 +159,21 @@ public enum EmploymentStatus
     Ended
 }
 
-public sealed class JobOpening
+public sealed class EmploymentOpening
 {
     public long Id { get; init; }
     public IEmploymentHost Employer { get; init; }
     public EmploymentRole Role { get; init; }
-    public JobRequirementSet Requirements { get; init; }
+    public EmploymentRequirementSet Requirements { get; init; }
     public CompensationTerms Compensation { get; init; }
     public WorkSchedule Schedule { get; init; }
     public EmploymentDuration Duration { get; init; }
-    public JobOpeningStatus Status { get; set; }
+    public EmploymentOpeningStatus Status { get; set; }
     public int MaxPositions { get; init; }
     public bool NpcApplicationsOnly { get; init; }
 }
 
-public sealed class JobRequirementSet
+public sealed class EmploymentRequirementSet
 {
     public IReadOnlyCollection<SkillRequirement> Skills { get; init; }
     public IReadOnlyCollection<KnowledgeRequirement> Knowledges { get; init; }
@@ -200,17 +205,17 @@ Do not model probationary employment in this design. If a future system needs pr
 
 Contracts should be historical. Firing or expiry should end the active contract, not delete it. This is important for tax records, wage disputes, task attribution, and audit trails.
 
-Applications and offers should be separate from employment contracts. A candidate who has applied or been offered a job does not need a contract in a pending or probationary state until the offer is accepted and employment begins.
+Applications and offers should be separate from employment contracts. A candidate who has applied to an employment opening or received an offer does not need a contract in a pending or probationary state until the offer is accepted and employment begins.
 
 ## 9. Roles and manager authority
 
-Roles should be separated from permissions. A “manager” role is only useful if it has an explicit authority set. Example authorities:
+Roles should be separated from permissions. A "manager" role is only useful if it has an explicit authority set. Example authorities:
 
 - `ViewEmployees`
 - `HireEmployees`
 - `FireEmployees`
-- `CreateJobOpenings`
-- `ModifyJobOpenings`
+- `CreateEmploymentOpenings`
+- `ModifyEmploymentOpenings`
 - `SetPayWithinBand`
 - `AssignTasks`
 - `CancelTasks`
@@ -239,9 +244,9 @@ Manager rules:
 - A manager cannot create a scheduled rule or active task that uses employer money, stock, accounts, vehicles, animals, rooms, or store credit unless their authority permits that use.
 - Any manager action that changes employment, money, inventory, accounts, prices, boards, goals, or tasks must write a register entry, and financial actions must write ledger entries.
 
-## 10. Job openings
+## 10. Employment openings
 
-A job opening should be the canonical way for NPC workers to discover work. It should support:
+An employment opening should be the canonical way for NPC workers to discover host-level work. It should support:
 
 - Employer.
 - Role type: employee, manager, proprietor-like operator if appropriate.
@@ -271,16 +276,16 @@ public sealed class CompensationTerms
 }
 ```
 
-A job opening should not be allowed to offer a non-positive wage unless it is explicitly marked as unpaid/volunteer and NPC employment-seeking AI is allowed to ignore it by default.
+An employment opening should not be allowed to offer a non-positive wage unless it is explicitly marked as unpaid/volunteer and NPC employment-seeking AI is allowed to ignore it by default.
 
 ## 11. NPC employment-seeking AI
 
-Create an AI behaviour that periodically searches for job openings. The behaviour should:
+Create an AI behaviour that periodically searches for employment openings. The behaviour should:
 
-1. Find visible job openings in the relevant market, region, or reachable world area.
+1. Find visible employment openings in the relevant market, region, or reachable world area.
 2. Filter openings by requirements: skills, knowledges, capabilities, tags, availability, and pathing.
 3. Calculate effective pay after schedule, distance/travel burden, payment reliability, and any market-rate binding.
-4. Compare effective pay against the NPC’s reservation wage.
+4. Compare effective pay against the NPC's reservation wage.
 5. Apply to the best qualifying opening.
 6. Accept offers only if the final contract still satisfies reservation-wage and payment-method constraints.
 7. Prefer payment to an existing bank account if available, open a bank account if allowed and needed, otherwise accept cash or a specified payment item if supported.
@@ -298,7 +303,7 @@ reservation_wage = max(
 
 Where the existing market system has population and price data, use it. If not, begin with fixed defaults and make the calculation injectable/configurable.
 
-The AI should record rejected jobs and reasons in a lightweight way to avoid thrashing: below minimum wage, lacks capability, cannot path, no acceptable payment method, employer full, opening closed, or application rejected.
+The AI should record rejected openings and reasons in a lightweight way to avoid thrashing: below minimum wage, lacks capability, cannot path, no acceptable payment method, employer full, opening closed, or application rejected.
 
 ## 12. Payment and banking
 
@@ -317,11 +322,11 @@ NPC employment-seeking AI should be able to:
 - Accept cash if banking is unavailable.
 - Reject jobs requiring an unacceptable payment method.
 
-All wage payments should create ledger entries on the employer’s business ledger and, where the banking system supports it, account transaction records on the relevant bank ledger.
+All wage payments should write through the appropriate existing financial systems. Bank payments should create account transaction records. Cash or virtual payments should use the existing host-specific money records, such as shop transaction records, stable ledgers, arena finance records, or `VirtualCashLedger` as appropriate. The new employment layer should add operational register correlation, not a parallel general-purpose wage ledger.
 
 ## 13. Host board
 
-Every `IEmploymentHost` should expose an `IBoard` directly through the host. Employees should be able to view and post to this board according to their employment contract and authority without requiring a separate item link to an in-world board object.
+Every `IEmploymentHost` should expose a reference to a real persisted `IBoard` directly through the host. Employees should be able to view and post to this board according to their employment contract and authority without requiring a separate item link to an in-world board object.
 
 The host board can be used for:
 
@@ -346,14 +351,14 @@ Recommended interface shape:
 ```csharp
 public interface IEmploymentHostBoardAccess
 {
-    IBoard Board { get; }
+    IBoard HostBoard { get; }
     bool CanViewBoard(ICharacter actor);
     bool CanPostToBoard(ICharacter actor, BoardPostType postType);
     IBoardPost PostToBoard(ICharacter actor, BoardPostRequest request);
 }
 ```
 
-The board is part of the host’s operational surface. It may be backed by the existing board implementation if one exists, but employees should not need to know or carry a physical board reference to use it.
+The board is part of the host's operational surface and should be backed by the existing persisted board implementation. Employees should not need to know or carry a physical board reference to use it.
 
 ## 14. Task model: conditions, action plans, and active tasks
 
@@ -367,7 +372,7 @@ Scheduled task rule
   -> instantiates an active task from an action plan
   -> dispatcher assigns eligible employee(s)
   -> employee executes ordered action steps
-  -> ledger/register entries are written throughout
+  -> existing financial records and operational register entries are written throughout
 ```
 
 One-off manager or proprietor orders can skip the scheduled-rule layer and create an active task directly from an action plan.
@@ -381,7 +386,7 @@ A scheduled task rule should contain:
 - Priority.
 - Required employee capabilities.
 - Required authorisations and payment source.
-- Register/ledger classification.
+- Register classification and existing financial-record correlation.
 
 An active task should contain:
 
@@ -473,7 +478,7 @@ Action step types are the composable operations that make up action plans. Each 
 - Execution behaviour.
 - Success output.
 - Failure/blocker reasons.
-- Ledger/register effects.
+- Existing financial-record effects and operational register effects.
 
 Initial action step families should include the following.
 
@@ -532,8 +537,8 @@ Initial action step families should include the following.
 
 ### Administrative actions
 
-- Create job opening.
-- Close job opening.
+- Create employment opening.
+- Close employment opening.
 - Create scheduled task rule.
 - Create active task.
 - Adjust shop price within authority.
@@ -664,7 +669,7 @@ The dispatcher should only assign a task if an employee can complete the action 
 - The employee can access required rooms, containers, vehicles, animals, accounts, store credit, or host board.
 - The employee can carry or transport the required weight/bulk/volume, or can obtain a suitable container/vehicle through earlier action steps.
 - The employer has an authorised payment source for any purchase, withdrawal, store-account payment, wage payment, or tax payment.
-- The action plan can create required ledger/register entries.
+- The action plan can create required financial records and operational register entries.
 - No other active task has reserved the same exclusive resource unless sharing is allowed.
 
 If no employee is eligible, the task should become `Blocked`, with a reason such as no qualified employee, no path, insufficient funds, no store sells commodity, unavailable vehicle, unauthorised account, missing craft station, no board-post permission, or missing manager authority.
@@ -735,35 +740,32 @@ The manager creates deposit, withdrawal, or transfer tasks to keep till cash, fl
 
 ### Maintain staffing levels
 
-The manager creates, modifies, or closes job openings when the host has too few employees/managers with required capabilities.
+The manager creates, modifies, or closes employment openings when the host has too few employees/managers with required capabilities.
 
-### Maintain room-rental or hotel operations
+### Maintain hotel operations
 
-The manager monitors room occupancy, rental payments, cleaning/maintenance needs, guest notices, and supply levels, then creates appropriate active tasks or board posts.
+The manager monitors hotel room occupancy, rental payments, cleaning/maintenance needs, guest notices, lost property, and supply levels, then creates appropriate active tasks or board posts.
 
-Manager goals may be less composable than scheduled task rules. Some goal types can be hardcoded objective types because they involve policy decisions rather than a simple condition/action sequence. Even so, goal outputs should use the same shared services: create active tasks, create scheduled rules, create job openings, adjust prices, pay accounts, or post to the host board through permissioned actions.
+Manager goals may be less composable than scheduled task rules. Some goal types can be hardcoded objective types because they involve policy decisions rather than a simple condition/action sequence. Even so, goal outputs should use the same shared services: create active tasks, create scheduled rules, create employment openings, adjust prices, pay accounts, or post to the host board through permissioned actions.
 
 Manager goal evaluation must never bypass authority checks. A manager AI may only create work that the manager could have created through commands.
 
-## 20. Ledgers and registers
+## 20. Financial records and operational registers
 
-Separate financial ledger entries from operational register entries.
+Separate existing financial records from new operational register entries. The employment/task system should not introduce a parallel general-purpose financial ledger.
 
-### Ledger entries
+### Existing financial records
 
-Ledger entries should be used for tax/accounting and should include:
+Financial actions should write through the systems that already own the relevant money movement. Examples include:
 
-- Wages and wage liabilities.
-- Job-related payments.
-- Purchases of materials, commodities, containers, vehicles, tools, and craft inputs.
-- Sale proceeds where task-related.
-- Bank deposits and withdrawals.
-- Store account payments and credit usage.
-- Tax payments.
-- Inventory valuation movements where the existing accounting model supports them.
-- Payment item/float issue and return where value is transferred.
+- Bank account transactions for deposits, withdrawals, transfers, and wage payments into accounts.
+- Shop transaction records for shop purchases, sale proceeds, tills, store-account payments, and stock-related money movement.
+- Stable ledger entries for boarding, rental, animal-care, transport, and related stable operations.
+- Arena finance records for event payouts, fees, takings, maintenance, and arena-specific employment payments.
+- `VirtualCashLedger` for virtual reserves, cash abstractions, and host-level value movement where a concrete account or transaction record is not appropriate.
+- Existing tax/accounting records for tax liabilities, tax payments, and reportable business activity.
 
-Each ledger entry should include:
+Where those systems allow metadata or notes, employment/task actions should correlate the financial record with:
 
 - Employer/business ID.
 - Actor/employee ID where applicable.
@@ -774,11 +776,13 @@ Each ledger entry should include:
 - Timestamp.
 - Narrative/description.
 
+If an existing financial system cannot hold all correlation data directly, the operational register should record the missing correlation while referencing the canonical financial record.
+
 ### Register entries
 
-Register entries should be used for operational traceability:
+Register entries are new shared operational records used for employment and task traceability:
 
-- Job opening created/modified/closed.
+- Employment opening created/modified/closed.
 - Application submitted/accepted/rejected.
 - Employee hired/fired/suspended/reactivated.
 - Manager authority granted/changed/revoked.
@@ -791,7 +795,7 @@ Register entries should be used for operational traceability:
 - Command-execution actions executed.
 - Price adjustments performed by managers.
 
-Every financial task must create ledger evidence. Every employment, authority, task, board, or manager-goal transition that matters operationally must create register evidence.
+Every financial task must create canonical financial evidence in the owning subsystem and operational register correlation where appropriate. Every employment, authority, task, board, or manager-goal transition that matters operationally must create register evidence.
 
 ## 21. Business-specific adoption notes
 
@@ -801,7 +805,7 @@ Shops are the highest priority because deliveries and stock purchases are the mo
 
 ### Auction houses
 
-Auction houses should expose managers and employees through the same model. Potential future action plans include item intake, listing support, payment settlement, commission handling, and delivery of won lots. For the first slice, focus on employment contracts, manager authority, host board, and ledger/register compatibility.
+Auction houses should expose managers and employees through the same model. Potential future action plans include item intake, listing support, payment settlement, commission handling, and delivery of won lots. For the first slice, focus on employment contracts, manager authority, host board reference, operational register compatibility, and correlation with existing auction-house financial records.
 
 ### Arenas
 
@@ -809,31 +813,36 @@ Arenas should use the model for managers and employees who operate events, payou
 
 ### Banks
 
-Banks are both employers and payment infrastructure. Be careful to avoid circular assumptions: employee wage deposits may use banks, but bank employment must not depend on a working job-seeking flow to initialise. Bank employees may include tellers, managers, and couriers. Account transaction records should correlate with employer ledger entries where possible.
+Banks are both employers and payment infrastructure. Be careful to avoid circular assumptions: employee wage deposits may use banks, but bank employment must not depend on a working employment-seeking flow to initialise. Bank employees may include tellers, managers, and couriers. Account transaction records are the canonical financial evidence for bank money movement and should correlate with operational register entries where possible.
 
 ### Stables
 
 Stables should use common employees/managers for stable hands, animal care, rental/boarding management, and transport-related work. The action-step design should be compatible with stable-managed animals, carts, and consists.
 
-### Room rentals and hotels
+### Hotels
 
-Room-rental and hotel systems should be `IEmploymentHost`s. They may employ clerks, cleaners, maintenance workers, security, managers, and couriers. Potential manager goals and action plans include maintaining room readiness, collecting unpaid rent, posting guest or staff notices, buying cleaning supplies, moving linen or fuel, depositing takings, and paying taxes.
+Hotels should be separate persisted economy entities implementing `IHotel` and `IEmploymentHost`. Properties remain the ownership, location, and access-control anchor for rooms and areas, but hotel business state belongs to the hotel subsystem rather than `Property.HotelDefinition`.
+
+Hotel business state includes hotel rooms, rental offerings, active rentals, patron balances, lost property, taxes, manager workflows, host board, bank account, virtual reserve, task board, manager-goal board, and operational register. Hotels may employ clerks, cleaners, maintenance workers, security, managers, and couriers. Potential manager goals and action plans include maintaining room readiness, collecting unpaid rent, posting guest or staff notices, buying cleaning supplies, moving linen or fuel, depositing takings, reconciling patron balances, managing lost property, and paying taxes.
+
+Current property-hosted hotel XML should remain loadable until the hotel split is implemented. Migrating `Property.HotelDefinition` into separate persisted `Hotel` records is an explicit later implementation concern unless it is deliberately included in the first hotel persistence milestone.
 
 ## 22. Adoption strategy
 
-1. **Discovery pass.** Locate all existing proprietor, manager, employee, staff, wage, payroll, store-account, bank-account, room-rental, hotel, delivery, and task-like code paths.
-2. **Confirm `IJob` boundary.** Identify references to `IJob` only to avoid accidental coupling; do not refactor `IJob` as part of this project.
-3. **Introduce neutral domain types.** Add `IEmploymentHost`, contracts, authority, job openings, host boards, manager goals, condition types, action steps, action plans, and task boards without changing existing behaviour more than necessary.
-4. **Adopt hosts.** Make shops, auction houses, arenas, banks, stables, and room-rental/hotel systems expose `IEmploymentHost`.
-5. **Reset obsolete employment state.** Initialise the new employment model from clean defaults. Ignore or remove legacy employment data rather than migrating it.
-6. **Centralise commands/services gradually.** Route hire/fire/list/manage commands through common services while preserving user-facing syntax where practical.
-7. **Add job openings.** Implement postings, applications, candidate matching, and manager/proprietor approval.
-8. **Add NPC employment-seeking AI.** Start with simple periodic search/apply/accept behaviour and a configurable reservation wage.
-9. **Add host board access.** Expose the host `IBoard` to employees and add the board-post action step.
-10. **Add task board and dispatcher.** Implement condition evaluation, action-plan instantiation, active task lifecycle, action-step execution, eligibility checks, and minimal task execution.
-11. **Add manager goals.** Add the goal model and initial evaluators that create active tasks or scheduled rules through the same permissioned services.
-12. **Wire ledgers/registers.** Ensure every financial/operational action creates the correct record.
-13. **Retire duplicate logic.** Remove or deprecate old ad hoc staff handling after the new model compiles, tests pass, and player-facing command paths are covered.
+1. **Discovery pass.** Locate all existing proprietor, manager, employee, staff, wage, payroll, store-account, bank-account, property hotel, delivery, and task-like code paths.
+2. **Confirm PC-facing job boundary.** Identify references to `IJobListing`, `IActiveJob`, job-finding cells, payroll/coffers, and `job` commands only to avoid accidental coupling; do not refactor them as part of this project.
+3. **Introduce neutral domain types.** Add `IEmploymentHost`, contracts, authority, employment openings, host board references, manager goals, condition types, action steps, action plans, operational registers, and task boards without changing existing behaviour more than necessary.
+4. **Create hotel entities.** Add separate persisted `IHotel`/`Hotel` economy hosts and define their property linkage before moving hotel business state out of property-hosted XML.
+5. **Adopt host shells.** Make shops, auction houses, arenas, banks, stables, and hotels expose `IEmploymentHost` with contracts, authority, employment openings, host board reference, task board, manager-goal board, and operational register support before implementing full dispatcher execution.
+6. **Reset obsolete employment state.** Initialise the new employment model from clean defaults. Ignore or remove legacy employment data rather than migrating it into contracts.
+7. **Centralise commands/services gradually.** Route hire/fire/list/manage commands through common services while preserving user-facing syntax where practical.
+8. **Add employment openings.** Implement postings, applications, candidate matching, and manager/proprietor approval.
+9. **Add NPC employment-seeking AI.** Start with simple periodic search/apply/accept behaviour and a configurable reservation wage.
+10. **Add host board access.** Expose the host `IBoard` reference to employees and add the board-post action step.
+11. **Add task board and dispatcher.** Implement condition evaluation, action-plan instantiation, active task lifecycle, action-step execution, eligibility checks, and minimal task execution.
+12. **Add manager goals.** Add the goal model and initial evaluators that create active tasks or scheduled rules through the same permissioned services.
+13. **Wire financial records and registers.** Ensure every financial action uses the owning subsystem's records and every operational action creates the correct register record.
+14. **Retire duplicate logic.** Remove or deprecate old ad hoc staff handling after the new model compiles, tests pass, and player-facing command paths are covered.
 
 ## 23. Data and save compatibility
 
@@ -841,26 +850,27 @@ Save compatibility should mean the world can still load and use the new baseline
 
 - Obsolete employment records may be discarded.
 - Old proprietor/manager/employee fields may be ignored or reset unless trivially useful.
-- New employment contracts, job openings, manager goals, task boards, and host boards may start empty.
+- New employment contracts, employment openings, manager goals, task boards, host board references, and operational registers may start empty.
 - Existing non-employment economic data should remain authoritative where possible.
-- Existing business ledgers should remain authoritative; new entries should append rather than recreate history.
+- Existing financial records should remain authoritative; new entries should append rather than recreate history.
+- Current `Property.HotelDefinition` data should remain loadable until the hotel split migration is implemented. Moving that XML into separate `Hotel` persistence is an explicit migration task, not an implicit employment-data import.
 - Any intentional legacy employment data loss should be reflected in code comments, release notes, or schema notes so future maintainers understand it was deliberate.
 
 ## 24. Invariants
 
-- The existing `IJob` system is not a dependency of the new employment-host model.
-- Every `IEmploymentHost` has a host `IBoard`, a task board, and a manager-goal board.
+- Existing `IJobListing`, `IActiveJob`, job-finding cell, payroll/coffer, and `job` command systems are not dependencies of the new employment-host model.
+- Every `IEmploymentHost` has a reference to a persisted host `IBoard`, a task board, a manager-goal board, and an operational register.
 - Every active employee has exactly one active contract for a given employer/role combination unless the design explicitly allows multiple positions.
 - Employment status remains simple: active, suspended, or ended.
 - No manager action succeeds without authority.
 - No manager goal creates work that the assigned manager lacks authority to create.
 - No scheduled rule spawns work unless its conditions are satisfied.
 - No active task spends employer money without a payment authorisation.
-- No financial task completes without a ledger entry.
+- No financial task completes without canonical financial evidence in the owning subsystem and operational register correlation where appropriate.
 - No employment/task/manager-goal/board state transition that matters operationally occurs without a register entry.
 - Scheduled task rules must be idempotent and must not spawn unlimited duplicate active tasks.
 - Action plans are composed from action steps; end-to-end workflows should not become isolated one-off task types unless there is a strong host-specific reason.
-- An NPC cannot accept a job below its reservation wage unless explicitly configured to allow it.
+- An NPC cannot accept an employment offer below its reservation wage unless explicitly configured to allow it.
 - Firing/termination preserves new-system historical records.
 - Legacy employment data preservation is not required.
 
@@ -868,33 +878,34 @@ Save compatibility should mean the world can still load and use the new baseline
 
 Minimum tests for the first implementation slice:
 
-- `IEmploymentHost` implementations or adapters exist for shops, auction houses, arenas, banks, stables, and room-rental/hotel systems.
-- The new model does not require the existing `IJob` system.
+- `IEmploymentHost` implementations or adapters exist for shops, auction houses, arenas, banks, stables, and hotels.
+- `IHotel`/`Hotel` exists as a separate persisted economy host linked to properties for ownership, location, and access control.
+- The new model does not require existing `IJobListing`, `IActiveJob`, job-finding cell, payroll/coffer, or `job` command systems.
 - Old worlds or fixtures with obsolete employment data load without requiring employment-data migration.
 - Hire/fire operations create, activate, suspend, and end contracts correctly.
 - Employment status does not include probationary state.
 - Manager authority checks permit and deny the right actions.
-- Job openings validate requirements, pay, schedule, role, duration, and application limits.
+- Employment openings validate requirements, pay, schedule, role, duration, and application limits.
 - NPC candidate matching filters by skills, knowledges, AI capabilities, availability, pathing if available, and reservation wage.
 - Payment method selection handles bank account, specified account, cash fallback, and payment failure/liability.
-- Every `IEmploymentHost` exposes an `IBoard` that employees can view/post to according to permissions without a physical board item reference.
+- Every `IEmploymentHost` exposes a persisted `IBoard` reference that employees can view/post to according to permissions without a physical board item reference.
 - A write-board-post action step creates a board post and operational register entry.
 - Scheduled task rule evaluation composes condition types and spawns an active task exactly once per trigger/cooldown window.
 - Action plans can contain multiple action steps and preserve step state.
 - Dispatcher eligibility blocks impossible tasks with useful reasons.
-- Purchase, deposit, withdraw, store-account-payment, craft-trigger, command-execution, and board-post action steps create required ledger/register records.
+- Purchase, deposit, withdraw, store-account-payment, craft-trigger, command-execution, and board-post action steps create required financial records and operational register records.
 - Manager goals can create active tasks or scheduled rules only when the manager has authority.
 - Existing shop/auction/arena/bank/stable/hotel management commands still compile and either work directly or clearly route to the new service.
 
 Recommended integration scenario:
 
 1. Create a shop with a manager and one NPC employee.
-2. Post a job opening requiring commodity purchase capability.
+2. Post an employment opening requiring commodity purchase capability.
 3. Have a qualifying NPC apply and be hired.
 4. Give the shop a host board.
 5. Set a scheduled rule: if butter stock is below 5 kg, run an action plan that buys 10 kg and places it in the stock room.
 6. Trigger the stock condition.
-7. Verify an active task is created, an eligible employee is assigned, the purchase is authorised, the item is moved, a board post can be written, and ledger/register entries exist.
+7. Verify an active task is created, an eligible employee is assigned, the purchase is authorised, the item is moved, a board post can be written, and required financial records plus operational register entries exist.
 8. Add a manager goal to maintain stock levels and verify the manager AI creates equivalent operational work through authorised services rather than bypassing permissions.
 
 ## 26. Implementation status section for Codex to maintain
@@ -916,15 +927,15 @@ Codex should update this section during implementation.
 ## 27. Suggested Codex goal
 
 ```text
-/goal Implement the first production slice of the Unified Employment, Manager Goals, and Task Dispatch system described in docs/designs/unified-employment-task-dispatch.md. Read that doc first and treat its Scope, invariants, adoption strategy, and acceptance criteria as the source of truth.
+/goal Implement the first production slice of the Unified Employment, Manager Goals, and Task Dispatch system described in Design Documents/Economy/Unified Employment Dispatch Design.md. Read that doc first and treat its Scope, invariants, adoption strategy, and acceptance criteria as the source of truth.
 
-Outcome: shops, auction houses, arenas, banks, stables, and room-rental/hotel systems expose a shared `IEmploymentHost` interface and use common services for contracts, hiring/firing, role/manager authority, job openings, payment methods, host `IBoard`, business ledger/register recording, task boards, and manager goals. Keep the existing `IJob` system out of scope.
+Outcome: shops, auction houses, arenas, banks, stables, and hotels expose shared `IEmploymentHost` host shells and use common services for contracts, hiring/firing, role/manager authority, employment openings, payment methods, persisted host `IBoard` references, operational register recording, task boards, and manager goals. Add separate persisted `IHotel`/`Hotel` economy entities linked to properties for ownership, location, and access control. Keep existing `IJobListing`, `IActiveJob`, job-finding cell, payroll/coffer, and `job` command systems out of scope.
 
 Build the task model as composable condition types plus action-step plans, not monolithic end-to-end task types. Add enough stock/time/manual/account conditions and purchase, movement/delivery, craft-trigger, command, bank deposit/withdrawal, store-account payment, and board-post action steps to compile and test the core dispatcher path.
 
-Constraints: legacy employment data does not need migration and may be discarded/ignored, but old worlds should still load where practical; preserve unrelated economic data and accounting semantics; managers may only exercise delegated authority; employees must not spend employer money, use store credit, alter prices, post official notices, or create tasks without auditable authorisation and ledger/register entries where applicable.
+Constraints: legacy employment data does not need migration and may be discarded/ignored, but old worlds should still load where practical; preserve unrelated economic data and accounting semantics; current property-hosted hotel XML should remain loadable until the hotel split migration is implemented; managers may only exercise delegated authority; employees must not spend employer money, use store credit, alter prices, post official notices, or create tasks without auditable authorisation, canonical financial records, and operational register entries where applicable.
 
-Process: work in small milestones. After each milestone, run relevant build/tests and fix failures before widening scope. Add/adjust tests for host adoption, no `IJob` dependency, simple employment status, manager permissions, job openings/candidate matching, NPC reservation wage, payment method selection, host-board access, board-post action step, condition-to-active-task spawning, action-plan step state, dispatcher eligibility, manager goals, and ledger/register entries.
+Process: work in small milestones. Start with host shells before real dispatcher execution. After each milestone, run relevant build/tests and fix failures before widening scope. Add/adjust tests for host adoption, independence from existing PC-facing job systems, simple employment status, manager permissions, employment openings/candidate matching, NPC reservation wage, payment method selection, host-board access, board-post action step, condition-to-active-task spawning, action-plan step state, dispatcher eligibility, manager goals, existing financial record reuse, and operational register entries.
 
 Done when: all minimum host types expose `IEmploymentHost`, existing tests pass, new tests cover the core behaviours above, and the design doc implementation status section lists completed/deferred items. If codebase structure makes any requirement infeasible, stop only after documenting the blocker, evidence, attempted approaches, and the narrowest follow-up goal needed.
 ```

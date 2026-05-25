@@ -1,4 +1,3 @@
-
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
 VisualStudioVersion = 18.3.11520.95
@@ -138,8 +137,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MudSharpCore Climate Tests"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Design Documents", "Design Documents", "{0A6752B5-A06F-4595-8BDF-09428AB49F2F}"
 	ProjectSection(SolutionItems) = preProject
-		Design Documents\README.md = Design Documents\README.md
-		Design Documents\Health\Health_Adjacencies_and_Items.md = Design Documents\Health\Health_Adjacencies_and_Items.md
 		Design Documents\AI\AI_Storyteller_Design.md = Design Documents\AI\AI_Storyteller_Design.md
 		Design Documents\AI\AI_Storyteller_Implementation_Plan.md = Design Documents\AI\AI_Storyteller_Implementation_Plan.md
 		Design Documents\Crafting\Antiquity_Furniture_Container_Crafting_Suite.md = Design Documents\Crafting\Antiquity_Furniture_Container_Crafting_Suite.md
@@ -168,7 +165,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Design Documents", "Design 
 		Design Documents\Combat\Combat_Arenas_Implementation_Plan.md = Design Documents\Combat\Combat_Arenas_Implementation_Plan.md
 		Design Documents\Combat\Combat_Settings_Defaults_Design.md = Design Documents\Combat\Combat_Settings_Defaults_Design.md
 		Design Documents\Combat\Combat_Strategy_Runtime.md = Design Documents\Combat\Combat_Strategy_Runtime.md
-		Design Documents\Health\Health_Core_Runtime.md = Design Documents\Health\Health_Core_Runtime.md
 		Design Documents\World\Corporeality_and_Planes.md = Design Documents\World\Corporeality_and_Planes.md
 		Design Documents\Crafting\Crafting_System_Builder_Workflows.md = Design Documents\Crafting\Crafting_System_Builder_Workflows.md
 		Design Documents\Crafting\Crafting_System_Overview.md = Design Documents\Crafting\Crafting_System_Overview.md
@@ -190,10 +186,14 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Design Documents", "Design 
 		Design Documents\Crafting\Food_and_Cooking_System.md = Design Documents\Crafting\Food_and_Cooking_System.md
 		Design Documents\Technology\FutureMUD_Computer_Programs_Concept_Design.md = Design Documents\Technology\FutureMUD_Computer_Programs_Concept_Design.md
 		Design Documents\Core\FutureProg_Type_System.md = Design Documents\Core\FutureProg_Type_System.md
+		Design Documents\Health\Health_Adjacencies_and_Items.md = Design Documents\Health\Health_Adjacencies_and_Items.md
+		Design Documents\Health\Health_Core_Runtime.md = Design Documents\Health\Health_Core_Runtime.md
+		Design Documents\Health\Health_Medical_Interactions.md = Design Documents\Health\Health_Medical_Interactions.md
+		Design Documents\Health\Health_Seeder_State_and_Gaps.md = Design Documents\Health\Health_Seeder_State_and_Gaps.md
 		Design Documents\Health\Health_System_Design.md = Design Documents\Health\Health_System_Design.md
 		Design Documents\Markup\Human_Seeder_Description_Patterns.md = Design Documents\Markup\Human_Seeder_Description_Patterns.md
-		Design Documents\Items\Item_Authoring_Guidelines.md = Design Documents\Items\Item_Authoring_Guidelines.md
 		Design Documents\Items\ItemSeeder_AddCraft_Guide.md = Design Documents\Items\ItemSeeder_AddCraft_Guide.md
+		Design Documents\Items\Item_Authoring_Guidelines.md = Design Documents\Items\Item_Authoring_Guidelines.md
 		Design Documents\Data\Item_Component_Types.json = Design Documents\Data\Item_Component_Types.json
 		Design Documents\Items\Item_System_Component_Authoring.md = Design Documents\Items\Item_System_Component_Authoring.md
 		Design Documents\Items\Item_System_Content_Workflows.md = Design Documents\Items\Item_System_Content_Workflows.md
@@ -206,7 +206,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Design Documents", "Design 
 		Design Documents\Magic\Magic_System_Overview.md = Design Documents\Magic\Magic_System_Overview.md
 		Design Documents\Magic\Magic_System_Powers.md = Design Documents\Magic\Magic_System_Powers.md
 		Design Documents\Magic\Magic_System_Spells.md = Design Documents\Magic\Magic_System_Spells.md
-		Design Documents\Health\Health_Medical_Interactions.md = Design Documents\Health\Health_Medical_Interactions.md
 		Design Documents\Characters\Multiple_Body_Form_System.md = Design Documents\Characters\Multiple_Body_Form_System.md
 		Design Documents\Combat\Natural_Ranged_Attacks_Design.md = Design Documents\Combat\Natural_Ranged_Attacks_Design.md
 		Design Documents\Combat\Natural_Ranged_Attacks_Implementation_Plan.md = Design Documents\Combat\Natural_Ranged_Attacks_Implementation_Plan.md
@@ -215,6 +214,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Design Documents", "Design 
 		Design Documents\World\Position_State_System.md = Design Documents\World\Position_State_System.md
 		Design Documents\Crafting\Projects_System_Builder_Workflows.md = Design Documents\Crafting\Projects_System_Builder_Workflows.md
 		Design Documents\Crafting\Projects_System_Overview.md = Design Documents\Crafting\Projects_System_Overview.md
+		Design Documents\README.md = Design Documents\README.md
 		Design Documents\Building\Room_Building_Builder_Guide.md = Design Documents\Building\Room_Building_Builder_Guide.md
 		Design Documents\Markup\Room_Description_Markup.md = Design Documents\Markup\Room_Description_Markup.md
 		Design Documents\Data\SeededTagHierarchy.csv = Design Documents\Data\SeededTagHierarchy.csv
@@ -222,9 +222,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Design Documents", "Design 
 		Design Documents\Data\Seeded_Item_Components.json = Design Documents\Data\Seeded_Item_Components.json
 		Design Documents\Data\Seeded_Liquids.json = Design Documents\Data\Seeded_Liquids.json
 		Design Documents\Data\Seeded_Materials.json = Design Documents\Data\Seeded_Materials.json
-		Design Documents\Health\Health_Seeder_State_and_Gaps.md = Design Documents\Health\Health_Seeder_State_and_Gaps.md
 		Design Documents\Magic\Supernatural_Seeder.md = Design Documents\Magic\Supernatural_Seeder.md
 		Design Documents\World\Time_And_Date_System.md = Design Documents\World\Time_And_Date_System.md
+		Design Documents\Economy\Unified Employment Dispatch Design.md = Design Documents\Economy\Unified Employment Dispatch Design.md
 		Design Documents\World\Zero_Gravity_System.md = Design Documents\World\Zero_Gravity_System.md
 	EndProjectSection
 EndProject
@@ -1274,8 +1274,8 @@ Global
 		{6CC81E07-F4B8-405A-854C-D460A89B18D5} = {EC75D277-E25F-4978-B153-195DDB185097}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {44978E47-2FA8-4EBE-B4A5-74B49FDA01E5}
 		BuildVersion_StartDate = 2000/1/1
+		SolutionGuid = {44978E47-2FA8-4EBE-B4A5-74B49FDA01E5}
 	EndGlobalSection
 	GlobalSection(TestCaseManagementSettings) = postSolution
 		CategoryFile = MudSharp.vsmdi

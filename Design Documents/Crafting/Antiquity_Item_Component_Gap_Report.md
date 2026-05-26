@@ -104,15 +104,15 @@ Current gap: `Board` exists as a message-board component, but there is no antiqu
 | `antiquity_temple_decree_board` | a temple decree board | Use `Board`, `Destroyable_WoodenHeavy`, and restricted post permissions for priests or officials. |
 | `antiquity_barracks_roster_board` | a barracks roster board | Use `Board` or `InscribableSurface`; `Board` is best if postings need persistence and access rules. |
 
-## Missing Seeded Component Prototypes Within Existing Component Types
+## Seeded Component Prototypes Within Existing Component Types
 
-These gaps do not require brand-new engine functionality. They need new component prototypes, seeded by `UsefulSeeder` or by the antiquity package before items reference them. The item additions listed here become cleaner and less misleading once these prototypes exist.
+These gaps did not require brand-new engine functionality. They are now seeded by `UsefulSeeder.ItemComponents.cs` as stock component prototypes so antiquity items can reference setting-appropriate variants instead of borrowing misleading generic or modern examples.
 
 ### Antiquity TimePiece Variants
 
-Missing: setting-specific `TimePiece` component prototypes with antiquity display strings and settable/non-settable behaviour.
+Seeder status: setting-specific `TimePiece` component prototypes with antiquity display strings and settable/non-settable behaviour are now present.
 
-Needed prototypes:
+Seeded prototypes:
 
 - `TimePiece_Antiquity_Sundial`: non-settable, crude daylight-style display string.
 - `TimePiece_Antiquity_WaterClock`: non-settable or priest/setter-only, suited to temple/court clocks.
@@ -129,9 +129,9 @@ Items enabled or improved:
 
 ### Antiquity WaterSource Variants
 
-Missing: fixed ancient water-source component prototypes with names, capacities, switches, and liquid defaults that do not read like modern sinks, bottles, or bathtubs.
+Seeder status: fixed ancient water-source component prototypes with names, capacities, switches, and liquid defaults that do not read like modern sinks, bottles, or bathtubs are now present.
 
-Needed prototypes:
+Seeded prototypes:
 
 - `WaterSource_Antiquity_PublicWell`: infinite or large-capacity potable water source.
 - `WaterSource_Antiquity_Cistern`: potable or brackish stored source, optionally switchable/lockable for city control.
@@ -151,9 +151,9 @@ Items enabled or improved:
 
 ### Antiquity ShopStall and MarketGoodWeight Variants
 
-Missing: seeded stock component prototypes for market stalls and market-good weights that game owners can attach without hand-authoring each example.
+Seeder status: seeded stock component prototypes for market stalls and market-good weights are now present for game owners to attach without hand-authoring each example.
 
-Needed prototypes:
+Seeded prototypes:
 
 - `ShopStall_Antiquity_OpenCounter`: open stall surface with generous weight capacity and no transparent-container weirdness.
 - `ShopStall_Antiquity_LockableCounter`: lockable market counter for unattended goods.
@@ -173,9 +173,9 @@ Items enabled or improved:
 
 ### Custom Dice and Casting Components
 
-Missing: antiquity-specific dice prototypes with non-modern face labels and loaded/fair variants.
+Seeder status: antiquity-specific dice prototypes with non-modern face labels and loaded/fair variants are now present.
 
-Needed prototypes:
+Seeded prototypes:
 
 - `Dice_Antiquity_Knucklebones`: four named faces or weighted values suitable for astragaloi.
 - `Dice_Antiquity_CastingSticks`: marked/unmarked stick faces.
@@ -192,9 +192,9 @@ Items enabled or improved:
 
 ### DragAid Tuning Variants
 
-Missing: setting-specific drag-aid components with tuned user limits and effort multipliers for medical, funerary, pastoral, and cargo contexts.
+Seeder status: setting-specific drag-aid components with tuned user limits and effort multipliers for medical, funerary, pastoral, and cargo contexts are now present.
 
-Needed prototypes:
+Seeded prototypes:
 
 - `DragAid_Antiquity_FieldStretcher`: two to four users, high wounded-person movement multiplier.
 - `DragAid_Antiquity_CorpseBier`: two to six users, funerary/corpse-focused naming.
@@ -212,9 +212,9 @@ Items enabled or improved:
 
 ### Antiquity Locksmithing Variants
 
-Missing: tuned antiquity locksmithing tool components, especially low-tech, breakable, or installation/fabrication-specialised versions.
+Seeder status: tuned antiquity locksmithing tool components, especially low-tech, breakable, or installation/fabrication-specialised versions, are now present.
 
-Needed prototypes:
+Seeded prototypes:
 
 - `Locksmithing_Antiquity_BronzePoor`: breakable, penalty-bearing improvised pick set.
 - `Locksmithing_Antiquity_BronzeStandard`: standard lockpick and probe roll.
@@ -401,7 +401,7 @@ Items enabled:
 ## Suggested Implementation Order
 
 1. Add data-only items that use existing components cleanly: dice, lockpicks, drag aids, notice boards, and a first water-source set.
-2. Add antiquity-specific component prototypes for `TimePiece`, `WaterSource`, `DragAid`, `Dice`, `Locksmithing Tool`, `ShopStall`, and `MarketGoodWeight`.
+2. Completed in `UsefulSeeder`: antiquity-specific component prototypes for `TimePiece`, `WaterSource`, `DragAid`, `Dice`, `Locksmithing Tool`, `ShopStall`, and `MarketGoodWeight`.
 3. Add matching item prototypes that use those new component prototypes and update this document with the shipped names.
 4. Choose one new runtime component family for a first deeper gameplay pass. `Instrument` is the best first candidate because it is socially important, highly visible in roleplay, and relatively self-contained.
 5. Treat `SealStamp`/`Sealable`, `MeasuringInstrument`, and `OfferingReceiver` as the next most setting-defining component families because they support administration, trade, religion, law, and trust.

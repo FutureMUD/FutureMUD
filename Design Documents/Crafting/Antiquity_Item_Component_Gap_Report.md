@@ -19,9 +19,11 @@ The current antiquity item suite already has broad coverage for:
 
 These items can be added to the antiquity seeder without new runtime component types. Some use stock generic components exactly as seeded; others would be better if the component prototype names were later made more setting-specific, but they are still implementable today.
 
+Seeder status: the item prototypes listed in this section are now seeded by `ItemSeeder.Rework.AntiquityComponentGaps.cs`. Items whose richer behaviour depends on still-deferred systems, such as physical length measurement or rules-aware board games, are seeded as ordinary props.
+
 ### Timekeeping Items
 
-Current gap: `TimePiece` exists in the stock component catalogue, but antiquity does not currently have visible sundials, water clocks, watch clocks, or temple timekeepers.
+Original gap: `TimePiece` exists in the stock component catalogue, but antiquity did not have visible sundials, water clocks, watch clocks, or temple timekeepers.
 
 | Unique Name | Short Description | Build Pointers |
 | --- | --- | --- |
@@ -33,7 +35,7 @@ Current gap: `TimePiece` exists in the stock component catalogue, but antiquity 
 
 ### Public Water and Bathing Infrastructure
 
-Current gap: `WaterSource` exists in the generic stock set and the legacy item seeder has wells and cisterns, but the antiquity rework does not yet make public water infrastructure part of its own setting package.
+Original gap: `WaterSource` exists in the generic stock set and the legacy item seeder has wells and cisterns, but the antiquity rework did not make public water infrastructure part of its own setting package.
 
 | Unique Name | Short Description | Build Pointers |
 | --- | --- | --- |
@@ -46,7 +48,7 @@ Current gap: `WaterSource` exists in the generic stock set and the legacy item s
 
 ### Drag Aids, Litters, and Heavy-Carry Tools
 
-Current gap: `DragAid` exists in the general stock component package, while antiquity medical currently covers crutches and prosthetics but not group movement aids.
+Original gap: `DragAid` exists in the general stock component package, while antiquity medical covered crutches and prosthetics but not group movement aids.
 
 | Unique Name | Short Description | Build Pointers |
 | --- | --- | --- |
@@ -58,7 +60,7 @@ Current gap: `DragAid` exists in the general stock component package, while anti
 
 ### Games, Gambling, and Leisure
 
-Current gap: `Dice` components are seeded, including fair and custom-face dice support, but antiquity does not currently seed gambling or leisure objects as a visible social package.
+Original gap: `Dice` components are seeded, including fair and custom-face dice support, but antiquity did not seed gambling or leisure objects as a visible social package.
 
 | Unique Name | Short Description | Build Pointers |
 | --- | --- | --- |
@@ -71,7 +73,7 @@ Current gap: `Dice` components are seeded, including fair and custom-face dice s
 
 ### Markets, Stalls, Weights, and Measures
 
-Current gap: the runtime has `ShopStall` and `MarketGoodWeight`, but the antiquity package mostly models merchant furniture and containers rather than functional market instruments.
+Original gap: the runtime has `ShopStall` and `MarketGoodWeight`, but the antiquity package mostly modelled merchant furniture and containers rather than functional market instruments.
 
 | Unique Name | Short Description | Build Pointers |
 | --- | --- | --- |
@@ -84,7 +86,7 @@ Current gap: the runtime has `ShopStall` and `MarketGoodWeight`, but the antiqui
 
 ### Locksmithing and Security Tools
 
-Current gap: antiquity has locks, keys, latches, and keyrings, while generic stock already has `Locksmithing Tool` components. The setting can support a small security-tool package.
+Original gap: antiquity has locks, keys, latches, and keyrings, while generic stock already has `Locksmithing Tool` components. The setting can support a small security-tool package.
 
 | Unique Name | Short Description | Build Pointers |
 | --- | --- | --- |
@@ -96,7 +98,7 @@ Current gap: antiquity has locks, keys, latches, and keyrings, while generic sto
 
 ### Civic Notice and Administrative Boards
 
-Current gap: `Board` exists as a message-board component, but there is no antiquity-specific public posting surface.
+Original gap: `Board` exists as a message-board component, but there was no antiquity-specific public posting surface. The seeded board items are currently writable/inscribable props rather than live message-board bindings because board-backed component prototypes need world-specific board records and permissions.
 
 | Unique Name | Short Description | Build Pointers |
 | --- | --- | --- |
@@ -107,6 +109,8 @@ Current gap: `Board` exists as a message-board component, but there is no antiqu
 ## Seeded Component Prototypes Within Existing Component Types
 
 These gaps did not require brand-new engine functionality. They are now seeded by `UsefulSeeder.ItemComponents.cs` as stock component prototypes so antiquity items can reference setting-appropriate variants instead of borrowing misleading generic or modern examples.
+
+ItemSeeder status: the item prototypes named in the "Items enabled or improved" lists below are now seeded by `ItemSeeder.Rework.AntiquityComponentGaps.cs`.
 
 ### Antiquity TimePiece Variants
 
@@ -233,6 +237,8 @@ Items enabled or improved:
 ## Implemented New Component Families
 
 These gaps originally needed new runtime component families. They are now first-class component types with seeded examples in `UsefulSeeder.ItemComponents.cs`.
+
+ItemSeeder status: the `SealStamp`, `Sealable`, and `MeasuringInstrument` item examples listed below are now seeded by `ItemSeeder.Rework.AntiquityComponentGaps.cs`. Length/cubit/survey rod examples remain prop-only until item dimensions exist.
 
 ### SealStamp and Sealable Components
 

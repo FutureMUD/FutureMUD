@@ -214,6 +214,37 @@ public class UsefulSeederItemPackageTests
 		context.SaveChanges();
 	}
 
+	private static void EnsureComponentMarkers(FuturemudDatabaseContext context, params string[] names)
+	{
+		var nextId = context.GameItemComponentProtos.Any() ? context.GameItemComponentProtos.Max(x => x.Id) + 1 : 1;
+		foreach (var name in names)
+		{
+			if (context.GameItemComponentProtos.Any(x => x.Name == name))
+			{
+				continue;
+			}
+
+			context.GameItemComponentProtos.Add(CreateComponentMarker(nextId++, name));
+		}
+
+		context.SaveChanges();
+	}
+
+	private static GameItemProto LoadItem(FuturemudDatabaseContext context, string uniqueName)
+	{
+		return context.GameItemProtos
+		              .Include(x => x.GameItemProtosGameItemComponentProtos)
+		              .ThenInclude(x => x.GameItemComponent)
+		              .Single(x => x.UniqueName == uniqueName);
+	}
+
+	private static string[] ComponentNames(GameItemProto item)
+	{
+		return item.GameItemProtosGameItemComponentProtos
+		           .Select(x => x.GameItemComponent.Name)
+		           .ToArray();
+	}
+
 	private static void SeedRepairKitPrerequisites(FuturemudDatabaseContext context)
 	{
 		context.Tags.AddRange(
@@ -507,6 +538,66 @@ public class UsefulSeederItemPackageTests
 				"Sealable_Scroll"
 			},
 			scroll.GameItemProtosGameItemComponentProtos.Select(x => x.GameItemComponent.Name).ToArray());
+	}
+
+	[TestMethod]
+	public void ItemSeeder_AntiquityComponentGapItems_RerunDoesNotDuplicateAndUsesReportComponents()
+	{
+		using FuturemudDatabaseContext context = BuildContext();
+		SeedGeneralPrerequisites(context);
+		SeedMarketCategories(context);
+		UsefulSeeder usefulSeeder = new();
+		usefulSeeder.SeedAntiquityComponentGapCoverageForTesting(context);
+		EnsureComponentMarkers(context,
+			"Destroyable_Misc",
+			"Destroyable_Furniture",
+			"Destroyable_WoodenHeavy",
+			"Destroyable_HeavyMetal",
+			"Container_Tray",
+			"Container_Pouch",
+			"Container_Small_Drum",
+			"LContainer_DrinkingGlass",
+			"LContainer_WineGlass",
+			"LContainer_Amphora_Urna",
+			"Wear_Ring",
+			"Wear_Waist",
+			"Keyring_Large",
+			"LockingContainer_Lockbox",
+			"Dice_d6");
+		ItemSeeder itemSeeder = new();
+
+		itemSeeder.SeedAntiquityComponentGapItemsForTesting(context);
+		itemSeeder.SeedAntiquityComponentGapItemsForTesting(context);
+
+		var expectedStableReferences = ItemSeeder.AntiquityComponentGapItemStableReferencesForTesting;
+		foreach (var stableReference in expectedStableReferences)
+		{
+			Assert.AreEqual(1, context.GameItemProtos.Count(x => x.UniqueName == stableReference),
+				$"Expected one item prototype named {stableReference}.");
+		}
+
+		GameItemProto bronzeSignet = LoadItem(context, "antiquity_bronze_signet_ring");
+		CollectionAssert.Contains(ComponentNames(bronzeSignet), "SealStamp_Antiquity_BronzeSignet");
+		CollectionAssert.Contains(ComponentNames(bronzeSignet), "Wear_Ring");
+
+		GameItemProto papyrusScroll = LoadItem(context, "antiquity_sealed_papyrus_scroll");
+		CollectionAssert.Contains(ComponentNames(papyrusScroll), "Antiquity_Papyrus_Scroll_Surface");
+		CollectionAssert.Contains(ComponentNames(papyrusScroll), "Sealable_Scroll");
+
+		GameItemProto sealBox = LoadItem(context, "antiquity_tax_office_seal_box");
+		CollectionAssert.Contains(ComponentNames(sealBox), "LockingContainer_Lockbox");
+		CollectionAssert.Contains(ComponentNames(sealBox), "Sealable_Container_Wax");
+
+		GameItemProto oilCup = LoadItem(context, "antiquity_oil_measure_cup");
+		CollectionAssert.Contains(ComponentNames(oilCup), "LContainer_DrinkingGlass");
+		CollectionAssert.Contains(ComponentNames(oilCup), "MeasuringInstrument_Antiquity_OilCup");
+
+		GameItemProto publicWell = LoadItem(context, "antiquity_stone_public_well");
+		CollectionAssert.Contains(ComponentNames(publicWell), "WaterSource_Antiquity_PublicWell");
+
+		GameItemProto measuringRod = LoadItem(context, "antiquity_wooden_measuring_rod");
+		CollectionAssert.DoesNotContain(ComponentNames(measuringRod), "MeasuringInstrument_Antiquity_BalanceScale",
+			"Length measurement is deferred, so the rod should remain a non-measuring prop.");
 	}
 
 	[TestMethod]

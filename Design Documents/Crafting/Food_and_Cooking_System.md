@@ -57,9 +57,9 @@ Prepared food can carry ingested drug doses from three sources:
 
 Food and liquid drinking both use the shared ingested-dose helper. Only drugs that support the `Ingested` vector are delivered by eating or drinking.
 
-Liquid exposure is handled before ordinary contamination. Prepared food absorbs up to its configured limit and turns absorbed liquid into ingredient ledger entries and ingested-capable drug doses. Any overflow continues through normal item contamination.
+Liquid exposure is handled before ordinary surface contamination. Prepared food absorbs up to its configured limit and turns absorbed liquid into ingredient ledger entries and ingested-capable drug doses. Any overflow continues through the item's `SurfaceLiquidState`, which is also the source for transferable liquid and residue entries consumed by recipe-created foods.
 
-Cooking recipes that enable `CookedFoodProduct` purification omit propagated drug doses from prepared-food and liquid inputs and suppress `IIngredientTransferEffect` transfer from consumed item inputs. The output prototype's own default profile doses and stale doses are still honoured.
+Cooking recipes that enable `CookedFoodProduct` purification omit propagated drug doses from prepared-food and liquid inputs and suppress `IIngredientTransferEffect` transfer from consumed item inputs, including the transient surface-contamination transfer adapter. The output prototype's own default profile doses and stale doses are still honoured.
 
 ## Cooking Crafts
 Cooking uses the existing craft system. `CookedFoodProduct` is a craft product type that loads a prepared-food item prototype and initializes the same runtime component from consumed craft inputs.

@@ -373,6 +373,7 @@ public partial class Body : PerceiverItem, IBody
             FullDescription = _fullDescription,
             FullDescriptionPatternId = _fullDescriptionPattern?.Id,
             EffectData = SaveEffects().ToString(),
+            SurfaceLiquidData = SaveSurfaceLiquidState(),
             Tattoos = SaveTattoos(),
             Scars = SaveScars(),
             HealthStrategyId = HealthStrategy?.Id
@@ -846,6 +847,7 @@ public partial class Body : PerceiverItem, IBody
         CurrentBloodVolumeLitres = body.CurrentBloodVolume;
         // TotalBloodVolume depends on Character, so Character is responsible for setting it
         LoadEffects(XElement.Parse(body.EffectData.IfNullOrWhiteSpace("<Effects/>")));
+        LoadSurfaceLiquidState(body.SurfaceLiquidData);
         _noSave = false;
 
         if (Bloodtype == null && Ethnicity.PopulationBloodModel != null)
@@ -892,6 +894,7 @@ public partial class Body : PerceiverItem, IBody
         try
         {
             Models.Body dbentity = FMDB.Context.Bodies.Find(Id);
+            ResolveSurfaceLiquidDrying();
             dbentity.Height = Height;
             dbentity.Weight = Weight;
             dbentity.Position = PositionState.Id;
@@ -968,6 +971,12 @@ public partial class Body : PerceiverItem, IBody
             {
                 dbentity.EffectData = SaveEffects().ToString();
                 EffectsChanged = false;
+            }
+
+            if (_surfaceLiquidChanged)
+            {
+                dbentity.SurfaceLiquidData = SaveSurfaceLiquidState();
+                _surfaceLiquidChanged = false;
             }
 
             base.Save();
@@ -1074,137 +1083,28 @@ public partial class Body : PerceiverItem, IBody
     {
         get
         {
+            ResolveSurfaceLiquidDrying();
             (double coating, double absorb) = LiquidAbsorbtionAmounts;
-            IEnumerable<ILiquidContaminationEffect> effects = EffectsOfType<ILiquidContaminationEffect>();
-            double total = effects.Sum(x => x.ContaminatingLiquid.TotalVolume);
-            if (total <= 0)
-            {
-                return ItemSaturationLevel.Dry;
-            }
-
-            if (total >= absorb)
-            {
-                if (total > absorb + coating)
-                {
-                    return ItemSaturationLevel.Saturated;
-                }
-
-                return ItemSaturationLevel.Soaked;
-            }
-
-            if (total >= absorb * 0.5)
-            {
-                return ItemSaturationLevel.Wet;
-            }
-
-            return ItemSaturationLevel.Damp;
+            return SurfaceLiquidState.SaturationLevel(coating, absorb);
         }
     }
 
     public ItemSaturationLevel SaturationLevelForLiquid(LiquidInstance instance)
     {
         (double coating, double absorb) = LiquidAbsorbtionAmounts;
-        double total = instance.Amount;
-        if (total <= 0)
-        {
-            return ItemSaturationLevel.Dry;
-        }
-
-        if (total >= absorb)
-        {
-            if (total > absorb + coating)
-            {
-                return ItemSaturationLevel.Saturated;
-            }
-
-            return ItemSaturationLevel.Soaked;
-        }
-
-        if (total >= absorb * 0.5)
-        {
-            return ItemSaturationLevel.Wet;
-        }
-
-        return ItemSaturationLevel.Damp;
+        return SurfaceLiquidState.SaturationLevelForLiquid(instance.Amount, coating, absorb);
     }
 
     public ItemSaturationLevel SaturationLevelForLiquid(double total)
     {
         (double coating, double absorb) = LiquidAbsorbtionAmounts;
-        if (total <= 0)
-        {
-            return ItemSaturationLevel.Dry;
-        }
-
-        if (total >= absorb)
-        {
-            if (total > absorb + coating)
-            {
-                return ItemSaturationLevel.Saturated;
-            }
-
-            return ItemSaturationLevel.Soaked;
-        }
-
-        if (total >= absorb * 0.5)
-        {
-            return ItemSaturationLevel.Wet;
-        }
-
-        return ItemSaturationLevel.Damp;
+        return SurfaceLiquidState.SaturationLevelForLiquid(total, coating, absorb);
     }
 
     public ItemSaturationLevel SaturationLevelForLiquid(IEnumerable<IExternalBodypart> bodyparts)
     {
         (double coating, double absorb) = LiquidAbsorbtionAmountsForBodyparts(bodyparts);
-        IEnumerable<BodyLiquidContamination> effects = EffectsOfType<BodyLiquidContamination>().Where(x => x.Bodyparts.Any(y => bodyparts.Contains(y)));
-        double total = effects.Sum(x => x.ContaminatingLiquid.TotalVolume);
-        if (total <= 0)
-        {
-            return ItemSaturationLevel.Dry;
-        }
-
-        if (total >= absorb)
-        {
-            if (total > absorb + coating)
-            {
-                return ItemSaturationLevel.Saturated;
-            }
-
-            return ItemSaturationLevel.Soaked;
-        }
-
-        if (total >= absorb * 0.5)
-        {
-            return ItemSaturationLevel.Wet;
-        }
-
-        return ItemSaturationLevel.Damp;
-    }
-
-    private void ConsolidateLiquidContaminationEffects(IEnumerable<IExternalBodypart> parts)
-    {
-        List<BodyLiquidContamination> effects = EffectsOfType<BodyLiquidContamination>()
-                      .Where(x => x.Bodyparts.Any(y => parts.Contains(y)))
-                      .ToList();
-        if (effects.Count <= 1)
-        {
-            return;
-        }
-
-        BodyLiquidContamination first = effects.First();
-        effects = effects.Skip(1).ToList();
-        foreach (BodyLiquidContamination effect in effects)
-        {
-            first.Bodyparts.AddRange(effect.Bodyparts);
-        }
-
-        first.Bodyparts = first.Bodyparts.Distinct().ToList();
-        foreach (BodyLiquidContamination effect in effects)
-        {
-            first.AddLiquid(effect.ContaminatingLiquid);
-            EffectHandler.RemoveEffect(effect, true);
-        }
+        return SurfaceLiquidState.SaturationLevel(coating, absorb);
     }
 
     public void ExposeToLiquid(LiquidMixture mixture, IEnumerable<IExternalBodypart> parts, LiquidExposureDirection direction)
@@ -1214,6 +1114,7 @@ public partial class Body : PerceiverItem, IBody
             return;
         }
 
+        ResolveSurfaceLiquidDrying();
         if (direction == LiquidExposureDirection.Irrelevant)
         {
             foreach (IExternalBodypart part in parts)
@@ -1231,14 +1132,11 @@ public partial class Body : PerceiverItem, IBody
                 ExposeToLiquid(localMixture, part, LiquidExposureDirection.FromOnTop);
             }
 
-            ConsolidateLiquidContaminationEffects(parts);
             return;
         }
 
-        ConsolidateLiquidContaminationEffects(parts);
-        BodyLiquidContamination effect = BodyLiquidContamination.CreateOrMergeEffect(Actor, mixture.Clone(), parts);
         List<ICleanableEffect> cleanableEffects =
-            EffectsOfType<ICleanableEffect>(x => mixture.Instances.Any(y => y.Liquid.LiquidCountsAs(x.LiquidRequired)))
+            EffectsOfType<ICleanableEffect>(x => x is not SurfaceContaminationEffect && mixture.Instances.Any(y => x.LiquidRequired is not null && y.Liquid.LiquidCountsAs(x.LiquidRequired)))
                 .ToList();
         foreach (ICleanableEffect cleanable in cleanableEffects)
         {
@@ -1248,15 +1146,24 @@ public partial class Body : PerceiverItem, IBody
             }
         }
 
+        SurfaceLiquidState.CleanWithLiquid(mixture, mixture.TotalVolume);
+
         (double coating, double _) = LiquidAbsorbtionAmountsForBodyparts(parts);
-        if (effect.ContaminatingLiquid.TotalVolume > coating)
+        double amountToAbsorb = Math.Min(Math.Max(coating - SurfaceLiquidState.LiquidVolume, 0.0), mixture.TotalVolume);
+        if (amountToAbsorb > 0.0)
         {
-            double excess = effect.ContaminatingLiquid.TotalVolume - coating;
-            LiquidMixture excessMixture = effect.ContaminatingLiquid.RemoveLiquidVolume(excess);
-            PuddleGameItemComponentProto.TopUpOrCreateNewPuddle(excessMixture, Location, RoomLayer, Actor);
+            LiquidMixture newMixture = mixture.RemoveLiquidVolume(amountToAbsorb);
+            if (newMixture?.IsEmpty == false)
+            {
+                SurfaceLiquidState.AddLiquid(newMixture);
+                LiquidExposureStrategies.SurfaceReactions.Expose(this, newMixture, direction, parts);
+            }
         }
 
-        mixture.SetLiquidVolume(0.0);
+        if (mixture.TotalVolume > 0.0)
+        {
+            PuddleGameItemComponentProto.TopUpOrCreateNewPuddle(mixture, Location, RoomLayer, Actor);
+        }
     }
 
     public void ExposeToLiquid(LiquidMixture mixture, IBodypart part, LiquidExposureDirection direction)
@@ -1266,6 +1173,7 @@ public partial class Body : PerceiverItem, IBody
             return;
         }
 
+        ResolveSurfaceLiquidDrying();
         if (direction == LiquidExposureDirection.Irrelevant)
         {
             IGameItem item = WornItemsFor(part).LastOrDefault();
@@ -1282,10 +1190,8 @@ public partial class Body : PerceiverItem, IBody
             }
         }
 
-        BodyLiquidContamination effect = BodyLiquidContamination.CreateOrMergeEffect(Actor, mixture.Clone(), new[] { ebp });
-
         List<ICleanableEffect> cleanableEffects =
-            EffectsOfType<ICleanableEffect>(x => mixture.Instances.Any(y => y.Liquid.LiquidCountsAs(x.LiquidRequired)))
+            EffectsOfType<ICleanableEffect>(x => x is not SurfaceContaminationEffect && mixture.Instances.Any(y => x.LiquidRequired is not null && y.Liquid.LiquidCountsAs(x.LiquidRequired)))
                 .ToList();
         foreach (ICleanableEffect cleanable in cleanableEffects)
         {
@@ -1295,15 +1201,24 @@ public partial class Body : PerceiverItem, IBody
             }
         }
 
+        SurfaceLiquidState.CleanWithLiquid(mixture, mixture.TotalVolume);
+
         (double coating, double _) = LiquidAbsorbtionAmountsForBodyparts(new[] { ebp });
-        if (effect.ContaminatingLiquid.TotalVolume > coating)
+        double amountToAbsorb = Math.Min(Math.Max(coating - SurfaceLiquidState.LiquidVolume, 0.0), mixture.TotalVolume);
+        if (amountToAbsorb > 0.0)
         {
-            double excess = effect.ContaminatingLiquid.TotalVolume - coating;
-            LiquidMixture excessMixture = effect.ContaminatingLiquid.RemoveLiquidVolume(excess);
-            PuddleGameItemComponentProto.TopUpOrCreateNewPuddle(excessMixture, Location, RoomLayer, Actor);
+            LiquidMixture newMixture = mixture.RemoveLiquidVolume(amountToAbsorb);
+            if (newMixture?.IsEmpty == false)
+            {
+                SurfaceLiquidState.AddLiquid(newMixture);
+                LiquidExposureStrategies.SurfaceReactions.Expose(this, newMixture, direction, new[] { ebp });
+            }
         }
 
-        mixture.SetLiquidVolume(0.0);
+        if (mixture.TotalVolume > 0.0)
+        {
+            PuddleGameItemComponentProto.TopUpOrCreateNewPuddle(mixture, Location, RoomLayer, Actor);
+        }
     }
 
     double LiquidVolumeFromPrecipitation(PrecipitationLevel level)
@@ -1320,7 +1235,5 @@ public partial class Body : PerceiverItem, IBody
         {
             ExposeToLiquid(mixture.Clone(mixture.TotalVolume * bodypart.RelativeHitChance / sum), bodypart, LiquidExposureDirection.Irrelevant);
         }
-
-        ConsolidateLiquidContaminationEffects(ExposedBodyparts.OfType<IExternalBodypart>());
     }
 }

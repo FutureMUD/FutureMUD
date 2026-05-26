@@ -10,6 +10,20 @@ namespace MudSharp_Unit_Tests;
 public class WeaponPoisonSourceIntegrationTests
 {
 	[TestMethod]
+	public void WeaponPoisonCoating_IsDecoupledFromGenericLiquidContamination()
+	{
+		var poisonInterface = File.ReadAllText(GetSourcePath("FutureMUDLibrary", "Effects", "Interfaces",
+			"IWeaponPoisonCoatingEffect.cs"));
+		var poisonEffect = File.ReadAllText(GetSourcePath("MudSharpCore", "Effects", "Concrete",
+			"WeaponPoisonCoating.cs"));
+
+		StringAssert.Contains(poisonInterface, "IWeaponPoisonCoatingEffect : IEffectSubtype");
+		Assert.IsFalse(poisonInterface.Contains("ILiquidContaminationEffect", StringComparison.Ordinal));
+		StringAssert.Contains(poisonEffect, "WeaponPoisonCoating : Effect");
+		Assert.IsFalse(poisonEffect.Contains(": LiquidContamination", StringComparison.Ordinal));
+	}
+
+	[TestMethod]
 	public void AmmunitionAndProjectilePaths_CopyAndDeliverPoisonCoatings()
 	{
 		var ammunition = File.ReadAllText(GetSourcePath("MudSharpCore", "GameItems", "Components",
@@ -33,6 +47,7 @@ public class WeaponPoisonSourceIntegrationTests
 		StringAssert.Contains(stackable, "TransferWeaponPoisonCoatingToSplit(newItem, quantity);");
 		StringAssert.Contains(stackable, "coating.RemovePoisonVolume(amount)");
 		StringAssert.Contains(stackable, "newItem.RemoveEffect(copiedCoating, true)");
+		StringAssert.Contains(stackable, "WeaponPoisonCoating.EffectDuration(splitMixture)");
 	}
 
 	[TestMethod]

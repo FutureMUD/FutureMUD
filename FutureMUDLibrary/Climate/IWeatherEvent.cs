@@ -19,6 +19,7 @@ namespace MudSharp.Climate
         WindLevel Wind { get; }
         string WeatherDescription { get; }
         string WeatherRoomAddendum { get; }
+        bool RequiresRoomFiveSecondTick { get; }
         string RandomFlavourEcho();
         double TemperatureEffect { get; }
         double PrecipitationTemperatureEffect { get; }

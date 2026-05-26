@@ -312,12 +312,25 @@ public partial class Body
         }
 
         description = description.AppendRemoteObservationTag(voyeur, Actor, colour, flags);
-        return
+        description =
             CombinedEffectsOfType<ISDescAdditionEffect>()
                 .Where(x => x.DescriptionAdditionApplies(voyeur))
                 .DistinctBy(x => x.AddendumText)
                 .Select(effect => effect.GetAddendumText(colour))
                 .Aggregate(description, (current, text) => $"{current} {text}");
+
+        if (!flags.HasFlag(PerceiveIgnoreFlags.IgnoreLiquidsAndFlags))
+        {
+            ResolveSurfaceLiquidDrying();
+            var (coating, absorb) = LiquidAbsorbtionAmounts;
+            var surfaceAddendum = SurfaceLiquidState.GetAddendumText(coating, absorb, colour);
+            if (!string.IsNullOrWhiteSpace(surfaceAddendum))
+            {
+                description = $"{description} {surfaceAddendum}";
+            }
+        }
+
+        return description;
     }
 
     private string DressLongDescription(IPerceiver voyeur, string description)
@@ -542,6 +555,14 @@ public partial class Body
                           (current, component) =>
                               $"{current}\n\t{component.GetAdditionalText(voyeur, true)}");
 
+        ResolveSurfaceLiquidDrying();
+        var (coating, absorb) = LiquidAbsorbtionAmounts;
+        var surfaceText = SurfaceLiquidState.GetAdditionalText(coating, absorb, voyeur, true);
+        if (!string.IsNullOrWhiteSpace(surfaceText))
+        {
+            text = $"{text}\n\t{surfaceText}";
+        }
+
         string auraText = MagicPerceptionUtilities.DescribeMagicAuras(voyeur, Effects.Concat(Actor.Effects));
         if (!string.IsNullOrEmpty(auraText))
         {
@@ -626,6 +647,13 @@ public partial class Body
         }
         else
         {
+            Location.ResolveRoomWeatherExposure(Actor);
+            var virtualPuddleText = Location.DescribeLiquidSurface(RoomLayer, Actor, true);
+            if (!string.IsNullOrWhiteSpace(virtualPuddleText))
+            {
+                sb.AppendLine(virtualPuddleText.Wrap(InnerLineFormatLength));
+            }
+
             // Do puddle groups first
             List<PuddleGameItemComponent> puddles = items.SelectNotNull(x => x.GetItemType<PuddleGameItemComponent>()).ToList();
             List<PuddleGameItemComponent> bloodPuddles = puddles.Where(x => x.LiquidMixture.Instances.All(y => y is BloodLiquidInstance)).ToList();

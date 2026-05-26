@@ -3365,6 +3365,11 @@ namespace MudSharp.Database
                     .HasCharSet("utf8")
                     .UseCollation("utf8_general_ci");
 
+                entity.Property(e => e.SurfaceLiquidData)
+                    .HasColumnType("mediumtext")
+                    .HasCharSet("utf8")
+                    .UseCollation("utf8_general_ci");
+
                 entity.Property(e => e.GameItemProtoId).HasColumnType("bigint(20)");
 
                 entity.Property(e => e.GameItemProtoRevision).HasColumnType("int(11)");

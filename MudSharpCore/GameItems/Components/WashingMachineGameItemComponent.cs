@@ -603,10 +603,7 @@ public class WashingMachineGameItemComponent : GameItemComponent, ILiquidContain
                     // Partially dry items during the spin
                     foreach (IGameItem item in _laundryContents)
                     {
-                        foreach (ILiquidContaminationEffect effect in item.EffectsOfType<ILiquidContaminationEffect>().ToList())
-                        {
-                            item.RemoveDuration(effect, TimeSpan.FromSeconds(5), true);
-                        }
+                        item.SurfaceLiquidState.Dry(Math.Max(0.02 / Gameworld.UnitManager.BaseFluidToLitres, item.SurfaceLiquidState.LiquidVolume * 0.30));
                     }
 
                     break;
@@ -631,7 +628,8 @@ public class WashingMachineGameItemComponent : GameItemComponent, ILiquidContain
                 case WashingMachineCycles.Spin:
                     Parent.OutputHandler.Handle(new EmoteOutput(
                         new Emote("@ have|has finished the spin cycle and is now done with washing.", Parent)));
-                    CurrentCycle = WashingMachineCycles.Wash;
+                    CurrentCycle = WashingMachineCycles.None;
+                    Gameworld.HeartbeatManager.SecondHeartbeat -= HeartbeatManager_SecondHeartbeat;
                     break;
                 case WashingMachineCycles.Wash:
                     Parent.OutputHandler.Handle(

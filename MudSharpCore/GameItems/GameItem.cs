@@ -381,6 +381,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
             Changed = false;
             return;
         }
+        ResolveSurfaceLiquidDrying();
         dbitem.Quality = (int)_quality;
         dbitem.MaterialId = _overrideMaterial?.Id ?? 0;
         dbitem.Size = (int)Size;
@@ -400,6 +401,12 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
         {
             dbitem.EffectData = SaveEffects().ToString();
             EffectsChanged = false;
+        }
+
+        if (_surfaceLiquidChanged)
+        {
+            dbitem.SurfaceLiquidData = SaveSurfaceLiquidState();
+            _surfaceLiquidChanged = false;
         }
 
         if (ResourcesChanged)
@@ -596,6 +603,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
             PositionId = (int)PositionUndefined.Instance.Id,
             PositionModifier = (int)PositionModifier.None,
             EffectData = SaveEffects().ToString(),
+            SurfaceLiquidData = SaveSurfaceLiquidState(),
             OwnerId = _ownerReference?.Id,
             OwnerType = _ownerReference?.FrameworkItemType
         };
@@ -628,12 +636,17 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
         PerceiveIgnoreFlags flags = PerceiveIgnoreFlags.None)
     {
         description = description.AppendRemoteObservationTag(voyeur, this, colour, flags);
-        return
+        description =
             EffectsOfType<ISDescAdditionEffect>()
                 .Where(x => x.DescriptionAdditionApplies(voyeur))
                 .DistinctBy(x => x.AddendumText)
                 .Select(effect => effect.GetAddendumText(colour))
                 .Aggregate(description, (current, text) => $"{current} {text}");
+
+        ResolveSurfaceLiquidDrying();
+        var (coating, absorb) = LiquidAbsorbtionAmounts;
+        var surfaceAddendum = SurfaceLiquidState.GetAddendumText(coating, absorb, colour);
+        return string.IsNullOrWhiteSpace(surfaceAddendum) ? description : $"{description} {surfaceAddendum}";
     }
 
     private string FullDescription(IPerceiver voyeur, bool colour, PerceiveIgnoreFlags flags, bool excludeComponents)
@@ -678,6 +691,16 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
                                                           .Aggregate(text,
                                                               (current, component) =>
                                                                   $"{current}\n\t{component.GetAdditionalText(voyeur, true)}");
+        if (!flags.HasFlag(PerceiveIgnoreFlags.IgnoreLiquidsAndFlags))
+        {
+            ResolveSurfaceLiquidDrying();
+            var (coating, absorb) = LiquidAbsorbtionAmounts;
+            var surfaceText = SurfaceLiquidState.GetAdditionalText(coating, absorb, voyeur, colour);
+            if (!string.IsNullOrWhiteSpace(surfaceText))
+            {
+                text = $"{text}\n\t{surfaceText}";
+            }
+        }
 
         string auraText = MagicPerceptionUtilities.DescribeMagicAuras(voyeur, Effects);
         if (!string.IsNullOrEmpty(auraText))
@@ -841,6 +864,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
         LoadPosition(item.PositionId, item.PositionModifier, item.PositionEmote, item.PositionTargetId,
             item.PositionTargetType);
         LoadEffects(XElement.Parse(item.EffectData.IfNullOrWhiteSpace("<Effects/>")));
+        LoadSurfaceLiquidState(item.SurfaceLiquidData);
         LoadHooks(item.HooksPerceivables, "GameItem");
         LoadWounds(item.WoundsGameItem);
         LoadMagic(item);
@@ -968,6 +992,8 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
             component.FinaliseLoad();
         }
 
+        LoadSurfaceLiquidState(rhs.SaveSurfaceLiquidState());
+
         if (Prototype.Morphs)
         {
             if (preserveMorphTime)
@@ -1067,6 +1093,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
             return;
         }
 
+        ResolveSurfaceLiquidDrying();
         foreach (IGameItemComponent component in _components)
         {
             if (component.ExposeToLiquid(mixture) || mixture.TotalVolume <= 0)
@@ -1075,17 +1102,8 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
             }
         }
 
-        ILiquidContaminationEffect effect = EffectsOfType<ILiquidContaminationEffect>()
-            .FirstOrDefault(x => x.ContaminatingLiquid.CanMerge(mixture));
-        if (effect == null)
-        {
-            LiquidMixture newMixture = LiquidMixture.CreateEmpty(Gameworld);
-            effect = new LiquidContamination(this, newMixture);
-            AddEffect(effect, LiquidContamination.EffectDuration(effect.ContaminatingLiquid));
-        }
-
         List<ICleanableEffect> cleanableEffects =
-            EffectsOfType<ICleanableEffect>(x => mixture.Instances.Any(y => y.Liquid.LiquidCountsAs(x.LiquidRequired)))
+            EffectsOfType<ICleanableEffect>(x => x is not SurfaceContaminationEffect && mixture.Instances.Any(y => x.LiquidRequired is not null && y.Liquid.LiquidCountsAs(x.LiquidRequired)))
                 .ToList();
         foreach (ICleanableEffect cleanable in cleanableEffects)
         {
@@ -1095,8 +1113,10 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
             }
         }
 
+        SurfaceLiquidState.CleanWithLiquid(mixture, mixture.TotalVolume);
+
         (double coatingAmount, double absorbAmount) = LiquidAbsorbtionAmounts;
-        double totalAbsorbCapacity = coatingAmount + absorbAmount - effect.ContaminatingLiquid.TotalVolume;
+        double totalAbsorbCapacity = coatingAmount + absorbAmount - SurfaceLiquidState.LiquidVolume;
         double amountToAbsorb = totalAbsorbCapacity;
         if (totalAbsorbCapacity > mixture.TotalVolume)
         {
@@ -1108,8 +1128,8 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
             LiquidMixture newMixture = mixture.RemoveLiquidVolume(amountToAbsorb);
             if (newMixture?.IsEmpty == false)
             {
-                effect.ContaminatingLiquid.AddLiquid(newMixture);
-                Reschedule(effect, LiquidContamination.EffectDuration(effect.ContaminatingLiquid));
+                SurfaceLiquidState.AddLiquid(newMixture);
+                LiquidExposureStrategies.SurfaceReactions.Expose(this, newMixture, direction);
             }
         }
 
@@ -1182,7 +1202,6 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
 
             // Drip onto ground if we have any left and are outerwear
             if (
-                Gameworld.GetStaticBool("PuddlesEnabled") &&
                 mixture.TotalVolume > 0 &&
                 ContainedIn is null &&
                 direction != LiquidExposureDirection.FromOnTop &&
@@ -1203,84 +1222,22 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
     {
         get
         {
+            ResolveSurfaceLiquidDrying();
             (double coating, double absorb) = LiquidAbsorbtionAmounts;
-            IEnumerable<ILiquidContaminationEffect> effects = EffectsOfType<ILiquidContaminationEffect>();
-            double total = effects.Sum(x => x.ContaminatingLiquid.TotalVolume);
-            if (total <= 0)
-            {
-                return ItemSaturationLevel.Dry;
-            }
-
-            if (total >= absorb)
-            {
-                if (total > absorb + coating)
-                {
-                    return ItemSaturationLevel.Saturated;
-                }
-
-                return ItemSaturationLevel.Soaked;
-            }
-
-            if (total >= absorb * 0.5)
-            {
-                return ItemSaturationLevel.Wet;
-            }
-
-            return ItemSaturationLevel.Damp;
+            return SurfaceLiquidState.SaturationLevel(coating, absorb);
         }
     }
 
     public ItemSaturationLevel SaturationLevelForLiquid(LiquidInstance instance)
     {
         (double coating, double absorb) = LiquidAbsorbtionAmounts;
-        double total = instance.Amount;
-        if (total <= 0)
-        {
-            return ItemSaturationLevel.Dry;
-        }
-
-        if (total >= absorb)
-        {
-            if (total > absorb + coating)
-            {
-                return ItemSaturationLevel.Saturated;
-            }
-
-            return ItemSaturationLevel.Soaked;
-        }
-
-        if (total >= absorb * 0.5)
-        {
-            return ItemSaturationLevel.Wet;
-        }
-
-        return ItemSaturationLevel.Damp;
+        return SurfaceLiquidState.SaturationLevelForLiquid(instance.Amount, coating, absorb);
     }
 
     public ItemSaturationLevel SaturationLevelForLiquid(double total)
     {
         (double coating, double absorb) = LiquidAbsorbtionAmounts;
-        if (total <= 0)
-        {
-            return ItemSaturationLevel.Dry;
-        }
-
-        if (total >= absorb)
-        {
-            if (total > absorb + coating)
-            {
-                return ItemSaturationLevel.Saturated;
-            }
-
-            return ItemSaturationLevel.Soaked;
-        }
-
-        if (total >= absorb * 0.5)
-        {
-            return ItemSaturationLevel.Wet;
-        }
-
-        return ItemSaturationLevel.Damp;
+        return SurfaceLiquidState.SaturationLevelForLiquid(total, coating, absorb);
     }
 
     public (double Coating, double Absorb) LiquidAbsorbtionAmounts
@@ -2117,11 +2074,11 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
         get
         {
 #if DEBUG
-            double weight = (Prototype.Weight + _components.Sum(x => x.ComponentWeight) +
+            double weight = (Prototype.Weight + _components.Sum(x => x.ComponentWeight) + SurfaceLiquidState.AddedWeight +
                           EffectsOfType<IEffectAddsWeight>().Sum(x => x.AddedWeight)) *
                          _components.Aggregate(1.0, (a, b) => a * b.ComponentWeightMultiplier);
 #endif
-            return (Prototype.Weight + _components.Sum(x => x.ComponentWeight) +
+            return (Prototype.Weight + _components.Sum(x => x.ComponentWeight) + SurfaceLiquidState.AddedWeight +
                     EffectsOfType<IEffectAddsWeight>().Sum(x => x.AddedWeight)) *
                    _components.Aggregate(1.0, (a, b) => a * b.ComponentWeightMultiplier);
         }

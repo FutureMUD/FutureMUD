@@ -111,14 +111,15 @@ Liquid surface reactions are tag-based:
 
 - each liquid can define one or more `ILiquidSurfaceReaction` entries
 - each reaction matches one or more target tags
-- matching reactions apply periodic chemical or other damage while contamination remains
+- matching reactions apply chemical or other damage through the surface-liquid exposure strategy while wetness or drying is resolved
 
-The first implementation hooks into:
+The current implementation hooks into:
 
-- `LiquidContamination`
-- `BodyLiquidContamination`
+- item and body `SurfaceLiquidState` exposure
+- drying and residue creation
+- virtual room-layer liquid state for puddles and weather accumulation
 
-This keeps corrosion inside the existing contamination lifecycle rather than introducing a second contamination runtime.
+This keeps corrosion inside the shared surface-contamination runtime. The legacy `LiquidContamination` and `BodyLiquidContamination` saved effects are ignored on load, while `WeaponPoisonCoating` remains a separate combat-delivery effect.
 
 ## AI and Strategy
 

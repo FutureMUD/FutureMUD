@@ -373,6 +373,7 @@ public partial class Cell
         ICharacter character = voyeur as ICharacter;
         StringBuilder descSubSB = new();
         IWeatherEvent weather = CurrentWeather(voyeur);
+        ResolveRoomWeatherExposure(voyeur);
 
         sb.AppendLine(HowSeen(voyeur, proper, DescriptionType.Short, colour, flags));
         if (character?.IsAdministrator() == true)
@@ -431,6 +432,13 @@ public partial class Cell
                 descSubSB.AppendLine($"{(character?.Account.TabRoomDescriptions == true ? "\t" : "")}{text}");
             }
 
+            string surfaceText = DescribeLiquidSurface(voyeur?.RoomLayer ?? RoomLayer.GroundLevel, voyeur, colour);
+            if (!string.IsNullOrWhiteSpace(surfaceText))
+            {
+                addedAdditionalLines = true;
+                descSubSB.AppendLine($"{(character?.Account.TabRoomDescriptions == true ? "\t" : "")}{surfaceText}");
+            }
+
             addedAdditionalLines = true;
             descSubSB.AppendLine(
                 $"{(character?.Account.TabRoomDescriptions == true ? "\t" : "")}{Gameworld.LightModel.GetIlluminationRoomDescription(CurrentIllumination(character))}");
@@ -458,6 +466,13 @@ public partial class Cell
             {
                 descSubSB.Append(" ");
                 descSubSB.AppendLine(effect.GetAdditionalText(voyeur, colour));
+            }
+
+            string surfaceText = DescribeLiquidSurface(voyeur?.RoomLayer ?? RoomLayer.GroundLevel, voyeur, colour);
+            if (!string.IsNullOrWhiteSpace(surfaceText))
+            {
+                descSubSB.Append(" ");
+                descSubSB.Append(surfaceText);
             }
         }
 

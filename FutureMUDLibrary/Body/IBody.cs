@@ -29,7 +29,8 @@ namespace MudSharp.Body
 {
     public partial interface IBody : IInventory, IHaveBodyparts, IEditableNameData,
         ILanguagePerceiver, IPerceivableHaveCharacteristics, IManipulator, IHaveRace, IHavePhysicalDimensions, IHaveNeeds, IEat,
-        IHaveStamina, IMortal, IMortalPerceiver, IHaveMerits, ILateInitialisingItem, IBreathe, IHaveContextualSizeCategory, IHavePositionalSizes, ITarget, IHavePlanarPresence
+        IHaveStamina, IMortal, IMortalPerceiver, IHaveMerits, ILateInitialisingItem, IBreathe, IHaveContextualSizeCategory, IHavePositionalSizes, ITarget, IHavePlanarPresence,
+        ISurfaceContaminable
     {
         void LoadInventory(MudSharp.Models.Body body);
         bool InventoryChanged { get; set; }

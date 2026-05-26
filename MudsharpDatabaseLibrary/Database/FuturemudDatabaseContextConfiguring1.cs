@@ -1142,6 +1142,11 @@ namespace MudSharp.Database
                     .HasCharSet("utf8")
                     .UseCollation("utf8_general_ci");
 
+                entity.Property(e => e.SurfaceLiquidData)
+                    .HasColumnType("mediumtext")
+                    .HasCharSet("utf8")
+                    .UseCollation("utf8_general_ci");
+
                 entity.Property(e => e.EthnicityId).HasColumnType("bigint(20)");
 
                 entity.Property(e => e.FullDescription)
@@ -2288,6 +2293,11 @@ namespace MudSharp.Database
 
                 entity.Property(e => e.EffectData)
                     .IsRequired()
+                    .HasColumnType("mediumtext")
+                    .HasCharSet("utf8")
+                    .UseCollation("utf8_general_ci");
+
+                entity.Property(e => e.SurfaceLiquidData)
                     .HasColumnType("mediumtext")
                     .HasCharSet("utf8")
                     .UseCollation("utf8_general_ci");

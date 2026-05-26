@@ -16,6 +16,7 @@ using System.Collections.Generic;
 namespace MudSharp.GameItems
 {
     public interface IGameItem : IMortalPerceiver, IHaveMagicResource, IHaveCharacteristics, IHaveTags, IHaveABody, IHavePlanarPresence,
+        ISurfaceContaminable,
         IEquatable<IGameItem>
     {
         IEnumerable<IGameItemComponent> Components { get; }

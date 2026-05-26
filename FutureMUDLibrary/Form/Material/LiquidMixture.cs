@@ -348,7 +348,7 @@ namespace MudSharp.Form.Material
                 RemoveLiquidVolume(-1 * volume);
                 return;
             }
-            double ratio = 1.0 + TotalVolume > 0 ? volume / TotalVolume : 0;
+            double ratio = TotalVolume > 0 ? 1.0 + volume / TotalVolume : 0;
             foreach (LiquidInstance liquid in _instances)
             {
                 liquid.Amount = liquid.Amount * ratio;

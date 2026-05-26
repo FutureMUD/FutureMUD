@@ -982,6 +982,12 @@ public partial class Cell : Location, IDisposable, ICell
             EffectsChanged = false;
         }
 
+        if (_surfaceLiquidChanged)
+        {
+            dbcell.SurfaceLiquidData = SaveSurfaceLiquidState();
+            _surfaceLiquidChanged = false;
+        }
+
         if (HooksChanged)
         {
             FMDB.Context.HooksPerceivables.RemoveRange(dbcell.HooksPerceivables);
@@ -1042,6 +1048,7 @@ public partial class Cell : Location, IDisposable, ICell
         Movements = new List<IMovement>();
         LoadHooks(cell.HooksPerceivables, "Cell");
         LoadEffects(XElement.Parse(cell.EffectData.IfNullOrWhiteSpace("<Effects/>")));
+        LoadSurfaceLiquidState(cell.SurfaceLiquidData);
         foreach (CellsRangedCovers cover in cell.CellsRangedCovers)
         {
             _localCover.Add(Gameworld.RangedCovers.Get(cover.RangedCoverId));

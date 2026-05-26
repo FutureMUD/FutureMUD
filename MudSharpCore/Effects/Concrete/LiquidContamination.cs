@@ -40,7 +40,7 @@ public class LiquidContamination : Effect, ILiquidContaminationEffect, IDescript
 
     protected LiquidContamination(XElement effect, IPerceivable owner) : base(effect, owner)
     {
-        LoadFromDb(effect.Element("Effect"));
+        LoadErrors = true;
     }
 
     public override bool PreventsItemFromMerging(IGameItem effectOwnerItem, IGameItem targetItem)

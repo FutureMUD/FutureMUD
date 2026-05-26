@@ -115,40 +115,7 @@ namespace MudSharp.Climate.WeatherEvents
 
         public override void OnFiveSecondEvent(ICell cell)
         {
-            if (cell.OutdoorsType(null) != CellOutdoorsType.Outdoors)
-            {
-                return;
-            }
-
-            foreach (IGameItem item in cell.GameItems.ToArray())
-            {
-                if (item.PositionModifier == Body.Position.PositionModifier.Under && item.PositionTarget is not null && item.PositionTarget.Size > item.Size)
-                {
-                    continue;
-                }
-
-                if (item.RoomLayer.IsUnderwater())
-                {
-                    continue;
-                }
-
-                item.ExposeToPrecipitation(Precipitation, RainLiquid);
-            }
-
-            foreach (ICharacter ch in cell.Characters.ToArray())
-            {
-                if (ch.PositionModifier == Body.Position.PositionModifier.Under && ch.PositionTarget is not null && ch.PositionTarget.Size > ch.CurrentContextualSize(SizeContext.RainfallExposure))
-                {
-                    continue;
-                }
-
-                if (ch.RoomLayer.IsUnderwater())
-                {
-                    continue;
-                }
-
-                ch.Body.ExposeToPrecipitation(Precipitation, RainLiquid);
-            }
+            // Rain exposure is resolved lazily by the room/item/body surface-liquid APIs.
         }
 
         #region Overrides of SimpleWeatherEvent

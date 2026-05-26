@@ -65,7 +65,7 @@ public class BodyLiquidContamination : Effect, ILiquidContaminationEffect, IDesc
     protected BodyLiquidContamination(XElement effect, IPerceivable owner) : base(effect, owner)
     {
         BodyOwner = (IBody)owner;
-        LoadFromDb(effect.Element("Effect"));
+        LoadErrors = true;
     }
 
     protected void LoadFromDb(XElement root)

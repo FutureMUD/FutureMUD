@@ -2094,17 +2094,9 @@ You can also type 'forage' on its own to see what kinds of yields you can search
                         continue;
                     }
 
-                    ILiquidContaminationEffect newContamEffect = gitem.EffectsOfType<ILiquidContaminationEffect>()
-                                               .FirstOrDefault(x => x.ContaminatingLiquid.CanMerge(liquidUsed.Key));
-                    if (newContamEffect != null)
+                    if (gitem is ISurfaceContaminable surface)
                     {
-                        newContamEffect.ContaminatingLiquid.AddLiquid(liquidUsed.Key);
-                        gitem.Reschedule(newContamEffect, LiquidContamination.EffectDuration(newContamEffect.ContaminatingLiquid));
-                    }
-                    else
-                    {
-                        gitem.AddEffect(new LiquidContamination(gitem, liquidUsed.Key),
-                            LiquidContamination.EffectDuration(liquidUsed.Key));
+                        surface.SurfaceLiquidState.AddLiquid(liquidUsed.Key);
                     }
                 }
 

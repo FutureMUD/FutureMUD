@@ -319,6 +319,8 @@ Outdoors type:
 
 Changing terrain can also set default light multipliers based on the terrain's default outdoors type. If you need a special case, set terrain first and then adjust `cell set type`, `cell set lightmultiplier`, or `cell set lightlevel`.
 
+Rain and ordinary liquid overflow no longer create saved puddle items by default. Outdoor rooms lazily resolve weather exposure when they are observed or interacted with, storing bounded per-layer virtual liquid state on the cell. If `PuddlesEnabled` is true, virtual puddles can appear in room descriptions; if it is false, overflow soaks exposed items and bodies but does not accumulate room-level puddles. Existing real puddle items remain compatibility/materialisation helpers rather than the normal weather path.
+
 ## Exits
 
 Exits are directional or named connections between cells. They carry both movement behaviour and builder-facing presentation.

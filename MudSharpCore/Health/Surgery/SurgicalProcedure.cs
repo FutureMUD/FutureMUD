@@ -633,7 +633,7 @@ public abstract class SurgicalProcedure : SaveableItem, ISurgicalProcedure
                     double bloodLoss = bleedingDictionary[actualOutcome];
                     patient.Body.CurrentBloodVolumeLitres -= bloodLoss;
                     IEnumerable<IExternalBodypart> hands = surgeon.Body.HoldLocs.Concat<IExternalBodypart>(surgeon.Body.WieldLocs).Distinct();
-                    BodyLiquidContamination.CreateOrMergeEffect(surgeon, new LiquidMixture(patient.Body.BloodLiquid, bloodLoss, Gameworld), hands);
+                    surgeon.Body.ExposeToLiquid(new LiquidMixture(patient.Body.BloodLiquid, bloodLoss, Gameworld), hands, LiquidExposureDirection.Irrelevant);
                     return true;
                 }
                 ,

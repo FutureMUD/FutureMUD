@@ -899,7 +899,7 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
             misExpression.Formula.Parameters["cartridgequality"] = _magazineContents.Count == 1 && cartridge is not null ? (int)cartridge.Parent.Quality : (int)ItemQuality.Standard;
             misExpression.Formula.Parameters["condition"] = Parent.Condition;
             misExpression.Formula.Parameters["wadused"] = wadused ? 1.0 : 0.0;
-            misExpression.Formula.Parameters["wetpowder"] = _magazineContents.Any(x => x.AffectedBy<ILiquidContaminationEffect>()) ? 1.0 : 0.0;
+            misExpression.Formula.Parameters["wetpowder"] = _magazineContents.Any(x => x.SurfaceLiquidState.IsWet) ? 1.0 : 0.0;
             misExpression.Formula.Parameters["taploaded"] = TapLoaded ? 1.0 : 0.0;
             double chance = misExpression.Evaluate(actor, WeaponType.FireTrait, TraitBonusContext.MusketMisfire);
             double roll = RandomUtilities.DoubleRandom(0.0, 1.0);
@@ -975,7 +975,7 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
             jamExpression.Formula.Parameters["cartridgequality"] = _magazineContents.Count == 1 && cartridge is not null ? (int)cartridge.Parent.Quality : (int)ItemQuality.Standard;
             jamExpression.Formula.Parameters["condition"] = Parent.Condition;
             jamExpression.Formula.Parameters["wadused"] = wadused ? 1.0 : 0.0;
-            jamExpression.Formula.Parameters["wetpowder"] = _magazineContents.Any(x => x.AffectedBy<ILiquidContaminationEffect>()) ? 1.0 : 0.0;
+            jamExpression.Formula.Parameters["wetpowder"] = _magazineContents.Any(x => x.SurfaceLiquidState.IsWet) ? 1.0 : 0.0;
             jamExpression.Formula.Parameters["taploaded"] = TapLoaded ? 1.0 : 0.0;
             double chance = jamExpression.Evaluate(actor, WeaponType.FireTrait, TraitBonusContext.MusketMisfire);
             double roll = RandomUtilities.DoubleRandom(0.0, 1.0);

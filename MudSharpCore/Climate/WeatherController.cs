@@ -181,7 +181,7 @@ public class WeatherController : SaveableItem, IWeatherController
 
     private void HandleFiveSecondTick()
     {
-        if (CurrentWeatherEvent is null)
+        if (CurrentWeatherEvent is null || !CurrentWeatherEvent.RequiresRoomFiveSecondTick)
         {
             return;
         }

@@ -903,15 +903,27 @@ Codex should update this section during implementation.
 
 ### Completed
 
-- Pending.
+- Added the neutral `IEmploymentHost` contract and shared employment domain types for host type, roles, status, manager authority, contracts, compensation, work schedules, duration, payment methods, job openings, applications, host ledgers, and operational registers.
+- Added common in-engine host state services for hire/fire, active/simple employment status, delegated authority checks, job-opening creation, NPC candidate matching, reservation-wage rejection, payment-method selection, host `IBoard` access, employment register entries, and business ledger entries.
+- Added composable task-dispatch shells: manual, time-window, stock-threshold, and account-balance conditions; action plans; active task step state; scheduled task rules with idempotency/cooldown; dispatcher eligibility/blocking; and initial purchase, movement/delivery, craft-trigger, command, bank deposit, bank withdrawal, store-account payment, and board-post action steps.
+- Added manager-goal board support with delegated-authority enforcement and task creation through the shared task board rather than bypassing host permissions.
+- Adopted the minimum host families as employment hosts: shops, auction houses, combat arenas, banks, stables, and hotels. Shops, auction houses, arenas, banks, and stables expose lazy host shells; hotels now have a separate `IHotel` / `Hotel` runtime entity linked to an `IProperty`.
+- Added normalized EF persistence for the employment spine: host state keyed by host type/id, persisted host-board reference, contracts, openings, opening requirements, applications, action plans, action steps, scheduled rules, task conditions, active tasks, step states, manager goals, operational register rows, and employment ledger rows. Existing hosts lazily create an empty persisted employment state and a staff `IBoard` on first access.
+- Wired shop, auction-house, arena, bank, stable, and hotel shells through the production employment persistence store while preserving the in-memory constructor path for isolated tests.
+- Added a persisted `Hotels` root table linked one-to-one to properties. `Property.Hotel` now lazily creates/loads the durable hotel entity, old `Property.HotelDefinition` XML remains loadable, and hotel saves shadow-write the XML payload to the new row for compatibility until room/rental internals are normalized.
+- Kept the existing `IJobListing`, `IActiveJob`, job-finding cell, payroll/coffer, and `job` command systems out of the new employment-host contract.
+- Added focused core unit coverage for host adoption, `IJob` independence, hire/fire status, manager permission checks, job openings and candidate matching, reservation wage, payment selection, host-board posting, condition-to-active-task spawning, action-plan step state, dispatcher blocking, manager goals, existing financial record reuse markers, financial ledger entries, operational register entries, persisted host-state/board creation, persisted contract/opening/application/task/goal/audit round-trip, and hotel root/XML compatibility.
 
 ### Deferred
 
-- Pending.
+- Hotel room, furnishing, rental, ban, patron-balance, lost-property, tax-detail, and cash/bank internals still remain in the compatibility XML payload; this slice only adds the durable hotel root and shadow XML row.
+- Existing shop/stable legacy employee XML and existing bank/arena manager lists are not migrated into new contracts in this slice. That is intentional under the legacy data stance, but command adapters may later choose to bootstrap new contracts where useful.
+- Player/builder command adapters, NPC employment-seeking heartbeat integration, real pathfinding/routing, real purchasing, real crafting, real bank/store-account mutations, and real board command integration are deferred. The first slice supplies the auditable condition/action-step model and tests the core dispatcher path without replacing those subsystems.
 
 ### Blockers / decisions needed
 
-- Pending.
+- No blocker was found for the durable employment persistence and hotel-root split slice.
+- The next milestone should focus on command adapters and/or the first real dispatcher execution path now that host state, boards, task plans, goals, and audit rows survive reload.
 
 ## 27. Suggested Codex goal
 

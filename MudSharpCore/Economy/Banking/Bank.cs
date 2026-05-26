@@ -25,7 +25,7 @@ using System.Threading.Tasks;
 
 namespace MudSharp.Economy.Banking;
 
-public class Bank : SaveableItem, IBank, ILazyLoadDuringIdleTime
+public partial class Bank : SaveableItem, IBank, ILazyLoadDuringIdleTime
 {
 #nullable enable
     public static (IBankAccount? Account, string Error) FindBankAccount(string accTarget, IBank? homeBank, ICharacter? character)

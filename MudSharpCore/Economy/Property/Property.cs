@@ -89,7 +89,7 @@ public partial class Property : SaveableItem, IProperty
             StoredMudDateTimeFallback.CurrentDateTime, "Property", property.Id, property.Name, "LastChangeOfOwnership");
         _applyCriminalCodeInProperty = property.ApplyCriminalCodeInProperty;
         _lastSaleValue = property.LastSaleValue;
-        LoadHotelDefinition(property.HotelDefinition);
+        LoadHotelDefinition(MudSharp.Economy.Hotels.HotelPersistenceStore.DefinitionForProperty(property.Id, property.HotelDefinition));
 
         foreach (Models.PropertyOwner owner in property.PropertyOwners)
         {
@@ -176,6 +176,7 @@ public partial class Property : SaveableItem, IProperty
         dbitem.LastChangeOfOwnership = LastChangeOfOwnership.GetDateTimeString();
         dbitem.LastSaleValue = LastSaleValue;
         dbitem.HotelDefinition = SaveHotelDefinition().ToString();
+        MudSharp.Economy.Hotels.HotelPersistenceStore.ShadowWrite(this, dbitem.HotelDefinition);
         FMDB.Context.PropertyLocations.RemoveRange(dbitem.PropertyLocations);
         foreach (ICell cell in _propertyLocations)
         {

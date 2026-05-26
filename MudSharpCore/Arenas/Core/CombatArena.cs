@@ -29,7 +29,7 @@ internal enum ArenaCellRole
     AfterFight = 5
 }
 
-public sealed class CombatArena : SaveableItem, ICombatArena
+public sealed partial class CombatArena : SaveableItem, ICombatArena
 {
     private readonly HashSet<long> _managerIds = new();
     private readonly Dictionary<ArenaCellRole, List<ICell>> _cells = new();

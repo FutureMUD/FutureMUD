@@ -53,6 +53,7 @@ namespace MudSharp.Economy.Property
         bool HasUnclaimedBondPayments(ICharacter who);
         void ClaimShops(ICharacter who);
         void ClaimStables(ICharacter who);
+        IHotel Hotel { get; }
         HotelLicenseStatus HotelLicenseStatus { get; set; }
         IBankAccount HotelBankAccount { get; set; }
         decimal HotelCashBalance { get; }

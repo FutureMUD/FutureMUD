@@ -2,6 +2,7 @@ using JetBrains.Annotations;
 using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Economy.Currency;
+using MudSharp.Economy.Employment;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.FutureProg;
@@ -14,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace MudSharp.Economy;
 
-public interface IShop : IFrameworkItem, ISaveable, IProgVariable
+public interface IShop : IFrameworkItem, ISaveable, IProgVariable, IEmploymentHost
 {
     decimal CashBalance { get; set; }
     decimal ExpectedCashBalance { get; set; }

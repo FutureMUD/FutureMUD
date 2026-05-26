@@ -24,7 +24,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.Economy.Stables;
 
-public class Stable : SavableKeywordedItem, IStable
+public partial class Stable : SavableKeywordedItem, IStable
 {
 	private readonly List<IEmployeeRecord> _employeeRecords = new();
 	private readonly List<IStableStay> _stays = new();

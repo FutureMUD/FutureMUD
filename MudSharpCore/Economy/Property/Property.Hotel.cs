@@ -113,6 +113,11 @@ public partial class Property
 		);
 	}
 
+	internal string CurrentHotelDefinitionXml()
+	{
+		return SaveHotelDefinition().ToString();
+	}
+
 	internal void NoteHotelChanged()
 	{
 		Changed = true;

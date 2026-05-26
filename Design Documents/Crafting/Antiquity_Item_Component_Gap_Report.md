@@ -230,6 +230,78 @@ Items enabled or improved:
 - `antiquity_lock_installation_kit`
 - `antiquity_key_filing_kit`
 
+## Implemented New Component Families
+
+These gaps originally needed new runtime component families. They are now first-class component types with seeded examples in `UsefulSeeder.ItemComponents.cs`.
+
+### SealStamp and Sealable Components
+
+Runtime status: `SealStamp` and `Sealable` are implemented as separate component families. A stamp carries the authoritative design metadata, while `Sealable` is an attachable tamper-evidence component that can coexist with containers, writeable surfaces, openables, scrolls, envelopes, jars, or bundles.
+
+Implemented behaviour:
+
+- `seal <target> with <stamp> [using <medium>]` records the seal design, issuer, owner/clan/office metadata, stamp material, medium descriptor, sealing actor, and sealing time.
+- `break seal <target>`, opening, reading, writing, drawing, or retitling a sealed item break the seal and leave configured residue evidence while allowing the access action to continue.
+- `inspect seal <target>` and `compare seal <sealed item> with <stamp|sealed item>` use the existing appraisal-style inspection path rather than a new check type.
+- Item FutureProg dot references expose whether an item is sealable, sealed, broken, or residue-marked, plus seal design, issuer, owner, clan, office, material, medium, and sealing actor metadata.
+
+Seeded prototypes:
+
+- `SealStamp_Antiquity_BronzeSignet`: bronze signet or ring seal for household, office, or personal authority.
+- `SealStamp_Antiquity_CylinderSeal`: cylinder seal for clay impressions and administrative records.
+- `Sealable_Document_Wax`: wax-sealable document surface.
+- `Sealable_Document_Clay`: clay-sealable document or tablet surface.
+- `Sealable_Envelope`: envelope seal support.
+- `Sealable_Scroll`: scroll seal support.
+- `Sealable_Container_Wax`: wax-sealed container, jar, chest, or package support.
+
+Items enabled or improved:
+
+- `antiquity_bronze_signet_ring`
+- `antiquity_cylinder_seal`
+- `antiquity_clay_bulla`
+- `antiquity_wax_seal_cake`
+- `antiquity_sealed_papyrus_scroll`
+- `antiquity_sealed_clay_tablet`
+- `antiquity_tax_office_seal_box`
+- `antiquity_merchant_contract_bundle`
+- `antiquity_grain_amphora_seal`
+- `Envelope` as a holdable, closable container, writeable surface, and sealable item.
+- `Scroll` as a holdable, writeable, and sealable item.
+
+### MeasuringInstrument Component
+
+Runtime status: `MeasuringInstrument` is implemented for `Weight` and `FluidVolume` modes. Length, cubit, and surveying rod measurement remains deferred until item dimensions exist, so those objects should remain props for now.
+
+Implemented behaviour:
+
+- `weigh <item> on <instrument>` measures item weight with instrument precision, capacity, stable drift, and calibration bias.
+- `measure <target> with <instrument>` measures supported fluid-volume targets with the same drift and calibration model.
+- `calibrate <instrument>` clears deliberate bias and resets drift state.
+- `calibrate <instrument> wrong <+/-amount|+/-percent>` deliberately records a bad calibration for false measures.
+- `inspect calibration <instrument>` uses existing appraisal-style inspection and reports mode, precision, drift, use count, and deliberate bias according to the viewer's appraisal outcome.
+- Item quality scales calibration drift per use, with better-quality instruments drifting less.
+
+Seeded prototypes:
+
+- `MeasuringInstrument_Antiquity_BalanceScale`: weight-mode balance scale.
+- `MeasuringInstrument_Antiquity_StandardWeights`: weight-mode official or merchant weight set.
+- `MeasuringInstrument_Antiquity_FalseWeights`: weight-mode biased weight set for dishonest trade.
+- `MeasuringInstrument_Antiquity_GrainMeasure`: weight-mode grain measure.
+- `MeasuringInstrument_Antiquity_OilCup`: fluid-volume oil measure.
+- `MeasuringInstrument_Antiquity_WineCup`: fluid-volume wine measure.
+- `MeasuringInstrument_Antiquity_TaxAssessorKit`: weight-mode official inspection kit.
+
+Items enabled or improved:
+
+- `antiquity_bronze_balance_scale`
+- `antiquity_standard_weight_set`
+- `antiquity_false_weight_set`
+- `antiquity_stone_grain_measure`
+- `antiquity_oil_measure_cup`
+- `antiquity_wine_measure_cup`
+- `antiquity_tax_assessor_measure_kit`
+
 ## Missing Engine Functionality That Could Become New Component Types
 
 These gaps are not merely missing stock data. They describe gameplay that does not appear to be represented by a suitable current item component type, or where existing components would only produce a static prop.
@@ -262,63 +334,6 @@ Items enabled:
 - `antiquity_bronze_war_horn`
 - `antiquity_ship_signal_trumpet`
 - `antiquity_temple_ritual_rattle`
-
-### SealStamp and SealedDocument Components
-
-Missing functionality:
-
-- authenticating documents, containers, orders, and tablets with a seal.
-- preserving identity of the seal owner, clan, office, or issuer.
-- visible seal impressions that can be inspected, forged, broken, or compared.
-- tamper evidence for scrolls, tablets, storage jars, chests, doors, and official packages.
-
-Rough component guidance:
-
-- Component type names: `SealStamp` and `Sealable`.
-- `SealStamp` settings: seal design text, owner/clan/office metadata, material, forgery difficulty, optional authority prog.
-- `Sealable` settings: allowed seal media, current seal state, whether opening breaks the seal, inspection difficulty, whether a broken seal leaves residue.
-- Runtime commands: `seal <target> with <stamp> [using <wax/clay>]`, `break seal <target>`, `inspect seal <target>`, possibly `compare seal`.
-- FutureProg hooks should be able to read issuer, broken/unbroken state, and design metadata.
-
-Items enabled:
-
-- `antiquity_bronze_signet_ring`
-- `antiquity_cylinder_seal`
-- `antiquity_clay_bulla`
-- `antiquity_wax_seal_cake`
-- `antiquity_sealed_papyrus_scroll`
-- `antiquity_sealed_clay_tablet`
-- `antiquity_tax_office_seal_box`
-- `antiquity_merchant_contract_bundle`
-- `antiquity_grain_amphora_seal`
-
-### Scale and Measuring Instrument Component
-
-Missing functionality:
-
-- weighing loose commodities and ordinary items.
-- measuring volume or length with a physical in-world tool.
-- producing trusted or falsifiable measures for trade, taxation, and legal disputes.
-- modelling honest and dishonest weights or calibration errors.
-
-Rough component guidance:
-
-- Component type name: `MeasuringInstrument`, with optional subtypes or modes for weight, volume, and length.
-- Prototype settings: measurement mode, precision, capacity, units displayed, calibration error, required counterweight/container, check difficulty to detect cheating.
-- Runtime commands: `weigh <item> on <scale>`, `measure <liquid/commodity/item> with <instrument>`, `calibrate <instrument>`, `inspect calibration`.
-- Market and economy code should be able to use measured quantity where appropriate, but the first pass can simply report measures to players.
-
-Items enabled:
-
-- `antiquity_bronze_balance_scale`
-- `antiquity_standard_weight_set`
-- `antiquity_false_weight_set`
-- `antiquity_stone_grain_measure`
-- `antiquity_oil_measure_cup`
-- `antiquity_wine_measure_cup`
-- `antiquity_surveying_rod`
-- `antiquity_cubit_rod`
-- `antiquity_tax_assessor_measure_kit`
 
 ### GameSet Component
 
@@ -401,7 +416,7 @@ Items enabled:
 ## Suggested Implementation Order
 
 1. Add data-only items that use existing components cleanly: dice, lockpicks, drag aids, notice boards, and a first water-source set.
-2. Completed in `UsefulSeeder`: antiquity-specific component prototypes for `TimePiece`, `WaterSource`, `DragAid`, `Dice`, `Locksmithing Tool`, `ShopStall`, and `MarketGoodWeight`.
+2. Completed in `UsefulSeeder`: antiquity-specific component prototypes for `TimePiece`, `WaterSource`, `DragAid`, `Dice`, `Locksmithing Tool`, `ShopStall`, `MarketGoodWeight`, `SealStamp`, `Sealable`, and `MeasuringInstrument`.
 3. Add matching item prototypes that use those new component prototypes and update this document with the shipped names.
 4. Choose one new runtime component family for a first deeper gameplay pass. `Instrument` is the best first candidate because it is socially important, highly visible in roleplay, and relatively self-contained.
-5. Treat `SealStamp`/`Sealable`, `MeasuringInstrument`, and `OfferingReceiver` as the next most setting-defining component families because they support administration, trade, religion, law, and trust.
+5. Treat `OfferingReceiver` as the next most setting-defining component family. `SealStamp`/`Sealable` and the weight/fluid-volume portion of `MeasuringInstrument` are now implemented; length measurement remains a future item-dimension pass.

@@ -333,6 +333,10 @@ public interface IMarketGoodWeightItemPrototype : IExclusiveGameItemComponentPro
 {
 }
 
+public interface IMeasuringInstrumentPrototype : IExclusiveGameItemComponentPrototype<IMeasuringInstrument>
+{
+}
+
 public interface IMeleeWeaponPrototype : IExclusiveGameItemComponentPrototype<IMeleeWeapon>, IWieldablePrototype
 {
 }
@@ -434,6 +438,14 @@ public interface IRespondToSignalPrototype : IExclusiveGameItemComponentPrototyp
 }
 
 public interface IRestraintPrototype : IExclusiveGameItemComponentPrototype<IRestraint>
+{
+}
+
+public interface ISealStampPrototype : IExclusiveGameItemComponentPrototype<ISealStamp>
+{
+}
+
+public interface ISealablePrototype : IExclusiveGameItemComponentPrototype<ISealable>
 {
 }
 

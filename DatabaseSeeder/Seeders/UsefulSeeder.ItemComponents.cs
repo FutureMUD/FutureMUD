@@ -220,6 +220,7 @@ public partial class UsefulSeeder
         SeedWaterSources(context, now, dbaccount, ref nextId);
         SeedDice(context, now, dbaccount, ref nextId);
         SeedAdditionalBuilderExamples(context, now, dbaccount, ref nextId);
+        SeedSealAndMeasurementComponents(context, now, dbaccount, ref nextId);
         context.SaveChanges();
     }
 
@@ -6474,6 +6475,7 @@ public partial class UsefulSeeder
         SeedWaterSources(context, now, dbaccount, ref nextId);
         SeedRepairKits(context, now, dbaccount, ref nextId);
         SeedAdditionalBuilderExamples(context, now, dbaccount, ref nextId);
+        SeedSealAndMeasurementComponents(context, now, dbaccount, ref nextId);
         SeedSmokeables(context, now, dbaccount, ref nextId);
     }
 
@@ -7391,6 +7393,273 @@ public partial class UsefulSeeder
 
         nextId = currentId;
         context.SaveChanges();
+        #endregion
+    }
+
+    private void SeedSealAndMeasurementComponents(FuturemudDatabaseContext context, DateTime now, Account dbaccount,
+        ref long nextId)
+    {
+        #region Seals and Measurement
+
+        long currentId = nextId;
+
+        GameItemComponentProto UpsertStockComponent(string type, string name, string description, XElement definition)
+        {
+            return UpsertComponent(context, ref currentId, dbaccount, now, type, name, description, definition.ToString());
+        }
+
+        GameItemComponentProto EnsureComponent(string type, string name, string description, XElement definition)
+        {
+            GameItemComponentProto? existing = context.GameItemComponentProtos.Local
+                                         .FirstOrDefault(x => x.Name == name && x.EditableItem.RevisionStatus == 4) ??
+                                     context.GameItemComponentProtos
+                                         .FirstOrDefault(x => x.Name == name && x.EditableItem.RevisionStatus == 4);
+            return existing ?? UpsertStockComponent(type, name, description, definition);
+        }
+
+        XElement SealStampDefinition(string design, string issuer, string owner, string clan, string office,
+            string material, Difficulty forgeryDifficulty)
+        {
+            return new XElement("Definition",
+                new XElement("SealDesign", new XCData(design)),
+                new XElement("IssuerText", new XCData(issuer)),
+                new XElement("OwnerText", new XCData(owner)),
+                new XElement("ClanText", new XCData(clan)),
+                new XElement("OfficeText", new XCData(office)),
+                new XElement("StampMaterial", new XCData(material)),
+                new XElement("ForgeryDifficulty", (int)forgeryDifficulty),
+                new XElement("AuthorityProg", 0));
+        }
+
+        XElement SealableDefinition(Difficulty inspectionDifficulty, bool brokenSealLeavesResidue,
+            params string[] allowedMedia)
+        {
+            return new XElement("Definition",
+                new XElement("AllowedMedia",
+                    from medium in allowedMedia
+                    select new XElement("Medium", new XCData(medium))),
+                new XElement("InspectionDifficulty", (int)inspectionDifficulty),
+                new XElement("BrokenSealLeavesResidue", brokenSealLeavesResidue));
+        }
+
+        XElement MeasuringDefinition(string mode, double precision, double capacity, double baseDriftPerUse,
+            double maximumDrift, double maximumWrongCalibration, Difficulty inspectionDifficulty)
+        {
+            return new XElement("Definition",
+                new XElement("Mode", mode),
+                new XElement("Precision", precision),
+                new XElement("Capacity", capacity),
+                new XElement("BaseDriftPerUse", baseDriftPerUse),
+                new XElement("MaximumDrift", maximumDrift),
+                new XElement("MaximumWrongCalibration", maximumWrongCalibration),
+                new XElement("CalibrationInspectionDifficulty", (int)inspectionDifficulty));
+        }
+
+        Material EnsureMaterial(string name, MaterialBehaviourType behaviourType)
+        {
+            Material? material = context.Materials.Local.FirstOrDefault(x => x.Name.EqualTo(name)) ??
+                                 context.Materials.FirstOrDefault(x => x.Name == name);
+            if (material is not null)
+            {
+                return material;
+            }
+
+            material = new Material
+            {
+                Id = context.Materials.Any() ? context.Materials.Max(x => x.Id) + 1 : 1,
+                Name = name,
+                MaterialDescription = name.ToLowerInvariant(),
+                BehaviourType = (int)behaviourType,
+                ResidueSdesc = string.Empty,
+                ResidueDesc = string.Empty,
+                ResidueColour = string.Empty
+            };
+            context.Materials.Add(material);
+            return material;
+        }
+
+        long nextItemProtoId = context.GameItemProtos.Any() ? context.GameItemProtos.Max(x => x.Id) + 1 : 1;
+
+        void EnsureComponentLink(GameItemProto item, GameItemComponentProto component)
+        {
+            if (item.GameItemProtosGameItemComponentProtos.Any(x =>
+                    x.GameItemComponentProtoId == component.Id || x.GameItemComponent == component))
+            {
+                return;
+            }
+
+            item.GameItemProtosGameItemComponentProtos.Add(new GameItemProtosGameItemComponentProtos
+            {
+                GameItemProto = item,
+                GameItemProtoId = item.Id,
+                GameItemProtoRevision = item.RevisionNumber,
+                GameItemComponent = component,
+                GameItemComponentProtoId = component.Id,
+                GameItemComponentRevision = component.RevisionNumber
+            });
+        }
+
+        void EnsureItemPrototype(string name, string keywords, Material material, SizeCategory size, double weight,
+            string shortDescription, string fullDescription, params GameItemComponentProto[] components)
+        {
+            GameItemProto? item = context.GameItemProtos.Local
+                                      .FirstOrDefault(x => x.ShortDescription == shortDescription) ??
+                                  context.GameItemProtos
+                                      .Include(x => x.GameItemProtosGameItemComponentProtos)
+                                      .FirstOrDefault(x => x.ShortDescription == shortDescription);
+            if (item is null)
+            {
+                item = new GameItemProto
+                {
+                    Id = nextItemProtoId++,
+                    RevisionNumber = 0,
+                    Name = name,
+                    UniqueName = shortDescription,
+                    BuilderNotes = "Auto-generated by the system",
+                    Keywords = keywords,
+                    MaterialId = material.Id,
+                    EditableItem = new EditableItem
+                    {
+                        RevisionNumber = 0,
+                        RevisionStatus = 4,
+                        BuilderAccountId = dbaccount.Id,
+                        BuilderDate = now,
+                        BuilderComment = "Auto-generated by the system",
+                        ReviewerAccountId = dbaccount.Id,
+                        ReviewerComment = "Auto-generated by the system",
+                        ReviewerDate = now
+                    },
+                    Size = (int)size,
+                    Weight = weight,
+                    ReadOnly = false,
+                    LongDescription = string.Empty,
+                    BaseItemQuality = (int)ItemQuality.Standard,
+                    CustomColour = string.Empty,
+                    HighPriority = false,
+                    MorphTimeSeconds = 0,
+                    MorphEmote = string.Empty,
+                    ShortDescription = shortDescription,
+                    FullDescription = fullDescription,
+                    PermitPlayerSkins = false,
+                    CostInBaseCurrency = 0.0M,
+                    IsHiddenFromPlayers = false,
+                    PreserveRegisterVariables = false,
+                    PlanarData = string.Empty
+                };
+                context.GameItemProtos.Add(item);
+            }
+            else
+            {
+                item.Name = name;
+                item.UniqueName = shortDescription;
+                item.Keywords = keywords;
+                item.MaterialId = material.Id;
+                item.Size = (int)size;
+                item.Weight = weight;
+                item.ShortDescription = shortDescription;
+                item.FullDescription = fullDescription;
+            }
+
+            foreach (GameItemComponentProto component in components)
+            {
+                EnsureComponentLink(item, component);
+            }
+        }
+
+        GameItemComponentProto bronzeSignet = UpsertStockComponent("SealStamp", "SealStamp_Antiquity_BronzeSignet",
+            "Turns an item into a bronze signet ring style seal stamp.",
+            SealStampDefinition("a bronze signet showing a lion beneath a civic star", "Civic Magistracy",
+                string.Empty, string.Empty, "Seal-Bearer", "bronze", Difficulty.VeryHard));
+        GameItemComponentProto cylinderSeal = UpsertStockComponent("SealStamp", "SealStamp_Antiquity_CylinderSeal",
+            "Turns an item into a cylinder seal for rolling an authority impression through clay or wax.",
+            SealStampDefinition("a rolled procession of officials, reeds and account marks", "Temple Archive",
+                string.Empty, "Temple Household", "Archive Steward", "stone", Difficulty.ExtremelyHard));
+
+        GameItemComponentProto sealableWaxDocument = UpsertStockComponent("Sealable", "Sealable_Document_Wax",
+            "Lets a document be sealed with wax and leave broken-seal residue.",
+            SealableDefinition(Difficulty.Normal, true, "wax"));
+        GameItemComponentProto sealableClayDocument = UpsertStockComponent("Sealable", "Sealable_Document_Clay",
+            "Lets a document be sealed with clay and leave broken-seal residue.",
+            SealableDefinition(Difficulty.Hard, true, "clay"));
+        GameItemComponentProto sealableEnvelope = UpsertStockComponent("Sealable", "Sealable_Envelope",
+            "Lets an envelope be sealed with wax, clay or paste.",
+            SealableDefinition(Difficulty.Normal, true, "wax", "clay", "paste"));
+        GameItemComponentProto sealableScroll = UpsertStockComponent("Sealable", "Sealable_Scroll",
+            "Lets a scroll be sealed with wax, clay or paste.",
+            SealableDefinition(Difficulty.Normal, true, "wax", "clay", "paste"));
+        GameItemComponentProto sealableContainer = UpsertStockComponent("Sealable", "Sealable_Container_Wax",
+            "Lets a closable container be sealed with wax or clay as tamper evidence.",
+            SealableDefinition(Difficulty.Hard, true, "wax", "clay"));
+
+        UpsertStockComponent("MeasuringInstrument", "MeasuringInstrument_Antiquity_BalanceScale",
+            "Turns an item into a weight-mode balance scale with modest use-based drift.",
+            MeasuringDefinition("Weight", 1.0, 50000.0, 0.00025, 0.03, 0.25, Difficulty.Normal));
+        UpsertStockComponent("MeasuringInstrument", "MeasuringInstrument_Antiquity_StandardWeights",
+            "Turns an item into a standard weight set for comparing trade goods.",
+            MeasuringDefinition("Weight", 0.5, 20000.0, 0.0001, 0.015, 0.20, Difficulty.Hard));
+        UpsertStockComponent("MeasuringInstrument", "MeasuringInstrument_Antiquity_FalseWeights",
+            "Turns an item into a weight set intended for biased trade measures.",
+            MeasuringDefinition("Weight", 0.5, 20000.0, 0.0001, 0.015, 0.35, Difficulty.VeryHard));
+        UpsertStockComponent("MeasuringInstrument", "MeasuringInstrument_Antiquity_GrainMeasure",
+            "Turns an item into a grain measure interpreted as a weight-mode trade measure.",
+            MeasuringDefinition("Weight", 10.0, 100000.0, 0.00075, 0.05, 0.30, Difficulty.Normal));
+        UpsertStockComponent("MeasuringInstrument", "MeasuringInstrument_Antiquity_OilCup",
+            "Turns an item into a fluid-volume measure cup for oil.",
+            MeasuringDefinition("FluidVolume", 0.005, 1.0, 0.0005, 0.04, 0.25, Difficulty.Normal));
+        UpsertStockComponent("MeasuringInstrument", "MeasuringInstrument_Antiquity_WineCup",
+            "Turns an item into a fluid-volume measure cup for wine.",
+            MeasuringDefinition("FluidVolume", 0.01, 2.0, 0.0005, 0.04, 0.25, Difficulty.Normal));
+        UpsertStockComponent("MeasuringInstrument", "MeasuringInstrument_Antiquity_TaxAssessorKit",
+            "Turns an item into a tax assessor's kit for weighing taxable goods.",
+            MeasuringDefinition("Weight", 5.0, 250000.0, 0.0002, 0.025, 0.20, Difficulty.Hard));
+
+        Material paperMaterial = EnsureMaterial("Paper", MaterialBehaviourType.Plant);
+        GameItemComponentProto holdable = EnsureComponent("Holdable", "Holdable",
+            "Allows an item to be picked up and manipulated.",
+            new XElement("Definition"));
+        GameItemComponentProto envelopeContainer = EnsureComponent("Container", "Container_Envelope",
+            "Allows an envelope to hold small flat contents.",
+            new XElement("Definition",
+                new XAttribute("Weight", 50.0),
+                new XAttribute("MaxSize", (int)SizeCategory.Tiny),
+                new XAttribute("Preposition", "in"),
+                new XAttribute("Closable", true),
+                new XAttribute("Transparent", false),
+                new XAttribute("OnceOnly", false)));
+        GameItemComponentProto envelopeWriteable = EnsureComponent("PaperSheet", "PaperSheet_Envelope",
+            "Turns an envelope into a small writable paper surface.",
+            new XElement("Definition",
+                new XElement("MaximumCharacterLengthOfText", 1000)));
+        GameItemComponentProto scrollWriteable = EnsureComponent("PaperSheet", "PaperSheet_Scroll",
+            "Turns a scroll into a long writable paper or parchment surface.",
+            new XElement("Definition",
+                new XElement("MaximumCharacterLengthOfText", 8000)));
+        GameItemComponentProto destroyablePaper = EnsureComponent("Destroyable", "Destroyable_Paper",
+            "Turns an item into a fragile paper or parchment object.",
+            new XElement("Definition",
+                new XElement("HpExpression", new XCData("2 * quality")),
+                new XElement("DamageMultipliers",
+                    new XElement("DamageMultiplier", new XAttribute("type", (int)DamageType.Burning), new XAttribute("multiplier", 2.5)),
+                    new XElement("DamageMultiplier", new XAttribute("type", (int)DamageType.Piercing), new XAttribute("multiplier", 1.1)))));
+
+        EnsureItemPrototype("envelope", "envelope paper sealable writable", paperMaterial, SizeCategory.Tiny, 10.0,
+            "a sealable envelope",
+            "This is a folded paper envelope with a closable flap suitable for writing, contents and sealing.",
+            holdable, envelopeContainer, envelopeWriteable, sealableEnvelope, destroyablePaper);
+        EnsureItemPrototype("scroll", "scroll paper parchment sealable writable", paperMaterial, SizeCategory.Small,
+            25.0, "a sealable scroll",
+            "This is a rolled writing scroll with a blank surface and enough overlap to bear a tamper-evident seal.",
+            holdable, scrollWriteable, sealableScroll, destroyablePaper);
+
+        _ = bronzeSignet;
+        _ = cylinderSeal;
+        _ = sealableWaxDocument;
+        _ = sealableClayDocument;
+        _ = sealableContainer;
+
+        nextId = currentId;
+        context.SaveChanges();
+
         #endregion
     }
 

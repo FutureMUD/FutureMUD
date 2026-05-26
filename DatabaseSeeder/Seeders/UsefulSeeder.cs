@@ -63,7 +63,10 @@ public partial class UsefulSeeder : IDatabaseSeeder
         "DragAid_Antiquity_FieldStretcher",
         "Locksmithing_Antiquity_BronzePoor",
         "ShopStall_Antiquity_OpenCounter",
-        "MarketGoodWeight_Antiquity_StapleFood"
+        "MarketGoodWeight_Antiquity_StapleFood",
+        "SealStamp_Antiquity_BronzeSignet",
+        "Sealable_Envelope",
+        "MeasuringInstrument_Antiquity_BalanceScale"
     ];
 
     private static readonly string[] StockModernItemMarkers =

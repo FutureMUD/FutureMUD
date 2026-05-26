@@ -287,6 +287,9 @@ public class UsefulSeederItemPackageTests
 		Assert.AreEqual(ShouldSeedResult.ExtraPackagesAvailable, UsefulSeeder.ClassifyItemPackagePresence(context));
 		Assert.IsTrue(UsefulSeeder.StockItemMarkersForTesting.Contains("Container_Bookcase_Shelves"));
 		Assert.IsTrue(UsefulSeeder.StockItemMarkersForTesting.Contains("TimePiece_Antiquity_Sundial"));
+		Assert.IsTrue(UsefulSeeder.StockItemMarkersForTesting.Contains("SealStamp_Antiquity_BronzeSignet"));
+		Assert.IsTrue(UsefulSeeder.StockItemMarkersForTesting.Contains("Sealable_Envelope"));
+		Assert.IsTrue(UsefulSeeder.StockItemMarkersForTesting.Contains("MeasuringInstrument_Antiquity_BalanceScale"));
 
 		context.GameItemComponentProtos.Add(CreateComponentMarker(id++, "Container_Bookcase_Shelves"));
 		context.SaveChanges();
@@ -431,7 +434,24 @@ public class UsefulSeederItemPackageTests
 			"Locksmithing_Antiquity_BronzeStandard",
 			"Locksmithing_Antiquity_FineSteel",
 			"Locksmithing_Antiquity_Installation",
-			"Locksmithing_Antiquity_Fabrication"
+			"Locksmithing_Antiquity_Fabrication",
+			"SealStamp_Antiquity_BronzeSignet",
+			"SealStamp_Antiquity_CylinderSeal",
+			"Sealable_Document_Wax",
+			"Sealable_Document_Clay",
+			"Sealable_Envelope",
+			"Sealable_Scroll",
+			"Sealable_Container_Wax",
+			"MeasuringInstrument_Antiquity_BalanceScale",
+			"MeasuringInstrument_Antiquity_StandardWeights",
+			"MeasuringInstrument_Antiquity_FalseWeights",
+			"MeasuringInstrument_Antiquity_GrainMeasure",
+			"MeasuringInstrument_Antiquity_OilCup",
+			"MeasuringInstrument_Antiquity_WineCup",
+			"MeasuringInstrument_Antiquity_TaxAssessorKit",
+			"Container_Envelope",
+			"PaperSheet_Envelope",
+			"PaperSheet_Scroll"
 		];
 
 		foreach (string name in expectedNames)
@@ -447,6 +467,12 @@ public class UsefulSeederItemPackageTests
 		Assert.AreEqual(6, (int)Definition("DragAid_Antiquity_CorpseBier").Element("MaximumUsers")!);
 		Assert.AreEqual(-2, (int)Definition("Locksmithing_Antiquity_BronzePoor").Element("DifficultyAdjustment")!);
 		Assert.AreEqual("on", (string)Definition("ShopStall_Antiquity_OpenCounter").Attribute("Preposition")!);
+		Assert.AreEqual("a bronze signet showing a lion beneath a civic star",
+			(string)Definition("SealStamp_Antiquity_BronzeSignet").Element("SealDesign")!);
+		Assert.IsTrue(Definition("Sealable_Envelope").Element("AllowedMedia")!.Elements("Medium")
+		                                      .Any(x => (string)x == "wax"));
+		Assert.AreEqual("Weight", (string)Definition("MeasuringInstrument_Antiquity_BalanceScale").Element("Mode")!);
+		Assert.AreEqual("FluidVolume", (string)Definition("MeasuringInstrument_Antiquity_OilCup").Element("Mode")!);
 
 		XElement loadedDie = Definition("Dice_Antiquity_LoadedD6");
 		Assert.AreEqual(6, loadedDie.Element("Faces")!.Elements("Face").Count());
@@ -456,6 +482,31 @@ public class UsefulSeederItemPackageTests
 		long weaponsCategoryId = context.MarketCategories.Single(x => x.Name == "Weapons").Id;
 		Assert.IsTrue(militaryWeight.Element("Multipliers")!.Elements("Multiplier")
 			.Any(x => (long)x.Attribute("category")! == weaponsCategoryId && (decimal)x.Attribute("value")! == 1.25m));
+
+		GameItemProto envelope = context.GameItemProtos
+		                                .Include(x => x.GameItemProtosGameItemComponentProtos)
+		                                .ThenInclude(x => x.GameItemComponent)
+		                                .Single(x => x.ShortDescription == "a sealable envelope");
+		CollectionAssert.IsSubsetOf(new[]
+			{
+				"Holdable",
+				"Container_Envelope",
+				"PaperSheet_Envelope",
+				"Sealable_Envelope"
+			},
+			envelope.GameItemProtosGameItemComponentProtos.Select(x => x.GameItemComponent.Name).ToArray());
+
+		GameItemProto scroll = context.GameItemProtos
+		                            .Include(x => x.GameItemProtosGameItemComponentProtos)
+		                            .ThenInclude(x => x.GameItemComponent)
+		                            .Single(x => x.ShortDescription == "a sealable scroll");
+		CollectionAssert.IsSubsetOf(new[]
+			{
+				"Holdable",
+				"PaperSheet_Scroll",
+				"Sealable_Scroll"
+			},
+			scroll.GameItemProtosGameItemComponentProtos.Select(x => x.GameItemComponent.Name).ToArray());
 	}
 
 	[TestMethod]

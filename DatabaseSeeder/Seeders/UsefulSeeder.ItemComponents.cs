@@ -210,6 +210,20 @@ public partial class UsefulSeeder
         context.SaveChanges();
     }
 
+    internal void SeedAntiquityComponentGapCoverageForTesting(FuturemudDatabaseContext context)
+    {
+        _context = context;
+        PrepareItemProtoCache(context);
+        DateTime now = DateTime.UtcNow;
+        Account dbaccount = context.Accounts.First();
+        long nextId = context.GameItemComponentProtos.Any() ? context.GameItemComponentProtos.Max(x => x.Id) + 1 : 1;
+        SeedWaterSources(context, now, dbaccount, ref nextId);
+        SeedDice(context, now, dbaccount, ref nextId);
+        SeedAdditionalBuilderExamples(context, now, dbaccount, ref nextId);
+        SeedSealAndMeasurementComponents(context, now, dbaccount, ref nextId);
+        context.SaveChanges();
+    }
+
     internal void SeedContainersForTesting(FuturemudDatabaseContext context)
     {
         _context = context;
@@ -5788,6 +5802,21 @@ public partial class UsefulSeeder
 
         GameItemComponentProto component;
 
+        GameItemComponentProto CreateDice(ref long id, string name, string description, IReadOnlyList<(string Face, double Probability)> faces)
+        {
+            return CreateComponent(context, ref id, dbaccount, now, "Dice", name, description,
+                new XElement("Definition",
+                    new XElement("Faces",
+                        from face in faces
+                        select new XElement("Face", new XCData(face.Face))),
+                    new XElement("Weights",
+                        from face in faces.Select((face, index) => (Probability: face.Probability, Index: index))
+                        select new XElement("Weight",
+                            new XElement("Face", face.Index),
+                            new XElement("Probability", face.Probability)))
+                ).ToString());
+        }
+
         component = new GameItemComponentProto
         {
             Id = nextId++,
@@ -6395,6 +6424,41 @@ public partial class UsefulSeeder
  </Definition>"
         };
         AddGameItemComponent(context, component);
+
+        CreateDice(ref nextId, "Dice_Antiquity_Knucklebones",
+            "Turns an item into a four-faced knucklebone die with named astragaloi-style faces.",
+            [
+                ("Dog", 1.0),
+                ("Vulture", 1.0),
+                ("King", 1.0),
+                ("Venus", 1.0)
+            ]);
+        CreateDice(ref nextId, "Dice_Antiquity_CastingSticks",
+            "Turns an item into a marked-or-unmarked casting stick die for lots, games or divination.",
+            [
+                ("Marked", 1.0),
+                ("Unmarked", 1.0)
+            ]);
+        CreateDice(ref nextId, "Dice_Antiquity_LoadedD6",
+            "Turns an item into a six-sided die subtly weighted toward high rolls.",
+            [
+                ("1", 0.6),
+                ("2", 0.8),
+                ("3", 0.8),
+                ("4", 1.0),
+                ("5", 1.2),
+                ("6", 2.5)
+            ]);
+        CreateDice(ref nextId, "Dice_Antiquity_DivinationLots",
+            "Turns an item into a symbolic divination lot die for temple, oracle or folk-divination use.",
+            [
+                ("Favour", 1.0),
+                ("Warning", 1.0),
+                ("Delay", 1.0),
+                ("Sacrifice", 1.0),
+                ("Journey", 1.0),
+                ("Conflict", 1.0)
+            ]);
         context.SaveChanges();
 
         #endregion
@@ -6411,6 +6475,7 @@ public partial class UsefulSeeder
         SeedWaterSources(context, now, dbaccount, ref nextId);
         SeedRepairKits(context, now, dbaccount, ref nextId);
         SeedAdditionalBuilderExamples(context, now, dbaccount, ref nextId);
+        SeedSealAndMeasurementComponents(context, now, dbaccount, ref nextId);
         SeedSmokeables(context, now, dbaccount, ref nextId);
     }
 
@@ -6528,6 +6593,25 @@ public partial class UsefulSeeder
         CreateWaterSourceComponent(context, ref nextId, dbaccount, now, "Infinite_SaltWaterSource",
             "Turns an item into a self-refilling source of salt water.",
             100000000, liquid.Id, 1000, false);
+
+        CreateWaterSourceComponent(context, ref nextId, dbaccount, now, "WaterSource_Antiquity_PublicWell",
+            "Turns an item into a stone public well or similar fixed potable water source.",
+            1000000, waterLiquid.Id, 0.8333333333333334, false);
+        CreateWaterSourceComponent(context, ref nextId, dbaccount, now, "WaterSource_Antiquity_Cistern",
+            "Turns an item into a lined stone cistern with a large stored water supply.",
+            50000, waterLiquid.Id, 0.0, false);
+        CreateWaterSourceComponent(context, ref nextId, dbaccount, now, "WaterSource_Antiquity_Fountain",
+            "Turns an item into a public fountain or flowing spout.",
+            1000000, springLiquid.Id, 1000, false);
+        CreateWaterSourceComponent(context, ref nextId, dbaccount, now, "WaterSource_Antiquity_BathPool",
+            "Turns an item into a large bathhouse plunge pool.",
+            5000, waterLiquid.Id, 10.0, false);
+        CreateWaterSourceComponent(context, ref nextId, dbaccount, now, "WaterSource_Antiquity_RitualBasin",
+            "Turns an item into a temple purification basin or other ritual water source.",
+            100, waterLiquid.Id, 0.0, false);
+        CreateWaterSourceComponent(context, ref nextId, dbaccount, now, "WaterSource_Antiquity_IrrigationOutlet",
+            "Turns an item into an irrigation-channel outlet or agricultural water fixture.",
+            100000000, riverLiquid.Id, 1000, false);
 
         Liquid tapWaterLiquid = context.Liquids.FirstOrDefault(x => x.Name == "tap water") ??
             context.Liquids.First(x => x.Name == "water");
@@ -6688,6 +6772,53 @@ public partial class UsefulSeeder
             return CreateComponent(context, ref currentId, dbaccount, now, type, name, description, definition.ToString());
         }
 
+        XElement LocksmithingDefinition(int difficultyAdjustment, bool usableForInstallation,
+            bool usableForConfiguration, bool usableForFabrication, bool breakable)
+        {
+            return new XElement("Definition",
+                new XElement("DifficultyAdjustment", difficultyAdjustment),
+                new XElement("UsableForInstallation", usableForInstallation),
+                new XElement("UsableForConfiguration", usableForConfiguration),
+                new XElement("UsableForFabrication", usableForFabrication),
+                new XElement("Breakable", breakable));
+        }
+
+        XElement ShopStallDefinition(double weight, SizeCategory maximumSize, bool transparent, Difficulty forceDifficulty,
+            Difficulty pickDifficulty, string lockType)
+        {
+            return new XElement("Definition",
+                new XAttribute("Weight", weight),
+                new XAttribute("MaxSize", (int)maximumSize),
+                new XAttribute("Preposition", "on"),
+                new XAttribute("Transparent", transparent),
+                new XElement("ForceDifficulty", (int)forceDifficulty),
+                new XElement("PickDifficulty", (int)pickDifficulty),
+                new XElement("LockEmote", new XCData("@ secure|secures $1$?2| with $2||$.")),
+                new XElement("UnlockEmote", new XCData("@ unfasten|unfastens $1$?2| with $2||$.")),
+                new XElement("LockEmoteNoActor", new XCData("@ settle|settles into a secured state.")),
+                new XElement("UnlockEmoteNoActor", new XCData("@ release|releases its fastening.")),
+                new XElement("LockType", lockType));
+        }
+
+        XElement MarketGoodWeightDefinition(params (string CategoryName, decimal Multiplier)[] multipliers)
+        {
+            XElement multiplierElement = new("Multipliers");
+            foreach ((string categoryName, decimal multiplier) in multipliers)
+            {
+                MarketCategory? category = context.MarketCategories.FirstOrDefault(x => x.Name == categoryName);
+                if (category is null)
+                {
+                    continue;
+                }
+
+                multiplierElement.Add(new XElement("Multiplier",
+                    new XAttribute("category", category.Id),
+                    new XAttribute("value", multiplier)));
+            }
+
+            return new XElement("Definition", multiplierElement);
+        }
+
         AddExtraComponent("LockingContainer", "LockingContainer_Lockbox",
             "Turns an item into a small lockbox with a built-in lever lock.",
             new XElement("Definition",
@@ -6778,6 +6909,21 @@ public partial class UsefulSeeder
                 new XElement("UsableForConfiguration", false),
                 new XElement("UsableForFabrication", true),
                 new XElement("Breakable", false)));
+        AddExtraComponent("Locksmithing Tool", "Locksmithing_Antiquity_BronzePoor",
+            "Turns an item into a penalty-bearing, breakable set of low-tech bronze lockpicks.",
+            LocksmithingDefinition(-2, false, false, false, true));
+        AddExtraComponent("Locksmithing Tool", "Locksmithing_Antiquity_BronzeStandard",
+            "Turns an item into a standard antiquity lockpick and probe roll.",
+            LocksmithingDefinition(0, false, true, false, true));
+        AddExtraComponent("Locksmithing Tool", "Locksmithing_Antiquity_FineSteel",
+            "Turns an item into a rare fine steel lockpick set for elite low-tech locksmithing.",
+            LocksmithingDefinition(2, false, true, false, false));
+        AddExtraComponent("Locksmithing Tool", "Locksmithing_Antiquity_Installation",
+            "Turns an item into an antiquity lock installation and configuration kit.",
+            LocksmithingDefinition(1, true, true, false, false));
+        AddExtraComponent("Locksmithing Tool", "Locksmithing_Antiquity_Fabrication",
+            "Turns an item into an antiquity key filing and lock fabrication kit.",
+            LocksmithingDefinition(1, false, false, true, false));
 
         AddExtraComponent("PencilSharpener", "PencilSharpener",
             "Turns an item into a pencil sharpener.",
@@ -6972,6 +7118,31 @@ public partial class UsefulSeeder
             new XElement("Definition",
                 new XElement("MaximumUsers", 2),
                 new XElement("EffortMultiplier", 2.25)));
+        AddExtraComponent("DragAid", "DragAid_Antiquity_FieldStretcher",
+            "Turns an item into an antiquity field stretcher for casualty movement.",
+            new XElement("Definition",
+                new XElement("MaximumUsers", 4),
+                new XElement("EffortMultiplier", 3.25)));
+        AddExtraComponent("DragAid", "DragAid_Antiquity_CorpseBier",
+            "Turns an item into a funerary bier or corpse litter for team movement.",
+            new XElement("Definition",
+                new XElement("MaximumUsers", 6),
+                new XElement("EffortMultiplier", 3.0)));
+        AddExtraComponent("DragAid", "DragAid_Antiquity_CargoSled",
+            "Turns an item into a low cargo sled for heavy antiquity hauling.",
+            new XElement("Definition",
+                new XElement("MaximumUsers", 4),
+                new XElement("EffortMultiplier", 2.75)));
+        AddExtraComponent("DragAid", "DragAid_Antiquity_PackTravois",
+            "Turns an item into a pack travois for pastoral or frontier cargo support.",
+            new XElement("Definition",
+                new XElement("MaximumUsers", 2),
+                new XElement("EffortMultiplier", 2.4)));
+        AddExtraComponent("DragAid", "DragAid_Antiquity_CarryingSling",
+            "Turns an item into a one-person carrying sling for smaller loads.",
+            new XElement("Definition",
+                new XElement("MaximumUsers", 1),
+                new XElement("EffortMultiplier", 1.6)));
 
         AddExtraComponent("WaterSource", "WaterSource_Canteen",
             "Turns an item into a transparent closable refill-on-toggle canteen.",
@@ -7157,10 +7328,338 @@ public partial class UsefulSeeder
                     new XElement("TimeZone", defaultTimeZone.Id),
                     new XElement("PlayersCanSetTime", false),
                     new XElement("TimeDisplayString", "$h:$m")));
+            AddExtraComponent("TimePiece", "TimePiece_Antiquity_Sundial",
+                "Turns an item into a non-settable sundial-style timepiece with crude daylight time display.",
+                new XElement("Definition",
+                    new XElement("Clock", primaryClock.Id),
+                    new XElement("TimeZone", defaultTimeZone.Id),
+                    new XElement("PlayersCanSetTime", false),
+                    new XElement("TimeDisplayString", "$c")));
+            AddExtraComponent("TimePiece", "TimePiece_Antiquity_WaterClock",
+                "Turns an item into a non-settable water-clock style timepiece for temples, courts or watch posts.",
+                new XElement("Definition",
+                    new XElement("Clock", primaryClock.Id),
+                    new XElement("TimeZone", defaultTimeZone.Id),
+                    new XElement("PlayersCanSetTime", false),
+                    new XElement("TimeDisplayString", "$j:$m $i")));
+            AddExtraComponent("TimePiece", "TimePiece_Antiquity_MarkedCandle",
+                "Turns an item into a coarse marked-candle timepiece.",
+                new XElement("Definition",
+                    new XElement("Clock", primaryClock.Id),
+                    new XElement("TimeZone", defaultTimeZone.Id),
+                    new XElement("PlayersCanSetTime", false),
+                    new XElement("TimeDisplayString", "$c")));
+            AddExtraComponent("TimePiece", "TimePiece_Antiquity_WatchBoard",
+                "Turns an item into a public watch-board timepiece tied to the default clock and timezone.",
+                new XElement("Definition",
+                    new XElement("Clock", primaryClock.Id),
+                    new XElement("TimeZone", defaultTimeZone.Id),
+                    new XElement("PlayersCanSetTime", false),
+                    new XElement("TimeDisplayString", "$j $i")));
         }
+
+        AddExtraComponent("ShopStall", "ShopStall_Antiquity_OpenCounter",
+            "Turns an item into an open antiquity market counter or stall surface.",
+            ShopStallDefinition(200000, SizeCategory.Large, true, Difficulty.Normal, Difficulty.Normal, "Warded Lock"));
+        AddExtraComponent("ShopStall", "ShopStall_Antiquity_LockableCounter",
+            "Turns an item into a lockable antiquity market counter for unattended goods.",
+            ShopStallDefinition(250000, SizeCategory.Large, false, Difficulty.VeryHard, Difficulty.Hard, "Warded Lock"));
+        AddExtraComponent("ShopStall", "ShopStall_Antiquity_PortableBooth",
+            "Turns an item into a lighter portable stall for fairs, camps and travelling merchants.",
+            ShopStallDefinition(100000, SizeCategory.Normal, true, Difficulty.Hard, Difficulty.Normal, "Warded Lock"));
+
+        AddExtraComponent("MarketGoodWeight", "MarketGoodWeight_Antiquity_StapleFood",
+            "Turns an item into an antiquity market-good weight for staples such as grain, beer and wine.",
+            MarketGoodWeightDefinition(
+                ("Staple Food", 1.25m),
+                ("Standard Food", 1.05m),
+                ("Beer", 1.10m),
+                ("Wine", 1.10m)));
+        AddExtraComponent("MarketGoodWeight", "MarketGoodWeight_Antiquity_LuxuryCraft",
+            "Turns an item into an antiquity market-good weight for luxury crafts and elite household wares.",
+            MarketGoodWeightDefinition(
+                ("Luxury Wares", 1.35m),
+                ("Luxury Clothing", 1.25m),
+                ("Luxury Furniture", 1.20m),
+                ("Luxury Decorations", 1.25m)));
+        AddExtraComponent("MarketGoodWeight", "MarketGoodWeight_Antiquity_MilitarySupply",
+            "Turns an item into an antiquity market-good weight for military supply goods.",
+            MarketGoodWeightDefinition(
+                ("Military Goods", 1.20m),
+                ("Weapons", 1.25m),
+                ("Armour", 1.25m),
+                ("Ammunition", 1.15m),
+                ("Shields", 1.15m)));
 
         nextId = currentId;
         context.SaveChanges();
+        #endregion
+    }
+
+    private void SeedSealAndMeasurementComponents(FuturemudDatabaseContext context, DateTime now, Account dbaccount,
+        ref long nextId)
+    {
+        #region Seals and Measurement
+
+        long currentId = nextId;
+
+        GameItemComponentProto UpsertStockComponent(string type, string name, string description, XElement definition)
+        {
+            return UpsertComponent(context, ref currentId, dbaccount, now, type, name, description, definition.ToString());
+        }
+
+        GameItemComponentProto EnsureComponent(string type, string name, string description, XElement definition)
+        {
+            GameItemComponentProto? existing = context.GameItemComponentProtos.Local
+                                         .FirstOrDefault(x => x.Name == name && x.EditableItem.RevisionStatus == 4) ??
+                                     context.GameItemComponentProtos
+                                         .FirstOrDefault(x => x.Name == name && x.EditableItem.RevisionStatus == 4);
+            return existing ?? UpsertStockComponent(type, name, description, definition);
+        }
+
+        XElement SealStampDefinition(string design, string issuer, string owner, string clan, string office,
+            string material, Difficulty forgeryDifficulty)
+        {
+            return new XElement("Definition",
+                new XElement("SealDesign", new XCData(design)),
+                new XElement("IssuerText", new XCData(issuer)),
+                new XElement("OwnerText", new XCData(owner)),
+                new XElement("ClanText", new XCData(clan)),
+                new XElement("OfficeText", new XCData(office)),
+                new XElement("StampMaterial", new XCData(material)),
+                new XElement("ForgeryDifficulty", (int)forgeryDifficulty),
+                new XElement("AuthorityProg", 0));
+        }
+
+        XElement SealableDefinition(Difficulty inspectionDifficulty, bool brokenSealLeavesResidue,
+            params string[] allowedMedia)
+        {
+            return new XElement("Definition",
+                new XElement("AllowedMedia",
+                    from medium in allowedMedia
+                    select new XElement("Medium", new XCData(medium))),
+                new XElement("InspectionDifficulty", (int)inspectionDifficulty),
+                new XElement("BrokenSealLeavesResidue", brokenSealLeavesResidue));
+        }
+
+        XElement MeasuringDefinition(string mode, double precision, double capacity, double baseDriftPerUse,
+            double maximumDrift, double maximumWrongCalibration, Difficulty inspectionDifficulty)
+        {
+            return new XElement("Definition",
+                new XElement("Mode", mode),
+                new XElement("Precision", precision),
+                new XElement("Capacity", capacity),
+                new XElement("BaseDriftPerUse", baseDriftPerUse),
+                new XElement("MaximumDrift", maximumDrift),
+                new XElement("MaximumWrongCalibration", maximumWrongCalibration),
+                new XElement("CalibrationInspectionDifficulty", (int)inspectionDifficulty));
+        }
+
+        Material EnsureMaterial(string name, MaterialBehaviourType behaviourType)
+        {
+            Material? material = context.Materials.Local.FirstOrDefault(x => x.Name.EqualTo(name)) ??
+                                 context.Materials.FirstOrDefault(x => x.Name == name);
+            if (material is not null)
+            {
+                return material;
+            }
+
+            material = new Material
+            {
+                Id = context.Materials.Any() ? context.Materials.Max(x => x.Id) + 1 : 1,
+                Name = name,
+                MaterialDescription = name.ToLowerInvariant(),
+                BehaviourType = (int)behaviourType,
+                ResidueSdesc = string.Empty,
+                ResidueDesc = string.Empty,
+                ResidueColour = string.Empty
+            };
+            context.Materials.Add(material);
+            return material;
+        }
+
+        long nextItemProtoId = context.GameItemProtos.Any() ? context.GameItemProtos.Max(x => x.Id) + 1 : 1;
+
+        void EnsureComponentLink(GameItemProto item, GameItemComponentProto component)
+        {
+            if (item.GameItemProtosGameItemComponentProtos.Any(x =>
+                    x.GameItemComponentProtoId == component.Id || x.GameItemComponent == component))
+            {
+                return;
+            }
+
+            item.GameItemProtosGameItemComponentProtos.Add(new GameItemProtosGameItemComponentProtos
+            {
+                GameItemProto = item,
+                GameItemProtoId = item.Id,
+                GameItemProtoRevision = item.RevisionNumber,
+                GameItemComponent = component,
+                GameItemComponentProtoId = component.Id,
+                GameItemComponentRevision = component.RevisionNumber
+            });
+        }
+
+        void EnsureItemPrototype(string name, string keywords, Material material, SizeCategory size, double weight,
+            string shortDescription, string fullDescription, params GameItemComponentProto[] components)
+        {
+            GameItemProto? item = context.GameItemProtos.Local
+                                      .FirstOrDefault(x => x.ShortDescription == shortDescription) ??
+                                  context.GameItemProtos
+                                      .Include(x => x.GameItemProtosGameItemComponentProtos)
+                                      .FirstOrDefault(x => x.ShortDescription == shortDescription);
+            if (item is null)
+            {
+                item = new GameItemProto
+                {
+                    Id = nextItemProtoId++,
+                    RevisionNumber = 0,
+                    Name = name,
+                    UniqueName = shortDescription,
+                    BuilderNotes = "Auto-generated by the system",
+                    Keywords = keywords,
+                    MaterialId = material.Id,
+                    EditableItem = new EditableItem
+                    {
+                        RevisionNumber = 0,
+                        RevisionStatus = 4,
+                        BuilderAccountId = dbaccount.Id,
+                        BuilderDate = now,
+                        BuilderComment = "Auto-generated by the system",
+                        ReviewerAccountId = dbaccount.Id,
+                        ReviewerComment = "Auto-generated by the system",
+                        ReviewerDate = now
+                    },
+                    Size = (int)size,
+                    Weight = weight,
+                    ReadOnly = false,
+                    LongDescription = string.Empty,
+                    BaseItemQuality = (int)ItemQuality.Standard,
+                    CustomColour = string.Empty,
+                    HighPriority = false,
+                    MorphTimeSeconds = 0,
+                    MorphEmote = string.Empty,
+                    ShortDescription = shortDescription,
+                    FullDescription = fullDescription,
+                    PermitPlayerSkins = false,
+                    CostInBaseCurrency = 0.0M,
+                    IsHiddenFromPlayers = false,
+                    PreserveRegisterVariables = false,
+                    PlanarData = string.Empty
+                };
+                context.GameItemProtos.Add(item);
+            }
+            else
+            {
+                item.Name = name;
+                item.UniqueName = shortDescription;
+                item.Keywords = keywords;
+                item.MaterialId = material.Id;
+                item.Size = (int)size;
+                item.Weight = weight;
+                item.ShortDescription = shortDescription;
+                item.FullDescription = fullDescription;
+            }
+
+            foreach (GameItemComponentProto component in components)
+            {
+                EnsureComponentLink(item, component);
+            }
+        }
+
+        GameItemComponentProto bronzeSignet = UpsertStockComponent("SealStamp", "SealStamp_Antiquity_BronzeSignet",
+            "Turns an item into a bronze signet ring style seal stamp.",
+            SealStampDefinition("a bronze signet showing a lion beneath a civic star", "Civic Magistracy",
+                string.Empty, string.Empty, "Seal-Bearer", "bronze", Difficulty.VeryHard));
+        GameItemComponentProto cylinderSeal = UpsertStockComponent("SealStamp", "SealStamp_Antiquity_CylinderSeal",
+            "Turns an item into a cylinder seal for rolling an authority impression through clay or wax.",
+            SealStampDefinition("a rolled procession of officials, reeds and account marks", "Temple Archive",
+                string.Empty, "Temple Household", "Archive Steward", "stone", Difficulty.ExtremelyHard));
+
+        GameItemComponentProto sealableWaxDocument = UpsertStockComponent("Sealable", "Sealable_Document_Wax",
+            "Lets a document be sealed with wax and leave broken-seal residue.",
+            SealableDefinition(Difficulty.Normal, true, "wax"));
+        GameItemComponentProto sealableClayDocument = UpsertStockComponent("Sealable", "Sealable_Document_Clay",
+            "Lets a document be sealed with clay and leave broken-seal residue.",
+            SealableDefinition(Difficulty.Hard, true, "clay"));
+        GameItemComponentProto sealableEnvelope = UpsertStockComponent("Sealable", "Sealable_Envelope",
+            "Lets an envelope be sealed with wax, clay or paste.",
+            SealableDefinition(Difficulty.Normal, true, "wax", "clay", "paste"));
+        GameItemComponentProto sealableScroll = UpsertStockComponent("Sealable", "Sealable_Scroll",
+            "Lets a scroll be sealed with wax, clay or paste.",
+            SealableDefinition(Difficulty.Normal, true, "wax", "clay", "paste"));
+        GameItemComponentProto sealableContainer = UpsertStockComponent("Sealable", "Sealable_Container_Wax",
+            "Lets a closable container be sealed with wax or clay as tamper evidence.",
+            SealableDefinition(Difficulty.Hard, true, "wax", "clay"));
+
+        UpsertStockComponent("MeasuringInstrument", "MeasuringInstrument_Antiquity_BalanceScale",
+            "Turns an item into a weight-mode balance scale with modest use-based drift.",
+            MeasuringDefinition("Weight", 1.0, 50000.0, 0.00025, 0.03, 0.25, Difficulty.Normal));
+        UpsertStockComponent("MeasuringInstrument", "MeasuringInstrument_Antiquity_StandardWeights",
+            "Turns an item into a standard weight set for comparing trade goods.",
+            MeasuringDefinition("Weight", 0.5, 20000.0, 0.0001, 0.015, 0.20, Difficulty.Hard));
+        UpsertStockComponent("MeasuringInstrument", "MeasuringInstrument_Antiquity_FalseWeights",
+            "Turns an item into a weight set intended for biased trade measures.",
+            MeasuringDefinition("Weight", 0.5, 20000.0, 0.0001, 0.015, 0.35, Difficulty.VeryHard));
+        UpsertStockComponent("MeasuringInstrument", "MeasuringInstrument_Antiquity_GrainMeasure",
+            "Turns an item into a grain measure interpreted as a weight-mode trade measure.",
+            MeasuringDefinition("Weight", 10.0, 100000.0, 0.00075, 0.05, 0.30, Difficulty.Normal));
+        UpsertStockComponent("MeasuringInstrument", "MeasuringInstrument_Antiquity_OilCup",
+            "Turns an item into a fluid-volume measure cup for oil.",
+            MeasuringDefinition("FluidVolume", 0.005, 1.0, 0.0005, 0.04, 0.25, Difficulty.Normal));
+        UpsertStockComponent("MeasuringInstrument", "MeasuringInstrument_Antiquity_WineCup",
+            "Turns an item into a fluid-volume measure cup for wine.",
+            MeasuringDefinition("FluidVolume", 0.01, 2.0, 0.0005, 0.04, 0.25, Difficulty.Normal));
+        UpsertStockComponent("MeasuringInstrument", "MeasuringInstrument_Antiquity_TaxAssessorKit",
+            "Turns an item into a tax assessor's kit for weighing taxable goods.",
+            MeasuringDefinition("Weight", 5.0, 250000.0, 0.0002, 0.025, 0.20, Difficulty.Hard));
+
+        Material paperMaterial = EnsureMaterial("Paper", MaterialBehaviourType.Plant);
+        GameItemComponentProto holdable = EnsureComponent("Holdable", "Holdable",
+            "Allows an item to be picked up and manipulated.",
+            new XElement("Definition"));
+        GameItemComponentProto envelopeContainer = EnsureComponent("Container", "Container_Envelope",
+            "Allows an envelope to hold small flat contents.",
+            new XElement("Definition",
+                new XAttribute("Weight", 50.0),
+                new XAttribute("MaxSize", (int)SizeCategory.Tiny),
+                new XAttribute("Preposition", "in"),
+                new XAttribute("Closable", true),
+                new XAttribute("Transparent", false),
+                new XAttribute("OnceOnly", false)));
+        GameItemComponentProto envelopeWriteable = EnsureComponent("PaperSheet", "PaperSheet_Envelope",
+            "Turns an envelope into a small writable paper surface.",
+            new XElement("Definition",
+                new XElement("MaximumCharacterLengthOfText", 1000)));
+        GameItemComponentProto scrollWriteable = EnsureComponent("PaperSheet", "PaperSheet_Scroll",
+            "Turns a scroll into a long writable paper or parchment surface.",
+            new XElement("Definition",
+                new XElement("MaximumCharacterLengthOfText", 8000)));
+        GameItemComponentProto destroyablePaper = EnsureComponent("Destroyable", "Destroyable_Paper",
+            "Turns an item into a fragile paper or parchment object.",
+            new XElement("Definition",
+                new XElement("HpExpression", new XCData("2 * quality")),
+                new XElement("DamageMultipliers",
+                    new XElement("DamageMultiplier", new XAttribute("type", (int)DamageType.Burning), new XAttribute("multiplier", 2.5)),
+                    new XElement("DamageMultiplier", new XAttribute("type", (int)DamageType.Piercing), new XAttribute("multiplier", 1.1)))));
+
+        EnsureItemPrototype("envelope", "envelope paper sealable writable", paperMaterial, SizeCategory.Tiny, 10.0,
+            "a sealable envelope",
+            "This is a folded paper envelope with a closable flap suitable for writing, contents and sealing.",
+            holdable, envelopeContainer, envelopeWriteable, sealableEnvelope, destroyablePaper);
+        EnsureItemPrototype("scroll", "scroll paper parchment sealable writable", paperMaterial, SizeCategory.Small,
+            25.0, "a sealable scroll",
+            "This is a rolled writing scroll with a blank surface and enough overlap to bear a tamper-evident seal.",
+            holdable, scrollWriteable, sealableScroll, destroyablePaper);
+
+        _ = bronzeSignet;
+        _ = cylinderSeal;
+        _ = sealableWaxDocument;
+        _ = sealableClayDocument;
+        _ = sealableContainer;
+
+        nextId = currentId;
+        context.SaveChanges();
+
         #endregion
     }
 

@@ -1108,6 +1108,16 @@ The items and crafts are fairly universal and of approximately medieval to renei
             context.GameItemComponentProtos.All(x => x.Name != "Container_Wide_Shelves") ||
             context.GameItemComponentProtos.All(x => x.Name != "Container_Open_Bin") ||
             context.GameItemComponentProtos.All(x => x.Name != "Container_Trunk") ||
+            context.GameItemComponentProtos.All(x => x.Name != "TimePiece_Antiquity_Sundial") ||
+            context.GameItemComponentProtos.All(x => x.Name != "WaterSource_Antiquity_PublicWell") ||
+            context.GameItemComponentProtos.All(x => x.Name != "Dice_Antiquity_Knucklebones") ||
+            context.GameItemComponentProtos.All(x => x.Name != "DragAid_Antiquity_FieldStretcher") ||
+            context.GameItemComponentProtos.All(x => x.Name != "Locksmithing_Antiquity_BronzePoor") ||
+            context.GameItemComponentProtos.All(x => x.Name != "ShopStall_Antiquity_OpenCounter") ||
+            context.GameItemComponentProtos.All(x => x.Name != "MarketGoodWeight_Antiquity_StapleFood") ||
+            context.GameItemComponentProtos.All(x => x.Name != "SealStamp_Antiquity_BronzeSignet") ||
+            context.GameItemComponentProtos.All(x => x.Name != "Sealable_Envelope") ||
+            context.GameItemComponentProtos.All(x => x.Name != "MeasuringInstrument_Antiquity_BalanceScale") ||
             context.GameItemComponentProtos.All(x => x.Name != "Insulation_Minor") ||
             context.GameItemComponentProtos.All(x => x.Name != "Destroyable_Misc") ||
             context.GameItemComponentProtos.All(x => x.Name != "Torch_Infinite") ||

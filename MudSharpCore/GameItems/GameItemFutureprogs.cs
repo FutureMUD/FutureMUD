@@ -79,6 +79,25 @@ public partial class GameItem
             { "layer", ProgVariableTypes.Text },
             { "isfood", ProgVariableTypes.Boolean },
             { "isliquidcontainer", ProgVariableTypes.Boolean },
+            { "issealstamp", ProgVariableTypes.Boolean },
+            { "issealable", ProgVariableTypes.Boolean },
+            { "issealed", ProgVariableTypes.Boolean },
+            { "sealbroken", ProgVariableTypes.Boolean },
+            { "sealresidue", ProgVariableTypes.Boolean },
+            { "sealdesign", ProgVariableTypes.Text },
+            { "sealissuer", ProgVariableTypes.Text },
+            { "sealowner", ProgVariableTypes.Text },
+            { "sealclan", ProgVariableTypes.Text },
+            { "sealoffice", ProgVariableTypes.Text },
+            { "sealmaterial", ProgVariableTypes.Text },
+            { "sealmedium", ProgVariableTypes.Text },
+            { "sealingcharacterid", ProgVariableTypes.Number },
+            { "ismeasuringinstrument", ProgVariableTypes.Boolean },
+            { "measuringmode", ProgVariableTypes.Text },
+            { "calibrationbias", ProgVariableTypes.Number },
+            { "calibrationbiasispercent", ProgVariableTypes.Boolean },
+            { "calibrationdeliberate", ProgVariableTypes.Boolean },
+            { "usessincecalibration", ProgVariableTypes.Number },
             { "variables", ProgVariableTypes.Dictionary | ProgVariableTypes.Text},
             { "condition", ProgVariableTypes.Number },
             { "quality", ProgVariableTypes.Number },
@@ -147,6 +166,25 @@ public partial class GameItem
             { "layer", "A text description of the layer this item is currently in" },
             { "isfood", "True if the item is food" },
             { "isliquidcontainer", "True if the item is a liquid container" },
+            { "issealstamp", "True if the item is a seal stamp" },
+            { "issealable", "True if the item can hold a seal impression" },
+            { "issealed", "True if the item currently has an intact seal" },
+            { "sealbroken", "True if the item has had a seal broken" },
+            { "sealresidue", "True if the item has broken seal residue" },
+            { "sealdesign", "The design text of the current or broken seal impression, if any" },
+            { "sealissuer", "The issuer metadata of the current or broken seal impression, if any" },
+            { "sealowner", "The owner metadata of the current or broken seal impression, if any" },
+            { "sealclan", "The clan metadata of the current or broken seal impression, if any" },
+            { "sealoffice", "The office metadata of the current or broken seal impression, if any" },
+            { "sealmaterial", "The stamp material metadata of the current or broken seal impression, if any" },
+            { "sealmedium", "The sealing medium description of the current or broken seal impression, if any" },
+            { "sealingcharacterid", "The ID of the character who applied the current or broken seal impression, if any" },
+            { "ismeasuringinstrument", "True if the item is a measuring instrument" },
+            { "measuringmode", "The measuring mode of the measuring instrument, if any" },
+            { "calibrationbias", "The current deliberate calibration bias in base units or percent depending on calibrationbiasispercent" },
+            { "calibrationbiasispercent", "True if calibrationbias is a percentage rather than a base-unit amount" },
+            { "calibrationdeliberate", "True if the current calibration has a deliberate wrong-measure bias" },
+            { "usessincecalibration", "The number of measurements made since the instrument was last calibrated" },
             { "variables", "Returns a dictionary of variable names and variable values"},
             { "condition", "A value from 0.0 to 1.0 representing the current condition percentage of the item" },
             { "quality", "The quality of the item as a number between 0 (terrible) and 11 (legendary)" },
@@ -354,6 +392,60 @@ public partial class GameItem
                 return new BooleanVariable(IsItemType<IEdible>());
             case "isliquidcontainer":
                 return new BooleanVariable(IsItemType<ILiquidContainer>());
+            case "issealstamp":
+                return new BooleanVariable(IsItemType<ISealStamp>());
+            case "issealable":
+                return new BooleanVariable(IsItemType<ISealable>());
+            case "issealed":
+                return new BooleanVariable(GetItemType<ISealable>()?.IsSealed == true);
+            case "sealbroken":
+                return new BooleanVariable(GetItemType<ISealable>()?.SealBroken == true);
+            case "sealresidue":
+                return new BooleanVariable(GetItemType<ISealable>()?.HasSealResidue == true);
+            case "sealdesign":
+                return GetItemType<ISealable>()?.CurrentSeal is { } sealDesign
+                    ? new TextVariable(sealDesign.SealDesign)
+                    : new NullVariable(ProgVariableTypes.Text);
+            case "sealissuer":
+                return GetItemType<ISealable>()?.CurrentSeal is { } sealIssuer
+                    ? new TextVariable(sealIssuer.IssuerText)
+                    : new NullVariable(ProgVariableTypes.Text);
+            case "sealowner":
+                return GetItemType<ISealable>()?.CurrentSeal is { } sealOwner
+                    ? new TextVariable(sealOwner.OwnerText)
+                    : new NullVariable(ProgVariableTypes.Text);
+            case "sealclan":
+                return GetItemType<ISealable>()?.CurrentSeal is { } sealClan
+                    ? new TextVariable(sealClan.ClanText)
+                    : new NullVariable(ProgVariableTypes.Text);
+            case "sealoffice":
+                return GetItemType<ISealable>()?.CurrentSeal is { } sealOffice
+                    ? new TextVariable(sealOffice.OfficeText)
+                    : new NullVariable(ProgVariableTypes.Text);
+            case "sealmaterial":
+                return GetItemType<ISealable>()?.CurrentSeal is { } sealMaterial
+                    ? new TextVariable(sealMaterial.StampMaterial)
+                    : new NullVariable(ProgVariableTypes.Text);
+            case "sealmedium":
+                return GetItemType<ISealable>()?.CurrentSeal is { } sealMedium
+                    ? new TextVariable(sealMedium.SealMedium)
+                    : new NullVariable(ProgVariableTypes.Text);
+            case "sealingcharacterid":
+                return new NumberVariable(GetItemType<ISealable>()?.CurrentSeal?.SealingCharacterId ?? 0);
+            case "ismeasuringinstrument":
+                return new BooleanVariable(IsItemType<IMeasuringInstrument>());
+            case "measuringmode":
+                return GetItemType<IMeasuringInstrument>() is { } instrumentMode
+                    ? new TextVariable(instrumentMode.Mode.DescribeEnum())
+                    : new NullVariable(ProgVariableTypes.Text);
+            case "calibrationbias":
+                return new NumberVariable(GetItemType<IMeasuringInstrument>()?.CalibrationBias ?? 0.0);
+            case "calibrationbiasispercent":
+                return new BooleanVariable(GetItemType<IMeasuringInstrument>()?.CalibrationBiasIsPercentage == true);
+            case "calibrationdeliberate":
+                return new BooleanVariable(GetItemType<IMeasuringInstrument>()?.HasDeliberateBias == true);
+            case "usessincecalibration":
+                return new NumberVariable(GetItemType<IMeasuringInstrument>()?.UsesSinceCalibration ?? 0);
             case "variables":
                 Dictionary<string, IProgVariable> dict = new(StringComparer.InvariantCultureIgnoreCase);
                 foreach ((ICharacteristicDefinition definition, ICharacteristicValue value) in RawCharacteristics)

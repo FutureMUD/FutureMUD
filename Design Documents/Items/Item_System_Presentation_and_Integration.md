@@ -174,6 +174,10 @@ Readable book items expose a small scripting surface for dynamic document genera
 
 Printed writing has nullable authorship. Player-facing and admin displays should treat missing author as printed or anonymous provenance rather than assuming every writing row belongs to a character.
 
+Seals and measuring tools add a small player-facing command surface. `seal <target> with <stamp> [using <medium>]`, `break seal <target>`, `inspect seal <target>`, and `compare seal <sealed item> with <stamp|sealed item>` operate on `ISealStamp` and `ISealable`; ordinary read, write, draw, retitle, and open interactions break an intact seal before continuing. `weigh <item> on <instrument>`, `measure <target> with <instrument>`, `calibrate <instrument>`, `calibrate <instrument> wrong <+/-amount|+/-percent>`, and `inspect calibration <instrument>` operate on `IMeasuringInstrument`.
+
+Seal and calibration inspection uses existing appraisal-style skill evaluation rather than new check types. FutureProg item dots expose seal capability and state (`issealstamp`, `issealable`, `issealed`, `sealbroken`, `sealresidue`), seal metadata (`sealdesign`, `sealissuer`, `sealowner`, `sealclan`, `sealoffice`, `sealmaterial`, `sealmedium`, `sealingcharacterid`), and measurement state (`ismeasuringinstrument`, `measuringmode`, `calibrationbias`, `calibrationbiasispercent`, `calibrationdeliberate`, `usessincecalibration`).
+
 Telephone presentation is not only textual state. For room-facing telephones and cellular phones, ringing is an audible output with an effective ring volume. Players adjust that through the ordinary `switch` command rather than a staff-only builder path: wired phones expose `quiet`, `normal`, and `loud`, while cellular phones also expose `silent`. Nearby rooms may hear ringing through ordinary audio-echo rules, but a silent cellular phone can still vibrate for the wearer if it is sitting inside a worn container. Implant telephones do not emit room audio and instead report ringing and connection progress through implant messaging.
 
 The current signal-automation slice has its own presentation and integration rules:

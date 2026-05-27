@@ -55,7 +55,7 @@ public static class EmploymentCandidateMatcher
 		}
 
 		if (opening.Compensation.Cadence != PayCadence.Unpaid &&
-		    opening.Compensation.NominalAmount < candidate.ReservationWage)
+		    IsBelowReservationWage(opening.Compensation, candidate))
 		{
 			reason = "Offer is below the candidate's reservation wage.";
 			return false;
@@ -63,6 +63,25 @@ public static class EmploymentCandidateMatcher
 
 		reason = string.Empty;
 		return true;
+	}
+
+	private static bool IsBelowReservationWage(CompensationTerms compensation, EmploymentCandidateProfile candidate)
+	{
+		if (candidate.ReservationWage <= 0.0M)
+		{
+			return false;
+		}
+
+		var offered = compensation.FixedRate ?? compensation.MinimumEffectivePay;
+		if (offered is not null && candidate.ReservationWageCurrency is not null)
+		{
+			var offeredGlobal = offered.Amount * offered.Currency.BaseCurrencyToGlobalBaseCurrencyConversion;
+			var reservationGlobal = candidate.ReservationWage *
+			                        candidate.ReservationWageCurrency.BaseCurrencyToGlobalBaseCurrencyConversion;
+			return offeredGlobal < reservationGlobal;
+		}
+
+		return compensation.NominalAmount < candidate.ReservationWage;
 	}
 }
 

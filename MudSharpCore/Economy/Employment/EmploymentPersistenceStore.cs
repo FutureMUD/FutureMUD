@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using MudSharp.Arenas;
 using MudSharp.Character;
@@ -41,6 +42,15 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 		Capability,
 		Tag
 	}
+
+	private sealed record GetItemsByIdStepPayload(int Quantity, long[] ItemIds, long[] SourceLocationIds);
+
+	private sealed record GetItemsByTagStepPayload(int Quantity, string TagName, long[] SourceLocationIds);
+
+	private sealed record GetCommodityStepPayload(double RequiredWeight, string MaterialName, string? TagName,
+		Dictionary<string, string> Characteristics, long[] SourceLocationIds);
+
+	private sealed record DeliverItemsStepPayload(long DestinationCellId, long? ContainerId, string? ContainerTag);
 
 	private readonly IEmploymentHost _host;
 	private readonly IFuturemud _gameworld;
@@ -161,10 +171,15 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 				}
 			}
 
-			if (context.EmploymentApplications.Any(x =>
+			var existing = context.EmploymentApplications.FirstOrDefault(x =>
 				    x.EmploymentJobOpeningId == opening.Id &&
-				    x.RuntimeId == application.Id))
+				    x.RuntimeId == application.Id);
+			if (existing is not null)
 			{
+				existing.Status = (int)application.Status;
+				existing.DecisionReason = application.DecisionReason;
+				Touch(context);
+				context.SaveChanges();
 				return;
 			}
 
@@ -893,8 +908,75 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 				new StoreAccountPaymentActionStep(record.AccountName ?? string.Empty, amount, record.ExistingFinancialRecord),
 			EmploymentActionStepType.BoardPost =>
 				new BoardPostActionStep(record.BoardTitle ?? "Notice", record.BoardText ?? string.Empty),
+			EmploymentActionStepType.GetItemsById =>
+				ToGetItemsByIdStep(record),
+			EmploymentActionStepType.GetItemsByTag =>
+				ToGetItemsByTagStep(record),
+			EmploymentActionStepType.GetCommodity =>
+				ToGetCommodityStep(record),
+			EmploymentActionStepType.DeliverItems =>
+				ToDeliverItemsStep(record, destination),
 			_ => null
 		};
+	}
+
+	private GetItemsByIdActionStep? ToGetItemsByIdStep(DbActionStep record)
+	{
+		var payload = TryDeserializeActionPayload<GetItemsByIdStepPayload>(record.BoardText);
+		if (payload is null)
+		{
+			return null;
+		}
+
+		return new GetItemsByIdActionStep(payload.Quantity, payload.ItemIds, ResolveCells(payload.SourceLocationIds));
+	}
+
+	private GetItemsByTagActionStep? ToGetItemsByTagStep(DbActionStep record)
+	{
+		var payload = TryDeserializeActionPayload<GetItemsByTagStepPayload>(record.BoardText);
+		if (payload is null)
+		{
+			return null;
+		}
+
+		return new GetItemsByTagActionStep(payload.Quantity, payload.TagName, ResolveCells(payload.SourceLocationIds));
+	}
+
+	private GetCommodityActionStep? ToGetCommodityStep(DbActionStep record)
+	{
+		var payload = TryDeserializeActionPayload<GetCommodityStepPayload>(record.BoardText);
+		if (payload is null)
+		{
+			return null;
+		}
+
+		return new GetCommodityActionStep(payload.RequiredWeight, payload.MaterialName, payload.TagName,
+			payload.Characteristics, ResolveCells(payload.SourceLocationIds));
+	}
+
+	private DeliverItemsActionStep? ToDeliverItemsStep(DbActionStep record, ICell? destination)
+	{
+		var payload = TryDeserializeActionPayload<DeliverItemsStepPayload>(record.BoardText);
+		destination ??= payload is null ? null : _gameworld.Cells.Get(payload.DestinationCellId);
+		if (destination is null)
+		{
+			return null;
+		}
+
+		var container = payload?.ContainerId is null ? null : _gameworld.TryGetItem(payload.ContainerId.Value, true);
+		return new DeliverItemsActionStep(destination, container, payload?.ContainerTag);
+	}
+
+	private IEnumerable<ICell> ResolveCells(IEnumerable<long> ids)
+	{
+		foreach (var id in ids)
+		{
+			var cell = _gameworld.Cells.Get(id);
+			if (cell is not null)
+			{
+				yield return cell;
+			}
+		}
 	}
 
 	private long SaveActionPlan(FuturemudDatabaseContext context, string name, EmploymentActionPlan actionPlan)
@@ -968,9 +1050,64 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 				record.BoardTitle = boardPost.Title;
 				record.BoardText = boardPost.Text;
 				break;
+			case GetItemsByIdActionStep getById:
+				record.Description = $"get {getById.Quantity:N0} item(s) by id";
+				record.BoardText = SerializeActionPayload(new GetItemsByIdStepPayload(
+					getById.Quantity,
+					getById.ItemIds.ToArray(),
+					getById.SourceLocations.Select(x => x.Id).ToArray()));
+				break;
+			case GetItemsByTagActionStep getByTag:
+				record.Description = $"get {getByTag.Quantity:N0} item(s) tagged {getByTag.TagName}";
+				record.BoardText = SerializeActionPayload(new GetItemsByTagStepPayload(
+					getByTag.Quantity,
+					getByTag.TagName,
+					getByTag.SourceLocations.Select(x => x.Id).ToArray()));
+				break;
+			case GetCommodityActionStep getCommodity:
+				record.Description = $"get {getCommodity.RequiredWeight:N2} weight of {getCommodity.MaterialName}";
+				record.BoardText = SerializeActionPayload(new GetCommodityStepPayload(
+					getCommodity.RequiredWeight,
+					getCommodity.MaterialName,
+					getCommodity.TagName,
+					new Dictionary<string, string>(getCommodity.Characteristics,
+						StringComparer.InvariantCultureIgnoreCase),
+					getCommodity.SourceLocations.Select(x => x.Id).ToArray()));
+				break;
+			case DeliverItemsActionStep deliver:
+				record.Description = "deliver task items";
+				record.DestinationCellId = deliver.Destination.Id;
+				record.BoardText = SerializeActionPayload(new DeliverItemsStepPayload(
+					deliver.Destination.Id,
+					deliver.Container?.Id,
+					deliver.ContainerTag));
+				break;
 		}
 
 		return record;
+	}
+
+	private static string SerializeActionPayload<T>(T payload)
+	{
+		return JsonSerializer.Serialize(payload);
+	}
+
+	private static T? TryDeserializeActionPayload<T>(string? text)
+		where T : class
+	{
+		if (string.IsNullOrWhiteSpace(text))
+		{
+			return null;
+		}
+
+		try
+		{
+			return JsonSerializer.Deserialize<T>(text);
+		}
+		catch (JsonException)
+		{
+			return null;
+		}
 	}
 
 	private EmploymentScheduledTaskRule? ToScheduledRule(DbScheduledRule record, EmploymentActionPlan actionPlan)

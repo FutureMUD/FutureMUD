@@ -154,7 +154,17 @@ public sealed class EmploymentHostState : IEmploymentHostState
 
 	public bool HasAuthority(ICharacter actor, EmploymentAuthority authority)
 	{
-		return actor is not null && _contracts.Any(x =>
+		if (actor is null)
+		{
+			return false;
+		}
+
+		if (actor.IsAdministrator())
+		{
+			return true;
+		}
+
+		return _contracts.Any(x =>
 			x.Employee.Id == actor.Id &&
 			x.Status == EmploymentStatus.Active &&
 			x.Authority.Contains(authority));
@@ -238,6 +248,73 @@ public sealed class EmploymentHostState : IEmploymentHostState
 				: $"Submitted application for {concrete.Role}.");
 		return application;
 	}
+
+	public IEmploymentContract AcceptApplication(IEmploymentApplication application, ICharacter authorisedBy)
+	{
+		if (application is not EmploymentApplication concrete || !_applications.Contains(concrete))
+		{
+			throw new InvalidOperationException("That employment application does not belong to this host.");
+		}
+
+		if (!HasAuthority(authorisedBy, EmploymentAuthority.HireEmployees))
+		{
+			throw new InvalidOperationException($"{authorisedBy.HowSeen(authorisedBy, colour: false)} is not authorised to accept applications for {Host.EmploymentHostName}.");
+		}
+
+		if (concrete.Status != JobApplicationStatus.Pending)
+		{
+			throw new InvalidOperationException("Only pending employment applications can be accepted.");
+		}
+
+		var opening = concrete.Opening;
+		if (_applications.Count(x =>
+			    x.Opening.Id == opening.Id &&
+			    x.Status == JobApplicationStatus.Accepted) >= opening.MaxPositions)
+		{
+			throw new InvalidOperationException("That employment opening has already reached its accepted application capacity.");
+		}
+
+		var contract = Hire(concrete.Candidate, new EmploymentOffer(
+			opening.Role,
+			opening.Compensation,
+			opening.Schedule,
+			opening.Duration,
+			opening.PaymentMethod,
+			opening.Authority), authorisedBy);
+		concrete.Decide(JobApplicationStatus.Accepted, "Accepted by a manager.");
+		_persistence?.SaveApplication(concrete);
+		EmploymentRegister.Record(
+			EmploymentRegisterEntryType.ApplicationAccepted,
+			authorisedBy,
+			$"Accepted {concrete.Candidate.HowSeen(authorisedBy, colour: false)}'s application for {opening.Role}.");
+		return contract;
+	}
+
+	public void RejectApplication(IEmploymentApplication application, ICharacter authorisedBy, string reason)
+	{
+		if (application is not EmploymentApplication concrete || !_applications.Contains(concrete))
+		{
+			throw new InvalidOperationException("That employment application does not belong to this host.");
+		}
+
+		if (!HasAuthority(authorisedBy, EmploymentAuthority.HireEmployees))
+		{
+			throw new InvalidOperationException($"{authorisedBy.HowSeen(authorisedBy, colour: false)} is not authorised to reject applications for {Host.EmploymentHostName}.");
+		}
+
+		if (concrete.Status != JobApplicationStatus.Pending)
+		{
+			throw new InvalidOperationException("Only pending employment applications can be rejected.");
+		}
+
+		reason = string.IsNullOrWhiteSpace(reason) ? "Rejected by a manager." : reason.Trim();
+		concrete.Decide(JobApplicationStatus.Rejected, reason);
+		_persistence?.SaveApplication(concrete);
+		EmploymentRegister.Record(
+			EmploymentRegisterEntryType.ApplicationRejected,
+			authorisedBy,
+			$"Rejected {concrete.Candidate.HowSeen(authorisedBy, colour: false)}'s application for {concrete.Opening.Role}: {reason}");
+	}
 }
 
 public sealed class EmploymentContract : IEmploymentContract
@@ -303,13 +380,32 @@ public sealed record JobOpening(
 		Employer.EmploymentContracts.Count(x => x.Role == Role && x.Status == EmploymentStatus.Active) < MaxPositions;
 }
 
-public sealed record EmploymentApplication(
-	long Id,
-	IJobOpening Opening,
-	ICharacter Candidate,
-	DateTimeOffset AppliedAt,
-	JobApplicationStatus Status,
-	string? DecisionReason) : IEmploymentApplication;
+public sealed class EmploymentApplication : IEmploymentApplication
+{
+	public EmploymentApplication(long id, IJobOpening opening, ICharacter candidate, DateTimeOffset appliedAt,
+		JobApplicationStatus status, string? decisionReason)
+	{
+		Id = id;
+		Opening = opening;
+		Candidate = candidate;
+		AppliedAt = appliedAt;
+		Status = status;
+		DecisionReason = decisionReason;
+	}
+
+	public long Id { get; }
+	public IJobOpening Opening { get; }
+	public ICharacter Candidate { get; }
+	public DateTimeOffset AppliedAt { get; }
+	public JobApplicationStatus Status { get; private set; }
+	public string? DecisionReason { get; private set; }
+
+	public void Decide(JobApplicationStatus status, string? reason)
+	{
+		Status = status;
+		DecisionReason = reason;
+	}
+}
 
 public sealed record EmploymentLedgerEntry(
 	Guid CorrelationId,

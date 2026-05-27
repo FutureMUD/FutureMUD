@@ -314,7 +314,8 @@ public sealed record EmploymentCandidateProfile(
 	IReadOnlySet<string> Knowledges,
 	IReadOnlySet<EmploymentAICapability> Capabilities,
 	IReadOnlySet<string> Tags,
-	IReadOnlyCollection<PaymentMethodKind> AcceptedPaymentMethods);
+	IReadOnlyCollection<PaymentMethodKind> AcceptedPaymentMethods,
+	ICurrency? ReservationWageCurrency = null);
 
 public interface IEmploymentApplication
 {

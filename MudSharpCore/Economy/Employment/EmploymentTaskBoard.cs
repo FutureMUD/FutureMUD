@@ -5,6 +5,9 @@ using System.Threading;
 using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Economy.Employment;
+using MudSharp.Framework;
+using MudSharp.GameItems;
+using MudSharp.GameItems.Interfaces;
 
 #nullable enable
 
@@ -12,16 +15,31 @@ namespace MudSharp.Economy.Employment;
 
 public sealed class EmploymentTaskContext : IEmploymentTaskContext
 {
+	private sealed record CommodityProfile(
+		long ItemId,
+		string MaterialName,
+		string? TagName,
+		IReadOnlyDictionary<string, string> Characteristics,
+		double Weight);
+
 	private readonly Dictionary<string, bool> _manualOrders = new(StringComparer.InvariantCultureIgnoreCase);
 	private readonly Dictionary<string, int> _stockLevels = new(StringComparer.InvariantCultureIgnoreCase);
 	private readonly Dictionary<string, decimal> _accountBalances = new(StringComparer.InvariantCultureIgnoreCase);
 	private readonly HashSet<IEmploymentActionStep> _paymentAuthorisations = new();
 	private readonly HashSet<string> _allowedCommands = new(StringComparer.InvariantCultureIgnoreCase);
 	private readonly HashSet<long> _unreachableCellIds = new();
+	private readonly Dictionary<long, List<IGameItem>> _locationItems = new();
+	private readonly HashSet<long> _configuredLocationItems = new();
+	private readonly Dictionary<long, List<IGameItem>> _carriedTaskItems = new();
+	private readonly Dictionary<long, List<IGameItem>> _containerContents = new();
+	private readonly Dictionary<long, HashSet<string>> _itemTags = new();
+	private readonly List<CommodityProfile> _commodityProfiles = new();
+	private readonly bool _usePhysicalItemMovement;
 
-	public EmploymentTaskContext(IEmploymentHost employer)
+	public EmploymentTaskContext(IEmploymentHost employer, bool usePhysicalItemMovement = false)
 	{
 		Employer = employer;
+		_usePhysicalItemMovement = usePhysicalItemMovement;
 	}
 
 	public IEmploymentHost Employer { get; }
@@ -88,6 +106,235 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 		return destination is null || !_unreachableCellIds.Contains(destination.Id);
 	}
 
+	public void SetAvailableItems(ICell location, IEnumerable<IGameItem> items)
+	{
+		_locationItems[location.Id] = items.ToList();
+		_configuredLocationItems.Add(location.Id);
+	}
+
+	public IReadOnlyCollection<IGameItem> AvailableItems(ICell location)
+	{
+		if (_usePhysicalItemMovement && !_configuredLocationItems.Contains(location.Id))
+		{
+			return location.GameItems
+			               .SelectMany(x => x.DeepItems)
+			               .DistinctBy(x => x.Id)
+			               .ToList();
+		}
+
+		return LocationItems(location);
+	}
+
+	public IReadOnlyCollection<IGameItem> CarriedTaskItems(ICharacter actor)
+	{
+		return _carriedTaskItems.TryGetValue(actor.Id, out var items) ? items : [];
+	}
+
+	public IReadOnlyCollection<IGameItem> ContainedItems(IGameItem container)
+	{
+		return _containerContents.TryGetValue(container.Id, out var items) ? items : [];
+	}
+
+	public void SetItemTags(IGameItem item, params string[] tags)
+	{
+		_itemTags[item.Id] = new HashSet<string>(tags, StringComparer.InvariantCultureIgnoreCase);
+	}
+
+	public bool ItemHasTag(IGameItem item, string tagName)
+	{
+		if (string.IsNullOrWhiteSpace(tagName))
+		{
+			return false;
+		}
+
+		if (_itemTags.TryGetValue(item.Id, out var configuredTags) && configuredTags.Contains(tagName))
+		{
+			return true;
+		}
+
+		return item.Tags.Any(x =>
+			x.Name.EqualTo(tagName) ||
+			x.FullName.EqualTo(tagName) ||
+			x.Id.ToString("F0").EqualTo(tagName));
+	}
+
+	public void SetCommodityWeight(IGameItem item, string materialName, double weight, string? tagName = null,
+		IReadOnlyDictionary<string, string>? characteristics = null)
+	{
+		_commodityProfiles.RemoveAll(x => x.ItemId == item.Id);
+		_commodityProfiles.Add(new CommodityProfile(
+			item.Id,
+			materialName,
+			tagName,
+			new Dictionary<string, string>(characteristics ?? new Dictionary<string, string>(),
+				StringComparer.InvariantCultureIgnoreCase),
+			weight));
+	}
+
+	public double CommodityWeight(IGameItem item, string materialName, string? tagName,
+		IReadOnlyDictionary<string, string> characteristics)
+	{
+		var configured = _commodityProfiles.FirstOrDefault(x =>
+			x.ItemId == item.Id &&
+			x.MaterialName.EqualTo(materialName) &&
+			(string.IsNullOrWhiteSpace(tagName) || (x.TagName?.EqualTo(tagName) ?? false)) &&
+			CharacteristicsMatch(x.Characteristics, characteristics));
+		if (configured is not null)
+		{
+			return configured.Weight;
+		}
+
+		var commodity = item.GetItemType<ICommodity>();
+		if (commodity is null)
+		{
+			return 0.0;
+		}
+
+		if (!commodity.Material.Name.EqualTo(materialName) &&
+		    !commodity.Material.Id.ToString("F0").EqualTo(materialName))
+		{
+			return 0.0;
+		}
+
+		if (!string.IsNullOrWhiteSpace(tagName) &&
+		    !(commodity.Tag?.Name.EqualTo(tagName) == true ||
+		      commodity.Tag?.FullName.EqualTo(tagName) == true ||
+		      commodity.Tag?.Id.ToString("F0").EqualTo(tagName) == true))
+		{
+			return 0.0;
+		}
+
+		if (!CommodityCharacteristicsMatch(commodity, characteristics))
+		{
+			return 0.0;
+		}
+
+		return commodity.Weight;
+	}
+
+	public bool TryCollectTaskItem(ICharacter actor, IGameItem item, ICell source, out string reason)
+	{
+		if (!CanPath(actor, source))
+		{
+			reason = "The assigned employee cannot path to the source location.";
+			return false;
+		}
+
+		var sourceItems = LocationItems(source);
+		var index = sourceItems.FindIndex(x => x.Id == item.Id);
+		if (index < 0 && (!_usePhysicalItemMovement || !source.GameItems.SelectMany(x => x.DeepItems).Any(x => x.Id == item.Id)))
+		{
+			reason = "The item is no longer at the source location.";
+			return false;
+		}
+
+		var collected = index >= 0
+			? sourceItems[index]
+			: source.GameItems.SelectMany(x => x.DeepItems).First(x => x.Id == item.Id);
+		if (index >= 0)
+		{
+			sourceItems.RemoveAt(index);
+		}
+
+		if (_usePhysicalItemMovement && !_configuredLocationItems.Contains(source.Id))
+		{
+			if (collected.ContainedIn is not null)
+			{
+				collected.ContainedIn.Take(collected);
+			}
+			else
+			{
+				source.Extract(collected);
+			}
+		}
+
+		if (!_carriedTaskItems.TryGetValue(actor.Id, out var carried))
+		{
+			carried = new List<IGameItem>();
+			_carriedTaskItems[actor.Id] = carried;
+		}
+
+		carried.Add(collected);
+		reason = string.Empty;
+		return true;
+	}
+
+	public bool TryDeliverTaskItems(ICharacter actor, ICell destination, IGameItem? container, string? containerTag,
+		out string reason)
+	{
+		if (!CanPath(actor, destination))
+		{
+			reason = "The assigned employee cannot path to the delivery destination.";
+			return false;
+		}
+
+		if (!_carriedTaskItems.TryGetValue(actor.Id, out var carried) || carried.Count == 0)
+		{
+			reason = "The assigned employee is not carrying any task items to deliver.";
+			return false;
+		}
+
+		var destinationItems = LocationItems(destination);
+		var targetContainer = container;
+		if (targetContainer is null && !string.IsNullOrWhiteSpace(containerTag))
+		{
+			targetContainer = AvailableItems(destination).FirstOrDefault(x => ItemHasTag(x, containerTag));
+		}
+
+		if (targetContainer is null && !string.IsNullOrWhiteSpace(containerTag))
+		{
+			reason = $"There is no destination container tagged {containerTag}.";
+			return false;
+		}
+
+		if (targetContainer is null)
+		{
+			destinationItems.AddRange(carried);
+			if (_usePhysicalItemMovement && !_configuredLocationItems.Contains(destination.Id))
+			{
+				foreach (var item in carried)
+				{
+					destination.Insert(item);
+				}
+			}
+		}
+		else
+		{
+			var containerComponent = targetContainer.GetItemType<IContainer>();
+			if (containerComponent is null)
+			{
+				reason = $"{targetContainer.Name} is not a container.";
+				return false;
+			}
+
+			var rejected = carried.FirstOrDefault(x => !containerComponent.CanPut(x));
+			if (rejected is not null)
+			{
+				reason = $"{targetContainer.Name} cannot contain {rejected.Name}.";
+				return false;
+			}
+
+			if (!_containerContents.TryGetValue(targetContainer.Id, out var contents))
+			{
+				contents = new List<IGameItem>();
+				_containerContents[targetContainer.Id] = contents;
+			}
+
+			contents.AddRange(carried);
+			if (_usePhysicalItemMovement && !_configuredLocationItems.Contains(destination.Id))
+			{
+				foreach (var item in carried)
+				{
+					containerComponent.Put(actor, item);
+				}
+			}
+		}
+
+		carried.Clear();
+		reason = string.Empty;
+		return true;
+	}
+
 	public void RecordRegister(EmploymentRegisterEntryType entryType, ICharacter? actor, string description,
 		Guid? correlationId = null)
 	{
@@ -98,6 +345,53 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 		string description, Guid? correlationId = null)
 	{
 		Employer.BusinessLedger.Record(entryType, actor, amount, description, correlationId);
+	}
+
+	private List<IGameItem> LocationItems(ICell location)
+	{
+		if (!_locationItems.TryGetValue(location.Id, out var items))
+		{
+			items = location.GameItems?.SelectMany(x => x.DeepItems).DistinctBy(x => x.Id).ToList() ?? [];
+			_locationItems[location.Id] = items;
+		}
+
+		return items;
+	}
+
+	private static bool CharacteristicsMatch(IReadOnlyDictionary<string, string> configured,
+		IReadOnlyDictionary<string, string> required)
+	{
+		foreach (var characteristic in required)
+		{
+			if (!configured.TryGetValue(characteristic.Key, out var value) || !value.EqualTo(characteristic.Value))
+			{
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	private static bool CommodityCharacteristicsMatch(ICommodity commodity,
+		IReadOnlyDictionary<string, string> required)
+	{
+		foreach (var characteristic in required)
+		{
+			var match = commodity.CommodityCharacteristics.Any(x =>
+				x.Key.Name.EqualTo(characteristic.Key) &&
+				(
+					x.Value.Name.EqualTo(characteristic.Value) ||
+					x.Value.GetValue.EqualTo(characteristic.Value) ||
+					x.Value.GetBasicValue.EqualTo(characteristic.Value) ||
+					x.Value.GetFancyValue.EqualTo(characteristic.Value)
+				));
+			if (!match)
+			{
+				return false;
+			}
+		}
+
+		return true;
 	}
 }
 
@@ -187,6 +481,12 @@ public sealed class EmploymentTaskBoard : IEmploymentTaskBoard
 			throw new InvalidOperationException($"{authorisedBy.HowSeen(authorisedBy, colour: false)} is not authorised to create scheduled task rules for {_host.EmploymentHostName}.");
 		}
 
+		if (authorisedBy is not null && actionPlan.RequiredAuthority.Authorities != EmploymentAuthority.None &&
+		    !_host.HasAuthority(authorisedBy, actionPlan.RequiredAuthority.Authorities))
+		{
+			throw new InvalidOperationException($"{authorisedBy.HowSeen(authorisedBy, colour: false)} is not authorised to create scheduled task rules with {actionPlan.RequiredAuthority.Authorities.DescribeEnum()} authority for {_host.EmploymentHostName}.");
+		}
+
 		var rule = new EmploymentScheduledTaskRule(_host, name, idempotencyKey, conditions, actionPlan, cooldown);
 		_scheduledRules.Add(rule);
 		_persistence?.SaveScheduledRule(rule);
@@ -201,6 +501,12 @@ public sealed class EmploymentTaskBoard : IEmploymentTaskBoard
 		if (authorisedBy is not null && !_host.HasAuthority(authorisedBy, EmploymentAuthority.AssignTasks))
 		{
 			throw new InvalidOperationException($"{authorisedBy.HowSeen(authorisedBy, colour: false)} is not authorised to create tasks for {_host.EmploymentHostName}.");
+		}
+
+		if (authorisedBy is not null && actionPlan.RequiredAuthority.Authorities != EmploymentAuthority.None &&
+		    !_host.HasAuthority(authorisedBy, actionPlan.RequiredAuthority.Authorities))
+		{
+			throw new InvalidOperationException($"{authorisedBy.HowSeen(authorisedBy, colour: false)} is not authorised to create tasks with {actionPlan.RequiredAuthority.Authorities.DescribeEnum()} authority for {_host.EmploymentHostName}.");
 		}
 
 		var task = new EmploymentActiveTask(_host, name, actionPlan, correlationId ?? Guid.NewGuid(), _persistence);
@@ -407,7 +713,7 @@ public sealed class EmploymentActiveTask : IEmploymentActiveTask
 public sealed class EmploymentTaskDispatcher
 {
 	public bool TryAssignTask(IEmploymentActiveTask task, IEnumerable<EmploymentCandidateProfile> candidates,
-		IEmploymentTaskContext context, out string reason)
+		IEmploymentTaskContext context, out string reason, bool blockWhenNoCandidateMatches = true)
 	{
 		if (task is not EmploymentActiveTask concrete)
 		{
@@ -429,19 +735,13 @@ public sealed class EmploymentTaskDispatcher
 				continue;
 			}
 
-			var canExecuteAllSteps = true;
-			foreach (var step in task.ActionPlan.Steps)
+			var nextStepIndex = concrete.NextStepIndex;
+			if (nextStepIndex < 0)
 			{
-				if (step.CanExecute(context, candidate.Candidate, out _))
-				{
-					continue;
-				}
-
-				canExecuteAllSteps = false;
-				break;
+				continue;
 			}
 
-			if (!canExecuteAllSteps)
+			if (!task.ActionPlan.Steps[nextStepIndex].CanExecute(context, candidate.Candidate, out _))
 			{
 				continue;
 			}
@@ -454,6 +754,11 @@ public sealed class EmploymentTaskDispatcher
 		}
 
 		reason = "No active employee is eligible to complete the task.";
+		if (!blockWhenNoCandidateMatches)
+		{
+			return false;
+		}
+
 		concrete.Block(reason);
 		context.RecordRegister(EmploymentRegisterEntryType.ActiveTaskBlocked, null, reason, task.CorrelationId);
 		return false;

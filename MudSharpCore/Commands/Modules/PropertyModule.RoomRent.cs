@@ -64,6 +64,19 @@ Hotel manager commands:
 	#3roomrent lost list <property>#0 - lists lost property
 	#3roomrent lost extend <property> <#> <timespan>#0 - extends lost property retention
 	#3roomrent lost release <property> <#>#0 - removes a bundle from lost property
+	#3roomrent status#0 - shows employment status for the current hotel
+	#3roomrent contracts#0 - lists employment contracts
+	#3roomrent openings#0 - lists employment openings
+	#3roomrent openings create <role> <hourly rate> [positions]#0 - creates an NPC-facing opening
+	#3roomrent applications#0 - lists employment applications
+	#3roomrent applications accept|reject <##> [reason]#0 - accepts or rejects an application
+	#3roomrent tasks#0 - lists scheduled rules and active tasks
+	#3roomrent tasks draft new|show|rename|remove|discard|finalise ...#0 - drafts and finalises active tasks
+	#3roomrent tasks step getid|gettag|commodity|deliver ...#0 - adds retrieval or delivery steps to your draft
+	#3roomrent goals#0 - lists manager goals
+	#3roomrent register#0 - shows employment register entries
+	#3roomrent employmentledger#0 - shows employment ledger entries
+	#3roomrent board [read <##>|write <title>]#0 - uses the staff board
 
 Economic zone manager commands:
 
@@ -78,7 +91,8 @@ Economic zone manager commands:
 	protected static void RoomRent(ICharacter actor, string command)
 	{
 		var ss = new StringStack(command.RemoveFirstWord());
-		switch (ss.PopForSwitch())
+		var subcommand = ss.PopForSwitch();
+		switch (subcommand)
 		{
 			case "list":
 				RoomRentList(actor, ss);
@@ -155,6 +169,13 @@ Economic zone manager commands:
 				RoomRentLost(actor, ss);
 				return;
 			default:
+				if (EmploymentCommandService.IsEmploymentShortcut(subcommand))
+				{
+					var property = CurrentProperty(actor);
+					new EmploymentCommandService().TryExecuteShortcut(actor, property?.Hotel, "hotel", subcommand, ss);
+					return;
+				}
+
 				actor.OutputHandler.Send(RoomRentHelp.SubstituteANSIColour());
 				return;
 		}

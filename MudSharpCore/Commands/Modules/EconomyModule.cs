@@ -1805,7 +1805,8 @@ The syntax for this command is as follows:
     protected static void Shop(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
-        switch (ss.PopSpeech().ToLowerInvariant())
+        var subcommand = ss.PopSpeech();
+        switch (subcommand.ToLowerInvariant())
         {
             case "reprice":
                 ShopReprice(actor, ss);
@@ -1894,9 +1895,14 @@ The syntax for this command is as follows:
                 return;
         }
 
+        if (new EmploymentCommandService().TryExecuteShortcut(actor, actor.Location.Shop, "shop", subcommand, ss))
+        {
+            return;
+        }
+
         if (actor.IsAdministrator())
         {
-            switch (ss.Last.ToLowerInvariant())
+            switch (subcommand.ToLowerInvariant())
             {
                 case "setupstall":
                     ShopSetupStall(actor, ss);
@@ -1946,6 +1952,23 @@ The syntax for this command is as follows:
 	#3shop fire <target>|<name>#0 - fires an employee from this store
 	#3shop manager <target>|<name>#0 - toggles an employee's status as a manager
 	#3shop proprietor <target>|<name>#0 - toggles and employee's status as a proprietor
+
+Shop manager employment shortcuts:
+
+	#3shop status#0 - shows employment status for this shop
+	#3shop contracts#0 - lists employment contracts
+	#3shop openings#0 - lists employment openings
+	#3shop openings create <role> <hourly rate> [positions]#0 - creates an NPC-facing opening
+	#3shop applications#0 - lists employment applications
+	#3shop applications accept|reject <##> [reason]#0 - accepts or rejects an application
+	#3shop tasks#0 - lists scheduled rules and active tasks
+	#3shop tasks draft new|show|rename|remove|discard|finalise ...#0 - drafts and finalises active tasks
+	#3shop tasks step getid|gettag|commodity|deliver ...#0 - adds retrieval or delivery steps to your draft
+	#3shop goals#0 - lists manager goals
+	#3shop register#0 - shows employment register entries
+	#3shop employmentledger#0 - shows employment ledger entries
+	#3shop board [read <##>|write <title>]#0 - uses the staff board
+
 	#3shop till <target>#0 - toggles an item being used as a till for the store
 	#3shop display <target>#0 - toggles an item being used as a display cabinet for the store
 	#3shop info#0 - shows detailed information about the shop
@@ -1980,6 +2003,23 @@ The syntax for this command is as follows:
 	#3shop fire <target>|<name>#0 - fires an employee from this store
 	#3shop manager <target>|<name>#0 - toggles an employee's status as a manager
 	#3shop proprietor <target>|<name>#0 - toggles and employee's status as a proprietor
+
+Shop manager employment shortcuts:
+
+	#3shop status#0 - shows employment status for this shop
+	#3shop contracts#0 - lists employment contracts
+	#3shop openings#0 - lists employment openings
+	#3shop openings create <role> <hourly rate> [positions]#0 - creates an NPC-facing opening
+	#3shop applications#0 - lists employment applications
+	#3shop applications accept|reject <##> [reason]#0 - accepts or rejects an application
+	#3shop tasks#0 - lists scheduled rules and active tasks
+	#3shop tasks draft new|show|rename|remove|discard|finalise ...#0 - drafts and finalises active tasks
+	#3shop tasks step getid|gettag|commodity|deliver ...#0 - adds retrieval or delivery steps to your draft
+	#3shop goals#0 - lists manager goals
+	#3shop register#0 - shows employment register entries
+	#3shop employmentledger#0 - shows employment ledger entries
+	#3shop board [read <##>|write <title>]#0 - uses the staff board
+
 	#3shop till <target>#0 - toggles an item being used as a till for the store
 	#3shop display <target>#0 - toggles an item being used as a display cabinet for the store
 	#3shop info#0 - shows detailed information about the shop
@@ -4744,7 +4784,20 @@ Additionally, if you are the manager of a bank, you can use the following additi
 	#3bank manager rollover <account> <newaccount>#0 - closes an account and rolls balance into a new one
 	#3bank manager withdraw <amount>#0 - withdraws money from the cash reserves
 	#3bank manager deposit <amount>#0 - deposits money into the cash reserves
-	#3bank manager exchange <from> <to> <rate>#0 - sets the currency exchange rate";
+	#3bank manager exchange <from> <to> <rate>#0 - sets the currency exchange rate
+	#3bank status#0 - shows employment status for this bank
+	#3bank contracts#0 - lists employment contracts
+	#3bank openings#0 - lists employment openings
+	#3bank openings create <role> <hourly rate> [positions]#0 - creates an NPC-facing opening
+	#3bank applications#0 - lists employment applications
+	#3bank applications accept|reject <##> [reason]#0 - accepts or rejects an application
+	#3bank tasks#0 - lists scheduled rules and active tasks
+	#3bank tasks draft new|show|rename|remove|discard|finalise ...#0 - drafts and finalises active tasks
+	#3bank tasks step getid|gettag|commodity|deliver ...#0 - adds retrieval or delivery steps to your draft
+	#3bank goals#0 - lists manager goals
+	#3bank register#0 - shows employment register entries
+	#3bank employmentledger#0 - shows employment ledger entries
+	#3bank board [read <##>|write <title>]#0 - uses the staff board";
 
     public const string BankAdminHelpText =
         @"The bank command is used to create and edit banks. The commands are as follows:
@@ -4809,7 +4862,20 @@ Additionally, if you are the manager of a bank, you can use the following additi
 	#3bank manager rollover <account> <newaccount>#0 - closes an account and rolls balance into a new one
 	#3bank manager withdraw <amount>#0 - withdraws money from the cash reserves
 	#3bank manager deposit <amount>#0 - deposits money into the cash reserves
-	#3bank manager exchange <from> <to> <rate>#0 - sets the currency exchange rate";
+	#3bank manager exchange <from> <to> <rate>#0 - sets the currency exchange rate
+	#3bank status#0 - shows employment status for this bank
+	#3bank contracts#0 - lists employment contracts
+	#3bank openings#0 - lists employment openings
+	#3bank openings create <role> <hourly rate> [positions]#0 - creates an NPC-facing opening
+	#3bank applications#0 - lists employment applications
+	#3bank applications accept|reject <##> [reason]#0 - accepts or rejects an application
+	#3bank tasks#0 - lists scheduled rules and active tasks
+	#3bank tasks draft new|show|rename|remove|discard|finalise ...#0 - drafts and finalises active tasks
+	#3bank tasks step getid|gettag|commodity|deliver ...#0 - adds retrieval or delivery steps to your draft
+	#3bank goals#0 - lists manager goals
+	#3bank register#0 - shows employment register entries
+	#3bank employmentledger#0 - shows employment ledger entries
+	#3bank board [read <##>|write <title>]#0 - uses the staff board";
 
     [PlayerCommand("Bank", "bank")]
     [RequiredCharacterState(CharacterState.Able)]
@@ -4819,7 +4885,8 @@ Additionally, if you are the manager of a bank, you can use the following additi
     protected static void Bank(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
-        switch (ss.PopForSwitch())
+        var subcommand = ss.PopForSwitch();
+        switch (subcommand)
         {
             case "edit":
             case "set":
@@ -4916,6 +4983,12 @@ Additionally, if you are the manager of a bank, you can use the following additi
                     new StringStack("cancelitems" + ss.RemainingArgument.LeadingSpaceIfNotEmpty()));
                 return;
             default:
+                var bank = actor.Gameworld.Banks.FirstOrDefault(x => x.BranchLocations.Contains(actor.Location));
+                if (new EmploymentCommandService().TryExecuteShortcut(actor, bank, "bank", subcommand, ss))
+                {
+                    return;
+                }
+
                 actor.OutputHandler.Send((actor.IsAdministrator() ? BankAdminHelpText : BankHelpText)
                     .SubstituteANSIColour());
                 return;
@@ -5686,7 +5759,23 @@ The syntax for using this command is as follows:
 	#3auction buyout <lot> [bank <account>]#0 - pays the buyout price on an auction lot
 	#3auction claim#0 - claims all movable items won or not sold
 	#3auction refund#0 - claims all money owed for unsuccessful bids or cash seller proceeds
-	#3auction cancel <lot>#0 - cancels an auction lot";
+	#3auction cancel <lot>#0 - cancels an auction lot
+
+Auction house manager employment shortcuts:
+
+	#3auction status#0 - shows employment status for this auction house
+	#3auction contracts#0 - lists employment contracts
+	#3auction openings#0 - lists employment openings
+	#3auction openings create <role> <hourly rate> [positions]#0 - creates an NPC-facing opening
+	#3auction applications#0 - lists employment applications
+	#3auction applications accept|reject <##> [reason]#0 - accepts or rejects an application
+	#3auction tasks#0 - lists scheduled rules and active tasks
+	#3auction tasks draft new|show|rename|remove|discard|finalise ...#0 - drafts and finalises active tasks
+	#3auction tasks step getid|gettag|commodity|deliver ...#0 - adds retrieval or delivery steps to your draft
+	#3auction goals#0 - lists manager goals
+	#3auction register#0 - shows employment register entries
+	#3auction employmentledger#0 - shows employment ledger entries
+	#3auction board [read <##>|write <title>]#0 - uses the staff board";
 
     public const string AuctionsHelp =
         @"The auctions command lists the active lots at the auction house in your current location.
@@ -5731,6 +5820,22 @@ The syntax for using this command is as follows:
 	#3auction refund#0 - claims all money owed for unsuccessful bids or cash seller proceeds
 	#3auction cancel <lot>#0 - cancels an auction lot
 
+Auction house manager employment shortcuts:
+
+	#3auction status#0 - shows employment status for this auction house
+	#3auction contracts#0 - lists employment contracts
+	#3auction openings#0 - lists employment openings
+	#3auction openings create <role> <hourly rate> [positions]#0 - creates an NPC-facing opening
+	#3auction applications#0 - lists employment applications
+	#3auction applications accept|reject <##> [reason]#0 - accepts or rejects an application
+	#3auction tasks#0 - lists scheduled rules and active tasks
+	#3auction tasks draft new|show|rename|remove|discard|finalise ...#0 - drafts and finalises active tasks
+	#3auction tasks step getid|gettag|commodity|deliver ...#0 - adds retrieval or delivery steps to your draft
+	#3auction goals#0 - lists manager goals
+	#3auction register#0 - shows employment register entries
+	#3auction employmentledger#0 - shows employment ledger entries
+	#3auction board [read <##>|write <title>]#0 - uses the staff board
+
 Note: Admins can use the #3auction cancel#0 subcommand on other people's items";
 
     [PlayerCommand("Auction", "auction")]
@@ -5741,7 +5846,8 @@ Note: Admins can use the #3auction cancel#0 subcommand on other people's items";
     protected static void Auction(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
-        switch (ss.PopForSwitch())
+        var subcommand = ss.PopForSwitch();
+        switch (subcommand)
         {
             case "edit":
             case "close":
@@ -5761,7 +5867,7 @@ Note: Admins can use the #3auction cancel#0 subcommand on other people's items";
             return;
         }
 
-        switch (ss.Last.ToLowerInvariant().CollapseString())
+        switch (subcommand.CollapseString())
         {
             case "preview":
                 AuctionPreview(actor, auctionHouse, ss);
@@ -5785,6 +5891,11 @@ Note: Admins can use the #3auction cancel#0 subcommand on other people's items";
                 AuctionCancel(actor, auctionHouse, ss);
                 return;
             default:
+                if (new EmploymentCommandService().TryExecuteShortcut(actor, auctionHouse, "auction house", subcommand, ss))
+                {
+                    return;
+                }
+
                 actor.OutputHandler.Send(actor.IsAdministrator() ? AuctionHelpAdmins : AuctionHelp);
                 return;
         }

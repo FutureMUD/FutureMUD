@@ -224,6 +224,8 @@ Practical builder work currently includes:
 - configure line-of-credit accounts if credit sales should be allowed
 - decide what payment methods the world wants players to use
 
+Permanent shops now have an early employment-dispatch bridge for non-financial stockroom restocking. It creates an active employment task that moves existing stocked merchandise from the stockroom to a shopfront location or display container; it does not buy new stock, replace shop commands, or use the host communication board as a task carrier.
+
 Current payment methods already support:
 
 - physical cash

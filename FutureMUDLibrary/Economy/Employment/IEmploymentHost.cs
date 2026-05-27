@@ -61,4 +61,6 @@ public interface IEmploymentHostState
 	bool HasAuthority(ICharacter actor, EmploymentAuthority authority);
 	IJobOpening CreateJobOpening(JobOpeningDefinition definition, ICharacter? authorisedBy);
 	IEmploymentApplication Apply(IJobOpening opening, EmploymentCandidateProfile candidate);
+	IEmploymentContract AcceptApplication(IEmploymentApplication application, ICharacter authorisedBy);
+	void RejectApplication(IEmploymentApplication application, ICharacter authorisedBy, string reason);
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Framework;
+using MudSharp.GameItems;
 
 #nullable enable
 
@@ -42,7 +43,11 @@ public enum EmploymentActionStepType
 	BankDeposit,
 	BankWithdrawal,
 	StoreAccountPayment,
-	BoardPost
+	BoardPost,
+	GetItemsById,
+	GetItemsByTag,
+	GetCommodity,
+	DeliverItems
 }
 
 public enum EmploymentActionStepStatus
@@ -63,6 +68,11 @@ public interface IEmploymentActionStep
 	bool IsFinancialStep { get; }
 	bool CanExecute(IEmploymentTaskContext context, ICharacter actor, out string reason);
 	EmploymentActionStepResult Execute(IEmploymentTaskContext context, ICharacter actor);
+}
+
+public interface IEmploymentActionStepLocationHint
+{
+	IReadOnlyCollection<ICell> ExecutionLocationHints(IEmploymentTaskContext context, ICharacter actor);
 }
 
 public sealed record EmploymentActionStepResult(bool Success, string Message, bool Completed = true)
@@ -181,6 +191,14 @@ public interface IEmploymentTaskContext
 	bool PaymentAuthorised(IEmploymentActionStep step);
 	bool CommandAllowed(string commandName);
 	bool CanPath(ICharacter actor, ICell? destination);
+	IReadOnlyCollection<IGameItem> AvailableItems(ICell location);
+	IReadOnlyCollection<IGameItem> CarriedTaskItems(ICharacter actor);
+	bool ItemHasTag(IGameItem item, string tagName);
+	double CommodityWeight(IGameItem item, string materialName, string? tagName,
+		IReadOnlyDictionary<string, string> characteristics);
+	bool TryCollectTaskItem(ICharacter actor, IGameItem item, ICell source, out string reason);
+	bool TryDeliverTaskItems(ICharacter actor, ICell destination, IGameItem? container, string? containerTag,
+		out string reason);
 	void RecordRegister(EmploymentRegisterEntryType entryType, ICharacter? actor, string description,
 		Guid? correlationId = null);
 	void RecordLedger(EmploymentLedgerEntryType entryType, ICharacter? actor, MoneyAmount? amount, string description,

@@ -36,8 +36,8 @@ Terminology note: this document uses “job opening” in the ordinary labour-ma
 - NPC-facing job openings, with requirements expressed in skills, knowledges, and AI capability types.
 - An NPC employment-seeking AI behaviour that can find suitable job openings, compare offers, apply, and refuse jobs below its reservation wage.
 - Employee payment handling: cash payment, payment to an employee bank account, specified employer or employee account arrangements, and future support for employee payment items or floats.
-- A host-level `IBoard` that employees can view and post to without requiring a separate in-world board item link.
-- A composable task-board model based on scheduled rules, condition types, action plans, and active task instances.
+- A host-level `IBoard` that employees can view and post to without requiring a separate in-world board item link. This is an employee communication surface, not the transport for tasks or goals.
+- A composable task-dispatch model based on scheduled rules, condition types, action plans, and active task instances.
 - Initial condition and action-step definitions for stock thresholds, time triggers, manual orders, purchasing, delivery/logistics, command execution, bank deposit/withdrawal, store-account payment, board posting, and craft triggering.
 - Manager goals that allow manager AIs to create active tasks or scheduled rules in pursuit of business objectives such as maintaining stock, paying accounts, paying taxes, or adjusting prices.
 - Ledger/register integration for employment, wages, manager actions, task orders, purchasing, cash movements, store-account payments, board-post actions, and task outcomes.
@@ -87,8 +87,8 @@ This stance applies specifically to legacy employment-like data. It is not permi
 - **Employment role:** Employee, manager, proprietor, or a more specific host role. Roles may grant default authority, but the final authority must be explicit.
 - **Manager authority:** The set of actions a manager can perform on behalf of the host, such as hiring employees, firing employees, changing pay within limits, creating job openings, approving store-account use, creating scheduled rules, or assigning tasks.
 - **Job opening:** A posted position with requirements, pay terms, schedule, duration, role type, and application rules. It is unrelated to `IJob`.
-- **Host board / `IBoard`:** A board associated directly with an `IEmploymentHost`, visible to employees through their employment relationship rather than through a physical board item.
-- **Manager goal:** A standing objective delegated to a manager AI, such as maintaining minimum stock levels or keeping store accounts paid. Manager goals may create scheduled rules, create active tasks, alter prices, or post board notices when the manager has authority.
+- **Host board / `IBoard`:** A board associated directly with an `IEmploymentHost`, visible to employees through their employment relationship rather than through a physical board item. Host boards are for employee/manager communication and optional notices; scheduled rules, active tasks, and manager goals live in their own employment-host services and must not be routed through board posts.
+- **Manager goal:** A standing objective delegated to a manager AI, such as maintaining minimum stock levels or keeping store accounts paid. Manager goals may create scheduled rules, create active tasks, alter prices, or post secondary board notices when the manager has authority.
 - **Scheduled task rule:** A recurring, conditional, or manual rule that evaluates condition types and spawns active tasks from an action plan.
 - **Condition type:** A reusable predicate or trigger input, such as time of day, stock below threshold, account balance below threshold, tax due, store account overdue, manual order, or market price condition.
 - **Action plan:** An ordered, composable set of action steps that can be executed by one or more employees.
@@ -359,6 +359,8 @@ The board is part of the host’s operational surface. It may be backed by the e
 
 The task system should be composable. Avoid creating large monolithic task types such as “purchase butter task” or “carrot delivery task” that encode both the trigger condition and the full workflow as a special case.
 
+Where existing code or interfaces use names such as `TaskBoard` or `IEmploymentTaskBoard`, that means an internal employment-host scheduler/dispatcher queue. It is separate from the host communication `IBoard`, and task or goal propagation should not require board posts.
+
 Instead, use this structure:
 
 ```text
@@ -387,7 +389,7 @@ An active task should contain:
 
 - Employer.
 - Created by / ordered by.
-- Source: scheduled rule, manager goal, manager order, proprietor order, board order, or system.
+- Source: scheduled rule, manager goal, manager order, proprietor order, manual order, or system event.
 - Action plan and current action-step state.
 - Required capabilities.
 - Required authority/payment source.
@@ -457,7 +459,7 @@ Condition types are reusable predicates or trigger inputs. They should be small 
 ### Manual and event conditions
 
 - Manager/proprietor ordered this work once.
-- Board post or business event requested this work.
+- Manual order, manager/proprietor order, or business event requested this work.
 - External system event occurred.
 
 Conditions should be serialisable, inspectable, and usable by both scheduled rules and manager goals where appropriate.
@@ -882,7 +884,7 @@ Minimum tests for the first implementation slice:
 - Scheduled task rule evaluation composes condition types and spawns an active task exactly once per trigger/cooldown window.
 - Action plans can contain multiple action steps and preserve step state.
 - Dispatcher eligibility blocks impossible tasks with useful reasons.
-- Purchase, deposit, withdraw, store-account-payment, craft-trigger, command-execution, and board-post action steps create required ledger/register records.
+- Purchase, deposit, withdraw, store-account-payment, craft-trigger, command-execution, inventory retrieval/delivery, and board-post action steps create required ledger/register records.
 - Manager goals can create active tasks or scheduled rules only when the manager has authority.
 - Existing shop/auction/arena/bank/stable/hotel management commands still compile and either work directly or clearly route to the new service.
 
@@ -905,25 +907,38 @@ Codex should update this section during implementation.
 
 - Added the neutral `IEmploymentHost` contract and shared employment domain types for host type, roles, status, manager authority, contracts, compensation, work schedules, duration, payment methods, job openings, applications, host ledgers, and operational registers.
 - Added common in-engine host state services for hire/fire, active/simple employment status, delegated authority checks, job-opening creation, NPC candidate matching, reservation-wage rejection, payment-method selection, host `IBoard` access, employment register entries, and business ledger entries.
-- Added composable task-dispatch shells: manual, time-window, stock-threshold, and account-balance conditions; action plans; active task step state; scheduled task rules with idempotency/cooldown; dispatcher eligibility/blocking; and initial purchase, movement/delivery, craft-trigger, command, bank deposit, bank withdrawal, store-account payment, and board-post action steps.
+- Added composable task-dispatch shells: manual, time-window, stock-threshold, and account-balance conditions; action plans; active task step state; scheduled task rules with idempotency/cooldown; dispatcher eligibility/blocking; and initial purchase, movement/delivery, craft-trigger, command, bank deposit, bank withdrawal, store-account payment, board-post, item retrieval, commodity retrieval, and item delivery action steps.
 - Added manager-goal board support with delegated-authority enforcement and task creation through the shared task board rather than bypassing host permissions.
 - Adopted the minimum host families as employment hosts: shops, auction houses, combat arenas, banks, stables, and hotels. Shops, auction houses, arenas, banks, and stables expose lazy host shells; hotels now have a separate `IHotel` / `Hotel` runtime entity linked to an `IProperty`.
 - Added normalized EF persistence for the employment spine: host state keyed by host type/id, persisted host-board reference, contracts, openings, opening requirements, applications, action plans, action steps, scheduled rules, task conditions, active tasks, step states, manager goals, operational register rows, and employment ledger rows. Existing hosts lazily create an empty persisted employment state and a staff `IBoard` on first access.
 - Wired shop, auction-house, arena, bank, stable, and hotel shells through the production employment persistence store while preserving the in-memory constructor path for isolated tests.
 - Added a persisted `Hotels` root table linked one-to-one to properties. `Property.Hotel` now lazily creates/loads the durable hotel entity, old `Property.HotelDefinition` XML remains loadable, and hotel saves shadow-write the XML payload to the new row for compatibility until room/rental internals are normalized.
+- Added the first player-facing `employment` command adapter for persisted host state inspection and authorised host-board posting across shops, auction houses, arenas, banks, stables, and hotels without replacing legacy host-specific staff commands.
+- Added the second command-adapter slice for authority-checked creation of NPC-facing employment openings. Task, scheduled-rule, and manager-goal creation remain routed through the employment-host dispatcher/goal services rather than through the host `IBoard`; the board command remains a secondary employee communication surface.
+- Added host-command shorthand for employment-only subcommands on the existing shop, auction, arena, bank, stable, and room-rental command surfaces, resolving the current local host and preserving legacy host-specific subcommands where names already collide. The employment financial-audit view uses the explicit `employmentledger`/`empledger` command name rather than `ledger` so existing shop, stable, and hotel cash-ledger commands remain unambiguous.
+- Added first testable non-financial inventory action steps: get items by exact item id from source locations, get items by tag from source locations, get commodity weight by material/tag/characteristics from source locations, and deliver carried task items to a destination or destination container tag. Dispatcher assignment now checks the next executable step rather than requiring later dependent steps to be executable before earlier collection steps run.
+- Added the first host-specific dispatcher bridge for permanent shops: authorised managers can create stockroom-to-shopfront restock movement tasks from existing stocked merchandise, using real shop stockroom/shopfront/display-container resolution and physical cell/container movement through the employment action context. The bridge enforces both `AssignTasks` and `ManageDeliveryRoutes` authority and does not use host-board posts as the task carrier.
+- Added manager-controlled application decisions: authorised managers can accept pending applications into active contracts using the opening's role, compensation, schedule, duration, payment method, and authority, or reject applications with a reason. These paths update persisted application state, enforce opening capacity, honour administrator authority, and write application plus hire register entries.
+- Added drafted active-task authoring commands on the shared `employment` command and all host shorthand aliases. Manager-owned drafts are transient actor effects; managers add composable retrieval/delivery steps, review required authority and AI capabilities with descriptive step text, can inspect supported action syntax through `tasks actions`, and finalise through `IEmploymentTaskBoard.CreateActiveTask` so plan authority is rechecked and persistence/register entries happen only at finalise.
+- Added action-step location hints for movement/delivery, command, item-id retrieval, tag retrieval, commodity retrieval, and item delivery steps. These hints are consumed by worker AI and keep active tasks on the internal task board, separate from host staff-board communication.
+- Added `EmploymentWorkerAI`, a pathing AI that can scan adopted employment hosts for matching NPC openings, respect currency-bound reservation wage/payment/capability/host-type/path filters, submit applications without auto-hiring, path employed idle workers to their workplace, claim eligible pending tasks through `EmploymentTaskDispatcher`, and advance retrieval/delivery steps while retaining transient per-NPC task context. Newly-authored worker AIs default to closing doors behind them.
 - Kept the existing `IJobListing`, `IActiveJob`, job-finding cell, payroll/coffer, and `job` command systems out of the new employment-host contract.
-- Added focused core unit coverage for host adoption, `IJob` independence, hire/fire status, manager permission checks, job openings and candidate matching, reservation wage, payment selection, host-board posting, condition-to-active-task spawning, action-plan step state, dispatcher blocking, manager goals, existing financial record reuse markers, financial ledger entries, operational register entries, persisted host-state/board creation, persisted contract/opening/application/task/goal/audit round-trip, and hotel root/XML compatibility.
+- Added focused core unit coverage for host adoption, `IJob` independence, hire/fire status, manager permission checks, job openings and candidate matching, reservation wage, payment selection, host-board posting, condition-to-active-task spawning, action-plan step state, dispatcher blocking, manager goals, existing financial record reuse markers, financial ledger entries, operational register entries, persisted host-state/board creation, persisted contract/opening/application/task/goal/audit round-trip, hotel root/XML compatibility, employment command host resolution, outsider/employee visibility, command-service board authority, command-service register entries, persisted command-service host-board use, command-service opening creation, command currency parsing, admin authority, subsystem shortcut recognition, application accept/reject, transient task drafts, task action syntax display, persisted draft finalise, item-id retrieval, tag retrieval, commodity retrieval, delivery-to-container-tag action steps, plan-authority enforcement for active task creation, permanent-shop stockroom restock movement, and `EmploymentWorkerAI` XML/builder/currency/search/workplace-pathing/task execution behaviour.
 
 ### Deferred
 
 - Hotel room, furnishing, rental, ban, patron-balance, lost-property, tax-detail, and cash/bank internals still remain in the compatibility XML payload; this slice only adds the durable hotel root and shadow XML row.
 - Existing shop/stable legacy employee XML and existing bank/arena manager lists are not migrated into new contracts in this slice. That is intentional under the legacy data stance, but command adapters may later choose to bootstrap new contracts where useful.
-- Player/builder command adapters, NPC employment-seeking heartbeat integration, real pathfinding/routing, real purchasing, real crafting, real bank/store-account mutations, and real board command integration are deferred. The first slice supplies the auditable condition/action-step model and tests the core dispatcher path without replacing those subsystems.
+- Additional player/builder command adapters, richer manager-goal/scheduled-rule authoring, real purchasing, real crafting, real bank/store-account mutations, vehicle/load handling, skill/knowledge/tag candidate profiles, and deeper real board command integration are deferred. The completed command-adapter and worker-AI slices supply read/access views, authorised host-board posting, safe creation of non-financial openings, manager application decisions, drafted retrieval/delivery active tasks, and a first live NPC application/task loop without replacing legacy host-specific employment commands.
+
+### Active milestone
+
+- The next active milestone should live-smoke the NPC application/manager-accept/drafted-task loop after the currency, workplace-pathing, and task-authoring UX fixes above. After that, the logical follow-up is scheduled-rule or manager-goal authoring for recurring non-financial restock tasks. Autonomous purchasing, command replacement, and real financial mutation remain out of scope until this inventory movement path is proven in live command flow.
 
 ### Blockers / decisions needed
 
-- No blocker was found for the durable employment persistence and hotel-root split slice.
-- The next milestone should focus on command adapters and/or the first real dispatcher execution path now that host state, boards, task plans, goals, and audit rows survive reload.
+- No blocker was found for the durable employment persistence, hotel-root split, command-inspection, initial inventory action-step, task-draft, or `EmploymentWorkerAI` slices.
+- The remaining narrow decision is whether recurring restock work should be authored first as scheduled task rules, manager goals, or a host-specific shop wrapper over those common services.
 
 ## 27. Suggested Codex goal
 

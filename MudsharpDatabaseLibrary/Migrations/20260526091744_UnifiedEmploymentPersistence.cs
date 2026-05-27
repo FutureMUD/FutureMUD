@@ -12,22 +12,6 @@ namespace MudSharp.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<string>(
-                name: "BuilderNotes",
-                table: "NPCTemplates",
-                type: "text",
-                nullable: true,
-                collation: "utf8_general_ci")
-                .Annotation("MySql:CharSet", "utf8");
-
-            migrationBuilder.AddColumn<string>(
-                name: "UniqueName",
-                table: "NPCTemplates",
-                type: "varchar(255)",
-                nullable: true,
-                collation: "utf8_general_ci")
-                .Annotation("MySql:CharSet", "utf8");
-
             migrationBuilder.CreateTable(
                 name: "EmploymentHostStates",
                 columns: table => new
@@ -538,11 +522,6 @@ namespace MudSharp.Migrations
                 .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateIndex(
-                name: "IX_NPCTemplates_UniqueName",
-                table: "NPCTemplates",
-                column: "UniqueName");
-
-            migrationBuilder.CreateIndex(
                 name: "FK_EmploymentActionPlans_HostStates_idx",
                 table: "EmploymentActionPlans",
                 column: "EmploymentHostStateId");
@@ -759,17 +738,6 @@ namespace MudSharp.Migrations
             migrationBuilder.DropTable(
                 name: "EmploymentHostStates");
 
-            migrationBuilder.DropIndex(
-                name: "IX_NPCTemplates_UniqueName",
-                table: "NPCTemplates");
-
-            migrationBuilder.DropColumn(
-                name: "BuilderNotes",
-                table: "NPCTemplates");
-
-            migrationBuilder.DropColumn(
-                name: "UniqueName",
-                table: "NPCTemplates");
         }
     }
 }

@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Economy.Employment;
+using MudSharp.GameItems;
 
 #nullable enable
 
@@ -54,13 +56,6 @@ public abstract class EmploymentActionStepBase : IEmploymentActionStep
 	}
 
 	public abstract EmploymentActionStepResult Execute(IEmploymentTaskContext context, ICharacter actor);
-
-	protected EmploymentActionStepResult CompleteWithRegister(IEmploymentTaskContext context, ICharacter actor,
-		string message)
-	{
-		context.RecordRegister(EmploymentRegisterEntryType.ActionStepCompleted, actor, message);
-		return EmploymentActionStepResult.CompletedResult(message);
-	}
 }
 
 public sealed class PurchaseActionStep : EmploymentActionStepBase
@@ -97,7 +92,7 @@ public sealed class PurchaseActionStep : EmploymentActionStepBase
 	}
 }
 
-public sealed class MovementDeliveryActionStep : EmploymentActionStepBase
+public sealed class MovementDeliveryActionStep : EmploymentActionStepBase, IEmploymentActionStepLocationHint
 {
 	public MovementDeliveryActionStep(string deliveryDescription, ICell? destination = null)
 		: base(
@@ -134,6 +129,11 @@ public sealed class MovementDeliveryActionStep : EmploymentActionStepBase
 	{
 		return EmploymentActionStepResult.CompletedResult($"Completed delivery: {DeliveryDescription}.");
 	}
+
+	public IReadOnlyCollection<ICell> ExecutionLocationHints(IEmploymentTaskContext context, ICharacter actor)
+	{
+		return Destination is null ? [] : [Destination];
+	}
 }
 
 public sealed class CraftTriggerActionStep : EmploymentActionStepBase
@@ -165,7 +165,7 @@ public sealed class CraftTriggerActionStep : EmploymentActionStepBase
 	}
 }
 
-public sealed class CommandActionStep : EmploymentActionStepBase
+public sealed class CommandActionStep : EmploymentActionStepBase, IEmploymentActionStepLocationHint
 {
 	public CommandActionStep(string commandName, string commandArguments, ICell? executionLocation = null)
 		: base(
@@ -211,6 +211,11 @@ public sealed class CommandActionStep : EmploymentActionStepBase
 		context.RecordRegister(EmploymentRegisterEntryType.CommandExecuted, actor,
 			$"Executed allowlisted command {CommandName} {CommandArguments}.");
 		return EmploymentActionStepResult.CompletedResult($"Executed command {CommandName}.");
+	}
+
+	public IReadOnlyCollection<ICell> ExecutionLocationHints(IEmploymentTaskContext context, ICharacter actor)
+	{
+		return ExecutionLocation is null ? [] : [ExecutionLocation];
 	}
 }
 
@@ -335,5 +340,378 @@ public sealed class BoardPostActionStep : EmploymentActionStepBase
 		context.Employer.Board.MakeNewPost(actor, Title, Text);
 		context.RecordRegister(EmploymentRegisterEntryType.BoardPostCreated, actor, $"Posted to host board: {Title}.");
 		return EmploymentActionStepResult.CompletedResult($"Posted {Title} to host board.");
+	}
+}
+
+public sealed class GetItemsByIdActionStep : EmploymentActionStepBase, IEmploymentActionStepLocationHint
+{
+	private readonly List<long> _itemIds;
+	private readonly List<ICell> _sourceLocations;
+
+	public GetItemsByIdActionStep(int quantity, IEnumerable<long> itemIds, IEnumerable<ICell> sourceLocations)
+		: base(
+			EmploymentActionStepType.GetItemsById,
+			EmploymentAuthority.ManageDeliveryRoutes,
+			new[] { EmploymentAICapability.CanDeliverItems },
+			false,
+			false)
+	{
+		Quantity = quantity;
+		_itemIds = itemIds.Distinct().ToList();
+		_sourceLocations = sourceLocations.Distinct().ToList();
+	}
+
+	public int Quantity { get; }
+	public IReadOnlyList<long> ItemIds => _itemIds;
+	public IReadOnlyList<ICell> SourceLocations => _sourceLocations;
+
+	public override bool CanExecute(IEmploymentTaskContext context, ICharacter actor, out string reason)
+	{
+		if (!base.CanExecute(context, actor, out reason))
+		{
+			return false;
+		}
+
+		if (Quantity <= 0)
+		{
+			reason = "Item retrieval steps must request a positive quantity.";
+			return false;
+		}
+
+		if (!_itemIds.Any())
+		{
+			reason = "Item retrieval steps must specify at least one item id.";
+			return false;
+		}
+
+		if (!ReachableSources(context, actor).Any())
+		{
+			reason = "The assigned employee cannot path to any source location.";
+			return false;
+		}
+
+		if (MatchingItems(context, actor).Count() < Quantity)
+		{
+			reason = "There are not enough matching items in reachable source locations.";
+			return false;
+		}
+
+		reason = string.Empty;
+		return true;
+	}
+
+	public override EmploymentActionStepResult Execute(IEmploymentTaskContext context, ICharacter actor)
+	{
+		var items = MatchingItems(context, actor).Take(Quantity).ToList();
+		if (items.Count < Quantity)
+		{
+			return EmploymentActionStepResult.Blocked("There are not enough matching items to collect.");
+		}
+
+		foreach (var item in items)
+		{
+			if (!context.TryCollectTaskItem(actor, item.Item, item.Source, out var reason))
+			{
+				return EmploymentActionStepResult.Blocked(reason);
+			}
+		}
+
+		return EmploymentActionStepResult.CompletedResult($"Collected {items.Count:N0} item(s) by id.");
+	}
+
+	private IEnumerable<ICell> ReachableSources(IEmploymentTaskContext context, ICharacter actor)
+	{
+		return _sourceLocations.Where(x => context.CanPath(actor, x));
+	}
+
+	public IReadOnlyCollection<ICell> ExecutionLocationHints(IEmploymentTaskContext context, ICharacter actor)
+	{
+		return ReachableSources(context, actor).ToList();
+	}
+
+	private IEnumerable<(ICell Source, IGameItem Item)> MatchingItems(IEmploymentTaskContext context, ICharacter actor)
+	{
+		var ids = _itemIds.ToHashSet();
+		foreach (var source in ReachableSources(context, actor))
+		foreach (var item in context.AvailableItems(source).Where(x => ids.Contains(x.Id)))
+		{
+			yield return (source, item);
+		}
+	}
+}
+
+public sealed class GetItemsByTagActionStep : EmploymentActionStepBase, IEmploymentActionStepLocationHint
+{
+	private readonly List<ICell> _sourceLocations;
+
+	public GetItemsByTagActionStep(int quantity, string tagName, IEnumerable<ICell> sourceLocations)
+		: base(
+			EmploymentActionStepType.GetItemsByTag,
+			EmploymentAuthority.ManageDeliveryRoutes,
+			new[] { EmploymentAICapability.CanDeliverItems },
+			false,
+			false)
+	{
+		Quantity = quantity;
+		TagName = tagName;
+		_sourceLocations = sourceLocations.Distinct().ToList();
+	}
+
+	public int Quantity { get; }
+	public string TagName { get; }
+	public IReadOnlyList<ICell> SourceLocations => _sourceLocations;
+
+	public override bool CanExecute(IEmploymentTaskContext context, ICharacter actor, out string reason)
+	{
+		if (!base.CanExecute(context, actor, out reason))
+		{
+			return false;
+		}
+
+		if (Quantity <= 0)
+		{
+			reason = "Item retrieval steps must request a positive quantity.";
+			return false;
+		}
+
+		if (string.IsNullOrWhiteSpace(TagName))
+		{
+			reason = "Item retrieval steps must specify a tag.";
+			return false;
+		}
+
+		if (!ReachableSources(context, actor).Any())
+		{
+			reason = "The assigned employee cannot path to any source location.";
+			return false;
+		}
+
+		if (MatchingItems(context, actor).Count() < Quantity)
+		{
+			reason = $"There are not enough items tagged {TagName} in reachable source locations.";
+			return false;
+		}
+
+		reason = string.Empty;
+		return true;
+	}
+
+	public override EmploymentActionStepResult Execute(IEmploymentTaskContext context, ICharacter actor)
+	{
+		var items = MatchingItems(context, actor).Take(Quantity).ToList();
+		if (items.Count < Quantity)
+		{
+			return EmploymentActionStepResult.Blocked($"There are not enough items tagged {TagName} to collect.");
+		}
+
+		foreach (var item in items)
+		{
+			if (!context.TryCollectTaskItem(actor, item.Item, item.Source, out var reason))
+			{
+				return EmploymentActionStepResult.Blocked(reason);
+			}
+		}
+
+		return EmploymentActionStepResult.CompletedResult($"Collected {items.Count:N0} item(s) tagged {TagName}.");
+	}
+
+	private IEnumerable<ICell> ReachableSources(IEmploymentTaskContext context, ICharacter actor)
+	{
+		return _sourceLocations.Where(x => context.CanPath(actor, x));
+	}
+
+	public IReadOnlyCollection<ICell> ExecutionLocationHints(IEmploymentTaskContext context, ICharacter actor)
+	{
+		return ReachableSources(context, actor).ToList();
+	}
+
+	private IEnumerable<(ICell Source, IGameItem Item)> MatchingItems(IEmploymentTaskContext context, ICharacter actor)
+	{
+		foreach (var source in ReachableSources(context, actor))
+		foreach (var item in context.AvailableItems(source).Where(x => context.ItemHasTag(x, TagName)))
+		{
+			yield return (source, item);
+		}
+	}
+}
+
+public sealed class GetCommodityActionStep : EmploymentActionStepBase, IEmploymentActionStepLocationHint
+{
+	private readonly Dictionary<string, string> _characteristics;
+	private readonly List<ICell> _sourceLocations;
+
+	public GetCommodityActionStep(double requiredWeight, string materialName, string? tagName,
+		IReadOnlyDictionary<string, string>? characteristics, IEnumerable<ICell> sourceLocations)
+		: base(
+			EmploymentActionStepType.GetCommodity,
+			EmploymentAuthority.ManageDeliveryRoutes,
+			new[] { EmploymentAICapability.CanDeliverItems },
+			false,
+			false)
+	{
+		RequiredWeight = requiredWeight;
+		MaterialName = materialName;
+		TagName = tagName;
+		_characteristics = new Dictionary<string, string>(
+			characteristics ?? new Dictionary<string, string>(),
+			StringComparer.InvariantCultureIgnoreCase);
+		_sourceLocations = sourceLocations.Distinct().ToList();
+	}
+
+	public double RequiredWeight { get; }
+	public string MaterialName { get; }
+	public string? TagName { get; }
+	public IReadOnlyDictionary<string, string> Characteristics => _characteristics;
+	public IReadOnlyList<ICell> SourceLocations => _sourceLocations;
+
+	public override bool CanExecute(IEmploymentTaskContext context, ICharacter actor, out string reason)
+	{
+		if (!base.CanExecute(context, actor, out reason))
+		{
+			return false;
+		}
+
+		if (RequiredWeight <= 0.0)
+		{
+			reason = "Commodity retrieval steps must request a positive weight.";
+			return false;
+		}
+
+		if (string.IsNullOrWhiteSpace(MaterialName))
+		{
+			reason = "Commodity retrieval steps must specify a material.";
+			return false;
+		}
+
+		if (!ReachableSources(context, actor).Any())
+		{
+			reason = "The assigned employee cannot path to any source location.";
+			return false;
+		}
+
+		var available = MatchingItems(context, actor)
+			.Sum(x => context.CommodityWeight(x.Item, MaterialName, TagName, _characteristics));
+		if (available < RequiredWeight)
+		{
+			reason = $"There is only {available:N2} matching commodity weight available for {MaterialName}.";
+			return false;
+		}
+
+		reason = string.Empty;
+		return true;
+	}
+
+	public override EmploymentActionStepResult Execute(IEmploymentTaskContext context, ICharacter actor)
+	{
+		var collected = new List<IGameItem>();
+		var totalWeight = 0.0;
+		foreach (var item in MatchingItems(context, actor).ToList())
+		{
+			if (!context.TryCollectTaskItem(actor, item.Item, item.Source, out var reason))
+			{
+				return EmploymentActionStepResult.Blocked(reason);
+			}
+
+			collected.Add(item.Item);
+			totalWeight += context.CommodityWeight(item.Item, MaterialName, TagName, _characteristics);
+			if (totalWeight >= RequiredWeight)
+			{
+				break;
+			}
+		}
+
+		if (totalWeight < RequiredWeight)
+		{
+			return EmploymentActionStepResult.Blocked($"There is not enough {MaterialName} commodity to collect.");
+		}
+
+		return EmploymentActionStepResult.CompletedResult(
+			$"Collected {totalWeight:N2} weight of {MaterialName} commodity in {collected.Count:N0} item(s).");
+	}
+
+	private IEnumerable<ICell> ReachableSources(IEmploymentTaskContext context, ICharacter actor)
+	{
+		return _sourceLocations.Where(x => context.CanPath(actor, x));
+	}
+
+	public IReadOnlyCollection<ICell> ExecutionLocationHints(IEmploymentTaskContext context, ICharacter actor)
+	{
+		return ReachableSources(context, actor).ToList();
+	}
+
+	private IEnumerable<(ICell Source, IGameItem Item)> MatchingItems(IEmploymentTaskContext context, ICharacter actor)
+	{
+		foreach (var source in ReachableSources(context, actor))
+		foreach (var item in context.AvailableItems(source)
+		                            .Where(x => context.CommodityWeight(x, MaterialName, TagName, _characteristics) > 0.0))
+		{
+			yield return (source, item);
+		}
+	}
+}
+
+public sealed class DeliverItemsActionStep : EmploymentActionStepBase, IEmploymentActionStepLocationHint
+{
+	public DeliverItemsActionStep(ICell destination, IGameItem? container = null, string? containerTag = null)
+		: base(
+			EmploymentActionStepType.DeliverItems,
+			EmploymentAuthority.ManageDeliveryRoutes,
+			new[] { EmploymentAICapability.CanDeliverItems },
+			false,
+			false)
+	{
+		Destination = destination;
+		Container = container;
+		ContainerTag = containerTag;
+	}
+
+	public ICell Destination { get; }
+	public IGameItem? Container { get; }
+	public string? ContainerTag { get; }
+
+	public override bool CanExecute(IEmploymentTaskContext context, ICharacter actor, out string reason)
+	{
+		if (!base.CanExecute(context, actor, out reason))
+		{
+			return false;
+		}
+
+		if (!context.CanPath(actor, Destination))
+		{
+			reason = "The assigned employee cannot path to the delivery destination.";
+			return false;
+		}
+
+		if (!context.CarriedTaskItems(actor).Any())
+		{
+			reason = "The assigned employee is not carrying any task items to deliver.";
+			return false;
+		}
+
+		if (Container is null && !string.IsNullOrWhiteSpace(ContainerTag) &&
+		    !context.AvailableItems(Destination).Any(x => context.ItemHasTag(x, ContainerTag)))
+		{
+			reason = $"There is no destination container tagged {ContainerTag}.";
+			return false;
+		}
+
+		reason = string.Empty;
+		return true;
+	}
+
+	public override EmploymentActionStepResult Execute(IEmploymentTaskContext context, ICharacter actor)
+	{
+		var count = context.CarriedTaskItems(actor).Count;
+		if (!context.TryDeliverTaskItems(actor, Destination, Container, ContainerTag, out var reason))
+		{
+			return EmploymentActionStepResult.Blocked(reason);
+		}
+
+		return EmploymentActionStepResult.CompletedResult($"Delivered {count:N0} task item(s).");
+	}
+
+	public IReadOnlyCollection<ICell> ExecutionLocationHints(IEmploymentTaskContext context, ICharacter actor)
+	{
+		return [Destination];
 	}
 }

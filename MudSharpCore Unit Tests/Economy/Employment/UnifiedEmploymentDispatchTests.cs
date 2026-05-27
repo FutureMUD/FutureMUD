@@ -22,6 +22,8 @@ using MudSharp.Economy.Shops;
 using MudSharp.Economy.Stables;
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
+using MudSharp.GameItems;
+using MudSharp.GameItems.Interfaces;
 using MudSharp.TimeAndDate;
 using MudSharp.TimeAndDate.Date;
 
@@ -34,6 +36,8 @@ namespace MudSharp_Unit_Tests.Economy.Employment;
 public class UnifiedEmploymentDispatchTests
 {
 	private sealed record FMDBState(FuturemudDatabaseContext? Context, object? Connection, uint InstanceCount);
+
+	private sealed record PermanentShopFixture(Mock<IPermanentShop> Shop, EmploymentHostState State);
 
 	[TestMethod]
 	public void HostShells_MinimumHostTypes_ImplementEmploymentHost()
@@ -304,6 +308,226 @@ public class UnifiedEmploymentDispatchTests
 	}
 
 	[TestMethod]
+	public void GetItemsByIdActionStep_CollectsMatchingItemsFromSourceLocations()
+	{
+		var currency = Currency();
+		IEmploymentHost host = new TestEmploymentHost("shop", currency.Object);
+		var manager = Character(1, "Manager").Object;
+		host.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.AssignTasks | EmploymentAuthority.ManageDeliveryRoutes), null);
+		var sourceOne = Cell(10, "stock room").Object;
+		var sourceTwo = Cell(11, "warehouse").Object;
+		var requestedOne = Item(100, "first crate").Object;
+		var ignored = Item(101, "wrong crate").Object;
+		var requestedTwo = Item(102, "second crate").Object;
+		var context = new EmploymentTaskContext(host);
+		context.SetAvailableItems(sourceOne, [requestedOne, ignored]);
+		context.SetAvailableItems(sourceTwo, [requestedTwo]);
+		var step = new GetItemsByIdActionStep(2, [requestedOne.Id, requestedTwo.Id], [sourceOne, sourceTwo]);
+		var task = host.TaskBoard.CreateActiveTask("collect crates", new EmploymentActionPlan([step]), manager);
+		var dispatcher = new EmploymentTaskDispatcher();
+		var profile = Profile(manager, 1.0M, PaymentMethodKind.Cash, Caps(EmploymentAICapability.CanDeliverItems));
+
+		Assert.IsTrue(dispatcher.TryAssignTask(task, [profile], context, out _));
+		var result = dispatcher.AdvanceTask(task, context);
+
+		Assert.IsTrue(result.Success);
+		CollectionAssert.AreEquivalent(new[] { requestedOne.Id, requestedTwo.Id }, context.CarriedTaskItems(manager).Select(x => x.Id).ToArray());
+		CollectionAssert.DoesNotContain(context.AvailableItems(sourceOne).Select(x => x.Id).ToArray(), requestedOne.Id);
+		CollectionAssert.DoesNotContain(context.AvailableItems(sourceTwo).Select(x => x.Id).ToArray(), requestedTwo.Id);
+		var completionEntries = host.EmploymentRegister.Entries.Where(x =>
+			x.EntryType == EmploymentRegisterEntryType.ActionStepCompleted &&
+			x.Description.Contains("Collected", StringComparison.InvariantCultureIgnoreCase)).ToList();
+		Assert.AreEqual(1, completionEntries.Count);
+		Assert.AreEqual(task.CorrelationId, completionEntries.Single().CorrelationId);
+	}
+
+	[TestMethod]
+	public void GetItemsByTagActionStep_CollectsTaggedItemsOnly()
+	{
+		var currency = Currency();
+		IEmploymentHost host = new TestEmploymentHost("stable", currency.Object);
+		var manager = Character(1, "Manager").Object;
+		host.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.AssignTasks | EmploymentAuthority.ManageDeliveryRoutes), null);
+		var source = Cell(20, "feed store").Object;
+		var taggedOne = Item(200, "oat sack").Object;
+		var taggedTwo = Item(201, "second oat sack").Object;
+		var ignored = Item(202, "linen sack").Object;
+		var context = new EmploymentTaskContext(host);
+		context.SetAvailableItems(source, [taggedOne, ignored, taggedTwo]);
+		context.SetItemTags(taggedOne, "feed");
+		context.SetItemTags(taggedTwo, "feed");
+		context.SetItemTags(ignored, "linen");
+		var step = new GetItemsByTagActionStep(2, "feed", [source]);
+		var task = host.TaskBoard.CreateActiveTask("collect feed", new EmploymentActionPlan([step]), manager);
+		var dispatcher = new EmploymentTaskDispatcher();
+		var profile = Profile(manager, 1.0M, PaymentMethodKind.Cash, Caps(EmploymentAICapability.CanDeliverItems));
+
+		Assert.IsTrue(dispatcher.TryAssignTask(task, [profile], context, out _));
+		var result = dispatcher.AdvanceTask(task, context);
+
+		Assert.IsTrue(result.Success);
+		CollectionAssert.AreEquivalent(new[] { taggedOne.Id, taggedTwo.Id }, context.CarriedTaskItems(manager).Select(x => x.Id).ToArray());
+		CollectionAssert.Contains(context.AvailableItems(source).Select(x => x.Id).ToArray(), ignored.Id);
+	}
+
+	[TestMethod]
+	public void GetCommodityActionStep_CollectsRequiredMaterialWeight()
+	{
+		var currency = Currency();
+		IEmploymentHost host = new TestEmploymentHost("auction house", currency.Object);
+		var manager = Character(1, "Manager").Object;
+		host.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.AssignTasks | EmploymentAuthority.ManageDeliveryRoutes), null);
+		var source = Cell(30, "materials store").Object;
+		var ironOne = Item(300, "iron bundle").Object;
+		var ironTwo = Item(301, "second iron bundle").Object;
+		var copper = Item(302, "copper bundle").Object;
+		var context = new EmploymentTaskContext(host);
+		context.SetAvailableItems(source, [ironOne, copper, ironTwo]);
+		context.SetCommodityWeight(ironOne, "iron", 2.5, "ingot", new Dictionary<string, string> { ["grade"] = "refined" });
+		context.SetCommodityWeight(ironTwo, "iron", 4.0, "ingot", new Dictionary<string, string> { ["grade"] = "refined" });
+		context.SetCommodityWeight(copper, "copper", 8.0, "ingot", new Dictionary<string, string> { ["grade"] = "refined" });
+		var step = new GetCommodityActionStep(6.0, "iron", "ingot",
+			new Dictionary<string, string> { ["grade"] = "refined" }, [source]);
+		var task = host.TaskBoard.CreateActiveTask("collect iron", new EmploymentActionPlan([step]), manager);
+		var dispatcher = new EmploymentTaskDispatcher();
+		var profile = Profile(manager, 1.0M, PaymentMethodKind.Cash, Caps(EmploymentAICapability.CanDeliverItems));
+
+		Assert.IsTrue(dispatcher.TryAssignTask(task, [profile], context, out _));
+		var result = dispatcher.AdvanceTask(task, context);
+
+		Assert.IsTrue(result.Success);
+		CollectionAssert.AreEquivalent(new[] { ironOne.Id, ironTwo.Id }, context.CarriedTaskItems(manager).Select(x => x.Id).ToArray());
+		CollectionAssert.Contains(context.AvailableItems(source).Select(x => x.Id).ToArray(), copper.Id);
+	}
+
+	[TestMethod]
+	public void DeliverItemsActionStep_DeliversCarriedTaskItemsToContainerTag()
+	{
+		var currency = Currency();
+		IEmploymentHost host = new TestEmploymentHost("hotel", currency.Object);
+		var manager = Character(1, "Manager").Object;
+		host.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.AssignTasks | EmploymentAuthority.ManageDeliveryRoutes), null);
+		var source = Cell(40, "linen store").Object;
+		var destination = Cell(41, "laundry").Object;
+		var linenOne = Item(400, "linen bundle").Object;
+		var linenTwo = Item(401, "second linen bundle").Object;
+		var hamperContents = new List<IGameItem>();
+		var hamper = ContainerItem(402, "clean hamper", [destination], [], hamperContents).Object;
+		var context = new EmploymentTaskContext(host);
+		context.SetAvailableItems(source, [linenOne, linenTwo]);
+		context.SetAvailableItems(destination, [hamper]);
+		context.SetItemTags(linenOne, "linen");
+		context.SetItemTags(linenTwo, "linen");
+		context.SetItemTags(hamper, "clean-linen-container");
+		var plan = new EmploymentActionPlan([
+			new GetItemsByTagActionStep(2, "linen", [source]),
+			new DeliverItemsActionStep(destination, containerTag: "clean-linen-container")
+		]);
+		var task = host.TaskBoard.CreateActiveTask("move linen", plan, manager);
+		var dispatcher = new EmploymentTaskDispatcher();
+		var profile = Profile(manager, 1.0M, PaymentMethodKind.Cash, Caps(EmploymentAICapability.CanDeliverItems));
+
+		Assert.IsTrue(dispatcher.TryAssignTask(task, [profile], context, out _));
+		Assert.IsTrue(dispatcher.AdvanceTask(task, context).Success);
+		Assert.IsTrue(dispatcher.AdvanceTask(task, context).Success);
+
+		Assert.AreEqual(EmploymentTaskStatus.Completed, task.Status);
+		Assert.AreEqual(0, context.CarriedTaskItems(manager).Count);
+		CollectionAssert.AreEquivalent(new[] { linenOne.Id, linenTwo.Id }, context.ContainedItems(hamper).Select(x => x.Id).ToArray());
+	}
+
+	[TestMethod]
+	public void TaskBoard_CreateActiveTaskRequiresActionPlanAuthority()
+	{
+		var currency = Currency();
+		IEmploymentHost host = new TestEmploymentHost("shop", currency.Object);
+		var manager = Character(1, "Manager").Object;
+		var destination = Cell(50, "shopfront").Object;
+		host.Hire(manager, Offer(currency.Object, EmploymentRole.Manager, EmploymentAuthority.AssignTasks), null);
+
+		Assert.ThrowsException<InvalidOperationException>(() =>
+			host.TaskBoard.CreateActiveTask("move stock",
+				new EmploymentActionPlan([new DeliverItemsActionStep(destination)]),
+				manager));
+	}
+
+	[TestMethod]
+	public void ShopEmploymentTaskService_CreatesAndExecutesStockroomRestockMovement()
+	{
+		var currency = Currency();
+		var manager = Character(1, "Manager").Object;
+		var stockroomItems = new List<IGameItem>();
+		var shopfrontItems = new List<IGameItem>();
+		var stockroom = PhysicalCell(60, "stockroom", stockroomItems).Object;
+		var shopfront = PhysicalCell(61, "shopfront", shopfrontItems).Object;
+		var movedOne = Item(600, "linen bundle", trueLocations: [stockroom]).Object;
+		var movedTwo = Item(601, "second linen bundle", trueLocations: [stockroom]).Object;
+		stockroomItems.AddRange([movedOne, movedTwo]);
+		var containerContents = new List<IGameItem>();
+		var displayTag = Tag(700, "display-basket").Object;
+		var container = ContainerItem(602, "display basket", [shopfront], [displayTag], containerContents).Object;
+		shopfrontItems.Add(container);
+		var merchandise = Merchandise(800, "linen");
+		var shop = PermanentShop(900, "linen shop", currency.Object, manager,
+			EmploymentAuthority.AssignTasks | EmploymentAuthority.ManageDeliveryRoutes,
+			stockroom, [shopfront], [container], [merchandise.Object], [movedOne, movedTwo]);
+		var service = new ShopEmploymentTaskService();
+
+		var created = service.TryCreateStockroomRestockTask(manager, shop.Shop.Object, merchandise.Object, 2,
+			out var task, out var message, containerTag: "display-basket");
+
+		Assert.IsTrue(created, message);
+		Assert.IsNotNull(task);
+		Assert.AreEqual(2, task.ActionPlan.Steps.Count);
+		Assert.AreEqual(EmploymentActionStepType.GetItemsById, task.ActionPlan.Steps[0].StepType);
+		Assert.AreEqual(EmploymentActionStepType.DeliverItems, task.ActionPlan.Steps[1].StepType);
+		Assert.IsFalse(task.ActionPlan.Steps.Any(x => x.StepType == EmploymentActionStepType.BoardPost));
+
+		var dispatcher = new EmploymentTaskDispatcher();
+		var context = service.CreatePhysicalContext(shop.Shop.Object);
+		var profile = Profile(manager, 1.0M, PaymentMethodKind.Cash, Caps(EmploymentAICapability.CanDeliverItems));
+		Assert.IsTrue(dispatcher.TryAssignTask(task, [profile], context, out var reason), reason);
+		Assert.IsTrue(dispatcher.AdvanceTask(task, context).Success);
+		Assert.IsTrue(dispatcher.AdvanceTask(task, context).Success);
+
+		Assert.AreEqual(EmploymentTaskStatus.Completed, task.Status);
+		Assert.AreEqual(0, stockroomItems.Count);
+		CollectionAssert.AreEquivalent(new[] { movedOne.Id, movedTwo.Id }, containerContents.Select(x => x.Id).ToArray());
+		Assert.AreEqual(0, shop.Shop.Object.Board.Posts.Count());
+		Assert.IsTrue(shop.State.EmploymentRegister.Entries.Any(x => x.EntryType == EmploymentRegisterEntryType.ActiveTaskCreated));
+		Assert.IsTrue(shop.State.EmploymentRegister.Entries.Any(x => x.EntryType == EmploymentRegisterEntryType.ActiveTaskCompleted));
+	}
+
+	[TestMethod]
+	public void ShopEmploymentTaskService_RequiresDelegatedDeliveryAuthority()
+	{
+		var currency = Currency();
+		var manager = Character(1, "Manager").Object;
+		var stockroomItems = new List<IGameItem>();
+		var shopfrontItems = new List<IGameItem>();
+		var stockroom = PhysicalCell(70, "stockroom", stockroomItems).Object;
+		var shopfront = PhysicalCell(71, "shopfront", shopfrontItems).Object;
+		var item = Item(700, "linen bundle", trueLocations: [stockroom]).Object;
+		stockroomItems.Add(item);
+		var merchandise = Merchandise(801, "linen");
+		var shop = PermanentShop(901, "linen shop", currency.Object, manager, EmploymentAuthority.AssignTasks,
+			stockroom, [shopfront], [], [merchandise.Object], [item]);
+		var service = new ShopEmploymentTaskService();
+
+		var created = service.TryCreateStockroomRestockTask(manager, shop.Shop.Object, merchandise.Object, 1,
+			out var task, out var message);
+
+		Assert.IsFalse(created);
+		Assert.IsNull(task);
+		StringAssert.Contains(message, "delegated authority");
+		Assert.AreEqual(0, shop.Shop.Object.TaskBoard.ActiveTasks.Count);
+	}
+
+	[TestMethod]
 	public void ManagerGoals_CreateTasksOnlyWhenManagerHasRequiredAuthority()
 	{
 		var currency = Currency();
@@ -472,6 +696,59 @@ public class UnifiedEmploymentDispatchTests
 	}
 
 	[TestMethod]
+	public void EmploymentPersistence_RoundTripsInventoryActionSteps()
+	{
+		var fmdbState = CaptureFMDBState();
+		using var context = BuildContext();
+		try
+		{
+			PrimeFMDB(context);
+			var currency = Currency();
+			var manager = Character(250, "Manager").Object;
+			var source = Cell(800, "stock room").Object;
+			var destination = Cell(801, "sales floor").Object;
+			var container = Item(802, "display basket").Object;
+			var characters = new Dictionary<long, ICharacter>
+			{
+				[manager.Id] = manager
+			};
+			var gameworld = Gameworld(currency.Object, characters, [source, destination],
+				new Dictionary<long, IGameItem> { [container.Id] = container });
+			IEmploymentHost host = new PersistedEmploymentHost(251, "Stock Shop", gameworld.Object, currency.Object);
+			host.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+				EmploymentAuthority.AssignTasks | EmploymentAuthority.ManageDeliveryRoutes), null);
+			host.TaskBoard.CreateActiveTask("inventory movement",
+				new EmploymentActionPlan([
+					new GetItemsByIdActionStep(1, [9001], [source]),
+					new GetItemsByTagActionStep(2, "linen", [source]),
+					new GetCommodityActionStep(5.0, "iron", "ingot",
+						new Dictionary<string, string> { ["grade"] = "refined" }, [source]),
+					new DeliverItemsActionStep(destination, container, "display-container")
+				]),
+				manager);
+
+			var reloadedHost = new PersistedEmploymentHost(251, "Stock Shop", gameworld.Object, currency.Object);
+			var steps = reloadedHost.Employment.TaskBoard.ActiveTasks.Single().ActionPlan.Steps;
+
+			Assert.AreEqual(4, steps.Count);
+			Assert.AreEqual(EmploymentActionStepType.GetItemsById, steps[0].StepType);
+			Assert.AreEqual(EmploymentActionStepType.GetItemsByTag, steps[1].StepType);
+			Assert.AreEqual(EmploymentActionStepType.GetCommodity, steps[2].StepType);
+			Assert.AreEqual(EmploymentActionStepType.DeliverItems, steps[3].StepType);
+			Assert.AreEqual(9001, ((GetItemsByIdActionStep)steps[0]).ItemIds.Single());
+			Assert.AreEqual("linen", ((GetItemsByTagActionStep)steps[1]).TagName);
+			Assert.AreEqual("iron", ((GetCommodityActionStep)steps[2]).MaterialName);
+			Assert.AreEqual("refined", ((GetCommodityActionStep)steps[2]).Characteristics["grade"]);
+			Assert.AreSame(destination, ((DeliverItemsActionStep)steps[3]).Destination);
+			Assert.AreSame(container, ((DeliverItemsActionStep)steps[3]).Container);
+		}
+		finally
+		{
+			RestoreFMDBState(fmdbState);
+		}
+	}
+
+	[TestMethod]
 	public void EmploymentPersistence_AllowsHostLocalRuntimeIdsAcrossDifferentHosts()
 	{
 		var fmdbState = CaptureFMDBState();
@@ -596,6 +873,111 @@ public class UnifiedEmploymentDispatchTests
 		return character;
 	}
 
+	private static Mock<ICell> Cell(long id, string name)
+	{
+		var cell = new Mock<ICell>();
+		cell.SetupGet(x => x.Id).Returns(id);
+		cell.SetupGet(x => x.Name).Returns(name);
+		cell.SetupGet(x => x.GameItems).Returns(Array.Empty<IGameItem>());
+		return cell;
+	}
+
+	private static Mock<ICell> PhysicalCell(long id, string name, List<IGameItem> items)
+	{
+		var cell = Cell(id, name);
+		cell.SetupGet(x => x.GameItems).Returns(() => items);
+		cell.Setup(x => x.Insert(It.IsAny<IGameItem>(), It.IsAny<bool>()))
+		    .Callback<IGameItem, bool>((item, _) => items.Add(item));
+		cell.Setup(x => x.Extract(It.IsAny<IGameItem>()))
+		    .Callback<IGameItem>(item => items.RemoveAll(x => x.Id == item.Id));
+		cell.Setup(x => x.GetFriendlyReference(It.IsAny<IPerceiver>())).Returns(name);
+		return cell;
+	}
+
+	private static Mock<IGameItem> Item(long id, string name, IEnumerable<ICell>? trueLocations = null,
+		IEnumerable<ITag>? tags = null)
+	{
+		var item = new Mock<IGameItem>();
+		item.SetupGet(x => x.Id).Returns(id);
+		item.SetupGet(x => x.Name).Returns(name);
+		item.SetupGet(x => x.Tags).Returns(tags ?? []);
+		item.SetupGet(x => x.DeepItems).Returns(() => [item.Object]);
+		item.SetupGet(x => x.TrueLocations).Returns(trueLocations ?? []);
+		item.Setup(x => x.GetItemType<IContainer>()).Returns((IContainer)null!);
+		item.Setup(x => x.HowSeen(
+				It.IsAny<IPerceiver>(),
+				It.IsAny<bool>(),
+				It.IsAny<DescriptionType>(),
+				It.IsAny<bool>(),
+				It.IsAny<PerceiveIgnoreFlags>()))
+		    .Returns(name);
+		return item;
+	}
+
+	private static Mock<IGameItem> ContainerItem(long id, string name, IEnumerable<ICell> trueLocations,
+		IEnumerable<ITag> tags, List<IGameItem> contents)
+	{
+		var container = new Mock<IContainer>();
+		container.SetupGet(x => x.Contents).Returns(() => contents);
+		container.Setup(x => x.CanPut(It.IsAny<IGameItem>())).Returns(true);
+		container.Setup(x => x.Put(It.IsAny<ICharacter?>(), It.IsAny<IGameItem>(), It.IsAny<bool>()))
+		         .Callback<ICharacter?, IGameItem, bool>((_, item, _) => contents.Add(item));
+		var item = Item(id, name, trueLocations, tags);
+		item.SetupGet(x => x.DeepItems).Returns(() => [item.Object]);
+		item.Setup(x => x.GetItemType<IContainer>()).Returns(container.Object);
+		return item;
+	}
+
+	private static Mock<ITag> Tag(long id, string name)
+	{
+		var tag = new Mock<ITag>();
+		tag.SetupGet(x => x.Id).Returns(id);
+		tag.SetupGet(x => x.Name).Returns(name);
+		tag.SetupGet(x => x.FullName).Returns(name);
+		return tag;
+	}
+
+	private static Mock<IMerchandise> Merchandise(long id, string name)
+	{
+		var merchandise = new Mock<IMerchandise>();
+		merchandise.SetupGet(x => x.Id).Returns(id);
+		merchandise.SetupGet(x => x.Name).Returns(name);
+		return merchandise;
+	}
+
+	private static PermanentShopFixture PermanentShop(long id, string name, ICurrency currency, ICharacter manager,
+		EmploymentAuthority managerAuthority, ICell stockroom, IEnumerable<ICell> shopfronts,
+		IEnumerable<IGameItem> displayContainers, IEnumerable<IMerchandise> merchandises,
+		IEnumerable<IGameItem> stockedItems)
+	{
+		var shop = new Mock<IPermanentShop>();
+		shop.SetupGet(x => x.Id).Returns(id);
+		shop.SetupGet(x => x.Name).Returns(name);
+		shop.SetupGet(x => x.EmploymentHostName).Returns(name);
+		shop.SetupGet(x => x.FrameworkItemType).Returns("PermanentShop");
+		shop.SetupGet(x => x.EmploymentHostType).Returns(MudSharp.Economy.Employment.EmploymentHostType.Shop);
+		shop.SetupGet(x => x.Market).Returns((IMarket?)null);
+		shop.SetupGet(x => x.Currency).Returns(currency);
+		shop.SetupGet(x => x.StockroomCell).Returns(stockroom);
+		shop.SetupGet(x => x.ShopfrontCells).Returns(shopfronts.ToList());
+		shop.SetupGet(x => x.DisplayContainers).Returns(displayContainers.ToList());
+		shop.SetupGet(x => x.Merchandises).Returns(merchandises.ToList());
+		var employment = new EmploymentHostState(shop.Object);
+		shop.SetupGet(x => x.Employment).Returns(employment);
+		shop.SetupGet(x => x.TaskBoard).Returns(employment.TaskBoard);
+		shop.SetupGet(x => x.EmploymentRegister).Returns(employment.EmploymentRegister);
+		shop.SetupGet(x => x.BusinessLedger).Returns(employment.BusinessLedger);
+		shop.SetupGet(x => x.ManagerGoalBoard).Returns(employment.ManagerGoalBoard);
+		shop.SetupGet(x => x.Board).Returns(employment.Board);
+		shop.SetupGet(x => x.EmploymentContracts).Returns(employment.EmploymentContracts);
+		shop.Setup(x => x.HasAuthority(It.IsAny<ICharacter>(), It.IsAny<EmploymentAuthority>()))
+		    .Returns((ICharacter actor, EmploymentAuthority authority) => employment.HasAuthority(actor, authority));
+		shop.Setup(x => x.StockedItems(It.IsAny<IMerchandise>()))
+		    .Returns((IMerchandise merchandise) => stockedItems.Where(x => merchandises.Any(y => y.Id == merchandise.Id)).ToList());
+		employment.Hire(manager, Offer(currency, EmploymentRole.Manager, managerAuthority), null);
+		return new PermanentShopFixture(shop, employment);
+	}
+
 	private static CompensationTerms Pay(ICurrency currency, decimal amount = 10.0M)
 	{
 		return new CompensationTerms(
@@ -688,13 +1070,19 @@ public class UnifiedEmploymentDispatchTests
 		            .SetValue(null, state.InstanceCount);
 	}
 
-	private static Mock<IFuturemud> Gameworld(ICurrency currency, IReadOnlyDictionary<long, ICharacter> characters)
+	private static Mock<IFuturemud> Gameworld(ICurrency currency, IReadOnlyDictionary<long, ICharacter> characters,
+		IEnumerable<ICell>? cellsToAdd = null, IReadOnlyDictionary<long, IGameItem>? items = null)
 	{
 		var boards = new All<IBoard>();
 		var currencies = new All<ICurrency>();
 		currencies.Add(currency);
 		var bankAccounts = new All<IBankAccount>();
 		var cells = new All<ICell>();
+		foreach (var cell in cellsToAdd ?? [])
+		{
+			cells.Add(cell);
+		}
+
 		var calendars = new All<ICalendar>();
 		var gameworld = new Mock<IFuturemud>();
 		gameworld.SetupGet(x => x.Boards).Returns(boards);
@@ -705,6 +1093,8 @@ public class UnifiedEmploymentDispatchTests
 		gameworld.Setup(x => x.Add(It.IsAny<IBoard>())).Callback<IBoard>(board => boards.Add(board));
 		gameworld.Setup(x => x.TryGetCharacter(It.IsAny<long>(), It.IsAny<bool>()))
 		         .Returns((long id, bool _) => characters.TryGetValue(id, out var character) ? character : null!);
+		gameworld.Setup(x => x.TryGetItem(It.IsAny<long>(), It.IsAny<bool>()))
+		         .Returns((long id, bool _) => items is not null && items.TryGetValue(id, out var item) ? item : null!);
 		return gameworld;
 	}
 

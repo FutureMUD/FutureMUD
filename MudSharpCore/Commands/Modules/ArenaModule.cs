@@ -62,7 +62,20 @@ Manager Only Commands:
 	#3arena manager withdraw [<arena>] <amount>#0 - withdraw physical cash from arena cash reserve
 	#3arena manager stable [<arena>] [class <class>] [search <text>] [top <count>]#0 - show stable NPC roster by class
 	#3arena manager rating [<arena>] <character>#0 - show ratings for a character in an arena
-	#3arena manager ratings [<arena>] [class <class>] [search <text>] [min <rating>] [max <rating>] [sort <name|class|rating|updated>] [desc] [top <count>]#0 - list arena ratings";
+	#3arena manager ratings [<arena>] [class <class>] [search <text>] [min <rating>] [max <rating>] [sort <name|class|rating|updated>] [desc] [top <count>]#0 - list arena ratings
+	#3arena status#0 - shows employment status for this arena
+	#3arena contracts#0 - lists employment contracts
+	#3arena openings#0 - lists employment openings
+	#3arena openings create <role> <hourly rate> [positions]#0 - creates an NPC-facing opening
+	#3arena applications#0 - lists employment applications
+	#3arena applications accept|reject <##> [reason]#0 - accepts or rejects an application
+	#3arena tasks#0 - lists scheduled rules and active tasks
+	#3arena tasks draft new|show|rename|remove|discard|finalise ...#0 - drafts and finalises active tasks
+	#3arena tasks step getid|gettag|commodity|deliver ...#0 - adds retrieval or delivery steps to your draft
+	#3arena goals#0 - lists manager goals
+	#3arena register#0 - shows employment register entries
+	#3arena employmentledger#0 - shows employment ledger entries
+	#3arena board [read <##>|write <title>]#0 - uses the staff board";
 
     private const string ArenaHelp =
         @"The #3arena#0 command is used to interact with combat arenas. All of these commands need to be done from the arena itself.
@@ -83,7 +96,23 @@ Manager Only Commands:
 	#3arena bet collect [<event>]#0 - collect outstanding payouts
 	#3arena ratings [<class>]#0 - show your arena ratings
 
-If only one event applies, you can omit #6<event>#0 in the above commands.";
+If only one event applies, you can omit #6<event>#0 in the above commands.
+
+Arena staff employment shortcuts:
+
+	#3arena status#0 - shows employment status for this arena
+	#3arena contracts#0 - lists employment contracts
+	#3arena openings#0 - lists employment openings
+	#3arena openings create <role> <hourly rate> [positions]#0 - creates an NPC-facing opening
+	#3arena applications#0 - lists employment applications
+	#3arena applications accept|reject <##> [reason]#0 - accepts or rejects an application
+	#3arena tasks#0 - lists scheduled rules and active tasks
+	#3arena tasks draft new|show|rename|remove|discard|finalise ...#0 - drafts and finalises active tasks
+	#3arena tasks step getid|gettag|commodity|deliver ...#0 - adds retrieval or delivery steps to your draft
+	#3arena goals#0 - lists manager goals
+	#3arena register#0 - shows employment register entries
+	#3arena employmentledger#0 - shows employment ledger entries
+	#3arena board [read <##>|write <title>]#0 - uses the staff board";
 
     [PlayerCommand("Arena", "arena")]
     [RequiredCharacterState(CharacterState.Conscious)]
@@ -139,6 +168,11 @@ If only one event applies, you can omit #6<event>#0 in the above commands.";
                 ArenaManager(actor, ss);
                 return;
             default:
+                if (new EmploymentCommandService().TryExecuteShortcut(actor, GetArena(actor, null), "arena", action, ss))
+                {
+                    return;
+                }
+
                 ShowGeneralHelp(actor);
                 return;
         }

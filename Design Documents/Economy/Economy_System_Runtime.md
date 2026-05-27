@@ -174,6 +174,7 @@ Verified shop responsibilities include:
 - optional market-linked pricing
 - automatic tax payment
 - automatic stocking and restocking hooks
+- employment-task bridge for permanent-shop stockroom-to-shopfront restock movement using the unified employment dispatcher
 - limited support for virtual shoppers
 
 Payment methods are currently separate concrete strategy objects:

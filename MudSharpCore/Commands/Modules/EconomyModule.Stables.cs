@@ -1,5 +1,6 @@
 using MudSharp.Character;
 using MudSharp.Character.Name;
+using MudSharp.Commands.Helpers;
 using MudSharp.Commands.Trees;
 using MudSharp.Construction;
 using MudSharp.Database;
@@ -66,6 +67,19 @@ Stable managers can use the following additional commands:
 	#3stable account authorise <id|name> <person> <limit>#0 - authorises an additional person to access a credit account
 	#3stable account unauthorise <id|name> <person>#0 - removes an authorisation of an additional person on a credit account
 	#3stable employ|fire|manager|proprietor <target|name>#0 - manages employees
+	#3stable status#0 - shows employment status for this stable
+	#3stable contracts#0 - lists employment contracts
+	#3stable openings#0 - lists employment openings
+	#3stable openings create <role> <hourly rate> [positions]#0 - creates an NPC-facing opening
+	#3stable applications#0 - lists employment applications
+	#3stable applications accept|reject <##> [reason]#0 - accepts or rejects an application
+	#3stable tasks#0 - lists scheduled rules and active tasks
+	#3stable tasks draft new|show|rename|remove|discard|finalise ...#0 - drafts and finalises active tasks
+	#3stable tasks step getid|gettag|commodity|deliver ...#0 - adds retrieval or delivery steps to your draft
+	#3stable goals#0 - lists manager goals
+	#3stable register#0 - shows employment register entries
+	#3stable employmentledger#0 - shows employment ledger entries
+	#3stable board [read <##>|write <title>]#0 - uses the staff board
 	#3stable open|close#0 - opens or closes the stable
 	#3stable set can <prog|none> [whyprog]#0 - sets access progs
 
@@ -161,6 +175,12 @@ Administrators can also use:
 			case "delete" when actor.IsAdministrator():
 				StableDelete(actor, ss);
 				return;
+		}
+
+		var stable = actor.Gameworld.Stables.FirstOrDefault(x => x.Location == actor.Location);
+		if (new EmploymentCommandService().TryExecuteShortcut(actor, stable, "stable", subcommand, ss))
+		{
+			return;
 		}
 
 		actor.OutputHandler.Send(StableHelp.SubstituteANSIColour());

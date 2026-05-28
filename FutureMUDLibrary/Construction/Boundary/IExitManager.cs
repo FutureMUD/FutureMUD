@@ -5,6 +5,8 @@ namespace MudSharp.Construction.Boundary
 {
     public interface IExitManager
     {
+        IPathfindingService PathfindingService { get; }
+
         /// <summary>
         ///     Retrieves the correct exit for the specified cell
         /// </summary>

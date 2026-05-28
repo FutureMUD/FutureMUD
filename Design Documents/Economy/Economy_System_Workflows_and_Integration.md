@@ -231,6 +231,13 @@ Current payment methods already support:
 - bank-payment items backed by bank accounts
 - line of credit
 
+RPI converter workflow:
+
+- run `apply-items` and `apply-rooms` before `apply-shops`
+- `apply-shops` imports legacy keeper-attached shops as permanent shops, using `shop_vnum` for the shopfront and `store_vnum` for the stockroom
+- delivery vnums become auto-reordering merchandise where imported item prototypes exist
+- shops imported this way still need builder review for tills, display containers, bank accounts, staffing, taxes, and any market/category-specific pricing
+
 ### Stables and Mount Lodging
 Stables are cell-based economy venues for NPC mounts.
 

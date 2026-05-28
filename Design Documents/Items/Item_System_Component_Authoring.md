@@ -149,6 +149,14 @@ Use `Sealable` as a separate attachable component rather than folding seal state
 
 Use `MeasuringInstrument` for physical measurement tools that should produce falsifiable reported quantities. The current implementation supports `Weight` and `FluidVolume` modes. Length, cubit, and surveying tools should remain prop-only until item dimensions exist. The prototype stores mode, precision, capacity, base drift per use, display unit text, and wrong-calibration limits. The live component stores stable drift direction, use count since calibration, calibration state, and any deliberate base-unit or percentage bias.
 
+### Incense and offering components
+
+Use `IncenseBurner` for room-scale aromatic burning rather than handheld smoking items. The prototype stores the required fuel tag, maximum contained fuel weight, seconds burned per unit of fuel weight, scent range, lingering multiplier, source and distant scent text, scent tracking difficulty, and optional inhaled drug pulse settings. The runtime component is its own transparent `IContainer` and an `ILightable`; builders load fuel with ordinary `put`, start it with `light`, and stop it with `extinguish`. Scent text appears through ambient description effects and can be discovered by smell checks in `tracks`.
+
+Use `OfferingReceiver` for altars, votive basins, funeral trays, and similar ritual foci that receive item offerings. The prototype stores optional allowed and blocked offering tags, capacity, maximum item size, consumption mode (`ManualBurn`, `BurnOnOffer`, or `RecordOnly`), optional residue item prototype, `CanOfferProg`, `OnOfferProg`, `OnBurnProg`, and accepted/rejected/burn emotes. The runtime component is also its own transparent `IContainer`, so ordinary `put` and `take` still work, while `offer <item> at <focus>` and `burn <item> at <focus>` provide ritual-aware workflows.
+
+`CanOfferProg`, `OnOfferProg`, and `OnBurnProg` all receive `(Character actor, Item focus, Item offering)`. `OfferingReceiver` also raises `OfferingReceived`, `OfferingReceivedWitness`, `OfferingBurned`, and `OfferingBurnedWitness`; witness events append the witnessing perceivable to the payload. V1 supports item and commodity offerings. Direct poured-liquid libations need a later liquid-specific command path rather than pretending that an item receiver can consume free liquid.
+
 ### Readable book components
 Books remain one component family rather than splitting blank books and published books into separate component types. `BookGameItemComponentProto` owns reusable authored defaults, while `BookGameItemComponent` owns live page state, torn pages, current page, title, and the actual readable rows attached to each loaded item.
 

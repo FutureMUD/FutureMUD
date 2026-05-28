@@ -68,6 +68,8 @@ public partial class Character
             case EventType.ItemUnlockedWitness:
             case EventType.ItemWieldedWitness:
             case EventType.ItemWornWitness:
+            case EventType.OfferingBurnedWitness:
+            case EventType.OfferingReceivedWitness:
             case EventType.WitnessBleedTick:
                 foreach (IGameItem item in Body.ExternalItems)
                 {

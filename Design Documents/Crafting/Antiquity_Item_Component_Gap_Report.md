@@ -368,29 +368,40 @@ Items enabled:
 - `antiquity_temple_divination_board`
 - `antiquity_tavern_game_set`
 
-### Offering and Ritual Focus Component
+### Offering Receiver and Incense Burner Components
 
-Missing functionality:
+Implemented V1 functionality:
 
-- offerings that are consumed, counted, accepted, rejected, spoiled, or recorded.
-- altars, censers, lamps, and libation tables that do more than hold items.
-- ritual state that FutureProgs, NPCs, clans, laws, or magic systems can inspect.
+- `IncenseBurner` is a lightable transparent container for tagged incense fuel. It burns contained fuel by weight, emits room LOOK scent text, spreads ambient scent to nearby cells, and exposes scent metadata to the `tracks` command without creating movement tracks.
+- `OfferingReceiver` is a transparent/open ritual focus that accepts broad item offerings, optionally gates them by tags, supports `offer <item> at <focus>` and `burn <item> at <focus>`, consumes burned offerings by default, and can create configured residue in later prototype variants.
+- `OfferingReceiver` runs `CanOfferProg`, `OnOfferProg`, and `OnBurnProg` with `(Character actor, Item focus, Item offering)`.
+- The event stream now exposes `OfferingReceived`, `OfferingReceivedWitness`, `OfferingBurned`, and `OfferingBurnedWitness`, with payloads `(focus, actor, offering)` and `(focus, actor, offering, witness)`.
 
-Rough component guidance:
+Still missing or deferred:
 
-- Component type names: `OfferingReceiver` and optionally `RitualFocus`.
-- Prototype settings: accepted item tags/materials/liquids, consumption behaviour, required actor checks, accepted-offering echo, rejected-offering echo, optional cooldown, optional owner clan/religion/cult metadata.
-- Runtime commands: `offer <item> at <focus>`, `pour <liquid> as offering`, `light incense at <focus>`, or reuse existing put/pour commands with component interception.
-- FutureProg hooks should read recent offerings, actor, accepted item, quantity, and focus identity.
+- Direct poured-liquid libations are not implemented in this pass. Use item/commodity offerings for V1; liquid-only rows remain future work until a `pour`/liquid offering path exists.
+- Ritual ownership metadata, offering history queries, spoilage counters, cooldowns, and law/clan/religion integrations remain future custom systems layered through progs/events.
+- Oil lamps remain under the ordinary lighting/smokeable/heater families unless a later ritual-lamp component is required.
+
+Seeded support:
+
+- `IncenseBurner_Antiquity_BronzeCenser`
+- `OfferingReceiver_Antiquity_HouseholdAltar`
+- `OfferingReceiver_Antiquity_VotiveBasin`
+- `OfferingReceiver_Antiquity_FuneralTray`
 
 Items enabled:
 
-- `antiquity_stone_household_altar`
-- `antiquity_temple_libation_table`
 - `antiquity_bronze_incense_censer`
-- `antiquity_votive_figurine_basin`
-- `antiquity_oil_lamp_shrine`
+- `antiquity_resin_incense_pellets`
+- `antiquity_household_altar`
+- `antiquity_votive_offering_basin`
 - `antiquity_funeral_offering_tray`
+
+Future liquid-only or specialised ritual rows:
+
+- `antiquity_temple_libation_table`
+- `antiquity_oil_lamp_shrine`
 - `antiquity_oracular_tripod`
 - `antiquity_blood_offering_bowl`
 
@@ -426,5 +437,5 @@ Items enabled:
 1. Add data-only items that use existing components cleanly: dice, lockpicks, drag aids, notice boards, and a first water-source set.
 2. Completed in `UsefulSeeder`: antiquity-specific component prototypes for `TimePiece`, `WaterSource`, `DragAid`, `Dice`, `Locksmithing Tool`, `ShopStall`, `MarketGoodWeight`, `SealStamp`, `Sealable`, and `MeasuringInstrument`.
 3. Add matching item prototypes that use those new component prototypes and update this document with the shipped names.
-4. Choose one new runtime component family for a first deeper gameplay pass. `Instrument` is the best first candidate because it is socially important, highly visible in roleplay, and relatively self-contained.
-5. Treat `OfferingReceiver` as the next most setting-defining component family. `SealStamp`/`Sealable` and the weight/fluid-volume portion of `MeasuringInstrument` are now implemented; length measurement remains a future item-dimension pass.
+4. `IncenseBurner` and `OfferingReceiver` now cover the first ritual-offering gameplay pass, including smell-trackable incense and item-offering burn hooks.
+5. Treat direct liquid libations, ritual ownership/history, and specialised oracular/funeral law integrations as later passes. `SealStamp`/`Sealable` and the weight/fluid-volume portion of `MeasuringInstrument` are implemented; length measurement remains a future item-dimension pass.

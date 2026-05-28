@@ -78,6 +78,12 @@ public sealed record RpiNpcClanMembershipRecord(
 	string RankName,
 	string ClanAlias);
 
+public sealed record RpiNpcShopEconomyProfile(
+	int ProfileNumber,
+	double Markup,
+	double Discount,
+	int EconFlags);
+
 public sealed record RpiNpcShopRecord(
 	int ShopVnum,
 	int StoreVnum,
@@ -86,6 +92,8 @@ public sealed record RpiNpcShopRecord(
 	double EconMarkup1,
 	double EconDiscount1,
 	int EconFlags1,
+	IReadOnlyList<RpiNpcShopEconomyProfile> EconomyProfiles,
+	int NoBuyFlags,
 	IReadOnlyList<string> AdditionalEconomyValues,
 	IReadOnlyList<int> DeliveryVnums,
 	IReadOnlyList<int> TradesIn);

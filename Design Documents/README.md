@@ -137,6 +137,7 @@ This folder is organised by subsystem so implementation notes, builder workflows
 - [Celestial Type: Sun](./World/Celestial_Type_Sun.md)
 - [Celestial Type: SunFromPlanetaryMoon](./World/Celestial_Type_SunFromPlanetaryMoon.md)
 - [Corporeality and Planes](./World/Corporeality_and_Planes.md)
+- [Pathfinding System](./World/Pathfinding_System.md)
 - [Position State System](./World/Position_State_System.md)
 - [Time and Date System](./World/Time_And_Date_System.md)
 - [Zero Gravity System](./World/Zero_Gravity_System.md)

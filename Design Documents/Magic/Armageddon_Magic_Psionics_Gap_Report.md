@@ -24,7 +24,7 @@ and the current runtime implementations under `MudSharpCore/Magic`.
 - Existing powers count as valid coverage even when Armageddon exposed the original ability as a spell. If you want strict `cast`-spell parity rather than "same subsystem can do it", several defensive entries would slide from `Native now` to `Needs engine primitive`.
 - A handful of Armageddon entries are under-specified in the dump (`Daylight`, `Empower`, `Drown`, `Cause Disease`, `Acid Spray`, some passive psionics). The first pass counted those conservatively unless the name clearly mapped to an existing FutureMUD primitive.
 - The original first-pass counts used a single `Needs engine work` bucket. This revision keeps those historical lists in the appendix, but current planning uses the two-way split above.
-- Status reviewed on 2026-05-03 against `Magic_System_Implemented_Types.md`, `Magic_System_Spells.md`, `Magic_System_Powers.md`, and the registered runtime types under `MudSharpCore/Magic`. Exact family-by-family counts were not recomputed in this pass; the stale top-line counts have therefore been removed from the planning sections. V4 added 9 builder-registered psionic power tokens and 2 builder-registered tag-aware ward effect tokens. The 2026-05-05 Old SOI parity slice added 7 more builder-registered psionic power tokens: `dangersense`, `empathy`, `hex`, `clairvoyance`, `prescience`, `sensitivity`, and `psychicbolt`.
+- Status reviewed on 2026-05-28 against `Magic_System_Implemented_Types.md`, `Magic_System_Spells.md`, `Magic_System_Powers.md`, and the registered runtime types under `MudSharpCore/Magic`. Exact family-by-family counts were not recomputed in this pass; the stale top-line counts have therefore been removed from the planning sections. V4 added 9 builder-registered psionic power tokens and 2 builder-registered tag-aware ward effect tokens. The 2026-05-05 Old SOI parity slice added 7 more builder-registered psionic power tokens: `dangersense`, `empathy`, `hex`, `clairvoyance`, `prescience`, `sensitivity`, and `psychicbolt`. The 2026-05-28 persistent sensory/combat slice added 4 builder-registered spell-effect tokens: `burning`, `ignite`, `trackmark`, and `tracktrail`.
 
 ## Executive Summary
 
@@ -33,13 +33,13 @@ The major correction from the old report is that "requires engine work" is no lo
 | Current category | Meaning | Examples |
 | --- | --- | --- |
 | Buildable now | Existing spell effects, powers, triggers, planes, body forms, tags, wards, portals, or progs can author the behaviour today. | `Ethereal`, simple `Planeshift`, `Mark`, basic `Portal`, `Thoughtsense`, `Immersion`, `Conceal`, `Glyph`, `Vampiric Blade` |
-| Needs engine primitive | A new effect, power, hook, or formula is needed, but the surrounding model already exists. | `feather fall`, `detect poison`, cure blindness, `insomnia`, strength-contested dispels, open/close exit mutation, burn-over-time, footprint tracking |
+| Needs engine primitive | A new effect, power, hook, or formula is needed, but the surrounding model already exists. | open/close exit mutation, exact `Identify`/`Dead Speak`/`Recite` UX, source-specific anti-status or metaphysical wrappers |
 | Needs supporting system | The spell implies a runtime model that FutureMUD does not yet have. | true possession/projection, body-left-behind disembodiment, durable gate/rune topology, objective multi-viewer illusions, land/elemental relationship metaphysics |
 
 Key takeaways:
 
 - The old headline parity counts are no longer suitable for planning. They predate the status, ward, exit, plane/form, tag, item/corpse, portal, dispel, enchantment, and psionic identity work.
-- The current system is strong at direct damage, healing, stamina/need adjustment, item or liquid conjuration, NPC summoning, invisibility, telepathy, self-only magical armour, planar state shifts, and single-active-body transformation.
+- The current system is strong at direct damage, healing, stamina/need adjustment, item or liquid conjuration, NPC summoning, invisibility, telepathy, self-only magical armour, planar state shifts, persistent burn/track spell effects, and single-active-body transformation.
 - Previous phases closed three medium-difficulty primitive gaps: local exit targeting, prog-resolved summon-style remote targeting, and reusable room or personal wards with shared spell and power interception.
 - The plane and body-form work moves several old blockers into the buildable bucket: `Ethereal`, `Detect Ethereal`, `Dispel Ethereal`, simple `Planeshift`, ghostly manifestation, and polymorph-style transformations can now use first-class effects rather than bespoke tags.
 - The biggest remaining architecture blockers are durable portal topology beyond saved effects, objective or group-scoped illusion policy, world-specific metaphysics, and true "dual body" mechanics like possession or shadow projection.
@@ -49,13 +49,13 @@ Key takeaways:
 
 | Family | Mostly buildable now | Needs engine primitive | Needs supporting system |
 | --- | --- | --- | --- |
-| Fire | damage, light, fire walls, fire-themed items | burn-over-time, object-specific wards, source-specific `Empower` or `Daylight` semantics if the dump requires more than light/boosts | none obvious from the current report |
-| Water | healing, need/liquid manipulation, poison/disease application and removal, silence, water breathing | `detect poison`, exact `Drown` semantics if not just hypoxia/damage | land/relationship metaphysics for `Oasis` / `Determine Relationship` if they must model Armageddon's setting rules |
+| Fire | damage, light, fire walls, fire-themed items, spell-owned burn-over-time | object-specific wards, source-specific `Empower` or `Daylight` semantics if the dump requires more than light/boosts | none obvious from the current report |
+| Water | healing, need/liquid manipulation, poison/disease application and removal, poison detection, silence, water breathing | exact `Drown` semantics if not just hypoxia/damage | land/relationship metaphysics for `Oasis` / `Determine Relationship` if they must model Armageddon's setting rules |
 | Earth / Stone | armour, trait boosts, sand walls, golems, item repair/damage/destruction, spell-owned sleep | `Burrow` if it needs temporary room creation or hidden exits, `Rewind` delayed callbacks, statue/item-form edge cases | persistent constructed burrow topology if burrows must become real world structure |
-| Wind | invisibility, teleport/relocate, local exit movement, walls, flight status | `feather fall`, `Hands Of Wind` if it needs special long-range forced movement, `Transference` swap semantics | projection-style `Shadowwalk` if interpreted as remote operation |
-| Shadow | blindness, darkness, curse/fear/infravision, ethereal states, dispel ethereal, hero/sword item magic | cure blindness, richer fear/curse variants if source-specific rules are needed | send-shadow projection and body-left-behind shadow walking |
-| Lightning | direct attacks, stamina effects, paralysis | `insomnia`, footprint tracking such as `Fluorescent Footsteps` | none obvious from the current report |
-| Void | wards, portals, marks/runes, corpse preservation/consumption/spawn, resource drains, item enchantments | strength-contested dispel math, exact `Identify`/`Dead Speak`/`Recite` surfaces if they need first-class UX | durable portal/rune topology, possession, disembodiment, setting-specific `Solace` / `Dragon Bane` / `Cathexis` |
+| Wind | invisibility, teleport/relocate, local exit movement, walls, flight status, feather fall | `Hands Of Wind` if it needs special long-range forced movement, `Transference` swap semantics | projection-style `Shadowwalk` if interpreted as remote operation |
+| Shadow | blindness, cure blindness, darkness, curse/fear/infravision, ethereal states, dispel ethereal, hero/sword item magic | richer fear/curse variants if source-specific rules are needed | send-shadow projection and body-left-behind shadow walking |
+| Lightning | direct attacks, stamina effects, paralysis, footprint-style magical track marking | source-specific lightning wrappers only if content needs more than existing damage/status/trackmark primitives | none obvious from the current report |
+| Void | wards, portals, marks/runes, corpse preservation/consumption/spawn, resource drains, item enchantments, strength-contested dispel matching | exact `Identify`/`Dead Speak`/`Recite` surfaces if they need first-class UX | durable portal/rune topology, possession, disembodiment, setting-specific `Solace` / `Dragon Bane` / `Cathexis` |
 | Unspecified / incomplete magic | `Puddle`; `Cause Disease` if the dump only requires disease application | `Acid Spray`, exact `Drown` if not covered by existing damage/need/breathing primitives | source clarification may be needed before classification |
 | Psionics | contact, barriers, locate/probe/expel/sense, mindblast, rejuvenate, dome, telepathy, passive traffic, identity concealment, `Trace`, `Hear`, `Clairaudience`, `Clairvoyance`, `Allspeak`, `Babble`, `Magicksense`, `Danger Sense`, `Empathy`, `Hex`, `Prescience`, `Sensitivity`, `Psychic Bolt`, `Project Emotion`, `Suggest`, `Coerce`, and animal/wild contact variants via `connectmind` eligibility progs | content-specific `Cathexis`, `Mindwipe`, or beast/wild wrappers if they require unique UX beyond existing links and policy hooks | projection/remote-presence semantics, durable psionic trace/consequence models, and objective multi-viewer illusion state |
 
@@ -81,6 +81,7 @@ The current system already has good coverage for:
 - psionic identity concealment and passive thought/feeling traffic through `mindconceal` and the existing `telepathy` flow
 - Wind movement and fall-control effects through `levitate`, `featherfall`, `forcedpathmovement` / `handsofwind`, `transference`, and `removeinvisibility` / `dispelinvisibility`
 - V3 edge statuses through `detectpoison`, `insomnia`, `removeinsomnia`, `removeblindness` / `cureblindness`, and optional strength-contested `dispelmagic`
+- persistent sensory/combat spell effects through `burning` / `ignite` and `trackmark` / `tracktrail`, with keyed `dispelmagic` cleanup and magical trace text in tracking output
 - Coercion V1 through `forcecommand`, `subjectivedesc`, and `subjectivesdesc`
 - V4 psionic and perception policy through `trace`, `hear`, `clairaudience`, `allspeak`, `babble`, `magicksense`, `projectemotion`, `suggest`, and `coerce`, plus shared traffic/audit delivery, `connectmind` eligibility progs, subjective-description priority/key handling, and tag-aware `roomtagward` / `personaltagward`
 - Old SOI psionic parity through `dangersense`, `empathy`, `hex`, `clairvoyance`, `prescience`, `sensitivity`, and `psychicbolt`, plus wound-transfer remapping, psionic activity pings, remote LOOK rendering, and stun-only psychic damage through the health pipeline
@@ -99,7 +100,7 @@ Completed on 2026-04-21.
 - Added `SpellArmourEffect` by sharing `MagicArmourConfiguration` with the existing armour power.
 - Added `roomflag` / `removeroomflag` for `peaceful`, `nodream`, `alarm`, `darkness`, and `wardtag`.
 
-Deferred from this pass and still relevant: edge status primitives such as `feather fall`, `detect poison`, `insomnia`, cure blindness, and strength-contested dispel math.
+Deferred from this pass but later resolved in V3 and V5a: edge status primitives, strength-contested dispel matching, burn-over-time, and magical track marking.
 
 ### Related plane and body-form work
 
@@ -153,6 +154,16 @@ Completed on 2026-05-03.
 - Added a target-eligibility prog to `connectmind`, so animal, wild, or setting-specific contact variants can be expressed without new hard-coded link powers.
 
 V4 count deltas: +9 builder power tokens, +2 builder spell-effect tokens, +7 shared policy/support types. The V4 psionic/perception engine-primitive backlog is complete; the remaining psionic/perception blockers are supporting-system problems rather than ordinary power/effect registration work.
+
+### Engine V5a: persistent sensory/combat primitives
+
+Completed on 2026-05-28.
+
+- Added `burning` / `ignite`, a spell-owned recurring burn effect for characters and items. It uses spell formulas for per-tick damage, pain, stun, and thermal load; supports normal or self-oxidising fire semantics; adds short and full description addenda; and can be removed with `dispelmagic effect burning`.
+- Added `trackmark` / `tracktrail`, a spell-owned character effect that modifies future visual or olfactory track intensity and can add a magically-marked track circumstance. Created tracks display the magical trace in tracking output and can be targeted with `dispelmagic effect trackmark`.
+- Added `ITrackIntensityEffect` and `TrackCircumstances.MagicallyMarked` so movement remains responsible for creating tracks while spell effects can modify the intensities and circumstances of those tracks.
+
+This closes the smaller `Immolate` and `Fluorescent Footsteps` style engine-primitive gap without pretending to solve durable psionic traces, objective illusions, or persistent world topology.
 
 ## Current Reclassification From Planes And Body Forms
 
@@ -337,7 +348,7 @@ This now unlocks or materially improves:
 
 Remaining limitations:
 
-- `dispelmagic` matches by authored criteria and uses the normal spell/ward/resist flow; there is not yet a separate strength-contested dispel formula layer.
+- `dispelmagic` can opt into strength-contested matching, but it still deliberately uses authored criteria, ordinary targeting, ward, and resistance policy rather than a separate global anti-magic combat system.
 - Persistent runes, standing portals, and durable world-topology edits should not be modelled as only temporary magic tags. Engine V2 keeps gates/runes as saved effects and transient exits rather than adding a gate table or permanent database exits.
 
 ### 7. Body transformation, dual-body, possession, and projection mechanics
@@ -411,10 +422,9 @@ That means the remaining work splits cleanly:
 
 These tasks should be ordinary implementation work inside the existing magic, perception, item, movement, combat, or psionic surfaces.
 
-- Add remaining edge status/detection/removal effects: `feather fall`, `detect poison`, `insomnia` or sleep-immunity, cure blindness, and any source-specific anti-status variants the Armageddon list requires.
-- Add strength-contested dispel math on top of `dispelmagic` for content that wants explicit caster-vs-caster strength contests rather than the current authored criteria plus normal targeting/resist/ward flow.
+- Add source-specific anti-status variants only where the Armageddon list requires semantics beyond the generic status/removal effects already implemented.
 - Add exit state mutation beyond barriers, such as opening, closing, sealing, or unlocking a targeted exit when `exitbarrier` is not the right model.
-- Add burn-over-time, footprint-tracking, and similar persistent sensory/combat effects for spells such as `Immolate` and `Fluorescent Footsteps`.
+- Add any remaining persistent sensory/combat variants only where `burning`, `trackmark`, ordinary damage/status effects, and progs are not expressive enough.
 - Add swap or long-range movement effects if `Transference` and `Hands Of Wind` require more than `teleporttarget`, `relocate`, `prog...room`, or `forcedexitmovement`.
 - Add specific information powers/effects for `Identify`, `Dead Speak`, and `Recite` where existing progs or metadata are not sufficient.
 - Add dedicated `Beast Affinity`, `Wild Contact`, or `Wild Barrier` wrappers only if `connectmind` eligibility progs, existing barriers, and ordinary content naming are not expressive enough.
@@ -433,12 +443,11 @@ These are the remaining true blockers. They should not be represented as one-off
 
 ### V3: high-return primitive cleanup
 
-The next slice should finish the small, unglamorous primitives that no longer need design debate:
+Status: completed for the concrete primitives listed here. V5a later closed the remaining persistent sensory/combat sub-slice.
 
-- Add `feather fall`, `detect poison`, `insomnia`/sleep immunity, cure blindness, burn-over-time, and footprint-tracking effects with focused spell-effect tests.
-- Add exit state mutation if the Armageddon wall/utility set needs open/close/seal behaviour beyond `exitbarrier`.
-- Add contested-dispel math as an optional `dispelmagic` mode or companion effect, keeping the current criteria-based cleanup as the default.
-- Add builder-loadable recipe tests that prove formerly blocked Fire, Water, Wind, Shadow, Lightning, and Void examples load against the current primitives.
+- `featherfall`, `detectpoison`, `insomnia`/`removeinsomnia`, `removeblindness`/`cureblindness`, optional strength-contested `dispelmagic`, `burning`/`ignite`, and `trackmark`/`tracktrail` are now implemented.
+- Exit state mutation remains a candidate only if content requires open/close/seal/unlock behavior beyond `exitbarrier`.
+- Builder-loadable recipe tests should still be refreshed when exact family-by-family counts are recomputed.
 - Refresh the family-by-family classification counts after V3, because the old first-pass numbers are no longer actionable.
 
 ### V4: psionic and perception policy layer
@@ -450,6 +459,14 @@ Status: completed on 2026-05-03.
 - Psionic traffic now has a shared delivery/refusal/listener/audit helper rather than each effect hand-rolling policy.
 - Subjective descriptions now have priority and illusion-key handling, and `dispelmagic` can target keyed illusions.
 - `roomtagward` and `personaltagward` are available for tag-aware anti-magic.
+
+### V5a: persistent sensory/combat primitives
+
+Status: completed on 2026-05-28.
+
+- `burning` / `ignite` are available for spell-owned burn-over-time on characters and items.
+- `trackmark` / `tracktrail` are available for magically intensified or magically marked tracks.
+- `dispelmagic` can target these with `effect burning` and `effect trackmark`.
 
 ### V5: supporting-system buildout
 
@@ -597,7 +614,7 @@ Engine V2 has shipped the deeper parity layer without jumping into simultaneous-
 
 ## Recommended Next Shipping Slice After Engine V2
 
-Engine V3 has now shipped the small edge-status slice that sat outside Engine V2: poison detection, insomnia, cure blindness, and optional strength-contested dispel matching. The next remaining work should focus on the larger pieces Engine V2 deliberately left outside the slice:
+Engine V3 shipped the small edge-status slice that sat outside Engine V2: poison detection, insomnia, cure blindness, and optional strength-contested dispel matching. Engine V5a has now also shipped the smaller persistent sensory/combat primitives for burn-over-time and magical track marking. The next remaining work should focus on the larger pieces Engine V2 deliberately left outside these slices:
 
 - durable portal/rune topology if saved effects and transient exits are not enough for standing gate networks
 - richer illusion stacking and perception policy

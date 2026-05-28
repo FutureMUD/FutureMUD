@@ -43,6 +43,7 @@ public class PathSearchTests
                     List<CellExitStub> exits = new();
                     CellStub cell = new()
                     {
+                        Id = i * 50 + j + 1,
                         Room = new RoomStub
                         {
                             X = i,
@@ -145,6 +146,7 @@ public class PathSearchTests
                     List<CellExitStub> exits = new();
                     CellStub cell = new()
                     {
+                        Id = i * 50 + j + 1,
                         Room = new RoomStub
                         {
                             X = i,
@@ -209,6 +211,57 @@ public class PathSearchTests
     public static IPerceivable Person4Flight { get; set; }
     public static IPerceivable Person5Flight { get; set; }
 
+    private static (IFuturemud Gameworld, PathfindingService Service, ICell[] Cells) BuildLinearPath(int count)
+    {
+        All<ICell> allCells = new();
+        Mock<IFuturemud> gameworld = new();
+        Mock<IExitManager> exitManager = new();
+        PathfindingService service = new(gameworld.Object);
+        exitManager.Setup(x => x.PathfindingService).Returns(service);
+        gameworld.Setup(x => x.Cells).Returns(allCells);
+        gameworld.Setup(x => x.ExitManager).Returns(exitManager.Object);
+
+        CellStub[] cellStubs = Enumerable.Range(0, count)
+                                         .Select(i => new CellStub
+                                         {
+                                             Id = i + 1,
+                                             Name = $"Linear {i}",
+                                             Gameworld = gameworld.Object,
+                                             Room = new RoomStub { X = i, Y = 0, Z = 0 }.ToMock(),
+                                             Exits = new List<CellExitStub>()
+                                         })
+                                         .ToArray();
+        for (int i = 0; i < count - 1; i++)
+        {
+            cellStubs[i].Exits.Add(new CellExitStub
+            {
+                Destination = cellStubs[i + 1],
+                Exit = new ExitStub(),
+                OutboundDirection = CardinalDirection.East
+            });
+            cellStubs[i + 1].Exits.Add(new CellExitStub
+            {
+                Destination = cellStubs[i],
+                Exit = new ExitStub(),
+                OutboundDirection = CardinalDirection.West
+            });
+        }
+
+        List<Mock<ICell>> cellMocks = cellStubs.Select(x => x.ToMock()).ToList();
+        ICell[] cells = cellStubs.Select(x => x.GetObject(cellMocks)).ToArray();
+        foreach (ICell cell in cells)
+        {
+            allCells.Add(cell);
+        }
+
+        return (gameworld.Object, service, cells);
+    }
+
+    private static IPerceivable PerceivableAt(ICell cell, IFuturemud gameworld)
+    {
+        return new PerceivableStub { Location = cell, Gameworld = gameworld }.ToMock();
+    }
+
     [TestMethod]
     public void TestASharpPath()
     {
@@ -217,6 +270,245 @@ public class PathSearchTests
 
         path = Person1Flight.PathBetween(Person3Flight, 1, true).ToList();
         Assert.AreEqual(1, path.Count, $"It was expected that the two persons were 1 square apart but they were {path.Count} apart instead. \n\nPath was: {path.Select(x => x.OutboundDirection.DescribeBrief()).ListToString()}.\n\n{path.Select(x => x.Destination.Name).ListToString()}");
+    }
+
+    [TestMethod]
+    public void AutomaticPathBelowThresholdUsesExactSearch()
+    {
+        List<ICellExit> path = Person1Flight.PathBetween(Person2Flight, 15, true,
+            new PathSearchOptions { Algorithm = PathSearchAlgorithm.Automatic, HierarchicalThreshold = 100 }).ToList();
+
+        Assert.AreEqual(9, path.Count, "Expected automatic mode below threshold to preserve exact pathing.");
+    }
+
+    [TestMethod]
+    public void HierarchicalPathFindsLongLinearRouteAfterIdleBuild()
+    {
+        (IFuturemud gameworld, PathfindingService service, ICell[] cells) = BuildLinearPath(100);
+        service.RequestIndexWarmup();
+        service.DoIdleWork(TimeSpan.FromSeconds(5));
+
+        IPerceivable source = PerceivableAt(cells[0], gameworld);
+        IPerceivable target = PerceivableAt(cells[99], gameworld);
+        List<ICellExit> path = source.PathBetween(target, 150, _ => true, PathSearchOptions.Hierarchical).ToList();
+
+        Assert.AreEqual(99, path.Count, "Expected hierarchical pathing to produce the full long route.");
+        Assert.IsTrue(service.Diagnostics.CurrentSnapshotVersion > 0, "Expected idle work to publish an index snapshot.");
+    }
+
+    [TestMethod]
+    public void HierarchicalPathValidatesDoorStateWithoutRebuildingIndex()
+    {
+        All<ICell> allCells = new();
+        Mock<IFuturemud> gameworld = new();
+        Mock<IExitManager> exitManager = new();
+        PathfindingService service = new(gameworld.Object);
+        exitManager.Setup(x => x.PathfindingService).Returns(service);
+        gameworld.Setup(x => x.Cells).Returns(allCells);
+        gameworld.Setup(x => x.ExitManager).Returns(exitManager.Object);
+
+        DoorStub door = new() { IsOpen = true, Locked = false, State = DoorState.Open };
+        CellStub cellA = new()
+        {
+            Id = 1001,
+            Name = "A",
+            Gameworld = gameworld.Object,
+            Room = new RoomStub { X = 0, Y = 0, Z = 0 }.ToMock(),
+            Exits = new List<CellExitStub>()
+        };
+        CellStub cellB = new()
+        {
+            Id = 1002,
+            Name = "B",
+            Gameworld = gameworld.Object,
+            Room = new RoomStub { X = 11, Y = 0, Z = 0 }.ToMock(),
+            Exits = new List<CellExitStub>()
+        };
+        CellStub cellC = new()
+        {
+            Id = 1003,
+            Name = "C",
+            Gameworld = gameworld.Object,
+            Room = new RoomStub { X = 0, Y = 11, Z = 0 }.ToMock(),
+            Exits = new List<CellExitStub>()
+        };
+
+        cellA.Exits.Add(new CellExitStub
+        {
+            Destination = cellB,
+            Exit = new ExitStub { Door = door },
+            OutboundDirection = CardinalDirection.East
+        });
+        cellA.Exits.Add(new CellExitStub
+        {
+            Destination = cellC,
+            Exit = new ExitStub(),
+            OutboundDirection = CardinalDirection.South
+        });
+        cellC.Exits.Add(new CellExitStub
+        {
+            Destination = cellB,
+            Exit = new ExitStub(),
+            OutboundDirection = CardinalDirection.East
+        });
+
+        CellStub[] stubs = [cellA, cellB, cellC];
+        List<Mock<ICell>> mocks = stubs.Select(x => x.ToMock()).ToList();
+        ICell[] cells = stubs.Select(x => x.GetObject(mocks)).ToArray();
+        foreach (ICell cell in cells)
+        {
+            allCells.Add(cell);
+        }
+
+        service.RequestIndexWarmup();
+        service.DoIdleWork(TimeSpan.FromSeconds(5));
+        long snapshotVersion = service.Diagnostics.CurrentSnapshotVersion;
+        door.IsOpen = false;
+        door.Locked = true;
+
+        IPerceivable source = PerceivableAt(cells[0], gameworld.Object);
+        IPerceivable target = PerceivableAt(cells[1], gameworld.Object);
+        List<ICellExit> path = source.PathBetween(target, 10, true, PathSearchOptions.Hierarchical).ToList();
+
+        Assert.AreEqual(snapshotVersion, service.Diagnostics.CurrentSnapshotVersion,
+            "Changing door state should not rebuild the topology index.");
+        Assert.AreEqual(2, path.Count, "Expected pathing to reject the now-locked direct door and use the alternate route.");
+        Assert.AreSame(cells[2], path[0].Destination);
+        Assert.AreSame(cells[1], path[1].Destination);
+    }
+
+    [TestMethod]
+    public void HierarchicalPathRetriesAlternatePortalWhenFinalSegmentFails()
+    {
+        All<ICell> allCells = new();
+        Mock<IFuturemud> gameworld = new();
+        Mock<IExitManager> exitManager = new();
+        PathfindingService service = new(gameworld.Object);
+        exitManager.Setup(x => x.PathfindingService).Returns(service);
+        gameworld.Setup(x => x.Cells).Returns(allCells);
+        gameworld.Setup(x => x.ExitManager).Returns(exitManager.Object);
+
+        CellStub sourceCell = new()
+        {
+            Id = 2001,
+            Name = "Source",
+            Gameworld = gameworld.Object,
+            Room = new RoomStub { X = 0, Y = 0, Z = 0 }.ToMock(),
+            Exits = new List<CellExitStub>()
+        };
+        CellStub badPortal = new()
+        {
+            Id = 2002,
+            Name = "Bad Portal",
+            Gameworld = gameworld.Object,
+            Room = new RoomStub { X = 11, Y = 0, Z = 0 }.ToMock(),
+            Exits = new List<CellExitStub>()
+        };
+        CellStub goodPortal = new()
+        {
+            Id = 2003,
+            Name = "Good Portal",
+            Gameworld = gameworld.Object,
+            Room = new RoomStub { X = 12, Y = 0, Z = 0 }.ToMock(),
+            Exits = new List<CellExitStub>()
+        };
+        CellStub targetCell = new()
+        {
+            Id = 2004,
+            Name = "Target",
+            Gameworld = gameworld.Object,
+            Room = new RoomStub { X = 13, Y = 0, Z = 0 }.ToMock(),
+            Exits = new List<CellExitStub>()
+        };
+
+        sourceCell.Exits.Add(new CellExitStub
+        {
+            Destination = badPortal,
+            Exit = new ExitStub(),
+            OutboundDirection = CardinalDirection.East
+        });
+        sourceCell.Exits.Add(new CellExitStub
+        {
+            Destination = goodPortal,
+            Exit = new ExitStub(),
+            OutboundDirection = CardinalDirection.SouthEast
+        });
+        goodPortal.Exits.Add(new CellExitStub
+        {
+            Destination = targetCell,
+            Exit = new ExitStub(),
+            OutboundDirection = CardinalDirection.East
+        });
+
+        CellStub[] stubs = [sourceCell, badPortal, goodPortal, targetCell];
+        List<Mock<ICell>> mocks = stubs.Select(x => x.ToMock()).ToList();
+        ICell[] cells = stubs.Select(x => x.GetObject(mocks)).ToArray();
+        foreach (ICell cell in cells)
+        {
+            allCells.Add(cell);
+        }
+
+        service.RequestIndexWarmup();
+        service.DoIdleWork(TimeSpan.FromSeconds(5));
+
+        IPerceivable source = PerceivableAt(cells[0], gameworld.Object);
+        IPerceivable target = PerceivableAt(cells[3], gameworld.Object);
+        List<ICellExit> path = source
+                               .PathBetween(target, 10, _ => true, new PathSearchOptions
+                               {
+                                   Algorithm = PathSearchAlgorithm.Hierarchical,
+                                   MaximumHierarchicalRetries = 2
+                               })
+                               .ToList();
+
+        Assert.AreEqual(2, path.Count,
+            "Expected hierarchical pathing to retry the alternate target-cluster portal after the first final segment failed.");
+        Assert.AreSame(cells[2], path[0].Destination);
+        Assert.AreSame(cells[3], path[1].Destination);
+    }
+
+    [TestMethod]
+    public void TransientExitRegistrationInvalidatesPathfindingTopology()
+    {
+        All<ICell> allCells = new();
+        Mock<IFuturemud> gameworld = new();
+        gameworld.Setup(x => x.Cells).Returns(allCells);
+        ExitManager manager = new(gameworld.Object);
+        manager.PathfindingService.DoIdleWork(TimeSpan.FromSeconds(1));
+        Assert.IsFalse(manager.PathfindingService.Diagnostics.IsDirty,
+            "Expected the empty topology build to clear the initial dirty state.");
+
+        Mock<ICell> cell1 = new();
+        cell1.Setup(x => x.Id).Returns(3001);
+        Mock<ICell> cell2 = new();
+        cell2.Setup(x => x.Id).Returns(3002);
+        Mock<IExit> exit = new();
+        exit.Setup(x => x.Cells).Returns(new[] { cell1.Object, cell2.Object });
+
+        manager.RegisterTransientExit(exit.Object);
+
+        Assert.IsTrue(manager.PathfindingService.Diagnostics.IsDirty,
+            "Expected transient exits to invalidate the topology snapshot.");
+    }
+
+    [TestMethod]
+    public void IdleBuildPublishesOnlyAfterBudgetedSlicesComplete()
+    {
+        (_, PathfindingService service, _) = BuildLinearPath(3);
+        service.MaximumCellsPerIdleSlice = 1;
+        service.RequestIndexWarmup();
+
+        service.DoIdleWork(TimeSpan.FromSeconds(1));
+        Assert.AreEqual(0, service.Diagnostics.CurrentSnapshotVersion,
+            "Expected the first one-cell slice not to publish a partial snapshot.");
+        Assert.IsTrue(service.Diagnostics.IsBuildQueued);
+
+        service.DoIdleWork(TimeSpan.FromSeconds(1));
+        service.DoIdleWork(TimeSpan.FromSeconds(1));
+        service.DoIdleWork(TimeSpan.FromSeconds(1));
+
+        Assert.IsTrue(service.Diagnostics.CurrentSnapshotVersion > 0,
+            "Expected the snapshot to publish only after all queued cells were processed.");
     }
 
     [TestMethod]

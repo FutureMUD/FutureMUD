@@ -41,6 +41,7 @@ public class CellStub
     public List<CellExitStub> Exits { get; set; }
     public List<IPerceivable> Perceivables { get; set; } = new();
     public IRoom Room { get; init; }
+    public IFuturemud Gameworld { get; set; }
     public long Id { get; set; }
 
     public Mock<ICell> ToMock()
@@ -49,6 +50,7 @@ public class CellStub
         mock.Setup(t => t.Name).Returns(Name);
         mock.Setup(t => t.Room).Returns(Room);
         mock.Setup(t => t.Id).Returns(Id);
+        mock.Setup(t => t.Gameworld).Returns(() => Gameworld);
         mock.Name = Name;
         return mock;
     }
@@ -110,9 +112,9 @@ public class DoorStub
         get; set;
     }
 
-    public bool IsOpen { get; init; }
+    public bool IsOpen { get; set; }
 
-    public bool Locked { get; init; }
+    public bool Locked { get; set; }
 
     public DoorState State
     {
@@ -124,10 +126,10 @@ public class DoorStub
         Mock<IDoor> mock = new();
         mock.SetupGet(t => t.CanFireThrough).Returns(CanFireThrough);
         mock.SetupGet(t => t.CanPlayersSmash).Returns(CanPlayersSmash);
-        mock.SetupGet(t => t.IsOpen).Returns(IsOpen);
+        mock.SetupGet(t => t.IsOpen).Returns(() => IsOpen);
         mock.SetupGet(t => t.State).Returns(State);
         Mock<ILock> lockMock = new();
-        lockMock.SetupGet(x => x.IsLocked).Returns(Locked);
+        lockMock.SetupGet(x => x.IsLocked).Returns(() => Locked);
         mock.SetupGet(t => t.Locks).Returns(new[] { lockMock.Object });
         mock.SetupProperty(t => t.InstalledExit);
         mock.SetupProperty(t => t.HingeCell);
@@ -158,10 +160,12 @@ public class ExitStub
 public class PerceivableStub
 {
     public ICell Location { get; init; }
+    public IFuturemud Gameworld { get; set; }
     public IPerceivable ToMock()
     {
         Mock<IPerceivable> mock = new();
         mock.Setup(t => t.Location).Returns(Location);
+        mock.Setup(t => t.Gameworld).Returns(() => Gameworld);
         return mock.Object;
     }
 }

@@ -273,6 +273,10 @@ public interface IInjectPrototype : IExclusiveGameItemComponentPrototype<IInject
 {
 }
 
+public interface IIncenseBurnerPrototype : IExclusiveGameItemComponentPrototype<IIncenseBurner>, ILightablePrototype, IContainerPrototype
+{
+}
+
 public interface IInsertablePrototype : IExclusiveGameItemComponentPrototype<IInsertable>
 {
 }
@@ -354,6 +358,10 @@ public interface IObscureCharacteristicsPrototype : IExclusiveGameItemComponentP
 }
 
 public interface IObscureIdentityPrototype : IExclusiveGameItemComponentPrototype<IObscureIdentity>, IObscureCharacteristicsPrototype
+{
+}
+
+public interface IOfferingReceiverPrototype : IExclusiveGameItemComponentPrototype<IOfferingReceiver>, IContainerPrototype
 {
 }
 

@@ -11,6 +11,7 @@ The following component families are live and are in scope for medieval v1:
 | `SealStamp` | Signet rings, office seal matrices, notary kits, and guild stamps use `SealStamp_Antiquity_BronzeSignet` until setting-specific seal stamp variants are worth splitting. |
 | `Sealable` | Charters, envelopes, document bundles, account rolls, document satchels, ledger chests, trade bales, chests, strongboxes, notary kits, and tax/customs kits use `Sealable_Document_Wax`, `Sealable_Envelope`, or `Sealable_Container_Wax`. |
 | `MeasuringInstrument` | Balance scales, standard/false weights, grain measures, wine measures, oil measures, and tax/customs kits use the existing weight, dry-measure, or fluid-volume measurement prototypes. |
+| `OfferingReceiver` | `medieval_offering_basin` uses `OfferingReceiver_Antiquity_VotiveBasin` until medieval-specific devotional receiver variants are worth splitting. |
 | `Crossbow` and ammunition | `medieval_weapon_common_crossbow` uses the live `Crossbow` component; `medieval_weapon_common_crossbow_bolts` uses `Ammo_BroadheadBolt`. |
 | Worn and carried containers | Military harnesses, packs, quivers, satchels, pouches, physician bags, and clothing pouches use existing wear/container prototypes. |
 | Furniture and liquid containers | Furniture surfaces, barrels, cups, pots, bowls, sacks, chests, shelves, and desks use existing container/liquid-container prototypes. |
@@ -38,6 +39,7 @@ Implemented live component stable references:
 - `medieval_trade_grain_measure`
 - `medieval_food_wine_measure_jug`
 - `medieval_food_oil_measure_jug`
+- `medieval_offering_basin`
 - `medieval_weapon_common_crossbow`
 - `medieval_weapon_common_crossbow_bolts`
 
@@ -51,7 +53,6 @@ These items are seeded because builders need the visible stock, but richer behav
 | Musical instruments | `medieval_music_psaltery` | Holdable leisure prop until instrument components exist. |
 | Rules-aware game sets | `medieval_game_chess_set` | Container/prop until game-set rules exist. |
 | Animal tack and harness | `medieval_horse_tack_display_set` | Trade/decor prop until animal tack and harness behaviour exists. |
-| Offering receivers | `medieval_offering_basin` | Religious container prop until offering receiver behaviour exists. |
 
 ## Not Component Gaps
 
@@ -59,7 +60,7 @@ The broader food, furniture, jewellery, equipment, medical, and writing stock de
 
 - A foodway platter or ration does not need a dedicated cuisine component in v1.
 - A war banner does not need a rules-aware standard component in v1.
-- A devotional token does not need prayer/offering behaviour in v1 unless it is meant to receive offerings.
+- A devotional token does not need prayer/offering behaviour in v1 unless it is meant to receive offerings; the seeded offering basin is the deliberate live receiver surface.
 - Door bars, lockplates, and keyrings are security props, not door runtime replacements.
 - Stained glass panels, glazed roof tiles, and lantern panes are visible craft stock rather than architecture/window runtime.
 - Writing tools without a live scribing implement component are still useful as visible craftable stock; writable surfaces continue to use `PaperSheet` or book components where appropriate.

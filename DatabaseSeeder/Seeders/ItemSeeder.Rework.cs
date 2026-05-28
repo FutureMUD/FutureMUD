@@ -485,7 +485,8 @@ namespace DatabaseSeeder.Seeders
             }
 
             if (stableReference.StartsWith("medieval_jewellery_", StringComparison.InvariantCultureIgnoreCase) ||
-                stableReference.StartsWith("medieval_devotional_", StringComparison.InvariantCultureIgnoreCase))
+                stableReference.StartsWith("medieval_devotional_", StringComparison.InvariantCultureIgnoreCase) ||
+                stableReference.StartsWith("medieval_offering_", StringComparison.InvariantCultureIgnoreCase))
             {
                 return "medieval jewellery and devotional stock";
             }
@@ -516,8 +517,7 @@ namespace DatabaseSeeder.Seeders
 
             if (stableReference.StartsWith("medieval_music_", StringComparison.InvariantCultureIgnoreCase) ||
                 stableReference.StartsWith("medieval_game_", StringComparison.InvariantCultureIgnoreCase) ||
-                stableReference.StartsWith("medieval_horse_", StringComparison.InvariantCultureIgnoreCase) ||
-                stableReference.StartsWith("medieval_offering_", StringComparison.InvariantCultureIgnoreCase))
+                stableReference.StartsWith("medieval_horse_", StringComparison.InvariantCultureIgnoreCase))
             {
                 return "medieval component-gap prop stock";
             }

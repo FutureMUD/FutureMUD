@@ -91,9 +91,9 @@ Each status/culture pair includes bodywear plus underlayers, hats/caps/coifs, ho
 
 ## Verified Invariants
 
-- `SealStamp`, `Sealable`, and weight/fluid-volume/dry-measure `MeasuringInstrument` are treated as implemented stock components.
-- Medieval signets, office seals, notary kits, guild stamps, sealed charters, sealed envelopes, sealed bales, sealed chests, ledger chests, document satchels, balance scales, weights, grain measures, oil measures, wine measures, and tax/customs kits use live stock component prototypes.
-- Length/surveying measurement, musical instruments, rules-aware game sets, offering receivers, and animal tack/harness remain prop-only component gaps.
+- `SealStamp`, `Sealable`, weight/fluid-volume/dry-measure `MeasuringInstrument`, and `OfferingReceiver` are treated as implemented stock components.
+- Medieval signets, office seals, notary kits, guild stamps, sealed charters, sealed envelopes, sealed bales, sealed chests, ledger chests, document satchels, balance scales, weights, grain measures, oil measures, wine measures, tax/customs kits, and the devotional offering basin use live stock component prototypes.
+- Length/surveying measurement, musical instruments, rules-aware game sets, and animal tack/harness remain prop-only component gaps.
 - Shared `historic_*` foundations are culture-neutral and seeded when either antiquity or medieval is selected.
 - Visible craft names and phase echoes avoid culture names. Culture-specific access lives in knowledge gates such as `Medieval Clothing Pattern {culture}` and builder metadata.
 - `TagTool` leaves used by medieval crafts are backed by seeded historic or medieval prototypes, including spinning, sewing, shearing, awl, fire, metalworking, fulling, embroidery, tablet weaving, shoe-last, bookbinding, drawplate, armourer, bowyer, papermaking, dairy, brewing, milling, glazing, glassworking, and measurement-support tools.
@@ -110,12 +110,12 @@ Each status/culture pair includes bodywear plus underlayers, hats/caps/coifs, ho
 | Household tools | `medieval_coopers_croze`, `medieval_iron_wood_plane`, `medieval_bookbinder_press`, `medieval_locksmith_file_set`, `medieval_household_{production_tool}` |
 | Food and beverage | `medieval_food_{culture}_{foodway_item}`, `medieval_food_grain_measure_sack`, `medieval_food_wine_measure_jug`, `medieval_food_oil_measure_jug`, `medieval_food_cheese_mould`, `medieval_food_butter_churn`, `medieval_food_ale_cask`, `medieval_food_cider_cask`, `medieval_food_mead_crock`, `medieval_food_bakers_peel`, `medieval_food_bakers_tray`, `medieval_food_salt_box`, `medieval_food_spice_box`, `medieval_food_brewing_tub` |
 | Furniture and containers | `medieval_household_{furniture_or_container}`, including `medieval_household_stained_glass_panel` and `medieval_household_roof_tile_stack` |
-| Jewellery/devotional | `medieval_devotional_{culture}_pilgrim_token`, `medieval_devotional_{devotional_item}`, `medieval_jewellery_{jewellery_item}` |
+| Jewellery/devotional | `medieval_devotional_{culture}_pilgrim_token`, `medieval_devotional_{devotional_item}`, `medieval_jewellery_{jewellery_item}`, `medieval_offering_basin` |
 | Medical/apothecary | `medieval_medical_{medical_item}` |
 | Writing/administration | `medieval_writing_{culture}_{administration_item}`, `medieval_writing_{writing_item}` |
 | Trade and measures | `medieval_trade_balance_scale`, `medieval_trade_standard_weight_set`, `medieval_trade_false_weight_set`, `medieval_trade_grain_measure`, `medieval_trade_tax_customs_kit`, `medieval_trade_sealable_bale`, `medieval_surveyor_measuring_rope` |
 | Repair kits | `medieval_textile_repair_kit`, `medieval_leather_repair_kit`, `medieval_metal_repair_kit` |
-| Component-gap props | `medieval_music_psaltery`, `medieval_game_chess_set`, `medieval_horse_tack_display_set`, `medieval_offering_basin` |
+| Component-gap props | `medieval_music_psaltery`, `medieval_game_chess_set`, `medieval_horse_tack_display_set` |
 
 ## Deferred Scope
 

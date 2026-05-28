@@ -1374,6 +1374,11 @@ public partial class ItemSeeder
 				"This small tablet has a smoothed face for a painted, carved, or written devotional passage and a hole for hanging.",
 				SizeCategory.Small, ItemQuality.Standard, 180.0, 16.0m, "oak", MaterialBehaviourType.Wood,
 				[MedievalRootTagPath, "Market / Religious Goods", "Market / Writing Materials"], ["Holdable", "Destroyable_Misc"]),
+			new("medieval_offering_basin", "basin", "a devotional offering basin",
+				"This small bronze basin can sit in a chapel, shrine, or hall to receive votive offerings and devotional gifts.",
+				SizeCategory.Small, ItemQuality.Standard, 1400.0, 24.0m, "bronze", MaterialBehaviourType.Metal,
+				[MedievalRootTagPath, "Market / Religious Goods"], ["Holdable", "OfferingReceiver_Antiquity_VotiveBasin", "Destroyable_HeavyMetal"],
+				"Uses the live OfferingReceiver stock component prototype until medieval-specific devotional receiver variants are worth splitting."),
 			new("medieval_jewellery_silver_finger_ring", "ring", "a simple silver finger ring",
 				"This simple silver ring has a plain polished band suitable for betrothal, guild display, devotional wear, or personal ornament.",
 				SizeCategory.Tiny, ItemQuality.Good, 18.0, 46.0m, "silver", MaterialBehaviourType.Metal,
@@ -1665,11 +1670,7 @@ public partial class ItemSeeder
 			new("medieval_horse_tack_display_set", "set", "a horse tack display set",
 				"This bundle of bridle, straps, and harness fittings is useful as stock decor or trade goods until animal tack and harness components exist.",
 				SizeCategory.Normal, ItemQuality.Standard, 3200.0, 38.0m, "leather", MaterialBehaviourType.Leather,
-				[MedievalRootTagPath, "Market / Household Goods / Standard Wares"], ["Holdable", "Container_Pouch", "Destroyable_Clothing"], MedievalDeferredGapNote),
-			new("medieval_offering_basin", "basin", "a devotional offering basin",
-				"This small basin can sit in a chapel, shrine, or hall. It remains a prop until offering receiver behaviour exists.",
-				SizeCategory.Small, ItemQuality.Standard, 1400.0, 24.0m, "bronze", MaterialBehaviourType.Metal,
-				[MedievalRootTagPath, "Market / Religious Goods"], ["Holdable", "Container_Tray", "Destroyable_HeavyMetal"], MedievalDeferredGapNote)
+				[MedievalRootTagPath, "Market / Household Goods / Standard Wares"], ["Holdable", "Container_Pouch", "Destroyable_Clothing"], MedievalDeferredGapNote)
 		];
 	}
 
@@ -1716,12 +1717,13 @@ public partial class ItemSeeder
 			.Select(x => x.StableReference)
 			.ToArray();
 
-	internal static IReadOnlyCollection<string> MedievalLiveSealAndMeasureStableReferencesForTesting =>
+	internal static IReadOnlyCollection<string> MedievalLiveComponentStableReferencesForTesting =>
 		MedievalAllItemSpecs()
 			.Where(x => x.Components.Any(component =>
 				component.Contains("SealStamp", StringComparison.OrdinalIgnoreCase) ||
 				component.Contains("Sealable", StringComparison.OrdinalIgnoreCase) ||
-				component.Contains("MeasuringInstrument", StringComparison.OrdinalIgnoreCase)))
+				component.Contains("MeasuringInstrument", StringComparison.OrdinalIgnoreCase) ||
+				component.Contains("OfferingReceiver", StringComparison.OrdinalIgnoreCase)))
 			.Select(x => x.StableReference)
 			.ToArray();
 

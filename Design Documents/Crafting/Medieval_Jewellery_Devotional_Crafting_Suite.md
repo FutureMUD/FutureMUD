@@ -27,6 +27,7 @@ These tokens are deliberately flexible. They can represent pilgrim badges, amule
 | Cloak fasteners and badges | `Wear_Shoulder` for shoulder or cloak placement. |
 | Rings | `Wear_Ring`. Office signets live in the writing/administration suite. |
 | Circlets | `Wear_Hat` with metal destruction behaviour. |
+| Offering basin | `OfferingReceiver_Antiquity_VotiveBasin` until medieval-specific receiver variants are worth splitting. |
 | Reliquary locket and box | Small container behaviour via `Container_Pouch`. |
 | Belt fittings | `Wear_Waist` and `Beltable` so builders can attach or place them with belt stock. |
 

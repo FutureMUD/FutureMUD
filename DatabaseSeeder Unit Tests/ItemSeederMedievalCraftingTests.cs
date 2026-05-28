@@ -179,7 +179,7 @@ public class ItemSeederMedievalCraftingTests
 	}
 
 	[TestMethod]
-	public void MedievalSealAndMeasurementItems_UseLiveComponentsAndDocumentDeferredGaps()
+	public void MedievalImplementedItems_UseLiveComponentsAndDocumentDeferredGaps()
 	{
 		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.Medieval.cs");
 		var componentSource = ReadSource("DatabaseSeeder", "Seeders", "UsefulSeeder.ItemComponents.cs");
@@ -189,7 +189,8 @@ public class ItemSeederMedievalCraftingTests
 		{
 			Path.Combine("FutureMUDLibrary", "GameItems", "Interfaces", "ISealStamp.cs"),
 			Path.Combine("FutureMUDLibrary", "GameItems", "Interfaces", "ISealable.cs"),
-			Path.Combine("FutureMUDLibrary", "GameItems", "Interfaces", "IMeasuringInstrument.cs")
+			Path.Combine("FutureMUDLibrary", "GameItems", "Interfaces", "IMeasuringInstrument.cs"),
+			Path.Combine("FutureMUDLibrary", "GameItems", "Interfaces", "IOfferingReceiver.cs")
 		})
 		{
 			Assert.IsTrue(File.Exists(SourcePath(path)), $"Expected live interface file {path}");
@@ -207,17 +208,18 @@ public class ItemSeederMedievalCraftingTests
 			"MeasuringInstrument_Antiquity_GrainMeasure",
 			"MeasuringInstrument_Antiquity_OilCup",
 			"MeasuringInstrument_Antiquity_WineCup",
-			"MeasuringInstrument_Antiquity_TaxAssessorKit"
+			"MeasuringInstrument_Antiquity_TaxAssessorKit",
+			"OfferingReceiver_Antiquity_VotiveBasin"
 		})
 		{
 			AssertContains(componentSource, component);
 			AssertContains(itemSource, component);
 		}
 
-		foreach (var stableReference in ItemSeeder.MedievalLiveSealAndMeasureStableReferencesForTesting)
+		foreach (var stableReference in ItemSeeder.MedievalLiveComponentStableReferencesForTesting)
 		{
 			Assert.IsTrue(IsDocumentedStableReference(stableReference, docs),
-				$"Expected live seal/measurement item {stableReference} to be documented.");
+				$"Expected live component item {stableReference} to be documented.");
 		}
 
 		foreach (var stableReference in ItemSeeder.MedievalDeferredComponentGapStableReferencesForTesting)

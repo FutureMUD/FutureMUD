@@ -1420,7 +1420,8 @@ public partial class ItemSeeder
 		{
 			"medieval_devotional_wooden_rosary",
 			"medieval_jewellery_silver_brooch",
-			"medieval_devotional_reliquary_locket"
+			"medieval_devotional_reliquary_locket",
+			"medieval_offering_basin"
 		};
 
 		AddMedievalFinishedCraft("medieval_devotional_wooden_rosary", "string wooden prayer beads", "Carpentry",
@@ -1435,6 +1436,10 @@ public partial class ItemSeeder
 			"Silversmithing", MedievalWorkshopKnowledge, 30, Difficulty.Hard,
 			[CommodityInput(120.0, "bronze", "Tool Blank Stock")],
 			["TagTool - InRoom - an item with the Anvil tag", "TagTool - Held - an item with the Hammer tag"], "make", "making", "Devotional");
+		AddMedievalFinishedCraft("medieval_offering_basin", "hammer offering basin", "Blacksmithing",
+			"Blacksmithing", MedievalWorkshopKnowledge, 20, Difficulty.Normal,
+			[CommodityInput(900.0, "bronze", "Tool Blank Stock")],
+			["TagTool - InRoom - an item with the Anvil tag", "TagTool - Held - an item with the Hammer tag"], "hammer", "hammering", "Devotional");
 
 		foreach (var spec in MedievalJewelleryDevotionalItemSpecs()
 			         .Where(x => !explicitlyCrafted.Contains(x.StableReference)))
@@ -1685,10 +1690,6 @@ public partial class ItemSeeder
 			"Leathermaking", MedievalWorkshopKnowledge, 20, Difficulty.Normal,
 			[CommodityInput(1400.0, "leather", "Prepared Leather Panel", colour: true, fineColour: true), CommodityInput(180.0, "wrought iron", "Tool Blank Stock")],
 			["TagTool - Held - an item with the Awl Punch tag", "TagTool - Held - an item with the Shears tag"], "assemble", "assembling", "Component Gap Props");
-		AddMedievalFinishedCraft("medieval_offering_basin", "hammer offering basin prop", "Blacksmithing",
-			"Blacksmithing", MedievalWorkshopKnowledge, 20, Difficulty.Normal,
-			[CommodityInput(900.0, "bronze", "Tool Blank Stock")],
-			["TagTool - InRoom - an item with the Anvil tag", "TagTool - Held - an item with the Hammer tag"], "hammer", "hammering", "Component Gap Props");
 	}
 
 	private void AddMedievalFinishedCraft(

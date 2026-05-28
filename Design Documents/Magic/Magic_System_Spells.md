@@ -427,7 +427,7 @@ General dispels use `dispelmagic`. It can either remove matching spell-parent ef
 - magic school, optionally including child schools
 - caster policy: own, any, or others
 - magic tag and optional tag value
-- approved effect key such as `spell`, `invisibility`, `flight`, `levitation`, `featherfall`, `magictag`, `itemenchant`, `portal`, `planarstate`, `roomward`, `personalward`, `exitbarrier`, `subjectivedesc`, `transformform`, `projectile`, `crafttool`, `powerfuel`, or `itemevent`
+- approved effect key such as `spell`, `invisibility`, `flight`, `levitation`, `featherfall`, `burning`, `trackmark`, `magictag`, `itemenchant`, `portal`, `planarstate`, `roomward`, `personalward`, `exitbarrier`, `subjectivedesc`, `transformform`, `projectile`, `crafttool`, `powerfuel`, or `itemevent`
 - keyed subjective illusions through `illusion <key>`
 - optional strength contest
 
@@ -447,6 +447,12 @@ The Engine V4 psionic/perception slice adds:
 - `roomtagward` / `personaltagward`, which reuse ward coverage and fail/reflect modes but match `magictag` key/value metadata.
 - subjective-description priority and illusion keys on `subjectivedesc` / `subjectivesdesc`.
 - `dispelmagic illusion <key>`, which targets keyed subjective-description effects through the general dispel flow.
+
+The persistent sensory/combat slice adds:
+
+- `burning` / `ignite`: spell-owned recurring burning for characters or items, with configurable per-tick damage, pain, stun, thermal load, oxidation requirement, and visible addenda.
+- `trackmark` / `tracktrail`: spell-owned track intensity modification for characters, with visual/olfactory multipliers or bonuses and optional magically-marked track circumstances.
+- `dispelmagic effect burning` and `dispelmagic effect trackmark` for targeted cleanup.
 
 Portals remain saved spell effects, not database exits or a gate table. The `portal` effect creates paired transient exits registered with `IExitManager`; active magical portals expose `IMagicPortalExit` metadata and can be inspected with `magic portals`. Anchor tags can be placed on rooms or items/objects with `magictag`; `portal` resolves caster-owned room anchors first, then caster-owned item anchors by using the item location. Builders can inspect active anchors with `magic anchors [tag]`.
 
@@ -590,13 +596,14 @@ Important implementation note:
 | `vicinity` | `CastingTriggerVicinity` | Casts across a vicinity target set |
 
 ## Current Implemented Spell Effect Types
-The V4 spell-side catalogue adds 2 tag-aware ward tokens: `roomtagward` and `personaltagward`.
+The V4 spell-side catalogue adds 2 tag-aware ward tokens: `roomtagward` and `personaltagward`. The persistent sensory/combat slice adds `burning`, `ignite`, `trackmark`, and `tracktrail`.
 
 | Token | Class | Summary |
 | --- | --- | --- |
 | `blindness` | `BlindnessEffect` | Applies blindness |
 | `boost` | `TraitBoostEffect` | Boosts a trait |
 | `bodybackup` | `BodyBackupSpellEffect` | Ensures or reuses a keyed alternate body form and readies it as a death backup with configurable non-final remains context and transfer echoes |
+| `burning` | `BurningEffect` | Applies spell-owned recurring burning to characters or items, with configurable per-tick damage, pain, stun, thermal load, oxidation requirement, and visible addenda |
 | `changecharacteristic` | `ChangeCharacteristicEffect` | Changes a characteristic |
 | `comprehendlanguage` | `ComprehendLanguageEffect` | Grants broad spoken and written language comprehension without overriding literacy or script limits |
 | `createitem` | `CreateItemEffect` | Creates an item |
@@ -628,6 +635,7 @@ The V4 spell-side catalogue adds 2 tag-aware ward tokens: `roomtagward` and `per
 | `infravision` | `InfravisionEffect` | Grants infrared vision and a darkness difficulty floor |
 | `insomnia` | `InsomniaEffect` | Prevents voluntary and magical sleep |
 | `invisibility` | `InvisibilityEffect` | Applies invisibility |
+| `ignite` | `BurningEffect` | Builder/load alias for `burning` |
 | `itemdamage` | `ItemDamageEffect` | Damages an item with configured damage, pain, stun, and damage type |
 | `itemenchant` | `ItemEnchantEffect` | Adds aura/glow, weapon/armour bonuses, projectile payload bonuses, craft-tool bonuses, power/fuel modifiers, and optional item event progs |
 | `levitate` | `LevitationEffect` | Suspends a character or item, optionally moves it to a configured room layer, and prevents falling while active |
@@ -683,6 +691,8 @@ The V4 spell-side catalogue adds 2 tag-aware ward tokens: `roomtagward` and `per
 | `telepathy` | `TelepathySpellEffect` | Applies telepathic linkage |
 | `teleport` | `TeleportEffect` | Teleports the caster to a room or cell target |
 | `teleporttarget` | `TeleportTargetEffect` | Teleports a target selected by the spell |
+| `trackmark` | `TrackMarkEffect` | Alters a character's future visual and olfactory tracks and can mark created tracks with a magical trace |
+| `tracktrail` | `TrackMarkEffect` | Builder/load alias for `trackmark` |
 | `transference` | `TransferenceEffect` | Swaps the caster and target character locations, optionally including followers and room layers |
 | `subjectivedesc` | `SubjectiveDescriptionEffect` | Adds caster-scoped subjective full-description replacement with priority and optional illusion key |
 | `subjectivesdesc` | `SubjectiveSDescEffect` | Adds caster-scoped subjective short-description replacement with priority and optional illusion key |

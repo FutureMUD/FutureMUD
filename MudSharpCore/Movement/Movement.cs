@@ -1038,11 +1038,9 @@ public class Movement : IMovement
             return;
         }
 
-        // Apply circumstantial modifiers
-        circumstance = ApplyTrackCircumstances(actor, circumstance);
-
         // Check to see if any visual or olfactory tracks are left
-        if (GetTrackIntensities(actor, location, out double visual, out double olfactory))
+        circumstance = ApplyTrackCircumstances(actor, circumstance);
+        if (GetTrackIntensities(actor, location, ref circumstance, out double visual, out double olfactory))
         {
             return;
         }
@@ -1054,20 +1052,35 @@ public class Movement : IMovement
         location.AddTrack(track);
     }
 
-    private static bool GetTrackIntensities(ICharacter actor, ICell location, out double visual, out double olfactory)
+    internal static bool GetTrackIntensities(ICharacter actor, ICell location, ref TrackCircumstances circumstances, out double visual, out double olfactory)
     {
         visual = 1.0 * location.Terrain(actor).TrackIntensityMultiplierVisual * actor.Race.TrackIntensityVisual;
         olfactory = 1.0 * location.Terrain(actor).TrackIntensityMultiplierOlfactory * actor.Race.TrackIntensityOlfactory;
 
         // Don't leave tracks if swimming, flying, or riding a mount
-        if (
+        var suppressVisualTracks =
             location.IsSwimmingLayer(actor.RoomLayer) ||
             actor.RoomLayer.In(RoomLayer.InAir, RoomLayer.HighInAir) ||
-            actor.RidingMount is not null
-            )
+            actor.RidingMount is not null;
+        if (suppressVisualTracks)
         {
             visual = 0.0;
         }
+
+        foreach (ITrackIntensityEffect effect in actor.CombinedEffectsOfType<ITrackIntensityEffect>().Where(x => x.Applies()))
+        {
+            visual = visual * Math.Max(0.0, effect.VisualTrackIntensityMultiplier) + effect.VisualTrackIntensityBonus;
+            olfactory = olfactory * Math.Max(0.0, effect.OlfactoryTrackIntensityMultiplier) + effect.OlfactoryTrackIntensityBonus;
+            circumstances |= effect.AdditionalTrackCircumstances;
+        }
+
+        if (suppressVisualTracks)
+        {
+            visual = 0.0;
+        }
+
+        visual = Math.Max(0.0, visual);
+        olfactory = Math.Max(0.0, olfactory);
 
         // If visual and olfactory intensity is zero or less, no tracks are left
         if (visual <= 0.0 && olfactory <= 0.0)
@@ -1095,12 +1108,12 @@ public class Movement : IMovement
             return;
         }
 
-        if (GetTrackIntensities(actor, location, out double visual, out double olfactory))
+        circumstance = ApplyTrackCircumstances(actor, circumstance);
+        if (GetTrackIntensities(actor, location, ref circumstance, out double visual, out double olfactory))
         {
             return;
         }
 
-        circumstance = ApplyTrackCircumstances(actor, circumstance);
         Track track = new(actor.Gameworld, actor, Exit.Opposite, circumstance, false, visual, olfactory);
         actor.Gameworld.Add(track);
         location.AddTrack(track);

@@ -5,6 +5,7 @@ using MudSharp.Community;
 using MudSharp.Construction;
 using MudSharp.Database;
 using MudSharp.Economy.Currency;
+using MudSharp.Economy.Employment;
 using MudSharp.Economy.Payment;
 using MudSharp.Economy.Property;
 using MudSharp.Economy.Tax;
@@ -951,7 +952,7 @@ public class EconomicZone : SaveableItem, IEconomicZone
                 shop.Id.ToString("N0", actor),
                 shop.Name.TitleCase(),
                 shop.IsTrading.ToString(actor),
-                shop.EmployeeRecords.Count().ToString("N0", actor),
+                shop.ActiveEmploymentContracts().Count().ToString("N0", actor),
                 shop.EmployeesOnDuty.Count().ToString("N0", actor),
                 pshop?.ShopfrontCells.Select(x =>
                     x.GetFriendlyReference(actor).FluentTagMXP("send",

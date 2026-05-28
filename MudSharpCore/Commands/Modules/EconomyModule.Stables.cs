@@ -7,6 +7,7 @@ using MudSharp.Database;
 using MudSharp.Economy;
 using MudSharp.Economy.Banking;
 using MudSharp.Economy.Currency;
+using MudSharp.Economy.Employment;
 using MudSharp.Economy.Stables;
 using MudSharp.FutureProg;
 using MudSharp.GameItems;
@@ -66,7 +67,7 @@ Stable managers can use the following additional commands:
 	#3stable account suspend <id|name>#0 - toggles suspension of a credit account
 	#3stable account authorise <id|name> <person> <limit>#0 - authorises an additional person to access a credit account
 	#3stable account unauthorise <id|name> <person>#0 - removes an authorisation of an additional person on a credit account
-	#3stable employ|fire|manager|proprietor <target|name>#0 - manages employees
+	#3stable employ|fire|manager|proprietor <target|name>#0 - manages employment contracts
 	#3stable status#0 - shows employment status for this stable
 	#3stable contracts#0 - lists employment contracts
 	#3stable openings#0 - lists employment openings
@@ -918,23 +919,13 @@ Administrators can also use:
 
 	private static void StableEmploy(ICharacter actor, StringStack ss)
 	{
-		StableEmployeeToggle(actor, ss, "employ", (stable, target) =>
-		{
-			stable.AddEmployee(target);
-			return $"{target.HowSeen(actor, true)} is now employed by {stable.Name.TitleCase().ColourName()}.";
-		}, proprietorOnly: true);
+		StableDirectHire(actor, ss, EmploymentRole.Employee);
 	}
 
 	private static void StableFire(ICharacter actor, StringStack ss)
 	{
 		if (!DoStableCommandFindStable(actor, out var stable))
 		{
-			return;
-		}
-
-		if (!stable.IsProprietor(actor))
-		{
-			actor.OutputHandler.Send("You are not a proprietor of this stable.");
 			return;
 		}
 
@@ -945,75 +936,39 @@ Administrators can also use:
 		}
 
 		var text = ss.SafeRemainingArgument;
-		var employee = stable.EmployeeRecords.FirstOrDefault(x => x.Name.GetName(NameStyle.FullName).StartsWith(text, StringComparison.InvariantCultureIgnoreCase));
 		var target = actor.TargetActor(text);
-		if (employee is null && target is not null)
+		var service = new EmploymentCommandService();
+		if (target is not null)
 		{
-			employee = stable.EmployeeRecords.FirstOrDefault(x => x.EmployeeCharacterId == target.Id);
-		}
-
-		if (employee is null)
-		{
-			actor.OutputHandler.Send("There is no such employee.");
+			service.TryTerminateContractsForEmployee(actor, stable, target, out var message);
+			actor.OutputHandler.Send(message);
 			return;
 		}
 
-		stable.RemoveEmployee(employee);
-		actor.OutputHandler.Send($"{employee.Name.GetName(NameStyle.FullName).ColourName()} is no longer employed by {stable.Name.TitleCase().ColourName()}.");
+		service.TryTerminateContractsForEmployee(actor, stable, text, out var nameMessage);
+		actor.OutputHandler.Send(nameMessage);
 	}
 
 	private static void StableManager(ICharacter actor, StringStack ss)
 	{
-		StableEmployeeToggle(actor, ss, "manager", (stable, target) =>
-		{
-			if (!stable.IsEmployee(target))
-			{
-				stable.AddEmployee(target);
-			}
-
-			var newValue = !stable.IsManager(target);
-			stable.SetManager(target, newValue);
-			return $"{target.HowSeen(actor, true)} {(newValue ? "is now" : "is no longer")} a manager of {stable.Name.TitleCase().ColourName()}.";
-		}, proprietorOnly: true);
+		StableDirectRoleToggle(actor, ss, EmploymentRole.Manager);
 	}
 
 	private static void StableProprietor(ICharacter actor, StringStack ss)
 	{
-		StableEmployeeToggle(actor, ss, "proprietor", (stable, target) =>
-		{
-			if (!stable.IsEmployee(target))
-			{
-				stable.AddEmployee(target);
-			}
-
-			var newValue = !stable.IsProprietor(target);
-			stable.SetProprietor(target, newValue);
-			if (newValue && !stable.IsManager(target))
-			{
-				stable.SetManager(target, true);
-			}
-
-			return $"{target.HowSeen(actor, true)} {(newValue ? "is now" : "is no longer")} a proprietor of {stable.Name.TitleCase().ColourName()}.";
-		}, proprietorOnly: true);
+		StableDirectRoleToggle(actor, ss, EmploymentRole.Proprietor);
 	}
 
-	private static void StableEmployeeToggle(ICharacter actor, StringStack ss, string verb,
-		Func<IStable, ICharacter, string> action, bool proprietorOnly)
+	private static void StableDirectHire(ICharacter actor, StringStack ss, EmploymentRole role)
 	{
 		if (!DoStableCommandFindStable(actor, out var stable))
 		{
 			return;
 		}
 
-		if (proprietorOnly && !stable.IsProprietor(actor))
-		{
-			actor.OutputHandler.Send("You are not a proprietor of this stable.");
-			return;
-		}
-
 		if (ss.IsFinished)
 		{
-			actor.OutputHandler.Send($"Who do you want to {verb}?");
+			actor.OutputHandler.Send($"Who do you want to employ as a {role.DescribeEnum()}?");
 			return;
 		}
 
@@ -1024,7 +979,32 @@ Administrators can also use:
 			return;
 		}
 
-		actor.OutputHandler.Send(action(stable, target));
+		new EmploymentCommandService().TryHireDirectContract(actor, stable, target, role, out _, out var message);
+		actor.OutputHandler.Send(message);
+	}
+
+	private static void StableDirectRoleToggle(ICharacter actor, StringStack ss, EmploymentRole role)
+	{
+		if (!DoStableCommandFindStable(actor, out var stable))
+		{
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send($"Who do you want to toggle as a {role.DescribeEnum()}?");
+			return;
+		}
+
+		var target = actor.TargetActor(ss.SafeRemainingArgument);
+		if (target is null)
+		{
+			actor.OutputHandler.Send("You do not see any such person.");
+			return;
+		}
+
+		new EmploymentCommandService().TryToggleRoleContract(actor, stable, target, role, out var message);
+		actor.OutputHandler.Send(message);
 	}
 
 	private static void StableAccountStatus(ICharacter actor, StringStack ss)

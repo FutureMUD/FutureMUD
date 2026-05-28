@@ -129,7 +129,7 @@ internal sealed class EmploymentCommandService
 			case "contract":
 			case "employees":
 			case "staff":
-				SendOperationalView(actor, host, RenderContracts);
+				HandleContracts(actor, host, input);
 				return;
 			case "openings":
 			case "opening":
@@ -267,7 +267,7 @@ internal sealed class EmploymentCommandService
 				maxPositions,
 				true,
 				new PaymentMethod(PaymentMethodKind.Cash),
-				EmploymentAuthoritySet.Empty), actor);
+				DefaultOpeningAuthority(role)), actor);
 			message = $"You create a {role.DescribeEnum().ColourName()} employment opening for {host.EmploymentHostName.ColourName()} at {DescribeMoney(pay.FixedRate, actor)} hourly.";
 			return true;
 		}
@@ -312,7 +312,7 @@ internal sealed class EmploymentCommandService
 		return true;
 	}
 
-	public bool TryAcceptApplication(ICharacter actor, IEmploymentHost host, int applicationNumber,
+	public bool TryAcceptApplication(ICharacter actor, IEmploymentHost host, long applicationId,
 		out IEmploymentContract? contract, out string message)
 	{
 		contract = null;
@@ -321,7 +321,7 @@ internal sealed class EmploymentCommandService
 			return false;
 		}
 
-		var application = ApplicationByNumber(host, applicationNumber);
+		var application = ApplicationById(host, applicationId);
 		if (application is null)
 		{
 			message = "There is no such employment application.";
@@ -341,7 +341,7 @@ internal sealed class EmploymentCommandService
 		}
 	}
 
-	public bool TryRejectApplication(ICharacter actor, IEmploymentHost host, int applicationNumber, string reason,
+	public bool TryRejectApplication(ICharacter actor, IEmploymentHost host, long applicationId, string reason,
 		out string message)
 	{
 		if (!TryRequireAuthority(actor, host, EmploymentAuthority.HireEmployees, out message))
@@ -349,7 +349,7 @@ internal sealed class EmploymentCommandService
 			return false;
 		}
 
-		var application = ApplicationByNumber(host, applicationNumber);
+		var application = ApplicationById(host, applicationId);
 		if (application is null)
 		{
 			message = "There is no such employment application.";
@@ -367,6 +367,139 @@ internal sealed class EmploymentCommandService
 			message = ex.Message;
 			return false;
 		}
+	}
+
+	public bool TryTerminateContract(ICharacter actor, IEmploymentHost host, long contractId, out string message)
+	{
+		if (!TryRequireAuthority(actor, host, EmploymentAuthority.FireEmployees, out message))
+		{
+			return false;
+		}
+
+		var contract = host.EmploymentContracts.FirstOrDefault(x => x.Id == contractId);
+		if (contract is null)
+		{
+			message = "There is no such employment contract.";
+			return false;
+		}
+
+		if (contract.Status == EmploymentStatus.Ended)
+		{
+			message = "That employment contract has already ended.";
+			return false;
+		}
+
+		try
+		{
+			host.Fire(contract, EmploymentTerminationReason.Fired, actor);
+			message = $"You terminate {contract.Employee.HowSeen(actor, colour: false).ColourName()}'s {contract.Role.DescribeEnum().ColourName()} contract for {host.EmploymentHostName.ColourName()}.";
+			return true;
+		}
+		catch (InvalidOperationException ex)
+		{
+			message = ex.Message;
+			return false;
+		}
+	}
+
+	public bool TryHireDirectContract(ICharacter actor, IEmploymentHost host, ICharacter target, EmploymentRole role,
+		out IEmploymentContract? contract, out string message)
+	{
+		contract = null;
+		if (!TryRequireAuthority(actor, host, EmploymentAuthority.HireEmployees, out message))
+		{
+			return false;
+		}
+
+		var offer = new EmploymentOffer(
+			role,
+			UnpaidCompensation(),
+			WorkSchedule.AnyTime,
+			EmploymentDuration.Indefinite,
+			new PaymentMethod(PaymentMethodKind.Cash),
+			DefaultDirectHireAuthority(role));
+		try
+		{
+			contract = host.Hire(target, offer, actor);
+			message = $"You create an active {role.DescribeEnum().ColourName()} employment contract for {target.HowSeen(actor, colour: false).ColourName()} at {host.EmploymentHostName.ColourName()}.";
+			return true;
+		}
+		catch (InvalidOperationException ex)
+		{
+			message = ex.Message;
+			return false;
+		}
+	}
+
+	public bool TryTerminateContractsForEmployee(ICharacter actor, IEmploymentHost host, ICharacter target,
+		out string message)
+	{
+		return TryTerminateContractsForEmployee(actor, host,
+			host.ActiveEmploymentContracts().Where(x => x.Employee.Id == target.Id).ToList(), out message);
+	}
+
+	public bool TryTerminateContractsForEmployee(ICharacter actor, IEmploymentHost host, string employeeName,
+		out string message)
+	{
+		employeeName = employeeName.Trim();
+		if (string.IsNullOrWhiteSpace(employeeName))
+		{
+			message = "Which employee do you want to terminate?";
+			return false;
+		}
+
+		var matches = host.ActiveEmploymentContracts()
+		                  .GroupBy(x => x.Employee.Id)
+		                  .Select(x => new
+		                  {
+			                  Employee = x.First().Employee,
+			                  Contracts = x.ToList()
+		                  })
+		                  .Where(x =>
+			                  x.Employee.Name.StartsWith(employeeName, StringComparison.InvariantCultureIgnoreCase) ||
+			                  x.Employee.HowSeen(actor, colour: false)
+			                   .StartsWith(employeeName, StringComparison.InvariantCultureIgnoreCase))
+		                  .ToList();
+		if (matches.Count > 1)
+		{
+			message = $"More than one employee matches {employeeName.ColourCommand()}. Please be more specific.";
+			return false;
+		}
+
+		return TryTerminateContractsForEmployee(actor, host, matches.SingleOrDefault()?.Contracts ?? [], out message);
+	}
+
+	public bool TryToggleRoleContract(ICharacter actor, IEmploymentHost host, ICharacter target, EmploymentRole role,
+		out string message)
+	{
+		var existing = host.ActiveEmploymentContracts()
+		                   .FirstOrDefault(x => x.Employee.Id == target.Id && x.Role == role);
+		if (existing is not null)
+		{
+			return TryTerminateContract(actor, host, existing.Id, out message);
+		}
+
+		return TryHireDirectContract(actor, host, target, role, out _, out message);
+	}
+
+	public bool TryResignFromHost(ICharacter actor, IEmploymentHost host, out string message)
+	{
+		var contracts = host.ActiveEmploymentContracts()
+		                    .Where(x => x.Employee.Id == actor.Id)
+		                    .ToList();
+		if (!contracts.Any())
+		{
+			message = $"You do not have an active employment contract with {host.EmploymentHostName.ColourName()}.";
+			return false;
+		}
+
+		foreach (var contract in contracts)
+		{
+			host.Employment.Fire(contract, EmploymentTerminationReason.Resigned, null);
+		}
+
+		message = $"You resign from your active employment contracts with {host.EmploymentHostName.ColourName()}.";
+		return true;
 	}
 
 	public string RenderStatus(ICharacter actor, IEmploymentHost host)
@@ -568,6 +701,46 @@ internal sealed class EmploymentCommandService
 		return sb.ToString();
 	}
 
+	private void HandleContracts(ICharacter actor, IEmploymentHost host, StringStack input)
+	{
+		var contractCommand = input.PopSpeech().CollapseString().ToLowerInvariant();
+		switch (contractCommand)
+		{
+			case "":
+			case "list":
+			case "show":
+				SendOperationalView(actor, host, RenderContracts);
+				return;
+			case "fire":
+			case "terminate":
+			case "end":
+			case "dismiss":
+				if (input.IsFinished)
+				{
+					actor.OutputHandler.Send("Which employment contract do you want to terminate?");
+					return;
+				}
+
+				var contractText = input.PopSpeech();
+				if (contractText.StartsWith("#", StringComparison.Ordinal))
+				{
+					contractText = contractText[1..];
+				}
+
+				if (!long.TryParse(contractText, out var contractId))
+				{
+					actor.OutputHandler.Send($"You must specify a contract number, e.g. {"contracts fire #1".ColourCommand()}.");
+					return;
+				}
+
+				TryTerminateContract(actor, host, contractId, out var message);
+				actor.OutputHandler.Send(message);
+				return;
+		}
+
+		actor.OutputHandler.Send(EmploymentHelp.SubstituteANSIColour());
+	}
+
 	private void HandleOpenings(ICharacter actor, IEmploymentHost host, StringStack input)
 	{
 		var openingCommand = input.PopSpeech().CollapseString().ToLowerInvariant();
@@ -630,7 +803,7 @@ internal sealed class EmploymentCommandService
 				return;
 			case "accept":
 			case "approve":
-				if (input.IsFinished || !int.TryParse(input.PopSpeech(), out var acceptNumber))
+				if (input.IsFinished || !TryParseCommandNumber(input.PopSpeech(), out var acceptNumber))
 				{
 					actor.OutputHandler.Send("Which employment application do you want to accept?");
 					return;
@@ -641,7 +814,7 @@ internal sealed class EmploymentCommandService
 				return;
 			case "reject":
 			case "deny":
-				if (input.IsFinished || !int.TryParse(input.PopSpeech(), out var rejectNumber))
+				if (input.IsFinished || !TryParseCommandNumber(input.PopSpeech(), out var rejectNumber))
 				{
 					actor.OutputHandler.Send("Which employment application do you want to reject?");
 					return;
@@ -888,19 +1061,98 @@ internal sealed class EmploymentCommandService
 		};
 	}
 
+	private static EmploymentAuthoritySet DefaultOpeningAuthority(EmploymentRole role)
+	{
+		return role switch
+		{
+			EmploymentRole.Employee or
+			EmploymentRole.Courier or
+			EmploymentRole.StableHand or
+			EmploymentRole.HotelWorker => new EmploymentAuthoritySet(EmploymentAuthority.ManageDeliveryRoutes),
+			EmploymentRole.Crafter => new EmploymentAuthoritySet(EmploymentAuthority.ManageCraftRules),
+			_ => EmploymentAuthoritySet.Empty
+		};
+	}
+
+	private static EmploymentAuthoritySet DefaultDirectHireAuthority(EmploymentRole role)
+	{
+		return role switch
+		{
+			EmploymentRole.Proprietor => EmploymentAuthoritySet.All,
+			EmploymentRole.Manager => EmploymentAuthoritySet.All,
+			EmploymentRole.Employee or
+			EmploymentRole.Courier or
+			EmploymentRole.StableHand or
+			EmploymentRole.HotelWorker => new EmploymentAuthoritySet(EmploymentAuthority.ManageDeliveryRoutes),
+			EmploymentRole.Crafter => new EmploymentAuthoritySet(EmploymentAuthority.ManageCraftRules),
+			_ => EmploymentAuthoritySet.Empty
+		};
+	}
+
+	private static CompensationTerms UnpaidCompensation()
+	{
+		return new CompensationTerms(
+			null,
+			null,
+			PayCadence.Unpaid,
+			null,
+			PaymentSource.HostCash);
+	}
+
+	private bool TryTerminateContractsForEmployee(ICharacter actor, IEmploymentHost host,
+		IReadOnlyCollection<IEmploymentContract> contracts, out string message)
+	{
+		if (!TryRequireAuthority(actor, host, EmploymentAuthority.FireEmployees, out message))
+		{
+			return false;
+		}
+
+		if (!contracts.Any())
+		{
+			message = "There is no active employment contract for that employee.";
+			return false;
+		}
+
+		try
+		{
+			foreach (var contract in contracts)
+			{
+				host.Fire(contract, EmploymentTerminationReason.Fired, actor);
+			}
+
+			var employee = contracts.First().Employee;
+			message = $"You terminate {employee.HowSeen(actor, colour: false).ColourName()}'s active employment contracts for {host.EmploymentHostName.ColourName()}.";
+			return true;
+		}
+		catch (InvalidOperationException ex)
+		{
+			message = ex.Message;
+			return false;
+		}
+	}
+
 	private static IEnumerable<IBoardPost> OrderedBoardPosts(IEmploymentHost host)
 	{
 		return host.Board.Posts.OrderBy(x => x.PostTime).ThenBy(x => x.Id);
 	}
 
-	private static IEmploymentApplication? ApplicationByNumber(IEmploymentHost host, int applicationNumber)
+	private static IEmploymentApplication? ApplicationById(IEmploymentHost host, long applicationId)
 	{
-		return applicationNumber <= 0
+		return applicationId <= 0
 			? null
 			: host.Employment.Applications
-			      .OrderByDescending(x => x.AppliedAt)
-			      .ThenBy(x => x.Id)
-			      .ElementAtOrDefault(applicationNumber - 1);
+			      .FirstOrDefault(x => x.Id == applicationId);
+	}
+
+	private static bool TryParseCommandNumber(string text, out long number)
+	{
+		text = text.Trim();
+		if (text.StartsWith("#", StringComparison.Ordinal))
+		{
+			text = text[1..];
+		}
+
+		return long.TryParse(text, out number);
 	}
 
 	private static bool TryParseOpeningCompensation(StringStack input, ICurrency currency, out decimal hourlyRate,
@@ -971,6 +1223,7 @@ internal sealed class EmploymentCommandService
 
 	#3employment <host type> <host> status#0 - shows employment status
 	#3employment <host type> <host> contracts#0 - lists employment contracts
+	#3employment <host type> <host> contracts fire <##>#0 - terminates an active employment contract
 	#3employment <host type> <host> openings#0 - lists visible job openings
 	#3employment <host type> <host> openings create <role> <hourly rate> [positions]#0 - creates an NPC-facing opening
 	#3employment <host type> <host> applications#0 - lists applications

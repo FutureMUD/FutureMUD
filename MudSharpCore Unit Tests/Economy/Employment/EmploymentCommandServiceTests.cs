@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
@@ -230,6 +231,7 @@ public class EmploymentCommandServiceTests
 		Assert.IsTrue(result, message);
 		Assert.IsNotNull(opening);
 		Assert.AreEqual(EmploymentRole.Courier, opening.Role);
+		Assert.IsTrue(opening.Authority.Contains(EmploymentAuthority.ManageDeliveryRoutes));
 		Assert.AreEqual(2, opening.MaxPositions);
 		Assert.AreEqual(1, host.JobOpenings.Count);
 		Assert.IsTrue(host.EmploymentRegister.Entries.Any(x => x.EntryType == EmploymentRegisterEntryType.JobOpeningCreated));
@@ -337,6 +339,46 @@ public class EmploymentCommandServiceTests
 	}
 
 	[TestMethod]
+	public void EmploymentCommandService_ContractsFireTerminatesContractThroughEmploymentSystem()
+	{
+		var currency = Currency();
+		IEmploymentHost host = new TestEmploymentHost(1, "market shop", currency.Object);
+		var manager = Character(48, "Manager").Object;
+		var employee = Character(49, "Employee").Object;
+		host.Hire(manager, Offer(currency.Object, EmploymentRole.Manager, EmploymentAuthority.FireEmployees), null);
+		var contract = host.Hire(employee, Offer(currency.Object, EmploymentRole.Employee), null);
+		var service = new EmploymentCommandService();
+
+		service.ExecuteForHost(manager, host, new StringStack($"contracts fire #{contract.Id}"));
+
+		Assert.AreEqual(EmploymentStatus.Ended, contract.Status);
+		Assert.AreEqual(EmploymentTerminationReason.Fired, contract.EndReason);
+		Assert.IsTrue(host.EmploymentRegister.Entries.Any(x => x.EntryType == EmploymentRegisterEntryType.ContractEnded));
+	}
+
+	[TestMethod]
+	public void EmploymentCommandService_DirectHireAndFireUseActiveEmploymentContracts()
+	{
+		var currency = Currency();
+		IEmploymentHost host = new TestEmploymentHost(1, "market shop", currency.Object);
+		var manager = Character(52, "Manager").Object;
+		var employee = Character(53, "Employee").Object;
+		host.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.HireEmployees | EmploymentAuthority.FireEmployees), null);
+		var service = new EmploymentCommandService();
+
+		Assert.IsTrue(service.TryHireDirectContract(manager, host, employee, EmploymentRole.Employee, out var contract,
+			out var message), message);
+		Assert.IsNotNull(contract);
+		Assert.IsTrue(host.HasActiveEmploymentContract(employee));
+		StringAssert.Contains(host.ActiveEmploymentContractsTable(manager), "Employee");
+
+		Assert.IsTrue(service.TryTerminateContractsForEmployee(manager, host, "Employee", out message), message);
+		Assert.AreEqual(EmploymentStatus.Ended, contract.Status);
+		Assert.IsFalse(host.HasActiveEmploymentContract(employee));
+	}
+
+	[TestMethod]
 	public void EmploymentCommandService_AcceptApplicationRespectsOpeningCapacity()
 	{
 		var currency = Currency();
@@ -356,6 +398,33 @@ public class EmploymentCommandServiceTests
 		Assert.IsFalse(secondAccepted);
 		StringAssert.Contains(secondMessage, "capacity");
 		Assert.AreEqual(1, host.Employment.Applications.Count(x => x.Status == JobApplicationStatus.Accepted));
+	}
+
+	[TestMethod]
+	public void EmploymentCommandService_AcceptsApplicationByDisplayedIdNotVisibleRowNumber()
+	{
+		var currency = Currency();
+		IEmploymentHost host = new TestEmploymentHost(1, "market shop", currency.Object);
+		var manager = Character(54, "Manager").Object;
+		var first = Character(55, "First").Object;
+		var second = Character(56, "Second").Object;
+		var third = Character(57, "Third").Object;
+		host.Hire(manager, Offer(currency.Object, EmploymentRole.Manager, EmploymentAuthority.HireEmployees), null);
+		var firstOpening = host.Employment.CreateJobOpening(Opening(currency.Object), null);
+		var secondOpening = host.Employment.CreateJobOpening(Opening(currency.Object), null);
+		var acceptedApplication = host.Employment.Apply(firstOpening, Profile(first, PaymentMethodKind.Cash));
+		var rejectedApplication = host.Employment.Apply(firstOpening, Profile(second, PaymentMethodKind.Cash));
+		var pendingApplication = host.Employment.Apply(secondOpening, Profile(third, PaymentMethodKind.Cash));
+		var service = new EmploymentCommandService();
+		Assert.IsTrue(service.TryAcceptApplication(manager, host, acceptedApplication.Id, out _, out var message), message);
+		Assert.IsTrue(service.TryRejectApplication(manager, host, rejectedApplication.Id, "Rejected by a manager.", out message), message);
+		StringAssert.Contains(service.RenderApplications(manager, host), $"#{pendingApplication.Id}");
+
+		service.ExecuteForHost(manager, host, new StringStack($"applications accept #{pendingApplication.Id}"));
+
+		Assert.AreEqual(JobApplicationStatus.Accepted, pendingApplication.Status);
+		Assert.AreEqual(JobApplicationStatus.Accepted, acceptedApplication.Status);
+		Assert.AreEqual(JobApplicationStatus.Rejected, rejectedApplication.Status);
 	}
 
 	[TestMethod]
@@ -609,7 +678,10 @@ public class EmploymentCommandServiceTests
 		var currentLocation = location ?? Cell(id * 10, $"{name} location").Object;
 		var character = new Mock<ICharacter>();
 		var output = new Mock<IOutputHandler>();
+		var account = new Mock<IAccount>();
 		var effects = new List<IEffect>();
+		account.SetupGet(x => x.Culture).Returns(CultureInfo.InvariantCulture);
+		account.SetupGet(x => x.UseUnicode).Returns(false);
 		output.Setup(x => x.Send(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>())).Returns(true);
 		character.SetupGet(x => x.Id).Returns(id);
 		character.SetupGet(x => x.Name).Returns(name);
@@ -618,6 +690,7 @@ public class EmploymentCommandServiceTests
 		character.SetupGet(x => x.Body).Returns(body.Object);
 		character.SetupGet(x => x.Location).Returns(currentLocation);
 		character.SetupGet(x => x.OutputHandler).Returns(output.Object);
+		character.SetupGet(x => x.Account).Returns(account.Object);
 		character.SetupGet(x => x.Effects).Returns(effects);
 		character.Setup(x => x.AddEffect(It.IsAny<IEffect>()))
 		         .Callback<IEffect>(effect => effects.Add(effect));

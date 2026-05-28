@@ -54,6 +54,32 @@ internal sealed class EmploymentWorkerTaskContextEffect : Effect, IEffectSubtype
 	protected override string SpecificEffectType => "EmploymentWorkerTaskContext";
 }
 
+internal sealed class EmploymentWorkerHostEvaluationEffect : Effect, IEffectSubtype
+{
+	public EmploymentWorkerHostEvaluationEffect(IPerceivable owner, IEmploymentHost host)
+		: base(owner)
+	{
+		HostType = host.EmploymentHostType;
+		HostId = host.Id;
+	}
+
+	public EmploymentHostType HostType { get; }
+	public long HostId { get; }
+
+	public bool Matches(IEmploymentHost host)
+	{
+		return HostType == host.EmploymentHostType &&
+		       HostId == host.Id;
+	}
+
+	public override string Describe(IPerceiver voyeur)
+	{
+		return $"Employment worker host evaluation cooldown for {HostType} #{HostId:N0}.";
+	}
+
+	protected override string SpecificEffectType => "EmploymentWorkerHostEvaluation";
+}
+
 internal sealed class EmploymentWorkerRejectedOpeningEffect : Effect, IEffectSubtype
 {
 	public EmploymentWorkerRejectedOpeningEffect(IPerceivable owner, IEmploymentHost host, IJobOpening opening)

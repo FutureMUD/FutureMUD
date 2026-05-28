@@ -4,6 +4,7 @@ using MudSharp.Character.Name;
 using MudSharp.Construction;
 using MudSharp.Database;
 using MudSharp.Economy.Currency;
+using MudSharp.Economy.Employment;
 using MudSharp.Economy.Payment;
 using MudSharp.Effects.Concrete;
 using MudSharp.Events;
@@ -316,17 +317,17 @@ public abstract partial class Shop : SaveableItem, IShop
     public abstract IEnumerable<ICell> CurrentLocations { get; }
     public bool IsEmployee(ICharacter actor)
     {
-        return _employeeRecords.Any(x => x.EmployeeCharacterId == actor.Id);
+        return this.HasActiveEmploymentContract(actor);
     }
 
     public bool IsManager(ICharacter actor)
     {
-        return _employeeRecords.Any(x => x.EmployeeCharacterId == actor.Id && x.IsManager);
+        return this.HasManagerEmploymentAccess(actor);
     }
 
     public bool IsProprietor(ICharacter actor)
     {
-        return _employeeRecords.Any(x => x.EmployeeCharacterId == actor.Id && x.IsProprietor);
+        return this.HasProprietorEmploymentAccess(actor);
     }
 
     public void SetManager(ICharacter actor, bool isManager)
@@ -349,11 +350,11 @@ public abstract partial class Shop : SaveableItem, IShop
 
     public bool IsClockedIn(ICharacter actor)
     {
-        return _employeeRecords.Any(x => x.EmployeeCharacterId == actor.Id && x.ClockedIn);
+        return IsEmployee(actor);
     }
 
     public IEnumerable<ICharacter> EmployeesOnDuty =>
-        Gameworld.Actors.Where(x => IsClockedIn(x));
+        Gameworld.Actors.Where(IsEmployee);
 
     protected readonly List<IMerchandise> _merchandises = new();
     public IEnumerable<IMerchandise> Merchandises => _merchandises;
@@ -1422,27 +1423,7 @@ public abstract partial class Shop : SaveableItem, IShop
         {
             sb.AppendLine();
             sb.AppendLine("Employees:");
-            sb.AppendLine(StringUtilities.GetTextTable(
-                from ch in EmployeeRecords.OrderBy(x => x.IsProprietor ? 0 : x.IsManager ? 1 : 2)
-                select new List<string>
-                {
-                    ch.EmployeeCharacterId.ToString("N0", actor),
-                    ch.Name.GetName(NameStyle.FullName),
-                    ch.IsManager.ToColouredString(),
-                    ch.IsProprietor.ToColouredString(),
-                    ch.EmployeeSince.ToString(CalendarDisplayMode.Short, TimeDisplayTypes.Short),
-                },
-                new List<string>
-                {
-                    "Id",
-                    "Name",
-                    "Manager?",
-                    "Owner?",
-                    "Start Date"
-                },
-                actor,
-                Telnet.Yellow
-            ));
+            sb.AppendLine(this.ActiveEmploymentContractsTable(actor));
         }
 
         foreach (ICharacter ch in EmployeesOnDuty)

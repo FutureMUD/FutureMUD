@@ -145,6 +145,36 @@ public class EmploymentWorkerAITests
 	}
 
 	[TestMethod]
+	public void EmploymentWorkerAI_RejectedApplicationToFullOpeningCanApplyToSecondOpeningSameRole()
+	{
+		var currency = Currency();
+		var workplace = Cell(21, "stable yard");
+		var host = Stable(21, "busy stable", currency.Object, workplace.Object);
+		var gameworld = Gameworld(stables: [host.Stable.Object], currencies: [currency.Object]);
+		var worker = Character(21, "Amos", gameworld.Object, workplace.Object).Object;
+		var hiredWorker = Character(22, "Stryder", gameworld.Object, workplace.Object).Object;
+		var manager = Character(23, "Manager", gameworld.Object, workplace.Object).Object;
+		host.State.Hire(manager, Offer(currency.Object, EmploymentRole.Manager, EmploymentAuthority.HireEmployees), null);
+		var firstOpening = host.State.CreateJobOpening(Opening(currency.Object, 10.0M), null);
+		var secondOpening = host.State.CreateJobOpening(Opening(currency.Object, 10.0M), null);
+		var rejectedApplication = host.State.Apply(firstOpening, Profile(worker));
+		var acceptedApplication = host.State.Apply(firstOpening, Profile(hiredWorker));
+		host.State.AcceptApplication(acceptedApplication, manager);
+		host.State.RejectApplication(rejectedApplication, manager, "Rejected by a manager.");
+		var ai = LoadAI(gameworld.Object);
+
+		var acted = ai.HandleMinuteTick(worker);
+
+		Assert.IsTrue(acted);
+		Assert.IsFalse(firstOpening.AcceptsApplications);
+		Assert.IsTrue(secondOpening.AcceptsApplications);
+		Assert.IsTrue(host.State.Applications.Any(x =>
+			x.Candidate.Id == worker.Id &&
+			x.Opening.Id == secondOpening.Id &&
+			x.Status == JobApplicationStatus.Pending));
+	}
+
+	[TestMethod]
 	public void EmploymentWorkerAI_EmployedNpcTicksTowardStableWhenIdle()
 	{
 		var currency = Currency();
@@ -203,6 +233,43 @@ public class EmploymentWorkerAITests
 		Assert.IsFalse(host.State.EmploymentRegister.Entries.Any(x =>
 			x.EntryType == EmploymentRegisterEntryType.BoardPostCreated));
 		Assert.AreEqual(0, host.State.Board.Posts.Count());
+	}
+
+	[TestMethod]
+	public void EmploymentWorkerAI_EvaluatesScheduledRulesBeforeClaimingTasks()
+	{
+		var currency = Currency();
+		var workplace = Cell(32, "stockroom");
+		var item = Item(302, "crate");
+		var cellItems = new List<IGameItem> { item.Object };
+		workplace.SetupGet(x => x.GameItems).Returns(() => cellItems);
+		workplace.Setup(x => x.Extract(It.IsAny<IGameItem>()))
+		         .Callback<IGameItem>(_ => cellItems.Clear());
+		var host = Shop(32, "task shop", currency.Object, workplace.Object);
+		var gameworld = Gameworld(shops: [host.Shop.Object], currencies: [currency.Object]);
+		var worker = Character(32, "Worker", gameworld.Object, workplace.Object).Object;
+		host.State.Hire(worker, Offer(currency.Object, EmploymentRole.Employee, EmploymentAuthority.ManageDeliveryRoutes), null);
+		host.State.TaskBoard.CreateScheduledRule(
+			"Move crates",
+			"move-crates",
+			[],
+			new EmploymentActionPlan(new IEmploymentActionStep[]
+			{
+				new GetItemsByIdActionStep(1, [item.Object.Id], [workplace.Object])
+			}),
+			TimeSpan.FromHours(1),
+			null);
+		var ai = LoadAI(gameworld.Object);
+
+		Assert.IsTrue(ai.HandleMinuteTick(worker));
+
+		var task = host.State.TaskBoard.ActiveTasks.Single();
+		Assert.AreEqual(EmploymentTaskStatus.Completed, task.Status);
+		Assert.AreEqual(worker.Id, task.AssignedEmployee?.Id);
+		Assert.IsTrue(host.State.EmploymentRegister.Entries.Any(x =>
+			x.EntryType == EmploymentRegisterEntryType.ScheduledRuleEvaluated));
+		Assert.IsTrue(host.State.EmploymentRegister.Entries.Any(x =>
+			x.EntryType == EmploymentRegisterEntryType.ActiveTaskAssigned));
 	}
 
 	[TestMethod]
@@ -453,6 +520,12 @@ public class EmploymentWorkerAITests
 			         predicate is null
 				         ? effects.OfType<EmploymentWorkerTaskContextEffect>()
 				         : effects.OfType<EmploymentWorkerTaskContextEffect>().Where(x => predicate(x)));
+		character.Setup(x => x.EffectsOfType<EmploymentWorkerHostEvaluationEffect>(
+					It.IsAny<Predicate<EmploymentWorkerHostEvaluationEffect>?>()))
+		         .Returns((Predicate<EmploymentWorkerHostEvaluationEffect>? predicate) =>
+			         predicate is null
+				         ? effects.OfType<EmploymentWorkerHostEvaluationEffect>()
+				         : effects.OfType<EmploymentWorkerHostEvaluationEffect>().Where(x => predicate(x)));
 		character.Setup(x => x.EffectsOfType<EmploymentWorkerRejectedOpeningEffect>(
 					It.IsAny<Predicate<EmploymentWorkerRejectedOpeningEffect>?>()))
 		         .Returns((Predicate<EmploymentWorkerRejectedOpeningEffect>? predicate) =>
@@ -509,6 +582,18 @@ public class EmploymentWorkerAITests
 			EmploymentDuration.Indefinite,
 			new PaymentMethod(PaymentMethodKind.Cash),
 			authority);
+	}
+
+	private static EmploymentCandidateProfile Profile(ICharacter candidate)
+	{
+		return new EmploymentCandidateProfile(
+			candidate,
+			0.0M,
+			new Dictionary<string, double>(),
+			new HashSet<string>(),
+			new HashSet<EmploymentAICapability> { EmploymentAICapability.CanDeliverItems },
+			new HashSet<string>(),
+			[PaymentMethodKind.Cash]);
 	}
 
 	private static CompensationTerms Pay(ICurrency currency, decimal amount = 10.0M)

@@ -1945,13 +1945,13 @@ The syntax for this command is as follows:
 	#3shop paytax <amount>|all#0 - pays owing taxes out of all sources of available cash
 	#3shop accountstatus <account>#0 - inquires about the status of a line of credit account
 	#3shop account ...#0 - allows store managers to configure line of credit accounts. See #3SHOP ACCOUNT HELP#0.
-	#3shop clockin#0 - clocks in as an on-duty employee
-	#3shop clockout#0 - clocks out as an off-duty employee	
-	#3shop employ <target>#0 - employs someone with the store
-	#3shop quit#0 - quits employment with this store
-	#3shop fire <target>|<name>#0 - fires an employee from this store
-	#3shop manager <target>|<name>#0 - toggles an employee's status as a manager
-	#3shop proprietor <target>|<name>#0 - toggles and employee's status as a proprietor
+	#3shop clockin#0 - explains that shop employment now uses active contracts rather than clock-in records
+	#3shop clockout#0 - explains that shop employment now uses active contracts rather than clock-out records
+	#3shop employ <target>#0 - offers someone a direct employment contract with the store
+	#3shop quit#0 - resigns your active employment contracts with this store
+	#3shop fire <target>|<name>#0 - ends an employee's active employment contracts with this store
+	#3shop manager <target>#0 - toggles a manager employment contract
+	#3shop proprietor <target>#0 - toggles a proprietor employment contract
 
 Shop manager employment shortcuts:
 
@@ -1996,13 +1996,13 @@ Shop manager employment shortcuts:
 	#3shop paytax <amount>|all#0 - pays owing taxes out of all sources of available cash
 	#3shop accountstatus <account>#0 - inquires about the status of a line of credit account
 	#3shop account ...#0 - allows store managers to configure line of credit accounts. See #3SHOP ACCOUNT HELP#0.
-	#3shop clockin#0 - clocks in as an on-duty employee
-	#3shop clockout#0 - clocks out as an off-duty employee	
-	#3shop employ <target>#0 - employs someone with the store
-	#3shop quit#0 - quits employment with this store
-	#3shop fire <target>|<name>#0 - fires an employee from this store
-	#3shop manager <target>|<name>#0 - toggles an employee's status as a manager
-	#3shop proprietor <target>|<name>#0 - toggles and employee's status as a proprietor
+	#3shop clockin#0 - explains that shop employment now uses active contracts rather than clock-in records
+	#3shop clockout#0 - explains that shop employment now uses active contracts rather than clock-out records
+	#3shop employ <target>#0 - offers someone a direct employment contract with the store
+	#3shop quit#0 - resigns your active employment contracts with this store
+	#3shop fire <target>|<name>#0 - ends an employee's active employment contracts with this store
+	#3shop manager <target>#0 - toggles a manager employment contract
+	#3shop proprietor <target>#0 - toggles a proprietor employment contract
 
 Shop manager employment shortcuts:
 
@@ -3173,9 +3173,8 @@ Additionally, you can use the following shop admin subcommands:
         {
             AcceptAction = text =>
             {
-                actor.OutputHandler.Send(
-                    $"You quit {shop.Name.TitleCase().Colour(Telnet.Cyan)}, ending your employment with them.");
-                shop.RemoveEmployee(actor);
+                new EmploymentCommandService().TryResignFromHost(actor, shop, out var message);
+                actor.OutputHandler.Send(message);
                 foreach (ICharacter employee in shop.EmployeesOnDuty)
                 {
                     employee.OutputHandler.Send(
@@ -3360,7 +3359,7 @@ Additionally, you can use the following shop admin subcommands:
                 shop.Id.ToString("N0", actor),
                 shop.Name.TitleCase(),
                 shop.IsTrading.ToString(actor),
-                shop.EmployeeRecords.Count().ToString("N0", actor),
+                shop.ActiveEmploymentContracts().Count().ToString("N0", actor),
                 shop.EmployeesOnDuty.Count().ToString("N0", actor),
                 pshop?.ShopfrontCells.Select(x =>
                     x.GetFriendlyReference(actor).FluentTagMXP("send",
@@ -3558,11 +3557,11 @@ Additionally, you can use the following shop admin subcommands:
 
         if (actor.Location.Shop.EmployeesOnDuty.Contains(actor))
         {
-            actor.OutputHandler.Send("You are already clocked-in and available for duty.");
+            actor.OutputHandler.Send("Employment contracts for shops no longer use the legacy clock-in register; your active contract already marks you as available for work.");
             return;
         }
 
-        actor.Location.Shop.EmployeeClockIn(actor);
+        actor.OutputHandler.Send("Employment contracts for shops no longer use the legacy clock-in register; your active contract already marks you as available for work.");
     }
 
     private static void ShopClockOut(ICharacter actor)
@@ -3578,13 +3577,7 @@ Additionally, you can use the following shop admin subcommands:
             return;
         }
 
-        if (!actor.Location.Shop.EmployeesOnDuty.Contains(actor))
-        {
-            actor.OutputHandler.Send("You are already clocked-out and off duty.");
-            return;
-        }
-
-        actor.Location.Shop.EmployeeClockOut(actor);
+        actor.OutputHandler.Send("Employment contracts for shops no longer use the legacy clock-out register; end or suspend the contract to remove someone from work.");
     }
 
     private static void ShopEmploy(ICharacter actor, StringStack ss)
@@ -3634,10 +3627,13 @@ Additionally, you can use the following shop admin subcommands:
                     return;
                 }
 
-                shop.AddEmployee(target);
-                actor.OutputHandler.Send(
-                    $"{target.HowSeen(actor, true, flags: PerceiveIgnoreFlags.IgnoreSelf)} is now an employee of {shop.Name.TitleCase().Colour(Telnet.Cyan)}.");
-                target.OutputHandler.Send($"You are now an employee of {shop.Name.TitleCase().Colour(Telnet.Cyan)}");
+                var hired = new EmploymentCommandService().TryHireDirectContract(actor, shop, target, EmploymentRole.Employee,
+                    out _, out var message);
+                actor.OutputHandler.Send(message);
+                if (hired)
+                {
+                    target.OutputHandler.Send($"You are now an employee of {shop.Name.TitleCase().Colour(Telnet.Cyan)}");
+                }
             },
             RejectAction = text =>
             {
@@ -3671,67 +3667,24 @@ Additionally, you can use the following shop admin subcommands:
             return;
         }
 
-        ICharacter target = actor.TargetActor(ss.PopSpeech());
-        IEmployeeRecord record = null;
-        if (target != null)
+        if (ss.IsFinished)
         {
-            record = actor.Location.Shop.EmployeeRecords.FirstOrDefault(x => x.EmployeeCharacterId == target.Id);
-        }
-
-        record ??= actor.Location.Shop.EmployeeRecords.FirstOrDefault(x =>
-            x.Name.GetName(NameStyle.FullName).EqualTo(ss.Last));
-
-        if (record == null)
-        {
-            actor.OutputHandler.Send("You don't employ anyone like that.");
+            actor.OutputHandler.Send("Who do you want to fire?");
             return;
         }
 
-        if (record.IsProprietor)
+        var text = ss.SafeRemainingArgument;
+        var target = actor.TargetActor(text);
+        var service = new EmploymentCommandService();
+        if (target is not null)
         {
-            actor.OutputHandler.Send("You cannot fire someone who is a proprietor.");
+            service.TryTerminateContractsForEmployee(actor, shop, target, out var message);
+            actor.OutputHandler.Send(message);
             return;
         }
 
-        if (record.IsManager && !shop.IsProprietor(actor))
-        {
-            actor.OutputHandler.Send("You can't fire other managers, only the proprietor can.");
-            return;
-        }
-
-
-        actor.OutputHandler.Send(
-            "Are you sure that you want to fire {} from {}?\nUse {} to confirm or {} to change your mind.");
-        actor.AddEffect(new Accept(actor, new GenericProposal
-        {
-            AcceptAction = text =>
-            {
-                if (!shop.IsEmployee(target))
-                {
-                    actor.OutputHandler.Send(
-                        $"{record.Name.GetName(NameStyle.FullName).Colour(Telnet.Cyan)} is no longer an employee, so you can't fire them.");
-                    return;
-                }
-
-                shop.RemoveEmployee(record);
-                actor.OutputHandler.Send(
-                    $"You fire {record.Name.GetName(NameStyle.FullName).Colour(Telnet.Cyan)} from {shop.Name.TitleCase().Colour(Telnet.Cyan)}.");
-                target = actor.Gameworld.Actors.Get(record.EmployeeCharacterId);
-                target?.OutputHandler.Send($"You have been fired from {shop.Name.TitleCase().Colour(Telnet.Cyan)}.");
-            },
-            RejectAction = text =>
-            {
-                actor.OutputHandler.Send(
-                    $"You decide not to fire {record.Name.GetName(NameStyle.FullName).Colour(Telnet.Cyan)} from {shop.Name.TitleCase().Colour(Telnet.Cyan)}.");
-            },
-            ExpireAction = () =>
-            {
-                actor.OutputHandler.Send(
-                    $"You decide not to fire {record.Name.GetName(NameStyle.FullName).Colour(Telnet.Cyan)} from {shop.Name.TitleCase().Colour(Telnet.Cyan)}.");
-            },
-            Keywords = new List<string> { },
-            DescriptionString = "firing an employee from the shop"
-        }), TimeSpan.FromSeconds(120));
+        service.TryTerminateContractsForEmployee(actor, shop, text, out var nameMessage);
+        actor.OutputHandler.Send(nameMessage);
     }
 
     private static void ShopDisplay(ICharacter actor, StringStack ss)
@@ -3851,35 +3804,22 @@ Additionally, you can use the following shop admin subcommands:
             return;
         }
 
-        ICharacter target = actor.TargetActor(ss.PopSpeech());
-        IEmployeeRecord record = null;
-        if (target != null)
+        if (ss.IsFinished)
         {
-            record = shop.EmployeeRecords.FirstOrDefault(x => x.EmployeeCharacterId == target.Id);
-        }
-
-        record ??= shop.EmployeeRecords.FirstOrDefault(x =>
-            x.Name.GetName(NameStyle.FullName).EqualTo(ss.Last));
-
-        if (record == null)
-        {
-            actor.OutputHandler.Send("You don't employ anyone like that.");
+            actor.OutputHandler.Send("Who do you want to toggle as a manager?");
             return;
         }
 
-        if (record.IsProprietor)
+        var target = actor.TargetActor(ss.SafeRemainingArgument);
+        if (target is null)
         {
-            actor.OutputHandler.Send("You cannot remove the manager status of someone who is a proprietor.");
+            actor.OutputHandler.Send("You don't see anyone like that.");
             return;
         }
 
-        record.IsManager = !record.IsManager;
-        shop.Changed = true;
-        actor.OutputHandler.Send(
-            $"You {(record.IsManager ? "promote" : "demote")} {record.Name.GetName(NameStyle.FullName).Colour(Telnet.Cyan)} {(record.IsManager ? "to the position of manager" : "to merely an employee")}.");
-        target = actor.Gameworld.Actors.Get(record.EmployeeCharacterId);
-        target?.OutputHandler.Send(
-                $"You have been {(record.IsManager ? "promoted to the position of manager of this shop" : "demoted to merely an employee of this shop")}.");
+        new EmploymentCommandService().TryToggleRoleContract(actor, shop, target, EmploymentRole.Manager, out var message);
+        actor.OutputHandler.Send(message);
+        target.OutputHandler.Send(message);
     }
 
     private static void ShopProprietor(ICharacter actor, StringStack ss)
@@ -3895,52 +3835,39 @@ Additionally, you can use the following shop admin subcommands:
             return;
         }
 
-        ICharacter target = actor.TargetActor(ss.PopSpeech());
-        IEmployeeRecord record = null;
-        if (target != null)
+        if (ss.IsFinished)
         {
-            record = shop.EmployeeRecords.FirstOrDefault(x => x.EmployeeCharacterId == target.Id);
-        }
-
-        record ??= shop.EmployeeRecords.FirstOrDefault(x => x.Name.GetName(NameStyle.FullName).EqualTo(ss.Last));
-
-        if (record == null)
-        {
-            actor.OutputHandler.Send("You don't employ anyone like that.");
+            actor.OutputHandler.Send("Who do you want to promote to proprietor?");
             return;
         }
 
-        if (record.IsProprietor)
+        var target = actor.TargetActor(ss.SafeRemainingArgument);
+        if (target is null)
         {
-            actor.OutputHandler.Send(
-                $"{record.Name.GetName(NameStyle.FullName).Colour(Telnet.Cyan)} is already a proprietor.");
+            actor.OutputHandler.Send("You don't see anyone like that.");
             return;
         }
 
         actor.OutputHandler.Send(
-            $"You are proposing to promote {record.Name.GetName(NameStyle.FullName).Colour(Telnet.Cyan)} to the position of proprietor of {shop.Name.TitleCase().Colour(Telnet.Cyan)}. This decision is irreversable, and they will be a full owner with all rights unless they subsequently quit.\nTo go through with this decision, type {"accept".ColourCommand()} or type {"decline".ColourCommand()} to change your mind.");
+            $"You are proposing to toggle {target.HowSeen(actor, true, flags: PerceiveIgnoreFlags.IgnoreSelf)} as a proprietor of {shop.Name.TitleCase().Colour(Telnet.Cyan)}.\nTo go through with this decision, type {"accept".ColourCommand()} or type {"decline".ColourCommand()} to change your mind.");
         actor.AddEffect(new Accept(actor, new GenericProposal
         {
             AcceptAction = text =>
             {
-                record.IsManager = true;
-                record.IsProprietor = true;
-                shop.Changed = true;
-                actor.OutputHandler.Send(
-                    $"You promote {record.Name.GetName(NameStyle.FullName).Colour(Telnet.Cyan)} to proprietor of {shop.Name.TitleCase().Colour(Telnet.Cyan)}.");
-                target = actor.Gameworld.Actors.Get(record.EmployeeCharacterId);
-                target?.OutputHandler.Send(
-                        $"You have been promoted to the proprietor of {shop.Name.TitleCase().Colour(Telnet.Cyan)}.");
+                new EmploymentCommandService().TryToggleRoleContract(actor, shop, target, EmploymentRole.Proprietor,
+                    out var message);
+                actor.OutputHandler.Send(message);
+                target.OutputHandler.Send(message);
             },
             RejectAction = text =>
             {
                 actor.OutputHandler.Send(
-                    $"You decide against promoting {record.Name.GetName(NameStyle.FullName).Colour(Telnet.Cyan)} to proprietor.");
+                    $"You decide against toggling {target.HowSeen(actor, true, flags: PerceiveIgnoreFlags.IgnoreSelf)} as proprietor.");
             },
             ExpireAction = () =>
             {
                 actor.OutputHandler.Send(
-                    $"You decide against promoting {record.Name.GetName(NameStyle.FullName).Colour(Telnet.Cyan)} to proprietor.");
+                    $"You decide against toggling {target.HowSeen(actor, true, flags: PerceiveIgnoreFlags.IgnoreSelf)} as proprietor.");
             },
             Keywords = new List<string> { "proprietor", "shop", "promote" },
             DescriptionString = "Promote someone to proprietor of a shop"

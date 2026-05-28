@@ -377,7 +377,9 @@ public sealed record JobOpening(
 {
 	public bool AcceptsApplications =>
 		Status == JobOpeningStatus.Open &&
-		Employer.EmploymentContracts.Count(x => x.Role == Role && x.Status == EmploymentStatus.Active) < MaxPositions;
+		Employer.Employment.Applications.Count(x =>
+			x.Opening.Id == Id &&
+			x.Status == JobApplicationStatus.Accepted) < MaxPositions;
 }
 
 public sealed class EmploymentApplication : IEmploymentApplication

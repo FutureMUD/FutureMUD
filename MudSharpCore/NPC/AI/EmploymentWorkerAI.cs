@@ -417,6 +417,11 @@ public class EmploymentWorkerAI : PathingAIBase
 			return SearchEnabled && TryApplyForEmployment(character);
 		}
 
+		if (TaskingEnabled)
+		{
+			EvaluateHostWork(character, host);
+		}
+
 		if (TaskingEnabled && TryClaimOrAdvanceTask(character, host))
 		{
 			return true;
@@ -471,6 +476,20 @@ public class EmploymentWorkerAI : PathingAIBase
 
 		opening.Host.Employment.Apply(opening.Opening, profile);
 		return true;
+	}
+
+	private void EvaluateHostWork(ICharacter worker, IEmploymentHost host)
+	{
+		if (worker.EffectsOfType<EmploymentWorkerHostEvaluationEffect>().Any(x => x.Matches(host)))
+		{
+			return;
+		}
+
+		var context = new EmploymentTaskContext(host, usePhysicalItemMovement: true);
+		var now = DateTimeOffset.UtcNow;
+		host.TaskBoard.EvaluateScheduledRules(context, now);
+		host.ManagerGoalBoard.EvaluateGoals(context, now);
+		worker.AddEffect(new EmploymentWorkerHostEvaluationEffect(worker, host), TimeSpan.FromMinutes(1));
 	}
 
 	private bool TryClaimOrAdvanceTask(ICharacter worker, IEmploymentHost host)

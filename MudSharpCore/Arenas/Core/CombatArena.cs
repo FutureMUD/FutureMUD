@@ -6,6 +6,7 @@ using MudSharp.Construction;
 using MudSharp.Database;
 using MudSharp.Economy;
 using MudSharp.Economy.Currency;
+using MudSharp.Economy.Employment;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.FutureProg;
@@ -171,7 +172,10 @@ public sealed partial class CombatArena : SaveableItem, ICombatArena
 
     public IEnumerable<ICombatantClass> CombatantClasses => _combatantClasses;
     public IEnumerable<ICharacter> Managers =>
-        _managerIds.Select(id => Gameworld.TryGetCharacter(id, true)).OfType<ICharacter>();
+        this.ActiveEmploymentContracts()
+            .Where(x => x.Role is EmploymentRole.Manager or EmploymentRole.Proprietor)
+            .Select(x => x.Employee)
+            .DistinctBy(x => x.Id);
 
     public IEnumerable<ICell> WaitingCells => _cells[ArenaCellRole.Waiting];
     public IEnumerable<ICell> ArenaCells => _cells[ArenaCellRole.ArenaFloor];
@@ -186,7 +190,7 @@ public sealed partial class CombatArena : SaveableItem, ICombatArena
 
     public bool IsManager(ICharacter actor)
     {
-        return actor != null && _managerIds.Contains(actor.Id);
+        return this.HasManagerEmploymentAccess(actor);
     }
 
     public void AddManager(ICharacter actor)
@@ -392,18 +396,8 @@ public sealed partial class CombatArena : SaveableItem, ICombatArena
         decimal unclaimed = Gameworld.ArenaFinanceService.GetUnclaimedMoney(this);
         sb.AppendLine($"Unclaimed Money: {Currency.Describe(unclaimed, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
         sb.AppendLine();
-        sb.AppendLine("Managers:");
-        if (!Managers.Any())
-        {
-            sb.AppendLine("\tNone.".ColourError());
-        }
-        else
-        {
-            foreach (ICharacter mgr in Managers)
-            {
-                sb.AppendLine($"\t{mgr.HowSeen(actor).ColourName()}");
-            }
-        }
+        sb.AppendLine("Employees:");
+        sb.AppendLine(this.ActiveEmploymentContractsTable(actor));
 
         sb.AppendLine();
         sb.AppendLine("Cells:");
@@ -482,18 +476,8 @@ public sealed partial class CombatArena : SaveableItem, ICombatArena
         decimal unclaimed = Gameworld.ArenaFinanceService.GetUnclaimedMoney(this);
         sb.AppendLine($"\tUnclaimed Money: {Currency.Describe(unclaimed, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
         sb.AppendLine();
-        sb.AppendLine("Managers:");
-        if (!Managers.Any())
-        {
-            sb.AppendLine("\tNone.".ColourError());
-        }
-        else
-        {
-            foreach (ICharacter mgr in Managers)
-            {
-                sb.AppendLine($"\t{mgr.HowSeen(actor, flags: PerceiveIgnoreFlags.TrueDescription).ColourName()}");
-            }
-        }
+        sb.AppendLine("Employees:");
+        sb.AppendLine(this.ActiveEmploymentContractsTable(actor));
 
         sb.AppendLine();
         sb.AppendLine("Active Event Types:");

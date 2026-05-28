@@ -259,6 +259,15 @@ public sealed class RpiNpcWorldfileParser
 		}
 
 		var secondEconomyLine = ReadRequiredTokens(lines, ref index, $"shop economy for mob #{vnum}");
+		var economyProfiles = new List<RpiNpcShopEconomyProfile>
+		{
+			new(
+				1,
+				ParseDouble(topTokens[4], "econ markup1"),
+				ParseDouble(topTokens[5], "econ discount1"),
+				ParseInt(topTokens[6], "econ flags1"))
+		};
+		var noBuyFlags = ParseAdditionalShopEconomyLine(secondEconomyLine, economyProfiles, merchSeven, vnum);
 		List<int> deliveries = [];
 		while (index < lines.Count)
 		{
@@ -292,9 +301,37 @@ public sealed class RpiNpcWorldfileParser
 			ParseDouble(topTokens[4], "econ markup1"),
 			ParseDouble(topTokens[5], "econ discount1"),
 			ParseInt(topTokens[6], "econ flags1"),
+			economyProfiles,
+			noBuyFlags,
 			secondEconomyLine.Select(x => x.Trim()).ToList(),
 			deliveries,
 			tradeTokens.Select(x => ParseInt(x, "trades-in value")).ToList());
+	}
+
+	private static int ParseAdditionalShopEconomyLine(
+		IReadOnlyList<string> tokens,
+		ICollection<RpiNpcShopEconomyProfile> economyProfiles,
+		int merchSeven,
+		int vnum)
+	{
+		var expectedProfileCount = merchSeven > 0 ? 7 : 3;
+		var requiredTokenCount = ((expectedProfileCount - 1) * 3) + 1;
+		if (tokens.Count < requiredTokenCount)
+		{
+			throw new InvalidOperationException($"Shop economy line for mob #{vnum} was truncated.");
+		}
+
+		var index = 0;
+		for (var profileNumber = 2; profileNumber <= expectedProfileCount; profileNumber++)
+		{
+			economyProfiles.Add(new RpiNpcShopEconomyProfile(
+				profileNumber,
+				ParseDouble(tokens[index++], $"econ markup{profileNumber}"),
+				ParseDouble(tokens[index++], $"econ discount{profileNumber}"),
+				ParseInt(tokens[index++], $"econ flags{profileNumber}")));
+		}
+
+		return ParseInt(tokens[index], "nobuy flags");
 	}
 
 	private static IReadOnlyList<RpiNpcSkillRecord> ParseSkills(

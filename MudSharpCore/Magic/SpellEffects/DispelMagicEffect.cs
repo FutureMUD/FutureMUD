@@ -38,6 +38,8 @@ public class DispelMagicEffect : IMagicSpellEffectTemplate
 			{ "flight", x => x is IFlightEffect },
 			{ "levitation", x => x is ILevitationEffect },
 			{ "featherfall", x => x is IFallDamageMitigationEffect },
+			{ "burning", x => x is SpellBurningEffect },
+			{ "trackmark", x => x is SpellTrackMarkEffect },
 			{ "magictag", x => x is IMagicTagEffect },
 			{ "itemenchant", x => x is SpellItemEnchantmentEffect },
 			{ "portal", x => x is SpellPortalEffect },
@@ -293,7 +295,7 @@ public class DispelMagicEffect : IMagicSpellEffectTemplate
 	#3school <id|name|none>#0 - restricts matching to a magic school
 	#3tag <tag> [value]#0 - restricts matching to a magic tag, optionally including value
 	#3tag none#0 - clears tag matching
-	#3effect <key>#0 - restricts matching to an approved key: any, spell, invisibility, flight, levitation, featherfall, magictag, itemenchant, portal, planarstate, roomward, personalward, tagward, exitbarrier, subjectivedesc, transformform, projectile, crafttool, powerfuel, itemevent
+	#3effect <key>#0 - restricts matching to an approved key: any, spell, invisibility, flight, levitation, featherfall, burning, trackmark, magictag, itemenchant, portal, planarstate, roomward, personalward, tagward, exitbarrier, subjectivedesc, transformform, projectile, crafttool, powerfuel, itemevent
 	#3illusion <key|none>#0 - restricts matching to a subjective illusion key
 	#3contest#0 - toggles strength-contested dispel matching
 	#3bonus <amount>#0 - sets the flat strength bonus or penalty for contested dispels";

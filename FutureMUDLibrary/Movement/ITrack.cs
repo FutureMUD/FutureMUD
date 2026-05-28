@@ -23,6 +23,7 @@ public enum TrackCircumstances
     Fleeing = 2,
     Careful = 4,
     Dragged = 8,
+    MagicallyMarked = 16,
 }
 
 public interface ITrack : IFrameworkItem, ISaveable

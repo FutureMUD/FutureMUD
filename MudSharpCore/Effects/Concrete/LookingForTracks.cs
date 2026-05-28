@@ -192,6 +192,10 @@ public class LookingForTracks : Effect, IActionEffect, ILDescSuffixEffect, IRemo
         {
             sb.AppendLine($"...It was bleeding as it went.");
         }
+        if (track.Track.TrackCircumstances.HasFlag(TrackCircumstances.MagicallyMarked))
+        {
+            sb.AppendLine($"...It carries an unnatural magical trace.");
+        }
         sb.AppendLine($"...It was left #2approximately {(actor.Location.DateTime() - track.Track.MudDateTime).Describe(actor)} ago#0.".SubstituteANSIColour());
         sb.AppendLine($"...It was {track.Visual.DescribeColoured()} to see and {track.Visual.DescribeColoured()} to smell for you.");
 

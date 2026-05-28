@@ -21,6 +21,20 @@ public partial class ItemSeeder
             return true;
         }
 
+        item = _context!.GameItemProtos.Local
+            .FirstOrDefault(x => !string.IsNullOrWhiteSpace(x.UniqueName) &&
+                                 x.UniqueName.Equals(stableReference, StringComparison.OrdinalIgnoreCase)) ??
+               _context.GameItemProtos
+                   .AsEnumerable()
+                   .FirstOrDefault(x => !string.IsNullOrWhiteSpace(x.UniqueName) &&
+                                        x.UniqueName.Equals(stableReference, StringComparison.OrdinalIgnoreCase))!;
+        if (item is not null)
+        {
+            _items[stableReference] = item;
+            _items[item.ShortDescription] = item;
+            return true;
+        }
+
         if (!HellenicAntiquityClothingStableReferences.TryGetValue(stableReference, out var shortDescription) &&
             !EgyptianAntiquityClothingStableReferences.TryGetValue(stableReference, out shortDescription) &&
             !RomanAntiquityClothingStableReferences.TryGetValue(stableReference, out shortDescription) &&
@@ -79,6 +93,12 @@ public partial class ItemSeeder
     {
         var item = LookupReworkItem(stableReference);
         return $"SimpleProduct - 1x {item.ShortDescription} (#{item.Id})";
+    }
+
+    private string StableSimpleProduct(string stableReference, int quantity)
+    {
+        var item = LookupReworkItem(stableReference);
+        return $"SimpleProduct - {quantity}x {item.ShortDescription} (#{item.Id})";
     }
 
     private string StableSimpleItemDescription(string stableReference)

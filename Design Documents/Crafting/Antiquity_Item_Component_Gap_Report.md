@@ -4,6 +4,8 @@ This document records proposed stock-content additions for the antiquity item se
 
 The goal is not to replace the existing antiquity catalogue. It is a forward-looking implementation guide for logical item groups that fit the technology level, social setting, and current MUD functionality.
 
+May 2026 medieval-slice note: genuinely cross-era workshop foundations now use `historic_*` stable references and are seeded for either antiquity or medieval installs. Antiquity culture-specific clothing, weapons, jewellery, foodways, and document forms remain under their existing `antiquity_*` references.
+
 ## Existing Coverage Baseline
 
 The current antiquity item suite already has broad coverage for:

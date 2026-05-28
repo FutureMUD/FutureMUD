@@ -48,6 +48,49 @@ public class ItemSeederReworkMetadataTests
 	}
 
 	[TestMethod]
+	public void BuildReworkItemBuilderNotes_RecordsMedievalCultureStatusAndCategory()
+	{
+		var notes = ItemSeeder.BuildReworkItemBuilderNotesForTesting(
+			"medieval_clothing_norman_noble_silk_surcoat",
+			["Market / Clothing / Luxury Clothing"]);
+
+		StringAssert.Contains(notes, "Stock unique reference: medieval_clothing_norman_noble_silk_surcoat.");
+		StringAssert.Contains(notes, "Cultures: Norman/Angevin.");
+		StringAssert.Contains(notes, "Status/role: Noble/Court.");
+		StringAssert.Contains(notes, "Seeder category: medieval clothing stock.");
+	}
+
+	[TestMethod]
+	public void BuildReworkItemBuilderNotes_RecordsHistoricFoundationScope()
+	{
+		var notes = ItemSeeder.BuildReworkItemBuilderNotesForTesting(
+			"historic_sewing_needle",
+			["Market / Professional Tools / Standard Tools"]);
+
+		StringAssert.Contains(notes, "Stock unique reference: historic_sewing_needle.");
+		StringAssert.Contains(notes, "Shared scope: cross-era historic foundation.");
+		StringAssert.Contains(notes, "Seeder category: shared historic foundation stock.");
+	}
+
+	[TestMethod]
+	public void BuildReworkItemBuilderNotes_RecordsMedievalRepairAndGapCategories()
+	{
+		var repairNotes = ItemSeeder.BuildReworkItemBuilderNotesForTesting(
+			"medieval_textile_repair_kit",
+			["Market / Professional Tools / Standard Tools"]);
+		var surveyNotes = ItemSeeder.BuildReworkItemBuilderNotesForTesting(
+			"medieval_surveyor_measuring_rope",
+			["Market / Professional Tools / Standard Tools"]);
+		var gapNotes = ItemSeeder.BuildReworkItemBuilderNotesForTesting(
+			"medieval_music_psaltery",
+			["Market / Household Goods / Luxury Decorations"]);
+
+		StringAssert.Contains(repairNotes, "Seeder category: medieval repair-kit stock.");
+		StringAssert.Contains(surveyNotes, "Seeder category: medieval writing and administration stock.");
+		StringAssert.Contains(gapNotes, "Seeder category: medieval component-gap prop stock.");
+	}
+
+	[TestMethod]
 	public void InferReworkFunctionalTags_MirrorsMarketTagsWithoutRemovingThem()
 	{
 		var inferredTags = ItemSeeder.InferReworkFunctionalTagsForTesting(

@@ -2205,6 +2205,7 @@ return ""You need at least {minimumTraitValue.Value.ToString(System.Globalizatio
         // Reset nextID
 		_nextId = _context!.Crafts.Select(x => x.Id).ToList().DefaultIfEmpty(0).Max(x => x) + 1;
 
+		SeedHistoricFoundationCrafts();
 		SeedAntiquityHellenicClothingCrafts();
 		SeedAntiquityEgyptianClothingCrafts();
 		SeedAntiquityRomanClothingCrafts();
@@ -2230,6 +2231,16 @@ return ""You need at least {minimumTraitValue.Value.ToString(System.Globalizatio
 		SeedAntiquityApiaryCrafts();
 		SeedAntiquityAgriculturalProcessingCrafts();
 		SeedAntiquityFoodCrafts();
+		SeedMedievalProductionChainCrafts();
+		SeedMedievalClothingCrafts();
+		SeedMedievalEquipmentCrafts();
+		SeedMedievalWritingAdministrationCrafts();
+		SeedMedievalMedicalApothecaryCrafts();
+		SeedMedievalJewelleryDevotionalCrafts();
+		SeedMedievalFurnitureAndContainerCrafts();
+		SeedMedievalFoodBeverageCrafts();
+		SeedMedievalRepairKitCrafts();
+		SeedMedievalComponentGapCrafts();
 	}
 
 	private void SeedCraftsLegacy()

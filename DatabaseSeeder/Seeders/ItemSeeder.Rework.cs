@@ -147,6 +147,24 @@ namespace DatabaseSeeder.Seeders
 
         private static readonly (string Token, string Culture)[] ReworkStableReferenceCultureTokens =
         [
+            ("_early_anglo_saxon_", "Early Anglo-Saxon/Insular"),
+            ("_anglo_danish_", "Late Anglo-Saxon/Anglo-Danish"),
+            ("_norse_", "Norse"),
+            ("_norman_", "Norman/Angevin"),
+            ("_high_british_", "High Medieval Britain/Marcher"),
+            ("_gaelic_", "Gaelic/Welsh/Highland"),
+            ("_carolingian_", "Carolingian/Frankish"),
+            ("_capetian_", "Capetian/Low Countries"),
+            ("_german_hre_", "German/HRE/Alpine-North Italian"),
+            ("_iberian_christian_", "Iberian Christian"),
+            ("_andalusi_", "al-Andalus/Maghreb"),
+            ("_byzantine_", "Byzantine"),
+            ("_abbasid_", "Abbasid/Persianate"),
+            ("_fatimid_", "Fatimid Egypt/Ifriqiya"),
+            ("_seljuk_ayyubid_", "Seljuk/Ayyubid/early Mamluk"),
+            ("_rus_novgorod_", "Kyivan Rus/Novgorod"),
+            ("_steppe_turkic_", "Steppe Turkic/Cuman/Mongol-adjacent"),
+            ("_song_china_", "Song China"),
             ("_hellenic_", "Hellenic"),
             ("_roman_", "Roman"),
             ("_italic_", "Italic/Roman"),
@@ -164,6 +182,16 @@ namespace DatabaseSeeder.Seeders
             ("_scythian_", "Scythian-Sarmatian"),
             ("_sarmatian_", "Scythian-Sarmatian"),
             ("_steppe_", "Scythian-Sarmatian")
+        ];
+
+        private static readonly (string Token, string Status)[] ReworkStableReferenceStatusTokens =
+        [
+            ("_peasant_", "Peasant"),
+            ("_artisan_", "Artisan"),
+            ("_merchant_", "Merchant/Burgher"),
+            ("_noble_", "Noble/Court"),
+            ("_clergy_", "Clergy/Monastic"),
+            ("_military_", "Military")
         ];
 
         private static readonly (string SourceRoot, string FunctionalTag)[] ReworkFunctionalTagMappings =
@@ -296,6 +324,17 @@ namespace DatabaseSeeder.Seeders
                 notes.Add($"Cultures: {string.Join(", ", cultures)}.");
             }
 
+            var statuses = GetReworkItemStatusContexts(stableReference);
+            if (statuses.Count > 0)
+            {
+                notes.Add($"Status/role: {string.Join(", ", statuses)}.");
+            }
+
+            if (stableReference.StartsWith("historic_", StringComparison.InvariantCultureIgnoreCase))
+            {
+                notes.Add("Shared scope: cross-era historic foundation.");
+            }
+
             var category = GetReworkItemBuilderCategory(stableReference, tags);
             if (!string.IsNullOrWhiteSpace(category))
             {
@@ -378,6 +417,12 @@ namespace DatabaseSeeder.Seeders
 
             foreach (var (token, culture) in ReworkStableReferenceCultureTokens)
             {
+                if (stableReference.StartsWith("medieval_", StringComparison.InvariantCultureIgnoreCase) &&
+                    token.Equals("_steppe_", StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
                 if (stableReference.Contains(token, StringComparison.InvariantCultureIgnoreCase))
                 {
                     AddCulture(culture);
@@ -387,12 +432,94 @@ namespace DatabaseSeeder.Seeders
             return cultures;
         }
 
+        private static IReadOnlyList<string> GetReworkItemStatusContexts(string stableReference)
+        {
+            var statuses = new List<string>();
+
+            foreach (var (token, status) in ReworkStableReferenceStatusTokens)
+            {
+                if (!stableReference.Contains(token, StringComparison.InvariantCultureIgnoreCase) ||
+                    statuses.Any(x => x.Equals(status, StringComparison.InvariantCultureIgnoreCase)))
+                {
+                    continue;
+                }
+
+                statuses.Add(status);
+            }
+
+            return statuses;
+        }
+
         private static string? GetReworkItemBuilderCategory(string stableReference, IEnumerable<string> tags)
         {
             var tagList = tags.ToList();
             bool HasTagText(string text)
             {
                 return tagList.Any(x => x.Contains(text, StringComparison.InvariantCultureIgnoreCase));
+            }
+
+            if (stableReference.StartsWith("historic_", StringComparison.InvariantCultureIgnoreCase))
+            {
+                return "shared historic foundation stock";
+            }
+
+            if (stableReference.StartsWith("medieval_food_", StringComparison.InvariantCultureIgnoreCase))
+            {
+                return "medieval food and beverage stock";
+            }
+
+            if (stableReference.StartsWith("medieval_clothing_", StringComparison.InvariantCultureIgnoreCase))
+            {
+                return "medieval clothing stock";
+            }
+
+            if (stableReference.StartsWith("medieval_writing_", StringComparison.InvariantCultureIgnoreCase) ||
+                stableReference.StartsWith("medieval_trade_", StringComparison.InvariantCultureIgnoreCase))
+            {
+                return "medieval writing and administration stock";
+            }
+
+            if (stableReference.StartsWith("medieval_medical_", StringComparison.InvariantCultureIgnoreCase))
+            {
+                return "medieval medical and apothecary stock";
+            }
+
+            if (stableReference.StartsWith("medieval_jewellery_", StringComparison.InvariantCultureIgnoreCase) ||
+                stableReference.StartsWith("medieval_devotional_", StringComparison.InvariantCultureIgnoreCase) ||
+                stableReference.StartsWith("medieval_offering_", StringComparison.InvariantCultureIgnoreCase))
+            {
+                return "medieval jewellery and devotional stock";
+            }
+
+            if (stableReference.StartsWith("medieval_military_", StringComparison.InvariantCultureIgnoreCase) ||
+                stableReference.StartsWith("medieval_weapon_", StringComparison.InvariantCultureIgnoreCase) ||
+                stableReference.StartsWith("medieval_shield_", StringComparison.InvariantCultureIgnoreCase))
+            {
+                return "medieval equipment and military stock";
+            }
+
+            if (stableReference.StartsWith("medieval_household_", StringComparison.InvariantCultureIgnoreCase))
+            {
+                return "medieval furniture, container, and household stock";
+            }
+
+            if (stableReference.StartsWith("medieval_textile_", StringComparison.InvariantCultureIgnoreCase) ||
+                stableReference.StartsWith("medieval_leather_", StringComparison.InvariantCultureIgnoreCase) ||
+                stableReference.StartsWith("medieval_metal_", StringComparison.InvariantCultureIgnoreCase))
+            {
+                return "medieval repair-kit stock";
+            }
+
+            if (stableReference.StartsWith("medieval_surveyor_", StringComparison.InvariantCultureIgnoreCase))
+            {
+                return "medieval writing and administration stock";
+            }
+
+            if (stableReference.StartsWith("medieval_music_", StringComparison.InvariantCultureIgnoreCase) ||
+                stableReference.StartsWith("medieval_game_", StringComparison.InvariantCultureIgnoreCase) ||
+                stableReference.StartsWith("medieval_horse_", StringComparison.InvariantCultureIgnoreCase))
+            {
+                return "medieval component-gap prop stock";
             }
 
             if (stableReference.StartsWith("antiquity_food_", StringComparison.InvariantCultureIgnoreCase))
@@ -526,6 +653,12 @@ namespace DatabaseSeeder.Seeders
                 return;
             }
 
+            if (eras.Contains("antiquity", StringComparison.InvariantCultureIgnoreCase) ||
+                eras.Contains("medieval", StringComparison.InvariantCultureIgnoreCase))
+            {
+                SeedHistoricCommonWorkshopItems();
+            }
+
             if (eras.Contains("antiquity", StringComparison.InvariantCultureIgnoreCase))
             {
                 SeedAntiquityClothing();
@@ -546,7 +679,19 @@ namespace DatabaseSeeder.Seeders
 
             if (eras.Contains("medieval", StringComparison.InvariantCultureIgnoreCase))
             {
-
+                SeedMedievalClothing();
+                SeedMedievalHouseholdCraftTools();
+                SeedMedievalWritingAdministrationAndDocuments();
+                SeedMedievalMedicalAndApothecaryItems();
+                SeedMedievalJewelleryAndDevotionalGoods();
+                SeedMedievalArmour();
+                SeedMedievalContainers();
+                SeedMedievalDoorsLocksAndStrongboxes();
+                SeedMedievalRepairKits();
+                SeedMedievalHouseholdFurniture();
+                SeedMedievalWeaponsShieldsAccessories();
+                SeedMedievalFoodAndBeverageItems();
+                SeedMedievalComponentGapItems();
             }
 
             if (eras.Contains("renaissance", StringComparison.InvariantCultureIgnoreCase))

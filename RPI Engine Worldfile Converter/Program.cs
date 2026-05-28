@@ -19,6 +19,8 @@ public sealed record ConverterAnalysisSummary(
 
 public sealed record ConverterExportItem(RpiItemRecord Source, ConvertedItemDefinition Converted);
 
+public sealed record ConverterExportShop(RpiNpcRecord Source, ConvertedShopDefinition Converted);
+
 public sealed record ConverterExportReport(
 	DateTime GeneratedUtc,
 	string SourceDirectory,
@@ -26,6 +28,14 @@ public sealed record ConverterExportReport(
 	IReadOnlyList<RpiItemBlockFailure> Failures,
 	IReadOnlyList<FutureMudValidationIssue> ValidationIssues,
 	IReadOnlyList<ConverterExportItem> Items);
+
+public sealed record ShopExportReport(
+	DateTime GeneratedUtc,
+	string SourceDirectory,
+	ShopAnalysisSummary Analysis,
+	IReadOnlyList<RpiNpcBlockFailure> Failures,
+	IReadOnlyList<FutureMudShopValidationIssue> ValidationIssues,
+	IReadOnlyList<ConverterExportShop> Shops);
 
 internal sealed record ConverterCliOptions(
 	string Command,
@@ -61,6 +71,11 @@ internal sealed record RoomBaselineLoadResult(
 internal sealed record NpcBaselineLoadResult(
 	FuturemudDatabaseContext? Context,
 	FutureMudNpcBaselineCatalog? Catalog,
+	string Status);
+
+internal sealed record ShopBaselineLoadResult(
+	FuturemudDatabaseContext? Context,
+	FutureMudShopBaselineCatalog? Catalog,
 	string Status);
 
 internal static class Program
@@ -103,6 +118,11 @@ internal static class Program
 			if (IsNpcCommand(options.Command))
 			{
 				return await RunNpcCommand(options);
+			}
+
+			if (IsShopCommand(options.Command))
+			{
+				return await RunShopCommand(options);
 			}
 
 			return await RunRoomCommand(options);
@@ -315,6 +335,49 @@ internal static class Program
 			"analyze-npcs" => await RunAnalyzeNpcs(summary, corpus, conversion, validationIssues),
 			"export-npcs" => await RunExportNpcs(options, corpus, conversion, validationIssues, summary),
 			"apply-npcs" => await RunApplyNpcs(options, conversion.Npcs, baseline.Context!, baseline.Catalog!, summary),
+			_ => 1,
+		};
+	}
+
+	private static async Task<int> RunShopCommand(ConverterCliOptions options)
+	{
+		if (!Directory.Exists(options.RegionsDirectory))
+		{
+			Console.Error.WriteLine($"Could not find regions directory '{options.RegionsDirectory}'.");
+			return 1;
+		}
+
+		var npcParser = new RpiNpcWorldfileParser();
+		var npcCorpus = npcParser.ParseDirectory(options.RegionsDirectory);
+		var itemParser = new RpiWorldfileParser();
+		var itemCorpus = itemParser.ParseDirectory(options.RegionsDirectory);
+		var itemTransformer = new FutureMUDItemTransformer();
+		var convertedItems = itemTransformer.Convert(itemCorpus.Items);
+		var roomParser = new RpiRoomWorldfileParser();
+		var roomCorpus = roomParser.ParseDirectory(options.RegionsDirectory);
+		var roomTransformer = new FutureMudRoomTransformer();
+		var roomConversion = roomTransformer.Convert(roomCorpus.Rooms);
+
+		var baseline = LoadShopBaseline(options);
+		using var baselineContext = baseline.Context;
+		if (options.Command == "apply-shops" && baseline.Catalog is null)
+		{
+			Console.Error.WriteLine($"Unable to load the FutureMUD shop baseline: {baseline.Status}");
+			return 3;
+		}
+
+		var transformer = new FutureMudShopTransformer(convertedItems, roomConversion.Rooms);
+		var conversion = transformer.Convert(npcCorpus.Npcs);
+		var validationIssues = baseline.Catalog is not null
+			? FutureMudShopValidation.Validate(baseline.Catalog, conversion.Shops)
+			: Array.Empty<FutureMudShopValidationIssue>();
+		var summary = BuildShopAnalysisSummary(npcCorpus, conversion, validationIssues, baseline.Status);
+
+		return options.Command switch
+		{
+			"analyze-shops" => await RunAnalyzeShops(summary, npcCorpus, conversion, validationIssues),
+			"export-shops" => await RunExportShops(options, npcCorpus, conversion, validationIssues, summary),
+			"apply-shops" => await RunApplyShops(options, conversion.Shops, baseline.Context!, baseline.Catalog!, summary),
 			_ => 1,
 		};
 	}
@@ -762,6 +825,67 @@ internal static class Program
 		return 0;
 	}
 
+	private static async Task<int> RunAnalyzeShops(
+		ShopAnalysisSummary summary,
+		RpiParsedNpcCorpus corpus,
+		ShopConversionResult conversion,
+		IReadOnlyList<FutureMudShopValidationIssue> validationIssues)
+	{
+		Console.WriteLine($"Parsed mob blocks: {summary.ParsedMobCount:N0} of {summary.TotalMobCount:N0}");
+		Console.WriteLine($"Parse failures: {summary.FailureCount:N0}");
+		Console.WriteLine($"Parse warnings: {summary.ParseWarningCount:N0}");
+		Console.WriteLine($"RPI shopkeeper payloads: {summary.ShopCount:N0}");
+		Console.WriteLine($"Ready shops: {summary.ReadyShopCount:N0}");
+		Console.WriteLine($"Invalid shops: {summary.InvalidShopCount:N0}");
+		Console.WriteLine($"Mapped delivery merchandise rows: {summary.MerchandiseCount:N0}");
+		Console.WriteLine($"Baseline: {summary.BaselineStatus}");
+		Console.WriteLine();
+
+		PrintDictionary("Per-status totals", summary.StatusCounts);
+
+		if (summary.WarningCodeCounts.Count > 0)
+		{
+			Console.WriteLine();
+			PrintDictionary("Warning codes", summary.WarningCodeCounts);
+		}
+
+		PrintMissingDependencies(summary.MissingDependencyCounts, validationIssues.Count);
+
+		if (corpus.Failures.Count > 0)
+		{
+			Console.WriteLine();
+			Console.WriteLine("Sample parse failures:");
+			foreach (var failure in corpus.Failures.Take(10))
+			{
+				Console.WriteLine($"- {Path.GetFileName(failure.SourceFile)} {failure.Header}: {failure.Message}");
+			}
+		}
+
+		if (conversion.Shops.Count > 0)
+		{
+			Console.WriteLine();
+			Console.WriteLine("Sample shops:");
+			foreach (var shop in conversion.Shops.Take(10))
+			{
+				Console.WriteLine(
+					$"- {shop.SourceKey}: shopfront {shop.ShopVnum.ToString(System.Globalization.CultureInfo.InvariantCulture)}, stockroom {shop.StoreVnum.ToString(System.Globalization.CultureInfo.InvariantCulture)}, merchandise {shop.Merchandise.Count.ToString(System.Globalization.CultureInfo.InvariantCulture)}");
+			}
+		}
+
+		if (validationIssues.Count > 0)
+		{
+			Console.WriteLine();
+			Console.WriteLine("Sample validation issues:");
+			foreach (var issue in validationIssues.Take(20))
+			{
+				Console.WriteLine($"- [{issue.Severity}] {issue.SourceKey}: {issue.Message}");
+			}
+		}
+
+		await Task.CompletedTask;
+		return 0;
+	}
+
 	private static async Task<int> RunExportRooms(
 		ConverterCliOptions options,
 		RpiParsedRoomCorpus corpus,
@@ -876,6 +1000,38 @@ internal static class Program
 
 		Console.WriteLine($"Wrote {export.Npcs.Count:N0} converted NPC records to {outputPath}");
 		Console.WriteLine($"Wrote NPC audit to {auditPath}");
+		Console.WriteLine($"Baseline: {summary.BaselineStatus}");
+		return 0;
+	}
+
+	private static async Task<int> RunExportShops(
+		ConverterCliOptions options,
+		RpiParsedNpcCorpus corpus,
+		ShopConversionResult conversion,
+		IReadOnlyList<FutureMudShopValidationIssue> validationIssues,
+		ShopAnalysisSummary summary)
+	{
+		var outputPath = ResolveOutputPath(options.OutputPath, "rpi-shops-export.json");
+		var convertedBySourceKey = conversion.Shops.ToDictionary(x => x.SourceKey, StringComparer.OrdinalIgnoreCase);
+		var export = new ShopExportReport(
+			DateTime.UtcNow,
+			options.RegionsDirectory,
+			summary,
+			corpus.Failures,
+			validationIssues,
+			corpus.Npcs
+				.Where(x => x.Shop is not null)
+				.OrderBy(x => x.Zone)
+				.ThenBy(x => x.Vnum)
+				.Select(x => new ConverterExportShop(x, convertedBySourceKey[x.SourceKey]))
+				.ToList());
+
+		await using (var stream = File.Create(outputPath))
+		{
+			await JsonSerializer.SerializeAsync(stream, export, JsonOptions);
+		}
+
+		Console.WriteLine($"Wrote {export.Shops.Count:N0} converted shop records to {outputPath}");
 		Console.WriteLine($"Baseline: {summary.BaselineStatus}");
 		return 0;
 	}
@@ -1030,6 +1186,57 @@ internal static class Program
 		if (fatalErrors > 0)
 		{
 			Console.Error.WriteLine("Apply did not proceed because required baseline dependencies were missing.");
+			return 2;
+		}
+
+		return 0;
+	}
+
+	private static async Task<int> RunApplyShops(
+		ConverterCliOptions options,
+		IReadOnlyList<ConvertedShopDefinition> converted,
+		FuturemudDatabaseContext context,
+		FutureMudShopBaselineCatalog baseline,
+		ShopAnalysisSummary summary)
+	{
+		var importer = new FutureMudShopImporter(context, baseline);
+		var result = importer.Apply(converted, options.Execute);
+		var fatalErrors = result.Issues.Count(x => x.Severity.Equals("error", StringComparison.OrdinalIgnoreCase));
+		var auditPath = ResolveOutputPath(
+			options.OutputPath,
+			options.Execute ? "rpi-shops-apply-audit.json" : "rpi-shops-dry-run-audit.json");
+
+		await using (var stream = File.Create(auditPath))
+		{
+			await JsonSerializer.SerializeAsync(stream, result.Audit, JsonOptions);
+		}
+
+		Console.WriteLine(options.Execute ? "Apply mode: execute" : "Apply mode: dry-run");
+		Console.WriteLine($"Baseline: {summary.BaselineStatus}");
+		Console.WriteLine($"Validation issues: {result.Issues.Count:N0} total, {fatalErrors:N0} error(s)");
+		Console.WriteLine($"Existing shops skipped: {result.SkippedExistingCount:N0}");
+		Console.WriteLine($"Invalid shops skipped: {result.SkippedInvalidCount:N0}");
+		Console.WriteLine($"Audit output: {auditPath}");
+
+		if (options.Execute)
+		{
+			Console.WriteLine($"Inserted shops: {result.InsertedCount:N0}");
+			Console.WriteLine($"Inserted merchandise rows: {result.InsertedMerchandiseCount:N0}");
+		}
+
+		if (result.Issues.Count > 0)
+		{
+			Console.WriteLine();
+			Console.WriteLine("Sample validation issues:");
+			foreach (var issue in result.Issues.Take(20))
+			{
+				Console.WriteLine($"- [{issue.Severity}] {issue.SourceKey}: {issue.Message}");
+			}
+		}
+
+		if (fatalErrors > 0)
+		{
+			Console.Error.WriteLine("Apply did not proceed for shops with missing required baseline dependencies.");
 			return 2;
 		}
 
@@ -1195,6 +1402,29 @@ internal static class Program
 				["npcs-with-wildlife"] = conversion.Npcs.Count(x => (((RpiNpcActFlags)x.RawActFlags) & RpiNpcActFlags.Wildlife) != 0),
 			},
 			ToSortedCounts(conversion.Npcs.SelectMany(x => x.Warnings).GroupBy(x => x.Code)),
+			ToSortedCounts(validationIssues.GroupBy(x => x.Message)));
+	}
+
+	private static ShopAnalysisSummary BuildShopAnalysisSummary(
+		RpiParsedNpcCorpus corpus,
+		ShopConversionResult conversion,
+		IReadOnlyList<FutureMudShopValidationIssue> validationIssues,
+		string baselineStatus)
+	{
+		return new ShopAnalysisSummary(
+			corpus.Npcs.Count + corpus.Failures.Count,
+			corpus.Npcs.Count,
+			corpus.Failures.Count,
+			corpus.Npcs.Sum(x => x.ParseWarnings.Count),
+			conversion.Shops.Count,
+			conversion.Shops.Count(x => x.Status == ShopConversionStatus.Ready),
+			conversion.Shops.Count(x => x.Status == ShopConversionStatus.Invalid),
+			conversion.Shops.Sum(x => x.Merchandise.Count),
+			baselineStatus,
+			ToSortedCounts(conversion.Shops.GroupBy(x => x.Status.ToString())),
+			ToSortedCounts(conversion.Shops
+				.SelectMany(x => x.Warnings.Concat(x.Merchandise.SelectMany(y => y.Warnings)))
+				.GroupBy(x => x.Code)),
 			ToSortedCounts(validationIssues.GroupBy(x => x.Message)));
 	}
 
@@ -1429,6 +1659,28 @@ internal static class Program
 		}
 	}
 
+	private static ShopBaselineLoadResult LoadShopBaseline(ConverterCliOptions options)
+	{
+		if (!options.UseBaseline)
+		{
+			return new ShopBaselineLoadResult(null, null, "Skipped baseline validation by request.");
+		}
+
+		FuturemudDatabaseContext? context = null;
+		try
+		{
+			context = CreateDatabaseContext(options);
+
+			var catalog = FutureMudShopBaselineCatalog.Load(context);
+			return new ShopBaselineLoadResult(context, catalog, "Loaded shop baseline from FutureMUD.");
+		}
+		catch (Exception ex)
+		{
+			context?.Dispose();
+			return new ShopBaselineLoadResult(null, null, ex.Message);
+		}
+	}
+
 	private static FuturemudDatabaseContext CreateDatabaseContext(ConverterCliOptions options)
 	{
 		var context = new FuturemudDatabaseContext();
@@ -1455,7 +1707,7 @@ internal static class Program
 		}
 
 		var command = args[0];
-		if (!IsItemCommand(command) && !IsClanCommand(command) && !IsCraftCommand(command) && !IsRoomCommand(command) && !IsNpcCommand(command))
+		if (!IsItemCommand(command) && !IsClanCommand(command) && !IsCraftCommand(command) && !IsRoomCommand(command) && !IsNpcCommand(command) && !IsShopCommand(command))
 		{
 			throw new ArgumentException($"Unknown command '{command}'.");
 		}
@@ -1503,7 +1755,7 @@ internal static class Program
 			}
 		}
 
-		if ((command == "apply-items" || command == "apply-clans" || command == "apply-crafts" || command == "apply-rooms" || command == "apply-npcs") && !useBaseline)
+		if ((command == "apply-items" || command == "apply-clans" || command == "apply-crafts" || command == "apply-rooms" || command == "apply-npcs" || command == "apply-shops") && !useBaseline)
 		{
 			throw new ArgumentException($"{command} requires a seeded FutureMUD baseline and cannot be run with --skip-baseline.");
 		}
@@ -1545,6 +1797,11 @@ internal static class Program
 	private static bool IsNpcCommand(string command)
 	{
 		return command is "analyze-npcs" or "export-npcs" or "apply-npcs";
+	}
+
+	private static bool IsShopCommand(string command)
+	{
+		return command is "analyze-shops" or "export-shops" or "apply-shops";
 	}
 
 	private static string ReadOptionValue(string[] args, ref int index, string optionName)
@@ -1660,10 +1917,13 @@ internal static class Program
 		Console.WriteLine("  analyze-npcs [--root <regions-dir>] [--db-connection <connection-string>] [--skip-baseline]");
 		Console.WriteLine("  export-npcs [--root <regions-dir>] [--output <json-path>] [--db-connection <connection-string>] [--skip-baseline]");
 		Console.WriteLine("  apply-npcs [--root <regions-dir>] [--output <audit-json>] [--db-connection <connection-string>] [--execute]");
+		Console.WriteLine("  analyze-shops [--root <regions-dir>] [--db-connection <connection-string>] [--skip-baseline]");
+		Console.WriteLine("  export-shops [--root <regions-dir>] [--output <json-path>] [--db-connection <connection-string>] [--skip-baseline]");
+		Console.WriteLine("  apply-shops [--root <regions-dir>] [--output <audit-json>] [--db-connection <connection-string>] [--execute]");
 		Console.WriteLine();
 		Console.WriteLine("Notes:");
-		Console.WriteLine("  apply-items, apply-clans, apply-crafts, apply-rooms, and apply-npcs default to dry-run mode unless --execute is supplied.");
-		Console.WriteLine("  Recommended execute order: apply-clans, apply-items, apply-rooms, apply-crafts, then apply-npcs.");
+		Console.WriteLine("  apply-items, apply-clans, apply-crafts, apply-rooms, apply-shops, and apply-npcs default to dry-run mode unless --execute is supplied.");
+		Console.WriteLine("  Recommended execute order: apply-clans, apply-items, apply-rooms, apply-shops, apply-crafts, then apply-npcs.");
 		Console.WriteLine("  The default regions directory is the bundled soiregions-main corpus.");
 		Console.WriteLine("  The default clan source is the bundled Old SOI Code/src/clan.cpp file.");
 		Console.WriteLine("  The default craft source is the bundled soiregions-main/crafts.txt file.");

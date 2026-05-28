@@ -145,7 +145,6 @@ The mount mapping is intentionally structured-data driven. Carts, wagons, horse 
 
 The following are parsed and exported but not converted in this pass:
 
-- shopkeeper payloads
 - venom payloads
 - morph payloads
 - clan memberships
@@ -155,6 +154,8 @@ The following are parsed and exported but not converted in this pass:
 - pack-animal cargo and hitching semantics
 
 These appear in the export JSON, audit sidecars, and builder comments so later passes can extend them without reparsing the archive.
+
+Shopkeeper payloads are no longer only NPC-side deferred data. `RpiNpcWorldfileParser` still extracts them from keeper mobs, but `analyze-shops`, `export-shops`, and `apply-shops` now consume that payload to create FutureMUD permanent shops. Live shopkeeper employment/AI attachment remains deferred; see `RpiShopConversionMapping.md`.
 
 ## Apply Idempotency
 
@@ -169,7 +170,7 @@ Imported NPC templates are stamped with a provenance marker in `EditableItem.Bui
 ## Known Backlog
 
 - law-light enforcer AI or a formal `LawSeeder` baseline requirement
-- shop conversion and live shopkeeper AI import
+- live shopkeeper AI import for converted shops
 - memory-aware aggressor behavior closer to RPI `ACT_MEMORY`
 - better wildlife, herd, predator-prey, pack-animal cargo, and hitching coverage
 - spawn-time clan assignment for imported NPC templates

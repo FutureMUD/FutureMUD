@@ -22,12 +22,12 @@ Implemented or actively in progress:
 - room parsing and conversion
 - craft parsing and conversion
 - NPC parsing and conversion
+- shop parsing, conversion, and permanent-shop import
 - JSON export for converted data
 - dry-run and execute import paths for converter-driven database import
 
 Planned future conversion targets:
 
-- shops
 - skills
 - cultures or culture overlays where needed
 - clan refinements beyond the current pass
@@ -69,7 +69,9 @@ The intended workflow is:
 2. Ensure the target database contains the expected seeded materials, liquids, calendar, timezone, clan infrastructure, and other stock content.
 3. Run `apply-clans --execute` first so imported clans and ranks receive stable database IDs.
 4. Run `apply-items --execute` after clans. Board item access restrictions bind legacy clan aliases and ranks to those stable IDs during item import.
-5. Run the remaining converter imports, generally rooms, crafts, and NPCs, after their item and clan dependencies are present.
+5. Run `apply-rooms --execute` before location-bound imports.
+6. Run `apply-shops --execute` after rooms and items so RPI shopfront and stockroom vnums can bind to imported cells and delivery vnums can bind to imported item prototypes.
+7. Run the remaining converter imports, generally crafts and NPCs, after their item, room, clan, and shop dependencies are present.
 
 Do not assume this converter is being run against an empty database.
 
@@ -129,6 +131,7 @@ When changing converter behavior, keep the relevant mapping notes up to date:
 - `RpiCraftConversionMapping.md`
 - `RpiRoomConversionMapping.md`
 - `RpiNpcConversionMapping.md`
+- `RpiShopConversionMapping.md`
 
 If future converter passes are added, add matching mapping documents for them as part of the same work.
 

@@ -9,6 +9,8 @@ using MudSharp.Economy;
 using MudSharp.Economy.Currency;
 using MudSharp.Economy.Employment;
 using MudSharp.Framework;
+using MudSharp.NPC;
+using MudSharp.NPC.AI;
 using MudSharp.PerceptionEngine;
 
 #nullable enable
@@ -131,6 +133,13 @@ internal sealed class EmploymentCommandService
 			case "staff":
 				HandleContracts(actor, host, input);
 				return;
+			case "delegations":
+			case "delegation":
+			case "delegate":
+			case "authority":
+			case "authorities":
+				HandleContractAuthority(actor, host, input);
+				return;
 			case "openings":
 			case "opening":
 			case "jobs":
@@ -177,6 +186,7 @@ internal sealed class EmploymentCommandService
 		{
 			"status" or
 			"contracts" or "contract" or "employees" or "staff" or
+			"delegations" or "delegation" or "delegate" or "authority" or "authorities" or
 			"openings" or "opening" or "jobs" or
 			"applications" or "application" or "apps" or
 			"tasks" or "task" or
@@ -402,6 +412,57 @@ internal sealed class EmploymentCommandService
 		}
 	}
 
+	public bool TrySetContractAuthority(ICharacter actor, IEmploymentHost host, long contractId,
+		EmploymentAuthoritySet authority, out string message)
+	{
+		var contract = ContractById(host, contractId);
+		if (contract is null)
+		{
+			message = "There is no such employment contract.";
+			return false;
+		}
+
+		try
+		{
+			host.SetContractAuthority(contract, authority, actor);
+			message = $"You set {contract.Employee.HowSeen(actor, colour: false).ColourName()}'s delegated authority for {host.EmploymentHostName.ColourName()} to {DescribeAuthoritySet(authority)}.";
+			return true;
+		}
+		catch (InvalidOperationException ex)
+		{
+			message = ex.Message;
+			return false;
+		}
+	}
+
+	public bool TryGrantContractAuthority(ICharacter actor, IEmploymentHost host, long contractId,
+		EmploymentAuthoritySet authority, out string message)
+	{
+		var contract = ContractById(host, contractId);
+		if (contract is null)
+		{
+			message = "There is no such employment contract.";
+			return false;
+		}
+
+		return TrySetContractAuthority(actor, host, contractId,
+			new EmploymentAuthoritySet(contract.Authority.Authorities | authority.Authorities), out message);
+	}
+
+	public bool TryRevokeContractAuthority(ICharacter actor, IEmploymentHost host, long contractId,
+		EmploymentAuthoritySet authority, out string message)
+	{
+		var contract = ContractById(host, contractId);
+		if (contract is null)
+		{
+			message = "There is no such employment contract.";
+			return false;
+		}
+
+		return TrySetContractAuthority(actor, host, contractId,
+			new EmploymentAuthoritySet(contract.Authority.Authorities & ~authority.Authorities), out message);
+	}
+
 	public bool TryHireDirectContract(ICharacter actor, IEmploymentHost host, ICharacter target, EmploymentRole role,
 		out IEmploymentContract? contract, out string message)
 	{
@@ -556,7 +617,7 @@ internal sealed class EmploymentCommandService
 		sb.AppendLine($"Job openings for {host.EmploymentHostName.ColourName()}:");
 		foreach (var opening in openings)
 		{
-			sb.AppendLine($"\t#{opening.Id.ToString("N0", actor)} - {opening.Role.DescribeEnum().ColourName()} - {opening.Status.DescribeEnum().ColourValue()} - {DescribeCompensation(opening.Compensation, actor)} - {opening.MaxPositions.ToString("N0", actor)} position{(opening.MaxPositions == 1 ? string.Empty : "s")}");
+			sb.AppendLine($"\t#{opening.Id.ToString("N0", actor)} - {opening.Role.DescribeEnum().ColourName()} - {opening.Status.DescribeEnum().ColourValue()} - {DescribeCompensation(opening.Compensation, actor)} - {opening.MaxPositions.ToString("N0", actor)} position{(opening.MaxPositions == 1 ? string.Empty : "s")} - authority {DescribeAuthoritySet(opening.Authority)}");
 		}
 
 		return sb.ToString();
@@ -608,6 +669,50 @@ internal sealed class EmploymentCommandService
 			foreach (var task in host.TaskBoard.ActiveTasks.OrderBy(x => x.Name))
 			{
 				sb.AppendLine($"\t{task.Name.ColourName()} - {task.Status.DescribeEnum().ColourValue()} - assigned to {task.AssignedEmployee?.HowSeen(actor, colour: false).ColourName() ?? "nobody".ColourError()} - next step {DescribeNextStep(task, actor)}");
+			}
+		}
+
+		return sb.ToString();
+	}
+
+	public string RenderTaskDiagnostics(ICharacter actor, IEmploymentHost host)
+	{
+		var activeTasks = host.TaskBoard.ActiveTasks
+		                      .Where(x => x.Status is EmploymentTaskStatus.Pending or EmploymentTaskStatus.Assigned or
+			                      EmploymentTaskStatus.InProgress or EmploymentTaskStatus.Blocked)
+		                      .OrderBy(x => x.Name)
+		                      .ToList();
+		if (!activeTasks.Any())
+		{
+			return $"{host.EmploymentHostName.ColourName()} has no active employment tasks to diagnose.";
+		}
+
+		var activeContracts = host.ActiveEmploymentContracts()
+		                          .OrderBy(x => x.Employee.Name)
+		                          .ThenBy(x => x.Role)
+		                          .ToList();
+		var sb = new StringBuilder();
+		sb.AppendLine($"Employment task diagnostics for {host.EmploymentHostName.ColourName()}:");
+		foreach (var task in activeTasks)
+		{
+			sb.AppendLine();
+			sb.AppendLine($"{task.Name.ColourName()} - {task.Status.DescribeEnum().ColourValue()} - next step {DescribeNextStep(task, actor)}");
+			sb.AppendLine($"\tRequired Authority: {task.ActionPlan.RequiredAuthority.Authorities.DescribeEnum().ColourName()}");
+			sb.AppendLine($"\tRequired AI Capabilities: {(task.ActionPlan.RequiredCapabilities.Any() ? task.ActionPlan.RequiredCapabilities.Select(x => x.DescribeEnum().ColourName()).ListToString() : "none".ColourValue())}");
+			if (task.AssignedEmployee is not null)
+			{
+				sb.AppendLine($"\tAssigned Employee: {task.AssignedEmployee.HowSeen(actor, colour: false).ColourName()}");
+			}
+
+			if (!activeContracts.Any())
+			{
+				sb.AppendLine("\tNo active employment contracts exist for this host.".ColourError());
+				continue;
+			}
+
+			foreach (var contract in activeContracts)
+			{
+				sb.AppendLine($"\t{contract.Employee.HowSeen(actor, colour: false).ColourName()} ({contract.Role.DescribeEnum().ColourName()}): {DescribeTaskEligibility(host, task, contract, actor)}");
 			}
 		}
 
@@ -736,9 +841,106 @@ internal sealed class EmploymentCommandService
 				TryTerminateContract(actor, host, contractId, out var message);
 				actor.OutputHandler.Send(message);
 				return;
+			case "authority":
+			case "authorities":
+			case "delegation":
+			case "delegations":
+			case "delegate":
+				HandleContractAuthority(actor, host, input);
+				return;
 		}
 
 		actor.OutputHandler.Send(EmploymentHelp.SubstituteANSIColour());
+	}
+
+	private void HandleContractAuthority(ICharacter actor, IEmploymentHost host, StringStack input)
+	{
+		if (!CanViewOperational(actor, host))
+		{
+			actor.OutputHandler.Send($"You are not an employee of {host.EmploymentHostName.ColourName()}.");
+			return;
+		}
+
+		if (input.IsFinished)
+		{
+			actor.OutputHandler.Send(RenderContractAuthorities(actor, host));
+			return;
+		}
+
+		var first = input.PopSpeech();
+		if (first.EqualTo("list") || first.EqualTo("show"))
+		{
+			actor.OutputHandler.Send(RenderContractAuthorities(actor, host));
+			return;
+		}
+
+		if (first.EqualTo("help") || first.EqualTo("?"))
+		{
+			actor.OutputHandler.Send(RenderAuthorityHelp(actor));
+			return;
+		}
+
+		if (!TryParseCommandNumber(first, out var contractId))
+		{
+			actor.OutputHandler.Send($"Which employment contract do you want to change? Use syntax like {"contracts delegate #1 grant ManageDeliveryRoutes".ColourCommand()}.");
+			return;
+		}
+
+		var contract = ContractById(host, contractId);
+		if (contract is null)
+		{
+			actor.OutputHandler.Send("There is no such employment contract.");
+			return;
+		}
+
+		if (input.IsFinished)
+		{
+			actor.OutputHandler.Send(RenderContractAuthority(actor, contract));
+			return;
+		}
+
+		var action = input.PopSpeech().CollapseString().ToLowerInvariant();
+		switch (action)
+		{
+			case "show":
+			case "view":
+				actor.OutputHandler.Send(RenderContractAuthority(actor, contract));
+				return;
+			case "grant":
+			case "add":
+				if (!TryParseAuthoritySet(input, out var grantAuthority, out var grantError))
+				{
+					actor.OutputHandler.Send(grantError);
+					return;
+				}
+
+				TryGrantContractAuthority(actor, host, contractId, grantAuthority, out var grantMessage);
+				actor.OutputHandler.Send(grantMessage);
+				return;
+			case "revoke":
+			case "remove":
+				if (!TryParseAuthoritySet(input, out var revokeAuthority, out var revokeError))
+				{
+					actor.OutputHandler.Send(revokeError);
+					return;
+				}
+
+				TryRevokeContractAuthority(actor, host, contractId, revokeAuthority, out var revokeMessage);
+				actor.OutputHandler.Send(revokeMessage);
+				return;
+			case "set":
+				if (!TryParseAuthoritySet(input, out var authority, out var setError, allowNone: true))
+				{
+					actor.OutputHandler.Send(setError);
+					return;
+				}
+
+				TrySetContractAuthority(actor, host, contractId, authority, out var setMessage);
+				actor.OutputHandler.Send(setMessage);
+				return;
+		}
+
+		actor.OutputHandler.Send(RenderAuthorityHelp(actor));
 	}
 
 	private void HandleOpenings(ICharacter actor, IEmploymentHost host, StringStack input)
@@ -845,6 +1047,11 @@ internal sealed class EmploymentCommandService
 			case "actions":
 			case "action":
 				actor.OutputHandler.Send(_taskAuthoring.RenderAvailableActions(actor));
+				return;
+			case "diagnose":
+			case "diagnostic":
+			case "why":
+				SendOperationalView(actor, host, RenderTaskDiagnostics);
 				return;
 			case "step":
 				_taskAuthoring.TryAddStep(actor, host, input, out var stepMessage);
@@ -1063,30 +1270,56 @@ internal sealed class EmploymentCommandService
 
 	private static EmploymentAuthoritySet DefaultOpeningAuthority(EmploymentRole role)
 	{
-		return role switch
-		{
-			EmploymentRole.Employee or
-			EmploymentRole.Courier or
-			EmploymentRole.StableHand or
-			EmploymentRole.HotelWorker => new EmploymentAuthoritySet(EmploymentAuthority.ManageDeliveryRoutes),
-			EmploymentRole.Crafter => new EmploymentAuthoritySet(EmploymentAuthority.ManageCraftRules),
-			_ => EmploymentAuthoritySet.Empty
-		};
+		return DefaultRoleAuthority(role);
 	}
 
 	private static EmploymentAuthoritySet DefaultDirectHireAuthority(EmploymentRole role)
 	{
+		return DefaultRoleAuthority(role);
+	}
+
+	private static EmploymentAuthoritySet DefaultRoleAuthority(EmploymentRole role)
+	{
 		return role switch
 		{
 			EmploymentRole.Proprietor => EmploymentAuthoritySet.All,
-			EmploymentRole.Manager => EmploymentAuthoritySet.All,
+			EmploymentRole.Manager => DefaultManagerAuthority(),
 			EmploymentRole.Employee or
+			EmploymentRole.Clerk or
 			EmploymentRole.Courier or
 			EmploymentRole.StableHand or
 			EmploymentRole.HotelWorker => new EmploymentAuthoritySet(EmploymentAuthority.ManageDeliveryRoutes),
-			EmploymentRole.Crafter => new EmploymentAuthoritySet(EmploymentAuthority.ManageCraftRules),
+			EmploymentRole.Crafter => new EmploymentAuthoritySet(
+				EmploymentAuthority.ManageCraftRules |
+				EmploymentAuthority.ManageDeliveryRoutes),
+			EmploymentRole.BankTeller => new EmploymentAuthoritySet(
+				EmploymentAuthority.DepositBusinessCash |
+				EmploymentAuthority.WithdrawBusinessCash),
 			_ => EmploymentAuthoritySet.Empty
 		};
+	}
+
+	private static EmploymentAuthoritySet DefaultManagerAuthority()
+	{
+		return new EmploymentAuthoritySet(
+			EmploymentAuthority.ViewEmployees |
+			EmploymentAuthority.HireEmployees |
+			EmploymentAuthority.FireEmployees |
+			EmploymentAuthority.CreateJobOpenings |
+			EmploymentAuthority.ModifyJobOpenings |
+			EmploymentAuthority.SetPayWithinBand |
+			EmploymentAuthority.AssignTasks |
+			EmploymentAuthority.CancelTasks |
+			EmploymentAuthority.CreateScheduledRules |
+			EmploymentAuthority.ModifyScheduledRules |
+			EmploymentAuthority.CreateManagerGoals |
+			EmploymentAuthority.ModifyManagerGoals |
+			EmploymentAuthority.ManageStockRules |
+			EmploymentAuthority.ManageCraftRules |
+			EmploymentAuthority.ManageDeliveryRoutes |
+			EmploymentAuthority.AdjustPrices |
+			EmploymentAuthority.PostToHostBoard |
+			EmploymentAuthority.ModerateHostBoard);
 	}
 
 	private static CompensationTerms UnpaidCompensation()
@@ -1131,6 +1364,78 @@ internal sealed class EmploymentCommandService
 		}
 	}
 
+	private static string DescribeTaskEligibility(IEmploymentHost host, IEmploymentActiveTask task,
+		IEmploymentContract contract, ICharacter voyeur)
+	{
+		var reasons = new List<string>();
+		if (task.AssignedEmployee is not null && task.AssignedEmployee.Id != contract.Employee.Id)
+		{
+			reasons.Add($"already assigned to {task.AssignedEmployee.HowSeen(voyeur, colour: false)}");
+		}
+
+		if (!contract.Authority.ContainsAll(task.ActionPlan.RequiredAuthority))
+		{
+			reasons.Add($"lacks {MissingAuthority(contract.Authority, task.ActionPlan.RequiredAuthority).DescribeEnum()} authority");
+		}
+
+		var workerAis = (contract.Employee as INPC)?.AIs.OfType<EmploymentWorkerAI>().ToList() ?? [];
+		if (!workerAis.Any())
+		{
+			reasons.Add("has no EmploymentWorkerAI");
+		}
+
+		foreach (var ai in workerAis)
+		{
+			var aiReasons = new List<string>();
+			if (!ai.TaskingEnabled)
+			{
+				aiReasons.Add("tasking disabled");
+			}
+
+			if (ai.HostTypeFilter is not null && ai.HostTypeFilter.Value != host.EmploymentHostType)
+			{
+				aiReasons.Add($"host filter is {ai.HostTypeFilter.Value.DescribeEnum()}");
+			}
+
+			var missingCapabilities = task.ActionPlan.RequiredCapabilities
+			                          .Where(x => !ai.Capabilities.Contains(x))
+			                          .ToList();
+			if (missingCapabilities.Any())
+			{
+				aiReasons.Add($"missing {missingCapabilities.Select(x => x.DescribeEnum()).ListToString()} capability");
+			}
+
+			if (!aiReasons.Any() && NextStep(task) is { } step)
+			{
+				var context = new EmploymentTaskContext(host, usePhysicalItemMovement: true);
+				if (!step.CanExecute(context, contract.Employee, out var reason))
+				{
+					aiReasons.Add(reason);
+				}
+			}
+
+			reasons.Add(aiReasons.Any()
+				? $"{ai.Name} AI: {aiReasons.ListToString()}"
+				: $"{ai.Name} AI eligible on its next minute tick");
+		}
+
+		return reasons.Any()
+			? reasons.ListToString().Colour(Telnet.Yellow)
+			: "eligible".Colour(Telnet.Green);
+	}
+
+	private static EmploymentAuthority MissingAuthority(EmploymentAuthoritySet actual, EmploymentAuthoritySet required)
+	{
+		return required.Authorities & ~actual.Authorities;
+	}
+
+	private static IEmploymentActionStep? NextStep(IEmploymentActiveTask task)
+	{
+		var index = task.StepStates.ToList()
+		                .FindIndex(x => x is EmploymentActionStepStatus.Pending or EmploymentActionStepStatus.Blocked);
+		return index < 0 || index >= task.ActionPlan.Steps.Count ? null : task.ActionPlan.Steps[index];
+	}
+
 	private static IEnumerable<IBoardPost> OrderedBoardPosts(IEmploymentHost host)
 	{
 		return host.Board.Posts.OrderBy(x => x.PostTime).ThenBy(x => x.Id);
@@ -1144,6 +1449,14 @@ internal sealed class EmploymentCommandService
 			      .FirstOrDefault(x => x.Id == applicationId);
 	}
 
+	private static IEmploymentContract? ContractById(IEmploymentHost host, long contractId)
+	{
+		return contractId <= 0
+			? null
+			: host.EmploymentContracts
+			      .FirstOrDefault(x => x.Id == contractId);
+	}
+
 	private static bool TryParseCommandNumber(string text, out long number)
 	{
 		text = text.Trim();
@@ -1153,6 +1466,99 @@ internal sealed class EmploymentCommandService
 		}
 
 		return long.TryParse(text, out number);
+	}
+
+	private static bool TryParseAuthoritySet(StringStack input, out EmploymentAuthoritySet authority, out string error,
+		bool allowNone = false)
+	{
+		authority = EmploymentAuthoritySet.Empty;
+		error = string.Empty;
+		if (input.IsFinished)
+		{
+			error = "Which delegated authority do you want to use?";
+			return false;
+		}
+
+		var authorities = EmploymentAuthority.None;
+		while (!input.IsFinished)
+		{
+			var token = input.PopSpeech();
+			foreach (var part in token.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+			{
+				if (part.EqualTo("all"))
+				{
+					authority = EmploymentAuthoritySet.All;
+					return true;
+				}
+
+				if (part.EqualTo("none") || part.EqualTo("clear"))
+				{
+					if (!allowNone)
+					{
+						error = "Use a specific authority name, or use the set syntax if you want to clear authority.";
+						return false;
+					}
+
+					authorities = EmploymentAuthority.None;
+					continue;
+				}
+
+				if (!TryParseAuthority(part, out var parsed))
+				{
+					error = $"Unknown delegated authority {part.ColourCommand()}. Try {"contracts delegate #1 help".ColourCommand()} for the list.";
+					return false;
+				}
+
+				authorities |= parsed;
+			}
+		}
+
+		if (authorities == EmploymentAuthority.None && !allowNone)
+		{
+			error = "Which delegated authority do you want to use?";
+			return false;
+		}
+
+		authority = new EmploymentAuthoritySet(authorities);
+		return true;
+	}
+
+	private static bool TryParseAuthority(string text, out EmploymentAuthority authority)
+	{
+		if (text.TryParseEnum(out authority) && authority != EmploymentAuthority.None)
+		{
+			return true;
+		}
+
+		authority = text.CollapseString().ToLowerInvariant() switch
+		{
+			"view" or "viewemployees" or "employees" => EmploymentAuthority.ViewEmployees,
+			"hire" or "hiring" => EmploymentAuthority.HireEmployees,
+			"fire" or "firing" => EmploymentAuthority.FireEmployees,
+			"openings" or "createopenings" or "createjobopenings" => EmploymentAuthority.CreateJobOpenings,
+			"modifyopenings" or "modifyjobopenings" => EmploymentAuthority.ModifyJobOpenings,
+			"pay" or "setpay" or "setpaywithinband" => EmploymentAuthority.SetPayWithinBand,
+			"tasks" or "task" or "assign" or "assigntasks" => EmploymentAuthority.AssignTasks,
+			"canceltasks" or "cancel" => EmploymentAuthority.CancelTasks,
+			"rules" or "schedulerules" or "createscheduledrules" => EmploymentAuthority.CreateScheduledRules,
+			"modifyrules" or "modifyscheduledrules" => EmploymentAuthority.ModifyScheduledRules,
+			"goals" or "creategoals" or "createmanagergoals" => EmploymentAuthority.CreateManagerGoals,
+			"modifygoals" or "modifymanagergoals" => EmploymentAuthority.ModifyManagerGoals,
+			"purchases" or "purchase" or "approvepurchases" => EmploymentAuthority.ApprovePurchases,
+			"storeaccount" or "usestoreaccount" => EmploymentAuthority.UseStoreAccount,
+			"cashwithdraw" or "withdraw" or "withdrawbusinesscash" => EmploymentAuthority.WithdrawBusinessCash,
+			"cashdeposit" or "deposit" or "depositbusinesscash" => EmploymentAuthority.DepositBusinessCash,
+			"stock" or "stockrules" or "managestockrules" => EmploymentAuthority.ManageStockRules,
+			"craft" or "crafting" or "craftrules" or "managecraftrules" => EmploymentAuthority.ManageCraftRules,
+			"delivery" or "deliver" or "routes" or "managedeliveryroutes" => EmploymentAuthority.ManageDeliveryRoutes,
+			"prices" or "pricing" or "adjustprices" => EmploymentAuthority.AdjustPrices,
+			"tax" or "taxes" or "paytaxes" => EmploymentAuthority.PayTaxes,
+			"board" or "postboard" or "posttohostboard" => EmploymentAuthority.PostToHostBoard,
+			"moderateboard" or "moderatehostboard" => EmploymentAuthority.ModerateHostBoard,
+			_ => EmploymentAuthority.None
+		};
+
+		return authority != EmploymentAuthority.None;
 	}
 
 	private static bool TryParseOpeningCompensation(StringStack input, ICurrency currency, out decimal hourlyRate,
@@ -1208,6 +1614,72 @@ internal sealed class EmploymentCommandService
 		return amount.Currency.Describe(amount.Amount, CurrencyDescriptionPatternType.ShortDecimal).ColourValue();
 	}
 
+	private static string DescribeAuthoritySet(EmploymentAuthoritySet authority)
+	{
+		var authorities = EmploymentAuthorityValues()
+		                  .Where(authority.Contains)
+		                  .Select(x => x.DescribeEnum().ColourName())
+		                  .ToList();
+		return authorities.Any()
+			? authorities.ListToString()
+			: "none".ColourValue();
+	}
+
+	private static IEnumerable<EmploymentAuthority> EmploymentAuthorityValues()
+	{
+		return Enum.GetValues<EmploymentAuthority>()
+		           .Where(x => x != EmploymentAuthority.None);
+	}
+
+	private static string RenderContractAuthority(ICharacter actor, IEmploymentContract contract)
+	{
+		var sb = new StringBuilder();
+		sb.AppendLine($"Delegated authority for contract #{contract.Id.ToString("N0", actor).ColourValue()}:");
+		sb.AppendLine($"Employee: {contract.Employee.HowSeen(actor, colour: false).ColourName()}");
+		sb.AppendLine($"Role: {contract.Role.DescribeEnum().ColourName()}");
+		sb.AppendLine($"Status: {contract.Status.DescribeEnum().ColourValue()}");
+		sb.AppendLine($"Authority: {DescribeAuthoritySet(contract.Authority)}");
+		return sb.ToString();
+	}
+
+	private static string RenderContractAuthorities(ICharacter actor, IEmploymentHost host)
+	{
+		if (!host.EmploymentContracts.Any())
+		{
+			return $"{host.EmploymentHostName.ColourName()} has no employment contracts.";
+		}
+
+		var sb = new StringBuilder();
+		sb.AppendLine($"Delegated authorities for {host.EmploymentHostName.ColourName()}:");
+		foreach (var contract in host.EmploymentContracts.OrderBy(x => x.Employee.Name).ThenBy(x => x.Role))
+		{
+			sb.AppendLine($"\t#{contract.Id.ToString("N0", actor)} - {contract.Employee.HowSeen(actor, colour: false).ColourName()} - {contract.Role.DescribeEnum().ColourName()} - {contract.Status.DescribeEnum().ColourValue()} - {DescribeAuthoritySet(contract.Authority)}");
+		}
+
+		return sb.ToString();
+	}
+
+	private static string RenderAuthorityHelp(ICharacter actor)
+	{
+		var sb = new StringBuilder();
+		sb.AppendLine("Employment Delegation Commands".GetLineWithTitle(actor, Telnet.Cyan, Telnet.BoldWhite));
+		sb.AppendLine();
+		sb.AppendLine($"{"contracts delegate <#> show".ColourCommand()} - shows delegated authority for a contract");
+		sb.AppendLine($"{"contracts delegate <#> grant <authority...>".ColourCommand()} - grants delegated authority");
+		sb.AppendLine($"{"contracts delegate <#> revoke <authority...>".ColourCommand()} - revokes delegated authority");
+		sb.AppendLine($"{"contracts delegate <#> set <none|all|authority...>".ColourCommand()} - replaces delegated authority");
+		sb.AppendLine();
+		sb.AppendLine("Authorities:");
+		foreach (var authority in EmploymentAuthorityValues())
+		{
+			sb.AppendLine($"\t{authority.DescribeEnum().ColourName()}");
+		}
+
+		sb.AppendLine();
+		sb.AppendLine("Managers need HireEmployees authority and may only change authorities they already possess. Admins bypass those restrictions.");
+		return sb.ToString();
+	}
+
 	private static string DescribeNextStep(IEmploymentActiveTask task, ICharacter actor)
 	{
 		var index = task.StepStates.ToList().FindIndex(x => x is EmploymentActionStepStatus.Pending or EmploymentActionStepStatus.Blocked);
@@ -1224,12 +1696,16 @@ internal sealed class EmploymentCommandService
 	#3employment <host type> <host> status#0 - shows employment status
 	#3employment <host type> <host> contracts#0 - lists employment contracts
 	#3employment <host type> <host> contracts fire <##>#0 - terminates an active employment contract
+	#3employment <host type> <host> contracts delegate <##> show#0 - shows delegated authority for a contract
+	#3employment <host type> <host> contracts delegate <##> grant|revoke <authority...>#0 - grants or revokes delegated authority
+	#3employment <host type> <host> contracts delegate <##> set <none|all|authority...>#0 - replaces delegated authority
 	#3employment <host type> <host> openings#0 - lists visible job openings
 	#3employment <host type> <host> openings create <role> <hourly rate> [positions]#0 - creates an NPC-facing opening
 	#3employment <host type> <host> applications#0 - lists applications
 	#3employment <host type> <host> applications accept <##>#0 - accepts a pending application into an active contract
 	#3employment <host type> <host> applications reject <##> <reason>#0 - rejects a pending application
 	#3employment <host type> <host> tasks#0 - lists scheduled rules and active tasks
+	#3employment <host type> <host> tasks diagnose#0 - explains why active employees can or cannot auto-claim tasks
 	#3employment <host type> <host> tasks draft new <name>#0 - starts a transient active task draft
 	#3employment <host type> <host> tasks draft show#0 - reviews your current draft
 	#3employment <host type> <host> tasks draft rename <name>#0 - renames your current draft

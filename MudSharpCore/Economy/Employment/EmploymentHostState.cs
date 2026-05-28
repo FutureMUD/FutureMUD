@@ -94,9 +94,18 @@ public sealed class EmploymentHostState : IEmploymentHostState
 			throw new InvalidOperationException(reason);
 		}
 
-		if (authorisedBy is not null && !HasAuthority(authorisedBy, EmploymentAuthority.HireEmployees))
+		if (authorisedBy is not null && !authorisedBy.IsAdministrator())
 		{
-			throw new InvalidOperationException($"{authorisedBy.HowSeen(authorisedBy, colour: false)} is not authorised to hire for {Host.EmploymentHostName}.");
+			var authorisingAuthority = AuthorityFor(authorisedBy);
+			if (!authorisingAuthority.Contains(EmploymentAuthority.HireEmployees))
+			{
+				throw new InvalidOperationException($"{authorisedBy.HowSeen(authorisedBy, colour: false)} is not authorised to hire for {Host.EmploymentHostName}.");
+			}
+
+			if (!authorisingAuthority.ContainsAll(offer.Authority))
+			{
+				throw new InvalidOperationException("Managers cannot hire employees with authority that they do not personally possess.");
+			}
 		}
 
 		if (offer.Compensation.IsPaid && offer.Compensation.NominalAmount <= 0.0M)
@@ -124,6 +133,9 @@ public sealed class EmploymentHostState : IEmploymentHostState
 			EmploymentRegisterEntryType.ContractHired,
 			authorisedBy,
 			$"Hired {candidate.HowSeen(candidate, colour: false)} as {offer.Role}.");
+		Host.DebugEmployment(
+			$"Hired {candidate.Name} as {offer.Role.DescribeEnum()} with {offer.Authority.Authorities.DescribeEnum()} authority.",
+			candidate.Gameworld);
 		return contract;
 	}
 
@@ -150,6 +162,9 @@ public sealed class EmploymentHostState : IEmploymentHostState
 			EmploymentRegisterEntryType.ContractEnded,
 			authorisedBy,
 			$"Ended {concrete.Employee.HowSeen(concrete.Employee, colour: false)}'s {concrete.Role} contract: {reason}.");
+		Host.DebugEmployment(
+			$"Ended {concrete.Employee.Name}'s {concrete.Role.DescribeEnum()} contract: {reason.DescribeEnum()}.",
+			concrete.Employee.Gameworld);
 	}
 
 	public bool HasAuthority(ICharacter actor, EmploymentAuthority authority)
@@ -164,17 +179,77 @@ public sealed class EmploymentHostState : IEmploymentHostState
 			return true;
 		}
 
-		return _contracts.Any(x =>
-			x.Employee.Id == actor.Id &&
-			x.Status == EmploymentStatus.Active &&
-			x.Authority.Contains(authority));
+		return AuthorityFor(actor).Contains(authority);
+	}
+
+	public void SetContractAuthority(IEmploymentContract contract, EmploymentAuthoritySet authority,
+		ICharacter authorisedBy)
+	{
+		if (contract is not EmploymentContract concrete || !ReferenceEquals(concrete.Employer, Host))
+		{
+			throw new InvalidOperationException("That employment contract does not belong to this host.");
+		}
+
+		if (concrete.Status != EmploymentStatus.Active)
+		{
+			throw new InvalidOperationException("Only active employment contracts can have delegated authority changed.");
+		}
+
+		if (authorisedBy is null)
+		{
+			throw new InvalidOperationException("Changing delegated authority requires an authorised actor.");
+		}
+
+		if (!authorisedBy.IsAdministrator())
+		{
+			var authorisingAuthority = AuthorityFor(authorisedBy);
+			if (!authorisingAuthority.Contains(EmploymentAuthority.HireEmployees))
+			{
+				throw new InvalidOperationException($"{authorisedBy.HowSeen(authorisedBy, colour: false)} is not authorised to change employment delegations for {Host.EmploymentHostName}.");
+			}
+
+			if (!authorisingAuthority.ContainsAll(concrete.Authority))
+			{
+				throw new InvalidOperationException("Managers cannot alter authority that they do not personally possess.");
+			}
+
+			if (!authorisingAuthority.ContainsAll(authority))
+			{
+				throw new InvalidOperationException("Managers cannot delegate authority that they do not personally possess.");
+			}
+		}
+
+		var oldAuthority = concrete.Authority;
+		if (oldAuthority.Authorities == authority.Authorities)
+		{
+			return;
+		}
+
+		concrete.SetAuthority(authority);
+		_persistence?.SaveContractAuthority(concrete);
+		EmploymentRegister.Record(
+			EmploymentRegisterEntryType.AuthorityChanged,
+			authorisedBy,
+			$"Changed {concrete.Employee.HowSeen(authorisedBy, colour: false)}'s {concrete.Role} authority from {oldAuthority.Authorities.DescribeEnum()} to {authority.Authorities.DescribeEnum()}.");
+		Host.DebugEmployment(
+			$"{authorisedBy.Name} changed contract #{concrete.Id:N0} authority from {oldAuthority.Authorities.DescribeEnum()} to {authority.Authorities.DescribeEnum()}.",
+			authorisedBy.Gameworld);
 	}
 
 	public IJobOpening CreateJobOpening(JobOpeningDefinition definition, ICharacter? authorisedBy)
 	{
-		if (authorisedBy is not null && !HasAuthority(authorisedBy, EmploymentAuthority.CreateJobOpenings))
+		if (authorisedBy is not null && !authorisedBy.IsAdministrator())
 		{
-			throw new InvalidOperationException($"{authorisedBy.HowSeen(authorisedBy, colour: false)} is not authorised to create job openings for {Host.EmploymentHostName}.");
+			var authorisingAuthority = AuthorityFor(authorisedBy);
+			if (!authorisingAuthority.Contains(EmploymentAuthority.CreateJobOpenings))
+			{
+				throw new InvalidOperationException($"{authorisedBy.HowSeen(authorisedBy, colour: false)} is not authorised to create job openings for {Host.EmploymentHostName}.");
+			}
+
+			if (!authorisingAuthority.ContainsAll(definition.Authority))
+			{
+				throw new InvalidOperationException("Managers cannot create job openings that delegate authority they do not personally possess.");
+			}
 		}
 
 		if (definition.MaxPositions <= 0)
@@ -206,6 +281,9 @@ public sealed class EmploymentHostState : IEmploymentHostState
 			EmploymentRegisterEntryType.JobOpeningCreated,
 			authorisedBy,
 			$"Created a {definition.Role} job opening for {Host.EmploymentHostName}.");
+		Host.DebugEmployment(
+			$"Created {definition.Role.DescribeEnum()} opening #{opening.Id:N0} for {definition.MaxPositions:N0} position(s).",
+			authorisedBy?.Gameworld);
 		return opening;
 	}
 
@@ -246,6 +324,17 @@ public sealed class EmploymentHostState : IEmploymentHostState
 			status == JobApplicationStatus.Rejected
 				? $"Rejected application for {concrete.Role}: {decisionReason}"
 				: $"Submitted application for {concrete.Role}.");
+		Host.DebugEmployment(
+			status == JobApplicationStatus.Rejected
+				? $"{candidate.Candidate.Name} application #{application.Id:N0} for {concrete.Role.DescribeEnum()} was rejected automatically: {decisionReason}"
+				: $"{candidate.Candidate.Name} submitted pending application #{application.Id:N0} for {concrete.Role.DescribeEnum()}.",
+			candidate.Candidate.Gameworld);
+		if (status == JobApplicationStatus.Pending)
+		{
+			Host.EchoToPresentEmploymentObservers(observer =>
+				$"{candidate.Candidate.HowSeen(observer, colour: true)} has applied for the {concrete.Role.DescribeEnum().ColourName()} opening at {Host.EmploymentHostName.ColourName()}.");
+		}
+
 		return application;
 	}
 
@@ -287,6 +376,9 @@ public sealed class EmploymentHostState : IEmploymentHostState
 			EmploymentRegisterEntryType.ApplicationAccepted,
 			authorisedBy,
 			$"Accepted {concrete.Candidate.HowSeen(authorisedBy, colour: false)}'s application for {opening.Role}.");
+		Host.DebugEmployment(
+			$"{authorisedBy.Name} accepted application #{concrete.Id:N0} from {concrete.Candidate.Name} for {opening.Role.DescribeEnum()}.",
+			authorisedBy.Gameworld);
 		return contract;
 	}
 
@@ -314,6 +406,18 @@ public sealed class EmploymentHostState : IEmploymentHostState
 			EmploymentRegisterEntryType.ApplicationRejected,
 			authorisedBy,
 			$"Rejected {concrete.Candidate.HowSeen(authorisedBy, colour: false)}'s application for {concrete.Opening.Role}: {reason}");
+		Host.DebugEmployment(
+			$"{authorisedBy.Name} rejected application #{concrete.Id:N0} from {concrete.Candidate.Name} for {concrete.Opening.Role.DescribeEnum()}: {reason}",
+			authorisedBy.Gameworld);
+	}
+
+	private EmploymentAuthoritySet AuthorityFor(ICharacter actor)
+	{
+		return new EmploymentAuthoritySet(_contracts
+		                                  .Where(x => x.Employee.Id == actor.Id)
+		                                  .Where(x => x.Status == EmploymentStatus.Active)
+		                                  .Aggregate(EmploymentAuthority.None,
+			                                  (current, contract) => current | contract.Authority.Authorities));
 	}
 }
 
@@ -358,6 +462,11 @@ public sealed class EmploymentContract : IEmploymentContract
 		Status = EmploymentStatus.Ended;
 		EndsAt = endedAt;
 		EndReason = reason;
+	}
+
+	public void SetAuthority(EmploymentAuthoritySet authority)
+	{
+		Authority = authority;
 	}
 }
 

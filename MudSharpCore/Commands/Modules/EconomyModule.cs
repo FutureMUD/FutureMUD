@@ -1957,16 +1957,19 @@ Shop manager employment shortcuts:
 
 	#3shop status#0 - shows employment status for this shop
 	#3shop contracts#0 - lists employment contracts
+	#3shop contracts delegate <##> show|grant|revoke|set ...#0 - views or changes delegated authority
 	#3shop openings#0 - lists employment openings
 	#3shop openings create <role> <hourly rate> [positions]#0 - creates an NPC-facing opening
 	#3shop applications#0 - lists employment applications
 	#3shop applications accept|reject <##> [reason]#0 - accepts or rejects an application
 	#3shop tasks#0 - lists scheduled rules and active tasks
+	#3shop tasks diagnose#0 - explains why active employees can or cannot claim tasks
+	#3shop tasks actions#0 - lists available task step actions and syntax
 	#3shop tasks draft new|show|rename|remove|discard|finalise ...#0 - drafts and finalises active tasks
 	#3shop tasks step getid|gettag|commodity|deliver ...#0 - adds retrieval or delivery steps to your draft
 	#3shop goals#0 - lists manager goals
 	#3shop register#0 - shows employment register entries
-	#3shop employmentledger#0 - shows employment ledger entries
+	#3shop employmentledger|empledger#0 - shows employment ledger entries
 	#3shop board [read <##>|write <title>]#0 - uses the staff board
 
 	#3shop till <target>#0 - toggles an item being used as a till for the store
@@ -2008,16 +2011,19 @@ Shop manager employment shortcuts:
 
 	#3shop status#0 - shows employment status for this shop
 	#3shop contracts#0 - lists employment contracts
+	#3shop contracts delegate <##> show|grant|revoke|set ...#0 - views or changes delegated authority
 	#3shop openings#0 - lists employment openings
 	#3shop openings create <role> <hourly rate> [positions]#0 - creates an NPC-facing opening
 	#3shop applications#0 - lists employment applications
 	#3shop applications accept|reject <##> [reason]#0 - accepts or rejects an application
 	#3shop tasks#0 - lists scheduled rules and active tasks
+	#3shop tasks diagnose#0 - explains why active employees can or cannot claim tasks
+	#3shop tasks actions#0 - lists available task step actions and syntax
 	#3shop tasks draft new|show|rename|remove|discard|finalise ...#0 - drafts and finalises active tasks
 	#3shop tasks step getid|gettag|commodity|deliver ...#0 - adds retrieval or delivery steps to your draft
 	#3shop goals#0 - lists manager goals
 	#3shop register#0 - shows employment register entries
-	#3shop employmentledger#0 - shows employment ledger entries
+	#3shop employmentledger|empledger#0 - shows employment ledger entries
 	#3shop board [read <##>|write <title>]#0 - uses the staff board
 
 	#3shop till <target>#0 - toggles an item being used as a till for the store
@@ -4714,16 +4720,19 @@ Additionally, if you are the manager of a bank, you can use the following additi
 	#3bank manager exchange <from> <to> <rate>#0 - sets the currency exchange rate
 	#3bank status#0 - shows employment status for this bank
 	#3bank contracts#0 - lists employment contracts
+	#3bank contracts delegate <##> show|grant|revoke|set ...#0 - views or changes delegated authority
 	#3bank openings#0 - lists employment openings
 	#3bank openings create <role> <hourly rate> [positions]#0 - creates an NPC-facing opening
 	#3bank applications#0 - lists employment applications
 	#3bank applications accept|reject <##> [reason]#0 - accepts or rejects an application
 	#3bank tasks#0 - lists scheduled rules and active tasks
+	#3bank tasks diagnose#0 - explains why active employees can or cannot claim tasks
+	#3bank tasks actions#0 - lists available task step actions and syntax
 	#3bank tasks draft new|show|rename|remove|discard|finalise ...#0 - drafts and finalises active tasks
 	#3bank tasks step getid|gettag|commodity|deliver ...#0 - adds retrieval or delivery steps to your draft
 	#3bank goals#0 - lists manager goals
 	#3bank register#0 - shows employment register entries
-	#3bank employmentledger#0 - shows employment ledger entries
+	#3bank employmentledger|empledger#0 - shows employment ledger entries
 	#3bank board [read <##>|write <title>]#0 - uses the staff board";
 
     public const string BankAdminHelpText =
@@ -4792,16 +4801,19 @@ Additionally, if you are the manager of a bank, you can use the following additi
 	#3bank manager exchange <from> <to> <rate>#0 - sets the currency exchange rate
 	#3bank status#0 - shows employment status for this bank
 	#3bank contracts#0 - lists employment contracts
+	#3bank contracts delegate <##> show|grant|revoke|set ...#0 - views or changes delegated authority
 	#3bank openings#0 - lists employment openings
 	#3bank openings create <role> <hourly rate> [positions]#0 - creates an NPC-facing opening
 	#3bank applications#0 - lists employment applications
 	#3bank applications accept|reject <##> [reason]#0 - accepts or rejects an application
 	#3bank tasks#0 - lists scheduled rules and active tasks
+	#3bank tasks diagnose#0 - explains why active employees can or cannot claim tasks
+	#3bank tasks actions#0 - lists available task step actions and syntax
 	#3bank tasks draft new|show|rename|remove|discard|finalise ...#0 - drafts and finalises active tasks
 	#3bank tasks step getid|gettag|commodity|deliver ...#0 - adds retrieval or delivery steps to your draft
 	#3bank goals#0 - lists manager goals
 	#3bank register#0 - shows employment register entries
-	#3bank employmentledger#0 - shows employment ledger entries
+	#3bank employmentledger|empledger#0 - shows employment ledger entries
 	#3bank board [read <##>|write <title>]#0 - uses the staff board";
 
     [PlayerCommand("Bank", "bank")]
@@ -5692,16 +5704,19 @@ Auction house manager employment shortcuts:
 
 	#3auction status#0 - shows employment status for this auction house
 	#3auction contracts#0 - lists employment contracts
+	#3auction contracts delegate <##> show|grant|revoke|set ...#0 - views or changes delegated authority
 	#3auction openings#0 - lists employment openings
 	#3auction openings create <role> <hourly rate> [positions]#0 - creates an NPC-facing opening
 	#3auction applications#0 - lists employment applications
 	#3auction applications accept|reject <##> [reason]#0 - accepts or rejects an application
 	#3auction tasks#0 - lists scheduled rules and active tasks
+	#3auction tasks diagnose#0 - explains why active employees can or cannot claim tasks
+	#3auction tasks actions#0 - lists available task step actions and syntax
 	#3auction tasks draft new|show|rename|remove|discard|finalise ...#0 - drafts and finalises active tasks
 	#3auction tasks step getid|gettag|commodity|deliver ...#0 - adds retrieval or delivery steps to your draft
 	#3auction goals#0 - lists manager goals
 	#3auction register#0 - shows employment register entries
-	#3auction employmentledger#0 - shows employment ledger entries
+	#3auction employmentledger|empledger#0 - shows employment ledger entries
 	#3auction board [read <##>|write <title>]#0 - uses the staff board";
 
     public const string AuctionsHelp =
@@ -5751,16 +5766,19 @@ Auction house manager employment shortcuts:
 
 	#3auction status#0 - shows employment status for this auction house
 	#3auction contracts#0 - lists employment contracts
+	#3auction contracts delegate <##> show|grant|revoke|set ...#0 - views or changes delegated authority
 	#3auction openings#0 - lists employment openings
 	#3auction openings create <role> <hourly rate> [positions]#0 - creates an NPC-facing opening
 	#3auction applications#0 - lists employment applications
 	#3auction applications accept|reject <##> [reason]#0 - accepts or rejects an application
 	#3auction tasks#0 - lists scheduled rules and active tasks
+	#3auction tasks diagnose#0 - explains why active employees can or cannot claim tasks
+	#3auction tasks actions#0 - lists available task step actions and syntax
 	#3auction tasks draft new|show|rename|remove|discard|finalise ...#0 - drafts and finalises active tasks
 	#3auction tasks step getid|gettag|commodity|deliver ...#0 - adds retrieval or delivery steps to your draft
 	#3auction goals#0 - lists manager goals
 	#3auction register#0 - shows employment register entries
-	#3auction employmentledger#0 - shows employment ledger entries
+	#3auction employmentledger|empledger#0 - shows employment ledger entries
 	#3auction board [read <##>|write <title>]#0 - uses the staff board
 
 Note: Admins can use the #3auction cancel#0 subcommand on other people's items";

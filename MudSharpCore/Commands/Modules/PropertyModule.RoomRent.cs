@@ -66,16 +66,19 @@ Hotel manager commands:
 	#3roomrent lost release <property> <#>#0 - removes a bundle from lost property
 	#3roomrent status#0 - shows employment status for the current hotel
 	#3roomrent contracts#0 - lists employment contracts
+	#3roomrent contracts delegate <##> show|grant|revoke|set ...#0 - views or changes delegated authority
 	#3roomrent openings#0 - lists employment openings
 	#3roomrent openings create <role> <hourly rate> [positions]#0 - creates an NPC-facing opening
 	#3roomrent applications#0 - lists employment applications
 	#3roomrent applications accept|reject <##> [reason]#0 - accepts or rejects an application
 	#3roomrent tasks#0 - lists scheduled rules and active tasks
+	#3roomrent tasks diagnose#0 - explains why active employees can or cannot claim tasks
+	#3roomrent tasks actions#0 - lists available task step actions and syntax
 	#3roomrent tasks draft new|show|rename|remove|discard|finalise ...#0 - drafts and finalises active tasks
 	#3roomrent tasks step getid|gettag|commodity|deliver ...#0 - adds retrieval or delivery steps to your draft
 	#3roomrent goals#0 - lists manager goals
 	#3roomrent register#0 - shows employment register entries
-	#3roomrent employmentledger#0 - shows employment ledger entries
+	#3roomrent employmentledger|empledger#0 - shows employment ledger entries
 	#3roomrent board [read <##>|write <title>]#0 - uses the staff board
 
 Economic zone manager commands:

@@ -449,13 +449,21 @@ public class EmploymentWorkerAI : PathingAIBase
 
 	private bool TryApplyForEmployment(ICharacter candidate)
 	{
-		if (candidate.AffectedBy<EmploymentWorkerSearchCooldownEffect>() ||
-		    HasPendingEmploymentApplication(candidate))
+		if (candidate.AffectedBy<EmploymentWorkerSearchCooldownEffect>())
 		{
+			DebugWorker(candidate, "skipped employment search because its search cooldown is still active.");
+			return false;
+		}
+
+		if (HasPendingEmploymentApplication(candidate))
+		{
+			DebugWorker(candidate, "skipped employment search because it already has a pending employment application.");
 			return false;
 		}
 
 		var profile = BuildCandidateProfile(candidate);
+		DebugWorker(candidate,
+			$"searching for employment openings with reservation wage {ReservationWage:N2}, payment methods {_acceptedPaymentMethods.Select(x => x.DescribeEnum()).ListToString()}, capabilities {_capabilities.Select(x => x.DescribeEnum()).ListToString()}, host filter {HostTypeFilter?.DescribeEnum() ?? "any"}.");
 		var opening = EmploymentHosts(candidate.Gameworld)
 		              .Where(HostMatchesFilter)
 		              .SelectMany(host => host.JobOpenings.Select(job => (Host: host, Opening: job)))
@@ -471,10 +479,15 @@ public class EmploymentWorkerAI : PathingAIBase
 		AddSearchCooldown(candidate);
 		if (opening.Host is null)
 		{
+			DebugWorker(candidate, "found no matching reachable employment opening.");
 			return false;
 		}
 
-		opening.Host.Employment.Apply(opening.Opening, profile);
+		DebugWorker(candidate,
+			$"applying to {opening.Host.EmploymentHostType.DescribeEnum()} #{opening.Host.Id:N0} {opening.Host.EmploymentHostName} opening #{opening.Opening.Id:N0} ({opening.Opening.Role.DescribeEnum()}).");
+		var application = opening.Host.Employment.Apply(opening.Opening, profile);
+		DebugWorker(candidate,
+			$"created application #{application.Id:N0} with status {application.Status.DescribeEnum()} for {opening.Host.EmploymentHostName}.");
 		return true;
 	}
 
@@ -487,8 +500,11 @@ public class EmploymentWorkerAI : PathingAIBase
 
 		var context = new EmploymentTaskContext(host, usePhysicalItemMovement: true);
 		var now = DateTimeOffset.UtcNow;
-		host.TaskBoard.EvaluateScheduledRules(context, now);
-		host.ManagerGoalBoard.EvaluateGoals(context, now);
+		DebugWorker(worker, $"evaluating scheduled rules and manager goals for {host.EmploymentHostName}.");
+		var scheduledTasks = host.TaskBoard.EvaluateScheduledRules(context, now);
+		var goalTasks = host.ManagerGoalBoard.EvaluateGoals(context, now);
+		DebugWorker(worker,
+			$"host evaluation for {host.EmploymentHostName} spawned {scheduledTasks.Count:N0} scheduled task(s) and {goalTasks.Count:N0} manager-goal task(s).");
 		worker.AddEffect(new EmploymentWorkerHostEvaluationEffect(worker, host), TimeSpan.FromMinutes(1));
 	}
 
@@ -504,14 +520,16 @@ public class EmploymentWorkerAI : PathingAIBase
 			                            .OrderBy(x => x.Name))
 			{
 				context = ContextFor(worker, host, pending);
-				if (!_dispatcher.TryAssignTask(pending, [profile], context, out _,
+				if (!_dispatcher.TryAssignTask(pending, [profile], context, out var assignReason,
 					    blockWhenNoCandidateMatches: false))
 				{
+					DebugWorker(worker, $"could not claim task {pending.Name}: {assignReason}");
 					RemoveTaskContext(worker, host, pending);
 					continue;
 				}
 
 				task = pending;
+				DebugWorker(worker, $"claimed employment task {task.Name} at {host.EmploymentHostName}.");
 				break;
 			}
 		}
@@ -530,11 +548,15 @@ public class EmploymentWorkerAI : PathingAIBase
 		var hintedLocation = NextStepLocation(task, context, worker);
 		if (hintedLocation is not null && !ReferenceEquals(hintedLocation, worker.Location))
 		{
+			DebugWorker(worker,
+				$"pathing to {hintedLocation.GetFriendlyReference(worker)} for next step of task {task.Name}.");
 			CheckPathingEffect(worker, true);
 			return false;
 		}
 
 		var result = _dispatcher.AdvanceTask(task, context);
+		DebugWorker(worker,
+			$"advanced task {task.Name}: {result.Message} Status is now {task.Status.DescribeEnum()}.");
 		if (task.Status is EmploymentTaskStatus.Completed or EmploymentTaskStatus.Cancelled or EmploymentTaskStatus.Failed)
 		{
 			RemoveTaskContext(worker, host, task);
@@ -775,9 +797,15 @@ public class EmploymentWorkerAI : PathingAIBase
 
 		foreach (var property in gameworld.Properties ?? Enumerable.Empty<MudSharp.Economy.Property.IProperty>())
 		{
-			if (property.Hotel is not null)
+			if (property is not MudSharp.Economy.Property.Property concreteProperty)
 			{
-				yield return property.Hotel;
+				continue;
+			}
+
+			var hotel = concreteProperty.ExistingHotel;
+			if (hotel is not null)
+			{
+				yield return hotel;
 			}
 		}
 	}
@@ -801,5 +829,10 @@ public class EmploymentWorkerAI : PathingAIBase
 		}
 
 		return text.TryParseEnum(out hostType);
+	}
+
+	private void DebugWorker(ICharacter worker, string message)
+	{
+		worker.Gameworld?.DebugMessage($"[EmploymentWorkerAI:{Name}] {worker.Name} #{worker.Id:N0}: {message}");
 	}
 }

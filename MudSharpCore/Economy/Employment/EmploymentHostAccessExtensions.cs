@@ -1,6 +1,10 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using MudSharp.Arenas;
 using MudSharp.Character;
+using MudSharp.Construction;
+using MudSharp.Economy;
 using MudSharp.Framework;
 
 #nullable enable
@@ -72,5 +76,108 @@ public static class EmploymentHostAccessExtensions
 			},
 			actor,
 			Telnet.Yellow);
+	}
+
+	public static IReadOnlyCollection<ICell> EmploymentHostLocations(this IEmploymentHost host)
+	{
+		var locations = new List<ICell>();
+		switch (host)
+		{
+			case IPermanentShop shop:
+				AddLocations(locations, shop.AllShopCells);
+				AddLocations(locations, shop.ShopfrontCells);
+				AddLocation(locations, shop.StockroomCell);
+				AddLocation(locations, shop.WorkshopCell);
+				break;
+			case IShop shop:
+				AddLocations(locations, shop.CurrentLocations);
+				break;
+			case IAuctionHouse auctionHouse:
+				AddLocation(locations, auctionHouse.AuctionHouseCell);
+				break;
+			case ICombatArena arena:
+				AddLocations(locations, arena.WaitingCells);
+				AddLocations(locations, arena.ArenaCells);
+				AddLocations(locations, arena.ObservationCells);
+				AddLocations(locations, arena.InfirmaryCells);
+				AddLocations(locations, arena.NpcStablesCells);
+				AddLocations(locations, arena.AfterFightCells);
+				break;
+			case IBank bank:
+				AddLocations(locations, bank.BranchLocations);
+				break;
+			case IStable stable:
+				AddLocation(locations, stable.Location);
+				break;
+			case IHotel hotel:
+				AddLocations(locations, hotel.Locations);
+				break;
+		}
+
+		return locations.DistinctBy(x => x.Id).ToList();
+	}
+
+	public static IReadOnlyCollection<ICharacter> PresentEmploymentObservers(this IEmploymentHost host)
+	{
+		return host.EmploymentHostLocations()
+		           .SelectMany(x => x.Characters ?? Enumerable.Empty<ICharacter>())
+		           .DistinctBy(x => x.Id)
+		           .Where(x =>
+			           x.IsAdministrator() ||
+			           host.HasActiveEmploymentRole(x, EmploymentRole.Manager, EmploymentRole.Proprietor))
+		           .ToList();
+	}
+
+	public static void EchoToPresentEmploymentObservers(this IEmploymentHost host,
+		Func<ICharacter, string> messageFactory, ICharacter? except = null)
+	{
+		foreach (var observer in host.PresentEmploymentObservers())
+		{
+			if (except is not null && observer.Id == except.Id)
+			{
+				continue;
+			}
+
+			observer.OutputHandler?.Send(messageFactory(observer));
+		}
+	}
+
+	public static void EchoToPresentEmploymentObservers(this IEmploymentHost host, string message,
+		ICharacter? except = null)
+	{
+		host.EchoToPresentEmploymentObservers(_ => message, except);
+	}
+
+	public static void DebugEmployment(this IEmploymentHost host, string message, IFuturemud? fallbackGameworld = null)
+	{
+		var gameworld = fallbackGameworld ??
+		                (host as IHaveFuturemud)?.Gameworld ??
+		                host.EmploymentHostLocations()
+		                    .SelectMany(x => x.Characters ?? Enumerable.Empty<ICharacter>())
+		                    .Select(x => x.Gameworld)
+		                    .FirstOrDefault(x => x is not null);
+		gameworld?.DebugMessage(
+			$"[Employment] {host.EmploymentHostType.DescribeEnum()} #{host.Id:N0} {host.EmploymentHostName}: {message}");
+	}
+
+	private static void AddLocations(List<ICell> locations, IEnumerable<ICell>? cells)
+	{
+		if (cells is null)
+		{
+			return;
+		}
+
+		foreach (var cell in cells)
+		{
+			AddLocation(locations, cell);
+		}
+	}
+
+	private static void AddLocation(List<ICell> locations, ICell? cell)
+	{
+		if (cell is not null)
+		{
+			locations.Add(cell);
+		}
 	}
 }

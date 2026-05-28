@@ -142,6 +142,45 @@ public class EmploymentWorkerAITests
 		Assert.AreEqual(0, lowHost.State.Applications.Count);
 		Assert.AreEqual(1, highHost.State.Applications.Count);
 		Assert.AreEqual(JobApplicationStatus.Pending, highHost.State.Applications.Single().Status);
+		gameworld.Verify(x => x.DebugMessage(It.Is<string>(text => text.Contains("searching for employment openings"))),
+			Times.AtLeastOnce);
+		gameworld.Verify(x => x.DebugMessage(It.Is<string>(text => text.Contains("applying to"))),
+			Times.AtLeastOnce);
+	}
+
+	[TestMethod]
+	public void EmploymentHostState_PendingNpcApplicationEchoesToPresentManagersProprietorsAndAdmins()
+	{
+		var currency = Currency();
+		var gameworld = Gameworld(currencies: [currency.Object]);
+		var workplace = Cell(22, "stable yard");
+		var host = Stable(22, "echo stable", currency.Object, workplace.Object);
+		var manager = Character(23, "Manager", gameworld.Object, workplace.Object).Object;
+		var proprietor = Character(24, "Proprietor", gameworld.Object, workplace.Object).Object;
+		var admin = Character(25, "Admin", gameworld.Object, workplace.Object, administrator: true).Object;
+		var outsider = Character(26, "Outsider", gameworld.Object, workplace.Object).Object;
+		var applicant = Character(27, "Applicant", gameworld.Object, workplace.Object).Object;
+		host.State.Hire(manager, Offer(currency.Object, EmploymentRole.Manager), null);
+		host.State.Hire(proprietor, Offer(currency.Object, EmploymentRole.Proprietor), null);
+		workplace.SetupGet(x => x.Characters).Returns([manager, proprietor, admin, outsider]);
+		var opening = host.State.CreateJobOpening(Opening(currency.Object, 10.0M), null);
+
+		host.State.Apply(opening, Profile(applicant));
+
+		foreach (var observer in new[] { manager, proprietor, admin })
+		{
+			Mock.Get(observer.OutputHandler).Verify(x => x.Send(
+				It.Is<string>(text => text.Contains("has applied for the")),
+				It.IsAny<bool>(),
+				It.IsAny<bool>()), Times.Once);
+		}
+
+		Mock.Get(outsider.OutputHandler).Verify(x => x.Send(
+			It.Is<string>(text => text.Contains("has applied for the")),
+			It.IsAny<bool>(),
+			It.IsAny<bool>()), Times.Never);
+		gameworld.Verify(x => x.DebugMessage(It.Is<string>(text => text.Contains("submitted pending application"))),
+			Times.AtLeastOnce);
 	}
 
 	[TestMethod]
@@ -172,6 +211,26 @@ public class EmploymentWorkerAITests
 			x.Candidate.Id == worker.Id &&
 			x.Opening.Id == secondOpening.Id &&
 			x.Status == JobApplicationStatus.Pending));
+	}
+
+	[TestMethod]
+	public void EmploymentWorkerAI_SearchDoesNotLazyCreatePropertyHotelHosts()
+	{
+		var currency = Currency();
+		var location = Cell(25, "road");
+		var property = new Mock<IProperty>();
+		property.SetupGet(x => x.Id).Returns(25);
+		property.SetupGet(x => x.Name).Returns("roadside inn");
+		property.SetupGet(x => x.Hotel)
+		        .Throws(new AssertFailedException("Worker AI scans must not touch IProperty.Hotel because it lazy-creates hotel roots."));
+		var gameworld = Gameworld(properties: [property.Object], currencies: [currency.Object]);
+		var worker = Character(25, "Worker", gameworld.Object, location.Object).Object;
+		var ai = LoadAI(gameworld.Object);
+
+		var acted = ai.HandleMinuteTick(worker);
+
+		Assert.IsFalse(acted);
+		property.VerifyGet(x => x.Hotel, Times.Never);
 	}
 
 	[TestMethod]
@@ -233,6 +292,10 @@ public class EmploymentWorkerAITests
 		Assert.IsFalse(host.State.EmploymentRegister.Entries.Any(x =>
 			x.EntryType == EmploymentRegisterEntryType.BoardPostCreated));
 		Assert.AreEqual(0, host.State.Board.Posts.Count());
+		gameworld.Verify(x => x.DebugMessage(It.Is<string>(text => text.Contains("claimed employment task"))),
+			Times.AtLeastOnce);
+		gameworld.Verify(x => x.DebugMessage(It.Is<string>(text => text.Contains("advanced task Move apples"))),
+			Times.AtLeastOnce);
 	}
 
 	[TestMethod]
@@ -304,6 +367,8 @@ public class EmploymentWorkerAITests
 		Assert.IsNull(task.AssignedEmployee);
 		Assert.IsFalse(host.State.EmploymentRegister.Entries.Any(x =>
 			x.EntryType == EmploymentRegisterEntryType.ActiveTaskBlocked));
+		gameworld.Verify(x => x.DebugMessage(It.Is<string>(text => text.Contains("missing"))),
+			Times.AtLeastOnce);
 	}
 
 	[TestMethod]
@@ -412,7 +477,7 @@ public class EmploymentWorkerAITests
 	}
 
 	private static Mock<IFuturemud> Gameworld(IEnumerable<IShop>? shops = null, IEnumerable<IStable>? stables = null,
-		IEnumerable<ICurrency>? currencies = null)
+		IEnumerable<IProperty>? properties = null, IEnumerable<ICurrency>? currencies = null)
 	{
 		var gameworld = new Mock<IFuturemud>();
 		var shopCollection = new All<IShop>();
@@ -425,6 +490,12 @@ public class EmploymentWorkerAITests
 		foreach (var stable in stables ?? [])
 		{
 			stableCollection.Add(stable);
+		}
+
+		var propertyCollection = new All<IProperty>();
+		foreach (var property in properties ?? [])
+		{
+			propertyCollection.Add(property);
 		}
 
 		var currencyCollection = new All<ICurrency>();
@@ -440,7 +511,7 @@ public class EmploymentWorkerAITests
 		gameworld.SetupGet(x => x.CombatArenas).Returns(new All<ICombatArena>());
 		gameworld.SetupGet(x => x.Banks).Returns(new All<IBank>());
 		gameworld.SetupGet(x => x.Stables).Returns(stableCollection);
-		gameworld.SetupGet(x => x.Properties).Returns(new All<IProperty>());
+		gameworld.SetupGet(x => x.Properties).Returns(propertyCollection);
 		gameworld.SetupGet(x => x.Currencies).Returns(currencyCollection);
 		gameworld.Setup(x => x.GetStaticLong("DefaultCurrencyID"))
 		         .Returns(() => currencyCollection.FirstOrDefault()?.Id ?? 0L);
@@ -484,7 +555,8 @@ public class EmploymentWorkerAITests
 		return item;
 	}
 
-	private static Mock<ICharacter> Character(long id, string name, IFuturemud gameworld, ICell location)
+	private static Mock<ICharacter> Character(long id, string name, IFuturemud gameworld, ICell location,
+		bool administrator = false)
 	{
 		var personalName = new Mock<IPersonalName>();
 		personalName.Setup(x => x.GetName(It.IsAny<NameStyle>())).Returns(name);
@@ -547,7 +619,7 @@ public class EmploymentWorkerAITests
 
 			         return removed.Any();
 		         });
-		character.Setup(x => x.IsAdministrator(It.IsAny<PermissionLevel>())).Returns(false);
+		character.Setup(x => x.IsAdministrator(It.IsAny<PermissionLevel>())).Returns(administrator);
 		character.Setup(x => x.HowSeen(
 				It.IsAny<IPerceiver>(),
 				It.IsAny<bool>(),

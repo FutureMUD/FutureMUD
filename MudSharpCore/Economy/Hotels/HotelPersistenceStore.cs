@@ -10,6 +10,18 @@ namespace MudSharp.Economy.Hotels;
 
 public static class HotelPersistenceStore
 {
+	public static IHotel? LoadIfExists(IProperty property)
+	{
+		using (new FMDB())
+		{
+			var hotelId = FMDB.Context.Hotels
+			                  .Where(x => x.PropertyId == property.Id)
+			                  .Select(x => (long?)x.Id)
+			                  .FirstOrDefault();
+			return hotelId.HasValue ? new Hotel(property, hotelId.Value) : null;
+		}
+	}
+
 	public static IHotel LoadOrCreate(IProperty property)
 	{
 		using (new FMDB())

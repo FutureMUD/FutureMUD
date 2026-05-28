@@ -9,6 +9,7 @@ internal interface IEmploymentPersistenceStore
 	long StateId { get; }
 	void SaveContract(EmploymentContract contract);
 	void SaveContractEnded(EmploymentContract contract);
+	void SaveContractAuthority(EmploymentContract contract);
 	void SaveJobOpening(JobOpening opening);
 	void SaveApplication(EmploymentApplication application);
 	void SaveRegisterEntry(EmploymentRegisterEntry entry);

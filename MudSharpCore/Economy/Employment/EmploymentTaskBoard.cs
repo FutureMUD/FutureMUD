@@ -492,6 +492,7 @@ public sealed class EmploymentTaskBoard : IEmploymentTaskBoard
 		_persistence?.SaveScheduledRule(rule);
 		_host.EmploymentRegister.Record(EmploymentRegisterEntryType.ScheduledRuleCreated, authorisedBy,
 			$"Created scheduled task rule {name}.");
+		_host.DebugEmployment($"Created scheduled task rule {name}.");
 		return rule;
 	}
 
@@ -514,6 +515,7 @@ public sealed class EmploymentTaskBoard : IEmploymentTaskBoard
 		_persistence?.SaveActiveTask(task);
 		_host.EmploymentRegister.Record(EmploymentRegisterEntryType.ActiveTaskCreated, authorisedBy,
 			$"Created active task {name}.", task.CorrelationId);
+		_host.DebugEmployment($"Created active task {name} ({task.CorrelationId}).", authorisedBy?.Gameworld);
 		return task;
 	}
 
@@ -524,8 +526,10 @@ public sealed class EmploymentTaskBoard : IEmploymentTaskBoard
 		{
 			_host.EmploymentRegister.Record(EmploymentRegisterEntryType.ScheduledRuleEvaluated, null,
 				$"Evaluated scheduled task rule {rule.Name}.");
-			if (!rule.CanSpawn(context, now, out _))
+			_host.DebugEmployment($"Evaluating scheduled task rule {rule.Name}.");
+			if (!rule.CanSpawn(context, now, out var spawnReason))
 			{
+				_host.DebugEmployment($"Scheduled task rule {rule.Name} did not spawn: {spawnReason}");
 				continue;
 			}
 
@@ -533,6 +537,8 @@ public sealed class EmploymentTaskBoard : IEmploymentTaskBoard
 				    x.IdempotencyKey.Equals(rule.IdempotencyKey, StringComparison.InvariantCultureIgnoreCase) &&
 				    x.Status is EmploymentTaskStatus.Pending or EmploymentTaskStatus.Assigned or EmploymentTaskStatus.InProgress or EmploymentTaskStatus.Blocked))
 			{
+				_host.DebugEmployment(
+					$"Scheduled task rule {rule.Name} did not spawn because an active task with idempotency key {rule.IdempotencyKey} already exists.");
 				continue;
 			}
 
@@ -546,6 +552,7 @@ public sealed class EmploymentTaskBoard : IEmploymentTaskBoard
 			_persistence?.SaveScheduledRuleState(rule);
 			_host.EmploymentRegister.Record(EmploymentRegisterEntryType.ActiveTaskCreated, null,
 				$"Spawned active task {rule.Name} from scheduled rule.", task.CorrelationId);
+			_host.DebugEmployment($"Scheduled task rule {rule.Name} spawned active task {task.CorrelationId}.");
 			spawned.Add(task);
 		}
 
@@ -718,42 +725,63 @@ public sealed class EmploymentTaskDispatcher
 		if (task is not EmploymentActiveTask concrete)
 		{
 			reason = "Unsupported active task implementation.";
+			context.Employer.DebugEmployment($"Could not assign task {task.Name}: {reason}");
 			return false;
 		}
 
+		var rejectionReasons = new List<string>();
 		foreach (var candidate in candidates)
 		{
 			if (!task.Employer.EmploymentContracts.Any(x =>
 				    x.Employee.Id == candidate.Candidate.Id &&
 				    x.Status == EmploymentStatus.Active))
 			{
+				rejectionReasons.Add($"{candidate.Candidate.Name}: no active employment contract");
+				context.Employer.DebugEmployment(
+					$"Skipped {candidate.Candidate.Name} for task {task.Name}: no active employment contract.");
 				continue;
 			}
 
-			if (!task.ActionPlan.RequiredCapabilities.All(x => candidate.Capabilities.Contains(x)))
+			var missingCapabilities = task.ActionPlan.RequiredCapabilities
+			                          .Where(x => !candidate.Capabilities.Contains(x))
+			                          .ToList();
+			if (missingCapabilities.Any())
 			{
+				rejectionReasons.Add(
+					$"{candidate.Candidate.Name}: missing {missingCapabilities.Select(x => x.DescribeEnum()).ListToString()} capability");
+				context.Employer.DebugEmployment(
+					$"Skipped {candidate.Candidate.Name} for task {task.Name}: missing required AI capabilities.");
 				continue;
 			}
 
 			var nextStepIndex = concrete.NextStepIndex;
 			if (nextStepIndex < 0)
 			{
+				rejectionReasons.Add($"{candidate.Candidate.Name}: task has no pending steps");
+				context.Employer.DebugEmployment($"Skipped task {task.Name}: it has no pending steps.");
 				continue;
 			}
 
-			if (!task.ActionPlan.Steps[nextStepIndex].CanExecute(context, candidate.Candidate, out _))
+			if (!task.ActionPlan.Steps[nextStepIndex].CanExecute(context, candidate.Candidate, out var stepReason))
 			{
+				rejectionReasons.Add($"{candidate.Candidate.Name}: {stepReason}");
+				context.Employer.DebugEmployment(
+					$"Skipped {candidate.Candidate.Name} for task {task.Name}: next step cannot execute ({stepReason}).");
 				continue;
 			}
 
 			concrete.Assign(candidate.Candidate);
 			context.RecordRegister(EmploymentRegisterEntryType.ActiveTaskAssigned, candidate.Candidate,
 				$"Assigned task {task.Name}.", task.CorrelationId);
+			context.Employer.DebugEmployment($"Assigned task {task.Name} to {candidate.Candidate.Name}.",
+				candidate.Candidate.Gameworld);
 			reason = string.Empty;
 			return true;
 		}
 
-		reason = "No active employee is eligible to complete the task.";
+		reason = rejectionReasons.Any()
+			? $"No active employee is eligible to complete the task: {rejectionReasons.ListToString()}."
+			: "No active employee is eligible to complete the task.";
 		if (!blockWhenNoCandidateMatches)
 		{
 			return false;
@@ -761,6 +789,7 @@ public sealed class EmploymentTaskDispatcher
 
 		concrete.Block(reason);
 		context.RecordRegister(EmploymentRegisterEntryType.ActiveTaskBlocked, null, reason, task.CorrelationId);
+		context.Employer.DebugEmployment($"Blocked task {task.Name}: {reason}");
 		return false;
 	}
 
@@ -768,6 +797,7 @@ public sealed class EmploymentTaskDispatcher
 	{
 		if (task is not EmploymentActiveTask concrete)
 		{
+			context.Employer.DebugEmployment($"Could not advance task {task.Name}: unsupported active task implementation.");
 			return EmploymentActionStepResult.Failed("Unsupported active task implementation.");
 		}
 
@@ -775,12 +805,14 @@ public sealed class EmploymentTaskDispatcher
 		{
 			concrete.Block("Task has no assigned employee.");
 			context.RecordRegister(EmploymentRegisterEntryType.ActiveTaskBlocked, null, concrete.BlockedReason!, task.CorrelationId);
+			context.Employer.DebugEmployment($"Blocked task {task.Name}: {concrete.BlockedReason}");
 			return EmploymentActionStepResult.Blocked(concrete.BlockedReason!);
 		}
 
 		var index = concrete.NextStepIndex;
 		if (index < 0)
 		{
+			context.Employer.DebugEmployment($"Task {task.Name} is already complete.");
 			return EmploymentActionStepResult.CompletedResult("Task is already complete.");
 		}
 
@@ -791,12 +823,18 @@ public sealed class EmploymentTaskDispatcher
 			concrete.Block(reason);
 			context.RecordRegister(EmploymentRegisterEntryType.ActionStepFailed, task.AssignedEmployee, reason, task.CorrelationId);
 			context.RecordRegister(EmploymentRegisterEntryType.ActiveTaskBlocked, task.AssignedEmployee, reason, task.CorrelationId);
+			context.Employer.DebugEmployment(
+				$"Blocked task {task.Name} at step {index + 1:N0} ({step.StepType.DescribeEnum()}): {reason}",
+				task.AssignedEmployee.Gameworld);
 			return EmploymentActionStepResult.Blocked(reason);
 		}
 
 		concrete.MarkStep(index, EmploymentActionStepStatus.InProgress);
 		context.RecordRegister(EmploymentRegisterEntryType.ActionStepStarted, task.AssignedEmployee,
 			$"Started {step.StepType} action.", task.CorrelationId);
+		context.Employer.DebugEmployment(
+			$"{task.AssignedEmployee.Name} started step {index + 1:N0} ({step.StepType.DescribeEnum()}) of task {task.Name}.",
+			task.AssignedEmployee.Gameworld);
 		var result = step.Execute(context, task.AssignedEmployee);
 		concrete.MarkStep(index, result.Success
 			? EmploymentActionStepStatus.Completed
@@ -807,10 +845,14 @@ public sealed class EmploymentTaskDispatcher
 			task.AssignedEmployee,
 			result.Message,
 			task.CorrelationId);
+		context.Employer.DebugEmployment(
+			$"{task.AssignedEmployee.Name} {(result.Success ? "completed" : "did not complete")} step {index + 1:N0} of task {task.Name}: {result.Message}",
+			task.AssignedEmployee.Gameworld);
 		if (concrete.Status == EmploymentTaskStatus.Completed)
 		{
 			context.RecordRegister(EmploymentRegisterEntryType.ActiveTaskCompleted, task.AssignedEmployee,
 				$"Completed active task {task.Name}.", task.CorrelationId);
+			context.Employer.DebugEmployment($"Completed active task {task.Name}.", task.AssignedEmployee.Gameworld);
 		}
 
 		return result;
@@ -846,7 +888,8 @@ public sealed class ManagerGoalBoard : IManagerGoalBoard
 			throw new InvalidOperationException($"{authorisedBy.HowSeen(authorisedBy, colour: false)} is not authorised to create manager goals for {_host.EmploymentHostName}.");
 		}
 
-		if (!_host.EmploymentContracts.Where(x => x.Employee.Id == authorisedBy.Id && x.Status == EmploymentStatus.Active)
+		if (!authorisedBy.IsAdministrator() &&
+		    !_host.EmploymentContracts.Where(x => x.Employee.Id == authorisedBy.Id && x.Status == EmploymentStatus.Active)
 		          .Any(x => x.Authority.ContainsAll(definition.RequiredAuthority)))
 		{
 			throw new InvalidOperationException("A manager cannot create a goal that requires authority they do not possess.");
@@ -867,6 +910,8 @@ public sealed class ManagerGoalBoard : IManagerGoalBoard
 		_persistence?.SaveManagerGoal(goal);
 		_host.EmploymentRegister.Record(EmploymentRegisterEntryType.ManagerGoalCreated, authorisedBy,
 			$"Created manager goal {definition.GoalType}.", goal.CorrelationId);
+		_host.DebugEmployment($"Created manager goal {definition.GoalType.DescribeEnum()} #{goal.Id:N0}.",
+			authorisedBy.Gameworld);
 		return goal;
 	}
 
@@ -885,6 +930,7 @@ public sealed class ManagerGoalBoard : IManagerGoalBoard
 		concrete.Cancel(reason);
 		_host.EmploymentRegister.Record(EmploymentRegisterEntryType.ManagerGoalCancelled, cancelledBy, reason,
 			concrete.CorrelationId);
+		_host.DebugEmployment($"Cancelled manager goal #{concrete.Id:N0}: {reason}", cancelledBy.Gameworld);
 	}
 
 	public IReadOnlyCollection<IEmploymentActiveTask> EvaluateGoals(IEmploymentTaskContext context, DateTimeOffset now)
@@ -894,6 +940,7 @@ public sealed class ManagerGoalBoard : IManagerGoalBoard
 		{
 			if (goal.LastEvaluatedAt.HasValue && now - goal.LastEvaluatedAt.Value < goal.EvaluationCadence)
 			{
+				_host.DebugEmployment($"Skipped manager goal #{goal.Id:N0}: evaluation cadence has not elapsed.");
 				continue;
 			}
 
@@ -902,6 +949,7 @@ public sealed class ManagerGoalBoard : IManagerGoalBoard
 				goal.MarkEvaluated(now, "Conditions were not satisfied.");
 				_host.EmploymentRegister.Record(EmploymentRegisterEntryType.ManagerGoalEvaluated, null,
 					goal.LastEvaluationResult!, goal.CorrelationId);
+				_host.DebugEmployment($"Manager goal #{goal.Id:N0} did not create work: {goal.LastEvaluationResult}");
 				continue;
 			}
 
@@ -910,6 +958,7 @@ public sealed class ManagerGoalBoard : IManagerGoalBoard
 				goal.MarkEvaluated(now, "Goal had no action plan to create.");
 				_host.EmploymentRegister.Record(EmploymentRegisterEntryType.ManagerGoalEvaluated, null,
 					goal.LastEvaluationResult!, goal.CorrelationId);
+				_host.DebugEmployment($"Manager goal #{goal.Id:N0} did not create work: {goal.LastEvaluationResult}");
 				continue;
 			}
 
@@ -919,6 +968,7 @@ public sealed class ManagerGoalBoard : IManagerGoalBoard
 			goal.MarkEvaluated(now, $"Created active task {task.Name}.");
 			_host.EmploymentRegister.Record(EmploymentRegisterEntryType.ManagerGoalEvaluated, null,
 				goal.LastEvaluationResult!, goal.CorrelationId);
+			_host.DebugEmployment($"Manager goal #{goal.Id:N0} created active task {task.Name}.");
 		}
 
 		return tasks;

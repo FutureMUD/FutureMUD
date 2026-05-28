@@ -41,6 +41,11 @@ public interface IEmploymentHost : IFrameworkItem
 	{
 		return Employment.HasAuthority(actor, authority);
 	}
+
+	void SetContractAuthority(IEmploymentContract contract, EmploymentAuthoritySet authority, ICharacter authorisedBy)
+	{
+		Employment.SetContractAuthority(contract, authority, authorisedBy);
+	}
 }
 
 public interface IEmploymentHostState
@@ -59,6 +64,7 @@ public interface IEmploymentHostState
 	IEmploymentContract Hire(ICharacter candidate, EmploymentOffer offer, ICharacter? authorisedBy);
 	void Fire(IEmploymentContract contract, EmploymentTerminationReason reason, ICharacter? authorisedBy);
 	bool HasAuthority(ICharacter actor, EmploymentAuthority authority);
+	void SetContractAuthority(IEmploymentContract contract, EmploymentAuthoritySet authority, ICharacter authorisedBy);
 	IJobOpening CreateJobOpening(JobOpeningDefinition definition, ICharacter? authorisedBy);
 	IEmploymentApplication Apply(IJobOpening opening, EmploymentCandidateProfile candidate);
 	IEmploymentContract AcceptApplication(IEmploymentApplication application, ICharacter authorisedBy);

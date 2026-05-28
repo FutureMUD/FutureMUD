@@ -5,6 +5,7 @@ using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using MudSharp.Accounts;
 using MudSharp.Arenas;
 using MudSharp.Character;
 using MudSharp.Character.Name;
@@ -555,6 +556,28 @@ public class UnifiedEmploymentDispatchTests
 	}
 
 	[TestMethod]
+	public void ManagerGoals_AdministratorsCanCreateGoalsWithoutEmploymentContract()
+	{
+		var currency = Currency();
+		IEmploymentHost host = new TestEmploymentHost("hotel", currency.Object);
+		var admin = Character(3, "Admin", administrator: true).Object;
+		var definition = new ManagerGoalDefinition(
+			ManagerGoalType.MaintainHotelOperations,
+			EmploymentAuthority.PostToHostBoard,
+			new ManagerGoalConfiguration("post room notice", new EmploymentActionPlan([
+				new BoardPostActionStep("Rooms", "Room work required.")
+			])),
+			1,
+			TimeSpan.Zero);
+
+		var goal = host.ManagerGoalBoard.CreateGoal(definition, admin);
+
+		Assert.AreEqual(ManagerGoalStatus.Active, goal.Status);
+		Assert.AreEqual(1, host.ManagerGoalBoard.Goals.Count);
+		Assert.IsTrue(host.EmploymentRegister.Entries.Any(x => x.EntryType == EmploymentRegisterEntryType.ManagerGoalCreated));
+	}
+
+	[TestMethod]
 	public void HotelEntity_LinksToPropertyOwnershipLocationAndExistingHotelXmlState()
 	{
 		var currency = Currency();
@@ -787,6 +810,28 @@ public class UnifiedEmploymentDispatchTests
 	}
 
 	[TestMethod]
+	public void HotelPersistence_LoadIfExistsDoesNotCreateMissingRoot()
+	{
+		var fmdbState = CaptureFMDBState();
+		using var context = BuildContext();
+		try
+		{
+			PrimeFMDB(context);
+			var property = new Mock<IProperty>();
+			property.SetupGet(x => x.Id).Returns(700);
+
+			var hotel = HotelPersistenceStore.LoadIfExists(property.Object);
+
+			Assert.IsNull(hotel);
+			Assert.AreEqual(0, context.Hotels.Count());
+		}
+		finally
+		{
+			RestoreFMDBState(fmdbState);
+		}
+	}
+
+	[TestMethod]
 	public void HotelPersistence_LazilyCreatesRootPreservesXmlShadowAndDelegatesToProperty()
 	{
 		var fmdbState = CaptureFMDBState();
@@ -855,7 +900,7 @@ public class UnifiedEmploymentDispatchTests
 		return currency;
 	}
 
-	private static Mock<ICharacter> Character(long id, string name)
+	private static Mock<ICharacter> Character(long id, string name, bool administrator = false)
 	{
 		var personalName = new Mock<IPersonalName>();
 		personalName.Setup(x => x.GetName(It.IsAny<NameStyle>())).Returns(name);
@@ -870,6 +915,7 @@ public class UnifiedEmploymentDispatchTests
 				It.IsAny<bool>(),
 				It.IsAny<PerceiveIgnoreFlags>()))
 		         .Returns(name);
+		character.Setup(x => x.IsAdministrator(It.IsAny<PermissionLevel>())).Returns(administrator);
 		return character;
 	}
 

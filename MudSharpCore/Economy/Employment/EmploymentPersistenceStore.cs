@@ -126,6 +126,26 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 		});
 	}
 
+	public void SaveContractAuthority(EmploymentContract contract)
+	{
+		WithContext(context =>
+		{
+			var dbitem = context.EmploymentContracts
+			                    .FirstOrDefault(x => x.RuntimeId == contract.Id && x.EmploymentHostStateId == StateId);
+			if (dbitem is null)
+			{
+				context.EmploymentContracts.Add(ToRecord(contract));
+			}
+			else
+			{
+				dbitem.Authority = (long)contract.Authority.Authorities;
+			}
+
+			Touch(context);
+			context.SaveChanges();
+		});
+	}
+
 	public void SaveJobOpening(JobOpening opening)
 	{
 		WithContext(context =>

@@ -98,6 +98,13 @@ public class EmploymentCommandServiceTests
 		Assert.IsFalse(service.CanViewOperational(outsider, host));
 		Assert.IsTrue(service.CanViewOpenings(outsider, host));
 		StringAssert.Contains(service.RenderOpenings(outsider, host), "Employee");
+
+		service.ExecuteForHost(outsider, host, new StringStack("delegations"));
+
+		Mock.Get(outsider.OutputHandler).Verify(x => x.Send(
+			It.Is<string>(text => text.Contains("not an employee")),
+			It.IsAny<bool>(),
+			It.IsAny<bool>()), Times.Once);
 	}
 
 	[TestMethod]
@@ -222,7 +229,8 @@ public class EmploymentCommandServiceTests
 		var currency = Currency();
 		IEmploymentHost host = new TestEmploymentHost(1, "market shop", currency.Object);
 		var manager = Character(30, "Manager").Object;
-		host.Hire(manager, Offer(currency.Object, EmploymentRole.Manager, EmploymentAuthority.CreateJobOpenings), null);
+		host.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.CreateJobOpenings | EmploymentAuthority.ManageDeliveryRoutes), null);
 		var service = new EmploymentCommandService();
 
 		var result = service.TryCreateOpening(manager, host, EmploymentRole.Courier, 12.5M, 2, out var opening,
@@ -246,7 +254,8 @@ public class EmploymentCommandServiceTests
 		currency.Setup(x => x.Describe(12.5M, CurrencyDescriptionPatternType.ShortDecimal)).Returns("twelve coins");
 		IEmploymentHost host = new TestEmploymentHost(1, "market shop", currency.Object);
 		var manager = Character(32, "Manager").Object;
-		host.Hire(manager, Offer(currency.Object, EmploymentRole.Manager, EmploymentAuthority.CreateJobOpenings), null);
+		host.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.CreateJobOpenings | EmploymentAuthority.ManageDeliveryRoutes), null);
 		var service = new EmploymentCommandService();
 
 		service.ExecuteForHost(manager, host, new StringStack("openings create courier 12.50 2"));
@@ -265,6 +274,8 @@ public class EmploymentCommandServiceTests
 	public void EmploymentCommandService_RecognisesSubsystemEmploymentShortcuts()
 	{
 		Assert.IsTrue(EmploymentCommandService.IsEmploymentShortcut("contracts"));
+		Assert.IsTrue(EmploymentCommandService.IsEmploymentShortcut("delegations"));
+		Assert.IsTrue(EmploymentCommandService.IsEmploymentShortcut("authority"));
 		Assert.IsTrue(EmploymentCommandService.IsEmploymentShortcut("board"));
 		Assert.IsTrue(EmploymentCommandService.IsEmploymentShortcut("openings"));
 		Assert.IsTrue(EmploymentCommandService.IsEmploymentShortcut("employmentledger"));
@@ -289,6 +300,71 @@ public class EmploymentCommandServiceTests
 		Assert.IsFalse(result);
 		Assert.IsNull(opening);
 		StringAssert.Contains(message, "delegated");
+		Assert.AreEqual(0, host.JobOpenings.Count);
+	}
+
+	[TestMethod]
+	public void EmploymentCommandService_CreateOpeningUsesSensibleRoleDefaultAuthorities()
+	{
+		var currency = Currency();
+		IEmploymentHost host = new TestEmploymentHost(1, "market shop", currency.Object);
+		var admin = Character(33, "Admin", administrator: true).Object;
+		host.Hire(admin, Offer(currency.Object, EmploymentRole.Proprietor, EmploymentAuthoritySet.All.Authorities), null);
+		var service = new EmploymentCommandService();
+
+		Assert.IsTrue(service.TryCreateOpening(admin, host, EmploymentRole.Employee, 10.0M, 1, out var employeeOpening,
+			out var message), message);
+		Assert.AreEqual(EmploymentAuthority.ManageDeliveryRoutes, employeeOpening!.Authority.Authorities);
+
+		Assert.IsTrue(service.TryCreateOpening(admin, host, EmploymentRole.Clerk, 10.0M, 1, out var clerkOpening,
+			out message), message);
+		Assert.AreEqual(EmploymentAuthority.ManageDeliveryRoutes, clerkOpening!.Authority.Authorities);
+
+		Assert.IsTrue(service.TryCreateOpening(admin, host, EmploymentRole.Crafter, 10.0M, 1, out var crafterOpening,
+			out message), message);
+		Assert.AreEqual(
+			EmploymentAuthority.ManageCraftRules | EmploymentAuthority.ManageDeliveryRoutes,
+			crafterOpening!.Authority.Authorities);
+
+		Assert.IsTrue(service.TryCreateOpening(admin, host, EmploymentRole.BankTeller, 10.0M, 1,
+			out var tellerOpening, out message), message);
+		Assert.AreEqual(
+			EmploymentAuthority.DepositBusinessCash | EmploymentAuthority.WithdrawBusinessCash,
+			tellerOpening!.Authority.Authorities);
+
+		Assert.IsTrue(service.TryCreateOpening(admin, host, EmploymentRole.Manager, 10.0M, 1, out var managerOpening,
+			out message), message);
+		Assert.IsTrue(managerOpening!.Authority.Contains(EmploymentAuthority.HireEmployees));
+		Assert.IsTrue(managerOpening.Authority.Contains(EmploymentAuthority.AssignTasks));
+		Assert.IsTrue(managerOpening.Authority.Contains(EmploymentAuthority.ManageDeliveryRoutes));
+		Assert.IsTrue(managerOpening.Authority.Contains(EmploymentAuthority.ManageCraftRules));
+		Assert.IsTrue(managerOpening.Authority.Contains(EmploymentAuthority.PostToHostBoard));
+		Assert.IsFalse(managerOpening.Authority.Contains(EmploymentAuthority.ApprovePurchases));
+		Assert.IsFalse(managerOpening.Authority.Contains(EmploymentAuthority.UseStoreAccount));
+		Assert.IsFalse(managerOpening.Authority.Contains(EmploymentAuthority.WithdrawBusinessCash));
+		Assert.IsFalse(managerOpening.Authority.Contains(EmploymentAuthority.DepositBusinessCash));
+		Assert.IsFalse(managerOpening.Authority.Contains(EmploymentAuthority.PayTaxes));
+
+		Assert.IsTrue(service.TryCreateOpening(admin, host, EmploymentRole.Proprietor, 10.0M, 1,
+			out var proprietorOpening, out message), message);
+		Assert.AreEqual(EmploymentAuthoritySet.All.Authorities, proprietorOpening!.Authority.Authorities);
+	}
+
+	[TestMethod]
+	public void EmploymentCommandService_CreateOpeningCannotDelegateUnheldDefaultAuthority()
+	{
+		var currency = Currency();
+		IEmploymentHost host = new TestEmploymentHost(1, "market shop", currency.Object);
+		var manager = Character(34, "Manager").Object;
+		host.Hire(manager, Offer(currency.Object, EmploymentRole.Manager, EmploymentAuthority.CreateJobOpenings), null);
+		var service = new EmploymentCommandService();
+
+		var result = service.TryCreateOpening(manager, host, EmploymentRole.Employee, 10.0M, 1, out var opening,
+			out var message);
+
+		Assert.IsFalse(result);
+		Assert.IsNull(opening);
+		StringAssert.Contains(message, "delegate authority");
 		Assert.AreEqual(0, host.JobOpenings.Count);
 	}
 
@@ -364,7 +440,9 @@ public class EmploymentCommandServiceTests
 		var manager = Character(52, "Manager").Object;
 		var employee = Character(53, "Employee").Object;
 		host.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
-			EmploymentAuthority.HireEmployees | EmploymentAuthority.FireEmployees), null);
+			EmploymentAuthority.HireEmployees |
+			EmploymentAuthority.FireEmployees |
+			EmploymentAuthority.ManageDeliveryRoutes), null);
 		var service = new EmploymentCommandService();
 
 		Assert.IsTrue(service.TryHireDirectContract(manager, host, employee, EmploymentRole.Employee, out var contract,
@@ -376,6 +454,60 @@ public class EmploymentCommandServiceTests
 		Assert.IsTrue(service.TryTerminateContractsForEmployee(manager, host, "Employee", out message), message);
 		Assert.AreEqual(EmploymentStatus.Ended, contract.Status);
 		Assert.IsFalse(host.HasActiveEmploymentContract(employee));
+	}
+
+	[TestMethod]
+	public void EmploymentCommandService_ContractDelegationsCanBeGrantedAndRevoked()
+	{
+		var currency = Currency();
+		IEmploymentHost host = new TestEmploymentHost(1, "market shop", currency.Object);
+		var manager = Character(58, "Manager").Object;
+		var employee = Character(59, "Employee").Object;
+		host.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.HireEmployees | EmploymentAuthority.ManageDeliveryRoutes), null);
+		var contract = host.Hire(employee, Offer(currency.Object, EmploymentRole.Employee), null);
+		var service = new EmploymentCommandService();
+
+		service.ExecuteForHost(manager, host, new StringStack($"contracts delegate #{contract.Id} grant delivery"));
+
+		Assert.IsTrue(contract.Authority.Contains(EmploymentAuthority.ManageDeliveryRoutes));
+		Assert.IsTrue(host.EmploymentRegister.Entries.Any(x => x.EntryType == EmploymentRegisterEntryType.AuthorityChanged));
+
+		var registerCount = host.EmploymentRegister.Entries.Count(x => x.EntryType == EmploymentRegisterEntryType.AuthorityChanged);
+		Assert.IsFalse(service.TryGrantContractAuthority(manager, host, contract.Id,
+			new EmploymentAuthoritySet(EmploymentAuthority.ApprovePurchases), out var message));
+		StringAssert.Contains(message, "cannot delegate");
+		Assert.IsFalse(contract.Authority.Contains(EmploymentAuthority.ApprovePurchases));
+		Assert.AreEqual(registerCount, host.EmploymentRegister.Entries.Count(x => x.EntryType == EmploymentRegisterEntryType.AuthorityChanged));
+
+		service.ExecuteForHost(manager, host, new StringStack($"delegations #{contract.Id} revoke delivery"));
+
+		Assert.IsFalse(contract.Authority.Contains(EmploymentAuthority.ManageDeliveryRoutes));
+	}
+
+	[TestMethod]
+	public void EmploymentCommandService_ManagersCannotAlterAuthorityTheyDoNotPossessButAdminsCan()
+	{
+		var currency = Currency();
+		IEmploymentHost host = new TestEmploymentHost(1, "market shop", currency.Object);
+		var manager = Character(70, "Manager").Object;
+		var employee = Character(71, "Employee").Object;
+		var admin = Character(72, "Admin", administrator: true).Object;
+		host.Hire(manager, Offer(currency.Object, EmploymentRole.Manager, EmploymentAuthority.HireEmployees), null);
+		var contract = host.Hire(employee, Offer(currency.Object, EmploymentRole.Employee, EmploymentAuthority.ApprovePurchases), null);
+		var service = new EmploymentCommandService();
+
+		Assert.IsFalse(service.TrySetContractAuthority(manager, host, contract.Id, EmploymentAuthoritySet.Empty,
+			out var managerMessage));
+		StringAssert.Contains(managerMessage, "cannot alter");
+		Assert.IsTrue(contract.Authority.Contains(EmploymentAuthority.ApprovePurchases));
+
+		Assert.IsTrue(service.TrySetContractAuthority(admin, host, contract.Id,
+			new EmploymentAuthoritySet(EmploymentAuthority.AssignTasks | EmploymentAuthority.PostToHostBoard),
+			out var adminMessage), adminMessage);
+		Assert.IsTrue(contract.Authority.Contains(EmploymentAuthority.AssignTasks));
+		Assert.IsTrue(contract.Authority.Contains(EmploymentAuthority.PostToHostBoard));
+		Assert.IsFalse(contract.Authority.Contains(EmploymentAuthority.ApprovePurchases));
 	}
 
 	[TestMethod]
@@ -459,6 +591,46 @@ public class EmploymentCommandServiceTests
 			Assert.AreEqual(JobApplicationStatus.Accepted, application.Status);
 			Assert.AreEqual(2, reloaded.EmploymentContracts.Count);
 			Assert.IsTrue(reloaded.EmploymentRegister.Entries.Any(x => x.EntryType == EmploymentRegisterEntryType.ApplicationAccepted));
+		}
+		finally
+		{
+			RestoreFMDBState(fmdbState);
+		}
+	}
+
+	[TestMethod]
+	public void EmploymentCommandService_DelegatedAuthoritySurvivesReload()
+	{
+		var fmdbState = CaptureFMDBState();
+		using var context = BuildContext();
+		try
+		{
+			PrimeFMDB(context);
+			var currency = Currency();
+			var manager = Character(73, "Manager").Object;
+			var employee = Character(74, "Employee").Object;
+			var gameworld = Gameworld();
+			SetupBoardPersistence(gameworld);
+			var currencies = new All<ICurrency>();
+			currencies.Add(currency.Object);
+			gameworld.SetupGet(x => x.Currencies).Returns(currencies);
+			gameworld.Setup(x => x.TryGetCharacter(It.IsAny<long>(), It.IsAny<bool>()))
+			         .Returns((long id, bool _) => id == manager.Id ? manager : id == employee.Id ? employee : null!);
+			IEmploymentHost host = new PersistedEmploymentHost(75, "persistent shop", gameworld.Object, currency.Object);
+			host.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+				EmploymentAuthority.HireEmployees | EmploymentAuthority.AssignTasks), null);
+			var contract = host.Hire(employee, Offer(currency.Object, EmploymentRole.Employee), null);
+			var service = new EmploymentCommandService();
+
+			Assert.IsTrue(service.TryGrantContractAuthority(manager, host, contract.Id,
+				new EmploymentAuthoritySet(EmploymentAuthority.AssignTasks), out var message), message);
+
+			IEmploymentHost reloaded = new PersistedEmploymentHost(75, "persistent shop", gameworld.Object, currency.Object);
+			var reloadedContract = reloaded.EmploymentContracts.Single(x => x.Employee.Id == employee.Id);
+
+			Assert.IsTrue(reloadedContract.Authority.Contains(EmploymentAuthority.AssignTasks));
+			Assert.IsTrue(reloaded.EmploymentRegister.Entries.Any(x =>
+				x.EntryType == EmploymentRegisterEntryType.AuthorityChanged));
 		}
 		finally
 		{
@@ -620,6 +792,34 @@ public class EmploymentCommandServiceTests
 
 		StringAssert.Contains(rendered, "Deliver apples");
 		StringAssert.Contains(rendered, "Active Tasks");
+	}
+
+	[TestMethod]
+	public void EmploymentCommandService_TaskDiagnosticsExplainsWhyPendingTaskIsNotClaimed()
+	{
+		var currency = Currency();
+		IEmploymentHost host = new TestEmploymentHost(1, "market shop", currency.Object);
+		var manager = Character(67, "Manager").Object;
+		var employee = Character(68, "Employee").Object;
+		host.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.AssignTasks | EmploymentAuthority.ManageDeliveryRoutes), null);
+		host.Hire(employee, Offer(currency.Object, EmploymentRole.Employee), null);
+		host.TaskBoard.CreateActiveTask(
+			"Collect crates",
+			new EmploymentActionPlan(new IEmploymentActionStep[]
+			{
+				new GetItemsByIdActionStep(1, [123], [employee.Location])
+			}),
+			manager);
+		var service = new EmploymentCommandService();
+
+		var rendered = service.RenderTaskDiagnostics(manager, host);
+
+		StringAssert.Contains(rendered, "Collect crates");
+		StringAssert.Contains(rendered, "ManageDeliveryRoutes");
+		StringAssert.Contains(rendered, "CanDeliverItems");
+		StringAssert.Contains(rendered, "lacks");
+		StringAssert.Contains(rendered, "has no EmploymentWorkerAI");
 	}
 
 	private static Mock<T> HostMock<T>(long id, string name)

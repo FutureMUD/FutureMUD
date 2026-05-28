@@ -141,6 +141,7 @@ public partial class ItemSeeder
 		const string SecurityTag = "Functions / Security Tools";
 		const string LeisureTag = "Functions / Household Items / Leisure Goods";
 		const string MedicalTag = "Functions / Medical Items";
+		const string IncenseFuelTag = "Functions / Household Items / Household Religious Items / Incense Fuel";
 
 		return
 		[
@@ -185,6 +186,31 @@ public partial class ItemSeeder
 				"This temple basin is shallow and carefully cleaned, with a smooth stone lip suited to ritual washing before prayer, sacrifice, or official entry.",
 				SizeCategory.Large, ItemQuality.Good, 42000.0, 70.0m, "stone", MaterialBehaviourType.Stone,
 				[ReligiousTag, CivicTag], ["WaterSource_Antiquity_RitualBasin", "Destroyable_Misc"]),
+			new("antiquity_bronze_incense_censer", "censer", "a bronze incense censer",
+				"This pierced bronze censer has a handled bowl and darkened vents for fragrant resin smoke, suited to household shrines, rites, and processions.",
+				SizeCategory.Small, ItemQuality.Good, 850.0, 36.0m, "bronze", MaterialBehaviourType.Metal,
+				[ReligiousTag, MarketTag], ["Holdable", "IncenseBurner_Antiquity_BronzeCenser", "Destroyable_HeavyMetal"],
+				"Burns items tagged as incense fuel, producing room-scale scent text and smell-trackable ambience."),
+			new("antiquity_resin_incense_pellets", "incense", "a packet of resin incense pellets",
+				"This small packet holds hard amber and dark resin pellets, mixed for a sweet aromatic smoke when burned in a censer.",
+				SizeCategory.Tiny, ItemQuality.Standard, 120.0, 12.0m, "resin", MaterialBehaviourType.Plant,
+				[ReligiousTag, IncenseFuelTag], ["Holdable", "Destroyable_Misc"],
+				"Tagged as incense fuel for the bronze incense censer component."),
+			new("antiquity_household_altar", "altar", "a low household altar",
+				"This low stone altar has a smoothed top, shallow soot marks, and enough working surface for small votive gifts, food, tablets, or tokens.",
+				SizeCategory.Large, ItemQuality.Standard, 40000.0, 90.0m, "stone", MaterialBehaviourType.Stone,
+				[ReligiousTag, FurnitureTag], ["OfferingReceiver_Antiquity_HouseholdAltar", "Destroyable_Furniture"],
+				"Receives broad item offerings and supports explicit offering burns; direct liquid libations remain future work."),
+			new("antiquity_votive_offering_basin", "basin", "a bronze votive offering basin",
+				"This bronze basin is smoke-darkened inside, with a low rim and tripod feet for receiving small offerings that are meant to be burned at once.",
+				SizeCategory.Normal, ItemQuality.Standard, 3800.0, 48.0m, "bronze", MaterialBehaviourType.Metal,
+				[ReligiousTag, MarketTag], ["Holdable", "OfferingReceiver_Antiquity_VotiveBasin", "Destroyable_HeavyMetal"],
+				"Burns accepted item offerings immediately on offer; not a poured-liquid libation vessel."),
+			new("antiquity_funeral_offering_tray", "tray", "a wooden funeral offering tray",
+				"This wooden tray has a raised lip, linen cord handles, and faint soot stains from offerings prepared beside a bier or grave.",
+				SizeCategory.Normal, ItemQuality.Standard, 1800.0, 24.0m, "cedar", MaterialBehaviourType.Wood,
+				[ReligiousTag, MedicalTag], ["Holdable", "OfferingReceiver_Antiquity_FuneralTray", "Destroyable_WoodenHeavy"],
+				"Receives funeral offerings for later manual burning; direct liquid libations remain future work."),
 			new("antiquity_irrigation_channel_outlet", "outlet", "an irrigation channel outlet",
 				"This shaped stone outlet guides water from a channel into fields or garden beds, with silt marks and tool-cut edges around its mouth.",
 				SizeCategory.VeryLarge, ItemQuality.Standard, 160000.0, 85.0m, "stone", MaterialBehaviourType.Stone,

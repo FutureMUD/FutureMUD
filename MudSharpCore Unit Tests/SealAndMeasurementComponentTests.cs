@@ -5,6 +5,10 @@ using Moq;
 using MudSharp.Accounts;
 using MudSharp.Character;
 using MudSharp.Commands.Modules;
+using MudSharp.Construction;
+using MudSharp.Effects;
+using MudSharp.Effects.Concrete;
+using MudSharp.Effects.Interfaces;
 using MudSharp.Form.Material;
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
@@ -16,6 +20,8 @@ using MudSharp.GameItems;
 using MudSharp.GameItems.Components;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Prototypes;
+using MudSharp.Health;
+using MudSharp.Movement;
 using MudSharp.PerceptionEngine;
 using MudSharp.RPG.Checks;
 using System;
@@ -43,9 +49,13 @@ public class SealAndMeasurementComponentTests
 		CollectionAssert.Contains(primaryTypes, "sealstamp");
 		CollectionAssert.Contains(primaryTypes, "sealable");
 		CollectionAssert.Contains(primaryTypes, "measuringinstrument");
+		CollectionAssert.Contains(primaryTypes, "incenseburner");
+		CollectionAssert.Contains(primaryTypes, "offeringreceiver");
 		CollectionAssert.Contains(helpTypes, "SealStamp");
 		CollectionAssert.Contains(helpTypes, "Sealable");
 		CollectionAssert.Contains(helpTypes, "MeasuringInstrument");
+		CollectionAssert.Contains(helpTypes, "IncenseBurner");
+		CollectionAssert.Contains(helpTypes, "OfferingReceiver");
 	}
 
 	[TestMethod]
@@ -57,10 +67,58 @@ public class SealAndMeasurementComponentTests
 		               .OfType<PlayerCommand>()
 		               .ToDictionary(x => x.Name, StringComparer.OrdinalIgnoreCase);
 
-		foreach (var name in new[] { "Seal", "Break", "Inspect", "Compare", "Weigh", "Measure", "Calibrate" })
+		foreach (var name in new[] { "Seal", "Break", "Inspect", "Compare", "Weigh", "Measure", "Calibrate", "Offer", "Burn" })
 		{
 			Assert.IsTrue(commands.ContainsKey(name), $"Expected {name} command to be registered.");
 		}
+	}
+
+	[TestMethod]
+	public void IncenseAndOfferingPrototypes_LoadSaveAndExposeInterfaces()
+	{
+		var fuelTag = CreateTag(55L, "Incense Fuel");
+		var gameworld = CreateGameworld(fuelTag.Object);
+		var incenseProto = CreateIncenseProto(gameworld.Object, fuelTag.Object.Id);
+		var offeringProto = CreateOfferingProto(gameworld.Object);
+		var incense = incenseProto.CreateNew(CreateParent(gameworld.Object, 60L, "censer").Object, temporary: true);
+		var offering = offeringProto.CreateNew(CreateParent(gameworld.Object, 61L, "altar").Object, temporary: true);
+
+		Assert.IsInstanceOfType(incenseProto, typeof(IIncenseBurnerPrototype));
+		Assert.IsInstanceOfType(offeringProto, typeof(IOfferingReceiverPrototype));
+		Assert.AreSame(fuelTag.Object, incenseProto.FuelTag);
+		Assert.AreEqual(1, incenseProto.ScentRange);
+		Assert.AreEqual(OfferingConsumptionMode.BurnOnOffer, offeringProto.ConsumptionMode);
+		Assert.AreEqual(SizeCategory.Normal, offeringProto.MaximumItemSize);
+
+		Assert.IsInstanceOfType(incense, typeof(IIncenseBurner));
+		Assert.IsInstanceOfType(incense, typeof(ILightable));
+		Assert.IsInstanceOfType(incense, typeof(IContainer));
+		Assert.IsInstanceOfType(offering, typeof(IOfferingReceiver));
+		Assert.IsInstanceOfType(offering, typeof(IContainer));
+
+		StringAssert.Contains(InvokeSaveToXml(incenseProto), "<FuelTag>55</FuelTag>");
+		StringAssert.Contains(InvokeSaveToXml(offeringProto), "<ConsumptionMode>BurnOnOffer</ConsumptionMode>");
+		StringAssert.Contains(InvokeSaveToXml((GameItemComponent)incense), "<Lit>false</Lit>");
+		StringAssert.Contains(InvokeSaveToXml((GameItemComponent)offering), "<Definition");
+	}
+
+	[TestMethod]
+	public void AmbientScent_IsTrackableScentMetadataNotMovementTrack()
+	{
+		var gameworld = CreateGameworld();
+		var owner = new Mock<IPerceivable>();
+		owner.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		var actor = CreateActor(gameworld.Object, 70L);
+		var scent = new AmbientScent(owner.Object, 99L, "a bronze censer",
+			"Sweet resinous smoke lingers here.", RoomLayer.GroundLevel, 1, Difficulty.Easy);
+
+		Assert.IsInstanceOfType(scent, typeof(IScentTrailEffect));
+		Assert.IsFalse(scent is ITrack, "Ambient scents should augment tracks output without becoming movement tracks.");
+		Assert.AreEqual(99L, scent.SourceItemId);
+		Assert.AreEqual(RoomLayer.GroundLevel, scent.RoomLayer);
+		Assert.AreEqual(Difficulty.Easy, scent.ScentDifficulty(actor.Object));
+		StringAssert.Contains(scent.DescribeForTracksCommand(actor.Object), "bronze censer");
+		StringAssert.Contains(scent.SaveToXml(new Dictionary<IEffect, TimeSpan>()).ToString(), "AmbientScent");
 	}
 
 	[TestMethod]
@@ -223,6 +281,58 @@ public class SealAndMeasurementComponentTests
 			CultureInfo.InvariantCulture)!;
 	}
 
+	private static IncenseBurnerGameItemComponentProto CreateIncenseProto(IFuturemud gameworld, long fuelTagId)
+	{
+		return (IncenseBurnerGameItemComponentProto)Activator.CreateInstance(
+			typeof(IncenseBurnerGameItemComponentProto),
+			BindingFlags.Instance | BindingFlags.NonPublic,
+			null,
+			new object[]
+			{
+				ComponentProtoModel(103, "IncenseBurner", new XElement("Definition",
+					new XElement("FuelTag", fuelTagId),
+					new XElement("MaximumFuelWeight", 750.0),
+					new XElement("SecondsPerUnitWeight", 45.0),
+					new XElement("ScentRange", 1),
+					new XElement("DrugRange", 0),
+					new XElement("DrugPulseSeconds", 10),
+					new XElement("LingeringMultiplier", 5.0),
+					new XElement("SourceScentDescription", new XCData("Sweet resinous smoke curls from $0.")),
+					new XElement("DistantScentDescription", new XCData("A faint sweet smoke drifts in from nearby.")),
+					new XElement("ScentDifficulty", (int)Difficulty.Easy),
+					new XElement("Drug", 0),
+					new XElement("GramsPerPulse", 0.0)).ToString()),
+				gameworld
+			},
+			CultureInfo.InvariantCulture)!;
+	}
+
+	private static OfferingReceiverGameItemComponentProto CreateOfferingProto(IFuturemud gameworld)
+	{
+		return (OfferingReceiverGameItemComponentProto)Activator.CreateInstance(
+			typeof(OfferingReceiverGameItemComponentProto),
+			BindingFlags.Instance | BindingFlags.NonPublic,
+			null,
+			new object[]
+			{
+				ComponentProtoModel(104, "OfferingReceiver", new XElement("Definition",
+					new XElement("AllowedTags"),
+					new XElement("BlockedTags"),
+					new XElement("MaximumContentsWeight", 15000.0),
+					new XElement("MaximumItemSize", (int)SizeCategory.Normal),
+					new XElement("ConsumptionMode", "BurnOnOffer"),
+					new XElement("ResidueItemProto", 0),
+					new XElement("CanOfferProg", 0),
+					new XElement("OnOfferProg", 0),
+					new XElement("OnBurnProg", 0),
+					new XElement("AcceptEcho", new XCData("@ lay|lays $1 in $2.")),
+					new XElement("BurnEcho", new XCData("@ burn|burns $1 in $2.")),
+					new XElement("RejectEcho", new XCData("$2 rejects $1."))).ToString()),
+				gameworld
+			},
+			CultureInfo.InvariantCulture)!;
+	}
+
 	private static DbGameItemComponentProto ComponentProtoModel(long id, string type, string definition)
 	{
 		return new DbGameItemComponentProto
@@ -249,6 +359,13 @@ public class SealAndMeasurementComponentTests
 		return (string)component.GetType()
 		                .GetMethod("SaveToXml", BindingFlags.Instance | BindingFlags.NonPublic)!
 		                .Invoke(component, Array.Empty<object>())!;
+	}
+
+	private static string InvokeSaveToXml(GameItemComponentProto proto)
+	{
+		return (string)proto.GetType()
+		                    .GetMethod("SaveToXml", BindingFlags.Instance | BindingFlags.NonPublic)!
+		                    .Invoke(proto, Array.Empty<object>())!;
 	}
 
 	private static Mock<IGameItem> CreateParent(IFuturemud gameworld, long id, string seen, double weight = 0.0,
@@ -290,7 +407,17 @@ public class SealAndMeasurementComponentTests
 		return actor;
 	}
 
-	private static Mock<IFuturemud> CreateGameworld()
+	private static Mock<ITag> CreateTag(long id, string name)
+	{
+		var tag = new Mock<ITag>();
+		tag.SetupGet(x => x.Id).Returns(id);
+		tag.SetupGet(x => x.Name).Returns(name);
+		tag.SetupGet(x => x.FullName).Returns(name);
+		tag.Setup(x => x.IsA(It.IsAny<ITag>())).Returns<ITag>(other => ReferenceEquals(other, tag.Object));
+		return tag;
+	}
+
+	private static Mock<IFuturemud> CreateGameworld(params ITag[] tags)
 	{
 		var saveManager = new Mock<ISaveManager>();
 		var unitManager = new Mock<IUnitManager>();
@@ -303,6 +430,9 @@ public class SealAndMeasurementComponentTests
 		gameworld.SetupGet(x => x.SaveManager).Returns(saveManager.Object);
 		gameworld.SetupGet(x => x.UnitManager).Returns(unitManager.Object);
 		gameworld.SetupGet(x => x.FutureProgs).Returns(Repository<IFutureProg>());
+		gameworld.SetupGet(x => x.Tags).Returns(Repository(tags));
+		gameworld.SetupGet(x => x.Drugs).Returns(Repository<IDrug>());
+		gameworld.SetupGet(x => x.ItemProtos).Returns(RevisableRepository<IGameItemProto>());
 		return gameworld;
 	}
 
@@ -318,6 +448,23 @@ public class SealAndMeasurementComponentTests
 		repository.Setup(x => x.GetEnumerator())
 		          .Returns(() => ((IEnumerable<T>)items).GetEnumerator());
 		repository.SetupGet(x => x.Count).Returns(items.Length);
+		return repository.Object;
+	}
+
+	private static IUneditableRevisableAll<T> RevisableRepository<T>(params T[] items) where T : class, IRevisableItem
+	{
+		var repository = new Mock<IUneditableRevisableAll<T>>();
+		repository.Setup(x => x.Get(It.IsAny<long>()))
+		          .Returns<long>(id => items.FirstOrDefault(x => x.Id == id)!);
+		repository.Setup(x => x.Get(It.IsAny<long>(), It.IsAny<int>()))
+		          .Returns<long, int>((id, revision) => items.FirstOrDefault(x => x.Id == id && x.RevisionNumber == revision)!);
+		repository.Setup(x => x.GetByName(It.IsAny<string>(), It.IsAny<bool>()))
+		          .Returns<string, bool>((name, ignoreCase) => items.FirstOrDefault(x =>
+			          ignoreCase ? x.Name.EqualTo(name) : x.Name == name)!);
+		repository.Setup(x => x.Get(It.IsAny<string>()))
+		          .Returns<string>(name => items.Where(x => x.Name.EqualTo(name)).ToList());
+		repository.Setup(x => x.GetEnumerator())
+		          .Returns(() => ((IEnumerable<T>)items).GetEnumerator());
 		return repository.Object;
 	}
 }

@@ -67,7 +67,13 @@ Power, telecom, and modern medical examples also include:
 - `comp edit new defibrillator`
 - `comp edit new externalorgan`
 
+Ritual-offering examples include:
+- `comp edit new incenseburner`
+- `comp edit new offeringreceiver`
+
 `UsefulSeeder` now ships stock component examples across those modern families, including lithium batteries, cellular devices, answering-machine tapes, computer/network gear, signal automation, gas containers, rebreathers, inhalers, defibrillators, and external-organ support machines. Its general item package also includes a broad furniture-container catalogue for tables, shelves, bookcases, racks, stands, cabinets, wardrobes, trunks, drawers, counters, bins, beds and display cases, size-labelled door, gate, glass-door, and locking-door component presets for door items intended to match exit `DoorSize` values from `Tiny` through `Gigantic`, and Skill-Package-aware `WornTraitChanger` presets for worn stealth, movement, dexterity, sight, hearing, and athletic bonuses or penalties; the item prototype size itself must still be set on the item. Food presets now have two stock surfaces: `CookingSeeder` installs general `PreparedFood` examples for direct load, forageable stock, stackable servings, and cooking recipe products, while the antiquity food pass keeps its prepared-food prototypes, liquids, vessels, tools, commodity tags, spoilage rules, and crafts in `ItemSeeder` partials so it can consume `AnimalButcherySeeder` outputs without duplicating them. `AnimalButcherySeeder` installs raw butchery output item prototypes for stock animal and beast-only mythical race profiles. Those outputs are non-edible props by default, use simple held, destroyable, stackable composition, and are tagged for raw meat cuts, raw hides, offal, trophies, venom organs, and crafting animal products. Soft organic outputs morph into the generic rotten-meat prototype, while durable hard products such as bone, tusk, horn, chitin, shell, feather, scale, tooth, beak, claw, and antler remain stable crafting materials. Fax-machine examples and breathing-filter cartridge ecosystems remain later dedicated content passes.
+
+`UsefulSeeder` also ships antiquity ritual examples: `IncenseBurner_Antiquity_BronzeCenser`, `OfferingReceiver_Antiquity_HouseholdAltar`, `OfferingReceiver_Antiquity_VotiveBasin`, and `OfferingReceiver_Antiquity_FuneralTray`. Pair the censer with items tagged `Functions / Household Items / Household Religious Items / Incense Fuel`; the seeded `antiquity_resin_incense_pellets` item is the stock test fuel.
 
 Prepared-food examples include:
 - `comp edit new preparedfood`
@@ -199,6 +205,17 @@ For telecommunications content, also validate:
 - whether dialling the hosted voicemail access number from the subscribed line announces mailbox counts, plays message contents, and honours keypad deletion commands
 - whether `dial <phone> <digits>` starts a call while idle and sends keypad digits once the call is already connected
 - whether keypad-driven targets receive `TelephoneDigitsReceived` with the expected source item and digit string
+
+For incense and offering content, validate:
+- ordinary `put` and `take` against the component's transparent container behaviour
+- `put <fuel> in <censer>`, `light <censer>`, source-room LOOK scent text, adjacent-room distant scent text, and `extinguish <censer>`
+- `tracks` smell discoveries for ambient scent, confirming that scent trails are listed separately from movement tracks
+- optional inhaled drug dosing only when the incense burner prototype explicitly configures a drug, dose, pulse, and drug range
+- `offer <item> at <focus>` for accepted and rejected offerings
+- `burn <item> at <focus>` for contained offerings, including default consumption and optional residue prototype replacement
+- `CanOfferProg`, `OnOfferProg`, and `OnBurnProg` with `(Character actor, Item focus, Item offering)`
+- `OfferingReceived`, `OfferingReceivedWitness`, `OfferingBurned`, and `OfferingBurnedWitness` event dispatch for downstream customisation
+- that direct free-liquid libations remain unsupported unless a later liquid-specific ritual component is added
 
 For the current signal-automation slice, also validate:
 - whether `computerhost` correctly tracks its powered state, mounted storage devices, terminal connections, network adapters, files, and stored executables

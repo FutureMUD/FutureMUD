@@ -10,6 +10,7 @@ using MudSharp.Construction.Boundary;
 using MudSharp.Economy;
 using MudSharp.Economy.Property;
 using MudSharp.Effects.Concrete;
+using MudSharp.Effects.Interfaces;
 using MudSharp.Form.Material;
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
@@ -1543,7 +1544,7 @@ Note: The targets are ordered in the same order that they appear in the #3target
     [NoMeleeCombatCommand]
     [NoMovementCommand]
     [RequiredCharacterState(CharacterState.Able)]
-    [HelpInfo("tracks", @"The #3tracks#0 command is used to begin searching the area for tracks from movement. You will continue to look for tracks until you use the #3stop#0 command. You can never be totally sure whether you have found all the tracks or whether you just aren't good enough to find the hardest ones.
+    [HelpInfo("tracks", @"The #3tracks#0 command is used to begin searching the area for tracks from movement and smell-trackable scent trails. You will continue to look for tracks until you use the #3stop#0 command. You can never be totally sure whether you have found all the tracks or whether you just aren't good enough to find the hardest ones.
 
 Depending on your racial abilities you may be able to use both visual and smell-based tracking. You don't need to do anything to specify these, it will be automatically applied if it applies.
 
@@ -1564,18 +1565,25 @@ The syntax is simply #3tracks#0.", AutoHelp.HelpArg)]
     private static void AdminTracks(ICharacter actor)
     {
         List<ITrack> tracks = actor.Location.Tracks.Where(x => x.RoomLayer == actor.RoomLayer).ToList();
-        if (tracks.Count == 0)
+        List<IScentTrailEffect> scents = actor.Location.EffectsOfType<IScentTrailEffect>()
+                                              .Where(x => x.RoomLayer == actor.RoomLayer)
+                                              .ToList();
+        if (tracks.Count == 0 && scents.Count == 0)
         {
-            actor.OutputHandler.Send("There are no tracks here.");
+            actor.OutputHandler.Send("There are no tracks or scent trails here.");
             return;
         }
         StringBuilder sb = new();
-        sb.AppendLine("There are the following tracks here:");
+        sb.AppendLine("There are the following tracks and scent trails here:");
         sb.AppendLine();
         int i = 1;
         foreach (ITrack track in tracks)
         {
             sb.AppendLine($"{i++.ToString("N0", actor)}) {track.DescribeForTracksCommand(actor)}");
+        }
+        foreach (IScentTrailEffect scent in scents)
+        {
+            sb.AppendLine($"{i++.ToString("N0", actor)}) {scent.DescribeForTracksCommand(actor)}");
         }
 
         actor.OutputHandler.Send(sb.ToString());

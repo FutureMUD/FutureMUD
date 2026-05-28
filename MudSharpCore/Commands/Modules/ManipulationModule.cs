@@ -4062,6 +4062,164 @@ The syntax is as follows:
         puffable.Puff(character, emote);
     }
 
+    [PlayerCommand("Offer", "offer")]
+    [DelayBlock("general", "You must first stop {0} before you can do that.")]
+    [RequiredCharacterState(CharacterState.Able)]
+    [NoHideCommand]
+    [NoMeleeCombatCommand]
+    [HelpInfo("offer", @"The #3offer#0 command is used to ceremonially place an item on an offering focus, such as an altar, censer basin or votive tray. The focus may run progs, fire offering events, or immediately burn the offering depending on its component settings.
+
+The syntax is:
+
+	#3offer <item> at <focus>#0
+	#3offer <item> at <focus> (<emote>)#0
+
+Use quotes around multi-word item or focus names.", AutoHelp.HelpArg)]
+    protected static void Offer(ICharacter actor, string command)
+    {
+        var ss = new StringStack(command.RemoveFirstWord());
+        if (ss.IsFinished)
+        {
+            actor.OutputHandler.Send($"What do you want to offer? See {"help offer".ColourCommand()} for syntax.");
+            return;
+        }
+
+        var offeringText = ss.PopSpeech();
+        if (!ss.PopSpeech().EqualTo("at"))
+        {
+            actor.OutputHandler.Send($"You must specify a focus with the syntax {"offer <item> at <focus>".ColourCommand()}.");
+            return;
+        }
+
+        if (ss.IsFinished)
+        {
+            actor.OutputHandler.Send("What do you want to offer that at?");
+            return;
+        }
+
+        var focusText = ss.PopSpeech();
+        var offering = actor.TargetHeldItem(offeringText);
+        if (offering is null)
+        {
+            actor.OutputHandler.Send("You are not holding anything like that to offer.");
+            return;
+        }
+
+        var focusItem = actor.TargetItem(focusText);
+        if (focusItem is null)
+        {
+            actor.OutputHandler.Send("You do not see any offering focus like that.");
+            return;
+        }
+
+        var receiver = focusItem.GetItemType<IOfferingReceiver>();
+        if (receiver is null)
+        {
+            actor.OutputHandler.Send($"{focusItem.HowSeen(actor, true)} is not something that can receive offerings.");
+            return;
+        }
+
+        var (truth, error) = actor.CanManipulateItem(focusItem);
+        if (!truth)
+        {
+            actor.OutputHandler.Send(error);
+            return;
+        }
+
+        var emoteText = ss.PopParentheses();
+        PlayerEmote? emote = null;
+        if (!string.IsNullOrEmpty(emoteText))
+        {
+            emote = new PlayerEmote(emoteText, actor);
+            if (!emote.Valid)
+            {
+                actor.OutputHandler.Send(emote.ErrorMessage);
+                return;
+            }
+        }
+
+        receiver.Offer(actor, offering, emote);
+    }
+
+    [PlayerCommand("Burn", "burn")]
+    [DelayBlock("general", "You must first stop {0} before you can do that.")]
+    [RequiredCharacterState(CharacterState.Able)]
+    [NoHideCommand]
+    [NoMeleeCombatCommand]
+    [HelpInfo("burn", @"The #3burn#0 command burns an item that has already been placed on an offering focus. The focus may consume the item, leave configured residue, run progs, and fire offering burn events.
+
+The syntax is:
+
+	#3burn <offering> at <focus>#0
+	#3burn <offering> at <focus> (<emote>)#0
+
+Use quotes around multi-word offering or focus names.", AutoHelp.HelpArg)]
+    protected static void Burn(ICharacter actor, string command)
+    {
+        var ss = new StringStack(command.RemoveFirstWord());
+        if (ss.IsFinished)
+        {
+            actor.OutputHandler.Send($"What offering do you want to burn? See {"help burn".ColourCommand()} for syntax.");
+            return;
+        }
+
+        var offeringText = ss.PopSpeech();
+        if (!ss.PopSpeech().EqualTo("at"))
+        {
+            actor.OutputHandler.Send($"You must specify a focus with the syntax {"burn <offering> at <focus>".ColourCommand()}.");
+            return;
+        }
+
+        if (ss.IsFinished)
+        {
+            actor.OutputHandler.Send("What focus do you want to burn that offering at?");
+            return;
+        }
+
+        var focusText = ss.PopSpeech();
+        var focusItem = actor.TargetItem(focusText);
+        if (focusItem is null)
+        {
+            actor.OutputHandler.Send("You do not see any offering focus like that.");
+            return;
+        }
+
+        var receiver = focusItem.GetItemType<IOfferingReceiver>();
+        if (receiver is null)
+        {
+            actor.OutputHandler.Send($"{focusItem.HowSeen(actor, true)} is not something that can burn offerings.");
+            return;
+        }
+
+        var offering = receiver.Contents.GetFromItemListByKeyword(offeringText, actor);
+        if (offering is null)
+        {
+            actor.OutputHandler.Send($"{focusItem.HowSeen(actor, true)} does not bear any offering like that.");
+            return;
+        }
+
+        var (truth, error) = actor.CanManipulateItem(focusItem);
+        if (!truth)
+        {
+            actor.OutputHandler.Send(error);
+            return;
+        }
+
+        var emoteText = ss.PopParentheses();
+        PlayerEmote? emote = null;
+        if (!string.IsNullOrEmpty(emoteText))
+        {
+            emote = new PlayerEmote(emoteText, actor);
+            if (!emote.Valid)
+            {
+                actor.OutputHandler.Send(emote.ErrorMessage);
+                return;
+            }
+        }
+
+        receiver.BurnOffering(actor, offering, emote);
+    }
+
     [PlayerCommand("Light", "light")]
     [DelayBlock("general", "You must first stop {0} before you can do that.")]
     [RequiredCharacterState(CharacterState.Able)]

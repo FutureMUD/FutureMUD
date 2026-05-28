@@ -1,6 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MudSharp.Events;
 using MudSharp.Framework;
+using MudSharp.FutureProg;
 using System;
 using System.Linq;
 
@@ -38,5 +39,35 @@ public class EventTypeMetadataTests
             Assert.IsFalse(parameters.Any(x => string.IsNullOrWhiteSpace(x.name)),
                 $"{eventType} has a blank parameter name.");
         }
+    }
+
+    [TestMethod]
+    public void OfferingEventTypes_DefineExpectedHookPayloads()
+    {
+        AssertEventMetadata(EventType.OfferingReceived,
+            new[] { "item", "character", "item" },
+            new[] { "focus", "actor", "offering" },
+            new[] { ProgVariableTypes.Item, ProgVariableTypes.Character, ProgVariableTypes.Item });
+        AssertEventMetadata(EventType.OfferingReceivedWitness,
+            new[] { "item", "character", "item", "perceivable" },
+            new[] { "focus", "actor", "offering", "witness" },
+            new[] { ProgVariableTypes.Item, ProgVariableTypes.Character, ProgVariableTypes.Item, ProgVariableTypes.Perceivable });
+        AssertEventMetadata(EventType.OfferingBurned,
+            new[] { "item", "character", "item" },
+            new[] { "focus", "actor", "offering" },
+            new[] { ProgVariableTypes.Item, ProgVariableTypes.Character, ProgVariableTypes.Item });
+        AssertEventMetadata(EventType.OfferingBurnedWitness,
+            new[] { "item", "character", "item", "perceivable" },
+            new[] { "focus", "actor", "offering", "witness" },
+            new[] { ProgVariableTypes.Item, ProgVariableTypes.Character, ProgVariableTypes.Item, ProgVariableTypes.Perceivable });
+    }
+
+    private static void AssertEventMetadata(EventType eventType, string[] parameterTypes, string[] parameterNames,
+        ProgVariableTypes[] progTypes)
+    {
+        EventInfoAttribute info = eventType.GetAttribute<EventInfoAttribute>();
+        CollectionAssert.AreEqual(parameterTypes, info.Parameters.Select(x => x.type).ToArray());
+        CollectionAssert.AreEqual(parameterNames, info.Parameters.Select(x => x.name).ToArray());
+        CollectionAssert.AreEqual(progTypes, info.ProgTypes.ToArray());
     }
 }

@@ -316,6 +316,34 @@ public static class PerceivedItemExtensions
         return new List<ICellExit>();
     }
 
+    internal static List<ICellExit> FindShortestExitPathForPathfinding(ICell source, IEnumerable<ICell> targets,
+        uint maximumDistance, Func<ICellExit, bool> suitabilityFunction, bool ignoreLayers)
+    {
+        return FindShortestExitPath(source, targets, maximumDistance, suitabilityFunction, ignoreLayers);
+    }
+
+    private static List<ICellExit> FindPath(ICell source, IReadOnlyCollection<ICell> targets,
+        uint maximumDistance, Func<ICellExit, bool> suitabilityFunction, bool ignoreLayers, PathSearchOptions options)
+    {
+        options ??= PathSearchOptions.Exact;
+        if (options.Algorithm == PathSearchAlgorithm.Exact ||
+            options.Algorithm == PathSearchAlgorithm.Automatic && maximumDistance < options.HierarchicalThreshold)
+        {
+            return FindShortestExitPath(source, targets, maximumDistance, suitabilityFunction, ignoreLayers);
+        }
+
+        IPathfindingService service = source?.Gameworld?.ExitManager?.PathfindingService;
+        if (service == null)
+        {
+            return new List<ICellExit>();
+        }
+
+        return service.TryFindLongRangePath(source, targets, maximumDistance, suitabilityFunction, ignoreLayers,
+            options, out IReadOnlyList<ICellExit> path)
+            ? path.ToList()
+            : new List<ICellExit>();
+    }
+
     private static double SearchPriority(int distance, ICell cell, IReadOnlyCollection<IRoom> targetRooms)
     {
         if (cell?.Room == null || targetRooms == null || targetRooms.Count == 0)
@@ -460,6 +488,29 @@ public static class PerceivedItemExtensions
 
         List<ICellExit> path = FindShortestExitPath(source.Location, [target.Location], maximumDistance, _ => true,
             false);
+        return path.Count == 0 ? -1 : path.Count;
+    }
+
+    /// <summary>
+    ///     Determines the number of cell exits between two perceivables using the supplied search options. Exact mode
+    ///     preserves the ordinary shortest-path behaviour; automatic and hierarchical modes may use the topology index
+    ///     for long routes but still validate every returned exit against live state.
+    /// </summary>
+    public static int DistanceBetween(this IPerceivable source, IPerceivable target, uint maximumDistance,
+        PathSearchOptions options)
+    {
+        if (source?.Location == target?.Location)
+        {
+            return 0;
+        }
+
+        if (source == null || target == null || source.Location == null || target.Location == null)
+        {
+            return -1;
+        }
+
+        List<ICellExit> path = FindPath(source.Location, [target.Location], maximumDistance, _ => true,
+            false, options);
         return path.Count == 0 ? -1 : path.Count;
     }
 
@@ -656,6 +707,26 @@ public static class PerceivedItemExtensions
         }
 
         return FindShortestExitPath(source.Location, [target.Location], maximumDistance, _ => true, false);
+    }
+
+    /// <summary>
+    ///     Returns an ordered exit path between two perceivables using the supplied search options. Hierarchical searches
+    ///     are intended for long routes and may return a valid route that is not globally shortest.
+    /// </summary>
+    public static IEnumerable<ICellExit> ExitsBetween(this IPerceivable source, IPerceivable target,
+        uint maximumDistance, PathSearchOptions options)
+    {
+        if (source?.Location == target?.Location)
+        {
+            return Enumerable.Empty<ICellExit>();
+        }
+
+        if (source == null || target == null || source.Location == null || target.Location == null)
+        {
+            return Enumerable.Empty<ICellExit>();
+        }
+
+        return FindPath(source.Location, [target.Location], maximumDistance, _ => true, false, options);
     }
 
     /// <summary>
@@ -1051,6 +1122,25 @@ public static class PerceivedItemExtensions
     }
 
     /// <summary>
+    ///     Returns an ordered exit path between two perceivables using built-in door flags and opt-in long-range search
+    ///     options. Existing callers should continue to use the overload without options when they require exact
+    ///     shortest-path semantics.
+    /// </summary>
+    public static IEnumerable<ICellExit> PathBetween(this IPerceivable source, IPerceivable target,
+        uint maximumDistance, bool openDoors, PathSearchOptions options, bool pathTransparentDoors = false,
+        bool pathFireableDoors = false)
+    {
+        if (source?.Location == target?.Location ||
+            source == null || target == null || source.Location == null || target.Location == null)
+        {
+            return Enumerable.Empty<ICellExit>();
+        }
+
+        return FindPath(source.Location, [target.Location], maximumDistance,
+            exit => CanTraverse(exit, openDoors, pathTransparentDoors, pathFireableDoors), true, options);
+    }
+
+    /// <summary>
     ///     Returns the shortest ordered exit path between two perceivables using a caller-supplied exit suitability
     ///     predicate.
     /// </summary>
@@ -1075,6 +1165,23 @@ public static class PerceivedItemExtensions
         }
 
         return FindShortestExitPath(source.Location, [target.Location], maximumDistance, suitabilityFunction, true);
+    }
+
+    /// <summary>
+    ///     Returns an ordered exit path between two perceivables using a caller-supplied live suitability predicate and
+    ///     opt-in long-range search options. Hierarchical mode uses the topology index only for coarse routing; every
+    ///     returned exit still passes <paramref name="suitabilityFunction" /> at query time.
+    /// </summary>
+    public static IEnumerable<ICellExit> PathBetween(this IPerceivable source, IPerceivable target,
+        uint maximumDistance, Func<ICellExit, bool> suitabilityFunction, PathSearchOptions options)
+    {
+        if (source?.Location == target?.Location ||
+            source == null || target == null || source.Location == null || target.Location == null)
+        {
+            return Enumerable.Empty<ICellExit>();
+        }
+
+        return FindPath(source.Location, [target.Location], maximumDistance, suitabilityFunction, true, options);
     }
 
     /// <summary>
@@ -1111,6 +1218,32 @@ public static class PerceivedItemExtensions
         }
 
         return FindShortestExitPath(source.Location, targetLocations, maximumDistance, suitabilityFunction, true);
+    }
+
+    /// <summary>
+    ///     Returns an ordered exit path from a source to the nearest reachable target in a set using opt-in search
+    ///     options. Hierarchical mode may return any live-valid reachable target route rather than the globally nearest
+    ///     target.
+    /// </summary>
+    public static IEnumerable<ICellExit> PathBetween(this IPerceivable source, IEnumerable<IPerceivable> targets,
+        uint maximumDistance, Func<ICellExit, bool> suitabilityFunction, PathSearchOptions options)
+    {
+        if (source?.Location == null || targets == null || suitabilityFunction == null)
+        {
+            return Enumerable.Empty<ICellExit>();
+        }
+
+        List<ICell> targetLocations = targets
+                                      .Select(x => x?.Location)
+                                      .Where(x => x != null)
+                                      .Distinct(CellReferenceComparer.Instance)
+                                      .ToList();
+        if (!targetLocations.Any() || targetLocations.Any(x => ReferenceEquals(x, source.Location)))
+        {
+            return Enumerable.Empty<ICellExit>();
+        }
+
+        return FindPath(source.Location, targetLocations, maximumDistance, suitabilityFunction, true, options);
     }
 
     /// <summary>

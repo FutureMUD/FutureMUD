@@ -420,6 +420,17 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
                 {
                     long milliseconds = 250 - totalTime.ElapsedMilliseconds;
                     totalTime.Start();
+                    TimeSpan pathfindingBudget = TimeSpan.FromMilliseconds(Math.Min(milliseconds, 3));
+                    sw.Restart();
+                    ExitManager.PathfindingService.DoIdleWork(pathfindingBudget);
+                    if (sw.ElapsedMilliseconds > 50)
+                    {
+                        Console.ForegroundColor = ConsoleColor.DarkYellow;
+                        Console.WriteLine($"[PERF] - PathfindingService.DoIdleWork() took {sw.ElapsedMilliseconds}ms");
+                        Console.ResetColor();
+                    }
+
+                    milliseconds = Math.Max(0, milliseconds - sw.ElapsedMilliseconds);
                     SaveManager.FlushLazyLoad(TimeSpan.FromMilliseconds(milliseconds));
                 }
 

@@ -321,6 +321,8 @@ public class UsefulSeederItemPackageTests
 		Assert.IsTrue(UsefulSeeder.StockItemMarkersForTesting.Contains("SealStamp_Antiquity_BronzeSignet"));
 		Assert.IsTrue(UsefulSeeder.StockItemMarkersForTesting.Contains("Sealable_Envelope"));
 		Assert.IsTrue(UsefulSeeder.StockItemMarkersForTesting.Contains("MeasuringInstrument_Antiquity_BalanceScale"));
+		Assert.IsTrue(UsefulSeeder.StockItemMarkersForTesting.Contains("IncenseBurner_Antiquity_BronzeCenser"));
+		Assert.IsTrue(UsefulSeeder.StockItemMarkersForTesting.Contains("OfferingReceiver_Antiquity_HouseholdAltar"));
 
 		context.GameItemComponentProtos.Add(CreateComponentMarker(id++, "Container_Bookcase_Shelves"));
 		context.SaveChanges();
@@ -482,7 +484,11 @@ public class UsefulSeederItemPackageTests
 			"MeasuringInstrument_Antiquity_TaxAssessorKit",
 			"Container_Envelope",
 			"PaperSheet_Envelope",
-			"PaperSheet_Scroll"
+			"PaperSheet_Scroll",
+			"IncenseBurner_Antiquity_BronzeCenser",
+			"OfferingReceiver_Antiquity_HouseholdAltar",
+			"OfferingReceiver_Antiquity_VotiveBasin",
+			"OfferingReceiver_Antiquity_FuneralTray"
 		];
 
 		foreach (string name in expectedNames)
@@ -504,6 +510,14 @@ public class UsefulSeederItemPackageTests
 		                                      .Any(x => (string)x == "wax"));
 		Assert.AreEqual("Weight", (string)Definition("MeasuringInstrument_Antiquity_BalanceScale").Element("Mode")!);
 		Assert.AreEqual("FluidVolume", (string)Definition("MeasuringInstrument_Antiquity_OilCup").Element("Mode")!);
+		Assert.AreEqual(1, (int)Definition("IncenseBurner_Antiquity_BronzeCenser").Element("ScentRange")!);
+		Assert.AreEqual(4, (int)Definition("IncenseBurner_Antiquity_BronzeCenser").Element("ScentDifficulty")!);
+		Assert.IsTrue(Definition("IncenseBurner_Antiquity_BronzeCenser").Element("SourceScentDescription")!.Value
+			.Contains("resinous", StringComparison.OrdinalIgnoreCase));
+		Assert.AreEqual("ManualBurn",
+			(string)Definition("OfferingReceiver_Antiquity_HouseholdAltar").Element("ConsumptionMode")!);
+		Assert.AreEqual("BurnOnOffer",
+			(string)Definition("OfferingReceiver_Antiquity_VotiveBasin").Element("ConsumptionMode")!);
 
 		XElement loadedDie = Definition("Dice_Antiquity_LoadedD6");
 		Assert.AreEqual(6, loadedDie.Element("Faces")!.Elements("Face").Count());
@@ -598,6 +612,24 @@ public class UsefulSeederItemPackageTests
 		GameItemProto measuringRod = LoadItem(context, "antiquity_wooden_measuring_rod");
 		CollectionAssert.DoesNotContain(ComponentNames(measuringRod), "MeasuringInstrument_Antiquity_BalanceScale",
 			"Length measurement is deferred, so the rod should remain a non-measuring prop.");
+
+		GameItemProto censer = LoadItem(context, "antiquity_bronze_incense_censer");
+		CollectionAssert.Contains(ComponentNames(censer), "IncenseBurner_Antiquity_BronzeCenser");
+
+		GameItemProto incense = LoadItem(context, "antiquity_resin_incense_pellets");
+		CollectionAssert.Contains(ComponentNames(incense), "Holdable");
+		Assert.IsTrue(incense.GameItemProtosTags
+		                     .Select(x => context.Tags.Single(tag => tag.Id == x.TagId).Name)
+		                     .Contains("Incense Fuel"));
+
+		GameItemProto altar = LoadItem(context, "antiquity_household_altar");
+		CollectionAssert.Contains(ComponentNames(altar), "OfferingReceiver_Antiquity_HouseholdAltar");
+
+		GameItemProto votiveBasin = LoadItem(context, "antiquity_votive_offering_basin");
+		CollectionAssert.Contains(ComponentNames(votiveBasin), "OfferingReceiver_Antiquity_VotiveBasin");
+
+		GameItemProto funeralTray = LoadItem(context, "antiquity_funeral_offering_tray");
+		CollectionAssert.Contains(ComponentNames(funeralTray), "OfferingReceiver_Antiquity_FuneralTray");
 	}
 
 	[TestMethod]

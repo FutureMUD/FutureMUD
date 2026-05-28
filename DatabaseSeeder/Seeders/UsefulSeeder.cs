@@ -66,7 +66,9 @@ public partial class UsefulSeeder : IDatabaseSeeder
         "MarketGoodWeight_Antiquity_StapleFood",
         "SealStamp_Antiquity_BronzeSignet",
         "Sealable_Envelope",
-        "MeasuringInstrument_Antiquity_BalanceScale"
+        "MeasuringInstrument_Antiquity_BalanceScale",
+        "IncenseBurner_Antiquity_BronzeCenser",
+        "OfferingReceiver_Antiquity_HouseholdAltar"
     ];
 
     private static readonly string[] StockModernItemMarkers =

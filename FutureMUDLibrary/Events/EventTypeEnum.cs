@@ -687,6 +687,18 @@ namespace MudSharp.Events
         ItemUnlocked = 123,
 
         [EventInfo("Fires on perceivables witnessing a lock item being unlocked. Actor and key may be null.", ["item", "character", "item", "perceivable", "perceivable"], ["lock", "actor", "key", "target", "witness"], [ProgVariableTypeCode.Item, ProgVariableTypeCode.Character, ProgVariableTypeCode.Item, ProgVariableTypeCode.Perceivable, ProgVariableTypeCode.Perceivable])]
-        ItemUnlockedWitness = 124
+        ItemUnlockedWitness = 124,
+
+        [EventInfo("Fires on an offering focus when it receives an offering.", ["item", "character", "item"], ["focus", "actor", "offering"], [ProgVariableTypeCode.Item, ProgVariableTypeCode.Character, ProgVariableTypeCode.Item])]
+        OfferingReceived = 125,
+
+        [EventInfo("Fires on perceivables witnessing an offering focus receiving an offering.", ["item", "character", "item", "perceivable"], ["focus", "actor", "offering", "witness"], [ProgVariableTypeCode.Item, ProgVariableTypeCode.Character, ProgVariableTypeCode.Item, ProgVariableTypeCode.Perceivable])]
+        OfferingReceivedWitness = 126,
+
+        [EventInfo("Fires on an offering focus when one of its offerings is burned.", ["item", "character", "item"], ["focus", "actor", "offering"], [ProgVariableTypeCode.Item, ProgVariableTypeCode.Character, ProgVariableTypeCode.Item])]
+        OfferingBurned = 127,
+
+        [EventInfo("Fires on perceivables witnessing an offering focus burning an offering.", ["item", "character", "item", "perceivable"], ["focus", "actor", "offering", "witness"], [ProgVariableTypeCode.Item, ProgVariableTypeCode.Character, ProgVariableTypeCode.Item, ProgVariableTypeCode.Perceivable])]
+        OfferingBurnedWitness = 128
     }
 }

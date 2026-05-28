@@ -221,6 +221,7 @@ public partial class UsefulSeeder
         SeedDice(context, now, dbaccount, ref nextId);
         SeedAdditionalBuilderExamples(context, now, dbaccount, ref nextId);
         SeedSealAndMeasurementComponents(context, now, dbaccount, ref nextId);
+        SeedOfferingAndIncenseComponents(context, now, dbaccount, ref nextId);
         context.SaveChanges();
     }
 
@@ -6476,6 +6477,7 @@ public partial class UsefulSeeder
         SeedRepairKits(context, now, dbaccount, ref nextId);
         SeedAdditionalBuilderExamples(context, now, dbaccount, ref nextId);
         SeedSealAndMeasurementComponents(context, now, dbaccount, ref nextId);
+        SeedOfferingAndIncenseComponents(context, now, dbaccount, ref nextId);
         SeedSmokeables(context, now, dbaccount, ref nextId);
     }
 
@@ -7656,6 +7658,122 @@ public partial class UsefulSeeder
         _ = sealableWaxDocument;
         _ = sealableClayDocument;
         _ = sealableContainer;
+
+        nextId = currentId;
+        context.SaveChanges();
+
+        #endregion
+    }
+
+    private void SeedOfferingAndIncenseComponents(FuturemudDatabaseContext context, DateTime now, Account dbaccount,
+        ref long nextId)
+    {
+        #region Offering Receivers and Incense Burners
+
+        long currentId = nextId;
+
+        GameItemComponentProto UpsertStockComponent(string type, string name, string description, XElement definition)
+        {
+            return UpsertComponent(context, ref currentId, dbaccount, now, type, name, description, definition.ToString());
+        }
+
+        Tag EnsureTagPath(string path)
+        {
+            var parts = path.Split('/', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+            Tag? parent = null;
+            foreach (var part in parts)
+            {
+                long? parentId = parent?.Id;
+                var tag = context.Tags.Local
+                                 .FirstOrDefault(x => x.Name.Equals(part, StringComparison.OrdinalIgnoreCase) &&
+                                                      x.ParentId == parentId) ??
+                          context.Tags
+                                 .AsEnumerable()
+                                 .FirstOrDefault(x => x.Name.Equals(part, StringComparison.OrdinalIgnoreCase) &&
+                                                      x.ParentId == parentId);
+                if (tag is null)
+                {
+                    var existing = context.Tags.Any() ? context.Tags.Max(x => x.Id) : 0L;
+                    var local = context.Tags.Local.Any() ? context.Tags.Local.Max(x => x.Id) : 0L;
+                    tag = new Tag
+                    {
+                        Id = Math.Max(existing, local) + 1L,
+                        Name = part,
+                        Parent = parent,
+                        ParentId = parent?.Id
+                    };
+                    context.Tags.Add(tag);
+                }
+
+                _tags[tag.Name] = tag;
+                parent = tag;
+            }
+
+            return parent!;
+        }
+
+        XElement IncenseBurnerDefinition(Tag fuelTag, double maximumFuelWeight, double secondsPerUnitWeight,
+            int scentRange, string sourceScent, string distantScent, Difficulty scentDifficulty)
+        {
+            return new XElement("Definition",
+                new XElement("FuelTag", fuelTag.Id),
+                new XElement("MaximumFuelWeight", maximumFuelWeight),
+                new XElement("SecondsPerUnitWeight", secondsPerUnitWeight),
+                new XElement("ScentRange", scentRange),
+                new XElement("DrugRange", 0),
+                new XElement("DrugPulseSeconds", 10),
+                new XElement("LingeringMultiplier", 5.0),
+                new XElement("SourceScentDescription", new XCData(sourceScent)),
+                new XElement("DistantScentDescription", new XCData(distantScent)),
+                new XElement("ScentDifficulty", (int)scentDifficulty),
+                new XElement("Drug", 0),
+                new XElement("GramsPerPulse", 0.0));
+        }
+
+        XElement OfferingReceiverDefinition(double maximumContentsWeight, SizeCategory maximumItemSize,
+            string consumptionMode, string acceptEcho, string burnEcho)
+        {
+            return new XElement("Definition",
+                new XElement("AllowedTags"),
+                new XElement("BlockedTags"),
+                new XElement("MaximumContentsWeight", maximumContentsWeight),
+                new XElement("MaximumItemSize", (int)maximumItemSize),
+                new XElement("ConsumptionMode", consumptionMode),
+                new XElement("ResidueItemProto", 0),
+                new XElement("CanOfferProg", 0),
+                new XElement("OnOfferProg", 0),
+                new XElement("OnBurnProg", 0),
+                new XElement("AcceptEcho", new XCData(acceptEcho)),
+                new XElement("BurnEcho", new XCData(burnEcho)),
+                new XElement("RejectEcho", new XCData("$2 rejects $1.")));
+        }
+
+        Tag incenseFuelTag = EnsureTagPath("Functions / Household Items / Household Religious Items / Incense Fuel");
+
+        UpsertStockComponent("IncenseBurner", "IncenseBurner_Antiquity_BronzeCenser",
+            "Turns an item into a bronze censer that burns tagged incense fuel into room-scale ambient scent.",
+            IncenseBurnerDefinition(incenseFuelTag, 750.0, 45.0, 1,
+                "Sweet resinous smoke curls from $0.",
+                "A faint sweet resinous smoke drifts in from nearby.",
+                Difficulty.Easy));
+
+        UpsertStockComponent("OfferingReceiver", "OfferingReceiver_Antiquity_HouseholdAltar",
+            "Turns an item into a household altar that receives broad offerings and supports explicit burning.",
+            OfferingReceiverDefinition(50000.0, SizeCategory.VeryLarge, "ManualBurn",
+                "@ place|places $1 on $2 as an offering.",
+                "@ consign|consigns $1 to the flames on $2."));
+
+        UpsertStockComponent("OfferingReceiver", "OfferingReceiver_Antiquity_VotiveBasin",
+            "Turns an item into a votive basin that burns offerings immediately when offered.",
+            OfferingReceiverDefinition(15000.0, SizeCategory.Normal, "BurnOnOffer",
+                "@ lay|lays $1 in $2 as a votive offering.",
+                "@ burn|burns $1 in $2 as a votive offering."));
+
+        UpsertStockComponent("OfferingReceiver", "OfferingReceiver_Antiquity_FuneralTray",
+            "Turns an item into a funeral offering tray that can hold and ritually burn broad item offerings.",
+            OfferingReceiverDefinition(25000.0, SizeCategory.Large, "ManualBurn",
+                "@ arrange|arranges $1 on $2 as a funeral offering.",
+                "@ burn|burns $1 on $2 as a funeral offering."));
 
         nextId = currentId;
         context.SaveChanges();

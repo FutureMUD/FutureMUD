@@ -39,6 +39,7 @@ public class LookingForTracks : Effect, IActionEffect, ILDescSuffixEffect, IRemo
     public ICharacter CharacterOwner { get; set; }
 
     private readonly List<ITrack> _alreadyFoundTracks = new();
+    private readonly List<IScentTrailEffect> _alreadyFoundScents = new();
 
     public string ActionDescription => "searching for tracks";
     public string LDescAddendumEmote => "searching for tracks";
@@ -105,12 +106,29 @@ public class LookingForTracks : Effect, IActionEffect, ILDescSuffixEffect, IRemo
         List<(ITrack Track, Difficulty Visual, Difficulty Olfactory)> successfulTracks = difficulties
                                .Where(x => visionResult[x.Visual].IsPass() || smellResult[x.Olfactory].IsPass())
                                .ToList();
+        List<IScentTrailEffect> scents = actor.Location.EffectsOfType<IScentTrailEffect>()
+                                              .Except(_alreadyFoundScents)
+                                              .Where(x => x.RoomLayer == actor.RoomLayer)
+                                              .ToList();
+        List<IScentTrailEffect> successfulScents = scents
+                                                   .Where(x => smellResult[x.ScentDifficulty(actor)].IsPass())
+                                                   .ToList();
+        if (successfulScents.Any() && (!successfulTracks.Any() || Constants.Random.Next(2) == 0))
+        {
+            IScentTrailEffect scent = successfulScents.GetRandomElement();
+            _alreadyFoundScents.Add(scent);
+            actor.OutputHandler.Send($"You found a scent trail...\n...{scent.DescribeForTracksCommand(actor)}");
+            return;
+        }
+
         (ITrack Track, Difficulty Visual, Difficulty Olfactory) track = successfulTracks.GetRandomElement();
         if (track.Track is null)
         {
             actor.OutputHandler.Send("You couldn't find any tracks, but you continue to search.");
             return;
         }
+
+        _alreadyFoundTracks.Add(track.Track);
 
         bool passedVisual = visionResult[track.Visual].IsPass();
         bool passedSmell = smellResult[track.Olfactory].IsPass();
@@ -121,7 +139,7 @@ public class LookingForTracks : Effect, IActionEffect, ILDescSuffixEffect, IRemo
         {
             sb.AppendLine($"...It was left by a #5{track.Track.Character.Gender.GenderClass()} {track.Track.Character.Race.Name}#0.".SubstituteANSIColour());
             sb.AppendLine($"...You can smell that its exertion level was {track.Track.ExertionLevel.DescribeEnum()} at the time.");
-            if (visionResult[track.Olfactory].Outcome == Outcome.MajorPass)
+            if (smellResult[track.Olfactory].Outcome == Outcome.MajorPass)
             {
                 IDub dub = actor.Dubs.FirstOrDefault(x => x.Owner == track.Track.Character);
                 if (dub is not null)
@@ -193,7 +211,7 @@ public class LookingForTracks : Effect, IActionEffect, ILDescSuffixEffect, IRemo
             sb.AppendLine($"...It was bleeding as it went.");
         }
         sb.AppendLine($"...It was left #2approximately {(actor.Location.DateTime() - track.Track.MudDateTime).Describe(actor)} ago#0.".SubstituteANSIColour());
-        sb.AppendLine($"...It was {track.Visual.DescribeColoured()} to see and {track.Visual.DescribeColoured()} to smell for you.");
+        sb.AppendLine($"...It was {track.Visual.DescribeColoured()} to see and {track.Olfactory.DescribeColoured()} to smell for you.");
 
         actor.OutputHandler.Send(sb.ToString());
 

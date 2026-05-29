@@ -13,6 +13,15 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class ItemSeederMedievalCraftingTests
 {
+	private static readonly string[] ExplicitMedievalCultureCatalogueGroups =
+	[
+		"Clothing",
+		"Military",
+		"Food and Beverage",
+		"Writing and Administration",
+		"Household and Devotional"
+	];
+
 	[TestMethod]
 	public void MedievalDispatcher_WiresItemAndCraftSuites()
 	{
@@ -64,6 +73,70 @@ public class ItemSeederMedievalCraftingTests
 		AssertContains(medievalItemSource, "private static readonly MedievalStatusRoleProfile[] MedievalStatusRoleProfiles");
 		AssertContains(medievalCraftSource, "private bool ShouldSeedMedievalCrafts()");
 		AssertContains(medievalCraftSource, "private Craft? AddMedievalCraft(");
+	}
+
+	[TestMethod]
+	public void MedievalExplicitCultureCatalogue_CoversEveryCultureAndSurface()
+	{
+		var groupedReferences = ItemSeeder.MedievalExplicitCultureStableReferenceGroupsForTesting;
+
+		foreach (var culture in ItemSeeder.MedievalCultureKeysForTesting)
+		{
+			Assert.IsTrue(groupedReferences.TryGetValue(culture, out var cultureGroups),
+				$"Expected explicit medieval culture catalogue entries for {culture}.");
+			Assert.IsTrue(cultureGroups.Values.SelectMany(x => x).Any(),
+				$"Expected {culture} to have explicit non-generic catalogue entries.");
+
+			foreach (var group in ExplicitMedievalCultureCatalogueGroups)
+			{
+				Assert.IsTrue(cultureGroups.TryGetValue(group, out var stableReferences),
+					$"Expected {culture} to include the explicit catalogue group {group}.");
+				Assert.IsTrue(stableReferences.Count > 0,
+					$"Expected {culture} / {group} to include at least one explicit stable reference.");
+			}
+		}
+
+		Assert.AreEqual(ItemSeeder.MedievalCultureKeysForTesting.Count, groupedReferences.Count,
+			"Expected the explicit medieval catalogue to have exactly one entry set per culture key.");
+	}
+
+	[TestMethod]
+	public void MedievalExplicitCultureCatalogue_DoesNotUseRegionalPlaceholderDescriptions()
+	{
+		var placeholders = ItemSeeder.MedievalExplicitCultureCatalogueEntriesForTesting
+			.Where(x => x.ShortDescription.StartsWith("a regional", StringComparison.OrdinalIgnoreCase))
+			.Select(x => $"{x.CultureKey}/{x.Group}/{x.StableReference}: {x.ShortDescription}")
+			.ToList();
+
+		Assert.AreEqual(0, placeholders.Count,
+			$"Explicit medieval culture catalogue entries must not use regional placeholder short descriptions: {string.Join(", ", placeholders)}");
+	}
+
+	[TestMethod]
+	public void MedievalExplicitCultureCatalogue_ExactStableReferencesMatchAuthoritativeDocument()
+	{
+		var documentEntries = ReadExplicitMedievalCultureCatalogueEntriesFromDocs();
+		var codeEntries = ItemSeeder.MedievalExplicitCultureCatalogueEntriesForTesting
+			.Select(x => (x.CultureKey, x.Group, x.StableReference))
+			.ToList();
+		var codeKeys = codeEntries
+			.Select(x => $"{x.CultureKey}|{x.Group}|{x.StableReference}")
+			.ToHashSet(StringComparer.Ordinal);
+		var documentKeys = documentEntries
+			.Select(x => $"{x.CultureKey}|{x.Group}|{x.StableReference}")
+			.ToHashSet(StringComparer.Ordinal);
+
+		var missingFromCode = documentKeys
+			.Where(x => !codeKeys.Contains(x))
+			.ToList();
+		var missingFromDocument = codeKeys
+			.Where(x => !documentKeys.Contains(x))
+			.ToList();
+
+		Assert.AreEqual(0, missingFromCode.Count,
+			$"Expected exact medieval culture catalogue references from Medieval_Culture_Catalogue.md to be present in code. Missing: {string.Join(", ", missingFromCode)}");
+		Assert.AreEqual(0, missingFromDocument.Count,
+			$"Expected explicit code catalogue references to be documented exactly. Missing: {string.Join(", ", missingFromDocument)}");
 	}
 
 	[TestMethod]
@@ -533,6 +606,8 @@ public class ItemSeederMedievalCraftingTests
 	{
 		return string.Concat(new[]
 		{
+			"Crafting_System_Builder_Workflows.md",
+			"Medieval_Culture_Catalogue.md",
 			"Medieval_Crafting_Audit.md",
 			"Medieval_Item_Component_Gap_Report.md",
 			"Medieval_Clothing_Crafting_Suite.md",
@@ -543,6 +618,46 @@ public class ItemSeederMedievalCraftingTests
 			"Medieval_Medical_Apothecary_Crafting_Suite.md",
 			"Medieval_Writing_Administration_Crafting_Suite.md"
 		}.Select(x => ReadSource("Design Documents", "Crafting", x)));
+	}
+
+	private static IReadOnlyCollection<(string CultureKey, string Group, string StableReference)> ReadExplicitMedievalCultureCatalogueEntriesFromDocs()
+	{
+		var docs = ReadSource("Design Documents", "Crafting", "Medieval_Culture_Catalogue.md");
+		var entries = new List<(string CultureKey, string Group, string StableReference)>();
+		string? cultureKey = null;
+		string? group = null;
+
+		foreach (var line in Regex.Split(docs, "\r?\n"))
+		{
+			var cultureMatch = Regex.Match(line, @"^### .+ \(`(?<culture>[^`]+)`\)");
+			if (cultureMatch.Success)
+			{
+				cultureKey = cultureMatch.Groups["culture"].Value;
+				group = null;
+				continue;
+			}
+
+			var groupMatch = Regex.Match(line, @"^#### (?<group>.+)$");
+			if (groupMatch.Success)
+			{
+				group = groupMatch.Groups["group"].Value;
+				continue;
+			}
+
+			var stableReferenceMatch = Regex.Match(line, @"^- `(?<stableReference>[^`]+)`");
+			if (!stableReferenceMatch.Success)
+			{
+				continue;
+			}
+
+			Assert.IsFalse(string.IsNullOrWhiteSpace(cultureKey),
+				$"Stable reference {stableReferenceMatch.Groups["stableReference"].Value} is outside a culture section.");
+			Assert.IsTrue(ExplicitMedievalCultureCatalogueGroups.Contains(group ?? string.Empty),
+				$"Stable reference {stableReferenceMatch.Groups["stableReference"].Value} is under unexpected group {group}.");
+			entries.Add((cultureKey!, group!, stableReferenceMatch.Groups["stableReference"].Value));
+		}
+
+		return entries;
 	}
 
 	private static string ExtractCallBlockContaining(string source, string marker)

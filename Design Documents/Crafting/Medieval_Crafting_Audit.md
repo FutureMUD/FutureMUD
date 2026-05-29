@@ -10,6 +10,22 @@ Shared production chains are encouraged; shared final products are not.
 
 Medieval upstream stock such as yarn, garment cloth, broadcloth, leather panels, mail rings, paper pulp, sealing wax, weapon blanks, shield boards, lockwork, glazing stock, and dairy/brewing stock should remain broad and reusable. Finished clothing, foods, documents, weapons, devotional goods, household goods, and visible final craft names should be culturally and socially specific.
 
+## MED-CAT-001 Catalogue Boundary
+
+MED-CAT-001 separates three things that were previously blurred:
+
+- **Generic baseline stock**: shared `historic_*` foundations, production-chain stock, common workshop tools, repair kits, and the existing generated status-role wardrobe. These items remain useful starter content, but they do not satisfy explicit culture catalogue requirements.
+- **Generated v1 culture scaffolding**: the current cue-based armour, foodway, writing/admin, and devotional placeholder rows remain legacy scaffold until later implementation goals replace or supersede them with named targets. They should not be expanded by adding more `ClothingCue`, `FoodCue`, or `WritingCue` strings.
+- **Explicit culture catalogue**: `Medieval_Culture_Catalogue.md` is now the authoritative exact target list, mirrored in `ItemSeeder.Rework.Medieval.cs` by `MedievalCultureCatalogue`. Those entries are grouped under Clothing, Military, Food and Beverage, Writing and Administration, and Household and Devotional, and future final product items/crafts should be generated from that explicit list rather than broad family patterns.
+
+This goal establishes the catalogue structure and tests. It does not implement all listed culture items or rewrite the production chains.
+
+## Documented Builder Workflow Surfaces
+
+The medieval suite remains connected to the general Builder Workflows documentation and keeps the following implementation slices visible to tests and future passes: Food and beverage, Furniture and containers, Jewellery/devotional, Medical/apothecary, Writing/administration, crossbow manufacture, paper and parchment, stained glass, guild weights and measures, and luxury textile finishes.
+
+Common baseline exact references retained from the v1 scaffold include `historic_workshop_hearth`, `historic_lit_workshop_hearth`, `historic_updraft_kiln`, `historic_lit_updraft_kiln`, `historic_warp_weighted_loom`, `historic_treadle_loom`, `historic_drop_spindle`, `historic_sewing_needle`, `historic_textile_shears`, `historic_awl_punch`, `historic_dye_vat`, `historic_tanning_rack`, `historic_hand_quern`, `historic_oil_lamp`, `historic_lit_oil_lamp`, `historic_workshop_anvil`, `historic_forge_tongs`, `historic_workshop_hammer`, `historic_bellows`, `medieval_coopers_croze`, `medieval_iron_wood_plane`, `medieval_bookbinder_press`, `medieval_locksmith_file_set`, `medieval_devotional_wooden_rosary`, `medieval_devotional_reliquary_locket`, `medieval_devotional_icon_pendant`, `medieval_devotional_pilgrim_badge`, `medieval_devotional_reliquary_box`, and `medieval_devotional_scripture_tablet`.
+
 ## Current Source Boundary
 
 Current medieval item definitions are seeded from:
@@ -190,6 +206,13 @@ The current family patterns remain useful for generated baseline content:
 | --- | --- |
 | Historic foundations | `historic_*` |
 | Generic status clothing | `medieval_clothing_{culture}_{status}_{piece}` |
+| Generated v1 military scaffold | `medieval_military_{culture}_{equipment_piece}`, `medieval_weapon_{culture}_{weapon}`, `medieval_shield_{culture}` |
+| Generated v1 foodway scaffold | `medieval_food_{culture}_{foodway_item}` |
+| Generated v1 writing/admin scaffold | `medieval_writing_{culture}_{administration_item}` |
+| Generated v1 devotional scaffold | `medieval_devotional_{culture}_pilgrim_token` |
+| Common household and furniture baseline | `medieval_household_{furniture_or_container}` |
+| Common jewellery baseline | `medieval_jewellery_{jewellery_item}` |
+| Common medical/apothecary baseline | `medieval_medical_{medical_item}` |
 | Explicit culture clothing | `medieval_clothing_{culture}_{specific_item}` or `medieval_clothing_{culture}_{status}_{specific_item}` where status is genuinely part of the item identity. |
 | Military | `medieval_military_{culture}_{specific_item}`, `medieval_weapon_{culture}_{specific_weapon}`, `medieval_shield_{culture}_{specific_shield}` |
 | Food and beverage | `medieval_food_{culture}_{specific_food_or_vessel}` |

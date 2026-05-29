@@ -1,8 +1,8 @@
 # Medieval Culture Catalogue
 
-This is the authoritative second-pass catalogue target for explicit medieval culture content.
+This is the authoritative exact catalogue target for explicit medieval culture content.
 
-The existing generated status-role wardrobe can remain as common baseline stock. The entries below are explicit culture targets. They should be implemented as named item specs and final product crafts, not as cue text appended to generic templates.
+The existing generated status-role wardrobe remains common baseline stock. The entries below are explicit culture targets. They are mirrored in `ItemSeeder.Rework.Medieval.cs` through the `MedievalCultureCatalogue` scaffold so future item and craft passes can implement them as named item specs and final product crafts, not as cue text appended to generic templates.
 
 ## Catalogue Rules
 
@@ -17,7 +17,7 @@ The existing generated status-role wardrobe can remain as common baseline stock.
 
 ### Early Anglo-Saxon / Insular (`early_anglo_saxon`)
 
-#### Clothing and Worn Accessories
+#### Clothing
 
 - `medieval_clothing_early_anglo_saxon_tablet_banded_wool_tunic`
 - `medieval_clothing_early_anglo_saxon_square_cloak_disc_brooch`
@@ -32,7 +32,7 @@ The existing generated status-role wardrobe can remain as common baseline stock.
 - `medieval_clothing_early_anglo_saxon_wool_leg_wraps`
 - `medieval_clothing_early_anglo_saxon_soft_leather_ankle_shoes`
 
-#### Military and Equipment
+#### Military
 
 - `medieval_weapon_early_anglo_saxon_broad_seax`
 - `medieval_weapon_early_anglo_saxon_ash_spear`
@@ -63,7 +63,7 @@ The existing generated status-role wardrobe can remain as common baseline stock.
 - `medieval_writing_early_anglo_saxon_seal_tag_bundle`
 - `medieval_writing_early_anglo_saxon_gospel_book_pouch`
 
-#### Household, Devotional, and Luxury Goods
+#### Household and Devotional
 
 - `medieval_household_early_anglo_saxon_carved_hall_chest`
 - `medieval_household_early_anglo_saxon_hanging_clay_lamp`
@@ -73,7 +73,7 @@ The existing generated status-role wardrobe can remain as common baseline stock.
 
 ### Late Anglo-Saxon / Anglo-Danish (`anglo_danish`)
 
-#### Clothing and Worn Accessories
+#### Clothing
 
 - `medieval_clothing_anglo_danish_panelled_wool_tunic`
 - `medieval_clothing_anglo_danish_long_seax_belt`
@@ -88,7 +88,7 @@ The existing generated status-role wardrobe can remain as common baseline stock.
 - `medieval_clothing_anglo_danish_heavy_sea_cloak`
 - `medieval_clothing_anglo_danish_leather_boots`
 
-#### Military and Equipment
+#### Military
 
 - `medieval_weapon_anglo_danish_long_seax`
 - `medieval_weapon_anglo_danish_dane_axe`
@@ -119,7 +119,7 @@ The existing generated status-role wardrobe can remain as common baseline stock.
 - `medieval_writing_anglo_danish_sealed_rent_record`
 - `medieval_writing_anglo_danish_seax_belt_document_pouch`
 
-#### Household, Devotional, and Luxury Goods
+#### Household and Devotional
 
 - `medieval_household_anglo_danish_iron_bound_hall_chest`
 - `medieval_household_anglo_danish_reeve_account_box`
@@ -129,7 +129,7 @@ The existing generated status-role wardrobe can remain as common baseline stock.
 
 ### Norse (`norse`)
 
-#### Clothing and Worn Accessories
+#### Clothing
 
 - `medieval_clothing_norse_hangerok_apron_dress`
 - `medieval_clothing_norse_linen_underdress`
@@ -144,7 +144,7 @@ The existing generated status-role wardrobe can remain as common baseline stock.
 - `medieval_clothing_norse_arming_tunic`
 - `medieval_clothing_norse_leather_belt_pouch`
 
-#### Military and Equipment
+#### Military
 
 - `medieval_weapon_norse_bearded_axe`
 - `medieval_weapon_norse_broad_axe`
@@ -175,7 +175,7 @@ The existing generated status-role wardrobe can remain as common baseline stock.
 - `medieval_writing_norse_trade_tablet_wallet`
 - `medieval_writing_norse_runic_memorial_plaque`
 
-#### Household, Devotional, and Luxury Goods
+#### Household and Devotional
 
 - `medieval_household_norse_sea_chest`
 - `medieval_household_norse_carved_comb_case`
@@ -185,7 +185,7 @@ The existing generated status-role wardrobe can remain as common baseline stock.
 
 ### Norman / Angevin (`norman`)
 
-#### Clothing and Worn Accessories
+#### Clothing
 
 - `medieval_clothing_norman_split_riding_tunic`
 - `medieval_clothing_norman_long_sleeved_cote`
@@ -200,7 +200,7 @@ The existing generated status-role wardrobe can remain as common baseline stock.
 - `medieval_jewellery_norman_cloak_clasp`
 - `medieval_clothing_norman_chapel_robe`
 
-#### Military and Equipment
+#### Military
 
 - `medieval_weapon_norman_arming_sword`
 - `medieval_weapon_norman_couched_lance`
@@ -231,7 +231,7 @@ The existing generated status-role wardrobe can remain as common baseline stock.
 - `medieval_writing_norman_manorial_account_roll`
 - `medieval_writing_norman_court_summons_tag`
 
-#### Household, Devotional, and Luxury Goods
+#### Household and Devotional
 
 - `medieval_household_norman_manor_chest`
 - `medieval_household_norman_chapel_lectern`
@@ -241,7 +241,7 @@ The existing generated status-role wardrobe can remain as common baseline stock.
 
 ### High Medieval Britain / Marcher (`high_british`)
 
-#### Clothing and Worn Accessories
+#### Clothing
 
 - `medieval_clothing_high_british_wool_cote`
 - `medieval_clothing_high_british_sleeveless_surcoat`
@@ -256,7 +256,7 @@ The existing generated status-role wardrobe can remain as common baseline stock.
 - `medieval_clothing_high_british_archer_bracer`
 - `medieval_clothing_high_british_archer_belt`
 
-#### Military and Equipment
+#### Military
 
 - `medieval_weapon_high_british_arming_sword`
 - `medieval_weapon_high_british_war_spear`
@@ -287,7 +287,7 @@ The existing generated status-role wardrobe can remain as common baseline stock.
 - `medieval_writing_high_british_chapel_book`
 - `medieval_writing_high_british_toll_tally`
 
-#### Household, Devotional, and Luxury Goods
+#### Household and Devotional
 
 - `medieval_household_high_british_guild_counter`
 - `medieval_household_high_british_wool_merchant_bale`
@@ -297,7 +297,7 @@ The existing generated status-role wardrobe can remain as common baseline stock.
 
 ### Gaelic / Welsh / Highland (`gaelic`)
 
-#### Clothing and Worn Accessories
+#### Clothing
 
 - `medieval_clothing_gaelic_brat_mantle`
 - `medieval_clothing_gaelic_leine_long_shirt`
@@ -312,7 +312,7 @@ The existing generated status-role wardrobe can remain as common baseline stock.
 - `medieval_clothing_gaelic_pastoral_pouch`
 - `medieval_clothing_gaelic_rough_weather_hood`
 
-#### Military and Equipment
+#### Military
 
 - `medieval_weapon_gaelic_long_spear`
 - `medieval_weapon_gaelic_javelin_bundle`
@@ -343,7 +343,7 @@ The existing generated status-role wardrobe can remain as common baseline stock.
 - `medieval_writing_gaelic_monastic_note_board`
 - `medieval_writing_gaelic_tribute_tally`
 
-#### Household, Devotional, and Luxury Goods
+#### Household and Devotional
 
 - `medieval_devotional_gaelic_ring_pin_shrine_cloth`
 - `medieval_music_gaelic_harp_prop`
@@ -353,7 +353,7 @@ The existing generated status-role wardrobe can remain as common baseline stock.
 
 ### Carolingian / Frankish (`carolingian`)
 
-#### Clothing and Worn Accessories
+#### Clothing
 
 - `medieval_clothing_carolingian_high_belted_tunic`
 - `medieval_clothing_carolingian_broad_banded_mantle`
@@ -368,7 +368,7 @@ The existing generated status-role wardrobe can remain as common baseline stock.
 - `medieval_clothing_carolingian_palace_servant_tunic`
 - `medieval_clothing_carolingian_monastic_cowl`
 
-#### Military and Equipment
+#### Military
 
 - `medieval_weapon_carolingian_spatha`
 - `medieval_weapon_carolingian_war_spear`
@@ -399,7 +399,7 @@ The existing generated status-role wardrobe can remain as common baseline stock.
 - `medieval_writing_carolingian_seal_tag_packet`
 - `medieval_writing_carolingian_tax_tally`
 
-#### Household, Devotional, and Luxury Goods
+#### Household and Devotional
 
 - `medieval_household_carolingian_palace_chest`
 - `medieval_household_carolingian_manor_table`
@@ -409,7 +409,7 @@ The existing generated status-role wardrobe can remain as common baseline stock.
 
 ### Capetian / Low Countries (`capetian`)
 
-#### Clothing and Worn Accessories
+#### Clothing
 
 - `medieval_clothing_capetian_wool_cote`
 - `medieval_clothing_capetian_bliaut_style_gown`
@@ -424,7 +424,7 @@ The existing generated status-role wardrobe can remain as common baseline stock.
 - `medieval_clothing_capetian_wool_hose`
 - `medieval_clothing_capetian_winter_mantle`
 
-#### Military and Equipment
+#### Military
 
 - `medieval_weapon_capetian_arming_sword`
 - `medieval_weapon_capetian_town_spear`
@@ -455,7 +455,7 @@ The existing generated status-role wardrobe can remain as common baseline stock.
 - `medieval_writing_capetian_merchant_contract`
 - `medieval_writing_capetian_chapel_booklet`
 
-#### Household, Devotional, and Luxury Goods
+#### Household and Devotional
 
 - `medieval_household_capetian_guild_counter`
 - `medieval_household_capetian_cloth_merchant_bale`
@@ -465,7 +465,7 @@ The existing generated status-role wardrobe can remain as common baseline stock.
 
 ### German / HRE / Alpine-North Italian (`german_hre`)
 
-#### Clothing and Worn Accessories
+#### Clothing
 
 - `medieval_clothing_german_hre_guild_apron`
 - `medieval_clothing_german_hre_civic_gown`
@@ -480,7 +480,7 @@ The existing generated status-role wardrobe can remain as common baseline stock.
 - `medieval_clothing_german_hre_embroidered_church_robe`
 - `medieval_clothing_german_hre_court_hat`
 
-#### Military and Equipment
+#### Military
 
 - `medieval_weapon_german_hre_arming_sword`
 - `medieval_weapon_german_hre_beaked_war_hammer`
@@ -511,7 +511,7 @@ The existing generated status-role wardrobe can remain as common baseline stock.
 - `medieval_writing_german_hre_monastery_codex`
 - `medieval_writing_german_hre_tax_tally`
 
-#### Household, Devotional, and Luxury Goods
+#### Household and Devotional
 
 - `medieval_household_german_hre_guild_chest`
 - `medieval_household_german_hre_beer_hall_bench`
@@ -521,7 +521,7 @@ The existing generated status-role wardrobe can remain as common baseline stock.
 
 ### Iberian Christian (`iberian_christian`)
 
-#### Clothing and Worn Accessories
+#### Clothing
 
 - `medieval_clothing_iberian_christian_saya`
 - `medieval_clothing_iberian_christian_pellote`
@@ -536,7 +536,7 @@ The existing generated status-role wardrobe can remain as common baseline stock.
 - `medieval_clothing_iberian_christian_court_gown`
 - `medieval_clothing_iberian_christian_arming_coat`
 
-#### Military and Equipment
+#### Military
 
 - `medieval_weapon_iberian_christian_war_sword`
 - `medieval_weapon_iberian_christian_frontier_spear`
@@ -567,7 +567,7 @@ The existing generated status-role wardrobe can remain as common baseline stock.
 - `medieval_writing_iberian_christian_notary_contract`
 - `medieval_writing_iberian_christian_chapel_booklet`
 
-#### Household, Devotional, and Luxury Goods
+#### Household and Devotional
 
 - `medieval_household_iberian_christian_frontier_chest`
 - `medieval_household_iberian_christian_olive_oil_jug`
@@ -577,7 +577,7 @@ The existing generated status-role wardrobe can remain as common baseline stock.
 
 ### al-Andalus / Maghreb (`andalusi`)
 
-#### Clothing and Worn Accessories
+#### Clothing
 
 - `medieval_clothing_andalusi_linen_qamis`
 - `medieval_clothing_andalusi_wool_sirwal`
@@ -592,7 +592,7 @@ The existing generated status-role wardrobe can remain as common baseline stock.
 - `medieval_clothing_andalusi_riding_cloak`
 - `medieval_clothing_andalusi_embroidered_belt_pouch`
 
-#### Military and Equipment
+#### Military
 
 - `medieval_weapon_andalusi_saif`
 - `medieval_weapon_andalusi_light_spear`
@@ -623,7 +623,7 @@ The existing generated status-role wardrobe can remain as common baseline stock.
 - `medieval_writing_andalusi_quran_stand_note`
 - `medieval_writing_andalusi_tax_order`
 
-#### Household, Devotional, and Luxury Goods
+#### Household and Devotional
 
 - `medieval_household_andalusi_glazed_bowl`
 - `medieval_household_andalusi_brass_lamp`
@@ -633,7 +633,7 @@ The existing generated status-role wardrobe can remain as common baseline stock.
 
 ### Byzantine (`byzantine`)
 
-#### Clothing and Worn Accessories
+#### Clothing
 
 - `medieval_clothing_byzantine_silk_dalmatic`
 - `medieval_clothing_byzantine_skaramangion_riding_coat`
@@ -648,7 +648,7 @@ The existing generated status-role wardrobe can remain as common baseline stock.
 - `medieval_clothing_byzantine_soft_boots`
 - `medieval_clothing_byzantine_monastic_robe`
 
-#### Military and Equipment
+#### Military
 
 - `medieval_weapon_byzantine_paramerion`
 - `medieval_weapon_byzantine_guard_spear`
@@ -679,7 +679,7 @@ The existing generated status-role wardrobe can remain as common baseline stock.
 - `medieval_writing_byzantine_tax_register`
 - `medieval_writing_byzantine_court_order_roll`
 
-#### Household, Devotional, and Luxury Goods
+#### Household and Devotional
 
 - `medieval_devotional_byzantine_icon_panel`
 - `medieval_household_byzantine_hanging_lamp`
@@ -689,7 +689,7 @@ The existing generated status-role wardrobe can remain as common baseline stock.
 
 ### Abbasid / Persianate (`abbasid`)
 
-#### Clothing and Worn Accessories
+#### Clothing
 
 - `medieval_clothing_abbasid_linen_qamis`
 - `medieval_clothing_abbasid_qaba_caftan`
@@ -704,7 +704,7 @@ The existing generated status-role wardrobe can remain as common baseline stock.
 - `medieval_clothing_abbasid_merchant_robe`
 - `medieval_clothing_abbasid_book_pouch`
 
-#### Military and Equipment
+#### Military
 
 - `medieval_weapon_abbasid_straight_sword`
 - `medieval_weapon_abbasid_guard_spear`
@@ -735,7 +735,7 @@ The existing generated status-role wardrobe can remain as common baseline stock.
 - `medieval_writing_abbasid_waqf_record`
 - `medieval_writing_abbasid_market_contract`
 
-#### Household, Devotional, and Luxury Goods
+#### Household and Devotional
 
 - `medieval_household_abbasid_brass_lamp`
 - `medieval_household_abbasid_glazed_bowl`
@@ -745,7 +745,7 @@ The existing generated status-role wardrobe can remain as common baseline stock.
 
 ### Fatimid Egypt / Ifriqiya (`fatimid`)
 
-#### Clothing and Worn Accessories
+#### Clothing
 
 - `medieval_clothing_fatimid_linen_robe`
 - `medieval_clothing_fatimid_tiraz_banded_tunic`
@@ -760,7 +760,7 @@ The existing generated status-role wardrobe can remain as common baseline stock.
 - `medieval_clothing_fatimid_guard_padded_coat`
 - `medieval_clothing_fatimid_devotional_amulet_cord`
 
-#### Military and Equipment
+#### Military
 
 - `medieval_weapon_fatimid_guard_spear`
 - `medieval_weapon_fatimid_saif`
@@ -791,7 +791,7 @@ The existing generated status-role wardrobe can remain as common baseline stock.
 - `medieval_writing_fatimid_mosque_endowment_note`
 - `medieval_writing_fatimid_seal_packet`
 
-#### Household, Devotional, and Luxury Goods
+#### Household and Devotional
 
 - `medieval_household_fatimid_glass_lamp`
 - `medieval_household_fatimid_ivory_box`
@@ -801,7 +801,7 @@ The existing generated status-role wardrobe can remain as common baseline stock.
 
 ### Seljuk / Ayyubid / early Mamluk (`seljuk_ayyubid`)
 
-#### Clothing and Worn Accessories
+#### Clothing
 
 - `medieval_clothing_seljuk_ayyubid_riding_caftan`
 - `medieval_clothing_seljuk_ayyubid_quilted_coat`
@@ -816,7 +816,7 @@ The existing generated status-role wardrobe can remain as common baseline stock.
 - `medieval_clothing_seljuk_ayyubid_cavalry_cloak`
 - `medieval_clothing_seljuk_ayyubid_leather_gloves`
 
-#### Military and Equipment
+#### Military
 
 - `medieval_weapon_seljuk_ayyubid_flanged_mace`
 - `medieval_weapon_seljuk_ayyubid_curved_sabre`
@@ -847,7 +847,7 @@ The existing generated status-role wardrobe can remain as common baseline stock.
 - `medieval_writing_seljuk_ayyubid_paper_contract`
 - `medieval_writing_seljuk_ayyubid_court_seal_tag`
 
-#### Household, Devotional, and Luxury Goods
+#### Household and Devotional
 
 - `medieval_household_seljuk_ayyubid_riding_saddlebag`
 - `medieval_household_seljuk_ayyubid_brass_lamp`
@@ -857,7 +857,7 @@ The existing generated status-role wardrobe can remain as common baseline stock.
 
 ### Kyivan Rus / Novgorod (`rus_novgorod`)
 
-#### Clothing and Worn Accessories
+#### Clothing
 
 - `medieval_clothing_rus_novgorod_rubakha_tunic`
 - `medieval_clothing_rus_novgorod_fur_edged_kaftan`
@@ -872,7 +872,7 @@ The existing generated status-role wardrobe can remain as common baseline stock.
 - `medieval_clothing_rus_novgorod_river_trader_coat`
 - `medieval_clothing_rus_novgorod_wool_mittens`
 
-#### Military and Equipment
+#### Military
 
 - `medieval_weapon_rus_novgorod_war_axe`
 - `medieval_weapon_rus_novgorod_socketed_spear`
@@ -903,7 +903,7 @@ The existing generated status-role wardrobe can remain as common baseline stock.
 - `medieval_writing_rus_novgorod_wax_tablet`
 - `medieval_writing_rus_novgorod_fur_tax_record`
 
-#### Household, Devotional, and Luxury Goods
+#### Household and Devotional
 
 - `medieval_household_rus_novgorod_icon_shelf`
 - `medieval_household_rus_novgorod_birchbark_letter_box`
@@ -913,7 +913,7 @@ The existing generated status-role wardrobe can remain as common baseline stock.
 
 ### Steppe Turkic / Cuman / Mongol-adjacent (`steppe_turkic`)
 
-#### Clothing and Worn Accessories
+#### Clothing
 
 - `medieval_clothing_steppe_turkic_felt_riding_caftan`
 - `medieval_clothing_steppe_turkic_tied_riding_coat`
@@ -928,7 +928,7 @@ The existing generated status-role wardrobe can remain as common baseline stock.
 - `medieval_clothing_steppe_turkic_winter_mittens`
 - `medieval_clothing_steppe_turkic_travel_pouch`
 
-#### Military and Equipment
+#### Military
 
 - `medieval_weapon_steppe_turkic_curved_sabre`
 - `medieval_weapon_steppe_turkic_composite_bow`
@@ -959,7 +959,7 @@ The existing generated status-role wardrobe can remain as common baseline stock.
 - `medieval_writing_steppe_turkic_bowcase_ownership_tag`
 - `medieval_writing_steppe_turkic_messenger_packet`
 
-#### Household, Devotional, and Luxury Goods
+#### Household and Devotional
 
 - `medieval_household_steppe_turkic_felt_tent_panel`
 - `medieval_household_steppe_turkic_saddlebag`
@@ -969,7 +969,7 @@ The existing generated status-role wardrobe can remain as common baseline stock.
 
 ### Song China (`song_china`)
 
-#### Clothing and Worn Accessories
+#### Clothing
 
 - `medieval_clothing_song_china_cross_collar_robe`
 - `medieval_clothing_song_china_scholar_robe`
@@ -984,7 +984,7 @@ The existing generated status-role wardrobe can remain as common baseline stock.
 - `medieval_clothing_song_china_writing_sleeve_pouch`
 - `medieval_clothing_song_china_military_padded_vest`
 
-#### Military and Equipment
+#### Military
 
 - `medieval_weapon_song_china_single_edged_dao`
 - `medieval_weapon_song_china_qiang_spear`
@@ -1015,7 +1015,7 @@ The existing generated status-role wardrobe can remain as common baseline stock.
 - `medieval_writing_song_china_tea_house_account_slip`
 - `medieval_writing_song_china_examination_essay_booklet`
 
-#### Household, Devotional, and Luxury Goods
+#### Household and Devotional
 
 - `medieval_household_song_china_tea_cup`
 - `medieval_household_song_china_lacquer_writing_box`

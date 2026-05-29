@@ -467,9 +467,22 @@ song_china|Household and Devotional|medieval_household_song_china_tea_cup,mediev
 		"iberian_christian"
 	];
 
+	private static readonly string[] MedievalEasternOutfitCultureKeys =
+	[
+		"andalusi",
+		"byzantine",
+		"abbasid",
+		"fatimid",
+		"seljuk_ayyubid",
+		"rus_novgorod",
+		"steppe_turkic",
+		"song_china"
+	];
+
 	private static readonly string[] MedievalExplicitOutfitCultureKeys =
 		MedievalNorthAtlanticOutfitCultureKeys
 			.Concat(MedievalContinentalWesternOutfitCultureKeys)
+			.Concat(MedievalEasternOutfitCultureKeys)
 			.ToArray();
 
 	private const string MedievalExplicitOutfitPieceSource = @"
@@ -593,6 +606,102 @@ medieval_outfit_iberian_christian_male_religious|linen undertunic; hose; sandals
 medieval_outfit_iberian_christian_female_religious|linen shift; wool robe; sandals; religious habit; pilgrim cloak; veil and toca; cord belt; book pouch; cross pendant; prayer slip
 medieval_outfit_iberian_christian_male_military|arming shirt; braies; chausses; riding boots; quilted coat; knightly surcoat; arming cap; weapon belt; field pouch; cloak clasp; frontier riding cloak
 medieval_outfit_iberian_christian_female_military|arming shift; split riding skirt; chausses; riding boots; quilted coat gown; knightly surcoat; head veil under cap; weapon belt; field pouch; cloak clasp; frontier riding cloak
+medieval_outfit_andalusi_male_peasant|linen qamis; wool sirwal; footwraps; sandals; plain outer tunic; light burnous; simple turban; woven sash; belt pouch; cord amulet
+medieval_outfit_andalusi_female_peasant|linen shift; loose sirwal or skirt; footwraps; sandals; plain long robe; light wrap cloak; veiled headcloth; woven sash; pouch; cord amulet
+medieval_outfit_andalusi_male_artisan|work qamis; sirwal; leather sandals; workshop robe; short burnous; wrapped turban; leather sash; tool pouch; small amulet; sleeve ties
+medieval_outfit_andalusi_female_artisan|work shift; loose trousers or skirt; sandals; work robe; apron wrap; veiled headcloth; sash; tool pouch; amulet; sleeve ties
+medieval_outfit_andalusi_male_merchant|fine qamis; sirwal; soft slippers; qaba caftan; lined burnous; turban; merchant sash; contract pouch; signet ring; perfume flask
+medieval_outfit_andalusi_female_merchant|fine shift; sirwal or under-robe; soft slippers; tiraz-banded robe; lined cloak; veil; decorated sash; purse; amulet pendant; perfume flask
+medieval_outfit_andalusi_male_noble|silk qamis; fine sirwal; soft slippers; tiraz-banded court robe; rich burnous; fine turban; silk sash; seal pouch; signet ring; embroidered gloves
+medieval_outfit_andalusi_female_noble|fine shift; silk under-robe; soft slippers; embroidered court robe; rich mantle; fine veil; silk sash; alms purse; pendant; perfume flask
+medieval_outfit_andalusi_male_religious|plain qamis; sirwal; sandals; scholar robe; plain cloak; wrapped turban; cord sash; book pouch; prayer beads; writing tablet
+medieval_outfit_andalusi_female_religious|plain shift; under-robe; sandals; modest robe; plain wrap; veil; cord sash; book pouch; prayer beads; devotional slip
+medieval_outfit_andalusi_male_military|arming qamis; sirwal; riding boots; quilted coat; riding burnous; turban-helm liner; bowcase belt; field pouch; amulet; leather bracers
+medieval_outfit_andalusi_female_military|arming shift; sirwal or split skirt; riding boots; quilted riding coat; riding burnous; veiled headwrap under cap; bowcase belt; field pouch; amulet; bracers
+medieval_outfit_byzantine_male_peasant|linen under-robe; simple trousers; footwraps; sandals; wool tunic; short sagion cloak; cloth cap; plain belt; pouch; wooden cross
+medieval_outfit_byzantine_female_peasant|linen shift; lower gown; footwraps; sandals; plain long tunic; wool wrap; head veil; woven belt; pouch; wooden cross
+medieval_outfit_byzantine_male_artisan|work under-robe; trousers; shoes; workshop tunic; short cloak; cap; tool belt; tool pouch; small icon token; gloves
+medieval_outfit_byzantine_female_artisan|work shift; undergown; shoes; work gown; apron wrap; head veil; tool belt; pouch; icon token; sleeve ties
+medieval_outfit_byzantine_male_merchant|fine under-robe; trousers; soft shoes; belted skaramangion robe; lined sagion; cap; purse belt; account pouch; seal ring; gloves
+medieval_outfit_byzantine_female_merchant|fine shift; undergown; soft shoes; formal gown; lined mantle; veil; decorated girdle; purse; icon pendant; gloves
+medieval_outfit_byzantine_male_noble|silk under-robe; fine trousers; soft boots; silk dalmatic; court sagion; court cap; court belt; seal pouch; enamel pendant; gloves
+medieval_outfit_byzantine_female_noble|silk shift; fine gown; soft shoes; embroidered silk robe; court mantle; fine veil; court girdle; alms purse; enamel pendant; icon pouch
+medieval_outfit_byzantine_male_religious|plain under-robe; trousers; sandals; monastic robe; cowl cloak; hood; cord belt; book pouch; cross pendant; icon tablet
+medieval_outfit_byzantine_female_religious|plain shift; wool robe; sandals; monastic robe; cowl cloak; veil; cord belt; book pouch; cross pendant; prayer tablet
+medieval_outfit_byzantine_male_military|arming under-robe; trousers; boots; military padded tunic; lamellar coat cover; padded cap; military belt; field pouch; icon token; scabbard harness
+medieval_outfit_byzantine_female_military|arming shift; trousers or split skirt; boots; military padded robe; lamellar coat cover; head veil under cap; military belt; field pouch; icon token; scabbard harness
+medieval_outfit_abbasid_male_peasant|linen qamis; wool sirwal; footwraps; sandals; plain robe; light cloak; simple turban; woven sash; pouch; amulet cord
+medieval_outfit_abbasid_female_peasant|linen shift; loose sirwal or skirt; footwraps; sandals; plain robe; wrap cloak; head veil; woven sash; pouch; amulet cord
+medieval_outfit_abbasid_male_artisan|work qamis; sirwal; sandals; work caftan; short cloak; turban; tool sash; tool pouch; amulet; sleeve ties
+medieval_outfit_abbasid_female_artisan|work shift; loose trousers; sandals; work robe; apron wrap; veil; sash; tool pouch; amulet; sleeve ties
+medieval_outfit_abbasid_male_merchant|fine qamis; sirwal; soft slippers; qaba caftan; lined cloak; turban; merchant sash; contract pouch; signet ring; ink case
+medieval_outfit_abbasid_female_merchant|fine shift; under-robe; soft slippers; fine robe; lined cloak; veil; decorated sash; purse; pendant; scent flask
+medieval_outfit_abbasid_male_noble|silk qamis; fine sirwal; soft slippers; belted court robe; rich cloak; fine turban; silk sash; seal pouch; signet ring; gloves
+medieval_outfit_abbasid_female_noble|silk shift; fine under-robe; soft slippers; court robe; rich mantle; fine veil; silk sash; alms purse; pendant; gloves
+medieval_outfit_abbasid_male_religious|plain qamis; sirwal; sandals; scholar robe; plain cloak; turban; cord sash; book pouch; prayer beads; notebook
+medieval_outfit_abbasid_female_religious|plain shift; modest robe; sandals; scholar or devotional robe; plain wrap; veil; cord sash; book pouch; prayer beads; prayer slip
+medieval_outfit_abbasid_male_military|arming qamis; sirwal; riding boots; lamellar-sleeved coat; riding cloak; turban-helm liner; weapon sash; field pouch; amulet; bowcase belt
+medieval_outfit_abbasid_female_military|arming shift; sirwal or split skirt; riding boots; lamellar-sleeved riding coat; riding cloak; veiled headwrap; weapon sash; field pouch; amulet; bowcase belt
+medieval_outfit_fatimid_male_peasant|linen qamis; cotton lower wrap; sandals; light linen robe; shoulder cloth; simple turban; woven sash; pouch; amulet cord; headcloth
+medieval_outfit_fatimid_female_peasant|linen shift; cotton wrap skirt; sandals; light robe; shoulder wrap; veiled headcloth; woven sash; pouch; amulet cord; bead string
+medieval_outfit_fatimid_male_artisan|work qamis; cotton wrap; sandals; linen work robe; apron cloth; turban; tool sash; pouch; amulet; sleeve bands
+medieval_outfit_fatimid_female_artisan|work shift; cotton wrap skirt; sandals; linen work gown; apron; veil; sash; tool pouch; amulet; sleeve bands
+medieval_outfit_fatimid_male_merchant|fine linen qamis; light trousers; soft sandals; tiraz-banded tunic; lined robe; turban; merchant sash; tax pouch; signet ring; perfume flask
+medieval_outfit_fatimid_female_merchant|fine shift; cotton under-robe; soft sandals; tiraz-banded robe; light mantle; veil; decorated sash; purse; pendant; perfume flask
+medieval_outfit_fatimid_male_noble|silk qamis; fine trousers; soft slippers; court kaftan; formal cuffs; fine turban; silk sash; seal pouch; signet ring; gloves
+medieval_outfit_fatimid_female_noble|silk shift; fine robe; soft slippers; court robe; light mantle; fine veil; silk sash; alms purse; pendant; scent flask
+medieval_outfit_fatimid_male_religious|plain qamis; light trousers; sandals; scholar robe; plain cloak; turban; cord sash; book pouch; prayer beads; endowment slip
+medieval_outfit_fatimid_female_religious|plain shift; modest robe; sandals; devotional robe; plain wrap; veil; cord sash; book pouch; prayer beads; prayer slip
+medieval_outfit_fatimid_male_military|arming qamis; trousers; riding boots; padded coat with scale panels; guard cloak; turban-helm liner; weapon belt; field pouch; amulet; archer quiver
+medieval_outfit_fatimid_female_military|arming shift; trousers or split skirt; riding boots; padded guard coat; guard cloak; veiled headwrap; weapon belt; field pouch; amulet; archer quiver
+medieval_outfit_seljuk_ayyubid_male_peasant|linen qamis; wool sirwal; footwraps; boots; plain caftan; felt cloak; simple turban; sash; pouch; amulet
+medieval_outfit_seljuk_ayyubid_female_peasant|linen shift; loose sirwal or skirt; footwraps; boots; plain long robe; felt cloak; veiled headwrap; sash; pouch; amulet
+medieval_outfit_seljuk_ayyubid_male_artisan|work qamis; sirwal; boots; quilted coat; short cloak; turban; tool sash; tool pouch; amulet; gloves
+medieval_outfit_seljuk_ayyubid_female_artisan|work shift; sirwal or skirt; boots; quilted work robe; apron wrap; veil; sash; tool pouch; amulet; gloves
+medieval_outfit_seljuk_ayyubid_male_merchant|fine qamis; sirwal; soft boots; riding caftan; lined cloak; turban; merchant sash; contract pouch; signet ring; gloves
+medieval_outfit_seljuk_ayyubid_female_merchant|fine shift; under-robe; soft boots; fine caftan robe; lined mantle; veil; decorated sash; purse; pendant; gloves
+medieval_outfit_seljuk_ayyubid_male_noble|silk qamis; fine sirwal; high boots; court caftan; fur-edged cloak; fine turban; silk sash; seal pouch; belt plaques; gloves
+medieval_outfit_seljuk_ayyubid_female_noble|silk shift; fine under-robe; soft boots; embroidered court robe; fur-edged mantle; fine veil; silk sash; alms purse; pendant; gloves
+medieval_outfit_seljuk_ayyubid_male_religious|plain qamis; sirwal; sandals; scholar robe; plain cloak; turban; cord sash; book pouch; prayer beads; madrasa notebook
+medieval_outfit_seljuk_ayyubid_female_religious|plain shift; modest robe; sandals; devotional robe; plain wrap; veil; cord sash; book pouch; prayer beads; prayer slip
+medieval_outfit_seljuk_ayyubid_male_military|arming qamis; sirwal; high riding boots; quilted riding coat; lamellar coat cover; turban-helm liner; bowcase belt; field pouch; amulet; leather gloves
+medieval_outfit_seljuk_ayyubid_female_military|arming shift; sirwal or split skirt; high riding boots; quilted riding robe; lamellar coat cover; veiled headwrap under cap; bowcase belt; field pouch; amulet; gloves
+medieval_outfit_rus_novgorod_male_peasant|linen rubakha; porty trousers; onuchi footwraps; bast or leather shoes; wool tunic; rough cloak; fur cap; woven belt; belt pouch; simple cross cord
+medieval_outfit_rus_novgorod_female_peasant|linen shift; wool skirt; onuchi footwraps; leather shoes; rubakha-style gown; rough cloak; headscarf; woven belt; pouch; simple cross cord
+medieval_outfit_rus_novgorod_male_artisan|work rubakha; porty trousers; onuchi; boots; work kaftan; short cloak; fur cap; tool belt; tool pouch; bronze cross; mittens
+medieval_outfit_rus_novgorod_female_artisan|work shift; wool skirt; onuchi; boots; work gown; apron; headscarf; tool belt; tool pouch; bronze cross; mittens
+medieval_outfit_rus_novgorod_male_merchant|fine rubakha; porty trousers; boots; fur-edged kaftan; lined cloak; fur hat; purse belt; birchbark document pouch; silver cross; gloves
+medieval_outfit_rus_novgorod_female_merchant|fine shift; wool gown; boots; fur-edged overgown; lined cloak; head veil; decorated girdle; purse; silver cross; document pouch
+medieval_outfit_rus_novgorod_male_noble|fine shirt; trousers; soft boots; embroidered kaftan; fur-lined mantle; fur hat; rich belt; seal pouch; Orthodox pendant; gloves
+medieval_outfit_rus_novgorod_female_noble|fine shift; embroidered gown; soft boots; fur-edged court robe; fur-lined mantle; fine veil; rich girdle; alms purse; Orthodox pendant; gloves
+medieval_outfit_rus_novgorod_male_religious|plain rubakha; trousers; sandals; monastic robe; heavy cloak; hood; cord belt; book pouch; wooden cross; prayer slip
+medieval_outfit_rus_novgorod_female_religious|plain shift; wool robe; sandals; monastic robe; heavy cloak; veil; cord belt; book pouch; wooden cross; prayer slip
+medieval_outfit_rus_novgorod_male_military|arming rubakha; trousers; boots; padded war coat; fur-edged cloak; padded cap or helm liner; warrior belt; field pouch; bronze cross; axe loop
+medieval_outfit_rus_novgorod_female_military|arming shift; trousers or split skirt; boots; padded war coat; fur-edged cloak; headscarf under cap; warrior belt; field pouch; bronze cross; axe loop
+medieval_outfit_steppe_turkic_male_peasant|linen under-shirt; riding trousers; felt footwraps; high boots; tied riding coat; felt cloak; fur cap; sash; travel pouch; amulet
+medieval_outfit_steppe_turkic_female_peasant|linen shift; riding trousers or split skirt; felt footwraps; high boots; tied long riding coat; felt cloak; fur cap or headwrap; sash; travel pouch; amulet
+medieval_outfit_steppe_turkic_male_artisan|work shirt; trousers; boots; work caftan; short felt cloak; fur cap; tool sash; tool pouch; amulet; gloves
+medieval_outfit_steppe_turkic_female_artisan|work shift; trousers or skirt; boots; work coat; apron wrap; fur cap/headwrap; tool sash; tool pouch; amulet; gloves
+medieval_outfit_steppe_turkic_male_merchant|fine shirt; riding trousers; high boots; felt riding caftan; lined cloak; fur cap; merchant sash; trade pouch; seal tag; gloves
+medieval_outfit_steppe_turkic_female_merchant|fine shift; riding trousers or skirt; high boots; long riding caftan; lined cloak; headwrap; decorated sash; purse; seal tag; gloves
+medieval_outfit_steppe_turkic_male_noble|silk under-shirt; fine trousers; high boots; embroidered riding caftan; fur-lined cloak; ornate fur cap; silk sash; seal pouch; belt plaques; gloves
+medieval_outfit_steppe_turkic_female_noble|silk shift; fine trousers or skirt; high boots; embroidered long caftan; fur-lined cloak; ornate headwrap; silk sash; alms purse; belt plaques; gloves
+medieval_outfit_steppe_turkic_male_religious|plain shirt; trousers; boots; sober caftan; felt cloak; fur cap; cord sash; pouch; prayer beads or amulet; herd tally
+medieval_outfit_steppe_turkic_female_religious|plain shift; trousers or skirt; boots; sober long coat; felt cloak; headwrap; cord sash; pouch; prayer beads or amulet; herd tally
+medieval_outfit_steppe_turkic_male_military|arming shirt; riding trousers; high boots; lamellar coat cover; felt war cloak; fur cap helm liner; bowcase-and-quiver belt; field pouch; amulet; horseman gloves
+medieval_outfit_steppe_turkic_female_military|arming shift; riding trousers; high boots; lamellar riding coat cover; felt war cloak; fur cap/headwrap; bowcase-and-quiver belt; field pouch; amulet; horseman gloves
+medieval_outfit_song_china_male_peasant|plain under-robe; narrow trousers; cloth socks; cloth shoes; short working jacket; rain cape; cloth headwrap; simple sash; belt pouch; wooden tally
+medieval_outfit_song_china_female_peasant|plain shift; skirt or trousers; cloth socks; cloth shoes; cross-collar work robe; rain cape; headcloth; simple sash; pouch; hair pin
+medieval_outfit_song_china_male_artisan|work under-robe; narrow trousers; cloth shoes; work jacket; apron; cloth cap; tool sash; sleeve pouch; workshop tally; gloves
+medieval_outfit_song_china_female_artisan|work shift; skirt or trousers; cloth shoes; work robe; apron; headcloth; tool sash; sleeve pouch; hair pin; gloves
+medieval_outfit_song_china_male_merchant|fine under-robe; trousers; cloth shoes; merchant robe; lined outer robe; scholar-style cap; silk sash; account sleeve pouch; seal cord; gloves
+medieval_outfit_song_china_female_merchant|fine shift; skirt; cloth shoes; cross-collar merchant robe; lined outer robe; headcloth or cap; silk sash; purse; hair ornament; account sleeve pouch
+medieval_outfit_song_china_male_noble|silk under-robe; fine trousers; soft shoes; scholar robe; padded winter robe; official cap; silk sash; document sleeve pouch; official badge; gloves
+medieval_outfit_song_china_female_noble|silk shift; fine skirt; soft shoes; elegant cross-collar robe; padded winter robe; formal headwear; silk sash; alms purse; hair ornament; pendant
+medieval_outfit_song_china_male_religious|plain under-robe; trousers; sandals or cloth shoes; scholar-monastic robe; plain cloak; simple cap; cord sash; book pouch; prayer beads; notebook
+medieval_outfit_song_china_female_religious|plain shift; skirt or trousers; cloth shoes; religious robe; plain cloak; head veil or cloth; cord sash; book pouch; prayer beads; prayer slip
+medieval_outfit_song_china_male_military|arming under-robe; trousers; boots; padded military vest; lamellar cover robe; military cap; weapon sash; field pouch; guard token; bracers
+medieval_outfit_song_china_female_military|arming shift; trousers or split skirt; boots; padded military vest; lamellar cover robe; headcloth under cap; weapon sash; field pouch; guard token; bracers
 ";
 
 	private static readonly MedievalOutfitPieceSpec[] MedievalExplicitOutfitPieces =
@@ -2339,7 +2448,8 @@ medieval_outfit_iberian_christian_female_military|arming shift; split riding ski
 		var lower = pieceName.ToLowerInvariant();
 		return lower.Contains("shoe", StringComparison.Ordinal) ||
 		       lower.Contains("boot", StringComparison.Ordinal) ||
-		       lower.Contains("sandal", StringComparison.Ordinal);
+		       lower.Contains("sandal", StringComparison.Ordinal) ||
+		       lower.Contains("slipper", StringComparison.Ordinal);
 	}
 
 	private static IReadOnlyList<MedievalItemSpec> MedievalExplicitOutfitPieceItemSpecs()
@@ -2369,7 +2479,7 @@ medieval_outfit_iberian_christian_female_military|arming shift; split riding ski
 			piece.StableReference,
 			MedievalExplicitOutfitPieceNoun(piece.PieceName),
 			shortDescription,
-			$"This {piece.PieceName} belongs to the {culture.Display} {piece.SexGenderPresentation} {piece.SocialClassRole} outfit. It fills the {slotList} outfit slot for the explicit medieval North Atlantic and British catalogue.",
+			$"This {piece.PieceName} belongs to the {culture.Display} {piece.SexGenderPresentation} {piece.SocialClassRole} outfit. It fills the {slotList} outfit slot for the explicit medieval outfit catalogue.",
 			size,
 			quality,
 			weight,
@@ -2413,6 +2523,14 @@ medieval_outfit_iberian_christian_female_military|arming shift; split riding ski
 			"capetian" => "Capetian",
 			"german_hre" => "German-HRE",
 			"iberian_christian" => "Iberian Christian",
+			"andalusi" => "Andalusi",
+			"byzantine" => "Byzantine",
+			"abbasid" => "Abbasid",
+			"fatimid" => "Fatimid",
+			"seljuk_ayyubid" => "Seljuk-Ayyubid",
+			"rus_novgorod" => "Rus-Novgorod",
+			"steppe_turkic" => "Steppe Turkic",
+			"song_china" => "Song Chinese",
 			_ => MedievalCultureProfiles.Single(x => x.Key.Equals(cultureKey, StringComparison.OrdinalIgnoreCase)).Display
 		};
 	}
@@ -2426,10 +2544,14 @@ medieval_outfit_iberian_christian_female_military|arming shift; split riding ski
 		       lower.EndsWith("wraps", StringComparison.Ordinal) ||
 		       lower.EndsWith("footwraps", StringComparison.Ordinal) ||
 		       lower.EndsWith("shoes", StringComparison.Ordinal) ||
+		       lower.EndsWith("slippers", StringComparison.Ordinal) ||
 		       lower.EndsWith("boots", StringComparison.Ordinal) ||
 		       lower.EndsWith("sandals", StringComparison.Ordinal) ||
+		       lower.EndsWith("socks", StringComparison.Ordinal) ||
 		       lower.EndsWith("hose", StringComparison.Ordinal) ||
 		       lower.EndsWith("chausses", StringComparison.Ordinal) ||
+		       lower.EndsWith("sirwal", StringComparison.Ordinal) ||
+		       lower.EndsWith("onuchi", StringComparison.Ordinal) ||
 		       lower.EndsWith("bracers", StringComparison.Ordinal) ||
 		       lower.EndsWith("gloves", StringComparison.Ordinal) ||
 		       lower.EndsWith("mitts", StringComparison.Ordinal) ||
@@ -2507,15 +2629,47 @@ medieval_outfit_iberian_christian_female_military|arming shift; split riding ski
 			return ("beeswax", MaterialBehaviourType.Wax);
 		}
 
+		if (lower.Contains("paper", StringComparison.Ordinal) ||
+		    lower.Contains("notebook", StringComparison.Ordinal) ||
+		    lower.Contains("slip", StringComparison.Ordinal) ||
+		    lower.Contains("leaf", StringComparison.Ordinal) ||
+		    lower.Contains("booklet", StringComparison.Ordinal) ||
+		    lower.Contains("book", StringComparison.Ordinal) &&
+		    !lower.Contains("pouch", StringComparison.Ordinal))
+		{
+			return ("paper", MaterialBehaviourType.Fabric);
+		}
+
 		if (lower.Contains("wooden", StringComparison.Ordinal) ||
 		    lower.Contains("tally", StringComparison.Ordinal) ||
 		    lower.Contains("tablet", StringComparison.Ordinal) &&
 		    !lower.Contains("tablet-banded", StringComparison.Ordinal) &&
 		    !lower.Contains("tablet-woven", StringComparison.Ordinal) ||
-		    lower.Contains("book", StringComparison.Ordinal) ||
 		    lower.Contains("board", StringComparison.Ordinal))
 		{
 			return ("oak", MaterialBehaviourType.Wood);
+		}
+
+		if (lower.Contains("cloth shoe", StringComparison.Ordinal))
+		{
+			return ("cotton", MaterialBehaviourType.Fabric);
+		}
+
+		if (lower.Contains("cotton", StringComparison.Ordinal))
+		{
+			return ("cotton", MaterialBehaviourType.Fabric);
+		}
+
+		if (lower.Contains("felt", StringComparison.Ordinal))
+		{
+			return ("felt", MaterialBehaviourType.Fabric);
+		}
+
+		if (slotKeys.Contains(MedievalOutfitSlotHeadwear, StringComparer.OrdinalIgnoreCase) &&
+		    (lower.Contains("fur cap", StringComparison.Ordinal) ||
+		     lower.Contains("fur hat", StringComparison.Ordinal)))
+		{
+			return ("fur", MaterialBehaviourType.Hair);
 		}
 
 		if (lower.Contains("leather", StringComparison.Ordinal) ||
@@ -2523,6 +2677,7 @@ medieval_outfit_iberian_christian_female_military|arming shift; split riding ski
 		    lower.Contains("shoe", StringComparison.Ordinal) ||
 		    lower.Contains("boot", StringComparison.Ordinal) ||
 		    lower.Contains("sandal", StringComparison.Ordinal) ||
+		    lower.Contains("slipper", StringComparison.Ordinal) ||
 		    lower.Contains("harness", StringComparison.Ordinal) ||
 		    lower.Contains("bracer", StringComparison.Ordinal))
 		{
@@ -2535,9 +2690,16 @@ medieval_outfit_iberian_christian_female_military|arming shift; split riding ski
 		}
 
 		if (lower.Contains("linen", StringComparison.Ordinal) ||
+		    lower.Contains("qamis", StringComparison.Ordinal) ||
+		    lower.Contains("rubakha", StringComparison.Ordinal) ||
+		    lower.Contains("shift", StringComparison.Ordinal) ||
+		    lower.Contains("under-robe", StringComparison.Ordinal) ||
+		    lower.Contains("cloth", StringComparison.Ordinal) ||
 		    lower.Contains("coif", StringComparison.Ordinal) ||
 		    lower.Contains("veil", StringComparison.Ordinal) ||
 		    lower.Contains("headcloth", StringComparison.Ordinal) ||
+		    lower.Contains("headwrap", StringComparison.Ordinal) ||
+		    lower.Contains("headscarf", StringComparison.Ordinal) ||
 		    lower.Contains("head rail", StringComparison.Ordinal))
 		{
 			return ("linen", MaterialBehaviourType.Fabric);
@@ -2547,6 +2709,12 @@ medieval_outfit_iberian_christian_female_military|arming shift; split riding ski
 		    lower.Contains("cord", StringComparison.Ordinal))
 		{
 			return ("hemp", MaterialBehaviourType.Fabric);
+		}
+
+		if (lower.Contains("sash", StringComparison.Ordinal) ||
+		    lower.Contains("girdle", StringComparison.Ordinal))
+		{
+			return ("wool", MaterialBehaviourType.Fabric);
 		}
 
 		if (slotKeys.Contains(MedievalOutfitSlotBeltOrSash, StringComparer.OrdinalIgnoreCase) ||
@@ -2633,7 +2801,8 @@ medieval_outfit_iberian_christian_female_military|arming shift; split riding ski
 		{
 			components.Add(lower.Contains("footwrap", StringComparison.Ordinal) ||
 			               lower.Contains("sock", StringComparison.Ordinal) ||
-			               lower.Contains("leg wrap", StringComparison.Ordinal)
+			               lower.Contains("leg wrap", StringComparison.Ordinal) ||
+			               lower.Contains("onuchi", StringComparison.Ordinal)
 				? "Wear_Socks"
 				: "Wear_Chausses");
 			components.Add("Insulation_Moderate");
@@ -2663,7 +2832,9 @@ medieval_outfit_iberian_christian_female_military|arming shift; split riding ski
 			}
 			else if (lower.Contains("harness", StringComparison.Ordinal) ||
 			         lower.Contains("axe loop", StringComparison.Ordinal) ||
-			         lower.Contains("hook", StringComparison.Ordinal))
+			         lower.Contains("hook", StringComparison.Ordinal) ||
+			         lower.Contains("bowcase", StringComparison.Ordinal) ||
+			         lower.Contains("quiver", StringComparison.Ordinal))
 			{
 				components.Add("Wear_Waist");
 				components.Add("Beltable");
@@ -3002,6 +3173,10 @@ medieval_outfit_iberian_christian_female_military|arming shift; split riding ski
 
 	internal static IReadOnlyCollection<string> MedievalContinentalWesternOutfitCultureKeysForTesting =>
 		MedievalContinentalWesternOutfitCultureKeys
+			.ToArray();
+
+	internal static IReadOnlyCollection<string> MedievalEasternOutfitCultureKeysForTesting =>
+		MedievalEasternOutfitCultureKeys
 			.ToArray();
 
 	internal static IReadOnlyCollection<string> MedievalExplicitOutfitCultureKeysForTesting =>

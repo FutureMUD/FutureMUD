@@ -32,7 +32,7 @@ Use three levels of clothing content:
 
 The existing generated status-role wardrobe can remain as a generic fallback, but it should not count as fulfilling the explicit outfit catalogue.
 
-MED-OUTFIT-001 adds an executable `MedievalOutfitSpec` catalogue in `ItemSeeder.Rework.Medieval.cs`. The first scaffold maps each complete outfit to the current craftable baseline wardrobe and role accessories, and records those slots as intentionally shared/generic. MED-OUTFIT-002 replaces that scaffold for the North Atlantic and British priority set (`early_anglo_saxon`, `anglo_danish`, `norse`, `norman`, `high_british`, and `gaelic`) with exact outfit-piece item specs generated from `Medieval_Outfit_Catalogue.md`. MED-OUTFIT-003 extends explicit outfit-piece generation to the Continental Western and Central set (`carolingian`, `capetian`, `german_hre`, and `iberian_christian`).
+MED-OUTFIT-001 adds an executable `MedievalOutfitSpec` catalogue in `ItemSeeder.Rework.Medieval.cs`. The first scaffold maps each complete outfit to the current craftable baseline wardrobe and role accessories, and records those slots as intentionally shared/generic. MED-OUTFIT-002 replaces that scaffold for the North Atlantic and British priority set (`early_anglo_saxon`, `anglo_danish`, `norse`, `norman`, `high_british`, and `gaelic`) with exact outfit-piece item specs generated from `Medieval_Outfit_Catalogue.md`. MED-OUTFIT-003 extends explicit outfit-piece generation to the Continental Western and Central set (`carolingian`, `capetian`, `german_hre`, and `iberian_christian`). MED-OUTFIT-004 completes explicit outfit-piece generation for the eastern, Islamic, Rus, steppe, and Song set (`andalusi`, `byzantine`, `abbasid`, `fatimid`, `seljuk_ayyubid`, `rus_novgorod`, `steppe_turkic`, and `song_china`).
 
 ## Outfit Axes
 
@@ -169,8 +169,11 @@ Add tests that verify:
 - Outfit slot references are exposed through testing accessors, including intentionally shared/generic slot markers.
 - The six MED-OUTFIT-002 cultures have 12 explicit outfits each with no generic/shared slot markers.
 - The four MED-OUTFIT-003 cultures have 12 explicit outfits each with no generic/shared slot markers.
+- The eight MED-OUTFIT-004 cultures have 12 explicit outfits each with no generic/shared slot markers.
 - Explicit outfit-piece final craft names include the named object and reject `regional pattern`.
 - Cluster vocabulary tests cover high-belted Carolingian dress, Capetian burgher/guild garments, German/HRE civic and militia clothing, and Iberian saya/pellote/manto/toca/frontier riding garments.
+- Eastern-cluster vocabulary tests cover Andalusi qamis/sirwal/burnous/tiraz, Byzantine skaramangion/sagion/silk dalmatic, Abbasid qamis/qaba/caftan/scholar robe, Fatimid linen/cotton/tiraz/court kaftan, Seljuk riding caftans and bowcase belts, Rus rubakha/onuchi/fur/birchbark, steppe felt riding caftans and bowcase-and-quiver belts, and Song cross-collar robes, official caps, padded winter robes, and cloth shoes.
+- Explicit outfit-piece craft inputs exercise linen, cotton, silk, paper, lamellar, felt, and fur stock families where those materials appear in the target rows.
 - Every outfit has at least four culture-specific or cluster-specific pieces.
 - Every class differs from the others in at least two slots.
 - Male/female variants differ in at least two slots unless documented as unisex.

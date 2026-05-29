@@ -8,7 +8,7 @@ The goal is that a builder can dress a male or female character of each social c
 
 `ItemSeeder.Rework.Medieval.cs` now mirrors this file with `MedievalOutfitSpec` definitions. Each code-side outfit records its culture key, sex/gender presentation, social class/role, display name, slot-to-stable-reference map, and intentionally shared/generic slots.
 
-For MED-OUTFIT-001 the code scaffold resolved outfit slots to the current craftable common/status wardrobe plus craftable v1 role accessories. MED-OUTFIT-002 replaces that scaffold for `early_anglo_saxon`, `anglo_danish`, `norse`, `norman`, `high_british`, and `gaelic` with explicit outfit-piece item specs and final-product crafts generated from the exact target-piece rows below. MED-OUTFIT-003 extends the same explicit implementation to `carolingian`, `capetian`, `german_hre`, and `iberian_christian`.
+For MED-OUTFIT-001 the code scaffold resolved outfit slots to the current craftable common/status wardrobe plus craftable v1 role accessories. MED-OUTFIT-002 replaces that scaffold for `early_anglo_saxon`, `anglo_danish`, `norse`, `norman`, `high_british`, and `gaelic` with explicit outfit-piece item specs and final-product crafts generated from the exact target-piece rows below. MED-OUTFIT-003 extends the same explicit implementation to `carolingian`, `capetian`, `german_hre`, and `iberian_christian`. MED-OUTFIT-004 completes the explicit pass for `andalusi`, `byzantine`, `abbasid`, `fatimid`, `seljuk_ayyubid`, `rus_novgorod`, `steppe_turkic`, and `song_china`.
 
 Explicit implemented outfit pieces use stable references shaped as:
 
@@ -16,7 +16,7 @@ Explicit implemented outfit pieces use stable references shaped as:
 medieval_outfit_piece_{culture}_{sex}_{class}_{piece}
 ```
 
-Those stable references are not generic wardrobe baselines. Cultures outside the implemented MED-OUTFIT-002 and MED-OUTFIT-003 clusters continue to use the shared scaffold until their explicit outfit-piece passes are implemented.
+Those stable references are not generic wardrobe baselines. All 18 medieval culture keys now have explicit outfit-piece rows; the generated common/status wardrobe remains only a baseline fallback pattern for future non-catalogue use.
 
 ## Outfit Reference Pattern
 
@@ -236,14 +236,14 @@ The piece lists below are target contents. The implementation may split or merge
 | `medieval_outfit_andalusi_female_peasant` | linen shift; loose sirwal or skirt; footwraps; sandals; plain long robe; light wrap cloak; veiled headcloth; woven sash; pouch; cord amulet |
 | `medieval_outfit_andalusi_male_artisan` | work qamis; sirwal; leather sandals; workshop robe; short burnous; wrapped turban; leather sash; tool pouch; small amulet; sleeve ties |
 | `medieval_outfit_andalusi_female_artisan` | work shift; loose trousers or skirt; sandals; work robe; apron wrap; veiled headcloth; sash; tool pouch; amulet; sleeve ties |
-| `medieval_outfit_andalusi_male_merchant` | fine qamis; sirwal; soft slippers; qabā’ caftan; lined burnous; turban; merchant sash; contract pouch; signet ring; perfume flask |
+| `medieval_outfit_andalusi_male_merchant` | fine qamis; sirwal; soft slippers; qaba caftan; lined burnous; turban; merchant sash; contract pouch; signet ring; perfume flask |
 | `medieval_outfit_andalusi_female_merchant` | fine shift; sirwal or under-robe; soft slippers; tiraz-banded robe; lined cloak; veil; decorated sash; purse; amulet pendant; perfume flask |
 | `medieval_outfit_andalusi_male_noble` | silk qamis; fine sirwal; soft slippers; tiraz-banded court robe; rich burnous; fine turban; silk sash; seal pouch; signet ring; embroidered gloves |
 | `medieval_outfit_andalusi_female_noble` | fine shift; silk under-robe; soft slippers; embroidered court robe; rich mantle; fine veil; silk sash; alms purse; pendant; perfume flask |
 | `medieval_outfit_andalusi_male_religious` | plain qamis; sirwal; sandals; scholar robe; plain cloak; wrapped turban; cord sash; book pouch; prayer beads; writing tablet |
 | `medieval_outfit_andalusi_female_religious` | plain shift; under-robe; sandals; modest robe; plain wrap; veil; cord sash; book pouch; prayer beads; devotional slip |
-| `medieval_outfit_andalusi_male_military` | arming qamis; sirwal; riding boots; quilted coat; riding burnous; turban-helm liner; bowcase belt; field pouch; leather bracers; amulet |
-| `medieval_outfit_andalusi_female_military` | arming shift; sirwal or split skirt; riding boots; quilted riding coat; riding burnous; veiled headwrap under cap; bowcase belt; field pouch; bracers; amulet |
+| `medieval_outfit_andalusi_male_military` | arming qamis; sirwal; riding boots; quilted coat; riding burnous; turban-helm liner; bowcase belt; field pouch; amulet; leather bracers |
+| `medieval_outfit_andalusi_female_military` | arming shift; sirwal or split skirt; riding boots; quilted riding coat; riding burnous; veiled headwrap under cap; bowcase belt; field pouch; amulet; bracers |
 
 ### Byzantine (`byzantine`)
 
@@ -253,14 +253,14 @@ The piece lists below are target contents. The implementation may split or merge
 | `medieval_outfit_byzantine_female_peasant` | linen shift; lower gown; footwraps; sandals; plain long tunic; wool wrap; head veil; woven belt; pouch; wooden cross |
 | `medieval_outfit_byzantine_male_artisan` | work under-robe; trousers; shoes; workshop tunic; short cloak; cap; tool belt; tool pouch; small icon token; gloves |
 | `medieval_outfit_byzantine_female_artisan` | work shift; undergown; shoes; work gown; apron wrap; head veil; tool belt; pouch; icon token; sleeve ties |
-| `medieval_outfit_byzantine_male_merchant` | fine under-robe; trousers; soft shoes; belted robe; lined sagion; cap; purse belt; account pouch; seal ring; gloves |
+| `medieval_outfit_byzantine_male_merchant` | fine under-robe; trousers; soft shoes; belted skaramangion robe; lined sagion; cap; purse belt; account pouch; seal ring; gloves |
 | `medieval_outfit_byzantine_female_merchant` | fine shift; undergown; soft shoes; formal gown; lined mantle; veil; decorated girdle; purse; icon pendant; gloves |
 | `medieval_outfit_byzantine_male_noble` | silk under-robe; fine trousers; soft boots; silk dalmatic; court sagion; court cap; court belt; seal pouch; enamel pendant; gloves |
 | `medieval_outfit_byzantine_female_noble` | silk shift; fine gown; soft shoes; embroidered silk robe; court mantle; fine veil; court girdle; alms purse; enamel pendant; icon pouch |
 | `medieval_outfit_byzantine_male_religious` | plain under-robe; trousers; sandals; monastic robe; cowl cloak; hood; cord belt; book pouch; cross pendant; icon tablet |
 | `medieval_outfit_byzantine_female_religious` | plain shift; wool robe; sandals; monastic robe; cowl cloak; veil; cord belt; book pouch; cross pendant; prayer tablet |
-| `medieval_outfit_byzantine_male_military` | arming under-robe; trousers; boots; military padded tunic; lamellar coat cover; padded cap; military belt; field pouch; scabbard harness; icon token |
-| `medieval_outfit_byzantine_female_military` | arming shift; trousers or split skirt; boots; military padded robe; lamellar coat cover; head veil under cap; military belt; field pouch; scabbard harness; icon token |
+| `medieval_outfit_byzantine_male_military` | arming under-robe; trousers; boots; military padded tunic; lamellar coat cover; padded cap; military belt; field pouch; icon token; scabbard harness |
+| `medieval_outfit_byzantine_female_military` | arming shift; trousers or split skirt; boots; military padded robe; lamellar coat cover; head veil under cap; military belt; field pouch; icon token; scabbard harness |
 
 ### Abbasid / Persianate (`abbasid`)
 
@@ -276,8 +276,8 @@ The piece lists below are target contents. The implementation may split or merge
 | `medieval_outfit_abbasid_female_noble` | silk shift; fine under-robe; soft slippers; court robe; rich mantle; fine veil; silk sash; alms purse; pendant; gloves |
 | `medieval_outfit_abbasid_male_religious` | plain qamis; sirwal; sandals; scholar robe; plain cloak; turban; cord sash; book pouch; prayer beads; notebook |
 | `medieval_outfit_abbasid_female_religious` | plain shift; modest robe; sandals; scholar or devotional robe; plain wrap; veil; cord sash; book pouch; prayer beads; prayer slip |
-| `medieval_outfit_abbasid_male_military` | arming qamis; sirwal; riding boots; lamellar-sleeved coat; riding cloak; turban-helm liner; weapon sash; field pouch; bowcase belt; bracers |
-| `medieval_outfit_abbasid_female_military` | arming shift; sirwal or split skirt; riding boots; lamellar-sleeved riding coat; riding cloak; veiled headwrap; weapon sash; field pouch; bowcase belt; bracers |
+| `medieval_outfit_abbasid_male_military` | arming qamis; sirwal; riding boots; lamellar-sleeved coat; riding cloak; turban-helm liner; weapon sash; field pouch; amulet; bowcase belt |
+| `medieval_outfit_abbasid_female_military` | arming shift; sirwal or split skirt; riding boots; lamellar-sleeved riding coat; riding cloak; veiled headwrap; weapon sash; field pouch; amulet; bowcase belt |
 
 ### Fatimid Egypt / Ifriqiya (`fatimid`)
 
@@ -293,8 +293,8 @@ The piece lists below are target contents. The implementation may split or merge
 | `medieval_outfit_fatimid_female_noble` | silk shift; fine robe; soft slippers; court robe; light mantle; fine veil; silk sash; alms purse; pendant; scent flask |
 | `medieval_outfit_fatimid_male_religious` | plain qamis; light trousers; sandals; scholar robe; plain cloak; turban; cord sash; book pouch; prayer beads; endowment slip |
 | `medieval_outfit_fatimid_female_religious` | plain shift; modest robe; sandals; devotional robe; plain wrap; veil; cord sash; book pouch; prayer beads; prayer slip |
-| `medieval_outfit_fatimid_male_military` | arming qamis; trousers; riding boots; padded coat with scale panels; guard cloak; turban-helm liner; weapon belt; field pouch; archer quiver; bracers |
-| `medieval_outfit_fatimid_female_military` | arming shift; trousers or split skirt; riding boots; padded guard coat; guard cloak; veiled headwrap; weapon belt; field pouch; archer quiver; bracers |
+| `medieval_outfit_fatimid_male_military` | arming qamis; trousers; riding boots; padded coat with scale panels; guard cloak; turban-helm liner; weapon belt; field pouch; amulet; archer quiver |
+| `medieval_outfit_fatimid_female_military` | arming shift; trousers or split skirt; riding boots; padded guard coat; guard cloak; veiled headwrap; weapon belt; field pouch; amulet; archer quiver |
 
 ### Seljuk / Ayyubid / early Mamluk (`seljuk_ayyubid`)
 
@@ -302,7 +302,7 @@ The piece lists below are target contents. The implementation may split or merge
 | --- | --- |
 | `medieval_outfit_seljuk_ayyubid_male_peasant` | linen qamis; wool sirwal; footwraps; boots; plain caftan; felt cloak; simple turban; sash; pouch; amulet |
 | `medieval_outfit_seljuk_ayyubid_female_peasant` | linen shift; loose sirwal or skirt; footwraps; boots; plain long robe; felt cloak; veiled headwrap; sash; pouch; amulet |
-| `medieval_outfit_seljuk_ayyubid_male_artisan` | work qamis; sirwal; boots; quilted work coat; short cloak; turban; tool sash; tool pouch; amulet; gloves |
+| `medieval_outfit_seljuk_ayyubid_male_artisan` | work qamis; sirwal; boots; quilted coat; short cloak; turban; tool sash; tool pouch; amulet; gloves |
 | `medieval_outfit_seljuk_ayyubid_female_artisan` | work shift; sirwal or skirt; boots; quilted work robe; apron wrap; veil; sash; tool pouch; amulet; gloves |
 | `medieval_outfit_seljuk_ayyubid_male_merchant` | fine qamis; sirwal; soft boots; riding caftan; lined cloak; turban; merchant sash; contract pouch; signet ring; gloves |
 | `medieval_outfit_seljuk_ayyubid_female_merchant` | fine shift; under-robe; soft boots; fine caftan robe; lined mantle; veil; decorated sash; purse; pendant; gloves |
@@ -310,8 +310,8 @@ The piece lists below are target contents. The implementation may split or merge
 | `medieval_outfit_seljuk_ayyubid_female_noble` | silk shift; fine under-robe; soft boots; embroidered court robe; fur-edged mantle; fine veil; silk sash; alms purse; pendant; gloves |
 | `medieval_outfit_seljuk_ayyubid_male_religious` | plain qamis; sirwal; sandals; scholar robe; plain cloak; turban; cord sash; book pouch; prayer beads; madrasa notebook |
 | `medieval_outfit_seljuk_ayyubid_female_religious` | plain shift; modest robe; sandals; devotional robe; plain wrap; veil; cord sash; book pouch; prayer beads; prayer slip |
-| `medieval_outfit_seljuk_ayyubid_male_military` | arming qamis; sirwal; high riding boots; quilted riding coat; lamellar coat cover; turban-helm liner; bowcase belt; field pouch; leather gloves; bracers |
-| `medieval_outfit_seljuk_ayyubid_female_military` | arming shift; sirwal or split skirt; high riding boots; quilted riding robe; lamellar coat cover; veiled headwrap under cap; bowcase belt; field pouch; gloves; bracers |
+| `medieval_outfit_seljuk_ayyubid_male_military` | arming qamis; sirwal; high riding boots; quilted riding coat; lamellar coat cover; turban-helm liner; bowcase belt; field pouch; amulet; leather gloves |
+| `medieval_outfit_seljuk_ayyubid_female_military` | arming shift; sirwal or split skirt; high riding boots; quilted riding robe; lamellar coat cover; veiled headwrap under cap; bowcase belt; field pouch; amulet; gloves |
 
 ### Kyivan Rus / Novgorod (`rus_novgorod`)
 
@@ -327,15 +327,15 @@ The piece lists below are target contents. The implementation may split or merge
 | `medieval_outfit_rus_novgorod_female_noble` | fine shift; embroidered gown; soft boots; fur-edged court robe; fur-lined mantle; fine veil; rich girdle; alms purse; Orthodox pendant; gloves |
 | `medieval_outfit_rus_novgorod_male_religious` | plain rubakha; trousers; sandals; monastic robe; heavy cloak; hood; cord belt; book pouch; wooden cross; prayer slip |
 | `medieval_outfit_rus_novgorod_female_religious` | plain shift; wool robe; sandals; monastic robe; heavy cloak; veil; cord belt; book pouch; wooden cross; prayer slip |
-| `medieval_outfit_rus_novgorod_male_military` | arming rubakha; trousers; boots; padded war coat; fur-edged cloak; padded cap or helm liner; warrior belt; field pouch; axe loop; bracers |
-| `medieval_outfit_rus_novgorod_female_military` | arming shift; trousers or split skirt; boots; padded war coat; fur-edged cloak; headscarf under cap; warrior belt; field pouch; axe loop; bracers |
+| `medieval_outfit_rus_novgorod_male_military` | arming rubakha; trousers; boots; padded war coat; fur-edged cloak; padded cap or helm liner; warrior belt; field pouch; bronze cross; axe loop |
+| `medieval_outfit_rus_novgorod_female_military` | arming shift; trousers or split skirt; boots; padded war coat; fur-edged cloak; headscarf under cap; warrior belt; field pouch; bronze cross; axe loop |
 
 ### Steppe Turkic / Cuman / Mongol-adjacent (`steppe_turkic`)
 
 | Outfit Reference | Target Pieces |
 | --- | --- |
-| `medieval_outfit_steppe_turkic_male_peasant` | linen under-shirt; riding trousers; felt footwraps; high boots; tied felt coat; felt cloak; fur cap; sash; travel pouch; amulet |
-| `medieval_outfit_steppe_turkic_female_peasant` | linen shift; riding trousers or split skirt; felt footwraps; high boots; tied long coat; felt cloak; fur cap or headwrap; sash; travel pouch; amulet |
+| `medieval_outfit_steppe_turkic_male_peasant` | linen under-shirt; riding trousers; felt footwraps; high boots; tied riding coat; felt cloak; fur cap; sash; travel pouch; amulet |
+| `medieval_outfit_steppe_turkic_female_peasant` | linen shift; riding trousers or split skirt; felt footwraps; high boots; tied long riding coat; felt cloak; fur cap or headwrap; sash; travel pouch; amulet |
 | `medieval_outfit_steppe_turkic_male_artisan` | work shirt; trousers; boots; work caftan; short felt cloak; fur cap; tool sash; tool pouch; amulet; gloves |
 | `medieval_outfit_steppe_turkic_female_artisan` | work shift; trousers or skirt; boots; work coat; apron wrap; fur cap/headwrap; tool sash; tool pouch; amulet; gloves |
 | `medieval_outfit_steppe_turkic_male_merchant` | fine shirt; riding trousers; high boots; felt riding caftan; lined cloak; fur cap; merchant sash; trade pouch; seal tag; gloves |
@@ -344,8 +344,8 @@ The piece lists below are target contents. The implementation may split or merge
 | `medieval_outfit_steppe_turkic_female_noble` | silk shift; fine trousers or skirt; high boots; embroidered long caftan; fur-lined cloak; ornate headwrap; silk sash; alms purse; belt plaques; gloves |
 | `medieval_outfit_steppe_turkic_male_religious` | plain shirt; trousers; boots; sober caftan; felt cloak; fur cap; cord sash; pouch; prayer beads or amulet; herd tally |
 | `medieval_outfit_steppe_turkic_female_religious` | plain shift; trousers or skirt; boots; sober long coat; felt cloak; headwrap; cord sash; pouch; prayer beads or amulet; herd tally |
-| `medieval_outfit_steppe_turkic_male_military` | arming shirt; riding trousers; high boots; lamellar coat cover; felt war cloak; fur cap helm liner; bowcase-quiver belt; field pouch; horseman gloves; bracers |
-| `medieval_outfit_steppe_turkic_female_military` | arming shift; riding trousers; high boots; lamellar riding coat cover; felt war cloak; fur cap/headwrap; bowcase-quiver belt; field pouch; horseman gloves; bracers |
+| `medieval_outfit_steppe_turkic_male_military` | arming shirt; riding trousers; high boots; lamellar coat cover; felt war cloak; fur cap helm liner; bowcase-and-quiver belt; field pouch; amulet; horseman gloves |
+| `medieval_outfit_steppe_turkic_female_military` | arming shift; riding trousers; high boots; lamellar riding coat cover; felt war cloak; fur cap/headwrap; bowcase-and-quiver belt; field pouch; amulet; horseman gloves |
 
 ### Song China (`song_china`)
 
@@ -357,9 +357,9 @@ The piece lists below are target contents. The implementation may split or merge
 | `medieval_outfit_song_china_female_artisan` | work shift; skirt or trousers; cloth shoes; work robe; apron; headcloth; tool sash; sleeve pouch; hair pin; gloves |
 | `medieval_outfit_song_china_male_merchant` | fine under-robe; trousers; cloth shoes; merchant robe; lined outer robe; scholar-style cap; silk sash; account sleeve pouch; seal cord; gloves |
 | `medieval_outfit_song_china_female_merchant` | fine shift; skirt; cloth shoes; cross-collar merchant robe; lined outer robe; headcloth or cap; silk sash; purse; hair ornament; account sleeve pouch |
-| `medieval_outfit_song_china_male_noble` | silk under-robe; fine trousers; soft shoes; scholar robe; padded outer robe; official cap; silk sash; document sleeve pouch; official badge; gloves |
-| `medieval_outfit_song_china_female_noble` | silk shift; fine skirt; soft shoes; elegant cross-collar robe; padded outer robe; formal headwear; silk sash; alms purse; hair ornament; pendant |
+| `medieval_outfit_song_china_male_noble` | silk under-robe; fine trousers; soft shoes; scholar robe; padded winter robe; official cap; silk sash; document sleeve pouch; official badge; gloves |
+| `medieval_outfit_song_china_female_noble` | silk shift; fine skirt; soft shoes; elegant cross-collar robe; padded winter robe; formal headwear; silk sash; alms purse; hair ornament; pendant |
 | `medieval_outfit_song_china_male_religious` | plain under-robe; trousers; sandals or cloth shoes; scholar-monastic robe; plain cloak; simple cap; cord sash; book pouch; prayer beads; notebook |
 | `medieval_outfit_song_china_female_religious` | plain shift; skirt or trousers; cloth shoes; religious robe; plain cloak; head veil or cloth; cord sash; book pouch; prayer beads; prayer slip |
-| `medieval_outfit_song_china_male_military` | arming under-robe; trousers; boots; padded military vest; lamellar cover robe; military cap; weapon sash; field pouch; bracers; guard token |
-| `medieval_outfit_song_china_female_military` | arming shift; trousers or split skirt; boots; padded military vest; lamellar cover robe; headcloth under cap; weapon sash; field pouch; bracers; guard token |
+| `medieval_outfit_song_china_male_military` | arming under-robe; trousers; boots; padded military vest; lamellar cover robe; military cap; weapon sash; field pouch; guard token; bracers |
+| `medieval_outfit_song_china_female_military` | arming shift; trousers or split skirt; boots; padded military vest; lamellar cover robe; headcloth under cap; weapon sash; field pouch; guard token; bracers |

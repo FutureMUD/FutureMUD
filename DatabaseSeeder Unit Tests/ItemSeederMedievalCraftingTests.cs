@@ -295,6 +295,12 @@ public class ItemSeederMedievalCraftingTests
 	}
 
 	[TestMethod]
+	public void MedievalEasternOutfits_AreExplicitCompleteAndVariantDistinct()
+	{
+		AssertExplicitOutfitClusterComplete(ItemSeeder.MedievalEasternOutfitCultureKeysForTesting, 8, 96);
+	}
+
+	[TestMethod]
 	public void MedievalNorthAtlanticOutfits_ContainRequiredCultureVocabulary()
 	{
 		var piecesByCulture = ItemSeeder.MedievalExplicitOutfitPiecesForTesting
@@ -355,6 +361,39 @@ public class ItemSeederMedievalCraftingTests
 	}
 
 	[TestMethod]
+	public void MedievalEasternOutfits_ContainRequiredCultureVocabulary()
+	{
+		var piecesByCulture = ItemSeeder.MedievalExplicitOutfitPiecesForTesting
+			.GroupBy(x => x.CultureKey, StringComparer.OrdinalIgnoreCase)
+			.ToDictionary(
+				x => x.Key,
+				x => string.Join(" ", x.Select(piece => piece.PieceName)).ToLowerInvariant(),
+				StringComparer.OrdinalIgnoreCase);
+		var required = new Dictionary<string, string[]>(StringComparer.OrdinalIgnoreCase)
+		{
+			["andalusi"] = ["qamis", "sirwal", "burnous", "turban", "tiraz"],
+			["byzantine"] = ["silk dalmatic", "sagion", "court belt", "icon pouch", "skaramangion"],
+			["abbasid"] = ["qamis", "qaba", "caftan", "scholar robe", "sash"],
+			["fatimid"] = ["linen robe", "tiraz-banded", "cotton wrap", "court kaftan"],
+			["seljuk_ayyubid"] = ["riding caftan", "quilted coat", "high riding boots", "bowcase belt"],
+			["rus_novgorod"] = ["rubakha", "fur-edged kaftan", "onuchi", "fur hat", "birchbark"],
+			["steppe_turkic"] = ["felt riding caftan", "tied riding coat", "high boots", "bowcase-and-quiver"],
+			["song_china"] = ["cross-collar robe", "scholar robe", "official cap", "padded winter robe", "cloth shoes"]
+		};
+
+		foreach (var culture in ItemSeeder.MedievalEasternOutfitCultureKeysForTesting)
+		{
+			Assert.IsTrue(piecesByCulture.TryGetValue(culture, out var sourceText),
+				$"Expected explicit outfit vocabulary source for {culture}.");
+			foreach (var expected in required[culture])
+			{
+				Assert.IsTrue(sourceText.Contains(expected, StringComparison.OrdinalIgnoreCase),
+					$"Expected {culture} outfit vocabulary to include {expected}.");
+			}
+		}
+	}
+
+	[TestMethod]
 	public void MedievalExplicitOutfitPieceCraftNames_UseNamedObjectsAndTextileStocks()
 	{
 		var craftNames = ItemSeeder.MedievalExplicitOutfitPieceCraftsForTesting;
@@ -385,6 +424,11 @@ public class ItemSeederMedievalCraftingTests
 			         "Embroidered Trim Stock",
 			         "Tablet-Woven Band Stock",
 			         "Quilted Armour Padding",
+			         "Silk Brocade Panel",
+			         "Paper Sheet Stock",
+			         "Armour Lamella Stock",
+			         "Fulled Cloth",
+			         "Fur Panel Stock",
 			         "Turnshoe Upper Stock",
 			         "Spun Yarn"
 		         })
@@ -409,6 +453,43 @@ public class ItemSeederMedievalCraftingTests
 					x.Contains("Broadcloth Stock", StringComparison.OrdinalIgnoreCase) ||
 					x.Contains("Spun Yarn", StringComparison.OrdinalIgnoreCase)),
 				$"Reviewed hardware piece {stableReference} should not be generated as a sewn textile craft.");
+		}
+
+		var expectedInputsByStableReference = new Dictionary<string, string[]>(StringComparer.OrdinalIgnoreCase)
+		{
+			["medieval_outfit_piece_fatimid_male_peasant_cotton_lower_wrap"] = ["cotton", "Garment Cloth"],
+			["medieval_outfit_piece_byzantine_male_noble_silk_dalmatic"] = ["silk", "Silk Brocade Panel"],
+			["medieval_outfit_piece_byzantine_male_military_lamellar_coat_cover"] = ["Armour Lamella Stock"],
+			["medieval_outfit_piece_steppe_turkic_male_merchant_felt_riding_caftan"] = ["felt", "Fulled Cloth"],
+			["medieval_outfit_piece_rus_novgorod_male_merchant_fur_edged_kaftan"] = ["fur", "Fur Panel Stock"],
+			["medieval_outfit_piece_abbasid_male_religious_notebook"] = ["paper", "Paper Sheet Stock"],
+			["medieval_outfit_piece_song_china_male_peasant_cloth_shoes"] = ["cotton", "Garment Cloth"],
+			["medieval_outfit_piece_song_china_male_noble_padded_winter_robe"] = ["Quilted Armour Padding"]
+		};
+
+		foreach (var (stableReference, expectedInputs) in expectedInputsByStableReference)
+		{
+			Assert.IsTrue(craftByReference.TryGetValue(stableReference, out var craft),
+				$"Expected explicit outfit craft for eastern material-stock piece {stableReference}.");
+			foreach (var expectedInput in expectedInputs)
+			{
+				Assert.IsTrue(craft.Inputs.Any(x => x.Contains(expectedInput, StringComparison.OrdinalIgnoreCase)),
+					$"Expected {stableReference} craft inputs to include {expectedInput}.");
+			}
+		}
+
+		foreach (var stableReference in new[]
+		         {
+			         "medieval_outfit_piece_high_british_male_religious_small_prayer_book",
+			         "medieval_outfit_piece_capetian_male_religious_chapel_book"
+		         })
+		{
+			Assert.IsTrue(craftByReference.TryGetValue(stableReference, out var boundBookCraft),
+				$"Expected explicit outfit craft for bound paper item {stableReference}.");
+			Assert.IsTrue(boundBookCraft.Inputs.Any(x => x.Contains("Bookbinding Leather Stock", StringComparison.OrdinalIgnoreCase)),
+				$"Expected {stableReference} craft inputs to include bookbinding leather stock.");
+			Assert.IsTrue(boundBookCraft.Tools.Any(x => x.Contains("Book Press", StringComparison.OrdinalIgnoreCase)),
+				$"Expected {stableReference} craft tools to include a book press.");
 		}
 	}
 

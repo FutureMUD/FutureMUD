@@ -20,6 +20,12 @@ public partial class ItemSeeder
 		"Uses the live SealStamp, Sealable, or MeasuringInstrument component prototypes seeded by UsefulSeeder.";
 	private const string MedievalDeferredGapNote =
 		"Seeded as a prop because richer runtime support is deferred to a future engine component.";
+	private const string MedievalCatalogueAliasReason =
+		"Covered by an existing broader stable reference until a dedicated exact item spec is worth seeding.";
+	private const string MedievalCatalogueDeferredReason =
+		"Documented culture target retained for future material-culture expansion; no dedicated seeded item spec or alias exists yet.";
+	private const string MedievalCatalogueOutfitCoverageReason =
+		"Covered by explicit outfit-piece item specs rather than by an independent culture-catalogue item.";
 
 	private sealed record MedievalCultureProfile(
 		string Key,
@@ -98,8 +104,19 @@ public partial class ItemSeeder
 	{
 		public IEnumerable<MedievalCultureCatalogueEntry> Entries =>
 			StableReferencesByGroup.SelectMany(group => group.Value.Select(stableReference =>
-				new MedievalCultureCatalogueEntry(CultureKey, Display, group.Key, stableReference,
-					BuildMedievalExplicitShortDescription(CultureKey, stableReference))));
+			{
+				var classification = ClassifyMedievalCultureCatalogueReference(CultureKey, group.Key, stableReference);
+				return new MedievalCultureCatalogueEntry(
+					CultureKey,
+					Display,
+					group.Key,
+					stableReference,
+					BuildMedievalExplicitShortDescription(CultureKey, stableReference),
+					classification.Status,
+					classification.ImplementationStableReference,
+					classification.Reason,
+					classification.CraftCoverageExemption);
+			}));
 	}
 
 	private sealed record MedievalCultureCatalogueEntry(
@@ -107,7 +124,25 @@ public partial class ItemSeeder
 		string Display,
 		string Group,
 		string StableReference,
-		string ShortDescription);
+		string ShortDescription,
+		MedievalCultureCatalogueReferenceStatus Status,
+		string? ImplementationStableReference,
+		string? Reason,
+		string? CraftCoverageExemption);
+
+	internal enum MedievalCultureCatalogueReferenceStatus
+	{
+		ImplementedItem,
+		CoveredByOutfitPiece,
+		AliasOfExistingStableReference,
+		Deferred
+	}
+
+	private sealed record MedievalCultureCatalogueReferenceClassification(
+		MedievalCultureCatalogueReferenceStatus Status,
+		string? ImplementationStableReference,
+		string? Reason,
+		string? CraftCoverageExemption);
 
 	private sealed record MedievalOutfitSlot(
 		string Key,
@@ -259,6 +294,39 @@ public partial class ItemSeeder
 		MedievalCatalogueGroupFoodAndBeverage,
 		MedievalCatalogueGroupWritingAndAdministration,
 		MedievalCatalogueGroupHouseholdAndDevotional
+	];
+
+	private static readonly string[] MedievalCatalogueLowSignalWords =
+	[
+		"a",
+		"an",
+		"and",
+		"of",
+		"the",
+		"with",
+		"wool",
+		"linen",
+		"leather",
+		"silk",
+		"cotton",
+		"iron",
+		"wooden",
+		"soft",
+		"fine",
+		"plain",
+		"simple",
+		"heavy",
+		"light",
+		"small",
+		"large",
+		"noble",
+		"court",
+		"work",
+		"military",
+		"religious",
+		"monastic",
+		"regional",
+		"medieval"
 	];
 
 	private const string MedievalExplicitCultureCatalogueSource = @"
@@ -2220,6 +2288,401 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 			.ToArray();
 	}
 
+	private static MedievalCultureCatalogueReferenceClassification ClassifyMedievalCultureCatalogueReference(
+		string cultureKey, string group, string stableReference)
+	{
+		var implementedStableReferences = MedievalAllItemSpecs()
+			.Select(x => x.StableReference)
+			.ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+		if (implementedStableReferences.Contains(stableReference))
+		{
+			return new MedievalCultureCatalogueReferenceClassification(
+				MedievalCultureCatalogueReferenceStatus.ImplementedItem,
+				stableReference,
+				null,
+				null);
+		}
+
+		if (TryGetMedievalOutfitPieceCoverage(cultureKey, group, stableReference, out var outfitCoverage))
+		{
+			return new MedievalCultureCatalogueReferenceClassification(
+				MedievalCultureCatalogueReferenceStatus.CoveredByOutfitPiece,
+				outfitCoverage,
+				MedievalCatalogueOutfitCoverageReason,
+				null);
+		}
+
+		if (TryGetMedievalCultureCatalogueAlias(cultureKey, group, stableReference, implementedStableReferences,
+			    out var implementationStableReference))
+		{
+			return new MedievalCultureCatalogueReferenceClassification(
+				MedievalCultureCatalogueReferenceStatus.AliasOfExistingStableReference,
+				implementationStableReference,
+				MedievalCatalogueAliasReason,
+				null);
+		}
+
+		return new MedievalCultureCatalogueReferenceClassification(
+			MedievalCultureCatalogueReferenceStatus.Deferred,
+			null,
+			MedievalCatalogueDeferredReasonForGroup(group),
+			"Deferred");
+	}
+
+	private static bool TryGetMedievalOutfitPieceCoverage(string cultureKey, string group, string stableReference,
+		out string implementationStableReference)
+	{
+		implementationStableReference = string.Empty;
+		if (!group.Equals(MedievalCatalogueGroupClothing, StringComparison.Ordinal))
+		{
+			return false;
+		}
+
+		var tokenWords = MedievalCatalogueReferenceWords(cultureKey, stableReference);
+		var matches = MedievalExplicitOutfitPieces
+			.Where(x => x.CultureKey.Equals(cultureKey, StringComparison.OrdinalIgnoreCase))
+			.Select(piece => (
+				piece.StableReference,
+				Score: MedievalCatalogueWordOverlapScore(tokenWords, MedievalCatalogueReferenceWords(cultureKey, piece.PieceName))))
+			.Where(x => x.Score >= 2 || tokenWords.Count <= 2 && x.Score >= 1)
+			.OrderByDescending(x => x.Score)
+			.ThenBy(x => x.StableReference, StringComparer.OrdinalIgnoreCase)
+			.Select(x => x.StableReference)
+			.Distinct(StringComparer.OrdinalIgnoreCase)
+			.Take(3)
+			.ToArray();
+
+		if (matches.Length == 0)
+		{
+			return false;
+		}
+
+		implementationStableReference = string.Join("; ", matches);
+		return true;
+	}
+
+	private static bool TryGetMedievalCultureCatalogueAlias(string cultureKey, string group, string stableReference,
+		IReadOnlySet<string> implementedStableReferences, out string implementationStableReference)
+	{
+		implementationStableReference = group switch
+		{
+			MedievalCatalogueGroupMilitary => MedievalMilitaryCatalogueAlias(cultureKey, stableReference),
+			MedievalCatalogueGroupFoodAndBeverage => MedievalFoodCatalogueAlias(cultureKey, stableReference),
+			MedievalCatalogueGroupWritingAndAdministration => MedievalWritingCatalogueAlias(cultureKey, stableReference),
+			MedievalCatalogueGroupHouseholdAndDevotional => MedievalHouseholdDevotionalCatalogueAlias(cultureKey, stableReference),
+			_ => string.Empty
+		};
+
+		if (string.IsNullOrWhiteSpace(implementationStableReference) ||
+		    !implementedStableReferences.Contains(implementationStableReference))
+		{
+			implementationStableReference = string.Empty;
+			return false;
+		}
+
+		return true;
+	}
+
+	private static string MedievalMilitaryCatalogueAlias(string cultureKey, string stableReference)
+	{
+		var token = MedievalCatalogueReferenceToken(cultureKey, stableReference);
+		if (stableReference.StartsWith($"medieval_shield_{cultureKey}_", StringComparison.OrdinalIgnoreCase))
+		{
+			return $"medieval_shield_{cultureKey}";
+		}
+
+		if (stableReference.StartsWith($"medieval_weapon_{cultureKey}_", StringComparison.OrdinalIgnoreCase))
+		{
+			if (token.Contains("crossbow", StringComparison.OrdinalIgnoreCase))
+			{
+				return "medieval_weapon_common_crossbow";
+			}
+
+			var culture = MedievalCultureProfiles.Single(x => x.Key.Equals(cultureKey, StringComparison.OrdinalIgnoreCase));
+			var implementation = $"medieval_weapon_{culture.Key}_{StableReferenceToken(culture.WeaponNoun)}";
+			var implementationToken = MedievalCatalogueReferenceToken(cultureKey, implementation);
+			return MedievalCatalogueTokensOverlap(token, implementationToken) ? implementation : string.Empty;
+		}
+
+		if (!stableReference.StartsWith($"medieval_military_{cultureKey}_", StringComparison.OrdinalIgnoreCase))
+		{
+			return string.Empty;
+		}
+
+		if (MedievalCatalogueTokenContainsAny(token, "mail", "hauberk", "shirt", "coat", "armour", "armor", "lamellar",
+			    "corselet", "aketon", "gambeson", "quilted", "padded", "scale", "vest", "fittings"))
+		{
+			return $"medieval_military_{cultureKey}_armour";
+		}
+
+		if (MedievalCatalogueTokenContainsAny(token, "helm", "helmet", "kettle", "aventail"))
+		{
+			return $"medieval_military_{cultureKey}_helmet";
+		}
+
+		if (token.Contains("coif", StringComparison.OrdinalIgnoreCase))
+		{
+			return $"medieval_military_{cultureKey}_padded_coif";
+		}
+
+		if (MedievalCatalogueTokenContainsAny(token, "quiver", "gorytos", "bowcase", "arrow_bag"))
+		{
+			return $"medieval_military_{cultureKey}_arrow_quiver";
+		}
+
+		if (MedievalCatalogueTokenContainsAny(token, "belt", "harness", "sling"))
+		{
+			return $"medieval_military_{cultureKey}_sidearm_harness";
+		}
+
+		if (MedievalCatalogueTokenContainsAny(token, "banner", "standard"))
+		{
+			return $"medieval_military_{cultureKey}_war_banner";
+		}
+
+		return token.Contains("pack", StringComparison.OrdinalIgnoreCase)
+			? $"medieval_military_{cultureKey}_field_pack"
+			: string.Empty;
+	}
+
+	private static string MedievalFoodCatalogueAlias(string cultureKey, string stableReference)
+	{
+		var token = MedievalCatalogueReferenceToken(cultureKey, stableReference);
+		var target = MedievalCatalogueTokenContainsAny(token, "cup", "jack", "jug", "horn", "skin", "drink", "wine",
+			             "ale", "beer", "tea", "kumis", "sherbet", "syrup", "mare_milk", "sour_milk")
+			? "drinking_vessel"
+			: MedievalCatalogueTokenContainsAny(token, "ration", "packet", "stockfish", "smoked", "salted", "dried",
+				"preserved", "travel", "shipboard", "wrapped")
+				? "market_ration"
+				: MedievalCatalogueTokenContainsAny(token, "bread", "loaf", "flatbread", "bannock", "trencher",
+					"noodle", "bun")
+					? "staple_bread"
+					: MedievalCatalogueTokenContainsAny(token, "pottage", "stew", "gruel", "pilaf", "bowl", "relish",
+						"greens", "olive", "lentil", "curd", "cheese", "rice")
+						? "pottage_bowl"
+						: MedievalCatalogueTokenContainsAny(token, "feast", "roast", "platter", "pastry", "cake",
+							"sweet", "dish", "meat", "fish", "snack")
+							? "feast_dish"
+							: "meal_platter";
+
+		return $"medieval_food_{cultureKey}_{target}";
+	}
+
+	private static string MedievalWritingCatalogueAlias(string cultureKey, string stableReference)
+	{
+		var token = MedievalCatalogueReferenceToken(cultureKey, stableReference);
+		var target = token.Contains("tally", StringComparison.OrdinalIgnoreCase)
+			? "tally_bundle"
+			: MedievalCatalogueTokenContainsAny(token, "seal", "tag", "packet", "cord")
+				? "seal_tag_packet"
+				: MedievalCatalogueTokenContainsAny(token, "tablet", "diptych", "board", "plaque", "notice")
+					? "record_tablet"
+					: "office_bundle";
+
+		return $"medieval_writing_{cultureKey}_{target}";
+	}
+
+	private static string MedievalHouseholdDevotionalCatalogueAlias(string cultureKey, string stableReference)
+	{
+		var token = MedievalCatalogueReferenceToken(cultureKey, stableReference);
+		if (stableReference.StartsWith($"medieval_trade_{cultureKey}_", StringComparison.OrdinalIgnoreCase))
+		{
+			return MedievalCatalogueTokenContainsAny(token, "weight", "balance")
+				? "medieval_trade_balance_scale"
+				: string.Empty;
+		}
+
+		if (stableReference.StartsWith($"medieval_music_{cultureKey}_", StringComparison.OrdinalIgnoreCase))
+		{
+			return "medieval_music_psaltery";
+		}
+
+		if (stableReference.StartsWith($"medieval_jewellery_{cultureKey}_", StringComparison.OrdinalIgnoreCase))
+		{
+			if (MedievalCatalogueTokenContainsAny(token, "ring_pin", "pin"))
+			{
+				return "medieval_jewellery_bronze_ring_pin";
+			}
+
+			if (MedievalCatalogueTokenContainsAny(token, "brooch", "fibula", "clasp"))
+			{
+				return "medieval_jewellery_silver_brooch";
+			}
+
+			if (MedievalCatalogueTokenContainsAny(token, "pendant", "necklace"))
+			{
+				return "medieval_devotional_icon_pendant";
+			}
+		}
+
+		if (stableReference.StartsWith($"medieval_devotional_{cultureKey}_", StringComparison.OrdinalIgnoreCase))
+		{
+			if (MedievalCatalogueTokenContainsAny(token, "reliquary"))
+			{
+				return "medieval_devotional_reliquary_box";
+			}
+
+			if (MedievalCatalogueTokenContainsAny(token, "bead", "rosary"))
+			{
+				return "medieval_devotional_wooden_rosary";
+			}
+
+			if (MedievalCatalogueTokenContainsAny(token, "icon"))
+			{
+				return "medieval_devotional_icon_pendant";
+			}
+
+			if (MedievalCatalogueTokenContainsAny(token, "scripture", "tablet"))
+			{
+				return "medieval_devotional_scripture_tablet";
+			}
+
+			if (MedievalCatalogueTokenContainsAny(token, "basin", "offering"))
+			{
+				return "medieval_offering_basin";
+			}
+
+			return $"medieval_devotional_{cultureKey}_pilgrim_token";
+		}
+
+		if (!stableReference.StartsWith($"medieval_household_{cultureKey}_", StringComparison.OrdinalIgnoreCase))
+		{
+			return string.Empty;
+		}
+
+		if (MedievalCatalogueTokenContainsAny(token, "chest", "box", "casket", "case", "cupboard"))
+		{
+			return "medieval_household_boarded_chest";
+		}
+
+		if (MedievalCatalogueTokenContainsAny(token, "bag", "saddlebag", "pouch", "satchel"))
+		{
+			return "medieval_writing_document_satchel";
+		}
+
+		if (MedievalCatalogueTokenContainsAny(token, "lamp", "lantern"))
+		{
+			return "medieval_household_iron_lantern";
+		}
+
+		if (MedievalCatalogueTokenContainsAny(token, "sconce", "candle"))
+		{
+			return "medieval_household_candle_stand";
+		}
+
+		if (MedievalCatalogueTokenContainsAny(token, "book_stand", "lectern", "stand"))
+		{
+			return "medieval_household_lectern";
+		}
+
+		if (MedievalCatalogueTokenContainsAny(token, "shelf", "rack"))
+		{
+			return "medieval_household_wall_shelf";
+		}
+
+		if (MedievalCatalogueTokenContainsAny(token, "table"))
+		{
+			return "medieval_household_trestle_table";
+		}
+
+		if (MedievalCatalogueTokenContainsAny(token, "bench"))
+		{
+			return "medieval_household_plank_bench";
+		}
+
+		if (MedievalCatalogueTokenContainsAny(token, "counter"))
+		{
+			return "medieval_household_market_counter";
+		}
+
+		if (MedievalCatalogueTokenContainsAny(token, "bale"))
+		{
+			return "medieval_trade_sealable_bale";
+		}
+
+		if (MedievalCatalogueTokenContainsAny(token, "horn", "cup", "bowl", "jug", "vessel", "crock", "flask"))
+		{
+			return $"medieval_food_{cultureKey}_drinking_vessel";
+		}
+
+		return string.Empty;
+	}
+
+	private static string MedievalCatalogueReferenceToken(string cultureKey, string stableReference)
+	{
+		foreach (var prefix in new[]
+		         {
+			         $"medieval_clothing_{cultureKey}_",
+			         $"medieval_jewellery_{cultureKey}_",
+			         $"medieval_devotional_{cultureKey}_",
+			         $"medieval_military_{cultureKey}_",
+			         $"medieval_weapon_{cultureKey}_",
+			         $"medieval_shield_{cultureKey}_",
+			         $"medieval_food_{cultureKey}_",
+			         $"medieval_writing_{cultureKey}_",
+			         $"medieval_household_{cultureKey}_",
+			         $"medieval_trade_{cultureKey}_",
+			         $"medieval_music_{cultureKey}_"
+		         })
+		{
+			if (stableReference.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+			{
+				return stableReference[prefix.Length..];
+			}
+		}
+
+		var cultureMarker = $"_{cultureKey}_";
+		var cultureIndex = stableReference.IndexOf(cultureMarker, StringComparison.OrdinalIgnoreCase);
+		return cultureIndex >= 0
+			? stableReference[(cultureIndex + cultureMarker.Length)..]
+			: stableReference[(stableReference.LastIndexOf('_') + 1)..];
+	}
+
+	private static IReadOnlyCollection<string> MedievalCatalogueReferenceWords(string cultureKey, string text)
+	{
+		return StableReferenceToken(MedievalCatalogueReferenceToken(cultureKey, text))
+			.Split('_', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+			.Where(x => !MedievalCatalogueLowSignalWords.Contains(x, StringComparer.OrdinalIgnoreCase))
+			.ToArray();
+	}
+
+	private static int MedievalCatalogueWordOverlapScore(IReadOnlyCollection<string> left, IReadOnlyCollection<string> right)
+	{
+		return left
+			.Intersect(right, StringComparer.OrdinalIgnoreCase)
+			.Count();
+	}
+
+	private static bool MedievalCatalogueTokenContainsAny(string token, params string[] terms)
+	{
+		return terms.Any(term => token.Contains(term, StringComparison.OrdinalIgnoreCase));
+	}
+
+	private static bool MedievalCatalogueTokensOverlap(string left, string right)
+	{
+		return left.Contains(right, StringComparison.OrdinalIgnoreCase) ||
+		       right.Contains(left, StringComparison.OrdinalIgnoreCase);
+	}
+
+	private static string MedievalCatalogueDeferredReasonForGroup(string group)
+	{
+		return group switch
+		{
+			MedievalCatalogueGroupClothing =>
+				"Exact clothing target is documented but not yet tied to a dedicated item spec or sufficiently close explicit outfit piece.",
+			MedievalCatalogueGroupMilitary =>
+				"Distinct weapon, armour, or military accessory target awaits a dedicated exact item spec or richer component family.",
+			MedievalCatalogueGroupFoodAndBeverage =>
+				"Distinct food or beverage target awaits prepared-food or vessel content beyond the current generated foodway families.",
+			MedievalCatalogueGroupWritingAndAdministration =>
+				"Distinct writing or administration target awaits a dedicated document, inscribable surface, or office-tool item spec.",
+			MedievalCatalogueGroupHouseholdAndDevotional =>
+				"Distinct household, trade, devotional, jewellery, music, game, or tack target awaits a dedicated exact item spec.",
+			_ => MedievalCatalogueDeferredReason
+		};
+	}
+
 	private static string BuildMedievalExplicitShortDescription(string cultureKey, string stableReference)
 	{
 		var cultureMarker = $"_{cultureKey}_";
@@ -3140,9 +3603,11 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				x => x.StableReferencesByGroup,
 				StringComparer.OrdinalIgnoreCase);
 
-	internal static IReadOnlyCollection<(string CultureKey, string Group, string StableReference, string ShortDescription)> MedievalExplicitCultureCatalogueEntriesForTesting =>
+	internal static IReadOnlyCollection<(string CultureKey, string Group, string StableReference, string ShortDescription, MedievalCultureCatalogueReferenceStatus Status, string? ImplementationStableReference, string? Reason, string? CraftCoverageExemption)> MedievalExplicitCultureCatalogueEntriesForTesting =>
 		MedievalExplicitCultureCatalogues
-			.SelectMany(x => x.Entries.Select(entry => (entry.CultureKey, entry.Group, entry.StableReference, entry.ShortDescription)))
+			.SelectMany(x => x.Entries.Select(entry => (entry.CultureKey, entry.Group, entry.StableReference,
+				entry.ShortDescription, entry.Status, entry.ImplementationStableReference, entry.Reason,
+				entry.CraftCoverageExemption)))
 			.ToArray();
 
 	internal static IReadOnlyCollection<string> MedievalStatusRoleKeysForTesting =>

@@ -169,6 +169,114 @@ public class ItemSeederMedievalCraftingTests
 	}
 
 	[TestMethod]
+	public void MedievalExplicitCultureCatalogue_EveryExactReferenceIsClassified()
+	{
+		var entries = ItemSeeder.MedievalExplicitCultureCatalogueEntriesForTesting;
+		var unclassified = entries
+			.Where(x => !Enum.IsDefined(typeof(ItemSeeder.MedievalCultureCatalogueReferenceStatus), x.Status))
+			.Select(x => $"{x.CultureKey}|{x.Group}|{x.StableReference}")
+			.ToList();
+		var aliasesWithoutImplementation = entries
+			.Where(x => x.Status == ItemSeeder.MedievalCultureCatalogueReferenceStatus.AliasOfExistingStableReference &&
+			            string.IsNullOrWhiteSpace(x.ImplementationStableReference))
+			.Select(x => $"{x.CultureKey}|{x.Group}|{x.StableReference}")
+			.ToList();
+		var outfitCoveredWithoutImplementation = entries
+			.Where(x => x.Status == ItemSeeder.MedievalCultureCatalogueReferenceStatus.CoveredByOutfitPiece &&
+			            string.IsNullOrWhiteSpace(x.ImplementationStableReference))
+			.Select(x => $"{x.CultureKey}|{x.Group}|{x.StableReference}")
+			.ToList();
+
+		Assert.AreEqual(0, unclassified.Count,
+			$"Expected every exact medieval culture catalogue reference to have a known status. Missing: {string.Join(", ", unclassified)}");
+		Assert.AreEqual(0, aliasesWithoutImplementation.Count,
+			$"AliasOfExistingStableReference entries must record the actual implementation reference. Missing: {string.Join(", ", aliasesWithoutImplementation)}");
+		Assert.AreEqual(0, outfitCoveredWithoutImplementation.Count,
+			$"CoveredByOutfitPiece entries must record at least one outfit-piece implementation reference. Missing: {string.Join(", ", outfitCoveredWithoutImplementation)}");
+	}
+
+	[TestMethod]
+	public void MedievalExplicitCultureCatalogue_ImplementedItemsResolveToItemSpecs()
+	{
+		var itemReferences = ItemSeeder.MedievalItemStableReferencesForTesting
+			.ToHashSet(StringComparer.OrdinalIgnoreCase);
+		var unresolved = ItemSeeder.MedievalExplicitCultureCatalogueEntriesForTesting
+			.Where(x => x.Status == ItemSeeder.MedievalCultureCatalogueReferenceStatus.ImplementedItem)
+			.Where(x => !itemReferences.Contains(x.StableReference))
+			.Select(x => $"{x.CultureKey}|{x.Group}|{x.StableReference}")
+			.ToList();
+
+		Assert.AreEqual(0, unresolved.Count,
+			$"ImplementedItem catalogue references must resolve to item specs. Missing: {string.Join(", ", unresolved)}");
+	}
+
+	[TestMethod]
+	public void MedievalExplicitCultureCatalogue_ImplementedItemsHaveCraftCoverageOrExemption()
+	{
+		var craftedReferences = ItemSeeder.MedievalCraftedItemStableReferencesForTesting
+			.ToHashSet(StringComparer.OrdinalIgnoreCase);
+		var allowedExemptions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+		{
+			"Stock-only",
+			"Morph target",
+			"Deferred"
+		};
+		var invalidExemptions = ItemSeeder.MedievalExplicitCultureCatalogueEntriesForTesting
+			.Where(x => x.Status == ItemSeeder.MedievalCultureCatalogueReferenceStatus.ImplementedItem)
+			.Where(x => !string.IsNullOrWhiteSpace(x.CraftCoverageExemption) &&
+			            !allowedExemptions.Contains(x.CraftCoverageExemption!))
+			.Select(x => $"{x.CultureKey}|{x.Group}|{x.StableReference}: {x.CraftCoverageExemption}")
+			.ToList();
+		var missingCrafts = ItemSeeder.MedievalExplicitCultureCatalogueEntriesForTesting
+			.Where(x => x.Status == ItemSeeder.MedievalCultureCatalogueReferenceStatus.ImplementedItem)
+			.Where(x => string.IsNullOrWhiteSpace(x.CraftCoverageExemption))
+			.Where(x => !craftedReferences.Contains(x.StableReference))
+			.Select(x => $"{x.CultureKey}|{x.Group}|{x.StableReference}")
+			.ToList();
+
+		Assert.AreEqual(0, invalidExemptions.Count,
+			$"Craft coverage exemptions must be explicit stock-only, morph target, or deferred markers. Invalid: {string.Join(", ", invalidExemptions)}");
+		Assert.AreEqual(0, missingCrafts.Count,
+			$"ImplementedItem catalogue references must have craft products or documented exemptions. Missing craft coverage: {string.Join(", ", missingCrafts)}");
+	}
+
+	[TestMethod]
+	public void MedievalExplicitCultureCatalogue_DeferredEntriesHaveReasonStrings()
+	{
+		var deferredWithoutReasons = ItemSeeder.MedievalExplicitCultureCatalogueEntriesForTesting
+			.Where(x => x.Status == ItemSeeder.MedievalCultureCatalogueReferenceStatus.Deferred)
+			.Where(x => string.IsNullOrWhiteSpace(x.Reason))
+			.Select(x => $"{x.CultureKey}|{x.Group}|{x.StableReference}")
+			.ToList();
+
+		Assert.AreEqual(0, deferredWithoutReasons.Count,
+			$"Deferred medieval culture catalogue references must document a reason. Missing: {string.Join(", ", deferredWithoutReasons)}");
+	}
+
+	[TestMethod]
+	public void MedievalExplicitCultureCatalogue_DocumentShowsImplementationStatusForEveryEntry()
+	{
+		var documentEntries = ReadExplicitMedievalCultureCatalogueEntryStatusesFromDocs();
+		var documentStatuses = documentEntries
+			.ToDictionary(x => $"{x.CultureKey}|{x.Group}|{x.StableReference}", x => x.Status, StringComparer.Ordinal);
+		var codeStatuses = ItemSeeder.MedievalExplicitCultureCatalogueEntriesForTesting
+			.ToDictionary(x => $"{x.CultureKey}|{x.Group}|{x.StableReference}", x => x.Status.ToString(), StringComparer.Ordinal);
+		var missingStatus = codeStatuses
+			.Keys
+			.Where(x => !documentStatuses.ContainsKey(x))
+			.ToList();
+		var mismatchedStatus = codeStatuses
+			.Where(x => documentStatuses.TryGetValue(x.Key, out var status) && !status.Equals(x.Value, StringComparison.Ordinal))
+			.Select(x => $"{x.Key}: doc={documentStatuses[x.Key]}, code={x.Value}")
+			.ToList();
+
+		Assert.AreEqual(0, missingStatus.Count,
+			$"Expected every exact medieval catalogue document entry to show a status. Missing: {string.Join(", ", missingStatus)}");
+		Assert.AreEqual(0, mismatchedStatus.Count,
+			$"Documented medieval catalogue statuses must match code classifications. Mismatched: {string.Join(", ", mismatchedStatus)}");
+	}
+
+	[TestMethod]
 	public void MedievalOutfits_CoverEveryCultureSexAndSocialRole()
 	{
 		var outfits = ItemSeeder.MedievalOutfitsForTesting;
@@ -1026,6 +1134,62 @@ public class ItemSeederMedievalCraftingTests
 			Assert.IsTrue(ExplicitMedievalCultureCatalogueGroups.Contains(group ?? string.Empty),
 				$"Stable reference {stableReferenceMatch.Groups["stableReference"].Value} is under unexpected group {group}.");
 			entries.Add((cultureKey!, group!, stableReferenceMatch.Groups["stableReference"].Value));
+		}
+
+		return entries;
+	}
+
+	private static IReadOnlyCollection<(string CultureKey, string Group, string StableReference, string Status)> ReadExplicitMedievalCultureCatalogueEntryStatusesFromDocs()
+	{
+		var docs = ReadSource("Design Documents", "Crafting", "Medieval_Culture_Catalogue.md");
+		var entries = new List<(string CultureKey, string Group, string StableReference, string Status)>();
+		string? cultureKey = null;
+		string? group = null;
+		var inExactCatalogue = false;
+
+		foreach (var line in Regex.Split(docs, "\r?\n"))
+		{
+			if (line.Equals("## Exact Culture Catalogue", StringComparison.Ordinal))
+			{
+				inExactCatalogue = true;
+				cultureKey = null;
+				group = null;
+				continue;
+			}
+
+			if (!inExactCatalogue)
+			{
+				continue;
+			}
+
+			var cultureMatch = Regex.Match(line, @"^### .+ \(`(?<culture>[^`]+)`\)");
+			if (cultureMatch.Success)
+			{
+				cultureKey = cultureMatch.Groups["culture"].Value;
+				group = null;
+				continue;
+			}
+
+			var groupMatch = Regex.Match(line, @"^#### (?<group>.+)$");
+			if (groupMatch.Success)
+			{
+				group = groupMatch.Groups["group"].Value;
+				continue;
+			}
+
+			var statusMatch = Regex.Match(line,
+				@"^- `(?<stableReference>[^`]+)` - Status: `(?<status>ImplementedItem|CoveredByOutfitPiece|AliasOfExistingStableReference|Deferred)`");
+			if (!statusMatch.Success)
+			{
+				continue;
+			}
+
+			Assert.IsFalse(string.IsNullOrWhiteSpace(cultureKey),
+				$"Status row {statusMatch.Groups["stableReference"].Value} is outside a culture section.");
+			Assert.IsTrue(ExplicitMedievalCultureCatalogueGroups.Contains(group ?? string.Empty),
+				$"Status row {statusMatch.Groups["stableReference"].Value} is under unexpected group {group}.");
+			entries.Add((cultureKey!, group!, statusMatch.Groups["stableReference"].Value,
+				statusMatch.Groups["status"].Value));
 		}
 
 		return entries;

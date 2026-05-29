@@ -1,76 +1,132 @@
-# Medieval Food Beverage Crafting Suite
+# Medieval Food and Beverage Crafting Suite
 
-The medieval food and beverage suite gives each culture a fuller foodway shelf: everyday staples, vessels, preserved provisions, feasting goods, and market rations. It also adds common dairy, brewing, baking, preserving, and measurement support stock.
+The medieval food suite must distinguish between:
 
-This is still a lightweight foodway overlay rather than a full cuisine or nutrition system. Items are serving vessels, market stock, storage pieces, and builder cues that can support taverns, halls, monasteries, markets, camps, ships, manors, and households.
+1. **Food vessels and tableware**: platters, bowls, cups, trenchers, jars, crocks, casks.
+2. **Actual prepared foods and beverages**: breads, pottages, stews, preserved foods, dairy, fermented drinks, tea, sweets, feast dishes, and market rations.
 
-## Culture Foodway Stock
+The first merged implementation overused tableware and generic cue props. The second pass must add actual foodway items and crafts.
 
-For every culture key, the seeder creates `medieval_food_{culture}_{foodway_item}` entries:
+## Design Principle
 
-| Token | Use |
+Foodway culture should be playable. A builder should be able to stock an inn, monastery, market stall, feast table, military camp, ship, caravan, pastoral household, or scholar’s room with recognisable food and drink from the culture.
+
+## Minimum Culture Foodway Surface
+
+Each culture should receive at least eight explicit food/beverage items:
+
+| Slot | Description |
 | --- | --- |
-| `meal_platter` | A broad prepared-food cue for the culture's cuisine. |
-| `staple_bread` | Bread, cakes, rice cakes, noodles, flatbread, or other staple-serving surface. |
-| `pottage_bowl` | Everyday cooked food: stew, porridge, broth, sauce, or similar. |
-| `preserved_provision` | Dried, smoked, salted, pickled, wrapped, or travel-ready food stock. |
-| `drinking_vessel` | Cup, small jug, or vessel for the culture's ordinary drink cues. |
-| `feast_dish` | Higher-status hall, court, monastic, or festival presentation. |
-| `market_ration` | Portable ration for workers, soldiers, travellers, and vendors. |
+| Staple bread or grain dish | Bread, flatbread, bannock, rice bowl, noodle bowl, millet gruel, rye loaf, etc. |
+| Everyday cooked dish | Pottage, stew, pulse dish, fish stew, mushroom stew, pilaf, etc. |
+| Preserved/travel food | Stockfish, smoked meat, salted fish, dried curds, market ration, shipboard ration. |
+| Elite/feast dish | Feast roast, spiced meat, honey pastry, fish platter, noble stew. |
+| Beverage | Ale, wine, mead, cider, sour milk, kumis, tea, syrup drink. |
+| Dairy/oil/spice/condiment item | Cheese, curd, yogurt, oil relish, fish sauce, pickle, spice box use, date sweet. |
+| Tableware/vessel | Cup, trencher, crock, cask, skin, bowl, jar. |
+| Market/ration item | Portable or purchasable bundle. |
 
-Examples:
+Tableware counts only for the vessel slot. It does not count as prepared food.
 
-- Early Anglo-Saxon/Insular: oat cakes, ale, and pottage.
-- Norse: flatbread, stockfish, and sour milk.
-- Norman/Angevin: wheaten bread, wine, and stewed meat.
-- al-Andalus/Maghreb: flatbread, oil, dates, and spiced stew.
-- Song China: rice, wheat noodles, tea, and pickled greens.
+## Culture Foodway Examples
 
-## Common Food Production Stock
+Exact stable references are listed in `Medieval_Culture_Catalogue.md`. Examples:
 
-The suite also seeds common production and serving support:
-
-| Stable Reference | Use |
+| Culture | Foodway Direction |
 | --- | --- |
-| `medieval_food_cheese_mould` | Dairy and cheese-making scenes. |
-| `medieval_food_butter_churn` | Household, farm, and monastic dairy work. |
-| `medieval_food_ale_cask` | Ale, small beer, tavern, hall, or monastery brewing. |
-| `medieval_food_cider_cask` | Orchard and fruit-drink storage. |
-| `medieval_food_mead_crock` | Mead, syrups, vinegar, or small fermentation vessels. |
-| `medieval_food_bakers_peel` | Hearth baking and oven-work scenes. |
-| `medieval_food_bakers_tray` | Carrying loaves, pies, trenchers, or market food. |
-| `medieval_food_salt_box` | Salt, preserving, kitchen, ship, or infirmary stock. |
-| `medieval_food_spice_box` | Costly spices, herbs, saffron, and apothecary overlap. |
-| `medieval_food_brewing_tub` | Mash, soaking, washing, brewing, and large kitchen prep. |
+| Early Anglo-Saxon | oat flatbread, barley pottage, smoked eel/fish, ale, curd cheese, honeyed oat cake |
+| Norse | stockfish, sour milk, rye flatbread, dried meat, curd bowl, ale horn |
+| Norman/British/Capetian | wheaten bread, pottage, cheese trenchers, ale/cider/wine, meat pies, salted beef/fish |
+| Gaelic/Welsh/Highland | oat bannocks, curds, smoked meat, ale, honey cakes, fish stew |
+| Andalusi/Fatimid/Abbasid/Seljuk | flatbread, lentils, dates, yogurt, pilaf, spiced meat, oil relish, syrup drinks |
+| Byzantine | bread, olives, wine, fish sauce relish, cheese, fish platters, monastery rations |
+| Rus/Novgorod | rye bread, fish and mushroom stew, honey drink, smoked fish, curds, pickles |
+| Steppe Turkic | millet gruel, dried curds, kumis, dried meat, riding rations, mare’s milk vessels |
+| Song China | rice, wheat noodles, tea, pickled greens, steamed buns, scholar snack boxes |
 
-## Measurement Surfaces
+## Craft Input Rules
 
-| Stable Reference | Component Use |
+Bread, pottage, stew, feast, ration, and beverage crafts must consume food commodities or liquids. They must not consume only `Furniture Panel Stock`.
+
+Acceptable food inputs include:
+
+- `Flour Commodity`
+- grain commodity
+- pulse commodity
+- prepared meat or fish stock
+- smoked/salted/dried meat stock
+- `Cheese Curd Stock`
+- `Cheese Wheel Stock`
+- `Ale Stock`
+- `Cider Stock`
+- `Mead Stock`
+- milk
+- tea-compatible liquid or herb stock where available
+- wine or wine-style liquids where available
+- oil
+- honey
+- salt
+- spice
+- fruit
+- vegetables
+- broth or pottage base stock
+
+`Furniture Panel Stock` is appropriate only for:
+
+- wooden trenchers
+- platters
+- boards
+- tableware
+- food service furniture
+
+## Common Production Chains
+
+The existing medieval production chains should remain and expand as needed:
+
+| Chain | Stock |
 | --- | --- |
-| `medieval_food_grain_measure_sack` | Container/prop for measured grain stock. |
-| `medieval_food_wine_measure_jug` | Uses `MeasuringInstrument_Antiquity_WineCup`. |
-| `medieval_food_oil_measure_jug` | Uses `MeasuringInstrument_Antiquity_OilCup`. |
-| `medieval_trade_grain_measure` | Uses `MeasuringInstrument_Antiquity_GrainMeasure`. |
+| Milling | `Flour Commodity` |
+| Dairy | `Cheese Curd Stock`, `Cheese Wheel Stock` |
+| Brewing | `Brewing Mash Stock`, `Ale Stock`, `Cider Stock`, `Mead Stock` |
+| Coopering | `Coopered Staves`, `Hoop Stock` |
+| Vessels | `Pottery Clay Body`, `Glaze Slurry Stock`, tableware/vessel final items |
+| Sealing/preservation | sealing wax and cord for sealed crocks, ration packets, trade food bales if appropriate |
 
-The `WineCup`, `OilCup`, and `GrainMeasure` prototypes are live weight/fluid-volume or dry-measure stock components from UsefulSeeder. Length/surveying measurement remains out of scope.
+## Component Expectations
 
-## Craft Inputs And Tools
+Where runtime prepared-food components exist and are appropriate, use them. If the current engine stock is insufficient for a specific prepared food, seed the item as a food prop, but:
 
-Culture foodway crafts use `Medieval Foodway Pattern {culture}` with `Cooking`, `Pottery`, `Tailoring`, or `Carpentry` depending on the surface. Generic food-production stock uses `Medieval Workshop Practice`.
+- Tag it under food and drink.
+- Note the limitation in builder notes.
+- Do not pretend the prop is a full nutrition/runtime food item.
+- Keep the craft input materially plausible.
 
-Common inputs and tools include:
+## Stable Reference Rules
 
-- `Cheese Curd Stock` and `Cheese Wheel Stock` for dairy shelves, cheese presses, monastic dairies, and market scenes. `Cheese Wheel Stock` is reusable food stock until prepared-food nutrition is added.
-- `Brewing Mash Stock`, `Ale Stock`, `Cider Stock`, and `Mead Stock` for brewery, tavern, hall, orchard, and monastery storage.
-- `Coopered Staves` and `Hoop Stock` for butter churns, ale/cider casks, brewing tubs, and other coopering-heavy containers.
-- `Glaze Slurry Stock` for marked wine/oil measure jugs and other glazed ceramic food vessels.
-- `Furniture Panel Stock`, `Furniture Timber Stock`, and willow/oak stock for trays, moulds, tubs, and casks.
-- `Pottery Clay Body` and `Hot Fire` for bowls, cups, crocks, and measure jugs.
-- `Garment Cloth`, `Spun Yarn`, `Sewing Needle`, and `Shears` for sacks, rations, and wrapped provisions.
-- `Rotary Quern`, `Cheese Press`, `Lauter Tun`, `Grain Sieve`, `Croze`, and `Glazing Basin` as backed TagTools for staple, dairy, brewing, milling, coopering, and glazed-vessel workflows.
+Use exact culture references such as:
 
-## Builder Workflows
+```text
+medieval_food_norse_stockfish_packet
+medieval_food_song_china_tea_cup
+medieval_food_rus_novgorod_mushroom_fish_stew
+medieval_food_andalusi_lentil_stew
+```
 
-Use the culture foodway stock to place food cues in inns, halls, camps, monasteries, households, markets, and ships without needing a bespoke prepared-food chain for every setting. Use the common production stock for kitchens, breweries, dairies, granaries, bakehouses, and customs spaces.
+Avoid generic references such as:
 
-Future depth passes can add real prepared-food definitions, nutrition, spoilage, cheese aging, brewery simulation, fasting calendars, dietary law enforcement, and crop-to-kitchen pipelines. The current seeder represents dairy, milling, brewing, glazed measure-jugs, and cask production at item/commodity-stock depth.
+```text
+medieval_food_{culture}_meal_platter
+medieval_food_{culture}_staple_bread
+```
+
+unless these are retained as clearly generic baseline items.
+
+## Test Requirements
+
+Add tests that verify:
+
+- Each culture has at least 8 explicit food/beverage references.
+- At least 6 of those are actual food/beverage concepts, not tableware.
+- Food crafts for bread, pottage, stew, feast, ration, and beverage items consume food commodities or liquids.
+- `Furniture Panel Stock` is not the primary input for prepared food crafts.
+- Exact foodway stable references appear in `Medieval_Culture_Catalogue.md`.

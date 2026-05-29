@@ -1,54 +1,71 @@
-# Medieval Jewellery Devotional Crafting Suite
+# Medieval Jewellery and Devotional Crafting Suite
 
-The medieval jewellery and devotional suite gives builders portable status goods and religious objects for daily wear, pilgrimage, household piety, court display, shrines, chapels, guilds, and personal keepsakes. It is broader than a luxury-only jewellery pass: many medieval characters should have some combination of fasteners, badges, beads, tokens, rings, or devotional containers.
+The medieval jewellery/devotional suite should support personal adornment, religious identity, pilgrimage, office authority, and luxury display.
 
-## Culture Devotional Stock
+The current scaffold has common devotional and jewellery objects plus a generic culture devotional token. The second pass should stop relying on `regional devotional token` clones and add explicit culture-specific worn objects.
 
-For every culture key, the seeder creates:
+## Design Principle
 
-- `medieval_devotional_{culture}_pilgrim_token`
+Personal adornment and devotional goods should be a compact but visible way to show culture, status, office, and faith.
 
-These tokens are deliberately flexible. They can represent pilgrim badges, amulets, shrine tokens, household blessing pieces, court or office charms, and local devotional markers. They use wearable necklace behaviour and culture tags so builders can narrow them later.
+## Common Surface To Retain
 
-## Common Jewellery And Devotional Catalogue
+Common medieval items may include:
 
-| Family | Stable References |
+- Wooden prayer bead strands
+- Cloak brooches
+- Reliquary lockets
+- Ring pins
+- Enamelled disc brooches
+- Belt mounts
+- Court circlets
+- Icon pendants
+- Pilgrim badges
+- Reliquary boxes
+- Devotional tablets
+- Offering basins
+- Silver finger rings
+
+These are useful as common stock, but a generic `regional devotional token` should not satisfy explicit culture catalogue requirements.
+
+## Culture-Specific Worn Targets
+
+Culture-specific jewellery/devotional additions should be linked to the explicit culture catalogue.
+
+Examples:
+
+| Culture | Worn Jewellery/Devotional Direction |
 | --- | --- |
-| Prayer and devotion | `medieval_devotional_wooden_rosary`, `medieval_devotional_icon_pendant`, `medieval_devotional_pilgrim_badge`, `medieval_devotional_scripture_tablet` |
-| Reliquaries and keepsakes | `medieval_devotional_reliquary_locket`, `medieval_devotional_reliquary_box` |
-| Fasteners and practical jewellery | `medieval_jewellery_silver_brooch`, `medieval_jewellery_bronze_ring_pin`, `medieval_jewellery_enamel_disc_brooch` |
-| Status jewellery | `medieval_jewellery_inlaid_belt_mount`, `medieval_jewellery_court_circlet`, `medieval_jewellery_silver_finger_ring` |
+| Early Anglo-Saxon | disc brooches, bead necklaces, cloak pins, small wooden crosses |
+| Anglo-Danish | ring pins, seax-belt mounts, simple crosses, oath tokens |
+| Norse | oval brooch pairs, bead strings, Thor/saint-adjacent amulet props where setting-appropriate, trade pendants |
+| Norman / Capetian / High British | cloak clasps, pilgrim badges, reliquary pendants, belt mounts, signet rings |
+| Gaelic / Welsh | ring pins, shrine cloth pins, bardic brooches, pastoral amulet cords |
+| Byzantine | enamel pendants, icon pendants, court belt plaques, pectoral crosses |
+| Andalusi / Fatimid / Abbasid / Seljuk | amulet cords, inscribed pendants, signet rings, tiraz/belt fittings, prayer beads |
+| Rus / Novgorod | Orthodox pendant cords, icon pendants, fur-trade seal tags, belt mounts |
+| Steppe Turkic | horseman amulets, belt plaques, bowcase tags, fur-cap ornaments |
+| Song China | official badge props, scholar pendants, jade-like ornaments where material exists, seal-chop cords |
 
-## Component Use
+## Craft Inputs
 
-| Surface | Components |
+Use appropriate stock:
+
+| Product Type | Suggested Inputs |
 | --- | --- |
-| Neck-worn devotional goods | `Wear_Necklace`, `Destroyable_Misc` or `Destroyable_HeavyMetal`. |
-| Cloak fasteners and badges | `Wear_Shoulder` for shoulder or cloak placement. |
-| Rings | `Wear_Ring`. Office signets live in the writing/administration suite. |
-| Circlets | `Wear_Hat` with metal destruction behaviour. |
-| Offering basin | `OfferingReceiver_Antiquity_VotiveBasin` until medieval-specific receiver variants are worth splitting. |
-| Reliquary locket and box | Small container behaviour via `Container_Pouch`. |
-| Belt fittings | `Wear_Waist` and `Beltable` so builders can attach or place them with belt stock. |
+| bronze/silver/gold jewellery | metal `Tool Blank Stock`, anvil, hammer, pliers/small tools where available |
+| enamelled items | metal stock plus glass/pigment/luxury stock where available |
+| bead strands | bead stock, cord/yarn stock |
+| pendants | metal/wood/bone stock, cord stock |
+| reliquary lockets/boxes | metal stock plus container component, optional sealable behaviour |
+| signets/stamps | `SealStamp` component and metal stock |
+| belt mounts | metal stock plus beltable/wear components |
 
-## Crafting
+## Test Requirements
 
-Crafts are registered through `SeedMedievalJewelleryDevotionalCrafts()` and use `Medieval Workshop Practice`.
+Add tests that verify:
 
-| Material/Surface | Trait | Inputs And Tools |
-| --- | --- | --- |
-| Wooden beads, icon pendants, and tablets | `Carpentry` | Wood stock, cord, awl. |
-| Bronze and silver brooches, rings, belt mounts, circlets, reliquaries, and tokens | `Blacksmithing` or `Silversmithing` | Metal tool stock, anvil, hammer. |
-| Reliquary containers | `Silversmithing` | Metal stock with container components on the final item. |
-
-## Builder Workflows
-
-Use this suite to outfit:
-
-- Peasants and travellers with pilgrim badges, tokens, bead strands, and simple pendants.
-- Merchants, burghers, and guild members with brooches, rings, belt mounts, and badges.
-- Nobles and courts with circlets, enamel brooches, reliquaries, and silver rings.
-- Clergy and monastic spaces with rosaries, reliquary boxes, devotional tablets, and icon pendants.
-- Shrines, chapels, monasteries, relic processions, alms scenes, and pilgrimage routes.
-
-Future passes can add gemstone setting, ivory carving, enamel recipes, inscription behaviour, culture-specific iconography, and economy-tiered jewellery chains.
+- Generic `regional devotional token` references are excluded from explicit culture item counts.
+- Each culture has at least one explicit worn jewellery/devotional item when the household/devo target is implemented.
+- Items using seal authority use `SealStamp` where appropriate.
+- Exact stable references appear in `Medieval_Culture_Catalogue.md`.

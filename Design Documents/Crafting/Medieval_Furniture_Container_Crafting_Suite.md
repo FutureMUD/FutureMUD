@@ -1,86 +1,96 @@
-# Medieval Furniture Container Crafting Suite
+# Medieval Furniture, Container, Household, and Devotional Crafting Suite
 
-The medieval furniture and container suite is meant to make the medieval install immediately usable for halls, taverns, homes, shops, courts, monasteries, workshops, schools, archives, and markets. It includes shared historic apparatus plus medieval household, storage, lighting, security, and work-surface stock.
+The medieval household suite should support both common medieval rooms and culture-specific environments.
 
-## Shared Historic Foundations
+The current scaffold contains useful common furniture, containers, lighting, chests, shelves, counters, beds, strongboxes, market stalls, stained glass, and roof tiles. The second pass should keep those common objects while adding explicit culture-specific household, devotional, and luxury goods.
 
-`SeedHistoricCommonWorkshopItems()` creates cross-era apparatus when either antiquity or medieval is selected:
+## Design Principle
 
-- `historic_workshop_hearth` and `historic_lit_workshop_hearth`.
-- `historic_updraft_kiln` and `historic_lit_updraft_kiln`.
-- `historic_warp_weighted_loom` and `historic_treadle_loom`.
-- `historic_sewing_needle`, `historic_textile_shears`, and `historic_awl_punch`.
-- `historic_dye_vat`, `historic_tanning_rack`, and `historic_hand_quern`.
-- `historic_oil_lamp` and `historic_lit_oil_lamp`.
-- `historic_workshop_anvil`, `historic_forge_tongs`, `historic_workshop_hammer`, and `historic_bellows`.
+A furnished room should have visible cultural identity even when no NPCs are present. Clothing should not be the only way to distinguish a Norse hall, Song study, Byzantine chapel, Andalusi house, Rus merchant room, or High Medieval guildhall.
 
-The lit historic items morph back to their unlit forms on timers.
+## Common Household Surface To Retain
 
-## Workshop And Household Tools
+The common medieval furniture/container surface remains useful:
 
-Workshop and household tool stock includes:
+- Trestle tables
+- Boarded chests
+- Lockable strongboxes
+- Aumbry cupboards
+- Benches and stools
+- Chairs
+- Rope beds and mattresses
+- Blanket chests
+- Shelves and book shelves
+- Market counters and stalls
+- Writing desks and lecterns
+- Storage barrels, sacks, baskets
+- Lanterns, braziers, candle stands
+- Stained glass panels and roof tiles
+- Door bars, lockplates, keyrings
 
-- `medieval_coopers_croze`
-- `medieval_iron_wood_plane`
-- `medieval_bookbinder_press`
-- `medieval_locksmith_file_set`
-- `medieval_household_fulling_stocks`, `medieval_household_teasel_frame`, `medieval_household_napping_shears`, `medieval_household_cloth_tenter_frame`
-- `medieval_household_embroidery_frame`, `medieval_household_tablet_weaving_cards`, `medieval_household_turnshoe_last`
-- `medieval_household_bookbinder_sewing_frame`, `medieval_household_leather_paring_knife`, `medieval_household_drawplate`
-- `medieval_household_armourers_anvil`, `medieval_household_planishing_hammer`, `medieval_household_mail_riveting_tongs`
-- `medieval_household_bow_press`, `medieval_household_tillering_stick`, `medieval_household_crossbow_tiller_jig`
-- `medieval_household_papermakers_mould`, `medieval_household_papermakers_vat`, `medieval_household_wax_spatula`
-- `medieval_household_cheese_press`, `medieval_household_lauter_tun`, `medieval_household_millers_sieve`
-- `medieval_household_glaziers_grozing_iron`, `medieval_household_glaziers_lead_knife`, `medieval_household_tile_mould`, `medieval_household_glazing_basin`, `medieval_household_lantern_pane_mould`
+These should be labelled as common medieval stock, not explicit culture content.
 
-These tools support coopering, joinery, bookbinding, lock/security, fulling, luxury textile finishes, leather footwear, mail, crossbow manufacture, papermaking, dairy, brewing, milling, glazed pottery, stained glass, and lantern-pane scenes that are common in medieval play spaces.
+## Minimum Culture Household Surface
 
-## Furniture And Container Catalogue
+Each culture should receive at least five explicit non-clothing, non-military household/devotional/luxury items.
 
-| Family | Stable References |
+Each culture should include at least two of:
+
+| Category | Examples |
 | --- | --- |
-| Work and dining surfaces | `medieval_household_trestle_table`, `medieval_household_market_counter`, `medieval_household_writing_desk`, `medieval_household_lectern`, `medieval_household_market_stall` |
-| Seating and sleeping | `medieval_household_plank_bench`, `medieval_household_three_legged_stool`, `medieval_household_lordly_chair`, `medieval_household_rope_bedframe`, `medieval_household_straw_mattress` |
-| Storage furniture | `medieval_household_boarded_chest`, `medieval_household_blanket_chest`, `medieval_household_aumbry_cupboard`, `medieval_household_book_shelves`, `medieval_household_wall_shelf` |
-| Portable or bulk containers | `medieval_household_lockable_strongbox`, `medieval_household_storage_barrel`, `medieval_household_wicker_basket`, `medieval_household_canvas_sack` |
-| Lighting and heating | `medieval_household_iron_lantern`, `medieval_household_charcoal_brazier`, `medieval_household_candle_stand` |
-| Building and decorative stock | `medieval_household_stained_glass_panel`, `medieval_household_roof_tile_stack` |
-| Security hardware props | `medieval_household_door_bar`, `medieval_household_iron_lockplate`, `medieval_household_keyring` |
+| Household storage/furniture | sea chests, hall chests, book stands, writing boxes, guild counters |
+| Lighting | hanging lamps, brass lamps, wall sconces, glass lamps |
+| Devotional/religious object | icons, reliquaries, shrine cloths, prayer beads, crosses, censers |
+| Tableware/luxury vessel | glazed bowls, porcelain bowls, drinking horns, oil flasks, tea cups |
+| Trade or craft prop | weight pouches, account boxes, cloth bales, notice boards |
+| Textile or wall furnishing | felt carpets, tent panels, altar cloths, screen panels |
 
-## Implemented Components
+## Culture Directions
 
-| Surface | Component Notes |
+Exact stable references are listed in `Medieval_Culture_Catalogue.md`.
+
+| Culture | Household/Devotional Direction |
 | --- | --- |
-| Tables, benches, counters, desks, beds, shelves, and lecterns | Use existing surface/container components such as `Container_Table`, `Container_Bench_Surface`, `Container_Counter`, `Container_Desk_Surface`, `Container_Bed_Surface`, and shelf components. |
-| Chests, cupboards, sacks, baskets, and barrels | Use existing container and liquid-container components where appropriate. |
-| Sealed storage | `medieval_household_boarded_chest` and `medieval_household_lockable_strongbox` use `Sealable_Container_Wax`; the strongbox also uses `LockingContainer_Lockbox`. |
-| Lighting | `medieval_household_iron_lantern` uses the live `Lantern` component; historic oil lamps use lit/unlit morphing stock. |
+| Anglo-Saxon / Anglo-Danish | carved hall chests, hanging lamps, monastic stands, reliquaries, ring-pins |
+| Norse | sea chests, carved comb cases, drinking horns, shipboard boxes, trade weights |
+| Norman / British / Capetian | manor chests, chapel lecterns, shield racks, guild counters, parish alms boxes |
+| Gaelic / Welsh | shrine cloths, harp/lyre props, hide travel bags, pastoral milk vessels, oath sticks |
+| Andalusi / Abbasid / Fatimid / Seljuk | glazed bowls, brass lamps, writing boxes, carved screens, perfume/oil flasks, prayer rugs |
+| Byzantine | icons, hanging lamps, enamel pendants, altar cloths, bronze censers |
+| Rus / Novgorod | icon shelves, birchbark letter boxes, fur-lined chests, honey drink crocks, river-trade balance cases |
+| Steppe Turkic | felt tent panels, saddlebags, kumis skins, bowcase racks, felt carpets |
+| Song China | tea cups, lacquer writing boxes, porcelain bowls, scholar brush rests, printed notice boards |
 
-## Craft Inputs And Tools
+## Craft Inputs
 
-Furniture and container crafts use `Medieval Workshop Practice` with `Carpentry`, `Leathermaking`, `Tailoring`, `Pottery`, `Blacksmithing`, or `Candlemaking` as appropriate.
+Use existing stock:
 
-Common inputs:
+| Product Type | Suggested Inputs |
+| --- | --- |
+| wood furniture/storage | `Furniture Timber Stock`, `Furniture Panel Stock`, metal fittings or `Lockwork Stock` if locking |
+| leather/felt bags | `Prepared Leather Panel`, `Leather Strap`, `Garment Cloth` or hair/fur stock |
+| lamps/metal vessels | metal `Tool Blank Stock`, glass/pane stock, oil/wick stock where relevant |
+| glazed bowls/tiles | `Pottery Clay Body`, `Glaze Slurry Stock`, lit kiln/hot fire |
+| icons/devotional panels | wood panel stock, paint/pigment stock where available |
+| censers/basins/metal devotional goods | bronze/silver `Tool Blank Stock`, hammer/anvil tools |
+| porcelain/Song ceramics | ceramic/glaze stock; if porcelain material is absent, seed as fine ceramic/earthenware substitute and document limitation |
 
-- `Furniture Timber Stock` and `Furniture Panel Stock` for furniture, chests, desks, shelves, casks, counters, and stalls.
-- `Prepared Leather Panel` for portable bags and document satchels in related suites.
-- `Garment Cloth` and `Spun Yarn` for sacks and bedding.
-- `Tool Blank Stock` for locks, lanterns, keyrings, candle stands, and metal fittings.
-- `Lantern Pane Stock` for iron lanterns.
-- `Stained Glass Quarry Stock`, `Lead Came Stock`, and `Stained Glass Panel Stock` for stained glass.
-- `Tile Blank Stock` and `Glaze Slurry Stock` for roof tiles and glazed building stock.
-- `Lockwork Stock` and `Sealing Wax Stock` for tamper-evident sealed storage and lockable strongboxes.
+## Devotional and Jewellery Boundary
 
-Required TagTools are backed by shared historic hammers, awls, shears, sewing needles, anvils, forge tongs, hot fires, and lamps, plus medieval glazier, tile, glazing, locksmith, and lantern-pane tools.
+Small worn devotional items may remain in `Medieval_Jewellery_Devotional_Crafting_Suite.md`. Room, shrine, chapel, household, or furniture devotional goods belong here.
 
-## Builder Workflows
+Examples:
 
-Use this suite to furnish:
+- Worn pendant: jewellery/devotional.
+- Reliquary box on a shelf: furniture/household/devotional.
+- Icon pendant: jewellery/devotional.
+- Icon panel: household/devotional.
 
-- Peasant cottages, farm buildings, byres, kitchens, and storerooms.
-- Taverns, inns, guild halls, counting rooms, toll booths, and market stalls.
-- Castles, great halls, courts, guardrooms, armouries, and noble chambers.
-- Monasteries, schools, infirmaries, scriptoria, chapels, and archives.
-- Ships, caravanserais, customs houses, bridges, docks, and warehouses.
+## Test Requirements
 
-Door bars, lockplates, and keyrings are visible security props rather than door runtime. They support scenes now and leave room for later richer door-hardware behaviour.
+Add tests that verify:
+
+- Each culture has at least 5 explicit household/devotional/luxury references.
+- Generic `regional devotional token` items do not count toward explicit culture household/devo requirements.
+- Exact stable references appear in `Medieval_Culture_Catalogue.md`.
+- Culture-specific room goods include vocabulary appropriate to the culture.

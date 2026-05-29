@@ -1,82 +1,106 @@
-# Medieval Writing Administration Crafting Suite
+# Medieval Writing and Administration Crafting Suite
 
-The medieval writing and administration suite is the main v1 surface that benefits from live `SealStamp`, `Sealable`, and `MeasuringInstrument` components. It covers documents, sealable containers, signets, seal matrices, writing tools, record bundles, market measures, standard and false weights, sealed bales, ledger storage, tax/customs kits, and culture-specific office props.
+The medieval writing and administration suite should represent culture-specific recordkeeping media, legal forms, office tools, seals, accounting systems, and scholarly objects.
 
-## Culture Administration Stock
+The first merged implementation added generic document bundles, record tablets, tally bundles, and seal-tag packets for each culture. The second pass must add exact culture-specific media and fix component mismatches.
 
-For every culture key, the seeder creates `medieval_writing_{culture}_{administration_item}` entries:
+## Design Principle
 
-| Token | Use |
+Writing/admin content should distinguish the social institution behind the object:
+
+- Monastery
+- Court/chancery
+- Town/guild
+- Market/customs
+- Frontier lordship
+- Steppe messenger network
+- Scholar/bureaucratic office
+- Religious endowment or temple/mosque/church institution
+
+## Runtime Component Guidance
+
+Use existing component families deliberately:
+
+| Media / Tool | Expected Component Family |
 | --- | --- |
-| `office_bundle` | A sealed administrative document bundle with writable and sealable behaviour. |
-| `record_tablet` | A short-record surface for memoranda, practice, accounts, or temporary records. |
-| `tally_bundle` | Counting, rent, debt, custody, tax, or delivery prop. |
-| `seal_tag_packet` | Tags, slips, cords, labels, and authority markers for record-keeping. |
+| Loose paper sheets | `PaperSheet` |
+| Parchment charters and scrolls | `PaperSheet` / scroll-style components |
+| Codices, books, registers | `Book` |
+| Wax tablets | `InscribableSurface` |
+| Wooden tablets and record boards | `InscribableSurface` |
+| Birchbark letters | `InscribableSurface` or a suitable non-paper writable surface |
+| Sealed charters, packets, bales | `Sealable` |
+| Seal rings, matrices, guild stamps, official chops | `SealStamp` |
+| Balance scales, weights, dry/liquid measures | `MeasuringInstrument` |
 
-Examples include charter strips, sealed writs, runic tallies, notarial notes, paper contracts, chrysobull copies, chancery seals, birchbark notes, paiza tags, and official chops. Culture text is held in builder notes and knowledge gates; visible craft text remains culture-neutral.
+Do not use `PaperSheet_Scroll` for a wooden record tablet unless the item is actually a scroll-like paper/parchment object.
 
-## Writing And Office Catalogue
+## Minimum Culture Surface
 
-| Family | Stable References |
+Each culture should receive at least six explicit writing/admin items.
+
+| Slot | Examples |
 | --- | --- |
-| Writable and sealable documents | `medieval_writing_parchment_charter`, `medieval_writing_sealable_envelope`, `medieval_writing_account_roll` |
-| Writing implements and ink | `medieval_writing_quill_pen`, `medieval_writing_reed_pen`, `medieval_writing_ink_horn` |
-| Writing surfaces and books | `medieval_writing_wax_tablet`, `medieval_writing_paper_sheet`, `medieval_writing_parchment_quire`, `medieval_writing_bound_codex` |
-| Tally and seal support | `medieval_writing_tally_sticks`, `medieval_writing_charter_tag_set`, `medieval_writing_seal_cord_bundle`, `medieval_writing_wax_seal_cake` |
-| Seals and office kits | `medieval_writing_office_signet_ring`, `medieval_writing_office_seal_matrix`, `medieval_writing_notary_kit`, `medieval_writing_guild_stamp` |
-| Document containers | `medieval_writing_document_satchel`, `medieval_writing_ledger_chest` |
+| Primary document | charter, decree, contract, register leaf, printed notice, birchbark letter |
+| Short-record surface | wax tablet, wooden tablet, tally, tag, account slip |
+| Seal or seal packet | signet, office seal, official chop, seal-tag packet |
+| Accounting/tax object | tally, rent record, tax roll, toll record, trade account |
+| Scholarly/religious object | codex, prayer slip, scholar notebook, manuscript leaf, endowment note |
+| Container or kit | document pouch, writing box, notary kit, tablet wallet, ledger chest |
 
-## Trade And Measurement Catalogue
+## Culture Targets
 
-| Stable Reference | Component Use |
+Exact stable references are listed in `Medieval_Culture_Catalogue.md`.
+
+Examples by culture:
+
+| Culture | Writing/Admin Direction |
 | --- | --- |
-| `medieval_trade_balance_scale` | `MeasuringInstrument_Antiquity_BalanceScale`. |
-| `medieval_trade_standard_weight_set` | `MeasuringInstrument_Antiquity_StandardWeights`. |
-| `medieval_trade_false_weight_set` | `MeasuringInstrument_Antiquity_FalseWeights`. |
-| `medieval_trade_grain_measure` | `MeasuringInstrument_Antiquity_GrainMeasure`. |
-| `medieval_trade_tax_customs_kit` | `MeasuringInstrument_Antiquity_TaxAssessorKit`, `Sealable_Container_Wax`. |
-| `medieval_trade_sealable_bale` | `Sealable_Container_Wax`. |
-| `medieval_surveyor_measuring_rope` | Prop-only until length/surveying measurement modes exist. |
+| Early Anglo-Saxon | wax diptychs, charter strips, monastic manuscript leaves, reeve tallies, gospel pouches |
+| Norse | runic tally sticks, trade tags, cargo tallies, wax tablets, tablet wallets |
+| Norman / Angevin | sealed parchment charters, exchequer rolls, writ packets, notary seals, manorial accounts |
+| High British | manor account rolls, guild register leaves, sealed writs, levy lists, chapel books |
+| Byzantine | chrysobull copies, icon-label tablets, monastery codices, tax registers, court order rolls |
+| Abbasid / Fatimid / Andalusi / Seljuk | paper decrees, contracts, chancery seal packets, scholar notebooks, waqf/endowment records |
+| Rus / Novgorod | birchbark letters, princely seal tags, river trade tallies, fur-tax records |
+| Steppe Turkic | paiza tag props, sealed leather pouches, herd tallies, tribute strips, messenger packets |
+| Song China | paper registers, printed notices, scholar notebooks, official chop documents, examination booklets |
 
-## Implemented Live Components
+## Craft Inputs
 
-| Stable Reference | Component Use |
+Use the existing medieval stocks:
+
+| Product | Suggested Inputs |
 | --- | --- |
-| `medieval_writing_{culture}_office_bundle` | `PaperSheet_Scroll`, `Sealable_Document_Wax`. |
-| `medieval_writing_parchment_charter` | `PaperSheet_Scroll`, `Sealable_Document_Wax`. |
-| `medieval_writing_sealable_envelope` | `Container_Envelope`, `PaperSheet_Envelope`, `Sealable_Envelope`. |
-| `medieval_writing_account_roll` | `PaperSheet_Scroll`, `Sealable_Document_Wax`. |
-| `medieval_writing_document_satchel` | `Container_Tote`, `Wear_Shoulder`, `Sealable_Container_Wax`. |
-| `medieval_writing_ledger_chest` | `Container_Trunk`, `Sealable_Container_Wax`. |
-| `medieval_writing_office_signet_ring` | `Wear_Ring`, `SealStamp_Antiquity_BronzeSignet`. |
-| `medieval_writing_office_seal_matrix` | `SealStamp_Antiquity_BronzeSignet`. |
-| `medieval_writing_notary_kit` | `SealStamp_Antiquity_BronzeSignet`, `Sealable_Container_Wax`. |
-| `medieval_writing_guild_stamp` | `SealStamp_Antiquity_BronzeSignet`. |
+| paper documents | `Paper Sheet Stock`, ink stock where available, seal wax/cord if sealed |
+| parchment charters | `Parchment Sheet Stock`, `Seal Cord Stock`, `Sealing Wax Stock` |
+| wax tablets | wooden panel stock, beeswax or `Sealing Wax Stock`, stylus support |
+| birchbark letters | birch/bark material stock where available, or plant/wood stock plus inscribable surface |
+| codices/books | `Parchment Sheet Stock` or `Paper Sheet Stock`, `Bookbinding Leather Stock`, sewing thread/cord |
+| tallies | `Tally Stick Stock`, cutting/notching tools |
+| seal matrices/stamps | bronze/silver `Tool Blank Stock`, engraving tools |
+| notary/guild/office kits | container, seal, wax, cord, document stock, writing implements |
 
-## Knowledge Gates
+## Craft Naming
 
-| Surface | Knowledge Pattern | Trait |
-| --- | --- | --- |
-| Culture office bundles and short-record props | `Medieval Administration Pattern {culture}` | `Tailoring`, `Carpentry`, or `Writing` category craft paths |
-| Generic documents, books, seal cords, and satchels | `Medieval Workshop Practice` | `Tailoring`, `Leathermaking`, or `Carpentry` |
-| Seals and stamps | `Medieval Workshop Practice` | `Silversmithing` |
-| Weights, scales, and measuring kits | `Medieval Workshop Practice` | `Blacksmithing` or `Carpentry` |
-| Wax and lighting-adjacent seal support | `Medieval Workshop Practice` | `Candlemaking` |
+Use product-specific final craft names:
 
-## Craft Inputs And Tools
+```text
+prepare a Norman sealed parchment charter
+notch a Norse runic trade tally
+write a Rus birchbark letter
+prepare a Song official chop document
+bind an Abbasid scholar notebook
+```
 
-Common inputs:
+Do not use `regional record tablet` as the final object name for explicit culture records.
 
-- `Paper Pulp Stock`, `Paper Sheet Stock`, `Parchment Sheet Stock`, `Seal Cord Stock`, and `Sealing Wax Stock` for paper and parchment records, envelopes, seal tags, cords, and sealed documents.
-- `Bookbinding Leather Stock` for codices and `Prepared Leather Panel` for document satchels and notary kits.
-- `Standard Weight Blank`, `Tally Stick Stock`, and `Sealable Bale Wrapper Stock` for guild weights and measures, customs kits, sealed bales, and account tallies.
-- `Tool Blank Stock` for signets, seal matrices, guild stamps, balances, and keys/fittings.
-- `Furniture Panel Stock` for ledger chests and office storage.
+## Test Requirements
 
-Required tools are backed by historic sewing needles, shears, awls, hammers, anvils, forge tongs, and hot-fire support, plus medieval bookbinding, papermaking, and seal-preparation tools: `Bookbinder's Sewing Frame`, `Book Press`, `Leather Paring Knife`, `Mould and Deckle`, `Papermaking Vat`, and `Wax Spatula`.
+Add tests that verify:
 
-The production-chain pass distinguishes paper and parchment workflows without making visible craft text culture-specific. Song, Islamic, and mercantile paperwork can consume `Paper Sheet Stock`, while charters, account rolls, codices, and legal packets keep `Parchment Sheet Stock` where that better fits the object.
-
-## Deferred Administration Gaps
-
-`medieval_surveyor_measuring_rope` is deliberately prop-only. The current `MeasuringInstrument` prototypes cover weight, dry measure, and fluid volume, not length or surveying. Printing presses, spectacles, mechanical clocks, complex chancery workflows, bureaucracy templates, and document-authentication AI remain later slices.
+- Each culture has at least 6 explicit writing/admin references.
+- Wooden, wax, birchbark, and tablet items do not use `PaperSheet_Scroll` unless explicitly justified.
+- Sealed documents include `Sealable`.
+- Seal tools include `SealStamp`.
+- Exact references appear in `Medieval_Culture_Catalogue.md`.

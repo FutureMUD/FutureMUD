@@ -1,10 +1,16 @@
 # Medieval Crafting Catalogue Audit
 
-This document records the source-backed audit boundary for the first medieval item and craft slice. It follows the antiquity convention: shared production chains and tool prerequisites stay culture-neutral, while final silhouettes are controlled by knowledge gates, stable references, tags, and builder notes.
+This document records the source-backed audit boundary for the medieval item and craft slice. It also records the second-pass quality target after review of the first merged implementation.
 
-The medieval option is expected to be one of the most-used installer paths, so v1 aims to feel like a practical world-building starter catalogue rather than a narrow demonstration set.
+The first medieval pass established useful scaffolding: the `medieval` era dispatcher, shared `historic_*` workshop foundations, broad production-chain stock, 18 culture keys, status-role clothing axes, and craft-suite wiring. That scaffold should be retained. However, the first pass over-relied on generated culture/status matrices and generic cue text. The second pass must add exact culture catalogues and quality tests so that cultures differ by named material culture, not only by builder notes, tags, and appended phrases.
 
-## Source Boundary
+## Core Design Correction
+
+Shared production chains are encouraged; shared final products are not.
+
+Medieval upstream stock such as yarn, garment cloth, broadcloth, leather panels, mail rings, paper pulp, sealing wax, weapon blanks, shield boards, lockwork, glazing stock, and dairy/brewing stock should remain broad and reusable. Finished clothing, foods, documents, weapons, devotional goods, household goods, and visible final craft names should be culturally and socially specific.
+
+## Current Source Boundary
 
 Current medieval item definitions are seeded from:
 
@@ -21,9 +27,9 @@ Current medieval craft definitions are seeded from:
 | `ItemSeederCrafting.cs` | Dispatcher registration through `SeedHistoricFoundationCrafts()`, `SeedMedievalProductionChainCrafts()`, and the medieval suite methods. |
 | `ItemSeederCrafting.Antiquity.cs` | Shared stable-reference lookup helpers used by both antiquity and medieval craft products. |
 
-## Culture Slices
+## Current Culture Slices
 
-The v1 slice uses 18 culture/time profiles:
+The v1 scaffold uses 18 culture/time profiles:
 
 | Key | Slice |
 | --- | --- |
@@ -46,77 +52,155 @@ The v1 slice uses 18 culture/time profiles:
 | `steppe_turkic` | Steppe Turkic/Cuman/Mongol-adjacent |
 | `song_china` | Song China |
 
+These culture keys are still appropriate. The issue is not the selection; it is the shallow culture payload.
+
 ## Status Roles
 
-Clothing uses status/role as a first-class axis:
+Status/role remains useful, especially for Western European clothing:
 
-| Key | Status/Role | Stable Reference Pattern |
-| --- | --- | --- |
-| `peasant` | Peasant | `medieval_clothing_{culture}_peasant_{piece}` |
-| `artisan` | Artisan | `medieval_clothing_{culture}_artisan_{piece}` |
-| `merchant` | Merchant/Burgher | `medieval_clothing_{culture}_merchant_{piece}` |
-| `noble` | Noble/Court | `medieval_clothing_{culture}_noble_{piece}` |
-| `clergy` | Clergy/Monastic | `medieval_clothing_{culture}_clergy_{piece}` |
-| `military` | Military | `medieval_clothing_{culture}_military_{piece}` |
-
-Each status/culture pair includes bodywear plus underlayers, hats/caps/coifs, hoods/cowls, cloaks or mantles, leggings/hose/chausses, gloves or mittens, socks or footwraps, shoes/boots/sandals, belts/girdles, and worn pouches.
-
-## Catalogue Scale
-
-| Surface | Current V1 Shape |
+| Key | Status/Role |
 | --- | --- |
-| Clothing | 18 cultures x 6 status roles x bodywear plus 10 wardrobe slots. |
-| Equipment | 9 military pieces per culture: armour, helmet, coif, weapon, shield, sidearm harness, quiver, pack, banner, plus common crossbow and bolt stock. |
-| Food and beverage | 7 foodway pieces per culture plus common dairy, brewing, baking, preserving, and measure stock. |
-| Writing and administration | 4 office/record pieces per culture plus common writing, sealing, ledger, trade, and measurement stock. |
-| Jewellery/devotional | 1 culture devotional token per culture plus common beads, badges, brooches, rings, reliquaries, pendants, and circlets. |
-| Medical/apothecary | Bandages, poultices, apothecary vessels, herb storage, surgical props, mobility aids, and complete kits. |
-| Furniture/container | Hall, household, shop, archive, storage, lighting, bedding, seating, security, and market-stall stock. |
-| Shared foundations and medieval production tools | Hearths, kilns, looms, drop spindles, needles, shears, awls, dye vats, tanning racks, querns, lamps, anvils, tongs, hammers, bellows, fulling stocks, embroidery frames, tablet-weaving cards, lasts, drawplates, armourer's tools, bowyer tools, papermaking tools, cheese presses, brewing tuns, glassworking tools, and glazing/tile tools. |
+| `peasant` | Peasant |
+| `artisan` | Artisan |
+| `merchant` | Merchant/Burgher |
+| `noble` | Noble/Court |
+| `clergy` | Clergy/Monastic |
+| `military` | Military |
 
-## Production Chain Depth
+The status-role axis should remain a baseline wardrobe axis. It must not be the only source of medieval clothing variety.
 
-`SeedMedievalProductionChainCrafts()` adds the process changes that distinguish the medieval slice from antiquity. It makes the medieval tools themselves craftable, then creates reusable commodity stock that finished recipes consume or that docs explicitly treat as reusable world-building stock.
+## Current Quality Gap
+
+The first pass mostly uses this pattern:
+
+```text
+culture cue + status garment + generic wardrobe slot
+```
+
+This produces high counts but low identity. For example, Norse, Byzantine, Song, Rus, Gaelic, and Andalusi items should not simply be the same work tunic, lined hat, rough cloak, pouch, and footwear with a different cue appended.
+
+The second pass must add explicit culture catalogues that use named material-culture forms such as:
+
+- Norse hangerok/apron dress, oval brooches, bead-strung straps, sea cloaks, runic trade tags.
+- Byzantine silk dalmatics, sagia, court belts, icon pouches, lamellar under-robes.
+- Song cross-collar robes, scholar caps, tea wares, paper registers, official chop documents.
+- Rus rubakhi, fur-edged kaftans, onuchi, birchbark letters, Orthodox icon shelves.
+- Andalusi qamis, sirwal, burnous, turban, glazed wares, paper contracts.
+- Gaelic brats, ring-pins, léine-style shirts, bardic mantles, pastoral milk vessels.
+
+## Second-Pass Catalogue Targets
+
+The next implementation pass should add exact culture-specific items on top of the existing generic baseline. Minimum targets:
+
+| Surface | Minimum Explicit Culture Catalogue Target |
+| --- | --- |
+| Clothing and worn accessories | At least 12 explicit named clothing/accessory items per culture. |
+| Military/equipment | At least 8 explicit military/equipment items per culture, excluding the current generic armour/weapon/shield/accessory set. |
+| Food and beverage | At least 8 explicit food/beverage items per culture; tableware may count only as the vessel slot, not as prepared food. |
+| Writing and administration | At least 6 explicit writing/admin items per culture, with culture-appropriate media. |
+| Household/devotional/luxury goods | At least 5 explicit non-clothing, non-military household/devotional/luxury items per culture. |
+
+The first improvement pass may prioritise the British/North Atlantic cultures, then apply the same standard to the eastern, Near Eastern, North African, steppe, and Song slices.
+
+## Production Chain Invariants To Retain
+
+`SeedMedievalProductionChainCrafts()` should remain the shared upstream foundation. It should continue to support:
 
 | Chain | Intermediate Stock |
 | --- | --- |
-| Base workshop stock | `Spun Yarn`, `Garment Cloth`, `Fulled Cloth`, `Prepared Leather Panel`, `Leather Strap`, `Furniture Timber Stock`, `Furniture Panel Stock`, `Pottery Clay Body`, `Glass Batch`, `Glass Vessel Blank`, `Tool Blank Stock`, `Weapon Shaft Stock`, `Weapon Blade Stock`, `Weapon Head Stock`, `Fletching Stock`, `Military Cord Stock`, `Shield Board Stock`, `Shield Facing Stock`, `Armour Lamella Stock`, and `Flour Commodity`. These make a medieval-only install self-contained instead of depending on antiquity stock producers. |
-| Textile finishing and tailoring | `Broadcloth Stock`, `Embroidered Trim Stock`, `Tablet-Woven Band Stock`, `Quilted Armour Padding`, `Silk Brocade Panel`. These drive luxury textile finishes, status clothing, military padding, tablet-woven edging, and court cloth. |
-| Leatherworking and bookbinding | `Turnshoe Upper Stock`, `Scabbard Leather Stock`, `Bookbinding Leather Stock`. These distinguish footwear, weapon harnesses, and codices from generic leather-panel work. |
-| Armour and crossbow manufacture | `Mail Wire Stock`, `Armour Ring Stock`, `Mail Panel Stock`, `Crossbow Prod Stock`, `Crossbow Tiller Stock`, `Crossbow Lockwork Stock`. Mail armour now flows through wire/ring/panel stages, while crossbow manufacture uses prod, tiller, lockwork, and bowyer tools. |
-| Paper and parchment administration | `Paper Pulp Stock`, `Paper Sheet Stock`, `Parchment Sheet Stock`, `Seal Cord Stock`, `Sealing Wax Stock`. These support paper and parchment documents, books, sealed packets, sealable bales, and office kits. |
-| Dairy, brewing, and milling | `Cheese Curd Stock`, `Cheese Wheel Stock`, `Brewing Mash Stock`, `Ale Stock`, `Cider Stock`, `Mead Stock`, plus `Coopered Staves` and `Hoop Stock` for casks and tubs. `Cheese Wheel Stock` is intentionally reusable food stock for dairies, kitchens, and market shelves even before prepared-food nutrition is added. |
-| Ceramics, tile, and stained glass | `Glaze Slurry Stock`, `Tile Blank Stock`, `Stained Glass Quarry Stock`, `Lead Came Stock`, `Stained Glass Panel Stock`, `Lantern Pane Stock`. These support glazed measures, roof tiles, lanterns, chapel panels, and wealthy interiors. |
-| Guild weights and measures | `Standard Weight Blank`, `Sealable Bale Wrapper Stock`, `Tally Stick Stock`, `Lockwork Stock`. These feed scales, weights, tax/customs kits, sealed bales, tallies, chests, lockplates, and strongboxes. |
+| Textile base | `Spun Yarn`, `Garment Cloth`, `Fulled Cloth`, `Broadcloth Stock`, `Embroidered Trim Stock`, `Tablet-Woven Band Stock`, `Silk Brocade Panel`. |
+| Leather and footwear | `Prepared Leather Panel`, `Leather Strap`, `Turnshoe Upper Stock`, `Scabbard Leather Stock`, `Bookbinding Leather Stock`. |
+| Military | `Weapon Shaft Stock`, `Weapon Blade Stock`, `Weapon Head Stock`, `Fletching Stock`, `Military Cord Stock`, `Shield Board Stock`, `Shield Facing Stock`, `Armour Lamella Stock`, `Mail Wire Stock`, `Armour Ring Stock`, `Mail Panel Stock`, `Quilted Armour Padding`. |
+| Crossbow manufacture | `Crossbow Prod Stock`, `Crossbow Tiller Stock`, `Crossbow Lockwork Stock`. |
+| Writing/admin | `Paper Pulp Stock`, `Paper Sheet Stock`, `Parchment Sheet Stock`, `Seal Cord Stock`, `Sealing Wax Stock`, `Tally Stick Stock`. |
+| Food/beverage | `Flour Commodity`, `Cheese Curd Stock`, `Cheese Wheel Stock`, `Brewing Mash Stock`, `Ale Stock`, `Cider Stock`, `Mead Stock`, `Coopered Staves`, `Hoop Stock`. |
+| Household/luxury | `Pottery Clay Body`, `Glaze Slurry Stock`, `Tile Blank Stock`, `Glass Batch`, `Glass Vessel Blank`, `Stained Glass Quarry Stock`, `Lead Came Stock`, `Stained Glass Panel Stock`, `Lantern Pane Stock`, `Lockwork Stock`. |
+| Trade and measures | `Standard Weight Blank`, `Sealable Bale Wrapper Stock`. |
 
-## Verified Invariants
+## Revised Craft Naming Rule
 
-- `SealStamp`, `Sealable`, weight/fluid-volume/dry-measure `MeasuringInstrument`, and `OfferingReceiver` are treated as implemented stock components.
-- Medieval signets, office seals, notary kits, guild stamps, sealed charters, sealed envelopes, sealed bales, sealed chests, ledger chests, document satchels, balance scales, weights, grain measures, oil measures, wine measures, tax/customs kits, and the devotional offering basin use live stock component prototypes.
-- Length/surveying measurement, musical instruments, rules-aware game sets, and animal tack/harness remain prop-only component gaps.
-- Shared `historic_*` foundations are culture-neutral and seeded when either antiquity or medieval is selected.
-- Visible craft names and phase echoes avoid culture names. Culture-specific access lives in knowledge gates such as `Medieval Clothing Pattern {culture}` and builder metadata.
-- `TagTool` leaves used by medieval crafts are backed by seeded historic or medieval prototypes, including spinning, sewing, shearing, awl, fire, metalworking, fulling, embroidery, tablet weaving, shoe-last, bookbinding, drawplate, armourer, bowyer, papermaking, dairy, brewing, milling, glazing, glassworking, and measurement-support tools.
-- Reusable commodity tags introduced by the medieval pass are consumed by final crafts or documented as reusable production stock.
-- Lit historic items have morph targets and timers back to their unlit forms.
+Upstream production crafts should remain culture-neutral:
+
+```text
+spin wool yarn stock
+full broadcloth stock
+draw mail wire stock
+compound sealing wax stock
+```
+
+Final product crafts should be product-specific and may name the culture or object:
+
+```text
+sew a Norse hangerok apron dress
+tailor a Byzantine silk dalmatic
+prepare a Song paper register
+cook a Rus mushroom and fish pottage
+forge a Norman nasal helmet
+```
+
+The previous rule that visible final craft names should avoid culture names is no longer a quality goal. It may be retained only for generic baseline stock.
+
+## Runtime Component Expectations
+
+Implemented live components should be used when appropriate:
+
+| Component family | Medieval use |
+| --- | --- |
+| `PaperSheet` / `Book` | Paper sheets, parchment charters, rolls, codices, registers, notebooks. |
+| `InscribableSurface` | Wax tablets, wooden tablets, birchbark letters, short-record boards, ostraca-like reusable surfaces. |
+| `SealStamp` | Signet rings, guild stamps, office seals, official chops where appropriate. |
+| `Sealable` | Charters, sealed envelopes, sealed bales, document satchels, strongboxes, ledger chests. |
+| `MeasuringInstrument` | Balance scales, weights, grain/liquid measures, tax/customs kits. |
+| `PreparedFood` if available and suitable | Real prepared food items rather than tableware props. |
+
+Length/surveying measurement, musical instruments, rules-aware game sets, and animal tack/harness remain legitimate deferred component gaps.
+
+## Required Second-Pass Tests
+
+The second-pass test suite should not only check counts. It should verify quality.
+
+1. **Explicit culture catalogue tests**
+   - Every culture must have minimum explicit counts by surface.
+   - Generic baseline items do not count toward explicit culture targets.
+
+2. **Vocabulary tests**
+   - Each culture must include required vocabulary in item descriptions and/or final craft names.
+
+3. **Craft-name tests**
+   - Explicit culture final crafts must not use `regional pattern NN`.
+   - Generic baseline crafts may still use neutral names if clearly marked as generic.
+
+4. **Food-input sanity tests**
+   - Bread, pottage, stew, feast, ration, and beverage crafts must consume food commodities/liquids.
+   - `Furniture Panel Stock` may only be used for tableware, trenchers, platters, and vessels.
+
+5. **Writing component sanity tests**
+   - Wooden, wax, birchbark, and tablet surfaces must not use `PaperSheet_Scroll` unless they are deliberately scroll-like paper/parchment objects.
+   - Use `InscribableSurface` where the engine supports it.
+
+6. **Exact documentation tests**
+   - Explicit culture catalogue entries must appear by exact stable reference in `Medieval_Culture_Catalogue.md`.
+   - Broad patterns such as `medieval_clothing_{culture}_{status}_{piece}` should document only generic baseline items, not explicit catalogue targets.
 
 ## Stable Reference Families
 
+The current family patterns remain useful for generated baseline content:
+
 | Surface | Stable Reference Family |
 | --- | --- |
-| Historic foundations | `historic_workshop_hearth`, `historic_lit_workshop_hearth`, `historic_updraft_kiln`, `historic_lit_updraft_kiln`, `historic_warp_weighted_loom`, `historic_treadle_loom`, `historic_drop_spindle`, `historic_sewing_needle`, `historic_textile_shears`, `historic_awl_punch`, `historic_dye_vat`, `historic_tanning_rack`, `historic_hand_quern`, `historic_oil_lamp`, `historic_lit_oil_lamp`, `historic_workshop_anvil`, `historic_forge_tongs`, `historic_workshop_hammer`, `historic_bellows` |
-| Clothing | `medieval_clothing_{culture}_{status}_{piece}` |
-| Military | `medieval_military_{culture}_{equipment_piece}`, `medieval_weapon_{culture}_{weapon}`, `medieval_weapon_common_crossbow`, `medieval_weapon_common_crossbow_bolts`, `medieval_shield_{culture}` |
-| Household tools | `medieval_coopers_croze`, `medieval_iron_wood_plane`, `medieval_bookbinder_press`, `medieval_locksmith_file_set`, `medieval_household_{production_tool}` |
-| Food and beverage | `medieval_food_{culture}_{foodway_item}`, `medieval_food_grain_measure_sack`, `medieval_food_wine_measure_jug`, `medieval_food_oil_measure_jug`, `medieval_food_cheese_mould`, `medieval_food_butter_churn`, `medieval_food_ale_cask`, `medieval_food_cider_cask`, `medieval_food_mead_crock`, `medieval_food_bakers_peel`, `medieval_food_bakers_tray`, `medieval_food_salt_box`, `medieval_food_spice_box`, `medieval_food_brewing_tub` |
-| Furniture and containers | `medieval_household_{furniture_or_container}`, including `medieval_household_stained_glass_panel` and `medieval_household_roof_tile_stack` |
-| Jewellery/devotional | `medieval_devotional_{culture}_pilgrim_token`, `medieval_devotional_{devotional_item}`, `medieval_jewellery_{jewellery_item}`, `medieval_offering_basin` |
-| Medical/apothecary | `medieval_medical_{medical_item}` |
-| Writing/administration | `medieval_writing_{culture}_{administration_item}`, `medieval_writing_{writing_item}` |
-| Trade and measures | `medieval_trade_balance_scale`, `medieval_trade_standard_weight_set`, `medieval_trade_false_weight_set`, `medieval_trade_grain_measure`, `medieval_trade_tax_customs_kit`, `medieval_trade_sealable_bale`, `medieval_surveyor_measuring_rope` |
+| Historic foundations | `historic_*` |
+| Generic status clothing | `medieval_clothing_{culture}_{status}_{piece}` |
+| Explicit culture clothing | `medieval_clothing_{culture}_{specific_item}` or `medieval_clothing_{culture}_{status}_{specific_item}` where status is genuinely part of the item identity. |
+| Military | `medieval_military_{culture}_{specific_item}`, `medieval_weapon_{culture}_{specific_weapon}`, `medieval_shield_{culture}_{specific_shield}` |
+| Food and beverage | `medieval_food_{culture}_{specific_food_or_vessel}` |
+| Writing/admin | `medieval_writing_{culture}_{specific_document_or_tool}` |
+| Household/devotional | `medieval_household_{culture}_{specific_item}`, `medieval_devotional_{culture}_{specific_item}`, `medieval_jewellery_{culture}_{specific_item}` |
+| Trade and measures | `medieval_trade_{specific_item}` or `medieval_trade_{culture}_{specific_item}` |
 | Repair kits | `medieval_textile_repair_kit`, `medieval_leather_repair_kit`, `medieval_metal_repair_kit` |
-| Component-gap props | `medieval_music_psaltery`, `medieval_game_chess_set`, `medieval_horse_tack_display_set` |
+| Component-gap props | `medieval_music_*`, `medieval_game_*`, `medieval_horse_*` |
 
 ## Deferred Scope
 
-The v1 medieval slice does not attempt full plate armour, hand firearms, spectacles, mechanical clocks, printing-press workflows, real prepared-food nutrition, brewery simulation, procedural surgery, cranequin/windlass/goat's-foot loading tools, rules-aware instruments, rules-aware game sets, or animal tack systems. Those belong in later late-medieval, renaissance, or subsystem-specific passes.
+The second pass should not attempt full plate armour, hand firearms, spectacles, mechanical clocks, printing presses, procedural surgery, cranequin/windlass/goat's-foot loading components, musical-instrument mechanics, rules-aware game sets, or animal tack systems.
+
+It may add props for these areas if useful, but they should be labelled as deferred component-gap props and should not consume engineering time unless the runtime systems already exist.

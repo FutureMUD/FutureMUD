@@ -32,7 +32,7 @@ Use three levels of clothing content:
 
 The existing generated status-role wardrobe can remain as a generic fallback, but it should not count as fulfilling the explicit outfit catalogue.
 
-MED-OUTFIT-001 adds an executable `MedievalOutfitSpec` catalogue in `ItemSeeder.Rework.Medieval.cs`. The first scaffold maps each complete outfit to the current craftable baseline wardrobe and role accessories, and records those slots as intentionally shared/generic. MED-OUTFIT-002 replaces that scaffold for the North Atlantic and British priority set (`early_anglo_saxon`, `anglo_danish`, `norse`, `norman`, `high_british`, and `gaelic`) with exact outfit-piece item specs generated from `Medieval_Outfit_Catalogue.md`.
+MED-OUTFIT-001 adds an executable `MedievalOutfitSpec` catalogue in `ItemSeeder.Rework.Medieval.cs`. The first scaffold maps each complete outfit to the current craftable baseline wardrobe and role accessories, and records those slots as intentionally shared/generic. MED-OUTFIT-002 replaces that scaffold for the North Atlantic and British priority set (`early_anglo_saxon`, `anglo_danish`, `norse`, `norman`, `high_british`, and `gaelic`) with exact outfit-piece item specs generated from `Medieval_Outfit_Catalogue.md`. MED-OUTFIT-003 extends explicit outfit-piece generation to the Continental Western and Central set (`carolingian`, `capetian`, `german_hre`, and `iberian_christian`).
 
 ## Outfit Axes
 
@@ -168,7 +168,9 @@ Add tests that verify:
 - Every outfit references item stable references that exist.
 - Outfit slot references are exposed through testing accessors, including intentionally shared/generic slot markers.
 - The six MED-OUTFIT-002 cultures have 12 explicit outfits each with no generic/shared slot markers.
+- The four MED-OUTFIT-003 cultures have 12 explicit outfits each with no generic/shared slot markers.
 - Explicit outfit-piece final craft names include the named object and reject `regional pattern`.
+- Cluster vocabulary tests cover high-belted Carolingian dress, Capetian burgher/guild garments, German/HRE civic and militia clothing, and Iberian saya/pellote/manto/toca/frontier riding garments.
 - Every outfit has at least four culture-specific or cluster-specific pieces.
 - Every class differs from the others in at least two slots.
 - Male/female variants differ in at least two slots unless documented as unisex.

@@ -459,7 +459,20 @@ song_china|Household and Devotional|medieval_household_song_china_tea_cup,mediev
 		"gaelic"
 	];
 
-	private const string MedievalNorthAtlanticOutfitPieceSource = @"
+	private static readonly string[] MedievalContinentalWesternOutfitCultureKeys =
+	[
+		"carolingian",
+		"capetian",
+		"german_hre",
+		"iberian_christian"
+	];
+
+	private static readonly string[] MedievalExplicitOutfitCultureKeys =
+		MedievalNorthAtlanticOutfitCultureKeys
+			.Concat(MedievalContinentalWesternOutfitCultureKeys)
+			.ToArray();
+
+	private const string MedievalExplicitOutfitPieceSource = @"
 medieval_outfit_early_anglo_saxon_male_peasant|linen shirt; wool braies; wool leg wraps; soft ankle shoes; tablet-banded wool tunic; square work cloak; wool cap; rope belt; small belt pouch; plain disc brooch
 medieval_outfit_early_anglo_saxon_female_peasant|linen shift; wool wrap skirt; wool footwraps; soft ankle shoes; tablet-banded wool gown; square cloak; linen head veil; woven girdle; small pouch; simple cloak brooch
 medieval_outfit_early_anglo_saxon_male_artisan|linen work shirt; wool braies; wool leg wraps; leather shoes; short sleeved work tunic; workshop cloak; wool cap; seax belt; tool pouch; iron cloak pin
@@ -532,10 +545,58 @@ medieval_outfit_gaelic_male_religious|plain linen shirt; wool trews; sandals; mo
 medieval_outfit_gaelic_female_religious|plain shift; wool robe; sandals; religious gown; cowl cloak; veil; cord belt; book pouch; wooden cross; prayer slip
 medieval_outfit_gaelic_male_military|arming shirt; wool trews; boots; light padded coat; war brat; padded cap; spear carrier belt; field pouch; ring pin; bracers
 medieval_outfit_gaelic_female_military|arming shift; split skirt or trews; boots; light padded war gown; war brat; headcloth under cap; spear carrier belt; field pouch; ring pin; bracers
+medieval_outfit_carolingian_male_peasant|linen shirt; braies; leg wraps; rough shoes; high-belted tunic; broad-banded mantle; wool cap; rope belt; belt pouch; simple pin
+medieval_outfit_carolingian_female_peasant|linen shift; wool gown; footwraps; rough shoes; high-belted work dress; broad-banded mantle; linen head veil; woven belt; pouch; simple brooch
+medieval_outfit_carolingian_male_artisan|work shirt; braies; leg wraps; leather shoes; broad-banded work tunic; short cloak; cap; tool belt; tool pouch; iron pin
+medieval_outfit_carolingian_female_artisan|work shift; wool dress; footwraps; leather shoes; broad-banded work gown; apron; head veil; leather belt; tool pouch; bronze pin
+medieval_outfit_carolingian_male_merchant|fine shirt; hose; leather shoes; broad-banded tunic; lined mantle; felt cap; purse belt; capitulary estate-list pouch; silver fibula; tally cord
+medieval_outfit_carolingian_female_merchant|fine shift; wool gown; shoes; bordered overgown; lined mantle; veil; decorated girdle; purse; silver brooch; bead strand
+medieval_outfit_carolingian_male_noble|fine undertunic; hose; boots; high-belted noble tunic; court cloak; decorated cap; spatha belt; document pouch; noble fibula; gloves
+medieval_outfit_carolingian_female_noble|fine shift; embroidered gown; soft shoes; court overgown; rich mantle; long veil; decorated girdle; alms purse; noble fibula; bead strand
+medieval_outfit_carolingian_male_religious|linen undertunic; wool hose; sandals; clerical dalmatic-style robe; monastic cowl; hood; cord belt; book pouch; cross pendant; manuscript leaf
+medieval_outfit_carolingian_female_religious|linen shift; wool robe; sandals; monastic robe; cowl cloak; veil; cord belt; book pouch; cross pendant; prayer tablet
+medieval_outfit_carolingian_male_military|arming shirt; braies; leg wraps; boots; padded war tunic; broad-banded mantle; padded cap; spatha belt; field pouch; riding spurs
+medieval_outfit_carolingian_female_military|arming shift; split skirt or trews; boots; padded war gown; broad-banded mantle; head veil under cap; arming belt; field pouch; cloak pin; bracers
+medieval_outfit_capetian_male_peasant|linen shirt; braies; wool hose; rough shoes; plain wool cote; rough cloak; linen coif; rope belt; pouch; clasp
+medieval_outfit_capetian_female_peasant|linen shift; wool kirtle; hose; rough shoes; plain gown; rough cloak; head veil; woven belt; pouch; simple brooch
+medieval_outfit_capetian_male_artisan|work shirt; braies; hose; leather shoes; guild work cote; guild apron; coif; tool belt; tool pouch; guild token
+medieval_outfit_capetian_female_artisan|work shift; kirtle; hose; leather shoes; work gown; guild apron; headcloth; leather belt; tool pouch; guild token
+medieval_outfit_capetian_male_merchant|fine shirt; braies; fitted hose; polished shoes; lined burgher gown; travel mantle; hood; purse belt; contract pouch; guild badge
+medieval_outfit_capetian_female_merchant|fine chemise; fitted gown; fine hose; polished shoes; lined burgher overgown; mantle; wimple; decorated girdle; purse; guild badge
+medieval_outfit_capetian_male_noble|fine undertunic; fitted hose; soft shoes; silk-trimmed cote; court mantle; court cap; jeweled belt; alms purse; cloak brooch; gloves
+medieval_outfit_capetian_female_noble|fine chemise; bliaut-style gown; soft shoes; silk-trimmed overgown; rich mantle; wimple and veil; jeweled girdle; alms purse; brooch; gloves
+medieval_outfit_capetian_male_religious|linen undertunic; hose; sandals; clerical robe; cowl cloak; coif; cord belt; book pouch; cross pendant; chapel book
+medieval_outfit_capetian_female_religious|linen shift; wool robe; sandals; religious habit; cowl cloak; wimple and veil; cord belt; book pouch; cross pendant; prayer book
+medieval_outfit_capetian_male_military|arming shirt; braies; chausses; boots; padded aketon; surcoat; arming coif; arming belt; field pouch; scabbard harness
+medieval_outfit_capetian_female_military|arming shift; chausses or split skirt; boots; padded aketon gown; surcoat; arming coif and headcloth; arming belt; field pouch; scabbard harness
+medieval_outfit_german_hre_male_peasant|linen shirt; braies; wool hose; rough shoes; fitted wool tunic; winter cloak; alpine felt cap; rope belt; pouch; clasp
+medieval_outfit_german_hre_female_peasant|linen shift; wool gown; hose; rough shoes; fitted work gown; winter cloak; headcloth; woven belt; pouch; simple pin
+medieval_outfit_german_hre_male_artisan|work shirt; braies; hose; leather shoes; guild apron over tunic; short cloak; alpine felt cap; tool belt; tool pouch; guild mark
+medieval_outfit_german_hre_female_artisan|work shift; wool gown; hose; leather shoes; guild apron; short cloak; headcloth; tool belt; tool pouch; guild mark
+medieval_outfit_german_hre_male_merchant|fine shirt; fitted hose; polished shoes; civic gown; fur-lined mantle; town hat; purse belt; account pouch; guild badge; gloves
+medieval_outfit_german_hre_female_merchant|fine shift; fitted gown; polished shoes; civic overgown; fur-lined mantle; fine hood; girdle; purse; guild badge; gloves
+medieval_outfit_german_hre_male_noble|fine undertunic; silk hose; soft shoes; court gown; fur-lined mantle; court hat; jeweled belt; seal pouch; belt mounts; gloves
+medieval_outfit_german_hre_female_noble|fine chemise; court gown; soft shoes; embroidered overgown; fur-lined mantle; fine hood or veil; jeweled girdle; alms purse; brooch; gloves
+medieval_outfit_german_hre_male_religious|linen undertunic; hose; sandals; church robe; cowl cloak; coif; cord belt; book pouch; cross pendant; manuscript leaf
+medieval_outfit_german_hre_female_religious|linen shift; wool robe; sandals; religious habit; cowl cloak; veil; cord belt; book pouch; cross pendant; prayer book
+medieval_outfit_german_hre_male_military|arming shirt; braies; chausses; boots; arming jack; short mantle; padded cap; arming belt; field pouch; town crossbow militia hook
+medieval_outfit_german_hre_female_military|arming shift; chausses or split skirt; boots; arming jack gown; short mantle; headcloth under cap; arming belt; field pouch; bracers; town crossbow militia hook
+medieval_outfit_iberian_christian_male_peasant|linen shirt; braies; wool hose; sandals; simple saya; short manto; cloth cap; rope belt; pouch; clasp
+medieval_outfit_iberian_christian_female_peasant|linen shift; wool skirt; hose; sandals; simple saya gown; manto; toca head veil; woven belt; pouch; pin
+medieval_outfit_iberian_christian_male_artisan|work shirt; braies; hose; leather shoes; narrow-sleeved tunic; short cloak; cap; tool belt; pouch; buckle
+medieval_outfit_iberian_christian_female_artisan|work shift; wool gown; hose; leather shoes; narrow-sleeved work gown; apron; toca; leather belt; tool pouch; pin
+medieval_outfit_iberian_christian_male_merchant|fine shirt; fitted hose; shoes; pellote over tunic; lined manto; cap; purse belt; contract pouch; belt mount; gloves
+medieval_outfit_iberian_christian_female_merchant|fine shift; fitted gown; shoes; pellote overgown; lined manto; toca; decorated girdle; purse; brooch; gloves
+medieval_outfit_iberian_christian_male_noble|fine undertunic; silk hose; boots; silk-trimmed saya; court manto; court cap; noble belt; seal pouch; cloak clasp; gloves
+medieval_outfit_iberian_christian_female_noble|fine chemise; court gown; soft shoes; silk pellote; court manto; fine toca and veil; jeweled girdle; alms purse; brooch; gloves
+medieval_outfit_iberian_christian_male_religious|linen undertunic; hose; sandals; clerical robe; pilgrim cloak; coif; cord belt; book pouch; cross pendant; chapel booklet
+medieval_outfit_iberian_christian_female_religious|linen shift; wool robe; sandals; religious habit; pilgrim cloak; veil and toca; cord belt; book pouch; cross pendant; prayer slip
+medieval_outfit_iberian_christian_male_military|arming shirt; braies; chausses; riding boots; quilted coat; knightly surcoat; arming cap; weapon belt; field pouch; cloak clasp; frontier riding cloak
+medieval_outfit_iberian_christian_female_military|arming shift; split riding skirt; chausses; riding boots; quilted coat gown; knightly surcoat; head veil under cap; weapon belt; field pouch; cloak clasp; frontier riding cloak
 ";
 
-	private static readonly MedievalOutfitPieceSpec[] MedievalNorthAtlanticOutfitPieces =
-		BuildMedievalNorthAtlanticOutfitPieces();
+	private static readonly MedievalOutfitPieceSpec[] MedievalExplicitOutfitPieces =
+		BuildMedievalExplicitOutfitPieces();
 
 	private static readonly MedievalOutfitSpec[] MedievalOutfits = BuildMedievalOutfits();
 
@@ -2062,9 +2123,9 @@ medieval_outfit_gaelic_female_military|arming shift; split skirt or trews; boots
 		return $"{article} {itemName}";
 	}
 
-	private static MedievalOutfitPieceSpec[] BuildMedievalNorthAtlanticOutfitPieces()
+	private static MedievalOutfitPieceSpec[] BuildMedievalExplicitOutfitPieces()
 	{
-		return MedievalNorthAtlanticOutfitPieceSource
+		return MedievalExplicitOutfitPieceSource
 			.Split(["\r\n", "\n"], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
 			.SelectMany(row =>
 			{
@@ -2077,9 +2138,9 @@ medieval_outfit_gaelic_female_military|arming shift; split skirt or trews; boots
 				var outfitReference = parts[0];
 				var (cultureKey, sexGenderPresentation, socialClassRole) =
 					ParseMedievalOutfitReference(outfitReference);
-				if (!MedievalNorthAtlanticOutfitCultureKeys.Contains(cultureKey, StringComparer.OrdinalIgnoreCase))
+				if (!MedievalExplicitOutfitCultureKeys.Contains(cultureKey, StringComparer.OrdinalIgnoreCase))
 				{
-					throw new ApplicationException($"Medieval North Atlantic outfit source includes out-of-scope culture {cultureKey}.");
+					throw new ApplicationException($"Medieval explicit outfit source includes out-of-scope culture {cultureKey}.");
 				}
 
 				var pieces = parts[1]
@@ -2145,6 +2206,24 @@ medieval_outfit_gaelic_female_military|arming shift; split skirt or trews; boots
 			if (pieces.Length < 10)
 			{
 				throw new ApplicationException($"{socialClassRole} outfit rows require at least ten target pieces.");
+			}
+
+			if (pieces.Length == 10 && IsMedievalOutfitFootwearPiece(pieces[2]))
+			{
+				return
+				[
+					(MedievalOutfitSlotUnderlayer, pieces[0]),
+					(MedievalOutfitSlotLowerBody, pieces[1]),
+					(MedievalOutfitSlotLegOrSockLayer, pieces[1]),
+					(MedievalOutfitSlotFootwear, pieces[2]),
+					(MedievalOutfitSlotBodywear, pieces[3]),
+					(MedievalOutfitSlotOuterwear, pieces[4]),
+					(MedievalOutfitSlotHeadwear, pieces[5]),
+					(MedievalOutfitSlotBeltOrSash, pieces[6]),
+					(MedievalOutfitSlotWornContainer, pieces[7]),
+					(MedievalOutfitSlotFastenerOrJewellery, pieces[8]),
+					(MedievalOutfitSlotRoleItem, pieces[9])
+				];
 			}
 
 			return AssignMedievalOutfitPieces(
@@ -2265,7 +2344,7 @@ medieval_outfit_gaelic_female_military|arming shift; split skirt or trews; boots
 
 	private static IReadOnlyList<MedievalItemSpec> MedievalExplicitOutfitPieceItemSpecs()
 	{
-		return MedievalNorthAtlanticOutfitPieces
+		return MedievalExplicitOutfitPieces
 			.GroupBy(x => x.StableReference, StringComparer.OrdinalIgnoreCase)
 			.Select(group => BuildMedievalExplicitOutfitPieceItemSpec(group.First(), group.Select(x => x.SlotKey).ToArray()))
 			.ToArray();
@@ -2305,7 +2384,7 @@ medieval_outfit_gaelic_female_military|arming shift; split skirt or trews; boots
 				MedievalExplicitOutfitPieceFunctionTag(slotKeys)
 			],
 			components,
-			$"MED-OUTFIT-002 exact outfit piece. Outfit reference: {piece.OutfitReference}. Culture: {culture.Display}. Sex/gender presentation: {piece.SexGenderPresentation}. Social class/role: {piece.SocialClassRole}. Piece target: {piece.PieceName}. Slot(s): {slotList}.");
+			$"Explicit medieval outfit piece. Outfit reference: {piece.OutfitReference}. Culture: {culture.Display}. Sex/gender presentation: {piece.SexGenderPresentation}. Social class/role: {piece.SocialClassRole}. Piece target: {piece.PieceName}. Slot(s): {slotList}.");
 	}
 
 	private static string BuildMedievalExplicitOutfitPieceShortDescription(string cultureKey, string pieceName)
@@ -2330,6 +2409,10 @@ medieval_outfit_gaelic_female_military|arming shift; split skirt or trews; boots
 			"norman" => "Norman",
 			"high_british" => "High British",
 			"gaelic" => "Gaelic",
+			"carolingian" => "Carolingian",
+			"capetian" => "Capetian",
+			"german_hre" => "German-HRE",
+			"iberian_christian" => "Iberian Christian",
 			_ => MedievalCultureProfiles.Single(x => x.Key.Equals(cultureKey, StringComparison.OrdinalIgnoreCase)).Display
 		};
 	}
@@ -2383,6 +2466,12 @@ medieval_outfit_gaelic_female_military|arming shift; split skirt or trews; boots
 		string pieceName, IReadOnlyCollection<string> slotKeys)
 	{
 		var lower = pieceName.ToLowerInvariant();
+		if (slotKeys.Contains(MedievalOutfitSlotBeltOrSash, StringComparer.OrdinalIgnoreCase) &&
+		    lower.Contains("belt", StringComparison.Ordinal))
+		{
+			return ("leather", MaterialBehaviourType.Leather);
+		}
+
 		if (lower.Contains("silver", StringComparison.Ordinal))
 		{
 			return ("silver", MaterialBehaviourType.Metal);
@@ -2398,7 +2487,12 @@ medieval_outfit_gaelic_female_military|arming shift; split skirt or trews; boots
 		    lower.Contains("pin", StringComparison.Ordinal) ||
 		    lower.Contains("clasp", StringComparison.Ordinal) ||
 		    lower.Contains("buckle", StringComparison.Ordinal) ||
-		    lower.Contains("badge", StringComparison.Ordinal))
+		    lower.Contains("badge", StringComparison.Ordinal) ||
+		    lower.Contains("spurs", StringComparison.Ordinal) ||
+		    lower.Contains("mount", StringComparison.Ordinal) ||
+		    lower.Contains("hook", StringComparison.Ordinal) ||
+		    lower.Contains("token", StringComparison.Ordinal) ||
+		    lower.Contains("mark", StringComparison.Ordinal))
 		{
 			return ("bronze", MaterialBehaviourType.Metal);
 		}
@@ -2568,7 +2662,8 @@ medieval_outfit_gaelic_female_military|arming shift; split skirt or trews; boots
 				components.Add("Wear_Fingerless_Gloves");
 			}
 			else if (lower.Contains("harness", StringComparison.Ordinal) ||
-			         lower.Contains("axe loop", StringComparison.Ordinal))
+			         lower.Contains("axe loop", StringComparison.Ordinal) ||
+			         lower.Contains("hook", StringComparison.Ordinal))
 			{
 				components.Add("Wear_Waist");
 				components.Add("Beltable");
@@ -2770,7 +2865,7 @@ medieval_outfit_gaelic_female_military|arming shift; split skirt or trews; boots
 		string socialClassRole)
 	{
 		var outfitReference = $"medieval_outfit_{culture.Key}_{sexGenderPresentation}_{socialClassRole}";
-		var explicitPieces = MedievalNorthAtlanticOutfitPieces
+		var explicitPieces = MedievalExplicitOutfitPieces
 			.Where(x => x.OutfitReference.Equals(outfitReference, StringComparison.OrdinalIgnoreCase))
 			.ToArray();
 		if (explicitPieces.Length > 0)
@@ -2905,6 +3000,14 @@ medieval_outfit_gaelic_female_military|arming shift; split skirt or trews; boots
 		MedievalNorthAtlanticOutfitCultureKeys
 			.ToArray();
 
+	internal static IReadOnlyCollection<string> MedievalContinentalWesternOutfitCultureKeysForTesting =>
+		MedievalContinentalWesternOutfitCultureKeys
+			.ToArray();
+
+	internal static IReadOnlyCollection<string> MedievalExplicitOutfitCultureKeysForTesting =>
+		MedievalExplicitOutfitCultureKeys
+			.ToArray();
+
 	internal static IReadOnlyCollection<(string OutfitReference, string CultureKey, string SexGenderPresentation, string SocialClassRole, string DisplayName, IReadOnlyDictionary<string, string> SlotItemStableReferences, IReadOnlyCollection<string> IntentionallySharedOrGenericSlots)> MedievalOutfitsForTesting =>
 		MedievalOutfits
 			.Select(x => (x.OutfitReference, x.CultureKey, x.SexGenderPresentation, x.SocialClassRole, x.DisplayName,
@@ -2912,7 +3015,7 @@ medieval_outfit_gaelic_female_military|arming shift; split skirt or trews; boots
 			.ToArray();
 
 	internal static IReadOnlyCollection<(string OutfitReference, string CultureKey, string SexGenderPresentation, string SocialClassRole, string SlotKey, string PieceName, string StableReference, bool CultureSpecificOrClusterSpecific)> MedievalExplicitOutfitPiecesForTesting =>
-		MedievalNorthAtlanticOutfitPieces
+		MedievalExplicitOutfitPieces
 			.Select(x => (x.OutfitReference, x.CultureKey, x.SexGenderPresentation, x.SocialClassRole, x.SlotKey,
 				x.PieceName, x.StableReference, x.CultureSpecificOrClusterSpecific))
 			.ToArray();

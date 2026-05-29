@@ -8,7 +8,7 @@ The goal is that a builder can dress a male or female character of each social c
 
 `ItemSeeder.Rework.Medieval.cs` now mirrors this file with `MedievalOutfitSpec` definitions. Each code-side outfit records its culture key, sex/gender presentation, social class/role, display name, slot-to-stable-reference map, and intentionally shared/generic slots.
 
-For MED-OUTFIT-001 the code scaffold resolved outfit slots to the current craftable common/status wardrobe plus craftable v1 role accessories. MED-OUTFIT-002 replaces that scaffold for `early_anglo_saxon`, `anglo_danish`, `norse`, `norman`, `high_british`, and `gaelic` with explicit outfit-piece item specs and final-product crafts generated from the exact target-piece rows below.
+For MED-OUTFIT-001 the code scaffold resolved outfit slots to the current craftable common/status wardrobe plus craftable v1 role accessories. MED-OUTFIT-002 replaces that scaffold for `early_anglo_saxon`, `anglo_danish`, `norse`, `norman`, `high_british`, and `gaelic` with explicit outfit-piece item specs and final-product crafts generated from the exact target-piece rows below. MED-OUTFIT-003 extends the same explicit implementation to `carolingian`, `capetian`, `german_hre`, and `iberian_christian`.
 
 Explicit implemented outfit pieces use stable references shaped as:
 
@@ -16,7 +16,7 @@ Explicit implemented outfit pieces use stable references shaped as:
 medieval_outfit_piece_{culture}_{sex}_{class}_{piece}
 ```
 
-Those stable references are not generic wardrobe baselines. The remaining cultures continue to use the shared scaffold until their explicit outfit-piece passes are implemented.
+Those stable references are not generic wardrobe baselines. Cultures outside the implemented MED-OUTFIT-002 and MED-OUTFIT-003 clusters continue to use the shared scaffold until their explicit outfit-piece passes are implemented.
 
 ## Outfit Reference Pattern
 
@@ -164,18 +164,18 @@ The piece lists below are target contents. The implementation may split or merge
 
 | Outfit Reference | Target Pieces |
 | --- | --- |
-| `medieval_outfit_carolingian_male_peasant` | linen shirt; braies; leg wraps; rough shoes; high-belted wool tunic; plain mantle; wool cap; rope belt; belt pouch; simple pin |
-| `medieval_outfit_carolingian_female_peasant` | linen shift; wool gown; footwraps; rough shoes; belted work dress; plain mantle; linen head veil; woven belt; pouch; simple brooch |
+| `medieval_outfit_carolingian_male_peasant` | linen shirt; braies; leg wraps; rough shoes; high-belted tunic; broad-banded mantle; wool cap; rope belt; belt pouch; simple pin |
+| `medieval_outfit_carolingian_female_peasant` | linen shift; wool gown; footwraps; rough shoes; high-belted work dress; broad-banded mantle; linen head veil; woven belt; pouch; simple brooch |
 | `medieval_outfit_carolingian_male_artisan` | work shirt; braies; leg wraps; leather shoes; broad-banded work tunic; short cloak; cap; tool belt; tool pouch; iron pin |
 | `medieval_outfit_carolingian_female_artisan` | work shift; wool dress; footwraps; leather shoes; broad-banded work gown; apron; head veil; leather belt; tool pouch; bronze pin |
-| `medieval_outfit_carolingian_male_merchant` | fine shirt; hose; leather shoes; broad-banded tunic; lined mantle; felt cap; purse belt; estate-list pouch; silver fibula; tally cord |
+| `medieval_outfit_carolingian_male_merchant` | fine shirt; hose; leather shoes; broad-banded tunic; lined mantle; felt cap; purse belt; capitulary estate-list pouch; silver fibula; tally cord |
 | `medieval_outfit_carolingian_female_merchant` | fine shift; wool gown; shoes; bordered overgown; lined mantle; veil; decorated girdle; purse; silver brooch; bead strand |
-| `medieval_outfit_carolingian_male_noble` | fine undertunic; hose; boots; embroidered noble tunic; court cloak; decorated cap; spatha belt; document pouch; noble fibula; gloves |
+| `medieval_outfit_carolingian_male_noble` | fine undertunic; hose; boots; high-belted noble tunic; court cloak; decorated cap; spatha belt; document pouch; noble fibula; gloves |
 | `medieval_outfit_carolingian_female_noble` | fine shift; embroidered gown; soft shoes; court overgown; rich mantle; long veil; decorated girdle; alms purse; noble fibula; bead strand |
 | `medieval_outfit_carolingian_male_religious` | linen undertunic; wool hose; sandals; clerical dalmatic-style robe; monastic cowl; hood; cord belt; book pouch; cross pendant; manuscript leaf |
 | `medieval_outfit_carolingian_female_religious` | linen shift; wool robe; sandals; monastic robe; cowl cloak; veil; cord belt; book pouch; cross pendant; prayer tablet |
-| `medieval_outfit_carolingian_male_military` | arming shirt; braies; leg wraps; boots; padded war tunic; broad mantle; padded cap; spatha belt; field pouch; riding spurs |
-| `medieval_outfit_carolingian_female_military` | arming shift; split skirt or trews; boots; padded war gown; broad mantle; head veil under cap; arming belt; field pouch; cloak pin; bracers |
+| `medieval_outfit_carolingian_male_military` | arming shirt; braies; leg wraps; boots; padded war tunic; broad-banded mantle; padded cap; spatha belt; field pouch; riding spurs |
+| `medieval_outfit_carolingian_female_military` | arming shift; split skirt or trews; boots; padded war gown; broad-banded mantle; head veil under cap; arming belt; field pouch; cloak pin; bracers |
 
 ### Capetian / Low Countries (`capetian`)
 
@@ -183,8 +183,8 @@ The piece lists below are target contents. The implementation may split or merge
 | --- | --- |
 | `medieval_outfit_capetian_male_peasant` | linen shirt; braies; wool hose; rough shoes; plain wool cote; rough cloak; linen coif; rope belt; pouch; clasp |
 | `medieval_outfit_capetian_female_peasant` | linen shift; wool kirtle; hose; rough shoes; plain gown; rough cloak; head veil; woven belt; pouch; simple brooch |
-| `medieval_outfit_capetian_male_artisan` | work shirt; braies; hose; leather shoes; guild work cote; apron; coif; tool belt; tool pouch; guild token |
-| `medieval_outfit_capetian_female_artisan` | work shift; kirtle; hose; leather shoes; work gown; apron; headcloth; leather belt; tool pouch; guild token |
+| `medieval_outfit_capetian_male_artisan` | work shirt; braies; hose; leather shoes; guild work cote; guild apron; coif; tool belt; tool pouch; guild token |
+| `medieval_outfit_capetian_female_artisan` | work shift; kirtle; hose; leather shoes; work gown; guild apron; headcloth; leather belt; tool pouch; guild token |
 | `medieval_outfit_capetian_male_merchant` | fine shirt; braies; fitted hose; polished shoes; lined burgher gown; travel mantle; hood; purse belt; contract pouch; guild badge |
 | `medieval_outfit_capetian_female_merchant` | fine chemise; fitted gown; fine hose; polished shoes; lined burgher overgown; mantle; wimple; decorated girdle; purse; guild badge |
 | `medieval_outfit_capetian_male_noble` | fine undertunic; fitted hose; soft shoes; silk-trimmed cote; court mantle; court cap; jeweled belt; alms purse; cloak brooch; gloves |
@@ -198,18 +198,18 @@ The piece lists below are target contents. The implementation may split or merge
 
 | Outfit Reference | Target Pieces |
 | --- | --- |
-| `medieval_outfit_german_hre_male_peasant` | linen shirt; braies; wool hose; rough shoes; fitted wool tunic; winter cloak; wool cap; rope belt; pouch; clasp |
+| `medieval_outfit_german_hre_male_peasant` | linen shirt; braies; wool hose; rough shoes; fitted wool tunic; winter cloak; alpine felt cap; rope belt; pouch; clasp |
 | `medieval_outfit_german_hre_female_peasant` | linen shift; wool gown; hose; rough shoes; fitted work gown; winter cloak; headcloth; woven belt; pouch; simple pin |
-| `medieval_outfit_german_hre_male_artisan` | work shirt; braies; hose; leather shoes; guild apron over tunic; short cloak; felt cap; tool belt; tool pouch; guild mark |
+| `medieval_outfit_german_hre_male_artisan` | work shirt; braies; hose; leather shoes; guild apron over tunic; short cloak; alpine felt cap; tool belt; tool pouch; guild mark |
 | `medieval_outfit_german_hre_female_artisan` | work shift; wool gown; hose; leather shoes; guild apron; short cloak; headcloth; tool belt; tool pouch; guild mark |
 | `medieval_outfit_german_hre_male_merchant` | fine shirt; fitted hose; polished shoes; civic gown; fur-lined mantle; town hat; purse belt; account pouch; guild badge; gloves |
 | `medieval_outfit_german_hre_female_merchant` | fine shift; fitted gown; polished shoes; civic overgown; fur-lined mantle; fine hood; girdle; purse; guild badge; gloves |
-| `medieval_outfit_german_hre_male_noble` | fine undertunic; silk hose; soft shoes; court gown; fur mantle; court hat; jeweled belt; seal pouch; belt mounts; gloves |
-| `medieval_outfit_german_hre_female_noble` | fine chemise; court gown; soft shoes; embroidered overgown; fur mantle; fine hood or veil; jeweled girdle; alms purse; brooch; gloves |
+| `medieval_outfit_german_hre_male_noble` | fine undertunic; silk hose; soft shoes; court gown; fur-lined mantle; court hat; jeweled belt; seal pouch; belt mounts; gloves |
+| `medieval_outfit_german_hre_female_noble` | fine chemise; court gown; soft shoes; embroidered overgown; fur-lined mantle; fine hood or veil; jeweled girdle; alms purse; brooch; gloves |
 | `medieval_outfit_german_hre_male_religious` | linen undertunic; hose; sandals; church robe; cowl cloak; coif; cord belt; book pouch; cross pendant; manuscript leaf |
 | `medieval_outfit_german_hre_female_religious` | linen shift; wool robe; sandals; religious habit; cowl cloak; veil; cord belt; book pouch; cross pendant; prayer book |
-| `medieval_outfit_german_hre_male_military` | arming shirt; braies; chausses; boots; arming jack; short mantle; padded cap; arming belt; field pouch; hammer loop |
-| `medieval_outfit_german_hre_female_military` | arming shift; chausses or split skirt; boots; arming jack gown; short mantle; headcloth under cap; arming belt; field pouch; bracers; hammer loop |
+| `medieval_outfit_german_hre_male_military` | arming shirt; braies; chausses; boots; arming jack; short mantle; padded cap; arming belt; field pouch; town crossbow militia hook |
+| `medieval_outfit_german_hre_female_military` | arming shift; chausses or split skirt; boots; arming jack gown; short mantle; headcloth under cap; arming belt; field pouch; bracers; town crossbow militia hook |
 
 ### Iberian Christian (`iberian_christian`)
 
@@ -225,8 +225,8 @@ The piece lists below are target contents. The implementation may split or merge
 | `medieval_outfit_iberian_christian_female_noble` | fine chemise; court gown; soft shoes; silk pellote; court manto; fine toca and veil; jeweled girdle; alms purse; brooch; gloves |
 | `medieval_outfit_iberian_christian_male_religious` | linen undertunic; hose; sandals; clerical robe; pilgrim cloak; coif; cord belt; book pouch; cross pendant; chapel booklet |
 | `medieval_outfit_iberian_christian_female_religious` | linen shift; wool robe; sandals; religious habit; pilgrim cloak; veil and toca; cord belt; book pouch; cross pendant; prayer slip |
-| `medieval_outfit_iberian_christian_male_military` | arming shirt; braies; chausses; riding boots; quilted coat; knightly surcoat; arming cap; weapon belt; field pouch; frontier cloak |
-| `medieval_outfit_iberian_christian_female_military` | arming shift; split riding skirt; riding boots; quilted coat gown; knightly surcoat; head veil under cap; weapon belt; field pouch; frontier cloak; bracers |
+| `medieval_outfit_iberian_christian_male_military` | arming shirt; braies; chausses; riding boots; quilted coat; knightly surcoat; arming cap; weapon belt; field pouch; cloak clasp; frontier riding cloak |
+| `medieval_outfit_iberian_christian_female_military` | arming shift; split riding skirt; chausses; riding boots; quilted coat gown; knightly surcoat; head veil under cap; weapon belt; field pouch; cloak clasp; frontier riding cloak |
 
 ### al-Andalus / Maghreb (`andalusi`)
 

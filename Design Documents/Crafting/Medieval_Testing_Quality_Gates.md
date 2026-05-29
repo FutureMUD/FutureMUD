@@ -240,6 +240,50 @@ Retain the existing upstream stock tests, but add final-product consumption chec
 - Tablet-woven or banded garments consume `Tablet-Woven Band Stock`.
 - Footwear consumes `Turnshoe Upper Stock` or documented equivalent.
 
+### 13. MED-OUTFIT-006 Override Tests
+
+The manually written explicit outfit-piece override table must be validated as data, not just compiled into the seeder.
+
+Assert:
+
+- Exactly 180 override rows are loaded.
+- Each override stable reference resolves to `MedievalItemStableReferencesForTesting`.
+- Each override stable reference resolves to an explicit outfit-piece item spec.
+- Each culture has at least ten override rows.
+- The item spec uses the override noun, short description, full description, material, material behaviour, quality, size, weight, and cost.
+- Override full descriptions do not contain generated metadata prose such as `belongs to the`, `fills the`, or `outfit slot for the explicit medieval outfit catalogue`.
+- Override short and full descriptions do not contain direct culture adjectives such as `Norse`, `Byzantine`, `Abbasid`, `Song Chinese`, or the other explicit culture names.
+- Builder notes retain outfit reference, culture key, sex/gender presentation, social class/role, slot, piece target, and authoring notes.
+
+Variable colour tests must assert:
+
+- Rows with `variableColourComponent` include that component in the item spec.
+- Authored `$colour`, `$colour1`, and `$colour2` tokens remain in short and full descriptions.
+- Two-colour components include both `$colour1` and `$colour2` in the full description.
+- Rows without variable colour are documented non-colourable pieces such as metal hardware, wood tags/tablets, paper/books/slips, glass or ceramic flasks, rigid tools, tags, or tokens.
+
+Craft override tests must assert representative stock families:
+
+- Brooches, pins, belt mounts, spurs, hooks, and tokens consume `Tool Blank Stock`.
+- Books and notebooks consume `Paper Sheet Stock` and `Bookbinding Leather Stock`.
+- Fur-edged or fur-lined pieces consume `Fur Panel Stock`.
+- Felt garments consume `Fulled Cloth`.
+- Footwear consumes `Turnshoe Upper Stock`.
+- Padded, arming, gambeson, and shield-wall garments consume `Quilted Armour Padding`.
+- Tablet-banded garments consume `Tablet-Woven Band Stock`.
+- Embroidered, trimmed, tiraz, bordered, or panelled garments consume `Embroidered Trim Stock` or another documented trim stock.
+
+Component tests must assert:
+
+- Every override component exists in seeded item components or is already accepted by the seeder.
+- Books and notebooks use book/writing components.
+- Paper slips and leaves use paper-sheet components.
+- Pouches and quivers use container components.
+- Bowcase belts use waist/beltable military-accessory components.
+- Bracers use glove/bracer-style wearable components.
+- Brooches and pins use jewellery or shoulder fastener components.
+- Tablets, boards, tags, and tokens remain held record objects rather than being forced into jewellery unless the row explicitly describes worn jewellery.
+
 ## Acceptance Standard
 
 A shallow generic matrix should fail the medieval content test suite even if it creates many item prototypes.

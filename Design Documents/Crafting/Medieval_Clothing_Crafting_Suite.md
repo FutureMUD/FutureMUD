@@ -32,7 +32,30 @@ Use three levels of clothing content:
 
 The existing generated status-role wardrobe can remain as a generic fallback, but it should not count as fulfilling the explicit outfit catalogue.
 
-MED-OUTFIT-001 adds an executable `MedievalOutfitSpec` catalogue in `ItemSeeder.Rework.Medieval.cs`. The first scaffold maps each complete outfit to the current craftable baseline wardrobe and role accessories, and records those slots as intentionally shared/generic. MED-OUTFIT-002 replaces that scaffold for the North Atlantic and British priority set (`early_anglo_saxon`, `anglo_danish`, `norse`, `norman`, `high_british`, and `gaelic`) with exact outfit-piece item specs generated from `Medieval_Outfit_Catalogue.md`. MED-OUTFIT-003 extends explicit outfit-piece generation to the Continental Western and Central set (`carolingian`, `capetian`, `german_hre`, and `iberian_christian`). MED-OUTFIT-004 completes explicit outfit-piece generation for the eastern, Islamic, Rus, steppe, and Song set (`andalusi`, `byzantine`, `abbasid`, `fatimid`, `seljuk_ayyubid`, `rus_novgorod`, `steppe_turkic`, and `song_china`).
+MED-OUTFIT-001 adds an executable `MedievalOutfitSpec` catalogue in `ItemSeeder.Rework.Medieval.cs`. The first scaffold maps each complete outfit to the current craftable baseline wardrobe and role accessories, and records those slots as intentionally shared/generic. MED-OUTFIT-002 replaces that scaffold for the North Atlantic and British priority set (`early_anglo_saxon`, `anglo_danish`, `norse`, `norman`, `high_british`, and `gaelic`) with exact outfit-piece item specs generated from `Medieval_Outfit_Catalogue.md`. MED-OUTFIT-003 extends explicit outfit-piece generation to the Continental Western and Central set (`carolingian`, `capetian`, `german_hre`, and `iberian_christian`). MED-OUTFIT-004 completes explicit outfit-piece generation for the eastern, Islamic, Rus, steppe, and Song set (`andalusi`, `byzantine`, `abbasid`, `fatimid`, `seljuk_ayyubid`, `rus_novgorod`, `steppe_turkic`, and `song_china`). MED-OUTFIT-006 layers 180 manually written explicit outfit-piece overrides, ten per culture, over the generated item specs.
+
+## MED-OUTFIT-006 Override Table
+
+The MED-OUTFIT-006 override table is stored directly in `ItemSeeder.Rework.Medieval.cs` as literal seeder rows. It is keyed by exact stable reference and only replaces selected signature pieces; generated explicit outfit pieces remain the fallback for all other rows.
+
+Each override may replace:
+
+- item noun
+- short description
+- full description
+- material and material behaviour
+- quality, size, weight, and cost
+- component list
+- final craft inputs and tools
+- builder-facing authoring notes
+
+The authored short and full descriptions are player-facing prose. They should describe visible cut, silhouette, material, colour, construction, trim, practical use, and social finish in 2-4 concise sentences. They must not say that an item "belongs to" an outfit or "fills" an outfit slot.
+
+Culture keys, outfit references, sex/gender presentation, social class, slot, and piece target remain builder metadata. They belong in tags, stable references, tests, catalogue documentation, and builder notes rather than visible item descriptions.
+
+Variable colour is expected for colourable garments and wearable textile, leather, and fur pieces. Use `Variable_DrabColour` for plain work, field, military, and rough common garments; `Variable_Colour` for ordinary colourable pieces; `Variable_FineColour` for fine or high-status material; and the `Variable_2*` components for contrast bands, borders, tiraz work, embroidery, tablet-woven bands, panels, or visible trim. Keep `$colour`, `$colour1`, and `$colour2` tokens in the authored short and full descriptions.
+
+Do not use direct culture adjectives in player-facing descriptions. Use style cues such as sea-road, island-hall, mounted-court, guild-city, frontier-court, western courtly, formal eastern, scholarly urban, river-town, or steppe riding instead. Direct culture names are still appropriate in tests, docs, stable references, tags, and builder notes.
 
 ## Outfit Axes
 
@@ -133,11 +156,11 @@ Final outfit-piece crafts should use appropriate stock:
 Explicit outfit-piece final crafts should use object names:
 
 ```text
-sew a Norse hangerok apron dress
-stitch a Gaelic brat mantle
-tailor a Byzantine silk dalmatic
-sew a Song cross-collar scholar robe
-make a Rus fur-edged kaftan
+sew a $colour hangerok apron dress
+stitch a $colour brat mantle
+tailor a $colour silk dalmatic
+sew a $colour cross-collar scholar robe
+make a $colour fur-edged kaftan
 ```
 
 Avoid:

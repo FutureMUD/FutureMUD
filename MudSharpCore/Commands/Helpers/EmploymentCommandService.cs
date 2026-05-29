@@ -891,7 +891,7 @@ internal sealed class EmploymentCommandService
 		sb.AppendLine($"Required AI Capabilities: {DescribeCapabilities(task.ActionPlan.RequiredCapabilities)}");
 		sb.AppendLine();
 		sb.AppendLine("Steps:");
-		AppendActionPlanSteps(sb, actor, task.ActionPlan, task.StepStates);
+		AppendActionPlanSteps(sb, actor, task.ActionPlan, task.StepStates, task.StepOperationalStates);
 		return sb.ToString();
 	}
 
@@ -907,12 +907,13 @@ internal sealed class EmploymentCommandService
 		sb.AppendLine($"Required AI Capabilities: {DescribeCapabilities(rule.ActionPlan.RequiredCapabilities)}");
 		sb.AppendLine();
 		sb.AppendLine("Steps:");
-		AppendActionPlanSteps(sb, actor, rule.ActionPlan, null);
+		AppendActionPlanSteps(sb, actor, rule.ActionPlan, null, null);
 		return sb.ToString();
 	}
 
 	private static void AppendActionPlanSteps(StringBuilder sb, ICharacter actor, EmploymentActionPlan plan,
-		IReadOnlyList<EmploymentActionStepStatus>? stepStates)
+		IReadOnlyList<EmploymentActionStepStatus>? stepStates,
+		IReadOnlyList<EmploymentActionStepOperationalState>? operationalStates)
 	{
 		if (!plan.Steps.Any())
 		{
@@ -927,8 +928,64 @@ internal sealed class EmploymentCommandService
 				? stepStates[i].DescribeEnum().ColourValue()
 				: "planned".ColourValue();
 			sb.AppendLine($"\t#{(i + 1).ToString("N0", actor)} - {status} - {EmploymentTaskAuthoringService.DescribeStep(step, actor)}");
-			sb.AppendLine($"\t\tType: {step.StepType.DescribeEnum().ColourName()} | Authority: {step.RequiredAuthority.Authorities.DescribeEnum().ColourName()} | AI: {DescribeCapabilities(step.RequiredCapabilities)}");
+			sb.AppendLine($"\t\tType: {step.StepType.DescribeEnum().ColourName()} | Authority: {step.RequiredAuthority.Authorities.DescribeEnum().ColourName()} | AI: {DescribeCapabilities(step.RequiredCapabilities)} | Catalogue: {EmploymentTaskAuthoringService.DescribeStepCatalogueStatus(step)}");
+			var warning = EmploymentTaskAuthoringService.DescribeStepBoundaryWarning(step);
+			if (!string.IsNullOrWhiteSpace(warning))
+			{
+				sb.AppendLine($"\t\t{warning}");
+			}
+
+			if (operationalStates is not null && i < operationalStates.Count && !operationalStates[i].IsEmpty)
+			{
+				sb.AppendLine($"\t\tState: {DescribeOperationalState(operationalStates[i])}");
+			}
 		}
+	}
+
+	private static string DescribeOperationalState(EmploymentActionStepOperationalState state)
+	{
+		var parts = new List<string>();
+		if (!string.IsNullOrWhiteSpace(state.OperationalPayload))
+		{
+			parts.Add($"Detail: {state.OperationalPayload.ColourValue()}");
+		}
+
+		if (!string.IsNullOrWhiteSpace(state.TransactionReference))
+		{
+			parts.Add($"Transaction: {state.TransactionReference.ColourValue()}");
+		}
+
+		if (!string.IsNullOrWhiteSpace(state.SelectedResources))
+		{
+			parts.Add($"Selection: {state.SelectedResources.ColourValue()}");
+		}
+
+		if (!string.IsNullOrWhiteSpace(state.ReservationReference))
+		{
+			parts.Add($"Reservation: {state.ReservationReference.ColourValue()}");
+		}
+
+		if (!string.IsNullOrWhiteSpace(state.RouteResult))
+		{
+			parts.Add($"Route: {state.RouteResult.ColourValue()}");
+		}
+
+		if (!string.IsNullOrWhiteSpace(state.CraftJobReference))
+		{
+			parts.Add($"Craft: {state.CraftJobReference.ColourValue()}");
+		}
+
+		if (!string.IsNullOrWhiteSpace(state.LoadedAssets))
+		{
+			parts.Add($"Loaded: {state.LoadedAssets.ColourValue()}");
+		}
+
+		if (!string.IsNullOrWhiteSpace(state.FailureDiagnostic))
+		{
+			parts.Add($"Failure: {state.FailureDiagnostic.ColourError()}");
+		}
+
+		return parts.Any() ? string.Join("; ", parts) : "none".ColourValue();
 	}
 
 	public string RenderTaskDiagnostics(ICharacter actor, IEmploymentHost host)
@@ -1372,7 +1429,7 @@ internal sealed class EmploymentCommandService
 				return;
 			case "actions":
 			case "action":
-				actor.OutputHandler.Send(_taskAuthoring.RenderAvailableActions(actor));
+				actor.OutputHandler.Send(_taskAuthoring.RenderAvailableActions(actor, input.SafeRemainingArgument));
 				return;
 			case "diagnose":
 			case "diagnostic":
@@ -2131,11 +2188,12 @@ internal sealed class EmploymentCommandService
 	#3employment <host type> <host> tasks draft rename <name>#0 - renames your current draft
 	#3employment <host type> <host> tasks draft remove <##>#0 - removes a draft step
 	#3employment <host type> <host> tasks draft discard#0 - discards your current draft
-	#3employment <host type> <host> tasks actions#0 - shows task step actions and syntax
+	#3employment <host type> <host> tasks actions [all|category|action]#0 - shows task step actions, catalogue status, and syntax
 	#3employment <host type> <host> tasks step getid <quantity> <item prototype ids...> from <here|cell ids...>#0 - adds a prototype-id retrieval step
 	#3employment <host type> <host> tasks step gettag <quantity> <tag> from <here|cell ids...>#0 - adds a tagged-item retrieval step
 	#3employment <host type> <host> tasks step commodity <weight> <material> [tag <tag>] from <here|cell ids...> [char <name>=<value> ...]#0 - adds a commodity retrieval step
 	#3employment <host type> <host> tasks step deliver to <here|cell id> [container <item id>|containertag <tag>]#0 - adds a delivery step
+	#3employment <host type> <host> tasks step move|board|command|purchase|bankdeposit|bankwithdraw|storepay|craft|report|authorise|reserve|release|select|estimate|route ...#0 - adds executable or audit-only catalogue steps
 	#3employment <host type> <host> tasks draft finalise#0 - creates the active task through the employment task board
 	#3employment <host type> <host> goals#0 - lists manager goals
 	#3employment <host type> <host> register#0 - shows recent employment register entries
@@ -2144,5 +2202,6 @@ internal sealed class EmploymentCommandService
 	#3employment <host type> <host> board read <##>#0 - reads an employment board post
 	#3employment <host type> <host> board write <title>#0 - writes an employment board post
 
-Host types are #3shop#0, #3auction#0, #3arena#0, #3bank#0, #3stable#0, and #3hotel#0. Hotel hosts are resolved by property id or name.";
+Host types are #3shop#0, #3auction#0, #3arena#0, #3bank#0, #3stable#0, and #3hotel#0. Hotel hosts are resolved by property id or name.
+Staff boards are only for employee communication; active tasks, scheduled tasks, and manager goals are routed through the employment task board. Audit-only task actions record employment evidence but do not mutate purchasing, banking, store-account, craft, vehicle, pricing, or administrative subsystems.";
 }

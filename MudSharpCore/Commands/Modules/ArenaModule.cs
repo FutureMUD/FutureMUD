@@ -75,11 +75,11 @@ Manager Only Commands:
 	#3arena tasks#0 - lists scheduled rules and active tasks
 	#3arena tasks show <##|name>#0 - shows detailed task or scheduled-rule steps
 	#3arena tasks diagnose#0 - explains why active employees can or cannot claim tasks
-	#3arena tasks actions#0 - lists available task step actions and syntax
+	#3arena tasks actions [all|category|action]#0 - lists task action catalogue entries, status, and syntax
 	#3arena tasks cancel <##|name> [reason]#0 - cancels an active task
 	#3arena tasks create <name> <action> [then <action> ...]#0 - creates and finalises a task in one command
 	#3arena tasks draft new|show|rename|remove|discard|finalise ...#0 - drafts and finalises active tasks
-	#3arena tasks step getid|gettag|commodity|deliver ...#0 - adds prototype-id retrieval or delivery steps to your draft
+	#3arena tasks step getid|gettag|commodity|deliver|move|board|command|purchase|bankdeposit|bankwithdraw|storepay|craft|report|authorise|reserve|release|select|estimate|route ...#0 - adds executable or audit-only catalogue steps to your draft
 	#3arena goals#0 - lists manager goals
 	#3arena register#0 - shows employment register entries
 	#3arena employmentledger|empledger#0 - shows employment ledger entries
@@ -120,11 +120,11 @@ Arena staff employment shortcuts:
 	#3arena tasks#0 - lists scheduled rules and active tasks
 	#3arena tasks show <##|name>#0 - shows detailed task or scheduled-rule steps
 	#3arena tasks diagnose#0 - explains why active employees can or cannot claim tasks
-	#3arena tasks actions#0 - lists available task step actions and syntax
+	#3arena tasks actions [all|category|action]#0 - lists task action catalogue entries, status, and syntax
 	#3arena tasks cancel <##|name> [reason]#0 - cancels an active task
 	#3arena tasks create <name> <action> [then <action> ...]#0 - creates and finalises a task in one command
 	#3arena tasks draft new|show|rename|remove|discard|finalise ...#0 - drafts and finalises active tasks
-	#3arena tasks step getid|gettag|commodity|deliver ...#0 - adds prototype-id retrieval or delivery steps to your draft
+	#3arena tasks step getid|gettag|commodity|deliver|move|board|command|purchase|bankdeposit|bankwithdraw|storepay|craft|report|authorise|reserve|release|select|estimate|route ...#0 - adds executable or audit-only catalogue steps to your draft
 	#3arena goals#0 - lists manager goals
 	#3arena register#0 - shows employment register entries
 	#3arena employmentledger|empledger#0 - shows employment ledger entries

@@ -2,8 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using MudSharp.Arenas;
 using MudSharp.Character;
 using MudSharp.Construction;
+using MudSharp.Economy;
+using MudSharp.Economy.Currency;
 using MudSharp.Economy.Employment;
 using MudSharp.Effects.Concrete;
 using MudSharp.Framework;
@@ -155,7 +158,7 @@ internal sealed class EmploymentTaskAuthoringService
 			return false;
 		}
 
-		if (!TryParseStep(actor, input, out var step, out message))
+		if (!TryParseStep(actor, host, input, out var step, out message))
 		{
 			return false;
 		}
@@ -234,7 +237,7 @@ internal sealed class EmploymentTaskAuthoringService
 		foreach (var actionTokens in SplitActionTokens(stepTokens))
 		{
 			var stack = new StringStack(string.Join(" ", actionTokens));
-			if (!TryParseStep(actor, stack, out var step, out message))
+			if (!TryParseStep(actor, host, stack, out var step, out message))
 			{
 				return false;
 			}
@@ -291,7 +294,14 @@ internal sealed class EmploymentTaskAuthoringService
 		{
 			for (var i = 0; i < draft.Steps.Count; i++)
 			{
-				sb.AppendLine($"\t{(i + 1).ToString("N0", actor)} - {DescribeStep(draft.Steps[i], actor)}");
+				var step = draft.Steps[i];
+				sb.AppendLine($"\t{(i + 1).ToString("N0", actor)} - {DescribeStep(step, actor)}");
+				sb.AppendLine($"\t\tAuthority: {step.RequiredAuthority.Authorities.DescribeEnum().ColourName()} | AI: {DescribeCapabilities(step.RequiredCapabilities)} | Catalogue: {DescribeStepCatalogueStatus(step)}");
+				var warning = DescribeStepBoundaryWarning(step);
+				if (!string.IsNullOrWhiteSpace(warning))
+				{
+					sb.AppendLine($"\t\t{warning}");
+				}
 			}
 		}
 
@@ -300,20 +310,76 @@ internal sealed class EmploymentTaskAuthoringService
 
 	public string RenderAvailableActions(ICharacter actor)
 	{
+		return RenderAvailableActions(actor, string.Empty);
+	}
+
+	public string RenderAvailableActions(ICharacter actor, string selector)
+	{
 		var sb = new StringBuilder();
-		sb.AppendLine("Employment Task Actions".ColourName());
+		selector = selector.Trim();
+		sb.AppendLine("Employment Task Actions".GetLineWithTitle(actor, Telnet.Cyan, Telnet.BoldWhite));
 		sb.AppendLine("Use these with ".ColourCommand() + "tasks step <action> ...".ColourCommand() + " while you have a draft open.");
 		sb.AppendLine("You can also create and finalise a task in one command with ".ColourCommand() + "tasks create <name> <action> then <action>".ColourCommand() + ".");
+		sb.AppendLine("Planning and authorisation actions persist task state; audit-only actions record evidence without mutating purchasing, banking, store-account, craft, vehicle, or administrative systems.");
 		sb.AppendLine();
-		sb.AppendLine($"{"tasks step getid <quantity> <item prototype ids...> from <here|cell ids...>".ColourCommand()}");
-		sb.AppendLine("\tGet a quantity of items matching specific item prototype IDs from one or more source locations.");
-		sb.AppendLine($"{"tasks step gettag <quantity> <tag> from <here|cell ids...>".ColourCommand()}");
-		sb.AppendLine("\tGet a quantity of items matching a tag from one or more source locations.");
-		sb.AppendLine($"{"tasks step commodity <weight> <material> [tag <tag>] from <here|cell ids...> [char <name>=<value> ...]".ColourCommand()}");
-		sb.AppendLine("\tGet a total commodity weight by material, optional tag, and optional characteristics.");
-		sb.AppendLine($"{"tasks step deliver to <here|cell id> [container <item id>|containertag <tag>]".ColourCommand()}");
-		sb.AppendLine("\tDeliver all carried task items to a destination, optionally into a container.");
+
+		if (!string.IsNullOrWhiteSpace(selector) && !selector.EqualTo("all"))
+		{
+			var definition = EmploymentActionCatalog.Get(selector);
+			if (definition is not null)
+			{
+				AppendActionDefinition(sb, definition, detailed: true);
+				return sb.ToString();
+			}
+
+			var categoryActions = EmploymentActionCatalog.ForCategory(selector);
+			if (categoryActions.Any())
+			{
+				sb.AppendLine($"{categoryActions.First().Category.DescribeEnum().ColourName()} actions:");
+				foreach (var action in categoryActions)
+				{
+					AppendActionDefinition(sb, action, detailed: false);
+				}
+
+				return sb.ToString();
+			}
+
+			sb.AppendLine($"There is no employment task action or category matching {selector.ColourCommand()}.");
+			sb.AppendLine($"Categories: {EmploymentActionCatalog.Categories.Select(x => x.DescribeEnum().ColourName()).ListToString()}.");
+			return sb.ToString();
+		}
+
+		foreach (var category in EmploymentActionCatalog.Categories)
+		{
+			sb.AppendLine($"{category.DescribeEnum().ColourName()}:");
+			foreach (var action in EmploymentActionCatalog.ForCategory(category.ToString()))
+			{
+				AppendActionDefinition(sb, action, detailed: false);
+			}
+		}
+
 		return sb.ToString();
+	}
+
+	private static void AppendActionDefinition(StringBuilder sb, EmploymentActionDefinition action, bool detailed)
+	{
+		sb.AppendLine($"\t{action.Key.ColourCommand()} - {action.Status.DescribeEnum().ColourValue()} - {action.Summary}");
+		sb.AppendLine($"\t\tSyntax: {action.Syntax.ColourCommand()}");
+		sb.AppendLine($"\t\tAuthority: {action.RequiredAuthority.Authorities.DescribeEnum().ColourName()} | AI: {DescribeCapabilities(action.RequiredCapabilities)} | Payment Authorisation: {action.RequiresPaymentAuthorisation.ToColouredString()} | Financial: {action.IsFinancial.ToColouredString()}");
+		if (action.Status == EmploymentActionCatalogStatus.AuditOnlyShell)
+		{
+			sb.AppendLine("\t\tAudit-only: records register or ledger evidence but does not mutate the external subsystem.".ColourError());
+		}
+
+		if (action.Status == EmploymentActionCatalogStatus.Deferred)
+		{
+			sb.AppendLine($"\t\tDeferred: {(action.DeferredReason ?? action.Summary).ColourError()}");
+		}
+
+		if (detailed && action.Aliases is not null && action.Aliases.Any())
+		{
+			sb.AppendLine($"\t\tAliases: {action.Aliases.Select(x => x.ColourCommand()).ListToString()}");
+		}
 	}
 
 	private static string RenderCreatedTaskSummary(ICharacter actor, IEmploymentActiveTask task)
@@ -322,13 +388,21 @@ internal sealed class EmploymentTaskAuthoringService
 		sb.AppendLine($"You create active employment task {task.Name.ColourName()} with {task.ActionPlan.Steps.Count.ToString("N0", actor).ColourValue()} step{(task.ActionPlan.Steps.Count == 1 ? string.Empty : "s")}:");
 		for (var i = 0; i < task.ActionPlan.Steps.Count; i++)
 		{
-			sb.AppendLine($"\t#{(i + 1).ToString("N0", actor)} - {DescribeStep(task.ActionPlan.Steps[i], actor)}");
+			var step = task.ActionPlan.Steps[i];
+			sb.AppendLine($"\t#{(i + 1).ToString("N0", actor)} - {DescribeStep(step, actor)}");
+			sb.AppendLine($"\t\tAuthority: {step.RequiredAuthority.Authorities.DescribeEnum().ColourName()} | AI: {DescribeCapabilities(step.RequiredCapabilities)} | Catalogue: {DescribeStepCatalogueStatus(step)}");
+			var warning = DescribeStepBoundaryWarning(step);
+			if (!string.IsNullOrWhiteSpace(warning))
+			{
+				sb.AppendLine($"\t\t{warning}");
+			}
 		}
 
 		return sb.ToString();
 	}
 
-	private static bool TryParseStep(ICharacter actor, StringStack input, out IEmploymentActionStep step,
+	private static bool TryParseStep(ICharacter actor, IEmploymentHost host, StringStack input,
+		out IEmploymentActionStep step,
 		out string message)
 	{
 		step = null!;
@@ -339,12 +413,31 @@ internal sealed class EmploymentTaskAuthoringService
 		}
 
 		var stepType = input.PopSpeech().CollapseString().ToLowerInvariant();
-		return stepType switch
+		var definition = EmploymentActionCatalog.Get(stepType);
+		if (definition?.Status == EmploymentActionCatalogStatus.Deferred)
+		{
+			step = null!;
+			message = $"{definition.Key.ColourCommand()} is in the employment task catalogue, but execution is deferred: {definition.DeferredReason ?? definition.Summary}";
+			return false;
+		}
+
+		return (definition?.Key ?? stepType) switch
 		{
 			"getid" or "id" => TryParseGetId(actor, input, out step, out message),
 			"gettag" or "tag" => TryParseGetTag(actor, input, out step, out message),
 			"commodity" or "material" => TryParseCommodity(actor, input, out step, out message),
 			"deliver" or "delivery" => TryParseDeliver(actor, input, out step, out message),
+			"move" => TryParseMove(actor, input, out step, out message),
+			"board" => TryParseBoard(input, out step, out message),
+			"command" => TryParseCommand(actor, input, out step, out message),
+			"purchase" => TryParsePurchase(host, input, out step, out message),
+			"bankdeposit" => TryParseBankDeposit(host, input, out step, out message),
+			"bankwithdraw" => TryParseBankWithdraw(host, input, out step, out message),
+			"storepay" => TryParseStorePay(host, input, out step, out message),
+			"craft" => TryParseCraft(input, out step, out message),
+			"report" or "authorise" or "reserve" or "release" or "select" or "estimate" =>
+				TryParseGenericShell(definition!.Key, input, out step, out message),
+			"route" => TryParseRoute(actor, input, out step, out message),
 			_ => UnknownStepType(stepType, out step, out message)
 		};
 	}
@@ -579,6 +672,270 @@ internal sealed class EmploymentTaskAuthoringService
 		return true;
 	}
 
+	private static bool TryParseMove(ICharacter actor, StringStack input, out IEmploymentActionStep step,
+		out string message)
+	{
+		step = null!;
+		if (!input.IsFinished && input.PeekSpeech().EqualTo("to"))
+		{
+			input.PopSpeech();
+		}
+
+		if (input.IsFinished)
+		{
+			message = $"Move steps use the syntax: {"tasks step move to <here|cell id>".ColourCommand()}";
+			return false;
+		}
+
+		if (!TryResolveLocation(actor, input.PopSpeech(), out var destination, out message))
+		{
+			return false;
+		}
+
+		if (!input.IsFinished)
+		{
+			message = $"Could not understand the extra text {input.SafeRemainingArgument.ColourCommand()} in the move step.";
+			return false;
+		}
+
+		step = new MovementDeliveryActionStep($"move to {destination.GetFriendlyReference(actor)}", destination);
+		message = string.Empty;
+		return true;
+	}
+
+	private static bool TryParseBoard(StringStack input, out IEmploymentActionStep step, out string message)
+	{
+		step = null!;
+		var text = input.SafeRemainingArgument.Trim();
+		var split = text.IndexOf('=');
+		if (split <= 0 || split >= text.Length - 1)
+		{
+			message = $"Board-post steps use the syntax: {"tasks step board <title> = <text>".ColourCommand()}";
+			return false;
+		}
+
+		var title = text[..split].Trim().Trim('"');
+		var body = text[(split + 1)..].Trim();
+		if (string.IsNullOrWhiteSpace(title) || string.IsNullOrWhiteSpace(body))
+		{
+			message = $"Board-post steps use the syntax: {"tasks step board <title> = <text>".ColourCommand()}";
+			return false;
+		}
+
+		ConsumeRemaining(input);
+		step = new BoardPostActionStep(title, body);
+		message = string.Empty;
+		return true;
+	}
+
+	private static bool TryParseCommand(ICharacter actor, StringStack input, out IEmploymentActionStep step,
+		out string message)
+	{
+		step = null!;
+		ICell? location = null;
+		if (!input.IsFinished && input.PeekSpeech().EqualTo("at"))
+		{
+			input.PopSpeech();
+			if (input.IsFinished)
+			{
+				message = "Which location should this command step execute at?";
+				return false;
+			}
+
+			if (!TryResolveLocation(actor, input.PopSpeech(), out var resolvedLocation, out message))
+			{
+				return false;
+			}
+
+			location = resolvedLocation;
+		}
+
+		if (input.IsFinished)
+		{
+			message = $"Command steps use the syntax: {"tasks step command [at <here|cell id>] <command> [arguments...]".ColourCommand()}";
+			return false;
+		}
+
+		var commandName = input.PopSpeech();
+		var arguments = input.SafeRemainingArgument;
+		ConsumeRemaining(input);
+		step = new CommandActionStep(commandName, arguments, location);
+		message = string.Empty;
+		return true;
+	}
+
+	private static bool TryParsePurchase(IEmploymentHost host, StringStack input, out IEmploymentActionStep step,
+		out string message)
+	{
+		step = null!;
+		var amountTokens = PopTokensUntil(input, "for").ToList();
+		if (!amountTokens.Any() || input.IsFinished || !input.PopSpeech().EqualTo("for"))
+		{
+			message = $"Purchase audit steps use the syntax: {"tasks step purchase <amount> for <description>".ColourCommand()}";
+			return false;
+		}
+
+		if (!TryParseMoney(host, string.Join(" ", amountTokens), out var amount, out message))
+		{
+			return false;
+		}
+
+		var description = input.SafeRemainingArgument.Trim();
+		if (string.IsNullOrWhiteSpace(description))
+		{
+			message = "What purchase should this audit step describe?";
+			return false;
+		}
+
+		ConsumeRemaining(input);
+		step = new PurchaseActionStep(description, amount);
+		message = string.Empty;
+		return true;
+	}
+
+	private static bool TryParseBankDeposit(IEmploymentHost host, StringStack input, out IEmploymentActionStep step,
+		out string message)
+	{
+		step = null!;
+		if (!TryParseMoney(host, input.SafeRemainingArgument, out var amount, out message))
+		{
+			return false;
+		}
+
+		ConsumeRemaining(input);
+		step = new BankDepositActionStep(amount);
+		message = string.Empty;
+		return true;
+	}
+
+	private static bool TryParseBankWithdraw(IEmploymentHost host, StringStack input, out IEmploymentActionStep step,
+		out string message)
+	{
+		step = null!;
+		if (!TryParseMoney(host, input.SafeRemainingArgument, out var amount, out message))
+		{
+			return false;
+		}
+
+		ConsumeRemaining(input);
+		step = new BankWithdrawalActionStep(amount);
+		message = string.Empty;
+		return true;
+	}
+
+	private static bool TryParseStorePay(IEmploymentHost host, StringStack input, out IEmploymentActionStep step,
+		out string message)
+	{
+		step = null!;
+		if (input.IsFinished)
+		{
+			message = $"Store-account payment audit steps use the syntax: {"tasks step storepay <account> amount <amount>".ColourCommand()}";
+			return false;
+		}
+
+		var accountName = input.PopSpeech();
+		if (input.IsFinished || !input.PopSpeech().EqualTo("amount"))
+		{
+			message = $"Store-account payment audit steps use the syntax: {"tasks step storepay <account> amount <amount>".ColourCommand()}";
+			return false;
+		}
+
+		if (!TryParseMoney(host, input.SafeRemainingArgument, out var amount, out message))
+		{
+			return false;
+		}
+
+		ConsumeRemaining(input);
+		step = new StoreAccountPaymentActionStep(accountName, amount);
+		message = string.Empty;
+		return true;
+	}
+
+	private static bool TryParseCraft(StringStack input, out IEmploymentActionStep step, out string message)
+	{
+		step = null!;
+		var description = input.SafeRemainingArgument.Trim();
+		if (string.IsNullOrWhiteSpace(description))
+		{
+			message = $"Craft audit steps use the syntax: {"tasks step craft <description>".ColourCommand()}";
+			return false;
+		}
+
+		ConsumeRemaining(input);
+		step = new CraftTriggerActionStep(description);
+		message = string.Empty;
+		return true;
+	}
+
+	private static bool TryParseGenericShell(string actionKey, StringStack input, out IEmploymentActionStep step,
+		out string message)
+	{
+		step = null!;
+		var description = input.SafeRemainingArgument.Trim();
+		if (string.IsNullOrWhiteSpace(description))
+		{
+			message = $"{actionKey.ColourCommand()} steps need a short description to audit.";
+			return false;
+		}
+
+		ConsumeRemaining(input);
+		step = new CataloguedActionShellStep(actionKey, description);
+		message = string.Empty;
+		return true;
+	}
+
+	private static bool TryParseRoute(ICharacter actor, StringStack input, out IEmploymentActionStep step,
+		out string message)
+	{
+		step = null!;
+		if (input.IsFinished || !input.PopSpeech().EqualTo("to"))
+		{
+			message = $"Route planning steps use the syntax: {"tasks step route to <here|cell id> [description]".ColourCommand()}";
+			return false;
+		}
+
+		if (input.IsFinished)
+		{
+			message = "Which destination should this route planning step target?";
+			return false;
+		}
+
+		if (!TryResolveLocation(actor, input.PopSpeech(), out var destination, out message))
+		{
+			return false;
+		}
+
+		var description = input.IsFinished
+			? $"route to {destination.GetFriendlyReference(actor)}"
+			: input.SafeRemainingArgument.Trim();
+		ConsumeRemaining(input);
+		step = new CataloguedActionShellStep("route", description, destination);
+		message = string.Empty;
+		return true;
+	}
+
+	private static bool TryParseMoney(IEmploymentHost host, string text, out MoneyAmount amount, out string message)
+	{
+		amount = null!;
+		var currency = ResolveHostCurrency(host);
+		if (currency is null)
+		{
+			message = $"Could not determine the currency for {host.EmploymentHostName.ColourName()}.";
+			return false;
+		}
+
+		text = text.Trim();
+		if (string.IsNullOrWhiteSpace(text) || !currency.TryGetBaseCurrency(text, out var parsed) || parsed <= 0.0M)
+		{
+			message = $"Could not parse {text.ColourCommand()} as a positive amount of {currency.Name.ColourName()}.";
+			return false;
+		}
+
+		amount = new MoneyAmount(currency, parsed);
+		message = string.Empty;
+		return true;
+	}
+
 	private static IEnumerable<string> PopTokensUntil(StringStack input, string token)
 	{
 		while (!input.IsFinished && !input.PeekSpeech().EqualTo(token))
@@ -592,6 +949,14 @@ internal sealed class EmploymentTaskAuthoringService
 		while (!input.IsFinished)
 		{
 			yield return input.PopSpeech();
+		}
+	}
+
+	private static void ConsumeRemaining(StringStack input)
+	{
+		while (!input.IsFinished)
+		{
+			input.PopSpeech();
 		}
 	}
 
@@ -704,6 +1069,28 @@ internal sealed class EmploymentTaskAuthoringService
 		return false;
 	}
 
+	private static ICurrency? ResolveHostCurrency(IEmploymentHost host)
+	{
+		return host switch
+		{
+			IShop shop => shop.Currency,
+			IAuctionHouse auctionHouse => auctionHouse.EconomicZone.Currency,
+			ICombatArena arena => arena.Currency,
+			IBank bank => bank.PrimaryCurrency,
+			IStable stable => stable.Currency,
+			IHotel hotel => hotel.Currency,
+			_ => host.EmploymentContracts.Select(x => x.Compensation.FixedRate?.Currency ?? x.Compensation.MinimumEffectivePay?.Currency)
+			         .FirstOrDefault(x => x is not null)
+		};
+	}
+
+	private static string DescribeCapabilities(IReadOnlySet<EmploymentAICapability> capabilities)
+	{
+		return capabilities.Any()
+			? capabilities.Select(x => x.DescribeEnum().ColourName()).ListToString()
+			: "none".ColourValue();
+	}
+
 	private static EmploymentTaskDraft? DraftFor(ICharacter actor, IEmploymentHost host)
 	{
 		return actor.EffectsOfType<EmploymentTaskDraftEffect>()
@@ -722,6 +1109,28 @@ internal sealed class EmploymentTaskAuthoringService
 	{
 		return step switch
 		{
+			PurchaseActionStep purchase =>
+				$"record an audit-only purchase of {DescribeMoney(purchase.Amount)} for {purchase.PurchaseDescription.ColourName()}",
+			MovementDeliveryActionStep move =>
+				move.Destination is null
+					? $"complete movement/delivery shell: {move.DeliveryDescription.ColourName()}"
+					: $"go to {move.Destination.GetFriendlyReference(actor).ColourName()} for {move.DeliveryDescription.ColourName()}",
+			CraftTriggerActionStep craft =>
+				$"record an audit-only craft trigger for {craft.CraftDescription.ColourName()}",
+			CommandActionStep command =>
+				$"execute allowlisted command {command.CommandName.ColourCommand()}{(string.IsNullOrWhiteSpace(command.CommandArguments) ? string.Empty : $" {command.CommandArguments.ColourCommand()}")}{(command.ExecutionLocation is null ? string.Empty : $" at {command.ExecutionLocation.GetFriendlyReference(actor).ColourName()}")}",
+			BankDepositActionStep deposit =>
+				$"record an audit-only bank deposit of {DescribeMoney(deposit.Amount)}",
+			BankWithdrawalActionStep withdrawal =>
+				$"record an audit-only bank withdrawal of {DescribeMoney(withdrawal.Amount)}",
+			StoreAccountPaymentActionStep account =>
+				$"record an audit-only payment of {DescribeMoney(account.Amount)} to store account {account.AccountName.ColourName()}",
+			BoardPostActionStep board =>
+				$"post {board.Title.ColourName()} to the host staff communication board",
+			CataloguedActionShellStep shell =>
+				shell.TargetLocation is null
+					? $"record {shell.ActionKey.ColourCommand()} audit shell: {shell.ActionDescription}"
+					: $"go to {shell.TargetLocation.GetFriendlyReference(actor).ColourName()} and record {shell.ActionKey.ColourCommand()} audit shell: {shell.ActionDescription}",
 			GetItemsByIdActionStep getId =>
 				$"go to {DescribeLocations(getId.SourceLocations, actor)} and collect {getId.Quantity.ToString("N0", actor).ColourValue()}x {DescribeItemPrototypeIds(getId.ItemPrototypeIds, actor)}",
 			GetItemsByTagActionStep getTag =>
@@ -732,6 +1141,58 @@ internal sealed class EmploymentTaskAuthoringService
 				$"go to {deliver.Destination.GetFriendlyReference(actor).ColourName()} and deliver all carried task items{DescribeDeliveryContainer(deliver, actor)}",
 			_ => step.StepType.DescribeEnum().ColourName()
 		};
+	}
+
+	internal static EmploymentActionDefinition? DefinitionFor(IEmploymentActionStep step)
+	{
+		return step switch
+		{
+			CataloguedActionShellStep shell => shell.Definition,
+			PurchaseActionStep => EmploymentActionCatalog.Get("purchase"),
+			MovementDeliveryActionStep => EmploymentActionCatalog.Get("move"),
+			CraftTriggerActionStep => EmploymentActionCatalog.Get("craft"),
+			CommandActionStep => EmploymentActionCatalog.Get("command"),
+			BankDepositActionStep => EmploymentActionCatalog.Get("bankdeposit"),
+			BankWithdrawalActionStep => EmploymentActionCatalog.Get("bankwithdraw"),
+			StoreAccountPaymentActionStep => EmploymentActionCatalog.Get("storepay"),
+			BoardPostActionStep => EmploymentActionCatalog.Get("board"),
+			GetItemsByIdActionStep => EmploymentActionCatalog.Get("getid"),
+			GetItemsByTagActionStep => EmploymentActionCatalog.Get("gettag"),
+			GetCommodityActionStep => EmploymentActionCatalog.Get("commodity"),
+			DeliverItemsActionStep => EmploymentActionCatalog.Get("deliver"),
+			_ => EmploymentActionCatalog.ForStepType(step.StepType)
+		};
+	}
+
+	internal static string DescribeStepCatalogueStatus(IEmploymentActionStep step)
+	{
+		var definition = DefinitionFor(step);
+		return definition is null
+			? "uncatalogued".ColourError()
+			: $"{definition.Key.ColourCommand()} / {definition.Status.DescribeEnum().ColourValue()}";
+	}
+
+	internal static string DescribeStepBoundaryWarning(IEmploymentActionStep step)
+	{
+		var definition = DefinitionFor(step);
+		if (definition is null)
+		{
+			return string.Empty;
+		}
+
+		return definition.Status switch
+		{
+			EmploymentActionCatalogStatus.AuditOnlyShell =>
+				"Audit-only: this step records employment evidence but does not mutate the external subsystem.".ColourError(),
+			EmploymentActionCatalogStatus.Deferred =>
+				$"Deferred: {(definition.DeferredReason ?? definition.Summary).ColourError()}",
+			_ => string.Empty
+		};
+	}
+
+	private static string DescribeMoney(MoneyAmount amount)
+	{
+		return amount.Currency.Describe(amount.Amount, CurrencyDescriptionPatternType.ShortDecimal).ColourValue();
 	}
 
 	private static string DescribeLocations(IEnumerable<ICell> locations, ICharacter actor)

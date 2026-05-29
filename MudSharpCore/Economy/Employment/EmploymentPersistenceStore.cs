@@ -75,6 +75,8 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 
 	private sealed record DeliverItemsStepPayload(long DestinationCellId, long? ContainerId, string? ContainerTag);
 
+	private sealed record CataloguedActionShellPayload(string ActionKey, string Description, long? TargetLocationId);
+
 	private readonly IEmploymentHost _host;
 	private readonly IFuturemud _gameworld;
 
@@ -384,7 +386,7 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 				IdempotencyKey = task.IdempotencyKey
 			};
 			context.EmploymentActiveTasks.Add(dbitem);
-			AddStepStates(dbitem.StepStates, task.StepStates);
+			AddStepStates(dbitem.StepStates, task.StepStates, task.StepOperationalStates);
 			Touch(context);
 			context.SaveChanges();
 		});
@@ -407,7 +409,7 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 			dbitem.AssignedEmployeeId = task.AssignedEmployee?.Id;
 			dbitem.BlockedReason = task.BlockedReason;
 			context.EmploymentActiveTaskStepStates.RemoveRange(dbitem.StepStates);
-			AddStepStates(dbitem.StepStates, task.StepStates);
+			AddStepStates(dbitem.StepStates, task.StepStates, task.StepOperationalStates);
 			Touch(context);
 			context.SaveChanges();
 		});
@@ -1075,6 +1077,8 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 				ToGetCommodityStep(record),
 			EmploymentActionStepType.DeliverItems =>
 				ToDeliverItemsStep(record, destination),
+			EmploymentActionStepType.CataloguedShell =>
+				ToCataloguedShellStep(record, destination),
 			_ => null
 		};
 	}
@@ -1124,6 +1128,29 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 
 		var container = payload?.ContainerId is null ? null : _gameworld.TryGetItem(payload.ContainerId.Value, true);
 		return new DeliverItemsActionStep(destination, container, payload?.ContainerTag);
+	}
+
+	private CataloguedActionShellStep? ToCataloguedShellStep(DbActionStep record, ICell? destination)
+	{
+		var payload = TryDeserializeActionPayload<CataloguedActionShellPayload>(record.BoardText);
+		var actionKey = payload?.ActionKey ?? record.CommandName ?? record.Description;
+		if (string.IsNullOrWhiteSpace(actionKey))
+		{
+			return null;
+		}
+
+		var definition = EmploymentActionCatalog.Get(actionKey);
+		if (definition is null || definition.Status == EmploymentActionCatalogStatus.Deferred)
+		{
+			return null;
+		}
+
+		var targetLocationId = payload?.TargetLocationId ?? record.DestinationCellId;
+		destination ??= targetLocationId.HasValue ? _gameworld.Cells.Get(targetLocationId.Value) : null;
+		return new CataloguedActionShellStep(
+			actionKey,
+			payload?.Description ?? record.Description ?? actionKey,
+			destination);
 	}
 
 	private IEnumerable<ICell> ResolveCells(IEnumerable<long> ids)
@@ -1241,6 +1268,15 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 					deliver.Container?.Id,
 					deliver.ContainerTag));
 				break;
+			case CataloguedActionShellStep shell:
+				record.CommandName = shell.ActionKey;
+				record.Description = shell.ActionDescription;
+				record.DestinationCellId = shell.TargetLocation?.Id;
+				record.BoardText = SerializeActionPayload(new CataloguedActionShellPayload(
+					shell.ActionKey,
+					shell.ActionDescription,
+					shell.TargetLocation?.Id));
+				break;
 		}
 
 		return record;
@@ -1303,6 +1339,7 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 			assigned,
 			record.BlockedReason,
 			record.StepStates.OrderBy(x => x.SortOrder).Select(x => (EmploymentActionStepStatus)x.Status),
+			record.StepStates.OrderBy(x => x.SortOrder).Select(ToOperationalState),
 			correlationId,
 			record.IdempotencyKey,
 			this);
@@ -1393,16 +1430,41 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 		return record;
 	}
 
+	private static EmploymentActionStepOperationalState ToOperationalState(DbActiveTaskStepState record)
+	{
+		return new EmploymentActionStepOperationalState(
+			record.OperationalPayload,
+			record.TransactionReference,
+			record.SelectedResources,
+			record.ReservationReference,
+			record.RouteResult,
+			record.CraftJobReference,
+			record.LoadedAssets,
+			record.FailureDiagnostic);
+	}
+
 	private static void AddStepStates(ICollection<DbActiveTaskStepState> target,
-		IEnumerable<EmploymentActionStepStatus> states)
+		IEnumerable<EmploymentActionStepStatus> states,
+		IReadOnlyList<EmploymentActionStepOperationalState> operationalStates)
 	{
 		var order = 0;
 		foreach (var state in states)
 		{
+			var operationalState = order < operationalStates.Count
+				? operationalStates[order]
+				: EmploymentActionStepOperationalState.Empty;
 			target.Add(new DbActiveTaskStepState
 			{
 				SortOrder = order++,
-				Status = (int)state
+				Status = (int)state,
+				OperationalPayload = operationalState.OperationalPayload,
+				TransactionReference = operationalState.TransactionReference,
+				SelectedResources = operationalState.SelectedResources,
+				ReservationReference = operationalState.ReservationReference,
+				RouteResult = operationalState.RouteResult,
+				CraftJobReference = operationalState.CraftJobReference,
+				LoadedAssets = operationalState.LoadedAssets,
+				FailureDiagnostic = operationalState.FailureDiagnostic
 			});
 		}
 	}

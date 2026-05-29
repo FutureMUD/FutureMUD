@@ -79,11 +79,16 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 		return _accountBalances.GetValueOrDefault(accountKey);
 	}
 
-	public void AuthorisePaymentFor(IEmploymentActionStep step)
+	public void AuthorisePaymentFor(IEmploymentActionStep step, ICharacter? actor = null, Guid? correlationId = null,
+		bool recordRegister = true)
 	{
-		_paymentAuthorisations.Add(step);
-		RecordRegister(EmploymentRegisterEntryType.PaymentAuthorisationGranted, null,
-			$"Payment authorised for {step.StepType} action.");
+		if (!_paymentAuthorisations.Add(step) || !recordRegister)
+		{
+			return;
+		}
+
+		RecordRegister(EmploymentRegisterEntryType.PaymentAuthorisationGranted, actor,
+			$"Payment authorised for {step.StepType} action.", correlationId);
 	}
 
 	public bool PaymentAuthorised(IEmploymentActionStep step)
@@ -943,6 +948,7 @@ public sealed class EmploymentScheduledTaskRule : IEmploymentScheduledTaskRule
 public sealed class EmploymentActiveTask : IEmploymentActiveTask
 {
 	private readonly List<EmploymentActionStepStatus> _stepStates;
+	private readonly List<EmploymentActionStepOperationalState> _stepOperationalStates;
 	private readonly IEmploymentPersistenceStore? _persistence;
 
 	public EmploymentActiveTask(IEmploymentHost employer, string name, EmploymentActionPlan actionPlan, Guid correlationId)
@@ -953,6 +959,7 @@ public sealed class EmploymentActiveTask : IEmploymentActiveTask
 		ActionPlan = actionPlan;
 		CorrelationId = correlationId;
 		_stepStates = actionPlan.Steps.Select(_ => EmploymentActionStepStatus.Pending).ToList();
+		_stepOperationalStates = actionPlan.Steps.Select(_ => EmploymentActionStepOperationalState.Empty).ToList();
 	}
 
 	internal EmploymentActiveTask(IEmploymentHost employer, string name, EmploymentActionPlan actionPlan,
@@ -964,7 +971,9 @@ public sealed class EmploymentActiveTask : IEmploymentActiveTask
 
 	internal EmploymentActiveTask(Guid id, IEmploymentHost employer, string name, EmploymentActionPlan actionPlan,
 		EmploymentTaskStatus status, ICharacter? assignedEmployee, string? blockedReason,
-		IEnumerable<EmploymentActionStepStatus> stepStates, Guid correlationId, string idempotencyKey,
+		IEnumerable<EmploymentActionStepStatus> stepStates,
+		IEnumerable<EmploymentActionStepOperationalState> stepOperationalStates,
+		Guid correlationId, string idempotencyKey,
 		IEmploymentPersistenceStore persistence)
 	{
 		Id = id;
@@ -982,6 +991,12 @@ public sealed class EmploymentActiveTask : IEmploymentActiveTask
 		{
 			_stepStates = actionPlan.Steps.Select(_ => EmploymentActionStepStatus.Pending).ToList();
 		}
+
+		_stepOperationalStates = stepOperationalStates.ToList();
+		if (_stepOperationalStates.Count != actionPlan.Steps.Count)
+		{
+			_stepOperationalStates = actionPlan.Steps.Select(_ => EmploymentActionStepOperationalState.Empty).ToList();
+		}
 	}
 
 	public Guid Id { get; }
@@ -992,6 +1007,7 @@ public sealed class EmploymentActiveTask : IEmploymentActiveTask
 	public ICharacter? AssignedEmployee { get; private set; }
 	public string? BlockedReason { get; private set; }
 	public IReadOnlyList<EmploymentActionStepStatus> StepStates => _stepStates;
+	public IReadOnlyList<EmploymentActionStepOperationalState> StepOperationalStates => _stepOperationalStates;
 	public Guid CorrelationId { get; }
 	public string IdempotencyKey { get; init; } = string.Empty;
 
@@ -1019,9 +1035,23 @@ public sealed class EmploymentActiveTask : IEmploymentActiveTask
 		_persistence?.SaveActiveTaskState(this);
 	}
 
-	public void MarkStep(int index, EmploymentActionStepStatus status)
+	public void MarkStep(int index, EmploymentActionStepStatus status,
+		EmploymentActionStepOperationalState? operationalState = null)
 	{
 		_stepStates[index] = status;
+		var mergedState = _stepOperationalStates[index];
+		if (operationalState is not null && !operationalState.IsEmpty)
+		{
+			mergedState = mergedState.Merge(operationalState);
+		}
+
+		if (status == EmploymentActionStepStatus.Completed)
+		{
+			mergedState = mergedState.WithoutFailure();
+		}
+
+		_stepOperationalStates[index] = mergedState;
+
 		if (_stepStates.All(x => x == EmploymentActionStepStatus.Completed))
 		{
 			Status = EmploymentTaskStatus.Completed;
@@ -1139,9 +1169,11 @@ public sealed class EmploymentTaskDispatcher
 		}
 
 		var step = task.ActionPlan.Steps[index];
+		ApplyDurablePaymentAuthorisations(concrete, context, index);
 		if (!step.CanExecute(context, task.AssignedEmployee, out var reason))
 		{
-			concrete.MarkStep(index, EmploymentActionStepStatus.Blocked);
+			concrete.MarkStep(index, EmploymentActionStepStatus.Blocked,
+				concrete.StepOperationalStates[index].WithFailure(reason));
 			concrete.Block(reason);
 			context.RecordRegister(EmploymentRegisterEntryType.ActionStepFailed, task.AssignedEmployee, reason, task.CorrelationId);
 			context.RecordRegister(EmploymentRegisterEntryType.ActiveTaskBlocked, task.AssignedEmployee, reason, task.CorrelationId);
@@ -1158,9 +1190,18 @@ public sealed class EmploymentTaskDispatcher
 			$"{task.AssignedEmployee.Name} started step {index + 1:N0} ({step.StepType.DescribeEnum()}) of task {task.Name}.",
 			task.AssignedEmployee.Gameworld);
 		var result = step.Execute(context, task.AssignedEmployee);
+		var operationalState = result.OperationalState;
+		if (!result.Success)
+		{
+			operationalState = concrete.StepOperationalStates[index]
+			                           .Merge(result.OperationalState)
+			                           .WithFailure(result.Message);
+		}
+
 		concrete.MarkStep(index, result.Success
 			? EmploymentActionStepStatus.Completed
-			: result.Completed ? EmploymentActionStepStatus.Failed : EmploymentActionStepStatus.Blocked);
+			: result.Completed ? EmploymentActionStepStatus.Failed : EmploymentActionStepStatus.Blocked,
+			operationalState);
 		context.RecordRegister(result.Success
 				? EmploymentRegisterEntryType.ActionStepCompleted
 				: EmploymentRegisterEntryType.ActionStepFailed,
@@ -1185,6 +1226,26 @@ public sealed class EmploymentTaskDispatcher
 		}
 
 		return result;
+	}
+
+	private static void ApplyDurablePaymentAuthorisations(EmploymentActiveTask task, IEmploymentTaskContext context,
+		int currentStepIndex)
+	{
+		var hasCompletedAuthorisation = task.ActionPlan.Steps
+		                                .Take(currentStepIndex)
+		                                .Select((step, index) => (Step: step, Index: index))
+		                                .Any(x =>
+			                                task.StepStates[x.Index] == EmploymentActionStepStatus.Completed &&
+			                                x.Step is CataloguedActionShellStep { ActionKey: "authorise" });
+		if (!hasCompletedAuthorisation)
+		{
+			return;
+		}
+
+		foreach (var step in task.ActionPlan.Steps.Skip(currentStepIndex).Where(x => x.RequiresPaymentAuthorisation))
+		{
+			context.AuthorisePaymentFor(step, task.AssignedEmployee, task.CorrelationId, recordRegister: false);
+		}
 	}
 }
 

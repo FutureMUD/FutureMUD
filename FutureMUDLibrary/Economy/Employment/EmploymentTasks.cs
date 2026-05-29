@@ -47,7 +47,8 @@ public enum EmploymentActionStepType
 	GetItemsById,
 	GetItemsByTag,
 	GetCommodity,
-	DeliverItems
+	DeliverItems,
+	CataloguedShell
 }
 
 public enum EmploymentActionStepStatus
@@ -75,7 +76,62 @@ public interface IEmploymentActionStepLocationHint
 	IReadOnlyCollection<ICell> ExecutionLocationHints(IEmploymentTaskContext context, ICharacter actor);
 }
 
-public sealed record EmploymentActionStepResult(bool Success, string Message, bool Completed = true)
+public sealed record EmploymentActionStepOperationalState(
+	string? OperationalPayload = null,
+	string? TransactionReference = null,
+	string? SelectedResources = null,
+	string? ReservationReference = null,
+	string? RouteResult = null,
+	string? CraftJobReference = null,
+	string? LoadedAssets = null,
+	string? FailureDiagnostic = null)
+{
+	public static EmploymentActionStepOperationalState Empty { get; } = new();
+
+	public bool IsEmpty =>
+		string.IsNullOrWhiteSpace(OperationalPayload) &&
+		string.IsNullOrWhiteSpace(TransactionReference) &&
+		string.IsNullOrWhiteSpace(SelectedResources) &&
+		string.IsNullOrWhiteSpace(ReservationReference) &&
+		string.IsNullOrWhiteSpace(RouteResult) &&
+		string.IsNullOrWhiteSpace(CraftJobReference) &&
+		string.IsNullOrWhiteSpace(LoadedAssets) &&
+		string.IsNullOrWhiteSpace(FailureDiagnostic);
+
+	public EmploymentActionStepOperationalState Merge(EmploymentActionStepOperationalState? other)
+	{
+		if (other is null || other.IsEmpty)
+		{
+			return this;
+		}
+
+		return this with
+		{
+			OperationalPayload = Choose(other.OperationalPayload, OperationalPayload),
+			TransactionReference = Choose(other.TransactionReference, TransactionReference),
+			SelectedResources = Choose(other.SelectedResources, SelectedResources),
+			ReservationReference = Choose(other.ReservationReference, ReservationReference),
+			RouteResult = Choose(other.RouteResult, RouteResult),
+			CraftJobReference = Choose(other.CraftJobReference, CraftJobReference),
+			LoadedAssets = Choose(other.LoadedAssets, LoadedAssets),
+			FailureDiagnostic = Choose(other.FailureDiagnostic, FailureDiagnostic)
+		};
+	}
+
+	public EmploymentActionStepOperationalState WithFailure(string? failure) =>
+		string.IsNullOrWhiteSpace(failure) ? this : this with { FailureDiagnostic = failure };
+
+	public EmploymentActionStepOperationalState WithoutFailure() => this with { FailureDiagnostic = null };
+
+	private static string? Choose(string? replacement, string? existing) =>
+		string.IsNullOrWhiteSpace(replacement) ? existing : replacement;
+}
+
+public sealed record EmploymentActionStepResult(
+	bool Success,
+	string Message,
+	bool Completed = true,
+	EmploymentActionStepOperationalState? OperationalState = null)
 {
 	public static EmploymentActionStepResult CompletedResult(string message)
 	{
@@ -154,6 +210,7 @@ public interface IEmploymentActiveTask
 	ICharacter? AssignedEmployee { get; }
 	string? BlockedReason { get; }
 	IReadOnlyList<EmploymentActionStepStatus> StepStates { get; }
+	IReadOnlyList<EmploymentActionStepOperationalState> StepOperationalStates { get; }
 	Guid CorrelationId { get; }
 }
 
@@ -190,6 +247,8 @@ public interface IEmploymentTaskContext
 	int StockLevel(string stockKey);
 	decimal AccountBalance(string accountKey);
 	bool PaymentAuthorised(IEmploymentActionStep step);
+	void AuthorisePaymentFor(IEmploymentActionStep step, ICharacter? actor = null, Guid? correlationId = null,
+		bool recordRegister = true);
 	bool CommandAllowed(string commandName);
 	bool CanPath(ICharacter actor, ICell? destination);
 	IReadOnlyCollection<IGameItem> AvailableItems(ICell location);

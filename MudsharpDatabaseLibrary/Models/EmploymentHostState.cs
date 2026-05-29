@@ -282,6 +282,14 @@ public partial class EmploymentActiveTaskStepStateRecord
 	public long EmploymentActiveTaskId { get; set; }
 	public int SortOrder { get; set; }
 	public int Status { get; set; }
+	public string? OperationalPayload { get; set; }
+	public string? TransactionReference { get; set; }
+	public string? SelectedResources { get; set; }
+	public string? ReservationReference { get; set; }
+	public string? RouteResult { get; set; }
+	public string? CraftJobReference { get; set; }
+	public string? LoadedAssets { get; set; }
+	public string? FailureDiagnostic { get; set; }
 
 	public virtual EmploymentActiveTaskRecord EmploymentActiveTask { get; set; } = null!;
 }

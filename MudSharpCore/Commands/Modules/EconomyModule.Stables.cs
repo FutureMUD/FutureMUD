@@ -80,11 +80,11 @@ Stable managers can use the following additional commands:
 	#3stable tasks#0 - lists scheduled rules and active tasks
 	#3stable tasks show <##|name>#0 - shows detailed task or scheduled-rule steps
 	#3stable tasks diagnose#0 - explains why active employees can or cannot claim tasks
-	#3stable tasks actions#0 - lists available task step actions and syntax
+	#3stable tasks actions [all|category|action]#0 - lists task action catalogue entries, status, and syntax
 	#3stable tasks cancel <##|name> [reason]#0 - cancels an active task
 	#3stable tasks create <name> <action> [then <action> ...]#0 - creates and finalises a task in one command
 	#3stable tasks draft new|show|rename|remove|discard|finalise ...#0 - drafts and finalises active tasks
-	#3stable tasks step getid|gettag|commodity|deliver ...#0 - adds prototype-id retrieval or delivery steps to your draft
+	#3stable tasks step getid|gettag|commodity|deliver|move|board|command|purchase|bankdeposit|bankwithdraw|storepay|craft|report|authorise|reserve|release|select|estimate|route ...#0 - adds executable or audit-only catalogue steps to your draft
 	#3stable goals#0 - lists manager goals
 	#3stable register#0 - shows employment register entries
 	#3stable employmentledger|empledger#0 - shows employment ledger entries

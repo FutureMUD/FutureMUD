@@ -401,6 +401,14 @@ public partial class FuturemudDatabaseContext
 			entity.Property(e => e.EmploymentActiveTaskId).HasColumnType("bigint(20)");
 			entity.Property(e => e.SortOrder).HasColumnType("int(11)");
 			entity.Property(e => e.Status).HasColumnType("int(11)");
+			entity.Property(e => e.OperationalPayload).HasColumnType("longtext");
+			entity.Property(e => e.TransactionReference).HasColumnType("longtext");
+			entity.Property(e => e.SelectedResources).HasColumnType("longtext");
+			entity.Property(e => e.ReservationReference).HasColumnType("longtext");
+			entity.Property(e => e.RouteResult).HasColumnType("longtext");
+			entity.Property(e => e.CraftJobReference).HasColumnType("longtext");
+			entity.Property(e => e.LoadedAssets).HasColumnType("longtext");
+			entity.Property(e => e.FailureDiagnostic).HasColumnType("longtext");
 
 			entity.HasOne(e => e.EmploymentActiveTask)
 			      .WithMany(e => e.StepStates)

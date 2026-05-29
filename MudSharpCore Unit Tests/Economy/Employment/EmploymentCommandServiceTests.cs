@@ -798,6 +798,159 @@ public class EmploymentCommandServiceTests
 		StringAssert.Contains(output, "Employment Task Actions");
 		StringAssert.Contains(output, "tasks step getid");
 		StringAssert.Contains(output, "tasks step deliver");
+		StringAssert.Contains(output, "tasks step purchase");
+		StringAssert.Contains(output, "AuditOnlyShell");
+		StringAssert.Contains(output, "Deferred");
+	}
+
+	[TestMethod]
+	public void EmploymentActionCatalog_ContainsPlannedFamiliesWithExpectedStatuses()
+	{
+		var executable = new[]
+		{
+			"getid", "gettag", "commodity", "deliver", "move", "board", "command", "report",
+			"authorise", "reserve", "release", "select", "estimate", "route"
+		};
+		var auditOnly = new[]
+		{
+			"purchase", "bankdeposit", "bankwithdraw", "storepay", "craft"
+		};
+		var deferred = new[]
+		{
+			"transfer", "float", "return", "load", "unload", "vehicle", "station", "price",
+			"jobopening", "rule", "admintask", "marktask"
+		};
+
+		foreach (var key in executable)
+		{
+			Assert.AreEqual(EmploymentActionCatalogStatus.Executable, EmploymentActionCatalog.Get(key)?.Status, key);
+		}
+
+		foreach (var key in auditOnly)
+		{
+			Assert.AreEqual(EmploymentActionCatalogStatus.AuditOnlyShell, EmploymentActionCatalog.Get(key)?.Status, key);
+		}
+
+		foreach (var key in deferred)
+		{
+			Assert.AreEqual(EmploymentActionCatalogStatus.Deferred, EmploymentActionCatalog.Get(key)?.Status, key);
+		}
+
+		Assert.IsTrue(EmploymentActionCatalog.ForCategory("purchasing").Any(x => x.Key == "storepay"));
+		Assert.IsTrue(EmploymentActionCatalog.ForCategory("administration").Any(x => x.Key == "price"));
+	}
+
+	[TestMethod]
+	public void EmploymentActionCatalog_NonDeferredEntriesHaveImplementationMetadata()
+	{
+		foreach (var definition in EmploymentActionCatalog.All.Where(x => x.Status != EmploymentActionCatalogStatus.Deferred))
+		{
+			Assert.IsTrue(definition.StepType.HasValue, definition.Key);
+			StringAssert.Contains(definition.Syntax, "tasks step");
+			Assert.IsFalse(string.IsNullOrWhiteSpace(definition.Summary), definition.Key);
+			Assert.AreNotEqual(EmploymentAuthority.None, definition.RequiredAuthority.Authorities, definition.Key);
+		}
+	}
+
+	[TestMethod]
+	public void EmploymentCommandService_TaskActionsCanFilterByCategoryAndAction()
+	{
+		var manager = Character(67, "Manager").Object;
+		var authoring = new EmploymentTaskAuthoringService();
+
+		var purchasing = authoring.RenderAvailableActions(manager, "purchasing");
+		var board = authoring.RenderAvailableActions(manager, "board");
+
+		StringAssert.Contains(purchasing, "bankdeposit");
+		StringAssert.Contains(purchasing, "storepay");
+		StringAssert.Contains(board, "tasks step board");
+		StringAssert.Contains(board, "CanPostToBoard");
+		StringAssert.Contains(board, "Executable");
+	}
+
+	[TestMethod]
+	public void EmploymentCommandService_TaskDraftParsesCatalogueSafeActions()
+	{
+		var currency = Currency();
+		decimal five = 5.0M;
+		currency.Setup(x => x.TryGetBaseCurrency("5", out five)).Returns(true);
+		IEmploymentHost host = new TestEmploymentHost(1, "market shop", currency.Object);
+		var manager = Character(68, "Manager").Object;
+		host.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.AssignTasks |
+			EmploymentAuthority.ManageDeliveryRoutes |
+			EmploymentAuthority.PostToHostBoard |
+			EmploymentAuthority.ApprovePurchases |
+			EmploymentAuthority.DepositBusinessCash |
+			EmploymentAuthority.WithdrawBusinessCash |
+			EmploymentAuthority.UseStoreAccount |
+			EmploymentAuthority.ManageCraftRules |
+			EmploymentAuthority.ManageStockRules), null);
+		var authoring = new EmploymentTaskAuthoringService();
+
+		Assert.IsTrue(authoring.TryStartDraft(manager, host, "Catalogue", out var message), message);
+		Assert.IsTrue(authoring.TryAddStep(manager, host, new StringStack("move to here"), out message), message);
+		Assert.IsTrue(authoring.TryAddStep(manager, host, new StringStack("board Notice = Please check stock"), out message), message);
+		Assert.IsTrue(authoring.TryAddStep(manager, host, new StringStack("command at here say hello"), out message), message);
+		Assert.IsTrue(authoring.TryAddStep(manager, host, new StringStack("purchase 5 for apples"), out message), message);
+		Assert.IsTrue(authoring.TryAddStep(manager, host, new StringStack("bankdeposit 5"), out message), message);
+		Assert.IsTrue(authoring.TryAddStep(manager, host, new StringStack("bankwithdraw 5"), out message), message);
+		Assert.IsTrue(authoring.TryAddStep(manager, host, new StringStack("storepay supplier amount 5"), out message), message);
+		Assert.IsTrue(authoring.TryAddStep(manager, host, new StringStack("craft linen bundles"), out message), message);
+		Assert.IsTrue(authoring.TryAddStep(manager, host, new StringStack("report shelves checked"), out message), message);
+		Assert.IsTrue(authoring.TryAddStep(manager, host, new StringStack("authorise purchase approved"), out message), message);
+		Assert.IsTrue(authoring.TryAddStep(manager, host, new StringStack("reserve feed crates"), out message), message);
+		Assert.IsTrue(authoring.TryAddStep(manager, host, new StringStack("release old reservation"), out message), message);
+		Assert.IsTrue(authoring.TryAddStep(manager, host, new StringStack("select supplier A"), out message), message);
+		Assert.IsTrue(authoring.TryAddStep(manager, host, new StringStack("estimate three trips"), out message), message);
+		Assert.IsTrue(authoring.TryAddStep(manager, host, new StringStack("route to here test path"), out message), message);
+
+		var rendered = authoring.RenderDraft(manager, host);
+
+		StringAssert.Contains(rendered, "Audit-only");
+		StringAssert.Contains(rendered, "PostToHostBoard");
+		StringAssert.Contains(rendered, "bank deposit");
+		StringAssert.Contains(rendered, "route");
+	}
+
+	[TestMethod]
+	public void EmploymentCommandService_TaskAuthoringRejectsDeferredCatalogueActions()
+	{
+		var currency = Currency();
+		IEmploymentHost host = new TestEmploymentHost(1, "market shop", currency.Object);
+		var manager = Character(69, "Manager").Object;
+		host.Hire(manager, Offer(currency.Object, EmploymentRole.Manager, EmploymentAuthority.AssignTasks), null);
+		var authoring = new EmploymentTaskAuthoringService();
+
+		Assert.IsTrue(authoring.TryStartDraft(manager, host, "Deferred", out var message), message);
+		Assert.IsFalse(authoring.TryAddStep(manager, host, new StringStack("transfer till bank 5"), out message));
+
+		StringAssert.Contains(message, "deferred");
+		StringAssert.Contains(message, "transfer");
+	}
+
+	[TestMethod]
+	public void EmploymentCommandService_OneShotCatalogueShellFinalisesWithExecutablePlanningSteps()
+	{
+		var currency = Currency();
+		IEmploymentHost host = new TestEmploymentHost(1, "market shop", currency.Object);
+		var manager = Character(72, "Manager").Object;
+		host.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.AssignTasks | EmploymentAuthority.ManageStockRules), null);
+		var authoring = new EmploymentTaskAuthoringService();
+
+		var created = authoring.TryCreateOneShotTask(
+			manager,
+			host,
+			new StringStack("Audit report shelves checked then reserve feed crates"),
+			out var task,
+			out var message);
+
+		Assert.IsTrue(created, message);
+		Assert.IsNotNull(task);
+		Assert.AreEqual(2, task.ActionPlan.Steps.Count);
+		Assert.IsTrue(task.ActionPlan.Steps.All(x => x is CataloguedActionShellStep));
+		StringAssert.Contains(message, "Executable");
 	}
 
 	[TestMethod]
@@ -994,6 +1147,36 @@ public class EmploymentCommandServiceTests
 		StringAssert.Contains(rendered, "prototype #");
 		StringAssert.Contains(rendered, "shopfront");
 		StringAssert.Contains(rendered, "deliver all carried task items");
+	}
+
+	[TestMethod]
+	public void EmploymentCommandService_TaskDetailShowsOperationalStepState()
+	{
+		var currency = Currency();
+		IEmploymentHost host = new TestEmploymentHost(1, "market shop", currency.Object);
+		var manager = Character(65, "Manager").Object;
+		host.Hire(manager, Offer(currency.Object, EmploymentRole.Manager, EmploymentAuthority.AssignTasks), null);
+		var task = host.TaskBoard.CreateActiveTask(
+			"Report shelves",
+			new EmploymentActionPlan(new IEmploymentActionStep[]
+			{
+				new CataloguedActionShellStep("report", "shelves counted")
+			}),
+			manager);
+		var dispatcher = new EmploymentTaskDispatcher();
+		var context = new EmploymentTaskContext(host);
+		Assert.IsTrue(dispatcher.TryAssignTask(task,
+			[Profile(manager, PaymentMethodKind.Cash)],
+			context,
+			out var reason), reason);
+		Assert.IsTrue(dispatcher.AdvanceTask(task, context).Success);
+		var service = new EmploymentCommandService();
+
+		var rendered = service.RenderTaskDetail(manager, host, "1");
+
+		StringAssert.Contains(rendered, "Report shelves");
+		StringAssert.Contains(rendered, "State:");
+		StringAssert.Contains(rendered, "Report: shelves counted");
 	}
 
 	[TestMethod]

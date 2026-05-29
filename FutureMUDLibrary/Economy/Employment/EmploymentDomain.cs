@@ -439,7 +439,8 @@ public enum EmploymentRegisterEntryType
 	WageAccrued,
 	WageSettled,
 	WageClaimed,
-	EmployeeResignedUnpaid
+	EmployeeResignedUnpaid,
+	AuditActionRecorded
 }
 
 public interface IEmploymentRegisterEntry

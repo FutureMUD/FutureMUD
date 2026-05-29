@@ -88,7 +88,7 @@ public sealed class PurchaseActionStep : EmploymentActionStepBase
 				$"Reused existing financial record {ExistingFinancialRecord} for purchase.");
 		}
 
-		return EmploymentActionStepResult.CompletedResult($"Purchased {PurchaseDescription}.");
+		return EmploymentActionStepResult.CompletedResult($"Recorded audit-only purchase for {PurchaseDescription}.");
 	}
 }
 
@@ -161,7 +161,7 @@ public sealed class CraftTriggerActionStep : EmploymentActionStepBase
 				$"Reused existing material-cost record {ExistingFinancialRecord} for craft trigger.");
 		}
 
-		return EmploymentActionStepResult.CompletedResult($"Triggered craft: {CraftDescription}.");
+		return EmploymentActionStepResult.CompletedResult($"Recorded audit-only craft trigger: {CraftDescription}.");
 	}
 }
 
@@ -247,7 +247,7 @@ public sealed class BankDepositActionStep : EmploymentActionStepBase
 				$"Reused existing bank deposit record {ExistingFinancialRecord}.");
 		}
 
-		return EmploymentActionStepResult.CompletedResult("Deposited business cash.");
+		return EmploymentActionStepResult.CompletedResult("Recorded audit-only business cash deposit.");
 	}
 }
 
@@ -279,7 +279,7 @@ public sealed class BankWithdrawalActionStep : EmploymentActionStepBase
 				$"Reused existing bank withdrawal record {ExistingFinancialRecord}.");
 		}
 
-		return EmploymentActionStepResult.CompletedResult("Withdrew business cash.");
+		return EmploymentActionStepResult.CompletedResult("Recorded audit-only business cash withdrawal.");
 	}
 }
 
@@ -314,7 +314,7 @@ public sealed class StoreAccountPaymentActionStep : EmploymentActionStepBase
 				$"Reused existing store account payment record {ExistingFinancialRecord}.");
 		}
 
-		return EmploymentActionStepResult.CompletedResult($"Paid store account {AccountName}.");
+		return EmploymentActionStepResult.CompletedResult($"Recorded audit-only store account payment for {AccountName}.");
 	}
 }
 
@@ -340,6 +340,88 @@ public sealed class BoardPostActionStep : EmploymentActionStepBase
 		context.Employer.Board.MakeNewPost(actor, Title, Text);
 		context.RecordRegister(EmploymentRegisterEntryType.BoardPostCreated, actor, $"Posted to host board: {Title}.");
 		return EmploymentActionStepResult.CompletedResult($"Posted {Title} to host board.");
+	}
+}
+
+public sealed class CataloguedActionShellStep : EmploymentActionStepBase, IEmploymentActionStepLocationHint
+{
+	public CataloguedActionShellStep(string actionKey, string actionDescription, ICell? targetLocation = null)
+		: this(EmploymentActionCatalog.Get(actionKey) ??
+		       throw new ArgumentException($"Unknown employment action catalogue key {actionKey}.", nameof(actionKey)),
+			actionDescription,
+			targetLocation)
+	{
+	}
+
+	private CataloguedActionShellStep(EmploymentActionDefinition definition, string actionDescription,
+		ICell? targetLocation)
+		: base(
+			EmploymentActionStepType.CataloguedShell,
+			definition.Status == EmploymentActionCatalogStatus.Deferred
+				? throw new ArgumentException($"Deferred employment action {definition.Key} cannot be instantiated.", nameof(definition))
+				: definition.RequiredAuthority,
+			definition.RequiredCapabilities,
+			definition.RequiresPaymentAuthorisation,
+			definition.IsFinancial)
+	{
+		Definition = definition;
+		ActionKey = definition.Key;
+		ActionDescription = actionDescription.Trim();
+		TargetLocation = targetLocation;
+	}
+
+	public string ActionKey { get; }
+	public string ActionDescription { get; }
+	public ICell? TargetLocation { get; }
+	public EmploymentActionDefinition Definition { get; }
+
+	public override bool CanExecute(IEmploymentTaskContext context, ICharacter actor, out string reason)
+	{
+		if (!base.CanExecute(context, actor, out reason))
+		{
+			return false;
+		}
+
+		if (!context.CanPath(actor, TargetLocation))
+		{
+			reason = "The assigned employee cannot path to the action target location.";
+			return false;
+		}
+
+		return true;
+	}
+
+	public override EmploymentActionStepResult Execute(IEmploymentTaskContext context, ICharacter actor)
+	{
+		var state = ActionKey switch
+		{
+			"authorise" => new EmploymentActionStepOperationalState(
+				OperationalPayload: $"Authorised by {actor.Id}: {ActionDescription}"),
+			"reserve" => new EmploymentActionStepOperationalState(
+				ReservationReference: $"Reserved by {actor.Id}: {ActionDescription}"),
+			"release" => new EmploymentActionStepOperationalState(
+				ReservationReference: $"Released by {actor.Id}: {ActionDescription}"),
+			"select" => new EmploymentActionStepOperationalState(
+				SelectedResources: ActionDescription),
+			"estimate" => new EmploymentActionStepOperationalState(
+				OperationalPayload: $"Estimate: {ActionDescription}"),
+			"route" => new EmploymentActionStepOperationalState(
+				RouteResult: TargetLocation is null
+					? ActionDescription
+					: $"Route target {TargetLocation.Id} ({TargetLocation.Name}): {ActionDescription}"),
+			"report" => new EmploymentActionStepOperationalState(
+				OperationalPayload: $"Report: {ActionDescription}"),
+			_ => new EmploymentActionStepOperationalState(
+				OperationalPayload: ActionDescription)
+		};
+		context.RecordRegister(EmploymentRegisterEntryType.AuditActionRecorded, actor,
+			$"Recorded {Definition.Status} employment action {ActionKey}: {ActionDescription}.");
+		return new EmploymentActionStepResult(true, $"Recorded {ActionKey} action: {ActionDescription}.", true, state);
+	}
+
+	public IReadOnlyCollection<ICell> ExecutionLocationHints(IEmploymentTaskContext context, ICharacter actor)
+	{
+		return TargetLocation is null ? [] : [TargetLocation];
 	}
 }
 

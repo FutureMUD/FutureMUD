@@ -874,6 +874,191 @@ public class UnifiedEmploymentDispatchTests
 	}
 
 	[TestMethod]
+	public void EmploymentPersistence_RoundTripsCatalogueShellAndAuditActionSteps()
+	{
+		var fmdbState = CaptureFMDBState();
+		using var context = BuildContext();
+		try
+		{
+			PrimeFMDB(context);
+			var currency = Currency();
+			var manager = Character(260, "Manager").Object;
+			var destination = Cell(810, "sales floor").Object;
+			var characters = new Dictionary<long, ICharacter>
+			{
+				[manager.Id] = manager
+			};
+			var gameworld = Gameworld(currency.Object, characters, [destination]);
+			IEmploymentHost host = new PersistedEmploymentHost(261, "Audit Shop", gameworld.Object, currency.Object);
+			host.Hire(manager, Offer(currency.Object, EmploymentRole.Manager, EmploymentAuthoritySet.All.Authorities), null);
+			var task = host.TaskBoard.CreateActiveTask("catalogue actions",
+				new EmploymentActionPlan([
+					new CataloguedActionShellStep("route", "check the delivery route", destination),
+					new CataloguedActionShellStep("report", "stock counted"),
+					new CommandActionStep("say", "hello", destination),
+					new BoardPostActionStep("Notice", "Check the shelves."),
+					new PurchaseActionStep("purchase thread", new MoneyAmount(currency.Object, 5.0M)),
+					new BankDepositActionStep(new MoneyAmount(currency.Object, 4.0M)),
+					new BankWithdrawalActionStep(new MoneyAmount(currency.Object, 3.0M)),
+					new StoreAccountPaymentActionStep("supplier", new MoneyAmount(currency.Object, 2.0M)),
+					new CraftTriggerActionStep("craft linen bundles"),
+					new MovementDeliveryActionStep("move to the sales floor", destination)
+				]),
+				manager);
+			var dispatcher = new EmploymentTaskDispatcher();
+			var taskContext = new EmploymentTaskContext(host);
+			var profile = Profile(manager, 10.0M, PaymentMethodKind.Cash,
+				Caps(
+					EmploymentAICapability.CanDeliverItems,
+					EmploymentAICapability.CanExecuteCommandTask,
+					EmploymentAICapability.CanPostToBoard,
+					EmploymentAICapability.CanPurchaseCommodities,
+					EmploymentAICapability.CanUseBankAccount,
+					EmploymentAICapability.CanHandleCash,
+					EmploymentAICapability.CanCraft));
+			Assert.IsTrue(dispatcher.TryAssignTask(task, [profile], taskContext, out var reason), reason);
+			var routeResult = dispatcher.AdvanceTask(task, taskContext);
+			Assert.IsTrue(routeResult.Success);
+			StringAssert.Contains(task.StepOperationalStates[0].RouteResult, "delivery route");
+
+			var reloadedHost = new PersistedEmploymentHost(261, "Audit Shop", gameworld.Object, currency.Object);
+			var reloadedTask = reloadedHost.Employment.TaskBoard.ActiveTasks.Single();
+			var steps = reloadedTask.ActionPlan.Steps;
+
+			Assert.AreEqual(10, steps.Count);
+			Assert.IsInstanceOfType(steps[0], typeof(CataloguedActionShellStep));
+			Assert.AreEqual("route", ((CataloguedActionShellStep)steps[0]).ActionKey);
+			Assert.AreSame(destination, ((CataloguedActionShellStep)steps[0]).TargetLocation);
+			StringAssert.Contains(reloadedTask.StepOperationalStates[0].RouteResult, "delivery route");
+			Assert.IsInstanceOfType(steps[2], typeof(CommandActionStep));
+			Assert.AreSame(destination, ((CommandActionStep)steps[2]).ExecutionLocation);
+			Assert.IsInstanceOfType(steps[3], typeof(BoardPostActionStep));
+			Assert.IsInstanceOfType(steps[4], typeof(PurchaseActionStep));
+			Assert.IsInstanceOfType(steps[5], typeof(BankDepositActionStep));
+			Assert.IsInstanceOfType(steps[6], typeof(BankWithdrawalActionStep));
+			Assert.IsInstanceOfType(steps[7], typeof(StoreAccountPaymentActionStep));
+			Assert.IsInstanceOfType(steps[8], typeof(CraftTriggerActionStep));
+			Assert.IsInstanceOfType(steps[9], typeof(MovementDeliveryActionStep));
+		}
+		finally
+		{
+			RestoreFMDBState(fmdbState);
+		}
+	}
+
+	[TestMethod]
+	public void CataloguedShellStep_EnforcesAuthorityCapabilityAndLocationAndRecordsAudit()
+	{
+		var currency = Currency();
+		IEmploymentHost host = new TestEmploymentHost("shop", currency.Object);
+		var manager = Character(1, "Manager").Object;
+		var destination = Cell(820, "sales floor").Object;
+		host.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.AssignTasks | EmploymentAuthority.ManageDeliveryRoutes), null);
+		var dispatcher = new EmploymentTaskDispatcher();
+
+		var missingCapabilityTask = host.TaskBoard.CreateActiveTask("route check",
+			new EmploymentActionPlan([new CataloguedActionShellStep("route", "check route", destination)]),
+			manager);
+		var context = new EmploymentTaskContext(host);
+		var noCapability = Profile(manager, 1.0M, PaymentMethodKind.Cash, Caps());
+
+		Assert.IsFalse(dispatcher.TryAssignTask(missingCapabilityTask, [noCapability], context, out var reason,
+			blockWhenNoCandidateMatches: false));
+		StringAssert.Contains(reason, "missing");
+
+		var blockedPathTask = host.TaskBoard.CreateActiveTask("blocked route",
+			new EmploymentActionPlan([new CataloguedActionShellStep("route", "check route", destination)]),
+			manager);
+		context.SetPathBlocked(destination);
+		var deliveryProfile = Profile(manager, 1.0M, PaymentMethodKind.Cash,
+			Caps(EmploymentAICapability.CanDeliverItems));
+
+		Assert.IsFalse(dispatcher.TryAssignTask(blockedPathTask, [deliveryProfile], context, out reason,
+			blockWhenNoCandidateMatches: false));
+		StringAssert.Contains(reason, "cannot path");
+
+		var clearContext = new EmploymentTaskContext(host);
+		var task = host.TaskBoard.CreateActiveTask("audit report",
+			new EmploymentActionPlan([new CataloguedActionShellStep("report", "stock counted")]),
+			manager);
+		var reportProfile = Profile(manager, 1.0M, PaymentMethodKind.Cash, Caps());
+
+		Assert.IsTrue(dispatcher.TryAssignTask(task, [reportProfile], clearContext, out reason), reason);
+		var result = dispatcher.AdvanceTask(task, clearContext);
+
+		Assert.IsTrue(result.Success);
+		Assert.AreEqual(EmploymentTaskStatus.Completed, task.Status);
+		Assert.IsTrue(host.EmploymentRegister.Entries.Any(x =>
+			x.EntryType == EmploymentRegisterEntryType.AuditActionRecorded &&
+			x.Description.Contains("stock counted", StringComparison.InvariantCultureIgnoreCase)));
+	}
+
+	[TestMethod]
+	public void CataloguedAuthoriseStep_AuthorisesLaterFinancialSteps()
+	{
+		var currency = Currency();
+		IEmploymentHost host = new TestEmploymentHost("shop", currency.Object);
+		var manager = Character(1, "Manager").Object;
+		host.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.AssignTasks | EmploymentAuthority.ApprovePurchases), null);
+		var task = host.TaskBoard.CreateActiveTask("authorised purchase",
+			new EmploymentActionPlan([
+				new CataloguedActionShellStep("authorise", "approve thread purchase"),
+				new PurchaseActionStep("purchase thread", new MoneyAmount(currency.Object, 5.0M))
+			]),
+			manager);
+		var dispatcher = new EmploymentTaskDispatcher();
+		var context = new EmploymentTaskContext(host);
+		var profile = Profile(manager, 1.0M, PaymentMethodKind.Cash,
+			Caps(EmploymentAICapability.CanPurchaseCommodities));
+
+		Assert.IsTrue(dispatcher.TryAssignTask(task, [profile], context, out var reason), reason);
+		Assert.IsTrue(dispatcher.AdvanceTask(task, context).Success);
+		var purchaseResult = dispatcher.AdvanceTask(task, context);
+
+		Assert.IsTrue(purchaseResult.Success);
+		Assert.AreEqual(EmploymentTaskStatus.Completed, task.Status);
+		Assert.IsTrue(host.BusinessLedger.Entries.Any(x => x.EntryType == EmploymentLedgerEntryType.Purchase));
+	}
+
+	[TestMethod]
+	public void ActiveTaskStepState_ClearsFailureDiagnosticWhenRetryCompletes()
+	{
+		var currency = Currency();
+		IEmploymentHost host = new TestEmploymentHost("shop", currency.Object);
+		var manager = Character(1, "Manager").Object;
+		var destination = Cell(830, "sales floor").Object;
+		host.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.AssignTasks | EmploymentAuthority.ManageDeliveryRoutes), null);
+		var task = host.TaskBoard.CreateActiveTask("route after report",
+			new EmploymentActionPlan([
+				new CataloguedActionShellStep("report", "stock counted"),
+				new CataloguedActionShellStep("route", "check route", destination)
+			]),
+			manager);
+		var dispatcher = new EmploymentTaskDispatcher();
+		var context = new EmploymentTaskContext(host);
+		var profile = Profile(manager, 1.0M, PaymentMethodKind.Cash,
+			Caps(EmploymentAICapability.CanDeliverItems));
+		Assert.IsTrue(dispatcher.TryAssignTask(task, [profile], context, out var reason), reason);
+		Assert.IsTrue(dispatcher.AdvanceTask(task, context).Success);
+		var blockedContext = new EmploymentTaskContext(host);
+		blockedContext.SetPathBlocked(destination);
+
+		var blocked = dispatcher.AdvanceTask(task, blockedContext);
+
+		Assert.IsFalse(blocked.Success);
+		Assert.IsFalse(string.IsNullOrWhiteSpace(task.StepOperationalStates[1].FailureDiagnostic));
+
+		var retry = dispatcher.AdvanceTask(task, new EmploymentTaskContext(host));
+
+		Assert.IsTrue(retry.Success);
+		Assert.AreEqual(EmploymentTaskStatus.Completed, task.Status);
+		Assert.IsTrue(string.IsNullOrWhiteSpace(task.StepOperationalStates[1].FailureDiagnostic));
+	}
+
+	[TestMethod]
 	public void EmploymentPersistence_AllowsHostLocalRuntimeIdsAcrossDifferentHosts()
 	{
 		var fmdbState = CaptureFMDBState();

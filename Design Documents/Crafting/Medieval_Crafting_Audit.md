@@ -4,6 +4,8 @@ This document records the source-backed audit boundary and the second-pass quali
 
 The first medieval pass established useful scaffolding: the `medieval` era dispatcher, shared `historic_*` workshop foundations, broad production-chain stock, 18 culture keys, status-role clothing axes, and craft-suite wiring. That scaffold should be retained. However, the first pass over-relied on generated culture/status matrices and generic cue text. The second pass must add exact outfit catalogues and quality tests so that cultures differ by named material culture, not only by builder notes, tags, and appended phrases.
 
+MED-OUTFIT-006 now provides 180 manually written outfit-piece overrides, 10 per culture, with variable colour support and style-focused player-facing descriptions. Culture metadata remains in stable references, tags, tests, catalogue documentation, and builder notes rather than in visible item prose.
+
 ## Core Design Correction
 
 Shared production chains are encouraged; shared final outfits are not.

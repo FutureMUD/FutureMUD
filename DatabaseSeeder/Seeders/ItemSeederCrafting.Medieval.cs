@@ -1091,15 +1091,164 @@ public partial class ItemSeeder
 		}
 	}
 
+	private static (string Category, string Trait, IReadOnlyList<string> Inputs, IReadOnlyList<string> Tools, Difficulty Difficulty, string Verb, string Gerund)
+		ApplyMedievalExplicitOutfitPieceCraftOverride(
+			MedievalItemSpec spec,
+			(string Category, string Trait, IReadOnlyList<string> Inputs, IReadOnlyList<string> Tools, Difficulty Difficulty, string Verb, string Gerund) path)
+	{
+		if (!MedievalExplicitOutfitPieceCraftOverrides.TryGetValue(spec.StableReference, out var craftOverride))
+		{
+			return path;
+		}
+
+		return (path.Category, path.Trait, craftOverride.Inputs, craftOverride.Tools, path.Difficulty, path.Verb,
+			path.Gerund);
+	}
+
+	private static string MedievalExplicitOutfitPieceProduct(
+		GameItemProto item,
+		MedievalItemSpec spec,
+		IReadOnlyList<string> inputs)
+	{
+		if (!MedievalExplicitOutfitPieceOverrides.TryGetValue(spec.StableReference, out var overrideSpec) ||
+		    string.IsNullOrWhiteSpace(overrideSpec.VariableColourComponent))
+		{
+			return $"SimpleProduct - 1x {item.ShortDescription} (#{item.Id})";
+		}
+
+		var mappings = BuildMedievalExplicitOutfitPieceProductVariableMappings(overrideSpec, inputs);
+		return mappings.Count == 0
+			? $"SimpleProduct - 1x {item.ShortDescription} (#{item.Id})"
+			: $"SimpleVariableProduct - 1x {item.ShortDescription} (#{item.Id}); variable {string.Join(", ", mappings)}";
+	}
+
+	private static IReadOnlyList<string> BuildMedievalExplicitOutfitPieceProductVariableMappings(
+		MedievalExplicitOutfitPieceOverride overrideSpec,
+		IReadOnlyList<string> inputs)
+	{
+		if (string.IsNullOrWhiteSpace(overrideSpec.VariableColourComponent))
+		{
+			return [];
+		}
+
+		var primaryIndex = FirstMedievalExplicitOutfitPieceColourInputIndex(inputs) ??
+		                   (inputs.Count > 0 ? 1 : null);
+		if (primaryIndex is null)
+		{
+			return [];
+		}
+
+		return overrideSpec.VariableColourComponent switch
+		{
+			"Variable_Colour" => [$"Colour=$i{primaryIndex.Value}"],
+			"Variable_DrabColour" => [$"Colour=$i{primaryIndex.Value}", $"Drab Colour=$i{primaryIndex.Value}"],
+			"Variable_FineColour" => [$"Colour=$i{primaryIndex.Value}", $"Fine Colour=$i{primaryIndex.Value}"],
+			"Variable_2Colour" => BuildTwoColourMedievalExplicitOutfitPieceProductVariableMappings(
+				inputs,
+				primaryIndex.Value),
+			"Variable_2DrabColour" => BuildTwoColourMedievalExplicitOutfitPieceProductVariableMappings(
+				inputs,
+				primaryIndex.Value),
+			"Variable_2FineColour" => BuildTwoColourMedievalExplicitOutfitPieceProductVariableMappings(
+				inputs,
+				primaryIndex.Value),
+			_ => []
+		};
+	}
+
+	private static IReadOnlyList<string> BuildTwoColourMedievalExplicitOutfitPieceProductVariableMappings(
+		IReadOnlyList<string> inputs,
+		int primaryIndex)
+	{
+		var secondaryIndex = SecondaryMedievalExplicitOutfitPieceColourInputIndex(inputs, primaryIndex) ??
+		                     primaryIndex;
+		return [$"Colour1=$i{primaryIndex}", $"Colour2=$i{secondaryIndex}"];
+	}
+
+	private static int? FirstMedievalExplicitOutfitPieceColourInputIndex(IReadOnlyList<string> inputs)
+	{
+		for (var index = 0; index < inputs.Count; index++)
+		{
+			if (MedievalExplicitOutfitPieceInputCarriesColour(inputs[index]))
+			{
+				return index + 1;
+			}
+		}
+
+		return null;
+	}
+
+	private static int? SecondaryMedievalExplicitOutfitPieceColourInputIndex(
+		IReadOnlyList<string> inputs,
+		int primaryIndex)
+	{
+		var decoratedInputIndex = inputs
+			.Select((input, index) => (Input: input, Index: index + 1))
+			.Where(x => x.Index != primaryIndex)
+			.LastOrDefault(x => MedievalExplicitOutfitPieceInputIsDecorativeColourSource(x.Input))
+			.Index;
+		if (decoratedInputIndex > 0)
+		{
+			return decoratedInputIndex;
+		}
+
+		var colourInputIndex = inputs
+			.Select((input, index) => (Input: input, Index: index + 1))
+			.Where(x => x.Index != primaryIndex)
+			.Where(x => !x.Input.Contains("Spun Yarn", StringComparison.OrdinalIgnoreCase))
+			.LastOrDefault(x => MedievalExplicitOutfitPieceInputCarriesColour(x.Input))
+			.Index;
+		if (colourInputIndex > 0)
+		{
+			return colourInputIndex;
+		}
+
+		return inputs
+			.Select((input, index) => (Input: input, Index: index + 1))
+			.Where(x => x.Index != primaryIndex)
+			.LastOrDefault(x => MedievalExplicitOutfitPieceInputCarriesColour(x.Input))
+			.Index;
+	}
+
+	private static bool MedievalExplicitOutfitPieceInputCarriesColour(string input)
+	{
+		return ContainsAny(input,
+			"characteristic Colour any",
+			"characteristic Fine Colour any",
+			"characteristic Drab Colour any",
+			"characteristic Colour1 any",
+			"characteristic Colour2 any");
+	}
+
+	private static bool MedievalExplicitOutfitPieceInputIsDecorativeColourSource(string input)
+	{
+		return ContainsAny(input,
+			"Band Stock",
+			"Trim Stock",
+			"Brocade",
+			"Fur Panel Stock",
+			"Seal Cord Stock");
+	}
+
 	internal static IReadOnlyCollection<(string StableReference, string CraftName, IReadOnlyCollection<string> Inputs, IReadOnlyCollection<string> Tools)> MedievalExplicitOutfitPieceCraftsForTesting =>
 		MedievalExplicitOutfitPieceItemSpecs()
 			.Select(spec =>
 			{
-				var path = GetMedievalExplicitOutfitPieceCraftPath(spec);
+				var path = ApplyMedievalExplicitOutfitPieceCraftOverride(spec,
+					GetMedievalExplicitOutfitPieceCraftPath(spec));
 				return (spec.StableReference, MedievalExplicitOutfitPieceCraftName(path.Verb, spec),
 					(IReadOnlyCollection<string>)path.Inputs.ToArray(),
 					(IReadOnlyCollection<string>)path.Tools.ToArray());
 			})
+			.ToArray();
+
+	internal static IReadOnlyCollection<(string StableReference, string VariableColourComponent, IReadOnlyCollection<string> ProductVariableMappings)> MedievalExplicitOutfitPieceProductVariableMappingsForTesting =>
+		MedievalExplicitOutfitPieceOverrides.Values
+			.Where(x => !string.IsNullOrWhiteSpace(x.VariableColourComponent))
+			.Select(x => (x.StableReference, x.VariableColourComponent!,
+				(IReadOnlyCollection<string>)BuildMedievalExplicitOutfitPieceProductVariableMappings(
+					x,
+					x.CraftInputs).ToArray()))
 			.ToArray();
 
 	private void SeedMedievalClothingCrafts()
@@ -1202,7 +1351,8 @@ public partial class ItemSeeder
 
 		foreach (var item in MedievalExplicitOutfitPieceItemSpecs())
 		{
-			var path = GetMedievalExplicitOutfitPieceCraftPath(item);
+			var path = ApplyMedievalExplicitOutfitPieceCraftOverride(item,
+				GetMedievalExplicitOutfitPieceCraftPath(item));
 			AddMedievalFinishedCraft(
 				item.StableReference,
 				MedievalExplicitOutfitPieceCraftName(path.Verb, item),
@@ -1215,7 +1365,8 @@ public partial class ItemSeeder
 				path.Tools,
 				path.Verb,
 				path.Gerund,
-				"Explicit Outfits");
+				"Explicit Outfits",
+				dbItem => new[] { MedievalExplicitOutfitPieceProduct(dbItem, item, path.Inputs) });
 		}
 	}
 
@@ -1906,7 +2057,8 @@ public partial class ItemSeeder
 		IEnumerable<string> tools,
 		string verb,
 		string gerund,
-		string knowledgeSubtype)
+		string knowledgeSubtype,
+		Func<GameItemProto, IEnumerable<string>>? productsFactory = null)
 	{
 		if (!TryLookupReworkItem(stableReference, out var item))
 		{
@@ -1914,6 +2066,7 @@ public partial class ItemSeeder
 		}
 
 		var visibleName = VisibleCraftName(item.ShortDescription);
+		var products = productsFactory?.Invoke(item) ?? new[] { StableSimpleProduct(stableReference) };
 		AddMedievalCraft(
 			craftName,
 			category,
@@ -1927,7 +2080,7 @@ public partial class ItemSeeder
 			MedievalFinishedPhases(),
 			inputs,
 			tools,
-			[StableSimpleProduct(stableReference)],
+			products,
 			knowledgeSubtype: knowledgeSubtype);
 	}
 }

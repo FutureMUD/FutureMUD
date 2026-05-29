@@ -2,6 +2,7 @@
 
 using DatabaseSeeder.Seeders;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using MudSharp.Form.Material;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -49,6 +50,28 @@ public class ItemSeederMedievalCraftingTests
 		"headwear",
 		"bodywear",
 		"belt_or_sash"
+	];
+
+	private static readonly string[] MedievalOutfitOverrideForbiddenCultureNames =
+	[
+		"Early Anglo-Saxon",
+		"Anglo-Danish",
+		"Norse",
+		"Norman",
+		"High British",
+		"Gaelic",
+		"Carolingian",
+		"Capetian",
+		"German-HRE",
+		"Iberian Christian",
+		"Andalusi",
+		"Byzantine",
+		"Abbasid",
+		"Fatimid",
+		"Seljuk-Ayyubid",
+		"Rus-Novgorod",
+		"Steppe Turkic",
+		"Song Chinese"
 	];
 
 	[TestMethod]
@@ -283,6 +306,263 @@ public class ItemSeederMedievalCraftingTests
 	}
 
 	[TestMethod]
+	public void MedievalExplicitOutfitPieceOverrides_ResolveAndReplaceGeneratedDescriptions()
+	{
+		var overrides = ItemSeeder.MedievalExplicitOutfitPieceOverridesForTesting;
+		var specsByReference = ItemSeeder.MedievalExplicitOutfitPieceItemSpecsForTesting
+			.ToDictionary(x => x.StableReference, x => x, StringComparer.OrdinalIgnoreCase);
+		var itemReferences = ItemSeeder.MedievalItemStableReferencesForTesting
+			.ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+		Assert.AreEqual(180, overrides.Count, "Expected MED-OUTFIT-006 to include all 180 override rows.");
+
+		foreach (var overrideRow in overrides)
+		{
+			Assert.IsTrue(itemReferences.Contains(overrideRow.StableReference),
+				$"Expected override stable reference {overrideRow.StableReference} to resolve to a medieval item spec.");
+			Assert.IsTrue(specsByReference.TryGetValue(overrideRow.StableReference, out var spec),
+				$"Expected override stable reference {overrideRow.StableReference} to resolve to an explicit outfit-piece item spec.");
+
+			Assert.AreEqual(overrideRow.Noun, spec.Noun);
+			Assert.AreEqual(overrideRow.ShortDescription, spec.ShortDescription);
+			Assert.AreEqual(overrideRow.FullDescription, spec.FullDescription);
+			Assert.AreEqual(overrideRow.Material, spec.Material);
+			Assert.AreEqual(overrideRow.MaterialType, spec.MaterialType);
+			Assert.AreEqual(overrideRow.Quality, spec.Quality);
+			Assert.AreEqual(overrideRow.Size, spec.Size);
+			Assert.AreEqual(overrideRow.WeightInGrams, spec.WeightInGrams);
+			Assert.AreEqual(overrideRow.Cost, spec.Cost);
+			AssertContains(spec.BuilderNotes ?? string.Empty, "Explicit medieval outfit piece override.");
+			AssertContains(spec.BuilderNotes ?? string.Empty, $"Outfit reference: {overrideRow.OutfitReference}.");
+			AssertContains(spec.BuilderNotes ?? string.Empty, $"Culture key: {overrideRow.CultureKey}.");
+			AssertContains(spec.BuilderNotes ?? string.Empty, $"Slot: {overrideRow.SlotKey}.");
+
+			Assert.IsFalse(spec.FullDescription.Contains("belongs to the", StringComparison.OrdinalIgnoreCase),
+				$"{overrideRow.StableReference} should not retain generated outfit ownership prose.");
+			Assert.IsFalse(spec.FullDescription.Contains("fills the", StringComparison.OrdinalIgnoreCase),
+				$"{overrideRow.StableReference} should not retain generated slot-filling prose.");
+			Assert.IsFalse(spec.FullDescription.Contains("outfit slot for the explicit medieval outfit catalogue",
+					StringComparison.OrdinalIgnoreCase),
+				$"{overrideRow.StableReference} should not retain generated explicit-catalogue prose.");
+		}
+	}
+
+	[TestMethod]
+	public void MedievalExplicitOutfitPieceOverrides_AreLiteralSeederDataAndRepairExistingStock()
+	{
+		var projectSource = ReadSource("DatabaseSeeder", "DatabaseSeeder.csproj");
+		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.Medieval.cs");
+
+		Assert.IsFalse(projectSource.Contains("MED_OUTFIT_006_description_overrides_REVISED_colour_style.csv",
+				StringComparison.OrdinalIgnoreCase),
+			"MED-OUTFIT-006 override rows should live in the seeder code, not as an embedded CSV resource.");
+		Assert.IsFalse(itemSource.Contains("GetManifestResourceStream", StringComparison.Ordinal),
+			"MED-OUTFIT-006 override rows should not be read from an embedded resource.");
+		Assert.IsFalse(itemSource.Contains("ParseMedievalExplicitOutfitPieceOverrideCsv", StringComparison.Ordinal),
+			"MED-OUTFIT-006 override rows should not depend on a runtime CSV parser.");
+		AssertContains(itemSource, "Override(");
+		AssertContains(itemSource, "ApplyMedievalExplicitOutfitPieceOverrideToExistingItem(item, spec)");
+		AssertContains(itemSource, "ApplyMedievalExplicitOutfitPieceOverrideComponents(item, spec.Components)");
+	}
+
+	[TestMethod]
+	public void MedievalExplicitOutfitPieceOverrides_HaveTenRowsPerCultureAndNoVisibleCultureNames()
+	{
+		var overrides = ItemSeeder.MedievalExplicitOutfitPieceOverridesForTesting;
+		var rowsByCulture = overrides
+			.GroupBy(x => x.CultureKey, StringComparer.OrdinalIgnoreCase)
+			.ToDictionary(x => x.Key, x => x.ToList(), StringComparer.OrdinalIgnoreCase);
+
+		Assert.AreEqual(18, rowsByCulture.Count);
+		foreach (var culture in ItemSeeder.MedievalExplicitOutfitCultureKeysForTesting)
+		{
+			Assert.IsTrue(rowsByCulture.TryGetValue(culture, out var cultureRows),
+				$"Expected MED-OUTFIT-006 override rows for {culture}.");
+			Assert.AreEqual(10, cultureRows.Count, $"Expected 10 MED-OUTFIT-006 override rows for {culture}.");
+		}
+
+		foreach (var overrideRow in overrides)
+		{
+			foreach (var forbiddenCultureName in MedievalOutfitOverrideForbiddenCultureNames)
+			{
+				Assert.IsFalse(overrideRow.ShortDescription.Contains(forbiddenCultureName,
+						StringComparison.OrdinalIgnoreCase),
+					$"{overrideRow.StableReference} short description should not contain visible culture name {forbiddenCultureName}.");
+				Assert.IsFalse(overrideRow.FullDescription.Contains(forbiddenCultureName,
+						StringComparison.OrdinalIgnoreCase),
+					$"{overrideRow.StableReference} full description should not contain visible culture name {forbiddenCultureName}.");
+			}
+		}
+	}
+
+	[TestMethod]
+	public void MedievalExplicitOutfitPieceOverrides_PreserveVariableColourComponentsAndTokens()
+	{
+		var specsByReference = ItemSeeder.MedievalExplicitOutfitPieceItemSpecsForTesting
+			.ToDictionary(x => x.StableReference, x => x, StringComparer.OrdinalIgnoreCase);
+
+		foreach (var overrideRow in ItemSeeder.MedievalExplicitOutfitPieceOverridesForTesting)
+		{
+			var spec = specsByReference[overrideRow.StableReference];
+			if (!string.IsNullOrWhiteSpace(overrideRow.VariableColourComponent))
+			{
+				Assert.IsTrue(spec.Components.Contains(overrideRow.VariableColourComponent, StringComparer.OrdinalIgnoreCase),
+					$"{overrideRow.StableReference} should include {overrideRow.VariableColourComponent}.");
+				Assert.IsTrue(overrideRow.ColourVariablesUsed.Any(),
+					$"{overrideRow.StableReference} should document colour variables used.");
+				Assert.IsTrue(overrideRow.ColourVariablesUsed.Any(variable =>
+						spec.ShortDescription.Contains(variable, StringComparison.Ordinal)),
+					$"{overrideRow.StableReference} short description should preserve the authored colour variable.");
+				Assert.IsTrue(overrideRow.ColourVariablesUsed.Any(variable =>
+						spec.FullDescription.Contains(variable, StringComparison.Ordinal)),
+					$"{overrideRow.StableReference} full description should preserve the authored colour variable.");
+
+				if (overrideRow.VariableColourComponent.Contains("_2", StringComparison.OrdinalIgnoreCase))
+				{
+					Assert.IsTrue(spec.FullDescription.Contains("$colour1", StringComparison.Ordinal),
+						$"{overrideRow.StableReference} two-colour full description should include $colour1.");
+					Assert.IsTrue(spec.FullDescription.Contains("$colour2", StringComparison.Ordinal),
+						$"{overrideRow.StableReference} two-colour full description should include $colour2.");
+				}
+
+				continue;
+			}
+
+			Assert.IsTrue(IsDocumentedNonColourOverride(overrideRow),
+				$"{overrideRow.StableReference} has no variable colour component and should be a documented non-colourable item.");
+		}
+	}
+
+	[TestMethod]
+	public void MedievalExplicitOutfitPieceCraftOverrides_MapVariableColourProducts()
+	{
+		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.Medieval.cs");
+		var variableRows = ItemSeeder.MedievalExplicitOutfitPieceOverridesForTesting
+			.Where(x => !string.IsNullOrWhiteSpace(x.VariableColourComponent))
+			.ToDictionary(x => x.StableReference, x => x, StringComparer.OrdinalIgnoreCase);
+		var mappingsByReference = ItemSeeder.MedievalExplicitOutfitPieceProductVariableMappingsForTesting
+			.ToDictionary(x => x.StableReference, x => x, StringComparer.OrdinalIgnoreCase);
+
+		Assert.AreEqual(variableRows.Count, mappingsByReference.Count,
+			"Every colourable override row should have a variable-product mapping for its craft product.");
+		AssertContains(craftSource, "SimpleVariableProduct - 1x");
+		AssertContains(craftSource, "MedievalExplicitOutfitPieceProduct(dbItem, item, path.Inputs)");
+
+		foreach (var (stableReference, overrideRow) in variableRows)
+		{
+			Assert.IsTrue(mappingsByReference.TryGetValue(stableReference, out var mappingRow),
+				$"{stableReference} should have product variable mappings.");
+			Assert.IsTrue(mappingRow.ProductVariableMappings.Any(),
+				$"{stableReference} should not craft as a StableSimpleProduct when it has {overrideRow.VariableColourComponent}.");
+
+			if (overrideRow.VariableColourComponent!.Contains("_2", StringComparison.OrdinalIgnoreCase))
+			{
+				Assert.IsTrue(mappingRow.ProductVariableMappings.Any(x => x.StartsWith("Colour1=$i", StringComparison.Ordinal)),
+					$"{stableReference} should map $colour1 from a craft input.");
+				Assert.IsTrue(mappingRow.ProductVariableMappings.Any(x => x.StartsWith("Colour2=$i", StringComparison.Ordinal)),
+					$"{stableReference} should map $colour2 from a craft input.");
+				continue;
+			}
+
+			Assert.IsTrue(mappingRow.ProductVariableMappings.Any(x => x.StartsWith("Colour=$i", StringComparison.Ordinal)),
+				$"{stableReference} should map $colour from a craft input.");
+		}
+
+		AssertContains(string.Join("|",
+				mappingsByReference["medieval_outfit_piece_early_anglo_saxon_male_peasant_tablet_banded_wool_tunic"]
+					.ProductVariableMappings),
+			"Colour2=$i3");
+	}
+
+	[TestMethod]
+	public void MedievalExplicitOutfitPieceOverrides_UseValidComponentsAndRoleItemShapes()
+	{
+		var knownComponentSource =
+			ReadSource("DatabaseSeeder", "Seeders", "UsefulSeeder.ItemComponents.cs") +
+			ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.Medieval.cs") +
+			ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.Antiquity.cs");
+		var overrideComponents = ItemSeeder.MedievalExplicitOutfitPieceOverridesForTesting
+			.SelectMany(x => x.Components)
+			.Distinct(StringComparer.OrdinalIgnoreCase)
+			.ToList();
+
+		foreach (var component in overrideComponents)
+		{
+			Assert.IsTrue(knownComponentSource.Contains($"\"{component}\"", StringComparison.OrdinalIgnoreCase),
+				$"Expected override component {component} to exist in seeded components or existing accepted item seeder usage.");
+		}
+
+		var specsByReference = ItemSeeder.MedievalExplicitOutfitPieceItemSpecsForTesting
+			.ToDictionary(x => x.StableReference, x => x, StringComparer.OrdinalIgnoreCase);
+
+		AssertSpecComponents(specsByReference, "medieval_outfit_piece_high_british_male_religious_small_prayer_book",
+			"Book_Small_40_Page", "Destroyable_Paper");
+		AssertSpecComponents(specsByReference, "medieval_outfit_piece_fatimid_male_religious_endowment_slip",
+			"PaperSheet_Scroll", "Destroyable_Paper");
+		AssertSpecComponents(specsByReference, "medieval_outfit_piece_anglo_danish_male_merchant_reeve_tally_pouch",
+			"Wear_Waist", "Container_Pouch", "Beltable");
+		AssertSpecComponents(specsByReference, "medieval_outfit_piece_fatimid_male_military_archer_quiver",
+			"Wear_Shoulder", "Container_Quiver");
+		AssertSpecComponents(specsByReference, "medieval_outfit_piece_seljuk_ayyubid_male_military_bowcase_belt",
+			"Wear_Waist", "Belt_6", "Beltable", "Armour_BoiledLeather");
+		AssertSpecComponents(specsByReference, "medieval_outfit_piece_high_british_male_military_archer_bracer",
+			"Wear_Fingerless_Gloves", "Armour_BoiledLeather");
+		AssertSpecComponents(specsByReference, "medieval_outfit_piece_early_anglo_saxon_female_merchant_silver_brooch",
+			"Wear_Shoulder", "Destroyable_HeavyMetal");
+		AssertSpecComponents(specsByReference, "medieval_outfit_piece_byzantine_male_religious_icon_tablet",
+			"Holdable", "Destroyable_Misc");
+
+		foreach (var stableReference in new[]
+		         {
+			         "medieval_outfit_piece_byzantine_male_religious_icon_tablet",
+			         "medieval_outfit_piece_gaelic_male_religious_note_board",
+			         "medieval_outfit_piece_norse_male_merchant_runic_trade_tag",
+			         "medieval_outfit_piece_steppe_turkic_male_merchant_seal_tag"
+		         })
+		{
+			var components = specsByReference[stableReference].Components;
+			Assert.IsFalse(components.Contains("Wear_Necklace", StringComparer.OrdinalIgnoreCase),
+				$"{stableReference} should not be forced into jewellery components.");
+			Assert.IsFalse(components.Contains("Wear_Shoulder", StringComparer.OrdinalIgnoreCase),
+				$"{stableReference} should not be forced into shoulder jewellery components.");
+		}
+	}
+
+	[TestMethod]
+	public void MedievalExplicitOutfitPieceCraftOverrides_UseExpectedStockFamilies()
+	{
+		var craftByReference = ItemSeeder.MedievalExplicitOutfitPieceCraftsForTesting
+			.ToDictionary(x => x.StableReference, x => x, StringComparer.OrdinalIgnoreCase);
+
+		foreach (var stableReference in new[]
+		         {
+			         "medieval_outfit_piece_early_anglo_saxon_female_merchant_silver_brooch",
+			         "medieval_outfit_piece_carolingian_male_military_riding_spurs",
+			         "medieval_outfit_piece_german_hre_male_noble_belt_mounts",
+			         "medieval_outfit_piece_german_hre_male_military_town_crossbow_militia_hook"
+		         })
+		{
+			AssertCraftInputs(craftByReference, stableReference, "Tool Blank Stock");
+			AssertCraftInputsDoNotContain(craftByReference, stableReference, "Garment Cloth", "Broadcloth Stock", "Spun Yarn");
+		}
+
+		AssertCraftInputs(craftByReference, "medieval_outfit_piece_high_british_male_religious_small_prayer_book",
+			"Paper Sheet Stock", "Bookbinding Leather Stock");
+		AssertCraftInputs(craftByReference, "medieval_outfit_piece_anglo_danish_female_noble_fur_edged_cloak",
+			"Fur Panel Stock");
+		AssertCraftInputs(craftByReference, "medieval_outfit_piece_early_anglo_saxon_female_military_brooch_fastened_war_cloak",
+			"Fulled Cloth");
+		AssertCraftInputs(craftByReference, "medieval_outfit_piece_seljuk_ayyubid_male_noble_high_boots",
+			"Turnshoe Upper Stock");
+		AssertCraftInputs(craftByReference, "medieval_outfit_piece_early_anglo_saxon_male_military_padded_shield_wall_tunic",
+			"Quilted Armour Padding");
+		AssertCraftInputs(craftByReference, "medieval_outfit_piece_early_anglo_saxon_male_peasant_tablet_banded_wool_tunic",
+			"Tablet-Woven Band Stock");
+		AssertCraftInputs(craftByReference, "medieval_outfit_piece_early_anglo_saxon_male_merchant_bordered_tunic",
+			"Embroidered Trim Stock");
+	}
+
+	[TestMethod]
 	public void MedievalNorthAtlanticOutfits_AreExplicitCompleteAndVariantDistinct()
 	{
 		AssertExplicitOutfitClusterComplete(ItemSeeder.MedievalNorthAtlanticOutfitCultureKeysForTesting, 6, 72);
@@ -399,6 +679,8 @@ public class ItemSeederMedievalCraftingTests
 		var craftNames = ItemSeeder.MedievalExplicitOutfitPieceCraftsForTesting;
 		var craftByReference = craftNames
 			.ToDictionary(x => x.StableReference, x => x, StringComparer.OrdinalIgnoreCase);
+		var overridesByReference = ItemSeeder.MedievalExplicitOutfitPieceOverridesForTesting
+			.ToDictionary(x => x.StableReference, x => x, StringComparer.OrdinalIgnoreCase);
 
 		foreach (var piece in ItemSeeder.MedievalExplicitOutfitPiecesForTesting
 			         .DistinctBy(x => x.StableReference))
@@ -407,12 +689,20 @@ public class ItemSeederMedievalCraftingTests
 				$"Expected explicit outfit craft for {piece.StableReference}.");
 			Assert.IsFalse(craft.CraftName.Contains("regional pattern", StringComparison.OrdinalIgnoreCase),
 				$"Explicit outfit piece craft {craft.CraftName} should not use regional pattern naming.");
-			Assert.IsTrue(craft.CraftName.Contains(piece.PieceName, StringComparison.OrdinalIgnoreCase),
-				$"Explicit outfit piece craft {craft.CraftName} should include named object {piece.PieceName}.");
+			if (overridesByReference.TryGetValue(piece.StableReference, out var overrideRow))
+			{
+				Assert.IsTrue(craft.CraftName.Contains(overrideRow.ShortDescription, StringComparison.OrdinalIgnoreCase),
+					$"Explicit outfit piece craft {craft.CraftName} should include override object {overrideRow.ShortDescription}.");
+			}
+			else
+			{
+				Assert.IsTrue(craft.CraftName.Contains(piece.PieceName, StringComparison.OrdinalIgnoreCase),
+					$"Explicit outfit piece craft {craft.CraftName} should include named object {piece.PieceName}.");
+			}
 		}
 
-		Assert.IsTrue(craftNames.Any(x => x.CraftName.Contains("sew a Norse hangerok apron dress", StringComparison.Ordinal)),
-			"Expected the Norse hangerok craft name to include the named object.");
+		Assert.IsTrue(craftNames.Any(x => x.CraftName.Contains("sew a $colour hangerok apron dress", StringComparison.Ordinal)),
+			"Expected the hangerok craft name to include the override object without a direct culture adjective.");
 
 		var allInputs = craftNames
 			.SelectMany(x => x.Inputs)
@@ -1038,6 +1328,68 @@ public class ItemSeederMedievalCraftingTests
 			.Select(x => x.Groups["outfit"].Value)
 			.Distinct(StringComparer.Ordinal)
 			.ToArray();
+	}
+
+	private static bool IsDocumentedNonColourOverride(ItemSeeder.MedievalExplicitOutfitPieceOverrideTestData overrideRow)
+	{
+		var hasAuthoringNote = overrideRow.AuthoringGuidelineNotes?.Contains("No variable colour recommended",
+			StringComparison.OrdinalIgnoreCase) == true;
+		var hasRigidMaterial = overrideRow.MaterialType is MaterialBehaviourType.Metal or MaterialBehaviourType.Wood
+			or MaterialBehaviourType.Ceramic or MaterialBehaviourType.Wax;
+		var hasWritingOrLiquidComponent = overrideRow.Components.Any(component =>
+			component.Contains("Book_", StringComparison.OrdinalIgnoreCase) ||
+			component.Contains("PaperSheet", StringComparison.OrdinalIgnoreCase) ||
+			component.Contains("LContainer", StringComparison.OrdinalIgnoreCase));
+		var hasRigidNoun = new[]
+			{
+				"book", "leaf", "slip", "tag", "token", "board", "tablet", "flask", "brooch", "pin",
+				"mount", "mounts", "spurs", "fibula", "hook"
+			}
+			.Contains(overrideRow.Noun, StringComparer.OrdinalIgnoreCase);
+
+		return hasAuthoringNote && (hasRigidMaterial || hasWritingOrLiquidComponent || hasRigidNoun);
+	}
+
+	private static void AssertSpecComponents(
+		IReadOnlyDictionary<string, ItemSeeder.MedievalItemSpecTestData> specsByReference,
+		string stableReference,
+		params string[] expectedComponents)
+	{
+		Assert.IsTrue(specsByReference.TryGetValue(stableReference, out var spec),
+			$"Expected item spec {stableReference}.");
+		foreach (var expectedComponent in expectedComponents)
+		{
+			Assert.IsTrue(spec.Components.Contains(expectedComponent, StringComparer.OrdinalIgnoreCase),
+				$"Expected {stableReference} to include component {expectedComponent}.");
+		}
+	}
+
+	private static void AssertCraftInputs(
+		IReadOnlyDictionary<string, (string StableReference, string CraftName, IReadOnlyCollection<string> Inputs, IReadOnlyCollection<string> Tools)> craftByReference,
+		string stableReference,
+		params string[] expectedInputs)
+	{
+		Assert.IsTrue(craftByReference.TryGetValue(stableReference, out var craft),
+			$"Expected explicit outfit craft for {stableReference}.");
+		foreach (var expectedInput in expectedInputs)
+		{
+			Assert.IsTrue(craft.Inputs.Any(input => input.Contains(expectedInput, StringComparison.OrdinalIgnoreCase)),
+				$"Expected {stableReference} craft inputs to include {expectedInput}.");
+		}
+	}
+
+	private static void AssertCraftInputsDoNotContain(
+		IReadOnlyDictionary<string, (string StableReference, string CraftName, IReadOnlyCollection<string> Inputs, IReadOnlyCollection<string> Tools)> craftByReference,
+		string stableReference,
+		params string[] forbiddenInputs)
+	{
+		Assert.IsTrue(craftByReference.TryGetValue(stableReference, out var craft),
+			$"Expected explicit outfit craft for {stableReference}.");
+		foreach (var forbiddenInput in forbiddenInputs)
+		{
+			Assert.IsFalse(craft.Inputs.Any(input => input.Contains(forbiddenInput, StringComparison.OrdinalIgnoreCase)),
+				$"Expected {stableReference} craft inputs not to include {forbiddenInput}.");
+		}
 	}
 
 	private static string ExtractCallBlockContaining(string source, string marker)

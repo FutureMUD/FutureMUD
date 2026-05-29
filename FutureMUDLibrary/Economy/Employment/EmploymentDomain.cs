@@ -66,7 +66,8 @@ public enum EmploymentAuthority
 	AdjustPrices = 1 << 19,
 	PayTaxes = 1 << 20,
 	PostToHostBoard = 1 << 21,
-	ModerateHostBoard = 1 << 22
+	ModerateHostBoard = 1 << 22,
+	ManagePayroll = 1 << 23
 }
 
 public readonly record struct EmploymentAuthoritySet(EmploymentAuthority Authorities)
@@ -95,7 +96,8 @@ public readonly record struct EmploymentAuthoritySet(EmploymentAuthority Authori
 		EmploymentAuthority.AdjustPrices |
 		EmploymentAuthority.PayTaxes |
 		EmploymentAuthority.PostToHostBoard |
-		EmploymentAuthority.ModerateHostBoard);
+		EmploymentAuthority.ModerateHostBoard |
+		EmploymentAuthority.ManagePayroll);
 
 	public bool Contains(EmploymentAuthority authority)
 	{
@@ -130,7 +132,8 @@ public enum EmploymentTerminationReason
 	Expired,
 	HostClosed,
 	ManuallyCancelled,
-	SystemCancelled
+	SystemCancelled,
+	UnpaidWages
 }
 
 public enum PayCadence
@@ -357,6 +360,52 @@ public interface IEmploymentLedger
 		string description, Guid? correlationId = null);
 }
 
+public enum EmploymentPayableStatus
+{
+	Accrued,
+	ReadyToClaim,
+	Claimed,
+	Settled,
+	Waived
+}
+
+public interface IEmploymentPayable
+{
+	long Id { get; }
+	Guid CorrelationId { get; }
+	IEmploymentHost Employer { get; }
+	long? ContractId { get; }
+	long EmployeeId { get; }
+	string EmployeeName { get; }
+	EmploymentRole Role { get; }
+	MoneyAmount Amount { get; }
+	PayCadence Cadence { get; }
+	PaymentMethod PaymentMethod { get; }
+	DateTimeOffset PayPeriodStart { get; }
+	DateTimeOffset PayPeriodEnd { get; }
+	DateTimeOffset DueAt { get; }
+	DateTimeOffset AccruedAt { get; }
+	DateTimeOffset? SettledAt { get; }
+	DateTimeOffset? ClaimedAt { get; }
+	EmploymentPayableStatus Status { get; }
+	string? SettlementNote { get; }
+	int DaysOverdue(DateTimeOffset now);
+}
+
+public interface IEmploymentPayroll
+{
+	IReadOnlyCollection<IEmploymentPayable> Payables { get; }
+	IReadOnlyCollection<IEmploymentPayable> OutstandingLiabilities { get; }
+	IReadOnlyCollection<IEmploymentPayable> EvaluatePayroll();
+	IReadOnlyCollection<IEmploymentPayable> EvaluatePayroll(DateTimeOffset now);
+	IReadOnlyCollection<IEmploymentPayable> ClaimablePayablesFor(ICharacter employee);
+	int MaximumOverdueDays();
+	int MaximumOverdueDays(DateTimeOffset now);
+	bool TrySettlePayables(IEnumerable<IEmploymentPayable> payables, ICharacter? actor, bool makeClaimable,
+		string reason, out string message);
+	bool TryClaimPayable(IEmploymentPayable payable, ICharacter actor, out string message);
+}
+
 public enum EmploymentRegisterEntryType
 {
 	ContractHired,
@@ -385,7 +434,12 @@ public enum EmploymentRegisterEntryType
 	ActionStepFailed,
 	PaymentAuthorisationGranted,
 	PaymentAuthorisationUsed,
-	CommandExecuted
+	CommandExecuted,
+	ActiveTaskCancelled,
+	WageAccrued,
+	WageSettled,
+	WageClaimed,
+	EmployeeResignedUnpaid
 }
 
 public interface IEmploymentRegisterEntry

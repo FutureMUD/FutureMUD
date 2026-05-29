@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using MudSharp.Arenas;
 using MudSharp.Character;
@@ -24,6 +25,7 @@ using DbJobOpening = MudSharp.Models.EmploymentJobOpeningRecord;
 using DbJobRequirement = MudSharp.Models.EmploymentJobOpeningRequirement;
 using DbLedgerEntry = MudSharp.Models.EmploymentLedgerEntryRecord;
 using DbManagerGoal = MudSharp.Models.EmploymentManagerGoalRecord;
+using DbPayable = MudSharp.Models.EmploymentPayableRecord;
 using DbRegisterEntry = MudSharp.Models.EmploymentRegisterEntryRecord;
 using DbScheduledRule = MudSharp.Models.EmploymentScheduledTaskRuleRecord;
 using DbTaskCondition = MudSharp.Models.EmploymentTaskConditionRecord;
@@ -43,7 +45,28 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 		Tag
 	}
 
-	private sealed record GetItemsByIdStepPayload(int Quantity, long[] ItemIds, long[] SourceLocationIds);
+	private sealed class GetItemsByIdStepPayload
+	{
+		public GetItemsByIdStepPayload()
+		{
+		}
+
+		public GetItemsByIdStepPayload(int quantity, long[] itemPrototypeIds, long[] sourceLocationIds)
+		{
+			Quantity = quantity;
+			ItemPrototypeIds = itemPrototypeIds;
+			SourceLocationIds = sourceLocationIds;
+		}
+
+		public int Quantity { get; set; }
+		public long[] ItemPrototypeIds { get; set; } = [];
+		[JsonPropertyName("ItemIds")]
+		[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+		public long[]? LegacyItemIds { get; set; }
+		public long[] SourceLocationIds { get; set; } = [];
+		[JsonIgnore]
+		public long[] ResolvedItemPrototypeIds => ItemPrototypeIds.Length > 0 ? ItemPrototypeIds : LegacyItemIds ?? [];
+	}
 
 	private sealed record GetItemsByTagStepPayload(int Quantity, string TagName, long[] SourceLocationIds);
 
@@ -212,6 +235,44 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 				Status = (int)application.Status,
 				DecisionReason = application.DecisionReason
 			});
+			Touch(context);
+			context.SaveChanges();
+		});
+	}
+
+	public void SavePayable(EmploymentPayable payable)
+	{
+		WithContext(context =>
+		{
+			if (context.EmploymentPayables.Any(x => x.RuntimeId == payable.Id && x.EmploymentHostStateId == StateId))
+			{
+				return;
+			}
+
+			context.EmploymentPayables.Add(ToRecord(payable));
+			Touch(context);
+			context.SaveChanges();
+		});
+	}
+
+	public void SavePayableState(EmploymentPayable payable)
+	{
+		WithContext(context =>
+		{
+			var dbitem = context.EmploymentPayables
+			                    .FirstOrDefault(x => x.RuntimeId == payable.Id && x.EmploymentHostStateId == StateId);
+			if (dbitem is null)
+			{
+				context.EmploymentPayables.Add(ToRecord(payable));
+			}
+			else
+			{
+				dbitem.Status = (int)payable.Status;
+				dbitem.SettledAt = payable.SettledAt?.UtcDateTime;
+				dbitem.ClaimedAt = payable.ClaimedAt?.UtcDateTime;
+				dbitem.SettlementNote = payable.SettlementNote;
+			}
+
 			Touch(context);
 			context.SaveChanges();
 		});
@@ -476,6 +537,14 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 		                           .ToList()
 		                           .Select(ToLedgerEntry)
 		                           .ToList();
+		var payables = context.EmploymentPayables
+		                      .Where(x => x.EmploymentHostStateId == StateId)
+		                      .OrderBy(x => x.Id)
+		                      .AsNoTracking()
+		                      .ToList()
+		                      .Select(ToPayable)
+		                      .OfType<IEmploymentPayable>()
+		                      .ToList();
 		var scheduledRules = context.EmploymentScheduledTaskRules
 		                            .Include(x => x.Conditions)
 		                            .Where(x => x.EmploymentHostStateId == StateId)
@@ -510,6 +579,7 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 			openings,
 			applications,
 			ledgerEntries,
+			payables,
 			registerEntries,
 			scheduledRules,
 			activeTasks,
@@ -640,6 +710,36 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 		return record;
 	}
 
+	private DbPayable ToRecord(EmploymentPayable payable)
+	{
+		return new DbPayable
+		{
+			RuntimeId = payable.Id,
+			EmploymentHostStateId = StateId,
+			CorrelationId = payable.CorrelationId.ToString("D"),
+			ContractRuntimeId = payable.ContractId,
+			EmployeeId = payable.EmployeeId,
+			EmployeeName = payable.EmployeeName,
+			Role = (int)payable.Role,
+			AmountCurrencyId = payable.Amount.Currency.Id,
+			Amount = payable.Amount.Amount,
+			PayCadence = (int)payable.Cadence,
+			PaymentMethodKind = (int)payable.PaymentMethod.MethodKind,
+			PaymentBankAccountId = payable.PaymentMethod.BankAccount?.Id,
+			PaymentItemId = payable.PaymentMethod.PaymentItemPrototype?.Id,
+			PaymentItemType = payable.PaymentMethod.PaymentItemPrototype?.FrameworkItemType,
+			PaymentNotes = payable.PaymentMethod.Notes,
+			PayPeriodStart = payable.PayPeriodStart.UtcDateTime,
+			PayPeriodEnd = payable.PayPeriodEnd.UtcDateTime,
+			DueAt = payable.DueAt.UtcDateTime,
+			AccruedAt = payable.AccruedAt.UtcDateTime,
+			Status = (int)payable.Status,
+			SettledAt = payable.SettledAt?.UtcDateTime,
+			ClaimedAt = payable.ClaimedAt?.UtcDateTime,
+			SettlementNote = payable.SettlementNote
+		};
+	}
+
 	private static void WriteTerms(DbContract record, CompensationTerms compensation, WorkSchedule schedule,
 		EmploymentDuration duration, PaymentMethod paymentMethod)
 	{
@@ -746,8 +846,8 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 			ToSchedule(record),
 			ToDuration(record),
 			ToPaymentMethod(record),
-			ToOffset(record.StartedAt),
-			ToNullableOffset(record.EndsAt),
+			EmploymentClock.NormaliseLoadedInstant(_host, record.StartedAt),
+			EmploymentClock.NormaliseLoadedInstant(_host, record.EndsAt),
 			record.EndReason.HasValue ? (EmploymentTerminationReason)record.EndReason.Value : null);
 	}
 
@@ -788,6 +888,45 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 			ToOffset(record.AppliedAt),
 			(JobApplicationStatus)record.Status,
 			record.DecisionReason);
+	}
+
+	private EmploymentPayable? ToPayable(DbPayable record)
+	{
+		var amount = ToMoney(record.AmountCurrencyId, record.Amount);
+		if (amount is null)
+		{
+			return null;
+		}
+
+		var payPeriodStart = ToOffset(record.PayPeriodStart);
+		if (EmploymentClock.EconomicZone(_host) is not null && !EmploymentClock.IsEncodedInstant(payPeriodStart))
+		{
+			return null;
+		}
+
+		return new EmploymentPayable(
+			record.RuntimeId,
+			Guid.TryParse(record.CorrelationId, out var id) ? id : Guid.NewGuid(),
+			_host,
+			record.ContractRuntimeId,
+			record.EmployeeId,
+			record.EmployeeName,
+			(EmploymentRole)record.Role,
+			amount,
+			(PayCadence)record.PayCadence,
+			new PaymentMethod(
+				(PaymentMethodKind)record.PaymentMethodKind,
+				record.PaymentBankAccountId.HasValue ? _gameworld.BankAccounts.Get(record.PaymentBankAccountId.Value) : null,
+				ResolveFrameworkItem(record.PaymentItemId, record.PaymentItemType),
+				record.PaymentNotes),
+			payPeriodStart,
+			ToOffset(record.PayPeriodEnd),
+			ToOffset(record.DueAt),
+			ToOffset(record.AccruedAt),
+			(EmploymentPayableStatus)record.Status,
+			ToNullableOffset(record.SettledAt),
+			ToNullableOffset(record.ClaimedAt),
+			record.SettlementNote);
 	}
 
 	private JobRequirementSet ToRequirements(IEnumerable<DbJobRequirement> requirements)
@@ -948,7 +1087,7 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 			return null;
 		}
 
-		return new GetItemsByIdActionStep(payload.Quantity, payload.ItemIds, ResolveCells(payload.SourceLocationIds));
+		return new GetItemsByIdActionStep(payload.Quantity, payload.ResolvedItemPrototypeIds, ResolveCells(payload.SourceLocationIds));
 	}
 
 	private GetItemsByTagActionStep? ToGetItemsByTagStep(DbActionStep record)
@@ -1071,10 +1210,10 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 				record.BoardText = boardPost.Text;
 				break;
 			case GetItemsByIdActionStep getById:
-				record.Description = $"get {getById.Quantity:N0} item(s) by id";
+				record.Description = $"get {getById.Quantity:N0} item(s) by prototype id";
 				record.BoardText = SerializeActionPayload(new GetItemsByIdStepPayload(
 					getById.Quantity,
-					getById.ItemIds.ToArray(),
+					getById.ItemPrototypeIds.ToArray(),
 					getById.SourceLocations.Select(x => x.Id).ToArray()));
 				break;
 			case GetItemsByTagActionStep getByTag:
@@ -1276,7 +1415,7 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 			_host,
 			record.ActorId.HasValue ? _gameworld.TryGetCharacter(record.ActorId.Value, true) : null,
 			record.Description,
-			ToOffset(record.RecordedAt));
+			EmploymentClock.NormaliseLoadedInstant(_host, record.RecordedAt));
 	}
 
 	private EmploymentLedgerEntry ToLedgerEntry(DbLedgerEntry record)
@@ -1288,7 +1427,7 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 			record.ActorId.HasValue ? _gameworld.TryGetCharacter(record.ActorId.Value, true) : null,
 			ToMoney(record.AmountCurrencyId, record.Amount),
 			record.Description,
-			ToOffset(record.RecordedAt));
+			EmploymentClock.NormaliseLoadedInstant(_host, record.RecordedAt));
 	}
 
 	private static DateTimeOffset ToOffset(DateTime value)

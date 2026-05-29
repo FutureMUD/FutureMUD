@@ -13,6 +13,7 @@ public partial class FuturemudDatabaseContext
 	public virtual DbSet<EmploymentJobOpeningRecord> EmploymentJobOpenings { get; set; } = null!;
 	public virtual DbSet<EmploymentJobOpeningRequirement> EmploymentJobOpeningRequirements { get; set; } = null!;
 	public virtual DbSet<EmploymentApplicationRecord> EmploymentApplications { get; set; } = null!;
+	public virtual DbSet<EmploymentPayableRecord> EmploymentPayables { get; set; } = null!;
 	public virtual DbSet<EmploymentActionPlanRecord> EmploymentActionPlans { get; set; } = null!;
 	public virtual DbSet<EmploymentActionStepRecord> EmploymentActionSteps { get; set; } = null!;
 	public virtual DbSet<EmploymentScheduledTaskRuleRecord> EmploymentScheduledTaskRules { get; set; } = null!;
@@ -30,6 +31,7 @@ public partial class FuturemudDatabaseContext
 		ConfigureEmploymentContracts(modelBuilder);
 		ConfigureEmploymentJobOpenings(modelBuilder);
 		ConfigureEmploymentApplications(modelBuilder);
+		ConfigureEmploymentPayables(modelBuilder);
 		ConfigureEmploymentActionPlans(modelBuilder);
 		ConfigureEmploymentScheduledTaskRules(modelBuilder);
 		ConfigureEmploymentActiveTasks(modelBuilder);
@@ -177,6 +179,51 @@ public partial class FuturemudDatabaseContext
 			      .HasForeignKey(e => e.EmploymentJobOpeningId)
 			      .OnDelete(DeleteBehavior.Cascade)
 			      .HasConstraintName("FK_EmploymentApplications_Openings");
+		});
+	}
+
+	private static void ConfigureEmploymentPayables(ModelBuilder modelBuilder)
+	{
+		modelBuilder.Entity<EmploymentPayableRecord>(entity =>
+		{
+			entity.ToTable("EmploymentPayables");
+			entity.HasKey(e => e.Id).HasName("PRIMARY");
+			entity.HasIndex(e => new { e.EmploymentHostStateId, e.RuntimeId })
+			      .IsUnique()
+			      .HasDatabaseName("IX_EmploymentPayables_Host_Runtime");
+			entity.HasIndex(e => new { e.EmploymentHostStateId, e.ContractRuntimeId, e.PayPeriodStart, e.PayPeriodEnd })
+			      .IsUnique()
+			      .HasDatabaseName("IX_EmploymentPayables_Contract_Period");
+			entity.HasIndex(e => e.EmploymentHostStateId).HasDatabaseName("FK_EmploymentPayables_HostStates_idx");
+			entity.HasIndex(e => e.EmployeeId).HasDatabaseName("IX_EmploymentPayables_Employee");
+			entity.HasIndex(e => e.CorrelationId).HasDatabaseName("IX_EmploymentPayables_Correlation");
+
+			entity.Property(e => e.Id).HasColumnType("bigint(20)");
+			entity.Property(e => e.RuntimeId).HasColumnType("bigint(20)");
+			entity.Property(e => e.EmploymentHostStateId).HasColumnType("bigint(20)");
+			entity.Property(e => e.CorrelationId).RequiredString("varchar(36)");
+			entity.Property(e => e.ContractRuntimeId).HasColumnType("bigint(20)");
+			entity.Property(e => e.EmployeeId).HasColumnType("bigint(20)");
+			entity.Property(e => e.EmployeeName).RequiredString("varchar(200)");
+			entity.Property(e => e.Role).HasColumnType("int(11)");
+			entity.Property(e => e.AmountCurrencyId).HasColumnType("bigint(20)");
+			entity.Property(e => e.Amount).HasColumnType("decimal(58,29)");
+			entity.Property(e => e.PayCadence).HasColumnType("int(11)");
+			ConfigurePaymentMethodColumns(entity);
+			entity.Property(e => e.PayPeriodStart).HasColumnType("datetime");
+			entity.Property(e => e.PayPeriodEnd).HasColumnType("datetime");
+			entity.Property(e => e.DueAt).HasColumnType("datetime");
+			entity.Property(e => e.AccruedAt).HasColumnType("datetime");
+			entity.Property(e => e.Status).HasColumnType("int(11)");
+			entity.Property(e => e.SettledAt).HasColumnType("datetime");
+			entity.Property(e => e.ClaimedAt).HasColumnType("datetime");
+			entity.Property(e => e.SettlementNote).OptionalString("mediumtext");
+
+			entity.HasOne(e => e.EmploymentHostState)
+			      .WithMany(e => e.Payables)
+			      .HasForeignKey(e => e.EmploymentHostStateId)
+			      .OnDelete(DeleteBehavior.Cascade)
+			      .HasConstraintName("FK_EmploymentPayables_HostStates");
 		});
 	}
 

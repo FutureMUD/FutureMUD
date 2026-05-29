@@ -70,11 +70,16 @@ Manager Only Commands:
 	#3arena openings create <role> <hourly rate> [positions]#0 - creates an NPC-facing opening
 	#3arena applications#0 - lists employment applications
 	#3arena applications accept|reject <##> [reason]#0 - accepts or rejects an application
+	#3arena payroll#0 - lists wage payables and overdue days
+	#3arena payroll run|settle|claim ...#0 - accrues, settles, or claims employment wage payables
 	#3arena tasks#0 - lists scheduled rules and active tasks
+	#3arena tasks show <##|name>#0 - shows detailed task or scheduled-rule steps
 	#3arena tasks diagnose#0 - explains why active employees can or cannot claim tasks
 	#3arena tasks actions#0 - lists available task step actions and syntax
+	#3arena tasks cancel <##|name> [reason]#0 - cancels an active task
+	#3arena tasks create <name> <action> [then <action> ...]#0 - creates and finalises a task in one command
 	#3arena tasks draft new|show|rename|remove|discard|finalise ...#0 - drafts and finalises active tasks
-	#3arena tasks step getid|gettag|commodity|deliver ...#0 - adds retrieval or delivery steps to your draft
+	#3arena tasks step getid|gettag|commodity|deliver ...#0 - adds prototype-id retrieval or delivery steps to your draft
 	#3arena goals#0 - lists manager goals
 	#3arena register#0 - shows employment register entries
 	#3arena employmentledger|empledger#0 - shows employment ledger entries
@@ -110,11 +115,16 @@ Arena staff employment shortcuts:
 	#3arena openings create <role> <hourly rate> [positions]#0 - creates an NPC-facing opening
 	#3arena applications#0 - lists employment applications
 	#3arena applications accept|reject <##> [reason]#0 - accepts or rejects an application
+	#3arena payroll#0 - lists wage payables and overdue days
+	#3arena payroll run|settle|claim ...#0 - accrues, settles, or claims employment wage payables
 	#3arena tasks#0 - lists scheduled rules and active tasks
+	#3arena tasks show <##|name>#0 - shows detailed task or scheduled-rule steps
 	#3arena tasks diagnose#0 - explains why active employees can or cannot claim tasks
 	#3arena tasks actions#0 - lists available task step actions and syntax
+	#3arena tasks cancel <##|name> [reason]#0 - cancels an active task
+	#3arena tasks create <name> <action> [then <action> ...]#0 - creates and finalises a task in one command
 	#3arena tasks draft new|show|rename|remove|discard|finalise ...#0 - drafts and finalises active tasks
-	#3arena tasks step getid|gettag|commodity|deliver ...#0 - adds retrieval or delivery steps to your draft
+	#3arena tasks step getid|gettag|commodity|deliver ...#0 - adds prototype-id retrieval or delivery steps to your draft
 	#3arena goals#0 - lists manager goals
 	#3arena register#0 - shows employment register entries
 	#3arena employmentledger|empledger#0 - shows employment ledger entries

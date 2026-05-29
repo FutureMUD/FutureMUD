@@ -179,6 +179,7 @@ public interface IEmploymentTaskBoard
 		ICharacter? authorisedBy);
 	IEmploymentActiveTask CreateActiveTask(string name, EmploymentActionPlan actionPlan, ICharacter? authorisedBy,
 		Guid? correlationId = null);
+	bool CancelActiveTask(IEmploymentActiveTask task, ICharacter? cancelledBy, string reason);
 	IReadOnlyCollection<IEmploymentActiveTask> EvaluateScheduledRules(IEmploymentTaskContext context, DateTimeOffset now);
 }
 
@@ -197,6 +198,8 @@ public interface IEmploymentTaskContext
 	double CommodityWeight(IGameItem item, string materialName, string? tagName,
 		IReadOnlyDictionary<string, string> characteristics);
 	bool TryCollectTaskItem(ICharacter actor, IGameItem item, ICell source, out string reason);
+	bool TryCollectTaskItems(ICharacter actor, IReadOnlyCollection<(IGameItem Item, ICell Source)> items,
+		out string reason);
 	bool TryDeliverTaskItems(ICharacter actor, ICell destination, IGameItem? container, string? containerTag,
 		out string reason);
 	void RecordRegister(EmploymentRegisterEntryType entryType, ICharacter? actor, string description,

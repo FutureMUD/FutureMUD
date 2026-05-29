@@ -12,6 +12,7 @@ using MudSharp.Body;
 using MudSharp.Character;
 using MudSharp.Character.Name;
 using MudSharp.Commands.Helpers;
+using MudSharp.Commands.Modules;
 using MudSharp.Community.Boards;
 using MudSharp.Construction;
 using MudSharp.Database;
@@ -599,6 +600,96 @@ public class EmploymentCommandServiceTests
 	}
 
 	[TestMethod]
+	public void EmploymentCommandService_PayrollRunSettleAndListUsesOverdueDays()
+	{
+		var currency = Currency();
+		IEmploymentHost host = new TestEmploymentHost(1, "market shop", currency.Object);
+		var manager = Character(60, "Manager").Object;
+		var employee = Character(61, "Employee").Object;
+		var service = new EmploymentCommandService();
+		host.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.HireEmployees | EmploymentAuthority.ManagePayroll), null);
+		var compensation = new CompensationTerms(
+			new MoneyAmount(currency.Object, 10.0M),
+			null,
+			PayCadence.Daily,
+			new MoneyAmount(currency.Object, 10.0M),
+			PaymentSource.HostCash);
+		var contract = host.Hire(employee, new EmploymentOffer(
+			EmploymentRole.Employee,
+			compensation,
+			WorkSchedule.AnyTime,
+			EmploymentDuration.Indefinite,
+			new PaymentMethod(PaymentMethodKind.Cash),
+			EmploymentAuthoritySet.Empty), manager);
+		host.Payroll.EvaluatePayroll(contract.StartedAt.AddDays(2).AddMinutes(1));
+
+		var list = service.RenderPayroll(manager, host);
+
+		StringAssert.Contains(list, "Outstanding");
+		StringAssert.Contains(list, "days overdue");
+		Assert.IsTrue(service.TrySettlePayroll(manager, host, "all", "funded cash payroll", out var message), message);
+		StringAssert.Contains(message, "ready for employee claim");
+		Assert.IsTrue(host.Payroll.Payables.All(x => x.Status == EmploymentPayableStatus.ReadyToClaim));
+		Assert.IsTrue(host.BusinessLedger.Entries.Any(x => x.EntryType == EmploymentLedgerEntryType.Wage));
+		Assert.IsTrue(host.EmploymentRegister.Entries.Any(x => x.EntryType == EmploymentRegisterEntryType.WageSettled));
+	}
+
+	[TestMethod]
+	public void EmploymentCommandService_PayrollClaimAllExplainsUnsettledAccruedPayables()
+	{
+		var currency = Currency();
+		IEmploymentHost host = new TestEmploymentHost(1, "market shop", currency.Object);
+		var employee = Character(62, "Employee").Object;
+		var service = new EmploymentCommandService();
+		var compensation = new CompensationTerms(
+			new MoneyAmount(currency.Object, 10.0M),
+			null,
+			PayCadence.Daily,
+			new MoneyAmount(currency.Object, 10.0M),
+			PaymentSource.HostCash);
+		var contract = host.Hire(employee, new EmploymentOffer(
+			EmploymentRole.Employee,
+			compensation,
+			WorkSchedule.AnyTime,
+			EmploymentDuration.Indefinite,
+			new PaymentMethod(PaymentMethodKind.Cash),
+			EmploymentAuthoritySet.Empty), null);
+		host.Payroll.EvaluatePayroll(contract.StartedAt.AddDays(1).AddMinutes(1));
+
+		Assert.IsFalse(service.TryClaimPayroll(employee, host, "all", out var message));
+
+		StringAssert.Contains(message, "outstanding employment payable");
+		StringAssert.Contains(message, "not been settled by the employer yet");
+	}
+
+	[TestMethod]
+	public void ImpDebugPayrollAdvancesAllLoadedEmploymentHosts()
+	{
+		var currency = Currency();
+		var employee = Character(62, "Employee").Object;
+		var shop = EmploymentHostMock<IShop>(63, "debug market", EmploymentHostType.Shop,
+			out var state);
+		var contract = state.Hire(employee, Offer(currency.Object, EmploymentRole.Employee), null);
+		var shops = new All<IShop>();
+		shops.Add(shop.Object);
+		var gameworld = Gameworld();
+		gameworld.SetupGet(x => x.Shops).Returns(shops);
+
+		var output = ImplementorModule.DebugAdvanceEmploymentPayrolls(
+			gameworld.Object,
+			contract.StartedAt.AddDays(1).AddMinutes(1));
+
+		Assert.AreEqual(1, state.Payroll.Payables.Count);
+		Assert.AreEqual(1, state.Payroll.OutstandingLiabilities.Count);
+		Assert.AreEqual(240.0M, state.Payroll.Payables.Single().Amount.Amount);
+		Assert.IsTrue(state.EmploymentRegister.Entries.Any(x =>
+			x.EntryType == EmploymentRegisterEntryType.WageAccrued));
+		StringAssert.Contains(output, "Employment payroll debug run complete");
+		StringAssert.Contains(output, "debug market");
+	}
+
+	[TestMethod]
 	public void EmploymentCommandService_DelegatedAuthoritySurvivesReload()
 	{
 		var fmdbState = CaptureFMDBState();
@@ -666,6 +757,28 @@ public class EmploymentCommandServiceTests
 	}
 
 	[TestMethod]
+	public void EmploymentCommandService_TaskDraftGetIdUsesPrototypeIds()
+	{
+		var currency = Currency();
+		IEmploymentHost host = new TestEmploymentHost(1, "market shop", currency.Object);
+		var cell = Cell(690, "stockroom").Object;
+		var gameworld = Gameworld();
+		gameworld.SetupGet(x => x.ItemProtos).Returns(ItemProtos(ItemProto(500, "a pair of leather gloves").Object).Object);
+		var manager = Character(69, "Manager", gameworld: gameworld.Object, location: cell).Object;
+		host.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.AssignTasks | EmploymentAuthority.ManageDeliveryRoutes), null);
+		var authoring = new EmploymentTaskAuthoringService();
+
+		Assert.IsTrue(authoring.TryStartDraft(manager, host, "Restock gloves", out var message), message);
+		Assert.IsTrue(authoring.TryAddStep(manager, host, new StringStack("getid 2 500 from here"), out message), message);
+		var rendered = authoring.RenderDraft(manager, host);
+
+		StringAssert.Contains(rendered, "Restock gloves");
+		StringAssert.Contains(rendered, "a pair of leather gloves");
+		StringAssert.Contains(rendered, "prototype #");
+	}
+
+	[TestMethod]
 	public void EmploymentCommandService_TaskActionsShowsActionSyntax()
 	{
 		var currency = Currency();
@@ -685,6 +798,61 @@ public class EmploymentCommandServiceTests
 		StringAssert.Contains(output, "Employment Task Actions");
 		StringAssert.Contains(output, "tasks step getid");
 		StringAssert.Contains(output, "tasks step deliver");
+	}
+
+	[TestMethod]
+	public void EmploymentCommandService_OneShotTaskCreateFinalisesOrderedSteps()
+	{
+		var currency = Currency();
+		IEmploymentHost host = new TestEmploymentHost(1, "market shop", currency.Object);
+		var manager = Character(70, "Manager").Object;
+		host.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.AssignTasks | EmploymentAuthority.ManageDeliveryRoutes), null);
+		var authoring = new EmploymentTaskAuthoringService();
+
+		var created = authoring.TryCreateOneShotTask(
+			manager,
+			host,
+			new StringStack("Restock gettag 2 apple from here then deliver to here containertag display"),
+			out var task,
+			out var message);
+
+		Assert.IsTrue(created, message);
+		Assert.IsNotNull(task);
+		Assert.AreEqual("Restock", task.Name);
+		Assert.AreEqual(2, task.ActionPlan.Steps.Count);
+		Assert.IsInstanceOfType(task.ActionPlan.Steps[0], typeof(GetItemsByTagActionStep));
+		Assert.IsInstanceOfType(task.ActionPlan.Steps[1], typeof(DeliverItemsActionStep));
+		Assert.AreEqual(task, host.TaskBoard.ActiveTasks.Single());
+		StringAssert.Contains(message, "tagged");
+		StringAssert.Contains(message, "apple");
+		StringAssert.Contains(message, "display");
+		Assert.IsTrue(host.EmploymentRegister.Entries.Any(x =>
+			x.EntryType == EmploymentRegisterEntryType.ActiveTaskCreated));
+	}
+
+	[TestMethod]
+	public void EmploymentCommandService_TasksCancelCancelsActiveTaskAndRecordsRegister()
+	{
+		var currency = Currency();
+		IEmploymentHost host = new TestEmploymentHost(1, "market shop", currency.Object);
+		var manager = Character(71, "Manager").Object;
+		host.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.AssignTasks | EmploymentAuthority.ManageDeliveryRoutes | EmploymentAuthority.CancelTasks), null);
+		var task = host.TaskBoard.CreateActiveTask(
+			"Deliver apples",
+			new EmploymentActionPlan(new[] { new DeliverItemsActionStep(manager.Location) }),
+			manager);
+		var service = new EmploymentCommandService();
+
+		var cancelled = service.TryCancelTask(manager, host, "1", "Wrong stock.", out var message);
+
+		Assert.IsTrue(cancelled, message);
+		Assert.AreEqual(EmploymentTaskStatus.Cancelled, task.Status);
+		StringAssert.Contains(task.BlockedReason, "Wrong stock");
+		StringAssert.Contains(message, "Deliver apples");
+		Assert.IsTrue(host.EmploymentRegister.Entries.Any(x =>
+			x.EntryType == EmploymentRegisterEntryType.ActiveTaskCancelled));
 	}
 
 	[TestMethod]
@@ -795,6 +963,40 @@ public class EmploymentCommandServiceTests
 	}
 
 	[TestMethod]
+	public void EmploymentCommandService_TaskDetailShowsSpecificActionSteps()
+	{
+		var currency = Currency();
+		IEmploymentHost host = new TestEmploymentHost(1, "market shop", currency.Object);
+		var stockroom = Cell(660, "stockroom").Object;
+		var shopfront = Cell(661, "shopfront").Object;
+		var gameworld = Gameworld();
+		gameworld.SetupGet(x => x.ItemProtos).Returns(ItemProtos(ItemProto(500, "a pair of leather gloves").Object).Object);
+		var manager = Character(65, "Manager", gameworld: gameworld.Object, location: stockroom).Object;
+		host.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.AssignTasks | EmploymentAuthority.ManageDeliveryRoutes), null);
+		host.TaskBoard.CreateActiveTask(
+			"Restock gloves",
+			new EmploymentActionPlan(new IEmploymentActionStep[]
+			{
+				new GetItemsByIdActionStep(2, [500], [stockroom]),
+				new DeliverItemsActionStep(shopfront, null, "display")
+			}),
+			manager);
+		var service = new EmploymentCommandService();
+
+		var rendered = service.RenderTaskDetail(manager, host, "1");
+
+		StringAssert.Contains(rendered, "Restock gloves");
+		StringAssert.Contains(rendered, "go to");
+		StringAssert.Contains(rendered, "stockroom");
+		StringAssert.Contains(rendered, "collect");
+		StringAssert.Contains(rendered, "a pair of leather gloves");
+		StringAssert.Contains(rendered, "prototype #");
+		StringAssert.Contains(rendered, "shopfront");
+		StringAssert.Contains(rendered, "deliver all carried task items");
+	}
+
+	[TestMethod]
 	public void EmploymentCommandService_TaskDiagnosticsExplainsWhyPendingTaskIsNotClaimed()
 	{
 		var currency = Currency();
@@ -828,6 +1030,20 @@ public class EmploymentCommandServiceTests
 		var host = new Mock<T>();
 		host.SetupGet(x => x.Id).Returns(id);
 		host.SetupGet(x => x.Name).Returns(name);
+		return host;
+	}
+
+	private static Mock<T> EmploymentHostMock<T>(long id, string name, EmploymentHostType hostType,
+		out IEmploymentHostState state)
+		where T : class, IEmploymentHost
+	{
+		var host = new Mock<T>();
+		host.SetupGet(x => x.Id).Returns(id);
+		host.SetupGet(x => x.Name).Returns(name);
+		host.SetupGet(x => x.EmploymentHostType).Returns(hostType);
+		host.SetupGet(x => x.Market).Returns((IMarket?)null);
+		state = new EmploymentHostState(host.Object);
+		host.SetupGet(x => x.Employment).Returns(state);
 		return host;
 	}
 
@@ -866,6 +1082,24 @@ public class EmploymentCommandServiceTests
 		cell.SetupGet(x => x.GameItems).Returns(Array.Empty<IGameItem>());
 		cell.Setup(x => x.GetFriendlyReference(It.IsAny<IPerceiver>())).Returns(name);
 		return cell;
+	}
+
+	private static Mock<IGameItemProto> ItemProto(long id, string shortDescription)
+	{
+		var proto = new Mock<IGameItemProto>();
+		proto.SetupGet(x => x.Id).Returns(id);
+		proto.SetupGet(x => x.Name).Returns(shortDescription);
+		proto.SetupGet(x => x.ShortDescription).Returns(shortDescription);
+		return proto;
+	}
+
+	private static Mock<IUneditableRevisableAll<IGameItemProto>> ItemProtos(params IGameItemProto[] prototypes)
+	{
+		var lookup = prototypes.ToDictionary(x => x.Id);
+		var itemProtos = new Mock<IUneditableRevisableAll<IGameItemProto>>();
+		itemProtos.Setup(x => x.Get(It.IsAny<long>()))
+		          .Returns((long id) => lookup.TryGetValue(id, out var prototype) ? prototype : null!);
+		return itemProtos;
 	}
 
 	private static Mock<ICharacter> Character(long id, string name, bool administrator = false,

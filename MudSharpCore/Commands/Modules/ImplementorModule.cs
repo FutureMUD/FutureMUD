@@ -1,6 +1,7 @@
 using Dapper;
 using Microsoft.EntityFrameworkCore;
 using MudSharp.Accounts;
+using MudSharp.Arenas;
 using MudSharp.Body;
 using MudSharp.Body.Needs;
 using MudSharp.Celestial;
@@ -12,7 +13,10 @@ using MudSharp.Combat;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Database;
+using MudSharp.Economy;
 using MudSharp.Economy.Currency;
+using MudSharp.Economy.Employment;
+using MudSharp.Economy.Property;
 using MudSharp.Editor;
 using MudSharp.Effects.Concrete;
 using MudSharp.Effects.Interfaces;
@@ -30,6 +34,7 @@ using MudSharp.GameItems.Interfaces;
 using MudSharp.Logging;
 using MudSharp.Models;
 using MudSharp.NPC;
+using MudSharp.NPC.AI;
 using MudSharp.NPC.Templates;
 using MudSharp.OpenAI;
 using MudSharp.PerceptionEngine;
@@ -359,6 +364,8 @@ public class ImplementorModule : Module<ICharacter>
 	#3failemail#0 - tests the fail email routine
 	#3crash#0 - causes the MUD to crash
 	#3heartbeat hour|minute|second|5second|10second|30second#0 - manually triggers a heartbeat
+	#3payroll [days]#0 - runs employment payroll accrual for all employment hosts as if that many days had elapsed
+	#3payroll claim <character|all>#0 - forces EmploymentWorkerAI payroll-claim evaluation now
 	#3freezetime#0 - freezes all in game clocks
 	#3unfreezetime#0 - resumes all in game clocks
 	#3weatherstats <controller> [years <n>] [burnin <n>] [seed <n>] [file <basename>]#0 - runs a non-destructive Monte Carlo weather analysis and writes multiple CSVs", AutoHelp.HelpArgOrNoArg)]
@@ -385,6 +392,11 @@ public class ImplementorModule : Module<ICharacter>
                 return;
             case "heartbeat":
                 Debug_Heartbeat(actor, ss);
+                return;
+            case "payroll":
+            case "employmentpayroll":
+            case "emppayroll":
+                DebugEmploymentPayroll(actor, ss);
                 return;
             case "sql":
                 DebugSql(actor, ss);
@@ -487,6 +499,270 @@ public class ImplementorModule : Module<ICharacter>
             default:
                 actor.Send("That's not a known debug routine.");
                 return;
+        }
+    }
+
+    private const int MaximumEmploymentPayrollDebugDays = 31;
+
+    private static void DebugEmploymentPayroll(ICharacter actor, StringStack ss)
+    {
+        if (!ss.IsFinished && ss.Peek().EqualTo("claim"))
+        {
+            ss.PopSpeech();
+            DebugEmploymentPayrollClaim(actor, ss);
+            return;
+        }
+
+        if (!ss.IsFinished && ss.Peek().EqualTo("advance"))
+        {
+            ss.PopSpeech();
+        }
+
+        var days = 1;
+        if (!ss.IsFinished)
+        {
+            var text = ss.PopSpeech();
+            if (!int.TryParse(text, NumberStyles.Integer, actor, out days) ||
+                days < 1 ||
+                days > MaximumEmploymentPayrollDebugDays)
+            {
+                actor.OutputHandler.Send(
+                    $"You must specify a number of days between {1.ToString("N0", actor).ColourValue()} and {MaximumEmploymentPayrollDebugDays.ToString("N0", actor).ColourValue()}.");
+                return;
+            }
+
+            if (!ss.IsFinished)
+            {
+                actor.OutputHandler.Send(
+                    $"The syntax is {"impdebug payroll [days]".ColourCommand()} or {"impdebug payroll claim <character|all>".ColourCommand()}.");
+                return;
+            }
+        }
+
+        actor.OutputHandler.Send(DebugAdvanceEmploymentPayrolls(actor.Gameworld, days, actor));
+    }
+
+    private static void DebugEmploymentPayrollClaim(ICharacter actor, StringStack ss)
+    {
+        if (ss.IsFinished)
+        {
+            actor.OutputHandler.Send(
+                $"Whose EmploymentWorkerAI payroll claim evaluation do you want to force? Use {"all".ColourCommand()} or a loaded character.");
+            return;
+        }
+
+        var targetText = ss.SafeRemainingArgument;
+        var targets = new List<(ICharacter Character, EmploymentWorkerAI AI)>();
+        if (targetText.EqualTo("all"))
+        {
+            targets.AddRange(actor.Gameworld.NPCs
+                                  .OfType<INPC>()
+                                  .SelectMany(npc => npc.AIs
+                                                       .OfType<EmploymentWorkerAI>()
+                                                       .Select(ai => ((ICharacter)npc, ai))));
+        }
+        else
+        {
+            var target = ResolvePayrollDebugCharacter(actor, targetText);
+            if (target is null)
+            {
+                actor.OutputHandler.Send($"There is no loaded character matching {targetText.ColourCommand()}.");
+                return;
+            }
+
+            if (target is not INPC npc)
+            {
+                actor.OutputHandler.Send($"{target.HowSeen(actor, colour: false).ColourName()} is not an NPC.");
+                return;
+            }
+
+            targets.AddRange(npc.AIs
+                                .OfType<EmploymentWorkerAI>()
+                                .Select(ai => ((ICharacter)npc, ai)));
+            if (!targets.Any())
+            {
+                actor.OutputHandler.Send(
+                    $"{target.HowSeen(actor, colour: false).ColourName()} does not have an EmploymentWorkerAI.");
+                return;
+            }
+        }
+
+        if (!targets.Any())
+        {
+            actor.OutputHandler.Send("There are no loaded EmploymentWorkerAI NPCs to evaluate.");
+            return;
+        }
+
+        actor.OutputHandler.Send(DebugForceEmploymentWorkerPayrollClaims(targets, actor));
+    }
+
+    internal static string DebugForceEmploymentWorkerPayrollClaims(
+        IEnumerable<(ICharacter Character, EmploymentWorkerAI AI)> targets, ICharacter voyeur)
+    {
+        var rows = new List<List<string>>();
+        var totalClaimed = 0;
+        foreach (var (character, ai) in targets
+                     .OrderBy(x => x.Character.Name)
+                     .ThenBy(x => x.AI.Name))
+        {
+            var result = ai.EvaluatePayrollClaim(character);
+            totalClaimed += result.PayablesClaimed;
+            rows.Add(new List<string>
+            {
+                character.HowSeen(voyeur, colour: false).ColourName(),
+                ai.Name.ColourName(),
+                result.PayablesClaimed.ToString("N0", voyeur).ColourValue(),
+                result.Acted.ToColouredString(),
+                result.Message
+            });
+        }
+
+        var sb = new StringBuilder();
+        sb.AppendLine($"Forced EmploymentWorkerAI payroll-claim evaluation for {rows.Count.ToString("N0", voyeur).ColourValue()} AI instance{(rows.Count == 1 ? string.Empty : "s")}.");
+        sb.AppendLine($"Claimed {totalClaimed.ToString("N0", voyeur).ColourValue()} payable{(totalClaimed == 1 ? string.Empty : "s")}.");
+        sb.AppendLine();
+        sb.AppendLine(StringUtilities.GetTextTable(rows, new[] { "Character", "AI", "Claimed", "Acted", "Result" },
+            voyeur, Telnet.Green));
+        return sb.ToString();
+    }
+
+    private static ICharacter ResolvePayrollDebugCharacter(ICharacter actor, string targetText)
+    {
+        if (long.TryParse(targetText, out var id))
+        {
+            return actor.Gameworld.Actors.Get(id);
+        }
+
+        return actor.TargetActor(targetText) ??
+               actor.Gameworld.Actors.FirstOrDefault(x =>
+                   x.Name.EqualTo(targetText) ||
+                   x.HowSeen(actor, colour: false).EqualTo(targetText));
+    }
+
+    internal static string DebugAdvanceEmploymentPayrolls(IFuturemud gameworld, int elapsedDays,
+        ICharacter voyeur = null)
+    {
+        return DebugAdvanceEmploymentPayrolls(gameworld, null, elapsedDays, voyeur);
+    }
+
+    internal static string DebugAdvanceEmploymentPayrolls(IFuturemud gameworld, DateTimeOffset evaluationTime,
+        ICharacter voyeur = null)
+    {
+        return DebugAdvanceEmploymentPayrolls(gameworld, evaluationTime, 0, voyeur);
+    }
+
+    private static string DebugAdvanceEmploymentPayrolls(IFuturemud gameworld, DateTimeOffset? evaluationTime,
+        int elapsedDays, ICharacter voyeur)
+    {
+        var hosts = DebugEmploymentHosts(gameworld)
+                    .DistinctBy(x => (x.EmploymentHostType, x.Id))
+                    .OrderBy(x => x.EmploymentHostType)
+                    .ThenBy(x => x.Name)
+                    .ToList();
+        if (!hosts.Any())
+        {
+            return "There are no employment hosts loaded to evaluate payroll for.";
+        }
+
+        var rows = new List<List<string>>();
+        var totalCreated = 0;
+        var totalOutstanding = 0;
+        var errors = 0;
+        foreach (var host in hosts)
+        {
+            try
+            {
+                var hostEvaluationTime = evaluationTime ?? EmploymentClock.CurrentInstant(host).AddDays(elapsedDays);
+                var payroll = host.Employment.Payroll;
+                var created = payroll.EvaluatePayroll(hostEvaluationTime);
+                var outstanding = payroll.OutstandingLiabilities.Count;
+                var overdueDays = payroll.MaximumOverdueDays(hostEvaluationTime);
+                totalCreated += created.Count;
+                totalOutstanding += outstanding;
+                rows.Add(new List<string>
+                {
+                    host.EmploymentHostType.DescribeEnum().ColourName(),
+                    $"{host.Name.ColourName()} #{host.Id.ToString("N0", System.Globalization.CultureInfo.InvariantCulture).ColourValue()}",
+                    created.Count.ToString("N0", System.Globalization.CultureInfo.InvariantCulture).ColourValue(),
+                    outstanding.ToString("N0", System.Globalization.CultureInfo.InvariantCulture).ColourValue(),
+                    overdueDays.ToString("N0", System.Globalization.CultureInfo.InvariantCulture).ColourValue(),
+                    "OK".Colour(Telnet.Green)
+                });
+            }
+            catch (Exception ex)
+            {
+                errors++;
+                rows.Add(new List<string>
+                {
+                    host.EmploymentHostType.DescribeEnum().ColourName(),
+                    $"{host.Name.ColourName()} #{host.Id.ToString("N0", System.Globalization.CultureInfo.InvariantCulture).ColourValue()}",
+                    "0".ColourValue(),
+                    "?".ColourError(),
+                    "?".ColourError(),
+                    $"Error: {ex.Message}".ColourError()
+                });
+            }
+        }
+
+        var sb = new StringBuilder();
+        sb.AppendLine("Employment payroll debug run complete.");
+        sb.AppendLine(evaluationTime.HasValue
+            ? $"Evaluation time: {evaluationTime.Value:u}"
+            : $"Elapsed in-game days evaluated per host: {elapsedDays.ToString("N0", System.Globalization.CultureInfo.InvariantCulture).ColourValue()}");
+        sb.AppendLine(
+            $"Created {totalCreated.ToString("N0", System.Globalization.CultureInfo.InvariantCulture).ColourValue()} wage payable{(totalCreated == 1 ? "" : "s")} across {hosts.Count.ToString("N0", System.Globalization.CultureInfo.InvariantCulture).ColourValue()} host{(hosts.Count == 1 ? "" : "s")}; {totalOutstanding.ToString("N0", System.Globalization.CultureInfo.InvariantCulture).ColourValue()} outstanding after evaluation.");
+        if (errors > 0)
+        {
+            sb.AppendLine($"{errors.ToString("N0", System.Globalization.CultureInfo.InvariantCulture).ColourError()} host{(errors == 1 ? "" : "s")} failed payroll evaluation; see the table below.");
+        }
+
+        sb.AppendLine();
+        var headers = new[] { "Type", "Host", "Created", "Outstanding", "Max Overdue", "Status" };
+        sb.AppendLine(voyeur is null
+            ? StringUtilities.GetTextTable(rows, headers, 120, true, Telnet.Green)
+            : StringUtilities.GetTextTable(rows, headers, voyeur, Telnet.Green));
+        return sb.ToString();
+    }
+
+    private static IEnumerable<IEmploymentHost> DebugEmploymentHosts(IFuturemud gameworld)
+    {
+        foreach (var shop in gameworld.Shops ?? Enumerable.Empty<IShop>())
+        {
+            yield return shop;
+        }
+
+        foreach (var auction in gameworld.AuctionHouses ?? Enumerable.Empty<IAuctionHouse>())
+        {
+            yield return auction;
+        }
+
+        foreach (var arena in gameworld.CombatArenas ?? Enumerable.Empty<ICombatArena>())
+        {
+            yield return arena;
+        }
+
+        foreach (var bank in gameworld.Banks ?? Enumerable.Empty<IBank>())
+        {
+            yield return bank;
+        }
+
+        foreach (var stable in gameworld.Stables ?? Enumerable.Empty<IStable>())
+        {
+            yield return stable;
+        }
+
+        foreach (var property in gameworld.Properties ?? Enumerable.Empty<IProperty>())
+        {
+            if (property is not MudSharp.Economy.Property.Property concreteProperty)
+            {
+                continue;
+            }
+
+            var hotel = concreteProperty.ExistingHotel;
+            if (hotel is not null)
+            {
+                yield return hotel;
+            }
         }
     }
 

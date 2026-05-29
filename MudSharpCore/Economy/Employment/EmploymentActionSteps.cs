@@ -345,10 +345,10 @@ public sealed class BoardPostActionStep : EmploymentActionStepBase
 
 public sealed class GetItemsByIdActionStep : EmploymentActionStepBase, IEmploymentActionStepLocationHint
 {
-	private readonly List<long> _itemIds;
+	private readonly List<long> _itemPrototypeIds;
 	private readonly List<ICell> _sourceLocations;
 
-	public GetItemsByIdActionStep(int quantity, IEnumerable<long> itemIds, IEnumerable<ICell> sourceLocations)
+	public GetItemsByIdActionStep(int quantity, IEnumerable<long> itemPrototypeIds, IEnumerable<ICell> sourceLocations)
 		: base(
 			EmploymentActionStepType.GetItemsById,
 			EmploymentAuthority.ManageDeliveryRoutes,
@@ -357,12 +357,12 @@ public sealed class GetItemsByIdActionStep : EmploymentActionStepBase, IEmployme
 			false)
 	{
 		Quantity = quantity;
-		_itemIds = itemIds.Distinct().ToList();
+		_itemPrototypeIds = itemPrototypeIds.Distinct().ToList();
 		_sourceLocations = sourceLocations.Distinct().ToList();
 	}
 
 	public int Quantity { get; }
-	public IReadOnlyList<long> ItemIds => _itemIds;
+	public IReadOnlyList<long> ItemPrototypeIds => _itemPrototypeIds;
 	public IReadOnlyList<ICell> SourceLocations => _sourceLocations;
 
 	public override bool CanExecute(IEmploymentTaskContext context, ICharacter actor, out string reason)
@@ -378,21 +378,23 @@ public sealed class GetItemsByIdActionStep : EmploymentActionStepBase, IEmployme
 			return false;
 		}
 
-		if (!_itemIds.Any())
+		if (!_itemPrototypeIds.Any())
 		{
-			reason = "Item retrieval steps must specify at least one item id.";
+			reason = "Item retrieval steps must specify at least one item prototype id.";
 			return false;
 		}
 
-		if (!ReachableSources(context, actor).Any())
+		var reachableSources = ReachableSources(context, actor).ToList();
+		if (!reachableSources.Any())
 		{
 			reason = "The assigned employee cannot path to any source location.";
 			return false;
 		}
 
-		if (MatchingItems(context, actor).Count() < Quantity)
+		var matchingCount = MatchingItems(context, actor, reachableSources).Count();
+		if (matchingCount < Quantity)
 		{
-			reason = "There are not enough matching items in reachable source locations.";
+			reason = $"There are only {matchingCount.ToString("N0", actor)} matching item{(matchingCount == 1 ? string.Empty : "s")} for {Quantity.ToString("N0", actor)} requested item{(Quantity == 1 ? string.Empty : "s")} in reachable source locations.";
 			return false;
 		}
 
@@ -408,15 +410,12 @@ public sealed class GetItemsByIdActionStep : EmploymentActionStepBase, IEmployme
 			return EmploymentActionStepResult.Blocked("There are not enough matching items to collect.");
 		}
 
-		foreach (var item in items)
+		if (!context.TryCollectTaskItems(actor, items.Select(x => (x.Item, x.Source)).ToList(), out var reason))
 		{
-			if (!context.TryCollectTaskItem(actor, item.Item, item.Source, out var reason))
-			{
-				return EmploymentActionStepResult.Blocked(reason);
-			}
+			return EmploymentActionStepResult.Blocked(reason);
 		}
 
-		return EmploymentActionStepResult.CompletedResult($"Collected {items.Count:N0} item(s) by id.");
+		return EmploymentActionStepResult.CompletedResult($"Collected {items.Count:N0} item(s) by prototype id.");
 	}
 
 	private IEnumerable<ICell> ReachableSources(IEmploymentTaskContext context, ICharacter actor)
@@ -431,9 +430,15 @@ public sealed class GetItemsByIdActionStep : EmploymentActionStepBase, IEmployme
 
 	private IEnumerable<(ICell Source, IGameItem Item)> MatchingItems(IEmploymentTaskContext context, ICharacter actor)
 	{
-		var ids = _itemIds.ToHashSet();
-		foreach (var source in ReachableSources(context, actor))
-		foreach (var item in context.AvailableItems(source).Where(x => ids.Contains(x.Id)))
+		return MatchingItems(context, actor, ReachableSources(context, actor));
+	}
+
+	private IEnumerable<(ICell Source, IGameItem Item)> MatchingItems(IEmploymentTaskContext context, ICharacter actor,
+		IEnumerable<ICell> sources)
+	{
+		var prototypeIds = _itemPrototypeIds.ToHashSet();
+		foreach (var source in sources)
+		foreach (var item in context.AvailableItems(source).Where(x => prototypeIds.Contains(x.Prototype.Id)))
 		{
 			yield return (source, item);
 		}
@@ -504,12 +509,9 @@ public sealed class GetItemsByTagActionStep : EmploymentActionStepBase, IEmploym
 			return EmploymentActionStepResult.Blocked($"There are not enough items tagged {TagName} to collect.");
 		}
 
-		foreach (var item in items)
+		if (!context.TryCollectTaskItems(actor, items.Select(x => (x.Item, x.Source)).ToList(), out var reason))
 		{
-			if (!context.TryCollectTaskItem(actor, item.Item, item.Source, out var reason))
-			{
-				return EmploymentActionStepResult.Blocked(reason);
-			}
+			return EmploymentActionStepResult.Blocked(reason);
 		}
 
 		return EmploymentActionStepResult.CompletedResult($"Collected {items.Count:N0} item(s) tagged {TagName}.");
@@ -603,16 +605,11 @@ public sealed class GetCommodityActionStep : EmploymentActionStepBase, IEmployme
 
 	public override EmploymentActionStepResult Execute(IEmploymentTaskContext context, ICharacter actor)
 	{
-		var collected = new List<IGameItem>();
+		var collected = new List<(ICell Source, IGameItem Item)>();
 		var totalWeight = 0.0;
 		foreach (var item in MatchingItems(context, actor).ToList())
 		{
-			if (!context.TryCollectTaskItem(actor, item.Item, item.Source, out var reason))
-			{
-				return EmploymentActionStepResult.Blocked(reason);
-			}
-
-			collected.Add(item.Item);
+			collected.Add(item);
 			totalWeight += context.CommodityWeight(item.Item, MaterialName, TagName, _characteristics);
 			if (totalWeight >= RequiredWeight)
 			{
@@ -623,6 +620,11 @@ public sealed class GetCommodityActionStep : EmploymentActionStepBase, IEmployme
 		if (totalWeight < RequiredWeight)
 		{
 			return EmploymentActionStepResult.Blocked($"There is not enough {MaterialName} commodity to collect.");
+		}
+
+		if (!context.TryCollectTaskItems(actor, collected.Select(x => (x.Item, x.Source)).ToList(), out var reason))
+		{
+			return EmploymentActionStepResult.Blocked(reason);
 		}
 
 		return EmploymentActionStepResult.CompletedResult(

@@ -17,6 +17,7 @@ public partial class EmploymentHostState
 		ManagerGoals = new HashSet<EmploymentManagerGoalRecord>();
 		RegisterEntries = new HashSet<EmploymentRegisterEntryRecord>();
 		LedgerEntries = new HashSet<EmploymentLedgerEntryRecord>();
+		Payables = new HashSet<EmploymentPayableRecord>();
 	}
 
 	public long Id { get; set; }
@@ -35,6 +36,7 @@ public partial class EmploymentHostState
 	public virtual ICollection<EmploymentManagerGoalRecord> ManagerGoals { get; set; }
 	public virtual ICollection<EmploymentRegisterEntryRecord> RegisterEntries { get; set; }
 	public virtual ICollection<EmploymentLedgerEntryRecord> LedgerEntries { get; set; }
+	public virtual ICollection<EmploymentPayableRecord> Payables { get; set; }
 }
 
 public partial class EmploymentContractRecord
@@ -134,6 +136,36 @@ public partial class EmploymentApplicationRecord
 	public string? DecisionReason { get; set; }
 
 	public virtual EmploymentJobOpeningRecord EmploymentJobOpening { get; set; } = null!;
+}
+
+public partial class EmploymentPayableRecord
+{
+	public long Id { get; set; }
+	public long RuntimeId { get; set; }
+	public long EmploymentHostStateId { get; set; }
+	public string CorrelationId { get; set; } = string.Empty;
+	public long? ContractRuntimeId { get; set; }
+	public long EmployeeId { get; set; }
+	public string EmployeeName { get; set; } = string.Empty;
+	public int Role { get; set; }
+	public long AmountCurrencyId { get; set; }
+	public decimal Amount { get; set; }
+	public int PayCadence { get; set; }
+	public int PaymentMethodKind { get; set; }
+	public long? PaymentBankAccountId { get; set; }
+	public long? PaymentItemId { get; set; }
+	public string? PaymentItemType { get; set; }
+	public string? PaymentNotes { get; set; }
+	public DateTime PayPeriodStart { get; set; }
+	public DateTime PayPeriodEnd { get; set; }
+	public DateTime DueAt { get; set; }
+	public DateTime AccruedAt { get; set; }
+	public int Status { get; set; }
+	public DateTime? SettledAt { get; set; }
+	public DateTime? ClaimedAt { get; set; }
+	public string? SettlementNote { get; set; }
+
+	public virtual EmploymentHostState EmploymentHostState { get; set; } = null!;
 }
 
 public partial class EmploymentActionPlanRecord

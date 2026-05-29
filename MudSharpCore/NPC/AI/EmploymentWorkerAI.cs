@@ -70,6 +70,7 @@ public class EmploymentWorkerAI : PathingAIBase
 	public bool SearchEnabled { get; private set; }
 	public bool TaskingEnabled { get; private set; }
 	public TimeSpan SearchCadence { get; private set; }
+	public int MaximumUnpaidOverdueDays { get; private set; }
 
 	private void SetDefaults()
 	{
@@ -81,6 +82,7 @@ public class EmploymentWorkerAI : PathingAIBase
 		SearchEnabled = true;
 		TaskingEnabled = true;
 		SearchCadence = TimeSpan.FromMinutes(10);
+		MaximumUnpaidOverdueDays = 7;
 	}
 
 	protected override void LoadFromXML(XElement root)
@@ -105,6 +107,10 @@ public class EmploymentWorkerAI : PathingAIBase
 		SearchCadence = double.TryParse(root.Element("SearchCadenceMinutes")?.Value, out var cadence) && cadence > 0.0
 			? TimeSpan.FromMinutes(cadence)
 			: TimeSpan.FromMinutes(10);
+		MaximumUnpaidOverdueDays = int.TryParse(root.Element("MaximumUnpaidOverdueDays")?.Value, out var overdueDays) &&
+		                           overdueDays >= 0
+			? overdueDays
+			: 7;
 
 		var hostTypeText = root.Element("HostTypeFilter")?.Value;
 		HostTypeFilter = !string.IsNullOrWhiteSpace(hostTypeText) &&
@@ -151,6 +157,7 @@ public class EmploymentWorkerAI : PathingAIBase
 			new XElement("SearchEnabled", SearchEnabled),
 			new XElement("TaskingEnabled", TaskingEnabled),
 			new XElement("SearchCadenceMinutes", SearchCadence.TotalMinutes),
+			new XElement("MaximumUnpaidOverdueDays", MaximumUnpaidOverdueDays),
 			new XElement("HostTypeFilter", HostTypeFilter?.ToString() ?? "Any"),
 			new XElement("AcceptedPaymentMethods",
 				_acceptedPaymentMethods.Select(x => new XElement("Method", x))),
@@ -178,6 +185,7 @@ public class EmploymentWorkerAI : PathingAIBase
 		sb.AppendLine($"Search Enabled: {SearchEnabled.ToColouredString()}");
 		sb.AppendLine($"Tasking Enabled: {TaskingEnabled.ToColouredString()}");
 		sb.AppendLine($"Search Cadence: {SearchCadence.Describe(actor).ColourValue()}");
+		sb.AppendLine($"Unpaid Quit Threshold: {MaximumUnpaidOverdueDays.ToString("N0", actor).ColourValue()} days overdue");
 		return sb.ToString();
 	}
 
@@ -190,7 +198,8 @@ public class EmploymentWorkerAI : PathingAIBase
 	#3range <exits>#0 - sets maximum job/task path range
 	#3search#0 - toggles autonomous job searching
 	#3tasking#0 - toggles autonomous task claiming/execution
-	#3cadence <minutes>#0 - sets job-search scan cadence";
+	#3cadence <minutes>#0 - sets job-search scan cadence
+	#3arrears <days>#0 - sets how many overdue unpaid days this worker tolerates";
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
@@ -230,6 +239,10 @@ public class EmploymentWorkerAI : PathingAIBase
 			case "cadence":
 			case "scan":
 				return BuildingCommandCadence(actor, command);
+			case "arrears":
+			case "overdue":
+			case "unpaid":
+				return BuildingCommandArrears(actor, command);
 		}
 
 		return base.BuildingCommand(actor, command.GetUndo());
@@ -389,6 +402,20 @@ public class EmploymentWorkerAI : PathingAIBase
 		return true;
 	}
 
+	private bool BuildingCommandArrears(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished || !int.TryParse(command.SafeRemainingArgument, actor, out var days) || days < 0)
+		{
+			actor.OutputHandler.Send("How many non-negative overdue unpaid days should this worker tolerate before quitting?");
+			return false;
+		}
+
+		MaximumUnpaidOverdueDays = days;
+		Changed = true;
+		actor.OutputHandler.Send($"This AI will now quit once wages are {MaximumUnpaidOverdueDays.ToString("N0", actor).ColourValue()} days overdue.");
+		return true;
+	}
+
 	public override bool HandleEvent(EventType type, params dynamic[] arguments)
 	{
 		if (type == EventType.MinuteTick)
@@ -396,12 +423,17 @@ public class EmploymentWorkerAI : PathingAIBase
 			return HandleMinuteTick((ICharacter)arguments[0]) || base.HandleEvent(type, arguments);
 		}
 
+		if (type == EventType.HourTick)
+		{
+			return HandleHourTick((ICharacter)arguments[0]) || base.HandleEvent(type, arguments);
+		}
+
 		return base.HandleEvent(type, arguments);
 	}
 
 	public override bool HandlesEvent(params EventType[] types)
 	{
-		return types.Any(x => x == EventType.MinuteTick) || base.HandlesEvent(types);
+		return types.Any(x => x is EventType.MinuteTick or EventType.HourTick) || base.HandlesEvent(types);
 	}
 
 	internal bool HandleMinuteTick(ICharacter character)
@@ -417,6 +449,11 @@ public class EmploymentWorkerAI : PathingAIBase
 			return SearchEnabled && TryApplyForEmployment(character);
 		}
 
+		if (TryHandlePayroll(character, host))
+		{
+			return true;
+		}
+
 		if (TaskingEnabled)
 		{
 			EvaluateHostWork(character, host);
@@ -429,6 +466,17 @@ public class EmploymentWorkerAI : PathingAIBase
 
 		CheckPathingEffect(character, true);
 		return ResolvePathTarget(character) is not null;
+	}
+
+	internal bool HandleHourTick(ICharacter character)
+	{
+		var result = EvaluatePayrollClaim(character);
+		if (result.AttemptedClaim || result.PayablesClaimed > 0)
+		{
+			DebugWorker(character, result.Message);
+		}
+
+		return result.Acted;
 	}
 
 	protected override bool IsPathingEnabled(ICharacter character)
@@ -471,6 +519,7 @@ public class EmploymentWorkerAI : PathingAIBase
 		              .Where(x => !HasCurrentApplication(candidate, x.Host, x.Opening))
 		              .Where(x => !HasRecentRejectedApplication(candidate, x.Host, x.Opening))
 		              .Where(x => EmploymentCandidateMatcher.IsMatch(x.Opening, profile, out _))
+		              .Where(x => HostReputationAcceptable(candidate, x.Host))
 		              .Where(x => CanReach(candidate, PrimaryWorkCell(x.Host)))
 		              .OrderByDescending(x => x.Opening.Compensation.NominalAmount)
 		              .ThenBy(x => x.Host.EmploymentHostName)
@@ -499,13 +548,130 @@ public class EmploymentWorkerAI : PathingAIBase
 		}
 
 		var context = new EmploymentTaskContext(host, usePhysicalItemMovement: true);
-		var now = DateTimeOffset.UtcNow;
+		var now = EmploymentClock.CurrentInstant(host);
 		DebugWorker(worker, $"evaluating scheduled rules and manager goals for {host.EmploymentHostName}.");
 		var scheduledTasks = host.TaskBoard.EvaluateScheduledRules(context, now);
 		var goalTasks = host.ManagerGoalBoard.EvaluateGoals(context, now);
 		DebugWorker(worker,
 			$"host evaluation for {host.EmploymentHostName} spawned {scheduledTasks.Count:N0} scheduled task(s) and {goalTasks.Count:N0} manager-goal task(s).");
 		worker.AddEffect(new EmploymentWorkerHostEvaluationEffect(worker, host), TimeSpan.FromMinutes(1));
+	}
+
+	private bool TryHandlePayroll(ICharacter worker, IEmploymentHost host)
+	{
+		var created = host.Payroll.EvaluatePayroll();
+		if (created.Any())
+		{
+			DebugWorker(worker,
+				$"payroll evaluation for {host.EmploymentHostName} accrued {created.Count:N0} payable(s).");
+		}
+
+		if (!host.Payroll.OutstandingLiabilities.Any())
+		{
+			return false;
+		}
+
+		var overdueDays = host.Payroll.MaximumOverdueDays();
+		if (overdueDays < MaximumUnpaidOverdueDays)
+		{
+			return false;
+		}
+
+		var contracts = host.ActiveEmploymentContracts()
+		                    .Where(x => x.Employee.Id == worker.Id)
+		                    .ToList();
+		if (!contracts.Any())
+		{
+			return false;
+		}
+
+		foreach (var contract in contracts)
+		{
+			host.Fire(contract, EmploymentTerminationReason.UnpaidWages, null);
+		}
+
+		host.EmploymentRegister.Record(
+			EmploymentRegisterEntryType.EmployeeResignedUnpaid,
+			worker,
+			$"{worker.HowSeen(worker, colour: false)} quit after wages reached {overdueDays:N0} days overdue.");
+		DebugWorker(worker,
+			$"quit {host.EmploymentHostName} because unpaid wages reached {overdueDays:N0} days overdue.");
+		return true;
+	}
+
+	internal EmploymentWorkerPayrollClaimResult EvaluatePayrollClaim(ICharacter worker)
+	{
+		if (!IsGenerallyAble(worker) || worker.Combat is not null)
+		{
+			return EmploymentWorkerPayrollClaimResult.NoAction("The worker is not currently idle and able to handle payroll.");
+		}
+
+		var host = ActiveEmploymentHost(worker);
+		if (host is null)
+		{
+			return EmploymentWorkerPayrollClaimResult.NoAction("The worker has no active employment host.");
+		}
+
+		if (AssignedTaskFor(worker, host) is not null)
+		{
+			return EmploymentWorkerPayrollClaimResult.NoAction(
+				$"{worker.Name} is already in the middle of an employment task for {host.EmploymentHostName}.");
+		}
+
+		var workplace = PrimaryWorkCell(host);
+		if (workplace is not null && !ReferenceEquals(workplace, worker.Location))
+		{
+			return EmploymentWorkerPayrollClaimResult.NoAction(
+				$"{worker.Name} is not at {host.EmploymentHostName}'s workplace.");
+		}
+
+		var claimable = host.Payroll.ClaimablePayablesFor(worker)
+		                    .OrderBy(x => x.DueAt)
+		                    .ThenBy(x => x.Id)
+		                    .ToList();
+		if (!claimable.Any())
+		{
+			return EmploymentWorkerPayrollClaimResult.NoAction(
+				$"{worker.Name} has no claimable payables from {host.EmploymentHostName}.");
+		}
+
+		var claimed = 0;
+		foreach (var payable in claimable)
+		{
+			if (payable.PaymentMethod.MethodKind == PaymentMethodKind.Cash &&
+			    !worker.Body.CanGet(payable.Amount.Currency, payable.Amount.Amount, false))
+			{
+				return EmploymentWorkerPayrollClaimResult.Attempted(
+					claimed > 0,
+					claimed,
+					claimed > 0
+						? $"{worker.Name} claimed {claimed:N0} payable{(claimed == 1 ? string.Empty : "s")} but stopped because they cannot take the next cash payout right now."
+						: $"{worker.Name} cannot take a cash payroll payout right now.",
+					host);
+			}
+
+			if (!host.Payroll.TryClaimPayable(payable, worker, out var claimMessage))
+			{
+				return EmploymentWorkerPayrollClaimResult.Attempted(
+					claimed > 0,
+					claimed,
+					claimed > 0
+						? $"{worker.Name} claimed {claimed:N0} payable{(claimed == 1 ? string.Empty : "s")} but stopped: {claimMessage}"
+						: $"{worker.Name} could not claim payable #{payable.Id:N0}: {claimMessage}",
+					host);
+			}
+
+			claimed++;
+			DebugWorker(worker, $"claimed payroll payable #{payable.Id:N0}: {claimMessage}");
+		}
+
+		return EmploymentWorkerPayrollClaimResult.Attempted(
+			true,
+			claimed,
+			claimed == 1
+				? $"{worker.Name} claimed 1 payroll payable from {host.EmploymentHostName}."
+				: $"{worker.Name} claimed {claimed:N0} payroll payables from {host.EmploymentHostName}.",
+			host);
 	}
 
 	private bool TryClaimOrAdvanceTask(ICharacter worker, IEmploymentHost host)
@@ -545,24 +711,40 @@ public class EmploymentWorkerAI : PathingAIBase
 			return false;
 		}
 
-		var hintedLocation = NextStepLocation(task, context, worker);
-		if (hintedLocation is not null && !ReferenceEquals(hintedLocation, worker.Location))
+		var acted = false;
+		for (var i = 0; i < task.ActionPlan.Steps.Count; i++)
 		{
+			if (task.Status is EmploymentTaskStatus.Completed or EmploymentTaskStatus.Cancelled or EmploymentTaskStatus.Failed)
+			{
+				RemoveTaskContext(worker, host, task);
+				return acted;
+			}
+
+			var hintedLocation = NextStepLocation(task, context, worker);
+			if (hintedLocation is not null && !ReferenceEquals(hintedLocation, worker.Location))
+			{
+				DebugWorker(worker,
+					$"pathing to {hintedLocation.GetFriendlyReference(worker)} for next step of task {task.Name}.");
+				CheckPathingEffect(worker, true);
+				return acted;
+			}
+
+			var result = _dispatcher.AdvanceTask(task, context);
+			acted = true;
 			DebugWorker(worker,
-				$"pathing to {hintedLocation.GetFriendlyReference(worker)} for next step of task {task.Name}.");
-			CheckPathingEffect(worker, true);
-			return false;
+				$"advanced task {task.Name}: {result.Message} Status is now {task.Status.DescribeEnum()}.");
+			if (!result.Success || task.Status is EmploymentTaskStatus.Completed or EmploymentTaskStatus.Cancelled or EmploymentTaskStatus.Failed)
+			{
+				if (task.Status is EmploymentTaskStatus.Completed or EmploymentTaskStatus.Cancelled or EmploymentTaskStatus.Failed)
+				{
+					RemoveTaskContext(worker, host, task);
+				}
+
+				return true;
+			}
 		}
 
-		var result = _dispatcher.AdvanceTask(task, context);
-		DebugWorker(worker,
-			$"advanced task {task.Name}: {result.Message} Status is now {task.Status.DescribeEnum()}.");
-		if (task.Status is EmploymentTaskStatus.Completed or EmploymentTaskStatus.Cancelled or EmploymentTaskStatus.Failed)
-		{
-			RemoveTaskContext(worker, host, task);
-		}
-
-		return result.Success || !result.Completed;
+		return acted;
 	}
 
 	private IEmploymentHost? ActiveEmploymentHost(ICharacter worker)
@@ -713,7 +895,7 @@ public class EmploymentWorkerAI : PathingAIBase
 		}
 
 		var memoryWindow = SearchCadence * 6.0;
-		var age = DateTimeOffset.UtcNow - rejected.AppliedAt;
+		var age = EmploymentClock.CurrentInstant(host) - rejected.AppliedAt;
 		if (age >= memoryWindow)
 		{
 			return false;
@@ -742,6 +924,24 @@ public class EmploymentWorkerAI : PathingAIBase
 	private bool HostMatchesFilter(IEmploymentHost host)
 	{
 		return HostTypeFilter is null || host.EmploymentHostType == HostTypeFilter.Value;
+	}
+
+	private bool HostReputationAcceptable(ICharacter worker, IEmploymentHost host)
+	{
+		if (!host.Payroll.OutstandingLiabilities.Any())
+		{
+			return true;
+		}
+
+		var overdueDays = host.Payroll.MaximumOverdueDays();
+		if (overdueDays < MaximumUnpaidOverdueDays)
+		{
+			return true;
+		}
+
+		DebugWorker(worker,
+			$"skipped {host.EmploymentHostName} because its payroll has {overdueDays:N0} overdue unpaid day(s).");
+		return false;
 	}
 
 	private bool CanReach(ICharacter worker, ICell? cell)
@@ -834,5 +1034,24 @@ public class EmploymentWorkerAI : PathingAIBase
 	private void DebugWorker(ICharacter worker, string message)
 	{
 		worker.Gameworld?.DebugMessage($"[EmploymentWorkerAI:{Name}] {worker.Name} #{worker.Id:N0}: {message}");
+	}
+}
+
+internal sealed record EmploymentWorkerPayrollClaimResult(
+	bool Acted,
+	bool AttemptedClaim,
+	int PayablesClaimed,
+	string Message,
+	IEmploymentHost? Host)
+{
+	public static EmploymentWorkerPayrollClaimResult NoAction(string message)
+	{
+		return new EmploymentWorkerPayrollClaimResult(false, false, 0, message, null);
+	}
+
+	public static EmploymentWorkerPayrollClaimResult Attempted(bool acted, int payablesClaimed, string message,
+		IEmploymentHost host)
+	{
+		return new EmploymentWorkerPayrollClaimResult(acted, true, payablesClaimed, message, host);
 	}
 }

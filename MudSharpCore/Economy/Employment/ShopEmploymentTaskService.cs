@@ -78,25 +78,28 @@ public sealed class ShopEmploymentTaskService
 			return false;
 		}
 
-		var itemIds = StockroomItemsFor(shop, merchandise)
-		              .Take(itemCount)
-		              .Select(x => x.Id)
-		              .ToList();
-		if (itemIds.Count < itemCount)
+		var matchingItems = StockroomItemsFor(shop, merchandise)
+		                    .Take(itemCount)
+		                    .ToList();
+		if (matchingItems.Count < itemCount)
 		{
-			message = $"{shop.EmploymentHostName.ColourName()} only has {itemIds.Count.ToString("N0", authorisedBy).ColourValue()} matching stockroom item{(itemIds.Count == 1 ? string.Empty : "s")} to move.";
+			message = $"{shop.EmploymentHostName.ColourName()} only has {matchingItems.Count.ToString("N0", authorisedBy).ColourValue()} matching stockroom item{(matchingItems.Count == 1 ? string.Empty : "s")} to move.";
 			return false;
 		}
 
+		var itemPrototypeIds = matchingItems
+		                       .Select(x => x.Prototype.Id)
+		                       .Distinct()
+		                       .ToList();
 		var plan = new EmploymentActionPlan([
-			new GetItemsByIdActionStep(itemIds.Count, itemIds, [shop.StockroomCell]),
+			new GetItemsByIdActionStep(itemCount, itemPrototypeIds, [shop.StockroomCell]),
 			new DeliverItemsActionStep(resolvedDestination, container, containerTag)
 		]);
 
 		try
 		{
 			task = shop.TaskBoard.CreateActiveTask($"restock {merchandise.Name}", plan, authorisedBy);
-			message = $"You create a stockroom restock task for {shop.EmploymentHostName.ColourName()} to move {itemIds.Count.ToString("N0", authorisedBy).ColourValue()} {merchandise.Name.ColourName()} item{(itemIds.Count == 1 ? string.Empty : "s")}.";
+			message = $"You create a stockroom restock task for {shop.EmploymentHostName.ColourName()} to move {itemCount.ToString("N0", authorisedBy).ColourValue()} {merchandise.Name.ColourName()} item{(itemCount == 1 ? string.Empty : "s")}.";
 			return true;
 		}
 		catch (InvalidOperationException ex)

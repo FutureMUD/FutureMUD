@@ -181,6 +181,40 @@ public class UnifiedEmploymentDispatchTests
 	}
 
 	[TestMethod]
+	public void Payroll_AccruesOverdueDaysAndSettlementClearsEmployerReputationAfterContractEnds()
+	{
+		var currency = Currency();
+		IEmploymentHost host = new TestEmploymentHost("stable", currency.Object);
+		var employee = Character(10, "Employee").Object;
+		var compensation = new CompensationTerms(
+			new MoneyAmount(currency.Object, 10.0M),
+			null,
+			PayCadence.Daily,
+			new MoneyAmount(currency.Object, 10.0M),
+			PaymentSource.HostCash);
+		var contract = host.Hire(employee, new EmploymentOffer(
+			EmploymentRole.Employee,
+			compensation,
+			WorkSchedule.AnyTime,
+			EmploymentDuration.Indefinite,
+			new PaymentMethod(PaymentMethodKind.Cash),
+			EmploymentAuthoritySet.Empty), null);
+		var evaluationTime = contract.StartedAt.AddDays(10).AddHours(1);
+
+		var created = host.Payroll.EvaluatePayroll(evaluationTime);
+
+		Assert.AreEqual(10, created.Count);
+		Assert.AreEqual(9, host.Payroll.MaximumOverdueDays(evaluationTime));
+		host.Fire(contract, EmploymentTerminationReason.Resigned, null);
+		Assert.IsTrue(host.Payroll.TrySettlePayables(host.Payroll.OutstandingLiabilities, null, false,
+			"Settled after resignation.", out var message), message);
+		Assert.AreEqual(0, host.Payroll.MaximumOverdueDays(evaluationTime));
+		Assert.IsTrue(host.Payroll.Payables.All(x => x.Status == EmploymentPayableStatus.Settled));
+		Assert.IsTrue(host.BusinessLedger.Entries.Any(x => x.EntryType == EmploymentLedgerEntryType.Wage));
+		Assert.IsTrue(host.EmploymentRegister.Entries.Any(x => x.EntryType == EmploymentRegisterEntryType.WageSettled));
+	}
+
+	[TestMethod]
 	public void HostBoard_BoardPostActionStepCreatesPostAndRegisterEntry()
 	{
 		var currency = Currency();
@@ -318,13 +352,13 @@ public class UnifiedEmploymentDispatchTests
 			EmploymentAuthority.AssignTasks | EmploymentAuthority.ManageDeliveryRoutes), null);
 		var sourceOne = Cell(10, "stock room").Object;
 		var sourceTwo = Cell(11, "warehouse").Object;
-		var requestedOne = Item(100, "first crate").Object;
-		var ignored = Item(101, "wrong crate").Object;
-		var requestedTwo = Item(102, "second crate").Object;
+		var requestedOne = Item(100, "first crate", prototypeId: 9001).Object;
+		var ignored = Item(101, "wrong crate", prototypeId: 9002).Object;
+		var requestedTwo = Item(102, "second crate", prototypeId: 9001).Object;
 		var context = new EmploymentTaskContext(host);
 		context.SetAvailableItems(sourceOne, [requestedOne, ignored]);
 		context.SetAvailableItems(sourceTwo, [requestedTwo]);
-		var step = new GetItemsByIdActionStep(2, [requestedOne.Id, requestedTwo.Id], [sourceOne, sourceTwo]);
+		var step = new GetItemsByIdActionStep(2, [requestedOne.Prototype.Id], [sourceOne, sourceTwo]);
 		var task = host.TaskBoard.CreateActiveTask("collect crates", new EmploymentActionPlan([step]), manager);
 		var dispatcher = new EmploymentTaskDispatcher();
 		var profile = Profile(manager, 1.0M, PaymentMethodKind.Cash, Caps(EmploymentAICapability.CanDeliverItems));
@@ -341,6 +375,26 @@ public class UnifiedEmploymentDispatchTests
 			x.Description.Contains("Collected", StringComparison.InvariantCultureIgnoreCase)).ToList();
 		Assert.AreEqual(1, completionEntries.Count);
 		Assert.AreEqual(task.CorrelationId, completionEntries.Single().CorrelationId);
+	}
+
+	[TestMethod]
+	public void GetItemsByIdActionStep_RequiresEnoughMatchingPrototypeInstances()
+	{
+		var currency = Currency();
+		IEmploymentHost host = new TestEmploymentHost("shop", currency.Object);
+		var manager = Character(1, "Manager").Object;
+		host.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.AssignTasks | EmploymentAuthority.ManageDeliveryRoutes), null);
+		var source = Cell(12, "stock room").Object;
+		var requested = Item(103, "first crate", prototypeId: 9001).Object;
+		var ignored = Item(104, "wrong crate", prototypeId: 9002).Object;
+		var context = new EmploymentTaskContext(host);
+		context.SetAvailableItems(source, [requested, ignored]);
+		var step = new GetItemsByIdActionStep(2, [requested.Prototype.Id], [source]);
+
+		Assert.IsFalse(step.CanExecute(context, manager, out var reason));
+		StringAssert.Contains(reason, "only 1 matching item");
+		StringAssert.Contains(reason, "2 requested");
 	}
 
 	[TestMethod]
@@ -497,7 +551,7 @@ public class UnifiedEmploymentDispatchTests
 
 		Assert.AreEqual(EmploymentTaskStatus.Completed, task.Status);
 		Assert.AreEqual(0, stockroomItems.Count);
-		CollectionAssert.AreEquivalent(new[] { movedOne.Id, movedTwo.Id }, containerContents.Select(x => x.Id).ToArray());
+		CollectionAssert.AreEquivalent(new[] { movedOne.Id, movedTwo.Id }, context.ContainedItems(container).Select(x => x.Id).ToArray());
 		Assert.AreEqual(0, shop.Shop.Object.Board.Posts.Count());
 		Assert.IsTrue(shop.State.EmploymentRegister.Entries.Any(x => x.EntryType == EmploymentRegisterEntryType.ActiveTaskCreated));
 		Assert.IsTrue(shop.State.EmploymentRegister.Entries.Any(x => x.EntryType == EmploymentRegisterEntryType.ActiveTaskCompleted));
@@ -719,6 +773,54 @@ public class UnifiedEmploymentDispatchTests
 	}
 
 	[TestMethod]
+	public void EmploymentPersistence_RoundTripsPayrollLiabilitiesAndSettledWageLedgerRows()
+	{
+		var fmdbState = CaptureFMDBState();
+		using var context = BuildContext();
+		try
+		{
+			PrimeFMDB(context);
+			var currency = Currency();
+			var employee = Character(151, "Employee").Object;
+			var characters = new Dictionary<long, ICharacter>
+			{
+				[employee.Id] = employee
+			};
+			var gameworld = Gameworld(currency.Object, characters);
+			IEmploymentHost host = new PersistedEmploymentHost(151, "Payroll Shop", gameworld.Object, currency.Object);
+			var compensation = new CompensationTerms(
+				new MoneyAmount(currency.Object, 10.0M),
+				null,
+				PayCadence.Daily,
+				new MoneyAmount(currency.Object, 10.0M),
+				PaymentSource.HostCash);
+			var contract = host.Hire(employee, new EmploymentOffer(
+				EmploymentRole.Employee,
+				compensation,
+				WorkSchedule.AnyTime,
+				EmploymentDuration.Indefinite,
+				new PaymentMethod(PaymentMethodKind.Cash),
+				EmploymentAuthoritySet.Empty), null);
+			host.Payroll.EvaluatePayroll(contract.StartedAt.AddDays(3).AddMinutes(1));
+			host.Fire(contract, EmploymentTerminationReason.Resigned, null);
+			Assert.IsTrue(host.Payroll.TrySettlePayables(host.Payroll.OutstandingLiabilities, null, false,
+				"Settled after resignation.", out var message), message);
+
+			IEmploymentHost reloadedHost = new PersistedEmploymentHost(151, "Payroll Shop", gameworld.Object, currency.Object);
+			var reloaded = reloadedHost.Employment;
+
+			Assert.AreEqual(3, reloaded.Payroll.Payables.Count);
+			Assert.IsTrue(reloaded.Payroll.Payables.All(x => x.Status == EmploymentPayableStatus.Settled));
+			Assert.IsTrue(reloaded.BusinessLedger.Entries.Any(x => x.EntryType == EmploymentLedgerEntryType.Wage));
+			Assert.IsTrue(reloaded.EmploymentRegister.Entries.Any(x => x.EntryType == EmploymentRegisterEntryType.WageSettled));
+		}
+		finally
+		{
+			RestoreFMDBState(fmdbState);
+		}
+	}
+
+	[TestMethod]
 	public void EmploymentPersistence_RoundTripsInventoryActionSteps()
 	{
 		var fmdbState = CaptureFMDBState();
@@ -758,7 +860,7 @@ public class UnifiedEmploymentDispatchTests
 			Assert.AreEqual(EmploymentActionStepType.GetItemsByTag, steps[1].StepType);
 			Assert.AreEqual(EmploymentActionStepType.GetCommodity, steps[2].StepType);
 			Assert.AreEqual(EmploymentActionStepType.DeliverItems, steps[3].StepType);
-			Assert.AreEqual(9001, ((GetItemsByIdActionStep)steps[0]).ItemIds.Single());
+			Assert.AreEqual(9001, ((GetItemsByIdActionStep)steps[0]).ItemPrototypeIds.Single());
 			Assert.AreEqual("linen", ((GetItemsByTagActionStep)steps[1]).TagName);
 			Assert.AreEqual("iron", ((GetCommodityActionStep)steps[2]).MaterialName);
 			Assert.AreEqual("refined", ((GetCommodityActionStep)steps[2]).Characteristics["grade"]);
@@ -941,11 +1043,15 @@ public class UnifiedEmploymentDispatchTests
 	}
 
 	private static Mock<IGameItem> Item(long id, string name, IEnumerable<ICell>? trueLocations = null,
-		IEnumerable<ITag>? tags = null)
+		IEnumerable<ITag>? tags = null, long? prototypeId = null)
 	{
+		var proto = new Mock<IGameItemProto>();
+		proto.SetupGet(x => x.Id).Returns(prototypeId ?? id);
+		proto.SetupGet(x => x.ShortDescription).Returns(name);
 		var item = new Mock<IGameItem>();
 		item.SetupGet(x => x.Id).Returns(id);
 		item.SetupGet(x => x.Name).Returns(name);
+		item.SetupGet(x => x.Prototype).Returns(proto.Object);
 		item.SetupGet(x => x.Tags).Returns(tags ?? []);
 		item.SetupGet(x => x.DeepItems).Returns(() => [item.Object]);
 		item.SetupGet(x => x.TrueLocations).Returns(trueLocations ?? []);

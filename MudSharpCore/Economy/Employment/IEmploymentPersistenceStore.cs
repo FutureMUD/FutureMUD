@@ -12,6 +12,8 @@ internal interface IEmploymentPersistenceStore
 	void SaveContractAuthority(EmploymentContract contract);
 	void SaveJobOpening(JobOpening opening);
 	void SaveApplication(EmploymentApplication application);
+	void SavePayable(EmploymentPayable payable);
+	void SavePayableState(EmploymentPayable payable);
 	void SaveRegisterEntry(EmploymentRegisterEntry entry);
 	void SaveLedgerEntry(EmploymentLedgerEntry entry);
 	void SaveScheduledRule(EmploymentScheduledTaskRule rule);

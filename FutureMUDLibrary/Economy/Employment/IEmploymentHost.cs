@@ -19,6 +19,7 @@ public interface IEmploymentHost : IFrameworkItem
 	IBoard Board => Employment.Board;
 	IEmploymentTaskBoard TaskBoard => Employment.TaskBoard;
 	IManagerGoalBoard ManagerGoalBoard => Employment.ManagerGoalBoard;
+	IEmploymentPayroll Payroll => Employment.Payroll;
 	IReadOnlyCollection<IEmploymentContract> EmploymentContracts => Employment.EmploymentContracts;
 	IReadOnlyCollection<IJobOpening> JobOpenings => Employment.JobOpenings;
 
@@ -56,6 +57,7 @@ public interface IEmploymentHostState
 	IBoard Board { get; }
 	IEmploymentTaskBoard TaskBoard { get; }
 	IManagerGoalBoard ManagerGoalBoard { get; }
+	IEmploymentPayroll Payroll { get; }
 	IReadOnlyCollection<IEmploymentContract> EmploymentContracts { get; }
 	IReadOnlyCollection<IJobOpening> JobOpenings { get; }
 	IReadOnlyCollection<IEmploymentApplication> Applications { get; }

@@ -7,7 +7,11 @@ using MudSharp.Construction;
 using MudSharp.Economy.Employment;
 using MudSharp.Framework;
 using MudSharp.GameItems;
+using MudSharp.GameItems.Components;
+using MudSharp.GameItems.Inventory;
+using MudSharp.GameItems.Inventory.Plans;
 using MudSharp.GameItems.Interfaces;
+using MudSharp.GameItems.Prototypes;
 
 #nullable enable
 
@@ -34,6 +38,7 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 	private readonly Dictionary<long, List<IGameItem>> _containerContents = new();
 	private readonly Dictionary<long, HashSet<string>> _itemTags = new();
 	private readonly List<CommodityProfile> _commodityProfiles = new();
+	private readonly HashSet<long> _transportBundleIds = new();
 	private readonly bool _usePhysicalItemMovement;
 
 	public EmploymentTaskContext(IEmploymentHost employer, bool usePhysicalItemMovement = false)
@@ -214,47 +219,96 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 
 	public bool TryCollectTaskItem(ICharacter actor, IGameItem item, ICell source, out string reason)
 	{
-		if (!CanPath(actor, source))
+		return TryCollectTaskItems(actor, [(item, source)], out reason);
+	}
+
+	public bool TryCollectTaskItems(ICharacter actor, IReadOnlyCollection<(IGameItem Item, ICell Source)> items,
+		out string reason)
+	{
+		if (!items.Any())
 		{
-			reason = "The assigned employee cannot path to the source location.";
+			reason = "There are no task items to collect.";
 			return false;
 		}
 
-		var sourceItems = LocationItems(source);
-		var index = sourceItems.FindIndex(x => x.Id == item.Id);
-		if (index < 0 && (!_usePhysicalItemMovement || !source.GameItems.SelectMany(x => x.DeepItems).Any(x => x.Id == item.Id)))
+		foreach (var source in items.Select(x => x.Source).DistinctBy(x => x.Id))
 		{
-			reason = "The item is no longer at the source location.";
+			if (!CanPath(actor, source))
+			{
+				reason = "The assigned employee cannot path to the source location.";
+				return false;
+			}
+		}
+
+		var resolvedItems = new List<(ICell Source, IGameItem Item)>();
+		foreach (var (item, source) in items)
+		{
+			var sourceItems = LocationItems(source);
+			var index = sourceItems.FindIndex(x => x.Id == item.Id);
+			if (index < 0 && (!_usePhysicalItemMovement || !source.GameItems.SelectMany(x => x.DeepItems).Any(x => x.Id == item.Id)))
+			{
+				reason = "The item is no longer at the source location.";
+				return false;
+			}
+
+			resolvedItems.Add((source, index >= 0
+				? sourceItems[index]
+				: source.GameItems.SelectMany(x => x.DeepItems).First(x => x.Id == item.Id)));
+		}
+
+		if (!_usePhysicalItemMovement ||
+		    resolvedItems.Any(x => _configuredLocationItems.Contains(x.Source.Id)) ||
+		    !CanUseInventoryPlan(actor))
+		{
+			foreach (var (source, item) in resolvedItems)
+			{
+				LocationItems(source).RemoveAll(x => x.Id == item.Id);
+				if (_usePhysicalItemMovement && !_configuredLocationItems.Contains(source.Id))
+				{
+					item.InInventoryOf?.Take(item);
+					item.ContainedIn?.Take(item);
+					source.Extract(item);
+				}
+			}
+
+			AddCarriedTaskItems(actor, resolvedItems.Select(x => x.Item));
+			reason = string.Empty;
+			return true;
+		}
+
+		var physicalSources = resolvedItems.Select(x => x.Source).DistinctBy(x => x.Id).ToList();
+		if (physicalSources.Count > 1)
+		{
+			reason = "A worker can only physically collect task items from one source location at a time.";
 			return false;
 		}
 
-		var collected = index >= 0
-			? sourceItems[index]
-			: source.GameItems.SelectMany(x => x.DeepItems).First(x => x.Id == item.Id);
-		if (index >= 0)
+		var physicalSource = physicalSources.Single();
+		if (actor.Location?.Id != physicalSource.Id)
 		{
-			sourceItems.RemoveAt(index);
+			reason = "The assigned employee must be at the source location to collect task items.";
+			return false;
 		}
 
-		if (_usePhysicalItemMovement && !_configuredLocationItems.Contains(source.Id))
+		var selectedItems = resolvedItems.Select(x => x.Item).DistinctBy(x => x.Id).ToList();
+		if (selectedItems.Count > 1 &&
+		    selectedItems.All(x => x.CanBeBundled) &&
+		    PileGameItemComponentProto.ItemPrototype is not null)
 		{
-			if (collected.ContainedIn is not null)
-			{
-				collected.ContainedIn.Take(collected);
-			}
-			else
-			{
-				source.Extract(collected);
-			}
+			return TryBundleAndCollectTaskItems(actor, physicalSource, selectedItems, out reason);
 		}
 
-		if (!_carriedTaskItems.TryGetValue(actor.Id, out var carried))
+		if (!TryHoldTaskItemsWithInventoryPlan(actor, selectedItems, out var collectedItems, out reason))
 		{
-			carried = new List<IGameItem>();
-			_carriedTaskItems[actor.Id] = carried;
+			return false;
 		}
 
-		carried.Add(collected);
+		foreach (var item in selectedItems)
+		{
+			LocationItems(physicalSource).RemoveAll(x => x.Id == item.Id);
+		}
+
+		AddCarriedTaskItems(actor, collectedItems);
 		reason = string.Empty;
 		return true;
 	}
@@ -274,6 +328,16 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 			return false;
 		}
 
+		if (_usePhysicalItemMovement && !_configuredLocationItems.Contains(destination.Id) && CanUseInventoryPlan(actor))
+		{
+			carried.RemoveAll(x => !ActorCarriesItem(actor, x));
+			if (carried.Count == 0)
+			{
+				reason = "The assigned employee is no longer carrying any task items to deliver.";
+				return false;
+			}
+		}
+
 		var destinationItems = LocationItems(destination);
 		var targetContainer = container;
 		if (targetContainer is null && !string.IsNullOrWhiteSpace(containerTag))
@@ -287,16 +351,17 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 			return false;
 		}
 
+		if (_usePhysicalItemMovement && !_configuredLocationItems.Contains(destination.Id) && CanUseInventoryPlan(actor))
+		{
+			return TryDeliverPhysicalTaskItems(actor, destination, targetContainer, destinationItems, carried, out reason);
+		}
+
+		var carriedDeliveryItems = carried
+		                           .SelectMany(DeliveryItemsFor)
+		                           .ToList();
 		if (targetContainer is null)
 		{
-			destinationItems.AddRange(carried);
-			if (_usePhysicalItemMovement && !_configuredLocationItems.Contains(destination.Id))
-			{
-				foreach (var item in carried)
-				{
-					destination.Insert(item);
-				}
-			}
+			destinationItems.AddRange(carriedDeliveryItems);
 		}
 		else
 		{
@@ -307,7 +372,7 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 				return false;
 			}
 
-			var rejected = carried.FirstOrDefault(x => !containerComponent.CanPut(x));
+			var rejected = carriedDeliveryItems.FirstOrDefault(x => !containerComponent.CanPut(x));
 			if (rejected is not null)
 			{
 				reason = $"{targetContainer.Name} cannot contain {rejected.Name}.";
@@ -320,19 +385,244 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 				_containerContents[targetContainer.Id] = contents;
 			}
 
-			contents.AddRange(carried);
-			if (_usePhysicalItemMovement && !_configuredLocationItems.Contains(destination.Id))
-			{
-				foreach (var item in carried)
-				{
-					containerComponent.Put(actor, item);
-				}
-			}
+			contents.AddRange(carriedDeliveryItems);
 		}
 
 		carried.Clear();
 		reason = string.Empty;
 		return true;
+	}
+
+	private bool TryDeliverPhysicalTaskItems(ICharacter actor, ICell destination, IGameItem? targetContainer,
+		List<IGameItem> destinationItems, List<IGameItem> carried, out string reason)
+	{
+		if (actor.Location?.Id != destination.Id)
+		{
+			reason = "The assigned employee must be at the delivery destination to deliver task items.";
+			return false;
+		}
+
+		var containerComponent = targetContainer?.GetItemType<IContainer>();
+		if (targetContainer is not null && containerComponent is null)
+		{
+			reason = $"{targetContainer.Name} is not a container.";
+			return false;
+		}
+
+		foreach (var item in carried)
+		{
+			if (_transportBundleIds.Contains(item.Id) && item.GetItemType<PileGameItemComponent>() is { } pile)
+			{
+				var contents = pile.Contents.ToList();
+				var rejected = containerComponent is null
+					? null
+					: contents.FirstOrDefault(x => !containerComponent.CanPut(x));
+				if (rejected is not null)
+				{
+					reason = $"{targetContainer!.Name} cannot contain {rejected.Name}.";
+					return false;
+				}
+
+				continue;
+			}
+
+			if (containerComponent is null)
+			{
+				if (!actor.Body.CanDrop(item, 0))
+				{
+					reason = actor.Body.WhyCannotDrop(item, 0);
+					return false;
+				}
+
+				continue;
+			}
+
+			if (!actor.Body.CanPut(item, targetContainer!, null, 0, false))
+			{
+				reason = actor.Body.WhyCannotPut(item, targetContainer!, null, 0, false);
+				return false;
+			}
+		}
+
+		foreach (var item in carried.ToList())
+		{
+			if (_transportBundleIds.Contains(item.Id) && item.GetItemType<PileGameItemComponent>() is { } pile)
+			{
+				var contents = pile.Contents.ToList();
+				pile.Empty(actor, containerComponent!, null);
+				_transportBundleIds.Remove(item.Id);
+				if (containerComponent is null)
+				{
+					destinationItems.AddRange(contents);
+				}
+				else
+				{
+					if (!_containerContents.TryGetValue(targetContainer!.Id, out var contained))
+					{
+						contained = new List<IGameItem>();
+						_containerContents[targetContainer.Id] = contained;
+					}
+
+					contained.AddRange(contents);
+				}
+
+				continue;
+			}
+
+			if (containerComponent is null)
+			{
+				actor.Body.Drop(item, 0, false, null, false);
+				destinationItems.Add(item);
+				continue;
+			}
+
+			actor.Body.Put(item, targetContainer!, null, 0, null, false, false);
+			if (!_containerContents.TryGetValue(targetContainer!.Id, out var targetContents))
+			{
+				targetContents = new List<IGameItem>();
+				_containerContents[targetContainer.Id] = targetContents;
+			}
+
+			targetContents.Add(item);
+		}
+
+		carried.Clear();
+		reason = string.Empty;
+		return true;
+	}
+
+	private IEnumerable<IGameItem> DeliveryItemsFor(IGameItem item)
+	{
+		if (_transportBundleIds.Contains(item.Id) && item.GetItemType<PileGameItemComponent>() is { } pile)
+		{
+			return pile.Contents;
+		}
+
+		return [item];
+	}
+
+	private bool TryBundleAndCollectTaskItems(ICharacter actor, ICell source, IReadOnlyCollection<IGameItem> items,
+		out string reason)
+	{
+		var bundle = PileGameItemComponentProto.CreateNewBundle(items);
+		actor.Gameworld.Add(bundle);
+		bundle.RoomLayer = actor.RoomLayer;
+		source.Insert(bundle, true);
+
+		if (!TryHoldTaskItemsWithInventoryPlan(actor, [bundle], out var collectedItems, out reason))
+		{
+			return false;
+		}
+
+		foreach (var item in items)
+		{
+			LocationItems(source).RemoveAll(x => x.Id == item.Id);
+		}
+
+		LocationItems(source).RemoveAll(x => x.Id == bundle.Id);
+		_transportBundleIds.Add(bundle.Id);
+		AddCarriedTaskItems(actor, collectedItems);
+		reason = string.Empty;
+		return true;
+	}
+
+	private static bool TryHoldTaskItemsWithInventoryPlan(ICharacter actor, IReadOnlyCollection<IGameItem> items,
+		out IReadOnlyCollection<IGameItem> collectedItems, out string reason)
+	{
+		collectedItems = [];
+		var plan = CreateHoldTaskItemsPlan(actor, items);
+		var feasibility = plan.PlanIsFeasible();
+		if (feasibility != InventoryPlanFeasibility.Feasible)
+		{
+			reason = InventoryPlanFeasibilityReason(feasibility);
+			return false;
+		}
+
+		var results = plan.ExecuteWholePlan().ToList();
+		var requestedItemIds = items.Select(x => x.Id).ToHashSet();
+		var resultItems = results
+		                  .Where(x => x.ActionState == DesiredItemState.Held)
+		                  .Select(x => x.PrimaryTarget)
+		                  .Where(x => x is not null)
+		                  .Where(x => requestedItemIds.Contains(x.Id))
+		                  .DistinctBy(x => x.Id)
+		                  .ToList();
+		plan.FinalisePlanWithExemptions(resultItems);
+
+		if (resultItems.Count < items.Count || items.Any(x => resultItems.All(y => y.Id != x.Id)))
+		{
+			reason = "The assigned employee could not get all of the required task items.";
+			return false;
+		}
+
+		var missing = resultItems.Where(x => !ActorCarriesItem(actor, x)).ToList();
+		if (missing.Any())
+		{
+			reason = $"The assigned employee got {missing.First().Name}, but could not keep hold of it.";
+			return false;
+		}
+
+		collectedItems = resultItems;
+		reason = string.Empty;
+		return true;
+	}
+
+	private static IInventoryPlan CreateHoldTaskItemsPlan(ICharacter actor, IReadOnlyCollection<IGameItem> items)
+	{
+		var actions = items.Select(item => InventoryPlanAction.LoadAction(
+			actor.Gameworld,
+			DesiredItemState.Held,
+			0,
+			0,
+			x => x == item,
+			null,
+			originalReference: "employment task item"));
+		return new InventoryPlanTemplate(actor.Gameworld, actions).CreatePlan(actor);
+	}
+
+	private static string InventoryPlanFeasibilityReason(InventoryPlanFeasibility feasibility)
+	{
+		return feasibility switch
+		{
+			InventoryPlanFeasibility.NotFeasibleMissingItems => "The assigned employee cannot find the required task items.",
+			InventoryPlanFeasibility.NotFeasibleNotEnoughHands => "The assigned employee does not have enough usable hands to collect the task items.",
+			InventoryPlanFeasibility.NotFeasibleNotEnoughWielders => "The assigned employee cannot free the required wielding bodyparts to collect the task items.",
+			_ => "The assigned employee cannot arrange their inventory to collect the task items."
+		};
+	}
+
+	private void AddCarriedTaskItems(ICharacter actor, IEnumerable<IGameItem> items)
+	{
+		if (!_carriedTaskItems.TryGetValue(actor.Id, out var carried))
+		{
+			carried = new List<IGameItem>();
+			_carriedTaskItems[actor.Id] = carried;
+		}
+
+		foreach (var item in items)
+		{
+			if (carried.All(x => x.Id != item.Id))
+			{
+				carried.Add(item);
+			}
+		}
+	}
+
+	private static bool ActorCarriesItem(ICharacter actor, IGameItem item)
+	{
+		return item.InInventoryOf == actor.Body || actor.Inventory.Any(x => x.Id == item.Id);
+	}
+
+	private static bool CanUseInventoryPlan(ICharacter actor)
+	{
+		if (actor.Body is null || actor.Location is null || actor.Gameworld is null)
+		{
+			return false;
+		}
+
+		return actor.Body.HoldLocs is not null &&
+		       actor.Body.WieldLocs is not null &&
+		       actor.Inventory is not null;
 	}
 
 	public void RecordRegister(EmploymentRegisterEntryType entryType, ICharacter? actor, string description,
@@ -519,6 +809,31 @@ public sealed class EmploymentTaskBoard : IEmploymentTaskBoard
 		return task;
 	}
 
+	public bool CancelActiveTask(IEmploymentActiveTask task, ICharacter? cancelledBy, string reason)
+	{
+		if (cancelledBy is not null && !_host.HasAuthority(cancelledBy, EmploymentAuthority.CancelTasks))
+		{
+			throw new InvalidOperationException($"{cancelledBy.HowSeen(cancelledBy, colour: false)} is not authorised to cancel tasks for {_host.EmploymentHostName}.");
+		}
+
+		if (task is not EmploymentActiveTask concrete || !_activeTasks.Contains(task))
+		{
+			return false;
+		}
+
+		if (task.Status is EmploymentTaskStatus.Completed or EmploymentTaskStatus.Cancelled or EmploymentTaskStatus.Failed)
+		{
+			return false;
+		}
+
+		reason = string.IsNullOrWhiteSpace(reason) ? "Cancelled by a manager." : reason.Trim();
+		concrete.Cancel(reason);
+		_host.EmploymentRegister.Record(EmploymentRegisterEntryType.ActiveTaskCancelled, cancelledBy,
+			$"Cancelled active task {task.Name}: {reason}", task.CorrelationId);
+		_host.DebugEmployment($"Cancelled active task {task.Name}: {reason}", cancelledBy?.Gameworld);
+		return true;
+	}
+
 	public IReadOnlyCollection<IEmploymentActiveTask> EvaluateScheduledRules(IEmploymentTaskContext context, DateTimeOffset now)
 	{
 		var spawned = new List<IEmploymentActiveTask>();
@@ -697,6 +1012,13 @@ public sealed class EmploymentActiveTask : IEmploymentActiveTask
 		_persistence?.SaveActiveTaskState(this);
 	}
 
+	public void Cancel(string reason)
+	{
+		Status = EmploymentTaskStatus.Cancelled;
+		BlockedReason = reason;
+		_persistence?.SaveActiveTaskState(this);
+	}
+
 	public void MarkStep(int index, EmploymentActionStepStatus status)
 	{
 		_stepStates[index] = status;
@@ -845,6 +1167,13 @@ public sealed class EmploymentTaskDispatcher
 			task.AssignedEmployee,
 			result.Message,
 			task.CorrelationId);
+		if (!result.Success && !result.Completed)
+		{
+			concrete.Block(result.Message);
+			context.RecordRegister(EmploymentRegisterEntryType.ActiveTaskBlocked, task.AssignedEmployee,
+				result.Message, task.CorrelationId);
+		}
+
 		context.Employer.DebugEmployment(
 			$"{task.AssignedEmployee.Name} {(result.Success ? "completed" : "did not complete")} step {index + 1:N0} of task {task.Name}: {result.Message}",
 			task.AssignedEmployee.Gameworld);

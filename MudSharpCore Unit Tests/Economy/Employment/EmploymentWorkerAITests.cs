@@ -10,6 +10,7 @@ using MudSharp.Arenas;
 using MudSharp.Body;
 using MudSharp.Character;
 using MudSharp.Character.Name;
+using MudSharp.Commands.Modules;
 using MudSharp.Community.Boards;
 using MudSharp.Construction;
 using MudSharp.Economy;
@@ -18,6 +19,7 @@ using MudSharp.Economy.Employment;
 using MudSharp.Economy.Property;
 using MudSharp.Effects;
 using MudSharp.Effects.Concrete;
+using MudSharp.Events;
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
@@ -49,6 +51,7 @@ public class EmploymentWorkerAITests
 		                                    <SearchEnabled>false</SearchEnabled>
 		                                    <TaskingEnabled>true</TaskingEnabled>
 		                                    <SearchCadenceMinutes>3</SearchCadenceMinutes>
+		                                    <MaximumUnpaidOverdueDays>5</MaximumUnpaidOverdueDays>
 		                                    <HostTypeFilter>Bank</HostTypeFilter>
 		                                    <AcceptedPaymentMethods>
 		                                      <Method>Cash</Method>
@@ -67,6 +70,7 @@ public class EmploymentWorkerAITests
 		Assert.IsFalse(ai.SearchEnabled);
 		Assert.IsTrue(ai.TaskingEnabled);
 		Assert.AreEqual(TimeSpan.FromMinutes(3), ai.SearchCadence);
+		Assert.AreEqual(5, ai.MaximumUnpaidOverdueDays);
 		Assert.AreEqual(EmploymentHostType.Bank, ai.HostTypeFilter);
 		Assert.IsTrue(ai.AcceptedPaymentMethods.Contains(PaymentMethodKind.EmployeeBankAccount));
 		Assert.IsTrue(ai.Capabilities.Contains(EmploymentAICapability.CanUseBankAccount));
@@ -76,6 +80,7 @@ public class EmploymentWorkerAITests
 		StringAssert.Contains(xml, "<Currency>1</Currency>");
 		StringAssert.Contains(xml, "EmployeeBankAccount");
 		StringAssert.Contains(xml, "CanUseBankAccount");
+		StringAssert.Contains(xml, "<MaximumUnpaidOverdueDays>5</MaximumUnpaidOverdueDays>");
 		StringAssert.Contains(xml, "<HostTypeFilter>Bank</HostTypeFilter>");
 	}
 
@@ -94,6 +99,7 @@ public class EmploymentWorkerAITests
 		Assert.IsTrue(ai.BuildingCommand(actor, new StringStack("host stable")));
 		Assert.IsTrue(ai.BuildingCommand(actor, new StringStack("range 12")));
 		Assert.IsTrue(ai.BuildingCommand(actor, new StringStack("cadence 2")));
+		Assert.IsTrue(ai.BuildingCommand(actor, new StringStack("arrears 4")));
 		Assert.IsFalse(ai.BuildingCommand(actor, new StringStack("capability notarealcapability")));
 
 		Assert.AreEqual(15.5M, ai.ReservationWage);
@@ -103,6 +109,7 @@ public class EmploymentWorkerAITests
 		Assert.AreEqual(EmploymentHostType.Stable, ai.HostTypeFilter);
 		Assert.AreEqual(12u, ai.MaxPathRange);
 		Assert.AreEqual(TimeSpan.FromMinutes(2), ai.SearchCadence);
+		Assert.AreEqual(4, ai.MaximumUnpaidOverdueDays);
 	}
 
 	[TestMethod]
@@ -251,6 +258,123 @@ public class EmploymentWorkerAITests
 	}
 
 	[TestMethod]
+	public void EmploymentWorkerAI_QuitsWhenUnsettledPayrollExceedsOverdueTolerance()
+	{
+		var currency = Currency();
+		var workplace = Cell(42, "stable");
+		var stable = Stable(42, "arrears stable", currency.Object, workplace.Object);
+		var gameworld = Gameworld(stables: [stable.Stable.Object], currencies: [currency.Object]);
+		var worker = Character(42, "Worker", gameworld.Object, workplace.Object).Object;
+		var contract = stable.State.Hire(worker, Offer(currency.Object, EmploymentRole.Employee), null);
+		AddPayable(stable.State, contract, currency.Object, DateTimeOffset.UtcNow.AddDays(-8));
+		var ai = LoadAI(gameworld.Object, """
+		                                  <Definition>
+		                                    <MaximumUnpaidOverdueDays>7</MaximumUnpaidOverdueDays>
+		                                    <AcceptedPaymentMethods><Method>Cash</Method></AcceptedPaymentMethods>
+		                                    <Capabilities><Capability>CanDeliverItems</Capability></Capabilities>
+		                                  </Definition>
+		                                  """);
+
+		var acted = ai.HandleMinuteTick(worker);
+
+		Assert.IsTrue(acted);
+		Assert.AreEqual(EmploymentStatus.Ended, contract.Status);
+		Assert.AreEqual(EmploymentTerminationReason.UnpaidWages, contract.EndReason);
+		Assert.IsTrue(stable.State.EmploymentRegister.Entries.Any(x =>
+			x.EntryType == EmploymentRegisterEntryType.EmployeeResignedUnpaid));
+		gameworld.Verify(x => x.DebugMessage(It.Is<string>(text => text.Contains("unpaid wages"))),
+			Times.AtLeastOnce);
+	}
+
+	[TestMethod]
+	public void EmploymentWorkerAI_MinuteTickDoesNotClaimReadyPayroll()
+	{
+		var currency = Currency();
+		var workplace = Cell(43, "stable");
+		var stable = Stable(43, "claim stable", currency.Object, workplace.Object);
+		var gameworld = Gameworld(stables: [stable.Stable.Object], currencies: [currency.Object]);
+		var worker = Character(43, "Worker", gameworld.Object, workplace.Object).Object;
+		var contract = stable.State.Hire(worker, Offer(currency.Object, EmploymentRole.Employee), null);
+		AddPayable(stable.State, contract, currency.Object, DateTimeOffset.UtcNow.AddHours(-1),
+			EmploymentPayableStatus.ReadyToClaim, PaymentMethodKind.EmployeeBankAccount);
+		var ai = LoadAI(gameworld.Object);
+
+		ai.HandleMinuteTick(worker);
+
+		Assert.AreEqual(EmploymentPayableStatus.ReadyToClaim, stable.State.Payroll.Payables.Single().Status);
+		Assert.IsTrue(ai.HandlesEvent(EventType.HourTick));
+	}
+
+	[TestMethod]
+	public void EmploymentWorkerAI_HourTickClaimsReadyPayrollWhenIdleAtWorkplace()
+	{
+		var currency = Currency();
+		var workplace = Cell(44, "stable");
+		var stable = Stable(44, "claim stable", currency.Object, workplace.Object);
+		var gameworld = Gameworld(stables: [stable.Stable.Object], currencies: [currency.Object]);
+		var worker = Character(44, "Worker", gameworld.Object, workplace.Object).Object;
+		var contract = stable.State.Hire(worker, Offer(currency.Object, EmploymentRole.Employee), null);
+		AddPayable(stable.State, contract, currency.Object, DateTimeOffset.UtcNow.AddHours(-1),
+			EmploymentPayableStatus.ReadyToClaim, PaymentMethodKind.EmployeeBankAccount);
+		var ai = LoadAI(gameworld.Object);
+
+		var acted = ai.HandleEvent(EventType.HourTick, worker);
+
+		Assert.IsTrue(acted);
+		Assert.AreEqual(EmploymentPayableStatus.Claimed, stable.State.Payroll.Payables.Single().Status);
+		Assert.IsTrue(stable.State.EmploymentRegister.Entries.Any(x =>
+			x.EntryType == EmploymentRegisterEntryType.WageClaimed));
+		gameworld.Verify(x => x.DebugMessage(It.Is<string>(text => text.Contains("claimed payroll payable"))),
+			Times.AtLeastOnce);
+	}
+
+	[TestMethod]
+	public void EmploymentWorkerAI_DoesNotClaimPayrollWhileAssignedTask()
+	{
+		var currency = Currency();
+		var workplace = Cell(45, "stable");
+		var stable = Stable(45, "claim stable", currency.Object, workplace.Object);
+		var gameworld = Gameworld(stables: [stable.Stable.Object], currencies: [currency.Object]);
+		var worker = Character(45, "Worker", gameworld.Object, workplace.Object).Object;
+		var contract = stable.State.Hire(worker, Offer(currency.Object, EmploymentRole.Employee), null);
+		AddPayable(stable.State, contract, currency.Object, DateTimeOffset.UtcNow.AddHours(-1),
+			EmploymentPayableStatus.ReadyToClaim, PaymentMethodKind.EmployeeBankAccount);
+		var task = stable.State.TaskBoard.CreateActiveTask(
+			"Stable task",
+			new EmploymentActionPlan(new[] { new DeliverItemsActionStep(workplace.Object) }),
+			null);
+		((EmploymentActiveTask)task).Assign(worker);
+		var ai = LoadAI(gameworld.Object);
+
+		var result = ai.EvaluatePayrollClaim(worker);
+
+		Assert.IsFalse(result.Acted);
+		Assert.AreEqual(EmploymentPayableStatus.ReadyToClaim, stable.State.Payroll.Payables.Single().Status);
+		StringAssert.Contains(result.Message, "middle of an employment task");
+	}
+
+	[TestMethod]
+	public void ImpDebugPayrollClaimForcesEmploymentWorkerAiEvaluation()
+	{
+		var currency = Currency();
+		var workplace = Cell(46, "stable");
+		var stable = Stable(46, "claim stable", currency.Object, workplace.Object);
+		var gameworld = Gameworld(stables: [stable.Stable.Object], currencies: [currency.Object]);
+		var worker = Character(46, "Worker", gameworld.Object, workplace.Object).Object;
+		var admin = Character(47, "Admin", gameworld.Object, workplace.Object, administrator: true).Object;
+		var contract = stable.State.Hire(worker, Offer(currency.Object, EmploymentRole.Employee), null);
+		AddPayable(stable.State, contract, currency.Object, DateTimeOffset.UtcNow.AddHours(-1),
+			EmploymentPayableStatus.ReadyToClaim, PaymentMethodKind.EmployeeBankAccount);
+		var ai = LoadAI(gameworld.Object);
+
+		var output = ImplementorModule.DebugForceEmploymentWorkerPayrollClaims([(worker, ai)], admin);
+
+		Assert.AreEqual(EmploymentPayableStatus.Claimed, stable.State.Payroll.Payables.Single().Status);
+		StringAssert.Contains(output, "Forced EmploymentWorkerAI payroll-claim evaluation");
+		StringAssert.Contains(output, "Claimed");
+	}
+
+	[TestMethod]
 	public void EmploymentWorkerAI_ClaimsAndAdvancesRetrievalDeliveryTaskWithoutBoardPosts()
 	{
 		var currency = Currency();
@@ -270,21 +394,18 @@ public class EmploymentWorkerAITests
 			"Move apples",
 			new EmploymentActionPlan(new IEmploymentActionStep[]
 			{
-				new GetItemsByIdActionStep(1, [item.Object.Id], [workplace.Object]),
+				new GetItemsByIdActionStep(1, [item.Object.Prototype.Id], [workplace.Object]),
 				new DeliverItemsActionStep(workplace.Object)
 			}),
 			null);
 		var ai = LoadAI(gameworld.Object);
 
 		Assert.IsTrue(ai.HandleMinuteTick(worker));
-		Assert.AreEqual(EmploymentTaskStatus.InProgress, task.Status);
-		Assert.AreEqual(EmploymentActionStepStatus.Completed, task.StepStates[0]);
-		Assert.AreEqual(0, cellItems.Count);
-
-		Assert.IsTrue(ai.HandleMinuteTick(worker));
 		Assert.AreEqual(EmploymentTaskStatus.Completed, task.Status);
+		Assert.AreEqual(EmploymentActionStepStatus.Completed, task.StepStates[0]);
 		Assert.AreEqual(EmploymentActionStepStatus.Completed, task.StepStates[1]);
 		Assert.AreEqual(1, cellItems.Count);
+		Mock.Get(worker.Body).Verify(x => x.Drop(item.Object, 0, false, null, false), Times.Once);
 		Assert.IsTrue(host.State.EmploymentRegister.Entries.Any(x =>
 			x.EntryType == EmploymentRegisterEntryType.ActiveTaskAssigned));
 		Assert.IsTrue(host.State.EmploymentRegister.Entries.Any(x =>
@@ -296,6 +417,80 @@ public class EmploymentWorkerAITests
 			Times.AtLeastOnce);
 		gameworld.Verify(x => x.DebugMessage(It.Is<string>(text => text.Contains("advanced task Move apples"))),
 			Times.AtLeastOnce);
+	}
+
+	[TestMethod]
+	public void EmploymentWorkerAI_FreesHandsWithInventoryPlanBeforeCollectingTaskItems()
+	{
+		var currency = Currency();
+		var workplace = Cell(33, "stockroom");
+		var item = Item(333, "socks");
+		var cellItems = new List<IGameItem> { item.Object };
+		workplace.SetupGet(x => x.GameItems).Returns(() => cellItems);
+		workplace.Setup(x => x.Extract(It.IsAny<IGameItem>()))
+		         .Callback<IGameItem>(target => cellItems.RemoveAll(x => x.Id == target.Id));
+		var host = Shop(33, "task shop", currency.Object, workplace.Object);
+		var gameworld = Gameworld(shops: [host.Shop.Object], currencies: [currency.Object]);
+		var worker = Character(33, "Worker", gameworld.Object, workplace.Object).Object;
+		worker.Body.Get(Item(334, "brush").Object);
+		worker.Body.Get(Item(335, "ledger").Object);
+		host.State.Hire(worker, Offer(currency.Object, EmploymentRole.Employee, EmploymentAuthority.ManageDeliveryRoutes), null);
+		var task = host.State.TaskBoard.CreateActiveTask(
+			"Collect socks",
+			new EmploymentActionPlan(new IEmploymentActionStep[]
+			{
+				new GetItemsByIdActionStep(1, [item.Object.Prototype.Id], [workplace.Object])
+			}),
+			null);
+		var ai = LoadAI(gameworld.Object);
+
+		Assert.IsTrue(ai.HandleMinuteTick(worker));
+
+		Assert.AreEqual(EmploymentTaskStatus.Completed, task.Status, task.BlockedReason);
+		Assert.AreEqual(EmploymentActionStepStatus.Completed, task.StepStates[0]);
+		Assert.IsTrue(worker.Inventory.Any(x => x.Id == item.Object.Id));
+		Assert.IsFalse(cellItems.Any(x => x.Id == item.Object.Id));
+	}
+
+	[TestMethod]
+	public void EmploymentWorkerAI_BlocksDeliveryWhenTaskItemIsNoLongerCarried()
+	{
+		var currency = Currency();
+		var workplace = Cell(34, "stockroom");
+		var item = Item(340, "socks");
+		var cellItems = new List<IGameItem> { item.Object };
+		workplace.SetupGet(x => x.GameItems).Returns(() => cellItems);
+		workplace.Setup(x => x.Extract(It.IsAny<IGameItem>()))
+		         .Callback<IGameItem>(target => cellItems.RemoveAll(x => x.Id == target.Id));
+		workplace.Setup(x => x.Insert(It.IsAny<IGameItem>(), It.IsAny<bool>()))
+		         .Callback<IGameItem, bool>((target, _) => cellItems.Add(target));
+		var host = Shop(34, "task shop", currency.Object, workplace.Object);
+		var gameworld = Gameworld(shops: [host.Shop.Object], currencies: [currency.Object]);
+		var worker = Character(34, "Worker", gameworld.Object, workplace.Object).Object;
+		host.State.Hire(worker, Offer(currency.Object, EmploymentRole.Employee, EmploymentAuthority.ManageDeliveryRoutes), null);
+		var task = host.State.TaskBoard.CreateActiveTask(
+			"Move socks",
+			new EmploymentActionPlan(new IEmploymentActionStep[]
+			{
+				new GetItemsByIdActionStep(1, [item.Object.Prototype.Id], [workplace.Object]),
+				new DeliverItemsActionStep(workplace.Object)
+			}),
+			null);
+		var dispatcher = new EmploymentTaskDispatcher();
+		var context = new EmploymentTaskContext(host.Shop.Object, usePhysicalItemMovement: true);
+		var profile = Profile(worker);
+
+		Assert.IsTrue(dispatcher.TryAssignTask(task, [profile], context, out var assignReason), assignReason);
+		var collectResult = dispatcher.AdvanceTask(task, context);
+		Assert.IsTrue(collectResult.Success, collectResult.Message);
+		worker.Body.Take(item.Object);
+		var deliverResult = dispatcher.AdvanceTask(task, context);
+
+		Assert.IsFalse(deliverResult.Success);
+		Assert.AreEqual(EmploymentTaskStatus.Blocked, task.Status);
+		StringAssert.Contains(task.BlockedReason, "no longer carrying");
+		Assert.AreEqual(EmploymentActionStepStatus.Blocked, task.StepStates[1]);
+		Assert.IsFalse(cellItems.Any(x => x.Id == item.Object.Id));
 	}
 
 	[TestMethod]
@@ -318,7 +513,7 @@ public class EmploymentWorkerAITests
 			[],
 			new EmploymentActionPlan(new IEmploymentActionStep[]
 			{
-				new GetItemsByIdActionStep(1, [item.Object.Id], [workplace.Object])
+				new GetItemsByIdActionStep(1, [item.Object.Prototype.Id], [workplace.Object])
 			}),
 			TimeSpan.FromHours(1),
 			null);
@@ -349,7 +544,7 @@ public class EmploymentWorkerAITests
 			"Move crates",
 			new EmploymentActionPlan(new IEmploymentActionStep[]
 			{
-				new GetItemsByIdActionStep(1, [item.Object.Id], [workplace.Object])
+				new GetItemsByIdActionStep(1, [item.Object.Prototype.Id], [workplace.Object])
 			}),
 			null);
 		var ai = LoadAI(gameworld.Object, """
@@ -443,12 +638,17 @@ public class EmploymentWorkerAITests
 		shop.SetupGet(x => x.EmploymentContracts).Returns(() => state.EmploymentContracts);
 		shop.SetupGet(x => x.JobOpenings).Returns(() => state.JobOpenings);
 		shop.SetupGet(x => x.TaskBoard).Returns(() => state.TaskBoard);
+		shop.SetupGet(x => x.Payroll).Returns(() => state.Payroll);
 		shop.SetupGet(x => x.EmploymentRegister).Returns(() => state.EmploymentRegister);
 		shop.SetupGet(x => x.BusinessLedger).Returns(() => state.BusinessLedger);
 		shop.SetupGet(x => x.Board).Returns(() => state.Board);
 		shop.SetupGet(x => x.ManagerGoalBoard).Returns(() => state.ManagerGoalBoard);
 		shop.Setup(x => x.HasAuthority(It.IsAny<ICharacter>(), It.IsAny<EmploymentAuthority>()))
 		    .Returns((ICharacter actor, EmploymentAuthority authority) => state.HasAuthority(actor, authority));
+		shop.Setup(x => x.Fire(It.IsAny<IEmploymentContract>(), It.IsAny<EmploymentTerminationReason>(),
+			    It.IsAny<ICharacter?>()))
+		    .Callback<IEmploymentContract, EmploymentTerminationReason, ICharacter?>((contract, reason, authorisedBy) =>
+			    state.Fire(contract, reason, authorisedBy));
 		return (shop, state);
 	}
 
@@ -467,12 +667,17 @@ public class EmploymentWorkerAITests
 		stable.SetupGet(x => x.EmploymentContracts).Returns(() => state.EmploymentContracts);
 		stable.SetupGet(x => x.JobOpenings).Returns(() => state.JobOpenings);
 		stable.SetupGet(x => x.TaskBoard).Returns(() => state.TaskBoard);
+		stable.SetupGet(x => x.Payroll).Returns(() => state.Payroll);
 		stable.SetupGet(x => x.EmploymentRegister).Returns(() => state.EmploymentRegister);
 		stable.SetupGet(x => x.BusinessLedger).Returns(() => state.BusinessLedger);
 		stable.SetupGet(x => x.Board).Returns(() => state.Board);
 		stable.SetupGet(x => x.ManagerGoalBoard).Returns(() => state.ManagerGoalBoard);
 		stable.Setup(x => x.HasAuthority(It.IsAny<ICharacter>(), It.IsAny<EmploymentAuthority>()))
 		      .Returns((ICharacter actor, EmploymentAuthority authority) => state.HasAuthority(actor, authority));
+		stable.Setup(x => x.Fire(It.IsAny<IEmploymentContract>(), It.IsAny<EmploymentTerminationReason>(),
+			      It.IsAny<ICharacter?>()))
+		      .Callback<IEmploymentContract, EmploymentTerminationReason, ICharacter?>((contract, reason, authorisedBy) =>
+			      state.Fire(contract, reason, authorisedBy));
 		return (stable, state);
 	}
 
@@ -513,6 +718,7 @@ public class EmploymentWorkerAITests
 		gameworld.SetupGet(x => x.Stables).Returns(stableCollection);
 		gameworld.SetupGet(x => x.Properties).Returns(propertyCollection);
 		gameworld.SetupGet(x => x.Currencies).Returns(currencyCollection);
+		gameworld.SetupGet(x => x.Tags).Returns(new All<ITag>());
 		gameworld.Setup(x => x.GetStaticLong("DefaultCurrencyID"))
 		         .Returns(() => currencyCollection.FirstOrDefault()?.Id ?? 0L);
 		gameworld.SetupGet(x => x.SaveManager).Returns(new Mock<ISaveManager>().Object);
@@ -541,17 +747,24 @@ public class EmploymentWorkerAITests
 		cell.SetupGet(x => x.Location).Returns(cell.Object);
 		cell.SetupGet(x => x.GameItems).Returns(Array.Empty<IGameItem>());
 		cell.SetupGet(x => x.Characters).Returns(Array.Empty<ICharacter>());
+		cell.Setup(x => x.LayerGameItems(It.IsAny<RoomLayer>())).Returns((RoomLayer _) => cell.Object.GameItems);
 		cell.Setup(x => x.GetFriendlyReference(It.IsAny<IPerceiver>())).Returns(name);
 		return cell;
 	}
 
 	private static Mock<IGameItem> Item(long id, string name)
 	{
+		var proto = new Mock<IGameItemProto>();
+		proto.SetupGet(x => x.Id).Returns(id);
+		proto.SetupGet(x => x.ShortDescription).Returns(name);
 		var item = new Mock<IGameItem>();
 		item.SetupGet(x => x.Id).Returns(id);
 		item.SetupGet(x => x.Name).Returns(name);
+		item.SetupGet(x => x.Prototype).Returns(proto.Object);
 		item.SetupGet(x => x.DeepItems).Returns(() => [item.Object]);
 		item.SetupGet(x => x.Tags).Returns(Array.Empty<ITag>());
+		item.Setup(x => x.Equals(It.IsAny<IGameItem>()))
+		    .Returns((IGameItem other) => other is not null && other.Id == id);
 		return item;
 	}
 
@@ -561,8 +774,112 @@ public class EmploymentWorkerAITests
 		var personalName = new Mock<IPersonalName>();
 		personalName.Setup(x => x.GetName(It.IsAny<NameStyle>())).Returns(name);
 		var body = new Mock<IBody>();
+		var inventory = new List<IGameItem>();
+		var grabOne = new Mock<IGrab>();
+		var grabTwo = new Mock<IGrab>();
+		var holdLocations = new IGrab[] { grabOne.Object, grabTwo.Object };
+		var heldLocationByItem = new Dictionary<IGameItem, IBodypart>();
+		void MarkHeld(IGameItem item)
+		{
+			if (inventory.All(x => x.Id != item.Id))
+			{
+				inventory.Add(item);
+			}
+
+			heldLocationByItem[item] = holdLocations.FirstOrDefault(x => heldLocationByItem.Values.All(y => y != x)) ?? holdLocations[0];
+			Mock.Get(item).SetupGet(x => x.InInventoryOf).Returns(body.Object);
+			location.Extract(item);
+		}
+
+		void MarkNotHeld(IGameItem item)
+		{
+			inventory.RemoveAll(x => x.Id == item.Id);
+			heldLocationByItem.Remove(item);
+			Mock.Get(item).SetupGet(x => x.InInventoryOf).Returns((IBody)null!);
+		}
+
+		body.SetupGet(x => x.HoldLocs).Returns(holdLocations);
+		body.SetupGet(x => x.WieldLocs).Returns([]);
+		body.SetupGet(x => x.HeldItems).Returns(() => inventory);
+		body.SetupGet(x => x.HeldOrWieldedItems).Returns(() => inventory);
+		body.SetupGet(x => x.WieldedItems).Returns([]);
+		body.SetupGet(x => x.WornItems).Returns([]);
 		body.Setup(x => x.LookText(It.IsAny<IPerceivable>(), It.IsAny<bool>())).Returns(name);
-		body.SetupGet(x => x.ExternalItems).Returns(Array.Empty<IGameItem>());
+		body.SetupGet(x => x.DirectItems).Returns(() => inventory);
+		body.SetupGet(x => x.ExternalItems).Returns(() => inventory);
+		body.Setup(x => x.HeldItemsFor(It.IsAny<IBodypart>()))
+		    .Returns((IBodypart part) => heldLocationByItem.Where(x => x.Value == part).Select(x => x.Key).ToList());
+		body.Setup(x => x.WieldedItemsFor(It.IsAny<IBodypart>())).Returns([]);
+		body.Setup(x => x.HoldOrWieldLocFor(It.IsAny<IGameItem>()))
+		    .Returns((IGameItem item) => heldLocationByItem.TryGetValue(item, out var part) ? part : null!);
+		body.Setup(x => x.CanUseBodypart(It.IsAny<IBodypart>())).Returns(CanUseBodypartResult.CanUse);
+		body.Setup(x => x.CanGet(
+			        It.IsAny<IGameItem>(),
+			        It.IsAny<int>(),
+			        It.IsAny<ItemCanGetIgnore>()))
+		    .Returns(true);
+		body.Setup(x => x.Get(
+			        It.IsAny<IGameItem>(),
+			        It.IsAny<int>(),
+			        null,
+			        It.IsAny<bool>(),
+			        It.IsAny<ItemCanGetIgnore>()))
+		    .Callback<IGameItem, int, IEmote?, bool, ItemCanGetIgnore>((item, _, _, _, _) =>
+		    {
+			    MarkHeld(item);
+		    });
+		body.As<IInventory>()
+		    .Setup(x => x.Get(
+			    It.IsAny<IGameItem>(),
+			    It.IsAny<int>(),
+			    null,
+			    It.IsAny<bool>(),
+			    It.IsAny<ItemCanGetIgnore>()))
+		    .Callback<IGameItem, int, IEmote?, bool, ItemCanGetIgnore>((item, _, _, _, _) =>
+		    {
+			    MarkHeld(item);
+		    });
+		body.Setup(x => x.Take(It.IsAny<IGameItem>()))
+		    .Callback<IGameItem>(MarkNotHeld);
+		body.Setup(x => x.CanDrop(It.IsAny<IGameItem>(), It.IsAny<int>()))
+		    .Returns(true);
+		body.Setup(x => x.WhyCannotDrop(It.IsAny<IGameItem>(), It.IsAny<int>()))
+		    .Returns("Cannot drop.");
+		body.Setup(x => x.Drop(
+			        It.IsAny<IGameItem>(),
+			        It.IsAny<int>(),
+			        It.IsAny<bool>(),
+			        It.Is<IEmote?>(_ => true),
+			        It.IsAny<bool>()))
+		    .Callback<IGameItem, int, bool, IEmote?, bool>((item, _, _, _, _) =>
+		    {
+			    MarkNotHeld(item);
+			    location.Insert(item, true);
+		    });
+		body.Setup(x => x.CanPut(
+			        It.IsAny<IGameItem>(),
+			        It.IsAny<IGameItem>(),
+			        It.IsAny<ICharacter?>(),
+			        It.IsAny<int>(),
+			        It.IsAny<bool>()))
+		    .Returns(true);
+		body.Setup(x => x.WhyCannotPut(
+			        It.IsAny<IGameItem>(),
+			        It.IsAny<IGameItem>(),
+			        It.IsAny<ICharacter?>(),
+			        It.IsAny<int>(),
+			        It.IsAny<bool>()))
+		    .Returns("Cannot put.");
+		body.Setup(x => x.Put(
+			        It.IsAny<IGameItem>(),
+			        It.IsAny<IGameItem>(),
+			        It.IsAny<ICharacter?>(),
+			        It.IsAny<int>(),
+			        It.Is<IEmote?>(_ => true),
+			        It.IsAny<bool>(),
+			        It.IsAny<bool>()))
+		    .Callback<IGameItem, IGameItem, ICharacter?, int, IEmote?, bool, bool>((item, _, _, _, _, _, _) =>
+			    MarkNotHeld(item));
 		var output = new Mock<IOutputHandler>();
 		output.Setup(x => x.Send(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>())).Returns(true);
 		var account = new Mock<IAccount>();
@@ -575,6 +892,8 @@ public class EmploymentWorkerAITests
 		character.SetupGet(x => x.CurrentName).Returns(personalName.Object);
 		character.SetupGet(x => x.Body).Returns(body.Object);
 		character.SetupGet(x => x.Location).Returns(location);
+		character.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
+		character.SetupGet(x => x.Inventory).Returns(() => inventory);
 		character.SetupGet(x => x.OutputHandler).Returns(output.Object);
 		character.SetupGet(x => x.Account).Returns(account.Object);
 		character.SetupGet(x => x.State).Returns(CharacterState.Awake);
@@ -676,6 +995,35 @@ public class EmploymentWorkerAITests
 			PayCadence.Hourly,
 			new MoneyAmount(currency, amount),
 			PaymentSource.HostCash);
+	}
+
+	private static void AddPayable(EmploymentHostState state, IEmploymentContract contract, ICurrency currency,
+		DateTimeOffset dueAt, EmploymentPayableStatus status = EmploymentPayableStatus.Accrued,
+		PaymentMethodKind paymentMethod = PaymentMethodKind.Cash)
+	{
+		var payables = (List<IEmploymentPayable>)typeof(EmploymentPayroll)
+		                                      .GetField("_payables", BindingFlags.Instance | BindingFlags.NonPublic)!
+		                                      .GetValue(state.Payroll)!;
+		var id = payables.Select(x => x.Id).DefaultIfEmpty().Max() + 1;
+		payables.Add(new EmploymentPayable(
+			id,
+			Guid.NewGuid(),
+			state.Host,
+			contract.Id,
+			contract.Employee.Id,
+			contract.Employee.Name,
+			contract.Role,
+			new MoneyAmount(currency, 10.0M),
+			PayCadence.Daily,
+			new PaymentMethod(paymentMethod),
+			dueAt.AddDays(-1),
+			dueAt,
+			dueAt,
+			dueAt,
+			status,
+			status == EmploymentPayableStatus.ReadyToClaim ? dueAt : null,
+			null,
+			null));
 	}
 
 	private static bool ContainsType(Type type, Type target)

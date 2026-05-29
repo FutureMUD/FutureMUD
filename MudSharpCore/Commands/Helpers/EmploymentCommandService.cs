@@ -150,6 +150,11 @@ internal sealed class EmploymentCommandService
 			case "apps":
 				HandleApplications(actor, host, input);
 				return;
+			case "payroll":
+			case "payables":
+			case "wages":
+				HandlePayroll(actor, host, input);
+				return;
 			case "tasks":
 			case "task":
 				HandleTasks(actor, host, input);
@@ -189,6 +194,7 @@ internal sealed class EmploymentCommandService
 			"delegations" or "delegation" or "delegate" or "authority" or "authorities" or
 			"openings" or "opening" or "jobs" or
 			"applications" or "application" or "apps" or
+			"payroll" or "payables" or "wages" or
 			"tasks" or "task" or
 			"rules" or "rule" or "scheduled" or "schedule" or
 			"goals" or "goal" or
@@ -225,6 +231,18 @@ internal sealed class EmploymentCommandService
 	public bool CanViewOpenings(ICharacter actor, IEmploymentHost host)
 	{
 		return CanViewOperational(actor, host) || host.JobOpenings.Any(x => x.Status == JobOpeningStatus.Open);
+	}
+
+	public bool CanViewPayroll(ICharacter actor, IEmploymentHost host)
+	{
+		return CanViewOperational(actor, host) || host.Payroll.Payables.Any(x => x.EmployeeId == actor.Id);
+	}
+
+	public bool CanViewAllPayroll(ICharacter actor, IEmploymentHost host)
+	{
+		return actor.IsAdministrator() ||
+		       host.HasAuthority(actor, EmploymentAuthority.ViewEmployees) ||
+		       host.HasAuthority(actor, EmploymentAuthority.ManagePayroll);
 	}
 
 	public bool CanPostToBoard(ICharacter actor, IEmploymentHost host)
@@ -412,6 +430,124 @@ internal sealed class EmploymentCommandService
 		}
 	}
 
+	public bool TryRunPayroll(ICharacter actor, IEmploymentHost host, out IReadOnlyCollection<IEmploymentPayable> created,
+		out string message)
+	{
+		created = Array.Empty<IEmploymentPayable>();
+		if (!TryRequireAuthority(actor, host, EmploymentAuthority.ManagePayroll, out message))
+		{
+			return false;
+		}
+
+		created = host.Payroll.EvaluatePayroll();
+		message = created.Any()
+			? $"Payroll evaluation accrued {created.Count.ToString("N0", actor).ColourValue()} payable{(created.Count == 1 ? string.Empty : "s")} for {host.EmploymentHostName.ColourName()}."
+			: $"Payroll evaluation found no new payable wages for {host.EmploymentHostName.ColourName()}.";
+		return true;
+	}
+
+	public bool TrySettlePayroll(ICharacter actor, IEmploymentHost host, string selector, string reason,
+		out string message)
+	{
+		if (!TryRequireAuthority(actor, host, EmploymentAuthority.ManagePayroll, out message))
+		{
+			return false;
+		}
+
+		host.Payroll.EvaluatePayroll();
+		var outstanding = host.Payroll.OutstandingLiabilities
+		                      .OrderBy(x => x.DueAt)
+		                      .ThenBy(x => x.Id)
+		                      .ToList();
+		var targets = SelectPayables(outstanding, selector);
+		if (!targets.Any())
+		{
+			message = $"There is no outstanding employment payable matching {selector.ColourCommand()}.";
+			return false;
+		}
+
+		return host.Payroll.TrySettlePayables(targets, actor, true, reason, out message);
+	}
+
+	public bool TryClaimPayroll(ICharacter actor, IEmploymentHost host, string selector, out string message)
+	{
+		host.Payroll.EvaluatePayroll();
+		var claimable = host.Payroll.ClaimablePayablesFor(actor)
+		                    .OrderBy(x => x.DueAt)
+		                    .ThenBy(x => x.Id)
+		                    .ToList();
+		var targets = SelectPayables(claimable, selector);
+		if (!targets.Any())
+		{
+			var outstanding = host.Payroll.Payables
+			                      .Where(x => x.EmployeeId == actor.Id)
+			                      .Count(x => x.Status == EmploymentPayableStatus.Accrued);
+			if (outstanding > 0)
+			{
+				message = $"You have {outstanding.ToString("N0", actor).ColourValue()} outstanding employment payable{(outstanding == 1 ? string.Empty : "s")}, but {(outstanding == 1 ? "it has" : "they have")} not been settled by the employer yet.";
+				return false;
+			}
+
+			message = $"There is no claimable employment payable matching {selector.ColourCommand()}.";
+			return false;
+		}
+
+		var messages = new List<string>();
+		foreach (var target in targets)
+		{
+			if (!host.Payroll.TryClaimPayable(target, actor, out var claimMessage))
+			{
+				message = claimMessage;
+				return false;
+			}
+
+			messages.Add(claimMessage);
+		}
+
+		message = messages.Count == 1
+			? messages[0]
+			: $"You claim {messages.Count.ToString("N0", actor).ColourValue()} employment payables from {host.EmploymentHostName.ColourName()}.";
+		return true;
+	}
+
+	public bool TryCancelTask(ICharacter actor, IEmploymentHost host, string selector, string reason, out string message)
+	{
+		if (!TryRequireAuthority(actor, host, EmploymentAuthority.CancelTasks, out message))
+		{
+			return false;
+		}
+
+		var task = ActiveTaskBySelector(host, selector);
+		if (task is null)
+		{
+			message = $"There is no active employment task matching {selector.ColourCommand()}.";
+			return false;
+		}
+
+		if (task.Status is EmploymentTaskStatus.Completed or EmploymentTaskStatus.Cancelled or EmploymentTaskStatus.Failed)
+		{
+			message = $"The task {task.Name.ColourName()} is already {task.Status.DescribeEnum().ColourValue()} and cannot be cancelled.";
+			return false;
+		}
+
+		try
+		{
+			if (!host.TaskBoard.CancelActiveTask(task, actor, reason))
+			{
+				message = $"The task {task.Name.ColourName()} could not be cancelled.";
+				return false;
+			}
+		}
+		catch (InvalidOperationException ex)
+		{
+			message = ex.Message;
+			return false;
+		}
+
+		message = $"You cancel employment task {task.Name.ColourName()}.";
+		return true;
+	}
+
 	public bool TrySetContractAuthority(ICharacter actor, IEmploymentHost host, long contractId,
 		EmploymentAuthoritySet authority, out string message)
 	{
@@ -575,6 +711,7 @@ internal sealed class EmploymentCommandService
 		sb.AppendLine($"Contracts: {contracts.Count(x => x.Status == EmploymentStatus.Active).ToString("N0", actor).ColourValue()} active, {contracts.Count(x => x.Status == EmploymentStatus.Ended).ToString("N0", actor).ColourValue()} ended");
 		sb.AppendLine($"Job Openings: {openings.Count(x => x.Status == JobOpeningStatus.Open).ToString("N0", actor).ColourValue()} open, {openings.Count.ToString("N0", actor).ColourValue()} total");
 		sb.AppendLine($"Applications: {host.Employment.Applications.Count.ToString("N0", actor).ColourValue()}");
+		sb.AppendLine($"Payroll Liabilities: {host.Payroll.OutstandingLiabilities.Count.ToString("N0", actor).ColourValue()} outstanding, {host.Payroll.MaximumOverdueDays().ToString("N0", actor).ColourValue()} days max overdue");
 		sb.AppendLine($"Active Tasks: {tasks.Count(x => x.Status is not EmploymentTaskStatus.Completed and not EmploymentTaskStatus.Cancelled and not EmploymentTaskStatus.Failed).ToString("N0", actor).ColourValue()}");
 		sb.AppendLine($"Manager Goals: {goals.Count(x => x.Status == ManagerGoalStatus.Active).ToString("N0", actor).ColourValue()} active");
 		sb.AppendLine($"Board Posts: {host.Board.Posts.Count().ToString("N0", actor).ColourValue()}");
@@ -640,6 +777,45 @@ internal sealed class EmploymentCommandService
 		return sb.ToString();
 	}
 
+	public string RenderPayroll(ICharacter actor, IEmploymentHost host)
+	{
+		if (!CanViewPayroll(actor, host))
+		{
+			return $"You have no visible employment payables for {host.EmploymentHostName.ColourName()}.";
+		}
+
+		var canViewAll = CanViewAllPayroll(actor, host);
+		var payables = (canViewAll
+				? host.Payroll.Payables
+				: host.Payroll.Payables.Where(x => x.EmployeeId == actor.Id))
+			.OrderByDescending(x => x.DueAt)
+			.ThenByDescending(x => x.Id)
+			.Take(25)
+			.ToList();
+
+		var allVisible = canViewAll
+			? host.Payroll.Payables
+			: host.Payroll.Payables.Where(x => x.EmployeeId == actor.Id).ToList();
+		var outstanding = allVisible.Count(x => x.Status == EmploymentPayableStatus.Accrued);
+		var claimable = allVisible.Count(x => x.Status == EmploymentPayableStatus.ReadyToClaim);
+
+		var sb = new StringBuilder();
+		sb.AppendLine($"Employment payroll for {host.EmploymentHostName.ColourName()}:");
+		sb.AppendLine($"Outstanding: {outstanding.ToString("N0", actor).ColourValue()} | Claimable: {claimable.ToString("N0", actor).ColourValue()} | Max Overdue: {host.Payroll.MaximumOverdueDays().ToString("N0", actor).ColourValue()} days");
+		if (!payables.Any())
+		{
+			sb.AppendLine("\tNone");
+			return sb.ToString();
+		}
+
+		foreach (var payable in payables)
+		{
+			sb.AppendLine($"\t#{payable.Id.ToString("N0", actor)} - {payable.EmployeeName.ColourName()} - {payable.Role.DescribeEnum().ColourName()} - {DescribeMoney(payable.Amount, actor)} - {payable.Status.DescribeEnum().ColourValue()} - due {EmploymentClock.DescribeInstant(host, payable.DueAt, actor).ColourValue()} - {payable.DaysOverdue(EmploymentClock.CurrentInstant(host)).ToString("N0", actor).ColourValue()} days overdue");
+		}
+
+		return sb.ToString();
+	}
+
 	public string RenderTasks(ICharacter actor, IEmploymentHost host)
 	{
 		var sb = new StringBuilder();
@@ -652,9 +828,10 @@ internal sealed class EmploymentCommandService
 		}
 		else
 		{
+			var index = 1;
 			foreach (var rule in host.TaskBoard.ScheduledRules.OrderBy(x => x.Name))
 			{
-				sb.AppendLine($"\t{rule.Name.ColourName()} - {rule.Conditions.Count.ToString("N0", actor)} condition{(rule.Conditions.Count == 1 ? string.Empty : "s")} - {rule.ActionPlan.Steps.Count.ToString("N0", actor)} step{(rule.ActionPlan.Steps.Count == 1 ? string.Empty : "s")}");
+				sb.AppendLine($"\t#{index++.ToString("N0", actor)} - {rule.Name.ColourName()} - {rule.Conditions.Count.ToString("N0", actor)} condition{(rule.Conditions.Count == 1 ? string.Empty : "s")} - {rule.ActionPlan.Steps.Count.ToString("N0", actor)} step{(rule.ActionPlan.Steps.Count == 1 ? string.Empty : "s")}");
 			}
 		}
 
@@ -666,13 +843,92 @@ internal sealed class EmploymentCommandService
 		}
 		else
 		{
+			var index = 1;
 			foreach (var task in host.TaskBoard.ActiveTasks.OrderBy(x => x.Name))
 			{
-				sb.AppendLine($"\t{task.Name.ColourName()} - {task.Status.DescribeEnum().ColourValue()} - assigned to {task.AssignedEmployee?.HowSeen(actor, colour: false).ColourName() ?? "nobody".ColourError()} - next step {DescribeNextStep(task, actor)}");
+				sb.AppendLine($"\t#{index++.ToString("N0", actor)} - {task.Name.ColourName()} - {task.Status.DescribeEnum().ColourValue()} - assigned to {task.AssignedEmployee?.HowSeen(actor, colour: false).ColourName() ?? "nobody".ColourError()} - next step {DescribeNextStep(task, actor)}");
 			}
 		}
 
 		return sb.ToString();
+	}
+
+	public string RenderTaskDetail(ICharacter actor, IEmploymentHost host, string selector)
+	{
+		if (string.IsNullOrWhiteSpace(selector))
+		{
+			return "Which employment task do you want to view?";
+		}
+
+		var activeTask = ActiveTaskBySelector(host, selector);
+		if (activeTask is not null)
+		{
+			return RenderActiveTaskDetail(actor, activeTask);
+		}
+
+		var scheduledRule = ScheduledRuleBySelector(host, selector);
+		if (scheduledRule is not null)
+		{
+			return RenderScheduledRuleDetail(actor, scheduledRule);
+		}
+
+		return $"There is no active employment task or scheduled rule matching {selector.ColourCommand()}.";
+	}
+
+	private static string RenderActiveTaskDetail(ICharacter actor, IEmploymentActiveTask task)
+	{
+		var sb = new StringBuilder();
+		sb.AppendLine($"Employment Task - {task.Name.ColourName()}".GetLineWithTitle(actor, Telnet.Cyan, Telnet.BoldWhite));
+		sb.AppendLine($"Status: {task.Status.DescribeEnum().ColourValue()}");
+		sb.AppendLine($"Assigned Employee: {task.AssignedEmployee?.HowSeen(actor, colour: false).ColourName() ?? "nobody".ColourError()}");
+		if (!string.IsNullOrWhiteSpace(task.BlockedReason))
+		{
+			sb.AppendLine($"Blocked Reason: {task.BlockedReason.ColourError()}");
+		}
+
+		sb.AppendLine($"Correlation: {task.CorrelationId.ToString("D").ColourValue()}");
+		sb.AppendLine($"Required Authority: {task.ActionPlan.RequiredAuthority.Authorities.DescribeEnum().ColourName()}");
+		sb.AppendLine($"Required AI Capabilities: {DescribeCapabilities(task.ActionPlan.RequiredCapabilities)}");
+		sb.AppendLine();
+		sb.AppendLine("Steps:");
+		AppendActionPlanSteps(sb, actor, task.ActionPlan, task.StepStates);
+		return sb.ToString();
+	}
+
+	private static string RenderScheduledRuleDetail(ICharacter actor, IEmploymentScheduledTaskRule rule)
+	{
+		var sb = new StringBuilder();
+		sb.AppendLine($"Scheduled Employment Rule - {rule.Name.ColourName()}".GetLineWithTitle(actor, Telnet.Cyan, Telnet.BoldWhite));
+		sb.AppendLine($"Cooldown: {rule.Cooldown.Describe(actor).ColourValue()}");
+		sb.AppendLine($"Last Spawned: {rule.LastSpawnedAt?.ToString("g", actor).ColourValue() ?? "never".ColourError()}");
+		sb.AppendLine($"Idempotency Key: {rule.IdempotencyKey.ColourValue()}");
+		sb.AppendLine($"Conditions: {rule.Conditions.Count.ToString("N0", actor).ColourValue()}");
+		sb.AppendLine($"Required Authority: {rule.ActionPlan.RequiredAuthority.Authorities.DescribeEnum().ColourName()}");
+		sb.AppendLine($"Required AI Capabilities: {DescribeCapabilities(rule.ActionPlan.RequiredCapabilities)}");
+		sb.AppendLine();
+		sb.AppendLine("Steps:");
+		AppendActionPlanSteps(sb, actor, rule.ActionPlan, null);
+		return sb.ToString();
+	}
+
+	private static void AppendActionPlanSteps(StringBuilder sb, ICharacter actor, EmploymentActionPlan plan,
+		IReadOnlyList<EmploymentActionStepStatus>? stepStates)
+	{
+		if (!plan.Steps.Any())
+		{
+			sb.AppendLine("\tNone");
+			return;
+		}
+
+		for (var i = 0; i < plan.Steps.Count; i++)
+		{
+			var step = plan.Steps[i];
+			var status = stepStates is not null && i < stepStates.Count
+				? stepStates[i].DescribeEnum().ColourValue()
+				: "planned".ColourValue();
+			sb.AppendLine($"\t#{(i + 1).ToString("N0", actor)} - {status} - {EmploymentTaskAuthoringService.DescribeStep(step, actor)}");
+			sb.AppendLine($"\t\tType: {step.StepType.DescribeEnum().ColourName()} | Authority: {step.RequiredAuthority.Authorities.DescribeEnum().ColourName()} | AI: {DescribeCapabilities(step.RequiredCapabilities)}");
+		}
 	}
 
 	public string RenderTaskDiagnostics(ICharacter actor, IEmploymentHost host)
@@ -747,7 +1003,7 @@ internal sealed class EmploymentCommandService
 		sb.AppendLine($"Employment register for {host.EmploymentHostName.ColourName()}:");
 		foreach (var entry in host.EmploymentRegister.Entries.OrderByDescending(x => x.RecordedAt).Take(25))
 		{
-			sb.AppendLine($"\t{entry.RecordedAt.ToString("g", actor)} - {entry.EntryType.DescribeEnum().ColourName()} - {entry.Actor?.HowSeen(actor, colour: false).ColourName() ?? "System".ColourName()} - {entry.Description}");
+			sb.AppendLine($"\t{EmploymentClock.DescribeInstant(host, entry.RecordedAt, actor).ColourValue()} - {entry.EntryType.DescribeEnum().ColourName()} - {entry.Actor?.HowSeen(actor, colour: false).ColourName() ?? "System".ColourName()} - {entry.Description}");
 		}
 
 		return sb.ToString();
@@ -764,7 +1020,7 @@ internal sealed class EmploymentCommandService
 		sb.AppendLine($"Employment ledger for {host.EmploymentHostName.ColourName()}:");
 		foreach (var entry in host.BusinessLedger.Entries.OrderByDescending(x => x.RecordedAt).Take(25))
 		{
-			sb.AppendLine($"\t{entry.RecordedAt.ToString("g", actor)} - {entry.EntryType.DescribeEnum().ColourName()} - {DescribeMoney(entry.Amount, actor)} - {entry.Actor?.HowSeen(actor, colour: false).ColourName() ?? "System".ColourName()} - {entry.Description}");
+			sb.AppendLine($"\t{EmploymentClock.DescribeInstant(host, entry.RecordedAt, actor).ColourValue()} - {entry.EntryType.DescribeEnum().ColourName()} - {DescribeMoney(entry.Amount, actor)} - {entry.Actor?.HowSeen(actor, colour: false).ColourName() ?? "System".ColourName()} - {entry.Description}");
 		}
 
 		return sb.ToString();
@@ -1031,6 +1287,52 @@ internal sealed class EmploymentCommandService
 		actor.OutputHandler.Send(EmploymentHelp.SubstituteANSIColour());
 	}
 
+	private void HandlePayroll(ICharacter actor, IEmploymentHost host, StringStack input)
+	{
+		var payrollCommand = input.PopSpeech().CollapseString().ToLowerInvariant();
+		switch (payrollCommand)
+		{
+			case "":
+			case "list":
+			case "show":
+				actor.OutputHandler.Send(RenderPayroll(actor, host));
+				return;
+			case "run":
+			case "accrue":
+			case "evaluate":
+				TryRunPayroll(actor, host, out _, out var runMessage);
+				actor.OutputHandler.Send(runMessage);
+				return;
+			case "settle":
+			case "resolve":
+			case "fund":
+				if (input.IsFinished)
+				{
+					actor.OutputHandler.Send("Which employment payable do you want to settle? Use all or a payable number.");
+					return;
+				}
+
+				var settleSelector = input.PopSpeech();
+				var reason = input.IsFinished ? "Settled by employer." : input.SafeRemainingArgument;
+				TrySettlePayroll(actor, host, settleSelector, reason, out var settleMessage);
+				actor.OutputHandler.Send(settleMessage);
+				return;
+			case "claim":
+			case "collect":
+				if (input.IsFinished)
+				{
+					actor.OutputHandler.Send("Which employment payable do you want to claim? Use all or a payable number.");
+					return;
+				}
+
+				TryClaimPayroll(actor, host, input.PopSpeech(), out var claimMessage);
+				actor.OutputHandler.Send(claimMessage);
+				return;
+		}
+
+		actor.OutputHandler.Send(EmploymentHelp.SubstituteANSIColour());
+	}
+
 	private void HandleTasks(ICharacter actor, IEmploymentHost host, StringStack input)
 	{
 		var taskCommand = input.PopSpeech().CollapseString().ToLowerInvariant();
@@ -1038,11 +1340,35 @@ internal sealed class EmploymentCommandService
 		{
 			case "":
 			case "list":
-			case "show":
 				SendOperationalView(actor, host, RenderTasks);
+				return;
+			case "show":
+				if (input.IsFinished)
+				{
+					SendOperationalView(actor, host, RenderTasks);
+					return;
+				}
+
+				SendOperationalView(actor, host,
+					(viewer, employmentHost) => RenderTaskDetail(viewer, employmentHost, input.SafeRemainingArgument));
+				return;
+			case "view":
+			case "detail":
+			case "info":
+				SendOperationalView(actor, host,
+					(viewer, employmentHost) => RenderTaskDetail(viewer, employmentHost, input.SafeRemainingArgument));
 				return;
 			case "draft":
 				HandleTaskDraft(actor, host, input);
+				return;
+			case "create":
+			case "new":
+				_taskAuthoring.TryCreateOneShotTask(actor, host, input, out _, out var createMessage);
+				actor.OutputHandler.Send(createMessage);
+				return;
+			case "cancel":
+			case "abort":
+				HandleTaskCancel(actor, host, input);
 				return;
 			case "actions":
 			case "action":
@@ -1060,6 +1386,20 @@ internal sealed class EmploymentCommandService
 		}
 
 		actor.OutputHandler.Send(EmploymentHelp.SubstituteANSIColour());
+	}
+
+	private void HandleTaskCancel(ICharacter actor, IEmploymentHost host, StringStack input)
+	{
+		if (input.IsFinished)
+		{
+			actor.OutputHandler.Send("Which employment task do you want to cancel?");
+			return;
+		}
+
+		var selector = input.PopSpeech();
+		var reason = input.IsFinished ? "Cancelled by a manager." : input.SafeRemainingArgument;
+		TryCancelTask(actor, host, selector, reason, out var message);
+		actor.OutputHandler.Send(message);
 	}
 
 	private void HandleTaskDraft(ICharacter actor, IEmploymentHost host, StringStack input)
@@ -1318,6 +1658,7 @@ internal sealed class EmploymentCommandService
 			EmploymentAuthority.ManageCraftRules |
 			EmploymentAuthority.ManageDeliveryRoutes |
 			EmploymentAuthority.AdjustPrices |
+			EmploymentAuthority.ManagePayroll |
 			EmploymentAuthority.PostToHostBoard |
 			EmploymentAuthority.ModerateHostBoard);
 	}
@@ -1429,11 +1770,66 @@ internal sealed class EmploymentCommandService
 		return required.Authorities & ~actual.Authorities;
 	}
 
+	private static string DescribeCapabilities(IReadOnlySet<EmploymentAICapability> capabilities)
+	{
+		return capabilities.Any()
+			? capabilities.Select(x => x.DescribeEnum().ColourName()).ListToString()
+			: "none".ColourValue();
+	}
+
 	private static IEmploymentActionStep? NextStep(IEmploymentActiveTask task)
 	{
 		var index = task.StepStates.ToList()
 		                .FindIndex(x => x is EmploymentActionStepStatus.Pending or EmploymentActionStepStatus.Blocked);
 		return index < 0 || index >= task.ActionPlan.Steps.Count ? null : task.ActionPlan.Steps[index];
+	}
+
+	private static IEmploymentActiveTask? ActiveTaskBySelector(IEmploymentHost host, string selector)
+	{
+		var tasks = host.TaskBoard.ActiveTasks
+		                .OrderBy(x => x.Name)
+		                .ToList();
+		if (!tasks.Any())
+		{
+			return null;
+		}
+
+		if (TryParseCommandNumber(selector, out var number))
+		{
+			return number > 0 && number <= tasks.Count ? tasks[(int)number - 1] : null;
+		}
+
+		if (Guid.TryParse(selector, out var id))
+		{
+			return tasks.FirstOrDefault(x => x.Id == id);
+		}
+
+		return tasks.FirstOrDefault(x => x.Name.EqualTo(selector)) ??
+		       tasks.FirstOrDefault(x => x.Name.StartsWith(selector, StringComparison.InvariantCultureIgnoreCase));
+	}
+
+	private static IEmploymentScheduledTaskRule? ScheduledRuleBySelector(IEmploymentHost host, string selector)
+	{
+		var rules = host.TaskBoard.ScheduledRules
+		                .OrderBy(x => x.Name)
+		                .ToList();
+		if (!rules.Any())
+		{
+			return null;
+		}
+
+		if (TryParseCommandNumber(selector, out var number))
+		{
+			return number > 0 && number <= rules.Count ? rules[(int)number - 1] : null;
+		}
+
+		if (Guid.TryParse(selector, out var id))
+		{
+			return rules.FirstOrDefault(x => x.Id == id);
+		}
+
+		return rules.FirstOrDefault(x => x.Name.EqualTo(selector)) ??
+		       rules.FirstOrDefault(x => x.Name.StartsWith(selector, StringComparison.InvariantCultureIgnoreCase));
 	}
 
 	private static IEnumerable<IBoardPost> OrderedBoardPosts(IEmploymentHost host)
@@ -1447,6 +1843,22 @@ internal sealed class EmploymentCommandService
 			? null
 			: host.Employment.Applications
 			      .FirstOrDefault(x => x.Id == applicationId);
+	}
+
+	private static List<IEmploymentPayable> SelectPayables(IReadOnlyList<IEmploymentPayable> payables, string selector)
+	{
+		selector = selector.Trim();
+		if (selector.EqualTo("all"))
+		{
+			return payables.ToList();
+		}
+
+		if (!TryParseCommandNumber(selector, out var id))
+		{
+			return [];
+		}
+
+		return payables.Where(x => x.Id == id).ToList();
 	}
 
 	private static IEmploymentContract? ContractById(IEmploymentHost host, long contractId)
@@ -1555,6 +1967,7 @@ internal sealed class EmploymentCommandService
 			"tax" or "taxes" or "paytaxes" => EmploymentAuthority.PayTaxes,
 			"board" or "postboard" or "posttohostboard" => EmploymentAuthority.PostToHostBoard,
 			"moderateboard" or "moderatehostboard" => EmploymentAuthority.ModerateHostBoard,
+			"payroll" or "wages" or "managepayroll" => EmploymentAuthority.ManagePayroll,
 			_ => EmploymentAuthority.None
 		};
 
@@ -1688,7 +2101,7 @@ internal sealed class EmploymentCommandService
 			return "none".ColourError();
 		}
 
-		return $"{(index + 1).ToString("N0", actor)} ({task.ActionPlan.Steps[index].StepType.DescribeEnum()})";
+		return $"{(index + 1).ToString("N0", actor)} - {EmploymentTaskAuthoringService.DescribeStep(task.ActionPlan.Steps[index], actor)}";
 	}
 
 	public const string EmploymentHelp = @"You can use the following options with the employment command:
@@ -1704,15 +2117,22 @@ internal sealed class EmploymentCommandService
 	#3employment <host type> <host> applications#0 - lists applications
 	#3employment <host type> <host> applications accept <##>#0 - accepts a pending application into an active contract
 	#3employment <host type> <host> applications reject <##> <reason>#0 - rejects a pending application
+	#3employment <host type> <host> payroll#0 - lists wage payables and overdue days
+	#3employment <host type> <host> payroll run#0 - accrues due wage payables
+	#3employment <host type> <host> payroll settle <##|all> [reason]#0 - settles outstanding wage payables
+	#3employment <host type> <host> payroll claim <##|all>#0 - claims your ready cash wage payables
 	#3employment <host type> <host> tasks#0 - lists scheduled rules and active tasks
+	#3employment <host type> <host> tasks show <##|name>#0 - shows detailed task or scheduled-rule steps
 	#3employment <host type> <host> tasks diagnose#0 - explains why active employees can or cannot auto-claim tasks
+	#3employment <host type> <host> tasks cancel <##|name> [reason]#0 - cancels a pending, assigned, in-progress, or blocked active task
+	#3employment <host type> <host> tasks create <name> <action> [then <action> ...]#0 - creates and finalises a task in one command
 	#3employment <host type> <host> tasks draft new <name>#0 - starts a transient active task draft
 	#3employment <host type> <host> tasks draft show#0 - reviews your current draft
 	#3employment <host type> <host> tasks draft rename <name>#0 - renames your current draft
 	#3employment <host type> <host> tasks draft remove <##>#0 - removes a draft step
 	#3employment <host type> <host> tasks draft discard#0 - discards your current draft
 	#3employment <host type> <host> tasks actions#0 - shows task step actions and syntax
-	#3employment <host type> <host> tasks step getid <quantity> <item ids...> from <here|cell ids...>#0 - adds an item-id retrieval step
+	#3employment <host type> <host> tasks step getid <quantity> <item prototype ids...> from <here|cell ids...>#0 - adds a prototype-id retrieval step
 	#3employment <host type> <host> tasks step gettag <quantity> <tag> from <here|cell ids...>#0 - adds a tagged-item retrieval step
 	#3employment <host type> <host> tasks step commodity <weight> <material> [tag <tag>] from <here|cell ids...> [char <name>=<value> ...]#0 - adds a commodity retrieval step
 	#3employment <host type> <host> tasks step deliver to <here|cell id> [container <item id>|containertag <tag>]#0 - adds a delivery step

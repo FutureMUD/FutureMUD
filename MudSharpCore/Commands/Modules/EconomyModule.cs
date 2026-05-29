@@ -1962,11 +1962,16 @@ Shop manager employment shortcuts:
 	#3shop openings create <role> <hourly rate> [positions]#0 - creates an NPC-facing opening
 	#3shop applications#0 - lists employment applications
 	#3shop applications accept|reject <##> [reason]#0 - accepts or rejects an application
+	#3shop payroll#0 - lists wage payables and overdue days
+	#3shop payroll run|settle|claim ...#0 - accrues, settles, or claims employment wage payables
 	#3shop tasks#0 - lists scheduled rules and active tasks
+	#3shop tasks show <##|name>#0 - shows detailed task or scheduled-rule steps
 	#3shop tasks diagnose#0 - explains why active employees can or cannot claim tasks
 	#3shop tasks actions#0 - lists available task step actions and syntax
+	#3shop tasks cancel <##|name> [reason]#0 - cancels an active task
+	#3shop tasks create <name> <action> [then <action> ...]#0 - creates and finalises a task in one command
 	#3shop tasks draft new|show|rename|remove|discard|finalise ...#0 - drafts and finalises active tasks
-	#3shop tasks step getid|gettag|commodity|deliver ...#0 - adds retrieval or delivery steps to your draft
+	#3shop tasks step getid|gettag|commodity|deliver ...#0 - adds prototype-id retrieval or delivery steps to your draft
 	#3shop goals#0 - lists manager goals
 	#3shop register#0 - shows employment register entries
 	#3shop employmentledger|empledger#0 - shows employment ledger entries
@@ -2016,11 +2021,16 @@ Shop manager employment shortcuts:
 	#3shop openings create <role> <hourly rate> [positions]#0 - creates an NPC-facing opening
 	#3shop applications#0 - lists employment applications
 	#3shop applications accept|reject <##> [reason]#0 - accepts or rejects an application
+	#3shop payroll#0 - lists wage payables and overdue days
+	#3shop payroll run|settle|claim ...#0 - accrues, settles, or claims employment wage payables
 	#3shop tasks#0 - lists scheduled rules and active tasks
+	#3shop tasks show <##|name>#0 - shows detailed task or scheduled-rule steps
 	#3shop tasks diagnose#0 - explains why active employees can or cannot claim tasks
 	#3shop tasks actions#0 - lists available task step actions and syntax
+	#3shop tasks cancel <##|name> [reason]#0 - cancels an active task
+	#3shop tasks create <name> <action> [then <action> ...]#0 - creates and finalises a task in one command
 	#3shop tasks draft new|show|rename|remove|discard|finalise ...#0 - drafts and finalises active tasks
-	#3shop tasks step getid|gettag|commodity|deliver ...#0 - adds retrieval or delivery steps to your draft
+	#3shop tasks step getid|gettag|commodity|deliver ...#0 - adds prototype-id retrieval or delivery steps to your draft
 	#3shop goals#0 - lists manager goals
 	#3shop register#0 - shows employment register entries
 	#3shop employmentledger|empledger#0 - shows employment ledger entries
@@ -4725,11 +4735,16 @@ Additionally, if you are the manager of a bank, you can use the following additi
 	#3bank openings create <role> <hourly rate> [positions]#0 - creates an NPC-facing opening
 	#3bank applications#0 - lists employment applications
 	#3bank applications accept|reject <##> [reason]#0 - accepts or rejects an application
+	#3bank payroll#0 - lists wage payables and overdue days
+	#3bank payroll run|settle|claim ...#0 - accrues, settles, or claims employment wage payables
 	#3bank tasks#0 - lists scheduled rules and active tasks
+	#3bank tasks show <##|name>#0 - shows detailed task or scheduled-rule steps
 	#3bank tasks diagnose#0 - explains why active employees can or cannot claim tasks
 	#3bank tasks actions#0 - lists available task step actions and syntax
+	#3bank tasks cancel <##|name> [reason]#0 - cancels an active task
+	#3bank tasks create <name> <action> [then <action> ...]#0 - creates and finalises a task in one command
 	#3bank tasks draft new|show|rename|remove|discard|finalise ...#0 - drafts and finalises active tasks
-	#3bank tasks step getid|gettag|commodity|deliver ...#0 - adds retrieval or delivery steps to your draft
+	#3bank tasks step getid|gettag|commodity|deliver ...#0 - adds prototype-id retrieval or delivery steps to your draft
 	#3bank goals#0 - lists manager goals
 	#3bank register#0 - shows employment register entries
 	#3bank employmentledger|empledger#0 - shows employment ledger entries
@@ -4806,11 +4821,16 @@ Additionally, if you are the manager of a bank, you can use the following additi
 	#3bank openings create <role> <hourly rate> [positions]#0 - creates an NPC-facing opening
 	#3bank applications#0 - lists employment applications
 	#3bank applications accept|reject <##> [reason]#0 - accepts or rejects an application
+	#3bank payroll#0 - lists wage payables and overdue days
+	#3bank payroll run|settle|claim ...#0 - accrues, settles, or claims employment wage payables
 	#3bank tasks#0 - lists scheduled rules and active tasks
+	#3bank tasks show <##|name>#0 - shows detailed task or scheduled-rule steps
 	#3bank tasks diagnose#0 - explains why active employees can or cannot claim tasks
 	#3bank tasks actions#0 - lists available task step actions and syntax
+	#3bank tasks cancel <##|name> [reason]#0 - cancels an active task
+	#3bank tasks create <name> <action> [then <action> ...]#0 - creates and finalises a task in one command
 	#3bank tasks draft new|show|rename|remove|discard|finalise ...#0 - drafts and finalises active tasks
-	#3bank tasks step getid|gettag|commodity|deliver ...#0 - adds retrieval or delivery steps to your draft
+	#3bank tasks step getid|gettag|commodity|deliver ...#0 - adds prototype-id retrieval or delivery steps to your draft
 	#3bank goals#0 - lists manager goals
 	#3bank register#0 - shows employment register entries
 	#3bank employmentledger|empledger#0 - shows employment ledger entries
@@ -5709,11 +5729,16 @@ Auction house manager employment shortcuts:
 	#3auction openings create <role> <hourly rate> [positions]#0 - creates an NPC-facing opening
 	#3auction applications#0 - lists employment applications
 	#3auction applications accept|reject <##> [reason]#0 - accepts or rejects an application
+	#3auction payroll#0 - lists wage payables and overdue days
+	#3auction payroll run|settle|claim ...#0 - accrues, settles, or claims employment wage payables
 	#3auction tasks#0 - lists scheduled rules and active tasks
+	#3auction tasks show <##|name>#0 - shows detailed task or scheduled-rule steps
 	#3auction tasks diagnose#0 - explains why active employees can or cannot claim tasks
 	#3auction tasks actions#0 - lists available task step actions and syntax
+	#3auction tasks cancel <##|name> [reason]#0 - cancels an active task
+	#3auction tasks create <name> <action> [then <action> ...]#0 - creates and finalises a task in one command
 	#3auction tasks draft new|show|rename|remove|discard|finalise ...#0 - drafts and finalises active tasks
-	#3auction tasks step getid|gettag|commodity|deliver ...#0 - adds retrieval or delivery steps to your draft
+	#3auction tasks step getid|gettag|commodity|deliver ...#0 - adds prototype-id retrieval or delivery steps to your draft
 	#3auction goals#0 - lists manager goals
 	#3auction register#0 - shows employment register entries
 	#3auction employmentledger|empledger#0 - shows employment ledger entries
@@ -5771,11 +5796,16 @@ Auction house manager employment shortcuts:
 	#3auction openings create <role> <hourly rate> [positions]#0 - creates an NPC-facing opening
 	#3auction applications#0 - lists employment applications
 	#3auction applications accept|reject <##> [reason]#0 - accepts or rejects an application
+	#3auction payroll#0 - lists wage payables and overdue days
+	#3auction payroll run|settle|claim ...#0 - accrues, settles, or claims employment wage payables
 	#3auction tasks#0 - lists scheduled rules and active tasks
+	#3auction tasks show <##|name>#0 - shows detailed task or scheduled-rule steps
 	#3auction tasks diagnose#0 - explains why active employees can or cannot claim tasks
 	#3auction tasks actions#0 - lists available task step actions and syntax
+	#3auction tasks cancel <##|name> [reason]#0 - cancels an active task
+	#3auction tasks create <name> <action> [then <action> ...]#0 - creates and finalises a task in one command
 	#3auction tasks draft new|show|rename|remove|discard|finalise ...#0 - drafts and finalises active tasks
-	#3auction tasks step getid|gettag|commodity|deliver ...#0 - adds retrieval or delivery steps to your draft
+	#3auction tasks step getid|gettag|commodity|deliver ...#0 - adds prototype-id retrieval or delivery steps to your draft
 	#3auction goals#0 - lists manager goals
 	#3auction register#0 - shows employment register entries
 	#3auction employmentledger|empledger#0 - shows employment ledger entries

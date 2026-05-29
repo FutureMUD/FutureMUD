@@ -201,6 +201,73 @@ internal sealed class EmploymentTaskAuthoringService
 		}
 	}
 
+	public bool TryCreateOneShotTask(ICharacter actor, IEmploymentHost host, StringStack input,
+		out IEmploymentActiveTask? task, out string message)
+	{
+		task = null;
+		if (!TryRequireAssignTasks(actor, host, out message))
+		{
+			return false;
+		}
+
+		if (input.IsFinished)
+		{
+			message = $"One-shot task creation uses the syntax: {"tasks create <name> <action> [then <action> ...]".ColourCommand()}";
+			return false;
+		}
+
+		var name = input.PopSpeech();
+		if (string.IsNullOrWhiteSpace(name))
+		{
+			message = "What name do you want to give this employment task?";
+			return false;
+		}
+
+		var stepTokens = PopRemainingTokens(input).ToList();
+		if (!stepTokens.Any())
+		{
+			message = $"Which steps do you want this task to perform? Use {"then".ColourCommand()} between multiple actions.";
+			return false;
+		}
+
+		var steps = new List<IEmploymentActionStep>();
+		foreach (var actionTokens in SplitActionTokens(stepTokens))
+		{
+			var stack = new StringStack(string.Join(" ", actionTokens));
+			if (!TryParseStep(actor, stack, out var step, out message))
+			{
+				return false;
+			}
+
+			if (!stack.IsFinished)
+			{
+				message = $"Could not understand the extra text {stack.SafeRemainingArgument.ColourCommand()} in the task action.";
+				return false;
+			}
+
+			steps.Add(step);
+		}
+
+		if (!steps.Any())
+		{
+			message = "You must specify at least one task action.";
+			return false;
+		}
+
+		try
+		{
+			var plan = new EmploymentActionPlan(steps);
+			task = host.TaskBoard.CreateActiveTask(name, plan, actor);
+			message = RenderCreatedTaskSummary(actor, task);
+			return true;
+		}
+		catch (InvalidOperationException ex)
+		{
+			message = ex.Message;
+			return false;
+		}
+	}
+
 	public string RenderDraft(ICharacter actor, IEmploymentHost host)
 	{
 		var draft = DraftFor(actor, host);
@@ -236,15 +303,28 @@ internal sealed class EmploymentTaskAuthoringService
 		var sb = new StringBuilder();
 		sb.AppendLine("Employment Task Actions".ColourName());
 		sb.AppendLine("Use these with ".ColourCommand() + "tasks step <action> ...".ColourCommand() + " while you have a draft open.");
+		sb.AppendLine("You can also create and finalise a task in one command with ".ColourCommand() + "tasks create <name> <action> then <action>".ColourCommand() + ".");
 		sb.AppendLine();
-		sb.AppendLine($"{"tasks step getid <quantity> <item ids...> from <here|cell ids...>".ColourCommand()}");
-		sb.AppendLine("\tGet a quantity of specific item IDs from one or more source locations.");
+		sb.AppendLine($"{"tasks step getid <quantity> <item prototype ids...> from <here|cell ids...>".ColourCommand()}");
+		sb.AppendLine("\tGet a quantity of items matching specific item prototype IDs from one or more source locations.");
 		sb.AppendLine($"{"tasks step gettag <quantity> <tag> from <here|cell ids...>".ColourCommand()}");
 		sb.AppendLine("\tGet a quantity of items matching a tag from one or more source locations.");
 		sb.AppendLine($"{"tasks step commodity <weight> <material> [tag <tag>] from <here|cell ids...> [char <name>=<value> ...]".ColourCommand()}");
 		sb.AppendLine("\tGet a total commodity weight by material, optional tag, and optional characteristics.");
 		sb.AppendLine($"{"tasks step deliver to <here|cell id> [container <item id>|containertag <tag>]".ColourCommand()}");
 		sb.AppendLine("\tDeliver all carried task items to a destination, optionally into a container.");
+		return sb.ToString();
+	}
+
+	private static string RenderCreatedTaskSummary(ICharacter actor, IEmploymentActiveTask task)
+	{
+		var sb = new StringBuilder();
+		sb.AppendLine($"You create active employment task {task.Name.ColourName()} with {task.ActionPlan.Steps.Count.ToString("N0", actor).ColourValue()} step{(task.ActionPlan.Steps.Count == 1 ? string.Empty : "s")}:");
+		for (var i = 0; i < task.ActionPlan.Steps.Count; i++)
+		{
+			sb.AppendLine($"\t#{(i + 1).ToString("N0", actor)} - {DescribeStep(task.ActionPlan.Steps[i], actor)}");
+		}
+
 		return sb.ToString();
 	}
 
@@ -289,7 +369,7 @@ internal sealed class EmploymentTaskAuthoringService
 		var idTokens = PopTokensUntil(input, "from").ToList();
 		if (!idTokens.Any() || input.IsFinished)
 		{
-			message = $"Get-by-id steps use the syntax: {"tasks step getid <quantity> <item ids...> from <here|cell ids...>".ColourCommand()}";
+			message = $"Get-by-id steps use the syntax: {"tasks step getid <quantity> <item prototype ids...> from <here|cell ids...>".ColourCommand()}";
 			return false;
 		}
 
@@ -300,7 +380,7 @@ internal sealed class EmploymentTaskAuthoringService
 			return false;
 		}
 
-		if (!TryParseLongs(idTokens, out var itemIds, out message))
+		if (!TryParseLongs(idTokens, out var itemPrototypeIds, out message))
 		{
 			return false;
 		}
@@ -310,7 +390,7 @@ internal sealed class EmploymentTaskAuthoringService
 			return false;
 		}
 
-		step = new GetItemsByIdActionStep(quantity, itemIds, locations);
+		step = new GetItemsByIdActionStep(quantity, itemPrototypeIds, locations);
 		return true;
 	}
 
@@ -515,6 +595,31 @@ internal sealed class EmploymentTaskAuthoringService
 		}
 	}
 
+	private static IEnumerable<List<string>> SplitActionTokens(IEnumerable<string> tokens)
+	{
+		var current = new List<string>();
+		foreach (var token in tokens)
+		{
+			if (token.EqualTo("then") || token.EqualTo(";"))
+			{
+				if (current.Any())
+				{
+					yield return current;
+					current = new List<string>();
+				}
+
+				continue;
+			}
+
+			current.Add(token);
+		}
+
+		if (current.Any())
+		{
+			yield return current;
+		}
+	}
+
 	private static bool TryParseLongs(IEnumerable<string> tokens, out List<long> values, out string message)
 	{
 		values = new List<long>();
@@ -522,7 +627,7 @@ internal sealed class EmploymentTaskAuthoringService
 		{
 			if (!long.TryParse(token, out var value))
 			{
-				message = $"The text {token.ColourCommand()} is not a valid numeric id.";
+				message = $"The text {token.ColourCommand()} is not a valid numeric prototype id.";
 				return false;
 			}
 
@@ -613,18 +718,18 @@ internal sealed class EmploymentTaskAuthoringService
 			true);
 	}
 
-	private static string DescribeStep(IEmploymentActionStep step, ICharacter actor)
+	internal static string DescribeStep(IEmploymentActionStep step, ICharacter actor)
 	{
 		return step switch
 		{
 			GetItemsByIdActionStep getId =>
-				$"get {getId.Quantity.ToString("N0", actor).ColourValue()}x {DescribeItemIds(getId.ItemIds, actor)} from {DescribeLocations(getId.SourceLocations, actor)}",
+				$"go to {DescribeLocations(getId.SourceLocations, actor)} and collect {getId.Quantity.ToString("N0", actor).ColourValue()}x {DescribeItemPrototypeIds(getId.ItemPrototypeIds, actor)}",
 			GetItemsByTagActionStep getTag =>
-				$"get {getTag.Quantity.ToString("N0", actor).ColourValue()}x items tagged {getTag.TagName.ColourCommand()} from {DescribeLocations(getTag.SourceLocations, actor)}",
+				$"go to {DescribeLocations(getTag.SourceLocations, actor)} and collect {getTag.Quantity.ToString("N0", actor).ColourValue()}x items tagged {getTag.TagName.ColourCommand()}",
 			GetCommodityActionStep commodity =>
-				$"get {commodity.RequiredWeight.ToString("N2", actor).ColourValue()} weight of {commodity.MaterialName.ColourCommand()} commodity{(string.IsNullOrWhiteSpace(commodity.TagName) ? string.Empty : $" tagged {commodity.TagName.ColourCommand()}")}{DescribeCharacteristics(commodity.Characteristics)} from {DescribeLocations(commodity.SourceLocations, actor)}",
+				$"go to {DescribeLocations(commodity.SourceLocations, actor)} and collect {commodity.RequiredWeight.ToString("N2", actor).ColourValue()} weight of {commodity.MaterialName.ColourCommand()} commodity{(string.IsNullOrWhiteSpace(commodity.TagName) ? string.Empty : $" tagged {commodity.TagName.ColourCommand()}")}{DescribeCharacteristics(commodity.Characteristics)}",
 			DeliverItemsActionStep deliver =>
-				$"deliver all carried task items to {deliver.Destination.GetFriendlyReference(actor).ColourName()}{DescribeDeliveryContainer(deliver, actor)}",
+				$"go to {deliver.Destination.GetFriendlyReference(actor).ColourName()} and deliver all carried task items{DescribeDeliveryContainer(deliver, actor)}",
 			_ => step.StepType.DescribeEnum().ColourName()
 		};
 	}
@@ -636,15 +741,15 @@ internal sealed class EmploymentTaskAuthoringService
 		       .ListToString();
 	}
 
-	private static string DescribeItemIds(IEnumerable<long> itemIds, ICharacter actor)
+	private static string DescribeItemPrototypeIds(IEnumerable<long> itemPrototypeIds, ICharacter actor)
 	{
-		return itemIds
+		return itemPrototypeIds
 		       .Select(x =>
 		       {
-			       var item = actor.Gameworld?.TryGetItem(x, true);
+			       var item = actor.Gameworld?.ItemProtos?.Get(x);
 			       return item is null
-				       ? $"item #{x.ToString("N0", actor)}".ColourValue()
-				       : $"{item.HowSeen(actor, colour: false).ColourName()} (#{x.ToString("N0", actor).ColourValue()})";
+				       ? $"item prototype #{x.ToString("N0", actor)}".ColourValue()
+				       : $"{item.ShortDescription.ColourName()} (prototype #{x.ToString("N0", actor).ColourValue()})";
 		       })
 		       .ListToString();
 	}

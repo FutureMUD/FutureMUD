@@ -124,6 +124,16 @@ public partial class ItemSeeder
 		IReadOnlyDictionary<string, string> SlotItemStableReferences,
 		IReadOnlyCollection<string> IntentionallySharedOrGenericSlots);
 
+	private sealed record MedievalOutfitPieceSpec(
+		string OutfitReference,
+		string CultureKey,
+		string SexGenderPresentation,
+		string SocialClassRole,
+		string SlotKey,
+		string PieceName,
+		string StableReference,
+		bool CultureSpecificOrClusterSpecific);
+
 	private static readonly MedievalCultureProfile[] MedievalCultureProfiles =
 	[
 		new("early_anglo_saxon", "Early Anglo-Saxon/Insular", "with tablet-woven edging",
@@ -439,6 +449,94 @@ song_china|Household and Devotional|medieval_household_song_china_tea_cup,mediev
 			["military"] = "military"
 		};
 
+	private static readonly string[] MedievalNorthAtlanticOutfitCultureKeys =
+	[
+		"early_anglo_saxon",
+		"anglo_danish",
+		"norse",
+		"norman",
+		"high_british",
+		"gaelic"
+	];
+
+	private const string MedievalNorthAtlanticOutfitPieceSource = @"
+medieval_outfit_early_anglo_saxon_male_peasant|linen shirt; wool braies; wool leg wraps; soft ankle shoes; tablet-banded wool tunic; square work cloak; wool cap; rope belt; small belt pouch; plain disc brooch
+medieval_outfit_early_anglo_saxon_female_peasant|linen shift; wool wrap skirt; wool footwraps; soft ankle shoes; tablet-banded wool gown; square cloak; linen head veil; woven girdle; small pouch; simple cloak brooch
+medieval_outfit_early_anglo_saxon_male_artisan|linen work shirt; wool braies; wool leg wraps; leather shoes; short sleeved work tunic; workshop cloak; wool cap; seax belt; tool pouch; iron cloak pin
+medieval_outfit_early_anglo_saxon_female_artisan|linen shift; wool work skirt; wool footwraps; leather shoes; belted work gown; apron; linen headcloth; woven belt; tool pouch; bronze ring pin
+medieval_outfit_early_anglo_saxon_male_merchant|fine linen shirt; wool hose; leather shoes; bordered tunic; lined mantle; felt cap; leather purse belt; document pouch; silver cloak brooch; counting tally cord
+medieval_outfit_early_anglo_saxon_female_merchant|fine linen shift; wool skirt; leather shoes; bordered gown; lined mantle; linen veil; decorated girdle; belt purse; silver brooch; bead necklace
+medieval_outfit_early_anglo_saxon_male_noble|fine linen undertunic; wool hose; soft leather shoes; embroidered noble tunic; rich mantle; decorated cap; seax belt with mounts; document pouch; enamel brooch; bead necklace
+medieval_outfit_early_anglo_saxon_female_noble|fine linen shift; embroidered undergown; soft shoes; embroidered noble gown; brooch-fastened mantle; long linen veil; decorated girdle; alms purse; enamel brooch; bead necklace
+medieval_outfit_early_anglo_saxon_male_religious|plain linen undertunic; wool hose; sandals; monastic wool habit; heavy cowl cloak; tonsure cap or hood; cord belt; book pouch; wooden cross; wax tablet
+medieval_outfit_early_anglo_saxon_female_religious|plain linen shift; wool undergown; sandals; monastic robe; heavy cowl cloak; linen veil; cord belt; book pouch; wooden cross; prayer tablet
+medieval_outfit_early_anglo_saxon_male_military|arming shirt; wool braies; leg wraps; leather boots; padded shield-wall tunic; war cloak; padded cap; seax belt; field pouch; shield brooch; archer bracer
+medieval_outfit_early_anglo_saxon_female_military|arming shift; wool trews or skirted leg wraps; leather boots; padded war gown; brooch-fastened war cloak; linen headwrap; arming belt; field pouch; cloak brooch; leather bracers
+medieval_outfit_anglo_danish_male_peasant|linen shirt; wool braies; wrapped trews; rough shoes; panelled wool tunic; rough cloak; wool hood; rope belt; belt pouch; plain ring pin
+medieval_outfit_anglo_danish_female_peasant|linen shift; wool skirt; footwraps; rough shoes; panelled wool gown; rough cloak; head rail; woven belt; belt pouch; bronze ring pin
+medieval_outfit_anglo_danish_male_artisan|work shirt; wool trews; leather shoes; narrow-braid tunic; work cloak; fitted cap; long seax belt; tool pouch; iron cloak pin; workshop mitts
+medieval_outfit_anglo_danish_female_artisan|work shift; wool skirt; leather shoes; narrow-braid work gown; apron; head rail; leather belt; tool pouch; bronze brooch; sleeve ties
+medieval_outfit_anglo_danish_male_merchant|fine shirt; wool hose; town shoes; embroidered collar tunic; lined mantle; felt cap; purse belt; reeve tally pouch; silver ring pin; seal cord
+medieval_outfit_anglo_danish_female_merchant|fine shift; wool gown; town shoes; embroidered collar overgown; lined mantle; linen head rail; decorated girdle; purse; silver brooch; bead string
+medieval_outfit_anglo_danish_male_noble|fine undertunic; wool hose; soft boots; panelled noble tunic; fur-edged cloak; decorated cap; mounted seax belt; document pouch; silver brooch; gold bead string
+medieval_outfit_anglo_danish_female_noble|fine shift; embroidered gown; soft shoes; panelled overgown; fur-edged cloak; long veil; decorated girdle; alms purse; silver brooch; bead necklace
+medieval_outfit_anglo_danish_male_religious|plain undertunic; wool hose; sandals; clerical robe; cowl; linen cap; cord belt; book pouch; wooden cross; wax tablet
+medieval_outfit_anglo_danish_female_religious|plain shift; wool gown; sandals; modest robe; cowl cloak; linen veil; cord belt; book pouch; wooden cross; prayer strip
+medieval_outfit_anglo_danish_male_military|arming shirt; wrapped trews; boots; padded shield-wall tunic; heavy cloak; nasal cap liner; long seax belt; field pouch; war brooch; leather bracers
+medieval_outfit_anglo_danish_female_military|arming shift; wrapped trews; boots; padded shield-wall gown; heavy cloak; head rail under cap; arming belt; field pouch; war brooch; leather bracers
+medieval_outfit_norse_male_peasant|linen shirt; wool trousers; leg wraps; rough shoes; plain wool tunic; sea cloak; wool cap; leather belt; belt pouch; simple cloak pin
+medieval_outfit_norse_female_peasant|linen underdress; wool lower skirt; leg wraps; rough shoes; hangerok apron dress; sea cloak; wool headcloth; woven belt; small pouch; oval brooch pair
+medieval_outfit_norse_male_artisan|work shirt; wool trousers; leg wraps; leather shoes; trader tunic; short work cloak; wool cap; tool belt; tool pouch; ring pin
+medieval_outfit_norse_female_artisan|linen underdress; wool skirt; leg wraps; leather shoes; work hangerok; apron; headcloth; woven belt; tool pouch; oval brooch pair
+medieval_outfit_norse_male_merchant|fine shirt; wool trousers; leg wraps; polished shoes; trader kaftan; fur-edged sea cloak; cap; decorated belt; trade pouch; runic trade tag
+medieval_outfit_norse_female_merchant|fine underdress; wool dress; leg wraps; polished shoes; bead-strung hangerok; fur-edged cloak; headcloth; decorated belt; purse; oval brooch pair and beads
+medieval_outfit_norse_male_noble|fine linen shirt; wool trousers; high boots; decorated kaftan; fur-lined cloak; embroidered cap; silver-mounted belt; document pouch; silver brooch; bead necklace
+medieval_outfit_norse_female_noble|fine underdress; embroidered gown; high shoes; rich hangerok; fur-lined cloak; silk head veil; decorated girdle; alms purse; oval brooch pair; bead strand
+medieval_outfit_norse_male_religious|plain shirt; wool trousers; sandals; simple robe; heavy cloak; hood; cord belt; book pouch; wooden cross or amulet; wax tablet
+medieval_outfit_norse_female_religious|plain shift; wool gown; sandals; modest robe; heavy cloak; linen veil; cord belt; book pouch; wooden cross or amulet; prayer tablet
+medieval_outfit_norse_male_military|arming shirt; wool trousers; leg wraps; high boots; arming tunic; heavy sea cloak; padded cap; weapon belt; field pouch; axe loop; leather bracers
+medieval_outfit_norse_female_military|arming shift; wool trousers or split skirt; leg wraps; high boots; arming hangerok or tunic; heavy sea cloak; headwrap under cap; weapon belt; field pouch; leather bracers
+medieval_outfit_norman_male_peasant|linen shirt; braies; wool hose; rough shoes; plain long tunic; hooded cloak; linen coif; rope belt; belt pouch; simple cloak clasp
+medieval_outfit_norman_female_peasant|linen shift; wool skirt; wool hose; rough shoes; plain gown; hooded cloak; linen veil; woven belt; belt pouch; simple cloak clasp
+medieval_outfit_norman_male_artisan|work shirt; braies; hose; leather shoes; fitted work tunic; short cloak; coif; tool belt; tool pouch; iron buckle
+medieval_outfit_norman_female_artisan|work shift; wool skirt; hose; leather shoes; work gown; apron; head veil; leather belt; tool pouch; bronze brooch
+medieval_outfit_norman_male_merchant|fine shirt; braies; fitted hose; town shoes; long-sleeved cote; lined mantle; coif and cap; purse belt; document pouch; cloak clasp
+medieval_outfit_norman_female_merchant|fine chemise; fitted gown; hose; town shoes; bliaut-style overgown; lined mantle; wimple and veil; girdle; purse; cloak brooch
+medieval_outfit_norman_male_noble|fine undertunic; fitted hose; soft boots; split riding tunic; court mantle; decorated cap; mounted belt; seal pouch; rich cloak clasp; gloves
+medieval_outfit_norman_female_noble|fine chemise; court bliaut; fine hose; soft shoes; noble mantle; wimple and veil; jeweled girdle; alms purse; cloak clasp; embroidered sleeve ties
+medieval_outfit_norman_male_religious|linen undertunic; wool hose; sandals; clerical robe; cowl cloak; coif; cord belt; book pouch; cross pendant; wax tablet
+medieval_outfit_norman_female_religious|linen shift; wool undergown; sandals; religious robe; cowl cloak; veil and wimple; cord belt; book pouch; cross pendant; prayer slip
+medieval_outfit_norman_male_military|arming shirt; braies; chausses; riding boots; padded aketon; mail surcoat; nasal arming coif; arming belt; field pouch; scabbard harness
+medieval_outfit_norman_female_military|arming shift; split riding skirt or chausses; riding boots; padded aketon gown; mail surcoat; nasal arming coif and veil; arming belt; field pouch; scabbard harness
+medieval_outfit_high_british_male_peasant|linen shirt; braies; wool hose; rough shoes; wool cote; rough cloak; linen coif; rope belt; belt pouch; simple clasp
+medieval_outfit_high_british_female_peasant|linen shift; wool kirtle; hose; rough shoes; plain gown; rough cloak; linen headcloth; woven belt; belt pouch; simple clasp
+medieval_outfit_high_british_male_artisan|work shirt; braies; hose; leather shoes; work cote; hood; coif; tool belt; tool pouch; work gloves
+medieval_outfit_high_british_female_artisan|work shift; kirtle; hose; leather shoes; work gown; apron; headcloth; leather belt; tool pouch; pin brooch
+medieval_outfit_high_british_male_merchant|fine shirt; braies; fitted hose; polished shoes; lined cote; travel mantle; hood; purse belt; document pouch; guild badge
+medieval_outfit_high_british_female_merchant|fine chemise; kirtle; fitted hose; polished shoes; merchant gown; lined mantle; wimple; decorated girdle; purse; guild badge
+medieval_outfit_high_british_male_noble|fine undertunic; fitted hose; soft shoes; silk-trimmed surcoat; fur-lined mantle; court cap; jeweled belt; alms purse; cloak brooch; gloves
+medieval_outfit_high_british_female_noble|fine chemise; court gown; fine hose; soft shoes; silk-trimmed overgown; fur mantle; wimple and veil; jeweled girdle; alms purse; brooch
+medieval_outfit_high_british_male_religious|linen undertunic; wool hose; sandals; clerical robe; cowl cloak; coif; cord belt; book pouch; cross pendant; small prayer book
+medieval_outfit_high_british_female_religious|linen shift; wool robe; sandals; nun's habit or religious gown; cowl cloak; veil and wimple; cord belt; book pouch; cross pendant; prayer book
+medieval_outfit_high_british_male_military|arming shirt; braies; padded chausses; riding boots; gambeson; surcoat; arming coif; arming belt; field pouch; archer bracer
+medieval_outfit_high_british_female_military|arming shift; chausses or split riding skirt; boots; fitted gambeson; surcoat; arming coif with headcloth; arming belt; field pouch; archer bracer
+medieval_outfit_gaelic_male_peasant|linen long shirt; wool trews; footwraps; deerskin shoes; plain leine-style tunic; brat mantle; wool cap; woven belt; pastoral pouch; ring pin
+medieval_outfit_gaelic_female_peasant|linen shift; wool wrap skirt; footwraps; deerskin shoes; long wool gown; brat mantle; linen headcloth; woven belt; pastoral pouch; ring pin
+medieval_outfit_gaelic_male_artisan|work shirt; wool trews; leather shoes; work long shirt; short hill cloak; wool cap; tool belt; tool pouch; ring pin; mitts
+medieval_outfit_gaelic_female_artisan|work shift; wool skirt; leather shoes; work gown; apron; headcloth; woven belt; tool pouch; bronze ring pin; sleeve ties
+medieval_outfit_gaelic_male_merchant|fine long shirt; wool trews; boots; bordered tunic; lined brat; cap; purse belt; document pouch; silver ring pin; tally cord
+medieval_outfit_gaelic_female_merchant|fine shift; wool gown; boots; bordered overgown; lined brat; head veil; girdle; purse; silver ring pin; bead cord
+medieval_outfit_gaelic_male_noble|fine linen shirt; wool trews; boots; embroidered tunic; bardic or lordly mantle; decorated cap; fine belt; document pouch; ornate ring pin; brooch
+medieval_outfit_gaelic_female_noble|fine shift; embroidered gown; soft shoes; noble overgown; bardic mantle; long veil; fine girdle; alms purse; ornate ring pin; brooch
+medieval_outfit_gaelic_male_religious|plain linen shirt; wool trews; sandals; monastic robe; cowl cloak; hood; cord belt; book pouch; wooden cross; note board
+medieval_outfit_gaelic_female_religious|plain shift; wool robe; sandals; religious gown; cowl cloak; veil; cord belt; book pouch; wooden cross; prayer slip
+medieval_outfit_gaelic_male_military|arming shirt; wool trews; boots; light padded coat; war brat; padded cap; spear carrier belt; field pouch; ring pin; bracers
+medieval_outfit_gaelic_female_military|arming shift; split skirt or trews; boots; light padded war gown; war brat; headcloth under cap; spear carrier belt; field pouch; ring pin; bracers
+";
+
+	private static readonly MedievalOutfitPieceSpec[] MedievalNorthAtlanticOutfitPieces =
+		BuildMedievalNorthAtlanticOutfitPieces();
+
 	private static readonly MedievalOutfitSpec[] MedievalOutfits = BuildMedievalOutfits();
 
 	private static IReadOnlyList<MedievalItemSpec> HistoricFoundationItemSpecs()
@@ -598,6 +696,8 @@ song_china|Household and Devotional|medieval_household_song_china_tea_cup,mediev
 				}
 			}
 		}
+
+		specs.AddRange(MedievalExplicitOutfitPieceItemSpecs());
 
 		return specs;
 	}
@@ -1962,6 +2062,702 @@ song_china|Household and Devotional|medieval_household_song_china_tea_cup,mediev
 		return $"{article} {itemName}";
 	}
 
+	private static MedievalOutfitPieceSpec[] BuildMedievalNorthAtlanticOutfitPieces()
+	{
+		return MedievalNorthAtlanticOutfitPieceSource
+			.Split(["\r\n", "\n"], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+			.SelectMany(row =>
+			{
+				var parts = row.Split('|', 2, StringSplitOptions.TrimEntries);
+				if (parts.Length != 2)
+				{
+					throw new ApplicationException($"Invalid medieval outfit piece row: {row}");
+				}
+
+				var outfitReference = parts[0];
+				var (cultureKey, sexGenderPresentation, socialClassRole) =
+					ParseMedievalOutfitReference(outfitReference);
+				if (!MedievalNorthAtlanticOutfitCultureKeys.Contains(cultureKey, StringComparer.OrdinalIgnoreCase))
+				{
+					throw new ApplicationException($"Medieval North Atlantic outfit source includes out-of-scope culture {cultureKey}.");
+				}
+
+				var pieces = parts[1]
+					.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+				return BuildMedievalOutfitPieceSlotAssignments(socialClassRole, pieces)
+					.Select(assignment =>
+					{
+						var stableReference =
+							$"medieval_outfit_piece_{cultureKey}_{sexGenderPresentation}_{socialClassRole}_{StableReferenceToken(assignment.PieceName)}";
+						return new MedievalOutfitPieceSpec(
+							outfitReference,
+							cultureKey,
+							sexGenderPresentation,
+							socialClassRole,
+							assignment.SlotKey,
+							assignment.PieceName,
+							stableReference,
+							true);
+					});
+			})
+			.ToArray();
+	}
+
+	private static (string CultureKey, string SexGenderPresentation, string SocialClassRole) ParseMedievalOutfitReference(
+		string outfitReference)
+	{
+		const string Prefix = "medieval_outfit_";
+		if (!outfitReference.StartsWith(Prefix, StringComparison.Ordinal))
+		{
+			throw new ApplicationException($"Invalid medieval outfit reference {outfitReference}.");
+		}
+
+		var remainder = outfitReference[Prefix.Length..];
+		var socialClassRole = MedievalOutfitSocialClassRoleKeys.SingleOrDefault(role =>
+			remainder.EndsWith($"_{role}", StringComparison.Ordinal));
+		if (string.IsNullOrWhiteSpace(socialClassRole))
+		{
+			throw new ApplicationException($"Invalid medieval outfit role in {outfitReference}.");
+		}
+
+		var withoutRole = remainder[..^(socialClassRole.Length + 1)];
+		var sexGenderPresentation = MedievalOutfitSexGenderPresentationKeys.SingleOrDefault(sex =>
+			withoutRole.EndsWith($"_{sex}", StringComparison.Ordinal));
+		if (string.IsNullOrWhiteSpace(sexGenderPresentation))
+		{
+			throw new ApplicationException($"Invalid medieval outfit sex/gender presentation in {outfitReference}.");
+		}
+
+		var cultureKey = withoutRole[..^(sexGenderPresentation.Length + 1)];
+		if (!MedievalCultureProfiles.Any(x => x.Key.Equals(cultureKey, StringComparison.OrdinalIgnoreCase)))
+		{
+			throw new ApplicationException($"Invalid medieval outfit culture in {outfitReference}.");
+		}
+
+		return (cultureKey, sexGenderPresentation, socialClassRole);
+	}
+
+	private static IReadOnlyCollection<(string SlotKey, string PieceName)> BuildMedievalOutfitPieceSlotAssignments(
+		string socialClassRole, string[] pieces)
+	{
+		if (!MedievalOutfitRoleItemRequiredForRole(socialClassRole))
+		{
+			if (pieces.Length < 10)
+			{
+				throw new ApplicationException($"{socialClassRole} outfit rows require at least ten target pieces.");
+			}
+
+			return AssignMedievalOutfitPieces(
+				pieces,
+				[
+					MedievalOutfitSlotUnderlayer,
+					MedievalOutfitSlotLowerBody,
+					MedievalOutfitSlotLegOrSockLayer,
+					MedievalOutfitSlotFootwear,
+					MedievalOutfitSlotBodywear,
+					MedievalOutfitSlotOuterwear,
+					MedievalOutfitSlotHeadwear,
+					MedievalOutfitSlotBeltOrSash,
+					MedievalOutfitSlotWornContainer,
+					MedievalOutfitSlotFastenerOrJewellery
+				]);
+		}
+
+		if (pieces.Length >= 11)
+		{
+			return AssignMedievalOutfitPieces(
+				pieces,
+				[
+					MedievalOutfitSlotUnderlayer,
+					MedievalOutfitSlotLowerBody,
+					MedievalOutfitSlotLegOrSockLayer,
+					MedievalOutfitSlotFootwear,
+					MedievalOutfitSlotBodywear,
+					MedievalOutfitSlotOuterwear,
+					MedievalOutfitSlotHeadwear,
+					MedievalOutfitSlotBeltOrSash,
+					MedievalOutfitSlotWornContainer,
+					MedievalOutfitSlotFastenerOrJewellery,
+					MedievalOutfitSlotRoleItem
+				]);
+		}
+
+		if (pieces.Length == 9 && IsMedievalOutfitFootwearPiece(pieces[2]))
+		{
+			return
+			[
+				(MedievalOutfitSlotUnderlayer, pieces[0]),
+				(MedievalOutfitSlotLowerBody, pieces[1]),
+				(MedievalOutfitSlotLegOrSockLayer, pieces[1]),
+				(MedievalOutfitSlotFootwear, pieces[2]),
+				(MedievalOutfitSlotBodywear, pieces[3]),
+				(MedievalOutfitSlotOuterwear, pieces[4]),
+				(MedievalOutfitSlotHeadwear, pieces[5]),
+				(MedievalOutfitSlotBeltOrSash, pieces[6]),
+				(MedievalOutfitSlotWornContainer, pieces[7]),
+				(MedievalOutfitSlotFastenerOrJewellery, pieces[8]),
+				(MedievalOutfitSlotRoleItem, pieces[8])
+			];
+		}
+
+		if (pieces.Length != 10)
+		{
+			throw new ApplicationException($"{socialClassRole} outfit rows require nine, ten, or eleven target pieces.");
+		}
+
+		if (IsMedievalOutfitFootwearPiece(pieces[2]))
+		{
+			return
+			[
+				(MedievalOutfitSlotUnderlayer, pieces[0]),
+				(MedievalOutfitSlotLowerBody, pieces[1]),
+				(MedievalOutfitSlotLegOrSockLayer, pieces[1]),
+				(MedievalOutfitSlotFootwear, pieces[2]),
+				(MedievalOutfitSlotBodywear, pieces[3]),
+				(MedievalOutfitSlotOuterwear, pieces[4]),
+				(MedievalOutfitSlotHeadwear, pieces[5]),
+				(MedievalOutfitSlotBeltOrSash, pieces[6]),
+				(MedievalOutfitSlotWornContainer, pieces[7]),
+				(MedievalOutfitSlotFastenerOrJewellery, pieces[8]),
+				(MedievalOutfitSlotRoleItem, pieces[9])
+			];
+		}
+
+		return
+		[
+			(MedievalOutfitSlotUnderlayer, pieces[0]),
+			(MedievalOutfitSlotLowerBody, pieces[1]),
+			(MedievalOutfitSlotLegOrSockLayer, pieces[2]),
+			(MedievalOutfitSlotFootwear, pieces[3]),
+			(MedievalOutfitSlotBodywear, pieces[4]),
+			(MedievalOutfitSlotOuterwear, pieces[5]),
+			(MedievalOutfitSlotHeadwear, pieces[6]),
+			(MedievalOutfitSlotBeltOrSash, pieces[7]),
+			(MedievalOutfitSlotWornContainer, pieces[8]),
+			(MedievalOutfitSlotFastenerOrJewellery, pieces[9]),
+			(MedievalOutfitSlotRoleItem, pieces[9])
+		];
+	}
+
+	private static IReadOnlyCollection<(string SlotKey, string PieceName)> AssignMedievalOutfitPieces(
+		string[] pieces, string[] slotKeys)
+	{
+		return slotKeys
+			.Select((slotKey, index) => (slotKey, pieces[index]))
+			.ToArray();
+	}
+
+	private static bool MedievalOutfitRoleItemRequiredForRole(string socialClassRole)
+	{
+		return MedievalOutfitSlots
+			.Single(x => x.Key.Equals(MedievalOutfitSlotRoleItem, StringComparison.OrdinalIgnoreCase))
+			.RequiredForRoles
+			.Contains(socialClassRole, StringComparer.OrdinalIgnoreCase);
+	}
+
+	private static bool IsMedievalOutfitFootwearPiece(string pieceName)
+	{
+		var lower = pieceName.ToLowerInvariant();
+		return lower.Contains("shoe", StringComparison.Ordinal) ||
+		       lower.Contains("boot", StringComparison.Ordinal) ||
+		       lower.Contains("sandal", StringComparison.Ordinal);
+	}
+
+	private static IReadOnlyList<MedievalItemSpec> MedievalExplicitOutfitPieceItemSpecs()
+	{
+		return MedievalNorthAtlanticOutfitPieces
+			.GroupBy(x => x.StableReference, StringComparer.OrdinalIgnoreCase)
+			.Select(group => BuildMedievalExplicitOutfitPieceItemSpec(group.First(), group.Select(x => x.SlotKey).ToArray()))
+			.ToArray();
+	}
+
+	private static MedievalItemSpec BuildMedievalExplicitOutfitPieceItemSpec(MedievalOutfitPieceSpec piece,
+		IReadOnlyCollection<string> slotKeys)
+	{
+		var culture = MedievalCultureProfiles.Single(x => x.Key.Equals(piece.CultureKey, StringComparison.OrdinalIgnoreCase));
+		var status = MedievalStatusRoleProfiles.Single(x =>
+			x.Key.Equals(MedievalOutfitRoleToStatusRoleKey[piece.SocialClassRole], StringComparison.OrdinalIgnoreCase));
+		var (material, materialType) = MedievalExplicitOutfitPieceMaterial(piece.PieceName, slotKeys);
+		var components = MedievalExplicitOutfitPieceComponents(piece.PieceName, slotKeys, materialType);
+		var quality = MedievalExplicitOutfitPieceQuality(piece.PieceName, piece.SocialClassRole);
+		var size = MedievalExplicitOutfitPieceSize(slotKeys);
+		var weight = MedievalExplicitOutfitPieceWeightInGrams(piece.PieceName, slotKeys);
+		var cost = MedievalExplicitOutfitPieceCost(piece.PieceName, slotKeys, quality);
+		var shortDescription = BuildMedievalExplicitOutfitPieceShortDescription(culture.Key, piece.PieceName);
+		var slotList = string.Join(", ", slotKeys.OrderBy(x => x, StringComparer.OrdinalIgnoreCase));
+
+		return new MedievalItemSpec(
+			piece.StableReference,
+			MedievalExplicitOutfitPieceNoun(piece.PieceName),
+			shortDescription,
+			$"This {piece.PieceName} belongs to the {culture.Display} {piece.SexGenderPresentation} {piece.SocialClassRole} outfit. It fills the {slotList} outfit slot for the explicit medieval North Atlantic and British catalogue.",
+			size,
+			quality,
+			weight,
+			cost,
+			material,
+			materialType,
+			[
+				MedievalRootTagPath,
+				$"{MedievalCultureTagRoot} / {SafeMedievalTagName(culture.Display)}",
+				$"{MedievalStatusTagRoot} / {status.TagName}",
+				MedievalExplicitOutfitPieceMarketTag(slotKeys, quality),
+				MedievalExplicitOutfitPieceFunctionTag(slotKeys)
+			],
+			components,
+			$"MED-OUTFIT-002 exact outfit piece. Outfit reference: {piece.OutfitReference}. Culture: {culture.Display}. Sex/gender presentation: {piece.SexGenderPresentation}. Social class/role: {piece.SocialClassRole}. Piece target: {piece.PieceName}. Slot(s): {slotList}.");
+	}
+
+	private static string BuildMedievalExplicitOutfitPieceShortDescription(string cultureKey, string pieceName)
+	{
+		var namedPiece = $"{MedievalOutfitCultureAdjective(cultureKey)} {pieceName}";
+		if (IsPluralMedievalOutfitPiece(pieceName))
+		{
+			return namedPiece;
+		}
+
+		var article = "aeiou".Contains(char.ToLowerInvariant(namedPiece[0])) ? "an" : "a";
+		return $"{article} {namedPiece}";
+	}
+
+	private static string MedievalOutfitCultureAdjective(string cultureKey)
+	{
+		return cultureKey switch
+		{
+			"early_anglo_saxon" => "Early Anglo-Saxon",
+			"anglo_danish" => "Anglo-Danish",
+			"norse" => "Norse",
+			"norman" => "Norman",
+			"high_british" => "High British",
+			"gaelic" => "Gaelic",
+			_ => MedievalCultureProfiles.Single(x => x.Key.Equals(cultureKey, StringComparison.OrdinalIgnoreCase)).Display
+		};
+	}
+
+	private static bool IsPluralMedievalOutfitPiece(string pieceName)
+	{
+		var lower = pieceName.ToLowerInvariant();
+		return lower.EndsWith("braies", StringComparison.Ordinal) ||
+		       lower.EndsWith("trews", StringComparison.Ordinal) ||
+		       lower.EndsWith("trousers", StringComparison.Ordinal) ||
+		       lower.EndsWith("wraps", StringComparison.Ordinal) ||
+		       lower.EndsWith("footwraps", StringComparison.Ordinal) ||
+		       lower.EndsWith("shoes", StringComparison.Ordinal) ||
+		       lower.EndsWith("boots", StringComparison.Ordinal) ||
+		       lower.EndsWith("sandals", StringComparison.Ordinal) ||
+		       lower.EndsWith("hose", StringComparison.Ordinal) ||
+		       lower.EndsWith("chausses", StringComparison.Ordinal) ||
+		       lower.EndsWith("bracers", StringComparison.Ordinal) ||
+		       lower.EndsWith("gloves", StringComparison.Ordinal) ||
+		       lower.EndsWith("mitts", StringComparison.Ordinal) ||
+		       lower.EndsWith("ties", StringComparison.Ordinal) ||
+		       lower.EndsWith("beads", StringComparison.Ordinal);
+	}
+
+	private static string MedievalExplicitOutfitPieceNoun(string pieceName)
+	{
+		var lower = pieceName.ToLowerInvariant();
+		foreach (var noun in new[]
+		         {
+			         "hangerok apron dress", "oval brooch pair", "cloak brooch", "ring pin", "head veil",
+			         "head rail", "headcloth", "field pouch", "tool pouch", "document pouch", "book pouch",
+			         "belt pouch", "purse belt", "seax belt", "arming belt", "weapon belt", "spear carrier belt",
+			         "scabbard harness", "archer bracer", "leather bracers", "tablet", "prayer book",
+			         "prayer slip", "cross pendant", "wooden cross", "guild badge", "trade tag", "tally cord",
+			         "seal cord", "cloak clasp", "brooch", "pin", "girdle", "belt", "pouch", "purse",
+			         "shirt", "shift", "tunic", "gown", "robe", "habit", "cloak", "mantle", "brat",
+			         "cap", "coif", "hood", "veil", "shoes", "boots", "sandals", "hose", "chausses",
+			         "trews", "braies", "wraps", "skirt", "gloves", "mitts"
+		         })
+		{
+			if (lower.Contains(noun, StringComparison.Ordinal))
+			{
+				return noun.Split(' ').Last();
+			}
+		}
+
+		return lower.Split(' ', StringSplitOptions.RemoveEmptyEntries).Last();
+	}
+
+	private static (string Material, MaterialBehaviourType MaterialType) MedievalExplicitOutfitPieceMaterial(
+		string pieceName, IReadOnlyCollection<string> slotKeys)
+	{
+		var lower = pieceName.ToLowerInvariant();
+		if (lower.Contains("silver", StringComparison.Ordinal))
+		{
+			return ("silver", MaterialBehaviourType.Metal);
+		}
+
+		if (lower.Contains("gold", StringComparison.Ordinal))
+		{
+			return ("gold", MaterialBehaviourType.Metal);
+		}
+
+		if (lower.Contains("bronze", StringComparison.Ordinal) ||
+		    lower.Contains("brooch", StringComparison.Ordinal) ||
+		    lower.Contains("pin", StringComparison.Ordinal) ||
+		    lower.Contains("clasp", StringComparison.Ordinal) ||
+		    lower.Contains("buckle", StringComparison.Ordinal) ||
+		    lower.Contains("badge", StringComparison.Ordinal))
+		{
+			return ("bronze", MaterialBehaviourType.Metal);
+		}
+
+		if (lower.Contains("iron", StringComparison.Ordinal))
+		{
+			return ("wrought iron", MaterialBehaviourType.Metal);
+		}
+
+		if (lower.Contains("wax", StringComparison.Ordinal))
+		{
+			return ("beeswax", MaterialBehaviourType.Wax);
+		}
+
+		if (lower.Contains("wooden", StringComparison.Ordinal) ||
+		    lower.Contains("tally", StringComparison.Ordinal) ||
+		    lower.Contains("tablet", StringComparison.Ordinal) &&
+		    !lower.Contains("tablet-banded", StringComparison.Ordinal) &&
+		    !lower.Contains("tablet-woven", StringComparison.Ordinal) ||
+		    lower.Contains("book", StringComparison.Ordinal) ||
+		    lower.Contains("board", StringComparison.Ordinal))
+		{
+			return ("oak", MaterialBehaviourType.Wood);
+		}
+
+		if (lower.Contains("leather", StringComparison.Ordinal) ||
+		    lower.Contains("deerskin", StringComparison.Ordinal) ||
+		    lower.Contains("shoe", StringComparison.Ordinal) ||
+		    lower.Contains("boot", StringComparison.Ordinal) ||
+		    lower.Contains("sandal", StringComparison.Ordinal) ||
+		    lower.Contains("harness", StringComparison.Ordinal) ||
+		    lower.Contains("bracer", StringComparison.Ordinal))
+		{
+			return ("leather", MaterialBehaviourType.Leather);
+		}
+
+		if (lower.Contains("silk", StringComparison.Ordinal))
+		{
+			return ("silk", MaterialBehaviourType.Fabric);
+		}
+
+		if (lower.Contains("linen", StringComparison.Ordinal) ||
+		    lower.Contains("coif", StringComparison.Ordinal) ||
+		    lower.Contains("veil", StringComparison.Ordinal) ||
+		    lower.Contains("headcloth", StringComparison.Ordinal) ||
+		    lower.Contains("head rail", StringComparison.Ordinal))
+		{
+			return ("linen", MaterialBehaviourType.Fabric);
+		}
+
+		if (lower.Contains("rope", StringComparison.Ordinal) ||
+		    lower.Contains("cord", StringComparison.Ordinal))
+		{
+			return ("hemp", MaterialBehaviourType.Fabric);
+		}
+
+		if (slotKeys.Contains(MedievalOutfitSlotBeltOrSash, StringComparer.OrdinalIgnoreCase) ||
+		    slotKeys.Contains(MedievalOutfitSlotWornContainer, StringComparer.OrdinalIgnoreCase))
+		{
+			return ("leather", MaterialBehaviourType.Leather);
+		}
+
+		return ("wool", MaterialBehaviourType.Fabric);
+	}
+
+	private static string[] MedievalExplicitOutfitPieceComponents(string pieceName,
+		IReadOnlyCollection<string> slotKeys, MaterialBehaviourType materialType)
+	{
+		var components = new List<string> { "Holdable" };
+		var lower = pieceName.ToLowerInvariant();
+		if (slotKeys.Contains(MedievalOutfitSlotFootwear, StringComparer.OrdinalIgnoreCase))
+		{
+			components.Add(lower.Contains("boot", StringComparison.Ordinal) ? "Wear_Boots" :
+				lower.Contains("sandal", StringComparison.Ordinal) ? "Wear_Sandals" : "Wear_Shoes");
+			components.Add("Insulation_Minor");
+			components.Add("Armour_LightClothing");
+		}
+		else if (slotKeys.Contains(MedievalOutfitSlotBeltOrSash, StringComparer.OrdinalIgnoreCase))
+		{
+			components.Add("Wear_Waist");
+			components.Add("Belt_4");
+			components.Add("Armour_LightClothing");
+		}
+		else if (slotKeys.Contains(MedievalOutfitSlotWornContainer, StringComparer.OrdinalIgnoreCase))
+		{
+			components.Add("Wear_Waist");
+			components.Add(lower.Contains("purse", StringComparison.Ordinal) ? "Container_Purse" : "Container_Pouch");
+			components.Add("Beltable");
+			components.Add("Armour_LightClothing");
+		}
+		else if (slotKeys.Contains(MedievalOutfitSlotFastenerOrJewellery, StringComparer.OrdinalIgnoreCase))
+		{
+			components.Add(lower.Contains("necklace", StringComparison.Ordinal) ||
+			               lower.Contains("bead", StringComparison.Ordinal) ||
+			               lower.Contains("cross", StringComparison.Ordinal) ||
+			               lower.Contains("pendant", StringComparison.Ordinal)
+				? "Wear_Necklace"
+				: "Wear_Shoulder");
+		}
+		else if (slotKeys.Contains(MedievalOutfitSlotHeadwear, StringComparer.OrdinalIgnoreCase))
+		{
+			components.Add("Wear_Hat");
+			components.Add("Insulation_Minor");
+			components.Add("Armour_LightClothing");
+		}
+		else if (slotKeys.Contains(MedievalOutfitSlotOuterwear, StringComparer.OrdinalIgnoreCase))
+		{
+			components.Add(lower.Contains("mantle", StringComparison.Ordinal) ||
+			               lower.Contains("brat", StringComparison.Ordinal) ||
+			               lower.Contains("surcoat", StringComparison.Ordinal)
+				? "Wear_Mantle"
+				: "Wear_Cloak_(Closed)");
+			components.Add("Insulation_Strong");
+			components.Add(lower.Contains("mail", StringComparison.Ordinal) || lower.Contains("war", StringComparison.Ordinal)
+				? "Armour_HeavyClothing"
+				: "Armour_LightClothing");
+		}
+		else if (slotKeys.Contains(MedievalOutfitSlotBodywear, StringComparer.OrdinalIgnoreCase))
+		{
+			components.Add(lower.Contains("apron", StringComparison.Ordinal) ? "Wear_Apron" :
+				lower.Contains("robe", StringComparison.Ordinal) || lower.Contains("habit", StringComparison.Ordinal) ? "Wear_Robe" :
+				lower.Contains("gown", StringComparison.Ordinal) || lower.Contains("dress", StringComparison.Ordinal) ||
+				lower.Contains("bliaut", StringComparison.Ordinal) || lower.Contains("hangerok", StringComparison.Ordinal)
+					? "Wear_Gown"
+					: "Wear_Tunic");
+			components.Add(lower.Contains("padded", StringComparison.Ordinal) ||
+			               lower.Contains("arming", StringComparison.Ordinal) ||
+			               lower.Contains("gambeson", StringComparison.Ordinal)
+				? "Insulation_Moderate"
+				: "Insulation_Minor");
+			components.Add(lower.Contains("padded", StringComparison.Ordinal) ||
+			               lower.Contains("arming", StringComparison.Ordinal) ||
+			               lower.Contains("gambeson", StringComparison.Ordinal)
+				? "Armour_HeavyClothing"
+				: "Armour_LightClothing");
+		}
+		else if (slotKeys.Contains(MedievalOutfitSlotLegOrSockLayer, StringComparer.OrdinalIgnoreCase))
+		{
+			components.Add(lower.Contains("footwrap", StringComparison.Ordinal) ||
+			               lower.Contains("sock", StringComparison.Ordinal) ||
+			               lower.Contains("leg wrap", StringComparison.Ordinal)
+				? "Wear_Socks"
+				: "Wear_Chausses");
+			components.Add("Insulation_Moderate");
+			components.Add("Armour_LightClothing");
+		}
+		else if (slotKeys.Contains(MedievalOutfitSlotLowerBody, StringComparer.OrdinalIgnoreCase))
+		{
+			components.Add("Wear_Chausses");
+			components.Add("Insulation_Moderate");
+			components.Add("Armour_LightClothing");
+		}
+		else if (slotKeys.Contains(MedievalOutfitSlotUnderlayer, StringComparer.OrdinalIgnoreCase))
+		{
+			components.Add("Wear_Long-Sleeved_Tunic");
+			components.Add("Insulation_Minor");
+			components.Add("Armour_LightClothing");
+		}
+
+		if (slotKeys.Contains(MedievalOutfitSlotRoleItem, StringComparer.OrdinalIgnoreCase))
+		{
+			if (lower.Contains("bracer", StringComparison.Ordinal) ||
+			    lower.Contains("glove", StringComparison.Ordinal) ||
+			    lower.Contains("mitt", StringComparison.Ordinal) ||
+			    lower.Contains("sleeve", StringComparison.Ordinal))
+			{
+				components.Add("Wear_Fingerless_Gloves");
+			}
+			else if (lower.Contains("harness", StringComparison.Ordinal) ||
+			         lower.Contains("axe loop", StringComparison.Ordinal))
+			{
+				components.Add("Wear_Waist");
+				components.Add("Beltable");
+			}
+			else if (lower.Contains("cross", StringComparison.Ordinal) ||
+			         lower.Contains("amulet", StringComparison.Ordinal) ||
+			         lower.Contains("bead", StringComparison.Ordinal) ||
+			         lower.Contains("pendant", StringComparison.Ordinal))
+			{
+				components.Add("Wear_Necklace");
+			}
+		}
+
+		components.Add(materialType == MaterialBehaviourType.Metal ? "Destroyable_HeavyMetal" :
+			materialType == MaterialBehaviourType.Wood || materialType == MaterialBehaviourType.Wax ? "Destroyable_Misc" :
+			"Destroyable_Clothing");
+		return components
+			.Distinct(StringComparer.OrdinalIgnoreCase)
+			.ToArray();
+	}
+
+	private static ItemQuality MedievalExplicitOutfitPieceQuality(string pieceName, string socialClassRole)
+	{
+		var lower = pieceName.ToLowerInvariant();
+		if (socialClassRole.Equals("noble", StringComparison.OrdinalIgnoreCase) ||
+		    lower.Contains("fine", StringComparison.Ordinal) ||
+		    lower.Contains("silver", StringComparison.Ordinal) ||
+		    lower.Contains("gold", StringComparison.Ordinal) ||
+		    lower.Contains("embroidered", StringComparison.Ordinal) ||
+		    lower.Contains("jeweled", StringComparison.Ordinal) ||
+		    lower.Contains("silk", StringComparison.Ordinal) ||
+		    lower.Contains("rich", StringComparison.Ordinal))
+		{
+			return ItemQuality.Good;
+		}
+
+		return ItemQuality.Standard;
+	}
+
+	private static SizeCategory MedievalExplicitOutfitPieceSize(IReadOnlyCollection<string> slotKeys)
+	{
+		if (slotKeys.Contains(MedievalOutfitSlotOuterwear, StringComparer.OrdinalIgnoreCase))
+		{
+			return SizeCategory.Large;
+		}
+
+		if (slotKeys.Contains(MedievalOutfitSlotHeadwear, StringComparer.OrdinalIgnoreCase) ||
+		    slotKeys.Contains(MedievalOutfitSlotBeltOrSash, StringComparer.OrdinalIgnoreCase) ||
+		    slotKeys.Contains(MedievalOutfitSlotWornContainer, StringComparer.OrdinalIgnoreCase) ||
+		    slotKeys.Contains(MedievalOutfitSlotFastenerOrJewellery, StringComparer.OrdinalIgnoreCase) ||
+		    slotKeys.Contains(MedievalOutfitSlotRoleItem, StringComparer.OrdinalIgnoreCase))
+		{
+			return SizeCategory.Small;
+		}
+
+		return SizeCategory.Normal;
+	}
+
+	private static double MedievalExplicitOutfitPieceWeightInGrams(string pieceName, IReadOnlyCollection<string> slotKeys)
+	{
+		if (slotKeys.Contains(MedievalOutfitSlotOuterwear, StringComparer.OrdinalIgnoreCase))
+		{
+			return 1450.0;
+		}
+
+		if (slotKeys.Contains(MedievalOutfitSlotFootwear, StringComparer.OrdinalIgnoreCase))
+		{
+			return 900.0;
+		}
+
+		if (slotKeys.Contains(MedievalOutfitSlotBodywear, StringComparer.OrdinalIgnoreCase))
+		{
+			return pieceName.Contains("padded", StringComparison.OrdinalIgnoreCase) ||
+			       pieceName.Contains("gambeson", StringComparison.OrdinalIgnoreCase)
+				? 1800.0
+				: 850.0;
+		}
+
+		if (slotKeys.Contains(MedievalOutfitSlotBeltOrSash, StringComparer.OrdinalIgnoreCase))
+		{
+			return 360.0;
+		}
+
+		if (slotKeys.Contains(MedievalOutfitSlotWornContainer, StringComparer.OrdinalIgnoreCase))
+		{
+			return 220.0;
+		}
+
+		if (slotKeys.Contains(MedievalOutfitSlotHeadwear, StringComparer.OrdinalIgnoreCase))
+		{
+			return 180.0;
+		}
+
+		if (slotKeys.Contains(MedievalOutfitSlotFastenerOrJewellery, StringComparer.OrdinalIgnoreCase) ||
+		    slotKeys.Contains(MedievalOutfitSlotRoleItem, StringComparer.OrdinalIgnoreCase))
+		{
+			return 120.0;
+		}
+
+		return 420.0;
+	}
+
+	private static decimal MedievalExplicitOutfitPieceCost(string pieceName, IReadOnlyCollection<string> slotKeys,
+		ItemQuality quality)
+	{
+		var baseCost = slotKeys.Contains(MedievalOutfitSlotFastenerOrJewellery, StringComparer.OrdinalIgnoreCase) ? 18.0m :
+			slotKeys.Contains(MedievalOutfitSlotOuterwear, StringComparer.OrdinalIgnoreCase) ? 42.0m :
+			slotKeys.Contains(MedievalOutfitSlotBodywear, StringComparer.OrdinalIgnoreCase) ? 28.0m :
+			slotKeys.Contains(MedievalOutfitSlotFootwear, StringComparer.OrdinalIgnoreCase) ? 18.0m :
+			slotKeys.Contains(MedievalOutfitSlotRoleItem, StringComparer.OrdinalIgnoreCase) ? 12.0m :
+			10.0m;
+		if (pieceName.Contains("silver", StringComparison.OrdinalIgnoreCase) ||
+		    pieceName.Contains("gold", StringComparison.OrdinalIgnoreCase) ||
+		    pieceName.Contains("jeweled", StringComparison.OrdinalIgnoreCase))
+		{
+			baseCost *= 3.0m;
+		}
+
+		return quality >= ItemQuality.Good ? baseCost * 2.0m : baseCost;
+	}
+
+	private static string MedievalExplicitOutfitPieceMarketTag(IReadOnlyCollection<string> slotKeys, ItemQuality quality)
+	{
+		if (slotKeys.Contains(MedievalOutfitSlotFastenerOrJewellery, StringComparer.OrdinalIgnoreCase) ||
+		    slotKeys.Contains(MedievalOutfitSlotRoleItem, StringComparer.OrdinalIgnoreCase))
+		{
+			return quality >= ItemQuality.Good ? "Market / Clothing / Luxury Clothing" : "Market / Clothing / Standard Clothing";
+		}
+
+		if (slotKeys.Contains(MedievalOutfitSlotFootwear, StringComparer.OrdinalIgnoreCase))
+		{
+			return "Market / Clothing / Footwear";
+		}
+
+		if (slotKeys.Contains(MedievalOutfitSlotOuterwear, StringComparer.OrdinalIgnoreCase))
+		{
+			return "Market / Clothing / Winter Clothing";
+		}
+
+		return quality >= ItemQuality.Good ? "Market / Clothing / Luxury Clothing" : "Market / Clothing / Standard Clothing";
+	}
+
+	private static string MedievalExplicitOutfitPieceFunctionTag(IReadOnlyCollection<string> slotKeys)
+	{
+		if (slotKeys.Contains(MedievalOutfitSlotFootwear, StringComparer.OrdinalIgnoreCase))
+		{
+			return "Functions / Worn Items / Footwear";
+		}
+
+		if (slotKeys.Contains(MedievalOutfitSlotHeadwear, StringComparer.OrdinalIgnoreCase))
+		{
+			return "Functions / Worn Items / Headwear";
+		}
+
+		if (slotKeys.Contains(MedievalOutfitSlotBeltOrSash, StringComparer.OrdinalIgnoreCase))
+		{
+			return "Functions / Worn Items / Belts";
+		}
+
+		if (slotKeys.Contains(MedievalOutfitSlotWornContainer, StringComparer.OrdinalIgnoreCase))
+		{
+			return "Functions / Worn Items / Pouches";
+		}
+
+		if (slotKeys.Contains(MedievalOutfitSlotFastenerOrJewellery, StringComparer.OrdinalIgnoreCase) ||
+		    slotKeys.Contains(MedievalOutfitSlotRoleItem, StringComparer.OrdinalIgnoreCase))
+		{
+			return "Functions / Worn Items / Jewellery";
+		}
+
+		if (slotKeys.Contains(MedievalOutfitSlotOuterwear, StringComparer.OrdinalIgnoreCase))
+		{
+			return "Functions / Worn Items / Outerwear";
+		}
+
+		if (slotKeys.Contains(MedievalOutfitSlotUnderlayer, StringComparer.OrdinalIgnoreCase))
+		{
+			return "Functions / Worn Items / Underwear";
+		}
+
+		if (slotKeys.Contains(MedievalOutfitSlotLegOrSockLayer, StringComparer.OrdinalIgnoreCase) ||
+		    slotKeys.Contains(MedievalOutfitSlotLowerBody, StringComparer.OrdinalIgnoreCase))
+		{
+			return "Functions / Worn Items / Legwear";
+		}
+
+		return "Functions / Worn Items / Bodywear";
+	}
+
 	private static MedievalOutfitSpec[] BuildMedievalOutfits()
 	{
 		return MedievalCultureProfiles
@@ -1973,6 +2769,24 @@ song_china|Household and Devotional|medieval_household_song_china_tea_cup,mediev
 	private static MedievalOutfitSpec BuildMedievalOutfit(MedievalCultureProfile culture, string sexGenderPresentation,
 		string socialClassRole)
 	{
+		var outfitReference = $"medieval_outfit_{culture.Key}_{sexGenderPresentation}_{socialClassRole}";
+		var explicitPieces = MedievalNorthAtlanticOutfitPieces
+			.Where(x => x.OutfitReference.Equals(outfitReference, StringComparison.OrdinalIgnoreCase))
+			.ToArray();
+		if (explicitPieces.Length > 0)
+		{
+			return new MedievalOutfitSpec(
+				outfitReference,
+				culture.Key,
+				sexGenderPresentation,
+				socialClassRole,
+				$"{culture.Display} {sexGenderPresentation} {socialClassRole} outfit",
+				explicitPieces
+					.GroupBy(x => x.SlotKey, StringComparer.OrdinalIgnoreCase)
+					.ToDictionary(x => x.Key, x => x.First().StableReference, StringComparer.OrdinalIgnoreCase),
+				[]);
+		}
+
 		var status = MedievalStatusRoleProfiles.Single(x =>
 			x.Key.Equals(MedievalOutfitRoleToStatusRoleKey[socialClassRole], StringComparison.OrdinalIgnoreCase));
 		var slots = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
@@ -1996,7 +2810,7 @@ song_china|Household and Devotional|medieval_household_song_china_tea_cup,mediev
 		}
 
 		return new MedievalOutfitSpec(
-			$"medieval_outfit_{culture.Key}_{sexGenderPresentation}_{socialClassRole}",
+			outfitReference,
 			culture.Key,
 			sexGenderPresentation,
 			socialClassRole,
@@ -2087,10 +2901,20 @@ song_china|Household and Devotional|medieval_household_song_china_tea_cup,mediev
 		MedievalOutfitSocialClassRoleKeys
 			.ToArray();
 
+	internal static IReadOnlyCollection<string> MedievalNorthAtlanticOutfitCultureKeysForTesting =>
+		MedievalNorthAtlanticOutfitCultureKeys
+			.ToArray();
+
 	internal static IReadOnlyCollection<(string OutfitReference, string CultureKey, string SexGenderPresentation, string SocialClassRole, string DisplayName, IReadOnlyDictionary<string, string> SlotItemStableReferences, IReadOnlyCollection<string> IntentionallySharedOrGenericSlots)> MedievalOutfitsForTesting =>
 		MedievalOutfits
 			.Select(x => (x.OutfitReference, x.CultureKey, x.SexGenderPresentation, x.SocialClassRole, x.DisplayName,
 				x.SlotItemStableReferences, x.IntentionallySharedOrGenericSlots))
+			.ToArray();
+
+	internal static IReadOnlyCollection<(string OutfitReference, string CultureKey, string SexGenderPresentation, string SocialClassRole, string SlotKey, string PieceName, string StableReference, bool CultureSpecificOrClusterSpecific)> MedievalExplicitOutfitPiecesForTesting =>
+		MedievalNorthAtlanticOutfitPieces
+			.Select(x => (x.OutfitReference, x.CultureKey, x.SexGenderPresentation, x.SocialClassRole, x.SlotKey,
+				x.PieceName, x.StableReference, x.CultureSpecificOrClusterSpecific))
 			.ToArray();
 
 	internal static IReadOnlyCollection<string> MedievalOutfitReferencedItemStableReferencesForTesting =>

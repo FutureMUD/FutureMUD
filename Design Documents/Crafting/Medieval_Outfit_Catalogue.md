@@ -8,7 +8,15 @@ The goal is that a builder can dress a male or female character of each social c
 
 `ItemSeeder.Rework.Medieval.cs` now mirrors this file with `MedievalOutfitSpec` definitions. Each code-side outfit records its culture key, sex/gender presentation, social class/role, display name, slot-to-stable-reference map, and intentionally shared/generic slots.
 
-For MED-OUTFIT-001 the code scaffold resolves outfit slots to the current craftable common/status wardrobe plus craftable v1 role accessories. Those shared slots are deliberately marked so later culture-item goals can replace them with the exact culture-specific clothing targets without losing the complete outfit contract.
+For MED-OUTFIT-001 the code scaffold resolved outfit slots to the current craftable common/status wardrobe plus craftable v1 role accessories. MED-OUTFIT-002 replaces that scaffold for `early_anglo_saxon`, `anglo_danish`, `norse`, `norman`, `high_british`, and `gaelic` with explicit outfit-piece item specs and final-product crafts generated from the exact target-piece rows below.
+
+Explicit implemented outfit pieces use stable references shaped as:
+
+```text
+medieval_outfit_piece_{culture}_{sex}_{class}_{piece}
+```
+
+Those stable references are not generic wardrobe baselines. The remaining cultures continue to use the shared scaffold until their explicit outfit-piece passes are implemented.
 
 ## Outfit Reference Pattern
 
@@ -115,8 +123,8 @@ The piece lists below are target contents. The implementation may split or merge
 | `medieval_outfit_norman_female_noble` | fine chemise; court bliaut; fine hose; soft shoes; noble mantle; wimple and veil; jeweled girdle; alms purse; cloak clasp; embroidered sleeve ties |
 | `medieval_outfit_norman_male_religious` | linen undertunic; wool hose; sandals; clerical robe; cowl cloak; coif; cord belt; book pouch; cross pendant; wax tablet |
 | `medieval_outfit_norman_female_religious` | linen shift; wool undergown; sandals; religious robe; cowl cloak; veil and wimple; cord belt; book pouch; cross pendant; prayer slip |
-| `medieval_outfit_norman_male_military` | arming shirt; braies; chausses; riding boots; padded aketon; mail surcoat; arming coif; arming belt; field pouch; scabbard harness |
-| `medieval_outfit_norman_female_military` | arming shift; split riding skirt or chausses; riding boots; padded aketon gown; mail surcoat; arming coif and veil; arming belt; field pouch; scabbard harness |
+| `medieval_outfit_norman_male_military` | arming shirt; braies; chausses; riding boots; padded aketon; mail surcoat; nasal arming coif; arming belt; field pouch; scabbard harness |
+| `medieval_outfit_norman_female_military` | arming shift; split riding skirt or chausses; riding boots; padded aketon gown; mail surcoat; nasal arming coif and veil; arming belt; field pouch; scabbard harness |
 
 ### High Medieval Britain / Marcher (`high_british`)
 
@@ -139,7 +147,7 @@ The piece lists below are target contents. The implementation may split or merge
 
 | Outfit Reference | Target Pieces |
 | --- | --- |
-| `medieval_outfit_gaelic_male_peasant` | linen long shirt; wool trews; footwraps; deerskin shoes; plain léine-style tunic; brat mantle; wool cap; woven belt; pastoral pouch; ring pin |
+| `medieval_outfit_gaelic_male_peasant` | linen long shirt; wool trews; footwraps; deerskin shoes; plain leine-style tunic; brat mantle; wool cap; woven belt; pastoral pouch; ring pin |
 | `medieval_outfit_gaelic_female_peasant` | linen shift; wool wrap skirt; footwraps; deerskin shoes; long wool gown; brat mantle; linen headcloth; woven belt; pastoral pouch; ring pin |
 | `medieval_outfit_gaelic_male_artisan` | work shirt; wool trews; leather shoes; work long shirt; short hill cloak; wool cap; tool belt; tool pouch; ring pin; mitts |
 | `medieval_outfit_gaelic_female_artisan` | work shift; wool skirt; leather shoes; work gown; apron; headcloth; woven belt; tool pouch; bronze ring pin; sleeve ties |

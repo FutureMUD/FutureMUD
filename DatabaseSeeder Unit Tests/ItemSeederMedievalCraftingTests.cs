@@ -43,6 +43,14 @@ public class ItemSeederMedievalCraftingTests
 		"military"
 	];
 
+	private static readonly string[] MedievalOutfitCriticalWearSlots =
+	[
+		"footwear",
+		"headwear",
+		"bodywear",
+		"belt_or_sash"
+	];
+
 	[TestMethod]
 	public void MedievalDispatcher_WiresItemAndCraftSuites()
 	{
@@ -267,11 +275,157 @@ public class ItemSeederMedievalCraftingTests
 		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.Medieval.cs");
 		var helperBlock = ExtractMethodBlockContaining(craftSource, "MedievalExplicitOutfitPieceCraftName");
 
-		AssertContains(helperBlock, "MedievalSpecCraftName(verb, spec)");
+		AssertContains(helperBlock, "spec.ShortDescription");
 		Assert.IsFalse(helperBlock.Contains("BuildRegionalCraftName", StringComparison.Ordinal),
 			"Explicit outfit-piece craft names should use exact object names, not regional patterns.");
 		Assert.IsFalse(helperBlock.Contains("regional pattern", StringComparison.OrdinalIgnoreCase),
 			"Explicit outfit-piece craft names should not contain regional pattern.");
+	}
+
+	[TestMethod]
+	public void MedievalNorthAtlanticOutfits_AreExplicitCompleteAndVariantDistinct()
+	{
+		var cultures = ItemSeeder.MedievalNorthAtlanticOutfitCultureKeysForTesting;
+		var outfits = ItemSeeder.MedievalOutfitsForTesting
+			.Where(x => cultures.Contains(x.CultureKey, StringComparer.OrdinalIgnoreCase))
+			.ToList();
+		var piecesByOutfit = ItemSeeder.MedievalExplicitOutfitPiecesForTesting
+			.GroupBy(x => x.OutfitReference, StringComparer.OrdinalIgnoreCase)
+			.ToDictionary(x => x.Key, x => x.ToList(), StringComparer.OrdinalIgnoreCase);
+
+		Assert.AreEqual(6, cultures.Count);
+		Assert.AreEqual(72, outfits.Count);
+
+		foreach (var culture in cultures)
+		{
+			var cultureOutfits = outfits
+				.Where(x => x.CultureKey.Equals(culture, StringComparison.OrdinalIgnoreCase))
+				.ToList();
+			Assert.AreEqual(12, cultureOutfits.Count, $"Expected 12 explicit outfits for {culture}.");
+
+			foreach (var outfit in cultureOutfits)
+			{
+				Assert.AreEqual(0, outfit.IntentionallySharedOrGenericSlots.Count,
+					$"{outfit.OutfitReference} should be implemented with explicit outfit pieces, not generic slot markers.");
+				Assert.IsTrue(piecesByOutfit.TryGetValue(outfit.OutfitReference, out var outfitPieces),
+					$"Expected explicit outfit pieces for {outfit.OutfitReference}.");
+
+				foreach (var slot in MedievalOutfitCriticalWearSlots)
+				{
+					Assert.IsTrue(outfit.SlotItemStableReferences.TryGetValue(slot, out var stableReference),
+						$"{outfit.OutfitReference} should include {slot}.");
+					Assert.IsTrue(stableReference.StartsWith($"medieval_outfit_piece_{culture}_", StringComparison.OrdinalIgnoreCase),
+						$"{outfit.OutfitReference} / {slot} should use an explicit {culture} outfit piece.");
+				}
+
+				Assert.IsTrue(outfit.SlotItemStableReferences.Values.Distinct(StringComparer.OrdinalIgnoreCase).Count() >= 9,
+					$"{outfit.OutfitReference} should have at least nine wearable pieces or documented slot equivalents.");
+				Assert.IsTrue(outfit.SlotItemStableReferences.Values
+						.Distinct(StringComparer.OrdinalIgnoreCase)
+						.Count(x => x.StartsWith($"medieval_outfit_piece_{culture}_", StringComparison.OrdinalIgnoreCase)) >= 4,
+					$"{outfit.OutfitReference} should include at least four culture-specific or culture-cluster-specific items.");
+				Assert.IsTrue(outfitPieces.All(x => outfit.SlotItemStableReferences.Values.Contains(x.StableReference, StringComparer.OrdinalIgnoreCase)),
+					$"Every explicit piece for {outfit.OutfitReference} should be referenced by its slot map.");
+			}
+
+			foreach (var role in ItemSeeder.MedievalOutfitSocialClassRoleKeysForTesting)
+			{
+				var male = cultureOutfits.Single(x =>
+					x.SexGenderPresentation.Equals("male", StringComparison.OrdinalIgnoreCase) &&
+					x.SocialClassRole.Equals(role, StringComparison.OrdinalIgnoreCase));
+				var female = cultureOutfits.Single(x =>
+					x.SexGenderPresentation.Equals("female", StringComparison.OrdinalIgnoreCase) &&
+					x.SocialClassRole.Equals(role, StringComparison.OrdinalIgnoreCase));
+				Assert.IsTrue(CountDifferentOutfitSlots(male.SlotItemStableReferences, female.SlotItemStableReferences) >= 2,
+					$"{culture} {role} male/female variants should differ in at least two wearable slots.");
+			}
+
+			foreach (var sex in ItemSeeder.MedievalOutfitSexGenderPresentationKeysForTesting)
+			{
+				var sexOutfits = cultureOutfits
+					.Where(x => x.SexGenderPresentation.Equals(sex, StringComparison.OrdinalIgnoreCase))
+					.ToList();
+				foreach (var left in sexOutfits)
+				{
+					foreach (var right in sexOutfits.Where(x => string.CompareOrdinal(x.SocialClassRole, left.SocialClassRole) > 0))
+					{
+						Assert.IsTrue(CountDifferentOutfitSlots(left.SlotItemStableReferences, right.SlotItemStableReferences) >= 2,
+							$"{culture} {sex} {left.SocialClassRole}/{right.SocialClassRole} class variants should differ in at least two wearable slots.");
+					}
+				}
+			}
+		}
+	}
+
+	[TestMethod]
+	public void MedievalNorthAtlanticOutfits_ContainRequiredCultureVocabulary()
+	{
+		var piecesByCulture = ItemSeeder.MedievalExplicitOutfitPiecesForTesting
+			.GroupBy(x => x.CultureKey, StringComparer.OrdinalIgnoreCase)
+			.ToDictionary(
+				x => x.Key,
+				x => string.Join(" ", x.Select(piece => piece.PieceName)).ToLowerInvariant(),
+				StringComparer.OrdinalIgnoreCase);
+		var required = new Dictionary<string, string[]>(StringComparer.OrdinalIgnoreCase)
+		{
+			["early_anglo_saxon"] = ["tablet-banded", "cloak brooch", "linen head veil", "seax belt"],
+			["anglo_danish"] = ["long seax", "shield-wall", "panelled", "reeve"],
+			["norse"] = ["hangerok", "oval brooch", "sea cloak", "runic", "leg wraps"],
+			["norman"] = ["split riding tunic", "bliaut", "mail surcoat", "nasal"],
+			["high_british"] = ["cote", "surcoat", "coif", "wimple", "arming"],
+			["gaelic"] = ["brat", "ring pin", "long shirt", "bardic", "pastoral"]
+		};
+
+		foreach (var culture in ItemSeeder.MedievalNorthAtlanticOutfitCultureKeysForTesting)
+		{
+			Assert.IsTrue(piecesByCulture.TryGetValue(culture, out var sourceText),
+				$"Expected explicit outfit vocabulary source for {culture}.");
+			foreach (var expected in required[culture])
+			{
+				Assert.IsTrue(sourceText.Contains(expected, StringComparison.OrdinalIgnoreCase),
+					$"Expected {culture} outfit vocabulary to include {expected}.");
+			}
+		}
+	}
+
+	[TestMethod]
+	public void MedievalNorthAtlanticOutfitPieceCraftNames_UseNamedObjectsAndTextileStocks()
+	{
+		var craftNames = ItemSeeder.MedievalExplicitOutfitPieceCraftsForTesting;
+		var craftByReference = craftNames
+			.ToDictionary(x => x.StableReference, x => x, StringComparer.OrdinalIgnoreCase);
+
+		foreach (var piece in ItemSeeder.MedievalExplicitOutfitPiecesForTesting
+			         .DistinctBy(x => x.StableReference))
+		{
+			Assert.IsTrue(craftByReference.TryGetValue(piece.StableReference, out var craft),
+				$"Expected explicit outfit craft for {piece.StableReference}.");
+			Assert.IsFalse(craft.CraftName.Contains("regional pattern", StringComparison.OrdinalIgnoreCase),
+				$"Explicit outfit piece craft {craft.CraftName} should not use regional pattern naming.");
+			Assert.IsTrue(craft.CraftName.Contains(piece.PieceName, StringComparison.OrdinalIgnoreCase),
+				$"Explicit outfit piece craft {craft.CraftName} should include named object {piece.PieceName}.");
+		}
+
+		Assert.IsTrue(craftNames.Any(x => x.CraftName.Contains("sew a Norse hangerok apron dress", StringComparison.Ordinal)),
+			"Expected the Norse hangerok craft name to include the named object.");
+
+		var allInputs = craftNames
+			.SelectMany(x => x.Inputs)
+			.ToList();
+		foreach (var expected in new[]
+		         {
+			         "Garment Cloth",
+			         "Broadcloth Stock",
+			         "Embroidered Trim Stock",
+			         "Tablet-Woven Band Stock",
+			         "Quilted Armour Padding",
+			         "Turnshoe Upper Stock",
+			         "Spun Yarn"
+		         })
+		{
+			Assert.IsTrue(allInputs.Any(x => x.Contains(expected, StringComparison.OrdinalIgnoreCase)),
+				$"Expected explicit outfit piece crafts to use {expected} where appropriate.");
+		}
 	}
 
 	[TestMethod]
@@ -712,6 +866,8 @@ public class ItemSeederMedievalCraftingTests
 
 		return stableReference switch
 		{
+			_ when stableReference.StartsWith("medieval_outfit_piece_", StringComparison.OrdinalIgnoreCase) =>
+				docs.Contains("medieval_outfit_piece_{culture}_{sex}_{class}_{piece}", StringComparison.Ordinal),
 			_ when stableReference.StartsWith("medieval_clothing_", StringComparison.OrdinalIgnoreCase) =>
 				docs.Contains("medieval_clothing_{culture}_{status}_{piece}", StringComparison.Ordinal),
 			_ when stableReference.StartsWith("medieval_food_", StringComparison.OrdinalIgnoreCase) =>
@@ -857,6 +1013,14 @@ public class ItemSeederMedievalCraftingTests
 
 		Assert.Fail($"Could not find end of source block for {marker}.");
 		return string.Empty;
+	}
+
+	private static int CountDifferentOutfitSlots(IReadOnlyDictionary<string, string> left,
+		IReadOnlyDictionary<string, string> right)
+	{
+		return left.Keys
+			.Intersect(right.Keys, StringComparer.OrdinalIgnoreCase)
+			.Count(slot => !left[slot].Equals(right[slot], StringComparison.OrdinalIgnoreCase));
 	}
 
 	private static void AssertContains(string source, string expected)

@@ -11,6 +11,7 @@ using MudSharp.Economy.Employment;
 using MudSharp.Effects.Concrete;
 using MudSharp.Framework;
 using MudSharp.GameItems;
+using MudSharp.Vehicles;
 
 #nullable enable
 
@@ -320,7 +321,7 @@ internal sealed class EmploymentTaskAuthoringService
 		sb.AppendLine("Employment Task Actions".GetLineWithTitle(actor, Telnet.Cyan, Telnet.BoldWhite));
 		sb.AppendLine("Use these with ".ColourCommand() + "tasks step <action> ...".ColourCommand() + " while you have a draft open.");
 		sb.AppendLine("You can also create and finalise a task in one command with ".ColourCommand() + "tasks create <name> <action> then <action>".ColourCommand() + ".");
-		sb.AppendLine("Planning and authorisation actions persist task state; audit-only actions record evidence without mutating purchasing, banking, store-account, craft, vehicle, or administrative systems.");
+		sb.AppendLine("Planning, authorisation, and safe logistics actions persist task state; audit-only actions record evidence without mutating purchasing, banking, store-account, craft, pricing, or administrative systems.");
 		sb.AppendLine();
 
 		if (!string.IsNullOrWhiteSpace(selector) && !selector.EqualTo("all"))
@@ -427,6 +428,10 @@ internal sealed class EmploymentTaskAuthoringService
 			"gettag" or "tag" => TryParseGetTag(actor, input, out step, out message),
 			"commodity" or "material" => TryParseCommodity(actor, input, out step, out message),
 			"deliver" or "delivery" => TryParseDeliver(actor, input, out step, out message),
+			"load" or "loaditems" => TryParseLoad(actor, input, out step, out message),
+			"unload" or "unloaditems" => TryParseUnload(actor, input, out step, out message),
+			"return" or "returncontainer" => TryParseReturn(actor, input, out step, out message),
+			"vehicle" or "cargo" => TryParseVehicle(actor, input, out step, out message),
 			"move" => TryParseMove(actor, input, out step, out message),
 			"board" => TryParseBoard(input, out step, out message),
 			"command" => TryParseCommand(actor, input, out step, out message),
@@ -668,6 +673,219 @@ internal sealed class EmploymentTaskAuthoringService
 		}
 
 		step = new DeliverItemsActionStep(destination, container, containerTag);
+		message = string.Empty;
+		return true;
+	}
+
+	private static bool TryParseLoad(ICharacter actor, StringStack input, out IEmploymentActionStep step,
+		out string message)
+	{
+		step = null!;
+		if (!input.IsFinished && input.PeekSpeech().EqualTo("all"))
+		{
+			input.PopSpeech();
+		}
+
+		if (input.IsFinished || !input.PopSpeech().EqualTo("into"))
+		{
+			message = $"Load steps use the syntax: {"tasks step load all into <item id|tag <tag>> [at <here|cell id>]".ColourCommand()}";
+			return false;
+		}
+
+		if (!TryParseItemOrTag(actor, input, "load target container", out var container, out var tag, out message))
+		{
+			return false;
+		}
+
+		ICell? location = null;
+		if (!input.IsFinished)
+		{
+			if (!input.PopSpeech().EqualTo("at"))
+			{
+				message = $"Load location options use the syntax {"at <here|cell id>".ColourCommand()}.";
+				return false;
+			}
+
+			if (input.IsFinished || !TryResolveLocation(actor, input.PopSpeech(), out location, out message))
+			{
+				return false;
+			}
+		}
+
+		if (!input.IsFinished)
+		{
+			message = $"Could not understand the extra text {input.SafeRemainingArgument.ColourCommand()} in the load step.";
+			return false;
+		}
+
+		step = new LoadItemsActionStep(container, tag, location);
+		message = string.Empty;
+		return true;
+	}
+
+	private static bool TryParseUnload(ICharacter actor, StringStack input, out IEmploymentActionStep step,
+		out string message)
+	{
+		step = null!;
+		if (!TryParseItemOrTag(actor, input, "unload source container", out var container, out var tag, out message))
+		{
+			return false;
+		}
+
+		ICell? location = null;
+		if (!input.IsFinished)
+		{
+			if (!input.PopSpeech().EqualTo("at"))
+			{
+				message = $"Unload location options use the syntax {"at <here|cell id>".ColourCommand()}.";
+				return false;
+			}
+
+			if (input.IsFinished || !TryResolveLocation(actor, input.PopSpeech(), out location, out message))
+			{
+				return false;
+			}
+		}
+
+		if (!input.IsFinished)
+		{
+			message = $"Could not understand the extra text {input.SafeRemainingArgument.ColourCommand()} in the unload step.";
+			return false;
+		}
+
+		step = new UnloadItemsActionStep(container, tag, location);
+		message = string.Empty;
+		return true;
+	}
+
+	private static bool TryParseReturn(ICharacter actor, StringStack input, out IEmploymentActionStep step,
+		out string message)
+	{
+		step = null!;
+		if (input.IsFinished)
+		{
+			message = $"Return steps use the syntax: {"tasks step return container <item id|tag <tag>> to <here|cell id> [container <item id>|containertag <tag>]".ColourCommand()}";
+			return false;
+		}
+
+		var assetKind = input.PopSpeech();
+		if (!assetKind.EqualTo("container"))
+		{
+			message = $"{assetKind.ColourCommand()} return is not executable yet. This slice supports {"return container".ColourCommand()}; vehicle driving and animal leading remain deferred.";
+			return false;
+		}
+
+		if (!TryParseItemOrTag(actor, input, "return container", out var container, out var tag, out message))
+		{
+			return false;
+		}
+
+		if (input.IsFinished || !input.PopSpeech().EqualTo("to"))
+		{
+			message = $"Return steps use the syntax: {"tasks step return container <item id|tag <tag>> to <here|cell id> [container <item id>|containertag <tag>]".ColourCommand()}";
+			return false;
+		}
+
+		if (input.IsFinished || !TryResolveLocation(actor, input.PopSpeech(), out var destination, out message))
+		{
+			return false;
+		}
+
+		IGameItem? destinationContainer = null;
+		string? destinationContainerTag = null;
+		while (!input.IsFinished)
+		{
+			var option = input.PopSpeech();
+			if (option.EqualTo("container"))
+			{
+				if (destinationContainerTag is not null)
+				{
+					message = "Specify either a destination container item id or a destination container tag, not both.";
+					return false;
+				}
+
+				if (input.IsFinished || !long.TryParse(input.PopSpeech(), out var containerId))
+				{
+					message = "Which destination container item id do you want to return to?";
+					return false;
+				}
+
+				destinationContainer = actor.Gameworld.TryGetItem(containerId, true);
+				if (destinationContainer is null)
+				{
+					message = $"There is no item with id {containerId.ToString("N0", actor).ColourValue()}.";
+					return false;
+				}
+
+				continue;
+			}
+
+			if (option.EqualTo("containertag"))
+			{
+				if (destinationContainer is not null)
+				{
+					message = "Specify either a destination container item id or a destination container tag, not both.";
+					return false;
+				}
+
+				if (input.IsFinished)
+				{
+					message = "Which destination container tag do you want to return to?";
+					return false;
+				}
+
+				destinationContainerTag = input.PopSpeech();
+				continue;
+			}
+
+			message = $"The return option {option.ColourCommand()} is not valid.";
+			return false;
+		}
+
+		step = new ReturnAssetActionStep(container, tag, destination, destinationContainer, destinationContainerTag);
+		message = string.Empty;
+		return true;
+	}
+
+	private static bool TryParseVehicle(ICharacter actor, StringStack input, out IEmploymentActionStep step,
+		out string message)
+	{
+		step = null!;
+		if (input.IsFinished || !input.PopSpeech().EqualTo("cargo"))
+		{
+			message = $"Vehicle steps use the syntax: {"tasks step vehicle cargo <vehicle id|exterior item id> <cargo id|cargo name>".ColourCommand()}";
+			return false;
+		}
+
+		if (input.IsFinished || !long.TryParse(input.PopSpeech(), out var vehicleId))
+		{
+			message = "Which vehicle id or exterior item id should this cargo step select?";
+			return false;
+		}
+
+		var vehicle = ResolveVehicle(actor, vehicleId);
+		if (vehicle is null)
+		{
+			message = $"There is no vehicle or vehicle exterior item with id {vehicleId.ToString("N0", actor).ColourValue()}.";
+			return false;
+		}
+
+		if (input.IsFinished)
+		{
+			message = "Which cargo space id or name should this vehicle step select?";
+			return false;
+		}
+
+		var cargoText = input.SafeRemainingArgument.Trim();
+		ConsumeRemaining(input);
+		var cargoSpace = ResolveCargoSpace(vehicle, cargoText);
+		if (cargoSpace is null)
+		{
+			message = $"Vehicle {vehicle.Name.ColourName()} does not have a cargo space matching {cargoText.ColourCommand()}.";
+			return false;
+		}
+
+		step = new VehicleOperationActionStep(vehicle, cargoSpace);
 		message = string.Empty;
 		return true;
 	}
@@ -914,6 +1132,64 @@ internal sealed class EmploymentTaskAuthoringService
 		return true;
 	}
 
+	private static bool TryParseItemOrTag(ICharacter actor, StringStack input, string noun, out IGameItem? item,
+		out string? tag, out string message)
+	{
+		item = null;
+		tag = null;
+		if (input.IsFinished)
+		{
+			message = $"Which {noun} do you want to use?";
+			return false;
+		}
+
+		var token = input.PopSpeech();
+		if (token.EqualTo("tag"))
+		{
+			if (input.IsFinished)
+			{
+				message = $"Which tag identifies the {noun}?";
+				return false;
+			}
+
+			tag = input.PopSpeech();
+			message = string.Empty;
+			return true;
+		}
+
+		if (!long.TryParse(token, out var itemId))
+		{
+			message = $"The {noun} must be an item id or {"tag <tag>".ColourCommand()}.";
+			return false;
+		}
+
+		item = actor.Gameworld.TryGetItem(itemId, true);
+		if (item is null)
+		{
+			message = $"There is no item with id {itemId.ToString("N0", actor).ColourValue()}.";
+			return false;
+		}
+
+		message = string.Empty;
+		return true;
+	}
+
+	private static IVehicle? ResolveVehicle(ICharacter actor, long id)
+	{
+		return actor.Gameworld.Vehicles.Get(id) ??
+		       actor.Gameworld.Vehicles.FirstOrDefault(x => x.ExteriorItemId == id || x.ExteriorItem?.Id == id);
+	}
+
+	private static IVehicleCargoSpace? ResolveCargoSpace(IVehicle vehicle, string text)
+	{
+		if (long.TryParse(text, out var id))
+		{
+			return vehicle.CargoSpaces.FirstOrDefault(x => x.Id == id || x.ProjectionItemId == id);
+		}
+
+		return vehicle.CargoSpaces.FirstOrDefault(x => x.Name.EqualTo(text) || x.Prototype.Name.EqualTo(text));
+	}
+
 	private static bool TryParseMoney(IEmploymentHost host, string text, out MoneyAmount amount, out string message)
 	{
 		amount = null!;
@@ -1139,6 +1415,14 @@ internal sealed class EmploymentTaskAuthoringService
 				$"go to {DescribeLocations(commodity.SourceLocations, actor)} and collect {commodity.RequiredWeight.ToString("N2", actor).ColourValue()} weight of {commodity.MaterialName.ColourCommand()} commodity{(string.IsNullOrWhiteSpace(commodity.TagName) ? string.Empty : $" tagged {commodity.TagName.ColourCommand()}")}{DescribeCharacteristics(commodity.Characteristics)}",
 			DeliverItemsActionStep deliver =>
 				$"go to {deliver.Destination.GetFriendlyReference(actor).ColourName()} and deliver all carried task items{DescribeDeliveryContainer(deliver, actor)}",
+			LoadItemsActionStep load =>
+				$"go to {DescribeOptionalLocation(load.TargetLocation, load.TargetContainer, actor)} and load all carried task items into {DescribeItemOrTag(load.TargetContainer, load.TargetContainerTag, actor)}",
+			UnloadItemsActionStep unload =>
+				$"go to {DescribeOptionalLocation(unload.SourceLocation, unload.SourceContainer, actor)} and unload task-loaded items from {DescribeItemOrTag(unload.SourceContainer, unload.SourceContainerTag, actor)}",
+			ReturnAssetActionStep returnAsset =>
+				$"return container {DescribeItemOrTag(returnAsset.Container, returnAsset.ContainerTag, actor)} to {returnAsset.Destination.GetFriendlyReference(actor).ColourName()}{DescribeReturnDestinationContainer(returnAsset, actor)}",
+			VehicleOperationActionStep vehicle =>
+				$"validate cargo space {vehicle.CargoSpace.Name.ColourName()} on {vehicle.Vehicle.Name.ColourName()}",
 			_ => step.StepType.DescribeEnum().ColourName()
 		};
 	}
@@ -1160,6 +1444,10 @@ internal sealed class EmploymentTaskAuthoringService
 			GetItemsByTagActionStep => EmploymentActionCatalog.Get("gettag"),
 			GetCommodityActionStep => EmploymentActionCatalog.Get("commodity"),
 			DeliverItemsActionStep => EmploymentActionCatalog.Get("deliver"),
+			LoadItemsActionStep => EmploymentActionCatalog.Get("load"),
+			UnloadItemsActionStep => EmploymentActionCatalog.Get("unload"),
+			ReturnAssetActionStep => EmploymentActionCatalog.Get("return"),
+			VehicleOperationActionStep => EmploymentActionCatalog.Get("vehicle"),
 			_ => EmploymentActionCatalog.ForStepType(step.StepType)
 		};
 	}
@@ -1232,6 +1520,44 @@ internal sealed class EmploymentTaskAuthoringService
 		if (!string.IsNullOrWhiteSpace(deliver.ContainerTag))
 		{
 			return $" into a container tagged {deliver.ContainerTag.ColourCommand()}";
+		}
+
+		return string.Empty;
+	}
+
+	private static string DescribeOptionalLocation(ICell? location, IGameItem? item, ICharacter actor)
+	{
+		if (location is not null)
+		{
+			return location.GetFriendlyReference(actor).ColourName();
+		}
+
+		var itemLocation = item?.TrueLocations.FirstOrDefault();
+		return itemLocation is null ? "the target location".ColourName() : itemLocation.GetFriendlyReference(actor).ColourName();
+	}
+
+	private static string DescribeItemOrTag(IGameItem? item, string? tag, ICharacter actor)
+	{
+		if (item is not null)
+		{
+			return item.HowSeen(actor, colour: false).ColourName();
+		}
+
+		return string.IsNullOrWhiteSpace(tag)
+			? "an unresolved container".ColourError()
+			: $"a container tagged {tag.ColourCommand()}";
+	}
+
+	private static string DescribeReturnDestinationContainer(ReturnAssetActionStep returnAsset, ICharacter actor)
+	{
+		if (returnAsset.DestinationContainer is not null)
+		{
+			return $" into {returnAsset.DestinationContainer.HowSeen(actor, colour: false).ColourName()}";
+		}
+
+		if (!string.IsNullOrWhiteSpace(returnAsset.DestinationContainerTag))
+		{
+			return $" into a container tagged {returnAsset.DestinationContainerTag.ColourCommand()}";
 		}
 
 		return string.Empty;

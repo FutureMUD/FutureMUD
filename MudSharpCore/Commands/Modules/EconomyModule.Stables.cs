@@ -84,7 +84,7 @@ Stable managers can use the following additional commands:
 	#3stable tasks cancel <##|name> [reason]#0 - cancels an active task
 	#3stable tasks create <name> <action> [then <action> ...]#0 - creates and finalises a task in one command
 	#3stable tasks draft new|show|rename|remove|discard|finalise ...#0 - drafts and finalises active tasks
-	#3stable tasks step getid|gettag|commodity|deliver|move|board|command|purchase|bankdeposit|bankwithdraw|storepay|craft|report|authorise|reserve|release|select|estimate|route ...#0 - adds executable or audit-only catalogue steps to your draft
+	#3stable tasks step getid|gettag|commodity|deliver|load|unload|return|vehicle|move|board|command|purchase|bankdeposit|bankwithdraw|storepay|craft|report|authorise|reserve|release|select|estimate|route ...#0 - adds executable or audit-only catalogue steps to your draft
 	#3stable goals#0 - lists manager goals
 	#3stable register#0 - shows employment register entries
 	#3stable employmentledger|empledger#0 - shows employment ledger entries

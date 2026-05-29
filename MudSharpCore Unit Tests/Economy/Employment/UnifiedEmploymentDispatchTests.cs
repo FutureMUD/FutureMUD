@@ -496,6 +496,49 @@ public class UnifiedEmploymentDispatchTests
 	}
 
 	[TestMethod]
+	public void LoadAndUnloadActionSteps_TrackLoadedTaskItems()
+	{
+		var currency = Currency();
+		IEmploymentHost host = new TestEmploymentHost("stable", currency.Object);
+		var manager = Character(1, "Manager").Object;
+		host.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.AssignTasks | EmploymentAuthority.ManageDeliveryRoutes), null);
+		var source = Cell(45, "tack room").Object;
+		var crateLocation = Cell(46, "wagon bay").Object;
+		var saddle = Item(450, "saddle").Object;
+		var bridle = Item(451, "bridle").Object;
+		var crateContents = new List<IGameItem>();
+		var crate = ContainerItem(452, "cargo crate", [crateLocation], [], crateContents).Object;
+		var context = new EmploymentTaskContext(host);
+		context.SetAvailableItems(source, [saddle, bridle]);
+		context.SetAvailableItems(crateLocation, [crate]);
+		context.SetItemTags(saddle, "tack");
+		context.SetItemTags(bridle, "tack");
+		context.SetItemTags(crate, "cargo");
+		var plan = new EmploymentActionPlan([
+			new GetItemsByTagActionStep(2, "tack", [source]),
+			new LoadItemsActionStep(null, "cargo", crateLocation),
+			new UnloadItemsActionStep(null, "cargo", crateLocation)
+		]);
+		var task = host.TaskBoard.CreateActiveTask("load tack", plan, manager);
+		var dispatcher = new EmploymentTaskDispatcher();
+		var profile = Profile(manager, 1.0M, PaymentMethodKind.Cash, Caps(EmploymentAICapability.CanDeliverItems));
+
+		Assert.IsTrue(dispatcher.TryAssignTask(task, [profile], context, out var reason), reason);
+		Assert.IsTrue(dispatcher.AdvanceTask(task, context).Success);
+		var load = dispatcher.AdvanceTask(task, context);
+		Assert.IsTrue(load.Success);
+		Assert.AreEqual(0, context.CarriedTaskItems(manager).Count);
+		CollectionAssert.AreEquivalent(new[] { saddle.Id, bridle.Id }, context.LoadedTaskItems(manager, crate).Select(x => x.Id).ToArray());
+		StringAssert.Contains(task.StepOperationalStates[1].LoadedAssets, $"container={crate.Id}");
+
+		var unload = dispatcher.AdvanceTask(task, context);
+		Assert.IsTrue(unload.Success);
+		CollectionAssert.AreEquivalent(new[] { saddle.Id, bridle.Id }, context.CarriedTaskItems(manager).Select(x => x.Id).ToArray());
+		Assert.AreEqual(EmploymentTaskStatus.Completed, task.Status);
+	}
+
+	[TestMethod]
 	public void TaskBoard_CreateActiveTaskRequiresActionPlanAuthority()
 	{
 		var currency = Currency();
@@ -848,24 +891,33 @@ public class UnifiedEmploymentDispatchTests
 					new GetItemsByTagActionStep(2, "linen", [source]),
 					new GetCommodityActionStep(5.0, "iron", "ingot",
 						new Dictionary<string, string> { ["grade"] = "refined" }, [source]),
-					new DeliverItemsActionStep(destination, container, "display-container")
+					new DeliverItemsActionStep(destination, container, "display-container"),
+					new LoadItemsActionStep(container, null, destination),
+					new UnloadItemsActionStep(container, null, destination),
+					new ReturnAssetActionStep(container, null, source, container)
 				]),
 				manager);
 
 			var reloadedHost = new PersistedEmploymentHost(251, "Stock Shop", gameworld.Object, currency.Object);
 			var steps = reloadedHost.Employment.TaskBoard.ActiveTasks.Single().ActionPlan.Steps;
 
-			Assert.AreEqual(4, steps.Count);
+			Assert.AreEqual(7, steps.Count);
 			Assert.AreEqual(EmploymentActionStepType.GetItemsById, steps[0].StepType);
 			Assert.AreEqual(EmploymentActionStepType.GetItemsByTag, steps[1].StepType);
 			Assert.AreEqual(EmploymentActionStepType.GetCommodity, steps[2].StepType);
 			Assert.AreEqual(EmploymentActionStepType.DeliverItems, steps[3].StepType);
+			Assert.AreEqual(EmploymentActionStepType.LoadItems, steps[4].StepType);
+			Assert.AreEqual(EmploymentActionStepType.UnloadItems, steps[5].StepType);
+			Assert.AreEqual(EmploymentActionStepType.ReturnAsset, steps[6].StepType);
 			Assert.AreEqual(9001, ((GetItemsByIdActionStep)steps[0]).ItemPrototypeIds.Single());
 			Assert.AreEqual("linen", ((GetItemsByTagActionStep)steps[1]).TagName);
 			Assert.AreEqual("iron", ((GetCommodityActionStep)steps[2]).MaterialName);
 			Assert.AreEqual("refined", ((GetCommodityActionStep)steps[2]).Characteristics["grade"]);
 			Assert.AreSame(destination, ((DeliverItemsActionStep)steps[3]).Destination);
 			Assert.AreSame(container, ((DeliverItemsActionStep)steps[3]).Container);
+			Assert.AreSame(container, ((LoadItemsActionStep)steps[4]).TargetContainer);
+			Assert.AreSame(container, ((UnloadItemsActionStep)steps[5]).SourceContainer);
+			Assert.AreSame(source, ((ReturnAssetActionStep)steps[6]).Destination);
 		}
 		finally
 		{

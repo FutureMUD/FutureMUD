@@ -14,6 +14,7 @@ using MudSharp.Economy.Currency;
 using MudSharp.Economy.Property;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
+using MudSharp.Vehicles;
 using DbActionPlan = MudSharp.Models.EmploymentActionPlanRecord;
 using DbActionStep = MudSharp.Models.EmploymentActionStepRecord;
 using DbActiveTask = MudSharp.Models.EmploymentActiveTaskRecord;
@@ -74,6 +75,15 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 		Dictionary<string, string> Characteristics, long[] SourceLocationIds);
 
 	private sealed record DeliverItemsStepPayload(long DestinationCellId, long? ContainerId, string? ContainerTag);
+
+	private sealed record LoadItemsStepPayload(long? ContainerId, string? ContainerTag, long? TargetLocationId);
+
+	private sealed record UnloadItemsStepPayload(long? ContainerId, string? ContainerTag, long? SourceLocationId);
+
+	private sealed record ReturnAssetStepPayload(long? ContainerId, string? ContainerTag, long DestinationCellId,
+		long? DestinationContainerId, string? DestinationContainerTag);
+
+	private sealed record VehicleOperationStepPayload(long VehicleId, long CargoSpaceId);
 
 	private sealed record CataloguedActionShellPayload(string ActionKey, string Description, long? TargetLocationId);
 
@@ -1077,6 +1087,14 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 				ToGetCommodityStep(record),
 			EmploymentActionStepType.DeliverItems =>
 				ToDeliverItemsStep(record, destination),
+			EmploymentActionStepType.LoadItems =>
+				ToLoadItemsStep(record),
+			EmploymentActionStepType.UnloadItems =>
+				ToUnloadItemsStep(record),
+			EmploymentActionStepType.ReturnAsset =>
+				ToReturnAssetStep(record),
+			EmploymentActionStepType.VehicleOperation =>
+				ToVehicleOperationStep(record),
 			EmploymentActionStepType.CataloguedShell =>
 				ToCataloguedShellStep(record, destination),
 			_ => null
@@ -1128,6 +1146,67 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 
 		var container = payload?.ContainerId is null ? null : _gameworld.TryGetItem(payload.ContainerId.Value, true);
 		return new DeliverItemsActionStep(destination, container, payload?.ContainerTag);
+	}
+
+	private LoadItemsActionStep? ToLoadItemsStep(DbActionStep record)
+	{
+		var payload = TryDeserializeActionPayload<LoadItemsStepPayload>(record.BoardText);
+		if (payload is null)
+		{
+			return null;
+		}
+
+		var container = payload.ContainerId is null ? null : _gameworld.TryGetItem(payload.ContainerId.Value, true);
+		var location = payload.TargetLocationId.HasValue ? _gameworld.Cells.Get(payload.TargetLocationId.Value) : null;
+		return new LoadItemsActionStep(container, payload.ContainerTag, location);
+	}
+
+	private UnloadItemsActionStep? ToUnloadItemsStep(DbActionStep record)
+	{
+		var payload = TryDeserializeActionPayload<UnloadItemsStepPayload>(record.BoardText);
+		if (payload is null)
+		{
+			return null;
+		}
+
+		var container = payload.ContainerId is null ? null : _gameworld.TryGetItem(payload.ContainerId.Value, true);
+		var location = payload.SourceLocationId.HasValue ? _gameworld.Cells.Get(payload.SourceLocationId.Value) : null;
+		return new UnloadItemsActionStep(container, payload.ContainerTag, location);
+	}
+
+	private ReturnAssetActionStep? ToReturnAssetStep(DbActionStep record)
+	{
+		var payload = TryDeserializeActionPayload<ReturnAssetStepPayload>(record.BoardText);
+		if (payload is null)
+		{
+			return null;
+		}
+
+		var destination = _gameworld.Cells.Get(payload.DestinationCellId);
+		if (destination is null)
+		{
+			return null;
+		}
+
+		var container = payload.ContainerId is null ? null : _gameworld.TryGetItem(payload.ContainerId.Value, true);
+		var destinationContainer = payload.DestinationContainerId is null
+			? null
+			: _gameworld.TryGetItem(payload.DestinationContainerId.Value, true);
+		return new ReturnAssetActionStep(container, payload.ContainerTag, destination, destinationContainer,
+			payload.DestinationContainerTag);
+	}
+
+	private VehicleOperationActionStep? ToVehicleOperationStep(DbActionStep record)
+	{
+		var payload = TryDeserializeActionPayload<VehicleOperationStepPayload>(record.BoardText);
+		if (payload is null)
+		{
+			return null;
+		}
+
+		var vehicle = _gameworld.Vehicles.Get(payload.VehicleId);
+		var cargo = vehicle?.CargoSpaces.FirstOrDefault(x => x.Id == payload.CargoSpaceId);
+		return vehicle is null || cargo is null ? null : new VehicleOperationActionStep(vehicle, cargo);
 	}
 
 	private CataloguedActionShellStep? ToCataloguedShellStep(DbActionStep record, ICell? destination)
@@ -1267,6 +1346,39 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 					deliver.Destination.Id,
 					deliver.Container?.Id,
 					deliver.ContainerTag));
+				break;
+			case LoadItemsActionStep load:
+				record.Description = "load task items";
+				record.DestinationCellId = load.TargetLocation?.Id;
+				record.BoardText = SerializeActionPayload(new LoadItemsStepPayload(
+					load.TargetContainer?.Id,
+					load.TargetContainerTag,
+					load.TargetLocation?.Id));
+				break;
+			case UnloadItemsActionStep unload:
+				record.Description = "unload task items";
+				record.DestinationCellId = unload.SourceLocation?.Id;
+				record.BoardText = SerializeActionPayload(new UnloadItemsStepPayload(
+					unload.SourceContainer?.Id,
+					unload.SourceContainerTag,
+					unload.SourceLocation?.Id));
+				break;
+			case ReturnAssetActionStep returnAsset:
+				record.Description = "return task container";
+				record.DestinationCellId = returnAsset.Destination.Id;
+				record.BoardText = SerializeActionPayload(new ReturnAssetStepPayload(
+					returnAsset.Container?.Id,
+					returnAsset.ContainerTag,
+					returnAsset.Destination.Id,
+					returnAsset.DestinationContainer?.Id,
+					returnAsset.DestinationContainerTag));
+				break;
+			case VehicleOperationActionStep vehicle:
+				record.Description = $"select cargo {vehicle.CargoSpace.Name} on {vehicle.Vehicle.Name}";
+				record.DestinationCellId = vehicle.Vehicle.Location?.Id;
+				record.BoardText = SerializeActionPayload(new VehicleOperationStepPayload(
+					vehicle.Vehicle.Id,
+					vehicle.CargoSpace.Id));
 				break;
 			case CataloguedActionShellStep shell:
 				record.CommandName = shell.ActionKey;

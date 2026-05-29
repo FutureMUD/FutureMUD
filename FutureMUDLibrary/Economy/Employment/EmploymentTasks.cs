@@ -48,7 +48,11 @@ public enum EmploymentActionStepType
 	GetItemsByTag,
 	GetCommodity,
 	DeliverItems,
-	CataloguedShell
+	CataloguedShell,
+	LoadItems,
+	UnloadItems,
+	ReturnAsset,
+	VehicleOperation
 }
 
 public enum EmploymentActionStepStatus
@@ -261,6 +265,15 @@ public interface IEmploymentTaskContext
 		out string reason);
 	bool TryDeliverTaskItems(ICharacter actor, ICell destination, IGameItem? container, string? containerTag,
 		out string reason);
+	bool TryLoadCarriedTaskItems(ICharacter actor, IGameItem targetContainer, out string reason,
+		out EmploymentActionStepOperationalState operationalState);
+	bool TryUnloadTaskItems(ICharacter actor, IGameItem sourceContainer, out string reason,
+		out EmploymentActionStepOperationalState operationalState);
+	bool TryReturnContainer(ICharacter actor, IGameItem container, ICell destination, IGameItem? destinationContainer,
+		string? destinationContainerTag, out string reason,
+		out EmploymentActionStepOperationalState operationalState);
+	IReadOnlyCollection<IGameItem> LoadedTaskItems(ICharacter actor, IGameItem container);
+	void HydrateTaskState(IEmploymentActiveTask task, int currentStepIndex);
 	void RecordRegister(EmploymentRegisterEntryType entryType, ICharacter? actor, string description,
 		Guid? correlationId = null);
 	void RecordLedger(EmploymentLedgerEntryType entryType, ICharacter? actor, MoneyAmount? amount, string description,

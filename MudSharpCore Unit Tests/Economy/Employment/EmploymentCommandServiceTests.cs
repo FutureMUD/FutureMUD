@@ -809,7 +809,8 @@ public class EmploymentCommandServiceTests
 		var executable = new[]
 		{
 			"getid", "gettag", "commodity", "deliver", "move", "board", "command", "report",
-			"authorise", "reserve", "release", "select", "estimate", "route"
+			"authorise", "reserve", "release", "select", "estimate", "route", "load", "unload",
+			"return", "vehicle"
 		};
 		var auditOnly = new[]
 		{
@@ -817,7 +818,7 @@ public class EmploymentCommandServiceTests
 		};
 		var deferred = new[]
 		{
-			"transfer", "float", "return", "load", "unload", "vehicle", "station", "price",
+			"transfer", "float", "station", "price",
 			"jobopening", "rule", "admintask", "marktask"
 		};
 
@@ -897,6 +898,9 @@ public class EmploymentCommandServiceTests
 		Assert.IsTrue(authoring.TryAddStep(manager, host, new StringStack("bankwithdraw 5"), out message), message);
 		Assert.IsTrue(authoring.TryAddStep(manager, host, new StringStack("storepay supplier amount 5"), out message), message);
 		Assert.IsTrue(authoring.TryAddStep(manager, host, new StringStack("craft linen bundles"), out message), message);
+		Assert.IsTrue(authoring.TryAddStep(manager, host, new StringStack("load all into tag crate at here"), out message), message);
+		Assert.IsTrue(authoring.TryAddStep(manager, host, new StringStack("unload tag crate at here"), out message), message);
+		Assert.IsTrue(authoring.TryAddStep(manager, host, new StringStack("return container tag crate to here containertag depot"), out message), message);
 		Assert.IsTrue(authoring.TryAddStep(manager, host, new StringStack("report shelves checked"), out message), message);
 		Assert.IsTrue(authoring.TryAddStep(manager, host, new StringStack("authorise purchase approved"), out message), message);
 		Assert.IsTrue(authoring.TryAddStep(manager, host, new StringStack("reserve feed crates"), out message), message);
@@ -911,6 +915,8 @@ public class EmploymentCommandServiceTests
 		StringAssert.Contains(rendered, "PostToHostBoard");
 		StringAssert.Contains(rendered, "bank deposit");
 		StringAssert.Contains(rendered, "route");
+		StringAssert.Contains(rendered, "load all carried task items");
+		StringAssert.Contains(rendered, "return container");
 	}
 
 	[TestMethod]

@@ -5,6 +5,9 @@ using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Economy.Employment;
 using MudSharp.GameItems;
+using MudSharp.GameItems.Interfaces;
+using MudSharp.Framework;
+using MudSharp.Vehicles;
 
 #nullable enable
 
@@ -797,5 +800,436 @@ public sealed class DeliverItemsActionStep : EmploymentActionStepBase, IEmployme
 	public IReadOnlyCollection<ICell> ExecutionLocationHints(IEmploymentTaskContext context, ICharacter actor)
 	{
 		return [Destination];
+	}
+}
+
+public sealed class LoadItemsActionStep : EmploymentActionStepBase, IEmploymentActionStepLocationHint
+{
+	public LoadItemsActionStep(IGameItem? targetContainer, string? targetContainerTag, ICell? targetLocation)
+		: base(
+			EmploymentActionStepType.LoadItems,
+			EmploymentAuthority.ManageDeliveryRoutes,
+			new[] { EmploymentAICapability.CanDeliverItems },
+			false,
+			false)
+	{
+		TargetContainer = targetContainer;
+		TargetContainerTag = targetContainerTag;
+		TargetLocation = targetLocation;
+	}
+
+	public IGameItem? TargetContainer { get; }
+	public string? TargetContainerTag { get; }
+	public ICell? TargetLocation { get; }
+
+	public override bool CanExecute(IEmploymentTaskContext context, ICharacter actor, out string reason)
+	{
+		if (!base.CanExecute(context, actor, out reason))
+		{
+			return false;
+		}
+
+		if (TargetLocation is not null && !context.CanPath(actor, TargetLocation))
+		{
+			reason = "The assigned employee cannot path to the load location.";
+			return false;
+		}
+
+		if (!context.CarriedTaskItems(actor).Any())
+		{
+			reason = "The assigned employee is not carrying any task items to load.";
+			return false;
+		}
+
+		var target = ResolveTargetContainer(context, actor);
+		if (target is null)
+		{
+			reason = string.IsNullOrWhiteSpace(TargetContainerTag)
+				? "The load target container no longer exists."
+				: $"There is no load target container tagged {TargetContainerTag}.";
+			return false;
+		}
+
+		if (target.GetItemType<IContainer>() is null)
+		{
+			reason = $"{target.Name} is not a container.";
+			return false;
+		}
+
+		reason = string.Empty;
+		return true;
+	}
+
+	public override EmploymentActionStepResult Execute(IEmploymentTaskContext context, ICharacter actor)
+	{
+		var target = ResolveTargetContainer(context, actor);
+		if (target is null)
+		{
+			return EmploymentActionStepResult.Blocked("The load target container is not available.");
+		}
+
+		if (!context.TryLoadCarriedTaskItems(actor, target, out var reason, out var state))
+		{
+			return EmploymentActionStepResult.Blocked(reason);
+		}
+
+		context.RecordRegister(EmploymentRegisterEntryType.AuditActionRecorded, actor,
+			$"Loaded task items into {target.Name}.");
+		return new EmploymentActionStepResult(true, $"Loaded task items into {target.Name}.", true, state);
+	}
+
+	public IReadOnlyCollection<ICell> ExecutionLocationHints(IEmploymentTaskContext context, ICharacter actor)
+	{
+		if (TargetLocation is not null)
+		{
+			return [TargetLocation];
+		}
+
+		var target = ResolveTargetContainer(context, actor);
+		return target?.TrueLocations.ToList() ?? [];
+	}
+
+	private IGameItem? ResolveTargetContainer(IEmploymentTaskContext context, ICharacter actor)
+	{
+		if (TargetContainer is not null)
+		{
+			return TargetContainer;
+		}
+
+		if (string.IsNullOrWhiteSpace(TargetContainerTag))
+		{
+			return null;
+		}
+
+		var location = TargetLocation ?? actor.Location;
+		return location is null
+			? null
+			: context.AvailableItems(location).FirstOrDefault(x => context.ItemHasTag(x, TargetContainerTag));
+	}
+}
+
+public sealed class UnloadItemsActionStep : EmploymentActionStepBase, IEmploymentActionStepLocationHint
+{
+	public UnloadItemsActionStep(IGameItem? sourceContainer, string? sourceContainerTag, ICell? sourceLocation)
+		: base(
+			EmploymentActionStepType.UnloadItems,
+			EmploymentAuthority.ManageDeliveryRoutes,
+			new[] { EmploymentAICapability.CanDeliverItems },
+			false,
+			false)
+	{
+		SourceContainer = sourceContainer;
+		SourceContainerTag = sourceContainerTag;
+		SourceLocation = sourceLocation;
+	}
+
+	public IGameItem? SourceContainer { get; }
+	public string? SourceContainerTag { get; }
+	public ICell? SourceLocation { get; }
+
+	public override bool CanExecute(IEmploymentTaskContext context, ICharacter actor, out string reason)
+	{
+		if (!base.CanExecute(context, actor, out reason))
+		{
+			return false;
+		}
+
+		if (SourceLocation is not null && !context.CanPath(actor, SourceLocation))
+		{
+			reason = "The assigned employee cannot path to the unload location.";
+			return false;
+		}
+
+		var source = ResolveSourceContainer(context, actor);
+		if (source is null)
+		{
+			reason = string.IsNullOrWhiteSpace(SourceContainerTag)
+				? "The unload source container no longer exists."
+				: $"There is no unload source container tagged {SourceContainerTag}.";
+			return false;
+		}
+
+		if (!context.LoadedTaskItems(actor, source).Any())
+		{
+			reason = $"There are no task-loaded items recorded in {source.Name}.";
+			return false;
+		}
+
+		reason = string.Empty;
+		return true;
+	}
+
+	public override EmploymentActionStepResult Execute(IEmploymentTaskContext context, ICharacter actor)
+	{
+		var source = ResolveSourceContainer(context, actor);
+		if (source is null)
+		{
+			return EmploymentActionStepResult.Blocked("The unload source container is not available.");
+		}
+
+		if (!context.TryUnloadTaskItems(actor, source, out var reason, out var state))
+		{
+			return EmploymentActionStepResult.Blocked(reason);
+		}
+
+		context.RecordRegister(EmploymentRegisterEntryType.AuditActionRecorded, actor,
+			$"Unloaded task items from {source.Name}.");
+		return new EmploymentActionStepResult(true, $"Unloaded task items from {source.Name}.", true, state);
+	}
+
+	public IReadOnlyCollection<ICell> ExecutionLocationHints(IEmploymentTaskContext context, ICharacter actor)
+	{
+		if (SourceLocation is not null)
+		{
+			return [SourceLocation];
+		}
+
+		var source = ResolveSourceContainer(context, actor);
+		return source?.TrueLocations.ToList() ?? [];
+	}
+
+	private IGameItem? ResolveSourceContainer(IEmploymentTaskContext context, ICharacter actor)
+	{
+		if (SourceContainer is not null)
+		{
+			return SourceContainer;
+		}
+
+		if (string.IsNullOrWhiteSpace(SourceContainerTag))
+		{
+			return null;
+		}
+
+		var location = SourceLocation ?? actor.Location;
+		return location is null
+			? null
+			: context.AvailableItems(location).FirstOrDefault(x => context.ItemHasTag(x, SourceContainerTag));
+	}
+}
+
+public sealed class ReturnAssetActionStep : EmploymentActionStepBase, IEmploymentActionStepLocationHint
+{
+	public ReturnAssetActionStep(IGameItem? container, string? containerTag, ICell destination,
+		IGameItem? destinationContainer = null, string? destinationContainerTag = null)
+		: base(
+			EmploymentActionStepType.ReturnAsset,
+			EmploymentAuthority.ManageDeliveryRoutes,
+			new[] { EmploymentAICapability.CanDeliverItems },
+			false,
+			false)
+	{
+		Container = container;
+		ContainerTag = containerTag;
+		Destination = destination;
+		DestinationContainer = destinationContainer;
+		DestinationContainerTag = destinationContainerTag;
+	}
+
+	public IGameItem? Container { get; }
+	public string? ContainerTag { get; }
+	public ICell Destination { get; }
+	public IGameItem? DestinationContainer { get; }
+	public string? DestinationContainerTag { get; }
+
+	public override bool CanExecute(IEmploymentTaskContext context, ICharacter actor, out string reason)
+	{
+		if (!base.CanExecute(context, actor, out reason))
+		{
+			return false;
+		}
+
+		if (!context.CanPath(actor, Destination))
+		{
+			reason = "The assigned employee cannot path to the return destination.";
+			return false;
+		}
+
+		if (ResolveContainer(context, actor) is null)
+		{
+			reason = string.IsNullOrWhiteSpace(ContainerTag)
+				? "The return container no longer exists."
+				: $"There is no return container tagged {ContainerTag}.";
+			return false;
+		}
+
+		if (DestinationContainer is null && !string.IsNullOrWhiteSpace(DestinationContainerTag) &&
+		    !context.AvailableItems(Destination).Any(x => context.ItemHasTag(x, DestinationContainerTag)))
+		{
+			reason = $"There is no destination container tagged {DestinationContainerTag}.";
+			return false;
+		}
+
+		reason = string.Empty;
+		return true;
+	}
+
+	public override EmploymentActionStepResult Execute(IEmploymentTaskContext context, ICharacter actor)
+	{
+		var container = ResolveContainer(context, actor);
+		if (container is null)
+		{
+			return EmploymentActionStepResult.Blocked("The return container is not available.");
+		}
+
+		if (!ActorCarriesTaskItem(context, actor, container))
+		{
+			var source = actor.Location;
+			if (source is null || !container.TrueLocations.Any(x => x.Id == source.Id))
+			{
+				return EmploymentActionStepResult.Blocked($"The assigned employee must go to {container.Name} before returning it.");
+			}
+
+			if (!context.TryCollectTaskItem(actor, container, source, out var collectReason))
+			{
+				return EmploymentActionStepResult.Blocked(collectReason);
+			}
+
+			return new EmploymentActionStepResult(
+				true,
+				$"Collected {container.Name} for return to {Destination.Name}.",
+				false,
+				new EmploymentActionStepOperationalState(SelectedResources: $"Return container {container.Id}"));
+		}
+
+		if (actor.Location is not null && actor.Location.Id != Destination.Id)
+		{
+			return new EmploymentActionStepResult(
+				true,
+				$"Carrying {container.Name} to {Destination.Name}.",
+				false,
+				new EmploymentActionStepOperationalState(SelectedResources: $"Return container {container.Id}"));
+		}
+
+		if (!context.TryReturnContainer(actor, container, Destination, DestinationContainer, DestinationContainerTag,
+			    out var reason, out var state))
+		{
+			return EmploymentActionStepResult.Blocked(reason);
+		}
+
+		context.RecordRegister(EmploymentRegisterEntryType.AuditActionRecorded, actor,
+			$"Returned container {container.Name}.");
+		return new EmploymentActionStepResult(true, $"Returned container {container.Name}.", true, state);
+	}
+
+	public IReadOnlyCollection<ICell> ExecutionLocationHints(IEmploymentTaskContext context, ICharacter actor)
+	{
+		var container = ResolveContainer(context, actor);
+		if (container is null)
+		{
+			return [Destination];
+		}
+
+		if (ActorCarriesTaskItem(context, actor, container))
+		{
+			return [Destination];
+		}
+
+		var sourceLocations = container.TrueLocations.ToList();
+		return sourceLocations.Any() ? sourceLocations : [Destination];
+	}
+
+	private IGameItem? ResolveContainer(IEmploymentTaskContext context, ICharacter actor)
+	{
+		if (Container is not null)
+		{
+			return Container;
+		}
+
+		if (string.IsNullOrWhiteSpace(ContainerTag))
+		{
+			return null;
+		}
+
+		var carried = context.CarriedTaskItems(actor)
+		                     .Concat(actor.Inventory)
+		                     .DistinctBy(x => x.Id)
+		                     .FirstOrDefault(x => context.ItemHasTag(x, ContainerTag));
+		if (carried is not null)
+		{
+			return carried;
+		}
+
+		return actor.Location is null
+			? null
+			: context.AvailableItems(actor.Location).FirstOrDefault(x => context.ItemHasTag(x, ContainerTag));
+	}
+
+	private static bool ActorCarriesTaskItem(IEmploymentTaskContext context, ICharacter actor, IGameItem item)
+	{
+		return context.CarriedTaskItems(actor).Any(x => x.Id == item.Id) ||
+		       actor.Inventory.Any(x => x.Id == item.Id);
+	}
+}
+
+public sealed class VehicleOperationActionStep : EmploymentActionStepBase, IEmploymentActionStepLocationHint
+{
+	public VehicleOperationActionStep(IVehicle vehicle, IVehicleCargoSpace cargoSpace)
+		: base(
+			EmploymentActionStepType.VehicleOperation,
+			EmploymentAuthority.ManageDeliveryRoutes,
+			new[] { EmploymentAICapability.CanUseVehicles },
+			false,
+			false)
+	{
+		Vehicle = vehicle;
+		CargoSpace = cargoSpace;
+	}
+
+	public IVehicle Vehicle { get; }
+	public IVehicleCargoSpace CargoSpace { get; }
+
+	public override bool CanExecute(IEmploymentTaskContext context, ICharacter actor, out string reason)
+	{
+		if (!base.CanExecute(context, actor, out reason))
+		{
+			return false;
+		}
+
+		if (Vehicle.Disabled || Vehicle.Destroyed)
+		{
+			reason = $"{Vehicle.Name} is not available for employment cargo work.";
+			return false;
+		}
+
+		if (CargoSpace.IsDisabled || !CargoSpace.CanAccess(actor, out reason))
+		{
+			reason = string.IsNullOrWhiteSpace(reason)
+				? $"{CargoSpace.Name} is not accessible."
+				: reason;
+			return false;
+		}
+
+		var vehicleLocation = Vehicle.Location;
+		if (vehicleLocation is null)
+		{
+			reason = $"{Vehicle.Name} is not currently at a reachable location.";
+			return false;
+		}
+
+		if (!context.CanPath(actor, vehicleLocation))
+		{
+			reason = "The assigned employee cannot path to the vehicle cargo space.";
+			return false;
+		}
+
+		reason = string.Empty;
+		return true;
+	}
+
+	public override EmploymentActionStepResult Execute(IEmploymentTaskContext context, ICharacter actor)
+	{
+		context.RecordRegister(EmploymentRegisterEntryType.AuditActionRecorded, actor,
+			$"Selected cargo space {CargoSpace.Name} on {Vehicle.Name}.");
+		return new EmploymentActionStepResult(
+			true,
+			$"Selected cargo space {CargoSpace.Name} on {Vehicle.Name}.",
+			true,
+			new EmploymentActionStepOperationalState(
+				SelectedResources: $"vehicle={Vehicle.Id};cargo={CargoSpace.Id};projection={CargoSpace.ProjectionItemId?.ToString("F0") ?? string.Empty}"));
+	}
+
+	public IReadOnlyCollection<ICell> ExecutionLocationHints(IEmploymentTaskContext context, ICharacter actor)
+	{
+		return Vehicle.Location is null ? [] : [Vehicle.Location];
 	}
 }

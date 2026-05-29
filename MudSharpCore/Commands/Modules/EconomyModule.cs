@@ -1971,7 +1971,7 @@ Shop manager employment shortcuts:
 	#3shop tasks cancel <##|name> [reason]#0 - cancels an active task
 	#3shop tasks create <name> <action> [then <action> ...]#0 - creates and finalises a task in one command
 	#3shop tasks draft new|show|rename|remove|discard|finalise ...#0 - drafts and finalises active tasks
-	#3shop tasks step getid|gettag|commodity|deliver|move|board|command|purchase|bankdeposit|bankwithdraw|storepay|craft|report|authorise|reserve|release|select|estimate|route ...#0 - adds executable or audit-only catalogue steps to your draft
+	#3shop tasks step getid|gettag|commodity|deliver|load|unload|return|vehicle|move|board|command|purchase|bankdeposit|bankwithdraw|storepay|craft|report|authorise|reserve|release|select|estimate|route ...#0 - adds executable or audit-only catalogue steps to your draft
 	#3shop goals#0 - lists manager goals
 	#3shop register#0 - shows employment register entries
 	#3shop employmentledger|empledger#0 - shows employment ledger entries
@@ -2030,7 +2030,7 @@ Shop manager employment shortcuts:
 	#3shop tasks cancel <##|name> [reason]#0 - cancels an active task
 	#3shop tasks create <name> <action> [then <action> ...]#0 - creates and finalises a task in one command
 	#3shop tasks draft new|show|rename|remove|discard|finalise ...#0 - drafts and finalises active tasks
-	#3shop tasks step getid|gettag|commodity|deliver|move|board|command|purchase|bankdeposit|bankwithdraw|storepay|craft|report|authorise|reserve|release|select|estimate|route ...#0 - adds executable or audit-only catalogue steps to your draft
+	#3shop tasks step getid|gettag|commodity|deliver|load|unload|return|vehicle|move|board|command|purchase|bankdeposit|bankwithdraw|storepay|craft|report|authorise|reserve|release|select|estimate|route ...#0 - adds executable or audit-only catalogue steps to your draft
 	#3shop goals#0 - lists manager goals
 	#3shop register#0 - shows employment register entries
 	#3shop employmentledger|empledger#0 - shows employment ledger entries
@@ -4744,7 +4744,7 @@ Additionally, if you are the manager of a bank, you can use the following additi
 	#3bank tasks cancel <##|name> [reason]#0 - cancels an active task
 	#3bank tasks create <name> <action> [then <action> ...]#0 - creates and finalises a task in one command
 	#3bank tasks draft new|show|rename|remove|discard|finalise ...#0 - drafts and finalises active tasks
-	#3bank tasks step getid|gettag|commodity|deliver|move|board|command|purchase|bankdeposit|bankwithdraw|storepay|craft|report|authorise|reserve|release|select|estimate|route ...#0 - adds executable or audit-only catalogue steps to your draft
+	#3bank tasks step getid|gettag|commodity|deliver|load|unload|return|vehicle|move|board|command|purchase|bankdeposit|bankwithdraw|storepay|craft|report|authorise|reserve|release|select|estimate|route ...#0 - adds executable or audit-only catalogue steps to your draft
 	#3bank goals#0 - lists manager goals
 	#3bank register#0 - shows employment register entries
 	#3bank employmentledger|empledger#0 - shows employment ledger entries
@@ -4830,7 +4830,7 @@ Additionally, if you are the manager of a bank, you can use the following additi
 	#3bank tasks cancel <##|name> [reason]#0 - cancels an active task
 	#3bank tasks create <name> <action> [then <action> ...]#0 - creates and finalises a task in one command
 	#3bank tasks draft new|show|rename|remove|discard|finalise ...#0 - drafts and finalises active tasks
-	#3bank tasks step getid|gettag|commodity|deliver|move|board|command|purchase|bankdeposit|bankwithdraw|storepay|craft|report|authorise|reserve|release|select|estimate|route ...#0 - adds executable or audit-only catalogue steps to your draft
+	#3bank tasks step getid|gettag|commodity|deliver|load|unload|return|vehicle|move|board|command|purchase|bankdeposit|bankwithdraw|storepay|craft|report|authorise|reserve|release|select|estimate|route ...#0 - adds executable or audit-only catalogue steps to your draft
 	#3bank goals#0 - lists manager goals
 	#3bank register#0 - shows employment register entries
 	#3bank employmentledger|empledger#0 - shows employment ledger entries
@@ -5738,7 +5738,7 @@ Auction house manager employment shortcuts:
 	#3auction tasks cancel <##|name> [reason]#0 - cancels an active task
 	#3auction tasks create <name> <action> [then <action> ...]#0 - creates and finalises a task in one command
 	#3auction tasks draft new|show|rename|remove|discard|finalise ...#0 - drafts and finalises active tasks
-	#3auction tasks step getid|gettag|commodity|deliver|move|board|command|purchase|bankdeposit|bankwithdraw|storepay|craft|report|authorise|reserve|release|select|estimate|route ...#0 - adds executable or audit-only catalogue steps to your draft
+	#3auction tasks step getid|gettag|commodity|deliver|load|unload|return|vehicle|move|board|command|purchase|bankdeposit|bankwithdraw|storepay|craft|report|authorise|reserve|release|select|estimate|route ...#0 - adds executable or audit-only catalogue steps to your draft
 	#3auction goals#0 - lists manager goals
 	#3auction register#0 - shows employment register entries
 	#3auction employmentledger|empledger#0 - shows employment ledger entries
@@ -5805,7 +5805,7 @@ Auction house manager employment shortcuts:
 	#3auction tasks cancel <##|name> [reason]#0 - cancels an active task
 	#3auction tasks create <name> <action> [then <action> ...]#0 - creates and finalises a task in one command
 	#3auction tasks draft new|show|rename|remove|discard|finalise ...#0 - drafts and finalises active tasks
-	#3auction tasks step getid|gettag|commodity|deliver|move|board|command|purchase|bankdeposit|bankwithdraw|storepay|craft|report|authorise|reserve|release|select|estimate|route ...#0 - adds executable or audit-only catalogue steps to your draft
+	#3auction tasks step getid|gettag|commodity|deliver|load|unload|return|vehicle|move|board|command|purchase|bankdeposit|bankwithdraw|storepay|craft|report|authorise|reserve|release|select|estimate|route ...#0 - adds executable or audit-only catalogue steps to your draft
 	#3auction goals#0 - lists manager goals
 	#3auction register#0 - shows employment register entries
 	#3auction employmentledger|empledger#0 - shows employment ledger entries

@@ -1,30 +1,14 @@
 # Medieval Crafting Catalogue Audit
 
-This document records the source-backed audit boundary for the medieval item and craft slice. It also records the second-pass quality target after review of the first merged implementation.
+This document records the source-backed audit boundary and the second-pass quality target for the medieval item and craft slice.
 
-The first medieval pass established useful scaffolding: the `medieval` era dispatcher, shared `historic_*` workshop foundations, broad production-chain stock, 18 culture keys, status-role clothing axes, and craft-suite wiring. That scaffold should be retained. However, the first pass over-relied on generated culture/status matrices and generic cue text. The second pass must add exact culture catalogues and quality tests so that cultures differ by named material culture, not only by builder notes, tags, and appended phrases.
+The first medieval pass established useful scaffolding: the `medieval` era dispatcher, shared `historic_*` workshop foundations, broad production-chain stock, 18 culture keys, status-role clothing axes, and craft-suite wiring. That scaffold should be retained. However, the first pass over-relied on generated culture/status matrices and generic cue text. The second pass must add exact outfit catalogues and quality tests so that cultures differ by named material culture, not only by builder notes, tags, and appended phrases.
 
 ## Core Design Correction
 
-Shared production chains are encouraged; shared final products are not.
+Shared production chains are encouraged; shared final outfits are not.
 
-Medieval upstream stock such as yarn, garment cloth, broadcloth, leather panels, mail rings, paper pulp, sealing wax, weapon blanks, shield boards, lockwork, glazing stock, and dairy/brewing stock should remain broad and reusable. Finished clothing, foods, documents, weapons, devotional goods, household goods, and visible final craft names should be culturally and socially specific.
-
-## MED-CAT-001 Catalogue Boundary
-
-MED-CAT-001 separates three things that were previously blurred:
-
-- **Generic baseline stock**: shared `historic_*` foundations, production-chain stock, common workshop tools, repair kits, and the existing generated status-role wardrobe. These items remain useful starter content, but they do not satisfy explicit culture catalogue requirements.
-- **Generated v1 culture scaffolding**: the current cue-based armour, foodway, writing/admin, and devotional placeholder rows remain legacy scaffold until later implementation goals replace or supersede them with named targets. They should not be expanded by adding more `ClothingCue`, `FoodCue`, or `WritingCue` strings.
-- **Explicit culture catalogue**: `Medieval_Culture_Catalogue.md` is now the authoritative exact target list, mirrored in `ItemSeeder.Rework.Medieval.cs` by `MedievalCultureCatalogue`. Those entries are grouped under Clothing, Military, Food and Beverage, Writing and Administration, and Household and Devotional, and future final product items/crafts should be generated from that explicit list rather than broad family patterns.
-
-This goal establishes the catalogue structure and tests. It does not implement all listed culture items or rewrite the production chains.
-
-## Documented Builder Workflow Surfaces
-
-The medieval suite remains connected to the general Builder Workflows documentation and keeps the following implementation slices visible to tests and future passes: Food and beverage, Furniture and containers, Jewellery/devotional, Medical/apothecary, Writing/administration, crossbow manufacture, paper and parchment, stained glass, guild weights and measures, and luxury textile finishes.
-
-Common baseline exact references retained from the v1 scaffold include `historic_workshop_hearth`, `historic_lit_workshop_hearth`, `historic_updraft_kiln`, `historic_lit_updraft_kiln`, `historic_warp_weighted_loom`, `historic_treadle_loom`, `historic_drop_spindle`, `historic_sewing_needle`, `historic_textile_shears`, `historic_awl_punch`, `historic_dye_vat`, `historic_tanning_rack`, `historic_hand_quern`, `historic_oil_lamp`, `historic_lit_oil_lamp`, `historic_workshop_anvil`, `historic_forge_tongs`, `historic_workshop_hammer`, `historic_bellows`, `medieval_coopers_croze`, `medieval_iron_wood_plane`, `medieval_bookbinder_press`, `medieval_locksmith_file_set`, `medieval_devotional_wooden_rosary`, `medieval_devotional_reliquary_locket`, `medieval_devotional_icon_pendant`, `medieval_devotional_pilgrim_badge`, `medieval_devotional_reliquary_box`, and `medieval_devotional_scripture_tablet`.
+Medieval upstream stock such as yarn, garment cloth, broadcloth, leather panels, mail rings, paper pulp, sealing wax, weapon blanks, shield boards, lockwork, glazing stock, and dairy/brewing stock should remain broad and reusable. Finished outfits, clothing pieces, foods, documents, weapons, devotional goods, household goods, and visible final craft names should be culturally and socially specific.
 
 ## Current Source Boundary
 
@@ -70,57 +54,105 @@ The v1 scaffold uses 18 culture/time profiles:
 
 These culture keys are still appropriate. The issue is not the selection; it is the shallow culture payload.
 
-## Status Roles
+## Revised Clothing Target: Complete Outfits
 
-Status/role remains useful, especially for Western European clothing:
+The second pass must not merely add a few signature garments. It must add complete outfit catalogues.
 
-| Key | Status/Role |
+For each culture, seed outfit definitions for:
+
+| Axis | Required Values |
 | --- | --- |
-| `peasant` | Peasant |
-| `artisan` | Artisan |
-| `merchant` | Merchant/Burgher |
-| `noble` | Noble/Court |
-| `clergy` | Clergy/Monastic |
-| `military` | Military |
+| Sex/gender presentation | `male`, `female` |
+| Social class/role | `peasant`, `artisan`, `merchant`, `noble`, `religious`, `military` |
 
-The status-role axis should remain a baseline wardrobe axis. It must not be the only source of medieval clothing variety.
+This creates **12 complete outfit definitions per culture** and **216 complete outfit definitions across 18 cultures**.
 
-## Current Quality Gap
+Each complete outfit should include all wearable pieces needed to dress a character, not only a main garment.
 
-The first pass mostly uses this pattern:
+## Required Outfit Slots
+
+Each outfit should satisfy all required slots unless explicitly documented as culturally inapplicable:
+
+| Slot | Required? | Examples |
+| --- | --- | --- |
+| `underlayer` | Required | shirt, shift, chemise, qamis, rubakha, under-robe |
+| `lower_body` | Required | braies, trousers, hose, sirwal, skirt, wrapped trews, lower robe layer |
+| `leg_or_sock_layer` | Required unless culturally merged into footwear | footwraps, hose, onuchi, socks, leg wraps |
+| `footwear` | Required | shoes, boots, sandals, slippers, cloth shoes |
+| `bodywear` | Required | tunic, cote, robe, kaftan, dalmatic, hangerok, cross-collar robe |
+| `outerwear` | Required for travel/cold cultures; otherwise recommended | cloak, mantle, burnous, riding coat, sagion, felt cloak |
+| `headwear` | Required | coif, veil, wimple, cap, turban, fur hat, official cap |
+| `belt_or_sash` | Required | belt, girdle, sash, cord, arming belt |
+| `worn_container` | Required for non-noble and military; recommended for all | pouch, purse, book pouch, document sleeve, field pouch |
+| `fastener_or_jewellery` | Required | brooch, ring pin, cloak clasp, badge, pendant, belt mount |
+| `role_item` | Required for merchant, religious, military; recommended for artisan/noble | tool apron, book pouch, devotional item, scabbard, quiver, writing sleeve |
+
+A complete outfit should normally contain 9-12 items. Some pieces may be shared across multiple outfits.
+
+## Sharing Rules
+
+Sharing is allowed and expected, but it must not erase culture identity.
+
+Allowed broad sharing:
+
+- Plain undergarments across nearby Western European cultures.
+- Shoes, simple belts, simple pouches, and socks across adjacent classes.
+- Military arming shirts and padding where the visual outer layers differ.
+- Generic repair kits and workshop tools.
+- Generic commoner items inside one culture where male/female differences are primarily headwear, bodywear, lower body, and fasteners.
+
+Required distinctiveness:
+
+- Every outfit must include at least **four culture-specific or culture-cluster-specific pieces**.
+- Every outfit must include at least **two class-specific pieces**.
+- Male and female variants for the same culture/class must differ in at least **two wearable slots**, unless the outfit is explicitly marked as intentionally unisex.
+- Main bodywear, outerwear, and headwear should usually be culture-specific.
+- A culture cannot be represented only by generic baseline tunics, generic lined hats, generic rough cloaks, and generic pouches.
+
+## Outfit Catalogue References
+
+Use outfit package references even if there is no runtime item-package system yet. These references can be used in tests, docs, and optional future starter kits:
 
 ```text
-culture cue + status garment + generic wardrobe slot
+medieval_outfit_{culture}_{sex}_{class}
 ```
 
-This produces high counts but low identity. For example, Norse, Byzantine, Song, Rus, Gaelic, and Andalusi items should not simply be the same work tunic, lined hat, rough cloak, pouch, and footwear with a different cue appended.
+Examples:
 
-The second pass must add explicit culture catalogues that use named material-culture forms such as:
+```text
+medieval_outfit_norse_male_peasant
+medieval_outfit_norse_female_peasant
+medieval_outfit_song_china_male_scholar_noble
+medieval_outfit_byzantine_female_religious
+```
 
-- Norse hangerok/apron dress, oval brooches, bead-strung straps, sea cloaks, runic trade tags.
-- Byzantine silk dalmatics, sagia, court belts, icon pouches, lamellar under-robes.
-- Song cross-collar robes, scholar caps, tea wares, paper registers, official chop documents.
-- Rus rubakhi, fur-edged kaftans, onuchi, birchbark letters, Orthodox icon shelves.
-- Andalusi qamis, sirwal, burnous, turban, glazed wares, paper contracts.
-- Gaelic brats, ring-pins, léine-style shirts, bardic mantles, pastoral milk vessels.
+The implementation may represent outfit definitions as internal catalogue records that point to item stable references. If an existing item-package system is suitable, the seeder may additionally create loadable outfit packages, but this is not required for the second pass.
 
-## Second-Pass Catalogue Targets
+## Stable Reference Guidance For Outfit Pieces
 
-The next implementation pass should add exact culture-specific items on top of the existing generic baseline. Minimum targets:
+Use stable references that encode culture and item identity:
 
-| Surface | Minimum Explicit Culture Catalogue Target |
-| --- | --- |
-| Clothing and worn accessories | At least 12 explicit named clothing/accessory items per culture. |
-| Military/equipment | At least 8 explicit military/equipment items per culture, excluding the current generic armour/weapon/shield/accessory set. |
-| Food and beverage | At least 8 explicit food/beverage items per culture; tableware may count only as the vessel slot, not as prepared food. |
-| Writing and administration | At least 6 explicit writing/admin items per culture, with culture-appropriate media. |
-| Household/devotional/luxury goods | At least 5 explicit non-clothing, non-military household/devotional/luxury items per culture. |
+```text
+medieval_clothing_norse_female_hangerok_apron_dress
+medieval_clothing_byzantine_male_silk_dalmatic
+medieval_clothing_song_china_female_cross_collar_robe
+medieval_clothing_gaelic_male_brat_mantle
+```
 
-The first improvement pass may prioritise the British/North Atlantic cultures, then apply the same standard to the eastern, Near Eastern, North African, steppe, and Song slices.
+Shared items may use `medieval_common_*` or cluster names:
+
+```text
+medieval_common_linen_braies
+medieval_common_turnshoe_ankle_shoes
+medieval_western_linen_coif
+medieval_islamic_wrapped_turban
+```
+
+Generic baseline status items may remain, but they must not satisfy explicit outfit counts unless assigned to outfit slots and balanced by culture-specific pieces.
 
 ## Production Chain Invariants To Retain
 
-`SeedMedievalProductionChainCrafts()` should remain the shared upstream foundation. It should continue to support:
+`SeedMedievalProductionChainCrafts()` should remain the shared upstream foundation.
 
 | Chain | Intermediate Stock |
 | --- | --- |
@@ -156,71 +188,33 @@ forge a Norman nasal helmet
 
 The previous rule that visible final craft names should avoid culture names is no longer a quality goal. It may be retained only for generic baseline stock.
 
-## Runtime Component Expectations
-
-Implemented live components should be used when appropriate:
-
-| Component family | Medieval use |
-| --- | --- |
-| `PaperSheet` / `Book` | Paper sheets, parchment charters, rolls, codices, registers, notebooks. |
-| `InscribableSurface` | Wax tablets, wooden tablets, birchbark letters, short-record boards, ostraca-like reusable surfaces. |
-| `SealStamp` | Signet rings, guild stamps, office seals, official chops where appropriate. |
-| `Sealable` | Charters, sealed envelopes, sealed bales, document satchels, strongboxes, ledger chests. |
-| `MeasuringInstrument` | Balance scales, weights, grain/liquid measures, tax/customs kits. |
-| `PreparedFood` if available and suitable | Real prepared food items rather than tableware props. |
-
-Length/surveying measurement, musical instruments, rules-aware game sets, and animal tack/harness remain legitimate deferred component gaps.
-
 ## Required Second-Pass Tests
 
-The second-pass test suite should not only check counts. It should verify quality.
+The second-pass test suite should not only check counts. It should verify outfit completeness.
 
-1. **Explicit culture catalogue tests**
-   - Every culture must have minimum explicit counts by surface.
-   - Generic baseline items do not count toward explicit culture targets.
+1. **Outfit completeness tests**
+   - Every culture has 12 outfit definitions.
+   - Every outfit has the required slots.
+   - Every outfit references existing item stable references.
 
-2. **Vocabulary tests**
-   - Each culture must include required vocabulary in item descriptions and/or final craft names.
+2. **Culture identity tests**
+   - Every outfit includes at least four culture-specific or cluster-specific items.
+   - Required culture vocabulary appears in outfit pieces and final craft names.
 
-3. **Craft-name tests**
+3. **Class identity tests**
+   - Every social class has at least two class-specific pieces.
+   - Peasant, artisan, merchant, noble, religious, and military outfits should not collapse into the same clothing with different notes.
+
+4. **Sex differentiation tests**
+   - Male and female outfit variants for the same culture/class differ in at least two wearable slots unless deliberately marked unisex.
+
+5. **Craft-name tests**
    - Explicit culture final crafts must not use `regional pattern NN`.
    - Generic baseline crafts may still use neutral names if clearly marked as generic.
 
-4. **Food-input sanity tests**
-   - Bread, pottage, stew, feast, ration, and beverage crafts must consume food commodities/liquids.
-   - `Furniture Panel Stock` may only be used for tableware, trenchers, platters, and vessels.
-
-5. **Writing component sanity tests**
-   - Wooden, wax, birchbark, and tablet surfaces must not use `PaperSheet_Scroll` unless they are deliberately scroll-like paper/parchment objects.
-   - Use `InscribableSurface` where the engine supports it.
-
 6. **Exact documentation tests**
-   - Explicit culture catalogue entries must appear by exact stable reference in `Medieval_Culture_Catalogue.md`.
-   - Broad patterns such as `medieval_clothing_{culture}_{status}_{piece}` should document only generic baseline items, not explicit catalogue targets.
-
-## Stable Reference Families
-
-The current family patterns remain useful for generated baseline content:
-
-| Surface | Stable Reference Family |
-| --- | --- |
-| Historic foundations | `historic_*` |
-| Generic status clothing | `medieval_clothing_{culture}_{status}_{piece}` |
-| Generated v1 military scaffold | `medieval_military_{culture}_{equipment_piece}`, `medieval_weapon_{culture}_{weapon}`, `medieval_shield_{culture}` |
-| Generated v1 foodway scaffold | `medieval_food_{culture}_{foodway_item}` |
-| Generated v1 writing/admin scaffold | `medieval_writing_{culture}_{administration_item}` |
-| Generated v1 devotional scaffold | `medieval_devotional_{culture}_pilgrim_token` |
-| Common household and furniture baseline | `medieval_household_{furniture_or_container}` |
-| Common jewellery baseline | `medieval_jewellery_{jewellery_item}` |
-| Common medical/apothecary baseline | `medieval_medical_{medical_item}` |
-| Explicit culture clothing | `medieval_clothing_{culture}_{specific_item}` or `medieval_clothing_{culture}_{status}_{specific_item}` where status is genuinely part of the item identity. |
-| Military | `medieval_military_{culture}_{specific_item}`, `medieval_weapon_{culture}_{specific_weapon}`, `medieval_shield_{culture}_{specific_shield}` |
-| Food and beverage | `medieval_food_{culture}_{specific_food_or_vessel}` |
-| Writing/admin | `medieval_writing_{culture}_{specific_document_or_tool}` |
-| Household/devotional | `medieval_household_{culture}_{specific_item}`, `medieval_devotional_{culture}_{specific_item}`, `medieval_jewellery_{culture}_{specific_item}` |
-| Trade and measures | `medieval_trade_{specific_item}` or `medieval_trade_{culture}_{specific_item}` |
-| Repair kits | `medieval_textile_repair_kit`, `medieval_leather_repair_kit`, `medieval_metal_repair_kit` |
-| Component-gap props | `medieval_music_*`, `medieval_game_*`, `medieval_horse_*` |
+   - Exact outfit package references and expected slot contents must appear in `Medieval_Outfit_Catalogue.md`.
+   - Exact explicit item references should appear in `Medieval_Culture_Catalogue.md` or in generated test-accessible catalogue data.
 
 ## Deferred Scope
 

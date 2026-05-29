@@ -13,45 +13,113 @@ The second-pass tests must reject shallow implementations where cultures differ 
 - Appended cue phrases
 - `regional pattern NN` craft names
 - Generic stable-reference families
+- Main garments without complete outfit support
 
 ## Required Test Categories
 
-### 1. Explicit Culture Catalogue Counts
+### 1. Complete Outfit Count Tests
 
-Expose a testing accessor that distinguishes explicit culture catalogue items from generic baseline items.
-
-Suggested accessor:
+Expose a testing accessor such as:
 
 ```csharp
-internal static IReadOnlyDictionary<string, IReadOnlyCollection<string>> MedievalExplicitCultureStableReferencesForTesting
+internal static IReadOnlyDictionary<string, IReadOnlyCollection<MedievalOutfitSpec>> MedievalOutfitsForTesting
 ```
 
-Then assert minimums per culture:
+Assert:
 
-| Surface | Minimum |
-| --- | ---: |
-| explicit clothing/accessory | 12 |
-| explicit military/equipment | 8 |
-| explicit food/beverage | 8 |
-| explicit writing/admin | 6 |
-| explicit household/devotional/luxury | 5 |
+- 18 cultures.
+- 12 outfits per culture.
+- 216 outfits total.
+- Each culture has `male` and `female` variants for:
+  - `peasant`
+  - `artisan`
+  - `merchant`
+  - `noble`
+  - `religious`
+  - `military`
 
-Generic baseline references should not count.
+### 2. Outfit Slot Completeness Tests
 
-### 2. Vocabulary Tests
+Every outfit must include:
 
-Each culture should have required vocabulary tokens in item short descriptions, full descriptions, and/or final craft names.
+- `underlayer`
+- `lower_body`
+- `leg_or_sock_layer`
+- `footwear`
+- `bodywear`
+- `outerwear` or documented exception
+- `headwear`
+- `belt_or_sash`
+- `worn_container`
+- `fastener_or_jewellery`
+- `role_item` where required
+
+Every slot item must resolve to a seeded stable reference unless the slot is marked as intentionally shared and points to a common stable reference.
+
+### 3. Culture Identity Threshold Tests
+
+Every outfit must include at least four culture-specific or culture-cluster-specific items.
+
+Examples of culture-specific stable-reference prefixes:
+
+```text
+medieval_clothing_norse_
+medieval_jewellery_norse_
+medieval_clothing_song_china_
+medieval_household_song_china_
+```
+
+Examples of culture-cluster prefixes:
+
+```text
+medieval_western_
+medieval_islamic_
+medieval_steppe_
+medieval_rus_steppe_
+```
+
+Generic `medieval_common_` items do not count toward this threshold.
+
+### 4. Sex Differentiation Tests
+
+For each culture/class pair:
+
+- male and female outfits must differ in at least two slots
+- exceptions must be documented as intentionally unisex
+
+Differences can include:
+
+- main bodywear
+- lower-body layer
+- headwear
+- fastener/jewellery
+- outerwear
+- role item
+
+### 5. Class Differentiation Tests
+
+Within each culture/sex:
+
+- peasant, artisan, merchant, noble, religious, and military outfits must not collapse into the same set.
+- each class must differ from the nearest lower class in at least two slots.
+- noble and merchant outfits must include higher-status materials, trim, or accessories.
+- religious outfits must include a devotional, book, robe, habit, veil, or role marker.
+- military outfits must include arming clothing or military role accessories.
+
+### 6. Vocabulary Tests
+
+Each culture should have required vocabulary tokens in item short descriptions, full descriptions, final craft names, or outfit slot names.
 
 Examples:
 
 ```csharp
-["norse"] = ["hangerok", "oval brooch", "sea cloak", "runic", "stockfish"];
-["song_china"] = ["cross-collar", "scholar", "tea", "paper register", "official chop"];
-["andalusi"] = ["qamis", "sirwal", "burnous", "turban", "glazed"];
-["rus_novgorod"] = ["rubakha", "kaftan", "birchbark", "fur-edged", "river"];
+["norse"] = ["hangerok", "oval brooch", "sea cloak", "runic", "leg wraps"];
+["song_china"] = ["cross-collar", "scholar", "tea", "paper register", "official cap"];
+["andalusi"] = ["qamis", "sirwal", "burnous", "turban", "tiraz"];
+["rus_novgorod"] = ["rubakha", "kaftan", "birchbark", "fur-edged", "onuchi"];
 ```
 
-### 3. Craft Name Quality Tests
+### 7. Craft Name Quality Tests
 
 Explicit culture final crafts must not use:
 
@@ -65,7 +133,7 @@ regional record tablet
 
 Generic baseline crafts may use neutral names only if the item is explicitly marked as generic baseline.
 
-### 4. Food Input Sanity Tests
+### 8. Food Input Sanity Tests
 
 For food references containing terms like:
 
@@ -112,7 +180,7 @@ casks
 skins
 ```
 
-### 5. Writing Component Sanity Tests
+### 9. Writing Component Sanity Tests
 
 For references containing:
 
@@ -129,17 +197,16 @@ the component list should not use `PaperSheet_Scroll` unless the item is actuall
 
 Use `InscribableSurface`-style components where available.
 
-### 6. Exact Documentation Tests
-
-The second-pass exact catalogue should not be satisfied by broad pattern documentation.
+### 10. Exact Documentation Tests
 
 Require:
 
-- Every explicit culture stable reference appears by exact text in `Medieval_Culture_Catalogue.md`.
+- Every exact outfit reference appears in `Medieval_Outfit_Catalogue.md`.
+- Every explicit culture item appears in `Medieval_Culture_Catalogue.md` or in generated catalogue data with tests.
 - Broad patterns document only generic baseline families.
 - Any deferred component-gap prop appears in docs with a reason.
 
-### 7. Runtime Component Tests
+### 11. Runtime Component Tests
 
 Where components exist:
 
@@ -152,7 +219,7 @@ Where components exist:
 | sheets/charters/scrolls | `PaperSheet` or scroll-like surface |
 | wax/wood/birchbark surfaces | `InscribableSurface` or documented limitation |
 
-### 8. Production Chain Tests
+### 12. Production Chain Tests
 
 Retain the existing upstream stock tests, but add final-product consumption checks:
 
@@ -161,7 +228,10 @@ Retain the existing upstream stock tests, but add final-product consumption chec
 - Crossbow items consume `Crossbow Tiller Stock`, `Crossbow Prod Stock`, and `Crossbow Lockwork Stock`.
 - Noble garments consume `Silk Brocade Panel`, `Embroidered Trim Stock`, or comparable luxury stock.
 - Tablet-woven or banded garments consume `Tablet-Woven Band Stock`.
+- Footwear consumes `Turnshoe Upper Stock` or documented equivalent.
 
 ## Acceptance Standard
 
 A shallow generic matrix should fail the medieval content test suite even if it creates many item prototypes.
+
+A successful implementation should let a test enumerate every culture, sex, and social class and produce a complete outfit with real item references from head to foot.

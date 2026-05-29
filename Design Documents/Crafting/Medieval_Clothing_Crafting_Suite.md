@@ -1,125 +1,169 @@
-# Medieval Clothing Crafting Suite
+# Medieval Clothing and Outfit Crafting Suite
 
-The medieval clothing suite has two layers:
+The medieval clothing suite now targets complete outfit coverage. The goal is not a handful of culturally specific garments. The goal is that a builder can dress male and female characters of different social classes in each culture without inventing missing pieces.
 
-1. **Common status-role baseline clothing**: a reusable generic wardrobe for peasant, artisan, merchant, noble, clergy, and military roles.
-2. **Explicit culture catalogue clothing**: named material-culture garments and accessories that make each culture visually distinct.
+## Scope
 
-The first merged implementation mostly created layer 1. The second pass must add layer 2.
+This suite covers:
 
-## Design Principle
+- Underlayers
+- Lower-body garments
+- Leg and sock layers
+- Footwear
+- Main body garments
+- Outerwear
+- Headwear
+- Belts, sashes, and girdles
+- Worn containers
+- Fasteners, jewellery, and class markers
+- Role-specific clothing and accessories for artisans, merchants, religious figures, and military roles
 
-Shared textile production is correct. Shared final wardrobes are not enough.
+Military armour and weapons remain primarily in the equipment suite, but military outfits should include arming clothing and worn military accessories.
 
-The shared textile chain should remain culture-neutral: spinning, weaving, fulling, broadcloth, trim, tablet-woven bands, silk brocade, quilted padding, leather panels, turnshoe uppers, and yarn stock. Final garment assembly should produce named cultural objects.
+## Architecture
 
-## Baseline Status Wardrobe
+Use three levels of clothing content:
 
-The existing status-role wardrobe may remain as generic common stock:
-
-| Status | Baseline Bodywear |
+| Level | Purpose |
 | --- | --- |
-| `peasant` | work tunic |
-| `artisan` | apron-front tunic |
-| `merchant` | lined gown |
-| `noble` | court surcoat |
-| `clergy` | clerical robe |
-| `military` | padded arming coat |
+| Shared common pieces | Items that can be reused across cultures without erasing identity, such as plain linen undergarments, simple footwraps, or basic leather belts. |
+| Culture-cluster pieces | Items shared by related cultures, such as Western European braies, Islamic sirwal, steppe high boots, or Rus/steppe fur hats. |
+| Explicit culture pieces | Named culture-specific garments and accessories, such as Norse hangerok apron dresses, Byzantine silk dalmatics, Song cross-collar robes, Gaelic brat mantles, or Andalusi burnous cloaks. |
 
-The baseline wardrobe also includes underlayers, headwear, hoods/cowls, outerwear, legwear, handwear, sockwear, footwear, belts, and pouches.
+The existing generated status-role wardrobe can remain as a generic fallback, but it should not count as fulfilling the explicit outfit catalogue.
 
-These items are useful as generic medieval starter stock, but they should not satisfy explicit culture-clothing quality targets.
+## Outfit Axes
 
-## Explicit Culture Wardrobe Targets
+Every culture should receive outfits for:
 
-Each culture should receive at least 12 explicit named clothing/accessory items. The catalogue for exact references lives in `Medieval_Culture_Catalogue.md`.
-
-Each culture should include:
-
-| Category | Minimum Count |
-| --- | ---: |
-| Common/peasant/artisan items | 4 |
-| Merchant/urban/status items | 3 |
-| Noble/formal/religious items | 3 |
-| Military/climate/riding items | 2 |
-
-## Culture Vocabulary Requirements
-
-The suite should assert vocabulary in tests so cultures cannot pass as generic re-skins.
-
-| Culture | Required Clothing Vocabulary Examples |
+| Axis | Values |
 | --- | --- |
-| `early_anglo_saxon` | tablet-banded, cloak brooch, linen head veil, seax belt |
-| `anglo_danish` | long seax, shield-wall, panelled, reeve |
-| `norse` | hangerok, oval brooch, sea cloak, runic, leg wraps |
-| `norman` | split riding tunic, bliaut, mail surcoat, nasal |
-| `high_british` | cote, surcoat, coif, wimple, arming |
-| `gaelic` | brat, ring pin, léine or long shirt, bardic, pastoral |
-| `andalusi` | qamis, sirwal, burnous, turban, tiraz |
-| `byzantine` | silk dalmatic, sagion, court belt, icon pouch, skaramangion |
-| `abbasid` | qamis, qaba, caftan, scholar robe, sash |
-| `fatimid` | linen robe, tiraz-banded, cotton wrap, court kaftan |
-| `seljuk_ayyubid` | riding caftan, quilted coat, high riding boots, bowcase belt |
-| `rus_novgorod` | rubakha, fur-edged kaftan, onuchi, fur hat, birchbark |
-| `steppe_turkic` | felt riding caftan, tied riding coat, high boots, bowcase-and-quiver |
-| `song_china` | cross-collar robe, scholar robe, official cap, padded winter robe, cloth shoes |
+| Sex/gender presentation | `male`, `female` |
+| Social class/role | `peasant`, `artisan`, `merchant`, `noble`, `religious`, `military` |
+
+That means 12 outfits per culture and 216 outfits across the 18-culture medieval catalogue.
+
+## Required Outfit Slots
+
+Every outfit should include these slots:
+
+| Slot | Required? | Notes |
+| --- | --- | --- |
+| `underlayer` | Required | Shirt, shift, chemise, qamis, rubakha, under-robe, or equivalent. |
+| `lower_body` | Required | Braies, trousers, hose, sirwal, skirt, wrap, lower robe layer, or equivalent. |
+| `leg_or_sock_layer` | Required unless merged with footwear | Hose, socks, footwraps, leg wraps, onuchi, boot socks. |
+| `footwear` | Required | Shoes, boots, sandals, slippers, cloth shoes. |
+| `bodywear` | Required | Main visible garment. Usually culture-specific. |
+| `outerwear` | Required or documented exception | Cloak, mantle, coat, burnous, sagion, felt cloak, riding coat. |
+| `headwear` | Required | Coif, veil, wimple, cap, turban, fur hat, official cap. Usually culture-specific. |
+| `belt_or_sash` | Required | Belt, sash, girdle, cord, arming belt. |
+| `worn_container` | Required for most outfits | Pouch, purse, book pouch, field pouch, document satchel, writing sleeve pouch. |
+| `fastener_or_jewellery` | Required | Brooch, ring pin, cloak clasp, badge, pendant, belt mount. |
+| `role_item` | Required for merchant, religious, and military | Tool apron, trade seal, devotional object, book pouch, scabbard, quiver, badge, official chop cord. |
+
+## Sharing Rules
+
+Sharing is allowed when the item is genuinely common.
+
+Allowed sharing examples:
+
+- `medieval_common_linen_braies`
+- `medieval_common_linen_shift`
+- `medieval_common_wool_footwraps`
+- `medieval_common_turnshoe_ankle_shoes`
+- `medieval_western_linen_coif`
+- `medieval_islamic_wrapped_turban`
+- `medieval_steppe_high_riding_boots`
+- `medieval_rus_steppe_fur_hat`
+
+Sharing limits:
+
+- Every outfit must include at least four culture-specific or culture-cluster-specific items.
+- Every class must have at least two class-specific items.
+- Male and female variants for the same class must differ in at least two slots unless marked intentionally unisex.
+- Main bodywear, headwear, and outerwear should usually carry culture identity.
+- Shoes, belts, pouches, and underlayers may be shared more often than bodywear and headwear.
+
+## Complete Outfit Example
+
+A Norse female peasant outfit should be closer to:
+
+| Slot | Example Piece |
+| --- | --- |
+| underlayer | linen underdress |
+| lower_body | wool under-skirt or wrapped lower layer |
+| leg_or_sock_layer | wool leg wraps |
+| footwear | rough leather shoes |
+| bodywear | hangerok apron dress |
+| outerwear | heavy sea cloak |
+| headwear | wool headcloth |
+| belt_or_sash | woven belt |
+| worn_container | leather belt pouch |
+| fastener_or_jewellery | oval brooch pair |
+| role_item | small household key ring or bead string |
+
+It should not be merely:
+
+```text
+a coarse wool work tunic with practical gores and pinned straps
+```
 
 ## Craft Inputs
 
-Final garment crafts should consume the stock that expresses their construction:
+Final outfit-piece crafts should use appropriate stock:
 
-| Garment Type | Suggested Stock Inputs |
+| Piece Type | Suggested Inputs |
 | --- | --- |
 | ordinary linen/wool clothing | `Garment Cloth`, `Spun Yarn` |
-| merchant or respectable town clothing | `Broadcloth Stock`, `Spun Yarn` |
+| merchant/civic clothing | `Broadcloth Stock`, `Spun Yarn` |
 | noble/court clothing | `Silk Brocade Panel`, `Embroidered Trim Stock`, `Spun Yarn` |
-| Anglo-Saxon/Norse/banded garments | `Tablet-Woven Band Stock`, `Garment Cloth`, `Spun Yarn` |
+| tablet-banded or braid-trimmed clothing | `Tablet-Woven Band Stock`, `Garment Cloth`, `Spun Yarn` |
 | military underlayers | `Quilted Armour Padding`, `Garment Cloth`, `Spun Yarn` |
-| shoes/boots/slippers | `Turnshoe Upper Stock`, `Leather Strap` |
+| shoes, boots, slippers | `Turnshoe Upper Stock`, `Leather Strap` |
+| belts, pouches, scabbard-adjacent accessories | `Prepared Leather Panel`, `Leather Strap`, metal `Tool Blank Stock` where fittings exist |
+| brooches, pins, pendants, belt mounts | bronze/silver `Tool Blank Stock`, hammer/anvil/small metal tools |
 | fur-edged or winter garments | hair/fur-tagged material input where available, plus garment cloth |
-| belts/pouches/harnesses | `Prepared Leather Panel`, `Leather Strap`, metal `Tool Blank Stock` where fittings are present |
 
 ## Craft Naming
 
-For explicit culture garments, use product-driven names:
+Explicit outfit-piece final crafts should use object names:
 
 ```text
 sew a Norse hangerok apron dress
+stitch a Gaelic brat mantle
 tailor a Byzantine silk dalmatic
-stitch an Andalusi linen qamis
-sew a Rus fur-edged kaftan
-tailor a Song cross-collar scholar robe
+sew a Song cross-collar scholar robe
+make a Rus fur-edged kaftan
 ```
 
-Do not use `regional pattern NN` for explicit culture final crafts.
-
-Generic baseline crafts may retain neutral naming, but should be clearly labelled as generic in code comments, tests, and documentation.
-
-## Stable Reference Rules
-
-Use exact culture-specific stable references:
+Avoid:
 
 ```text
-medieval_clothing_norse_hangerok_apron_dress
-medieval_clothing_byzantine_silk_dalmatic
-medieval_clothing_song_china_cross_collar_robe
+sew work tunic regional pattern 03
+make headwear regional pattern 17
 ```
 
-Avoid using only generic status tokens for explicit culture items:
+Generic baseline items may retain neutral craft names only if they are clearly marked as generic baseline.
+
+## Documentation Requirements
+
+`Medieval_Outfit_Catalogue.md` must list every complete outfit by exact outfit reference:
 
 ```text
-medieval_clothing_norse_peasant_work_tunic
-medieval_clothing_song_china_merchant_lined_hat
+medieval_outfit_{culture}_{sex}_{class}
 ```
 
-Those may exist only as generic baseline items.
+For each outfit, list the expected slot contents. The slot contents may be stable references or item names if the exact refs are generated from catalogue data, but tests should expose and validate the actual stable references.
 
 ## Test Requirements
 
 Add tests that verify:
 
-- Each culture has at least 12 explicit culture clothing references.
-- Generic baseline clothing is excluded from explicit culture counts.
-- Each culture contains required vocabulary in item short descriptions, full descriptions, or final craft names.
-- Explicit culture clothing crafts do not use `regional pattern`.
-- Exact culture clothing stable references appear in `Medieval_Culture_Catalogue.md`.
+- 216 complete outfit definitions exist.
+- Every outfit has required slots.
+- Every outfit references item stable references that exist.
+- Every outfit has at least four culture-specific or cluster-specific pieces.
+- Every class differs from the others in at least two slots.
+- Male/female variants differ in at least two slots unless documented as unisex.
+- Explicit outfit-piece craft names do not use `regional pattern`.
+- Exact outfit references appear in `Medieval_Outfit_Catalogue.md`.

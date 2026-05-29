@@ -918,6 +918,11 @@ public partial class ItemSeeder
 		return $"{verb} {VisibleCraftName(spec.ShortDescription)} [{spec.StableReference}]";
 	}
 
+	private static string MedievalExplicitOutfitPieceCraftName(string verb, MedievalItemSpec spec)
+	{
+		return MedievalSpecCraftName(verb, spec);
+	}
+
 	private void SeedMedievalClothingCrafts()
 	{
 		if (!ShouldSeedMedievalCrafts())

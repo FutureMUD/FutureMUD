@@ -109,6 +109,21 @@ public partial class ItemSeeder
 		string StableReference,
 		string ShortDescription);
 
+	private sealed record MedievalOutfitSlot(
+		string Key,
+		string Display,
+		bool RequiredForAllOutfits,
+		string[] RequiredForRoles);
+
+	private sealed record MedievalOutfitSpec(
+		string OutfitReference,
+		string CultureKey,
+		string SexGenderPresentation,
+		string SocialClassRole,
+		string DisplayName,
+		IReadOnlyDictionary<string, string> SlotItemStableReferences,
+		IReadOnlyCollection<string> IntentionallySharedOrGenericSlots);
+
 	private static readonly MedievalCultureProfile[] MedievalCultureProfiles =
 	[
 		new("early_anglo_saxon", "Early Anglo-Saxon/Insular", "with tablet-woven edging",
@@ -373,6 +388,58 @@ song_china|Household and Devotional|medieval_household_song_china_tea_cup,mediev
 		"belt",
 		"pouch"
 	];
+
+	private const string MedievalOutfitSlotUnderlayer = "underlayer";
+	private const string MedievalOutfitSlotLowerBody = "lower_body";
+	private const string MedievalOutfitSlotLegOrSockLayer = "leg_or_sock_layer";
+	private const string MedievalOutfitSlotFootwear = "footwear";
+	private const string MedievalOutfitSlotBodywear = "bodywear";
+	private const string MedievalOutfitSlotOuterwear = "outerwear";
+	private const string MedievalOutfitSlotHeadwear = "headwear";
+	private const string MedievalOutfitSlotBeltOrSash = "belt_or_sash";
+	private const string MedievalOutfitSlotWornContainer = "worn_container";
+	private const string MedievalOutfitSlotFastenerOrJewellery = "fastener_or_jewellery";
+	private const string MedievalOutfitSlotRoleItem = "role_item";
+
+	private static readonly MedievalOutfitSlot[] MedievalOutfitSlots =
+	[
+		new(MedievalOutfitSlotUnderlayer, "Underlayer", true, []),
+		new(MedievalOutfitSlotLowerBody, "Lower Body", true, []),
+		new(MedievalOutfitSlotLegOrSockLayer, "Leg/Sock Layer", true, []),
+		new(MedievalOutfitSlotFootwear, "Footwear", true, []),
+		new(MedievalOutfitSlotBodywear, "Bodywear", true, []),
+		new(MedievalOutfitSlotOuterwear, "Outerwear", true, []),
+		new(MedievalOutfitSlotHeadwear, "Headwear", true, []),
+		new(MedievalOutfitSlotBeltOrSash, "Belt or Sash", true, []),
+		new(MedievalOutfitSlotWornContainer, "Worn Container", true, []),
+		new(MedievalOutfitSlotFastenerOrJewellery, "Fastener/Jewellery", true, []),
+		new(MedievalOutfitSlotRoleItem, "Role Item", false, ["merchant", "religious", "military"])
+	];
+
+	private static readonly string[] MedievalOutfitSexGenderPresentationKeys = ["male", "female"];
+
+	private static readonly string[] MedievalOutfitSocialClassRoleKeys =
+	[
+		"peasant",
+		"artisan",
+		"merchant",
+		"noble",
+		"religious",
+		"military"
+	];
+
+	private static readonly IReadOnlyDictionary<string, string> MedievalOutfitRoleToStatusRoleKey =
+		new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+		{
+			["peasant"] = "peasant",
+			["artisan"] = "artisan",
+			["merchant"] = "merchant",
+			["noble"] = "noble",
+			["religious"] = "clergy",
+			["military"] = "military"
+		};
+
+	private static readonly MedievalOutfitSpec[] MedievalOutfits = BuildMedievalOutfits();
 
 	private static IReadOnlyList<MedievalItemSpec> HistoricFoundationItemSpecs()
 	{
@@ -1895,6 +1962,78 @@ song_china|Household and Devotional|medieval_household_song_china_tea_cup,mediev
 		return $"{article} {itemName}";
 	}
 
+	private static MedievalOutfitSpec[] BuildMedievalOutfits()
+	{
+		return MedievalCultureProfiles
+			.SelectMany(culture => MedievalOutfitSexGenderPresentationKeys.SelectMany(sex =>
+				MedievalOutfitSocialClassRoleKeys.Select(role => BuildMedievalOutfit(culture, sex, role))))
+			.ToArray();
+	}
+
+	private static MedievalOutfitSpec BuildMedievalOutfit(MedievalCultureProfile culture, string sexGenderPresentation,
+		string socialClassRole)
+	{
+		var status = MedievalStatusRoleProfiles.Single(x =>
+			x.Key.Equals(MedievalOutfitRoleToStatusRoleKey[socialClassRole], StringComparison.OrdinalIgnoreCase));
+		var slots = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+		{
+			[MedievalOutfitSlotUnderlayer] = MedievalOutfitClothingStableReference(culture, status, "underlayer"),
+			[MedievalOutfitSlotLowerBody] = MedievalOutfitClothingStableReference(culture, status, "legwear"),
+			[MedievalOutfitSlotLegOrSockLayer] = MedievalOutfitClothingStableReference(culture, status, "sockwear"),
+			[MedievalOutfitSlotFootwear] = MedievalOutfitClothingStableReference(culture, status, "footwear"),
+			[MedievalOutfitSlotBodywear] = $"medieval_clothing_{culture.Key}_{status.Key}_{status.GarmentToken}",
+			[MedievalOutfitSlotOuterwear] = MedievalOutfitClothingStableReference(culture, status, "outerwear"),
+			[MedievalOutfitSlotHeadwear] = MedievalOutfitClothingStableReference(culture, status, "headwear"),
+			[MedievalOutfitSlotBeltOrSash] = MedievalOutfitClothingStableReference(culture, status, "belt"),
+			[MedievalOutfitSlotWornContainer] = MedievalOutfitClothingStableReference(culture, status, "pouch"),
+			[MedievalOutfitSlotFastenerOrJewellery] = MedievalOutfitFastenerStableReference(socialClassRole)
+		};
+
+		var roleItem = MedievalOutfitRoleItemStableReference(culture, socialClassRole);
+		if (!string.IsNullOrWhiteSpace(roleItem))
+		{
+			slots[MedievalOutfitSlotRoleItem] = roleItem;
+		}
+
+		return new MedievalOutfitSpec(
+			$"medieval_outfit_{culture.Key}_{sexGenderPresentation}_{socialClassRole}",
+			culture.Key,
+			sexGenderPresentation,
+			socialClassRole,
+			$"{culture.Display} {sexGenderPresentation} {socialClassRole} outfit",
+			slots,
+			slots.Keys.ToArray());
+	}
+
+	private static string MedievalOutfitClothingStableReference(MedievalCultureProfile culture,
+		MedievalStatusRoleProfile status, string wardrobeSlotKey)
+	{
+		var piece = BuildMedievalWardrobePiece(culture, status, wardrobeSlotKey);
+		return $"medieval_clothing_{culture.Key}_{status.Key}_{piece.Token}";
+	}
+
+	private static string MedievalOutfitFastenerStableReference(string socialClassRole)
+	{
+		return socialClassRole switch
+		{
+			"merchant" => "medieval_jewellery_silver_brooch",
+			"noble" => "medieval_jewellery_enamel_disc_brooch",
+			"religious" => "medieval_devotional_wooden_rosary",
+			_ => "medieval_jewellery_bronze_ring_pin"
+		};
+	}
+
+	private static string? MedievalOutfitRoleItemStableReference(MedievalCultureProfile culture, string socialClassRole)
+	{
+		return socialClassRole switch
+		{
+			"merchant" => $"medieval_writing_{culture.Key}_office_bundle",
+			"religious" => $"medieval_devotional_{culture.Key}_pilgrim_token",
+			"military" => $"medieval_military_{culture.Key}_sidearm_harness",
+			_ => null
+		};
+	}
+
 	internal static IReadOnlyCollection<string> HistoricFoundationStableReferencesForTesting =>
 		HistoricFoundationItemSpecs()
 			.Select(x => x.StableReference)
@@ -1933,6 +2072,31 @@ song_china|Household and Devotional|medieval_household_song_china_tea_cup,mediev
 
 	internal static IReadOnlyCollection<string> MedievalWardrobeSlotKeysForTesting =>
 		MedievalWardrobeSlotKeys
+			.ToArray();
+
+	internal static IReadOnlyCollection<(string Key, bool RequiredForAllOutfits, IReadOnlyCollection<string> RequiredForRoles)> MedievalOutfitSlotsForTesting =>
+		MedievalOutfitSlots
+			.Select(x => (x.Key, x.RequiredForAllOutfits, (IReadOnlyCollection<string>)x.RequiredForRoles.ToArray()))
+			.ToArray();
+
+	internal static IReadOnlyCollection<string> MedievalOutfitSexGenderPresentationKeysForTesting =>
+		MedievalOutfitSexGenderPresentationKeys
+			.ToArray();
+
+	internal static IReadOnlyCollection<string> MedievalOutfitSocialClassRoleKeysForTesting =>
+		MedievalOutfitSocialClassRoleKeys
+			.ToArray();
+
+	internal static IReadOnlyCollection<(string OutfitReference, string CultureKey, string SexGenderPresentation, string SocialClassRole, string DisplayName, IReadOnlyDictionary<string, string> SlotItemStableReferences, IReadOnlyCollection<string> IntentionallySharedOrGenericSlots)> MedievalOutfitsForTesting =>
+		MedievalOutfits
+			.Select(x => (x.OutfitReference, x.CultureKey, x.SexGenderPresentation, x.SocialClassRole, x.DisplayName,
+				x.SlotItemStableReferences, x.IntentionallySharedOrGenericSlots))
+			.ToArray();
+
+	internal static IReadOnlyCollection<string> MedievalOutfitReferencedItemStableReferencesForTesting =>
+		MedievalOutfits
+			.SelectMany(x => x.SlotItemStableReferences.Values)
+			.Distinct(StringComparer.OrdinalIgnoreCase)
 			.ToArray();
 
 	internal static IReadOnlyCollection<string> MedievalItemStableReferencesForTesting =>

@@ -25,6 +25,14 @@ Expose a testing accessor such as:
 internal static IReadOnlyDictionary<string, IReadOnlyCollection<MedievalOutfitSpec>> MedievalOutfitsForTesting
 ```
 
+The current implementation exposes tuple-shaped accessors for the same contract:
+
+```csharp
+internal static IReadOnlyCollection<(string Key, bool RequiredForAllOutfits, IReadOnlyCollection<string> RequiredForRoles)> MedievalOutfitSlotsForTesting
+internal static IReadOnlyCollection<(string OutfitReference, string CultureKey, string SexGenderPresentation, string SocialClassRole, string DisplayName, IReadOnlyDictionary<string, string> SlotItemStableReferences, IReadOnlyCollection<string> IntentionallySharedOrGenericSlots)> MedievalOutfitsForTesting
+internal static IReadOnlyCollection<string> MedievalOutfitReferencedItemStableReferencesForTesting
+```
+
 Assert:
 
 - 18 cultures.
@@ -55,6 +63,8 @@ Every outfit must include:
 - `role_item` where required
 
 Every slot item must resolve to a seeded stable reference unless the slot is marked as intentionally shared and points to a common stable reference.
+
+MED-OUTFIT-001 treats the current generated status-role wardrobe as craftable shared scaffold content. Tests should require those references to resolve to seeded item specs, while later explicit outfit-item goals can tighten the culture-specific thresholds.
 
 ### 3. Culture Identity Threshold Tests
 

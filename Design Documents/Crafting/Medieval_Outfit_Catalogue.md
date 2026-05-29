@@ -4,6 +4,12 @@ This document defines the complete-outfit targets for the medieval clothing suit
 
 The goal is that a builder can dress a male or female character of each social class in each culture without inventing missing pieces. These are outfit definitions, not merely signature garment examples.
 
+## Implementation Scaffold
+
+`ItemSeeder.Rework.Medieval.cs` now mirrors this file with `MedievalOutfitSpec` definitions. Each code-side outfit records its culture key, sex/gender presentation, social class/role, display name, slot-to-stable-reference map, and intentionally shared/generic slots.
+
+For MED-OUTFIT-001 the code scaffold resolves outfit slots to the current craftable common/status wardrobe plus craftable v1 role accessories. Those shared slots are deliberately marked so later culture-item goals can replace them with the exact culture-specific clothing targets without losing the complete outfit contract.
+
 ## Outfit Reference Pattern
 
 ```text

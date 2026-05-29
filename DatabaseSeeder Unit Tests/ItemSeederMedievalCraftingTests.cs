@@ -22,6 +22,27 @@ public class ItemSeederMedievalCraftingTests
 		"Household and Devotional"
 	];
 
+	private static readonly string[] MedievalOutfitRequiredSlots =
+	[
+		"underlayer",
+		"lower_body",
+		"leg_or_sock_layer",
+		"footwear",
+		"bodywear",
+		"outerwear",
+		"headwear",
+		"belt_or_sash",
+		"worn_container",
+		"fastener_or_jewellery"
+	];
+
+	private static readonly string[] MedievalOutfitRoleItemRequiredRoles =
+	[
+		"merchant",
+		"religious",
+		"military"
+	];
+
 	[TestMethod]
 	public void MedievalDispatcher_WiresItemAndCraftSuites()
 	{
@@ -137,6 +158,120 @@ public class ItemSeederMedievalCraftingTests
 			$"Expected exact medieval culture catalogue references from Medieval_Culture_Catalogue.md to be present in code. Missing: {string.Join(", ", missingFromCode)}");
 		Assert.AreEqual(0, missingFromDocument.Count,
 			$"Expected explicit code catalogue references to be documented exactly. Missing: {string.Join(", ", missingFromDocument)}");
+	}
+
+	[TestMethod]
+	public void MedievalOutfits_CoverEveryCultureSexAndSocialRole()
+	{
+		var outfits = ItemSeeder.MedievalOutfitsForTesting;
+
+		Assert.AreEqual(18, ItemSeeder.MedievalCultureKeysForTesting.Count);
+		Assert.AreEqual(2, ItemSeeder.MedievalOutfitSexGenderPresentationKeysForTesting.Count);
+		Assert.AreEqual(6, ItemSeeder.MedievalOutfitSocialClassRoleKeysForTesting.Count);
+		Assert.AreEqual(216, outfits.Count);
+
+		foreach (var culture in ItemSeeder.MedievalCultureKeysForTesting)
+		{
+			var cultureOutfits = outfits
+				.Where(x => x.CultureKey.Equals(culture, StringComparison.OrdinalIgnoreCase))
+				.ToList();
+			Assert.AreEqual(12, cultureOutfits.Count, $"Expected 12 outfits for {culture}.");
+
+			foreach (var sex in ItemSeeder.MedievalOutfitSexGenderPresentationKeysForTesting)
+			{
+				foreach (var role in ItemSeeder.MedievalOutfitSocialClassRoleKeysForTesting)
+				{
+					var expected = $"medieval_outfit_{culture}_{sex}_{role}";
+					Assert.IsTrue(cultureOutfits.Any(x =>
+							x.OutfitReference.Equals(expected, StringComparison.Ordinal) &&
+							x.SexGenderPresentation.Equals(sex, StringComparison.Ordinal) &&
+							x.SocialClassRole.Equals(role, StringComparison.Ordinal)),
+						$"Expected outfit {expected}.");
+				}
+			}
+		}
+	}
+
+	[TestMethod]
+	public void MedievalOutfits_HaveRequiredSlotsAndResolvableStableReferences()
+	{
+		var itemReferences = ItemSeeder.MedievalItemStableReferencesForTesting
+			.ToHashSet(StringComparer.OrdinalIgnoreCase);
+		var slotDefinitions = ItemSeeder.MedievalOutfitSlotsForTesting
+			.ToDictionary(x => x.Key, x => x, StringComparer.OrdinalIgnoreCase);
+
+		foreach (var slot in MedievalOutfitRequiredSlots)
+		{
+			Assert.IsTrue(slotDefinitions.TryGetValue(slot, out var definition),
+				$"Expected medieval outfit slot definition for {slot}.");
+			Assert.IsTrue(definition.RequiredForAllOutfits, $"Expected {slot} to be required for all outfits.");
+		}
+
+		foreach (var role in MedievalOutfitRoleItemRequiredRoles)
+		{
+			Assert.IsTrue(slotDefinitions["role_item"].RequiredForRoles.Contains(role),
+				$"Expected role_item to be required for {role} outfits.");
+		}
+
+		foreach (var outfit in ItemSeeder.MedievalOutfitsForTesting)
+		{
+			foreach (var slot in MedievalOutfitRequiredSlots)
+			{
+				Assert.IsTrue(outfit.SlotItemStableReferences.TryGetValue(slot, out var stableReference),
+					$"Expected {outfit.OutfitReference} to include {slot}.");
+				Assert.IsTrue(itemReferences.Contains(stableReference),
+					$"Expected {outfit.OutfitReference} / {slot} reference {stableReference} to resolve to a medieval item spec.");
+			}
+
+			if (MedievalOutfitRoleItemRequiredRoles.Contains(outfit.SocialClassRole))
+			{
+				Assert.IsTrue(outfit.SlotItemStableReferences.TryGetValue("role_item", out var roleItem),
+					$"Expected {outfit.OutfitReference} to include a role item.");
+				Assert.IsTrue(itemReferences.Contains(roleItem),
+					$"Expected {outfit.OutfitReference} role item {roleItem} to resolve to a medieval item spec.");
+			}
+
+			foreach (var sharedSlot in outfit.IntentionallySharedOrGenericSlots)
+			{
+				Assert.IsTrue(outfit.SlotItemStableReferences.ContainsKey(sharedSlot),
+					$"Expected {outfit.OutfitReference} shared slot {sharedSlot} to be present in the slot map.");
+			}
+		}
+	}
+
+	[TestMethod]
+	public void MedievalOutfits_AreDocumentedByExactOutfitReference()
+	{
+		var documentedOutfits = ReadMedievalOutfitReferencesFromDocs()
+			.ToHashSet(StringComparer.Ordinal);
+		var codeOutfits = ItemSeeder.MedievalOutfitsForTesting
+			.Select(x => x.OutfitReference)
+			.ToHashSet(StringComparer.Ordinal);
+		var missingFromCode = documentedOutfits
+			.Where(x => !codeOutfits.Contains(x))
+			.ToList();
+		var missingFromDocs = codeOutfits
+			.Where(x => !documentedOutfits.Contains(x))
+			.ToList();
+
+		Assert.AreEqual(216, documentedOutfits.Count);
+		Assert.AreEqual(0, missingFromCode.Count,
+			$"Expected documented medieval outfit references to exist in code: {string.Join(", ", missingFromCode)}");
+		Assert.AreEqual(0, missingFromDocs.Count,
+			$"Expected code medieval outfit references to be documented exactly: {string.Join(", ", missingFromDocs)}");
+	}
+
+	[TestMethod]
+	public void MedievalExplicitOutfitPieceCraftNames_DoNotUseRegionalPattern()
+	{
+		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.Medieval.cs");
+		var helperBlock = ExtractMethodBlockContaining(craftSource, "MedievalExplicitOutfitPieceCraftName");
+
+		AssertContains(helperBlock, "MedievalSpecCraftName(verb, spec)");
+		Assert.IsFalse(helperBlock.Contains("BuildRegionalCraftName", StringComparison.Ordinal),
+			"Explicit outfit-piece craft names should use exact object names, not regional patterns.");
+		Assert.IsFalse(helperBlock.Contains("regional pattern", StringComparison.OrdinalIgnoreCase),
+			"Explicit outfit-piece craft names should not contain regional pattern.");
 	}
 
 	[TestMethod]
@@ -608,6 +743,7 @@ public class ItemSeederMedievalCraftingTests
 		{
 			"Crafting_System_Builder_Workflows.md",
 			"Medieval_Culture_Catalogue.md",
+			"Medieval_Outfit_Catalogue.md",
 			"Medieval_Crafting_Audit.md",
 			"Medieval_Item_Component_Gap_Report.md",
 			"Medieval_Clothing_Crafting_Suite.md",
@@ -626,9 +762,23 @@ public class ItemSeederMedievalCraftingTests
 		var entries = new List<(string CultureKey, string Group, string StableReference)>();
 		string? cultureKey = null;
 		string? group = null;
+		var inExactCatalogue = false;
 
 		foreach (var line in Regex.Split(docs, "\r?\n"))
 		{
+			if (line.Equals("## Exact Culture Catalogue", StringComparison.Ordinal))
+			{
+				inExactCatalogue = true;
+				cultureKey = null;
+				group = null;
+				continue;
+			}
+
+			if (!inExactCatalogue)
+			{
+				continue;
+			}
+
 			var cultureMatch = Regex.Match(line, @"^### .+ \(`(?<culture>[^`]+)`\)");
 			if (cultureMatch.Success)
 			{
@@ -660,6 +810,15 @@ public class ItemSeederMedievalCraftingTests
 		return entries;
 	}
 
+	private static IReadOnlyCollection<string> ReadMedievalOutfitReferencesFromDocs()
+	{
+		var docs = ReadSource("Design Documents", "Crafting", "Medieval_Outfit_Catalogue.md");
+		return Regex.Matches(docs, @"`(?<outfit>medieval_outfit_[^`]+)`")
+			.Select(x => x.Groups["outfit"].Value)
+			.Distinct(StringComparer.Ordinal)
+			.ToArray();
+	}
+
 	private static string ExtractCallBlockContaining(string source, string marker)
 	{
 		var start = source.IndexOf(marker, StringComparison.Ordinal);
@@ -667,6 +826,37 @@ public class ItemSeederMedievalCraftingTests
 		var end = source.IndexOf(");", start, StringComparison.Ordinal);
 		Assert.IsTrue(end >= 0, $"Could not find end of source block for {marker}.");
 		return source[start..end];
+	}
+
+	private static string ExtractMethodBlockContaining(string source, string marker)
+	{
+		var start = source.IndexOf(marker, StringComparison.Ordinal);
+		Assert.IsTrue(start >= 0, $"Could not find source block for {marker}.");
+		var openBrace = source.IndexOf('{', start);
+		Assert.IsTrue(openBrace >= 0, $"Could not find opening brace for source block {marker}.");
+		var depth = 0;
+		for (var i = openBrace; i < source.Length; i++)
+		{
+			if (source[i] == '{')
+			{
+				depth++;
+				continue;
+			}
+
+			if (source[i] != '}')
+			{
+				continue;
+			}
+
+			depth--;
+			if (depth == 0)
+			{
+				return source[start..(i + 1)];
+			}
+		}
+
+		Assert.Fail($"Could not find end of source block for {marker}.");
+		return string.Empty;
 	}
 
 	private static void AssertContains(string source, string expected)

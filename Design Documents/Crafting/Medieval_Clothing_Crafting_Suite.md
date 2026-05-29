@@ -32,6 +32,8 @@ Use three levels of clothing content:
 
 The existing generated status-role wardrobe can remain as a generic fallback, but it should not count as fulfilling the explicit outfit catalogue.
 
+MED-OUTFIT-001 adds an executable `MedievalOutfitSpec` catalogue in `ItemSeeder.Rework.Medieval.cs`. The first scaffold maps each complete outfit to the current craftable baseline wardrobe and role accessories, and records those slots as intentionally shared/generic. Later culture-item goals should replace the shared slot references with exact explicit culture item references while preserving the outfit reference and required-slot contract.
+
 ## Outfit Axes
 
 Every culture should receive outfits for:
@@ -60,6 +62,8 @@ Every outfit should include these slots:
 | `worn_container` | Required for most outfits | Pouch, purse, book pouch, field pouch, document satchel, writing sleeve pouch. |
 | `fastener_or_jewellery` | Required | Brooch, ring pin, cloak clasp, badge, pendant, belt mount. |
 | `role_item` | Required for merchant, religious, and military | Tool apron, trade seal, devotional object, book pouch, scabbard, quiver, badge, official chop cord. |
+
+The code-side `MedievalOutfitSlot` list uses these exact keys: `underlayer`, `lower_body`, `leg_or_sock_layer`, `footwear`, `bodywear`, `outerwear`, `headwear`, `belt_or_sash`, `worn_container`, `fastener_or_jewellery`, and `role_item`.
 
 ## Sharing Rules
 
@@ -162,6 +166,7 @@ Add tests that verify:
 - 216 complete outfit definitions exist.
 - Every outfit has required slots.
 - Every outfit references item stable references that exist.
+- Outfit slot references are exposed through testing accessors, including intentionally shared/generic slot markers.
 - Every outfit has at least four culture-specific or cluster-specific pieces.
 - Every class differs from the others in at least two slots.
 - Male/female variants differ in at least two slots unless documented as unisex.

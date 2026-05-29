@@ -274,6 +274,10 @@ public partial class ItemSeeder
 			[CommodityInput(420.0, "silk")],
 			["TagTool - Held - an item with the Drop Spindle tag"],
 			[CommodityOutput(330.0, "silk", "Spun Yarn", colour: true, fineColour: true)]);
+		AddStockCraft("spin cotton yarn stock", "Tailoring", "Tailoring", 10, Difficulty.Easy,
+			[CommodityInput(650.0, "cotton")],
+			["TagTool - Held - an item with the Drop Spindle tag"],
+			[CommodityOutput(520.0, "cotton", "Spun Yarn", colour: true, fineColour: true)]);
 		AddStockCraft("weave linen garment cloth stock", "Tailoring", "Tailoring", 15, Difficulty.Normal,
 			[CommodityInput(620.0, "linen", "Spun Yarn", colour: true, fineColour: true)],
 			["TagTool - InRoom - an item with the Hand Loom tag"],
@@ -286,6 +290,10 @@ public partial class ItemSeeder
 			[CommodityInput(520.0, "silk", "Spun Yarn", colour: true, fineColour: true)],
 			["TagTool - InRoom - an item with the Hand Loom tag"],
 			[CommodityOutput(420.0, "silk", "Garment Cloth", colour: true, fineColour: true)]);
+		AddStockCraft("weave cotton garment cloth stock", "Tailoring", "Tailoring", 15, Difficulty.Normal,
+			[CommodityInput(620.0, "cotton", "Spun Yarn", colour: true, fineColour: true)],
+			["TagTool - InRoom - an item with the Hand Loom tag"],
+			[CommodityOutput(500.0, "cotton", "Garment Cloth", colour: true, fineColour: true)]);
 		AddStockCraft("full wool cloth stock", "Tailoring", "Tailoring", 20, Difficulty.Normal,
 			[
 				CommodityInput(900.0, "wool", "Garment Cloth", colour: true, fineColour: true),
@@ -296,6 +304,16 @@ public partial class ItemSeeder
 				"TagTool - InRoom - an item with the Cloth Tenter Frame tag"
 			],
 			[CommodityOutput(760.0, "wool", "Fulled Cloth", colour: true, fineColour: true)]);
+		AddStockCraft("full felt cloth stock", "Tailoring", "Tailoring", 20, Difficulty.Normal,
+			[
+				CommodityInput(820.0, "wool", "Garment Cloth", colour: true, fineColour: true),
+				CommodityInput(80.0, "chalk dust")
+			],
+			[
+				"TagTool - InRoom - an item with the Fulling Stocks tag",
+				"TagTool - InRoom - an item with the Cloth Tenter Frame tag"
+			],
+			[CommodityOutput(680.0, "felt", "Fulled Cloth", colour: true, fineColour: true)]);
 		AddStockCraft("prepare leather panel stock", "Leathermaking", "Leathermaking", 15, Difficulty.Normal,
 			[
 				CommodityInput(1200.0, "leather"),
@@ -303,6 +321,10 @@ public partial class ItemSeeder
 			],
 			["TagTool - InRoom - an item with the Tanning Rack tag", "TagTool - Held - an item with the Awl Punch tag"],
 			[CommodityOutput(960.0, "leather", "Prepared Leather Panel", colour: true, fineColour: true)]);
+		AddStockCraft("prepare fur panel stock", "Leathermaking", "Leathermaking", 15, Difficulty.Normal,
+			[CommodityInput(650.0, "fur")],
+			["TagTool - InRoom - an item with the Tanning Rack tag", "TagTool - Held - an item with the Shears tag"],
+			[CommodityOutput(500.0, "fur", "Fur Panel Stock", colour: true, fineColour: true)]);
 		AddStockCraft("cut leather strap stock", "Leathermaking", "Leathermaking", 15, Difficulty.Easy,
 			[CommodityInput(520.0, "leather", "Prepared Leather Panel", colour: true, fineColour: true)],
 			["TagTool - Held - an item with the Shears tag", "TagTool - Held - an item with the Awl Punch tag"],
@@ -918,6 +940,168 @@ public partial class ItemSeeder
 		return $"{verb} {VisibleCraftName(spec.ShortDescription)} [{spec.StableReference}]";
 	}
 
+	private static string MedievalExplicitOutfitPieceCraftName(string verb, MedievalItemSpec spec)
+	{
+		return $"{verb} {spec.ShortDescription} [{spec.StableReference}]";
+	}
+
+	private static (string Category, string Trait, IReadOnlyList<string> Inputs, IReadOnlyList<string> Tools, Difficulty Difficulty, string Verb, string Gerund)
+		GetMedievalExplicitOutfitPieceCraftPath(MedievalItemSpec spec)
+	{
+		var visibleName = VisibleCraftName(spec.ShortDescription);
+		var inputs = new List<string>();
+		switch (spec.MaterialType)
+		{
+			case MaterialBehaviourType.Leather:
+				inputs.Add(CommodityInput(
+					Math.Max(160.0, spec.WeightInGrams * 0.65),
+					spec.Material,
+					visibleName.Contains("shoe", StringComparison.OrdinalIgnoreCase) ||
+					visibleName.Contains("boot", StringComparison.OrdinalIgnoreCase) ||
+					visibleName.Contains("sandal", StringComparison.OrdinalIgnoreCase) ||
+					visibleName.Contains("slipper", StringComparison.OrdinalIgnoreCase)
+						? "Turnshoe Upper Stock"
+						: "Prepared Leather Panel",
+					colour: true,
+					fineColour: spec.Quality >= ItemQuality.Good));
+				inputs.Add(CommodityInput(60.0, "linen", "Spun Yarn", colour: true));
+				return ("Leathermaking", "Leathermaking", inputs,
+					[
+						"TagTool - Held - an item with the Awl Punch tag",
+						"TagTool - Held - an item with the Sewing Needle tag",
+						"TagTool - Held - an item with the Shears tag"
+					],
+					Difficulty.Normal, "sew", "sewing");
+			case MaterialBehaviourType.Fabric:
+				if (spec.Material.Equals("paper", StringComparison.OrdinalIgnoreCase))
+				{
+					var isBoundPaperItem =
+						!visibleName.Contains("book pouch", StringComparison.OrdinalIgnoreCase) &&
+						(visibleName.Contains("notebook", StringComparison.OrdinalIgnoreCase) ||
+						 visibleName.Contains("booklet", StringComparison.OrdinalIgnoreCase) ||
+						 visibleName.Contains("book", StringComparison.OrdinalIgnoreCase));
+					inputs.Add(CommodityInput(Math.Max(60.0, spec.WeightInGrams * 0.70), "paper", "Paper Sheet Stock",
+						colour: true, fineColour: spec.Quality >= ItemQuality.Good));
+					if (isBoundPaperItem)
+					{
+						inputs.Add(CommodityInput(70.0, "leather", "Bookbinding Leather Stock", colour: true,
+							fineColour: true));
+					}
+
+					return ("Writing", "Tailoring", inputs,
+						isBoundPaperItem
+							? ["TagTool - Held - an item with the Sewing Needle tag", "TagTool - InRoom - an item with the Book Press tag"]
+							: ["TagTool - Held - an item with the Sewing Needle tag"],
+						Difficulty.Normal, "prepare", "preparing");
+				}
+
+				var clothStock =
+					spec.Material.Equals("silk", StringComparison.OrdinalIgnoreCase) &&
+					(spec.Quality >= ItemQuality.Good || visibleName.Contains("silk", StringComparison.OrdinalIgnoreCase))
+						? "Silk Brocade Panel"
+						: visibleName.Contains("padded", StringComparison.OrdinalIgnoreCase) ||
+					visibleName.Contains("arming", StringComparison.OrdinalIgnoreCase) ||
+					visibleName.Contains("gambeson", StringComparison.OrdinalIgnoreCase) ||
+					visibleName.Contains("aketon", StringComparison.OrdinalIgnoreCase) ||
+					visibleName.Contains("shield-wall", StringComparison.OrdinalIgnoreCase)
+						? "Quilted Armour Padding"
+						: spec.Material.Equals("felt", StringComparison.OrdinalIgnoreCase)
+							? "Fulled Cloth"
+							: visibleName.Contains("fine", StringComparison.OrdinalIgnoreCase) ||
+						  visibleName.Contains("lined", StringComparison.OrdinalIgnoreCase) ||
+						  visibleName.Contains("noble", StringComparison.OrdinalIgnoreCase) ||
+						  visibleName.Contains("merchant", StringComparison.OrdinalIgnoreCase) ||
+						  spec.Quality >= ItemQuality.Good
+							? "Broadcloth Stock"
+							: "Garment Cloth";
+				inputs.Add(CommodityInput(Math.Max(180.0, spec.WeightInGrams * 0.65), spec.Material, clothStock,
+					colour: true, fineColour: spec.Quality >= ItemQuality.Good));
+				inputs.Add(CommodityInput(55.0,
+					spec.Material.Equals("felt", StringComparison.OrdinalIgnoreCase) ? "wool" : spec.Material,
+					"Spun Yarn", colour: true));
+				if (visibleName.Contains("lamellar", StringComparison.OrdinalIgnoreCase) ||
+				    visibleName.Contains("scale panels", StringComparison.OrdinalIgnoreCase))
+				{
+					inputs.Add(CommodityInput(420.0, "wrought iron", "Armour Lamella Stock"));
+				}
+
+				if (visibleName.Contains("fur-edged", StringComparison.OrdinalIgnoreCase) ||
+				    visibleName.Contains("fur-lined", StringComparison.OrdinalIgnoreCase))
+				{
+					inputs.Add(CommodityInput(120.0, "fur", "Fur Panel Stock", colour: true, fineColour: true));
+				}
+
+				if (visibleName.Contains("tablet-banded", StringComparison.OrdinalIgnoreCase) ||
+				    visibleName.Contains("tablet-woven", StringComparison.OrdinalIgnoreCase) ||
+				    spec.StableReference.Contains("tablet_banded", StringComparison.OrdinalIgnoreCase) ||
+				    spec.StableReference.Contains("tablet_woven", StringComparison.OrdinalIgnoreCase))
+				{
+					inputs.Add(CommodityInput(35.0, "wool", "Tablet-Woven Band Stock", colour: true, fineColour: true));
+				}
+
+				if (visibleName.Contains("embroidered", StringComparison.OrdinalIgnoreCase) ||
+				    visibleName.Contains("bordered", StringComparison.OrdinalIgnoreCase) ||
+				    visibleName.Contains("panelled", StringComparison.OrdinalIgnoreCase) ||
+				    visibleName.Contains("braid", StringComparison.OrdinalIgnoreCase) ||
+				    visibleName.Contains("bliaut", StringComparison.OrdinalIgnoreCase) ||
+				    visibleName.Contains("tiraz", StringComparison.OrdinalIgnoreCase) ||
+				    visibleName.Contains("surcoat", StringComparison.OrdinalIgnoreCase) ||
+				    visibleName.Contains("hangerok", StringComparison.OrdinalIgnoreCase))
+				{
+					inputs.Add(CommodityInput(45.0, spec.Material.Equals("silk", StringComparison.OrdinalIgnoreCase) ? "silk" : "linen",
+						"Embroidered Trim Stock", colour: true, fineColour: true));
+				}
+
+				return ("Tailoring", "Tailoring", inputs,
+					[
+						"TagTool - Held - an item with the Sewing Needle tag",
+						"TagTool - Held - an item with the Shears tag"
+					],
+					Difficulty.Normal, "sew", "sewing");
+			case MaterialBehaviourType.Hair:
+				inputs.Add(CommodityInput(Math.Max(90.0, spec.WeightInGrams * 0.55), spec.Material, "Fur Panel Stock",
+					colour: true, fineColour: spec.Quality >= ItemQuality.Good));
+				inputs.Add(CommodityInput(35.0, "linen", "Spun Yarn", colour: true));
+				return ("Tailoring", "Tailoring", inputs,
+					[
+						"TagTool - Held - an item with the Sewing Needle tag",
+						"TagTool - Held - an item with the Shears tag"
+					],
+					Difficulty.Normal, "sew", "sewing");
+			case MaterialBehaviourType.Wood:
+				return ("Carpentry", "Carpentry",
+					[CommodityInput(Math.Max(80.0, spec.WeightInGrams * 0.70), spec.Material, "Tool Blank Stock")],
+					["TagTool - Held - an item with the Hammer tag", "TagTool - Held - an item with the Awl Punch tag"],
+					Difficulty.Normal, "make", "making");
+			case MaterialBehaviourType.Metal:
+				return ("Metalworking", "Blacksmithing",
+					[CommodityInput(Math.Max(80.0, spec.WeightInGrams * 0.70), spec.Material, "Tool Blank Stock")],
+					["TagTool - InRoom - an item with the Anvil tag", "TagTool - Held - an item with the Hammer tag"],
+					spec.Quality >= ItemQuality.Good ? Difficulty.Hard : Difficulty.Normal, "make", "making");
+			case MaterialBehaviourType.Wax:
+				return ("Candlemaking", "Candlemaking",
+					[CommodityInput(Math.Max(50.0, spec.WeightInGrams), spec.Material)],
+					[],
+					Difficulty.Easy, "make", "making");
+			default:
+				return ("Crafting", "Crafting",
+					[CommodityInput(Math.Max(80.0, spec.WeightInGrams * 0.70), spec.Material, "Tool Blank Stock")],
+					["TagTool - Held - an item with the Hammer tag"],
+					Difficulty.Normal, "make", "making");
+		}
+	}
+
+	internal static IReadOnlyCollection<(string StableReference, string CraftName, IReadOnlyCollection<string> Inputs, IReadOnlyCollection<string> Tools)> MedievalExplicitOutfitPieceCraftsForTesting =>
+		MedievalExplicitOutfitPieceItemSpecs()
+			.Select(spec =>
+			{
+				var path = GetMedievalExplicitOutfitPieceCraftPath(spec);
+				return (spec.StableReference, MedievalExplicitOutfitPieceCraftName(path.Verb, spec),
+					(IReadOnlyCollection<string>)path.Inputs.ToArray(),
+					(IReadOnlyCollection<string>)path.Tools.ToArray());
+			})
+			.ToArray();
+
 	private void SeedMedievalClothingCrafts()
 	{
 		if (!ShouldSeedMedievalCrafts())
@@ -1014,6 +1198,24 @@ public partial class ItemSeeder
 						knowledgeSubtype: status.Display);
 				}
 			}
+		}
+
+		foreach (var item in MedievalExplicitOutfitPieceItemSpecs())
+		{
+			var path = GetMedievalExplicitOutfitPieceCraftPath(item);
+			AddMedievalFinishedCraft(
+				item.StableReference,
+				MedievalExplicitOutfitPieceCraftName(path.Verb, item),
+				path.Category,
+				path.Trait,
+				$"{MedievalClothingKnowledgePrefix} Explicit Outfits",
+				path.Difficulty == Difficulty.Hard ? 35 : 20,
+				path.Difficulty,
+				path.Inputs,
+				path.Tools,
+				path.Verb,
+				path.Gerund,
+				"Explicit Outfits");
 		}
 	}
 

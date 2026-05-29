@@ -4,9 +4,9 @@ This document gives goal-notation instructions for Codex or other coding agents 
 
 The key principle is:
 
-> Shared production chains are encouraged; shared final products are not.
+> Shared production chains are encouraged; shared final outfits are not.
 
-The existing medieval implementation should be treated as a scaffold. It should not be expanded by adding more generic culture/status cross-products. The next work should add exact culture catalogues with explicit stable references, descriptions, craft names, inputs, documentation, and tests.
+The existing medieval implementation should be treated as a scaffold. It should not be expanded by adding more generic culture/status cross-products. The next work should add complete outfit catalogues by culture, sex, and social class, with explicit stable references, descriptions, craft names, inputs, documentation, and tests.
 
 ## Goal Notation Template
 
@@ -25,13 +25,13 @@ Required changes:
   Concrete implementation changes.
 
 Catalogue requirements:
-  Exact item-count and stable-reference requirements.
+  Exact outfit, item-count, and stable-reference requirements.
 
 Craft requirements:
   Required craft coverage and input chains.
 
 Documentation requirements:
-  Which docs must be updated and how exact the stable-reference listing must be.
+  Which docs must be updated and how exact the stable-reference or outfit listing must be.
 
 Test requirements:
   New or updated tests that must fail before the change and pass after it.
@@ -45,55 +45,85 @@ Acceptance criteria:
 
 ## GOAL MED-CAT-001: Establish Exact Medieval Culture Catalogue
 
+Status:
+  Implemented in the first pass. Retain the model, but extend it for outfit-level catalogues.
+
+Follow-up requirement:
+  Add outfit definitions and testing accessors. The catalogue should distinguish:
+  - generic baseline clothing
+  - shared common clothing
+  - explicit culture-specific clothing
+  - complete outfit definitions
+
+## GOAL MED-OUTFIT-001: Add Complete Outfit Catalogue Model
+
 Intent:
-  Replace generic culture cue expansion with an explicit per-culture catalogue that records named material-culture targets.
+  Replace "a few culturally specific garments" with complete dressable outfits for men and women across social classes.
 
 Files to touch:
-  - `Design Documents/Crafting/Medieval_Culture_Catalogue.md`
-  - `Design Documents/Crafting/Medieval_Crafting_Audit.md`
   - `DatabaseSeeder/Seeders/ItemSeeder.Rework.Medieval.cs`
+  - `DatabaseSeeder/Seeders/ItemSeederCrafting.Medieval.cs`
+  - `Design Documents/Crafting/Medieval_Outfit_Catalogue.md`
+  - `Design Documents/Crafting/Medieval_Clothing_Crafting_Suite.md`
+  - `Design Documents/Crafting/Medieval_Testing_Quality_Gates.md`
   - `DatabaseSeeder Unit Tests/ItemSeederMedievalCraftingTests.cs`
 
 Required changes:
-  - Add a `MedievalCultureCatalogue` model or equivalent explicit catalogue structure.
-  - Do not add more culture content by appending `ClothingCue`, `FoodCue`, or `WritingCue` to generic templates.
-  - Preserve the current generated common/status wardrobe as common baseline only.
-  - Add a testing accessor for explicit per-culture stable references.
+  - Add a `MedievalOutfitSpec` or equivalent catalogue structure.
+  - Each outfit spec should identify:
+    - culture key
+    - sex/gender presentation: `male` or `female`
+    - social class/role
+    - display name
+    - slot-to-item stable reference map
+    - intentionally shared/generic slots, if any
+  - Add a `MedievalOutfitSlot` model or equivalent slot list.
+  - Add testing accessors exposing outfit definitions and their item references.
+
+Required outfit axes:
+  - Cultures: all 18 medieval cultures.
+  - Sex/gender presentation: `male`, `female`.
+  - Social classes/roles: `peasant`, `artisan`, `merchant`, `noble`, `religious`, `military`.
 
 Catalogue requirements:
-  - For every medieval culture key, the catalogue must list explicit stable references grouped under:
-    - Clothing
-    - Military
-    - Food and Beverage
-    - Writing and Administration
-    - Household and Devotional
-  - Exact references must appear in `Medieval_Culture_Catalogue.md`.
-  - Pattern-only documentation is not sufficient for explicit culture items.
+  - 12 complete outfits per culture.
+  - 216 complete outfits across all cultures.
+  - Every outfit should include required slots:
+    - underlayer
+    - lower body
+    - leg/sock layer
+    - footwear
+    - bodywear
+    - outerwear or documented warm-weather/travel equivalent
+    - headwear
+    - belt or sash
+    - worn container
+    - fastener/jewellery
+    - role item for merchant, religious, and military outfits
 
 Craft requirements:
-  - No craft change required beyond any scaffolding needed for explicit final product craft generation.
+  - No need to create a single "outfit craft" unless useful.
+  - Every item referenced by an outfit must be craftable or intentionally shared from a craftable common item.
 
 Documentation requirements:
-  - `Medieval_Crafting_Audit.md` must clearly distinguish generic baseline items from explicit culture items.
-  - `Medieval_Culture_Catalogue.md` must become the authoritative exact catalogue.
+  - `Medieval_Outfit_Catalogue.md` must list every outfit by exact outfit reference.
+  - The clothing suite doc must explain outfit slots, sharing rules, and tests.
 
 Test requirements:
-  - Add a test that fails if a culture has no explicit non-generic catalogue entries.
-  - Add a test that no new explicit culture item has a short description beginning with `a regional`.
-  - Add a test that exact stable references in the new catalogue are present in code.
+  - Add tests for outfit count, required slots, referenced item existence, and documentation.
+  - Add tests that explicit outfit final item crafts do not use `regional pattern`.
 
 Non-goals:
-  - Do not implement all culture items in this goal.
-  - Do not rewrite production chains yet.
+  - Do not implement all outfit items in this goal if scaffolding alone is being added.
+  - Do not create runtime package support unless an existing package system makes it straightforward.
 
 Acceptance criteria:
-  - The codebase has a catalogue structure ready for explicit content.
-  - The documentation distinguishes generic baseline items from explicit culture items.
+  - Codex and reviewers can inspect an outfit catalogue and see exactly what someone wears from head to foot.
 
-## GOAL MED-CLOTH-001: Add Explicit North Atlantic and British Wardrobe Catalogue
+## GOAL MED-OUTFIT-002: Implement Complete North Atlantic and British Outfits
 
 Intent:
-  Make the six most Anglosphere-relevant cultures materially distinct in clothing rather than generic status outfits with cue text.
+  Make the highest-priority Anglosphere-adjacent cultures fully dressable with complete male and female outfits across social classes.
 
 Cultures in scope:
   - `early_anglo_saxon`
@@ -106,22 +136,20 @@ Cultures in scope:
 Files to touch:
   - `DatabaseSeeder/Seeders/ItemSeeder.Rework.Medieval.cs`
   - `DatabaseSeeder/Seeders/ItemSeederCrafting.Medieval.cs`
-  - `Design Documents/Crafting/Medieval_Culture_Catalogue.md`
+  - `Design Documents/Crafting/Medieval_Outfit_Catalogue.md`
   - `Design Documents/Crafting/Medieval_Clothing_Crafting_Suite.md`
   - `DatabaseSeeder Unit Tests/ItemSeederMedievalCraftingTests.cs`
 
 Catalogue requirements:
-  - Add at least 12 explicit named clothing/accessory items per culture.
-  - Each culture must include:
-    - 4 common/peasant/artisan items
-    - 3 merchant/urban/status items
-    - 3 noble/formal/religious items
-    - 2 military/climate/riding items
-  - Stable references must not use only generic status tokens like `work_tunic`, `lined_hat`, or `rough_cloak` unless the item is explicitly marked as common baseline.
+  - Implement 12 complete outfits per culture.
+  - Each outfit must include at least 9 wearable pieces or documented slot equivalents.
+  - Each outfit must include at least four culture-specific or culture-cluster-specific items.
+  - Male and female variants for the same culture/class must differ in at least two wearable slots unless marked intentionally unisex.
+  - Class variants must differ in at least two wearable slots.
 
 Required vocabulary examples:
   - `early_anglo_saxon`: `tablet-banded`, `cloak brooch`, `linen head veil`, `seax belt`
-  - `anglo_danish`: `long seax`, `shield-wall`, `reeve`, `panelled`
+  - `anglo_danish`: `long seax`, `shield-wall`, `panelled`, `reeve`
   - `norse`: `hangerok`, `oval brooch`, `sea cloak`, `runic`, `leg wraps`
   - `norman`: `split riding tunic`, `bliaut`, `mail surcoat`, `nasal`
   - `high_british`: `cote`, `surcoat`, `coif`, `wimple`, `arming`
@@ -129,7 +157,7 @@ Required vocabulary examples:
 
 Craft requirements:
   - Final craft names must include the named object, e.g. `sew a Norse hangerok apron dress`.
-  - Do not use `regional pattern NN` for these final crafts.
+  - Do not use `regional pattern NN` for explicit outfit-item final crafts.
   - Use existing medieval textile stocks where appropriate:
     - `Garment Cloth`
     - `Broadcloth Stock`
@@ -140,21 +168,49 @@ Craft requirements:
     - `Spun Yarn`
 
 Test requirements:
-  - Add a per-culture explicit clothing count test.
-  - Add a vocabulary test for the six cultures.
-  - Add a craft-name test rejecting `regional pattern` for explicit culture clothing.
+  - Add per-culture outfit completion tests.
+  - Add vocabulary tests for the six cultures.
+  - Add craft-name tests rejecting `regional pattern` for explicit outfit items.
+  - Add tests that every outfit has footwear, headwear, bodywear, and belt/sash.
 
 Non-goals:
-  - Do not add non-European clothing in this goal.
-  - Do not change generic baseline clothing unless needed to separate it clearly from explicit culture items.
+  - Do not add eastern or Near Eastern complete outfits in this goal.
+  - Do not change non-clothing suites except for references needed by military outfit role items.
 
 Acceptance criteria:
-  - A builder searching for Norse, Gaelic, Anglo-Saxon, Norman, or High British clothing can find distinct named items without relying on builder notes.
+  - A builder can dress male and female peasant, artisan, merchant, noble, religious, and military characters for each in-scope culture without improvising missing clothing.
 
-## GOAL MED-CLOTH-002: Add Explicit Eastern, Near Eastern, North African, Steppe, and Song Wardrobe Catalogue
+## GOAL MED-OUTFIT-003: Implement Complete Continental Western and Central European Outfits
 
 Intent:
-  Bring non-Western and eastern medieval cultures up to the same quality level as the British/North Atlantic pass.
+  Bring the remaining Western and Central European cultures up to the complete-outfit standard.
+
+Cultures in scope:
+  - `carolingian`
+  - `capetian`
+  - `german_hre`
+  - `iberian_christian`
+
+Catalogue requirements:
+  - Same as MED-OUTFIT-002: 12 complete outfits per culture, required slots, culture/class/sex differentiation.
+
+Required vocabulary examples:
+  - `carolingian`: high-belted tunic, broad-banded mantle, spatha belt, capitulary/monastic associations
+  - `capetian`: cote, bliaut, burgher gown, wimple, guild apron
+  - `german_hre`: guild apron, civic gown, alpine felt cap, fur-lined mantle, town crossbow/militia
+  - `iberian_christian`: saya, pellote, manto, toca, frontier riding cloak
+
+Craft requirements:
+  - Same as MED-OUTFIT-002.
+  - Iberian outfits may share some cloak, sash, and textile logic with Andalusi outfits, but final pieces must remain culturally distinct.
+
+Acceptance criteria:
+  - These cultures should not feel like minor edits of the English/French baseline.
+
+## GOAL MED-OUTFIT-004: Implement Complete Byzantine, Islamic, Rus, Steppe, and Song Outfits
+
+Intent:
+  Bring the eastern, Near Eastern, North African, steppe, and Chinese slices up to the complete-outfit standard.
 
 Cultures in scope:
   - `andalusi`
@@ -167,207 +223,87 @@ Cultures in scope:
   - `song_china`
 
 Catalogue requirements:
-  - Add at least 12 explicit named clothing/accessory items per culture.
+  - Same as MED-OUTFIT-002: 12 complete outfits per culture, required slots, culture/class/sex differentiation.
 
 Required vocabulary examples:
-  - `andalusi`: `qamis`, `sirwal`, `burnous`, `turban`, `tiraz`
-  - `byzantine`: `silk dalmatic`, `sagion`, `court belt`, `icon pouch`, `skaramangion`
-  - `abbasid`: `qamis`, `qaba`, `caftan`, `scholar robe`, `sash`
-  - `fatimid`: `linen robe`, `tiraz-banded`, `cotton wrap`, `court kaftan`
-  - `seljuk_ayyubid`: `riding caftan`, `quilted coat`, `high riding boots`, `bowcase belt`
-  - `rus_novgorod`: `rubakha`, `fur-edged kaftan`, `onuchi`, `fur hat`, `birchbark`
-  - `steppe_turkic`: `felt riding caftan`, `tied riding coat`, `high boots`, `bowcase-and-quiver`
-  - `song_china`: `cross-collar`, `scholar robe`, `official cap`, `padded winter robe`, `cloth shoes`
+  - `andalusi`: qamis, sirwal, burnous, turban, tiraz
+  - `byzantine`: silk dalmatic, sagion, court belt, icon pouch, skaramangion
+  - `abbasid`: qamis, qaba, caftan, scholar robe, sash
+  - `fatimid`: linen robe, tiraz-banded, cotton wrap, court kaftan
+  - `seljuk_ayyubid`: riding caftan, quilted coat, high riding boots, bowcase belt
+  - `rus_novgorod`: rubakha, fur-edged kaftan, onuchi, fur hat, birchbark
+  - `steppe_turkic`: felt riding caftan, tied riding coat, high boots, bowcase-and-quiver
+  - `song_china`: cross-collar robe, scholar robe, official cap, padded winter robe, cloth shoes
 
 Craft requirements:
-  - Same as MED-CLOTH-001: product-specific craft names, no `regional pattern` final craft names.
-
-Test requirements:
-  - Add a vocabulary test for these cultures.
-  - Add explicit count tests per culture.
+  - Product-specific final craft names.
+  - No `regional pattern` final craft names.
+  - Use culture-appropriate material stocks: linen/cotton/silk/paper/lamellar/felt/fur where appropriate.
 
 Acceptance criteria:
   - None of these cultures should read like Western European garments with a different cue appended.
+
+## GOAL MED-OUTFIT-005: Add Optional Starter Outfit Package Support
+
+Intent:
+  Let builders load or inspect complete outfits as coherent sets if an existing package mechanism is convenient.
+
+Required changes:
+  - Investigate existing item package support.
+  - If suitable, seed package definitions or package metadata for each `medieval_outfit_{culture}_{sex}_{class}`.
+  - If not suitable, keep outfit specs as internal catalogue/test data only.
+
+Non-goals:
+  - Do not implement new runtime item-package systems unless already planned.
+  - Do not block outfit item implementation on package support.
+
+Acceptance criteria:
+  - At minimum, tests and docs can resolve every outfit to item stable references.
+  - If package support exists, builders can load complete outfits more conveniently.
 
 ## GOAL MED-FOOD-001: Replace Culture Food Props With Actual Foodway Items
 
 Intent:
   Make medieval foodways produce actual food/beverage items instead of mostly tableware, trays, packets, and generic cue props.
 
-Files to touch:
-  - `DatabaseSeeder/Seeders/ItemSeeder.Rework.Medieval.cs`
-  - `DatabaseSeeder/Seeders/ItemSeederCrafting.Medieval.cs`
-  - `Design Documents/Crafting/Medieval_Food_Beverage_Crafting_Suite.md`
-  - `Design Documents/Crafting/Medieval_Culture_Catalogue.md`
-  - `DatabaseSeeder Unit Tests/ItemSeederMedievalCraftingTests.cs`
-
-Required changes:
-  - Reclassify current platter/bowl/cup objects as tableware or vessel items.
-  - Add actual prepared-food and beverage prototypes for each culture.
-  - Where possible, use `PreparedFood`-style components if suitable stock components exist; otherwise tag clearly as food props and document the limitation.
-
-Catalogue requirements:
-  - Add at least 8 food/beverage items per culture:
-    - staple bread or grain dish
-    - everyday cooked dish
-    - preserved/travel food
-    - elite/feast dish
-    - beverage
-    - dairy/oil/spice/condiment item where culturally appropriate
-    - tableware/vessel item
-    - market/ration item
-
-Craft requirements:
-  - Food crafts must consume food commodities or liquids, not `Furniture Panel Stock`, except for actual platters/trenchers/tableware.
-  - Required acceptable inputs include:
-    - `Flour Commodity`
-    - grain or pulse commodity
-    - prepared meat or fish stock
-    - `Cheese Curd Stock` or `Cheese Wheel Stock`
-    - `Ale Stock`, `Cider Stock`, `Mead Stock`, milk, tea, wine, or water
-    - oil, honey, salt, spice, fruit, vegetable, broth, or preserved stock
-  - Final craft names must include the food item, not `regional meal platter`.
-
-Test requirements:
-  - Add a food-input sanity test that fails if bread/pottage/stew/feast crafts consume only `Furniture Panel Stock`.
-  - Add a test that each culture has at least 8 exact foodway stable references.
-  - Add a test that `regional medieval meal platter` is not counted as prepared food.
-
-Acceptance criteria:
-  - A culture’s foodway feels playable at an inn, market, feast, monastery, camp, or household table.
+This goal remains valid from the previous roadmap. It should occur after or in parallel with outfit work, but outfit work has higher priority for the clothing suite.
 
 ## GOAL MED-MIL-001: Expand Culture-Specific Military Loadouts
 
 Intent:
   Replace the current one-armour/one-weapon/one-shield model with culturally distinctive military kits.
 
-Files to touch:
-  - `DatabaseSeeder/Seeders/ItemSeeder.Rework.Medieval.cs`
-  - `DatabaseSeeder/Seeders/ItemSeederCrafting.Medieval.cs`
-  - `Design Documents/Crafting/Medieval_Equipment_Crafting_Suite.md`
-  - `Design Documents/Crafting/Medieval_Culture_Catalogue.md`
-  - `DatabaseSeeder Unit Tests/ItemSeederMedievalCraftingTests.cs`
-
-Catalogue requirements:
-  - Add at least 8 explicit military/equipment items per culture, excluding the existing generic armour, weapon, shield, padded coif, harness, quiver, pack, and banner.
-  - Each culture should include a mix of:
-    - primary weapon
-    - sidearm
-    - missile weapon or ammunition
-    - shield
-    - helmet/head protection
-    - body armour or padded layer
-    - belt/harness/scabbard/quiver
-    - campaign or guard accessory
-
-Craft requirements:
-  - Use existing medieval stock tags:
-    - `Weapon Blade Stock`
-    - `Weapon Head Stock`
-    - `Weapon Shaft Stock`
-    - `Shield Board Stock`
-    - `Shield Facing Stock`
-    - `Mail Panel Stock`
-    - `Armour Lamella Stock`
-    - `Quilted Armour Padding`
-    - `Military Cord Stock`
-    - `Leather Strap`
-  - Crossbow variants must consume `Crossbow Tiller Stock`, `Crossbow Prod Stock`, `Crossbow Lockwork Stock`, and `Military Cord Stock`.
-
-Test requirements:
-  - Add explicit military count tests per culture.
-  - Add vocabulary checks for culture-specific weapons and armour.
-  - Add tests that crossbow final products consume crossbow-specific stocks.
-
-Acceptance criteria:
-  - Each culture has enough military goods to equip multiple roles, not a single representative soldier.
+This goal should now coordinate with outfit work. The `military` outfit class for each culture should reference military clothing and at least one appropriate equipment accessory, but armour and weapons may remain in the equipment suite.
 
 ## GOAL MED-WRITE-001: Add Culture-Specific Writing, Administration, and Seal Media
 
 Intent:
   Give each culture appropriate recordkeeping objects and writing surfaces instead of generic bundles and tablets.
 
-Files to touch:
-  - `DatabaseSeeder/Seeders/ItemSeeder.Rework.Medieval.cs`
-  - `DatabaseSeeder/Seeders/ItemSeederCrafting.Medieval.cs`
-  - `Design Documents/Crafting/Medieval_Writing_Administration_Crafting_Suite.md`
-  - `Design Documents/Crafting/Medieval_Culture_Catalogue.md`
-  - `DatabaseSeeder Unit Tests/ItemSeederMedievalCraftingTests.cs`
-
-Catalogue requirements:
-  - Add at least 6 explicit writing/admin items per culture.
-  - Include different media where appropriate:
-    - parchment charters and rolls
-    - wax tablets
-    - paper decrees/contracts/registers
-    - birchbark letters for Rus
-    - printed notices/registers for Song China
-    - runic trade tallies for Norse
-    - seal tags and sealed packets for administrative cultures
-
-Component requirements:
-  - Paper/parchment sheets and scrolls use `PaperSheet`-style components.
-  - Codices/books use `Book`-style components.
-  - Wax, wood, birchbark, and tablet surfaces use `InscribableSurface`-style components where available.
-  - Sealed documents use `Sealable`.
-  - Seal matrices/stamps use `SealStamp`.
-
-Test requirements:
-  - Add a component sanity test so wooden tablets do not use `PaperSheet_Scroll`.
-  - Add a per-culture writing/admin count test.
-  - Add exact documentation tests.
-
-Acceptance criteria:
-  - Builders can distinguish chancery, monastery, market, court, guild, steppe messenger, and Song bureaucratic record objects.
+This goal remains valid. It should support outfit role items such as book pouches, document pouches, scholar sleeve pouches, notary kits, or official document cases.
 
 ## GOAL MED-HOUSE-001: Add Culture-Specific Household, Devotional, and Luxury Goods
 
 Intent:
   Make non-clothing everyday and prestige goods distinct by culture.
 
-Files to touch:
-  - `DatabaseSeeder/Seeders/ItemSeeder.Rework.Medieval.cs`
-  - `DatabaseSeeder/Seeders/ItemSeederCrafting.Medieval.cs`
-  - `Design Documents/Crafting/Medieval_Furniture_Container_Crafting_Suite.md`
-  - `Design Documents/Crafting/Medieval_Jewellery_Devotional_Crafting_Suite.md`
-  - `Design Documents/Crafting/Medieval_Culture_Catalogue.md`
-  - `DatabaseSeeder Unit Tests/ItemSeederMedievalCraftingTests.cs`
+This goal remains valid. It should support outfit role items such as devotional pendants, reliquary lockets, pilgrim badges, icon pouches, official badges, or merchant seals.
 
-Catalogue requirements:
-  - Add at least 5 explicit household/devotional/luxury items per culture.
-  - Do not satisfy this with `regional devotional token` clones.
-  - Include at least two of:
-    - household storage/furniture
-    - lighting
-    - devotional/religious object
-    - tableware/luxury vessel
-    - trade or craft prop
-    - textile or wall furnishing
-
-Test requirements:
-  - Add a per-culture household/devotional count test.
-  - Add a test excluding generic `regional devotional token` from explicit culture item counts.
-
-Acceptance criteria:
-  - A room furnished with a culture’s goods should have visible identity without relying on NPC clothing.
-
-## GOAL MED-TEST-001: Replace Count-Only Tests With Quality Tests
+## GOAL MED-TEST-001: Replace Count-Only Tests With Outfit Quality Tests
 
 Intent:
   Prevent future agents from passing by generating generic cross-products.
 
 Required test changes:
   - Keep dispatcher and basic coverage tests.
-  - Add explicit per-culture catalogue tests.
+  - Add outfit count tests.
+  - Add outfit slot completeness tests.
+  - Add culture-specific item threshold tests.
+  - Add sex differentiation tests.
+  - Add class differentiation tests.
   - Add vocabulary tests.
-  - Add food-input sanity tests.
-  - Add component sanity tests for writing surfaces.
-  - Add exact documentation tests.
-  - Add tests rejecting `regional pattern` craft names for explicit culture final products.
-
-Non-goals:
-  - Do not make tests depend on exact item counts only.
-  - Do not allow broad family patterns to count as documentation for explicit culture catalogue entries.
+  - Add craft-name quality tests.
+  - Add exact outfit documentation tests.
 
 Acceptance criteria:
-  - A shallow generic matrix cannot pass the medieval content test suite.
+  - A shallow generic matrix cannot pass the medieval clothing and outfit test suite.

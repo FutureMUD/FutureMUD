@@ -56,6 +56,20 @@ The v1 scaffold uses 18 culture/time profiles:
 
 These culture keys are still appropriate. The issue is not the selection; it is the shallow culture payload.
 
+## Exact Culture Catalogue Implementation Status
+
+The exact non-outfit culture catalogue in `Medieval_Culture_Catalogue.md` is now classified from the seeder status model rather than left as target-only documentation. Current counts:
+
+| Status | Entries |
+| --- | ---: |
+| `ImplementedItem` | 21 |
+| `CoveredByOutfitPiece` | 207 |
+| `AliasOfExistingStableReference` | 404 |
+| `Deferred` | 70 |
+| **Total exact catalogue references** | **702** |
+
+`ImplementedItem` rows use the exact catalogue stable reference and are expected to resolve to item specs with craft coverage. `AliasOfExistingStableReference` rows record the catalogue target and the broader seeded item that currently covers it. `CoveredByOutfitPiece` rows are clothing targets represented by explicit outfit-piece specs. `Deferred` rows remain future material-culture targets and carry a reason string in the catalogue.
+
 ## Revised Clothing Target: Complete Outfits
 
 The second pass must not merely add a few signature garments. It must add complete outfit catalogues.

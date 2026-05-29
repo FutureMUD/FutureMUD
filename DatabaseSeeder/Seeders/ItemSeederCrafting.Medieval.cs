@@ -1251,6 +1251,12 @@ public partial class ItemSeeder
 					x.CraftInputs).ToArray()))
 			.ToArray();
 
+	internal static IReadOnlyCollection<string> MedievalCraftedItemStableReferencesForTesting =>
+		MedievalAllItemSpecs()
+			.Where(x => string.IsNullOrWhiteSpace(x.MorphToUniqueReference))
+			.Select(x => x.StableReference)
+			.ToArray();
+
 	private void SeedMedievalClothingCrafts()
 	{
 		if (!ShouldSeedMedievalCrafts())

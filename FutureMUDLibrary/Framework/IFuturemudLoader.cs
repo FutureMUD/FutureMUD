@@ -47,6 +47,7 @@
         void LoadVehiclePrototypes();
         void LoadVehicles();
         void LoadVehicleHitchLinks();
+        void LoadMagicPortalTopology();
         void LoadGameItemSkins();
         void LoadGameItemGroups();
         void LoadTraits();

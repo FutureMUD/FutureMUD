@@ -168,6 +168,7 @@ V4 added 2 builder-creatable tag-aware ward effect tokens: `roomtagward` and `pe
 | `paralysis` | `ParalysisEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/StandaloneStatusSpellEffects.cs` via `SpellEffectFactory` | Yes | Applies forced paralysis through the health effect system |
 | `poison` | `PoisonEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/StandaloneStatusSpellEffects.Configured.cs` via `SpellEffectFactory` | Yes | Applies a configurable spell-owned drug payload |
 | `portal` | `PortalSpellEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/MagicPhase3Effects.cs` via `SpellEffectFactory` | Yes | Creates effect-owned paired transient exits between the caster's room and a target room, room anchor, or item/object anchor |
+| `portalnetwork` | `PortalTopologySpellEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/PortalTopologySpellEffect.cs` via `SpellEffectFactory` | Yes | Creates or updates durable portal/rune topology endpoints and optionally explicit links inside a `MagicPortalNetwork` |
 | `rage` | `RageSpellEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/RageSpellEffect.cs` via `SpellEffectFactory` | Yes | Applies rage |
 | `relocate` | `RelocateEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/RelocateEffect.cs` via `SpellEffectFactory` | Yes | Relocates a target |
 | `removeblindness` | `RemoveBlindnessEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/BlindnessEffect.cs` via `SpellEffectFactory` | Yes | Removes spell-owned blindness effects |
@@ -237,6 +238,11 @@ V4 added 2 builder-creatable tag-aware ward effect tokens: `roomtagward` and `pe
 | --- | --- | --- |
 | `IExitManager.TransientExits` | `IEnumerable<IExit>` | Read-only enumeration of registered transient exits for builder/admin inspection |
 | n/a | `IMagicPortalExit` | Optional metadata contract implemented by transient magical portals for source, destination, caster, spell, source effect, and portal command text |
+| n/a | `IMagicPortalNetwork` | Durable portal/rune topology root containing command/display defaults, active/cross-zone policy, endpoints, and explicit links |
+| n/a | `IMagicPortalEndpoint` | Durable room or directly placed item endpoint for a portal/rune network |
+| n/a | `IMagicPortalLink` | Explicit bidirectional link between two endpoints in a portal/rune network |
+| n/a | `IMagicPortalTopologyExit` | Metadata contract implemented by topology-managed transient exits for network, link, and endpoint identity |
+| n/a | `IMagicPortalTopologyService` | Runtime service that rebuilds durable topology into transient exits and cleans up spell-created topology |
 | n/a | `IMagicProjectilePayloadEffect` | First-class projectile/ranged payload enhancement contract used by ammunition, power packs, and thrown weapons |
 | n/a | `IMagicCraftToolEnhancementEffect` | First-class craft-tool enhancement contract for tool fitness, phase speed, and tool usage multipliers |
 | n/a | `IMagicPowerOrFuelEnhancementEffect` | First-class powered-item enhancement contract for production, consumption, and fuel-use multipliers |

@@ -37,6 +37,7 @@ public class MagicPhase3Tests
 		"corpseconsume",
 		"corpsespawn",
 		"portal",
+		"portalnetwork",
 		"forcecommand",
 		"subjectivedesc",
 		"subjectivesdesc"
@@ -214,6 +215,11 @@ public class MagicPhase3Tests
 			new XElement("TimeMultiplier", 1.0), new XElement("AllowCrossZone", false),
 			new XElement("AnchorTag", new XCData("anchor")), new XElement("AnchorValue", new XCData("north")),
 			new XElement("DestinationProg", 0));
+		yield return new XElement("Effect", new XAttribute("type", "portalnetwork"),
+			new XElement("NetworkId", 0), new XElement("EndpointKey", new XCData("north")),
+			new XElement("AnchorMode", (int)MagicPortalTopologyAnchorMode.TargetRoom),
+			new XElement("LinkEndpointKey", new XCData("south")), new XElement("ReplaceExisting", true),
+			new XElement("Permanent", false));
 		yield return new XElement("Effect", new XAttribute("type", "forcecommand"),
 			new XElement("Command", new XCData("look")));
 		yield return new XElement("Effect", new XAttribute("type", "subjectivedesc"),

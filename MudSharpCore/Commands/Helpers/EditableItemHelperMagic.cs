@@ -188,6 +188,100 @@ The core syntax is as follows:
         GetEditHeader = item => $"Magic Spell #{item.Id:N0} ({item.Name})"
     };
 
+    public static EditableItemHelper MagicPortalNetworkHelper { get; } = new()
+    {
+        ItemName = "Magic Portal Network",
+        ItemNamePlural = "Magic Portal Networks",
+        SetEditableItemAction = (actor, item) =>
+        {
+            actor.RemoveAllEffects<BuilderEditingEffect<IMagicPortalNetwork>>();
+            if (item == null)
+            {
+                return;
+            }
+
+            actor.AddEffect(new BuilderEditingEffect<IMagicPortalNetwork>(actor) { EditingItem = (IMagicPortalNetwork)item });
+        },
+        GetEditableItemFunc = actor =>
+            actor.CombinedEffectsOfType<BuilderEditingEffect<IMagicPortalNetwork>>().FirstOrDefault()?.EditingItem,
+        GetAllEditableItems = actor => actor.Gameworld.MagicPortalNetworks.ToList(),
+        GetEditableItemByIdFunc = (actor, id) => actor.Gameworld.MagicPortalNetworks.Get(id),
+        GetEditableItemByIdOrNameFunc = (actor, input) => actor.Gameworld.MagicPortalNetworks.GetByIdOrName(input),
+        AddItemToGameWorldAction = item => item.Gameworld.Add((IMagicPortalNetwork)item),
+        CastToType = typeof(IMagicPortalNetwork),
+        EditableNewAction = (actor, input) =>
+        {
+            if (input.IsFinished)
+            {
+                actor.OutputHandler.Send("You must specify a name for your new magic portal network.");
+                return;
+            }
+
+            var name = input.PopSpeech().TitleCase();
+            if (actor.Gameworld.MagicPortalNetworks.Any(x => x.Name.EqualTo(name)))
+            {
+                actor.OutputHandler.Send($"There is already a magic portal network called {name.ColourName()}.");
+                return;
+            }
+
+            IMagicSchool school = null;
+            if (!input.IsFinished)
+            {
+                school = actor.Gameworld.MagicSchools.GetByIdOrName(input.SafeRemainingArgument);
+                if (school is null)
+                {
+                    actor.OutputHandler.Send("There is no such magic school.");
+                    return;
+                }
+            }
+
+            var network = new MagicPortalNetwork(actor.Gameworld, name, school, actor);
+            actor.Gameworld.Add(network);
+            actor.RemoveAllEffects<BuilderEditingEffect<IMagicPortalNetwork>>();
+            actor.AddEffect(new BuilderEditingEffect<IMagicPortalNetwork>(actor) { EditingItem = network });
+            actor.OutputHandler.Send($"You create a new magic portal network called {network.Name.ColourName()}, which you are now editing.");
+        },
+        EditableCloneAction = (actor, input) =>
+        {
+            actor.OutputHandler.Send("Magic portal networks cannot be cloned yet; create a new network and add endpoints/links explicitly.");
+        },
+        GetListTableHeaderFunc = character => new List<string>
+        {
+            "Id",
+            "Name",
+            "School",
+            "Active",
+            "Endpoints",
+            "Links"
+        },
+        GetListTableContentsFunc = (character, networks) => from network in networks.OfType<IMagicPortalNetwork>()
+                                                             select new List<string>
+                                                             {
+                                                                 network.Id.ToString("N0", character),
+                                                                 network.Name,
+                                                                 network.School?.Name ?? "",
+                                                                 network.IsActive.ToColouredString(),
+                                                                 network.Endpoints.Count().ToString("N0", character),
+                                                                 network.Links.Count().ToString("N0", character)
+                                                             },
+        CustomSearch = (networks, keyword, gameworld) => networks,
+        DefaultCommandHelp = @"This command is used to work with durable magic portal/rune networks.
+
+The core syntax is as follows:
+
+	#3magic portalnetwork list#0 - lists all portal networks
+	#3magic portalnetwork edit new <name> [school]#0 - creates a new portal network
+	#3magic portalnetwork edit <which>#0 - begins editing a portal network
+	#3magic portalnetwork close#0 - stops editing a portal network
+	#3magic portalnetwork show <which>#0 - shows a portal network
+	#3magic portalnetwork set active#0 - toggles runtime materialisation
+	#3magic portalnetwork set endpoint add room <key> <cell|here> [name]#0 - adds or replaces a room endpoint
+	#3magic portalnetwork set endpoint add item <key> <item id> [name]#0 - adds or replaces an item endpoint
+	#3magic portalnetwork set link add <from> <to>#0 - explicitly links two endpoints
+	#3magic portalnetwork set refresh#0 - rebuilds active runtime portal exits",
+        GetEditHeader = item => $"Magic Portal Network #{item.Id:N0} ({item.Name})"
+    };
+
     public static EditableItemHelper MagicSchoolHelper { get; } = new()
     {
         ItemName = "Magic School",

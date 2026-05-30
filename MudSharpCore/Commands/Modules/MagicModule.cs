@@ -236,6 +236,11 @@ public class MagicModule : Module<ICharacter>
             case "portals":
                 MagicPortals(actor, ss);
                 return;
+            case "portalnetwork":
+            case "portalnet":
+            case "runes":
+                MagicPortalNetwork(actor, ss);
+                return;
             case "anchors":
                 MagicAnchors(actor, ss);
                 return;
@@ -255,6 +260,7 @@ public class MagicModule : Module<ICharacter>
 	#3magic power#0 - magic powers are customisable hard-coded powers for a magic school
 	#3magic spell#0 - magic spells are completely flexible and editable templates for magical effects
 	#3magic portals#0 - inspects active transient magical portals
+	#3magic portalnetwork#0 - edits durable portal/rune topology
 	#3magic anchors [tag]#0 - inspects active magic-tag anchors on rooms and items
 
 #ENote - It's relatively easy to add new spell effect types. Reach out to Japheth on the FutureMUD discord if you want something added.#0".SubstituteANSIColour());
@@ -310,7 +316,7 @@ public class MagicModule : Module<ICharacter>
                 $"#{portal.Destination.Id.ToString("N0", actor)} {portal.Destination.Name}",
                 $"{portal.Verb} {portal.OutboundKeyword}",
                 portal.Caster?.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreCanSee) ?? "None",
-                portal.Spell?.Name ?? "Unknown",
+                portal is IMagicPortalTopologyExit topology ? topology.Network.Name : portal.Spell?.Name ?? "Unknown",
                 duration > TimeSpan.Zero ? duration.Describe(actor) : "persistent"
             },
             new List<string>
@@ -320,11 +326,16 @@ public class MagicModule : Module<ICharacter>
                 "Destination",
                 "Command",
                 "Caster",
-                "Spell",
+                "Spell/Network",
                 "Duration"
             },
             actor,
             Telnet.Magenta));
+    }
+
+    public static void MagicPortalNetwork(ICharacter actor, StringStack command)
+    {
+        BuilderModule.GenericBuildingCommand(actor, command, EditableItemHelper.MagicPortalNetworkHelper);
     }
 
     public static void MagicAnchors(ICharacter actor, StringStack command)

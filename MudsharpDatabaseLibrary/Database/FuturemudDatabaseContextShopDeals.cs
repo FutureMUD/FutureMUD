@@ -14,6 +14,7 @@ namespace MudSharp.Database
             ConfigureVirtualCash(modelBuilder);
             ConfigureAgriculture(modelBuilder);
             ConfigureVehicles(modelBuilder);
+            ConfigureMagicPortalTopology(modelBuilder);
 
             modelBuilder.Entity<ShopDeal>(entity =>
             {

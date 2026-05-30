@@ -454,7 +454,11 @@ The persistent sensory/combat slice adds:
 - `trackmark` / `tracktrail`: spell-owned track intensity modification for characters, with visual/olfactory multipliers or bonuses and optional magically-marked track circumstances.
 - `dispelmagic effect burning` and `dispelmagic effect trackmark` for targeted cleanup.
 
-Portals remain saved spell effects, not database exits or a gate table. The `portal` effect creates paired transient exits registered with `IExitManager`; active magical portals expose `IMagicPortalExit` metadata and can be inspected with `magic portals`. Anchor tags can be placed on rooms or items/objects with `magictag`; `portal` resolves caster-owned room anchors first, then caster-owned item anchors by using the item location. Builders can inspect active anchors with `magic anchors [tag]`.
+Simple portals remain saved spell effects, not database exits. The `portal` effect creates paired transient exits registered with `IExitManager`; active magical portals expose `IMagicPortalExit` metadata and can be inspected with `magic portals`. Anchor tags can be placed on rooms or items/objects with `magictag`; `portal` resolves caster-owned room anchors first, then caster-owned item anchors by using the item location. Builders can inspect active anchors with `magic anchors [tag]`.
+
+Durable portal/rune topology is now first-class magic data. `MagicPortalNetworks`, endpoints, and explicit links are persisted in the database, loaded after rooms/items, and materialised at runtime as topology-managed transient exits rather than permanent `Exits` rows. Builders manage standing networks with `magic portalnetwork` / `magic portalnet`, including active state, cross-zone policy, portal command text, room or directly placed item endpoints, explicit links, and `refresh` repair. The `portalnetwork` spell effect can create an endpoint at the caster room, target room, or target item and optionally link it to an existing endpoint key. Permanent casts may also update an existing endpoint key. Spell-created topology is cleaned up when the spell effect ends unless the effect is marked `permanent`.
+
+V1 topology links are bidirectional because the runtime projection uses the existing bidirectional `TransientExit` primitive. Item endpoints are active only while the referenced item is directly located in a room; carried, contained, or inventory-held rune items are treated as invalid until placed again.
 
 `itemenchant` now has first-class hooks beyond visible aura text, glow, weapon bonuses, and armour reduction:
 
@@ -508,6 +512,8 @@ Recommended manual data order:
 3. traits and trait expressions
 4. spell-known prog and any supporting target-filter or helper progs
 5. spell
+
+Durable portal networks are authored after rooms/items exist. If spells create topology, create the target `MagicPortalNetwork` first, then configure the spell's `portalnetwork` effect with the network and endpoint keys it should maintain.
 
 ## Developer Extension Workflow
 ### Adding a new trigger type

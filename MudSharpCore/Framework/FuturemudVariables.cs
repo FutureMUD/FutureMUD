@@ -212,6 +212,7 @@ public sealed partial class Futuremud : IDisposable
     private readonly All<IMagicResource> _magicResources = new();
     private readonly All<IMagicResourceRegenerator> _magicResourceRegenerators = new();
     private readonly All<IMagicSpell> _magicSpells = new();
+    private readonly All<IMagicPortalNetwork> _magicPortalNetworks = new();
 
     private readonly All<IMarket> _markets = new();
     private readonly All<IMarketCategory> _marketCategories = new();
@@ -486,6 +487,7 @@ public sealed partial class Futuremud : IDisposable
     public IUneditableAll<IMagicResource> MagicResources => _magicResources;
     public IUneditableAll<IMagicResourceRegenerator> MagicResourceRegenerators => _magicResourceRegenerators;
     public IUneditableAll<IMagicSpell> MagicSpells => _magicSpells;
+    public IUneditableAll<IMagicPortalNetwork> MagicPortalNetworks => _magicPortalNetworks;
     public IUneditableAll<IMarket> Markets => _markets;
     public IUneditableAll<IMarketCategory> MarketCategories => _marketCategories;
     public IUneditableAll<IMarketInfluenceTemplate> MarketInfluenceTemplates => _marketInfluenceTemplates;

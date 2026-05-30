@@ -217,6 +217,7 @@ namespace MudSharp.Framework
         IUneditableAll<IMagicResource> MagicResources { get; }
         IUneditableAll<IMagicResourceRegenerator> MagicResourceRegenerators { get; }
         IUneditableAll<IMagicSpell> MagicSpells { get; }
+        IUneditableAll<IMagicPortalNetwork> MagicPortalNetworks { get; }
 
         IUneditableAll<IMarket> Markets { get; }
         IUneditableAll<IMarketCategory> MarketCategories { get; }
@@ -481,6 +482,7 @@ namespace MudSharp.Framework
         void Add(IMagicPower power);
         void Add(IMagicResource resource);
         void Add(IMagicResourceRegenerator regenerator);
+        void Add(IMagicPortalNetwork network);
         void Add(IChargenAdvice advice);
         void Add(ICharacterIntroTemplate template);
         void Add(ICraft craft);
@@ -686,6 +688,7 @@ namespace MudSharp.Framework
         void Destroy(IVehiclePrototype proto);
         void Destroy(IVehicle vehicle);
         void Destroy(IVehicleHitchLink link);
+        void Destroy(IMagicPortalNetwork network);
         void Destroy(IAccount account);
         void Destroy(ICell cell);
         void Destroy(IRoom room);

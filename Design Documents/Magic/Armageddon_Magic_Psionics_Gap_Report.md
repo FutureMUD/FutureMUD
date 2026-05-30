@@ -434,7 +434,7 @@ These tasks should be ordinary implementation work inside the existing magic, pe
 These are the remaining true blockers. They should not be represented as one-off spell effects until the supporting model exists.
 
 - Simultaneous-body possession and projection: `Send Shadow`, possession-style `Shadowwalk`, `Possess Corpse`, and body-left-behind `Disembody` need command routing, perception routing, source-body vulnerability, inventory rules, combat/death rules, reconnect behaviour, and staff observability.
-- Durable portal/rune topology: standing gates, persistent rune networks, portal objects, and topology edits that must survive beyond saved spell effects need a deliberate persistence and lifecycle model.
+- Durable portal/rune topology: implemented as DB-backed `MagicPortalNetworks`, endpoints, and explicit links that materialise into topology-managed transient exits. V1 covers standing room gates, directly placed rune/portal objects, builder repair, and spell-created topology. One-way links and mobile/carried rune endpoints remain future extensions.
 - Objective or group-scoped illusions: if illusions must alter room state for multiple observers, stack with other illusions, and expose consistent dispel/priority rules, they need a general perception-overlay policy rather than only `subjectivedesc` / `subjectivesdesc`.
 - World-specific metaphysics: `Determine Relationship`, `Solace`, `Dragon Bane`, `Cathexis`, and richer `Planeshift` interpretations need a model for land/elemental relationships, plane travel graphs, and any clan/tribe/identity consequences.
 - Durable psionic trace consequences: the live `trace` power inspects active links, but traces that persist as world facts or feed staff/audit consequences need a shared psionic trail model.
@@ -475,7 +475,7 @@ V5 should tackle the remaining architecture blockers after V3/V4 make the easy a
 - simultaneous-body possession and projection
 - objective or group-scoped illusion state that changes room facts for multiple observers
 - durable psionic trace/trail consequences that survive beyond live link inspection
-- persistent rune/gate/portal topology if saved effects and transient exits are not enough
+- persistent rune/gate/portal topology is now implemented for explicit bidirectional networks; future work is limited to one-way links or mobile/carried rune endpoint semantics if content needs them
 - world-specific metaphysics such as land relationships, elemental patronage, or clan-keyed psionic consequences
 
 `Control` and `Compel` remain policy-sensitive when authored as command-forcing effects. `Suggest`, `Project Emotion`, and most `Coerce` variants now have non-command delivery paths, but content authors should still pair them with clear IC/OOC policy and staff-facing audit expectations.
@@ -552,10 +552,11 @@ These are the parity items with the most engine-level uncertainty.
    - `Travel Gate`
    - `Portal`
    - `Create Rune`
-   - Status: simple room-target teleport, simple planar shifting, caster-owned room or item/object tag anchors, transient effect-owned paired exits, and active portal/anchor inspection are live.
+   - Status: simple room-target teleport, simple planar shifting, caster-owned room or item/object tag anchors, transient effect-owned paired exits, active portal/anchor inspection, and durable portal/rune networks are live.
    - Remaining work:
-     - persistent paired gates, standing rune networks, and portal objects beyond saved effects
-     - richer destination safety models and world-topology persistence
+     - one-way topology links, if required by content
+     - mobile/carried rune endpoint semantics, if required by content
+     - richer destination safety models beyond zone and planar validation
 
 3. Subjective illusions and perception overrides.
    - `Masquerade`
@@ -616,7 +617,7 @@ Engine V2 has shipped the deeper parity layer without jumping into simultaneous-
 
 Engine V3 shipped the small edge-status slice that sat outside Engine V2: poison detection, insomnia, cure blindness, and optional strength-contested dispel matching. Engine V5a has now also shipped the smaller persistent sensory/combat primitives for burn-over-time and magical track marking. The next remaining work should focus on the larger pieces Engine V2 deliberately left outside these slices:
 
-- durable portal/rune topology if saved effects and transient exits are not enough for standing gate networks
+- durable portal/rune topology V1 is available for standing gate networks; use future slices only for one-way links, mobile rune objects, or richer safety policy
 - richer illusion stacking and perception policy
 - advanced psionic coercion and trace consequences
 - the simultaneous-body possession/projection model

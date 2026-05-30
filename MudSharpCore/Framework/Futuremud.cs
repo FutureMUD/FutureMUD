@@ -1389,6 +1389,11 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
         _vehicleHitchLinks.Add(link);
     }
 
+    public void Add(IMagicPortalNetwork network)
+    {
+        _magicPortalNetworks.Add(network);
+    }
+
     public void Add(ITemporalListener listener)
     {
         _listeners.Add(listener);
@@ -2367,6 +2372,12 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
     public void Destroy(IVehicleHitchLink link)
     {
         _vehicleHitchLinks.Remove(link);
+    }
+
+    public void Destroy(IMagicPortalNetwork network)
+    {
+        new MagicPortalTopologyService().RemoveNetworkExits(network);
+        _magicPortalNetworks.Remove(network);
     }
 
     public void Destroy(IAccount account)

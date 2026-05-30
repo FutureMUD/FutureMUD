@@ -29,6 +29,7 @@ using MudSharp.FutureProg;
 using MudSharp.FutureProg.Variables;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Interfaces;
+using MudSharp.Magic;
 using MudSharp.Models;
 using MudSharp.Movement;
 using MudSharp.PerceptionEngine;
@@ -241,6 +242,7 @@ public partial class Cell : Location, IDisposable, ICell
             if (mergeTarget != null)
             {
                 mergeTarget.Merge(thing);
+                new MagicPortalTopologyService().RebuildNetworksForItem(Gameworld, thing);
                 thing.Delete();
                 return;
             }
@@ -263,6 +265,7 @@ public partial class Cell : Location, IDisposable, ICell
 
         ContentsChanged = true;
         CheckFallExitStatus();
+        new MagicPortalTopologyService().RebuildNetworksForItem(Gameworld, thing);
     }
 
     private RoomLayer HandleEnterLayers(IGameItem thing)
@@ -298,6 +301,7 @@ public partial class Cell : Location, IDisposable, ICell
         Room.Extract(thing);
         ContentsChanged = true;
         CheckFallExitStatus();
+        new MagicPortalTopologyService().RebuildNetworksForItem(Gameworld, thing);
     }
 
     public IRoom Room { get; }

@@ -30,32 +30,27 @@ Use three levels of clothing content:
 | Culture-cluster pieces | Items shared by related cultures, such as Western European braies, Islamic sirwal, steppe high boots, or Rus/steppe fur hats. |
 | Explicit culture pieces | Named culture-specific garments and accessories, such as Norse hangerok apron dresses, Byzantine silk dalmatics, Song cross-collar robes, Gaelic brat mantles, or Andalusi burnous cloaks. |
 
-The existing generated status-role wardrobe can remain as a generic fallback, but it should not count as fulfilling the explicit outfit catalogue.
+The generic status-role wardrobe remains as an intentionally generic baseline catalogue, but it does not fulfil explicit outfit slots. Complete outfits now point to explicit authored outfit-piece item specs, or to a slot that is deliberately marked shared/common.
 
-MED-OUTFIT-001 adds an executable `MedievalOutfitSpec` catalogue in `ItemSeeder.Rework.Medieval.cs`. The first scaffold maps each complete outfit to the current craftable baseline wardrobe and role accessories, and records those slots as intentionally shared/generic. MED-OUTFIT-002 replaces that scaffold for the North Atlantic and British priority set (`early_anglo_saxon`, `anglo_danish`, `norse`, `norman`, `high_british`, and `gaelic`) with exact outfit-piece item specs generated from `Medieval_Outfit_Catalogue.md`. MED-OUTFIT-003 extends explicit outfit-piece generation to the Continental Western and Central set (`carolingian`, `capetian`, `german_hre`, and `iberian_christian`). MED-OUTFIT-004 completes explicit outfit-piece generation for the eastern, Islamic, Rus, steppe, and Song set (`andalusi`, `byzantine`, `abbasid`, `fatimid`, `seljuk_ayyubid`, `rus_novgorod`, `steppe_turkic`, and `song_china`). MED-OUTFIT-006 layers 180 manually written explicit outfit-piece overrides, ten per culture, over the generated item specs.
+MED-OUTFIT-001 added the executable outfit catalogue. MED-OUTFIT-002 through MED-OUTFIT-004 filled all 216 outfits across the 18-culture medieval set. MED-OUTFIT-008 replaces the generated-then-patched clothing architecture with a single authored source path. See [Era Seeder Shared Architecture](./Era_Seeder_Shared_Architecture.md) for the shared records and configuration model.
 
-## MED-OUTFIT-006 Override Table
+- shared era records live in `ItemSeeder.Rework.EraDefinitions.cs`
+- `MedievalClothingItemSpecs()` returns generic baseline clothing plus authored explicit outfit-piece specs
+- `SeedMedievalClothing()` seeds those specs through `SeedEraItemSpecs(...)`
+- explicit outfit-piece item data and craft data are derived together from the authored catalogue seam
+- direct generated clothing/outfit-piece files are no longer the source of truth
 
-The MED-OUTFIT-006 override table is stored directly in `ItemSeeder.Rework.Medieval.cs` as literal seeder rows. It is keyed by exact stable reference and only replaces selected signature pieces; generated explicit outfit pieces remain the fallback for all other rows.
+## Authored Outfit Piece Catalogue
 
-Each override may replace:
+Every explicit outfit-piece entry has one final item spec. The maintained catalogue carries the stable reference, noun, short description, full description, material, material behaviour, quality, size, weight, cost, tags, components, craft inputs/tools, outfit reference, slot keys, culture key, sex/gender presentation, social class/role, and builder notes.
 
-- item noun
-- short description
-- full description
-- material and material behaviour
-- quality, size, weight, and cost
-- component list
-- final craft inputs and tools
-- builder-facing authoring notes
-
-The authored short and full descriptions are player-facing prose. They should describe visible cut, silhouette, material, colour, construction, trim, practical use, and social finish in 2-4 concise sentences. They must not say that an item "belongs to" an outfit or "fills" an outfit slot.
+Player-facing short and full descriptions describe visible cut, silhouette, material, colour, construction, trim, practical use, and social finish. They must not contain builder/admin/meta language, and they must not say that an item "belongs to" an outfit, "fills" an outfit slot, or exists for an explicit catalogue.
 
 Culture keys, outfit references, sex/gender presentation, social class, slot, and piece target remain builder metadata. They belong in tags, stable references, tests, catalogue documentation, and builder notes rather than visible item descriptions.
 
-Variable colour is expected for colourable garments and wearable textile, leather, and fur pieces. Use `Variable_DrabColour` for plain work, field, military, and rough common garments; `Variable_Colour` for ordinary colourable pieces; `Variable_FineColour` for fine or high-status material; and the `Variable_2*` components for contrast bands, borders, tiraz work, embroidery, tablet-woven bands, panels, or visible trim. Keep `$colour`, `$colour1`, and `$colour2` tokens in the authored short and full descriptions.
+Variable colour is expected for colourable garments and wearable textile, leather, and fur pieces. Use `Variable_DrabColour` for plain work, field, military, and rough common garments; `Variable_FineColour` for fine or high-status material; and the `Variable_2*` components for contrast bands, borders, tiraz work, embroidery, tablet-woven bands, panels, cuffs, hems, fur edging, or visible trim. Keep `$colour`, `$colour1`, and `$colour2` tokens in the authored short and full descriptions.
 
-Do not use direct culture adjectives in player-facing descriptions. Use style cues such as sea-road, island-hall, mounted-court, guild-city, frontier-court, western courtly, formal eastern, scholarly urban, river-town, or steppe riding instead. Direct culture names are still appropriate in tests, docs, stable references, tags, and builder notes.
+Do not use direct culture adjectives in player-facing descriptions. Use silhouette, construction, trim, layering, fastening, material, and social use instead. Direct culture names are still appropriate in tests, docs, stable references, tags, and builder notes.
 
 ## Outfit Axes
 
@@ -86,7 +81,7 @@ Every outfit should include these slots:
 | `fastener_or_jewellery` | Required | Brooch, ring pin, cloak clasp, badge, pendant, belt mount. |
 | `role_item` | Required for merchant, religious, and military | Tool apron, trade seal, devotional object, book pouch, scabbard, quiver, badge, official chop cord. |
 
-The code-side `MedievalOutfitSlot` list uses these exact keys: `underlayer`, `lower_body`, `leg_or_sock_layer`, `footwear`, `bodywear`, `outerwear`, `headwear`, `belt_or_sash`, `worn_container`, `fastener_or_jewellery`, and `role_item`.
+The code-side `EraOutfitSlotSpec` list for medieval clothing uses these exact keys: `underlayer`, `lower_body`, `leg_or_sock_layer`, `footwear`, `bodywear`, `outerwear`, `headwear`, `belt_or_sash`, `worn_container`, `fastener_or_jewellery`, and `role_item`.
 
 ## Sharing Rules
 

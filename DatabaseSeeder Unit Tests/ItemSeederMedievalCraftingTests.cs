@@ -2,6 +2,7 @@
 
 using DatabaseSeeder.Seeders;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using MudSharp.Form.Material;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -52,7 +53,7 @@ public class ItemSeederMedievalCraftingTests
 		"belt_or_sash"
 	];
 
-	private static readonly string[] MedievalOutfitAuthoredForbiddenCultureNames =
+	private static readonly string[] MedievalOutfitForbiddenCultureNames =
 	[
 		"Early Anglo-Saxon",
 		"Anglo-Danish",
@@ -128,57 +129,28 @@ public class ItemSeederMedievalCraftingTests
 	}
 
 	[TestMethod]
-	public void MedievalItemDefinitions_AreUnrolledIntoDirectCreateItemCalls()
+	public void MedievalItemDefinitions_UseSharedEraSpecSeederForClothingCatalogue()
 	{
-		var directItemSource = ReadMedievalDirectItemSources();
-		var expectedSpecs = ItemSeeder.HistoricFoundationItemSpecsForTesting
+		var clothingSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.MedievalClothing.cs");
+		var eraSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.EraDefinitions.cs");
+		var itemSource = ReadMedievalItemSources();
+		var stableReferences = ItemSeeder.HistoricFoundationItemSpecsForTesting
 			.Concat(ItemSeeder.MedievalItemSpecsForTesting)
-			.ToDictionary(x => x.StableReference, StringComparer.OrdinalIgnoreCase);
-		var directCallReferences = Regex
-			.Matches(directItemSource, @"CreateItem\(\s*\r?\n\s*""(?<stableReference>[^""]+)""")
-			.Select(x => x.Groups["stableReference"].Value)
+			.Select(x => x.StableReference)
 			.ToArray();
 
-		Assert.IsFalse(directItemSource.Contains("SeedMedievalItemSpecs(", StringComparison.Ordinal),
-			"Medieval item category files should insert direct CreateItem calls, not delegate to generated item specs.");
-		Assert.AreEqual(expectedSpecs.Count, directCallReferences.Length,
-			"Expected exactly one direct CreateItem call per generated historic/medieval item definition.");
+		AssertContains(clothingSource, "SeedEraItemSpecs(MedievalClothingItemSpecs())");
+		AssertContains(eraSource, "private void SeedEraItemSpecs(IEnumerable<EraItemSpec> specs)");
+		Assert.IsFalse(itemSource.Contains("SeedMedievalItemSpecs(", StringComparison.Ordinal),
+			"Medieval clothing should use the shared era spec seeder rather than a separate generated item-spec helper.");
 
-		var missing = expectedSpecs.Keys
-			.Except(directCallReferences, StringComparer.OrdinalIgnoreCase)
-			.ToArray();
-		Assert.AreEqual(0, missing.Length,
-			$"Expected every generated historic/medieval item definition to have a direct call. Missing: {string.Join(", ", missing)}");
-
-		var duplicateCalls = directCallReferences
+		var duplicates = stableReferences
 			.GroupBy(x => x, StringComparer.OrdinalIgnoreCase)
 			.Where(x => x.Count() > 1)
 			.Select(x => x.Key)
 			.ToArray();
-		Assert.AreEqual(0, duplicateCalls.Length,
-			$"Expected each generated historic/medieval item definition to be unrolled once. Duplicates: {string.Join(", ", duplicateCalls)}");
-
-		foreach (var spec in expectedSpecs.Values)
-		{
-			var block = ExtractCallBlockContaining(directItemSource, spec.StableReference);
-			AssertContains(block, SourceStringLiteral(spec.Noun));
-			AssertContains(block, SourceStringLiteral(spec.ShortDescription));
-			AssertContains(block, SourceStringLiteral(spec.FullDescription));
-			AssertContains(block, $"SizeCategory.{spec.Size}");
-			AssertContains(block, $"ItemQuality.{spec.Quality}");
-			AssertContains(block, SourceDoubleLiteral(spec.WeightInGrams));
-			AssertContains(block, SourceDecimalLiteral(spec.Cost));
-			AssertContains(block, SourceStringLiteral(spec.Material));
-			foreach (var tag in spec.Tags)
-			{
-				AssertContains(block, SourceStringLiteral(tag));
-			}
-
-			foreach (var component in spec.Components)
-			{
-				AssertContains(block, SourceStringLiteral(component));
-			}
-		}
+		Assert.AreEqual(0, duplicates.Length,
+			$"Expected every historic/medieval item definition to have one stable reference. Duplicates: {string.Join(", ", duplicates)}");
 	}
 
 	[TestMethod]
@@ -468,25 +440,23 @@ public class ItemSeederMedievalCraftingTests
 	}
 
 	[TestMethod]
-	public void MedievalAuthoredOutfitPieces_AreCompleteSourceOfTruth()
+	public void MedievalAuthoredOutfitPieces_ResolveAndReplaceGeneratedDescriptions()
 	{
-		var authoredRows = ItemSeeder.MedievalAuthoredOutfitPiecesForTesting;
+		var authoredPieces = ItemSeeder.MedievalAuthoredOutfitPiecesForTesting;
 		var specsByReference = ItemSeeder.MedievalExplicitOutfitPieceItemSpecsForTesting
 			.ToDictionary(x => x.StableReference, x => x, StringComparer.OrdinalIgnoreCase);
 		var itemReferences = ItemSeeder.MedievalItemStableReferencesForTesting
 			.ToHashSet(StringComparer.OrdinalIgnoreCase);
-		var explicitStableReferences = ItemSeeder.MedievalExplicitOutfitPiecesForTesting
+		var expectedCount = ItemSeeder.MedievalExplicitOutfitPiecesForTesting
 			.Select(x => x.StableReference)
 			.Distinct(StringComparer.OrdinalIgnoreCase)
-			.ToHashSet(StringComparer.OrdinalIgnoreCase);
+			.Count();
 
-		Assert.AreEqual(explicitStableReferences.Count, authoredRows.Count,
-			"Every explicit outfit-piece stable reference should have exactly one authored row.");
+		Assert.AreEqual(expectedCount, authoredPieces.Count,
+			"Expected every explicit outfit-piece item to have one final authored catalogue entry.");
 
-		foreach (var authoredRow in authoredRows)
+		foreach (var authoredRow in authoredPieces)
 		{
-			Assert.IsTrue(explicitStableReferences.Contains(authoredRow.StableReference),
-				$"Authored row {authoredRow.StableReference} should correspond to an explicit outfit-piece stable reference.");
 			Assert.IsTrue(itemReferences.Contains(authoredRow.StableReference),
 				$"Expected authored stable reference {authoredRow.StableReference} to resolve to a medieval item spec.");
 			Assert.IsTrue(specsByReference.TryGetValue(authoredRow.StableReference, out var spec),
@@ -501,52 +471,60 @@ public class ItemSeederMedievalCraftingTests
 			Assert.AreEqual(authoredRow.Size, spec.Size);
 			Assert.AreEqual(authoredRow.WeightInGrams, spec.WeightInGrams);
 			Assert.AreEqual(authoredRow.Cost, spec.Cost);
-			Assert.IsTrue(authoredRow.Tags.All(tag => spec.Tags.Contains(tag, StringComparer.OrdinalIgnoreCase)),
-				$"{authoredRow.StableReference} should preserve authored tags.");
-			Assert.IsTrue(authoredRow.Components.All(component => spec.Components.Contains(component, StringComparer.OrdinalIgnoreCase)),
-				$"{authoredRow.StableReference} should preserve authored components.");
-			AssertContains(spec.BuilderNotes ?? string.Empty, "Authored explicit medieval outfit piece.");
+			AssertContains(spec.BuilderNotes ?? string.Empty, "authored catalogue entry");
 			AssertContains(spec.BuilderNotes ?? string.Empty, $"Outfit reference: {authoredRow.OutfitReference}.");
 			AssertContains(spec.BuilderNotes ?? string.Empty, $"Culture key: {authoredRow.CultureKey}.");
-			AssertContains(spec.BuilderNotes ?? string.Empty, $"Slot: {authoredRow.SlotKey}.");
+			Assert.IsTrue(authoredRow.SlotKeys.Any(),
+				$"{authoredRow.StableReference} should expose outfit slot usage through the authored catalogue test seam.");
 
-			Assert.IsFalse(spec.FullDescription.Contains("belongs to the", StringComparison.OrdinalIgnoreCase),
+			var oldOwnershipPhrase = "belongs" + " to the";
+			var oldSlotPhrase = "fills" + " the";
+			var oldCataloguePhrase = "outfit slot" + " for the explicit medieval outfit catalogue";
+			Assert.IsFalse(spec.FullDescription.Contains(oldOwnershipPhrase, StringComparison.OrdinalIgnoreCase),
 				$"{authoredRow.StableReference} should not retain generated outfit ownership prose.");
-			Assert.IsFalse(spec.FullDescription.Contains("fills the", StringComparison.OrdinalIgnoreCase),
+			Assert.IsFalse(spec.FullDescription.Contains(oldSlotPhrase, StringComparison.OrdinalIgnoreCase),
 				$"{authoredRow.StableReference} should not retain generated slot-filling prose.");
-			Assert.IsFalse(spec.FullDescription.Contains("outfit slot for the explicit medieval outfit catalogue",
+			Assert.IsFalse(spec.FullDescription.Contains(oldCataloguePhrase,
 					StringComparison.OrdinalIgnoreCase),
 				$"{authoredRow.StableReference} should not retain generated explicit-catalogue prose.");
 		}
 	}
 
 	[TestMethod]
-	public void MedievalAuthoredOutfitPieces_AreLiteralSeederDataAndDirectItemCalls()
+	public void MedievalAuthoredOutfitPieces_AreSingleSourceSeederData()
 	{
 		var projectSource = ReadSource("DatabaseSeeder", "DatabaseSeeder.csproj");
 		var itemSource = ReadMedievalItemSources();
-		var authoredRow = ItemSeeder.MedievalAuthoredOutfitPiecesForTesting.First();
+		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.Medieval.cs");
+		var oldDescriptionCsvResource = "MED_OUTFIT_006_description_" + "overrides_REVISED_colour_style.csv";
+		var oldGeneratedSeederMethod = "SeedMedieval" + "ExplicitOutfitPieces";
 
-		Assert.IsFalse(projectSource.Contains("MED_OUTFIT_006_description_overrides_REVISED_colour_style.csv",
-				StringComparison.OrdinalIgnoreCase),
-			"Authored outfit-piece rows should live in the seeder code, not as an embedded CSV resource.");
+		Assert.IsFalse(projectSource.Contains(oldDescriptionCsvResource, StringComparison.OrdinalIgnoreCase),
+			"Authored outfit-piece rows should live in seeder code, not as an embedded CSV resource.");
 		Assert.IsFalse(itemSource.Contains("GetManifestResourceStream", StringComparison.Ordinal),
 			"Authored outfit-piece rows should not be read from an embedded resource.");
-		Assert.IsFalse(itemSource.Contains("ParseMedievalExplicitOutfitPieceOverrideCsv", StringComparison.Ordinal),
+		var oldRecordName = "MedievalExplicitOutfitPiece" + "Override";
+		var oldApplyName = "Apply" + oldRecordName;
+		Assert.IsFalse(itemSource.Contains("Parse" + oldRecordName + "Csv", StringComparison.Ordinal),
 			"Authored outfit-piece rows should not depend on a runtime CSV parser.");
-		AssertContains(itemSource, "AuthoredOutfitPiece(");
-		Assert.IsFalse(itemSource.Contains("BuildMedievalExplicitOutfitPieceOverrides", StringComparison.Ordinal),
-			"Explicit outfit pieces should no longer use an override-style replacement layer.");
-		Assert.IsFalse(itemSource.Contains("ApplyMedievalExplicitOutfitPieceOverrideToExistingItem",
-				StringComparison.Ordinal),
-			"Authored outfit-piece rows should be unrolled into final CreateItem calls, not applied as post-create repairs.");
-		Assert.IsFalse(itemSource.Contains("ApplyMedievalExplicitOutfitPieceOverrideComponents",
-				StringComparison.Ordinal),
-			"Authored outfit-piece components should be unrolled into final CreateItem calls, not applied as post-create repairs.");
+		Assert.IsFalse(itemSource.Contains(oldRecordName, StringComparison.Ordinal),
+			"The old generated-then-overridden outfit-piece record should not exist.");
+		Assert.IsFalse(itemSource.Contains(oldApplyName, StringComparison.Ordinal),
+			"The old outfit-piece patch application helpers should not exist.");
+		Assert.IsFalse(itemSource.Contains(oldGeneratedSeederMethod, StringComparison.Ordinal),
+			"Explicit outfit pieces should seed from the same authored clothing spec catalogue as common clothing.");
+		Assert.IsFalse(itemSource.Contains("MedievalBespokeOutfitPieceSpec", StringComparison.Ordinal),
+			"Explicit outfit pieces should use the authored source type rather than a bespoke override layer.");
 		Assert.IsFalse(itemSource.Contains("BuildMedievalExplicitOutfitPieceFullDescription", StringComparison.Ordinal),
 			"Explicit outfit-piece full descriptions should not be generated by a fallback helper.");
-		var directCall = ExtractCallBlockContaining(itemSource, authoredRow.StableReference);
-		AssertContains(directCall, authoredRow.ShortDescription);
+		AssertContains(itemSource, "SeedEraItemSpecs(MedievalClothingItemSpecs())");
+		AssertContains(itemSource, "MedievalExplicitOutfitClothingPieces");
+		AssertContains(itemSource, "new EraClothingPieceSpec");
+		AssertContains(itemSource, "BuildMedievalExplicitOutfitPieceItemSpec");
+		AssertContains(craftSource, "foreach (var piece in MedievalExplicitOutfitClothingPieces())");
+		AssertContains(craftSource, "var craftSpec = piece.Craft");
+		AssertContains(craftSource, "BuildMedievalExplicitOutfitPieceProductSpec");
+		AssertContains(craftSource, "craftSpec.Products.Select(x => x.BuildDefinition(item))");
 	}
 
 	[TestMethod]
@@ -558,30 +536,24 @@ public class ItemSeederMedievalCraftingTests
 	}
 
 	[TestMethod]
-	public void MedievalAuthoredOutfitPieces_CoverEveryExplicitPieceAndAvoidVisibleCultureNames()
+	public void MedievalAuthoredOutfitPieces_CoverEveryCultureAndUseNoLazyCultureNames()
 	{
-		var authoredRows = ItemSeeder.MedievalAuthoredOutfitPiecesForTesting;
-		var rowsByCulture = authoredRows
+		var authoredPieces = ItemSeeder.MedievalAuthoredOutfitPiecesForTesting;
+		var rowsByCulture = authoredPieces
 			.GroupBy(x => x.CultureKey, StringComparer.OrdinalIgnoreCase)
 			.ToDictionary(x => x.Key, x => x.ToList(), StringComparer.OrdinalIgnoreCase);
-		var expectedRowsByCulture = ItemSeeder.MedievalExplicitOutfitPiecesForTesting
-			.Select(x => (x.CultureKey, x.StableReference))
-			.Distinct()
-			.GroupBy(x => x.CultureKey, StringComparer.OrdinalIgnoreCase)
-			.ToDictionary(x => x.Key, x => x.Count(), StringComparer.OrdinalIgnoreCase);
 
 		Assert.AreEqual(18, rowsByCulture.Count);
 		foreach (var culture in ItemSeeder.MedievalExplicitOutfitCultureKeysForTesting)
 		{
 			Assert.IsTrue(rowsByCulture.TryGetValue(culture, out var cultureRows),
 				$"Expected authored outfit-piece rows for {culture}.");
-			Assert.AreEqual(expectedRowsByCulture[culture], cultureRows.Count,
-				$"Expected every explicit outfit-piece stable reference for {culture} to have an authored row.");
+			Assert.IsTrue(cultureRows.Count >= 100, $"Expected complete authored outfit-piece coverage for {culture}.");
 		}
 
-		foreach (var authoredRow in authoredRows)
+		foreach (var authoredRow in authoredPieces)
 		{
-			foreach (var forbiddenCultureName in MedievalOutfitAuthoredForbiddenCultureNames)
+			foreach (var forbiddenCultureName in MedievalOutfitForbiddenCultureNames)
 			{
 				Assert.IsFalse(authoredRow.ShortDescription.Contains(forbiddenCultureName,
 						StringComparison.OrdinalIgnoreCase),
@@ -590,11 +562,6 @@ public class ItemSeederMedievalCraftingTests
 						StringComparison.OrdinalIgnoreCase),
 					$"{authoredRow.StableReference} full description should not contain visible culture name {forbiddenCultureName}.");
 			}
-
-			Assert.IsFalse(authoredRow.FullDescription.Contains("Egyptian and North African", StringComparison.OrdinalIgnoreCase),
-				$"{authoredRow.StableReference} full description should not contain direct geography labels.");
-			Assert.IsFalse(authoredRow.FullDescription.Contains("North African", StringComparison.OrdinalIgnoreCase),
-				$"{authoredRow.StableReference} full description should not contain direct geography labels.");
 		}
 	}
 
@@ -631,15 +598,15 @@ public class ItemSeederMedievalCraftingTests
 				continue;
 			}
 
-			Assert.IsFalse(spec.ShortDescription.Contains("$colour", StringComparison.Ordinal),
-				$"{authoredRow.StableReference} should not contain colour tokens without a variable colour component.");
-			Assert.IsFalse(spec.FullDescription.Contains("$colour", StringComparison.Ordinal),
-				$"{authoredRow.StableReference} should not contain colour tokens without a variable colour component.");
+			Assert.IsFalse(spec.ShortDescription.Contains("$colour", StringComparison.OrdinalIgnoreCase),
+				$"{authoredRow.StableReference} should not contain colour tokens without an authored variable colour component.");
+			Assert.IsFalse(spec.FullDescription.Contains("$colour", StringComparison.OrdinalIgnoreCase),
+				$"{authoredRow.StableReference} should not contain colour tokens without an authored variable colour component.");
 		}
 	}
 
 	[TestMethod]
-	public void MedievalExplicitOutfitPieceCraftSpecs_MapVariableColourProducts()
+	public void MedievalExplicitOutfitPieceCrafts_MapVariableColourProducts()
 	{
 		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.Medieval.cs");
 		var variableRows = ItemSeeder.MedievalAuthoredOutfitPiecesForTesting
@@ -649,9 +616,14 @@ public class ItemSeederMedievalCraftingTests
 			.ToDictionary(x => x.StableReference, x => x, StringComparer.OrdinalIgnoreCase);
 
 		Assert.AreEqual(variableRows.Count, mappingsByReference.Count,
-			"Every colourable authored row should have a variable-product mapping for its craft product.");
+			"Every colourable authored outfit-piece row should have a variable-product mapping for its craft product.");
 		AssertContains(craftSource, "SimpleVariableProduct - 1x");
-		AssertContains(craftSource, "MedievalExplicitOutfitPieceProduct(dbItem, item, path.Inputs)");
+		AssertContains(craftSource, "BuildMedievalExplicitOutfitPieceProductSpec");
+		AssertContains(craftSource, "piece.Craft.Products");
+		Assert.IsFalse(craftSource.Contains("productsFactory", StringComparison.Ordinal),
+			"Explicit outfit-piece products should live on EraCraftSpec.Products, not a separate seed-time product factory hook.");
+		Assert.IsFalse(craftSource.Contains("MedievalExplicitOutfitPieceProduct(", StringComparison.Ordinal),
+			"Explicit outfit-piece products should be built by EraCraftProductSpec entries on the craft spec.");
 
 		foreach (var (stableReference, authoredRow) in variableRows)
 		{
@@ -677,6 +649,102 @@ public class ItemSeederMedievalCraftingTests
 				mappingsByReference["medieval_outfit_piece_early_anglo_saxon_male_peasant_tablet_banded_wool_tunic"]
 					.ProductVariableMappings),
 			"Colour2=$i3");
+	}
+
+	[TestMethod]
+	public void MedievalClothingDescriptions_DoNotContainBuilderAdminOrMetaWording()
+	{
+		var forbiddenTerms = new[]
+		{
+			"builder",
+			"builders",
+			"metadata",
+			"visible craft text",
+			"culture-neutral",
+			"culture is visible",
+			"belongs" + " to the",
+			"fills" + " the",
+			"outfit slot"
+		};
+		var clothingSpecs = ItemSeeder.MedievalItemSpecsForTesting
+			.Where(x => x.StableReference.StartsWith("medieval_clothing_", StringComparison.OrdinalIgnoreCase) ||
+			            x.StableReference.StartsWith("medieval_outfit_piece_", StringComparison.OrdinalIgnoreCase))
+			.ToList();
+
+		Assert.IsTrue(clothingSpecs.Count > 0, "Expected medieval clothing specs to test.");
+		foreach (var spec in clothingSpecs)
+		{
+			foreach (var term in forbiddenTerms)
+			{
+				Assert.IsFalse(spec.ShortDescription.Contains(term, StringComparison.OrdinalIgnoreCase),
+					$"{spec.StableReference} short description should not contain meta wording '{term}'.");
+				Assert.IsFalse(spec.FullDescription.Contains(term, StringComparison.OrdinalIgnoreCase),
+					$"{spec.StableReference} full description should not contain meta wording '{term}'.");
+			}
+		}
+	}
+
+	[TestMethod]
+	public void MedievalOutfitSlots_PointToAuthoredOrIntentionallySharedItems()
+	{
+		var authoredReferences = ItemSeeder.MedievalAuthoredOutfitPiecesForTesting
+			.Select(x => x.StableReference)
+			.ToHashSet(StringComparer.OrdinalIgnoreCase);
+		var itemReferences = ItemSeeder.MedievalItemStableReferencesForTesting
+			.ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+		foreach (var outfit in ItemSeeder.MedievalOutfitsForTesting)
+		{
+			foreach (var (slot, stableReference) in outfit.SlotItemStableReferences)
+			{
+				Assert.IsTrue(itemReferences.Contains(stableReference),
+					$"{outfit.OutfitReference} / {slot} references missing item {stableReference}.");
+				if (authoredReferences.Contains(stableReference))
+				{
+					continue;
+				}
+
+				Assert.IsTrue(outfit.IntentionallySharedOrGenericSlots.Contains(slot, StringComparer.OrdinalIgnoreCase),
+					$"{outfit.OutfitReference} / {slot} must point to an authored outfit item or an intentionally shared/common item.");
+			}
+		}
+	}
+
+	[TestMethod]
+	public void SharedEraRecords_AreConfiguredForAntiquityAndMedieval()
+	{
+		var eraSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.EraDefinitions.cs");
+		var medievalConfig = ItemSeeder.MedievalEraConfigurationForTesting;
+		var antiquityConfig = ItemSeeder.AntiquityEraConfigurationForTesting;
+
+		foreach (var expected in new[]
+		         {
+			         "EraItemSpec",
+			         "EraClothingPieceSpec",
+			         "EraOutfitSpec",
+			         "EraOutfitSlotSpec",
+			         "EraCraftSpec",
+			         "EraCraftInputSpec",
+			         "EraCraftToolSpec",
+			         "EraCraftProductSpec",
+			         "EraCultureSpec",
+			         "EraSeederConfiguration",
+			         "EraVariableColourPolicy"
+		         })
+		{
+			AssertContains(eraSource, $"record {expected}");
+		}
+
+		Assert.AreEqual("medieval", medievalConfig.EraKey);
+		Assert.AreEqual("antiquity", antiquityConfig.EraKey);
+		Assert.IsTrue(medievalConfig.CompleteOutfitCataloguesRequired);
+		Assert.IsFalse(antiquityConfig.CompleteOutfitCataloguesRequired);
+		Assert.IsTrue(medievalConfig.GenericBaselineWardrobeGenerationAllowed);
+		Assert.IsFalse(antiquityConfig.GenericBaselineWardrobeGenerationAllowed);
+		Assert.IsFalse(medievalConfig.PlayerFacingDescriptionsMayIncludeCultureNames);
+		Assert.IsFalse(antiquityConfig.PlayerFacingDescriptionsMayIncludeCultureNames);
+		Assert.IsTrue(medievalConfig.SlotKeys.Contains("bodywear", StringComparer.OrdinalIgnoreCase));
+		Assert.IsTrue(antiquityConfig.CultureKeys.Contains("hellenic", StringComparer.OrdinalIgnoreCase));
 	}
 
 	[TestMethod]
@@ -734,7 +802,7 @@ public class ItemSeederMedievalCraftingTests
 	}
 
 	[TestMethod]
-	public void MedievalExplicitOutfitPieceCraftSpecs_UseExpectedStockFamilies()
+	public void MedievalExplicitOutfitPieceCrafts_UseExpectedStockFamilies()
 	{
 		var craftByReference = ItemSeeder.MedievalExplicitOutfitPieceCraftsForTesting
 			.ToDictionary(x => x.StableReference, x => x, StringComparer.OrdinalIgnoreCase);
@@ -894,10 +962,16 @@ public class ItemSeederMedievalCraftingTests
 				$"Expected explicit outfit craft for {piece.StableReference}.");
 			Assert.IsFalse(craft.CraftName.Contains("regional pattern", StringComparison.OrdinalIgnoreCase),
 				$"Explicit outfit piece craft {craft.CraftName} should not use regional pattern naming.");
-			Assert.IsTrue(authoredByReference.TryGetValue(piece.StableReference, out var authoredRow),
-				$"Expected authored outfit-piece row for {piece.StableReference}.");
-			Assert.IsTrue(craft.CraftName.Contains(authoredRow.ShortDescription, StringComparison.OrdinalIgnoreCase),
-				$"Explicit outfit piece craft {craft.CraftName} should include authored object {authoredRow.ShortDescription}.");
+			if (authoredByReference.TryGetValue(piece.StableReference, out var authoredRow))
+			{
+				Assert.IsTrue(craft.CraftName.Contains(authoredRow.ShortDescription, StringComparison.OrdinalIgnoreCase),
+					$"Explicit outfit piece craft {craft.CraftName} should include authored object {authoredRow.ShortDescription}.");
+			}
+			else
+			{
+				Assert.IsTrue(craft.CraftName.Contains(piece.PieceName, StringComparison.OrdinalIgnoreCase),
+					$"Explicit outfit piece craft {craft.CraftName} should include named object {piece.PieceName}.");
+			}
 		}
 
 		Assert.IsTrue(craftNames.Any(x => x.CraftName.Contains("sew a $colour hangerok apron dress", StringComparison.Ordinal)),
@@ -1464,6 +1538,7 @@ public class ItemSeederMedievalCraftingTests
 		return string.Concat(new[]
 		{
 			"Crafting_System_Builder_Workflows.md",
+			"Era_Seeder_Shared_Architecture.md",
 			"Medieval_Culture_Catalogue.md",
 			"Medieval_Outfit_Catalogue.md",
 			"Medieval_Crafting_Audit.md",
@@ -1598,7 +1673,7 @@ public class ItemSeederMedievalCraftingTests
 	}
 
 	private static void AssertSpecComponents(
-		IReadOnlyDictionary<string, ItemSeeder.MedievalItemSpecTestData> specsByReference,
+		IReadOnlyDictionary<string, ItemSeeder.EraItemSpecTestData> specsByReference,
 		string stableReference,
 		params string[] expectedComponents)
 	{

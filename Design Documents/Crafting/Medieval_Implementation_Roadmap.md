@@ -1,14 +1,14 @@
 # Medieval Implementation Roadmap
 
-This roadmap records the current implementation status after MED-CAT-001 and MED-OUTFIT-001 through MED-OUTFIT-004, then defines the next goals for the medieval item and craft suite.
+This roadmap records the current implementation status after MED-CAT-001, MED-CAT-002, and MED-OUTFIT-001 through MED-OUTFIT-008, then defines the next goals for the medieval item and craft suite.
 
 The key principle remains:
 
 > Shared production chains are encouraged; shared final outfits and culture-visible final goods are not.
 
-The completed outfit work is a major improvement over the original generic status/culture matrix. The next work should now shift from outfit completeness to implementation quality, builder usability, and non-clothing culture suites.
+The completed outfit work has moved beyond the original generic status/culture matrix. The next work should now shift from package usability, layering validation, and non-clothing culture suites.
 
-## Review Status After MED-OUTFIT-004
+## Review Status After MED-OUTFIT-008
 
 | Goal | Status | Review |
 | --- | --- | --- |
@@ -18,6 +18,10 @@ The completed outfit work is a major improvement over the original generic statu
 | `MED-OUTFIT-003` | Met | Continental Western/Central European cultures have complete outfit rows and vocabulary tests. |
 | `MED-OUTFIT-004` | Met | Byzantine, Islamic, Rus, Steppe, and Song cultures have complete outfit rows and vocabulary tests. |
 | `MED-OUTFIT-005` | Not done | Starter outfit package support remains a stub and should now be implemented or explicitly rejected after investigation. |
+| `MED-OUTFIT-006` | Superseded by MED-OUTFIT-008 | The old selected-row polish pass has been replaced by full authored catalogue coverage. |
+| `MED-OUTFIT-007` | Not done | Layering and wear-slot validation still needs a live component/wearability audit. |
+| `MED-OUTFIT-008` | Met | Generated/override clothing has been replaced by a single authored clothing/outfit catalogue using shared era records and configuration. |
+| `MED-CAT-002` | Met | Exact medieval culture catalogue references are classified as implemented, covered by outfit pieces, aliases, or deferred. |
 | `MED-FOOD-001` | Not done | Still a stub. Explicit foodway references exist as targets, but the suite needs real prepared-food items and food-input sanity tests. |
 | `MED-MIL-001` | Not done | Still a stub. Generic military equipment exists, but explicit culture military loadouts still need item/craft implementation beyond outfit clothing/accessories. |
 | `MED-WRITE-001` | Not done | Still a stub. Writing/admin culture references need real item/craft implementation and component sanity fixes. |
@@ -36,32 +40,25 @@ The current implementation now has:
 - exact outfit documentation tests
 - cluster tests for North Atlantic, Continental Western, and Eastern/Islamic/Rus/Steppe/Song outfit groups
 - vocabulary tests for all three outfit clusters
+- single-source authored clothing seeding through `MedievalClothingItemSpecs()` and `SeedEraItemSpecs(...)`
+- shared era definition records in `ItemSeeder.Rework.EraDefinitions.cs`
+- medieval and antiquity `EraSeederConfiguration` entries that express outfit completeness, generic baseline, culture tag, variable-colour, and material-stock policy as data
+- explicit outfit-piece descriptions without generated catalogue or slot prose
+- variable-colour components and craft product mappings for colourable outfit garments
 - explicit outfit-piece crafts using named object craft names rather than `regional pattern`
 - material-stock tests for several reviewed outfit-piece edge cases
 
-This is enough to say MED-OUTFIT-001 through MED-OUTFIT-004 are functionally met.
+This is enough to say MED-OUTFIT-001 through MED-OUTFIT-008 are functionally met, except for the separately scoped package and layering follow-ups.
 
-### Resolved Caveat 1: explicit outfit piece descriptions are authored
+### Caveat 1: explicit culture catalogue targets outside outfits are classified but not all implemented
 
-MED-OUTFIT-008B replaces generated explicit outfit-piece prose with fail-closed authored rows. Every explicit outfit-piece stable reference now requires a literal row, and missing rows are seeder errors.
+The explicit culture catalogue contains military, food/beverage, writing/admin, and household/devotional stable references. Each reference is classified, but many remain aliases or deferred targets. Future suite work should convert the highest-value deferred entries into real item/craft content.
 
-Further polish should edit the authored rows directly rather than reintroducing generated fallback prose.
-
-### Caveat 2: explicit culture catalogue targets outside outfits are not yet guaranteed as real items
-
-The explicit culture catalogue contains military, food/beverage, writing/admin, and household/devotional stable references. The next goals must ensure those are not only documentation targets. Each reference should become either:
-
-- an implemented item with craft coverage
-- a deliberate alias to an existing outfit/common item
-- a documented deferred target
-
-No exact catalogue reference should remain silently target-only.
-
-### Caveat 3: some non-paper writing surfaces still use paper-like components
+### Caveat 2: some non-paper writing surfaces still use paper-like components
 
 The suite still needs a writing-component sanity pass. Wax tablets, wooden tablets, birchbark letters, and non-paper tablets should use `InscribableSurface`-style components where available rather than scroll/paper components.
 
-### Caveat 4: generic military crafts still use regional-pattern names
+### Caveat 3: generic military crafts still use regional-pattern names
 
 Explicit outfit-piece crafts are now named properly. Some generic military/equipment crafts still use `regional pattern` names. That is tolerable for generic scaffold items, but explicit military loadouts should use exact object craft names.
 
@@ -128,7 +125,7 @@ Keep:
   - exact outfit reference documentation
 
 Follow-up:
-  - Continue clothing work against the authored outfit-piece table rather than the old generated prose fallback.
+  - MED-OUTFIT-008 completed this by replacing generated outfit descriptions and selected-row patching with a single authored catalogue.
 
 ## GOAL MED-OUTFIT-002: Implement Complete North Atlantic and British Outfits
 
@@ -177,6 +174,22 @@ Cultures covered:
 
 Follow-up:
   - Polish pass only. Do not reopen basic outfit-count goals unless tests reveal missing references.
+
+## GOAL MED-OUTFIT-008: Collapse Generated/Override Clothing Into Authored Era Catalogue
+
+Status:
+  Completed.
+
+Keep:
+  - `ItemSeeder.Rework.EraDefinitions.cs` as the shared record/configuration home for era seeder concepts.
+  - `MedievalClothingItemSpecs()` as the single source for explicit outfit-piece item specs.
+  - `SeedEraItemSpecs(...)` for shared spec-driven seeding.
+  - `EraSeederConfiguration` entries for both medieval and antiquity, with era differences expressed as data.
+  - variable-colour item components and craft product mappings for colourable medieval garments.
+
+Follow-up:
+  - `MED-OUTFIT-005` still owns starter outfit package support.
+  - `MED-OUTFIT-007` still owns live layering and wear-slot compatibility.
 
 # Immediate Follow-Up Goals
 
@@ -287,80 +300,18 @@ Acceptance criteria:
 
 ## GOAL MED-OUTFIT-006: Outfit Piece Description, Component, and Material Polish
 
-Intent:
-  Upgrade explicit outfit pieces from generated slot descriptions to final-quality item prototypes with better prose, better component mapping, and more accurate material/cost/weight decisions. MED-OUTFIT-008B supersedes the partial override model by requiring a direct authored row for every explicit outfit-piece stable reference.
+Status:
+  Superseded by MED-OUTFIT-008.
 
-Files to touch:
-  - `DatabaseSeeder/Seeders/ItemSeeder.Rework.Medieval.cs`
-  - `DatabaseSeeder/Seeders/ItemSeederCrafting.Medieval.cs`
-  - `Design Documents/Crafting/Medieval_Clothing_Crafting_Suite.md`
-  - `Design Documents/Crafting/Medieval_Testing_Quality_Gates.md`
-  - `DatabaseSeeder Unit Tests/ItemSeederMedievalCraftingTests.cs`
+Result:
+  The selected-row polish model is no longer the maintained architecture. Explicit outfit pieces now resolve through a single authored catalogue path, with final descriptions, material/component data, variable-colour components, craft stock inputs, and outfit metadata available through the same seeder source seam.
 
-Required changes:
-  - Add optional override records for outfit pieces:
-    - stable reference
-    - noun
-    - short description
-    - full description
-    - material
-    - material type
-    - quality
-    - weight
-    - cost
-    - components
-    - craft input override
-  - Apply overrides for at least the most culture-defining pieces first:
-    - Norse hangerok/apron dress and oval brooches
-    - Byzantine silk dalmatic and sagion
-    - Song cross-collar robe and official cap
-    - Gaelic brat mantle and ring pin
-    - Andalusi qamis, sirwal, burnous, and turban
-    - Rus rubakha, fur-edged kaftan, onuchi, and fur hat
-    - Steppe felt riding caftan and bowcase-and-quiver belt
-  - Replace generic full descriptions of the form "belongs to the X outfit" with real visual and construction descriptions.
-  - Keep outfit metadata in builder notes rather than making it the whole full description.
-  - Audit role-item components so non-jewellery role items are not function-tagged as jewellery by default.
-
-Catalogue requirements:
-  - At least 10 override pieces per culture in the first polish pass.
-  - All outfit role items must have appropriate function tags:
-    - books and tablets: writing goods
-    - pouches/satchels: containers or pouches
-    - scabbards/quivers/bowcases: military equipment or weapon accessories
-    - devotional pendants/beads: jewellery/devotional
-    - tools: professional tools or relevant worn items
-
-Craft requirements:
-  - Override craft inputs should be materially plausible.
-  - Metal hardware should consume metal stock, not cloth stock.
-  - Books and notebooks should consume paper/parchment and bookbinding stock.
-  - Fur-edged garments should consume fur stock.
-  - Felt garments should consume felt/fulled-cloth stock.
-  - Shoes and boots should consume footwear leather stock.
-
-Documentation requirements:
-  - Document override policy in `Medieval_Clothing_Crafting_Suite.md`.
-  - Record which cultures have received the polish pass.
-
-Test requirements:
-  - Add a test that at least 10 outfit pieces per culture have non-generated full descriptions.
-  - Add a test that role-item function tags are appropriate for the item type.
-  - Add tests for representative material overrides:
-    - books use bookbinding stock
-    - quivers/bowcases use leather or scabbard stock
-    - brooches/pins use metal stock
-    - cloth shoes use textile stock
-    - fur hats use fur stock
-  - Add a test that full descriptions for override pieces do not simply begin with `This {pieceName} belongs to`.
-
-Non-goals:
-  - Do not rewrite every outfit item manually in one pass unless time permits.
-  - Do not change outfit slot membership unless a slot is plainly wrong.
-
-Acceptance criteria:
-  - Signature outfit pieces read like real item prototypes, not catalogue placeholders.
-
+Keep:
+  - no generated player-facing outfit descriptions
+  - no generated-then-patched outfit item flow
+  - colourable garments carry variable colour components and matching `$colour`, `$colour1`, or `$colour2` tokens
+  - craft products for colourable garments use variable product mappings
+  - non-colourable role items are limited to rigid, paper, book, tag, token, liquid, or hardware-style objects
 ## GOAL MED-OUTFIT-007: Layering and Wear-Slot Audit
 
 Intent:
@@ -892,12 +843,11 @@ Acceptance criteria:
 
 # Suggested Next Task Order
 
-1. `MED-CAT-002` — classify/materialise exact culture references so future work has a clean target ledger.
-2. `MED-OUTFIT-008B` — keep explicit outfit pieces on the fail-closed authored source path.
-3. `MED-OUTFIT-005` — add starter outfit package/manifest support for builder usability.
-4. `MED-WRITE-001` — fix writing/admin components and implement exact culture writing references.
-5. `MED-FOOD-001` — implement real culture foodways.
-6. `MED-MIL-001` — implement explicit military loadouts.
-7. `MED-HOUSE-001` and `MED-JEWEL-001` — implement room goods, devotional goods, and adornment.
-8. `MED-PROD-002` — close production-chain gaps uncovered by the previous passes.
-9. `MED-TEST-002` and `MED-DOC-002` — keep quality gates and docs aligned as the above goals complete.
+1. `MED-OUTFIT-005` - add starter outfit package/manifest support for builder usability.
+2. `MED-OUTFIT-007` - audit layering and wear-slot compatibility for complete outfits.
+3. `MED-WRITE-001` - fix writing/admin components and implement exact culture writing references.
+4. `MED-FOOD-001` - implement real culture foodways.
+5. `MED-MIL-001` - implement explicit military loadouts.
+6. `MED-HOUSE-001` and `MED-JEWEL-001` - implement room goods, devotional goods, and adornment.
+7. `MED-PROD-002` - close production-chain gaps uncovered by the previous passes.
+8. `MED-TEST-002` and `MED-DOC-002` - keep quality gates and docs aligned as the above goals complete.

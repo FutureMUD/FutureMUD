@@ -1,12 +1,77 @@
 ﻿using MudSharp.GameItems;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace DatabaseSeeder.Seeders
 {
     public partial class ItemSeeder
     {
+        private static readonly EraOutfitSlotSpec[] AntiquityClothingSlotDefinitions = [];
+
+        private static readonly EraCultureSpec[] AntiquityEraCultureSpecs =
+        [
+            new("hellenic", "Hellenic", "Hellenic"),
+            new("egyptian", "Egyptian", "Egyptian"),
+            new("roman", "Roman", "Roman"),
+            new("celtic", "Celtic", "Celtic"),
+            new("germanic", "Germanic", "Germanic"),
+            new("kushite", "Kushite", "Kushite"),
+            new("punic", "Punic", "Punic"),
+            new("persian", "Persian", "Persian"),
+            new("etruscan", "Etruscan", "Etruscan"),
+            new("anatolian", "Anatolian", "Anatolian"),
+            new("scythian_sarmatian", "Scythian-Sarmatian", "Scythian-Sarmatian")
+        ];
+
+        private static readonly EraSeederConfiguration AntiquityEraConfiguration = new(
+            "antiquity",
+            "Eras / Antiquity",
+            "Eras / Antiquity / Cultures",
+            null,
+            "antiquity",
+            [
+                "Market / Clothing / Simple Clothing",
+                "Market / Clothing / Standard Clothing",
+                "Market / Clothing / Luxury Clothing",
+                "Market / Clothing / Footwear"
+            ],
+            new EraVariableColourPolicy(
+                "Variable_FineColour",
+                "Variable_2FineColour",
+                ["$colour"],
+                ["$colour1", "$colour2"],
+                ["papyrus", "bronze", "silver", "gold", "stone", "fired clay"]),
+            [
+                "Ancient Textile Production",
+                "Ancient Hide and Leatherworking",
+                "Ancient Common Clothing Crafting"
+            ],
+            ["Tailoring", "Leathermaking", "Jewellery", "Crafting"],
+            new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["garment_cloth"] = "Garment Cloth",
+                ["spun_yarn"] = "Spun Yarn",
+                ["leather_panel"] = "Prepared Leather Panel",
+                ["leather_sole"] = "Cut Leather Sole",
+                ["bead_stock"] = "Bead Stock"
+            },
+            AntiquityClothingSlotDefinitions,
+            false,
+            false,
+            false);
+
+        internal static (string EraKey, string EraRootTag, string CultureTagRoot, string? StatusOrSocialRoleTagRoot, bool CompleteOutfitCataloguesRequired, bool GenericBaselineWardrobeGenerationAllowed, bool PlayerFacingDescriptionsMayIncludeCultureNames, IReadOnlyCollection<string> CultureKeys) AntiquityEraConfigurationForTesting =>
+            (AntiquityEraConfiguration.EraKey,
+                AntiquityEraConfiguration.EraRootTag,
+                AntiquityEraConfiguration.CultureTagRoot,
+                AntiquityEraConfiguration.StatusOrSocialRoleTagRoot,
+                AntiquityEraConfiguration.CompleteOutfitCataloguesRequired,
+                AntiquityEraConfiguration.GenericBaselineWardrobeGenerationAllowed,
+                AntiquityEraConfiguration.PlayerFacingDescriptionsMayIncludeCultureNames,
+                AntiquityEraCultureSpecs.Select(x => x.Key).ToArray());
+
         private void SeedAntiquityClothing()
         {
             #region Antiquity Textile Tools

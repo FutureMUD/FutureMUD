@@ -60,24 +60,24 @@ public partial class ItemSeeder
 		string WearComponent,
 		string ArmourComponent);
 
-	private sealed record MedievalItemSpec(
-		string StableReference,
+	private sealed record MedievalWardrobePiece(
+		string SlotKey,
+		string Token,
 		string Noun,
 		string ShortDescription,
 		string FullDescription,
+		string Material,
+		MaterialBehaviourType MaterialType,
 		SizeCategory Size,
 		ItemQuality Quality,
 		double WeightInGrams,
 		decimal Cost,
-		string Material,
-		MaterialBehaviourType MaterialType,
-		string[] Tags,
-		string[] Components,
-		string? BuilderNotes = null,
-		string? MorphToUniqueReference = null,
-		string? MorphEmote = null,
-		TimeSpan? MorphTimer = null,
-		string? DestroyedItemUniqueReference = null);
+		string MarketTag,
+		string FunctionTag,
+		string WearComponent,
+		string ArmourComponent,
+		string InsulationComponent,
+		string[] ExtraComponents);
 
 	private sealed record MedievalCultureCatalogue(
 		string CultureKey,
@@ -126,30 +126,44 @@ public partial class ItemSeeder
 		string? Reason,
 		string? CraftCoverageExemption);
 
-	private sealed record MedievalOutfitSlot(
-		string Key,
-		string Display,
-		bool RequiredForAllOutfits,
-		string[] RequiredForRoles);
-
-	private sealed record MedievalOutfitSpec(
-		string OutfitReference,
-		string CultureKey,
-		string SexGenderPresentation,
-		string SocialClassRole,
-		string DisplayName,
-		IReadOnlyDictionary<string, string> SlotItemStableReferences,
-		IReadOnlyCollection<string> IntentionallySharedOrGenericSlots);
-
-	private sealed record MedievalOutfitPieceSpec(
-		string OutfitReference,
-		string CultureKey,
-		string SexGenderPresentation,
-		string SocialClassRole,
-		string SlotKey,
-		string PieceName,
+	internal sealed record MedievalAuthoredOutfitPieceTestData(
 		string StableReference,
-		bool CultureSpecificOrClusterSpecific);
+		string OutfitReference,
+		string CultureKey,
+		string SexGenderPresentation,
+		string SocialClassRole,
+		IReadOnlyCollection<string> SlotKeys,
+		string PieceName,
+		string Noun,
+		string ShortDescription,
+		string FullDescription,
+		string Material,
+		MaterialBehaviourType MaterialType,
+		ItemQuality Quality,
+		SizeCategory Size,
+		double WeightInGrams,
+		decimal Cost,
+		string? VariableColourComponent,
+		IReadOnlyCollection<string> ColourVariablesUsed,
+		IReadOnlyCollection<string> Components,
+		IReadOnlyCollection<string> CraftInputs,
+		IReadOnlyCollection<string> CraftTools,
+		bool IntentionallySharedOrGeneric);
+
+	internal sealed record EraItemSpecTestData(
+		string StableReference,
+		string Noun,
+		string ShortDescription,
+		string FullDescription,
+		SizeCategory Size,
+		ItemQuality Quality,
+		double WeightInGrams,
+		decimal Cost,
+		string Material,
+		MaterialBehaviourType MaterialType,
+		IReadOnlyCollection<string> Tags,
+		IReadOnlyCollection<string> Components,
+		string? BuilderNotes);
 
 	private sealed record MedievalAuthoredOutfitPieceSpec(
 		string StableReference,
@@ -181,47 +195,6 @@ public partial class ItemSeeder
 		string StableReference,
 		string[] Inputs,
 		string[] Tools);
-
-	internal sealed record MedievalAuthoredOutfitPieceTestData(
-		string StableReference,
-		string OutfitReference,
-		string CultureKey,
-		string SexGenderPresentation,
-		string SocialClassRole,
-		string SlotKey,
-		string PieceName,
-		string Noun,
-		string ShortDescription,
-		string FullDescription,
-		string Material,
-		MaterialBehaviourType MaterialType,
-		ItemQuality Quality,
-		SizeCategory Size,
-		double WeightInGrams,
-		decimal Cost,
-		string? VariableColourComponent,
-		IReadOnlyCollection<string> ColourVariablesUsed,
-		IReadOnlyCollection<string> Tags,
-		IReadOnlyCollection<string> Components,
-		IReadOnlyCollection<string> CraftInputs,
-		IReadOnlyCollection<string> CraftTools,
-		string? ImplementationNotes,
-		string? AuthoringGuidelineNotes);
-
-	internal sealed record MedievalItemSpecTestData(
-		string StableReference,
-		string Noun,
-		string ShortDescription,
-		string FullDescription,
-		SizeCategory Size,
-		ItemQuality Quality,
-		double WeightInGrams,
-		decimal Cost,
-		string Material,
-		MaterialBehaviourType MaterialType,
-		IReadOnlyCollection<string> Tags,
-		IReadOnlyCollection<string> Components,
-		string? BuilderNotes);
 
 	private static readonly MedievalCultureProfile[] MedievalCultureProfiles =
 	[
@@ -507,32 +480,94 @@ song_china|Household and Devotional|medieval_household_song_china_tea_cup,mediev
 			"Market / Clothing / Winter Clothing", "Wear_Long-Sleeved_Tunic", "Armour_HeavyClothing")
 	];
 
-	private const string MedievalOutfitSlotUnderlayer = "underlayer";
-	private const string MedievalOutfitSlotLowerBody = "lower_body";
-	private const string MedievalOutfitSlotLegOrSockLayer = "leg_or_sock_layer";
-	private const string MedievalOutfitSlotFootwear = "footwear";
-	private const string MedievalOutfitSlotBodywear = "bodywear";
-	private const string MedievalOutfitSlotOuterwear = "outerwear";
-	private const string MedievalOutfitSlotHeadwear = "headwear";
-	private const string MedievalOutfitSlotBeltOrSash = "belt_or_sash";
-	private const string MedievalOutfitSlotWornContainer = "worn_container";
-	private const string MedievalOutfitSlotFastenerOrJewellery = "fastener_or_jewellery";
-	private const string MedievalOutfitSlotRoleItem = "role_item";
-
-	private static readonly MedievalOutfitSlot[] MedievalOutfitSlots =
+	private static readonly string[] MedievalWardrobeSlotKeys =
 	[
-		new(MedievalOutfitSlotUnderlayer, "Underlayer", true, []),
-		new(MedievalOutfitSlotLowerBody, "Lower Body", true, []),
-		new(MedievalOutfitSlotLegOrSockLayer, "Leg/Sock Layer", true, []),
-		new(MedievalOutfitSlotFootwear, "Footwear", true, []),
-		new(MedievalOutfitSlotBodywear, "Bodywear", true, []),
-		new(MedievalOutfitSlotOuterwear, "Outerwear", true, []),
-		new(MedievalOutfitSlotHeadwear, "Headwear", true, []),
-		new(MedievalOutfitSlotBeltOrSash, "Belt or Sash", true, []),
-		new(MedievalOutfitSlotWornContainer, "Worn Container", true, []),
-		new(MedievalOutfitSlotFastenerOrJewellery, "Fastener/Jewellery", true, []),
-		new(MedievalOutfitSlotRoleItem, "Role Item", false, ["merchant", "religious", "military"])
+		"underlayer",
+		"headwear",
+		"hood",
+		"outerwear",
+		"legwear",
+		"handwear",
+		"sockwear",
+		"footwear",
+		"belt",
+		"pouch"
 	];
+
+	private const string EraOutfitSlotSpecUnderlayer = "underlayer";
+	private const string EraOutfitSlotSpecLowerBody = "lower_body";
+	private const string EraOutfitSlotSpecLegOrSockLayer = "leg_or_sock_layer";
+	private const string EraOutfitSlotSpecFootwear = "footwear";
+	private const string EraOutfitSlotSpecBodywear = "bodywear";
+	private const string EraOutfitSlotSpecOuterwear = "outerwear";
+	private const string EraOutfitSlotSpecHeadwear = "headwear";
+	private const string EraOutfitSlotSpecBeltOrSash = "belt_or_sash";
+	private const string EraOutfitSlotSpecWornContainer = "worn_container";
+	private const string EraOutfitSlotSpecFastenerOrJewellery = "fastener_or_jewellery";
+	private const string EraOutfitSlotSpecRoleItem = "role_item";
+
+	private static readonly EraOutfitSlotSpec[] EraOutfitSlotSpecs =
+	[
+		new(EraOutfitSlotSpecUnderlayer, "Underlayer", true, []),
+		new(EraOutfitSlotSpecLowerBody, "Lower Body", true, []),
+		new(EraOutfitSlotSpecLegOrSockLayer, "Leg/Sock Layer", true, []),
+		new(EraOutfitSlotSpecFootwear, "Footwear", true, []),
+		new(EraOutfitSlotSpecBodywear, "Bodywear", true, []),
+		new(EraOutfitSlotSpecOuterwear, "Outerwear", true, []),
+		new(EraOutfitSlotSpecHeadwear, "Headwear", true, []),
+		new(EraOutfitSlotSpecBeltOrSash, "Belt or Sash", true, []),
+		new(EraOutfitSlotSpecWornContainer, "Worn Container", true, []),
+		new(EraOutfitSlotSpecFastenerOrJewellery, "Fastener/Jewellery", true, []),
+		new(EraOutfitSlotSpecRoleItem, "Role Item", false, ["merchant", "religious", "military"])
+	];
+
+	private static readonly EraCultureSpec[] MedievalEraCultureSpecs =
+		MedievalCultureProfiles
+			.Select(x => new EraCultureSpec(x.Key, x.Display, SafeMedievalTagName(x.Display)))
+			.ToArray();
+
+	private static readonly EraSeederConfiguration MedievalEraConfiguration = new(
+		"medieval",
+		MedievalRootTagPath,
+		MedievalCultureTagRoot,
+		MedievalStatusTagRoot,
+		"medieval",
+		[
+			"Market / Clothing / Simple Clothing",
+			"Market / Clothing / Standard Clothing",
+			"Market / Clothing / Luxury Clothing",
+			"Market / Clothing / Footwear",
+			"Market / Clothing / Winter Clothing"
+		],
+		new EraVariableColourPolicy(
+			"Variable_FineColour",
+			"Variable_2FineColour",
+			["$colour"],
+			["$colour1", "$colour2"],
+			["paper", "oak", "bronze", "silver", "gold", "wrought iron", "beeswax"]),
+		[
+			HistoricFoundationKnowledge,
+			MedievalWorkshopKnowledge,
+			MedievalClothingKnowledgePrefix
+		],
+		["Tailoring", "Leathermaking", "Metalworking", "Writing", "Carpentry"],
+		new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+		{
+			["garment_cloth"] = "Garment Cloth",
+			["tablet_woven_band"] = "Tablet-Woven Band Stock",
+			["embroidered_trim"] = "Embroidered Trim Stock",
+			["fur_panel"] = "Fur Panel Stock",
+			["felt_cloth"] = "Fulled Cloth",
+			["turnshoe_upper"] = "Turnshoe Upper Stock",
+			["paper_sheet"] = "Paper Sheet Stock",
+			["bookbinding_leather"] = "Bookbinding Leather Stock",
+			["tool_blank"] = "Tool Blank Stock",
+			["quilted_padding"] = "Quilted Armour Padding"
+		},
+		EraOutfitSlotSpecs,
+		true,
+		true,
+		false);
 
 	private static readonly string[] MedievalOutfitSexGenderPresentationKeys = ["male", "female"];
 
@@ -812,10 +847,10 @@ medieval_outfit_song_china_male_military|arming under-robe; trousers; boots; pad
 medieval_outfit_song_china_female_military|arming shift; trousers or split skirt; boots; padded military vest; lamellar cover robe; headcloth under cap; weapon sash; field pouch; guard token; bracers
 ";
 
-	private static readonly MedievalOutfitPieceSpec[] MedievalExplicitOutfitPieces =
+	private static readonly EraOutfitPieceSpec[] MedievalExplicitOutfitPieces =
 		BuildMedievalExplicitOutfitPieces();
 
-	private static readonly MedievalOutfitSpec[] MedievalOutfits = BuildMedievalOutfits();
+	private static readonly EraOutfitSpec[] MedievalOutfits = BuildMedievalOutfits();
 
 
 	private static readonly IReadOnlyDictionary<string, MedievalAuthoredOutfitPieceSpec>
@@ -832,7 +867,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 					x.CraftTools))
 				.ToDictionary(x => x.StableReference, StringComparer.OrdinalIgnoreCase);
 
-	private static IReadOnlyList<MedievalItemSpec> HistoricFoundationItemSpecs()
+	private static IReadOnlyList<EraItemSpec> HistoricFoundationItemSpecs()
 	{
 		const string ToolTag = "Market / Professional Tools / Standard Tools";
 		return
@@ -924,16 +959,324 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 		];
 	}
 
-	private static IReadOnlyList<MedievalItemSpec> MedievalClothingItemSpecs()
+	private static IReadOnlyList<EraItemSpec> MedievalClothingItemSpecs()
 	{
 		return MedievalExplicitOutfitPieceItemSpecs();
 	}
-	private static IReadOnlyList<MedievalItemSpec> MedievalEquipmentItemSpecs()
+
+	private static MedievalWardrobePiece BuildMedievalWardrobePiece(MedievalCultureProfile culture,
+		MedievalStatusRoleProfile status, string slotKey)
 	{
-		var specs = new List<MedievalItemSpec>();
+		return slotKey switch
+		{
+			"underlayer" => status.Key switch
+			{
+				"peasant" => FabricPiece(slotKey, "linen_shirt", "shirt", "a plain linen shirt",
+					"This plain linen shirt sits close enough to work under a tunic, with simple seams and sleeves meant for daily laundering.",
+					"linen", status, "Market / Clothing / Simple Clothing", "Functions / Worn Items / Underwear",
+					"Wear_Long-Sleeved_Tunic", "Insulation_Minor", 420.0, 9.0m),
+				"artisan" => FabricPiece(slotKey, "work_shirt", "shirt", "a sturdy work shirt",
+					"This sturdy shirt has reinforced underarms and plain cuffs for long days in a workshop or yard.",
+					"linen", status, "Market / Clothing / Simple Clothing", "Functions / Worn Items / Underwear",
+					"Wear_Long-Sleeved_Tunic", "Insulation_Minor", 480.0, 12.0m),
+				"merchant" => FabricPiece(slotKey, "fine_linen_shirt", "shirt", "a fine linen shirt",
+					"This fine linen shirt is neatly hemmed and cut to sit cleanly beneath better gowns or travel clothing.",
+					"linen", status, "Market / Clothing / Standard Clothing", "Functions / Worn Items / Underwear",
+					"Wear_Long-Sleeved_Tunic", "Insulation_Minor", 380.0, 24.0m),
+				"noble" => FabricPiece(slotKey, "silk_lined_chemise", "chemise", "a silk-lined chemise",
+					"This light chemise has fine seams, smooth lining, and a soft fall meant for court dress or private chambers.",
+					"silk", status, "Market / Clothing / Luxury Clothing", "Functions / Worn Items / Underwear",
+					"Wear_Long-Sleeved_Tunic", "Insulation_Minor", 320.0, 55.0m),
+				"clergy" => FabricPiece(slotKey, "linen_undertunic", "undertunic", "a plain linen undertunic",
+					"This sober undertunic is cut for modesty and washing, with little decoration beyond careful seams.",
+					"linen", status, "Market / Clothing / Simple Clothing", "Functions / Worn Items / Underwear",
+					"Wear_Long-Sleeved_Tunic", "Insulation_Minor", 520.0, 14.0m),
+				_ => FabricPiece(slotKey, "arming_shirt", "shirt", "a padded arming shirt",
+					"This arming shirt is quilted lightly at the shoulders and ties, giving a washable layer beneath heavier equipment.",
+					"linen", status, "Market / Clothing / Winter Clothing", "Functions / Worn Items / Underwear",
+					"Wear_Long-Sleeved_Tunic", "Insulation_Moderate", 820.0, 28.0m, armourComponent: "Armour_HeavyClothing")
+			},
+			"headwear" => status.Key switch
+			{
+				"peasant" => FabricPiece(slotKey, "wool_cap", "cap", "a simple wool cap",
+					"This simple cap is close-fitted, warm, and plain enough for field, hearth, or road.",
+					"wool", status, "Market / Clothing / Simple Clothing", "Functions / Worn Items / Headwear",
+					"Wear_Hat", "Insulation_Moderate", 130.0, 7.0m),
+				"artisan" => FabricPiece(slotKey, "work_cap", "cap", "a fitted work cap",
+					"This fitted work cap keeps hair and sweat out of the way, with a folded edge and stout stitching.",
+					"linen", status, "Market / Clothing / Simple Clothing", "Functions / Worn Items / Headwear",
+					"Wear_Hat", "Insulation_Minor", 110.0, 8.0m),
+				"merchant" => FabricPiece(slotKey, "lined_hat", "hat", "a lined town hat",
+					"This lined hat has a neat brim and a respectable finish suitable for shop, guildhall, or road.",
+					"wool", status, "Market / Clothing / Standard Clothing", "Functions / Worn Items / Headwear",
+					"Wear_Hat", "Insulation_Moderate", 180.0, 20.0m),
+				"noble" => FabricPiece(slotKey, "court_cap", "cap", "a fine court cap",
+					"This fine cap is carefully shaped and trimmed, meant to complete a formal court outfit.",
+					"silk", status, "Market / Clothing / Luxury Clothing", "Functions / Worn Items / Headwear",
+					"Wear_Hat", "Insulation_Minor", 120.0, 50.0m),
+				"clergy" => FabricPiece(slotKey, "plain_coif", "coif", "a plain cloth coif",
+					"This plain coif ties close under the chin and keeps a modest, orderly line around the head.",
+					"linen", status, "Market / Clothing / Simple Clothing", "Functions / Worn Items / Headwear",
+					"Wear_Hat", "Insulation_Minor", 100.0, 8.0m),
+				_ => FabricPiece(slotKey, "padded_arming_cap", "cap", "a padded arming cap",
+					"This padded cap is quilted to sit beneath a helm or mail coif, with tie points at the chin.",
+					"linen", status, "Market / Clothing / Winter Clothing", "Functions / Worn Items / Headwear",
+					"Wear_Hat", "Insulation_Moderate", 360.0, 18.0m, armourComponent: "Armour_HeavyClothing")
+			},
+			"hood" => status.Key switch
+			{
+				"peasant" => FabricPiece(slotKey, "rough_hood", "hood", "a rough wool hood",
+					"This rough hood covers the head and shoulders, giving cheap warmth in wind and rain.",
+					"wool", status, "Market / Clothing / Simple Clothing", "Functions / Worn Items / Headwear",
+					"Wear_Hat", "Insulation_Balanced_Warm", 360.0, 12.0m),
+				"artisan" => FabricPiece(slotKey, "work_hood", "hood", "a sturdy work hood",
+					"This sturdy hood has a short shoulder fall and simple ties that stay out of tools and flame.",
+					"wool", status, "Market / Clothing / Standard Clothing", "Functions / Worn Items / Headwear",
+					"Wear_Hat", "Insulation_Balanced_Warm", 340.0, 16.0m),
+				"merchant" => FabricPiece(slotKey, "lined_hood", "hood", "a lined travel hood",
+					"This lined hood is cut for road wear, with a clean face opening and enough cloth to shed weather.",
+					"wool", status, "Market / Clothing / Standard Clothing", "Functions / Worn Items / Headwear",
+					"Wear_Hat", "Insulation_Balanced_Warm", 420.0, 28.0m),
+				"noble" => FabricPiece(slotKey, "fur_lined_hood", "hood", "a fur-lined hood",
+					"This soft hood has a rich lining and careful finishing around the face, throat, and shoulder edge.",
+					"silk", status, "Market / Clothing / Luxury Clothing", "Functions / Worn Items / Headwear",
+					"Wear_Hat", "Insulation_Strong", 520.0, 95.0m),
+				"clergy" => FabricPiece(slotKey, "monastic_cowl", "cowl", "a plain monastic cowl",
+					"This deep cowl falls from head to shoulders with deliberate plainness and a sober drape.",
+					"wool", status, "Market / Clothing / Standard Clothing", "Functions / Worn Items / Headwear",
+					"Wear_Hat", "Insulation_Balanced_Warm", 540.0, 24.0m),
+				_ => FabricPiece(slotKey, "arming_hood", "hood", "a quilted arming hood",
+					"This quilted hood protects the scalp, neck, and cheeks from chafing mail and helmet edges.",
+					"linen", status, "Market / Clothing / Winter Clothing", "Functions / Worn Items / Headwear",
+					"Wear_Hat", "Insulation_Moderate", 620.0, 30.0m, armourComponent: "Armour_HeavyClothing")
+			},
+			"outerwear" => status.Key switch
+			{
+				"peasant" => FabricPiece(slotKey, "rough_cloak", "cloak", "a rough wool cloak",
+					"This rough cloak is broad, warm, and plainly hemmed, useful as blanket, rain cover, or work wrap.",
+					"wool", status, "Market / Clothing / Winter Clothing", "Functions / Worn Items / Outerwear",
+					"Wear_Cloak_(Closed)", "Insulation_Strong", 1600.0, 26.0m, armourComponent: "Armour_HeavyClothing"),
+				"artisan" => FabricPiece(slotKey, "hooded_work_cloak", "cloak", "a hooded work cloak",
+					"This hooded cloak is cut short enough for movement and long enough to protect tools and shoulders from weather.",
+					"wool", status, "Market / Clothing / Winter Clothing", "Functions / Worn Items / Outerwear",
+					"Wear_Cloak_(Closed)", "Insulation_Strong", 1500.0, 34.0m, armourComponent: "Armour_HeavyClothing"),
+				"merchant" => FabricPiece(slotKey, "travel_mantle", "mantle", "a lined travel mantle",
+					"This lined mantle has good cloth, a practical clasp point, and a respectable fall for town and road.",
+					"wool", status, "Market / Clothing / Standard Clothing", "Functions / Worn Items / Outerwear",
+					"Wear_Mantle", "Insulation_Balanced_Warm", 1300.0, 70.0m, armourComponent: "Armour_HeavyClothing"),
+				"noble" => FabricPiece(slotKey, "fur_lined_mantle", "mantle", "a fur-lined court mantle",
+					"This mantle is rich, warm, and deliberately showy, with a generous fall and careful edging.",
+					"silk", status, "Market / Clothing / Luxury Clothing", "Functions / Worn Items / Outerwear",
+					"Wear_Mantle", "Insulation_Strong", 1200.0, 160.0m, armourComponent: "Armour_HeavyClothing"),
+				"clergy" => FabricPiece(slotKey, "wool_cowl_cloak", "cloak", "a heavy wool cowl-cloak",
+					"This heavy cowl-cloak gives plain warmth for cloister, road, choir, or cold stone rooms.",
+					"wool", status, "Market / Clothing / Winter Clothing", "Functions / Worn Items / Outerwear",
+					"Wear_Cloak_(Closed)", "Insulation_Strong", 1700.0, 38.0m, armourComponent: "Armour_HeavyClothing"),
+				_ => FabricPiece(slotKey, "weather_cloak", "cloak", "a military weather cloak",
+					"This weather cloak is thick enough for marching and watch duty, with a short practical cut over equipment.",
+					"wool", status, "Market / Clothing / Winter Clothing", "Functions / Worn Items / Outerwear",
+					"Wear_Cloak_(Closed)", "Insulation_Strong", 1400.0, 44.0m, armourComponent: "Armour_HeavyClothing")
+			},
+			"legwear" => status.Key switch
+			{
+				"peasant" => FabricPiece(slotKey, "wool_leggings", "leggings", "a pair of wool leggings",
+					"These wool leggings are plain, close, and warm enough for fieldwork, walking, and winter chores.",
+					"wool", status, "Market / Clothing / Simple Clothing", "Functions / Worn Items / Legwear",
+					"Wear_Chausses", "Insulation_Moderate", 420.0, 10.0m),
+				"artisan" => FabricPiece(slotKey, "work_hose", "hose", "a pair of sturdy work hose",
+					"These work hose are close-cut and reinforced around the knees for bench, yard, or scaffold labour.",
+					"wool", status, "Market / Clothing / Standard Clothing", "Functions / Worn Items / Legwear",
+					"Wear_Chausses", "Insulation_Moderate", 480.0, 16.0m),
+				"merchant" => FabricPiece(slotKey, "fitted_hose", "hose", "a pair of fitted hose",
+					"These fitted hose are neatly cut and better finished than common legwear, suitable for town wear.",
+					"wool", status, "Market / Clothing / Standard Clothing", "Functions / Worn Items / Legwear",
+					"Wear_Chausses", "Insulation_Moderate", 420.0, 28.0m),
+				"noble" => FabricPiece(slotKey, "fine_hose", "hose", "a pair of fine court hose",
+					"These fine hose use good cloth and careful shaping for a smooth formal line.",
+					"silk", status, "Market / Clothing / Luxury Clothing", "Functions / Worn Items / Legwear",
+					"Wear_Chausses", "Insulation_Minor", 340.0, 70.0m),
+				"clergy" => FabricPiece(slotKey, "plain_chausses", "chausses", "a pair of plain chausses",
+					"These plain chausses are sober, serviceable, and cut to sit beneath a robe without display.",
+					"wool", status, "Market / Clothing / Simple Clothing", "Functions / Worn Items / Legwear",
+					"Wear_Chausses", "Insulation_Moderate", 460.0, 14.0m),
+				_ => FabricPiece(slotKey, "padded_chausses", "chausses", "a pair of padded arming chausses",
+					"These padded chausses cushion the legs beneath mail, straps, or riding wear.",
+					"linen", status, "Market / Clothing / Winter Clothing", "Functions / Worn Items / Legwear",
+					"Wear_Chausses", "Insulation_Moderate", 760.0, 34.0m, armourComponent: "Armour_HeavyClothing")
+			},
+			"handwear" => status.Key switch
+			{
+				"peasant" => FabricPiece(slotKey, "wool_mittens", "mittens", "a pair of wool mittens",
+					"These wool mittens are plain, warm, and loosely shaped for cold morning work.",
+					"wool", status, "Market / Clothing / Simple Clothing", "Functions / Worn Items / Gloves",
+					"Wear_Mittens", "Insulation_Moderate", 160.0, 7.0m),
+				"artisan" => LeatherPiece(slotKey, "leather_work_gloves", "gloves", "a pair of leather work gloves",
+					"These leather gloves are tough around the palm and open enough for practical workshop handling.",
+					status, "Market / Clothing / Standard Clothing", "Functions / Worn Items / Gloves",
+					"Wear_Fingerless_Gloves", "Insulation_Minor", 260.0, 18.0m),
+				"merchant" => LeatherPiece(slotKey, "lined_gloves", "gloves", "a pair of lined leather gloves",
+					"These lined gloves are tidy and comfortable, suited to road, counting room, or public business.",
+					status, "Market / Clothing / Standard Clothing", "Functions / Worn Items / Gloves",
+					"Wear_Fingerless_Gloves", "Insulation_Moderate", 220.0, 32.0m),
+				"noble" => FabricPiece(slotKey, "fine_gloves", "gloves", "a pair of fine court gloves",
+					"These fine gloves are soft, close-fitting, and finished for display rather than hard work.",
+					"silk", status, "Market / Clothing / Luxury Clothing", "Functions / Worn Items / Gloves",
+					"Wear_Fingerless_Gloves", "Insulation_Minor", 120.0, 60.0m),
+				"clergy" => FabricPiece(slotKey, "plain_mittens", "mittens", "a pair of plain wool mittens",
+					"These plain mittens are warm, modest, and serviceable for cold cloisters and travel.",
+					"wool", status, "Market / Clothing / Simple Clothing", "Functions / Worn Items / Gloves",
+					"Wear_Mittens", "Insulation_Moderate", 160.0, 8.0m),
+				_ => LeatherPiece(slotKey, "arming_gloves", "gloves", "a pair of arming gloves",
+					"These arming gloves are reinforced for weapon grips, straps, and marching wear.",
+					status, "Market / Clothing / Winter Clothing", "Functions / Worn Items / Gloves",
+					"Wear_Fingerless_Gloves", "Insulation_Moderate", 360.0, 34.0m, armourComponent: "Armour_HeavyClothing")
+			},
+			"sockwear" => status.Key switch
+			{
+				"peasant" => FabricPiece(slotKey, "wool_footwraps", "footwraps", "a pair of wool footwraps",
+					"These wool footwraps are simple rectangles meant to pad shoes or boots through a long day.",
+					"wool", status, "Market / Clothing / Simple Clothing", "Functions / Worn Items / Socks",
+					"Wear_Socks", "Insulation_Moderate", 160.0, 5.0m),
+				"artisan" => FabricPiece(slotKey, "wool_socks", "socks", "a pair of wool work socks",
+					"These wool socks are thick at the heel and toe, made for workshop floors and city streets.",
+					"wool", status, "Market / Clothing / Simple Clothing", "Functions / Worn Items / Socks",
+					"Wear_Socks", "Insulation_Moderate", 180.0, 8.0m),
+				"merchant" => FabricPiece(slotKey, "fine_socks", "socks", "a pair of fine wool socks",
+					"These fine socks are warm, neat, and shaped cleanly for better shoes or travel boots.",
+					"wool", status, "Market / Clothing / Standard Clothing", "Functions / Worn Items / Socks",
+					"Wear_Socks", "Insulation_Moderate", 140.0, 18.0m),
+				"noble" => FabricPiece(slotKey, "silk_socks", "socks", "a pair of silk socks",
+					"These silk socks are soft, light, and made for comfort inside fine shoes.",
+					"silk", status, "Market / Clothing / Luxury Clothing", "Functions / Worn Items / Socks",
+					"Wear_Socks", "Insulation_Minor", 90.0, 40.0m),
+				"clergy" => FabricPiece(slotKey, "plain_socks", "socks", "a pair of plain wool socks",
+					"These plain socks are unshowy, warm, and practical beneath sandals or shoes.",
+					"wool", status, "Market / Clothing / Simple Clothing", "Functions / Worn Items / Socks",
+					"Wear_Socks", "Insulation_Moderate", 150.0, 7.0m),
+				_ => FabricPiece(slotKey, "boot_socks", "socks", "a pair of thick boot socks",
+					"These thick boot socks are padded for marching, riding, and long watch duty.",
+					"wool", status, "Market / Clothing / Winter Clothing", "Functions / Worn Items / Socks",
+					"Wear_Socks", "Insulation_Balanced_Warm", 240.0, 14.0m)
+			},
+			"footwear" => status.Key switch
+			{
+				"peasant" => LeatherPiece(slotKey, "rough_turnshoes", "shoes", "a pair of rough leather turnshoes",
+					"These rough turnshoes are simply cut and repaired at the sole, good enough for field paths and village floors.",
+					status, "Market / Clothing / Simple Clothing", "Functions / Worn Items / Footwear",
+					"Wear_Shoes", "Insulation_Minor", 780.0, 16.0m),
+				"artisan" => LeatherPiece(slotKey, "work_boots", "boots", "a pair of leather work boots",
+					"These work boots are scuffed, sturdy, and high enough to protect the ankle around tools and mud.",
+					status, "Market / Clothing / Standard Clothing", "Functions / Worn Items / Footwear",
+					"Wear_Boots", "Insulation_Moderate", 1300.0, 28.0m),
+				"merchant" => LeatherPiece(slotKey, "town_shoes", "shoes", "a pair of polished town shoes",
+					"These town shoes are neatly stitched and polished, suitable for shop, hall, or road.",
+					status, "Market / Clothing / Standard Clothing", "Functions / Worn Items / Footwear",
+					"Wear_Shoes", "Insulation_Minor", 900.0, 36.0m),
+				"noble" => LeatherPiece(slotKey, "fine_court_shoes", "shoes", "a pair of fine court shoes",
+					"These fine shoes are soft, elegant, and carefully shaped for formal indoor wear.",
+					status, "Market / Clothing / Luxury Clothing", "Functions / Worn Items / Footwear",
+					"Wear_Shoes", "Insulation_Minor", 760.0, 80.0m),
+				"clergy" => LeatherPiece(slotKey, "plain_sandals", "sandals", "a pair of plain leather sandals",
+					"These plain sandals are sturdy, modest, and easy to repair after travel or cloister use.",
+					status, "Market / Clothing / Simple Clothing", "Functions / Worn Items / Footwear",
+					"Wear_Sandals", "Insulation_Minor", 620.0, 14.0m),
+				_ => LeatherPiece(slotKey, "riding_boots", "boots", "a pair of leather riding boots",
+					"These riding boots are tall, reinforced, and shaped for stirrups, marching, and field duty.",
+					status, "Market / Clothing / Winter Clothing", "Functions / Worn Items / Footwear",
+					"Wear_Boots", "Insulation_Moderate", 1600.0, 48.0m, armourComponent: "Armour_BoiledLeather")
+			},
+			"belt" => status.Key switch
+			{
+				"peasant" => BeltPiece(slotKey, "rope_belt", "belt", "a knotted rope belt",
+					"This rope belt is rough, cheap, and easy to knot around a tunic or cloak.", "hemp", MaterialBehaviourType.Fabric,
+					status, "Market / Clothing / Simple Clothing", 220.0, 5.0m, "Belt_2"),
+				"artisan" => BeltPiece(slotKey, "tool_belt", "belt", "a leather tool belt",
+					"This leather belt has sturdy stitching and enough hanging points for pouches, knives, or small tools.", "leather", MaterialBehaviourType.Leather,
+					status, "Market / Clothing / Standard Clothing", 420.0, 22.0m, "Belt_4"),
+				"merchant" => BeltPiece(slotKey, "purse_belt", "belt", "a merchant's purse belt",
+					"This respectable belt has metal fittings and reinforced points for a purse, keys, or small account pouch.", "leather", MaterialBehaviourType.Leather,
+					status, "Market / Clothing / Standard Clothing", 360.0, 34.0m, "Belt_4"),
+				"noble" => BeltPiece(slotKey, "fine_girdle", "girdle", "a fine court girdle",
+					"This fine girdle is narrow, carefully finished, and suited to formal robes or court surcoats.", "silk", MaterialBehaviourType.Fabric,
+					status, "Market / Clothing / Luxury Clothing", 180.0, 90.0m, "Belt_6"),
+				"clergy" => BeltPiece(slotKey, "cord_belt", "belt", "a plain cord belt",
+					"This plain cord belt is deliberately modest, tying a robe without display.", "hemp", MaterialBehaviourType.Fabric,
+					status, "Market / Clothing / Simple Clothing", 160.0, 4.0m, "Belt_2"),
+				_ => BeltPiece(slotKey, "arming_belt", "belt", "a broad arming belt",
+					"This broad belt is reinforced for scabbard, pouch, and field gear weight.", "leather", MaterialBehaviourType.Leather,
+					status, "Market / Clothing / Standard Clothing", 620.0, 42.0m, "Belt_6", armourComponent: "Armour_BoiledLeather")
+			},
+			"pouch" => status.Key switch
+			{
+				"peasant" => PouchPiece(slotKey, "belt_pouch", "pouch", "a small belt pouch",
+					"This small pouch ties to a belt and holds coins, seed, food scraps, or household odds and ends.",
+					"linen", MaterialBehaviourType.Fabric, status, "Market / Clothing / Simple Clothing", 120.0, 8.0m),
+				"artisan" => PouchPiece(slotKey, "tool_pouch", "pouch", "a leather tool pouch",
+					"This leather pouch has divided folds for chalk, awls, needles, files, or other small workshop tools.",
+					"leather", MaterialBehaviourType.Leather, status, "Market / Clothing / Standard Clothing", 240.0, 20.0m),
+				"merchant" => PouchPiece(slotKey, "belt_purse", "purse", "a merchant's belt purse",
+					"This purse is lined and closable, with reinforced loops for a belt and enough room for coin or tallies.",
+					"leather", MaterialBehaviourType.Leather, status, "Market / Clothing / Standard Clothing", 220.0, 32.0m, containerComponent: "Container_Purse"),
+				"noble" => PouchPiece(slotKey, "alms_purse", "purse", "a fine alms purse",
+					"This fine purse is soft, decorative, and made to hang visibly from a formal girdle.",
+					"silk", MaterialBehaviourType.Fabric, status, "Market / Clothing / Luxury Clothing", 140.0, 70.0m, containerComponent: "Container_Purse"),
+				"clergy" => PouchPiece(slotKey, "book_pouch", "pouch", "a plain book pouch",
+					"This plain pouch is sized for a small book, prayer slip, seal cord, or writing scraps.",
+					"linen", MaterialBehaviourType.Fabric, status, "Market / Clothing / Standard Clothing", 180.0, 18.0m),
+				_ => PouchPiece(slotKey, "field_pouch", "pouch", "a military field pouch",
+					"This field pouch is sturdy enough for cord, whetstone, wax, food, or small campaign tools.",
+					"leather", MaterialBehaviourType.Leather, status, "Market / Clothing / Standard Clothing", 300.0, 26.0m)
+			},
+			_ => throw new ApplicationException($"Unknown medieval wardrobe slot {slotKey}.")
+		};
+	}
+
+	private static MedievalWardrobePiece FabricPiece(string slotKey, string token, string noun, string shortDescription,
+		string fullDescription, string material, MedievalStatusRoleProfile status, string marketTag, string functionTag,
+		string wearComponent, string insulationComponent, double weightInGrams, decimal cost,
+		string armourComponent = "Armour_LightClothing", string[]? extraComponents = null)
+	{
+		return new MedievalWardrobePiece(slotKey, token, noun, shortDescription, fullDescription, material,
+			MaterialBehaviourType.Fabric, SizeCategory.Normal, status.Quality, weightInGrams, cost, marketTag,
+			functionTag, wearComponent, armourComponent, insulationComponent, extraComponents ?? []);
+	}
+
+	private static MedievalWardrobePiece LeatherPiece(string slotKey, string token, string noun, string shortDescription,
+		string fullDescription, MedievalStatusRoleProfile status, string marketTag, string functionTag,
+		string wearComponent, string insulationComponent, double weightInGrams, decimal cost,
+		string armourComponent = "Armour_LightClothing", string[]? extraComponents = null)
+	{
+		return new MedievalWardrobePiece(slotKey, token, noun, shortDescription, fullDescription, "leather",
+			MaterialBehaviourType.Leather, SizeCategory.Normal, status.Quality, weightInGrams, cost, marketTag,
+			functionTag, wearComponent, armourComponent, insulationComponent, extraComponents ?? []);
+	}
+
+	private static MedievalWardrobePiece BeltPiece(string slotKey, string token, string noun, string shortDescription,
+		string fullDescription, string material, MaterialBehaviourType materialType, MedievalStatusRoleProfile status,
+		string marketTag, double weightInGrams, decimal cost, string beltComponent,
+		string armourComponent = "Armour_LightClothing")
+	{
+		return new MedievalWardrobePiece(slotKey, token, noun, shortDescription, fullDescription, material,
+			materialType, SizeCategory.Small, status.Quality, weightInGrams, cost, marketTag,
+			"Functions / Worn Items / Belts", "Wear_Waist", armourComponent, "Insulation_Minor", [beltComponent]);
+	}
+
+	private static MedievalWardrobePiece PouchPiece(string slotKey, string token, string noun, string shortDescription,
+		string fullDescription, string material, MaterialBehaviourType materialType, MedievalStatusRoleProfile status,
+		string marketTag, double weightInGrams, decimal cost, string containerComponent = "Container_Pouch")
+	{
+		return new MedievalWardrobePiece(slotKey, token, noun, shortDescription, fullDescription, material,
+			materialType, SizeCategory.Small, status.Quality, weightInGrams, cost, marketTag,
+			"Functions / Worn Items / Pouches", "Wear_Waist", "Armour_LightClothing", "Insulation_Minor",
+			[containerComponent, "Beltable"]);
+	}
+
+	private static IReadOnlyList<EraItemSpec> MedievalEquipmentItemSpecs()
+	{
+		var specs = new List<EraItemSpec>();
 		foreach (var culture in MedievalCultureProfiles)
 		{
-			specs.Add(new MedievalItemSpec(
+			specs.Add(new EraItemSpec(
 				$"medieval_military_{culture.Key}_armour",
 				"armour",
 				culture.ArmourDescription,
@@ -947,7 +1290,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				[MedievalRootTagPath, $"{MedievalCultureTagRoot} / {SafeMedievalTagName(culture.Display)}", "Market / Military Goods / Armour"],
 				["Holdable", culture.ArmourDescription.Contains("lamellar", StringComparison.OrdinalIgnoreCase) ? "Armour_Lamellar" : "Armour_Chainmail", "Wear_Hauberk", "Destroyable_Armour"],
 				$"Medieval culture slice: {culture.Display}. Military-status armour variant."));
-			specs.Add(new MedievalItemSpec(
+			specs.Add(new EraItemSpec(
 				$"medieval_weapon_{culture.Key}_{StableReferenceToken(culture.WeaponNoun)}",
 				culture.WeaponNoun,
 				culture.WeaponShortDescription,
@@ -961,7 +1304,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				[MedievalRootTagPath, $"{MedievalCultureTagRoot} / {SafeMedievalTagName(culture.Display)}", "Market / Military Goods / Weapons"],
 				["Holdable", culture.WeaponComponent, "Destroyable_Weapon"],
 				$"Medieval culture slice: {culture.Display}. Military role weapon."));
-			specs.Add(new MedievalItemSpec(
+			specs.Add(new EraItemSpec(
 				$"medieval_shield_{culture.Key}",
 				"shield",
 				culture.ShieldShortDescription,
@@ -980,7 +1323,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 
 		specs.AddRange(
 		[
-			new MedievalItemSpec(
+			new EraItemSpec(
 				"medieval_weapon_common_crossbow",
 				"crossbow",
 				"a reinforced medieval crossbow",
@@ -994,7 +1337,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				[MedievalRootTagPath, "Market / Military Goods / Weapons / Crossbows"],
 				["Holdable", "Crossbow", "Melee_Improvised Bludgeon", "Destroyable_Weapon"],
 				"Medieval common weapon stock. Crossbow production uses tiller, prod, nut/lockwork, and bowstring subassemblies."),
-			new MedievalItemSpec(
+			new EraItemSpec(
 				"medieval_weapon_common_crossbow_bolts",
 				"bolt",
 				"a crossbow bolt",
@@ -1013,7 +1356,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 		return specs;
 	}
 
-	private static IReadOnlyList<MedievalItemSpec> MedievalEquipmentAccessoryItemSpecs(MedievalCultureProfile culture)
+	private static IReadOnlyList<EraItemSpec> MedievalEquipmentAccessoryItemSpecs(MedievalCultureProfile culture)
 	{
 		var cultureTags = new[]
 		{
@@ -1110,7 +1453,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 		];
 	}
 
-	private static IReadOnlyList<MedievalItemSpec> MedievalHouseholdToolItemSpecs()
+	private static IReadOnlyList<EraItemSpec> MedievalHouseholdToolItemSpecs()
 	{
 		return
 		[
@@ -1241,7 +1584,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 		];
 	}
 
-	private static IReadOnlyList<MedievalItemSpec> MedievalFoodAndBeverageItemSpecs()
+	private static IReadOnlyList<EraItemSpec> MedievalFoodAndBeverageItemSpecs()
 	{
 		return MedievalCultureProfiles
 			.SelectMany(MedievalFoodwayItemSpecs)
@@ -1304,7 +1647,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 			]).ToArray();
 	}
 
-	private static IReadOnlyList<MedievalItemSpec> MedievalFoodwayItemSpecs(MedievalCultureProfile culture)
+	private static IReadOnlyList<EraItemSpec> MedievalFoodwayItemSpecs(MedievalCultureProfile culture)
 	{
 		var cultureTag = $"{MedievalCultureTagRoot} / {SafeMedievalTagName(culture.Display)}";
 		return
@@ -1410,7 +1753,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 		];
 	}
 
-	private static IReadOnlyList<MedievalItemSpec> MedievalFurnitureContainerItemSpecs()
+	private static IReadOnlyList<EraItemSpec> MedievalFurnitureContainerItemSpecs()
 	{
 		return
 		[
@@ -1527,10 +1870,10 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 		];
 	}
 
-	private static IReadOnlyList<MedievalItemSpec> MedievalJewelleryDevotionalItemSpecs()
+	private static IReadOnlyList<EraItemSpec> MedievalJewelleryDevotionalItemSpecs()
 	{
 		return MedievalCultureProfiles
-			.Select(culture => new MedievalItemSpec(
+			.Select(culture => new EraItemSpec(
 				$"medieval_devotional_{culture.Key}_pilgrim_token",
 				"token",
 				"a regional devotional token",
@@ -1602,7 +1945,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 		]).ToArray();
 	}
 
-	private static IReadOnlyList<MedievalItemSpec> MedievalMedicalApothecaryItemSpecs()
+	private static IReadOnlyList<EraItemSpec> MedievalMedicalApothecaryItemSpecs()
 	{
 		return
 		[
@@ -1674,7 +2017,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 		];
 	}
 
-	private static IReadOnlyList<MedievalItemSpec> MedievalWritingAdministrationItemSpecs()
+	private static IReadOnlyList<EraItemSpec> MedievalWritingAdministrationItemSpecs()
 	{
 		return MedievalCultureProfiles
 			.SelectMany(MedievalCultureAdministrationItemSpecs)
@@ -1807,7 +2150,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 			]).ToArray();
 	}
 
-	private static IReadOnlyList<MedievalItemSpec> MedievalCultureAdministrationItemSpecs(MedievalCultureProfile culture)
+	private static IReadOnlyList<EraItemSpec> MedievalCultureAdministrationItemSpecs(MedievalCultureProfile culture)
 	{
 		var cultureTag = $"{MedievalCultureTagRoot} / {SafeMedievalTagName(culture.Display)}";
 		return
@@ -1871,7 +2214,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 		];
 	}
 
-	private static IReadOnlyList<MedievalItemSpec> MedievalComponentGapPropItemSpecs()
+	private static IReadOnlyList<EraItemSpec> MedievalComponentGapPropItemSpecs()
 	{
 		return
 		[
@@ -1890,7 +2233,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 		];
 	}
 
-	private static IReadOnlyList<MedievalItemSpec> MedievalRepairKitItemSpecs()
+	private static IReadOnlyList<EraItemSpec> MedievalRepairKitItemSpecs()
 	{
 		return
 		[
@@ -2376,7 +2719,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 		return $"{article} {itemName}";
 	}
 
-	private static MedievalOutfitPieceSpec[] BuildMedievalExplicitOutfitPieces()
+	private static EraOutfitPieceSpec[] BuildMedievalExplicitOutfitPieces()
 	{
 		return MedievalExplicitOutfitPieceSource
 			.Split(["\r\n", "\n"], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
@@ -2403,7 +2746,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 					{
 						var stableReference =
 							$"medieval_outfit_piece_{cultureKey}_{sexGenderPresentation}_{socialClassRole}_{StableReferenceToken(assignment.PieceName)}";
-						return new MedievalOutfitPieceSpec(
+						return new EraOutfitPieceSpec(
 							outfitReference,
 							cultureKey,
 							sexGenderPresentation,
@@ -2465,33 +2808,33 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 			{
 				return
 				[
-					(MedievalOutfitSlotUnderlayer, pieces[0]),
-					(MedievalOutfitSlotLowerBody, pieces[1]),
-					(MedievalOutfitSlotLegOrSockLayer, pieces[1]),
-					(MedievalOutfitSlotFootwear, pieces[2]),
-					(MedievalOutfitSlotBodywear, pieces[3]),
-					(MedievalOutfitSlotOuterwear, pieces[4]),
-					(MedievalOutfitSlotHeadwear, pieces[5]),
-					(MedievalOutfitSlotBeltOrSash, pieces[6]),
-					(MedievalOutfitSlotWornContainer, pieces[7]),
-					(MedievalOutfitSlotFastenerOrJewellery, pieces[8]),
-					(MedievalOutfitSlotRoleItem, pieces[9])
+					(EraOutfitSlotSpecUnderlayer, pieces[0]),
+					(EraOutfitSlotSpecLowerBody, pieces[1]),
+					(EraOutfitSlotSpecLegOrSockLayer, pieces[1]),
+					(EraOutfitSlotSpecFootwear, pieces[2]),
+					(EraOutfitSlotSpecBodywear, pieces[3]),
+					(EraOutfitSlotSpecOuterwear, pieces[4]),
+					(EraOutfitSlotSpecHeadwear, pieces[5]),
+					(EraOutfitSlotSpecBeltOrSash, pieces[6]),
+					(EraOutfitSlotSpecWornContainer, pieces[7]),
+					(EraOutfitSlotSpecFastenerOrJewellery, pieces[8]),
+					(EraOutfitSlotSpecRoleItem, pieces[9])
 				];
 			}
 
 			return AssignMedievalOutfitPieces(
 				pieces,
 				[
-					MedievalOutfitSlotUnderlayer,
-					MedievalOutfitSlotLowerBody,
-					MedievalOutfitSlotLegOrSockLayer,
-					MedievalOutfitSlotFootwear,
-					MedievalOutfitSlotBodywear,
-					MedievalOutfitSlotOuterwear,
-					MedievalOutfitSlotHeadwear,
-					MedievalOutfitSlotBeltOrSash,
-					MedievalOutfitSlotWornContainer,
-					MedievalOutfitSlotFastenerOrJewellery
+					EraOutfitSlotSpecUnderlayer,
+					EraOutfitSlotSpecLowerBody,
+					EraOutfitSlotSpecLegOrSockLayer,
+					EraOutfitSlotSpecFootwear,
+					EraOutfitSlotSpecBodywear,
+					EraOutfitSlotSpecOuterwear,
+					EraOutfitSlotSpecHeadwear,
+					EraOutfitSlotSpecBeltOrSash,
+					EraOutfitSlotSpecWornContainer,
+					EraOutfitSlotSpecFastenerOrJewellery
 				]);
 		}
 
@@ -2500,17 +2843,17 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 			return AssignMedievalOutfitPieces(
 				pieces,
 				[
-					MedievalOutfitSlotUnderlayer,
-					MedievalOutfitSlotLowerBody,
-					MedievalOutfitSlotLegOrSockLayer,
-					MedievalOutfitSlotFootwear,
-					MedievalOutfitSlotBodywear,
-					MedievalOutfitSlotOuterwear,
-					MedievalOutfitSlotHeadwear,
-					MedievalOutfitSlotBeltOrSash,
-					MedievalOutfitSlotWornContainer,
-					MedievalOutfitSlotFastenerOrJewellery,
-					MedievalOutfitSlotRoleItem
+					EraOutfitSlotSpecUnderlayer,
+					EraOutfitSlotSpecLowerBody,
+					EraOutfitSlotSpecLegOrSockLayer,
+					EraOutfitSlotSpecFootwear,
+					EraOutfitSlotSpecBodywear,
+					EraOutfitSlotSpecOuterwear,
+					EraOutfitSlotSpecHeadwear,
+					EraOutfitSlotSpecBeltOrSash,
+					EraOutfitSlotSpecWornContainer,
+					EraOutfitSlotSpecFastenerOrJewellery,
+					EraOutfitSlotSpecRoleItem
 				]);
 		}
 
@@ -2518,17 +2861,17 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 		{
 			return
 			[
-				(MedievalOutfitSlotUnderlayer, pieces[0]),
-				(MedievalOutfitSlotLowerBody, pieces[1]),
-				(MedievalOutfitSlotLegOrSockLayer, pieces[1]),
-				(MedievalOutfitSlotFootwear, pieces[2]),
-				(MedievalOutfitSlotBodywear, pieces[3]),
-				(MedievalOutfitSlotOuterwear, pieces[4]),
-				(MedievalOutfitSlotHeadwear, pieces[5]),
-				(MedievalOutfitSlotBeltOrSash, pieces[6]),
-				(MedievalOutfitSlotWornContainer, pieces[7]),
-				(MedievalOutfitSlotFastenerOrJewellery, pieces[8]),
-				(MedievalOutfitSlotRoleItem, pieces[8])
+				(EraOutfitSlotSpecUnderlayer, pieces[0]),
+				(EraOutfitSlotSpecLowerBody, pieces[1]),
+				(EraOutfitSlotSpecLegOrSockLayer, pieces[1]),
+				(EraOutfitSlotSpecFootwear, pieces[2]),
+				(EraOutfitSlotSpecBodywear, pieces[3]),
+				(EraOutfitSlotSpecOuterwear, pieces[4]),
+				(EraOutfitSlotSpecHeadwear, pieces[5]),
+				(EraOutfitSlotSpecBeltOrSash, pieces[6]),
+				(EraOutfitSlotSpecWornContainer, pieces[7]),
+				(EraOutfitSlotSpecFastenerOrJewellery, pieces[8]),
+				(EraOutfitSlotSpecRoleItem, pieces[8])
 			];
 		}
 
@@ -2541,33 +2884,33 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 		{
 			return
 			[
-				(MedievalOutfitSlotUnderlayer, pieces[0]),
-				(MedievalOutfitSlotLowerBody, pieces[1]),
-				(MedievalOutfitSlotLegOrSockLayer, pieces[1]),
-				(MedievalOutfitSlotFootwear, pieces[2]),
-				(MedievalOutfitSlotBodywear, pieces[3]),
-				(MedievalOutfitSlotOuterwear, pieces[4]),
-				(MedievalOutfitSlotHeadwear, pieces[5]),
-				(MedievalOutfitSlotBeltOrSash, pieces[6]),
-				(MedievalOutfitSlotWornContainer, pieces[7]),
-				(MedievalOutfitSlotFastenerOrJewellery, pieces[8]),
-				(MedievalOutfitSlotRoleItem, pieces[9])
+				(EraOutfitSlotSpecUnderlayer, pieces[0]),
+				(EraOutfitSlotSpecLowerBody, pieces[1]),
+				(EraOutfitSlotSpecLegOrSockLayer, pieces[1]),
+				(EraOutfitSlotSpecFootwear, pieces[2]),
+				(EraOutfitSlotSpecBodywear, pieces[3]),
+				(EraOutfitSlotSpecOuterwear, pieces[4]),
+				(EraOutfitSlotSpecHeadwear, pieces[5]),
+				(EraOutfitSlotSpecBeltOrSash, pieces[6]),
+				(EraOutfitSlotSpecWornContainer, pieces[7]),
+				(EraOutfitSlotSpecFastenerOrJewellery, pieces[8]),
+				(EraOutfitSlotSpecRoleItem, pieces[9])
 			];
 		}
 
 		return
 		[
-			(MedievalOutfitSlotUnderlayer, pieces[0]),
-			(MedievalOutfitSlotLowerBody, pieces[1]),
-			(MedievalOutfitSlotLegOrSockLayer, pieces[2]),
-			(MedievalOutfitSlotFootwear, pieces[3]),
-			(MedievalOutfitSlotBodywear, pieces[4]),
-			(MedievalOutfitSlotOuterwear, pieces[5]),
-			(MedievalOutfitSlotHeadwear, pieces[6]),
-			(MedievalOutfitSlotBeltOrSash, pieces[7]),
-			(MedievalOutfitSlotWornContainer, pieces[8]),
-			(MedievalOutfitSlotFastenerOrJewellery, pieces[9]),
-			(MedievalOutfitSlotRoleItem, pieces[9])
+			(EraOutfitSlotSpecUnderlayer, pieces[0]),
+			(EraOutfitSlotSpecLowerBody, pieces[1]),
+			(EraOutfitSlotSpecLegOrSockLayer, pieces[2]),
+			(EraOutfitSlotSpecFootwear, pieces[3]),
+			(EraOutfitSlotSpecBodywear, pieces[4]),
+			(EraOutfitSlotSpecOuterwear, pieces[5]),
+			(EraOutfitSlotSpecHeadwear, pieces[6]),
+			(EraOutfitSlotSpecBeltOrSash, pieces[7]),
+			(EraOutfitSlotSpecWornContainer, pieces[8]),
+			(EraOutfitSlotSpecFastenerOrJewellery, pieces[9]),
+			(EraOutfitSlotSpecRoleItem, pieces[9])
 		];
 	}
 
@@ -2581,8 +2924,8 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 
 	private static bool MedievalOutfitRoleItemRequiredForRole(string socialClassRole)
 	{
-		return MedievalOutfitSlots
-			.Single(x => x.Key.Equals(MedievalOutfitSlotRoleItem, StringComparison.OrdinalIgnoreCase))
+		return EraOutfitSlotSpecs
+			.Single(x => x.Key.Equals(EraOutfitSlotSpecRoleItem, StringComparison.OrdinalIgnoreCase))
 			.RequiredForRoles
 			.Contains(socialClassRole, StringComparer.OrdinalIgnoreCase);
 	}
@@ -2597,42 +2940,44 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 	}
 
 	private static IReadOnlyDictionary<string, MedievalAuthoredOutfitPieceSpec> BuildMedievalAuthoredOutfitPieceDictionary(
-		IReadOnlyList<MedievalAuthoredOutfitPieceSpec> rows)
+		IEnumerable<MedievalAuthoredOutfitPieceSpec> rows)
 	{
-		var duplicates = rows
+		var authored = rows.ToArray();
+		var duplicates = authored
 			.GroupBy(x => x.StableReference, StringComparer.OrdinalIgnoreCase)
 			.Where(x => x.Count() > 1)
 			.Select(x => x.Key)
 			.ToArray();
 		if (duplicates.Length > 0)
 		{
-			throw new ApplicationException($"Duplicate authored medieval outfit-piece rows: {string.Join(", ", duplicates)}");
+			throw new ApplicationException(
+				$"Duplicate authored medieval outfit-piece rows: {string.Join(", ", duplicates)}");
 		}
 
-		var authored = rows.ToDictionary(x => x.StableReference, StringComparer.OrdinalIgnoreCase);
-		var explicitStableReferences = MedievalExplicitOutfitPieces
+		var authoredByReference = authored.ToDictionary(x => x.StableReference, StringComparer.OrdinalIgnoreCase);
+		var explicitReferences = MedievalExplicitOutfitPieces
 			.Select(x => x.StableReference)
 			.Distinct(StringComparer.OrdinalIgnoreCase)
-			.ToHashSet(StringComparer.OrdinalIgnoreCase);
-		var missing = explicitStableReferences
-			.Where(x => !authored.ContainsKey(x))
-			.OrderBy(x => x, StringComparer.OrdinalIgnoreCase)
+			.ToArray();
+		var missing = explicitReferences
+			.Where(x => !authoredByReference.ContainsKey(x))
 			.ToArray();
 		if (missing.Length > 0)
 		{
-			throw new ApplicationException($"Missing authored medieval outfit-piece rows: {string.Join(", ", missing)}");
+			throw new ApplicationException(
+				$"Missing authored medieval outfit-piece rows: {string.Join(", ", missing)}");
 		}
 
-		var stale = authored.Keys
-			.Where(x => !explicitStableReferences.Contains(x))
-			.OrderBy(x => x, StringComparer.OrdinalIgnoreCase)
+		var stale = authoredByReference.Keys
+			.Where(x => !explicitReferences.Contains(x, StringComparer.OrdinalIgnoreCase))
 			.ToArray();
 		if (stale.Length > 0)
 		{
-			throw new ApplicationException($"Authored medieval outfit-piece rows no longer used by the outfit catalogue: {string.Join(", ", stale)}");
+			throw new ApplicationException(
+				$"Authored medieval outfit-piece rows no longer in the explicit outfit catalogue: {string.Join(", ", stale)}");
 		}
 
-		return authored;
+		return authoredByReference;
 	}
 
 	private static MedievalAuthoredOutfitPieceSpec AuthoredOutfitPiece(
@@ -2666,18 +3011,20 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 			.ToArray();
 		if (explicitPieces.Length == 0)
 		{
-			throw new ApplicationException($"Authored medieval outfit-piece row {stableReference} does not match any explicit outfit-piece stable reference.");
+			throw new ApplicationException(
+				$"Authored medieval outfit-piece row {stableReference} does not match any explicit outfit-piece stable reference.");
 		}
 
-		var first = explicitPieces[0];
-		if (!first.OutfitReference.Equals(outfitReference, StringComparison.OrdinalIgnoreCase) ||
-		    !first.CultureKey.Equals(cultureKey, StringComparison.OrdinalIgnoreCase) ||
-		    !first.SexGenderPresentation.Equals(sexGenderPresentation, StringComparison.OrdinalIgnoreCase) ||
-		    !first.SocialClassRole.Equals(socialClassRole, StringComparison.OrdinalIgnoreCase) ||
-		    !first.PieceName.Equals(pieceName, StringComparison.OrdinalIgnoreCase) ||
-		    !explicitPieces.Any(x => x.SlotKey.Equals(slotKey, StringComparison.OrdinalIgnoreCase)))
+		if (!explicitPieces.Any(piece =>
+			    piece.OutfitReference.Equals(outfitReference, StringComparison.OrdinalIgnoreCase) &&
+			    piece.CultureKey.Equals(cultureKey, StringComparison.OrdinalIgnoreCase) &&
+			    piece.SexGenderPresentation.Equals(sexGenderPresentation, StringComparison.OrdinalIgnoreCase) &&
+			    piece.SocialClassRole.Equals(socialClassRole, StringComparison.OrdinalIgnoreCase) &&
+			    piece.SlotKey.Equals(slotKey, StringComparison.OrdinalIgnoreCase) &&
+			    piece.PieceName.Equals(pieceName, StringComparison.OrdinalIgnoreCase)))
 		{
-			throw new ApplicationException($"Authored medieval outfit-piece row {stableReference} does not match the explicit outfit-piece catalogue metadata.");
+			throw new ApplicationException(
+				$"Authored medieval outfit-piece row {stableReference} does not match the explicit outfit-piece catalogue metadata.");
 		}
 
 		return new MedievalAuthoredOutfitPieceSpec(
@@ -2713,7 +3060,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 		return CommodityInput(grams, material, pileTag, colour, fineColour);
 	}
 
-	private static string[] BuildMedievalAuthoredOutfitPieceComponents(
+	private static string[] BuildMedievalAuthoredOutfitPieceSpecComponents(
 		MedievalAuthoredOutfitPieceSpec authoredSpec)
 	{
 		var components = authoredSpec.Components.ToList();
@@ -2738,12 +3085,12 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 			.ToArray();
 	}
 
-	private static string BuildMedievalAuthoredOutfitPieceBuilderNotes(
+	private static string BuildMedievalAuthoredOutfitPieceSpecBuilderNotes(
 		MedievalAuthoredOutfitPieceSpec authoredSpec)
 	{
 		var lines = new List<string>
 		{
-			"Authored explicit medieval outfit piece.",
+			"Explicit medieval outfit piece authored catalogue entry.",
 			$"Outfit reference: {authoredSpec.OutfitReference}.",
 			$"Culture key: {authoredSpec.CultureKey}.",
 			$"Sex/gender presentation: {authoredSpec.SexGenderPresentation}.",
@@ -2765,23 +3112,57 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 		return string.Join("\n", lines);
 	}
 
-	private static IReadOnlyList<MedievalItemSpec> MedievalExplicitOutfitPieceItemSpecs()
+	private static IReadOnlyList<EraClothingPieceSpec> MedievalExplicitOutfitClothingPieces()
 	{
 		return MedievalExplicitOutfitPieces
 			.GroupBy(x => x.StableReference, StringComparer.OrdinalIgnoreCase)
-			.Select(group => BuildMedievalExplicitOutfitPieceItemSpec(group.First(), group.Select(x => x.SlotKey).ToArray()))
+			.Select(group => BuildMedievalExplicitOutfitClothingPieceSpec(
+				group.First(),
+				group.Select(x => x.SlotKey).Distinct(StringComparer.OrdinalIgnoreCase).ToArray(),
+				group.Select(x => x.OutfitReference).Distinct(StringComparer.OrdinalIgnoreCase).ToArray()))
 			.ToArray();
 	}
 
-	private static MedievalItemSpec BuildMedievalExplicitOutfitPieceItemSpec(MedievalOutfitPieceSpec piece,
+	private static IReadOnlyList<EraItemSpec> MedievalExplicitOutfitPieceItemSpecs()
+	{
+		return MedievalExplicitOutfitClothingPieces()
+			.Select(x => x.Item)
+			.ToArray();
+	}
+
+	private static EraClothingPieceSpec BuildMedievalExplicitOutfitClothingPieceSpec(
+		EraOutfitPieceSpec piece,
+		IReadOnlyCollection<string> slotKeys,
+		IReadOnlyCollection<string> outfitReferences)
+	{
+		var item = BuildMedievalExplicitOutfitPieceItemSpec(piece, slotKeys);
+		var variableColourComponent = MedievalExplicitOutfitPieceVariableColourComponent(item);
+		return new EraClothingPieceSpec(
+			item,
+			piece.OutfitReference,
+			piece.CultureKey,
+			piece.SexGenderPresentation,
+			piece.SocialClassRole,
+			piece.PieceName,
+			piece.CultureSpecificOrClusterSpecific,
+			slotKeys,
+			outfitReferences,
+			variableColourComponent,
+			MedievalExplicitOutfitPieceColourVariables(variableColourComponent),
+			BuildMedievalExplicitOutfitPieceCraftSpec(item),
+			!piece.CultureSpecificOrClusterSpecific);
+	}
+
+	private static EraItemSpec BuildMedievalExplicitOutfitPieceItemSpec(EraOutfitPieceSpec piece,
 		IReadOnlyCollection<string> slotKeys)
 	{
 		if (!MedievalAuthoredOutfitPieces.TryGetValue(piece.StableReference, out var authoredSpec))
 		{
-			throw new ApplicationException($"Cannot build explicit medieval outfit piece {piece.StableReference} without an authored row.");
+			throw new ApplicationException(
+				$"Explicit medieval outfit piece {piece.StableReference} has no authored item row.");
 		}
 
-		return new MedievalItemSpec(
+		return new EraItemSpec(
 			piece.StableReference,
 			authoredSpec.Noun,
 			authoredSpec.ShortDescription,
@@ -2793,11 +3174,607 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 			authoredSpec.Material,
 			authoredSpec.MaterialType,
 			authoredSpec.Tags,
-			BuildMedievalAuthoredOutfitPieceComponents(authoredSpec),
-			BuildMedievalAuthoredOutfitPieceBuilderNotes(authoredSpec));
+			BuildMedievalAuthoredOutfitPieceSpecComponents(authoredSpec),
+			BuildMedievalAuthoredOutfitPieceSpecBuilderNotes(authoredSpec));
 	}
 
-	private static MedievalOutfitSpec[] BuildMedievalOutfits()
+	private static string? MedievalExplicitOutfitPieceVariableColourComponent(string pieceName, string material,
+		MaterialBehaviourType materialType)
+	{
+		if (material.Equals("paper", StringComparison.OrdinalIgnoreCase) ||
+		    materialType is MaterialBehaviourType.Metal or MaterialBehaviourType.Wood or MaterialBehaviourType.Wax or MaterialBehaviourType.Ceramic)
+		{
+			return null;
+		}
+
+		if (MedievalExplicitOutfitPieceUsesTwoColours(pieceName))
+		{
+			return materialType is MaterialBehaviourType.Leather or MaterialBehaviourType.Hair
+				? "Variable_2DrabColour"
+				: "Variable_2FineColour";
+		}
+
+		return materialType is MaterialBehaviourType.Leather or MaterialBehaviourType.Hair ||
+		       material.Equals("felt", StringComparison.OrdinalIgnoreCase) ||
+		       material.Equals("hemp", StringComparison.OrdinalIgnoreCase)
+			? "Variable_DrabColour"
+			: "Variable_FineColour";
+	}
+
+	private static bool MedievalExplicitOutfitPieceUsesTwoColours(string pieceName)
+	{
+		return ContainsAny(pieceName,
+			"tablet",
+			"band",
+			"border",
+			"embroider",
+			"tiraz",
+			"panel",
+			"cuff",
+			"hem",
+			"trim",
+			"braid",
+			"brocade",
+			"decorated",
+			"fur-edged",
+			"fur-lined",
+			"formal",
+			"official",
+			"rich",
+			"court",
+			"lined");
+	}
+
+	private static string[] MedievalExplicitOutfitPieceColourVariables(string? variableColourComponent)
+	{
+		return variableColourComponent switch
+		{
+			null => [],
+			_ when variableColourComponent.Contains("_2", StringComparison.OrdinalIgnoreCase) => ["$colour1", "$colour2"],
+			_ => ["$colour"]
+		};
+	}
+
+	private static string BuildMedievalExplicitOutfitPieceShortDescription(string pieceName,
+		string? variableColourComponent)
+	{
+		var colourPrefix = variableColourComponent switch
+		{
+			null => string.Empty,
+			_ when variableColourComponent.Contains("_2", StringComparison.OrdinalIgnoreCase) => "$colour1 ",
+			_ => "$colour "
+		};
+		var namedPiece = $"{colourPrefix}{pieceName}";
+		if (IsPluralMedievalOutfitPiece(pieceName))
+		{
+			return namedPiece;
+		}
+
+		var article = "aeiou".Contains(char.ToLowerInvariant(pieceName[0])) ? "an" : "a";
+		return $"{article} {namedPiece}";
+	}
+
+		private static string MedievalOutfitCultureAdjective(string cultureKey)
+	{
+		return cultureKey switch
+		{
+			"early_anglo_saxon" => "Early Anglo-Saxon",
+			"anglo_danish" => "Anglo-Danish",
+			"norse" => "Norse",
+			"norman" => "Norman",
+			"high_british" => "High British",
+			"gaelic" => "Gaelic",
+			"carolingian" => "Carolingian",
+			"capetian" => "Capetian",
+			"german_hre" => "German-HRE",
+			"iberian_christian" => "Iberian Christian",
+			"andalusi" => "Andalusi",
+			"byzantine" => "Byzantine",
+			"abbasid" => "Abbasid",
+			"fatimid" => "Fatimid",
+			"seljuk_ayyubid" => "Seljuk-Ayyubid",
+			"rus_novgorod" => "Rus-Novgorod",
+			"steppe_turkic" => "Steppe Turkic",
+			"song_china" => "Song Chinese",
+			_ => MedievalCultureProfiles.Single(x => x.Key.Equals(cultureKey, StringComparison.OrdinalIgnoreCase)).Display
+		};
+	}
+
+	private static bool IsPluralMedievalOutfitPiece(string pieceName)
+	{
+		var lower = pieceName.ToLowerInvariant();
+		return lower.EndsWith("braies", StringComparison.Ordinal) ||
+		       lower.EndsWith("trews", StringComparison.Ordinal) ||
+		       lower.EndsWith("trousers", StringComparison.Ordinal) ||
+		       lower.EndsWith("wraps", StringComparison.Ordinal) ||
+		       lower.EndsWith("footwraps", StringComparison.Ordinal) ||
+		       lower.EndsWith("shoes", StringComparison.Ordinal) ||
+		       lower.EndsWith("slippers", StringComparison.Ordinal) ||
+		       lower.EndsWith("boots", StringComparison.Ordinal) ||
+		       lower.EndsWith("sandals", StringComparison.Ordinal) ||
+		       lower.EndsWith("socks", StringComparison.Ordinal) ||
+		       lower.EndsWith("hose", StringComparison.Ordinal) ||
+		       lower.EndsWith("chausses", StringComparison.Ordinal) ||
+		       lower.EndsWith("sirwal", StringComparison.Ordinal) ||
+		       lower.EndsWith("onuchi", StringComparison.Ordinal) ||
+		       lower.EndsWith("bracers", StringComparison.Ordinal) ||
+		       lower.EndsWith("gloves", StringComparison.Ordinal) ||
+		       lower.EndsWith("mitts", StringComparison.Ordinal) ||
+		       lower.EndsWith("ties", StringComparison.Ordinal) ||
+		       lower.EndsWith("beads", StringComparison.Ordinal);
+	}
+
+	private static string MedievalExplicitOutfitPieceNoun(string pieceName)
+	{
+		var lower = pieceName.ToLowerInvariant();
+		foreach (var noun in new[]
+		         {
+			         "hangerok apron dress", "oval brooch pair", "cloak brooch", "ring pin", "head veil",
+			         "head rail", "headcloth", "field pouch", "tool pouch", "document pouch", "book pouch",
+			         "belt pouch", "purse belt", "seax belt", "arming belt", "weapon belt", "spear carrier belt",
+			         "scabbard harness", "archer bracer", "leather bracers", "tablet", "prayer book",
+			         "prayer slip", "cross pendant", "wooden cross", "guild badge", "trade tag", "tally cord",
+			         "seal cord", "cloak clasp", "brooch", "pin", "girdle", "belt", "pouch", "purse",
+			         "shirt", "shift", "tunic", "gown", "robe", "habit", "cloak", "mantle", "brat",
+			         "cap", "coif", "hood", "veil", "shoes", "boots", "sandals", "hose", "chausses",
+			         "trews", "braies", "wraps", "skirt", "gloves", "mitts"
+		         })
+		{
+			if (lower.Contains(noun, StringComparison.Ordinal))
+			{
+				return noun.Split(' ').Last();
+			}
+		}
+
+		return lower.Split(' ', StringSplitOptions.RemoveEmptyEntries).Last();
+	}
+
+	private static (string Material, MaterialBehaviourType MaterialType) MedievalExplicitOutfitPieceMaterial(
+		string pieceName, IReadOnlyCollection<string> slotKeys)
+	{
+		var lower = pieceName.ToLowerInvariant();
+		if (slotKeys.Contains(EraOutfitSlotSpecBeltOrSash, StringComparer.OrdinalIgnoreCase) &&
+		    lower.Contains("belt", StringComparison.Ordinal))
+		{
+			return ("leather", MaterialBehaviourType.Leather);
+		}
+
+		if (lower.Contains("silver", StringComparison.Ordinal))
+		{
+			return ("silver", MaterialBehaviourType.Metal);
+		}
+
+		if (lower.Contains("gold", StringComparison.Ordinal))
+		{
+			return ("gold", MaterialBehaviourType.Metal);
+		}
+
+		if (lower.Contains("bronze", StringComparison.Ordinal) ||
+		    lower.Contains("brooch", StringComparison.Ordinal) ||
+		    lower.Contains("pin", StringComparison.Ordinal) ||
+		    lower.Contains("clasp", StringComparison.Ordinal) ||
+		    lower.Contains("buckle", StringComparison.Ordinal) ||
+		    lower.Contains("badge", StringComparison.Ordinal) ||
+		    lower.Contains("spurs", StringComparison.Ordinal) ||
+		    lower.Contains("mount", StringComparison.Ordinal) ||
+		    lower.Contains("hook", StringComparison.Ordinal) ||
+		    lower.Contains("token", StringComparison.Ordinal) ||
+		    lower.Contains("mark", StringComparison.Ordinal))
+		{
+			return ("bronze", MaterialBehaviourType.Metal);
+		}
+
+		if (lower.Contains("iron", StringComparison.Ordinal))
+		{
+			return ("wrought iron", MaterialBehaviourType.Metal);
+		}
+
+		if (lower.Contains("wax", StringComparison.Ordinal))
+		{
+			return ("beeswax", MaterialBehaviourType.Wax);
+		}
+
+		if (lower.Contains("paper", StringComparison.Ordinal) ||
+		    lower.Contains("notebook", StringComparison.Ordinal) ||
+		    lower.Contains("slip", StringComparison.Ordinal) ||
+		    lower.Contains("leaf", StringComparison.Ordinal) ||
+		    lower.Contains("booklet", StringComparison.Ordinal) ||
+		    lower.Contains("book", StringComparison.Ordinal) &&
+		    !lower.Contains("pouch", StringComparison.Ordinal))
+		{
+			return ("paper", MaterialBehaviourType.Fabric);
+		}
+
+		if (lower.Contains("wooden", StringComparison.Ordinal) ||
+		    lower.Contains("tally", StringComparison.Ordinal) ||
+		    lower.Contains("tablet", StringComparison.Ordinal) &&
+		    !lower.Contains("tablet-banded", StringComparison.Ordinal) &&
+		    !lower.Contains("tablet-woven", StringComparison.Ordinal) ||
+		    lower.Contains("board", StringComparison.Ordinal))
+		{
+			return ("oak", MaterialBehaviourType.Wood);
+		}
+
+		if (lower.Contains("cloth shoe", StringComparison.Ordinal))
+		{
+			return ("cotton", MaterialBehaviourType.Fabric);
+		}
+
+		if (lower.Contains("cotton", StringComparison.Ordinal))
+		{
+			return ("cotton", MaterialBehaviourType.Fabric);
+		}
+
+		if (lower.Contains("felt", StringComparison.Ordinal))
+		{
+			return ("felt", MaterialBehaviourType.Fabric);
+		}
+
+		if (slotKeys.Contains(EraOutfitSlotSpecHeadwear, StringComparer.OrdinalIgnoreCase) &&
+		    (lower.Contains("fur cap", StringComparison.Ordinal) ||
+		     lower.Contains("fur hat", StringComparison.Ordinal)))
+		{
+			return ("fur", MaterialBehaviourType.Hair);
+		}
+
+		if (lower.Contains("leather", StringComparison.Ordinal) ||
+		    lower.Contains("deerskin", StringComparison.Ordinal) ||
+		    lower.Contains("shoe", StringComparison.Ordinal) ||
+		    lower.Contains("boot", StringComparison.Ordinal) ||
+		    lower.Contains("sandal", StringComparison.Ordinal) ||
+		    lower.Contains("slipper", StringComparison.Ordinal) ||
+		    lower.Contains("harness", StringComparison.Ordinal) ||
+		    lower.Contains("bracer", StringComparison.Ordinal))
+		{
+			return ("leather", MaterialBehaviourType.Leather);
+		}
+
+		if (lower.Contains("silk", StringComparison.Ordinal))
+		{
+			return ("silk", MaterialBehaviourType.Fabric);
+		}
+
+		if (lower.Contains("linen", StringComparison.Ordinal) ||
+		    lower.Contains("qamis", StringComparison.Ordinal) ||
+		    lower.Contains("rubakha", StringComparison.Ordinal) ||
+		    lower.Contains("shift", StringComparison.Ordinal) ||
+		    lower.Contains("under-robe", StringComparison.Ordinal) ||
+		    lower.Contains("cloth", StringComparison.Ordinal) ||
+		    lower.Contains("coif", StringComparison.Ordinal) ||
+		    lower.Contains("veil", StringComparison.Ordinal) ||
+		    lower.Contains("headcloth", StringComparison.Ordinal) ||
+		    lower.Contains("headwrap", StringComparison.Ordinal) ||
+		    lower.Contains("headscarf", StringComparison.Ordinal) ||
+		    lower.Contains("head rail", StringComparison.Ordinal))
+		{
+			return ("linen", MaterialBehaviourType.Fabric);
+		}
+
+		if (lower.Contains("rope", StringComparison.Ordinal) ||
+		    lower.Contains("cord", StringComparison.Ordinal))
+		{
+			return ("hemp", MaterialBehaviourType.Fabric);
+		}
+
+		if (lower.Contains("sash", StringComparison.Ordinal) ||
+		    lower.Contains("girdle", StringComparison.Ordinal))
+		{
+			return ("wool", MaterialBehaviourType.Fabric);
+		}
+
+		if (slotKeys.Contains(EraOutfitSlotSpecBeltOrSash, StringComparer.OrdinalIgnoreCase) ||
+		    slotKeys.Contains(EraOutfitSlotSpecWornContainer, StringComparer.OrdinalIgnoreCase))
+		{
+			return ("leather", MaterialBehaviourType.Leather);
+		}
+
+		return ("wool", MaterialBehaviourType.Fabric);
+	}
+
+	private static string[] MedievalExplicitOutfitPieceComponents(string pieceName,
+		IReadOnlyCollection<string> slotKeys, MaterialBehaviourType materialType, string? variableColourComponent)
+	{
+		var components = new List<string> { "Holdable" };
+		var lower = pieceName.ToLowerInvariant();
+		if (slotKeys.Contains(EraOutfitSlotSpecFootwear, StringComparer.OrdinalIgnoreCase))
+		{
+			components.Add(lower.Contains("boot", StringComparison.Ordinal) ? "Wear_Boots" :
+				lower.Contains("sandal", StringComparison.Ordinal) ? "Wear_Sandals" : "Wear_Shoes");
+			components.Add("Insulation_Minor");
+			components.Add("Armour_LightClothing");
+		}
+		else if (slotKeys.Contains(EraOutfitSlotSpecBeltOrSash, StringComparer.OrdinalIgnoreCase))
+		{
+			components.Add("Wear_Waist");
+			components.Add("Belt_4");
+			components.Add("Armour_LightClothing");
+		}
+		else if (slotKeys.Contains(EraOutfitSlotSpecWornContainer, StringComparer.OrdinalIgnoreCase))
+		{
+			components.Add("Wear_Waist");
+			components.Add(lower.Contains("purse", StringComparison.Ordinal) ? "Container_Purse" : "Container_Pouch");
+			components.Add("Beltable");
+			components.Add("Armour_LightClothing");
+		}
+		else if (slotKeys.Contains(EraOutfitSlotSpecFastenerOrJewellery, StringComparer.OrdinalIgnoreCase))
+		{
+			components.Add(lower.Contains("necklace", StringComparison.Ordinal) ||
+			               lower.Contains("bead", StringComparison.Ordinal) ||
+			               lower.Contains("cross", StringComparison.Ordinal) ||
+			               lower.Contains("pendant", StringComparison.Ordinal)
+				? "Wear_Necklace"
+				: "Wear_Shoulder");
+		}
+		else if (slotKeys.Contains(EraOutfitSlotSpecHeadwear, StringComparer.OrdinalIgnoreCase))
+		{
+			components.Add("Wear_Hat");
+			components.Add("Insulation_Minor");
+			components.Add("Armour_LightClothing");
+		}
+		else if (slotKeys.Contains(EraOutfitSlotSpecOuterwear, StringComparer.OrdinalIgnoreCase))
+		{
+			components.Add(lower.Contains("mantle", StringComparison.Ordinal) ||
+			               lower.Contains("brat", StringComparison.Ordinal) ||
+			               lower.Contains("surcoat", StringComparison.Ordinal)
+				? "Wear_Mantle"
+				: "Wear_Cloak_(Closed)");
+			components.Add("Insulation_Strong");
+			components.Add(lower.Contains("mail", StringComparison.Ordinal) || lower.Contains("war", StringComparison.Ordinal)
+				? "Armour_HeavyClothing"
+				: "Armour_LightClothing");
+		}
+		else if (slotKeys.Contains(EraOutfitSlotSpecBodywear, StringComparer.OrdinalIgnoreCase))
+		{
+			components.Add(lower.Contains("apron", StringComparison.Ordinal) ? "Wear_Apron" :
+				lower.Contains("robe", StringComparison.Ordinal) || lower.Contains("habit", StringComparison.Ordinal) ? "Wear_Robe" :
+				lower.Contains("gown", StringComparison.Ordinal) || lower.Contains("dress", StringComparison.Ordinal) ||
+				lower.Contains("bliaut", StringComparison.Ordinal) || lower.Contains("hangerok", StringComparison.Ordinal)
+					? "Wear_Gown"
+					: "Wear_Tunic");
+			components.Add(lower.Contains("padded", StringComparison.Ordinal) ||
+			               lower.Contains("arming", StringComparison.Ordinal) ||
+			               lower.Contains("gambeson", StringComparison.Ordinal)
+				? "Insulation_Moderate"
+				: "Insulation_Minor");
+			components.Add(lower.Contains("padded", StringComparison.Ordinal) ||
+			               lower.Contains("arming", StringComparison.Ordinal) ||
+			               lower.Contains("gambeson", StringComparison.Ordinal)
+				? "Armour_HeavyClothing"
+				: "Armour_LightClothing");
+		}
+		else if (slotKeys.Contains(EraOutfitSlotSpecLegOrSockLayer, StringComparer.OrdinalIgnoreCase))
+		{
+			components.Add(lower.Contains("footwrap", StringComparison.Ordinal) ||
+			               lower.Contains("sock", StringComparison.Ordinal) ||
+			               lower.Contains("leg wrap", StringComparison.Ordinal) ||
+			               lower.Contains("onuchi", StringComparison.Ordinal)
+				? "Wear_Socks"
+				: "Wear_Chausses");
+			components.Add("Insulation_Moderate");
+			components.Add("Armour_LightClothing");
+		}
+		else if (slotKeys.Contains(EraOutfitSlotSpecLowerBody, StringComparer.OrdinalIgnoreCase))
+		{
+			components.Add("Wear_Chausses");
+			components.Add("Insulation_Moderate");
+			components.Add("Armour_LightClothing");
+		}
+		else if (slotKeys.Contains(EraOutfitSlotSpecUnderlayer, StringComparer.OrdinalIgnoreCase))
+		{
+			components.Add("Wear_Long-Sleeved_Tunic");
+			components.Add("Insulation_Minor");
+			components.Add("Armour_LightClothing");
+		}
+
+		if (slotKeys.Contains(EraOutfitSlotSpecRoleItem, StringComparer.OrdinalIgnoreCase))
+		{
+			if (lower.Contains("bracer", StringComparison.Ordinal) ||
+			    lower.Contains("glove", StringComparison.Ordinal) ||
+			    lower.Contains("mitt", StringComparison.Ordinal) ||
+			    lower.Contains("sleeve", StringComparison.Ordinal))
+			{
+				components.Add("Wear_Fingerless_Gloves");
+			}
+			else if (lower.Contains("harness", StringComparison.Ordinal) ||
+			         lower.Contains("axe loop", StringComparison.Ordinal) ||
+			         lower.Contains("hook", StringComparison.Ordinal) ||
+			         lower.Contains("bowcase", StringComparison.Ordinal) ||
+			         lower.Contains("quiver", StringComparison.Ordinal))
+			{
+				components.Add("Wear_Waist");
+				components.Add("Beltable");
+			}
+			else if (lower.Contains("cross", StringComparison.Ordinal) ||
+			         lower.Contains("amulet", StringComparison.Ordinal) ||
+			         lower.Contains("bead", StringComparison.Ordinal) ||
+			         lower.Contains("pendant", StringComparison.Ordinal))
+			{
+				components.Add("Wear_Necklace");
+			}
+		}
+
+		components.Add(materialType == MaterialBehaviourType.Metal ? "Destroyable_HeavyMetal" :
+			materialType == MaterialBehaviourType.Wood || materialType == MaterialBehaviourType.Wax ? "Destroyable_Misc" :
+			"Destroyable_Clothing");
+		if (!string.IsNullOrWhiteSpace(variableColourComponent))
+		{
+			components.Add(variableColourComponent);
+		}
+
+		return components
+			.Distinct(StringComparer.OrdinalIgnoreCase)
+			.ToArray();
+	}
+
+	private static ItemQuality MedievalExplicitOutfitPieceQuality(string pieceName, string socialClassRole)
+	{
+		var lower = pieceName.ToLowerInvariant();
+		if (socialClassRole.Equals("noble", StringComparison.OrdinalIgnoreCase) ||
+		    lower.Contains("fine", StringComparison.Ordinal) ||
+		    lower.Contains("silver", StringComparison.Ordinal) ||
+		    lower.Contains("gold", StringComparison.Ordinal) ||
+		    lower.Contains("embroidered", StringComparison.Ordinal) ||
+		    lower.Contains("jeweled", StringComparison.Ordinal) ||
+		    lower.Contains("silk", StringComparison.Ordinal) ||
+		    lower.Contains("rich", StringComparison.Ordinal))
+		{
+			return ItemQuality.Good;
+		}
+
+		return ItemQuality.Standard;
+	}
+
+	private static SizeCategory MedievalExplicitOutfitPieceSize(IReadOnlyCollection<string> slotKeys)
+	{
+		if (slotKeys.Contains(EraOutfitSlotSpecOuterwear, StringComparer.OrdinalIgnoreCase))
+		{
+			return SizeCategory.Large;
+		}
+
+		if (slotKeys.Contains(EraOutfitSlotSpecHeadwear, StringComparer.OrdinalIgnoreCase) ||
+		    slotKeys.Contains(EraOutfitSlotSpecBeltOrSash, StringComparer.OrdinalIgnoreCase) ||
+		    slotKeys.Contains(EraOutfitSlotSpecWornContainer, StringComparer.OrdinalIgnoreCase) ||
+		    slotKeys.Contains(EraOutfitSlotSpecFastenerOrJewellery, StringComparer.OrdinalIgnoreCase) ||
+		    slotKeys.Contains(EraOutfitSlotSpecRoleItem, StringComparer.OrdinalIgnoreCase))
+		{
+			return SizeCategory.Small;
+		}
+
+		return SizeCategory.Normal;
+	}
+
+	private static double MedievalExplicitOutfitPieceWeightInGrams(string pieceName, IReadOnlyCollection<string> slotKeys)
+	{
+		if (slotKeys.Contains(EraOutfitSlotSpecOuterwear, StringComparer.OrdinalIgnoreCase))
+		{
+			return 1450.0;
+		}
+
+		if (slotKeys.Contains(EraOutfitSlotSpecFootwear, StringComparer.OrdinalIgnoreCase))
+		{
+			return 900.0;
+		}
+
+		if (slotKeys.Contains(EraOutfitSlotSpecBodywear, StringComparer.OrdinalIgnoreCase))
+		{
+			return pieceName.Contains("padded", StringComparison.OrdinalIgnoreCase) ||
+			       pieceName.Contains("gambeson", StringComparison.OrdinalIgnoreCase)
+				? 1800.0
+				: 850.0;
+		}
+
+		if (slotKeys.Contains(EraOutfitSlotSpecBeltOrSash, StringComparer.OrdinalIgnoreCase))
+		{
+			return 360.0;
+		}
+
+		if (slotKeys.Contains(EraOutfitSlotSpecWornContainer, StringComparer.OrdinalIgnoreCase))
+		{
+			return 220.0;
+		}
+
+		if (slotKeys.Contains(EraOutfitSlotSpecHeadwear, StringComparer.OrdinalIgnoreCase))
+		{
+			return 180.0;
+		}
+
+		if (slotKeys.Contains(EraOutfitSlotSpecFastenerOrJewellery, StringComparer.OrdinalIgnoreCase) ||
+		    slotKeys.Contains(EraOutfitSlotSpecRoleItem, StringComparer.OrdinalIgnoreCase))
+		{
+			return 120.0;
+		}
+
+		return 420.0;
+	}
+
+	private static decimal MedievalExplicitOutfitPieceCost(string pieceName, IReadOnlyCollection<string> slotKeys,
+		ItemQuality quality)
+	{
+		var baseCost = slotKeys.Contains(EraOutfitSlotSpecFastenerOrJewellery, StringComparer.OrdinalIgnoreCase) ? 18.0m :
+			slotKeys.Contains(EraOutfitSlotSpecOuterwear, StringComparer.OrdinalIgnoreCase) ? 42.0m :
+			slotKeys.Contains(EraOutfitSlotSpecBodywear, StringComparer.OrdinalIgnoreCase) ? 28.0m :
+			slotKeys.Contains(EraOutfitSlotSpecFootwear, StringComparer.OrdinalIgnoreCase) ? 18.0m :
+			slotKeys.Contains(EraOutfitSlotSpecRoleItem, StringComparer.OrdinalIgnoreCase) ? 12.0m :
+			10.0m;
+		if (pieceName.Contains("silver", StringComparison.OrdinalIgnoreCase) ||
+		    pieceName.Contains("gold", StringComparison.OrdinalIgnoreCase) ||
+		    pieceName.Contains("jeweled", StringComparison.OrdinalIgnoreCase))
+		{
+			baseCost *= 3.0m;
+		}
+
+		return quality >= ItemQuality.Good ? baseCost * 2.0m : baseCost;
+	}
+
+	private static string MedievalExplicitOutfitPieceMarketTag(IReadOnlyCollection<string> slotKeys, ItemQuality quality)
+	{
+		if (slotKeys.Contains(EraOutfitSlotSpecFastenerOrJewellery, StringComparer.OrdinalIgnoreCase) ||
+		    slotKeys.Contains(EraOutfitSlotSpecRoleItem, StringComparer.OrdinalIgnoreCase))
+		{
+			return quality >= ItemQuality.Good ? "Market / Clothing / Luxury Clothing" : "Market / Clothing / Standard Clothing";
+		}
+
+		if (slotKeys.Contains(EraOutfitSlotSpecFootwear, StringComparer.OrdinalIgnoreCase))
+		{
+			return "Market / Clothing / Footwear";
+		}
+
+		if (slotKeys.Contains(EraOutfitSlotSpecOuterwear, StringComparer.OrdinalIgnoreCase))
+		{
+			return "Market / Clothing / Winter Clothing";
+		}
+
+		return quality >= ItemQuality.Good ? "Market / Clothing / Luxury Clothing" : "Market / Clothing / Standard Clothing";
+	}
+
+	private static string MedievalExplicitOutfitPieceFunctionTag(IReadOnlyCollection<string> slotKeys)
+	{
+		if (slotKeys.Contains(EraOutfitSlotSpecFootwear, StringComparer.OrdinalIgnoreCase))
+		{
+			return "Functions / Worn Items / Footwear";
+		}
+
+		if (slotKeys.Contains(EraOutfitSlotSpecHeadwear, StringComparer.OrdinalIgnoreCase))
+		{
+			return "Functions / Worn Items / Headwear";
+		}
+
+		if (slotKeys.Contains(EraOutfitSlotSpecBeltOrSash, StringComparer.OrdinalIgnoreCase))
+		{
+			return "Functions / Worn Items / Belts";
+		}
+
+		if (slotKeys.Contains(EraOutfitSlotSpecWornContainer, StringComparer.OrdinalIgnoreCase))
+		{
+			return "Functions / Worn Items / Pouches";
+		}
+
+		if (slotKeys.Contains(EraOutfitSlotSpecFastenerOrJewellery, StringComparer.OrdinalIgnoreCase) ||
+		    slotKeys.Contains(EraOutfitSlotSpecRoleItem, StringComparer.OrdinalIgnoreCase))
+		{
+			return "Functions / Worn Items / Jewellery";
+		}
+
+		if (slotKeys.Contains(EraOutfitSlotSpecOuterwear, StringComparer.OrdinalIgnoreCase))
+		{
+			return "Functions / Worn Items / Outerwear";
+		}
+
+		if (slotKeys.Contains(EraOutfitSlotSpecUnderlayer, StringComparer.OrdinalIgnoreCase))
+		{
+			return "Functions / Worn Items / Underwear";
+		}
+
+		if (slotKeys.Contains(EraOutfitSlotSpecLegOrSockLayer, StringComparer.OrdinalIgnoreCase) ||
+		    slotKeys.Contains(EraOutfitSlotSpecLowerBody, StringComparer.OrdinalIgnoreCase))
+		{
+			return "Functions / Worn Items / Legwear";
+		}
+
+		return "Functions / Worn Items / Bodywear";
+	}
+
+	private static EraOutfitSpec[] BuildMedievalOutfits()
 	{
 		return MedievalCultureProfiles
 			.SelectMany(culture => MedievalOutfitSexGenderPresentationKeys.SelectMany(sex =>
@@ -2805,37 +3782,96 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 			.ToArray();
 	}
 
-	private static MedievalOutfitSpec BuildMedievalOutfit(MedievalCultureProfile culture, string sexGenderPresentation,
+	private static EraOutfitSpec BuildMedievalOutfit(MedievalCultureProfile culture, string sexGenderPresentation,
 		string socialClassRole)
 	{
 		var outfitReference = $"medieval_outfit_{culture.Key}_{sexGenderPresentation}_{socialClassRole}";
 		var explicitPieces = MedievalExplicitOutfitPieces
 			.Where(x => x.OutfitReference.Equals(outfitReference, StringComparison.OrdinalIgnoreCase))
 			.ToArray();
-		if (explicitPieces.Length == 0)
+		if (explicitPieces.Length > 0)
 		{
-			throw new ApplicationException($"Medieval outfit {outfitReference} has no explicit authored outfit pieces.");
+			return new EraOutfitSpec(
+				outfitReference,
+				culture.Key,
+				sexGenderPresentation,
+				socialClassRole,
+				$"{culture.Display} {sexGenderPresentation} {socialClassRole} outfit",
+				explicitPieces
+					.GroupBy(x => x.SlotKey, StringComparer.OrdinalIgnoreCase)
+					.ToDictionary(x => x.Key, x => x.First().StableReference, StringComparer.OrdinalIgnoreCase),
+				[]);
 		}
 
-		return new MedievalOutfitSpec(
+		var status = MedievalStatusRoleProfiles.Single(x =>
+			x.Key.Equals(MedievalOutfitRoleToStatusRoleKey[socialClassRole], StringComparison.OrdinalIgnoreCase));
+		var slots = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+		{
+			[EraOutfitSlotSpecUnderlayer] = MedievalOutfitClothingStableReference(culture, status, "underlayer"),
+			[EraOutfitSlotSpecLowerBody] = MedievalOutfitClothingStableReference(culture, status, "legwear"),
+			[EraOutfitSlotSpecLegOrSockLayer] = MedievalOutfitClothingStableReference(culture, status, "sockwear"),
+			[EraOutfitSlotSpecFootwear] = MedievalOutfitClothingStableReference(culture, status, "footwear"),
+			[EraOutfitSlotSpecBodywear] = $"medieval_clothing_{culture.Key}_{status.Key}_{status.GarmentToken}",
+			[EraOutfitSlotSpecOuterwear] = MedievalOutfitClothingStableReference(culture, status, "outerwear"),
+			[EraOutfitSlotSpecHeadwear] = MedievalOutfitClothingStableReference(culture, status, "headwear"),
+			[EraOutfitSlotSpecBeltOrSash] = MedievalOutfitClothingStableReference(culture, status, "belt"),
+			[EraOutfitSlotSpecWornContainer] = MedievalOutfitClothingStableReference(culture, status, "pouch"),
+			[EraOutfitSlotSpecFastenerOrJewellery] = MedievalOutfitFastenerStableReference(socialClassRole)
+		};
+
+		var roleItem = MedievalOutfitRoleItemStableReference(culture, socialClassRole);
+		if (!string.IsNullOrWhiteSpace(roleItem))
+		{
+			slots[EraOutfitSlotSpecRoleItem] = roleItem;
+		}
+
+		return new EraOutfitSpec(
 			outfitReference,
 			culture.Key,
 			sexGenderPresentation,
 			socialClassRole,
 			$"{culture.Display} {sexGenderPresentation} {socialClassRole} outfit",
-			explicitPieces
-				.GroupBy(x => x.SlotKey, StringComparer.OrdinalIgnoreCase)
-				.ToDictionary(x => x.Key, x => x.First().StableReference, StringComparer.OrdinalIgnoreCase),
-			[]);
+			slots,
+			slots.Keys.ToArray());
 	}
+
+	private static string MedievalOutfitClothingStableReference(MedievalCultureProfile culture,
+		MedievalStatusRoleProfile status, string wardrobeSlotKey)
+	{
+		var piece = BuildMedievalWardrobePiece(culture, status, wardrobeSlotKey);
+		return $"medieval_clothing_{culture.Key}_{status.Key}_{piece.Token}";
+	}
+
+	private static string MedievalOutfitFastenerStableReference(string socialClassRole)
+	{
+		return socialClassRole switch
+		{
+			"merchant" => "medieval_jewellery_silver_brooch",
+			"noble" => "medieval_jewellery_enamel_disc_brooch",
+			"religious" => "medieval_devotional_wooden_rosary",
+			_ => "medieval_jewellery_bronze_ring_pin"
+		};
+	}
+
+	private static string? MedievalOutfitRoleItemStableReference(MedievalCultureProfile culture, string socialClassRole)
+	{
+		return socialClassRole switch
+		{
+			"merchant" => $"medieval_writing_{culture.Key}_office_bundle",
+			"religious" => $"medieval_devotional_{culture.Key}_pilgrim_token",
+			"military" => $"medieval_military_{culture.Key}_sidearm_harness",
+			_ => null
+		};
+	}
+
 	internal static IReadOnlyCollection<string> HistoricFoundationStableReferencesForTesting =>
 		HistoricFoundationItemSpecs()
 			.Select(x => x.StableReference)
 			.ToArray();
 
-	internal static IReadOnlyCollection<MedievalItemSpecTestData> HistoricFoundationItemSpecsForTesting =>
+	internal static IReadOnlyCollection<EraItemSpecTestData> HistoricFoundationItemSpecsForTesting =>
 		HistoricFoundationItemSpecs()
-			.Select(x => new MedievalItemSpecTestData(
+			.Select(x => new EraItemSpecTestData(
 				x.StableReference,
 				x.Noun,
 				x.ShortDescription,
@@ -2884,10 +3920,24 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 			.Select(x => x.Key)
 			.ToArray();
 
+	internal static IReadOnlyCollection<string> MedievalWardrobeSlotKeysForTesting =>
+		MedievalWardrobeSlotKeys
+			.ToArray();
+
 	internal static IReadOnlyCollection<(string Key, bool RequiredForAllOutfits, IReadOnlyCollection<string> RequiredForRoles)> MedievalOutfitSlotsForTesting =>
-		MedievalOutfitSlots
+		EraOutfitSlotSpecs
 			.Select(x => (x.Key, x.RequiredForAllOutfits, (IReadOnlyCollection<string>)x.RequiredForRoles.ToArray()))
 			.ToArray();
+
+	internal static (string EraKey, string EraRootTag, string CultureTagRoot, string? StatusOrSocialRoleTagRoot, bool CompleteOutfitCataloguesRequired, bool GenericBaselineWardrobeGenerationAllowed, bool PlayerFacingDescriptionsMayIncludeCultureNames, IReadOnlyCollection<string> SlotKeys) MedievalEraConfigurationForTesting =>
+		(MedievalEraConfiguration.EraKey,
+			MedievalEraConfiguration.EraRootTag,
+			MedievalEraConfiguration.CultureTagRoot,
+			MedievalEraConfiguration.StatusOrSocialRoleTagRoot,
+			MedievalEraConfiguration.CompleteOutfitCataloguesRequired,
+			MedievalEraConfiguration.GenericBaselineWardrobeGenerationAllowed,
+			MedievalEraConfiguration.PlayerFacingDescriptionsMayIncludeCultureNames,
+			MedievalEraConfiguration.ClothingSlotDefinitions.Select(x => x.Key).ToArray());
 
 	internal static IReadOnlyCollection<string> MedievalOutfitSexGenderPresentationKeysForTesting =>
 		MedievalOutfitSexGenderPresentationKeys
@@ -2926,44 +3976,45 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 			.ToArray();
 
 	internal static IReadOnlyCollection<MedievalAuthoredOutfitPieceTestData> MedievalAuthoredOutfitPiecesForTesting =>
-		MedievalAuthoredOutfitPieces.Values
-			.Select(x => new MedievalAuthoredOutfitPieceTestData(
-				x.StableReference,
-				x.OutfitReference,
-				x.CultureKey,
-				x.SexGenderPresentation,
-				x.SocialClassRole,
-				x.SlotKey,
-				x.PieceName,
-				x.Noun,
-				x.ShortDescription,
-				x.FullDescription,
-				x.Material,
-				x.MaterialType,
-				x.Quality,
-				x.Size,
-				x.WeightInGrams,
-				x.Cost,
-				x.VariableColourComponent,
-				x.ColourVariablesUsed,
-				x.Tags,
-				x.Components,
-				x.CraftInputs,
-				x.CraftTools,
-				x.ImplementationNotes,
-				x.AuthoringGuidelineNotes))
+		MedievalExplicitOutfitClothingPieces()
+			.Select(piece =>
+			{
+				var item = piece.Item;
+				return new MedievalAuthoredOutfitPieceTestData(
+					item.StableReference,
+					piece.OutfitReference,
+					piece.CultureKey,
+					piece.SexGenderPresentation,
+					piece.SocialClassRole,
+					piece.SlotKeys,
+					piece.PieceName,
+					item.Noun,
+					item.ShortDescription,
+					item.FullDescription,
+					item.Material,
+					item.MaterialType,
+					item.Quality,
+					item.Size,
+					item.WeightInGrams,
+					item.Cost,
+					piece.VariableColourComponent,
+					piece.ColourVariablesUsed,
+					item.Components,
+					piece.Craft.Inputs.Select(x => x.Definition).ToArray(),
+					piece.Craft.Tools.Select(x => x.Definition).ToArray(),
+					piece.IntentionallySharedOrGeneric);
+			})
 			.ToArray();
 
 	internal static void MissingAuthoredOutfitPieceRowsThrowForTesting()
 	{
-		BuildMedievalAuthoredOutfitPieceDictionary(BuildMedievalAuthoredOutfitPieces()
-			.Skip(1)
-			.ToArray());
+		BuildMedievalAuthoredOutfitPieceDictionary(
+			BuildMedievalAuthoredOutfitPieces().Skip(1));
 	}
 
-		internal static IReadOnlyCollection<MedievalItemSpecTestData> MedievalExplicitOutfitPieceItemSpecsForTesting =>
+	internal static IReadOnlyCollection<EraItemSpecTestData> MedievalExplicitOutfitPieceItemSpecsForTesting =>
 		MedievalExplicitOutfitPieceItemSpecs()
-			.Select(x => new MedievalItemSpecTestData(
+			.Select(x => new EraItemSpecTestData(
 				x.StableReference,
 				x.Noun,
 				x.ShortDescription,
@@ -2990,9 +4041,9 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 			.Select(x => x.StableReference)
 			.ToArray();
 
-	internal static IReadOnlyCollection<MedievalItemSpecTestData> MedievalItemSpecsForTesting =>
+	internal static IReadOnlyCollection<EraItemSpecTestData> MedievalItemSpecsForTesting =>
 		MedievalAllItemSpecs()
-			.Select(x => new MedievalItemSpecTestData(
+			.Select(x => new EraItemSpecTestData(
 				x.StableReference,
 				x.Noun,
 				x.ShortDescription,
@@ -3032,7 +4083,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 			.Distinct(StringComparer.OrdinalIgnoreCase)
 			.ToArray();
 
-	private static IReadOnlyList<MedievalItemSpec> MedievalAllItemSpecs()
+	private static IReadOnlyList<EraItemSpec> MedievalAllItemSpecs()
 	{
 		return MedievalClothingItemSpecs()
 			.Concat(MedievalEquipmentItemSpecs())

@@ -182,7 +182,7 @@ Status:
 
 Keep:
   - `ItemSeeder.Rework.EraDefinitions.cs` as the shared record/configuration home for era seeder concepts.
-  - `MedievalClothingItemSpecs()` as the single source for generic baseline clothing and explicit outfit-piece item specs.
+  - `MedievalClothingItemSpecs()` as the single source for explicit outfit-piece item specs.
   - `SeedEraItemSpecs(...)` for shared spec-driven seeding.
   - `EraSeederConfiguration` entries for both medieval and antiquity, with era differences expressed as data.
   - variable-colour item components and craft product mappings for colourable medieval garments.

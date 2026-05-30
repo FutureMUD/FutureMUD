@@ -62,9 +62,9 @@ Every outfit must include:
 - `fastener_or_jewellery`
 - `role_item` where required
 
-Every slot item must resolve to a seeded stable reference unless the slot is marked as intentionally shared and points to a common stable reference.
+Every slot item must resolve to a seeded stable reference unless the slot is marked as intentionally shared and points to an explicitly named common stable reference.
 
-MED-OUTFIT-001 treats the current generated status-role wardrobe as craftable shared scaffold content. Tests should require those references to resolve to seeded item specs, while later explicit outfit-item goals can tighten the culture-specific thresholds.
+MED-OUTFIT-008B treats explicit outfit pieces as fail-closed authored data. Tests should require every explicit outfit-piece stable reference to resolve to a literal authored row, while shared baseline clothing must use `medieval_common_*` or `medieval_baseline_*` names rather than culture/status reskins.
 
 ### 3. Culture Identity Threshold Tests
 
@@ -247,6 +247,8 @@ The explicit outfit-piece catalogue must be validated as final item/craft data, 
 Assert:
 
 - The seeder source does not contain the retired explicit-outfit-piece override type or patch-application helpers.
+- The seeder source does not contain `BuildMedievalExplicitOutfitPieceFullDescription`.
+- Removing an authored row causes validation to throw rather than synthesize fallback text.
 - Every explicit outfit-piece stable reference resolves to an authored outfit-piece test row and an item spec.
 - Every medieval outfit slot points to either an authored outfit-piece item or an intentionally shared/common slot reference.
 - Player-facing medieval clothing descriptions do not contain builder/admin/meta wording or generated ownership/slot-filling catalogue prose.

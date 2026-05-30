@@ -1092,11 +1092,11 @@ public partial class ItemSeeder
 	}
 
 	private static (string Category, string Trait, IReadOnlyList<string> Inputs, IReadOnlyList<string> Tools, Difficulty Difficulty, string Verb, string Gerund)
-		ApplyMedievalBespokeOutfitPieceCraftSpec(
+		ApplyMedievalAuthoredOutfitPieceCraftSpec(
 			EraItemSpec spec,
 			(string Category, string Trait, IReadOnlyList<string> Inputs, IReadOnlyList<string> Tools, Difficulty Difficulty, string Verb, string Gerund) path)
 	{
-		if (!MedievalBespokeOutfitPieceCraftSpecs.TryGetValue(spec.StableReference, out var craftSpec))
+		if (!MedievalAuthoredOutfitPieceCraftSpecs.TryGetValue(spec.StableReference, out var craftSpec))
 		{
 			return path;
 		}
@@ -1107,7 +1107,7 @@ public partial class ItemSeeder
 
 	private static EraCraftSpec BuildMedievalExplicitOutfitPieceCraftSpec(EraItemSpec spec)
 	{
-		var path = ApplyMedievalBespokeOutfitPieceCraftSpec(spec,
+		var path = ApplyMedievalAuthoredOutfitPieceCraftSpec(spec,
 			GetMedievalExplicitOutfitPieceCraftPath(spec));
 		var inputs = path.Inputs.ToArray();
 		return new EraCraftSpec(

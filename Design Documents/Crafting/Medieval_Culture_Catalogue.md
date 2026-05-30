@@ -1,6 +1,6 @@
 ﻿# Medieval Culture Catalogue
 
-This document is the authoritative exact catalogue for explicit medieval culture material-culture targets. The generated common/status wardrobe remains a generic baseline only; it does not satisfy explicit culture coverage unless an outfit spec deliberately references a shared slot and records that sharing.
+This document is the authoritative exact catalogue for explicit medieval culture material-culture targets. The generated common/status wardrobe is not normally seeded as culture clothing; any future shared wardrobe baseline must be explicitly named as `medieval_common_*` or `medieval_baseline_*` and must not satisfy explicit culture coverage unless an outfit spec deliberately references a shared slot and records that sharing.
 
 The complete outfit list lives in `Medieval_Outfit_Catalogue.md`. This file remains the exact catalogue for culture-specific clothing targets and for military, food and beverage, writing and administration, household, devotional, and luxury goods.
 
@@ -8,7 +8,7 @@ The complete outfit list lives in `Medieval_Outfit_Catalogue.md`. This file rema
 
 - Exact outfit references live in `Medieval_Outfit_Catalogue.md`.
 - Explicit culture items should be implemented as named item specs and final product crafts, not as cue text appended to generic templates.
-- Generic baseline items must be labelled as generic baseline.
+- Generic baseline items must be labelled as generic baseline and use shared stable-reference names.
 - Pattern-only documentation is not sufficient for explicit culture items; exact stable references are listed below.
 - Food items should be actual food/beverage items unless explicitly marked as tableware or vessel stock.
 - Wooden, wax, birchbark, and non-paper writing surfaces should use `InscribableSurface`-style components where available.
@@ -23,10 +23,10 @@ The complete outfit list lives in `Medieval_Outfit_Catalogue.md`. This file rema
 
 ## Generic Baseline Patterns
 
-These patterns document generated baseline or family coverage only. They are not substitutes for the exact explicit culture references in the catalogue sections below.
+These patterns document shared baseline or family coverage only. They are not substitutes for the exact explicit culture references in the catalogue sections below.
 
-- `medieval_clothing_{culture}_`
-- `medieval_clothing_{culture}_{status}_{piece}`
+- `medieval_common_{piece}`
+- `medieval_baseline_{piece}`
 - `medieval_food_{culture}_{foodway_item}`
 - `medieval_writing_{culture}_{administration_item}`
 - `medieval_military_{culture}_{equipment_piece}`
@@ -37,7 +37,7 @@ These patterns document generated baseline or family coverage only. They are not
 - `medieval_medical_{medical_item}`
 - `medieval_jewellery_{jewellery_item}`
 
-Generated status-role wardrobe keys use `peasant`, `artisan`, `merchant`, `noble`, `clergy`, and `military` as baseline status buckets. Outfit references use the separate role axis `religious` where the complete outfit needs a clerical/devotional role item.
+Historic generated status-role wardrobe keys used `peasant`, `artisan`, `merchant`, `noble`, `clergy`, and `military` as baseline status buckets. New shared clothing baselines should use explicit common or baseline names. Outfit references use the separate role axis `religious` where the complete outfit needs a clerical/devotional role item.
 
 Production-chain coverage includes crossbow manufacture, paper and parchment, stained glass, guild weights and measures, and luxury textile finishes. These are documented here as family gates while exact seeded stable references remain listed in the relevant suite docs.
 

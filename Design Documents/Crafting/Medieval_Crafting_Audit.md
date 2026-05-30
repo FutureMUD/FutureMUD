@@ -2,9 +2,9 @@
 
 This document records the source-backed audit boundary and the second-pass quality target for the medieval item and craft slice.
 
-The first medieval pass established useful scaffolding: the `medieval` era dispatcher, shared `historic_*` workshop foundations, broad production-chain stock, 18 culture keys, status-role clothing axes, and craft-suite wiring. That scaffold should be retained. However, the first pass over-relied on generated culture/status matrices and generic cue text. The second pass must add exact outfit catalogues and quality tests so that cultures differ by named material culture, not only by builder notes, tags, and appended phrases.
+The first medieval pass established useful scaffolding: the `medieval` era dispatcher, shared `historic_*` workshop foundations, broad production-chain stock, 18 culture keys, and craft-suite wiring. That scaffold should be retained. However, the first pass over-relied on generated culture/status matrices and generic cue text. The second pass must keep exact outfit catalogues and quality tests so that cultures differ by named material culture, not only by builder notes, tags, and appended phrases.
 
-MED-OUTFIT-006 now provides 180 manually written outfit-piece overrides, 10 per culture, with variable colour support and style-focused player-facing descriptions. Culture metadata remains in stable references, tags, tests, catalogue documentation, and builder notes rather than in visible item prose.
+MED-OUTFIT-008B makes the explicit outfit-piece table the authored source of truth. Every explicit outfit-piece stable reference has a literal seeder row with variable colour support and style-focused player-facing descriptions. Culture metadata remains in stable references, tags, tests, catalogue documentation, and builder notes rather than in visible item prose.
 
 ## Core Design Correction
 
@@ -164,7 +164,7 @@ medieval_western_linen_coif
 medieval_islamic_wrapped_turban
 ```
 
-Generic baseline status items may remain, but they must not satisfy explicit outfit counts unless assigned to outfit slots and balanced by culture-specific pieces.
+Generic baseline status items should not be normally seeded through culture/status reskins. If shared baseline clothing is needed later, it should use explicit `medieval_common_*` or `medieval_baseline_*` stable references and must not satisfy explicit outfit counts unless an outfit deliberately records the shared slot.
 
 ## Production Chain Invariants To Retain
 
@@ -226,7 +226,7 @@ The second-pass test suite should not only check counts. It should verify outfit
 
 5. **Craft-name tests**
    - Explicit culture final crafts must not use `regional pattern NN`.
-   - Generic baseline crafts may still use neutral names if clearly marked as generic.
+   - Generic baseline crafts may still use neutral names if they are explicitly marked as shared baseline content.
 
 6. **Exact documentation tests**
    - Exact outfit package references and expected slot contents must appear in `Medieval_Outfit_Catalogue.md`.

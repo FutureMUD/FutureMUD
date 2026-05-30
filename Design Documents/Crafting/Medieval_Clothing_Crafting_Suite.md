@@ -30,12 +30,12 @@ Use three levels of clothing content:
 | Culture-cluster pieces | Items shared by related cultures, such as Western European braies, Islamic sirwal, steppe high boots, or Rus/steppe fur hats. |
 | Explicit culture pieces | Named culture-specific garments and accessories, such as Norse hangerok apron dresses, Byzantine silk dalmatics, Song cross-collar robes, Gaelic brat mantles, or Andalusi burnous cloaks. |
 
-The generic status-role wardrobe remains as an intentionally generic baseline catalogue, but it does not fulfil explicit outfit slots. Complete outfits now point to explicit authored outfit-piece item specs, or to a slot that is deliberately marked shared/common.
+The generated culture/status wardrobe is no longer normally seeded as medieval clothing content. Any future shared baseline items must be explicitly named as `medieval_common_*` or `medieval_baseline_*` items and must not masquerade as culture-specific reskins. Complete outfits now point to explicit authored outfit-piece item specs, or to a slot that is deliberately marked shared/common.
 
 MED-OUTFIT-001 added the executable outfit catalogue. MED-OUTFIT-002 through MED-OUTFIT-004 filled all 216 outfits across the 18-culture medieval set. MED-OUTFIT-008 replaces the generated-then-patched clothing architecture with a single authored source path. See [Era Seeder Shared Architecture](./Era_Seeder_Shared_Architecture.md) for the shared records and configuration model.
 
 - shared era records live in `ItemSeeder.Rework.EraDefinitions.cs`
-- `MedievalClothingItemSpecs()` returns generic baseline clothing plus authored explicit outfit-piece specs
+- `MedievalClothingItemSpecs()` returns authored explicit outfit-piece specs
 - `SeedMedievalClothing()` seeds those specs through `SeedEraItemSpecs(...)`
 - explicit outfit-piece item data and craft data are derived together from the authored catalogue seam
 - direct generated clothing/outfit-piece files are no longer the source of truth
@@ -165,7 +165,7 @@ sew work tunic regional pattern 03
 make headwear regional pattern 17
 ```
 
-Generic baseline items may retain neutral craft names only if they are clearly marked as generic baseline.
+Generic baseline items may retain neutral craft names only if they are explicitly named as shared baseline content.
 
 ## Documentation Requirements
 

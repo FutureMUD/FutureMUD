@@ -5,6 +5,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MudSharp.Form.Material;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -79,7 +80,7 @@ public class ItemSeederMedievalCraftingTests
 	{
 		var reworkRoot = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.cs");
 		var craftRoot = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.cs");
-		var medievalItemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.Medieval.cs");
+		var medievalItemSource = ReadMedievalItemSources();
 		var medievalCraftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.Medieval.cs");
 
 		foreach (var expected in new[]
@@ -125,6 +126,60 @@ public class ItemSeederMedievalCraftingTests
 		AssertContains(medievalItemSource, "private static readonly MedievalStatusRoleProfile[] MedievalStatusRoleProfiles");
 		AssertContains(medievalCraftSource, "private bool ShouldSeedMedievalCrafts()");
 		AssertContains(medievalCraftSource, "private Craft? AddMedievalCraft(");
+	}
+
+	[TestMethod]
+	public void MedievalItemDefinitions_AreUnrolledIntoDirectCreateItemCalls()
+	{
+		var directItemSource = ReadMedievalDirectItemSources();
+		var expectedSpecs = ItemSeeder.HistoricFoundationItemSpecsForTesting
+			.Concat(ItemSeeder.MedievalItemSpecsForTesting)
+			.ToDictionary(x => x.StableReference, StringComparer.OrdinalIgnoreCase);
+		var directCallReferences = Regex
+			.Matches(directItemSource, @"CreateItem\(\s*\r?\n\s*""(?<stableReference>[^""]+)""")
+			.Select(x => x.Groups["stableReference"].Value)
+			.ToArray();
+
+		Assert.IsFalse(directItemSource.Contains("SeedMedievalItemSpecs(", StringComparison.Ordinal),
+			"Medieval item category files should insert direct CreateItem calls, not delegate to generated item specs.");
+		Assert.AreEqual(expectedSpecs.Count, directCallReferences.Length,
+			"Expected exactly one direct CreateItem call per generated historic/medieval item definition.");
+
+		var missing = expectedSpecs.Keys
+			.Except(directCallReferences, StringComparer.OrdinalIgnoreCase)
+			.ToArray();
+		Assert.AreEqual(0, missing.Length,
+			$"Expected every generated historic/medieval item definition to have a direct call. Missing: {string.Join(", ", missing)}");
+
+		var duplicateCalls = directCallReferences
+			.GroupBy(x => x, StringComparer.OrdinalIgnoreCase)
+			.Where(x => x.Count() > 1)
+			.Select(x => x.Key)
+			.ToArray();
+		Assert.AreEqual(0, duplicateCalls.Length,
+			$"Expected each generated historic/medieval item definition to be unrolled once. Duplicates: {string.Join(", ", duplicateCalls)}");
+
+		foreach (var spec in expectedSpecs.Values)
+		{
+			var block = ExtractCallBlockContaining(directItemSource, spec.StableReference);
+			AssertContains(block, SourceStringLiteral(spec.Noun));
+			AssertContains(block, SourceStringLiteral(spec.ShortDescription));
+			AssertContains(block, SourceStringLiteral(spec.FullDescription));
+			AssertContains(block, $"SizeCategory.{spec.Size}");
+			AssertContains(block, $"ItemQuality.{spec.Quality}");
+			AssertContains(block, SourceDoubleLiteral(spec.WeightInGrams));
+			AssertContains(block, SourceDecimalLiteral(spec.Cost));
+			AssertContains(block, SourceStringLiteral(spec.Material));
+			foreach (var tag in spec.Tags)
+			{
+				AssertContains(block, SourceStringLiteral(tag));
+			}
+
+			foreach (var component in spec.Components)
+			{
+				AssertContains(block, SourceStringLiteral(component));
+			}
+		}
 	}
 
 	[TestMethod]
@@ -456,10 +511,11 @@ public class ItemSeederMedievalCraftingTests
 	}
 
 	[TestMethod]
-	public void MedievalExplicitOutfitPieceOverrides_AreLiteralSeederDataAndRepairExistingStock()
+	public void MedievalExplicitOutfitPieceOverrides_AreLiteralSeederDataAndDirectItemCalls()
 	{
 		var projectSource = ReadSource("DatabaseSeeder", "DatabaseSeeder.csproj");
-		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.Medieval.cs");
+		var itemSource = ReadMedievalItemSources();
+		var overrideRow = ItemSeeder.MedievalExplicitOutfitPieceOverridesForTesting.First();
 
 		Assert.IsFalse(projectSource.Contains("MED_OUTFIT_006_description_overrides_REVISED_colour_style.csv",
 				StringComparison.OrdinalIgnoreCase),
@@ -469,8 +525,14 @@ public class ItemSeederMedievalCraftingTests
 		Assert.IsFalse(itemSource.Contains("ParseMedievalExplicitOutfitPieceOverrideCsv", StringComparison.Ordinal),
 			"MED-OUTFIT-006 override rows should not depend on a runtime CSV parser.");
 		AssertContains(itemSource, "Override(");
-		AssertContains(itemSource, "ApplyMedievalExplicitOutfitPieceOverrideToExistingItem(item, spec)");
-		AssertContains(itemSource, "ApplyMedievalExplicitOutfitPieceOverrideComponents(item, spec.Components)");
+		Assert.IsFalse(itemSource.Contains("ApplyMedievalExplicitOutfitPieceOverrideToExistingItem",
+				StringComparison.Ordinal),
+			"MED-OUTFIT-006 override rows should be unrolled into final CreateItem calls, not applied as post-create repairs.");
+		Assert.IsFalse(itemSource.Contains("ApplyMedievalExplicitOutfitPieceOverrideComponents",
+				StringComparison.Ordinal),
+			"MED-OUTFIT-006 override components should be unrolled into final CreateItem calls, not applied as post-create repairs.");
+		var directCall = ExtractCallBlockContaining(itemSource, overrideRow.StableReference);
+		AssertContains(directCall, overrideRow.ShortDescription);
 	}
 
 	[TestMethod]
@@ -587,7 +649,7 @@ public class ItemSeederMedievalCraftingTests
 	{
 		var knownComponentSource =
 			ReadSource("DatabaseSeeder", "Seeders", "UsefulSeeder.ItemComponents.cs") +
-			ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.Medieval.cs") +
+			ReadMedievalItemSources() +
 			ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.Antiquity.cs");
 		var overrideComponents = ItemSeeder.MedievalExplicitOutfitPieceOverridesForTesting
 			.SelectMany(x => x.Components)
@@ -895,7 +957,7 @@ public class ItemSeederMedievalCraftingTests
 	public void MedievalCultureStatusAndStableReferenceFamilies_AreDocumented()
 	{
 		var docs = ReadMedievalDocs();
-		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.Medieval.cs");
+		var itemSource = ReadMedievalItemSources();
 
 		Assert.AreEqual(18, ItemSeeder.MedievalCultureKeysForTesting.Count);
 		Assert.AreEqual(6, ItemSeeder.MedievalStatusRoleKeysForTesting.Count);
@@ -1006,7 +1068,7 @@ public class ItemSeederMedievalCraftingTests
 	[TestMethod]
 	public void MedievalImplementedItems_UseLiveComponentsAndDocumentDeferredGaps()
 	{
-		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.Medieval.cs");
+		var itemSource = ReadMedievalItemSources();
 		var componentSource = ReadSource("DatabaseSeeder", "Seeders", "UsefulSeeder.ItemComponents.cs");
 		var docs = ReadMedievalDocs();
 
@@ -1117,7 +1179,7 @@ public class ItemSeederMedievalCraftingTests
 	public void MedievalCrafting_TagToolsHaveSeededHistoricCoverage()
 	{
 		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.Medieval.cs");
-		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.Medieval.cs");
+		var itemSource = ReadMedievalItemSources();
 
 		var toolTags = Regex.Matches(craftSource,
 				@"TagTool\s*-\s*(?:Held|InRoom|In Room|Wielded)\s*-\s*an item with the (?<tag>.+?) tag",
@@ -1145,7 +1207,7 @@ public class ItemSeederMedievalCraftingTests
 	public void MedievalProductionChains_RepresentOriginalProcessChanges()
 	{
 		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.Medieval.cs");
-		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.Medieval.cs");
+		var itemSource = ReadMedievalItemSources();
 		var docs = ReadMedievalDocs();
 
 		foreach (var expected in new[]
@@ -1300,7 +1362,7 @@ public class ItemSeederMedievalCraftingTests
 	[TestMethod]
 	public void HistoricLitFoundationItems_HaveMorphTargetsTimersAndCrafts()
 	{
-		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.Medieval.cs");
+		var itemSource = ReadMedievalItemSources();
 		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.Medieval.cs");
 
 		foreach (var spec in new[]
@@ -1354,6 +1416,30 @@ public class ItemSeederMedievalCraftingTests
 				docs.Contains("medieval_jewellery_{jewellery_item}", StringComparison.Ordinal),
 			_ => false
 		};
+	}
+
+	private static string ReadMedievalItemSources()
+	{
+		var seederPath = SourcePath(Path.Combine("DatabaseSeeder", "Seeders"));
+		return string.Concat(Directory
+			.GetFiles(seederPath, "ItemSeeder.Rework.Medieval*.cs")
+			.OrderBy(x => x, StringComparer.Ordinal)
+			.Select(File.ReadAllText));
+	}
+
+	private static string ReadMedievalDirectItemSources()
+	{
+		var seederPath = SourcePath(Path.Combine("DatabaseSeeder", "Seeders"));
+		return string.Concat(Directory
+			.GetFiles(seederPath, "ItemSeeder.Rework.Medieval*.cs")
+			.Where(x =>
+			{
+				var name = Path.GetFileName(x);
+				return !name.Equals("ItemSeeder.Rework.Medieval.cs", StringComparison.OrdinalIgnoreCase) &&
+				       !name.Equals("ItemSeeder.Rework.MedievalSupport.cs", StringComparison.OrdinalIgnoreCase);
+			})
+			.OrderBy(x => x, StringComparer.Ordinal)
+			.Select(File.ReadAllText));
 	}
 
 	private static string ReadMedievalDocs()
@@ -1696,6 +1782,22 @@ public class ItemSeederMedievalCraftingTests
 	private static void AssertContains(string source, string expected)
 	{
 		Assert.IsTrue(source.Contains(expected, StringComparison.Ordinal), $"Expected source to contain: {expected}");
+	}
+
+	private static string SourceStringLiteral(string value)
+	{
+		return $"\"{value.Replace("\\", "\\\\", StringComparison.Ordinal).Replace("\"", "\\\"", StringComparison.Ordinal).Replace("\r", "\\r", StringComparison.Ordinal).Replace("\n", "\\n", StringComparison.Ordinal)}\"";
+	}
+
+	private static string SourceDoubleLiteral(double value)
+	{
+		var text = value.ToString("0.0#########", CultureInfo.InvariantCulture);
+		return text.Contains('.', StringComparison.Ordinal) ? text : $"{text}.0";
+	}
+
+	private static string SourceDecimalLiteral(decimal value)
+	{
+		return $"{value.ToString("0.0#########", CultureInfo.InvariantCulture)}m";
 	}
 
 	private static void AssertCommodityOutputTag(string source, string tag)

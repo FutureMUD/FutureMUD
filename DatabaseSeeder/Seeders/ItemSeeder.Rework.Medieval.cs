@@ -10325,6 +10325,24 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 			.Select(x => x.StableReference)
 			.ToArray();
 
+	internal static IReadOnlyCollection<MedievalItemSpecTestData> HistoricFoundationItemSpecsForTesting =>
+		HistoricFoundationItemSpecs()
+			.Select(x => new MedievalItemSpecTestData(
+				x.StableReference,
+				x.Noun,
+				x.ShortDescription,
+				x.FullDescription,
+				x.Size,
+				x.Quality,
+				x.WeightInGrams,
+				x.Cost,
+				x.Material,
+				x.MaterialType,
+				x.Tags,
+				x.Components,
+				x.BuilderNotes))
+			.ToArray();
+
 	internal static IReadOnlyCollection<string> MedievalCultureKeysForTesting =>
 		MedievalCultureProfiles
 			.Select(x => x.Key)
@@ -10460,6 +10478,24 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 			.Select(x => x.StableReference)
 			.ToArray();
 
+	internal static IReadOnlyCollection<MedievalItemSpecTestData> MedievalItemSpecsForTesting =>
+		MedievalAllItemSpecs()
+			.Select(x => new MedievalItemSpecTestData(
+				x.StableReference,
+				x.Noun,
+				x.ShortDescription,
+				x.FullDescription,
+				x.Size,
+				x.Quality,
+				x.WeightInGrams,
+				x.Cost,
+				x.Material,
+				x.MaterialType,
+				x.Tags,
+				x.Components,
+				x.BuilderNotes))
+			.ToArray();
+
 	internal static IReadOnlyCollection<string> MedievalLiveComponentStableReferencesForTesting =>
 		MedievalAllItemSpecs()
 			.Where(x => x.Components.Any(component =>
@@ -10513,176 +10549,6 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 			.Select(x => char.IsLetterOrDigit(x) ? char.ToLowerInvariant(x) : '_')
 			.ToArray());
 		return string.Join("_", normalised.Split('_', StringSplitOptions.RemoveEmptyEntries));
-	}
-
-	private void SeedHistoricCommonWorkshopItems()
-	{
-		SeedMedievalItemSpecs(HistoricFoundationItemSpecs(), "Shared historic foundation item promoted from cross-era workshop and household support.");
-	}
-
-	private void SeedMedievalClothing()
-	{
-		SeedMedievalItemSpecs(MedievalClothingItemSpecs(), "Medieval clothing item with culture and status recorded in builder metadata.");
-	}
-
-	private void SeedMedievalHouseholdCraftTools()
-	{
-		SeedMedievalItemSpecs(MedievalHouseholdToolItemSpecs(), "Medieval workshop and household tool item.");
-	}
-
-	private void SeedMedievalWritingAdministrationAndDocuments()
-	{
-		SeedMedievalItemSpecs(MedievalWritingAdministrationItemSpecs(), "Medieval writing, sealing, and administrative item.");
-	}
-
-	private void SeedMedievalMedicalAndApothecaryItems()
-	{
-		SeedMedievalItemSpecs(MedievalMedicalApothecaryItemSpecs(), "Medieval medical and apothecary item.");
-	}
-
-	private void SeedMedievalJewelleryAndDevotionalGoods()
-	{
-		SeedMedievalItemSpecs(MedievalJewelleryDevotionalItemSpecs(), "Medieval jewellery or devotional item.");
-	}
-
-	private void SeedMedievalArmour()
-	{
-		SeedMedievalItemSpecs(
-			MedievalEquipmentItemSpecs().Where(x => x.StableReference.Contains("_armour", StringComparison.OrdinalIgnoreCase)),
-			"Medieval armour item.");
-	}
-
-	private void SeedMedievalContainers()
-	{
-		SeedMedievalItemSpecs(
-			MedievalFurnitureContainerItemSpecs().Where(x => x.Components.Any(component => component.Contains("Container", StringComparison.OrdinalIgnoreCase))),
-			"Medieval container item.");
-	}
-
-	private void SeedMedievalDoorsLocksAndStrongboxes()
-	{
-		SeedMedievalItemSpecs(
-			MedievalFurnitureContainerItemSpecs().Where(x => x.StableReference.Contains("strongbox", StringComparison.OrdinalIgnoreCase) ||
-			                                                 x.StableReference.Contains("chest", StringComparison.OrdinalIgnoreCase)),
-			"Medieval lock, seal, chest, or security item.");
-	}
-
-	private void SeedMedievalRepairKits()
-	{
-		SeedMedievalItemSpecs(MedievalRepairKitItemSpecs(), "Medieval repair-kit item using general material-family RepairKit components.");
-	}
-
-	private void SeedMedievalHouseholdFurniture()
-	{
-		SeedMedievalItemSpecs(MedievalFurnitureContainerItemSpecs(), "Medieval household furniture item.");
-	}
-
-	private void SeedMedievalWeaponsShieldsAccessories()
-	{
-		SeedMedievalItemSpecs(
-			MedievalEquipmentItemSpecs().Where(x => !x.StableReference.Contains("_armour", StringComparison.OrdinalIgnoreCase)),
-			"Medieval weapon, shield, or military accessory item.");
-	}
-
-	private void SeedMedievalFoodAndBeverageItems()
-	{
-		SeedMedievalItemSpecs(MedievalFoodAndBeverageItemSpecs(), "Medieval food or beverage item.");
-	}
-
-	private void SeedMedievalComponentGapItems()
-	{
-		SeedMedievalItemSpecs(MedievalComponentGapPropItemSpecs(), "Medieval component-gap prop item.");
-	}
-
-	private void SeedMedievalItemSpecs(IEnumerable<MedievalItemSpec> specs, string defaultBuilderNotes)
-	{
-		foreach (var spec in specs)
-		{
-			EnsureAntiquityComponentGapMaterial(spec.Material, spec.MaterialType);
-			foreach (var tag in spec.Tags)
-			{
-				EnsureAntiquityTagPath(tag);
-			}
-
-			var item = CreateItem(
-				spec.StableReference,
-				spec.Noun,
-				spec.ShortDescription,
-				null,
-				spec.FullDescription,
-				spec.Size,
-				spec.Quality,
-				spec.WeightInGrams,
-				spec.Cost,
-				false,
-				false,
-				spec.Material,
-				spec.Tags,
-				spec.Components,
-				spec.MorphToUniqueReference,
-				spec.MorphEmote,
-				spec.MorphTimer,
-				spec.DestroyedItemUniqueReference,
-				spec.BuilderNotes ?? defaultBuilderNotes);
-
-			if (item is not null && MedievalExplicitOutfitPieceOverrides.ContainsKey(spec.StableReference))
-			{
-				ApplyMedievalExplicitOutfitPieceOverrideToExistingItem(item, spec);
-			}
-		}
-	}
-
-	private void ApplyMedievalExplicitOutfitPieceOverrideToExistingItem(GameItemProto item, MedievalItemSpec spec)
-	{
-		item.Name = spec.Noun.ToLowerInvariant();
-		item.ShortDescription = spec.ShortDescription;
-		item.FullDescription = spec.FullDescription;
-		item.LongDescription = null;
-		item.Size = (int)spec.Size;
-		item.BaseItemQuality = (int)spec.Quality;
-		item.Weight = spec.WeightInGrams;
-		item.CostInBaseCurrency = spec.Cost;
-		item.MaterialId = _materials[spec.Material].Id;
-		item.Keywords = new ExplodedString(spec.ShortDescription.Strip_A_An())
-			.Words
-			.Distinct()
-			.ListToCommaSeparatedValues(" ");
-
-		ApplyMedievalExplicitOutfitPieceOverrideComponents(item, spec.Components);
-		CacheReworkItem(spec.StableReference, item);
-	}
-
-	private void ApplyMedievalExplicitOutfitPieceOverrideComponents(GameItemProto item, IEnumerable<string> componentNames)
-	{
-		var components = new List<GameItemComponentProto>();
-		foreach (var componentName in componentNames.Distinct(StringComparer.OrdinalIgnoreCase))
-		{
-			if (!_components.TryGetValue(componentName, out var component))
-			{
-				return;
-			}
-
-			components.Add(component);
-		}
-
-		var existingComponents = _context!.GameItemProtosGameItemComponentProtos
-			.Where(x => x.GameItemProtoId == item.Id && x.GameItemProtoRevision == item.RevisionNumber)
-			.ToArray();
-		_context.GameItemProtosGameItemComponentProtos.RemoveRange(existingComponents);
-		item.GameItemProtosGameItemComponentProtos.Clear();
-
-		foreach (var component in components)
-		{
-			item.GameItemProtosGameItemComponentProtos.Add(new GameItemProtosGameItemComponentProtos
-			{
-				GameItemProto = item,
-				GameItemProtoId = item.Id,
-				GameItemProtoRevision = item.RevisionNumber,
-				GameItemComponent = component,
-				GameItemComponentProtoId = component.Id,
-				GameItemComponentRevision = component.RevisionNumber
-			});
-		}
 	}
 
 	internal void SeedMedievalItemsForTesting(FuturemudDatabaseContext context)

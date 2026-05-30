@@ -467,7 +467,7 @@ internal sealed class EmploymentTaskAuthoringService
 		var idTokens = PopTokensUntil(input, "from").ToList();
 		if (!idTokens.Any() || input.IsFinished)
 		{
-			message = $"Get-by-id steps use the syntax: {"tasks step getid <quantity> <item prototype ids...> from <here|cell ids...>".ColourCommand()}";
+			message = $"Get-by-id steps use the syntax: {"tasks step getid <quantity> <prototype ids|*item ids...> from <here|cell ids...>".ColourCommand()}";
 			return false;
 		}
 
@@ -478,7 +478,7 @@ internal sealed class EmploymentTaskAuthoringService
 			return false;
 		}
 
-		if (!TryParseLongs(idTokens, out var itemPrototypeIds, out message))
+		if (!TryParseRetrievalIds(actor, idTokens, out var itemPrototypeIds, out var specificItemIds, out message))
 		{
 			return false;
 		}
@@ -488,7 +488,7 @@ internal sealed class EmploymentTaskAuthoringService
 			return false;
 		}
 
-		step = new GetItemsByIdActionStep(quantity, itemPrototypeIds, locations);
+		step = new GetItemsByIdActionStep(quantity, itemPrototypeIds, locations, specificItemIds);
 		return true;
 	}
 
@@ -511,7 +511,12 @@ internal sealed class EmploymentTaskAuthoringService
 		var tag = input.PopSpeech();
 		if (input.IsFinished || !input.PopSpeech().EqualTo("from"))
 		{
-			message = $"Get-by-tag steps use the syntax: {"tasks step gettag <quantity> <tag> from <here|cell ids...>".ColourCommand()}";
+			message = $"Get-by-tag steps use the syntax: {"tasks step gettag <quantity> <&tag id|&tag name> from <here|cell ids...>".ColourCommand()}";
+			return false;
+		}
+
+		if (!TryParseTagName(actor, tag, "retrieval tag", out tag, out message))
+		{
 			return false;
 		}
 
@@ -553,7 +558,12 @@ internal sealed class EmploymentTaskAuthoringService
 					return false;
 				}
 
-				tag = input.PopSpeech();
+				var tagToken = input.PopSpeech();
+				if (!TryParseTagName(actor, tagToken, "commodity tag", out tag, out message))
+				{
+					return false;
+				}
+
 				continue;
 			}
 
@@ -563,7 +573,7 @@ internal sealed class EmploymentTaskAuthoringService
 
 		if (input.IsFinished || !input.PopSpeech().EqualTo("from"))
 		{
-			message = $"Commodity steps use the syntax: {"tasks step commodity <weight> <material> [tag <tag>] from <here|cell ids...> [char <name>=<value> ...]".ColourCommand()}";
+			message = $"Commodity steps use the syntax: {"tasks step commodity <weight> <material> [tag <&tag id|&tag name>] from <here|cell ids...> [char <name>=<value> ...]".ColourCommand()}";
 			return false;
 		}
 
@@ -606,7 +616,7 @@ internal sealed class EmploymentTaskAuthoringService
 		step = null!;
 		if (input.IsFinished || !input.PopSpeech().EqualTo("to"))
 		{
-			message = $"Delivery steps use the syntax: {"tasks step deliver to <here|cell id> [container <item id>] [containertag <tag>]".ColourCommand()}";
+			message = $"Delivery steps use the syntax: {"tasks step deliver to <here|cell id> [container <prototype id|*item id|&tag|keyword>]".ColourCommand()}";
 			return false;
 		}
 
@@ -621,29 +631,20 @@ internal sealed class EmploymentTaskAuthoringService
 			return false;
 		}
 
-		IGameItem? container = null;
-		string? containerTag = null;
+		EmploymentItemSelector? containerSelector = null;
 		while (!input.IsFinished)
 		{
 			var option = input.PopSpeech();
 			if (option.EqualTo("container"))
 			{
-				if (containerTag is not null)
+				if (containerSelector is not null)
 				{
-					message = "Specify either a container item id or a container tag, not both.";
+					message = "Specify only one destination container selector.";
 					return false;
 				}
 
-				if (input.IsFinished || !long.TryParse(input.PopSpeech(), out var containerId))
+				if (!TryParseItemSelector(actor, input, "destination container", out containerSelector, out message))
 				{
-					message = "Which container item id do you want to deliver to?";
-					return false;
-				}
-
-				container = actor.Gameworld.TryGetItem(containerId, true);
-				if (container is null)
-				{
-					message = $"There is no item with id {containerId.ToString("N0", actor).ColourValue()}.";
 					return false;
 				}
 
@@ -652,9 +653,9 @@ internal sealed class EmploymentTaskAuthoringService
 
 			if (option.EqualTo("containertag"))
 			{
-				if (container is not null)
+				if (containerSelector is not null)
 				{
-					message = "Specify either a container item id or a container tag, not both.";
+					message = "Specify only one destination container selector.";
 					return false;
 				}
 
@@ -664,7 +665,12 @@ internal sealed class EmploymentTaskAuthoringService
 					return false;
 				}
 
-				containerTag = input.PopSpeech();
+				if (!TryParseTagSelector(actor, input.PopSpeech(), "destination container", out containerSelector,
+					    out message))
+				{
+					return false;
+				}
+
 				continue;
 			}
 
@@ -672,7 +678,7 @@ internal sealed class EmploymentTaskAuthoringService
 			return false;
 		}
 
-		step = new DeliverItemsActionStep(destination, container, containerTag);
+		step = new DeliverItemsActionStep(destination, containerSelector);
 		message = string.Empty;
 		return true;
 	}
@@ -688,11 +694,11 @@ internal sealed class EmploymentTaskAuthoringService
 
 		if (input.IsFinished || !input.PopSpeech().EqualTo("into"))
 		{
-			message = $"Load steps use the syntax: {"tasks step load all into <item id|tag <tag>> [at <here|cell id>]".ColourCommand()}";
+			message = $"Load steps use the syntax: {"tasks step load all into <prototype id|*item id|&tag|keyword> [at <here|cell id>]".ColourCommand()}";
 			return false;
 		}
 
-		if (!TryParseItemOrTag(actor, input, "load target container", out var container, out var tag, out message))
+		if (!TryParseItemSelector(actor, input, "load target container", out var selector, out message))
 		{
 			return false;
 		}
@@ -718,7 +724,7 @@ internal sealed class EmploymentTaskAuthoringService
 			return false;
 		}
 
-		step = new LoadItemsActionStep(container, tag, location);
+		step = new LoadItemsActionStep(selector, location);
 		message = string.Empty;
 		return true;
 	}
@@ -727,7 +733,7 @@ internal sealed class EmploymentTaskAuthoringService
 		out string message)
 	{
 		step = null!;
-		if (!TryParseItemOrTag(actor, input, "unload source container", out var container, out var tag, out message))
+		if (!TryParseItemSelector(actor, input, "unload source container", out var selector, out message))
 		{
 			return false;
 		}
@@ -753,7 +759,7 @@ internal sealed class EmploymentTaskAuthoringService
 			return false;
 		}
 
-		step = new UnloadItemsActionStep(container, tag, location);
+		step = new UnloadItemsActionStep(selector, location);
 		message = string.Empty;
 		return true;
 	}
@@ -764,7 +770,7 @@ internal sealed class EmploymentTaskAuthoringService
 		step = null!;
 		if (input.IsFinished)
 		{
-			message = $"Return steps use the syntax: {"tasks step return container <item id|tag <tag>> to <here|cell id> [container <item id>|containertag <tag>]".ColourCommand()}";
+			message = $"Return steps use the syntax: {"tasks step return container <prototype id|*item id|&tag|keyword> to <here|cell id> [container <prototype id|*item id|&tag|keyword>]".ColourCommand()}";
 			return false;
 		}
 
@@ -775,14 +781,14 @@ internal sealed class EmploymentTaskAuthoringService
 			return false;
 		}
 
-		if (!TryParseItemOrTag(actor, input, "return container", out var container, out var tag, out message))
+		if (!TryParseItemSelector(actor, input, "return container", out var selector, out message))
 		{
 			return false;
 		}
 
 		if (input.IsFinished || !input.PopSpeech().EqualTo("to"))
 		{
-			message = $"Return steps use the syntax: {"tasks step return container <item id|tag <tag>> to <here|cell id> [container <item id>|containertag <tag>]".ColourCommand()}";
+			message = $"Return steps use the syntax: {"tasks step return container <prototype id|*item id|&tag|keyword> to <here|cell id> [container <prototype id|*item id|&tag|keyword>]".ColourCommand()}";
 			return false;
 		}
 
@@ -791,29 +797,21 @@ internal sealed class EmploymentTaskAuthoringService
 			return false;
 		}
 
-		IGameItem? destinationContainer = null;
-		string? destinationContainerTag = null;
+		EmploymentItemSelector? destinationContainerSelector = null;
 		while (!input.IsFinished)
 		{
 			var option = input.PopSpeech();
 			if (option.EqualTo("container"))
 			{
-				if (destinationContainerTag is not null)
+				if (destinationContainerSelector is not null)
 				{
-					message = "Specify either a destination container item id or a destination container tag, not both.";
+					message = "Specify only one destination container selector.";
 					return false;
 				}
 
-				if (input.IsFinished || !long.TryParse(input.PopSpeech(), out var containerId))
+				if (!TryParseItemSelector(actor, input, "destination container", out destinationContainerSelector,
+					    out message))
 				{
-					message = "Which destination container item id do you want to return to?";
-					return false;
-				}
-
-				destinationContainer = actor.Gameworld.TryGetItem(containerId, true);
-				if (destinationContainer is null)
-				{
-					message = $"There is no item with id {containerId.ToString("N0", actor).ColourValue()}.";
 					return false;
 				}
 
@@ -822,9 +820,9 @@ internal sealed class EmploymentTaskAuthoringService
 
 			if (option.EqualTo("containertag"))
 			{
-				if (destinationContainer is not null)
+				if (destinationContainerSelector is not null)
 				{
-					message = "Specify either a destination container item id or a destination container tag, not both.";
+					message = "Specify only one destination container selector.";
 					return false;
 				}
 
@@ -834,7 +832,12 @@ internal sealed class EmploymentTaskAuthoringService
 					return false;
 				}
 
-				destinationContainerTag = input.PopSpeech();
+				if (!TryParseTagSelector(actor, input.PopSpeech(), "destination container",
+					    out destinationContainerSelector, out message))
+				{
+					return false;
+				}
+
 				continue;
 			}
 
@@ -842,7 +845,7 @@ internal sealed class EmploymentTaskAuthoringService
 			return false;
 		}
 
-		step = new ReturnAssetActionStep(container, tag, destination, destinationContainer, destinationContainerTag);
+		step = new ReturnAssetActionStep(selector, destination, destinationContainerSelector);
 		message = string.Empty;
 		return true;
 	}
@@ -1132,11 +1135,10 @@ internal sealed class EmploymentTaskAuthoringService
 		return true;
 	}
 
-	private static bool TryParseItemOrTag(ICharacter actor, StringStack input, string noun, out IGameItem? item,
-		out string? tag, out string message)
+	private static bool TryParseItemSelector(ICharacter actor, StringStack input, string noun,
+		out EmploymentItemSelector? selector, out string message)
 	{
-		item = null;
-		tag = null;
+		selector = null;
 		if (input.IsFinished)
 		{
 			message = $"Which {noun} do you want to use?";
@@ -1148,28 +1150,123 @@ internal sealed class EmploymentTaskAuthoringService
 		{
 			if (input.IsFinished)
 			{
-				message = $"Which tag identifies the {noun}?";
+				message = $"Which {"&tag".ColourCommand()} identifies the {noun}?";
 				return false;
 			}
 
-			tag = input.PopSpeech();
+			return TryParseTagSelector(actor, input.PopSpeech(), noun, out selector, out message);
+		}
+
+		if (token.StartsWith('&'))
+		{
+			return TryParseTagSelector(actor, token, noun, out selector, out message);
+		}
+
+		if (token.EqualTo("keyword") || token.EqualTo("kw"))
+		{
+			if (input.IsFinished)
+			{
+				message = $"Which keyword should identify the {noun}?";
+				return false;
+			}
+
+			var keyword = input.PopSpeech();
+			var target = actor.TargetLocalOrHeldItem(keyword);
+			if (target is null)
+			{
+				message = $"You cannot see any item matching {keyword.ColourCommand()} here.";
+				return false;
+			}
+
+			selector = EmploymentItemSelector.ForItem(target, keyword);
 			message = string.Empty;
 			return true;
 		}
 
-		if (!long.TryParse(token, out var itemId))
+		if (token.StartsWith('*'))
 		{
-			message = $"The {noun} must be an item id or {"tag <tag>".ColourCommand()}.";
+			if (!long.TryParse(token[1..], out var itemId))
+			{
+				message = $"The {noun} item id must be in the form {"*123".ColourCommand()}.";
+				return false;
+			}
+
+			var item = actor.Gameworld.TryGetItem(itemId, true);
+			if (item is null)
+			{
+				message = $"There is no item with id {itemId.ToString("N0", actor).ColourValue()}.";
+				return false;
+			}
+
+			selector = EmploymentItemSelector.ForItem(item);
+			message = string.Empty;
+			return true;
+		}
+
+		if (long.TryParse(token, out var prototypeId))
+		{
+			if (actor.Gameworld.ItemProtos.Get(prototypeId) is null)
+			{
+				message = $"There is no item prototype with id {prototypeId.ToString("N0", actor).ColourValue()}.";
+				return false;
+			}
+
+			selector = EmploymentItemSelector.ForPrototype(prototypeId);
+			message = string.Empty;
+			return true;
+		}
+
+		var keywordTarget = actor.TargetLocalOrHeldItem(token);
+		if (keywordTarget is null)
+		{
+			message = $"You cannot see any {noun} matching {token.ColourCommand()} here. Use a prototype id, {"*item id".ColourCommand()}, or {"&tag".ColourCommand()} if you do not mean a local keyword target.";
 			return false;
 		}
 
-		item = actor.Gameworld.TryGetItem(itemId, true);
-		if (item is null)
+		selector = EmploymentItemSelector.ForItem(keywordTarget, token);
+		message = string.Empty;
+		return true;
+	}
+
+	private static bool TryParseTagSelector(ICharacter actor, string token, string noun,
+		out EmploymentItemSelector? selector, out string message)
+	{
+		selector = null;
+		if (!TryParseTagName(actor, token, noun, out var tagName, out message))
 		{
-			message = $"There is no item with id {itemId.ToString("N0", actor).ColourValue()}.";
 			return false;
 		}
 
+		selector = EmploymentItemSelector.ForTag(tagName);
+		message = string.Empty;
+		return true;
+	}
+
+	private static bool TryParseTagName(ICharacter actor, string token, string noun, out string tagName,
+		out string message)
+	{
+		tagName = string.Empty;
+		if (string.IsNullOrWhiteSpace(token) || !token.StartsWith('&'))
+		{
+			message = $"The {noun} must use explicit tag syntax like {"&tag".ColourCommand()} or {"&123".ColourCommand()}. Bare numbers select item prototypes and bare text selects a visible item keyword.";
+			return false;
+		}
+
+		var tagText = token[1..].Trim();
+		if (string.IsNullOrWhiteSpace(tagText))
+		{
+			message = $"Which tag should {"&".ColourCommand()} refer to?";
+			return false;
+		}
+
+		var tag = actor.Gameworld?.Tags?.GetByIdOrName(tagText);
+		if (tag is null)
+		{
+			message = $"There is no tag matching {"&".ColourCommand()}{tagText.ColourCommand()}.";
+			return false;
+		}
+
+		tagName = tag.FullName;
 		message = string.Empty;
 		return true;
 	}
@@ -1259,6 +1356,50 @@ internal sealed class EmploymentTaskAuthoringService
 		{
 			yield return current;
 		}
+	}
+
+	private static bool TryParseRetrievalIds(ICharacter actor, IEnumerable<string> tokens,
+		out List<long> prototypeIds, out List<long> specificItemIds, out string message)
+	{
+		prototypeIds = new List<long>();
+		specificItemIds = new List<long>();
+		foreach (var token in tokens.SelectMany(x => x.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)))
+		{
+			if (token.StartsWith('*'))
+			{
+				if (!long.TryParse(token[1..], out var itemId))
+				{
+					message = $"The text {token.ColourCommand()} is not a valid specific item id. Use {"*123".ColourCommand()} for item ids.";
+					return false;
+				}
+
+				if (actor.Gameworld.TryGetItem(itemId, true) is null)
+				{
+					message = $"There is no item with id {itemId.ToString("N0", actor).ColourValue()}.";
+					return false;
+				}
+
+				specificItemIds.Add(itemId);
+				continue;
+			}
+
+			if (!long.TryParse(token, out var prototypeId))
+			{
+				message = $"The text {token.ColourCommand()} is not a valid numeric prototype id or {"*item id".ColourCommand()}.";
+				return false;
+			}
+
+			if (actor.Gameworld.ItemProtos.Get(prototypeId) is null)
+			{
+				message = $"There is no item prototype with id {prototypeId.ToString("N0", actor).ColourValue()}.";
+				return false;
+			}
+
+			prototypeIds.Add(prototypeId);
+		}
+
+		message = string.Empty;
+		return prototypeIds.Any() || specificItemIds.Any();
 	}
 
 	private static bool TryParseLongs(IEnumerable<string> tokens, out List<long> values, out string message)
@@ -1408,7 +1549,7 @@ internal sealed class EmploymentTaskAuthoringService
 					? $"record {shell.ActionKey.ColourCommand()} audit shell: {shell.ActionDescription}"
 					: $"go to {shell.TargetLocation.GetFriendlyReference(actor).ColourName()} and record {shell.ActionKey.ColourCommand()} audit shell: {shell.ActionDescription}",
 			GetItemsByIdActionStep getId =>
-				$"go to {DescribeLocations(getId.SourceLocations, actor)} and collect {getId.Quantity.ToString("N0", actor).ColourValue()}x {DescribeItemPrototypeIds(getId.ItemPrototypeIds, actor)}",
+				$"go to {DescribeLocations(getId.SourceLocations, actor)} and collect {getId.Quantity.ToString("N0", actor).ColourValue()}x {DescribeRetrievalTargets(getId, actor)}",
 			GetItemsByTagActionStep getTag =>
 				$"go to {DescribeLocations(getTag.SourceLocations, actor)} and collect {getTag.Quantity.ToString("N0", actor).ColourValue()}x items tagged {getTag.TagName.ColourCommand()}",
 			GetCommodityActionStep commodity =>
@@ -1416,11 +1557,11 @@ internal sealed class EmploymentTaskAuthoringService
 			DeliverItemsActionStep deliver =>
 				$"go to {deliver.Destination.GetFriendlyReference(actor).ColourName()} and deliver all carried task items{DescribeDeliveryContainer(deliver, actor)}",
 			LoadItemsActionStep load =>
-				$"go to {DescribeOptionalLocation(load.TargetLocation, load.TargetContainer, actor)} and load all carried task items into {DescribeItemOrTag(load.TargetContainer, load.TargetContainerTag, actor)}",
+				$"go to {DescribeOptionalLocation(load.TargetLocation, load.TargetContainer, actor)} and load all carried task items into {DescribeItemSelector(load.TargetContainerSelector, actor)}",
 			UnloadItemsActionStep unload =>
-				$"go to {DescribeOptionalLocation(unload.SourceLocation, unload.SourceContainer, actor)} and unload task-loaded items from {DescribeItemOrTag(unload.SourceContainer, unload.SourceContainerTag, actor)}",
+				$"go to {DescribeOptionalLocation(unload.SourceLocation, unload.SourceContainer, actor)} and unload task-loaded items from {DescribeItemSelector(unload.SourceContainerSelector, actor)}",
 			ReturnAssetActionStep returnAsset =>
-				$"return container {DescribeItemOrTag(returnAsset.Container, returnAsset.ContainerTag, actor)} to {returnAsset.Destination.GetFriendlyReference(actor).ColourName()}{DescribeReturnDestinationContainer(returnAsset, actor)}",
+				$"return container {DescribeItemSelector(returnAsset.ContainerSelector, actor)} to {returnAsset.Destination.GetFriendlyReference(actor).ColourName()}{DescribeReturnDestinationContainer(returnAsset, actor)}",
 			VehicleOperationActionStep vehicle =>
 				$"validate cargo space {vehicle.CargoSpace.Name.ColourName()} on {vehicle.Vehicle.Name.ColourName()}",
 			_ => step.StepType.DescribeEnum().ColourName()
@@ -1503,6 +1644,35 @@ internal sealed class EmploymentTaskAuthoringService
 		       .ListToString();
 	}
 
+	private static string DescribeSpecificItemIds(IEnumerable<long> itemIds, ICharacter actor)
+	{
+		return itemIds
+		       .Select(x =>
+		       {
+			       var item = actor.Gameworld?.TryGetItem(x, true);
+			       return item is null
+				       ? $"item #{x.ToString("N0", actor)}".ColourValue()
+				       : $"{item.HowSeen(actor, colour: false).ColourName()} (item #{x.ToString("N0", actor).ColourValue()})";
+		       })
+		       .ListToString();
+	}
+
+	private static string DescribeRetrievalTargets(GetItemsByIdActionStep getId, ICharacter actor)
+	{
+		var parts = new List<string>();
+		if (getId.ItemPrototypeIds.Any())
+		{
+			parts.Add(DescribeItemPrototypeIds(getId.ItemPrototypeIds, actor));
+		}
+
+		if (getId.SpecificItemIds.Any())
+		{
+			parts.Add(DescribeSpecificItemIds(getId.SpecificItemIds, actor));
+		}
+
+		return parts.ListToString();
+	}
+
 	private static string DescribeCharacteristics(IReadOnlyDictionary<string, string> characteristics)
 	{
 		return characteristics.Any()
@@ -1512,17 +1682,7 @@ internal sealed class EmploymentTaskAuthoringService
 
 	private static string DescribeDeliveryContainer(DeliverItemsActionStep deliver, ICharacter actor)
 	{
-		if (deliver.Container is not null)
-		{
-			return $" into {deliver.Container.HowSeen(actor, colour: false).ColourName()}";
-		}
-
-		if (!string.IsNullOrWhiteSpace(deliver.ContainerTag))
-		{
-			return $" into a container tagged {deliver.ContainerTag.ColourCommand()}";
-		}
-
-		return string.Empty;
+		return deliver.ContainerSelector is null ? string.Empty : $" into {DescribeItemSelector(deliver.ContainerSelector, actor)}";
 	}
 
 	private static string DescribeOptionalLocation(ICell? location, IGameItem? item, ICharacter actor)
@@ -1536,30 +1696,36 @@ internal sealed class EmploymentTaskAuthoringService
 		return itemLocation is null ? "the target location".ColourName() : itemLocation.GetFriendlyReference(actor).ColourName();
 	}
 
-	private static string DescribeItemOrTag(IGameItem? item, string? tag, ICharacter actor)
+	private static string DescribeItemSelector(EmploymentItemSelector? selector, ICharacter actor)
 	{
-		if (item is not null)
+		if (selector is null)
 		{
-			return item.HowSeen(actor, colour: false).ColourName();
+			return "an unresolved item".ColourError();
 		}
 
-		return string.IsNullOrWhiteSpace(tag)
-			? "an unresolved container".ColourError()
-			: $"a container tagged {tag.ColourCommand()}";
+		if (selector.Item is not null)
+		{
+			return selector.Item.HowSeen(actor, colour: false).ColourName();
+		}
+
+		return selector.Kind switch
+		{
+			EmploymentItemSelectorKind.PrototypeId =>
+				$"an item of prototype #{selector.Id?.ToString("N0", actor).ColourValue()}",
+			EmploymentItemSelectorKind.ItemId =>
+				$"item #{selector.Id?.ToString("N0", actor).ColourValue()}",
+			EmploymentItemSelectorKind.Keyword =>
+				$"an item matching keyword {selector.Text?.ColourCommand() ?? "?".ColourError()}",
+			EmploymentItemSelectorKind.Tag =>
+				$"an item tagged {selector.Text?.ColourCommand() ?? "?".ColourError()}",
+			_ => "an unresolved item".ColourError()
+		};
 	}
 
 	private static string DescribeReturnDestinationContainer(ReturnAssetActionStep returnAsset, ICharacter actor)
 	{
-		if (returnAsset.DestinationContainer is not null)
-		{
-			return $" into {returnAsset.DestinationContainer.HowSeen(actor, colour: false).ColourName()}";
-		}
-
-		if (!string.IsNullOrWhiteSpace(returnAsset.DestinationContainerTag))
-		{
-			return $" into a container tagged {returnAsset.DestinationContainerTag.ColourCommand()}";
-		}
-
-		return string.Empty;
+		return returnAsset.DestinationContainerSelector is null
+			? string.Empty
+			: $" into {DescribeItemSelector(returnAsset.DestinationContainerSelector, actor)}";
 	}
 }

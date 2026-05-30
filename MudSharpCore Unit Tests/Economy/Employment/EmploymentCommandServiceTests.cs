@@ -734,14 +734,16 @@ public class EmploymentCommandServiceTests
 	{
 		var currency = Currency();
 		IEmploymentHost host = new TestEmploymentHost(1, "market shop", currency.Object);
-		var manager = Character(60, "Manager").Object;
+		var gameworld = Gameworld();
+		gameworld.SetupGet(x => x.Tags).Returns(Tags(Tag(1, "apple").Object, Tag(2, "display").Object));
+		var manager = Character(60, "Manager", gameworld: gameworld.Object).Object;
 		host.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
 			EmploymentAuthority.AssignTasks | EmploymentAuthority.ManageDeliveryRoutes), null);
 		var authoring = new EmploymentTaskAuthoringService();
 
 		Assert.IsTrue(authoring.TryStartDraft(manager, host, "Restock shelves", out var message), message);
-		Assert.IsTrue(authoring.TryAddStep(manager, host, new StringStack("gettag 2 apple from here"), out message), message);
-		Assert.IsTrue(authoring.TryAddStep(manager, host, new StringStack("deliver to here containertag display"), out message), message);
+		Assert.IsTrue(authoring.TryAddStep(manager, host, new StringStack("gettag 2 &apple from here"), out message), message);
+		Assert.IsTrue(authoring.TryAddStep(manager, host, new StringStack("deliver to here containertag &display"), out message), message);
 		StringAssert.Contains(authoring.RenderDraft(manager, host), "Restock shelves");
 		StringAssert.Contains(authoring.RenderDraft(manager, host), "CanDeliverItems");
 		Assert.IsFalse(host.EmploymentRegister.Entries.Any(x => x.EntryType == EmploymentRegisterEntryType.ActiveTaskCreated));
@@ -776,6 +778,46 @@ public class EmploymentCommandServiceTests
 		StringAssert.Contains(rendered, "Restock gloves");
 		StringAssert.Contains(rendered, "a pair of leather gloves");
 		StringAssert.Contains(rendered, "prototype #");
+	}
+
+	[TestMethod]
+	public void EmploymentCommandService_TaskItemSelectorsUsePrototypeSpecificTagAndKeyword()
+	{
+		var currency = Currency();
+		IEmploymentHost host = new TestEmploymentHost(1, "market shop", currency.Object);
+		var cell = Cell(691, "stockroom").Object;
+		var prototype = ItemProto(500, "a cargo crate").Object;
+		var liveItem = Item(700, "a battered crate", prototype, [cell]).Object;
+		var keywordItem = Item(701, "a labelled crate", prototype, [cell]).Object;
+		var cargoTag = Tag(800, "cargo").Object;
+		var gameworld = Gameworld();
+		gameworld.SetupGet(x => x.ItemProtos).Returns(ItemProtos(prototype).Object);
+		gameworld.SetupGet(x => x.Tags).Returns(Tags(cargoTag));
+		gameworld.Setup(x => x.TryGetItem(It.IsAny<long>(), It.IsAny<bool>()))
+		         .Returns((long id, bool _) => id == liveItem.Id ? liveItem : id == keywordItem.Id ? keywordItem : null!);
+		var manager = Character(70, "Manager", gameworld: gameworld.Object, location: cell).Object;
+		Mock.Get(manager).Setup(x => x.TargetLocalOrHeldItem("labelled")).Returns(keywordItem);
+		host.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.AssignTasks | EmploymentAuthority.ManageDeliveryRoutes), null);
+		var authoring = new EmploymentTaskAuthoringService();
+
+		Assert.IsTrue(authoring.TryStartDraft(manager, host, "Selectors", out var message), message);
+		Assert.IsTrue(authoring.TryAddStep(manager, host, new StringStack("getid 1 *700 from here"), out message), message);
+		Assert.IsFalse(authoring.TryAddStep(manager, host, new StringStack("gettag 1 500 from here"), out message));
+		StringAssert.Contains(message, "must use explicit tag syntax");
+		Assert.IsTrue(authoring.TryAddStep(manager, host, new StringStack("load all into 500 at here"), out message), message);
+		Assert.IsTrue(authoring.TryAddStep(manager, host, new StringStack("unload *700 at here"), out message), message);
+		Assert.IsTrue(authoring.TryAddStep(manager, host, new StringStack("load all into &800 at here"), out message), message);
+		Assert.IsTrue(authoring.TryAddStep(manager, host, new StringStack("deliver to here container &cargo"), out message), message);
+		Assert.IsTrue(authoring.TryAddStep(manager, host, new StringStack("return container labelled to here"), out message), message);
+		Assert.IsFalse(authoring.TryAddStep(manager, host, new StringStack("load all into &missing at here"), out message));
+		var rendered = authoring.RenderDraft(manager, host);
+
+		StringAssert.Contains(rendered, "a battered crate");
+		StringAssert.Contains(rendered, "prototype #");
+		StringAssert.Contains(rendered, "item tagged");
+		StringAssert.Contains(message, "There is no tag matching");
+		StringAssert.Contains(rendered, "a labelled crate");
 	}
 
 	[TestMethod]
@@ -876,7 +918,9 @@ public class EmploymentCommandServiceTests
 		decimal five = 5.0M;
 		currency.Setup(x => x.TryGetBaseCurrency("5", out five)).Returns(true);
 		IEmploymentHost host = new TestEmploymentHost(1, "market shop", currency.Object);
-		var manager = Character(68, "Manager").Object;
+		var gameworld = Gameworld();
+		gameworld.SetupGet(x => x.Tags).Returns(Tags(Tag(801, "crate").Object, Tag(802, "depot").Object));
+		var manager = Character(68, "Manager", gameworld: gameworld.Object).Object;
 		host.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
 			EmploymentAuthority.AssignTasks |
 			EmploymentAuthority.ManageDeliveryRoutes |
@@ -898,9 +942,9 @@ public class EmploymentCommandServiceTests
 		Assert.IsTrue(authoring.TryAddStep(manager, host, new StringStack("bankwithdraw 5"), out message), message);
 		Assert.IsTrue(authoring.TryAddStep(manager, host, new StringStack("storepay supplier amount 5"), out message), message);
 		Assert.IsTrue(authoring.TryAddStep(manager, host, new StringStack("craft linen bundles"), out message), message);
-		Assert.IsTrue(authoring.TryAddStep(manager, host, new StringStack("load all into tag crate at here"), out message), message);
-		Assert.IsTrue(authoring.TryAddStep(manager, host, new StringStack("unload tag crate at here"), out message), message);
-		Assert.IsTrue(authoring.TryAddStep(manager, host, new StringStack("return container tag crate to here containertag depot"), out message), message);
+		Assert.IsTrue(authoring.TryAddStep(manager, host, new StringStack("load all into &crate at here"), out message), message);
+		Assert.IsTrue(authoring.TryAddStep(manager, host, new StringStack("unload &crate at here"), out message), message);
+		Assert.IsTrue(authoring.TryAddStep(manager, host, new StringStack("return container &crate to here containertag &depot"), out message), message);
 		Assert.IsTrue(authoring.TryAddStep(manager, host, new StringStack("report shelves checked"), out message), message);
 		Assert.IsTrue(authoring.TryAddStep(manager, host, new StringStack("authorise purchase approved"), out message), message);
 		Assert.IsTrue(authoring.TryAddStep(manager, host, new StringStack("reserve feed crates"), out message), message);
@@ -964,7 +1008,9 @@ public class EmploymentCommandServiceTests
 	{
 		var currency = Currency();
 		IEmploymentHost host = new TestEmploymentHost(1, "market shop", currency.Object);
-		var manager = Character(70, "Manager").Object;
+		var gameworld = Gameworld();
+		gameworld.SetupGet(x => x.Tags).Returns(Tags(Tag(1, "apple").Object, Tag(2, "display").Object));
+		var manager = Character(70, "Manager", gameworld: gameworld.Object).Object;
 		host.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
 			EmploymentAuthority.AssignTasks | EmploymentAuthority.ManageDeliveryRoutes), null);
 		var authoring = new EmploymentTaskAuthoringService();
@@ -972,7 +1018,7 @@ public class EmploymentCommandServiceTests
 		var created = authoring.TryCreateOneShotTask(
 			manager,
 			host,
-			new StringStack("Restock gettag 2 apple from here then deliver to here containertag display"),
+			new StringStack("Restock gettag 2 &apple from here then deliver to here containertag &display"),
 			out var task,
 			out var message);
 
@@ -1030,6 +1076,7 @@ public class EmploymentCommandServiceTests
 			var cells = new All<ICell>();
 			cells.Add(cell.Object);
 			gameworld.SetupGet(x => x.Cells).Returns(cells);
+			gameworld.SetupGet(x => x.Tags).Returns(Tags(Tag(1, "apple").Object, Tag(2, "display").Object));
 			var currencies = new All<ICurrency>();
 			currencies.Add(currency.Object);
 			gameworld.SetupGet(x => x.Currencies).Returns(currencies);
@@ -1042,8 +1089,8 @@ public class EmploymentCommandServiceTests
 			var service = new EmploymentCommandService();
 
 			service.ExecuteForHost(manager, host, new StringStack("tasks draft new Restock apples"));
-			service.ExecuteForHost(manager, host, new StringStack("tasks step gettag 2 apple from here"));
-			service.ExecuteForHost(manager, host, new StringStack("tasks step deliver to here containertag display"));
+			service.ExecuteForHost(manager, host, new StringStack("tasks step gettag 2 &apple from here"));
+			service.ExecuteForHost(manager, host, new StringStack("tasks step deliver to here containertag &display"));
 			service.ExecuteForHost(manager, host, new StringStack("tasks draft finalise"));
 
 			IEmploymentHost reloaded = new PersistedEmploymentHost(62, "persistent shop", gameworld.Object, currency.Object);
@@ -1282,6 +1329,23 @@ public class EmploymentCommandServiceTests
 		return proto;
 	}
 
+	private static Mock<IGameItem> Item(long id, string name, IGameItemProto prototype, IEnumerable<ICell>? trueLocations = null)
+	{
+		var item = new Mock<IGameItem>();
+		item.SetupGet(x => x.Id).Returns(id);
+		item.SetupGet(x => x.Name).Returns(name);
+		item.SetupGet(x => x.Prototype).Returns(prototype);
+		item.SetupGet(x => x.TrueLocations).Returns(trueLocations ?? []);
+		item.Setup(x => x.HowSeen(
+			        It.IsAny<IPerceiver>(),
+			        It.IsAny<bool>(),
+			        It.IsAny<DescriptionType>(),
+			        It.IsAny<bool>(),
+			        It.IsAny<PerceiveIgnoreFlags>()))
+		    .Returns(name);
+		return item;
+	}
+
 	private static Mock<IUneditableRevisableAll<IGameItemProto>> ItemProtos(params IGameItemProto[] prototypes)
 	{
 		var lookup = prototypes.ToDictionary(x => x.Id);
@@ -1289,6 +1353,26 @@ public class EmploymentCommandServiceTests
 		itemProtos.Setup(x => x.Get(It.IsAny<long>()))
 		          .Returns((long id) => lookup.TryGetValue(id, out var prototype) ? prototype : null!);
 		return itemProtos;
+	}
+
+	private static All<ITag> Tags(params ITag[] tags)
+	{
+		var all = new All<ITag>();
+		foreach (var tag in tags)
+		{
+			all.Add(tag);
+		}
+
+		return all;
+	}
+
+	private static Mock<ITag> Tag(long id, string name)
+	{
+		var tag = new Mock<ITag>();
+		tag.SetupGet(x => x.Id).Returns(id);
+		tag.SetupGet(x => x.Name).Returns(name);
+		tag.SetupGet(x => x.FullName).Returns(name);
+		return tag;
 	}
 
 	private static Mock<ICharacter> Character(long id, string name, bool administrator = false,

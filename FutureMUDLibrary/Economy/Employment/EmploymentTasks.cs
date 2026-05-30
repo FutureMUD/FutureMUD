@@ -64,6 +64,37 @@ public enum EmploymentActionStepStatus
 	Blocked
 }
 
+public enum EmploymentItemSelectorKind
+{
+	PrototypeId,
+	ItemId,
+	Tag,
+	Keyword
+}
+
+public sealed record EmploymentItemSelector(
+	EmploymentItemSelectorKind Kind,
+	long? Id = null,
+	string? Text = null,
+	IGameItem? Item = null)
+{
+	public static EmploymentItemSelector ForPrototype(long prototypeId) =>
+		new(EmploymentItemSelectorKind.PrototypeId, prototypeId);
+
+	public static EmploymentItemSelector ForItemId(long itemId) =>
+		new(EmploymentItemSelectorKind.ItemId, itemId);
+
+	public static EmploymentItemSelector ForItem(IGameItem item, string? keyword = null) =>
+		new(string.IsNullOrWhiteSpace(keyword) ? EmploymentItemSelectorKind.ItemId : EmploymentItemSelectorKind.Keyword,
+			item.Id, keyword, item);
+
+	public static EmploymentItemSelector ForTag(string tag) =>
+		new(EmploymentItemSelectorKind.Tag, null, tag);
+
+	public static EmploymentItemSelector ForKeyword(string keyword, IGameItem? item = null) =>
+		new(EmploymentItemSelectorKind.Keyword, item?.Id, keyword, item);
+}
+
 public interface IEmploymentActionStep
 {
 	EmploymentActionStepType StepType { get; }

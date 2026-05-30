@@ -52,15 +52,18 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 		{
 		}
 
-		public GetItemsByIdStepPayload(int quantity, long[] itemPrototypeIds, long[] sourceLocationIds)
+		public GetItemsByIdStepPayload(int quantity, long[] itemPrototypeIds, long[] sourceLocationIds,
+			long[]? specificItemIds = null)
 		{
 			Quantity = quantity;
 			ItemPrototypeIds = itemPrototypeIds;
 			SourceLocationIds = sourceLocationIds;
+			SpecificItemIds = specificItemIds ?? [];
 		}
 
 		public int Quantity { get; set; }
 		public long[] ItemPrototypeIds { get; set; } = [];
+		public long[] SpecificItemIds { get; set; } = [];
 		[JsonPropertyName("ItemIds")]
 		[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
 		public long[]? LegacyItemIds { get; set; }
@@ -74,14 +77,20 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 	private sealed record GetCommodityStepPayload(double RequiredWeight, string MaterialName, string? TagName,
 		Dictionary<string, string> Characteristics, long[] SourceLocationIds);
 
-	private sealed record DeliverItemsStepPayload(long DestinationCellId, long? ContainerId, string? ContainerTag);
+	private sealed record ItemSelectorPayload(string Kind, long? Id, string? Text);
 
-	private sealed record LoadItemsStepPayload(long? ContainerId, string? ContainerTag, long? TargetLocationId);
+	private sealed record DeliverItemsStepPayload(long DestinationCellId, long? ContainerId = null,
+		string? ContainerTag = null, ItemSelectorPayload? ContainerSelector = null);
 
-	private sealed record UnloadItemsStepPayload(long? ContainerId, string? ContainerTag, long? SourceLocationId);
+	private sealed record LoadItemsStepPayload(long? ContainerId = null, string? ContainerTag = null,
+		long? TargetLocationId = null, ItemSelectorPayload? ContainerSelector = null);
+
+	private sealed record UnloadItemsStepPayload(long? ContainerId = null, string? ContainerTag = null,
+		long? SourceLocationId = null, ItemSelectorPayload? ContainerSelector = null);
 
 	private sealed record ReturnAssetStepPayload(long? ContainerId, string? ContainerTag, long DestinationCellId,
-		long? DestinationContainerId, string? DestinationContainerTag);
+		long? DestinationContainerId, string? DestinationContainerTag, ItemSelectorPayload? ContainerSelector = null,
+		ItemSelectorPayload? DestinationContainerSelector = null);
 
 	private sealed record VehicleOperationStepPayload(long VehicleId, long CargoSpaceId);
 
@@ -1109,7 +1118,8 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 			return null;
 		}
 
-		return new GetItemsByIdActionStep(payload.Quantity, payload.ResolvedItemPrototypeIds, ResolveCells(payload.SourceLocationIds));
+		return new GetItemsByIdActionStep(payload.Quantity, payload.ResolvedItemPrototypeIds,
+			ResolveCells(payload.SourceLocationIds), payload.SpecificItemIds);
 	}
 
 	private GetItemsByTagActionStep? ToGetItemsByTagStep(DbActionStep record)
@@ -1144,8 +1154,8 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 			return null;
 		}
 
-		var container = payload?.ContainerId is null ? null : _gameworld.TryGetItem(payload.ContainerId.Value, true);
-		return new DeliverItemsActionStep(destination, container, payload?.ContainerTag);
+		return new DeliverItemsActionStep(destination,
+			ToItemSelector(payload?.ContainerSelector, payload?.ContainerId, payload?.ContainerTag));
 	}
 
 	private LoadItemsActionStep? ToLoadItemsStep(DbActionStep record)
@@ -1156,9 +1166,9 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 			return null;
 		}
 
-		var container = payload.ContainerId is null ? null : _gameworld.TryGetItem(payload.ContainerId.Value, true);
 		var location = payload.TargetLocationId.HasValue ? _gameworld.Cells.Get(payload.TargetLocationId.Value) : null;
-		return new LoadItemsActionStep(container, payload.ContainerTag, location);
+		return new LoadItemsActionStep(ToItemSelector(payload.ContainerSelector, payload.ContainerId, payload.ContainerTag),
+			location);
 	}
 
 	private UnloadItemsActionStep? ToUnloadItemsStep(DbActionStep record)
@@ -1169,9 +1179,9 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 			return null;
 		}
 
-		var container = payload.ContainerId is null ? null : _gameworld.TryGetItem(payload.ContainerId.Value, true);
 		var location = payload.SourceLocationId.HasValue ? _gameworld.Cells.Get(payload.SourceLocationId.Value) : null;
-		return new UnloadItemsActionStep(container, payload.ContainerTag, location);
+		return new UnloadItemsActionStep(ToItemSelector(payload.ContainerSelector, payload.ContainerId, payload.ContainerTag),
+			location);
 	}
 
 	private ReturnAssetActionStep? ToReturnAssetStep(DbActionStep record)
@@ -1188,12 +1198,11 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 			return null;
 		}
 
-		var container = payload.ContainerId is null ? null : _gameworld.TryGetItem(payload.ContainerId.Value, true);
-		var destinationContainer = payload.DestinationContainerId is null
-			? null
-			: _gameworld.TryGetItem(payload.DestinationContainerId.Value, true);
-		return new ReturnAssetActionStep(container, payload.ContainerTag, destination, destinationContainer,
-			payload.DestinationContainerTag);
+		return new ReturnAssetActionStep(
+			ToItemSelector(payload.ContainerSelector, payload.ContainerId, payload.ContainerTag),
+			destination,
+			ToItemSelector(payload.DestinationContainerSelector, payload.DestinationContainerId,
+				payload.DestinationContainerTag));
 	}
 
 	private VehicleOperationActionStep? ToVehicleOperationStep(DbActionStep record)
@@ -1207,6 +1216,46 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 		var vehicle = _gameworld.Vehicles.Get(payload.VehicleId);
 		var cargo = vehicle?.CargoSpaces.FirstOrDefault(x => x.Id == payload.CargoSpaceId);
 		return vehicle is null || cargo is null ? null : new VehicleOperationActionStep(vehicle, cargo);
+	}
+
+	private EmploymentItemSelector? ToItemSelector(ItemSelectorPayload? payload, long? legacyItemId = null,
+		string? legacyTag = null)
+	{
+		if (payload is not null && payload.Kind.TryParseEnum<EmploymentItemSelectorKind>(out var kind))
+		{
+			return kind switch
+			{
+				EmploymentItemSelectorKind.PrototypeId when payload.Id.HasValue =>
+					EmploymentItemSelector.ForPrototype(payload.Id.Value),
+				EmploymentItemSelectorKind.ItemId when payload.Id.HasValue =>
+					_gameworld.TryGetItem(payload.Id.Value, true) is { } item
+						? EmploymentItemSelector.ForItem(item)
+						: EmploymentItemSelector.ForItemId(payload.Id.Value),
+				EmploymentItemSelectorKind.Keyword when payload.Id.HasValue =>
+					new EmploymentItemSelector(EmploymentItemSelectorKind.Keyword, payload.Id, payload.Text,
+						_gameworld.TryGetItem(payload.Id.Value, true)),
+				EmploymentItemSelectorKind.Keyword =>
+					string.IsNullOrWhiteSpace(payload.Text) ? null : EmploymentItemSelector.ForKeyword(payload.Text),
+				EmploymentItemSelectorKind.Tag =>
+					string.IsNullOrWhiteSpace(payload.Text) ? null : EmploymentItemSelector.ForTag(payload.Text),
+				_ => null
+			};
+		}
+
+		if (legacyItemId.HasValue)
+		{
+			var item = _gameworld.TryGetItem(legacyItemId.Value, true);
+			return item is null ? EmploymentItemSelector.ForItemId(legacyItemId.Value) : EmploymentItemSelector.ForItem(item);
+		}
+
+		return string.IsNullOrWhiteSpace(legacyTag) ? null : EmploymentItemSelector.ForTag(legacyTag);
+	}
+
+	private static ItemSelectorPayload? FromItemSelector(EmploymentItemSelector? selector)
+	{
+		return selector is null
+			? null
+			: new ItemSelectorPayload(selector.Kind.ToString(), selector.Id, selector.Text);
 	}
 
 	private CataloguedActionShellStep? ToCataloguedShellStep(DbActionStep record, ICell? destination)
@@ -1316,11 +1365,12 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 				record.BoardText = boardPost.Text;
 				break;
 			case GetItemsByIdActionStep getById:
-				record.Description = $"get {getById.Quantity:N0} item(s) by prototype id";
+				record.Description = $"get {getById.Quantity:N0} item(s) by item selector";
 				record.BoardText = SerializeActionPayload(new GetItemsByIdStepPayload(
 					getById.Quantity,
 					getById.ItemPrototypeIds.ToArray(),
-					getById.SourceLocations.Select(x => x.Id).ToArray()));
+					getById.SourceLocations.Select(x => x.Id).ToArray(),
+					getById.SpecificItemIds.ToArray()));
 				break;
 			case GetItemsByTagActionStep getByTag:
 				record.Description = $"get {getByTag.Quantity:N0} item(s) tagged {getByTag.TagName}";
@@ -1345,7 +1395,8 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 				record.BoardText = SerializeActionPayload(new DeliverItemsStepPayload(
 					deliver.Destination.Id,
 					deliver.Container?.Id,
-					deliver.ContainerTag));
+					deliver.ContainerTag,
+					FromItemSelector(deliver.ContainerSelector)));
 				break;
 			case LoadItemsActionStep load:
 				record.Description = "load task items";
@@ -1353,7 +1404,8 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 				record.BoardText = SerializeActionPayload(new LoadItemsStepPayload(
 					load.TargetContainer?.Id,
 					load.TargetContainerTag,
-					load.TargetLocation?.Id));
+					load.TargetLocation?.Id,
+					FromItemSelector(load.TargetContainerSelector)));
 				break;
 			case UnloadItemsActionStep unload:
 				record.Description = "unload task items";
@@ -1361,7 +1413,8 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 				record.BoardText = SerializeActionPayload(new UnloadItemsStepPayload(
 					unload.SourceContainer?.Id,
 					unload.SourceContainerTag,
-					unload.SourceLocation?.Id));
+					unload.SourceLocation?.Id,
+					FromItemSelector(unload.SourceContainerSelector)));
 				break;
 			case ReturnAssetActionStep returnAsset:
 				record.Description = "return task container";
@@ -1371,7 +1424,9 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 					returnAsset.ContainerTag,
 					returnAsset.Destination.Id,
 					returnAsset.DestinationContainer?.Id,
-					returnAsset.DestinationContainerTag));
+					returnAsset.DestinationContainerTag,
+					FromItemSelector(returnAsset.ContainerSelector),
+					FromItemSelector(returnAsset.DestinationContainerSelector)));
 				break;
 			case VehicleOperationActionStep vehicle:
 				record.Description = $"select cargo {vehicle.CargoSpace.Name} on {vehicle.Vehicle.Name}";

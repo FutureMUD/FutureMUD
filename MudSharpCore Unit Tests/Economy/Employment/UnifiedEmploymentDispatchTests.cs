@@ -378,6 +378,32 @@ public class UnifiedEmploymentDispatchTests
 	}
 
 	[TestMethod]
+	public void GetItemsByIdActionStep_CollectsSpecificItemIdsWhenRequested()
+	{
+		var currency = Currency();
+		IEmploymentHost host = new TestEmploymentHost("shop", currency.Object);
+		var manager = Character(1, "Manager").Object;
+		host.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.AssignTasks | EmploymentAuthority.ManageDeliveryRoutes), null);
+		var source = Cell(12, "stock room").Object;
+		var requested = Item(103, "first crate", prototypeId: 9001).Object;
+		var ignoredSamePrototype = Item(104, "other crate", prototypeId: 9001).Object;
+		var context = new EmploymentTaskContext(host);
+		context.SetAvailableItems(source, [requested, ignoredSamePrototype]);
+		var step = new GetItemsByIdActionStep(1, [], [source], [requested.Id]);
+		var task = host.TaskBoard.CreateActiveTask("collect crate", new EmploymentActionPlan([step]), manager);
+		var dispatcher = new EmploymentTaskDispatcher();
+		var profile = Profile(manager, 1.0M, PaymentMethodKind.Cash, Caps(EmploymentAICapability.CanDeliverItems));
+
+		Assert.IsTrue(dispatcher.TryAssignTask(task, [profile], context, out _));
+		var result = dispatcher.AdvanceTask(task, context);
+
+		Assert.IsTrue(result.Success);
+		CollectionAssert.AreEquivalent(new[] { requested.Id }, context.CarriedTaskItems(manager).Select(x => x.Id).ToArray());
+		CollectionAssert.Contains(context.AvailableItems(source).Select(x => x.Id).ToArray(), ignoredSamePrototype.Id);
+	}
+
+	[TestMethod]
 	public void GetItemsByIdActionStep_RequiresEnoughMatchingPrototypeInstances()
 	{
 		var currency = Currency();
@@ -517,8 +543,8 @@ public class UnifiedEmploymentDispatchTests
 		context.SetItemTags(crate, "cargo");
 		var plan = new EmploymentActionPlan([
 			new GetItemsByTagActionStep(2, "tack", [source]),
-			new LoadItemsActionStep(null, "cargo", crateLocation),
-			new UnloadItemsActionStep(null, "cargo", crateLocation)
+			new LoadItemsActionStep(EmploymentItemSelector.ForPrototype(crate.Prototype.Id), crateLocation),
+			new UnloadItemsActionStep(EmploymentItemSelector.ForTag("cargo"), crateLocation)
 		]);
 		var task = host.TaskBoard.CreateActiveTask("load tack", plan, manager);
 		var dispatcher = new EmploymentTaskDispatcher();

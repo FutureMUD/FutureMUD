@@ -13,6 +13,129 @@ using MudSharp.Vehicles;
 
 namespace MudSharp.Economy.Employment;
 
+internal static class EmploymentItemSelectorResolver
+{
+	public static IGameItem? Resolve(IEmploymentTaskContext context, ICharacter actor,
+		EmploymentItemSelector? selector, ICell? location, bool includeCarried)
+	{
+		if (selector is null)
+		{
+			return null;
+		}
+
+		var candidates = CandidateItems(context, actor, location, includeCarried)
+		                 .DistinctBy(x => x.Id)
+		                 .ToList();
+		return selector.Kind switch
+		{
+			EmploymentItemSelectorKind.PrototypeId =>
+				candidates.FirstOrDefault(x => x.Prototype.Id == selector.Id),
+			EmploymentItemSelectorKind.ItemId =>
+				ResolveSpecificItem(actor, selector, candidates, location, includeCarried),
+			EmploymentItemSelectorKind.Keyword =>
+				ResolveKeyword(actor, selector, candidates, location, includeCarried),
+			EmploymentItemSelectorKind.Tag =>
+				candidates.FirstOrDefault(x => !string.IsNullOrWhiteSpace(selector.Text) &&
+				                                context.ItemHasTag(x, selector.Text)),
+			_ => null
+		};
+	}
+
+	public static string Describe(EmploymentItemSelector? selector)
+	{
+		if (selector is null)
+		{
+			return "nothing";
+		}
+
+		return selector.Kind switch
+		{
+			EmploymentItemSelectorKind.PrototypeId => $"item prototype #{selector.Id?.ToString("F0") ?? "?"}",
+			EmploymentItemSelectorKind.ItemId => $"item #{selector.Id?.ToString("F0") ?? "?"}",
+			EmploymentItemSelectorKind.Keyword => $"item keyword {selector.Text ?? "?"}",
+			EmploymentItemSelectorKind.Tag => $"item tag {selector.Text ?? "?"}",
+			_ => "unknown item selector"
+		};
+	}
+
+	private static IGameItem? ResolveKeyword(ICharacter actor, EmploymentItemSelector selector,
+		IReadOnlyCollection<IGameItem> candidates, ICell? location, bool includeCarried)
+	{
+		if (selector.Id.HasValue)
+		{
+			var specific = ResolveSpecificItem(actor, selector, candidates, location, includeCarried);
+			if (specific is not null)
+			{
+				return specific;
+			}
+		}
+
+		return string.IsNullOrWhiteSpace(selector.Text)
+			? null
+			: candidates.GetFromItemListByKeyword(selector.Text, actor);
+	}
+
+	private static IGameItem? ResolveSpecificItem(ICharacter actor, EmploymentItemSelector selector,
+		IReadOnlyCollection<IGameItem> candidates, ICell? location, bool includeCarried)
+	{
+		if (!selector.Id.HasValue)
+		{
+			return null;
+		}
+
+		var item = selector.Item ?? actor.Gameworld?.TryGetItem(selector.Id.Value, true);
+		if (item is null)
+		{
+			return null;
+		}
+
+		if (candidates.Any(x => x.Id == item.Id))
+		{
+			return item;
+		}
+
+		if (location is null)
+		{
+			return item;
+		}
+
+		if (item.TrueLocations.Any(x => x.Id == location.Id))
+		{
+			return item;
+		}
+
+		return includeCarried && ActorCarriesItem(actor, item) ? item : null;
+	}
+
+	private static IEnumerable<IGameItem> CandidateItems(IEmploymentTaskContext context, ICharacter actor,
+		ICell? location, bool includeCarried)
+	{
+		if (includeCarried)
+		{
+			foreach (var item in context.CarriedTaskItems(actor).Concat(actor.Inventory))
+			{
+				yield return item;
+			}
+		}
+
+		var targetLocation = location ?? actor.Location;
+		if (targetLocation is null)
+		{
+			yield break;
+		}
+
+		foreach (var item in context.AvailableItems(targetLocation))
+		{
+			yield return item;
+		}
+	}
+
+	private static bool ActorCarriesItem(ICharacter actor, IGameItem item)
+	{
+		return item.InInventoryOf == actor.Body || actor.Inventory.Any(x => x.Id == item.Id);
+	}
+}
+
 public abstract class EmploymentActionStepBase : IEmploymentActionStep
 {
 	private readonly HashSet<EmploymentAICapability> _requiredCapabilities;
@@ -431,9 +554,11 @@ public sealed class CataloguedActionShellStep : EmploymentActionStepBase, IEmplo
 public sealed class GetItemsByIdActionStep : EmploymentActionStepBase, IEmploymentActionStepLocationHint
 {
 	private readonly List<long> _itemPrototypeIds;
+	private readonly List<long> _specificItemIds;
 	private readonly List<ICell> _sourceLocations;
 
-	public GetItemsByIdActionStep(int quantity, IEnumerable<long> itemPrototypeIds, IEnumerable<ICell> sourceLocations)
+	public GetItemsByIdActionStep(int quantity, IEnumerable<long> itemPrototypeIds, IEnumerable<ICell> sourceLocations,
+		IEnumerable<long>? specificItemIds = null)
 		: base(
 			EmploymentActionStepType.GetItemsById,
 			EmploymentAuthority.ManageDeliveryRoutes,
@@ -443,11 +568,13 @@ public sealed class GetItemsByIdActionStep : EmploymentActionStepBase, IEmployme
 	{
 		Quantity = quantity;
 		_itemPrototypeIds = itemPrototypeIds.Distinct().ToList();
+		_specificItemIds = (specificItemIds ?? []).Distinct().ToList();
 		_sourceLocations = sourceLocations.Distinct().ToList();
 	}
 
 	public int Quantity { get; }
 	public IReadOnlyList<long> ItemPrototypeIds => _itemPrototypeIds;
+	public IReadOnlyList<long> SpecificItemIds => _specificItemIds;
 	public IReadOnlyList<ICell> SourceLocations => _sourceLocations;
 
 	public override bool CanExecute(IEmploymentTaskContext context, ICharacter actor, out string reason)
@@ -463,9 +590,9 @@ public sealed class GetItemsByIdActionStep : EmploymentActionStepBase, IEmployme
 			return false;
 		}
 
-		if (!_itemPrototypeIds.Any())
+		if (!_itemPrototypeIds.Any() && !_specificItemIds.Any())
 		{
-			reason = "Item retrieval steps must specify at least one item prototype id.";
+			reason = "Item retrieval steps must specify at least one item prototype id or specific item id.";
 			return false;
 		}
 
@@ -500,7 +627,7 @@ public sealed class GetItemsByIdActionStep : EmploymentActionStepBase, IEmployme
 			return EmploymentActionStepResult.Blocked(reason);
 		}
 
-		return EmploymentActionStepResult.CompletedResult($"Collected {items.Count:N0} item(s) by prototype id.");
+		return EmploymentActionStepResult.CompletedResult($"Collected {items.Count:N0} item(s) by selector.");
 	}
 
 	private IEnumerable<ICell> ReachableSources(IEmploymentTaskContext context, ICharacter actor)
@@ -522,8 +649,10 @@ public sealed class GetItemsByIdActionStep : EmploymentActionStepBase, IEmployme
 		IEnumerable<ICell> sources)
 	{
 		var prototypeIds = _itemPrototypeIds.ToHashSet();
+		var itemIds = _specificItemIds.ToHashSet();
 		foreach (var source in sources)
-		foreach (var item in context.AvailableItems(source).Where(x => prototypeIds.Contains(x.Prototype.Id)))
+		foreach (var item in context.AvailableItems(source)
+		                    .Where(x => prototypeIds.Contains(x.Prototype.Id) || itemIds.Contains(x.Id)))
 		{
 			yield return (source, item);
 		}
@@ -740,6 +869,13 @@ public sealed class GetCommodityActionStep : EmploymentActionStepBase, IEmployme
 public sealed class DeliverItemsActionStep : EmploymentActionStepBase, IEmploymentActionStepLocationHint
 {
 	public DeliverItemsActionStep(ICell destination, IGameItem? container = null, string? containerTag = null)
+		: this(destination, container is not null
+			? EmploymentItemSelector.ForItem(container)
+			: string.IsNullOrWhiteSpace(containerTag) ? null : EmploymentItemSelector.ForTag(containerTag))
+	{
+	}
+
+	public DeliverItemsActionStep(ICell destination, EmploymentItemSelector? containerSelector)
 		: base(
 			EmploymentActionStepType.DeliverItems,
 			EmploymentAuthority.ManageDeliveryRoutes,
@@ -748,13 +884,13 @@ public sealed class DeliverItemsActionStep : EmploymentActionStepBase, IEmployme
 			false)
 	{
 		Destination = destination;
-		Container = container;
-		ContainerTag = containerTag;
+		ContainerSelector = containerSelector;
 	}
 
 	public ICell Destination { get; }
-	public IGameItem? Container { get; }
-	public string? ContainerTag { get; }
+	public EmploymentItemSelector? ContainerSelector { get; }
+	public IGameItem? Container => ContainerSelector?.Item;
+	public string? ContainerTag => ContainerSelector?.Kind == EmploymentItemSelectorKind.Tag ? ContainerSelector.Text : null;
 
 	public override bool CanExecute(IEmploymentTaskContext context, ICharacter actor, out string reason)
 	{
@@ -775,10 +911,16 @@ public sealed class DeliverItemsActionStep : EmploymentActionStepBase, IEmployme
 			return false;
 		}
 
-		if (Container is null && !string.IsNullOrWhiteSpace(ContainerTag) &&
-		    !context.AvailableItems(Destination).Any(x => context.ItemHasTag(x, ContainerTag)))
+		var container = ResolveContainer(context, actor);
+		if (ContainerSelector is not null && container is null)
 		{
-			reason = $"There is no destination container tagged {ContainerTag}.";
+			reason = $"There is no destination container matching {EmploymentItemSelectorResolver.Describe(ContainerSelector)}.";
+			return false;
+		}
+
+		if (container is not null && container.GetItemType<IContainer>() is null)
+		{
+			reason = $"{container.Name} is not a container.";
 			return false;
 		}
 
@@ -789,7 +931,14 @@ public sealed class DeliverItemsActionStep : EmploymentActionStepBase, IEmployme
 	public override EmploymentActionStepResult Execute(IEmploymentTaskContext context, ICharacter actor)
 	{
 		var count = context.CarriedTaskItems(actor).Count;
-		if (!context.TryDeliverTaskItems(actor, Destination, Container, ContainerTag, out var reason))
+		var container = ResolveContainer(context, actor);
+		if (ContainerSelector is not null && container is null)
+		{
+			return EmploymentActionStepResult.Blocked(
+				$"There is no destination container matching {EmploymentItemSelectorResolver.Describe(ContainerSelector)}.");
+		}
+
+		if (!context.TryDeliverTaskItems(actor, Destination, container, null, out var reason))
 		{
 			return EmploymentActionStepResult.Blocked(reason);
 		}
@@ -801,11 +950,24 @@ public sealed class DeliverItemsActionStep : EmploymentActionStepBase, IEmployme
 	{
 		return [Destination];
 	}
+
+	private IGameItem? ResolveContainer(IEmploymentTaskContext context, ICharacter actor)
+	{
+		return EmploymentItemSelectorResolver.Resolve(context, actor, ContainerSelector, Destination, false);
+	}
 }
 
 public sealed class LoadItemsActionStep : EmploymentActionStepBase, IEmploymentActionStepLocationHint
 {
 	public LoadItemsActionStep(IGameItem? targetContainer, string? targetContainerTag, ICell? targetLocation)
+		: this(targetContainer is not null
+			? EmploymentItemSelector.ForItem(targetContainer)
+			: string.IsNullOrWhiteSpace(targetContainerTag) ? null : EmploymentItemSelector.ForTag(targetContainerTag),
+			targetLocation)
+	{
+	}
+
+	public LoadItemsActionStep(EmploymentItemSelector? targetContainerSelector, ICell? targetLocation)
 		: base(
 			EmploymentActionStepType.LoadItems,
 			EmploymentAuthority.ManageDeliveryRoutes,
@@ -813,13 +975,13 @@ public sealed class LoadItemsActionStep : EmploymentActionStepBase, IEmploymentA
 			false,
 			false)
 	{
-		TargetContainer = targetContainer;
-		TargetContainerTag = targetContainerTag;
+		TargetContainerSelector = targetContainerSelector;
 		TargetLocation = targetLocation;
 	}
 
-	public IGameItem? TargetContainer { get; }
-	public string? TargetContainerTag { get; }
+	public EmploymentItemSelector? TargetContainerSelector { get; }
+	public IGameItem? TargetContainer => TargetContainerSelector?.Item;
+	public string? TargetContainerTag => TargetContainerSelector?.Kind == EmploymentItemSelectorKind.Tag ? TargetContainerSelector.Text : null;
 	public ICell? TargetLocation { get; }
 
 	public override bool CanExecute(IEmploymentTaskContext context, ICharacter actor, out string reason)
@@ -844,9 +1006,7 @@ public sealed class LoadItemsActionStep : EmploymentActionStepBase, IEmploymentA
 		var target = ResolveTargetContainer(context, actor);
 		if (target is null)
 		{
-			reason = string.IsNullOrWhiteSpace(TargetContainerTag)
-				? "The load target container no longer exists."
-				: $"There is no load target container tagged {TargetContainerTag}.";
+			reason = $"There is no load target container matching {EmploymentItemSelectorResolver.Describe(TargetContainerSelector)}.";
 			return false;
 		}
 
@@ -891,26 +1051,21 @@ public sealed class LoadItemsActionStep : EmploymentActionStepBase, IEmploymentA
 
 	private IGameItem? ResolveTargetContainer(IEmploymentTaskContext context, ICharacter actor)
 	{
-		if (TargetContainer is not null)
-		{
-			return TargetContainer;
-		}
-
-		if (string.IsNullOrWhiteSpace(TargetContainerTag))
-		{
-			return null;
-		}
-
-		var location = TargetLocation ?? actor.Location;
-		return location is null
-			? null
-			: context.AvailableItems(location).FirstOrDefault(x => context.ItemHasTag(x, TargetContainerTag));
+		return EmploymentItemSelectorResolver.Resolve(context, actor, TargetContainerSelector, TargetLocation, true);
 	}
 }
 
 public sealed class UnloadItemsActionStep : EmploymentActionStepBase, IEmploymentActionStepLocationHint
 {
 	public UnloadItemsActionStep(IGameItem? sourceContainer, string? sourceContainerTag, ICell? sourceLocation)
+		: this(sourceContainer is not null
+			? EmploymentItemSelector.ForItem(sourceContainer)
+			: string.IsNullOrWhiteSpace(sourceContainerTag) ? null : EmploymentItemSelector.ForTag(sourceContainerTag),
+			sourceLocation)
+	{
+	}
+
+	public UnloadItemsActionStep(EmploymentItemSelector? sourceContainerSelector, ICell? sourceLocation)
 		: base(
 			EmploymentActionStepType.UnloadItems,
 			EmploymentAuthority.ManageDeliveryRoutes,
@@ -918,13 +1073,13 @@ public sealed class UnloadItemsActionStep : EmploymentActionStepBase, IEmploymen
 			false,
 			false)
 	{
-		SourceContainer = sourceContainer;
-		SourceContainerTag = sourceContainerTag;
+		SourceContainerSelector = sourceContainerSelector;
 		SourceLocation = sourceLocation;
 	}
 
-	public IGameItem? SourceContainer { get; }
-	public string? SourceContainerTag { get; }
+	public EmploymentItemSelector? SourceContainerSelector { get; }
+	public IGameItem? SourceContainer => SourceContainerSelector?.Item;
+	public string? SourceContainerTag => SourceContainerSelector?.Kind == EmploymentItemSelectorKind.Tag ? SourceContainerSelector.Text : null;
 	public ICell? SourceLocation { get; }
 
 	public override bool CanExecute(IEmploymentTaskContext context, ICharacter actor, out string reason)
@@ -943,9 +1098,7 @@ public sealed class UnloadItemsActionStep : EmploymentActionStepBase, IEmploymen
 		var source = ResolveSourceContainer(context, actor);
 		if (source is null)
 		{
-			reason = string.IsNullOrWhiteSpace(SourceContainerTag)
-				? "The unload source container no longer exists."
-				: $"There is no unload source container tagged {SourceContainerTag}.";
+			reason = $"There is no unload source container matching {EmploymentItemSelectorResolver.Describe(SourceContainerSelector)}.";
 			return false;
 		}
 
@@ -990,20 +1143,7 @@ public sealed class UnloadItemsActionStep : EmploymentActionStepBase, IEmploymen
 
 	private IGameItem? ResolveSourceContainer(IEmploymentTaskContext context, ICharacter actor)
 	{
-		if (SourceContainer is not null)
-		{
-			return SourceContainer;
-		}
-
-		if (string.IsNullOrWhiteSpace(SourceContainerTag))
-		{
-			return null;
-		}
-
-		var location = SourceLocation ?? actor.Location;
-		return location is null
-			? null
-			: context.AvailableItems(location).FirstOrDefault(x => context.ItemHasTag(x, SourceContainerTag));
+		return EmploymentItemSelectorResolver.Resolve(context, actor, SourceContainerSelector, SourceLocation, true);
 	}
 }
 
@@ -1011,6 +1151,18 @@ public sealed class ReturnAssetActionStep : EmploymentActionStepBase, IEmploymen
 {
 	public ReturnAssetActionStep(IGameItem? container, string? containerTag, ICell destination,
 		IGameItem? destinationContainer = null, string? destinationContainerTag = null)
+		: this(container is not null
+				? EmploymentItemSelector.ForItem(container)
+				: string.IsNullOrWhiteSpace(containerTag) ? null : EmploymentItemSelector.ForTag(containerTag),
+			destination,
+			destinationContainer is not null
+				? EmploymentItemSelector.ForItem(destinationContainer)
+				: string.IsNullOrWhiteSpace(destinationContainerTag) ? null : EmploymentItemSelector.ForTag(destinationContainerTag))
+	{
+	}
+
+	public ReturnAssetActionStep(EmploymentItemSelector? containerSelector, ICell destination,
+		EmploymentItemSelector? destinationContainerSelector = null)
 		: base(
 			EmploymentActionStepType.ReturnAsset,
 			EmploymentAuthority.ManageDeliveryRoutes,
@@ -1018,18 +1170,18 @@ public sealed class ReturnAssetActionStep : EmploymentActionStepBase, IEmploymen
 			false,
 			false)
 	{
-		Container = container;
-		ContainerTag = containerTag;
+		ContainerSelector = containerSelector;
 		Destination = destination;
-		DestinationContainer = destinationContainer;
-		DestinationContainerTag = destinationContainerTag;
+		DestinationContainerSelector = destinationContainerSelector;
 	}
 
-	public IGameItem? Container { get; }
-	public string? ContainerTag { get; }
+	public EmploymentItemSelector? ContainerSelector { get; }
+	public IGameItem? Container => ContainerSelector?.Item;
+	public string? ContainerTag => ContainerSelector?.Kind == EmploymentItemSelectorKind.Tag ? ContainerSelector.Text : null;
 	public ICell Destination { get; }
-	public IGameItem? DestinationContainer { get; }
-	public string? DestinationContainerTag { get; }
+	public EmploymentItemSelector? DestinationContainerSelector { get; }
+	public IGameItem? DestinationContainer => DestinationContainerSelector?.Item;
+	public string? DestinationContainerTag => DestinationContainerSelector?.Kind == EmploymentItemSelectorKind.Tag ? DestinationContainerSelector.Text : null;
 
 	public override bool CanExecute(IEmploymentTaskContext context, ICharacter actor, out string reason)
 	{
@@ -1046,16 +1198,13 @@ public sealed class ReturnAssetActionStep : EmploymentActionStepBase, IEmploymen
 
 		if (ResolveContainer(context, actor) is null)
 		{
-			reason = string.IsNullOrWhiteSpace(ContainerTag)
-				? "The return container no longer exists."
-				: $"There is no return container tagged {ContainerTag}.";
+			reason = $"There is no return container matching {EmploymentItemSelectorResolver.Describe(ContainerSelector)}.";
 			return false;
 		}
 
-		if (DestinationContainer is null && !string.IsNullOrWhiteSpace(DestinationContainerTag) &&
-		    !context.AvailableItems(Destination).Any(x => context.ItemHasTag(x, DestinationContainerTag)))
+		if (DestinationContainerSelector is not null && ResolveDestinationContainer(context, actor) is null)
 		{
-			reason = $"There is no destination container tagged {DestinationContainerTag}.";
+			reason = $"There is no destination container matching {EmploymentItemSelectorResolver.Describe(DestinationContainerSelector)}.";
 			return false;
 		}
 
@@ -1100,7 +1249,14 @@ public sealed class ReturnAssetActionStep : EmploymentActionStepBase, IEmploymen
 				new EmploymentActionStepOperationalState(SelectedResources: $"Return container {container.Id}"));
 		}
 
-		if (!context.TryReturnContainer(actor, container, Destination, DestinationContainer, DestinationContainerTag,
+		var destinationContainer = ResolveDestinationContainer(context, actor);
+		if (DestinationContainerSelector is not null && destinationContainer is null)
+		{
+			return EmploymentActionStepResult.Blocked(
+				$"There is no destination container matching {EmploymentItemSelectorResolver.Describe(DestinationContainerSelector)}.");
+		}
+
+		if (!context.TryReturnContainer(actor, container, Destination, destinationContainer, null,
 			    out var reason, out var state))
 		{
 			return EmploymentActionStepResult.Blocked(reason);
@@ -1130,28 +1286,12 @@ public sealed class ReturnAssetActionStep : EmploymentActionStepBase, IEmploymen
 
 	private IGameItem? ResolveContainer(IEmploymentTaskContext context, ICharacter actor)
 	{
-		if (Container is not null)
-		{
-			return Container;
-		}
+		return EmploymentItemSelectorResolver.Resolve(context, actor, ContainerSelector, actor.Location, true);
+	}
 
-		if (string.IsNullOrWhiteSpace(ContainerTag))
-		{
-			return null;
-		}
-
-		var carried = context.CarriedTaskItems(actor)
-		                     .Concat(actor.Inventory)
-		                     .DistinctBy(x => x.Id)
-		                     .FirstOrDefault(x => context.ItemHasTag(x, ContainerTag));
-		if (carried is not null)
-		{
-			return carried;
-		}
-
-		return actor.Location is null
-			? null
-			: context.AvailableItems(actor.Location).FirstOrDefault(x => context.ItemHasTag(x, ContainerTag));
+	private IGameItem? ResolveDestinationContainer(IEmploymentTaskContext context, ICharacter actor)
+	{
+		return EmploymentItemSelectorResolver.Resolve(context, actor, DestinationContainerSelector, Destination, false);
 	}
 
 	private static bool ActorCarriesTaskItem(IEmploymentTaskContext context, ICharacter actor, IGameItem item)

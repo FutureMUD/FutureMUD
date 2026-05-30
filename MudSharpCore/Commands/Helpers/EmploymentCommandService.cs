@@ -2189,13 +2189,13 @@ internal sealed class EmploymentCommandService
 	#3employment <host type> <host> tasks draft remove <##>#0 - removes a draft step
 	#3employment <host type> <host> tasks draft discard#0 - discards your current draft
 	#3employment <host type> <host> tasks actions [all|category|action]#0 - shows task step actions, catalogue status, and syntax
-	#3employment <host type> <host> tasks step getid <quantity> <item prototype ids...> from <here|cell ids...>#0 - adds a prototype-id retrieval step
-	#3employment <host type> <host> tasks step gettag <quantity> <tag> from <here|cell ids...>#0 - adds a tagged-item retrieval step
-	#3employment <host type> <host> tasks step commodity <weight> <material> [tag <tag>] from <here|cell ids...> [char <name>=<value> ...]#0 - adds a commodity retrieval step
-	#3employment <host type> <host> tasks step deliver to <here|cell id> [container <item id>|containertag <tag>]#0 - adds a delivery step
-	#3employment <host type> <host> tasks step load all into <item id|tag <tag>> [at <here|cell id>]#0 - loads carried task items into a container or cargo projection
-	#3employment <host type> <host> tasks step unload <item id|tag <tag>> [at <here|cell id>]#0 - unloads task-loaded items from a container or cargo projection
-	#3employment <host type> <host> tasks step return container <item id|tag <tag>> to <here|cell id> [container <item id>|containertag <tag>]#0 - returns a reusable task container
+	#3employment <host type> <host> tasks step getid <quantity> <prototype ids|*item ids...> from <here|cell ids...>#0 - adds a prototype-id or specific-item retrieval step
+	#3employment <host type> <host> tasks step gettag <quantity> <&tag id|&tag name> from <here|cell ids...>#0 - adds a verified tagged-item retrieval step
+	#3employment <host type> <host> tasks step commodity <weight> <material> [tag <&tag id|&tag name>] from <here|cell ids...> [char <name>=<value> ...]#0 - adds a commodity retrieval step
+	#3employment <host type> <host> tasks step deliver to <here|cell id> [container <prototype id|*item id|&tag|keyword>]#0 - adds a delivery step
+	#3employment <host type> <host> tasks step load all into <prototype id|*item id|&tag|keyword> [at <here|cell id>]#0 - loads carried task items into a container or cargo projection
+	#3employment <host type> <host> tasks step unload <prototype id|*item id|&tag|keyword> [at <here|cell id>]#0 - unloads task-loaded items from a container or cargo projection
+	#3employment <host type> <host> tasks step return container <prototype id|*item id|&tag|keyword> to <here|cell id> [container <prototype id|*item id|&tag|keyword>]#0 - returns a reusable task container
 	#3employment <host type> <host> tasks step vehicle cargo <vehicle id|exterior item id> <cargo id|cargo name>#0 - validates and records a vehicle cargo-space selection
 	#3employment <host type> <host> tasks step move|board|command|purchase|bankdeposit|bankwithdraw|storepay|craft|report|authorise|reserve|release|select|estimate|route ...#0 - adds executable or audit-only catalogue steps
 	#3employment <host type> <host> tasks draft finalise#0 - creates the active task through the employment task board
@@ -2207,5 +2207,5 @@ internal sealed class EmploymentCommandService
 	#3employment <host type> <host> board write <title>#0 - writes an employment board post
 
 Host types are #3shop#0, #3auction#0, #3arena#0, #3bank#0, #3stable#0, and #3hotel#0. Hotel hosts are resolved by property id or name.
-Staff boards are only for employee communication; active tasks, scheduled tasks, and manager goals are routed through the employment task board. Logistics load, unload, container return, and vehicle cargo-selection actions are executable inventory-plan-backed task actions; audit-only task actions record employment evidence but do not mutate purchasing, banking, store-account, craft, pricing, or administrative subsystems.";
+Staff boards are only for employee communication; active tasks, scheduled tasks, and manager goals are routed through the employment task board. Item selectors use bare prototype ids, #3*item ids#0 for specific live items, #3&tag#0 for verified tags, and bare text for a visible keyword target. Logistics load, unload, container return, and vehicle cargo-selection actions are executable inventory-plan-backed task actions; audit-only task actions record employment evidence but do not mutate purchasing, banking, store-account, craft, pricing, or administrative subsystems.";
 }

@@ -79,25 +79,6 @@ public partial class ItemSeeder
 		string InsulationComponent,
 		string[] ExtraComponents);
 
-	private sealed record MedievalItemSpec(
-		string StableReference,
-		string Noun,
-		string ShortDescription,
-		string FullDescription,
-		SizeCategory Size,
-		ItemQuality Quality,
-		double WeightInGrams,
-		decimal Cost,
-		string Material,
-		MaterialBehaviourType MaterialType,
-		string[] Tags,
-		string[] Components,
-		string? BuilderNotes = null,
-		string? MorphToUniqueReference = null,
-		string? MorphEmote = null,
-		TimeSpan? MorphTimer = null,
-		string? DestroyedItemUniqueReference = null);
-
 	private sealed record MedievalCultureCatalogue(
 		string CultureKey,
 		string Display,
@@ -145,32 +126,46 @@ public partial class ItemSeeder
 		string? Reason,
 		string? CraftCoverageExemption);
 
-	private sealed record MedievalOutfitSlot(
-		string Key,
-		string Display,
-		bool RequiredForAllOutfits,
-		string[] RequiredForRoles);
-
-	private sealed record MedievalOutfitSpec(
-		string OutfitReference,
-		string CultureKey,
-		string SexGenderPresentation,
-		string SocialClassRole,
-		string DisplayName,
-		IReadOnlyDictionary<string, string> SlotItemStableReferences,
-		IReadOnlyCollection<string> IntentionallySharedOrGenericSlots);
-
-	private sealed record MedievalOutfitPieceSpec(
-		string OutfitReference,
-		string CultureKey,
-		string SexGenderPresentation,
-		string SocialClassRole,
-		string SlotKey,
-		string PieceName,
+	internal sealed record MedievalAuthoredOutfitPieceTestData(
 		string StableReference,
-		bool CultureSpecificOrClusterSpecific);
+		string OutfitReference,
+		string CultureKey,
+		string SexGenderPresentation,
+		string SocialClassRole,
+		IReadOnlyCollection<string> SlotKeys,
+		string PieceName,
+		string Noun,
+		string ShortDescription,
+		string FullDescription,
+		string Material,
+		MaterialBehaviourType MaterialType,
+		ItemQuality Quality,
+		SizeCategory Size,
+		double WeightInGrams,
+		decimal Cost,
+		string? VariableColourComponent,
+		IReadOnlyCollection<string> ColourVariablesUsed,
+		IReadOnlyCollection<string> Components,
+		IReadOnlyCollection<string> CraftInputs,
+		IReadOnlyCollection<string> CraftTools,
+		bool IntentionallySharedOrGeneric);
 
-	private sealed record MedievalExplicitOutfitPieceOverride(
+	internal sealed record EraItemSpecTestData(
+		string StableReference,
+		string Noun,
+		string ShortDescription,
+		string FullDescription,
+		SizeCategory Size,
+		ItemQuality Quality,
+		double WeightInGrams,
+		decimal Cost,
+		string Material,
+		MaterialBehaviourType MaterialType,
+		IReadOnlyCollection<string> Tags,
+		IReadOnlyCollection<string> Components,
+		string? BuilderNotes);
+
+	private sealed record MedievalBespokeOutfitPieceSpec(
 		string StableReference,
 		string OutfitReference,
 		string CultureKey,
@@ -195,50 +190,10 @@ public partial class ItemSeeder
 		string? ImplementationNotes,
 		string? AuthoringGuidelineNotes);
 
-	private sealed record MedievalExplicitOutfitPieceCraftOverride(
+	private sealed record MedievalBespokeOutfitPieceCraftSpec(
 		string StableReference,
 		string[] Inputs,
 		string[] Tools);
-
-	internal sealed record MedievalExplicitOutfitPieceOverrideTestData(
-		string StableReference,
-		string OutfitReference,
-		string CultureKey,
-		string SexGenderPresentation,
-		string SocialClassRole,
-		string SlotKey,
-		string PieceName,
-		string Noun,
-		string ShortDescription,
-		string FullDescription,
-		string Material,
-		MaterialBehaviourType MaterialType,
-		ItemQuality Quality,
-		SizeCategory Size,
-		double WeightInGrams,
-		decimal Cost,
-		string? VariableColourComponent,
-		IReadOnlyCollection<string> ColourVariablesUsed,
-		IReadOnlyCollection<string> Components,
-		IReadOnlyCollection<string> CraftInputs,
-		IReadOnlyCollection<string> CraftTools,
-		string? ImplementationNotes,
-		string? AuthoringGuidelineNotes);
-
-	internal sealed record MedievalItemSpecTestData(
-		string StableReference,
-		string Noun,
-		string ShortDescription,
-		string FullDescription,
-		SizeCategory Size,
-		ItemQuality Quality,
-		double WeightInGrams,
-		decimal Cost,
-		string Material,
-		MaterialBehaviourType MaterialType,
-		IReadOnlyCollection<string> Tags,
-		IReadOnlyCollection<string> Components,
-		string? BuilderNotes);
 
 	private static readonly MedievalCultureProfile[] MedievalCultureProfiles =
 	[
@@ -538,32 +493,80 @@ song_china|Household and Devotional|medieval_household_song_china_tea_cup,mediev
 		"pouch"
 	];
 
-	private const string MedievalOutfitSlotUnderlayer = "underlayer";
-	private const string MedievalOutfitSlotLowerBody = "lower_body";
-	private const string MedievalOutfitSlotLegOrSockLayer = "leg_or_sock_layer";
-	private const string MedievalOutfitSlotFootwear = "footwear";
-	private const string MedievalOutfitSlotBodywear = "bodywear";
-	private const string MedievalOutfitSlotOuterwear = "outerwear";
-	private const string MedievalOutfitSlotHeadwear = "headwear";
-	private const string MedievalOutfitSlotBeltOrSash = "belt_or_sash";
-	private const string MedievalOutfitSlotWornContainer = "worn_container";
-	private const string MedievalOutfitSlotFastenerOrJewellery = "fastener_or_jewellery";
-	private const string MedievalOutfitSlotRoleItem = "role_item";
+	private const string EraOutfitSlotSpecUnderlayer = "underlayer";
+	private const string EraOutfitSlotSpecLowerBody = "lower_body";
+	private const string EraOutfitSlotSpecLegOrSockLayer = "leg_or_sock_layer";
+	private const string EraOutfitSlotSpecFootwear = "footwear";
+	private const string EraOutfitSlotSpecBodywear = "bodywear";
+	private const string EraOutfitSlotSpecOuterwear = "outerwear";
+	private const string EraOutfitSlotSpecHeadwear = "headwear";
+	private const string EraOutfitSlotSpecBeltOrSash = "belt_or_sash";
+	private const string EraOutfitSlotSpecWornContainer = "worn_container";
+	private const string EraOutfitSlotSpecFastenerOrJewellery = "fastener_or_jewellery";
+	private const string EraOutfitSlotSpecRoleItem = "role_item";
 
-	private static readonly MedievalOutfitSlot[] MedievalOutfitSlots =
+	private static readonly EraOutfitSlotSpec[] EraOutfitSlotSpecs =
 	[
-		new(MedievalOutfitSlotUnderlayer, "Underlayer", true, []),
-		new(MedievalOutfitSlotLowerBody, "Lower Body", true, []),
-		new(MedievalOutfitSlotLegOrSockLayer, "Leg/Sock Layer", true, []),
-		new(MedievalOutfitSlotFootwear, "Footwear", true, []),
-		new(MedievalOutfitSlotBodywear, "Bodywear", true, []),
-		new(MedievalOutfitSlotOuterwear, "Outerwear", true, []),
-		new(MedievalOutfitSlotHeadwear, "Headwear", true, []),
-		new(MedievalOutfitSlotBeltOrSash, "Belt or Sash", true, []),
-		new(MedievalOutfitSlotWornContainer, "Worn Container", true, []),
-		new(MedievalOutfitSlotFastenerOrJewellery, "Fastener/Jewellery", true, []),
-		new(MedievalOutfitSlotRoleItem, "Role Item", false, ["merchant", "religious", "military"])
+		new(EraOutfitSlotSpecUnderlayer, "Underlayer", true, []),
+		new(EraOutfitSlotSpecLowerBody, "Lower Body", true, []),
+		new(EraOutfitSlotSpecLegOrSockLayer, "Leg/Sock Layer", true, []),
+		new(EraOutfitSlotSpecFootwear, "Footwear", true, []),
+		new(EraOutfitSlotSpecBodywear, "Bodywear", true, []),
+		new(EraOutfitSlotSpecOuterwear, "Outerwear", true, []),
+		new(EraOutfitSlotSpecHeadwear, "Headwear", true, []),
+		new(EraOutfitSlotSpecBeltOrSash, "Belt or Sash", true, []),
+		new(EraOutfitSlotSpecWornContainer, "Worn Container", true, []),
+		new(EraOutfitSlotSpecFastenerOrJewellery, "Fastener/Jewellery", true, []),
+		new(EraOutfitSlotSpecRoleItem, "Role Item", false, ["merchant", "religious", "military"])
 	];
+
+	private static readonly EraCultureSpec[] MedievalEraCultureSpecs =
+		MedievalCultureProfiles
+			.Select(x => new EraCultureSpec(x.Key, x.Display, SafeMedievalTagName(x.Display)))
+			.ToArray();
+
+	private static readonly EraSeederConfiguration MedievalEraConfiguration = new(
+		"medieval",
+		MedievalRootTagPath,
+		MedievalCultureTagRoot,
+		MedievalStatusTagRoot,
+		"medieval",
+		[
+			"Market / Clothing / Simple Clothing",
+			"Market / Clothing / Standard Clothing",
+			"Market / Clothing / Luxury Clothing",
+			"Market / Clothing / Footwear",
+			"Market / Clothing / Winter Clothing"
+		],
+		new EraVariableColourPolicy(
+			"Variable_FineColour",
+			"Variable_2FineColour",
+			["$colour"],
+			["$colour1", "$colour2"],
+			["paper", "oak", "bronze", "silver", "gold", "wrought iron", "beeswax"]),
+		[
+			HistoricFoundationKnowledge,
+			MedievalWorkshopKnowledge,
+			MedievalClothingKnowledgePrefix
+		],
+		["Tailoring", "Leathermaking", "Metalworking", "Writing", "Carpentry"],
+		new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+		{
+			["garment_cloth"] = "Garment Cloth",
+			["tablet_woven_band"] = "Tablet-Woven Band Stock",
+			["embroidered_trim"] = "Embroidered Trim Stock",
+			["fur_panel"] = "Fur Panel Stock",
+			["felt_cloth"] = "Fulled Cloth",
+			["turnshoe_upper"] = "Turnshoe Upper Stock",
+			["paper_sheet"] = "Paper Sheet Stock",
+			["bookbinding_leather"] = "Bookbinding Leather Stock",
+			["tool_blank"] = "Tool Blank Stock",
+			["quilted_padding"] = "Quilted Armour Padding"
+		},
+		EraOutfitSlotSpecs,
+		true,
+		true,
+		false);
 
 	private static readonly string[] MedievalOutfitSexGenderPresentationKeys = ["male", "female"];
 
@@ -843,27 +846,27 @@ medieval_outfit_song_china_male_military|arming under-robe; trousers; boots; pad
 medieval_outfit_song_china_female_military|arming shift; trousers or split skirt; boots; padded military vest; lamellar cover robe; headcloth under cap; weapon sash; field pouch; guard token; bracers
 ";
 
-	private static readonly MedievalOutfitPieceSpec[] MedievalExplicitOutfitPieces =
+	private static readonly EraOutfitPieceSpec[] MedievalExplicitOutfitPieces =
 		BuildMedievalExplicitOutfitPieces();
 
-	private static readonly MedievalOutfitSpec[] MedievalOutfits = BuildMedievalOutfits();
+	private static readonly EraOutfitSpec[] MedievalOutfits = BuildMedievalOutfits();
 
 
-	private static readonly IReadOnlyDictionary<string, MedievalExplicitOutfitPieceOverride>
-		MedievalExplicitOutfitPieceOverrides =
-			BuildMedievalExplicitOutfitPieceOverrides()
+	private static readonly IReadOnlyDictionary<string, MedievalBespokeOutfitPieceSpec>
+		MedievalBespokeOutfitPieces =
+			BuildMedievalBespokeOutfitPieces()
 				.ToDictionary(x => x.StableReference, StringComparer.OrdinalIgnoreCase);
 
-	private static readonly IReadOnlyDictionary<string, MedievalExplicitOutfitPieceCraftOverride>
-		MedievalExplicitOutfitPieceCraftOverrides =
-			MedievalExplicitOutfitPieceOverrides.Values
-				.Select(x => new MedievalExplicitOutfitPieceCraftOverride(
+	private static readonly IReadOnlyDictionary<string, MedievalBespokeOutfitPieceCraftSpec>
+		MedievalBespokeOutfitPieceCraftSpecs =
+			MedievalBespokeOutfitPieces.Values
+				.Select(x => new MedievalBespokeOutfitPieceCraftSpec(
 					x.StableReference,
 					x.CraftInputs,
 					x.CraftTools))
 				.ToDictionary(x => x.StableReference, StringComparer.OrdinalIgnoreCase);
 
-	private static IReadOnlyList<MedievalItemSpec> HistoricFoundationItemSpecs()
+	private static IReadOnlyList<EraItemSpec> HistoricFoundationItemSpecs()
 	{
 		const string ToolTag = "Market / Professional Tools / Standard Tools";
 		return
@@ -955,19 +958,19 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 		];
 	}
 
-	private static IReadOnlyList<MedievalItemSpec> MedievalClothingItemSpecs()
+	private static IReadOnlyList<EraItemSpec> MedievalClothingItemSpecs()
 	{
 		// Generic baseline wardrobe only; explicit culture targets live in MedievalExplicitCultureCatalogues.
-		var specs = new List<MedievalItemSpec>();
+		var specs = new List<EraItemSpec>();
 		foreach (var culture in MedievalCultureProfiles)
 		{
 			foreach (var status in MedievalStatusRoleProfiles)
 			{
-				specs.Add(new MedievalItemSpec(
+				specs.Add(new EraItemSpec(
 					$"medieval_clothing_{culture.Key}_{status.Key}_{status.GarmentToken}",
 					status.Noun,
 					$"{status.ShortDescription} {culture.ClothingCue}",
-					$"{status.FullDescription} It is finished {culture.ClothingCue}, giving builders a recognisable silhouette while keeping visible craft text culture-neutral.",
+					$"{status.FullDescription} It is finished {culture.ClothingCue}, with the cut, trim, and fastening details worked into the visible construction.",
 					SizeCategory.Normal,
 					status.Quality,
 					status.WeightInGrams,
@@ -982,16 +985,16 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 						"Functions / Worn Items / Bodywear"
 					],
 					["Holdable", status.WearComponent, "Destroyable_Clothing", "Insulation_Moderate", status.ArmourComponent],
-					$"Medieval culture slice: {culture.Display}. Status/role axis: {status.Display}. Wardrobe slot: bodywear. Visible craft text should stay culture-neutral; enforce access with knowledge gates, tags, and builder notes."));
+					$"Medieval generic baseline wardrobe entry. Culture slice: {culture.Display}. Status/role axis: {status.Display}. Wardrobe slot: bodywear. Control access with knowledge gates and tags."));
 
 				foreach (var slotKey in MedievalWardrobeSlotKeys)
 				{
 					var piece = BuildMedievalWardrobePiece(culture, status, slotKey);
-					specs.Add(new MedievalItemSpec(
+					specs.Add(new EraItemSpec(
 						$"medieval_clothing_{culture.Key}_{status.Key}_{piece.Token}",
 						piece.Noun,
 						$"{piece.ShortDescription} {culture.ClothingCue}",
-						$"{piece.FullDescription} It is finished {culture.ClothingCue}, so the culture is visible in description and metadata while craft text can remain neutral.",
+						$"{piece.FullDescription} It is finished {culture.ClothingCue}, with the regional line carried through its seams, hems, and fastenings.",
 						piece.Size,
 						piece.Quality,
 						piece.WeightInGrams,
@@ -1016,7 +1019,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 							},
 							.. piece.ExtraComponents
 						],
-						$"Medieval culture slice: {culture.Display}. Status/role axis: {status.Display}. Wardrobe slot: {piece.SlotKey}. Visible craft text should stay culture-neutral; enforce access with knowledge gates, tags, and builder notes."));
+						$"Medieval generic baseline wardrobe entry. Culture slice: {culture.Display}. Status/role axis: {status.Display}. Wardrobe slot: {piece.SlotKey}. Control access with knowledge gates and tags."));
 				}
 			}
 		}
@@ -1333,12 +1336,12 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 			[containerComponent, "Beltable"]);
 	}
 
-	private static IReadOnlyList<MedievalItemSpec> MedievalEquipmentItemSpecs()
+	private static IReadOnlyList<EraItemSpec> MedievalEquipmentItemSpecs()
 	{
-		var specs = new List<MedievalItemSpec>();
+		var specs = new List<EraItemSpec>();
 		foreach (var culture in MedievalCultureProfiles)
 		{
-			specs.Add(new MedievalItemSpec(
+			specs.Add(new EraItemSpec(
 				$"medieval_military_{culture.Key}_armour",
 				"armour",
 				culture.ArmourDescription,
@@ -1352,7 +1355,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				[MedievalRootTagPath, $"{MedievalCultureTagRoot} / {SafeMedievalTagName(culture.Display)}", "Market / Military Goods / Armour"],
 				["Holdable", culture.ArmourDescription.Contains("lamellar", StringComparison.OrdinalIgnoreCase) ? "Armour_Lamellar" : "Armour_Chainmail", "Wear_Hauberk", "Destroyable_Armour"],
 				$"Medieval culture slice: {culture.Display}. Military-status armour variant."));
-			specs.Add(new MedievalItemSpec(
+			specs.Add(new EraItemSpec(
 				$"medieval_weapon_{culture.Key}_{StableReferenceToken(culture.WeaponNoun)}",
 				culture.WeaponNoun,
 				culture.WeaponShortDescription,
@@ -1366,7 +1369,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				[MedievalRootTagPath, $"{MedievalCultureTagRoot} / {SafeMedievalTagName(culture.Display)}", "Market / Military Goods / Weapons"],
 				["Holdable", culture.WeaponComponent, "Destroyable_Weapon"],
 				$"Medieval culture slice: {culture.Display}. Military role weapon."));
-			specs.Add(new MedievalItemSpec(
+			specs.Add(new EraItemSpec(
 				$"medieval_shield_{culture.Key}",
 				"shield",
 				culture.ShieldShortDescription,
@@ -1385,7 +1388,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 
 		specs.AddRange(
 		[
-			new MedievalItemSpec(
+			new EraItemSpec(
 				"medieval_weapon_common_crossbow",
 				"crossbow",
 				"a reinforced medieval crossbow",
@@ -1399,7 +1402,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				[MedievalRootTagPath, "Market / Military Goods / Weapons / Crossbows"],
 				["Holdable", "Crossbow", "Melee_Improvised Bludgeon", "Destroyable_Weapon"],
 				"Medieval common weapon stock. Crossbow production uses tiller, prod, nut/lockwork, and bowstring subassemblies."),
-			new MedievalItemSpec(
+			new EraItemSpec(
 				"medieval_weapon_common_crossbow_bolts",
 				"bolt",
 				"a crossbow bolt",
@@ -1418,7 +1421,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 		return specs;
 	}
 
-	private static IReadOnlyList<MedievalItemSpec> MedievalEquipmentAccessoryItemSpecs(MedievalCultureProfile culture)
+	private static IReadOnlyList<EraItemSpec> MedievalEquipmentAccessoryItemSpecs(MedievalCultureProfile culture)
 	{
 		var cultureTags = new[]
 		{
@@ -1515,7 +1518,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 		];
 	}
 
-	private static IReadOnlyList<MedievalItemSpec> MedievalHouseholdToolItemSpecs()
+	private static IReadOnlyList<EraItemSpec> MedievalHouseholdToolItemSpecs()
 	{
 		return
 		[
@@ -1646,7 +1649,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 		];
 	}
 
-	private static IReadOnlyList<MedievalItemSpec> MedievalFoodAndBeverageItemSpecs()
+	private static IReadOnlyList<EraItemSpec> MedievalFoodAndBeverageItemSpecs()
 	{
 		return MedievalCultureProfiles
 			.SelectMany(MedievalFoodwayItemSpecs)
@@ -1709,7 +1712,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 			]).ToArray();
 	}
 
-	private static IReadOnlyList<MedievalItemSpec> MedievalFoodwayItemSpecs(MedievalCultureProfile culture)
+	private static IReadOnlyList<EraItemSpec> MedievalFoodwayItemSpecs(MedievalCultureProfile culture)
 	{
 		var cultureTag = $"{MedievalCultureTagRoot} / {SafeMedievalTagName(culture.Display)}";
 		return
@@ -1815,7 +1818,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 		];
 	}
 
-	private static IReadOnlyList<MedievalItemSpec> MedievalFurnitureContainerItemSpecs()
+	private static IReadOnlyList<EraItemSpec> MedievalFurnitureContainerItemSpecs()
 	{
 		return
 		[
@@ -1932,10 +1935,10 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 		];
 	}
 
-	private static IReadOnlyList<MedievalItemSpec> MedievalJewelleryDevotionalItemSpecs()
+	private static IReadOnlyList<EraItemSpec> MedievalJewelleryDevotionalItemSpecs()
 	{
 		return MedievalCultureProfiles
-			.Select(culture => new MedievalItemSpec(
+			.Select(culture => new EraItemSpec(
 				$"medieval_devotional_{culture.Key}_pilgrim_token",
 				"token",
 				"a regional devotional token",
@@ -2007,7 +2010,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 		]).ToArray();
 	}
 
-	private static IReadOnlyList<MedievalItemSpec> MedievalMedicalApothecaryItemSpecs()
+	private static IReadOnlyList<EraItemSpec> MedievalMedicalApothecaryItemSpecs()
 	{
 		return
 		[
@@ -2079,7 +2082,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 		];
 	}
 
-	private static IReadOnlyList<MedievalItemSpec> MedievalWritingAdministrationItemSpecs()
+	private static IReadOnlyList<EraItemSpec> MedievalWritingAdministrationItemSpecs()
 	{
 		return MedievalCultureProfiles
 			.SelectMany(MedievalCultureAdministrationItemSpecs)
@@ -2212,7 +2215,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 			]).ToArray();
 	}
 
-	private static IReadOnlyList<MedievalItemSpec> MedievalCultureAdministrationItemSpecs(MedievalCultureProfile culture)
+	private static IReadOnlyList<EraItemSpec> MedievalCultureAdministrationItemSpecs(MedievalCultureProfile culture)
 	{
 		var cultureTag = $"{MedievalCultureTagRoot} / {SafeMedievalTagName(culture.Display)}";
 		return
@@ -2276,7 +2279,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 		];
 	}
 
-	private static IReadOnlyList<MedievalItemSpec> MedievalComponentGapPropItemSpecs()
+	private static IReadOnlyList<EraItemSpec> MedievalComponentGapPropItemSpecs()
 	{
 		return
 		[
@@ -2295,7 +2298,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 		];
 	}
 
-	private static IReadOnlyList<MedievalItemSpec> MedievalRepairKitItemSpecs()
+	private static IReadOnlyList<EraItemSpec> MedievalRepairKitItemSpecs()
 	{
 		return
 		[
@@ -2781,7 +2784,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 		return $"{article} {itemName}";
 	}
 
-	private static MedievalOutfitPieceSpec[] BuildMedievalExplicitOutfitPieces()
+	private static EraOutfitPieceSpec[] BuildMedievalExplicitOutfitPieces()
 	{
 		return MedievalExplicitOutfitPieceSource
 			.Split(["\r\n", "\n"], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
@@ -2808,7 +2811,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 					{
 						var stableReference =
 							$"medieval_outfit_piece_{cultureKey}_{sexGenderPresentation}_{socialClassRole}_{StableReferenceToken(assignment.PieceName)}";
-						return new MedievalOutfitPieceSpec(
+						return new EraOutfitPieceSpec(
 							outfitReference,
 							cultureKey,
 							sexGenderPresentation,
@@ -2870,33 +2873,33 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 			{
 				return
 				[
-					(MedievalOutfitSlotUnderlayer, pieces[0]),
-					(MedievalOutfitSlotLowerBody, pieces[1]),
-					(MedievalOutfitSlotLegOrSockLayer, pieces[1]),
-					(MedievalOutfitSlotFootwear, pieces[2]),
-					(MedievalOutfitSlotBodywear, pieces[3]),
-					(MedievalOutfitSlotOuterwear, pieces[4]),
-					(MedievalOutfitSlotHeadwear, pieces[5]),
-					(MedievalOutfitSlotBeltOrSash, pieces[6]),
-					(MedievalOutfitSlotWornContainer, pieces[7]),
-					(MedievalOutfitSlotFastenerOrJewellery, pieces[8]),
-					(MedievalOutfitSlotRoleItem, pieces[9])
+					(EraOutfitSlotSpecUnderlayer, pieces[0]),
+					(EraOutfitSlotSpecLowerBody, pieces[1]),
+					(EraOutfitSlotSpecLegOrSockLayer, pieces[1]),
+					(EraOutfitSlotSpecFootwear, pieces[2]),
+					(EraOutfitSlotSpecBodywear, pieces[3]),
+					(EraOutfitSlotSpecOuterwear, pieces[4]),
+					(EraOutfitSlotSpecHeadwear, pieces[5]),
+					(EraOutfitSlotSpecBeltOrSash, pieces[6]),
+					(EraOutfitSlotSpecWornContainer, pieces[7]),
+					(EraOutfitSlotSpecFastenerOrJewellery, pieces[8]),
+					(EraOutfitSlotSpecRoleItem, pieces[9])
 				];
 			}
 
 			return AssignMedievalOutfitPieces(
 				pieces,
 				[
-					MedievalOutfitSlotUnderlayer,
-					MedievalOutfitSlotLowerBody,
-					MedievalOutfitSlotLegOrSockLayer,
-					MedievalOutfitSlotFootwear,
-					MedievalOutfitSlotBodywear,
-					MedievalOutfitSlotOuterwear,
-					MedievalOutfitSlotHeadwear,
-					MedievalOutfitSlotBeltOrSash,
-					MedievalOutfitSlotWornContainer,
-					MedievalOutfitSlotFastenerOrJewellery
+					EraOutfitSlotSpecUnderlayer,
+					EraOutfitSlotSpecLowerBody,
+					EraOutfitSlotSpecLegOrSockLayer,
+					EraOutfitSlotSpecFootwear,
+					EraOutfitSlotSpecBodywear,
+					EraOutfitSlotSpecOuterwear,
+					EraOutfitSlotSpecHeadwear,
+					EraOutfitSlotSpecBeltOrSash,
+					EraOutfitSlotSpecWornContainer,
+					EraOutfitSlotSpecFastenerOrJewellery
 				]);
 		}
 
@@ -2905,17 +2908,17 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 			return AssignMedievalOutfitPieces(
 				pieces,
 				[
-					MedievalOutfitSlotUnderlayer,
-					MedievalOutfitSlotLowerBody,
-					MedievalOutfitSlotLegOrSockLayer,
-					MedievalOutfitSlotFootwear,
-					MedievalOutfitSlotBodywear,
-					MedievalOutfitSlotOuterwear,
-					MedievalOutfitSlotHeadwear,
-					MedievalOutfitSlotBeltOrSash,
-					MedievalOutfitSlotWornContainer,
-					MedievalOutfitSlotFastenerOrJewellery,
-					MedievalOutfitSlotRoleItem
+					EraOutfitSlotSpecUnderlayer,
+					EraOutfitSlotSpecLowerBody,
+					EraOutfitSlotSpecLegOrSockLayer,
+					EraOutfitSlotSpecFootwear,
+					EraOutfitSlotSpecBodywear,
+					EraOutfitSlotSpecOuterwear,
+					EraOutfitSlotSpecHeadwear,
+					EraOutfitSlotSpecBeltOrSash,
+					EraOutfitSlotSpecWornContainer,
+					EraOutfitSlotSpecFastenerOrJewellery,
+					EraOutfitSlotSpecRoleItem
 				]);
 		}
 
@@ -2923,17 +2926,17 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 		{
 			return
 			[
-				(MedievalOutfitSlotUnderlayer, pieces[0]),
-				(MedievalOutfitSlotLowerBody, pieces[1]),
-				(MedievalOutfitSlotLegOrSockLayer, pieces[1]),
-				(MedievalOutfitSlotFootwear, pieces[2]),
-				(MedievalOutfitSlotBodywear, pieces[3]),
-				(MedievalOutfitSlotOuterwear, pieces[4]),
-				(MedievalOutfitSlotHeadwear, pieces[5]),
-				(MedievalOutfitSlotBeltOrSash, pieces[6]),
-				(MedievalOutfitSlotWornContainer, pieces[7]),
-				(MedievalOutfitSlotFastenerOrJewellery, pieces[8]),
-				(MedievalOutfitSlotRoleItem, pieces[8])
+				(EraOutfitSlotSpecUnderlayer, pieces[0]),
+				(EraOutfitSlotSpecLowerBody, pieces[1]),
+				(EraOutfitSlotSpecLegOrSockLayer, pieces[1]),
+				(EraOutfitSlotSpecFootwear, pieces[2]),
+				(EraOutfitSlotSpecBodywear, pieces[3]),
+				(EraOutfitSlotSpecOuterwear, pieces[4]),
+				(EraOutfitSlotSpecHeadwear, pieces[5]),
+				(EraOutfitSlotSpecBeltOrSash, pieces[6]),
+				(EraOutfitSlotSpecWornContainer, pieces[7]),
+				(EraOutfitSlotSpecFastenerOrJewellery, pieces[8]),
+				(EraOutfitSlotSpecRoleItem, pieces[8])
 			];
 		}
 
@@ -2946,33 +2949,33 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 		{
 			return
 			[
-				(MedievalOutfitSlotUnderlayer, pieces[0]),
-				(MedievalOutfitSlotLowerBody, pieces[1]),
-				(MedievalOutfitSlotLegOrSockLayer, pieces[1]),
-				(MedievalOutfitSlotFootwear, pieces[2]),
-				(MedievalOutfitSlotBodywear, pieces[3]),
-				(MedievalOutfitSlotOuterwear, pieces[4]),
-				(MedievalOutfitSlotHeadwear, pieces[5]),
-				(MedievalOutfitSlotBeltOrSash, pieces[6]),
-				(MedievalOutfitSlotWornContainer, pieces[7]),
-				(MedievalOutfitSlotFastenerOrJewellery, pieces[8]),
-				(MedievalOutfitSlotRoleItem, pieces[9])
+				(EraOutfitSlotSpecUnderlayer, pieces[0]),
+				(EraOutfitSlotSpecLowerBody, pieces[1]),
+				(EraOutfitSlotSpecLegOrSockLayer, pieces[1]),
+				(EraOutfitSlotSpecFootwear, pieces[2]),
+				(EraOutfitSlotSpecBodywear, pieces[3]),
+				(EraOutfitSlotSpecOuterwear, pieces[4]),
+				(EraOutfitSlotSpecHeadwear, pieces[5]),
+				(EraOutfitSlotSpecBeltOrSash, pieces[6]),
+				(EraOutfitSlotSpecWornContainer, pieces[7]),
+				(EraOutfitSlotSpecFastenerOrJewellery, pieces[8]),
+				(EraOutfitSlotSpecRoleItem, pieces[9])
 			];
 		}
 
 		return
 		[
-			(MedievalOutfitSlotUnderlayer, pieces[0]),
-			(MedievalOutfitSlotLowerBody, pieces[1]),
-			(MedievalOutfitSlotLegOrSockLayer, pieces[2]),
-			(MedievalOutfitSlotFootwear, pieces[3]),
-			(MedievalOutfitSlotBodywear, pieces[4]),
-			(MedievalOutfitSlotOuterwear, pieces[5]),
-			(MedievalOutfitSlotHeadwear, pieces[6]),
-			(MedievalOutfitSlotBeltOrSash, pieces[7]),
-			(MedievalOutfitSlotWornContainer, pieces[8]),
-			(MedievalOutfitSlotFastenerOrJewellery, pieces[9]),
-			(MedievalOutfitSlotRoleItem, pieces[9])
+			(EraOutfitSlotSpecUnderlayer, pieces[0]),
+			(EraOutfitSlotSpecLowerBody, pieces[1]),
+			(EraOutfitSlotSpecLegOrSockLayer, pieces[2]),
+			(EraOutfitSlotSpecFootwear, pieces[3]),
+			(EraOutfitSlotSpecBodywear, pieces[4]),
+			(EraOutfitSlotSpecOuterwear, pieces[5]),
+			(EraOutfitSlotSpecHeadwear, pieces[6]),
+			(EraOutfitSlotSpecBeltOrSash, pieces[7]),
+			(EraOutfitSlotSpecWornContainer, pieces[8]),
+			(EraOutfitSlotSpecFastenerOrJewellery, pieces[9]),
+			(EraOutfitSlotSpecRoleItem, pieces[9])
 		];
 	}
 
@@ -2986,8 +2989,8 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 
 	private static bool MedievalOutfitRoleItemRequiredForRole(string socialClassRole)
 	{
-		return MedievalOutfitSlots
-			.Single(x => x.Key.Equals(MedievalOutfitSlotRoleItem, StringComparison.OrdinalIgnoreCase))
+		return EraOutfitSlotSpecs
+			.Single(x => x.Key.Equals(EraOutfitSlotSpecRoleItem, StringComparison.OrdinalIgnoreCase))
 			.RequiredForRoles
 			.Contains(socialClassRole, StringComparer.OrdinalIgnoreCase);
 	}
@@ -3001,11 +3004,11 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 		       lower.Contains("slipper", StringComparison.Ordinal);
 	}
 
-	private static IReadOnlyList<MedievalExplicitOutfitPieceOverride> BuildMedievalExplicitOutfitPieceOverrides()
+	private static IReadOnlyList<MedievalBespokeOutfitPieceSpec> BuildMedievalBespokeOutfitPieces()
 	{
 		return
 		[
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_early_anglo_saxon_male_peasant_tablet_banded_wool_tunic",
 				"medieval_outfit_early_anglo_saxon_male_peasant",
 				"early_anglo_saxon",
@@ -3043,7 +3046,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_early_anglo_saxon_female_peasant_tablet_banded_wool_gown",
 				"medieval_outfit_early_anglo_saxon_female_peasant",
 				"early_anglo_saxon",
@@ -3081,7 +3084,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_early_anglo_saxon_female_peasant_linen_head_veil",
 				"medieval_outfit_early_anglo_saxon_female_peasant",
 				"early_anglo_saxon",
@@ -3118,7 +3121,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_early_anglo_saxon_male_artisan_seax_belt",
 				"medieval_outfit_early_anglo_saxon_male_artisan",
 				"early_anglo_saxon",
@@ -3156,7 +3159,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_early_anglo_saxon_male_merchant_bordered_tunic",
 				"medieval_outfit_early_anglo_saxon_male_merchant",
 				"early_anglo_saxon",
@@ -3194,7 +3197,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_early_anglo_saxon_female_merchant_silver_brooch",
 				"medieval_outfit_early_anglo_saxon_female_merchant",
 				"early_anglo_saxon",
@@ -3221,7 +3224,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"No variable colour recommended because item material or function is not primarily a garment/colourable textile/leather piece."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_early_anglo_saxon_female_noble_brooch_fastened_mantle",
 				"medieval_outfit_early_anglo_saxon_female_noble",
 				"early_anglo_saxon",
@@ -3259,7 +3262,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_early_anglo_saxon_male_religious_monastic_wool_habit",
 				"medieval_outfit_early_anglo_saxon_male_religious",
 				"early_anglo_saxon",
@@ -3296,7 +3299,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_early_anglo_saxon_male_military_padded_shield_wall_tunic",
 				"medieval_outfit_early_anglo_saxon_male_military",
 				"early_anglo_saxon",
@@ -3333,7 +3336,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_early_anglo_saxon_female_military_brooch_fastened_war_cloak",
 				"medieval_outfit_early_anglo_saxon_female_military",
 				"early_anglo_saxon",
@@ -3370,7 +3373,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_anglo_danish_male_peasant_panelled_wool_tunic",
 				"medieval_outfit_anglo_danish_male_peasant",
 				"anglo_danish",
@@ -3408,7 +3411,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_anglo_danish_female_peasant_head_rail",
 				"medieval_outfit_anglo_danish_female_peasant",
 				"anglo_danish",
@@ -3445,7 +3448,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_anglo_danish_male_artisan_narrow_braid_tunic",
 				"medieval_outfit_anglo_danish_male_artisan",
 				"anglo_danish",
@@ -3483,7 +3486,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_anglo_danish_male_artisan_long_seax_belt",
 				"medieval_outfit_anglo_danish_male_artisan",
 				"anglo_danish",
@@ -3521,7 +3524,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_anglo_danish_male_merchant_reeve_tally_pouch",
 				"medieval_outfit_anglo_danish_male_merchant",
 				"anglo_danish",
@@ -3559,7 +3562,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_anglo_danish_female_merchant_embroidered_collar_overgown",
 				"medieval_outfit_anglo_danish_female_merchant",
 				"anglo_danish",
@@ -3597,7 +3600,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_anglo_danish_male_noble_panelled_noble_tunic",
 				"medieval_outfit_anglo_danish_male_noble",
 				"anglo_danish",
@@ -3635,7 +3638,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_anglo_danish_female_noble_fur_edged_cloak",
 				"medieval_outfit_anglo_danish_female_noble",
 				"anglo_danish",
@@ -3674,7 +3677,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_anglo_danish_male_military_nasal_cap_liner",
 				"medieval_outfit_anglo_danish_male_military",
 				"anglo_danish",
@@ -3711,7 +3714,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_anglo_danish_female_military_padded_shield_wall_gown",
 				"medieval_outfit_anglo_danish_female_military",
 				"anglo_danish",
@@ -3748,7 +3751,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_norse_female_peasant_hangerok_apron_dress",
 				"medieval_outfit_norse_female_peasant",
 				"norse",
@@ -3786,7 +3789,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_norse_female_peasant_oval_brooch_pair",
 				"medieval_outfit_norse_female_peasant",
 				"norse",
@@ -3813,7 +3816,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"No variable colour recommended because item material or function is not primarily a garment/colourable textile/leather piece."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_norse_male_peasant_sea_cloak",
 				"medieval_outfit_norse_male_peasant",
 				"norse",
@@ -3850,7 +3853,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_norse_male_merchant_trader_kaftan",
 				"medieval_outfit_norse_male_merchant",
 				"norse",
@@ -3888,7 +3891,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_norse_male_merchant_runic_trade_tag",
 				"medieval_outfit_norse_male_merchant",
 				"norse",
@@ -3912,7 +3915,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				["TagTool - Held - an item with the Awl Punch tag"],
 				null,
 				"No variable colour recommended because item material or function is not primarily a garment/colourable textile/leather piece."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_norse_female_merchant_bead_strung_hangerok",
 				"medieval_outfit_norse_female_merchant",
 				"norse",
@@ -3950,7 +3953,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_norse_male_noble_decorated_kaftan",
 				"medieval_outfit_norse_male_noble",
 				"norse",
@@ -3988,7 +3991,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_norse_female_noble_fur_lined_cloak",
 				"medieval_outfit_norse_female_noble",
 				"norse",
@@ -4027,7 +4030,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_norse_male_military_axe_loop",
 				"medieval_outfit_norse_male_military",
 				"norse",
@@ -4064,7 +4067,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_norse_female_military_arming_hangerok_or_tunic",
 				"medieval_outfit_norse_female_military",
 				"norse",
@@ -4101,7 +4104,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_norman_male_merchant_long_sleeved_cote",
 				"medieval_outfit_norman_male_merchant",
 				"norman",
@@ -4139,7 +4142,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_norman_female_merchant_bliaut_style_overgown",
 				"medieval_outfit_norman_female_merchant",
 				"norman",
@@ -4177,7 +4180,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_norman_male_noble_split_riding_tunic",
 				"medieval_outfit_norman_male_noble",
 				"norman",
@@ -4215,7 +4218,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_norman_female_noble_court_bliaut",
 				"medieval_outfit_norman_female_noble",
 				"norman",
@@ -4253,7 +4256,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_norman_female_noble_wimple_and_veil",
 				"medieval_outfit_norman_female_noble",
 				"norman",
@@ -4290,7 +4293,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_norman_male_military_padded_aketon",
 				"medieval_outfit_norman_male_military",
 				"norman",
@@ -4327,7 +4330,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_norman_male_military_mail_surcoat",
 				"medieval_outfit_norman_male_military",
 				"norman",
@@ -4365,7 +4368,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_norman_male_military_nasal_arming_coif",
 				"medieval_outfit_norman_male_military",
 				"norman",
@@ -4402,7 +4405,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_norman_male_military_scabbard_harness",
 				"medieval_outfit_norman_male_military",
 				"norman",
@@ -4440,7 +4443,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_norman_male_peasant_linen_coif",
 				"medieval_outfit_norman_male_peasant",
 				"norman",
@@ -4477,7 +4480,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_high_british_male_peasant_wool_cote",
 				"medieval_outfit_high_british_male_peasant",
 				"high_british",
@@ -4514,7 +4517,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_high_british_female_peasant_plain_gown",
 				"medieval_outfit_high_british_female_peasant",
 				"high_british",
@@ -4551,7 +4554,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_high_british_male_merchant_lined_cote",
 				"medieval_outfit_high_british_male_merchant",
 				"high_british",
@@ -4589,7 +4592,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_high_british_female_merchant_wimple",
 				"medieval_outfit_high_british_female_merchant",
 				"high_british",
@@ -4626,7 +4629,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_high_british_male_noble_silk_trimmed_surcoat",
 				"medieval_outfit_high_british_male_noble",
 				"high_british",
@@ -4665,7 +4668,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_high_british_female_noble_fur_mantle",
 				"medieval_outfit_high_british_female_noble",
 				"high_british",
@@ -4704,7 +4707,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_high_british_male_religious_small_prayer_book",
 				"medieval_outfit_high_british_male_religious",
 				"high_british",
@@ -4735,7 +4738,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"No variable colour recommended because item material or function is not primarily a garment/colourable textile/leather piece."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_high_british_male_military_gambeson",
 				"medieval_outfit_high_british_male_military",
 				"high_british",
@@ -4772,7 +4775,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_high_british_male_military_archer_bracer",
 				"medieval_outfit_high_british_male_military",
 				"high_british",
@@ -4809,7 +4812,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_high_british_female_military_fitted_gambeson",
 				"medieval_outfit_high_british_female_military",
 				"high_british",
@@ -4846,7 +4849,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_gaelic_male_peasant_plain_leine_style_tunic",
 				"medieval_outfit_gaelic_male_peasant",
 				"gaelic",
@@ -4883,7 +4886,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_gaelic_male_peasant_brat_mantle",
 				"medieval_outfit_gaelic_male_peasant",
 				"gaelic",
@@ -4920,7 +4923,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_gaelic_female_peasant_ring_pin",
 				"medieval_outfit_gaelic_female_peasant",
 				"gaelic",
@@ -4947,7 +4950,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"No variable colour recommended because item material or function is not primarily a garment/colourable textile/leather piece."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_gaelic_male_merchant_lined_brat",
 				"medieval_outfit_gaelic_male_merchant",
 				"gaelic",
@@ -4985,7 +4988,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_gaelic_male_noble_bardic_or_lordly_mantle",
 				"medieval_outfit_gaelic_male_noble",
 				"gaelic",
@@ -5023,7 +5026,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_gaelic_female_noble_noble_overgown",
 				"medieval_outfit_gaelic_female_noble",
 				"gaelic",
@@ -5061,7 +5064,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_gaelic_male_religious_note_board",
 				"medieval_outfit_gaelic_male_religious",
 				"gaelic",
@@ -5085,7 +5088,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				["TagTool - Held - an item with the Awl Punch tag"],
 				null,
 				"No variable colour recommended because item material or function is not primarily a garment/colourable textile/leather piece."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_gaelic_male_military_light_padded_coat",
 				"medieval_outfit_gaelic_male_military",
 				"gaelic",
@@ -5122,7 +5125,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_gaelic_male_military_spear_carrier_belt",
 				"medieval_outfit_gaelic_male_military",
 				"gaelic",
@@ -5160,7 +5163,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_gaelic_female_military_war_brat",
 				"medieval_outfit_gaelic_female_military",
 				"gaelic",
@@ -5197,7 +5200,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_carolingian_male_peasant_high_belted_tunic",
 				"medieval_outfit_carolingian_male_peasant",
 				"carolingian",
@@ -5234,7 +5237,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_carolingian_male_peasant_broad_banded_mantle",
 				"medieval_outfit_carolingian_male_peasant",
 				"carolingian",
@@ -5272,7 +5275,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_carolingian_male_merchant_capitulary_estate_list_pouch",
 				"medieval_outfit_carolingian_male_merchant",
 				"carolingian",
@@ -5310,7 +5313,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_carolingian_male_noble_spatha_belt",
 				"medieval_outfit_carolingian_male_noble",
 				"carolingian",
@@ -5349,7 +5352,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_carolingian_male_noble_noble_fibula",
 				"medieval_outfit_carolingian_male_noble",
 				"carolingian",
@@ -5376,7 +5379,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"No variable colour recommended because item material or function is not primarily a garment/colourable textile/leather piece."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_carolingian_male_religious_clerical_dalmatic_style_robe",
 				"medieval_outfit_carolingian_male_religious",
 				"carolingian",
@@ -5413,7 +5416,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_carolingian_male_religious_manuscript_leaf",
 				"medieval_outfit_carolingian_male_religious",
 				"carolingian",
@@ -5437,7 +5440,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				["TagTool - Held - an item with the Quill Pen tag"],
 				null,
 				"No variable colour recommended because item material or function is not primarily a garment/colourable textile/leather piece."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_carolingian_male_military_padded_war_tunic",
 				"medieval_outfit_carolingian_male_military",
 				"carolingian",
@@ -5474,7 +5477,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_carolingian_male_military_riding_spurs",
 				"medieval_outfit_carolingian_male_military",
 				"carolingian",
@@ -5501,7 +5504,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"No variable colour recommended because item material or function is not primarily a garment/colourable textile/leather piece."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_carolingian_female_noble_embroidered_gown",
 				"medieval_outfit_carolingian_female_noble",
 				"carolingian",
@@ -5539,7 +5542,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_capetian_male_peasant_plain_wool_cote",
 				"medieval_outfit_capetian_male_peasant",
 				"capetian",
@@ -5576,7 +5579,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_capetian_female_peasant_wool_kirtle",
 				"medieval_outfit_capetian_female_peasant",
 				"capetian",
@@ -5613,7 +5616,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_capetian_male_artisan_guild_work_cote",
 				"medieval_outfit_capetian_male_artisan",
 				"capetian",
@@ -5651,7 +5654,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_capetian_male_artisan_guild_apron",
 				"medieval_outfit_capetian_male_artisan",
 				"capetian",
@@ -5688,7 +5691,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_capetian_male_merchant_lined_burgher_gown",
 				"medieval_outfit_capetian_male_merchant",
 				"capetian",
@@ -5726,7 +5729,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_capetian_female_merchant_wimple",
 				"medieval_outfit_capetian_female_merchant",
 				"capetian",
@@ -5763,7 +5766,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_capetian_female_noble_bliaut_style_gown",
 				"medieval_outfit_capetian_female_noble",
 				"capetian",
@@ -5801,7 +5804,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_capetian_male_religious_chapel_book",
 				"medieval_outfit_capetian_male_religious",
 				"capetian",
@@ -5832,7 +5835,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"No variable colour recommended because item material or function is not primarily a garment/colourable textile/leather piece."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_capetian_male_military_padded_aketon",
 				"medieval_outfit_capetian_male_military",
 				"capetian",
@@ -5869,7 +5872,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_capetian_female_military_surcoat",
 				"medieval_outfit_capetian_female_military",
 				"capetian",
@@ -5907,7 +5910,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_german_hre_male_peasant_alpine_felt_cap",
 				"medieval_outfit_german_hre_male_peasant",
 				"german_hre",
@@ -5944,7 +5947,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_german_hre_male_artisan_guild_apron_over_tunic",
 				"medieval_outfit_german_hre_male_artisan",
 				"german_hre",
@@ -5981,7 +5984,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_german_hre_male_merchant_civic_gown",
 				"medieval_outfit_german_hre_male_merchant",
 				"german_hre",
@@ -6019,7 +6022,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_german_hre_male_merchant_fur_lined_mantle",
 				"medieval_outfit_german_hre_male_merchant",
 				"german_hre",
@@ -6058,7 +6061,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_german_hre_male_noble_belt_mounts",
 				"medieval_outfit_german_hre_male_noble",
 				"german_hre",
@@ -6090,7 +6093,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"No variable colour recommended because item material or function is not primarily a garment/colourable textile/leather piece."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_german_hre_female_noble_embroidered_overgown",
 				"medieval_outfit_german_hre_female_noble",
 				"german_hre",
@@ -6128,7 +6131,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_german_hre_male_religious_church_robe",
 				"medieval_outfit_german_hre_male_religious",
 				"german_hre",
@@ -6165,7 +6168,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_german_hre_male_military_arming_jack",
 				"medieval_outfit_german_hre_male_military",
 				"german_hre",
@@ -6202,7 +6205,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_german_hre_male_military_town_crossbow_militia_hook",
 				"medieval_outfit_german_hre_male_military",
 				"german_hre",
@@ -6234,7 +6237,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"No variable colour recommended because item material or function is not primarily a garment/colourable textile/leather piece."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_german_hre_female_military_arming_jack_gown",
 				"medieval_outfit_german_hre_female_military",
 				"german_hre",
@@ -6271,7 +6274,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_iberian_christian_male_peasant_simple_saya",
 				"medieval_outfit_iberian_christian_male_peasant",
 				"iberian_christian",
@@ -6308,7 +6311,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_iberian_christian_female_peasant_toca_head_veil",
 				"medieval_outfit_iberian_christian_female_peasant",
 				"iberian_christian",
@@ -6345,7 +6348,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_iberian_christian_male_merchant_pellote_over_tunic",
 				"medieval_outfit_iberian_christian_male_merchant",
 				"iberian_christian",
@@ -6383,7 +6386,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_iberian_christian_female_merchant_lined_manto",
 				"medieval_outfit_iberian_christian_female_merchant",
 				"iberian_christian",
@@ -6420,7 +6423,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_iberian_christian_male_noble_silk_trimmed_saya",
 				"medieval_outfit_iberian_christian_male_noble",
 				"iberian_christian",
@@ -6459,7 +6462,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_iberian_christian_female_noble_silk_pellote",
 				"medieval_outfit_iberian_christian_female_noble",
 				"iberian_christian",
@@ -6497,7 +6500,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_iberian_christian_male_religious_pilgrim_cloak",
 				"medieval_outfit_iberian_christian_male_religious",
 				"iberian_christian",
@@ -6534,7 +6537,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_iberian_christian_male_military_quilted_coat",
 				"medieval_outfit_iberian_christian_male_military",
 				"iberian_christian",
@@ -6571,7 +6574,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_iberian_christian_female_military_frontier_riding_cloak",
 				"medieval_outfit_iberian_christian_female_military",
 				"iberian_christian",
@@ -6608,7 +6611,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_iberian_christian_male_merchant_belt_mount",
 				"medieval_outfit_iberian_christian_male_merchant",
 				"iberian_christian",
@@ -6640,7 +6643,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"No variable colour recommended because item material or function is not primarily a garment/colourable textile/leather piece."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_andalusi_male_peasant_linen_qamis",
 				"medieval_outfit_andalusi_male_peasant",
 				"andalusi",
@@ -6677,7 +6680,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_andalusi_male_peasant_wool_sirwal",
 				"medieval_outfit_andalusi_male_peasant",
 				"andalusi",
@@ -6714,7 +6717,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_andalusi_male_peasant_light_burnous",
 				"medieval_outfit_andalusi_male_peasant",
 				"andalusi",
@@ -6751,7 +6754,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_andalusi_male_peasant_simple_turban",
 				"medieval_outfit_andalusi_male_peasant",
 				"andalusi",
@@ -6788,7 +6791,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_andalusi_male_merchant_qaba_caftan",
 				"medieval_outfit_andalusi_male_merchant",
 				"andalusi",
@@ -6826,7 +6829,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_andalusi_female_merchant_tiraz_banded_robe",
 				"medieval_outfit_andalusi_female_merchant",
 				"andalusi",
@@ -6864,7 +6867,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_andalusi_male_noble_rich_burnous",
 				"medieval_outfit_andalusi_male_noble",
 				"andalusi",
@@ -6902,7 +6905,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_andalusi_male_religious_scholar_robe",
 				"medieval_outfit_andalusi_male_religious",
 				"andalusi",
@@ -6939,7 +6942,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_andalusi_male_military_bowcase_belt",
 				"medieval_outfit_andalusi_male_military",
 				"andalusi",
@@ -6978,7 +6981,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_andalusi_female_military_riding_burnous",
 				"medieval_outfit_andalusi_female_military",
 				"andalusi",
@@ -7015,7 +7018,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_byzantine_male_peasant_short_sagion_cloak",
 				"medieval_outfit_byzantine_male_peasant",
 				"byzantine",
@@ -7052,7 +7055,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_byzantine_male_merchant_belted_skaramangion_robe",
 				"medieval_outfit_byzantine_male_merchant",
 				"byzantine",
@@ -7090,7 +7093,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_byzantine_male_merchant_lined_sagion",
 				"medieval_outfit_byzantine_male_merchant",
 				"byzantine",
@@ -7127,7 +7130,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_byzantine_male_noble_silk_dalmatic",
 				"medieval_outfit_byzantine_male_noble",
 				"byzantine",
@@ -7165,7 +7168,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_byzantine_male_noble_court_sagion",
 				"medieval_outfit_byzantine_male_noble",
 				"byzantine",
@@ -7203,7 +7206,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_byzantine_female_noble_icon_pouch",
 				"medieval_outfit_byzantine_female_noble",
 				"byzantine",
@@ -7241,7 +7244,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_byzantine_male_religious_icon_tablet",
 				"medieval_outfit_byzantine_male_religious",
 				"byzantine",
@@ -7265,7 +7268,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				["TagTool - Held - an item with the Hammer tag"],
 				null,
 				"No variable colour recommended because item material or function is not primarily a garment/colourable textile/leather piece."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_byzantine_male_military_military_padded_tunic",
 				"medieval_outfit_byzantine_male_military",
 				"byzantine",
@@ -7302,7 +7305,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_byzantine_male_military_lamellar_coat_cover",
 				"medieval_outfit_byzantine_male_military",
 				"byzantine",
@@ -7340,7 +7343,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_byzantine_female_military_head_veil_under_cap",
 				"medieval_outfit_byzantine_female_military",
 				"byzantine",
@@ -7377,7 +7380,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_abbasid_male_peasant_linen_qamis",
 				"medieval_outfit_abbasid_male_peasant",
 				"abbasid",
@@ -7414,7 +7417,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_abbasid_male_peasant_wool_sirwal",
 				"medieval_outfit_abbasid_male_peasant",
 				"abbasid",
@@ -7451,7 +7454,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_abbasid_male_merchant_qaba_caftan",
 				"medieval_outfit_abbasid_male_merchant",
 				"abbasid",
@@ -7489,7 +7492,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_abbasid_male_religious_scholar_robe",
 				"medieval_outfit_abbasid_male_religious",
 				"abbasid",
@@ -7526,7 +7529,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_abbasid_male_religious_notebook",
 				"medieval_outfit_abbasid_male_religious",
 				"abbasid",
@@ -7557,7 +7560,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"No variable colour recommended because item material or function is not primarily a garment/colourable textile/leather piece."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_abbasid_male_noble_belted_court_robe",
 				"medieval_outfit_abbasid_male_noble",
 				"abbasid",
@@ -7595,7 +7598,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_abbasid_female_noble_rich_mantle",
 				"medieval_outfit_abbasid_female_noble",
 				"abbasid",
@@ -7633,7 +7636,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_abbasid_male_military_lamellar_sleeved_coat",
 				"medieval_outfit_abbasid_male_military",
 				"abbasid",
@@ -7671,7 +7674,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_abbasid_male_military_weapon_sash",
 				"medieval_outfit_abbasid_male_military",
 				"abbasid",
@@ -7708,7 +7711,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_abbasid_female_merchant_scent_flask",
 				"medieval_outfit_abbasid_female_merchant",
 				"abbasid",
@@ -7732,7 +7735,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				["TagTool - InRoom - an item with the Hot Fire tag"],
 				null,
 				"No variable colour recommended because item material or function is not primarily a garment/colourable textile/leather piece."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_fatimid_male_peasant_linen_qamis",
 				"medieval_outfit_fatimid_male_peasant",
 				"fatimid",
@@ -7769,7 +7772,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_fatimid_male_peasant_cotton_lower_wrap",
 				"medieval_outfit_fatimid_male_peasant",
 				"fatimid",
@@ -7806,7 +7809,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_fatimid_male_merchant_tiraz_banded_tunic",
 				"medieval_outfit_fatimid_male_merchant",
 				"fatimid",
@@ -7844,7 +7847,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_fatimid_female_merchant_perfume_flask",
 				"medieval_outfit_fatimid_female_merchant",
 				"fatimid",
@@ -7868,7 +7871,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				["TagTool - InRoom - an item with the Hot Fire tag"],
 				null,
 				"No variable colour recommended because item material or function is not primarily a garment/colourable textile/leather piece."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_fatimid_male_noble_court_kaftan",
 				"medieval_outfit_fatimid_male_noble",
 				"fatimid",
@@ -7906,7 +7909,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_fatimid_female_noble_light_mantle",
 				"medieval_outfit_fatimid_female_noble",
 				"fatimid",
@@ -7944,7 +7947,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_fatimid_male_religious_endowment_slip",
 				"medieval_outfit_fatimid_male_religious",
 				"fatimid",
@@ -7968,7 +7971,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				["TagTool - Held - an item with the Reed Pen tag"],
 				null,
 				"No variable colour recommended because item material or function is not primarily a garment/colourable textile/leather piece."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_fatimid_male_military_padded_coat_with_scale_panels",
 				"medieval_outfit_fatimid_male_military",
 				"fatimid",
@@ -8006,7 +8009,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_fatimid_male_military_archer_quiver",
 				"medieval_outfit_fatimid_male_military",
 				"fatimid",
@@ -8043,7 +8046,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_fatimid_female_artisan_linen_work_gown",
 				"medieval_outfit_fatimid_female_artisan",
 				"fatimid",
@@ -8080,7 +8083,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_seljuk_ayyubid_male_peasant_plain_caftan",
 				"medieval_outfit_seljuk_ayyubid_male_peasant",
 				"seljuk_ayyubid",
@@ -8117,7 +8120,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_seljuk_ayyubid_male_merchant_riding_caftan",
 				"medieval_outfit_seljuk_ayyubid_male_merchant",
 				"seljuk_ayyubid",
@@ -8155,7 +8158,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_seljuk_ayyubid_male_noble_high_boots",
 				"medieval_outfit_seljuk_ayyubid_male_noble",
 				"seljuk_ayyubid",
@@ -8193,7 +8196,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_seljuk_ayyubid_male_noble_fur_edged_cloak",
 				"medieval_outfit_seljuk_ayyubid_male_noble",
 				"seljuk_ayyubid",
@@ -8232,7 +8235,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_seljuk_ayyubid_male_religious_madrasa_notebook",
 				"medieval_outfit_seljuk_ayyubid_male_religious",
 				"seljuk_ayyubid",
@@ -8263,7 +8266,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"No variable colour recommended because item material or function is not primarily a garment/colourable textile/leather piece."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_seljuk_ayyubid_male_military_quilted_riding_coat",
 				"medieval_outfit_seljuk_ayyubid_male_military",
 				"seljuk_ayyubid",
@@ -8300,7 +8303,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_seljuk_ayyubid_male_military_bowcase_belt",
 				"medieval_outfit_seljuk_ayyubid_male_military",
 				"seljuk_ayyubid",
@@ -8339,7 +8342,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_seljuk_ayyubid_female_military_quilted_riding_robe",
 				"medieval_outfit_seljuk_ayyubid_female_military",
 				"seljuk_ayyubid",
@@ -8376,7 +8379,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_seljuk_ayyubid_male_peasant_simple_turban",
 				"medieval_outfit_seljuk_ayyubid_male_peasant",
 				"seljuk_ayyubid",
@@ -8413,7 +8416,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_seljuk_ayyubid_male_military_lamellar_coat_cover",
 				"medieval_outfit_seljuk_ayyubid_male_military",
 				"seljuk_ayyubid",
@@ -8451,7 +8454,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_rus_novgorod_male_peasant_linen_rubakha",
 				"medieval_outfit_rus_novgorod_male_peasant",
 				"rus_novgorod",
@@ -8488,7 +8491,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_rus_novgorod_male_peasant_onuchi_footwraps",
 				"medieval_outfit_rus_novgorod_male_peasant",
 				"rus_novgorod",
@@ -8525,7 +8528,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_rus_novgorod_male_merchant_fur_edged_kaftan",
 				"medieval_outfit_rus_novgorod_male_merchant",
 				"rus_novgorod",
@@ -8564,7 +8567,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_rus_novgorod_male_merchant_birchbark_document_pouch",
 				"medieval_outfit_rus_novgorod_male_merchant",
 				"rus_novgorod",
@@ -8602,7 +8605,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_rus_novgorod_male_noble_embroidered_kaftan",
 				"medieval_outfit_rus_novgorod_male_noble",
 				"rus_novgorod",
@@ -8640,7 +8643,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_rus_novgorod_male_noble_fur_hat",
 				"medieval_outfit_rus_novgorod_male_noble",
 				"rus_novgorod",
@@ -8674,7 +8677,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_rus_novgorod_male_religious_prayer_slip",
 				"medieval_outfit_rus_novgorod_male_religious",
 				"rus_novgorod",
@@ -8698,7 +8701,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				["TagTool - Held - an item with the Quill Pen tag"],
 				null,
 				"No variable colour recommended because item material or function is not primarily a garment/colourable textile/leather piece."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_rus_novgorod_male_military_padded_war_coat",
 				"medieval_outfit_rus_novgorod_male_military",
 				"rus_novgorod",
@@ -8735,7 +8738,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_rus_novgorod_male_military_axe_loop",
 				"medieval_outfit_rus_novgorod_male_military",
 				"rus_novgorod",
@@ -8772,7 +8775,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_rus_novgorod_female_merchant_head_veil",
 				"medieval_outfit_rus_novgorod_female_merchant",
 				"rus_novgorod",
@@ -8809,7 +8812,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_steppe_turkic_male_peasant_tied_riding_coat",
 				"medieval_outfit_steppe_turkic_male_peasant",
 				"steppe_turkic",
@@ -8846,7 +8849,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_steppe_turkic_male_peasant_high_boots",
 				"medieval_outfit_steppe_turkic_male_peasant",
 				"steppe_turkic",
@@ -8884,7 +8887,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_steppe_turkic_male_merchant_felt_riding_caftan",
 				"medieval_outfit_steppe_turkic_male_merchant",
 				"steppe_turkic",
@@ -8922,7 +8925,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_steppe_turkic_male_merchant_seal_tag",
 				"medieval_outfit_steppe_turkic_male_merchant",
 				"steppe_turkic",
@@ -8946,7 +8949,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				["TagTool - Held - an item with the Awl Punch tag"],
 				null,
 				"No variable colour recommended because item material or function is not primarily a garment/colourable textile/leather piece."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_steppe_turkic_male_noble_embroidered_riding_caftan",
 				"medieval_outfit_steppe_turkic_male_noble",
 				"steppe_turkic",
@@ -8984,7 +8987,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_steppe_turkic_male_noble_silk_sash",
 				"medieval_outfit_steppe_turkic_male_noble",
 				"steppe_turkic",
@@ -9021,7 +9024,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_steppe_turkic_male_military_felt_war_cloak",
 				"medieval_outfit_steppe_turkic_male_military",
 				"steppe_turkic",
@@ -9058,7 +9061,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_steppe_turkic_male_military_bowcase_and_quiver_belt",
 				"medieval_outfit_steppe_turkic_male_military",
 				"steppe_turkic",
@@ -9097,7 +9100,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_steppe_turkic_female_military_lamellar_riding_coat_cover",
 				"medieval_outfit_steppe_turkic_female_military",
 				"steppe_turkic",
@@ -9135,7 +9138,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_steppe_turkic_female_peasant_fur_cap_or_headwrap",
 				"medieval_outfit_steppe_turkic_female_peasant",
 				"steppe_turkic",
@@ -9169,7 +9172,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_song_china_male_peasant_short_working_jacket",
 				"medieval_outfit_song_china_male_peasant",
 				"song_china",
@@ -9206,7 +9209,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_song_china_female_peasant_cross_collar_work_robe",
 				"medieval_outfit_song_china_female_peasant",
 				"song_china",
@@ -9243,7 +9246,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_song_china_male_merchant_merchant_robe",
 				"medieval_outfit_song_china_male_merchant",
 				"song_china",
@@ -9281,7 +9284,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_song_china_male_merchant_scholar_style_cap",
 				"medieval_outfit_song_china_male_merchant",
 				"song_china",
@@ -9318,7 +9321,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_song_china_male_noble_scholar_robe",
 				"medieval_outfit_song_china_male_noble",
 				"song_china",
@@ -9356,7 +9359,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_song_china_male_noble_official_cap",
 				"medieval_outfit_song_china_male_noble",
 				"song_china",
@@ -9393,7 +9396,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_song_china_female_noble_padded_winter_robe",
 				"medieval_outfit_song_china_female_noble",
 				"song_china",
@@ -9431,7 +9434,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_song_china_male_religious_notebook",
 				"medieval_outfit_song_china_male_religious",
 				"song_china",
@@ -9462,7 +9465,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"No variable colour recommended because item material or function is not primarily a garment/colourable textile/leather piece."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_song_china_male_military_padded_military_vest",
 				"medieval_outfit_song_china_male_military",
 				"song_china",
@@ -9499,7 +9502,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				],
 				null,
 				"Uses variable colour in sdesc/full description; avoids explicit culture adjective in player-facing description."),
-			Override(
+			BespokeOutfitPiece(
 				"medieval_outfit_piece_song_china_male_military_guard_token",
 				"medieval_outfit_song_china_male_military",
 				"song_china",
@@ -9529,7 +9532,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 		];
 	}
 
-	private static MedievalExplicitOutfitPieceOverride Override(
+	private static MedievalBespokeOutfitPieceSpec BespokeOutfitPiece(
 		string stableReference,
 		string outfitReference,
 		string cultureKey,
@@ -9554,7 +9557,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 		string? implementationNotes,
 		string? authoringGuidelineNotes)
 	{
-		return new MedievalExplicitOutfitPieceOverride(
+		return new MedievalBespokeOutfitPieceSpec(
 			stableReference,
 			outfitReference,
 			cultureKey,
@@ -9586,10 +9589,10 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 		return CommodityInput(grams, material, pileTag, colour, fineColour);
 	}
 
-	private static string[] BuildMedievalExplicitOutfitPieceOverrideComponents(
-		MedievalExplicitOutfitPieceOverride overrideSpec)
+	private static string[] BuildMedievalBespokeOutfitPieceSpecComponents(
+		MedievalBespokeOutfitPieceSpec bespokeSpec)
 	{
-		var components = overrideSpec.Components.ToList();
+		var components = bespokeSpec.Components.ToList();
 
 		void AddIfMissing(string component)
 		{
@@ -9600,9 +9603,9 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 		}
 
 		AddIfMissing("Holdable");
-		if (!string.IsNullOrWhiteSpace(overrideSpec.VariableColourComponent))
+		if (!string.IsNullOrWhiteSpace(bespokeSpec.VariableColourComponent))
 		{
-			AddIfMissing(overrideSpec.VariableColourComponent);
+			AddIfMissing(bespokeSpec.VariableColourComponent);
 		}
 
 		return components
@@ -9611,61 +9614,120 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 			.ToArray();
 	}
 
-	private static string BuildMedievalExplicitOutfitPieceOverrideBuilderNotes(
-		MedievalExplicitOutfitPieceOverride overrideSpec)
+	private static string BuildMedievalBespokeOutfitPieceSpecBuilderNotes(
+		MedievalBespokeOutfitPieceSpec bespokeSpec)
 	{
 		var lines = new List<string>
 		{
-			"Explicit medieval outfit piece override.",
-			$"Outfit reference: {overrideSpec.OutfitReference}.",
-			$"Culture key: {overrideSpec.CultureKey}.",
-			$"Sex/gender presentation: {overrideSpec.SexGenderPresentation}.",
-			$"Social class/role: {overrideSpec.SocialClassRole}.",
-			$"Slot: {overrideSpec.SlotKey}.",
-			$"Piece target: {overrideSpec.PieceName}."
+			"Explicit medieval outfit piece authored catalogue entry.",
+			$"Outfit reference: {bespokeSpec.OutfitReference}.",
+			$"Culture key: {bespokeSpec.CultureKey}.",
+			$"Sex/gender presentation: {bespokeSpec.SexGenderPresentation}.",
+			$"Social class/role: {bespokeSpec.SocialClassRole}.",
+			$"Slot: {bespokeSpec.SlotKey}.",
+			$"Piece target: {bespokeSpec.PieceName}."
 		};
 
-		if (!string.IsNullOrWhiteSpace(overrideSpec.AuthoringGuidelineNotes))
+		if (!string.IsNullOrWhiteSpace(bespokeSpec.AuthoringGuidelineNotes))
 		{
-			lines.Add($"Authoring notes: {overrideSpec.AuthoringGuidelineNotes}.");
+			lines.Add($"Authoring notes: {bespokeSpec.AuthoringGuidelineNotes}.");
 		}
 
-		if (!string.IsNullOrWhiteSpace(overrideSpec.ImplementationNotes))
+		if (!string.IsNullOrWhiteSpace(bespokeSpec.ImplementationNotes))
 		{
-			lines.Add($"Implementation notes: {overrideSpec.ImplementationNotes}.");
+			lines.Add($"Implementation notes: {bespokeSpec.ImplementationNotes}.");
 		}
 
 		return string.Join("\n", lines);
 	}
 
-	private static IReadOnlyList<MedievalItemSpec> MedievalExplicitOutfitPieceItemSpecs()
+	private static IReadOnlyList<EraClothingPieceSpec> MedievalExplicitOutfitClothingPieces()
 	{
 		return MedievalExplicitOutfitPieces
 			.GroupBy(x => x.StableReference, StringComparer.OrdinalIgnoreCase)
-			.Select(group => BuildMedievalExplicitOutfitPieceItemSpec(group.First(), group.Select(x => x.SlotKey).ToArray()))
+			.Select(group => BuildMedievalExplicitOutfitClothingPieceSpec(
+				group.First(),
+				group.Select(x => x.SlotKey).Distinct(StringComparer.OrdinalIgnoreCase).ToArray(),
+				group.Select(x => x.OutfitReference).Distinct(StringComparer.OrdinalIgnoreCase).ToArray()))
 			.ToArray();
 	}
 
-	private static MedievalItemSpec BuildMedievalExplicitOutfitPieceItemSpec(MedievalOutfitPieceSpec piece,
+	private static IReadOnlyList<EraItemSpec> MedievalExplicitOutfitPieceItemSpecs()
+	{
+		return MedievalExplicitOutfitClothingPieces()
+			.Select(x => x.Item)
+			.ToArray();
+	}
+
+	private static EraClothingPieceSpec BuildMedievalExplicitOutfitClothingPieceSpec(
+		EraOutfitPieceSpec piece,
+		IReadOnlyCollection<string> slotKeys,
+		IReadOnlyCollection<string> outfitReferences)
+	{
+		var item = BuildMedievalExplicitOutfitPieceItemSpec(piece, slotKeys);
+		var variableColourComponent = MedievalExplicitOutfitPieceVariableColourComponent(item);
+		return new EraClothingPieceSpec(
+			item,
+			piece.OutfitReference,
+			piece.CultureKey,
+			piece.SexGenderPresentation,
+			piece.SocialClassRole,
+			piece.PieceName,
+			piece.CultureSpecificOrClusterSpecific,
+			slotKeys,
+			outfitReferences,
+			variableColourComponent,
+			MedievalExplicitOutfitPieceColourVariables(variableColourComponent),
+			BuildMedievalExplicitOutfitPieceCraftSpec(item),
+			!piece.CultureSpecificOrClusterSpecific);
+	}
+
+	private static EraItemSpec BuildMedievalExplicitOutfitPieceItemSpec(EraOutfitPieceSpec piece,
 		IReadOnlyCollection<string> slotKeys)
 	{
 		var culture = MedievalCultureProfiles.Single(x => x.Key.Equals(piece.CultureKey, StringComparison.OrdinalIgnoreCase));
 		var status = MedievalStatusRoleProfiles.Single(x =>
 			x.Key.Equals(MedievalOutfitRoleToStatusRoleKey[piece.SocialClassRole], StringComparison.OrdinalIgnoreCase));
 		var (material, materialType) = MedievalExplicitOutfitPieceMaterial(piece.PieceName, slotKeys);
-		var components = MedievalExplicitOutfitPieceComponents(piece.PieceName, slotKeys, materialType);
+		var variableColourComponent = MedievalExplicitOutfitPieceVariableColourComponent(piece.PieceName, material, materialType);
+		var colourVariables = MedievalExplicitOutfitPieceColourVariables(variableColourComponent);
+		var components = MedievalExplicitOutfitPieceComponents(piece.PieceName, slotKeys, materialType, variableColourComponent);
 		var quality = MedievalExplicitOutfitPieceQuality(piece.PieceName, piece.SocialClassRole);
 		var size = MedievalExplicitOutfitPieceSize(slotKeys);
 		var weight = MedievalExplicitOutfitPieceWeightInGrams(piece.PieceName, slotKeys);
 		var cost = MedievalExplicitOutfitPieceCost(piece.PieceName, slotKeys, quality);
-		var shortDescription = BuildMedievalExplicitOutfitPieceShortDescription(culture.Key, piece.PieceName);
+		var shortDescription = BuildMedievalExplicitOutfitPieceShortDescription(piece.PieceName, variableColourComponent);
 		var slotList = string.Join(", ", slotKeys.OrderBy(x => x, StringComparer.OrdinalIgnoreCase));
 
-		var generated = new MedievalItemSpec(
+		if (MedievalBespokeOutfitPieces.TryGetValue(piece.StableReference, out var bespokeSpec))
+		{
+			return new EraItemSpec(
+				piece.StableReference,
+				bespokeSpec.Noun,
+				bespokeSpec.ShortDescription,
+				bespokeSpec.FullDescription,
+				bespokeSpec.Size,
+				bespokeSpec.Quality,
+				bespokeSpec.WeightInGrams,
+				bespokeSpec.Cost,
+				bespokeSpec.Material,
+				bespokeSpec.MaterialType,
+				[
+					MedievalRootTagPath,
+					$"{MedievalCultureTagRoot} / {SafeMedievalTagName(culture.Display)}",
+					$"{MedievalStatusTagRoot} / {status.TagName}",
+					MedievalExplicitOutfitPieceMarketTag(slotKeys, bespokeSpec.Quality),
+					MedievalExplicitOutfitPieceFunctionTag(slotKeys)
+				],
+				BuildMedievalBespokeOutfitPieceSpecComponents(bespokeSpec),
+				BuildMedievalBespokeOutfitPieceSpecBuilderNotes(bespokeSpec));
+		}
+
+		return new EraItemSpec(
 			piece.StableReference,
 			MedievalExplicitOutfitPieceNoun(piece.PieceName),
 			shortDescription,
-			$"This {piece.PieceName} belongs to the {culture.Display} {piece.SexGenderPresentation} {piece.SocialClassRole} outfit. It fills the {slotList} outfit slot for the explicit medieval outfit catalogue.",
+			BuildMedievalExplicitOutfitPieceFullDescription(piece.PieceName, slotKeys, material, variableColourComponent),
 			size,
 			quality,
 			weight,
@@ -9680,39 +9742,129 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				MedievalExplicitOutfitPieceFunctionTag(slotKeys)
 			],
 			components,
-			$"Explicit medieval outfit piece. Outfit reference: {piece.OutfitReference}. Culture: {culture.Display}. Sex/gender presentation: {piece.SexGenderPresentation}. Social class/role: {piece.SocialClassRole}. Piece target: {piece.PieceName}. Slot(s): {slotList}.");
+			$"Explicit medieval outfit piece authored catalogue entry. Outfit reference: {piece.OutfitReference}. Culture key: {piece.CultureKey}. Culture: {culture.Display}. Sex/gender presentation: {piece.SexGenderPresentation}. Social class/role: {piece.SocialClassRole}. Piece target: {piece.PieceName}. Slot(s): {slotList}. Colour variables: {string.Join(", ", colourVariables)}.");
+	}
 
-		if (!MedievalExplicitOutfitPieceOverrides.TryGetValue(piece.StableReference, out var overrideSpec))
+	private static string? MedievalExplicitOutfitPieceVariableColourComponent(string pieceName, string material,
+		MaterialBehaviourType materialType)
+	{
+		if (material.Equals("paper", StringComparison.OrdinalIgnoreCase) ||
+		    materialType is MaterialBehaviourType.Metal or MaterialBehaviourType.Wood or MaterialBehaviourType.Wax or MaterialBehaviourType.Ceramic)
 		{
-			return generated;
+			return null;
 		}
 
-		return generated with
+		if (MedievalExplicitOutfitPieceUsesTwoColours(pieceName))
 		{
-			Noun = overrideSpec.Noun,
-			ShortDescription = overrideSpec.ShortDescription,
-			FullDescription = overrideSpec.FullDescription,
-			Size = overrideSpec.Size,
-			Quality = overrideSpec.Quality,
-			WeightInGrams = overrideSpec.WeightInGrams,
-			Cost = overrideSpec.Cost,
-			Material = overrideSpec.Material,
-			MaterialType = overrideSpec.MaterialType,
-			Components = BuildMedievalExplicitOutfitPieceOverrideComponents(overrideSpec),
-			BuilderNotes = BuildMedievalExplicitOutfitPieceOverrideBuilderNotes(overrideSpec)
+			return materialType is MaterialBehaviourType.Leather or MaterialBehaviourType.Hair
+				? "Variable_2DrabColour"
+				: "Variable_2FineColour";
+		}
+
+		return materialType is MaterialBehaviourType.Leather or MaterialBehaviourType.Hair ||
+		       material.Equals("felt", StringComparison.OrdinalIgnoreCase) ||
+		       material.Equals("hemp", StringComparison.OrdinalIgnoreCase)
+			? "Variable_DrabColour"
+			: "Variable_FineColour";
+	}
+
+	private static bool MedievalExplicitOutfitPieceUsesTwoColours(string pieceName)
+	{
+		return ContainsAny(pieceName,
+			"tablet",
+			"band",
+			"border",
+			"embroider",
+			"tiraz",
+			"panel",
+			"cuff",
+			"hem",
+			"trim",
+			"braid",
+			"brocade",
+			"decorated",
+			"fur-edged",
+			"fur-lined",
+			"formal",
+			"official",
+			"rich",
+			"court",
+			"lined");
+	}
+
+	private static string[] MedievalExplicitOutfitPieceColourVariables(string? variableColourComponent)
+	{
+		return variableColourComponent switch
+		{
+			null => [],
+			_ when variableColourComponent.Contains("_2", StringComparison.OrdinalIgnoreCase) => ["$colour1", "$colour2"],
+			_ => ["$colour"]
 		};
 	}
 
-	private static string BuildMedievalExplicitOutfitPieceShortDescription(string cultureKey, string pieceName)
+	private static string BuildMedievalExplicitOutfitPieceShortDescription(string pieceName,
+		string? variableColourComponent)
 	{
-		var namedPiece = $"{MedievalOutfitCultureAdjective(cultureKey)} {pieceName}";
+		var colourPrefix = variableColourComponent switch
+		{
+			null => string.Empty,
+			_ when variableColourComponent.Contains("_2", StringComparison.OrdinalIgnoreCase) => "$colour1 ",
+			_ => "$colour "
+		};
+		var namedPiece = $"{colourPrefix}{pieceName}";
 		if (IsPluralMedievalOutfitPiece(pieceName))
 		{
 			return namedPiece;
 		}
 
-		var article = "aeiou".Contains(char.ToLowerInvariant(namedPiece[0])) ? "an" : "a";
+		var article = "aeiou".Contains(char.ToLowerInvariant(pieceName[0])) ? "an" : "a";
 		return $"{article} {namedPiece}";
+	}
+
+	private static string BuildMedievalExplicitOutfitPieceFullDescription(string pieceName,
+		IReadOnlyCollection<string> slotKeys, string material, string? variableColourComponent)
+	{
+		var lower = pieceName.ToLowerInvariant();
+		var colourLead = variableColourComponent switch
+		{
+			null => string.Empty,
+			_ when variableColourComponent.Contains("_2", StringComparison.OrdinalIgnoreCase) => "$colour1 ",
+			_ => "$colour "
+		};
+		var materialText = material.Equals("fur", StringComparison.OrdinalIgnoreCase)
+			? "fur and hide"
+			: material;
+		var construction = slotKeys.Contains(EraOutfitSlotSpecFootwear, StringComparer.OrdinalIgnoreCase)
+			? "turned seams, firm soles, and close stitching around the foot"
+			: slotKeys.Contains(EraOutfitSlotSpecHeadwear, StringComparer.OrdinalIgnoreCase)
+				? "a shaped crown, hemmed edge, and ties or pins where the form needs them"
+				: slotKeys.Contains(EraOutfitSlotSpecBeltOrSash, StringComparer.OrdinalIgnoreCase)
+					? "worked strap ends, reinforced stress points, and a fastening meant for daily wear"
+					: slotKeys.Contains(EraOutfitSlotSpecWornContainer, StringComparer.OrdinalIgnoreCase)
+						? "a reinforced mouth, close seams, and loops or ties for wearing at the body"
+						: slotKeys.Contains(EraOutfitSlotSpecFastenerOrJewellery, StringComparer.OrdinalIgnoreCase) ||
+						  slotKeys.Contains(EraOutfitSlotSpecRoleItem, StringComparer.OrdinalIgnoreCase)
+							? "small fitted details, rubbed edges, and a shape meant to sit securely when worn or carried"
+							: slotKeys.Contains(EraOutfitSlotSpecOuterwear, StringComparer.OrdinalIgnoreCase)
+								? "broad panels, weather-facing seams, and enough weight to hang cleanly over other garments"
+								: slotKeys.Contains(EraOutfitSlotSpecLegOrSockLayer, StringComparer.OrdinalIgnoreCase) ||
+								  slotKeys.Contains(EraOutfitSlotSpecLowerBody, StringComparer.OrdinalIgnoreCase)
+									? "narrow panels, folded edges, and stitching placed for movement at the knee and ankle"
+									: "cut panels, finished hems, and seams placed to sit smoothly in layered dress";
+		var use = slotKeys.Contains(EraOutfitSlotSpecRoleItem, StringComparer.OrdinalIgnoreCase)
+			? "It is small enough to keep close at hand while still showing its use through shape and wear."
+			: "It is made for layered daily wear, with the useful parts reinforced before the decorative parts are finished.";
+		var decoration = variableColourComponent switch
+		{
+			null => lower.Contains("book", StringComparison.OrdinalIgnoreCase) || lower.Contains("slip", StringComparison.OrdinalIgnoreCase)
+				? "The surface is plain enough for writing, sealing, or handling without hiding its prepared edges."
+				: "Its finish is restrained, relying on form, material, and worn edges rather than applied colour.",
+			_ when variableColourComponent.Contains("_2", StringComparison.OrdinalIgnoreCase) =>
+				"The $colour2 work is used on visible edges, bands, borders, panels, or fastening points so the contrast shows while the piece is worn.",
+			_ => "The colour is worked through the visible cloth or leather rather than painted over the finished surface."
+		};
+
+		return $"This {colourLead}{pieceName} is made from {materialText}, with {construction}. {use} {decoration}";
 	}
 
 	private static string MedievalOutfitCultureAdjective(string cultureKey)
@@ -9794,7 +9946,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 		string pieceName, IReadOnlyCollection<string> slotKeys)
 	{
 		var lower = pieceName.ToLowerInvariant();
-		if (slotKeys.Contains(MedievalOutfitSlotBeltOrSash, StringComparer.OrdinalIgnoreCase) &&
+		if (slotKeys.Contains(EraOutfitSlotSpecBeltOrSash, StringComparer.OrdinalIgnoreCase) &&
 		    lower.Contains("belt", StringComparison.Ordinal))
 		{
 			return ("leather", MaterialBehaviourType.Leather);
@@ -9871,7 +10023,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 			return ("felt", MaterialBehaviourType.Fabric);
 		}
 
-		if (slotKeys.Contains(MedievalOutfitSlotHeadwear, StringComparer.OrdinalIgnoreCase) &&
+		if (slotKeys.Contains(EraOutfitSlotSpecHeadwear, StringComparer.OrdinalIgnoreCase) &&
 		    (lower.Contains("fur cap", StringComparison.Ordinal) ||
 		     lower.Contains("fur hat", StringComparison.Ordinal)))
 		{
@@ -9923,8 +10075,8 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 			return ("wool", MaterialBehaviourType.Fabric);
 		}
 
-		if (slotKeys.Contains(MedievalOutfitSlotBeltOrSash, StringComparer.OrdinalIgnoreCase) ||
-		    slotKeys.Contains(MedievalOutfitSlotWornContainer, StringComparer.OrdinalIgnoreCase))
+		if (slotKeys.Contains(EraOutfitSlotSpecBeltOrSash, StringComparer.OrdinalIgnoreCase) ||
+		    slotKeys.Contains(EraOutfitSlotSpecWornContainer, StringComparer.OrdinalIgnoreCase))
 		{
 			return ("leather", MaterialBehaviourType.Leather);
 		}
@@ -9933,31 +10085,31 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 	}
 
 	private static string[] MedievalExplicitOutfitPieceComponents(string pieceName,
-		IReadOnlyCollection<string> slotKeys, MaterialBehaviourType materialType)
+		IReadOnlyCollection<string> slotKeys, MaterialBehaviourType materialType, string? variableColourComponent)
 	{
 		var components = new List<string> { "Holdable" };
 		var lower = pieceName.ToLowerInvariant();
-		if (slotKeys.Contains(MedievalOutfitSlotFootwear, StringComparer.OrdinalIgnoreCase))
+		if (slotKeys.Contains(EraOutfitSlotSpecFootwear, StringComparer.OrdinalIgnoreCase))
 		{
 			components.Add(lower.Contains("boot", StringComparison.Ordinal) ? "Wear_Boots" :
 				lower.Contains("sandal", StringComparison.Ordinal) ? "Wear_Sandals" : "Wear_Shoes");
 			components.Add("Insulation_Minor");
 			components.Add("Armour_LightClothing");
 		}
-		else if (slotKeys.Contains(MedievalOutfitSlotBeltOrSash, StringComparer.OrdinalIgnoreCase))
+		else if (slotKeys.Contains(EraOutfitSlotSpecBeltOrSash, StringComparer.OrdinalIgnoreCase))
 		{
 			components.Add("Wear_Waist");
 			components.Add("Belt_4");
 			components.Add("Armour_LightClothing");
 		}
-		else if (slotKeys.Contains(MedievalOutfitSlotWornContainer, StringComparer.OrdinalIgnoreCase))
+		else if (slotKeys.Contains(EraOutfitSlotSpecWornContainer, StringComparer.OrdinalIgnoreCase))
 		{
 			components.Add("Wear_Waist");
 			components.Add(lower.Contains("purse", StringComparison.Ordinal) ? "Container_Purse" : "Container_Pouch");
 			components.Add("Beltable");
 			components.Add("Armour_LightClothing");
 		}
-		else if (slotKeys.Contains(MedievalOutfitSlotFastenerOrJewellery, StringComparer.OrdinalIgnoreCase))
+		else if (slotKeys.Contains(EraOutfitSlotSpecFastenerOrJewellery, StringComparer.OrdinalIgnoreCase))
 		{
 			components.Add(lower.Contains("necklace", StringComparison.Ordinal) ||
 			               lower.Contains("bead", StringComparison.Ordinal) ||
@@ -9966,13 +10118,13 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				? "Wear_Necklace"
 				: "Wear_Shoulder");
 		}
-		else if (slotKeys.Contains(MedievalOutfitSlotHeadwear, StringComparer.OrdinalIgnoreCase))
+		else if (slotKeys.Contains(EraOutfitSlotSpecHeadwear, StringComparer.OrdinalIgnoreCase))
 		{
 			components.Add("Wear_Hat");
 			components.Add("Insulation_Minor");
 			components.Add("Armour_LightClothing");
 		}
-		else if (slotKeys.Contains(MedievalOutfitSlotOuterwear, StringComparer.OrdinalIgnoreCase))
+		else if (slotKeys.Contains(EraOutfitSlotSpecOuterwear, StringComparer.OrdinalIgnoreCase))
 		{
 			components.Add(lower.Contains("mantle", StringComparison.Ordinal) ||
 			               lower.Contains("brat", StringComparison.Ordinal) ||
@@ -9984,7 +10136,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				? "Armour_HeavyClothing"
 				: "Armour_LightClothing");
 		}
-		else if (slotKeys.Contains(MedievalOutfitSlotBodywear, StringComparer.OrdinalIgnoreCase))
+		else if (slotKeys.Contains(EraOutfitSlotSpecBodywear, StringComparer.OrdinalIgnoreCase))
 		{
 			components.Add(lower.Contains("apron", StringComparison.Ordinal) ? "Wear_Apron" :
 				lower.Contains("robe", StringComparison.Ordinal) || lower.Contains("habit", StringComparison.Ordinal) ? "Wear_Robe" :
@@ -10003,7 +10155,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				? "Armour_HeavyClothing"
 				: "Armour_LightClothing");
 		}
-		else if (slotKeys.Contains(MedievalOutfitSlotLegOrSockLayer, StringComparer.OrdinalIgnoreCase))
+		else if (slotKeys.Contains(EraOutfitSlotSpecLegOrSockLayer, StringComparer.OrdinalIgnoreCase))
 		{
 			components.Add(lower.Contains("footwrap", StringComparison.Ordinal) ||
 			               lower.Contains("sock", StringComparison.Ordinal) ||
@@ -10014,20 +10166,20 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 			components.Add("Insulation_Moderate");
 			components.Add("Armour_LightClothing");
 		}
-		else if (slotKeys.Contains(MedievalOutfitSlotLowerBody, StringComparer.OrdinalIgnoreCase))
+		else if (slotKeys.Contains(EraOutfitSlotSpecLowerBody, StringComparer.OrdinalIgnoreCase))
 		{
 			components.Add("Wear_Chausses");
 			components.Add("Insulation_Moderate");
 			components.Add("Armour_LightClothing");
 		}
-		else if (slotKeys.Contains(MedievalOutfitSlotUnderlayer, StringComparer.OrdinalIgnoreCase))
+		else if (slotKeys.Contains(EraOutfitSlotSpecUnderlayer, StringComparer.OrdinalIgnoreCase))
 		{
 			components.Add("Wear_Long-Sleeved_Tunic");
 			components.Add("Insulation_Minor");
 			components.Add("Armour_LightClothing");
 		}
 
-		if (slotKeys.Contains(MedievalOutfitSlotRoleItem, StringComparer.OrdinalIgnoreCase))
+		if (slotKeys.Contains(EraOutfitSlotSpecRoleItem, StringComparer.OrdinalIgnoreCase))
 		{
 			if (lower.Contains("bracer", StringComparison.Ordinal) ||
 			    lower.Contains("glove", StringComparison.Ordinal) ||
@@ -10057,6 +10209,11 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 		components.Add(materialType == MaterialBehaviourType.Metal ? "Destroyable_HeavyMetal" :
 			materialType == MaterialBehaviourType.Wood || materialType == MaterialBehaviourType.Wax ? "Destroyable_Misc" :
 			"Destroyable_Clothing");
+		if (!string.IsNullOrWhiteSpace(variableColourComponent))
+		{
+			components.Add(variableColourComponent);
+		}
+
 		return components
 			.Distinct(StringComparer.OrdinalIgnoreCase)
 			.ToArray();
@@ -10082,16 +10239,16 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 
 	private static SizeCategory MedievalExplicitOutfitPieceSize(IReadOnlyCollection<string> slotKeys)
 	{
-		if (slotKeys.Contains(MedievalOutfitSlotOuterwear, StringComparer.OrdinalIgnoreCase))
+		if (slotKeys.Contains(EraOutfitSlotSpecOuterwear, StringComparer.OrdinalIgnoreCase))
 		{
 			return SizeCategory.Large;
 		}
 
-		if (slotKeys.Contains(MedievalOutfitSlotHeadwear, StringComparer.OrdinalIgnoreCase) ||
-		    slotKeys.Contains(MedievalOutfitSlotBeltOrSash, StringComparer.OrdinalIgnoreCase) ||
-		    slotKeys.Contains(MedievalOutfitSlotWornContainer, StringComparer.OrdinalIgnoreCase) ||
-		    slotKeys.Contains(MedievalOutfitSlotFastenerOrJewellery, StringComparer.OrdinalIgnoreCase) ||
-		    slotKeys.Contains(MedievalOutfitSlotRoleItem, StringComparer.OrdinalIgnoreCase))
+		if (slotKeys.Contains(EraOutfitSlotSpecHeadwear, StringComparer.OrdinalIgnoreCase) ||
+		    slotKeys.Contains(EraOutfitSlotSpecBeltOrSash, StringComparer.OrdinalIgnoreCase) ||
+		    slotKeys.Contains(EraOutfitSlotSpecWornContainer, StringComparer.OrdinalIgnoreCase) ||
+		    slotKeys.Contains(EraOutfitSlotSpecFastenerOrJewellery, StringComparer.OrdinalIgnoreCase) ||
+		    slotKeys.Contains(EraOutfitSlotSpecRoleItem, StringComparer.OrdinalIgnoreCase))
 		{
 			return SizeCategory.Small;
 		}
@@ -10101,17 +10258,17 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 
 	private static double MedievalExplicitOutfitPieceWeightInGrams(string pieceName, IReadOnlyCollection<string> slotKeys)
 	{
-		if (slotKeys.Contains(MedievalOutfitSlotOuterwear, StringComparer.OrdinalIgnoreCase))
+		if (slotKeys.Contains(EraOutfitSlotSpecOuterwear, StringComparer.OrdinalIgnoreCase))
 		{
 			return 1450.0;
 		}
 
-		if (slotKeys.Contains(MedievalOutfitSlotFootwear, StringComparer.OrdinalIgnoreCase))
+		if (slotKeys.Contains(EraOutfitSlotSpecFootwear, StringComparer.OrdinalIgnoreCase))
 		{
 			return 900.0;
 		}
 
-		if (slotKeys.Contains(MedievalOutfitSlotBodywear, StringComparer.OrdinalIgnoreCase))
+		if (slotKeys.Contains(EraOutfitSlotSpecBodywear, StringComparer.OrdinalIgnoreCase))
 		{
 			return pieceName.Contains("padded", StringComparison.OrdinalIgnoreCase) ||
 			       pieceName.Contains("gambeson", StringComparison.OrdinalIgnoreCase)
@@ -10119,23 +10276,23 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				: 850.0;
 		}
 
-		if (slotKeys.Contains(MedievalOutfitSlotBeltOrSash, StringComparer.OrdinalIgnoreCase))
+		if (slotKeys.Contains(EraOutfitSlotSpecBeltOrSash, StringComparer.OrdinalIgnoreCase))
 		{
 			return 360.0;
 		}
 
-		if (slotKeys.Contains(MedievalOutfitSlotWornContainer, StringComparer.OrdinalIgnoreCase))
+		if (slotKeys.Contains(EraOutfitSlotSpecWornContainer, StringComparer.OrdinalIgnoreCase))
 		{
 			return 220.0;
 		}
 
-		if (slotKeys.Contains(MedievalOutfitSlotHeadwear, StringComparer.OrdinalIgnoreCase))
+		if (slotKeys.Contains(EraOutfitSlotSpecHeadwear, StringComparer.OrdinalIgnoreCase))
 		{
 			return 180.0;
 		}
 
-		if (slotKeys.Contains(MedievalOutfitSlotFastenerOrJewellery, StringComparer.OrdinalIgnoreCase) ||
-		    slotKeys.Contains(MedievalOutfitSlotRoleItem, StringComparer.OrdinalIgnoreCase))
+		if (slotKeys.Contains(EraOutfitSlotSpecFastenerOrJewellery, StringComparer.OrdinalIgnoreCase) ||
+		    slotKeys.Contains(EraOutfitSlotSpecRoleItem, StringComparer.OrdinalIgnoreCase))
 		{
 			return 120.0;
 		}
@@ -10146,11 +10303,11 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 	private static decimal MedievalExplicitOutfitPieceCost(string pieceName, IReadOnlyCollection<string> slotKeys,
 		ItemQuality quality)
 	{
-		var baseCost = slotKeys.Contains(MedievalOutfitSlotFastenerOrJewellery, StringComparer.OrdinalIgnoreCase) ? 18.0m :
-			slotKeys.Contains(MedievalOutfitSlotOuterwear, StringComparer.OrdinalIgnoreCase) ? 42.0m :
-			slotKeys.Contains(MedievalOutfitSlotBodywear, StringComparer.OrdinalIgnoreCase) ? 28.0m :
-			slotKeys.Contains(MedievalOutfitSlotFootwear, StringComparer.OrdinalIgnoreCase) ? 18.0m :
-			slotKeys.Contains(MedievalOutfitSlotRoleItem, StringComparer.OrdinalIgnoreCase) ? 12.0m :
+		var baseCost = slotKeys.Contains(EraOutfitSlotSpecFastenerOrJewellery, StringComparer.OrdinalIgnoreCase) ? 18.0m :
+			slotKeys.Contains(EraOutfitSlotSpecOuterwear, StringComparer.OrdinalIgnoreCase) ? 42.0m :
+			slotKeys.Contains(EraOutfitSlotSpecBodywear, StringComparer.OrdinalIgnoreCase) ? 28.0m :
+			slotKeys.Contains(EraOutfitSlotSpecFootwear, StringComparer.OrdinalIgnoreCase) ? 18.0m :
+			slotKeys.Contains(EraOutfitSlotSpecRoleItem, StringComparer.OrdinalIgnoreCase) ? 12.0m :
 			10.0m;
 		if (pieceName.Contains("silver", StringComparison.OrdinalIgnoreCase) ||
 		    pieceName.Contains("gold", StringComparison.OrdinalIgnoreCase) ||
@@ -10164,18 +10321,18 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 
 	private static string MedievalExplicitOutfitPieceMarketTag(IReadOnlyCollection<string> slotKeys, ItemQuality quality)
 	{
-		if (slotKeys.Contains(MedievalOutfitSlotFastenerOrJewellery, StringComparer.OrdinalIgnoreCase) ||
-		    slotKeys.Contains(MedievalOutfitSlotRoleItem, StringComparer.OrdinalIgnoreCase))
+		if (slotKeys.Contains(EraOutfitSlotSpecFastenerOrJewellery, StringComparer.OrdinalIgnoreCase) ||
+		    slotKeys.Contains(EraOutfitSlotSpecRoleItem, StringComparer.OrdinalIgnoreCase))
 		{
 			return quality >= ItemQuality.Good ? "Market / Clothing / Luxury Clothing" : "Market / Clothing / Standard Clothing";
 		}
 
-		if (slotKeys.Contains(MedievalOutfitSlotFootwear, StringComparer.OrdinalIgnoreCase))
+		if (slotKeys.Contains(EraOutfitSlotSpecFootwear, StringComparer.OrdinalIgnoreCase))
 		{
 			return "Market / Clothing / Footwear";
 		}
 
-		if (slotKeys.Contains(MedievalOutfitSlotOuterwear, StringComparer.OrdinalIgnoreCase))
+		if (slotKeys.Contains(EraOutfitSlotSpecOuterwear, StringComparer.OrdinalIgnoreCase))
 		{
 			return "Market / Clothing / Winter Clothing";
 		}
@@ -10185,44 +10342,44 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 
 	private static string MedievalExplicitOutfitPieceFunctionTag(IReadOnlyCollection<string> slotKeys)
 	{
-		if (slotKeys.Contains(MedievalOutfitSlotFootwear, StringComparer.OrdinalIgnoreCase))
+		if (slotKeys.Contains(EraOutfitSlotSpecFootwear, StringComparer.OrdinalIgnoreCase))
 		{
 			return "Functions / Worn Items / Footwear";
 		}
 
-		if (slotKeys.Contains(MedievalOutfitSlotHeadwear, StringComparer.OrdinalIgnoreCase))
+		if (slotKeys.Contains(EraOutfitSlotSpecHeadwear, StringComparer.OrdinalIgnoreCase))
 		{
 			return "Functions / Worn Items / Headwear";
 		}
 
-		if (slotKeys.Contains(MedievalOutfitSlotBeltOrSash, StringComparer.OrdinalIgnoreCase))
+		if (slotKeys.Contains(EraOutfitSlotSpecBeltOrSash, StringComparer.OrdinalIgnoreCase))
 		{
 			return "Functions / Worn Items / Belts";
 		}
 
-		if (slotKeys.Contains(MedievalOutfitSlotWornContainer, StringComparer.OrdinalIgnoreCase))
+		if (slotKeys.Contains(EraOutfitSlotSpecWornContainer, StringComparer.OrdinalIgnoreCase))
 		{
 			return "Functions / Worn Items / Pouches";
 		}
 
-		if (slotKeys.Contains(MedievalOutfitSlotFastenerOrJewellery, StringComparer.OrdinalIgnoreCase) ||
-		    slotKeys.Contains(MedievalOutfitSlotRoleItem, StringComparer.OrdinalIgnoreCase))
+		if (slotKeys.Contains(EraOutfitSlotSpecFastenerOrJewellery, StringComparer.OrdinalIgnoreCase) ||
+		    slotKeys.Contains(EraOutfitSlotSpecRoleItem, StringComparer.OrdinalIgnoreCase))
 		{
 			return "Functions / Worn Items / Jewellery";
 		}
 
-		if (slotKeys.Contains(MedievalOutfitSlotOuterwear, StringComparer.OrdinalIgnoreCase))
+		if (slotKeys.Contains(EraOutfitSlotSpecOuterwear, StringComparer.OrdinalIgnoreCase))
 		{
 			return "Functions / Worn Items / Outerwear";
 		}
 
-		if (slotKeys.Contains(MedievalOutfitSlotUnderlayer, StringComparer.OrdinalIgnoreCase))
+		if (slotKeys.Contains(EraOutfitSlotSpecUnderlayer, StringComparer.OrdinalIgnoreCase))
 		{
 			return "Functions / Worn Items / Underwear";
 		}
 
-		if (slotKeys.Contains(MedievalOutfitSlotLegOrSockLayer, StringComparer.OrdinalIgnoreCase) ||
-		    slotKeys.Contains(MedievalOutfitSlotLowerBody, StringComparer.OrdinalIgnoreCase))
+		if (slotKeys.Contains(EraOutfitSlotSpecLegOrSockLayer, StringComparer.OrdinalIgnoreCase) ||
+		    slotKeys.Contains(EraOutfitSlotSpecLowerBody, StringComparer.OrdinalIgnoreCase))
 		{
 			return "Functions / Worn Items / Legwear";
 		}
@@ -10230,7 +10387,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 		return "Functions / Worn Items / Bodywear";
 	}
 
-	private static MedievalOutfitSpec[] BuildMedievalOutfits()
+	private static EraOutfitSpec[] BuildMedievalOutfits()
 	{
 		return MedievalCultureProfiles
 			.SelectMany(culture => MedievalOutfitSexGenderPresentationKeys.SelectMany(sex =>
@@ -10238,7 +10395,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 			.ToArray();
 	}
 
-	private static MedievalOutfitSpec BuildMedievalOutfit(MedievalCultureProfile culture, string sexGenderPresentation,
+	private static EraOutfitSpec BuildMedievalOutfit(MedievalCultureProfile culture, string sexGenderPresentation,
 		string socialClassRole)
 	{
 		var outfitReference = $"medieval_outfit_{culture.Key}_{sexGenderPresentation}_{socialClassRole}";
@@ -10247,7 +10404,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 			.ToArray();
 		if (explicitPieces.Length > 0)
 		{
-			return new MedievalOutfitSpec(
+			return new EraOutfitSpec(
 				outfitReference,
 				culture.Key,
 				sexGenderPresentation,
@@ -10263,25 +10420,25 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 			x.Key.Equals(MedievalOutfitRoleToStatusRoleKey[socialClassRole], StringComparison.OrdinalIgnoreCase));
 		var slots = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
 		{
-			[MedievalOutfitSlotUnderlayer] = MedievalOutfitClothingStableReference(culture, status, "underlayer"),
-			[MedievalOutfitSlotLowerBody] = MedievalOutfitClothingStableReference(culture, status, "legwear"),
-			[MedievalOutfitSlotLegOrSockLayer] = MedievalOutfitClothingStableReference(culture, status, "sockwear"),
-			[MedievalOutfitSlotFootwear] = MedievalOutfitClothingStableReference(culture, status, "footwear"),
-			[MedievalOutfitSlotBodywear] = $"medieval_clothing_{culture.Key}_{status.Key}_{status.GarmentToken}",
-			[MedievalOutfitSlotOuterwear] = MedievalOutfitClothingStableReference(culture, status, "outerwear"),
-			[MedievalOutfitSlotHeadwear] = MedievalOutfitClothingStableReference(culture, status, "headwear"),
-			[MedievalOutfitSlotBeltOrSash] = MedievalOutfitClothingStableReference(culture, status, "belt"),
-			[MedievalOutfitSlotWornContainer] = MedievalOutfitClothingStableReference(culture, status, "pouch"),
-			[MedievalOutfitSlotFastenerOrJewellery] = MedievalOutfitFastenerStableReference(socialClassRole)
+			[EraOutfitSlotSpecUnderlayer] = MedievalOutfitClothingStableReference(culture, status, "underlayer"),
+			[EraOutfitSlotSpecLowerBody] = MedievalOutfitClothingStableReference(culture, status, "legwear"),
+			[EraOutfitSlotSpecLegOrSockLayer] = MedievalOutfitClothingStableReference(culture, status, "sockwear"),
+			[EraOutfitSlotSpecFootwear] = MedievalOutfitClothingStableReference(culture, status, "footwear"),
+			[EraOutfitSlotSpecBodywear] = $"medieval_clothing_{culture.Key}_{status.Key}_{status.GarmentToken}",
+			[EraOutfitSlotSpecOuterwear] = MedievalOutfitClothingStableReference(culture, status, "outerwear"),
+			[EraOutfitSlotSpecHeadwear] = MedievalOutfitClothingStableReference(culture, status, "headwear"),
+			[EraOutfitSlotSpecBeltOrSash] = MedievalOutfitClothingStableReference(culture, status, "belt"),
+			[EraOutfitSlotSpecWornContainer] = MedievalOutfitClothingStableReference(culture, status, "pouch"),
+			[EraOutfitSlotSpecFastenerOrJewellery] = MedievalOutfitFastenerStableReference(socialClassRole)
 		};
 
 		var roleItem = MedievalOutfitRoleItemStableReference(culture, socialClassRole);
 		if (!string.IsNullOrWhiteSpace(roleItem))
 		{
-			slots[MedievalOutfitSlotRoleItem] = roleItem;
+			slots[EraOutfitSlotSpecRoleItem] = roleItem;
 		}
 
-		return new MedievalOutfitSpec(
+		return new EraOutfitSpec(
 			outfitReference,
 			culture.Key,
 			sexGenderPresentation,
@@ -10325,9 +10482,9 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 			.Select(x => x.StableReference)
 			.ToArray();
 
-	internal static IReadOnlyCollection<MedievalItemSpecTestData> HistoricFoundationItemSpecsForTesting =>
+	internal static IReadOnlyCollection<EraItemSpecTestData> HistoricFoundationItemSpecsForTesting =>
 		HistoricFoundationItemSpecs()
-			.Select(x => new MedievalItemSpecTestData(
+			.Select(x => new EraItemSpecTestData(
 				x.StableReference,
 				x.Noun,
 				x.ShortDescription,
@@ -10381,9 +10538,19 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 			.ToArray();
 
 	internal static IReadOnlyCollection<(string Key, bool RequiredForAllOutfits, IReadOnlyCollection<string> RequiredForRoles)> MedievalOutfitSlotsForTesting =>
-		MedievalOutfitSlots
+		EraOutfitSlotSpecs
 			.Select(x => (x.Key, x.RequiredForAllOutfits, (IReadOnlyCollection<string>)x.RequiredForRoles.ToArray()))
 			.ToArray();
+
+	internal static (string EraKey, string EraRootTag, string CultureTagRoot, string? StatusOrSocialRoleTagRoot, bool CompleteOutfitCataloguesRequired, bool GenericBaselineWardrobeGenerationAllowed, bool PlayerFacingDescriptionsMayIncludeCultureNames, IReadOnlyCollection<string> SlotKeys) MedievalEraConfigurationForTesting =>
+		(MedievalEraConfiguration.EraKey,
+			MedievalEraConfiguration.EraRootTag,
+			MedievalEraConfiguration.CultureTagRoot,
+			MedievalEraConfiguration.StatusOrSocialRoleTagRoot,
+			MedievalEraConfiguration.CompleteOutfitCataloguesRequired,
+			MedievalEraConfiguration.GenericBaselineWardrobeGenerationAllowed,
+			MedievalEraConfiguration.PlayerFacingDescriptionsMayIncludeCultureNames,
+			MedievalEraConfiguration.ClothingSlotDefinitions.Select(x => x.Key).ToArray());
 
 	internal static IReadOnlyCollection<string> MedievalOutfitSexGenderPresentationKeysForTesting =>
 		MedievalOutfitSexGenderPresentationKeys
@@ -10421,37 +10588,40 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 				x.PieceName, x.StableReference, x.CultureSpecificOrClusterSpecific))
 			.ToArray();
 
-	internal static IReadOnlyCollection<MedievalExplicitOutfitPieceOverrideTestData> MedievalExplicitOutfitPieceOverridesForTesting =>
-		MedievalExplicitOutfitPieceOverrides.Values
-			.Select(x => new MedievalExplicitOutfitPieceOverrideTestData(
-				x.StableReference,
-				x.OutfitReference,
-				x.CultureKey,
-				x.SexGenderPresentation,
-				x.SocialClassRole,
-				x.SlotKey,
-				x.PieceName,
-				x.Noun,
-				x.ShortDescription,
-				x.FullDescription,
-				x.Material,
-				x.MaterialType,
-				x.Quality,
-				x.Size,
-				x.WeightInGrams,
-				x.Cost,
-				x.VariableColourComponent,
-				x.ColourVariablesUsed,
-				x.Components,
-				x.CraftInputs,
-				x.CraftTools,
-				x.ImplementationNotes,
-				x.AuthoringGuidelineNotes))
+	internal static IReadOnlyCollection<MedievalAuthoredOutfitPieceTestData> MedievalAuthoredOutfitPiecesForTesting =>
+		MedievalExplicitOutfitClothingPieces()
+			.Select(piece =>
+			{
+				var item = piece.Item;
+				return new MedievalAuthoredOutfitPieceTestData(
+					item.StableReference,
+					piece.OutfitReference,
+					piece.CultureKey,
+					piece.SexGenderPresentation,
+					piece.SocialClassRole,
+					piece.SlotKeys,
+					piece.PieceName,
+					item.Noun,
+					item.ShortDescription,
+					item.FullDescription,
+					item.Material,
+					item.MaterialType,
+					item.Quality,
+					item.Size,
+					item.WeightInGrams,
+					item.Cost,
+					piece.VariableColourComponent,
+					piece.ColourVariablesUsed,
+					item.Components,
+					piece.Craft.Inputs.Select(x => x.Definition).ToArray(),
+					piece.Craft.Tools.Select(x => x.Definition).ToArray(),
+					piece.IntentionallySharedOrGeneric);
+			})
 			.ToArray();
 
-	internal static IReadOnlyCollection<MedievalItemSpecTestData> MedievalExplicitOutfitPieceItemSpecsForTesting =>
+	internal static IReadOnlyCollection<EraItemSpecTestData> MedievalExplicitOutfitPieceItemSpecsForTesting =>
 		MedievalExplicitOutfitPieceItemSpecs()
-			.Select(x => new MedievalItemSpecTestData(
+			.Select(x => new EraItemSpecTestData(
 				x.StableReference,
 				x.Noun,
 				x.ShortDescription,
@@ -10478,9 +10648,9 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 			.Select(x => x.StableReference)
 			.ToArray();
 
-	internal static IReadOnlyCollection<MedievalItemSpecTestData> MedievalItemSpecsForTesting =>
+	internal static IReadOnlyCollection<EraItemSpecTestData> MedievalItemSpecsForTesting =>
 		MedievalAllItemSpecs()
-			.Select(x => new MedievalItemSpecTestData(
+			.Select(x => new EraItemSpecTestData(
 				x.StableReference,
 				x.Noun,
 				x.ShortDescription,
@@ -10520,7 +10690,7 @@ medieval_outfit_song_china_female_military|arming shift; trousers or split skirt
 			.Distinct(StringComparer.OrdinalIgnoreCase)
 			.ToArray();
 
-	private static IReadOnlyList<MedievalItemSpec> MedievalAllItemSpecs()
+	private static IReadOnlyList<EraItemSpec> MedievalAllItemSpecs()
 	{
 		return MedievalClothingItemSpecs()
 			.Concat(MedievalEquipmentItemSpecs())

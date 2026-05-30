@@ -321,7 +321,7 @@ internal sealed class EmploymentTaskAuthoringService
 		sb.AppendLine("Employment Task Actions".GetLineWithTitle(actor, Telnet.Cyan, Telnet.BoldWhite));
 		sb.AppendLine("Use these with ".ColourCommand() + "tasks step <action> ...".ColourCommand() + " while you have a draft open.");
 		sb.AppendLine("You can also create and finalise a task in one command with ".ColourCommand() + "tasks create <name> <action> then <action>".ColourCommand() + ".");
-		sb.AppendLine("Planning, authorisation, and safe logistics actions persist task state; audit-only actions record evidence without mutating purchasing, banking, store-account, craft, pricing, or administrative systems.");
+		sb.AppendLine("Planning, authorisation, shop bank/virtual-cash finance, and safe logistics actions persist task state; audit-only actions record evidence without mutating purchasing, store-account, craft, pricing, or administrative systems.");
 		sb.AppendLine();
 
 		if (!string.IsNullOrWhiteSpace(selector) && !selector.EqualTo("all"))
@@ -441,7 +441,7 @@ internal sealed class EmploymentTaskAuthoringService
 			"storepay" => TryParseStorePay(host, input, out step, out message),
 			"craft" => TryParseCraft(input, out step, out message),
 			"report" or "authorise" or "reserve" or "release" or "select" or "estimate" =>
-				TryParseGenericShell(definition!.Key, input, out step, out message),
+				TryParseGenericShell(host, definition!.Key, input, out step, out message),
 			"route" => TryParseRoute(actor, input, out step, out message),
 			_ => UnknownStepType(stepType, out step, out message)
 		};
@@ -1088,10 +1088,54 @@ internal sealed class EmploymentTaskAuthoringService
 		return true;
 	}
 
-	private static bool TryParseGenericShell(string actionKey, StringStack input, out IEmploymentActionStep step,
+	private static bool TryParseGenericShell(IEmploymentHost host, string actionKey, StringStack input,
+		out IEmploymentActionStep step,
 		out string message)
 	{
 		step = null!;
+		if (actionKey.EqualTo("release") && input.IsFinished)
+		{
+			step = new CataloguedActionShellStep(actionKey, "all");
+			message = string.Empty;
+			return true;
+		}
+
+		if (actionKey.EqualTo("authorise") || actionKey.EqualTo("reserve"))
+		{
+			var amountTokens = PopTokensUntil(input, "for").ToList();
+			if (amountTokens.Any() && !input.IsFinished && input.PeekSpeech().EqualTo("for"))
+			{
+				input.PopSpeech();
+				if (!TryParseMoney(host, string.Join(" ", amountTokens), out var amount, out message))
+				{
+					return false;
+				}
+
+				var amountDescription = input.SafeRemainingArgument.Trim();
+				if (string.IsNullOrWhiteSpace(amountDescription))
+				{
+					message = $"{actionKey.ColourCommand()} steps need a short description after the amount.";
+					return false;
+				}
+
+				ConsumeRemaining(input);
+				step = new CataloguedActionShellStep(actionKey, amountDescription, amount);
+				message = string.Empty;
+				return true;
+			}
+
+			var tokenDescription = string.Join(" ", amountTokens).Trim();
+			if (string.IsNullOrWhiteSpace(tokenDescription))
+			{
+				message = $"{actionKey.ColourCommand()} steps need a short description to audit.";
+				return false;
+			}
+
+			step = new CataloguedActionShellStep(actionKey, tokenDescription);
+			message = string.Empty;
+			return true;
+		}
+
 		var description = input.SafeRemainingArgument.Trim();
 		if (string.IsNullOrWhiteSpace(description))
 		{
@@ -1537,17 +1581,15 @@ internal sealed class EmploymentTaskAuthoringService
 			CommandActionStep command =>
 				$"execute allowlisted command {command.CommandName.ColourCommand()}{(string.IsNullOrWhiteSpace(command.CommandArguments) ? string.Empty : $" {command.CommandArguments.ColourCommand()}")}{(command.ExecutionLocation is null ? string.Empty : $" at {command.ExecutionLocation.GetFriendlyReference(actor).ColourName()}")}",
 			BankDepositActionStep deposit =>
-				$"record an audit-only bank deposit of {DescribeMoney(deposit.Amount)}",
+				$"deposit {DescribeMoney(deposit.Amount)} of employer virtual cash into the linked bank account",
 			BankWithdrawalActionStep withdrawal =>
-				$"record an audit-only bank withdrawal of {DescribeMoney(withdrawal.Amount)}",
+				$"withdraw {DescribeMoney(withdrawal.Amount)} from the linked bank account into employer virtual cash",
 			StoreAccountPaymentActionStep account =>
 				$"record an audit-only payment of {DescribeMoney(account.Amount)} to store account {account.AccountName.ColourName()}",
 			BoardPostActionStep board =>
 				$"post {board.Title.ColourName()} to the host staff communication board",
 			CataloguedActionShellStep shell =>
-				shell.TargetLocation is null
-					? $"record {shell.ActionKey.ColourCommand()} audit shell: {shell.ActionDescription}"
-					: $"go to {shell.TargetLocation.GetFriendlyReference(actor).ColourName()} and record {shell.ActionKey.ColourCommand()} audit shell: {shell.ActionDescription}",
+				DescribeCataloguedShellStep(shell, actor),
 			GetItemsByIdActionStep getId =>
 				$"go to {DescribeLocations(getId.SourceLocations, actor)} and collect {getId.Quantity.ToString("N0", actor).ColourValue()}x {DescribeRetrievalTargets(getId, actor)}",
 			GetItemsByTagActionStep getTag =>
@@ -1566,6 +1608,25 @@ internal sealed class EmploymentTaskAuthoringService
 				$"validate cargo space {vehicle.CargoSpace.Name.ColourName()} on {vehicle.Vehicle.Name.ColourName()}",
 			_ => step.StepType.DescribeEnum().ColourName()
 		};
+	}
+
+	private static string DescribeCataloguedShellStep(CataloguedActionShellStep shell, ICharacter actor)
+	{
+		var amount = shell.Amount is null ? string.Empty : $"{DescribeMoney(shell.Amount)} for ";
+		var description = shell.ActionKey switch
+		{
+			"authorise" => $"authorise {amount}{shell.ActionDescription}",
+			"reserve" => $"reserve {amount}{shell.ActionDescription}",
+			"release" => $"release employment finance reservation {shell.ActionDescription.ColourCommand()}",
+			"report" => $"record report: {shell.ActionDescription}",
+			"select" => $"record selection: {shell.ActionDescription}",
+			"estimate" => $"record estimate: {shell.ActionDescription}",
+			"route" => $"record route plan: {shell.ActionDescription}",
+			_ => $"record {shell.ActionKey.ColourCommand()} action: {shell.ActionDescription}"
+		};
+		return shell.TargetLocation is null
+			? description
+			: $"go to {shell.TargetLocation.GetFriendlyReference(actor).ColourName()} and {description}";
 	}
 
 	internal static EmploymentActionDefinition? DefinitionFor(IEmploymentActionStep step)

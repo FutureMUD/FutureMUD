@@ -94,7 +94,8 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 
 	private sealed record VehicleOperationStepPayload(long VehicleId, long CargoSpaceId);
 
-	private sealed record CataloguedActionShellPayload(string ActionKey, string Description, long? TargetLocationId);
+	private sealed record CataloguedActionShellPayload(string ActionKey, string Description, long? TargetLocationId,
+		long? AmountCurrencyId = null, decimal? Amount = null);
 
 	private readonly IEmploymentHost _host;
 	private readonly IFuturemud _gameworld;
@@ -1275,9 +1276,13 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 
 		var targetLocationId = payload?.TargetLocationId ?? record.DestinationCellId;
 		destination ??= targetLocationId.HasValue ? _gameworld.Cells.Get(targetLocationId.Value) : null;
+		var amount = payload?.Amount is not null
+			? ToMoney(payload.AmountCurrencyId, payload.Amount)
+			: ToMoney(record.AmountCurrencyId, record.Amount);
 		return new CataloguedActionShellStep(
 			actionKey,
 			payload?.Description ?? record.Description ?? actionKey,
+			amount,
 			destination);
 	}
 
@@ -1438,11 +1443,15 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 			case CataloguedActionShellStep shell:
 				record.CommandName = shell.ActionKey;
 				record.Description = shell.ActionDescription;
+				record.AmountCurrencyId = shell.Amount?.Currency.Id;
+				record.Amount = shell.Amount?.Amount;
 				record.DestinationCellId = shell.TargetLocation?.Id;
 				record.BoardText = SerializeActionPayload(new CataloguedActionShellPayload(
 					shell.ActionKey,
 					shell.ActionDescription,
-					shell.TargetLocation?.Id));
+					shell.TargetLocation?.Id,
+					shell.Amount?.Currency.Id,
+					shell.Amount?.Amount));
 				break;
 		}
 

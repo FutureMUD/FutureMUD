@@ -852,11 +852,11 @@ public class EmploymentCommandServiceTests
 		{
 			"getid", "gettag", "commodity", "deliver", "move", "board", "command", "report",
 			"authorise", "reserve", "release", "select", "estimate", "route", "load", "unload",
-			"return", "vehicle"
+			"return", "vehicle", "bankdeposit", "bankwithdraw"
 		};
 		var auditOnly = new[]
 		{
-			"purchase", "bankdeposit", "bankwithdraw", "storepay", "craft"
+			"purchase", "storepay", "craft"
 		};
 		var deferred = new[]
 		{
@@ -946,9 +946,9 @@ public class EmploymentCommandServiceTests
 		Assert.IsTrue(authoring.TryAddStep(manager, host, new StringStack("unload &crate at here"), out message), message);
 		Assert.IsTrue(authoring.TryAddStep(manager, host, new StringStack("return container &crate to here containertag &depot"), out message), message);
 		Assert.IsTrue(authoring.TryAddStep(manager, host, new StringStack("report shelves checked"), out message), message);
-		Assert.IsTrue(authoring.TryAddStep(manager, host, new StringStack("authorise purchase approved"), out message), message);
-		Assert.IsTrue(authoring.TryAddStep(manager, host, new StringStack("reserve feed crates"), out message), message);
-		Assert.IsTrue(authoring.TryAddStep(manager, host, new StringStack("release old reservation"), out message), message);
+		Assert.IsTrue(authoring.TryAddStep(manager, host, new StringStack("authorise 5 for purchase approved"), out message), message);
+		Assert.IsTrue(authoring.TryAddStep(manager, host, new StringStack("reserve 5 for feed crates"), out message), message);
+		Assert.IsTrue(authoring.TryAddStep(manager, host, new StringStack("release all"), out message), message);
 		Assert.IsTrue(authoring.TryAddStep(manager, host, new StringStack("select supplier A"), out message), message);
 		Assert.IsTrue(authoring.TryAddStep(manager, host, new StringStack("estimate three trips"), out message), message);
 		Assert.IsTrue(authoring.TryAddStep(manager, host, new StringStack("route to here test path"), out message), message);
@@ -957,7 +957,8 @@ public class EmploymentCommandServiceTests
 
 		StringAssert.Contains(rendered, "Audit-only");
 		StringAssert.Contains(rendered, "PostToHostBoard");
-		StringAssert.Contains(rendered, "bank deposit");
+		StringAssert.Contains(rendered, "linked bank account");
+		StringAssert.Contains(rendered, "reserve");
 		StringAssert.Contains(rendered, "route");
 		StringAssert.Contains(rendered, "load all carried task items");
 		StringAssert.Contains(rendered, "return container");

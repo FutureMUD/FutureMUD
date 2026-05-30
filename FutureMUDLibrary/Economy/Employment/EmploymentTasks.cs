@@ -304,6 +304,18 @@ public interface IEmploymentTaskContext
 		string? destinationContainerTag, out string reason,
 		out EmploymentActionStepOperationalState operationalState);
 	IReadOnlyCollection<IGameItem> LoadedTaskItems(ICharacter actor, IGameItem container);
+	bool CanReserveFunds(MoneyAmount amount, out string reason);
+	bool TryReserveFunds(MoneyAmount amount, ICharacter actor, string description, out string reason,
+		out EmploymentActionStepOperationalState operationalState);
+	bool HasReservedFunds(MoneyAmount amount, out string reason);
+	bool TryReleaseReservedFunds(ICharacter actor, string selector, out string reason,
+		out EmploymentActionStepOperationalState operationalState);
+	bool CanBankDeposit(MoneyAmount amount, out string reason);
+	bool CanBankWithdrawal(MoneyAmount amount, out string reason);
+	bool TryBankDeposit(ICharacter actor, MoneyAmount amount, out string reason,
+		out EmploymentActionStepOperationalState operationalState);
+	bool TryBankWithdrawal(ICharacter actor, MoneyAmount amount, out string reason,
+		out EmploymentActionStepOperationalState operationalState);
 	void HydrateTaskState(IEmploymentActiveTask task, int currentStepIndex);
 	void RecordRegister(EmploymentRegisterEntryType entryType, ICharacter? actor, string description,
 		Guid? correlationId = null);

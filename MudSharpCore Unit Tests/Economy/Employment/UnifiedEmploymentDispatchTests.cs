@@ -306,8 +306,6 @@ public class UnifiedEmploymentDispatchTests
 		var steps = new IEmploymentActionStep[]
 		{
 			new PurchaseActionStep("purchase supplies", new MoneyAmount(currency.Object, 5.0M), "shop-transaction-1"),
-			new BankDepositActionStep(new MoneyAmount(currency.Object, 10.0M), "bank-deposit-1"),
-			new BankWithdrawalActionStep(new MoneyAmount(currency.Object, 3.0M), "bank-withdrawal-1"),
 			new StoreAccountPaymentActionStep("linen supplier", new MoneyAmount(currency.Object, 2.0M), "store-account-1"),
 			new CraftTriggerActionStep("craft linen bundles", "craft-cost-1")
 		};
@@ -335,11 +333,149 @@ public class UnifiedEmploymentDispatchTests
 
 		Assert.AreEqual(EmploymentTaskStatus.Completed, task.Status);
 		Assert.IsTrue(host.BusinessLedger.Entries.Any(x => x.EntryType == EmploymentLedgerEntryType.Purchase));
-		Assert.IsTrue(host.BusinessLedger.Entries.Any(x => x.EntryType == EmploymentLedgerEntryType.BankDeposit));
-		Assert.IsTrue(host.BusinessLedger.Entries.Any(x => x.EntryType == EmploymentLedgerEntryType.BankWithdrawal));
 		Assert.IsTrue(host.BusinessLedger.Entries.Any(x => x.EntryType == EmploymentLedgerEntryType.StoreAccountPayment));
 		Assert.IsTrue(host.BusinessLedger.Entries.Any(x => x.EntryType == EmploymentLedgerEntryType.ExistingFinancialRecordReuse));
 		Assert.IsTrue(host.EmploymentRegister.Entries.Any(x => x.EntryType == EmploymentRegisterEntryType.PaymentAuthorisationUsed));
+	}
+
+	[TestMethod]
+	public void EmploymentFinanceSteps_ReserveAndMoveNativeBankAndVirtualCash()
+	{
+		VirtualCashLedger.ClearInMemoryForTests();
+		var currency = Currency();
+		var bankAccount = BankAccount(currency.Object, 25.0M, 1_000.0M);
+		var (shop, state) = ShopHost(44, "Finance Shop", currency.Object, bankAccount.Object);
+		var manager = Character(1, "Manager").Object;
+		state.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.AssignTasks |
+			EmploymentAuthority.ApprovePurchases |
+			EmploymentAuthority.ManageStockRules |
+			EmploymentAuthority.DepositBusinessCash |
+			EmploymentAuthority.WithdrawBusinessCash), null);
+		VirtualCashLedger.Credit(shop.Object, currency.Object, 20.0M, null, null, "Seed", "Seed balance");
+		var task = state.TaskBoard.CreateActiveTask("bank movement",
+			new EmploymentActionPlan([
+				new CataloguedActionShellStep("authorise", "bank movement", new MoneyAmount(currency.Object, 15.0M)),
+				new CataloguedActionShellStep("reserve", "deposit float", new MoneyAmount(currency.Object, 10.0M)),
+				new BankDepositActionStep(new MoneyAmount(currency.Object, 10.0M), "deposit-native-1"),
+				new CataloguedActionShellStep("reserve", "withdraw operating cash", new MoneyAmount(currency.Object, 5.0M)),
+				new BankWithdrawalActionStep(new MoneyAmount(currency.Object, 5.0M), "withdraw-native-1")
+			]),
+			manager);
+		var dispatcher = new EmploymentTaskDispatcher();
+		var context = new EmploymentTaskContext(shop.Object);
+		var profile = Profile(manager, 1.0M, PaymentMethodKind.Cash,
+			Caps(EmploymentAICapability.CanUseBankAccount, EmploymentAICapability.CanHandleCash));
+
+		Assert.IsTrue(dispatcher.TryAssignTask(task, [profile], context, out var reason), reason);
+		while (task.Status is not EmploymentTaskStatus.Completed and not EmploymentTaskStatus.Failed)
+		{
+			var result = dispatcher.AdvanceTask(task, context);
+			Assert.IsTrue(result.Success, result.Message);
+		}
+
+		Assert.AreEqual(15.0M, VirtualCashLedger.Balance(shop.Object, currency.Object));
+		Assert.AreEqual(30.0M, bankAccount.Object.CurrentBalance);
+		Assert.AreEqual(1_005.0M, bankAccount.Object.Bank.CurrencyReserves[currency.Object]);
+		Assert.IsTrue(state.BusinessLedger.Entries.Any(x => x.EntryType == EmploymentLedgerEntryType.PaymentAuthorisation));
+		Assert.IsTrue(state.BusinessLedger.Entries.Any(x => x.EntryType == EmploymentLedgerEntryType.BankDeposit));
+		Assert.IsTrue(state.BusinessLedger.Entries.Any(x => x.EntryType == EmploymentLedgerEntryType.BankWithdrawal));
+		Assert.IsTrue(state.BusinessLedger.Entries.Any(x => x.EntryType == EmploymentLedgerEntryType.ExistingFinancialRecordReuse));
+		Assert.IsTrue(task.StepOperationalStates[2].TransactionReference?.Contains("TST:123") == true);
+		Assert.IsTrue(task.StepOperationalStates[2].ReservationReference?.Contains("op=consume") == true);
+		Assert.IsTrue(task.StepOperationalStates[4].TransactionReference?.Contains("TST:123") == true);
+	}
+
+	[TestMethod]
+	public void EmploymentFinanceSteps_BlockWhenAuthorisationAmountDoesNotCoverStep()
+	{
+		VirtualCashLedger.ClearInMemoryForTests();
+		var currency = Currency();
+		var bankAccount = BankAccount(currency.Object, 25.0M, 1_000.0M);
+		var (shop, state) = ShopHost(46, "Under Authorised Shop", currency.Object, bankAccount.Object);
+		var manager = Character(1, "Manager").Object;
+		state.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.AssignTasks |
+			EmploymentAuthority.ApprovePurchases |
+			EmploymentAuthority.ManageStockRules |
+			EmploymentAuthority.DepositBusinessCash), null);
+		VirtualCashLedger.Credit(shop.Object, currency.Object, 20.0M, null, null, "Seed", "Seed balance");
+		var task = state.TaskBoard.CreateActiveTask("under authorised deposit",
+			new EmploymentActionPlan([
+				new CataloguedActionShellStep("authorise", "small deposit approval", new MoneyAmount(currency.Object, 1.0M)),
+				new CataloguedActionShellStep("reserve", "deposit float", new MoneyAmount(currency.Object, 10.0M)),
+				new BankDepositActionStep(new MoneyAmount(currency.Object, 10.0M))
+			]),
+			manager);
+		var dispatcher = new EmploymentTaskDispatcher();
+		var context = new EmploymentTaskContext(shop.Object);
+		var profile = Profile(manager, 1.0M, PaymentMethodKind.Cash,
+			Caps(EmploymentAICapability.CanUseBankAccount, EmploymentAICapability.CanHandleCash));
+
+		Assert.IsTrue(dispatcher.TryAssignTask(task, [profile], context, out var reason), reason);
+		Assert.IsTrue(dispatcher.AdvanceTask(task, context).Success);
+		Assert.IsTrue(dispatcher.AdvanceTask(task, context).Success);
+		var deposit = dispatcher.AdvanceTask(task, context);
+
+		Assert.IsFalse(deposit.Success);
+		StringAssert.Contains(deposit.Message, "requires an auditable payment authorisation");
+		Assert.AreEqual(EmploymentTaskStatus.Blocked, task.Status);
+		Assert.AreEqual(20.0M, VirtualCashLedger.Balance(shop.Object, currency.Object));
+		Assert.AreEqual(25.0M, bankAccount.Object.CurrentBalance);
+		Assert.IsFalse(state.BusinessLedger.Entries.Any(x => x.EntryType == EmploymentLedgerEntryType.BankDeposit));
+	}
+
+	[TestMethod]
+	public void EmploymentFinanceSteps_BlockWithoutReservationOrSupportedFinanceHost()
+	{
+		VirtualCashLedger.ClearInMemoryForTests();
+		var currency = Currency();
+		IEmploymentHost unsupportedHost = new TestEmploymentHost("bank", currency.Object);
+		var manager = Character(1, "Manager").Object;
+		unsupportedHost.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.AssignTasks |
+			EmploymentAuthority.ApprovePurchases |
+			EmploymentAuthority.DepositBusinessCash |
+			EmploymentAuthority.ManageStockRules), null);
+		var unsupportedTask = unsupportedHost.TaskBoard.CreateActiveTask("unsupported deposit",
+			new EmploymentActionPlan([
+				new CataloguedActionShellStep("authorise", "deposit", new MoneyAmount(currency.Object, 5.0M)),
+				new CataloguedActionShellStep("reserve", "deposit", new MoneyAmount(currency.Object, 5.0M)),
+				new BankDepositActionStep(new MoneyAmount(currency.Object, 5.0M))
+			]),
+			manager);
+		var dispatcher = new EmploymentTaskDispatcher();
+		var context = new EmploymentTaskContext(unsupportedHost);
+		var profile = Profile(manager, 1.0M, PaymentMethodKind.Cash,
+			Caps(EmploymentAICapability.CanUseBankAccount, EmploymentAICapability.CanHandleCash));
+
+		Assert.IsTrue(dispatcher.TryAssignTask(unsupportedTask, [profile], context, out var reason), reason);
+		Assert.IsTrue(dispatcher.AdvanceTask(unsupportedTask, context).Success);
+		var unsupportedReserve = dispatcher.AdvanceTask(unsupportedTask, context);
+		Assert.IsFalse(unsupportedReserve.Success);
+		StringAssert.Contains(unsupportedReserve.Message, "finance adapter");
+
+		var (shop, state) = ShopHost(45, "No Reserve Shop", currency.Object, BankAccount(currency.Object, 10.0M).Object);
+		state.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.AssignTasks |
+			EmploymentAuthority.ApprovePurchases |
+			EmploymentAuthority.DepositBusinessCash), null);
+		VirtualCashLedger.Credit(shop.Object, currency.Object, 10.0M, null, null, "Seed", "Seed balance");
+		var unreservedTask = state.TaskBoard.CreateActiveTask("unreserved deposit",
+			new EmploymentActionPlan([
+				new CataloguedActionShellStep("authorise", "deposit", new MoneyAmount(currency.Object, 5.0M)),
+				new BankDepositActionStep(new MoneyAmount(currency.Object, 5.0M))
+			]),
+			manager);
+		var shopContext = new EmploymentTaskContext(shop.Object);
+
+		Assert.IsTrue(dispatcher.TryAssignTask(unreservedTask, [profile], shopContext, out reason), reason);
+		Assert.IsTrue(dispatcher.AdvanceTask(unreservedTask, shopContext).Success);
+		var deposit = dispatcher.AdvanceTask(unreservedTask, shopContext);
+
+		Assert.IsFalse(deposit.Success);
+		StringAssert.Contains(deposit.Message, "reserved");
+		Assert.AreEqual(10.0M, VirtualCashLedger.Balance(shop.Object, currency.Object));
 	}
 
 	[TestMethod]
@@ -1262,7 +1398,81 @@ public class UnifiedEmploymentDispatchTests
 		var currency = new Mock<ICurrency>();
 		currency.SetupGet(x => x.Id).Returns(1);
 		currency.SetupGet(x => x.Name).Returns("test dollars");
+		currency.Setup(x => x.Describe(It.IsAny<decimal>(), It.IsAny<CurrencyDescriptionPatternType>()))
+		        .Returns((decimal amount, CurrencyDescriptionPatternType _) => $"{amount:N2} test dollars");
 		return currency;
+	}
+
+	private static (Mock<IShop> Shop, IEmploymentHostState State) ShopHost(long id, string name, ICurrency currency,
+		IBankAccount? bankAccount)
+	{
+		var shop = new Mock<IShop>();
+		shop.SetupGet(x => x.Id).Returns(id);
+		shop.SetupGet(x => x.Name).Returns(name);
+		shop.SetupGet(x => x.FrameworkItemType).Returns("Shop");
+		shop.SetupGet(x => x.EmploymentHostName).Returns(name);
+		shop.SetupGet(x => x.EmploymentHostType).Returns(EmploymentHostType.Shop);
+		shop.SetupGet(x => x.Market).Returns((IMarket?)null);
+		shop.SetupGet(x => x.Currency).Returns(currency);
+		shop.SetupGet(x => x.BankAccount).Returns(() => bankAccount!);
+		shop.SetupGet(x => x.CashBalance).Returns(() => VirtualCashLedger.Balance(shop.Object, currency));
+		var state = new EmploymentHostState(shop.Object);
+		shop.SetupGet(x => x.Employment).Returns(state);
+		shop.SetupGet(x => x.BusinessLedger).Returns(state.BusinessLedger);
+		shop.SetupGet(x => x.EmploymentRegister).Returns(state.EmploymentRegister);
+		shop.SetupGet(x => x.TaskBoard).Returns(state.TaskBoard);
+		shop.SetupGet(x => x.ManagerGoalBoard).Returns(state.ManagerGoalBoard);
+		shop.SetupGet(x => x.Payroll).Returns(state.Payroll);
+		shop.SetupGet(x => x.EmploymentContracts).Returns(() => state.EmploymentContracts);
+		shop.SetupGet(x => x.JobOpenings).Returns(() => state.JobOpenings);
+		shop.Setup(x => x.HasAuthority(It.IsAny<ICharacter>(), It.IsAny<EmploymentAuthority>()))
+		    .Returns((ICharacter actor, EmploymentAuthority authority) => state.HasAuthority(actor, authority));
+		return (shop, state);
+	}
+
+	private static Mock<IBankAccount> BankAccount(ICurrency currency, decimal balance, decimal reserves = 1_000.0M)
+	{
+		var currentBalance = balance;
+		var currencyReserves = new DecimalCounter<ICurrency>
+		{
+			[currency] = reserves
+		};
+		var bank = new Mock<IBank>();
+		bank.SetupGet(x => x.Id).Returns(900);
+		bank.SetupGet(x => x.Name).Returns("test bank");
+		bank.SetupGet(x => x.FrameworkItemType).Returns("Bank");
+		bank.SetupGet(x => x.PrimaryCurrency).Returns(currency);
+		bank.SetupGet(x => x.CurrencyReserves).Returns(currencyReserves);
+		bank.SetupProperty(x => x.Changed);
+		var account = new Mock<IBankAccount>();
+		account.SetupGet(x => x.Id).Returns(901);
+		account.SetupGet(x => x.Name).Returns("test account");
+		account.SetupGet(x => x.FrameworkItemType).Returns("BankAccount");
+		account.SetupGet(x => x.AccountReference).Returns("TST:123");
+		account.SetupGet(x => x.Currency).Returns(currency);
+		account.SetupGet(x => x.Bank).Returns(bank.Object);
+		account.SetupGet(x => x.CurrentBalance).Returns(() => currentBalance);
+		account.Setup(x => x.MaximumWithdrawal()).Returns(() => Math.Max(0.0M, currentBalance));
+		account.Setup(x => x.CanWithdraw(It.IsAny<decimal>(), It.IsAny<bool>()))
+		       .Returns((decimal amount, bool ignoreReserves) =>
+		       {
+			       if (amount > currentBalance)
+			       {
+				       return (false, "Your account has insufficient funds for that withdrawal.");
+			       }
+
+			       if (!ignoreReserves && currencyReserves[currency] < amount)
+			       {
+				       return (false, "The bank has insufficient currency reserves to honour your withdrawal.");
+			       }
+
+			       return (true, string.Empty);
+		       });
+		account.Setup(x => x.WithdrawFromTransaction(It.IsAny<decimal>(), It.IsAny<string>()))
+		       .Callback<decimal, string>((amount, _) => currentBalance -= amount);
+		account.Setup(x => x.DepositFromTransaction(It.IsAny<decimal>(), It.IsAny<string>()))
+		       .Callback<decimal, string>((amount, _) => currentBalance += amount);
+		return account;
 	}
 
 	private static Mock<ICharacter> Character(long id, string name, bool administrator = false)
@@ -1272,6 +1482,7 @@ public class UnifiedEmploymentDispatchTests
 		var character = new Mock<ICharacter>();
 		character.SetupGet(x => x.Id).Returns(id);
 		character.SetupGet(x => x.Name).Returns(name);
+		character.SetupGet(x => x.PersonalName).Returns(personalName.Object);
 		character.SetupGet(x => x.CurrentName).Returns(personalName.Object);
 		character.Setup(x => x.HowSeen(
 				It.IsAny<IPerceiver>(),

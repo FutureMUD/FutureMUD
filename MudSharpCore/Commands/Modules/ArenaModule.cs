@@ -79,7 +79,7 @@ Manager Only Commands:
 	#3arena tasks cancel <##|name> [reason]#0 - cancels an active task
 	#3arena tasks create <name> <action> [then <action> ...]#0 - creates and finalises a task in one command
 	#3arena tasks draft new|show|rename|remove|discard|finalise ...#0 - drafts and finalises active tasks
-	#3arena tasks step getid|gettag|commodity|deliver|load|unload|return|vehicle|move|board|command|purchase|bankdeposit|bankwithdraw|storepay|craft|report|authorise|reserve|release|select|estimate|route ...#0 - adds executable or audit-only catalogue steps to your draft
+	#3arena tasks step getid|gettag|commodity|deliver|load|unload|return|vehicle|move|board|command|purchase|bankdeposit|bankwithdraw|storepay|craft|report|authorise|reserve|release|select|estimate|route ...#0 - adds catalogue steps; bank deposit/withdraw currently execute only for supported shop finance adapters
 	#3arena goals#0 - lists manager goals
 	#3arena register#0 - shows employment register entries
 	#3arena employmentledger|empledger#0 - shows employment ledger entries
@@ -124,7 +124,7 @@ Arena staff employment shortcuts:
 	#3arena tasks cancel <##|name> [reason]#0 - cancels an active task
 	#3arena tasks create <name> <action> [then <action> ...]#0 - creates and finalises a task in one command
 	#3arena tasks draft new|show|rename|remove|discard|finalise ...#0 - drafts and finalises active tasks
-	#3arena tasks step getid|gettag|commodity|deliver|load|unload|return|vehicle|move|board|command|purchase|bankdeposit|bankwithdraw|storepay|craft|report|authorise|reserve|release|select|estimate|route ...#0 - adds executable or audit-only catalogue steps to your draft
+	#3arena tasks step getid|gettag|commodity|deliver|load|unload|return|vehicle|move|board|command|purchase|bankdeposit|bankwithdraw|storepay|craft|report|authorise|reserve|release|select|estimate|route ...#0 - adds catalogue steps; bank deposit/withdraw currently execute only for supported shop finance adapters
 	#3arena goals#0 - lists manager goals
 	#3arena register#0 - shows employment register entries
 	#3arena employmentledger|empledger#0 - shows employment ledger entries

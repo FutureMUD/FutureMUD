@@ -80,7 +80,7 @@ Hotel manager commands:
 	#3roomrent tasks cancel <##|name> [reason]#0 - cancels an active task
 	#3roomrent tasks create <name> <action> [then <action> ...]#0 - creates and finalises a task in one command
 	#3roomrent tasks draft new|show|rename|remove|discard|finalise ...#0 - drafts and finalises active tasks
-	#3roomrent tasks step getid|gettag|commodity|deliver|load|unload|return|vehicle|move|board|command|purchase|bankdeposit|bankwithdraw|storepay|craft|report|authorise|reserve|release|select|estimate|route ...#0 - adds executable or audit-only catalogue steps to your draft
+	#3roomrent tasks step getid|gettag|commodity|deliver|load|unload|return|vehicle|move|board|command|purchase|bankdeposit|bankwithdraw|storepay|craft|report|authorise|reserve|release|select|estimate|route ...#0 - adds catalogue steps; bank deposit/withdraw currently execute only for supported shop finance adapters
 	#3roomrent goals#0 - lists manager goals
 	#3roomrent register#0 - shows employment register entries
 	#3roomrent employmentledger|empledger#0 - shows employment ledger entries

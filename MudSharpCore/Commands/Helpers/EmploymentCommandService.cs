@@ -2197,7 +2197,7 @@ internal sealed class EmploymentCommandService
 	#3employment <host type> <host> tasks step unload <prototype id|*item id|&tag|keyword> [at <here|cell id>]#0 - unloads task-loaded items from a container or cargo projection
 	#3employment <host type> <host> tasks step return container <prototype id|*item id|&tag|keyword> to <here|cell id> [container <prototype id|*item id|&tag|keyword>]#0 - returns a reusable task container
 	#3employment <host type> <host> tasks step vehicle cargo <vehicle id|exterior item id> <cargo id|cargo name>#0 - validates and records a vehicle cargo-space selection
-	#3employment <host type> <host> tasks step move|board|command|purchase|bankdeposit|bankwithdraw|storepay|craft|report|authorise|reserve|release|select|estimate|route ...#0 - adds executable or audit-only catalogue steps
+	#3employment <host type> <host> tasks step move|board|command|purchase|bankdeposit|bankwithdraw|storepay|craft|report|authorise|reserve|release|select|estimate|route ...#0 - adds catalogue steps; bank steps require prior authorise/reserve and supported shop finance
 	#3employment <host type> <host> tasks draft finalise#0 - creates the active task through the employment task board
 	#3employment <host type> <host> goals#0 - lists manager goals
 	#3employment <host type> <host> register#0 - shows recent employment register entries
@@ -2207,5 +2207,5 @@ internal sealed class EmploymentCommandService
 	#3employment <host type> <host> board write <title>#0 - writes an employment board post
 
 Host types are #3shop#0, #3auction#0, #3arena#0, #3bank#0, #3stable#0, and #3hotel#0. Hotel hosts are resolved by property id or name.
-Staff boards are only for employee communication; active tasks, scheduled tasks, and manager goals are routed through the employment task board. Item selectors use bare prototype ids, #3*item ids#0 for specific live items, #3&tag#0 for verified tags, and bare text for a visible keyword target. Logistics load, unload, container return, and vehicle cargo-selection actions are executable inventory-plan-backed task actions; audit-only task actions record employment evidence but do not mutate purchasing, banking, store-account, craft, pricing, or administrative subsystems.";
+Staff boards are only for employee communication; active tasks, scheduled tasks, and manager goals are routed through the employment task board. Item selectors use bare prototype ids, #3*item ids#0 for specific live items, #3&tag#0 for verified tags, and bare text for a visible keyword target. Logistics load, unload, container return, and vehicle cargo-selection actions are executable inventory-plan-backed task actions. Shop bank deposit/withdraw task steps are executable through employer virtual cash and linked native bank accounts after #3authorise#0/#3reserve#0 steps; audit-only task actions record employment evidence but do not mutate purchasing, store-account, craft, pricing, or administrative subsystems.";
 }

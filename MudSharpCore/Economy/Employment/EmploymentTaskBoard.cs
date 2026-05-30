@@ -41,6 +41,8 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 	private readonly List<CommodityProfile> _commodityProfiles = new();
 	private readonly HashSet<long> _transportBundleIds = new();
 	private readonly bool _usePhysicalItemMovement;
+	private IEmploymentActiveTask? _currentTask;
+	private int _currentStepIndex;
 
 	public EmploymentTaskContext(IEmploymentHost employer, bool usePhysicalItemMovement = false)
 	{
@@ -49,6 +51,8 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 	}
 
 	public IEmploymentHost Employer { get; }
+	internal IEmploymentActiveTask? CurrentTask => _currentTask;
+	internal int CurrentStepIndex => _currentStepIndex;
 
 	public void SetManualOrder(string key, bool active)
 	{
@@ -153,6 +157,8 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 
 	public void HydrateTaskState(IEmploymentActiveTask task, int currentStepIndex)
 	{
+		_currentTask = task;
+		_currentStepIndex = currentStepIndex;
 		foreach (var state in task.StepOperationalStates.Take(Math.Max(0, currentStepIndex)))
 		{
 			if (!TryParseLoadedAssets(state.LoadedAssets, out var operation, out var containerId, out var itemIds))
@@ -191,6 +197,50 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 				AddCarriedTaskItems(task.AssignedEmployee, items);
 			}
 		}
+	}
+
+	public bool CanReserveFunds(MoneyAmount amount, out string reason)
+	{
+		return EmploymentFinanceService.CanReserveFunds(this, amount, out reason);
+	}
+
+	public bool TryReserveFunds(MoneyAmount amount, ICharacter actor, string description, out string reason,
+		out EmploymentActionStepOperationalState operationalState)
+	{
+		return EmploymentFinanceService.TryReserveFunds(this, amount, actor, description, out reason, out operationalState);
+	}
+
+	public bool HasReservedFunds(MoneyAmount amount, out string reason)
+	{
+		return EmploymentFinanceService.HasReservedFunds(this, amount, out reason);
+	}
+
+	public bool TryReleaseReservedFunds(ICharacter actor, string selector, out string reason,
+		out EmploymentActionStepOperationalState operationalState)
+	{
+		return EmploymentFinanceService.TryReleaseReservedFunds(this, actor, selector, out reason, out operationalState);
+	}
+
+	public bool CanBankDeposit(MoneyAmount amount, out string reason)
+	{
+		return EmploymentFinanceService.CanBankDeposit(this, amount, out reason);
+	}
+
+	public bool CanBankWithdrawal(MoneyAmount amount, out string reason)
+	{
+		return EmploymentFinanceService.CanBankWithdrawal(this, amount, out reason);
+	}
+
+	public bool TryBankDeposit(ICharacter actor, MoneyAmount amount, out string reason,
+		out EmploymentActionStepOperationalState operationalState)
+	{
+		return EmploymentFinanceService.TryBankDeposit(this, actor, amount, out reason, out operationalState);
+	}
+
+	public bool TryBankWithdrawal(ICharacter actor, MoneyAmount amount, out string reason,
+		out EmploymentActionStepOperationalState operationalState)
+	{
+		return EmploymentFinanceService.TryBankWithdrawal(this, actor, amount, out reason, out operationalState);
 	}
 
 	public void SetItemTags(IGameItem item, params string[] tags)
@@ -1549,20 +1599,74 @@ public sealed class EmploymentTaskDispatcher
 	private static void ApplyDurablePaymentAuthorisations(EmploymentActiveTask task, IEmploymentTaskContext context,
 		int currentStepIndex)
 	{
-		var hasCompletedAuthorisation = task.ActionPlan.Steps
-		                                .Take(currentStepIndex)
-		                                .Select((step, index) => (Step: step, Index: index))
-		                                .Any(x =>
-			                                task.StepStates[x.Index] == EmploymentActionStepStatus.Completed &&
-			                                x.Step is CataloguedActionShellStep { ActionKey: "authorise" });
-		if (!hasCompletedAuthorisation)
+		var currentStep = task.ActionPlan.Steps[currentStepIndex];
+		if (!currentStep.RequiresPaymentAuthorisation)
 		{
 			return;
 		}
 
-		foreach (var step in task.ActionPlan.Steps.Skip(currentStepIndex).Where(x => x.RequiresPaymentAuthorisation))
+		var authorised = new Dictionary<long, decimal>();
+		for (var i = 0; i < currentStepIndex; i++)
 		{
-			context.AuthorisePaymentFor(step, task.AssignedEmployee, task.CorrelationId, recordRegister: false);
+			if (task.StepStates[i] != EmploymentActionStepStatus.Completed)
+			{
+				continue;
+			}
+
+			var step = task.ActionPlan.Steps[i];
+			if (step is CataloguedActionShellStep { ActionKey: "authorise", Amount: null })
+			{
+				context.AuthorisePaymentFor(currentStep, task.AssignedEmployee, task.CorrelationId,
+					recordRegister: false);
+				return;
+			}
+
+			if (step is CataloguedActionShellStep { ActionKey: "authorise", Amount: not null } authorisation)
+			{
+				authorised[authorisation.Amount.Currency.Id] =
+					authorised.GetValueOrDefault(authorisation.Amount.Currency.Id) + authorisation.Amount.Amount;
+				continue;
+			}
+
+			if (step.RequiresPaymentAuthorisation && TryGetFinancialStepAmount(step, out var spent))
+			{
+				authorised[spent.Currency.Id] = authorised.GetValueOrDefault(spent.Currency.Id) - spent.Amount;
+			}
+		}
+
+		if (!TryGetFinancialStepAmount(currentStep, out var currentAmount))
+		{
+			return;
+		}
+
+		if (authorised.GetValueOrDefault(currentAmount.Currency.Id) >= currentAmount.Amount)
+		{
+			context.AuthorisePaymentFor(currentStep, task.AssignedEmployee, task.CorrelationId, recordRegister: false);
+		}
+	}
+
+	private static bool TryGetFinancialStepAmount(IEmploymentActionStep step, out MoneyAmount amount)
+	{
+		switch (step)
+		{
+			case PurchaseActionStep purchase:
+				amount = purchase.Amount;
+				return true;
+			case BankDepositActionStep deposit:
+				amount = deposit.Amount;
+				return true;
+			case BankWithdrawalActionStep withdrawal:
+				amount = withdrawal.Amount;
+				return true;
+			case StoreAccountPaymentActionStep storePayment:
+				amount = storePayment.Amount;
+				return true;
+			case CataloguedActionShellStep { RequiresPaymentAuthorisation: true, Amount: not null } shell:
+				amount = shell.Amount;
+				return true;
+			default:
+				amount = null!;
+				return false;
 		}
 	}
 }

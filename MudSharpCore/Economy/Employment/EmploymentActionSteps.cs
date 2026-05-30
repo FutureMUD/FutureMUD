@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using MudSharp.Character;
 using MudSharp.Construction;
+using MudSharp.Economy.Currency;
 using MudSharp.Economy.Employment;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Interfaces;
@@ -362,18 +363,31 @@ public sealed class BankDepositActionStep : EmploymentActionStepBase
 	public MoneyAmount Amount { get; }
 	public string? ExistingFinancialRecord { get; }
 
+	public override bool CanExecute(IEmploymentTaskContext context, ICharacter actor, out string reason)
+	{
+		if (!base.CanExecute(context, actor, out reason))
+		{
+			return false;
+		}
+
+		return context.CanBankDeposit(Amount, out reason);
+	}
+
 	public override EmploymentActionStepResult Execute(IEmploymentTaskContext context, ICharacter actor)
 	{
-		context.RecordRegister(EmploymentRegisterEntryType.PaymentAuthorisationUsed, actor,
-			"Used payment authorisation for bank deposit.");
-		context.RecordLedger(EmploymentLedgerEntryType.BankDeposit, actor, Amount, "Bank deposit task step.");
+		if (!context.TryBankDeposit(actor, Amount, out var reason, out var operationalState))
+		{
+			return EmploymentActionStepResult.Blocked(reason);
+		}
+
 		if (!string.IsNullOrWhiteSpace(ExistingFinancialRecord))
 		{
 			context.RecordLedger(EmploymentLedgerEntryType.ExistingFinancialRecordReuse, actor, Amount,
 				$"Reused existing bank deposit record {ExistingFinancialRecord}.");
 		}
 
-		return EmploymentActionStepResult.CompletedResult("Recorded audit-only business cash deposit.");
+		return new EmploymentActionStepResult(true, "Moved employer virtual cash into the linked bank account.", true,
+			operationalState);
 	}
 }
 
@@ -394,18 +408,31 @@ public sealed class BankWithdrawalActionStep : EmploymentActionStepBase
 	public MoneyAmount Amount { get; }
 	public string? ExistingFinancialRecord { get; }
 
+	public override bool CanExecute(IEmploymentTaskContext context, ICharacter actor, out string reason)
+	{
+		if (!base.CanExecute(context, actor, out reason))
+		{
+			return false;
+		}
+
+		return context.CanBankWithdrawal(Amount, out reason);
+	}
+
 	public override EmploymentActionStepResult Execute(IEmploymentTaskContext context, ICharacter actor)
 	{
-		context.RecordRegister(EmploymentRegisterEntryType.PaymentAuthorisationUsed, actor,
-			"Used payment authorisation for bank withdrawal.");
-		context.RecordLedger(EmploymentLedgerEntryType.BankWithdrawal, actor, Amount, "Bank withdrawal task step.");
+		if (!context.TryBankWithdrawal(actor, Amount, out var reason, out var operationalState))
+		{
+			return EmploymentActionStepResult.Blocked(reason);
+		}
+
 		if (!string.IsNullOrWhiteSpace(ExistingFinancialRecord))
 		{
 			context.RecordLedger(EmploymentLedgerEntryType.ExistingFinancialRecordReuse, actor, Amount,
 				$"Reused existing bank withdrawal record {ExistingFinancialRecord}.");
 		}
 
-		return EmploymentActionStepResult.CompletedResult("Recorded audit-only business cash withdrawal.");
+		return new EmploymentActionStepResult(true, "Moved employer bank funds into virtual cash.", true,
+			operationalState);
 	}
 }
 
@@ -472,15 +499,22 @@ public sealed class BoardPostActionStep : EmploymentActionStepBase
 public sealed class CataloguedActionShellStep : EmploymentActionStepBase, IEmploymentActionStepLocationHint
 {
 	public CataloguedActionShellStep(string actionKey, string actionDescription, ICell? targetLocation = null)
+		: this(actionKey, actionDescription, null, targetLocation)
+	{
+	}
+
+	public CataloguedActionShellStep(string actionKey, string actionDescription, MoneyAmount? amount,
+		ICell? targetLocation = null)
 		: this(EmploymentActionCatalog.Get(actionKey) ??
 		       throw new ArgumentException($"Unknown employment action catalogue key {actionKey}.", nameof(actionKey)),
 			actionDescription,
+			amount,
 			targetLocation)
 	{
 	}
 
 	private CataloguedActionShellStep(EmploymentActionDefinition definition, string actionDescription,
-		ICell? targetLocation)
+		MoneyAmount? amount, ICell? targetLocation)
 		: base(
 			EmploymentActionStepType.CataloguedShell,
 			definition.Status == EmploymentActionCatalogStatus.Deferred
@@ -493,17 +527,24 @@ public sealed class CataloguedActionShellStep : EmploymentActionStepBase, IEmplo
 		Definition = definition;
 		ActionKey = definition.Key;
 		ActionDescription = actionDescription.Trim();
+		Amount = amount;
 		TargetLocation = targetLocation;
 	}
 
 	public string ActionKey { get; }
 	public string ActionDescription { get; }
+	public MoneyAmount? Amount { get; }
 	public ICell? TargetLocation { get; }
 	public EmploymentActionDefinition Definition { get; }
 
 	public override bool CanExecute(IEmploymentTaskContext context, ICharacter actor, out string reason)
 	{
 		if (!base.CanExecute(context, actor, out reason))
+		{
+			return false;
+		}
+
+		if (ActionKey.EqualTo("reserve") && Amount is not null && !context.CanReserveFunds(Amount, out reason))
 		{
 			return false;
 		}
@@ -519,14 +560,37 @@ public sealed class CataloguedActionShellStep : EmploymentActionStepBase, IEmplo
 
 	public override EmploymentActionStepResult Execute(IEmploymentTaskContext context, ICharacter actor)
 	{
+		if (ActionKey.EqualTo("reserve") && Amount is not null)
+		{
+			if (!context.TryReserveFunds(Amount, actor, ActionDescription, out var reason, out var operationalState))
+			{
+				return EmploymentActionStepResult.Blocked(reason);
+			}
+
+			return new EmploymentActionStepResult(true,
+				$"Reserved {Amount.Currency.Describe(Amount.Amount, CurrencyDescriptionPatternType.ShortDecimal)} for {ActionDescription}.",
+				true, operationalState);
+		}
+
+		if (ActionKey.EqualTo("release"))
+		{
+			if (!context.TryReleaseReservedFunds(actor, ActionDescription, out var reason, out var operationalState))
+			{
+				return EmploymentActionStepResult.Blocked(reason);
+			}
+
+			return new EmploymentActionStepResult(true, $"Released employment finance reservation {ActionDescription}.",
+				true, operationalState);
+		}
+
 		var state = ActionKey switch
 		{
 			"authorise" => new EmploymentActionStepOperationalState(
-				OperationalPayload: $"Authorised by {actor.Id}: {ActionDescription}"),
+				OperationalPayload: Amount is null
+					? $"Authorised by {actor.Id}: {ActionDescription}"
+					: $"Authorised by {actor.Id}: {Amount.Currency.Describe(Amount.Amount, CurrencyDescriptionPatternType.ShortDecimal)} for {ActionDescription}"),
 			"reserve" => new EmploymentActionStepOperationalState(
 				ReservationReference: $"Reserved by {actor.Id}: {ActionDescription}"),
-			"release" => new EmploymentActionStepOperationalState(
-				ReservationReference: $"Released by {actor.Id}: {ActionDescription}"),
 			"select" => new EmploymentActionStepOperationalState(
 				SelectedResources: ActionDescription),
 			"estimate" => new EmploymentActionStepOperationalState(
@@ -542,6 +606,19 @@ public sealed class CataloguedActionShellStep : EmploymentActionStepBase, IEmplo
 		};
 		context.RecordRegister(EmploymentRegisterEntryType.AuditActionRecorded, actor,
 			$"Recorded {Definition.Status} employment action {ActionKey}: {ActionDescription}.");
+		if (ActionKey.EqualTo("authorise") && Amount is not null)
+		{
+			context.RecordRegister(EmploymentRegisterEntryType.PaymentAuthorisationGranted, actor,
+				$"Authorised {Amount.Currency.Describe(Amount.Amount, CurrencyDescriptionPatternType.ShortDecimal)} for {ActionDescription}.");
+			context.RecordLedger(EmploymentLedgerEntryType.PaymentAuthorisation, actor, Amount,
+				$"Authorised employment task spending for {ActionDescription}.");
+		}
+		else if (ActionKey.EqualTo("authorise"))
+		{
+			context.RecordRegister(EmploymentRegisterEntryType.PaymentAuthorisationGranted, actor,
+				$"Authorised later financial employment task steps for {ActionDescription}.");
+		}
+
 		return new EmploymentActionStepResult(true, $"Recorded {ActionKey} action: {ActionDescription}.", true, state);
 	}
 

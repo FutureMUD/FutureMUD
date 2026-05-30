@@ -41,11 +41,11 @@ The current implementation now has:
 
 This is enough to say MED-OUTFIT-001 through MED-OUTFIT-004 are functionally met.
 
-### Caveat 1: explicit outfit piece descriptions are still generated
+### Resolved Caveat 1: explicit outfit piece descriptions are authored
 
-The outfit item generator creates real item specs, but the full descriptions are currently formulaic. They say the piece belongs to a culture/sex/class outfit and fills a slot, rather than describing the garment’s construction, appearance, use, and social meaning.
+MED-OUTFIT-008B replaces generated explicit outfit-piece prose with fail-closed authored rows. Every explicit outfit-piece stable reference now requires a literal row, and missing rows are seeder errors.
 
-This is acceptable for completing outfit coverage, but it is not final-quality prose.
+Further polish should edit the authored rows directly rather than reintroducing generated fallback prose.
 
 ### Caveat 2: explicit culture catalogue targets outside outfits are not yet guaranteed as real items
 
@@ -128,7 +128,7 @@ Keep:
   - exact outfit reference documentation
 
 Follow-up:
-  - `MED-OUTFIT-006` should improve generated outfit piece descriptions, materials, and component mapping.
+  - Continue clothing work against the authored outfit-piece table rather than the old generated prose fallback.
 
 ## GOAL MED-OUTFIT-002: Implement Complete North Atlantic and British Outfits
 
@@ -288,7 +288,7 @@ Acceptance criteria:
 ## GOAL MED-OUTFIT-006: Outfit Piece Description, Component, and Material Polish
 
 Intent:
-  Upgrade explicit outfit pieces from generated slot descriptions to final-quality item prototypes with better prose, better component mapping, and more accurate material/cost/weight decisions.
+  Upgrade explicit outfit pieces from generated slot descriptions to final-quality item prototypes with better prose, better component mapping, and more accurate material/cost/weight decisions. MED-OUTFIT-008B supersedes the partial override model by requiring a direct authored row for every explicit outfit-piece stable reference.
 
 Files to touch:
   - `DatabaseSeeder/Seeders/ItemSeeder.Rework.Medieval.cs`
@@ -893,7 +893,7 @@ Acceptance criteria:
 # Suggested Next Task Order
 
 1. `MED-CAT-002` — classify/materialise exact culture references so future work has a clean target ledger.
-2. `MED-OUTFIT-006` — polish explicit outfit piece descriptions, materials, and component mappings.
+2. `MED-OUTFIT-008B` — keep explicit outfit pieces on the fail-closed authored source path.
 3. `MED-OUTFIT-005` — add starter outfit package/manifest support for builder usability.
 4. `MED-WRITE-001` — fix writing/admin components and implement exact culture writing references.
 5. `MED-FOOD-001` — implement real culture foodways.

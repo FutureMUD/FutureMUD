@@ -8,7 +8,7 @@ The goal is that a builder can dress a male or female character of each social c
 
 `ItemSeeder.Rework.Medieval.cs` now mirrors this file with `MedievalOutfitSpec` definitions. Each code-side outfit records its culture key, sex/gender presentation, social class/role, display name, slot-to-stable-reference map, and intentionally shared/generic slots.
 
-For MED-OUTFIT-001 the code scaffold resolved outfit slots to the current craftable common/status wardrobe plus craftable v1 role accessories. MED-OUTFIT-002 replaces that scaffold for `early_anglo_saxon`, `anglo_danish`, `norse`, `norman`, `high_british`, and `gaelic` with explicit outfit-piece item specs and final-product crafts generated from the exact target-piece rows below. MED-OUTFIT-003 extends the same explicit implementation to `carolingian`, `capetian`, `german_hre`, and `iberian_christian`. MED-OUTFIT-004 completes the explicit pass for `andalusi`, `byzantine`, `abbasid`, `fatimid`, `seljuk_ayyubid`, `rus_novgorod`, `steppe_turkic`, and `song_china`.
+For MED-OUTFIT-001 the code scaffold resolved outfit slots to the current craftable common/status wardrobe plus craftable v1 role accessories. MED-OUTFIT-002 replaced that scaffold for `early_anglo_saxon`, `anglo_danish`, `norse`, `norman`, `high_british`, and `gaelic` with explicit outfit-piece item specs and final-product crafts. MED-OUTFIT-003 extended the same explicit implementation to `carolingian`, `capetian`, `german_hre`, and `iberian_christian`. MED-OUTFIT-004 completed the explicit pass for the eastern, Islamic, Rus, steppe, and Song set (`andalusi`, `byzantine`, `abbasid`, `fatimid`, `seljuk_ayyubid`, `rus_novgorod`, `steppe_turkic`, and `song_china`). MED-OUTFIT-008B makes those explicit outfit pieces fail-closed authored rows: every stable reference below must resolve to a literal `AuthoredOutfitPiece(...)` row, and the seeder must throw if a row is missing.
 
 Explicit implemented outfit pieces use stable references shaped as:
 
@@ -16,7 +16,7 @@ Explicit implemented outfit pieces use stable references shaped as:
 medieval_outfit_piece_{culture}_{sex}_{class}_{piece}
 ```
 
-Those stable references are not generic wardrobe baselines. All 18 medieval culture keys now have explicit outfit-piece rows; the generated common/status wardrobe remains only a baseline fallback pattern for future non-catalogue use.
+Those stable references are not generic wardrobe baselines. All 18 medieval culture keys now have explicit authored outfit-piece rows. The generated culture/status wardrobe is not normally seeded; future shared wardrobe content should use explicitly named `medieval_common_*` or `medieval_baseline_*` stable references.
 
 ## Outfit Reference Pattern
 

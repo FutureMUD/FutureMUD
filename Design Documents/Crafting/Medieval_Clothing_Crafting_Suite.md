@@ -30,15 +30,15 @@ Use three levels of clothing content:
 | Culture-cluster pieces | Items shared by related cultures, such as Western European braies, Islamic sirwal, steppe high boots, or Rus/steppe fur hats. |
 | Explicit culture pieces | Named culture-specific garments and accessories, such as Norse hangerok apron dresses, Byzantine silk dalmatics, Song cross-collar robes, Gaelic brat mantles, or Andalusi burnous cloaks. |
 
-The existing generated status-role wardrobe can remain as a generic fallback, but it should not count as fulfilling the explicit outfit catalogue.
+The generated culture/status wardrobe is no longer normally seeded as medieval clothing content. Any future shared baseline items must be explicitly named as `medieval_common_*` or `medieval_baseline_*` items and must not masquerade as culture-specific reskins.
 
-MED-OUTFIT-001 adds an executable `MedievalOutfitSpec` catalogue in `ItemSeeder.Rework.Medieval.cs`. The first scaffold maps each complete outfit to the current craftable baseline wardrobe and role accessories, and records those slots as intentionally shared/generic. MED-OUTFIT-002 replaces that scaffold for the North Atlantic and British priority set (`early_anglo_saxon`, `anglo_danish`, `norse`, `norman`, `high_british`, and `gaelic`) with exact outfit-piece item specs generated from `Medieval_Outfit_Catalogue.md`. MED-OUTFIT-003 extends explicit outfit-piece generation to the Continental Western and Central set (`carolingian`, `capetian`, `german_hre`, and `iberian_christian`). MED-OUTFIT-004 completes explicit outfit-piece generation for the eastern, Islamic, Rus, steppe, and Song set (`andalusi`, `byzantine`, `abbasid`, `fatimid`, `seljuk_ayyubid`, `rus_novgorod`, `steppe_turkic`, and `song_china`). MED-OUTFIT-006 layers 180 manually written explicit outfit-piece overrides, ten per culture, over the generated item specs.
+MED-OUTFIT-001 added an executable `MedievalOutfitSpec` catalogue in `ItemSeeder.Rework.Medieval.cs`. MED-OUTFIT-002 through MED-OUTFIT-004 replaced the scaffolded outfit slots with exact stable references for all 18 medieval culture keys. MED-OUTFIT-008B finalises those rows as authored seeder data: every explicit outfit-piece stable reference has a direct `AuthoredOutfitPiece(...)` row, and missing or stale rows are seeder errors rather than opportunities to synthesize placeholder item prose.
 
-## MED-OUTFIT-006 Override Table
+## Authored Outfit-Piece Table
 
-The MED-OUTFIT-006 override table is stored directly in `ItemSeeder.Rework.Medieval.cs` as literal seeder rows. It is keyed by exact stable reference and only replaces selected signature pieces; generated explicit outfit pieces remain the fallback for all other rows.
+The authored outfit-piece table is stored directly in `ItemSeeder.Rework.MedievalAuthoredOutfitPieces.cs` as literal seeder rows. It is keyed by exact stable reference and is the source of truth for every explicit outfit-piece item. Explicit outfit pieces must not use generated final descriptions, generated short descriptions, or culture/geography labels in player-facing prose.
 
-Each override may replace:
+Each authored row supplies:
 
 - item noun
 - short description
@@ -170,7 +170,7 @@ sew work tunic regional pattern 03
 make headwear regional pattern 17
 ```
 
-Generic baseline items may retain neutral craft names only if they are clearly marked as generic baseline.
+Generic baseline items may retain neutral craft names only if they are explicitly named as shared baseline content.
 
 ## Documentation Requirements
 
@@ -180,7 +180,7 @@ Generic baseline items may retain neutral craft names only if they are clearly m
 medieval_outfit_{culture}_{sex}_{class}
 ```
 
-For each outfit, list the expected slot contents. The slot contents may be stable references or item names if the exact refs are generated from catalogue data, but tests should expose and validate the actual stable references.
+For each outfit, list the expected slot contents. The slot contents are exact stable references; tests expose and validate those stable references and then require a matching authored outfit-piece row.
 
 ## Test Requirements
 
@@ -202,3 +202,6 @@ Add tests that verify:
 - Male/female variants differ in at least two slots unless documented as unisex.
 - Explicit outfit-piece craft names do not use `regional pattern`.
 - Exact outfit references appear in `Medieval_Outfit_Catalogue.md`.
+- The authored outfit-piece row count equals the exact count of distinct explicit outfit-piece stable references.
+- The seeder source does not contain `BuildMedievalExplicitOutfitPieceFullDescription`.
+- Removing any authored outfit-piece row causes seeder validation to throw instead of generating fallback prose.

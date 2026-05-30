@@ -62,9 +62,9 @@ Every outfit must include:
 - `fastener_or_jewellery`
 - `role_item` where required
 
-Every slot item must resolve to a seeded stable reference unless the slot is marked as intentionally shared and points to a common stable reference.
+Every slot item must resolve to a seeded stable reference unless the slot is marked as intentionally shared and points to an explicitly named common stable reference.
 
-MED-OUTFIT-001 treats the current generated status-role wardrobe as craftable shared scaffold content. Tests should require those references to resolve to seeded item specs, while later explicit outfit-item goals can tighten the culture-specific thresholds.
+MED-OUTFIT-008B treats explicit outfit pieces as fail-closed authored data. Tests should require every explicit outfit-piece stable reference to resolve to a literal authored row, while shared baseline clothing must use `medieval_common_*` or `medieval_baseline_*` names rather than culture/status reskins.
 
 ### 3. Culture Identity Threshold Tests
 
@@ -240,19 +240,20 @@ Retain the existing upstream stock tests, but add final-product consumption chec
 - Tablet-woven or banded garments consume `Tablet-Woven Band Stock`.
 - Footwear consumes `Turnshoe Upper Stock` or documented equivalent.
 
-### 13. MED-OUTFIT-006 Override Tests
+### 13. Authored Outfit-Piece Tests
 
-The manually written explicit outfit-piece override table must be validated as data, not just compiled into the seeder.
+The manually written explicit outfit-piece table must be validated as data, not just compiled into the seeder.
 
 Assert:
 
-- Exactly 180 override rows are loaded.
-- Each override stable reference resolves to `MedievalItemStableReferencesForTesting`.
-- Each override stable reference resolves to an explicit outfit-piece item spec.
-- Each culture has at least ten override rows.
-- The item spec uses the override noun, short description, full description, material, material behaviour, quality, size, weight, and cost.
-- Override full descriptions do not contain generated metadata prose such as `belongs to the`, `fills the`, or `outfit slot for the explicit medieval outfit catalogue`.
-- Override short and full descriptions do not contain direct culture adjectives such as `Norse`, `Byzantine`, `Abbasid`, `Song Chinese`, or the other explicit culture names.
+- The authored row count equals the exact count of distinct explicit outfit-piece stable references.
+- Each authored stable reference resolves to `MedievalItemStableReferencesForTesting`.
+- Each authored stable reference resolves to an explicit outfit-piece item spec.
+- The item spec uses the authored noun, short description, full description, material, material behaviour, quality, size, weight, and cost.
+- Authored full descriptions do not contain generated metadata prose such as `belongs to the`, `fills the`, or `outfit slot for the explicit medieval outfit catalogue`.
+- Authored short and full descriptions do not contain direct culture adjectives such as `Norse`, `Byzantine`, `Abbasid`, `Song Chinese`, or the other explicit culture names.
+- The seeder source does not contain `BuildMedievalExplicitOutfitPieceFullDescription`.
+- Removing an authored row causes validation to throw rather than synthesize fallback text.
 - Builder notes retain outfit reference, culture key, sex/gender presentation, social class/role, slot, piece target, and authoring notes.
 
 Variable colour tests must assert:

@@ -1092,16 +1092,16 @@ public partial class ItemSeeder
 	}
 
 	private static (string Category, string Trait, IReadOnlyList<string> Inputs, IReadOnlyList<string> Tools, Difficulty Difficulty, string Verb, string Gerund)
-		ApplyMedievalExplicitOutfitPieceCraftOverride(
+		ApplyMedievalExplicitOutfitPieceCraftSpec(
 			MedievalItemSpec spec,
 			(string Category, string Trait, IReadOnlyList<string> Inputs, IReadOnlyList<string> Tools, Difficulty Difficulty, string Verb, string Gerund) path)
 	{
-		if (!MedievalExplicitOutfitPieceCraftOverrides.TryGetValue(spec.StableReference, out var craftOverride))
+		if (!MedievalAuthoredOutfitPieceCraftSpecs.TryGetValue(spec.StableReference, out var craftSpec))
 		{
 			return path;
 		}
 
-		return (path.Category, path.Trait, craftOverride.Inputs, craftOverride.Tools, path.Difficulty, path.Verb,
+		return (path.Category, path.Trait, craftSpec.Inputs, craftSpec.Tools, path.Difficulty, path.Verb,
 			path.Gerund);
 	}
 
@@ -1110,23 +1110,23 @@ public partial class ItemSeeder
 		MedievalItemSpec spec,
 		IReadOnlyList<string> inputs)
 	{
-		if (!MedievalExplicitOutfitPieceOverrides.TryGetValue(spec.StableReference, out var overrideSpec) ||
-		    string.IsNullOrWhiteSpace(overrideSpec.VariableColourComponent))
+		if (!MedievalAuthoredOutfitPieces.TryGetValue(spec.StableReference, out var authoredSpec) ||
+		    string.IsNullOrWhiteSpace(authoredSpec.VariableColourComponent))
 		{
 			return $"SimpleProduct - 1x {item.ShortDescription} (#{item.Id})";
 		}
 
-		var mappings = BuildMedievalExplicitOutfitPieceProductVariableMappings(overrideSpec, inputs);
+		var mappings = BuildMedievalExplicitOutfitPieceProductVariableMappings(authoredSpec, inputs);
 		return mappings.Count == 0
 			? $"SimpleProduct - 1x {item.ShortDescription} (#{item.Id})"
 			: $"SimpleVariableProduct - 1x {item.ShortDescription} (#{item.Id}); variable {string.Join(", ", mappings)}";
 	}
 
 	private static IReadOnlyList<string> BuildMedievalExplicitOutfitPieceProductVariableMappings(
-		MedievalExplicitOutfitPieceOverride overrideSpec,
+		MedievalAuthoredOutfitPieceSpec authoredSpec,
 		IReadOnlyList<string> inputs)
 	{
-		if (string.IsNullOrWhiteSpace(overrideSpec.VariableColourComponent))
+		if (string.IsNullOrWhiteSpace(authoredSpec.VariableColourComponent))
 		{
 			return [];
 		}
@@ -1138,7 +1138,7 @@ public partial class ItemSeeder
 			return [];
 		}
 
-		return overrideSpec.VariableColourComponent switch
+		return authoredSpec.VariableColourComponent switch
 		{
 			"Variable_Colour" => [$"Colour=$i{primaryIndex.Value}"],
 			"Variable_DrabColour" => [$"Colour=$i{primaryIndex.Value}", $"Drab Colour=$i{primaryIndex.Value}"],
@@ -1234,7 +1234,7 @@ public partial class ItemSeeder
 		MedievalExplicitOutfitPieceItemSpecs()
 			.Select(spec =>
 			{
-				var path = ApplyMedievalExplicitOutfitPieceCraftOverride(spec,
+				var path = ApplyMedievalExplicitOutfitPieceCraftSpec(spec,
 					GetMedievalExplicitOutfitPieceCraftPath(spec));
 				return (spec.StableReference, MedievalExplicitOutfitPieceCraftName(path.Verb, spec),
 					(IReadOnlyCollection<string>)path.Inputs.ToArray(),
@@ -1243,7 +1243,7 @@ public partial class ItemSeeder
 			.ToArray();
 
 	internal static IReadOnlyCollection<(string StableReference, string VariableColourComponent, IReadOnlyCollection<string> ProductVariableMappings)> MedievalExplicitOutfitPieceProductVariableMappingsForTesting =>
-		MedievalExplicitOutfitPieceOverrides.Values
+		MedievalAuthoredOutfitPieces.Values
 			.Where(x => !string.IsNullOrWhiteSpace(x.VariableColourComponent))
 			.Select(x => (x.StableReference, x.VariableColourComponent!,
 				(IReadOnlyCollection<string>)BuildMedievalExplicitOutfitPieceProductVariableMappings(
@@ -1357,7 +1357,7 @@ public partial class ItemSeeder
 
 		foreach (var item in MedievalExplicitOutfitPieceItemSpecs())
 		{
-			var path = ApplyMedievalExplicitOutfitPieceCraftOverride(item,
+			var path = ApplyMedievalExplicitOutfitPieceCraftSpec(item,
 				GetMedievalExplicitOutfitPieceCraftPath(item));
 			AddMedievalFinishedCraft(
 				item.StableReference,

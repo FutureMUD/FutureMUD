@@ -18,6 +18,8 @@ namespace MudSharp.Commands;
 
 public class CommandHelpInfo : ICommandHelpInfo
 {
+    private readonly List<(Func<ICharacter, bool> Predicate, string HelpText)> _conditionalHelpTexts = new();
+
     /// <inheritdoc />
     public override string ToString()
     {
@@ -33,22 +35,63 @@ public class CommandHelpInfo : ICommandHelpInfo
         AdminOnly = adminOnly;
     }
 
+    public CommandHelpInfo(string helpName, string defaultHelp, AutoHelp autoHelp, string adminHelp, bool adminOnly,
+        Func<ICharacter, bool> conditionalHelpPredicate, string conditionalHelpText)
+        : this(helpName, defaultHelp, autoHelp, adminHelp, adminOnly)
+    {
+        AddConditionalHelp(conditionalHelpPredicate, conditionalHelpText);
+    }
+
     public string HelpName { get; protected set; }
     public string DefaultHelp { get; protected set; }
     public string AdminHelp { get; protected set; }
     public AutoHelp AutoHelpSetting { get; protected set; }
     public bool AdminOnly { get; protected set; }
 
+    public CommandHelpInfo AddConditionalHelp(Func<ICharacter, bool> predicate, string helpText)
+    {
+        if (predicate == null)
+        {
+            throw new ArgumentNullException(nameof(predicate));
+        }
+
+        if (helpText == null)
+        {
+            throw new ArgumentNullException(nameof(helpText));
+        }
+
+        _conditionalHelpTexts.Add((predicate, helpText));
+        return this;
+    }
+
+    public string HelpTextFor(ICharacter actor)
+    {
+        if (!string.IsNullOrEmpty(AdminHelp) && actor.IsAdministrator())
+        {
+            return AdminHelp;
+        }
+
+        foreach (var (predicate, helpText) in _conditionalHelpTexts)
+        {
+            if (predicate(actor))
+            {
+                return helpText;
+            }
+        }
+
+        return DefaultHelp ?? string.Empty;
+    }
+
 
 
     //Try to find and send defaultHelp from the attribute, or as a backup look up a matching helpfile
     private bool ShowHelp(ICharacter argument, IOutputHandler outputHandler)
     {
-        if (!string.IsNullOrEmpty(AdminHelp) && argument.IsAdministrator())
+        var helpText = HelpTextFor(argument);
+        if (!string.IsNullOrEmpty(helpText))
         {
-
             outputHandler.Send(
-                $"{$"Help on {HelpName.TitleCase()}".GetLineWithTitleInner(argument, Telnet.Cyan, Telnet.BoldWhite)}\n\n{AdminHelp.SubstituteANSIColour()}");
+                $"{$"Help on {HelpName.TitleCase()}".GetLineWithTitleInner(argument, Telnet.Cyan, Telnet.BoldWhite)}\n\n{helpText.SubstituteANSIColour()}");
             return true;
         }
 
@@ -145,14 +188,7 @@ public class CommandHelpInfo : ICommandHelpInfo
         sb.AppendLine($"Keywords: {ihi.Keywords.ListToColouredStringOr()}");
         sb.AppendLine($"Tagline: {ihi.TagLine.ProperSentences().ColourCommand()}");
         sb.AppendLine();
-        if (actor.IsAdministrator() && !string.IsNullOrEmpty(AdminHelp))
-        {
-            sb.AppendLine(AdminHelp.SubstituteANSIColour().Wrap(actor.InnerLineFormatLength));
-        }
-        else
-        {
-            sb.AppendLine(ihi.PublicText.SubstituteANSIColour().Wrap(actor.InnerLineFormatLength));
-        }
+        sb.AppendLine(HelpTextFor(actor).SubstituteANSIColour().Wrap(actor.InnerLineFormatLength));
 
 
         foreach (Tuple<IFutureProg, string> addition in ihi.AdditionalTexts.Where(x => x.Item1?.ExecuteBool(actor) == true))

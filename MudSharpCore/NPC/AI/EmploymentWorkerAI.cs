@@ -418,6 +418,14 @@ public class EmploymentWorkerAI : PathingAIBase
 
 	public override bool HandleEvent(EventType type, params dynamic[] arguments)
 	{
+		if (type == EventType.FiveSecondTick)
+		{
+			var character = (ICharacter)arguments[0];
+			return character.State.IsDead() || character.State.IsInStatis()
+				? false
+				: FiveSecondTick(character);
+		}
+
 		if (type == EventType.MinuteTick)
 		{
 			return HandleMinuteTick((ICharacter)arguments[0]) || base.HandleEvent(type, arguments);
@@ -431,9 +439,26 @@ public class EmploymentWorkerAI : PathingAIBase
 		return base.HandleEvent(type, arguments);
 	}
 
+	protected override bool FiveSecondTick(ICharacter ch)
+	{
+		var acted = HandleTaskTick(ch);
+		return acted || base.FiveSecondTick(ch);
+	}
+
 	public override bool HandlesEvent(params EventType[] types)
 	{
 		return types.Any(x => x is EventType.MinuteTick or EventType.HourTick) || base.HandlesEvent(types);
+	}
+
+	internal bool HandleTaskTick(ICharacter character)
+	{
+		if (!TaskingEnabled || !IsGenerallyAble(character) || character.Combat is not null)
+		{
+			return false;
+		}
+
+		var host = ActiveEmploymentHost(character);
+		return host is not null && TryClaimOrAdvanceTask(character, host);
 	}
 
 	internal bool HandleMinuteTick(ICharacter character)

@@ -440,7 +440,10 @@ public enum EmploymentRegisterEntryType
 	WageSettled,
 	WageClaimed,
 	EmployeeResignedUnpaid,
-	AuditActionRecorded
+	AuditActionRecorded,
+	ScheduledRuleCancelled,
+	ScheduledRulePaused,
+	ScheduledRuleResumed
 }
 
 public interface IEmploymentRegisterEntry

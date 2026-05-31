@@ -11,6 +11,7 @@ using MudSharp.Arenas;
 using MudSharp.Body;
 using MudSharp.Character;
 using MudSharp.Character.Name;
+using MudSharp.Climate;
 using MudSharp.Commands.Helpers;
 using MudSharp.Commands.Modules;
 using MudSharp.Community.Boards;
@@ -30,6 +31,7 @@ using MudSharp.Form.Shape;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.GameItems;
+using MudSharp.GameItems.Interfaces;
 using MudSharp.PerceptionEngine;
 using MudSharp.TimeAndDate.Date;
 
@@ -41,7 +43,65 @@ namespace MudSharp_Unit_Tests.Economy.Employment;
 [DoNotParallelize]
 public class EmploymentCommandServiceTests
 {
+	private delegate bool TryGetBaseCurrencyCallback(string pattern, out decimal amount);
+
 	private sealed record FMDBState(FuturemudDatabaseContext? Context, object? Connection, uint InstanceCount);
+
+	[TestMethod]
+	public void EmploymentHelpSurfacesUseGroupedCatalogueDiscovery()
+	{
+		var compactPlayerHelpTexts = new[]
+		{
+			("stable player", HelpConstant(typeof(EconomyModule), "StablePlayerHelp")),
+			("shop player", HelpConstant(typeof(EconomyModule), "ShopPlayerHelp")),
+			("bank player", HelpConstant(typeof(EconomyModule), "BankPlayerHelpText")),
+			("auction player", HelpConstant(typeof(EconomyModule), "AuctionPlayerHelp")),
+			("arena player", HelpConstant(typeof(ArenaModule), "ArenaHelp")),
+			("roomrent player", HelpConstant(typeof(PropertyModule), "RoomRentHelp"))
+		};
+
+		foreach (var (name, help) in compactPlayerHelpTexts)
+		{
+			Assert.IsTrue(help.Contains("tasks actions", StringComparison.OrdinalIgnoreCase),
+				$"{name} help should advertise task action catalogue discovery.");
+			Assert.IsTrue(help.Contains("tasks conditions", StringComparison.OrdinalIgnoreCase),
+				$"{name} help should advertise scheduled-rule condition catalogue discovery.");
+			Assert.IsFalse(help.Contains("contracts delegate", StringComparison.OrdinalIgnoreCase),
+				$"{name} help should not dump manager-only employment commands.");
+			Assert.IsFalse(help.Contains("tasks rule create", StringComparison.OrdinalIgnoreCase),
+				$"{name} help should point to manager help instead of dumping scheduled-rule authoring.");
+			Assert.IsFalse(help.Contains("tasks step getid", StringComparison.OrdinalIgnoreCase),
+				$"{name} help should point to the action catalogue instead of inlining the action list.");
+		}
+
+		var managerHelpTexts = new[]
+		{
+			("employment", EmploymentCommandService.EmploymentHelp),
+			("stable", HelpConstant(typeof(EconomyModule), "StableHelp")),
+			("shop", HelpConstant(typeof(EconomyModule), "ShopHelpPlayers")),
+			("shop admin", HelpConstant(typeof(EconomyModule), "ShopHelpAdmins")),
+			("bank", HelpConstant(typeof(EconomyModule), "BankHelpText")),
+			("bank admin", HelpConstant(typeof(EconomyModule), "BankAdminHelpText")),
+			("auction", HelpConstant(typeof(EconomyModule), "AuctionHelp")),
+			("auction admin", HelpConstant(typeof(EconomyModule), "AuctionHelpAdmins")),
+			("arena manager", HelpConstant(typeof(ArenaModule), "ArenaManagerHelp")),
+			("roomrent", HelpConstant(typeof(PropertyModule), "RoomRentManagerHelp"))
+		};
+
+		foreach (var (name, help) in managerHelpTexts)
+		{
+			Assert.IsTrue(help.Contains("tasks actions", StringComparison.OrdinalIgnoreCase),
+				$"{name} help should advertise task action catalogue discovery.");
+			Assert.IsTrue(help.Contains("tasks conditions", StringComparison.OrdinalIgnoreCase),
+				$"{name} help should advertise scheduled-rule condition catalogue discovery.");
+			Assert.IsTrue(help.Contains("tasks rule show", StringComparison.OrdinalIgnoreCase),
+				$"{name} help should advertise scheduled-rule detail viewing.");
+			Assert.IsFalse(help.Contains("tasks step getid", StringComparison.OrdinalIgnoreCase),
+				$"{name} help should point to the action catalogue instead of inlining the action list.");
+			Assert.IsFalse(help.Contains("tasks step gettag", StringComparison.OrdinalIgnoreCase),
+				$"{name} help should point to the action catalogue instead of inlining the action list.");
+		}
+	}
 
 	[TestMethod]
 	public void EmploymentHostResolver_ResolvesHostsByTypeIdAndName()
@@ -170,6 +230,35 @@ public class EmploymentCommandServiceTests
 		Assert.IsTrue(host.HasAuthority(admin, EmploymentAuthority.PostToHostBoard));
 		Assert.AreEqual(1, host.Board.Posts.Count());
 		Assert.IsTrue(host.EmploymentRegister.Entries.Any(x => x.EntryType == EmploymentRegisterEntryType.BoardPostCreated));
+	}
+
+	[TestMethod]
+	public void EmploymentCommandService_ManagerAliasHelpRequiresManagerOrMeaningfulDelegation()
+	{
+		var currency = Currency();
+		IEmploymentHost host = new TestEmploymentHost(1, "market shop", currency.Object);
+		var manager = Character(15, "Manager").Object;
+		var deliveryWorker = Character(16, "Delivery").Object;
+		var taskLead = Character(17, "Task Lead").Object;
+		host.Hire(manager, Offer(currency.Object, EmploymentRole.Manager), null);
+		host.Hire(deliveryWorker, Offer(currency.Object, EmploymentRole.Employee, EmploymentAuthority.ManageDeliveryRoutes), null);
+		host.Hire(taskLead, Offer(currency.Object, EmploymentRole.Employee, EmploymentAuthority.AssignTasks), null);
+
+		Assert.IsTrue(EmploymentCommandService.CanViewManagerAliasHelp(manager, host));
+		Assert.IsFalse(EmploymentCommandService.CanViewManagerAliasHelp(deliveryWorker, host));
+		Assert.IsTrue(EmploymentCommandService.CanViewManagerAliasHelp(taskLead, host));
+	}
+
+	[TestMethod]
+	public void EmploymentCommandService_ManagerAliasHelpAllowsAdminsAndLegacySubsystemManagers()
+	{
+		var admin = Character(18, "Admin", administrator: true).Object;
+		var legacyManager = Character(19, "Legacy Manager").Object;
+		var outsider = Character(21, "Outsider").Object;
+
+		Assert.IsTrue(EmploymentCommandService.CanViewManagerAliasHelp(admin, null));
+		Assert.IsTrue(EmploymentCommandService.CanViewManagerAliasHelp(legacyManager, null, subsystemManagerAccess: true));
+		Assert.IsFalse(EmploymentCommandService.CanViewManagerAliasHelp(outsider, null));
 	}
 
 	[TestMethod]
@@ -1261,6 +1350,376 @@ public class EmploymentCommandServiceTests
 		StringAssert.Contains(rendered, "has no EmploymentWorkerAI");
 	}
 
+	[TestMethod]
+	public void EmploymentConditionCatalog_ResolvesDefinitionsAliasesAndCategories()
+	{
+		var service = new EmploymentScheduledRuleAuthoringService();
+		var actor = Character(80, "Manager").Object;
+
+		Assert.AreSame(EmploymentConditionCatalog.Get("manual"), EmploymentConditionCatalog.Get("trigger"));
+		Assert.AreSame(EmploymentConditionCatalog.Get("stock"), EmploymentConditionCatalog.Get("merchandise"));
+		Assert.IsTrue(EmploymentConditionCatalog.ForCategory("finance").Any(x => x.Key == "account"));
+		Assert.IsTrue(EmploymentConditionCatalog.ForCategory("inventory").Any(x => x.Key == "item"));
+		Assert.IsTrue(EmploymentConditionCatalog.ForCategory("inventory").Any(x => x.Key == "commodity"));
+		Assert.IsTrue(EmploymentConditionCatalog.ForCategory("environment").Any(x => x.Key == "weather"));
+
+		var rendered = service.RenderAvailableConditions(actor, "all");
+
+		StringAssert.Contains(rendered, "manual");
+		StringAssert.Contains(rendered, "time");
+		StringAssert.Contains(rendered, "item");
+		StringAssert.Contains(rendered, "commodity");
+		StringAssert.Contains(rendered, "stock");
+		StringAssert.Contains(rendered, "account");
+		StringAssert.Contains(rendered, "shopaccount");
+		StringAssert.Contains(rendered, "float");
+		StringAssert.Contains(rendered, "weather");
+		StringAssert.Contains(rendered, "tasks rule condition");
+	}
+
+	[TestMethod]
+	public void EmploymentScheduledRuleAuthoring_ParsesConditionFamiliesAndOvernightWindows()
+	{
+		var currency = Currency();
+		IEmploymentHost host = new TestEmploymentHost(1, "market shop", currency.Object);
+		var manager = Character(81, "Manager").Object;
+		var service = new EmploymentScheduledRuleAuthoringService();
+
+		Assert.IsTrue(service.TryParseCondition(manager, host, new StringStack("time 23:00 to 02:00"),
+			out var timeCondition, out var message), message);
+		Assert.IsInstanceOfType(timeCondition, typeof(TimeWindowCondition));
+		Assert.IsTrue(timeCondition.IsSatisfied(new EmploymentTaskContext(host),
+			new DateTimeOffset(2026, 5, 30, 1, 0, 0, TimeSpan.Zero), out _));
+		Assert.IsFalse(timeCondition.IsSatisfied(new EmploymentTaskContext(host),
+			new DateTimeOffset(2026, 5, 30, 12, 0, 0, TimeSpan.Zero), out _));
+		Assert.IsTrue(service.TryParseCondition(manager, host, new StringStack("between 09:00 and 17:00"),
+			out var betweenCondition, out message), message);
+		Assert.IsInstanceOfType(betweenCondition, typeof(TimeWindowCondition));
+
+		Assert.IsTrue(service.TryParseCondition(manager, host, new StringStack("stock key butter below 5"),
+			out var stockCondition, out message), message);
+		var context = new EmploymentTaskContext(host);
+		context.SetStockLevel("butter", 2);
+		Assert.AreEqual(EmploymentAuthority.ManageStockRules, stockCondition.RequiredAuthority.Authorities);
+		Assert.IsTrue(stockCondition.IsSatisfied(context, DateTimeOffset.UtcNow, out _));
+
+		Assert.IsTrue(service.TryParseCondition(manager, host, new StringStack("account key operating atleast 12.50"),
+			out var accountCondition, out message), message);
+		context.SetAccountBalance("operating", 15.0M);
+		Assert.AreEqual(EmploymentAuthority.CreateScheduledRules, accountCondition.RequiredAuthority.Authorities);
+		Assert.IsTrue(accountCondition.IsSatisfied(context, DateTimeOffset.UtcNow, out _));
+	}
+
+	[TestMethod]
+	public void EmploymentScheduledRuleAuthoring_ParsesNewConditionFamilies()
+	{
+		var currency = Currency();
+		var stockroom = Cell(7000, "stockroom").Object;
+		var crateProto = ItemProto(360, "crate").Object;
+		var nailsTag = Tag(1000, "Nails").Object;
+		var gameworld = Gameworld();
+		var cells = new All<ICell>();
+		cells.Add(stockroom);
+		var itemProtos = ItemProtos(crateProto);
+		var shops = new All<IShop>();
+		gameworld.SetupGet(x => x.Cells).Returns(cells);
+		gameworld.SetupGet(x => x.ItemProtos).Returns(itemProtos.Object);
+		gameworld.SetupGet(x => x.Shops).Returns(shops);
+		gameworld.SetupGet(x => x.Tags).Returns(Tags(nailsTag));
+		var manager = Character(85, "Manager", gameworld: gameworld.Object, location: stockroom).Object;
+		var host = EmploymentHostMock<IShop>(1, "market shop", EmploymentHostType.Shop, out _);
+		host.SetupGet(x => x.Currency).Returns(currency.Object);
+		host.SetupGet(x => x.CurrentLocations).Returns([stockroom]);
+
+		Assert.IsTrue(new EmploymentScheduledRuleAuthoringService().TryParseCondition(manager, host.Object,
+			new StringStack("item 360 in here below 3"), out var itemCondition, out var message), message);
+		Assert.IsInstanceOfType(itemCondition, typeof(ItemThresholdCondition));
+
+		Assert.IsTrue(new EmploymentScheduledRuleAuthoringService().TryParseCondition(manager, host.Object,
+			new StringStack("commodity Iron|Nails|grade=refined in here atleast 12.50"),
+			out var commodityCondition, out message), message);
+		Assert.IsInstanceOfType(commodityCondition, typeof(CommodityThresholdCondition));
+
+		Assert.IsTrue(new EmploymentScheduledRuleAuthoringService().TryParseCondition(manager, host.Object,
+			new StringStack("float all below 12.50"), out var floatCondition, out message), message);
+		Assert.IsInstanceOfType(floatCondition, typeof(ShopFloatThresholdCondition));
+
+		var otherShop = EmploymentHostMock<IShop>(2, "other shop", EmploymentHostType.Shop, out _);
+		otherShop.SetupGet(x => x.Currency).Returns(currency.Object);
+		var account = new Mock<ILineOfCreditAccount>();
+		account.SetupGet(x => x.Id).Returns(20);
+		account.SetupGet(x => x.Name).Returns("builder tab");
+		account.SetupGet(x => x.AccountName).Returns("builder tab");
+		account.SetupGet(x => x.Currency).Returns(currency.Object);
+		otherShop.SetupGet(x => x.LineOfCreditAccounts).Returns([account.Object]);
+		shops.Add(otherShop.Object);
+
+		Assert.IsTrue(new EmploymentScheduledRuleAuthoringService().TryParseCondition(manager, host.Object,
+			new StringStack("shopaccount other shop account builder tab owing more than 50"), out var owingCondition,
+			out message), message);
+		Assert.IsInstanceOfType(owingCondition, typeof(ShopAccountOwingCondition));
+
+		Assert.IsTrue(new EmploymentScheduledRuleAuthoringService().TryParseCondition(manager, host.Object,
+			new StringStack("weather wind gale force begins"), out var weatherCondition, out message), message);
+		Assert.IsInstanceOfType(weatherCondition, typeof(WeatherLevelCondition));
+	}
+
+	[TestMethod]
+	public void EmploymentScheduledRuleConditions_EvaluateInventoryFloatAccountsAndWeather()
+	{
+		var currency = Currency();
+		var stockroom = Cell(7100, "stockroom");
+		var controller = new Mock<IWeatherController>();
+		var weather = new Mock<IWeatherEvent>();
+		weather.SetupGet(x => x.Precipitation).Returns(PrecipitationLevel.Rain);
+		weather.SetupGet(x => x.Wind).Returns(WindLevel.GaleWind);
+		controller.SetupGet(x => x.CurrentWeatherEvent).Returns(weather.Object);
+		controller.SetupGet(x => x.ConsecutiveUnchangedPeriods).Returns(0);
+		stockroom.SetupGet(x => x.WeatherController).Returns(controller.Object);
+		var sockProto = ItemProto(26, "socks").Object;
+		var ironProto = ItemProto(27, "iron nails").Object;
+		var crateProto = ItemProto(360, "crate").Object;
+		var sock1 = Item(7101, "a pair of socks", sockProto, [stockroom.Object]);
+		var sock2 = Item(7102, "another pair of socks", sockProto, [stockroom.Object]);
+		var ironOne = Item(7106, "some iron nails", ironProto, [stockroom.Object]);
+		var ironTwo = Item(7107, "more iron nails", ironProto, [stockroom.Object]);
+		var crate = Item(7103, "a crate", crateProto, [stockroom.Object]);
+		sock1.SetupGet(x => x.DeepItems).Returns([sock1.Object]);
+		sock2.SetupGet(x => x.DeepItems).Returns([sock2.Object]);
+		ironOne.SetupGet(x => x.DeepItems).Returns([ironOne.Object]);
+		ironTwo.SetupGet(x => x.DeepItems).Returns([ironTwo.Object]);
+		crate.SetupGet(x => x.DeepItems).Returns([crate.Object, sock1.Object, sock2.Object, ironOne.Object, ironTwo.Object]);
+		var container = new Mock<IContainer>();
+		container.SetupGet(x => x.Contents).Returns([sock1.Object, sock2.Object, ironOne.Object, ironTwo.Object]);
+		crate.Setup(x => x.GetItemType<IContainer>()).Returns(container.Object);
+
+		var pileProto = ItemProto(500, "currency pile").Object;
+		var pileItem = Item(7104, "some coins", pileProto, [stockroom.Object]);
+		var till = Item(7105, "a cash register", crateProto, [stockroom.Object]);
+		var tillContainer = new Mock<IContainer>();
+		tillContainer.SetupGet(x => x.Contents).Returns([pileItem.Object]);
+		till.Setup(x => x.GetItemType<IContainer>()).Returns(tillContainer.Object);
+		var pile = new Mock<ICurrencyPile>();
+		pile.SetupGet(x => x.Currency).Returns(currency.Object);
+		pile.SetupGet(x => x.TotalValue).Returns(8.0M);
+		pileItem.Setup(x => x.IsItemType<ICurrencyPile>()).Returns(true);
+		pileItem.Setup(x => x.GetItemType<ICurrencyPile>()).Returns(pile.Object);
+		pileItem.Setup(x => x.GetItemType<IContainer>()).Returns((IContainer)null!);
+
+		var account = new Mock<ILineOfCreditAccount>();
+		account.SetupGet(x => x.Id).Returns(90);
+		account.SetupGet(x => x.Name).Returns("builder tab");
+		account.SetupGet(x => x.AccountName).Returns("builder tab");
+		account.SetupGet(x => x.OutstandingBalance).Returns(75.0M);
+		account.SetupGet(x => x.Currency).Returns(currency.Object);
+
+		var host = EmploymentHostMock<IPermanentShop>(10, "market shop", EmploymentHostType.Shop, out _);
+		host.SetupGet(x => x.Currency).Returns(currency.Object);
+		host.SetupGet(x => x.CurrentLocations).Returns([stockroom.Object]);
+		host.SetupGet(x => x.AllShopCells).Returns([stockroom.Object]);
+		host.SetupGet(x => x.TillItems).Returns([till.Object]);
+		host.SetupGet(x => x.LineOfCreditAccounts).Returns([account.Object]);
+		var context = new EmploymentTaskContext(host.Object);
+		context.SetAvailableItems(stockroom.Object, [crate.Object, till.Object]);
+		context.SetCommodityWeight(ironOne.Object, "Iron", 6.0, "Nails",
+			new Dictionary<string, string> { ["grade"] = "refined" });
+		context.SetCommodityWeight(ironTwo.Object, "Iron", 7.0, "Nails",
+			new Dictionary<string, string> { ["grade"] = "refined" });
+
+		var itemCondition = new ItemThresholdCondition(
+			ItemThresholdCondition.CreateKey(EmploymentItemSelector.ForPrototype(26), stockroom.Object.Id,
+				EmploymentItemSelector.ForPrototype(360)),
+			3,
+			true);
+		Assert.IsTrue(itemCondition.IsSatisfied(context, DateTimeOffset.UtcNow, out var reason), reason);
+
+		var commodityCondition = new CommodityThresholdCondition(
+			CommodityThresholdCondition.CreateKey("Iron", "Nails",
+				new Dictionary<string, string> { ["grade"] = "refined" },
+				stockroom.Object.Id,
+				EmploymentItemSelector.ForPrototype(360)),
+			12.0M,
+			false);
+		Assert.IsTrue(commodityCondition.IsSatisfied(context, DateTimeOffset.UtcNow, out reason), reason);
+
+		var accountCondition = new ShopAccountOwingCondition(
+			ShopAccountOwingCondition.CreateKey(host.Object, account.Object),
+			50.0M,
+			true);
+		Assert.IsTrue(accountCondition.IsSatisfied(context, DateTimeOffset.UtcNow, out reason), reason);
+
+		var floatCondition = new ShopFloatThresholdCondition(ShopFloatThresholdCondition.CreateKey(null), 10.0M, true);
+		Assert.IsTrue(floatCondition.IsSatisfied(context, DateTimeOffset.UtcNow, out reason), reason);
+
+		var weatherCondition = new WeatherLevelCondition(WeatherLevelCondition.CreatePrecipitationKey("rain"));
+		Assert.IsTrue(weatherCondition.IsSatisfied(context, DateTimeOffset.UtcNow, out reason), reason);
+	}
+
+	[TestMethod]
+	public void EmploymentCommandService_ScheduledRuleDraftFinaliseCreatesInspectableRule()
+	{
+		var currency = Currency();
+		IEmploymentHost host = new TestEmploymentHost(1, "market shop", currency.Object);
+		var manager = Character(82, "Manager").Object;
+		host.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.CreateScheduledRules |
+			EmploymentAuthority.PostToHostBoard), null);
+		var service = new EmploymentCommandService();
+
+		service.ExecuteForHost(manager, host, new StringStack("tasks rule draft new Night notice"));
+		service.ExecuteForHost(manager, host, new StringStack("tasks rule draft cooldown 1h"));
+		service.ExecuteForHost(manager, host, new StringStack("tasks rule condition manual night-stock"));
+		service.ExecuteForHost(manager, host, new StringStack("tasks rule step board Night Stock = Check the shelves."));
+		service.ExecuteForHost(manager, host, new StringStack("tasks rule draft finalise"));
+
+		var rule = host.TaskBoard.ScheduledRules.Single();
+		Assert.AreEqual("Night notice", rule.Name);
+		Assert.AreEqual(1, rule.Conditions.Count);
+		Assert.AreEqual(1, rule.ActionPlan.Steps.Count);
+		Assert.IsInstanceOfType(rule.Conditions.Single(), typeof(ManualOrderCondition));
+		Assert.IsInstanceOfType(rule.ActionPlan.Steps.Single(), typeof(BoardPostActionStep));
+		Assert.IsTrue(host.EmploymentRegister.Entries.Any(x =>
+			x.EntryType == EmploymentRegisterEntryType.ScheduledRuleCreated));
+
+		var detail = service.RenderTaskDetail(manager, host, "1");
+		StringAssert.Contains(detail, "manual trigger");
+		StringAssert.Contains(detail, "Night Stock");
+		StringAssert.Contains(detail, "Last Spawned");
+	}
+
+	[TestMethod]
+	public void EmploymentCommandService_ScheduledRuleOneShotEvaluateAndCancel()
+	{
+		var currency = Currency();
+		IEmploymentHost host = new TestEmploymentHost(1, "market shop", currency.Object);
+		var manager = Character(83, "Manager").Object;
+		host.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.CreateScheduledRules |
+			EmploymentAuthority.ModifyScheduledRules |
+			EmploymentAuthority.PostToHostBoard), null);
+		var service = new EmploymentCommandService();
+
+		service.ExecuteForHost(manager, host,
+			new StringStack("tasks rule create Restock cooldown 1h when manual restock-now do board Restock = Count the shelves."));
+
+		Assert.AreEqual(1, host.TaskBoard.ScheduledRules.Count);
+		var diagnosticBefore = new EmploymentScheduledRuleAuthoringService()
+			.RenderDiagnostics(manager, host, "1", null);
+		StringAssert.Contains(diagnosticBefore, "would not spawn");
+
+		Assert.IsTrue(new EmploymentScheduledRuleAuthoringService()
+			.TryEvaluate(manager, host, "1", "restock-now", out var message), message);
+		Assert.AreEqual(1, host.TaskBoard.ActiveTasks.Count);
+		StringAssert.Contains(message, "spawn");
+
+		Assert.IsTrue(new EmploymentScheduledRuleAuthoringService()
+			.TryCancelRule(manager, host, "1", "No longer needed.", out message), message);
+		Assert.AreEqual(0, host.TaskBoard.ScheduledRules.Count);
+		Assert.AreEqual(1, host.TaskBoard.ActiveTasks.Count);
+		Assert.IsTrue(host.EmploymentRegister.Entries.Any(x =>
+			x.EntryType == EmploymentRegisterEntryType.ScheduledRuleCancelled));
+	}
+
+	[TestMethod]
+	public void EmploymentCommandService_AdminCanCreateAndCancelRulesAndTasksWithoutDelegation()
+	{
+		var currency = Currency();
+		IEmploymentHost host = new TestEmploymentHost(1, "market shop", currency.Object);
+		var admin = Character(84, "Admin", administrator: true).Object;
+		var service = new EmploymentCommandService();
+
+		service.ExecuteForHost(admin, host,
+			new StringStack("tasks rule create AdminRestock cooldown 1h when stock key butter below 5 do board Restock = Count the shelves."));
+
+		Assert.AreEqual(1, host.TaskBoard.ScheduledRules.Count);
+		Assert.IsInstanceOfType(host.TaskBoard.ScheduledRules.Single().Conditions.Single(), typeof(StockThresholdCondition));
+
+		Assert.IsTrue(new EmploymentScheduledRuleAuthoringService()
+			.TryCancelRule(admin, host, "1", "Admin cleanup.", out var message), message);
+		Assert.AreEqual(0, host.TaskBoard.ScheduledRules.Count);
+
+		var task = host.TaskBoard.CreateActiveTask("Admin notice",
+			new EmploymentActionPlan([new BoardPostActionStep("Notice", "Check the shelves.")]), admin);
+		Assert.AreEqual(1, host.TaskBoard.ActiveTasks.Count);
+		Assert.IsTrue(host.TaskBoard.CancelActiveTask(task, admin, "Admin cleanup."));
+		Assert.AreEqual(EmploymentTaskStatus.Cancelled, task.Status);
+	}
+
+	[TestMethod]
+	public void EmploymentCommandService_OneShotRuleKeepsBetweenAndConditionTogether()
+	{
+		var currency = Currency();
+		IEmploymentHost host = new TestEmploymentHost(1, "market shop", currency.Object);
+		var manager = Character(85, "Manager").Object;
+		host.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.CreateScheduledRules |
+			EmploymentAuthority.PostToHostBoard), null);
+		var service = new EmploymentCommandService();
+
+		service.ExecuteForHost(manager, host,
+			new StringStack("tasks rule create DayRestock cooldown 1h when between 09:00 and 17:00 and manual restock-now do board Restock = Count the shelves."));
+
+		var rule = host.TaskBoard.ScheduledRules.Single();
+		Assert.AreEqual(2, rule.Conditions.Count);
+		Assert.IsInstanceOfType(rule.Conditions.ElementAt(0), typeof(TimeWindowCondition));
+		Assert.IsInstanceOfType(rule.Conditions.ElementAt(1), typeof(ManualOrderCondition));
+	}
+
+	[TestMethod]
+	public void EmploymentCommandService_ScheduledRulePauseResumeAndCopyDraft()
+	{
+		var currency = Currency();
+		IEmploymentHost host = new TestEmploymentHost(1, "market shop", currency.Object);
+		var manager = Character(86, "Manager").Object;
+		host.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.CreateScheduledRules |
+			EmploymentAuthority.ModifyScheduledRules |
+			EmploymentAuthority.PostToHostBoard), null);
+		var service = new EmploymentCommandService();
+		var authoring = new EmploymentScheduledRuleAuthoringService();
+
+		service.ExecuteForHost(manager, host,
+			new StringStack("tasks rule create Restock cooldown 1h when manual restock-now do board Restock = Count the shelves."));
+		var rule = host.TaskBoard.ScheduledRules.Single();
+
+		service.ExecuteForHost(manager, host, new StringStack("tasks rule pause 1 testing pause"));
+		Assert.AreEqual(EmploymentScheduledRuleStatus.Paused, rule.Status);
+		Assert.IsTrue(host.EmploymentRegister.Entries.Any(x =>
+			x.EntryType == EmploymentRegisterEntryType.ScheduledRulePaused));
+		Assert.IsTrue(authoring.TryEvaluate(manager, host, "1", "restock-now", out var message), message);
+		StringAssert.Contains(message, "Rule is paused");
+		Assert.AreEqual(0, host.TaskBoard.ActiveTasks.Count);
+		StringAssert.Contains(service.RenderTaskDetail(manager, host, "1"), "Paused");
+
+		service.ExecuteForHost(manager, host, new StringStack("tasks rule draft copy 1 Restock updated"));
+		var draft = authoring.RenderDraft(manager, host);
+		StringAssert.Contains(draft, "Restock updated");
+		StringAssert.Contains(draft, "manual trigger");
+		StringAssert.Contains(draft, "host staff communication board");
+
+		service.ExecuteForHost(manager, host, new StringStack("tasks rule resume 1 testing resume"));
+		Assert.AreEqual(EmploymentScheduledRuleStatus.Active, rule.Status);
+		Assert.IsTrue(host.EmploymentRegister.Entries.Any(x =>
+			x.EntryType == EmploymentRegisterEntryType.ScheduledRuleResumed));
+		Assert.IsTrue(authoring.TryEvaluate(manager, host, "1", "restock-now", out message), message);
+		Assert.AreEqual(1, host.TaskBoard.ActiveTasks.Count);
+	}
+
+	[TestMethod]
+	public void EmploymentScheduledRuleAuthoring_RejectsMissingConditionAuthority()
+	{
+		var currency = Currency();
+		IEmploymentHost host = new TestEmploymentHost(1, "market shop", currency.Object);
+		var manager = Character(87, "Manager").Object;
+		host.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.CreateScheduledRules), null);
+		var authoring = new EmploymentScheduledRuleAuthoringService();
+
+		Assert.IsTrue(authoring.TryStartDraft(manager, host, "Restock butter", out var message), message);
+		Assert.IsFalse(authoring.TryAddCondition(manager, host, new StringStack("stock key butter below 5"), out message));
+		StringAssert.Contains(message, "ManageStockRules");
+	}
+
 	private static Mock<T> HostMock<T>(long id, string name)
 		where T : class, IEmploymentHost
 	{
@@ -1307,6 +1766,9 @@ public class EmploymentCommandServiceTests
 		currency.SetupGet(x => x.Name).Returns("test dollars");
 		currency.Setup(x => x.Describe(It.IsAny<decimal>(), It.IsAny<CurrencyDescriptionPatternType>()))
 		        .Returns((decimal amount, CurrencyDescriptionPatternType _) => $"{amount:N2} test dollars");
+		currency.Setup(x => x.TryGetBaseCurrency(It.IsAny<string>(), out It.Ref<decimal>.IsAny))
+		        .Returns(new TryGetBaseCurrencyCallback((string text, out decimal amount) =>
+			        decimal.TryParse(text, NumberStyles.Any, CultureInfo.InvariantCulture, out amount)));
 		return currency;
 	}
 
@@ -1408,6 +1870,12 @@ public class EmploymentCommandServiceTests
 			         predicate is null
 				         ? effects.OfType<EmploymentTaskDraftEffect>()
 				         : effects.OfType<EmploymentTaskDraftEffect>().Where(x => predicate(x)));
+		character.Setup(x => x.EffectsOfType<EmploymentScheduledRuleDraftEffect>(
+					It.IsAny<Predicate<EmploymentScheduledRuleDraftEffect>?>()))
+		         .Returns((Predicate<EmploymentScheduledRuleDraftEffect>? predicate) =>
+			         predicate is null
+				         ? effects.OfType<EmploymentScheduledRuleDraftEffect>()
+				         : effects.OfType<EmploymentScheduledRuleDraftEffect>().Where(x => predicate(x)));
 		character.Setup(x => x.RemoveAllEffects<EmploymentTaskDraftEffect>(
 					It.IsAny<Predicate<EmploymentTaskDraftEffect>?>(),
 					It.IsAny<bool>()))
@@ -1416,6 +1884,21 @@ public class EmploymentCommandServiceTests
 			         var removed = predicate is null
 				         ? effects.OfType<EmploymentTaskDraftEffect>().ToList()
 				         : effects.OfType<EmploymentTaskDraftEffect>().Where(x => predicate(x)).ToList();
+			         foreach (var effect in removed)
+			         {
+				         effects.Remove(effect);
+			         }
+
+			         return removed.Any();
+		         });
+		character.Setup(x => x.RemoveAllEffects<EmploymentScheduledRuleDraftEffect>(
+					It.IsAny<Predicate<EmploymentScheduledRuleDraftEffect>?>(),
+					It.IsAny<bool>()))
+		         .Returns((Predicate<EmploymentScheduledRuleDraftEffect>? predicate, bool _) =>
+		         {
+			         var removed = predicate is null
+				         ? effects.OfType<EmploymentScheduledRuleDraftEffect>().ToList()
+				         : effects.OfType<EmploymentScheduledRuleDraftEffect>().Where(x => predicate(x)).ToList();
 			         foreach (var effect in removed)
 			         {
 				         effects.Remove(effect);
@@ -1495,6 +1978,12 @@ public class EmploymentCommandServiceTests
 		}
 
 		return type.HasElementType && type.GetElementType() is { } elementType && ContainsType(elementType, target);
+	}
+
+	private static string HelpConstant(Type type, string fieldName)
+	{
+		return (string)type.GetField(fieldName, BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)!
+		                   .GetRawConstantValue()!;
 	}
 
 	private static FuturemudDatabaseContext BuildContext()

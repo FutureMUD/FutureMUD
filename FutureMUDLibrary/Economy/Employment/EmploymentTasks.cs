@@ -25,12 +25,24 @@ public enum EmploymentTaskConditionType
 	ManualOrder,
 	TimeWindow,
 	StockThreshold,
-	AccountBalance
+	AccountBalance,
+	ItemThreshold,
+	CommodityThreshold,
+	ShopAccountOwing,
+	ShopFloatThreshold,
+	WeatherLevel
+}
+
+public enum EmploymentScheduledRuleStatus
+{
+	Active,
+	Paused
 }
 
 public interface IEmploymentTaskCondition
 {
 	EmploymentTaskConditionType ConditionType { get; }
+	EmploymentAuthoritySet RequiredAuthority { get; }
 	bool IsSatisfied(IEmploymentTaskContext context, DateTimeOffset now, out string reason);
 }
 
@@ -257,6 +269,7 @@ public interface IEmploymentScheduledTaskRule
 	string IdempotencyKey { get; }
 	IReadOnlyCollection<IEmploymentTaskCondition> Conditions { get; }
 	EmploymentActionPlan ActionPlan { get; }
+	EmploymentScheduledRuleStatus Status { get; }
 	TimeSpan Cooldown { get; }
 	DateTimeOffset? LastSpawnedAt { get; }
 	bool CanSpawn(IEmploymentTaskContext context, DateTimeOffset now, out string reason);
@@ -272,6 +285,11 @@ public interface IEmploymentTaskBoard
 	IEmploymentActiveTask CreateActiveTask(string name, EmploymentActionPlan actionPlan, ICharacter? authorisedBy,
 		Guid? correlationId = null);
 	bool CancelActiveTask(IEmploymentActiveTask task, ICharacter? cancelledBy, string reason);
+	bool CancelScheduledRule(IEmploymentScheduledTaskRule rule, ICharacter? cancelledBy, string reason);
+	bool PauseScheduledRule(IEmploymentScheduledTaskRule rule, ICharacter? pausedBy, string reason);
+	bool ResumeScheduledRule(IEmploymentScheduledTaskRule rule, ICharacter? resumedBy, string reason);
+	IReadOnlyCollection<IEmploymentActiveTask> EvaluateScheduledRule(IEmploymentScheduledTaskRule rule,
+		IEmploymentTaskContext context, DateTimeOffset now);
 	IReadOnlyCollection<IEmploymentActiveTask> EvaluateScheduledRules(IEmploymentTaskContext context, DateTimeOffset now);
 }
 

@@ -272,6 +272,12 @@ internal sealed class EmploymentTaskAuthoringService
 		}
 	}
 
+	public bool TryParseActionStep(ICharacter actor, IEmploymentHost host, StringStack input,
+		out IEmploymentActionStep step, out string message)
+	{
+		return TryParseStep(actor, host, input, out step, out message);
+	}
+
 	public string RenderDraft(ICharacter actor, IEmploymentHost host)
 	{
 		var draft = DraftFor(actor, host);
@@ -1179,7 +1185,7 @@ internal sealed class EmploymentTaskAuthoringService
 		return true;
 	}
 
-	private static bool TryParseItemSelector(ICharacter actor, StringStack input, string noun,
+	internal static bool TryParseItemSelector(ICharacter actor, StringStack input, string noun,
 		out EmploymentItemSelector? selector, out string message)
 	{
 		selector = null;
@@ -1530,7 +1536,7 @@ internal sealed class EmploymentTaskAuthoringService
 		return false;
 	}
 
-	private static ICurrency? ResolveHostCurrency(IEmploymentHost host)
+	internal static ICurrency? ResolveHostCurrency(IEmploymentHost host)
 	{
 		return host switch
 		{

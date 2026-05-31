@@ -3,7 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using MudSharp.Character;
+using MudSharp.Climate;
 using MudSharp.Construction;
+using MudSharp.Economy;
+using MudSharp.Economy.Currency;
 using MudSharp.Economy.Employment;
 using MudSharp.Framework;
 using MudSharp.GameItems;
@@ -1056,6 +1059,7 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 public sealed record ManualOrderCondition(string Key) : IEmploymentTaskCondition
 {
 	public EmploymentTaskConditionType ConditionType => EmploymentTaskConditionType.ManualOrder;
+	public EmploymentAuthoritySet RequiredAuthority => EmploymentAuthoritySet.Empty;
 
 	public bool IsSatisfied(IEmploymentTaskContext context, DateTimeOffset now, out string reason)
 	{
@@ -1068,11 +1072,14 @@ public sealed record ManualOrderCondition(string Key) : IEmploymentTaskCondition
 public sealed record TimeWindowCondition(TimeSpan EarliestTime, TimeSpan LatestTime) : IEmploymentTaskCondition
 {
 	public EmploymentTaskConditionType ConditionType => EmploymentTaskConditionType.TimeWindow;
+	public EmploymentAuthoritySet RequiredAuthority => EmploymentAuthoritySet.Empty;
 
 	public bool IsSatisfied(IEmploymentTaskContext context, DateTimeOffset now, out string reason)
 	{
 		var current = now.TimeOfDay;
-		var satisfied = current >= EarliestTime && current <= LatestTime;
+		var satisfied = EarliestTime <= LatestTime
+			? current >= EarliestTime && current <= LatestTime
+			: current >= EarliestTime || current <= LatestTime;
 		reason = satisfied ? string.Empty : $"Current time {current} is outside the task window.";
 		return satisfied;
 	}
@@ -1081,28 +1088,764 @@ public sealed record TimeWindowCondition(TimeSpan EarliestTime, TimeSpan LatestT
 public sealed record StockThresholdCondition(string StockKey, int Threshold, bool BelowThreshold) : IEmploymentTaskCondition
 {
 	public EmploymentTaskConditionType ConditionType => EmploymentTaskConditionType.StockThreshold;
+	public EmploymentAuthoritySet RequiredAuthority => EmploymentAuthority.ManageStockRules;
 
 	public bool IsSatisfied(IEmploymentTaskContext context, DateTimeOffset now, out string reason)
 	{
-		var current = context.StockLevel(StockKey);
+		if (!TryGetStockLevel(context, StockKey, out var current, out reason))
+		{
+			return false;
+		}
+
 		var satisfied = BelowThreshold ? current < Threshold : current >= Threshold;
 		reason = satisfied ? string.Empty : $"Stock {StockKey} is {current}, which does not satisfy threshold {Threshold}.";
 		return satisfied;
+	}
+
+	private static bool TryGetStockLevel(IEmploymentTaskContext context, string stockKey, out int current,
+		out string reason)
+	{
+		if (!stockKey.StartsWith("merch:", StringComparison.InvariantCultureIgnoreCase))
+		{
+			current = context.StockLevel(stockKey.StartsWith("key:", StringComparison.InvariantCultureIgnoreCase)
+				? stockKey["key:".Length..]
+				: stockKey);
+			reason = string.Empty;
+			return true;
+		}
+
+		if (context.Employer is not IShop shop)
+		{
+			current = 0;
+			reason = $"{context.Employer.EmploymentHostName} does not expose shop merchandise stock levels.";
+			return false;
+		}
+
+		var selector = stockKey["merch:".Length..];
+		var merchandise = long.TryParse(selector, out var id)
+			? shop.Merchandises.FirstOrDefault(x => x.Id == id)
+			: shop.Merchandises.FirstOrDefault(x => x.Name.EqualTo(selector));
+		if (merchandise is null)
+		{
+			current = 0;
+			reason = $"There is no merchandise matching {selector}.";
+			return false;
+		}
+
+		var stocktake = shop.StocktakeMerchandise(merchandise);
+		current = stocktake.OnFloorCount + stocktake.InStockroomCount;
+		reason = string.Empty;
+		return true;
 	}
 }
 
 public sealed record AccountBalanceCondition(string AccountKey, decimal Threshold, bool BelowThreshold) : IEmploymentTaskCondition
 {
 	public EmploymentTaskConditionType ConditionType => EmploymentTaskConditionType.AccountBalance;
+	public EmploymentAuthoritySet RequiredAuthority => EmploymentAuthority.CreateScheduledRules;
 
 	public bool IsSatisfied(IEmploymentTaskContext context, DateTimeOffset now, out string reason)
 	{
-		var current = context.AccountBalance(AccountKey);
+		if (!TryGetAccountBalance(context, AccountKey, out var current, out reason))
+		{
+			return false;
+		}
+
 		var satisfied = BelowThreshold ? current < Threshold : current >= Threshold;
 		reason = satisfied
 			? string.Empty
 			: $"Account {AccountKey} balance {current:N2} does not satisfy threshold {Threshold:N2}.";
 		return satisfied;
+	}
+
+	private static bool TryGetAccountBalance(IEmploymentTaskContext context, string accountKey, out decimal current,
+		out string reason)
+	{
+		reason = string.Empty;
+		if (accountKey.StartsWith("key:", StringComparison.InvariantCultureIgnoreCase))
+		{
+			current = context.AccountBalance(accountKey["key:".Length..]);
+			return true;
+		}
+
+		if (context is EmploymentTaskContext concrete &&
+		    EmploymentFinanceService.TryGetConditionBalance(concrete, accountKey, out current, out reason))
+		{
+			return true;
+		}
+
+		current = context.AccountBalance(accountKey);
+		if (current != 0.0M)
+		{
+			reason = string.Empty;
+			return true;
+		}
+
+		reason = string.IsNullOrWhiteSpace(reason)
+			? $"There is no account balance source matching {accountKey}."
+			: reason;
+		return false;
+	}
+}
+
+public sealed record ItemThresholdCondition(string ItemKey, int Threshold, bool BelowThreshold) : IEmploymentTaskCondition
+{
+	private const string KeyPrefix = "item:v1";
+
+	public EmploymentTaskConditionType ConditionType => EmploymentTaskConditionType.ItemThreshold;
+	public EmploymentAuthoritySet RequiredAuthority => EmploymentAuthority.ManageStockRules;
+
+	public static string CreateKey(EmploymentItemSelector itemSelector, long locationId,
+		EmploymentItemSelector? containerSelector)
+	{
+		return $"{KeyPrefix}|location={locationId}|item={EncodeSelector(itemSelector)}|container={EncodeSelector(containerSelector)}";
+	}
+
+	public bool IsSatisfied(IEmploymentTaskContext context, DateTimeOffset now, out string reason)
+	{
+		if (!TryParseKey(ItemKey, out var itemSelector, out var locationId, out var containerSelector))
+		{
+			reason = "The item condition key is invalid.";
+			return false;
+		}
+
+		var location = ResolveLocation(context.Employer, locationId);
+		if (location is null)
+		{
+			reason = $"There is no room/cell #{locationId:N0} available to this employment host.";
+			return false;
+		}
+
+		var candidates = ItemsForCondition(context, location, containerSelector, out reason)
+		                 .DistinctBy(x => x.Id)
+		                 .ToList();
+		if (!string.IsNullOrWhiteSpace(reason))
+		{
+			return false;
+		}
+
+		var current = candidates.Count(x => MatchesSelector(context, x, itemSelector));
+		var satisfied = BelowThreshold ? current < Threshold : current >= Threshold;
+		reason = satisfied
+			? string.Empty
+			: $"There are {current:N0} matching items at {location.Name}; threshold is {(BelowThreshold ? "below" : "at least")} {Threshold:N0}.";
+		return satisfied;
+	}
+
+	internal static bool TryParseKey(string key, out EmploymentItemSelector itemSelector, out long locationId,
+		out EmploymentItemSelector? containerSelector)
+	{
+		itemSelector = EmploymentItemSelector.ForPrototype(0);
+		locationId = 0;
+		containerSelector = null;
+		var values = ParseKeyValues(key, KeyPrefix);
+		if (values is null ||
+		    !values.TryGetValue("location", out var locationText) ||
+		    !long.TryParse(locationText, out locationId) ||
+		    !values.TryGetValue("item", out var selectorText) ||
+		    DecodeSelector(selectorText) is not { } parsedSelector)
+		{
+			return false;
+		}
+
+		itemSelector = parsedSelector;
+		if (values.TryGetValue("container", out var containerText))
+		{
+			containerSelector = DecodeSelector(containerText);
+		}
+
+		return true;
+	}
+
+	internal static string DescribeKey(string key)
+	{
+		return TryParseKey(key, out var selector, out var locationId, out var container)
+			? $"{EmploymentItemSelectorResolver.Describe(selector)} in room #{locationId:N0}{(container is null ? string.Empty : $" inside {EmploymentItemSelectorResolver.Describe(container)}")}"
+			: key;
+	}
+
+	internal static string EncodeSelector(EmploymentItemSelector? selector)
+	{
+		if (selector is null)
+		{
+			return "none";
+		}
+
+		return selector.Kind switch
+		{
+			EmploymentItemSelectorKind.PrototypeId => $"proto:{selector.Id?.ToString("F0") ?? "0"}",
+			EmploymentItemSelectorKind.ItemId => $"item:{selector.Id?.ToString("F0") ?? "0"}",
+			EmploymentItemSelectorKind.Tag => $"tag:{Uri.EscapeDataString(selector.Text ?? string.Empty)}",
+			EmploymentItemSelectorKind.Keyword =>
+				$"keyword:{selector.Id?.ToString("F0") ?? "0"}:{Uri.EscapeDataString(selector.Text ?? string.Empty)}",
+			_ => "none"
+		};
+	}
+
+	internal static EmploymentItemSelector? DecodeSelector(string text)
+	{
+		if (string.IsNullOrWhiteSpace(text) || text.EqualTo("none"))
+		{
+			return null;
+		}
+
+		var parts = text.Split(':', 3);
+		return parts[0].CollapseString().ToLowerInvariant() switch
+		{
+			"proto" when parts.Length >= 2 && long.TryParse(parts[1], out var id) =>
+				EmploymentItemSelector.ForPrototype(id),
+			"item" when parts.Length >= 2 && long.TryParse(parts[1], out var id) =>
+				EmploymentItemSelector.ForItemId(id),
+			"tag" when parts.Length >= 2 =>
+				EmploymentItemSelector.ForTag(Uri.UnescapeDataString(parts[1])),
+			"keyword" when parts.Length >= 3 && long.TryParse(parts[1], out var id) && id > 0 =>
+				new EmploymentItemSelector(EmploymentItemSelectorKind.Keyword, id,
+					Uri.UnescapeDataString(parts[2])),
+			"keyword" when parts.Length >= 2 =>
+				EmploymentItemSelector.ForKeyword(Uri.UnescapeDataString(parts[1])),
+			_ => null
+		};
+	}
+
+	internal static bool MatchesSelector(IEmploymentTaskContext context, IGameItem item,
+		EmploymentItemSelector selector)
+	{
+		return selector.Kind switch
+		{
+			EmploymentItemSelectorKind.PrototypeId => item.Prototype?.Id == selector.Id,
+			EmploymentItemSelectorKind.ItemId => item.Id == selector.Id,
+			EmploymentItemSelectorKind.Keyword when selector.Id.HasValue => item.Id == selector.Id.Value,
+			EmploymentItemSelectorKind.Keyword => !string.IsNullOrWhiteSpace(selector.Text) &&
+			                                      item.Name.Contains(selector.Text,
+				                                      StringComparison.InvariantCultureIgnoreCase),
+			EmploymentItemSelectorKind.Tag => !string.IsNullOrWhiteSpace(selector.Text) &&
+			                                  context.ItemHasTag(item, selector.Text),
+			_ => false
+		};
+	}
+
+	internal static IEnumerable<IGameItem> ItemsForCondition(IEmploymentTaskContext context, ICell location,
+		EmploymentItemSelector? containerSelector, out string reason)
+	{
+		reason = string.Empty;
+		var roomItems = ExpandItems(context.AvailableItems(location)).DistinctBy(x => x.Id).ToList();
+		if (containerSelector is null)
+		{
+			return roomItems;
+		}
+
+		var containers = roomItems
+		                 .Where(x => MatchesSelector(context, x, containerSelector))
+		                 .DistinctBy(x => x.Id)
+		                 .ToList();
+		if (!containers.Any())
+		{
+			reason = $"There is no container matching {EmploymentItemSelectorResolver.Describe(containerSelector)} at {location.Name}.";
+			return [];
+		}
+
+		return containers
+		       .SelectMany(x => ContainerContents(context, x))
+		       .DistinctBy(x => x.Id)
+		       .ToList();
+	}
+
+	private static IEnumerable<IGameItem> ContainerContents(IEmploymentTaskContext context, IGameItem container)
+	{
+		if (context is EmploymentTaskContext concrete)
+		{
+			foreach (var item in concrete.ContainedItems(container).SelectMany(DeepItemsOrSelf))
+			{
+				yield return item;
+			}
+		}
+
+		foreach (var item in container.GetItemType<IContainer>()?.Contents.SelectMany(DeepItemsOrSelf) ?? [])
+		{
+			yield return item;
+		}
+	}
+
+	private static IEnumerable<IGameItem> ExpandItems(IEnumerable<IGameItem> items)
+	{
+		foreach (var item in items)
+		{
+			foreach (var deepItem in DeepItemsOrSelf(item))
+			{
+				yield return deepItem;
+			}
+		}
+	}
+
+	private static IEnumerable<IGameItem> DeepItemsOrSelf(IGameItem item)
+	{
+		var deepItems = item.DeepItems?.ToList();
+		return deepItems?.Any() == true ? deepItems : [item];
+	}
+
+	internal static ICell? ResolveLocation(IEmploymentHost host, long locationId)
+	{
+		return host.EmploymentHostLocations().FirstOrDefault(x => x.Id == locationId) ??
+		       (host as IHaveFuturemud)?.Gameworld.Cells.Get(locationId);
+	}
+
+	private static Dictionary<string, string>? ParseKeyValues(string key, string prefix)
+	{
+		if (string.IsNullOrWhiteSpace(key) ||
+		    !key.StartsWith(prefix, StringComparison.InvariantCultureIgnoreCase))
+		{
+			return null;
+		}
+
+		return key.Split('|', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+		          .Skip(1)
+		          .Select(x => x.Split('=', 2, StringSplitOptions.TrimEntries))
+		          .Where(x => x.Length == 2)
+		          .ToDictionary(x => x[0], x => x[1], StringComparer.InvariantCultureIgnoreCase);
+	}
+}
+
+public sealed record CommodityThresholdCondition(string CommodityKey, decimal ThresholdWeight, bool BelowThreshold)
+	: IEmploymentTaskCondition
+{
+	private const string KeyPrefix = "commodity:v1";
+
+	public EmploymentTaskConditionType ConditionType => EmploymentTaskConditionType.CommodityThreshold;
+	public EmploymentAuthoritySet RequiredAuthority => EmploymentAuthority.ManageStockRules;
+
+	public static string CreateKey(string materialName, string? tagName,
+		IReadOnlyDictionary<string, string> characteristics, long locationId,
+		EmploymentItemSelector? containerSelector)
+	{
+		var characteristicText = string.Join(";",
+			characteristics.OrderBy(x => x.Key, StringComparer.InvariantCultureIgnoreCase)
+			               .Select(x => $"{Uri.EscapeDataString(x.Key)}={Uri.EscapeDataString(x.Value)}"));
+		return $"{KeyPrefix}|location={locationId}|material={Uri.EscapeDataString(materialName)}|tag={Uri.EscapeDataString(tagName ?? string.Empty)}|chars={characteristicText}|container={ItemThresholdCondition.EncodeSelector(containerSelector)}";
+	}
+
+	public bool IsSatisfied(IEmploymentTaskContext context, DateTimeOffset now, out string reason)
+	{
+		if (!TryParseKey(CommodityKey, out var material, out var tag, out var characteristics, out var locationId,
+			    out var containerSelector))
+		{
+			reason = "The commodity condition key is invalid.";
+			return false;
+		}
+
+		var location = ItemThresholdCondition.ResolveLocation(context.Employer, locationId);
+		if (location is null)
+		{
+			reason = $"There is no room/cell #{locationId:N0} available to this employment host.";
+			return false;
+		}
+
+		var candidates = ItemThresholdCondition.ItemsForCondition(context, location, containerSelector, out reason)
+		                                      .DistinctBy(x => x.Id)
+		                                      .ToList();
+		if (!string.IsNullOrWhiteSpace(reason))
+		{
+			return false;
+		}
+
+		var current = candidates.Sum(x => (decimal)context.CommodityWeight(x, material, tag, characteristics));
+		var satisfied = BelowThreshold ? current < ThresholdWeight : current >= ThresholdWeight;
+		reason = satisfied
+			? string.Empty
+			: $"There is {current:N2} matching commodity weight at {location.Name}; threshold is {(BelowThreshold ? "below" : "at least")} {ThresholdWeight:N2}.";
+		return satisfied;
+	}
+
+	internal static bool TryParseKey(string key, out string material, out string? tag,
+		out IReadOnlyDictionary<string, string> characteristics, out long locationId,
+		out EmploymentItemSelector? containerSelector)
+	{
+		material = string.Empty;
+		tag = null;
+		characteristics = new Dictionary<string, string>();
+		locationId = 0;
+		containerSelector = null;
+		var values = ParseKeyValues(key, KeyPrefix);
+		if (values is null ||
+		    !values.TryGetValue("location", out var locationText) ||
+		    !long.TryParse(locationText, out locationId) ||
+		    !values.TryGetValue("material", out var materialText))
+		{
+			return false;
+		}
+
+		material = Uri.UnescapeDataString(materialText);
+		if (string.IsNullOrWhiteSpace(material))
+		{
+			return false;
+		}
+
+		if (values.TryGetValue("tag", out var tagText) && !string.IsNullOrWhiteSpace(tagText))
+		{
+			tag = Uri.UnescapeDataString(tagText);
+		}
+
+		if (values.TryGetValue("chars", out var characteristicText) &&
+		    !string.IsNullOrWhiteSpace(characteristicText))
+		{
+			characteristics = characteristicText.Split(';',
+					StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+			                                    .Select(x => x.Split('=', 2, StringSplitOptions.TrimEntries))
+			                                    .Where(x => x.Length == 2)
+			                                    .ToDictionary(x => Uri.UnescapeDataString(x[0]),
+				                                    x => Uri.UnescapeDataString(x[1]),
+				                                    StringComparer.InvariantCultureIgnoreCase);
+		}
+
+		if (values.TryGetValue("container", out var containerText))
+		{
+			containerSelector = ItemThresholdCondition.DecodeSelector(containerText);
+		}
+
+		return true;
+	}
+
+	internal static string DescribeKey(string key)
+	{
+		if (!TryParseKey(key, out var material, out var tag, out var characteristics, out var locationId,
+			    out var container))
+		{
+			return key;
+		}
+
+		var descriptor = material;
+		if (!string.IsNullOrWhiteSpace(tag))
+		{
+			descriptor = $"{descriptor}|{tag}";
+		}
+
+		foreach (var characteristic in characteristics.OrderBy(x => x.Key, StringComparer.InvariantCultureIgnoreCase))
+		{
+			descriptor = $"{descriptor}|{characteristic.Key}={characteristic.Value}";
+		}
+
+		return $"{descriptor} in room #{locationId:N0}{(container is null ? string.Empty : $" inside {EmploymentItemSelectorResolver.Describe(container)}")}";
+	}
+
+	private static Dictionary<string, string>? ParseKeyValues(string key, string prefix)
+	{
+		if (string.IsNullOrWhiteSpace(key) ||
+		    !key.StartsWith(prefix, StringComparison.InvariantCultureIgnoreCase))
+		{
+			return null;
+		}
+
+		return key.Split('|', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+		          .Skip(1)
+		          .Select(x => x.Split('=', 2, StringSplitOptions.TrimEntries))
+		          .Where(x => x.Length == 2)
+		          .ToDictionary(x => x[0], x => x[1], StringComparer.InvariantCultureIgnoreCase);
+	}
+}
+
+public sealed record ShopAccountOwingCondition(string AccountKey, decimal Threshold, bool AboveThreshold)
+	: IEmploymentTaskCondition
+{
+	private const string KeyPrefix = "shopaccount:v1";
+
+	public EmploymentTaskConditionType ConditionType => EmploymentTaskConditionType.ShopAccountOwing;
+	public EmploymentAuthoritySet RequiredAuthority => EmploymentAuthority.CreateScheduledRules;
+
+	public static string CreateKey(IShop shop, ILineOfCreditAccount account)
+	{
+		return $"{KeyPrefix}|shop={shop.Id}|account={account.Id}";
+	}
+
+	public bool IsSatisfied(IEmploymentTaskContext context, DateTimeOffset now, out string reason)
+	{
+		if (!TryParseKey(AccountKey, out var shopId, out var accountId))
+		{
+			reason = "The shop account condition key is invalid.";
+			return false;
+		}
+
+		var shop = ResolveShop(context.Employer, shopId);
+		if (shop is null)
+		{
+			reason = $"There is no shop #{shopId:N0} available to this employment host.";
+			return false;
+		}
+
+		var account = shop.LineOfCreditAccounts.FirstOrDefault(x => x.Id == accountId);
+		if (account is null)
+		{
+			reason = $"{shop.Name} does not have line-of-credit account #{accountId:N0}.";
+			return false;
+		}
+
+		var current = account.OutstandingBalance;
+		var satisfied = AboveThreshold ? current > Threshold : current <= Threshold;
+		reason = satisfied
+			? string.Empty
+			: $"Shop account {account.AccountName} owes {current:N2}, which does not satisfy {(AboveThreshold ? "more than" : "no more than")} {Threshold:N2}.";
+		return satisfied;
+	}
+
+	internal static bool TryParseKey(string key, out long shopId, out long accountId)
+	{
+		shopId = 0;
+		accountId = 0;
+		var values = ParseKeyValues(key, KeyPrefix);
+		return values is not null &&
+		       values.TryGetValue("shop", out var shopText) &&
+		       long.TryParse(shopText, out shopId) &&
+		       values.TryGetValue("account", out var accountText) &&
+		       long.TryParse(accountText, out accountId);
+	}
+
+	internal static string DescribeKey(string key, IEmploymentHost host)
+	{
+		if (!TryParseKey(key, out var shopId, out var accountId))
+		{
+			return key;
+		}
+
+		var shop = ResolveShop(host, shopId);
+		var account = shop?.LineOfCreditAccounts.FirstOrDefault(x => x.Id == accountId);
+		return shop is null
+			? $"shop #{shopId:N0} account #{accountId:N0}"
+			: $"{shop.Name} / {(account is null ? $"account #{accountId:N0}" : account.AccountName)}";
+	}
+
+	private static IShop? ResolveShop(IEmploymentHost host, long shopId)
+	{
+		if (host is IShop shop && shop.Id == shopId)
+		{
+			return shop;
+		}
+
+		return (host as IHaveFuturemud)?.Gameworld.Shops.Get(shopId);
+	}
+
+	private static Dictionary<string, string>? ParseKeyValues(string key, string prefix)
+	{
+		if (string.IsNullOrWhiteSpace(key) ||
+		    !key.StartsWith(prefix, StringComparison.InvariantCultureIgnoreCase))
+		{
+			return null;
+		}
+
+		return key.Split('|', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+		          .Skip(1)
+		          .Select(x => x.Split('=', 2, StringSplitOptions.TrimEntries))
+		          .Where(x => x.Length == 2)
+		          .ToDictionary(x => x[0], x => x[1], StringComparer.InvariantCultureIgnoreCase);
+	}
+}
+
+public sealed record ShopFloatThresholdCondition(string FloatKey, decimal Threshold, bool BelowThreshold)
+	: IEmploymentTaskCondition
+{
+	private const string KeyPrefix = "float:v1";
+
+	public EmploymentTaskConditionType ConditionType => EmploymentTaskConditionType.ShopFloatThreshold;
+	public EmploymentAuthoritySet RequiredAuthority => EmploymentAuthority.CreateScheduledRules;
+
+	public static string CreateKey(EmploymentItemSelector? registerSelector)
+	{
+		return $"{KeyPrefix}|register={ItemThresholdCondition.EncodeSelector(registerSelector)}";
+	}
+
+	public bool IsSatisfied(IEmploymentTaskContext context, DateTimeOffset now, out string reason)
+	{
+		if (context.Employer is not IPermanentShop shop)
+		{
+			reason = $"{context.Employer.EmploymentHostName} is not a permanent shop with cash register/till items.";
+			return false;
+		}
+
+		if (!TryParseKey(FloatKey, out var registerSelector))
+		{
+			reason = "The shop float condition key is invalid.";
+			return false;
+		}
+
+		var tills = shop.TillItems.ToList();
+		if (registerSelector is not null)
+		{
+			tills = tills
+			        .Where(x => ItemThresholdCondition.MatchesSelector(context, x, registerSelector))
+			        .ToList();
+		}
+
+		if (!tills.Any())
+		{
+			reason = registerSelector is null
+				? $"{shop.Name} does not have any configured till items."
+				: $"{shop.Name} does not have a till matching {EmploymentItemSelectorResolver.Describe(registerSelector)}.";
+			return false;
+		}
+
+		var current = tills
+		              .SelectMany(x => x.RecursiveGetItems<ICurrencyPile>(false))
+		              .Where(x => x.Currency == shop.Currency)
+		              .Sum(x => x.TotalValue);
+		var satisfied = BelowThreshold ? current < Threshold : current >= Threshold;
+		reason = satisfied
+			? string.Empty
+			: $"Shop float is {shop.Currency.Describe(current, CurrencyDescriptionPatternType.ShortDecimal)}, which does not satisfy {(BelowThreshold ? "below" : "at least")} {shop.Currency.Describe(Threshold, CurrencyDescriptionPatternType.ShortDecimal)}.";
+		return satisfied;
+	}
+
+	internal static bool TryParseKey(string key, out EmploymentItemSelector? registerSelector)
+	{
+		registerSelector = null;
+		var values = ParseKeyValues(key, KeyPrefix);
+		if (values is null || !values.TryGetValue("register", out var selectorText))
+		{
+			return false;
+		}
+
+		registerSelector = ItemThresholdCondition.DecodeSelector(selectorText);
+		return true;
+	}
+
+	internal static string DescribeKey(string key)
+	{
+		return TryParseKey(key, out var selector)
+			? selector is null ? "all cash registers" : EmploymentItemSelectorResolver.Describe(selector)
+			: key;
+	}
+
+	private static Dictionary<string, string>? ParseKeyValues(string key, string prefix)
+	{
+		if (string.IsNullOrWhiteSpace(key) ||
+		    !key.StartsWith(prefix, StringComparison.InvariantCultureIgnoreCase))
+		{
+			return null;
+		}
+
+		return key.Split('|', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+		          .Skip(1)
+		          .Select(x => x.Split('=', 2, StringSplitOptions.TrimEntries))
+		          .Where(x => x.Length == 2)
+		          .ToDictionary(x => x[0], x => x[1], StringComparer.InvariantCultureIgnoreCase);
+	}
+}
+
+public sealed record WeatherLevelCondition(string WeatherKey) : IEmploymentTaskCondition
+{
+	private const string KeyPrefix = "weather:v1";
+
+	public EmploymentTaskConditionType ConditionType => EmploymentTaskConditionType.WeatherLevel;
+	public EmploymentAuthoritySet RequiredAuthority => EmploymentAuthoritySet.Empty;
+
+	public static string CreatePrecipitationKey(string precipitationSelector)
+	{
+		return $"{KeyPrefix}|kind=precip|level={Uri.EscapeDataString(precipitationSelector)}";
+	}
+
+	public static string CreateWindKey(WindLevel wind)
+	{
+		return $"{KeyPrefix}|kind=wind|level={wind}";
+	}
+
+	public bool IsSatisfied(IEmploymentTaskContext context, DateTimeOffset now, out string reason)
+	{
+		if (!TryParseKey(WeatherKey, out var kind, out var selector))
+		{
+			reason = "The weather condition key is invalid.";
+			return false;
+		}
+
+		var controller = context.Employer.EmploymentHostLocations()
+		                        .Select(x => x.WeatherController)
+		                        .FirstOrDefault(x => x is not null);
+		if (controller is null)
+		{
+			reason = $"{context.Employer.EmploymentHostName} does not have a weather controller at any host location.";
+			return false;
+		}
+
+		var weather = controller.CurrentWeatherEvent?.CountsAs ?? controller.CurrentWeatherEvent;
+		if (weather is null)
+		{
+			reason = "There is no current weather event.";
+			return false;
+		}
+
+		if (controller.ConsecutiveUnchangedPeriods != 0)
+		{
+			reason = $"Weather has not just changed; it has remained unchanged for {controller.ConsecutiveUnchangedPeriods:N0} period{(controller.ConsecutiveUnchangedPeriods == 1 ? string.Empty : "s")}.";
+			return false;
+		}
+
+		var satisfied = kind.EqualTo("precip")
+			? PrecipitationMatches(weather.Precipitation, selector)
+			: WindMatches(weather.Wind, selector);
+		reason = satisfied
+			? string.Empty
+			: $"Current weather is {weather.Precipitation.Describe()} with {weather.Wind.Describe()} wind.";
+		return satisfied;
+	}
+
+	internal static bool TryParseKey(string key, out string kind, out string selector)
+	{
+		kind = string.Empty;
+		selector = string.Empty;
+		var values = ParseKeyValues(key, KeyPrefix);
+		if (values is null ||
+		    !values.TryGetValue("kind", out var parsedKind) ||
+		    !values.TryGetValue("level", out var parsedSelector))
+		{
+			return false;
+		}
+
+		kind = parsedKind;
+		selector = parsedSelector;
+		selector = Uri.UnescapeDataString(selector);
+		return kind.EqualTo("precip") || kind.EqualTo("wind");
+	}
+
+	internal static string DescribeKey(string key)
+	{
+		if (!TryParseKey(key, out var kind, out var selector))
+		{
+			return key;
+		}
+
+		return kind.EqualTo("precip")
+			? $"precipitation {selector}"
+			: $"wind {selector}";
+	}
+
+	private static bool PrecipitationMatches(PrecipitationLevel current, string selector)
+	{
+		if (selector.EqualTo("rain") || selector.EqualTo("raining"))
+		{
+			return current.IsRaining();
+		}
+
+		if (selector.EqualTo("snow") || selector.EqualTo("snowing"))
+		{
+			return current.IsSnowing();
+		}
+
+		return selector.TryParseEnum<PrecipitationLevel>(out var level) && current == level;
+	}
+
+	private static bool WindMatches(WindLevel current, string selector)
+	{
+		return selector.TryParseEnum<WindLevel>(out var level) && current >= level;
+	}
+
+	private static Dictionary<string, string>? ParseKeyValues(string key, string prefix)
+	{
+		if (string.IsNullOrWhiteSpace(key) ||
+		    !key.StartsWith(prefix, StringComparison.InvariantCultureIgnoreCase))
+		{
+			return null;
+		}
+
+		return key.Split('|', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+		          .Skip(1)
+		          .Select(x => x.Split('=', 2, StringSplitOptions.TrimEntries))
+		          .Where(x => x.Length == 2)
+		          .ToDictionary(x => x[0], x => x[1], StringComparer.InvariantCultureIgnoreCase);
 	}
 }
 
@@ -1130,22 +1873,41 @@ public sealed class EmploymentTaskBoard : IEmploymentTaskBoard
 	public IReadOnlyCollection<IEmploymentScheduledTaskRule> ScheduledRules => _scheduledRules;
 	public IReadOnlyCollection<IEmploymentActiveTask> ActiveTasks => _activeTasks;
 
+	private bool IsAuthorised(ICharacter? actor, EmploymentAuthority authority)
+	{
+		return actor is null || actor.IsAdministrator() || _host.HasAuthority(actor, authority);
+	}
+
+	private static string ActorName(ICharacter? actor)
+	{
+		return actor?.HowSeen(actor, colour: false) ?? "No actor";
+	}
+
 	public IEmploymentScheduledTaskRule CreateScheduledRule(string name, string idempotencyKey,
 		IEnumerable<IEmploymentTaskCondition> conditions, EmploymentActionPlan actionPlan, TimeSpan cooldown,
 		ICharacter? authorisedBy)
 	{
-		if (authorisedBy is not null && !_host.HasAuthority(authorisedBy, EmploymentAuthority.CreateScheduledRules))
+		var conditionList = conditions.ToList();
+		if (!IsAuthorised(authorisedBy, EmploymentAuthority.CreateScheduledRules))
 		{
-			throw new InvalidOperationException($"{authorisedBy.HowSeen(authorisedBy, colour: false)} is not authorised to create scheduled task rules for {_host.EmploymentHostName}.");
+			throw new InvalidOperationException($"{ActorName(authorisedBy)} is not authorised to create scheduled task rules for {_host.EmploymentHostName}.");
 		}
 
-		if (authorisedBy is not null && actionPlan.RequiredAuthority.Authorities != EmploymentAuthority.None &&
-		    !_host.HasAuthority(authorisedBy, actionPlan.RequiredAuthority.Authorities))
+		var conditionAuthority = conditionList.Aggregate(EmploymentAuthority.None,
+			(current, condition) => current | condition.RequiredAuthority.Authorities);
+		if (conditionAuthority != EmploymentAuthority.None &&
+		    !IsAuthorised(authorisedBy, conditionAuthority))
 		{
-			throw new InvalidOperationException($"{authorisedBy.HowSeen(authorisedBy, colour: false)} is not authorised to create scheduled task rules with {actionPlan.RequiredAuthority.Authorities.DescribeEnum()} authority for {_host.EmploymentHostName}.");
+			throw new InvalidOperationException($"{ActorName(authorisedBy)} is not authorised to create scheduled task rules with {conditionAuthority.DescribeEnum()} condition authority for {_host.EmploymentHostName}.");
 		}
 
-		var rule = new EmploymentScheduledTaskRule(_host, name, idempotencyKey, conditions, actionPlan, cooldown);
+		if (actionPlan.RequiredAuthority.Authorities != EmploymentAuthority.None &&
+		    !IsAuthorised(authorisedBy, actionPlan.RequiredAuthority.Authorities))
+		{
+			throw new InvalidOperationException($"{ActorName(authorisedBy)} is not authorised to create scheduled task rules with {actionPlan.RequiredAuthority.Authorities.DescribeEnum()} authority for {_host.EmploymentHostName}.");
+		}
+
+		var rule = new EmploymentScheduledTaskRule(_host, name, idempotencyKey, conditionList, actionPlan, cooldown);
 		_scheduledRules.Add(rule);
 		_persistence?.SaveScheduledRule(rule);
 		_host.EmploymentRegister.Record(EmploymentRegisterEntryType.ScheduledRuleCreated, authorisedBy,
@@ -1157,15 +1919,15 @@ public sealed class EmploymentTaskBoard : IEmploymentTaskBoard
 	public IEmploymentActiveTask CreateActiveTask(string name, EmploymentActionPlan actionPlan, ICharacter? authorisedBy,
 		Guid? correlationId = null)
 	{
-		if (authorisedBy is not null && !_host.HasAuthority(authorisedBy, EmploymentAuthority.AssignTasks))
+		if (!IsAuthorised(authorisedBy, EmploymentAuthority.AssignTasks))
 		{
-			throw new InvalidOperationException($"{authorisedBy.HowSeen(authorisedBy, colour: false)} is not authorised to create tasks for {_host.EmploymentHostName}.");
+			throw new InvalidOperationException($"{ActorName(authorisedBy)} is not authorised to create tasks for {_host.EmploymentHostName}.");
 		}
 
-		if (authorisedBy is not null && actionPlan.RequiredAuthority.Authorities != EmploymentAuthority.None &&
-		    !_host.HasAuthority(authorisedBy, actionPlan.RequiredAuthority.Authorities))
+		if (actionPlan.RequiredAuthority.Authorities != EmploymentAuthority.None &&
+		    !IsAuthorised(authorisedBy, actionPlan.RequiredAuthority.Authorities))
 		{
-			throw new InvalidOperationException($"{authorisedBy.HowSeen(authorisedBy, colour: false)} is not authorised to create tasks with {actionPlan.RequiredAuthority.Authorities.DescribeEnum()} authority for {_host.EmploymentHostName}.");
+			throw new InvalidOperationException($"{ActorName(authorisedBy)} is not authorised to create tasks with {actionPlan.RequiredAuthority.Authorities.DescribeEnum()} authority for {_host.EmploymentHostName}.");
 		}
 
 		var task = new EmploymentActiveTask(_host, name, actionPlan, correlationId ?? Guid.NewGuid(), _persistence);
@@ -1179,9 +1941,9 @@ public sealed class EmploymentTaskBoard : IEmploymentTaskBoard
 
 	public bool CancelActiveTask(IEmploymentActiveTask task, ICharacter? cancelledBy, string reason)
 	{
-		if (cancelledBy is not null && !_host.HasAuthority(cancelledBy, EmploymentAuthority.CancelTasks))
+		if (!IsAuthorised(cancelledBy, EmploymentAuthority.CancelTasks))
 		{
-			throw new InvalidOperationException($"{cancelledBy.HowSeen(cancelledBy, colour: false)} is not authorised to cancel tasks for {_host.EmploymentHostName}.");
+			throw new InvalidOperationException($"{ActorName(cancelledBy)} is not authorised to cancel tasks for {_host.EmploymentHostName}.");
 		}
 
 		if (task is not EmploymentActiveTask concrete || !_activeTasks.Contains(task))
@@ -1202,44 +1964,133 @@ public sealed class EmploymentTaskBoard : IEmploymentTaskBoard
 		return true;
 	}
 
+	public bool CancelScheduledRule(IEmploymentScheduledTaskRule rule, ICharacter? cancelledBy, string reason)
+	{
+		if (!IsAuthorised(cancelledBy, EmploymentAuthority.ModifyScheduledRules))
+		{
+			throw new InvalidOperationException($"{ActorName(cancelledBy)} is not authorised to cancel scheduled task rules for {_host.EmploymentHostName}.");
+		}
+
+		if (rule is not EmploymentScheduledTaskRule concrete || !_scheduledRules.Contains(rule))
+		{
+			return false;
+		}
+
+		reason = string.IsNullOrWhiteSpace(reason) ? "Cancelled by a manager." : reason.Trim();
+		_scheduledRules.Remove(rule);
+		_persistence?.DeleteScheduledRule(concrete);
+		_host.EmploymentRegister.Record(EmploymentRegisterEntryType.ScheduledRuleCancelled, cancelledBy,
+			$"Cancelled scheduled task rule {rule.Name}: {reason}");
+		_host.DebugEmployment($"Cancelled scheduled task rule {rule.Name}: {reason}", cancelledBy?.Gameworld);
+		return true;
+	}
+
+	public bool PauseScheduledRule(IEmploymentScheduledTaskRule rule, ICharacter? pausedBy, string reason)
+	{
+		if (!IsAuthorised(pausedBy, EmploymentAuthority.ModifyScheduledRules))
+		{
+			throw new InvalidOperationException($"{ActorName(pausedBy)} is not authorised to pause scheduled task rules for {_host.EmploymentHostName}.");
+		}
+
+		if (rule is not EmploymentScheduledTaskRule concrete || !_scheduledRules.Contains(rule))
+		{
+			return false;
+		}
+
+		if (concrete.Status == EmploymentScheduledRuleStatus.Paused)
+		{
+			return true;
+		}
+
+		reason = string.IsNullOrWhiteSpace(reason) ? "Paused by a manager." : reason.Trim();
+		concrete.Pause();
+		_persistence?.SaveScheduledRuleState(concrete);
+		_host.EmploymentRegister.Record(EmploymentRegisterEntryType.ScheduledRulePaused, pausedBy,
+			$"Paused scheduled task rule {rule.Name}: {reason}");
+		_host.DebugEmployment($"Paused scheduled task rule {rule.Name}: {reason}", pausedBy?.Gameworld);
+		return true;
+	}
+
+	public bool ResumeScheduledRule(IEmploymentScheduledTaskRule rule, ICharacter? resumedBy, string reason)
+	{
+		if (!IsAuthorised(resumedBy, EmploymentAuthority.ModifyScheduledRules))
+		{
+			throw new InvalidOperationException($"{ActorName(resumedBy)} is not authorised to resume scheduled task rules for {_host.EmploymentHostName}.");
+		}
+
+		if (rule is not EmploymentScheduledTaskRule concrete || !_scheduledRules.Contains(rule))
+		{
+			return false;
+		}
+
+		if (concrete.Status == EmploymentScheduledRuleStatus.Active)
+		{
+			return true;
+		}
+
+		reason = string.IsNullOrWhiteSpace(reason) ? "Resumed by a manager." : reason.Trim();
+		concrete.Resume();
+		_persistence?.SaveScheduledRuleState(concrete);
+		_host.EmploymentRegister.Record(EmploymentRegisterEntryType.ScheduledRuleResumed, resumedBy,
+			$"Resumed scheduled task rule {rule.Name}: {reason}");
+		_host.DebugEmployment($"Resumed scheduled task rule {rule.Name}: {reason}", resumedBy?.Gameworld);
+		return true;
+	}
+
 	public IReadOnlyCollection<IEmploymentActiveTask> EvaluateScheduledRules(IEmploymentTaskContext context, DateTimeOffset now)
 	{
 		var spawned = new List<IEmploymentActiveTask>();
 		foreach (var rule in _scheduledRules.OfType<EmploymentScheduledTaskRule>())
 		{
-			_host.EmploymentRegister.Record(EmploymentRegisterEntryType.ScheduledRuleEvaluated, null,
-				$"Evaluated scheduled task rule {rule.Name}.");
-			_host.DebugEmployment($"Evaluating scheduled task rule {rule.Name}.");
-			if (!rule.CanSpawn(context, now, out var spawnReason))
-			{
-				_host.DebugEmployment($"Scheduled task rule {rule.Name} did not spawn: {spawnReason}");
-				continue;
-			}
-
-			if (_activeTasks.OfType<EmploymentActiveTask>().Any(x =>
-				    x.IdempotencyKey.Equals(rule.IdempotencyKey, StringComparison.InvariantCultureIgnoreCase) &&
-				    x.Status is EmploymentTaskStatus.Pending or EmploymentTaskStatus.Assigned or EmploymentTaskStatus.InProgress or EmploymentTaskStatus.Blocked))
-			{
-				_host.DebugEmployment(
-					$"Scheduled task rule {rule.Name} did not spawn because an active task with idempotency key {rule.IdempotencyKey} already exists.");
-				continue;
-			}
-
-			var task = new EmploymentActiveTask(_host, rule.Name, rule.ActionPlan, Guid.NewGuid(), _persistence)
-			{
-				IdempotencyKey = rule.IdempotencyKey
-			};
-			_activeTasks.Add(task);
-			_persistence?.SaveActiveTask(task);
-			rule.MarkSpawned(now);
-			_persistence?.SaveScheduledRuleState(rule);
-			_host.EmploymentRegister.Record(EmploymentRegisterEntryType.ActiveTaskCreated, null,
-				$"Spawned active task {rule.Name} from scheduled rule.", task.CorrelationId);
-			_host.DebugEmployment($"Scheduled task rule {rule.Name} spawned active task {task.CorrelationId}.");
-			spawned.Add(task);
+			spawned.AddRange(EvaluateScheduledRule(rule, context, now));
 		}
 
 		return spawned;
+	}
+
+	public IReadOnlyCollection<IEmploymentActiveTask> EvaluateScheduledRule(IEmploymentScheduledTaskRule rule,
+		IEmploymentTaskContext context, DateTimeOffset now)
+	{
+		if (rule is not EmploymentScheduledTaskRule concrete || !_scheduledRules.Contains(rule))
+		{
+			return [];
+		}
+
+		_host.EmploymentRegister.Record(EmploymentRegisterEntryType.ScheduledRuleEvaluated, null,
+			$"Evaluated scheduled task rule {concrete.Name}.");
+		_host.DebugEmployment($"Evaluating scheduled task rule {concrete.Name}.");
+		if (!concrete.CanSpawn(context, now, out var spawnReason))
+		{
+			_host.DebugEmployment($"Scheduled task rule {concrete.Name} did not spawn: {spawnReason}");
+			return [];
+		}
+
+		if (HasBlockingActiveTask(concrete.IdempotencyKey))
+		{
+			_host.DebugEmployment(
+				$"Scheduled task rule {concrete.Name} did not spawn because an active task with idempotency key {concrete.IdempotencyKey} already exists.");
+			return [];
+		}
+
+		var task = new EmploymentActiveTask(_host, concrete.Name, concrete.ActionPlan, Guid.NewGuid(), _persistence)
+		{
+			IdempotencyKey = concrete.IdempotencyKey
+		};
+		_activeTasks.Add(task);
+		_persistence?.SaveActiveTask(task);
+		concrete.MarkSpawned(now);
+		_persistence?.SaveScheduledRuleState(concrete);
+		_host.EmploymentRegister.Record(EmploymentRegisterEntryType.ActiveTaskCreated, null,
+			$"Spawned active task {concrete.Name} from scheduled rule.", task.CorrelationId);
+		_host.DebugEmployment($"Scheduled task rule {concrete.Name} spawned active task {task.CorrelationId}.");
+		return [task];
+	}
+
+	internal bool HasBlockingActiveTask(string idempotencyKey)
+	{
+		return _activeTasks.OfType<EmploymentActiveTask>().Any(x =>
+			x.IdempotencyKey.Equals(idempotencyKey, StringComparison.InvariantCultureIgnoreCase) &&
+			x.Status is EmploymentTaskStatus.Pending or EmploymentTaskStatus.Assigned or EmploymentTaskStatus.InProgress or EmploymentTaskStatus.Blocked);
 	}
 }
 
@@ -1261,7 +2112,7 @@ public sealed class EmploymentScheduledTaskRule : IEmploymentScheduledTaskRule
 
 	internal EmploymentScheduledTaskRule(Guid id, IEmploymentHost employer, string name, string idempotencyKey,
 		IEnumerable<IEmploymentTaskCondition> conditions, EmploymentActionPlan actionPlan, TimeSpan cooldown,
-		DateTimeOffset? lastSpawnedAt)
+		DateTimeOffset? lastSpawnedAt, EmploymentScheduledRuleStatus status = EmploymentScheduledRuleStatus.Active)
 	{
 		Id = id;
 		Employer = employer;
@@ -1271,6 +2122,7 @@ public sealed class EmploymentScheduledTaskRule : IEmploymentScheduledTaskRule
 		ActionPlan = actionPlan;
 		Cooldown = cooldown;
 		LastSpawnedAt = lastSpawnedAt;
+		Status = status;
 	}
 
 	public Guid Id { get; }
@@ -1279,11 +2131,18 @@ public sealed class EmploymentScheduledTaskRule : IEmploymentScheduledTaskRule
 	public string IdempotencyKey { get; }
 	public IReadOnlyCollection<IEmploymentTaskCondition> Conditions => _conditions;
 	public EmploymentActionPlan ActionPlan { get; }
+	public EmploymentScheduledRuleStatus Status { get; private set; } = EmploymentScheduledRuleStatus.Active;
 	public TimeSpan Cooldown { get; }
 	public DateTimeOffset? LastSpawnedAt { get; private set; }
 
 	public bool CanSpawn(IEmploymentTaskContext context, DateTimeOffset now, out string reason)
 	{
+		if (Status == EmploymentScheduledRuleStatus.Paused)
+		{
+			reason = "Rule is paused.";
+			return false;
+		}
+
 		if (LastSpawnedAt.HasValue && now - LastSpawnedAt.Value < Cooldown)
 		{
 			reason = "Rule is still inside its cooldown window.";
@@ -1305,6 +2164,16 @@ public sealed class EmploymentScheduledTaskRule : IEmploymentScheduledTaskRule
 	public void MarkSpawned(DateTimeOffset now)
 	{
 		LastSpawnedAt = now;
+	}
+
+	public void Pause()
+	{
+		Status = EmploymentScheduledRuleStatus.Paused;
+	}
+
+	public void Resume()
+	{
+		Status = EmploymentScheduledRuleStatus.Active;
 	}
 }
 

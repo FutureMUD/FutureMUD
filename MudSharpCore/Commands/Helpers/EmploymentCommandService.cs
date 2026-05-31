@@ -62,14 +62,41 @@ internal sealed class EmploymentHostResolver : IEmploymentHostResolver
 
 internal sealed class EmploymentCommandService
 {
+	private const EmploymentAuthority ManagerAliasHelpAuthorities =
+		EmploymentAuthority.ViewEmployees |
+		EmploymentAuthority.HireEmployees |
+		EmploymentAuthority.FireEmployees |
+		EmploymentAuthority.CreateJobOpenings |
+		EmploymentAuthority.ModifyJobOpenings |
+		EmploymentAuthority.SetPayWithinBand |
+		EmploymentAuthority.AssignTasks |
+		EmploymentAuthority.CancelTasks |
+		EmploymentAuthority.CreateScheduledRules |
+		EmploymentAuthority.ModifyScheduledRules |
+		EmploymentAuthority.CreateManagerGoals |
+		EmploymentAuthority.ModifyManagerGoals |
+		EmploymentAuthority.ApprovePurchases |
+		EmploymentAuthority.UseStoreAccount |
+		EmploymentAuthority.WithdrawBusinessCash |
+		EmploymentAuthority.DepositBusinessCash |
+		EmploymentAuthority.ManageStockRules |
+		EmploymentAuthority.ManageCraftRules |
+		EmploymentAuthority.AdjustPrices |
+		EmploymentAuthority.PayTaxes |
+		EmploymentAuthority.ModerateHostBoard |
+		EmploymentAuthority.ManagePayroll;
+
 	private readonly IEmploymentHostResolver _resolver;
 	private readonly EmploymentTaskAuthoringService _taskAuthoring;
+	private readonly EmploymentScheduledRuleAuthoringService _scheduledRuleAuthoring;
 
 	public EmploymentCommandService(IEmploymentHostResolver? resolver = null,
-		EmploymentTaskAuthoringService? taskAuthoring = null)
+		EmploymentTaskAuthoringService? taskAuthoring = null,
+		EmploymentScheduledRuleAuthoringService? scheduledRuleAuthoring = null)
 	{
 		_resolver = resolver ?? new EmploymentHostResolver();
 		_taskAuthoring = taskAuthoring ?? new EmploymentTaskAuthoringService();
+		_scheduledRuleAuthoring = scheduledRuleAuthoring ?? new EmploymentScheduledRuleAuthoringService(_taskAuthoring);
 	}
 
 	public IEmploymentHost? ResolveHost(IFuturemud gameworld, string hostType, string identifier, out string error)
@@ -159,6 +186,11 @@ internal sealed class EmploymentCommandService
 			case "task":
 				HandleTasks(actor, host, input);
 				return;
+			case "conditions":
+			case "condition":
+			case "conditioncatalog":
+				actor.OutputHandler.Send(_scheduledRuleAuthoring.RenderAvailableConditions(actor, input.SafeRemainingArgument));
+				return;
 			case "rules":
 			case "rule":
 			case "scheduled":
@@ -196,6 +228,7 @@ internal sealed class EmploymentCommandService
 			"applications" or "application" or "apps" or
 			"payroll" or "payables" or "wages" or
 			"tasks" or "task" or
+			"conditions" or "condition" or "conditioncatalog" or
 			"rules" or "rule" or "scheduled" or "schedule" or
 			"goals" or "goal" or
 			"register" or "audit" or
@@ -226,6 +259,29 @@ internal sealed class EmploymentCommandService
 	public bool CanViewOperational(ICharacter actor, IEmploymentHost host)
 	{
 		return actor.IsAdministrator() || ActiveContractFor(actor, host) is not null;
+	}
+
+	public static bool CanViewManagerAliasHelp(ICharacter actor, IEmploymentHost? host, bool subsystemManagerAccess = false)
+	{
+		if (actor.IsAdministrator() || subsystemManagerAccess)
+		{
+			return true;
+		}
+
+		if (host is null)
+		{
+			return false;
+		}
+
+		var contract = ActiveContractFor(actor, host);
+		if (contract?.Role is EmploymentRole.Manager or EmploymentRole.Proprietor)
+		{
+			return true;
+		}
+
+		return Enum.GetValues<EmploymentAuthority>()
+		           .Where(x => x != EmploymentAuthority.None && ManagerAliasHelpAuthorities.HasFlag(x))
+		           .Any(x => host.HasAuthority(actor, x));
 	}
 
 	public bool CanViewOpenings(ICharacter actor, IEmploymentHost host)
@@ -831,7 +887,7 @@ internal sealed class EmploymentCommandService
 			var index = 1;
 			foreach (var rule in host.TaskBoard.ScheduledRules.OrderBy(x => x.Name))
 			{
-				sb.AppendLine($"\t#{index++.ToString("N0", actor)} - {rule.Name.ColourName()} - {rule.Conditions.Count.ToString("N0", actor)} condition{(rule.Conditions.Count == 1 ? string.Empty : "s")} - {rule.ActionPlan.Steps.Count.ToString("N0", actor)} step{(rule.ActionPlan.Steps.Count == 1 ? string.Empty : "s")}");
+				sb.AppendLine($"\t#{index++.ToString("N0", actor)} - {rule.Name.ColourName()} - {rule.Status.DescribeEnum().ColourValue()} - {rule.Conditions.Count.ToString("N0", actor)} condition{(rule.Conditions.Count == 1 ? string.Empty : "s")} - {rule.ActionPlan.Steps.Count.ToString("N0", actor)} step{(rule.ActionPlan.Steps.Count == 1 ? string.Empty : "s")}");
 			}
 		}
 
@@ -899,12 +955,17 @@ internal sealed class EmploymentCommandService
 	{
 		var sb = new StringBuilder();
 		sb.AppendLine($"Scheduled Employment Rule - {rule.Name.ColourName()}".GetLineWithTitle(actor, Telnet.Cyan, Telnet.BoldWhite));
+		sb.AppendLine($"Status: {rule.Status.DescribeEnum().ColourValue()}");
 		sb.AppendLine($"Cooldown: {rule.Cooldown.Describe(actor).ColourValue()}");
-		sb.AppendLine($"Last Spawned: {rule.LastSpawnedAt?.ToString("g", actor).ColourValue() ?? "never".ColourError()}");
+		sb.AppendLine($"Last Spawned: {(rule.LastSpawnedAt.HasValue ? EmploymentClock.DescribeInstant(rule.Employer, rule.LastSpawnedAt.Value, actor).ColourValue() : "never".ColourError())}");
 		sb.AppendLine($"Idempotency Key: {rule.IdempotencyKey.ColourValue()}");
-		sb.AppendLine($"Conditions: {rule.Conditions.Count.ToString("N0", actor).ColourValue()}");
-		sb.AppendLine($"Required Authority: {rule.ActionPlan.RequiredAuthority.Authorities.DescribeEnum().ColourName()}");
+		var conditionAuthority = rule.Conditions.Aggregate(EmploymentAuthority.None,
+			(current, condition) => current | condition.RequiredAuthority.Authorities);
+		sb.AppendLine($"Condition Authority: {(conditionAuthority == EmploymentAuthority.None ? "none".ColourValue() : conditionAuthority.DescribeEnum().ColourName())}");
+		sb.AppendLine($"Action Authority: {rule.ActionPlan.RequiredAuthority.Authorities.DescribeEnum().ColourName()}");
 		sb.AppendLine($"Required AI Capabilities: {DescribeCapabilities(rule.ActionPlan.RequiredCapabilities)}");
+		sb.AppendLine();
+		EmploymentScheduledRuleAuthoringService.AppendConditionList(sb, actor, rule.Employer, rule.Conditions.ToList());
 		sb.AppendLine();
 		sb.AppendLine("Steps:");
 		AppendActionPlanSteps(sb, actor, rule.ActionPlan, null, null);
@@ -1431,6 +1492,17 @@ internal sealed class EmploymentCommandService
 			case "action":
 				actor.OutputHandler.Send(_taskAuthoring.RenderAvailableActions(actor, input.SafeRemainingArgument));
 				return;
+			case "conditions":
+			case "condition":
+			case "conditioncatalog":
+				actor.OutputHandler.Send(_scheduledRuleAuthoring.RenderAvailableConditions(actor, input.SafeRemainingArgument));
+				return;
+			case "rule":
+			case "rules":
+			case "scheduled":
+			case "schedule":
+				HandleRules(actor, host, input);
+				return;
 			case "diagnose":
 			case "diagnostic":
 			case "why":
@@ -1513,12 +1585,224 @@ internal sealed class EmploymentCommandService
 		{
 			case "":
 			case "list":
-			case "show":
 				SendOperationalView(actor, host, RenderTasks);
+				return;
+			case "show":
+			case "view":
+			case "detail":
+			case "info":
+				if (input.IsFinished)
+				{
+					SendOperationalView(actor, host, RenderTasks);
+					return;
+				}
+
+				SendOperationalView(actor, host,
+					(viewer, employmentHost) => RenderTaskDetail(viewer, employmentHost, input.SafeRemainingArgument));
+				return;
+			case "draft":
+				HandleRuleDraft(actor, host, input);
+				return;
+			case "condition":
+				_scheduledRuleAuthoring.TryAddCondition(actor, host, input, out var conditionMessage);
+				actor.OutputHandler.Send(conditionMessage);
+				return;
+			case "step":
+				_scheduledRuleAuthoring.TryAddStep(actor, host, input, out var stepMessage);
+				actor.OutputHandler.Send(stepMessage);
+				return;
+			case "create":
+			case "new":
+				_scheduledRuleAuthoring.TryCreateOneShotRule(actor, host, input, out _, out var createMessage);
+				actor.OutputHandler.Send(createMessage);
+				return;
+			case "conditions":
+			case "conditioncatalog":
+			case "catalogue":
+			case "catalog":
+				actor.OutputHandler.Send(_scheduledRuleAuthoring.RenderAvailableConditions(actor, input.SafeRemainingArgument));
+				return;
+			case "diagnose":
+			case "diagnostic":
+			case "why":
+				if (input.IsFinished)
+				{
+					actor.OutputHandler.Send("Which scheduled employment rule do you want to diagnose?");
+					return;
+				}
+
+				var diagnoseSelector = input.PopSpeech();
+				var diagnoseManualKey = PopOptionalManualKey(input);
+				SendOperationalView(actor, host,
+					(viewer, employmentHost) => _scheduledRuleAuthoring.RenderDiagnostics(viewer, employmentHost,
+						diagnoseSelector, diagnoseManualKey));
+				return;
+			case "evaluate":
+			case "eval":
+			case "run":
+			case "trigger":
+				if (input.IsFinished)
+				{
+					actor.OutputHandler.Send("Which scheduled employment rule do you want to evaluate? Use a rule number/name or all.");
+					return;
+				}
+
+				var evaluateSelector = input.PopSpeech();
+				var evaluateManualKey = PopOptionalManualKey(input);
+				_scheduledRuleAuthoring.TryEvaluate(actor, host, evaluateSelector, evaluateManualKey, out var evaluateMessage);
+				actor.OutputHandler.Send(evaluateMessage);
+				return;
+			case "pause":
+			case "disable":
+			case "suspend":
+				if (input.IsFinished)
+				{
+					actor.OutputHandler.Send("Which scheduled employment rule do you want to pause?");
+					return;
+				}
+
+				var pauseSelector = input.PopSpeech();
+				var pauseReason = input.IsFinished ? "Paused by a manager." : input.SafeRemainingArgument;
+				_scheduledRuleAuthoring.TryPauseRule(actor, host, pauseSelector, pauseReason, out var pauseMessage);
+				actor.OutputHandler.Send(pauseMessage);
+				return;
+			case "resume":
+			case "enable":
+			case "unpause":
+				if (input.IsFinished)
+				{
+					actor.OutputHandler.Send("Which scheduled employment rule do you want to resume?");
+					return;
+				}
+
+				var resumeSelector = input.PopSpeech();
+				var resumeReason = input.IsFinished ? "Resumed by a manager." : input.SafeRemainingArgument;
+				_scheduledRuleAuthoring.TryResumeRule(actor, host, resumeSelector, resumeReason, out var resumeMessage);
+				actor.OutputHandler.Send(resumeMessage);
+				return;
+			case "cancel":
+			case "delete":
+			case "remove":
+				if (input.IsFinished)
+				{
+					actor.OutputHandler.Send("Which scheduled employment rule do you want to cancel?");
+					return;
+				}
+
+				var cancelSelector = input.PopSpeech();
+				var reason = input.IsFinished ? "Cancelled by a manager." : input.SafeRemainingArgument;
+				_scheduledRuleAuthoring.TryCancelRule(actor, host, cancelSelector, reason, out var cancelMessage);
+				actor.OutputHandler.Send(cancelMessage);
 				return;
 		}
 
 		actor.OutputHandler.Send(EmploymentHelp.SubstituteANSIColour());
+	}
+
+	private void HandleRuleDraft(ICharacter actor, IEmploymentHost host, StringStack input)
+	{
+		var draftCommand = input.PopSpeech().CollapseString().ToLowerInvariant();
+		switch (draftCommand)
+		{
+			case "":
+			case "show":
+			case "view":
+				actor.OutputHandler.Send(_scheduledRuleAuthoring.RenderDraft(actor, host));
+				return;
+			case "new":
+			case "create":
+				_scheduledRuleAuthoring.TryStartDraft(actor, host, input.SafeRemainingArgument, out var newMessage);
+				actor.OutputHandler.Send(newMessage);
+				return;
+			case "copy":
+			case "clone":
+			case "from":
+				if (input.IsFinished)
+				{
+					actor.OutputHandler.Send("Which scheduled employment rule do you want to copy into a draft?");
+					return;
+				}
+
+				var copySelector = input.PopSpeech();
+				var copyName = input.IsFinished ? null : input.SafeRemainingArgument;
+				_scheduledRuleAuthoring.TryCopyRuleToDraft(actor, host, copySelector, copyName, out var copyMessage);
+				actor.OutputHandler.Send(copyMessage);
+				return;
+			case "key":
+			case "idempotency":
+				_scheduledRuleAuthoring.TrySetDraftKey(actor, host, input.SafeRemainingArgument, out var keyMessage);
+				actor.OutputHandler.Send(keyMessage);
+				return;
+			case "cooldown":
+			case "window":
+				_scheduledRuleAuthoring.TrySetDraftCooldown(actor, host, input.SafeRemainingArgument, out var cooldownMessage);
+				actor.OutputHandler.Send(cooldownMessage);
+				return;
+			case "condition":
+				_scheduledRuleAuthoring.TryAddCondition(actor, host, input, out var conditionMessage);
+				actor.OutputHandler.Send(conditionMessage);
+				return;
+			case "step":
+			case "action":
+				_scheduledRuleAuthoring.TryAddStep(actor, host, input, out var stepMessage);
+				actor.OutputHandler.Send(stepMessage);
+				return;
+			case "removecondition":
+			case "removecond":
+			case "deletecondition":
+			case "deletecond":
+				if (input.IsFinished || !int.TryParse(input.PopSpeech(), out var conditionNumber))
+				{
+					actor.OutputHandler.Send("Which condition do you want to remove from your scheduled rule draft?");
+					return;
+				}
+
+				_scheduledRuleAuthoring.TryRemoveCondition(actor, host, conditionNumber, out var removeConditionMessage);
+				actor.OutputHandler.Send(removeConditionMessage);
+				return;
+			case "removestep":
+			case "removeaction":
+			case "deleteaction":
+			case "deletestep":
+			case "remove":
+				if (input.IsFinished || !int.TryParse(input.PopSpeech(), out var stepNumber))
+				{
+					actor.OutputHandler.Send("Which action step do you want to remove from your scheduled rule draft?");
+					return;
+				}
+
+				_scheduledRuleAuthoring.TryRemoveStep(actor, host, stepNumber, out var removeStepMessage);
+				actor.OutputHandler.Send(removeStepMessage);
+				return;
+			case "discard":
+			case "cancel":
+				_scheduledRuleAuthoring.TryDiscardDraft(actor, host, out var discardMessage);
+				actor.OutputHandler.Send(discardMessage);
+				return;
+			case "finalise":
+			case "finalize":
+			case "finish":
+				_scheduledRuleAuthoring.TryFinaliseDraft(actor, host, out _, out var finaliseMessage);
+				actor.OutputHandler.Send(finaliseMessage);
+				return;
+		}
+
+		actor.OutputHandler.Send(EmploymentHelp.SubstituteANSIColour());
+	}
+
+	private static string? PopOptionalManualKey(StringStack input)
+	{
+		if (input.IsFinished)
+		{
+			return null;
+		}
+
+		if (!input.PopSpeech().EqualTo("manual"))
+		{
+			return null;
+		}
+
+		return input.SafeRemainingArgument.Trim();
 	}
 
 	private void HandleGoals(ICharacter actor, IEmploymentHost host, StringStack input)
@@ -2163,49 +2447,52 @@ internal sealed class EmploymentCommandService
 
 	public const string EmploymentHelp = @"You can use the following options with the employment command:
 
+	#3employment <host type> <host> <subcommand>#0 - targets a specific employment host
+
+Employment records:
+
 	#3employment <host type> <host> status#0 - shows employment status
 	#3employment <host type> <host> contracts#0 - lists employment contracts
 	#3employment <host type> <host> contracts fire <##>#0 - terminates an active employment contract
-	#3employment <host type> <host> contracts delegate <##> show#0 - shows delegated authority for a contract
-	#3employment <host type> <host> contracts delegate <##> grant|revoke <authority...>#0 - grants or revokes delegated authority
-	#3employment <host type> <host> contracts delegate <##> set <none|all|authority...>#0 - replaces delegated authority
+	#3employment <host type> <host> contracts delegate <##> show|grant|revoke|set ...#0 - views or changes delegated authority
 	#3employment <host type> <host> openings#0 - lists visible job openings
 	#3employment <host type> <host> openings create <role> <hourly rate> [positions]#0 - creates an NPC-facing opening
 	#3employment <host type> <host> applications#0 - lists applications
-	#3employment <host type> <host> applications accept <##>#0 - accepts a pending application into an active contract
-	#3employment <host type> <host> applications reject <##> <reason>#0 - rejects a pending application
+	#3employment <host type> <host> applications accept|reject <##> [reason]#0 - accepts or rejects a pending application
 	#3employment <host type> <host> payroll#0 - lists wage payables and overdue days
-	#3employment <host type> <host> payroll run#0 - accrues due wage payables
-	#3employment <host type> <host> payroll settle <##|all> [reason]#0 - settles outstanding wage payables
-	#3employment <host type> <host> payroll claim <##|all>#0 - claims your ready cash wage payables
+	#3employment <host type> <host> payroll run|settle|claim ...#0 - accrues, settles, or claims employment wage payables
+
+Active tasks:
+
 	#3employment <host type> <host> tasks#0 - lists scheduled rules and active tasks
-	#3employment <host type> <host> tasks show <##|name>#0 - shows detailed task or scheduled-rule steps
+	#3employment <host type> <host> tasks show <##|name>#0 - shows an active task with its step details
 	#3employment <host type> <host> tasks diagnose#0 - explains why active employees can or cannot auto-claim tasks
 	#3employment <host type> <host> tasks cancel <##|name> [reason]#0 - cancels a pending, assigned, in-progress, or blocked active task
 	#3employment <host type> <host> tasks create <name> <action> [then <action> ...]#0 - creates and finalises a task in one command
-	#3employment <host type> <host> tasks draft new <name>#0 - starts a transient active task draft
-	#3employment <host type> <host> tasks draft show#0 - reviews your current draft
-	#3employment <host type> <host> tasks draft rename <name>#0 - renames your current draft
-	#3employment <host type> <host> tasks draft remove <##>#0 - removes a draft step
-	#3employment <host type> <host> tasks draft discard#0 - discards your current draft
-	#3employment <host type> <host> tasks actions [all|category|action]#0 - shows task step actions, catalogue status, and syntax
-	#3employment <host type> <host> tasks step getid <quantity> <prototype ids|*item ids...> from <here|cell ids...>#0 - adds a prototype-id or specific-item retrieval step
-	#3employment <host type> <host> tasks step gettag <quantity> <&tag id|&tag name> from <here|cell ids...>#0 - adds a verified tagged-item retrieval step
-	#3employment <host type> <host> tasks step commodity <weight> <material> [tag <&tag id|&tag name>] from <here|cell ids...> [char <name>=<value> ...]#0 - adds a commodity retrieval step
-	#3employment <host type> <host> tasks step deliver to <here|cell id> [container <prototype id|*item id|&tag|keyword>]#0 - adds a delivery step
-	#3employment <host type> <host> tasks step load all into <prototype id|*item id|&tag|keyword> [at <here|cell id>]#0 - loads carried task items into a container or cargo projection
-	#3employment <host type> <host> tasks step unload <prototype id|*item id|&tag|keyword> [at <here|cell id>]#0 - unloads task-loaded items from a container or cargo projection
-	#3employment <host type> <host> tasks step return container <prototype id|*item id|&tag|keyword> to <here|cell id> [container <prototype id|*item id|&tag|keyword>]#0 - returns a reusable task container
-	#3employment <host type> <host> tasks step vehicle cargo <vehicle id|exterior item id> <cargo id|cargo name>#0 - validates and records a vehicle cargo-space selection
-	#3employment <host type> <host> tasks step move|board|command|purchase|bankdeposit|bankwithdraw|storepay|craft|report|authorise|reserve|release|select|estimate|route ...#0 - adds catalogue steps; bank steps require prior authorise/reserve and supported shop finance
-	#3employment <host type> <host> tasks draft finalise#0 - creates the active task through the employment task board
+	#3employment <host type> <host> tasks draft new|show|rename|remove|discard|finalise ...#0 - drafts and finalises active tasks
+	#3employment <host type> <host> tasks step <action syntax>#0 - adds an action to your current active-task draft
+	#3employment <host type> <host> tasks actions [all|category|action]#0 - shows task action catalogue entries, status, and syntax
+
+Scheduled rules:
+
+	#3employment <host type> <host> tasks rule show <##|name>#0 - shows a scheduled rule with conditions and planned steps
+	#3employment <host type> <host> tasks rule create <name> cooldown <timespan> when <condition> [and <condition> ...] do <action> [then <action> ...]#0 - creates a scheduled rule in one command
+	#3employment <host type> <host> tasks rule draft new|copy|show|key|cooldown|removecondition|removestep|discard|finalise ...#0 - drafts and finalises scheduled rules
+	#3employment <host type> <host> tasks rule condition <condition>#0 - adds a condition to the current scheduled-rule draft
+	#3employment <host type> <host> tasks rule step <action syntax>#0 - adds an action step to the current scheduled-rule draft
+	#3employment <host type> <host> tasks rule diagnose <##|name> [manual <key>]#0 - evaluates rule blockers without spawning
+	#3employment <host type> <host> tasks rule evaluate <##|name|all> [manual <key>]#0 - manually evaluates scheduled rules for testing
+	#3employment <host type> <host> tasks rule pause|resume <##|name> [reason]#0 - pauses or resumes a scheduled rule
+	#3employment <host type> <host> tasks rule cancel <##|name> [reason]#0 - cancels and removes a scheduled rule
+	#3employment <host type> <host> tasks conditions [all|category|condition]#0 - shows scheduled-rule condition syntax and authority
+
+Communication and audit:
+
 	#3employment <host type> <host> goals#0 - lists manager goals
 	#3employment <host type> <host> register#0 - shows recent employment register entries
 	#3employment <host type> <host> employmentledger|empledger#0 - shows recent employment ledger entries
-	#3employment <host type> <host> board#0 - lists employment board posts
-	#3employment <host type> <host> board read <##>#0 - reads an employment board post
-	#3employment <host type> <host> board write <title>#0 - writes an employment board post
+	#3employment <host type> <host> board [read <##>|write <title>]#0 - uses the staff communication board
 
 Host types are #3shop#0, #3auction#0, #3arena#0, #3bank#0, #3stable#0, and #3hotel#0. Hotel hosts are resolved by property id or name.
-Staff boards are only for employee communication; active tasks, scheduled tasks, and manager goals are routed through the employment task board. Item selectors use bare prototype ids, #3*item ids#0 for specific live items, #3&tag#0 for verified tags, and bare text for a visible keyword target. Logistics load, unload, container return, and vehicle cargo-selection actions are executable inventory-plan-backed task actions. Shop bank deposit/withdraw task steps are executable through employer virtual cash and linked native bank accounts after #3authorise#0/#3reserve#0 steps; audit-only task actions record employment evidence but do not mutate purchasing, store-account, craft, pricing, or administrative subsystems.";
+Staff boards are only for employee communication; active tasks, scheduled tasks, and manager goals are routed through the employment task board. Use #3tasks actions#0 and #3tasks conditions#0 for the full action and condition catalogues. Item selectors use bare prototype ids, #3*item ids#0 for specific live items, #3&tag#0 for verified tags, and bare text for a visible keyword target. Scheduled-rule conditions combine with AND in this slice.";
 }

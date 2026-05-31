@@ -420,6 +420,42 @@ public class EmploymentWorkerAITests
 	}
 
 	[TestMethod]
+	public void EmploymentWorkerAI_FiveSecondTaskTickClaimsAndAdvancesReadyTask()
+	{
+		var currency = Currency();
+		var workplace = Cell(330, "stockroom");
+		var item = Item(3300, "apple");
+		var cellItems = new List<IGameItem> { item.Object };
+		workplace.SetupGet(x => x.GameItems).Returns(() => cellItems);
+		workplace.Setup(x => x.Extract(It.IsAny<IGameItem>()))
+		         .Callback<IGameItem>(target => cellItems.RemoveAll(x => x.Id == target.Id));
+		workplace.Setup(x => x.Insert(It.IsAny<IGameItem>(), It.IsAny<bool>()))
+		         .Callback<IGameItem, bool>((target, _) => cellItems.Add(target));
+		var host = Shop(330, "task shop", currency.Object, workplace.Object);
+		var gameworld = Gameworld(shops: [host.Shop.Object], currencies: [currency.Object]);
+		var worker = Character(330, "Worker", gameworld.Object, workplace.Object).Object;
+		host.State.Hire(worker, Offer(currency.Object, EmploymentRole.Employee, EmploymentAuthority.ManageDeliveryRoutes), null);
+		var task = host.State.TaskBoard.CreateActiveTask(
+			"Move apples",
+			new EmploymentActionPlan(new IEmploymentActionStep[]
+			{
+				new GetItemsByIdActionStep(1, [item.Object.Prototype.Id], [workplace.Object]),
+				new DeliverItemsActionStep(workplace.Object)
+			}),
+			null);
+		var ai = LoadAI(gameworld.Object);
+
+		var acted = ai.HandleEvent(EventType.FiveSecondTick, worker);
+
+		Assert.IsTrue(acted);
+		Assert.AreEqual(EmploymentTaskStatus.Completed, task.Status);
+		Assert.AreEqual(worker.Id, task.AssignedEmployee?.Id);
+		Assert.AreEqual(EmploymentActionStepStatus.Completed, task.StepStates[0]);
+		Assert.AreEqual(EmploymentActionStepStatus.Completed, task.StepStates[1]);
+		Assert.IsTrue(ai.HandlesEvent(EventType.FiveSecondTick));
+	}
+
+	[TestMethod]
 	public void EmploymentWorkerAI_FreesHandsWithInventoryPlanBeforeCollectingTaskItems()
 	{
 		var currency = Currency();

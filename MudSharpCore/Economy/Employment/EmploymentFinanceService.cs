@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using MudSharp.Character;
+using MudSharp.Economy;
 using MudSharp.Economy.Currency;
 using MudSharp.Framework;
 
@@ -281,6 +282,44 @@ internal static class EmploymentFinanceService
 
 		reason = canWithdraw.Error;
 		return false;
+	}
+
+	public static bool TryGetConditionBalance(EmploymentTaskContext context, string accountKey, out decimal balance,
+		out string reason)
+	{
+		balance = 0.0M;
+		if (context.Employer is not IShop shop)
+		{
+			reason =
+				$"{context.Employer.EmploymentHostName} does not expose a native employment finance adapter yet. This slice supports shop cash, bank, and available balance conditions.";
+			return false;
+		}
+
+		switch (accountKey.CollapseString().ToLowerInvariant())
+		{
+			case "cash":
+			case "virtualcash":
+			case "hostcash":
+				balance = VirtualCashLedger.Balance(shop, shop.Currency);
+				reason = string.Empty;
+				return true;
+			case "bank":
+			case "bankaccount":
+				balance = shop.BankAccount?.Currency.Id == shop.Currency.Id
+					? shop.BankAccount.CurrentBalance
+					: 0.0M;
+				reason = string.Empty;
+				return true;
+			case "available":
+			case "availablefunds":
+			case "total":
+				balance = AvailableFunds(context, new FinanceHost(shop, shop.Currency, shop.BankAccount), shop.Currency);
+				reason = string.Empty;
+				return true;
+			default:
+				reason = $"There is no supported employment finance balance named {accountKey}.";
+				return false;
+		}
 	}
 
 	private static bool TryResolveBankFinanceHost(EmploymentTaskContext context, MoneyAmount amount,

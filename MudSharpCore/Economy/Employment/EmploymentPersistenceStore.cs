@@ -355,6 +355,7 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 				Name = rule.Name,
 				IdempotencyKey = rule.IdempotencyKey,
 				EmploymentActionPlanId = planId,
+				Status = (int)rule.Status,
 				CooldownTicks = rule.Cooldown.Ticks,
 				LastSpawnedAt = rule.LastSpawnedAt?.UtcDateTime
 			};
@@ -378,6 +379,25 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 			}
 
 			dbitem.LastSpawnedAt = rule.LastSpawnedAt?.UtcDateTime;
+			dbitem.Status = (int)rule.Status;
+			Touch(context);
+			context.SaveChanges();
+		});
+	}
+
+	public void DeleteScheduledRule(EmploymentScheduledTaskRule rule)
+	{
+		WithContext(context =>
+		{
+			var dbitem = context.EmploymentScheduledTaskRules
+			                    .Include(x => x.Conditions)
+			                    .FirstOrDefault(x => x.PublicId == rule.Id.ToString("D"));
+			if (dbitem is null)
+			{
+				return;
+			}
+
+			context.EmploymentScheduledTaskRules.Remove(dbitem);
 			Touch(context);
 			context.SaveChanges();
 		});
@@ -1492,7 +1512,8 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 				record.Conditions.OrderBy(x => x.SortOrder).Select(ToCondition).OfType<IEmploymentTaskCondition>(),
 				actionPlan,
 				TimeSpan.FromTicks(record.CooldownTicks),
-				ToNullableOffset(record.LastSpawnedAt))
+				ToNullableOffset(record.LastSpawnedAt),
+				(EmploymentScheduledRuleStatus)record.Status)
 			: null;
 	}
 
@@ -1561,6 +1582,19 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 			EmploymentTaskConditionType.AccountBalance =>
 				new AccountBalanceCondition(record.Key ?? string.Empty, record.ThresholdDecimal ?? 0.0M,
 					record.BoolValue ?? true),
+			EmploymentTaskConditionType.ItemThreshold =>
+				new ItemThresholdCondition(record.Key ?? string.Empty, record.ThresholdInt ?? 0, record.BoolValue ?? true),
+			EmploymentTaskConditionType.CommodityThreshold =>
+				new CommodityThresholdCondition(record.Key ?? string.Empty, record.ThresholdDecimal ?? 0.0M,
+					record.BoolValue ?? true),
+			EmploymentTaskConditionType.ShopAccountOwing =>
+				new ShopAccountOwingCondition(record.Key ?? string.Empty, record.ThresholdDecimal ?? 0.0M,
+					record.BoolValue ?? true),
+			EmploymentTaskConditionType.ShopFloatThreshold =>
+				new ShopFloatThresholdCondition(record.Key ?? string.Empty, record.ThresholdDecimal ?? 0.0M,
+					record.BoolValue ?? true),
+			EmploymentTaskConditionType.WeatherLevel =>
+				new WeatherLevelCondition(record.Key ?? string.Empty),
 			_ => null
 		};
 	}
@@ -1600,6 +1634,29 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 				record.Key = account.AccountKey;
 				record.ThresholdDecimal = account.Threshold;
 				record.BoolValue = account.BelowThreshold;
+				break;
+			case ItemThresholdCondition item:
+				record.Key = item.ItemKey;
+				record.ThresholdInt = item.Threshold;
+				record.BoolValue = item.BelowThreshold;
+				break;
+			case CommodityThresholdCondition commodity:
+				record.Key = commodity.CommodityKey;
+				record.ThresholdDecimal = commodity.ThresholdWeight;
+				record.BoolValue = commodity.BelowThreshold;
+				break;
+			case ShopAccountOwingCondition accountOwing:
+				record.Key = accountOwing.AccountKey;
+				record.ThresholdDecimal = accountOwing.Threshold;
+				record.BoolValue = accountOwing.AboveThreshold;
+				break;
+			case ShopFloatThresholdCondition shopFloat:
+				record.Key = shopFloat.FloatKey;
+				record.ThresholdDecimal = shopFloat.Threshold;
+				record.BoolValue = shopFloat.BelowThreshold;
+				break;
+			case WeatherLevelCondition weather:
+				record.Key = weather.WeatherKey;
 				break;
 		}
 

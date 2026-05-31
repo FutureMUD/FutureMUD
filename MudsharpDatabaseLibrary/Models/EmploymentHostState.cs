@@ -227,6 +227,7 @@ public partial class EmploymentScheduledTaskRuleRecord
 	public string Name { get; set; } = string.Empty;
 	public string IdempotencyKey { get; set; } = string.Empty;
 	public long EmploymentActionPlanId { get; set; }
+	public int Status { get; set; }
 	public long CooldownTicks { get; set; }
 	public DateTime? LastSpawnedAt { get; set; }
 

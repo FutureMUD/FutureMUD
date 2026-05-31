@@ -18,6 +18,7 @@ internal interface IEmploymentPersistenceStore
 	void SaveLedgerEntry(EmploymentLedgerEntry entry);
 	void SaveScheduledRule(EmploymentScheduledTaskRule rule);
 	void SaveScheduledRuleState(EmploymentScheduledTaskRule rule);
+	void DeleteScheduledRule(EmploymentScheduledTaskRule rule);
 	void SaveActiveTask(EmploymentActiveTask task);
 	void SaveActiveTaskState(EmploymentActiveTask task);
 	void SaveManagerGoal(ManagerGoal goal);

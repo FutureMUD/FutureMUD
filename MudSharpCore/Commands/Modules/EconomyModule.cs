@@ -1801,7 +1801,8 @@ The syntax for this command is as follows:
     [RequiredCharacterState(CharacterState.Conscious)]
     [NoCombatCommand]
     [NoHideCommand]
-    [HelpInfo("shop", ShopHelpPlayers, AutoHelp.HelpArgOrNoArg, ShopHelpAdmins)]
+    [HelpInfo("shop", ShopPlayerHelp, AutoHelp.HelpArgOrNoArg, ShopHelpAdmins)]
+    [ConditionalHelpInfo(nameof(CanSeeShopManagerHelp), ShopHelpPlayers)]
     protected static void Shop(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
@@ -1934,10 +1935,40 @@ The syntax for this command is as follows:
             }
         }
 
-        actor.OutputHandler.Send((actor.IsAdministrator() ? ShopHelpAdmins : ShopHelpPlayers).SubstituteANSIColour());
+        actor.OutputHandler.Send(ShopHelpFor(actor).SubstituteANSIColour());
     }
 
     #region Shop Subcommands
+
+    private static string ShopHelpFor(ICharacter actor)
+    {
+        return actor.IsAdministrator() ? ShopHelpAdmins : CanSeeShopManagerHelp(actor) ? ShopHelpPlayers : ShopPlayerHelp;
+    }
+
+    private static bool CanSeeShopManagerHelp(ICharacter actor)
+    {
+        if (actor.Location is null)
+        {
+            return false;
+        }
+
+        var shop = actor.Location.Shop;
+        return EmploymentCommandService.CanViewManagerAliasHelp(actor, shop,
+            shop?.IsManager(actor) == true || shop?.IsProprietor(actor) == true);
+    }
+
+    private const string ShopPlayerHelp = @"You can use the following options with the shop command:
+
+	#3shop payaccount <account> <amount>#0 - pays off a line of credit account
+	#3shop paytax <amount>|all#0 - pays owing taxes out of all sources of available cash
+	#3shop accountstatus <account>#0 - inquires about the status of a line of credit account
+	#3shop account ...#0 - manages line of credit accounts that you can access
+	#3shop clockin#0 - explains that shop employment now uses active contracts rather than clock-in records
+	#3shop clockout#0 - explains that shop employment now uses active contracts rather than clock-out records
+	#3shop quit#0 - resigns your active employment contracts with this store
+
+Shop managers and proprietors standing at their shop can use #3shop help#0 to see employment, task, finance, stock, merchandise, and scheduled-rule commands.
+Use #3shop tasks actions#0 and #3shop tasks conditions#0 for the full task action and condition catalogues when you have access.";
 
     private const string ShopHelpPlayers = @"You can use the following options with the shop command:
 
@@ -1953,7 +1984,7 @@ The syntax for this command is as follows:
 	#3shop manager <target>#0 - toggles a manager employment contract
 	#3shop proprietor <target>#0 - toggles a proprietor employment contract
 
-Shop manager employment shortcuts:
+Shop employment records:
 
 	#3shop status#0 - shows employment status for this shop
 	#3shop contracts#0 - lists employment contracts
@@ -1964,18 +1995,36 @@ Shop manager employment shortcuts:
 	#3shop applications accept|reject <##> [reason]#0 - accepts or rejects an application
 	#3shop payroll#0 - lists wage payables and overdue days
 	#3shop payroll run|settle|claim ...#0 - accrues, settles, or claims employment wage payables
+
+Shop employment tasks:
+
 	#3shop tasks#0 - lists scheduled rules and active tasks
-	#3shop tasks show <##|name>#0 - shows detailed task or scheduled-rule steps
+	#3shop tasks show <##|name>#0 - shows an active task with its step details
 	#3shop tasks diagnose#0 - explains why active employees can or cannot claim tasks
-	#3shop tasks actions [all|category|action]#0 - lists task action catalogue entries, status, and syntax
 	#3shop tasks cancel <##|name> [reason]#0 - cancels an active task
 	#3shop tasks create <name> <action> [then <action> ...]#0 - creates and finalises a task in one command
 	#3shop tasks draft new|show|rename|remove|discard|finalise ...#0 - drafts and finalises active tasks
-	#3shop tasks step getid|gettag|commodity|deliver|load|unload|return|vehicle|move|board|command|purchase|bankdeposit|bankwithdraw|storepay|craft|report|authorise|reserve|release|select|estimate|route ...#0 - adds catalogue steps; bank steps require prior authorise/reserve and linked shop bank finance
+	#3shop tasks step <action syntax>#0 - adds a catalogue action to your active-task draft
+	#3shop tasks actions [all|category|action]#0 - lists task action catalogue entries, status, and syntax
+
+Shop scheduled rules:
+
+	#3shop tasks rule show <##|name>#0 - shows a scheduled rule with conditions and planned steps
+	#3shop tasks rule create <name> cooldown <timespan> when <condition> [and <condition> ...] do <action> [then <action> ...]#0 - creates a scheduled rule
+	#3shop tasks rule draft new|copy|show|key|cooldown|removecondition|removestep|discard|finalise ...#0 - drafts and finalises scheduled rules
+	#3shop tasks rule condition <condition>#0 - adds a condition to your scheduled-rule draft
+	#3shop tasks rule step <action syntax>#0 - adds an action to your scheduled-rule draft
+	#3shop tasks rule diagnose|evaluate|pause|resume|cancel <##|name|all> [manual <key>]#0 - diagnoses, manually evaluates, pauses, resumes, or cancels scheduled rules
+	#3shop tasks conditions [all|category|condition]#0 - lists scheduled-rule condition syntax and authority
+
+Shop employment communication and audit:
+
 	#3shop goals#0 - lists manager goals
 	#3shop register#0 - shows employment register entries
 	#3shop employmentledger|empledger#0 - shows employment ledger entries
 	#3shop board [read <##>|write <title>]#0 - uses the staff board
+
+Use #3shop tasks actions#0 and #3shop tasks conditions#0 for the full action and condition catalogues.
 
 	#3shop till <target>#0 - toggles an item being used as a till for the store
 	#3shop display <target>#0 - toggles an item being used as a display cabinet for the store
@@ -2012,7 +2061,7 @@ Shop manager employment shortcuts:
 	#3shop manager <target>#0 - toggles a manager employment contract
 	#3shop proprietor <target>#0 - toggles a proprietor employment contract
 
-Shop manager employment shortcuts:
+Shop employment records:
 
 	#3shop status#0 - shows employment status for this shop
 	#3shop contracts#0 - lists employment contracts
@@ -2023,18 +2072,36 @@ Shop manager employment shortcuts:
 	#3shop applications accept|reject <##> [reason]#0 - accepts or rejects an application
 	#3shop payroll#0 - lists wage payables and overdue days
 	#3shop payroll run|settle|claim ...#0 - accrues, settles, or claims employment wage payables
+
+Shop employment tasks:
+
 	#3shop tasks#0 - lists scheduled rules and active tasks
-	#3shop tasks show <##|name>#0 - shows detailed task or scheduled-rule steps
+	#3shop tasks show <##|name>#0 - shows an active task with its step details
 	#3shop tasks diagnose#0 - explains why active employees can or cannot claim tasks
-	#3shop tasks actions [all|category|action]#0 - lists task action catalogue entries, status, and syntax
 	#3shop tasks cancel <##|name> [reason]#0 - cancels an active task
 	#3shop tasks create <name> <action> [then <action> ...]#0 - creates and finalises a task in one command
 	#3shop tasks draft new|show|rename|remove|discard|finalise ...#0 - drafts and finalises active tasks
-	#3shop tasks step getid|gettag|commodity|deliver|load|unload|return|vehicle|move|board|command|purchase|bankdeposit|bankwithdraw|storepay|craft|report|authorise|reserve|release|select|estimate|route ...#0 - adds catalogue steps; bank steps require prior authorise/reserve and linked shop bank finance
+	#3shop tasks step <action syntax>#0 - adds a catalogue action to your active-task draft
+	#3shop tasks actions [all|category|action]#0 - lists task action catalogue entries, status, and syntax
+
+Shop scheduled rules:
+
+	#3shop tasks rule show <##|name>#0 - shows a scheduled rule with conditions and planned steps
+	#3shop tasks rule create <name> cooldown <timespan> when <condition> [and <condition> ...] do <action> [then <action> ...]#0 - creates a scheduled rule
+	#3shop tasks rule draft new|copy|show|key|cooldown|removecondition|removestep|discard|finalise ...#0 - drafts and finalises scheduled rules
+	#3shop tasks rule condition <condition>#0 - adds a condition to your scheduled-rule draft
+	#3shop tasks rule step <action syntax>#0 - adds an action to your scheduled-rule draft
+	#3shop tasks rule diagnose|evaluate|pause|resume|cancel <##|name|all> [manual <key>]#0 - diagnoses, manually evaluates, pauses, resumes, or cancels scheduled rules
+	#3shop tasks conditions [all|category|condition]#0 - lists scheduled-rule condition syntax and authority
+
+Shop employment communication and audit:
+
 	#3shop goals#0 - lists manager goals
 	#3shop register#0 - shows employment register entries
 	#3shop employmentledger|empledger#0 - shows employment ledger entries
 	#3shop board [read <##>|write <title>]#0 - uses the staff board
+
+Use #3shop tasks actions#0 and #3shop tasks conditions#0 for the full action and condition catalogues.
 
 	#3shop till <target>#0 - toggles an item being used as a till for the store
 	#3shop display <target>#0 - toggles an item being used as a display cabinet for the store
@@ -4693,6 +4760,30 @@ Additionally, you can use the following shop admin subcommands:
 
     #region Banks
 
+    public const string BankPlayerHelpText =
+        @"The bank command is used to interact with bank accounts. All of the commands need to be done at a bank branch.
+
+The syntax for using banks is as follows:
+
+	#3bank accounts#0 - shows all the bank accounts you have access to
+	#3bank open <type>#0 - opens a new bank account
+	#3bank openclan <type> <clan>#0 - opens a new bank account on behalf of a clan
+	#3bank openshop <type> <shop>#0 - opens a new bank account on behalf of a shop
+	#3bank types#0 - shows what types of bank accounts this bank offers
+	#3bank alias <account#>#0 - sets the alias of a bank account
+	#3bank preview <type>#0 - previews the fees/interest of a bank account type
+	#3bank close <account#>#0 - permanently closes a bank account
+	#3bank show <account#>#0 - shows information about an account
+	#3bank transactions <account#>#0 - shows transaction history for a bank account
+	#3bank deposit <account#> <amount>#0 - deposits money into an account
+	#3bank withdraw <account#> <amount>#0 - withdraws money from an account
+	#3bank transfer <fromaccount#> <toaccount#> <amount>#0 - transfers money to another account
+	#3bank requestitem <account#>#0 - requests that the bank issue you a payment item
+	#3bank cancelitems <account#>#0 - requests that the bank cancel all issued items
+
+Bank managers standing at their branch can use #3bank help#0 to see manager, employment, task, finance, and scheduled-rule commands.
+Use #3bank tasks actions#0 and #3bank tasks conditions#0 for the full task action and condition catalogues when you have access.";
+
     public const string BankHelpText =
         @"The bank command is used to interact with bank accounts. All of the commands need to be done at a bank branch.
 
@@ -4728,6 +4819,9 @@ Additionally, if you are the manager of a bank, you can use the following additi
 	#3bank manager withdraw <amount>#0 - withdraws money from the cash reserves
 	#3bank manager deposit <amount>#0 - deposits money into the cash reserves
 	#3bank manager exchange <from> <to> <rate>#0 - sets the currency exchange rate
+
+Bank employment records:
+
 	#3bank status#0 - shows employment status for this bank
 	#3bank contracts#0 - lists employment contracts
 	#3bank contracts delegate <##> show|grant|revoke|set ...#0 - views or changes delegated authority
@@ -4737,18 +4831,36 @@ Additionally, if you are the manager of a bank, you can use the following additi
 	#3bank applications accept|reject <##> [reason]#0 - accepts or rejects an application
 	#3bank payroll#0 - lists wage payables and overdue days
 	#3bank payroll run|settle|claim ...#0 - accrues, settles, or claims employment wage payables
+
+Bank employment tasks:
+
 	#3bank tasks#0 - lists scheduled rules and active tasks
-	#3bank tasks show <##|name>#0 - shows detailed task or scheduled-rule steps
+	#3bank tasks show <##|name>#0 - shows an active task with its step details
 	#3bank tasks diagnose#0 - explains why active employees can or cannot claim tasks
-	#3bank tasks actions [all|category|action]#0 - lists task action catalogue entries, status, and syntax
 	#3bank tasks cancel <##|name> [reason]#0 - cancels an active task
 	#3bank tasks create <name> <action> [then <action> ...]#0 - creates and finalises a task in one command
 	#3bank tasks draft new|show|rename|remove|discard|finalise ...#0 - drafts and finalises active tasks
-	#3bank tasks step getid|gettag|commodity|deliver|load|unload|return|vehicle|move|board|command|purchase|bankdeposit|bankwithdraw|storepay|craft|report|authorise|reserve|release|select|estimate|route ...#0 - adds catalogue steps; bank deposit/withdraw currently execute only for supported shop finance adapters
+	#3bank tasks step <action syntax>#0 - adds a catalogue action to your active-task draft
+	#3bank tasks actions [all|category|action]#0 - lists task action catalogue entries, status, and syntax
+
+Bank scheduled rules:
+
+	#3bank tasks rule show <##|name>#0 - shows a scheduled rule with conditions and planned steps
+	#3bank tasks rule create <name> cooldown <timespan> when <condition> [and <condition> ...] do <action> [then <action> ...]#0 - creates a scheduled rule
+	#3bank tasks rule draft new|copy|show|key|cooldown|removecondition|removestep|discard|finalise ...#0 - drafts and finalises scheduled rules
+	#3bank tasks rule condition <condition>#0 - adds a condition to your scheduled-rule draft
+	#3bank tasks rule step <action syntax>#0 - adds an action to your scheduled-rule draft
+	#3bank tasks rule diagnose|evaluate|pause|resume|cancel <##|name|all> [manual <key>]#0 - diagnoses, manually evaluates, pauses, resumes, or cancels scheduled rules
+	#3bank tasks conditions [all|category|condition]#0 - lists scheduled-rule condition syntax and authority
+
+Bank employment communication and audit:
+
 	#3bank goals#0 - lists manager goals
 	#3bank register#0 - shows employment register entries
 	#3bank employmentledger|empledger#0 - shows employment ledger entries
-	#3bank board [read <##>|write <title>]#0 - uses the staff board";
+	#3bank board [read <##>|write <title>]#0 - uses the staff board
+
+Use #3bank tasks actions#0 and #3bank tasks conditions#0 for the full action and condition catalogues.";
 
     public const string BankAdminHelpText =
         @"The bank command is used to create and edit banks. The commands are as follows:
@@ -4814,6 +4926,9 @@ Additionally, if you are the manager of a bank, you can use the following additi
 	#3bank manager withdraw <amount>#0 - withdraws money from the cash reserves
 	#3bank manager deposit <amount>#0 - deposits money into the cash reserves
 	#3bank manager exchange <from> <to> <rate>#0 - sets the currency exchange rate
+
+Bank employment records:
+
 	#3bank status#0 - shows employment status for this bank
 	#3bank contracts#0 - lists employment contracts
 	#3bank contracts delegate <##> show|grant|revoke|set ...#0 - views or changes delegated authority
@@ -4823,24 +4938,43 @@ Additionally, if you are the manager of a bank, you can use the following additi
 	#3bank applications accept|reject <##> [reason]#0 - accepts or rejects an application
 	#3bank payroll#0 - lists wage payables and overdue days
 	#3bank payroll run|settle|claim ...#0 - accrues, settles, or claims employment wage payables
+
+Bank employment tasks:
+
 	#3bank tasks#0 - lists scheduled rules and active tasks
-	#3bank tasks show <##|name>#0 - shows detailed task or scheduled-rule steps
+	#3bank tasks show <##|name>#0 - shows an active task with its step details
 	#3bank tasks diagnose#0 - explains why active employees can or cannot claim tasks
-	#3bank tasks actions [all|category|action]#0 - lists task action catalogue entries, status, and syntax
 	#3bank tasks cancel <##|name> [reason]#0 - cancels an active task
 	#3bank tasks create <name> <action> [then <action> ...]#0 - creates and finalises a task in one command
 	#3bank tasks draft new|show|rename|remove|discard|finalise ...#0 - drafts and finalises active tasks
-	#3bank tasks step getid|gettag|commodity|deliver|load|unload|return|vehicle|move|board|command|purchase|bankdeposit|bankwithdraw|storepay|craft|report|authorise|reserve|release|select|estimate|route ...#0 - adds catalogue steps; bank deposit/withdraw currently execute only for supported shop finance adapters
+	#3bank tasks step <action syntax>#0 - adds a catalogue action to your active-task draft
+	#3bank tasks actions [all|category|action]#0 - lists task action catalogue entries, status, and syntax
+
+Bank scheduled rules:
+
+	#3bank tasks rule show <##|name>#0 - shows a scheduled rule with conditions and planned steps
+	#3bank tasks rule create <name> cooldown <timespan> when <condition> [and <condition> ...] do <action> [then <action> ...]#0 - creates a scheduled rule
+	#3bank tasks rule draft new|copy|show|key|cooldown|removecondition|removestep|discard|finalise ...#0 - drafts and finalises scheduled rules
+	#3bank tasks rule condition <condition>#0 - adds a condition to your scheduled-rule draft
+	#3bank tasks rule step <action syntax>#0 - adds an action to your scheduled-rule draft
+	#3bank tasks rule diagnose|evaluate|pause|resume|cancel <##|name|all> [manual <key>]#0 - diagnoses, manually evaluates, pauses, resumes, or cancels scheduled rules
+	#3bank tasks conditions [all|category|condition]#0 - lists scheduled-rule condition syntax and authority
+
+Bank employment communication and audit:
+
 	#3bank goals#0 - lists manager goals
 	#3bank register#0 - shows employment register entries
 	#3bank employmentledger|empledger#0 - shows employment ledger entries
-	#3bank board [read <##>|write <title>]#0 - uses the staff board";
+	#3bank board [read <##>|write <title>]#0 - uses the staff board
+
+Use #3bank tasks actions#0 and #3bank tasks conditions#0 for the full action and condition catalogues.";
 
     [PlayerCommand("Bank", "bank")]
     [RequiredCharacterState(CharacterState.Able)]
     [NoHideCommand]
     [NoCombatCommand]
-    [HelpInfo("bank", BankHelpText, AutoHelp.HelpArgOrNoArg, BankAdminHelpText)]
+    [HelpInfo("bank", BankPlayerHelpText, AutoHelp.HelpArgOrNoArg, BankAdminHelpText)]
+    [ConditionalHelpInfo(nameof(CanSeeBankManagerHelp), BankHelpText)]
     protected static void Bank(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
@@ -4948,10 +5082,25 @@ Additionally, if you are the manager of a bank, you can use the following additi
                     return;
                 }
 
-                actor.OutputHandler.Send((actor.IsAdministrator() ? BankAdminHelpText : BankHelpText)
-                    .SubstituteANSIColour());
+                actor.OutputHandler.Send(BankHelpFor(actor).SubstituteANSIColour());
                 return;
         }
+    }
+
+    private static string BankHelpFor(ICharacter actor)
+    {
+        return actor.IsAdministrator() ? BankAdminHelpText : CanSeeBankManagerHelp(actor) ? BankHelpText : BankPlayerHelpText;
+    }
+
+    private static bool CanSeeBankManagerHelp(ICharacter actor)
+    {
+        if (actor.Gameworld is null || actor.Location is null)
+        {
+            return false;
+        }
+
+        var bank = actor.Gameworld.Banks.FirstOrDefault(x => x.BranchLocations.Contains(actor.Location));
+        return EmploymentCommandService.CanViewManagerAliasHelp(actor, bank, bank?.IsManager(actor) == true);
     }
 
     private static void BankManager(ICharacter actor, StringStack ss)
@@ -5706,6 +5855,23 @@ Additionally, if you are the manager of a bank, you can use the following additi
 
     #region Auctions
 
+    public const string AuctionPlayerHelp =
+        @"The auction command is used to interact with auction houses, and it must be used at a location that is an auction house. You should also see the related command AUCTIONS.
+
+The syntax for using this command is as follows:
+
+	#3auction preview <lot>#0 - view an auction lot currently being auctioned
+	#3auction sell <item> <price> <bank code>:<accn>|cash [<buyout price>]#0 - lists an item for sale
+	#3auction sell property <property> <price> <bank code>:<accn>|cash [<buyout price>]#0 - lists your ownership share in a property for sale
+	#3auction bid <lot> <bid> [bank <account>]#0 - makes a bid on an auction lot
+	#3auction buyout <lot> [bank <account>]#0 - pays the buyout price on an auction lot
+	#3auction claim#0 - claims all movable items won or not sold
+	#3auction refund#0 - claims all money owed for unsuccessful bids or cash seller proceeds
+	#3auction cancel <lot>#0 - cancels an auction lot
+
+Auction house managers standing at their auction house can use #3auction help#0 to see employment, task, finance, and scheduled-rule commands.
+Use #3auction tasks actions#0 and #3auction tasks conditions#0 for the full task action and condition catalogues when you have access.";
+
     public const string AuctionHelp =
         @"The auction command is used to interact with auction houses, and it must be used at a location that is an auction house. You should also see the related command AUCTIONS.
 
@@ -5720,7 +5886,7 @@ The syntax for using this command is as follows:
 	#3auction refund#0 - claims all money owed for unsuccessful bids or cash seller proceeds
 	#3auction cancel <lot>#0 - cancels an auction lot
 
-Auction house manager employment shortcuts:
+Auction house employment records:
 
 	#3auction status#0 - shows employment status for this auction house
 	#3auction contracts#0 - lists employment contracts
@@ -5731,18 +5897,36 @@ Auction house manager employment shortcuts:
 	#3auction applications accept|reject <##> [reason]#0 - accepts or rejects an application
 	#3auction payroll#0 - lists wage payables and overdue days
 	#3auction payroll run|settle|claim ...#0 - accrues, settles, or claims employment wage payables
+
+Auction house employment tasks:
+
 	#3auction tasks#0 - lists scheduled rules and active tasks
-	#3auction tasks show <##|name>#0 - shows detailed task or scheduled-rule steps
+	#3auction tasks show <##|name>#0 - shows an active task with its step details
 	#3auction tasks diagnose#0 - explains why active employees can or cannot claim tasks
-	#3auction tasks actions [all|category|action]#0 - lists task action catalogue entries, status, and syntax
 	#3auction tasks cancel <##|name> [reason]#0 - cancels an active task
 	#3auction tasks create <name> <action> [then <action> ...]#0 - creates and finalises a task in one command
 	#3auction tasks draft new|show|rename|remove|discard|finalise ...#0 - drafts and finalises active tasks
-	#3auction tasks step getid|gettag|commodity|deliver|load|unload|return|vehicle|move|board|command|purchase|bankdeposit|bankwithdraw|storepay|craft|report|authorise|reserve|release|select|estimate|route ...#0 - adds catalogue steps; bank deposit/withdraw currently execute only for supported shop finance adapters
+	#3auction tasks step <action syntax>#0 - adds a catalogue action to your active-task draft
+	#3auction tasks actions [all|category|action]#0 - lists task action catalogue entries, status, and syntax
+
+Auction house scheduled rules:
+
+	#3auction tasks rule show <##|name>#0 - shows a scheduled rule with conditions and planned steps
+	#3auction tasks rule create <name> cooldown <timespan> when <condition> [and <condition> ...] do <action> [then <action> ...]#0 - creates a scheduled rule
+	#3auction tasks rule draft new|copy|show|key|cooldown|removecondition|removestep|discard|finalise ...#0 - drafts and finalises scheduled rules
+	#3auction tasks rule condition <condition>#0 - adds a condition to your scheduled-rule draft
+	#3auction tasks rule step <action syntax>#0 - adds an action to your scheduled-rule draft
+	#3auction tasks rule diagnose|evaluate|pause|resume|cancel <##|name|all> [manual <key>]#0 - diagnoses, manually evaluates, pauses, resumes, or cancels scheduled rules
+	#3auction tasks conditions [all|category|condition]#0 - lists scheduled-rule condition syntax and authority
+
+Auction house employment communication and audit:
+
 	#3auction goals#0 - lists manager goals
 	#3auction register#0 - shows employment register entries
 	#3auction employmentledger|empledger#0 - shows employment ledger entries
-	#3auction board [read <##>|write <title>]#0 - uses the staff board";
+	#3auction board [read <##>|write <title>]#0 - uses the staff board
+
+Use #3auction tasks actions#0 and #3auction tasks conditions#0 for the full action and condition catalogues.";
 
     public const string AuctionsHelp =
         @"The auctions command lists the active lots at the auction house in your current location.
@@ -5787,7 +5971,7 @@ The syntax for using this command is as follows:
 	#3auction refund#0 - claims all money owed for unsuccessful bids or cash seller proceeds
 	#3auction cancel <lot>#0 - cancels an auction lot
 
-Auction house manager employment shortcuts:
+Auction house employment records:
 
 	#3auction status#0 - shows employment status for this auction house
 	#3auction contracts#0 - lists employment contracts
@@ -5798,18 +5982,36 @@ Auction house manager employment shortcuts:
 	#3auction applications accept|reject <##> [reason]#0 - accepts or rejects an application
 	#3auction payroll#0 - lists wage payables and overdue days
 	#3auction payroll run|settle|claim ...#0 - accrues, settles, or claims employment wage payables
+
+Auction house employment tasks:
+
 	#3auction tasks#0 - lists scheduled rules and active tasks
-	#3auction tasks show <##|name>#0 - shows detailed task or scheduled-rule steps
+	#3auction tasks show <##|name>#0 - shows an active task with its step details
 	#3auction tasks diagnose#0 - explains why active employees can or cannot claim tasks
-	#3auction tasks actions [all|category|action]#0 - lists task action catalogue entries, status, and syntax
 	#3auction tasks cancel <##|name> [reason]#0 - cancels an active task
 	#3auction tasks create <name> <action> [then <action> ...]#0 - creates and finalises a task in one command
 	#3auction tasks draft new|show|rename|remove|discard|finalise ...#0 - drafts and finalises active tasks
-	#3auction tasks step getid|gettag|commodity|deliver|load|unload|return|vehicle|move|board|command|purchase|bankdeposit|bankwithdraw|storepay|craft|report|authorise|reserve|release|select|estimate|route ...#0 - adds catalogue steps; bank deposit/withdraw currently execute only for supported shop finance adapters
+	#3auction tasks step <action syntax>#0 - adds a catalogue action to your active-task draft
+	#3auction tasks actions [all|category|action]#0 - lists task action catalogue entries, status, and syntax
+
+Auction house scheduled rules:
+
+	#3auction tasks rule show <##|name>#0 - shows a scheduled rule with conditions and planned steps
+	#3auction tasks rule create <name> cooldown <timespan> when <condition> [and <condition> ...] do <action> [then <action> ...]#0 - creates a scheduled rule
+	#3auction tasks rule draft new|copy|show|key|cooldown|removecondition|removestep|discard|finalise ...#0 - drafts and finalises scheduled rules
+	#3auction tasks rule condition <condition>#0 - adds a condition to your scheduled-rule draft
+	#3auction tasks rule step <action syntax>#0 - adds an action to your scheduled-rule draft
+	#3auction tasks rule diagnose|evaluate|pause|resume|cancel <##|name|all> [manual <key>]#0 - diagnoses, manually evaluates, pauses, resumes, or cancels scheduled rules
+	#3auction tasks conditions [all|category|condition]#0 - lists scheduled-rule condition syntax and authority
+
+Auction house employment communication and audit:
+
 	#3auction goals#0 - lists manager goals
 	#3auction register#0 - shows employment register entries
 	#3auction employmentledger|empledger#0 - shows employment ledger entries
 	#3auction board [read <##>|write <title>]#0 - uses the staff board
+
+Use #3auction tasks actions#0 and #3auction tasks conditions#0 for the full action and condition catalogues.
 
 Note: Admins can use the #3auction cancel#0 subcommand on other people's items";
 
@@ -5817,7 +6019,8 @@ Note: Admins can use the #3auction cancel#0 subcommand on other people's items";
     [RequiredCharacterState(CharacterState.Able)]
     [NoCombatCommand]
     [NoHideCommand]
-    [HelpInfo("auction", AuctionHelp, AutoHelp.HelpArgOrNoArg, AuctionHelpAdmins)]
+    [HelpInfo("auction", AuctionPlayerHelp, AutoHelp.HelpArgOrNoArg, AuctionHelpAdmins)]
+    [ConditionalHelpInfo(nameof(CanSeeAuctionManagerHelp), AuctionHelp)]
     protected static void Auction(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
@@ -5871,9 +6074,25 @@ Note: Admins can use the #3auction cancel#0 subcommand on other people's items";
                     return;
                 }
 
-                actor.OutputHandler.Send(actor.IsAdministrator() ? AuctionHelpAdmins : AuctionHelp);
+                actor.OutputHandler.Send(AuctionHelpFor(actor).SubstituteANSIColour());
                 return;
         }
+    }
+
+    private static string AuctionHelpFor(ICharacter actor)
+    {
+        return actor.IsAdministrator() ? AuctionHelpAdmins : CanSeeAuctionManagerHelp(actor) ? AuctionHelp : AuctionPlayerHelp;
+    }
+
+    private static bool CanSeeAuctionManagerHelp(ICharacter actor)
+    {
+        if (actor.Gameworld is null || actor.Location is null)
+        {
+            return false;
+        }
+
+        var auctionHouse = actor.Gameworld.AuctionHouses.FirstOrDefault(x => x.AuctionHouseCell == actor.Location);
+        return EmploymentCommandService.CanViewManagerAliasHelp(actor, auctionHouse);
     }
 
     private static void AuctionCancel(ICharacter actor, IAuctionHouse? auctionHouse, StringStack ss)

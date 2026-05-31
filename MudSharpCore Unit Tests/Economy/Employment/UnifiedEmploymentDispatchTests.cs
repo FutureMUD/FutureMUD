@@ -244,7 +244,10 @@ public class UnifiedEmploymentDispatchTests
 		IEmploymentHost host = new TestEmploymentHost("shop", currency.Object);
 		var manager = Character(1, "Manager").Object;
 		host.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
-			EmploymentAuthority.CreateScheduledRules | EmploymentAuthority.AssignTasks | EmploymentAuthority.PostToHostBoard), null);
+			EmploymentAuthority.CreateScheduledRules |
+			EmploymentAuthority.AssignTasks |
+			EmploymentAuthority.PostToHostBoard |
+			EmploymentAuthority.ManageStockRules), null);
 		var context = new EmploymentTaskContext(host);
 		context.SetStockLevel("butter", 2);
 		context.SetManualOrder("restock-butter", true);
@@ -916,9 +919,11 @@ public class UnifiedEmploymentDispatchTests
 				EmploymentAuthority.HireEmployees |
 				EmploymentAuthority.CreateJobOpenings |
 				EmploymentAuthority.CreateScheduledRules |
+				EmploymentAuthority.ModifyScheduledRules |
 				EmploymentAuthority.AssignTasks |
 				EmploymentAuthority.CreateManagerGoals |
 				EmploymentAuthority.PostToHostBoard |
+				EmploymentAuthority.ManageStockRules |
 				EmploymentAuthority.DepositBusinessCash);
 			host.Hire(manager, managerOffer, null);
 			host.Hire(employee, Offer(currency.Object, EmploymentRole.Employee), manager);
@@ -930,14 +935,21 @@ public class UnifiedEmploymentDispatchTests
 			var scheduledPlan = new EmploymentActionPlan([
 				new BoardPostActionStep("Restock", "Restock request spawned.")
 			]);
-			host.TaskBoard.CreateScheduledRule("restock butter", "restock-butter",
+			var scheduledRule = host.TaskBoard.CreateScheduledRule("restock butter", "restock-butter",
 				[
 					new StockThresholdCondition("butter", 5, true),
-					new ManualOrderCondition("restock-butter")
+					new ManualOrderCondition("restock-butter"),
+					new ItemThresholdCondition(
+						ItemThresholdCondition.CreateKey(EmploymentItemSelector.ForPrototype(26), 397, null), 2, true),
+					new CommodityThresholdCondition(
+						CommodityThresholdCondition.CreateKey("Iron", "Nails",
+							new Dictionary<string, string> { ["grade"] = "refined" }, 397, null), 5.0M, false),
+					new WeatherLevelCondition(WeatherLevelCondition.CreatePrecipitationKey("rain"))
 				],
 				scheduledPlan,
 				TimeSpan.FromHours(1),
 				manager);
+			host.TaskBoard.PauseScheduledRule(scheduledRule, manager, "pause for persistence test");
 			var activeTask = (EmploymentActiveTask)host.TaskBoard.CreateActiveTask("deposit float",
 				new EmploymentActionPlan([
 					new BankDepositActionStep(new MoneyAmount(currency.Object, 12.0M), "bank-ledger-1")
@@ -962,6 +974,10 @@ public class UnifiedEmploymentDispatchTests
 			Assert.AreEqual(1, reloaded.JobOpenings.Count);
 			Assert.AreEqual(1, reloaded.Applications.Count);
 			Assert.AreEqual(1, reloaded.TaskBoard.ScheduledRules.Count);
+			Assert.AreEqual(EmploymentScheduledRuleStatus.Paused, reloaded.TaskBoard.ScheduledRules.Single().Status);
+			Assert.IsTrue(reloaded.TaskBoard.ScheduledRules.Single().Conditions.Any(x => x is ItemThresholdCondition));
+			Assert.IsTrue(reloaded.TaskBoard.ScheduledRules.Single().Conditions.Any(x => x is CommodityThresholdCondition));
+			Assert.IsTrue(reloaded.TaskBoard.ScheduledRules.Single().Conditions.Any(x => x is WeatherLevelCondition));
 			Assert.AreEqual(1, reloaded.TaskBoard.ActiveTasks.Count);
 			Assert.AreEqual(EmploymentTaskStatus.Completed, reloaded.TaskBoard.ActiveTasks.Single().Status);
 			Assert.AreEqual(EmploymentActionStepStatus.Completed, reloaded.TaskBoard.ActiveTasks.Single().StepStates.Single());

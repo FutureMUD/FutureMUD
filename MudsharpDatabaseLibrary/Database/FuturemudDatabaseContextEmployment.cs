@@ -300,6 +300,7 @@ public partial class FuturemudDatabaseContext
 			entity.Property(e => e.Name).RequiredString("varchar(200)");
 			entity.Property(e => e.IdempotencyKey).RequiredString("varchar(200)");
 			entity.Property(e => e.EmploymentActionPlanId).HasColumnType("bigint(20)");
+			entity.Property(e => e.Status).HasColumnType("int(11)");
 			entity.Property(e => e.CooldownTicks).HasColumnType("bigint(20)");
 			entity.Property(e => e.LastSpawnedAt).HasColumnType("datetime");
 

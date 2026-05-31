@@ -54,6 +54,8 @@ If only one event applies, you can omit #6<event>#0 in the above commands.
 
 Manager Only Commands:
 
+Arena operations:
+
 	#3arena manager phase <event> <state>#0 - force an event to a phase using normal transitions
 	#3arena manager autoschedule <eventtype> show#0 - show recurring settings
 	#3arena manager autoschedule <eventtype> off#0 - disable recurring creation
@@ -63,6 +65,9 @@ Manager Only Commands:
 	#3arena manager stable [<arena>] [class <class>] [search <text>] [top <count>]#0 - show stable NPC roster by class
 	#3arena manager rating [<arena>] <character>#0 - show ratings for a character in an arena
 	#3arena manager ratings [<arena>] [class <class>] [search <text>] [min <rating>] [max <rating>] [sort <name|class|rating|updated>] [desc] [top <count>]#0 - list arena ratings
+
+Arena employment records:
+
 	#3arena status#0 - shows employment status for this arena
 	#3arena contracts#0 - lists employment contracts
 	#3arena contracts delegate <##> show|grant|revoke|set ...#0 - views or changes delegated authority
@@ -72,18 +77,36 @@ Manager Only Commands:
 	#3arena applications accept|reject <##> [reason]#0 - accepts or rejects an application
 	#3arena payroll#0 - lists wage payables and overdue days
 	#3arena payroll run|settle|claim ...#0 - accrues, settles, or claims employment wage payables
+
+Arena employment tasks:
+
 	#3arena tasks#0 - lists scheduled rules and active tasks
-	#3arena tasks show <##|name>#0 - shows detailed task or scheduled-rule steps
+	#3arena tasks show <##|name>#0 - shows an active task with its step details
 	#3arena tasks diagnose#0 - explains why active employees can or cannot claim tasks
-	#3arena tasks actions [all|category|action]#0 - lists task action catalogue entries, status, and syntax
 	#3arena tasks cancel <##|name> [reason]#0 - cancels an active task
 	#3arena tasks create <name> <action> [then <action> ...]#0 - creates and finalises a task in one command
 	#3arena tasks draft new|show|rename|remove|discard|finalise ...#0 - drafts and finalises active tasks
-	#3arena tasks step getid|gettag|commodity|deliver|load|unload|return|vehicle|move|board|command|purchase|bankdeposit|bankwithdraw|storepay|craft|report|authorise|reserve|release|select|estimate|route ...#0 - adds catalogue steps; bank deposit/withdraw currently execute only for supported shop finance adapters
+	#3arena tasks step <action syntax>#0 - adds a catalogue action to your active-task draft
+	#3arena tasks actions [all|category|action]#0 - lists task action catalogue entries, status, and syntax
+
+Arena scheduled rules:
+
+	#3arena tasks rule show <##|name>#0 - shows a scheduled rule with conditions and planned steps
+	#3arena tasks rule create <name> cooldown <timespan> when <condition> [and <condition> ...] do <action> [then <action> ...]#0 - creates a scheduled rule
+	#3arena tasks rule draft new|copy|show|key|cooldown|removecondition|removestep|discard|finalise ...#0 - drafts and finalises scheduled rules
+	#3arena tasks rule condition <condition>#0 - adds a condition to your scheduled-rule draft
+	#3arena tasks rule step <action syntax>#0 - adds an action to your scheduled-rule draft
+	#3arena tasks rule diagnose|evaluate|pause|resume|cancel <##|name|all> [manual <key>]#0 - diagnoses, manually evaluates, pauses, resumes, or cancels scheduled rules
+	#3arena tasks conditions [all|category|condition]#0 - lists scheduled-rule condition syntax and authority
+
+Arena employment communication and audit:
+
 	#3arena goals#0 - lists manager goals
 	#3arena register#0 - shows employment register entries
 	#3arena employmentledger|empledger#0 - shows employment ledger entries
-	#3arena board [read <##>|write <title>]#0 - uses the staff board";
+	#3arena board [read <##>|write <title>]#0 - uses the staff board
+
+Use #3arena tasks actions#0 and #3arena tasks conditions#0 for the full action and condition catalogues.";
 
     private const string ArenaHelp =
         @"The #3arena#0 command is used to interact with combat arenas. All of these commands need to be done from the arena itself.
@@ -106,33 +129,13 @@ Manager Only Commands:
 
 If only one event applies, you can omit #6<event>#0 in the above commands.
 
-Arena staff employment shortcuts:
-
-	#3arena status#0 - shows employment status for this arena
-	#3arena contracts#0 - lists employment contracts
-	#3arena contracts delegate <##> show|grant|revoke|set ...#0 - views or changes delegated authority
-	#3arena openings#0 - lists employment openings
-	#3arena openings create <role> <hourly rate> [positions]#0 - creates an NPC-facing opening
-	#3arena applications#0 - lists employment applications
-	#3arena applications accept|reject <##> [reason]#0 - accepts or rejects an application
-	#3arena payroll#0 - lists wage payables and overdue days
-	#3arena payroll run|settle|claim ...#0 - accrues, settles, or claims employment wage payables
-	#3arena tasks#0 - lists scheduled rules and active tasks
-	#3arena tasks show <##|name>#0 - shows detailed task or scheduled-rule steps
-	#3arena tasks diagnose#0 - explains why active employees can or cannot claim tasks
-	#3arena tasks actions [all|category|action]#0 - lists task action catalogue entries, status, and syntax
-	#3arena tasks cancel <##|name> [reason]#0 - cancels an active task
-	#3arena tasks create <name> <action> [then <action> ...]#0 - creates and finalises a task in one command
-	#3arena tasks draft new|show|rename|remove|discard|finalise ...#0 - drafts and finalises active tasks
-	#3arena tasks step getid|gettag|commodity|deliver|load|unload|return|vehicle|move|board|command|purchase|bankdeposit|bankwithdraw|storepay|craft|report|authorise|reserve|release|select|estimate|route ...#0 - adds catalogue steps; bank deposit/withdraw currently execute only for supported shop finance adapters
-	#3arena goals#0 - lists manager goals
-	#3arena register#0 - shows employment register entries
-	#3arena employmentledger|empledger#0 - shows employment ledger entries
-	#3arena board [read <##>|write <title>]#0 - uses the staff board";
+Arena managers standing at their arena can use #3arena help#0 to see manager, employment, task, finance, and scheduled-rule commands.
+Use #3arena tasks actions#0 and #3arena tasks conditions#0 for the full task action and condition catalogues when you have access.";
 
     [PlayerCommand("Arena", "arena")]
     [RequiredCharacterState(CharacterState.Conscious)]
-    [HelpInfo("arena", ArenaHelp, AutoHelp.HelpArg)]
+    [HelpInfo("arena", ArenaHelp, AutoHelp.HelpArg, ArenaManagerHelp)]
+    [ConditionalHelpInfo(nameof(CanSeeArenaManagerHelp), ArenaManagerHelp)]
     protected static void Arena(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
@@ -196,12 +199,23 @@ Arena staff employment shortcuts:
 
     private static void ShowGeneralHelp(ICharacter actor)
     {
-        if (actor.IsAdministrator() || actor.Gameworld.CombatArenas.Any(x => x.Managers.Contains(actor)))
+        actor.OutputHandler.Send(ArenaHelpFor(actor).SubstituteANSIColour().Wrap(actor.InnerLineFormatLength));
+    }
+
+    private static string ArenaHelpFor(ICharacter actor)
+    {
+        return actor.IsAdministrator() || CanSeeArenaManagerHelp(actor) ? ArenaManagerHelp : ArenaHelp;
+    }
+
+    private static bool CanSeeArenaManagerHelp(ICharacter actor)
+    {
+        if (actor.Gameworld is null || actor.Location is null)
         {
-            actor.OutputHandler.Send(ArenaManagerHelp.SubstituteANSIColour().Wrap(actor.InnerLineFormatLength));
-            return;
+            return false;
         }
-        actor.OutputHandler.Send(ArenaHelp.SubstituteANSIColour().Wrap(actor.InnerLineFormatLength));
+
+        var arena = GetArena(actor, null);
+        return EmploymentCommandService.CanViewManagerAliasHelp(actor, arena, arena?.IsManager(actor) == true);
     }
 
     private static void ArenaList(ICharacter actor)

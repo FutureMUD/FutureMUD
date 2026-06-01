@@ -34,6 +34,20 @@ Guest commands:
 	#3roomrent claim [property]#0 - claims deposit refunds and held lost property
 	#3roomrent pay <property> [amount] [bankcode:account]#0 - pays an outstanding hotel balance
 
+Hotel managers standing at their hotel property can use #3roomrent help#0 to see hotel management, employment, task, finance, and scheduled-rule commands.
+Use #3roomrent tasks actions#0 and #3roomrent tasks conditions#0 for the full task action and condition catalogues when you have access.";
+
+	public const string RoomRentManagerHelp =
+		@"The roomrent command manages short-term hotel-style room rentals inside properties.
+
+Guest commands:
+
+	#3roomrent list [property]#0 - lists hotel rooms available to rent
+	#3roomrent rent <property> <room> <duration> [bankcode:account]#0 - rents a hotel room
+	#3roomrent checkout [property] [room]#0 - ends your stay and returns your deposit balance
+	#3roomrent claim [property]#0 - claims deposit refunds and held lost property
+	#3roomrent pay <property> [amount] [bankcode:account]#0 - pays an outstanding hotel balance
+
 Hotel manager commands:
 
 	#3roomrent show <property>#0 - shows hotel setup and room state
@@ -65,6 +79,48 @@ Hotel manager commands:
 	#3roomrent lost extend <property> <#> <timespan>#0 - extends lost property retention
 	#3roomrent lost release <property> <#>#0 - removes a bundle from lost property
 
+Hotel employment records:
+
+	#3roomrent status#0 - shows employment status for the current hotel
+	#3roomrent contracts#0 - lists employment contracts
+	#3roomrent contracts delegate <##> show|grant|revoke|set ...#0 - views or changes delegated authority
+	#3roomrent openings#0 - lists employment openings
+	#3roomrent openings create <role> <hourly rate> [positions]#0 - creates an NPC-facing opening
+	#3roomrent applications#0 - lists employment applications
+	#3roomrent applications accept|reject <##> [reason]#0 - accepts or rejects an application
+	#3roomrent payroll#0 - lists wage payables and overdue days
+	#3roomrent payroll run|settle|claim ...#0 - accrues, settles, or claims employment wage payables
+
+Hotel employment tasks:
+
+	#3roomrent tasks#0 - lists scheduled rules and active tasks
+	#3roomrent tasks show <##|name>#0 - shows an active task with its step details
+	#3roomrent tasks diagnose#0 - explains why active employees can or cannot claim tasks
+	#3roomrent tasks cancel <##|name> [reason]#0 - cancels an active task
+	#3roomrent tasks create <name> <action> [then <action> ...]#0 - creates and finalises a task in one command
+	#3roomrent tasks draft new|show|rename|remove|discard|finalise ...#0 - drafts and finalises active tasks
+	#3roomrent tasks step <action syntax>#0 - adds a catalogue action to your active-task draft
+	#3roomrent tasks actions [all|category|action]#0 - lists task action catalogue entries, status, and syntax
+
+Hotel scheduled rules:
+
+	#3roomrent tasks rule show <##|name>#0 - shows a scheduled rule with conditions and planned steps
+	#3roomrent tasks rule create <name> cooldown <timespan> when <condition> [and <condition> ...] do <action> [then <action> ...]#0 - creates a scheduled rule
+	#3roomrent tasks rule draft new|copy|show|key|cooldown|removecondition|removestep|discard|finalise ...#0 - drafts and finalises scheduled rules
+	#3roomrent tasks rule condition <condition>#0 - adds a condition to your scheduled-rule draft
+	#3roomrent tasks rule step <action syntax>#0 - adds an action to your scheduled-rule draft
+	#3roomrent tasks rule diagnose|evaluate|pause|resume|cancel <##|name|all> [manual <key>]#0 - diagnoses, manually evaluates, pauses, resumes, or cancels scheduled rules
+	#3roomrent tasks conditions [all|category|condition]#0 - lists scheduled-rule condition syntax and authority
+
+Hotel employment communication and audit:
+
+	#3roomrent goals#0 - lists manager goals
+	#3roomrent register#0 - shows employment register entries
+	#3roomrent employmentledger|empledger#0 - shows employment ledger entries
+	#3roomrent board [read <##>|write <title>]#0 - uses the staff board
+
+Use #3roomrent tasks actions#0 and #3roomrent tasks conditions#0 for the full action and condition catalogues.
+
 Economic zone manager commands:
 
 	#3roomrent approve <property>#0 - approves a requested hotel license";
@@ -73,12 +129,14 @@ Economic zone manager commands:
 	[NoCombatCommand]
 	[NoHideCommand]
 	[PlayerCommand("RoomRent", "roomrent")]
-	[HelpInfo("roomrent", RoomRentHelp, AutoHelp.HelpArg)]
+	[HelpInfo("roomrent", RoomRentHelp, AutoHelp.HelpArg, RoomRentManagerHelp)]
+	[ConditionalHelpInfo(nameof(CanSeeRoomRentManagerHelp), RoomRentManagerHelp)]
 	[CustomModuleName("Economy")]
 	protected static void RoomRent(ICharacter actor, string command)
 	{
 		var ss = new StringStack(command.RemoveFirstWord());
-		switch (ss.PopForSwitch())
+		var subcommand = ss.PopForSwitch();
+		switch (subcommand)
 		{
 			case "list":
 				RoomRentList(actor, ss);
@@ -155,9 +213,31 @@ Economic zone manager commands:
 				RoomRentLost(actor, ss);
 				return;
 			default:
-				actor.OutputHandler.Send(RoomRentHelp.SubstituteANSIColour());
+				if (EmploymentCommandService.IsEmploymentShortcut(subcommand))
+				{
+					var property = CurrentProperty(actor);
+					new EmploymentCommandService().TryExecuteShortcut(actor, property?.Hotel, "hotel", subcommand, ss);
+					return;
+				}
+
+				actor.OutputHandler.Send(RoomRentHelpFor(actor).SubstituteANSIColour());
 				return;
 		}
+	}
+
+	private static string RoomRentHelpFor(ICharacter actor)
+	{
+		return actor.IsAdministrator() || CanSeeRoomRentManagerHelp(actor) ? RoomRentManagerHelp : RoomRentHelp;
+	}
+
+	private static bool CanSeeRoomRentManagerHelp(ICharacter actor)
+	{
+		if (actor.Gameworld is null || actor.Location is null)
+		{
+			return false;
+		}
+
+		return EmploymentCommandService.CanViewManagerAliasHelp(actor, CurrentProperty(actor)?.Hotel);
 	}
 
 	private static IProperty CurrentProperty(ICharacter actor)
@@ -1110,7 +1190,7 @@ Economic zone manager commands:
 				RoomRentRoomListed(actor, ss);
 				return;
 			default:
-				actor.OutputHandler.Send(RoomRentHelp.SubstituteANSIColour());
+				actor.OutputHandler.Send(RoomRentHelpFor(actor).SubstituteANSIColour());
 				return;
 		}
 	}
@@ -1373,7 +1453,7 @@ Economic zone manager commands:
 		};
 		if (add == null)
 		{
-			actor.OutputHandler.Send(RoomRentHelp.SubstituteANSIColour());
+			actor.OutputHandler.Send(RoomRentHelpFor(actor).SubstituteANSIColour());
 			return;
 		}
 
@@ -1429,7 +1509,7 @@ Economic zone manager commands:
 				RoomRentFurnishRemove(actor, ss);
 				return;
 			default:
-				actor.OutputHandler.Send(RoomRentHelp.SubstituteANSIColour());
+				actor.OutputHandler.Send(RoomRentHelpFor(actor).SubstituteANSIColour());
 				return;
 		}
 	}
@@ -1559,7 +1639,7 @@ Economic zone manager commands:
 				RoomRentLostRelease(actor, ss);
 				return;
 			default:
-				actor.OutputHandler.Send(RoomRentHelp.SubstituteANSIColour());
+				actor.OutputHandler.Send(RoomRentHelpFor(actor).SubstituteANSIColour());
 				return;
 		}
 	}

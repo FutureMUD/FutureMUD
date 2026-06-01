@@ -9122,6 +9122,990 @@ namespace MudSharp.Migrations
                     b.ToTable("EmailTemplates");
                 });
 
+            modelBuilder.Entity("MudSharp.Models.EmploymentActionPlanRecord", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("EmploymentHostStateId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("varchar(200)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Name"), "utf8");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("EmploymentHostStateId")
+                        .HasDatabaseName("FK_EmploymentActionPlans_HostStates_idx");
+
+                    b.ToTable("EmploymentActionPlans", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.EmploymentActionStepRecord", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("AccountName")
+                        .HasColumnType("varchar(200)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("AccountName"), "utf8");
+
+                    b.Property<decimal?>("Amount")
+                        .HasColumnType("decimal(58,29)");
+
+                    b.Property<long?>("AmountCurrencyId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<string>("BoardText")
+                        .HasColumnType("mediumtext")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("BoardText"), "utf8");
+
+                    b.Property<string>("BoardTitle")
+                        .HasColumnType("varchar(200)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("BoardTitle"), "utf8");
+
+                    b.Property<string>("CommandArguments")
+                        .HasColumnType("mediumtext")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("CommandArguments"), "utf8");
+
+                    b.Property<string>("CommandName")
+                        .HasColumnType("varchar(100)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("CommandName"), "utf8");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("mediumtext")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Description"), "utf8");
+
+                    b.Property<long?>("DestinationCellId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("EmploymentActionPlanId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long?>("ExecutionCellId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<string>("ExistingFinancialRecord")
+                        .HasColumnType("varchar(200)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("ExistingFinancialRecord"), "utf8");
+
+                    b.Property<ulong>("IsFinancialStep")
+                        .HasColumnType("bit(1)");
+
+                    b.Property<long>("RequiredAuthority")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<string>("RequiredCapabilities")
+                        .IsRequired()
+                        .HasColumnType("varchar(500)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("RequiredCapabilities"), "utf8");
+
+                    b.Property<ulong>("RequiresPaymentAuthorisation")
+                        .HasColumnType("bit(1)");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("int(11)");
+
+                    b.Property<int>("StepType")
+                        .HasColumnType("int(11)");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("EmploymentActionPlanId")
+                        .HasDatabaseName("FK_EmploymentActionSteps_Plans_idx");
+
+                    b.ToTable("EmploymentActionSteps", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.EmploymentActiveTaskRecord", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<long?>("AssignedEmployeeId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<string>("BlockedReason")
+                        .HasColumnType("mediumtext")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("BlockedReason"), "utf8");
+
+                    b.Property<string>("CorrelationId")
+                        .IsRequired()
+                        .HasColumnType("varchar(36)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("CorrelationId"), "utf8");
+
+                    b.Property<long>("EmploymentActionPlanId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("EmploymentHostStateId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<string>("IdempotencyKey")
+                        .IsRequired()
+                        .HasColumnType("varchar(200)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("IdempotencyKey"), "utf8");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("varchar(200)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Name"), "utf8");
+
+                    b.Property<string>("PublicId")
+                        .IsRequired()
+                        .HasColumnType("varchar(36)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("PublicId"), "utf8");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int(11)");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("EmploymentActionPlanId")
+                        .HasDatabaseName("FK_EmploymentActiveTasks_Plans_idx");
+
+                    b.HasIndex("EmploymentHostStateId")
+                        .HasDatabaseName("FK_EmploymentActiveTasks_HostStates_idx");
+
+                    b.HasIndex("PublicId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_EmploymentActiveTasks_PublicId");
+
+                    b.ToTable("EmploymentActiveTasks", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.EmploymentActiveTaskStepStateRecord", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("CraftJobReference")
+                        .HasColumnType("longtext");
+
+                    b.Property<long>("EmploymentActiveTaskId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<string>("FailureDiagnostic")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("LoadedAssets")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("OperationalPayload")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("ReservationReference")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("RouteResult")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("SelectedResources")
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("int(11)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int(11)");
+
+                    b.Property<string>("TransactionReference")
+                        .HasColumnType("longtext");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("EmploymentActiveTaskId")
+                        .HasDatabaseName("FK_EmploymentActiveTaskStepStates_Tasks_idx");
+
+                    b.ToTable("EmploymentActiveTaskStepStates", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.EmploymentApplicationRecord", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("AppliedAt")
+                        .HasColumnType("datetime");
+
+                    b.Property<long>("CandidateId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<string>("DecisionReason")
+                        .HasColumnType("mediumtext")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("DecisionReason"), "utf8");
+
+                    b.Property<long>("EmploymentJobOpeningId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("RuntimeId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int(11)");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("CandidateId")
+                        .HasDatabaseName("IX_EmploymentApplications_Candidate");
+
+                    b.HasIndex("EmploymentJobOpeningId")
+                        .HasDatabaseName("FK_EmploymentApplications_Openings_idx");
+
+                    b.HasIndex("EmploymentJobOpeningId", "RuntimeId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_EmploymentApplications_Opening_Runtime");
+
+                    b.ToTable("EmploymentApplications", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.EmploymentContractRecord", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("Authority")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long?>("DurationTicks")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<int>("DurationType")
+                        .HasColumnType("int(11)");
+
+                    b.Property<long>("EmployeeId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<int>("EmployerPaymentSource")
+                        .HasColumnType("int(11)");
+
+                    b.Property<long>("EmploymentHostStateId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<int?>("EndReason")
+                        .HasColumnType("int(11)");
+
+                    b.Property<DateTime?>("EndsAt")
+                        .HasColumnType("datetime");
+
+                    b.Property<decimal?>("FixedRateAmount")
+                        .HasColumnType("decimal(58,29)");
+
+                    b.Property<long?>("FixedRateCurrencyId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<int>("MarketBindingType")
+                        .HasColumnType("int(11)");
+
+                    b.Property<decimal?>("MarketBindingValue")
+                        .HasColumnType("decimal(58,29)");
+
+                    b.Property<decimal?>("MinimumEffectivePayAmount")
+                        .HasColumnType("decimal(58,29)");
+
+                    b.Property<long?>("MinimumEffectivePayCurrencyId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<int>("PayCadence")
+                        .HasColumnType("int(11)");
+
+                    b.Property<long?>("PaymentBankAccountId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long?>("PaymentItemId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<string>("PaymentItemType")
+                        .HasColumnType("varchar(100)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("PaymentItemType"), "utf8");
+
+                    b.Property<int>("PaymentMethodKind")
+                        .HasColumnType("int(11)");
+
+                    b.Property<string>("PaymentNotes")
+                        .HasColumnType("mediumtext")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("PaymentNotes"), "utf8");
+
+                    b.Property<int>("Role")
+                        .HasColumnType("int(11)");
+
+                    b.Property<long>("RuntimeId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<string>("ScheduleDescription")
+                        .IsRequired()
+                        .HasColumnType("varchar(500)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("ScheduleDescription"), "utf8");
+
+                    b.Property<long?>("ScheduleEndTicks")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long?>("ScheduleStartTicks")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<DateTime>("StartedAt")
+                        .HasColumnType("datetime");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int(11)");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("EmployeeId")
+                        .HasDatabaseName("IX_EmploymentContracts_Employee");
+
+                    b.HasIndex("EmploymentHostStateId")
+                        .HasDatabaseName("FK_EmploymentContracts_HostStates_idx");
+
+                    b.HasIndex("EmploymentHostStateId", "RuntimeId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_EmploymentContracts_Host_Runtime");
+
+                    b.ToTable("EmploymentContracts", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.EmploymentHostState", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("BoardId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime");
+
+                    b.Property<long>("HostId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<string>("HostType")
+                        .IsRequired()
+                        .HasColumnType("varchar(50)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("HostType"), "utf8");
+
+                    b.Property<DateTime>("LastUpdatedAt")
+                        .HasColumnType("datetime");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("BoardId")
+                        .HasDatabaseName("FK_EmploymentHostStates_Boards_idx");
+
+                    b.HasIndex("HostType", "HostId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_EmploymentHostStates_Host");
+
+                    b.ToTable("EmploymentHostStates", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.EmploymentJobOpeningRecord", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("Authority")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long?>("DurationTicks")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<int>("DurationType")
+                        .HasColumnType("int(11)");
+
+                    b.Property<int>("EmployerPaymentSource")
+                        .HasColumnType("int(11)");
+
+                    b.Property<long>("EmploymentHostStateId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<decimal?>("FixedRateAmount")
+                        .HasColumnType("decimal(58,29)");
+
+                    b.Property<long?>("FixedRateCurrencyId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<int>("MarketBindingType")
+                        .HasColumnType("int(11)");
+
+                    b.Property<decimal?>("MarketBindingValue")
+                        .HasColumnType("decimal(58,29)");
+
+                    b.Property<int>("MaxPositions")
+                        .HasColumnType("int(11)");
+
+                    b.Property<decimal?>("MinimumEffectivePayAmount")
+                        .HasColumnType("decimal(58,29)");
+
+                    b.Property<long?>("MinimumEffectivePayCurrencyId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<ulong>("NpcApplicationsOnly")
+                        .HasColumnType("bit(1)");
+
+                    b.Property<int>("PayCadence")
+                        .HasColumnType("int(11)");
+
+                    b.Property<long?>("PaymentBankAccountId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long?>("PaymentItemId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<string>("PaymentItemType")
+                        .HasColumnType("varchar(100)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("PaymentItemType"), "utf8");
+
+                    b.Property<int>("PaymentMethodKind")
+                        .HasColumnType("int(11)");
+
+                    b.Property<string>("PaymentNotes")
+                        .HasColumnType("mediumtext")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("PaymentNotes"), "utf8");
+
+                    b.Property<int>("Role")
+                        .HasColumnType("int(11)");
+
+                    b.Property<long>("RuntimeId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<string>("ScheduleDescription")
+                        .IsRequired()
+                        .HasColumnType("varchar(500)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("ScheduleDescription"), "utf8");
+
+                    b.Property<long?>("ScheduleEndTicks")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long?>("ScheduleStartTicks")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int(11)");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("EmploymentHostStateId")
+                        .HasDatabaseName("FK_EmploymentJobOpenings_HostStates_idx");
+
+                    b.HasIndex("EmploymentHostStateId", "RuntimeId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_EmploymentJobOpenings_Host_Runtime");
+
+                    b.ToTable("EmploymentJobOpenings", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.EmploymentJobOpeningRequirement", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<int?>("Capability")
+                        .HasColumnType("int(11)");
+
+                    b.Property<long>("EmploymentJobOpeningId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("varchar(200)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Name"), "utf8");
+
+                    b.Property<double?>("NumericValue")
+                        .HasColumnType("double");
+
+                    b.Property<int>("RequirementType")
+                        .HasColumnType("int(11)");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("EmploymentJobOpeningId")
+                        .HasDatabaseName("FK_EmploymentJobOpeningRequirements_Openings_idx");
+
+                    b.ToTable("EmploymentJobOpeningRequirements", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.EmploymentLedgerEntryRecord", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<long?>("ActorId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<decimal?>("Amount")
+                        .HasColumnType("decimal(58,29)");
+
+                    b.Property<long?>("AmountCurrencyId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<string>("CorrelationId")
+                        .IsRequired()
+                        .HasColumnType("varchar(36)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("CorrelationId"), "utf8");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("mediumtext")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Description"), "utf8");
+
+                    b.Property<long>("EmploymentHostStateId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<int>("EntryType")
+                        .HasColumnType("int(11)");
+
+                    b.Property<DateTime>("RecordedAt")
+                        .HasColumnType("datetime");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("CorrelationId")
+                        .HasDatabaseName("IX_EmploymentLedgerEntries_Correlation");
+
+                    b.HasIndex("EmploymentHostStateId")
+                        .HasDatabaseName("FK_EmploymentLedgerEntries_HostStates_idx");
+
+                    b.ToTable("EmploymentLedgerEntries", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.EmploymentManagerGoalRecord", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("ConfigurationDescription")
+                        .IsRequired()
+                        .HasColumnType("mediumtext")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("ConfigurationDescription"), "utf8");
+
+                    b.Property<string>("CorrelationId")
+                        .IsRequired()
+                        .HasColumnType("varchar(36)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("CorrelationId"), "utf8");
+
+                    b.Property<long?>("EmploymentActionPlanId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("EmploymentHostStateId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("EvaluationCadenceTicks")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<int>("GoalType")
+                        .HasColumnType("int(11)");
+
+                    b.Property<DateTime?>("LastEvaluatedAt")
+                        .HasColumnType("datetime");
+
+                    b.Property<string>("LastEvaluationResult")
+                        .HasColumnType("mediumtext")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("LastEvaluationResult"), "utf8");
+
+                    b.Property<int>("Priority")
+                        .HasColumnType("int(11)");
+
+                    b.Property<long>("RequiredAuthority")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("RuntimeId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int(11)");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("EmploymentActionPlanId")
+                        .HasDatabaseName("FK_EmploymentManagerGoals_Plans_idx");
+
+                    b.HasIndex("EmploymentHostStateId")
+                        .HasDatabaseName("FK_EmploymentManagerGoals_HostStates_idx");
+
+                    b.HasIndex("EmploymentHostStateId", "RuntimeId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_EmploymentManagerGoals_Host_Runtime");
+
+                    b.ToTable("EmploymentManagerGoals", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.EmploymentPayableRecord", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("AccruedAt")
+                        .HasColumnType("datetime");
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(58,29)");
+
+                    b.Property<long>("AmountCurrencyId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<DateTime?>("ClaimedAt")
+                        .HasColumnType("datetime");
+
+                    b.Property<long?>("ContractRuntimeId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<string>("CorrelationId")
+                        .IsRequired()
+                        .HasColumnType("varchar(36)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("CorrelationId"), "utf8");
+
+                    b.Property<DateTime>("DueAt")
+                        .HasColumnType("datetime");
+
+                    b.Property<long>("EmployeeId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<string>("EmployeeName")
+                        .IsRequired()
+                        .HasColumnType("varchar(200)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("EmployeeName"), "utf8");
+
+                    b.Property<long>("EmploymentHostStateId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<int>("PayCadence")
+                        .HasColumnType("int(11)");
+
+                    b.Property<DateTime>("PayPeriodEnd")
+                        .HasColumnType("datetime");
+
+                    b.Property<DateTime>("PayPeriodStart")
+                        .HasColumnType("datetime");
+
+                    b.Property<long?>("PaymentBankAccountId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long?>("PaymentItemId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<string>("PaymentItemType")
+                        .HasColumnType("varchar(100)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("PaymentItemType"), "utf8");
+
+                    b.Property<int>("PaymentMethodKind")
+                        .HasColumnType("int(11)");
+
+                    b.Property<string>("PaymentNotes")
+                        .HasColumnType("mediumtext")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("PaymentNotes"), "utf8");
+
+                    b.Property<int>("Role")
+                        .HasColumnType("int(11)");
+
+                    b.Property<long>("RuntimeId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<DateTime?>("SettledAt")
+                        .HasColumnType("datetime");
+
+                    b.Property<string>("SettlementNote")
+                        .HasColumnType("mediumtext")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("SettlementNote"), "utf8");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int(11)");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("CorrelationId")
+                        .HasDatabaseName("IX_EmploymentPayables_Correlation");
+
+                    b.HasIndex("EmployeeId")
+                        .HasDatabaseName("IX_EmploymentPayables_Employee");
+
+                    b.HasIndex("EmploymentHostStateId")
+                        .HasDatabaseName("FK_EmploymentPayables_HostStates_idx");
+
+                    b.HasIndex("EmploymentHostStateId", "RuntimeId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_EmploymentPayables_Host_Runtime");
+
+                    b.HasIndex("EmploymentHostStateId", "ContractRuntimeId", "PayPeriodStart", "PayPeriodEnd")
+                        .IsUnique()
+                        .HasDatabaseName("IX_EmploymentPayables_Contract_Period");
+
+                    b.ToTable("EmploymentPayables", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.EmploymentRegisterEntryRecord", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<long?>("ActorId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<string>("CorrelationId")
+                        .IsRequired()
+                        .HasColumnType("varchar(36)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("CorrelationId"), "utf8");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("mediumtext")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Description"), "utf8");
+
+                    b.Property<long>("EmploymentHostStateId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<int>("EntryType")
+                        .HasColumnType("int(11)");
+
+                    b.Property<DateTime>("RecordedAt")
+                        .HasColumnType("datetime");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("CorrelationId")
+                        .HasDatabaseName("IX_EmploymentRegisterEntries_Correlation");
+
+                    b.HasIndex("EmploymentHostStateId")
+                        .HasDatabaseName("FK_EmploymentRegisterEntries_HostStates_idx");
+
+                    b.ToTable("EmploymentRegisterEntries", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.EmploymentScheduledTaskRuleRecord", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CooldownTicks")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("EmploymentActionPlanId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("EmploymentHostStateId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<string>("IdempotencyKey")
+                        .IsRequired()
+                        .HasColumnType("varchar(200)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("IdempotencyKey"), "utf8");
+
+                    b.Property<DateTime?>("LastSpawnedAt")
+                        .HasColumnType("datetime");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("varchar(200)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Name"), "utf8");
+
+                    b.Property<string>("PublicId")
+                        .IsRequired()
+                        .HasColumnType("varchar(36)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("PublicId"), "utf8");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int(11)");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("EmploymentActionPlanId")
+                        .HasDatabaseName("FK_EmploymentScheduledTaskRules_Plans_idx");
+
+                    b.HasIndex("EmploymentHostStateId")
+                        .HasDatabaseName("FK_EmploymentScheduledTaskRules_HostStates_idx");
+
+                    b.HasIndex("PublicId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_EmploymentScheduledTaskRules_PublicId");
+
+                    b.ToTable("EmploymentScheduledTaskRules", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.EmploymentTaskConditionRecord", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<ulong?>("BoolValue")
+                        .HasColumnType("bit(1)");
+
+                    b.Property<int>("ConditionType")
+                        .HasColumnType("int(11)");
+
+                    b.Property<long?>("EarliestTicks")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<string>("Key")
+                        .HasColumnType("varchar(200)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Key"), "utf8");
+
+                    b.Property<long?>("LatestTicks")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long?>("ManagerGoalId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long?>("ScheduledTaskRuleId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("int(11)");
+
+                    b.Property<decimal?>("ThresholdDecimal")
+                        .HasColumnType("decimal(58,29)");
+
+                    b.Property<int?>("ThresholdInt")
+                        .HasColumnType("int(11)");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("ManagerGoalId")
+                        .HasDatabaseName("FK_EmploymentTaskConditions_ManagerGoals_idx");
+
+                    b.HasIndex("ScheduledTaskRuleId")
+                        .HasDatabaseName("FK_EmploymentTaskConditions_ScheduledRules_idx");
+
+                    b.ToTable("EmploymentTaskConditions", (string)null);
+                });
+
             modelBuilder.Entity("MudSharp.Models.EnforcementAuthoritiesAccusableClasses", b =>
                 {
                     b.Property<long>("EnforcementAuthorityId")
@@ -11346,6 +12330,317 @@ namespace MudSharp.Migrations
                         .HasDatabaseName("FK_Hooks_Perceivables_Zones_idx");
 
                     b.ToTable("Hooks_Perceivables", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.Hotel", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<long?>("BankAccountId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long?>("CanRentProgId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime");
+
+                    b.Property<DateTime>("LastUpdatedAt")
+                        .HasColumnType("datetime");
+
+                    b.Property<int>("LicenseStatus")
+                        .HasColumnType("int(11)");
+
+                    b.Property<string>("LostPropertyRetention")
+                        .IsRequired()
+                        .HasColumnType("varchar(200)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("LostPropertyRetention"), "utf8");
+
+                    b.Property<decimal>("OutstandingTaxes")
+                        .HasColumnType("decimal(58,29)");
+
+                    b.Property<long>("PropertyId")
+                        .HasColumnType("bigint(20)");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("BankAccountId")
+                        .HasDatabaseName("FK_Hotels_BankAccounts_idx");
+
+                    b.HasIndex("CanRentProgId")
+                        .HasDatabaseName("FK_Hotels_FutureProgs_idx");
+
+                    b.HasIndex("PropertyId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_Hotels_PropertyId");
+
+                    b.ToTable("Hotels", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.HotelBannedPatron", b =>
+                {
+                    b.Property<long>("HotelId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("PatronId")
+                        .HasColumnType("bigint(20)");
+
+                    b.HasKey("HotelId", "PatronId")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("PatronId")
+                        .HasDatabaseName("IX_HotelBannedPatrons_Patron");
+
+                    b.ToTable("HotelBannedPatrons", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.HotelLostProperty", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<long?>("AuctionHouseId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("BundleId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("varchar(500)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Description"), "utf8");
+
+                    b.Property<long>("HotelId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("HotelRoomId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("OwnerId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<decimal>("ReservePrice")
+                        .HasColumnType("decimal(58,29)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int(11)");
+
+                    b.Property<string>("StoredUntil")
+                        .IsRequired()
+                        .HasColumnType("varchar(100)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("StoredUntil"), "utf8");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("BundleId")
+                        .HasDatabaseName("IX_HotelLostProperties_Bundle");
+
+                    b.HasIndex("HotelId")
+                        .HasDatabaseName("FK_HotelLostProperties_Hotels_idx");
+
+                    b.HasIndex("HotelRoomId")
+                        .HasDatabaseName("FK_HotelLostProperties_HotelRooms_idx");
+
+                    b.HasIndex("OwnerId")
+                        .HasDatabaseName("IX_HotelLostProperties_Owner");
+
+                    b.ToTable("HotelLostProperties", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.HotelPatronBalance", b =>
+                {
+                    b.Property<long>("HotelId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("PatronId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<decimal>("Balance")
+                        .HasColumnType("decimal(58,29)");
+
+                    b.HasKey("HotelId", "PatronId")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("PatronId")
+                        .HasDatabaseName("IX_HotelPatronBalances_Patron");
+
+                    b.ToTable("HotelPatronBalances", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.HotelRoom", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("CellId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("HotelId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<ulong>("Listed")
+                        .HasColumnType("bit(1)");
+
+                    b.Property<long>("MaximumDurationTicks")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("MinimumDurationTicks")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("varchar(200)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Name"), "utf8");
+
+                    b.Property<decimal>("PricePerDay")
+                        .HasColumnType("decimal(58,29)");
+
+                    b.Property<decimal>("SecurityDeposit")
+                        .HasColumnType("decimal(58,29)");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("CellId")
+                        .HasDatabaseName("FK_HotelRooms_Cells_idx");
+
+                    b.HasIndex("HotelId")
+                        .HasDatabaseName("FK_HotelRooms_Hotels_idx");
+
+                    b.HasIndex("HotelId", "CellId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_HotelRooms_Hotel_Cell");
+
+                    b.ToTable("HotelRooms", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.HotelRoomFurnishing", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("varchar(500)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Description"), "utf8");
+
+                    b.Property<long>("GameItemId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("HotelRoomId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<double>("OriginalCondition")
+                        .HasColumnType("double");
+
+                    b.Property<double>("OriginalDamageCondition")
+                        .HasColumnType("double");
+
+                    b.Property<decimal>("ReplacementValue")
+                        .HasColumnType("decimal(58,29)");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("GameItemId")
+                        .HasDatabaseName("IX_HotelRoomFurnishings_GameItem");
+
+                    b.HasIndex("HotelRoomId")
+                        .HasDatabaseName("FK_HotelRoomFurnishings_HotelRooms_idx");
+
+                    b.ToTable("HotelRoomFurnishings", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.HotelRoomKey", b =>
+                {
+                    b.Property<long>("HotelRoomId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("PropertyKeyId")
+                        .HasColumnType("bigint(20)");
+
+                    b.HasKey("HotelRoomId", "PropertyKeyId")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("PropertyKeyId")
+                        .HasDatabaseName("FK_HotelRoomKeys_PropertyKeys_idx");
+
+                    b.ToTable("HotelRoomKeys", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.HotelRoomRental", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("EndTime")
+                        .IsRequired()
+                        .HasColumnType("varchar(100)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("EndTime"), "utf8");
+
+                    b.Property<long>("GuestId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("HotelRoomId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<decimal>("RentalCharge")
+                        .HasColumnType("decimal(58,29)");
+
+                    b.Property<decimal>("SecurityDeposit")
+                        .HasColumnType("decimal(58,29)");
+
+                    b.Property<string>("StartTime")
+                        .IsRequired()
+                        .HasColumnType("varchar(100)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("StartTime"), "utf8");
+
+                    b.Property<decimal>("TaxCharged")
+                        .HasColumnType("decimal(58,29)");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("GuestId")
+                        .HasDatabaseName("IX_HotelRoomRentals_Guest");
+
+                    b.HasIndex("HotelRoomId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_HotelRoomRentals_Room");
+
+                    b.ToTable("HotelRoomRentals", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.Improver", b =>
@@ -13651,6 +14946,23 @@ namespace MudSharp.Migrations
                     b.Property<decimal>("BasePrice")
                         .HasColumnType("decimal(58,29)");
 
+                    b.Property<string>("CommodityCharacteristics")
+                        .HasColumnType("text")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("CommodityCharacteristics"), "utf8");
+
+                    b.Property<long?>("CommodityMaterialId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<double>("CommodityPricingWeight")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("double")
+                        .HasDefaultValue(1.0);
+
+                    b.Property<long?>("CommodityTagId")
+                        .HasColumnType("bigint(20)");
+
                     b.Property<ulong>("DefaultMerchandiseForItem")
                         .HasColumnType("bit(1)");
 
@@ -13668,6 +14980,11 @@ namespace MudSharp.Migrations
 
                     b.Property<int>("MaximumStockLevelsToBuy")
                         .HasColumnType("int");
+
+                    b.Property<int>("MerchandiseType")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int(11)")
+                        .HasDefaultValue(0);
 
                     b.Property<double>("MinimumConditionToBuy")
                         .ValueGeneratedOnAdd()
@@ -15021,12 +16338,6 @@ namespace MudSharp.Migrations
 
                     b.Property<long>("EconomicZoneId")
                         .HasColumnType("bigint(20)");
-
-                    b.Property<string>("HotelDefinition")
-                        .HasColumnType("text")
-                        .UseCollation("utf8_general_ci");
-
-                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("HotelDefinition"), "utf8");
 
                     b.Property<string>("LastChangeOfOwnership")
                         .IsRequired()
@@ -25019,6 +26330,219 @@ namespace MudSharp.Migrations
                     b.Navigation("Voter");
                 });
 
+            modelBuilder.Entity("MudSharp.Models.EmploymentActionPlanRecord", b =>
+                {
+                    b.HasOne("MudSharp.Models.EmploymentHostState", "EmploymentHostState")
+                        .WithMany("ActionPlans")
+                        .HasForeignKey("EmploymentHostStateId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_EmploymentActionPlans_HostStates");
+
+                    b.Navigation("EmploymentHostState");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.EmploymentActionStepRecord", b =>
+                {
+                    b.HasOne("MudSharp.Models.EmploymentActionPlanRecord", "EmploymentActionPlan")
+                        .WithMany("Steps")
+                        .HasForeignKey("EmploymentActionPlanId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_EmploymentActionSteps_Plans");
+
+                    b.Navigation("EmploymentActionPlan");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.EmploymentActiveTaskRecord", b =>
+                {
+                    b.HasOne("MudSharp.Models.EmploymentActionPlanRecord", "EmploymentActionPlan")
+                        .WithMany("ActiveTasks")
+                        .HasForeignKey("EmploymentActionPlanId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_EmploymentActiveTasks_Plans");
+
+                    b.HasOne("MudSharp.Models.EmploymentHostState", "EmploymentHostState")
+                        .WithMany("ActiveTasks")
+                        .HasForeignKey("EmploymentHostStateId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_EmploymentActiveTasks_HostStates");
+
+                    b.Navigation("EmploymentActionPlan");
+
+                    b.Navigation("EmploymentHostState");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.EmploymentActiveTaskStepStateRecord", b =>
+                {
+                    b.HasOne("MudSharp.Models.EmploymentActiveTaskRecord", "EmploymentActiveTask")
+                        .WithMany("StepStates")
+                        .HasForeignKey("EmploymentActiveTaskId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_EmploymentActiveTaskStepStates_Tasks");
+
+                    b.Navigation("EmploymentActiveTask");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.EmploymentApplicationRecord", b =>
+                {
+                    b.HasOne("MudSharp.Models.EmploymentJobOpeningRecord", "EmploymentJobOpening")
+                        .WithMany("Applications")
+                        .HasForeignKey("EmploymentJobOpeningId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_EmploymentApplications_Openings");
+
+                    b.Navigation("EmploymentJobOpening");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.EmploymentContractRecord", b =>
+                {
+                    b.HasOne("MudSharp.Models.EmploymentHostState", "EmploymentHostState")
+                        .WithMany("Contracts")
+                        .HasForeignKey("EmploymentHostStateId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_EmploymentContracts_HostStates");
+
+                    b.Navigation("EmploymentHostState");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.EmploymentHostState", b =>
+                {
+                    b.HasOne("MudSharp.Models.Board", "Board")
+                        .WithMany()
+                        .HasForeignKey("BoardId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_EmploymentHostStates_Boards");
+
+                    b.Navigation("Board");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.EmploymentJobOpeningRecord", b =>
+                {
+                    b.HasOne("MudSharp.Models.EmploymentHostState", "EmploymentHostState")
+                        .WithMany("JobOpenings")
+                        .HasForeignKey("EmploymentHostStateId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_EmploymentJobOpenings_HostStates");
+
+                    b.Navigation("EmploymentHostState");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.EmploymentJobOpeningRequirement", b =>
+                {
+                    b.HasOne("MudSharp.Models.EmploymentJobOpeningRecord", "EmploymentJobOpening")
+                        .WithMany("Requirements")
+                        .HasForeignKey("EmploymentJobOpeningId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_EmploymentJobOpeningRequirements_Openings");
+
+                    b.Navigation("EmploymentJobOpening");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.EmploymentLedgerEntryRecord", b =>
+                {
+                    b.HasOne("MudSharp.Models.EmploymentHostState", "EmploymentHostState")
+                        .WithMany("LedgerEntries")
+                        .HasForeignKey("EmploymentHostStateId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_EmploymentLedgerEntries_HostStates");
+
+                    b.Navigation("EmploymentHostState");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.EmploymentManagerGoalRecord", b =>
+                {
+                    b.HasOne("MudSharp.Models.EmploymentActionPlanRecord", "EmploymentActionPlan")
+                        .WithMany("ManagerGoals")
+                        .HasForeignKey("EmploymentActionPlanId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("FK_EmploymentManagerGoals_Plans");
+
+                    b.HasOne("MudSharp.Models.EmploymentHostState", "EmploymentHostState")
+                        .WithMany("ManagerGoals")
+                        .HasForeignKey("EmploymentHostStateId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_EmploymentManagerGoals_HostStates");
+
+                    b.Navigation("EmploymentActionPlan");
+
+                    b.Navigation("EmploymentHostState");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.EmploymentPayableRecord", b =>
+                {
+                    b.HasOne("MudSharp.Models.EmploymentHostState", "EmploymentHostState")
+                        .WithMany("Payables")
+                        .HasForeignKey("EmploymentHostStateId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_EmploymentPayables_HostStates");
+
+                    b.Navigation("EmploymentHostState");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.EmploymentRegisterEntryRecord", b =>
+                {
+                    b.HasOne("MudSharp.Models.EmploymentHostState", "EmploymentHostState")
+                        .WithMany("RegisterEntries")
+                        .HasForeignKey("EmploymentHostStateId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_EmploymentRegisterEntries_HostStates");
+
+                    b.Navigation("EmploymentHostState");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.EmploymentScheduledTaskRuleRecord", b =>
+                {
+                    b.HasOne("MudSharp.Models.EmploymentActionPlanRecord", "EmploymentActionPlan")
+                        .WithMany("ScheduledTaskRules")
+                        .HasForeignKey("EmploymentActionPlanId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_EmploymentScheduledTaskRules_Plans");
+
+                    b.HasOne("MudSharp.Models.EmploymentHostState", "EmploymentHostState")
+                        .WithMany("ScheduledTaskRules")
+                        .HasForeignKey("EmploymentHostStateId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_EmploymentScheduledTaskRules_HostStates");
+
+                    b.Navigation("EmploymentActionPlan");
+
+                    b.Navigation("EmploymentHostState");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.EmploymentTaskConditionRecord", b =>
+                {
+                    b.HasOne("MudSharp.Models.EmploymentManagerGoalRecord", "ManagerGoal")
+                        .WithMany("Conditions")
+                        .HasForeignKey("ManagerGoalId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .HasConstraintName("FK_EmploymentTaskConditions_ManagerGoals");
+
+                    b.HasOne("MudSharp.Models.EmploymentScheduledTaskRuleRecord", "ScheduledTaskRule")
+                        .WithMany("Conditions")
+                        .HasForeignKey("ScheduledTaskRuleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .HasConstraintName("FK_EmploymentTaskConditions_ScheduledRules");
+
+                    b.Navigation("ManagerGoal");
+
+                    b.Navigation("ScheduledTaskRule");
+                });
+
             modelBuilder.Entity("MudSharp.Models.EnforcementAuthoritiesAccusableClasses", b =>
                 {
                     b.HasOne("MudSharp.Models.EnforcementAuthority", "EnforcementAuthority")
@@ -25784,6 +27308,145 @@ namespace MudSharp.Migrations
                     b.Navigation("Shard");
 
                     b.Navigation("Zone");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.Hotel", b =>
+                {
+                    b.HasOne("MudSharp.Models.BankAccount", "BankAccount")
+                        .WithMany()
+                        .HasForeignKey("BankAccountId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK_Hotels_BankAccounts");
+
+                    b.HasOne("MudSharp.Models.FutureProg", "CanRentProg")
+                        .WithMany()
+                        .HasForeignKey("CanRentProgId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK_Hotels_FutureProgs");
+
+                    b.HasOne("MudSharp.Models.Property", "Property")
+                        .WithOne("Hotel")
+                        .HasForeignKey("MudSharp.Models.Hotel", "PropertyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_Hotels_Properties");
+
+                    b.Navigation("BankAccount");
+
+                    b.Navigation("CanRentProg");
+
+                    b.Navigation("Property");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.HotelBannedPatron", b =>
+                {
+                    b.HasOne("MudSharp.Models.Hotel", "Hotel")
+                        .WithMany("BannedPatrons")
+                        .HasForeignKey("HotelId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_HotelBannedPatrons_Hotels");
+
+                    b.Navigation("Hotel");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.HotelLostProperty", b =>
+                {
+                    b.HasOne("MudSharp.Models.Hotel", "Hotel")
+                        .WithMany("LostProperties")
+                        .HasForeignKey("HotelId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_HotelLostProperties_Hotels");
+
+                    b.HasOne("MudSharp.Models.HotelRoom", "HotelRoom")
+                        .WithMany()
+                        .HasForeignKey("HotelRoomId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_HotelLostProperties_HotelRooms");
+
+                    b.Navigation("Hotel");
+
+                    b.Navigation("HotelRoom");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.HotelPatronBalance", b =>
+                {
+                    b.HasOne("MudSharp.Models.Hotel", "Hotel")
+                        .WithMany("PatronBalances")
+                        .HasForeignKey("HotelId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_HotelPatronBalances_Hotels");
+
+                    b.Navigation("Hotel");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.HotelRoom", b =>
+                {
+                    b.HasOne("MudSharp.Models.Cell", "Cell")
+                        .WithMany()
+                        .HasForeignKey("CellId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_HotelRooms_Cells");
+
+                    b.HasOne("MudSharp.Models.Hotel", "Hotel")
+                        .WithMany("Rooms")
+                        .HasForeignKey("HotelId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_HotelRooms_Hotels");
+
+                    b.Navigation("Cell");
+
+                    b.Navigation("Hotel");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.HotelRoomFurnishing", b =>
+                {
+                    b.HasOne("MudSharp.Models.HotelRoom", "HotelRoom")
+                        .WithMany("Furnishings")
+                        .HasForeignKey("HotelRoomId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_HotelRoomFurnishings_HotelRooms");
+
+                    b.Navigation("HotelRoom");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.HotelRoomKey", b =>
+                {
+                    b.HasOne("MudSharp.Models.HotelRoom", "HotelRoom")
+                        .WithMany("Keys")
+                        .HasForeignKey("HotelRoomId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_HotelRoomKeys_HotelRooms");
+
+                    b.HasOne("MudSharp.Models.PropertyKey", "PropertyKey")
+                        .WithMany()
+                        .HasForeignKey("PropertyKeyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_HotelRoomKeys_PropertyKeys");
+
+                    b.Navigation("HotelRoom");
+
+                    b.Navigation("PropertyKey");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.HotelRoomRental", b =>
+                {
+                    b.HasOne("MudSharp.Models.HotelRoom", "HotelRoom")
+                        .WithOne("ActiveRental")
+                        .HasForeignKey("MudSharp.Models.HotelRoomRental", "HotelRoomId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_HotelRoomRentals_HotelRooms");
+
+                    b.Navigation("HotelRoom");
                 });
 
             modelBuilder.Entity("MudSharp.Models.Infection", b =>
@@ -30842,6 +32505,60 @@ namespace MudSharp.Migrations
                     b.Navigation("ElectionVotes");
                 });
 
+            modelBuilder.Entity("MudSharp.Models.EmploymentActionPlanRecord", b =>
+                {
+                    b.Navigation("ActiveTasks");
+
+                    b.Navigation("ManagerGoals");
+
+                    b.Navigation("ScheduledTaskRules");
+
+                    b.Navigation("Steps");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.EmploymentActiveTaskRecord", b =>
+                {
+                    b.Navigation("StepStates");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.EmploymentHostState", b =>
+                {
+                    b.Navigation("ActionPlans");
+
+                    b.Navigation("ActiveTasks");
+
+                    b.Navigation("Contracts");
+
+                    b.Navigation("JobOpenings");
+
+                    b.Navigation("LedgerEntries");
+
+                    b.Navigation("ManagerGoals");
+
+                    b.Navigation("Payables");
+
+                    b.Navigation("RegisterEntries");
+
+                    b.Navigation("ScheduledTaskRules");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.EmploymentJobOpeningRecord", b =>
+                {
+                    b.Navigation("Applications");
+
+                    b.Navigation("Requirements");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.EmploymentManagerGoalRecord", b =>
+                {
+                    b.Navigation("Conditions");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.EmploymentScheduledTaskRuleRecord", b =>
+                {
+                    b.Navigation("Conditions");
+                });
+
             modelBuilder.Entity("MudSharp.Models.EnforcementAuthority", b =>
                 {
                     b.Navigation("EnforcementAuthoritiesAccusableClasses");
@@ -31132,6 +32849,26 @@ namespace MudSharp.Migrations
                     b.Navigation("DefaultHooks");
 
                     b.Navigation("HooksPerceivables");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.Hotel", b =>
+                {
+                    b.Navigation("BannedPatrons");
+
+                    b.Navigation("LostProperties");
+
+                    b.Navigation("PatronBalances");
+
+                    b.Navigation("Rooms");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.HotelRoom", b =>
+                {
+                    b.Navigation("ActiveRental");
+
+                    b.Navigation("Furnishings");
+
+                    b.Navigation("Keys");
                 });
 
             modelBuilder.Entity("MudSharp.Models.ItemGroup", b =>
@@ -31439,6 +33176,8 @@ namespace MudSharp.Migrations
 
             modelBuilder.Entity("MudSharp.Models.Property", b =>
                 {
+                    b.Navigation("Hotel");
+
                     b.Navigation("LeaseOrders");
 
                     b.Navigation("PropertyKeys");

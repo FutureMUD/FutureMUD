@@ -2,6 +2,7 @@ using MudSharp.Character;
 using MudSharp.Character.Name;
 using MudSharp.Construction;
 using MudSharp.Economy.Currency;
+using MudSharp.Economy.Employment;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.FutureProg;
@@ -112,7 +113,7 @@ public interface IStableAccount : IFrameworkItem, ISaveable
 	string Show(ICharacter actor);
 }
 
-public interface IStable : IFrameworkItem, ISaveable, IKeywordedItem
+public interface IStable : IFrameworkItem, ISaveable, IKeywordedItem, IEmploymentHost
 {
 	IEconomicZone EconomicZone { get; set; }
 	ICurrency Currency { get; }

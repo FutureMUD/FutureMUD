@@ -4,6 +4,7 @@ using MudSharp.Character.Name;
 using MudSharp.Construction;
 using MudSharp.Database;
 using MudSharp.Economy.Currency;
+using MudSharp.Economy.Employment;
 using MudSharp.Economy.Payment;
 using MudSharp.Effects.Concrete;
 using MudSharp.Events;
@@ -20,6 +21,7 @@ using MudSharp.PerceptionEngine.Lists;
 using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.RPG.Law;
+using MudSharp.TimeAndDate;
 using MudSharp.TimeAndDate.Date;
 using MudSharp.TimeAndDate.Time;
 using System;
@@ -316,17 +318,17 @@ public abstract partial class Shop : SaveableItem, IShop
     public abstract IEnumerable<ICell> CurrentLocations { get; }
     public bool IsEmployee(ICharacter actor)
     {
-        return _employeeRecords.Any(x => x.EmployeeCharacterId == actor.Id);
+        return this.HasActiveEmploymentContract(actor);
     }
 
     public bool IsManager(ICharacter actor)
     {
-        return _employeeRecords.Any(x => x.EmployeeCharacterId == actor.Id && x.IsManager);
+        return this.HasManagerEmploymentAccess(actor);
     }
 
     public bool IsProprietor(ICharacter actor)
     {
-        return _employeeRecords.Any(x => x.EmployeeCharacterId == actor.Id && x.IsProprietor);
+        return this.HasProprietorEmploymentAccess(actor);
     }
 
     public void SetManager(ICharacter actor, bool isManager)
@@ -349,11 +351,11 @@ public abstract partial class Shop : SaveableItem, IShop
 
     public bool IsClockedIn(ICharacter actor)
     {
-        return _employeeRecords.Any(x => x.EmployeeCharacterId == actor.Id && x.ClockedIn);
+        return IsEmployee(actor);
     }
 
     public IEnumerable<ICharacter> EmployeesOnDuty =>
-        Gameworld.Actors.Where(x => IsClockedIn(x));
+        Gameworld.Actors.Where(IsEmployee);
 
     protected readonly List<IMerchandise> _merchandises = new();
     public IEnumerable<IMerchandise> Merchandises => _merchandises;
@@ -449,9 +451,12 @@ public abstract partial class Shop : SaveableItem, IShop
         item.AddEffect(new ItemOnDisplayInShop(item, this, merch));
         actor?.OutputHandler.Send(
             $"You add {item.HowSeen(actor)} to the for-sale inventory of {Name.TitleCase().Colour(Telnet.Cyan)}.");
+        var stockValue = merch.MerchandiseType == MerchandiseType.Commodity && item.GetItemType<ICommodity>() is { } commodity
+            ? merch.EffectivePriceForWeight(commodity.Weight)
+            : merch.EffectivePrice * item.Quantity;
         AddTransaction(new TransactionRecord(ShopTransactionType.Stock, Currency, this,
             EconomicZone.ZoneForTimePurposes.DateTime(), actor,
-            merch.EffectivePrice * item.Quantity * -1, 0.0M, merch));
+            stockValue * -1, 0.0M, merch));
         _stockedMerchandise.Add(merch, item.Id);
         _stockedMerchandiseCounts.Add(merch, item.Quantity);
     }
@@ -484,7 +489,9 @@ public abstract partial class Shop : SaveableItem, IShop
     {
         IMerchandise merch = MerchandiseForStockItem(item);
         item.RemoveAllEffects<ItemOnDisplayInShop>(fireRemovalAction: true);
-        decimal value = (merch?.EffectivePrice ?? 0.0M) * item.Quantity;
+        decimal value = merch?.MerchandiseType == MerchandiseType.Commodity && item.GetItemType<ICommodity>() is { } commodity
+            ? merch.EffectivePriceForWeight(commodity.Weight)
+            : (merch?.EffectivePrice ?? 0.0M) * item.Quantity;
         AddTransaction(new TransactionRecord(transactionType, Currency, this,
             EconomicZone.ZoneForTimePurposes.DateTime(), actor, value, 0.0M, merch));
         if (merch is null)
@@ -743,6 +750,21 @@ public abstract partial class Shop : SaveableItem, IShop
                 }
 
                 break;
+            default:
+                price = PriceForMerchandise(actor, merchandise, quantity);
+                if (method.Currency != Currency)
+                {
+                    return (false, $"that payment method is for a different currency than this shop uses.");
+                }
+
+                decimal available = method.AccessibleMoneyForPayment();
+                if (available < price)
+                {
+                    return (false,
+                        $"there is only {Currency.Describe(available, CurrencyDescriptionPatternType.Short).ColourValue()} available, but you need {Currency.Describe(price, CurrencyDescriptionPatternType.Short).ColourValue()}.");
+                }
+
+                break;
         }
 
         (bool Truth, string Reason) baseReason = CanBuyInternal(actor, merchandise, quantity, method, extraArguments);
@@ -752,6 +774,153 @@ public abstract partial class Shop : SaveableItem, IShop
         }
 
         return (true, string.Empty);
+    }
+
+    public (bool Truth, string Reason) CanBuyExact(ICharacter actor, IMerchandise merchandise, int quantity,
+        IPaymentMethod method, IEnumerable<IGameItem> exactStockItems)
+    {
+        List<IGameItem> exactItems = exactStockItems.Distinct().ToList();
+        if (!exactItems.Any())
+        {
+            return (false, "no exact stock items were selected for the purchase.");
+        }
+
+        HashSet<long> stockedItemIds = StockedItems(merchandise).Select(x => x.Id).ToHashSet();
+        if (exactItems.Any(x => !stockedItemIds.Contains(x.Id)))
+        {
+            return (false, "one or more selected items are no longer stocked as that merchandise.");
+        }
+
+        int exactQuantity = exactItems.Sum(x => x.Quantity);
+        if (exactQuantity < quantity)
+        {
+            return (false,
+                $"the selected stock items only provide {exactQuantity.ToString("N0", actor)} of that item.");
+        }
+
+        return CanBuy(actor, merchandise, quantity, method);
+    }
+
+    public (bool Truth, string Reason) CanBuyCommodityWeight(ICharacter actor, IMerchandise merchandise,
+        double weight, IPaymentMethod method, IEnumerable<IGameItem> exactStockItems)
+    {
+        if (merchandise.MerchandiseType != MerchandiseType.Commodity)
+        {
+            return (false, "that merchandise is not configured as a commodity sold by weight.");
+        }
+
+        if (weight <= 0.0)
+        {
+            return (false, "the requested commodity weight must be positive.");
+        }
+
+        if (!IsTrading && !actor.IsAdministrator())
+        {
+            return (false, "the store is currently closed");
+        }
+
+        if (CanShopProg?.ExecuteBool(actor, merchandise.Item.Id, merchandise.Item.Tags.Select(x => x.Name)) == false)
+        {
+            return (false,
+                WhyCannotShopProg.Execute(actor, merchandise.Item.Id, merchandise.Item.Tags.Select(x => x.Name))
+                                 ?.ToString() ?? "of an unknown reason");
+        }
+
+        var candidateStock = (exactStockItems?.Any() == true
+                ? exactStockItems.Distinct()
+                : StockedItems(merchandise))
+            .Where(x => x.GetItemType<ICommodity>() is { } commodity && merchandise.IsMerchandiseForCommodity(commodity))
+            .ToList();
+        var stockedIds = StockedItems(merchandise).Select(x => x.Id).ToHashSet();
+        if (candidateStock.Any(x => !stockedIds.Contains(x.Id)))
+        {
+            return (false, "one or more selected commodity items are no longer stocked as that merchandise.");
+        }
+
+        var availableWeight = candidateStock.Sum(x => x.GetItemType<ICommodity>()?.Weight ?? 0.0);
+        if (availableWeight < weight)
+        {
+            return (false,
+                $"the store only has {Gameworld.UnitManager.DescribeExact(availableWeight, Framework.Units.UnitType.Mass, actor)} of that commodity in stock.");
+        }
+
+        var price = PriceForMerchandiseWeight(actor, merchandise, weight);
+        switch (method)
+        {
+            case null:
+                break;
+            case ShopCashPayment cash:
+                var cashonhand = cash.AccessibleMoneyForPayment();
+                if (cashonhand < price)
+                {
+                    return (false,
+                        $"you only have {Currency.Describe(cashonhand, CurrencyDescriptionPatternType.Short).ColourValue()} cash on hand, but you need {Currency.Describe(price, CurrencyDescriptionPatternType.Short).ColourValue()}.");
+                }
+
+                break;
+            case LineOfCreditPayment loc:
+                price = PriceForMerchandiseWeight(
+                    loc.Account.IsAccountOwner(actor)
+                        ? actor
+                        : Gameworld.TryGetCharacter(loc.Account.AccountOwnerId, true), merchandise, weight);
+                switch (loc.Account.IsAuthorisedToUse(actor, price))
+                {
+                    case LineOfCreditAuthorisationFailureReason.NotAuthorisedAccountUser:
+                        return (false, "you are not an authorised user of that line of credit account.");
+                    case LineOfCreditAuthorisationFailureReason.AccountOverbalanced:
+                        return (false,
+                            $"that purchase would overdraw the account. You can only draw down {Currency.Describe(loc.Account.MaximumAuthorisedToUse(actor), CurrencyDescriptionPatternType.Short).ColourValue()}.");
+                    case LineOfCreditAuthorisationFailureReason.UserOverbalanced:
+                        return (false,
+                            $"that purchase would exceed your allowance for that account. You can only draw down {Currency.Describe(loc.Account.MaximumAuthorisedToUse(actor), CurrencyDescriptionPatternType.Short).ColourValue()}.");
+                    case LineOfCreditAuthorisationFailureReason.AccountSuspended:
+                        return (false, "that account has been temporarily suspended.");
+                }
+
+                break;
+            case BankPayment bp:
+                if (bp.Item.BankAccount is null)
+                {
+                    return (false, $"{bp.Item.Parent.HowSeen(actor)} is not tied to an actual bank account.");
+                }
+
+                if (!bp.Item.BankAccount.IsAuthorisedPaymentItem(bp.Item))
+                {
+                    return (false, $"{bp.Item.Parent.HowSeen(actor)} is no longer valid for payment.");
+                }
+
+                if (bp.Currency != Currency)
+                {
+                    return (false, $"{bp.Item.Parent.HowSeen(actor)} is for a different currency than this shop uses.");
+                }
+
+                var cashinbank = bp.AccessibleMoneyForPayment();
+                if (cashinbank < price)
+                {
+                    return (false,
+                        $"you only have {Currency.Describe(cashinbank, CurrencyDescriptionPatternType.Short).ColourValue()} available in your account, but you need {Currency.Describe(price, CurrencyDescriptionPatternType.Short).ColourValue()}.");
+                }
+
+                break;
+            default:
+                if (method.Currency != Currency)
+                {
+                    return (false, $"that payment method is for a different currency than this shop uses.");
+                }
+
+                var available = method.AccessibleMoneyForPayment();
+                if (available < price)
+                {
+                    return (false,
+                        $"there is only {Currency.Describe(available, CurrencyDescriptionPatternType.Short).ColourValue()} available, but you need {Currency.Describe(price, CurrencyDescriptionPatternType.Short).ColourValue()}.");
+                }
+
+                break;
+        }
+
+        var baseReason = CanBuyInternal(actor, merchandise,
+            Math.Max(1, (int)Math.Ceiling(weight / PricingWeightFor(merchandise))), method);
+        return baseReason.Truth ? (true, string.Empty) : baseReason;
     }
 
     public IEnumerable<(IGameItem Item, IMerchandise Merchandise, decimal Price)> AllMerchandiseForVirtualShoppers
@@ -821,6 +990,29 @@ public abstract partial class Shop : SaveableItem, IShop
             stockedItems = stockedItems.Where(x => x.HasKeywords(extraArguments.Split('.'), actor, true)).ToList();
         }
 
+        return BuyFromStockedItems(actor, merchandise, quantity, method, stockedItems);
+    }
+
+    public IEnumerable<IGameItem> BuyExact(ICharacter actor, IMerchandise merchandise, int quantity,
+        IPaymentMethod method, IEnumerable<IGameItem> exactStockItems)
+    {
+        return BuyFromStockedItems(actor, merchandise, quantity, method, exactStockItems.Distinct().ToList());
+    }
+
+    public IEnumerable<IGameItem> BuyCommodityWeight(ICharacter actor, IMerchandise merchandise, double weight,
+        IPaymentMethod method, IEnumerable<IGameItem> exactStockItems)
+    {
+        var stockedItems = (exactStockItems?.Any() == true
+                ? exactStockItems.Distinct()
+                : StockedItems(merchandise))
+            .Where(x => x.GetItemType<ICommodity>() is { } commodity && merchandise.IsMerchandiseForCommodity(commodity))
+            .ToList();
+        return BuyCommodityWeightFromStockedItems(actor, merchandise, weight, method, stockedItems);
+    }
+
+    private IEnumerable<IGameItem> BuyFromStockedItems(ICharacter actor, IMerchandise merchandise, int quantity,
+        IPaymentMethod method, List<IGameItem> stockedItems)
+    {
         List<IGameItem> boughtItems = new();
         int quantitySought = quantity;
         foreach (IGameItem item in stockedItems)
@@ -880,6 +1072,12 @@ public abstract partial class Shop : SaveableItem, IShop
                 tax = bankCalculation.IncludedTax;
                 pretax = bankCalculation.TotalPretaxPrice;
                 break;
+            default:
+                IShopPriceCalculation genericCalculation = GetPriceCalculation(actor, merchandise, quantity);
+                price = genericCalculation.TotalPrice;
+                tax = genericCalculation.IncludedTax;
+                pretax = genericCalculation.TotalPretaxPrice;
+                break;
         }
 
         method.TakePayment(price);
@@ -925,6 +1123,109 @@ public abstract partial class Shop : SaveableItem, IShop
         foreach (ICharacter employee in EmployeesOnDuty)
         {
             if (employee.HandleEvent(EventType.ItemRequiresRestocking, employee, this, merchandise, quantity))
+            {
+                break;
+            }
+        }
+
+        return boughtItems;
+    }
+
+    private IEnumerable<IGameItem> BuyCommodityWeightFromStockedItems(ICharacter actor, IMerchandise merchandise,
+        double weight, IPaymentMethod method, List<IGameItem> stockedItems)
+    {
+        List<IGameItem> boughtItems = new();
+        var weightSought = weight;
+        foreach (var item in stockedItems)
+        {
+            var commodity = item.GetItemType<ICommodity>();
+            if (commodity is null || !merchandise.IsMerchandiseForCommodity(commodity))
+            {
+                continue;
+            }
+
+            var weightToTake = Math.Min(weightSought, commodity.Weight);
+            if (weightToTake <= 0.0)
+            {
+                continue;
+            }
+
+            boughtItems.Add(item.GetByWeight(null, weightToTake));
+            weightSought -= weightToTake;
+            if (weightSought <= 0.0)
+            {
+                break;
+            }
+        }
+
+        List<(IGameItem Item, IGameItem Container)> restockInfo = boughtItems.Select(x => (Item: x, Container: x.ContainedIn)).ToList();
+        foreach (IGameItem item in boughtItems)
+        {
+            item.RemoveAllEffects<ItemOnDisplayInShop>(fireRemovalAction: true);
+            item.InInventoryOf?.Take(item);
+            item.ContainedIn?.Take(item);
+            item.Location?.Extract(item);
+            item.SetOwner(actor);
+            _stockedMerchandise.Remove(merchandise, item.Id);
+        }
+
+        RecalculateStockedItems(merchandise, 0);
+        var calculation = PriceAndTaxForMerchandiseWeight(actor, merchandise, weight);
+        var price = calculation.Price;
+        var tax = calculation.Tax;
+        var pretax = calculation.Pretax;
+        if (method is ShopCashPayment)
+        {
+            ExpectedCashBalance += price;
+        }
+
+        method.TakePayment(price);
+        AddTransaction(new TransactionRecord(ShopTransactionType.Sale, Currency, this,
+            actor.Location.DateTime(), actor, pretax, tax, merchandise));
+        EconomicZone.ReportSalesTaxCollected(this, tax);
+
+        bool couldnothold = false;
+        foreach (IGameItem item in boughtItems)
+        {
+            if (actor.Body.CanGet(item, 0))
+            {
+                actor.Body.Get(item, silent: true);
+            }
+            else
+            {
+                actor.Location.Insert(item);
+                couldnothold = true;
+            }
+        }
+
+        actor.OutputHandler.Handle(new EmoteOutput(new Emote($"$0 bought $1 from the store for $2.", actor, actor,
+            new PerceivableGroup(boughtItems),
+            new DummyPerceivable(Currency.Describe(price, CurrencyDescriptionPatternType.Short).ColourValue()))));
+        if (couldnothold)
+        {
+            actor.OutputHandler.Send(
+                "Warning: You could not hold all of the commodity, and some of it was placed on the ground.".Colour(
+                    Telnet.Red));
+        }
+
+        actor.HandleEvent(EventType.BuyItemInShop, actor, this, merchandise, boughtItems);
+        foreach (IHandleEvents witness in actor.Location.EventHandlers)
+        {
+            witness.HandleEvent(EventType.WitnessBuyItemInShop, actor, witness, this, merchandise, boughtItems);
+        }
+
+        if (merchandise.AutoReordering &&
+            (merchandise.MinimumStockLevelsByWeight > 0.0
+                ? StockedItems(merchandise).Sum(x => x.GetItemType<ICommodity>()?.Weight ?? 0.0) < merchandise.MinimumStockLevelsByWeight
+                : _stockedMerchandiseCounts[merchandise] < merchandise.MinimumStockLevels))
+        {
+            DoAutoRestockForMerchandise(merchandise, restockInfo);
+        }
+
+        foreach (ICharacter employee in EmployeesOnDuty)
+        {
+            if (employee.HandleEvent(EventType.ItemRequiresRestocking, employee, this, merchandise,
+                    Math.Max(1, (int)Math.Ceiling(weight / PricingWeightFor(merchandise)))))
             {
                 break;
             }
@@ -1114,6 +1415,53 @@ public abstract partial class Shop : SaveableItem, IShop
         return GetPriceCalculation(actor, merchandise, quantity).TotalPrice;
     }
 
+    public decimal PriceForMerchandiseWeight(ICharacter actor, IMerchandise merchandise, double weight)
+    {
+        return PriceAndTaxForMerchandiseWeight(actor, merchandise, weight).Price;
+    }
+
+    private (decimal Price, decimal Tax, decimal Pretax) PriceAndTaxForMerchandiseWeight(ICharacter actor,
+        IMerchandise merchandise, double weight, ShopDealApplicability applicability = ShopDealApplicability.Sell)
+    {
+        MudDateTime now = EconomicZone.ZoneForTimePurposes.DateTime();
+        var pricingWeight = PricingWeightFor(merchandise);
+        var dealQuantity = Math.Max(1, (int)Math.Ceiling(weight / pricingWeight));
+        decimal baseWeightPrice = applicability switch
+        {
+            ShopDealApplicability.Buy => merchandise.EffectivePrice * merchandise.BaseBuyModifier,
+            _ => merchandise.EffectivePrice
+        };
+
+        var applicableDeals = Deals
+                              .Where(x => x.Applies(merchandise, actor, dealQuantity, applicability, now))
+                              .ToList();
+        var selectedDeals = applicableDeals.Where(x => x.IsCumulative).ToList();
+        var nonCumulativeDeals = applicableDeals.Where(x => !x.IsCumulative).ToList();
+        if (nonCumulativeDeals.Any())
+        {
+            selectedDeals.Add(applicability == ShopDealApplicability.Buy
+                ? nonCumulativeDeals.MaxBy(x => x.PriceAdjustmentPercentage)!
+                : nonCumulativeDeals.MinBy(x => x.PriceAdjustmentPercentage)!);
+        }
+
+        var totalAdjustment = selectedDeals.Sum(x => x.PriceAdjustmentPercentage);
+        var adjustedWeightPrice = Math.Max(0.0M, baseWeightPrice * (1.0M + totalAdjustment));
+        var weightMultiplier = (decimal)(weight / pricingWeight);
+        var unitTax = applicability == ShopDealApplicability.Buy
+            ? 0.0M
+            : EconomicZone.SalesTaxes
+                          .Where(x => x.Applies(merchandise, actor))
+                          .Sum(x => x.TaxValue(merchandise, actor, adjustedWeightPrice));
+        var pretax = adjustedWeightPrice * weightMultiplier;
+        var tax = unitTax * weightMultiplier;
+        return (pretax + tax, tax, pretax);
+    }
+
+    private static double PricingWeightFor(IMerchandise merchandise)
+    {
+        return merchandise.CommodityPricingWeight > 0.0 ? merchandise.CommodityPricingWeight : 1.0;
+    }
+
     public (decimal Price, decimal Tax) PriceAndTaxForMerchandise(ICharacter actor, IMerchandise merchandise,
         int quantity)
     {
@@ -1151,6 +1499,34 @@ public abstract partial class Shop : SaveableItem, IShop
         actor.OutputHandler.Send(ShowDealsInternal(actor, purchaser, merchandise), false);
     }
 
+    private string DescribeMerchandiseStock(IMerchandise merchandise,
+        (int OnFloorCount, int InStockroomCount) countStock, IPerceiver voyeur)
+    {
+        if (merchandise.MerchandiseType != MerchandiseType.Commodity)
+        {
+            return (countStock.InStockroomCount + countStock.OnFloorCount).ToString("N0", voyeur);
+        }
+
+        var weight = StocktakeMerchandiseWeight(merchandise);
+        return Gameworld.UnitManager.DescribeExact(weight.OnFloorWeight + weight.InStockroomWeight,
+            Framework.Units.UnitType.Mass, voyeur);
+    }
+
+    private string DescribeMerchandisePrice(IMerchandise merchandise, decimal price, IPerceiver voyeur)
+    {
+        var priceText = Currency.Describe(price, CurrencyDescriptionPatternType.Short);
+        return merchandise.MerchandiseType == MerchandiseType.Commodity
+            ? $"{priceText} / {Gameworld.UnitManager.DescribeExact(merchandise.CommodityPricingWeight, Framework.Units.UnitType.Mass, voyeur)}"
+            : priceText;
+    }
+
+    private string DescribeMerchandiseVariants(IMerchandise merchandise, IPerceiver voyeur)
+    {
+        return merchandise.MerchandiseType == MerchandiseType.Commodity
+            ? "Weight".ColourValue()
+            : merchandise.Item.IsItemType<VariableGameItemComponentProto>().ToString(voyeur);
+    }
+
     public void ShowList(ICharacter actor, ICharacter purchaser, string keyword)
     {
         StringBuilder sb = new();
@@ -1179,11 +1555,11 @@ public abstract partial class Shop : SaveableItem, IShop
                     merchIndexes[merch.Key].ToString("N0", actor),
                     merch.Key.Name,
                     merch.Key.ListDescription.ColourObject(),
-                    Currency.Describe(priceInfo.TotalPrice, CurrencyDescriptionPatternType.Short),
+                    DescribeMerchandisePrice(merch.Key, priceInfo.TotalPrice, actor),
                     Currency.Describe(priceInfo.IncludedTax, CurrencyDescriptionPatternType.Short),
                     DescribeDealSummary(merch.Key, purchaser, actor),
-                    merch.Key.Item.IsItemType<VariableGameItemComponentProto>().ToString(actor),
-                    (merch.Value.InStockroomCount + merch.Value.OnFloorCount).ToString("N0", actor)
+                    DescribeMerchandiseVariants(merch.Key, actor),
+                    DescribeMerchandiseStock(merch.Key, merch.Value, actor)
             },
             new[]
             {
@@ -1215,10 +1591,10 @@ public abstract partial class Shop : SaveableItem, IShop
                 merchIndexes[merch.Key].ToString("N0", actor),
                     merch.Key.Name,
                     merch.Key.ListDescription.ColourObject(),
-                    Currency.Describe(priceInfo.TotalPrice, CurrencyDescriptionPatternType.Short),
+                    DescribeMerchandisePrice(merch.Key, priceInfo.TotalPrice, actor),
                     DescribeDealSummary(merch.Key, purchaser, actor),
-                    merch.Key.Item.IsItemType<VariableGameItemComponentProto>().ToString(actor),
-                    (merch.Value.InStockroomCount + merch.Value.OnFloorCount).ToString("N0", actor)
+                    DescribeMerchandiseVariants(merch.Key, actor),
+                    DescribeMerchandiseStock(merch.Key, merch.Value, actor)
             },
             new[]
             {
@@ -1279,11 +1655,11 @@ public abstract partial class Shop : SaveableItem, IShop
                     merchIndexes[merch.Key].ToString("N0", actor),
                     merch.Key.Name,
                     merch.Key.ListDescription.ColourObject(),
-                    Currency.Describe(priceInfo.TotalPrice, CurrencyDescriptionPatternType.Short),
+                    DescribeMerchandisePrice(merch.Key, priceInfo.TotalPrice, actor),
                     Currency.Describe(priceInfo.IncludedTax, CurrencyDescriptionPatternType.Short),
                     DescribeDealSummary(merch.Key, purchaser, actor),
-                    merch.Key.Item.IsItemType<VariableGameItemComponentProto>().ToString(actor),
-                    (merch.Value.InStockroomCount + merch.Value.OnFloorCount).ToString("N0", actor)
+                    DescribeMerchandiseVariants(merch.Key, actor),
+                    DescribeMerchandiseStock(merch.Key, merch.Value, actor)
                 },
                 new[]
                 {
@@ -1315,10 +1691,10 @@ public abstract partial class Shop : SaveableItem, IShop
                     merchIndexes[merch.Key].ToString("N0", actor),
                     merch.Key.Name,
                     merch.Key.ListDescription.ColourObject(),
-                    Currency.Describe(priceInfo.TotalPrice, CurrencyDescriptionPatternType.Short),
+                    DescribeMerchandisePrice(merch.Key, priceInfo.TotalPrice, actor),
                     DescribeDealSummary(merch.Key, purchaser, actor),
-                    merch.Key.Item.IsItemType<VariableGameItemComponentProto>().ToString(actor),
-                    (merch.Value.InStockroomCount + merch.Value.OnFloorCount).ToString("N0", actor)
+                    DescribeMerchandiseVariants(merch.Key, actor),
+                    DescribeMerchandiseStock(merch.Key, merch.Value, actor)
                 },
                 new[]
                 {
@@ -1422,27 +1798,7 @@ public abstract partial class Shop : SaveableItem, IShop
         {
             sb.AppendLine();
             sb.AppendLine("Employees:");
-            sb.AppendLine(StringUtilities.GetTextTable(
-                from ch in EmployeeRecords.OrderBy(x => x.IsProprietor ? 0 : x.IsManager ? 1 : 2)
-                select new List<string>
-                {
-                    ch.EmployeeCharacterId.ToString("N0", actor),
-                    ch.Name.GetName(NameStyle.FullName),
-                    ch.IsManager.ToColouredString(),
-                    ch.IsProprietor.ToColouredString(),
-                    ch.EmployeeSince.ToString(CalendarDisplayMode.Short, TimeDisplayTypes.Short),
-                },
-                new List<string>
-                {
-                    "Id",
-                    "Name",
-                    "Manager?",
-                    "Owner?",
-                    "Start Date"
-                },
-                actor,
-                Telnet.Yellow
-            ));
+            sb.AppendLine(this.ActiveEmploymentContractsTable(actor));
         }
 
         foreach (ICharacter ch in EmployeesOnDuty)
@@ -1474,6 +1830,13 @@ public abstract partial class Shop : SaveableItem, IShop
     }
 
     public abstract (int OnFloorCount, int InStockroomCount) StocktakeMerchandise(IMerchandise whichMerchandise);
+
+    public virtual (double OnFloorWeight, double InStockroomWeight) StocktakeMerchandiseWeight(IMerchandise whichMerchandise)
+    {
+        var total = StockedItems(whichMerchandise)
+                    .Sum(x => x.GetItemType<ICommodity>()?.Weight ?? 0.0);
+        return (0.0, total);
+    }
 
     public Dictionary<IMerchandise, (int OnFloorCount, int InStockroomCount)> StocktakeAllMerchandise()
     {

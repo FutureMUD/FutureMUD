@@ -28,7 +28,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.Economy.Auctions;
 
-public class AuctionHouse : SaveableItem, IAuctionHouse, IPostCharacterLoadFinalisable
+public partial class AuctionHouse : SaveableItem, IAuctionHouse, IPostCharacterLoadFinalisable
 {
     private sealed record PendingAuctionItemLoad(XElement Item, bool IsUnclaimed, AuctionBid? WinningBid);
 

@@ -267,13 +267,17 @@ public class NPC : Character.Character, INPC
 
     public void AddAI(IArtificialIntelligence ai)
     {
+        ReleaseEventSubscriptions();
         _AIs.Add(ai);
         AIChanged = true;
+        SetupEventSubscriptions();
     }
 
     public void RemoveAI(IArtificialIntelligence ai)
     {
+        ReleaseEventSubscriptions();
         _AIs.Remove(ai);
         AIChanged = true;
+        SetupEventSubscriptions();
     }
 }

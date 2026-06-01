@@ -4,6 +4,7 @@ using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Economy;
 using MudSharp.Economy.Currency;
+using MudSharp.Economy.Employment;
 using MudSharp.Framework;
 using MudSharp.Framework.Revision;
 using MudSharp.Framework.Save;
@@ -16,7 +17,7 @@ namespace MudSharp.Arenas;
 /// <summary>
 /// Represents a combat arena business that can host structured combat events.
 /// </summary>
-public interface ICombatArena : IEditableItem
+public interface ICombatArena : IEditableItem, IEmploymentHost
 {
     IEconomicZone EconomicZone { get; }
     ICurrency Currency { get; }

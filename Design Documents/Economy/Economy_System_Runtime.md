@@ -168,12 +168,14 @@ Verified shop responsibilities include:
 - pricing merchandise
 - applying sales taxes
 - handling buy and sell flows
+- exact-stock buy flows for system-authored purchases that must buy preselected stocked items rather than a keyword-selected variant
 - recording transactions
 - drawing from cash, currency piles, bank accounts, or line of credit
 - managing employees, clock-in state, managers, and proprietors
 - optional market-linked pricing
 - automatic tax payment
 - automatic stocking and restocking hooks
+- shared employment-host contracts, openings, host staff board, scheduled rules, active tasks, and manager goals through the unified employment dispatcher
 - limited support for virtual shoppers
 
 Converter integration note:
@@ -272,7 +274,7 @@ Verified current hotel-room rental behavior:
 
 Persistence note:
 
-- hotel-room rental state is currently serialized into the `Properties.HotelDefinition` XML column rather than split across many new tables
+- hotel roots are stored in `Hotels`, with hotel rooms, room keys, furnishings, active rentals, patron balances, bans, and lost-property bundles normalized into dedicated hotel tables rather than the old property XML payload
 
 Property therefore sits at the boundary between economy, clans, law, access control, and building.
 
@@ -323,8 +325,8 @@ Current verified runtime characteristics:
 
 This makes auctions a distinct sales venue with different operational assumptions from ordinary retail.
 
-### Employment
-Employment is implemented as a persisted economy subsystem, not as a lightweight clan payroll feature.
+### Legacy PC-Facing Jobs
+Legacy jobs are implemented as a persisted economy subsystem, not as a lightweight clan payroll feature.
 
 Verified runtime parts:
 
@@ -342,7 +344,30 @@ Job listings currently include:
 - pay configuration, including pay currency
 - active job records when a character takes the job
 
-The system is integrated with job-finding cells on economic zones and with command workflows in `EconomyModule`.
+The system is integrated with job-finding cells on economic zones and with command workflows in `EconomyModule`. It remains separate from the newer unified employment-host model described below.
+
+### Unified Employment Hosts and Task Dispatch
+Unified employment is the newer host-facing employment and operations layer. It is intentionally independent from `IJobListing`, `IActiveJob`, job-finding cells, job coffers, and the `job` command.
+
+Verified runtime parts include:
+
+- `IEmploymentHost` and host-state shells for shops, auction houses, combat arenas, banks, stables, and durable hotel roots
+- persisted employment host state keyed by host type and host id
+- persisted staff `IBoard` references for host communication, separate from task routing
+- employment contracts, job openings, applications, compensation terms, payment methods, delegated authority, payroll liabilities, manager goals, scheduled rules, action plans, active tasks, step operational state, employment register rows, and employment ledger rows
+- `EmploymentWorkerAI` for NPC application, workplace travel, task claiming, action-step execution, payroll claiming, and arrears-driven resignation
+- shared `employment` command adapters plus local host aliases on `shop`, `stable`, `bank`, `auction`, `arena`, and `roomrent`
+- scheduled-rule authoring and condition catalogues for manual, time, stock, account, item, commodity, shop-account, register-float, tax, and weather conditions
+- action catalogues for retrieval, delivery, logistics, planning, authorisation/reservation, board posts, command steps, store-account payment, tax payment, bank/virtual-cash movement, shop/register float, physical task-custody cash, exact-stock shop purchases, and native craft start/resume/output custody
+
+Current operational boundaries:
+
+- task routing uses `IEmploymentTaskBoard`; the staff `IBoard` is only an employee/manager communication surface
+- financial actions require delegated authority plus explicit authorisation/reservation state and write employment audit evidence while reusing native finance records where available
+- item movement uses inventory plans where possible, with narrow fallbacks for behaviours the inventory-plan API does not model cleanly
+- durable hotel roots and hotel room/rental/furnishing/lost-property internals are persisted through normalized hotel tables
+- central scheduled-rule evaluation runs once per minute and worker AI can also evaluate its current host before claiming work
+- legacy shop/stable employee XML, bank/arena manager lists, and the PC-facing job system are not migrated into the new contracts by default
 
 ### Clan Finance, Budgets, and Payroll History
 Clan finance is implemented across the clan and economy layers. Clans can nominate a default bank account, use physical treasury rooms, and now maintain per-currency virtual treasury balances for payroll float and appointment-budget drawdowns.

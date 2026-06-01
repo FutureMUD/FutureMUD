@@ -281,6 +281,21 @@ namespace MudSharp.Database
 
                 entity.Property(e => e.BasePrice).HasColumnType("decimal(58,29)");
 
+                entity.Property(e => e.MerchandiseType).HasColumnType("int(11)").HasDefaultValue(0);
+
+                entity.Property(e => e.CommodityMaterialId).HasColumnType("bigint(20)");
+
+                entity.Property(e => e.CommodityTagId).HasColumnType("bigint(20)");
+
+                entity.Property(e => e.CommodityCharacteristics)
+                    .HasColumnType("text")
+                    .HasCharSet("utf8")
+                    .UseCollation("utf8_general_ci");
+
+                entity.Property(e => e.CommodityPricingWeight)
+                    .HasColumnType("double")
+                    .HasDefaultValue(1.0);
+
                 entity.Property(e => e.BaseBuyModifier)
                       .HasColumnType("decimal(58,29)")
                       .HasDefaultValue(0.3M)
@@ -1395,10 +1410,6 @@ namespace MudSharp.Database
                 entity.Property(e => e.SaleOrderId).HasColumnType("bigint(20)");
                 entity.Property(e => e.ApplyCriminalCodeInProperty).HasColumnType("bit(1)");
                 entity.Property(e => e.LastSaleValue).HasColumnType("decimal(58,29)");
-                entity.Property(e => e.HotelDefinition)
-                    .HasColumnType("text")
-                    .HasCharSet("utf8")
-                    .UseCollation("utf8_general_ci");
 
                 entity.Property(e => e.Name)
                     .IsRequired()

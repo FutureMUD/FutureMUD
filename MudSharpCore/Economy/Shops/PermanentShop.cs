@@ -502,6 +502,29 @@ public class PermanentShop : Shop, IPermanentShop
         return (floorStock, _stockedMerchandiseCounts[whichMerchandise] - floorStock);
     }
 
+    public override (double OnFloorWeight, double InStockroomWeight) StocktakeMerchandiseWeight(IMerchandise whichMerchandise)
+    {
+        if (!_merchandises.Contains(whichMerchandise))
+        {
+            return (0.0, 0.0);
+        }
+
+        RecalculateStockedItems(whichMerchandise, 0);
+        var floorStock =
+            ShopfrontCells.SelectMany(x => x.Characters).SelectMany(x => x.Body.HeldItems)
+                          .Concat(
+                              ShopfrontCells
+                                  .SelectMany(x => x.GameItems)
+                                  .SelectMany(x => x.DeepItems)
+                          )
+                          .Where(x => x.AffectedBy<ItemOnDisplayInShop>(whichMerchandise))
+                          .Distinct()
+                          .Sum(x => x.GetItemType<ICommodity>()?.Weight ?? 0.0);
+        var totalStock = StockedItems(whichMerchandise)
+                         .Sum(x => x.GetItemType<ICommodity>()?.Weight ?? 0.0);
+        return (floorStock, Math.Max(0.0, totalStock - floorStock));
+    }
+
     protected override (bool Truth, string Reason) CanBuyInternal(ICharacter actor, IMerchandise merchandise, int quantity, IPaymentMethod method, string extraArguments = null)
     {
         if (method is CashPayment)

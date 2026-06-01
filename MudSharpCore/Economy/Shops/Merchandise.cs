@@ -2,6 +2,8 @@
 using MudSharp.Database;
 using MudSharp.Economy.Currency;
 using MudSharp.Effects.Concrete;
+using MudSharp.Form.Characteristics;
+using MudSharp.Form.Material;
 using MudSharp.Framework;
 using MudSharp.Framework.Revision;
 using MudSharp.Framework.Save;
@@ -9,6 +11,7 @@ using MudSharp.FutureProg;
 using MudSharp.FutureProg.Variables;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Interfaces;
+using MudSharp.GameItems.Prototypes;
 using MudSharp.Models;
 using MudSharp.TimeAndDate.Date;
 using MudSharp.TimeAndDate.Time;
@@ -31,6 +34,11 @@ public class Merchandise : LateInitialisingItem, IMerchandise
         _name = newName;
         Shop = rhs.Shop;
         _itemId = rhs.Item.Id;
+        MerchandiseType = rhs.MerchandiseType;
+        _commodityMaterialId = rhs._commodityMaterialId;
+        _commodityTagId = rhs._commodityTagId;
+        _commodityCharacteristics.LoadFromXml(rhs._commodityCharacteristics.SaveToXml(), Gameworld);
+        CommodityPricingWeight = rhs.CommodityPricingWeight;
         BasePrice = rhs.BasePrice;
         DefaultMerchandiseForItem = false;
         PreferredDisplayContainer = rhs.PreferredDisplayContainer;
@@ -56,6 +64,8 @@ public class Merchandise : LateInitialisingItem, IMerchandise
         _name = name;
         Shop = shop;
         _itemId = proto.Id;
+        MerchandiseType = MerchandiseType.Item;
+        CommodityPricingWeight = 1.0;
         BasePrice = price;
         AutoReorderPrice = price;
         DefaultMerchandiseForItem = isDefault;
@@ -69,6 +79,16 @@ public class Merchandise : LateInitialisingItem, IMerchandise
         MaximumStockLevelsToBuy = 1;
         SalesMarkupMultiplier = 1.0M;
         PermitItemDecayOnStockedItems = Gameworld.GetStaticBool("MerchandisePermitsItemDecayByDefault");
+    }
+
+    public Merchandise(IShop shop, string name, IGameItemProto commodityProto, ISolid material, ITag tag,
+        decimal price, double pricingWeight, bool isDefault, IGameItem preferredContainer, string customListDescription)
+        : this(shop, name, commodityProto, price, isDefault, preferredContainer, customListDescription)
+    {
+        MerchandiseType = MerchandiseType.Commodity;
+        _commodityMaterialId = material.Id;
+        _commodityTagId = tag?.Id;
+        CommodityPricingWeight = pricingWeight <= 0.0 ? 1.0 : pricingWeight;
     }
 
     public Merchandise(Models.Merchandise merch, IShop shop, IFuturemud gameworld)
@@ -85,6 +105,15 @@ public class Merchandise : LateInitialisingItem, IMerchandise
         _listDescription = merch.ListDescription;
         _preferredDisplayContainerId = merch.PreferredDisplayContainerId;
         _itemId = merch.ItemProtoId;
+        MerchandiseType = (MerchandiseType)merch.MerchandiseType;
+        _commodityMaterialId = merch.CommodityMaterialId;
+        _commodityTagId = merch.CommodityTagId;
+        _commodityCharacteristics.LoadFromXml(
+            string.IsNullOrWhiteSpace(merch.CommodityCharacteristics)
+                ? null
+                : System.Xml.Linq.XElement.Parse(merch.CommodityCharacteristics),
+            Gameworld);
+        CommodityPricingWeight = merch.CommodityPricingWeight <= 0.0 ? 1.0 : merch.CommodityPricingWeight;
         MinimumStockLevels = merch.MinimumStockLevels;
         MinimumStockLevelsByWeight = merch.MinimumStockLevelsByWeight;
         PreserveVariablesOnReorder = merch.PreserveVariablesOnReorder;
@@ -104,6 +133,11 @@ public class Merchandise : LateInitialisingItem, IMerchandise
         dbitem.AutoReorderPrice = AutoReorderPrice;
         dbitem.AutoReordering = AutoReordering;
         dbitem.BasePrice = BasePrice;
+        dbitem.MerchandiseType = (int)MerchandiseType;
+        dbitem.CommodityMaterialId = _commodityMaterialId;
+        dbitem.CommodityTagId = _commodityTagId;
+        dbitem.CommodityCharacteristics = _commodityCharacteristics.SaveToXml().ToString();
+        dbitem.CommodityPricingWeight = CommodityPricingWeight;
         dbitem.DefaultMerchandiseForItem = DefaultMerchandiseForItem;
         dbitem.ItemProtoId = _itemId;
         dbitem.ListDescription = _listDescription;
@@ -132,6 +166,11 @@ public class Merchandise : LateInitialisingItem, IMerchandise
         dbitem.Name = Name;
         dbitem.ShopId = Shop.Id;
         dbitem.BasePrice = BasePrice;
+        dbitem.MerchandiseType = (int)MerchandiseType;
+        dbitem.CommodityMaterialId = _commodityMaterialId;
+        dbitem.CommodityTagId = _commodityTagId;
+        dbitem.CommodityCharacteristics = _commodityCharacteristics.SaveToXml().ToString();
+        dbitem.CommodityPricingWeight = CommodityPricingWeight;
         dbitem.AutoReordering = AutoReordering;
         dbitem.AutoReorderPrice = AutoReorderPrice;
         dbitem.PreserveVariablesOnReorder = PreserveVariablesOnReorder;
@@ -187,6 +226,10 @@ public class Merchandise : LateInitialisingItem, IMerchandise
 
 	#3shop merch set name <name>#0 - sets the name of this merchandise
 	#3shop merch set proto <id>|<target>#0 - sets the item prototype associated with this merchandise
+	#3shop merch set type item|commodity#0 - switches whether this sells items or commodities by weight
+	#3shop merch set commodity <material> [tag <tag>]#0 - configures commodity material and optional tag
+	#3shop merch set char any|none|<definition> any|<definition> <value>|<definition> remove#0 - configures commodity characteristics
+	#3shop merch set per <weight>#0 - sets the commodity weight that the price buys
 	#3shop merch set skin <id>|<name>#0 - sets the skin associated with this merchandise
 	#3shop merch set skin clear#0 - clears a skin from this merchandise
 	#3shop merch set default#0 - toggles whether this is the default for items of its prototype
@@ -213,6 +256,10 @@ public class Merchandise : LateInitialisingItem, IMerchandise
 
 	#3shop merch set name <name>#0 - sets the name of this merchandise
 	#3shop merch set proto <target>#0 - sets the item type associated with this merchandise
+	#3shop merch set type item|commodity#0 - switches whether this sells items or commodities by weight
+	#3shop merch set commodity <material> [tag <tag>]#0 - configures commodity material and optional tag
+	#3shop merch set char any|none|<definition> any|<definition> <value>|<definition> remove#0 - configures commodity characteristics
+	#3shop merch set per <weight>#0 - sets the commodity weight that the price buys
 	#3shop merch set default#0 - toggles whether this is the default for similar items
 	#3shop merch set price <price>#0 - sets the pre-tax price
 	#3shop merch set price default#0 - sets the merchandise price to the item default
@@ -242,6 +289,20 @@ public class Merchandise : LateInitialisingItem, IMerchandise
                 return BuildingCommandName(actor, command);
             case "proto":
                 return BuildingCommandProto(actor, command);
+            case "type":
+                return BuildingCommandType(actor, command);
+            case "commodity":
+            case "material":
+                return BuildingCommandCommodity(actor, command);
+            case "char":
+            case "chars":
+            case "characteristic":
+            case "characteristics":
+                return BuildingCommandCommodityCharacteristics(actor, command);
+            case "per":
+            case "priceweight":
+            case "pricingweight":
+                return BuildingCommandCommodityPricingWeight(actor, command);
             case "default":
                 return BuildingCommandDefault(actor, command);
             case "price":
@@ -369,6 +430,131 @@ public class Merchandise : LateInitialisingItem, IMerchandise
         return true;
     }
 
+    private bool BuildingCommandType(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send($"Do you want this merchandise to be {"item".ColourCommand()} or {"commodity".ColourCommand()} merchandise?");
+            return false;
+        }
+
+        var typeText = command.PopSpeech();
+        if (typeText.EqualTo("item"))
+        {
+            MerchandiseType = MerchandiseType.Item;
+            Changed = true;
+            actor.OutputHandler.Send("This merchandise record will now sell ordinary items by count.");
+            return true;
+        }
+
+        if (!typeText.EqualTo("commodity"))
+        {
+            actor.OutputHandler.Send($"The merchandise type must be either {"item".ColourCommand()} or {"commodity".ColourCommand()}.");
+            return false;
+        }
+
+        if (CommodityGameItemComponentProto.ItemPrototype is null)
+        {
+            CommodityGameItemComponentProto.InitialiseItemType(Gameworld);
+        }
+
+        if (CommodityGameItemComponentProto.ItemPrototype is not null)
+        {
+            _itemId = CommodityGameItemComponentProto.ItemPrototype.Id;
+            _skinId = null;
+        }
+
+        MerchandiseType = MerchandiseType.Commodity;
+        CommodityPricingWeight = CommodityPricingWeight <= 0.0 ? 1.0 : CommodityPricingWeight;
+        Changed = true;
+        actor.OutputHandler.Send("This merchandise record will now sell commodities by weight.");
+        return true;
+    }
+
+    private bool BuildingCommandCommodity(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send("Which commodity material should this merchandise sell?");
+            return false;
+        }
+
+        var materialText = command.PopSpeech();
+        var material = Gameworld.Materials.GetByIdOrNames(materialText);
+        if (material is null)
+        {
+            actor.OutputHandler.Send($"There is no solid material identified by {materialText.ColourCommand()}.");
+            return false;
+        }
+
+        ITag tag = null;
+        while (!command.IsFinished)
+        {
+            var option = command.PopSpeech();
+            if (!option.EqualTo("tag"))
+            {
+                actor.OutputHandler.Send($"The only extra option for commodity merchandise is {"tag <tag>".ColourCommand()}.");
+                return false;
+            }
+
+            if (command.IsFinished)
+            {
+                actor.OutputHandler.Send("Which tag should the commodity require?");
+                return false;
+            }
+
+            var tagText = command.PopSpeech().TrimStart('&');
+            tag = long.TryParse(tagText, out var tagId)
+                ? Gameworld.Tags.Get(tagId)
+                : Gameworld.Tags.GetByIdOrName(tagText);
+            if (tag is null)
+            {
+                actor.OutputHandler.Send($"There is no tag identified by {tagText.ColourCommand()}.");
+                return false;
+            }
+        }
+
+        BuildingCommandType(actor, new StringStack("commodity"));
+        _commodityMaterialId = material.Id;
+        _commodityTagId = tag?.Id;
+        Changed = true;
+        actor.OutputHandler.Send($"This merchandise will now sell {material.Name.ColourName()}{(tag is null ? string.Empty : $" tagged {tag.FullName.ColourName()}")} by weight.");
+        return true;
+    }
+
+    private bool BuildingCommandCommodityCharacteristics(ICharacter actor, StringStack command)
+    {
+        if (MerchandiseType != MerchandiseType.Commodity)
+        {
+            actor.OutputHandler.Send("Only commodity merchandise can have commodity characteristic requirements.");
+            return false;
+        }
+
+        return _commodityCharacteristics.BuildingCommand(actor, command, "commodity merchandise", () => Changed = true);
+    }
+
+    private bool BuildingCommandCommodityPricingWeight(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send("What commodity weight should the listed price buy?");
+            return false;
+        }
+
+        var weight = Gameworld.UnitManager.GetBaseUnits(command.SafeRemainingArgument, Framework.Units.UnitType.Mass,
+            out var success);
+        if (!success || weight <= 0.0)
+        {
+            actor.OutputHandler.Send("That is not a valid positive weight.");
+            return false;
+        }
+
+        CommodityPricingWeight = weight;
+        Changed = true;
+        actor.OutputHandler.Send($"The listed price now buys {Gameworld.UnitManager.DescribeExact(CommodityPricingWeight, Framework.Units.UnitType.Mass, actor).ColourValue()} of this commodity.");
+        return true;
+    }
+
     private bool BuildingCommandDefault(ICharacter actor, StringStack command)
     {
         DefaultMerchandiseForItem = !DefaultMerchandiseForItem;
@@ -394,18 +580,40 @@ public class Merchandise : LateInitialisingItem, IMerchandise
             return true;
         }
 
-        decimal amount = Shop.Currency.GetBaseCurrency(command.SafeRemainingArgument, out bool success);
+        var amountText = command.SafeRemainingArgument;
+        string perText = null;
+        var perIndex = amountText.IndexOf(" per ", StringComparison.InvariantCultureIgnoreCase);
+        if (perIndex >= 0)
+        {
+            perText = amountText[(perIndex + " per ".Length)..].Trim();
+            amountText = amountText[..perIndex].Trim();
+        }
+
+        decimal amount = Shop.Currency.GetBaseCurrency(amountText, out bool success);
         if (!success)
         {
             actor.OutputHandler.Send("That is not a valid price.");
             return false;
         }
 
+        if (!string.IsNullOrWhiteSpace(perText))
+        {
+            var weight = Gameworld.UnitManager.GetBaseUnits(perText, Framework.Units.UnitType.Mass, out var weightSuccess);
+            if (!weightSuccess || weight <= 0.0)
+            {
+                actor.OutputHandler.Send("That is not a valid positive commodity pricing weight.");
+                return false;
+            }
+
+            MerchandiseType = MerchandiseType.Commodity;
+            CommodityPricingWeight = weight;
+        }
+
         decimal old = BasePrice;
         BasePrice = amount;
         Changed = true;
         actor.OutputHandler.Send(
-            $"This merchandise will now have a pre-tax price of {Shop.Currency.Describe(BasePrice, CurrencyDescriptionPatternType.Short)}.");
+            $"This merchandise will now have a pre-tax price of {Shop.Currency.Describe(BasePrice, CurrencyDescriptionPatternType.Short)}{(MerchandiseType == MerchandiseType.Commodity ? $" per {Gameworld.UnitManager.DescribeExact(CommodityPricingWeight, Framework.Units.UnitType.Mass, actor)}" : string.Empty)}.");
         Shop.PriceAdjustmentForMerchandise(this, old, actor);
         return true;
     }
@@ -706,6 +914,7 @@ public class Merchandise : LateInitialisingItem, IMerchandise
     {
         StringBuilder sb = new();
         sb.AppendLine($"Merchandise Record #{Id.ToString("N0", actor)}: {Name}");
+        sb.AppendLine($"Type: {MerchandiseType.DescribeEnum().ColourName()}");
         if (actor.IsAdministrator())
         {
             sb.AppendLine(
@@ -719,15 +928,22 @@ public class Merchandise : LateInitialisingItem, IMerchandise
 
         sb.AppendLine($"Default for Item Proto: {DefaultMerchandiseForItem.ToColouredString()}");
         sb.AppendLine($"Skin: {(_skinId.HasValue ? Gameworld.ItemSkins.Get(_skinId.Value).Name.MXPSend($"itemskin show {_skinId.Value}") : "Default".ColourCommand())}");
+        if (MerchandiseType == MerchandiseType.Commodity)
+        {
+            sb.AppendLine($"Commodity Material: {CommodityMaterial?.Name.ColourName() ?? "None".ColourError()}");
+            sb.AppendLine($"Commodity Tag: {CommodityTag?.FullName.ColourName() ?? "Any".ColourValue()}");
+            sb.AppendLine($"Commodity Characteristics: {_commodityCharacteristics.Describe()}");
+            sb.AppendLine($"Price Weight: {Gameworld.UnitManager.DescribeExact(CommodityPricingWeight, Framework.Units.UnitType.Mass, actor).ColourValue()}");
+        }
 
         sb.AppendLine($"List Description: {ListDescription.ColourObject()}");
         if (BasePrice == -1.0M)
         {
-            sb.AppendLine($"Pre-Tax Price: {"Based on Item Cost".ColourCommand()} (currently: {Shop.Currency.Describe(Item.CostInBaseCurrency / Shop.Currency.BaseCurrencyToGlobalBaseCurrencyConversion, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()})");
+            sb.AppendLine($"Pre-Tax Price: {"Based on Item Cost".ColourCommand()} (currently: {Shop.Currency.Describe(Item.CostInBaseCurrency / Shop.Currency.BaseCurrencyToGlobalBaseCurrencyConversion, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}){(MerchandiseType == MerchandiseType.Commodity ? $" per {Gameworld.UnitManager.DescribeExact(CommodityPricingWeight, Framework.Units.UnitType.Mass, actor)}" : string.Empty)}");
         }
         else
         {
-            sb.AppendLine($"Pre-Tax Price: {Shop.Currency.Describe(BasePrice, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
+            sb.AppendLine($"Pre-Tax Price: {Shop.Currency.Describe(BasePrice, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}{(MerchandiseType == MerchandiseType.Commodity ? $" per {Gameworld.UnitManager.DescribeExact(CommodityPricingWeight, Framework.Units.UnitType.Mass, actor)}" : string.Empty)}");
         }
 
         sb.AppendLine($"Will Sell: {WillSell.ToColouredString()}");
@@ -799,6 +1015,44 @@ public class Merchandise : LateInitialisingItem, IMerchandise
     private long? _skinId;
     public IGameItemSkin Skin => Gameworld.ItemSkins.Get(_skinId ?? 0);
     public decimal BasePrice { get; private set; }
+    public MerchandiseType MerchandiseType { get; private set; }
+    private long? _commodityMaterialId;
+    private long? _commodityTagId;
+    private readonly CommodityCharacteristicRequirement _commodityCharacteristics = new();
+    public ISolid CommodityMaterial => Gameworld.Materials.Get(_commodityMaterialId ?? 0);
+    public ITag CommodityTag => Gameworld.Tags.Get(_commodityTagId ?? 0);
+    public bool CommodityRequiresNoCharacteristics => _commodityCharacteristics.RequireNoCharacteristics;
+    public IReadOnlyDictionary<ICharacteristicDefinition, ICharacteristicValue> CommodityCharacteristicRequirements =>
+        _commodityCharacteristics.Requirements
+                                 .Where(x => x.Value is not null)
+                                 .ToDictionary(x => x.Key, x => x.Value!);
+    public double CommodityPricingWeight { get; private set; } = 1.0;
+    public string CommodityDescriptor
+    {
+        get
+        {
+            if (MerchandiseType != MerchandiseType.Commodity)
+            {
+                return ListDescription;
+            }
+
+            var descriptor = CommodityMaterial?.Name ?? "unknown commodity";
+            if (CommodityTag is not null)
+            {
+                descriptor = $"{descriptor}|{CommodityTag.Name}";
+            }
+
+            foreach (var characteristic in _commodityCharacteristics.Requirements
+                                                                    .Where(x => x.Value is not null)
+                                                                    .OrderBy(x => x.Key.Name)
+                                                                    .ThenBy(x => x.Key.Id))
+            {
+                descriptor = $"{descriptor}|{characteristic.Key.Name}={characteristic.Value!.GetValue}";
+            }
+
+            return descriptor;
+        }
+    }
 
     public bool WillSell { get; private set; }
     public bool WillBuy { get; private set; }
@@ -814,6 +1068,16 @@ public class Merchandise : LateInitialisingItem, IMerchandise
         : BasePrice) *
         MarketPriceMultiplier *
         SalesMarkupMultiplier;
+
+    public decimal EffectivePriceForWeight(double weight)
+    {
+        if (CommodityPricingWeight <= 0.0)
+        {
+            return EffectivePrice;
+        }
+
+        return EffectivePrice * (decimal)(weight / CommodityPricingWeight);
+    }
 
     public decimal MarketPriceMultiplier => Shop.MarketForPricingPurposes?.PriceMultiplierForItem(Item) ?? 1.0M;
 
@@ -848,6 +1112,13 @@ public class Merchandise : LateInitialisingItem, IMerchandise
                 return _listDescription;
             }
 
+            if (MerchandiseType == MerchandiseType.Commodity)
+            {
+                return CommodityTag is null
+                    ? $"{CommodityMaterial?.MaterialDescription ?? "unknown commodity"}"
+                    : $"{CommodityMaterial?.MaterialDescription ?? "unknown commodity"} {CommodityTag.Name.ToLowerInvariant().Pluralise()}";
+            }
+
             return Skin?.ShortDescription ?? Item.ShortDescription;
         }
     }
@@ -855,8 +1126,20 @@ public class Merchandise : LateInitialisingItem, IMerchandise
     public bool IsMerchandiseFor(IGameItem item, bool ignoreDefault = false)
     {
         return item.EffectsOfType<ItemOnDisplayInShop>().Any(x => x.Merchandise == this) ||
-               (ignoreDefault || DefaultMerchandiseForItem) && Item.Id == item.Prototype.Id && (_skinId is null || item.Skin == Skin)
+               (ignoreDefault || DefaultMerchandiseForItem) &&
+               (MerchandiseType == MerchandiseType.Commodity
+                   ? item.GetItemType<ICommodity>() is { } commodity && IsMerchandiseForCommodity(commodity)
+                   : Item.Id == item.Prototype.Id && (_skinId is null || item.Skin == Skin))
             ;
+    }
+
+    public bool IsMerchandiseForCommodity(ICommodity commodity)
+    {
+        return MerchandiseType == MerchandiseType.Commodity &&
+               CommodityMaterial is not null &&
+               commodity.Material == CommodityMaterial &&
+               (CommodityTag is null || commodity.Tag == CommodityTag || commodity.Tag?.IsA(CommodityTag) == true) &&
+               _commodityCharacteristics.Matches(commodity);
     }
 
     public void ShopCurrencyChanged(ICurrency oldCurrency, ICurrency newCurrency)

@@ -11,7 +11,7 @@ using MudSharp.TimeAndDate;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Xml.Linq;
+using DbHotel = MudSharp.Models.Hotel;
 
 namespace MudSharp.Economy.Property;
 
@@ -30,55 +30,54 @@ public partial class Property
 	private decimal _hotelOutstandingTaxes;
 	private bool _hotelHeartbeatRegistered;
 
-	private void InitialiseDefaultHotelDefinition()
+	private void InitialiseDefaultHotelState()
 	{
+		_hotelRooms.Clear();
+		_hotelLostProperties.Clear();
+		_hotelPatronBalances.Clear();
+		_hotelBannedPatrons.Clear();
 		_hotelLicenseStatus = HotelLicenseStatus.None;
+		_hotelBankAccountId = null;
+		_hotelBankAccount = null;
+		_hotelCanRentProgId = null;
+		_hotelCanRentProg = null;
 		_hotelLostPropertyRetention = MudTimeSpan.FromDays(14);
 		_hotelOutstandingTaxes = 0.0M;
 		EnsureHotelHeartbeat();
 	}
 
-	private void LoadHotelDefinition(string definition)
+	private void LoadHotelState(DbHotel hotel)
 	{
-		InitialiseDefaultHotelDefinition();
-		if (string.IsNullOrWhiteSpace(definition))
+		if (hotel is null)
 		{
 			return;
 		}
 
-		XElement root;
-		try
-		{
-			root = XElement.Parse(definition);
-		}
-		catch
-		{
-			return;
-		}
-
-		_hotelLicenseStatus = root.Attribute("status")?.Value.TryParseEnum(out HotelLicenseStatus status) == true
-			? status
+		_hotelLicenseStatus = Enum.IsDefined(typeof(HotelLicenseStatus), hotel.LicenseStatus)
+			? (HotelLicenseStatus)hotel.LicenseStatus
 			: HotelLicenseStatus.None;
-		_hotelBankAccountId = long.TryParse(root.Attribute("bank")?.Value, out var bank) && bank > 0 ? bank : null;
-		_hotelCanRentProgId = long.TryParse(root.Attribute("canrent")?.Value, out var prog) && prog > 0 ? prog : null;
-		_hotelOutstandingTaxes = decimal.Parse(root.Attribute("taxes")?.Value ?? "0.0");
-		_hotelLostPropertyRetention = !string.IsNullOrWhiteSpace(root.Attribute("lostretention")?.Value)
-			? MudTimeSpan.Parse(root.Attribute("lostretention").Value)
+		_hotelBankAccountId = hotel.BankAccountId;
+		_hotelCanRentProgId = hotel.CanRentProgId;
+		_hotelOutstandingTaxes = hotel.OutstandingTaxes;
+		_hotelLostPropertyRetention = !string.IsNullOrWhiteSpace(hotel.LostPropertyRetention)
+			? MudTimeSpan.Parse(hotel.LostPropertyRetention)
 			: MudTimeSpan.FromDays(14);
 
-		_hotelBannedPatrons.AddRange(root.Element("Bans")?.Elements("Ban")
-			.Select(x => long.Parse(x.Attribute("id")?.Value ?? "0"))
-			.Where(x => x > 0) ?? Enumerable.Empty<long>());
+		_hotelBannedPatrons.AddRange(hotel.BannedPatrons
+		                                  .Select(x => x.PatronId)
+		                                  .Where(x => x > 0));
 
-		foreach (var item in root.Element("Rooms")?.Elements("Room") ?? Enumerable.Empty<XElement>())
+		var roomsById = new Dictionary<long, HotelRoom>();
+		foreach (var item in hotel.Rooms.OrderBy(x => x.Id))
 		{
-			_hotelRooms.Add(new HotelRoom(this, item));
+			var room = new HotelRoom(this, item);
+			_hotelRooms.Add(room);
+			roomsById[item.Id] = room;
 		}
 
-		foreach (var item in root.Element("LostProperties")?.Elements("LostProperty") ?? Enumerable.Empty<XElement>())
+		foreach (var item in hotel.LostProperties.OrderBy(x => x.Id))
 		{
-			var roomId = long.Parse(item.Attribute("room")?.Value ?? "0");
-			if (_hotelRooms.FirstOrDefault(x => x.Cell.Id == roomId) is not HotelRoom room)
+			if (!roomsById.TryGetValue(item.HotelRoomId, out var room))
 			{
 				continue;
 			}
@@ -86,7 +85,7 @@ public partial class Property
 			_hotelLostProperties.Add(new HotelLostProperty(room, item));
 		}
 
-		foreach (var item in root.Element("Balances")?.Elements("Balance") ?? Enumerable.Empty<XElement>())
+		foreach (var item in hotel.PatronBalances)
 		{
 			var balance = new HotelPatronBalance(this, item);
 			if (balance.PatronId > 0 && balance.Balance != 0.0M)
@@ -94,23 +93,6 @@ public partial class Property
 				_hotelPatronBalances.Add(balance);
 			}
 		}
-	}
-
-	private XElement SaveHotelDefinition()
-	{
-		return new XElement("Hotel",
-			new XAttribute("status", HotelLicenseStatus),
-			new XAttribute("bank", HotelBankAccount?.Id ?? _hotelBankAccountId ?? 0L),
-			new XAttribute("canrent", HotelCanRentProg?.Id ?? _hotelCanRentProgId ?? 0L),
-			new XAttribute("lostretention", HotelLostPropertyRetention.GetRoundTripParseText),
-			new XAttribute("taxes", HotelOutstandingTaxes),
-			new XElement("Bans", _hotelBannedPatrons.Select(x => new XElement("Ban", new XAttribute("id", x)))),
-			new XElement("Rooms", _hotelRooms.OfType<HotelRoom>().Select(x => x.SaveToXml())),
-			new XElement("LostProperties", _hotelLostProperties.OfType<HotelLostProperty>().Select(x => x.SaveToXml())),
-			new XElement("Balances", _hotelPatronBalances.OfType<HotelPatronBalance>()
-				.Where(x => x.Balance != 0.0M)
-				.Select(x => x.SaveToXml()))
-		);
 	}
 
 	internal void NoteHotelChanged()

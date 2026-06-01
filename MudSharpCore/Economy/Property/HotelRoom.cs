@@ -7,7 +7,11 @@ using MudSharp.TimeAndDate;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Xml.Linq;
+using DbHotelLostProperty = MudSharp.Models.HotelLostProperty;
+using DbHotelPatronBalance = MudSharp.Models.HotelPatronBalance;
+using DbHotelRoom = MudSharp.Models.HotelRoom;
+using DbHotelRoomFurnishing = MudSharp.Models.HotelRoomFurnishing;
+using DbHotelRoomRental = MudSharp.Models.HotelRoomRental;
 
 namespace MudSharp.Economy.Property;
 
@@ -15,14 +19,14 @@ public class HotelFurnishing : IHotelFurnishing
 {
 	private readonly HotelRoom _room;
 
-	public HotelFurnishing(HotelRoom room, XElement root)
+	public HotelFurnishing(HotelRoom room, DbHotelRoomFurnishing record)
 	{
 		_room = room;
-		GameItemId = long.Parse(root.Attribute("item")?.Value ?? "0");
-		Description = root.Attribute("description")?.Value ?? "a furnishing";
-		ReplacementValue = decimal.Parse(root.Attribute("value")?.Value ?? "0.0");
-		OriginalCondition = double.Parse(root.Attribute("condition")?.Value ?? "1.0");
-		OriginalDamageCondition = double.Parse(root.Attribute("damage")?.Value ?? "1.0");
+		GameItemId = record.GameItemId;
+		Description = record.Description;
+		ReplacementValue = record.ReplacementValue;
+		OriginalCondition = record.OriginalCondition;
+		OriginalDamageCondition = record.OriginalDamageCondition;
 	}
 
 	public HotelFurnishing(HotelRoom room, IGameItem item, decimal replacementValue)
@@ -56,16 +60,6 @@ public class HotelFurnishing : IHotelFurnishing
 		return ReplacementValue * (decimal)claimRatio;
 	}
 
-	public XElement SaveToXml()
-	{
-		return new XElement("Furnishing",
-			new XAttribute("item", GameItemId),
-			new XAttribute("description", Description),
-			new XAttribute("value", ReplacementValue),
-			new XAttribute("condition", OriginalCondition),
-			new XAttribute("damage", OriginalDamageCondition)
-		);
-	}
 }
 
 public class HotelRoomRental : IHotelRoomRental
@@ -73,17 +67,17 @@ public class HotelRoomRental : IHotelRoomRental
 	private readonly HotelRoom _room;
 	private ICharacter _guest;
 
-	public HotelRoomRental(HotelRoom room, XElement root)
+	public HotelRoomRental(HotelRoom room, DbHotelRoomRental record)
 	{
 		_room = room;
-		GuestId = long.Parse(root.Attribute("guest")?.Value ?? "0");
-		StartTime = MudDateTime.FromStoredStringOrFallback(root.Attribute("start")?.Value ?? "Never", room.Property.Gameworld,
+		GuestId = record.GuestId;
+		StartTime = MudDateTime.FromStoredStringOrFallback(record.StartTime, room.Property.Gameworld,
 			StoredMudDateTimeFallback.CurrentDateTime, "HotelRoomRental", null, room.Name, "StartTime");
-		EndTime = MudDateTime.FromStoredStringOrFallback(root.Attribute("end")?.Value ?? "Never", room.Property.Gameworld,
+		EndTime = MudDateTime.FromStoredStringOrFallback(record.EndTime, room.Property.Gameworld,
 			StoredMudDateTimeFallback.Never, "HotelRoomRental", null, room.Name, "EndTime");
-		RentalCharge = decimal.Parse(root.Attribute("charge")?.Value ?? "0.0");
-		SecurityDeposit = decimal.Parse(root.Attribute("deposit")?.Value ?? "0.0");
-		TaxCharged = decimal.Parse(root.Attribute("tax")?.Value ?? "0.0");
+		RentalCharge = record.RentalCharge;
+		SecurityDeposit = record.SecurityDeposit;
+		TaxCharged = record.TaxCharged;
 	}
 
 	public HotelRoomRental(HotelRoom room, ICharacter guest, MudDateTime start, MudDateTime end, decimal rentalCharge,
@@ -108,17 +102,6 @@ public class HotelRoomRental : IHotelRoomRental
 	public decimal SecurityDeposit { get; }
 	public decimal TaxCharged { get; }
 
-	public XElement SaveToXml()
-	{
-		return new XElement("Rental",
-			new XAttribute("guest", GuestId),
-			new XAttribute("start", StartTime.GetDateTimeString()),
-			new XAttribute("end", EndTime.GetDateTimeString()),
-			new XAttribute("charge", RentalCharge),
-			new XAttribute("deposit", SecurityDeposit),
-			new XAttribute("tax", TaxCharged)
-		);
-	}
 }
 
 public class HotelPatronBalance : IHotelPatronBalance
@@ -127,11 +110,11 @@ public class HotelPatronBalance : IHotelPatronBalance
 	private ICharacter _patron;
 	private decimal _balance;
 
-	public HotelPatronBalance(IProperty property, XElement root)
+	public HotelPatronBalance(IProperty property, DbHotelPatronBalance record)
 	{
 		_property = property;
-		PatronId = long.Parse(root.Attribute("patron")?.Value ?? "0");
-		_balance = decimal.Parse(root.Attribute("balance")?.Value ?? "0.0");
+		PatronId = record.PatronId;
+		_balance = record.Balance;
 	}
 
 	public HotelPatronBalance(IProperty property, ICharacter patron, decimal balance)
@@ -151,13 +134,6 @@ public class HotelPatronBalance : IHotelPatronBalance
 		set => _balance = value;
 	}
 
-	public XElement SaveToXml()
-	{
-		return new XElement("Balance",
-			new XAttribute("patron", PatronId),
-			new XAttribute("balance", Balance)
-		);
-	}
 }
 
 public class HotelLostProperty : IHotelLostProperty
@@ -166,19 +142,19 @@ public class HotelLostProperty : IHotelLostProperty
 	private ICharacter _owner;
 	private IGameItem _bundle;
 
-	public HotelLostProperty(HotelRoom room, XElement root)
+	public HotelLostProperty(HotelRoom room, DbHotelLostProperty record)
 	{
 		_room = room;
-		OwnerId = long.Parse(root.Attribute("owner")?.Value ?? "0");
-		BundleId = long.Parse(root.Attribute("bundle")?.Value ?? "0");
-		StoredUntil = MudDateTime.FromStoredStringOrFallback(root.Attribute("until")?.Value ?? "Never", room.Property.Gameworld,
+		OwnerId = record.OwnerId;
+		BundleId = record.BundleId;
+		StoredUntil = MudDateTime.FromStoredStringOrFallback(record.StoredUntil, room.Property.Gameworld,
 			StoredMudDateTimeFallback.Never, "HotelLostProperty", null, room.Name, "StoredUntil");
-		Status = root.Attribute("status")?.Value.TryParseEnum(out HotelLostPropertyStatus status) == true
-			? status
+		Status = Enum.IsDefined(typeof(HotelLostPropertyStatus), record.Status)
+			? (HotelLostPropertyStatus)record.Status
 			: HotelLostPropertyStatus.Held;
-		AuctionHouseId = long.TryParse(root.Attribute("auction")?.Value, out var auction) && auction > 0 ? auction : null;
-		ReservePrice = decimal.Parse(root.Attribute("reserve")?.Value ?? "0.0");
-		Description = root.Attribute("description")?.Value ?? "lost property";
+		AuctionHouseId = record.AuctionHouseId;
+		ReservePrice = record.ReservePrice;
+		Description = record.Description;
 	}
 
 	public HotelLostProperty(HotelRoom room, ICharacter owner, IGameItem bundle, MudDateTime storedUntil, decimal reservePrice)
@@ -206,19 +182,6 @@ public class HotelLostProperty : IHotelLostProperty
 	public decimal ReservePrice { get; set; }
 	public string Description { get; }
 
-	public XElement SaveToXml()
-	{
-		return new XElement("LostProperty",
-			new XAttribute("owner", OwnerId),
-			new XAttribute("bundle", BundleId),
-			new XAttribute("room", _room.Cell.Id),
-			new XAttribute("until", StoredUntil.GetDateTimeString()),
-			new XAttribute("status", Status),
-			new XAttribute("auction", AuctionHouseId ?? 0L),
-			new XAttribute("reserve", ReservePrice),
-			new XAttribute("description", Description)
-		);
-	}
 }
 
 public class HotelRoom : IHotelRoom
@@ -235,26 +198,28 @@ public class HotelRoom : IHotelRoom
 	private TimeSpan _minimumDuration;
 	private TimeSpan _maximumDuration;
 	private IHotelRoomRental _activeRental;
+	internal long DatabaseId { get; }
 
-	public HotelRoom(Property property, XElement root)
+	public HotelRoom(Property property, DbHotelRoom record)
 	{
 		_property = property;
-		_cellId = long.Parse(root.Attribute("cell")?.Value ?? "0");
-		_name = root.Attribute("name")?.Value ?? $"Room {_cellId:N0}";
-		_listed = bool.Parse(root.Attribute("listed")?.Value ?? "false");
-		_pricePerDay = decimal.Parse(root.Attribute("price")?.Value ?? "0.0");
-		_securityDeposit = decimal.Parse(root.Attribute("deposit")?.Value ?? "0.0");
-		_minimumDuration = TimeSpan.FromTicks(long.Parse(root.Attribute("min")?.Value ?? TimeSpan.FromDays(1).Ticks.ToString()));
-		_maximumDuration = TimeSpan.FromTicks(long.Parse(root.Attribute("max")?.Value ?? TimeSpan.FromDays(7).Ticks.ToString()));
-		_keyIds.AddRange(root.Element("Keys")?.Elements("Key").Select(x => long.Parse(x.Attribute("id")?.Value ?? "0")) ?? Enumerable.Empty<long>());
-		foreach (var item in root.Element("Furnishings")?.Elements("Furnishing") ?? Enumerable.Empty<XElement>())
+		DatabaseId = record.Id;
+		_cellId = record.CellId;
+		_name = record.Name;
+		_listed = record.Listed;
+		_pricePerDay = record.PricePerDay;
+		_securityDeposit = record.SecurityDeposit;
+		_minimumDuration = TimeSpan.FromTicks(record.MinimumDurationTicks);
+		_maximumDuration = TimeSpan.FromTicks(record.MaximumDurationTicks);
+		_keyIds.AddRange(record.Keys.Select(x => x.PropertyKeyId));
+		foreach (var item in record.Furnishings)
 		{
 			_furnishings.Add(new HotelFurnishing(this, item));
 		}
 
-		if (root.Element("Rental") is XElement rental)
+		if (record.ActiveRental is not null)
 		{
-			_activeRental = new HotelRoomRental(this, rental);
+			_activeRental = new HotelRoomRental(this, record.ActiveRental);
 		}
 	}
 
@@ -387,22 +352,6 @@ public class HotelRoom : IHotelRoom
 		{
 			_property.NoteHotelChanged();
 		}
-	}
-
-	public XElement SaveToXml()
-	{
-		return new XElement("Room",
-			new XAttribute("cell", Cell.Id),
-			new XAttribute("name", Name),
-			new XAttribute("listed", Listed),
-			new XAttribute("price", PricePerDay),
-			new XAttribute("deposit", SecurityDeposit),
-			new XAttribute("min", MinimumDuration.Ticks),
-			new XAttribute("max", MaximumDuration.Ticks),
-			new XElement("Keys", _keyIds.Select(x => new XElement("Key", new XAttribute("id", x)))),
-			new XElement("Furnishings", _furnishings.OfType<HotelFurnishing>().Select(x => x.SaveToXml())),
-			(_activeRental as HotelRoomRental)?.SaveToXml()
-		);
 	}
 
 	public IEnumerable<string> Keywords => new ExplodedString(Name).Words.Append(Cell.Id.ToString());

@@ -6,6 +6,7 @@ using MudSharp.Database;
 using MudSharp.Economy;
 using MudSharp.Economy.Banking;
 using MudSharp.Economy.Currency;
+using MudSharp.Economy.Employment;
 using MudSharp.Economy.Shops;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
@@ -24,7 +25,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.Economy.Stables;
 
-public class Stable : SavableKeywordedItem, IStable
+public partial class Stable : SavableKeywordedItem, IStable
 {
 	private readonly List<IEmployeeRecord> _employeeRecords = new();
 	private readonly List<IStableStay> _stays = new();
@@ -261,19 +262,17 @@ public class Stable : SavableKeywordedItem, IStable
 
 	public bool IsEmployee(ICharacter actor)
 	{
-		return _employeeRecords.Any(x => x.EmployeeCharacterId == actor.Id);
+		return this.HasActiveEmploymentContract(actor);
 	}
 
 	public bool IsManager(ICharacter actor)
 	{
-		return actor.IsAdministrator() ||
-		       _employeeRecords.Any(x => x.EmployeeCharacterId == actor.Id && x.IsManager);
+		return this.HasManagerEmploymentAccess(actor);
 	}
 
 	public bool IsProprietor(ICharacter actor)
 	{
-		return actor.IsAdministrator() ||
-		       _employeeRecords.Any(x => x.EmployeeCharacterId == actor.Id && x.IsProprietor);
+		return this.HasProprietorEmploymentAccess(actor);
 	}
 
 	public void AddEmployee(ICharacter actor)
@@ -538,10 +537,7 @@ public class Stable : SavableKeywordedItem, IStable
 		sb.AppendLine($"Stable Accounts: {StableAccounts.Count().ToString("N0", actor).ColourValue()}");
 		sb.AppendLine();
 		sb.AppendLine("Employees:");
-		foreach (var employee in EmployeeRecords.OrderByDescending(x => x.IsProprietor).ThenByDescending(x => x.IsManager).ThenBy(x => x.Name.GetName(NameStyle.FullName)))
-		{
-			sb.AppendLine($"\t{employee.Name.GetName(NameStyle.FullName).ColourName()} [{(employee.IsProprietor ? "Proprietor" : employee.IsManager ? "Manager" : "Employee").ColourValue()}]");
-		}
+		sb.AppendLine(this.ActiveEmploymentContractsTable(actor));
 
 		return sb.ToString();
 	}

@@ -52,11 +52,12 @@ The current runtime supports a lot of optional depth, but the minimum viable pat
 9. Create at least one shop or other money sink/source if the world needs day-to-day commerce.
 10. Create stables in cells where players should be able to lodge mounts, if the game uses mounted travel.
 11. Point relevant shops at a market if pricing should reflect macroeconomic pressure rather than fixed local pricing only.
-12. Add job-finding cells, jobs, and employers if the world will use the employment system.
-13. Add conveyancing cells and property data if the world will use formal property ownership, sale, or leasing.
-14. For hotel-style short stays, configure property-backed hotel rooms after banks and properties exist, then add hotel taxes to the economic zone if rentals should be taxed.
-15. Decide whether estates are enabled for each zone, then add probate offices if players should interact with estates in the zone.
-16. Add morgue office and morgue storage cells if the world will use corpse recovery and morgue claim workflows.
+12. Add job-finding cells, legacy jobs, and legacy employers if the world will use the PC-facing `job` system.
+13. Add unified employment openings, worker AI definitions, and scheduled rules if the world will use NPC employees, host task dispatch, manager goals, or automated operations.
+14. Add conveyancing cells and property data if the world will use formal property ownership, sale, or leasing.
+15. For hotel-style short stays, configure property-backed hotel rooms after banks and properties exist, then add hotel taxes to the economic zone if rentals should be taxed.
+16. Decide whether estates are enabled for each zone, then add probate offices if players should interact with estates in the zone.
+17. Add morgue office and morgue storage cells if the world will use corpse recovery and morgue claim workflows.
 
 ### Why this order fits the current implementation
 - currencies are prerequisites for almost every downstream object
@@ -64,7 +65,7 @@ The current runtime supports a lot of optional depth, but the minimum viable pat
 - the stock economy package depends on `UsefulSeeder` market tags plus the earlier time and currency layers
 - banks unlock payment instruments, interest/fee policy, and account administration, but most establishment-facing settlement systems can now run bankless with virtual reserves
 - clan budgets and payroll float can draw from physical treasury rooms, clan virtual treasury balances, and then the default clan bank account when present
-- markets, shoppers, and jobs all assume earlier layers already exist
+- markets, shoppers, legacy jobs, and unified employment openings all assume earlier layers already exist
 - property and auctions depend heavily on cells, banks, and world-specific content
 - agriculture fields can use property ownership and leaseholder controls for who may work a field in a mapped property cell
 - stables depend on mount-supporting cells and stable fee policy; a stable bank account is optional if managers use the stable reserve
@@ -224,6 +225,8 @@ Practical builder work currently includes:
 - configure line-of-credit accounts if credit sales should be allowed
 - decide what payment methods the world wants players to use
 
+Shops now expose the shared unified employment surface. Managers can use host aliases to create openings, accept or reject applications, delegate authority, compose active tasks, schedule rules, inspect task diagnostics, and manage staff-board communication. Shop purchase tasks use the native shop sale flow with employer-backed payment authorisation, and item-selector or commodity-selector purchases hand exact resolved stock items to the shop so the NPC does not rely on keyword selection. The host communication board remains separate from task routing.
+
 Current payment methods already support:
 
 - physical cash
@@ -280,7 +283,7 @@ Contributor note:
 - boot-time auction reconstruction now resolves seller and payout references in a post-character finalisation pass rather than in the constructor path
 
 ### Property and Employment
-Property and jobs both depend strongly on world layout and institutions.
+Property, legacy jobs, and unified employment all depend strongly on world layout and institutions.
 
 Property builders need:
 
@@ -312,7 +315,7 @@ Operational hotel commands:
 Contributor note:
 
 - sale-order and lease-order consent loading must compare property owners by stored owner id and owner type rather than dereferencing `PropertyOwner.Owner` during boot
-- hotel-room rental state is currently serialized into the property `HotelDefinition` payload, so changes to this surface should keep XML load/save compatibility in mind unless the persistence model is deliberately split out later
+- hotel-room rental state now persists through normalized hotel tables, so room, key, furnishing, rental, patron balance, ban, and lost-property changes should update those tables through the property/hotel save path rather than reintroducing XML payload state
 
 Job builders need:
 
@@ -320,6 +323,25 @@ Job builders need:
 - a zone with job-finding cells
 - pay currency and pay model
 - an eligibility prog
+
+Unified employment builders additionally need:
+
+- a host that exposes `IEmploymentHost` such as a shop, stable, bank, auction house, arena, or approved durable hotel root
+- a manager or proprietor contract with delegated authority to create openings, accept applications, assign tasks, create scheduled rules, or approve finance as appropriate
+- an `EmploymentWorkerAI` definition with a currency-bound reservation wage, accepted payment methods, host filters, AI capabilities, path range, search cadence, and tasking/payroll settings
+- employment openings whose required AI capabilities line up with the tasks the worker is expected to perform
+- scheduled rules using `tasks conditions` and action plans using `tasks actions`, rather than long helpfile-embedded catalogues
+- explicit authorise/reserve/release steps before financial task steps that spend or move employer money
+- task item selectors using prototype id by default, `*<id>` for live item id, `&<id|name>` for verified tags, and visible keywords for room-targeted items
+- enough physical world layout for worker pathing, inventory plans, stockrooms, shopfronts, tills, containers, workstations, and delivery cells
+
+Current unified-employment operating notes:
+
+- `employment <host type> <id|name> ...` is the explicit command surface; local host aliases such as `shop tasks ...`, `stable tasks ...`, `bank tasks ...`, `auction tasks ...`, `arena tasks ...`, and `roomrent tasks ...` resolve the current local host as shorthand.
+- `tasks actions [all|category|action]` and `tasks conditions [all|category|condition]` are the canonical discovery surfaces for action and scheduled-rule syntax.
+- scheduled rules are AND-composed in this slice; OR expressions, reusable named predicates, and grouped expressions remain future work.
+- host staff boards are communication only. Scheduled rules, active tasks, and manager goals live on employment-host services and do not propagate through board posts.
+- hotels have durable root `Hotel` rows for employment ownership and finance, and hotel room/rental/furnishing/lost-property state is normalized into hotel-specific EF tables.
 
 ## Integration Guidance for Future Features
 This section is inferred implementation guidance based on current patterns.

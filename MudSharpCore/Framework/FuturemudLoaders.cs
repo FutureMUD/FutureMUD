@@ -520,6 +520,9 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
             }, ScheduleType.System, TimeSpan.FromMinutes(60),
             "Market Population Heartbeats"));
         Scheduler.AddSchedule(new RepeatingSchedule<IFuturemud>(this, this, Economy.Shops.Shop.DoAutopayShopTaxes, ScheduleType.System, TimeSpan.FromMinutes(60), "Shop Autopay Taxes"));
+        Scheduler.AddSchedule(new RepeatingSchedule<IFuturemud>(this, this,
+            fm => { EmploymentScheduledRuleEvaluationService.EvaluateAll(fm); }, ScheduleType.System, TimeSpan.FromMinutes(1),
+            "Employment Scheduled Rule Evaluation"));
         Chargen.SetupChargen(this);
         HeartbeatManager.StartHeartbeatTick();
         Track.CreateGlobalHeartbeatEvent();
@@ -1081,6 +1084,22 @@ For information on the syntax to use in emotes (such as those included in bracke
                              .Include(x => x.PropertyOwners)
                              .Include(x => x.PropertyKeys)
                              .Include(x => x.LeaseOrder)
+                             .Include(x => x.Hotel)
+                             .ThenInclude(x => x.Rooms)
+                             .ThenInclude(x => x.Keys)
+                             .Include(x => x.Hotel)
+                             .ThenInclude(x => x.Rooms)
+                             .ThenInclude(x => x.Furnishings)
+                             .Include(x => x.Hotel)
+                             .ThenInclude(x => x.Rooms)
+                             .ThenInclude(x => x.ActiveRental)
+                             .Include(x => x.Hotel)
+                             .ThenInclude(x => x.LostProperties)
+                             .Include(x => x.Hotel)
+                             .ThenInclude(x => x.PatronBalances)
+                             .Include(x => x.Hotel)
+                             .ThenInclude(x => x.BannedPatrons)
+                             .AsSplitQuery()
                              .AsNoTracking()
                              .ToList();
         foreach (Property property in properties)

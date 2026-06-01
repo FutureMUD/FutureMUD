@@ -12,11 +12,12 @@ namespace MudSharp.Database
             ConfigureStables(modelBuilder);
             ConfigureClanFinance(modelBuilder);
             ConfigureVirtualCash(modelBuilder);
-            ConfigureAgriculture(modelBuilder);
-            ConfigureVehicles(modelBuilder);
-            ConfigureMagicPortalTopology(modelBuilder);
+			ConfigureAgriculture(modelBuilder);
+			ConfigureVehicles(modelBuilder);
+			ConfigureEmployment(modelBuilder);
+			ConfigureMagicPortalTopology(modelBuilder);
 
-            modelBuilder.Entity<ShopDeal>(entity =>
+			modelBuilder.Entity<ShopDeal>(entity =>
             {
                 entity.ToTable("ShopDeals");
 

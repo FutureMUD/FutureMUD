@@ -89,6 +89,25 @@ public class HelpInfo : Attribute
     public string AdminHelp { get; protected set; }
 }
 
+[AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
+public class ConditionalHelpInfo : Attribute
+{
+    /// <summary>
+    /// Provides an alternate built-in help text when a static predicate method on the same module returns true.
+    /// The method must have the signature bool MethodName(ICharacter actor).
+    /// </summary>
+    /// <param name="predicateMethodName">The name of the static predicate method on the declaring module.</param>
+    /// <param name="helpText">The help text to show when the predicate returns true.</param>
+    public ConditionalHelpInfo(string predicateMethodName, string helpText)
+    {
+        PredicateMethodName = predicateMethodName;
+        HelpText = helpText;
+    }
+
+    public string PredicateMethodName { get; protected set; }
+    public string HelpText { get; protected set; }
+}
+
 [AttributeUsage(AttributeTargets.Method)]
 public class DisplayOptions : Attribute
 {
@@ -240,6 +259,12 @@ public abstract class Module<T> : IModule
                 helpInfoData.AdminHelp,
                 commandPermission?.PermissionLevel >= PermissionLevel.JuniorAdmin
                 );
+            foreach (var conditionalHelp in commandMethod.GetCustomAttributes(typeof(ConditionalHelpInfo), false)
+                         .OfType<ConditionalHelpInfo>())
+            {
+                helpInfo.AddConditionalHelp(ResolveConditionalHelpPredicate(commandMethod, conditionalHelp),
+                    conditionalHelp.HelpText);
+            }
         }
 
         DisplayOptions displayOptions =
@@ -260,6 +285,32 @@ public abstract class Module<T> : IModule
                 commandMethod.GetCustomAttributes(typeof(CustomModuleName), false).OfType<CustomModuleName>()
                              .FirstOrDefault()?.ModuleName ?? Name
             ));
+    }
+
+    private static Func<ICharacter, bool> ResolveConditionalHelpPredicate(MethodInfo commandMethod,
+        ConditionalHelpInfo conditionalHelp)
+    {
+        var declaringType = commandMethod.DeclaringType ??
+                            throw new ApplicationException(
+                                $"Command {commandMethod.Name} has conditional help but no declaring type.");
+        var method = declaringType.GetMethod(conditionalHelp.PredicateMethodName,
+            BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
+        if (method is null)
+        {
+            throw new ApplicationException(
+                $"Command {declaringType.FullName}.{commandMethod.Name} declares conditional help predicate {conditionalHelp.PredicateMethodName}, but no static method with that name exists.");
+        }
+
+        var parameters = method.GetParameters();
+        if (method.ReturnType != typeof(bool) ||
+            parameters.Length != 1 ||
+            parameters[0].ParameterType != typeof(ICharacter))
+        {
+            throw new ApplicationException(
+                $"Command {declaringType.FullName}.{commandMethod.Name} declares conditional help predicate {conditionalHelp.PredicateMethodName}, but it must have the signature bool {conditionalHelp.PredicateMethodName}(ICharacter actor).");
+        }
+
+        return (Func<ICharacter, bool>)Delegate.CreateDelegate(typeof(Func<ICharacter, bool>), method);
     }
 
     public override string ToString()

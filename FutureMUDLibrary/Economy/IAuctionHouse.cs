@@ -1,6 +1,7 @@
 ﻿using JetBrains.Annotations;
 using MudSharp.Character;
 using MudSharp.Construction;
+using MudSharp.Economy.Employment;
 using MudSharp.Economy;
 using MudSharp.Economy.Property;
 using MudSharp.Framework;
@@ -185,7 +186,7 @@ namespace MudSharp.Economy
         }
     }
 
-    public interface IAuctionHouse : ISaveable, IEditableItem
+    public interface IAuctionHouse : ISaveable, IEditableItem, IEmploymentHost
     {
         IEconomicZone EconomicZone { get; }
         ICell AuctionHouseCell { get; }

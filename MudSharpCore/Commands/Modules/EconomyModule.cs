@@ -1442,6 +1442,7 @@ The syntax for this command is as follows:
 
 	#3buy <thing>#0 - buys a specified item
 	#3buy <quantity> <thing>#0- buys the specified quantity of the thing
+	#3buy <weight> <commodity>#0 - buys the specified weight of a commodity merchandise item
 	#3buy [<quantity>] <thing> account <accountname>#0 - buys the the thing with a line of credit account
 	#3buy [<quantity>] <thing> with <item>#0 - buys the thing with a payment item such as a cheque, credit card, writ, etc.",
         AutoHelp.HelpArgOrNoArg)]
@@ -1462,6 +1463,7 @@ The syntax for this command is as follows:
         string firstArg = ss.PopSpeech();
         string target = firstArg;
         int quantity = 1;
+        double? commodityWeight = null;
         if (!ss.IsFinished && int.TryParse(firstArg, out int newquantity))
         {
             if (newquantity < 1)
@@ -1472,6 +1474,16 @@ The syntax for this command is as follows:
 
             quantity = newquantity;
             target = ss.PopSpeech();
+        }
+        else if (!ss.IsFinished)
+        {
+            var parsedWeight = actor.Gameworld.UnitManager.GetBaseUnits(firstArg, Framework.Units.UnitType.Mass,
+                out var weightSuccess);
+            if (weightSuccess && parsedWeight > 0.0)
+            {
+                commodityWeight = parsedWeight;
+                target = ss.PopSpeech();
+            }
         }
 
         IMerchandise merch;
@@ -1574,15 +1586,35 @@ The syntax for this command is as follows:
             }
         }
 
-        (bool truth, string reason) = shop.CanBuy(actor, merch, quantity, payment);
-        if (!truth)
+        if (commodityWeight.HasValue && merch.MerchandiseType != MerchandiseType.Commodity)
         {
-            actor.OutputHandler.Send(
-                $"You cannot buy {quantity}x {merch.Item.ShortDescription.Colour(merch.Item.CustomColour ?? Telnet.Green)} because {reason}");
+            actor.OutputHandler.Send($"{merch.Name.ColourName()} is not sold as a commodity by weight.");
             return;
         }
 
-        (decimal Price, IEnumerable<IGameItem> Items) preview = shop.PreviewBuy(actor, merch, quantity, payment);
+        if (!commodityWeight.HasValue && merch.MerchandiseType == MerchandiseType.Commodity)
+        {
+            actor.OutputHandler.Send(
+                $"{merch.Name.ColourName()} is sold by weight. Use {"buy <weight> <commodity>".ColourCommand()}.");
+            return;
+        }
+
+        (bool truth, string reason) = commodityWeight.HasValue
+            ? shop.CanBuyCommodityWeight(actor, merch, commodityWeight.Value, payment, [])
+            : shop.CanBuy(actor, merch, quantity, payment);
+        if (!truth)
+        {
+            actor.OutputHandler.Send(
+                commodityWeight.HasValue
+                    ? $"You cannot buy {actor.Gameworld.UnitManager.DescribeExact(commodityWeight.Value, Framework.Units.UnitType.Mass, actor)} of {merch.ListDescription.ColourObject()} because {reason}"
+                    : $"You cannot buy {quantity}x {merch.Item.ShortDescription.Colour(merch.Item.CustomColour ?? Telnet.Green)} because {reason}");
+            return;
+        }
+
+        (decimal Price, IEnumerable<IGameItem> Items) preview = commodityWeight.HasValue
+            ? (shop.PriceForMerchandiseWeight(actor, merch, commodityWeight.Value),
+                shop.StockedItems(merch).Where(x => x.GetItemType<ICommodity>() is not null))
+            : shop.PreviewBuy(actor, merch, quantity, payment);
         if (actor.Account.ActLawfully &&
             preview.Items.Any(x => CrimeTypes.PossessingContraband.CheckWouldBeACrime(actor, null, x, "")))
         {
@@ -1606,7 +1638,9 @@ The syntax for this command is as follows:
                 DescriptionString = "confirming near-morph purchase",
                 AcceptAction = text =>
                 {
-                    List<IGameItem> bought = shop.Buy(actor, merch, quantity, payment).ToList();
+                    List<IGameItem> bought = commodityWeight.HasValue
+                        ? shop.BuyCommodityWeight(actor, merch, commodityWeight.Value, payment, []).ToList()
+                        : shop.Buy(actor, merch, quantity, payment).ToList();
                     foreach (IGameItem contrabandItem in bought)
                     {
                         CrimeExtensions.CheckPossibleCrimeAllAuthorities(actor, CrimeTypes.PossessingContraband, null,
@@ -1620,7 +1654,9 @@ The syntax for this command is as follows:
             return;
         }
 
-        List<IGameItem> boughtItems = shop.Buy(actor, merch, quantity, payment).ToList();
+        List<IGameItem> boughtItems = commodityWeight.HasValue
+            ? shop.BuyCommodityWeight(actor, merch, commodityWeight.Value, payment, []).ToList()
+            : shop.Buy(actor, merch, quantity, payment).ToList();
         foreach (IGameItem boughtContrabandItem in boughtItems)
         {
             CrimeExtensions.CheckPossibleCrimeAllAuthorities(actor, CrimeTypes.PossessingContraband, null,
@@ -1801,11 +1837,13 @@ The syntax for this command is as follows:
     [RequiredCharacterState(CharacterState.Conscious)]
     [NoCombatCommand]
     [NoHideCommand]
-    [HelpInfo("shop", ShopHelpPlayers, AutoHelp.HelpArgOrNoArg, ShopHelpAdmins)]
+    [HelpInfo("shop", ShopPlayerHelp, AutoHelp.HelpArgOrNoArg, ShopHelpAdmins)]
+    [ConditionalHelpInfo(nameof(CanSeeShopManagerHelp), ShopHelpPlayers)]
     protected static void Shop(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
-        switch (ss.PopSpeech().ToLowerInvariant())
+        var subcommand = ss.PopSpeech();
+        switch (subcommand.ToLowerInvariant())
         {
             case "reprice":
                 ShopReprice(actor, ss);
@@ -1894,9 +1932,14 @@ The syntax for this command is as follows:
                 return;
         }
 
+        if (new EmploymentCommandService().TryExecuteShortcut(actor, actor.Location.Shop, "shop", subcommand, ss))
+        {
+            return;
+        }
+
         if (actor.IsAdministrator())
         {
-            switch (ss.Last.ToLowerInvariant())
+            switch (subcommand.ToLowerInvariant())
             {
                 case "setupstall":
                     ShopSetupStall(actor, ss);
@@ -1928,10 +1971,40 @@ The syntax for this command is as follows:
             }
         }
 
-        actor.OutputHandler.Send((actor.IsAdministrator() ? ShopHelpAdmins : ShopHelpPlayers).SubstituteANSIColour());
+        actor.OutputHandler.Send(ShopHelpFor(actor).SubstituteANSIColour());
     }
 
     #region Shop Subcommands
+
+    private static string ShopHelpFor(ICharacter actor)
+    {
+        return actor.IsAdministrator() ? ShopHelpAdmins : CanSeeShopManagerHelp(actor) ? ShopHelpPlayers : ShopPlayerHelp;
+    }
+
+    private static bool CanSeeShopManagerHelp(ICharacter actor)
+    {
+        if (actor.Location is null)
+        {
+            return false;
+        }
+
+        var shop = actor.Location.Shop;
+        return EmploymentCommandService.CanViewManagerAliasHelp(actor, shop,
+            shop?.IsManager(actor) == true || shop?.IsProprietor(actor) == true);
+    }
+
+    private const string ShopPlayerHelp = @"You can use the following options with the shop command:
+
+	#3shop payaccount <account> <amount>#0 - pays off a line of credit account
+	#3shop paytax <amount>|all#0 - pays owing taxes out of all sources of available cash
+	#3shop accountstatus <account>#0 - inquires about the status of a line of credit account
+	#3shop account ...#0 - manages line of credit accounts that you can access
+	#3shop clockin#0 - explains that shop employment now uses active contracts rather than clock-in records
+	#3shop clockout#0 - explains that shop employment now uses active contracts rather than clock-out records
+	#3shop quit#0 - resigns your active employment contracts with this store
+
+Shop managers and proprietors standing at their shop can use #3shop help#0 to see employment, task, finance, stock, merchandise, and scheduled-rule commands.
+Use #3shop tasks actions#0 and #3shop tasks conditions#0 for the full task action and condition catalogues when you have access.";
 
     private const string ShopHelpPlayers = @"You can use the following options with the shop command:
 
@@ -1939,13 +2012,56 @@ The syntax for this command is as follows:
 	#3shop paytax <amount>|all#0 - pays owing taxes out of all sources of available cash
 	#3shop accountstatus <account>#0 - inquires about the status of a line of credit account
 	#3shop account ...#0 - allows store managers to configure line of credit accounts. See #3SHOP ACCOUNT HELP#0.
-	#3shop clockin#0 - clocks in as an on-duty employee
-	#3shop clockout#0 - clocks out as an off-duty employee	
-	#3shop employ <target>#0 - employs someone with the store
-	#3shop quit#0 - quits employment with this store
-	#3shop fire <target>|<name>#0 - fires an employee from this store
-	#3shop manager <target>|<name>#0 - toggles an employee's status as a manager
-	#3shop proprietor <target>|<name>#0 - toggles and employee's status as a proprietor
+	#3shop clockin#0 - explains that shop employment now uses active contracts rather than clock-in records
+	#3shop clockout#0 - explains that shop employment now uses active contracts rather than clock-out records
+	#3shop employ <target>#0 - offers someone a direct employment contract with the store
+	#3shop quit#0 - resigns your active employment contracts with this store
+	#3shop fire <target>|<name>#0 - ends an employee's active employment contracts with this store
+	#3shop manager <target>#0 - toggles a manager employment contract
+	#3shop proprietor <target>#0 - toggles a proprietor employment contract
+
+Shop employment records:
+
+	#3shop status#0 - shows employment status for this shop
+	#3shop contracts#0 - lists employment contracts
+	#3shop contracts delegate <##> show|grant|revoke|set ...#0 - views or changes delegated authority
+	#3shop openings#0 - lists employment openings
+	#3shop openings create <role> <hourly rate> [positions]#0 - creates an NPC-facing opening
+	#3shop applications#0 - lists employment applications
+	#3shop applications accept|reject <##> [reason]#0 - accepts or rejects an application
+	#3shop payroll#0 - lists wage payables and overdue days
+	#3shop payroll run|settle|claim ...#0 - accrues, settles, or claims employment wage payables
+
+Shop employment tasks:
+
+	#3shop tasks#0 - lists scheduled rules and active tasks
+	#3shop tasks show <##|name>#0 - shows an active task with its step details
+	#3shop tasks diagnose#0 - explains why active employees can or cannot claim tasks
+	#3shop tasks cancel <##|name> [reason]#0 - cancels an active task
+	#3shop tasks create <name> <action> [then <action> ...]#0 - creates and finalises a task in one command
+	#3shop tasks draft new|show|rename|remove|discard|finalise ...#0 - drafts and finalises active tasks
+	#3shop tasks step <action syntax>#0 - adds a catalogue action to your active-task draft
+	#3shop tasks actions [all|category|action]#0 - lists task action catalogue entries, status, and syntax
+
+Shop scheduled rules:
+
+	#3shop tasks rule show <##|name>#0 - shows a scheduled rule with conditions and planned steps
+	#3shop tasks rule create <name> cooldown <timespan> when <condition> [and <condition> ...] do <action> [then <action> ...]#0 - creates a scheduled rule
+	#3shop tasks rule draft new|copy|show|key|cooldown|removecondition|removestep|discard|finalise ...#0 - drafts and finalises scheduled rules
+	#3shop tasks rule condition <condition>#0 - adds a condition to your scheduled-rule draft
+	#3shop tasks rule step <action syntax>#0 - adds an action to your scheduled-rule draft
+	#3shop tasks rule diagnose|evaluate|pause|resume|cancel <##|name|all> [manual <key>]#0 - diagnoses, manually evaluates, pauses, resumes, or cancels scheduled rules
+	#3shop tasks conditions [all|category|condition]#0 - lists scheduled-rule condition syntax and authority
+
+Shop employment communication and audit:
+
+	#3shop goals#0 - lists manager goals
+	#3shop register#0 - shows employment register entries
+	#3shop employmentledger|empledger#0 - shows employment ledger entries
+	#3shop board [read <##>|write <title>]#0 - uses the staff board
+
+Use #3shop tasks actions#0 and #3shop tasks conditions#0 for the full action and condition catalogues.
+
 	#3shop till <target>#0 - toggles an item being used as a till for the store
 	#3shop display <target>#0 - toggles an item being used as a display cabinet for the store
 	#3shop info#0 - shows detailed information about the shop
@@ -1973,13 +2089,56 @@ The syntax for this command is as follows:
 	#3shop paytax <amount>|all#0 - pays owing taxes out of all sources of available cash
 	#3shop accountstatus <account>#0 - inquires about the status of a line of credit account
 	#3shop account ...#0 - allows store managers to configure line of credit accounts. See #3SHOP ACCOUNT HELP#0.
-	#3shop clockin#0 - clocks in as an on-duty employee
-	#3shop clockout#0 - clocks out as an off-duty employee	
-	#3shop employ <target>#0 - employs someone with the store
-	#3shop quit#0 - quits employment with this store
-	#3shop fire <target>|<name>#0 - fires an employee from this store
-	#3shop manager <target>|<name>#0 - toggles an employee's status as a manager
-	#3shop proprietor <target>|<name>#0 - toggles and employee's status as a proprietor
+	#3shop clockin#0 - explains that shop employment now uses active contracts rather than clock-in records
+	#3shop clockout#0 - explains that shop employment now uses active contracts rather than clock-out records
+	#3shop employ <target>#0 - offers someone a direct employment contract with the store
+	#3shop quit#0 - resigns your active employment contracts with this store
+	#3shop fire <target>|<name>#0 - ends an employee's active employment contracts with this store
+	#3shop manager <target>#0 - toggles a manager employment contract
+	#3shop proprietor <target>#0 - toggles a proprietor employment contract
+
+Shop employment records:
+
+	#3shop status#0 - shows employment status for this shop
+	#3shop contracts#0 - lists employment contracts
+	#3shop contracts delegate <##> show|grant|revoke|set ...#0 - views or changes delegated authority
+	#3shop openings#0 - lists employment openings
+	#3shop openings create <role> <hourly rate> [positions]#0 - creates an NPC-facing opening
+	#3shop applications#0 - lists employment applications
+	#3shop applications accept|reject <##> [reason]#0 - accepts or rejects an application
+	#3shop payroll#0 - lists wage payables and overdue days
+	#3shop payroll run|settle|claim ...#0 - accrues, settles, or claims employment wage payables
+
+Shop employment tasks:
+
+	#3shop tasks#0 - lists scheduled rules and active tasks
+	#3shop tasks show <##|name>#0 - shows an active task with its step details
+	#3shop tasks diagnose#0 - explains why active employees can or cannot claim tasks
+	#3shop tasks cancel <##|name> [reason]#0 - cancels an active task
+	#3shop tasks create <name> <action> [then <action> ...]#0 - creates and finalises a task in one command
+	#3shop tasks draft new|show|rename|remove|discard|finalise ...#0 - drafts and finalises active tasks
+	#3shop tasks step <action syntax>#0 - adds a catalogue action to your active-task draft
+	#3shop tasks actions [all|category|action]#0 - lists task action catalogue entries, status, and syntax
+
+Shop scheduled rules:
+
+	#3shop tasks rule show <##|name>#0 - shows a scheduled rule with conditions and planned steps
+	#3shop tasks rule create <name> cooldown <timespan> when <condition> [and <condition> ...] do <action> [then <action> ...]#0 - creates a scheduled rule
+	#3shop tasks rule draft new|copy|show|key|cooldown|removecondition|removestep|discard|finalise ...#0 - drafts and finalises scheduled rules
+	#3shop tasks rule condition <condition>#0 - adds a condition to your scheduled-rule draft
+	#3shop tasks rule step <action syntax>#0 - adds an action to your scheduled-rule draft
+	#3shop tasks rule diagnose|evaluate|pause|resume|cancel <##|name|all> [manual <key>]#0 - diagnoses, manually evaluates, pauses, resumes, or cancels scheduled rules
+	#3shop tasks conditions [all|category|condition]#0 - lists scheduled-rule condition syntax and authority
+
+Shop employment communication and audit:
+
+	#3shop goals#0 - lists manager goals
+	#3shop register#0 - shows employment register entries
+	#3shop employmentledger|empledger#0 - shows employment ledger entries
+	#3shop board [read <##>|write <title>]#0 - uses the staff board
+
+Use #3shop tasks actions#0 and #3shop tasks conditions#0 for the full action and condition catalogues.
+
 	#3shop till <target>#0 - toggles an item being used as a till for the store
 	#3shop display <target>#0 - toggles an item being used as a display cabinet for the store
 	#3shop info#0 - shows detailed information about the shop
@@ -3133,9 +3292,8 @@ Additionally, you can use the following shop admin subcommands:
         {
             AcceptAction = text =>
             {
-                actor.OutputHandler.Send(
-                    $"You quit {shop.Name.TitleCase().Colour(Telnet.Cyan)}, ending your employment with them.");
-                shop.RemoveEmployee(actor);
+                new EmploymentCommandService().TryResignFromHost(actor, shop, out var message);
+                actor.OutputHandler.Send(message);
                 foreach (ICharacter employee in shop.EmployeesOnDuty)
                 {
                     employee.OutputHandler.Send(
@@ -3320,7 +3478,7 @@ Additionally, you can use the following shop admin subcommands:
                 shop.Id.ToString("N0", actor),
                 shop.Name.TitleCase(),
                 shop.IsTrading.ToString(actor),
-                shop.EmployeeRecords.Count().ToString("N0", actor),
+                shop.ActiveEmploymentContracts().Count().ToString("N0", actor),
                 shop.EmployeesOnDuty.Count().ToString("N0", actor),
                 pshop?.ShopfrontCells.Select(x =>
                     x.GetFriendlyReference(actor).FluentTagMXP("send",
@@ -3518,11 +3676,11 @@ Additionally, you can use the following shop admin subcommands:
 
         if (actor.Location.Shop.EmployeesOnDuty.Contains(actor))
         {
-            actor.OutputHandler.Send("You are already clocked-in and available for duty.");
+            actor.OutputHandler.Send("Employment contracts for shops no longer use the legacy clock-in register; your active contract already marks you as available for work.");
             return;
         }
 
-        actor.Location.Shop.EmployeeClockIn(actor);
+        actor.OutputHandler.Send("Employment contracts for shops no longer use the legacy clock-in register; your active contract already marks you as available for work.");
     }
 
     private static void ShopClockOut(ICharacter actor)
@@ -3538,13 +3696,7 @@ Additionally, you can use the following shop admin subcommands:
             return;
         }
 
-        if (!actor.Location.Shop.EmployeesOnDuty.Contains(actor))
-        {
-            actor.OutputHandler.Send("You are already clocked-out and off duty.");
-            return;
-        }
-
-        actor.Location.Shop.EmployeeClockOut(actor);
+        actor.OutputHandler.Send("Employment contracts for shops no longer use the legacy clock-out register; end or suspend the contract to remove someone from work.");
     }
 
     private static void ShopEmploy(ICharacter actor, StringStack ss)
@@ -3594,10 +3746,13 @@ Additionally, you can use the following shop admin subcommands:
                     return;
                 }
 
-                shop.AddEmployee(target);
-                actor.OutputHandler.Send(
-                    $"{target.HowSeen(actor, true, flags: PerceiveIgnoreFlags.IgnoreSelf)} is now an employee of {shop.Name.TitleCase().Colour(Telnet.Cyan)}.");
-                target.OutputHandler.Send($"You are now an employee of {shop.Name.TitleCase().Colour(Telnet.Cyan)}");
+                var hired = new EmploymentCommandService().TryHireDirectContract(actor, shop, target, EmploymentRole.Employee,
+                    out _, out var message);
+                actor.OutputHandler.Send(message);
+                if (hired)
+                {
+                    target.OutputHandler.Send($"You are now an employee of {shop.Name.TitleCase().Colour(Telnet.Cyan)}");
+                }
             },
             RejectAction = text =>
             {
@@ -3631,67 +3786,24 @@ Additionally, you can use the following shop admin subcommands:
             return;
         }
 
-        ICharacter target = actor.TargetActor(ss.PopSpeech());
-        IEmployeeRecord record = null;
-        if (target != null)
+        if (ss.IsFinished)
         {
-            record = actor.Location.Shop.EmployeeRecords.FirstOrDefault(x => x.EmployeeCharacterId == target.Id);
-        }
-
-        record ??= actor.Location.Shop.EmployeeRecords.FirstOrDefault(x =>
-            x.Name.GetName(NameStyle.FullName).EqualTo(ss.Last));
-
-        if (record == null)
-        {
-            actor.OutputHandler.Send("You don't employ anyone like that.");
+            actor.OutputHandler.Send("Who do you want to fire?");
             return;
         }
 
-        if (record.IsProprietor)
+        var text = ss.SafeRemainingArgument;
+        var target = actor.TargetActor(text);
+        var service = new EmploymentCommandService();
+        if (target is not null)
         {
-            actor.OutputHandler.Send("You cannot fire someone who is a proprietor.");
+            service.TryTerminateContractsForEmployee(actor, shop, target, out var message);
+            actor.OutputHandler.Send(message);
             return;
         }
 
-        if (record.IsManager && !shop.IsProprietor(actor))
-        {
-            actor.OutputHandler.Send("You can't fire other managers, only the proprietor can.");
-            return;
-        }
-
-
-        actor.OutputHandler.Send(
-            "Are you sure that you want to fire {} from {}?\nUse {} to confirm or {} to change your mind.");
-        actor.AddEffect(new Accept(actor, new GenericProposal
-        {
-            AcceptAction = text =>
-            {
-                if (!shop.IsEmployee(target))
-                {
-                    actor.OutputHandler.Send(
-                        $"{record.Name.GetName(NameStyle.FullName).Colour(Telnet.Cyan)} is no longer an employee, so you can't fire them.");
-                    return;
-                }
-
-                shop.RemoveEmployee(record);
-                actor.OutputHandler.Send(
-                    $"You fire {record.Name.GetName(NameStyle.FullName).Colour(Telnet.Cyan)} from {shop.Name.TitleCase().Colour(Telnet.Cyan)}.");
-                target = actor.Gameworld.Actors.Get(record.EmployeeCharacterId);
-                target?.OutputHandler.Send($"You have been fired from {shop.Name.TitleCase().Colour(Telnet.Cyan)}.");
-            },
-            RejectAction = text =>
-            {
-                actor.OutputHandler.Send(
-                    $"You decide not to fire {record.Name.GetName(NameStyle.FullName).Colour(Telnet.Cyan)} from {shop.Name.TitleCase().Colour(Telnet.Cyan)}.");
-            },
-            ExpireAction = () =>
-            {
-                actor.OutputHandler.Send(
-                    $"You decide not to fire {record.Name.GetName(NameStyle.FullName).Colour(Telnet.Cyan)} from {shop.Name.TitleCase().Colour(Telnet.Cyan)}.");
-            },
-            Keywords = new List<string> { },
-            DescriptionString = "firing an employee from the shop"
-        }), TimeSpan.FromSeconds(120));
+        service.TryTerminateContractsForEmployee(actor, shop, text, out var nameMessage);
+        actor.OutputHandler.Send(nameMessage);
     }
 
     private static void ShopDisplay(ICharacter actor, StringStack ss)
@@ -3811,35 +3923,22 @@ Additionally, you can use the following shop admin subcommands:
             return;
         }
 
-        ICharacter target = actor.TargetActor(ss.PopSpeech());
-        IEmployeeRecord record = null;
-        if (target != null)
+        if (ss.IsFinished)
         {
-            record = shop.EmployeeRecords.FirstOrDefault(x => x.EmployeeCharacterId == target.Id);
-        }
-
-        record ??= shop.EmployeeRecords.FirstOrDefault(x =>
-            x.Name.GetName(NameStyle.FullName).EqualTo(ss.Last));
-
-        if (record == null)
-        {
-            actor.OutputHandler.Send("You don't employ anyone like that.");
+            actor.OutputHandler.Send("Who do you want to toggle as a manager?");
             return;
         }
 
-        if (record.IsProprietor)
+        var target = actor.TargetActor(ss.SafeRemainingArgument);
+        if (target is null)
         {
-            actor.OutputHandler.Send("You cannot remove the manager status of someone who is a proprietor.");
+            actor.OutputHandler.Send("You don't see anyone like that.");
             return;
         }
 
-        record.IsManager = !record.IsManager;
-        shop.Changed = true;
-        actor.OutputHandler.Send(
-            $"You {(record.IsManager ? "promote" : "demote")} {record.Name.GetName(NameStyle.FullName).Colour(Telnet.Cyan)} {(record.IsManager ? "to the position of manager" : "to merely an employee")}.");
-        target = actor.Gameworld.Actors.Get(record.EmployeeCharacterId);
-        target?.OutputHandler.Send(
-                $"You have been {(record.IsManager ? "promoted to the position of manager of this shop" : "demoted to merely an employee of this shop")}.");
+        new EmploymentCommandService().TryToggleRoleContract(actor, shop, target, EmploymentRole.Manager, out var message);
+        actor.OutputHandler.Send(message);
+        target.OutputHandler.Send(message);
     }
 
     private static void ShopProprietor(ICharacter actor, StringStack ss)
@@ -3855,52 +3954,39 @@ Additionally, you can use the following shop admin subcommands:
             return;
         }
 
-        ICharacter target = actor.TargetActor(ss.PopSpeech());
-        IEmployeeRecord record = null;
-        if (target != null)
+        if (ss.IsFinished)
         {
-            record = shop.EmployeeRecords.FirstOrDefault(x => x.EmployeeCharacterId == target.Id);
-        }
-
-        record ??= shop.EmployeeRecords.FirstOrDefault(x => x.Name.GetName(NameStyle.FullName).EqualTo(ss.Last));
-
-        if (record == null)
-        {
-            actor.OutputHandler.Send("You don't employ anyone like that.");
+            actor.OutputHandler.Send("Who do you want to promote to proprietor?");
             return;
         }
 
-        if (record.IsProprietor)
+        var target = actor.TargetActor(ss.SafeRemainingArgument);
+        if (target is null)
         {
-            actor.OutputHandler.Send(
-                $"{record.Name.GetName(NameStyle.FullName).Colour(Telnet.Cyan)} is already a proprietor.");
+            actor.OutputHandler.Send("You don't see anyone like that.");
             return;
         }
 
         actor.OutputHandler.Send(
-            $"You are proposing to promote {record.Name.GetName(NameStyle.FullName).Colour(Telnet.Cyan)} to the position of proprietor of {shop.Name.TitleCase().Colour(Telnet.Cyan)}. This decision is irreversable, and they will be a full owner with all rights unless they subsequently quit.\nTo go through with this decision, type {"accept".ColourCommand()} or type {"decline".ColourCommand()} to change your mind.");
+            $"You are proposing to toggle {target.HowSeen(actor, true, flags: PerceiveIgnoreFlags.IgnoreSelf)} as a proprietor of {shop.Name.TitleCase().Colour(Telnet.Cyan)}.\nTo go through with this decision, type {"accept".ColourCommand()} or type {"decline".ColourCommand()} to change your mind.");
         actor.AddEffect(new Accept(actor, new GenericProposal
         {
             AcceptAction = text =>
             {
-                record.IsManager = true;
-                record.IsProprietor = true;
-                shop.Changed = true;
-                actor.OutputHandler.Send(
-                    $"You promote {record.Name.GetName(NameStyle.FullName).Colour(Telnet.Cyan)} to proprietor of {shop.Name.TitleCase().Colour(Telnet.Cyan)}.");
-                target = actor.Gameworld.Actors.Get(record.EmployeeCharacterId);
-                target?.OutputHandler.Send(
-                        $"You have been promoted to the proprietor of {shop.Name.TitleCase().Colour(Telnet.Cyan)}.");
+                new EmploymentCommandService().TryToggleRoleContract(actor, shop, target, EmploymentRole.Proprietor,
+                    out var message);
+                actor.OutputHandler.Send(message);
+                target.OutputHandler.Send(message);
             },
             RejectAction = text =>
             {
                 actor.OutputHandler.Send(
-                    $"You decide against promoting {record.Name.GetName(NameStyle.FullName).Colour(Telnet.Cyan)} to proprietor.");
+                    $"You decide against toggling {target.HowSeen(actor, true, flags: PerceiveIgnoreFlags.IgnoreSelf)} as proprietor.");
             },
             ExpireAction = () =>
             {
                 actor.OutputHandler.Send(
-                    $"You decide against promoting {record.Name.GetName(NameStyle.FullName).Colour(Telnet.Cyan)} to proprietor.");
+                    $"You decide against toggling {target.HowSeen(actor, true, flags: PerceiveIgnoreFlags.IgnoreSelf)} as proprietor.");
             },
             Keywords = new List<string> { "proprietor", "shop", "promote" },
             DescriptionString = "Promote someone to proprietor of a shop"
@@ -4074,6 +4160,7 @@ Additionally, you can use the following shop admin subcommands:
 	#3shop merch edit#0 - equivalent to SHOW <edited record>
 	#3shop merch show <record>#0 - shows information about the specified merchandise record
 	#3shop merch new <name> <id>|<target> <price>|default [<custom description>]#0 - creates a new record with the specified item and price, and optional custom LIST description
+	#3shop merch new commodity <name> <material> <price> per <weight> [tag <tag>] [desc <description>]#0 - creates commodity merchandise sold by weight
 	#3shop merch clone <new name>#0 - clones the currently edited record to an identical new record
 	#3shop merch delete#0 - deletes the current merchandise record
 	#3shop merch close#0 - closes the merchandise record you're editing
@@ -4095,6 +4182,7 @@ Additionally, you can use the following shop admin subcommands:
 	#3shop merch edit#0 - equivalent to SHOW <edited record>
 	#3shop merch show <record>#0 - shows information about the specified merchandise record
 	#3shop merch new <name> <id>|<target> <price>|default [<custom description>]#0 - creates a new record with the specified item and price, and optional custom LIST description
+	#3shop merch new commodity <name> <material> <price> per <weight> [tag <tag>] [desc <description>]#0 - creates commodity merchandise sold by weight
 	#3shop merch clone <new name>#0 - clones the currently edited record to an identical new record
 	#3shop merch delete#0 - deletes the current merchandise record
 	#3shop merch close#0 - closes the merchandise record you're editing
@@ -4225,17 +4313,24 @@ Additionally, you can use the following shop admin subcommands:
             if (actor.IsAdministrator())
             {
                 actor.OutputHandler.Send(
-                    "The syntax for this command is SHOP MERCHANDISE NEW <name> <id>|<target> <price>|default [<custom description>]");
+                    "The syntax for this command is SHOP MERCHANDISE NEW <name> <id>|<target> <price>|default [<custom description>] or SHOP MERCHANDISE NEW COMMODITY <name> <material> <price> PER <weight> [TAG <tag>] [DESC <description>]");
                 return;
             }
 
             actor.OutputHandler.Send(
-                "The syntax for this command is SHOP MERCHANDISE NEW <name> <target> <price>|default [<custom description>]");
+                "The syntax for this command is SHOP MERCHANDISE NEW <name> <target> <price>|default [<custom description>] or SHOP MERCHANDISE NEW COMMODITY <name> <material> <price> PER <weight> [TAG <tag>] [DESC <description>]");
         }
 
         if (ss.IsFinished)
         {
             HelpText();
+            return;
+        }
+
+        if (ss.PeekSpeech().EqualTo("commodity"))
+        {
+            ss.PopSpeech();
+            ShopMerchandiseNewCommodity(actor, shop, ss);
             return;
         }
 
@@ -4295,6 +4390,117 @@ Additionally, you can use the following shop admin subcommands:
         actor.RemoveAllEffects(x => x.IsEffectType<BuilderEditingEffect<IMerchandise>>());
         actor.AddEffect(new BuilderEditingEffect<IMerchandise>(actor) { EditingItem = newMerch });
         return;
+    }
+
+    private static void ShopMerchandiseNewCommodity(ICharacter actor, IShop shop, StringStack ss)
+    {
+        void HelpText()
+        {
+            actor.OutputHandler.Send("The syntax for this command is SHOP MERCHANDISE NEW COMMODITY <name> <material> <price> PER <weight> [TAG <tag>] [DESC <description>]");
+        }
+
+        if (ss.IsFinished)
+        {
+            HelpText();
+            return;
+        }
+
+        var name = ss.PopSpeech();
+        if (ss.IsFinished)
+        {
+            HelpText();
+            return;
+        }
+
+        var materialText = ss.PopSpeech();
+        var material = actor.Gameworld.Materials.GetByIdOrNames(materialText);
+        if (material is null)
+        {
+            actor.OutputHandler.Send($"There is no solid material identified by {materialText.ColourCommand()}.");
+            return;
+        }
+
+        if (ss.IsFinished)
+        {
+            actor.OutputHandler.Send("What pre-tax price do you want to give to this commodity merchandise entry?");
+            return;
+        }
+
+        var price = shop.Currency.GetBaseCurrency(ss.PopSpeech(), out var priceSuccess);
+        if (!priceSuccess)
+        {
+            actor.OutputHandler.Send("That is not a valid price.");
+            return;
+        }
+
+        if (ss.IsFinished || !ss.PopSpeech().EqualTo("per") || ss.IsFinished)
+        {
+            actor.OutputHandler.Send("Commodity merchandise prices must specify the weight they apply to with PER <weight>.");
+            return;
+        }
+
+        var weight = actor.Gameworld.UnitManager.GetBaseUnits(ss.PopSpeech(), Framework.Units.UnitType.Mass,
+            out var weightSuccess);
+        if (!weightSuccess || weight <= 0.0)
+        {
+            actor.OutputHandler.Send("That is not a valid positive commodity pricing weight.");
+            return;
+        }
+
+        ITag tag = null;
+        var description = string.Empty;
+        while (!ss.IsFinished)
+        {
+            var option = ss.PopSpeech();
+            if (option.EqualTo("tag"))
+            {
+                if (ss.IsFinished)
+                {
+                    actor.OutputHandler.Send("Which tag should the commodity require?");
+                    return;
+                }
+
+                var tagText = ss.PopSpeech().TrimStart('&');
+                tag = long.TryParse(tagText, out var tagId)
+                    ? actor.Gameworld.Tags.Get(tagId)
+                    : actor.Gameworld.Tags.GetByIdOrName(tagText);
+                if (tag is null)
+                {
+                    actor.OutputHandler.Send($"There is no tag identified by {tagText.ColourCommand()}.");
+                    return;
+                }
+
+                continue;
+            }
+
+            if (option.EqualTo("desc"))
+            {
+                description = ss.SafeRemainingArgument;
+                break;
+            }
+
+            actor.OutputHandler.Send($"The only commodity merchandise options are {"tag <tag>".ColourCommand()} and {"desc <description>".ColourCommand()}.");
+            return;
+        }
+
+        if (CommodityGameItemComponentProto.ItemPrototype is null)
+        {
+            CommodityGameItemComponentProto.InitialiseItemType(actor.Gameworld);
+        }
+
+        var proto = CommodityGameItemComponentProto.ItemPrototype;
+        if (proto is null)
+        {
+            actor.OutputHandler.Send("The global commodity item prototype could not be created.");
+            return;
+        }
+
+        var newMerch = new Merchandise(shop, name, proto, material, tag, price, weight, false, null, description);
+        shop.AddMerchandise(newMerch);
+        actor.OutputHandler.Send(
+            $"You create a new commodity merchandise entry for {newMerch.ListDescription.ColourObject()} ({newMerch.Name.TitleCase().Colour(Telnet.Cyan)}), priced at {shop.Currency.Describe(price, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()} per {actor.Gameworld.UnitManager.DescribeExact(weight, Framework.Units.UnitType.Mass, actor).ColourValue()}, which you are now editing.");
+        actor.RemoveAllEffects(x => x.IsEffectType<BuilderEditingEffect<IMerchandise>>());
+        actor.AddEffect(new BuilderEditingEffect<IMerchandise>(actor) { EditingItem = newMerch });
     }
 
     private static void ShopMerchandiseEdit(ICharacter actor, StringStack ss)
@@ -4710,6 +4916,30 @@ Additionally, you can use the following shop admin subcommands:
 
     #region Banks
 
+    public const string BankPlayerHelpText =
+        @"The bank command is used to interact with bank accounts. All of the commands need to be done at a bank branch.
+
+The syntax for using banks is as follows:
+
+	#3bank accounts#0 - shows all the bank accounts you have access to
+	#3bank open <type>#0 - opens a new bank account
+	#3bank openclan <type> <clan>#0 - opens a new bank account on behalf of a clan
+	#3bank openshop <type> <shop>#0 - opens a new bank account on behalf of a shop
+	#3bank types#0 - shows what types of bank accounts this bank offers
+	#3bank alias <account#>#0 - sets the alias of a bank account
+	#3bank preview <type>#0 - previews the fees/interest of a bank account type
+	#3bank close <account#>#0 - permanently closes a bank account
+	#3bank show <account#>#0 - shows information about an account
+	#3bank transactions <account#>#0 - shows transaction history for a bank account
+	#3bank deposit <account#> <amount>#0 - deposits money into an account
+	#3bank withdraw <account#> <amount>#0 - withdraws money from an account
+	#3bank transfer <fromaccount#> <toaccount#> <amount>#0 - transfers money to another account
+	#3bank requestitem <account#>#0 - requests that the bank issue you a payment item
+	#3bank cancelitems <account#>#0 - requests that the bank cancel all issued items
+
+Bank managers standing at their branch can use #3bank help#0 to see manager, employment, task, finance, and scheduled-rule commands.
+Use #3bank tasks actions#0 and #3bank tasks conditions#0 for the full task action and condition catalogues when you have access.";
+
     public const string BankHelpText =
         @"The bank command is used to interact with bank accounts. All of the commands need to be done at a bank branch.
 
@@ -4744,7 +4974,49 @@ Additionally, if you are the manager of a bank, you can use the following additi
 	#3bank manager rollover <account> <newaccount>#0 - closes an account and rolls balance into a new one
 	#3bank manager withdraw <amount>#0 - withdraws money from the cash reserves
 	#3bank manager deposit <amount>#0 - deposits money into the cash reserves
-	#3bank manager exchange <from> <to> <rate>#0 - sets the currency exchange rate";
+	#3bank manager exchange <from> <to> <rate>#0 - sets the currency exchange rate
+
+Bank employment records:
+
+	#3bank status#0 - shows employment status for this bank
+	#3bank contracts#0 - lists employment contracts
+	#3bank contracts delegate <##> show|grant|revoke|set ...#0 - views or changes delegated authority
+	#3bank openings#0 - lists employment openings
+	#3bank openings create <role> <hourly rate> [positions]#0 - creates an NPC-facing opening
+	#3bank applications#0 - lists employment applications
+	#3bank applications accept|reject <##> [reason]#0 - accepts or rejects an application
+	#3bank payroll#0 - lists wage payables and overdue days
+	#3bank payroll run|settle|claim ...#0 - accrues, settles, or claims employment wage payables
+
+Bank employment tasks:
+
+	#3bank tasks#0 - lists scheduled rules and active tasks
+	#3bank tasks show <##|name>#0 - shows an active task with its step details
+	#3bank tasks diagnose#0 - explains why active employees can or cannot claim tasks
+	#3bank tasks cancel <##|name> [reason]#0 - cancels an active task
+	#3bank tasks create <name> <action> [then <action> ...]#0 - creates and finalises a task in one command
+	#3bank tasks draft new|show|rename|remove|discard|finalise ...#0 - drafts and finalises active tasks
+	#3bank tasks step <action syntax>#0 - adds a catalogue action to your active-task draft
+	#3bank tasks actions [all|category|action]#0 - lists task action catalogue entries, status, and syntax
+
+Bank scheduled rules:
+
+	#3bank tasks rule show <##|name>#0 - shows a scheduled rule with conditions and planned steps
+	#3bank tasks rule create <name> cooldown <timespan> when <condition> [and <condition> ...] do <action> [then <action> ...]#0 - creates a scheduled rule
+	#3bank tasks rule draft new|copy|show|key|cooldown|removecondition|removestep|discard|finalise ...#0 - drafts and finalises scheduled rules
+	#3bank tasks rule condition <condition>#0 - adds a condition to your scheduled-rule draft
+	#3bank tasks rule step <action syntax>#0 - adds an action to your scheduled-rule draft
+	#3bank tasks rule diagnose|evaluate|pause|resume|cancel <##|name|all> [manual <key>]#0 - diagnoses, manually evaluates, pauses, resumes, or cancels scheduled rules
+	#3bank tasks conditions [all|category|condition]#0 - lists scheduled-rule condition syntax and authority
+
+Bank employment communication and audit:
+
+	#3bank goals#0 - lists manager goals
+	#3bank register#0 - shows employment register entries
+	#3bank employmentledger|empledger#0 - shows employment ledger entries
+	#3bank board [read <##>|write <title>]#0 - uses the staff board
+
+Use #3bank tasks actions#0 and #3bank tasks conditions#0 for the full action and condition catalogues.";
 
     public const string BankAdminHelpText =
         @"The bank command is used to create and edit banks. The commands are as follows:
@@ -4809,17 +5081,61 @@ Additionally, if you are the manager of a bank, you can use the following additi
 	#3bank manager rollover <account> <newaccount>#0 - closes an account and rolls balance into a new one
 	#3bank manager withdraw <amount>#0 - withdraws money from the cash reserves
 	#3bank manager deposit <amount>#0 - deposits money into the cash reserves
-	#3bank manager exchange <from> <to> <rate>#0 - sets the currency exchange rate";
+	#3bank manager exchange <from> <to> <rate>#0 - sets the currency exchange rate
+
+Bank employment records:
+
+	#3bank status#0 - shows employment status for this bank
+	#3bank contracts#0 - lists employment contracts
+	#3bank contracts delegate <##> show|grant|revoke|set ...#0 - views or changes delegated authority
+	#3bank openings#0 - lists employment openings
+	#3bank openings create <role> <hourly rate> [positions]#0 - creates an NPC-facing opening
+	#3bank applications#0 - lists employment applications
+	#3bank applications accept|reject <##> [reason]#0 - accepts or rejects an application
+	#3bank payroll#0 - lists wage payables and overdue days
+	#3bank payroll run|settle|claim ...#0 - accrues, settles, or claims employment wage payables
+
+Bank employment tasks:
+
+	#3bank tasks#0 - lists scheduled rules and active tasks
+	#3bank tasks show <##|name>#0 - shows an active task with its step details
+	#3bank tasks diagnose#0 - explains why active employees can or cannot claim tasks
+	#3bank tasks cancel <##|name> [reason]#0 - cancels an active task
+	#3bank tasks create <name> <action> [then <action> ...]#0 - creates and finalises a task in one command
+	#3bank tasks draft new|show|rename|remove|discard|finalise ...#0 - drafts and finalises active tasks
+	#3bank tasks step <action syntax>#0 - adds a catalogue action to your active-task draft
+	#3bank tasks actions [all|category|action]#0 - lists task action catalogue entries, status, and syntax
+
+Bank scheduled rules:
+
+	#3bank tasks rule show <##|name>#0 - shows a scheduled rule with conditions and planned steps
+	#3bank tasks rule create <name> cooldown <timespan> when <condition> [and <condition> ...] do <action> [then <action> ...]#0 - creates a scheduled rule
+	#3bank tasks rule draft new|copy|show|key|cooldown|removecondition|removestep|discard|finalise ...#0 - drafts and finalises scheduled rules
+	#3bank tasks rule condition <condition>#0 - adds a condition to your scheduled-rule draft
+	#3bank tasks rule step <action syntax>#0 - adds an action to your scheduled-rule draft
+	#3bank tasks rule diagnose|evaluate|pause|resume|cancel <##|name|all> [manual <key>]#0 - diagnoses, manually evaluates, pauses, resumes, or cancels scheduled rules
+	#3bank tasks conditions [all|category|condition]#0 - lists scheduled-rule condition syntax and authority
+
+Bank employment communication and audit:
+
+	#3bank goals#0 - lists manager goals
+	#3bank register#0 - shows employment register entries
+	#3bank employmentledger|empledger#0 - shows employment ledger entries
+	#3bank board [read <##>|write <title>]#0 - uses the staff board
+
+Use #3bank tasks actions#0 and #3bank tasks conditions#0 for the full action and condition catalogues.";
 
     [PlayerCommand("Bank", "bank")]
     [RequiredCharacterState(CharacterState.Able)]
     [NoHideCommand]
     [NoCombatCommand]
-    [HelpInfo("bank", BankHelpText, AutoHelp.HelpArgOrNoArg, BankAdminHelpText)]
+    [HelpInfo("bank", BankPlayerHelpText, AutoHelp.HelpArgOrNoArg, BankAdminHelpText)]
+    [ConditionalHelpInfo(nameof(CanSeeBankManagerHelp), BankHelpText)]
     protected static void Bank(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
-        switch (ss.PopForSwitch())
+        var subcommand = ss.PopForSwitch();
+        switch (subcommand)
         {
             case "edit":
             case "set":
@@ -4916,10 +5232,31 @@ Additionally, if you are the manager of a bank, you can use the following additi
                     new StringStack("cancelitems" + ss.RemainingArgument.LeadingSpaceIfNotEmpty()));
                 return;
             default:
-                actor.OutputHandler.Send((actor.IsAdministrator() ? BankAdminHelpText : BankHelpText)
-                    .SubstituteANSIColour());
+                var bank = actor.Gameworld.Banks.FirstOrDefault(x => x.BranchLocations.Contains(actor.Location));
+                if (new EmploymentCommandService().TryExecuteShortcut(actor, bank, "bank", subcommand, ss))
+                {
+                    return;
+                }
+
+                actor.OutputHandler.Send(BankHelpFor(actor).SubstituteANSIColour());
                 return;
         }
+    }
+
+    private static string BankHelpFor(ICharacter actor)
+    {
+        return actor.IsAdministrator() ? BankAdminHelpText : CanSeeBankManagerHelp(actor) ? BankHelpText : BankPlayerHelpText;
+    }
+
+    private static bool CanSeeBankManagerHelp(ICharacter actor)
+    {
+        if (actor.Gameworld is null || actor.Location is null)
+        {
+            return false;
+        }
+
+        var bank = actor.Gameworld.Banks.FirstOrDefault(x => x.BranchLocations.Contains(actor.Location));
+        return EmploymentCommandService.CanViewManagerAliasHelp(actor, bank, bank?.IsManager(actor) == true);
     }
 
     private static void BankManager(ICharacter actor, StringStack ss)
@@ -5674,6 +6011,23 @@ Additionally, if you are the manager of a bank, you can use the following additi
 
     #region Auctions
 
+    public const string AuctionPlayerHelp =
+        @"The auction command is used to interact with auction houses, and it must be used at a location that is an auction house. You should also see the related command AUCTIONS.
+
+The syntax for using this command is as follows:
+
+	#3auction preview <lot>#0 - view an auction lot currently being auctioned
+	#3auction sell <item> <price> <bank code>:<accn>|cash [<buyout price>]#0 - lists an item for sale
+	#3auction sell property <property> <price> <bank code>:<accn>|cash [<buyout price>]#0 - lists your ownership share in a property for sale
+	#3auction bid <lot> <bid> [bank <account>]#0 - makes a bid on an auction lot
+	#3auction buyout <lot> [bank <account>]#0 - pays the buyout price on an auction lot
+	#3auction claim#0 - claims all movable items won or not sold
+	#3auction refund#0 - claims all money owed for unsuccessful bids or cash seller proceeds
+	#3auction cancel <lot>#0 - cancels an auction lot
+
+Auction house managers standing at their auction house can use #3auction help#0 to see employment, task, finance, and scheduled-rule commands.
+Use #3auction tasks actions#0 and #3auction tasks conditions#0 for the full task action and condition catalogues when you have access.";
+
     public const string AuctionHelp =
         @"The auction command is used to interact with auction houses, and it must be used at a location that is an auction house. You should also see the related command AUCTIONS.
 
@@ -5686,7 +6040,49 @@ The syntax for using this command is as follows:
 	#3auction buyout <lot> [bank <account>]#0 - pays the buyout price on an auction lot
 	#3auction claim#0 - claims all movable items won or not sold
 	#3auction refund#0 - claims all money owed for unsuccessful bids or cash seller proceeds
-	#3auction cancel <lot>#0 - cancels an auction lot";
+	#3auction cancel <lot>#0 - cancels an auction lot
+
+Auction house employment records:
+
+	#3auction status#0 - shows employment status for this auction house
+	#3auction contracts#0 - lists employment contracts
+	#3auction contracts delegate <##> show|grant|revoke|set ...#0 - views or changes delegated authority
+	#3auction openings#0 - lists employment openings
+	#3auction openings create <role> <hourly rate> [positions]#0 - creates an NPC-facing opening
+	#3auction applications#0 - lists employment applications
+	#3auction applications accept|reject <##> [reason]#0 - accepts or rejects an application
+	#3auction payroll#0 - lists wage payables and overdue days
+	#3auction payroll run|settle|claim ...#0 - accrues, settles, or claims employment wage payables
+
+Auction house employment tasks:
+
+	#3auction tasks#0 - lists scheduled rules and active tasks
+	#3auction tasks show <##|name>#0 - shows an active task with its step details
+	#3auction tasks diagnose#0 - explains why active employees can or cannot claim tasks
+	#3auction tasks cancel <##|name> [reason]#0 - cancels an active task
+	#3auction tasks create <name> <action> [then <action> ...]#0 - creates and finalises a task in one command
+	#3auction tasks draft new|show|rename|remove|discard|finalise ...#0 - drafts and finalises active tasks
+	#3auction tasks step <action syntax>#0 - adds a catalogue action to your active-task draft
+	#3auction tasks actions [all|category|action]#0 - lists task action catalogue entries, status, and syntax
+
+Auction house scheduled rules:
+
+	#3auction tasks rule show <##|name>#0 - shows a scheduled rule with conditions and planned steps
+	#3auction tasks rule create <name> cooldown <timespan> when <condition> [and <condition> ...] do <action> [then <action> ...]#0 - creates a scheduled rule
+	#3auction tasks rule draft new|copy|show|key|cooldown|removecondition|removestep|discard|finalise ...#0 - drafts and finalises scheduled rules
+	#3auction tasks rule condition <condition>#0 - adds a condition to your scheduled-rule draft
+	#3auction tasks rule step <action syntax>#0 - adds an action to your scheduled-rule draft
+	#3auction tasks rule diagnose|evaluate|pause|resume|cancel <##|name|all> [manual <key>]#0 - diagnoses, manually evaluates, pauses, resumes, or cancels scheduled rules
+	#3auction tasks conditions [all|category|condition]#0 - lists scheduled-rule condition syntax and authority
+
+Auction house employment communication and audit:
+
+	#3auction goals#0 - lists manager goals
+	#3auction register#0 - shows employment register entries
+	#3auction employmentledger|empledger#0 - shows employment ledger entries
+	#3auction board [read <##>|write <title>]#0 - uses the staff board
+
+Use #3auction tasks actions#0 and #3auction tasks conditions#0 for the full action and condition catalogues.";
 
     public const string AuctionsHelp =
         @"The auctions command lists the active lots at the auction house in your current location.
@@ -5731,17 +6127,61 @@ The syntax for using this command is as follows:
 	#3auction refund#0 - claims all money owed for unsuccessful bids or cash seller proceeds
 	#3auction cancel <lot>#0 - cancels an auction lot
 
+Auction house employment records:
+
+	#3auction status#0 - shows employment status for this auction house
+	#3auction contracts#0 - lists employment contracts
+	#3auction contracts delegate <##> show|grant|revoke|set ...#0 - views or changes delegated authority
+	#3auction openings#0 - lists employment openings
+	#3auction openings create <role> <hourly rate> [positions]#0 - creates an NPC-facing opening
+	#3auction applications#0 - lists employment applications
+	#3auction applications accept|reject <##> [reason]#0 - accepts or rejects an application
+	#3auction payroll#0 - lists wage payables and overdue days
+	#3auction payroll run|settle|claim ...#0 - accrues, settles, or claims employment wage payables
+
+Auction house employment tasks:
+
+	#3auction tasks#0 - lists scheduled rules and active tasks
+	#3auction tasks show <##|name>#0 - shows an active task with its step details
+	#3auction tasks diagnose#0 - explains why active employees can or cannot claim tasks
+	#3auction tasks cancel <##|name> [reason]#0 - cancels an active task
+	#3auction tasks create <name> <action> [then <action> ...]#0 - creates and finalises a task in one command
+	#3auction tasks draft new|show|rename|remove|discard|finalise ...#0 - drafts and finalises active tasks
+	#3auction tasks step <action syntax>#0 - adds a catalogue action to your active-task draft
+	#3auction tasks actions [all|category|action]#0 - lists task action catalogue entries, status, and syntax
+
+Auction house scheduled rules:
+
+	#3auction tasks rule show <##|name>#0 - shows a scheduled rule with conditions and planned steps
+	#3auction tasks rule create <name> cooldown <timespan> when <condition> [and <condition> ...] do <action> [then <action> ...]#0 - creates a scheduled rule
+	#3auction tasks rule draft new|copy|show|key|cooldown|removecondition|removestep|discard|finalise ...#0 - drafts and finalises scheduled rules
+	#3auction tasks rule condition <condition>#0 - adds a condition to your scheduled-rule draft
+	#3auction tasks rule step <action syntax>#0 - adds an action to your scheduled-rule draft
+	#3auction tasks rule diagnose|evaluate|pause|resume|cancel <##|name|all> [manual <key>]#0 - diagnoses, manually evaluates, pauses, resumes, or cancels scheduled rules
+	#3auction tasks conditions [all|category|condition]#0 - lists scheduled-rule condition syntax and authority
+
+Auction house employment communication and audit:
+
+	#3auction goals#0 - lists manager goals
+	#3auction register#0 - shows employment register entries
+	#3auction employmentledger|empledger#0 - shows employment ledger entries
+	#3auction board [read <##>|write <title>]#0 - uses the staff board
+
+Use #3auction tasks actions#0 and #3auction tasks conditions#0 for the full action and condition catalogues.
+
 Note: Admins can use the #3auction cancel#0 subcommand on other people's items";
 
     [PlayerCommand("Auction", "auction")]
     [RequiredCharacterState(CharacterState.Able)]
     [NoCombatCommand]
     [NoHideCommand]
-    [HelpInfo("auction", AuctionHelp, AutoHelp.HelpArgOrNoArg, AuctionHelpAdmins)]
+    [HelpInfo("auction", AuctionPlayerHelp, AutoHelp.HelpArgOrNoArg, AuctionHelpAdmins)]
+    [ConditionalHelpInfo(nameof(CanSeeAuctionManagerHelp), AuctionHelp)]
     protected static void Auction(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
-        switch (ss.PopForSwitch())
+        var subcommand = ss.PopForSwitch();
+        switch (subcommand)
         {
             case "edit":
             case "close":
@@ -5761,7 +6201,7 @@ Note: Admins can use the #3auction cancel#0 subcommand on other people's items";
             return;
         }
 
-        switch (ss.Last.ToLowerInvariant().CollapseString())
+        switch (subcommand.CollapseString())
         {
             case "preview":
                 AuctionPreview(actor, auctionHouse, ss);
@@ -5785,9 +6225,30 @@ Note: Admins can use the #3auction cancel#0 subcommand on other people's items";
                 AuctionCancel(actor, auctionHouse, ss);
                 return;
             default:
-                actor.OutputHandler.Send(actor.IsAdministrator() ? AuctionHelpAdmins : AuctionHelp);
+                if (new EmploymentCommandService().TryExecuteShortcut(actor, auctionHouse, "auction house", subcommand, ss))
+                {
+                    return;
+                }
+
+                actor.OutputHandler.Send(AuctionHelpFor(actor).SubstituteANSIColour());
                 return;
         }
+    }
+
+    private static string AuctionHelpFor(ICharacter actor)
+    {
+        return actor.IsAdministrator() ? AuctionHelpAdmins : CanSeeAuctionManagerHelp(actor) ? AuctionHelp : AuctionPlayerHelp;
+    }
+
+    private static bool CanSeeAuctionManagerHelp(ICharacter actor)
+    {
+        if (actor.Gameworld is null || actor.Location is null)
+        {
+            return false;
+        }
+
+        var auctionHouse = actor.Gameworld.AuctionHouses.FirstOrDefault(x => x.AuctionHouseCell == actor.Location);
+        return EmploymentCommandService.CanViewManagerAliasHelp(actor, auctionHouse);
     }
 
     private static void AuctionCancel(ICharacter actor, IAuctionHouse? auctionHouse, StringStack ss)

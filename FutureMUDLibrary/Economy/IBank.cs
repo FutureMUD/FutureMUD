@@ -1,6 +1,7 @@
 ﻿using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Economy.Currency;
+using MudSharp.Economy.Employment;
 using MudSharp.Framework;
 using MudSharp.Framework.Revision;
 using MudSharp.Framework.Save;
@@ -43,7 +44,7 @@ namespace MudSharp.Economy
         WithdrawalFromTransfer,
     }
 
-    public interface IBank : IFrameworkItem, ISaveable, IEditableItem, IProgVariable
+    public interface IBank : IFrameworkItem, ISaveable, IEditableItem, IProgVariable, IEmploymentHost
     {
         string Code { get; }
         IEconomicZone EconomicZone { get; }

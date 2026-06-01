@@ -284,6 +284,11 @@ public abstract class PathingAIBase : ArtificialIntelligenceBase
             return;
         }
 
+        if (exit is null)
+        {
+            return;
+        }
+
         if (CloseDoorsBehind && exit.Exit.Door?.IsOpen == true)
         {
             ch.Body.Close(exit.Exit.Door, null, null);

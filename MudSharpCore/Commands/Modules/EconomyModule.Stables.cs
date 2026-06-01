@@ -1,11 +1,13 @@
 using MudSharp.Character;
 using MudSharp.Character.Name;
+using MudSharp.Commands.Helpers;
 using MudSharp.Commands.Trees;
 using MudSharp.Construction;
 using MudSharp.Database;
 using MudSharp.Economy;
 using MudSharp.Economy.Banking;
 using MudSharp.Economy.Currency;
+using MudSharp.Economy.Employment;
 using MudSharp.Economy.Stables;
 using MudSharp.FutureProg;
 using MudSharp.GameItems;
@@ -38,6 +40,19 @@ internal partial class EconomyModule
 	#3user <text>#0 - authorised-user name contains the text
 	#3search <text>#0 - account, owner, or authorised-user name contains the text";
 
+	private const string StablePlayerHelp = @"You can use the following options with the stable command:
+
+	#3stable#0 - shows information about the stable here
+	#3stable quote <mount>#0 - shows the price to lodge a mount
+	#3stable lodge <mount> [cash|account <account>|with <payment item>]#0 - stables a mount and gives you a ticket
+	#3stable redeem <ticket> [cash|account <account>|with <payment item>]#0 - redeems a stabled mount
+	#3stable accounts#0 - show accounts that you have access to at this stable
+	#3stable accountstatus <account>#0 - shows your stable account
+	#3stable payaccount <account> <amount> [cash|with <payment item>]#0 - pays or prepays a stable account
+
+Stable managers and proprietors standing at their stable can use #3stable help#0 to see employment, task, finance, and scheduled-rule commands.
+Use #3stable tasks actions#0 and #3stable tasks conditions#0 for the full task action and condition catalogues when you have access.";
+
 	private const string StableHelp = @"You can use the following options with the stable command:
 
 	#3stable#0 - shows information about the stable here
@@ -50,14 +65,24 @@ internal partial class EconomyModule
 
 Stable managers can use the following additional commands:
 
+Stable operations:
+
 	#3stable list [active|history]#0 - lists stabled mounts
 	#3stable show <stay>#0 - shows a stable stay and ledger
 	#3stable release <stay> [waive]#0 - releases a mount without a ticket
+	#3stable open|close#0 - opens or closes the stable
+	#3stable set can <prog|none> [whyprog]#0 - sets access progs
+
+Stable finance:
+
 	#3stable bank <account|none>#0 - sets the stable bank account for proprietors
 	#3stable deposit <amount>#0 - deposits held cash into the stable's virtual cash balance
 	#3stable withdraw <amount>#0 - withdraws cash from the stable's virtual cash balance and bank fallback
 	#3stable ledger [count]#0 - reviews stable cash ledger entries
 	#3stable fee lodge|daily <amount|prog <prog>|none>#0 - sets stable fees for proprietors
+
+Stable accounts:
+
 	#3stable account list [<filters>]#0 - lists all accounts, optionally filtered
 	#3stable account show <id|name>#0 - shows a particular credit account
 	#3stable account create <name> <ownership> <credit limit>#0 - creates a new credit account for a customer
@@ -65,9 +90,49 @@ Stable managers can use the following additional commands:
 	#3stable account suspend <id|name>#0 - toggles suspension of a credit account
 	#3stable account authorise <id|name> <person> <limit>#0 - authorises an additional person to access a credit account
 	#3stable account unauthorise <id|name> <person>#0 - removes an authorisation of an additional person on a credit account
-	#3stable employ|fire|manager|proprietor <target|name>#0 - manages employees
-	#3stable open|close#0 - opens or closes the stable
-	#3stable set can <prog|none> [whyprog]#0 - sets access progs
+	#3stable employ|fire|manager|proprietor <target|name>#0 - manages employment contracts
+
+Stable employment records:
+
+	#3stable status#0 - shows employment status for this stable
+	#3stable contracts#0 - lists employment contracts
+	#3stable contracts delegate <##> show|grant|revoke|set ...#0 - views or changes delegated authority
+	#3stable openings#0 - lists employment openings
+	#3stable openings create <role> <hourly rate> [positions]#0 - creates an NPC-facing opening
+	#3stable applications#0 - lists employment applications
+	#3stable applications accept|reject <##> [reason]#0 - accepts or rejects an application
+	#3stable payroll#0 - lists wage payables and overdue days
+	#3stable payroll run|settle|claim ...#0 - accrues, settles, or claims employment wage payables
+
+Stable employment tasks:
+
+	#3stable tasks#0 - lists scheduled rules and active tasks
+	#3stable tasks show <##|name>#0 - shows an active task with its step details
+	#3stable tasks diagnose#0 - explains why active employees can or cannot claim tasks
+	#3stable tasks cancel <##|name> [reason]#0 - cancels an active task
+	#3stable tasks create <name> <action> [then <action> ...]#0 - creates and finalises a task in one command
+	#3stable tasks draft new|show|rename|remove|discard|finalise ...#0 - drafts and finalises active tasks
+	#3stable tasks step <action syntax>#0 - adds a catalogue action to your active-task draft
+	#3stable tasks actions [all|category|action]#0 - lists task action catalogue entries, status, and syntax
+
+Stable scheduled rules:
+
+	#3stable tasks rule show <##|name>#0 - shows a scheduled rule with conditions and planned steps
+	#3stable tasks rule create <name> cooldown <timespan> when <condition> [and <condition> ...] do <action> [then <action> ...]#0 - creates a scheduled rule
+	#3stable tasks rule draft new|copy|show|key|cooldown|removecondition|removestep|discard|finalise ...#0 - drafts and finalises scheduled rules
+	#3stable tasks rule condition <condition>#0 - adds a condition to your scheduled-rule draft
+	#3stable tasks rule step <action syntax>#0 - adds an action to your scheduled-rule draft
+	#3stable tasks rule diagnose|evaluate|pause|resume|cancel <##|name|all> [manual <key>]#0 - diagnoses, manually evaluates, pauses, resumes, or cancels scheduled rules
+	#3stable tasks conditions [all|category|condition]#0 - lists scheduled-rule condition syntax and authority
+
+Stable employment communication and audit:
+
+	#3stable goals#0 - lists manager goals
+	#3stable register#0 - shows employment register entries
+	#3stable employmentledger|empledger#0 - shows employment ledger entries
+	#3stable board [read <##>|write <title>]#0 - uses the staff board
+
+Use #3stable tasks actions#0 and #3stable tasks conditions#0 for the full action and condition catalogues.
 
 Administrators can also use:
 	#3stable create <name> <economic zone> <bank account|none>#0 - creates a stable at your current location
@@ -78,7 +143,8 @@ Administrators can also use:
 	[RequiredCharacterState(CharacterState.Conscious)]
 	[NoCombatCommand]
 	[NoHideCommand]
-	[HelpInfo("stable", StableHelp, AutoHelp.HelpArg)]
+	[HelpInfo("stable", StablePlayerHelp, AutoHelp.HelpArg, StableHelp)]
+	[ConditionalHelpInfo(nameof(CanSeeStableManagerHelp), StableHelp)]
 	protected static void Stable(ICharacter actor, string command)
 	{
 		StringStack ss = new(command.RemoveFirstWord());
@@ -163,7 +229,30 @@ Administrators can also use:
 				return;
 		}
 
-		actor.OutputHandler.Send(StableHelp.SubstituteANSIColour());
+		var stable = actor.Gameworld.Stables.FirstOrDefault(x => x.Location == actor.Location);
+		if (new EmploymentCommandService().TryExecuteShortcut(actor, stable, "stable", subcommand, ss))
+		{
+			return;
+		}
+
+		actor.OutputHandler.Send(StableHelpFor(actor).SubstituteANSIColour());
+	}
+
+	private static string StableHelpFor(ICharacter actor)
+	{
+		return actor.IsAdministrator() || CanSeeStableManagerHelp(actor) ? StableHelp : StablePlayerHelp;
+	}
+
+	private static bool CanSeeStableManagerHelp(ICharacter actor)
+	{
+		if (actor.Gameworld is null || actor.Location is null)
+		{
+			return false;
+		}
+
+		var stable = actor.Gameworld.Stables.FirstOrDefault(x => x.Location == actor.Location);
+		return EmploymentCommandService.CanViewManagerAliasHelp(actor, stable,
+			stable?.IsManager(actor) == true || stable?.IsProprietor(actor) == true);
 	}
 
 	private static bool DoStableCommandFindStable(ICharacter actor, out IStable stable)
@@ -898,23 +987,13 @@ Administrators can also use:
 
 	private static void StableEmploy(ICharacter actor, StringStack ss)
 	{
-		StableEmployeeToggle(actor, ss, "employ", (stable, target) =>
-		{
-			stable.AddEmployee(target);
-			return $"{target.HowSeen(actor, true)} is now employed by {stable.Name.TitleCase().ColourName()}.";
-		}, proprietorOnly: true);
+		StableDirectHire(actor, ss, EmploymentRole.Employee);
 	}
 
 	private static void StableFire(ICharacter actor, StringStack ss)
 	{
 		if (!DoStableCommandFindStable(actor, out var stable))
 		{
-			return;
-		}
-
-		if (!stable.IsProprietor(actor))
-		{
-			actor.OutputHandler.Send("You are not a proprietor of this stable.");
 			return;
 		}
 
@@ -925,75 +1004,39 @@ Administrators can also use:
 		}
 
 		var text = ss.SafeRemainingArgument;
-		var employee = stable.EmployeeRecords.FirstOrDefault(x => x.Name.GetName(NameStyle.FullName).StartsWith(text, StringComparison.InvariantCultureIgnoreCase));
 		var target = actor.TargetActor(text);
-		if (employee is null && target is not null)
+		var service = new EmploymentCommandService();
+		if (target is not null)
 		{
-			employee = stable.EmployeeRecords.FirstOrDefault(x => x.EmployeeCharacterId == target.Id);
-		}
-
-		if (employee is null)
-		{
-			actor.OutputHandler.Send("There is no such employee.");
+			service.TryTerminateContractsForEmployee(actor, stable, target, out var message);
+			actor.OutputHandler.Send(message);
 			return;
 		}
 
-		stable.RemoveEmployee(employee);
-		actor.OutputHandler.Send($"{employee.Name.GetName(NameStyle.FullName).ColourName()} is no longer employed by {stable.Name.TitleCase().ColourName()}.");
+		service.TryTerminateContractsForEmployee(actor, stable, text, out var nameMessage);
+		actor.OutputHandler.Send(nameMessage);
 	}
 
 	private static void StableManager(ICharacter actor, StringStack ss)
 	{
-		StableEmployeeToggle(actor, ss, "manager", (stable, target) =>
-		{
-			if (!stable.IsEmployee(target))
-			{
-				stable.AddEmployee(target);
-			}
-
-			var newValue = !stable.IsManager(target);
-			stable.SetManager(target, newValue);
-			return $"{target.HowSeen(actor, true)} {(newValue ? "is now" : "is no longer")} a manager of {stable.Name.TitleCase().ColourName()}.";
-		}, proprietorOnly: true);
+		StableDirectRoleToggle(actor, ss, EmploymentRole.Manager);
 	}
 
 	private static void StableProprietor(ICharacter actor, StringStack ss)
 	{
-		StableEmployeeToggle(actor, ss, "proprietor", (stable, target) =>
-		{
-			if (!stable.IsEmployee(target))
-			{
-				stable.AddEmployee(target);
-			}
-
-			var newValue = !stable.IsProprietor(target);
-			stable.SetProprietor(target, newValue);
-			if (newValue && !stable.IsManager(target))
-			{
-				stable.SetManager(target, true);
-			}
-
-			return $"{target.HowSeen(actor, true)} {(newValue ? "is now" : "is no longer")} a proprietor of {stable.Name.TitleCase().ColourName()}.";
-		}, proprietorOnly: true);
+		StableDirectRoleToggle(actor, ss, EmploymentRole.Proprietor);
 	}
 
-	private static void StableEmployeeToggle(ICharacter actor, StringStack ss, string verb,
-		Func<IStable, ICharacter, string> action, bool proprietorOnly)
+	private static void StableDirectHire(ICharacter actor, StringStack ss, EmploymentRole role)
 	{
 		if (!DoStableCommandFindStable(actor, out var stable))
 		{
 			return;
 		}
 
-		if (proprietorOnly && !stable.IsProprietor(actor))
-		{
-			actor.OutputHandler.Send("You are not a proprietor of this stable.");
-			return;
-		}
-
 		if (ss.IsFinished)
 		{
-			actor.OutputHandler.Send($"Who do you want to {verb}?");
+			actor.OutputHandler.Send($"Who do you want to employ as a {role.DescribeEnum()}?");
 			return;
 		}
 
@@ -1004,7 +1047,32 @@ Administrators can also use:
 			return;
 		}
 
-		actor.OutputHandler.Send(action(stable, target));
+		new EmploymentCommandService().TryHireDirectContract(actor, stable, target, role, out _, out var message);
+		actor.OutputHandler.Send(message);
+	}
+
+	private static void StableDirectRoleToggle(ICharacter actor, StringStack ss, EmploymentRole role)
+	{
+		if (!DoStableCommandFindStable(actor, out var stable))
+		{
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send($"Who do you want to toggle as a {role.DescribeEnum()}?");
+			return;
+		}
+
+		var target = actor.TargetActor(ss.SafeRemainingArgument);
+		if (target is null)
+		{
+			actor.OutputHandler.Send("You do not see any such person.");
+			return;
+		}
+
+		new EmploymentCommandService().TryToggleRoleContract(actor, stable, target, role, out var message);
+		actor.OutputHandler.Send(message);
 	}
 
 	private static void StableAccountStatus(ICharacter actor, StringStack ss)

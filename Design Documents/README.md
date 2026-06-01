@@ -68,6 +68,7 @@ This folder is organised by subsystem so implementation notes, builder workflows
 - [Economy System Runtime](./Economy/Economy_System_Runtime.md)
 - [Economy System Workflows and Integration](./Economy/Economy_System_Workflows_and_Integration.md)
 - [Economy System Seeder State and Gaps](./Economy/Economy_System_Seeder_State_and_Gaps.md)
+- [Unified Employment, Manager Goals, and Task Dispatch Design](./Economy/Unified%20Employment%20Dispatch%20Design.md)
 - [Clan Command Surface and Permissions](./Economy/Clan_Command_Surface_and_Permissions.md)
 - [Clan Elections and External Control](./Economy/Clan_Elections_and_External_Control.md)
 - [Estate Probate and Item Ownership](./Economy/Estate_Probate_and_Item_Ownership.md)

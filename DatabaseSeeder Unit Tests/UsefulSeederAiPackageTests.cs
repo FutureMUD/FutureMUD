@@ -173,6 +173,26 @@ public class UsefulSeederAiPackageTests
     }
 
     [TestMethod]
+    public void SeedAIExamplesForTesting_CommandableAuthorizationProgsUseNpcThenCommanderArguments()
+    {
+        using FuturemudDatabaseContext context = BuildContext();
+        SeedAiPrerequisites(context);
+        UsefulSeeder seeder = new();
+
+        seeder.SeedAIExamplesForTesting(context);
+
+        MudSharp.Models.FutureProg ownerProg = context.FutureProgs.Single(x => x.FunctionName == "IsOwnerCanCommand");
+        StringAssert.Contains(ownerProg.FunctionText, "getregister(@ch, \"npcownerid\")");
+        StringAssert.Contains(ownerProg.FunctionText, "return @ownerid == @tch.Id");
+        Assert.IsFalse(ownerProg.FunctionText.Contains("getregister(@tch, \"npcownerid\")", StringComparison.Ordinal));
+
+        MudSharp.Models.FutureProg outranksProg = context.FutureProgs.Single(x => x.FunctionName == "OutranksCanCommand");
+        StringAssert.Contains(outranksProg.FunctionText, "foreach (clan in @tch.clans)");
+        StringAssert.Contains(outranksProg.FunctionText, "outranks(@tch, @ch, @clan)");
+        Assert.IsFalse(outranksProg.FunctionText.Contains("outranks(@ch, @tch, @clan)", StringComparison.Ordinal));
+    }
+
+    [TestMethod]
     public void SeedAIExamplesForTesting_RerunRestoresMissingExamplesWithoutDuplicates()
     {
         using FuturemudDatabaseContext context = BuildContext();

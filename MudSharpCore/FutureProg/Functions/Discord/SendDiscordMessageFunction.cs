@@ -35,7 +35,8 @@ internal class SendDiscordMessageFunction : BuiltInFunction
                 new List<string> { "The numeric Discord channel ID to send to.", "The title or heading of the outgoing message.", "The body text of the outgoing Discord message." },
                 "Sends a Discord message through the configured Discord connection using channel ID, title, and message text. Returns false if any argument is null; returns true after queueing the send even if no Discord connection is currently configured.",
                 "Discord",
-                ProgVariableTypes.Boolean
+                ProgVariableTypes.Boolean,
+                allowedContexts: new[] { FutureProgCompilationContext.StandardFutureProg }
             )
         );
     }
@@ -54,7 +55,7 @@ internal class SendDiscordMessageFunction : BuiltInFunction
             return StatementResult.Normal;
         }
 
-        ulong channelId = (ulong)(double)channelResult.GetObject;
+        var channelId = (ulong)Math.Truncate(Convert.ToDecimal(channelResult.GetObject));
 
         IProgVariable titleResult = ParameterFunctions[1].Result;
         if (titleResult?.GetObject == null)

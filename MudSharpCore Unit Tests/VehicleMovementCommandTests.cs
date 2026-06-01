@@ -71,6 +71,8 @@ public class VehicleMovementCommandTests
 		var origin = new Mock<ICell>();
 		origin.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
 		origin.Setup(x => x.LayerCharacters(RoomLayer.GroundLevel)).Returns([actor.Object]);
+		actor.SetupGet(x => x.Location).Returns(origin.Object);
+		actor.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
 		var destination = new Mock<ICell>();
 		destination.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
 		destination.Setup(x => x.LayerCharacters(RoomLayer.GroundLevel)).Returns([]);

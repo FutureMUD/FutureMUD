@@ -48,6 +48,37 @@ public class VehicleMovementStrategyTests
 	}
 
 	[TestMethod]
+	public void CanMove_WhenActorIsInDifferentLocation_Fails()
+	{
+		var strategy = new CellExitVehicleMovementStrategy();
+		var controller = new Mock<ICharacter>();
+		var vehicle = CreateVehicle(controller.Object, [VehicleMovementProfileType.CellExit], SizeCategory.Large);
+		var actorLocation = new Mock<ICell>();
+		controller.SetupGet(x => x.Location).Returns(actorLocation.Object);
+		var exit = CreateExit(vehicle.Location, SizeCategory.Huge);
+
+		var result = strategy.CanMove(vehicle, controller.Object, exit, out var reason);
+
+		Assert.IsFalse(result);
+		Assert.AreEqual("You must be in the same location as the vehicle to move it.", reason);
+	}
+
+	[TestMethod]
+	public void CanMove_WhenActorIsOnDifferentRoomLayer_Fails()
+	{
+		var strategy = new CellExitVehicleMovementStrategy();
+		var controller = new Mock<ICharacter>();
+		var vehicle = CreateVehicle(controller.Object, [VehicleMovementProfileType.CellExit], SizeCategory.Large);
+		controller.SetupGet(x => x.RoomLayer).Returns(RoomLayer.InTrees);
+		var exit = CreateExit(vehicle.Location, SizeCategory.Huge);
+
+		var result = strategy.CanMove(vehicle, controller.Object, exit, out var reason);
+
+		Assert.IsFalse(result);
+		Assert.AreEqual("You must be on the same room layer as the vehicle to move it.", reason);
+	}
+
+	[TestMethod]
 	public void CanMove_WhenExitIsTooSmall_Fails()
 	{
 		var strategy = new CellExitVehicleMovementStrategy();
@@ -234,6 +265,59 @@ public class VehicleMovementStrategyTests
 	}
 
 	[TestMethod]
+	public void CanBoard_WhenActorIsAlreadyOccupyingAnotherVehicle_Fails()
+	{
+		var location = new Mock<ICell>();
+		location.SetupGet(x => x.Id).Returns(42L);
+
+		var slot = new Mock<IVehicleOccupantSlotPrototype>();
+		slot.SetupGet(x => x.Id).Returns(1L);
+		slot.SetupGet(x => x.Capacity).Returns(1);
+
+		var prototype = new Mock<IVehiclePrototype>();
+		prototype.SetupGet(x => x.OccupantSlots).Returns([slot.Object]);
+
+		var prototypes = new Mock<IUneditableRevisableAll<IVehiclePrototype>>();
+		prototypes.Setup(x => x.Get(10L, 0)).Returns(prototype.Object);
+
+		var cells = new Mock<IUneditableAll<ICell>>();
+		cells.Setup(x => x.Get(42L)).Returns(location.Object);
+
+		var actor = new Mock<ICharacter>();
+		actor.SetupGet(x => x.Location).Returns(location.Object);
+		actor.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
+
+		var otherVehicle = new Mock<IVehicle>();
+		otherVehicle.Setup(x => x.IsOccupant(actor.Object)).Returns(true);
+		var vehicleList = new List<IVehicle> { otherVehicle.Object };
+		var vehicles = new Mock<IUneditableAll<IVehicle>>();
+		vehicles.Setup(x => x.GetEnumerator()).Returns(() => vehicleList.GetEnumerator());
+
+		var gameworld = new Mock<IFuturemud>();
+		gameworld.SetupGet(x => x.Cells).Returns(cells.Object);
+		gameworld.SetupGet(x => x.VehiclePrototypes).Returns(prototypes.Object);
+		gameworld.SetupGet(x => x.Vehicles).Returns(vehicles.Object);
+		actor.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+
+		var vehicle = new Vehicle(new DB.Vehicle
+		{
+			Id = 1L,
+			Name = "Test Vehicle",
+			VehicleProtoId = 10L,
+			VehicleProtoRevision = 0,
+			LocationType = (int)VehicleLocationType.Cell,
+			CurrentCellId = 42L,
+			CurrentRoomLayer = (int)RoomLayer.GroundLevel,
+			MovementStatus = (int)VehicleMovementStatus.Stationary
+		}, gameworld.Object);
+
+		var result = vehicle.CanBoard(actor.Object, slot.Object, out var reason);
+
+		Assert.IsFalse(result);
+		Assert.AreEqual("You are already aboard another vehicle.", reason);
+	}
+
+	[TestMethod]
 	public void RecoverInterruptedMovement_ClearsMovingTransitState()
 	{
 		var location = new Mock<ICell>();
@@ -287,9 +371,13 @@ public class VehicleMovementStrategyTests
 		var prototype = new Mock<IVehiclePrototype>();
 		prototype.SetupGet(x => x.MovementProfiles).Returns(profiles);
 
+		Mock.Get(controller).SetupGet(x => x.Location).Returns(location.Object);
+		Mock.Get(controller).SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
+
 		var vehicle = new Mock<IVehicle>();
 		vehicle.SetupGet(x => x.Controller).Returns(controller);
 		vehicle.SetupGet(x => x.Location).Returns(location.Object);
+		vehicle.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
 		vehicle.SetupGet(x => x.Prototype).Returns(prototype.Object);
 		vehicle.SetupGet(x => x.ExteriorItem).Returns(item.Object);
 		return vehicle.Object;

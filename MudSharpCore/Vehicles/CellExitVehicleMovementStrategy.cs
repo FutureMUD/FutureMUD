@@ -72,6 +72,18 @@ public class CellExitVehicleMovementStrategy : IVehicleMovementStrategy
 			return false;
 		}
 
+		if (actor.Location != vehicle.Location)
+		{
+			reason = "You must be in the same location as the vehicle to move it.";
+			return false;
+		}
+
+		if (actor.RoomLayer != vehicle.RoomLayer)
+		{
+			reason = "You must be on the same room layer as the vehicle to move it.";
+			return false;
+		}
+
 		var profile = vehicle.Prototype.MovementProfiles
 		                     .Where(x => x.MovementType == VehicleMovementProfileType.CellExit)
 		                     .OrderByDescending(x => x.IsDefault)

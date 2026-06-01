@@ -219,6 +219,12 @@ public class Vehicle : SaveableItem, IVehicle
 			return false;
 		}
 
+		if (actor.Gameworld.Vehicles.Any(x => !ReferenceEquals(x, this) && x.IsOccupant(actor)))
+		{
+			reason = "You are already aboard another vehicle.";
+			return false;
+		}
+
 		if (Location is not null && actor.Location != Location)
 		{
 			reason = "You must be in the same location as the vehicle to board it.";
@@ -486,6 +492,12 @@ public class Vehicle : SaveableItem, IVehicle
 
 		foreach (var occupant in Occupants.ToList())
 		{
+			if (origin is not null && (occupant.Location != origin || occupant.RoomLayer != _roomLayer))
+			{
+				ForceDisembark(occupant);
+				continue;
+			}
+
 			origin?.Leave(occupant);
 			occupant.RoomLayer = layer;
 			occupant.Moved(movement);

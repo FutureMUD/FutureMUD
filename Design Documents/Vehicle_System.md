@@ -261,7 +261,7 @@ Projected vehicle system items are exposed through ordinary item targeting. The 
 Boarding rules currently check:
 
 - the target item has a linked vehicle exterior component
-- the actor is not already aboard
+- the actor is not already aboard any vehicle
 - the actor is in the vehicle's canonical cell
 - the actor is on the vehicle's canonical room layer
 - the requested slot exists
@@ -272,6 +272,7 @@ Boarding rules currently check:
 Driving rules currently check:
 
 - the actor is the vehicle controller
+- the actor is in the same canonical cell and room layer as the vehicle
 - the vehicle is at the exit origin
 - the vehicle prototype has a `CellExit` movement profile
 - the movement profile is not disabled by vehicle damage effects
@@ -406,6 +407,7 @@ It moves a vehicle between adjacent cells through normal exits.
 Current validation:
 
 - actor must be the controller
+- actor must be in the same canonical cell and room layer as the vehicle
 - vehicle must be at the exit origin
 - vehicle prototype must support `CellExit`
 - movement profile must not be damage-disabled
@@ -426,7 +428,7 @@ Current movement behaviour:
 - schedule the movement delay through the normal movement scheduler
 - move the exterior item to the destination cell and target layer
 - invoke exterior `IConnectable` force-move cleanup so cables, chargers, and similar independent connections do not remain logically connected across cells
-- move occupants to the destination cell and layer as participants in the vehicle movement
+- move co-located occupants to the destination cell and layer as participants in the vehicle movement, clearing any stale occupancy records that are no longer co-located with the vehicle
 - consume configured fuel and power
 - move all recursively towed vehicles, hitch items, and occupants
 - mark vehicle as `Cell` and `Stationary`

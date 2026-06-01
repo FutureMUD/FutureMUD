@@ -63,11 +63,42 @@ internal abstract class OpposedAuxiliaryEffectBase : IAuxiliaryEffect
 	protected abstract double DefaultPerDegreeAmount { get; }
 	protected abstract double DefaultMaximumAmount { get; }
 
+	private const double MaximumBuildableAmount = 86400.0;
+
 	private static double ReadDouble(XElement root, string attribute, double defaultValue)
 	{
-		return root.Attribute(attribute) is XAttribute value
-			? double.Parse(value.Value, CultureInfo.InvariantCulture)
-			: defaultValue;
+		if (root.Attribute(attribute) is not XAttribute value)
+		{
+			return defaultValue;
+		}
+
+		var parsed = double.Parse(value.Value, CultureInfo.InvariantCulture);
+		return SanitiseAmount(parsed, defaultValue);
+	}
+
+	private static double SanitiseAmount(double value, double fallback)
+	{
+		if (double.IsNaN(value))
+		{
+			return fallback;
+		}
+
+		if (double.IsPositiveInfinity(value))
+		{
+			return MaximumBuildableAmount;
+		}
+
+		if (double.IsNegativeInfinity(value))
+		{
+			return -MaximumBuildableAmount;
+		}
+
+		return Math.Clamp(value, -MaximumBuildableAmount, MaximumBuildableAmount);
+	}
+
+	private static bool IsValidBuildableAmount(double value)
+	{
+		return double.IsFinite(value) && Math.Abs(value) <= MaximumBuildableAmount;
 	}
 
 	protected static bool TryParseDefenseArguments(
@@ -152,7 +183,9 @@ internal abstract class OpposedAuxiliaryEffectBase : IAuxiliaryEffect
 			amount = Math.Min(amount, MaximumAmount);
 		}
 
-		return Math.Max(0.0, amount);
+		return double.IsFinite(amount)
+			? Math.Max(0.0, amount)
+			: 0.0;
 	}
 
 	protected string DescribeCommon(ICharacter actor)
@@ -314,6 +347,12 @@ internal abstract class OpposedAuxiliaryEffectBase : IAuxiliaryEffect
 		if (!double.TryParse(command.SafeRemainingArgument, out var value))
 		{
 			actor.OutputHandler.Send("That is not a valid number.");
+			return false;
+		}
+
+		if (!IsValidBuildableAmount(value))
+		{
+			actor.OutputHandler.Send($"That must be a finite number between {(-MaximumBuildableAmount).ToString("N2", actor).ColourValue()} and {MaximumBuildableAmount.ToString("N2", actor).ColourValue()}.");
 			return false;
 		}
 

@@ -763,6 +763,7 @@ The syntax for this command is as follows:
 
     #region Auxiliary Moves
     [PlayerCommand("Auxiliary", "auxiliary")]
+    [CommandPermission(PermissionLevel.Admin)]
     [HelpInfo("Auxiliary", AuxiliaryHelpText, AutoHelp.HelpArgOrNoArg)]
     protected static void Auxiliary(ICharacter actor, string text)
     {

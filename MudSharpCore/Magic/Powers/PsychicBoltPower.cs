@@ -115,7 +115,7 @@ public sealed class PsychicBoltPower : PsionicTargetedPowerBase
 			target.OutputHandler.Send(new EmoteOutput(new Emote(TargetEcho, target, actor, target)));
 		}
 
-		PsionicActivityNotifier.Notify(actor, this, "a bolt of hostile psychic force");
+		PsionicActivityNotifier.Notify(actor, this, "a bolt of hostile psychic force", target);
 		ConsumePowerCosts(actor, Verb);
 	}
 

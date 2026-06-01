@@ -81,6 +81,8 @@ public class MindSayPower : MagicPowerBase
         TellVerb = "tell";
         UseLanguage = false;
         UseAccent = false;
+        IsPsionic = true;
+        EnablePsionicTraceDefaults();
         DoDatabaseInsert();
     }
 
@@ -277,6 +279,8 @@ public class MindSayPower : MagicPowerBase
             actor.OutputHandler.Send(new EmoteOutput(new Emote(
                 string.Format(EmoteText, text.ProperSentences().Fullstop()), actor, PermitLanguageOptions.IgnoreLanguage, actor, effect.TargetCharacter)));
         }
+
+        PsionicActivityNotifier.Notify(actor, this, "a directed mental message", effect.TargetCharacter);
     }
 
     public override IEnumerable<string> Verbs => new[] { SayVerb, TellVerb };

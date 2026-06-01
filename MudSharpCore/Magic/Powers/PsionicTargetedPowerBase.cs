@@ -41,6 +41,7 @@ public abstract class PsionicTargetedPowerBase : MagicPowerBase
 		base(gameworld, school, name)
 	{
 		IsPsionic = true;
+		EnablePsionicTraceDefaults();
 		Verb = DefaultVerb;
 		PowerDistance = MagicPowerDistance.AnyConnectedMindOrConnectedTo;
 		SkillCheckTrait = trait;

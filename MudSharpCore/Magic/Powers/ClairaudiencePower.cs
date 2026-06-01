@@ -42,6 +42,7 @@ public sealed class ClairaudiencePower : SustainedMagicPower
 	private ClairaudiencePower(IFuturemud gameworld, IMagicSchool school, string name, ITraitDefinition trait) : base(gameworld, school, name)
 	{
 		IsPsionic = true;
+		EnablePsionicTraceDefaults();
 		Blurb = "Hear audible output through a contacted mind";
 		_showHelpText = $"Use {school.SchoolVerb.ToUpperInvariant()} CLAIRAUDIENCE <target> to hear audible output at that mind's location.";
 		BeginVerb = "clairaudience";
@@ -163,6 +164,7 @@ public sealed class ClairaudiencePower : SustainedMagicPower
 
 		actor.AddEffect(new MagicClairaudienceConcentrationEffect(actor, this, target), GetDuration(outcome.SuccessDegrees()));
 		actor.OutputHandler.Send(new EmoteOutput(new Emote(BeginEmote, actor, actor, target)));
+		PsionicActivityNotifier.Notify(actor, this, "remote psychic hearing", target);
 		ConsumePowerCosts(actor, BeginVerb);
 	}
 

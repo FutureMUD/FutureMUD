@@ -559,6 +559,12 @@ public class UsefulSeederItemPackageTests
 	{
 		using FuturemudDatabaseContext context = BuildContext();
 		SeedGeneralPrerequisites(context);
+		context.Tags.AddRange(
+			new Tag { Id = 1, Name = "Functions" },
+			new Tag { Id = 2, Name = "Tools", ParentId = 1 },
+			new Tag { Id = 3, Name = "Scientific Tools", ParentId = 2 },
+			new Tag { Id = 4, Name = "Measurement Tools", ParentId = 3 });
+		context.SaveChanges();
 		SeedMarketCategories(context);
 		UsefulSeeder usefulSeeder = new();
 		usefulSeeder.SeedAntiquityComponentGapCoverageForTesting(context);
@@ -605,6 +611,20 @@ public class UsefulSeederItemPackageTests
 		GameItemProto oilCup = LoadItem(context, "antiquity_oil_measure_cup");
 		CollectionAssert.Contains(ComponentNames(oilCup), "LContainer_DrinkingGlass");
 		CollectionAssert.Contains(ComponentNames(oilCup), "MeasuringInstrument_Antiquity_OilCup");
+		Assert.AreEqual(1, context.Tags.Count(x => x.Name == "Measurement Tools"),
+			"The item seeder should reuse the existing measurement tag instead of creating a shorter duplicate path.");
+		var measurementTag = context.Tags.Single(x => x.Name == "Measurement Tools");
+		CollectionAssert.Contains(
+			context.GameItemProtosTags
+			       .Where(x => x.GameItemProtoId == oilCup.Id)
+			       .Select(x => x.TagId)
+			       .ToArray(),
+			measurementTag.Id);
+		Assert.IsFalse(context.Tags
+		                      .AsEnumerable()
+		                      .GroupBy(x => x.Name, StringComparer.OrdinalIgnoreCase)
+		                      .Any(x => x.Count() > 1),
+			"Seeded item tag creation should not create duplicate tag names.");
 
 		GameItemProto publicWell = LoadItem(context, "antiquity_stone_public_well");
 		CollectionAssert.Contains(ComponentNames(publicWell), "WaterSource_Antiquity_PublicWell");

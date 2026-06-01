@@ -15,8 +15,19 @@ namespace DatabaseSeeder.Seeders
 
         private void AddTag(FuturemudDatabaseContext context, string name, string parent)
         {
-            if (_tags.Any(x => x.Key.Equals(name, StringComparison.InvariantCultureIgnoreCase)))
+            if (_tags.TryGetValue(name, out _))
             {
+                return;
+            }
+
+            var existing = context.Tags.Local
+                                  .FirstOrDefault(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase)) ??
+                           context.Tags
+                                  .AsEnumerable()
+                                  .FirstOrDefault(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+            if (existing is not null)
+            {
+                _tags[name] = existing;
                 return;
             }
 
@@ -1506,7 +1517,6 @@ namespace DatabaseSeeder.Seeders
             AddTag(context, "Roofing Materials", "Construction Materials");
 
             AddTag(context, "Household Consumables", "Market");
-            AddTag(context, "Soap", "Household Consumables");
             AddTag(context, "Lamp Oil", "Household Consumables");
             AddTag(context, "Cleaning Supplies", "Household Consumables");
             AddTag(context, "Candlemaking Wax", "Household Consumables");

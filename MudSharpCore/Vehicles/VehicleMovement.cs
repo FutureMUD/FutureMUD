@@ -26,7 +26,9 @@ internal static class VehicleMovementCommand
 	public static VehicleMovementCommandResult TryMoveControlledVehicle(ICharacter actor, string rawInput,
 		bool requireVehicle)
 	{
-		var vehicle = actor.Gameworld.Vehicles.FirstOrDefault(x => x.Controller == actor);
+		var vehicle = actor.Gameworld.Vehicles.FirstOrDefault(x => x.Controller == actor &&
+		                                                        x.Location == actor.Location &&
+		                                                        x.RoomLayer == actor.RoomLayer);
 		if (vehicle is null)
 		{
 			if (requireVehicle)

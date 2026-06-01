@@ -57,6 +57,18 @@ public class OnTrial : Effect, IEffect
         }
     }
 
+    private bool _manualTrial;
+
+    public bool ManualTrial
+    {
+        get => _manualTrial;
+        set
+        {
+            _manualTrial = value;
+            Changed = true;
+        }
+    }
+
     private readonly List<ICrime> _crimes;
     public Queue<ICrime> CrimeQueue { get; private set; } = null!;
 
@@ -218,10 +230,11 @@ public class OnTrial : Effect, IEffect
     #region Constructors
 
     public OnTrial(ICharacter owner, ILegalAuthority legalAuthority, DateTime lastTrialAction,
-        IEnumerable<ICrime> crimes) : base(owner, null)
+        IEnumerable<ICrime> crimes, bool manualTrial = false) : base(owner, null)
     {
         LegalAuthority = legalAuthority;
         _lastTrialAction = lastTrialAction;
+        _manualTrial = manualTrial;
         _crimes = crimes.ToList();
         foreach (ICrime crime in _crimes)
         {
@@ -263,7 +276,8 @@ public class OnTrial : Effect, IEffect
             _crimeProsecutionCases[crime] = prosecutionOutcome;
         }
         ResetCrimeQueue();
-        _phase = (TrialPhase)int.Parse(effect.Element("Phase")?.Value ?? "0");
+        _phase = (TrialPhase)int.Parse(root.Element("Phase")?.Value ?? "0");
+        _manualTrial = bool.Parse(root.Element("ManualTrial")?.Value ?? "false");
     }
 
     #endregion
@@ -276,6 +290,7 @@ public class OnTrial : Effect, IEffect
             new XElement("LegalAuthority", LegalAuthority.Id),
             new XElement("LastTrialAction", LastTrialAction.ToString("O")),
             new XElement("Phase", (int)Phase),
+            new XElement("ManualTrial", ManualTrial),
             new XElement("Crimes",
                 from crime in Crimes
                 select new XElement("Crime",
@@ -308,10 +323,20 @@ public class OnTrial : Effect, IEffect
 
     public override string Describe(IPerceiver voyeur)
     {
-        return $"On Trial in the {LegalAuthority.Name.ColourName()} authority - {Phase.DescribeEnum().ColourValue()}.";
+        return $"On Trial in the {LegalAuthority.Name.ColourName()} authority - {Phase.DescribeEnum().ColourValue()}{(ManualTrial ? " (PC judge)" : "")}.";
     }
 
     public override bool SavingEffect => true;
+
+    public override bool Applies(object target)
+    {
+        if (target is ILegalAuthority authority)
+        {
+            return base.Applies(target) && authority == LegalAuthority;
+        }
+
+        return base.Applies(target);
+    }
 
     #endregion
 }

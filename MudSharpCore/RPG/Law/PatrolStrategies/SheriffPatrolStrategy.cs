@@ -63,7 +63,9 @@ public class SheriffPatrolStrategy : PatrolStrategyBase
                 continue;
             }
 
-            if (criminal.AffectedBy<OnBail>(this) || criminal.AffectedBy<InCustodyOfEnforcer>())
+            if (criminal.AffectedBy<OnBail>(authority) ||
+                criminal.AffectedBy<InCustodyOfEnforcer>() ||
+                !authority.IsInRemandCell(criminal))
             {
                 continue;
             }

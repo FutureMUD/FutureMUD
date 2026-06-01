@@ -308,7 +308,7 @@ Operational hotel commands:
 Contributor note:
 
 - sale-order and lease-order consent loading must compare property owners by stored owner id and owner type rather than dereferencing `PropertyOwner.Owner` during boot
-- hotel-room rental state is currently serialized into the property `HotelDefinition` payload, so changes to this surface should keep XML load/save compatibility in mind unless the persistence model is deliberately split out later
+- hotel-room rental state now persists through normalized hotel tables, so room, key, furnishing, rental, patron balance, ban, and lost-property changes should update those tables through the property/hotel save path rather than reintroducing XML payload state
 
 Job builders need:
 
@@ -334,7 +334,7 @@ Current unified-employment operating notes:
 - `tasks actions [all|category|action]` and `tasks conditions [all|category|condition]` are the canonical discovery surfaces for action and scheduled-rule syntax.
 - scheduled rules are AND-composed in this slice; OR expressions, reusable named predicates, and grouped expressions remain future work.
 - host staff boards are communication only. Scheduled rules, active tasks, and manager goals live on employment-host services and do not propagate through board posts.
-- hotels have durable root `Hotel` rows for employment ownership and finance, but room/rental/furnishing/lost-property internals still live in the compatibility XML payload until the hotel split is completed.
+- hotels have durable root `Hotel` rows for employment ownership and finance, and hotel room/rental/furnishing/lost-property state is normalized into hotel-specific EF tables.
 
 ## Integration Guidance for Future Features
 This section is inferred implementation guidance based on current patterns.

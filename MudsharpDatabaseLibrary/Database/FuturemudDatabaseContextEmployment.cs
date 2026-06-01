@@ -24,6 +24,13 @@ public partial class FuturemudDatabaseContext
 	public virtual DbSet<EmploymentRegisterEntryRecord> EmploymentRegisterEntries { get; set; } = null!;
 	public virtual DbSet<EmploymentLedgerEntryRecord> EmploymentLedgerEntries { get; set; } = null!;
 	public virtual DbSet<Hotel> Hotels { get; set; } = null!;
+	public virtual DbSet<HotelRoom> HotelRooms { get; set; } = null!;
+	public virtual DbSet<HotelRoomKey> HotelRoomKeys { get; set; } = null!;
+	public virtual DbSet<HotelRoomFurnishing> HotelRoomFurnishings { get; set; } = null!;
+	public virtual DbSet<HotelRoomRental> HotelRoomRentals { get; set; } = null!;
+	public virtual DbSet<HotelLostProperty> HotelLostProperties { get; set; } = null!;
+	public virtual DbSet<HotelPatronBalance> HotelPatronBalances { get; set; } = null!;
+	public virtual DbSet<HotelBannedPatron> HotelBannedPatrons { get; set; } = null!;
 
 	private static void ConfigureEmployment(ModelBuilder modelBuilder)
 	{
@@ -525,12 +532,11 @@ public partial class FuturemudDatabaseContext
 			entity.Property(e => e.CanRentProgId).HasColumnType("bigint(20)");
 			entity.Property(e => e.LostPropertyRetention).RequiredString("varchar(200)");
 			entity.Property(e => e.OutstandingTaxes).HasColumnType("decimal(58,29)");
-			entity.Property(e => e.HotelDefinition).RequiredString("mediumtext");
 			entity.Property(e => e.CreatedAt).HasColumnType("datetime");
 			entity.Property(e => e.LastUpdatedAt).HasColumnType("datetime");
 
 			entity.HasOne(e => e.Property)
-			      .WithOne()
+			      .WithOne(e => e.Hotel)
 			      .HasForeignKey<Hotel>(e => e.PropertyId)
 			      .OnDelete(DeleteBehavior.Cascade)
 			      .HasConstraintName("FK_Hotels_Properties");
@@ -546,6 +552,172 @@ public partial class FuturemudDatabaseContext
 			      .HasForeignKey(e => e.CanRentProgId)
 			      .OnDelete(DeleteBehavior.SetNull)
 			      .HasConstraintName("FK_Hotels_FutureProgs");
+		});
+
+		modelBuilder.Entity<HotelRoom>(entity =>
+		{
+			entity.ToTable("HotelRooms");
+			entity.HasKey(e => e.Id).HasName("PRIMARY");
+			entity.HasIndex(e => e.HotelId).HasDatabaseName("FK_HotelRooms_Hotels_idx");
+			entity.HasIndex(e => e.CellId).HasDatabaseName("FK_HotelRooms_Cells_idx");
+			entity.HasIndex(e => new { e.HotelId, e.CellId })
+			      .IsUnique()
+			      .HasDatabaseName("IX_HotelRooms_Hotel_Cell");
+
+			entity.Property(e => e.Id).HasColumnType("bigint(20)");
+			entity.Property(e => e.HotelId).HasColumnType("bigint(20)");
+			entity.Property(e => e.CellId).HasColumnType("bigint(20)");
+			entity.Property(e => e.Name).RequiredString("varchar(200)");
+			entity.Property(e => e.Listed).HasColumnType("bit(1)");
+			entity.Property(e => e.PricePerDay).HasColumnType("decimal(58,29)");
+			entity.Property(e => e.SecurityDeposit).HasColumnType("decimal(58,29)");
+			entity.Property(e => e.MinimumDurationTicks).HasColumnType("bigint(20)");
+			entity.Property(e => e.MaximumDurationTicks).HasColumnType("bigint(20)");
+
+			entity.HasOne(e => e.Hotel)
+			      .WithMany(e => e.Rooms)
+			      .HasForeignKey(e => e.HotelId)
+			      .OnDelete(DeleteBehavior.Cascade)
+			      .HasConstraintName("FK_HotelRooms_Hotels");
+
+			entity.HasOne(e => e.Cell)
+			      .WithMany()
+			      .HasForeignKey(e => e.CellId)
+			      .OnDelete(DeleteBehavior.Restrict)
+			      .HasConstraintName("FK_HotelRooms_Cells");
+		});
+
+		modelBuilder.Entity<HotelRoomKey>(entity =>
+		{
+			entity.ToTable("HotelRoomKeys");
+			entity.HasKey(e => new { e.HotelRoomId, e.PropertyKeyId }).HasName("PRIMARY");
+			entity.HasIndex(e => e.PropertyKeyId).HasDatabaseName("FK_HotelRoomKeys_PropertyKeys_idx");
+
+			entity.Property(e => e.HotelRoomId).HasColumnType("bigint(20)");
+			entity.Property(e => e.PropertyKeyId).HasColumnType("bigint(20)");
+
+			entity.HasOne(e => e.HotelRoom)
+			      .WithMany(e => e.Keys)
+			      .HasForeignKey(e => e.HotelRoomId)
+			      .OnDelete(DeleteBehavior.Cascade)
+			      .HasConstraintName("FK_HotelRoomKeys_HotelRooms");
+
+			entity.HasOne(e => e.PropertyKey)
+			      .WithMany()
+			      .HasForeignKey(e => e.PropertyKeyId)
+			      .OnDelete(DeleteBehavior.Cascade)
+			      .HasConstraintName("FK_HotelRoomKeys_PropertyKeys");
+		});
+
+		modelBuilder.Entity<HotelRoomFurnishing>(entity =>
+		{
+			entity.ToTable("HotelRoomFurnishings");
+			entity.HasKey(e => e.Id).HasName("PRIMARY");
+			entity.HasIndex(e => e.HotelRoomId).HasDatabaseName("FK_HotelRoomFurnishings_HotelRooms_idx");
+			entity.HasIndex(e => e.GameItemId).HasDatabaseName("IX_HotelRoomFurnishings_GameItem");
+
+			entity.Property(e => e.Id).HasColumnType("bigint(20)");
+			entity.Property(e => e.HotelRoomId).HasColumnType("bigint(20)");
+			entity.Property(e => e.GameItemId).HasColumnType("bigint(20)");
+			entity.Property(e => e.Description).RequiredString("varchar(500)");
+			entity.Property(e => e.ReplacementValue).HasColumnType("decimal(58,29)");
+			entity.Property(e => e.OriginalCondition).HasColumnType("double");
+			entity.Property(e => e.OriginalDamageCondition).HasColumnType("double");
+
+			entity.HasOne(e => e.HotelRoom)
+			      .WithMany(e => e.Furnishings)
+			      .HasForeignKey(e => e.HotelRoomId)
+			      .OnDelete(DeleteBehavior.Cascade)
+			      .HasConstraintName("FK_HotelRoomFurnishings_HotelRooms");
+		});
+
+		modelBuilder.Entity<HotelRoomRental>(entity =>
+		{
+			entity.ToTable("HotelRoomRentals");
+			entity.HasKey(e => e.Id).HasName("PRIMARY");
+			entity.HasIndex(e => e.HotelRoomId).IsUnique().HasDatabaseName("IX_HotelRoomRentals_Room");
+			entity.HasIndex(e => e.GuestId).HasDatabaseName("IX_HotelRoomRentals_Guest");
+
+			entity.Property(e => e.Id).HasColumnType("bigint(20)");
+			entity.Property(e => e.HotelRoomId).HasColumnType("bigint(20)");
+			entity.Property(e => e.GuestId).HasColumnType("bigint(20)");
+			entity.Property(e => e.StartTime).RequiredString("varchar(100)");
+			entity.Property(e => e.EndTime).RequiredString("varchar(100)");
+			entity.Property(e => e.RentalCharge).HasColumnType("decimal(58,29)");
+			entity.Property(e => e.SecurityDeposit).HasColumnType("decimal(58,29)");
+			entity.Property(e => e.TaxCharged).HasColumnType("decimal(58,29)");
+
+			entity.HasOne(e => e.HotelRoom)
+			      .WithOne(e => e.ActiveRental)
+			      .HasForeignKey<HotelRoomRental>(e => e.HotelRoomId)
+			      .OnDelete(DeleteBehavior.Cascade)
+			      .HasConstraintName("FK_HotelRoomRentals_HotelRooms");
+		});
+
+		modelBuilder.Entity<HotelLostProperty>(entity =>
+		{
+			entity.ToTable("HotelLostProperties");
+			entity.HasKey(e => e.Id).HasName("PRIMARY");
+			entity.HasIndex(e => e.HotelId).HasDatabaseName("FK_HotelLostProperties_Hotels_idx");
+			entity.HasIndex(e => e.HotelRoomId).HasDatabaseName("FK_HotelLostProperties_HotelRooms_idx");
+			entity.HasIndex(e => e.OwnerId).HasDatabaseName("IX_HotelLostProperties_Owner");
+			entity.HasIndex(e => e.BundleId).HasDatabaseName("IX_HotelLostProperties_Bundle");
+
+			entity.Property(e => e.Id).HasColumnType("bigint(20)");
+			entity.Property(e => e.HotelId).HasColumnType("bigint(20)");
+			entity.Property(e => e.HotelRoomId).HasColumnType("bigint(20)");
+			entity.Property(e => e.OwnerId).HasColumnType("bigint(20)");
+			entity.Property(e => e.BundleId).HasColumnType("bigint(20)");
+			entity.Property(e => e.StoredUntil).RequiredString("varchar(100)");
+			entity.Property(e => e.Status).HasColumnType("int(11)");
+			entity.Property(e => e.AuctionHouseId).HasColumnType("bigint(20)");
+			entity.Property(e => e.ReservePrice).HasColumnType("decimal(58,29)");
+			entity.Property(e => e.Description).RequiredString("varchar(500)");
+
+			entity.HasOne(e => e.Hotel)
+			      .WithMany(e => e.LostProperties)
+			      .HasForeignKey(e => e.HotelId)
+			      .OnDelete(DeleteBehavior.Cascade)
+			      .HasConstraintName("FK_HotelLostProperties_Hotels");
+
+			entity.HasOne(e => e.HotelRoom)
+			      .WithMany()
+			      .HasForeignKey(e => e.HotelRoomId)
+			      .OnDelete(DeleteBehavior.Cascade)
+			      .HasConstraintName("FK_HotelLostProperties_HotelRooms");
+		});
+
+		modelBuilder.Entity<HotelPatronBalance>(entity =>
+		{
+			entity.ToTable("HotelPatronBalances");
+			entity.HasKey(e => new { e.HotelId, e.PatronId }).HasName("PRIMARY");
+			entity.HasIndex(e => e.PatronId).HasDatabaseName("IX_HotelPatronBalances_Patron");
+
+			entity.Property(e => e.HotelId).HasColumnType("bigint(20)");
+			entity.Property(e => e.PatronId).HasColumnType("bigint(20)");
+			entity.Property(e => e.Balance).HasColumnType("decimal(58,29)");
+
+			entity.HasOne(e => e.Hotel)
+			      .WithMany(e => e.PatronBalances)
+			      .HasForeignKey(e => e.HotelId)
+			      .OnDelete(DeleteBehavior.Cascade)
+			      .HasConstraintName("FK_HotelPatronBalances_Hotels");
+		});
+
+		modelBuilder.Entity<HotelBannedPatron>(entity =>
+		{
+			entity.ToTable("HotelBannedPatrons");
+			entity.HasKey(e => new { e.HotelId, e.PatronId }).HasName("PRIMARY");
+			entity.HasIndex(e => e.PatronId).HasDatabaseName("IX_HotelBannedPatrons_Patron");
+
+			entity.Property(e => e.HotelId).HasColumnType("bigint(20)");
+			entity.Property(e => e.PatronId).HasColumnType("bigint(20)");
+
+			entity.HasOne(e => e.Hotel)
+			      .WithMany(e => e.BannedPatrons)
+			      .HasForeignKey(e => e.HotelId)
+			      .OnDelete(DeleteBehavior.Cascade)
+			      .HasConstraintName("FK_HotelBannedPatrons_Hotels");
 		});
 	}
 

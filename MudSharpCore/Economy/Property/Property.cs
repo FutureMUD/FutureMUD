@@ -37,7 +37,7 @@ public partial class Property : SaveableItem, IProperty
         _lastSaleValue = value;
         _applyCriminalCodeInProperty = true;
         _lastChangeOfOwnership = zone.FinancialPeriodReferenceCalendar.CurrentDateTime;
-        InitialiseDefaultHotelDefinition();
+        InitialiseDefaultHotelState();
         _propertyLocations.Add(location);
         location.CellProposedForDeletion += Location_CellProposedForDeletion;
         location.CellRequestsDeletion += Location_CellRequestsDeletion;
@@ -51,7 +51,6 @@ public partial class Property : SaveableItem, IProperty
             dbitem.Name = _name;
             dbitem.LastChangeOfOwnership = LastChangeOfOwnership.GetDateTimeString();
             dbitem.LastSaleValue = _lastSaleValue;
-            dbitem.HotelDefinition = SaveHotelDefinition().ToString();
             dbitem.PropertyLocations.Add(new PropertyLocation { CellId = location.Id, Property = dbitem });
             FMDB.Context.SaveChanges();
             _id = dbitem.Id;
@@ -89,7 +88,7 @@ public partial class Property : SaveableItem, IProperty
             StoredMudDateTimeFallback.CurrentDateTime, "Property", property.Id, property.Name, "LastChangeOfOwnership");
         _applyCriminalCodeInProperty = property.ApplyCriminalCodeInProperty;
         _lastSaleValue = property.LastSaleValue;
-        LoadHotelDefinition(MudSharp.Economy.Hotels.HotelPersistenceStore.DefinitionForProperty(property.Id, property.HotelDefinition));
+        InitialiseDefaultHotelState();
 
         foreach (Models.PropertyOwner owner in property.PropertyOwners)
         {
@@ -143,6 +142,8 @@ public partial class Property : SaveableItem, IProperty
         {
             _propertyKeys.Add(new PropertyKey(key, this, Gameworld));
         }
+
+        LoadHotelState(property.Hotel);
     }
 
     private IEconomicZone _economicZone;
@@ -175,8 +176,7 @@ public partial class Property : SaveableItem, IProperty
         dbitem.LeaseId = Lease?.Id;
         dbitem.LastChangeOfOwnership = LastChangeOfOwnership.GetDateTimeString();
         dbitem.LastSaleValue = LastSaleValue;
-        dbitem.HotelDefinition = SaveHotelDefinition().ToString();
-        MudSharp.Economy.Hotels.HotelPersistenceStore.ShadowWrite(this, dbitem.HotelDefinition);
+        MudSharp.Economy.Hotels.HotelPersistenceStore.Save(this);
         FMDB.Context.PropertyLocations.RemoveRange(dbitem.PropertyLocations);
         foreach (ICell cell in _propertyLocations)
         {

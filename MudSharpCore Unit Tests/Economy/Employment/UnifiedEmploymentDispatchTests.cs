@@ -1618,7 +1618,7 @@ public class UnifiedEmploymentDispatchTests
 	}
 
 	[TestMethod]
-	public void HotelPersistence_LazilyCreatesRootPreservesXmlShadowAndDelegatesToProperty()
+	public void HotelPersistence_LazilyCreatesRootPersistsNormalisedHotelStateAndDelegatesToProperty()
 	{
 		var fmdbState = CaptureFMDBState();
 		using var context = BuildContext();
@@ -1630,12 +1630,46 @@ public class UnifiedEmploymentDispatchTests
 			zone.SetupGet(x => x.Currency).Returns(currency.Object);
 			var cell = new Mock<ICell>();
 			cell.SetupGet(x => x.Id).Returns(987);
+			var key = new Mock<IPropertyKey>();
+			key.SetupGet(x => x.Id).Returns(44);
+			var furnishing = new Mock<IHotelFurnishing>();
+			furnishing.SetupGet(x => x.GameItemId).Returns(55);
+			furnishing.SetupGet(x => x.Description).Returns("a brass bed");
+			furnishing.SetupProperty(x => x.ReplacementValue, 12.5M);
+			furnishing.SetupGet(x => x.OriginalCondition).Returns(0.9);
+			furnishing.SetupGet(x => x.OriginalDamageCondition).Returns(0.8);
+			var room = new Mock<IHotelRoom>();
+			room.SetupGet(x => x.Cell).Returns(cell.Object);
+			room.SetupGet(x => x.Name).Returns("Blue Room");
+			room.SetupGet(x => x.Listed).Returns(true);
+			room.SetupGet(x => x.PricePerDay).Returns(6.0M);
+			room.SetupGet(x => x.SecurityDeposit).Returns(2.0M);
+			room.SetupGet(x => x.MinimumDuration).Returns(TimeSpan.FromDays(1));
+			room.SetupGet(x => x.MaximumDuration).Returns(TimeSpan.FromDays(7));
+			room.SetupGet(x => x.Keys).Returns([key.Object]);
+			room.SetupGet(x => x.Furnishings).Returns([furnishing.Object]);
+			room.SetupGet(x => x.ActiveRental).Returns((IHotelRoomRental)null!);
+			var balance = new Mock<IHotelPatronBalance>();
+			balance.SetupGet(x => x.PatronId).Returns(77);
+			balance.SetupProperty(x => x.Balance, 3.5M);
+			var lost = new Mock<IHotelLostProperty>();
+			lost.SetupGet(x => x.Room).Returns(room.Object);
+			lost.SetupGet(x => x.OwnerId).Returns(88);
+			lost.SetupGet(x => x.BundleId).Returns(99);
+			lost.SetupProperty(x => x.StoredUntil, MudDateTime.Never);
+			lost.SetupProperty(x => x.Status, HotelLostPropertyStatus.Held);
+			lost.SetupProperty(x => x.AuctionHouseId, (long?)null);
+			lost.SetupProperty(x => x.ReservePrice, 9.5M);
+			lost.SetupGet(x => x.Description).Returns("a forgotten satchel");
 			var property = new Mock<IProperty>();
 			property.SetupGet(x => x.Id).Returns(500);
 			property.SetupGet(x => x.Name).Returns("Harbour House");
 			property.SetupGet(x => x.EconomicZone).Returns(zone.Object);
 			property.SetupGet(x => x.PropertyLocations).Returns([cell.Object]);
-			property.SetupGet(x => x.HotelRooms).Returns([]);
+			property.SetupGet(x => x.HotelRooms).Returns([room.Object]);
+			property.SetupGet(x => x.HotelLostProperties).Returns([lost.Object]);
+			property.SetupGet(x => x.HotelPatronBalances).Returns([balance.Object]);
+			property.SetupGet(x => x.HotelBannedPatronIds).Returns([66]);
 			property.SetupGet(x => x.HotelLicenseStatus).Returns(HotelLicenseStatus.Approved);
 			property.SetupGet(x => x.HotelLostPropertyRetention).Returns(MudTimeSpan.FromDays(14));
 			property.SetupGet(x => x.HotelOutstandingTaxes).Returns(4.5M);
@@ -1643,19 +1677,52 @@ public class UnifiedEmploymentDispatchTests
 			property.SetupGet(x => x.HotelAvailableFunds).Returns(33.0M);
 
 			var hotel = HotelPersistenceStore.LoadOrCreate(property.Object);
-			HotelPersistenceStore.ShadowWrite(property.Object, "<Hotel status=\"Approved\" taxes=\"4.5\" />");
-			context.SaveChanges();
 
 			var row = context.Hotels.Single();
 			Assert.AreEqual(property.Object.Id, row.PropertyId);
 			Assert.AreEqual(hotel.Id, row.Id);
-			Assert.AreEqual("<Hotel status=\"Approved\" taxes=\"4.5\" />", row.HotelDefinition);
+			Assert.AreEqual((int)HotelLicenseStatus.Approved, row.LicenseStatus);
+			Assert.AreEqual(4.5M, row.OutstandingTaxes);
+			var roomRow = context.HotelRooms.Single();
+			Assert.AreEqual(row.Id, roomRow.HotelId);
+			Assert.AreEqual(cell.Object.Id, roomRow.CellId);
+			Assert.AreEqual("Blue Room", roomRow.Name);
+			Assert.AreEqual(1, context.HotelRoomKeys.Count());
+			Assert.AreEqual(1, context.HotelRoomFurnishings.Count());
+			Assert.AreEqual(1, context.HotelLostProperties.Count());
+			Assert.AreEqual(1, context.HotelPatronBalances.Count());
+			Assert.AreEqual(1, context.HotelBannedPatrons.Count());
+			var roomId = roomRow.Id;
+			var lastUpdatedAt = row.LastUpdatedAt;
 			Assert.AreSame(property.Object, hotel.Property);
 			Assert.AreEqual(22.0M, hotel.CashBalance);
 			Assert.AreEqual(33.0M, hotel.AvailableFunds);
 			Assert.IsTrue(hotel.CanAccessHotelLocation(cell.Object));
-			Assert.AreEqual("<Legacy />", HotelPersistenceStore.DefinitionForProperty(600, "<Legacy />"));
-			Assert.AreEqual(row.HotelDefinition, HotelPersistenceStore.DefinitionForProperty(property.Object.Id, "<Legacy />"));
+
+			property.SetupGet(x => x.HotelRooms).Returns([]);
+			property.SetupGet(x => x.HotelLostProperties).Returns([]);
+			property.SetupGet(x => x.HotelPatronBalances).Returns([]);
+			property.SetupGet(x => x.HotelBannedPatronIds).Returns([]);
+			var readOnlyHotel = HotelPersistenceStore.LoadOrCreate(property.Object);
+			Assert.AreEqual(row.Id, readOnlyHotel.Id);
+			Assert.AreEqual(lastUpdatedAt, context.Hotels.Single().LastUpdatedAt);
+			Assert.AreEqual(1, context.HotelRooms.Count());
+			Assert.AreEqual(roomId, context.HotelRooms.Single().Id);
+			Assert.AreEqual(1, context.HotelLostProperties.Count());
+			Assert.AreEqual(1, context.HotelPatronBalances.Count());
+			Assert.AreEqual(1, context.HotelBannedPatrons.Count());
+
+			property.SetupGet(x => x.HotelRooms).Returns([room.Object]);
+			property.SetupGet(x => x.HotelLostProperties).Returns([lost.Object]);
+			property.SetupGet(x => x.HotelPatronBalances).Returns([balance.Object]);
+			property.SetupGet(x => x.HotelBannedPatronIds).Returns([66]);
+			balance.Object.Balance = 8.25M;
+			HotelPersistenceStore.Save(property.Object);
+			context.SaveChanges();
+
+			Assert.AreEqual(1, context.HotelPatronBalances.Count());
+			Assert.AreEqual(8.25M, context.HotelPatronBalances.Single().Balance);
+			Assert.AreEqual(1, context.HotelBannedPatrons.Count());
 		}
 		finally
 		{

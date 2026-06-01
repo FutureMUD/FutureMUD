@@ -267,7 +267,7 @@ Verified current hotel-room rental behavior:
 
 Persistence note:
 
-- hotel-room rental state is currently serialized into the `Properties.HotelDefinition` XML column rather than split across many new tables
+- hotel roots are stored in `Hotels`, with hotel rooms, room keys, furnishings, active rentals, patron balances, bans, and lost-property bundles normalized into dedicated hotel tables rather than the old property XML payload
 
 Property therefore sits at the boundary between economy, clans, law, access control, and building.
 
@@ -358,7 +358,7 @@ Current operational boundaries:
 - task routing uses `IEmploymentTaskBoard`; the staff `IBoard` is only an employee/manager communication surface
 - financial actions require delegated authority plus explicit authorisation/reservation state and write employment audit evidence while reusing native finance records where available
 - item movement uses inventory plans where possible, with narrow fallbacks for behaviours the inventory-plan API does not model cleanly
-- durable hotel roots exist, but hotel room/rental/furnishing/lost-property internals are still shadow-written through the compatibility XML payload
+- durable hotel roots and hotel room/rental/furnishing/lost-property internals are persisted through normalized hotel tables
 - central scheduled-rule evaluation runs once per minute and worker AI can also evaluate its current host before claiming work
 - legacy shop/stable employee XML, bank/arena manager lists, and the PC-facing job system are not migrated into the new contracts by default
 

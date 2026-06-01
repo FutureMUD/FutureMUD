@@ -132,6 +132,7 @@ public sealed class CoercePower : PsionicTargetedPowerBase
 				break;
 		}
 
+		PsionicActivityNotifier.Notify(actor, this, $"psionic coercion ({mode.DescribeEnum().ToLowerInvariant()})", target);
 		ConsumePowerCosts(actor, Verb);
 	}
 

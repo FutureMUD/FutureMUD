@@ -41,6 +41,7 @@ public abstract class PsionicSustainedSelfPowerBase : SustainedMagicPower
 		: base(gameworld, school, name)
 	{
 		IsPsionic = true;
+		EnablePsionicTraceDefaults();
 		BeginVerb = DefaultBeginVerb;
 		EndVerb = DefaultEndVerb;
 		SkillCheckTrait = trait;
@@ -135,6 +136,7 @@ public abstract class PsionicSustainedSelfPowerBase : SustainedMagicPower
 
 		actor.AddEffect(CreateEffect(actor), GetDuration(outcome.SuccessDegrees()));
 		actor.OutputHandler.Send(new EmoteOutput(new Emote(BeginEmote, actor, actor)));
+		PsionicActivityNotifier.Notify(actor, this, $"sustaining {Name}");
 		ConsumePowerCosts(actor, BeginVerb);
 	}
 

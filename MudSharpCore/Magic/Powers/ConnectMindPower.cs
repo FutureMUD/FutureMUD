@@ -298,6 +298,8 @@ public class ConnectMindPower : SustainedMagicPower
         SelfEmoteForFailConnect = "You reach out and try to connect to $1's mind, but cannot reach stability.";
         EmoteForDisconnect = "You feel the presence of {0} withdraw from your mind.";
         SelfEmoteForDisconnect = "You lose your connection to $1's mind.";
+        IsPsionic = true;
+        EnablePsionicTraceDefaults();
         DoDatabaseInsert();
     }
 
@@ -485,6 +487,7 @@ public class ConnectMindPower : SustainedMagicPower
         if (result.IsPass())
         {
             actor.AddEffect(new ConnectMindEffect(actor, target, this), GetDuration(result.SuccessDegrees()));
+            PsionicActivityNotifier.Notify(actor, this, "a mind connection", target);
         }
 
         ConsumePowerCosts(actor, BeginVerb);
@@ -518,6 +521,7 @@ public class ConnectMindPower : SustainedMagicPower
         }
 
         actor.RemoveEffect(targetEffect, true);
+        PsionicActivityNotifier.Notify(actor, this, "a mind disconnection", targetEffect.TargetCharacter);
         ConsumePowerCosts(actor, EndVerb);
     }
 

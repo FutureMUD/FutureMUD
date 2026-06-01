@@ -120,7 +120,7 @@ public sealed class HexPower : PsionicTargetedPowerBase
 			target.OutputHandler.Send(new EmoteOutput(new Emote(TargetEcho, target, actor, target)));
 		}
 
-		PsionicActivityNotifier.Notify(actor, this, "a hostile psychic curse");
+		PsionicActivityNotifier.Notify(actor, this, "a hostile psychic curse", target);
 		ConsumePowerCosts(actor, Verb);
 	}
 

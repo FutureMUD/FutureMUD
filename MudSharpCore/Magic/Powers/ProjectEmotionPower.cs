@@ -84,6 +84,7 @@ public sealed class ProjectEmotionPower : PsionicTargetedPowerBase
 		}
 
 		PsionicTrafficHelper.DeliverEmotion(actor, target, School, command.SafeRemainingArgument);
+		PsionicActivityNotifier.Notify(actor, this, "projected emotion", target);
 		ConsumePowerCosts(actor, Verb);
 	}
 }

@@ -20,11 +20,11 @@ and the current runtime implementations under `MudSharpCore/Magic`.
 - `Native now` means the behaviour can be authored today with existing spell effects or power types and no new C# runtime type.
 - `Builder+Prog now` means the behaviour can be reached today with existing magic primitives plus FutureProg logic, NPC/item prototypes, or on-load content scaffolding. These are "close enough" paths, not always exact one-to-one reproductions.
 - `Needs engine primitive` means the current magic surface is missing a concrete trigger, target type, spell effect, power type, hook, or formula, but the existing character, room, item, perception, combat, plane, or form systems are enough to host it. These are implementation tasks, not architectural blockers.
-- `Needs supporting system` means the effect cannot be represented honestly until a broader runtime model is added or reworked. Examples include simultaneous active bodies, durable portal topology, objective multi-viewer illusions, or world-specific metaphysics.
+- `Needs supporting system` means the effect cannot be represented honestly until a broader runtime model is added or reworked. Examples include simultaneous active bodies, objective multi-viewer illusions, or world-specific metaphysics.
 - Existing powers count as valid coverage even when Armageddon exposed the original ability as a spell. If you want strict `cast`-spell parity rather than "same subsystem can do it", several defensive entries would slide from `Native now` to `Needs engine primitive`.
 - A handful of Armageddon entries are under-specified in the dump (`Daylight`, `Empower`, `Drown`, `Cause Disease`, `Acid Spray`, some passive psionics). The first pass counted those conservatively unless the name clearly mapped to an existing FutureMUD primitive.
 - The original first-pass counts used a single `Needs engine work` bucket. This revision keeps those historical lists in the appendix, but current planning uses the two-way split above.
-- Status reviewed on 2026-05-28 against `Magic_System_Implemented_Types.md`, `Magic_System_Spells.md`, `Magic_System_Powers.md`, and the registered runtime types under `MudSharpCore/Magic`. Exact family-by-family counts were not recomputed in this pass; the stale top-line counts have therefore been removed from the planning sections. V4 added 9 builder-registered psionic power tokens and 2 builder-registered tag-aware ward effect tokens. The 2026-05-05 Old SOI parity slice added 7 more builder-registered psionic power tokens: `dangersense`, `empathy`, `hex`, `clairvoyance`, `prescience`, `sensitivity`, and `psychicbolt`. The 2026-05-28 persistent sensory/combat slice added 4 builder-registered spell-effect tokens: `burning`, `ignite`, `trackmark`, and `tracktrail`.
+- Status reviewed on 2026-05-28 against `Magic_System_Implemented_Types.md`, `Magic_System_Spells.md`, `Magic_System_Powers.md`, and the registered runtime types under `MudSharpCore/Magic`. Exact family-by-family counts were not recomputed in this pass; the stale top-line counts have therefore been removed from the planning sections. V4 added 9 builder-registered psionic power tokens and 2 builder-registered tag-aware ward effect tokens. The 2026-05-05 Old SOI parity slice added 7 more builder-registered psionic power tokens: `dangersense`, `empathy`, `hex`, `clairvoyance`, `prescience`, `sensitivity`, and `psychicbolt`. The 2026-05-28 persistent sensory/combat slice added 4 builder-registered spell-effect tokens: `burning`, `ignite`, `trackmark`, and `tracktrail`. The 2026-06-01 V5b trace slice added a saveable psionic trace effect and shared notifier-driven trace creation without adding new power tokens.
 
 ## Executive Summary
 
@@ -34,7 +34,7 @@ The major correction from the old report is that "requires engine work" is no lo
 | --- | --- | --- |
 | Buildable now | Existing spell effects, powers, triggers, planes, body forms, tags, wards, portals, or progs can author the behaviour today. | `Ethereal`, simple `Planeshift`, `Mark`, basic `Portal`, `Thoughtsense`, `Immersion`, `Conceal`, `Glyph`, `Vampiric Blade` |
 | Needs engine primitive | A new effect, power, hook, or formula is needed, but the surrounding model already exists. | open/close exit mutation, exact `Identify`/`Dead Speak`/`Recite` UX, source-specific anti-status or metaphysical wrappers |
-| Needs supporting system | The spell implies a runtime model that FutureMUD does not yet have. | true possession/projection, body-left-behind disembodiment, durable gate/rune topology, objective multi-viewer illusions, land/elemental relationship metaphysics |
+| Needs supporting system | The spell implies a runtime model that FutureMUD does not yet have. | true possession/projection, body-left-behind disembodiment, objective multi-viewer illusions, land/elemental relationship metaphysics |
 
 Key takeaways:
 
@@ -42,8 +42,8 @@ Key takeaways:
 - The current system is strong at direct damage, healing, stamina/need adjustment, item or liquid conjuration, NPC summoning, invisibility, telepathy, self-only magical armour, planar state shifts, persistent burn/track spell effects, and single-active-body transformation.
 - Previous phases closed three medium-difficulty primitive gaps: local exit targeting, prog-resolved summon-style remote targeting, and reusable room or personal wards with shared spell and power interception.
 - The plane and body-form work moves several old blockers into the buildable bucket: `Ethereal`, `Detect Ethereal`, `Dispel Ethereal`, simple `Planeshift`, ghostly manifestation, and polymorph-style transformations can now use first-class effects rather than bespoke tags.
-- The biggest remaining architecture blockers are durable portal topology beyond saved effects, objective or group-scoped illusion policy, world-specific metaphysics, and true "dual body" mechanics like possession or shadow projection.
-- Psionics are now better covered than the first pass suggested. The current mind-link stack handles contact, barriers, mind-looking, audits, expulsion, sense, messaging, direct mental attacks, passive thought/feeling traffic, identity concealment, trace inspection, psionic hearing, clairaudience, clairvoyance, language comprehension, babbling, magical or psychic sensitivity, danger sense, empathy, hexes, prescient board questions, emotion/thought injection, stun-only psychic bolts, and non-command coerce modes. Durable trace consequences and projection-style powers still need supporting-system work.
+- The biggest remaining architecture blockers are objective or group-scoped illusion policy, world-specific metaphysics, and true "dual body" mechanics like possession or shadow projection. Durable portal topology V1 and durable psionic trace V1 are now implemented.
+- Psionics are now better covered than the first pass suggested. The current mind-link stack handles contact, barriers, mind-looking, audits, expulsion, sense, messaging, direct mental attacks, passive thought/feeling traffic, identity concealment, active and residual trace inspection, psionic hearing, clairaudience, clairvoyance, language comprehension, babbling, magical or psychic sensitivity, danger sense, empathy, hexes, prescient board questions, emotion/thought injection, stun-only psychic bolts, and non-command coerce modes. Projection-style powers still need supporting-system work.
 
 ## Current Family Themes
 
@@ -57,7 +57,7 @@ Key takeaways:
 | Lightning | direct attacks, stamina effects, paralysis, footprint-style magical track marking | source-specific lightning wrappers only if content needs more than existing damage/status/trackmark primitives | none obvious from the current report |
 | Void | wards, portals, marks/runes, corpse preservation/consumption/spawn, resource drains, item enchantments, strength-contested dispel matching | exact `Identify`/`Dead Speak`/`Recite` surfaces if they need first-class UX | durable portal/rune topology, possession, disembodiment, setting-specific `Solace` / `Dragon Bane` / `Cathexis` |
 | Unspecified / incomplete magic | `Puddle`; `Cause Disease` if the dump only requires disease application | `Acid Spray`, exact `Drown` if not covered by existing damage/need/breathing primitives | source clarification may be needed before classification |
-| Psionics | contact, barriers, locate/probe/expel/sense, mindblast, rejuvenate, dome, telepathy, passive traffic, identity concealment, `Trace`, `Hear`, `Clairaudience`, `Clairvoyance`, `Allspeak`, `Babble`, `Magicksense`, `Danger Sense`, `Empathy`, `Hex`, `Prescience`, `Sensitivity`, `Psychic Bolt`, `Project Emotion`, `Suggest`, `Coerce`, and animal/wild contact variants via `connectmind` eligibility progs | content-specific `Cathexis`, `Mindwipe`, or beast/wild wrappers if they require unique UX beyond existing links and policy hooks | projection/remote-presence semantics, durable psionic trace/consequence models, and objective multi-viewer illusion state |
+| Psionics | contact, barriers, locate/probe/expel/sense, mindblast, rejuvenate, dome, telepathy, passive traffic, identity concealment, active link and residual trace inspection, `Trace`, `Hear`, `Clairaudience`, `Clairvoyance`, `Allspeak`, `Babble`, `Magicksense`, `Danger Sense`, `Empathy`, `Hex`, `Prescience`, `Sensitivity`, `Psychic Bolt`, `Project Emotion`, `Suggest`, `Coerce`, and animal/wild contact variants via `connectmind` eligibility progs | content-specific `Cathexis`, `Mindwipe`, or beast/wild wrappers if they require unique UX beyond existing links and policy hooks | projection/remote-presence semantics and objective multi-viewer illusion state |
 
 ## Where FutureMUD Is Already Strong
 
@@ -126,7 +126,7 @@ Deferred from V1 but later resolved in V2: general dispel/shorten support, porta
 
 Deferred from V1 but later resolved in V4: advanced non-command coercion policy and subjective illusion priority/dispel keys.
 
-Deferred from V1 and still relevant: durable portal/rune topology, objective or group-scoped illusions, durable trace consequences, and true possession/projection.
+Deferred from V1 and still relevant: objective or group-scoped illusions and true possession/projection. Durable portal/rune topology was later resolved in V5 topology work; timed durable trace consequences were later resolved in V5b.
 
 ### Engine V2: dispels, richer enchantments, portal inspection, and psionic identity
 
@@ -140,7 +140,7 @@ Completed on 2026-05-02.
 
 Deferred from V2 but later resolved in V3 or V4: strength-contested dispel formulas, richer subjective-illusion priority and dispel policy, advanced non-command coercion primitives, and tag-aware ward matching.
 
-Deferred from V2 and still relevant: persistent gate/rune topology if saved effects are not enough, durable trace consequences, objective or group-scoped illusion state, and the simultaneous-body possession/projection model.
+Deferred from V2 and still relevant: objective or group-scoped illusion state and the simultaneous-body possession/projection model. Persistent gate/rune topology and timed residual traces were resolved in later V5 slices.
 
 ### Engine V4: psionic and perception policy layer
 
@@ -163,7 +163,18 @@ Completed on 2026-05-28.
 - Added `trackmark` / `tracktrail`, a spell-owned character effect that modifies future visual or olfactory track intensity and can add a magically-marked track circumstance. Created tracks display the magical trace in tracking output and can be targeted with `dispelmagic effect trackmark`.
 - Added `ITrackIntensityEffect` and `TrackCircumstances.MagicallyMarked` so movement remains responsible for creating tracks while spell effects can modify the intensities and circumstances of those tracks.
 
-This closes the smaller `Immolate` and `Fluorescent Footsteps` style engine-primitive gap without pretending to solve durable psionic traces, objective illusions, or persistent world topology.
+This closes the smaller `Immolate` and `Fluorescent Footsteps` style engine-primitive gap without pretending to solve objective illusions or persistent world topology.
+
+### Engine V5b: durable psionic trace/trail V1
+
+Completed on 2026-06-01.
+
+- Added saveable `PsionicTrace` effects with source, optional target, source cell, school, power, activity kind, timestamp, duration, read difficulty, and concealment fallback identity text.
+- Extended `PsionicActivityNotifier` so existing sensitivity pings still fire and trace-enabled powers also leave residual traces on involved characters and the source cell.
+- Added base power trace configuration for enabled state, duration, read difficulty, and trace description. Existing XML without trace fields loads with tracing disabled for compatibility.
+- Extended `trace <target>` so active link output remains first, followed by residual traces when present.
+
+This closes timed durable psionic trace/trail V1 without adding a permanent staff ledger or solving objective illusions, possession/projection, or world-specific metaphysics.
 
 ## Current Reclassification From Planes And Body Forms
 
@@ -376,7 +387,7 @@ Remaining work:
 
 ### 8. Subjective perception, coercive psionics, and passive mind traffic
 
-Status: Coercion V1, psionic identity concealment, passive thought/feeling traffic, and the V4 psionic/perception policy layer are implemented. The older report text that listed identity hiding, passive traffic, basic trace/hear/clairaudience powers, and non-command coercion primitives as open blockers is stale.
+Status: Coercion V1, psionic identity concealment, passive thought/feeling traffic, the V4 psionic/perception policy layer, and the V5b residual trace/trail layer are implemented. The older report text that listed identity hiding, passive traffic, basic trace/hear/clairaudience powers, non-command coercion primitives, and durable trace/trail consequences as open blockers is stale.
 
 FutureMUD already has good mind-link primitives and now has:
 
@@ -386,7 +397,7 @@ FutureMUD already has good mind-link primitives and now has:
 - caster-scoped subjective-description support through fixed-viewer handling.
 - `mindconceal`, which supplies sustained identity concealment and an audit difficulty modifier.
 - passive `think` / `feel` / `thinkemote` traffic through `telepathy`, with concealment consulted before identities are exposed.
-- `trace`, which inspects active mind links around a target mind and respects `mindconceal` audit difficulty and unknown-identity output.
+- `trace`, which inspects active mind links and residual psionic traces around a target mind, respects `mindconceal` audit difficulty and unknown-identity output, and reads traces created by successful psionic activity.
 - `hear`, which sustains psionic thought/feeling listening over configured scope without becoming ordinary room audio.
 - `clairaudience`, which sustains contact-based remote hearing through another mind's location and forwards audible output only.
 - `allspeak`, which grants sustained spoken-language comprehension through `IComprehendLanguageEffect` without permanent language skill or literacy bypass.
@@ -408,13 +419,13 @@ This now covers:
 It does not yet cover:
 
 - robust refusal/consent policy beyond opt-out effects, ordinary targeting checks, and hard safety block lists.
-- durable trace consequences beyond live link inspection and `mindconceal` making audits harder.
+- permanent staff/audit ledgers or campaign-specific consequences attached to residual traces.
 - objective room-state illusions or multi-viewer/group-scoped illusions that need a general perception-overlay model.
 
 That means the remaining work splits cleanly:
 
 - Needs engine primitive: none from the V4 psionic/perception policy slice. Content-specific `Cathexis`, `Mindwipe`, or beast/wild wrappers may still need dedicated UX if progs and existing link effects are not enough.
-- Needs supporting system: projection-style psionics, durable trace consequence models if traces must persist as world facts, and objective multi-viewer illusions if they need a general perception-overlay framework.
+- Needs supporting system: projection-style psionics, permanent trace consequence ledgers if traces must outlive timed effects, and objective multi-viewer illusions if they need a general perception-overlay framework.
 
 ## Future Work
 
@@ -437,7 +448,7 @@ These are the remaining true blockers. They should not be represented as one-off
 - Durable portal/rune topology: implemented as DB-backed `MagicPortalNetworks`, endpoints, and explicit links that materialise into topology-managed transient exits. V1 covers standing room gates, directly placed rune/portal objects, builder repair, and spell-created topology. One-way links and mobile/carried rune endpoints remain future extensions.
 - Objective or group-scoped illusions: if illusions must alter room state for multiple observers, stack with other illusions, and expose consistent dispel/priority rules, they need a general perception-overlay policy rather than only `subjectivedesc` / `subjectivesdesc`.
 - World-specific metaphysics: `Determine Relationship`, `Solace`, `Dragon Bane`, `Cathexis`, and richer `Planeshift` interpretations need a model for land/elemental relationships, plane travel graphs, and any clan/tribe/identity consequences.
-- Durable psionic trace consequences: the live `trace` power inspects active links, but traces that persist as world facts or feed staff/audit consequences need a shared psionic trail model.
+- Durable psionic trace consequences: V5b implements timed residual trace effects on involved characters and the source cell using normal effect persistence. Permanent global investigation ledgers or staff/campaign consequence tables remain future work if a setting requires traces to outlive the timed effect.
 
 ## Next Logical Steps
 
@@ -468,13 +479,23 @@ Status: completed on 2026-05-28.
 - `trackmark` / `tracktrail` are available for magically intensified or magically marked tracks.
 - `dispelmagic` can target these with `effect burning` and `effect trackmark`.
 
+### V5b: durable psionic trace/trail V1
+
+Status: implemented on 2026-06-01.
+
+- Successful psionic powers can create timed, saveable `PsionicTrace` effects on the source, target or targets, and the source cell.
+- `PsionicActivityNotifier` remains the shared sensitivity-ping path and now also creates residual traces when a power's trace configuration is enabled.
+- Base power XML supports trace enablement, duration, read difficulty, and authored trace description. Older saved power XML without trace fields loads with tracing disabled.
+- `trace <target>` still reports active mind links, and now also reports residual traces when active links have ended or when both active and residual evidence exists.
+- Concealed sources use the configured unknown identity unless the trace reader clears the raised difficulty.
+
 ### V5: supporting-system buildout
 
 V5 should tackle the remaining architecture blockers after V3/V4 make the easy and medium gaps boring:
 
 - simultaneous-body possession and projection
 - objective or group-scoped illusion state that changes room facts for multiple observers
-- durable psionic trace/trail consequences that survive beyond live link inspection
+- permanent psionic trace consequence ledgers, only if content needs traces to survive beyond the timed V5b effect
 - persistent rune/gate/portal topology is now implemented for explicit bidirectional networks; future work is limited to one-way links or mobile/carried rune endpoint semantics if content needs them
 - world-specific metaphysics such as land relationships, elemental patronage, or clan-keyed psionic consequences
 
@@ -530,7 +551,7 @@ These are the next-best return once the basic statuses exist.
    - Completed for Coercion V1 with `forcecommand`.
    - Extended in V4 with `projectemotion`, `suggest`, and mode-based `coerce`.
    - The command-forcing implementation executes through the target's own `ExecuteCommand`, respects `IIgnoreForceEffect`, blocks staff/editor/account-destructive roots, and emits wiz-only audit output.
-   - The V4 non-command path shares opt-out checks, listener delivery, and audit output. Durable trace consequences and broader consent-policy models remain future work.
+   - The V4 non-command path shares opt-out checks, listener delivery, and audit output. V5b adds timed residual traces for psionic activity; broader consent-policy models and permanent consequence ledgers remain future work.
 
 ### Phase 3: Tricky Design Work
 
@@ -608,6 +629,7 @@ Engine V2 has shipped the deeper parity layer without jumping into simultaneous-
    - `mindconceal` supplies the sustained identity-concealment effect and audit difficulty modifier.
    - `connectmind`, `mindsay`, `mindbroadcast`, `mindaudit`, `mindexpel`, and passive `think`/`feel` telepathy now consult the shared concealment contract.
    - Thoughtsense/Immersion-style passive traffic should use the existing `telepathy` `thinks` / `feels` / `thinkemote` flow.
+   - V5b residual traces now use normal timed effect persistence rather than a permanent audit table.
 
 6. Still deferred.
    - True possession, send-shadow projection, and body-left-behind disembodiment remain out of scope until the simultaneous-body model is designed.
@@ -615,11 +637,11 @@ Engine V2 has shipped the deeper parity layer without jumping into simultaneous-
 
 ## Recommended Next Shipping Slice After Engine V2
 
-Engine V3 shipped the small edge-status slice that sat outside Engine V2: poison detection, insomnia, cure blindness, and optional strength-contested dispel matching. Engine V5a has now also shipped the smaller persistent sensory/combat primitives for burn-over-time and magical track marking. The next remaining work should focus on the larger pieces Engine V2 deliberately left outside these slices:
+Engine V3 shipped the small edge-status slice that sat outside Engine V2: poison detection, insomnia, cure blindness, and optional strength-contested dispel matching. Engine V5a shipped the smaller persistent sensory/combat primitives for burn-over-time and magical track marking. Engine V5b shipped timed durable psionic traces. The next remaining work should focus on the larger pieces Engine V2 deliberately left outside these slices:
 
 - durable portal/rune topology V1 is available for standing gate networks; use future slices only for one-way links, mobile rune objects, or richer safety policy
 - richer illusion stacking and perception policy
-- advanced psionic coercion and trace consequences
+- permanent psionic trace consequence ledgers only if the timed V5b model proves insufficient
 - the simultaneous-body possession/projection model
 
 ## Appendix: Classification By Family

@@ -51,7 +51,7 @@ It is intended for:
 | `spellremainingduration`, `spellduration`, `setspellduration`, `addspellduration`, `subtractspellduration`, `removespell` | Spell effects | Reads, changes, or removes active spell-parent effects for a specific spell on a character |
 
 ## Power Types
-Current count: 32 power tokens, including 31 builder-creatable tokens and the non-builder `armor` runtime alias. V4 added 9 builder-creatable psionic powers, and the Old SOI parity slice added 7 more psionic power tokens in per-power files under `MudSharpCore/Magic/Powers/`.
+Current count: 32 power tokens, including 31 builder-creatable tokens and the non-builder `armor` runtime alias. V4 added 9 builder-creatable psionic powers, and the Old SOI parity slice added 7 more psionic power tokens in per-power files under `MudSharpCore/Magic/Powers/`. V5b adds residual trace support to existing psionic powers without changing this token count.
 
 | Builder/runtime token | Class | Subsystem | Where registered or dispatched | Builder-creatable | Purpose |
 | --- | --- | --- | --- | --- | --- |
@@ -86,8 +86,8 @@ Current count: 32 power tokens, including 31 builder-creatable tokens and the no
 | `sensitivity` | `SensitivityPower` | Power | Static `RegisterLoader` in `MudSharpCore/Magic/Powers/SensitivityPower.cs` via `MagicPowerFactory` | Yes | Sustains magical or psychic perception, receives activity pings, and actively scans auras or capabilities |
 | `suggest` | `SuggestPower` | Power | Static `RegisterLoader` in `MudSharpCore/Magic/Powers/SuggestPower.cs` via `MagicPowerFactory` | Yes | Injects an involuntary thought, optionally wrapped with an emotional delivery |
 | `telepathy` | `TelepathyPower` | Power | Static `RegisterLoader` in `MudSharpCore/Magic/Powers/TelepathyPower.cs` via `MagicPowerFactory` | Yes | Telepathic communication or related perception |
-| `trace` | `TracePower` | Power | Static `RegisterLoader` in `MudSharpCore/Magic/Powers/TracePower.cs` via `MagicPowerFactory` | Yes | Inspects active mind links around a target mind while respecting concealment difficulty |
-| n/a | `MagicPowerBase` | Power support | Shared base in `MudSharpCore/Magic/Powers/MagicPowerBase.cs` | No | Shared costs, progs, help text, crime handling, and builder support |
+| `trace` | `TracePower` | Power | Static `RegisterLoader` in `MudSharpCore/Magic/Powers/TracePower.cs` via `MagicPowerFactory` | Yes | Inspects active mind links and residual psionic traces around a target mind while respecting concealment difficulty |
+| n/a | `MagicPowerBase` | Power support | Shared base in `MudSharpCore/Magic/Powers/MagicPowerBase.cs` | No | Shared costs, progs, help text, crime handling, builder support, and base psionic trace configuration |
 | n/a | `SustainedMagicPower` | Power support | Shared base in `MudSharpCore/Magic/Powers/SustainedMagicPower.cs` | No | Shared support for sustained powers |
 | n/a | `MagicalMeleeAttackPower` | Power support | Shared base in `MudSharpCore/Magic/Powers/MagicalMeleeAttackPower.cs` | No | Shared support base for melee-style magical attacks |
 
@@ -248,6 +248,7 @@ V4 added 2 builder-creatable tag-aware ward effect tokens: `roomtagward` and `pe
 | n/a | `IMagicPowerOrFuelEnhancementEffect` | First-class powered-item enhancement contract for production, consumption, and fuel-use multipliers |
 | n/a | `IMagicItemEventEffect` | First-class item event callback contract for enchanted items |
 | n/a | `IMindContactConcealmentEffect` | Shared psionic identity-concealment contract used by mind links, mind speech, broadcasts, audits, expulsion text, and passive telepathic traffic |
+| n/a | `IPsionicTraceEffect` | Shared residual psionic trace contract used by `trace`, notifier-created trace effects, and future trace-aware systems |
 | n/a | `IPreventFallingEffect` | Shared fall-prevention contract used by levitation and future suspension effects |
 | n/a | `ILevitationEffect` | Spell-owned levitation marker for target-specific suspension |
 | n/a | `IFallDamageMitigationEffect` | Shared fall mitigation contract exposing fall-distance and fall-damage multipliers |
@@ -261,7 +262,7 @@ V4 added 2 builder-creatable tag-aware ward effect tokens: `roomtagward` and `pe
 | n/a | `IBabbleSpeechEffect` | Speech-obfuscation contract used by communication strategies before language comprehension |
 | n/a | `PsionicSustainedPowerEffectBase<TPower>` | Shared base for V4 sustained psionic effects |
 | n/a | `BodypartMappingUtilities` | Shared bodypart mapping helper used by body-form wound migration and `empathy` wound transfer |
-| n/a | `PsionicActivityNotifier` | Shared activity ping helper used by new psionic powers and consumed by `sensitivity` |
+| n/a | `PsionicActivityNotifier` | Shared activity ping helper used by new psionic powers and consumed by `sensitivity`; V5b also uses it as the single residual trace creation point |
 | n/a | `RemoteLookRenderer` | LOOK-style remote cell renderer used by `clairvoyance` |
 | n/a | `MagicAllspeakEffect` | Sustained `IComprehendLanguageEffect` used by `allspeak` |
 | n/a | `MagicMagicksenseEffect` | Sustained `SenseMagical` perception grant used by `magicksense` |
@@ -282,6 +283,14 @@ V4 added 2 builder-creatable tag-aware ward effect tokens: `roomtagward` and `pe
 | `SpellTrackMark` | `SpellTrackMarkEffect` | Spell-owned track-intensity child effect that exposes `ITrackIntensityEffect` and short-description addenda |
 | n/a | `ITrackIntensityEffect` | Movement hook consumed when creating departure and arrival tracks so active effects can alter visual or olfactory track intensity and add circumstances |
 | `MagicallyMarked` | `TrackCircumstances.MagicallyMarked` | Track circumstance displayed by tracking output as an unnatural magical trace |
+
+## Engine V5b Support Types
+
+V5b adds durable psionic trace/trail V1 without adding new builder power tokens.
+
+| Saved effect type | Class | Summary |
+| --- | --- | --- |
+| `PsionicTrace` | `PsionicTraceEffect` | Saveable timed effect that records recent magical or psychic activity on involved characters and source cells, including source, optional target, school, power, activity kind, timestamp, duration, read difficulty, and concealment fallback identity text |
 
 ## Notes
 - Schools are first-class records rather than subtype-driven types, so they are documented in the overview and backbone docs rather than listed here as a type family.

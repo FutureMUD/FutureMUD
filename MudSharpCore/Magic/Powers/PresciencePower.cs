@@ -51,6 +51,7 @@ public sealed class PresciencePower : MagicPowerBase
 		base(gameworld, school, name)
 	{
 		IsPsionic = true;
+		EnablePsionicTraceDefaults();
 		Blurb = "Submit a prescient question to an administrator board";
 		_showHelpText =
 			$"Use {school.SchoolVerb.ToUpperInvariant()} PRESCIENCE to enter a question for staff to answer through dreams or other story methods.";

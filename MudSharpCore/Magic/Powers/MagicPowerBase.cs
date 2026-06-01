@@ -8,6 +8,7 @@ using MudSharp.FutureProg;
 using MudSharp.Models;
 using MudSharp.PerceptionEngine;
 using MudSharp.Planes;
+using MudSharp.RPG.Checks;
 using MudSharp.RPG.Law;
 using System;
 using System.Collections.Generic;
@@ -41,6 +42,7 @@ public abstract class MagicPowerBase : SaveableItem, IMagicPower
         {
             IsPsionic = false;
         }
+        LoadPsionicTraceDefinition(root);
         XElement element = root.Element("CanInvokePowerProg");
         if (element == null)
         {
@@ -106,6 +108,10 @@ public abstract class MagicPowerBase : SaveableItem, IMagicPower
         School = school;
         _name = name;
         IsPsionic = false;
+        CreatesPsionicTrace = false;
+        PsionicTraceDuration = TimeSpan.FromMinutes(30);
+        PsionicTraceReadDifficulty = Difficulty.Normal;
+        PsionicTraceDescription = string.Empty;
         CanInvokePowerProg = Gameworld.AlwaysTrueProg;
         WhyCantInvokePowerProg = Gameworld.UniversalErrorTextProg;
     }
@@ -344,6 +350,11 @@ public abstract class MagicPowerBase : SaveableItem, IMagicPower
     /// </summary>
     public bool IsPsionic { get; protected set; }
 
+    public bool CreatesPsionicTrace { get; protected set; }
+    public TimeSpan PsionicTraceDuration { get; protected set; }
+    public Difficulty PsionicTraceReadDifficulty { get; protected set; }
+    public string PsionicTraceDescription { get; protected set; }
+
     public virtual string ShowHelp(ICharacter voyeur)
     {
         StringBuilder sb = new();
@@ -451,6 +462,10 @@ public abstract class MagicPowerBase : SaveableItem, IMagicPower
 	#3help#0 - drops you into an editor to write the player help file
 	#3cost <verb> <which> <number>#0 - sets the cost of using a particular verb
 	#3psionic#0 - toggles whether this power is psionic for crime and policy purposes
+	#3trace#0 - toggles durable psionic trace creation
+	#3traceduration <timespan|seconds>#0 - sets how long durable traces last
+	#3tracedifficulty <difficulty>#0 - sets how hard traces are to read
+	#3tracedesc <text>#0 - sets the activity text for traces
 {SubtypeHelpText}";
 
     public virtual bool BuildingCommand(ICharacter actor, StringStack command)
@@ -480,15 +495,131 @@ public abstract class MagicPowerBase : SaveableItem, IMagicPower
             case "psionic":
             case "psi":
                 return BuildingCommandPsionic(actor);
+            case "trace":
+            case "traces":
+                return BuildingCommandTrace(actor);
+            case "traceduration":
+            case "tracetime":
+                return BuildingCommandTraceDuration(actor, command);
+            case "tracedifficulty":
+            case "tracediff":
+                return BuildingCommandTraceDifficulty(actor, command);
+            case "tracedesc":
+            case "tracedescription":
+                return BuildingCommandTraceDescription(actor, command);
         }
 
         actor.OutputHandler.Send(HelpText.SubstituteANSIColour());
         return false;
     }
 
+    protected void EnablePsionicTraceDefaults(string description = "")
+    {
+        CreatesPsionicTrace = true;
+        PsionicTraceDuration = PsionicTraceDuration <= TimeSpan.Zero ? TimeSpan.FromMinutes(30) : PsionicTraceDuration;
+        if (!string.IsNullOrWhiteSpace(description))
+        {
+            PsionicTraceDescription = description;
+        }
+    }
+
+    private void LoadPsionicTraceDefinition(XElement root)
+    {
+        PsionicTraceDuration = TimeSpan.FromMinutes(30);
+        PsionicTraceReadDifficulty = Difficulty.Normal;
+        PsionicTraceDescription = string.Empty;
+        XElement trace = root.Element("PsionicTrace");
+        if (trace is null)
+        {
+            CreatesPsionicTrace = false;
+            return;
+        }
+
+        CreatesPsionicTrace = bool.Parse(trace.Element("Enabled")?.Value ?? "false");
+        PsionicTraceDuration = TimeSpan.FromSeconds(double.Parse(trace.Element("DurationSeconds")?.Value ?? "1800"));
+        PsionicTraceReadDifficulty = (Difficulty)int.Parse(trace.Element("ReadDifficulty")?.Value ?? ((int)Difficulty.Normal).ToString());
+        PsionicTraceDescription = trace.Element("Description")?.Value ?? string.Empty;
+    }
+
+    private bool BuildingCommandTrace(ICharacter actor)
+    {
+        CreatesPsionicTrace = !CreatesPsionicTrace;
+        Changed = true;
+        actor.OutputHandler.Send($"This power will {CreatesPsionicTrace.NowNoLonger()} leave durable psionic traces.");
+        return true;
+    }
+
+    private bool BuildingCommandTraceDuration(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send("How long should traces from this power last?");
+            return false;
+        }
+
+        TimeSpan newDuration;
+        if (!double.TryParse(command.SafeRemainingArgument, out var seconds))
+        {
+            if (!TimeSpan.TryParse(command.SafeRemainingArgument, actor, out var parsed))
+            {
+                actor.OutputHandler.Send("That is not a valid number of seconds or timespan.");
+                return false;
+            }
+
+            newDuration = parsed;
+        }
+        else
+        {
+            newDuration = TimeSpan.FromSeconds(seconds);
+        }
+
+        if (newDuration <= TimeSpan.Zero)
+        {
+            actor.OutputHandler.Send("Trace duration must be positive.");
+            return false;
+        }
+
+        PsionicTraceDuration = newDuration;
+        Changed = true;
+        actor.OutputHandler.Send($"Traces from this power will now last {PsionicTraceDuration.Describe(actor).ColourValue()}.");
+        return true;
+    }
+
+    private bool BuildingCommandTraceDifficulty(ICharacter actor, StringStack command)
+    {
+        if (!command.SafeRemainingArgument.TryParseEnum(out Difficulty difficulty))
+        {
+            actor.OutputHandler.Send($"Valid difficulties are {Enum.GetValues<Difficulty>().Select(x => x.DescribeColoured()).ListToString()}.");
+            return false;
+        }
+
+        PsionicTraceReadDifficulty = difficulty;
+        Changed = true;
+        actor.OutputHandler.Send($"Trace reads now use {difficulty.DescribeColoured()} difficulty.");
+        return true;
+    }
+
+    private bool BuildingCommandTraceDescription(ICharacter actor, StringStack command)
+    {
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send("What should traces from this power be described as?");
+            return false;
+        }
+
+        PsionicTraceDescription = command.SafeRemainingArgument;
+        Changed = true;
+        actor.OutputHandler.Send($"Trace activity will now be described as {PsionicTraceDescription.ColourValue()}.");
+        return true;
+    }
+
     private bool BuildingCommandPsionic(ICharacter actor)
     {
         IsPsionic = !IsPsionic;
+        if (IsPsionic && !CreatesPsionicTrace)
+        {
+            EnablePsionicTraceDefaults();
+        }
         Changed = true;
         actor.OutputHandler.Send($"This power is {IsPsionic.NowNoLonger()} considered psionic.");
         return true;
@@ -693,6 +824,13 @@ public abstract class MagicPowerBase : SaveableItem, IMagicPower
         sb.AppendLine($"Type: {PowerType.ColourValue()}");
         sb.AppendLine($"School: {School.Name.Colour(School.PowerListColour)}");
         sb.AppendLine($"Psionic: {IsPsionic.ToColouredString()}");
+        sb.AppendLine($"Leaves Traces: {CreatesPsionicTrace.ToColouredString()}");
+        if (CreatesPsionicTrace)
+        {
+            sb.AppendLine($"Trace Duration: {PsionicTraceDuration.Describe(actor).ColourValue()}");
+            sb.AppendLine($"Trace Read Difficulty: {PsionicTraceReadDifficulty.DescribeColoured()}");
+            sb.AppendLine($"Trace Description: {(string.IsNullOrWhiteSpace(PsionicTraceDescription) ? "Default".ColourValue() : PsionicTraceDescription.ColourCommand())}");
+        }
         sb.AppendLine($"Blurb: {Blurb.ColourCommand()}");
         sb.AppendLine($"Can Invoke Prog: {CanInvokePowerProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
         sb.AppendLine($"Why Can't Invoke Prog: {WhyCantInvokePowerProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
@@ -725,6 +863,12 @@ public abstract class MagicPowerBase : SaveableItem, IMagicPower
     protected void AddBaseDefinition(XElement root)
     {
         root.Add(new XElement("IsPsionic", IsPsionic));
+        root.Add(new XElement("PsionicTrace",
+            new XElement("Enabled", CreatesPsionicTrace),
+            new XElement("DurationSeconds", PsionicTraceDuration.TotalSeconds),
+            new XElement("ReadDifficulty", (int)PsionicTraceReadDifficulty),
+            new XElement("Description", new XCData(PsionicTraceDescription ?? string.Empty))
+        ));
         root.Add(new XElement("CanInvokePowerProg", CanInvokePowerProg.Id));
         root.Add(new XElement("WhyCantInvokePowerProg", WhyCantInvokePowerProg.Id));
         root.Add(new XElement("InvocationCosts",

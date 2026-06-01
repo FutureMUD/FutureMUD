@@ -142,7 +142,7 @@ public sealed class EmpathyPower : PsionicTargetedPowerBase
 			actor.OutputHandler.Send(new EmoteOutput(new Emote(StartEcho, actor, actor, target)));
 		}
 
-		PsionicActivityNotifier.Notify(actor, this, "an empathic wound transfer");
+		PsionicActivityNotifier.Notify(actor, this, "an empathic wound transfer", target);
 		ConsumePowerCosts(actor, Verb);
 	}
 

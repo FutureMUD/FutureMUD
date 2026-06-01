@@ -29,6 +29,7 @@ namespace MudSharp.RPG.Law
         ICharacter? Victim { get; }
         long? ThirdPartyId { get; }
         string? ThirdPartyFrameworkItemType { get; }
+        string? AdditionalInformation { get; }
         IEnumerable<long> WitnessIds { get; }
         void AddWitness(long witnessId);
         bool IsKnownCrime { get; set; }
@@ -48,6 +49,7 @@ namespace MudSharp.RPG.Law
         TimeSpan CustodialSentenceLength { get; set; }
         IReadOnlyDictionary<ICharacteristicDefinition, ICharacteristicValue> CriminalCharacteristics { get; }
         void SetCharacteristicValue(ICharacteristicDefinition definition, ICharacteristicValue value);
+        void RecordInvestigationEvidence(ICharacter investigator, double reliability, bool identityKnown);
         bool CriminalIdentityIsKnown { get; set; }
         string DescribeCrime(IPerceiver voyeur);
         string DescribeCrimeAtTrial(IPerceiver voyeur);

@@ -21,6 +21,7 @@ public abstract class WeatherEventBase : SaveableItem, IWeatherEvent, IHaveFutur
     public WindLevel Wind { get; protected set; }
     public string WeatherDescription { get; protected set; }
     public string WeatherRoomAddendum { get; protected set; }
+    public virtual bool RequiresRoomFiveSecondTick => false;
     public double TemperatureEffect { get; protected set; }
     public double PrecipitationTemperatureEffect { get; protected set; }
     public double WindTemperatureEffect { get; protected set; }

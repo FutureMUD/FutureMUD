@@ -178,6 +178,13 @@ Verified shop responsibilities include:
 - shared employment-host contracts, openings, host staff board, scheduled rules, active tasks, and manager goals through the unified employment dispatcher
 - limited support for virtual shoppers
 
+Converter integration note:
+
+- the RPI Engine Worldfile Converter now maps legacy keeper-attached shop data to `PermanentShop` records
+- RPI `shop_vnum` becomes the FutureMUD shopfront cell, and RPI `store_vnum` becomes the permanent shop stockroom cell
+- RPI delivery object vnums become fixed-price, auto-reordering `Merchandise` rows when the matching item prototypes were already imported
+- live NPC shopkeeper employment/AI attachment, broad legacy buyback categories, and RPI economy flag matrices remain follow-up work rather than new shop runtime behavior
+
 Payment methods are currently separate concrete strategy objects:
 
 - `CashPayment`

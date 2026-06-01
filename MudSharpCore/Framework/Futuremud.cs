@@ -420,6 +420,17 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
                 {
                     long milliseconds = 250 - totalTime.ElapsedMilliseconds;
                     totalTime.Start();
+                    TimeSpan pathfindingBudget = TimeSpan.FromMilliseconds(Math.Min(milliseconds, 3));
+                    sw.Restart();
+                    ExitManager.PathfindingService.DoIdleWork(pathfindingBudget);
+                    if (sw.ElapsedMilliseconds > 50)
+                    {
+                        Console.ForegroundColor = ConsoleColor.DarkYellow;
+                        Console.WriteLine($"[PERF] - PathfindingService.DoIdleWork() took {sw.ElapsedMilliseconds}ms");
+                        Console.ResetColor();
+                    }
+
+                    milliseconds = Math.Max(0, milliseconds - sw.ElapsedMilliseconds);
                     SaveManager.FlushLazyLoad(TimeSpan.FromMilliseconds(milliseconds));
                 }
 
@@ -1376,6 +1387,11 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
     public void Add(IVehicleHitchLink link)
     {
         _vehicleHitchLinks.Add(link);
+    }
+
+    public void Add(IMagicPortalNetwork network)
+    {
+        _magicPortalNetworks.Add(network);
     }
 
     public void Add(ITemporalListener listener)
@@ -2356,6 +2372,12 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
     public void Destroy(IVehicleHitchLink link)
     {
         _vehicleHitchLinks.Remove(link);
+    }
+
+    public void Destroy(IMagicPortalNetwork network)
+    {
+        new MagicPortalTopologyService().RemoveNetworkExits(network);
+        _magicPortalNetworks.Remove(network);
     }
 
     public void Destroy(IAccount account)

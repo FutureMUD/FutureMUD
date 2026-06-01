@@ -821,7 +821,7 @@ The syntax for this command is simply #3argue defense#0 or #3argue prosecution#0
         }
         else
         {
-            if (trialEffect.Defender != actor)
+            if (trialEffect.Prosecutor != actor)
             {
                 actor.OutputHandler.Send("You are not the prosecution lawyer for this case.");
                 return;
@@ -830,16 +830,98 @@ The syntax for this command is simply #3argue defense#0 or #3argue prosecution#0
         trialEffect.HandleArgueCommand(actor, defense);
     }
 
+    private static bool CanManuallyJudge(ICharacter actor, ICharacter target, ILegalAuthority jurisdiction, out string error)
+    {
+        error = string.Empty;
+        ILegalClass targetClass = jurisdiction.GetLegalClass(target);
+        IEnforcementAuthority enforcement = jurisdiction.GetEnforcementAuthority(actor);
+        if (enforcement is null)
+        {
+            if (actor.IsAdministrator())
+            {
+                return true;
+            }
+
+            error = $"You are not an enforcer in the {jurisdiction.Name.ColourName()} jurisdiction.";
+            return false;
+        }
+
+        if (!enforcement.CanConvict)
+        {
+            error = $"Your level of enforcement authority in the {jurisdiction.Name.ColourName()} jurisdiction is insufficient to judge people.";
+            return false;
+        }
+
+        if (!enforcement.AccusableClasses.Contains(targetClass))
+        {
+            error = $"Your level of enforcement authority does not allow you to judge members of the {targetClass.Name.ColourName()} legal class.";
+            return false;
+        }
+
+        return true;
+    }
+
+    private static bool CanRecordManualJudgement(ICharacter actor, ICharacter target, ILegalAuthority jurisdiction)
+    {
+        OnTrial trial = target.EffectsOfType<OnTrial>(x => x.LegalAuthority == jurisdiction).FirstOrDefault();
+        if (trial is not null)
+        {
+            if (trial.ManualTrial)
+            {
+                return true;
+            }
+
+            actor.OutputHandler.Send("Your target is already on trial before an NPC judge, and cannot have manual judgements recorded at this time.");
+            return false;
+        }
+
+        if (target.AffectedBy<OnTrial>())
+        {
+            actor.OutputHandler.Send("Your target is already on trial in another jurisdiction, and cannot have manual judgements recorded at this time.");
+            return false;
+        }
+
+        return true;
+    }
+
+    private static void ResolveManualJudgementIfComplete(ICharacter target, ILegalAuthority jurisdiction)
+    {
+        if (jurisdiction.KnownCrimesForIndividual(target).Any())
+        {
+            return;
+        }
+
+        target.RemoveAllEffects<AwaitingSentencing>(x => x.LegalAuthority == jurisdiction, true);
+        target.RemoveAllEffects<OnTrial>(x => x.LegalAuthority == jurisdiction, true);
+        target.RemoveAllEffects<InCustodyOfEnforcer>(x => x.LegalAuthority == jurisdiction, true);
+
+        if (target.EffectsOfType<AwaitingExecution>(x => x.LegalAuthority == jurisdiction).Any())
+        {
+            jurisdiction.SendCharacterToHoldingCell(target);
+            return;
+        }
+
+        if (target.EffectsOfType<ServingCustodialSentence>(x => x.LegalAuthority == jurisdiction).Any())
+        {
+            jurisdiction.SendCharacterToPrison(target);
+            return;
+        }
+
+        jurisdiction.ReleaseCharacterToFreedom(target);
+    }
+
     [PlayerCommand("Convict", "convict")]
     [RequiredCharacterState(CharacterState.Able)]
     [MustBeAnEnforcer]
     [HelpInfo("convict", @"The #3convict#0 command is used to manually record a conviction of guilty and assign a punishment to a criminal who is being held in custody. This would be intended to be used by PC or NPC Enforcers when a trial is being roleplayed, in lieu of using the automated systems for these things.
 
-Typically this command would be used on a prisoner who another enforcer has used the #3takecustody#0 command over. Otherwise, NPC enforcers might drag them back to prison and any convictions for multiple crimes would be applied immediately rather than at a time of your choosing.
+Typically this command would be used on a prisoner who another enforcer has used the #3takecustody#0 command over, or on a defendant in a PC-held trial started with #3trial summon#0. Otherwise, NPC enforcers might drag them back to prison and any convictions for multiple crimes would be applied immediately rather than at a time of your choosing.
 
 Both you and the criminal need to be in the court room of the legal jurisdiction you're convicting them for.
 
 Note also the #3acquit#0 command which is used to register a finding of not guilty.
+
+When the last known charge is finalised in a PC-held trial, the defendant will be released, sent to prison, or sent to holding for execution according to the recorded sentences.
 
 There are the following syntaxes for this command:
 
@@ -879,26 +961,14 @@ You can use the following options for punishments, can can include multiples in 
             return;
         }
 
-        ILegalClass targetClass = jurisdiction.GetLegalClass(target);
-        IEnforcementAuthority enforcement = jurisdiction.GetEnforcementAuthority(actor);
-        if (enforcement is not null)
+        if (!CanManuallyJudge(actor, target, jurisdiction, out string judgementError))
         {
-            if (!enforcement.CanConvict)
-            {
-                actor.OutputHandler.Send($"Your level of enforcement authority in the {jurisdiction.Name.ColourName()} jurisdiction is insufficient to judge people.");
-                return;
-            }
-
-            if (!enforcement.AccusableClasses.Contains(targetClass))
-            {
-                actor.OutputHandler.Send($"Your level of enforcement authority does not allow you to judge members of the {targetClass.Name.ColourName()} legal class.");
-                return;
-            }
+            actor.OutputHandler.Send(judgementError);
+            return;
         }
 
-        if (target.AffectedBy<OnTrial>())
+        if (!CanRecordManualJudgement(actor, target, jurisdiction))
         {
-            actor.OutputHandler.Send("Your target is already on trial, and cannot have manual judgements recorded at this time.");
             return;
         }
 
@@ -1072,6 +1142,7 @@ You can use the following options for punishments, can can include multiples in 
             new DummyPerceivable(x => punishment.Describe(x, jurisdiction), customColour: Telnet.White)
             )));
         targetCrime.Convict(actor, punishment, "Manually convicted");
+        ResolveManualJudgementIfComplete(target, jurisdiction);
     }
 
     [PlayerCommand("CrimeInfo", "crimeinfo")]
@@ -1113,11 +1184,13 @@ The syntax is #3crimeinfo <id>#0.", AutoHelp.HelpArg)]
     [MustBeAnEnforcer]
     [HelpInfo("acquit", @"The #3acquit#0 command is used to manually record a conviction of not guilty to a criminal who is being held in custody. This would be intended to be used by PC or NPC Enforcers when a trial is being roleplayed, in lieu of using the automated systems for these things.
 
-Typically this command would be used on a prisoner who another enforcer has used the #3takecustody#0 command over. Otherwise, NPC enforcers might drag them back to prison before you're done and any convictions for multiple crimes would be applied immediately rather than at a time of your choosing.
+Typically this command would be used on a prisoner who another enforcer has used the #3takecustody#0 command over, or on a defendant in a PC-held trial started with #3trial summon#0. Otherwise, NPC enforcers might drag them back to prison before you're done and any convictions for multiple crimes would be applied immediately rather than at a time of your choosing.
 
 Both you and the criminal need to be in the court room of the legal jurisdiction you're acquiting them of.
 
 Note also the #3convict#0 command which is used to register a finding of guilty.
+
+When the last known charge is finalised in a PC-held trial, the defendant will be released, sent to prison, or sent to holding for execution according to the recorded sentences.
 
 There are the following syntaxes for this command:
 
@@ -1148,26 +1221,14 @@ There are the following syntaxes for this command:
             return;
         }
 
-        ILegalClass targetClass = jurisdiction.GetLegalClass(target);
-        IEnforcementAuthority enforcement = jurisdiction.GetEnforcementAuthority(actor);
-        if (enforcement is not null)
+        if (!CanManuallyJudge(actor, target, jurisdiction, out string judgementError))
         {
-            if (!enforcement.CanConvict)
-            {
-                actor.OutputHandler.Send($"Your level of enforcement authority in the {jurisdiction.Name.ColourName()} jurisdiction is insufficient to judge people.");
-                return;
-            }
-
-            if (!enforcement.AccusableClasses.Contains(targetClass))
-            {
-                actor.OutputHandler.Send($"Your level of enforcement authority does not allow you to judge members of the {targetClass.Name.ColourName()} legal class.");
-                return;
-            }
+            actor.OutputHandler.Send(judgementError);
+            return;
         }
 
-        if (target.AffectedBy<OnTrial>())
+        if (!CanRecordManualJudgement(actor, target, jurisdiction))
         {
-            actor.OutputHandler.Send("Your target is already on trial, and cannot have manual judgements recorded at this time.");
             return;
         }
 
@@ -1228,6 +1289,7 @@ There are the following syntaxes for this command:
             new DummyPerceivable(x => targetCrime.DescribeCrimeAtTrial(x), customColour: Telnet.White)
         )));
         targetCrime.Acquit(actor, "Manually acquitted");
+        ResolveManualJudgementIfComplete(target, jurisdiction);
     }
 
     [PlayerCommand("TakeCustody", "takecustody")]
@@ -1321,8 +1383,85 @@ There are the following syntaxes for this command:
     [PlayerCommand("TransferCustody", "transfercustody")]
     [RequiredCharacterState(CharacterState.Able)]
     [MustBeAnEnforcer]
+    [HelpInfo("transfercustody", @"The #3transfercustody#0 command is used by an enforcer who currently has custody of someone to transfer that custody to another present enforcer.
+
+The syntax is #3transfercustody <prisoner> <enforcer>#0.", AutoHelp.HelpArg)]
     protected static void TransferCustody(ICharacter actor, string input)
     {
+        StringStack ss = new(input.RemoveFirstWord());
+        if (ss.IsFinished)
+        {
+            actor.OutputHandler.Send("Whose custody do you want to transfer?");
+            return;
+        }
+
+        ICharacter target = actor.TargetActor(ss.PopSpeech());
+        if (target == null)
+        {
+            actor.OutputHandler.Send("You don't see anyone like that here.");
+            return;
+        }
+
+        if (ss.IsFinished)
+        {
+            actor.OutputHandler.Send("Who do you want to transfer custody to?");
+            return;
+        }
+
+        ICharacter newEnforcer = actor.TargetActor(ss.PopSpeech());
+        if (newEnforcer == null)
+        {
+            actor.OutputHandler.Send("You don't see any enforcer like that here.");
+            return;
+        }
+
+        if (target == actor)
+        {
+            actor.OutputHandler.Send("You cannot transfer custody of yourself.");
+            return;
+        }
+
+        if (newEnforcer == actor)
+        {
+            actor.OutputHandler.Send($"{target.HowSeen(actor, true)} is already in your custody.");
+            return;
+        }
+
+        if (newEnforcer == target)
+        {
+            actor.OutputHandler.Send("You cannot transfer custody to the person in custody.");
+            return;
+        }
+
+        List<InCustodyOfEnforcer> effects = target.CombinedEffectsOfType<InCustodyOfEnforcer>()
+                                                 .Where(x => x.Enforcer == actor || actor.IsAdministrator())
+                                                 .ToList();
+        if (!effects.Any())
+        {
+            actor.OutputHandler.Send($"{target.HowSeen(actor, true)} is not in your custody.");
+            return;
+        }
+
+        List<InCustodyOfEnforcer> transferable = effects
+                                                .Where(x => x.LegalAuthority.GetEnforcementAuthority(newEnforcer) is not null ||
+                                                            newEnforcer.IsAdministrator())
+                                                .ToList();
+        if (!transferable.Any())
+        {
+            actor.OutputHandler.Send(
+                $"{newEnforcer.HowSeen(actor, true)} is not an enforcer for any jurisdiction in which you have custody of {target.HowSeen(actor)}.");
+            return;
+        }
+
+        foreach (InCustodyOfEnforcer effect in transferable)
+        {
+            effect.Enforcer = newEnforcer;
+        }
+
+        actor.OutputHandler.Handle(new QuickEmote("@ transfer|transfers custody of $1 to $2.", actor, actor, target, newEnforcer));
+        target.OutputHandler.Send(
+            $"You are now in the custody of {newEnforcer.HowSeen(target)}. You could be guilty of a crime if you move away."
+                .ColourCommand());
     }
 
     [PlayerCommand("EndCustody", "endcustody")]
@@ -1483,9 +1622,17 @@ The syntax is either #3patrols#0 or #3patrols <jurisdiction>#0 if you are an enf
                 timespan.Humanize(2, perceiver.Account.Culture, TimeUnit.Year, TimeUnit.Second)))));
     }
 
+    private static MudDateTime BailReturnDueDate(ICharacter actor, ILegalAuthority authority)
+    {
+        MudDateTime now = authority.EnforcementZones.FirstOrDefault()?.DateTime() ?? actor.Location.DateTime();
+        return now + MudTimeSpan.FromSeconds(authority.AutomaticConvictionTime.TotalSeconds);
+    }
+
     [PlayerCommand("RequestTrial", "requesttrial")]
     [RequiredCharacterState(CharacterState.Able)]
     [HelpInfo("requesttrial", @"The #3requesttrial#0 command is used when you are being held in remand for crimes you have committed, and if possible, begins a trial for you so that you can answer for your crimes. In some cases a trial may commence after you've been waiting for a while regardless of whether you request one.
+
+You must be physically held in a remand cell and not out on bail to request a trial.
 
 The syntax for this command is simply #3requesttrial#0.", AutoHelp.HelpArg)]
     protected static void RequestTrial(ICharacter actor, string input)
@@ -1514,6 +1661,12 @@ The syntax for this command is simply #3requesttrial#0.", AutoHelp.HelpArg)]
         foreach (AwaitingSentencing effect in sentences)
         {
             ILegalAuthority jurisdiction = effect.LegalAuthority;
+            if (!jurisdiction.IsInRemandCell(actor))
+            {
+                errors.Add($"you are not being held in a {jurisdiction.Name.ColourName()} remand cell");
+                continue;
+            }
+
             if (jurisdiction.CourtLocation is null)
             {
                 errors.Add($"the {jurisdiction.Name.ColourName()} jurisdiction does not have a courtroom");
@@ -1532,7 +1685,7 @@ The syntax for this command is simply #3requesttrial#0.", AutoHelp.HelpArg)]
                 continue;
             }
 
-            if (jurisdiction.Patrols.Where(x => x.PatrolStrategy.Name != "Judge").All(x => x.PatrolLeader.Location != jurisdiction.CourtLocation))
+            if (jurisdiction.Patrols.Where(x => x.PatrolStrategy.Name == "Judge").All(x => x.PatrolLeader.Location != jurisdiction.CourtLocation))
             {
                 errors.Add($"the {jurisdiction.Name.ColourName()} jurisdiction does not have a judge available");
                 continue;
@@ -1563,7 +1716,7 @@ The syntax for this command is simply #3requesttrial#0.", AutoHelp.HelpArg)]
 
     [PlayerCommand("BailOut", "bailout")]
     [RequiredCharacterState(CharacterState.Able)]
-    [HelpInfo("bailout", @"The #3bailout#0 command is used to either request bail for yourself when incarcerated or pay for the bail of someone else.
+    [HelpInfo("bailout", @"The #3bailout#0 command is used to either request bail for yourself when incarcerated or pay for the bail of someone else. A person on bail must return before their bail deadline or their bail is forfeited and they can be charged with violating bail.
 
 You must either be in custody yourself or at the prison location of the jurisdiction to use this command.
 
@@ -1679,10 +1832,9 @@ The syntax is as follows:
 
                     bailText = "with cash from your stored belongings";
                 }
-
-                authority.CalculateAndSetBail(actor);
             }
 
+            authority.CalculateAndSetBail(actor);
             actor.OutputHandler.Handle(new EmoteOutput(
                 new Emote(actor.Gameworld.GetStaticString("BailReleaseSelfInitiatedEmoteOrigin"), actor, actor),
                 flags: OutputFlags.SuppressSource));
@@ -1693,7 +1845,7 @@ The syntax is as follows:
             actor.OutputHandler.Handle(new EmoteOutput(
                 new Emote(actor.Gameworld.GetStaticString("BailReleaseSelfInitiatedEmoteDestination"), actor, actor),
                 flags: OutputFlags.SuppressSource));
-            actor.AddEffect(new OnBail(actor, authority, effect.ArrestTime));
+            actor.AddEffect(new OnBail(actor, authority, BailReturnDueDate(actor, authority)));
             return;
         }
 
@@ -1746,11 +1898,25 @@ The syntax is as follows:
             return;
         }
 
-        decimal calculatedBail = Math.Truncate(jurisdiction.KnownCrimesForIndividual(who)
+        List<ICrime> bailableCrimes = jurisdiction.KnownCrimesForIndividual(who).ToList();
+        if (bailableCrimes.Any(x => !x.Law.CanBeOfferedBail))
+        {
+            actor.OutputHandler.Send(
+                $"Some of the crimes {who.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreCanSee)} is accused of do not permit bail.");
+            return;
+        }
+
+        decimal calculatedBail = Math.Truncate(bailableCrimes
                                  .Sum(x => jurisdiction.BailCalculationProg?.Execute<decimal?>(who, x) ?? 0.0M));
+        if (calculatedBail <= 0.0M)
+        {
+            actor.OutputHandler.Send(
+                $"{who.HowSeen(actor, true, flags: PerceiveIgnoreFlags.IgnoreCanSee)} is not currently eligible for bail.");
+            return;
+        }
 
         string bailActionText;
-        if (ss.IsFinished)
+        if (!ss.IsFinished)
         {
             (IBankAccount account, string error) = Bank.FindBankAccount(ss.SafeRemainingArgument, null, actor);
             if (account is null)
@@ -1804,9 +1970,6 @@ The syntax is as follows:
             bailActionText = "with cash";
         }
 
-        MudDateTime arrestTime =
-            who.EffectsOfType<AwaitingSentencing>(x => x.LegalAuthority == jurisdiction).FirstOrDefault()?.ArrestTime ??
-            jurisdiction.EnforcementZones.First().DateTime();
         who.OutputHandler.Handle(new EmoteOutput(
             new Emote(actor.Gameworld.GetStaticString("BailReleaseExternalPartyEmoteOrigin"), who, who),
             flags: OutputFlags.SuppressSource));
@@ -1815,16 +1978,17 @@ The syntax is as follows:
         actor.OutputHandler.Send(new EmoteOutput(new Emote(
             string.Format(actor.Gameworld.GetStaticString("BailReleaseExternalPartyEmoteBailer"), bailActionText),
             actor, actor, who)));
+        jurisdiction.CalculateAndSetBail(who);
         jurisdiction.ReleaseCharacterToFreedom(who);
         who.OutputHandler.Handle(new EmoteOutput(
             new Emote(actor.Gameworld.GetStaticString("BailReleaseExternalPartyEmoteDestination"), who, who),
             flags: OutputFlags.SuppressSource));
-        actor.AddEffect(new OnBail(who, jurisdiction, arrestTime));
+        who.AddEffect(new OnBail(who, jurisdiction, BailReturnDueDate(who, jurisdiction)));
     }
 
     [PlayerCommand("ReturnBail", "returnbail")]
     [RequiredCharacterState(CharacterState.Able)]
-    [HelpInfo("returnbail", @"The #3returnbail#0 command is used to surrender yourself back to the custody of law enforcement when you are out on bail. You must do this before your bail term expires to avoid a criminal charge of skipping bail.
+    [HelpInfo("returnbail", @"The #3returnbail#0 command is used to surrender yourself back to the custody of law enforcement when you are out on bail. You must do this before your bail deadline expires to avoid forfeiting bail and potentially being charged with violating bail.
 
 You must use this command from the jurisdiction's prison location.
 
@@ -2184,13 +2348,275 @@ The syntax is as follows:
         }
     }
 
+    private static List<ILegalAuthority> JudgementAuthorities(ICharacter actor)
+    {
+        return actor.Gameworld.LegalAuthorities
+                    .Where(x => actor.IsAdministrator() || x.GetEnforcementAuthority(actor)?.CanConvict == true)
+                    .ToList();
+    }
+
+    private static string DescribeTrialDocketStatus(ICharacter defendant, ILegalAuthority authority)
+    {
+        OnTrial trial = defendant.EffectsOfType<OnTrial>(x => x.LegalAuthority == authority).FirstOrDefault();
+        if (trial is not null)
+        {
+            return trial.ManualTrial ? "PC Trial".ColourName() : "NPC Trial".ColourName();
+        }
+
+        if (defendant.AffectedBy<OnBail>(authority))
+        {
+            return "On Bail".ColourValue();
+        }
+
+        if (defendant.AffectedBy<AwaitingSentencing>(authority))
+        {
+            return authority.IsInRemandCell(defendant)
+                ? "Remand".Colour(Telnet.Yellow)
+                : "At Large / Bail Revoked".Colour(Telnet.Orange);
+        }
+
+        return "Pending".Colour(Telnet.Orange);
+    }
+
+    private static string DescribeTrialDocketSince(ICharacter defendant, ILegalAuthority authority)
+    {
+        OnBail bail = defendant.EffectsOfType<OnBail>(x => x.LegalAuthority == authority).FirstOrDefault();
+        if (bail is not null)
+        {
+            return bail.ReturnDueDate.ToString(CalendarDisplayMode.Short, TimeDisplayTypes.Short);
+        }
+
+        AwaitingSentencing awaiting = defendant.EffectsOfType<AwaitingSentencing>(x => x.LegalAuthority == authority).FirstOrDefault();
+        if (awaiting is not null)
+        {
+            return awaiting.ArrestTime.ToString(CalendarDisplayMode.Short, TimeDisplayTypes.Short);
+        }
+
+        return string.Empty;
+    }
+
+    private static void TrialDocket(ICharacter actor, StringStack ss)
+    {
+        List<ILegalAuthority> authorities = JudgementAuthorities(actor);
+        if (!authorities.Any())
+        {
+            actor.OutputHandler.Send("You are not authorised to judge criminal trials in any jurisdiction.");
+            return;
+        }
+
+        if (!ss.IsFinished)
+        {
+            ILegalAuthority authority = authorities.GetByIdOrName(ss.SafeRemainingArgument);
+            if (authority is null)
+            {
+                actor.OutputHandler.Send($"You are not authorised to judge criminal trials in any jurisdiction called {ss.SafeRemainingArgument.ColourCommand()}.");
+                return;
+            }
+
+            authorities = [authority];
+        }
+
+        StringBuilder sb = new();
+        foreach (ILegalAuthority authority in authorities.OrderBy(x => x.Name))
+        {
+            List<ICharacter> defendants = authority.KnownCrimes
+                                                  .Select(x => x.Criminal)
+                                                  .Distinct()
+                                                  .Where(x =>
+                                                      x.AffectedBy<AwaitingSentencing>(authority) ||
+                                                      x.AffectedBy<OnBail>(authority) ||
+                                                      x.AffectedBy<OnTrial>(authority)
+                                                  )
+                                                  .OrderBy(x => x.PersonalName.GetName(NameStyle.FullName))
+                                                  .ToList();
+
+            sb.AppendLine($"Trial Docket - {authority.Name.ColourName()}".GetLineWithTitleInner(actor, Telnet.Red, Telnet.BoldWhite));
+            sb.AppendLine();
+
+            if (!defendants.Any())
+            {
+                sb.AppendLine("There is nobody currently awaiting trial in this jurisdiction.");
+                sb.AppendLine();
+                continue;
+            }
+
+            sb.AppendLine(StringUtilities.GetTextTable(
+                from defendant in defendants
+                let crimes = authority.KnownCrimesForIndividual(defendant).OrderBy(x => x.RealTimeOfCrime).ToList()
+                let priors = authority.ResolvedCrimesForIndividual(defendant).Count(x => x.HasBeenConvicted)
+                select new List<string>
+                {
+                    defendant.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreCanSee),
+                    defendant.PersonalName.GetName(NameStyle.FullName),
+                    DescribeTrialDocketStatus(defendant, authority),
+                    DescribeTrialDocketSince(defendant, authority),
+                    crimes.Select(x => x.Id.ToStringN0(actor)).ListToString(),
+                    crimes.Select(x => x.Name).Distinct().ListToString(),
+                    priors.ToStringN0(actor)
+                },
+                new List<string>
+                {
+                    "Description",
+                    "Name",
+                    "Status",
+                    "Since/Due",
+                    "Crime IDs",
+                    "Charges",
+                    "Priors"
+                },
+                actor,
+                Telnet.Red
+            ));
+            sb.AppendLine();
+            sb.AppendLine("Use #3crimeinfo <id>#0 for charge details, #3rapsheet <visible target>#0 for full local history, and #3trial summon <target>#0 from the courtroom to begin a PC-held trial.".SubstituteANSIColour());
+            sb.AppendLine();
+        }
+
+        actor.OutputHandler.Send(sb.ToString());
+    }
+
+    private static void TrialSummon(ICharacter actor, StringStack ss)
+    {
+        if (ss.IsFinished)
+        {
+            actor.OutputHandler.Send("Who do you want summoned to court for trial?");
+            return;
+        }
+
+        ILegalAuthority jurisdiction = JudgementAuthorities(actor).FirstOrDefault(x => x.CourtLocation == actor.Location);
+        if (jurisdiction is null)
+        {
+            actor.OutputHandler.Send("You must be in the courtroom of a jurisdiction where you are authorised to judge trials.");
+            return;
+        }
+
+        if (jurisdiction.CourtLocation is null)
+        {
+            actor.OutputHandler.Send($"The {jurisdiction.Name.ColourName()} jurisdiction does not have a courtroom.");
+            return;
+        }
+
+        string targetText = ss.PopSpeech();
+        ICharacter target = actor.TargetActor(targetText);
+        List<ICharacter> remandPrisoners = jurisdiction.CellLocations
+                                                       .SelectMany(x => x.Characters)
+                                                       .Where(x => x.AffectedBy<AwaitingSentencing>(jurisdiction))
+                                                       .ToList();
+        target ??= remandPrisoners.GetFromItemListByKeywordIncludingNames(targetText, actor);
+        if (target is null)
+        {
+            actor.OutputHandler.Send($"There is no remand prisoner or present defendant like {targetText.ColourCommand()} in the {jurisdiction.Name.ColourName()} jurisdiction.");
+            return;
+        }
+
+        if (target == actor)
+        {
+            actor.OutputHandler.Send("You cannot summon yourself to trial.");
+            return;
+        }
+
+        if (target.IdentityIsObscuredTo(actor))
+        {
+            actor.OutputHandler.Send($"You aren't sure who {target.HowSeen(actor)} is, so you can't summon them to trial.");
+            return;
+        }
+
+        if (!CanManuallyJudge(actor, target, jurisdiction, out string judgementError))
+        {
+            actor.OutputHandler.Send(judgementError);
+            return;
+        }
+
+        List<ICrime> crimes = jurisdiction.KnownCrimesForIndividual(target)
+                                          .OrderBy(x => x.RealTimeOfCrime)
+                                          .ToList();
+        if (!crimes.Any())
+        {
+            actor.OutputHandler.Send($"{target.HowSeen(actor, true, flags: PerceiveIgnoreFlags.IgnoreCanSee)} has no known unfinalised crimes in the {jurisdiction.Name.ColourName()} jurisdiction.");
+            return;
+        }
+
+        if (target.AffectedBy<OnBail>(jurisdiction))
+        {
+            actor.OutputHandler.Send($"{target.HowSeen(actor, true, flags: PerceiveIgnoreFlags.IgnoreCanSee)} is currently on bail and must return to custody before they can be summoned to trial.");
+            return;
+        }
+
+        if (!target.ColocatedWith(actor) && !remandPrisoners.Contains(target))
+        {
+            actor.OutputHandler.Send($"{target.HowSeen(actor, true, flags: PerceiveIgnoreFlags.IgnoreCanSee)} is not present in court or held on remand in this jurisdiction.");
+            return;
+        }
+
+        if (target.AffectedBy<OnTrial>())
+        {
+            actor.OutputHandler.Send($"{target.HowSeen(actor, true, flags: PerceiveIgnoreFlags.IgnoreCanSee)} is already on trial.");
+            return;
+        }
+
+        if (jurisdiction.CourtLocation.Characters.Any(x => x.EffectsOfType<OnTrial>(y => y.LegalAuthority == jurisdiction).Any()))
+        {
+            actor.OutputHandler.Send($"The {jurisdiction.Name.ColourName()} court is already hearing a trial.");
+            return;
+        }
+
+        target.RemoveAllEffects<AwaitingSentencing>(x => x.LegalAuthority == jurisdiction, true);
+        target.RemoveAllEffects<InCustodyOfEnforcer>(x => x.LegalAuthority == jurisdiction, true);
+        target.AddEffect(new OnTrial(target, jurisdiction, DateTime.UtcNow, crimes, manualTrial: true));
+
+        if (target.Location == jurisdiction.CourtLocation)
+        {
+            actor.OutputHandler.Handle(new QuickEmote("@ call|calls $1 before the court to answer the charges.", actor, actor, target));
+            return;
+        }
+
+        target.OutputHandler.Handle(new EmoteOutput(
+            new Emote(actor.Gameworld.GetStaticString("FetchCriminalForTrialEmoteCell"), target, target),
+            flags: OutputFlags.SuppressSource));
+        target.OutputHandler.Send(new EmoteOutput(
+            new Emote(actor.Gameworld.GetStaticString("FetchCriminalForTrialEmoteSelf"), target, target)));
+        target.Movement?.CancelForMoverOnly(target);
+        target.RemoveAllEffects(x => x.IsEffectType<IActionEffect>());
+        target.Location.Leave(target);
+        target.RoomLayer = RoomLayer.GroundLevel;
+        jurisdiction.CourtLocation.Enter(target);
+        target.Body.Look(true);
+        target.OutputHandler.Handle(new EmoteOutput(
+            new Emote(actor.Gameworld.GetStaticString("FetchCriminalForTrialEmoteCourt"), target, target),
+            flags: OutputFlags.SuppressSource));
+    }
+
     [PlayerCommand("Trial", "trial")]
     [RequiredCharacterState(CharacterState.Able)]
-    [HelpInfo("trial", @"The #3trial#0 command will show you details about any trial currently taking place in your location.
+    [HelpInfo("trial", @"The #3trial#0 command will show you details about any trial currently taking place in your location. Judges can also view the trial docket for their jurisdictions and summon remand prisoners to court for PC-held trials.
 
-The syntax is simply #3trial#0.", AutoHelp.HelpArg)]
+The syntax is as follows:
+
+	#3trial#0 - view the active trial in your current location
+	#3trial docket [jurisdiction]#0 - view people awaiting trial, their charges and prior convictions
+	#3trial summon <target>#0 - summon a remand prisoner to court for a PC-held trial", AutoHelp.HelpArg)]
     protected static void Trial(ICharacter actor, string input)
     {
+        StringStack ss = new(input.RemoveFirstWord());
+        if (!ss.IsFinished)
+        {
+            string command = ss.PopForSwitch();
+            switch (command)
+            {
+                case "docket":
+                case "list":
+                    TrialDocket(actor, ss);
+                    return;
+                case "summon":
+                case "call":
+                    TrialSummon(actor, ss);
+                    return;
+                default:
+                    actor.OutputHandler.Send("Do you want to view the trial #3docket#0 or #3summon#0 someone to trial?".SubstituteANSIColour());
+                    return;
+            }
+        }
+
         OnTrial trial = actor.Location.Characters.SelectNotNull(x => x.EffectsOfType<OnTrial>().FirstOrDefault()).FirstOrDefault();
         if (trial is null)
         {
@@ -2210,7 +2636,7 @@ The syntax is simply #3trial#0.", AutoHelp.HelpArg)]
                                   y.Patrol.PatrolStrategy.Name == "Judge"
                                   )
                               );
-        sb.AppendLine($"Judge: {judge?.HowSeen(actor) ?? "Unknown".ColourError()}");
+        sb.AppendLine($"Judge: {(trial.ManualTrial ? "PC-held trial".ColourName() : judge?.HowSeen(actor) ?? "Unknown".ColourError())}");
         sb.AppendLine($"Prosecutor: {trial.Prosecutor?.HowSeen(actor) ?? "Unknown".ColourError()}");
         sb.AppendLine($"Defense Lawyer: {trial.Defender?.HowSeen(actor) ?? "Unknown".ColourError()}");
         sb.AppendLine($"Trial Phase: {trial.Phase.DescribeEnum(true).ColourValue()}");

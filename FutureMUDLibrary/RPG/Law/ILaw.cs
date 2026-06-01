@@ -29,6 +29,6 @@ namespace MudSharp.RPG.Law
         void Delete();
         void RemoveAllReferencesTo(ILegalClass legalClass);
         void ApplyInflation(decimal rate);
-        bool IsCrime(ICharacter criminal, ICharacter victim, IGameItem item);
+        bool IsCrime(ICharacter criminal, ICharacter victim, IGameItem item, string additionalInformation = "");
     }
 }

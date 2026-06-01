@@ -15,6 +15,8 @@ Current item definitions are seeded from:
 | `DatabaseSeeder/Seeders/ItemSeeder.Rework.AntiquityWriting.cs` | 33 |
 | Total | 1340 |
 
+Cross-era foundation note: `ItemSeeder.Rework.Medieval.cs` now owns the shared `historic_*` workshop apparatus that is seeded when either `antiquity` or `medieval` is selected. Antiquity-specific garment, weapon, jewellery, and foodway stable references remain unchanged; the shared items are additions rather than renames.
+
 Current craft definitions are seeded from:
 
 | Source | Craft Surface |
@@ -55,6 +57,7 @@ The suite-specific docs now catalogue every stable reference explicitly named by
 - Raw hides from `AnimalButcherySeeder` now have a bridge craft into raw `animal skin` commodity stock before the existing prepared-hide and tanning chain.
 - Agriculture herd definitions now define secondary outputs and the stock `Collect Herd Products` operation can release milk, wool, eggs, and manure commodity piles from established pasture herds, including a horse-herd milk path for kumis-facing cultures.
 - Active antiquity craft paths now convert `Seeded Yield` agricultural commodity back into `Seeds`, strain raw milk into liquid milk amphorae, compost raw manure with crop refuse, and process indigo crop, pomegranate, walnut, and saffron crocus into derivative dye or spice stock.
+- Shared `historic_*` foundation items are available to antiquity installs as cross-era workshop support without replacing existing `antiquity_*` stable references.
 
 ## Second-Pass Resolution
 

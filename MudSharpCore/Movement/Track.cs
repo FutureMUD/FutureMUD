@@ -344,6 +344,11 @@ public class Track : LateInitialisingItem, ITrack
         sb.Append(" V / ");
         sb.Append(TrackIntensityOlfactory.ToStringP2Colour(actor));
         sb.Append(" O)");
+        if (TrackCircumstances.HasFlag(TrackCircumstances.MagicallyMarked))
+        {
+            sb.Append(" ");
+            sb.Append("[magically marked]".Colour(Telnet.BoldCyan));
+        }
         return sb.ToString();
     }
 }

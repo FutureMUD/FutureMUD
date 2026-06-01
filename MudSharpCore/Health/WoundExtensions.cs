@@ -7,6 +7,7 @@ using MudSharp.GameItems;
 using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
+using MudSharp.RPG.Law;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -60,6 +61,7 @@ public static class WoundExtensions
             }
 
             wound.Parent.ProcessPassiveWound(wound);
+            AutomaticCrimeExtensions.CheckGreviousBodilyHarmForWound(wound);
         }
 
         foreach (IMortalPerceiver parent in parents)

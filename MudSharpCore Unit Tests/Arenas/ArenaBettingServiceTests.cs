@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using MudSharp.Accounts;
 using MudSharp.Arenas;
 using MudSharp.Character;
 using MudSharp.Database;
@@ -9,6 +10,7 @@ using MudSharp.Economy.Currency;
 using MudSharp.Framework;
 using MudSharp.Models;
 using MudSharp.PerceptionEngine;
+using MudSharp.RPG.Law;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,7 +28,7 @@ public class ArenaBettingServiceTests
         return new FuturemudDatabaseContext(options);
     }
 
-    private static ArenaBettingService CreateService(FuturemudDatabaseContext context, Mock<IArenaFinanceService> financeMock, Mock<IArenaBetPaymentService> paymentMock, Dictionary<long, ICharacter> characters)
+    private static ArenaBettingService CreateService(FuturemudDatabaseContext context, Mock<IArenaFinanceService> financeMock, Mock<IArenaBetPaymentService> paymentMock, Dictionary<long, ICharacter> characters, IEnumerable<ILegalAuthority>? legalAuthorities = null)
     {
         Mock<IUneditableAll<ICharacter>> charactersSet = new();
         charactersSet.Setup(x => x.Get(It.IsAny<long>())).Returns<long>(id => characters.TryGetValue(id, out ICharacter? value) ? value : null!);
@@ -36,6 +38,12 @@ public class ArenaBettingServiceTests
         Mock<IFuturemud> gameworld = new();
         gameworld.Setup(x => x.Characters).Returns(charactersSet.Object);
         gameworld.Setup(x => x.TryGetCharacter(It.IsAny<long>(), It.IsAny<bool>())).Returns<long, bool>((id, _) => characters.TryGetValue(id, out ICharacter? value) ? value : null!);
+        All<ILegalAuthority> authoritySet = new();
+        foreach (ILegalAuthority authority in legalAuthorities ?? Enumerable.Empty<ILegalAuthority>())
+        {
+            authoritySet.Add(authority);
+        }
+        gameworld.SetupGet(x => x.LegalAuthorities).Returns(authoritySet);
         return new ArenaBettingService(gameworld.Object, financeMock.Object, paymentMock.Object, () => context);
     }
 
@@ -76,6 +84,15 @@ public class ArenaBettingServiceTests
         participant.SetupGet(x => x.SideIndex).Returns(sideIndex);
         participant.SetupGet(x => x.StartingRating).Returns(startingRating);
         return participant.Object;
+    }
+
+    private static Mock<ILegalAuthority> CreateLegalAuthority(long id)
+    {
+        Mock<ILegalAuthority> authority = new();
+        authority.SetupGet(x => x.Id).Returns(id);
+        authority.SetupGet(x => x.Name).Returns($"Authority {id}");
+        authority.SetupGet(x => x.FrameworkItemType).Returns("LegalAuthority");
+        return authority;
     }
 
     private static void SeedArenaGraph(FuturemudDatabaseContext context, long arenaId, long eventTypeId, long eventId,
@@ -168,6 +185,134 @@ public class ArenaBettingServiceTests
         Assert.IsTrue(bet.FixedDecimalOdds.HasValue);
         arena.Verify(x => x.Credit(100m, It.Is<string>(s => s.Contains("stake"))), Times.Once);
         paymentMock.Verify(x => x.CollectStake(actor.Object, evt, 100m), Times.Once);
+    }
+
+    [TestMethod]
+    public void PlaceBet_GamblingCrimeConfigured_ReportsCrimeAfterSuccessfulStakeCollection()
+    {
+        using FuturemudDatabaseContext context = BuildContext();
+        Mock<IArenaFinanceService> financeMock = new();
+        Mock<IArenaBetPaymentService> paymentMock = new();
+        var stakeCollected = false;
+        paymentMock.Setup(x => x.CollectStake(It.IsAny<ICharacter>(), It.IsAny<IArenaEvent>(), It.IsAny<decimal>()))
+                   .Callback(() => stakeCollected = true)
+                   .Returns((true, string.Empty));
+        Mock<IAccount> account = new();
+        account.SetupGet(x => x.ActLawfully).Returns(false);
+        Mock<ICharacter> actor = new();
+        actor.Setup(x => x.Id).Returns(10L);
+        actor.SetupGet(x => x.Account).Returns(account.Object);
+        Dictionary<long, ICharacter> characters = new()
+        { { 10L, actor.Object } };
+        Mock<ICombatArena> arena = new();
+        arena.SetupGet(x => x.Id).Returns(77L);
+        IArenaEvent evt = BuildEvent(arena, BettingModel.FixedOdds, ArenaEventState.RegistrationOpen);
+        Mock<ILegalAuthority> authority = CreateLegalAuthority(99L);
+        authority.Setup(x => x.CheckPossibleCrime(actor.Object, CrimeTypes.Gambling, null!, null!,
+                It.Is<string>(s => s.Contains("automatic=arena-bet") && s.Contains("stake=100")),
+                null!, true))
+            .Callback(() => Assert.IsTrue(stakeCollected))
+            .Returns(Array.Empty<ICrime>());
+        ArenaBettingService service = CreateService(context, financeMock, paymentMock, characters,
+            new[] { authority.Object });
+
+        service.PlaceBet(actor.Object, evt, 0, 100m);
+
+        authority.Verify(x => x.CheckPossibleCrime(actor.Object, CrimeTypes.Gambling, null!, null!,
+            It.Is<string>(s => s.Contains("automatic=arena-bet") && s.Contains("stake=100")),
+            null!, true), Times.Once);
+        paymentMock.Verify(x => x.CollectStake(actor.Object, evt, 100m), Times.Once);
+    }
+
+    [TestMethod]
+    public void PlaceBet_StakeCollectionFails_DoesNotReportGamblingCrime()
+    {
+        using FuturemudDatabaseContext context = BuildContext();
+        Mock<IArenaFinanceService> financeMock = new();
+        Mock<IArenaBetPaymentService> paymentMock = new();
+        paymentMock.Setup(x => x.CollectStake(It.IsAny<ICharacter>(), It.IsAny<IArenaEvent>(), It.IsAny<decimal>()))
+                   .Returns((false, "no funds"));
+        Mock<ICharacter> actor = new();
+        actor.Setup(x => x.Id).Returns(10L);
+        Dictionary<long, ICharacter> characters = new()
+        { { 10L, actor.Object } };
+        Mock<ICombatArena> arena = new();
+        arena.SetupGet(x => x.Id).Returns(77L);
+        IArenaEvent evt = BuildEvent(arena, BettingModel.FixedOdds, ArenaEventState.RegistrationOpen);
+        Mock<ILegalAuthority> authority = CreateLegalAuthority(99L);
+        ArenaBettingService service = CreateService(context, financeMock, paymentMock, characters,
+            new[] { authority.Object });
+
+        Assert.ThrowsException<InvalidOperationException>(() => service.PlaceBet(actor.Object, evt, 0, 100m));
+
+        Assert.AreEqual(0, context.ArenaBets.Count());
+        authority.Verify(x => x.CheckPossibleCrime(It.IsAny<ICharacter>(), It.IsAny<CrimeTypes>(),
+            It.IsAny<ICharacter>(), It.IsAny<MudSharp.GameItems.IGameItem>(), It.IsAny<string>(),
+            It.IsAny<IEnumerable<ICharacter>>(), It.IsAny<bool>()), Times.Never);
+        arena.Verify(x => x.Credit(It.IsAny<decimal>(), It.IsAny<string>()), Times.Never);
+    }
+
+    [TestMethod]
+    public void PlaceBet_InvalidSide_DoesNotCollectStakeOrReportCrime()
+    {
+        using FuturemudDatabaseContext context = BuildContext();
+        Mock<IArenaFinanceService> financeMock = new();
+        Mock<IArenaBetPaymentService> paymentMock = new();
+        Mock<ICharacter> actor = new();
+        actor.Setup(x => x.Id).Returns(10L);
+        Dictionary<long, ICharacter> characters = new()
+        { { 10L, actor.Object } };
+        Mock<ICombatArena> arena = new();
+        arena.SetupGet(x => x.Id).Returns(77L);
+        IArenaEvent evt = BuildEvent(arena, BettingModel.FixedOdds, ArenaEventState.RegistrationOpen);
+        Mock<ILegalAuthority> authority = CreateLegalAuthority(99L);
+        ArenaBettingService service = CreateService(context, financeMock, paymentMock, characters,
+            new[] { authority.Object });
+
+        Assert.ThrowsException<ArgumentOutOfRangeException>(() => service.PlaceBet(actor.Object, evt, 99, 100m));
+
+        paymentMock.Verify(x => x.CollectStake(It.IsAny<ICharacter>(), It.IsAny<IArenaEvent>(), It.IsAny<decimal>()),
+            Times.Never);
+        authority.Verify(x => x.CheckPossibleCrime(It.IsAny<ICharacter>(), It.IsAny<CrimeTypes>(),
+            It.IsAny<ICharacter>(), It.IsAny<MudSharp.GameItems.IGameItem>(), It.IsAny<string>(),
+            It.IsAny<IEnumerable<ICharacter>>(), It.IsAny<bool>()), Times.Never);
+        Assert.AreEqual(0, context.ArenaBets.Count());
+    }
+
+    [TestMethod]
+    public void PlaceBet_ActLawfullyWouldBeGamblingCrime_DoesNotCollectStake()
+    {
+        using FuturemudDatabaseContext context = BuildContext();
+        Mock<IArenaFinanceService> financeMock = new();
+        Mock<IArenaBetPaymentService> paymentMock = new();
+        Mock<IOutputHandler> outputHandler = new();
+        Mock<IAccount> account = new();
+        account.SetupGet(x => x.ActLawfully).Returns(true);
+        Mock<ICharacter> actor = new();
+        actor.Setup(x => x.Id).Returns(10L);
+        actor.SetupGet(x => x.Account).Returns(account.Object);
+        actor.SetupGet(x => x.OutputHandler).Returns(outputHandler.Object);
+        Dictionary<long, ICharacter> characters = new()
+        { { 10L, actor.Object } };
+        Mock<ICombatArena> arena = new();
+        arena.SetupGet(x => x.Id).Returns(77L);
+        IArenaEvent evt = BuildEvent(arena, BettingModel.FixedOdds, ArenaEventState.RegistrationOpen);
+        Mock<ILegalAuthority> authority = CreateLegalAuthority(99L);
+        authority.Setup(x => x.WouldBeACrime(actor.Object, CrimeTypes.Gambling, null!, null!,
+                It.IsAny<string>()))
+            .Returns(true);
+        ArenaBettingService service = CreateService(context, financeMock, paymentMock, characters,
+            new[] { authority.Object });
+
+        Assert.ThrowsException<InvalidOperationException>(() => service.PlaceBet(actor.Object, evt, 0, 100m));
+
+        paymentMock.Verify(x => x.CollectStake(It.IsAny<ICharacter>(), It.IsAny<IArenaEvent>(), It.IsAny<decimal>()),
+            Times.Never);
+        authority.Verify(x => x.CheckPossibleCrime(It.IsAny<ICharacter>(), It.IsAny<CrimeTypes>(), It.IsAny<ICharacter>(),
+            It.IsAny<MudSharp.GameItems.IGameItem>(), It.IsAny<string>(), It.IsAny<IEnumerable<ICharacter>>(),
+            It.IsAny<bool>()), Times.Never);
+        outputHandler.Verify(x => x.Send(It.Is<string>(s => s.Contains("That action would be a crime")),
+            It.IsAny<bool>(), It.IsAny<bool>()), Times.Once);
     }
 
     [TestMethod]

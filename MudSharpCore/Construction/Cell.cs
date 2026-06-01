@@ -29,12 +29,14 @@ using MudSharp.FutureProg;
 using MudSharp.FutureProg.Variables;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Interfaces;
+using MudSharp.Magic;
 using MudSharp.Models;
 using MudSharp.Movement;
 using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.RPG.Checks;
+using MudSharp.RPG.Law;
 using MudSharp.TimeAndDate.Date;
 using MudSharp.TimeAndDate.Time;
 using MudSharp.Work.Agriculture;
@@ -241,6 +243,7 @@ public partial class Cell : Location, IDisposable, ICell
             if (mergeTarget != null)
             {
                 mergeTarget.Merge(thing);
+                new MagicPortalTopologyService().RebuildNetworksForItem(Gameworld, thing);
                 thing.Delete();
                 return;
             }
@@ -263,6 +266,7 @@ public partial class Cell : Location, IDisposable, ICell
 
         ContentsChanged = true;
         CheckFallExitStatus();
+        new MagicPortalTopologyService().RebuildNetworksForItem(Gameworld, thing);
     }
 
     private RoomLayer HandleEnterLayers(IGameItem thing)
@@ -298,6 +302,7 @@ public partial class Cell : Location, IDisposable, ICell
         Room.Extract(thing);
         ContentsChanged = true;
         CheckFallExitStatus();
+        new MagicPortalTopologyService().RebuildNetworksForItem(Gameworld, thing);
     }
 
     public IRoom Room { get; }
@@ -688,6 +693,13 @@ public partial class Cell : Location, IDisposable, ICell
                 movingCharacter.Movement?.Exit, witness);
         }
 
+        if (exit is not null && !noSave)
+        {
+            var isDraggedMovementTarget = movingCharacter.Movement?.Targets.Contains(movingCharacter) == true;
+            AutomaticCrimeExtensions.CheckLocationEntryCrimes(movingCharacter, this, exit,
+                !isDraggedMovementTarget);
+        }
+
         CheckFallExitStatus();
         if (movingCharacter.CurrentProject.Project == null)
         {
@@ -982,6 +994,12 @@ public partial class Cell : Location, IDisposable, ICell
             EffectsChanged = false;
         }
 
+        if (_surfaceLiquidChanged)
+        {
+            dbcell.SurfaceLiquidData = SaveSurfaceLiquidState();
+            _surfaceLiquidChanged = false;
+        }
+
         if (HooksChanged)
         {
             FMDB.Context.HooksPerceivables.RemoveRange(dbcell.HooksPerceivables);
@@ -1042,6 +1060,7 @@ public partial class Cell : Location, IDisposable, ICell
         Movements = new List<IMovement>();
         LoadHooks(cell.HooksPerceivables, "Cell");
         LoadEffects(XElement.Parse(cell.EffectData.IfNullOrWhiteSpace("<Effects/>")));
+        LoadSurfaceLiquidState(cell.SurfaceLiquidData);
         foreach (CellsRangedCovers cover in cell.CellsRangedCovers)
         {
             _localCover.Add(Gameworld.RangedCovers.Get(cover.RangedCoverId));

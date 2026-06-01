@@ -232,6 +232,536 @@ internal class ManipulationModule : Module<ICharacter>
 		return success && amount > 0.0;
 	}
 
+	private static string DescribeMeasurement(ICharacter actor, MeasurementResult result)
+	{
+		return actor.Gameworld.UnitManager.DescribeExact(result.ReportedValue, result.UnitType, actor).ColourValue();
+	}
+
+	private static bool TryParseCalibrationBias(ICharacter actor, IMeasuringInstrument instrument, string text,
+		out double bias, out bool percentageBias)
+	{
+		if (text.Contains('%') || text.EndsWith("percent", StringComparison.InvariantCultureIgnoreCase) ||
+		    text.EndsWith("percentage", StringComparison.InvariantCultureIgnoreCase))
+		{
+			percentageBias = true;
+			return text.TryParsePercentage(actor.Account.Culture, out bias);
+		}
+
+		percentageBias = false;
+		if (actor.Gameworld.UnitManager.TryGetBaseUnits(text, instrument.UnitType, actor, out bias))
+		{
+			return true;
+		}
+
+		return double.TryParse(text, actor, out bias);
+	}
+
+	[PlayerCommand("Seal", "seal")]
+	[RequiredCharacterState(CharacterState.Able)]
+	[DelayBlock("general", "You must first stop {0} before you can do that.")]
+	[NoCombatCommand]
+	[NoMovementCommand]
+	[HelpInfo("seal",
+		@"The #3seal#0 command is used to apply a seal stamp to an item with a sealable component.
+
+The syntax is #3seal <target> with <stamp> [using <medium>]#0.", AutoHelp.HelpArgOrNoArg)]
+	protected static void Seal(ICharacter actor, string command)
+	{
+		var ss = new StringStack(command.RemoveFirstWord());
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send($"The syntax is {"seal <target> with <stamp> [using <medium>]".ColourCommand()}.");
+			return;
+		}
+
+		var targetText = ss.PopSpeech();
+		if (ss.IsFinished || !ss.PopSpeech().EqualTo("with"))
+		{
+			actor.OutputHandler.Send($"The syntax is {"seal <target> with <stamp> [using <medium>]".ColourCommand()}.");
+			return;
+		}
+
+		var stampText = ss.PopSpeech();
+		if (string.IsNullOrWhiteSpace(stampText))
+		{
+			actor.OutputHandler.Send("Which stamp do you want to use?");
+			return;
+		}
+
+		string mediumText = string.Empty;
+		if (!ss.IsFinished)
+		{
+			if (!ss.PopSpeech().EqualTo("using") || ss.IsFinished)
+			{
+				actor.OutputHandler.Send($"The syntax is {"seal <target> with <stamp> [using <medium>]".ColourCommand()}.");
+				return;
+			}
+
+			mediumText = ss.SafeRemainingArgument;
+		}
+
+		var target = actor.TargetItem(targetText);
+		if (target is null)
+		{
+			actor.OutputHandler.Send("You don't see anything like that to seal.");
+			return;
+		}
+
+		var stampItem = actor.TargetItem(stampText);
+		if (stampItem is null)
+		{
+			actor.OutputHandler.Send("You don't see any seal stamp like that.");
+			return;
+		}
+
+		IGameItem? medium = null;
+		if (!string.IsNullOrWhiteSpace(mediumText))
+		{
+			medium = actor.TargetItem(mediumText);
+			if (medium is null)
+			{
+				actor.OutputHandler.Send("You don't see any sealing medium like that.");
+				return;
+			}
+		}
+
+		var sealable = target.GetItemType<ISealable>();
+		if (sealable is null)
+		{
+			actor.OutputHandler.Send($"{target.HowSeen(actor, true)} is not something that can be sealed.");
+			return;
+		}
+
+		var stamp = stampItem.GetItemType<ISealStamp>();
+		if (stamp is null)
+		{
+			actor.OutputHandler.Send($"{stampItem.HowSeen(actor, true)} is not a seal stamp.");
+			return;
+		}
+
+		var (truth, error) = actor.CanManipulateItem(target);
+		if (!truth)
+		{
+			actor.OutputHandler.Send(error);
+			return;
+		}
+
+		(truth, error) = actor.CanManipulateItem(stampItem);
+		if (!truth)
+		{
+			actor.OutputHandler.Send(error);
+			return;
+		}
+
+		if (medium is not null)
+		{
+			(truth, error) = actor.CanManipulateItem(medium);
+			if (!truth)
+			{
+				actor.OutputHandler.Send(error);
+				return;
+			}
+		}
+
+		if (!sealable.CanSeal(actor, stamp, medium, out error))
+		{
+			actor.OutputHandler.Send(error);
+			return;
+		}
+
+		sealable.Seal(actor, stamp, medium);
+		actor.OutputHandler.Handle(medium is null
+			? new EmoteOutput(new Emote("@ seal|seals $0 with $1.", actor, target, stampItem))
+			: new EmoteOutput(new Emote("@ seal|seals $0 with $1 using $2.", actor, target, stampItem, medium)));
+	}
+
+	[PlayerCommand("Break", "break")]
+	[RequiredCharacterState(CharacterState.Able)]
+	[DelayBlock("general", "You must first stop {0} before you can do that.")]
+	[NoCombatCommand]
+	[NoMovementCommand]
+	[HelpInfo("break seal",
+		"The #3break seal#0 command breaks the seal on a sealed item without otherwise opening, reading, or writing it. The syntax is #3break seal <target>#0.",
+		AutoHelp.HelpArgOrNoArg)]
+	protected static void Break(ICharacter actor, string command)
+	{
+		var ss = new StringStack(command.RemoveFirstWord());
+		if (ss.IsFinished || !ss.PopSpeech().EqualTo("seal"))
+		{
+			actor.OutputHandler.Send($"The syntax is {"break seal <target>".ColourCommand()}.");
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which sealed item do you want to break the seal on?");
+			return;
+		}
+
+		var target = actor.TargetItem(ss.SafeRemainingArgument);
+		if (target is null)
+		{
+			actor.OutputHandler.Send("You don't see anything like that to break a seal on.");
+			return;
+		}
+
+		var sealable = target.GetItemType<ISealable>();
+		if (sealable is null)
+		{
+			actor.OutputHandler.Send($"{target.HowSeen(actor, true)} is not something that can be sealed.");
+			return;
+		}
+
+		var (truth, error) = actor.CanManipulateItem(target);
+		if (!truth)
+		{
+			actor.OutputHandler.Send(error);
+			return;
+		}
+
+		if (!sealable.BreakSeal(actor, "manually broken"))
+		{
+			actor.OutputHandler.Send($"{target.HowSeen(actor, true)} is not currently sealed.");
+		}
+	}
+
+	[PlayerCommand("Inspect", "inspect")]
+	[HelpInfo("inspect",
+		@"The #3inspect#0 command supports focused item inspections.
+
+	#3inspect seal <target>#0 - inspects seal state and impression metadata
+	#3inspect calibration <instrument>#0 - inspects measuring-instrument calibration", AutoHelp.HelpArgOrNoArg)]
+	protected static void Inspect(ICharacter actor, string command)
+	{
+		var ss = new StringStack(command.RemoveFirstWord());
+		switch (ss.PopForSwitch())
+		{
+			case "seal":
+				InspectSeal(actor, ss);
+				return;
+			case "calibration":
+			case "calibrate":
+			case "cal":
+				InspectCalibration(actor, ss);
+				return;
+			default:
+				actor.OutputHandler.Send($"The syntax is {"inspect seal <target>".ColourCommand()} or {"inspect calibration <instrument>".ColourCommand()}.");
+				return;
+		}
+	}
+
+	private static void InspectSeal(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which item do you want to inspect the seal on?");
+			return;
+		}
+
+		var target = actor.TargetItem(ss.SafeRemainingArgument);
+		if (target is null)
+		{
+			actor.OutputHandler.Send("You don't see anything like that to inspect a seal on.");
+			return;
+		}
+
+		var sealable = target.GetItemType<ISealable>();
+		if (sealable is null)
+		{
+			actor.OutputHandler.Send($"{target.HowSeen(actor, true)} is not something that can be sealed.");
+			return;
+		}
+
+		actor.OutputHandler.Send(sealable.InspectSeal(actor));
+	}
+
+	private static void InspectCalibration(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which measuring instrument do you want to inspect?");
+			return;
+		}
+
+		var target = actor.TargetItem(ss.SafeRemainingArgument);
+		if (target is null)
+		{
+			actor.OutputHandler.Send("You don't see any measuring instrument like that.");
+			return;
+		}
+
+		var instrument = target.GetItemType<IMeasuringInstrument>();
+		if (instrument is null)
+		{
+			actor.OutputHandler.Send($"{target.HowSeen(actor, true)} is not a measuring instrument.");
+			return;
+		}
+
+		actor.OutputHandler.Send(instrument.InspectCalibration(actor));
+	}
+
+	[PlayerCommand("Compare", "compare")]
+	[HelpInfo("compare",
+		"The #3compare seal#0 command compares a seal impression against a seal stamp or another sealed item. The syntax is #3compare seal <sealed item> with <stamp|sealed item>#0.",
+		AutoHelp.HelpArgOrNoArg)]
+	protected static void Compare(ICharacter actor, string command)
+	{
+		var ss = new StringStack(command.RemoveFirstWord());
+		if (ss.IsFinished || !ss.PopSpeech().EqualTo("seal"))
+		{
+			actor.OutputHandler.Send($"The syntax is {"compare seal <sealed item> with <stamp|sealed item>".ColourCommand()}.");
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which sealed item do you want to compare?");
+			return;
+		}
+
+		var sealedText = ss.PopSpeech();
+		if (ss.IsFinished || !ss.PopSpeech().EqualTo("with") || ss.IsFinished)
+		{
+			actor.OutputHandler.Send($"The syntax is {"compare seal <sealed item> with <stamp|sealed item>".ColourCommand()}.");
+			return;
+		}
+
+		var comparisonText = ss.SafeRemainingArgument;
+		var sealedItem = actor.TargetItem(sealedText);
+		if (sealedItem is null)
+		{
+			actor.OutputHandler.Send("You don't see any sealed item like that.");
+			return;
+		}
+
+		var sealable = sealedItem.GetItemType<ISealable>();
+		if (sealable?.CurrentSeal is null)
+		{
+			actor.OutputHandler.Send($"{sealedItem.HowSeen(actor, true)} does not have any seal impression to compare.");
+			return;
+		}
+
+		var comparisonItem = actor.TargetItem(comparisonText);
+		if (comparisonItem is null)
+		{
+			actor.OutputHandler.Send("You don't see anything like that to compare against.");
+			return;
+		}
+
+		var stamp = comparisonItem.GetItemType<ISealStamp>();
+		var otherSealable = comparisonItem.GetItemType<ISealable>();
+		var matches = stamp is not null
+			? sealable.SealMatches(stamp)
+			: otherSealable is not null && sealable.SealMatches(otherSealable);
+		if (stamp is null && otherSealable is null)
+		{
+			actor.OutputHandler.Send($"{comparisonItem.HowSeen(actor, true)} is neither a seal stamp nor an item with a seal impression.");
+			return;
+		}
+
+		actor.OutputHandler.Send(matches
+			? $"{sealedItem.HowSeen(actor, true)} appears to match {comparisonItem.HowSeen(actor)}."
+			: $"{sealedItem.HowSeen(actor, true)} does not appear to match {comparisonItem.HowSeen(actor)}.");
+	}
+
+	[PlayerCommand("Weigh", "weigh")]
+	[RequiredCharacterState(CharacterState.Able)]
+	[DelayBlock("general", "You must first stop {0} before you can do that.")]
+	[NoCombatCommand]
+	[NoMovementCommand]
+	[HelpInfo("weigh",
+		"The #3weigh#0 command weighs an item using a measuring instrument. The syntax is #3weigh <item> on <instrument>#0.",
+		AutoHelp.HelpArgOrNoArg)]
+	protected static void Weigh(ICharacter actor, string command)
+	{
+		var ss = new StringStack(command.RemoveFirstWord());
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send($"The syntax is {"weigh <item> on <instrument>".ColourCommand()}.");
+			return;
+		}
+
+		var targetText = ss.PopSpeech();
+		if (ss.IsFinished || !ss.PopSpeech().EqualTo("on") || ss.IsFinished)
+		{
+			actor.OutputHandler.Send($"The syntax is {"weigh <item> on <instrument>".ColourCommand()}.");
+			return;
+		}
+
+		var target = actor.TargetItem(targetText);
+		if (target is null)
+		{
+			actor.OutputHandler.Send("You don't see anything like that to weigh.");
+			return;
+		}
+
+		var instrumentItem = actor.TargetItem(ss.SafeRemainingArgument);
+		if (instrumentItem is null)
+		{
+			actor.OutputHandler.Send("You don't see any weighing instrument like that.");
+			return;
+		}
+
+		var instrument = instrumentItem.GetItemType<IMeasuringInstrument>();
+		if (instrument is null || instrument.Mode != MeasuringInstrumentMode.Weight)
+		{
+			actor.OutputHandler.Send($"{instrumentItem.HowSeen(actor, true)} is not a weighing instrument.");
+			return;
+		}
+
+		var (truth, error) = actor.CanManipulateItem(instrumentItem);
+		if (!truth)
+		{
+			actor.OutputHandler.Send(error);
+			return;
+		}
+
+		if (!instrument.CanMeasure(target, out error))
+		{
+			actor.OutputHandler.Send(error);
+			return;
+		}
+
+		var result = instrument.Measure(actor, target);
+		actor.OutputHandler.Handle(new EmoteOutput(new Emote("@ weigh|weighs $0 on $1.", actor, target, instrumentItem)));
+		actor.OutputHandler.Send($"{target.HowSeen(actor, true)} weighs {DescribeMeasurement(actor, result)} according to {instrumentItem.HowSeen(actor)}.");
+	}
+
+	[PlayerCommand("Measure", "measure")]
+	[RequiredCharacterState(CharacterState.Able)]
+	[DelayBlock("general", "You must first stop {0} before you can do that.")]
+	[NoCombatCommand]
+	[NoMovementCommand]
+	[HelpInfo("measure",
+		"The #3measure#0 command measures weight or liquid volume with a measuring instrument. Length measurement is not implemented in this pass. The syntax is #3measure <target> with <instrument>#0.",
+		AutoHelp.HelpArgOrNoArg)]
+	protected static void Measure(ICharacter actor, string command)
+	{
+		var ss = new StringStack(command.RemoveFirstWord());
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send($"The syntax is {"measure <target> with <instrument>".ColourCommand()}.");
+			return;
+		}
+
+		var targetText = ss.PopSpeech();
+		if (ss.IsFinished || !ss.PopSpeech().EqualTo("with") || ss.IsFinished)
+		{
+			actor.OutputHandler.Send($"The syntax is {"measure <target> with <instrument>".ColourCommand()}.");
+			return;
+		}
+
+		var target = actor.TargetItem(targetText);
+		if (target is null)
+		{
+			actor.OutputHandler.Send("You don't see anything like that to measure.");
+			return;
+		}
+
+		var instrumentItem = actor.TargetItem(ss.SafeRemainingArgument);
+		if (instrumentItem is null)
+		{
+			actor.OutputHandler.Send("You don't see any measuring instrument like that.");
+			return;
+		}
+
+		var instrument = instrumentItem.GetItemType<IMeasuringInstrument>();
+		if (instrument is null)
+		{
+			actor.OutputHandler.Send($"{instrumentItem.HowSeen(actor, true)} is not a measuring instrument.");
+			return;
+		}
+
+		var (truth, error) = actor.CanManipulateItem(instrumentItem);
+		if (!truth)
+		{
+			actor.OutputHandler.Send(error);
+			return;
+		}
+
+		if (!instrument.CanMeasure(target, out error))
+		{
+			actor.OutputHandler.Send(error);
+			return;
+		}
+
+		var result = instrument.Measure(actor, target);
+		actor.OutputHandler.Handle(new EmoteOutput(new Emote("@ measure|measures $0 with $1.", actor, target, instrumentItem)));
+		var verb = result.Mode == MeasuringInstrumentMode.FluidVolume ? "contains" : "measures";
+		actor.OutputHandler.Send($"{target.HowSeen(actor, true)} {verb} {DescribeMeasurement(actor, result)} according to {instrumentItem.HowSeen(actor)}.");
+	}
+
+	[PlayerCommand("Calibrate", "calibrate")]
+	[RequiredCharacterState(CharacterState.Able)]
+	[DelayBlock("general", "You must first stop {0} before you can do that.")]
+	[NoCombatCommand]
+	[NoMovementCommand]
+	[HelpInfo("calibrate",
+		@"The #3calibrate#0 command honestly calibrates a measuring instrument or deliberately calibrates it wrong.
+
+	#3calibrate <instrument>#0
+	#3calibrate <instrument> wrong <+/-amount|+/-percent>#0", AutoHelp.HelpArgOrNoArg)]
+	protected static void Calibrate(ICharacter actor, string command)
+	{
+		var ss = new StringStack(command.RemoveFirstWord());
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send($"The syntax is {"calibrate <instrument>".ColourCommand()} or {"calibrate <instrument> wrong <+/-amount|+/-percent>".ColourCommand()}.");
+			return;
+		}
+
+		var instrumentItem = actor.TargetItem(ss.PopSpeech());
+		if (instrumentItem is null)
+		{
+			actor.OutputHandler.Send("You don't see any measuring instrument like that.");
+			return;
+		}
+
+		var instrument = instrumentItem.GetItemType<IMeasuringInstrument>();
+		if (instrument is null)
+		{
+			actor.OutputHandler.Send($"{instrumentItem.HowSeen(actor, true)} is not a measuring instrument.");
+			return;
+		}
+
+		var (truth, error) = actor.CanManipulateItem(instrumentItem);
+		if (!truth)
+		{
+			actor.OutputHandler.Send(error);
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			instrument.Calibrate(actor);
+			actor.OutputHandler.Handle(new EmoteOutput(new Emote("@ calibrate|calibrates $0.", actor, instrumentItem)));
+			return;
+		}
+
+		if (!ss.PopSpeech().EqualTo("wrong") || ss.IsFinished)
+		{
+			actor.OutputHandler.Send($"The syntax is {"calibrate <instrument>".ColourCommand()} or {"calibrate <instrument> wrong <+/-amount|+/-percent>".ColourCommand()}.");
+			return;
+		}
+
+		if (!TryParseCalibrationBias(actor, instrument, ss.SafeRemainingArgument, out var bias, out var percentageBias))
+		{
+			actor.OutputHandler.Send($"The bias must be a percentage or a {instrument.UnitType.DescribeEnum().ToLowerInvariant()} amount.");
+			return;
+		}
+
+		if (!instrument.CalibrateWrong(actor, bias, percentageBias, out error))
+		{
+			actor.OutputHandler.Send(error);
+			return;
+		}
+
+		actor.OutputHandler.Handle(new EmoteOutput(new Emote("@ calibrate|calibrates $0 with a bad measure.", actor, instrumentItem)));
+		actor.OutputHandler.Send(percentageBias
+			? $"{instrumentItem.HowSeen(actor, true)} is now deliberately biased by {bias.ToString("P2", actor).ColourValue()}."
+			: $"{instrumentItem.HowSeen(actor, true)} is now deliberately biased by {actor.Gameworld.UnitManager.DescribeExact(bias, instrument.UnitType, actor).ColourValue()}.");
+	}
+
 	[PlayerCommand("Haul", "haul")]
     [RequiredCharacterState(CharacterState.Able)]
     [DelayBlock("general", "drag", "You must first stop {0} before you can do that.")]
@@ -3530,6 +4060,164 @@ The syntax is as follows:
         }
 
         puffable.Puff(character, emote);
+    }
+
+    [PlayerCommand("Offer", "offer")]
+    [DelayBlock("general", "You must first stop {0} before you can do that.")]
+    [RequiredCharacterState(CharacterState.Able)]
+    [NoHideCommand]
+    [NoMeleeCombatCommand]
+    [HelpInfo("offer", @"The #3offer#0 command is used to ceremonially place an item on an offering focus, such as an altar, censer basin or votive tray. The focus may run progs, fire offering events, or immediately burn the offering depending on its component settings.
+
+The syntax is:
+
+	#3offer <item> at <focus>#0
+	#3offer <item> at <focus> (<emote>)#0
+
+Use quotes around multi-word item or focus names.", AutoHelp.HelpArg)]
+    protected static void Offer(ICharacter actor, string command)
+    {
+        var ss = new StringStack(command.RemoveFirstWord());
+        if (ss.IsFinished)
+        {
+            actor.OutputHandler.Send($"What do you want to offer? See {"help offer".ColourCommand()} for syntax.");
+            return;
+        }
+
+        var offeringText = ss.PopSpeech();
+        if (!ss.PopSpeech().EqualTo("at"))
+        {
+            actor.OutputHandler.Send($"You must specify a focus with the syntax {"offer <item> at <focus>".ColourCommand()}.");
+            return;
+        }
+
+        if (ss.IsFinished)
+        {
+            actor.OutputHandler.Send("What do you want to offer that at?");
+            return;
+        }
+
+        var focusText = ss.PopSpeech();
+        var offering = actor.TargetHeldItem(offeringText);
+        if (offering is null)
+        {
+            actor.OutputHandler.Send("You are not holding anything like that to offer.");
+            return;
+        }
+
+        var focusItem = actor.TargetItem(focusText);
+        if (focusItem is null)
+        {
+            actor.OutputHandler.Send("You do not see any offering focus like that.");
+            return;
+        }
+
+        var receiver = focusItem.GetItemType<IOfferingReceiver>();
+        if (receiver is null)
+        {
+            actor.OutputHandler.Send($"{focusItem.HowSeen(actor, true)} is not something that can receive offerings.");
+            return;
+        }
+
+        var (truth, error) = actor.CanManipulateItem(focusItem);
+        if (!truth)
+        {
+            actor.OutputHandler.Send(error);
+            return;
+        }
+
+        var emoteText = ss.PopParentheses();
+        PlayerEmote? emote = null;
+        if (!string.IsNullOrEmpty(emoteText))
+        {
+            emote = new PlayerEmote(emoteText, actor);
+            if (!emote.Valid)
+            {
+                actor.OutputHandler.Send(emote.ErrorMessage);
+                return;
+            }
+        }
+
+        receiver.Offer(actor, offering, emote);
+    }
+
+    [PlayerCommand("Burn", "burn")]
+    [DelayBlock("general", "You must first stop {0} before you can do that.")]
+    [RequiredCharacterState(CharacterState.Able)]
+    [NoHideCommand]
+    [NoMeleeCombatCommand]
+    [HelpInfo("burn", @"The #3burn#0 command burns an item that has already been placed on an offering focus. The focus may consume the item, leave configured residue, run progs, and fire offering burn events.
+
+The syntax is:
+
+	#3burn <offering> at <focus>#0
+	#3burn <offering> at <focus> (<emote>)#0
+
+Use quotes around multi-word offering or focus names.", AutoHelp.HelpArg)]
+    protected static void Burn(ICharacter actor, string command)
+    {
+        var ss = new StringStack(command.RemoveFirstWord());
+        if (ss.IsFinished)
+        {
+            actor.OutputHandler.Send($"What offering do you want to burn? See {"help burn".ColourCommand()} for syntax.");
+            return;
+        }
+
+        var offeringText = ss.PopSpeech();
+        if (!ss.PopSpeech().EqualTo("at"))
+        {
+            actor.OutputHandler.Send($"You must specify a focus with the syntax {"burn <offering> at <focus>".ColourCommand()}.");
+            return;
+        }
+
+        if (ss.IsFinished)
+        {
+            actor.OutputHandler.Send("What focus do you want to burn that offering at?");
+            return;
+        }
+
+        var focusText = ss.PopSpeech();
+        var focusItem = actor.TargetItem(focusText);
+        if (focusItem is null)
+        {
+            actor.OutputHandler.Send("You do not see any offering focus like that.");
+            return;
+        }
+
+        var receiver = focusItem.GetItemType<IOfferingReceiver>();
+        if (receiver is null)
+        {
+            actor.OutputHandler.Send($"{focusItem.HowSeen(actor, true)} is not something that can burn offerings.");
+            return;
+        }
+
+        var offering = receiver.Contents.GetFromItemListByKeyword(offeringText, actor);
+        if (offering is null)
+        {
+            actor.OutputHandler.Send($"{focusItem.HowSeen(actor, true)} does not bear any offering like that.");
+            return;
+        }
+
+        var (truth, error) = actor.CanManipulateItem(focusItem);
+        if (!truth)
+        {
+            actor.OutputHandler.Send(error);
+            return;
+        }
+
+        var emoteText = ss.PopParentheses();
+        PlayerEmote? emote = null;
+        if (!string.IsNullOrEmpty(emoteText))
+        {
+            emote = new PlayerEmote(emoteText, actor);
+            if (!emote.Valid)
+            {
+                actor.OutputHandler.Send(emote.ErrorMessage);
+                return;
+            }
+        }
+
+        receiver.BurnOffering(actor, offering, emote);
     }
 
     [PlayerCommand("Light", "light")]

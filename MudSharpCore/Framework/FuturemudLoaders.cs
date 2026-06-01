@@ -394,6 +394,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
             game.LoadNPCs(); // Needs to come after InitialiseCharacterClass and LightModel loading
             game.LoadVehicles(); // Needs world items and characters available for exterior/occupant recovery
             game.LoadVehicleHitchLinks(); // Needs vehicles, world items and NPCs available for endpoint recovery
+            game.LoadMagicPortalTopology(); // Needs world items and cells available before exit pathing preload
             FinalisePostCharacterLoadObjects();
             game.LoadGroupAIs(); // Needs to come after LoadNPCs
             ExitManager.PreloadCriticalExits(); // Needs to come after LoadGameItemProtos
@@ -4048,6 +4049,32 @@ For information on the syntax to use in emotes (such as those included in bracke
 #endif
         int count = _vehicleHitchLinks.Count;
         ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Vehicle Hitch Link" : "Vehicle Hitch Links");
+    }
+
+    void IFuturemudLoader.LoadMagicPortalTopology()
+    {
+        ConsoleUtilities.WriteLine("\nLoading #5Magic Portal Topology#0...");
+#if DEBUG
+        Stopwatch sw = new();
+        sw.Start();
+#endif
+        List<Models.MagicPortalNetwork> networks = FMDB.Context.MagicPortalNetworks
+            .Include(x => x.MagicPortalEndpoints)
+            .Include(x => x.MagicPortalLinks)
+            .AsNoTracking()
+            .ToList();
+        foreach (Models.MagicPortalNetwork network in networks)
+        {
+            _magicPortalNetworks.Add(new Magic.MagicPortalNetwork(network, this));
+        }
+
+        new Magic.MagicPortalTopologyService().RebuildAll(this);
+#if DEBUG
+        sw.Stop();
+        ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
+#endif
+        int count = _magicPortalNetworks.Count;
+        ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Magic Portal Network" : "Magic Portal Networks");
     }
 
     void IFuturemudLoader.LoadGameItemSkins()

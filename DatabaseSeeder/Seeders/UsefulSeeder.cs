@@ -56,7 +56,19 @@ public partial class UsefulSeeder : IDatabaseSeeder
         "Smokeable_Cigar",
         "DragAid_Stretcher",
         "Treatment_AntiInflammatory_Single",
-        "TimePiece_PocketWatch"
+        "TimePiece_PocketWatch",
+        "TimePiece_Antiquity_Sundial",
+        "WaterSource_Antiquity_PublicWell",
+        "Dice_Antiquity_Knucklebones",
+        "DragAid_Antiquity_FieldStretcher",
+        "Locksmithing_Antiquity_BronzePoor",
+        "ShopStall_Antiquity_OpenCounter",
+        "MarketGoodWeight_Antiquity_StapleFood",
+        "SealStamp_Antiquity_BronzeSignet",
+        "Sealable_Envelope",
+        "MeasuringInstrument_Antiquity_BalanceScale",
+        "IncenseBurner_Antiquity_BronzeCenser",
+        "OfferingReceiver_Antiquity_HouseholdAltar"
     ];
 
     private static readonly string[] StockModernItemMarkers =
@@ -128,7 +140,7 @@ public partial class UsefulSeeder : IDatabaseSeeder
                         if (answer.EqualToAny("yes", "y", "no", "n")) { return (true, string.Empty); } return (false, "Invalid answer");
                 }),
             ("items",
-                "#DItem Package 1#F\n\nDo you want to include a package of standard item definitions, which includes some commonly used item component types, including a wide selection of containers, liquid containers, doors, locks, keys, basic writing implements, insulation for clothing, components that let worn clothing hide or change characteristics (wigs, coloured contacts, etc), components that correct for myopia flaws, as well as identity obscurers (hoods, full helmets, niqabs, cloaks, etc.), destroyables, colour variables, further writing implements, tables and chairs, ranged covers, medical items, prosthetic limbs, dice, torches and lanterns, repair kits, water sources, smokeable tobacco, drag aids and timepieces.\n\nShall we install this package? Please answer #3yes#f or #3no#f: ",
+                "#DItem Package 1#F\n\nDo you want to include a package of standard item definitions, which includes some commonly used item component types, including a wide selection of containers, liquid containers, doors, locks, keys, basic writing implements, insulation for clothing, components that let worn clothing hide or change characteristics (wigs, coloured contacts, etc), components that correct for myopia flaws, as well as identity obscurers (hoods, full helmets, niqabs, cloaks, etc.), destroyables, colour variables, further writing implements, tables and chairs, ranged covers, medical items, prosthetic limbs, dice, torches and lanterns, repair kits, water sources, smokeable tobacco, drag aids, timepieces, market stalls, market good weights and pre-modern builder variants.\n\nShall we install this package? Please answer #3yes#f or #3no#f: ",
                 (context, questions) => true,
                 (answer, context) =>
                 {

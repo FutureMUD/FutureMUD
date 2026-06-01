@@ -83,6 +83,10 @@ public class Law : SaveableItem, ILaw
         CanBeArrested = dbitem.CanBeArrested;
         CanBeOfferedBail = dbitem.CanBeOfferedBail;
         LawAppliesProg = Gameworld.FutureProgs.Get(dbitem.LawAppliesProgId ?? 0);
+        if (LawAppliesProg is not null)
+        {
+            CalculateLawAppliesInvoker(LawAppliesProg);
+        }
         ActivePeriod = TimeSpan.FromSeconds(dbitem.ActivePeriod);
         EnforcementStrategy = Enum.Parse<EnforcementStrategy>(dbitem.EnforcementStrategy);
         EnforcementPriority = dbitem.EnforcementPriority;
@@ -135,7 +139,7 @@ public class Law : SaveableItem, ILaw
     public ILegalAuthority Authority { get; protected set; }
     public CrimeTypes CrimeType { get; protected set; }
     public IFutureProg LawAppliesProg { get; protected set; }
-    public Func<ICharacter, ICharacter, IGameItem, long, string, bool> LawAppliesInvoker { get; protected set; }
+    public Func<ICharacter, ICharacter, IGameItem, long, string, string, bool> LawAppliesInvoker { get; protected set; }
     public bool CanBeAppliedAutomatically { get; protected set; }
     public bool DoNotAutomaticallyApplyRepeats { get; protected set; }
     private readonly List<ILegalClass> _victimClasses = new();
@@ -249,6 +253,7 @@ public class Law : SaveableItem, ILaw
 	#3offender <class>#0 - toggles a particular class being an eligable perpetrator of this crime
 	#3prog clear#0 - clears any filtering prog
 	#3prog <prog>#0 - sets a prog as the filter prog to determine whether it applies
+	#3prog#0 filters may use extended #3text text#0 signatures to receive crime name and automatic context
 	#3period <time>#0 - sets how long this time will go before becoming a cold case
 	#3strategy <which>#0 - sets the enforcement strategy
 	#3repeats#0 - toggles whether to repeatedly apply a crime in a short period
@@ -309,7 +314,7 @@ public class Law : SaveableItem, ILaw
     {
         if (prog.MatchesParameters(new[] { ProgVariableTypes.Character, ProgVariableTypes.Character }))
         {
-            LawAppliesInvoker = (criminal, victim, item, id, crime) =>
+            LawAppliesInvoker = (criminal, victim, item, id, crime, information) =>
                 LawAppliesProg.Execute<bool?>(criminal, victim) == true;
             return true;
         }
@@ -317,7 +322,7 @@ public class Law : SaveableItem, ILaw
         if (prog.MatchesParameters(new[]
                 { ProgVariableTypes.Character, ProgVariableTypes.Character, ProgVariableTypes.Item }))
         {
-            LawAppliesInvoker = (criminal, victim, item, id, crime) =>
+            LawAppliesInvoker = (criminal, victim, item, id, crime, information) =>
                 LawAppliesProg.Execute<bool?>(criminal, victim, item) == true;
             return true;
         }
@@ -327,7 +332,7 @@ public class Law : SaveableItem, ILaw
                 ProgVariableTypes.Character, ProgVariableTypes.Character, ProgVariableTypes.Number
             }))
         {
-            LawAppliesInvoker = (criminal, victim, item, id, crime) =>
+            LawAppliesInvoker = (criminal, victim, item, id, crime, information) =>
                 LawAppliesProg.Execute<bool?>(criminal, victim, id) == true;
             return true;
         }
@@ -338,7 +343,7 @@ public class Law : SaveableItem, ILaw
                 ProgVariableTypes.Number
             }))
         {
-            LawAppliesInvoker = (criminal, victim, item, id, crime) =>
+            LawAppliesInvoker = (criminal, victim, item, id, crime, information) =>
                 LawAppliesProg.Execute<bool?>(criminal, victim, item, id) == true;
             return true;
         }
@@ -349,7 +354,7 @@ public class Law : SaveableItem, ILaw
                 ProgVariableTypes.Text
             }))
         {
-            LawAppliesInvoker = (criminal, victim, item, id, crime) =>
+            LawAppliesInvoker = (criminal, victim, item, id, crime, information) =>
                 LawAppliesProg.Execute<bool?>(criminal, victim, id, crime) == true;
             return true;
         }
@@ -360,7 +365,7 @@ public class Law : SaveableItem, ILaw
                 ProgVariableTypes.Number, ProgVariableTypes.Text
             }))
         {
-            LawAppliesInvoker = (criminal, victim, item, id, crime) =>
+            LawAppliesInvoker = (criminal, victim, item, id, crime, information) =>
                 LawAppliesProg.Execute<bool?>(criminal, victim, item, id, crime) == true;
             return true;
         }
@@ -368,7 +373,7 @@ public class Law : SaveableItem, ILaw
         if (prog.MatchesParameters(new[]
                 { ProgVariableTypes.Character, ProgVariableTypes.Character, ProgVariableTypes.Text }))
         {
-            LawAppliesInvoker = (criminal, victim, item, id, crime) =>
+            LawAppliesInvoker = (criminal, victim, item, id, crime, information) =>
                 LawAppliesProg.Execute<bool?>(criminal, victim, crime) == true;
             return true;
         }
@@ -379,8 +384,52 @@ public class Law : SaveableItem, ILaw
                 ProgVariableTypes.Text
             }))
         {
-            LawAppliesInvoker = (criminal, victim, item, id, crime) =>
+            LawAppliesInvoker = (criminal, victim, item, id, crime, information) =>
                 LawAppliesProg.Execute<bool?>(criminal, victim, item, crime) == true;
+            return true;
+        }
+
+        if (prog.MatchesParameters(new[]
+            {
+                ProgVariableTypes.Character, ProgVariableTypes.Character, ProgVariableTypes.Number,
+                ProgVariableTypes.Text, ProgVariableTypes.Text
+            }))
+        {
+            LawAppliesInvoker = (criminal, victim, item, id, crime, information) =>
+                LawAppliesProg.Execute<bool?>(criminal, victim, id, crime, information) == true;
+            return true;
+        }
+
+        if (prog.MatchesParameters(new[]
+            {
+                ProgVariableTypes.Character, ProgVariableTypes.Character, ProgVariableTypes.Item,
+                ProgVariableTypes.Number, ProgVariableTypes.Text, ProgVariableTypes.Text
+            }))
+        {
+            LawAppliesInvoker = (criminal, victim, item, id, crime, information) =>
+                LawAppliesProg.Execute<bool?>(criminal, victim, item, id, crime, information) == true;
+            return true;
+        }
+
+        if (prog.MatchesParameters(new[]
+            {
+                ProgVariableTypes.Character, ProgVariableTypes.Character, ProgVariableTypes.Text,
+                ProgVariableTypes.Text
+            }))
+        {
+            LawAppliesInvoker = (criminal, victim, item, id, crime, information) =>
+                LawAppliesProg.Execute<bool?>(criminal, victim, crime, information) == true;
+            return true;
+        }
+
+        if (prog.MatchesParameters(new[]
+            {
+                ProgVariableTypes.Character, ProgVariableTypes.Character, ProgVariableTypes.Item,
+                ProgVariableTypes.Text, ProgVariableTypes.Text
+            }))
+        {
+            LawAppliesInvoker = (criminal, victim, item, id, crime, information) =>
+                LawAppliesProg.Execute<bool?>(criminal, victim, item, crime, information) == true;
             return true;
         }
 
@@ -429,12 +478,12 @@ public class Law : SaveableItem, ILaw
             return false;
         }
 
-        Func<ICharacter, ICharacter, IGameItem, long, string, bool> oldInvoker = LawAppliesInvoker;
+        Func<ICharacter, ICharacter, IGameItem, long, string, string, bool> oldInvoker = LawAppliesInvoker;
         if (!CalculateLawAppliesInvoker(prog))
         {
             LawAppliesInvoker = oldInvoker;
             actor.OutputHandler.Send(
-                "The prog you specify must take one of the following patterns of parameters:\n\tcharacter character\n\tcharacter character number\n\tcharacter character number text\n\tcharacter character text\n\tcharacter character item\n\tcharacter character item number\n\tcharacter character item number text\n\tcharacter character item text");
+                "The prog you specify must take one of the following patterns of parameters:\n\tcharacter character\n\tcharacter character number\n\tcharacter character number text\n\tcharacter character number text text\n\tcharacter character text\n\tcharacter character text text\n\tcharacter character item\n\tcharacter character item number\n\tcharacter character item number text\n\tcharacter character item number text text\n\tcharacter character item text\n\tcharacter character item text text");
             return false;
         }
 
@@ -680,7 +729,7 @@ public class Law : SaveableItem, ILaw
         return sb.ToString();
     }
 
-    public bool IsCrime(ICharacter criminal, ICharacter victim, IGameItem item)
+    public bool IsCrime(ICharacter criminal, ICharacter victim, IGameItem item, string additionalInformation = "")
     {
         ILegalClass crimLegal = Authority.GetLegalClass(criminal);
         if (crimLegal == null)
@@ -708,7 +757,8 @@ public class Law : SaveableItem, ILaw
         }
 
         if (LawAppliesProg != null &&
-            !LawAppliesInvoker(criminal, victim, item, Id, CrimeType.DescribeEnum()))
+            (LawAppliesInvoker is null ||
+             !LawAppliesInvoker(criminal, victim, item, Id, CrimeType.DescribeEnum(), additionalInformation ?? string.Empty)))
         {
             return false;
         }

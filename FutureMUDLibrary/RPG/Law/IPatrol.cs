@@ -28,9 +28,11 @@ namespace MudSharp.RPG.Law
         ICell OriginLocation { get; }
         ICell LastMajorNode { get; set; }
         ICell NextMajorNode { get; set; }
+        DateTime PatrolStartTime { get; }
         DateTime LastArrivedTime { get; set; }
         ICharacter ActiveEnforcementTarget { get; set; }
         ICrime ActiveEnforcementCrime { get; set; }
+        ICrime TargetCrime { get; set; }
         ICorpseRecoveryReport ActiveCorpseRecoveryReport { get; set; }
 
         void AbortPatrol();

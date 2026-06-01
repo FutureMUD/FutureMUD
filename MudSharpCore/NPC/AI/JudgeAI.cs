@@ -1182,12 +1182,18 @@ With each of the emotes, you can use the following tokens:
 
         ICharacter defendant =
             enforcerEffect.LegalAuthority.CourtLocation.Characters.FirstOrDefault(x =>
-                x.EffectsOfType<OnTrial>(y => y.LegalAuthority == enforcerEffect.LegalAuthority).Any());
+                x.EffectsOfType<OnTrial>(y =>
+                    y.LegalAuthority == enforcerEffect.LegalAuthority &&
+                    !y.ManualTrial
+                ).Any());
         if (defendant is null)
         {
             return false;
         }
-        OnTrial trialEffect = defendant.EffectsOfType<OnTrial>(x => x.LegalAuthority == enforcerEffect.LegalAuthority).First();
+        OnTrial trialEffect = defendant.EffectsOfType<OnTrial>(x =>
+            x.LegalAuthority == enforcerEffect.LegalAuthority &&
+            !x.ManualTrial
+        ).First();
         return DoTrialTick(enforcer, defendant, trialEffect);
     }
 
@@ -1398,8 +1404,7 @@ With each of the emotes, you can use the following tokens:
             return true;
         }
 
-        PunishmentResult result = sentenceCrime.Law.PunishmentStrategy.GetResult(defendant, sentenceCrime);
-        trialEffect.Punishments[sentenceCrime] = result;
+        PunishmentResult result = trialEffect.Punishments[sentenceCrime];
         enforcer.OutputHandler.Handle(new EmoteOutput(new Emote(
             string.Format(TrialSentencingEmote,
                 gender.Subjective(),

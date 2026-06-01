@@ -62,6 +62,7 @@ public class SimpleWound : PerceivedItem, IWound
         _toolOriginId = toolOrigin?.Id ?? 0;
         _vehicleId = vehicleId;
         _vehicleDamageZoneId = vehicleDamageZoneId;
+        RealTimeOfWound = DateTime.UtcNow;
         BleedStatus = BleedStatus.NeverBled;
         if (actorOrigin?.Combat?.Friendly == true)
         {
@@ -223,6 +224,8 @@ public class SimpleWound : PerceivedItem, IWound
         dbitem.LodgedItemId = Lodged?.Id;
         dbitem.ActorOriginId = _actorOriginId != 0 ? _actorOriginId : default(long?);
         dbitem.ToolOriginId = _toolOriginId != 0 ? _toolOriginId : default(long?);
+        dbitem.RealTimeOfWound = RealTimeOfWound;
+        dbitem.ExtraInformation = SaveExtras();
         return dbitem;
     }
 
@@ -249,6 +252,7 @@ public class SimpleWound : PerceivedItem, IWound
 
         _actorOriginId = wound.ActorOriginId ?? 0;
         _toolOriginId = wound.ToolOriginId ?? 0;
+        RealTimeOfWound = wound.RealTimeOfWound;
         _vehicleId = wound.VehicleId;
         _vehicleDamageZoneId = wound.VehicleDamageZoneId;
         XElement root = XElement.Parse(wound.ExtraInformation ?? "<Empty/>");
@@ -420,6 +424,7 @@ public class SimpleWound : PerceivedItem, IWound
     }
 
     public bool IsFriendlyWound { get; protected set; }
+    public DateTime? RealTimeOfWound { get; protected set; }
 
     public string Describe(WoundExaminationType type, Outcome outcome)
     {

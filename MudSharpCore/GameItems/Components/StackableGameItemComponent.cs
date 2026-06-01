@@ -166,7 +166,7 @@ public class StackableGameItemComponent : GameItemComponent, IStackable
             var splitCoating = new WeaponPoisonCoating(newItem, splitMixture);
             var duration = Parent.ScheduledDuration(coating);
             newItem.AddEffect(splitCoating,
-                duration > TimeSpan.Zero ? duration : LiquidContamination.EffectDuration(splitMixture));
+                duration > TimeSpan.Zero ? duration : WeaponPoisonCoating.EffectDuration(splitMixture));
 
             if (coating.ContaminatingLiquid.IsEmpty)
             {

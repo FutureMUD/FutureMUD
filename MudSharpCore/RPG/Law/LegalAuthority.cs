@@ -333,16 +333,12 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
                 continue;
             }
 
-            if (bailEffect.ArrestTime > now)
+            if (bailEffect.ReturnDueDate > now)
             {
                 continue;
             }
 
-            IEnumerable<ICrime> crimes = CheckPossibleCrime(criminal, CrimeTypes.ViolateBail, null, null, "");
-            if (!crimes.Any())
-            {
-                continue;
-            }
+            _ = CheckPossibleCrime(criminal, CrimeTypes.ViolateBail, null, null, "").Any();
 
             EndBail(criminal);
 
@@ -371,7 +367,9 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
                     continue;
                 }
 
-                if (criminal.AffectedBy<OnBail>(this) || criminal.AffectedBy<OnTrial>(this))
+                if (criminal.AffectedBy<OnBail>(this) ||
+                    criminal.AffectedBy<OnTrial>(this) ||
+                    !this.IsInRemandCell(criminal))
                 {
                     continue;
                 }
@@ -382,52 +380,10 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
                 }
 
                 List<ICrime> crimes = KnownCrimesForIndividual(criminal).ToList();
-                PunishmentResult result = new();
                 foreach (ICrime crime in crimes)
                 {
                     PunishmentResult crimeResult = crime.Law.PunishmentStrategy.GetResult(criminal, crime);
-                    result += crimeResult;
-                    crime.Convict(null, result, "Automatic conviction by the system");
-                    FinaliseCrime(crime);
-                }
-
-                if (result.Fine > 0)
-                {
-                    _finesOwed[criminal.Id] += result.Fine;
-                    _finePaymentDueDates[criminal.Id] = now + MudTimeSpan.FromMonths(1);
-                    Changed = true;
-                }
-
-                if (result.CustodialSentence > MudTimeSpan.Zero)
-                {
-                    ServingCustodialSentence servingEffect = criminal.EffectsOfType<ServingCustodialSentence>(x => x.LegalAuthority == this)
-                                                .FirstOrDefault();
-                    if (servingEffect == null)
-                    {
-                        servingEffect = new ServingCustodialSentence(criminal, this, result.CustodialSentence,
-                            now + result.CustodialSentence);
-                        criminal.AddEffect(servingEffect);
-                    }
-                    else
-                    {
-                        servingEffect.ExtendSentence(result.CustodialSentence);
-                    }
-                }
-
-                // Good Behaviour Bond
-                if (result.GoodBehaviourBondLength > MudTimeSpan.Zero)
-                {
-                    GoodBehaviourBond bondEffect = criminal.EffectsOfType<GoodBehaviourBond>(x => x.Authority == this)
-                                             .FirstOrDefault();
-                    if (bondEffect is null)
-                    {
-                        bondEffect = new GoodBehaviourBond(criminal, this, result.GoodBehaviourBondLength);
-                        criminal.AddEffect(bondEffect);
-                    }
-                    else
-                    {
-                        bondEffect.AddLengthToBond(result.GoodBehaviourBondLength);
-                    }
+                    crime.Convict(null, crimeResult, "Automatic conviction by the system");
                 }
 
                 criminal.RemoveAllEffects<AwaitingSentencing>(x => x.LegalAuthority == this);
@@ -714,12 +670,21 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
     public IEnumerable<ICrime> CheckPossibleCrime(ICharacter criminal, CrimeTypes crime, ICharacter victim,
         IGameItem item, string additionalInformation, IEnumerable<ICharacter> explicitWitnesses, bool notifyVictim)
     {
+        return CheckPossibleCrime(criminal, crime, victim, item, additionalInformation, explicitWitnesses, notifyVictim,
+            criminal.Location);
+    }
+
+    public IEnumerable<ICrime> CheckPossibleCrime(ICharacter criminal, CrimeTypes crime, ICharacter victim,
+        IGameItem item, string additionalInformation, IEnumerable<ICharacter> explicitWitnesses, bool notifyVictim,
+        ICell crimeLocation)
+    {
         if (criminal.IsAdministrator())
         {
             return Enumerable.Empty<ICrime>();
         }
 
-        if (!EnforcementZones.Contains(criminal.Location.Zone))
+        ICell location = crimeLocation ?? criminal.Location;
+        if (!EnforcementZones.Contains(location.Zone))
         {
             return Enumerable.Empty<ICrime>();
         }
@@ -732,17 +697,22 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
                 continue;
             }
 
-            if (!law.IsCrime(criminal, victim, item))
+            if (!law.IsCrime(criminal, victim, item, additionalInformation))
             {
                 continue;
             }
 
             if (law.DoNotAutomaticallyApplyRepeats && _unknownCrimesLookup[criminal.Id]
                                                       .Concat(_knownCrimesLookup[criminal.Id]).Any(x =>
+                                                          x.Law.Id == law.Id &&
                                                           x.Victim == victim &&
-                                                          (x.ThirdPartyId == item?.Id ||
-                                                           x.ThirdPartyFrameworkItemType != "item") &&
-                                                          x.CrimeLocation == criminal.Location &&
+                                                          (item is null
+                                                              ? x.ThirdPartyId is null
+                                                              : x.ThirdPartyId == item.Id &&
+                                                                string.Equals(x.ThirdPartyFrameworkItemType,
+                                                                    item.FrameworkItemType,
+                                                                    StringComparison.OrdinalIgnoreCase)) &&
+                                                          x.CrimeLocation == location &&
                                                           DateTime.UtcNow - x.RealTimeOfCrime < TimeSpan.FromMinutes(10)
                                                       ))
             {
@@ -750,10 +720,10 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
             }
 
             List<ICharacter> witnesses = explicitWitnesses is null
-                ? criminal.Location.LayerCharacters(criminal.RoomLayer).Except(criminal)
+                ? location.LayerCharacters(criminal.RoomLayer).Except(criminal)
                           .Where(x => x.CanSee(criminal)).ToList()
                 : explicitWitnesses.Except(criminal).Distinct().ToList();
-            Crime newCrime = new(criminal, victim, witnesses, law, item);
+            Crime newCrime = new(criminal, victim, witnesses, law, item, additionalInformation, location);
             _unknownCrimes.Add(newCrime);
             _unknownCrimesLookup.Add(criminal.Id, newCrime);
             Gameworld.Add(newCrime);
@@ -777,7 +747,14 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
     public bool WouldBeACrime(ICharacter criminal, CrimeTypes crime, ICharacter victim, IGameItem item,
         string additionalInformation)
     {
-        if (!EnforcementZones.Contains(criminal.Location.Zone))
+        return WouldBeACrimeAtLocation(criminal, crime, victim, item, additionalInformation, criminal.Location);
+    }
+
+    public bool WouldBeACrimeAtLocation(ICharacter criminal, CrimeTypes crime, ICharacter victim, IGameItem item,
+        string additionalInformation, ICell crimeLocation)
+    {
+        ICell location = crimeLocation ?? criminal.Location;
+        if (!EnforcementZones.Contains(location.Zone))
         {
             return false;
         }
@@ -789,7 +766,7 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
                 continue;
             }
 
-            if (!law.IsCrime(criminal, victim, item))
+            if (!law.IsCrime(criminal, victim, item, additionalInformation))
             {
                 continue;
             }
@@ -859,46 +836,7 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
             return;
         }
 
-        if (identityKnown)
-        {
-            crime.CriminalIdentityIsKnown = true;
-        }
-        else
-        {
-            int failures = RandomUtilities.ConsecutiveRoll(1.0, 1.0 - reliability,
-                crime.Criminal.CharacteristicDefinitions.Count());
-            List<Form.Characteristics.ICharacteristicDefinition> flubbedDetails = RandomUtilities.OldShuffle(crime.Criminal.CharacteristicDefinitions).Take(failures)
-                                                .ToList();
-            IEnumerable<Form.Characteristics.ICharacteristicValue> actualDetails =
-                crime.Criminal.CharacteristicDefinitions.Select(x => crime.Criminal.GetCharacteristic(x, witness));
-            foreach (Form.Characteristics.ICharacteristicValue detail in actualDetails)
-            {
-                if (!crime.CriminalCharacteristics.ContainsKey(detail.Definition) ||
-                    crime.CriminalCharacteristics[detail.Definition] != detail)
-                {
-                    if (!crime.CriminalCharacteristics.ContainsKey(detail.Definition))
-                    {
-                        if (flubbedDetails.Contains(detail.Definition))
-                        {
-                            crime.SetCharacteristicValue(detail.Definition,
-                                Gameworld.CharacteristicValues.Where(x => x.Definition == detail.Definition)
-                                         .GetRandomElement());
-                            continue;
-                        }
-
-                        crime.SetCharacteristicValue(detail.Definition, detail);
-                        continue;
-                    }
-
-                    if (flubbedDetails.Contains(detail.Definition))
-                    {
-                        continue;
-                    }
-
-                    crime.SetCharacteristicValue(detail.Definition, detail);
-                }
-            }
-        }
+        crime.RecordInvestigationEvidence(witness ?? crime.Criminal, reliability, identityKnown);
 
         Changed = true;
 
@@ -912,7 +850,7 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
         _unknownCrimes.Remove(crime);
         _staleCrimes.Remove(crime);
         crime.TimeOfReport = crime.CrimeLocation?.DateTime() ??
-                             witness.Location?.DateTime() ?? EnforcementZones.First().DateTime();
+                             witness?.Location?.DateTime() ?? EnforcementZones.First().DateTime();
         if (crime.AccuserId == null)
         {
             crime.AccuserId = witness?.Id;

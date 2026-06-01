@@ -74,6 +74,8 @@ public class MindAuditPower : MagicPowerBase
         EmoteTextSelf = "You close your eyes and search your mind for foreign presences.";
         EchoToDetectedTarget = "You feel as if your presence in $0's mind has been detected.";
         ShouldEchoDetectionProg = Gameworld.AlwaysFalseProg;
+        IsPsionic = true;
+        EnablePsionicTraceDefaults();
         DoDatabaseInsert();
     }
 
@@ -181,6 +183,7 @@ public class MindAuditPower : MagicPowerBase
         ICheck check = Gameworld.GetCheck(CheckType.MindAuditPower);
         Dictionary<Difficulty, CheckOutcome> results = check.CheckAgainstAllDifficulties(actor, Difficulty.Normal, SkillCheckTrait);
         StringBuilder sb = new();
+        List<ICharacter> detectedTargets = new();
         foreach (MindConnectedToEffect effect in actor.EffectsOfType<MindConnectedToEffect>())
         {
             string difficultyText = SkillCheckDifficultyProg.Execute<string>(effect.OriginatorCharacter, actor);
@@ -204,6 +207,7 @@ public class MindAuditPower : MagicPowerBase
                            effect.OriginatorCharacter.HowSeen(actor,
                                flags: PerceiveIgnoreFlags.IgnoreCanSee | PerceiveIgnoreFlags.IgnoreDisguises);
             sb.AppendLine($"You detect the presence of {identity} in your mind.");
+            detectedTargets.Add(effect.OriginatorCharacter);
 
             if (!string.IsNullOrEmpty(EchoToDetectedTarget) && ShouldEchoDetectionProg.Execute<bool?>(effect.OriginatorCharacter, actor) == true)
             {
@@ -217,6 +221,7 @@ public class MindAuditPower : MagicPowerBase
         }
 
         actor.OutputHandler.Send(sb.ToString());
+        PsionicActivityNotifier.Notify(actor, this, "a mental audit", detectedTargets);
         ConsumePowerCosts(actor, Verb);
     }
 

@@ -3348,6 +3348,12 @@ namespace MudSharp.Migrations
                     b.Property<long?>("ShortDescriptionPatternId")
                         .HasColumnType("bigint(20)");
 
+                    b.Property<string>("SurfaceLiquidData")
+                        .HasColumnType("mediumtext")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("SurfaceLiquidData"), "utf8");
+
                     b.Property<string>("Tattoos")
                         .HasColumnType("mediumtext")
                         .UseCollation("utf8_general_ci");
@@ -4164,6 +4170,12 @@ namespace MudSharp.Migrations
 
                     b.Property<long>("RoomId")
                         .HasColumnType("bigint(20)");
+
+                    b.Property<string>("SurfaceLiquidData")
+                        .HasColumnType("mediumtext")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("SurfaceLiquidData"), "utf8");
 
                     b.Property<ulong>("Temporary")
                         .ValueGeneratedOnAdd()
@@ -7826,6 +7838,9 @@ namespace MudSharp.Migrations
                     b.Property<long?>("AccuserId")
                         .HasColumnType("bigint(20)");
 
+                    b.Property<string>("AdditionalInformation")
+                        .HasColumnType("longtext");
+
                     b.Property<ulong>("BailHasBeenPosted")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit(1)")
@@ -11273,6 +11288,12 @@ namespace MudSharp.Migrations
                     b.Property<long?>("SkinId")
                         .HasColumnType("bigint(20)");
 
+                    b.Property<string>("SurfaceLiquidData")
+                        .HasColumnType("mediumtext")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("SurfaceLiquidData"), "utf8");
+
                     b.HasKey("Id");
 
                     b.HasIndex("ContainerId")
@@ -13947,6 +13968,233 @@ namespace MudSharp.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("MagicGenerators");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.MagicPortalEndpoint", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<int>("AnchorType")
+                        .HasColumnType("int(11)");
+
+                    b.Property<long?>("CellId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long?>("CreatedByCharacterId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long?>("CreatedBySpellId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<DateTime>("CreatedDateTime")
+                        .HasColumnType("datetime");
+
+                    b.Property<long?>("GameItemId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<ulong>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit(1)")
+                        .HasDefaultValue(1ul);
+
+                    b.Property<string>("Key")
+                        .IsRequired()
+                        .HasColumnType("varchar(100)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Key"), "utf8");
+
+                    b.Property<long>("MagicPortalNetworkId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("varchar(200)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Name"), "utf8");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("CellId")
+                        .HasDatabaseName("FK_MagicPortalEndpoints_Cells_idx");
+
+                    b.HasIndex("CreatedByCharacterId")
+                        .HasDatabaseName("FK_MagicPortalEndpoints_Characters_idx");
+
+                    b.HasIndex("CreatedBySpellId")
+                        .HasDatabaseName("FK_MagicPortalEndpoints_MagicSpells_idx");
+
+                    b.HasIndex("GameItemId")
+                        .HasDatabaseName("FK_MagicPortalEndpoints_GameItems_idx");
+
+                    b.HasIndex("MagicPortalNetworkId", "Key")
+                        .IsUnique()
+                        .HasDatabaseName("IX_MagicPortalEndpoints_Network_Key");
+
+                    b.ToTable("MagicPortalEndpoints", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.MagicPortalLink", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<long?>("CreatedByCharacterId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long?>("CreatedBySpellId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<DateTime>("CreatedDateTime")
+                        .HasColumnType("datetime");
+
+                    b.Property<long>("DestinationEndpointId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<ulong>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit(1)")
+                        .HasDefaultValue(1ul);
+
+                    b.Property<long>("MagicPortalNetworkId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("SourceEndpointId")
+                        .HasColumnType("bigint(20)");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("CreatedByCharacterId")
+                        .HasDatabaseName("FK_MagicPortalLinks_Characters_idx");
+
+                    b.HasIndex("CreatedBySpellId")
+                        .HasDatabaseName("FK_MagicPortalLinks_MagicSpells_idx");
+
+                    b.HasIndex("DestinationEndpointId")
+                        .HasDatabaseName("FK_MagicPortalLinks_DestinationEndpoints_idx");
+
+                    b.HasIndex("SourceEndpointId")
+                        .HasDatabaseName("FK_MagicPortalLinks_SourceEndpoints_idx");
+
+                    b.HasIndex("MagicPortalNetworkId", "SourceEndpointId", "DestinationEndpointId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_MagicPortalLinks_Network_Source_Destination");
+
+                    b.ToTable("MagicPortalLinks", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.MagicPortalNetwork", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<ulong>("AllowCrossZone")
+                        .HasColumnType("bit(1)");
+
+                    b.Property<long?>("CreatedByCharacterId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long?>("CreatedBySpellId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<DateTime>("CreatedDateTime")
+                        .HasColumnType("datetime");
+
+                    b.Property<string>("InboundDescription")
+                        .IsRequired()
+                        .HasColumnType("varchar(100)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("InboundDescription"), "utf8");
+
+                    b.Property<string>("InboundKeyword")
+                        .IsRequired()
+                        .HasColumnType("varchar(100)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("InboundKeyword"), "utf8");
+
+                    b.Property<string>("InboundTarget")
+                        .IsRequired()
+                        .HasColumnType("varchar(500)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("InboundTarget"), "utf8");
+
+                    b.Property<ulong>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit(1)")
+                        .HasDefaultValue(1ul);
+
+                    b.Property<long?>("MagicSchoolId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("varchar(200)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Name"), "utf8");
+
+                    b.Property<string>("OutboundDescription")
+                        .IsRequired()
+                        .HasColumnType("varchar(100)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("OutboundDescription"), "utf8");
+
+                    b.Property<string>("OutboundKeyword")
+                        .IsRequired()
+                        .HasColumnType("varchar(100)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("OutboundKeyword"), "utf8");
+
+                    b.Property<string>("OutboundTarget")
+                        .IsRequired()
+                        .HasColumnType("varchar(500)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("OutboundTarget"), "utf8");
+
+                    b.Property<double>("TimeMultiplier")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("double")
+                        .HasDefaultValue(1.0);
+
+                    b.Property<string>("Verb")
+                        .IsRequired()
+                        .HasColumnType("varchar(100)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Verb"), "utf8");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("CreatedByCharacterId")
+                        .HasDatabaseName("FK_MagicPortalNetworks_Characters_idx");
+
+                    b.HasIndex("CreatedBySpellId")
+                        .HasDatabaseName("FK_MagicPortalNetworks_MagicSpells_idx");
+
+                    b.HasIndex("MagicSchoolId")
+                        .HasDatabaseName("FK_MagicPortalNetworks_MagicSchools_idx");
+
+                    b.ToTable("MagicPortalNetworks", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.MagicPower", b =>
@@ -21726,6 +21974,9 @@ namespace MudSharp.Migrations
                     b.Property<double>("OriginalDamage")
                         .HasColumnType("double");
 
+                    b.Property<DateTime?>("RealTimeOfWound")
+                        .HasColumnType("datetime");
+
                     b.Property<long?>("ToolOriginId")
                         .HasColumnType("bigint(20)");
 
@@ -27863,6 +28114,123 @@ namespace MudSharp.Migrations
                     b.Navigation("MagicSchool");
                 });
 
+            modelBuilder.Entity("MudSharp.Models.MagicPortalEndpoint", b =>
+                {
+                    b.HasOne("MudSharp.Models.Cell", "Cell")
+                        .WithMany()
+                        .HasForeignKey("CellId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK_MagicPortalEndpoints_Cells");
+
+                    b.HasOne("MudSharp.Models.Character", "CreatedByCharacter")
+                        .WithMany()
+                        .HasForeignKey("CreatedByCharacterId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK_MagicPortalEndpoints_Characters");
+
+                    b.HasOne("MudSharp.Models.MagicSpell", "CreatedBySpell")
+                        .WithMany()
+                        .HasForeignKey("CreatedBySpellId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK_MagicPortalEndpoints_MagicSpells");
+
+                    b.HasOne("MudSharp.Models.GameItem", "GameItem")
+                        .WithMany()
+                        .HasForeignKey("GameItemId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK_MagicPortalEndpoints_GameItems");
+
+                    b.HasOne("MudSharp.Models.MagicPortalNetwork", "MagicPortalNetwork")
+                        .WithMany("MagicPortalEndpoints")
+                        .HasForeignKey("MagicPortalNetworkId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_MagicPortalEndpoints_MagicPortalNetworks");
+
+                    b.Navigation("Cell");
+
+                    b.Navigation("CreatedByCharacter");
+
+                    b.Navigation("CreatedBySpell");
+
+                    b.Navigation("GameItem");
+
+                    b.Navigation("MagicPortalNetwork");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.MagicPortalLink", b =>
+                {
+                    b.HasOne("MudSharp.Models.Character", "CreatedByCharacter")
+                        .WithMany()
+                        .HasForeignKey("CreatedByCharacterId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK_MagicPortalLinks_Characters");
+
+                    b.HasOne("MudSharp.Models.MagicSpell", "CreatedBySpell")
+                        .WithMany()
+                        .HasForeignKey("CreatedBySpellId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK_MagicPortalLinks_MagicSpells");
+
+                    b.HasOne("MudSharp.Models.MagicPortalEndpoint", "DestinationEndpoint")
+                        .WithMany("MagicPortalLinksAsDestination")
+                        .HasForeignKey("DestinationEndpointId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_MagicPortalLinks_DestinationEndpoints");
+
+                    b.HasOne("MudSharp.Models.MagicPortalNetwork", "MagicPortalNetwork")
+                        .WithMany("MagicPortalLinks")
+                        .HasForeignKey("MagicPortalNetworkId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_MagicPortalLinks_MagicPortalNetworks");
+
+                    b.HasOne("MudSharp.Models.MagicPortalEndpoint", "SourceEndpoint")
+                        .WithMany("MagicPortalLinksAsSource")
+                        .HasForeignKey("SourceEndpointId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_MagicPortalLinks_SourceEndpoints");
+
+                    b.Navigation("CreatedByCharacter");
+
+                    b.Navigation("CreatedBySpell");
+
+                    b.Navigation("DestinationEndpoint");
+
+                    b.Navigation("MagicPortalNetwork");
+
+                    b.Navigation("SourceEndpoint");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.MagicPortalNetwork", b =>
+                {
+                    b.HasOne("MudSharp.Models.Character", "CreatedByCharacter")
+                        .WithMany()
+                        .HasForeignKey("CreatedByCharacterId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK_MagicPortalNetworks_Characters");
+
+                    b.HasOne("MudSharp.Models.MagicSpell", "CreatedBySpell")
+                        .WithMany()
+                        .HasForeignKey("CreatedBySpellId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK_MagicPortalNetworks_MagicSpells");
+
+                    b.HasOne("MudSharp.Models.MagicSchool", "MagicSchool")
+                        .WithMany()
+                        .HasForeignKey("MagicSchoolId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK_MagicPortalNetworks_MagicSchools");
+
+                    b.Navigation("CreatedByCharacter");
+
+                    b.Navigation("CreatedBySpell");
+
+                    b.Navigation("MagicSchool");
+                });
+
             modelBuilder.Entity("MudSharp.Models.MagicPower", b =>
                 {
                     b.HasOne("MudSharp.Models.MagicSchool", "MagicSchool")
@@ -32633,6 +33001,20 @@ namespace MudSharp.Migrations
             modelBuilder.Entity("MudSharp.Models.Lock", b =>
                 {
                     b.Navigation("Doors");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.MagicPortalEndpoint", b =>
+                {
+                    b.Navigation("MagicPortalLinksAsDestination");
+
+                    b.Navigation("MagicPortalLinksAsSource");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.MagicPortalNetwork", b =>
+                {
+                    b.Navigation("MagicPortalEndpoints");
+
+                    b.Navigation("MagicPortalLinks");
                 });
 
             modelBuilder.Entity("MudSharp.Models.MagicResource", b =>

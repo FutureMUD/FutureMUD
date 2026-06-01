@@ -51,7 +51,7 @@ It is intended for:
 | `spellremainingduration`, `spellduration`, `setspellduration`, `addspellduration`, `subtractspellduration`, `removespell` | Spell effects | Reads, changes, or removes active spell-parent effects for a specific spell on a character |
 
 ## Power Types
-Current count: 32 power tokens, including 31 builder-creatable tokens and the non-builder `armor` runtime alias. V4 added 9 builder-creatable psionic powers, and the Old SOI parity slice added 7 more psionic power tokens in per-power files under `MudSharpCore/Magic/Powers/`.
+Current count: 32 power tokens, including 31 builder-creatable tokens and the non-builder `armor` runtime alias. V4 added 9 builder-creatable psionic powers, and the Old SOI parity slice added 7 more psionic power tokens in per-power files under `MudSharpCore/Magic/Powers/`. V5b adds residual trace support to existing psionic powers without changing this token count.
 
 | Builder/runtime token | Class | Subsystem | Where registered or dispatched | Builder-creatable | Purpose |
 | --- | --- | --- | --- | --- | --- |
@@ -86,8 +86,8 @@ Current count: 32 power tokens, including 31 builder-creatable tokens and the no
 | `sensitivity` | `SensitivityPower` | Power | Static `RegisterLoader` in `MudSharpCore/Magic/Powers/SensitivityPower.cs` via `MagicPowerFactory` | Yes | Sustains magical or psychic perception, receives activity pings, and actively scans auras or capabilities |
 | `suggest` | `SuggestPower` | Power | Static `RegisterLoader` in `MudSharpCore/Magic/Powers/SuggestPower.cs` via `MagicPowerFactory` | Yes | Injects an involuntary thought, optionally wrapped with an emotional delivery |
 | `telepathy` | `TelepathyPower` | Power | Static `RegisterLoader` in `MudSharpCore/Magic/Powers/TelepathyPower.cs` via `MagicPowerFactory` | Yes | Telepathic communication or related perception |
-| `trace` | `TracePower` | Power | Static `RegisterLoader` in `MudSharpCore/Magic/Powers/TracePower.cs` via `MagicPowerFactory` | Yes | Inspects active mind links around a target mind while respecting concealment difficulty |
-| n/a | `MagicPowerBase` | Power support | Shared base in `MudSharpCore/Magic/Powers/MagicPowerBase.cs` | No | Shared costs, progs, help text, crime handling, and builder support |
+| `trace` | `TracePower` | Power | Static `RegisterLoader` in `MudSharpCore/Magic/Powers/TracePower.cs` via `MagicPowerFactory` | Yes | Inspects active mind links and residual psionic traces around a target mind while respecting concealment difficulty |
+| n/a | `MagicPowerBase` | Power support | Shared base in `MudSharpCore/Magic/Powers/MagicPowerBase.cs` | No | Shared costs, progs, help text, crime handling, builder support, and base psionic trace configuration |
 | n/a | `SustainedMagicPower` | Power support | Shared base in `MudSharpCore/Magic/Powers/SustainedMagicPower.cs` | No | Shared support for sustained powers |
 | n/a | `MagicalMeleeAttackPower` | Power support | Shared base in `MudSharpCore/Magic/Powers/MagicalMeleeAttackPower.cs` | No | Shared support base for melee-style magical attacks |
 
@@ -114,13 +114,14 @@ Current count: 32 power tokens, including 31 builder-creatable tokens and the no
 | `vicinity` | `CastingTriggerVicinity` | Spell trigger | Static `RegisterFactory` in `MudSharpCore/Magic/SpellTriggers/CastingTriggerVicinity.cs` via `SpellTriggerFactory` | Yes | Casts across a vicinity target set |
 
 ## Spell Effect Types
-V4 added 2 builder-creatable tag-aware ward effect tokens: `roomtagward` and `personaltagward`.
+V4 added 2 builder-creatable tag-aware ward effect tokens: `roomtagward` and `personaltagward`. The V5a persistent sensory/combat slice adds 4 builder-creatable tokens: `burning`, `ignite`, `trackmark`, and `tracktrail`.
 
 | Builder/runtime token | Class | Subsystem | Where registered or dispatched | Builder-creatable | Purpose |
 | --- | --- | --- | --- | --- | --- |
 | `blindness` | `BlindnessEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/BlindnessEffect.cs` via `SpellEffectFactory` | Yes | Applies blindness |
 | `boost` | `TraitBoostEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/TraitBoostEffect.cs` via `SpellEffectFactory` | Yes | Boosts a trait |
 | `bodybackup` | `BodyBackupSpellEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/BodyBackupSpellEffect.cs` via `SpellEffectFactory` | Yes | Ensures or reuses a keyed alternate body form and readies it as a death backup with configurable non-final remains context and transfer echoes |
+| `burning` | `BurningEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/PersistentSensoryCombatSpellEffects.cs` via `SpellEffectFactory` | Yes | Applies a spell-owned recurring burning effect to characters or items, with configurable damage, pain, stun, thermal load, tick interval, oxidation requirement, visible addenda, and `dispelmagic effect burning` support |
 | `changecharacteristic` | `ChangeCharacteristicEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/ChangeCharacteristicEffect.cs` via `SpellEffectFactory` | Yes | Changes a characteristic |
 | `comprehendlanguage` | `ComprehendLanguageEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/StandaloneStatusSpellEffects.cs` via `SpellEffectFactory` | Yes | Grants broad spoken and written language comprehension without overriding illiteracy or unknown-script checks |
 | `createitem` | `CreateItemEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/CreateItemEffect.cs` via `SpellEffectFactory` | Yes | Creates an item |
@@ -152,6 +153,7 @@ V4 added 2 builder-creatable tag-aware ward effect tokens: `roomtagward` and `pe
 | `infravision` | `InfravisionEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/StandaloneStatusSpellEffects.cs` via `SpellEffectFactory` | Yes | Grants infrared vision and a darkness difficulty floor |
 | `insomnia` | `InsomniaEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/StandaloneStatusSpellEffects.cs` via `SpellEffectFactory` | Yes | Prevents voluntary and magical sleep |
 | `invisibility` | `InvisibilityEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/InvisibilityEffect.cs` via `SpellEffectFactory` | Yes | Applies invisibility |
+| `ignite` | `BurningEffect` | Spell effect alias | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/PersistentSensoryCombatSpellEffects.cs` via `SpellEffectFactory` | Yes | Builder/load alias for `burning` |
 | `itemdamage` | `ItemDamageEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/MagicPhase3Effects.cs` via `SpellEffectFactory` | Yes | Applies ordinary item damage using configured damage, pain, stun, and damage-type formulas |
 | `itemenchant` | `ItemEnchantEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/MagicPhase3Effects.cs` via `SpellEffectFactory` | Yes | Adds item aura text, glow, weapon/armour hooks, projectile bonuses, craft-tool bonuses, power/fuel modifiers, and optional item event progs |
 | `levitate` | `LevitationEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/WindSpellEffects.cs` via `SpellEffectFactory` | Yes | Suspends a character or item, optionally moves it to a configured room layer, and prevents falling while active |
@@ -166,6 +168,7 @@ V4 added 2 builder-creatable tag-aware ward effect tokens: `roomtagward` and `pe
 | `paralysis` | `ParalysisEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/StandaloneStatusSpellEffects.cs` via `SpellEffectFactory` | Yes | Applies forced paralysis through the health effect system |
 | `poison` | `PoisonEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/StandaloneStatusSpellEffects.Configured.cs` via `SpellEffectFactory` | Yes | Applies a configurable spell-owned drug payload |
 | `portal` | `PortalSpellEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/MagicPhase3Effects.cs` via `SpellEffectFactory` | Yes | Creates effect-owned paired transient exits between the caster's room and a target room, room anchor, or item/object anchor |
+| `portalnetwork` | `PortalTopologySpellEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/PortalTopologySpellEffect.cs` via `SpellEffectFactory` | Yes | Creates or updates durable portal/rune topology endpoints and optionally explicit links inside a `MagicPortalNetwork` |
 | `rage` | `RageSpellEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/RageSpellEffect.cs` via `SpellEffectFactory` | Yes | Applies rage |
 | `relocate` | `RelocateEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/RelocateEffect.cs` via `SpellEffectFactory` | Yes | Relocates a target |
 | `removeblindness` | `RemoveBlindnessEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/BlindnessEffect.cs` via `SpellEffectFactory` | Yes | Removes spell-owned blindness effects |
@@ -206,6 +209,8 @@ V4 added 2 builder-creatable tag-aware ward effect tokens: `roomtagward` and `pe
 | `teleporttarget` | `TeleportTargetEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/TeleportTargetEffect.cs` via `SpellEffectFactory` | Yes | Teleports a target selected by the spell |
 | `subjectivedesc` | `SubjectiveDescriptionEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/MagicPhase3Effects.cs` via `SpellEffectFactory` | Yes | Adds caster-scoped subjective full-description replacement with priority and optional illusion key |
 | `subjectivesdesc` | `SubjectiveSDescEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/MagicPhase3Effects.cs` via `SpellEffectFactory` | Yes | Adds caster-scoped subjective short-description replacement with priority and optional illusion key |
+| `trackmark` | `TrackMarkEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/PersistentSensoryCombatSpellEffects.cs` via `SpellEffectFactory` | Yes | Applies a spell-owned track modifier to characters, changing visual or olfactory track intensity and optionally marking created tracks as magical for tracking output and `dispelmagic effect trackmark` |
+| `tracktrail` | `TrackMarkEffect` | Spell effect alias | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/PersistentSensoryCombatSpellEffects.cs` via `SpellEffectFactory` | Yes | Builder/load alias for `trackmark` |
 | `transference` | `TransferenceEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/WindSpellEffects.cs` via `SpellEffectFactory` | Yes | Swaps caster and target character locations, optionally including followers and room layers |
 | `transformform` | `TransformFormEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/TransformFormEffect.cs` via `SpellEffectFactory` | Yes | Ensures or reuses a keyed alternate body form, applies first-creation defaults such as description patterns and transformation echo, contributes a priority-ranked forced transformation demand, and reuses the shared baseline-form revert path when the demand ends |
 | `waterbreathing` | `WaterBreathingEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/StandaloneStatusSpellEffects.cs` via `SpellEffectFactory` | Yes | Grants additional breathable fluids for the target |
@@ -233,11 +238,17 @@ V4 added 2 builder-creatable tag-aware ward effect tokens: `roomtagward` and `pe
 | --- | --- | --- |
 | `IExitManager.TransientExits` | `IEnumerable<IExit>` | Read-only enumeration of registered transient exits for builder/admin inspection |
 | n/a | `IMagicPortalExit` | Optional metadata contract implemented by transient magical portals for source, destination, caster, spell, source effect, and portal command text |
+| n/a | `IMagicPortalNetwork` | Durable portal/rune topology root containing command/display defaults, active/cross-zone policy, endpoints, and explicit links |
+| n/a | `IMagicPortalEndpoint` | Durable room or directly placed item endpoint for a portal/rune network |
+| n/a | `IMagicPortalLink` | Explicit bidirectional link between two endpoints in a portal/rune network |
+| n/a | `IMagicPortalTopologyExit` | Metadata contract implemented by topology-managed transient exits for network, link, and endpoint identity |
+| n/a | `IMagicPortalTopologyService` | Runtime service that rebuilds durable topology into transient exits and cleans up spell-created topology |
 | n/a | `IMagicProjectilePayloadEffect` | First-class projectile/ranged payload enhancement contract used by ammunition, power packs, and thrown weapons |
 | n/a | `IMagicCraftToolEnhancementEffect` | First-class craft-tool enhancement contract for tool fitness, phase speed, and tool usage multipliers |
 | n/a | `IMagicPowerOrFuelEnhancementEffect` | First-class powered-item enhancement contract for production, consumption, and fuel-use multipliers |
 | n/a | `IMagicItemEventEffect` | First-class item event callback contract for enchanted items |
 | n/a | `IMindContactConcealmentEffect` | Shared psionic identity-concealment contract used by mind links, mind speech, broadcasts, audits, expulsion text, and passive telepathic traffic |
+| n/a | `IPsionicTraceEffect` | Shared residual psionic trace contract used by `trace`, notifier-created trace effects, and future trace-aware systems |
 | n/a | `IPreventFallingEffect` | Shared fall-prevention contract used by levitation and future suspension effects |
 | n/a | `ILevitationEffect` | Spell-owned levitation marker for target-specific suspension |
 | n/a | `IFallDamageMitigationEffect` | Shared fall mitigation contract exposing fall-distance and fall-damage multipliers |
@@ -251,7 +262,7 @@ V4 added 2 builder-creatable tag-aware ward effect tokens: `roomtagward` and `pe
 | n/a | `IBabbleSpeechEffect` | Speech-obfuscation contract used by communication strategies before language comprehension |
 | n/a | `PsionicSustainedPowerEffectBase<TPower>` | Shared base for V4 sustained psionic effects |
 | n/a | `BodypartMappingUtilities` | Shared bodypart mapping helper used by body-form wound migration and `empathy` wound transfer |
-| n/a | `PsionicActivityNotifier` | Shared activity ping helper used by new psionic powers and consumed by `sensitivity` |
+| n/a | `PsionicActivityNotifier` | Shared activity ping helper used by new psionic powers and consumed by `sensitivity`; V5b also uses it as the single residual trace creation point |
 | n/a | `RemoteLookRenderer` | LOOK-style remote cell renderer used by `clairvoyance` |
 | n/a | `MagicAllspeakEffect` | Sustained `IComprehendLanguageEffect` used by `allspeak` |
 | n/a | `MagicMagicksenseEffect` | Sustained `SenseMagical` perception grant used by `magicksense` |
@@ -264,6 +275,23 @@ V4 added 2 builder-creatable tag-aware ward effect tokens: `roomtagward` and `pe
 | n/a | `MagicHexEffect` | Saving check-penalty effect used by `hex` |
 | n/a | `PsionicSensitivityEffect` | Sustained perception grant and activity listener used by `sensitivity` |
 
+## Engine V5a Support Types
+
+| Token or API | Class or interface | Role |
+| --- | --- | --- |
+| `SpellBurning` | `SpellBurningEffect` | Spell-owned scheduled burn child effect that applies recurring passive damage, optional thermal load, visible addenda, and caster-linked dispel ownership without reusing generic `OnFire` |
+| `SpellTrackMark` | `SpellTrackMarkEffect` | Spell-owned track-intensity child effect that exposes `ITrackIntensityEffect` and short-description addenda |
+| n/a | `ITrackIntensityEffect` | Movement hook consumed when creating departure and arrival tracks so active effects can alter visual or olfactory track intensity and add circumstances |
+| `MagicallyMarked` | `TrackCircumstances.MagicallyMarked` | Track circumstance displayed by tracking output as an unnatural magical trace |
+
+## Engine V5b Support Types
+
+V5b adds durable psionic trace/trail V1 without adding new builder power tokens.
+
+| Saved effect type | Class | Summary |
+| --- | --- | --- |
+| `PsionicTrace` | `PsionicTraceEffect` | Saveable timed effect that records recent magical or psychic activity on involved characters and source cells, including source, optional target, school, power, activity kind, timestamp, duration, read difficulty, and concealment fallback identity text |
+
 ## Notes
 - Schools are first-class records rather than subtype-driven types, so they are documented in the overview and backbone docs rather than listed here as a type family.
 - Powers, triggers, and spell effects are all current-state inventories of registered runtime implementations.
@@ -273,4 +301,5 @@ V4 added 2 builder-creatable tag-aware ward effect tokens: `roomtagward` and `pe
 - `transformform` is the current builder-creatable spell effect for cached alternate-form provisioning and scripted transformation, including optional transformation emotes, first-creation description-pattern defaults, and configurable forced-transformation priority metadata.
 - `bodybackup` uses the same cached form-provisioning model for sleeves or clones, but readies the form as a non-permanent death-transfer target instead of forcing an immediate transformation.
 - Wind spell support extends the runtime movement layer with `IFly.CanContinueFlying`, target-specific fall prevention, fall-damage mitigation, exit-path forced movement, precise invisibility removal, and caster/target transference.
+- Persistent sensory/combat spell support adds spell-owned burn-over-time and trackmark effects without making generic `OnFire` or ordinary movement tracks magic-specific.
 - V4 psionic and perception support adds 9 power tokens, tag-aware wards, contextual interdiction tags, illusion priority/key matching, speech babbling, remote audible observation, and non-command psionic traffic/coercion delivery. The Old SOI parity slice adds 7 more psionic power tokens plus seeded variable checks for danger sense, empathy, hex, clairvoyance, prescience, sensitivity, and psychic bolt.

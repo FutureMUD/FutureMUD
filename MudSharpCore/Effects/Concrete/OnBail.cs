@@ -29,24 +29,25 @@ public class OnBail : Effect, IEffect, IScoreAddendumEffect
 
     #region Constructors
 
-    public OnBail(ICharacter owner, ILegalAuthority legalAuthority, MudDateTime arrestTime) : base(owner, null)
+    public OnBail(ICharacter owner, ILegalAuthority legalAuthority, MudDateTime returnDueDate) : base(owner, null)
     {
         LegalAuthority = legalAuthority;
-        ArrestTime = arrestTime;
+        ReturnDueDate = returnDueDate;
     }
 
     protected OnBail(XElement effect, IPerceivable owner) : base(effect, owner)
     {
         XElement root = effect.Element("Effect");
         LegalAuthority = Gameworld.LegalAuthorities.Get(long.Parse(root.Element("LegalAuthority").Value));
-        ArrestTime = MudDateTime.FromStoredStringOrFallback(root.Element("ArrestTime").Value, Gameworld,
-            StoredMudDateTimeFallback.CurrentDateTime, "Effect:OnBail", Owner?.Id, Owner?.Name, "ArrestTime");
+        XElement returnDueDate = root.Element("ReturnDueDate") ?? root.Element("ArrestTime");
+        ReturnDueDate = MudDateTime.FromStoredStringOrFallback(returnDueDate?.Value, Gameworld,
+            StoredMudDateTimeFallback.CurrentDateTime, "Effect:OnBail", Owner?.Id, Owner?.Name, "ReturnDueDate");
     }
 
     #endregion
 
     public ILegalAuthority LegalAuthority { get; set; }
-    public MudDateTime ArrestTime { get; set; }
+    public MudDateTime ReturnDueDate { get; set; }
 
     // Note: You can safely delete this entire region if your effect acts more like a flag and doesn't actually save any specific data on it (e.g. immwalk, admin telepathy, etc)
 
@@ -56,7 +57,7 @@ public class OnBail : Effect, IEffect, IScoreAddendumEffect
     {
         return new XElement("Effect",
             new XElement("LegalAuthority", LegalAuthority.Id),
-            new XElement("ArrestTime", new XCData(ArrestTime.GetDateTimeString()))
+            new XElement("ReturnDueDate", new XCData(ReturnDueDate.GetDateTimeString()))
         );
     }
 
@@ -69,7 +70,7 @@ public class OnBail : Effect, IEffect, IScoreAddendumEffect
     public override string Describe(IPerceiver voyeur)
     {
         return
-            $"On bail until {ArrestTime.ToString(TimeAndDate.Date.CalendarDisplayMode.Short, TimeAndDate.Time.TimeDisplayTypes.Short).ColourValue()}.";
+            $"On bail until {ReturnDueDate.ToString(TimeAndDate.Date.CalendarDisplayMode.Short, TimeAndDate.Time.TimeDisplayTypes.Short).ColourValue()}.";
     }
 
     public override bool SavingEffect => true;
@@ -90,5 +91,5 @@ public class OnBail : Effect, IEffect, IScoreAddendumEffect
     public bool ShowInHealth => false;
 
     public string ScoreAddendum =>
-        $"You are on bail until {ArrestTime.ToString(TimeAndDate.Date.CalendarDisplayMode.Short, TimeAndDate.Time.TimeDisplayTypes.Short).ColourValue()}.";
+        $"You are on bail until {ReturnDueDate.ToString(TimeAndDate.Date.CalendarDisplayMode.Short, TimeAndDate.Time.TimeDisplayTypes.Short).ColourValue()}.";
 }

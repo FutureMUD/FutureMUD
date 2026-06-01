@@ -27,7 +27,7 @@ public class ResidueContamination : Effect, ICleanableEffect, ISDescAdditionEffe
 
     public ResidueContamination(XElement effect, IPerceivable owner) : base(effect, owner)
     {
-        LoadFromXml(effect.Element("Effect"));
+        LoadErrors = true;
     }
 
     public static IStackDecorator StackDecorator => _stackDecorator ??= Futuremud.Games.First()

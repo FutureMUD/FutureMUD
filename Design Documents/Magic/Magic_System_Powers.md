@@ -133,6 +133,10 @@ All ordinary power types get these common commands:
 - `help`
 - `cost <verb> <which> <number>`
 - `psionic` / `psi`, which toggles the psionics crime category
+- `trace` / `traces`, which toggles residual trace creation for psionic activity
+- `traceduration <timespan>`, which sets how long residual traces persist
+- `tracedifficulty <difficulty>`, which sets the base difficulty to read residual traces
+- `tracedesc <description>`, which sets the residual trace text reported by `trace`
 
 Each concrete power type then adds its own subtype commands in its overridden `BuildingCommand`.
 
@@ -195,6 +199,7 @@ Add a new power type when the behavior does not fit the spell system well and de
 - Keep help text player-facing, not developer-facing.
 - If the power can consume resources under different verbs, define those costs per verb through the base `InvocationCosts` support.
 - If the power should be treated as psionic rather than magical, make `IsPsionic` explicit and make sure the saved XML includes it through the base helper.
+- For psionic powers that should leave investigable residue, enable the base trace configuration instead of adding per-power trace effects. Older XML without trace fields loads with tracing disabled for compatibility; newly builder-created psionic powers use a modest enabled default.
 
 ## Current Implemented Power Types
 ### Builder-registered power types
@@ -232,7 +237,7 @@ These are the currently builder-creatable power tokens registered through `Magic
 | `sensitivity` | `SensitivityPower` | Sustained magical/psychic sensitivity, activity pings, active aura scans, and hard capability reads |
 | `suggest` | `SuggestPower` | Injects an involuntary thought, optionally with an emotional wrapper |
 | `telepathy` | `TelepathyPower` | Telepathic communication or related perception |
-| `trace` | `TracePower` | Inspects active mind links around a target mind while respecting concealment |
+| `trace` | `TracePower` | Inspects active mind links and residual psionic traces around a target mind while respecting concealment |
 
 Important current-state note:
 
@@ -252,6 +257,10 @@ Passive psionic traffic can use either the existing `telepathy` flow or the dedi
 
 V4 adds a shared psionic traffic/coercion helper used by `projectemotion`, `suggest`, and `coerce`. It handles involuntary mental delivery, eligible listener forwarding, opt-out/refusal checks, consistent source/target messaging, and wiz-audit output. `coerce` supports stamina, hunger, thirst, and thought modes; it does not run the victim's command parser.
 
+V5b adds timed residual psionic traces. `PsionicActivityNotifier` still broadcasts activity pings to `sensitivity`, and now also creates saveable `PsionicTrace` effects for powers with tracing enabled. Traces are placed on the source, involved targets, and the source cell where useful, using ordinary `EffectData` persistence and timed expiry rather than a permanent audit ledger. The trace facts include source, optional target, source cell, school, power, activity kind, created time, duration, read difficulty, and concealment fallback identity text.
+
+`trace <target>` reports active mind links first. It then reports residual traces if any exist, including cases where the active link has ended or where both live links and residual evidence are present. If the source was concealed, the trace reader must clear the raised difficulty or sees the configured unknown identity text.
+
 This is intentionally separate from true projection or possession. `mindconceal` hides identity across mind-contact and passive telepathy surfaces; `clairaudience` forwards remote audible output through another mind's location; neither creates a second acting body or remote command shell.
 
 The Old SOI parity slice adds seven builder-created psionic powers. `dangersense` and `sensitivity` are sustained self powers; `empathy`, `hex`, `clairvoyance`, and `psychicbolt` are targeted powers; `prescience` is a board-submission power. They reuse the shared power XML, cost, psionic-crime, and builder-command systems, with subtype XML for Old SOI-style defaults and FutureMUD-specific extensions such as wound remapping, configurable check categories, activity filters, and capability-read difficulty.
@@ -267,7 +276,7 @@ These matter to developers extending the subsystem, but they are not standalone 
 | `PsionicTrafficHelper` | Shared policy helper for involuntary thought/feeling delivery, eligible listener forwarding, opt-out checks, blocked command roots, and audit output |
 | `PsionicSustainedPowerEffectBase<TPower>` | Shared runtime base for the V4 sustained psionic effects |
 | `BodypartMappingUtilities` | Shared bodypart remapping helper used by form transformation-style wound migration and `empathy` wound transfer |
-| `PsionicActivityNotifier` | Broadcast helper for magical or psychic activity pings consumed by `sensitivity` |
+| `PsionicActivityNotifier` | Broadcast helper for magical or psychic activity pings consumed by `sensitivity`; also the shared residual trace creation point for trace-enabled powers |
 | `RemoteLookRenderer` | LOOK-style remote cell renderer used by `clairvoyance` without relocating the viewer |
 | `MagicAllspeakEffect` | Sustained `IComprehendLanguageEffect` used by `allspeak` |
 | `MagicDangerSenseEffect` | Sustained danger-sense heartbeat effect that scans nearby cells and refreshes defensive warnings |
@@ -278,6 +287,7 @@ These matter to developers extending the subsystem, but they are not standalone 
 | `PsionicHearEffect` | Sustained `ITelepathyEffect` listener used by `hear` |
 | `PsionicClairaudienceEffect` | Remote audible-observation effect used by `clairaudience` |
 | `PsionicSensitivityEffect` | Sustained magical/psychic perception grant and activity listener used by `sensitivity` |
+| `PsionicTraceEffect` | Saving timed trace effect used by `trace` to inspect residual psionic activity |
 
 ## Important Current-State Notes
 - School verbs are the player namespace for powers. There is no separate general player command that bypasses the school.

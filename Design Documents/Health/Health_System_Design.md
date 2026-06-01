@@ -223,10 +223,7 @@ The health system now supports combat-driven burning via `FireProfile` and the `
 
 ## Corrosive / Contact Liquids
 
-Liquids can now define `SurfaceReactionInfo`, loaded into `ILiquidSurfaceReaction` entries. These reactions are tag-driven and are evaluated during:
-
-- `LiquidContamination` ticks for items
-- `BodyLiquidContamination` ticks for bodies
+Liquids can now define `SurfaceReactionInfo`, loaded into `ILiquidSurfaceReaction` entries. These reactions are tag-driven and are evaluated by the surface-liquid exposure path when items or bodies become wet and when drying resolves residue creation. Ordinary wetness is no longer a scheduled saved effect; `SurfaceLiquidState` stores the mixture, residues, saturation, and last-resolved time for bodies and items.
 
 Each reaction can apply:
 
@@ -234,7 +231,7 @@ Each reaction can apply:
 - pain
 - stun
 
-This allows effects such as acids attacking flesh but not glass, holy water harming specific tagged creatures, or custom race/material vulnerabilities using existing contamination delivery.
+This allows effects such as acids attacking flesh but not glass, holy water harming specific tagged creatures, or custom race/material vulnerabilities using the shared surface exposure strategy. Future touched-vector skin dosing, dyes, solvents, and material-specific damage should extend the same strategy path rather than adding new saved contamination effects.
 
 ## Persistence Changes
 

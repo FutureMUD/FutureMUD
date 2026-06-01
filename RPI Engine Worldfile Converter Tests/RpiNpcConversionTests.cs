@@ -30,6 +30,9 @@ public class RpiNpcConversionTests
 		var shopkeeper = corpus.Npcs.Single(x => x.Vnum == 1002);
 		Assert.IsNotNull(shopkeeper.Shop);
 		Assert.AreEqual(100, shopkeeper.Shop!.ShopVnum);
+		Assert.AreEqual(200, shopkeeper.Shop.StoreVnum);
+		Assert.AreEqual(3, shopkeeper.Shop.EconomyProfiles.Count);
+		Assert.AreEqual(0, shopkeeper.Shop.NoBuyFlags);
 		Assert.AreEqual(1, shopkeeper.ClanMemberships.Count);
 
 		var spider = corpus.Npcs.Single(x => x.Vnum == 1003);

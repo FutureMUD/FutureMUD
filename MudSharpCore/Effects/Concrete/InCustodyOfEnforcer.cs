@@ -34,6 +34,7 @@ public class InCustodyOfEnforcer : Effect, IEffect
         {
             _enforcer = value;
             _enforcerId = value.Id;
+            Changed = true;
         }
     }
 

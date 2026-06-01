@@ -100,6 +100,7 @@ public sealed class SuggestPower : PsionicTargetedPowerBase
 		}
 
 		PsionicTrafficHelper.DeliverThought(actor, target, School, thought);
+		PsionicActivityNotifier.Notify(actor, this, "a suggested thought", target);
 		ConsumePowerCosts(actor, Verb);
 	}
 

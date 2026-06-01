@@ -84,6 +84,8 @@ public class MindBroadcastPower : MagicPowerBase
         UseLanguage = false;
         UseAccent = false;
         PowerDistance = MagicPowerDistance.AdjacentLocationsOnly;
+        IsPsionic = true;
+        EnablePsionicTraceDefaults();
         DoDatabaseInsert();
     }
 
@@ -248,18 +250,15 @@ public class MindBroadcastPower : MagicPowerBase
             return;
         }
 
-        IEnumerable<ICharacter> targets = AcquireAllValidTargets(actor, PowerDistance);
+        var targets = AcquireAllValidTargets(actor, PowerDistance)
+                      .Where(x => TargetIncluded?.Execute<bool?>(x) != false)
+                      .ToList();
 
         if (UseLanguage)
         {
             PsychicLanguageInfo langInfo = new(actor.CurrentLanguage, UseAccent ? actor.CurrentAccent : null, text, outcome, actor);
             foreach (ICharacter target in targets.AsEnumerable())
             {
-                if (TargetIncluded?.Execute<bool?>(target) == false)
-                {
-                    continue;
-                }
-
                 LanguageOutput emote = new(new Emote(GetAppropriateTargetEmote(actor, target), actor, actor, target), langInfo, null);
                 target.OutputHandler.Send(emote);
             }
@@ -270,17 +269,14 @@ public class MindBroadcastPower : MagicPowerBase
         {
             foreach (ICharacter target in targets.AsEnumerable())
             {
-                if (TargetIncluded?.Execute<bool?>(target) == false)
-                {
-                    continue;
-                }
-
                 EmoteOutput emote = new(new Emote($"{GetAppropriateTargetEmote(actor, target)} \"{text.ProperSentences().Fullstop()}\"", actor, PermitLanguageOptions.IgnoreLanguage, actor, target), flags: OutputFlags.NoLanguage);
                 target.OutputHandler.Send(emote);
             }
 
             actor.OutputHandler.Send(new EmoteOutput(new Emote($"{EmoteText} \"{text.ProperSentences().Fullstop()}\"", actor, PermitLanguageOptions.IgnoreLanguage, actor), flags: OutputFlags.NoLanguage));
         }
+
+        PsionicActivityNotifier.Notify(actor, this, "a psychic broadcast", targets);
     }
 
     public override IEnumerable<string> Verbs => new[] { Verb };

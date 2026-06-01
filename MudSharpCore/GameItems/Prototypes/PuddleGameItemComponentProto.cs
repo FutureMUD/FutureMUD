@@ -249,20 +249,7 @@ namespace MudSharp.GameItems.Prototypes
         public static void TopUpOrCreateNewPuddle(LiquidMixture mixture, ICell location, RoomLayer layer,
             IPerceivable referenceItem)
         {
-            PuddleGameItemComponent puddle = location.LayerGameItems(layer)
-                                 .SelectNotNull(x => x.GetItemType<PuddleGameItemComponent>())
-                                 .FirstOrDefault(x => x.Parent.PositionTarget == referenceItem);
-            if (puddle is null)
-            {
-                if (location.Gameworld.GetStaticBool("PuddlesEnabled"))
-                {
-                    CreateNewPuddle(mixture, location, layer, referenceItem);
-                }
-
-                return;
-            }
-
-            puddle.MergeLiquid(mixture, null, "");
+            location?.AddLiquidToSurface(mixture, layer, referenceItem);
         }
     }
 }

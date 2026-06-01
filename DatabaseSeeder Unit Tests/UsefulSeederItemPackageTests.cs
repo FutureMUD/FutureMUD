@@ -176,6 +176,75 @@ public class UsefulSeederItemPackageTests
 		};
 	}
 
+	private static MarketCategory CreateMarketCategory(long id, string name)
+	{
+		return new MarketCategory
+		{
+			Id = id,
+			Name = name,
+			Description = $"{name} test category",
+			ElasticityFactorAbove = 0.5,
+			ElasticityFactorBelow = 0.5,
+			MarketCategoryType = 0,
+			Tags = "<Tags />",
+			CombinationCategories = "<Components />"
+		};
+	}
+
+	private static void SeedMarketCategories(FuturemudDatabaseContext context)
+	{
+		string[] names =
+		[
+			"Staple Food",
+			"Standard Food",
+			"Beer",
+			"Wine",
+			"Luxury Wares",
+			"Luxury Clothing",
+			"Luxury Furniture",
+			"Luxury Decorations",
+			"Military Goods",
+			"Weapons",
+			"Armour",
+			"Ammunition",
+			"Shields"
+		];
+
+		context.MarketCategories.AddRange(names.Select((name, index) => CreateMarketCategory(index + 1, name)));
+		context.SaveChanges();
+	}
+
+	private static void EnsureComponentMarkers(FuturemudDatabaseContext context, params string[] names)
+	{
+		var nextId = context.GameItemComponentProtos.Any() ? context.GameItemComponentProtos.Max(x => x.Id) + 1 : 1;
+		foreach (var name in names)
+		{
+			if (context.GameItemComponentProtos.Any(x => x.Name == name))
+			{
+				continue;
+			}
+
+			context.GameItemComponentProtos.Add(CreateComponentMarker(nextId++, name));
+		}
+
+		context.SaveChanges();
+	}
+
+	private static GameItemProto LoadItem(FuturemudDatabaseContext context, string uniqueName)
+	{
+		return context.GameItemProtos
+		              .Include(x => x.GameItemProtosGameItemComponentProtos)
+		              .ThenInclude(x => x.GameItemComponent)
+		              .Single(x => x.UniqueName == uniqueName);
+	}
+
+	private static string[] ComponentNames(GameItemProto item)
+	{
+		return item.GameItemProtosGameItemComponentProtos
+		           .Select(x => x.GameItemComponent.Name)
+		           .ToArray();
+	}
+
 	private static void SeedRepairKitPrerequisites(FuturemudDatabaseContext context)
 	{
 		context.Tags.AddRange(
@@ -248,6 +317,12 @@ public class UsefulSeederItemPackageTests
 
 		Assert.AreEqual(ShouldSeedResult.ExtraPackagesAvailable, UsefulSeeder.ClassifyItemPackagePresence(context));
 		Assert.IsTrue(UsefulSeeder.StockItemMarkersForTesting.Contains("Container_Bookcase_Shelves"));
+		Assert.IsTrue(UsefulSeeder.StockItemMarkersForTesting.Contains("TimePiece_Antiquity_Sundial"));
+		Assert.IsTrue(UsefulSeeder.StockItemMarkersForTesting.Contains("SealStamp_Antiquity_BronzeSignet"));
+		Assert.IsTrue(UsefulSeeder.StockItemMarkersForTesting.Contains("Sealable_Envelope"));
+		Assert.IsTrue(UsefulSeeder.StockItemMarkersForTesting.Contains("MeasuringInstrument_Antiquity_BalanceScale"));
+		Assert.IsTrue(UsefulSeeder.StockItemMarkersForTesting.Contains("IncenseBurner_Antiquity_BronzeCenser"));
+		Assert.IsTrue(UsefulSeeder.StockItemMarkersForTesting.Contains("OfferingReceiver_Antiquity_HouseholdAltar"));
 
 		context.GameItemComponentProtos.Add(CreateComponentMarker(id++, "Container_Bookcase_Shelves"));
 		context.SaveChanges();
@@ -348,6 +423,213 @@ public class UsefulSeederItemPackageTests
 		Assert.AreEqual(1, context.VariableDefinitions.Count(x => x.Property == "nicotineuntil"));
 		Assert.AreEqual(1, context.VariableDefaults.Count(x => x.Property == "nicotineuntil"));
 		Assert.AreEqual(0, context.GameItemComponentProtos.Count(x => x.Name.StartsWith("Food_")));
+	}
+
+	[TestMethod]
+	public void SeedAntiquityComponentGapCoverageForTesting_RerunDoesNotDuplicateAndSeedsReportComponents()
+	{
+		using FuturemudDatabaseContext context = BuildContext();
+		SeedGeneralPrerequisites(context);
+		SeedMarketCategories(context);
+		UsefulSeeder seeder = new();
+
+		seeder.SeedAntiquityComponentGapCoverageForTesting(context);
+		seeder.SeedAntiquityComponentGapCoverageForTesting(context);
+
+		string[] expectedNames =
+		[
+			"TimePiece_Antiquity_Sundial",
+			"TimePiece_Antiquity_WaterClock",
+			"TimePiece_Antiquity_MarkedCandle",
+			"TimePiece_Antiquity_WatchBoard",
+			"WaterSource_Antiquity_PublicWell",
+			"WaterSource_Antiquity_Cistern",
+			"WaterSource_Antiquity_Fountain",
+			"WaterSource_Antiquity_BathPool",
+			"WaterSource_Antiquity_RitualBasin",
+			"WaterSource_Antiquity_IrrigationOutlet",
+			"ShopStall_Antiquity_OpenCounter",
+			"ShopStall_Antiquity_LockableCounter",
+			"ShopStall_Antiquity_PortableBooth",
+			"MarketGoodWeight_Antiquity_StapleFood",
+			"MarketGoodWeight_Antiquity_LuxuryCraft",
+			"MarketGoodWeight_Antiquity_MilitarySupply",
+			"Dice_Antiquity_Knucklebones",
+			"Dice_Antiquity_CastingSticks",
+			"Dice_Antiquity_LoadedD6",
+			"Dice_Antiquity_DivinationLots",
+			"DragAid_Antiquity_FieldStretcher",
+			"DragAid_Antiquity_CorpseBier",
+			"DragAid_Antiquity_CargoSled",
+			"DragAid_Antiquity_PackTravois",
+			"DragAid_Antiquity_CarryingSling",
+			"Locksmithing_Antiquity_BronzePoor",
+			"Locksmithing_Antiquity_BronzeStandard",
+			"Locksmithing_Antiquity_FineSteel",
+			"Locksmithing_Antiquity_Installation",
+			"Locksmithing_Antiquity_Fabrication",
+			"SealStamp_Antiquity_BronzeSignet",
+			"SealStamp_Antiquity_CylinderSeal",
+			"Sealable_Document_Wax",
+			"Sealable_Document_Clay",
+			"Sealable_Envelope",
+			"Sealable_Scroll",
+			"Sealable_Container_Wax",
+			"MeasuringInstrument_Antiquity_BalanceScale",
+			"MeasuringInstrument_Antiquity_StandardWeights",
+			"MeasuringInstrument_Antiquity_FalseWeights",
+			"MeasuringInstrument_Antiquity_GrainMeasure",
+			"MeasuringInstrument_Antiquity_OilCup",
+			"MeasuringInstrument_Antiquity_WineCup",
+			"MeasuringInstrument_Antiquity_TaxAssessorKit",
+			"Container_Envelope",
+			"PaperSheet_Envelope",
+			"PaperSheet_Scroll",
+			"IncenseBurner_Antiquity_BronzeCenser",
+			"OfferingReceiver_Antiquity_HouseholdAltar",
+			"OfferingReceiver_Antiquity_VotiveBasin",
+			"OfferingReceiver_Antiquity_FuneralTray"
+		];
+
+		foreach (string name in expectedNames)
+		{
+			Assert.AreEqual(1, context.GameItemComponentProtos.Count(x => x.Name == name), $"Expected one component named {name}.");
+		}
+
+		XElement Definition(string name) => XElement.Parse(context.GameItemComponentProtos.Single(x => x.Name == name).Definition);
+
+		Assert.AreEqual("$c", (string)Definition("TimePiece_Antiquity_Sundial").Element("TimeDisplayString")!);
+		Assert.AreEqual(100.0, (double)Definition("WaterSource_Antiquity_RitualBasin").Attribute("LiquidCapacity")!);
+		Assert.AreEqual(0.0, (double)Definition("WaterSource_Antiquity_RitualBasin").Attribute("RefillRate")!);
+		Assert.AreEqual(6, (int)Definition("DragAid_Antiquity_CorpseBier").Element("MaximumUsers")!);
+		Assert.AreEqual(-2, (int)Definition("Locksmithing_Antiquity_BronzePoor").Element("DifficultyAdjustment")!);
+		Assert.AreEqual("on", (string)Definition("ShopStall_Antiquity_OpenCounter").Attribute("Preposition")!);
+		Assert.AreEqual("a bronze signet showing a lion beneath a civic star",
+			(string)Definition("SealStamp_Antiquity_BronzeSignet").Element("SealDesign")!);
+		Assert.IsTrue(Definition("Sealable_Envelope").Element("AllowedMedia")!.Elements("Medium")
+		                                      .Any(x => (string)x == "wax"));
+		Assert.AreEqual("Weight", (string)Definition("MeasuringInstrument_Antiquity_BalanceScale").Element("Mode")!);
+		Assert.AreEqual("FluidVolume", (string)Definition("MeasuringInstrument_Antiquity_OilCup").Element("Mode")!);
+		Assert.AreEqual(1, (int)Definition("IncenseBurner_Antiquity_BronzeCenser").Element("ScentRange")!);
+		Assert.AreEqual(4, (int)Definition("IncenseBurner_Antiquity_BronzeCenser").Element("ScentDifficulty")!);
+		Assert.IsTrue(Definition("IncenseBurner_Antiquity_BronzeCenser").Element("SourceScentDescription")!.Value
+			.Contains("resinous", StringComparison.OrdinalIgnoreCase));
+		Assert.AreEqual("ManualBurn",
+			(string)Definition("OfferingReceiver_Antiquity_HouseholdAltar").Element("ConsumptionMode")!);
+		Assert.AreEqual("BurnOnOffer",
+			(string)Definition("OfferingReceiver_Antiquity_VotiveBasin").Element("ConsumptionMode")!);
+
+		XElement loadedDie = Definition("Dice_Antiquity_LoadedD6");
+		Assert.AreEqual(6, loadedDie.Element("Faces")!.Elements("Face").Count());
+		Assert.AreEqual(2.5, (double)loadedDie.Element("Weights")!.Elements("Weight").Last().Element("Probability")!);
+
+		XElement militaryWeight = Definition("MarketGoodWeight_Antiquity_MilitarySupply");
+		long weaponsCategoryId = context.MarketCategories.Single(x => x.Name == "Weapons").Id;
+		Assert.IsTrue(militaryWeight.Element("Multipliers")!.Elements("Multiplier")
+			.Any(x => (long)x.Attribute("category")! == weaponsCategoryId && (decimal)x.Attribute("value")! == 1.25m));
+
+		GameItemProto envelope = context.GameItemProtos
+		                                .Include(x => x.GameItemProtosGameItemComponentProtos)
+		                                .ThenInclude(x => x.GameItemComponent)
+		                                .Single(x => x.ShortDescription == "a sealable envelope");
+		CollectionAssert.IsSubsetOf(new[]
+			{
+				"Holdable",
+				"Container_Envelope",
+				"PaperSheet_Envelope",
+				"Sealable_Envelope"
+			},
+			envelope.GameItemProtosGameItemComponentProtos.Select(x => x.GameItemComponent.Name).ToArray());
+
+		GameItemProto scroll = context.GameItemProtos
+		                            .Include(x => x.GameItemProtosGameItemComponentProtos)
+		                            .ThenInclude(x => x.GameItemComponent)
+		                            .Single(x => x.ShortDescription == "a sealable scroll");
+		CollectionAssert.IsSubsetOf(new[]
+			{
+				"Holdable",
+				"PaperSheet_Scroll",
+				"Sealable_Scroll"
+			},
+			scroll.GameItemProtosGameItemComponentProtos.Select(x => x.GameItemComponent.Name).ToArray());
+	}
+
+	[TestMethod]
+	public void ItemSeeder_AntiquityComponentGapItems_RerunDoesNotDuplicateAndUsesReportComponents()
+	{
+		using FuturemudDatabaseContext context = BuildContext();
+		SeedGeneralPrerequisites(context);
+		SeedMarketCategories(context);
+		UsefulSeeder usefulSeeder = new();
+		usefulSeeder.SeedAntiquityComponentGapCoverageForTesting(context);
+		EnsureComponentMarkers(context,
+			"Destroyable_Misc",
+			"Destroyable_Furniture",
+			"Destroyable_WoodenHeavy",
+			"Destroyable_HeavyMetal",
+			"Container_Tray",
+			"Container_Pouch",
+			"Container_Small_Drum",
+			"LContainer_DrinkingGlass",
+			"LContainer_WineGlass",
+			"LContainer_Amphora_Urna",
+			"Wear_Ring",
+			"Wear_Waist",
+			"Keyring_Large",
+			"LockingContainer_Lockbox",
+			"Dice_d6");
+		ItemSeeder itemSeeder = new();
+
+		itemSeeder.SeedAntiquityComponentGapItemsForTesting(context);
+		itemSeeder.SeedAntiquityComponentGapItemsForTesting(context);
+
+		var expectedStableReferences = ItemSeeder.AntiquityComponentGapItemStableReferencesForTesting;
+		foreach (var stableReference in expectedStableReferences)
+		{
+			Assert.AreEqual(1, context.GameItemProtos.Count(x => x.UniqueName == stableReference),
+				$"Expected one item prototype named {stableReference}.");
+		}
+
+		GameItemProto bronzeSignet = LoadItem(context, "antiquity_bronze_signet_ring");
+		CollectionAssert.Contains(ComponentNames(bronzeSignet), "SealStamp_Antiquity_BronzeSignet");
+		CollectionAssert.Contains(ComponentNames(bronzeSignet), "Wear_Ring");
+
+		GameItemProto papyrusScroll = LoadItem(context, "antiquity_sealed_papyrus_scroll");
+		CollectionAssert.Contains(ComponentNames(papyrusScroll), "Antiquity_Papyrus_Scroll_Surface");
+		CollectionAssert.Contains(ComponentNames(papyrusScroll), "Sealable_Scroll");
+
+		GameItemProto sealBox = LoadItem(context, "antiquity_tax_office_seal_box");
+		CollectionAssert.Contains(ComponentNames(sealBox), "LockingContainer_Lockbox");
+		CollectionAssert.Contains(ComponentNames(sealBox), "Sealable_Container_Wax");
+
+		GameItemProto oilCup = LoadItem(context, "antiquity_oil_measure_cup");
+		CollectionAssert.Contains(ComponentNames(oilCup), "LContainer_DrinkingGlass");
+		CollectionAssert.Contains(ComponentNames(oilCup), "MeasuringInstrument_Antiquity_OilCup");
+
+		GameItemProto publicWell = LoadItem(context, "antiquity_stone_public_well");
+		CollectionAssert.Contains(ComponentNames(publicWell), "WaterSource_Antiquity_PublicWell");
+
+		GameItemProto measuringRod = LoadItem(context, "antiquity_wooden_measuring_rod");
+		CollectionAssert.DoesNotContain(ComponentNames(measuringRod), "MeasuringInstrument_Antiquity_BalanceScale",
+			"Length measurement is deferred, so the rod should remain a non-measuring prop.");
+
+		GameItemProto censer = LoadItem(context, "antiquity_bronze_incense_censer");
+		CollectionAssert.Contains(ComponentNames(censer), "IncenseBurner_Antiquity_BronzeCenser");
+
+		GameItemProto incense = LoadItem(context, "antiquity_resin_incense_pellets");
+		CollectionAssert.Contains(ComponentNames(incense), "Holdable");
+		Assert.IsTrue(incense.GameItemProtosTags
+		                     .Select(x => context.Tags.Single(tag => tag.Id == x.TagId).Name)
+		                     .Contains("Incense Fuel"));
+
+		GameItemProto altar = LoadItem(context, "antiquity_household_altar");
+		CollectionAssert.Contains(ComponentNames(altar), "OfferingReceiver_Antiquity_HouseholdAltar");
+
+		GameItemProto votiveBasin = LoadItem(context, "antiquity_votive_offering_basin");
+		CollectionAssert.Contains(ComponentNames(votiveBasin), "OfferingReceiver_Antiquity_VotiveBasin");
+
+		GameItemProto funeralTray = LoadItem(context, "antiquity_funeral_offering_tray");
+		CollectionAssert.Contains(ComponentNames(funeralTray), "OfferingReceiver_Antiquity_FuneralTray");
 	}
 
 	[TestMethod]

@@ -27,6 +27,11 @@ public class LiteracyModule : Module<ICharacter>
 
     public static LiteracyModule Instance { get; } = new();
 
+	private static void BreakSealForAccess(ICharacter actor, GameItems.IGameItem target, string reason)
+	{
+		target.GetItemType<ISealable>()?.BreakSeal(actor, reason);
+	}
+
     [PlayerCommand("Scripts", "scripts")]
     [HelpInfo("Scripts", @"The #3scripts#0 command is used to show all of the scripts (systems of writing) that you know, and which one you are currently using when you write.
 
@@ -85,6 +90,8 @@ For graffiti, see the #3look#0 command instead.", AutoHelp.HelpArgOrNoArg)]
             actor.Send($"{target.HowSeen(actor, true)} must first be opened before it can be read.");
             return;
         }
+
+		BreakSealForAccess(actor, target, "read");
 
         StringBuilder sb = new();
         if (ss.IsFinished)
@@ -271,6 +278,7 @@ The syntax is as follows:
                     return;
                 }
 
+				BreakSealForAccess(actor, target, "written on");
                 targetAsWritable.Write(actor, implement, writing);
                 handler.Handle(new EmoteOutput(new Emote("@ write|writes on $0 with $1.", actor, target,
                     implement.Parent)));
@@ -391,6 +399,7 @@ Style: {actor.WritingStyle.Describe().ColourValue()}
 
             CompositeWriting graffiti = new(actor.Gameworld, actor, implement, text, sdesc);
             actor.Gameworld.Add(graffiti);
+			BreakSealForAccess(actor, target, "graffiti");
             target.AddEffect(new GraffitiEffect(actor, graffiti, RoomLayer.GroundLevel, string.Empty));
             handler.Handle(new EmoteOutput(new Emote("@ draw|draws graffiti on $0 with $1.", actor, target, implement.Parent)));
             handler.Send(new EmoteOutput(new Emote("You draw graffiti on $0 with $1.", actor, target, implement.Parent)));
@@ -577,6 +586,7 @@ To draw on locations or things that aren't normally meant for writing and drawin
                 return;
             }
 
+			BreakSealForAccess(actor, target, "drawn on");
             targetAsWritable.Draw(actor, implement, drawing);
             handler.Handle(new EmoteOutput(new Emote("@ draw|draws on $0 with $1.", actor, target, implement.Parent)));
         }, (handler, pars) => { handler.Send("You decide not to draw anything."); }, 1.0);
@@ -636,6 +646,7 @@ The syntax is #3title <item> <title>#0.", AutoHelp.HelpArgOrNoArg)]
             return;
         }
 
+		BreakSealForAccess(actor, target, "retitled");
         string oldTitle = targetAsWritable.Title ?? string.Empty;
         targetAsWritable.GiveTitle(actor, ss.SafeRemainingArgument);
         if (oldTitle.Equals(string.Empty))

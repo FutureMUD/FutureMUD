@@ -1,5 +1,6 @@
 ﻿using MudSharp.Character;
 using MudSharp.Commands.Trees;
+using MudSharp.Construction;
 using MudSharp.Framework;
 using MudSharp.GameItems;
 using System;
@@ -33,6 +34,7 @@ namespace MudSharp.RPG.Law
             switch (type)
             {
                 case CrimeTypes.Assault:
+                case CrimeTypes.AssaultWithADeadlyWeapon:
                 case CrimeTypes.Battery:
                 case CrimeTypes.AttemptedMurder:
                 case CrimeTypes.Murder:
@@ -41,10 +43,24 @@ namespace MudSharp.RPG.Law
                 case CrimeTypes.GreviousBodilyHarm:
                 case CrimeTypes.Intimidation:
                 case CrimeTypes.ResistArrest:
+                case CrimeTypes.Arson:
+                case CrimeTypes.Extortion:
+                case CrimeTypes.Rape:
+                case CrimeTypes.SexualAssault:
+                case CrimeTypes.Kidnapping:
+                case CrimeTypes.Slavery:
+                case CrimeTypes.AnimalCruelty:
+                case CrimeTypes.Mayhem:
+                case CrimeTypes.Rioting:
                     return true;
                 default:
                     return false;
             }
+        }
+
+        public static bool IsInRemandCell(this ILegalAuthority authority, ICharacter character)
+        {
+            return character.Location is not null && authority.CellLocations.Contains(character.Location);
         }
 
         public static bool IsMoralCrime(this CrimeTypes type)
@@ -114,6 +130,20 @@ namespace MudSharp.RPG.Law
             return false;
         }
 
+        public static bool CheckWouldBeACrimeAtLocation(this CrimeTypes type, ICharacter actor, ICell location,
+            ICharacter victim = null, IGameItem target = null, string additionalInformation = "")
+        {
+            foreach (ILegalAuthority authority in actor.Gameworld.LegalAuthorities)
+            {
+                if (authority.WouldBeACrimeAtLocation(actor, type, victim, target, additionalInformation, location))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         public static void CheckPossibleCrimeAllAuthorities(ICharacter criminal, CrimeTypes crime, ICharacter victim, IGameItem item,
             string additionalInformation)
         {
@@ -129,6 +159,17 @@ namespace MudSharp.RPG.Law
             foreach (ILegalAuthority authority in criminal.Gameworld.LegalAuthorities)
             {
                 authority.CheckPossibleCrime(criminal, crime, victim, item, additionalInformation, witnesses, notifyVictim);
+            }
+        }
+
+        public static void CheckPossibleCrimeAllAuthorities(ICharacter criminal, CrimeTypes crime, ICharacter victim,
+            IGameItem item, string additionalInformation, IEnumerable<ICharacter> witnesses, bool notifyVictim,
+            ICell crimeLocation)
+        {
+            foreach (ILegalAuthority authority in criminal.Gameworld.LegalAuthorities)
+            {
+                authority.CheckPossibleCrime(criminal, crime, victim, item, additionalInformation, witnesses,
+                    notifyVictim, crimeLocation);
             }
         }
 

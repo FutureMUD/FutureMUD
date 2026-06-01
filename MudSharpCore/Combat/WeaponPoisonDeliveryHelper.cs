@@ -79,12 +79,12 @@ public static class WeaponPoisonDeliveryHelper
 		{
 			effect = new WeaponPoisonCoating(item, LiquidMixture.CreateEmpty(item.Gameworld));
 			effect.AddLiquid(mixture);
-			item.AddEffect(effect, LiquidContamination.EffectDuration(effect.ContaminatingLiquid));
+			item.AddEffect(effect, WeaponPoisonCoating.EffectDuration(effect.ContaminatingLiquid));
 			return;
 		}
 
 		effect.AddLiquid(mixture);
-		item.Reschedule(effect, LiquidContamination.EffectDuration(effect.ContaminatingLiquid));
+		item.Reschedule(effect, WeaponPoisonCoating.EffectDuration(effect.ContaminatingLiquid));
 	}
 
 	public static void CopyPoisonCoating(IGameItem source, IGameItem target)
@@ -98,7 +98,7 @@ public static class WeaponPoisonDeliveryHelper
 		{
 			var copied = new WeaponPoisonCoating(target, coating.ContaminatingLiquid.Clone());
 			var duration = source.ScheduledDuration(coating);
-			target.AddEffect(copied, duration > TimeSpan.Zero ? duration : LiquidContamination.EffectDuration(copied.ContaminatingLiquid));
+			target.AddEffect(copied, duration > TimeSpan.Zero ? duration : WeaponPoisonCoating.EffectDuration(copied.ContaminatingLiquid));
 		}
 	}
 

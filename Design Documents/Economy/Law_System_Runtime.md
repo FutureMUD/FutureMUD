@@ -4,6 +4,26 @@
 
 This document records the current runtime behavior of the legal authority, sentencing, and patrol systems. It is intended as a builder-facing and implementer-facing reference for the coded law system rather than a setting-specific legal guide.
 
+## Automatic Crime Application
+
+Automatic enforcement is opt-in per law. A law only applies from coded hooks when `law auto` is enabled, the offender and victim legal-class filters pass, and the optional law prog returns true. `law repeat` controls whether repeated automatic applications against the same law, target, object, and location are suppressed for the short repeat window.
+
+Automatic crime hooks now pass a context text string to the crime record and to law progs that opt into the extended signatures. Existing law prog signatures continue to receive the crime name as their text argument. Builders can use the extended `text text` signatures to receive both the crime name and the automatic context.
+
+Currently supported automatic hooks include:
+
+- `Murder`: applied when a character dies with recent qualifying wounds from another character. Each responsible attacker is checked separately. By default the wound must be at least `Severe`, no more than `7200` real-time seconds old, have a recorded wound time, and not be a friendly-combat wound. Builders can tune this with `AutomaticMurderMinimumWoundSeverity`, `AutomaticMurderWoundAttributionWindowSeconds`, and `AutomaticMurderIncludeFriendlyWounds`. Context includes victim id, wound count, maximum wound severity, damage type, bodypart, wound age, friendly status, and whether the accused was present at the death scene.
+- `GreviousBodilyHarm`: applied when a wound caused by another character meets or exceeds `AutomaticGreviousBodilyHarmMinimumSeverity`, defaulting to `Grievous`. Context includes victim id, severity, damage type, and bodypart.
+- `Trespassing`: applied when a character enters a property cell without owner, leaseholder, tenant, hotel-room, or `PermitWork` authorisation and the property has criminal-code enforcement enabled. Context includes property and cell ids.
+- `Gambling`: applied after an arena wager validates, collects the stake, persists the bet, and credits the arena. Lawful-action protection blocks the wager before money changes hands. Context includes arena id, event id, stake, and betting model.
+- `TrafficingContraband`: applied when a character enters a legal-authority enforcement zone from outside that authority while carrying an item that satisfies a `TrafficingContraband` automatic law. The enum spelling is preserved for compatibility. Context includes item, origin cell, destination cell, and actor ids.
+
+Automatic movement hooks evaluate voluntary movers before the movement begins, so a party member with lawful-action protection can block the whole movement before they enter. Dragged movement targets are not charged for automatic entry crimes.
+
+Crime records retain the raw automatic context for administrator diagnostics. `crime info` presents non-admin judges and enforcers with a summarised automatic-evidence block instead of raw context ids, for example an automatic murder record shows the death-investigation source, wound basis, injury details, timing, scene presence, any implement, and a note that this is mechanical evidence rather than an automatic guilty verdict.
+
+Builder customisation remains data-driven: use legal authority enforcement zones for jurisdiction, property `lawful` settings and authorisations for trespass policy, the murder and grievous-wound static settings for injury thresholds, and law progs for venue, route, item, victim, offender, or circumstance-specific exceptions.
+
 ## Death Sentences
 
 Death sentences are represented by `PunishmentResult.Execution`. When multiple punishments are combined, the execution flag is preserved alongside fines, custodial sentences, and good-behaviour bonds.
@@ -77,6 +97,76 @@ The execution patrol progresses through these stages:
 13. Mark execution-punishment crimes as served, remove `AwaitingExecution`, remove the no-quit effect, and complete the patrol.
 
 If required rooms, tools, paths, or targets become unavailable for too long, the patrol aborts and removes only the execution-specific no-quit effect. The `AwaitingExecution` effect remains so a later patrol can try again.
+
+## Trials and PC Judges
+
+Trials are represented by the `OnTrial` effect for the relevant legal authority. NPC judges drive ordinary `OnTrial` effects through the automated plea, argument, verdict, and sentencing phases. PC-held trials use the same effect as a court-session marker, but set the manual-trial flag so NPC judge AI will not advance or finalise the case.
+
+A PC judge is any enforcer whose enforcement authority has `CanConvict` for the jurisdiction and whose authority can judge the defendant's legal class.
+
+Judge-facing trial commands:
+
+- `trial`: shows the active trial in the current room.
+- `trial docket [jurisdiction]`: lists defendants awaiting trial for the judge's jurisdictions, including remand/bail/trial status, charge IDs, charge names, and prior local convictions.
+- `trial summon <target>`: from the jurisdiction courtroom, calls a remand prisoner or present defendant before the court and begins a PC-held trial.
+- `convict <target> <crime> <sentence>`: records a guilty verdict and sentence for one charge.
+- `acquit <target> <crime>`: records a not-guilty verdict for one charge.
+
+`trial summon` uses the same court-transfer mechanics and player-facing emotes as the sheriff's automated trial fetch. It clears remand and enforcer-custody state for that jurisdiction, creates a manual `OnTrial`, and moves the defendant to the court if they are being held in a remand cell. Defendants on bail or at large after bail revocation must first return to custody.
+
+While any `OnTrial` exists in the court for a legal authority, sheriff patrols will not fetch a new automatic trial for that authority. NPC judge AI also ignores manual trials, so a PC-held trial will not be taken over by the automated judge. Once the PC judge has finalised all known charges with `convict` or `acquit`, the manual trial state is removed and the defendant is released, sent to prison, or sent to holding for execution according to the recorded sentences.
+
+## Bail and Automatic Trials
+
+Bail follows an arrest-first policy. A defendant on bail is not eligible for automatic court pickup, no-judge automatic sentencing, defendant-initiated `requesttrial`, or PC judge `trial summon`. They must return to remand custody before any trial path can proceed.
+
+When bail is posted, the `OnBail` effect records a return deadline. The deadline uses the legal authority's automatic-conviction timeframe from the current jurisdiction time. The original remand effect remains on the character, but trial systems also require the defendant to be physically held in one of the authority's remand cells.
+
+When the return deadline expires, the bail heartbeat attempts to record a `ViolateBail` crime, revokes the bail effect, and forfeits the recorded bail on the pending crimes. The defendant becomes arrestable again through ordinary enforcement because the underlying crimes are no longer marked as bailed, but the system does not teleport, summon, try, or convict them while they are at large.
+
+The `trial docket` command distinguishes active bail from bail-revoked at-large defendants so PC judges can see why a person is not currently summonable.
+
+## Crime-Driven Patrol Dispatch
+
+Most patrol routes are scheduled from their route readiness, time-of-day, priority, and enforcer-number requirements. Crime-driven patrol strategies use the same route and enforcer configuration, but the patrol controller only dispatches them when a matching reported crime exists. These patrols are not launched as ordinary scheduled patrols.
+
+Crime-driven routes still require:
+
+- a ready patrol route
+- at least one patrol node
+- required enforcer numbers
+- current time of day matching the route
+- the reported crime location to be within the strategy coverage radius of at least one patrol node
+
+The patrol remembers the reported crime as its runtime target. This target is transient patrol state, matching existing active-enforcement state; if a patrol is reloaded without that target, the crime-driven strategy concludes rather than enforcing an unknown target.
+
+### Reactive Patrols
+
+The `ReactivePatrol` strategy dispatches to recent reported violent crimes. It is intended to represent increased police presence after violence in an area. The first patrol destination is the crime location, after which the patrol cycles through nearby configured patrol nodes within the route's coverage radius until its configured duration expires. While deployed, it uses the same enforcement scan as ordinary enforcer patrols and can warn, subdue, arrest, or apply lethal-force enforcement according to the laws involved.
+
+Reactive patrol configuration:
+
+- `radius <rooms>` controls how far from a patrol node a violent crime can be and still dispatch the route.
+- `window <timespan>` controls how recent the reported violent crime must be.
+- `duration <timespan>` controls how long the increased-presence patrol remains active.
+
+Violent-crime classification includes assaults, deadly assaults, battery, murder-family offences, torture, grievous bodily harm, intimidation, resisting arrest, arson, extortion, sexual violence, kidnapping, slavery, animal cruelty, mayhem, and rioting.
+
+### Investigation Patrols
+
+The `InvestigationPatrol` strategy dispatches to reported crimes whose trial evidence is still weak: crimes with an unknown criminal identity or incomplete recorded suspect characteristics. The patrol travels to the crime scene, spends its configured search time there, records investigative evidence, and returns.
+
+Investigation evidence updates existing crime metadata used by trials:
+
+- `CriminalIdentityIsKnown` can be confirmed when the investigator can directly see the suspect at the scene.
+- recorded criminal characteristics are filled in according to the strategy's reliability.
+- prosecution difficulty now reflects identity certainty, witness count, physical/third-party evidence, crime-scene location, and collected characteristic evidence.
+
+Investigation patrol configuration:
+
+- `radius <rooms>` controls how far from a patrol node a reported crime can be and still dispatch the route.
+- `reliability <0.0-1.0>` controls how accurately suspect characteristics are recorded.
+- `search <timespan>` controls how long the patrol searches the scene before recording evidence.
 
 ## Equipment and Method Notes
 

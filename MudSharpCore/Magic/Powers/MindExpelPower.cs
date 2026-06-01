@@ -70,6 +70,8 @@ public class MindExpelPower : MagicPowerBase
         EmoteTextSelf = "You close your eyes and attempt to cast out all foreign presences.";
         EchoToExpelledTarget = "You were ejected from $0's mind.";
         EchoToNonExpelledTarget = "You sense that $0 tried to expel you from &0's mind, but failed.";
+        IsPsionic = true;
+        EnablePsionicTraceDefaults();
         DoDatabaseInsert();
     }
 
@@ -178,6 +180,7 @@ public class MindExpelPower : MagicPowerBase
         ICheck check = Gameworld.GetCheck(CheckType.MindExpelPower);
         Dictionary<Difficulty, CheckOutcome> results = check.CheckAgainstAllDifficulties(actor, Difficulty.Normal, SkillCheckTrait);
         StringBuilder sb = new();
+        List<ICharacter> expelledTargets = new();
         foreach (MindConnectedToEffect effect in actor.EffectsOfType<MindConnectedToEffect>())
         {
             string difficultyText = SkillCheckDifficultyProg.Execute<string>(effect.OriginatorCharacter, actor);
@@ -200,6 +203,7 @@ public class MindExpelPower : MagicPowerBase
                            effect.OriginatorCharacter.HowSeen(actor,
                                flags: PerceiveIgnoreFlags.IgnoreCanSee | PerceiveIgnoreFlags.IgnoreDisguises);
             sb.AppendLine($"You successfully expel the presence of {identity} from your mind.");
+            expelledTargets.Add(effect.OriginatorCharacter);
 
             if (!string.IsNullOrEmpty(EchoToExpelledTarget))
             {
@@ -213,6 +217,7 @@ public class MindExpelPower : MagicPowerBase
         }
 
         actor.OutputHandler.Send(sb.ToString());
+        PsionicActivityNotifier.Notify(actor, this, "a mental expulsion", expelledTargets);
         ConsumePowerCosts(actor, Verb);
     }
 

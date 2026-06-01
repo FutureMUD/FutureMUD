@@ -4,6 +4,8 @@ This document records proposed stock-content additions for the antiquity item se
 
 The goal is not to replace the existing antiquity catalogue. It is a forward-looking implementation guide for logical item groups that fit the technology level, social setting, and current MUD functionality.
 
+May 2026 medieval-slice note: genuinely cross-era workshop foundations now use `historic_*` stable references and are seeded for either antiquity or medieval installs. Antiquity culture-specific clothing, weapons, jewellery, foodways, and document forms remain under their existing `antiquity_*` references.
+
 ## Existing Coverage Baseline
 
 The current antiquity item suite already has broad coverage for:
@@ -19,9 +21,11 @@ The current antiquity item suite already has broad coverage for:
 
 These items can be added to the antiquity seeder without new runtime component types. Some use stock generic components exactly as seeded; others would be better if the component prototype names were later made more setting-specific, but they are still implementable today.
 
+Seeder status: the item prototypes listed in this section are now seeded by `ItemSeeder.Rework.AntiquityComponentGaps.cs`. Items whose richer behaviour depends on still-deferred systems, such as physical length measurement or rules-aware board games, are seeded as ordinary props.
+
 ### Timekeeping Items
 
-Current gap: `TimePiece` exists in the stock component catalogue, but antiquity does not currently have visible sundials, water clocks, watch clocks, or temple timekeepers.
+Original gap: `TimePiece` exists in the stock component catalogue, but antiquity did not have visible sundials, water clocks, watch clocks, or temple timekeepers.
 
 | Unique Name | Short Description | Build Pointers |
 | --- | --- | --- |
@@ -33,7 +37,7 @@ Current gap: `TimePiece` exists in the stock component catalogue, but antiquity 
 
 ### Public Water and Bathing Infrastructure
 
-Current gap: `WaterSource` exists in the generic stock set and the legacy item seeder has wells and cisterns, but the antiquity rework does not yet make public water infrastructure part of its own setting package.
+Original gap: `WaterSource` exists in the generic stock set and the legacy item seeder has wells and cisterns, but the antiquity rework did not make public water infrastructure part of its own setting package.
 
 | Unique Name | Short Description | Build Pointers |
 | --- | --- | --- |
@@ -46,7 +50,7 @@ Current gap: `WaterSource` exists in the generic stock set and the legacy item s
 
 ### Drag Aids, Litters, and Heavy-Carry Tools
 
-Current gap: `DragAid` exists in the general stock component package, while antiquity medical currently covers crutches and prosthetics but not group movement aids.
+Original gap: `DragAid` exists in the general stock component package, while antiquity medical covered crutches and prosthetics but not group movement aids.
 
 | Unique Name | Short Description | Build Pointers |
 | --- | --- | --- |
@@ -58,7 +62,7 @@ Current gap: `DragAid` exists in the general stock component package, while anti
 
 ### Games, Gambling, and Leisure
 
-Current gap: `Dice` components are seeded, including fair and custom-face dice support, but antiquity does not currently seed gambling or leisure objects as a visible social package.
+Original gap: `Dice` components are seeded, including fair and custom-face dice support, but antiquity did not seed gambling or leisure objects as a visible social package.
 
 | Unique Name | Short Description | Build Pointers |
 | --- | --- | --- |
@@ -71,7 +75,7 @@ Current gap: `Dice` components are seeded, including fair and custom-face dice s
 
 ### Markets, Stalls, Weights, and Measures
 
-Current gap: the runtime has `ShopStall` and `MarketGoodWeight`, but the antiquity package mostly models merchant furniture and containers rather than functional market instruments.
+Original gap: the runtime has `ShopStall` and `MarketGoodWeight`, but the antiquity package mostly modelled merchant furniture and containers rather than functional market instruments.
 
 | Unique Name | Short Description | Build Pointers |
 | --- | --- | --- |
@@ -84,7 +88,7 @@ Current gap: the runtime has `ShopStall` and `MarketGoodWeight`, but the antiqui
 
 ### Locksmithing and Security Tools
 
-Current gap: antiquity has locks, keys, latches, and keyrings, while generic stock already has `Locksmithing Tool` components. The setting can support a small security-tool package.
+Original gap: antiquity has locks, keys, latches, and keyrings, while generic stock already has `Locksmithing Tool` components. The setting can support a small security-tool package.
 
 | Unique Name | Short Description | Build Pointers |
 | --- | --- | --- |
@@ -96,7 +100,7 @@ Current gap: antiquity has locks, keys, latches, and keyrings, while generic sto
 
 ### Civic Notice and Administrative Boards
 
-Current gap: `Board` exists as a message-board component, but there is no antiquity-specific public posting surface.
+Original gap: `Board` exists as a message-board component, but there was no antiquity-specific public posting surface. The seeded board items are currently writable/inscribable props rather than live message-board bindings because board-backed component prototypes need world-specific board records and permissions.
 
 | Unique Name | Short Description | Build Pointers |
 | --- | --- | --- |
@@ -104,15 +108,17 @@ Current gap: `Board` exists as a message-board component, but there is no antiqu
 | `antiquity_temple_decree_board` | a temple decree board | Use `Board`, `Destroyable_WoodenHeavy`, and restricted post permissions for priests or officials. |
 | `antiquity_barracks_roster_board` | a barracks roster board | Use `Board` or `InscribableSurface`; `Board` is best if postings need persistence and access rules. |
 
-## Missing Seeded Component Prototypes Within Existing Component Types
+## Seeded Component Prototypes Within Existing Component Types
 
-These gaps do not require brand-new engine functionality. They need new component prototypes, seeded by `UsefulSeeder` or by the antiquity package before items reference them. The item additions listed here become cleaner and less misleading once these prototypes exist.
+These gaps did not require brand-new engine functionality. They are now seeded by `UsefulSeeder.ItemComponents.cs` as stock component prototypes so antiquity items can reference setting-appropriate variants instead of borrowing misleading generic or modern examples.
+
+ItemSeeder status: the item prototypes named in the "Items enabled or improved" lists below are now seeded by `ItemSeeder.Rework.AntiquityComponentGaps.cs`.
 
 ### Antiquity TimePiece Variants
 
-Missing: setting-specific `TimePiece` component prototypes with antiquity display strings and settable/non-settable behaviour.
+Seeder status: setting-specific `TimePiece` component prototypes with antiquity display strings and settable/non-settable behaviour are now present.
 
-Needed prototypes:
+Seeded prototypes:
 
 - `TimePiece_Antiquity_Sundial`: non-settable, crude daylight-style display string.
 - `TimePiece_Antiquity_WaterClock`: non-settable or priest/setter-only, suited to temple/court clocks.
@@ -129,9 +135,9 @@ Items enabled or improved:
 
 ### Antiquity WaterSource Variants
 
-Missing: fixed ancient water-source component prototypes with names, capacities, switches, and liquid defaults that do not read like modern sinks, bottles, or bathtubs.
+Seeder status: fixed ancient water-source component prototypes with names, capacities, switches, and liquid defaults that do not read like modern sinks, bottles, or bathtubs are now present.
 
-Needed prototypes:
+Seeded prototypes:
 
 - `WaterSource_Antiquity_PublicWell`: infinite or large-capacity potable water source.
 - `WaterSource_Antiquity_Cistern`: potable or brackish stored source, optionally switchable/lockable for city control.
@@ -151,9 +157,9 @@ Items enabled or improved:
 
 ### Antiquity ShopStall and MarketGoodWeight Variants
 
-Missing: seeded stock component prototypes for market stalls and market-good weights that game owners can attach without hand-authoring each example.
+Seeder status: seeded stock component prototypes for market stalls and market-good weights are now present for game owners to attach without hand-authoring each example.
 
-Needed prototypes:
+Seeded prototypes:
 
 - `ShopStall_Antiquity_OpenCounter`: open stall surface with generous weight capacity and no transparent-container weirdness.
 - `ShopStall_Antiquity_LockableCounter`: lockable market counter for unattended goods.
@@ -173,9 +179,9 @@ Items enabled or improved:
 
 ### Custom Dice and Casting Components
 
-Missing: antiquity-specific dice prototypes with non-modern face labels and loaded/fair variants.
+Seeder status: antiquity-specific dice prototypes with non-modern face labels and loaded/fair variants are now present.
 
-Needed prototypes:
+Seeded prototypes:
 
 - `Dice_Antiquity_Knucklebones`: four named faces or weighted values suitable for astragaloi.
 - `Dice_Antiquity_CastingSticks`: marked/unmarked stick faces.
@@ -192,9 +198,9 @@ Items enabled or improved:
 
 ### DragAid Tuning Variants
 
-Missing: setting-specific drag-aid components with tuned user limits and effort multipliers for medical, funerary, pastoral, and cargo contexts.
+Seeder status: setting-specific drag-aid components with tuned user limits and effort multipliers for medical, funerary, pastoral, and cargo contexts are now present.
 
-Needed prototypes:
+Seeded prototypes:
 
 - `DragAid_Antiquity_FieldStretcher`: two to four users, high wounded-person movement multiplier.
 - `DragAid_Antiquity_CorpseBier`: two to six users, funerary/corpse-focused naming.
@@ -212,9 +218,9 @@ Items enabled or improved:
 
 ### Antiquity Locksmithing Variants
 
-Missing: tuned antiquity locksmithing tool components, especially low-tech, breakable, or installation/fabrication-specialised versions.
+Seeder status: tuned antiquity locksmithing tool components, especially low-tech, breakable, or installation/fabrication-specialised versions, are now present.
 
-Needed prototypes:
+Seeded prototypes:
 
 - `Locksmithing_Antiquity_BronzePoor`: breakable, penalty-bearing improvised pick set.
 - `Locksmithing_Antiquity_BronzeStandard`: standard lockpick and probe roll.
@@ -229,6 +235,80 @@ Items enabled or improved:
 - `antiquity_fine_steel_lockpick_case`
 - `antiquity_lock_installation_kit`
 - `antiquity_key_filing_kit`
+
+## Implemented New Component Families
+
+These gaps originally needed new runtime component families. They are now first-class component types with seeded examples in `UsefulSeeder.ItemComponents.cs`.
+
+ItemSeeder status: the `SealStamp`, `Sealable`, and `MeasuringInstrument` item examples listed below are now seeded by `ItemSeeder.Rework.AntiquityComponentGaps.cs`. Length/cubit/survey rod examples remain prop-only until item dimensions exist.
+
+### SealStamp and Sealable Components
+
+Runtime status: `SealStamp` and `Sealable` are implemented as separate component families. A stamp carries the authoritative design metadata, while `Sealable` is an attachable tamper-evidence component that can coexist with containers, writeable surfaces, openables, scrolls, envelopes, jars, or bundles.
+
+Implemented behaviour:
+
+- `seal <target> with <stamp> [using <medium>]` records the seal design, issuer, owner/clan/office metadata, stamp material, medium descriptor, sealing actor, and sealing time.
+- `break seal <target>`, opening, reading, writing, drawing, or retitling a sealed item break the seal and leave configured residue evidence while allowing the access action to continue.
+- `inspect seal <target>` and `compare seal <sealed item> with <stamp|sealed item>` use the existing appraisal-style inspection path rather than a new check type.
+- Item FutureProg dot references expose whether an item is sealable, sealed, broken, or residue-marked, plus seal design, issuer, owner, clan, office, material, medium, and sealing actor metadata.
+
+Seeded prototypes:
+
+- `SealStamp_Antiquity_BronzeSignet`: bronze signet or ring seal for household, office, or personal authority.
+- `SealStamp_Antiquity_CylinderSeal`: cylinder seal for clay impressions and administrative records.
+- `Sealable_Document_Wax`: wax-sealable document surface.
+- `Sealable_Document_Clay`: clay-sealable document or tablet surface.
+- `Sealable_Envelope`: envelope seal support.
+- `Sealable_Scroll`: scroll seal support.
+- `Sealable_Container_Wax`: wax-sealed container, jar, chest, or package support.
+
+Items enabled or improved:
+
+- `antiquity_bronze_signet_ring`
+- `antiquity_cylinder_seal`
+- `antiquity_clay_bulla`
+- `antiquity_wax_seal_cake`
+- `antiquity_sealed_papyrus_scroll`
+- `antiquity_sealed_clay_tablet`
+- `antiquity_tax_office_seal_box`
+- `antiquity_merchant_contract_bundle`
+- `antiquity_grain_amphora_seal`
+- `Envelope` as a holdable, closable container, writeable surface, and sealable item.
+- `Scroll` as a holdable, writeable, and sealable item.
+
+### MeasuringInstrument Component
+
+Runtime status: `MeasuringInstrument` is implemented for `Weight` and `FluidVolume` modes. Length, cubit, and surveying rod measurement remains deferred until item dimensions exist, so those objects should remain props for now.
+
+Implemented behaviour:
+
+- `weigh <item> on <instrument>` measures item weight with instrument precision, capacity, stable drift, and calibration bias.
+- `measure <target> with <instrument>` measures supported fluid-volume targets with the same drift and calibration model.
+- `calibrate <instrument>` clears deliberate bias and resets drift state.
+- `calibrate <instrument> wrong <+/-amount|+/-percent>` deliberately records a bad calibration for false measures.
+- `inspect calibration <instrument>` uses existing appraisal-style inspection and reports mode, precision, drift, use count, and deliberate bias according to the viewer's appraisal outcome.
+- Item quality scales calibration drift per use, with better-quality instruments drifting less.
+
+Seeded prototypes:
+
+- `MeasuringInstrument_Antiquity_BalanceScale`: weight-mode balance scale.
+- `MeasuringInstrument_Antiquity_StandardWeights`: weight-mode official or merchant weight set.
+- `MeasuringInstrument_Antiquity_FalseWeights`: weight-mode biased weight set for dishonest trade.
+- `MeasuringInstrument_Antiquity_GrainMeasure`: weight-mode grain measure.
+- `MeasuringInstrument_Antiquity_OilCup`: fluid-volume oil measure.
+- `MeasuringInstrument_Antiquity_WineCup`: fluid-volume wine measure.
+- `MeasuringInstrument_Antiquity_TaxAssessorKit`: weight-mode official inspection kit.
+
+Items enabled or improved:
+
+- `antiquity_bronze_balance_scale`
+- `antiquity_standard_weight_set`
+- `antiquity_false_weight_set`
+- `antiquity_stone_grain_measure`
+- `antiquity_oil_measure_cup`
+- `antiquity_wine_measure_cup`
+- `antiquity_tax_assessor_measure_kit`
 
 ## Missing Engine Functionality That Could Become New Component Types
 
@@ -263,63 +343,6 @@ Items enabled:
 - `antiquity_ship_signal_trumpet`
 - `antiquity_temple_ritual_rattle`
 
-### SealStamp and SealedDocument Components
-
-Missing functionality:
-
-- authenticating documents, containers, orders, and tablets with a seal.
-- preserving identity of the seal owner, clan, office, or issuer.
-- visible seal impressions that can be inspected, forged, broken, or compared.
-- tamper evidence for scrolls, tablets, storage jars, chests, doors, and official packages.
-
-Rough component guidance:
-
-- Component type names: `SealStamp` and `Sealable`.
-- `SealStamp` settings: seal design text, owner/clan/office metadata, material, forgery difficulty, optional authority prog.
-- `Sealable` settings: allowed seal media, current seal state, whether opening breaks the seal, inspection difficulty, whether a broken seal leaves residue.
-- Runtime commands: `seal <target> with <stamp> [using <wax/clay>]`, `break seal <target>`, `inspect seal <target>`, possibly `compare seal`.
-- FutureProg hooks should be able to read issuer, broken/unbroken state, and design metadata.
-
-Items enabled:
-
-- `antiquity_bronze_signet_ring`
-- `antiquity_cylinder_seal`
-- `antiquity_clay_bulla`
-- `antiquity_wax_seal_cake`
-- `antiquity_sealed_papyrus_scroll`
-- `antiquity_sealed_clay_tablet`
-- `antiquity_tax_office_seal_box`
-- `antiquity_merchant_contract_bundle`
-- `antiquity_grain_amphora_seal`
-
-### Scale and Measuring Instrument Component
-
-Missing functionality:
-
-- weighing loose commodities and ordinary items.
-- measuring volume or length with a physical in-world tool.
-- producing trusted or falsifiable measures for trade, taxation, and legal disputes.
-- modelling honest and dishonest weights or calibration errors.
-
-Rough component guidance:
-
-- Component type name: `MeasuringInstrument`, with optional subtypes or modes for weight, volume, and length.
-- Prototype settings: measurement mode, precision, capacity, units displayed, calibration error, required counterweight/container, check difficulty to detect cheating.
-- Runtime commands: `weigh <item> on <scale>`, `measure <liquid/commodity/item> with <instrument>`, `calibrate <instrument>`, `inspect calibration`.
-- Market and economy code should be able to use measured quantity where appropriate, but the first pass can simply report measures to players.
-
-Items enabled:
-
-- `antiquity_bronze_balance_scale`
-- `antiquity_standard_weight_set`
-- `antiquity_false_weight_set`
-- `antiquity_stone_grain_measure`
-- `antiquity_oil_measure_cup`
-- `antiquity_wine_measure_cup`
-- `antiquity_surveying_rod`
-- `antiquity_cubit_rod`
-- `antiquity_tax_assessor_measure_kit`
-
 ### GameSet Component
 
 Missing functionality:
@@ -345,29 +368,40 @@ Items enabled:
 - `antiquity_temple_divination_board`
 - `antiquity_tavern_game_set`
 
-### Offering and Ritual Focus Component
+### Offering Receiver and Incense Burner Components
 
-Missing functionality:
+Implemented V1 functionality:
 
-- offerings that are consumed, counted, accepted, rejected, spoiled, or recorded.
-- altars, censers, lamps, and libation tables that do more than hold items.
-- ritual state that FutureProgs, NPCs, clans, laws, or magic systems can inspect.
+- `IncenseBurner` is a lightable transparent container for tagged incense fuel. It burns contained fuel by weight, emits room LOOK scent text, spreads ambient scent to nearby cells, and exposes scent metadata to the `tracks` command without creating movement tracks.
+- `OfferingReceiver` is a transparent/open ritual focus that accepts broad item offerings, optionally gates them by tags, supports `offer <item> at <focus>` and `burn <item> at <focus>`, consumes burned offerings by default, and can create configured residue in later prototype variants.
+- `OfferingReceiver` runs `CanOfferProg`, `OnOfferProg`, and `OnBurnProg` with `(Character actor, Item focus, Item offering)`.
+- The event stream now exposes `OfferingReceived`, `OfferingReceivedWitness`, `OfferingBurned`, and `OfferingBurnedWitness`, with payloads `(focus, actor, offering)` and `(focus, actor, offering, witness)`.
 
-Rough component guidance:
+Still missing or deferred:
 
-- Component type names: `OfferingReceiver` and optionally `RitualFocus`.
-- Prototype settings: accepted item tags/materials/liquids, consumption behaviour, required actor checks, accepted-offering echo, rejected-offering echo, optional cooldown, optional owner clan/religion/cult metadata.
-- Runtime commands: `offer <item> at <focus>`, `pour <liquid> as offering`, `light incense at <focus>`, or reuse existing put/pour commands with component interception.
-- FutureProg hooks should read recent offerings, actor, accepted item, quantity, and focus identity.
+- Direct poured-liquid libations are not implemented in this pass. Use item/commodity offerings for V1; liquid-only rows remain future work until a `pour`/liquid offering path exists.
+- Ritual ownership metadata, offering history queries, spoilage counters, cooldowns, and law/clan/religion integrations remain future custom systems layered through progs/events.
+- Oil lamps remain under the ordinary lighting/smokeable/heater families unless a later ritual-lamp component is required.
+
+Seeded support:
+
+- `IncenseBurner_Antiquity_BronzeCenser`
+- `OfferingReceiver_Antiquity_HouseholdAltar`
+- `OfferingReceiver_Antiquity_VotiveBasin`
+- `OfferingReceiver_Antiquity_FuneralTray`
 
 Items enabled:
 
-- `antiquity_stone_household_altar`
-- `antiquity_temple_libation_table`
 - `antiquity_bronze_incense_censer`
-- `antiquity_votive_figurine_basin`
-- `antiquity_oil_lamp_shrine`
+- `antiquity_resin_incense_pellets`
+- `antiquity_household_altar`
+- `antiquity_votive_offering_basin`
 - `antiquity_funeral_offering_tray`
+
+Future liquid-only or specialised ritual rows:
+
+- `antiquity_temple_libation_table`
+- `antiquity_oil_lamp_shrine`
 - `antiquity_oracular_tripod`
 - `antiquity_blood_offering_bowl`
 
@@ -401,7 +435,7 @@ Items enabled:
 ## Suggested Implementation Order
 
 1. Add data-only items that use existing components cleanly: dice, lockpicks, drag aids, notice boards, and a first water-source set.
-2. Add antiquity-specific component prototypes for `TimePiece`, `WaterSource`, `DragAid`, `Dice`, `Locksmithing Tool`, `ShopStall`, and `MarketGoodWeight`.
+2. Completed in `UsefulSeeder`: antiquity-specific component prototypes for `TimePiece`, `WaterSource`, `DragAid`, `Dice`, `Locksmithing Tool`, `ShopStall`, `MarketGoodWeight`, `SealStamp`, `Sealable`, and `MeasuringInstrument`.
 3. Add matching item prototypes that use those new component prototypes and update this document with the shipped names.
-4. Choose one new runtime component family for a first deeper gameplay pass. `Instrument` is the best first candidate because it is socially important, highly visible in roleplay, and relatively self-contained.
-5. Treat `SealStamp`/`Sealable`, `MeasuringInstrument`, and `OfferingReceiver` as the next most setting-defining component families because they support administration, trade, religion, law, and trust.
+4. `IncenseBurner` and `OfferingReceiver` now cover the first ritual-offering gameplay pass, including smell-trackable incense and item-offering burn hooks.
+5. Treat direct liquid libations, ritual ownership/history, and specialised oracular/funeral law integrations as later passes. `SealStamp`/`Sealable` and the weight/fluid-volume portion of `MeasuringInstrument` are implemented; length measurement remains a future item-dimension pass.

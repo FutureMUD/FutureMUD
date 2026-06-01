@@ -273,6 +273,10 @@ public interface IInjectPrototype : IExclusiveGameItemComponentPrototype<IInject
 {
 }
 
+public interface IIncenseBurnerPrototype : IExclusiveGameItemComponentPrototype<IIncenseBurner>, ILightablePrototype, IContainerPrototype
+{
+}
+
 public interface IInsertablePrototype : IExclusiveGameItemComponentPrototype<IInsertable>
 {
 }
@@ -333,6 +337,10 @@ public interface IMarketGoodWeightItemPrototype : IExclusiveGameItemComponentPro
 {
 }
 
+public interface IMeasuringInstrumentPrototype : IExclusiveGameItemComponentPrototype<IMeasuringInstrument>
+{
+}
+
 public interface IMeleeWeaponPrototype : IExclusiveGameItemComponentPrototype<IMeleeWeapon>, IWieldablePrototype
 {
 }
@@ -350,6 +358,10 @@ public interface IObscureCharacteristicsPrototype : IExclusiveGameItemComponentP
 }
 
 public interface IObscureIdentityPrototype : IExclusiveGameItemComponentPrototype<IObscureIdentity>, IObscureCharacteristicsPrototype
+{
+}
+
+public interface IOfferingReceiverPrototype : IExclusiveGameItemComponentPrototype<IOfferingReceiver>, IContainerPrototype
 {
 }
 
@@ -434,6 +446,14 @@ public interface IRespondToSignalPrototype : IExclusiveGameItemComponentPrototyp
 }
 
 public interface IRestraintPrototype : IExclusiveGameItemComponentPrototype<IRestraint>
+{
+}
+
+public interface ISealStampPrototype : IExclusiveGameItemComponentPrototype<ISealStamp>
+{
+}
+
+public interface ISealablePrototype : IExclusiveGameItemComponentPrototype<ISealable>
 {
 }
 

@@ -74,30 +74,57 @@ public sealed class TracePower : PsionicTargetedPowerBase
 		var results = Gameworld.GetCheck(CheckType.MagicTelepathyCheck)
 		                       .CheckAgainstAllDifficulties(actor, SkillCheckDifficulty, SkillCheckTrait, target);
 		var links = TraceLinks(target).DistinctBy(x => x.Character).ToList();
-		if (!links.Any())
+		var traces = TraceResiduals(target).DistinctBy(x => x.TraceId).OrderByDescending(x => x.CreatedUtc).ToList();
+		if (!links.Any() && !traces.Any())
 		{
-			actor.OutputHandler.Send($"{target.HowSeen(actor, true)} has no active mind links that you can detect.");
+			actor.OutputHandler.Send($"{target.HowSeen(actor, true)} has no active mind links or residual psionic traces that you can detect.");
+			PsionicActivityNotifier.Notify(actor, this, "a psionic trace scan", target);
 			ConsumePowerCosts(actor, Verb);
 			return;
 		}
 
 		var sb = new StringBuilder();
-		sb.AppendLine($"You trace the active mind links around {target.HowSeen(actor, true)}:");
-		foreach (var link in links)
+		if (links.Any())
 		{
-			var concealment = link.Character.EffectsOfType<IMindContactConcealmentEffect>()
-			                      .FirstOrDefault(x => x.ConcealsIdentityFrom(link.Character, actor, School));
-			var difficulty = concealment is null
-				? SkillCheckDifficulty
-				: SkillCheckDifficulty.StageUp(concealment.AuditDifficultyStages);
-			var visible = results[difficulty] >= MinimumSuccessThreshold;
-			var description = visible
-				? link.Character.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreConsciousness)
-				: concealment?.UnknownIdentityDescription.ColourCharacter() ?? "an unknown mind".ColourCharacter();
-			sb.AppendLine($"\t{link.Direction}: {description} [{link.School.Name.Colour(link.School.PowerListColour)}]");
+			sb.AppendLine($"You trace the active mind links around {target.HowSeen(actor, true)}:");
+			foreach (var link in links)
+			{
+				var concealment = link.Character.EffectsOfType<IMindContactConcealmentEffect>()
+				                      .FirstOrDefault(x => x.ConcealsIdentityFrom(link.Character, actor, School));
+				var difficulty = concealment is null
+					? SkillCheckDifficulty
+					: SkillCheckDifficulty.StageUp(concealment.AuditDifficultyStages);
+				var visible = results[difficulty] >= MinimumSuccessThreshold;
+				var description = visible
+					? link.Character.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreConsciousness)
+					: concealment?.UnknownIdentityDescription.ColourCharacter() ?? "an unknown mind".ColourCharacter();
+				sb.AppendLine($"\t{link.Direction}: {description} [{link.School.Name.Colour(link.School.PowerListColour)}]");
+			}
+		}
+
+		if (traces.Any())
+		{
+			if (links.Any())
+			{
+				sb.AppendLine();
+			}
+
+			sb.AppendLine($"Residual psionic traces around {target.HowSeen(actor, true)}:");
+			foreach (var trace in traces)
+			{
+				var difficulty = trace.ReadDifficulty.StageUp(trace.ConcealmentDifficultyStages);
+				var visible = results[difficulty] >= MinimumSuccessThreshold;
+				var source = visible && trace.SourceCharacter is not null
+					? trace.SourceCharacter.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreConsciousness)
+					: trace.UnknownIdentityDescription.ColourCharacter();
+				var school = trace.School?.Name.Colour(trace.School.PowerListColour) ?? "unknown school".ColourError();
+				var age = (DateTime.UtcNow - trace.CreatedUtc).Describe(actor);
+				sb.AppendLine($"\t{trace.ActivityDescription.ProperSentences()} from {source} [{school}], about {age} ago.");
+			}
 		}
 
 		actor.OutputHandler.Send(sb.ToString());
+		PsionicActivityNotifier.Notify(actor, this, "a psionic trace scan", target);
 		ConsumePowerCosts(actor, Verb);
 	}
 
@@ -111,6 +138,24 @@ public sealed class TracePower : PsionicTargetedPowerBase
 		foreach (var effect in target.EffectsOfType<MindConnectedToEffect>())
 		{
 			yield return (effect.OriginatorCharacter, "inbound", effect.School);
+		}
+	}
+
+	private static IEnumerable<IPsionicTraceEffect> TraceResiduals(ICharacter target)
+	{
+		foreach (var trace in target.EffectsOfType<IPsionicTraceEffect>())
+		{
+			yield return trace;
+		}
+
+		if (target.Location is null)
+		{
+			yield break;
+		}
+
+		foreach (var trace in target.Location.EffectsOfType<IPsionicTraceEffect>().Where(x => x.Involves(target)))
+		{
+			yield return trace;
 		}
 	}
 }

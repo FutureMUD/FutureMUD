@@ -728,6 +728,12 @@ public partial class AuctionHouse : SaveableItem, IAuctionHouse, IPostCharacterL
 
     public bool BuildingCommand(ICharacter actor, StringStack command)
     {
+        if (!actor.IsAdministrator())
+        {
+            actor.OutputHandler.Send("Only administrators can edit auction houses.");
+            return false;
+        }
+
         switch (command.PopForSwitch())
         {
             case "name":

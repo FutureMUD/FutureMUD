@@ -275,7 +275,7 @@ Current player-facing capability note:
 - auction houses can now host both item lots and property-share lots, and ordinary character-listed property auctions sell whatever ownership share the listing character currently owns in that property
 - auction-house settlement keeps the configured flat plus percentage fee and pays the seller the net proceeds from the virtual reserve first, then from the linked bank account if needed
 - sellers can choose a bank payout target or `cash`; cash seller proceeds are claimed from the auction house through the same cash-claim path as bidder refunds
-- builders can use `auction set bank none`, `auction set deposit <amount>`, `auction set withdraw <amount>`, and `auction set ledger [count]` to run or inspect a bankless auction house
+- administrators can use `auction set bank none`, `auction set deposit <amount>`, `auction set withdraw <amount>`, and `auction set ledger [count]` to run or inspect a bankless auction house; the auction-house builder path rejects non-admin callers before opening or changing auction-house state
 - buyout purchases complete the auction immediately and move item lots into the normal claim workflow
 
 Contributor note:

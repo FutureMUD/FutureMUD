@@ -315,6 +315,7 @@ Current verified runtime characteristics:
 - it routes proceeds into an optional bank account or its virtual cash reserve
 - it is surfaced through economy commands rather than being embedded into shops
 - configured flat and percentage auction fees are retained by the auction house, with sellers receiving net proceeds
+- auction-house building commands, including revenue-account and fee configuration, are administrator-only and reject non-admin callers before editing state
 - bid receipts are retained in the auction house reserve first; refunds and seller payouts draw from virtual cash before falling back to the linked bank account
 - standard player auction commands now work for both item and property lots, including estate-liquidation property lots whose names are ordinary property names rather than inventory items
 - hotel lost-property bundles can be listed as item lots by the property when their retention period expires

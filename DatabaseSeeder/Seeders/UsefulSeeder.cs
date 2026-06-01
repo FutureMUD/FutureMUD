@@ -571,8 +571,8 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
             "Determines if the character has been set as the owner of an NPC.",
             """
 			var ownerid as number
-			ownerid = ifnull(getregister(@tch, "npcownerid"), 0)
-			return @ownerid == @ch.Id
+			ownerid = ifnull(getregister(@ch, "npcownerid"), 0)
+			return @ownerid == @tch.Id
 			""",
             (ProgVariableTypes.Character, "ch"),
             (ProgVariableTypes.Character, "tch"),
@@ -595,7 +595,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
             "Determines if the character outranks the NPC in any clan and can therefore command them.",
             """
 			foreach (clan in @tch.clans)
-				if (outranks(@ch, @tch, @clan))
+				if (outranks(@tch, @ch, @clan))
 					return true
 				end if
 			end foreach

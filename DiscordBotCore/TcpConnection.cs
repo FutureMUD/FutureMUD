@@ -14,83 +14,102 @@ namespace Discord_Bot;
 
 public class TcpConnection
 {
-    private readonly TcpClient _tcpClient;
-    private readonly NetworkStream _networkStream;
-    private static readonly byte[] ByteSeparators = { 1 };
-    private readonly List<byte> _incomingBytes = new();
-    private readonly DiscordClient _discordClient;
-    private readonly DiscordBot _discordBot;
-    public bool TcpClientAuthenticated { get; private set; }
-    public bool Closing { get; private set; }
+	private const int ReadBufferSize = 4096;
+	public const int MaximumIncomingCommandBytes = 64 * 1024;
+	private readonly TcpClient _tcpClient;
+	private readonly NetworkStream _networkStream;
+	private static readonly byte[] ByteSeparators = { 1 };
+	private readonly List<byte> _incomingBytes = new();
+	private readonly DiscordClient _discordClient;
+	private readonly DiscordBot _discordBot;
+	public bool TcpClientAuthenticated { get; private set; }
+	public bool Closing { get; private set; }
 
-    public TcpConnection(TcpClient tcpClient, DiscordClient discordClient, DiscordBot discordBot)
-    {
-        _tcpClient = tcpClient;
-        _networkStream = _tcpClient.GetStream();
-        _discordClient = discordClient;
-        _discordBot = discordBot;
-    }
+	public TcpConnection(TcpClient tcpClient, DiscordClient discordClient, DiscordBot discordBot)
+	{
+		_tcpClient = tcpClient;
+		_networkStream = _tcpClient.GetStream();
+		_discordClient = discordClient;
+		_discordBot = discordBot;
+	}
 
-    public async Task CheckIncomingAsync()
-    {
-        try
-        {
-            if (!_networkStream.DataAvailable)
-            {
-                return;
-            }
+	public async Task CheckIncomingAsync()
+	{
+		try
+		{
+			if (!_networkStream.DataAvailable)
+			{
+				return;
+			}
 
-            byte[] inputBuffer = new byte[4096];
-            int bytes = _networkStream.Read(inputBuffer, 0, 4096);
-            if (bytes == 0)
-            {
-                Closing = true;
-                _tcpClient?.Close();
-                _networkStream?.Close();
-                TcpClientAuthenticated = false;
-                return;
-            }
+			byte[] inputBuffer = new byte[ReadBufferSize];
+			int bytes = _networkStream.Read(inputBuffer, 0, ReadBufferSize);
+			if (bytes == 0)
+			{
+				CloseTcpConnection();
+				return;
+			}
 
-            _incomingBytes.AddRange(inputBuffer.Take(bytes));
-            while (TryReadIncomingCommand(out byte[] command))
-            {
-                if (command.Length == 0)
-                {
-                    continue;
-                }
+			_incomingBytes.AddRange(inputBuffer.Take(bytes));
+			while (TryReadIncomingCommand(out byte[] command))
+			{
+				if (command.Length == 0)
+				{
+					continue;
+				}
 
-                await HandleTcpCommandAsync(Encoding.Unicode.GetString(command));
-            }
-        }
-        catch (SocketException e)
-        {
-            Closing = true;
-            _tcpClient?.Close();
-            _networkStream?.Close();
-            TcpClientAuthenticated = false;
-            Log.Information($"TCP Connection encountered a SocketException: {e.Message}");
-        }
+				await HandleTcpCommandAsync(Encoding.Unicode.GetString(command));
+			}
+		}
+		catch (SocketException e)
+		{
+			CloseTcpConnection();
+			Log.Information($"TCP Connection encountered a SocketException: {e.Message}");
+		}
 #if DEBUG
-        catch (Exception e)
-        {
-            Console.WriteLine(e.Message);
-        }
+		catch (Exception e)
+		{
+			Console.WriteLine(e.Message);
+		}
 #endif
-    }
+	}
 
-    private bool TryReadIncomingCommand(out byte[] command)
-    {
-        int delimiterIndex = _incomingBytes.IndexOf(ByteSeparators[0]);
-        if (delimiterIndex == -1)
-        {
-            command = Array.Empty<byte>();
-            return false;
-        }
+	private bool TryReadIncomingCommand(out byte[] command)
+	{
+		int delimiterIndex = _incomingBytes.IndexOf(ByteSeparators[0]);
+		if (delimiterIndex == -1)
+		{
+			command = Array.Empty<byte>();
+			if (_incomingBytes.Count > MaximumIncomingCommandBytes)
+			{
+				Log.Warning("Closing TCP connection after receiving an incomplete Discord bot command larger than {MaximumIncomingCommandBytes} bytes.", MaximumIncomingCommandBytes);
+				CloseTcpConnection();
+			}
+			return false;
+		}
 
-        command = _incomingBytes.GetRange(0, delimiterIndex).ToArray();
-        _incomingBytes.RemoveRange(0, delimiterIndex + 1);
-        return true;
-    }
+		if (delimiterIndex > MaximumIncomingCommandBytes)
+		{
+			command = Array.Empty<byte>();
+			Log.Warning("Closing TCP connection after receiving a Discord bot command larger than {MaximumIncomingCommandBytes} bytes.", MaximumIncomingCommandBytes);
+			CloseTcpConnection();
+			return false;
+		}
+
+		command = _incomingBytes.GetRange(0, delimiterIndex).ToArray();
+		_incomingBytes.RemoveRange(0, delimiterIndex + 1);
+		return true;
+	}
+
+	private void CloseTcpConnection()
+	{
+		Closing = true;
+		_incomingBytes.Clear();
+		_tcpClient?.Close();
+		_networkStream?.Close();
+		TcpClientAuthenticated = false;
+	}
+
 
     private async Task HandleTcpCommandAsync(string getString)
     {
@@ -462,10 +481,7 @@ public class TcpConnection
         }
 
         (string account, bool reboot) = DiscordBotProtocol.ParseShutdownNotification(shutdownAccount);
-        Closing = true;
-        _tcpClient?.Close();
-        _networkStream?.Close();
-        TcpClientAuthenticated = false;
+        CloseTcpConnection();
         if (reboot)
         {
             await _discordBot.AnnounceToDiscord($"{_discordBot.GameName} has been shutdown by {account}. It should be back in a couple of minutes.");
@@ -504,10 +520,7 @@ public class TcpConnection
         }
         catch (SocketException e)
         {
-            Closing = true;
-            _tcpClient?.Close();
-            _networkStream?.Close();
-            TcpClientAuthenticated = false;
+            CloseTcpConnection();
             Log.Information($"TCP Connection encountered a SocketException: {e.Message}");
         }
     }

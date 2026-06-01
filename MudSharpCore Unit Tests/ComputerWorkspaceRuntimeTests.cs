@@ -142,6 +142,7 @@ return 42");
 		Assert.IsFalse(functions.Any(x => x.FunctionName.EqualTo("LoadItem")));
 		Assert.IsTrue(functions.Any(x => x.FunctionName.EqualTo("UserInput")));
 		Assert.IsTrue(functions.Any(x => x.FunctionName.EqualTo("WaitSignal")));
+		Assert.IsFalse(functions.Any(x => x.FunctionName.EqualTo("SendDiscord")));
 		Assert.IsFalse(service.GetFunctionHelp(FutureProgCompilationContext.ComputerFunction)
 			.Any(x => x.FunctionName.EqualTo("UserInput")));
 		Assert.IsFalse(service.GetFunctionHelp(FutureProgCompilationContext.ComputerFunction)

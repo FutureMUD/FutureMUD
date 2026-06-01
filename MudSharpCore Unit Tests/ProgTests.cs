@@ -272,6 +272,20 @@ return @parts",
 	}
 
 	[TestMethod]
+	public void ComputerProgramContext_RejectsSendDiscordFunction()
+	{
+		FutureProg prog = new(_gameworld,
+			"ComputerSendDiscord",
+			ProgVariableTypes.Boolean,
+			Array.Empty<Tuple<ProgVariableTypes, string>>(),
+			@"return senddiscord(123, ""title"", ""message"")",
+			FutureProgCompilationContext.ComputerProgram);
+
+		Assert.IsFalse(prog.Compile());
+		StringAssert.Contains(prog.CompileError, "not available in computer program compilation");
+	}
+
+	[TestMethod]
 	public void ComputerProgramContext_RejectsUnsupportedTypes()
 	{
 		FutureProg prog = new(_gameworld,

@@ -33,7 +33,7 @@ internal static class EmploymentFinanceService
 		string Description);
 
 	private sealed record PurchaseTarget(IShop Shop, IMerchandise Merchandise, decimal Price, int Quantity,
-		string? KeywordFilter, IReadOnlyList<IGameItem> ExactStockItems);
+		string? KeywordFilter, IReadOnlyList<IGameItem> ExactStockItems, double? CommodityWeight = null);
 
 	private sealed class EmploymentFundsPayment : IPaymentMethod
 	{
@@ -356,7 +356,10 @@ internal static class EmploymentFinanceService
 		var reference = TransactionReference(context, $"employment purchase at {target.Shop.Name}");
 		var payment = new EmploymentFundsPayment(finance, actor, target.Shop, reference,
 			EmploymentClock.CurrentDateTime(context.Employer));
-		var canBuy = target.ExactStockItems.Any()
+		var canBuy = target.CommodityWeight.HasValue
+			? target.Shop.CanBuyCommodityWeight(actor, target.Merchandise, target.CommodityWeight.Value, payment,
+				target.ExactStockItems)
+			: target.ExactStockItems.Any()
 			? target.Shop.CanBuyExact(actor, target.Merchandise, target.Quantity, payment, target.ExactStockItems)
 			: target.Shop.CanBuy(actor, target.Merchandise, target.Quantity, payment, target.KeywordFilter);
 		if (!canBuy.Truth)
@@ -365,7 +368,10 @@ internal static class EmploymentFinanceService
 			return false;
 		}
 
-		var items = target.ExactStockItems.Any()
+		var items = target.CommodityWeight.HasValue
+			? target.Shop.BuyCommodityWeight(actor, target.Merchandise, target.CommodityWeight.Value, payment,
+				target.ExactStockItems).ToList()
+			: target.ExactStockItems.Any()
 			? target.Shop.BuyExact(actor, target.Merchandise, target.Quantity, payment, target.ExactStockItems).ToList()
 			: target.Shop.Buy(actor, target.Merchandise, target.Quantity, payment, target.KeywordFilter).ToList();
 		context.RecordLedger(EmploymentLedgerEntryType.Purchase, actor, amount,
@@ -1211,8 +1217,13 @@ internal static class EmploymentFinanceService
 		IShop shop, PurchaseActionStep purchase)
 	{
 		var descriptor = ParseCommodityDescriptor(purchase.CommodityDescriptor!);
-		foreach (var merchandise in shop.Merchandises)
+		foreach (var merchandise in shop.Merchandises.Where(x => x.MerchandiseType == MerchandiseType.Commodity))
 		{
+			if (!CommodityMerchandiseMatchesDescriptor(merchandise, descriptor))
+			{
+				continue;
+			}
+
 			var selected = new List<IGameItem>();
 			var accumulated = 0.0;
 			foreach (var item in shop.StockedItems(merchandise))
@@ -1236,12 +1247,54 @@ internal static class EmploymentFinanceService
 				continue;
 			}
 
-			var quantity = Math.Max(1, selected.Count);
-			return new PurchaseTarget(shop, merchandise, shop.PriceForMerchandise(actor, merchandise, quantity),
-				quantity, null, selected);
+			var pricingWeight = merchandise.CommodityPricingWeight > 0.0 ? merchandise.CommodityPricingWeight : 1.0;
+			var quantity = Math.Max(1, (int)Math.Ceiling(purchase.CommodityWeight!.Value / pricingWeight));
+			return new PurchaseTarget(shop, merchandise,
+				shop.PriceForMerchandiseWeight(actor, merchandise, purchase.CommodityWeight.Value),
+				quantity, null, selected, purchase.CommodityWeight.Value);
 		}
 
 		return null;
+	}
+
+	private static bool CommodityMerchandiseMatchesDescriptor(IMerchandise merchandise, CommodityDescriptor descriptor)
+	{
+		if (merchandise.CommodityMaterial is null)
+		{
+			return false;
+		}
+
+		if (!merchandise.CommodityMaterial.Name.EqualTo(descriptor.Material) &&
+		    !merchandise.CommodityMaterial.Id.ToString("F0").EqualTo(descriptor.Material))
+		{
+			return false;
+		}
+
+		if (!string.IsNullOrWhiteSpace(descriptor.Tag) &&
+		    !(merchandise.CommodityTag?.Name.EqualTo(descriptor.Tag) == true ||
+		      merchandise.CommodityTag?.FullName.EqualTo(descriptor.Tag) == true ||
+		      merchandise.CommodityTag?.Id.ToString("F0").EqualTo(descriptor.Tag) == true))
+		{
+			return false;
+		}
+
+		foreach (var characteristic in descriptor.Characteristics)
+		{
+			var match = merchandise.CommodityCharacteristicRequirements.Any(x =>
+				x.Key.Name.EqualTo(characteristic.Key) &&
+				(
+					x.Value.Name.EqualTo(characteristic.Value) ||
+					x.Value.GetValue.EqualTo(characteristic.Value) ||
+					x.Value.GetBasicValue.EqualTo(characteristic.Value) ||
+					x.Value.GetFancyValue.EqualTo(characteristic.Value)
+				));
+			if (!match)
+			{
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	private static IReadOnlyList<IGameItem> SelectExactStockItemsForQuantity(IEnumerable<IGameItem> items, int quantity)

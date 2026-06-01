@@ -11,6 +11,11 @@ namespace MudSharp.Models
         public bool AutoReordering { get; set; }
         public decimal AutoReorderPrice { get; set; }
         public decimal BasePrice { get; set; }
+        public int MerchandiseType { get; set; }
+        public long? CommodityMaterialId { get; set; }
+        public long? CommodityTagId { get; set; }
+        public string CommodityCharacteristics { get; set; }
+        public double CommodityPricingWeight { get; set; }
         public bool DefaultMerchandiseForItem { get; set; }
         public long ItemProtoId { get; set; }
         public long? PreferredDisplayContainerId { get; set; }

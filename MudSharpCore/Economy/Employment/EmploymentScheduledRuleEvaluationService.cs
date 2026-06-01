@@ -17,7 +17,16 @@ public static class EmploymentScheduledRuleEvaluationService
 		var spawned = 0;
 		foreach (var host in EmploymentHosts(gameworld))
 		{
-			if (!host.TaskBoard.ScheduledRules.Any())
+			if (!ShouldEvaluateHost(host))
+			{
+				host.DebugEmployment(
+					"Central scheduled-rule evaluator skipped this host because it has no persisted scheduled-rule state.",
+					gameworld);
+				continue;
+			}
+
+			var taskBoard = host.TaskBoard;
+			if (!taskBoard.ScheduledRules.Any())
 			{
 				continue;
 			}
@@ -26,10 +35,10 @@ public static class EmploymentScheduledRuleEvaluationService
 			{
 				var context = new EmploymentTaskContext(host, usePhysicalItemMovement: true);
 				var now = EmploymentClock.CurrentInstant(host);
-				var created = host.TaskBoard.EvaluateScheduledRules(context, now);
+				var created = taskBoard.EvaluateScheduledRules(context, now);
 				spawned += created.Count;
 				host.DebugEmployment(
-					$"Central scheduled-rule evaluator inspected {host.TaskBoard.ScheduledRules.Count:N0} rule(s) and spawned {created.Count:N0} task(s).",
+					$"Central scheduled-rule evaluator inspected {taskBoard.ScheduledRules.Count:N0} rule(s) and spawned {created.Count:N0} task(s).",
 					gameworld);
 			}
 			catch (Exception ex)
@@ -41,6 +50,27 @@ public static class EmploymentScheduledRuleEvaluationService
 		}
 
 		return spawned;
+	}
+
+	private static bool ShouldEvaluateHost(IEmploymentHost host)
+	{
+		var hostGameworld = ResolveGameworld(host);
+		if (hostGameworld is null)
+		{
+			return host.TaskBoard.ScheduledRules.Any();
+		}
+
+		return EmploymentPersistenceStore.HasScheduledRules(host);
+	}
+
+	private static IFuturemud? ResolveGameworld(IEmploymentHost host)
+	{
+		return host switch
+		{
+			IHaveFuturemud have => have.Gameworld,
+			IHotel { Property: IHaveFuturemud property } => property.Gameworld,
+			_ => null
+		};
 	}
 
 	private static IEnumerable<IEmploymentHost> EmploymentHosts(IFuturemud gameworld)
@@ -70,7 +100,11 @@ public static class EmploymentScheduledRuleEvaluationService
 			yield return stable;
 		}
 
-		foreach (var hotel in gameworld.Properties.Select(x => x.Hotel).Where(x => x is not null).Cast<IHotel>())
+		foreach (var hotel in gameworld.Properties
+		                             .OfType<MudSharp.Economy.Property.Property>()
+		                             .Select(x => x.ExistingHotel)
+		                             .Where(x => x is not null)
+		                             .Cast<IHotel>())
 		{
 			yield return hotel;
 		}

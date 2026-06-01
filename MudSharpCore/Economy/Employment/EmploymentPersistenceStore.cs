@@ -145,6 +145,26 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 		}
 	}
 
+	public static bool HasScheduledRules(IEmploymentHost host)
+	{
+		var gameworld = ResolveGameworld(host);
+		if (gameworld is null)
+		{
+			return false;
+		}
+
+		using (new FMDB())
+		{
+			var hostType = host.EmploymentHostType.ToString();
+			var stateId = FMDB.Context.EmploymentHostStates
+			                  .Where(x => x.HostType == hostType && x.HostId == host.Id)
+			                  .Select(x => (long?)x.Id)
+			                  .FirstOrDefault();
+			return stateId.HasValue &&
+			       FMDB.Context.EmploymentScheduledTaskRules.Any(x => x.EmploymentHostStateId == stateId.Value);
+		}
+	}
+
 	public void SaveContract(EmploymentContract contract)
 	{
 		WithContext(context =>

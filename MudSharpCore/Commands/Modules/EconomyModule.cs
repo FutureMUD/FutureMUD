@@ -1442,6 +1442,7 @@ The syntax for this command is as follows:
 
 	#3buy <thing>#0 - buys a specified item
 	#3buy <quantity> <thing>#0- buys the specified quantity of the thing
+	#3buy <weight> <commodity>#0 - buys the specified weight of a commodity merchandise item
 	#3buy [<quantity>] <thing> account <accountname>#0 - buys the the thing with a line of credit account
 	#3buy [<quantity>] <thing> with <item>#0 - buys the thing with a payment item such as a cheque, credit card, writ, etc.",
         AutoHelp.HelpArgOrNoArg)]
@@ -1462,6 +1463,7 @@ The syntax for this command is as follows:
         string firstArg = ss.PopSpeech();
         string target = firstArg;
         int quantity = 1;
+        double? commodityWeight = null;
         if (!ss.IsFinished && int.TryParse(firstArg, out int newquantity))
         {
             if (newquantity < 1)
@@ -1472,6 +1474,16 @@ The syntax for this command is as follows:
 
             quantity = newquantity;
             target = ss.PopSpeech();
+        }
+        else if (!ss.IsFinished)
+        {
+            var parsedWeight = actor.Gameworld.UnitManager.GetBaseUnits(firstArg, Framework.Units.UnitType.Mass,
+                out var weightSuccess);
+            if (weightSuccess && parsedWeight > 0.0)
+            {
+                commodityWeight = parsedWeight;
+                target = ss.PopSpeech();
+            }
         }
 
         IMerchandise merch;
@@ -1574,15 +1586,35 @@ The syntax for this command is as follows:
             }
         }
 
-        (bool truth, string reason) = shop.CanBuy(actor, merch, quantity, payment);
-        if (!truth)
+        if (commodityWeight.HasValue && merch.MerchandiseType != MerchandiseType.Commodity)
         {
-            actor.OutputHandler.Send(
-                $"You cannot buy {quantity}x {merch.Item.ShortDescription.Colour(merch.Item.CustomColour ?? Telnet.Green)} because {reason}");
+            actor.OutputHandler.Send($"{merch.Name.ColourName()} is not sold as a commodity by weight.");
             return;
         }
 
-        (decimal Price, IEnumerable<IGameItem> Items) preview = shop.PreviewBuy(actor, merch, quantity, payment);
+        if (!commodityWeight.HasValue && merch.MerchandiseType == MerchandiseType.Commodity)
+        {
+            actor.OutputHandler.Send(
+                $"{merch.Name.ColourName()} is sold by weight. Use {"buy <weight> <commodity>".ColourCommand()}.");
+            return;
+        }
+
+        (bool truth, string reason) = commodityWeight.HasValue
+            ? shop.CanBuyCommodityWeight(actor, merch, commodityWeight.Value, payment, [])
+            : shop.CanBuy(actor, merch, quantity, payment);
+        if (!truth)
+        {
+            actor.OutputHandler.Send(
+                commodityWeight.HasValue
+                    ? $"You cannot buy {actor.Gameworld.UnitManager.DescribeExact(commodityWeight.Value, Framework.Units.UnitType.Mass, actor)} of {merch.ListDescription.ColourObject()} because {reason}"
+                    : $"You cannot buy {quantity}x {merch.Item.ShortDescription.Colour(merch.Item.CustomColour ?? Telnet.Green)} because {reason}");
+            return;
+        }
+
+        (decimal Price, IEnumerable<IGameItem> Items) preview = commodityWeight.HasValue
+            ? (shop.PriceForMerchandiseWeight(actor, merch, commodityWeight.Value),
+                shop.StockedItems(merch).Where(x => x.GetItemType<ICommodity>() is not null))
+            : shop.PreviewBuy(actor, merch, quantity, payment);
         if (actor.Account.ActLawfully &&
             preview.Items.Any(x => CrimeTypes.PossessingContraband.CheckWouldBeACrime(actor, null, x, "")))
         {
@@ -1606,7 +1638,9 @@ The syntax for this command is as follows:
                 DescriptionString = "confirming near-morph purchase",
                 AcceptAction = text =>
                 {
-                    List<IGameItem> bought = shop.Buy(actor, merch, quantity, payment).ToList();
+                    List<IGameItem> bought = commodityWeight.HasValue
+                        ? shop.BuyCommodityWeight(actor, merch, commodityWeight.Value, payment, []).ToList()
+                        : shop.Buy(actor, merch, quantity, payment).ToList();
                     foreach (IGameItem contrabandItem in bought)
                     {
                         CrimeExtensions.CheckPossibleCrimeAllAuthorities(actor, CrimeTypes.PossessingContraband, null,
@@ -1620,7 +1654,9 @@ The syntax for this command is as follows:
             return;
         }
 
-        List<IGameItem> boughtItems = shop.Buy(actor, merch, quantity, payment).ToList();
+        List<IGameItem> boughtItems = commodityWeight.HasValue
+            ? shop.BuyCommodityWeight(actor, merch, commodityWeight.Value, payment, []).ToList()
+            : shop.Buy(actor, merch, quantity, payment).ToList();
         foreach (IGameItem boughtContrabandItem in boughtItems)
         {
             CrimeExtensions.CheckPossibleCrimeAllAuthorities(actor, CrimeTypes.PossessingContraband, null,
@@ -4124,6 +4160,7 @@ Additionally, you can use the following shop admin subcommands:
 	#3shop merch edit#0 - equivalent to SHOW <edited record>
 	#3shop merch show <record>#0 - shows information about the specified merchandise record
 	#3shop merch new <name> <id>|<target> <price>|default [<custom description>]#0 - creates a new record with the specified item and price, and optional custom LIST description
+	#3shop merch new commodity <name> <material> <price> per <weight> [tag <tag>] [desc <description>]#0 - creates commodity merchandise sold by weight
 	#3shop merch clone <new name>#0 - clones the currently edited record to an identical new record
 	#3shop merch delete#0 - deletes the current merchandise record
 	#3shop merch close#0 - closes the merchandise record you're editing
@@ -4145,6 +4182,7 @@ Additionally, you can use the following shop admin subcommands:
 	#3shop merch edit#0 - equivalent to SHOW <edited record>
 	#3shop merch show <record>#0 - shows information about the specified merchandise record
 	#3shop merch new <name> <id>|<target> <price>|default [<custom description>]#0 - creates a new record with the specified item and price, and optional custom LIST description
+	#3shop merch new commodity <name> <material> <price> per <weight> [tag <tag>] [desc <description>]#0 - creates commodity merchandise sold by weight
 	#3shop merch clone <new name>#0 - clones the currently edited record to an identical new record
 	#3shop merch delete#0 - deletes the current merchandise record
 	#3shop merch close#0 - closes the merchandise record you're editing
@@ -4275,17 +4313,24 @@ Additionally, you can use the following shop admin subcommands:
             if (actor.IsAdministrator())
             {
                 actor.OutputHandler.Send(
-                    "The syntax for this command is SHOP MERCHANDISE NEW <name> <id>|<target> <price>|default [<custom description>]");
+                    "The syntax for this command is SHOP MERCHANDISE NEW <name> <id>|<target> <price>|default [<custom description>] or SHOP MERCHANDISE NEW COMMODITY <name> <material> <price> PER <weight> [TAG <tag>] [DESC <description>]");
                 return;
             }
 
             actor.OutputHandler.Send(
-                "The syntax for this command is SHOP MERCHANDISE NEW <name> <target> <price>|default [<custom description>]");
+                "The syntax for this command is SHOP MERCHANDISE NEW <name> <target> <price>|default [<custom description>] or SHOP MERCHANDISE NEW COMMODITY <name> <material> <price> PER <weight> [TAG <tag>] [DESC <description>]");
         }
 
         if (ss.IsFinished)
         {
             HelpText();
+            return;
+        }
+
+        if (ss.PeekSpeech().EqualTo("commodity"))
+        {
+            ss.PopSpeech();
+            ShopMerchandiseNewCommodity(actor, shop, ss);
             return;
         }
 
@@ -4345,6 +4390,117 @@ Additionally, you can use the following shop admin subcommands:
         actor.RemoveAllEffects(x => x.IsEffectType<BuilderEditingEffect<IMerchandise>>());
         actor.AddEffect(new BuilderEditingEffect<IMerchandise>(actor) { EditingItem = newMerch });
         return;
+    }
+
+    private static void ShopMerchandiseNewCommodity(ICharacter actor, IShop shop, StringStack ss)
+    {
+        void HelpText()
+        {
+            actor.OutputHandler.Send("The syntax for this command is SHOP MERCHANDISE NEW COMMODITY <name> <material> <price> PER <weight> [TAG <tag>] [DESC <description>]");
+        }
+
+        if (ss.IsFinished)
+        {
+            HelpText();
+            return;
+        }
+
+        var name = ss.PopSpeech();
+        if (ss.IsFinished)
+        {
+            HelpText();
+            return;
+        }
+
+        var materialText = ss.PopSpeech();
+        var material = actor.Gameworld.Materials.GetByIdOrNames(materialText);
+        if (material is null)
+        {
+            actor.OutputHandler.Send($"There is no solid material identified by {materialText.ColourCommand()}.");
+            return;
+        }
+
+        if (ss.IsFinished)
+        {
+            actor.OutputHandler.Send("What pre-tax price do you want to give to this commodity merchandise entry?");
+            return;
+        }
+
+        var price = shop.Currency.GetBaseCurrency(ss.PopSpeech(), out var priceSuccess);
+        if (!priceSuccess)
+        {
+            actor.OutputHandler.Send("That is not a valid price.");
+            return;
+        }
+
+        if (ss.IsFinished || !ss.PopSpeech().EqualTo("per") || ss.IsFinished)
+        {
+            actor.OutputHandler.Send("Commodity merchandise prices must specify the weight they apply to with PER <weight>.");
+            return;
+        }
+
+        var weight = actor.Gameworld.UnitManager.GetBaseUnits(ss.PopSpeech(), Framework.Units.UnitType.Mass,
+            out var weightSuccess);
+        if (!weightSuccess || weight <= 0.0)
+        {
+            actor.OutputHandler.Send("That is not a valid positive commodity pricing weight.");
+            return;
+        }
+
+        ITag tag = null;
+        var description = string.Empty;
+        while (!ss.IsFinished)
+        {
+            var option = ss.PopSpeech();
+            if (option.EqualTo("tag"))
+            {
+                if (ss.IsFinished)
+                {
+                    actor.OutputHandler.Send("Which tag should the commodity require?");
+                    return;
+                }
+
+                var tagText = ss.PopSpeech().TrimStart('&');
+                tag = long.TryParse(tagText, out var tagId)
+                    ? actor.Gameworld.Tags.Get(tagId)
+                    : actor.Gameworld.Tags.GetByIdOrName(tagText);
+                if (tag is null)
+                {
+                    actor.OutputHandler.Send($"There is no tag identified by {tagText.ColourCommand()}.");
+                    return;
+                }
+
+                continue;
+            }
+
+            if (option.EqualTo("desc"))
+            {
+                description = ss.SafeRemainingArgument;
+                break;
+            }
+
+            actor.OutputHandler.Send($"The only commodity merchandise options are {"tag <tag>".ColourCommand()} and {"desc <description>".ColourCommand()}.");
+            return;
+        }
+
+        if (CommodityGameItemComponentProto.ItemPrototype is null)
+        {
+            CommodityGameItemComponentProto.InitialiseItemType(actor.Gameworld);
+        }
+
+        var proto = CommodityGameItemComponentProto.ItemPrototype;
+        if (proto is null)
+        {
+            actor.OutputHandler.Send("The global commodity item prototype could not be created.");
+            return;
+        }
+
+        var newMerch = new Merchandise(shop, name, proto, material, tag, price, weight, false, null, description);
+        shop.AddMerchandise(newMerch);
+        actor.OutputHandler.Send(
+            $"You create a new commodity merchandise entry for {newMerch.ListDescription.ColourObject()} ({newMerch.Name.TitleCase().Colour(Telnet.Cyan)}), priced at {shop.Currency.Describe(price, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()} per {actor.Gameworld.UnitManager.DescribeExact(weight, Framework.Units.UnitType.Mass, actor).ColourValue()}, which you are now editing.");
+        actor.RemoveAllEffects(x => x.IsEffectType<BuilderEditingEffect<IMerchandise>>());
+        actor.AddEffect(new BuilderEditingEffect<IMerchandise>(actor) { EditingItem = newMerch });
     }
 
     private static void ShopMerchandiseEdit(ICharacter actor, StringStack ss)

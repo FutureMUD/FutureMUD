@@ -1126,7 +1126,7 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 			: result;
 	}
 
-	private static bool TryParseTaskItemCustody(string? text, out string operation, out long actorId,
+	internal static bool TryParseTaskItemCustody(string? text, out string operation, out long actorId,
 		out long[] itemIds, out long[] transportBundleIds)
 	{
 		operation = string.Empty;
@@ -1168,7 +1168,7 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 		return itemIds.Any();
 	}
 
-	private static bool TryParseLoadedAssets(string? text, out string operation, out long containerId, out long[] itemIds)
+	internal static bool TryParseLoadedAssets(string? text, out string operation, out long containerId, out long[] itemIds)
 	{
 		operation = "load";
 		containerId = 0;
@@ -2292,15 +2292,27 @@ public sealed class EmploymentTaskBoard : IEmploymentTaskBoard
 				continue;
 			}
 
+			if (TryGetResourceCustodyAuditReason(task, out var custodyReason))
+			{
+				task.Block(custodyReason);
+				_host.EmploymentRegister.Record(EmploymentRegisterEntryType.ActiveTaskBlocked, task.AssignedEmployee,
+					custodyReason, task.CorrelationId);
+				_host.DebugEmployment($"Suspended active task {task.Name}: {custodyReason}",
+					task.AssignedEmployee?.Gameworld);
+				results.Add(new EmploymentTaskAssignmentAuditResult(task.Id, task.Name,
+					EmploymentTaskAssignmentAuditOutcome.Blocked, custodyReason));
+				continue;
+			}
+
 			if (!TryGetAssignmentAuditReason(task, out var reason))
 			{
 				continue;
 			}
 
-			if (HasUnsecuredTaskItemCustody(task))
+			if (TryGetUnsecuredTaskItemCustodyReason(task, out var itemReason))
 			{
 				var blockedReason =
-					$"{reason} {PhysicalCustodySuspensionReason}";
+					$"{reason} {itemReason}";
 				task.Block(blockedReason);
 				_host.EmploymentRegister.Record(EmploymentRegisterEntryType.ActiveTaskBlocked, task.AssignedEmployee,
 					blockedReason, task.CorrelationId);
@@ -2445,12 +2457,163 @@ public sealed class EmploymentTaskBoard : IEmploymentTaskBoard
 		return false;
 	}
 
-	private static bool HasUnsecuredTaskItemCustody(EmploymentActiveTask task)
+	private bool TryGetResourceCustodyAuditReason(EmploymentActiveTask task, out string reason)
 	{
-		var carried = false;
+		reason = string.Empty;
+		if (!TryBuildCustodySnapshot(task, out var carriedIds, out var loadedItemIds, out _))
+		{
+			return false;
+		}
+
+		var employee = task.AssignedEmployee;
+		var gameworld = employee?.Gameworld ?? (_host as IHaveFuturemud)?.Gameworld;
+		if (gameworld is null)
+		{
+			return false;
+		}
+
+		if (employee is not null)
+		{
+			foreach (var itemId in carriedIds.OrderBy(x => x))
+			{
+				var item = gameworld.TryGetItem(itemId, true);
+				if (item is null)
+				{
+					reason = $"Task item #{itemId:N0} is no longer loaded in the world. {PhysicalCustodySuspensionReason}";
+					return true;
+				}
+
+				if (!ActorCarriesItem(employee, item))
+				{
+					reason =
+						$"{employee.Name} is no longer carrying task item {item.HowSeen(employee, colour: false)} (#{item.Id:N0}). {PhysicalCustodySuspensionReason}";
+					return true;
+				}
+			}
+		}
+		else if (carriedIds.Any())
+		{
+			reason = $"The task has no assigned employee but still has carried task item custody recorded. {PhysicalCustodySuspensionReason}";
+			return true;
+		}
+
+		foreach (var (containerId, itemIds) in loadedItemIds.OrderBy(x => x.Key))
+		{
+			var container = gameworld.TryGetItem(containerId, true);
+			if (container is null)
+			{
+				reason =
+					$"Task-loaded container #{containerId:N0} is no longer loaded in the world. {PhysicalCustodySuspensionReason}";
+				return true;
+			}
+
+			var contents = container.DeepItems?.Select(x => x.Id).ToHashSet() ?? [];
+			foreach (var itemId in itemIds.OrderBy(x => x))
+			{
+				if (contents.Contains(itemId))
+				{
+					continue;
+				}
+
+				var item = gameworld.TryGetItem(itemId, true);
+				reason = item is null
+					? $"Task-loaded item #{itemId:N0} is no longer loaded in the world. {PhysicalCustodySuspensionReason}"
+					: $"Task-loaded item {item.Name} (#{itemId:N0}) is no longer inside {container.Name}. {PhysicalCustodySuspensionReason}";
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	private bool TryGetUnsecuredTaskItemCustodyReason(EmploymentActiveTask task, out string reason)
+	{
+		if (TryBuildCustodySnapshot(task, out var carriedIds, out var loadedItemIds, out var inferredCarried) &&
+		    (inferredCarried || carriedIds.Any() || loadedItemIds.Any(x => x.Value.Any())))
+		{
+			reason = PhysicalCustodySuspensionReason;
+			return true;
+		}
+
+		reason = string.Empty;
+		return false;
+	}
+
+	private static bool TryBuildCustodySnapshot(EmploymentActiveTask task, out HashSet<long> carriedIds,
+		out Dictionary<long, HashSet<long>> loadedItemIds, out bool inferredCarried)
+	{
+		carriedIds = [];
+		loadedItemIds = new Dictionary<long, HashSet<long>>();
+		inferredCarried = false;
 		for (var i = 0; i < task.ActionPlan.Steps.Count && i < task.StepStates.Count; i++)
 		{
 			if (task.StepStates[i] != EmploymentActionStepStatus.Completed)
+			{
+				continue;
+			}
+
+			var state = task.StepOperationalStates.ElementAtOrDefault(i);
+			if (state is null)
+			{
+				continue;
+			}
+
+			if (EmploymentTaskContext.TryParseTaskItemCustody(state.SelectedResources, out var custodyOperation, out _, out var custodyItemIds,
+				    out var custodyBundleIds))
+			{
+				if (custodyOperation.EqualTo("collect") || custodyOperation.EqualTo("unload"))
+				{
+					foreach (var itemId in custodyItemIds.Concat(custodyBundleIds))
+					{
+						carriedIds.Add(itemId);
+					}
+				}
+				else if (custodyOperation.EqualTo("load") ||
+				         custodyOperation.EqualTo("deliver") ||
+				         custodyOperation.EqualTo("return"))
+				{
+					foreach (var itemId in custodyItemIds.Concat(custodyBundleIds))
+					{
+						carriedIds.Remove(itemId);
+					}
+				}
+			}
+
+			if (EmploymentTaskContext.TryParseLoadedAssets(state.LoadedAssets, out var operation, out var containerId, out var loadedIds))
+			{
+				if (!loadedItemIds.TryGetValue(containerId, out var itemSet))
+				{
+					itemSet = [];
+					loadedItemIds[containerId] = itemSet;
+				}
+
+				if (operation.EqualTo("load"))
+				{
+					foreach (var itemId in loadedIds)
+					{
+						itemSet.Add(itemId);
+						carriedIds.Remove(itemId);
+					}
+				}
+				else if (operation.EqualTo("unload"))
+				{
+					foreach (var itemId in loadedIds)
+					{
+						itemSet.Remove(itemId);
+						carriedIds.Add(itemId);
+					}
+				}
+				else if (operation.EqualTo("return"))
+				{
+					foreach (var itemId in loadedIds)
+					{
+						itemSet.Remove(itemId);
+						carriedIds.Remove(itemId);
+					}
+				}
+			}
+
+			if (carriedIds.Any() || loadedItemIds.Any(x => x.Value.Any()))
 			{
 				continue;
 			}
@@ -2461,17 +2624,22 @@ public sealed class EmploymentTaskBoard : IEmploymentTaskBoard
 				case EmploymentActionStepType.GetItemsByTag:
 				case EmploymentActionStepType.GetCommodity:
 				case EmploymentActionStepType.UnloadItems:
-					carried = true;
+					inferredCarried = true;
 					break;
 				case EmploymentActionStepType.LoadItems:
 				case EmploymentActionStepType.DeliverItems:
 				case EmploymentActionStepType.ReturnAsset:
-					carried = false;
+					inferredCarried = false;
 					break;
 			}
 		}
 
-		return carried;
+		return inferredCarried || carriedIds.Any() || loadedItemIds.Any(x => x.Value.Any());
+	}
+
+	private static bool ActorCarriesItem(ICharacter actor, IGameItem item)
+	{
+		return item.InInventoryOf == actor.Body || actor.Inventory.Any(x => x.Id == item.Id);
 	}
 }
 

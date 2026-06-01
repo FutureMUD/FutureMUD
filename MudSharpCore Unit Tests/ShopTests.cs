@@ -1,7 +1,9 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using MudSharp.Accounts;
 using MudSharp.Body;
 using MudSharp.Character;
+using MudSharp.Commands.Modules;
 using MudSharp.Construction;
 using MudSharp.Economy;
 using MudSharp.Economy.Currency;
@@ -10,6 +12,7 @@ using MudSharp.Economy.Shops;
 using MudSharp.Effects;
 using MudSharp.Effects.Concrete;
 using MudSharp.Events;
+using MudSharp.Form.Material;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.FutureProg;
@@ -32,6 +35,7 @@ public class ShopTests
     private Mock<IUneditableAll<IEconomicZone>> _zones = null!;
     private Mock<IUneditableAll<ICurrency>> _currencies = null!;
     private Mock<IUneditableAll<IMarket>> _markets = null!;
+    private Mock<IUneditableAll<ISolid>> _materials = null!;
     private Mock<IUneditableAll<IFutureProg>> _progs = null!;
     private Mock<IUneditableRevisableAll<IGameItemProto>> _itemProtos = null!;
     private All<ITag> _tags = null!;
@@ -81,6 +85,9 @@ public class ShopTests
         _markets = new Mock<IUneditableAll<IMarket>>();
         _markets.Setup(x => x.Get(It.IsAny<long>())).Returns((IMarket)null);
         _gameworld.SetupGet(x => x.Markets).Returns(_markets.Object);
+
+        _materials = new Mock<IUneditableAll<ISolid>>();
+        _gameworld.SetupGet(x => x.Materials).Returns(_materials.Object);
 
         _progs = new Mock<IUneditableAll<IFutureProg>>();
         _progs.Setup(x => x.Get(It.IsAny<long>())).Returns((IFutureProg)null);
@@ -286,6 +293,67 @@ public class ShopTests
     }
 
     [TestMethod]
+    public void BuyCommodityWeight_SplitsSelectedCommodityStockAndChargesProratedPrice()
+    {
+        Mock<ISolid> material = RegisterMaterial(1, "Iron");
+        Mock<IGameItemProto> proto = RegisterPrototype(12);
+        Merchandise merch = new(_shop, "iron", proto.Object, material.Object, null, 20m, 0.5, false, null, null);
+        _shop.AddMerchandise(merch);
+
+        Mock<IGameItem> stockItem = CreateCommodityItem(120L, proto.Object, material.Object, 10.0);
+        Mock<IGameItem> splitItem = CreateCommodityItem(121L, proto.Object, material.Object, 0.25);
+        stockItem.Setup(x => x.GetByWeight(null, 0.25)).Returns(splitItem.Object);
+        stockItem.SetupGet(x => x.InInventoryOf).Returns((IBody)null);
+        stockItem.SetupGet(x => x.ContainedIn).Returns((IGameItem)null);
+        stockItem.SetupGet(x => x.Location).Returns((ICell)null);
+        splitItem.SetupGet(x => x.InInventoryOf).Returns((IBody)null);
+        splitItem.SetupGet(x => x.ContainedIn).Returns((IGameItem)null);
+        splitItem.SetupGet(x => x.Location).Returns((ICell)null);
+
+        _shop.AddToStock(null, stockItem.Object, merch);
+        var bankActor = CreateBankPaymentActor();
+
+        var canBuy = _shop.CanBuyCommodityWeight(bankActor.Actor.Object, merch, 0.25, bankActor.Payment, [stockItem.Object]);
+        var bought = _shop.BuyCommodityWeight(bankActor.Actor.Object, merch, 0.25, bankActor.Payment, [stockItem.Object]).ToList();
+
+        Assert.IsTrue(canBuy.Truth, canBuy.Reason);
+        Assert.AreEqual(1, bought.Count);
+        Assert.AreSame(splitItem.Object, bought.Single());
+        Assert.AreEqual(10m, _shop.TransactionRecords.Last().PretaxValue);
+        Assert.AreEqual(10m, _shop.TransactionRecords.Last().NetValue);
+        bankActor.PlayerAccount.Verify(x => x.WithdrawFromTransaction(10m, It.IsAny<string>()), Times.Once);
+        bankActor.ShopAccount.Verify(x => x.DepositFromTransaction(10m, It.IsAny<string>()), Times.Once);
+        bankActor.Body.Verify(x => x.Get(splitItem.Object, 0, It.IsAny<IEmote>(), true, ItemCanGetIgnore.None), Times.Once);
+    }
+
+    [TestMethod]
+    public void BuyCommand_CommodityMerchandiseRequiresWeightSyntax()
+    {
+        Mock<ISolid> material = RegisterMaterial(2, "Copper");
+        Mock<IGameItemProto> proto = RegisterPrototype(13);
+        Merchandise merch = new(_shop, "copper", proto.Object, material.Object, null, 8m, 0.5, false, null, null);
+        _shop.AddMerchandise(merch);
+        Mock<IGameItem> stockItem = CreateCommodityItem(122L, proto.Object, material.Object, 5.0);
+        _shop.AddToStock(null, stockItem.Object, merch);
+        Mock<IOutputHandler> output = new();
+        output.Setup(x => x.Send(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>())).Returns(true);
+        Mock<ICharacter> actor = new();
+        actor.SetupGet(x => x.Location).Returns(_currentCell.Object);
+        actor.SetupGet(x => x.OutputHandler).Returns(output.Object);
+        actor.Setup(x => x.IsAdministrator(It.IsAny<PermissionLevel>())).Returns(false);
+        _currentCell.SetupGet(x => x.Shop).Returns(_shop);
+
+        typeof(EconomyModule)
+            .GetMethod("Buy", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic)!
+            .Invoke(null, [actor.Object, "buy copper"]);
+
+        output.Verify(x => x.Send(
+            It.Is<string>(text => text.Contains("sold by weight", StringComparison.InvariantCultureIgnoreCase)),
+            It.IsAny<bool>(),
+            It.IsAny<bool>()), Times.Once);
+    }
+
+    [TestMethod]
     public void SaleDeal_ChangesDisplayedBilledAndTransactionPretax()
     {
         Mock<IGameItemProto> proto = RegisterPrototype(30);
@@ -457,6 +525,31 @@ public class ShopTests
         tag.Setup(x => x.IsA(It.IsAny<ITag>())).Returns<ITag>(other => other == tag.Object);
         _tags.Add(tag.Object);
         return tag;
+    }
+
+    private Mock<ISolid> RegisterMaterial(long id, string name)
+    {
+        Mock<ISolid> material = new();
+        material.SetupGet(x => x.Id).Returns(id);
+        material.SetupGet(x => x.Name).Returns(name);
+        material.SetupGet(x => x.MaterialDescription).Returns(name);
+        _materials.Setup(x => x.Get(id)).Returns(material.Object);
+        return material;
+    }
+
+    private Mock<IGameItem> CreateCommodityItem(long id, IGameItemProto prototype, ISolid material, double weight)
+    {
+        Mock<ICommodity> commodity = new();
+        commodity.SetupGet(x => x.Material).Returns(material);
+        commodity.SetupProperty(x => x.Weight, weight);
+        commodity.SetupGet(x => x.Tag).Returns((ITag)null);
+        commodity.SetupGet(x => x.CommodityCharacteristics).Returns(new Dictionary<MudSharp.Form.Characteristics.ICharacteristicDefinition, MudSharp.Form.Characteristics.ICharacteristicValue>());
+
+        Mock<IGameItem> item = CreateStackedItem(id, 1, prototype);
+        item.Setup(x => x.GetItemType<ICommodity>()).Returns(commodity.Object);
+        item.SetupGet(x => x.DeepItems).Returns(new[] { item.Object });
+        item.Setup(x => x.SetOwner(It.IsAny<IFrameworkItem>()));
+        return item;
     }
 
     private IShopDeal CreateDeal(string name, ShopDealType dealType, ShopDealTargetType targetType,

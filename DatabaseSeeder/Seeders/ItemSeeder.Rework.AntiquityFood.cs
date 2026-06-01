@@ -516,13 +516,20 @@ public partial class ItemSeeder
 			}
 
 			var parentId = parent?.Id;
+			_tags.TryGetValue(part, out var cachedTag);
 			existing = _context!.Tags.Local
 			                    .FirstOrDefault(x => x.Name.Equals(part, StringComparison.OrdinalIgnoreCase) &&
 			                                         x.ParentId == parentId) ??
 			           _context.Tags
 			                   .AsEnumerable()
 			                   .FirstOrDefault(x => x.Name.Equals(part, StringComparison.OrdinalIgnoreCase) &&
-			                                        x.ParentId == parentId);
+			                                        x.ParentId == parentId) ??
+			           cachedTag ??
+			           _context.Tags.Local
+			                   .FirstOrDefault(x => x.Name.Equals(part, StringComparison.OrdinalIgnoreCase)) ??
+			           _context.Tags
+			                   .AsEnumerable()
+			                   .FirstOrDefault(x => x.Name.Equals(part, StringComparison.OrdinalIgnoreCase));
 			if (existing is null)
 			{
 				existing = new Tag

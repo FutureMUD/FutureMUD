@@ -7684,13 +7684,20 @@ public partial class UsefulSeeder
             foreach (var part in parts)
             {
                 long? parentId = parent?.Id;
+                _tags.TryGetValue(part, out var cachedTag);
                 var tag = context.Tags.Local
                                  .FirstOrDefault(x => x.Name.Equals(part, StringComparison.OrdinalIgnoreCase) &&
                                                       x.ParentId == parentId) ??
                           context.Tags
                                  .AsEnumerable()
                                  .FirstOrDefault(x => x.Name.Equals(part, StringComparison.OrdinalIgnoreCase) &&
-                                                      x.ParentId == parentId);
+                                                      x.ParentId == parentId) ??
+                          cachedTag ??
+                          context.Tags.Local
+                                 .FirstOrDefault(x => x.Name.Equals(part, StringComparison.OrdinalIgnoreCase)) ??
+                          context.Tags
+                                 .AsEnumerable()
+                                 .FirstOrDefault(x => x.Name.Equals(part, StringComparison.OrdinalIgnoreCase));
                 if (tag is null)
                 {
                     var existing = context.Tags.Any() ? context.Tags.Max(x => x.Id) : 0L;

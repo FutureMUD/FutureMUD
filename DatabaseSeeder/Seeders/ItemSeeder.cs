@@ -97,7 +97,10 @@ The items and crafts are fairly universal and of approximately medieval to renei
         }
 
         _components = _context.GameItemComponentProtos.ToDictionary(x => x.Name, x => x, StringComparer.OrdinalIgnoreCase);
-        _tags = _context.Tags.ToDictionary(x => x.Name, x => x, StringComparer.OrdinalIgnoreCase);
+        _tags = _context.Tags
+            .AsEnumerable()
+            .GroupBy(x => x.Name, StringComparer.OrdinalIgnoreCase)
+            .ToDictionary(x => x.Key, x => x.OrderBy(tag => tag.Id).First(), StringComparer.OrdinalIgnoreCase);
         var tagList = _context.Tags.ToList();
         var tagsById = tagList.ToDictionary(x => x.Id);
         Dictionary<long, string> fullPathCache = new();
@@ -125,7 +128,9 @@ The items and crafts are fairly universal and of approximately medieval to renei
             return path;
         }
 
-        _tagsByFullPath = tagList.ToDictionary(BuildTagFullPath, x => x, StringComparer.OrdinalIgnoreCase);
+        _tagsByFullPath = tagList
+            .GroupBy(BuildTagFullPath, StringComparer.OrdinalIgnoreCase)
+            .ToDictionary(x => x.Key, x => x.OrderBy(tag => tag.Id).First(), StringComparer.OrdinalIgnoreCase);
         _materials = _context.Materials.ToDictionary(x => x.Name, x => x, StringComparer.OrdinalIgnoreCase);
         _liquids = _context.Liquids.ToDictionary(x => x.Name, x => x, StringComparer.OrdinalIgnoreCase);
         _nextId = _context.GameItemProtos.Any()

@@ -11,6 +11,9 @@ public static class PatrolStrategyFactory
     public static IEnumerable<string> Strategies { get; } = new string[]
     {
         "ArmedPatrol",
+        "ReactivePatrol",
+        "InvestigationPatrol",
+        "CorpseRecovery",
         "StationEnforcer",
         "Judge",
         "Sheriff",
@@ -29,7 +32,17 @@ public static class PatrolStrategyFactory
         {
             case "armedpatrol":
                 return new ArmedPatrolStrategy(gameworld);
+            case "reactive":
+            case "reactivepatrol":
+            case "response":
+            case "responsepatrol":
+                return new ReactivePatrolStrategy(gameworld, strategyData);
+            case "investigation":
+            case "investigationpatrol":
+            case "investigation patrol":
+                return new InvestigationPatrolStrategy(gameworld, strategyData);
             case "corpserecovery":
+            case "corpse recovery":
                 return new CorpseRecoveryPatrolStrategy(gameworld);
             case "stationenforcer":
                 return new StationEnforcerPatrolStrategy(gameworld);

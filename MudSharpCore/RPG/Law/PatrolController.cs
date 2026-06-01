@@ -1,6 +1,7 @@
 ﻿using MudSharp.Character;
 using MudSharp.Effects.Concrete;
 using MudSharp.Framework;
+using MudSharp.RPG.Law.PatrolStrategies;
 using MudSharp.Server;
 using System;
 using System.Collections.Generic;
@@ -54,6 +55,7 @@ public class PatrolController : IPatrolController
             LegalAuthority.Gameworld.NPCs
                           .Where(x =>
                               x.AffectedBy<EnforcerEffect>(LegalAuthority) &&
+                              LegalAuthority.GetEnforcementAuthority(x) is not null &&
                               LegalAuthority.Patrols.All(y => !y.PatrolMembers.Contains(x))
                           )
                           .ToList();
@@ -68,14 +70,19 @@ public class PatrolController : IPatrolController
             return;
         }
 
-        List<ICrime> crimesRequiringInvestigation = LegalAuthority.UnknownCrimes
-                                                         .Where(x => x.Law.EnforcementStrategy >
-                                                                     EnforcementStrategy.NoActiveEnforcement)
-                                                         .OrderByDescending(x => x.Law.EnforcementPriority)
-                                                         .ToList();
+        if (TryLaunchCrimeTargetedPatrol<ReactivePatrolStrategy>(freeEnforcers, enforcerCounts))
+        {
+            return;
+        }
+
+        if (TryLaunchCrimeTargetedPatrol<InvestigationPatrolStrategy>(freeEnforcers, enforcerCounts))
+        {
+            return;
+        }
 
         Queue<IPatrolRoute> patrolsToLaunch = new(LegalAuthority.PatrolRoutes
                                                                     .Where(x =>
+                                                                        x.PatrolStrategy is not ICrimeTargetedPatrolStrategy &&
                                                                         LegalAuthority.Patrols.All(y =>
                                                                             y.PatrolRoute != x) &&
                                                                         x.ShouldBeginPatrol()
@@ -92,34 +99,10 @@ public class PatrolController : IPatrolController
                 continue;
             }
 
-            if (whichPatrol.PatrollerNumbers.Any(x => enforcerCounts[x.Key].Count() < x.Value))
+            if (!TryLaunchPatrol(whichPatrol, freeEnforcers, enforcerCounts, null, null))
             {
                 continue;
             }
-
-            List<ICharacter> patrolMembers = new();
-            foreach (KeyValuePair<IEnforcementAuthority, int> requirement in whichPatrol.PatrollerNumbers)
-            {
-                List<ICharacter> members = whichPatrol.PatrolStrategy
-                                         .SelectEnforcers(whichPatrol, enforcerCounts[requirement.Key],
-                                             requirement.Value).ToList();
-                if (members.Count == 0)
-                {
-                    continue;
-                }
-                patrolMembers.AddRange(members);
-                enforcerCounts.RemoveRange(requirement.Key, members);
-                freeEnforcers.RemoveAll(members.Contains);
-            }
-
-            if (patrolMembers.Count == 0)
-            {
-                continue;
-            }
-
-            ICharacter leader = patrolMembers.GetRandomElement();
-            Patrol patrol = new(LegalAuthority, whichPatrol, leader, patrolMembers);
-            LegalAuthority.AddPatrol(patrol);
 
             if (freeEnforcers.Count == 0)
             {
@@ -140,37 +123,85 @@ public class PatrolController : IPatrolController
 
         IPatrolRoute route = LegalAuthority.PatrolRoutes
             .Where(x => x.IsReady && x.PatrolNodes.Any() && x.PatrollerNumbers.Any())
-            .OrderByDescending(x => x.PatrolStrategy is PatrolStrategies.CorpseRecoveryPatrolStrategy)
+            .Where(x => LegalAuthority.Patrols.All(y => y.PatrolRoute != x))
+            .OrderByDescending(x => x.PatrolStrategy is CorpseRecoveryPatrolStrategy)
             .ThenByDescending(x => x.Priority)
             .FirstOrDefault();
-        if (route == null || route.PatrollerNumbers.Any(x => enforcerCounts[x.Key].Count() < x.Value))
+        if (route == null)
         {
             return false;
         }
 
-        List<ICharacter> patrolMembers = new();
+        return TryLaunchPatrol(route, freeEnforcers, enforcerCounts, pendingReport, null);
+    }
+
+    private bool TryLaunchCrimeTargetedPatrol<TStrategy>(List<ICharacter> freeEnforcers,
+        CollectionDictionary<IEnforcementAuthority, ICharacter> enforcerCounts)
+        where TStrategy : class, ICrimeTargetedPatrolStrategy
+    {
+        foreach (IPatrolRoute route in LegalAuthority.PatrolRoutes
+                     .Where(x => x.PatrolStrategy is TStrategy)
+                     .Where(x => LegalAuthority.Patrols.All(y => y.PatrolRoute != x))
+                     .OrderByDescending(x => x.Priority))
+        {
+            TStrategy strategy = (TStrategy)route.PatrolStrategy;
+            ICrime crime = strategy.SelectDispatchCrimes(LegalAuthority)
+                                   .Where(x => strategy.ShouldDispatchForCrime(route, x))
+                                   .Where(x => LegalAuthority.Patrols.All(y =>
+                                       y.TargetCrime != x ||
+                                       y.PatrolStrategy.GetType() != route.PatrolStrategy.GetType()))
+                                   .FirstOrDefault();
+            if (crime is null)
+            {
+                continue;
+            }
+
+            if (TryLaunchPatrol(route, freeEnforcers, enforcerCounts, null, crime))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private bool TryLaunchPatrol(IPatrolRoute route, List<ICharacter> freeEnforcers,
+        CollectionDictionary<IEnforcementAuthority, ICharacter> enforcerCounts,
+        ICorpseRecoveryReport pendingReport, ICrime targetCrime)
+    {
+        if (route.PatrollerNumbers.Any(x => enforcerCounts[x.Key].Count() < x.Value))
+        {
+            return false;
+        }
+
+        List<(IEnforcementAuthority Authority, List<ICharacter> Members)> selections = new();
         foreach (KeyValuePair<IEnforcementAuthority, int> requirement in route.PatrollerNumbers)
         {
             List<ICharacter> members = route.PatrolStrategy
                 .SelectEnforcers(route, enforcerCounts[requirement.Key], requirement.Value)
                 .ToList();
-            if (members.Count == 0)
+            if (members.Count < requirement.Value)
             {
                 return false;
             }
 
-            patrolMembers.AddRange(members);
-            enforcerCounts.RemoveRange(requirement.Key, members);
-            freeEnforcers.RemoveAll(members.Contains);
+            selections.Add((requirement.Key, members));
         }
 
+        List<ICharacter> patrolMembers = selections.SelectMany(x => x.Members).ToList();
         if (!patrolMembers.Any())
         {
             return false;
         }
 
+        foreach ((IEnforcementAuthority authority, List<ICharacter> members) in selections)
+        {
+            enforcerCounts.RemoveRange(authority, members);
+            freeEnforcers.RemoveAll(members.Contains);
+        }
+
         ICharacter leader = patrolMembers.GetRandomElement();
-        Patrol patrol = new(LegalAuthority, route, leader, patrolMembers, pendingReport);
+        Patrol patrol = new(LegalAuthority, route, leader, patrolMembers, pendingReport, targetCrime);
         LegalAuthority.AddPatrol(patrol);
         return true;
     }

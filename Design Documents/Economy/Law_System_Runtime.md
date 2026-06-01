@@ -78,6 +78,76 @@ The execution patrol progresses through these stages:
 
 If required rooms, tools, paths, or targets become unavailable for too long, the patrol aborts and removes only the execution-specific no-quit effect. The `AwaitingExecution` effect remains so a later patrol can try again.
 
+## Trials and PC Judges
+
+Trials are represented by the `OnTrial` effect for the relevant legal authority. NPC judges drive ordinary `OnTrial` effects through the automated plea, argument, verdict, and sentencing phases. PC-held trials use the same effect as a court-session marker, but set the manual-trial flag so NPC judge AI will not advance or finalise the case.
+
+A PC judge is any enforcer whose enforcement authority has `CanConvict` for the jurisdiction and whose authority can judge the defendant's legal class.
+
+Judge-facing trial commands:
+
+- `trial`: shows the active trial in the current room.
+- `trial docket [jurisdiction]`: lists defendants awaiting trial for the judge's jurisdictions, including remand/bail/trial status, charge IDs, charge names, and prior local convictions.
+- `trial summon <target>`: from the jurisdiction courtroom, calls a remand prisoner or present defendant before the court and begins a PC-held trial.
+- `convict <target> <crime> <sentence>`: records a guilty verdict and sentence for one charge.
+- `acquit <target> <crime>`: records a not-guilty verdict for one charge.
+
+`trial summon` uses the same court-transfer mechanics and player-facing emotes as the sheriff's automated trial fetch. It clears remand and enforcer-custody state for that jurisdiction, creates a manual `OnTrial`, and moves the defendant to the court if they are being held in a remand cell. Defendants on bail or at large after bail revocation must first return to custody.
+
+While any `OnTrial` exists in the court for a legal authority, sheriff patrols will not fetch a new automatic trial for that authority. NPC judge AI also ignores manual trials, so a PC-held trial will not be taken over by the automated judge. Once the PC judge has finalised all known charges with `convict` or `acquit`, the manual trial state is removed and the defendant is released, sent to prison, or sent to holding for execution according to the recorded sentences.
+
+## Bail and Automatic Trials
+
+Bail follows an arrest-first policy. A defendant on bail is not eligible for automatic court pickup, no-judge automatic sentencing, defendant-initiated `requesttrial`, or PC judge `trial summon`. They must return to remand custody before any trial path can proceed.
+
+When bail is posted, the `OnBail` effect records a return deadline. The deadline uses the legal authority's automatic-conviction timeframe from the current jurisdiction time. The original remand effect remains on the character, but trial systems also require the defendant to be physically held in one of the authority's remand cells.
+
+When the return deadline expires, the bail heartbeat attempts to record a `ViolateBail` crime, revokes the bail effect, and forfeits the recorded bail on the pending crimes. The defendant becomes arrestable again through ordinary enforcement because the underlying crimes are no longer marked as bailed, but the system does not teleport, summon, try, or convict them while they are at large.
+
+The `trial docket` command distinguishes active bail from bail-revoked at-large defendants so PC judges can see why a person is not currently summonable.
+
+## Crime-Driven Patrol Dispatch
+
+Most patrol routes are scheduled from their route readiness, time-of-day, priority, and enforcer-number requirements. Crime-driven patrol strategies use the same route and enforcer configuration, but the patrol controller only dispatches them when a matching reported crime exists. These patrols are not launched as ordinary scheduled patrols.
+
+Crime-driven routes still require:
+
+- a ready patrol route
+- at least one patrol node
+- required enforcer numbers
+- current time of day matching the route
+- the reported crime location to be within the strategy coverage radius of at least one patrol node
+
+The patrol remembers the reported crime as its runtime target. This target is transient patrol state, matching existing active-enforcement state; if a patrol is reloaded without that target, the crime-driven strategy concludes rather than enforcing an unknown target.
+
+### Reactive Patrols
+
+The `ReactivePatrol` strategy dispatches to recent reported violent crimes. It is intended to represent increased police presence after violence in an area. The first patrol destination is the crime location, after which the patrol cycles through nearby configured patrol nodes within the route's coverage radius until its configured duration expires. While deployed, it uses the same enforcement scan as ordinary enforcer patrols and can warn, subdue, arrest, or apply lethal-force enforcement according to the laws involved.
+
+Reactive patrol configuration:
+
+- `radius <rooms>` controls how far from a patrol node a violent crime can be and still dispatch the route.
+- `window <timespan>` controls how recent the reported violent crime must be.
+- `duration <timespan>` controls how long the increased-presence patrol remains active.
+
+Violent-crime classification includes assaults, deadly assaults, battery, murder-family offences, torture, grievous bodily harm, intimidation, resisting arrest, arson, extortion, sexual violence, kidnapping, slavery, animal cruelty, mayhem, and rioting.
+
+### Investigation Patrols
+
+The `InvestigationPatrol` strategy dispatches to reported crimes whose trial evidence is still weak: crimes with an unknown criminal identity or incomplete recorded suspect characteristics. The patrol travels to the crime scene, spends its configured search time there, records investigative evidence, and returns.
+
+Investigation evidence updates existing crime metadata used by trials:
+
+- `CriminalIdentityIsKnown` can be confirmed when the investigator can directly see the suspect at the scene.
+- recorded criminal characteristics are filled in according to the strategy's reliability.
+- prosecution difficulty now reflects identity certainty, witness count, physical/third-party evidence, crime-scene location, and collected characteristic evidence.
+
+Investigation patrol configuration:
+
+- `radius <rooms>` controls how far from a patrol node a reported crime can be and still dispatch the route.
+- `reliability <0.0-1.0>` controls how accurately suspect characteristics are recorded.
+- `search <timespan>` controls how long the patrol searches the scene before recording evidence.
+
 ## Equipment and Method Notes
 
 For coup de grace, the leader looks for a wielded melee weapon with a usable coup-de-grace fixed-bodypart attack. If no suitable weapon is held, the leader tries to retrieve one from the equipment room.

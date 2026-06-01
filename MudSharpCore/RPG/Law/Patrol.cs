@@ -20,7 +20,7 @@ namespace MudSharp.RPG.Law;
 public class Patrol : SaveableItem, IPatrol
 {
     public Patrol(ILegalAuthority authority, IPatrolRoute route, ICharacter leader, IEnumerable<ICharacter> members,
-        ICorpseRecoveryReport corpseRecoveryReport = null)
+        ICorpseRecoveryReport corpseRecoveryReport = null, ICrime targetCrime = null)
     {
         Gameworld = authority.Gameworld;
         LegalAuthority = authority;
@@ -29,9 +29,11 @@ public class Patrol : SaveableItem, IPatrol
             ? new CorpseRecoveryPatrolStrategy(Gameworld)
             : route.PatrolStrategy;
         PatrolPhase = PatrolPhase.Preperation;
+        PatrolStartTime = DateTime.UtcNow;
         LastArrivedTime = DateTime.UtcNow;
         PatrolLeader = leader;
         ActiveCorpseRecoveryReport = corpseRecoveryReport;
+        TargetCrime = targetCrime;
         _members.AddRange(members);
         using (new FMDB())
         {
@@ -66,6 +68,7 @@ public class Patrol : SaveableItem, IPatrol
         PatrolRoute = authority.PatrolRoutes.First(x => x.Id == patrol.PatrolRouteId);
         _id = patrol.Id;
         PatrolPhase = (PatrolPhase)patrol.PatrolPhase;
+        PatrolStartTime = DateTime.UtcNow;
         LastArrivedTime = DateTime.UtcNow;
         LastMajorNode = Gameworld.Cells.Get(patrol.LastMajorNodeId ?? 0);
         NextMajorNode = Gameworld.Cells.Get(patrol.NextMajorNodeId ?? 0);
@@ -97,9 +100,11 @@ public class Patrol : SaveableItem, IPatrol
     public PatrolPhase PatrolPhase { get; set; }
     public ICell LastMajorNode { get; set; }
     public ICell NextMajorNode { get; set; }
+    public DateTime PatrolStartTime { get; }
     public DateTime LastArrivedTime { get; set; }
     public ICharacter ActiveEnforcementTarget { get; set; }
     public ICrime ActiveEnforcementCrime { get; set; }
+    public ICrime TargetCrime { get; set; }
     public ICorpseRecoveryReport ActiveCorpseRecoveryReport { get; set; }
     public ICell OriginLocation => LegalAuthority.MarshallingLocation;
 
@@ -251,7 +256,7 @@ public class Patrol : SaveableItem, IPatrol
 
     public void InvalidateActiveCrime()
     {
-        ActiveEnforcementTarget.RemoveAllEffects<WarnedByEnforcer>(x => x.WhichCrime == ActiveEnforcementCrime, true);
+        ActiveEnforcementTarget?.RemoveAllEffects<WarnedByEnforcer>(x => x.WhichCrime == ActiveEnforcementCrime, true);
         ActiveEnforcementTarget = null;
         ActiveEnforcementCrime = null;
     }

@@ -166,9 +166,12 @@ public class PatrolRoute : SaveableItem, IPatrolRoute, IEditableItem
         return
             IsReady &&
             PatrolNodes.Any() &&
+            PatrolStrategy is not ICrimeTargetedPatrolStrategy &&
+            PatrolStrategy is not CorpseRecoveryPatrolStrategy &&
             (PatrolStrategy as IConfigurablePatrolStrategy)?.ReadyToBegin(this) != false &&
             StartPatrolProg?.Execute<bool?>() != false &&
             PatrollerNumbers.Any() &&
+            LegalAuthority.EnforcementZones.Any() &&
             TimeOfDays.Contains(LegalAuthority.EnforcementZones.First().CurrentTimeOfDay);
     }
 
@@ -384,6 +387,8 @@ public class PatrolRoute : SaveableItem, IPatrolRoute, IEditableItem
         }
 
         _patrolNodes.Insert(value - 1, actor.Location);
+        actor.Location.CellProposedForDeletion -= Node_CellProposedForDeletion;
+        actor.Location.CellProposedForDeletion += Node_CellProposedForDeletion;
         Changed = true;
         actor.OutputHandler.Send(
             $"You insert your current location ({actor.Location.HowSeen(actor)}) as a major patrol node at position #{value.ToString("N0", actor).ColourValue()}.");
@@ -392,8 +397,36 @@ public class PatrolRoute : SaveableItem, IPatrolRoute, IEditableItem
 
     private bool BuildingCommandNodeSwap(ICharacter actor, StringStack command)
     {
-        actor.OutputHandler.Send("Todo");
-        return false;
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send("Which two patrol node positions do you want to swap?");
+            return false;
+        }
+
+        if (!int.TryParse(command.PopSpeech(), out int first) ||
+            command.IsFinished ||
+            !int.TryParse(command.SafeRemainingArgument, out int second) ||
+            first < 1 ||
+            second < 1 ||
+            first > _patrolNodes.Count ||
+            second > _patrolNodes.Count)
+        {
+            actor.OutputHandler.Send(
+                $"You must enter two valid patrol node positions between {1.ToString("N0", actor).ColourValue()} and {_patrolNodes.Count.ToString("N0", actor).ColourValue()}.");
+            return false;
+        }
+
+        if (first == second)
+        {
+            actor.OutputHandler.Send("Those are the same patrol node position.");
+            return false;
+        }
+
+        (_patrolNodes[first - 1], _patrolNodes[second - 1]) = (_patrolNodes[second - 1], _patrolNodes[first - 1]);
+        Changed = true;
+        actor.OutputHandler.Send(
+            $"You swap patrol nodes {first.ToString("N0", actor).ColourValue()} and {second.ToString("N0", actor).ColourValue()} for the {Name.ColourName()} patrol route.");
+        return true;
     }
 
     private bool BuildingCommandNodeDelete(ICharacter actor, StringStack command)
@@ -402,7 +435,6 @@ public class PatrolRoute : SaveableItem, IPatrolRoute, IEditableItem
         {
             _patrolNodes.Remove(actor.Location);
             actor.Location.CellProposedForDeletion -= Node_CellProposedForDeletion;
-            actor.Location.CellProposedForDeletion += Node_CellProposedForDeletion;
             Changed = true;
             actor.OutputHandler.Send(
                 $"You remove your current location ({actor.Location.HowSeen(actor)}) from the list of patrol nodes.");
@@ -423,11 +455,10 @@ public class PatrolRoute : SaveableItem, IPatrolRoute, IEditableItem
         }
 
         _patrolNodes.Remove(location);
-        actor.Location.CellProposedForDeletion -= Node_CellProposedForDeletion;
-        actor.Location.CellProposedForDeletion += Node_CellProposedForDeletion;
+        location.CellProposedForDeletion -= Node_CellProposedForDeletion;
         Changed = true;
         actor.OutputHandler.Send(
-            $"You remove the location {actor.Location.HowSeen(actor)} from the list of patrol nodes.");
+            $"You remove the location {location.HowSeen(actor)} from the list of patrol nodes.");
         return true;
     }
 
@@ -567,7 +598,7 @@ public class PatrolRoute : SaveableItem, IPatrolRoute, IEditableItem
             return false;
         }
 
-        actor.OutputHandler.Send($"You rename the patrol route {_name.ColourName()} to {_name.ColourName()}.");
+        actor.OutputHandler.Send($"You rename the patrol route {_name.ColourName()} to {name.ColourName()}.");
         _name = name;
         Changed = true;
         return true;

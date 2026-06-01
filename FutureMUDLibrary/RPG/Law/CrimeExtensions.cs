@@ -33,6 +33,7 @@ namespace MudSharp.RPG.Law
             switch (type)
             {
                 case CrimeTypes.Assault:
+                case CrimeTypes.AssaultWithADeadlyWeapon:
                 case CrimeTypes.Battery:
                 case CrimeTypes.AttemptedMurder:
                 case CrimeTypes.Murder:
@@ -41,10 +42,24 @@ namespace MudSharp.RPG.Law
                 case CrimeTypes.GreviousBodilyHarm:
                 case CrimeTypes.Intimidation:
                 case CrimeTypes.ResistArrest:
+                case CrimeTypes.Arson:
+                case CrimeTypes.Extortion:
+                case CrimeTypes.Rape:
+                case CrimeTypes.SexualAssault:
+                case CrimeTypes.Kidnapping:
+                case CrimeTypes.Slavery:
+                case CrimeTypes.AnimalCruelty:
+                case CrimeTypes.Mayhem:
+                case CrimeTypes.Rioting:
                     return true;
                 default:
                     return false;
             }
+        }
+
+        public static bool IsInRemandCell(this ILegalAuthority authority, ICharacter character)
+        {
+            return character.Location is not null && authority.CellLocations.Contains(character.Location);
         }
 
         public static bool IsMoralCrime(this CrimeTypes type)

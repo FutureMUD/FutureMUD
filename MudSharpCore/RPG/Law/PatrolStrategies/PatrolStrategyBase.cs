@@ -78,7 +78,11 @@ public abstract class PatrolStrategyBase : IPatrolStrategy
         // Check for presence of criminals
         foreach (ICharacter person in patrol.PatrolLeader.Location.LayerCharacters(patrol.PatrolLeader.RoomLayer))
         {
-            if (person.IdentityIsObscured)
+            if (person == patrol.PatrolLeader ||
+                patrol.PatrolMembers.Contains(person) ||
+                person.State.IsDead() ||
+                person.State.IsInStatis() ||
+                person.IdentityIsObscured)
             // TODO - how to see through this
             {
                 continue;
@@ -92,7 +96,10 @@ public abstract class PatrolStrategyBase : IPatrolStrategy
                 continue;
             }
 
-            List<ICrime> crimes = authority.KnownCrimesForIndividual(person).ToList();
+            List<ICrime> crimes = authority.KnownCrimesForIndividual(person)
+                                           .Where(x => x.CriminalIdentityIsKnown)
+                                           .Where(x => !x.HasBeenFinalised)
+                                           .ToList();
             if (!crimes.Any(x => !x.BailPosted && x.Law.EnforcementStrategy >= MinimumEnforcementStrategyToAct))
             {
                 continue;
@@ -205,6 +212,17 @@ public abstract class PatrolStrategyBase : IPatrolStrategy
         ICharacter criminal = patrol.ActiveEnforcementTarget;
         ICrime crime = patrol.ActiveEnforcementCrime;
         ICharacter leader = patrol.PatrolLeader;
+
+        if (criminal is null ||
+            crime is null ||
+            criminal.State.IsDead() ||
+            criminal.State.IsInStatis() ||
+            crime.HasBeenFinalised ||
+            crime.BailPosted)
+        {
+            patrol.InvalidateActiveCrime();
+            return;
+        }
 
         if (criminal.AffectedBy<InCustodyOfEnforcer>(patrol.LegalAuthority))
         {

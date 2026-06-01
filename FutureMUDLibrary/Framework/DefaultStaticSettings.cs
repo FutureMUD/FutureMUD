@@ -17,6 +17,10 @@ public static class DefaultStaticSettings
         new Dictionary<string, string>
         {
             { "CPRAllowed", "true" },
+            { "AutomaticGreviousBodilyHarmMinimumSeverity", "Grievous" },
+            { "AutomaticMurderMinimumWoundSeverity", "Severe" },
+            { "AutomaticMurderWoundAttributionWindowSeconds", "7200" },
+            { "AutomaticMurderIncludeFriendlyWounds", "false" },
             { AgricultureScoreTypeExtensions.CustomScoreConfigurationStaticConfiguration, AgricultureScoreTypeExtensions.DefaultCustomScoreConfigurationText },
             { AgriculturePlantingWindowExtensions.SeasonGroupWindowsStaticConfiguration, AgriculturePlantingWindowExtensions.DefaultSeasonGroupWindowsConfigurationText },
             { "AdvantagePerLayerSwoopAttack", "1.0"},

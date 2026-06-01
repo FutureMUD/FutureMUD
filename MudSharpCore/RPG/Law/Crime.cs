@@ -34,19 +34,21 @@ public class Crime : LateInitialisingItem, ICrime
     }
 
     public Crime(ICharacter criminal, ICharacter? victim, IEnumerable<ICharacter> witnesses, ILaw law,
-        IFrameworkItem? thirdparty = null)
+        IFrameworkItem? thirdparty = null, string? additionalInformation = null, ICell? crimeLocation = null)
     {
         Gameworld = criminal.Gameworld;
+        var resolvedCrimeLocation = crimeLocation ?? criminal.Location;
         CriminalId = criminal.Id;
         _criminal = criminal;
         VictimId = victim?.Id;
-        TimeOfCrime = criminal.Location.DateTime();
+        TimeOfCrime = resolvedCrimeLocation.DateTime();
         RealTimeOfCrime = DateTime.UtcNow;
-        CrimeLocation = criminal.Location;
+        CrimeLocation = resolvedCrimeLocation;
         _witnessIds.AddRange(witnesses.Select(x => x.Id));
         Law = law;
         ThirdPartyId = thirdparty?.Id;
         ThirdPartyFrameworkItemType = thirdparty?.FrameworkItemType;
+        AdditionalInformation = additionalInformation;
         CriminalShortDescription = criminal.HowSeen(criminal,
             flags: PerceiveIgnoreFlags.IgnoreCanSee | PerceiveIgnoreFlags.IgnoreSelf);
         CriminalDescription = criminal.HowSeen(criminal, type: DescriptionType.Full,
@@ -78,6 +80,7 @@ public class Crime : LateInitialisingItem, ICrime
         _hasBeenEnforced = dbitem.HasBeenEnforced;
         CriminalShortDescription = dbitem.CriminalShortDescription;
         CriminalDescription = dbitem.CriminalFullDescription;
+        AdditionalInformation = dbitem.AdditionalInformation;
         _fineRecorded = dbitem.FineRecorded;
         _custodialSentenceLength = TimeSpan.FromSeconds(dbitem.CustodialSentenceLength);
         _calculatedBail = dbitem.CalculatedBail;
@@ -128,6 +131,7 @@ public class Crime : LateInitialisingItem, ICrime
         dbitem.BailHasBeenPosted = _bailPosted;
         dbitem.HasBeenEnforced = _hasBeenEnforced;
         dbitem.LocationId = CrimeLocation?.Id;
+        dbitem.AdditionalInformation = AdditionalInformation;
         dbitem.CriminalShortDescription = CriminalShortDescription ?? string.Empty;
         dbitem.CriminalFullDescription = CriminalDescription ?? string.Empty;
         dbitem.CriminalCharacteristics = _criminalCharacteristics.Select(x => $"{x.Key.Id} {x.Value.Id}")
@@ -156,6 +160,7 @@ public class Crime : LateInitialisingItem, ICrime
             AccuserId = AccuserId,
             ThirdPartyId = ThirdPartyId,
             ThirdPartyIItemType = ThirdPartyFrameworkItemType,
+            AdditionalInformation = AdditionalInformation,
             TimeOfReport = TimeOfReport?.GetDateTimeString(),
             IsKnownCrime = _isKnownCrime,
             IsCriminalIdentityKnown = CriminalIdentityIsKnown,
@@ -321,6 +326,7 @@ public class Crime : LateInitialisingItem, ICrime
 
     public long? ThirdPartyId { get; }
     public string? ThirdPartyFrameworkItemType { get; }
+    public string? AdditionalInformation { get; }
 
     public IPerceivable? ThirdParty => ThirdPartyId.HasValue
         ? Gameworld.GetPerceivable(ThirdPartyFrameworkItemType, ThirdPartyId.Value)
@@ -697,6 +703,12 @@ public class Crime : LateInitialisingItem, ICrime
         sb.AppendLine($"Time of Crime: {TimeOfCrime.ToString(CalendarDisplayMode.Short, TimeDisplayTypes.Short).ColourValue()}");
         sb.AppendLine($"Location of Crime: {CrimeLocation?.HowSeen(enforcer, flags: PerceiveIgnoreFlags.IgnoreCanSee) ?? "An Unknown Location".ColourRoom()}");
         sb.AppendLine($"Third Party / Object: {ThirdParty?.HowSeen(enforcer, flags: PerceiveIgnoreFlags.TrueDescription) ?? "None".ColourError()}");
+        if (!string.IsNullOrWhiteSpace(AdditionalInformation))
+        {
+            sb.AppendLine(AutomaticCrimeContext.DescribeForCrimeInfo(AdditionalInformation, enforcer, ThirdParty,
+                enforcer.IsAdministrator()));
+        }
+
         if (enforcer.IsAdministrator())
         {
             sb.AppendLine();

@@ -22,6 +22,7 @@ using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Handlers;
 using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
+using MudSharp.RPG.Law;
 using MudSharp.TimeAndDate.Date;
 using MudSharp.TimeAndDate.Time;
 using System;
@@ -51,6 +52,8 @@ public partial class Character
         {
             return backupRemains;
         }
+
+        AutomaticCrimeExtensions.CheckMurderForDeath(this);
 
         IBoard deathBoard = Gameworld.Boards.Get(Gameworld.GetStaticLong("DeathsBoardId"));
         if (deathBoard != null)

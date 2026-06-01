@@ -60,6 +60,7 @@ public class HealingSimpleWound : PerceivedItem, IWound
         _lodged = lodged;
         _actorOriginId = actorOrigin?.Id ?? 0;
         _toolOriginId = toolOrigin?.Id ?? 0;
+        RealTimeOfWound = DateTime.UtcNow;
         BleedStatus = BleedStatus.NeverBled;
         if (actorOrigin?.Combat?.Friendly == true)
         {
@@ -370,6 +371,7 @@ public class HealingSimpleWound : PerceivedItem, IWound
         dbitem.LodgedItemId = Lodged?.Id;
         dbitem.ActorOriginId = _actorOriginId != 0 ? _actorOriginId : default(long?);
         dbitem.ToolOriginId = _toolOriginId != 0 ? _toolOriginId : default(long?);
+        dbitem.RealTimeOfWound = RealTimeOfWound;
         dbitem.ExtraInformation = SaveExtras();
         return dbitem;
     }
@@ -397,6 +399,7 @@ public class HealingSimpleWound : PerceivedItem, IWound
 
         _actorOriginId = wound.ActorOriginId ?? 0;
         _toolOriginId = wound.ToolOriginId ?? 0;
+        RealTimeOfWound = wound.RealTimeOfWound;
         XElement root = XElement.Parse(wound.ExtraInformation ?? "<Empty/>");
         IsFriendlyWound = bool.Parse(root.Element("IsFriendlyWound")?.Value ?? "false");
         if (int.TryParse(root.Element("ScarSurgicalProcedureType")?.Value, out int scarSurgeryType) &&
@@ -411,6 +414,7 @@ public class HealingSimpleWound : PerceivedItem, IWound
     #region IWound Members
 
     public bool IsFriendlyWound { get; protected set; }
+    public DateTime? RealTimeOfWound { get; protected set; }
 
     public void SetNewOwner(IHaveWounds newOwner)
     {

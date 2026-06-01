@@ -5,6 +5,7 @@ using MudSharp.Database;
 using MudSharp.Economy.Currency;
 using MudSharp.Framework;
 using MudSharp.Models;
+using MudSharp.RPG.Law;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -88,16 +89,26 @@ public class ArenaBettingService : IArenaBettingService
             throw new InvalidOperationException(reason);
         }
 
-        (bool Success, string Error) stakeResult = _paymentService.CollectStake(actor, arenaEvent, stake);
-        if (!stakeResult.Success)
-        {
-            throw new InvalidOperationException(stakeResult.Error);
-        }
-
         BettingModel bettingModel = arenaEvent.EventType.BettingModel;
         if (sideIndex.HasValue && arenaEvent.EventType.Sides.All(x => x.Index != sideIndex.Value))
         {
             throw new ArgumentOutOfRangeException(nameof(sideIndex));
+        }
+
+        var crimeContext =
+            $"automatic=arena-bet; arena=#{arenaEvent.Arena.Id}; event=#{arenaEvent.Id}; stake={stake}; model={arenaEvent.EventType.BettingModel.DescribeEnum()}";
+        if (actor.Account?.ActLawfully == true &&
+            AutomaticCrimeExtensions.CheckWouldBeACrime(_gameworld, actor, CrimeTypes.Gambling, null, null,
+                crimeContext))
+        {
+            actor.OutputHandler.Send($"That action would be a crime.\n{CrimeExtensions.StandardDisableIllegalFlagText}");
+            throw new InvalidOperationException("That wager would be a crime.");
+        }
+
+        (bool Success, string Error) stakeResult = _paymentService.CollectStake(actor, arenaEvent, stake);
+        if (!stakeResult.Success)
+        {
+            throw new InvalidOperationException(stakeResult.Error);
         }
 
         using IDisposable? scope = BeginContext(out FuturemudDatabaseContext? context);
@@ -145,6 +156,7 @@ public class ArenaBettingService : IArenaBettingService
         context.SaveChanges();
 
         arenaEvent.Arena.Credit(stake, $"Arena bet stake for event #{arenaEvent.Id}");
+        AutomaticCrimeExtensions.CheckPossibleCrime(_gameworld, actor, CrimeTypes.Gambling, null, null, crimeContext);
     }
 
     /// <inheritdoc />

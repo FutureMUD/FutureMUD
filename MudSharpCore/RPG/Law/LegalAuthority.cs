@@ -714,12 +714,21 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
     public IEnumerable<ICrime> CheckPossibleCrime(ICharacter criminal, CrimeTypes crime, ICharacter victim,
         IGameItem item, string additionalInformation, IEnumerable<ICharacter> explicitWitnesses, bool notifyVictim)
     {
+        return CheckPossibleCrime(criminal, crime, victim, item, additionalInformation, explicitWitnesses, notifyVictim,
+            criminal.Location);
+    }
+
+    public IEnumerable<ICrime> CheckPossibleCrime(ICharacter criminal, CrimeTypes crime, ICharacter victim,
+        IGameItem item, string additionalInformation, IEnumerable<ICharacter> explicitWitnesses, bool notifyVictim,
+        ICell crimeLocation)
+    {
         if (criminal.IsAdministrator())
         {
             return Enumerable.Empty<ICrime>();
         }
 
-        if (!EnforcementZones.Contains(criminal.Location.Zone))
+        ICell location = crimeLocation ?? criminal.Location;
+        if (!EnforcementZones.Contains(location.Zone))
         {
             return Enumerable.Empty<ICrime>();
         }
@@ -732,17 +741,22 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
                 continue;
             }
 
-            if (!law.IsCrime(criminal, victim, item))
+            if (!law.IsCrime(criminal, victim, item, additionalInformation))
             {
                 continue;
             }
 
             if (law.DoNotAutomaticallyApplyRepeats && _unknownCrimesLookup[criminal.Id]
                                                       .Concat(_knownCrimesLookup[criminal.Id]).Any(x =>
+                                                          x.Law.Id == law.Id &&
                                                           x.Victim == victim &&
-                                                          (x.ThirdPartyId == item?.Id ||
-                                                           x.ThirdPartyFrameworkItemType != "item") &&
-                                                          x.CrimeLocation == criminal.Location &&
+                                                          (item is null
+                                                              ? x.ThirdPartyId is null
+                                                              : x.ThirdPartyId == item.Id &&
+                                                                string.Equals(x.ThirdPartyFrameworkItemType,
+                                                                    item.FrameworkItemType,
+                                                                    StringComparison.OrdinalIgnoreCase)) &&
+                                                          x.CrimeLocation == location &&
                                                           DateTime.UtcNow - x.RealTimeOfCrime < TimeSpan.FromMinutes(10)
                                                       ))
             {
@@ -750,10 +764,10 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
             }
 
             List<ICharacter> witnesses = explicitWitnesses is null
-                ? criminal.Location.LayerCharacters(criminal.RoomLayer).Except(criminal)
+                ? location.LayerCharacters(criminal.RoomLayer).Except(criminal)
                           .Where(x => x.CanSee(criminal)).ToList()
                 : explicitWitnesses.Except(criminal).Distinct().ToList();
-            Crime newCrime = new(criminal, victim, witnesses, law, item);
+            Crime newCrime = new(criminal, victim, witnesses, law, item, additionalInformation, location);
             _unknownCrimes.Add(newCrime);
             _unknownCrimesLookup.Add(criminal.Id, newCrime);
             Gameworld.Add(newCrime);
@@ -777,7 +791,14 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
     public bool WouldBeACrime(ICharacter criminal, CrimeTypes crime, ICharacter victim, IGameItem item,
         string additionalInformation)
     {
-        if (!EnforcementZones.Contains(criminal.Location.Zone))
+        return WouldBeACrimeAtLocation(criminal, crime, victim, item, additionalInformation, criminal.Location);
+    }
+
+    public bool WouldBeACrimeAtLocation(ICharacter criminal, CrimeTypes crime, ICharacter victim, IGameItem item,
+        string additionalInformation, ICell crimeLocation)
+    {
+        ICell location = crimeLocation ?? criminal.Location;
+        if (!EnforcementZones.Contains(location.Zone))
         {
             return false;
         }
@@ -789,7 +810,7 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
                 continue;
             }
 
-            if (!law.IsCrime(criminal, victim, item))
+            if (!law.IsCrime(criminal, victim, item, additionalInformation))
             {
                 continue;
             }

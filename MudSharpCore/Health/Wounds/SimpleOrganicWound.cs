@@ -134,6 +134,7 @@ public class SimpleOrganicWound : PerceivedItem, IWound
         _lodged = lodged;
         _actorOriginId = actorOrigin?.Id ?? 0;
         _toolOriginId = toolOrigin?.Id ?? 0;
+        RealTimeOfWound = DateTime.UtcNow;
         if (actorOrigin?.Combat?.Friendly == true)
         {
             IsFriendlyWound = true;
@@ -538,6 +539,7 @@ public class SimpleOrganicWound : PerceivedItem, IWound
         dbitem.LodgedItemId = Lodged?.Id;
         dbitem.ActorOriginId = _actorOriginId != 0 ? _actorOriginId : default(long?);
         dbitem.ToolOriginId = _toolOriginId != 0 ? _toolOriginId : default(long?);
+        dbitem.RealTimeOfWound = RealTimeOfWound;
         dbitem.ExtraInformation = SaveExtras();
         return dbitem;
     }
@@ -570,6 +572,7 @@ public class SimpleOrganicWound : PerceivedItem, IWound
 
         _actorOriginId = wound.ActorOriginId ?? 0;
         _toolOriginId = wound.ToolOriginId ?? 0;
+        RealTimeOfWound = wound.RealTimeOfWound;
 
         XElement root = XElement.Parse(wound.ExtraInformation);
         XElement element = root.Element("DamageDescription");
@@ -2228,6 +2231,7 @@ public class SimpleOrganicWound : PerceivedItem, IWound
     }
 
     public bool IsFriendlyWound { get; protected set; }
+    public DateTime? RealTimeOfWound { get; protected set; }
 
     #endregion
 }

@@ -744,6 +744,21 @@ public abstract partial class Shop : SaveableItem, IShop
                 }
 
                 break;
+            default:
+                price = PriceForMerchandise(actor, merchandise, quantity);
+                if (method.Currency != Currency)
+                {
+                    return (false, $"that payment method is for a different currency than this shop uses.");
+                }
+
+                decimal available = method.AccessibleMoneyForPayment();
+                if (available < price)
+                {
+                    return (false,
+                        $"there is only {Currency.Describe(available, CurrencyDescriptionPatternType.Short).ColourValue()} available, but you need {Currency.Describe(price, CurrencyDescriptionPatternType.Short).ColourValue()}.");
+                }
+
+                break;
         }
 
         (bool Truth, string Reason) baseReason = CanBuyInternal(actor, merchandise, quantity, method, extraArguments);
@@ -880,6 +895,12 @@ public abstract partial class Shop : SaveableItem, IShop
                 price = bankCalculation.TotalPrice;
                 tax = bankCalculation.IncludedTax;
                 pretax = bankCalculation.TotalPretaxPrice;
+                break;
+            default:
+                IShopPriceCalculation genericCalculation = GetPriceCalculation(actor, merchandise, quantity);
+                price = genericCalculation.TotalPrice;
+                tax = genericCalculation.IncludedTax;
+                pretax = genericCalculation.TotalPretaxPrice;
                 break;
         }
 

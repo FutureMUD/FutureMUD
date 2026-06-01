@@ -177,6 +177,7 @@ public sealed class EmploymentHostState : IEmploymentHostState
 			EmploymentRegisterEntryType.ContractEnded,
 			authorisedBy,
 			$"Ended {concrete.Employee.HowSeen(concrete.Employee, colour: false)}'s {concrete.Role} contract: {reason}.");
+		TaskBoard.AuditActiveTaskAssignments();
 		Host.DebugEmployment(
 			$"Ended {concrete.Employee.Name}'s {concrete.Role.DescribeEnum()} contract: {reason.DescribeEnum()}.",
 			concrete.Employee.Gameworld);

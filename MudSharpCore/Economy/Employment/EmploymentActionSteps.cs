@@ -137,6 +137,42 @@ internal static class EmploymentItemSelectorResolver
 	}
 }
 
+internal static class EmploymentActionStepOperationalStateBuilder
+{
+	public static EmploymentActionStepOperationalState CollectedTaskItemCustody(
+		IEmploymentTaskContext context,
+		ICharacter actor,
+		IReadOnlyCollection<IGameItem> selectedItems,
+		IReadOnlySet<long> previouslyCarriedItemIds)
+	{
+		var selectedItemIds = selectedItems.Select(x => x.Id).ToHashSet();
+		var actualCarried = context.CarriedTaskItems(actor)
+		                           .Where(x => !previouslyCarriedItemIds.Contains(x.Id))
+		                           .DistinctBy(x => x.Id)
+		                           .ToList();
+		if (!actualCarried.Any())
+		{
+			actualCarried = context.CarriedTaskItems(actor)
+			                       .Where(x => selectedItemIds.Contains(x.Id))
+			                       .DistinctBy(x => x.Id)
+			                       .ToList();
+		}
+
+		if (!actualCarried.Any())
+		{
+			actualCarried = selectedItems.DistinctBy(x => x.Id).ToList();
+		}
+
+		var transportBundleIds = actualCarried
+		                         .Where(x => !selectedItemIds.Contains(x.Id))
+		                         .Select(x => x.Id)
+		                         .ToList();
+		return new EmploymentActionStepOperationalState(
+			SelectedResources: EmploymentTaskContext.FormatTaskItemCustody("collect", actor.Id, actualCarried,
+				transportBundleIds));
+	}
+}
+
 public abstract class EmploymentActionStepBase : IEmploymentActionStep
 {
 	private readonly HashSet<EmploymentAICapability> _requiredCapabilities;
@@ -200,12 +236,67 @@ public sealed class PurchaseActionStep : EmploymentActionStepBase
 		ExistingFinancialRecord = existingFinancialRecord;
 	}
 
+	public PurchaseActionStep(int quantity, string merchandiseSelector, string supplierSelector, ICurrency currency,
+		MoneyAmount? maximumAmount,
+		string? keywordFilter = null, string? existingFinancialRecord = null)
+		: base(
+			EmploymentActionStepType.Purchase,
+			EmploymentAuthority.ApprovePurchases,
+			new[] { EmploymentAICapability.CanPurchaseCommodities },
+			true,
+			true)
+	{
+		Quantity = quantity;
+		MerchandiseSelector = merchandiseSelector.Trim();
+		SupplierSelector = string.IsNullOrWhiteSpace(supplierSelector) ? "any" : supplierSelector.Trim();
+		MaximumAmount = maximumAmount;
+		KeywordFilter = keywordFilter;
+		ExistingFinancialRecord = existingFinancialRecord;
+		PurchaseDescription =
+			$"buy {quantity:N0}x {MerchandiseSelector} from {SupplierSelector}{(maximumAmount is null ? string.Empty : $" up to {maximumAmount.Currency.Describe(maximumAmount.Amount, CurrencyDescriptionPatternType.ShortDecimal)}")}";
+		Amount = maximumAmount ?? new MoneyAmount(currency, 0.0M);
+	}
+
 	public string PurchaseDescription { get; }
 	public MoneyAmount Amount { get; }
+	public int? Quantity { get; }
+	public string? MerchandiseSelector { get; }
+	public string? SupplierSelector { get; }
+	public MoneyAmount? MaximumAmount { get; }
+	public string? KeywordFilter { get; }
 	public string? ExistingFinancialRecord { get; }
+
+	public bool IsExecutablePurchase => Quantity.HasValue && !string.IsNullOrWhiteSpace(MerchandiseSelector);
+
+	public override bool CanExecute(IEmploymentTaskContext context, ICharacter actor, out string reason)
+	{
+		if (!base.CanExecute(context, actor, out reason))
+		{
+			return false;
+		}
+
+		return !IsExecutablePurchase || context.CanPurchase(this, out reason);
+	}
 
 	public override EmploymentActionStepResult Execute(IEmploymentTaskContext context, ICharacter actor)
 	{
+		if (IsExecutablePurchase)
+		{
+			if (!context.TryPurchase(actor, this, out var reason, out var operationalState))
+			{
+				return EmploymentActionStepResult.Blocked(reason);
+			}
+
+			if (!string.IsNullOrWhiteSpace(ExistingFinancialRecord))
+			{
+				context.RecordLedger(EmploymentLedgerEntryType.ExistingFinancialRecordReuse, actor, MaximumAmount,
+					$"Reused existing financial record {ExistingFinancialRecord} for purchase.");
+			}
+
+			return new EmploymentActionStepResult(true, $"Completed purchase: {PurchaseDescription}.", true,
+				operationalState);
+		}
+
 		context.RecordRegister(EmploymentRegisterEntryType.PaymentAuthorisationUsed, actor,
 			$"Used payment authorisation for purchase: {PurchaseDescription}.");
 		context.RecordLedger(EmploymentLedgerEntryType.Purchase, actor, Amount, PurchaseDescription);
@@ -280,15 +371,30 @@ public sealed class CraftTriggerActionStep : EmploymentActionStepBase
 	public string CraftDescription { get; }
 	public string? ExistingFinancialRecord { get; }
 
+	public override bool CanExecute(IEmploymentTaskContext context, ICharacter actor, out string reason)
+	{
+		if (!base.CanExecute(context, actor, out reason))
+		{
+			return false;
+		}
+
+		return context.CanStartCraft(CraftDescription, actor, out reason);
+	}
+
 	public override EmploymentActionStepResult Execute(IEmploymentTaskContext context, ICharacter actor)
 	{
+		if (!context.TryStartCraft(actor, CraftDescription, out var reason, out var operationalState))
+		{
+			return EmploymentActionStepResult.Blocked(reason);
+		}
+
 		if (!string.IsNullOrWhiteSpace(ExistingFinancialRecord))
 		{
 			context.RecordLedger(EmploymentLedgerEntryType.ExistingFinancialRecordReuse, actor, null,
 				$"Reused existing material-cost record {ExistingFinancialRecord} for craft trigger.");
 		}
 
-		return EmploymentActionStepResult.CompletedResult($"Recorded audit-only craft trigger: {CraftDescription}.");
+		return new EmploymentActionStepResult(true, $"Started craft {CraftDescription}.", true, operationalState);
 	}
 }
 
@@ -454,20 +560,124 @@ public sealed class StoreAccountPaymentActionStep : EmploymentActionStepBase
 	public string AccountName { get; }
 	public MoneyAmount Amount { get; }
 	public string? ExistingFinancialRecord { get; }
+	public bool IsExecutableStorePayment => AccountName.StartsWith("shopaccount:v1|", StringComparison.InvariantCultureIgnoreCase);
+
+	public override bool CanExecute(IEmploymentTaskContext context, ICharacter actor, out string reason)
+	{
+		if (!base.CanExecute(context, actor, out reason))
+		{
+			return false;
+		}
+
+		if (IsExecutableStorePayment)
+		{
+			return context.CanStoreAccountPayment(AccountName, Amount, out reason);
+		}
+
+		reason = string.Empty;
+		return true;
+	}
 
 	public override EmploymentActionStepResult Execute(IEmploymentTaskContext context, ICharacter actor)
 	{
-		context.RecordRegister(EmploymentRegisterEntryType.PaymentAuthorisationUsed, actor,
-			$"Used payment authorisation for store account {AccountName}.");
-		context.RecordLedger(EmploymentLedgerEntryType.StoreAccountPayment, actor, Amount,
-			$"Store account payment for {AccountName}.");
+		if (!IsExecutableStorePayment)
+		{
+			context.RecordRegister(EmploymentRegisterEntryType.PaymentAuthorisationUsed, actor,
+				$"Used payment authorisation for store account {AccountName}.");
+			context.RecordLedger(EmploymentLedgerEntryType.StoreAccountPayment, actor, Amount,
+				$"Store account payment for {AccountName}.");
+			if (!string.IsNullOrWhiteSpace(ExistingFinancialRecord))
+			{
+				context.RecordLedger(EmploymentLedgerEntryType.ExistingFinancialRecordReuse, actor, Amount,
+					$"Reused existing store account payment record {ExistingFinancialRecord}.");
+			}
+
+			return EmploymentActionStepResult.CompletedResult($"Recorded legacy store account payment audit for {AccountName}.");
+		}
+
+		if (!context.TryStoreAccountPayment(actor, AccountName, Amount, out var reason, out var operationalState))
+		{
+			return EmploymentActionStepResult.Blocked(reason);
+		}
+
 		if (!string.IsNullOrWhiteSpace(ExistingFinancialRecord))
 		{
 			context.RecordLedger(EmploymentLedgerEntryType.ExistingFinancialRecordReuse, actor, Amount,
 				$"Reused existing store account payment record {ExistingFinancialRecord}.");
 		}
 
-		return EmploymentActionStepResult.CompletedResult($"Recorded audit-only store account payment for {AccountName}.");
+		return new EmploymentActionStepResult(true, $"Paid store account {AccountName}.", true, operationalState);
+	}
+}
+
+public sealed class TaxPaymentActionStep : EmploymentActionStepBase
+{
+	public TaxPaymentActionStep(MoneyAmount? maximumAmount)
+		: base(
+			EmploymentActionStepType.TaxPayment,
+			EmploymentAuthority.PayTaxes,
+			new[] { EmploymentAICapability.CanUseBankAccount },
+			true,
+			true)
+	{
+		MaximumAmount = maximumAmount;
+	}
+
+	public MoneyAmount? MaximumAmount { get; }
+
+	public override bool CanExecute(IEmploymentTaskContext context, ICharacter actor, out string reason)
+	{
+		if (!base.CanExecute(context, actor, out reason))
+		{
+			return false;
+		}
+
+		return context.CanPayTaxes(MaximumAmount, out reason, out _);
+	}
+
+	public override EmploymentActionStepResult Execute(IEmploymentTaskContext context, ICharacter actor)
+	{
+		return context.TryPayTaxes(actor, MaximumAmount, out var reason, out var operationalState)
+			? new EmploymentActionStepResult(true, "Paid supported host taxes.", true, operationalState)
+			: EmploymentActionStepResult.Blocked(reason);
+	}
+}
+
+public sealed class ShopFloatAdjustmentActionStep : EmploymentActionStepBase
+{
+	public ShopFloatAdjustmentActionStep(bool fillRegister, MoneyAmount amount, EmploymentItemSelector? registerSelector = null)
+		: base(
+			EmploymentActionStepType.ShopFloatAdjustment,
+			EmploymentAuthority.WithdrawBusinessCash,
+			new[] { EmploymentAICapability.CanHandleCash },
+			true,
+			true)
+	{
+		FillRegister = fillRegister;
+		Amount = amount;
+		RegisterSelector = registerSelector;
+	}
+
+	public bool FillRegister { get; }
+	public MoneyAmount Amount { get; }
+	public EmploymentItemSelector? RegisterSelector { get; }
+
+	public override bool CanExecute(IEmploymentTaskContext context, ICharacter actor, out string reason)
+	{
+		if (!base.CanExecute(context, actor, out reason))
+		{
+			return false;
+		}
+
+		return context.CanAdjustShopFloat(Amount, FillRegister, RegisterSelector, out reason);
+	}
+
+	public override EmploymentActionStepResult Execute(IEmploymentTaskContext context, ICharacter actor)
+	{
+		return context.TryAdjustShopFloat(actor, Amount, FillRegister, RegisterSelector, out var reason, out var operationalState)
+			? new EmploymentActionStepResult(true,
+				$"{(FillRegister ? "Filled" : "Skimmed")} shop cash-register float.", true, operationalState)
+			: EmploymentActionStepResult.Blocked(reason);
 	}
 }
 
@@ -699,12 +909,18 @@ public sealed class GetItemsByIdActionStep : EmploymentActionStepBase, IEmployme
 			return EmploymentActionStepResult.Blocked("There are not enough matching items to collect.");
 		}
 
+		var previouslyCarried = context.CarriedTaskItems(actor).Select(x => x.Id).ToHashSet();
 		if (!context.TryCollectTaskItems(actor, items.Select(x => (x.Item, x.Source)).ToList(), out var reason))
 		{
 			return EmploymentActionStepResult.Blocked(reason);
 		}
 
-		return EmploymentActionStepResult.CompletedResult($"Collected {items.Count:N0} item(s) by selector.");
+		return new EmploymentActionStepResult(true, $"Collected {items.Count:N0} item(s) by selector.", true,
+			EmploymentActionStepOperationalStateBuilder.CollectedTaskItemCustody(
+				context,
+				actor,
+				items.Select(x => x.Item).ToList(),
+				previouslyCarried));
 	}
 
 	private IEnumerable<ICell> ReachableSources(IEmploymentTaskContext context, ICharacter actor)
@@ -800,12 +1016,18 @@ public sealed class GetItemsByTagActionStep : EmploymentActionStepBase, IEmploym
 			return EmploymentActionStepResult.Blocked($"There are not enough items tagged {TagName} to collect.");
 		}
 
+		var previouslyCarried = context.CarriedTaskItems(actor).Select(x => x.Id).ToHashSet();
 		if (!context.TryCollectTaskItems(actor, items.Select(x => (x.Item, x.Source)).ToList(), out var reason))
 		{
 			return EmploymentActionStepResult.Blocked(reason);
 		}
 
-		return EmploymentActionStepResult.CompletedResult($"Collected {items.Count:N0} item(s) tagged {TagName}.");
+		return new EmploymentActionStepResult(true, $"Collected {items.Count:N0} item(s) tagged {TagName}.", true,
+			EmploymentActionStepOperationalStateBuilder.CollectedTaskItemCustody(
+				context,
+				actor,
+				items.Select(x => x.Item).ToList(),
+				previouslyCarried));
 	}
 
 	private IEnumerable<ICell> ReachableSources(IEmploymentTaskContext context, ICharacter actor)
@@ -913,13 +1135,19 @@ public sealed class GetCommodityActionStep : EmploymentActionStepBase, IEmployme
 			return EmploymentActionStepResult.Blocked($"There is not enough {MaterialName} commodity to collect.");
 		}
 
+		var previouslyCarried = context.CarriedTaskItems(actor).Select(x => x.Id).ToHashSet();
 		if (!context.TryCollectTaskItems(actor, collected.Select(x => (x.Item, x.Source)).ToList(), out var reason))
 		{
 			return EmploymentActionStepResult.Blocked(reason);
 		}
 
-		return EmploymentActionStepResult.CompletedResult(
-			$"Collected {totalWeight:N2} weight of {MaterialName} commodity in {collected.Count:N0} item(s).");
+		return new EmploymentActionStepResult(true,
+			$"Collected {totalWeight:N2} weight of {MaterialName} commodity in {collected.Count:N0} item(s).", true,
+			EmploymentActionStepOperationalStateBuilder.CollectedTaskItemCustody(
+				context,
+				actor,
+				collected.Select(x => x.Item).ToList(),
+				previouslyCarried));
 	}
 
 	private IEnumerable<ICell> ReachableSources(IEmploymentTaskContext context, ICharacter actor)
@@ -984,7 +1212,7 @@ public sealed class DeliverItemsActionStep : EmploymentActionStepBase, IEmployme
 
 		if (!context.CarriedTaskItems(actor).Any())
 		{
-			reason = "The assigned employee is not carrying any task items to deliver.";
+			reason = "The assigned employee is no longer carrying any task items to deliver.";
 			return false;
 		}
 
@@ -1007,7 +1235,8 @@ public sealed class DeliverItemsActionStep : EmploymentActionStepBase, IEmployme
 
 	public override EmploymentActionStepResult Execute(IEmploymentTaskContext context, ICharacter actor)
 	{
-		var count = context.CarriedTaskItems(actor).Count;
+		var carried = context.CarriedTaskItems(actor).ToList();
+		var count = carried.Count;
 		var container = ResolveContainer(context, actor);
 		if (ContainerSelector is not null && container is null)
 		{
@@ -1020,7 +1249,9 @@ public sealed class DeliverItemsActionStep : EmploymentActionStepBase, IEmployme
 			return EmploymentActionStepResult.Blocked(reason);
 		}
 
-		return EmploymentActionStepResult.CompletedResult($"Delivered {count:N0} task item(s).");
+		return new EmploymentActionStepResult(true, $"Delivered {count:N0} task item(s).", true,
+			new EmploymentActionStepOperationalState(
+				SelectedResources: EmploymentTaskContext.FormatTaskItemCustody("deliver", actor.Id, carried)));
 	}
 
 	public IReadOnlyCollection<ICell> ExecutionLocationHints(IEmploymentTaskContext context, ICharacter actor)

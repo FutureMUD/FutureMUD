@@ -701,6 +701,7 @@ public class EmploymentWorkerAI : PathingAIBase
 
 	private bool TryClaimOrAdvanceTask(ICharacter worker, IEmploymentHost host)
 	{
+		host.TaskBoard.AuditActiveTaskAssignments();
 		var task = AssignedTaskFor(worker, host);
 		var context = task is null ? null : ContextFor(worker, host, task);
 		if (task is null)

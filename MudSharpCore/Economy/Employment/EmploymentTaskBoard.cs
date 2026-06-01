@@ -15,6 +15,8 @@ using MudSharp.GameItems.Inventory;
 using MudSharp.GameItems.Inventory.Plans;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Prototypes;
+using MudSharp.NPC;
+using MudSharp.NPC.AI;
 
 #nullable enable
 
@@ -145,7 +147,17 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 
 	public IReadOnlyCollection<IGameItem> CarriedTaskItems(ICharacter actor)
 	{
-		return _carriedTaskItems.TryGetValue(actor.Id, out var items) ? items : [];
+		if (!_carriedTaskItems.TryGetValue(actor.Id, out var items))
+		{
+			return [];
+		}
+
+		if (_usePhysicalItemMovement && CanUseInventoryPlan(actor))
+		{
+			items.RemoveAll(x => !ActorCarriesItem(actor, x));
+		}
+
+		return items;
 	}
 
 	public IReadOnlyCollection<IGameItem> ContainedItems(IGameItem container)
@@ -162,8 +174,53 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 	{
 		_currentTask = task;
 		_currentStepIndex = currentStepIndex;
+		var previousCarriedItems = new List<IGameItem>();
+		if (_usePhysicalItemMovement && task.AssignedEmployee is not null)
+		{
+			if (_carriedTaskItems.TryGetValue(task.AssignedEmployee.Id, out var existingCarried))
+			{
+				previousCarriedItems = existingCarried.ToList();
+			}
+
+			_carriedTaskItems.Remove(task.AssignedEmployee.Id);
+		}
+
 		foreach (var state in task.StepOperationalStates.Take(Math.Max(0, currentStepIndex)))
 		{
+			if (TryParseTaskItemCustody(state.SelectedResources, out var custodyOperation, out _, out var custodyItemIds,
+				    out var custodyBundleIds) &&
+			    task.AssignedEmployee is not null)
+			{
+				var items = custodyItemIds
+				            .Select(x => task.AssignedEmployee.Gameworld?.TryGetItem(x, true) ??
+				                         previousCarriedItems.FirstOrDefault(y => y.Id == x))
+				            .Where(x => x is not null)
+				            .Cast<IGameItem>()
+				            .ToList();
+				if (custodyOperation.EqualTo("collect") || custodyOperation.EqualTo("unload"))
+				{
+					foreach (var bundleId in custodyBundleIds)
+					{
+						_transportBundleIds.Add(bundleId);
+					}
+
+					AddCarriedTaskItems(task.AssignedEmployee,
+						_usePhysicalItemMovement ? items.Where(x => ActorCarriesItem(task.AssignedEmployee, x)) : items);
+				}
+				else if (custodyOperation.EqualTo("load"))
+				{
+					RemoveCarriedTaskItems(task.AssignedEmployee, items);
+				}
+				else if (custodyOperation.EqualTo("deliver") || custodyOperation.EqualTo("return"))
+				{
+					RemoveCarriedTaskItems(task.AssignedEmployee, items);
+					foreach (var bundleId in custodyBundleIds.Concat(custodyItemIds))
+					{
+						_transportBundleIds.Remove(bundleId);
+					}
+				}
+			}
+
 			if (!TryParseLoadedAssets(state.LoadedAssets, out var operation, out var containerId, out var itemIds))
 			{
 				continue;
@@ -182,6 +239,16 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 					loadedIds.Add(itemId);
 				}
 
+				if (task.AssignedEmployee is not null)
+				{
+					var items = itemIds
+					            .Select(x => task.AssignedEmployee.Gameworld?.TryGetItem(x, true))
+					            .Where(x => x is not null)
+					            .Cast<IGameItem>()
+					            .ToList();
+					RemoveCarriedTaskItems(task.AssignedEmployee, items);
+				}
+
 				continue;
 			}
 
@@ -197,7 +264,8 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 				            .Where(x => x is not null)
 				            .Cast<IGameItem>()
 				            .ToList();
-				AddCarriedTaskItems(task.AssignedEmployee, items);
+				AddCarriedTaskItems(task.AssignedEmployee,
+					_usePhysicalItemMovement ? items.Where(x => ActorCarriesItem(task.AssignedEmployee, x)) : items);
 			}
 		}
 	}
@@ -244,6 +312,65 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 		out EmploymentActionStepOperationalState operationalState)
 	{
 		return EmploymentFinanceService.TryBankWithdrawal(this, actor, amount, out reason, out operationalState);
+	}
+
+	public bool CanPurchase(IEmploymentActionStep step, out string reason)
+	{
+		return EmploymentFinanceService.CanPurchase(this, step, out reason);
+	}
+
+	public bool TryPurchase(ICharacter actor, IEmploymentActionStep step, out string reason,
+		out EmploymentActionStepOperationalState operationalState)
+	{
+		return EmploymentFinanceService.TryPurchase(this, actor, step, out reason, out operationalState);
+	}
+
+	public bool CanStoreAccountPayment(string accountKey, MoneyAmount amount, out string reason)
+	{
+		return EmploymentFinanceService.CanStoreAccountPayment(this, accountKey, amount, out reason);
+	}
+
+	public bool TryStoreAccountPayment(ICharacter actor, string accountKey, MoneyAmount amount, out string reason,
+		out EmploymentActionStepOperationalState operationalState)
+	{
+		return EmploymentFinanceService.TryStoreAccountPayment(this, actor, accountKey, amount, out reason,
+			out operationalState);
+	}
+
+	public bool CanPayTaxes(MoneyAmount? maximumAmount, out string reason, out MoneyAmount? amount)
+	{
+		return EmploymentFinanceService.CanPayTaxes(this, maximumAmount, out reason, out amount);
+	}
+
+	public bool TryPayTaxes(ICharacter actor, MoneyAmount? maximumAmount, out string reason,
+		out EmploymentActionStepOperationalState operationalState)
+	{
+		return EmploymentFinanceService.TryPayTaxes(this, actor, maximumAmount, out reason, out operationalState);
+	}
+
+	public bool CanAdjustShopFloat(MoneyAmount amount, bool fillRegister, EmploymentItemSelector? registerSelector,
+		out string reason)
+	{
+		return EmploymentFinanceService.CanAdjustShopFloat(this, amount, fillRegister, registerSelector, out reason);
+	}
+
+	public bool TryAdjustShopFloat(ICharacter actor, MoneyAmount amount, bool fillRegister,
+		EmploymentItemSelector? registerSelector, out string reason,
+		out EmploymentActionStepOperationalState operationalState)
+	{
+		return EmploymentFinanceService.TryAdjustShopFloat(this, actor, amount, fillRegister, registerSelector,
+			out reason, out operationalState);
+	}
+
+	public bool CanStartCraft(string craftSelector, ICharacter actor, out string reason)
+	{
+		return EmploymentCraftService.CanStartCraft(this, craftSelector, actor, out reason);
+	}
+
+	public bool TryStartCraft(ICharacter actor, string craftSelector, out string reason,
+		out EmploymentActionStepOperationalState operationalState)
+	{
+		return EmploymentCraftService.TryStartCraft(this, actor, craftSelector, out reason, out operationalState);
 	}
 
 	public void SetItemTags(IGameItem item, params string[] tags)
@@ -955,6 +1082,63 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 	private static string FormatLoadedAssets(string operation, long containerId, IEnumerable<IGameItem> items)
 	{
 		return $"operation={operation};container={containerId};items={items.Select(x => x.Id.ToString("F0")).ListToCommaSeparatedValues()}";
+	}
+
+	internal static string FormatTaskItemCustody(string operation, long actorId, IEnumerable<IGameItem> items,
+		IEnumerable<long>? transportBundleIds = null)
+	{
+		var itemIds = items.Select(x => x.Id).Distinct().ToList();
+		var bundleIds = (transportBundleIds ?? [])
+		                .Where(x => itemIds.Contains(x))
+		                .Distinct()
+		                .ToList();
+		var result =
+			$"operation={operation};actor={actorId};items={itemIds.Select(x => x.ToString("F0")).ListToCommaSeparatedValues()}";
+		return bundleIds.Any()
+			? $"{result};bundles={bundleIds.Select(x => x.ToString("F0")).ListToCommaSeparatedValues()}"
+			: result;
+	}
+
+	private static bool TryParseTaskItemCustody(string? text, out string operation, out long actorId,
+		out long[] itemIds, out long[] transportBundleIds)
+	{
+		operation = string.Empty;
+		actorId = 0;
+		itemIds = [];
+		transportBundleIds = [];
+		if (string.IsNullOrWhiteSpace(text) ||
+		    !text.Contains("operation=", StringComparison.InvariantCultureIgnoreCase) ||
+		    !text.Contains("items=", StringComparison.InvariantCultureIgnoreCase))
+		{
+			return false;
+		}
+
+		var parts = text.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+		                .Select(x => x.Split('=', 2, StringSplitOptions.TrimEntries))
+		                .Where(x => x.Length == 2)
+		                .ToDictionary(x => x[0], x => x[1], StringComparer.InvariantCultureIgnoreCase);
+		if (!parts.TryGetValue("operation", out var operationText) ||
+		    !parts.TryGetValue("actor", out var actorText) ||
+		    !long.TryParse(actorText, out actorId) ||
+		    !parts.TryGetValue("items", out var itemsText))
+		{
+			return false;
+		}
+
+		operation = operationText;
+		itemIds = itemsText.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+		                   .Select(x => long.TryParse(x, out var value) ? value : 0)
+		                   .Where(x => x > 0)
+		                   .ToArray();
+		if (parts.TryGetValue("bundles", out var bundlesText))
+		{
+			transportBundleIds = bundlesText.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+			                                .Select(x => long.TryParse(x, out var value) ? value : 0)
+			                                .Where(x => x > 0)
+			                                .ToArray();
+		}
+
+		return itemIds.Any();
 	}
 
 	private static bool TryParseLoadedAssets(string? text, out string operation, out long containerId, out long[] itemIds)
@@ -1727,6 +1911,32 @@ public sealed record ShopFloatThresholdCondition(string FloatKey, decimal Thresh
 	}
 }
 
+public sealed record TaxOwingCondition(decimal Threshold, bool AboveThreshold) : IEmploymentTaskCondition
+{
+	public EmploymentTaskConditionType ConditionType => EmploymentTaskConditionType.TaxOwing;
+	public EmploymentAuthoritySet RequiredAuthority => EmploymentAuthority.CreateScheduledRules;
+
+	public bool IsSatisfied(IEmploymentTaskContext context, DateTimeOffset now, out string reason)
+	{
+		if (context is not EmploymentTaskContext concrete)
+		{
+			reason = "Tax owing conditions require a production employment task context.";
+			return false;
+		}
+
+		if (!EmploymentFinanceService.TryGetTaxOwing(concrete, out var amount, out reason))
+		{
+			return false;
+		}
+
+		var satisfied = AboveThreshold ? amount.Amount > Threshold : amount.Amount < Threshold;
+		reason = satisfied
+			? string.Empty
+			: $"Supported host taxes owing are {amount.Currency.Describe(amount.Amount, CurrencyDescriptionPatternType.ShortDecimal)}, which is not {(AboveThreshold ? "above" : "below")} {amount.Currency.Describe(Threshold, CurrencyDescriptionPatternType.ShortDecimal)}.";
+		return satisfied;
+	}
+}
+
 public sealed record WeatherLevelCondition(string WeatherKey) : IEmploymentTaskCondition
 {
 	private const string KeyPrefix = "weather:v1";
@@ -1851,6 +2061,9 @@ public sealed record WeatherLevelCondition(string WeatherKey) : IEmploymentTaskC
 
 public sealed class EmploymentTaskBoard : IEmploymentTaskBoard
 {
+	private const string PhysicalCustodySuspensionReason =
+		"The task is suspended for manager review because physical task items may still be in the assigned worker's custody.";
+
 	private readonly IEmploymentHost _host;
 	private readonly List<IEmploymentScheduledTaskRule> _scheduledRules = new();
 	private readonly List<IEmploymentActiveTask> _activeTasks = new();
@@ -2037,8 +2250,57 @@ public sealed class EmploymentTaskBoard : IEmploymentTaskBoard
 		return true;
 	}
 
+	public IReadOnlyCollection<EmploymentTaskAssignmentAuditResult> AuditActiveTaskAssignments()
+	{
+		var results = new List<EmploymentTaskAssignmentAuditResult>();
+		foreach (var task in _activeTasks.OfType<EmploymentActiveTask>()
+		                                 .Where(x => x.Status is EmploymentTaskStatus.Assigned or
+			                                 EmploymentTaskStatus.InProgress or EmploymentTaskStatus.Blocked)
+		                                 .ToList())
+		{
+			if (task.Status == EmploymentTaskStatus.Blocked &&
+			    task.BlockedReason?.Contains(PhysicalCustodySuspensionReason,
+				    StringComparison.InvariantCultureIgnoreCase) == true)
+			{
+				continue;
+			}
+
+			if (!TryGetAssignmentAuditReason(task, out var reason))
+			{
+				continue;
+			}
+
+			if (HasUnsecuredTaskItemCustody(task))
+			{
+				var blockedReason =
+					$"{reason} {PhysicalCustodySuspensionReason}";
+				task.Block(blockedReason);
+				_host.EmploymentRegister.Record(EmploymentRegisterEntryType.ActiveTaskBlocked, task.AssignedEmployee,
+					blockedReason, task.CorrelationId);
+				_host.DebugEmployment($"Suspended active task {task.Name}: {blockedReason}",
+					task.AssignedEmployee?.Gameworld);
+				results.Add(new EmploymentTaskAssignmentAuditResult(task.Id, task.Name,
+					EmploymentTaskAssignmentAuditOutcome.Blocked, blockedReason));
+				continue;
+			}
+
+			var requeueReason = $"{reason} The task has been returned to pending for reassignment.";
+			var previousEmployee = task.AssignedEmployee;
+			task.ReleaseAssignment(requeueReason);
+			_host.EmploymentRegister.Record(EmploymentRegisterEntryType.ActiveTaskRequeued, previousEmployee,
+				requeueReason, task.CorrelationId);
+			_host.DebugEmployment($"Requeued active task {task.Name}: {requeueReason}",
+				previousEmployee?.Gameworld);
+			results.Add(new EmploymentTaskAssignmentAuditResult(task.Id, task.Name,
+				EmploymentTaskAssignmentAuditOutcome.Requeued, requeueReason));
+		}
+
+		return results;
+	}
+
 	public IReadOnlyCollection<IEmploymentActiveTask> EvaluateScheduledRules(IEmploymentTaskContext context, DateTimeOffset now)
 	{
+		AuditActiveTaskAssignments();
 		var spawned = new List<IEmploymentActiveTask>();
 		foreach (var rule in _scheduledRules.OfType<EmploymentScheduledTaskRule>())
 		{
@@ -2088,9 +2350,101 @@ public sealed class EmploymentTaskBoard : IEmploymentTaskBoard
 
 	internal bool HasBlockingActiveTask(string idempotencyKey)
 	{
+		AuditActiveTaskAssignments();
 		return _activeTasks.OfType<EmploymentActiveTask>().Any(x =>
 			x.IdempotencyKey.Equals(idempotencyKey, StringComparison.InvariantCultureIgnoreCase) &&
 			x.Status is EmploymentTaskStatus.Pending or EmploymentTaskStatus.Assigned or EmploymentTaskStatus.InProgress or EmploymentTaskStatus.Blocked);
+	}
+
+	private bool TryGetAssignmentAuditReason(EmploymentActiveTask task, out string reason)
+	{
+		reason = string.Empty;
+		var employee = task.AssignedEmployee;
+		if (employee is null)
+		{
+			reason = "The task no longer has an assigned employee.";
+			return true;
+		}
+
+		if (employee.State.IsDead())
+		{
+			reason = $"{employee.Name} is dead.";
+			return true;
+		}
+
+		if (employee.State.IsInStatis())
+		{
+			reason = $"{employee.Name} is in stasis.";
+			return true;
+		}
+
+		var activeContracts = _host.ActiveEmploymentContracts()
+		                           .Where(x => x.Employee.Id == employee.Id)
+		                           .ToList();
+		if (!activeContracts.Any())
+		{
+			reason = $"{employee.Name} no longer has an active employment contract.";
+			return true;
+		}
+
+		if (!activeContracts.Any(x => x.Authority.ContainsAll(task.ActionPlan.RequiredAuthority)))
+		{
+			reason = $"{employee.Name} no longer has the delegated authority required for this task.";
+			return true;
+		}
+
+		if (employee is not INPC npc)
+		{
+			return false;
+		}
+
+		var workerAis = npc.AIs.OfType<EmploymentWorkerAI>().ToList();
+		if (!workerAis.Any())
+		{
+			reason = $"{employee.Name} no longer has an EmploymentWorkerAI.";
+			return true;
+		}
+
+		var usableAi = workerAis.Any(ai =>
+			ai.TaskingEnabled &&
+			(ai.HostTypeFilter is null || ai.HostTypeFilter.Value == _host.EmploymentHostType) &&
+			task.ActionPlan.RequiredCapabilities.All(x => ai.Capabilities.Contains(x)));
+		if (!usableAi)
+		{
+			reason = $"{employee.Name}'s EmploymentWorkerAI can no longer execute this task.";
+			return true;
+		}
+
+		return false;
+	}
+
+	private static bool HasUnsecuredTaskItemCustody(EmploymentActiveTask task)
+	{
+		var carried = false;
+		for (var i = 0; i < task.ActionPlan.Steps.Count && i < task.StepStates.Count; i++)
+		{
+			if (task.StepStates[i] != EmploymentActionStepStatus.Completed)
+			{
+				continue;
+			}
+
+			switch (task.ActionPlan.Steps[i].StepType)
+			{
+				case EmploymentActionStepType.GetItemsById:
+				case EmploymentActionStepType.GetItemsByTag:
+				case EmploymentActionStepType.GetCommodity:
+				case EmploymentActionStepType.UnloadItems:
+					carried = true;
+					break;
+				case EmploymentActionStepType.LoadItems:
+				case EmploymentActionStepType.DeliverItems:
+				case EmploymentActionStepType.ReturnAsset:
+					carried = false;
+					break;
+			}
+		}
+
+		return carried;
 	}
 }
 
@@ -2263,6 +2617,23 @@ public sealed class EmploymentActiveTask : IEmploymentActiveTask
 	public void Cancel(string reason)
 	{
 		Status = EmploymentTaskStatus.Cancelled;
+		BlockedReason = reason;
+		_persistence?.SaveActiveTaskState(this);
+	}
+
+	public void ReleaseAssignment(string reason)
+	{
+		var index = NextStepIndex;
+		if (index >= 0 &&
+		    index < _stepStates.Count &&
+		    _stepStates[index] == EmploymentActionStepStatus.InProgress)
+		{
+			_stepStates[index] = EmploymentActionStepStatus.Pending;
+			_stepOperationalStates[index] = _stepOperationalStates[index].WithFailure(reason);
+		}
+
+		AssignedEmployee = null;
+		Status = EmploymentTaskStatus.Pending;
 		BlockedReason = reason;
 		_persistence?.SaveActiveTaskState(this);
 	}
@@ -2519,6 +2890,12 @@ public sealed class EmploymentTaskDispatcher
 		switch (step)
 		{
 			case PurchaseActionStep purchase:
+				if (purchase.IsExecutablePurchase && purchase.MaximumAmount is null)
+				{
+					amount = null!;
+					return false;
+				}
+
 				amount = purchase.Amount;
 				return true;
 			case BankDepositActionStep deposit:
@@ -2529,6 +2906,12 @@ public sealed class EmploymentTaskDispatcher
 				return true;
 			case StoreAccountPaymentActionStep storePayment:
 				amount = storePayment.Amount;
+				return true;
+			case TaxPaymentActionStep { MaximumAmount: not null } tax:
+				amount = tax.MaximumAmount;
+				return true;
+			case ShopFloatAdjustmentActionStep shopFloat:
+				amount = shopFloat.Amount;
 				return true;
 			case CataloguedActionShellStep { RequiresPaymentAuthorisation: true, Amount: not null } shell:
 				amount = shell.Amount;

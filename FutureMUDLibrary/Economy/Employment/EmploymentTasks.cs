@@ -30,7 +30,8 @@ public enum EmploymentTaskConditionType
 	CommodityThreshold,
 	ShopAccountOwing,
 	ShopFloatThreshold,
-	WeatherLevel
+	WeatherLevel,
+	TaxOwing
 }
 
 public enum EmploymentScheduledRuleStatus
@@ -64,7 +65,9 @@ public enum EmploymentActionStepType
 	LoadItems,
 	UnloadItems,
 	ReturnAsset,
-	VehicleOperation
+	VehicleOperation,
+	TaxPayment,
+	ShopFloatAdjustment
 }
 
 public enum EmploymentActionStepStatus
@@ -247,6 +250,18 @@ public enum EmploymentTaskStatus
 	Cancelled
 }
 
+public enum EmploymentTaskAssignmentAuditOutcome
+{
+	Requeued,
+	Blocked
+}
+
+public sealed record EmploymentTaskAssignmentAuditResult(
+	Guid TaskId,
+	string TaskName,
+	EmploymentTaskAssignmentAuditOutcome Outcome,
+	string Reason);
+
 public interface IEmploymentActiveTask
 {
 	Guid Id { get; }
@@ -288,6 +303,7 @@ public interface IEmploymentTaskBoard
 	bool CancelScheduledRule(IEmploymentScheduledTaskRule rule, ICharacter? cancelledBy, string reason);
 	bool PauseScheduledRule(IEmploymentScheduledTaskRule rule, ICharacter? pausedBy, string reason);
 	bool ResumeScheduledRule(IEmploymentScheduledTaskRule rule, ICharacter? resumedBy, string reason);
+	IReadOnlyCollection<EmploymentTaskAssignmentAuditResult> AuditActiveTaskAssignments();
 	IReadOnlyCollection<IEmploymentActiveTask> EvaluateScheduledRule(IEmploymentScheduledTaskRule rule,
 		IEmploymentTaskContext context, DateTimeOffset now);
 	IReadOnlyCollection<IEmploymentActiveTask> EvaluateScheduledRules(IEmploymentTaskContext context, DateTimeOffset now);
@@ -333,6 +349,23 @@ public interface IEmploymentTaskContext
 	bool TryBankDeposit(ICharacter actor, MoneyAmount amount, out string reason,
 		out EmploymentActionStepOperationalState operationalState);
 	bool TryBankWithdrawal(ICharacter actor, MoneyAmount amount, out string reason,
+		out EmploymentActionStepOperationalState operationalState);
+	bool CanPurchase(IEmploymentActionStep step, out string reason);
+	bool TryPurchase(ICharacter actor, IEmploymentActionStep step, out string reason,
+		out EmploymentActionStepOperationalState operationalState);
+	bool CanStoreAccountPayment(string accountKey, MoneyAmount amount, out string reason);
+	bool TryStoreAccountPayment(ICharacter actor, string accountKey, MoneyAmount amount, out string reason,
+		out EmploymentActionStepOperationalState operationalState);
+	bool CanPayTaxes(MoneyAmount? maximumAmount, out string reason, out MoneyAmount? amount);
+	bool TryPayTaxes(ICharacter actor, MoneyAmount? maximumAmount, out string reason,
+		out EmploymentActionStepOperationalState operationalState);
+	bool CanAdjustShopFloat(MoneyAmount amount, bool fillRegister, EmploymentItemSelector? registerSelector,
+		out string reason);
+	bool TryAdjustShopFloat(ICharacter actor, MoneyAmount amount, bool fillRegister,
+		EmploymentItemSelector? registerSelector, out string reason,
+		out EmploymentActionStepOperationalState operationalState);
+	bool CanStartCraft(string craftSelector, ICharacter actor, out string reason);
+	bool TryStartCraft(ICharacter actor, string craftSelector, out string reason,
 		out EmploymentActionStepOperationalState operationalState);
 	void HydrateTaskState(IEmploymentActiveTask task, int currentStepIndex);
 	void RecordRegister(EmploymentRegisterEntryType entryType, ICharacter? actor, string description,

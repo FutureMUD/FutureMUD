@@ -519,6 +519,9 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
             }, ScheduleType.System, TimeSpan.FromMinutes(60),
             "Market Population Heartbeats"));
         Scheduler.AddSchedule(new RepeatingSchedule<IFuturemud>(this, this, Economy.Shops.Shop.DoAutopayShopTaxes, ScheduleType.System, TimeSpan.FromMinutes(60), "Shop Autopay Taxes"));
+        Scheduler.AddSchedule(new RepeatingSchedule<IFuturemud>(this, this,
+            fm => { EmploymentScheduledRuleEvaluationService.EvaluateAll(fm); }, ScheduleType.System, TimeSpan.FromMinutes(1),
+            "Employment Scheduled Rule Evaluation"));
         Chargen.SetupChargen(this);
         HeartbeatManager.StartHeartbeatTick();
         Track.CreateGlobalHeartbeatEvent();

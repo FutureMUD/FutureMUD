@@ -443,7 +443,8 @@ public enum EmploymentRegisterEntryType
 	AuditActionRecorded,
 	ScheduledRuleCancelled,
 	ScheduledRulePaused,
-	ScheduledRuleResumed
+	ScheduledRuleResumed,
+	ActiveTaskRequeued
 }
 
 public interface IEmploymentRegisterEntry

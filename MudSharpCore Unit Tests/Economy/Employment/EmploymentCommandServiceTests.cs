@@ -930,7 +930,7 @@ public class EmploymentCommandServiceTests
 		StringAssert.Contains(output, "tasks step getid");
 		StringAssert.Contains(output, "tasks step deliver");
 		StringAssert.Contains(output, "tasks step purchase");
-		StringAssert.Contains(output, "AuditOnlyShell");
+		StringAssert.Contains(output, "Executable");
 		StringAssert.Contains(output, "Deferred");
 	}
 
@@ -941,26 +941,18 @@ public class EmploymentCommandServiceTests
 		{
 			"getid", "gettag", "commodity", "deliver", "move", "board", "command", "report",
 			"authorise", "reserve", "release", "select", "estimate", "route", "load", "unload",
-			"return", "vehicle", "bankdeposit", "bankwithdraw"
-		};
-		var auditOnly = new[]
-		{
-			"purchase", "storepay", "craft"
+			"return", "vehicle", "bankdeposit", "bankwithdraw", "purchase", "storepay", "craft",
+			"paytax", "float"
 		};
 		var deferred = new[]
 		{
-			"transfer", "float", "station", "price",
+			"transfer", "physicalfloat", "station", "price",
 			"jobopening", "rule", "admintask", "marktask"
 		};
 
 		foreach (var key in executable)
 		{
 			Assert.AreEqual(EmploymentActionCatalogStatus.Executable, EmploymentActionCatalog.Get(key)?.Status, key);
-		}
-
-		foreach (var key in auditOnly)
-		{
-			Assert.AreEqual(EmploymentActionCatalogStatus.AuditOnlyShell, EmploymentActionCatalog.Get(key)?.Status, key);
 		}
 
 		foreach (var key in deferred)
@@ -1044,7 +1036,7 @@ public class EmploymentCommandServiceTests
 
 		var rendered = authoring.RenderDraft(manager, host);
 
-		StringAssert.Contains(rendered, "Audit-only");
+		StringAssert.Contains(rendered, "Executable");
 		StringAssert.Contains(rendered, "PostToHostBoard");
 		StringAssert.Contains(rendered, "linked bank account");
 		StringAssert.Contains(rendered, "reserve");

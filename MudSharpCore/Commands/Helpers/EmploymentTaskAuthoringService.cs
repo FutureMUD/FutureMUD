@@ -445,6 +445,8 @@ internal sealed class EmploymentTaskAuthoringService
 			"bankdeposit" => TryParseBankDeposit(host, input, out step, out message),
 			"bankwithdraw" => TryParseBankWithdraw(host, input, out step, out message),
 			"storepay" => TryParseStorePay(host, input, out step, out message),
+			"paytax" => TryParsePayTax(host, input, out step, out message),
+			"float" => TryParseShopFloat(actor, host, input, out step, out message),
 			"craft" => TryParseCraft(input, out step, out message),
 			"report" or "authorise" or "reserve" or "release" or "select" or "estimate" =>
 				TryParseGenericShell(host, definition!.Key, input, out step, out message),
@@ -995,6 +997,85 @@ internal sealed class EmploymentTaskAuthoringService
 		out string message)
 	{
 		step = null!;
+		var raw = input.SafeRemainingArgument.Trim();
+		if (input.IsFinished || !int.TryParse(input.PopSpeech(), out var quantity) || quantity <= 0)
+		{
+			return TryParseLegacyPurchaseAudit(host, new StringStack(raw), out step, out message);
+		}
+
+		var merchandiseTokens = PopTokensUntil(input, "from").ToList();
+		if (!merchandiseTokens.Any() || input.IsFinished || !input.PopSpeech().EqualTo("from"))
+		{
+			if (raw.Contains(" for ", StringComparison.InvariantCultureIgnoreCase))
+			{
+				return TryParseLegacyPurchaseAudit(host, new StringStack(raw), out step, out message);
+			}
+
+			message = $"Purchase steps use the syntax: {"tasks step purchase <quantity> <merchandise id|name> from <shop id|name|any> [max <amount>] [keyword <keywords>]".ColourCommand()}";
+			return false;
+		}
+
+		var supplierTokens = new List<string>();
+		while (!input.IsFinished && !IsAny(input.PeekSpeech(), "max", "keyword"))
+		{
+			supplierTokens.Add(input.PopSpeech());
+		}
+
+		if (!supplierTokens.Any())
+		{
+			message = "Which supplier shop should this purchase use? Use ".ColourCommand() + "any".ColourCommand() + " to search all shops.";
+			return false;
+		}
+
+		var currency = ResolveHostCurrency(host);
+		if (currency is null)
+		{
+			message = $"Could not determine the currency for {host.EmploymentHostName.ColourName()}.";
+			return false;
+		}
+
+		MoneyAmount? maximum = null;
+		string? keyword = null;
+		while (!input.IsFinished)
+		{
+			var option = input.PopSpeech();
+			if (option.EqualTo("max"))
+			{
+				var amountTokens = new List<string>();
+				while (!input.IsFinished && !input.PeekSpeech().EqualTo("keyword"))
+				{
+					amountTokens.Add(input.PopSpeech());
+				}
+
+				if (!TryParseMoney(host, string.Join(" ", amountTokens), out maximum, out message))
+				{
+					return false;
+				}
+
+				continue;
+			}
+
+			if (option.EqualTo("keyword"))
+			{
+				keyword = input.SafeRemainingArgument.Trim();
+				ConsumeRemaining(input);
+				break;
+			}
+
+			message = $"Unknown purchase option {option.ColourCommand()}.";
+			return false;
+		}
+
+		step = new PurchaseActionStep(quantity, string.Join(" ", merchandiseTokens),
+			string.Join(" ", supplierTokens), currency, maximum, keyword);
+		message = string.Empty;
+		return true;
+	}
+
+	private static bool TryParseLegacyPurchaseAudit(IEmploymentHost host, StringStack input, out IEmploymentActionStep step,
+		out string message)
+	{
+		step = null!;
 		var amountTokens = PopTokensUntil(input, "for").ToList();
 		if (!amountTokens.Any() || input.IsFinished || !input.PopSpeech().EqualTo("for"))
 		{
@@ -1054,16 +1135,72 @@ internal sealed class EmploymentTaskAuthoringService
 		out string message)
 	{
 		step = null!;
+		var raw = input.SafeRemainingArgument.Trim();
 		if (input.IsFinished)
 		{
-			message = $"Store-account payment audit steps use the syntax: {"tasks step storepay <account> amount <amount>".ColourCommand()}";
+			message = $"Store-account payment steps use the syntax: {"tasks step storepay <shop id|name> account <account id|name> amount <amount>".ColourCommand()}";
+			return false;
+		}
+
+		var shopTokens = PopTokensUntil(input, "account").ToList();
+		if (!shopTokens.Any() || input.IsFinished || !input.PopSpeech().EqualTo("account"))
+		{
+			return TryParseLegacyStorePay(host, new StringStack(raw), out step, out message);
+		}
+
+		var accountTokens = PopTokensUntil(input, "amount").ToList();
+		if (!accountTokens.Any() || input.IsFinished || !input.PopSpeech().EqualTo("amount"))
+		{
+			message = $"Store-account payment steps use the syntax: {"tasks step storepay <shop id|name> account <account id|name> amount <amount>".ColourCommand()}";
+			return false;
+		}
+
+		var gameworld = (host as IHaveFuturemud)?.Gameworld;
+		var shopSelector = string.Join(" ", shopTokens).Trim();
+		var shop = gameworld?.Shops.GetByIdOrName(shopSelector);
+		if (shop is null)
+		{
+			message = $"There is no shop matching {shopSelector.ColourCommand()}.";
+			return false;
+		}
+
+		var accountSelector = string.Join(" ", accountTokens).Trim();
+		var account = long.TryParse(accountSelector, out var accountId)
+			? shop.LineOfCreditAccounts.FirstOrDefault(x => x.Id == accountId)
+			: shop.LineOfCreditAccounts.FirstOrDefault(x => x.AccountName.EqualTo(accountSelector)) ??
+			  shop.LineOfCreditAccounts.FirstOrDefault(x =>
+				  x.AccountName.StartsWith(accountSelector, StringComparison.InvariantCultureIgnoreCase));
+		if (account is null)
+		{
+			message = $"{shop.Name.ColourName()} does not have a line-of-credit account matching {accountSelector.ColourCommand()}.";
+			return false;
+		}
+
+		if (!TryParseMoney(host, input.SafeRemainingArgument, out var amount, out message))
+		{
+			return false;
+		}
+
+		ConsumeRemaining(input);
+		step = new StoreAccountPaymentActionStep(ShopAccountOwingCondition.CreateKey(shop, account), amount);
+		message = string.Empty;
+		return true;
+	}
+
+	private static bool TryParseLegacyStorePay(IEmploymentHost host, StringStack input, out IEmploymentActionStep step,
+		out string message)
+	{
+		step = null!;
+		if (input.IsFinished)
+		{
+			message = $"Store-account payment steps use the syntax: {"tasks step storepay <shop id|name> account <account id|name> amount <amount>".ColourCommand()}";
 			return false;
 		}
 
 		var accountName = input.PopSpeech();
 		if (input.IsFinished || !input.PopSpeech().EqualTo("amount"))
 		{
-			message = $"Store-account payment audit steps use the syntax: {"tasks step storepay <account> amount <amount>".ColourCommand()}";
+			message = $"Store-account payment steps use the syntax: {"tasks step storepay <shop id|name> account <account id|name> amount <amount>".ColourCommand()}";
 			return false;
 		}
 
@@ -1074,6 +1211,72 @@ internal sealed class EmploymentTaskAuthoringService
 
 		ConsumeRemaining(input);
 		step = new StoreAccountPaymentActionStep(accountName, amount);
+		message = string.Empty;
+		return true;
+	}
+
+	private static bool TryParsePayTax(IEmploymentHost host, StringStack input, out IEmploymentActionStep step,
+		out string message)
+	{
+		step = null!;
+		if (input.IsFinished)
+		{
+			message = $"Tax payment steps use the syntax: {"tasks step paytax <amount|all>".ColourCommand()}";
+			return false;
+		}
+
+		if (input.PeekSpeech().EqualTo("all"))
+		{
+			input.PopSpeech();
+			step = new TaxPaymentActionStep(null);
+			message = string.Empty;
+			return true;
+		}
+
+		if (!TryParseMoney(host, input.SafeRemainingArgument, out var amount, out message))
+		{
+			return false;
+		}
+
+		ConsumeRemaining(input);
+		step = new TaxPaymentActionStep(amount);
+		message = string.Empty;
+		return true;
+	}
+
+	private static bool TryParseShopFloat(ICharacter actor, IEmploymentHost host, StringStack input,
+		out IEmploymentActionStep step, out string message)
+	{
+		step = null!;
+		if (input.IsFinished || !IsAny(input.PeekSpeech(), "fill", "skim"))
+		{
+			message = $"Shop float steps use the syntax: {"tasks step float fill|skim <amount> [register <prototype|*item|&tag|keyword>]".ColourCommand()}";
+			return false;
+		}
+
+		var fill = input.PopSpeech().EqualTo("fill");
+		var amountTokens = new List<string>();
+		while (!input.IsFinished && !IsAny(input.PeekSpeech(), "register", "till", "cashregister"))
+		{
+			amountTokens.Add(input.PopSpeech());
+		}
+
+		if (!TryParseMoney(host, string.Join(" ", amountTokens), out var amount, out message))
+		{
+			return false;
+		}
+
+		EmploymentItemSelector? registerSelector = null;
+		if (!input.IsFinished)
+		{
+			input.PopSpeech();
+			if (!TryParseItemSelector(actor, input, "cash register", out registerSelector, out message))
+			{
+				return false;
+			}
+		}
+
+		step = new ShopFloatAdjustmentActionStep(fill, amount, registerSelector);
 		message = string.Empty;
 		return true;
 	}
@@ -1383,6 +1586,11 @@ internal sealed class EmploymentTaskAuthoringService
 		}
 	}
 
+	private static bool IsAny(string text, params string[] options)
+	{
+		return options.Any(x => text.EqualTo(x));
+	}
+
 	private static IEnumerable<List<string>> SplitActionTokens(IEnumerable<string> tokens)
 	{
 		var current = new List<string>();
@@ -1577,7 +1785,9 @@ internal sealed class EmploymentTaskAuthoringService
 		return step switch
 		{
 			PurchaseActionStep purchase =>
-				$"record an audit-only purchase of {DescribeMoney(purchase.Amount)} for {purchase.PurchaseDescription.ColourName()}",
+				purchase.IsExecutablePurchase
+					? $"buy {purchase.Quantity!.Value.ToString("N0", actor).ColourValue()}x {purchase.MerchandiseSelector!.ColourName()} from {(purchase.SupplierSelector ?? "any").ColourName()}{(purchase.MaximumAmount is null ? string.Empty : $" up to {DescribeMoney(purchase.MaximumAmount)}")}"
+					: $"record an audit-only purchase of {DescribeMoney(purchase.Amount)} for {purchase.PurchaseDescription.ColourName()}",
 			MovementDeliveryActionStep move =>
 				move.Destination is null
 					? $"complete movement/delivery shell: {move.DeliveryDescription.ColourName()}"
@@ -1591,7 +1801,13 @@ internal sealed class EmploymentTaskAuthoringService
 			BankWithdrawalActionStep withdrawal =>
 				$"withdraw {DescribeMoney(withdrawal.Amount)} from the linked bank account into employer virtual cash",
 			StoreAccountPaymentActionStep account =>
-				$"record an audit-only payment of {DescribeMoney(account.Amount)} to store account {account.AccountName.ColourName()}",
+				$"pay {DescribeMoney(account.Amount)} to store account {account.AccountName.ColourName()}",
+			TaxPaymentActionStep tax =>
+				tax.MaximumAmount is null
+					? "pay all supported host taxes owing"
+					: $"pay supported host taxes up to {DescribeMoney(tax.MaximumAmount)}",
+			ShopFloatAdjustmentActionStep shopFloat =>
+				$"{(shopFloat.FillRegister ? "fill" : "skim")} shop cash-register float by {DescribeMoney(shopFloat.Amount)}{(shopFloat.RegisterSelector is null ? string.Empty : $" at {DescribeItemSelector(shopFloat.RegisterSelector, actor)}")}",
 			BoardPostActionStep board =>
 				$"post {board.Title.ColourName()} to the host staff communication board",
 			CataloguedActionShellStep shell =>
@@ -1647,6 +1863,8 @@ internal sealed class EmploymentTaskAuthoringService
 			BankDepositActionStep => EmploymentActionCatalog.Get("bankdeposit"),
 			BankWithdrawalActionStep => EmploymentActionCatalog.Get("bankwithdraw"),
 			StoreAccountPaymentActionStep => EmploymentActionCatalog.Get("storepay"),
+			TaxPaymentActionStep => EmploymentActionCatalog.Get("paytax"),
+			ShopFloatAdjustmentActionStep => EmploymentActionCatalog.Get("float"),
 			BoardPostActionStep => EmploymentActionCatalog.Get("board"),
 			GetItemsByIdActionStep => EmploymentActionCatalog.Get("getid"),
 			GetItemsByTagActionStep => EmploymentActionCatalog.Get("gettag"),

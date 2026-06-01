@@ -709,6 +709,7 @@ internal sealed class EmploymentScheduledRuleAuthoringService
 			"account" => TryParseAccount(host, input, out condition, out message),
 			"shopaccount" => TryParseShopAccount(actor, input, out condition, out message),
 			"float" => TryParseFloat(actor, host, input, out condition, out message),
+			"tax" => TryParseTax(host, input, out condition, out message),
 			"weather" => TryParseWeather(input, out condition, out message),
 			_ => UnknownCondition(conditionKey, out condition, out message)
 		};
@@ -734,6 +735,8 @@ internal sealed class EmploymentScheduledRuleAuthoringService
 				$"shop account {ShopAccountOwingCondition.DescribeKey(owing.AccountKey, host).ColourName()} owing {(owing.AboveThreshold ? "more than" : "no more than").ColourCommand()} {DescribeConditionAmount(host, owing.Threshold)}",
 			ShopFloatThresholdCondition shopFloat =>
 				$"shop float in {ShopFloatThresholdCondition.DescribeKey(shopFloat.FloatKey).ColourName()} {(shopFloat.BelowThreshold ? "below" : "at least").ColourCommand()} {DescribeConditionAmount(host, shopFloat.Threshold)}",
+			TaxOwingCondition tax =>
+				$"supported host taxes owing {(tax.AboveThreshold ? "above" : "below").ColourCommand()} {DescribeConditionAmount(host, tax.Threshold)}",
 			WeatherLevelCondition weather =>
 				$"weather begins as {WeatherLevelCondition.DescribeKey(weather.WeatherKey).ColourName()}",
 			_ => condition.ConditionType.DescribeEnum().ColourName()
@@ -1188,6 +1191,39 @@ internal sealed class EmploymentScheduledRuleAuthoringService
 
 		ConsumeRemaining(input);
 		condition = new ShopFloatThresholdCondition(ShopFloatThresholdCondition.CreateKey(registerSelector), amount, below);
+		message = string.Empty;
+		return true;
+	}
+
+	private static bool TryParseTax(IEmploymentHost host, StringStack input,
+		out IEmploymentTaskCondition condition, out string message)
+	{
+		condition = null!;
+		if (!input.IsFinished && input.PeekSpeech().EqualTo("owing"))
+		{
+			input.PopSpeech();
+		}
+
+		if (!TryParseComparison(input, out var below, out message))
+		{
+			return false;
+		}
+
+		var currency = EmploymentTaskAuthoringService.ResolveHostCurrency(host);
+		var amountText = input.SafeRemainingArgument;
+		if (currency is null ||
+		    string.IsNullOrWhiteSpace(amountText) ||
+		    !currency.TryGetBaseCurrency(amountText, out var amount) ||
+		    amount < 0.0M)
+		{
+			message = currency is null
+				? $"{host.EmploymentHostName.ColourName()} does not expose a currency for tax conditions."
+				: $"Tax conditions use the syntax: {"tasks rule condition tax owing above|below <amount>".ColourCommand()}";
+			return false;
+		}
+
+		ConsumeRemaining(input);
+		condition = new TaxOwingCondition(amount, !below);
 		message = string.Empty;
 		return true;
 	}

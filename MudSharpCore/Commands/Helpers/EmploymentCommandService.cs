@@ -874,6 +874,7 @@ internal sealed class EmploymentCommandService
 
 	public string RenderTasks(ICharacter actor, IEmploymentHost host)
 	{
+		host.TaskBoard.AuditActiveTaskAssignments();
 		var sb = new StringBuilder();
 		sb.AppendLine($"Employment task board for {host.EmploymentHostName.ColourName()}:");
 		sb.AppendLine();
@@ -911,6 +912,7 @@ internal sealed class EmploymentCommandService
 
 	public string RenderTaskDetail(ICharacter actor, IEmploymentHost host, string selector)
 	{
+		host.TaskBoard.AuditActiveTaskAssignments();
 		if (string.IsNullOrWhiteSpace(selector))
 		{
 			return "Which employment task do you want to view?";
@@ -1051,6 +1053,7 @@ internal sealed class EmploymentCommandService
 
 	public string RenderTaskDiagnostics(ICharacter actor, IEmploymentHost host)
 	{
+		host.TaskBoard.AuditActiveTaskAssignments();
 		var activeTasks = host.TaskBoard.ActiveTasks
 		                      .Where(x => x.Status is EmploymentTaskStatus.Pending or EmploymentTaskStatus.Assigned or
 			                      EmploymentTaskStatus.InProgress or EmploymentTaskStatus.Blocked)

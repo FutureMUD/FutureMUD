@@ -6,6 +6,10 @@ using MudSharp.Character;
 using MudSharp.Economy;
 using MudSharp.Economy.Currency;
 using MudSharp.Framework;
+using MudSharp.GameItems.Components;
+using MudSharp.GameItems.Interfaces;
+using MudSharp.GameItems.Prototypes;
+using MudSharp.TimeAndDate;
 
 #nullable enable
 
@@ -25,6 +29,51 @@ internal static class EmploymentFinanceService
 		long CurrencyId,
 		decimal Amount,
 		string Description);
+
+	private sealed record PurchaseTarget(IShop Shop, IMerchandise Merchandise, decimal Price);
+
+	private sealed class EmploymentFundsPayment : IPaymentMethod
+	{
+		private readonly FinanceHost _finance;
+		private readonly ICharacter _actor;
+		private readonly IFrameworkItem _counterparty;
+		private readonly string _reference;
+		private readonly MudDateTime? _mudDateTime;
+
+		public EmploymentFundsPayment(FinanceHost finance, ICharacter actor, IFrameworkItem counterparty,
+			string reference, MudDateTime? mudDateTime)
+		{
+			_finance = finance;
+			_actor = actor;
+			_counterparty = counterparty;
+			_reference = reference;
+			_mudDateTime = mudDateTime;
+		}
+
+		public ICurrency Currency => _finance.Currency;
+
+		public decimal AccessibleMoneyForPayment()
+		{
+			return VirtualCashLedger.AvailableFunds(_finance.Owner, _finance.Currency, _finance.BankAccount);
+		}
+
+		public void TakePayment(decimal price)
+		{
+			VirtualCashLedger.Debit(_finance.Owner, _finance.Currency, price, _actor, _counterparty,
+				"ShopPurchase", _reference, _finance.BankAccount, _mudDateTime, out _, _finance.Owner, _reference);
+		}
+
+		public decimal AccessibleMoneyForCredit()
+		{
+			return decimal.MaxValue;
+		}
+
+		public void GivePayment(decimal price)
+		{
+			VirtualCashLedger.Credit(_finance.Owner, _finance.Currency, price, _actor, _counterparty,
+				"ShopPurchaseRefund", _reference, _mudDateTime, _finance.Owner, _reference);
+		}
+	}
 
 	public static bool CanReserveFunds(EmploymentTaskContext context, MoneyAmount amount, out string reason)
 	{
@@ -237,6 +286,343 @@ internal static class EmploymentFinanceService
 		return true;
 	}
 
+	public static bool CanPurchase(EmploymentTaskContext context, IEmploymentActionStep step, out string reason)
+	{
+		if (step is not PurchaseActionStep purchase || !purchase.IsExecutablePurchase)
+		{
+			reason = string.Empty;
+			return true;
+		}
+
+		if (!TryResolvePurchaseTarget(context, null, purchase, out var target, out reason))
+		{
+			return false;
+		}
+
+		var amount = new MoneyAmount(target.Shop.Currency, target.Price);
+		if (purchase.MaximumAmount is not null && purchase.MaximumAmount.Amount < target.Price)
+		{
+			reason =
+				$"The purchase costs {target.Shop.Currency.Describe(target.Price, CurrencyDescriptionPatternType.ShortDecimal)}, above the maximum of {purchase.MaximumAmount.Currency.Describe(purchase.MaximumAmount.Amount, CurrencyDescriptionPatternType.ShortDecimal)}.";
+			return false;
+		}
+
+		if (!HasReservedFunds(context, amount, out reason))
+		{
+			return false;
+		}
+
+		if (!TryResolveFinanceHost(context.Employer, amount, out var finance, out reason))
+		{
+			return false;
+		}
+
+		if (AvailableFunds(context, finance, amount.Currency) < amount.Amount)
+		{
+			reason = $"{context.Employer.EmploymentHostName} does not have enough available funds for this purchase.";
+			return false;
+		}
+
+		reason = string.Empty;
+		return true;
+	}
+
+	public static bool TryPurchase(EmploymentTaskContext context, ICharacter actor, IEmploymentActionStep step,
+		out string reason, out EmploymentActionStepOperationalState operationalState)
+	{
+		operationalState = EmploymentActionStepOperationalState.Empty;
+		if (step is not PurchaseActionStep purchase || !purchase.IsExecutablePurchase)
+		{
+			reason = "This purchase step does not identify a supplier and merchandise record.";
+			return false;
+		}
+
+		if (!TryResolvePurchaseTarget(context, actor, purchase, out var target, out reason))
+		{
+			return false;
+		}
+
+		var amount = new MoneyAmount(target.Shop.Currency, target.Price);
+		if (!TryBuildReservationConsumption(context, amount, out var consumptionPayload, out reason))
+		{
+			return false;
+		}
+
+		if (!TryResolveFinanceHost(context.Employer, amount, out var finance, out reason))
+		{
+			return false;
+		}
+
+		var reference = TransactionReference(context, $"employment purchase at {target.Shop.Name}");
+		var payment = new EmploymentFundsPayment(finance, actor, target.Shop, reference,
+			EmploymentClock.CurrentDateTime(context.Employer));
+		var canBuy = target.Shop.CanBuy(actor, target.Merchandise, purchase.Quantity!.Value, payment,
+			purchase.KeywordFilter);
+		if (!canBuy.Truth)
+		{
+			reason = canBuy.Reason;
+			return false;
+		}
+
+		var items = target.Shop.Buy(actor, target.Merchandise, purchase.Quantity.Value, payment,
+			purchase.KeywordFilter).ToList();
+		context.RecordLedger(EmploymentLedgerEntryType.Purchase, actor, amount,
+			$"Purchased {items.Count:N0} item(s) from {target.Shop.Name}: {reference}.",
+			context.CurrentTask?.CorrelationId);
+		context.RecordRegister(EmploymentRegisterEntryType.PaymentAuthorisationUsed, actor,
+			$"Purchased {items.Count:N0} item(s) from {target.Shop.Name} for {amount.Currency.Describe(amount.Amount, CurrencyDescriptionPatternType.ShortDecimal)}.",
+			context.CurrentTask?.CorrelationId);
+		operationalState = new EmploymentActionStepOperationalState(
+			TransactionReference: $"{target.Shop.Name}: {reference}",
+			SelectedResources: EmploymentTaskContext.FormatTaskItemCustody("collect", actor.Id, items),
+			ReservationReference: consumptionPayload);
+		reason = string.Empty;
+		return true;
+	}
+
+	public static bool CanStoreAccountPayment(EmploymentTaskContext context, string accountKey, MoneyAmount amount,
+		out string reason)
+	{
+		if (!TryResolveStoreAccount(context, accountKey, out _, out var account, out reason))
+		{
+			return false;
+		}
+
+		if (account.Currency.Id != amount.Currency.Id)
+		{
+			reason = $"The account {account.AccountName} uses {account.Currency.Name}, but this step is for {amount.Currency.Name}.";
+			return false;
+		}
+
+		if (!HasReservedFunds(context, amount, out reason))
+		{
+			return false;
+		}
+
+		return TryResolveFinanceHost(context.Employer, amount, out _, out reason);
+	}
+
+	public static bool TryStoreAccountPayment(EmploymentTaskContext context, ICharacter actor, string accountKey,
+		MoneyAmount amount, out string reason, out EmploymentActionStepOperationalState operationalState)
+	{
+		operationalState = EmploymentActionStepOperationalState.Empty;
+		if (!CanStoreAccountPayment(context, accountKey, amount, out reason))
+		{
+			return false;
+		}
+
+		if (!TryResolveStoreAccount(context, accountKey, out var shop, out var account, out reason))
+		{
+			return false;
+		}
+
+		if (!TryBuildReservationConsumption(context, amount, out var consumptionPayload, out reason))
+		{
+			return false;
+		}
+
+		if (!TryResolveFinanceHost(context.Employer, amount, out var finance, out reason))
+		{
+			return false;
+		}
+
+		var payment = Math.Min(account.OutstandingBalance, amount.Amount);
+		var reference = TransactionReference(context, $"employment store account payment to {shop.Name}");
+		if (!VirtualCashLedger.Debit(finance.Owner, amount.Currency, payment, actor, account, "StoreAccount",
+			    reference, finance.BankAccount, EmploymentClock.CurrentDateTime(context.Employer), out reason,
+			    finance.Owner, reference))
+		{
+			return false;
+		}
+
+		account.PayoffAccount(payment);
+		var paidAmount = new MoneyAmount(amount.Currency, payment);
+		context.RecordLedger(EmploymentLedgerEntryType.StoreAccountPayment, actor, paidAmount,
+			$"Paid line-of-credit account {account.AccountName} at {shop.Name}: {reference}.",
+			context.CurrentTask?.CorrelationId);
+		context.RecordRegister(EmploymentRegisterEntryType.PaymentAuthorisationUsed, actor,
+			$"Paid {paidAmount.Currency.Describe(paidAmount.Amount, CurrencyDescriptionPatternType.ShortDecimal)} to {shop.Name} account {account.AccountName}.",
+			context.CurrentTask?.CorrelationId);
+		operationalState = new EmploymentActionStepOperationalState(
+			TransactionReference: $"{shop.Name}/{account.AccountName}: {reference}",
+			ReservationReference: consumptionPayload);
+		reason = string.Empty;
+		return true;
+	}
+
+	public static bool CanPayTaxes(EmploymentTaskContext context, MoneyAmount? maximumAmount, out string reason,
+		out MoneyAmount? amount)
+	{
+		amount = null;
+		if (!TryResolveTaxOwing(context, maximumAmount, out amount, out reason))
+		{
+			return false;
+		}
+
+		if (amount.Amount <= 0.0M)
+		{
+			reason = $"{context.Employer.EmploymentHostName} has no supported outstanding taxes to pay.";
+			return false;
+		}
+
+		if (!HasReservedFunds(context, amount, out reason))
+		{
+			return false;
+		}
+
+		return TryResolveFinanceHost(context.Employer, amount, out _, out reason);
+	}
+
+	public static bool TryPayTaxes(EmploymentTaskContext context, ICharacter actor, MoneyAmount? maximumAmount,
+		out string reason, out EmploymentActionStepOperationalState operationalState)
+	{
+		operationalState = EmploymentActionStepOperationalState.Empty;
+		if (!CanPayTaxes(context, maximumAmount, out reason, out var amount) || amount is null)
+		{
+			return false;
+		}
+
+		if (!TryBuildReservationConsumption(context, amount, out var consumptionPayload, out reason))
+		{
+			return false;
+		}
+
+		if (!TryResolveFinanceHost(context.Employer, amount, out var finance, out reason))
+		{
+			return false;
+		}
+
+		var reference = TransactionReference(context, "employment tax payment");
+		if (!VirtualCashLedger.Debit(finance.Owner, amount.Currency, amount.Amount, actor, finance.Owner,
+			    "TaxPayment", reference, finance.BankAccount, EmploymentClock.CurrentDateTime(context.Employer),
+			    out reason, finance.Owner, reference))
+		{
+			return false;
+		}
+
+		switch (context.Employer)
+		{
+			case IShop shop:
+				shop.EconomicZone.PayTaxesForShop(shop, amount.Amount);
+				break;
+			default:
+				reason = $"{context.Employer.EmploymentHostName} does not expose a native supported tax payment adapter.";
+				return false;
+		}
+
+		context.RecordLedger(EmploymentLedgerEntryType.TaxPayment, actor, amount,
+			$"Paid supported host taxes: {reference}.", context.CurrentTask?.CorrelationId);
+		context.RecordRegister(EmploymentRegisterEntryType.PaymentAuthorisationUsed, actor,
+			$"Paid {amount.Currency.Describe(amount.Amount, CurrencyDescriptionPatternType.ShortDecimal)} in supported host taxes.",
+			context.CurrentTask?.CorrelationId);
+		operationalState = new EmploymentActionStepOperationalState(
+			TransactionReference: reference,
+			ReservationReference: consumptionPayload);
+		reason = string.Empty;
+		return true;
+	}
+
+	public static bool CanAdjustShopFloat(EmploymentTaskContext context, MoneyAmount amount, bool fillRegister,
+		EmploymentItemSelector? registerSelector, out string reason)
+	{
+		if (context.Employer is not IPermanentShop shop)
+		{
+			reason = $"{context.Employer.EmploymentHostName} is not a permanent shop with cash registers.";
+			return false;
+		}
+
+		if (shop.Currency.Id != amount.Currency.Id)
+		{
+			reason = $"{shop.Name} uses {shop.Currency.Name}, but this step is for {amount.Currency.Name}.";
+			return false;
+		}
+
+		if (!HasReservedFunds(context, amount, out reason))
+		{
+			return false;
+		}
+
+		if (fillRegister && !TryResolveFinanceHost(context.Employer, amount, out _, out reason))
+		{
+			return false;
+		}
+
+		if (!fillRegister && shop.AvailableCashFromAllSources() < amount.Amount)
+		{
+			reason =
+				$"{shop.Name} has only {shop.Currency.Describe(shop.AvailableCashFromAllSources(), CurrencyDescriptionPatternType.ShortDecimal)} in physical cash to skim.";
+			return false;
+		}
+
+		if (registerSelector is not null && !shop.TillItems.Any(x => ItemThresholdCondition.MatchesSelector(context, x, registerSelector)))
+		{
+			reason = $"{shop.Name} does not have a till matching {EmploymentItemSelectorResolver.Describe(registerSelector)}.";
+			return false;
+		}
+
+		reason = string.Empty;
+		return true;
+	}
+
+	public static bool TryAdjustShopFloat(EmploymentTaskContext context, ICharacter actor, MoneyAmount amount,
+		bool fillRegister, EmploymentItemSelector? registerSelector, out string reason,
+		out EmploymentActionStepOperationalState operationalState)
+	{
+		operationalState = EmploymentActionStepOperationalState.Empty;
+		if (!CanAdjustShopFloat(context, amount, fillRegister, registerSelector, out reason))
+		{
+			return false;
+		}
+
+		var shop = (IPermanentShop)context.Employer;
+		if (!TryBuildReservationConsumption(context, amount, out var consumptionPayload, out reason))
+		{
+			return false;
+		}
+
+		var reference = TransactionReference(context, fillRegister ? "employment cash float fill" : "employment cash float skim");
+		if (fillRegister)
+		{
+			if (!TryResolveFinanceHost(context.Employer, amount, out var finance, out reason))
+			{
+				return false;
+			}
+
+			if (!VirtualCashLedger.Debit(finance.Owner, amount.Currency, amount.Amount, actor, shop, "CashFloat",
+				    reference, finance.BankAccount, EmploymentClock.CurrentDateTime(context.Employer), out reason,
+				    finance.Owner, reference))
+			{
+				return false;
+			}
+
+			shop.AddCurrencyToShop(CurrencyGameItemComponentProto.CreateNewCurrencyPile(amount.Currency,
+				amount.Currency.FindCoinsForAmount(amount.Amount, out _)));
+		}
+		else
+		{
+			shop.TakeCashFromAllSources(amount.Amount, reference);
+			VirtualCashLedger.Credit(shop, amount.Currency, amount.Amount, actor, shop, "CashFloat",
+				reference, EmploymentClock.CurrentDateTime(context.Employer), shop, reference);
+		}
+
+		context.RecordLedger(fillRegister ? EmploymentLedgerEntryType.BankWithdrawal : EmploymentLedgerEntryType.BankDeposit,
+			actor, amount, $"{(fillRegister ? "Filled" : "Skimmed")} shop register float: {reference}.",
+			context.CurrentTask?.CorrelationId);
+		context.RecordRegister(EmploymentRegisterEntryType.PaymentAuthorisationUsed, actor,
+			$"{(fillRegister ? "Filled" : "Skimmed")} {amount.Currency.Describe(amount.Amount, CurrencyDescriptionPatternType.ShortDecimal)} of shop register float.",
+			context.CurrentTask?.CorrelationId);
+		operationalState = new EmploymentActionStepOperationalState(
+			TransactionReference: reference,
+			ReservationReference: consumptionPayload);
+		reason = string.Empty;
+		return true;
+	}
+
+	public static bool TryGetTaxOwing(EmploymentTaskContext context, out MoneyAmount amount, out string reason)
+	{
+		return TryResolveTaxOwing(context, null, out amount, out reason);
+	}
+
 	public static bool CanBankDeposit(EmploymentTaskContext context, MoneyAmount amount, out string reason)
 	{
 		if (!TryResolveBankFinanceHost(context, amount, out var finance, out reason))
@@ -318,6 +704,112 @@ internal static class EmploymentFinanceService
 				return true;
 			default:
 				reason = $"There is no supported employment finance balance named {accountKey}.";
+				return false;
+		}
+	}
+
+	private static bool TryResolvePurchaseTarget(EmploymentTaskContext context, ICharacter? actor,
+		PurchaseActionStep purchase, out PurchaseTarget target, out string reason)
+	{
+		target = null!;
+		var gameworld = (context.Employer as IHaveFuturemud)?.Gameworld ?? actor?.Gameworld;
+		if (gameworld is null)
+		{
+			reason = "There is no gameworld available to resolve supplier shops.";
+			return false;
+		}
+
+		var supplierSelector = purchase.SupplierSelector ?? "any";
+		var suppliers = supplierSelector.EqualTo("any")
+			? gameworld.Shops.ToList()
+			: gameworld.Shops.GetByIdOrName(supplierSelector) is { } supplier ? [supplier] : [];
+		foreach (var shop in suppliers)
+		{
+			var merchandise = long.TryParse(purchase.MerchandiseSelector, out var id)
+				? shop.Merchandises.FirstOrDefault(x => x.Id == id)
+				: shop.Merchandises.FirstOrDefault(x => x.Name.EqualTo(purchase.MerchandiseSelector!)) ??
+				  shop.Merchandises.FirstOrDefault(x =>
+					  x.Name.StartsWith(purchase.MerchandiseSelector!, StringComparison.InvariantCultureIgnoreCase));
+			if (merchandise is null)
+			{
+				continue;
+			}
+
+			var quantity = purchase.Quantity ?? 1;
+			if (shop.StockedItems(merchandise).Sum(x => x.Quantity) < quantity)
+			{
+				continue;
+			}
+
+			target = new PurchaseTarget(shop, merchandise, shop.PriceForMerchandise(actor, merchandise, quantity));
+			reason = string.Empty;
+			return true;
+		}
+
+		reason = supplierSelector.EqualTo("any")
+			? $"No shop has stocked merchandise matching {purchase.MerchandiseSelector}."
+			: $"No supplier shop matching {supplierSelector} has merchandise {purchase.MerchandiseSelector}.";
+		return false;
+	}
+
+	private static bool TryResolveStoreAccount(EmploymentTaskContext context, string accountKey, out IShop shop,
+		out ILineOfCreditAccount account, out string reason)
+	{
+		shop = null!;
+		account = null!;
+		var gameworld = (context.Employer as IHaveFuturemud)?.Gameworld;
+		if (gameworld is null)
+		{
+			reason = "There is no gameworld available to resolve shop accounts.";
+			return false;
+		}
+
+		if (ShopAccountOwingCondition.TryParseKey(accountKey, out var shopId, out var accountId))
+		{
+			var resolvedShop = gameworld.Shops.Get(shopId);
+			if (resolvedShop is not null)
+			{
+				shop = resolvedShop;
+				account = resolvedShop.LineOfCreditAccounts.FirstOrDefault(x => x.Id == accountId)!;
+			}
+		}
+		else
+		{
+			var match = gameworld.Shops
+			                     .SelectMany(x => x.LineOfCreditAccounts.Select(y => (Shop: x, Account: y)))
+			                     .FirstOrDefault(x =>
+				                     x.Account.Id.ToString("F0").EqualTo(accountKey) ||
+				                     x.Account.AccountName.EqualTo(accountKey) ||
+				                     x.Account.AccountName.StartsWith(accountKey,
+					                     StringComparison.InvariantCultureIgnoreCase));
+			shop = match.Shop;
+			account = match.Account;
+		}
+
+		if (shop is null || account is null)
+		{
+			reason = $"There is no shop line-of-credit account matching {accountKey}.";
+			return false;
+		}
+
+		reason = string.Empty;
+		return true;
+	}
+
+	private static bool TryResolveTaxOwing(EmploymentTaskContext context, MoneyAmount? maximumAmount,
+		out MoneyAmount amount, out string reason)
+	{
+		amount = null!;
+		switch (context.Employer)
+		{
+			case IShop shop:
+				var owing = shop.EconomicZone.OutstandingTaxesForShop(shop);
+				var payable = maximumAmount is null ? owing : Math.Min(owing, maximumAmount.Amount);
+				amount = new MoneyAmount(shop.Currency, payable);
+				reason = string.Empty;
+				return true;
+			default:
+				reason = $"{context.Employer.EmploymentHostName} does not expose a native supported tax owing adapter.";
 				return false;
 		}
 	}

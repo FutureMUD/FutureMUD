@@ -97,6 +97,12 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 	private sealed record CataloguedActionShellPayload(string ActionKey, string Description, long? TargetLocationId,
 		long? AmountCurrencyId = null, decimal? Amount = null);
 
+	private sealed record PurchaseStepPayload(int Quantity, string MerchandiseSelector, string SupplierSelector,
+		long CurrencyId, decimal? MaximumAmount, string? KeywordFilter);
+
+	private sealed record ShopFloatAdjustmentStepPayload(bool FillRegister, long CurrencyId, decimal Amount,
+		ItemSelectorPayload? RegisterSelector);
+
 	private readonly IEmploymentHost _host;
 	private readonly IFuturemud _gameworld;
 
@@ -1093,6 +1099,8 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 
 		return (EmploymentActionStepType)record.StepType switch
 		{
+			EmploymentActionStepType.Purchase when TryDeserializeActionPayload<PurchaseStepPayload>(record.BoardText) is { } purchasePayload =>
+				ToPurchaseStep(purchasePayload, record.ExistingFinancialRecord),
 			EmploymentActionStepType.Purchase when amount is not null =>
 				new PurchaseActionStep(record.Description ?? "purchase", amount, record.ExistingFinancialRecord),
 			EmploymentActionStepType.MoveOrDeliver =>
@@ -1127,8 +1135,40 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 				ToVehicleOperationStep(record),
 			EmploymentActionStepType.CataloguedShell =>
 				ToCataloguedShellStep(record, destination),
+			EmploymentActionStepType.TaxPayment =>
+				new TaxPaymentActionStep(amount),
+			EmploymentActionStepType.ShopFloatAdjustment =>
+				ToShopFloatAdjustmentStep(record),
 			_ => null
 		};
+	}
+
+	private PurchaseActionStep? ToPurchaseStep(PurchaseStepPayload payload, string? existingFinancialRecord)
+	{
+		var currency = _gameworld.Currencies.Get(payload.CurrencyId);
+		if (currency is null)
+		{
+			return null;
+		}
+
+		var maximum = payload.MaximumAmount.HasValue ? new MoneyAmount(currency, payload.MaximumAmount.Value) : null;
+		return new PurchaseActionStep(payload.Quantity, payload.MerchandiseSelector, payload.SupplierSelector,
+			currency, maximum, payload.KeywordFilter, existingFinancialRecord);
+	}
+
+	private ShopFloatAdjustmentActionStep? ToShopFloatAdjustmentStep(DbActionStep record)
+	{
+		var payload = TryDeserializeActionPayload<ShopFloatAdjustmentStepPayload>(record.BoardText);
+		var amount = payload is null
+			? ToMoney(record.AmountCurrencyId, record.Amount)
+			: ToMoney(payload.CurrencyId, payload.Amount);
+		if (amount is null)
+		{
+			return null;
+		}
+
+		return new ShopFloatAdjustmentActionStep(payload?.FillRegister ?? true, amount,
+			ToItemSelector(payload?.RegisterSelector));
 	}
 
 	private GetItemsByIdActionStep? ToGetItemsByIdStep(DbActionStep record)
@@ -1355,6 +1395,16 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 				record.AmountCurrencyId = purchase.Amount.Currency.Id;
 				record.Amount = purchase.Amount.Amount;
 				record.ExistingFinancialRecord = purchase.ExistingFinancialRecord;
+				if (purchase.IsExecutablePurchase)
+				{
+					record.BoardText = SerializeActionPayload(new PurchaseStepPayload(
+						purchase.Quantity!.Value,
+						purchase.MerchandiseSelector!,
+						purchase.SupplierSelector ?? "any",
+						purchase.Amount.Currency.Id,
+						purchase.MaximumAmount?.Amount,
+						purchase.KeywordFilter));
+				}
 				break;
 			case MovementDeliveryActionStep delivery:
 				record.Description = delivery.DeliveryDescription;
@@ -1472,6 +1522,21 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 					shell.TargetLocation?.Id,
 					shell.Amount?.Currency.Id,
 					shell.Amount?.Amount));
+				break;
+			case TaxPaymentActionStep tax:
+				record.Description = "pay supported host taxes";
+				record.AmountCurrencyId = tax.MaximumAmount?.Currency.Id;
+				record.Amount = tax.MaximumAmount?.Amount;
+				break;
+			case ShopFloatAdjustmentActionStep shopFloat:
+				record.Description = shopFloat.FillRegister ? "fill shop float" : "skim shop float";
+				record.AmountCurrencyId = shopFloat.Amount.Currency.Id;
+				record.Amount = shopFloat.Amount.Amount;
+				record.BoardText = SerializeActionPayload(new ShopFloatAdjustmentStepPayload(
+					shopFloat.FillRegister,
+					shopFloat.Amount.Currency.Id,
+					shopFloat.Amount.Amount,
+					FromItemSelector(shopFloat.RegisterSelector)));
 				break;
 		}
 
@@ -1595,6 +1660,8 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 					record.BoolValue ?? true),
 			EmploymentTaskConditionType.WeatherLevel =>
 				new WeatherLevelCondition(record.Key ?? string.Empty),
+			EmploymentTaskConditionType.TaxOwing =>
+				new TaxOwingCondition(record.ThresholdDecimal ?? 0.0M, record.BoolValue ?? true),
 			_ => null
 		};
 	}
@@ -1657,6 +1724,10 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 				break;
 			case WeatherLevelCondition weather:
 				record.Key = weather.WeatherKey;
+				break;
+			case TaxOwingCondition tax:
+				record.ThresholdDecimal = tax.Threshold;
+				record.BoolValue = tax.AboveThreshold;
 				break;
 		}
 

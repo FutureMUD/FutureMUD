@@ -175,6 +175,36 @@ return 42");
 	}
 
 	[TestMethod]
+	public void ComputerProgramExecutor_RejectsForLoopAboveBudget()
+	{
+		var program = CompileProgram(
+			"ExpensiveForLoop",
+			@"for (i : 10001)
+end for
+return 1");
+
+		var outcome = ComputerProgramExecutor.Execute(program, Array.Empty<object?>());
+
+		Assert.AreEqual(ComputerProcessStatus.Failed, outcome.Status);
+		StringAssert.Contains(outcome.Error, "For loop of greater than 10,000 iterations");
+	}
+
+	[TestMethod]
+	public void ComputerProgramExecutor_RejectsForLoopOverflowWithoutThrowing()
+	{
+		var program = CompileProgram(
+			"OverflowForLoop",
+			@"for (i : 2147483648)
+end for
+return 1");
+
+		var outcome = ComputerProgramExecutor.Execute(program, Array.Empty<object?>());
+
+		Assert.AreEqual(ComputerProcessStatus.Failed, outcome.Status);
+		StringAssert.Contains(outcome.Error, "For loop of greater than 10,000 iterations");
+	}
+
+	[TestMethod]
 	public void ComputerProgramExecutor_SuspendsAndResumesProgramWithSleep()
 	{
 		var program = CompileProgram(

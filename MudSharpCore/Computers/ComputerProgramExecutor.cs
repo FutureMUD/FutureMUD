@@ -392,8 +392,16 @@ internal static class ComputerProgramExecutor
 								return Failure(forLoop.RepetitionsExpression.ErrorMessage);
 							}
 
-							forFrame.TotalIterations =
-								Convert.ToInt32((decimal?)forLoop.RepetitionsExpression.Result?.GetObject ?? 0.0M);
+							if (!ForLoop.TryGetIterationCount(
+								(decimal?)forLoop.RepetitionsExpression.Result?.GetObject ?? 0.0M,
+								forLoop.MaximumIterations,
+								out var totalIterations,
+								out var errorMessage))
+							{
+								return Failure(errorMessage);
+							}
+
+							forFrame.TotalIterations = totalIterations;
 						}
 
 						if (forFrame.TotalIterations <= 0 || forFrame.CurrentIndex > forFrame.TotalIterations)

@@ -2,10 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using MudSharp.Arenas;
 using MudSharp.Character;
 using MudSharp.Economy;
 using MudSharp.Economy.Currency;
 using MudSharp.Framework;
+using MudSharp.GameItems;
 using MudSharp.GameItems.Components;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Prototypes;
@@ -30,7 +32,8 @@ internal static class EmploymentFinanceService
 		decimal Amount,
 		string Description);
 
-	private sealed record PurchaseTarget(IShop Shop, IMerchandise Merchandise, decimal Price);
+	private sealed record PurchaseTarget(IShop Shop, IMerchandise Merchandise, decimal Price, int Quantity,
+		string? KeywordFilter, IReadOnlyList<IGameItem> ExactStockItems);
 
 	private sealed class EmploymentFundsPayment : IPaymentMethod
 	{
@@ -54,13 +57,12 @@ internal static class EmploymentFinanceService
 
 		public decimal AccessibleMoneyForPayment()
 		{
-			return VirtualCashLedger.AvailableFunds(_finance.Owner, _finance.Currency, _finance.BankAccount);
+			return AvailableFundsWithoutReservations(_finance);
 		}
 
 		public void TakePayment(decimal price)
 		{
-			VirtualCashLedger.Debit(_finance.Owner, _finance.Currency, price, _actor, _counterparty,
-				"ShopPurchase", _reference, _finance.BankAccount, _mudDateTime, out _, _finance.Owner, _reference);
+			DebitAvailable(_finance, price, _actor, _counterparty, "ShopPurchase", _reference, _mudDateTime, out _);
 		}
 
 		public decimal AccessibleMoneyForCredit()
@@ -70,8 +72,7 @@ internal static class EmploymentFinanceService
 
 		public void GivePayment(decimal price)
 		{
-			VirtualCashLedger.Credit(_finance.Owner, _finance.Currency, price, _actor, _counterparty,
-				"ShopPurchaseRefund", _reference, _mudDateTime, _finance.Owner, _reference);
+			CreditVirtual(_finance, price, _actor, _counterparty, "ShopPurchaseRefund", _reference, _mudDateTime);
 		}
 	}
 
@@ -224,9 +225,8 @@ internal static class EmploymentFinanceService
 
 		var reference = TransactionReference(context, "employment bank deposit");
 		var account = finance.BankAccount!;
-		if (!VirtualCashLedger.Debit(finance.Owner, amount.Currency, amount.Amount, actor, finance.BankAccount,
-			    "Bank", reference, null, EmploymentClock.CurrentDateTime(context.Employer), out reason,
-			    finance.Owner, reference))
+		if (!DebitVirtual(finance, amount.Amount, actor, finance.BankAccount, "Bank", reference,
+			    EmploymentClock.CurrentDateTime(context.Employer), out reason))
 		{
 			return false;
 		}
@@ -271,8 +271,8 @@ internal static class EmploymentFinanceService
 		account.WithdrawFromTransaction(amount.Amount, reference);
 		account.Bank.CurrencyReserves[amount.Currency] -= amount.Amount;
 		account.Bank.Changed = true;
-		VirtualCashLedger.Credit(finance.Owner, amount.Currency, amount.Amount, actor, account,
-			"Bank", reference, EmploymentClock.CurrentDateTime(context.Employer), finance.Owner, reference);
+		CreditVirtual(finance, amount.Amount, actor, account, "Bank", reference,
+			EmploymentClock.CurrentDateTime(context.Employer));
 		context.RecordLedger(EmploymentLedgerEntryType.BankWithdrawal, actor, amount,
 			$"Withdrew employer bank funds from linked bank account {account.AccountReference} into virtual cash: {reference}.",
 			context.CurrentTask?.CorrelationId);
@@ -356,16 +356,18 @@ internal static class EmploymentFinanceService
 		var reference = TransactionReference(context, $"employment purchase at {target.Shop.Name}");
 		var payment = new EmploymentFundsPayment(finance, actor, target.Shop, reference,
 			EmploymentClock.CurrentDateTime(context.Employer));
-		var canBuy = target.Shop.CanBuy(actor, target.Merchandise, purchase.Quantity!.Value, payment,
-			purchase.KeywordFilter);
+		var canBuy = target.ExactStockItems.Any()
+			? target.Shop.CanBuyExact(actor, target.Merchandise, target.Quantity, payment, target.ExactStockItems)
+			: target.Shop.CanBuy(actor, target.Merchandise, target.Quantity, payment, target.KeywordFilter);
 		if (!canBuy.Truth)
 		{
 			reason = canBuy.Reason;
 			return false;
 		}
 
-		var items = target.Shop.Buy(actor, target.Merchandise, purchase.Quantity.Value, payment,
-			purchase.KeywordFilter).ToList();
+		var items = target.ExactStockItems.Any()
+			? target.Shop.BuyExact(actor, target.Merchandise, target.Quantity, payment, target.ExactStockItems).ToList()
+			: target.Shop.Buy(actor, target.Merchandise, target.Quantity, payment, target.KeywordFilter).ToList();
 		context.RecordLedger(EmploymentLedgerEntryType.Purchase, actor, amount,
 			$"Purchased {items.Count:N0} item(s) from {target.Shop.Name}: {reference}.",
 			context.CurrentTask?.CorrelationId);
@@ -428,9 +430,8 @@ internal static class EmploymentFinanceService
 
 		var payment = Math.Min(account.OutstandingBalance, amount.Amount);
 		var reference = TransactionReference(context, $"employment store account payment to {shop.Name}");
-		if (!VirtualCashLedger.Debit(finance.Owner, amount.Currency, payment, actor, account, "StoreAccount",
-			    reference, finance.BankAccount, EmploymentClock.CurrentDateTime(context.Employer), out reason,
-			    finance.Owner, reference))
+		if (!DebitAvailable(finance, payment, actor, account, "StoreAccount", reference,
+			    EmploymentClock.CurrentDateTime(context.Employer), out reason))
 		{
 			return false;
 		}
@@ -493,9 +494,8 @@ internal static class EmploymentFinanceService
 		}
 
 		var reference = TransactionReference(context, "employment tax payment");
-		if (!VirtualCashLedger.Debit(finance.Owner, amount.Currency, amount.Amount, actor, finance.Owner,
-			    "TaxPayment", reference, finance.BankAccount, EmploymentClock.CurrentDateTime(context.Employer),
-			    out reason, finance.Owner, reference))
+		if (!DebitAvailable(finance, amount.Amount, actor, finance.Owner, "TaxPayment", reference,
+			    EmploymentClock.CurrentDateTime(context.Employer), out reason))
 		{
 			return false;
 		}
@@ -504,6 +504,11 @@ internal static class EmploymentFinanceService
 		{
 			case IShop shop:
 				shop.EconomicZone.PayTaxesForShop(shop, amount.Amount);
+				break;
+			case IHotel hotel:
+				hotel.Property.HotelOutstandingTaxes = Math.Max(0.0M,
+					hotel.Property.HotelOutstandingTaxes - amount.Amount);
+				hotel.Property.Changed = true;
 				break;
 			default:
 				reason = $"{context.Employer.EmploymentHostName} does not expose a native supported tax payment adapter.";
@@ -588,9 +593,8 @@ internal static class EmploymentFinanceService
 				return false;
 			}
 
-			if (!VirtualCashLedger.Debit(finance.Owner, amount.Currency, amount.Amount, actor, shop, "CashFloat",
-				    reference, finance.BankAccount, EmploymentClock.CurrentDateTime(context.Employer), out reason,
-				    finance.Owner, reference))
+			if (!DebitAvailable(finance, amount.Amount, actor, shop, "CashFloat", reference,
+				    EmploymentClock.CurrentDateTime(context.Employer), out reason))
 			{
 				return false;
 			}
@@ -600,9 +604,14 @@ internal static class EmploymentFinanceService
 		}
 		else
 		{
+			if (!TryResolveFinanceHost(context.Employer, amount, out var finance, out reason))
+			{
+				return false;
+			}
+
 			shop.TakeCashFromAllSources(amount.Amount, reference);
-			VirtualCashLedger.Credit(shop, amount.Currency, amount.Amount, actor, shop, "CashFloat",
-				reference, EmploymentClock.CurrentDateTime(context.Employer), shop, reference);
+			CreditVirtual(finance, amount.Amount, actor, shop, "CashFloat", reference,
+				EmploymentClock.CurrentDateTime(context.Employer));
 		}
 
 		context.RecordLedger(fillRegister ? EmploymentLedgerEntryType.BankWithdrawal : EmploymentLedgerEntryType.BankDeposit,
@@ -616,6 +625,392 @@ internal static class EmploymentFinanceService
 			ReservationReference: consumptionPayload);
 		reason = string.Empty;
 		return true;
+	}
+
+	public static bool CanHandlePhysicalFloat(EmploymentTaskContext context, PhysicalFloatOperation operation,
+		MoneyAmount? amount, string targetKind, EmploymentItemSelector? targetSelector, out string reason)
+	{
+		targetKind = NormalisePhysicalFloatTarget(targetKind);
+		if (operation == PhysicalFloatOperation.Issue && amount is null)
+		{
+			reason = "Issuing physical employment float requires an amount.";
+			return false;
+		}
+
+		if (operation == PhysicalFloatOperation.Issue && amount is not null &&
+		    !HasReservedFunds(context, amount, out reason))
+		{
+			return false;
+		}
+
+		if (!TryResolveFinanceHost(context.Employer, amount, out var finance, out reason))
+		{
+			return false;
+		}
+
+		switch (operation)
+		{
+			case PhysicalFloatOperation.Issue:
+				if (targetKind.EqualTo("register"))
+				{
+					if (context.Employer is not IPermanentShop shop)
+					{
+						reason = $"{context.Employer.EmploymentHostName} is not a permanent shop with cash registers.";
+						return false;
+					}
+
+					if (shop.AvailableCashFromAllSources() < amount!.Amount)
+					{
+						reason =
+							$"{shop.Name} only has {shop.Currency.Describe(shop.AvailableCashFromAllSources(), CurrencyDescriptionPatternType.ShortDecimal)} in shop cash registers.";
+						return false;
+					}
+				}
+				else if (amount is not null && AvailableFunds(context, finance, amount.Currency) < amount.Amount)
+				{
+					reason = $"{context.Employer.EmploymentHostName} does not have enough available employer funds to issue the physical float.";
+					return false;
+				}
+
+				reason = string.Empty;
+				return true;
+			case PhysicalFloatOperation.Return:
+				if (targetKind.EqualTo("bank"))
+				{
+					return TryResolveBankFinanceHost(context, amount ?? new MoneyAmount(finance.Currency, 0.01M),
+						out _, out reason);
+				}
+
+				if (targetKind.EqualTo("register") && context.Employer is not IPermanentShop)
+				{
+					reason = $"{context.Employer.EmploymentHostName} is not a permanent shop with cash registers.";
+					return false;
+				}
+
+				if (targetKind.EqualTo("container") && targetSelector is null)
+				{
+					reason = "Returning physical float to a container requires a container selector.";
+					return false;
+				}
+
+				if (targetKind.EqualTo("container") && amount is not null)
+				{
+					reason = "Returning physical float to a container currently moves whole carried currency piles; use all rather than a partial amount.";
+					return false;
+				}
+
+				reason = string.Empty;
+				return true;
+			case PhysicalFloatOperation.Settle:
+				reason = string.Empty;
+				return true;
+			default:
+				reason = $"Unsupported physical float operation {operation.DescribeEnum()}.";
+				return false;
+		}
+	}
+
+	public static bool TryHandlePhysicalFloat(EmploymentTaskContext context, ICharacter actor,
+		PhysicalFloatOperation operation, MoneyAmount? amount, string targetKind, EmploymentItemSelector? targetSelector,
+		out string reason, out EmploymentActionStepOperationalState operationalState)
+	{
+		operationalState = EmploymentActionStepOperationalState.Empty;
+		targetKind = NormalisePhysicalFloatTarget(targetKind);
+		if (!CanHandlePhysicalFloat(context, operation, amount, targetKind, targetSelector, out reason))
+		{
+			return false;
+		}
+
+		return operation switch
+		{
+			PhysicalFloatOperation.Issue when amount is not null =>
+				TryIssuePhysicalFloat(context, actor, amount, targetKind, out reason, out operationalState),
+			PhysicalFloatOperation.Return =>
+				TryReturnPhysicalFloat(context, actor, amount, targetKind, targetSelector, out reason,
+					out operationalState),
+			PhysicalFloatOperation.Settle =>
+				TrySettlePhysicalFloat(context, actor, amount, out reason, out operationalState),
+			_ => UnsupportedPhysicalFloat(operation, out reason, out operationalState)
+		};
+	}
+
+	private static bool TryIssuePhysicalFloat(EmploymentTaskContext context, ICharacter actor, MoneyAmount amount,
+		string sourceKind, out string reason, out EmploymentActionStepOperationalState operationalState)
+	{
+		operationalState = EmploymentActionStepOperationalState.Empty;
+		if (!TryBuildReservationConsumption(context, amount, out var consumptionPayload, out reason))
+		{
+			return false;
+		}
+
+		var reference = TransactionReference(context, $"employment physical float issue from {sourceKind}");
+		if (sourceKind.EqualTo("register"))
+		{
+			if (context.Employer is not IPermanentShop shop)
+			{
+				reason = $"{context.Employer.EmploymentHostName} is not a permanent shop with cash registers.";
+				return false;
+			}
+
+			shop.TakeCashFromAllSources(amount.Amount, reference);
+		}
+		else
+		{
+			if (!TryResolveFinanceHost(context.Employer, amount, out var finance, out reason))
+			{
+				return false;
+			}
+
+			if (!DebitAvailable(finance, amount.Amount, actor, finance.Owner, "PhysicalFloat", reference,
+				    EmploymentClock.CurrentDateTime(context.Employer), out reason))
+			{
+				return false;
+			}
+		}
+
+		var pile = CurrencyGameItemComponentProto.CreateNewCurrencyPile(amount.Currency,
+			amount.Currency.FindCoinsForAmount(amount.Amount, out _));
+		pile.RoomLayer = actor.RoomLayer;
+		actor.Location.Insert(pile, true);
+		if (!context.TryCollectTaskItem(actor, pile, actor.Location, out reason))
+		{
+			pile.Delete();
+			return false;
+		}
+
+		context.RecordLedger(EmploymentLedgerEntryType.BankWithdrawal, actor, amount,
+			$"Issued physical employment float from {sourceKind}: {reference}.",
+			context.CurrentTask?.CorrelationId);
+		context.RecordRegister(EmploymentRegisterEntryType.PaymentAuthorisationUsed, actor,
+			$"Issued {amount.Currency.Describe(amount.Amount, CurrencyDescriptionPatternType.ShortDecimal)} as physical employment float from {sourceKind}.",
+			context.CurrentTask?.CorrelationId);
+		operationalState = new EmploymentActionStepOperationalState(
+			TransactionReference: reference,
+			SelectedResources: EmploymentTaskContext.FormatTaskItemCustody("collect", actor.Id, [pile]),
+			ReservationReference: consumptionPayload);
+		reason = string.Empty;
+		return true;
+	}
+
+	private static bool TryReturnPhysicalFloat(EmploymentTaskContext context, ICharacter actor, MoneyAmount? amount,
+		string targetKind, EmploymentItemSelector? targetSelector, out string reason,
+		out EmploymentActionStepOperationalState operationalState)
+	{
+		operationalState = EmploymentActionStepOperationalState.Empty;
+		if (!TryFindCarriedCurrency(context, actor, amount, out var currency, out var selectedCoins, out var total,
+			    out reason))
+		{
+			return false;
+		}
+
+		var reference = TransactionReference(context, $"employment physical float return to {targetKind}");
+		if (targetKind.EqualTo("container"))
+		{
+			if (targetSelector is null)
+			{
+				reason = "Returning physical float to a container requires a container selector.";
+				return false;
+			}
+
+			var container = EmploymentItemSelectorResolver.Resolve(context, actor, targetSelector, actor.Location, true);
+			if (container is null)
+			{
+				reason = $"There is no container matching {EmploymentItemSelectorResolver.Describe(targetSelector)} here.";
+				return false;
+			}
+
+			var piles = selectedCoins.Keys.Select(x => x.Parent).DistinctBy(x => x.Id).ToList();
+			if (!EmploymentInventoryPlanLogistics.TryPutItemsIntoContainer(actor, piles, container, out var placedItems,
+				    out reason))
+			{
+				return false;
+			}
+
+			operationalState = new EmploymentActionStepOperationalState(
+				TransactionReference: reference,
+				SelectedResources: EmploymentTaskContext.FormatTaskItemCustody("deliver", actor.Id, placedItems));
+			reason = string.Empty;
+			return true;
+		}
+
+		RemoveHeldCoins(actor, selectedCoins);
+		var money = new MoneyAmount(currency, total);
+		if (targetKind.EqualTo("bank"))
+		{
+			if (!TryResolveBankFinanceHost(context, money, out var finance, out reason))
+			{
+				return false;
+			}
+
+			var account = finance.BankAccount!;
+			account.DepositFromTransaction(total, reference);
+			account.Bank.CurrencyReserves[currency] += total;
+			account.Bank.Changed = true;
+		}
+		else if (targetKind.EqualTo("register"))
+		{
+			if (context.Employer is not IPermanentShop shop)
+			{
+				reason = $"{context.Employer.EmploymentHostName} is not a permanent shop with cash registers.";
+				return false;
+			}
+
+			shop.AddCurrencyToShop(CurrencyGameItemComponentProto.CreateNewCurrencyPile(currency,
+				currency.FindCoinsForAmount(total, out _)));
+		}
+		else
+		{
+			if (!TryResolveFinanceHost(context.Employer, money, out var finance, out reason))
+			{
+				return false;
+			}
+
+			CreditVirtual(finance, total, actor, finance.Owner, "PhysicalFloat", reference,
+				EmploymentClock.CurrentDateTime(context.Employer));
+		}
+
+		context.RecordLedger(EmploymentLedgerEntryType.BankDeposit, actor, money,
+			$"Returned physical employment float to {targetKind}: {reference}.", context.CurrentTask?.CorrelationId);
+		context.RecordRegister(EmploymentRegisterEntryType.PaymentAuthorisationUsed, actor,
+			$"Returned {currency.Describe(total, CurrencyDescriptionPatternType.ShortDecimal)} of physical employment float to {targetKind}.",
+			context.CurrentTask?.CorrelationId);
+		operationalState = new EmploymentActionStepOperationalState(
+			TransactionReference: reference,
+			SelectedResources: $"Returned physical float {currency.Describe(total, CurrencyDescriptionPatternType.ShortDecimal)} to {targetKind}.");
+		reason = string.Empty;
+		return true;
+	}
+
+	private static bool TrySettlePhysicalFloat(EmploymentTaskContext context, ICharacter actor, MoneyAmount? amount,
+		out string reason, out EmploymentActionStepOperationalState operationalState)
+	{
+		operationalState = EmploymentActionStepOperationalState.Empty;
+		if (!TryFindCarriedCurrency(context, actor, amount, out var currency, out var selectedCoins, out var total,
+			    out reason))
+		{
+			return false;
+		}
+
+		var money = new MoneyAmount(currency, total);
+		if (!TryResolveFinanceHost(context.Employer, money, out var finance, out reason))
+		{
+			return false;
+		}
+
+		var reference = TransactionReference(context, "employment physical float settlement");
+		RemoveHeldCoins(actor, selectedCoins);
+		CreditVirtual(finance, total, actor, finance.Owner, "PhysicalFloat", reference,
+			EmploymentClock.CurrentDateTime(context.Employer));
+		context.RecordLedger(EmploymentLedgerEntryType.BankDeposit, actor, money,
+			$"Settled physical employment float back to employer virtual cash: {reference}.",
+			context.CurrentTask?.CorrelationId);
+		context.RecordRegister(EmploymentRegisterEntryType.PaymentAuthorisationUsed, actor,
+			$"Settled {currency.Describe(total, CurrencyDescriptionPatternType.ShortDecimal)} of physical employment float back to employer virtual cash.",
+			context.CurrentTask?.CorrelationId);
+		operationalState = new EmploymentActionStepOperationalState(
+			TransactionReference: reference,
+			SelectedResources: $"Settled physical float {currency.Describe(total, CurrencyDescriptionPatternType.ShortDecimal)}.");
+		reason = string.Empty;
+		return true;
+	}
+
+	private static bool TryFindCarriedCurrency(EmploymentTaskContext context, ICharacter actor, MoneyAmount? amount,
+		out ICurrency currency, out Dictionary<ICurrencyPile, Dictionary<ICoin, int>> selectedCoins,
+		out decimal total, out string reason)
+	{
+		var resolvedCurrency = amount?.Currency ?? ResolveHostCurrency(context);
+		currency = null!;
+		selectedCoins = new Dictionary<ICurrencyPile, Dictionary<ICoin, int>>();
+		total = 0.0M;
+		if (resolvedCurrency is null)
+		{
+			reason = $"Could not determine a currency for {context.Employer.EmploymentHostName}.";
+			return false;
+		}
+
+		if (actor.Body is null)
+		{
+			reason = "The assigned employee does not have a usable body inventory.";
+			return false;
+		}
+
+		currency = resolvedCurrency;
+		var piles = context.CarriedTaskItems(actor)
+		                   .Concat(actor.Body.HeldItems)
+		                   .Where(x => x is not null)
+		                   .Select(x => x.GetItemType<ICurrencyPile>())
+		                   .Where(x => x is not null)
+		                   .Cast<ICurrencyPile>()
+		                   .Where(x => x.Currency.Id == resolvedCurrency.Id)
+		                   .DistinctBy(x => x.Parent.Id)
+		                   .ToList();
+		if (!piles.Any())
+		{
+			reason = "The assigned employee is not carrying any task-custody currency piles.";
+			return false;
+		}
+
+		if (amount is null)
+		{
+			foreach (var pile in piles)
+			{
+				selectedCoins[pile] = pile.Coins.ToDictionary(x => x.Item1, x => x.Item2);
+			}
+
+			total = selectedCoins.TotalValue();
+			reason = string.Empty;
+			return total > 0.0M;
+		}
+
+		selectedCoins = currency.FindCurrency(piles, amount.Amount);
+		total = selectedCoins.TotalValue();
+		if (total < amount.Amount)
+		{
+			reason =
+				$"The assigned employee is carrying only {currency.Describe(total, CurrencyDescriptionPatternType.ShortDecimal)} of task-custody currency, but {currency.Describe(amount.Amount, CurrencyDescriptionPatternType.ShortDecimal)} is required.";
+			return false;
+		}
+
+		reason = string.Empty;
+		return true;
+	}
+
+	private static void RemoveHeldCoins(ICharacter actor,
+		Dictionary<ICurrencyPile, Dictionary<ICoin, int>> selectedCoins)
+	{
+		foreach (var coinItem in selectedCoins)
+		{
+			if (!coinItem.Key.RemoveCoins(coinItem.Value.Select(x => Tuple.Create(x.Key, x.Value))))
+			{
+				actor.Body.Take(coinItem.Key.Parent);
+				coinItem.Key.Parent.Delete();
+			}
+		}
+	}
+
+	private static ICurrency? ResolveHostCurrency(EmploymentTaskContext context)
+	{
+		return TryResolveFinanceHost(context.Employer, null, out var finance, out _) ? finance.Currency : null;
+	}
+
+	private static string NormalisePhysicalFloatTarget(string targetKind)
+	{
+		targetKind = targetKind.CollapseString().ToLowerInvariant();
+		return targetKind switch
+		{
+			"" => "bank",
+			"cashregister" or "till" => "register",
+			"containerselector" => "container",
+			_ => targetKind
+		};
+	}
+
+	private static bool UnsupportedPhysicalFloat(PhysicalFloatOperation operation, out string reason,
+		out EmploymentActionStepOperationalState operationalState)
+	{
+		operationalState = EmploymentActionStepOperationalState.Empty;
+		reason = $"Unsupported physical float operation {operation.DescribeEnum()}.";
+		return false;
 	}
 
 	public static bool TryGetTaxOwing(EmploymentTaskContext context, out MoneyAmount amount, out string reason)
@@ -635,7 +1030,7 @@ internal static class EmploymentFinanceService
 			return false;
 		}
 
-		var virtualBalance = VirtualCashLedger.Balance(finance.Owner, amount.Currency);
+		var virtualBalance = VirtualBalance(finance);
 		if (virtualBalance >= amount.Amount)
 		{
 			reason = string.Empty;
@@ -674,10 +1069,8 @@ internal static class EmploymentFinanceService
 		out string reason)
 	{
 		balance = 0.0M;
-		if (context.Employer is not IShop shop)
+		if (!TryResolveFinanceHost(context.Employer, null, out var finance, out reason))
 		{
-			reason =
-				$"{context.Employer.EmploymentHostName} does not expose a native employment finance adapter yet. This slice supports shop cash, bank, and available balance conditions.";
 			return false;
 		}
 
@@ -686,20 +1079,20 @@ internal static class EmploymentFinanceService
 			case "cash":
 			case "virtualcash":
 			case "hostcash":
-				balance = VirtualCashLedger.Balance(shop, shop.Currency);
+				balance = VirtualBalance(finance);
 				reason = string.Empty;
 				return true;
 			case "bank":
 			case "bankaccount":
-				balance = shop.BankAccount?.Currency.Id == shop.Currency.Id
-					? shop.BankAccount.CurrentBalance
+				balance = finance.BankAccount?.Currency.Id == finance.Currency.Id
+					? finance.BankAccount.CurrentBalance
 					: 0.0M;
 				reason = string.Empty;
 				return true;
 			case "available":
 			case "availablefunds":
 			case "total":
-				balance = AvailableFunds(context, new FinanceHost(shop, shop.Currency, shop.BankAccount), shop.Currency);
+				balance = AvailableFunds(context, finance, finance.Currency);
 				reason = string.Empty;
 				return true;
 			default:
@@ -723,33 +1116,173 @@ internal static class EmploymentFinanceService
 		var suppliers = supplierSelector.EqualTo("any")
 			? gameworld.Shops.ToList()
 			: gameworld.Shops.GetByIdOrName(supplierSelector) is { } supplier ? [supplier] : [];
-		foreach (var shop in suppliers)
+		var candidates = suppliers
+		                 .Where(x => x is not null)
+		                 .Cast<IShop>()
+		                 .Where(shop => actor is null ||
+		                                shop.CurrentLocations.Any(location => context.CanPath(actor, location)))
+		                 .Select(shop => ResolvePurchaseTargetInShop(context, actor, shop, purchase))
+		                 .Where(x => x is not null)
+		                 .Cast<PurchaseTarget>()
+		                 .OrderBy(x => x.Price)
+		                 .ThenBy(x => x.Shop.Name)
+		                 .ToList();
+		if (candidates.Any())
 		{
-			var merchandise = long.TryParse(purchase.MerchandiseSelector, out var id)
-				? shop.Merchandises.FirstOrDefault(x => x.Id == id)
-				: shop.Merchandises.FirstOrDefault(x => x.Name.EqualTo(purchase.MerchandiseSelector!)) ??
-				  shop.Merchandises.FirstOrDefault(x =>
-					  x.Name.StartsWith(purchase.MerchandiseSelector!, StringComparison.InvariantCultureIgnoreCase));
-			if (merchandise is null)
-			{
-				continue;
-			}
-
-			var quantity = purchase.Quantity ?? 1;
-			if (shop.StockedItems(merchandise).Sum(x => x.Quantity) < quantity)
-			{
-				continue;
-			}
-
-			target = new PurchaseTarget(shop, merchandise, shop.PriceForMerchandise(actor, merchandise, quantity));
+			target = candidates.First();
 			reason = string.Empty;
 			return true;
 		}
 
 		reason = supplierSelector.EqualTo("any")
-			? $"No shop has stocked merchandise matching {purchase.MerchandiseSelector}."
-			: $"No supplier shop matching {supplierSelector} has merchandise {purchase.MerchandiseSelector}.";
+			? $"No reachable shop has stock matching {purchase.PurchaseDescription}."
+			: $"No supplier shop matching {supplierSelector} has stock matching {purchase.PurchaseDescription}.";
 		return false;
+	}
+
+	private static PurchaseTarget? ResolvePurchaseTargetInShop(EmploymentTaskContext context, ICharacter? actor,
+		IShop shop, PurchaseActionStep purchase)
+	{
+		return purchase.TargetKind switch
+		{
+			EmploymentPurchaseTargetKind.Item when purchase.ItemSelector is not null =>
+				ResolveItemPurchaseTarget(context, actor, shop, purchase),
+			EmploymentPurchaseTargetKind.Commodity when purchase.CommodityWeight.HasValue &&
+			                                       !string.IsNullOrWhiteSpace(purchase.CommodityDescriptor) =>
+				ResolveCommodityPurchaseTarget(context, actor, shop, purchase),
+			_ => ResolveMerchandisePurchaseTarget(actor, shop, purchase)
+		};
+	}
+
+	private static PurchaseTarget? ResolveMerchandisePurchaseTarget(ICharacter? actor, IShop shop,
+		PurchaseActionStep purchase)
+	{
+		var merchandise = long.TryParse(purchase.MerchandiseSelector, out var id)
+			? shop.Merchandises.FirstOrDefault(x => x.Id == id)
+			: shop.Merchandises.FirstOrDefault(x => x.Name.EqualTo(purchase.MerchandiseSelector!)) ??
+			  shop.Merchandises.FirstOrDefault(x =>
+				  x.Name.StartsWith(purchase.MerchandiseSelector!, StringComparison.InvariantCultureIgnoreCase));
+		if (merchandise is null)
+		{
+			return null;
+		}
+
+		var quantity = purchase.Quantity ?? 1;
+		var stockedItems = shop.StockedItems(merchandise).ToList();
+		if (!string.IsNullOrWhiteSpace(purchase.KeywordFilter))
+		{
+			stockedItems = stockedItems
+			               .Where(x => actor is null || x.HasKeywords(purchase.KeywordFilter.Split('.'), actor, true))
+			               .ToList();
+		}
+
+		if (stockedItems.Sum(x => x.Quantity) < quantity)
+		{
+			return null;
+		}
+
+		return new PurchaseTarget(shop, merchandise, shop.PriceForMerchandise(actor, merchandise, quantity),
+			quantity, purchase.KeywordFilter, []);
+	}
+
+	private static PurchaseTarget? ResolveItemPurchaseTarget(EmploymentTaskContext context, ICharacter? actor,
+		IShop shop, PurchaseActionStep purchase)
+	{
+		foreach (var merchandise in shop.Merchandises)
+		{
+			var matching = shop.StockedItems(merchandise)
+			                   .Where(x => ItemThresholdCondition.MatchesSelector(context, x, purchase.ItemSelector!))
+			                   .ToList();
+			var quantity = purchase.Quantity ?? 1;
+			if (matching.Sum(x => x.Quantity) < quantity)
+			{
+				continue;
+			}
+
+			var exactItems = SelectExactStockItemsForQuantity(matching, quantity);
+			return new PurchaseTarget(shop, merchandise, shop.PriceForMerchandise(actor, merchandise, quantity),
+				quantity, null, exactItems);
+		}
+
+		return null;
+	}
+
+	private static PurchaseTarget? ResolveCommodityPurchaseTarget(EmploymentTaskContext context, ICharacter? actor,
+		IShop shop, PurchaseActionStep purchase)
+	{
+		var descriptor = ParseCommodityDescriptor(purchase.CommodityDescriptor!);
+		foreach (var merchandise in shop.Merchandises)
+		{
+			var selected = new List<IGameItem>();
+			var accumulated = 0.0;
+			foreach (var item in shop.StockedItems(merchandise))
+			{
+				var weight = context.CommodityWeight(item, descriptor.Material, descriptor.Tag, descriptor.Characteristics);
+				if (weight <= 0.0)
+				{
+					continue;
+				}
+
+				selected.Add(item);
+				accumulated += weight;
+				if (accumulated >= purchase.CommodityWeight!.Value)
+				{
+					break;
+				}
+			}
+
+			if (accumulated < purchase.CommodityWeight!.Value)
+			{
+				continue;
+			}
+
+			var quantity = Math.Max(1, selected.Count);
+			return new PurchaseTarget(shop, merchandise, shop.PriceForMerchandise(actor, merchandise, quantity),
+				quantity, null, selected);
+		}
+
+		return null;
+	}
+
+	private static IReadOnlyList<IGameItem> SelectExactStockItemsForQuantity(IEnumerable<IGameItem> items, int quantity)
+	{
+		var selected = new List<IGameItem>();
+		var remaining = quantity;
+		foreach (var item in items)
+		{
+			selected.Add(item);
+			remaining -= item.Quantity;
+			if (remaining <= 0)
+			{
+				break;
+			}
+		}
+
+		return selected;
+	}
+
+	private sealed record CommodityDescriptor(string Material, string? Tag,
+		IReadOnlyDictionary<string, string> Characteristics);
+
+	private static CommodityDescriptor ParseCommodityDescriptor(string descriptor)
+	{
+		var parts = descriptor.Split('|', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+		var material = parts.FirstOrDefault() ?? descriptor;
+		string? tag = null;
+		var characteristics = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
+		foreach (var part in parts.Skip(1))
+		{
+			var index = part.IndexOf('=');
+			if (index > 0 && index < part.Length - 1)
+			{
+				characteristics[part[..index]] = part[(index + 1)..];
+				continue;
+			}
+
+			tag ??= part;
+		}
+
+		return new CommodityDescriptor(material, tag, characteristics);
 	}
 
 	private static bool TryResolveStoreAccount(EmploymentTaskContext context, string accountKey, out IShop shop,
@@ -808,6 +1341,12 @@ internal static class EmploymentFinanceService
 				amount = new MoneyAmount(shop.Currency, payable);
 				reason = string.Empty;
 				return true;
+			case IHotel hotel:
+				var hotelOwing = hotel.Property.HotelOutstandingTaxes;
+				var hotelPayable = maximumAmount is null ? hotelOwing : Math.Min(hotelOwing, maximumAmount.Amount);
+				amount = new MoneyAmount(hotel.Currency, hotelPayable);
+				reason = string.Empty;
+				return true;
 			default:
 				reason = $"{context.Employer.EmploymentHostName} does not expose a native supported tax owing adapter.";
 				return false;
@@ -838,24 +1377,43 @@ internal static class EmploymentFinanceService
 		return true;
 	}
 
-	private static bool TryResolveFinanceHost(IEmploymentHost host, MoneyAmount amount, out FinanceHost finance,
+	private static bool TryResolveFinanceHost(IEmploymentHost host, MoneyAmount? amount, out FinanceHost finance,
 		out string reason)
 	{
 		finance = null!;
-		if (host is not IShop shop)
+		switch (host)
 		{
-			reason =
-				$"{host.EmploymentHostName} does not expose a native employment finance adapter yet. This slice supports permanent shop finance through the shop's virtual cash and linked bank account.";
+			case IShop shop:
+				finance = new FinanceHost(shop, shop.Currency, shop.BankAccount);
+				break;
+			case IStable stable:
+				finance = new FinanceHost(stable, stable.Currency, stable.BankAccount);
+				break;
+			case IHotel hotel:
+				finance = new FinanceHost(hotel.Property, hotel.Currency, hotel.BankAccount);
+				break;
+			case IAuctionHouse auctionHouse:
+				finance = new FinanceHost((IFrameworkItem)auctionHouse, auctionHouse.EconomicZone.Currency,
+					auctionHouse.ProfitsBankAccount);
+				break;
+			case ICombatArena arena:
+				finance = new FinanceHost(arena, arena.Currency, arena.BankAccount);
+				break;
+			case IBank bank:
+				finance = new FinanceHost(bank, bank.PrimaryCurrency, null);
+				break;
+			default:
+				reason =
+					$"{host.EmploymentHostName} does not expose a native employment finance adapter yet.";
+				return false;
+		}
+
+		if (amount is not null && finance.Currency.Id != amount.Currency.Id)
+		{
+			reason = $"{host.EmploymentHostName} uses {finance.Currency.Name}, but this step is for {amount.Currency.Name}.";
 			return false;
 		}
 
-		if (shop.Currency.Id != amount.Currency.Id)
-		{
-			reason = $"{host.EmploymentHostName} uses {shop.Currency.Name}, but this step is for {amount.Currency.Name}.";
-			return false;
-		}
-
-		finance = new FinanceHost(shop, shop.Currency, shop.BankAccount);
 		reason = string.Empty;
 		return true;
 	}
@@ -868,7 +1426,81 @@ internal static class EmploymentFinanceService
 		var reserved = ActiveReservations(context)
 		               .Where(x => x.CurrencyId == currency.Id)
 		               .Sum(x => x.Amount);
-		return Math.Max(0.0M, VirtualCashLedger.Balance(finance.Owner, currency) + bankCapacity - reserved);
+		return Math.Max(0.0M, VirtualBalance(finance) + bankCapacity - reserved);
+	}
+
+	private static decimal AvailableFundsWithoutReservations(FinanceHost finance)
+	{
+		var bankCapacity = finance.BankAccount?.Currency.Id == finance.Currency.Id
+			? Math.Max(0.0M, finance.BankAccount.MaximumWithdrawal())
+			: 0.0M;
+		return Math.Max(0.0M, VirtualBalance(finance) + bankCapacity);
+	}
+
+	private static decimal VirtualBalance(FinanceHost finance)
+	{
+		return finance.Owner switch
+		{
+			ICombatArena arena => arena.CashBalance,
+			_ => VirtualCashLedger.Balance(finance.Owner, finance.Currency)
+		};
+	}
+
+	private static bool DebitAvailable(FinanceHost finance, decimal amount, ICharacter actor,
+		IFrameworkItem counterparty, string sourceKind, string reference, MudDateTime? mudDateTime,
+		out string reason)
+	{
+		if (finance.Owner is ICombatArena arena)
+		{
+			var canDebit = arena.EnsureFunds(amount);
+			if (!canDebit.Truth)
+			{
+				reason = canDebit.Reason;
+				return false;
+			}
+
+			arena.Debit(amount, reference);
+			reason = string.Empty;
+			return true;
+		}
+
+		return VirtualCashLedger.Debit(finance.Owner, finance.Currency, amount, actor, counterparty,
+			sourceKind, reference, finance.BankAccount, mudDateTime, out reason, finance.Owner, reference);
+	}
+
+	private static bool DebitVirtual(FinanceHost finance, decimal amount, ICharacter actor,
+		IFrameworkItem? counterparty, string sourceKind, string reference, MudDateTime? mudDateTime,
+		out string reason)
+	{
+		if (finance.Owner is ICombatArena arena)
+		{
+			var canDebit = arena.EnsureCashFunds(amount);
+			if (!canDebit.Truth)
+			{
+				reason = canDebit.Reason;
+				return false;
+			}
+
+			arena.DebitCash(amount, reference);
+			reason = string.Empty;
+			return true;
+		}
+
+		return VirtualCashLedger.Debit(finance.Owner, finance.Currency, amount, actor, counterparty,
+			sourceKind, reference, null, mudDateTime, out reason, finance.Owner, reference);
+	}
+
+	private static void CreditVirtual(FinanceHost finance, decimal amount, ICharacter actor,
+		IFrameworkItem? counterparty, string sourceKind, string reference, MudDateTime? mudDateTime)
+	{
+		if (finance.Owner is ICombatArena arena)
+		{
+			arena.CreditCash(amount, reference);
+			return;
+		}
+
+		VirtualCashLedger.Credit(finance.Owner, finance.Currency, amount, actor, counterparty,
+			sourceKind, reference, mudDateTime, finance.Owner, reference);
 	}
 
 	private static bool TryBuildReservationConsumption(EmploymentTaskContext context, MoneyAmount amount,

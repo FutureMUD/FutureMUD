@@ -67,7 +67,9 @@ public enum EmploymentActionStepType
 	ReturnAsset,
 	VehicleOperation,
 	TaxPayment,
-	ShopFloatAdjustment
+	ShopFloatAdjustment,
+	PhysicalFloat,
+	CraftStation
 }
 
 public enum EmploymentActionStepStatus
@@ -364,6 +366,14 @@ public interface IEmploymentTaskContext
 	bool TryAdjustShopFloat(ICharacter actor, MoneyAmount amount, bool fillRegister,
 		EmploymentItemSelector? registerSelector, out string reason,
 		out EmploymentActionStepOperationalState operationalState);
+	bool CanHandlePhysicalFloat(PhysicalFloatOperation operation, MoneyAmount? amount, string targetKind,
+		EmploymentItemSelector? targetSelector, out string reason);
+	bool TryHandlePhysicalFloat(ICharacter actor, PhysicalFloatOperation operation, MoneyAmount? amount,
+		string targetKind, EmploymentItemSelector? targetSelector, out string reason,
+		out EmploymentActionStepOperationalState operationalState);
+	bool CanUseCraftStation(ICharacter actor, string stationSelector, out string reason);
+	bool TryUseCraftStation(ICharacter actor, string stationSelector, out string reason,
+		out EmploymentActionStepOperationalState operationalState);
 	bool CanStartCraft(string craftSelector, ICharacter actor, out string reason);
 	bool TryStartCraft(ICharacter actor, string craftSelector, out string reason,
 		out EmploymentActionStepOperationalState operationalState);
@@ -372,6 +382,20 @@ public interface IEmploymentTaskContext
 		Guid? correlationId = null);
 	void RecordLedger(EmploymentLedgerEntryType entryType, ICharacter? actor, MoneyAmount? amount, string description,
 		Guid? correlationId = null);
+}
+
+public enum EmploymentPurchaseTargetKind
+{
+	Merchandise,
+	Item,
+	Commodity
+}
+
+public enum PhysicalFloatOperation
+{
+	Issue,
+	Return,
+	Settle
 }
 
 public enum ManagerGoalType

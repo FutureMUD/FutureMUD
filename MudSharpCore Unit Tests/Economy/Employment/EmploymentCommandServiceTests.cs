@@ -942,11 +942,11 @@ public class EmploymentCommandServiceTests
 			"getid", "gettag", "commodity", "deliver", "move", "board", "command", "report",
 			"authorise", "reserve", "release", "select", "estimate", "route", "load", "unload",
 			"return", "vehicle", "bankdeposit", "bankwithdraw", "purchase", "storepay", "craft",
-			"paytax", "float"
+			"paytax", "float", "physicalfloat", "station"
 		};
 		var deferred = new[]
 		{
-			"transfer", "physicalfloat", "station", "price",
+			"transfer", "price",
 			"jobopening", "rule", "admintask", "marktask"
 		};
 
@@ -1001,6 +1001,8 @@ public class EmploymentCommandServiceTests
 		IEmploymentHost host = new TestEmploymentHost(1, "market shop", currency.Object);
 		var gameworld = Gameworld();
 		gameworld.SetupGet(x => x.Tags).Returns(Tags(Tag(801, "crate").Object, Tag(802, "depot").Object));
+		gameworld.SetupGet(x => x.ItemProtos)
+		         .Returns(ItemProtos(ItemProto(500, "a bundle of test stock").Object).Object);
 		var manager = Character(68, "Manager", gameworld: gameworld.Object).Object;
 		host.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
 			EmploymentAuthority.AssignTasks |
@@ -1019,10 +1021,14 @@ public class EmploymentCommandServiceTests
 		Assert.IsTrue(authoring.TryAddStep(manager, host, new StringStack("board Notice = Please check stock"), out message), message);
 		Assert.IsTrue(authoring.TryAddStep(manager, host, new StringStack("command at here say hello"), out message), message);
 		Assert.IsTrue(authoring.TryAddStep(manager, host, new StringStack("purchase 5 for apples"), out message), message);
+		Assert.IsTrue(authoring.TryAddStep(manager, host, new StringStack("purchase 2 item 500 from any max 5"), out message), message);
+		Assert.IsTrue(authoring.TryAddStep(manager, host, new StringStack("purchase 12 commodity Iron|Nails|grade=refined from any max 5"), out message), message);
 		Assert.IsTrue(authoring.TryAddStep(manager, host, new StringStack("bankdeposit 5"), out message), message);
 		Assert.IsTrue(authoring.TryAddStep(manager, host, new StringStack("bankwithdraw 5"), out message), message);
 		Assert.IsTrue(authoring.TryAddStep(manager, host, new StringStack("storepay supplier amount 5"), out message), message);
 		Assert.IsTrue(authoring.TryAddStep(manager, host, new StringStack("craft linen bundles"), out message), message);
+		Assert.IsTrue(authoring.TryAddStep(manager, host, new StringStack("station here"), out message), message);
+		Assert.IsTrue(authoring.TryAddStep(manager, host, new StringStack("physicalfloat issue 5 from bank"), out message), message);
 		Assert.IsTrue(authoring.TryAddStep(manager, host, new StringStack("load all into &crate at here"), out message), message);
 		Assert.IsTrue(authoring.TryAddStep(manager, host, new StringStack("unload &crate at here"), out message), message);
 		Assert.IsTrue(authoring.TryAddStep(manager, host, new StringStack("return container &crate to here containertag &depot"), out message), message);
@@ -1041,6 +1047,8 @@ public class EmploymentCommandServiceTests
 		StringAssert.Contains(rendered, "linked bank account");
 		StringAssert.Contains(rendered, "reserve");
 		StringAssert.Contains(rendered, "route");
+		StringAssert.Contains(rendered, "physical employment float");
+		StringAssert.Contains(rendered, "validate craft station");
 		StringAssert.Contains(rendered, "load all carried task items");
 		StringAssert.Contains(rendered, "return container");
 	}

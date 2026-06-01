@@ -441,13 +441,16 @@ internal sealed class EmploymentTaskAuthoringService
 			"move" => TryParseMove(actor, input, out step, out message),
 			"board" => TryParseBoard(input, out step, out message),
 			"command" => TryParseCommand(actor, input, out step, out message),
-			"purchase" => TryParsePurchase(host, input, out step, out message),
+			"purchase" => TryParsePurchase(actor, host, input, out step, out message),
 			"bankdeposit" => TryParseBankDeposit(host, input, out step, out message),
 			"bankwithdraw" => TryParseBankWithdraw(host, input, out step, out message),
 			"storepay" => TryParseStorePay(host, input, out step, out message),
 			"paytax" => TryParsePayTax(host, input, out step, out message),
 			"float" => TryParseShopFloat(actor, host, input, out step, out message),
+			"physicalfloat" or "cashtrip" or "employeefloat" =>
+				TryParsePhysicalFloat(actor, host, input, out step, out message),
 			"craft" => TryParseCraft(input, out step, out message),
+			"station" => TryParseCraftStation(input, out step, out message),
 			"report" or "authorise" or "reserve" or "release" or "select" or "estimate" =>
 				TryParseGenericShell(host, definition!.Key, input, out step, out message),
 			"route" => TryParseRoute(actor, input, out step, out message),
@@ -993,14 +996,83 @@ internal sealed class EmploymentTaskAuthoringService
 		return true;
 	}
 
-	private static bool TryParsePurchase(IEmploymentHost host, StringStack input, out IEmploymentActionStep step,
+	private static bool TryParsePurchase(ICharacter actor, IEmploymentHost host, StringStack input, out IEmploymentActionStep step,
 		out string message)
 	{
 		step = null!;
 		var raw = input.SafeRemainingArgument.Trim();
-		if (input.IsFinished || !int.TryParse(input.PopSpeech(), out var quantity) || quantity <= 0)
+		if (input.IsFinished)
 		{
 			return TryParseLegacyPurchaseAudit(host, new StringStack(raw), out step, out message);
+		}
+
+		var first = input.PopSpeech();
+		if (double.TryParse(first, actor, out var commodityWeight) && commodityWeight > 0.0 &&
+		    !input.IsFinished && input.PeekSpeech().EqualTo("commodity"))
+		{
+			input.PopSpeech();
+			var descriptorTokens = PopTokensUntil(input, "from").ToList();
+			if (!descriptorTokens.Any() || input.IsFinished || !input.PopSpeech().EqualTo("from"))
+			{
+				message = $"Commodity purchase steps use the syntax: {"tasks step purchase <weight> commodity <descriptor> from <shop id|name|any> [max <amount>]".ColourCommand()}";
+				return false;
+			}
+
+			if (!TryParsePurchaseSupplierAndOptions(host, input, out var supplier, out var maximum, out var keyword,
+				    out message))
+			{
+				return false;
+			}
+
+			var commodityCurrency = ResolveHostCurrency(host);
+			if (commodityCurrency is null)
+			{
+				message = $"Could not determine the currency for {host.EmploymentHostName.ColourName()}.";
+				return false;
+			}
+
+			step = new PurchaseActionStep(commodityWeight, string.Join(" ", descriptorTokens), supplier, commodityCurrency,
+				maximum, keyword);
+			message = string.Empty;
+			return true;
+		}
+
+		if (!int.TryParse(first, out var quantity) || quantity <= 0)
+		{
+			return TryParseLegacyPurchaseAudit(host, new StringStack(raw), out step, out message);
+		}
+
+		if (!input.IsFinished && input.PeekSpeech().EqualTo("item"))
+		{
+			input.PopSpeech();
+			if (!TryParseItemSelector(actor, input, "purchase item", out var itemSelector, out message) ||
+			    itemSelector is null)
+			{
+				return false;
+			}
+
+			if (input.IsFinished || !input.PopSpeech().EqualTo("from"))
+			{
+				message = $"Item purchase steps use the syntax: {"tasks step purchase <quantity> item <prototype id|*item id|&tag|keyword> from <shop id|name|any> [max <amount>]".ColourCommand()}";
+				return false;
+			}
+
+			if (!TryParsePurchaseSupplierAndOptions(host, input, out var supplier, out var maximum, out var keyword,
+				    out message))
+			{
+				return false;
+			}
+
+			var itemCurrency = ResolveHostCurrency(host);
+			if (itemCurrency is null)
+			{
+				message = $"Could not determine the currency for {host.EmploymentHostName.ColourName()}.";
+				return false;
+			}
+
+			step = new PurchaseActionStep(quantity, itemSelector, supplier, itemCurrency, maximum, keyword);
+			message = string.Empty;
+			return true;
 		}
 
 		var merchandiseTokens = PopTokensUntil(input, "from").ToList();
@@ -1015,6 +1087,31 @@ internal sealed class EmploymentTaskAuthoringService
 			return false;
 		}
 
+		if (!TryParsePurchaseSupplierAndOptions(host, input, out var supplierSelector, out var maximumAmount,
+			    out var keywordFilter, out message))
+		{
+			return false;
+		}
+
+		var merchandiseCurrency = ResolveHostCurrency(host);
+		if (merchandiseCurrency is null)
+		{
+			message = $"Could not determine the currency for {host.EmploymentHostName.ColourName()}.";
+			return false;
+		}
+
+		step = new PurchaseActionStep(quantity, string.Join(" ", merchandiseTokens),
+			supplierSelector, merchandiseCurrency, maximumAmount, keywordFilter);
+		message = string.Empty;
+		return true;
+	}
+
+	private static bool TryParsePurchaseSupplierAndOptions(IEmploymentHost host, StringStack input,
+		out string supplierSelector, out MoneyAmount? maximum, out string? keyword, out string message)
+	{
+		supplierSelector = string.Empty;
+		maximum = null;
+		keyword = null;
 		var supplierTokens = new List<string>();
 		while (!input.IsFinished && !IsAny(input.PeekSpeech(), "max", "keyword"))
 		{
@@ -1023,19 +1120,11 @@ internal sealed class EmploymentTaskAuthoringService
 
 		if (!supplierTokens.Any())
 		{
-			message = "Which supplier shop should this purchase use? Use ".ColourCommand() + "any".ColourCommand() + " to search all shops.";
+			message = "Which supplier shop should this purchase use? Use " + "any".ColourCommand() + " to search all shops.";
 			return false;
 		}
 
-		var currency = ResolveHostCurrency(host);
-		if (currency is null)
-		{
-			message = $"Could not determine the currency for {host.EmploymentHostName.ColourName()}.";
-			return false;
-		}
-
-		MoneyAmount? maximum = null;
-		string? keyword = null;
+		supplierSelector = string.Join(" ", supplierTokens);
 		while (!input.IsFinished)
 		{
 			var option = input.PopSpeech();
@@ -1066,8 +1155,6 @@ internal sealed class EmploymentTaskAuthoringService
 			return false;
 		}
 
-		step = new PurchaseActionStep(quantity, string.Join(" ", merchandiseTokens),
-			string.Join(" ", supplierTokens), currency, maximum, keyword);
 		message = string.Empty;
 		return true;
 	}
@@ -1281,18 +1368,118 @@ internal sealed class EmploymentTaskAuthoringService
 		return true;
 	}
 
+	private static bool TryParsePhysicalFloat(ICharacter actor, IEmploymentHost host, StringStack input,
+		out IEmploymentActionStep step, out string message)
+	{
+		step = null!;
+		if (input.IsFinished || !input.PopSpeech().TryParseEnum<PhysicalFloatOperation>(out var operation))
+		{
+			message = $"Physical float steps use the syntax: {"tasks step physicalfloat issue <amount> from <bank|register> OR physicalfloat return <amount|all> to <bank|register|container <selector>> OR physicalfloat settle <amount|all>".ColourCommand()}";
+			return false;
+		}
+
+		MoneyAmount? amount = null;
+		if (operation == PhysicalFloatOperation.Issue)
+		{
+			var amountTokens = PopTokensUntil(input, "from").ToList();
+			if (!amountTokens.Any() || input.IsFinished || !input.PopSpeech().EqualTo("from"))
+			{
+				message = $"Issue-float steps use the syntax: {"tasks step physicalfloat issue <amount> from <bank|register>".ColourCommand()}";
+				return false;
+			}
+
+			if (!TryParseMoney(host, string.Join(" ", amountTokens), out amount, out message))
+			{
+				return false;
+			}
+
+			if (input.IsFinished)
+			{
+				message = "Which source should issue the physical float? Use bank or register.";
+				return false;
+			}
+
+			var source = input.PopSpeech();
+			step = new PhysicalFloatActionStep(operation, amount, source);
+			message = string.Empty;
+			return true;
+		}
+
+		if (operation == PhysicalFloatOperation.Settle)
+		{
+			if (!input.IsFinished && !input.PeekSpeech().EqualTo("all"))
+			{
+				if (!TryParseMoney(host, input.SafeRemainingArgument, out amount, out message))
+				{
+					return false;
+				}
+			}
+
+			ConsumeRemaining(input);
+			step = new PhysicalFloatActionStep(operation, amount, "virtual");
+			message = string.Empty;
+			return true;
+		}
+
+		var returnTokens = PopTokensUntil(input, "to").ToList();
+		if (!returnTokens.Any() || input.IsFinished || !input.PopSpeech().EqualTo("to"))
+		{
+			message = $"Return-float steps use the syntax: {"tasks step physicalfloat return <amount|all> to <bank|register|container <selector>>".ColourCommand()}";
+			return false;
+		}
+
+		var returnAmountText = string.Join(" ", returnTokens);
+		if (!returnAmountText.EqualTo("all"))
+		{
+			if (!TryParseMoney(host, returnAmountText, out amount, out message))
+			{
+				return false;
+			}
+		}
+
+		if (input.IsFinished)
+		{
+			message = "Where should the physical float be returned?";
+			return false;
+		}
+
+		var target = input.PopSpeech();
+		EmploymentItemSelector? selector = null;
+		if (target.EqualTo("container"))
+		{
+			if (!TryParseItemSelector(actor, input, "physical float return container", out selector, out message))
+			{
+				return false;
+			}
+		}
+
+		step = new PhysicalFloatActionStep(operation, amount, target, selector);
+		message = string.Empty;
+		return true;
+	}
+
 	private static bool TryParseCraft(StringStack input, out IEmploymentActionStep step, out string message)
 	{
 		step = null!;
 		var description = input.SafeRemainingArgument.Trim();
 		if (string.IsNullOrWhiteSpace(description))
 		{
-			message = $"Craft audit steps use the syntax: {"tasks step craft <description>".ColourCommand()}";
+			message = $"Craft steps use the syntax: {"tasks step craft <craft id|craft name>".ColourCommand()}";
 			return false;
 		}
 
 		ConsumeRemaining(input);
 		step = new CraftTriggerActionStep(description);
+		message = string.Empty;
+		return true;
+	}
+
+	private static bool TryParseCraftStation(StringStack input, out IEmploymentActionStep step, out string message)
+	{
+		step = null!;
+		var selector = input.IsFinished ? "here" : input.SafeRemainingArgument.Trim();
+		ConsumeRemaining(input);
+		step = new CraftStationActionStep(selector);
 		message = string.Empty;
 		return true;
 	}
@@ -1786,14 +1973,16 @@ internal sealed class EmploymentTaskAuthoringService
 		{
 			PurchaseActionStep purchase =>
 				purchase.IsExecutablePurchase
-					? $"buy {purchase.Quantity!.Value.ToString("N0", actor).ColourValue()}x {purchase.MerchandiseSelector!.ColourName()} from {(purchase.SupplierSelector ?? "any").ColourName()}{(purchase.MaximumAmount is null ? string.Empty : $" up to {DescribeMoney(purchase.MaximumAmount)}")}"
+					? DescribePurchaseStep(purchase, actor)
 					: $"record an audit-only purchase of {DescribeMoney(purchase.Amount)} for {purchase.PurchaseDescription.ColourName()}",
 			MovementDeliveryActionStep move =>
 				move.Destination is null
 					? $"complete movement/delivery shell: {move.DeliveryDescription.ColourName()}"
 					: $"go to {move.Destination.GetFriendlyReference(actor).ColourName()} for {move.DeliveryDescription.ColourName()}",
 			CraftTriggerActionStep craft =>
-				$"record an audit-only craft trigger for {craft.CraftDescription.ColourName()}",
+				$"start or resume craft {craft.CraftDescription.ColourName()} and adopt item outputs into task custody",
+			CraftStationActionStep station =>
+				$"validate craft station {station.StationSelector.ColourCommand()}",
 			CommandActionStep command =>
 				$"execute allowlisted command {command.CommandName.ColourCommand()}{(string.IsNullOrWhiteSpace(command.CommandArguments) ? string.Empty : $" {command.CommandArguments.ColourCommand()}")}{(command.ExecutionLocation is null ? string.Empty : $" at {command.ExecutionLocation.GetFriendlyReference(actor).ColourName()}")}",
 			BankDepositActionStep deposit =>
@@ -1808,6 +1997,8 @@ internal sealed class EmploymentTaskAuthoringService
 					: $"pay supported host taxes up to {DescribeMoney(tax.MaximumAmount)}",
 			ShopFloatAdjustmentActionStep shopFloat =>
 				$"{(shopFloat.FillRegister ? "fill" : "skim")} shop cash-register float by {DescribeMoney(shopFloat.Amount)}{(shopFloat.RegisterSelector is null ? string.Empty : $" at {DescribeItemSelector(shopFloat.RegisterSelector, actor)}")}",
+			PhysicalFloatActionStep physicalFloat =>
+				DescribePhysicalFloatStep(physicalFloat, actor),
 			BoardPostActionStep board =>
 				$"post {board.Title.ColourName()} to the host staff communication board",
 			CataloguedActionShellStep shell =>
@@ -1851,6 +2042,35 @@ internal sealed class EmploymentTaskAuthoringService
 			: $"go to {shell.TargetLocation.GetFriendlyReference(actor).ColourName()} and {description}";
 	}
 
+	private static string DescribePurchaseStep(PurchaseActionStep purchase, ICharacter actor)
+	{
+		var target = purchase.TargetKind switch
+		{
+			EmploymentPurchaseTargetKind.Item =>
+				$"{purchase.Quantity!.Value.ToString("N0", actor).ColourValue()}x {DescribeItemSelector(purchase.ItemSelector!, actor)}",
+			EmploymentPurchaseTargetKind.Commodity =>
+				$"{purchase.CommodityWeight!.Value.ToString("N2", actor).ColourValue()} weight of commodity {purchase.CommodityDescriptor!.ColourCommand()}",
+			_ =>
+				$"{purchase.Quantity!.Value.ToString("N0", actor).ColourValue()}x merchandise {purchase.MerchandiseSelector!.ColourName()}"
+		};
+		return $"buy {target} from {(purchase.SupplierSelector ?? "any").ColourName()}{(purchase.MaximumAmount is null ? string.Empty : $" up to {DescribeMoney(purchase.MaximumAmount)}")}";
+	}
+
+	private static string DescribePhysicalFloatStep(PhysicalFloatActionStep physicalFloat, ICharacter actor)
+	{
+		var amount = physicalFloat.Amount is null ? "all".ColourCommand() : DescribeMoney(physicalFloat.Amount);
+		return physicalFloat.Operation switch
+		{
+			PhysicalFloatOperation.Issue =>
+				$"issue {amount} as physical employment float from {physicalFloat.TargetKind.ColourCommand()}",
+			PhysicalFloatOperation.Return =>
+				$"return {amount} of physical employment float to {physicalFloat.TargetKind.ColourCommand()}{(physicalFloat.TargetSelector is null ? string.Empty : $" {DescribeItemSelector(physicalFloat.TargetSelector, actor)}")}",
+			PhysicalFloatOperation.Settle =>
+				$"settle {amount} of carried physical employment float back to employer virtual cash",
+			_ => $"handle physical employment float with {physicalFloat.Operation.DescribeEnum().ColourCommand()}"
+		};
+	}
+
 	internal static EmploymentActionDefinition? DefinitionFor(IEmploymentActionStep step)
 	{
 		return step switch
@@ -1859,12 +2079,14 @@ internal sealed class EmploymentTaskAuthoringService
 			PurchaseActionStep => EmploymentActionCatalog.Get("purchase"),
 			MovementDeliveryActionStep => EmploymentActionCatalog.Get("move"),
 			CraftTriggerActionStep => EmploymentActionCatalog.Get("craft"),
+			CraftStationActionStep => EmploymentActionCatalog.Get("station"),
 			CommandActionStep => EmploymentActionCatalog.Get("command"),
 			BankDepositActionStep => EmploymentActionCatalog.Get("bankdeposit"),
 			BankWithdrawalActionStep => EmploymentActionCatalog.Get("bankwithdraw"),
 			StoreAccountPaymentActionStep => EmploymentActionCatalog.Get("storepay"),
 			TaxPaymentActionStep => EmploymentActionCatalog.Get("paytax"),
 			ShopFloatAdjustmentActionStep => EmploymentActionCatalog.Get("float"),
+			PhysicalFloatActionStep => EmploymentActionCatalog.Get("physicalfloat"),
 			BoardPostActionStep => EmploymentActionCatalog.Get("board"),
 			GetItemsByIdActionStep => EmploymentActionCatalog.Get("getid"),
 			GetItemsByTagActionStep => EmploymentActionCatalog.Get("gettag"),

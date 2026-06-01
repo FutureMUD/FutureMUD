@@ -542,6 +542,79 @@ public class UnifiedEmploymentDispatchTests
 	}
 
 	[TestMethod]
+	public void EmploymentPurchaseByItemSelector_UsesExactStockSalePath()
+	{
+		VirtualCashLedger.ClearInMemoryForTests();
+		var currency = Currency();
+		var (shop, state) = ShopHost(45, "Exact Stock Shop", currency.Object, null);
+		var actor = Character(2, "Purchaser");
+		var gameworld = new Mock<IFuturemud>();
+		var shops = new All<IShop> { shop.Object };
+		gameworld.SetupGet(x => x.Shops).Returns(shops);
+		shop.As<IHaveFuturemud>().SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		actor.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		var cell = new Mock<ICell>();
+		cell.SetupGet(x => x.Id).Returns(456);
+		var proto = new Mock<IGameItemProto>();
+		proto.SetupGet(x => x.Id).Returns(700);
+		var merchandise = Merchandise(10, "matching goods");
+		var selectedItem = new Mock<IGameItem>();
+		selectedItem.SetupGet(x => x.Id).Returns(702);
+		selectedItem.SetupGet(x => x.Name).Returns("selected item");
+		selectedItem.SetupGet(x => x.Quantity).Returns(1);
+		selectedItem.SetupGet(x => x.Prototype).Returns(proto.Object);
+		shop.SetupGet(x => x.CurrentLocations).Returns(new[] { cell.Object });
+		shop.SetupGet(x => x.Merchandises).Returns(new[] { merchandise.Object });
+		shop.Setup(x => x.StockedItems(merchandise.Object)).Returns(new[] { selectedItem.Object });
+		shop.Setup(x => x.PriceForMerchandise(It.IsAny<ICharacter?>(), merchandise.Object, 1)).Returns(7.0M);
+		shop.Setup(x => x.CanBuyExact(
+			    actor.Object,
+			    merchandise.Object,
+			    1,
+			    It.IsAny<IPaymentMethod>(),
+			    It.Is<IEnumerable<IGameItem>>(items => items.Single().Id == selectedItem.Object.Id)))
+		    .Returns((true, string.Empty));
+		shop.Setup(x => x.BuyExact(
+			    actor.Object,
+			    merchandise.Object,
+			    1,
+			    It.IsAny<IPaymentMethod>(),
+			    It.Is<IEnumerable<IGameItem>>(items => items.Single().Id == selectedItem.Object.Id)))
+		    .Returns(new[] { selectedItem.Object });
+		state.Hire(actor.Object, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.AssignTasks | EmploymentAuthority.ApprovePurchases | EmploymentAuthority.ManageStockRules), null);
+		VirtualCashLedger.Credit(shop.Object, currency.Object, 20.0M, null, null, "Seed", "Seed balance");
+		var task = state.TaskBoard.CreateActiveTask("exact purchase",
+			new EmploymentActionPlan([
+				new CataloguedActionShellStep("authorise", "buy exact stock", new MoneyAmount(currency.Object, 10.0M)),
+				new CataloguedActionShellStep("reserve", "buy exact stock", new MoneyAmount(currency.Object, 7.0M)),
+				new PurchaseActionStep(1, EmploymentItemSelector.ForPrototype(700), "any", currency.Object,
+					new MoneyAmount(currency.Object, 10.0M))
+			]), actor.Object);
+		var dispatcher = new EmploymentTaskDispatcher();
+		var context = new EmploymentTaskContext(shop.Object);
+		var profile = Profile(actor.Object, 1.0M, PaymentMethodKind.Cash,
+			Caps(EmploymentAICapability.CanPurchaseCommodities));
+
+		Assert.IsTrue(dispatcher.TryAssignTask(task, [profile], context, out var reason), reason);
+		while (task.Status is not EmploymentTaskStatus.Completed and not EmploymentTaskStatus.Failed)
+		{
+			var result = dispatcher.AdvanceTask(task, context);
+			Assert.IsTrue(result.Success, result.Message);
+		}
+
+		Assert.AreEqual(EmploymentTaskStatus.Completed, task.Status);
+		shop.Verify(x => x.BuyExact(
+			actor.Object,
+			merchandise.Object,
+			1,
+			It.IsAny<IPaymentMethod>(),
+			It.Is<IEnumerable<IGameItem>>(items => items.Single().Id == selectedItem.Object.Id)), Times.Once);
+		shop.Verify(x => x.Buy(actor.Object, merchandise.Object, 1, It.IsAny<IPaymentMethod>(), It.IsAny<string?>()),
+			Times.Never);
+	}
+
+	[TestMethod]
 	public void EmploymentFinanceSteps_BlockWhenAuthorisationAmountDoesNotCoverStep()
 	{
 		VirtualCashLedger.ClearInMemoryForTests();
@@ -1322,6 +1395,8 @@ public class UnifiedEmploymentDispatchTests
 					new CraftTriggerActionStep("craft linen bundles"),
 					new TaxPaymentActionStep(new MoneyAmount(currency.Object, 1.0M)),
 					new ShopFloatAdjustmentActionStep(true, new MoneyAmount(currency.Object, 1.0M)),
+					new PhysicalFloatActionStep(PhysicalFloatOperation.Issue, new MoneyAmount(currency.Object, 1.0M), "bank"),
+					new CraftStationActionStep("here"),
 					new MovementDeliveryActionStep("move to the sales floor", destination)
 				]),
 				manager);
@@ -1345,7 +1420,7 @@ public class UnifiedEmploymentDispatchTests
 			var reloadedTask = reloadedHost.Employment.TaskBoard.ActiveTasks.Single();
 			var steps = reloadedTask.ActionPlan.Steps;
 
-			Assert.AreEqual(12, steps.Count);
+			Assert.AreEqual(14, steps.Count);
 			Assert.IsInstanceOfType(steps[0], typeof(CataloguedActionShellStep));
 			Assert.AreEqual("route", ((CataloguedActionShellStep)steps[0]).ActionKey);
 			Assert.AreSame(destination, ((CataloguedActionShellStep)steps[0]).TargetLocation);
@@ -1360,7 +1435,9 @@ public class UnifiedEmploymentDispatchTests
 			Assert.IsInstanceOfType(steps[8], typeof(CraftTriggerActionStep));
 			Assert.IsInstanceOfType(steps[9], typeof(TaxPaymentActionStep));
 			Assert.IsInstanceOfType(steps[10], typeof(ShopFloatAdjustmentActionStep));
-			Assert.IsInstanceOfType(steps[11], typeof(MovementDeliveryActionStep));
+			Assert.IsInstanceOfType(steps[11], typeof(PhysicalFloatActionStep));
+			Assert.IsInstanceOfType(steps[12], typeof(CraftStationActionStep));
+			Assert.IsInstanceOfType(steps[13], typeof(MovementDeliveryActionStep));
 		}
 		finally
 		{

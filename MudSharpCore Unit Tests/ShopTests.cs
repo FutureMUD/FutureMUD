@@ -112,6 +112,7 @@ public class ShopTests
             ExpectedCashBalance = 0m,
             CurrencyId = 1,
             EconomicZoneId = 1,
+            IsTrading = true,
             EmployeeRecords = "<Employees/>",
             AutopayTaxes = false,
             ShopType = "Permanent",
@@ -246,6 +247,42 @@ public class ShopTests
         Assert.AreEqual(10m, sale.NetValue);
         playerAccount.Verify(x => x.WithdrawFromTransaction(10m, It.IsAny<string>()), Times.Once);
         shopAccount.Verify(x => x.DepositFromTransaction(10m, It.IsAny<string>()), Times.Once);
+    }
+
+    [TestMethod]
+    public void BuyExact_UsesSelectedStockItemInsteadOfFirstKeywordMatch()
+    {
+        Mock<IGameItemProto> proto = RegisterPrototype(11);
+        proto.SetupGet(x => x.Morphs).Returns(false);
+        proto.SetupGet(x => x.MorphTimeSpan).Returns(TimeSpan.Zero);
+        Merchandise merch = new(_shop, "item", proto.Object, 10m, false, null, null);
+        _shop.AddMerchandise(merch);
+
+        Mock<IGameItem> firstItem = CreateStackedItem(110L, 1, proto.Object);
+        firstItem.Setup(x => x.DropsWhole(It.IsAny<int>())).Returns(true);
+        firstItem.SetupGet(x => x.InInventoryOf).Returns((IBody)null);
+        firstItem.SetupGet(x => x.ContainedIn).Returns((IGameItem)null);
+        firstItem.SetupGet(x => x.Location).Returns((ICell)null);
+        Mock<IGameItem> selectedItem = CreateStackedItem(111L, 1, proto.Object);
+        selectedItem.Setup(x => x.DropsWhole(It.IsAny<int>())).Returns(true);
+        selectedItem.SetupGet(x => x.InInventoryOf).Returns((IBody)null);
+        selectedItem.SetupGet(x => x.ContainedIn).Returns((IGameItem)null);
+        selectedItem.SetupGet(x => x.Location).Returns((ICell)null);
+
+        _shop.AddToStock(null, firstItem.Object, merch);
+        _shop.AddToStock(null, selectedItem.Object, merch);
+        var bankActor = CreateBankPaymentActor();
+
+        var canBuy = _shop.CanBuyExact(bankActor.Actor.Object, merch, 1, bankActor.Payment, new[] { selectedItem.Object });
+        List<IGameItem> bought = _shop.BuyExact(bankActor.Actor.Object, merch, 1, bankActor.Payment, new[] { selectedItem.Object }).ToList();
+
+        Assert.IsTrue(canBuy.Truth, canBuy.Reason);
+        Assert.AreEqual(1, bought.Count);
+        Assert.AreSame(selectedItem.Object, bought.Single());
+        CollectionAssert.Contains(_shop.StockedItems(merch).ToList(), firstItem.Object);
+        CollectionAssert.DoesNotContain(_shop.StockedItems(merch).ToList(), selectedItem.Object);
+        bankActor.Body.Verify(x => x.Get(selectedItem.Object, 0, It.IsAny<IEmote>(), true, ItemCanGetIgnore.None), Times.Once);
+        bankActor.Body.Verify(x => x.Get(firstItem.Object, 0, It.IsAny<IEmote>(), true, ItemCanGetIgnore.None), Times.Never);
     }
 
     [TestMethod]
@@ -499,6 +536,43 @@ public class ShopTests
         BankPayment payment = new(actor.Object, paymentItem.Object, _shop);
         _shop.Buy(actor.Object, merchandise, quantity, payment).ToList();
         return _shop.TransactionRecords.Last();
+    }
+
+    private (Mock<ICharacter> Actor, BankPayment Payment, Mock<IBody> Body, Mock<IBankAccount> PlayerAccount, Mock<IBankAccount> ShopAccount) CreateBankPaymentActor()
+    {
+        Mock<IBankAccount> shopAccount = new();
+        shopAccount.SetupGet(x => x.Currency).Returns(_currency.Object);
+        shopAccount.Setup(x => x.DepositFromTransaction(It.IsAny<decimal>(), It.IsAny<string>()));
+        _shop.BankAccount = shopAccount.Object;
+        Mock<IBankAccount> playerAccount = new();
+        playerAccount.SetupGet(x => x.Currency).Returns(_currency.Object);
+        playerAccount.Setup(x => x.IsAuthorisedPaymentItem(It.IsAny<IBankPaymentItem>())).Returns(true);
+        playerAccount.Setup(x => x.MaximumWithdrawal()).Returns(100m);
+        playerAccount.Setup(x => x.WithdrawFromTransaction(It.IsAny<decimal>(), It.IsAny<string>()));
+
+        Mock<IBankPaymentItem> paymentItem = new();
+        paymentItem.SetupProperty(x => x.CurrentUsesRemaining, 1);
+        paymentItem.SetupProperty(x => x.BankAccount, playerAccount.Object);
+
+        Mock<IBody> body = new();
+        body.Setup(x => x.CanGet(It.IsAny<IGameItem>(), 0, ItemCanGetIgnore.None)).Returns(true);
+        body.Setup(x => x.Get(It.IsAny<IGameItem>(), 0, It.IsAny<IEmote>(), true, ItemCanGetIgnore.None));
+        Mock<ICell> location = new();
+        location.SetupGet(x => x.EventHandlers).Returns(new List<IHandleEvents>());
+        location.SetupGet(x => x.Calendars).Returns(new List<ICalendar>());
+        location.Setup(x => x.DateTime(It.IsAny<ICalendar>())).Returns(MudDateTime.Never);
+        Mock<IOutputHandler> output = new();
+        output.Setup(x => x.Send(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>())).Returns(true);
+        output.Setup(x => x.Send(It.IsAny<IOutput>(), It.IsAny<bool>(), It.IsAny<bool>())).Returns(true);
+        Mock<ICharacter> actor = new();
+        actor.SetupGet(x => x.Body).Returns(body.Object);
+        actor.SetupGet(x => x.Location).Returns(location.Object);
+        actor.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
+        actor.SetupGet(x => x.OutputHandler).Returns(output.Object);
+        actor.Setup(x => x.HandleEvent(It.IsAny<EventType>(), It.IsAny<object[]>()));
+        output.SetupGet(x => x.Perceiver).Returns(actor.Object);
+
+        return (actor, new BankPayment(actor.Object, paymentItem.Object, _shop), body, playerAccount, shopAccount);
     }
 
     private class TestShop : PermanentShop

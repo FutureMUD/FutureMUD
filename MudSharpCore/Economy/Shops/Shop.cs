@@ -770,6 +770,31 @@ public abstract partial class Shop : SaveableItem, IShop
         return (true, string.Empty);
     }
 
+    public (bool Truth, string Reason) CanBuyExact(ICharacter actor, IMerchandise merchandise, int quantity,
+        IPaymentMethod method, IEnumerable<IGameItem> exactStockItems)
+    {
+        List<IGameItem> exactItems = exactStockItems.Distinct().ToList();
+        if (!exactItems.Any())
+        {
+            return (false, "no exact stock items were selected for the purchase.");
+        }
+
+        HashSet<long> stockedItemIds = StockedItems(merchandise).Select(x => x.Id).ToHashSet();
+        if (exactItems.Any(x => !stockedItemIds.Contains(x.Id)))
+        {
+            return (false, "one or more selected items are no longer stocked as that merchandise.");
+        }
+
+        int exactQuantity = exactItems.Sum(x => x.Quantity);
+        if (exactQuantity < quantity)
+        {
+            return (false,
+                $"the selected stock items only provide {exactQuantity.ToString("N0", actor)} of that item.");
+        }
+
+        return CanBuy(actor, merchandise, quantity, method);
+    }
+
     public IEnumerable<(IGameItem Item, IMerchandise Merchandise, decimal Price)> AllMerchandiseForVirtualShoppers
     {
         get
@@ -837,6 +862,18 @@ public abstract partial class Shop : SaveableItem, IShop
             stockedItems = stockedItems.Where(x => x.HasKeywords(extraArguments.Split('.'), actor, true)).ToList();
         }
 
+        return BuyFromStockedItems(actor, merchandise, quantity, method, stockedItems);
+    }
+
+    public IEnumerable<IGameItem> BuyExact(ICharacter actor, IMerchandise merchandise, int quantity,
+        IPaymentMethod method, IEnumerable<IGameItem> exactStockItems)
+    {
+        return BuyFromStockedItems(actor, merchandise, quantity, method, exactStockItems.Distinct().ToList());
+    }
+
+    private IEnumerable<IGameItem> BuyFromStockedItems(ICharacter actor, IMerchandise merchandise, int quantity,
+        IPaymentMethod method, List<IGameItem> stockedItems)
+    {
         List<IGameItem> boughtItems = new();
         int quantitySought = quantity;
         foreach (IGameItem item in stockedItems)

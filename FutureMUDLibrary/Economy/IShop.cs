@@ -90,7 +90,9 @@ public interface IShop : IFrameworkItem, ISaveable, IProgVariable, IEmploymentHo
     void BuyVirtualShopper(IMerchandise merchandise, IGameItem item, int quantity);
 
     (bool Truth, string Reason) CanBuy(ICharacter actor, IMerchandise merchandise, int quantity, IPaymentMethod method, string extraArguments = null);
+    (bool Truth, string Reason) CanBuyExact(ICharacter actor, IMerchandise merchandise, int quantity, IPaymentMethod method, IEnumerable<IGameItem> exactStockItems);
     IEnumerable<IGameItem> Buy(ICharacter actor, IMerchandise merchandise, int quantity, IPaymentMethod method, string extraArguments = null);
+    IEnumerable<IGameItem> BuyExact(ICharacter actor, IMerchandise merchandise, int quantity, IPaymentMethod method, IEnumerable<IGameItem> exactStockItems);
     (decimal Price, IEnumerable<IGameItem> Items) PreviewBuy(ICharacter actor, IMerchandise merchandise, int quantity, IPaymentMethod method, string extraArguments = null);
     IShopPriceCalculation GetPriceCalculation(ICharacter actor, IMerchandise merchandise, int quantity, ShopDealApplicability applicability = ShopDealApplicability.Sell);
     decimal PriceForMerchandise(ICharacter actor, IMerchandise merchandise, int quantity);

@@ -362,6 +362,33 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 			out reason, out operationalState);
 	}
 
+	public bool CanHandlePhysicalFloat(PhysicalFloatOperation operation, MoneyAmount? amount, string targetKind,
+		EmploymentItemSelector? targetSelector, out string reason)
+	{
+		return EmploymentFinanceService.CanHandlePhysicalFloat(this, operation, amount, targetKind, targetSelector,
+			out reason);
+	}
+
+	public bool TryHandlePhysicalFloat(ICharacter actor, PhysicalFloatOperation operation, MoneyAmount? amount,
+		string targetKind, EmploymentItemSelector? targetSelector, out string reason,
+		out EmploymentActionStepOperationalState operationalState)
+	{
+		return EmploymentFinanceService.TryHandlePhysicalFloat(this, actor, operation, amount, targetKind,
+			targetSelector, out reason, out operationalState);
+	}
+
+	public bool CanUseCraftStation(ICharacter actor, string stationSelector, out string reason)
+	{
+		return EmploymentCraftService.CanUseCraftStation(this, actor, stationSelector, out reason);
+	}
+
+	public bool TryUseCraftStation(ICharacter actor, string stationSelector, out string reason,
+		out EmploymentActionStepOperationalState operationalState)
+	{
+		return EmploymentCraftService.TryUseCraftStation(this, actor, stationSelector, out reason,
+			out operationalState);
+	}
+
 	public bool CanStartCraft(string craftSelector, ICharacter actor, out string reason)
 	{
 		return EmploymentCraftService.CanStartCraft(this, craftSelector, actor, out reason);
@@ -2912,6 +2939,9 @@ public sealed class EmploymentTaskDispatcher
 				return true;
 			case ShopFloatAdjustmentActionStep shopFloat:
 				amount = shopFloat.Amount;
+				return true;
+			case PhysicalFloatActionStep { Amount: not null } physicalFloat:
+				amount = physicalFloat.Amount;
 				return true;
 			case CataloguedActionShellStep { RequiresPaymentAuthorisation: true, Amount: not null } shell:
 				amount = shell.Amount;

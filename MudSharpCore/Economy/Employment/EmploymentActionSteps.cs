@@ -231,6 +231,7 @@ public sealed class PurchaseActionStep : EmploymentActionStepBase
 			true,
 			true)
 	{
+		TargetKind = EmploymentPurchaseTargetKind.Merchandise;
 		PurchaseDescription = purchaseDescription;
 		Amount = amount;
 		ExistingFinancialRecord = existingFinancialRecord;
@@ -246,6 +247,7 @@ public sealed class PurchaseActionStep : EmploymentActionStepBase
 			true,
 			true)
 	{
+		TargetKind = EmploymentPurchaseTargetKind.Merchandise;
 		Quantity = quantity;
 		MerchandiseSelector = merchandiseSelector.Trim();
 		SupplierSelector = string.IsNullOrWhiteSpace(supplierSelector) ? "any" : supplierSelector.Trim();
@@ -257,16 +259,69 @@ public sealed class PurchaseActionStep : EmploymentActionStepBase
 		Amount = maximumAmount ?? new MoneyAmount(currency, 0.0M);
 	}
 
+	public PurchaseActionStep(int quantity, EmploymentItemSelector itemSelector, string supplierSelector,
+		ICurrency currency, MoneyAmount? maximumAmount, string? keywordFilter = null,
+		string? existingFinancialRecord = null)
+		: base(
+			EmploymentActionStepType.Purchase,
+			EmploymentAuthority.ApprovePurchases,
+			new[] { EmploymentAICapability.CanPurchaseCommodities },
+			true,
+			true)
+	{
+		TargetKind = EmploymentPurchaseTargetKind.Item;
+		Quantity = quantity;
+		ItemSelector = itemSelector;
+		SupplierSelector = string.IsNullOrWhiteSpace(supplierSelector) ? "any" : supplierSelector.Trim();
+		MaximumAmount = maximumAmount;
+		KeywordFilter = keywordFilter;
+		ExistingFinancialRecord = existingFinancialRecord;
+		PurchaseDescription =
+			$"buy {quantity:N0}x {EmploymentItemSelectorResolver.Describe(itemSelector)} from {SupplierSelector}{(maximumAmount is null ? string.Empty : $" up to {maximumAmount.Currency.Describe(maximumAmount.Amount, CurrencyDescriptionPatternType.ShortDecimal)}")}";
+		Amount = maximumAmount ?? new MoneyAmount(currency, 0.0M);
+	}
+
+	public PurchaseActionStep(double commodityWeight, string commodityDescriptor, string supplierSelector,
+		ICurrency currency, MoneyAmount? maximumAmount, string? keywordFilter = null,
+		string? existingFinancialRecord = null)
+		: base(
+			EmploymentActionStepType.Purchase,
+			EmploymentAuthority.ApprovePurchases,
+			new[] { EmploymentAICapability.CanPurchaseCommodities },
+			true,
+			true)
+	{
+		TargetKind = EmploymentPurchaseTargetKind.Commodity;
+		CommodityWeight = commodityWeight;
+		CommodityDescriptor = commodityDescriptor.Trim();
+		SupplierSelector = string.IsNullOrWhiteSpace(supplierSelector) ? "any" : supplierSelector.Trim();
+		MaximumAmount = maximumAmount;
+		KeywordFilter = keywordFilter;
+		ExistingFinancialRecord = existingFinancialRecord;
+		PurchaseDescription =
+			$"buy {commodityWeight:N2} weight of commodity {CommodityDescriptor} from {SupplierSelector}{(maximumAmount is null ? string.Empty : $" up to {maximumAmount.Currency.Describe(maximumAmount.Amount, CurrencyDescriptionPatternType.ShortDecimal)}")}";
+		Amount = maximumAmount ?? new MoneyAmount(currency, 0.0M);
+	}
+
+	public EmploymentPurchaseTargetKind TargetKind { get; }
 	public string PurchaseDescription { get; }
 	public MoneyAmount Amount { get; }
 	public int? Quantity { get; }
 	public string? MerchandiseSelector { get; }
+	public EmploymentItemSelector? ItemSelector { get; }
+	public double? CommodityWeight { get; }
+	public string? CommodityDescriptor { get; }
 	public string? SupplierSelector { get; }
 	public MoneyAmount? MaximumAmount { get; }
 	public string? KeywordFilter { get; }
 	public string? ExistingFinancialRecord { get; }
 
-	public bool IsExecutablePurchase => Quantity.HasValue && !string.IsNullOrWhiteSpace(MerchandiseSelector);
+	public bool IsExecutablePurchase =>
+		(TargetKind == EmploymentPurchaseTargetKind.Merchandise && Quantity.HasValue &&
+		 !string.IsNullOrWhiteSpace(MerchandiseSelector)) ||
+		(TargetKind == EmploymentPurchaseTargetKind.Item && Quantity.HasValue && ItemSelector is not null) ||
+		(TargetKind == EmploymentPurchaseTargetKind.Commodity && CommodityWeight.HasValue &&
+		 !string.IsNullOrWhiteSpace(CommodityDescriptor));
 
 	public override bool CanExecute(IEmploymentTaskContext context, ICharacter actor, out string reason)
 	{
@@ -394,7 +449,58 @@ public sealed class CraftTriggerActionStep : EmploymentActionStepBase
 				$"Reused existing material-cost record {ExistingFinancialRecord} for craft trigger.");
 		}
 
-		return new EmploymentActionStepResult(true, $"Started craft {CraftDescription}.", true, operationalState);
+		var completed = operationalState.OperationalPayload?.Contains("craft-status=inprogress",
+			StringComparison.InvariantCultureIgnoreCase) != true;
+		return new EmploymentActionStepResult(true,
+			completed ? $"Completed craft {CraftDescription}." : $"Started or resumed craft {CraftDescription}.",
+			completed,
+			operationalState);
+	}
+}
+
+public sealed class CraftStationActionStep : EmploymentActionStepBase, IEmploymentActionStepLocationHint
+{
+	public CraftStationActionStep(string stationSelector)
+		: base(
+			EmploymentActionStepType.CraftStation,
+			EmploymentAuthority.ManageCraftRules,
+			new[] { EmploymentAICapability.CanCraft },
+			false,
+			false)
+	{
+		StationSelector = string.IsNullOrWhiteSpace(stationSelector) ? "here" : stationSelector.Trim();
+	}
+
+	public string StationSelector { get; }
+
+	public override bool CanExecute(IEmploymentTaskContext context, ICharacter actor, out string reason)
+	{
+		if (!base.CanExecute(context, actor, out reason))
+		{
+			return false;
+		}
+
+		return context.CanUseCraftStation(actor, StationSelector, out reason);
+	}
+
+	public override EmploymentActionStepResult Execute(IEmploymentTaskContext context, ICharacter actor)
+	{
+		return context.TryUseCraftStation(actor, StationSelector, out var reason, out var operationalState)
+			? new EmploymentActionStepResult(true, $"Validated craft station {StationSelector}.", true,
+				operationalState)
+			: EmploymentActionStepResult.Blocked(reason);
+	}
+
+	public IReadOnlyCollection<ICell> ExecutionLocationHints(IEmploymentTaskContext context, ICharacter actor)
+	{
+		if (StationSelector.EqualTo("here"))
+		{
+			return [];
+		}
+
+		return long.TryParse(StationSelector, out var id) && actor.Gameworld.Cells.Get(id) is { } cell
+			? [cell]
+			: [];
 	}
 }
 
@@ -677,6 +783,48 @@ public sealed class ShopFloatAdjustmentActionStep : EmploymentActionStepBase
 		return context.TryAdjustShopFloat(actor, Amount, FillRegister, RegisterSelector, out var reason, out var operationalState)
 			? new EmploymentActionStepResult(true,
 				$"{(FillRegister ? "Filled" : "Skimmed")} shop cash-register float.", true, operationalState)
+			: EmploymentActionStepResult.Blocked(reason);
+	}
+}
+
+public sealed class PhysicalFloatActionStep : EmploymentActionStepBase
+{
+	public PhysicalFloatActionStep(PhysicalFloatOperation operation, MoneyAmount? amount, string targetKind,
+		EmploymentItemSelector? targetSelector = null)
+		: base(
+			EmploymentActionStepType.PhysicalFloat,
+			EmploymentAuthority.WithdrawBusinessCash,
+			new[] { EmploymentAICapability.CanHandleCash },
+			true,
+			true)
+	{
+		Operation = operation;
+		Amount = amount;
+		TargetKind = string.IsNullOrWhiteSpace(targetKind) ? "bank" : targetKind.Trim();
+		TargetSelector = targetSelector;
+	}
+
+	public PhysicalFloatOperation Operation { get; }
+	public MoneyAmount? Amount { get; }
+	public string TargetKind { get; }
+	public EmploymentItemSelector? TargetSelector { get; }
+
+	public override bool CanExecute(IEmploymentTaskContext context, ICharacter actor, out string reason)
+	{
+		if (!base.CanExecute(context, actor, out reason))
+		{
+			return false;
+		}
+
+		return context.CanHandlePhysicalFloat(Operation, Amount, TargetKind, TargetSelector, out reason);
+	}
+
+	public override EmploymentActionStepResult Execute(IEmploymentTaskContext context, ICharacter actor)
+	{
+		return context.TryHandlePhysicalFloat(actor, Operation, Amount, TargetKind, TargetSelector, out var reason,
+			       out var operationalState)
+			? new EmploymentActionStepResult(true, $"Handled physical cash float: {Operation.DescribeEnum()}.", true,
+				operationalState)
 			: EmploymentActionStepResult.Blocked(reason);
 	}
 }

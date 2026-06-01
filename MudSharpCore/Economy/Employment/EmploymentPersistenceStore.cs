@@ -98,10 +98,15 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 		long? AmountCurrencyId = null, decimal? Amount = null);
 
 	private sealed record PurchaseStepPayload(int Quantity, string MerchandiseSelector, string SupplierSelector,
-		long CurrencyId, decimal? MaximumAmount, string? KeywordFilter);
+		long CurrencyId, decimal? MaximumAmount, string? KeywordFilter,
+		string TargetKind = "Merchandise", ItemSelectorPayload? ItemSelector = null,
+		double? CommodityWeight = null, string? CommodityDescriptor = null);
 
 	private sealed record ShopFloatAdjustmentStepPayload(bool FillRegister, long CurrencyId, decimal Amount,
 		ItemSelectorPayload? RegisterSelector);
+
+	private sealed record PhysicalFloatStepPayload(string Operation, long? CurrencyId, decimal? Amount,
+		string TargetKind, ItemSelectorPayload? TargetSelector);
 
 	private readonly IEmploymentHost _host;
 	private readonly IFuturemud _gameworld;
@@ -1139,6 +1144,10 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 				new TaxPaymentActionStep(amount),
 			EmploymentActionStepType.ShopFloatAdjustment =>
 				ToShopFloatAdjustmentStep(record),
+			EmploymentActionStepType.PhysicalFloat =>
+				ToPhysicalFloatStep(record),
+			EmploymentActionStepType.CraftStation =>
+				new CraftStationActionStep(record.Description ?? "here"),
 			_ => null
 		};
 	}
@@ -1152,8 +1161,21 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 		}
 
 		var maximum = payload.MaximumAmount.HasValue ? new MoneyAmount(currency, payload.MaximumAmount.Value) : null;
-		return new PurchaseActionStep(payload.Quantity, payload.MerchandiseSelector, payload.SupplierSelector,
-			currency, maximum, payload.KeywordFilter, existingFinancialRecord);
+		var targetKind = payload.TargetKind.TryParseEnum<EmploymentPurchaseTargetKind>(out var parsedKind)
+			? parsedKind
+			: EmploymentPurchaseTargetKind.Merchandise;
+		return targetKind switch
+		{
+			EmploymentPurchaseTargetKind.Item when ToItemSelector(payload.ItemSelector) is { } selector =>
+				new PurchaseActionStep(payload.Quantity, selector, payload.SupplierSelector, currency, maximum,
+					payload.KeywordFilter, existingFinancialRecord),
+			EmploymentPurchaseTargetKind.Commodity when payload.CommodityWeight.HasValue &&
+			                                        !string.IsNullOrWhiteSpace(payload.CommodityDescriptor) =>
+				new PurchaseActionStep(payload.CommodityWeight.Value, payload.CommodityDescriptor,
+					payload.SupplierSelector, currency, maximum, payload.KeywordFilter, existingFinancialRecord),
+			_ => new PurchaseActionStep(payload.Quantity, payload.MerchandiseSelector, payload.SupplierSelector,
+				currency, maximum, payload.KeywordFilter, existingFinancialRecord)
+		};
 	}
 
 	private ShopFloatAdjustmentActionStep? ToShopFloatAdjustmentStep(DbActionStep record)
@@ -1169,6 +1191,19 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 
 		return new ShopFloatAdjustmentActionStep(payload?.FillRegister ?? true, amount,
 			ToItemSelector(payload?.RegisterSelector));
+	}
+
+	private PhysicalFloatActionStep? ToPhysicalFloatStep(DbActionStep record)
+	{
+		var payload = TryDeserializeActionPayload<PhysicalFloatStepPayload>(record.BoardText);
+		if (payload is null || !payload.Operation.TryParseEnum<PhysicalFloatOperation>(out var operation))
+		{
+			return null;
+		}
+
+		var amount = payload.Amount.HasValue ? ToMoney(payload.CurrencyId, payload.Amount) : null;
+		return new PhysicalFloatActionStep(operation, amount, payload.TargetKind,
+			ToItemSelector(payload.TargetSelector));
 	}
 
 	private GetItemsByIdActionStep? ToGetItemsByIdStep(DbActionStep record)
@@ -1398,12 +1433,16 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 				if (purchase.IsExecutablePurchase)
 				{
 					record.BoardText = SerializeActionPayload(new PurchaseStepPayload(
-						purchase.Quantity!.Value,
-						purchase.MerchandiseSelector!,
+						purchase.Quantity ?? 0,
+						purchase.MerchandiseSelector ?? string.Empty,
 						purchase.SupplierSelector ?? "any",
 						purchase.Amount.Currency.Id,
 						purchase.MaximumAmount?.Amount,
-						purchase.KeywordFilter));
+						purchase.KeywordFilter,
+						purchase.TargetKind.ToString(),
+						FromItemSelector(purchase.ItemSelector),
+						purchase.CommodityWeight,
+						purchase.CommodityDescriptor));
 				}
 				break;
 			case MovementDeliveryActionStep delivery:
@@ -1413,6 +1452,9 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 			case CraftTriggerActionStep craft:
 				record.Description = craft.CraftDescription;
 				record.ExistingFinancialRecord = craft.ExistingFinancialRecord;
+				break;
+			case CraftStationActionStep station:
+				record.Description = station.StationSelector;
 				break;
 			case CommandActionStep command:
 				record.CommandName = command.CommandName;
@@ -1537,6 +1579,17 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 					shopFloat.Amount.Currency.Id,
 					shopFloat.Amount.Amount,
 					FromItemSelector(shopFloat.RegisterSelector)));
+				break;
+			case PhysicalFloatActionStep physicalFloat:
+				record.Description = $"{physicalFloat.Operation} physical float";
+				record.AmountCurrencyId = physicalFloat.Amount?.Currency.Id;
+				record.Amount = physicalFloat.Amount?.Amount;
+				record.BoardText = SerializeActionPayload(new PhysicalFloatStepPayload(
+					physicalFloat.Operation.ToString(),
+					physicalFloat.Amount?.Currency.Id,
+					physicalFloat.Amount?.Amount,
+					physicalFloat.TargetKind,
+					FromItemSelector(physicalFloat.TargetSelector)));
 				break;
 		}
 

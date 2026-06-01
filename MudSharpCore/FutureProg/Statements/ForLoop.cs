@@ -17,27 +17,58 @@ internal class ForLoop : Statement
     private static readonly Regex ForLoopEndCompileRegex = new(@"^\s*end for\s*$",
         RegexOptions.Multiline | RegexOptions.IgnoreCase);
 
-    protected IEnumerable<IStatement> ContainedBlock;
-    protected string LoopVarName;
+	protected IEnumerable<IStatement> ContainedBlock;
+	protected string LoopVarName;
 
-    protected IFunction RepetitionsFunction;
+	protected IFunction RepetitionsFunction;
+
+	internal const int DefaultMaximumIterations = 10000;
 
 	internal IFunction RepetitionsExpression => RepetitionsFunction;
 	internal string LoopVariableName => LoopVarName;
+	internal int? MaximumIterations { get; }
 	internal IReadOnlyList<IStatement> BodyStatements =>
 		ContainedBlock as IReadOnlyList<IStatement> ?? ContainedBlock.ToList();
 
-    public override bool IsReturnOrContainsReturnOnAllBranches()
-    {
-        return ContainedBlock.LastOrDefault()?.IsReturnOrContainsReturnOnAllBranches() ?? false;
-    }
+	public override bool IsReturnOrContainsReturnOnAllBranches()
+	{
+		return ContainedBlock.LastOrDefault()?.IsReturnOrContainsReturnOnAllBranches() ?? false;
+	}
 
-    public ForLoop(IFunction repetitions, string loopvarname, IEnumerable<IStatement> containedBlock)
-    {
-        RepetitionsFunction = repetitions;
-        LoopVarName = loopvarname;
-        ContainedBlock = containedBlock;
-    }
+	public ForLoop(IFunction repetitions, string loopvarname, IEnumerable<IStatement> containedBlock,
+		int? maximumIterations = null)
+	{
+		RepetitionsFunction = repetitions;
+		LoopVarName = loopvarname;
+		ContainedBlock = containedBlock;
+		MaximumIterations = maximumIterations;
+	}
+
+	internal static bool TryGetIterationCount(decimal repetitions, int? maximumIterations, out int iterations,
+		out string errorMessage)
+	{
+		if (maximumIterations is not null && repetitions > maximumIterations.Value)
+		{
+			iterations = 0;
+			errorMessage =
+				$"For loop of greater than {maximumIterations.Value:N0} iterations detected, aborting...";
+			return false;
+		}
+
+		try
+		{
+			iterations = Convert.ToInt32(repetitions);
+		}
+		catch (OverflowException)
+		{
+			iterations = 0;
+			errorMessage = "For loop iteration count was outside the supported range, aborting...";
+			return false;
+		}
+
+		errorMessage = string.Empty;
+		return true;
+	}
 
     private static ICompileInfo ForLoopCompile(IEnumerable<string> lines,
         IDictionary<string, ProgVariableTypes> variableSpace, int lineNumber, IFuturemud gameworld)
@@ -81,10 +112,13 @@ internal class ForLoop : Statement
             string line = lines.First();
             if (ForLoopEndCompileRegex.IsMatch(line))
             {
-                return CompileInfo.GetFactory()
-                                  .CreateNew(new ForLoop(function, varName, containedStatements), variableSpace,
-                                      lines.Skip(1),
-                                      lineNumber, currentLine + 1);
+				var maximumIterations = FutureProg.CurrentCompilationContext == FutureProgCompilationContext.StandardFutureProg
+					? (int?)null
+					: DefaultMaximumIterations;
+				return CompileInfo.GetFactory()
+				                  .CreateNew(new ForLoop(function, varName, containedStatements, maximumIterations), variableSpace,
+					                  lines.Skip(1),
+					                  lineNumber, currentLine + 1);
             }
 
             ICompileInfo statementInfo = FutureProg.CompileNextStatement(lines, localVariables, currentLine + 1, gameworld);
@@ -171,49 +205,55 @@ The scope of the variable declared as the iteration variable is limited to being
             "break, continue, end");
     }
 
-    public override StatementResult Execute(IVariableSpace variables)
-    {
-        StatementResult repetitionsResult = RepetitionsFunction.Execute(variables);
-        if (repetitionsResult != StatementResult.Normal)
-        {
-            return repetitionsResult;
-        }
+	public override StatementResult Execute(IVariableSpace variables)
+	{
+		StatementResult repetitionsResult = RepetitionsFunction.Execute(variables);
+		if (repetitionsResult != StatementResult.Normal)
+		{
+			return repetitionsResult;
+		}
 
-        int repetitions = Convert.ToInt32((decimal?)RepetitionsFunction.Result?.GetObject ?? 0.0M);
-        if (repetitions <= 0)
-        {
-            return StatementResult.Normal;
-        }
+		if (!TryGetIterationCount((decimal?)RepetitionsFunction.Result?.GetObject ?? 0.0M, MaximumIterations,
+			out var repetitions, out var errorMessage))
+		{
+			ErrorMessage = errorMessage;
+			return StatementResult.Error;
+		}
 
-        for (int i = 1; i <= repetitions; i++)
-        {
-            LocalVariableSpace localVariables = new(variables);
-            localVariables.SetVariable(LoopVarName, new NumberVariable(i));
+		if (repetitions <= 0)
+		{
+			return StatementResult.Normal;
+		}
 
-            foreach (IStatement statement in ContainedBlock)
-            {
-                StatementResult result = statement.Execute(localVariables);
-                if (result == StatementResult.Break)
-                {
-                    return StatementResult.Normal;
-                }
+		for (int i = 1; i <= repetitions; i++)
+		{
+			LocalVariableSpace localVariables = new(variables);
+			localVariables.SetVariable(LoopVarName, new NumberVariable(i));
 
-                if (result == StatementResult.Continue)
-                {
-                    break;
-                }
+			foreach (IStatement statement in ContainedBlock)
+			{
+				StatementResult result = statement.Execute(localVariables);
+				if (result == StatementResult.Break)
+				{
+					return StatementResult.Normal;
+				}
 
-                switch (result)
-                {
-                    case StatementResult.Return:
-                        return StatementResult.Return;
-                    case StatementResult.Error:
-                        ErrorMessage = statement.ErrorMessage;
-                        return StatementResult.Error;
-                }
-            }
-        }
+				if (result == StatementResult.Continue)
+				{
+					break;
+				}
 
-        return StatementResult.Normal;
-    }
+				switch (result)
+				{
+					case StatementResult.Return:
+						return StatementResult.Return;
+					case StatementResult.Error:
+						ErrorMessage = statement.ErrorMessage;
+						return StatementResult.Error;
+				}
+			}
+		}
+
+		return StatementResult.Normal;
+	}
 }

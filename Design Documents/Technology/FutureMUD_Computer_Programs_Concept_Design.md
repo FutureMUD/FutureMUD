@@ -237,6 +237,8 @@ Computer compilation contexts work as an allow-list, not a deny-list. The curren
 
 Statements like `console`, `delay`, `delayprog`, `force`, `send`, and `setregister` remain standard-prog-only.
 
+Computer-context `while` and `for` loops are both bounded at runtime to 10,000 iterations per loop activation. Attempts to execute larger `for` counts, including values too large for the supported integer iteration range, fail the computer program or function instead of continuing synchronously on the game-processing thread.
+
 ### Additional Statements
 
 There are a few statements and wait behaviours that will be only available for Custom Computer Programs and not regular progs. In the currently shipped phase this list contains:

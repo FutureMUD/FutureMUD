@@ -21,6 +21,7 @@ namespace MudSharp.Health
     public interface IWound : IPerceivable
     {
         bool IsFriendlyWound { get; }
+        DateTime? RealTimeOfWound { get; }
         bool Repairable { get; }
         /// <summary>
         ///     Contains an IGameItem with the game item that is lodged in this wound. It will be null if there is no lodged

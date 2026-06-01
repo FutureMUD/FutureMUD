@@ -16,6 +16,7 @@ using MudSharp.PerceptionEngine.Lists;
 using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.RPG.Checks;
+using MudSharp.RPG.Law;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -275,6 +276,17 @@ public class Movement : IMovement
                 originalMover.OutputHandler.Send($"You decide not to move because {failedMovers.Select(x => x.HowSeen(originalMover)).ListToString()} cannot move with you.\n{"Note: To disable this setting, turn off your party's leave none behind setting.".ColourCommand()}");
                 return null;
             }
+        }
+
+        List<ICharacter> voluntaryMovers = draggers
+            .Concat(helpers)
+            .Concat(nondraggers)
+            .Concat(mounts)
+            .Distinct()
+            .ToList();
+        if (AutomaticCrimeExtensions.CheckLawfulMovement(voluntaryMovers, exit, originalMover))
+        {
+            return null;
         }
 
         return new Movement(originalMover, originalMover.Party, draggers, helpers, nondraggers, mounts, targets, effects, exit);

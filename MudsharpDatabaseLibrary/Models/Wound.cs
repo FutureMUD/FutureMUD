@@ -27,6 +27,7 @@ namespace MudSharp.Models
         public string ExtraInformation { get; set; }
         public long? ActorOriginId { get; set; }
         public long? ToolOriginId { get; set; }
+        public DateTime? RealTimeOfWound { get; set; }
         public string WoundType { get; set; }
 
         public virtual Character ActorOrigin { get; set; }

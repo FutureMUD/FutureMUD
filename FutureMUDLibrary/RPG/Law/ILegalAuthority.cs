@@ -53,8 +53,12 @@ namespace MudSharp.RPG.Law
         IEnumerable<ICrime> CheckPossibleCrime(ICharacter criminal, CrimeTypes crime, ICharacter victim, IGameItem item, string additionalInformation);
         IEnumerable<ICrime> CheckPossibleCrime(ICharacter criminal, CrimeTypes crime, ICharacter victim, IGameItem item,
             string additionalInformation, IEnumerable<ICharacter> witnesses, bool notifyVictim);
+        IEnumerable<ICrime> CheckPossibleCrime(ICharacter criminal, CrimeTypes crime, ICharacter victim, IGameItem item,
+            string additionalInformation, IEnumerable<ICharacter> witnesses, bool notifyVictim, ICell crimeLocation);
         bool WouldBeACrime(ICharacter criminal, CrimeTypes crime, ICharacter victim, IGameItem item,
             string additionalInformation);
+        bool WouldBeACrimeAtLocation(ICharacter criminal, CrimeTypes crime, ICharacter victim, IGameItem item,
+            string additionalInformation, ICell crimeLocation);
         ILegalClass GetLegalClass(ICharacter character);
         IEnforcementAuthority GetEnforcementAuthority(ICharacter character);
         void ReportCrime(ICrime crime, ICharacter witness, bool identityKnown, double reliability);

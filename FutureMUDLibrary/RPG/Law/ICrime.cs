@@ -29,6 +29,7 @@ namespace MudSharp.RPG.Law
         ICharacter? Victim { get; }
         long? ThirdPartyId { get; }
         string? ThirdPartyFrameworkItemType { get; }
+        string? AdditionalInformation { get; }
         IEnumerable<long> WitnessIds { get; }
         void AddWitness(long witnessId);
         bool IsKnownCrime { get; set; }

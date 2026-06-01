@@ -57,6 +57,7 @@ public class RobotWound : PerceivedItem, IWound
         Lodged = lodged;
         _toolOriginId = toolOrigin?.Id ?? 0;
         _actorOriginId = actorOrigin?.Id ?? 0;
+        RealTimeOfWound = DateTime.UtcNow;
         if (actorOrigin?.Combat?.Friendly == true)
         {
             IsFriendlyWound = true;
@@ -128,6 +129,7 @@ public class RobotWound : PerceivedItem, IWound
         dbitem.LodgedItemId = Lodged?.Id;
         dbitem.ActorOriginId = _actorOriginId != 0 ? _actorOriginId : default(long?);
         dbitem.ToolOriginId = _toolOriginId != 0 ? _toolOriginId : default(long?);
+        dbitem.RealTimeOfWound = RealTimeOfWound;
         dbitem.ExtraInformation = SaveExtras();
         return dbitem;
     }
@@ -156,6 +158,7 @@ public class RobotWound : PerceivedItem, IWound
 
         _actorOriginId = wound.ActorOriginId ?? 0;
         _toolOriginId = wound.ToolOriginId ?? 0;
+        RealTimeOfWound = wound.RealTimeOfWound;
 
         XElement root = XElement.Parse(wound.ExtraInformation);
         XElement element = root.Element("BleedStatus");
@@ -901,4 +904,5 @@ public class RobotWound : PerceivedItem, IWound
 
     public Difficulty ConcentrationDifficulty => Difficulty.Automatic;
     public bool IsFriendlyWound { get; protected set; }
+    public DateTime? RealTimeOfWound { get; protected set; }
 }

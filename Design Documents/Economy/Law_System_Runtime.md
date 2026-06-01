@@ -4,6 +4,26 @@
 
 This document records the current runtime behavior of the legal authority, sentencing, and patrol systems. It is intended as a builder-facing and implementer-facing reference for the coded law system rather than a setting-specific legal guide.
 
+## Automatic Crime Application
+
+Automatic enforcement is opt-in per law. A law only applies from coded hooks when `law auto` is enabled, the offender and victim legal-class filters pass, and the optional law prog returns true. `law repeat` controls whether repeated automatic applications against the same law, target, object, and location are suppressed for the short repeat window.
+
+Automatic crime hooks now pass a context text string to the crime record and to law progs that opt into the extended signatures. Existing law prog signatures continue to receive the crime name as their text argument. Builders can use the extended `text text` signatures to receive both the crime name and the automatic context.
+
+Currently supported automatic hooks include:
+
+- `Murder`: applied when a character dies with recent qualifying wounds from another character. Each responsible attacker is checked separately. By default the wound must be at least `Severe`, no more than `7200` real-time seconds old, have a recorded wound time, and not be a friendly-combat wound. Builders can tune this with `AutomaticMurderMinimumWoundSeverity`, `AutomaticMurderWoundAttributionWindowSeconds`, and `AutomaticMurderIncludeFriendlyWounds`. Context includes victim id, wound count, maximum wound severity, damage type, bodypart, wound age, friendly status, and whether the accused was present at the death scene.
+- `GreviousBodilyHarm`: applied when a wound caused by another character meets or exceeds `AutomaticGreviousBodilyHarmMinimumSeverity`, defaulting to `Grievous`. Context includes victim id, severity, damage type, and bodypart.
+- `Trespassing`: applied when a character enters a property cell without owner, leaseholder, tenant, hotel-room, or `PermitWork` authorisation and the property has criminal-code enforcement enabled. Context includes property and cell ids.
+- `Gambling`: applied after an arena wager validates, collects the stake, persists the bet, and credits the arena. Lawful-action protection blocks the wager before money changes hands. Context includes arena id, event id, stake, and betting model.
+- `TrafficingContraband`: applied when a character enters a legal-authority enforcement zone from outside that authority while carrying an item that satisfies a `TrafficingContraband` automatic law. The enum spelling is preserved for compatibility. Context includes item, origin cell, destination cell, and actor ids.
+
+Automatic movement hooks evaluate voluntary movers before the movement begins, so a party member with lawful-action protection can block the whole movement before they enter. Dragged movement targets are not charged for automatic entry crimes.
+
+Crime records retain the raw automatic context for administrator diagnostics. `crime info` presents non-admin judges and enforcers with a summarised automatic-evidence block instead of raw context ids, for example an automatic murder record shows the death-investigation source, wound basis, injury details, timing, scene presence, any implement, and a note that this is mechanical evidence rather than an automatic guilty verdict.
+
+Builder customisation remains data-driven: use legal authority enforcement zones for jurisdiction, property `lawful` settings and authorisations for trespass policy, the murder and grievous-wound static settings for injury thresholds, and law progs for venue, route, item, victim, offender, or circumstance-specific exceptions.
+
 ## Death Sentences
 
 Death sentences are represented by `PunishmentResult.Execution`. When multiple punishments are combined, the execution flag is preserved alongside fines, custodial sentences, and good-behaviour bonds.

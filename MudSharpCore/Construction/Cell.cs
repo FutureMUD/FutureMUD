@@ -36,6 +36,7 @@ using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.RPG.Checks;
+using MudSharp.RPG.Law;
 using MudSharp.TimeAndDate.Date;
 using MudSharp.TimeAndDate.Time;
 using MudSharp.Work.Agriculture;
@@ -690,6 +691,13 @@ public partial class Cell : Location, IDisposable, ICell
         {
             witness.HandleEvent(EventType.CharacterEnterCellWitness, movingCharacter, this,
                 movingCharacter.Movement?.Exit, witness);
+        }
+
+        if (exit is not null && !noSave)
+        {
+            var isDraggedMovementTarget = movingCharacter.Movement?.Targets.Contains(movingCharacter) == true;
+            AutomaticCrimeExtensions.CheckLocationEntryCrimes(movingCharacter, this, exit,
+                !isDraggedMovementTarget);
         }
 
         CheckFallExitStatus();

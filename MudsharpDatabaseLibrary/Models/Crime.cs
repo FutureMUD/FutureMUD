@@ -18,6 +18,7 @@ namespace MudSharp.Models
         public long? AccuserId { get; set; }
         public long? ThirdPartyId { get; set; }
         public string? ThirdPartyIItemType { get; set; }
+        public string? AdditionalInformation { get; set; }
         public string CriminalShortDescription { get; set; } = null!;
         public string CriminalFullDescription { get; set; } = null!;
         public string CriminalCharacteristics { get; set; } = null!;

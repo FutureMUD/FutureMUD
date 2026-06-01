@@ -2178,6 +2178,8 @@ namespace MudSharp.Database
 
                 entity.Property(e => e.LodgedItemId).HasColumnType("bigint(20)");
 
+                entity.Property(e => e.RealTimeOfWound).HasColumnType("datetime");
+
                 entity.Property(e => e.ToolOriginId).HasColumnType("bigint(20)");
 
                 entity.Property(e => e.WoundType)

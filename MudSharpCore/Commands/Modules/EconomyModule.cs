@@ -6190,6 +6190,12 @@ Note: Admins can use the #3auction cancel#0 subcommand on other people's items";
             case "view":
             case "clone":
             case "list":
+                if (!actor.IsAdministrator())
+                {
+                    actor.OutputHandler.Send("Only administrators can use auction house building commands.");
+                    return;
+                }
+
                 BuilderModule.GenericBuildingCommand(actor, ss.GetUndo(), EditableItemHelper.AuctionHelper);
                 return;
         }

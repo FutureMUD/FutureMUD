@@ -571,6 +571,11 @@ public partial class Character
             return false;
         }
 
+        if (RidingMount is not null)
+        {
+            return RidingMount.RiderMove(exit, this, emote, ignoreSafeMovement);
+        }
+
         ConvertGrapplesToDrags();
 
         CanMoveFlags flags = CanMoveFlags.IgnoreWhetherExitCanBeCrossed | CanMoveFlags.IgnoreCancellableActionBlockers;

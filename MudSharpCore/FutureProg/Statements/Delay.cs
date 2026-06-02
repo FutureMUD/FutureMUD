@@ -141,7 +141,9 @@ For example:
 
 	#Odelay#0 #25000#0 #M@guard#0 #N""say Golly, the weather sure is nice today!""#0
 
-If you specify a delay of 0 the command will be executed immediately - this is really an alternative to the FORCE statement in this usage.");
+If you specify a delay of 0 the command will be executed immediately - this is really an alternative to the FORCE statement in this usage.
+
+If the target is a staff PC, the delayed command is executed in temporary mortal mode. Admin-only commands are not available for the duration, and admin checks inside player-facing commands behave as if the target were a normal player.");
     }
 
     public override StatementResult Execute(IVariableSpace variables)
@@ -174,13 +176,13 @@ If you specify a delay of 0 the command will be executed immediately - this is r
         double delay = Convert.ToDouble(DelayFunction.Result.GetObject);
         if (delay <= 0)
         {
-            ((IControllable)CharacterFunction.Result).ExecuteCommand(TextFunction.Result.GetObject.ToString());
+            CommandExecutionGuards.ExecuteForcedCommand(character, TextFunction.Result.GetObject.ToString());
             return StatementResult.Normal;
         }
 
         string text = TextFunction.Result.GetObject.ToString();
         character.AddEffect(new DelayedAction(character,
-            perceivable => { character.ExecuteCommand(text); },
+            perceivable => { CommandExecutionGuards.ExecuteForcedCommand(character, text); },
             "delayed command"), TimeSpan.FromMilliseconds(delay));
         return StatementResult.Normal;
     }

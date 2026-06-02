@@ -1,4 +1,5 @@
 ﻿using MudSharp.Framework;
+using MudSharp.Character;
 using MudSharp.FutureProg.Compiler;
 using MudSharp.FutureProg.Functions;
 using System;
@@ -125,7 +126,9 @@ The syntax is as follows:
 
 For example:
 
-	#Lforce#0 #M@guard#0 #N""say Golly, the weather sure is nice today!""#0");
+	#Lforce#0 #M@guard#0 #N""say Golly, the weather sure is nice today!""#0
+
+If the target is a staff PC, the forced command is executed in temporary mortal mode. Admin-only commands are not available for the duration, and admin checks inside player-facing commands behave as if the target were a normal player.");
     }
 
     public override StatementResult Execute(IVariableSpace variables)
@@ -142,7 +145,8 @@ For example:
             return StatementResult.Error;
         }
 
-        ((IControllable)CharacterFunction.Result).ExecuteCommand(TextFunction.Result.GetObject.ToString());
+        CommandExecutionGuards.ExecuteForcedCommand((ICharacter)CharacterFunction.Result,
+            TextFunction.Result.GetObject.ToString());
         return StatementResult.Normal;
     }
 }

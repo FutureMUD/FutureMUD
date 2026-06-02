@@ -76,7 +76,7 @@ public class CommandSchedule : ScheduleBase
 
     public override void Fire()
     {
-        Actor.OutOfContextExecuteCommand(Command);
+        CommandExecutionGuards.OutOfContextExecuteForcedCommand(Actor, Command);
     }
 
     public override bool PertainsTo(IFrameworkItem item)

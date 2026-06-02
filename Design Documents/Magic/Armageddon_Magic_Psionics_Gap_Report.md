@@ -119,7 +119,7 @@ Completed on 2026-05-01.
 - Added `magictag` / `removemagictag` and FutureProg helpers `hasmagictag`, `magictagvalue`, `magictagvalues`, and `magictags`.
 - Added first-class item and corpse effects: `itemdamage`, `destroyitem`, `itemenchant`, `corpsemark`, `corpsepreserve`, `corpseconsume`, and `corpsespawn`.
 - Added transient paired magical portals through `portal`, backed by effect-owned transient exits rather than permanent database exits.
-- Added safe command-forcing through `forcecommand`, with staff/editor/account-destructive roots blocked and wiz-only audit output.
+- Added safe command-forcing through `forcecommand`, with staff/editor/account-destructive roots blocked, staff PCs temporarily forced in mortal mode, and wiz-only audit output.
 - Added caster-scoped subjective short/full description overrides through `subjectivesdesc` and `subjectivedesc`.
 
 Deferred from V1 but later resolved in V2: general dispel/shorten support, portal inspection and item anchors, richer item-enchantment hooks, and psionic identity/passive-traffic policy.
@@ -391,7 +391,7 @@ Status: Coercion V1, psionic identity concealment, passive thought/feeling traff
 
 FutureMUD already has good mind-link primitives and now has:
 
-- `forcecommand`, which runs as the target's own command context through `ExecuteCommand`, respects `IIgnoreForceEffect`, blocks staff/editor/account-destructive command roots, and emits wiz-only audit output.
+- `forcecommand`, which runs as the target's own command context, respects `IIgnoreForceEffect`, blocks staff/editor/account-destructive command roots, temporarily forces staff PCs in mortal mode, and emits wiz-only audit output.
 - `subjectivedesc`, which applies a spell-owned full-description override.
 - `subjectivesdesc`, which applies a spell-owned short-description override.
 - caster-scoped subjective-description support through fixed-viewer handling.
@@ -550,7 +550,7 @@ These are the next-best return once the basic statuses exist.
 5. Add a command-safe psionic coercion framework.
    - Completed for Coercion V1 with `forcecommand`.
    - Extended in V4 with `projectemotion`, `suggest`, and mode-based `coerce`.
-   - The command-forcing implementation executes through the target's own `ExecuteCommand`, respects `IIgnoreForceEffect`, blocks staff/editor/account-destructive roots, and emits wiz-only audit output.
+   - The command-forcing implementation executes through the target's own command context, respects `IIgnoreForceEffect`, blocks staff/editor/account-destructive roots, temporarily forces staff PCs in mortal mode, and emits wiz-only audit output.
    - The V4 non-command path shares opt-out checks, listener delivery, and audit output. V5b adds timed residual traces for psionic activity; broader consent-policy models and permanent consequence ledgers remain future work.
 
 ### Phase 3: Tricky Design Work

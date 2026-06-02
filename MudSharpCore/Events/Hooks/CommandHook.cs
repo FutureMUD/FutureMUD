@@ -1,4 +1,5 @@
 ﻿using MudSharp.Framework;
+using MudSharp.Character;
 using System;
 using System.Linq;
 using System.Xml.Linq;
@@ -28,8 +29,16 @@ public class CommandHook : HookBase, ICommandHook
                                                                                  return false;
                                                                              }
 
-                                                                             ((IControllable)paramlist.ElementAt(_commandExecuterIndex)).ExecuteCommand(
-                                                                                 CommandToExecute(paramlist));
+                                                                             var target = (IControllable)paramlist.ElementAt(_commandExecuterIndex);
+                                                                             var command = CommandToExecute(paramlist);
+                                                                             if (target is ICharacter character)
+                                                                             {
+                                                                                 CommandExecutionGuards.ExecuteForcedCommand(character, command);
+                                                                             }
+                                                                             else
+                                                                             {
+                                                                                 target.ExecuteCommand(command);
+                                                                             }
                                                                              return true;
                                                                          };
 

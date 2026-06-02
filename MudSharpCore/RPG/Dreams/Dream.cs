@@ -424,7 +424,7 @@ public class Dream : SaveableItem, IDream
         else
         {
             actor.OutputHandler.Send(
-                $"The {value.ToOrdinal()} stage will now execute the following commands:\n\n{_dreamStages[value - 1].DreamerCommand.ColourCommand()}");
+                $"The {value.ToOrdinal()} stage will now execute the following commands:\n\n{_dreamStages[value - 1].DreamerCommand.ColourCommand()}\n\nIf the dreamer is a staff PC, these commands will execute in temporary mortal mode.");
         }
 
         return true;

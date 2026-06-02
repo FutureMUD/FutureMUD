@@ -580,7 +580,7 @@ With no limits, all retained room speech context is shown.", AutoHelp.HelpArgOrN
     [PlayerCommand("Force", "force")]
     [CommandPermission(PermissionLevel.JuniorAdmin)]
     [HelpInfo("force",
-        "This command allows you to force someone or a group of someones to do a specified command. All admins will see that you used this command. There are a few different versions:\n\tforce <target> <command> - forces an individual target to do a command\n\tforce here <command> - forces all characters (PC and NPC, excluding yourself and other admins)\n\tforce npchere <command> - same as here, but excludes all PCs\n\tforce all <command> - can only be used by senior admins and up - forces ALL PCs and NPCs in the game\n\tforce players <command> - can only be used by senior admins and up - forces all PCs in the game\n\tforce npcs <command> - can only be used by senior admins and up - forces all NPCs in the game ",
+        "This command allows you to force someone or a group of someones to do a specified command. All admins will see that you used this command. Non-Implementors cannot force admins of equal or higher authority; group forms skip those admins. There are a few different versions:\n\tforce <target> <command> - forces an individual target to do a command\n\tforce here <command> - forces all eligible visible characters (PC and NPC) in the room\n\tforce npchere <command> - same as here, but excludes all PCs\n\tforce all <command> - can only be used by senior admins and up - forces all eligible PCs and NPCs in the game\n\tforce players <command> - can only be used by senior admins and up - forces all eligible PCs in the game\n\tforce npcs <command> - can only be used by senior admins and up - forces all NPCs in the game\n\nThere is no FORCE LOCAL form; use FORCE HERE for the local room.",
         AutoHelp.HelpArgOrNoArg)]
     protected static void Force(ICharacter character, string input)
     {
@@ -605,8 +605,9 @@ With no limits, all retained room speech context is shown.", AutoHelp.HelpArgOrN
                             $"@ force|forces everyone in the game to do the command '{ss.RemainingArgument}'",
                             character),
                         flags: OutputFlags.WizOnly), true);
-                    foreach (ICharacter person in character.Gameworld.Characters
-                                                    .Where(x => !x.AffectedBy<IIgnoreForceEffect>())
+                    foreach (ICharacter person in character.Gameworld.Actors
+                                                    .Where(x => !x.AffectedBy<IIgnoreForceEffect>() &&
+                                                                CommandExecutionGuards.CanForceTarget(character, x))
                                                     .ToList())
                     {
                         person.ExecuteCommand(ss.RemainingArgument);
@@ -642,7 +643,9 @@ With no limits, all retained room speech context is shown.", AutoHelp.HelpArgOrN
                             $"@ force|forces all players in the game to do the command '{ss.RemainingArgument}'",
                             character),
                         flags: OutputFlags.WizOnly), true);
-                    foreach (ICharacter person in character.Gameworld.Actors.Where(x => !x.AffectedBy<IIgnoreForceEffect>())
+                    foreach (ICharacter person in character.Gameworld.Characters
+                                                    .Where(x => !x.AffectedBy<IIgnoreForceEffect>() &&
+                                                                CommandExecutionGuards.CanForceTarget(character, x))
                                                     .ToList())
                     {
                         person.ExecuteCommand(ss.RemainingArgument);
@@ -678,7 +681,9 @@ With no limits, all retained room speech context is shown.", AutoHelp.HelpArgOrN
                             $"@ force|forces all NPCs in the game to do the command '{ss.RemainingArgument}'",
                             character),
                         flags: OutputFlags.WizOnly), true);
-                    foreach (ICharacter person in character.Gameworld.NPCs.Where(x => !x.AffectedBy<IIgnoreForceEffect>())
+                    foreach (ICharacter person in character.Gameworld.NPCs
+                                                    .Where(x => !x.AffectedBy<IIgnoreForceEffect>() &&
+                                                                CommandExecutionGuards.CanForceTarget(character, x))
                                                     .ToList())
                     {
                         person.ExecuteCommand(ss.RemainingArgument);
@@ -708,7 +713,8 @@ With no limits, all retained room speech context is shown.", AutoHelp.HelpArgOrN
                 flags: OutputFlags.WizOnly));
             foreach (ICharacter person in character.Location.Characters
                                             .Where(x => !x.AffectedBy<IIgnoreForceEffect>() &&
-                                                        !x.AffectedBy<IAdminInvisEffect>())
+                                                        !x.AffectedBy<IAdminInvisEffect>() &&
+                                                        CommandExecutionGuards.CanForceTarget(character, x))
                                             .ToList())
             {
                 person.ExecuteCommand(ss.RemainingArgument);
@@ -723,7 +729,8 @@ With no limits, all retained room speech context is shown.", AutoHelp.HelpArgOrN
                     $"@ force|forces all NPCs in the room to do the command '{ss.RemainingArgument}'", character),
                 flags: OutputFlags.WizOnly));
             foreach (ICharacter person in character.Location.Characters.Where(x => !x.AffectedBy<IIgnoreForceEffect>())
-                                            .Where(x => x is INPC).ToList())
+                                            .Where(x => x is INPC && CommandExecutionGuards.CanForceTarget(character, x))
+                                            .ToList())
             {
                 person.ExecuteCommand(ss.RemainingArgument);
             }
@@ -751,6 +758,13 @@ With no limits, all retained room speech context is shown.", AutoHelp.HelpArgOrN
             return;
         }
 
+        if (!CommandExecutionGuards.CanForceTarget(character, target))
+        {
+            character.OutputHandler.Send(
+                $"{target.HowSeen(character, true)} is an admin of equal or higher authority, so you cannot FORCE them.");
+            return;
+        }
+
         character.OutputHandler.Handle(new EmoteOutput(new Emote(
                 $"@ force|forces $0 to do the command '{ss.RemainingArgument}'", character, target),
             flags: OutputFlags.WizOnly));
@@ -759,6 +773,9 @@ With no limits, all retained room speech context is shown.", AutoHelp.HelpArgOrN
 
     [PlayerCommand("As", "as")]
     [CommandPermission(PermissionLevel.Admin)]
+    [HelpInfo("as",
+        "This command allows you to briefly execute a command as another visible character. Only Implementors may use AS on another admin; non-Implementor admins may only AS non-admin characters.",
+        AutoHelp.HelpArgOrNoArg)]
     protected static void As(ICharacter character, string input)
     {
         StringStack ss = new(input.RemoveFirstWord());
@@ -782,14 +799,28 @@ With no limits, all retained room speech context is shown.", AutoHelp.HelpArgOrN
             return;
         }
 
+        if (!CommandExecutionGuards.CanUseAsTarget(character, target))
+        {
+            character.OutputHandler.Send(
+                $"{target.HowSeen(character, true)} is an admin, so only Implementors can use AS on them.");
+            return;
+        }
+
         IController oldController = target.Controller;
+        IController actorController = character.Controller;
         character.OutputHandler.Handle(new EmoteOutput(new Emote(
                 $"@ force|forces $0 to do the command '{ss.RemainingArgument}'", character, target),
             flags: OutputFlags.WizOnly));
-        target.SilentAssumeControl(character.Controller);
-        target.ExecuteCommand(ss.RemainingArgument);
-        target.SilentAssumeControl(oldController);
-        character.SilentAssumeControl(character.Controller);
+        target.SilentAssumeControl(actorController);
+        try
+        {
+            target.ExecuteCommand(ss.RemainingArgument);
+        }
+        finally
+        {
+            target.SilentAssumeControl(oldController);
+            character.SilentAssumeControl(actorController);
+        }
     }
 
     public const string LoadCurrencyHelp = @"This command is used to load an amount of currency into the world. Currency exists as a virtual currency pile object and so cannot be loaded directly using the normal methods.

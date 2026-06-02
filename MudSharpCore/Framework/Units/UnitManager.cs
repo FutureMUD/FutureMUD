@@ -4,6 +4,7 @@ using MudSharp.Models;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 using CultureInfo = System.Globalization.CultureInfo;
@@ -12,7 +13,7 @@ namespace MudSharp.Framework.Units;
 
 public class UnitManager : IUnitManager
 {
-    private static readonly Regex PatternRegex = new(@"([+-]*\d{1,}[\.\d]{0,})[ ]{0,1}([a-zA-Z'""]{1,})");
+    private static readonly Regex PatternRegex = new(@"\G\s*([+-]?\d+(?:\.\d*)?)[ ]{0,1}([a-zA-Z'""]{1,})\s*");
     private readonly List<IUnit> _units = new();
 
     private readonly CollectionDictionary<string, IUnit> _unitSystems =
@@ -93,7 +94,7 @@ public class UnitManager : IUnitManager
     public double GetBaseUnits(string pattern, UnitType type, out bool success)
     {
         double baseSum = 0;
-        List<Match> matches = PatternRegex.Matches(pattern).ToList();
+        List<Match> matches = GetUnitMatches(pattern);
         if (!matches.Any())
         {
             success = false;
@@ -111,7 +112,13 @@ public class UnitManager : IUnitManager
                 return 0.0;
             }
 
-            baseSum += double.Parse(match.Groups[1].Value) * unit.MultiplierFromBase;
+            if (!TryParseUnitValue(match, out double unitValue))
+            {
+                success = false;
+                return 0.0;
+            }
+
+            baseSum += unitValue * unit.MultiplierFromBase;
         }
 
         success = true;
@@ -121,7 +128,7 @@ public class UnitManager : IUnitManager
     public bool TryGetBaseUnits(string pattern, UnitType type, IPerceiver who, out double value)
     {
         value = 0.0;
-        List<Match> matches = PatternRegex.Matches(pattern).ToList();
+        List<Match> matches = GetUnitMatches(pattern);
         if (!matches.Any())
         {
             if (double.TryParse(pattern, out double dvalue))
@@ -150,7 +157,13 @@ public class UnitManager : IUnitManager
                 return false;
             }
 
-            value += double.Parse(match.Groups[1].Value) * unit.MultiplierFromBase;
+            if (!TryParseUnitValue(match, out double unitValue))
+            {
+                value = 0.0;
+                return false;
+            }
+
+            value += unitValue * unit.MultiplierFromBase;
         }
 
         return true;
@@ -159,7 +172,7 @@ public class UnitManager : IUnitManager
     public bool TryGetBaseUnits(string pattern, UnitType type, IAccount who, out double value)
     {
         value = 0.0;
-        List<Match> matches = PatternRegex.Matches(pattern).ToList();
+        List<Match> matches = GetUnitMatches(pattern);
         if (!matches.Any())
         {
             if (double.TryParse(pattern, out double dvalue))
@@ -188,10 +201,33 @@ public class UnitManager : IUnitManager
                 return false;
             }
 
-            value += double.Parse(match.Groups[1].Value) * unit.MultiplierFromBase;
+            if (!TryParseUnitValue(match, out double unitValue))
+            {
+                value = 0.0;
+                return false;
+            }
+
+            value += unitValue * unit.MultiplierFromBase;
         }
 
         return true;
+    }
+
+    internal static List<Match> GetUnitMatches(string pattern)
+    {
+        List<Match> matches = PatternRegex.Matches(pattern).ToList();
+        if (!matches.Any())
+        {
+            return matches;
+        }
+
+        Match lastMatch = matches[^1];
+        return lastMatch.Index + lastMatch.Length == pattern.Length ? matches : new List<Match>();
+    }
+
+    internal static bool TryParseUnitValue(Match match, out double value)
+    {
+        return double.TryParse(match.Groups[1].Value, NumberStyles.Float, CultureInfo.InvariantCulture, out value);
     }
 
     private void InitialiseUnitManager(IFuturemud game)

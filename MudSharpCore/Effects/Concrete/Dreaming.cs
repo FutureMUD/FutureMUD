@@ -120,7 +120,7 @@ public class Dreaming : Effect, IDreamingEffect
                     ownerAsCharacter.RemoveAllEffects(x => x.IsEffectType<NoWake>());
                 }
 
-                ownerAsCharacter.OutOfContextExecuteCommand(command);
+                CommandExecutionGuards.OutOfContextExecuteForcedCommand(ownerAsCharacter, command);
             }
         }
 

@@ -1552,7 +1552,7 @@ public class ForceCommandEffect : IMagicSpellEffectTemplate
 		Gameworld.SystemMessage(new EmoteOutput(new Emote(
 			$"@ magically compel|compels $0 to execute '{Command}'", caster, character),
 			flags: OutputFlags.WizOnly), true);
-		character.ExecuteCommand(Command);
+		CommandExecutionGuards.ExecuteForcedCommand(character, Command);
 		return null;
 	}
 
@@ -1577,7 +1577,7 @@ public class ForceCommandEffect : IMagicSpellEffectTemplate
 
 	public IMagicSpellEffectTemplate Clone() => new ForceCommandEffect(SaveToXml(), Spell);
 
-	public const string HelpText = "#3command <command>#0 - sets the command the target will execute";
+	public const string HelpText = "#3command <command>#0 - sets the command the target will execute. Staff PCs execute in temporary mortal mode.";
 
 	public bool BuildingCommand(ICharacter actor, StringStack command)
 	{

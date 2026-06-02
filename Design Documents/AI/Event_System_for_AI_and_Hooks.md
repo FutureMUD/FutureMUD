@@ -151,6 +151,8 @@ The hook subsystem also includes additional concrete types such as:
 - `CommandHookFutureProg`
 - `GPTHook`
 
+`CommandHook` and `CommandHookFutureProg` can make an event parameter execute an authored command. When that parameter is a staff PC, the command executes in temporary mortal mode so admin-only command roots and admin-only branches inside player-facing commands are not exposed through hook authorship.
+
 For most AI and content-authoring work, the primary practical types are still `FutureProgHook`, `HookOnInput`, and `DefaultHook`.
 
 ## Save/Load Behavior

@@ -143,6 +143,21 @@ public class ItemSeederAddCraftTests
 		context.SaveChanges();
 	}
 
+	private static void AddSkillTrait(FuturemudDatabaseContext context, long id, string name)
+	{
+		context.TraitDefinitions.Add(new TraitDefinition
+		{
+			Id = id,
+			Name = name,
+			Type = 0,
+			OwnerScope = 0,
+			TraitGroup = "Crafting",
+			ChargenBlurb = string.Empty,
+			ValueExpression = string.Empty
+		});
+		context.SaveChanges();
+	}
+
 	private static Tag Tag(long id, string name)
 	{
 		return new Tag { Id = id, Name = name };
@@ -470,6 +485,32 @@ public class ItemSeederAddCraftTests
 	}
 
 	[TestMethod]
+	public void ItemSeeder_AddCraft_TraitGateResolvesStockPackageAliasTraitName()
+	{
+		using FuturemudDatabaseContext context = BuildContext();
+		SeedPrerequisites(context);
+		AddSkillTrait(context, 9, "Woodcraft");
+
+		var craft = new ItemSeeder().AddTraitGatedCraftFromImportsForTesting(
+			context,
+			"test stock alias craft",
+			"Testing",
+			"Carpentry",
+			40,
+			BasicPhases(),
+			BasicInputs(),
+			BasicTools(),
+			BasicProducts(),
+			[]
+		);
+
+		Assert.AreEqual(9, craft.CheckTraitId);
+		Assert.AreEqual("Woodcraft", craft.CheckTrait.Name);
+		var appear = context.FutureProgs.Single(x => x.FunctionName == "ItemSeederAppearWoodcraft40");
+		Assert.IsTrue(appear.FunctionText.Contains(@"ToTrait(""9"")"));
+	}
+
+	[TestMethod]
 	public void ItemSeeder_AddCraft_KnowledgeGateUpsertsKnowledgeAndChecksKnowledgeOnly()
 	{
 		using FuturemudDatabaseContext context = BuildContext();
@@ -544,6 +585,38 @@ public class ItemSeederAddCraftTests
 		Assert.IsTrue(appear.FunctionText.Contains(">= 55"));
 		Assert.IsTrue(whyCannot.FunctionText.Contains("Master Pattern Cutting"));
 		Assert.IsTrue(whyCannot.FunctionText.Contains("at least 55"));
+	}
+
+	[TestMethod]
+	public void ItemSeeder_AddCraft_KnowledgeGateResolvesSpacedStockPackageAliasTraitName()
+	{
+		using FuturemudDatabaseContext context = BuildContext();
+		SeedPrerequisites(context);
+		AddSkillTrait(context, 9, "Wood Work");
+
+		var craft = new ItemSeeder().AddKnowledgeGatedCraftFromImportsForTesting(
+			context,
+			"test knowledge alias craft",
+			"Testing",
+			"Ancient Toolmaking",
+			"Carpentry",
+			35,
+			BasicPhases(),
+			BasicInputs(),
+			BasicTools(),
+			BasicProducts(),
+			[],
+			knowledgeSubtype: "Repair Kits"
+		);
+
+		Assert.AreEqual(9, craft.CheckTraitId);
+		Assert.AreEqual("Wood Work", craft.CheckTrait.Name);
+		var appear = context.FutureProgs.Single(x =>
+			x.FunctionName == "ItemSeederAppearKnowledgeAncientToolmakingWoodWork35");
+		var whyCannot = context.FutureProgs.Single(x =>
+			x.FunctionName == "ItemSeederWhyCannotUseKnowledgeAncientToolmakingWoodWork35");
+		Assert.IsTrue(appear.FunctionText.Contains(@"ToTrait(""9"")"));
+		Assert.IsTrue(whyCannot.FunctionText.Contains("Wood Work"));
 	}
 
 	[TestMethod]

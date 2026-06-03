@@ -290,7 +290,7 @@ V5b adds durable psionic trace/trail V1 without adding new builder power tokens.
 
 | Saved effect type | Class | Summary |
 | --- | --- | --- |
-| `PsionicTrace` | `PsionicTraceEffect` | Saveable timed effect that records recent magical or psychic activity on involved characters and source cells, including source, optional target, school, power, activity kind, timestamp, duration, read difficulty, and concealment fallback identity text |
+| `PsionicTrace` | `PsionicTraceEffect` | Saveable timed effect that records recent magical or psychic activity on involved characters and source cells, including source, optional target, school, power, activity kind, timestamp, duration, read difficulty, and fallback identity text; `trace` re-evaluates current reader-specific `mindconceal` before displaying the source |
 
 ## Notes
 - Schools are first-class records rather than subtype-driven types, so they are documented in the overview and backbone docs rather than listed here as a type family.

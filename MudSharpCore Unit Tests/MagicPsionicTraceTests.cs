@@ -243,7 +243,42 @@ public class MagicPsionicTraceTests
 	}
 
 	[TestMethod]
-	public void TracePower_UsesUnknownIdentityWhenConcealmentRaisesDifficultyPastResult()
+	public void TracePower_ReevaluatesResidualTraceConcealmentForCurrentReader()
+	{
+		var output = string.Empty;
+		var gameworld = CreateGameworld(passDifficulties: difficulty => difficulty <= Difficulty.Normal);
+		var power = MagicPowerFactory.LoadPower(CreateTracePowerModel(includeTrace: true,
+			traceDescription: "a hidden touch"), gameworld.Object);
+		var cell = CreateCell(31, gameworld.Object);
+		var targetTraces = new List<IPsionicTraceEffect>();
+		var actor = CreateCharacter(11, "actor", gameworld.Object, cell.Object);
+		var source = CreateCharacter(12, "source", gameworld.Object, cell.Object);
+		var target = CreateCharacter(13, "target", gameworld.Object, cell.Object, targetTraces);
+		actor.SetupGet(x => x.OutputHandler).Returns(CreateOutputHandler(text => output += text).Object);
+		cell.SetupGet(x => x.Characters).Returns([actor.Object, target.Object]);
+		var concealment = new Mock<IMindContactConcealmentEffect>();
+		concealment.SetupGet(x => x.UnknownIdentityDescription).Returns("a veiled mind");
+		concealment.SetupGet(x => x.AuditDifficultyStages).Returns(2);
+		concealment.Setup(x => x.ConcealsIdentityFrom(source.Object, actor.Object, power.School)).Returns(true);
+		source.Setup(x => x.EffectsOfType<IMindContactConcealmentEffect>(It.IsAny<Predicate<IMindContactConcealmentEffect>?>()))
+		      .Returns<Predicate<IMindContactConcealmentEffect>?>(predicate =>
+		      {
+			      var effects = new[] { concealment.Object };
+			      return predicate is null ? effects : effects.Where(x => predicate(x));
+		      });
+		ConfigureCollections(gameworld, [actor.Object, source.Object, target.Object], [cell.Object], [power]);
+		targetTraces.Add(new PsionicTraceEffect(target.Object, source.Object, target.Object, cell.Object, power,
+			PsionicActivityKind.Psychic, "a hidden touch", "an unknown mind", Difficulty.Normal, 0,
+			Guid.NewGuid(), DateTime.UtcNow - TimeSpan.FromMinutes(5), TimeSpan.FromMinutes(30)));
+
+		power.UseCommand(actor.Object, "trace", new StringStack("target"));
+
+		StringAssert.Contains(output, "a veiled mind");
+		Assert.IsFalse(output.Contains("source", StringComparison.InvariantCultureIgnoreCase));
+	}
+
+	[TestMethod]
+	public void TracePower_IgnoresTargetSpecificStoredConcealmentForUnconcealedReader()
 	{
 		var output = string.Empty;
 		var gameworld = CreateGameworld(passDifficulties: difficulty => difficulty <= Difficulty.Normal);
@@ -263,8 +298,8 @@ public class MagicPsionicTraceTests
 
 		power.UseCommand(actor.Object, "trace", new StringStack("target"));
 
-		StringAssert.Contains(output, "a masked mind");
-		Assert.IsFalse(output.Contains("source", StringComparison.InvariantCultureIgnoreCase));
+		StringAssert.Contains(output, "source");
+		Assert.IsFalse(output.Contains("a masked mind", StringComparison.InvariantCultureIgnoreCase));
 	}
 
 	[TestMethod]

@@ -53,10 +53,15 @@ public class PathfindingService : IPathfindingService
 
 	public void RequestIndexWarmup()
 	{
-		if (_snapshot.Version == 0 || _dirty)
+		if (_snapshot.Version == 0 || _dirty || HasLiveCellCountChanged())
 		{
 			_warmupRequested = true;
 		}
+	}
+
+	private bool HasLiveCellCountChanged()
+	{
+		return _snapshot.Version > 0 && _snapshot.CellCount != _gameworld.Cells.Count;
 	}
 
 	public void DoIdleWork(TimeSpan budget)
@@ -68,6 +73,11 @@ public class PathfindingService : IPathfindingService
 
 		if (_builder == null)
 		{
+			if (!_dirty && HasLiveCellCountChanged())
+			{
+				_dirty = true;
+			}
+
 			if (!_dirty && !_warmupRequested)
 			{
 				return;
@@ -90,7 +100,8 @@ public class PathfindingService : IPathfindingService
 		_snapshot = slice.Snapshot;
 		_lastBuildDuration = slice.Snapshot.BuildDuration;
 		_builder = null;
-		_dirty = false;
+		_dirty = HasLiveCellCountChanged();
+		_warmupRequested = _dirty;
 	}
 
 	public bool TryFindLongRangePath(ICell source, IReadOnlyCollection<ICell> targets, uint maximumDistance,
@@ -258,19 +269,20 @@ public class PathfindingService : IPathfindingService
 		private readonly IFuturemud _gameworld;
 		private readonly long _version;
 		private readonly int _bucketSize;
-		private readonly IEnumerator<ICell> _cells;
+		private readonly IReadOnlyList<ICell> _cells;
 		private readonly Stopwatch _buildStopwatch = new();
 		private readonly Dictionary<ClusterKey, int> _clusterIds = new();
 		private readonly Dictionary<long, int> _cellClusters = new();
 		private readonly List<TopologyEdge> _topologyEdges = new();
+		private int _cellIndex;
 
 		public PathfindingIndexBuilder(IFuturemud gameworld, long version, int bucketSize)
 		{
 			_gameworld = gameworld;
 			_version = version;
 			_bucketSize = bucketSize;
-			_cells = _gameworld.Cells.GetEnumerator();
-			QueuedCellCount = _gameworld.Cells.Count;
+			_cells = _gameworld.Cells.ToList();
+			QueuedCellCount = _cells.Count;
 			_buildStopwatch.Start();
 		}
 
@@ -284,9 +296,8 @@ public class PathfindingService : IPathfindingService
 			int edgesScanned = 0;
 			while (cellsProcessed < maximumCells && sliceStopwatch.Elapsed < budget)
 			{
-				if (!_cells.MoveNext())
+				if (_cellIndex >= _cells.Count)
 				{
-					_cells.Dispose();
 					_buildStopwatch.Stop();
 					return new IndexBuildSlice
 					{
@@ -298,7 +309,7 @@ public class PathfindingService : IPathfindingService
 					};
 				}
 
-				edgesScanned += ProcessCell(_cells.Current);
+				edgesScanned += ProcessCell(_cells[_cellIndex++]);
 				cellsProcessed++;
 				ProcessedCellCount++;
 			}

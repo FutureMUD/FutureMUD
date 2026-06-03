@@ -179,6 +179,51 @@ public class MagicEngineV2Tests
 	}
 
 	[TestMethod]
+	public void PortalSpellEffect_DuplicateCasterOwnedItemAnchors_SelectsDeterministicDestination()
+	{
+		var plane = CreatePlane();
+		var zone = new Mock<IZone>();
+		var caster = CreateCharacter(10);
+		var source = CreateCell(1, "Source", null, zone.Object);
+		var firstDestination = CreateCell(2, "First Destination", null, zone.Object);
+		var secondDestination = CreateCell(3, "Second Destination", null, zone.Object);
+		var firstAnchorItem = CreateMagicTaggedItem(5, firstDestination.Object, caster.Object, "travel-gate", "south");
+		var secondAnchorItem = CreateMagicTaggedItem(6, secondDestination.Object, caster.Object, "travel-gate", "south");
+		var gameworld = CreateGameworld(
+			[source.Object, firstDestination.Object, secondDestination.Object],
+			[secondAnchorItem.Object, firstAnchorItem.Object],
+			plane.Object);
+		var spell = CreateSpellMock(20, gameworld.Object);
+		source.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		firstDestination.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		secondDestination.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		caster.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		caster.SetupGet(x => x.Location).Returns(source.Object);
+
+		var effect = SpellEffectFactory.LoadEffect(new XElement("Effect",
+			new XAttribute("type", "portal"),
+			new XElement("Verb", new XCData("enter")),
+			new XElement("OutboundKeyword", new XCData("gate")),
+			new XElement("InboundKeyword", new XCData("gate")),
+			new XElement("OutboundTarget", new XCData("a gate")),
+			new XElement("InboundTarget", new XCData("a gate")),
+			new XElement("OutboundDescription", new XCData("through")),
+			new XElement("InboundDescription", new XCData("through")),
+			new XElement("TimeMultiplier", 1.0),
+			new XElement("AllowCrossZone", false),
+			new XElement("AnchorTag", new XCData("travel-gate")),
+			new XElement("AnchorValue", new XCData("south")),
+			new XElement("DestinationProg", 0L)), spell.Object);
+
+		var portal = (SpellPortalEffect?)effect.GetOrApplyEffect(caster.Object, null, OpposedOutcomeDegree.None,
+			SpellPower.Insignificant, CreateParent(spell.Object, caster.Object).Object, []);
+
+		Assert.IsNotNull(portal);
+		Assert.AreEqual(source.Object.Id, portal!.SourceCellId);
+		Assert.AreEqual(firstDestination.Object.Id, portal.DestinationCellId);
+	}
+
+	[TestMethod]
 	public void ItemEnchantEffect_RoundTripsEngineV2HookFields()
 	{
 		var spell = CreateSpellMock();
@@ -317,6 +362,23 @@ public class MagicEngineV2Tests
 				new XElement("SustainResourceCosts")
 			).ToString()
 		};
+	}
+
+	private static Mock<IGameItem> CreateMagicTaggedItem(long id, ICell location, ICharacter caster, string tagText,
+		string value)
+	{
+		var item = new Mock<IGameItem>();
+		var tag = new Mock<IMagicTagEffect>();
+		item.SetupGet(x => x.Id).Returns(id);
+		item.SetupGet(x => x.Name).Returns($"Item {id}");
+		item.SetupGet(x => x.FrameworkItemType).Returns("GameItem");
+		item.SetupGet(x => x.Location).Returns(location);
+		tag.SetupGet(x => x.Caster).Returns(caster);
+		tag.SetupGet(x => x.Tag).Returns(tagText);
+		tag.SetupGet(x => x.Value).Returns(value);
+		item.Setup(x => x.EffectsOfType<IMagicTagEffect>(It.IsAny<Predicate<IMagicTagEffect>>()))
+		    .Returns<Predicate<IMagicTagEffect>>(predicate => new[] { tag.Object }.Where(x => predicate(x)));
+		return item;
 	}
 
 	private static Mock<ICharacter> CreateCharacter(long id, IFuturemud? gameworld = null)

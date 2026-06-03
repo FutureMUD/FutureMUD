@@ -277,8 +277,10 @@ Please choose either #6simple#0 or #6complex#0: ", (context, answers) => true,
             new SkillDetails("Butchering", "Butchery", "Crafting", "min(99,3*dex + 2*str)", "Crafting", "General", true,
                 1.0),
             new SkillDetails("Salvaging", "Salvage", "Survival", "min(99,3*int + 2*per)", "Crafting", "General", true,
-                1.0)
-        };
+                1.0),
+			new SkillDetails("Surviving", "Survival", "Survival", "min(99,3*int + 2*per)", "Crafting", "General", true,
+				1.0)
+		};
 
     private IEnumerable<SkillDetails> SimpleUniversalCraftSkills =>
         new[]

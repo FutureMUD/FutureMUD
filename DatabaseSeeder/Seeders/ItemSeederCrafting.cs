@@ -905,7 +905,7 @@ return ""There is no useful clay that is accessible in the biome you're in.""");
 		CharacteristicValue? value;
 		if (long.TryParse(trimmed.TrimStart('#'), out long id))
 		{
-			value = _context!.CharacteristicValues.FirstOrDefault(x => x.Id == id);
+			value = _context!.CharacteristicValues.AsEnumerable().FirstOrDefault(x => x.Id == id);
 			if (value is not null && !IsCharacteristicValueForDefinition(definition, value))
 			{
 				value = null;
@@ -913,7 +913,7 @@ return ""There is no useful clay that is accessible in the biome you're in.""");
 		}
 		else
 		{
-			value = _context!.CharacteristicValues.FirstOrDefault(x => x.DefinitionId == definition.Id && x.Name.Equals(trimmed, StringComparison.OrdinalIgnoreCase)) ??
+			value = _context!.CharacteristicValues.AsEnumerable().FirstOrDefault(x => x.DefinitionId == definition.Id && x.Name.Equals(trimmed, StringComparison.OrdinalIgnoreCase)) ??
 			        _context.CharacteristicValues.AsEnumerable().FirstOrDefault(x => x.Name.Equals(trimmed, StringComparison.OrdinalIgnoreCase) && IsCharacteristicValueForDefinition(definition, x));
 		}
 

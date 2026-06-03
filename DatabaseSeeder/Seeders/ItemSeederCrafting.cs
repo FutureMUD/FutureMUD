@@ -899,14 +899,45 @@ return ""There is no useful clay that is accessible in the biome you're in.""");
         return definition ?? throw new ApplicationException($"Unknown characteristic definition {text}");
     }
 
-    private CharacteristicValue LookupCharacteristicValue(CharacteristicDefinition definition, string text)
-    {
-        string trimmed = text.Trim();
-        CharacteristicValue? value = long.TryParse(trimmed.TrimStart('#'), out long id)
-            ? _context!.CharacteristicValues.FirstOrDefault(x => x.Id == id && x.DefinitionId == definition.Id)
-            : _context!.CharacteristicValues.FirstOrDefault(x => x.DefinitionId == definition.Id && x.Name.Equals(trimmed, StringComparison.OrdinalIgnoreCase));
-        return value ?? throw new ApplicationException($"Unknown value {text} for characteristic {definition.Name}");
-    }
+	private CharacteristicValue LookupCharacteristicValue(CharacteristicDefinition definition, string text)
+	{
+		string trimmed = text.Trim();
+		CharacteristicValue? value;
+		if (long.TryParse(trimmed.TrimStart('#'), out long id))
+		{
+			value = _context!.CharacteristicValues.FirstOrDefault(x => x.Id == id);
+			if (value is not null && !IsCharacteristicValueForDefinition(definition, value))
+			{
+				value = null;
+			}
+		}
+		else
+		{
+			value = _context!.CharacteristicValues.FirstOrDefault(x => x.DefinitionId == definition.Id && x.Name.Equals(trimmed, StringComparison.OrdinalIgnoreCase)) ??
+			        _context.CharacteristicValues.AsEnumerable().FirstOrDefault(x => x.Name.Equals(trimmed, StringComparison.OrdinalIgnoreCase) && IsCharacteristicValueForDefinition(definition, x));
+		}
+
+		return value ?? throw new ApplicationException($"Unknown value {text} for characteristic {definition.Name}");
+	}
+
+	private bool IsCharacteristicValueForDefinition(CharacteristicDefinition definition, CharacteristicValue value)
+	{
+		CharacteristicDefinition? current = definition;
+		while (current is not null)
+		{
+			if (value.DefinitionId == current.Id)
+			{
+				return true;
+			}
+
+			current = current.ParentId is null
+				? null
+				: _context!.CharacteristicDefinitions.Local.FirstOrDefault(x => x.Id == current.ParentId.Value) ??
+				  _context.CharacteristicDefinitions.FirstOrDefault(x => x.Id == current.ParentId.Value);
+		}
+
+		return false;
+	}
 
 	private long LookupCommodityPileTagId(IEnumerable<string> options)
 	{

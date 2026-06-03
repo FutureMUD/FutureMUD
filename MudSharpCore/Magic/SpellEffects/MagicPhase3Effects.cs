@@ -1378,10 +1378,12 @@ public class PortalSpellEffect : IMagicSpellEffectTemplate
 	{
 		var roomAnchor = Gameworld.Cells
 			.Where(x => x != caster.Location)
-			.SingleOrDefault(x => x.EffectsOfType<IMagicTagEffect>(tag =>
+			.Where(x => x.EffectsOfType<IMagicTagEffect>(tag =>
 				tag.Caster?.Id == caster.Id &&
 				tag.Tag.EqualTo(AnchorTag) &&
-				(string.IsNullOrEmpty(AnchorValue) || tag.Value.EqualTo(AnchorValue))).Any());
+				(string.IsNullOrEmpty(AnchorValue) || tag.Value.EqualTo(AnchorValue))).Any())
+			.OrderBy(x => x.Id)
+			.FirstOrDefault();
 		if (roomAnchor is not null)
 		{
 			return roomAnchor;
@@ -1389,10 +1391,12 @@ public class PortalSpellEffect : IMagicSpellEffectTemplate
 
 		return Gameworld.Items
 			.Where(x => x.Location is not null && x.Location != caster.Location)
-			.SingleOrDefault(x => x.EffectsOfType<IMagicTagEffect>(tag =>
+			.Where(x => x.EffectsOfType<IMagicTagEffect>(tag =>
 				tag.Caster?.Id == caster.Id &&
 				tag.Tag.EqualTo(AnchorTag) &&
 				(string.IsNullOrEmpty(AnchorValue) || tag.Value.EqualTo(AnchorValue))).Any())
+			.OrderBy(x => x.Id)
+			.FirstOrDefault()
 			?.Location;
 	}
 

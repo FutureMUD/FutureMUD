@@ -89,8 +89,7 @@ public sealed class TracePower : PsionicTargetedPowerBase
 			sb.AppendLine($"You trace the active mind links around {target.HowSeen(actor, true)}:");
 			foreach (var link in links)
 			{
-				var concealment = link.Character.EffectsOfType<IMindContactConcealmentEffect>()
-				                      .FirstOrDefault(x => x.ConcealsIdentityFrom(link.Character, actor, School));
+				var concealment = GetMindConcealment(link.Character, actor, School);
 				var difficulty = concealment is null
 					? SkillCheckDifficulty
 					: SkillCheckDifficulty.StageUp(concealment.AuditDifficultyStages);
@@ -112,11 +111,17 @@ public sealed class TracePower : PsionicTargetedPowerBase
 			sb.AppendLine($"Residual psionic traces around {target.HowSeen(actor, true)}:");
 			foreach (var trace in traces)
 			{
-				var difficulty = trace.ReadDifficulty.StageUp(trace.ConcealmentDifficultyStages);
-				var visible = results[difficulty] >= MinimumSuccessThreshold;
-				var source = visible && trace.SourceCharacter is not null
-					? trace.SourceCharacter.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreConsciousness)
-					: trace.UnknownIdentityDescription.ColourCharacter();
+				var sourceCharacter = trace.SourceCharacter;
+				var concealment = sourceCharacter is null
+					? null
+					: GetMindConcealment(sourceCharacter, actor, trace.School);
+				var difficulty = concealment is null
+					? trace.ReadDifficulty
+					: trace.ReadDifficulty.StageUp(concealment.AuditDifficultyStages);
+				var visible = sourceCharacter is not null && results[difficulty] >= MinimumSuccessThreshold;
+				var source = visible
+					? sourceCharacter!.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreConsciousness)
+					: (concealment?.UnknownIdentityDescription ?? trace.UnknownIdentityDescription).ColourCharacter();
 				var school = trace.School?.Name.Colour(trace.School.PowerListColour) ?? "unknown school".ColourError();
 				var age = (DateTime.UtcNow - trace.CreatedUtc).Describe(actor);
 				sb.AppendLine($"\t{trace.ActivityDescription.ProperSentences()} from {source} [{school}], about {age} ago.");

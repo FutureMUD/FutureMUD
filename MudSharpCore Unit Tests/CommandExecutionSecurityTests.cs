@@ -3,18 +3,24 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Xml.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using MudSharp.Accounts;
 using MudSharp.Character;
+using MudSharp.Commands.Modules;
 using MudSharp.Commands;
 using MudSharp.Commands.Trees;
+using MudSharp.Communication;
 using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;
+using MudSharp.GameItems;
+using MudSharp.GameItems.Interfaces;
 using MudSharp.Magic;
 using MudSharp.Magic.SpellEffects;
 using MudSharp.Magic.SpellTriggers;
+using MudSharp.PerceptionEngine;
 using MudSharp.RPG.Checks;
 
 namespace MudSharp_Unit_Tests;
@@ -207,6 +213,31 @@ public class CommandExecutionSecurityTests
 		StringAssert.Contains(hookSource, "CommandExecutionGuards.ExecuteForcedCommand(character, command);");
 	}
 
+	[TestMethod]
+	public void LiteracyRead_SealedTargetRequiresManipulationBeforeBreakingSeal()
+	{
+		var actor = Character(PermissionLevel.Player);
+		var output = new Mock<IOutputHandler>();
+		output.Setup(x => x.Send(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>()))
+		      .Returns(true);
+		actor.SetupGet(x => x.OutputHandler).Returns(output.Object);
+
+		var target = new Mock<IGameItem>();
+		var readable = new Mock<IReadable>();
+		var sealable = new Mock<ISealable>();
+		sealable.SetupGet(x => x.IsSealed).Returns(true);
+		target.Setup(x => x.GetItemType<IReadable>()).Returns(readable.Object);
+		target.Setup(x => x.GetItemType<IOpenable>()).Returns((IOpenable)null!);
+		target.Setup(x => x.GetItemType<ISealable>()).Returns(sealable.Object);
+		actor.Setup(x => x.TargetItem("letter")).Returns(target.Object);
+		actor.Setup(x => x.CanManipulateItem(target.Object)).Returns((false, "You cannot reach that."));
+
+		InvokeLiteracyCommand("Read", actor.Object, "read letter");
+
+		sealable.Verify(x => x.BreakSeal(It.IsAny<ICharacter>(), It.IsAny<string>()), Times.Never);
+		output.Verify(x => x.Send("You cannot reach that.", true, false), Times.Once);
+	}
+
 	private static Mock<ICharacter> Character(PermissionLevel permissionLevel, bool isPlayerCharacter = true)
 	{
 		var character = new Mock<ICharacter>();
@@ -246,6 +277,13 @@ public class CommandExecutionSecurityTests
 			"..",
 			"..",
 			Path.Combine(parts)));
+	}
+
+	private static void InvokeLiteracyCommand(string methodName, ICharacter actor, string command)
+	{
+		var method = typeof(LiteracyModule).GetMethod(methodName, BindingFlags.Static | BindingFlags.NonPublic);
+		Assert.IsNotNull(method, $"Could not find LiteracyModule.{methodName}.");
+		method.Invoke(null, new object[] { actor, command });
 	}
 
 	private sealed class MutablePermission(PermissionLevel value)

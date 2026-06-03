@@ -27,9 +27,23 @@ public class LiteracyModule : Module<ICharacter>
 
     public static LiteracyModule Instance { get; } = new();
 
-	private static void BreakSealForAccess(ICharacter actor, GameItems.IGameItem target, string reason)
+	private static bool BreakSealForAccess(ICharacter actor, GameItems.IGameItem target, string reason)
 	{
-		target.GetItemType<ISealable>()?.BreakSeal(actor, reason);
+		var sealable = target.GetItemType<ISealable>();
+		if (sealable is null || !sealable.IsSealed)
+		{
+			return true;
+		}
+
+		var (truth, error) = actor.CanManipulateItem(target);
+		if (!truth)
+		{
+			actor.OutputHandler.Send(error);
+			return false;
+		}
+
+		sealable.BreakSeal(actor, reason);
+		return true;
 	}
 
     [PlayerCommand("Scripts", "scripts")]
@@ -91,7 +105,10 @@ For graffiti, see the #3look#0 command instead.", AutoHelp.HelpArgOrNoArg)]
             return;
         }
 
-		BreakSealForAccess(actor, target, "read");
+		if (!BreakSealForAccess(actor, target, "read"))
+		{
+			return;
+		}
 
         StringBuilder sb = new();
         if (ss.IsFinished)
@@ -278,7 +295,12 @@ The syntax is as follows:
                     return;
                 }
 
-				BreakSealForAccess(actor, target, "written on");
+				if (!BreakSealForAccess(actor, target, "written on"))
+				{
+					actor.Gameworld.SaveManager.Abort(writing);
+					return;
+				}
+
                 targetAsWritable.Write(actor, implement, writing);
                 handler.Handle(new EmoteOutput(new Emote("@ write|writes on $0 with $1.", actor, target,
                     implement.Parent)));
@@ -397,9 +419,13 @@ Style: {actor.WritingStyle.Describe().ColourValue()}
                 return;
             }
 
+			if (!BreakSealForAccess(actor, target, "graffiti"))
+			{
+				return;
+			}
+
             CompositeWriting graffiti = new(actor.Gameworld, actor, implement, text, sdesc);
             actor.Gameworld.Add(graffiti);
-			BreakSealForAccess(actor, target, "graffiti");
             target.AddEffect(new GraffitiEffect(actor, graffiti, RoomLayer.GroundLevel, string.Empty));
             handler.Handle(new EmoteOutput(new Emote("@ draw|draws graffiti on $0 with $1.", actor, target, implement.Parent)));
             handler.Send(new EmoteOutput(new Emote("You draw graffiti on $0 with $1.", actor, target, implement.Parent)));
@@ -586,7 +612,12 @@ To draw on locations or things that aren't normally meant for writing and drawin
                 return;
             }
 
-			BreakSealForAccess(actor, target, "drawn on");
+			if (!BreakSealForAccess(actor, target, "drawn on"))
+			{
+				actor.Gameworld.SaveManager.Abort(drawing);
+				return;
+			}
+
             targetAsWritable.Draw(actor, implement, drawing);
             handler.Handle(new EmoteOutput(new Emote("@ draw|draws on $0 with $1.", actor, target, implement.Parent)));
         }, (handler, pars) => { handler.Send("You decide not to draw anything."); }, 1.0);
@@ -646,7 +677,11 @@ The syntax is #3title <item> <title>#0.", AutoHelp.HelpArgOrNoArg)]
             return;
         }
 
-		BreakSealForAccess(actor, target, "retitled");
+		if (!BreakSealForAccess(actor, target, "retitled"))
+		{
+			return;
+		}
+
         string oldTitle = targetAsWritable.Title ?? string.Empty;
         targetAsWritable.GiveTitle(actor, ss.SafeRemainingArgument);
         if (oldTitle.Equals(string.Empty))

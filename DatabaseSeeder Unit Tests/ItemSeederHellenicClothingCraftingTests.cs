@@ -157,7 +157,9 @@ public class ItemSeederHellenicClothingCraftingTests
 		var itemSeederSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.cs");
 
 		AssertContains(itemSeederSource, "BuildTagFullPath");
-		AssertContains(itemSeederSource, "_tagsByFullPath = tagList.ToDictionary");
+		AssertContains(itemSeederSource, "_tagsByFullPath = tagList");
+		AssertContains(itemSeederSource, ".GroupBy(BuildTagFullPath, StringComparer.OrdinalIgnoreCase)");
+		AssertContains(itemSeederSource, ".ToDictionary(x => x.Key, x => x.OrderBy(tag => tag.Id).First(), StringComparer.OrdinalIgnoreCase)");
 		Assert.IsFalse(itemSeederSource.Contains("TODO - initialised _tagsByFullPath", StringComparison.OrdinalIgnoreCase));
 	}
 

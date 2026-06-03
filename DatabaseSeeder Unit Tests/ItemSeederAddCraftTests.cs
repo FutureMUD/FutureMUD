@@ -110,12 +110,14 @@ public class ItemSeederAddCraftTests
 
 		context.CharacteristicDefinitions.AddRange(
 			CharacteristicDefinition(1, "Colour"),
-			CharacteristicDefinition(2, "Origin")
+			CharacteristicDefinition(2, "Origin"),
+			CharacteristicDefinition(3, "Fine Colour", parentId: 1)
 		);
 		context.CharacteristicValues.AddRange(
 			CharacteristicValue(1, 1, "red"),
 			CharacteristicValue(2, 1, "blue"),
-			CharacteristicValue(3, 2, "mine")
+			CharacteristicValue(3, 2, "mine"),
+			CharacteristicValue(4, 1, "bone white")
 		);
 
 		context.FutureProgs.AddRange(
@@ -205,12 +207,13 @@ public class ItemSeederAddCraftTests
 		};
 	}
 
-	private static CharacteristicDefinition CharacteristicDefinition(long id, string name)
+	private static CharacteristicDefinition CharacteristicDefinition(long id, string name, long? parentId = null)
 	{
 		return new CharacteristicDefinition
 		{
 			Id = id,
 			Name = name,
+			ParentId = parentId,
 			Type = 0,
 			Pattern = string.Empty,
 			Description = name,
@@ -404,6 +407,37 @@ public class ItemSeederAddCraftTests
 		Assert.AreEqual("1", liquidProduct.Element("Liquid")!.Value);
 		Assert.AreEqual("0.75", liquidProduct.Element("LiquidVolume")!.Value);
 		Assert.AreEqual(4, craft.CraftProducts.Single(x => x.IsFailProduct).MaterialDefiningInputIndex);
+	}
+
+	[TestMethod]
+	public void ItemSeeder_AddCraft_AllowsChildCharacteristicDefinitionsToUseParentValues()
+	{
+		using FuturemudDatabaseContext context = BuildContext();
+		SeedPrerequisites(context);
+
+		Assert.IsFalse(context.CharacteristicValues.Any(x => x.DefinitionId == 3 && x.Name == "bone white"));
+
+		var craft = new ItemSeeder().AddCraftFromImportsForTesting(
+			context,
+			"test inherited characteristic craft",
+			"Testing",
+			BasicPhases(),
+			["Commodity - 250 grams of iron; characteristic Fine Colour bone white"],
+			BasicTools(),
+			["CommodityProduct - 200 grams of iron commodity; tag Scrap Metal; characteristic Fine Colour=bone white"],
+			[]
+		);
+
+		var commodityInput = XElement.Parse(craft.CraftInputs.Single(x => x.InputType == "Commodity").Definition);
+		var inputCharacteristic = commodityInput.Element("Characteristics")!.Elements("Characteristic").Single();
+		Assert.AreEqual("3", inputCharacteristic.Attribute("definition")!.Value);
+		Assert.AreEqual("4", inputCharacteristic.Attribute("value")!.Value);
+
+		var commodityProduct = XElement.Parse(craft.CraftProducts.Single(x => x.ProductType == "CommodityProduct").Definition);
+		var productCharacteristic = commodityProduct.Element("Characteristics")!.Elements("Characteristic").Single();
+		Assert.AreEqual("3", productCharacteristic.Attribute("definition")!.Value);
+		Assert.AreEqual("4", productCharacteristic.Attribute("value")!.Value);
+		Assert.AreEqual("-1", productCharacteristic.Attribute("input")!.Value);
 	}
 
 	[TestMethod]

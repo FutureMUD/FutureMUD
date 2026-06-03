@@ -148,6 +148,59 @@ public class PreloadedBookContentTests
 	}
 
 	[TestMethod]
+	public void BookAndPaperReadableComponents_InitialiseAfterReadableChildren()
+	{
+		var language = CreateLanguage(LanguageId, "Common");
+		var script = CreateScript(ScriptId, "Latin", 1.0);
+		var colour = CreateColour(ColourId, "black");
+		var gameworld = CreateGameworld(language, script, colour, 200);
+		var bookProto = CreateBookProto(gameworld.Object, BookDefinition(1, "Manual"));
+		var paperProto = CreatePaperProto(gameworld.Object, 200);
+		var parent = CreateParent(gameworld.Object, 50);
+
+		var book = (BookGameItemComponent)bookProto.CreateNew(parent);
+		var paper = (PaperSheetGameItemComponent)paperProto.CreateNew(parent);
+
+		Assert.AreEqual(InitialisationPhase.AfterFirstDatabaseHit, book.InitialisationPhase);
+		Assert.AreEqual(InitialisationPhase.AfterFirstDatabaseHit, paper.InitialisationPhase);
+	}
+
+	[TestMethod]
+	public void BookLoadFromXml_SkipsMissingReadableReferences()
+	{
+		var language = CreateLanguage(LanguageId, "Common");
+		var script = CreateScript(ScriptId, "Latin", 1.0);
+		var colour = CreateColour(ColourId, "black");
+		var gameworld = CreateGameworld(language, script, colour, 200);
+		var proto = CreateBookProto(gameworld.Object, BookDefinition(1, "Manual"));
+		var definition = new XElement("Definition",
+			new XElement("Open", true),
+			new XElement("TornPages"),
+			new XElement("Title", new XCData("Manual")),
+			new XElement("CurrentPage", 1),
+			new XElement("Writings",
+				new XElement("Writing",
+					new XAttribute("Id", 0),
+					new XAttribute("Page", 1),
+					new XAttribute("Order", 1)
+				)
+			)
+		).ToString();
+
+		var book = new BookGameItemComponent(new MudSharp.Models.GameItemComponent
+		{
+			Id = 1,
+			Definition = definition,
+			GameItemComponentProtoId = proto.Id,
+			GameItemComponentProtoRevision = proto.RevisionNumber,
+			GameItemId = 50
+		}, proto, CreateParent(gameworld.Object, 50));
+
+		Assert.AreEqual(0, book.PagesAndReadables.Count);
+		Assert.IsFalse(book.Readables.Any());
+	}
+
+	[TestMethod]
 	public void FutureProgBookHelpers_CompileAndExecuteAgainstBookComponents()
 	{
 		FutureProgTestBootstrap.EnsureInitialised();
@@ -315,6 +368,8 @@ public class PreloadedBookContentTests
 		gameworld.SetupGet(x => x.Languages).Returns(Repository(language));
 		gameworld.SetupGet(x => x.Scripts).Returns(Repository(script));
 		gameworld.SetupGet(x => x.Colours).Returns(Repository(colour));
+		gameworld.SetupGet(x => x.Writings).Returns(Repository<IWriting>());
+		gameworld.SetupGet(x => x.Drawings).Returns(Repository<IDrawing>());
 		gameworld.SetupGet(x => x.ItemProtos).Returns(RevisableRepository(paperItemProto.Object));
 		gameworld.Setup(x => x.GetStaticLong("DefaultWritingColourInText")).Returns(ColourId);
 		return gameworld;

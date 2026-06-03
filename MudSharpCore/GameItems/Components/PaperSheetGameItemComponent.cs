@@ -5,6 +5,7 @@ using MudSharp.Communication.Language;
 using MudSharp.Form.Characteristics;
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
+using MudSharp.Framework.Save;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Prototypes;
 using MudSharp.PerceptionEngine;
@@ -27,6 +28,8 @@ public class PaperSheetGameItemComponent : GameItemComponent, IWriteable, IReada
     {
         _prototype = (PaperSheetGameItemComponentProto)newProto;
     }
+
+    public override InitialisationPhase InitialisationPhase => InitialisationPhase.AfterFirstDatabaseHit;
 
     #region Constructors
 
@@ -51,6 +54,11 @@ public class PaperSheetGameItemComponent : GameItemComponent, IWriteable, IReada
         _prototype = rhs._prototype;
         foreach (var readable in rhs.Readables)
         {
+            if (readable is null)
+            {
+                continue;
+            }
+
             var newReadable = temporary ? readable : readable.CopyReadable();
             Readables.Add(newReadable);
             if (!temporary)
@@ -81,11 +89,19 @@ public class PaperSheetGameItemComponent : GameItemComponent, IWriteable, IReada
         {
             if (item.Name.LocalName.EqualTo("Writing"))
             {
-                Readables.Add(Gameworld.Writings.Get(long.Parse(item.Value)));
+                var readable = Gameworld.Writings.Get(long.Parse(item.Value));
+                if (readable is not null)
+                {
+                    Readables.Add(readable);
+                }
             }
             else
             {
-                Readables.Add(Gameworld.Drawings.Get(long.Parse(item.Value)));
+                var readable = Gameworld.Drawings.Get(long.Parse(item.Value));
+                if (readable is not null)
+                {
+                    Readables.Add(readable);
+                }
             }
         }
     }
@@ -106,6 +122,7 @@ public class PaperSheetGameItemComponent : GameItemComponent, IWriteable, IReada
                 new XElement("Title", new XCData(Title ?? "")),
                 new XElement("Writings",
                     from item in Readables
+                    where item is not null
                     select
                         item is IWriting ? new XElement("Writing", item.Id) : new XElement("Drawing", item.Id)
                 )
@@ -128,7 +145,7 @@ public class PaperSheetGameItemComponent : GameItemComponent, IWriteable, IReada
 
     public List<ICanBeRead> Readables { get; } = new();
 
-    public int DocumentLengthUsed => Readables.Sum(x => x.DocumentLength);
+    public int DocumentLengthUsed => Readables.Where(x => x is not null).Sum(x => x.DocumentLength);
 
     public bool HasSpareRoom => DocumentLengthUsed < _prototype.MaximumCharacterLengthOfText;
 

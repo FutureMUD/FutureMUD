@@ -11,9 +11,9 @@ FutureMUD has two pathfinding modes:
 
 ## Incremental Indexing
 
-Topology invalidation is deliberately cheap. Exit overlay rebuilds, transient exit registration/removal, and cell deletion mark the index dirty and cancel any in-progress builder, but they do not rebuild the index synchronously.
+Topology invalidation is deliberately cheap. Exit overlay rebuilds, transient exit registration/removal, and cell deletion mark the index dirty and cancel any in-progress builder, but they do not rebuild the index synchronously. Cell creation is also detected from the live cell count; if a cell appears during an idle rebuild, the active builder finishes the snapshot it started with and immediately queues the next rebuild.
 
-The main engine loop calls `PathfindingService.DoIdleWork(...)` during the existing idle window, before lazy-load flushing receives the remaining time budget. The default loop cap is small, currently 3ms per tick, and the builder also has a work-unit cap so tests and future tuning can force multi-slice rebuilds. A new snapshot is published only after all queued cells have been processed.
+The main engine loop calls `PathfindingService.DoIdleWork(...)` during the existing idle window, before lazy-load flushing receives the remaining time budget. The default loop cap is small, currently 3ms per tick, and the builder also has a work-unit cap so tests and future tuning can force multi-slice rebuilds. Each builder captures the cell list at the start of its build so live cell additions between idle slices cannot mutate the enumerator it is using. A new snapshot is published only after all queued cells have been processed.
 
 Door and lock changes do not invalidate the topology snapshot. Hierarchical queries validate every returned segment against live exits and the caller's suitability predicate, so stale topology can suggest a candidate route but cannot return an invalid path through a locked, closed, actor-blocked, or otherwise unsuitable exit.
 

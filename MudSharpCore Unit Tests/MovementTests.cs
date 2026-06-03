@@ -14,6 +14,7 @@ using MudSharp.Movement;
 using MudSharp.PerceptionEngine;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace MudSharp_Unit_Tests;
@@ -55,6 +56,26 @@ public class MovementTests
         Assert.IsNull(party.Object.Movement);
         mover.Verify(x => x.Move("north"), Times.Once);
         leader.Verify(x => x.Move(It.IsAny<string>()), Times.Never);
+    }
+
+    [TestMethod]
+    public void CharacterMove_MountedRiderDelegatesToMountAuthorizationBeforeCreatingMovement()
+    {
+        string movementSource = File.ReadAllText(GetCoreSourcePath("Character", "CharacterMovement.cs"));
+        int moveStart = movementSource.IndexOf("public bool Move(ICellExit exit", StringComparison.Ordinal);
+        int staminaStart = movementSource.IndexOf("protected double StaminaForMovement", StringComparison.Ordinal);
+
+        Assert.IsTrue(moveStart >= 0, "Character.Move(ICellExit) should exist.");
+        Assert.IsTrue(staminaStart > moveStart, "Character.Move(ICellExit) should appear before StaminaForMovement.");
+
+        string moveMethod = movementSource[moveStart..staminaStart];
+        int mountedGuard = moveMethod.IndexOf("if (RidingMount is not null)", StringComparison.Ordinal);
+        int riderMove = moveMethod.IndexOf("return RidingMount.RiderMove(exit, this, emote, ignoreSafeMovement);", StringComparison.Ordinal);
+        int createMovement = moveMethod.IndexOf("Movement.CreateMovement(this, exit, emote, ignoreSafeMovement)", StringComparison.Ordinal);
+
+        Assert.IsTrue(mountedGuard >= 0, "Mounted riders must be handled before generic movement creation.");
+        Assert.IsTrue(riderMove > mountedGuard, "Mounted rider movement must delegate through RiderMove.");
+        Assert.IsTrue(createMovement > riderMove, "RiderMove authorization must happen before creating a movement group.");
     }
 
     [TestMethod]
@@ -104,6 +125,20 @@ public class MovementTests
 
         mover.Object.Movement = movement;
         return (movement, mover, exit, destination, queuedCommands);
+    }
+
+    private static string GetCoreSourcePath(params string[] segments)
+    {
+        return Path.GetFullPath(Path.Combine(
+            new[]
+            {
+                AppContext.BaseDirectory,
+                "..",
+                "..",
+                "..",
+                "..",
+                "MudSharpCore"
+            }.Concat(segments).ToArray()));
     }
 
     private static Mock<ICharacter> CreateMoverMock(Queue<string> queuedCommands)

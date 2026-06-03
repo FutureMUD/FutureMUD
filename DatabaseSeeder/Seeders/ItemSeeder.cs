@@ -142,6 +142,7 @@ The items and crafts are fairly universal and of approximately medieval to renei
         {
             _traits[trait.Name] = trait;
         }
+		IndexStockSkillPackageTraitAliases();
 
         foreach (GameItemProto item in _context.GameItemProtos)
         {

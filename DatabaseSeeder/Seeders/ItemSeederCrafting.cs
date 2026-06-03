@@ -84,6 +84,62 @@ public partial class ItemSeeder
 		public IReadOnlyList<CraftProductSpec> FailProducts { get; init; } = [];
 	}
 
+	// Exact names still win; these are stock skill package variants and legacy spellings in priority order.
+	private static readonly IReadOnlyList<IReadOnlyList<string>> StockSkillPackageTraitAliases =
+	[
+		["Armourcrafting", "Armourer", "Armour Crafting", "Armour Craft", "Armorcrafting", "Armorer", "Armor Crafting", "Armor Craft"],
+		["Weaponcrafting", "Weaponsmith", "Weapon Crafting", "Weapon Craft", "Weaponcraft", "Weaponsmithing"],
+		["Blacksmithing", "Metalcraft", "Metalworking", "Metal Work", "Metalwork", "Smithing"],
+		["Silversmithing", "Silversmith", "Silver Smithing", "Silver Smith"],
+		["Bowmaking", "Bowyer", "Bow Making", "Bowyer Craft"],
+		["Fletching", "Fletcher"],
+		["Pottery", "Potter"],
+		["Weaving", "Weaver"],
+		["Spinning", "Spinner"],
+		["Threshing", "Thresher"],
+		["Milling", "Miller"],
+		["Baking", "Baker"],
+		["Dyeing", "Dyecraft", "Dye Craft", "Dyer"],
+		["Glassworking", "Glasswork", "Glass Work", "Glassworker"],
+		["Gemcraft", "Gem Craft", "Gemcutting", "Gem Cutting"],
+		["Perfumery", "Perfumer"],
+		["Brewing", "Brewer"],
+		["Distilling", "Distiller"],
+		["Cooking", "Cookery", "Cook"],
+		["Carpentry", "Woodcraft", "Woodworking", "Wood Work", "Woodwork", "Carpenter", "Joinery", "Constructing", "Construction"],
+		["Basketry", "Basketmaker", "Basket Making"],
+		["Coopering", "Cooper"],
+		["Ropemaking", "Ropemaker", "Rope Making"],
+		["Lacquerwork", "Lacquerer", "Lacquer Work"],
+		["Lumberjacking", "Lumberjack"],
+		["Masonry", "Stonecraft", "Stoneworking", "Stone Work", "Stonework", "Mason"],
+		["Scrimshawing", "Scrimshaw"],
+		["Tailoring", "Textilecraft", "Textile Craft", "Textilework", "Textile Work", "Tailor"],
+		["Mechanics", "Mechanic"],
+		["Cobbling", "Cobbler"],
+		["Locksmithing", "Locksmith"],
+		["Wheelmaking", "Wheelwright", "Wheel Making"],
+		["Candlemaking", "Candlery", "Candle Making"],
+		["Leathermaking", "Hideworking", "Leatherworking", "Leather Work", "Leatherwork", "Leather Making", "Hide Work"],
+		["Winemaking", "Winemaker", "Wine Making"],
+		["Foraging", "Forage"],
+		["Skinning", "Skin"],
+		["Butchering", "Butchery"],
+		["Salvaging", "Salvage"],
+		["Surviving", "Survival"],
+		["Animal Breeding", "Husbandry"],
+		["Beekeeping", "Beekeeper"],
+		["Law", "Lawyer"],
+		["Labouring", "Labourer", "Laboring", "Laborer"],
+		["Supervising", "Supervisor"],
+		["Painting", "Paint"],
+		["Civil Engineering", "Civil Engineer"],
+		["Administration", "Administrator"],
+		["Performance", "Performer"],
+		["Investigation", "Investigator"],
+		["Smelting", "Smelter"]
+	];
+
 	private static readonly IReadOnlyDictionary<string, string> HellenicAntiquityClothingStableReferences =
 		new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
 		{
@@ -1999,11 +2055,79 @@ return ""There is no useful clay that is accessible in the biome you're in.""");
 		}
 	}
 
+	private void IndexStockSkillPackageTraitAliases()
+	{
+		foreach (IReadOnlyList<string> aliases in StockSkillPackageTraitAliases)
+		{
+			TraitDefinition? trait = aliases
+				.Select(LookupLoadedTraitDefinition)
+				.FirstOrDefault(x => x is not null);
+			if (trait is null)
+			{
+				continue;
+			}
+
+			foreach (string alias in aliases.Where(alias => !_traits.ContainsKey(alias)))
+			{
+				_traits[alias] = trait;
+			}
+		}
+	}
+
+	private TraitDefinition? LookupLoadedTraitDefinition(string traitName)
+	{
+		if (_traits.TryGetValue(traitName, out TraitDefinition? trait) && trait is not null)
+		{
+			return trait;
+		}
+
+		string normalisedName = NormaliseTraitLookupName(traitName);
+		return _traits.Values.FirstOrDefault(x =>
+			NormaliseTraitLookupName(x.Name).Equals(normalisedName, StringComparison.Ordinal));
+	}
+
+	private static string NormaliseTraitLookupName(string traitName)
+	{
+		return new string(traitName.Where(char.IsLetterOrDigit).ToArray()).ToLowerInvariant();
+	}
+
+	private IEnumerable<string> TraitDefinitionLookupNames(string traitName)
+	{
+		string trimmedName = traitName.Trim();
+		HashSet<string> names = new(StringComparer.OrdinalIgnoreCase);
+		if (names.Add(trimmedName))
+		{
+			yield return trimmedName;
+		}
+
+		string normalisedName = NormaliseTraitLookupName(trimmedName);
+		foreach (IReadOnlyList<string> aliases in StockSkillPackageTraitAliases.Where(x =>
+			         x.Any(alias => NormaliseTraitLookupName(alias).Equals(normalisedName, StringComparison.Ordinal))))
+		{
+			foreach (string alias in aliases)
+			{
+				if (names.Add(alias))
+				{
+					yield return alias;
+				}
+			}
+		}
+	}
+
 	private TraitDefinition LookupTraitDefinition(string traitName)
 	{
-		return _traits.TryGetValue(traitName, out TraitDefinition? trait) && trait is not null
-			? trait
-			: throw new ApplicationException($"Unknown trait {traitName}");
+		List<string> attemptedNames = TraitDefinitionLookupNames(traitName).ToList();
+		foreach (string name in attemptedNames)
+		{
+			TraitDefinition? trait = LookupLoadedTraitDefinition(name);
+			if (trait is not null)
+			{
+				return trait;
+			}
+		}
+
+		throw new ApplicationException(
+			$"Unknown trait {traitName}. Tried: {string.Join(", ", attemptedNames)}");
 	}
 
 	private static string SanitiseFutureProgNamePart(string text)

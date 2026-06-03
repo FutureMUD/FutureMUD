@@ -894,8 +894,8 @@ return ""There is no useful clay that is accessible in the biome you're in.""");
     {
         string trimmed = text.Trim();
         CharacteristicDefinition? definition = long.TryParse(trimmed.TrimStart('#'), out long id)
-            ? _context!.CharacteristicDefinitions.FirstOrDefault(x => x.Id == id)
-            : _context!.CharacteristicDefinitions.FirstOrDefault(x => x.Name.Equals(trimmed, StringComparison.OrdinalIgnoreCase));
+            ? _context!.CharacteristicDefinitions.AsEnumerable().FirstOrDefault(x => x.Id == id)
+            : _context!.CharacteristicDefinitions.AsEnumerable().FirstOrDefault(x => x.Name.Equals(trimmed, StringComparison.OrdinalIgnoreCase));
         return definition ?? throw new ApplicationException($"Unknown characteristic definition {text}");
     }
 

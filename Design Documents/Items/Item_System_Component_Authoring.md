@@ -168,7 +168,7 @@ Builder-authored book defaults include:
 - `content edit <index>` for changing an authored entry's text
 - `content remove <index>` and `content clear`
 
-Prototype contents are stored as page-scoped readable templates, not as live `Writing` ids. Freshly loaded books instantiate their own `PrintedWriting` rows from those templates, so two copies of the same manual or novel do not share mutable writing records. The builder path validates page range and page capacity, and the runtime constructor repeats those checks defensively when loading prototype XML.
+Prototype contents are stored as page-scoped readable templates, not as live `Writing` ids. Freshly loaded books instantiate their own `PrintedWriting` rows from those templates, so two copies of the same manual or novel do not share mutable writing records. Because the live book component serializes readable ids, book and paper readable components initialise after their child readable rows have had a database hit; load paths also ignore missing readable ids so legacy corrupted XML cannot leave null readables in the live page list. The builder path validates page range and page capacity, and the runtime constructor repeats those checks defensively when loading prototype XML.
 
 Printed book content uses the `PrintedWriting` writing type with `WritingImplementType.Printed`. Printed writing has no character author; use its provenance text for publisher, source, anonymous, or generated-document attribution. V1 printed books remain writable: player handwriting can still be added to any non-torn page if the printed content leaves enough page capacity.
 

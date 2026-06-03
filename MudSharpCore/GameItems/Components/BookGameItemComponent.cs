@@ -5,6 +5,7 @@ using MudSharp.Communication.Language;
 using MudSharp.Events;
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
+using MudSharp.Framework.Save;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Prototypes;
 using MudSharp.PerceptionEngine;
@@ -29,6 +30,8 @@ public class BookGameItemComponent : GameItemComponent, IWriteable, IReadable, I
     {
         _prototype = (BookGameItemComponentProto)newProto;
     }
+
+    public override InitialisationPhase InitialisationPhase => InitialisationPhase.AfterFirstDatabaseHit;
 
     #region Constructors
 
@@ -70,6 +73,11 @@ public class BookGameItemComponent : GameItemComponent, IWriteable, IReadable, I
         _prototype = rhs._prototype;
         foreach ((int Page, int Order, ICanBeRead Writing) item in rhs.PagesAndReadables)
         {
+            if (item.Writing is null)
+            {
+                continue;
+            }
+
             var readable = temporary ? item.Writing : item.Writing.CopyReadable();
             PagesAndReadables.Add((item.Page, item.Order, readable));
             if (!temporary)
@@ -97,11 +105,15 @@ public class BookGameItemComponent : GameItemComponent, IWriteable, IReadable, I
 
         foreach (XElement item in root.Element("Writings").Elements())
         {
-            PagesAndReadables.Add((int.Parse(item.Attribute("Page").Value), int.Parse(item.Attribute("Order").Value),
-                    item.Name.LocalName.EqualTo("Writing")
-                        ? (ICanBeRead)Gameworld.Writings.Get(long.Parse(item.Attribute("Id").Value))
-                        : Gameworld.Drawings.Get(long.Parse(item.Attribute("Id").Value))
-                ));
+            var readable = item.Name.LocalName.EqualTo("Writing")
+                ? (ICanBeRead)Gameworld.Writings.Get(long.Parse(item.Attribute("Id").Value))
+                : Gameworld.Drawings.Get(long.Parse(item.Attribute("Id").Value));
+            if (readable is null)
+            {
+                continue;
+            }
+
+            PagesAndReadables.Add((int.Parse(item.Attribute("Page").Value), int.Parse(item.Attribute("Order").Value), readable));
         }
 
         CalculateWritings();
@@ -162,6 +174,7 @@ public class BookGameItemComponent : GameItemComponent, IWriteable, IReadable, I
                 new XElement("CurrentPage", CurrentPage),
                 new XElement("Writings",
                     from item in PagesAndReadables
+                    where item.Writing is not null
                     select new XElement(item.Writing is IWriting ? "Writing" : "Drawing",
                         new XAttribute("Id", item.Writing.Id), new XAttribute("Page", item.Page),
                         new XAttribute("Order", item.Order)))
@@ -185,7 +198,10 @@ public class BookGameItemComponent : GameItemComponent, IWriteable, IReadable, I
 
     private void CalculateWritings()
     {
-        Readables = PagesAndReadables.Where(x => x.Page == CurrentPage).OrderBy(x => x.Order).Select(x => x.Writing)
+        Readables = PagesAndReadables.Where(x => x.Page == CurrentPage)
+                                     .OrderBy(x => x.Order)
+                                     .Select(x => x.Writing)
+                                     .Where(x => x is not null)
                                      .ToList();
     }
 
@@ -195,7 +211,8 @@ public class BookGameItemComponent : GameItemComponent, IWriteable, IReadable, I
 
     public int DocumentLengthUsedForPage(int page)
     {
-        return PagesAndReadables.Where(x => x.Page == page).Sum(x => x.Writing.DocumentLength);
+        return PagesAndReadables.Where(x => x.Page == page && x.Writing is not null)
+                                .Sum(x => x.Writing.DocumentLength);
     }
 
     public bool CanAddWriting(IWriting writing)

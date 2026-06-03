@@ -264,6 +264,7 @@ For readable book content, also validate:
 - whether `content list`, `content copy`, `content edit`, `content remove`, and `content clear` round-trip cleanly through component save/load
 - whether prototype content rejects invalid pages and text that exceeds the page capacity supplied by the selected paper prototype
 - whether two loaded copies of the same book have independent printed writing rows rather than shared mutable records
+- whether fresh and copied books or paper sheets persist non-zero readable ids after a save/reload cycle
 - whether player handwriting can still be added after printed content when the page has spare capacity
 - whether tearing a page preserves the normal book behaviour and does not create dangling readable rows in the remaining pages
 - whether on-load FutureProgs can use `addprintedwriting`, `copywritingto`, and `setbooktitle` for generated manuals, certificates, letters, or personalised documents

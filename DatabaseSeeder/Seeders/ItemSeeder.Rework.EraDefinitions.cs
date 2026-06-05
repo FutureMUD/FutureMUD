@@ -58,6 +58,21 @@ public partial class ItemSeeder
 		TimeSpan? MorphTimer = null,
 		string? DestroyedItemUniqueReference = null);
 
+	internal sealed record EraItemSpecTestData(
+		string StableReference,
+		string Noun,
+		string ShortDescription,
+		string FullDescription,
+		SizeCategory Size,
+		ItemQuality Quality,
+		double WeightInGrams,
+		decimal Cost,
+		string Material,
+		MaterialBehaviourType MaterialType,
+		IReadOnlyCollection<string> Tags,
+		IReadOnlyCollection<string> Components,
+		string? BuilderNotes);
+
 	private sealed record EraOutfitSlotSpec(
 		string Key,
 		string Display,

@@ -1,6 +1,6 @@
 # Era Seeder Shared Architecture
 
-This document describes the shared item/craft/outfit seeder architecture used by the antiquity and medieval rework paths.
+This document describes the shared era item/craft records used by rework seeders. Antiquity currently uses this architecture for live seeded content. The medieval rework path has been reset to no-op launch stubs, so medieval-specific configuration and catalogue examples should be treated as retired context until the from-scratch rebuild adds new source truth.
 
 ## Shared Records
 
@@ -14,13 +14,13 @@ This document describes the shared item/craft/outfit seeder architecture used by
 - `EraVariableColourPolicy` for default colour-component policy.
 - `EraSeederConfiguration` for era-level differences.
 
-Shared records must stay era-neutral. They should not contain medieval-only assumptions such as six social roles, complete outfit requirements, or `MED-OUTFIT` labels. Those details belong in the medieval configuration or medieval data.
+Shared records must stay era-neutral. They should not contain assumptions from any one era such as fixed social roles, complete outfit requirements, or retired era-specific planning labels. Those details belong in the era-specific configuration or data when that era has a live implementation.
 
 ## Configuration
 
 Each era declares an `EraSeederConfiguration`.
 
-Medieval sets complete outfit catalogues to required, allows the generic baseline wardrobe as retained fallback content, and disables direct culture names in player-facing clothing descriptions. Antiquity sets complete outfit catalogues to false and keeps its authored clothing suites without forcing them into the medieval outfit matrix.
+Antiquity sets complete outfit catalogues to false and keeps its authored clothing suites without forcing them into a complete outfit matrix. A future medieval rebuild should choose its own configuration when the new catalogue exists.
 
 Configuration should carry differences such as:
 
@@ -47,7 +47,7 @@ Add future era content by defining data first:
 5. Add `EraClothingPieceSpec` entries when an item needs outfit metadata and craft data together.
 6. Seed through shared helpers such as `SeedEraItemSpecs(...)` where possible.
 
-If an era needs different behaviour, express it through configuration or a small strategy helper. Do not copy the medieval helper family and edit the copy.
+If an era needs different behaviour, express it through configuration or a small strategy helper. Do not copy a retired helper family and edit the copy.
 
 ## No Patch-After-Create Clothing
 

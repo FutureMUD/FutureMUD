@@ -6,6 +6,5 @@ public partial class ItemSeeder
 {
 	private void SeedMedievalClothing()
 	{
-		SeedEraItemSpecs(MedievalClothingItemSpecs());
 	}
 }

@@ -236,6 +236,65 @@ return @item");
         Assert.AreEqual("Text after a blank line", result[3], $"Result #1 was {result[3]}");
     }
 
+	[TestMethod]
+	public void TextUtilityFunctions_ExecuteRepresentativeHelpers()
+	{
+		FutureProg textProg = new(_gameworld,
+			"TextUtilityText",
+			ProgVariableTypes.Text,
+			Array.Empty<Tuple<ProgVariableTypes, string>>(),
+			@"return normalizewhitespace(replacetext(""alpha   BETA"", ""beta"", ""gamma""))");
+		Assert.IsTrue(textProg.Compile(), textProg.CompileError);
+		Assert.AreEqual("alpha gamma", textProg.Execute<string>());
+
+		FutureProg boolProg = new(_gameworld,
+			"TextUtilityBool",
+			ProgVariableTypes.Boolean,
+			Array.Empty<Tuple<ProgVariableTypes, string>>(),
+			@"return startswith(""FutureMUD"", ""future"") and endswithcase(""FutureMUD"", ""MUD"")");
+		Assert.IsTrue(boolProg.Compile(), boolProg.CompileError);
+		Assert.IsTrue(boolProg.ExecuteBool());
+
+		FutureProg numberProg = new(_gameworld,
+			"TextUtilityNumber",
+			ProgVariableTypes.Number,
+			Array.Empty<Tuple<ProgVariableTypes, string>>(),
+			@"return counttext(""ha ha HA"", ""ha"")");
+		Assert.IsTrue(numberProg.Compile(), numberProg.CompileError);
+		Assert.AreEqual(3, numberProg.ExecuteInt());
+	}
+
+	[TestMethod]
+	public void CollectionUtilityFunctions_PreserveTypedCollections()
+	{
+		FutureProg prog = new(_gameworld,
+			"CollectionUtilityTyped",
+			ProgVariableTypes.Text,
+			Array.Empty<Tuple<ProgVariableTypes, string>>(),
+			@"var parts = SplitText(""alpha,beta,gamma"", "","")
+var extended = collectionappend(@parts, ""delta"")
+var window = collectionrange(@extended, 1, 2)
+return concat(@window, ""|"")");
+		Assert.IsTrue(prog.Compile(), prog.CompileError);
+		Assert.AreEqual("beta|gamma", prog.Execute<string>());
+	}
+
+	[TestMethod]
+	public void CollectionUtilityFunctions_ConcatRejectsSecondCollectionThatCannotAssignToFirst()
+	{
+		FutureProg prog = new(_gameworld,
+			"CollectionConcatUnsafeVariance",
+			ProgVariableTypes.Character | ProgVariableTypes.Collection,
+			new[]
+			{
+				Tuple.Create(ProgVariableTypes.Character | ProgVariableTypes.Collection, "characters"),
+				Tuple.Create(ProgVariableTypes.Toon | ProgVariableTypes.Collection, "toons")
+			},
+			"return collectionconcat(@characters, @toons)");
+
+		Assert.IsFalse(prog.Compile(), "A toon collection should not be concat-able into a character collection return type.");
+	}
+
     [TestMethod]
     public void TestGetTypeByName()
     {

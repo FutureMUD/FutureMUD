@@ -82,6 +82,147 @@ public class FutureProgFunctionDocumentationTests
 		Assert.IsTrue(overloads.All(x => x.FunctionHelp.Contains("radians", StringComparison.OrdinalIgnoreCase)));
 	}
 
+	[TestMethod]
+	public void BuiltInFunctionCatalogue_UtilityPass_AddsExpectedPureHelperFamilies()
+	{
+		FutureProgTestBootstrap.EnsureInitialised();
+
+		var expectedFunctions = new[]
+		{
+			"textlength",
+			"uppercase",
+			"lowercase",
+			"propercase",
+			"titlecase",
+			"trim",
+			"trimstart",
+			"trimend",
+			"lefttext",
+			"righttext",
+			"midtext",
+			"textcontains",
+			"textcontainscase",
+			"startswith",
+			"startswithcase",
+			"endswith",
+			"endswithcase",
+			"textindexof",
+			"textindexofcase",
+			"textlastindexof",
+			"textlastindexofcase",
+			"replacetext",
+			"replacetextcase",
+			"inserttext",
+			"removetext",
+			"repeattext",
+			"isemptytext",
+			"isblanktext",
+			"wordcount",
+			"linecount",
+			"firstword",
+			"lastword",
+			"textbefore",
+			"textafter",
+			"textbetween",
+			"padleft",
+			"padright",
+			"truncatetext",
+			"truncateellipsis",
+			"normalizewhitespace",
+			"counttext",
+			"counttextcase",
+			"reversetext",
+			"capitalizefirst",
+			"collectioncount",
+			"collectionany",
+			"collectionempty",
+			"collectionfirst",
+			"collectionlast",
+			"collectionat",
+			"collectionreverse",
+			"collectiontake",
+			"collectionskip",
+			"collectionrange",
+			"collectionappend",
+			"collectionprepend",
+			"collectionwithoutindex",
+			"collectionconcat",
+			"collectioncontains",
+			"collectionindexof",
+			"collectiondistinct",
+			"collectionshuffle",
+			"collectionisvalidindex",
+			"dictionarycount",
+			"dictionaryany",
+			"dictionaryempty",
+			"dictionarykeys",
+			"dictionaryvalues",
+			"dictionarycontainskey",
+			"dictionaryget",
+			"dictionarygetdefault",
+			"dictionarycontainsvalue",
+			"dictionarywithoutkey",
+			"dictionaryset",
+			"dictionaryfirstkey",
+			"collectiondictionarycount",
+			"collectiondictionarylongcount",
+			"collectiondictionaryany",
+			"collectiondictionaryempty",
+			"collectiondictionarykeys",
+			"collectiondictionaryvalues",
+			"collectiondictionarycontainskey",
+			"collectiondictionaryget",
+			"collectiondictionarygetfirst",
+			"collectiondictionarycontainsvalue",
+			"collectiondictionarywithoutkey",
+			"dateyear",
+			"datemonth",
+			"dateday",
+			"datehour",
+			"dateminute",
+			"datesecond",
+			"datemillisecond",
+			"datedayofyear",
+			"datedayofweek",
+			"dateisweekend",
+			"dateonly",
+			"spandays",
+			"spanhours",
+			"spanminutes",
+			"spanseconds",
+			"spanmilliseconds",
+			"totaldays",
+			"totalhours",
+			"totalminutes",
+			"totalseconds",
+			"totalmilliseconds",
+			"spanabs",
+			"spannegate",
+			"timespanfromdays",
+			"timespanfromhours",
+			"timespanfromminutes",
+			"timespanfromseconds",
+			"timespanfrommilliseconds",
+			"maketimespan"
+		};
+
+		Assert.IsTrue(expectedFunctions.Length >= 50, "The review pass should add at least 50 catalogue entries.");
+
+		var registeredFunctions = FutureProg.GetFunctionCompilerInformations()
+		                                    .Select(x => x.FunctionName)
+		                                    .ToHashSet(StringComparer.InvariantCultureIgnoreCase);
+		var missing = expectedFunctions
+		              .Where(x => !registeredFunctions.Contains(x))
+		              .OrderBy(x => x)
+		              .ToList();
+
+		Assert.AreEqual(
+			0,
+			missing.Count,
+			$"Expected FutureProg utility function registrations were missing:{Environment.NewLine}{string.Join(Environment.NewLine, missing)}"
+		);
+	}
+
 	private static IEnumerable<string> ValidateFunction(FunctionCompilerInformation function)
 	{
 		var signature = $"{function.FunctionName}({string.Join(", ", function.Parameters.Select(x => x.Describe()))})";

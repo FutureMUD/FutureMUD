@@ -206,6 +206,38 @@ public class FutureProgDateTimeFunctionTests
 	}
 
 	[TestMethod]
+	public void DateTimeComponentFunctions_ExecuteRepresentativeHelpers()
+	{
+		var dateProg = Compile<decimal>(
+			"DateTimeComponentDate",
+			ProgVariableTypes.Number,
+			[
+				Tuple.Create(ProgVariableTypes.DateTime, "date")
+			],
+			"return dateyear(@date) + datemonth(@date) + dateday(@date)");
+
+		Assert.AreEqual(2060M, dateProg.Execute<decimal>(new System.DateTime(2026, 5, 29, 13, 45, 0, DateTimeKind.Utc)));
+
+		var spanProg = Compile<TimeSpan>(
+			"DateTimeComponentSpan",
+			ProgVariableTypes.TimeSpan,
+			[],
+			"return maketimespan(1, 2, 3, 4, 5)");
+
+		Assert.AreEqual(new TimeSpan(1, 2, 3, 4, 5), spanProg.Execute<TimeSpan>());
+
+		var totalProg = Compile<decimal>(
+			"DateTimeComponentTotal",
+			ProgVariableTypes.Number,
+			[
+				Tuple.Create(ProgVariableTypes.TimeSpan, "duration")
+			],
+			"return totalhours(@duration)");
+
+		Assert.AreEqual(26M, totalProg.Execute<decimal>(TimeSpan.FromHours(26)));
+	}
+
+	[TestMethod]
 	public void ToMudDate_InvalidText_ReturnsNever()
 	{
 		var prog = Compile<MudDateTime>(

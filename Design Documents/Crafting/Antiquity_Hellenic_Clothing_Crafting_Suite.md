@@ -4,7 +4,7 @@ This document records the antiquity clothing craft suite as it grows through cul
 
 The remaining common, culture-neutral clothing/accessory items from `SeedAntiquityClothing` now live in the equipment craft pass rather than in the culture-specific garment matrices: loincloths, breastbands, woven sashes, papyrus sandals, linen headcloths and shawls, front-knotted girdles, felt caps, the kyrbasia-style cap, the fluted felt hat, and the glass usekh collar. That same pass also makes the 29 antiquity textile/leather craft-tool prototypes craftable from reusable tool-blank stock. Visible craft names and echoes for these common/equipment crafts stay culture-neutral; any cultural specificity remains in seeded item descriptions or knowledge metadata.
 
-The antiquity clothing path now shares era-level definition/configuration records with the medieval rework path through [Era Seeder Shared Architecture](./Era_Seeder_Shared_Architecture.md). Antiquity remains configured without complete medieval-style outfit matrices; its authored clothing suites and simpler common-equipment path should not be regressed into generic generated descriptions.
+The antiquity clothing path uses the era-level definition/configuration records described in [Era Seeder Shared Architecture](./Era_Seeder_Shared_Architecture.md). Antiquity remains configured without complete outfit matrices; its authored clothing suites and simpler common-equipment path should not be regressed into generic generated descriptions.
 
 Historical anchors:
 

@@ -15,7 +15,7 @@ Current item definitions are seeded from:
 | `DatabaseSeeder/Seeders/ItemSeeder.Rework.AntiquityWriting.cs` | 33 |
 | Total | 1340 |
 
-Cross-era foundation note: `ItemSeeder.Rework.Medieval.cs` now owns the shared `historic_*` workshop apparatus that is seeded when either `antiquity` or `medieval` is selected. Antiquity-specific garment, weapon, jewellery, and foodway stable references remain unchanged; the shared items are additions rather than renames.
+Cross-era foundation note: `ItemSeeder.Rework.HistoricFoundation.cs` and `ItemSeederCrafting.HistoricFoundation.cs` own the shared `historic_*` workshop apparatus that is seeded when either `antiquity` or `medieval` is selected. Antiquity-specific garment, weapon, jewellery, and foodway stable references remain unchanged; the shared items are additions rather than renames.
 
 Current craft definitions are seeded from:
 

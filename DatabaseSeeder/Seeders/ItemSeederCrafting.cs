@@ -94,6 +94,7 @@ public partial class ItemSeeder
 		["Bowmaking", "Bowyer", "Bow Making", "Bowyer Craft"],
 		["Fletching", "Fletcher"],
 		["Pottery", "Potter"],
+		["Bonecarving", "Bonecarver"],
 		["Weaving", "Weaver"],
 		["Spinning", "Spinner"],
 		["Threshing", "Thresher"],

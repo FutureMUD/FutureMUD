@@ -106,15 +106,16 @@ public class ItemSeederMedievalCraftingTests
 	}
 
 	[TestMethod]
-	public void MedievalItemLaunchers_AreNoOps()
+	public void MedievalItemLaunchers_AreNoOpsExceptClothing()
 	{
-		foreach (var (fileName, methodName) in MedievalItemLaunchers)
+		foreach (var (fileName, methodName) in MedievalItemLaunchers
+			         .Where(x => !x.Value.Equals("SeedMedievalClothing", StringComparison.Ordinal)))
 		{
 			var source = ReadSource("DatabaseSeeder", "Seeders", fileName);
 			AssertNoOpMethod(source, methodName);
 		}
 
-		var medievalItemSource = ReadMedievalItemSources();
+		var medievalItemSource = ReadMedievalItemSources("ItemSeeder.Rework.MedievalClothing.cs");
 		foreach (var forbidden in new[]
 		{
 			"CreateItem(",
@@ -128,6 +129,60 @@ public class ItemSeederMedievalCraftingTests
 		{
 			Assert.IsFalse(medievalItemSource.Contains(forbidden, StringComparison.Ordinal),
 				$"Medieval item launch stubs should not retain retired source token {forbidden}.");
+		}
+	}
+
+	[TestMethod]
+	public void MedievalClothingSeeder_ImplementsReferenceCatalogueWithDirectCreateItemCalls()
+	{
+		var clothingSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.MedievalClothing.cs");
+		var designReference = ReadSource("Design Documents", "Crafting", "Medieval_Clothing_Seeder_Design_Reference.md");
+		var fdescCatalogue = ReadSource("Design Documents", "Crafting", "Medieval_Clothing_FDesc_Catalogue.csv");
+
+		var designReferences = Regex.Matches(
+				designReference,
+				@"^- `(?<ref>medieval_[^`]+)` - .*?; noun: `[^`]+`; material:",
+				RegexOptions.Multiline | RegexOptions.CultureInvariant)
+			.Cast<Match>()
+			.Select(x => x.Groups["ref"].Value)
+			.ToArray();
+		var csvReferences = Regex.Matches(
+				fdescCatalogue,
+				@"^(?<ref>medieval_[^,\r\n]+),",
+				RegexOptions.Multiline | RegexOptions.CultureInvariant)
+			.Cast<Match>()
+			.Select(x => x.Groups["ref"].Value)
+			.ToArray();
+		var sourceReferences = Regex.Matches(
+				clothingSource,
+				@"CreateItem\s*\(\s*""(?<ref>medieval_[^""]+)""",
+				RegexOptions.Multiline | RegexOptions.CultureInvariant)
+			.Cast<Match>()
+			.Select(x => x.Groups["ref"].Value)
+			.ToArray();
+
+		Assert.AreEqual(259, designReferences.Length, "The design reference should contain the full 259-garment catalogue.");
+		CollectionAssert.AreEqual(designReferences, csvReferences,
+			"The fdesc catalogue should stay in the same order as the design reference.");
+		CollectionAssert.AreEqual(designReferences, sourceReferences,
+			"SeedMedievalClothing should contain exactly one direct CreateItem call for each clothing reference.");
+		Assert.AreEqual(sourceReferences.Length, sourceReferences.Distinct(StringComparer.OrdinalIgnoreCase).Count(),
+			"Each medieval clothing item should be created exactly once.");
+
+		foreach (var forbidden in new[]
+		{
+			"foreach",
+			"for (",
+			"Dictionary<",
+			"IReadOnly",
+			"record ",
+			"BuildMedieval",
+			"SeedEraItemSpecs(",
+			"EnsureMedieval"
+		})
+		{
+			Assert.IsFalse(clothingSource.Contains(forbidden, StringComparison.Ordinal),
+				$"SeedMedievalClothing should remain direct CreateItem calls without helper catalogue token {forbidden}.");
 		}
 	}
 
@@ -184,7 +239,7 @@ public class ItemSeederMedievalCraftingTests
 	}
 
 	[TestMethod]
-	public void MedievalRetiredDesignDocuments_AreRemovedAndIndexPointsAtResetNote()
+	public void MedievalRetiredDesignDocuments_AreRemovedAndIndexPointsAtCurrentDocs()
 	{
 		var craftingDocPath = SourcePath("Design Documents", "Crafting");
 		foreach (var removed in RetiredMedievalDesignDocuments)
@@ -196,31 +251,40 @@ public class ItemSeederMedievalCraftingTests
 		var medievalDocs = Directory.GetFiles(craftingDocPath, "Medieval_*.md")
 			.Select(Path.GetFileName)
 			.ToArray();
-		CollectionAssert.AreEquivalent(new[] { "Medieval_Crafting_Audit.md" }, medievalDocs,
-			"The only surviving medieval design document should be the current reset note.");
+		CollectionAssert.AreEquivalent(
+			new[] { "Medieval_Crafting_Audit.md", "Medieval_Clothing_Seeder_Design_Reference.md" },
+			medievalDocs,
+			"The only surviving medieval design documents should be the current audit and live clothing reference.");
+		Assert.IsTrue(File.Exists(Path.Combine(craftingDocPath, "Medieval_Clothing_FDesc_Catalogue.csv")),
+			"The live medieval clothing fdesc catalogue should remain beside its design reference.");
 
 		var indexSource = ReadSource("Design Documents", "README.md");
-		AssertContains(indexSource, "[Medieval ItemSeeder Reset](./Crafting/Medieval_Crafting_Audit.md)");
+		AssertContains(indexSource, "[Medieval ItemSeeder Rebuild Audit](./Crafting/Medieval_Crafting_Audit.md)");
+		AssertContains(indexSource, "[Medieval Clothing Seeder Design Reference](./Crafting/Medieval_Clothing_Seeder_Design_Reference.md)");
 		foreach (var removed in RetiredMedievalDesignDocuments)
 		{
 			Assert.IsFalse(indexSource.Contains(removed, StringComparison.Ordinal),
 				$"Design document index should not link retired medieval document {removed}.");
 		}
 
-		var resetSource = ReadSource("Design Documents", "Crafting", "Medieval_Crafting_Audit.md");
-		AssertContains(resetSource, "intentionally reset to launch stubs");
-		AssertContains(resetSource, "ItemSeeder.Rework.HistoricFoundation.cs");
-		AssertContains(resetSource, "ItemSeederCrafting.HistoricFoundation.cs");
-		Assert.IsFalse(resetSource.Contains("Medieval_Outfit_Catalogue.md", StringComparison.Ordinal),
-			"The reset note should not point readers to retired outfit catalogue payloads.");
-		Assert.IsFalse(resetSource.Contains("Medieval_Culture_Catalogue.md", StringComparison.Ordinal),
-			"The reset note should not point readers to retired culture catalogue payloads.");
+		var auditSource = ReadSource("Design Documents", "Crafting", "Medieval_Crafting_Audit.md");
+		AssertContains(auditSource, "`SeedMedievalClothing` is the first rebuilt medieval item slice");
+		AssertContains(auditSource, "Medieval_Clothing_Seeder_Design_Reference.md");
+		AssertContains(auditSource, "Medieval_Clothing_FDesc_Catalogue.csv");
+		AssertContains(auditSource, "ItemSeeder.Rework.HistoricFoundation.cs");
+		AssertContains(auditSource, "ItemSeederCrafting.HistoricFoundation.cs");
+		Assert.IsFalse(auditSource.Contains("Medieval_Outfit_Catalogue.md", StringComparison.Ordinal),
+			"The medieval audit should not point readers to retired outfit catalogue payloads.");
+		Assert.IsFalse(auditSource.Contains("Medieval_Culture_Catalogue.md", StringComparison.Ordinal),
+			"The medieval audit should not point readers to retired culture catalogue payloads.");
 	}
 
-	private static string ReadMedievalItemSources()
+	private static string ReadMedievalItemSources(params string[] excludedFileNames)
 	{
+		var excluded = excludedFileNames.ToHashSet(StringComparer.OrdinalIgnoreCase);
 		return string.Join(Environment.NewLine,
 			Directory.GetFiles(SourcePath("DatabaseSeeder", "Seeders"), "ItemSeeder.Rework.Medieval*.cs")
+				.Where(x => !excluded.Contains(Path.GetFileName(x)))
 				.OrderBy(x => x, StringComparer.OrdinalIgnoreCase)
 				.Select(File.ReadAllText));
 	}

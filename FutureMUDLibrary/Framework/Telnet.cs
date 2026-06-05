@@ -161,6 +161,11 @@ namespace MudSharp.Framework
         public const byte GA = 249;
 
         /// <summary>
+        /// Telnet End Of Record command.
+        /// </summary>
+        public const byte EOR = 239;
+
+        /// <summary>
         ///     Signals to the Telnet Engine that it should not wrap the text on this line.
         /// </summary>
         public const char NoWordWrapChar = '\x0002';

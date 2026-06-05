@@ -55,18 +55,22 @@ public class PlayerOutputHandler : IOutputHandler
             Outgoing.Append('\n');
         }
 
-        if (!nopage && Perceiver != null && text.Count(x => x == '\n') > Perceiver.Account.PageLength * 1.25)
+        if (!nopage && Perceiver?.Account != null)
         {
-            StringReader reader = new(text);
-            StringBuilder sb = new();
-            for (int i = 0; i < Perceiver.Account.PageLength; i++)
+            var wrappedText = text.Wrap(Perceiver.Account.LineFormatLength);
+            if (wrappedText.Count(x => x == '\n') > Perceiver.Account.PageLength * 1.25)
             {
-                sb.AppendLine(reader.ReadLine());
-            }
+                StringReader reader = new(wrappedText);
+                StringBuilder sb = new();
+                for (int i = 0; i < Perceiver.Account.PageLength; i++)
+                {
+                    sb.AppendLine(reader.ReadLine());
+                }
 
-            PagedString = reader.ReadToEnd();
-            sb.AppendLineFormat("*** Type more to read further ***".Colour(Telnet.Yellow));
-            text = sb.ToString();
+                PagedString = reader.ReadToEnd();
+                sb.AppendLineFormat("*** Type more to read further ***".Colour(Telnet.Yellow));
+                text = sb.ToString();
+            }
         }
 
         if (newline)
@@ -129,7 +133,11 @@ public class PlayerOutputHandler : IOutputHandler
         }
 
         PagedString = reader.ReadToEnd();
-        sb.AppendLineFormat("*** Type {0} to read further ***", "more".Colour(Telnet.Yellow));
+        if (!string.IsNullOrEmpty(PagedString))
+        {
+            sb.AppendLineFormat("*** Type {0} to read further ***", "more".Colour(Telnet.Yellow));
+        }
+
         Outgoing.Append(sb);
     }
 

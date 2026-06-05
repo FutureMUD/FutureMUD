@@ -551,6 +551,8 @@ public class VehicleTowServiceTests
 		profile.SetupGet(x => x.RequiredPowerSpikeInWatts).Returns(requiredPower);
 		vehicle.Prototype.SetupGet(x => x.MovementProfiles).Returns([profile.Object]);
 		vehicle.Vehicle.SetupGet(x => x.Controller).Returns(controller);
+		Mock.Get(controller).SetupGet(x => x.Location).Returns(vehicle.Vehicle.Object.Location);
+		Mock.Get(controller).SetupGet(x => x.RoomLayer).Returns(vehicle.Vehicle.Object.RoomLayer);
 	}
 
 	private static Mock<ICellExit> CreateExit(ICell origin, ICell destination, SizeCategory maximumSize)

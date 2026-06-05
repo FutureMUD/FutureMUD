@@ -2551,44 +2551,53 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
 
     private void ProcessPendingCommands()
     {
+        List<IPlayerConnection> playersWithCommands;
+        List<IPlayerConnection> connections;
         lock (_connections)
         {
-            foreach (
-                IPlayerConnection player in
-                _connections.Where(
-                                player => player.HasIncomingCommands && player.State == ConnectionState.Open)
-                            .Shuffle())
-            {
-                player?.AttemptCommand();
-            }
+            playersWithCommands = _connections
+                                  .Where(player => player.HasIncomingCommands && player.State == ConnectionState.Open)
+                                  .ToList();
+            connections = _connections.ToList();
+        }
 
-            foreach (IPlayerConnection connection in _connections.ToList())
-            {
-                connection?.PrepareOutgoing();
-            }
+        foreach (IPlayerConnection player in playersWithCommands.Shuffle())
+        {
+            player?.AttemptCommand();
+        }
+
+        foreach (IPlayerConnection connection in connections)
+        {
+            connection?.PrepareOutgoing();
         }
     }
 
     public void ForceOutgoingMessages()
     {
+        List<IPlayerConnection> connections;
         lock (_connections)
         {
-            foreach (IPlayerConnection connection in _connections.ToList())
-            {
-                connection.PrepareOutgoing();
-                connection.SendOutgoing();
-            }
+            connections = _connections.ToList();
+        }
+
+        foreach (IPlayerConnection connection in connections)
+        {
+            connection.PrepareOutgoing();
+            connection.SendOutgoing();
         }
     }
 
     private void WarnIdlers()
     {
+        List<IPlayerConnection> connections;
         lock (_connections)
         {
-            foreach (IPlayerConnection connection in _connections.Where(x => x.State == ConnectionState.Open))
-            {
-                connection.WarnTimeout();
-            }
+            connections = _connections.Where(x => x.State == ConnectionState.Open).ToList();
+        }
+
+        foreach (IPlayerConnection connection in connections)
+        {
+            connection.WarnTimeout();
         }
     }
 

@@ -37,7 +37,14 @@ public abstract class Menu : IControllable, IHaveFuturemud, ISubContextControlle
 
     public virtual void CloseSubContext()
     {
-        throw new NotImplementedException();
+        if (_subContext == null)
+        {
+            return;
+        }
+
+        _subContext.LoseControl(this);
+        _subContext = _subContext.NextContext;
+        _subContext?.AssumeControl(this);
     }
 
     public override string ToString()

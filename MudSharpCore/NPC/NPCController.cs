@@ -45,7 +45,7 @@ public class NPCController : IFuturemudAccountController, IFuturemudPlayerContro
     {
         _context?.LoseControl(this);
         _context = null;
-        foreach (IMonitorable observee in _observes)
+        foreach (IMonitorable observee in _observes.ToList())
         {
             RemoveObservee(observee);
         }

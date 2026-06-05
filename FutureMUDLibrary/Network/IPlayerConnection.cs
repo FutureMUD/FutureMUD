@@ -1,6 +1,5 @@
 ﻿using MudSharp.Framework;
 using System;
-using System.Net.Sockets;
 
 namespace MudSharp.Network
 {
@@ -28,7 +27,6 @@ namespace MudSharp.Network
         void PrepareOutgoing();
         void PrepareIncoming();
         void SendOutgoing();
-        void Reconnect(TcpClient client);
         void NegotiateClientSet();
     }
 }

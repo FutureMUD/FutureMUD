@@ -162,14 +162,24 @@ public sealed class FuturemudControlContext : IFuturemudControlContext
         observee.AddObserver(this);
     }
 
-    // TODO Reimplement
     public void UpdateObservers()
     {
-        //if (_observedBy.Count <= 0) return;
-        //var sb = new StringBuilder(OutgoingStream.ToString());
-        //sb.Insert(0, "\nWatch: ", 1);
-        //sb.AppendLine("\nEnd Watch");
-        //_observedBy.ForEach(x => x.OutgoingStream.Append(sb.ToString()));
+        if (!_observedBy.Any() || OutputHandler?.HasBufferedOutput != true ||
+            string.IsNullOrEmpty(OutputHandler.BufferedOutput))
+        {
+            return;
+        }
+
+        var sb = new StringBuilder();
+        sb.AppendLine();
+        sb.AppendLine("Watch:");
+        sb.Append(OutputHandler.BufferedOutput);
+        sb.AppendLine();
+        sb.AppendLine("End Watch");
+        foreach (var observer in _observedBy.ToList())
+        {
+            observer.OutputHandler.Send(sb.ToString(), false, true);
+        }
     }
 
     void IMonitorable.AddObserver(IMonitor observer)
@@ -204,7 +214,7 @@ public sealed class FuturemudControlContext : IFuturemudControlContext
         Account = null;
         _context?.LoseControl(this);
         _context = null;
-        foreach (IMonitorable observee in _observes)
+        foreach (IMonitorable observee in _observes.ToList())
         {
             RemoveObservee(observee);
         }
@@ -268,6 +278,9 @@ public sealed class FuturemudControlContext : IFuturemudControlContext
 
     public void CloseSubContext()
     {
-        throw new NotImplementedException();
+        if (_context is ISubContextController controller)
+        {
+            controller.CloseSubContext();
+        }
     }
 }

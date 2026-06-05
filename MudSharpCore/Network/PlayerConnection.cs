@@ -6,48 +6,42 @@ using MudSharp.Server;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Sockets;
 using System.Text;
-using System.Threading;
 
 namespace MudSharp.Network;
 
 public class PlayerConnection : IPlayerConnection
 {
-    private static readonly byte[] ByteSeparators = [(byte)'\n', Telnet.END_IAC];
-
-    private static readonly byte[] WillMxp = [Telnet.IAC, Telnet.WILL, Telnet.TELOPT_MXP, Telnet.END_IAC];
+    private static readonly byte[] WillMxp = [Telnet.IAC, Telnet.WILL, Telnet.TELOPT_MXP];
 
     private static readonly byte[] StartMxp =
     [
-        Telnet.IAC, Telnet.SB, Telnet.TELOPT_MXP, Telnet.IAC, Telnet.SE,
-        Telnet.END_IAC
+        Telnet.IAC, Telnet.SB, Telnet.TELOPT_MXP, Telnet.IAC, Telnet.SE
     ];
 
-    private static readonly byte[] WillEOR = [Telnet.IAC, Telnet.WILL, Telnet.TELOPT_EOR, Telnet.END_IAC];
+    private static readonly byte[] WillEOR = [Telnet.IAC, Telnet.WILL, Telnet.TELOPT_EOR];
 
-    private static readonly byte[] DoEOR = [Telnet.IAC, Telnet.DO, Telnet.TELOPT_EOR, Telnet.END_IAC];
+    private static readonly byte[] DoEOR = [Telnet.IAC, Telnet.DO, Telnet.TELOPT_EOR];
 
     private static readonly byte[] Prompt =
     [
         Telnet.IAC,
-        Telnet.GA,
-        Telnet.END_IAC
+        Telnet.GA
     ];
 
     private static readonly byte[] AlternatePrompt =
     [
         Telnet.IAC,
-        Telnet.TELOPT_EOR,
-        Telnet.END_IAC
+        Telnet.EOR
     ];
 
     private static readonly byte[] BeginWillNegotiation = [Telnet.IAC, Telnet.WILL];
 
     private static readonly byte[] DoMxp = [Telnet.IAC, Telnet.DO, Telnet.TELOPT_MXP];
-    private static readonly byte[] DontMXP = [Telnet.IAC, Telnet.DONT, Telnet.TELOPT_MXP];
-    private static byte[] _dontMxp = [Telnet.IAC, Telnet.DONT, Telnet.TELOPT_MXP];
     private static readonly byte[] SupportsBytes = Encoding.ASCII.GetBytes("\x1B[1z<SUPPORTS");
 
     private static readonly byte[] WillCharset =
@@ -104,9 +98,15 @@ public class PlayerConnection : IPlayerConnection
     private readonly TcpClient _client;
     private readonly Stopwatch _inactivityStopwatch = new();
     private readonly Queue<string> _incomingCommands = new();
+    private readonly List<byte> _incomingCommandBuffer = new(Constants.PlayerConnectionBufferSize);
     private readonly byte[] _inputBuffer = new byte[Constants.PlayerConnectionBufferSize];
     private readonly StringBuilder _outgoingCommands = new();
+    private readonly List<byte> _telnetNegotiationBuffer = new(32);
     private bool _useAlternatePrompt;
+    private bool _inTelnetNegotiation;
+    private bool _inTelnetSubcommand;
+    private bool _pendingTelnetSubcommandEnd;
+    private bool _disposed;
 
     private bool _fiveMinuteWarning,
         _twoMinuteWarning,
@@ -123,7 +123,7 @@ public class PlayerConnection : IPlayerConnection
         MXPSupport = new MXPSupport();
         try
         {
-            client.Client.Send(WillMxp);
+            SendAll(WillMxp);
         }
         catch (SocketException e)
         {
@@ -149,7 +149,9 @@ public class PlayerConnection : IPlayerConnection
         {
             try
             {
-                return _client?.Client?.RemoteEndPoint?.ToString().Split(':')[0] ?? "0.0.0.0";
+                return _client?.Client?.RemoteEndPoint is IPEndPoint endpoint
+                    ? endpoint.Address.ToString()
+                    : "0.0.0.0";
             }
             catch (Exception)
             {
@@ -184,7 +186,7 @@ public class PlayerConnection : IPlayerConnection
 
     public void WarnTimeout()
     {
-        if (ControlPuppet == null)
+        if (ControlPuppet == null || ControlPuppet.Timeout <= 0)
         {
             return;
         }
@@ -226,7 +228,7 @@ public class PlayerConnection : IPlayerConnection
     {
         try
         {
-            _client.Client.Send(WillCharset);
+            SendAll(WillCharset);
         }
         catch (SocketException e)
         {
@@ -240,28 +242,32 @@ public class PlayerConnection : IPlayerConnection
         }
     }
 
-    ~PlayerConnection()
-    {
-        Dispose(false);
-    }
-
     private void Dispose(bool disposed)
     {
-        ControlPuppet?.DetachConnection();
-        ControlPuppet = null;
-        Futuremud.Games.First().Destroy(this);
-        State = ConnectionState.Closed;
-        try
+        if (_disposed)
         {
-            _client?.Client?.Shutdown(SocketShutdown.Both);
-        }
-        catch
-        {
-            // We don't care about exceptions at this stage, we're already disposing of the socket
+            return;
         }
 
-        _client?.Close();
-        _stream?.Dispose();
+        _disposed = true;
+        ControlPuppet?.DetachConnection();
+        ControlPuppet = null;
+        State = ConnectionState.Closed;
+        Futuremud.Games.FirstOrDefault()?.Destroy(this);
+        if (disposed)
+        {
+            try
+            {
+                _client?.Client?.Shutdown(SocketShutdown.Both);
+            }
+            catch
+            {
+                // We don't care about exceptions at this stage, we're already disposing of the socket
+            }
+
+            _stream?.Dispose();
+            _client?.Close();
+        }
     }
 
     private void DiscardConnection()
@@ -273,29 +279,31 @@ public class PlayerConnection : IPlayerConnection
 
     public void Bind(IFuturemudControlContext context)
     {
-        State = ConnectionState.Open;
         ControlPuppet = context;
         try
         {
             _stream = _client.GetStream();
+            State = ConnectionState.Open;
+            _inactivityStopwatch.Start();
         }
         catch (ObjectDisposedException e)
         {
             Console.WriteLine("ObjectDisposedException in PlayerConnection.Bind: " + e.Message);
             State = ConnectionState.Closed;
+            ControlPuppet = null;
         }
         catch (InvalidOperationException e)
         {
             Console.WriteLine("InvalidOperationException in PlayerConnection.Bind: " + e.Message);
             State = ConnectionState.Closed;
+            ControlPuppet = null;
         }
         catch (SocketException e)
         {
             Console.WriteLine("SocketException ({0}) in PlayerConnection.Bind: " + e.Message, e.ErrorCode);
             State = ConnectionState.Closed;
+            ControlPuppet = null;
         }
-
-        _inactivityStopwatch.Start();
     }
 
     public void AttemptCommand()
@@ -388,6 +396,7 @@ public class PlayerConnection : IPlayerConnection
             }
 
             ControlPuppet.CuePrompt();
+            ControlPuppet.UpdateObservers();
 
             lock (_outgoingCommands)
             {
@@ -444,17 +453,36 @@ public class PlayerConnection : IPlayerConnection
         ResetWarnings();
     }
 
+    private void SendAll(byte[] bytes)
+    {
+        if (bytes.Length == 0)
+        {
+            return;
+        }
+
+        var offset = 0;
+        while (offset < bytes.Length)
+        {
+            var sent = _client.Client.Send(bytes, offset, bytes.Length - offset, SocketFlags.None);
+            if (sent <= 0)
+            {
+                throw new SocketException((int)SocketError.ConnectionReset);
+            }
+
+            offset += sent;
+        }
+    }
+
     private void HandleTelnetNegotiation(IEnumerable<byte> negotiation)
     {
         byte[] negSeq = negotiation.ToArray();
-        string text = Encoding.ASCII.GetString(negSeq);
 
         if (negSeq.SequenceEqual(DoMxp))
         {
             MXPSupport.UseMXP = true;
-            _client.Client.Send(StartMxp);
-            _client.Client.Send(MXP.StartMXPBytes());
-            _client.Client.Send(WillEOR);
+            SendAll(StartMxp);
+            SendAll(MXP.StartMXPBytes());
+            SendAll(WillEOR);
             return;
         }
 
@@ -466,7 +494,7 @@ public class PlayerConnection : IPlayerConnection
 
         if (negSeq.SequenceEqual(DoCharset))
         {
-            _client.Client.Send(RequestUTF8);
+            SendAll(RequestUTF8);
             return;
         }
 
@@ -496,31 +524,118 @@ public class PlayerConnection : IPlayerConnection
         if (negSeq.Take(BeginWillNegotiation.Length).SequenceEqual(BeginWillNegotiation))
         {
             negSeq[1] = Telnet.WONT;
-            _client.Client.Send(negSeq.ToArray());
+            SendAll(negSeq.ToArray());
             return;
         }
+    }
+
+    private void ResetTelnetNegotiation()
+    {
+        _telnetNegotiationBuffer.Clear();
+        _inTelnetNegotiation = false;
+        _inTelnetSubcommand = false;
+        _pendingTelnetSubcommandEnd = false;
+    }
+
+    private void ProcessIncomingByte(Encoding encoding, byte value)
+    {
+        if (_inTelnetNegotiation)
+        {
+            _telnetNegotiationBuffer.Add(value);
+
+            if (_telnetNegotiationBuffer.Count == 2 && value == Telnet.IAC)
+            {
+                _incomingCommandBuffer.Add(Telnet.IAC);
+                ResetTelnetNegotiation();
+                return;
+            }
+
+            if (_telnetNegotiationBuffer.Count == 2 && value == Telnet.SB)
+            {
+                _inTelnetSubcommand = true;
+                return;
+            }
+
+            if (_telnetNegotiationBuffer.Count == 2 &&
+                value != Telnet.WILL &&
+                value != Telnet.WONT &&
+                value != Telnet.DO &&
+                value != Telnet.DONT)
+            {
+                HandleTelnetNegotiation(_telnetNegotiationBuffer);
+                ResetTelnetNegotiation();
+                return;
+            }
+
+            if (_inTelnetSubcommand)
+            {
+                if (_pendingTelnetSubcommandEnd)
+                {
+                    if (value == Telnet.SE)
+                    {
+                        HandleTelnetNegotiation(_telnetNegotiationBuffer);
+                        ResetTelnetNegotiation();
+                        return;
+                    }
+
+                    _pendingTelnetSubcommandEnd = false;
+                }
+
+                if (value == Telnet.IAC)
+                {
+                    _pendingTelnetSubcommandEnd = true;
+                }
+
+                return;
+            }
+
+            if (_telnetNegotiationBuffer.Count >= 3)
+            {
+                HandleTelnetNegotiation(_telnetNegotiationBuffer);
+                ResetTelnetNegotiation();
+            }
+
+            return;
+        }
+
+        if (value == Telnet.IAC)
+        {
+            _inTelnetNegotiation = true;
+            _telnetNegotiationBuffer.Clear();
+            _telnetNegotiationBuffer.Add(value);
+            return;
+        }
+
+        if (value == (byte)'\r')
+        {
+            EnqueueCommand(encoding, _incomingCommandBuffer);
+            _incomingCommandBuffer.Clear();
+            return;
+        }
+
+        if (value == (byte)'\n')
+        {
+            if (_incomingCommandBuffer.Count > 0)
+            {
+                EnqueueCommand(encoding, _incomingCommandBuffer);
+                _incomingCommandBuffer.Clear();
+            }
+
+            return;
+        }
+
+        _incomingCommandBuffer.Add(value);
     }
 
     public void PrepareIncoming()
     {
         try
         {
-            // Temporarily disabled 09-04-2017 suspected as culprit in randomly disconnecting people when the server is lagging
-            //// Check if the socket is still open
-            //if (_client.Client.Poll(1000, SelectMode.SelectRead) && (_client.Client.Available == 0)) {
-            //    DiscardConnection();
-            //}
-
-            // Use ACK polling to detect disconnections
-            bool blocking = _client.Client.Blocking;
-            if (_inactivityStopwatch.ElapsedMilliseconds > 15000 &&
-                _inactivityStopwatch.ElapsedMilliseconds % 50 == 0)
+            if (_client.Client.Poll(0, SelectMode.SelectRead) && _client.Client.Available == 0)
             {
-                _client.Client.Blocking = false;
-                _client.Client.Send(new byte[1], 1, SocketFlags.None);
+                DiscardConnection();
+                return;
             }
-
-            _client.Client.Blocking = blocking;
 
             if (!_stream.DataAvailable)
             {
@@ -528,110 +643,27 @@ public class PlayerConnection : IPlayerConnection
             }
 
             int bytes = _stream.Read(_inputBuffer, 0, Constants.PlayerConnectionBufferSize);
+            if (bytes == 0)
+            {
+                DiscardConnection();
+                return;
+            }
 
             Encoding encoding = ControlPuppet?.Account?.UseUnicode ?? false
                 ? Encoding.UTF8
                 : Encoding.GetEncoding("iso-8859-1");
 
-            // Note - this is mistakenly chopping up lines in between SB/SE negotiations. Do a more C-like per-character parse
             byte[] byteArray = _inputBuffer.Take(bytes).ToArray();
-            List<byte> sb = new(Constants.PlayerConnectionBufferSize);
-            bool inTelnetNegotiation = false;
-            bool inTelnetSubcommand = false;
-            bool pendingTelnetSubcommandEnd = false;
             for (int i = 0; i < byteArray.Length; i++)
             {
-                if (inTelnetNegotiation)
-                {
-                    if (byteArray[i] == Telnet.SB)
-                    {
-                        sb.Add(byteArray[i]);
-                        inTelnetSubcommand = true;
-                        continue;
-                    }
-
-                    if (byteArray[i] == Telnet.IAC && inTelnetSubcommand)
-                    {
-                        sb.Add(byteArray[i]);
-                        pendingTelnetSubcommandEnd = true;
-                        continue;
-                    }
-
-                    if (byteArray[i] == Telnet.SE)
-                    {
-                        if (pendingTelnetSubcommandEnd)
-                        {
-                            sb.Add(byteArray[i]);
-                            inTelnetNegotiation = false;
-                            inTelnetSubcommand = false;
-                            pendingTelnetSubcommandEnd = false;
-                            HandleTelnetNegotiation(sb);
-                            sb.Clear();
-                            continue;
-                        }
-
-                        if (!inTelnetSubcommand)
-                        {
-                            sb.Add(byteArray[i]);
-                            inTelnetNegotiation = false;
-                            HandleTelnetNegotiation(sb);
-                            sb.Clear();
-                            continue;
-                        }
-
-                        sb.Add(byteArray[i]);
-                        continue;
-                    }
-
-                    sb.Add(byteArray[i]);
-                    continue;
-                }
-
-                if (byteArray[i] == Telnet.IAC)
-                {
-                    inTelnetNegotiation = true;
-                    if (sb.Count > 0)
-                    {
-                        EnqueueCommand(encoding, sb);
-                        sb.Clear();
-                    }
-
-                    sb.Add(byteArray[i]);
-                    continue;
-                }
-
-                if (byteArray[i] == 10 && sb.Count == 0)
-                {
-                    continue;
-                }
-
-                if (byteArray[i] == 13)
-                {
-                    if (sb.Count == 0)
-                    {
-                        // Player must have just sent 'return'
-                        EnqueueCommand(encoding, sb);
-                        continue;
-                    }
-
-                    EnqueueCommand(encoding, sb);
-                    sb.Clear();
-                    continue;
-                }
-
-                sb.Add(byteArray[i]);
+                ProcessIncomingByte(encoding, byteArray[i]);
             }
 
-            if (sb.Count > 0)
+            if (_incomingCommandBuffer.Count >= SupportsBytes.Length &&
+                _incomingCommandBuffer.Take(SupportsBytes.Length).SequenceEqual(SupportsBytes))
             {
-                if (inTelnetNegotiation)
-                {
-                    HandleTelnetNegotiation(sb);
-                }
-                else
-                {
-                    EnqueueCommand(encoding, sb);
-                }
+                EnqueueCommand(encoding, _incomingCommandBuffer);
+                _incomingCommandBuffer.Clear();
             }
         }
         catch (SocketException e)
@@ -642,6 +674,14 @@ public class PlayerConnection : IPlayerConnection
             }
         }
         catch (ObjectDisposedException)
+        {
+            DiscardConnection();
+        }
+        catch (IOException)
+        {
+            DiscardConnection();
+        }
+        catch (InvalidOperationException)
         {
             DiscardConnection();
         }
@@ -661,14 +701,14 @@ public class PlayerConnection : IPlayerConnection
             {
                 if (ControlPuppet.Account?.UseUnicode ?? false)
                 {
-                    _client.Client.Send(Encoding.UTF8.GetBytes(_outgoingCommands.ToString()));
+                    SendAll(Encoding.UTF8.GetBytes(_outgoingCommands.ToString()));
                 }
                 else
                 {
-                    _client.Client.Send(Encoding.GetEncoding("iso-8859-1").GetBytes(_outgoingCommands.ToString().ConvertToLatin1()));
+                    SendAll(Encoding.GetEncoding("iso-8859-1").GetBytes(_outgoingCommands.ToString().ConvertToLatin1()));
                 }
 
-                _client.Client.Send(_useAlternatePrompt ? AlternatePrompt : Prompt);
+                SendAll(_useAlternatePrompt ? AlternatePrompt : Prompt);
                 _outgoingCommands.Clear();
                 HasOutgoingCommands = false;
                 if (State == ConnectionState.Closing)
@@ -684,6 +724,14 @@ public class PlayerConnection : IPlayerConnection
                 }
             }
             catch (ObjectDisposedException)
+            {
+                DiscardConnection();
+            }
+            catch (IOException)
+            {
+                DiscardConnection();
+            }
+            catch (InvalidOperationException)
             {
                 DiscardConnection();
             }
@@ -704,10 +752,8 @@ public class PlayerConnection : IPlayerConnection
 
     private bool HasTimedOut()
     {
-        return _inactivityStopwatch.ElapsedMilliseconds > (ControlPuppet?.Timeout ?? 0);
+        var timeout = ControlPuppet?.Timeout ?? 0;
+        return timeout > 0 && _inactivityStopwatch.ElapsedMilliseconds > timeout;
     }
 
-    public void Reconnect(TcpClient client)
-    {
-    }
 }

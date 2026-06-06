@@ -964,6 +964,7 @@ internal sealed class EmploymentCommandService
 		var conditionAuthority = rule.Conditions.Aggregate(EmploymentAuthority.None,
 			(current, condition) => current | condition.RequiredAuthority.Authorities);
 		sb.AppendLine($"Condition Authority: {(conditionAuthority == EmploymentAuthority.None ? "none".ColourValue() : conditionAuthority.DescribeEnum().ColourName())}");
+		sb.AppendLine($"Condition Expression: {EmploymentScheduledRuleAuthoringService.DescribeConditionExpression(rule.ConditionExpression, rule.Conditions.ToList()).ColourCommand()}");
 		sb.AppendLine($"Action Authority: {rule.ActionPlan.RequiredAuthority.Authorities.DescribeEnum().ColourName()}");
 		sb.AppendLine($"Required AI Capabilities: {DescribeCapabilities(rule.ActionPlan.RequiredCapabilities)}");
 		sb.AppendLine();
@@ -1606,6 +1607,14 @@ internal sealed class EmploymentCommandService
 			case "draft":
 				HandleRuleDraft(actor, host, input);
 				return;
+			case "predicate":
+			case "predicates":
+				HandleRulePredicates(actor, host, input);
+				return;
+			case "template":
+			case "templates":
+				HandleRuleTemplates(actor, host, input);
+				return;
 			case "condition":
 				_scheduledRuleAuthoring.TryAddCondition(actor, host, input, out var conditionMessage);
 				actor.OutputHandler.Send(conditionMessage);
@@ -1741,6 +1750,11 @@ internal sealed class EmploymentCommandService
 				_scheduledRuleAuthoring.TrySetDraftCooldown(actor, host, input.SafeRemainingArgument, out var cooldownMessage);
 				actor.OutputHandler.Send(cooldownMessage);
 				return;
+			case "expression":
+			case "expr":
+				_scheduledRuleAuthoring.TrySetDraftExpression(actor, host, input.SafeRemainingArgument, out var expressionMessage);
+				actor.OutputHandler.Send(expressionMessage);
+				return;
 			case "condition":
 				_scheduledRuleAuthoring.TryAddCondition(actor, host, input, out var conditionMessage);
 				actor.OutputHandler.Send(conditionMessage);
@@ -1787,6 +1801,121 @@ internal sealed class EmploymentCommandService
 			case "finish":
 				_scheduledRuleAuthoring.TryFinaliseDraft(actor, host, out _, out var finaliseMessage);
 				actor.OutputHandler.Send(finaliseMessage);
+				return;
+		}
+
+		actor.OutputHandler.Send(EmploymentHelp.SubstituteANSIColour());
+	}
+
+	private void HandleRulePredicates(ICharacter actor, IEmploymentHost host, StringStack input)
+	{
+		var command = input.PopSpeech().CollapseString().ToLowerInvariant();
+		switch (command)
+		{
+			case "":
+			case "list":
+				actor.OutputHandler.Send(_scheduledRuleAuthoring.RenderPredicates(actor, host));
+				return;
+			case "show":
+			case "view":
+				if (input.IsFinished)
+				{
+					actor.OutputHandler.Send(_scheduledRuleAuthoring.RenderPredicates(actor, host));
+					return;
+				}
+
+				actor.OutputHandler.Send(_scheduledRuleAuthoring.RenderPredicates(actor, host, input.SafeRemainingArgument));
+				return;
+			case "create":
+			case "save":
+				_scheduledRuleAuthoring.TryCreatePredicateFromDraft(actor, host, input.SafeRemainingArgument,
+					out var createMessage);
+				actor.OutputHandler.Send(createMessage);
+				return;
+			case "copy":
+			case "draft":
+				if (input.IsFinished)
+				{
+					actor.OutputHandler.Send("Which scheduled condition predicate do you want to copy into a draft?");
+					return;
+				}
+
+				var copySelector = input.PopSpeech();
+				var copyName = input.IsFinished ? null : input.SafeRemainingArgument;
+				_scheduledRuleAuthoring.TryCopyPredicateToDraft(actor, host, copySelector, copyName, out var copyMessage);
+				actor.OutputHandler.Send(copyMessage);
+				return;
+			case "cancel":
+			case "delete":
+			case "remove":
+				if (input.IsFinished)
+				{
+					actor.OutputHandler.Send("Which scheduled condition predicate do you want to cancel?");
+					return;
+				}
+
+				var cancelSelector = input.PopSpeech();
+				var reason = input.IsFinished ? "Cancelled by a manager." : input.SafeRemainingArgument;
+				_scheduledRuleAuthoring.TryCancelPredicate(actor, host, cancelSelector, reason, out var cancelMessage);
+				actor.OutputHandler.Send(cancelMessage);
+				return;
+		}
+
+		actor.OutputHandler.Send(EmploymentHelp.SubstituteANSIColour());
+	}
+
+	private void HandleRuleTemplates(ICharacter actor, IEmploymentHost host, StringStack input)
+	{
+		var command = input.PopSpeech().CollapseString().ToLowerInvariant();
+		switch (command)
+		{
+			case "":
+			case "list":
+				actor.OutputHandler.Send(_scheduledRuleAuthoring.RenderTemplates(actor, host));
+				return;
+			case "show":
+			case "view":
+				if (input.IsFinished)
+				{
+					actor.OutputHandler.Send(_scheduledRuleAuthoring.RenderTemplates(actor, host));
+					return;
+				}
+
+				actor.OutputHandler.Send(_scheduledRuleAuthoring.RenderTemplates(actor, host, input.SafeRemainingArgument));
+				return;
+			case "save":
+			case "create":
+				_scheduledRuleAuthoring.TrySaveTemplateFromDraft(actor, host, input.SafeRemainingArgument,
+					out var saveMessage);
+				actor.OutputHandler.Send(saveMessage);
+				return;
+			case "draft":
+			case "copy":
+				if (input.IsFinished)
+				{
+					actor.OutputHandler.Send("Which scheduled rule template do you want to draft from?");
+					return;
+				}
+
+				var templateSelector = input.PopSpeech();
+				var draftName = input.IsFinished ? null : input.SafeRemainingArgument;
+				_scheduledRuleAuthoring.TryDraftFromTemplate(actor, host, templateSelector, draftName,
+					out var draftMessage);
+				actor.OutputHandler.Send(draftMessage);
+				return;
+			case "cancel":
+			case "delete":
+			case "remove":
+				if (input.IsFinished)
+				{
+					actor.OutputHandler.Send("Which scheduled rule template do you want to cancel?");
+					return;
+				}
+
+				var cancelSelector = input.PopSpeech();
+				var reason = input.IsFinished ? "Cancelled by a manager." : input.SafeRemainingArgument;
+				_scheduledRuleAuthoring.TryCancelTemplate(actor, host, cancelSelector, reason, out var cancelMessage);
+				actor.OutputHandler.Send(cancelMessage);
 				return;
 		}
 
@@ -2480,9 +2609,11 @@ Scheduled rules:
 
 	#3employment <host type> <host> tasks rule show <##|name>#0 - shows a scheduled rule with conditions and planned steps
 	#3employment <host type> <host> tasks rule create <name> cooldown <timespan> when <condition> [and <condition> ...] do <action> [then <action> ...]#0 - creates a scheduled rule in one command
-	#3employment <host type> <host> tasks rule draft new|copy|show|key|cooldown|removecondition|removestep|discard|finalise ...#0 - drafts and finalises scheduled rules
+	#3employment <host type> <host> tasks rule draft new|copy|show|key|cooldown|expression|removecondition|removestep|discard|finalise ...#0 - drafts and finalises scheduled rules
 	#3employment <host type> <host> tasks rule condition <condition>#0 - adds a condition to the current scheduled-rule draft
 	#3employment <host type> <host> tasks rule step <action syntax>#0 - adds an action step to the current scheduled-rule draft
+	#3employment <host type> <host> tasks rule predicate list|show|create|copy|cancel ...#0 - manages reusable named condition predicates
+	#3employment <host type> <host> tasks rule template list|show|save|draft|cancel ...#0 - manages reusable scheduled-rule templates
 	#3employment <host type> <host> tasks rule diagnose <##|name> [manual <key>]#0 - evaluates rule blockers without spawning
 	#3employment <host type> <host> tasks rule evaluate <##|name|all> [manual <key>]#0 - manually evaluates scheduled rules for testing
 	#3employment <host type> <host> tasks rule pause|resume <##|name> [reason]#0 - pauses or resumes a scheduled rule
@@ -2497,5 +2628,5 @@ Communication and audit:
 	#3employment <host type> <host> board [read <##>|write <title>]#0 - uses the staff communication board
 
 Host types are #3shop#0, #3auction#0, #3arena#0, #3bank#0, #3stable#0, and #3hotel#0. Hotel hosts are resolved by property id or name.
-Staff boards are only for employee communication; active tasks, scheduled tasks, and manager goals are routed through the employment task board. Use #3tasks actions#0 and #3tasks conditions#0 for the full action and condition catalogues. Item selectors use bare prototype ids, #3*item ids#0 for specific live items, #3&tag#0 for verified tags, and bare text for a visible keyword target. Scheduled-rule conditions combine with AND in this slice.";
+Staff boards are only for employee communication; active tasks, scheduled tasks, and manager goals are routed through the employment task board. Use #3tasks actions#0 and #3tasks conditions#0 for the full action and condition catalogues. Item selectors use bare prototype ids, #3*item ids#0 for specific live items, #3&tag#0 for verified tags, and bare text for a visible keyword target. Scheduled-rule drafts can combine conditions with #3and#0, #3or#0, #3not#0, parentheses, numbered condition references such as #3#1#0, and named predicates such as #3@restock-window#0.";
 }

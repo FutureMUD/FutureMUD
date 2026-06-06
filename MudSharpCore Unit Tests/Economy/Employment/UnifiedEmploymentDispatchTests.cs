@@ -277,6 +277,115 @@ public class UnifiedEmploymentDispatchTests
 	}
 
 	[TestMethod]
+	public void ScheduledRuleExpression_OrNotAndNamedPredicate_ControlSpawning()
+	{
+		var currency = Currency();
+		IEmploymentHost host = new TestEmploymentHost("shop", currency.Object);
+		var manager = Character(11, "Manager").Object;
+		host.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.CreateScheduledRules |
+			EmploymentAuthority.AssignTasks |
+			EmploymentAuthority.PostToHostBoard |
+			EmploymentAuthority.ManageStockRules), null);
+		host.TaskBoard.CreateConditionPredicate("manual-window",
+			[new ManualOrderCondition("manager-window")],
+			EmploymentConditionExpression.Condition(1),
+			manager);
+
+		var plan = new EmploymentActionPlan([new BoardPostActionStep("Expression", "Expression task spawned.")]);
+		host.TaskBoard.CreateScheduledRule("expression restock", "expression-restock",
+			[
+				new StockThresholdCondition("butter", 5, true),
+				new ManualOrderCondition("override"),
+				new ManualOrderCondition("blocked")
+			],
+			EmploymentConditionExpression.All(
+			[
+				EmploymentConditionExpression.Any(
+				[
+					EmploymentConditionExpression.Condition(1),
+					EmploymentConditionExpression.Condition(2),
+					EmploymentConditionExpression.Predicate("manual-window")
+				]),
+				EmploymentConditionExpression.Not(EmploymentConditionExpression.Condition(3))
+			]),
+			plan,
+			TimeSpan.Zero,
+			manager);
+
+		var context = new EmploymentTaskContext(host);
+		context.SetStockLevel("butter", 10);
+		Assert.AreEqual(0, host.TaskBoard.EvaluateScheduledRules(context, DateTimeOffset.UtcNow).Count);
+
+		context.SetManualOrder("manager-window", true);
+		var spawned = host.TaskBoard.EvaluateScheduledRules(context, DateTimeOffset.UtcNow.AddMinutes(1));
+		Assert.AreEqual(1, spawned.Count);
+	}
+
+	[TestMethod]
+	public void ScheduledRuleExpression_NestedPredicateAuthority_IsRequired()
+	{
+		var currency = Currency();
+		IEmploymentHost host = new TestEmploymentHost("shop", currency.Object);
+		var fullManager = Character(13, "Full Manager").Object;
+		var limitedManager = Character(14, "Limited Manager").Object;
+		host.Hire(fullManager, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.CreateScheduledRules |
+			EmploymentAuthority.PostToHostBoard |
+			EmploymentAuthority.ManageStockRules), null);
+		host.Hire(limitedManager, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.CreateScheduledRules |
+			EmploymentAuthority.PostToHostBoard), null);
+		host.TaskBoard.CreateConditionPredicate("stock-sensitive",
+			[new StockThresholdCondition("butter", 5, true)],
+			EmploymentConditionExpression.Condition(1),
+			fullManager);
+		host.TaskBoard.CreateConditionPredicate("wrapper",
+			[],
+			EmploymentConditionExpression.Predicate("stock-sensitive"),
+			fullManager);
+		var plan = new EmploymentActionPlan([new BoardPostActionStep("Expression", "Expression task spawned.")]);
+
+		var ex = Assert.ThrowsException<InvalidOperationException>(() =>
+			host.TaskBoard.CreateScheduledRule("expression restock", "expression-restock",
+				[],
+				EmploymentConditionExpression.Predicate("wrapper"),
+				plan,
+				TimeSpan.Zero,
+				limitedManager));
+		StringAssert.Contains(ex.Message, nameof(EmploymentAuthority.ManageStockRules));
+	}
+
+	[TestMethod]
+	public void ScheduledRuleExpression_LegacyNullExpressionKeepsImplicitAnd()
+	{
+		var currency = Currency();
+		IEmploymentHost host = new TestEmploymentHost("shop", currency.Object);
+		var manager = Character(12, "Manager").Object;
+		host.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.CreateScheduledRules |
+			EmploymentAuthority.AssignTasks |
+			EmploymentAuthority.PostToHostBoard |
+			EmploymentAuthority.ManageStockRules), null);
+		var context = new EmploymentTaskContext(host);
+		context.SetStockLevel("butter", 2);
+		context.SetManualOrder("restock-butter", false);
+
+		host.TaskBoard.CreateScheduledRule("legacy and", "legacy-and",
+			[
+				new StockThresholdCondition("butter", 5, true),
+				new ManualOrderCondition("restock-butter")
+			],
+			new EmploymentActionPlan([new BoardPostActionStep("Legacy", "Legacy task spawned.")]),
+			TimeSpan.Zero,
+			manager);
+
+		Assert.AreEqual(0, host.TaskBoard.EvaluateScheduledRules(context, DateTimeOffset.UtcNow).Count);
+		context.SetManualOrder("restock-butter", true);
+		Assert.AreEqual(1, host.TaskBoard.EvaluateScheduledRules(context, DateTimeOffset.UtcNow.AddMinutes(1)).Count);
+	}
+
+	[TestMethod]
 	public void ScheduledRuleEvaluationService_EvaluatesRulesWithoutWorkerHeartbeat()
 	{
 		var currency = Currency();
@@ -1346,6 +1455,10 @@ public class UnifiedEmploymentDispatchTests
 			var scheduledPlan = new EmploymentActionPlan([
 				new BoardPostActionStep("Restock", "Restock request spawned.")
 			]);
+			host.TaskBoard.CreateConditionPredicate("weather-window",
+				[new WeatherLevelCondition(WeatherLevelCondition.CreatePrecipitationKey("rain"))],
+				EmploymentConditionExpression.Condition(1),
+				manager);
 			var scheduledRule = host.TaskBoard.CreateScheduledRule("restock butter", "restock-butter",
 				[
 					new StockThresholdCondition("butter", 5, true),
@@ -1357,8 +1470,30 @@ public class UnifiedEmploymentDispatchTests
 							new Dictionary<string, string> { ["grade"] = "refined" }, 397, null), 5.0M, false),
 					new WeatherLevelCondition(WeatherLevelCondition.CreatePrecipitationKey("rain"))
 				],
+				EmploymentConditionExpression.Any(
+				[
+					EmploymentConditionExpression.All(
+					[
+						EmploymentConditionExpression.Condition(1),
+						EmploymentConditionExpression.Condition(2)
+					]),
+					EmploymentConditionExpression.Predicate("weather-window")
+				]),
 				scheduledPlan,
 				TimeSpan.FromHours(1),
+				manager);
+			host.TaskBoard.CreateScheduledRuleTemplate("restock template", "restock-template",
+				[
+					new StockThresholdCondition("butter", 5, true),
+					new ManualOrderCondition("restock-butter")
+				],
+				EmploymentConditionExpression.Any(
+				[
+					EmploymentConditionExpression.Condition(1),
+					EmploymentConditionExpression.Condition(2)
+				]),
+				scheduledPlan,
+				TimeSpan.FromHours(2),
 				manager);
 			host.TaskBoard.PauseScheduledRule(scheduledRule, manager, "pause for persistence test");
 			var activeTask = (EmploymentActiveTask)host.TaskBoard.CreateActiveTask("deposit float",
@@ -1386,9 +1521,16 @@ public class UnifiedEmploymentDispatchTests
 			Assert.AreEqual(1, reloaded.Applications.Count);
 			Assert.AreEqual(1, reloaded.TaskBoard.ScheduledRules.Count);
 			Assert.AreEqual(EmploymentScheduledRuleStatus.Paused, reloaded.TaskBoard.ScheduledRules.Single().Status);
+			Assert.IsNotNull(reloaded.TaskBoard.ScheduledRules.Single().ConditionExpression);
 			Assert.IsTrue(reloaded.TaskBoard.ScheduledRules.Single().Conditions.Any(x => x is ItemThresholdCondition));
 			Assert.IsTrue(reloaded.TaskBoard.ScheduledRules.Single().Conditions.Any(x => x is CommodityThresholdCondition));
 			Assert.IsTrue(reloaded.TaskBoard.ScheduledRules.Single().Conditions.Any(x => x is WeatherLevelCondition));
+			Assert.AreEqual(1, reloaded.TaskBoard.ConditionPredicates.Count);
+			Assert.AreEqual("weather-window", reloaded.TaskBoard.ConditionPredicates.Single().Name);
+			Assert.IsNotNull(reloaded.TaskBoard.ConditionPredicates.Single().ConditionExpression);
+			Assert.AreEqual(1, reloaded.TaskBoard.ScheduledRuleTemplates.Count);
+			Assert.AreEqual("restock template", reloaded.TaskBoard.ScheduledRuleTemplates.Single().Name);
+			Assert.IsNotNull(reloaded.TaskBoard.ScheduledRuleTemplates.Single().ConditionExpression);
 			Assert.AreEqual(1, reloaded.TaskBoard.ActiveTasks.Count);
 			Assert.AreEqual(EmploymentTaskStatus.Completed, reloaded.TaskBoard.ActiveTasks.Single().Status);
 			Assert.AreEqual(EmploymentActionStepStatus.Completed, reloaded.TaskBoard.ActiveTasks.Single().StepStates.Single());

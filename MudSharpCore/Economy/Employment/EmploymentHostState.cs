@@ -46,7 +46,9 @@ public sealed class EmploymentHostState : IEmploymentHostState
 		IEnumerable<IEmploymentApplication> applications, IEnumerable<IEmploymentLedgerEntry> ledgerEntries,
 		IEnumerable<IEmploymentPayable> payables,
 		IEnumerable<IEmploymentRegisterEntry> registerEntries, IEnumerable<IEmploymentScheduledTaskRule> scheduledRules,
-		IEnumerable<IEmploymentActiveTask> activeTasks, IEnumerable<IManagerGoal> managerGoals)
+		IEnumerable<IEmploymentActiveTask> activeTasks, IEnumerable<IManagerGoal> managerGoals,
+		IEnumerable<IEmploymentConditionPredicate>? conditionPredicates = null,
+		IEnumerable<IEmploymentScheduledRuleTemplate>? scheduledRuleTemplates = null)
 	{
 		Host = host;
 		_persistence = persistence;
@@ -60,7 +62,8 @@ public sealed class EmploymentHostState : IEmploymentHostState
 		EmploymentRegister = new EmploymentRegister(host, persistence, registerEntries);
 		BusinessLedger = new EmploymentLedger(host, persistence, ledgerEntries);
 		Board = board;
-		TaskBoard = new EmploymentTaskBoard(host, persistence, scheduledRules, activeTasks);
+		TaskBoard = new EmploymentTaskBoard(host, persistence, scheduledRules, activeTasks, conditionPredicates,
+			scheduledRuleTemplates);
 		ManagerGoalBoard = new ManagerGoalBoard(host, persistence, managerGoals);
 		Payroll = new EmploymentPayroll(this, persistence, payables);
 	}

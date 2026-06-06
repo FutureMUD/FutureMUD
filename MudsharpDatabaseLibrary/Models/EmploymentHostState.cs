@@ -13,6 +13,8 @@ public partial class EmploymentHostState
 		JobOpenings = new HashSet<EmploymentJobOpeningRecord>();
 		ActionPlans = new HashSet<EmploymentActionPlanRecord>();
 		ScheduledTaskRules = new HashSet<EmploymentScheduledTaskRuleRecord>();
+		ConditionPredicates = new HashSet<EmploymentConditionPredicateRecord>();
+		ScheduledRuleTemplates = new HashSet<EmploymentScheduledRuleTemplateRecord>();
 		ActiveTasks = new HashSet<EmploymentActiveTaskRecord>();
 		ManagerGoals = new HashSet<EmploymentManagerGoalRecord>();
 		RegisterEntries = new HashSet<EmploymentRegisterEntryRecord>();
@@ -32,6 +34,8 @@ public partial class EmploymentHostState
 	public virtual ICollection<EmploymentJobOpeningRecord> JobOpenings { get; set; }
 	public virtual ICollection<EmploymentActionPlanRecord> ActionPlans { get; set; }
 	public virtual ICollection<EmploymentScheduledTaskRuleRecord> ScheduledTaskRules { get; set; }
+	public virtual ICollection<EmploymentConditionPredicateRecord> ConditionPredicates { get; set; }
+	public virtual ICollection<EmploymentScheduledRuleTemplateRecord> ScheduledRuleTemplates { get; set; }
 	public virtual ICollection<EmploymentActiveTaskRecord> ActiveTasks { get; set; }
 	public virtual ICollection<EmploymentManagerGoalRecord> ManagerGoals { get; set; }
 	public virtual ICollection<EmploymentRegisterEntryRecord> RegisterEntries { get; set; }
@@ -174,6 +178,7 @@ public partial class EmploymentActionPlanRecord
 	{
 		Steps = new HashSet<EmploymentActionStepRecord>();
 		ScheduledTaskRules = new HashSet<EmploymentScheduledTaskRuleRecord>();
+		ScheduledRuleTemplates = new HashSet<EmploymentScheduledRuleTemplateRecord>();
 		ActiveTasks = new HashSet<EmploymentActiveTaskRecord>();
 		ManagerGoals = new HashSet<EmploymentManagerGoalRecord>();
 	}
@@ -185,6 +190,7 @@ public partial class EmploymentActionPlanRecord
 	public virtual EmploymentHostState EmploymentHostState { get; set; } = null!;
 	public virtual ICollection<EmploymentActionStepRecord> Steps { get; set; }
 	public virtual ICollection<EmploymentScheduledTaskRuleRecord> ScheduledTaskRules { get; set; }
+	public virtual ICollection<EmploymentScheduledRuleTemplateRecord> ScheduledRuleTemplates { get; set; }
 	public virtual ICollection<EmploymentActiveTaskRecord> ActiveTasks { get; set; }
 	public virtual ICollection<EmploymentManagerGoalRecord> ManagerGoals { get; set; }
 }
@@ -227,6 +233,7 @@ public partial class EmploymentScheduledTaskRuleRecord
 	public string Name { get; set; } = string.Empty;
 	public string IdempotencyKey { get; set; } = string.Empty;
 	public long EmploymentActionPlanId { get; set; }
+	public string? ExpressionJson { get; set; }
 	public int Status { get; set; }
 	public long CooldownTicks { get; set; }
 	public DateTime? LastSpawnedAt { get; set; }
@@ -241,6 +248,8 @@ public partial class EmploymentTaskConditionRecord
 	public long Id { get; set; }
 	public long? ScheduledTaskRuleId { get; set; }
 	public long? ManagerGoalId { get; set; }
+	public long? ConditionPredicateId { get; set; }
+	public long? ScheduledRuleTemplateId { get; set; }
 	public int SortOrder { get; set; }
 	public int ConditionType { get; set; }
 	public string? Key { get; set; }
@@ -252,6 +261,46 @@ public partial class EmploymentTaskConditionRecord
 
 	public virtual EmploymentScheduledTaskRuleRecord? ScheduledTaskRule { get; set; }
 	public virtual EmploymentManagerGoalRecord? ManagerGoal { get; set; }
+	public virtual EmploymentConditionPredicateRecord? ConditionPredicate { get; set; }
+	public virtual EmploymentScheduledRuleTemplateRecord? ScheduledRuleTemplate { get; set; }
+}
+
+public partial class EmploymentConditionPredicateRecord
+{
+	public EmploymentConditionPredicateRecord()
+	{
+		Conditions = new HashSet<EmploymentTaskConditionRecord>();
+	}
+
+	public long Id { get; set; }
+	public string PublicId { get; set; } = string.Empty;
+	public long EmploymentHostStateId { get; set; }
+	public string Name { get; set; } = string.Empty;
+	public string? ExpressionJson { get; set; }
+
+	public virtual EmploymentHostState EmploymentHostState { get; set; } = null!;
+	public virtual ICollection<EmploymentTaskConditionRecord> Conditions { get; set; }
+}
+
+public partial class EmploymentScheduledRuleTemplateRecord
+{
+	public EmploymentScheduledRuleTemplateRecord()
+	{
+		Conditions = new HashSet<EmploymentTaskConditionRecord>();
+	}
+
+	public long Id { get; set; }
+	public string PublicId { get; set; } = string.Empty;
+	public long EmploymentHostStateId { get; set; }
+	public string Name { get; set; } = string.Empty;
+	public string IdempotencyKeyPattern { get; set; } = string.Empty;
+	public long EmploymentActionPlanId { get; set; }
+	public string? ExpressionJson { get; set; }
+	public long CooldownTicks { get; set; }
+
+	public virtual EmploymentHostState EmploymentHostState { get; set; } = null!;
+	public virtual EmploymentActionPlanRecord EmploymentActionPlan { get; set; } = null!;
+	public virtual ICollection<EmploymentTaskConditionRecord> Conditions { get; set; }
 }
 
 public partial class EmploymentActiveTaskRecord

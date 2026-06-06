@@ -19,6 +19,10 @@ internal interface IEmploymentPersistenceStore
 	void SaveScheduledRule(EmploymentScheduledTaskRule rule);
 	void SaveScheduledRuleState(EmploymentScheduledTaskRule rule);
 	void DeleteScheduledRule(EmploymentScheduledTaskRule rule);
+	void SaveConditionPredicate(EmploymentConditionPredicate predicate);
+	void DeleteConditionPredicate(EmploymentConditionPredicate predicate);
+	void SaveScheduledRuleTemplate(EmploymentScheduledRuleTemplate template);
+	void DeleteScheduledRuleTemplate(EmploymentScheduledRuleTemplate template);
 	void SaveActiveTask(EmploymentActiveTask task);
 	void SaveActiveTaskState(EmploymentActiveTask task);
 	void SaveManagerGoal(ManagerGoal goal);

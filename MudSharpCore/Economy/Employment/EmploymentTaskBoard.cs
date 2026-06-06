@@ -1964,6 +1964,184 @@ public sealed record TaxOwingCondition(decimal Threshold, bool AboveThreshold) :
 	}
 }
 
+public sealed record MarketPriceCondition(string PriceKey, decimal Threshold, bool AboveThreshold)
+	: IEmploymentTaskCondition
+{
+	private const string KeyPrefix = "marketprice:v1";
+
+	public EmploymentTaskConditionType ConditionType => EmploymentTaskConditionType.MarketPrice;
+	public EmploymentAuthoritySet RequiredAuthority => EmploymentAuthority.CreateScheduledRules;
+
+	public static string CreateMerchandiseKey(IMerchandise merchandise, string metric)
+	{
+		return $"{KeyPrefix}|kind=merch|id={merchandise.Id}|metric={Uri.EscapeDataString(metric.CollapseString().ToLowerInvariant())}";
+	}
+
+	public static string CreateItemKey(IGameItemProto prototype, string metric)
+	{
+		return $"{KeyPrefix}|kind=item|id={prototype.Id}|metric={Uri.EscapeDataString(metric.CollapseString().ToLowerInvariant())}";
+	}
+
+	public bool IsSatisfied(IEmploymentTaskContext context, DateTimeOffset now, out string reason)
+	{
+		if (!TryGetValue(context.Employer, PriceKey, out var value, out var descriptor, out reason))
+		{
+			return false;
+		}
+
+		var satisfied = AboveThreshold ? value > Threshold : value < Threshold;
+		reason = satisfied
+			? string.Empty
+			: $"{descriptor} is {value:N2}, which is not {(AboveThreshold ? "above" : "below")} {Threshold:N2}.";
+		return satisfied;
+	}
+
+	internal static bool TryParseKey(string key, out string kind, out long id, out string metric)
+	{
+		kind = string.Empty;
+		id = 0;
+		metric = string.Empty;
+		var values = ParseKeyValues(key, KeyPrefix);
+		if (values is null ||
+		    !values.TryGetValue("kind", out var parsedKind) ||
+		    !values.TryGetValue("id", out var idText) ||
+		    !long.TryParse(idText, out id) ||
+		    !values.TryGetValue("metric", out var parsedMetric))
+		{
+			return false;
+		}
+
+		kind = parsedKind;
+		metric = parsedMetric;
+		metric = Uri.UnescapeDataString(metric).CollapseString().ToLowerInvariant();
+		return IsAny(kind, "merch", "item") && IsAny(metric, "effective", "base", "multiplier", "flat");
+	}
+
+	internal static string DescribeKey(string key, IEmploymentHost host)
+	{
+		if (!TryParseKey(key, out var kind, out var id, out var metric))
+		{
+			return key;
+		}
+
+		if (kind.EqualTo("merch") && host is IShop shop)
+		{
+			var merchandise = shop.Merchandises.FirstOrDefault(x => x.Id == id);
+			return $"{metric} price for {(merchandise?.Name ?? $"merchandise #{id:N0}")}";
+		}
+
+		var prototype = (host as IHaveFuturemud)?.Gameworld.ItemProtos.Get(id);
+		return $"{metric} market price for {(prototype?.ShortDescription ?? $"item prototype #{id:N0}")}";
+	}
+
+	private static bool TryGetValue(IEmploymentHost host, string key, out decimal value, out string descriptor,
+		out string reason)
+	{
+		value = 0.0M;
+		descriptor = key;
+		reason = string.Empty;
+		if (!TryParseKey(key, out var kind, out var id, out var metric))
+		{
+			reason = "The market price condition key is invalid.";
+			return false;
+		}
+
+		var market = host.Market;
+		if (kind.EqualTo("merch"))
+		{
+			if (host is not IShop shop)
+			{
+				reason = $"{host.EmploymentHostName} is not a shop and cannot inspect merchandise prices.";
+				return false;
+			}
+
+			var merchandise = shop.Merchandises.FirstOrDefault(x => x.Id == id);
+			if (merchandise is null)
+			{
+				reason = $"{shop.Name} does not have merchandise #{id:N0}.";
+				return false;
+			}
+
+			descriptor = $"{metric} price for {merchandise.Name}";
+			switch (metric)
+			{
+				case "effective":
+					value = merchandise.EffectivePrice;
+					return true;
+				case "base":
+					value = merchandise.BasePrice;
+					return true;
+				case "multiplier":
+					market ??= shop.MarketForPricingPurposes;
+					if (market is null || merchandise.Item is null)
+					{
+						reason = $"{shop.Name} does not have market pricing for {merchandise.Name}.";
+						return false;
+					}
+
+					value = market.PriceMultiplierForItem(merchandise.Item);
+					return true;
+				case "flat":
+					market ??= shop.MarketForPricingPurposes;
+					if (market is null || merchandise.Item is null)
+					{
+						reason = $"{shop.Name} does not have market pricing for {merchandise.Name}.";
+						return false;
+					}
+
+					value = market.FlatPriceAdjustmentForItem(merchandise.Item);
+					return true;
+			}
+		}
+
+		if (!IsAny(metric, "multiplier", "flat"))
+		{
+			reason = "Item market price conditions only support multiplier or flat metrics.";
+			return false;
+		}
+
+		var prototype = (host as IHaveFuturemud)?.Gameworld.ItemProtos.Get(id);
+		if (prototype is null)
+		{
+			reason = $"There is no item prototype #{id:N0} available to this employment host.";
+			return false;
+		}
+
+		market ??= host.Market;
+		if (market is null)
+		{
+			reason = $"{host.EmploymentHostName} does not have an associated market.";
+			return false;
+		}
+
+		descriptor = $"{metric} market price for {prototype.ShortDescription}";
+		value = metric.EqualTo("multiplier")
+			? market.PriceMultiplierForItem(prototype)
+			: market.FlatPriceAdjustmentForItem(prototype);
+		return true;
+	}
+
+	private static bool IsAny(string text, params string[] options)
+	{
+		return options.Any(x => text.EqualTo(x));
+	}
+
+	private static Dictionary<string, string>? ParseKeyValues(string key, string prefix)
+	{
+		if (string.IsNullOrWhiteSpace(key) ||
+		    !key.StartsWith(prefix, StringComparison.InvariantCultureIgnoreCase))
+		{
+			return null;
+		}
+
+		return key.Split('|', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+		          .Skip(1)
+		          .Select(x => x.Split('=', 2, StringSplitOptions.TrimEntries))
+		          .Where(x => x.Length == 2)
+		          .ToDictionary(x => x[0], x => x[1], StringComparer.InvariantCultureIgnoreCase);
+	}
+}
+
 public sealed record WeatherLevelCondition(string WeatherKey) : IEmploymentTaskCondition
 {
 	private const string KeyPrefix = "weather:v1";
@@ -2086,6 +2264,306 @@ public sealed record WeatherLevelCondition(string WeatherKey) : IEmploymentTaskC
 	}
 }
 
+internal static class EmploymentConditionExpressionEvaluator
+{
+	public static EmploymentConditionExpressionEvaluation Evaluate(
+		EmploymentConditionExpression? expression,
+		IReadOnlyList<IEmploymentTaskCondition> conditions,
+		IEmploymentTaskContext context,
+		DateTimeOffset now)
+	{
+		expression ??= EmploymentConditionExpression.All(
+			Enumerable.Range(1, conditions.Count).Select(EmploymentConditionExpression.Condition));
+		return EvaluateExpression(expression, conditions, context, now, new HashSet<string>(StringComparer.InvariantCultureIgnoreCase));
+	}
+
+	public static EmploymentAuthoritySet RequiredAuthority(EmploymentConditionExpression? expression,
+		IReadOnlyList<IEmploymentTaskCondition> conditions, IEmploymentTaskBoard board)
+	{
+		expression ??= EmploymentConditionExpression.All(
+			Enumerable.Range(1, conditions.Count).Select(EmploymentConditionExpression.Condition));
+		return new EmploymentAuthoritySet(RequiredAuthority(expression, conditions, board,
+			new HashSet<string>(StringComparer.InvariantCultureIgnoreCase)));
+	}
+
+	public static bool Validate(EmploymentConditionExpression? expression, IReadOnlyList<IEmploymentTaskCondition> conditions,
+		IEmploymentTaskBoard board, out string reason)
+	{
+		expression ??= EmploymentConditionExpression.All(
+			Enumerable.Range(1, conditions.Count).Select(EmploymentConditionExpression.Condition));
+		return Validate(expression, conditions, board, new HashSet<string>(StringComparer.InvariantCultureIgnoreCase),
+			out reason);
+	}
+
+	public static string Describe(EmploymentConditionExpression? expression, IReadOnlyList<IEmploymentTaskCondition> conditions)
+	{
+		expression ??= EmploymentConditionExpression.All(
+			Enumerable.Range(1, conditions.Count).Select(EmploymentConditionExpression.Condition));
+		return expression.Kind switch
+		{
+			EmploymentConditionExpressionKind.Condition =>
+				$"#{expression.ConditionNumber?.ToString("N0") ?? "?"}",
+			EmploymentConditionExpressionKind.Predicate =>
+				$"@{expression.PredicateName ?? "?"}",
+			EmploymentConditionExpressionKind.Not =>
+				$"not ({Describe(expression.ChildExpressions.FirstOrDefault(), conditions)})",
+			EmploymentConditionExpressionKind.Any =>
+				$"({string.Join(" or ", expression.ChildExpressions.Select(x => Describe(x, conditions)))})",
+			_ => $"({string.Join(" and ", expression.ChildExpressions.Select(x => Describe(x, conditions)))})"
+		};
+	}
+
+	private static EmploymentConditionExpressionEvaluation EvaluateExpression(
+		EmploymentConditionExpression expression,
+		IReadOnlyList<IEmploymentTaskCondition> conditions,
+		IEmploymentTaskContext context,
+		DateTimeOffset now,
+		HashSet<string> predicateStack)
+	{
+		switch (expression.Kind)
+		{
+			case EmploymentConditionExpressionKind.Condition:
+				return EvaluateCondition(expression.ConditionNumber, conditions, context, now);
+			case EmploymentConditionExpressionKind.Predicate:
+				return EvaluatePredicate(expression.PredicateName, context, now, predicateStack);
+			case EmploymentConditionExpressionKind.Not:
+				return EvaluateNot(expression, conditions, context, now, predicateStack);
+			case EmploymentConditionExpressionKind.Any:
+				return EvaluateAny(expression, conditions, context, now, predicateStack);
+			case EmploymentConditionExpressionKind.All:
+			default:
+				return EvaluateAll(expression, conditions, context, now, predicateStack);
+		}
+	}
+
+	private static EmploymentConditionExpressionEvaluation EvaluateCondition(int? conditionNumber,
+		IReadOnlyList<IEmploymentTaskCondition> conditions, IEmploymentTaskContext context, DateTimeOffset now)
+	{
+		if (!conditionNumber.HasValue || conditionNumber.Value < 1 || conditionNumber.Value > conditions.Count)
+		{
+			var reason = $"Condition #{conditionNumber?.ToString("N0") ?? "?"} does not exist.";
+			return Failed(reason, new EmploymentConditionLeafEvaluation(reason, false, reason));
+		}
+
+		var condition = conditions[conditionNumber.Value - 1];
+		var satisfied = condition.IsSatisfied(context, now, out var conditionReason);
+		var label = $"condition #{conditionNumber.Value:N0} ({condition.ConditionType.DescribeEnum()})";
+		return new EmploymentConditionExpressionEvaluation(
+			satisfied,
+			satisfied ? string.Empty : conditionReason,
+			[new EmploymentConditionLeafEvaluation(label, satisfied, conditionReason)]);
+	}
+
+	private static EmploymentConditionExpressionEvaluation EvaluatePredicate(string? predicateName,
+		IEmploymentTaskContext context, DateTimeOffset now, HashSet<string> predicateStack)
+	{
+		if (string.IsNullOrWhiteSpace(predicateName))
+		{
+			return Failed("A named predicate reference is blank.",
+				new EmploymentConditionLeafEvaluation("@?", false, "A named predicate reference is blank."));
+		}
+
+		if (!predicateStack.Add(predicateName))
+		{
+			var reason = $"Named predicate @{predicateName} is cyclic.";
+			return Failed(reason, new EmploymentConditionLeafEvaluation($"@{predicateName}", false, reason));
+		}
+
+		var predicate = context.Employer.TaskBoard.ConditionPredicates
+		                       .FirstOrDefault(x => x.Name.EqualTo(predicateName));
+		if (predicate is null)
+		{
+			predicateStack.Remove(predicateName);
+			var reason = $"Named predicate @{predicateName} does not exist.";
+			return Failed(reason, new EmploymentConditionLeafEvaluation($"@{predicateName}", false, reason));
+		}
+
+		var result = EvaluateExpression(
+			predicate.ConditionExpression ?? EmploymentConditionExpression.All(
+				Enumerable.Range(1, predicate.Conditions.Count).Select(EmploymentConditionExpression.Condition)),
+			predicate.Conditions.ToList(),
+			context,
+			now,
+			predicateStack);
+		predicateStack.Remove(predicateName);
+		var leaves = result.Leaves
+		                   .Select(x => x with { Label = $"@{predicateName} / {x.Label}" })
+		                   .ToList();
+		return result with { Leaves = leaves };
+	}
+
+	private static EmploymentConditionExpressionEvaluation EvaluateNot(EmploymentConditionExpression expression,
+		IReadOnlyList<IEmploymentTaskCondition> conditions, IEmploymentTaskContext context, DateTimeOffset now,
+		HashSet<string> predicateStack)
+	{
+		var child = expression.ChildExpressions.FirstOrDefault();
+		if (child is null)
+		{
+			return Failed("A NOT expression must have one child.",
+				new EmploymentConditionLeafEvaluation("not", false, "A NOT expression must have one child."));
+		}
+
+		var result = EvaluateExpression(child, conditions, context, now, predicateStack);
+		return new EmploymentConditionExpressionEvaluation(
+			!result.Satisfied,
+			!result.Satisfied ? string.Empty : "Negated expression was satisfied.",
+			result.Leaves);
+	}
+
+	private static EmploymentConditionExpressionEvaluation EvaluateAny(EmploymentConditionExpression expression,
+		IReadOnlyList<IEmploymentTaskCondition> conditions, IEmploymentTaskContext context, DateTimeOffset now,
+		HashSet<string> predicateStack)
+	{
+		var leaves = new List<EmploymentConditionLeafEvaluation>();
+		var reasons = new List<string>();
+		foreach (var child in expression.ChildExpressions)
+		{
+			var result = EvaluateExpression(child, conditions, context, now, predicateStack);
+			leaves.AddRange(result.Leaves);
+			if (result.Satisfied)
+			{
+				return new EmploymentConditionExpressionEvaluation(true, string.Empty, leaves);
+			}
+
+			if (!string.IsNullOrWhiteSpace(result.Reason))
+			{
+				reasons.Add(result.Reason);
+			}
+		}
+
+		var reason = reasons.Any() ? string.Join("; ", reasons) : "No OR branch was satisfied.";
+		return new EmploymentConditionExpressionEvaluation(false, reason, leaves);
+	}
+
+	private static EmploymentConditionExpressionEvaluation EvaluateAll(EmploymentConditionExpression expression,
+		IReadOnlyList<IEmploymentTaskCondition> conditions, IEmploymentTaskContext context, DateTimeOffset now,
+		HashSet<string> predicateStack)
+	{
+		var leaves = new List<EmploymentConditionLeafEvaluation>();
+		foreach (var child in expression.ChildExpressions)
+		{
+			var result = EvaluateExpression(child, conditions, context, now, predicateStack);
+			leaves.AddRange(result.Leaves);
+			if (!result.Satisfied)
+			{
+				return new EmploymentConditionExpressionEvaluation(false, result.Reason, leaves);
+			}
+		}
+
+		return new EmploymentConditionExpressionEvaluation(true, string.Empty, leaves);
+	}
+
+	private static EmploymentConditionExpressionEvaluation Failed(string reason,
+		EmploymentConditionLeafEvaluation leaf)
+	{
+		return new EmploymentConditionExpressionEvaluation(false, reason, [leaf]);
+	}
+
+	private static EmploymentAuthority RequiredAuthority(EmploymentConditionExpression expression,
+		IReadOnlyList<IEmploymentTaskCondition> conditions, IEmploymentTaskBoard board, HashSet<string> predicateStack)
+	{
+		switch (expression.Kind)
+		{
+			case EmploymentConditionExpressionKind.Condition:
+				return expression.ConditionNumber is { } number && number >= 1 && number <= conditions.Count
+					? conditions[number - 1].RequiredAuthority.Authorities
+					: EmploymentAuthority.None;
+			case EmploymentConditionExpressionKind.Predicate:
+				if (string.IsNullOrWhiteSpace(expression.PredicateName) || !predicateStack.Add(expression.PredicateName))
+				{
+					return EmploymentAuthority.None;
+				}
+
+				var predicate = board.ConditionPredicates.FirstOrDefault(x => x.Name.EqualTo(expression.PredicateName));
+				var authority = predicate is null
+					? EmploymentAuthority.None
+					: RequiredAuthority(
+						predicate.ConditionExpression ?? EmploymentConditionExpression.All(
+							Enumerable.Range(1, predicate.Conditions.Count).Select(EmploymentConditionExpression.Condition)),
+						predicate.Conditions.ToList(),
+						board,
+						predicateStack);
+				predicateStack.Remove(expression.PredicateName);
+				return authority;
+			default:
+				return expression.ChildExpressions.Aggregate(EmploymentAuthority.None,
+					(current, child) => current | RequiredAuthority(child, conditions, board, predicateStack));
+		}
+	}
+
+	private static bool Validate(EmploymentConditionExpression expression,
+		IReadOnlyList<IEmploymentTaskCondition> conditions, IEmploymentTaskBoard board, HashSet<string> predicateStack,
+		out string reason)
+	{
+		reason = string.Empty;
+		switch (expression.Kind)
+		{
+			case EmploymentConditionExpressionKind.Condition:
+				if (expression.ConditionNumber is < 1 or null || expression.ConditionNumber > conditions.Count)
+				{
+					reason = $"Condition #{expression.ConditionNumber?.ToString("N0") ?? "?"} does not exist.";
+					return false;
+				}
+
+				return true;
+			case EmploymentConditionExpressionKind.Predicate:
+				if (string.IsNullOrWhiteSpace(expression.PredicateName))
+				{
+					reason = "A named predicate reference is blank.";
+					return false;
+				}
+
+				if (!predicateStack.Add(expression.PredicateName))
+				{
+					reason = $"Named predicate @{expression.PredicateName} is cyclic.";
+					return false;
+				}
+
+				var predicate = board.ConditionPredicates.FirstOrDefault(x => x.Name.EqualTo(expression.PredicateName));
+				if (predicate is null)
+				{
+					predicateStack.Remove(expression.PredicateName);
+					reason = $"Named predicate @{expression.PredicateName} does not exist.";
+					return false;
+				}
+
+				var expressionToCheck = predicate.ConditionExpression ?? EmploymentConditionExpression.All(
+					Enumerable.Range(1, predicate.Conditions.Count).Select(EmploymentConditionExpression.Condition));
+				var valid = Validate(expressionToCheck, predicate.Conditions.ToList(), board, predicateStack, out reason);
+				predicateStack.Remove(expression.PredicateName);
+				return valid;
+			case EmploymentConditionExpressionKind.Not:
+				if (expression.ChildExpressions.Count != 1)
+				{
+					reason = "A NOT expression must have exactly one child.";
+					return false;
+				}
+
+				return Validate(expression.ChildExpressions.Single(), conditions, board, predicateStack, out reason);
+			case EmploymentConditionExpressionKind.Any:
+			case EmploymentConditionExpressionKind.All:
+				if (expression.Kind == EmploymentConditionExpressionKind.Any && !expression.ChildExpressions.Any())
+				{
+					reason = $"{expression.Kind.DescribeEnum()} expressions must have at least one child.";
+					return false;
+				}
+
+				foreach (var child in expression.ChildExpressions)
+				{
+					if (!Validate(child, conditions, board, predicateStack, out reason))
+					{
+						return false;
+					}
+				}
+
+				return true;
+			default:
+				reason = "Unknown scheduled-rule condition expression node.";
+				return false;
+		}
+	}
+}
+
 public sealed class EmploymentTaskBoard : IEmploymentTaskBoard
 {
 	private const string PhysicalCustodySuspensionReason =
@@ -2093,6 +2571,8 @@ public sealed class EmploymentTaskBoard : IEmploymentTaskBoard
 
 	private readonly IEmploymentHost _host;
 	private readonly List<IEmploymentScheduledTaskRule> _scheduledRules = new();
+	private readonly List<IEmploymentConditionPredicate> _conditionPredicates = new();
+	private readonly List<IEmploymentScheduledRuleTemplate> _scheduledRuleTemplates = new();
 	private readonly List<IEmploymentActiveTask> _activeTasks = new();
 	private readonly IEmploymentPersistenceStore? _persistence;
 
@@ -2102,15 +2582,21 @@ public sealed class EmploymentTaskBoard : IEmploymentTaskBoard
 	}
 
 	internal EmploymentTaskBoard(IEmploymentHost host, IEmploymentPersistenceStore persistence,
-		IEnumerable<IEmploymentScheduledTaskRule> scheduledRules, IEnumerable<IEmploymentActiveTask> activeTasks)
+		IEnumerable<IEmploymentScheduledTaskRule> scheduledRules, IEnumerable<IEmploymentActiveTask> activeTasks,
+		IEnumerable<IEmploymentConditionPredicate>? conditionPredicates = null,
+		IEnumerable<IEmploymentScheduledRuleTemplate>? scheduledRuleTemplates = null)
 	{
 		_host = host;
 		_persistence = persistence;
 		_scheduledRules.AddRange(scheduledRules);
 		_activeTasks.AddRange(activeTasks);
+		_conditionPredicates.AddRange(conditionPredicates ?? []);
+		_scheduledRuleTemplates.AddRange(scheduledRuleTemplates ?? []);
 	}
 
 	public IReadOnlyCollection<IEmploymentScheduledTaskRule> ScheduledRules => _scheduledRules;
+	public IReadOnlyCollection<IEmploymentConditionPredicate> ConditionPredicates => _conditionPredicates;
+	public IReadOnlyCollection<IEmploymentScheduledRuleTemplate> ScheduledRuleTemplates => _scheduledRuleTemplates;
 	public IReadOnlyCollection<IEmploymentActiveTask> ActiveTasks => _activeTasks;
 
 	private bool IsAuthorised(ICharacter? actor, EmploymentAuthority authority)
@@ -2127,14 +2613,27 @@ public sealed class EmploymentTaskBoard : IEmploymentTaskBoard
 		IEnumerable<IEmploymentTaskCondition> conditions, EmploymentActionPlan actionPlan, TimeSpan cooldown,
 		ICharacter? authorisedBy)
 	{
+		return CreateScheduledRule(name, idempotencyKey, conditions, null, actionPlan, cooldown, authorisedBy);
+	}
+
+	public IEmploymentScheduledTaskRule CreateScheduledRule(string name, string idempotencyKey,
+		IEnumerable<IEmploymentTaskCondition> conditions, EmploymentConditionExpression? conditionExpression,
+		EmploymentActionPlan actionPlan, TimeSpan cooldown, ICharacter? authorisedBy)
+	{
 		var conditionList = conditions.ToList();
 		if (!IsAuthorised(authorisedBy, EmploymentAuthority.CreateScheduledRules))
 		{
 			throw new InvalidOperationException($"{ActorName(authorisedBy)} is not authorised to create scheduled task rules for {_host.EmploymentHostName}.");
 		}
 
-		var conditionAuthority = conditionList.Aggregate(EmploymentAuthority.None,
-			(current, condition) => current | condition.RequiredAuthority.Authorities);
+		if (!EmploymentConditionExpressionEvaluator.Validate(conditionExpression, conditionList, this, out var expressionReason))
+		{
+			throw new InvalidOperationException(expressionReason);
+		}
+
+		var conditionAuthority = EmploymentConditionExpressionEvaluator
+		                         .RequiredAuthority(conditionExpression, conditionList, this)
+		                         .Authorities;
 		if (conditionAuthority != EmploymentAuthority.None &&
 		    !IsAuthorised(authorisedBy, conditionAuthority))
 		{
@@ -2147,13 +2646,136 @@ public sealed class EmploymentTaskBoard : IEmploymentTaskBoard
 			throw new InvalidOperationException($"{ActorName(authorisedBy)} is not authorised to create scheduled task rules with {actionPlan.RequiredAuthority.Authorities.DescribeEnum()} authority for {_host.EmploymentHostName}.");
 		}
 
-		var rule = new EmploymentScheduledTaskRule(_host, name, idempotencyKey, conditionList, actionPlan, cooldown);
+		var rule = new EmploymentScheduledTaskRule(_host, name, idempotencyKey, conditionList, conditionExpression,
+			actionPlan, cooldown);
 		_scheduledRules.Add(rule);
 		_persistence?.SaveScheduledRule(rule);
 		_host.EmploymentRegister.Record(EmploymentRegisterEntryType.ScheduledRuleCreated, authorisedBy,
 			$"Created scheduled task rule {name}.");
 		_host.DebugEmployment($"Created scheduled task rule {name}.");
 		return rule;
+	}
+
+	public IEmploymentConditionPredicate CreateConditionPredicate(string name,
+		IEnumerable<IEmploymentTaskCondition> conditions, EmploymentConditionExpression? conditionExpression,
+		ICharacter? authorisedBy)
+	{
+		var conditionList = conditions.ToList();
+		if (!IsAuthorised(authorisedBy, EmploymentAuthority.CreateScheduledRules))
+		{
+			throw new InvalidOperationException($"{ActorName(authorisedBy)} is not authorised to create scheduled condition predicates for {_host.EmploymentHostName}.");
+		}
+
+		if (_conditionPredicates.Any(x => x.Name.EqualTo(name)))
+		{
+			throw new InvalidOperationException($"A scheduled condition predicate named {name} already exists for {_host.EmploymentHostName}.");
+		}
+
+		if (!EmploymentConditionExpressionEvaluator.Validate(conditionExpression, conditionList, this, out var expressionReason))
+		{
+			throw new InvalidOperationException(expressionReason);
+		}
+
+		var conditionAuthority = EmploymentConditionExpressionEvaluator
+		                         .RequiredAuthority(conditionExpression, conditionList, this)
+		                         .Authorities;
+		if (conditionAuthority != EmploymentAuthority.None && !IsAuthorised(authorisedBy, conditionAuthority))
+		{
+			throw new InvalidOperationException($"{ActorName(authorisedBy)} is not authorised to create scheduled condition predicates with {conditionAuthority.DescribeEnum()} condition authority for {_host.EmploymentHostName}.");
+		}
+
+		var predicate = new EmploymentConditionPredicate(_host, name, conditionList, conditionExpression);
+		_conditionPredicates.Add(predicate);
+		_persistence?.SaveConditionPredicate(predicate);
+		_host.EmploymentRegister.Record(EmploymentRegisterEntryType.ScheduledRuleCreated, authorisedBy,
+			$"Created scheduled condition predicate {name}.");
+		_host.DebugEmployment($"Created scheduled condition predicate {name}.");
+		return predicate;
+	}
+
+	public bool CancelConditionPredicate(IEmploymentConditionPredicate predicate, ICharacter? cancelledBy, string reason)
+	{
+		if (!IsAuthorised(cancelledBy, EmploymentAuthority.ModifyScheduledRules))
+		{
+			throw new InvalidOperationException($"{ActorName(cancelledBy)} is not authorised to cancel scheduled condition predicates for {_host.EmploymentHostName}.");
+		}
+
+		if (predicate is not EmploymentConditionPredicate concrete || !_conditionPredicates.Contains(predicate))
+		{
+			return false;
+		}
+
+		_conditionPredicates.Remove(predicate);
+		_persistence?.DeleteConditionPredicate(concrete);
+		_host.EmploymentRegister.Record(EmploymentRegisterEntryType.ScheduledRuleCancelled, cancelledBy,
+			$"Cancelled scheduled condition predicate {predicate.Name}: {reason}");
+		_host.DebugEmployment($"Cancelled scheduled condition predicate {predicate.Name}: {reason}", cancelledBy?.Gameworld);
+		return true;
+	}
+
+	public IEmploymentScheduledRuleTemplate CreateScheduledRuleTemplate(string name, string idempotencyKeyPattern,
+		IEnumerable<IEmploymentTaskCondition> conditions, EmploymentConditionExpression? conditionExpression,
+		EmploymentActionPlan actionPlan, TimeSpan cooldown, ICharacter? authorisedBy)
+	{
+		var conditionList = conditions.ToList();
+		if (!IsAuthorised(authorisedBy, EmploymentAuthority.CreateScheduledRules))
+		{
+			throw new InvalidOperationException($"{ActorName(authorisedBy)} is not authorised to create scheduled rule templates for {_host.EmploymentHostName}.");
+		}
+
+		if (_scheduledRuleTemplates.Any(x => x.Name.EqualTo(name)))
+		{
+			throw new InvalidOperationException($"A scheduled rule template named {name} already exists for {_host.EmploymentHostName}.");
+		}
+
+		if (!EmploymentConditionExpressionEvaluator.Validate(conditionExpression, conditionList, this, out var expressionReason))
+		{
+			throw new InvalidOperationException(expressionReason);
+		}
+
+		var conditionAuthority = EmploymentConditionExpressionEvaluator
+		                         .RequiredAuthority(conditionExpression, conditionList, this)
+		                         .Authorities;
+		if (conditionAuthority != EmploymentAuthority.None && !IsAuthorised(authorisedBy, conditionAuthority))
+		{
+			throw new InvalidOperationException($"{ActorName(authorisedBy)} is not authorised to create scheduled rule templates with {conditionAuthority.DescribeEnum()} condition authority for {_host.EmploymentHostName}.");
+		}
+
+		if (actionPlan.RequiredAuthority.Authorities != EmploymentAuthority.None &&
+		    !IsAuthorised(authorisedBy, actionPlan.RequiredAuthority.Authorities))
+		{
+			throw new InvalidOperationException($"{ActorName(authorisedBy)} is not authorised to create scheduled rule templates with {actionPlan.RequiredAuthority.Authorities.DescribeEnum()} action authority for {_host.EmploymentHostName}.");
+		}
+
+		var template = new EmploymentScheduledRuleTemplate(_host, name, idempotencyKeyPattern, conditionList,
+			conditionExpression, actionPlan, cooldown);
+		_scheduledRuleTemplates.Add(template);
+		_persistence?.SaveScheduledRuleTemplate(template);
+		_host.EmploymentRegister.Record(EmploymentRegisterEntryType.ScheduledRuleCreated, authorisedBy,
+			$"Created scheduled rule template {name}.");
+		_host.DebugEmployment($"Created scheduled rule template {name}.");
+		return template;
+	}
+
+	public bool CancelScheduledRuleTemplate(IEmploymentScheduledRuleTemplate template, ICharacter? cancelledBy,
+		string reason)
+	{
+		if (!IsAuthorised(cancelledBy, EmploymentAuthority.ModifyScheduledRules))
+		{
+			throw new InvalidOperationException($"{ActorName(cancelledBy)} is not authorised to cancel scheduled rule templates for {_host.EmploymentHostName}.");
+		}
+
+		if (template is not EmploymentScheduledRuleTemplate concrete || !_scheduledRuleTemplates.Contains(template))
+		{
+			return false;
+		}
+
+		_scheduledRuleTemplates.Remove(template);
+		_persistence?.DeleteScheduledRuleTemplate(concrete);
+		_host.EmploymentRegister.Record(EmploymentRegisterEntryType.ScheduledRuleCancelled, cancelledBy,
+			$"Cancelled scheduled rule template {template.Name}: {reason}");
+		_host.DebugEmployment($"Cancelled scheduled rule template {template.Name}: {reason}", cancelledBy?.Gameworld);
+		return true;
 	}
 
 	public IEmploymentActiveTask CreateActiveTask(string name, EmploymentActionPlan actionPlan, ICharacter? authorisedBy,
@@ -2648,19 +3270,22 @@ public sealed class EmploymentScheduledTaskRule : IEmploymentScheduledTaskRule
 	private readonly List<IEmploymentTaskCondition> _conditions;
 
 	public EmploymentScheduledTaskRule(IEmploymentHost employer, string name, string idempotencyKey,
-		IEnumerable<IEmploymentTaskCondition> conditions, EmploymentActionPlan actionPlan, TimeSpan cooldown)
+		IEnumerable<IEmploymentTaskCondition> conditions, EmploymentConditionExpression? conditionExpression,
+		EmploymentActionPlan actionPlan, TimeSpan cooldown)
 	{
 		Id = Guid.NewGuid();
 		Employer = employer;
 		Name = name;
 		IdempotencyKey = string.IsNullOrWhiteSpace(idempotencyKey) ? Id.ToString("N") : idempotencyKey.Trim();
 		_conditions = conditions.ToList();
+		ConditionExpression = conditionExpression;
 		ActionPlan = actionPlan;
 		Cooldown = cooldown;
 	}
 
 	internal EmploymentScheduledTaskRule(Guid id, IEmploymentHost employer, string name, string idempotencyKey,
-		IEnumerable<IEmploymentTaskCondition> conditions, EmploymentActionPlan actionPlan, TimeSpan cooldown,
+		IEnumerable<IEmploymentTaskCondition> conditions, EmploymentConditionExpression? conditionExpression,
+		EmploymentActionPlan actionPlan, TimeSpan cooldown,
 		DateTimeOffset? lastSpawnedAt, EmploymentScheduledRuleStatus status = EmploymentScheduledRuleStatus.Active)
 	{
 		Id = id;
@@ -2668,6 +3293,7 @@ public sealed class EmploymentScheduledTaskRule : IEmploymentScheduledTaskRule
 		Name = name;
 		IdempotencyKey = string.IsNullOrWhiteSpace(idempotencyKey) ? Id.ToString("N") : idempotencyKey.Trim();
 		_conditions = conditions.ToList();
+		ConditionExpression = conditionExpression;
 		ActionPlan = actionPlan;
 		Cooldown = cooldown;
 		LastSpawnedAt = lastSpawnedAt;
@@ -2679,6 +3305,7 @@ public sealed class EmploymentScheduledTaskRule : IEmploymentScheduledTaskRule
 	public string Name { get; }
 	public string IdempotencyKey { get; }
 	public IReadOnlyCollection<IEmploymentTaskCondition> Conditions => _conditions;
+	public EmploymentConditionExpression? ConditionExpression { get; }
 	public EmploymentActionPlan ActionPlan { get; }
 	public EmploymentScheduledRuleStatus Status { get; private set; } = EmploymentScheduledRuleStatus.Active;
 	public TimeSpan Cooldown { get; }
@@ -2698,12 +3325,11 @@ public sealed class EmploymentScheduledTaskRule : IEmploymentScheduledTaskRule
 			return false;
 		}
 
-		foreach (var condition in _conditions)
+		var result = EmploymentConditionExpressionEvaluator.Evaluate(ConditionExpression, _conditions, context, now);
+		if (!result.Satisfied)
 		{
-			if (!condition.IsSatisfied(context, now, out reason))
-			{
-				return false;
-			}
+			reason = result.Reason;
+			return false;
 		}
 
 		reason = string.Empty;
@@ -2724,6 +3350,79 @@ public sealed class EmploymentScheduledTaskRule : IEmploymentScheduledTaskRule
 	{
 		Status = EmploymentScheduledRuleStatus.Active;
 	}
+}
+
+public sealed class EmploymentConditionPredicate : IEmploymentConditionPredicate
+{
+	private readonly List<IEmploymentTaskCondition> _conditions;
+
+	public EmploymentConditionPredicate(IEmploymentHost employer, string name,
+		IEnumerable<IEmploymentTaskCondition> conditions, EmploymentConditionExpression? conditionExpression)
+		: this(Guid.NewGuid(), employer, name, conditions, conditionExpression)
+	{
+	}
+
+	internal EmploymentConditionPredicate(Guid id, IEmploymentHost employer, string name,
+		IEnumerable<IEmploymentTaskCondition> conditions, EmploymentConditionExpression? conditionExpression)
+	{
+		Id = id;
+		Employer = employer;
+		Name = name.Trim();
+		_conditions = conditions.ToList();
+		ConditionExpression = conditionExpression;
+		RequiredAuthority = new EmploymentAuthoritySet(_conditions.Aggregate(EmploymentAuthority.None,
+			(current, condition) => current | condition.RequiredAuthority.Authorities));
+	}
+
+	public Guid Id { get; }
+	public IEmploymentHost Employer { get; }
+	public string Name { get; }
+	public IReadOnlyCollection<IEmploymentTaskCondition> Conditions => _conditions;
+	public EmploymentConditionExpression? ConditionExpression { get; }
+	public EmploymentAuthoritySet RequiredAuthority { get; }
+}
+
+public sealed class EmploymentScheduledRuleTemplate : IEmploymentScheduledRuleTemplate
+{
+	private readonly List<IEmploymentTaskCondition> _conditions;
+
+	public EmploymentScheduledRuleTemplate(IEmploymentHost employer, string name, string idempotencyKeyPattern,
+		IEnumerable<IEmploymentTaskCondition> conditions, EmploymentConditionExpression? conditionExpression,
+		EmploymentActionPlan actionPlan, TimeSpan cooldown)
+		: this(Guid.NewGuid(), employer, name, idempotencyKeyPattern, conditions, conditionExpression, actionPlan,
+			cooldown)
+	{
+	}
+
+	internal EmploymentScheduledRuleTemplate(Guid id, IEmploymentHost employer, string name, string idempotencyKeyPattern,
+		IEnumerable<IEmploymentTaskCondition> conditions, EmploymentConditionExpression? conditionExpression,
+		EmploymentActionPlan actionPlan, TimeSpan cooldown)
+	{
+		Id = id;
+		Employer = employer;
+		Name = name.Trim();
+		IdempotencyKeyPattern = string.IsNullOrWhiteSpace(idempotencyKeyPattern)
+			? name.CollapseString().ToLowerInvariant()
+			: idempotencyKeyPattern.Trim();
+		_conditions = conditions.ToList();
+		ConditionExpression = conditionExpression;
+		ActionPlan = actionPlan;
+		Cooldown = cooldown;
+		RequiredAuthority = new EmploymentAuthoritySet(
+			_conditions.Aggregate(EmploymentAuthority.None,
+				(current, condition) => current | condition.RequiredAuthority.Authorities) |
+			actionPlan.RequiredAuthority.Authorities);
+	}
+
+	public Guid Id { get; }
+	public IEmploymentHost Employer { get; }
+	public string Name { get; }
+	public string IdempotencyKeyPattern { get; }
+	public IReadOnlyCollection<IEmploymentTaskCondition> Conditions => _conditions;
+	public EmploymentConditionExpression? ConditionExpression { get; }
+	public EmploymentActionPlan ActionPlan { get; }
+	public TimeSpan Cooldown { get; }
+	public EmploymentAuthoritySet RequiredAuthority { get; }
 }
 
 public sealed class EmploymentActiveTask : IEmploymentActiveTask

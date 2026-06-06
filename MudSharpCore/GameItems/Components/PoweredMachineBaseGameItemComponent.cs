@@ -73,7 +73,9 @@ public abstract class PoweredMachineBaseGameItemComponent : GameItemComponent, I
 
 	protected virtual void LoadFromXml(XElement root)
 	{
-		_switchedOn = bool.Parse(root.Element("SwitchedOn").Value);
+		_switchedOn = bool.TryParse(root.Element("SwitchedOn")?.Value, out var switchedOn)
+			? switchedOn
+			: !_prototype.Switchable;
 	}
 
 	public override void FinaliseLoad()

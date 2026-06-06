@@ -381,6 +381,16 @@ public class NetworkSwitchGameItemComponent : PoweredMachineBaseGameItemComponen
 
 	private void NotifyConnectedAdaptersTopologyChanged()
 	{
+		NotifyConnectedAdaptersTopologyChanged(new HashSet<NetworkSwitchGameItemComponent>());
+	}
+
+	private void NotifyConnectedAdaptersTopologyChanged(HashSet<NetworkSwitchGameItemComponent> visitedSwitches)
+	{
+		if (!visitedSwitches.Add(this))
+		{
+			return;
+		}
+
 		foreach (var adapter in _connectedItems
 			         .Select(x => x.Item2)
 			         .OfType<NetworkAdapterGameItemComponent>()
@@ -394,7 +404,7 @@ public class NetworkSwitchGameItemComponent : PoweredMachineBaseGameItemComponen
 			         .OfType<NetworkSwitchGameItemComponent>()
 			         .ToList())
 		{
-			switchItem.NotifyConnectedAdaptersTopologyChanged();
+			switchItem.NotifyConnectedAdaptersTopologyChanged(visitedSwitches);
 		}
 	}
 

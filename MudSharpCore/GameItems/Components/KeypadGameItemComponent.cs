@@ -17,8 +17,12 @@ namespace MudSharp.GameItems.Components;
 
 public class KeypadGameItemComponent : PoweredMachineBaseGameItemComponent, ISelectable, ISignalSourceComponent
 {
+	private const int MaximumFailedAttemptsBeforeLockout = 5;
+	private static readonly TimeSpan FailedAttemptLockoutDuration = TimeSpan.FromSeconds(30);
 	private KeypadGameItemComponentProto _prototype;
 	private DateTime? _activeUntil;
+	private DateTime? _lockedUntil;
+	private int _failedAttempts;
 	private bool _heartbeatSubscribed;
 	private ComputerSignal _currentSignal;
 
@@ -181,12 +185,34 @@ public class KeypadGameItemComponent : PoweredMachineBaseGameItemComponent, ISel
 					flags: OutputFlags.SuppressObscured).Append(playerEmote));
 		}
 
+		if (_lockedUntil is not null && _lockedUntil > DateTime.UtcNow)
+		{
+			character.Send("The keypad refuses further entries for a short time.");
+			return false;
+		}
+
+		if (_lockedUntil is not null)
+		{
+			_lockedUntil = null;
+			_failedAttempts = 0;
+		}
+
 		if (!argument.Trim().Equals(_prototype.Code, StringComparison.InvariantCulture))
 		{
+			_failedAttempts++;
+			if (_failedAttempts >= MaximumFailedAttemptsBeforeLockout)
+			{
+				_failedAttempts = 0;
+				_lockedUntil = DateTime.UtcNow + FailedAttemptLockoutDuration;
+				EnsureHeartbeatSubscription();
+			}
+
 			character.Send("Nothing happens.");
 			return false;
 		}
 
+		_failedAttempts = 0;
+		_lockedUntil = null;
 		_activeUntil = DateTime.UtcNow + _prototype.SignalDuration;
 		EnsureHeartbeatSubscription();
 		RefreshSignalState(true);
@@ -201,13 +227,27 @@ public class KeypadGameItemComponent : PoweredMachineBaseGameItemComponent, ISel
 
 	private void HeartbeatTick()
 	{
-		if (_activeUntil is null || _activeUntil > DateTime.UtcNow)
+		if ((_activeUntil is null || _activeUntil > DateTime.UtcNow) &&
+		    (_lockedUntil is null || _lockedUntil > DateTime.UtcNow))
 		{
 			return;
 		}
 
-		_activeUntil = null;
-		RemoveHeartbeatSubscription();
+		if (_activeUntil is not null && _activeUntil <= DateTime.UtcNow)
+		{
+			_activeUntil = null;
+		}
+
+		if (_lockedUntil is not null && _lockedUntil <= DateTime.UtcNow)
+		{
+			_lockedUntil = null;
+		}
+
+		if (_activeUntil is null && _lockedUntil is null)
+		{
+			RemoveHeartbeatSubscription();
+		}
+
 		RefreshSignalState(true);
 	}
 

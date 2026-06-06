@@ -304,7 +304,8 @@ public class ComputerExecutionService : IComputerExecutionService
 					Host = owner.ExecutionHost,
 					Gameworld = _gameworld,
 					Actor = actor,
-					Session = session
+					Session = session,
+					LaunchDepth = (ComputerExecutionContextScope.Current?.LaunchDepth ?? 0) + 1
 				});
 
 				var result = function.CompiledProg!.Execute(parameters.ToArray());
@@ -334,7 +335,8 @@ public class ComputerExecutionService : IComputerExecutionService
 				Gameworld = _gameworld,
 				Actor = actor,
 				Session = session,
-				Process = process
+				Process = process,
+				LaunchDepth = (ComputerExecutionContextScope.Current?.LaunchDepth ?? 0) + 1
 			});
 
 			var outcome = ComputerProgramExecutor.Execute(program, parameters);
@@ -400,7 +402,8 @@ public class ComputerExecutionService : IComputerExecutionService
 				Gameworld = _gameworld,
 				Actor = actor,
 				Session = session,
-				Process = process
+				Process = process,
+				LaunchDepth = (ComputerExecutionContextScope.Current?.LaunchDepth ?? 0) + 1
 			});
 
 			var outcome = ComputerBuiltInApplicationExecutors.Execute(
@@ -411,6 +414,10 @@ public class ComputerExecutionService : IComputerExecutionService
 				process,
 				resolvedApplication);
 			outcome = ApplyExecutionOutcome_NoLock(owner.ExecutionHost, process, outcome);
+			if (outcome.Status is ComputerProcessStatus.Completed or ComputerProcessStatus.Failed or ComputerProcessStatus.Killed)
+			{
+				processOwner.DeleteProcessDefinition(process);
+			}
 
 			return new ComputerExecutionResult
 			{
@@ -571,8 +578,20 @@ public class ComputerExecutionService : IComputerExecutionService
 		{
 			EnsureLoaded();
 		}
+		else
+		{
+			EnsureLoadedForOwner(session.CurrentOwner);
+		}
+
+		if (!ReferenceEquals(session.CurrentOwner, session.Host))
+		{
+			EnsureLoadedForOwner(session.Host);
+		}
+
 		lock (_sync)
 		{
+			RegisterOwner_NoLock(session.CurrentOwner);
+			RegisterOwner_NoLock(session.Host);
 			if (!session.Host.Powered)
 			{
 				error = $"{session.Host.Name} is not currently powered.";
@@ -1281,7 +1300,9 @@ public class ComputerExecutionService : IComputerExecutionService
 			Handler = handler
 		};
 
-		if (triggerImmediately && Math.Abs(source.CurrentSignal.Value) > 0.0000001)
+		if (triggerImmediately &&
+		    double.IsFinite(source.CurrentSignal.Value) &&
+		    Math.Abs(source.CurrentSignal.Value) > 0.0000001)
 		{
 			HandleSignalWaitTriggered_NoLock(owner, process, source.CurrentSignal);
 		}
@@ -1330,7 +1351,7 @@ public class ComputerExecutionService : IComputerExecutionService
 	private void HandleSignalWaitTriggered_NoLock(IComputerExecutableOwner owner, ComputerRuntimeProcess process,
 		ComputerSignal signal)
 	{
-		if (Math.Abs(signal.Value) < 0.0000001)
+		if (!double.IsFinite(signal.Value) || Math.Abs(signal.Value) < 0.0000001)
 		{
 			return;
 		}
@@ -1363,7 +1384,8 @@ public class ComputerExecutionService : IComputerExecutionService
 			Host = owner.ExecutionHost,
 			Gameworld = _gameworld,
 			Process = liveProcess,
-			PendingSignalInput = signal
+			PendingSignalInput = signal,
+			LaunchDepth = (ComputerExecutionContextScope.Current?.LaunchDepth ?? 0) + 1
 		});
 
 		liveProcess.Status = ComputerProcessStatus.Running;
@@ -1389,7 +1411,18 @@ public class ComputerExecutionService : IComputerExecutionService
 
 	private IEnumerable<ComputerRuntimeProcess> FindWaitingUserInputProcesses_NoLock(IComputerTerminalSession session)
 	{
-		return FindWaitingUserInputProcesses_NoLock(session.User.Id, session.Terminal.TerminalItemId, null);
+		return ResolveProcesses_NoLock(session.CurrentOwner)
+			.Concat(ReferenceEquals(session.CurrentOwner, session.Host)
+				? Enumerable.Empty<IComputerProcess>()
+				: ResolveProcesses_NoLock(session.Host))
+			.OfType<ComputerRuntimeProcess>()
+			.Where(x => x.Status == ComputerProcessStatus.Sleeping)
+			.Where(x => x.WaitType == ComputerProcessWaitType.UserInput)
+			.Where(x => x.WaitingCharacterId == session.User.Id)
+			.Where(x => x.WaitingTerminalItemId == session.Terminal.TerminalItemId)
+			.GroupBy(x => x.Id)
+			.Select(x => x.First())
+			.ToList();
 	}
 
 	private IEnumerable<ComputerRuntimeProcess> FindWaitingUserInputProcesses_NoLock(long waitingCharacterId,
@@ -1447,17 +1480,18 @@ public class ComputerExecutionService : IComputerExecutionService
 				Actor = session.User,
 				Session = session,
 				Process = liveProcess,
-			PendingTerminalInput = text
-		});
+				PendingTerminalInput = text,
+				LaunchDepth = (ComputerExecutionContextScope.Current?.LaunchDepth ?? 0) + 1
+			});
 
-		liveProcess.Status = ComputerProcessStatus.Running;
-		liveProcess.WaitType = ComputerProcessWaitType.None;
-		liveProcess.WakeTimeUtc = null;
-		liveProcess.WaitArgument = null;
-		liveProcess.WaitingCharacterId = null;
-		liveProcess.WaitingTerminalItemId = null;
-		liveProcess.LastUpdatedAtUtc = DateTime.UtcNow;
-		PersistProcess_NoLock(owner, liveProcess);
+			liveProcess.Status = ComputerProcessStatus.Running;
+			liveProcess.WaitType = ComputerProcessWaitType.None;
+			liveProcess.WakeTimeUtc = null;
+			liveProcess.WaitArgument = null;
+			liveProcess.WaitingCharacterId = null;
+			liveProcess.WaitingTerminalItemId = null;
+			liveProcess.LastUpdatedAtUtc = DateTime.UtcNow;
+			PersistProcess_NoLock(owner, liveProcess);
 
 			var outcome = ComputerProgramExecutor.Execute(program, Enumerable.Empty<object?>(), liveProcess.StateJson);
 			outcome = ApplyExecutionOutcome_NoLock(owner, liveProcess, outcome);
@@ -1475,7 +1509,8 @@ public class ComputerExecutionService : IComputerExecutionService
 				Actor = session.User,
 				Session = session,
 				Process = liveProcess,
-				PendingTerminalInput = text
+				PendingTerminalInput = text,
+				LaunchDepth = (ComputerExecutionContextScope.Current?.LaunchDepth ?? 0) + 1
 			});
 
 			liveProcess.Status = ComputerProcessStatus.Running;
@@ -1495,6 +1530,12 @@ public class ComputerExecutionService : IComputerExecutionService
 				liveProcess,
 				builtInApplication);
 			outcome = ApplyExecutionOutcome_NoLock(owner, liveProcess, outcome);
+			if (outcome.Status is ComputerProcessStatus.Completed or ComputerProcessStatus.Failed or ComputerProcessStatus.Killed &&
+			    owner is IComputerMutableOwner mutableOwner)
+			{
+				mutableOwner.DeleteProcessDefinition(liveProcess);
+			}
+
 			error = outcome.Status == ComputerProcessStatus.Failed ? outcome.Error ?? string.Empty : string.Empty;
 			return outcome.Status != ComputerProcessStatus.Failed;
 		}
@@ -1797,7 +1838,8 @@ public class ComputerExecutionService : IComputerExecutionService
 				Owner = owner,
 				Host = owner.ExecutionHost,
 				Gameworld = _gameworld,
-				Process = liveProcess
+				Process = liveProcess,
+				LaunchDepth = (ComputerExecutionContextScope.Current?.LaunchDepth ?? 0) + 1
 			});
 
 			liveProcess.Status = ComputerProcessStatus.Running;

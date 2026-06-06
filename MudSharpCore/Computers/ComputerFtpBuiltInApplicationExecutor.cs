@@ -12,17 +12,24 @@ namespace MudSharp.Computers;
 
 internal sealed class FtpBuiltInApplicationExecutor : IComputerBuiltInApplicationExecutor
 {
+	private const int MaximumFailedLoginAttemptsBeforeBackoff = 5;
+	private static readonly TimeSpan FailedLoginBackoff = TimeSpan.FromSeconds(30);
+
 	private sealed class FtpState
 	{
 		public long? RemoteHostItemId { get; set; }
 		public string RemoteHostName { get; set; } = string.Empty;
 		public string RemoteAccountUserName { get; set; } = string.Empty;
 		public string SelectedRemoteOwnerIdentifier { get; set; } = "host";
+		public int FailedLoginAttempts { get; set; }
+		public DateTime? NextLoginAttemptUtc { get; set; }
 
 		public void ClearAuthentication()
 		{
 			RemoteAccountUserName = string.Empty;
 			SelectedRemoteOwnerIdentifier = "host";
+			FailedLoginAttempts = 0;
+			NextLoginAttemptUtc = null;
 		}
 
 		public void ClearConnection()
@@ -237,13 +244,28 @@ internal sealed class FtpBuiltInApplicationExecutor : IComputerBuiltInApplicatio
 				false);
 		}
 
+		if (state.NextLoginAttemptUtc is not null && state.NextLoginAttemptUtc > DateTime.UtcNow)
+		{
+			return ($"FTP login attempts are temporarily delayed. Try again shortly.\n\n{RenderPrompt(session.User, state, remoteHost, null, null)}",
+				false);
+		}
+
 		var authentication = gameworld.ComputerFileTransferService.Authenticate(session.Host, remoteHost, userName,
 			ss.SafeRemainingArgument);
 		if (!authentication.Success || authentication.Account is null)
 		{
+			state.FailedLoginAttempts++;
+			if (state.FailedLoginAttempts >= MaximumFailedLoginAttemptsBeforeBackoff)
+			{
+				state.FailedLoginAttempts = 0;
+				state.NextLoginAttemptUtc = DateTime.UtcNow + FailedLoginBackoff;
+			}
+
 			return ($"{authentication.ErrorMessage}\n\n{RenderPrompt(session.User, state, remoteHost, null, null)}", false);
 		}
 
+		state.FailedLoginAttempts = 0;
+		state.NextLoginAttemptUtc = null;
 		state.RemoteAccountUserName = authentication.Account.UserName;
 		state.SelectedRemoteOwnerIdentifier = "host";
 		return ($"You log in to FTP on {remoteHost.Name.ColourName()} as {authentication.Account.UserName.ColourName()}.\n\n{RenderPrompt(session.User, state, remoteHost, authentication.Account, null)}",

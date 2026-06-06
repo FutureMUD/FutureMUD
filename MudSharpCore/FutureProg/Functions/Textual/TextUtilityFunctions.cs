@@ -8,6 +8,7 @@ namespace MudSharp.FutureProg.Functions.Textual;
 
 internal class TextUtilityFunction : BuiltInFunction
 {
+	private const int MaximumGeneratedTextLength = 65536;
 	private readonly TextOperation _operation;
 	private readonly ProgVariableTypes _returnType;
 
@@ -157,8 +158,7 @@ internal class TextUtilityFunction : BuiltInFunction
 				Result = new TextVariable(Remove(source, GetInteger(1), GetInteger(2)));
 				return StatementResult.Normal;
 			case TextOperation.Repeat:
-				Result = new TextVariable(string.Concat(Enumerable.Repeat(source, Math.Max(0, GetInteger(1)))));
-				return StatementResult.Normal;
+				return ExecuteRepeat(source, Math.Max(0, GetInteger(1)));
 			case TextOperation.IsEmpty:
 				Result = new BooleanVariable(string.IsNullOrEmpty(source));
 				return StatementResult.Normal;
@@ -187,11 +187,9 @@ internal class TextUtilityFunction : BuiltInFunction
 				Result = new TextVariable(Between(source, GetText(1), GetText(2)));
 				return StatementResult.Normal;
 			case TextOperation.PadLeft:
-				Result = new TextVariable(source.PadLeft(Math.Max(0, GetInteger(1))));
-				return StatementResult.Normal;
+				return ExecutePad(source, Math.Max(0, GetInteger(1)), true);
 			case TextOperation.PadRight:
-				Result = new TextVariable(source.PadRight(Math.Max(0, GetInteger(1))));
-				return StatementResult.Normal;
+				return ExecutePad(source, Math.Max(0, GetInteger(1)), false);
 			case TextOperation.Truncate:
 				Result = new TextVariable(Left(source, GetInteger(1)));
 				return StatementResult.Normal;
@@ -225,7 +223,52 @@ internal class TextUtilityFunction : BuiltInFunction
 
 	private int GetInteger(int index)
 	{
-		return ParameterFunctions[index].Result?.GetObject is decimal value ? (int)value : 0;
+		if (ParameterFunctions[index].Result?.GetObject is not decimal value)
+		{
+			return 0;
+		}
+
+		if (value > int.MaxValue)
+		{
+			return int.MaxValue;
+		}
+
+		if (value < int.MinValue)
+		{
+			return int.MinValue;
+		}
+
+		return (int)value;
+	}
+
+	private StatementResult ExecuteRepeat(string source, int count)
+	{
+		if (count == 0 || source.Length == 0)
+		{
+			Result = new TextVariable(string.Empty);
+			return StatementResult.Normal;
+		}
+
+		if ((long)source.Length * count > MaximumGeneratedTextLength)
+		{
+			ErrorMessage = $"repeattext cannot create text longer than {MaximumGeneratedTextLength:N0} characters.";
+			return StatementResult.Error;
+		}
+
+		Result = new TextVariable(string.Concat(Enumerable.Repeat(source, count)));
+		return StatementResult.Normal;
+	}
+
+	private StatementResult ExecutePad(string source, int width, bool padLeft)
+	{
+		if (width > MaximumGeneratedTextLength)
+		{
+			ErrorMessage = $"pad text functions cannot create text longer than {MaximumGeneratedTextLength:N0} characters.";
+			return StatementResult.Error;
+		}
+
+		Result = new TextVariable(padLeft ? source.PadLeft(width) : source.PadRight(width));
+		return StatementResult.Normal;
 	}
 
 	private static string Left(string text, int count)

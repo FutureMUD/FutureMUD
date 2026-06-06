@@ -49,7 +49,18 @@ internal static class ComputerBuiltInApplicationExecutors
 			};
 		}
 
-		return executor.Execute(gameworld, actor, owner, session, process, application);
+		try
+		{
+			return executor.Execute(gameworld, actor, owner, session, process, application);
+		}
+		catch (ComputerFileSystemCapacityException ex)
+		{
+			return new ComputerProgramExecutionOutcome
+			{
+				Status = ComputerProcessStatus.Failed,
+				Error = ex.Message
+			};
+		}
 	}
 
 	public static bool IsImplemented(IComputerBuiltInApplication application)
@@ -342,7 +353,16 @@ internal sealed class FileManagerBuiltInApplicationExecutor : IComputerBuiltInAp
 		session.User.EditorMode(
 			(text, handler, _) =>
 			{
-				fileSystem.WriteFile(fileName, text);
+				try
+				{
+					fileSystem.WriteFile(fileName, text);
+				}
+				catch (ComputerFileSystemCapacityException ex)
+				{
+					handler.Send(ex.Message);
+					return;
+				}
+
 				handler.Send($"Saved {fileName.ColourName()} on {ownerDescription.ColourName()}. Continue with {"type <command>".ColourCommand()} to keep using FileManager.");
 			},
 			(handler, _) =>
@@ -918,8 +938,8 @@ internal sealed class BoardsBuiltInApplicationExecutor : IComputerBuiltInApplica
 			"logout" => HandleLogout(session, state, targetHost),
 			"boards" or "listboards" => HandleBoards(gameworld, session, state, targetHost, account, board),
 			"use" or "select" => HandleUse(gameworld, session, state, targetHost, ss),
-			"list" => HandleList(gameworld, session, state, targetHost, board),
-			"read" or "show" => HandleRead(gameworld, session, state, targetHost, board, ss),
+			"list" => HandleList(gameworld, session, state, targetHost, account, board),
+			"read" or "show" => HandleRead(gameworld, session, state, targetHost, account, board, ss),
 			"post" or "write" => HandlePost(gameworld, session, process, state, targetHost, account, board, ss),
 			"delete" or "del" => HandleDelete(gameworld, session, state, targetHost, account, board, ss),
 			"exit" or "quit" => ($"{application.Name.ColourName()} closing.", true),
@@ -1075,7 +1095,7 @@ internal sealed class BoardsBuiltInApplicationExecutor : IComputerBuiltInApplica
 	}
 
 	private static (string Output, bool Exit) HandleList(IFuturemud gameworld, IComputerTerminalSession session,
-		BoardsState state, IComputerHost? targetHost, IBoard? board)
+		BoardsState state, IComputerHost? targetHost, IComputerNetworkAccount? account, IBoard? board)
 	{
 		if (targetHost is null)
 		{
@@ -1083,9 +1103,15 @@ internal sealed class BoardsBuiltInApplicationExecutor : IComputerBuiltInApplica
 				false);
 		}
 
+		if (account is null)
+		{
+			return ($"Log in first with {"type login <user@domain> <password>".ColourCommand()} before listing posts.\n\n{RenderPrompt(session.User, state, targetHost, null, board, null)}",
+				false);
+		}
+
 		if (board is null)
 		{
-			return ($"Select one hosted board first with {"type use <board>".ColourCommand()}.\n\n{RenderPrompt(session.User, state, targetHost, ResolveLoggedInAccount(gameworld, session.Host, targetHost, state, out _), null, null)}",
+			return ($"Select one hosted board first with {"type use <board>".ColourCommand()}.\n\n{RenderPrompt(session.User, state, targetHost, account, null, null)}",
 				false);
 		}
 
@@ -1121,12 +1147,12 @@ internal sealed class BoardsBuiltInApplicationExecutor : IComputerBuiltInApplica
 		}
 
 		sb.AppendLine();
-		sb.Append(RenderPrompt(session.User, state, targetHost, ResolveLoggedInAccount(gameworld, session.Host, targetHost, state, out _), board, null));
+		sb.Append(RenderPrompt(session.User, state, targetHost, account, board, null));
 		return (sb.ToString(), false);
 	}
 
 	private static (string Output, bool Exit) HandleRead(IFuturemud gameworld, IComputerTerminalSession session,
-		BoardsState state, IComputerHost? targetHost, IBoard? board, StringStack ss)
+		BoardsState state, IComputerHost? targetHost, IComputerNetworkAccount? account, IBoard? board, StringStack ss)
 	{
 		if (targetHost is null)
 		{
@@ -1134,22 +1160,28 @@ internal sealed class BoardsBuiltInApplicationExecutor : IComputerBuiltInApplica
 				false);
 		}
 
+		if (account is null)
+		{
+			return ($"Log in first with {"type login <user@domain> <password>".ColourCommand()} before reading posts.\n\n{RenderPrompt(session.User, state, targetHost, null, board, null)}",
+				false);
+		}
+
 		if (board is null)
 		{
-			return ($"Select one hosted board first with {"type use <board>".ColourCommand()}.\n\n{RenderPrompt(session.User, state, targetHost, ResolveLoggedInAccount(gameworld, session.Host, targetHost, state, out _), null, null)}",
+			return ($"Select one hosted board first with {"type use <board>".ColourCommand()}.\n\n{RenderPrompt(session.User, state, targetHost, account, null, null)}",
 				false);
 		}
 
 		if (ss.IsFinished || !long.TryParse(ss.PopSpeech(), out var postId))
 		{
-			return ($"Which board post do you want to read?\n\n{RenderPrompt(session.User, state, targetHost, ResolveLoggedInAccount(gameworld, session.Host, targetHost, state, out _), board, null)}",
+			return ($"Which board post do you want to read?\n\n{RenderPrompt(session.User, state, targetHost, account, board, null)}",
 				false);
 		}
 
 		var post = gameworld.ComputerBoardService.ReadPost(targetHost, board, postId, out var error);
 		if (post is null)
 		{
-			return ($"{error}\n\n{RenderPrompt(session.User, state, targetHost, ResolveLoggedInAccount(gameworld, session.Host, targetHost, state, out _), board, null)}",
+			return ($"{error}\n\n{RenderPrompt(session.User, state, targetHost, account, board, null)}",
 				false);
 		}
 
@@ -1166,7 +1198,7 @@ internal sealed class BoardsBuiltInApplicationExecutor : IComputerBuiltInApplica
 		sb.AppendLine();
 		sb.AppendLine(post.Text);
 		sb.AppendLine();
-		sb.Append(RenderPrompt(session.User, state, targetHost, ResolveLoggedInAccount(gameworld, session.Host, targetHost, state, out _), board, null));
+		sb.Append(RenderPrompt(session.User, state, targetHost, account, board, null));
 		return (sb.ToString(), false);
 	}
 
@@ -1287,7 +1319,7 @@ internal sealed class BoardsBuiltInApplicationExecutor : IComputerBuiltInApplica
 		sb.AppendLine($"{application.Name.ColourName()} commands:");
 		sb.AppendLine($"\t{"hosts".ColourCommand()} - list reachable hosts advertising Boards");
 		sb.AppendLine($"\t{"open <host>".ColourCommand()} - choose which boards service host to use");
-		sb.AppendLine($"\t{"login <user@domain> <password>".ColourCommand()} - authenticate for posting and deletion");
+		sb.AppendLine($"\t{"login <user@domain> <password>".ColourCommand()} - authenticate for reading, posting and deletion");
 		sb.AppendLine($"\t{"logout".ColourCommand()} - log out of the current network identity");
 		sb.AppendLine($"\t{"boards".ColourCommand()} - list boards exposed by the selected host");
 		sb.AppendLine($"\t{"use <board>".ColourCommand()} - select one hosted board");

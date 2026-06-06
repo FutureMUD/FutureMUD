@@ -31,6 +31,7 @@ public class MicrocontrollerGameItemComponent : PoweredMachineBaseGameItemCompon
 	private string _compileError = string.Empty;
 	private IConnectable? _mountedHost;
 	private long? _pendingMountedHostId;
+	private bool _propagatingSignal;
 
 	public MicrocontrollerGameItemComponent(MicrocontrollerGameItemComponentProto proto, IGameItem parent,
 		bool temporary = false)
@@ -233,6 +234,11 @@ public class MicrocontrollerGameItemComponent : PoweredMachineBaseGameItemCompon
 
 	private void HandleSourceSignalChanged(ISignalSourceComponent source, ComputerSignal signal)
 	{
+		if (_propagatingSignal || !double.IsFinite(signal.Value))
+		{
+			return;
+		}
+
 		foreach (var item in _inputSources.Where(x => ReferenceEquals(x.Value, source)).ToList())
 		{
 			_inputValues[item.Key] = signal.Value;
@@ -254,6 +260,12 @@ public class MicrocontrollerGameItemComponent : PoweredMachineBaseGameItemCompon
 			.ToArray();
 
 		var result = (double)_compiledLogic.ExecuteDecimal(0.0M, arguments);
+		if (!double.IsFinite(result))
+		{
+			SetOutput(default);
+			return;
+		}
+
 		SetOutput(new ComputerSignal(result, null, null));
 	}
 
@@ -357,7 +369,15 @@ public class MicrocontrollerGameItemComponent : PoweredMachineBaseGameItemCompon
 		}
 
 		_currentSignal = signal;
-		SignalChanged?.Invoke(this, _currentSignal);
+		_propagatingSignal = true;
+		try
+		{
+			SignalChanged?.Invoke(this, _currentSignal);
+		}
+		finally
+		{
+			_propagatingSignal = false;
+		}
 	}
 
 	public override bool Take(IGameItem item)

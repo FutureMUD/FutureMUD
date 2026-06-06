@@ -61,11 +61,20 @@ public class TimerSensorGameItemComponentProto : PoweredMachineBaseGameItemCompo
 	protected override void LoadFromXml(XElement root)
 	{
 		base.LoadFromXml(root);
-		ActiveValue = double.Parse(root.Element("ActiveValue")?.Value ?? "1.0");
-		InactiveValue = double.Parse(root.Element("InactiveValue")?.Value ?? "0.0");
-		ActiveDuration = TimeSpan.FromSeconds(double.Parse(root.Element("ActiveDurationSeconds")?.Value ?? "5.0"));
-		InactiveDuration =
-			TimeSpan.FromSeconds(double.Parse(root.Element("InactiveDurationSeconds")?.Value ?? "55.0"));
+		ActiveValue = TryParseFiniteDouble(root.Element("ActiveValue")?.Value ?? string.Empty, out var activeValue)
+			? activeValue
+			: 1.0;
+		InactiveValue = TryParseFiniteDouble(root.Element("InactiveValue")?.Value ?? string.Empty, out var inactiveValue)
+			? inactiveValue
+			: 0.0;
+		ActiveDuration = TimeSpan.FromSeconds(
+			TryParsePositiveDuration(root.Element("ActiveDurationSeconds")?.Value ?? string.Empty, out var activeDuration)
+				? activeDuration
+				: 5.0);
+		InactiveDuration = TimeSpan.FromSeconds(
+			TryParsePositiveDuration(root.Element("InactiveDurationSeconds")?.Value ?? string.Empty, out var inactiveDuration)
+				? inactiveDuration
+				: 55.0);
 		StartActive = bool.Parse(root.Element("StartActive")?.Value ?? "false");
 	}
 
@@ -113,7 +122,7 @@ public class TimerSensorGameItemComponentProto : PoweredMachineBaseGameItemCompo
 			return false;
 		}
 
-		if (!double.TryParse(command.SafeRemainingArgument, out var value))
+		if (!TryParseFiniteDouble(command.SafeRemainingArgument, out var value))
 		{
 			actor.Send("You must enter a valid number for the active signal value.");
 			return false;
@@ -134,7 +143,7 @@ public class TimerSensorGameItemComponentProto : PoweredMachineBaseGameItemCompo
 			return false;
 		}
 
-		if (!double.TryParse(command.SafeRemainingArgument, out var value))
+		if (!TryParseFiniteDouble(command.SafeRemainingArgument, out var value))
 		{
 			actor.Send("You must enter a valid number for the inactive signal value.");
 			return false;
@@ -155,7 +164,7 @@ public class TimerSensorGameItemComponentProto : PoweredMachineBaseGameItemCompo
 			return false;
 		}
 
-		if (!double.TryParse(command.SafeRemainingArgument, out var value) || value <= 0.0)
+		if (!TryParsePositiveDuration(command.SafeRemainingArgument, out var value))
 		{
 			actor.Send("You must enter a positive number of seconds.");
 			return false;
@@ -176,7 +185,7 @@ public class TimerSensorGameItemComponentProto : PoweredMachineBaseGameItemCompo
 			return false;
 		}
 
-		if (!double.TryParse(command.SafeRemainingArgument, out var value) || value <= 0.0)
+		if (!TryParsePositiveDuration(command.SafeRemainingArgument, out var value))
 		{
 			actor.Send("You must enter a positive number of seconds.");
 			return false;
@@ -216,6 +225,18 @@ public class TimerSensorGameItemComponentProto : PoweredMachineBaseGameItemCompo
 		actor.Send(
 			$"This timer sensor will now begin in its {(StartActive ? "active".ColourValue() : "inactive".ColourName())} phase.");
 		return true;
+	}
+
+	private static bool TryParseFiniteDouble(string text, out double value)
+	{
+		return double.TryParse(text, out value) && double.IsFinite(value);
+	}
+
+	private static bool TryParsePositiveDuration(string text, out double value)
+	{
+		return TryParseFiniteDouble(text, out value) &&
+		       value > 0.0 &&
+		       value <= TimeSpan.MaxValue.TotalSeconds;
 	}
 
 	public override bool CanSubmit()

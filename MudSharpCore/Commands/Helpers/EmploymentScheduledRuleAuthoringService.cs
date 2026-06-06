@@ -30,11 +30,13 @@ internal sealed class EmploymentScheduledRuleDraft
 	}
 
 	public EmploymentScheduledRuleDraft(IEmploymentHost host, string name, TimeSpan cooldown,
-		IEnumerable<IEmploymentTaskCondition> conditions, IEnumerable<IEmploymentActionStep> steps)
+		IEnumerable<IEmploymentTaskCondition> conditions, EmploymentConditionExpression? conditionExpression,
+		IEnumerable<IEmploymentActionStep> steps)
 		: this(host, name)
 	{
 		Cooldown = cooldown;
 		_conditions.AddRange(conditions);
+		ConditionExpression = conditionExpression;
 		_steps.AddRange(steps);
 	}
 
@@ -42,6 +44,7 @@ internal sealed class EmploymentScheduledRuleDraft
 	public string Name { get; }
 	public string IdempotencyKey { get; private set; }
 	public TimeSpan Cooldown { get; private set; }
+	public EmploymentConditionExpression? ConditionExpression { get; private set; }
 	public IReadOnlyList<IEmploymentTaskCondition> Conditions => _conditions;
 	public IReadOnlyList<IEmploymentActionStep> Steps => _steps;
 
@@ -53,6 +56,11 @@ internal sealed class EmploymentScheduledRuleDraft
 	public void SetCooldown(TimeSpan cooldown)
 	{
 		Cooldown = cooldown;
+	}
+
+	public void SetConditionExpression(EmploymentConditionExpression? expression)
+	{
+		ConditionExpression = expression;
 	}
 
 	public void AddCondition(IEmploymentTaskCondition condition)
@@ -73,6 +81,7 @@ internal sealed class EmploymentScheduledRuleDraft
 		}
 
 		_conditions.RemoveAt(index);
+		ConditionExpression = null;
 		return true;
 	}
 
@@ -145,7 +154,8 @@ internal sealed class EmploymentScheduledRuleAuthoringService
 		var name = string.IsNullOrWhiteSpace(newName) ? $"{rule.Name} copy" : newName.Trim();
 		RemoveDraft(actor, host);
 		actor.AddEffect(new EmploymentScheduledRuleDraftEffect(actor,
-			new EmploymentScheduledRuleDraft(host, name, rule.Cooldown, rule.Conditions, rule.ActionPlan.Steps)));
+			new EmploymentScheduledRuleDraft(host, name, rule.Cooldown, rule.Conditions, rule.ConditionExpression,
+				rule.ActionPlan.Steps)));
 		message =
 			$"You copy scheduled rule {rule.Name.ColourName()} into a new draft named {name.ColourName()}. The draft uses a new idempotency key; use {"tasks rule draft key <key>".ColourCommand()} if you want to override it.";
 		return true;
@@ -198,6 +208,36 @@ internal sealed class EmploymentScheduledRuleAuthoringService
 
 		draft.SetCooldown(cooldown);
 		message = $"You set the scheduled rule cooldown to {cooldown.Describe(actor).ColourValue()}.";
+		return true;
+	}
+
+	public bool TrySetDraftExpression(ICharacter actor, IEmploymentHost host, string text, out string message)
+	{
+		if (!TryRequireCreateRules(actor, host, out message))
+		{
+			return false;
+		}
+
+		var draft = DraftFor(actor, host);
+		if (draft is null)
+		{
+			message = $"You do not have an active scheduled employment rule draft for {host.EmploymentHostName.ColourName()}.";
+			return false;
+		}
+
+		if (!TryParseConditionExpression(text, draft.Conditions, host.TaskBoard, out var expression, out message))
+		{
+			return false;
+		}
+
+		var authority = EmploymentConditionExpressionEvaluator.RequiredAuthority(expression, draft.Conditions, host.TaskBoard);
+		if (!TryRequireAuthority(actor, host, authority.Authorities, out message))
+		{
+			return false;
+		}
+
+		draft.SetConditionExpression(expression);
+		message = $"You set the scheduled rule condition expression to {DescribeConditionExpression(expression, draft.Conditions).ColourCommand()}.";
 		return true;
 	}
 
@@ -355,6 +395,7 @@ internal sealed class EmploymentScheduledRuleAuthoringService
 		try
 		{
 			rule = host.TaskBoard.CreateScheduledRule(draft.Name, draft.IdempotencyKey, draft.Conditions,
+				draft.ConditionExpression,
 				draft.ToActionPlan(), draft.Cooldown, actor);
 			RemoveDraft(actor, host);
 			message = RenderCreatedRuleSummary(actor, rule);
@@ -467,7 +508,8 @@ internal sealed class EmploymentScheduledRuleAuthoringService
 		sb.AppendLine($"Scheduled employment rule draft {draft.Name.ColourName()} for {host.EmploymentHostName.ColourName()}:");
 		sb.AppendLine($"Idempotency Key: {draft.IdempotencyKey.ColourValue()}");
 		sb.AppendLine($"Cooldown: {draft.Cooldown.Describe(actor).ColourValue()}");
-		sb.AppendLine($"Condition Authority: {DescribeAuthority(RequiredConditionAuthority(draft.Conditions))}");
+		sb.AppendLine($"Condition Authority: {DescribeAuthority(EmploymentConditionExpressionEvaluator.RequiredAuthority(draft.ConditionExpression, draft.Conditions, host.TaskBoard).Authorities)}");
+		sb.AppendLine($"Condition Expression: {DescribeConditionExpression(draft.ConditionExpression, draft.Conditions).ColourCommand()}");
 		sb.AppendLine($"Action Authority: {plan.RequiredAuthority.Authorities.DescribeEnum().ColourName()}");
 		sb.AppendLine($"Required AI Capabilities: {DescribeCapabilities(plan.RequiredCapabilities)}");
 		sb.AppendLine();
@@ -483,7 +525,7 @@ internal sealed class EmploymentScheduledRuleAuthoringService
 		selector = selector.Trim();
 		sb.AppendLine("Employment Scheduled Rule Conditions".GetLineWithTitle(actor, Telnet.Cyan, Telnet.BoldWhite));
 		sb.AppendLine("Use these with ".ColourCommand() + "tasks rule condition <condition> ...".ColourCommand() + " while you have a rule draft open.");
-		sb.AppendLine("Conditions combine with AND in this slice; grouped OR expressions are deferred.");
+		sb.AppendLine("Drafts can use ".ColourCommand() + "tasks rule draft expression <expr>".ColourCommand() + " with #1, @predicate, and/or/not, and parentheses.");
 		sb.AppendLine();
 
 		if (!string.IsNullOrWhiteSpace(selector) && !selector.EqualTo("all"))
@@ -551,6 +593,17 @@ internal sealed class EmploymentScheduledRuleAuthoringService
 		{
 			var satisfied = condition.IsSatisfied(context, now, out var reason);
 			sb.AppendLine($"\t{DescribeCondition(condition, actor, host)} - {satisfied.ToColouredString()}{(satisfied ? string.Empty : $" - {reason.ColourError()}")}");
+		}
+
+		var expressionResult = EmploymentConditionExpressionEvaluator.Evaluate(
+			rule.ConditionExpression,
+			rule.Conditions.ToList(),
+			context,
+			now);
+		sb.AppendLine($"\tExpression: {DescribeConditionExpression(rule.ConditionExpression, rule.Conditions.ToList()).ColourCommand()} - {expressionResult.Satisfied.ToColouredString()}");
+		foreach (var leaf in expressionResult.Leaves)
+		{
+			sb.AppendLine($"\t\t{leaf.Label.ColourName()} - {leaf.Satisfied.ToColouredString()}{(leaf.Satisfied || string.IsNullOrWhiteSpace(leaf.Reason) ? string.Empty : $" - {leaf.Reason.ColourError()}")}");
 		}
 
 		var duplicate = host.TaskBoard.ActiveTasks.Any(x =>
@@ -637,6 +690,263 @@ internal sealed class EmploymentScheduledRuleAuthoringService
 		}
 	}
 
+	public string RenderPredicates(ICharacter actor, IEmploymentHost host, string? selector = null)
+	{
+		if (!string.IsNullOrWhiteSpace(selector))
+		{
+			var predicate = PredicateBySelector(host, selector);
+			if (predicate is null)
+			{
+				return $"There is no scheduled condition predicate matching {selector.ColourCommand()}.";
+			}
+
+			var sb = new StringBuilder();
+			sb.AppendLine($"Scheduled Condition Predicate - {predicate.Name.ColourName()}".GetLineWithTitle(actor,
+				Telnet.Cyan, Telnet.BoldWhite));
+			sb.AppendLine($"Expression: {DescribeConditionExpression(predicate.ConditionExpression, predicate.Conditions.ToList()).ColourCommand()}");
+			sb.AppendLine($"Condition Authority: {DescribeAuthority(predicate.RequiredAuthority.Authorities)}");
+			AppendConditionList(sb, actor, host, predicate.Conditions.ToList());
+			return sb.ToString();
+		}
+
+		var predicates = host.TaskBoard.ConditionPredicates.OrderBy(x => x.Name).ToList();
+		var list = new StringBuilder();
+		list.AppendLine("Scheduled Condition Predicates".GetLineWithTitle(actor, Telnet.Cyan, Telnet.BoldWhite));
+		if (!predicates.Any())
+		{
+			list.AppendLine("\tNone");
+			return list.ToString();
+		}
+
+		for (var i = 0; i < predicates.Count; i++)
+		{
+			list.AppendLine(
+				$"\t#{(i + 1).ToString("N0", actor)} - {predicates[i].Name.ColourName()} - {predicates[i].Conditions.Count.ToString("N0", actor).ColourValue()} condition{(predicates[i].Conditions.Count == 1 ? string.Empty : "s")}");
+		}
+
+		return list.ToString();
+	}
+
+	public bool TryCreatePredicateFromDraft(ICharacter actor, IEmploymentHost host, string name, out string message)
+	{
+		if (!TryRequireCreateRules(actor, host, out message))
+		{
+			return false;
+		}
+
+		var draft = DraftFor(actor, host);
+		if (draft is null)
+		{
+			message = $"You do not have an active scheduled employment rule draft for {host.EmploymentHostName.ColourName()}.";
+			return false;
+		}
+
+		if (string.IsNullOrWhiteSpace(name))
+		{
+			message = "What name should this scheduled condition predicate use?";
+			return false;
+		}
+
+		try
+		{
+			var predicate = host.TaskBoard.CreateConditionPredicate(name.Trim(), draft.Conditions,
+				draft.ConditionExpression, actor);
+			message = $"You create scheduled condition predicate {predicate.Name.ColourName()}.";
+			return true;
+		}
+		catch (InvalidOperationException ex)
+		{
+			message = ex.Message;
+			return false;
+		}
+	}
+
+	public bool TryCopyPredicateToDraft(ICharacter actor, IEmploymentHost host, string selector, string? newName,
+		out string message)
+	{
+		if (!TryRequireCreateRules(actor, host, out message))
+		{
+			return false;
+		}
+
+		var predicate = PredicateBySelector(host, selector);
+		if (predicate is null)
+		{
+			message = $"There is no scheduled condition predicate matching {selector.ColourCommand()}.";
+			return false;
+		}
+
+		var name = string.IsNullOrWhiteSpace(newName) ? $"{predicate.Name} rule" : newName.Trim();
+		RemoveDraft(actor, host);
+		actor.AddEffect(new EmploymentScheduledRuleDraftEffect(actor,
+			new EmploymentScheduledRuleDraft(host, name, TimeSpan.FromHours(1), predicate.Conditions,
+				predicate.ConditionExpression, [])));
+		message = $"You copy scheduled condition predicate {predicate.Name.ColourName()} into a rule draft named {name.ColourName()}.";
+		return true;
+	}
+
+	public bool TryCancelPredicate(ICharacter actor, IEmploymentHost host, string selector, string reason,
+		out string message)
+	{
+		var predicate = PredicateBySelector(host, selector);
+		if (predicate is null)
+		{
+			message = $"There is no scheduled condition predicate matching {selector.ColourCommand()}.";
+			return false;
+		}
+
+		try
+		{
+			if (!host.TaskBoard.CancelConditionPredicate(predicate, actor, reason))
+			{
+				message = $"Could not cancel scheduled condition predicate {predicate.Name.ColourName()}.";
+				return false;
+			}
+
+			message = $"You cancel scheduled condition predicate {predicate.Name.ColourName()}.";
+			return true;
+		}
+		catch (InvalidOperationException ex)
+		{
+			message = ex.Message;
+			return false;
+		}
+	}
+
+	public string RenderTemplates(ICharacter actor, IEmploymentHost host, string? selector = null)
+	{
+		if (!string.IsNullOrWhiteSpace(selector))
+		{
+			var template = TemplateBySelector(host, selector);
+			if (template is null)
+			{
+				return $"There is no scheduled rule template matching {selector.ColourCommand()}.";
+			}
+
+			var sb = new StringBuilder();
+			sb.AppendLine($"Scheduled Rule Template - {template.Name.ColourName()}".GetLineWithTitle(actor,
+				Telnet.Cyan, Telnet.BoldWhite));
+			sb.AppendLine($"Idempotency Key Pattern: {template.IdempotencyKeyPattern.ColourValue()}");
+			sb.AppendLine($"Cooldown: {template.Cooldown.Describe(actor).ColourValue()}");
+			sb.AppendLine($"Expression: {DescribeConditionExpression(template.ConditionExpression, template.Conditions.ToList()).ColourCommand()}");
+			sb.AppendLine($"Required Authority: {DescribeAuthority(template.RequiredAuthority.Authorities)}");
+			AppendConditionList(sb, actor, host, template.Conditions.ToList());
+			sb.AppendLine();
+			AppendStepList(sb, actor, template.ActionPlan.Steps);
+			return sb.ToString();
+		}
+
+		var templates = host.TaskBoard.ScheduledRuleTemplates.OrderBy(x => x.Name).ToList();
+		var list = new StringBuilder();
+		list.AppendLine("Scheduled Rule Templates".GetLineWithTitle(actor, Telnet.Cyan, Telnet.BoldWhite));
+		if (!templates.Any())
+		{
+			list.AppendLine("\tNone");
+			return list.ToString();
+		}
+
+		for (var i = 0; i < templates.Count; i++)
+		{
+			list.AppendLine(
+				$"\t#{(i + 1).ToString("N0", actor)} - {templates[i].Name.ColourName()} - {templates[i].Conditions.Count.ToString("N0", actor).ColourValue()} condition{(templates[i].Conditions.Count == 1 ? string.Empty : "s")} - {templates[i].ActionPlan.Steps.Count.ToString("N0", actor).ColourValue()} step{(templates[i].ActionPlan.Steps.Count == 1 ? string.Empty : "s")}");
+		}
+
+		return list.ToString();
+	}
+
+	public bool TrySaveTemplateFromDraft(ICharacter actor, IEmploymentHost host, string name, out string message)
+	{
+		if (!TryRequireCreateRules(actor, host, out message))
+		{
+			return false;
+		}
+
+		var draft = DraftFor(actor, host);
+		if (draft is null)
+		{
+			message = $"You do not have an active scheduled employment rule draft for {host.EmploymentHostName.ColourName()}.";
+			return false;
+		}
+
+		if (string.IsNullOrWhiteSpace(name))
+		{
+			name = draft.Name;
+		}
+
+		if (!draft.Conditions.Any() || !draft.Steps.Any())
+		{
+			message = "Scheduled rule templates need at least one condition and one action step.";
+			return false;
+		}
+
+		try
+		{
+			var template = host.TaskBoard.CreateScheduledRuleTemplate(name.Trim(), draft.IdempotencyKey,
+				draft.Conditions, draft.ConditionExpression, draft.ToActionPlan(), draft.Cooldown, actor);
+			message = $"You save scheduled rule template {template.Name.ColourName()}.";
+			return true;
+		}
+		catch (InvalidOperationException ex)
+		{
+			message = ex.Message;
+			return false;
+		}
+	}
+
+	public bool TryDraftFromTemplate(ICharacter actor, IEmploymentHost host, string selector, string? newName,
+		out string message)
+	{
+		if (!TryRequireCreateRules(actor, host, out message))
+		{
+			return false;
+		}
+
+		var template = TemplateBySelector(host, selector);
+		if (template is null)
+		{
+			message = $"There is no scheduled rule template matching {selector.ColourCommand()}.";
+			return false;
+		}
+
+		var name = string.IsNullOrWhiteSpace(newName) ? template.Name : newName.Trim();
+		RemoveDraft(actor, host);
+		var draft = new EmploymentScheduledRuleDraft(host, name, template.Cooldown, template.Conditions,
+			template.ConditionExpression, template.ActionPlan.Steps);
+		draft.SetKey(template.IdempotencyKeyPattern);
+		actor.AddEffect(new EmploymentScheduledRuleDraftEffect(actor,
+			draft));
+		message = $"You start a scheduled rule draft from template {template.Name.ColourName()} named {name.ColourName()}.";
+		return true;
+	}
+
+	public bool TryCancelTemplate(ICharacter actor, IEmploymentHost host, string selector, string reason,
+		out string message)
+	{
+		var template = TemplateBySelector(host, selector);
+		if (template is null)
+		{
+			message = $"There is no scheduled rule template matching {selector.ColourCommand()}.";
+			return false;
+		}
+
+		try
+		{
+			if (!host.TaskBoard.CancelScheduledRuleTemplate(template, actor, reason))
+			{
+				message = $"Could not cancel scheduled rule template {template.Name.ColourName()}.";
+				return false;
+			}
+
+			message = $"You cancel scheduled rule template {template.Name.ColourName()}.";
+			return true;
+		}
+		catch (InvalidOperationException ex)
+		{
+			message = ex.Message;
+			return false;
+		}
+	}
+
 	private static bool TrySetRuleStatus(ICharacter actor, IEmploymentHost host, string selector, string reason,
 		bool pause, out string message)
 	{
@@ -710,6 +1020,7 @@ internal sealed class EmploymentScheduledRuleAuthoringService
 			"shopaccount" => TryParseShopAccount(actor, input, out condition, out message),
 			"float" => TryParseFloat(actor, host, input, out condition, out message),
 			"tax" => TryParseTax(host, input, out condition, out message),
+			"marketprice" => TryParseMarketPrice(actor, host, input, out condition, out message),
 			"weather" => TryParseWeather(input, out condition, out message),
 			_ => UnknownCondition(conditionKey, out condition, out message)
 		};
@@ -737,10 +1048,18 @@ internal sealed class EmploymentScheduledRuleAuthoringService
 				$"shop float in {ShopFloatThresholdCondition.DescribeKey(shopFloat.FloatKey).ColourName()} {(shopFloat.BelowThreshold ? "below" : "at least").ColourCommand()} {DescribeConditionAmount(host, shopFloat.Threshold)}",
 			TaxOwingCondition tax =>
 				$"supported host taxes owing {(tax.AboveThreshold ? "above" : "below").ColourCommand()} {DescribeConditionAmount(host, tax.Threshold)}",
+			MarketPriceCondition marketPrice =>
+				$"market price {MarketPriceCondition.DescribeKey(marketPrice.PriceKey, host).ColourName()} {(marketPrice.AboveThreshold ? "above" : "below").ColourCommand()} {marketPrice.Threshold.ToString("N2", actor).ColourValue()}",
 			WeatherLevelCondition weather =>
 				$"weather begins as {WeatherLevelCondition.DescribeKey(weather.WeatherKey).ColourName()}",
 			_ => condition.ConditionType.DescribeEnum().ColourName()
 		};
+	}
+
+	public static string DescribeConditionExpression(EmploymentConditionExpression? expression,
+		IReadOnlyList<IEmploymentTaskCondition> conditions)
+	{
+		return EmploymentConditionExpressionEvaluator.Describe(expression, conditions);
 	}
 
 	public static void AppendConditionList(StringBuilder sb, ICharacter actor, IEmploymentHost host,
@@ -1228,6 +1547,113 @@ internal sealed class EmploymentScheduledRuleAuthoringService
 		return true;
 	}
 
+	private static bool TryParseMarketPrice(ICharacter actor, IEmploymentHost host, StringStack input,
+		out IEmploymentTaskCondition condition, out string message)
+	{
+		condition = null!;
+		if (input.IsFinished)
+		{
+			message = $"Market price conditions use the syntax: {"tasks rule condition marketprice merch <id|name> effective|base|multiplier|flat above|below <amount>".ColourCommand()} or {"tasks rule condition marketprice item <prototype> multiplier|flat above|below <amount>".ColourCommand()}";
+			return false;
+		}
+
+		var mode = input.PopSpeech().CollapseString().ToLowerInvariant();
+		string key;
+		switch (mode)
+		{
+			case "merch":
+			case "merchandise":
+				if (host is not IShop shop)
+				{
+					message = $"{host.EmploymentHostName.ColourName()} is not a shop and cannot use merchandise market-price conditions.";
+					return false;
+				}
+
+				var selectorTokens = PopTokensUntil(input, "effective", "base", "multiplier", "flat").ToList();
+				var selector = string.Join(" ", selectorTokens).Trim();
+				if (string.IsNullOrWhiteSpace(selector))
+				{
+					message = "Which merchandise record should this market-price condition inspect?";
+					return false;
+				}
+
+				var merchandise = long.TryParse(selector, out var merchandiseId)
+					? shop.Merchandises.FirstOrDefault(x => x.Id == merchandiseId)
+					: shop.Merchandises.FirstOrDefault(x => x.Name.EqualTo(selector));
+				if (merchandise is null)
+				{
+					message = $"There is no merchandise record matching {selector.ColourCommand()}.";
+					return false;
+				}
+
+				if (input.IsFinished)
+				{
+					message = "Which price metric do you want to inspect: effective, base, multiplier, or flat?";
+					return false;
+				}
+
+				var merchandiseMetric = input.PopSpeech().CollapseString().ToLowerInvariant();
+				if (!IsAny(merchandiseMetric, "effective", "base", "multiplier", "flat"))
+				{
+					message = "Market-price merchandise metrics are effective, base, multiplier, or flat.";
+					return false;
+				}
+
+				key = MarketPriceCondition.CreateMerchandiseKey(merchandise, merchandiseMetric);
+				break;
+			case "item":
+			case "prototype":
+			case "proto":
+				if (!EmploymentTaskAuthoringService.TryParseItemSelector(actor, input, "market price item prototype",
+					    out var selectorValue, out message) ||
+				    selectorValue?.Kind != EmploymentItemSelectorKind.PrototypeId ||
+				    selectorValue.Id is null ||
+				    actor.Gameworld?.ItemProtos.Get(selectorValue.Id.Value) is not { } prototype)
+				{
+					message = string.IsNullOrWhiteSpace(message)
+						? "Which item prototype should this market-price condition inspect?"
+						: message;
+					return false;
+				}
+
+				if (input.IsFinished)
+				{
+					message = "Item market-price conditions support multiplier or flat metrics.";
+					return false;
+				}
+
+				var itemMetric = input.PopSpeech().CollapseString().ToLowerInvariant();
+				if (!IsAny(itemMetric, "multiplier", "flat"))
+				{
+					message = "Item market-price conditions support multiplier or flat metrics.";
+					return false;
+				}
+
+				key = MarketPriceCondition.CreateItemKey(prototype, itemMetric);
+				break;
+			default:
+				message = $"Market price conditions use {"marketprice merch <id|name>".ColourCommand()} or {"marketprice item <prototype>".ColourCommand()}.";
+				return false;
+		}
+
+		if (!TryParseComparison(input, out var below, out message))
+		{
+			return false;
+		}
+
+		if (input.IsFinished ||
+		    !decimal.TryParse(input.PopSpeech(), NumberStyles.Number, actor, out var threshold) ||
+		    threshold < 0.0M)
+		{
+			message = "What non-negative threshold should this market-price condition use?";
+			return false;
+		}
+
+		condition = new MarketPriceCondition(key, threshold, !below);
+		message = string.Empty;
+		return true;
+	}
+
 	private static bool TryParseWeather(StringStack input, out IEmploymentTaskCondition condition, out string message)
 	{
 		condition = null!;
@@ -1319,6 +1745,260 @@ internal sealed class EmploymentScheduledRuleAuthoringService
 
 		return rules.FirstOrDefault(x => x.Name.EqualTo(selector)) ??
 		       rules.FirstOrDefault(x => x.Name.StartsWith(selector, StringComparison.InvariantCultureIgnoreCase));
+	}
+
+	private static IEmploymentConditionPredicate? PredicateBySelector(IEmploymentHost host, string selector)
+	{
+		var predicates = host.TaskBoard.ConditionPredicates
+		                     .OrderBy(x => x.Name)
+		                     .ToList();
+		if (!predicates.Any())
+		{
+			return null;
+		}
+
+		if (TryParseCommandNumber(selector, out var number))
+		{
+			return number >= 1 && number <= predicates.Count ? predicates[(int)number - 1] : null;
+		}
+
+		return predicates.FirstOrDefault(x => x.Name.EqualTo(selector)) ??
+		       predicates.FirstOrDefault(x => x.Name.StartsWith(selector, StringComparison.InvariantCultureIgnoreCase));
+	}
+
+	private static IEmploymentScheduledRuleTemplate? TemplateBySelector(IEmploymentHost host, string selector)
+	{
+		var templates = host.TaskBoard.ScheduledRuleTemplates
+		                    .OrderBy(x => x.Name)
+		                    .ToList();
+		if (!templates.Any())
+		{
+			return null;
+		}
+
+		if (TryParseCommandNumber(selector, out var number))
+		{
+			return number >= 1 && number <= templates.Count ? templates[(int)number - 1] : null;
+		}
+
+		return templates.FirstOrDefault(x => x.Name.EqualTo(selector)) ??
+		       templates.FirstOrDefault(x => x.Name.StartsWith(selector, StringComparison.InvariantCultureIgnoreCase));
+	}
+
+	private static bool TryParseConditionExpression(string text, IReadOnlyList<IEmploymentTaskCondition> conditions,
+		IEmploymentTaskBoard board, out EmploymentConditionExpression expression, out string message)
+	{
+		expression = null!;
+		var parser = new ConditionExpressionParser(TokeniseExpression(text));
+		if (!parser.TryParse(out expression, out message))
+		{
+			return false;
+		}
+
+		if (!EmploymentConditionExpressionEvaluator.Validate(expression, conditions, board, out message))
+		{
+			return false;
+		}
+
+		return true;
+	}
+
+	private static IReadOnlyList<string> TokeniseExpression(string text)
+	{
+		var tokens = new List<string>();
+		var current = new StringBuilder();
+		foreach (var ch in text)
+		{
+			if (char.IsWhiteSpace(ch))
+			{
+				Flush();
+				continue;
+			}
+
+			if (ch is '(' or ')')
+			{
+				Flush();
+				tokens.Add(ch.ToString());
+				continue;
+			}
+
+			current.Append(ch);
+		}
+
+		Flush();
+		return tokens;
+
+		void Flush()
+		{
+			if (current.Length == 0)
+			{
+				return;
+			}
+
+			tokens.Add(current.ToString());
+			current.Clear();
+		}
+	}
+
+	private sealed class ConditionExpressionParser
+	{
+		private readonly IReadOnlyList<string> _tokens;
+		private int _position;
+
+		public ConditionExpressionParser(IReadOnlyList<string> tokens)
+		{
+			_tokens = tokens;
+		}
+
+		public bool TryParse(out EmploymentConditionExpression expression, out string message)
+		{
+			expression = null!;
+			if (!_tokens.Any())
+			{
+				message = "Condition expressions cannot be blank.";
+				return false;
+			}
+
+			if (!TryParseOr(out expression, out message))
+			{
+				return false;
+			}
+
+			if (_position < _tokens.Count)
+			{
+				message = $"Unexpected expression token {_tokens[_position].ColourCommand()}.";
+				return false;
+			}
+
+			return true;
+		}
+
+		private bool TryParseOr(out EmploymentConditionExpression expression, out string message)
+		{
+			if (!TryParseAnd(out expression, out message))
+			{
+				return false;
+			}
+
+			var children = new List<EmploymentConditionExpression> { expression };
+			while (Peek("or"))
+			{
+				_position++;
+				if (!TryParseAnd(out var right, out message))
+				{
+					return false;
+				}
+
+				children.Add(right);
+			}
+
+			expression = children.Count == 1 ? children[0] : EmploymentConditionExpression.Any(children);
+			return true;
+		}
+
+		private bool TryParseAnd(out EmploymentConditionExpression expression, out string message)
+		{
+			if (!TryParseUnary(out expression, out message))
+			{
+				return false;
+			}
+
+			var children = new List<EmploymentConditionExpression> { expression };
+			while (Peek("and"))
+			{
+				_position++;
+				if (!TryParseUnary(out var right, out message))
+				{
+					return false;
+				}
+
+				children.Add(right);
+			}
+
+			expression = children.Count == 1 ? children[0] : EmploymentConditionExpression.All(children);
+			return true;
+		}
+
+		private bool TryParseUnary(out EmploymentConditionExpression expression, out string message)
+		{
+			if (Peek("not"))
+			{
+				_position++;
+				if (!TryParseUnary(out var child, out message))
+				{
+					expression = null!;
+					return false;
+				}
+
+				expression = EmploymentConditionExpression.Not(child);
+				return true;
+			}
+
+			return TryParsePrimary(out expression, out message);
+		}
+
+		private bool TryParsePrimary(out EmploymentConditionExpression expression, out string message)
+		{
+			expression = null!;
+			if (_position >= _tokens.Count)
+			{
+				message = "The expression ended unexpectedly.";
+				return false;
+			}
+
+			var token = _tokens[_position++];
+			if (token.EqualTo("("))
+			{
+				if (!TryParseOr(out expression, out message))
+				{
+					return false;
+				}
+
+				if (!Peek(")"))
+				{
+					message = "Missing closing parenthesis in condition expression.";
+					return false;
+				}
+
+				_position++;
+				return true;
+			}
+
+			if (token.StartsWith("#") && int.TryParse(token[1..], out var number))
+			{
+				expression = EmploymentConditionExpression.Condition(number);
+				message = string.Empty;
+				return true;
+			}
+
+			if (token.EqualTo("condition"))
+			{
+				if (_position >= _tokens.Count || !int.TryParse(_tokens[_position++].TrimStart('#'), out number))
+				{
+					message = "Condition references use #<number> or condition <number>.";
+					return false;
+				}
+
+				expression = EmploymentConditionExpression.Condition(number);
+				message = string.Empty;
+				return true;
+			}
+
+			if (token.StartsWith("@") && token.Length > 1)
+			{
+				expression = EmploymentConditionExpression.Predicate(token[1..]);
+				message = string.Empty;
+				return true;
+			}
+
+			message = $"Unexpected expression token {token.ColourCommand()}.";
+			return false;
+		}
+
+		private bool Peek(string token)
+		{
+			return _position < _tokens.Count && _tokens[_position].EqualTo(token);
+		}
 	}
 
 	private static void AppendStepList(StringBuilder sb, ICharacter actor, IReadOnlyList<IEmploymentActionStep> steps)

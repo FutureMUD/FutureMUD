@@ -1720,6 +1720,87 @@ public class EmploymentCommandServiceTests
 		StringAssert.Contains(message, "ManageStockRules");
 	}
 
+	[TestMethod]
+	public void EmploymentScheduledRuleAuthoring_DraftExpressionPredicateAndTemplateCommands_Work()
+	{
+		var currency = Currency();
+		IEmploymentHost host = new TestEmploymentHost(1, "market shop", currency.Object);
+		var manager = Character(88, "Manager").Object;
+		host.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.CreateScheduledRules |
+			EmploymentAuthority.ModifyScheduledRules |
+			EmploymentAuthority.PostToHostBoard), null);
+		var service = new EmploymentCommandService();
+		var authoring = new EmploymentScheduledRuleAuthoringService();
+
+		service.ExecuteForHost(manager, host, new StringStack("tasks rule draft new Reusable Window"));
+		service.ExecuteForHost(manager, host, new StringStack("tasks rule condition manual window-open"));
+		service.ExecuteForHost(manager, host, new StringStack("tasks rule draft expression #1"));
+		service.ExecuteForHost(manager, host, new StringStack("tasks rule predicate create window-open"));
+
+		Assert.AreEqual(1, host.TaskBoard.ConditionPredicates.Count);
+		StringAssert.Contains(authoring.RenderPredicates(manager, host, "1"), "window-open");
+
+		service.ExecuteForHost(manager, host, new StringStack("tasks rule draft new Window Notice"));
+		service.ExecuteForHost(manager, host, new StringStack("tasks rule condition manual override"));
+		service.ExecuteForHost(manager, host, new StringStack("tasks rule draft expression @window-open or #1"));
+		service.ExecuteForHost(manager, host, new StringStack("tasks rule step board Window = Open the shop."));
+		service.ExecuteForHost(manager, host, new StringStack("tasks rule draft key window-template-key"));
+		service.ExecuteForHost(manager, host, new StringStack("tasks rule template save Window Template"));
+		Assert.AreEqual(1, host.TaskBoard.ScheduledRuleTemplates.Count);
+		Assert.AreEqual("window-template-key", host.TaskBoard.ScheduledRuleTemplates.Single().IdempotencyKeyPattern);
+		StringAssert.Contains(authoring.RenderTemplates(manager, host, "1"), "Window Template");
+
+		service.ExecuteForHost(manager, host, new StringStack("tasks rule draft discard"));
+		service.ExecuteForHost(manager, host, new StringStack("tasks rule template draft 1 Window Live"));
+		service.ExecuteForHost(manager, host, new StringStack("tasks rule draft finalise"));
+
+		var rule = host.TaskBoard.ScheduledRules.Single();
+		Assert.IsNotNull(rule.ConditionExpression);
+		Assert.AreEqual("window-template-key", rule.IdempotencyKey);
+		StringAssert.Contains(service.RenderTaskDetail(manager, host, "1"), "@window-open");
+		Assert.IsTrue(authoring.TryEvaluate(manager, host, "1", "window-open", out var message), message);
+		Assert.AreEqual(1, host.TaskBoard.ActiveTasks.Count);
+
+		service.ExecuteForHost(manager, host, new StringStack("tasks rule draft new Bad Expression"));
+		service.ExecuteForHost(manager, host, new StringStack("tasks rule condition manual bad"));
+		Assert.IsFalse(authoring.TrySetDraftExpression(manager, host, "@missing", out message));
+		StringAssert.Contains(message, "does not exist");
+
+		Assert.IsTrue(authoring.TryCancelPredicate(manager, host, "1", "test cleanup", out message), message);
+		Assert.AreEqual(0, host.TaskBoard.ConditionPredicates.Count);
+		Assert.IsTrue(authoring.TryCancelTemplate(manager, host, "1", "test cleanup", out message), message);
+		Assert.AreEqual(0, host.TaskBoard.ScheduledRuleTemplates.Count);
+	}
+
+	[TestMethod]
+	public void EmploymentScheduledRuleAuthoring_MarketPriceCondition_ParsesAndEvaluates()
+	{
+		var currency = Currency();
+		var manager = Character(89, "Manager").Object;
+		var merchandise = new Mock<IMerchandise>();
+		merchandise.SetupGet(x => x.Id).Returns(44);
+		merchandise.SetupGet(x => x.Name).Returns("silk");
+		merchandise.SetupGet(x => x.BasePrice).Returns(10.0M);
+		merchandise.SetupGet(x => x.EffectivePrice).Returns(15.0M);
+		var host = EmploymentHostMock<IShop>(1, "market shop", EmploymentHostType.Shop, out _);
+		host.SetupGet(x => x.Currency).Returns(currency.Object);
+		host.SetupGet(x => x.Merchandises).Returns([merchandise.Object]);
+
+		var authoring = new EmploymentScheduledRuleAuthoringService();
+		Assert.IsTrue(authoring.TryParseCondition(manager, host.Object,
+			new StringStack("marketprice merch silk effective above 12.50"), out var condition, out var message),
+			message);
+		Assert.IsInstanceOfType(condition, typeof(MarketPriceCondition));
+		Assert.IsTrue(condition.IsSatisfied(new EmploymentTaskContext(host.Object), DateTimeOffset.UtcNow,
+			out var reason), reason);
+
+		Assert.IsTrue(authoring.TryParseCondition(manager, host.Object,
+			new StringStack("marketprice merch 44 base below 12.50"), out condition, out message), message);
+		Assert.IsTrue(condition.IsSatisfied(new EmploymentTaskContext(host.Object), DateTimeOffset.UtcNow,
+			out reason), reason);
+	}
+
 	private static Mock<T> HostMock<T>(long id, string name)
 		where T : class, IEmploymentHost
 	{

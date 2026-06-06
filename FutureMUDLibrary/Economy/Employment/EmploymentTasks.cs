@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Framework;
@@ -31,7 +32,8 @@ public enum EmploymentTaskConditionType
 	ShopAccountOwing,
 	ShopFloatThreshold,
 	WeatherLevel,
-	TaxOwing
+	TaxOwing,
+	MarketPrice
 }
 
 public enum EmploymentScheduledRuleStatus
@@ -40,12 +42,55 @@ public enum EmploymentScheduledRuleStatus
 	Paused
 }
 
+public enum EmploymentConditionExpressionKind
+{
+	All,
+	Any,
+	Not,
+	Condition,
+	Predicate
+}
+
 public interface IEmploymentTaskCondition
 {
 	EmploymentTaskConditionType ConditionType { get; }
 	EmploymentAuthoritySet RequiredAuthority { get; }
 	bool IsSatisfied(IEmploymentTaskContext context, DateTimeOffset now, out string reason);
 }
+
+public sealed record EmploymentConditionExpression(
+	EmploymentConditionExpressionKind Kind,
+	int? ConditionNumber = null,
+	string? PredicateName = null,
+	IReadOnlyList<EmploymentConditionExpression>? Children = null)
+{
+	public static EmploymentConditionExpression All(IEnumerable<EmploymentConditionExpression> children) =>
+		new(EmploymentConditionExpressionKind.All, Children: children.ToList());
+
+	public static EmploymentConditionExpression Any(IEnumerable<EmploymentConditionExpression> children) =>
+		new(EmploymentConditionExpressionKind.Any, Children: children.ToList());
+
+	public static EmploymentConditionExpression Not(EmploymentConditionExpression child) =>
+		new(EmploymentConditionExpressionKind.Not, Children: [child]);
+
+	public static EmploymentConditionExpression Condition(int conditionNumber) =>
+		new(EmploymentConditionExpressionKind.Condition, ConditionNumber: conditionNumber);
+
+	public static EmploymentConditionExpression Predicate(string predicateName) =>
+		new(EmploymentConditionExpressionKind.Predicate, PredicateName: predicateName);
+
+	public IReadOnlyList<EmploymentConditionExpression> ChildExpressions => Children ?? [];
+}
+
+public sealed record EmploymentConditionLeafEvaluation(
+	string Label,
+	bool Satisfied,
+	string Reason);
+
+public sealed record EmploymentConditionExpressionEvaluation(
+	bool Satisfied,
+	string Reason,
+	IReadOnlyList<EmploymentConditionLeafEvaluation> Leaves);
 
 public enum EmploymentActionStepType
 {
@@ -285,6 +330,7 @@ public interface IEmploymentScheduledTaskRule
 	string Name { get; }
 	string IdempotencyKey { get; }
 	IReadOnlyCollection<IEmploymentTaskCondition> Conditions { get; }
+	EmploymentConditionExpression? ConditionExpression { get; }
 	EmploymentActionPlan ActionPlan { get; }
 	EmploymentScheduledRuleStatus Status { get; }
 	TimeSpan Cooldown { get; }
@@ -292,13 +338,49 @@ public interface IEmploymentScheduledTaskRule
 	bool CanSpawn(IEmploymentTaskContext context, DateTimeOffset now, out string reason);
 }
 
+public interface IEmploymentConditionPredicate
+{
+	Guid Id { get; }
+	IEmploymentHost Employer { get; }
+	string Name { get; }
+	IReadOnlyCollection<IEmploymentTaskCondition> Conditions { get; }
+	EmploymentConditionExpression? ConditionExpression { get; }
+	EmploymentAuthoritySet RequiredAuthority { get; }
+}
+
+public interface IEmploymentScheduledRuleTemplate
+{
+	Guid Id { get; }
+	IEmploymentHost Employer { get; }
+	string Name { get; }
+	string IdempotencyKeyPattern { get; }
+	IReadOnlyCollection<IEmploymentTaskCondition> Conditions { get; }
+	EmploymentConditionExpression? ConditionExpression { get; }
+	EmploymentActionPlan ActionPlan { get; }
+	TimeSpan Cooldown { get; }
+	EmploymentAuthoritySet RequiredAuthority { get; }
+}
+
 public interface IEmploymentTaskBoard
 {
 	IReadOnlyCollection<IEmploymentScheduledTaskRule> ScheduledRules { get; }
+	IReadOnlyCollection<IEmploymentConditionPredicate> ConditionPredicates { get; }
+	IReadOnlyCollection<IEmploymentScheduledRuleTemplate> ScheduledRuleTemplates { get; }
 	IReadOnlyCollection<IEmploymentActiveTask> ActiveTasks { get; }
 	IEmploymentScheduledTaskRule CreateScheduledRule(string name, string idempotencyKey,
 		IEnumerable<IEmploymentTaskCondition> conditions, EmploymentActionPlan actionPlan, TimeSpan cooldown,
 		ICharacter? authorisedBy);
+	IEmploymentScheduledTaskRule CreateScheduledRule(string name, string idempotencyKey,
+		IEnumerable<IEmploymentTaskCondition> conditions, EmploymentConditionExpression? conditionExpression,
+		EmploymentActionPlan actionPlan, TimeSpan cooldown, ICharacter? authorisedBy);
+	IEmploymentConditionPredicate CreateConditionPredicate(string name,
+		IEnumerable<IEmploymentTaskCondition> conditions, EmploymentConditionExpression? conditionExpression,
+		ICharacter? authorisedBy);
+	bool CancelConditionPredicate(IEmploymentConditionPredicate predicate, ICharacter? cancelledBy, string reason);
+	IEmploymentScheduledRuleTemplate CreateScheduledRuleTemplate(string name, string idempotencyKeyPattern,
+		IEnumerable<IEmploymentTaskCondition> conditions, EmploymentConditionExpression? conditionExpression,
+		EmploymentActionPlan actionPlan, TimeSpan cooldown, ICharacter? authorisedBy);
+	bool CancelScheduledRuleTemplate(IEmploymentScheduledRuleTemplate template, ICharacter? cancelledBy, string reason);
 	IEmploymentActiveTask CreateActiveTask(string name, EmploymentActionPlan actionPlan, ICharacter? authorisedBy,
 		Guid? correlationId = null);
 	bool CancelActiveTask(IEmploymentActiveTask task, ICharacter? cancelledBy, string reason);

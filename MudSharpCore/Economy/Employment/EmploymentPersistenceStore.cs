@@ -21,6 +21,7 @@ using DbActiveTask = MudSharp.Models.EmploymentActiveTaskRecord;
 using DbActiveTaskStepState = MudSharp.Models.EmploymentActiveTaskStepStateRecord;
 using DbApplication = MudSharp.Models.EmploymentApplicationRecord;
 using DbContract = MudSharp.Models.EmploymentContractRecord;
+using DbConditionPredicate = MudSharp.Models.EmploymentConditionPredicateRecord;
 using DbHostState = MudSharp.Models.EmploymentHostState;
 using DbJobOpening = MudSharp.Models.EmploymentJobOpeningRecord;
 using DbJobRequirement = MudSharp.Models.EmploymentJobOpeningRequirement;
@@ -29,6 +30,7 @@ using DbManagerGoal = MudSharp.Models.EmploymentManagerGoalRecord;
 using DbPayable = MudSharp.Models.EmploymentPayableRecord;
 using DbRegisterEntry = MudSharp.Models.EmploymentRegisterEntryRecord;
 using DbScheduledRule = MudSharp.Models.EmploymentScheduledTaskRuleRecord;
+using DbScheduledRuleTemplate = MudSharp.Models.EmploymentScheduledRuleTemplateRecord;
 using DbTaskCondition = MudSharp.Models.EmploymentTaskConditionRecord;
 using DbBoard = MudSharp.Models.Board;
 
@@ -386,6 +388,7 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 				Name = rule.Name,
 				IdempotencyKey = rule.IdempotencyKey,
 				EmploymentActionPlanId = planId,
+				ExpressionJson = SerializeExpression(rule.ConditionExpression),
 				Status = (int)rule.Status,
 				CooldownTicks = rule.Cooldown.Ticks,
 				LastSpawnedAt = rule.LastSpawnedAt?.UtcDateTime
@@ -429,6 +432,92 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 			}
 
 			context.EmploymentScheduledTaskRules.Remove(dbitem);
+			Touch(context);
+			context.SaveChanges();
+		});
+	}
+
+	public void SaveConditionPredicate(EmploymentConditionPredicate predicate)
+	{
+		WithContext(context =>
+		{
+			if (context.EmploymentConditionPredicates.Any(x => x.PublicId == predicate.Id.ToString("D")))
+			{
+				return;
+			}
+
+			var dbitem = new DbConditionPredicate
+			{
+				PublicId = predicate.Id.ToString("D"),
+				EmploymentHostStateId = StateId,
+				Name = predicate.Name,
+				ExpressionJson = SerializeExpression(predicate.ConditionExpression)
+			};
+			context.EmploymentConditionPredicates.Add(dbitem);
+			AddConditions(dbitem.Conditions, predicate.Conditions);
+			Touch(context);
+			context.SaveChanges();
+		});
+	}
+
+	public void DeleteConditionPredicate(EmploymentConditionPredicate predicate)
+	{
+		WithContext(context =>
+		{
+			var dbitem = context.EmploymentConditionPredicates
+			                    .Include(x => x.Conditions)
+			                    .FirstOrDefault(x => x.PublicId == predicate.Id.ToString("D"));
+			if (dbitem is null)
+			{
+				return;
+			}
+
+			context.EmploymentConditionPredicates.Remove(dbitem);
+			Touch(context);
+			context.SaveChanges();
+		});
+	}
+
+	public void SaveScheduledRuleTemplate(EmploymentScheduledRuleTemplate template)
+	{
+		WithContext(context =>
+		{
+			if (context.EmploymentScheduledRuleTemplates.Any(x => x.PublicId == template.Id.ToString("D")))
+			{
+				return;
+			}
+
+			var planId = SaveActionPlan(context, $"{template.Name} template action plan", template.ActionPlan);
+			var dbitem = new DbScheduledRuleTemplate
+			{
+				PublicId = template.Id.ToString("D"),
+				EmploymentHostStateId = StateId,
+				Name = template.Name,
+				IdempotencyKeyPattern = template.IdempotencyKeyPattern,
+				EmploymentActionPlanId = planId,
+				ExpressionJson = SerializeExpression(template.ConditionExpression),
+				CooldownTicks = template.Cooldown.Ticks
+			};
+			context.EmploymentScheduledRuleTemplates.Add(dbitem);
+			AddConditions(dbitem.Conditions, template.Conditions);
+			Touch(context);
+			context.SaveChanges();
+		});
+	}
+
+	public void DeleteScheduledRuleTemplate(EmploymentScheduledRuleTemplate template)
+	{
+		WithContext(context =>
+		{
+			var dbitem = context.EmploymentScheduledRuleTemplates
+			                    .Include(x => x.Conditions)
+			                    .FirstOrDefault(x => x.PublicId == template.Id.ToString("D"));
+			if (dbitem is null)
+			{
+				return;
+			}
+
+			context.EmploymentScheduledRuleTemplates.Remove(dbitem);
 			Touch(context);
 			context.SaveChanges();
 		});
@@ -618,6 +707,23 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 		                      .Select(ToPayable)
 		                      .OfType<IEmploymentPayable>()
 		                      .ToList();
+		var conditionPredicates = context.EmploymentConditionPredicates
+		                                 .Include(x => x.Conditions)
+		                                 .Where(x => x.EmploymentHostStateId == StateId)
+		                                 .AsNoTracking()
+		                                 .ToList()
+		                                 .Select(ToConditionPredicate)
+		                                 .OfType<IEmploymentConditionPredicate>()
+		                                 .ToList();
+		var scheduledRuleTemplates = context.EmploymentScheduledRuleTemplates
+		                                    .Include(x => x.Conditions)
+		                                    .Where(x => x.EmploymentHostStateId == StateId)
+		                                    .AsNoTracking()
+		                                    .ToList()
+		                                    .Select(x => ToScheduledRuleTemplate(x,
+			                                    RuntimePlan(x.EmploymentActionPlanId)))
+		                                    .OfType<IEmploymentScheduledRuleTemplate>()
+		                                    .ToList();
 		var scheduledRules = context.EmploymentScheduledTaskRules
 		                            .Include(x => x.Conditions)
 		                            .Where(x => x.EmploymentHostStateId == StateId)
@@ -656,7 +762,9 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 			registerEntries,
 			scheduledRules,
 			activeTasks,
-			managerGoals);
+			managerGoals,
+			conditionPredicates,
+			scheduledRuleTemplates);
 	}
 
 	private static IFuturemud? ResolveGameworld(IEmploymentHost host)
@@ -1648,10 +1756,39 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 				record.Name,
 				record.IdempotencyKey,
 				record.Conditions.OrderBy(x => x.SortOrder).Select(ToCondition).OfType<IEmploymentTaskCondition>(),
+				TryDeserializeExpression(record.ExpressionJson),
 				actionPlan,
 				TimeSpan.FromTicks(record.CooldownTicks),
 				ToNullableOffset(record.LastSpawnedAt),
 				(EmploymentScheduledRuleStatus)record.Status)
+			: null;
+	}
+
+	private EmploymentConditionPredicate? ToConditionPredicate(DbConditionPredicate record)
+	{
+		return Guid.TryParse(record.PublicId, out var id)
+			? new EmploymentConditionPredicate(
+				id,
+				_host,
+				record.Name,
+				record.Conditions.OrderBy(x => x.SortOrder).Select(ToCondition).OfType<IEmploymentTaskCondition>(),
+				TryDeserializeExpression(record.ExpressionJson))
+			: null;
+	}
+
+	private EmploymentScheduledRuleTemplate? ToScheduledRuleTemplate(DbScheduledRuleTemplate record,
+		EmploymentActionPlan actionPlan)
+	{
+		return Guid.TryParse(record.PublicId, out var id)
+			? new EmploymentScheduledRuleTemplate(
+				id,
+				_host,
+				record.Name,
+				record.IdempotencyKeyPattern,
+				record.Conditions.OrderBy(x => x.SortOrder).Select(ToCondition).OfType<IEmploymentTaskCondition>(),
+				TryDeserializeExpression(record.ExpressionJson),
+				actionPlan,
+				TimeSpan.FromTicks(record.CooldownTicks))
 			: null;
 	}
 
@@ -1735,6 +1872,9 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 				new WeatherLevelCondition(record.Key ?? string.Empty),
 			EmploymentTaskConditionType.TaxOwing =>
 				new TaxOwingCondition(record.ThresholdDecimal ?? 0.0M, record.BoolValue ?? true),
+			EmploymentTaskConditionType.MarketPrice =>
+				new MarketPriceCondition(record.Key ?? string.Empty, record.ThresholdDecimal ?? 0.0M,
+					record.BoolValue ?? true),
 			_ => null
 		};
 	}
@@ -1802,9 +1942,36 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 				record.ThresholdDecimal = tax.Threshold;
 				record.BoolValue = tax.AboveThreshold;
 				break;
+			case MarketPriceCondition marketPrice:
+				record.Key = marketPrice.PriceKey;
+				record.ThresholdDecimal = marketPrice.Threshold;
+				record.BoolValue = marketPrice.AboveThreshold;
+				break;
 		}
 
 		return record;
+	}
+
+	private static string? SerializeExpression(EmploymentConditionExpression? expression)
+	{
+		return expression is null ? null : JsonSerializer.Serialize(expression);
+	}
+
+	private static EmploymentConditionExpression? TryDeserializeExpression(string? text)
+	{
+		if (string.IsNullOrWhiteSpace(text))
+		{
+			return null;
+		}
+
+		try
+		{
+			return JsonSerializer.Deserialize<EmploymentConditionExpression>(text);
+		}
+		catch (JsonException)
+		{
+			return null;
+		}
 	}
 
 	private static EmploymentActionStepOperationalState ToOperationalState(DbActiveTaskStepState record)

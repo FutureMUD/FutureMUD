@@ -45,6 +45,7 @@ using MudSharp.FutureProg.Functions;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Components;
 using MudSharp.GameItems.Groups;
+using MudSharp.GameItems.Inventory;
 using MudSharp.GameItems.Prototypes;
 using MudSharp.Health.Corpses;
 using MudSharp.Health.Strategies;
@@ -349,6 +350,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, IDisposabl
             game.LoadGameItemProtos(); // Depends on LoadHealthStrategies, LoadGameItemComponentProtos and LoadGameItemGroups
             game.LoadVehiclePrototypes(); // Depends on LoadGameItemProtos and Vehicle Exterior item components
             game.LoadGameItemSkins();
+            game.LoadOutfitTemplates();
 
             // End Game Item Related Loads
 
@@ -3960,6 +3962,29 @@ For information on the syntax to use in emotes (such as those included in bracke
 
         int count = _itemProtos.Count();
         ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Game Item Proto" : "Game Item Protos");
+    }
+
+    void IFuturemudLoader.LoadOutfitTemplates()
+    {
+        ConsoleUtilities.WriteLine("\nLoading #5Outfit Templates#0...");
+#if DEBUG
+        Stopwatch sw = new();
+        sw.Start();
+#endif
+        var templates = FMDB.Context.OutfitTemplates
+                            .Include(x => x.OutfitTemplateItems)
+                            .AsNoTracking()
+                            .ToList();
+        foreach (var template in templates)
+        {
+            _outfitTemplates.Add(new TemplateOutfit(template, this));
+        }
+#if DEBUG
+        sw.Stop();
+        ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
+#endif
+        int count = _outfitTemplates.Count();
+        ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Outfit Template" : "Outfit Templates");
     }
 
     void IFuturemudLoader.LoadVehiclePrototypes()

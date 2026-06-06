@@ -201,6 +201,7 @@ namespace MudSharp.Framework
         IUneditableAll<IGameItemGroup> ItemGroups { get; }
         IUneditableRevisableAll<IGameItemComponentProto> ItemComponentProtos { get; }
         IUneditableRevisableAll<IGameItemProto> ItemProtos { get; }
+        IUneditableAll<IOutfitTemplate> OutfitTemplates { get; }
         IUneditableAll<IGameItem> Items { get; }
         IUneditableRevisableAll<IGameItemSkin> ItemSkins { get; }
         IUneditableAll<IJobListing> JobListings { get; }
@@ -538,6 +539,7 @@ namespace MudSharp.Framework
         void Add(IBody body);
         void Add(ICharacter actor, bool isNPC);
         void Add(IGameItem item);
+        void Add(IOutfitTemplate template);
         void Add(ICellOverlayPackage package);
         void Add(IGameItemProto proto);
         void Add(IGameItemComponentProto proto);

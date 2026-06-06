@@ -4,6 +4,7 @@ using MudSharp.Effects.Concrete;
 using MudSharp.Framework;
 using MudSharp.Framework.Revision;
 using MudSharp.GameItems;
+using MudSharp.GameItems.Inventory;
 using MudSharp.GameItems.Interfaces;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +13,130 @@ namespace MudSharp.Commands.Helpers;
 
 public partial class EditableItemHelper
 {
+	public static EditableItemHelper OutfitTemplateHelper { get; } = new()
+	{
+		ItemName = "Outfit Template",
+		ItemNamePlural = "Outfit Templates",
+		SetEditableItemAction = (actor, item) =>
+		{
+			actor.RemoveAllEffects<BuilderEditingEffect<IOutfitTemplate>>();
+			if (item is null)
+			{
+				return;
+			}
+
+			actor.AddEffect(new BuilderEditingEffect<IOutfitTemplate>(actor)
+			{
+				EditingItem = (IOutfitTemplate)item
+			});
+		},
+		GetEditableItemFunc = actor =>
+			actor.CombinedEffectsOfType<BuilderEditingEffect<IOutfitTemplate>>()
+			     .FirstOrDefault()
+			     ?.EditingItem,
+		GetAllEditableItems = actor => actor.Gameworld.OutfitTemplates
+		                                    .Cast<IEditableItem>()
+		                                    .ToList(),
+		GetEditableItemByIdFunc = (actor, id) => actor.Gameworld.OutfitTemplates.Get(id),
+		GetEditableItemByIdOrNameFunc = (actor, input) => actor.Gameworld.OutfitTemplates.GetByIdOrName(input),
+		AddItemToGameWorldAction = item => item.Gameworld.Add((IOutfitTemplate)item),
+		CastToType = typeof(IOutfitTemplate),
+		EditableNewAction = (actor, input) =>
+		{
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send("What name do you want to give your new outfit template?");
+				return;
+			}
+
+			var name = input.SafeRemainingArgument.TitleCase();
+			if (actor.Gameworld.OutfitTemplates.Any(x => x.Name.EqualTo(name)))
+			{
+				actor.OutputHandler.Send($"There is already an outfit template named {name.ColourName()}.");
+				return;
+			}
+
+			var template = new TemplateOutfit(actor.Gameworld, name);
+			actor.Gameworld.Add(template);
+			actor.RemoveAllEffects<BuilderEditingEffect<IOutfitTemplate>>();
+			actor.AddEffect(new BuilderEditingEffect<IOutfitTemplate>(actor) { EditingItem = template });
+			actor.OutputHandler.Send(
+				$"You create a new outfit template called {name.ColourName()}, which you are now editing.");
+		},
+		EditableCloneAction = (actor, input) =>
+		{
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send("Which outfit template do you want to clone?");
+				return;
+			}
+
+			var source = actor.Gameworld.OutfitTemplates.GetByIdOrName(input.PopSpeech());
+			if (source is null)
+			{
+				actor.OutputHandler.Send("There is no such outfit template.");
+				return;
+			}
+
+			if (input.IsFinished)
+			{
+				actor.OutputHandler.Send("What name do you want to give the cloned outfit template?");
+				return;
+			}
+
+			var name = input.SafeRemainingArgument.TitleCase();
+			if (actor.Gameworld.OutfitTemplates.Any(x => x.Name.EqualTo(name)))
+			{
+				actor.OutputHandler.Send($"There is already an outfit template named {name.ColourName()}.");
+				return;
+			}
+
+			var clone = source.Clone(name);
+			actor.Gameworld.Add(clone);
+			actor.RemoveAllEffects<BuilderEditingEffect<IOutfitTemplate>>();
+			actor.AddEffect(new BuilderEditingEffect<IOutfitTemplate>(actor) { EditingItem = clone });
+			actor.OutputHandler.Send(
+				$"You clone {source.Name.ColourName()} into a new outfit template called {name.ColourName()}, which you are now editing.");
+		},
+		GetListTableHeaderFunc = character => new List<string>
+		{
+			"Id",
+			"Name",
+			"Items",
+			"Exclusivity",
+			"Warnings"
+		},
+		GetListTableContentsFunc = (character, protos) => from proto in protos.OfType<IOutfitTemplate>()
+		                                                  select new List<string>
+		                                                  {
+			                                                  proto.Id.ToString("N0", character),
+			                                                  proto.Name,
+			                                                  proto.Items.Count().ToString("N0", character),
+			                                                  proto.Exclusivity.Describe(),
+			                                                  proto.ValidationWarnings.Count().ToString("N0", character)
+		                                                  },
+		CustomSearch = (protos, keyword, gameworld) =>
+		{
+			if (keyword.Length > 1 && keyword[0] == '+')
+			{
+				keyword = keyword[1..];
+				return protos
+				       .OfType<IOutfitTemplate>()
+				       .Where(x => x.Name.Contains(keyword, System.StringComparison.InvariantCultureIgnoreCase) ||
+				                   x.Description.Contains(keyword, System.StringComparison.InvariantCultureIgnoreCase) ||
+				                   x.Items.Any(y => y.TemplateKey.Contains(keyword, System.StringComparison.InvariantCultureIgnoreCase)))
+				       .Cast<IEditableItem>()
+				       .ToList();
+			}
+
+			return protos
+			       .Where(x => x.Name.Contains(keyword, System.StringComparison.InvariantCultureIgnoreCase))
+			       .ToList();
+		},
+		GetEditHeader = item => $"Outfit Template #{item.Id:N0} ({item.Name})",
+		DefaultCommandHelp = ItemBuilderModule.OutfitTemplateHelp
+	};
+
 	public static EditableItemHelper CommoditySpoilageRuleHelper { get; } = new()
 	{
 		ItemName = "Commodity Spoilage Rule",

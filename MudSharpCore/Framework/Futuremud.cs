@@ -1247,6 +1247,11 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
         _commoditySpoilageRules.Add(item);
     }
 
+    public void Add(IOutfitTemplate template)
+    {
+        _outfitTemplates.Add(template);
+    }
+
     public void Add(ICell cell)
     {
         _cells.Add(cell);

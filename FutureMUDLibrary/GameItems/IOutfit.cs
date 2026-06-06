@@ -1,8 +1,10 @@
 ﻿using JetBrains.Annotations;
 using MudSharp.Character;
 using MudSharp.Framework;
+using MudSharp.Framework.Revision;
 using MudSharp.FutureProg;
 using MudSharp.GameItems.Inventory;
+using MudSharp.GameItems.Prototypes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,6 +19,14 @@ namespace MudSharp.GameItems
         NonExclusive,
         ExcludeItemsBelow,
         ExcludeAllItems
+    }
+
+    public enum OutfitTemplateItemPlacement
+    {
+        Worn,
+        Inventory,
+        Room,
+        Container
     }
 
     public interface IOutfit : IProgVariable
@@ -39,6 +49,7 @@ namespace MudSharp.GameItems
     public interface IOutfitItem : IKeyworded, IProgVariable
     {
         long Id { get; }
+        [CanBeNull] IGameItem Item { get; }
         string ItemDescription { get; set; }
         long? PreferredContainerId { get; set; }
         [CanBeNull] string PreferredContainerDescription { get; set; }
@@ -46,5 +57,26 @@ namespace MudSharp.GameItems
         IWearProfile DesiredProfile { get; set; }
         XElement SaveToXml();
 
+    }
+
+    public interface IOutfitTemplate : IEditableItem
+    {
+        string Description { get; set; }
+        OutfitExclusivity Exclusivity { get; set; }
+        IEnumerable<IOutfitTemplateItem> Items { get; }
+        IEnumerable<string> ValidationWarnings { get; }
+        IOutfitTemplate Clone(string newName);
+        IOutfit Materialise(ICharacter target, string outfitNameOverride = null);
+    }
+
+    public interface IOutfitTemplateItem : IKeyworded
+    {
+        string TemplateKey { get; set; }
+        IGameItemProto GameItemProto { get; set; }
+        IWearProfile DesiredProfile { get; set; }
+        OutfitTemplateItemPlacement Placement { get; set; }
+        [CanBeNull] string ContainerKey { get; set; }
+        string LoadArguments { get; set; }
+        int WearOrder { get; set; }
     }
 }

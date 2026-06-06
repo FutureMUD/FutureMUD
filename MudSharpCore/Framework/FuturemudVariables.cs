@@ -192,6 +192,7 @@ public sealed partial class Futuremud : IDisposable
 
     private readonly All<IGameItemGroup> _itemGroups = new();
     private readonly RevisableAll<IGameItemProto> _itemProtos = new();
+    private readonly All<IOutfitTemplate> _outfitTemplates = new();
     private readonly All<IGameItem> _items = new();
     private readonly RevisableAll<IVehiclePrototype> _vehiclePrototypes = new();
     private readonly All<IVehicle> _vehicles = new();
@@ -459,6 +460,8 @@ public sealed partial class Futuremud : IDisposable
     public IUneditableRevisableAll<IGameItemComponentProto> ItemComponentProtos => _itemComponentProtos;
 
     public IUneditableRevisableAll<IGameItemProto> ItemProtos => _itemProtos;
+
+    public IUneditableAll<IOutfitTemplate> OutfitTemplates => _outfitTemplates;
 
     public IUneditableAll<IGameItem> Items => _items;
     public IUneditableRevisableAll<IVehiclePrototype> VehiclePrototypes => _vehiclePrototypes;

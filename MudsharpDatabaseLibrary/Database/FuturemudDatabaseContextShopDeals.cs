@@ -16,6 +16,7 @@ namespace MudSharp.Database
 			ConfigureVehicles(modelBuilder);
 			ConfigureEmployment(modelBuilder);
 			ConfigureMagicPortalTopology(modelBuilder);
+			ConfigureOutfitTemplates(modelBuilder);
 
 			modelBuilder.Entity<ShopDeal>(entity =>
             {
@@ -95,6 +96,78 @@ namespace MudSharp.Database
                       .HasDefaultValue(0.01m);
             });
         }
+
+		private static void ConfigureOutfitTemplates(ModelBuilder modelBuilder)
+		{
+			modelBuilder.Entity<OutfitTemplate>(entity =>
+			{
+				entity.ToTable("OutfitTemplates");
+				entity.HasKey(e => e.Id).HasName("PRIMARY");
+				entity.HasIndex(e => e.Name)
+				      .IsUnique()
+				      .HasDatabaseName("IX_OutfitTemplates_Name");
+
+				entity.Property(e => e.Id).HasColumnType("bigint(20)");
+				entity.Property(e => e.Name)
+				      .IsRequired()
+				      .HasColumnType("varchar(200)")
+				      .HasCharSet("utf8")
+				      .UseCollation("utf8_general_ci");
+				entity.Property(e => e.Description)
+				      .IsRequired()
+				      .HasColumnType("mediumtext")
+				      .HasCharSet("utf8")
+				      .UseCollation("utf8_general_ci");
+				entity.Property(e => e.Exclusivity).HasColumnType("int(11)");
+			});
+
+			modelBuilder.Entity<OutfitTemplateItem>(entity =>
+			{
+				entity.ToTable("OutfitTemplateItems");
+				entity.HasKey(e => e.Id).HasName("PRIMARY");
+				entity.HasIndex(e => e.OutfitTemplateId)
+				      .HasDatabaseName("FK_OutfitTemplateItems_OutfitTemplates_idx");
+				entity.HasIndex(e => new { e.OutfitTemplateId, e.TemplateKey })
+				      .IsUnique()
+				      .HasDatabaseName("IX_OutfitTemplateItems_Template_Key");
+				entity.HasIndex(e => e.GameItemProtoId)
+				      .HasDatabaseName("IX_OutfitTemplateItems_GameItemProtoId");
+				entity.HasIndex(e => e.WearProfileId)
+				      .HasDatabaseName("FK_OutfitTemplateItems_WearProfiles_idx");
+
+				entity.Property(e => e.Id).HasColumnType("bigint(20)");
+				entity.Property(e => e.OutfitTemplateId).HasColumnType("bigint(20)");
+				entity.Property(e => e.TemplateKey)
+				      .IsRequired()
+				      .HasColumnType("varchar(100)")
+				      .HasCharSet("utf8")
+				      .UseCollation("utf8_general_ci");
+				entity.Property(e => e.GameItemProtoId).HasColumnType("bigint(20)");
+				entity.Property(e => e.WearProfileId).HasColumnType("bigint(20)");
+				entity.Property(e => e.Placement).HasColumnType("int(11)");
+				entity.Property(e => e.ContainerKey)
+				      .HasColumnType("varchar(100)")
+				      .HasCharSet("utf8")
+				      .UseCollation("utf8_general_ci");
+				entity.Property(e => e.LoadArguments)
+				      .IsRequired()
+				      .HasColumnType("mediumtext")
+				      .HasCharSet("utf8")
+				      .UseCollation("utf8_general_ci");
+				entity.Property(e => e.WearOrder).HasColumnType("int(11)");
+
+				entity.HasOne(e => e.OutfitTemplate)
+				      .WithMany(e => e.OutfitTemplateItems)
+				      .HasForeignKey(e => e.OutfitTemplateId)
+				      .HasConstraintName("FK_OutfitTemplateItems_OutfitTemplates");
+
+				entity.HasOne(e => e.WearProfile)
+				      .WithMany()
+				      .HasForeignKey(e => e.WearProfileId)
+				      .OnDelete(DeleteBehavior.SetNull)
+				      .HasConstraintName("FK_OutfitTemplateItems_WearProfiles");
+			});
+		}
 
         private static void ConfigureAgriculture(ModelBuilder modelBuilder)
         {

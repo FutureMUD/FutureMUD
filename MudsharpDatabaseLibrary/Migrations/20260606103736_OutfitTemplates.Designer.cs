@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MudSharp.Database;
 
@@ -11,9 +12,11 @@ using MudSharp.Database;
 namespace MudSharp.Migrations
 {
     [DbContext(typeof(FuturemudDatabaseContext))]
-    partial class FutureMUDContextModelSnapshot : ModelSnapshot
+    [Migration("20260606103736_OutfitTemplates")]
+    partial class OutfitTemplates
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -9410,51 +9413,6 @@ namespace MudSharp.Migrations
                     b.ToTable("EmploymentApplications", (string)null);
                 });
 
-            modelBuilder.Entity("MudSharp.Models.EmploymentConditionPredicateRecord", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint(20)");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<long>("EmploymentHostStateId")
-                        .HasColumnType("bigint(20)");
-
-                    b.Property<string>("ExpressionJson")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("varchar(200)")
-                        .UseCollation("utf8_general_ci");
-
-                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Name"), "utf8");
-
-                    b.Property<string>("PublicId")
-                        .IsRequired()
-                        .HasColumnType("varchar(36)")
-                        .UseCollation("utf8_general_ci");
-
-                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("PublicId"), "utf8");
-
-                    b.HasKey("Id")
-                        .HasName("PRIMARY");
-
-                    b.HasIndex("EmploymentHostStateId")
-                        .HasDatabaseName("FK_EmploymentConditionPredicates_HostStates_idx");
-
-                    b.HasIndex("PublicId")
-                        .IsUnique()
-                        .HasDatabaseName("IX_EmploymentConditionPredicates_PublicId");
-
-                    b.HasIndex("EmploymentHostStateId", "Name")
-                        .IsUnique()
-                        .HasDatabaseName("IX_EmploymentConditionPredicates_Host_Name");
-
-                    b.ToTable("EmploymentConditionPredicates", (string)null);
-                });
-
             modelBuilder.Entity("MudSharp.Models.EmploymentContractRecord", b =>
                 {
                     b.Property<long>("Id")
@@ -10038,67 +9996,6 @@ namespace MudSharp.Migrations
                     b.ToTable("EmploymentRegisterEntries", (string)null);
                 });
 
-            modelBuilder.Entity("MudSharp.Models.EmploymentScheduledRuleTemplateRecord", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint(20)");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<long>("CooldownTicks")
-                        .HasColumnType("bigint(20)");
-
-                    b.Property<long>("EmploymentActionPlanId")
-                        .HasColumnType("bigint(20)");
-
-                    b.Property<long>("EmploymentHostStateId")
-                        .HasColumnType("bigint(20)");
-
-                    b.Property<string>("ExpressionJson")
-                        .HasColumnType("text");
-
-                    b.Property<string>("IdempotencyKeyPattern")
-                        .IsRequired()
-                        .HasColumnType("varchar(200)")
-                        .UseCollation("utf8_general_ci");
-
-                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("IdempotencyKeyPattern"), "utf8");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("varchar(200)")
-                        .UseCollation("utf8_general_ci");
-
-                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Name"), "utf8");
-
-                    b.Property<string>("PublicId")
-                        .IsRequired()
-                        .HasColumnType("varchar(36)")
-                        .UseCollation("utf8_general_ci");
-
-                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("PublicId"), "utf8");
-
-                    b.HasKey("Id")
-                        .HasName("PRIMARY");
-
-                    b.HasIndex("EmploymentActionPlanId")
-                        .HasDatabaseName("FK_EmploymentScheduledRuleTemplates_Plans_idx");
-
-                    b.HasIndex("EmploymentHostStateId")
-                        .HasDatabaseName("FK_EmploymentScheduledRuleTemplates_HostStates_idx");
-
-                    b.HasIndex("PublicId")
-                        .IsUnique()
-                        .HasDatabaseName("IX_EmploymentScheduledRuleTemplates_PublicId");
-
-                    b.HasIndex("EmploymentHostStateId", "Name")
-                        .IsUnique()
-                        .HasDatabaseName("IX_EmploymentScheduledRuleTemplates_Host_Name");
-
-                    b.ToTable("EmploymentScheduledRuleTemplates", (string)null);
-                });
-
             modelBuilder.Entity("MudSharp.Models.EmploymentScheduledTaskRuleRecord", b =>
                 {
                     b.Property<long>("Id")
@@ -10115,9 +10012,6 @@ namespace MudSharp.Migrations
 
                     b.Property<long>("EmploymentHostStateId")
                         .HasColumnType("bigint(20)");
-
-                    b.Property<string>("ExpressionJson")
-                        .HasColumnType("text");
 
                     b.Property<string>("IdempotencyKey")
                         .IsRequired()
@@ -10173,9 +10067,6 @@ namespace MudSharp.Migrations
                     b.Property<ulong?>("BoolValue")
                         .HasColumnType("bit(1)");
 
-                    b.Property<long?>("ConditionPredicateId")
-                        .HasColumnType("bigint(20)");
-
                     b.Property<int>("ConditionType")
                         .HasColumnType("int(11)");
 
@@ -10194,9 +10085,6 @@ namespace MudSharp.Migrations
                     b.Property<long?>("ManagerGoalId")
                         .HasColumnType("bigint(20)");
 
-                    b.Property<long?>("ScheduledRuleTemplateId")
-                        .HasColumnType("bigint(20)");
-
                     b.Property<long?>("ScheduledTaskRuleId")
                         .HasColumnType("bigint(20)");
 
@@ -10212,14 +10100,8 @@ namespace MudSharp.Migrations
                     b.HasKey("Id")
                         .HasName("PRIMARY");
 
-                    b.HasIndex("ConditionPredicateId")
-                        .HasDatabaseName("FK_EmploymentTaskConditions_ConditionPredicates_idx");
-
                     b.HasIndex("ManagerGoalId")
                         .HasDatabaseName("FK_EmploymentTaskConditions_ManagerGoals_idx");
-
-                    b.HasIndex("ScheduledRuleTemplateId")
-                        .HasDatabaseName("FK_EmploymentTaskConditions_ScheduledRuleTemplates_idx");
 
                     b.HasIndex("ScheduledTaskRuleId")
                         .HasDatabaseName("FK_EmploymentTaskConditions_ScheduledRules_idx");
@@ -26617,18 +26499,6 @@ namespace MudSharp.Migrations
                     b.Navigation("EmploymentJobOpening");
                 });
 
-            modelBuilder.Entity("MudSharp.Models.EmploymentConditionPredicateRecord", b =>
-                {
-                    b.HasOne("MudSharp.Models.EmploymentHostState", "EmploymentHostState")
-                        .WithMany("ConditionPredicates")
-                        .HasForeignKey("EmploymentHostStateId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("FK_EmploymentConditionPredicates_HostStates");
-
-                    b.Navigation("EmploymentHostState");
-                });
-
             modelBuilder.Entity("MudSharp.Models.EmploymentContractRecord", b =>
                 {
                     b.HasOne("MudSharp.Models.EmploymentHostState", "EmploymentHostState")
@@ -26733,27 +26603,6 @@ namespace MudSharp.Migrations
                     b.Navigation("EmploymentHostState");
                 });
 
-            modelBuilder.Entity("MudSharp.Models.EmploymentScheduledRuleTemplateRecord", b =>
-                {
-                    b.HasOne("MudSharp.Models.EmploymentActionPlanRecord", "EmploymentActionPlan")
-                        .WithMany("ScheduledRuleTemplates")
-                        .HasForeignKey("EmploymentActionPlanId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
-                        .HasConstraintName("FK_EmploymentScheduledRuleTemplates_Plans");
-
-                    b.HasOne("MudSharp.Models.EmploymentHostState", "EmploymentHostState")
-                        .WithMany("ScheduledRuleTemplates")
-                        .HasForeignKey("EmploymentHostStateId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("FK_EmploymentScheduledRuleTemplates_HostStates");
-
-                    b.Navigation("EmploymentActionPlan");
-
-                    b.Navigation("EmploymentHostState");
-                });
-
             modelBuilder.Entity("MudSharp.Models.EmploymentScheduledTaskRuleRecord", b =>
                 {
                     b.HasOne("MudSharp.Models.EmploymentActionPlanRecord", "EmploymentActionPlan")
@@ -26777,23 +26626,11 @@ namespace MudSharp.Migrations
 
             modelBuilder.Entity("MudSharp.Models.EmploymentTaskConditionRecord", b =>
                 {
-                    b.HasOne("MudSharp.Models.EmploymentConditionPredicateRecord", "ConditionPredicate")
-                        .WithMany("Conditions")
-                        .HasForeignKey("ConditionPredicateId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .HasConstraintName("FK_EmploymentTaskConditions_ConditionPredicates");
-
                     b.HasOne("MudSharp.Models.EmploymentManagerGoalRecord", "ManagerGoal")
                         .WithMany("Conditions")
                         .HasForeignKey("ManagerGoalId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .HasConstraintName("FK_EmploymentTaskConditions_ManagerGoals");
-
-                    b.HasOne("MudSharp.Models.EmploymentScheduledRuleTemplateRecord", "ScheduledRuleTemplate")
-                        .WithMany("Conditions")
-                        .HasForeignKey("ScheduledRuleTemplateId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .HasConstraintName("FK_EmploymentTaskConditions_ScheduledRuleTemplates");
 
                     b.HasOne("MudSharp.Models.EmploymentScheduledTaskRuleRecord", "ScheduledTaskRule")
                         .WithMany("Conditions")
@@ -26801,11 +26638,7 @@ namespace MudSharp.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .HasConstraintName("FK_EmploymentTaskConditions_ScheduledRules");
 
-                    b.Navigation("ConditionPredicate");
-
                     b.Navigation("ManagerGoal");
-
-                    b.Navigation("ScheduledRuleTemplate");
 
                     b.Navigation("ScheduledTaskRule");
                 });
@@ -32798,8 +32631,6 @@ namespace MudSharp.Migrations
 
                     b.Navigation("ManagerGoals");
 
-                    b.Navigation("ScheduledRuleTemplates");
-
                     b.Navigation("ScheduledTaskRules");
 
                     b.Navigation("Steps");
@@ -32810,18 +32641,11 @@ namespace MudSharp.Migrations
                     b.Navigation("StepStates");
                 });
 
-            modelBuilder.Entity("MudSharp.Models.EmploymentConditionPredicateRecord", b =>
-                {
-                    b.Navigation("Conditions");
-                });
-
             modelBuilder.Entity("MudSharp.Models.EmploymentHostState", b =>
                 {
                     b.Navigation("ActionPlans");
 
                     b.Navigation("ActiveTasks");
-
-                    b.Navigation("ConditionPredicates");
 
                     b.Navigation("Contracts");
 
@@ -32835,8 +32659,6 @@ namespace MudSharp.Migrations
 
                     b.Navigation("RegisterEntries");
 
-                    b.Navigation("ScheduledRuleTemplates");
-
                     b.Navigation("ScheduledTaskRules");
                 });
 
@@ -32848,11 +32670,6 @@ namespace MudSharp.Migrations
                 });
 
             modelBuilder.Entity("MudSharp.Models.EmploymentManagerGoalRecord", b =>
-                {
-                    b.Navigation("Conditions");
-                });
-
-            modelBuilder.Entity("MudSharp.Models.EmploymentScheduledRuleTemplateRecord", b =>
                 {
                     b.Navigation("Conditions");
                 });

@@ -89,10 +89,11 @@ public class Outfit : IOutfit
         OutfitItem newItem = new()
         {
             Id = item.Id,
+            Item = item,
             PreferredContainerId = preferredContainer?.Id,
             PreferredContainerDescription = preferredContainer?.HowSeen(Owner, colour: false),
             DesiredProfile = desiredProfile,
-            WearOrder = wearOrder == -1 ? _items.Max(x => x.WearOrder) + 1 : wearOrder,
+            WearOrder = wearOrder == -1 ? _items.Select(x => x.WearOrder).DefaultIfEmpty(-1).Max() + 1 : wearOrder,
             ItemDescription = item.HowSeen(Owner, colour: false)
         };
         _items.Add(newItem);
@@ -222,6 +223,7 @@ public class Outfit : IOutfit
                 _items.Add(new OutfitItem
                 {
                     Id = item.Id,
+                    Item = item,
                     DesiredProfile = item.GetItemType<IWearable>().CurrentProfile,
                     ItemDescription = item.HowSeen(builder, colour: false),
                     PreferredContainerId = container?.Id,
@@ -381,6 +383,7 @@ public class Outfit : IOutfit
         _items.Add(new OutfitItem
         {
             Id = item.Id,
+            Item = item,
             DesiredProfile = wearProfile,
             ItemDescription = item.HowSeen(builder, colour: false),
             PreferredContainerId = container?.Id,

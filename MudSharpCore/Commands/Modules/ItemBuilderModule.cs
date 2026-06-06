@@ -170,6 +170,43 @@ The valid sub-commands and their syntaxes are as follows:
         }
         #endregion
 
+        #region Outfit Templates
+
+        public const string OutfitTemplateHelp = @"The outfittemplate command is used to create, edit and view admin-only outfit templates. Outfit templates load item prototypes in a batch, place the created items, and attach a normal outfit entry to a character through FutureProg.
+
+The valid subcommands and their syntaxes are as follows:
+
+	#3outfittemplate list [<filters>]#0 - lists all outfit templates
+	#3outfittemplate show <id|name>#0 - shows details about an outfit template
+	#3outfittemplate new <name>#0 - creates a new outfit template
+	#3outfittemplate clone <old> <new>#0 - clones an existing outfit template
+	#3outfittemplate edit <id|name>#0 - opens a template for editing
+	#3outfittemplate close#0 - closes the currently edited template
+	#3outfittemplate set <field> <value>#0 - changes the currently edited template
+
+The editable fields are:
+
+	#3set name <name>#0 - renames the template
+	#3set description <description>#0 - sets the builder description
+	#3set exclusivity none|below|all#0 - sets the exclusivity of created outfits
+	#3set item add <key> <prototype> [worn <profile>|inventory|room|container <key>] [args <load args>]#0 - adds a prototype entry
+	#3set item remove <key>#0 - removes an entry
+	#3set item key <old> <new>#0 - renames an entry key
+	#3set item proto <key> <prototype>#0 - changes an entry prototype
+	#3set item placement <key> worn <profile>|inventory|room|container <key>#0 - changes entry placement
+	#3set item args <key> <load args|clear>#0 - changes entry load arguments
+	#3set item swap <key1> <key2>#0 - swaps entry order";
+
+        [PlayerCommand("OutfitTemplate", "outfittemplate", "templateoutfit")]
+        [CommandPermission(PermissionLevel.Admin)]
+        [HelpInfo("outfittemplate", OutfitTemplateHelp, AutoHelp.HelpArgOrNoArg)]
+        protected static void OutfitTemplate(ICharacter actor, string input)
+        {
+            GenericBuildingCommand(actor, new StringStack(input.RemoveFirstWord()), EditableItemHelper.OutfitTemplateHelper);
+        }
+
+        #endregion
+
         #region Commodity Spoilage Rules
 
         public const string CommoditySpoilageHelp = @"The commodityspoilage command is used to create, edit and view the rules that make commodity piles spoil over time.

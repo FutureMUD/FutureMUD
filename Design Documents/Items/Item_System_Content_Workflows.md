@@ -168,6 +168,32 @@ For commodity piles, use the staff command `loadcommodity <weight> <material> [<
 
 Commodity piles can also be governed by builder-owned `commodityspoilage` rules. Use `commodityspoilage list`, `show`, `new`, `clone`, `edit`, `close`, and `set` to author rules that match one exact material or one material tag, optionally narrow to a pile tag, and output a replacement material and optional pile tag after a configured duration. This is the preferred content workflow for perishable commodity stock such as raw meat, prepared meat, salted meat, dried meat, smoked meat, or broth bases.
 
+### Outfit template workflow
+Outfit templates are admin-only global editable data for creating full equipment sets from item prototypes. They are not revisable: changing a template only affects future loads, not any character outfits it has already created.
+
+Use:
+- `outfittemplate list [<filters>]`
+- `outfittemplate show <id|name>`
+- `outfittemplate new <name>`
+- `outfittemplate clone <old> <new>`
+- `outfittemplate edit <id|name>`
+- `outfittemplate close`
+- `outfittemplate set ...`
+
+Important setters:
+- `outfittemplate set name <name>`
+- `outfittemplate set description <description>`
+- `outfittemplate set exclusivity none|below|all`
+- `outfittemplate set item add <key> <prototype> [worn <profile>|inventory|room|container <key>] [args <load args>]`
+- `outfittemplate set item remove <key>`
+- `outfittemplate set item key <old> <new>`
+- `outfittemplate set item proto <key> <prototype>`
+- `outfittemplate set item placement <key> worn <profile>|inventory|room|container <key>`
+- `outfittemplate set item args <key> <load args|clear>`
+- `outfittemplate set item swap <key1> <key2>`
+
+Template item keys are stable within the template and are used for container references. Prototypes must be current and manually loadable. Worn entries must use wearable prototypes and a valid wear profile. Container entries must point at another template item whose prototype has container capability, and container references must not be cyclic.
+
 ### Extra arguments
 The builder-facing load flow supports:
 - skin selection

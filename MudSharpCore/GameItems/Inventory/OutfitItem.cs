@@ -13,6 +13,7 @@ namespace MudSharp.GameItems.Inventory;
 public class OutfitItem : IOutfitItem
 {
     public long Id { get; init; }
+    public IGameItem Item { get; init; }
     public string ItemDescription { get; set; }
     public long? PreferredContainerId { get; set; }
     public string PreferredContainerDescription { get; set; }
@@ -38,6 +39,7 @@ public class OutfitItem : IOutfitItem
     public OutfitItem(IOutfitItem rhs)
     {
         Id = rhs.Id;
+        Item = rhs.Item;
         PreferredContainerId = rhs.PreferredContainerId;
         WearOrder = rhs.WearOrder;
         ItemDescription = rhs.ItemDescription;
@@ -48,6 +50,7 @@ public class OutfitItem : IOutfitItem
     public OutfitItem(XElement element, IFuturemud gameworld)
     {
         Id = long.Parse(element.Element("Id").Value);
+        Item = gameworld.Items.Get(Id);
         PreferredContainerId = long.Parse(element.Element("PreferredContainerId").Value);
         if (PreferredContainerId == 0)
         {
@@ -78,6 +81,10 @@ public class OutfitItem : IOutfitItem
         {
             case "id":
                 return new NumberVariable(Id);
+            case "item":
+                return Item is not null
+                    ? (IProgVariable)Item
+                    : new NullVariable(ProgVariableTypes.Item);
             case "containerid":
                 return PreferredContainerId.HasValue
                     ? (IProgVariable)new NumberVariable(PreferredContainerId.Value)
@@ -104,6 +111,7 @@ public class OutfitItem : IOutfitItem
         return new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
         {
             { "id", ProgVariableTypes.Number },
+            { "item", ProgVariableTypes.Item },
             { "containerid", ProgVariableTypes.Number },
             { "order", ProgVariableTypes.Number },
             { "desc", ProgVariableTypes.Text },
@@ -119,6 +127,7 @@ public class OutfitItem : IOutfitItem
         return new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
         {
             { "id", "" },
+            { "item", "The actual item referred to by this outfit entry, if it is currently loaded" },
             { "containerid", "" },
             { "order", "" },
             { "desc", "" },

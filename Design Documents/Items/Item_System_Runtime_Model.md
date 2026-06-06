@@ -61,6 +61,15 @@ Prototype methods like `CreateNew(...)` instantiate a `GameItem`, create one run
 
 If `PlanarData` is null or invalid, the item prototype resolves as ordinary Prime Material corporeal matter. Builders can use the item prototype `planar` command to make special items present on another plane, visible-only to another plane, or fully noncorporeal.
 
+### Outfit templates
+`IOutfitTemplate` is a non-revisable admin-authored batch definition that stores item prototype references instead of live item ids. It is global data, not character-owned data. Each `IOutfitTemplateItem` has a stable template key, current item prototype id, optional wear profile, placement rule, optional container key, load arguments, and wear/order position.
+
+At runtime, outfit template materialization preflights the whole template before creating anything. It rejects missing, stale, or manual-load-blocked prototypes; worn entries whose prototypes are not wearable or lack a wear profile; container entries whose target key is missing, self-referential, non-container, or cyclic.
+
+When a template is loaded for a character, every item is created through the normal item prototype factory, added to the gameworld, receives `ItemFinishedLoading`, and logs in. Each created item is immediately inserted into the target cell before any further placement so failed later movement cannot leave an orphan. Container placements are attempted first, then worn, inventory, and room placements. Any failed container, wear, or inventory movement leaves the item in the target cell. The materializer then creates an ordinary character-owned `Outfit`, copies the template exclusivity and description, adds every created item in template order, attaches it to the target character, and returns it.
+
+Template edits are not propagated to already-created outfits. Once materialized, the result is a normal `IOutfit` containing actual item ids.
+
 ### `IGameItemComponent`
 `IGameItemComponent` is the runtime slice of behaviour attached to a live item.
 

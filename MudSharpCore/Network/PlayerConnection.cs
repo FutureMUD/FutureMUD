@@ -537,15 +537,44 @@ public class PlayerConnection : IPlayerConnection
         _pendingTelnetSubcommandEnd = false;
     }
 
+    private bool TryAppendIncomingCommandByte(byte value)
+    {
+        if (_incomingCommandBuffer.Count >= Constants.PlayerConnectionBufferSize)
+        {
+            DiscardConnection();
+            _incomingCommandBuffer.Clear();
+            return false;
+        }
+
+        _incomingCommandBuffer.Add(value);
+        return true;
+    }
+
+    private bool TryAppendTelnetNegotiationByte(byte value)
+    {
+        if (_telnetNegotiationBuffer.Count >= Constants.PlayerConnectionBufferSize)
+        {
+            DiscardConnection();
+            ResetTelnetNegotiation();
+            return false;
+        }
+
+        _telnetNegotiationBuffer.Add(value);
+        return true;
+    }
+
     private void ProcessIncomingByte(Encoding encoding, byte value)
     {
         if (_inTelnetNegotiation)
         {
-            _telnetNegotiationBuffer.Add(value);
+            if (!TryAppendTelnetNegotiationByte(value))
+            {
+                return;
+            }
 
             if (_telnetNegotiationBuffer.Count == 2 && value == Telnet.IAC)
             {
-                _incomingCommandBuffer.Add(Telnet.IAC);
+                TryAppendIncomingCommandByte(Telnet.IAC);
                 ResetTelnetNegotiation();
                 return;
             }
@@ -624,7 +653,7 @@ public class PlayerConnection : IPlayerConnection
             return;
         }
 
-        _incomingCommandBuffer.Add(value);
+        TryAppendIncomingCommandByte(value);
     }
 
     public void PrepareIncoming()
@@ -657,6 +686,10 @@ public class PlayerConnection : IPlayerConnection
             for (int i = 0; i < byteArray.Length; i++)
             {
                 ProcessIncomingByte(encoding, byteArray[i]);
+                if (State == ConnectionState.Closing)
+                {
+                    return;
+                }
             }
 
             if (_incomingCommandBuffer.Count >= SupportsBytes.Length &&

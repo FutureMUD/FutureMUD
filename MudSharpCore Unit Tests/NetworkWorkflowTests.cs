@@ -48,6 +48,48 @@ public class NetworkWorkflowTests
 	}
 
 	[TestMethod]
+	public async Task PlayerConnection_DisconnectsWhenPartialCommandExceedsBufferLimit()
+	{
+		var fixture = await CreateConnectionFixture();
+		try
+		{
+			var bytes = Enumerable.Repeat((byte)'x', Constants.PlayerConnectionBufferSize + 1).ToArray();
+			WriteClientBytes(fixture.Client, bytes);
+
+			await PumpIncomingUntilClosing(fixture.Connection);
+
+			Assert.AreEqual(ConnectionState.Closing, fixture.Connection.State);
+			Assert.IsFalse(fixture.Connection.HasIncomingCommands);
+		}
+		finally
+		{
+			fixture.Dispose();
+		}
+	}
+
+	[TestMethod]
+	public async Task PlayerConnection_DisconnectsWhenTelnetSubcommandExceedsBufferLimit()
+	{
+		var fixture = await CreateConnectionFixture();
+		try
+		{
+			var bytes = new[] { Telnet.IAC, Telnet.SB }
+				.Concat(Enumerable.Repeat((byte)'x', Constants.PlayerConnectionBufferSize))
+				.ToArray();
+			WriteClientBytes(fixture.Client, bytes);
+
+			await PumpIncomingUntilClosing(fixture.Connection);
+
+			Assert.AreEqual(ConnectionState.Closing, fixture.Connection.State);
+			Assert.IsFalse(fixture.Connection.HasIncomingCommands);
+		}
+		finally
+		{
+			fixture.Dispose();
+		}
+	}
+
+	[TestMethod]
 	public async Task PlayerConnection_PreservesSplitTelnetNegotiationAndUsesEorPrompt()
 	{
 		var fixture = await CreateConnectionFixture();
@@ -133,6 +175,15 @@ public class NetworkWorkflowTests
 		handler.More();
 
 		Assert.IsFalse(handler.BufferedOutput.Contains("Type more", StringComparison.Ordinal));
+	}
+
+	private static async Task PumpIncomingUntilClosing(PlayerConnection connection)
+	{
+		for (var i = 0; i < 10 && connection.State != ConnectionState.Closing; i++)
+		{
+			await Task.Delay(25);
+			connection.PrepareIncoming();
+		}
 	}
 
 	private static PlayerOutputHandler CreatePlayerOutputHandler(int pageLength, int lineLength)

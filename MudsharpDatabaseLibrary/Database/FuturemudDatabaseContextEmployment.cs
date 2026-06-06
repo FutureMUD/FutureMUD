@@ -18,6 +18,8 @@ public partial class FuturemudDatabaseContext
 	public virtual DbSet<EmploymentActionStepRecord> EmploymentActionSteps { get; set; } = null!;
 	public virtual DbSet<EmploymentScheduledTaskRuleRecord> EmploymentScheduledTaskRules { get; set; } = null!;
 	public virtual DbSet<EmploymentTaskConditionRecord> EmploymentTaskConditions { get; set; } = null!;
+	public virtual DbSet<EmploymentConditionPredicateRecord> EmploymentConditionPredicates { get; set; } = null!;
+	public virtual DbSet<EmploymentScheduledRuleTemplateRecord> EmploymentScheduledRuleTemplates { get; set; } = null!;
 	public virtual DbSet<EmploymentActiveTaskRecord> EmploymentActiveTasks { get; set; } = null!;
 	public virtual DbSet<EmploymentActiveTaskStepStateRecord> EmploymentActiveTaskStepStates { get; set; } = null!;
 	public virtual DbSet<EmploymentManagerGoalRecord> EmploymentManagerGoals { get; set; } = null!;
@@ -307,6 +309,7 @@ public partial class FuturemudDatabaseContext
 			entity.Property(e => e.Name).RequiredString("varchar(200)");
 			entity.Property(e => e.IdempotencyKey).RequiredString("varchar(200)");
 			entity.Property(e => e.EmploymentActionPlanId).HasColumnType("bigint(20)");
+			entity.Property(e => e.ExpressionJson).HasColumnType("text");
 			entity.Property(e => e.Status).HasColumnType("int(11)");
 			entity.Property(e => e.CooldownTicks).HasColumnType("bigint(20)");
 			entity.Property(e => e.LastSpawnedAt).HasColumnType("datetime");
@@ -321,10 +324,81 @@ public partial class FuturemudDatabaseContext
 			      .WithMany(e => e.ScheduledTaskRules)
 			      .HasForeignKey(e => e.EmploymentActionPlanId)
 			      .OnDelete(DeleteBehavior.Restrict)
-			      .HasConstraintName("FK_EmploymentScheduledTaskRules_Plans");
+		      .HasConstraintName("FK_EmploymentScheduledTaskRules_Plans");
 		});
 
+		ConfigureEmploymentConditionPredicates(modelBuilder);
+		ConfigureEmploymentScheduledRuleTemplates(modelBuilder);
 		ConfigureEmploymentTaskConditions(modelBuilder);
+	}
+
+	private static void ConfigureEmploymentConditionPredicates(ModelBuilder modelBuilder)
+	{
+		modelBuilder.Entity<EmploymentConditionPredicateRecord>(entity =>
+		{
+			entity.ToTable("EmploymentConditionPredicates");
+			entity.HasKey(e => e.Id).HasName("PRIMARY");
+			entity.HasIndex(e => e.EmploymentHostStateId)
+			      .HasDatabaseName("FK_EmploymentConditionPredicates_HostStates_idx");
+			entity.HasIndex(e => e.PublicId)
+			      .IsUnique()
+			      .HasDatabaseName("IX_EmploymentConditionPredicates_PublicId");
+			entity.HasIndex(e => new { e.EmploymentHostStateId, e.Name })
+			      .IsUnique()
+			      .HasDatabaseName("IX_EmploymentConditionPredicates_Host_Name");
+
+			entity.Property(e => e.Id).HasColumnType("bigint(20)");
+			entity.Property(e => e.PublicId).RequiredString("varchar(36)");
+			entity.Property(e => e.EmploymentHostStateId).HasColumnType("bigint(20)");
+			entity.Property(e => e.Name).RequiredString("varchar(200)");
+			entity.Property(e => e.ExpressionJson).HasColumnType("text");
+
+			entity.HasOne(e => e.EmploymentHostState)
+			      .WithMany(e => e.ConditionPredicates)
+			      .HasForeignKey(e => e.EmploymentHostStateId)
+			      .OnDelete(DeleteBehavior.Cascade)
+			      .HasConstraintName("FK_EmploymentConditionPredicates_HostStates");
+		});
+	}
+
+	private static void ConfigureEmploymentScheduledRuleTemplates(ModelBuilder modelBuilder)
+	{
+		modelBuilder.Entity<EmploymentScheduledRuleTemplateRecord>(entity =>
+		{
+			entity.ToTable("EmploymentScheduledRuleTemplates");
+			entity.HasKey(e => e.Id).HasName("PRIMARY");
+			entity.HasIndex(e => e.EmploymentHostStateId)
+			      .HasDatabaseName("FK_EmploymentScheduledRuleTemplates_HostStates_idx");
+			entity.HasIndex(e => e.EmploymentActionPlanId)
+			      .HasDatabaseName("FK_EmploymentScheduledRuleTemplates_Plans_idx");
+			entity.HasIndex(e => e.PublicId)
+			      .IsUnique()
+			      .HasDatabaseName("IX_EmploymentScheduledRuleTemplates_PublicId");
+			entity.HasIndex(e => new { e.EmploymentHostStateId, e.Name })
+			      .IsUnique()
+			      .HasDatabaseName("IX_EmploymentScheduledRuleTemplates_Host_Name");
+
+			entity.Property(e => e.Id).HasColumnType("bigint(20)");
+			entity.Property(e => e.PublicId).RequiredString("varchar(36)");
+			entity.Property(e => e.EmploymentHostStateId).HasColumnType("bigint(20)");
+			entity.Property(e => e.Name).RequiredString("varchar(200)");
+			entity.Property(e => e.IdempotencyKeyPattern).RequiredString("varchar(200)");
+			entity.Property(e => e.EmploymentActionPlanId).HasColumnType("bigint(20)");
+			entity.Property(e => e.ExpressionJson).HasColumnType("text");
+			entity.Property(e => e.CooldownTicks).HasColumnType("bigint(20)");
+
+			entity.HasOne(e => e.EmploymentHostState)
+			      .WithMany(e => e.ScheduledRuleTemplates)
+			      .HasForeignKey(e => e.EmploymentHostStateId)
+			      .OnDelete(DeleteBehavior.Cascade)
+			      .HasConstraintName("FK_EmploymentScheduledRuleTemplates_HostStates");
+
+			entity.HasOne(e => e.EmploymentActionPlan)
+			      .WithMany(e => e.ScheduledRuleTemplates)
+			      .HasForeignKey(e => e.EmploymentActionPlanId)
+			      .OnDelete(DeleteBehavior.Restrict)
+			      .HasConstraintName("FK_EmploymentScheduledRuleTemplates_Plans");
+		});
 	}
 
 	private static void ConfigureEmploymentTaskConditions(ModelBuilder modelBuilder)
@@ -337,10 +411,16 @@ public partial class FuturemudDatabaseContext
 			      .HasDatabaseName("FK_EmploymentTaskConditions_ScheduledRules_idx");
 			entity.HasIndex(e => e.ManagerGoalId)
 			      .HasDatabaseName("FK_EmploymentTaskConditions_ManagerGoals_idx");
+			entity.HasIndex(e => e.ConditionPredicateId)
+			      .HasDatabaseName("FK_EmploymentTaskConditions_ConditionPredicates_idx");
+			entity.HasIndex(e => e.ScheduledRuleTemplateId)
+			      .HasDatabaseName("FK_EmploymentTaskConditions_ScheduledRuleTemplates_idx");
 
 			entity.Property(e => e.Id).HasColumnType("bigint(20)");
 			entity.Property(e => e.ScheduledTaskRuleId).HasColumnType("bigint(20)");
 			entity.Property(e => e.ManagerGoalId).HasColumnType("bigint(20)");
+			entity.Property(e => e.ConditionPredicateId).HasColumnType("bigint(20)");
+			entity.Property(e => e.ScheduledRuleTemplateId).HasColumnType("bigint(20)");
 			entity.Property(e => e.SortOrder).HasColumnType("int(11)");
 			entity.Property(e => e.ConditionType).HasColumnType("int(11)");
 			entity.Property(e => e.Key).OptionalString("varchar(200)");
@@ -361,6 +441,18 @@ public partial class FuturemudDatabaseContext
 			      .HasForeignKey(e => e.ManagerGoalId)
 			      .OnDelete(DeleteBehavior.Cascade)
 			      .HasConstraintName("FK_EmploymentTaskConditions_ManagerGoals");
+
+			entity.HasOne(e => e.ConditionPredicate)
+			      .WithMany(e => e.Conditions)
+			      .HasForeignKey(e => e.ConditionPredicateId)
+			      .OnDelete(DeleteBehavior.Cascade)
+			      .HasConstraintName("FK_EmploymentTaskConditions_ConditionPredicates");
+
+			entity.HasOne(e => e.ScheduledRuleTemplate)
+			      .WithMany(e => e.Conditions)
+			      .HasForeignKey(e => e.ScheduledRuleTemplateId)
+			      .OnDelete(DeleteBehavior.Cascade)
+			      .HasConstraintName("FK_EmploymentTaskConditions_ScheduledRuleTemplates");
 		});
 	}
 

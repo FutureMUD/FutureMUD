@@ -9,7 +9,11 @@ namespace MudSharp.Computers;
 
 public sealed class ComputerFileTransferService : IComputerFileTransferService
 {
+	private const int MaximumFailedAuthenticationAttemptsBeforeBackoff = 5;
+	private static readonly TimeSpan AuthenticationBackoffDuration = TimeSpan.FromSeconds(30);
 	private readonly IFuturemud _gameworld;
+	private readonly Dictionary<string, (int FailedAttempts, DateTime? NextAttemptUtc)> _authenticationBackoffs =
+		new(StringComparer.InvariantCultureIgnoreCase);
 
 	public ComputerFileTransferService(IFuturemud gameworld)
 	{
@@ -132,30 +136,54 @@ public sealed class ComputerFileTransferService : IComputerFileTransferService
 			};
 		}
 
-		var account = ResolveAccount(targetHost, normalisedUserName);
-		if (account is null || !account.Enabled)
+		var backoffKey = $"{targetHost.FileOwnerId}:{normalisedUserName}";
+		if (_authenticationBackoffs.TryGetValue(backoffKey, out var backoff) &&
+		    backoff.NextAttemptUtc is not null &&
+		    backoff.NextAttemptUtc > DateTime.UtcNow)
 		{
 			return new ComputerFtpAuthenticationResult
 			{
 				Success = false,
-				ErrorMessage = $"There is no enabled FTP account named {normalisedUserName.ColourName()} on {targetHost.Name.ColourName()}."
+				ErrorMessage = "FTP login attempts are temporarily delayed. Try again shortly."
+			};
+		}
+
+		var account = ResolveAccount(targetHost, normalisedUserName);
+		if (account is null || !account.Enabled)
+		{
+			RecordAuthenticationFailure(backoffKey);
+			return new ComputerFtpAuthenticationResult
+			{
+				Success = false,
+				ErrorMessage = "The FTP username or password is not correct."
 			};
 		}
 
 		if (!SecurityUtilities.VerifyPassword(password, account.PasswordHash, account.PasswordSalt))
 		{
+			RecordAuthenticationFailure(backoffKey);
 			return new ComputerFtpAuthenticationResult
 			{
 				Success = false,
-				ErrorMessage = "That password is not correct."
+				ErrorMessage = "The FTP username or password is not correct."
 			};
 		}
 
+		_authenticationBackoffs.Remove(backoffKey);
 		return new ComputerFtpAuthenticationResult
 		{
 			Success = true,
 			Account = account
 		};
+	}
+
+	private void RecordAuthenticationFailure(string backoffKey)
+	{
+		_authenticationBackoffs.TryGetValue(backoffKey, out var backoff);
+		var attempts = backoff.FailedAttempts + 1;
+		_authenticationBackoffs[backoffKey] = attempts >= MaximumFailedAuthenticationAttemptsBeforeBackoff
+			? (0, DateTime.UtcNow + AuthenticationBackoffDuration)
+			: (attempts, null);
 	}
 
 	public IComputerFtpAccount? GetAccount(IComputerHost sourceHost, IComputerHost targetHost, string userName,
@@ -373,8 +401,16 @@ public sealed class ComputerFileTransferService : IComputerFileTransferService
 			return false;
 		}
 
-		action(fileSystem);
-		return true;
+		try
+		{
+			action(fileSystem);
+			return true;
+		}
+		catch (ComputerFileSystemCapacityException ex)
+		{
+			error = ex.Message;
+			return false;
+		}
 	}
 
 	private bool TryEnsureAuthenticatedAccount(IComputerHost sourceHost, IComputerHost targetHost, IComputerFtpAccount account,

@@ -14,6 +14,7 @@ internal sealed class ComputerExecutionContext
 	public ICharacter? Actor { get; init; }
 	public IComputerTerminalSession? Session { get; init; }
 	public ComputerRuntimeProcess? Process { get; init; }
+	public int LaunchDepth { get; init; }
 	public string? PendingTerminalInput { get; internal set; }
 	public ComputerSignal? PendingSignalInput { get; internal set; }
 

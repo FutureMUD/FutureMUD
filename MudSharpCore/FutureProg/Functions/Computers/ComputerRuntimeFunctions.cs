@@ -180,10 +180,17 @@ internal class WriteFileFunction : ComputerRuntimeBuiltInFunction
 			return StatementResult.Normal;
 		}
 
-		fileSystem.WriteFile(
-			ParameterFunctions[0].Result?.GetObject?.ToString() ?? string.Empty,
-			ParameterFunctions[1].Result?.GetObject?.ToString() ?? string.Empty);
-		Result = new BooleanVariable(true);
+		try
+		{
+			fileSystem.WriteFile(
+				ParameterFunctions[0].Result?.GetObject?.ToString() ?? string.Empty,
+				ParameterFunctions[1].Result?.GetObject?.ToString() ?? string.Empty);
+			Result = new BooleanVariable(true);
+		}
+		catch (ComputerFileSystemCapacityException)
+		{
+			Result = new BooleanVariable(false);
+		}
 		return StatementResult.Normal;
 	}
 }
@@ -229,10 +236,17 @@ internal class AppendFileFunction : ComputerRuntimeBuiltInFunction
 			return StatementResult.Normal;
 		}
 
-		fileSystem.AppendFile(
-			ParameterFunctions[0].Result?.GetObject?.ToString() ?? string.Empty,
-			ParameterFunctions[1].Result?.GetObject?.ToString() ?? string.Empty);
-		Result = new BooleanVariable(true);
+		try
+		{
+			fileSystem.AppendFile(
+				ParameterFunctions[0].Result?.GetObject?.ToString() ?? string.Empty,
+				ParameterFunctions[1].Result?.GetObject?.ToString() ?? string.Empty);
+			Result = new BooleanVariable(true);
+		}
+		catch (ComputerFileSystemCapacityException)
+		{
+			Result = new BooleanVariable(false);
+		}
 		return StatementResult.Normal;
 	}
 }
@@ -523,6 +537,12 @@ internal class WaitSignalFunction : ComputerRuntimeBuiltInFunction
 		var pendingSignal = context.ConsumePendingSignalInput();
 		if (pendingSignal.HasValue)
 		{
+			if (!double.IsFinite(pendingSignal.Value.Value))
+			{
+				ErrorMessage = "The received signal value was not a finite number.";
+				return StatementResult.Error;
+			}
+
 			Result = new NumberVariable(Convert.ToDecimal(pendingSignal.Value.Value));
 			return StatementResult.Normal;
 		}
@@ -545,6 +565,8 @@ internal class WaitSignalFunction : ComputerRuntimeBuiltInFunction
 
 internal class LaunchProgramFunction : ComputerRuntimeBuiltInFunction
 {
+	private const int MaximumNestedLaunchDepth = 8;
+
 	public static void RegisterFunctionCompiler()
 	{
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
@@ -584,10 +606,22 @@ internal class LaunchProgramFunction : ComputerRuntimeBuiltInFunction
 			return StatementResult.Normal;
 		}
 
+		if (context.LaunchDepth >= MaximumNestedLaunchDepth)
+		{
+			Result = new NumberVariable(0.0M);
+			return StatementResult.Normal;
+		}
+
 		var executable = context.Actor.Gameworld.ComputerExecutionService.GetExecutable(
 			context.Owner,
 			ParameterFunctions[0].Result?.GetObject?.ToString() ?? string.Empty);
 		if (executable is not IComputerProgramDefinition)
+		{
+			Result = new NumberVariable(0.0M);
+			return StatementResult.Normal;
+		}
+
+		if (context.Process?.Program.Id == executable.Id)
 		{
 			Result = new NumberVariable(0.0M);
 			return StatementResult.Normal;

@@ -14,10 +14,12 @@ namespace MudSharp.GameItems.Components;
 
 public class ElectronicDoorGameItemComponent : DoorGameItemComponentBase, IRuntimeConfigurableSignalSinkComponent
 {
+	private const int MaximumMissingSourceReconnectAttempts = 5;
 	private new ElectronicDoorGameItemComponentProto _prototype;
 	private readonly LocalSignalSinkSubscription _binding;
 	private bool _desiredOpen;
 	private bool _heartbeatSubscribed;
+	private int _missingSourceReconnectAttemptsRemaining;
 	private LocalSignalBinding? _runtimeBinding;
 	private double? _runtimeActivationThreshold;
 	private bool? _runtimeActiveWhenAboveThreshold;
@@ -115,6 +117,7 @@ public class ElectronicDoorGameItemComponent : DoorGameItemComponentBase, IRunti
 	public override void Login()
 	{
 		base.Login();
+		_missingSourceReconnectAttemptsRemaining = MaximumMissingSourceReconnectAttempts;
 		ReconnectSource();
 	}
 
@@ -137,12 +140,20 @@ public class ElectronicDoorGameItemComponent : DoorGameItemComponentBase, IRunti
 		_binding.Reconnect(CurrentBinding);
 		if (_binding.UpstreamSource is not null)
 		{
+			_missingSourceReconnectAttemptsRemaining = MaximumMissingSourceReconnectAttempts;
 			RemoveHeartbeatSubscription();
 			return;
 		}
 
 		ApplySignalValue(0.0);
-		EnsureHeartbeatSubscription();
+		if (_missingSourceReconnectAttemptsRemaining-- > 0)
+		{
+			EnsureHeartbeatSubscription();
+		}
+		else
+		{
+			RemoveHeartbeatSubscription();
+		}
 	}
 
 	public void ReceiveSignal(ComputerSignal signal, ISignalSource source)
@@ -239,6 +250,7 @@ public class ElectronicDoorGameItemComponent : DoorGameItemComponentBase, IRunti
 	public bool ConfigureSignalBinding(ISignalSourceComponent source, string? endpointKey, out string error)
 	{
 		_runtimeBinding = SignalComponentUtilities.CreateBinding(source, endpointKey);
+		_missingSourceReconnectAttemptsRemaining = MaximumMissingSourceReconnectAttempts;
 		Changed = true;
 		ReconnectSource();
 		error = string.Empty;
@@ -248,6 +260,7 @@ public class ElectronicDoorGameItemComponent : DoorGameItemComponentBase, IRunti
 	public void ClearSignalBinding()
 	{
 		_runtimeBinding = null;
+		_missingSourceReconnectAttemptsRemaining = MaximumMissingSourceReconnectAttempts;
 		Changed = true;
 		ReconnectSource();
 	}

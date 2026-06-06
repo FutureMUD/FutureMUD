@@ -4144,6 +4144,7 @@ If more than one terminal could be used, specify one explicitly or connect first
 		var statusItems = EnumerateElectricalStatusItems(actor, item).ToList();
 		var anchorItem = ResolveSignalSearchAnchorItem(item);
 		var nearbyCables = EnumerateNearbySignalItems(actor, anchorItem)
+			.Where(x => actor.CanSee(x))
 			.SelectMany(x => x.Components.OfType<SignalCableSegmentGameItemComponent>())
 			.Distinct()
 			.OrderBy(x => x.Parent.Id)

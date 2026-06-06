@@ -10,6 +10,13 @@ using MudSharp.FutureProg;
 
 namespace MudSharp.Computers;
 
+public sealed class ComputerFileSystemCapacityException : InvalidOperationException
+{
+	public ComputerFileSystemCapacityException(string message) : base(message)
+	{
+	}
+}
+
 public abstract class ComputerRuntimeExecutableBase : IComputerExecutableDefinition
 {
 	protected ComputerRuntimeExecutableBase(long id, IFuturemud gameworld)
@@ -151,16 +158,43 @@ public sealed class ComputerMutableFileSystem : IComputerFileSystem
 			?.TextContents ?? string.Empty;
 	}
 
+	private void EnsureCapacityForWrite(ComputerMutableTextFile? existing, string replacementContents)
+	{
+		var replacementSize = Encoding.UTF8.GetByteCount(replacementContents ?? string.Empty);
+		var resultingSize = UsedBytes - (existing?.SizeInBytes ?? 0L) + replacementSize;
+		if (resultingSize <= CapacityInBytes)
+		{
+			return;
+		}
+
+		throw new ComputerFileSystemCapacityException(
+			$"That write would use {resultingSize:N0} bytes, exceeding the file system capacity of {CapacityInBytes:N0} bytes.");
+	}
+
+	private void EnsureCapacityForAppend(string appendedContents)
+	{
+		var resultingSize = UsedBytes + Encoding.UTF8.GetByteCount(appendedContents ?? string.Empty);
+		if (resultingSize <= CapacityInBytes)
+		{
+			return;
+		}
+
+		throw new ComputerFileSystemCapacityException(
+			$"That append would use {resultingSize:N0} bytes, exceeding the file system capacity of {CapacityInBytes:N0} bytes.");
+	}
+
 	public void WriteFile(string fileName, string textContents)
 	{
 		var now = DateTime.UtcNow;
+		var contents = textContents ?? string.Empty;
 		var existing = _files.FirstOrDefault(x => x.FileName.Equals(fileName, StringComparison.InvariantCultureIgnoreCase));
+		EnsureCapacityForWrite(existing, contents);
 		if (existing is null)
 		{
 			_files.Add(new ComputerMutableTextFile
 			{
 				FileName = fileName,
-				TextContents = textContents ?? string.Empty,
+				TextContents = contents,
 				CreatedAtUtc = now,
 				LastModifiedAtUtc = now
 			});
@@ -172,7 +206,7 @@ public sealed class ComputerMutableFileSystem : IComputerFileSystem
 			return;
 		}
 
-		existing.TextContents = textContents ?? string.Empty;
+		existing.TextContents = contents;
 		existing.LastModifiedAtUtc = now;
 		FileChanged?.Invoke(this, new ComputerFileSystemChange
 		{
@@ -184,13 +218,15 @@ public sealed class ComputerMutableFileSystem : IComputerFileSystem
 	public void AppendFile(string fileName, string textContents)
 	{
 		var now = DateTime.UtcNow;
+		var contents = textContents ?? string.Empty;
 		var existing = _files.FirstOrDefault(x => x.FileName.Equals(fileName, StringComparison.InvariantCultureIgnoreCase));
+		EnsureCapacityForAppend(contents);
 		if (existing is null)
 		{
 			_files.Add(new ComputerMutableTextFile
 			{
 				FileName = fileName,
-				TextContents = textContents ?? string.Empty,
+				TextContents = contents,
 				CreatedAtUtc = now,
 				LastModifiedAtUtc = now
 			});
@@ -202,7 +238,7 @@ public sealed class ComputerMutableFileSystem : IComputerFileSystem
 			return;
 		}
 
-		existing.TextContents += textContents ?? string.Empty;
+		existing.TextContents += contents;
 		existing.LastModifiedAtUtc = now;
 		FileChanged?.Invoke(this, new ComputerFileSystemChange
 		{

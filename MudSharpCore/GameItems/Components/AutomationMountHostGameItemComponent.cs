@@ -128,6 +128,11 @@ public class AutomationMountHostGameItemComponent : GameItemComponent, IAutomati
 			return false;
 		}
 
+		if (WouldCreateMountCycle(module.Parent, out error))
+		{
+			return false;
+		}
+
 		var bay = _prototype.Bays.FirstOrDefault(x => x.Name.Equals(bayName, StringComparison.InvariantCultureIgnoreCase));
 		if (bay is null)
 		{
@@ -235,8 +240,22 @@ public class AutomationMountHostGameItemComponent : GameItemComponent, IAutomati
 
 	public bool CanConnect(ICharacter? actor, IConnectable other)
 	{
-		return other is IAutomationMountable mountable &&
-		       _prototype.Bays.Any(x =>
+		if (actor is not null && !CanAccessMounts(actor, out _))
+		{
+			return false;
+		}
+
+		if (other is not IAutomationMountable mountable)
+		{
+			return false;
+		}
+
+		if (WouldCreateMountCycle(mountable.Parent, out _))
+		{
+			return false;
+		}
+
+		return _prototype.Bays.Any(x =>
 			       !_mountedByBay.ContainsKey(x.Name) &&
 			       x.MountType.Equals(mountable.MountType, StringComparison.InvariantCultureIgnoreCase)) &&
 		       other.FreeConnections.Any(x => Connections.Any(y => y.CompatibleWith(x)));
@@ -277,6 +296,16 @@ public class AutomationMountHostGameItemComponent : GameItemComponent, IAutomati
 
 	public string WhyCannotConnect(ICharacter? actor, IConnectable other)
 	{
+		if (actor is not null && !CanAccessMounts(actor, out var accessError))
+		{
+			return accessError;
+		}
+
+		if (other is IAutomationMountable mountable && WouldCreateMountCycle(mountable.Parent, out var cycleError))
+		{
+			return cycleError;
+		}
+
 		return $"{Parent.HowSeen(actor)} has no compatible free automation mount bays.";
 	}
 
@@ -458,5 +487,46 @@ public class AutomationMountHostGameItemComponent : GameItemComponent, IAutomati
 	private static ConnectorType ConnectorForBay(AutomationMountBayDefinition bay)
 	{
 		return new ConnectorType(Gender.Female, $"Automation:{bay.MountType}", false);
+	}
+
+	private bool WouldCreateMountCycle(IGameItem moduleItem, out string error)
+	{
+		if (ReferenceEquals(moduleItem, Parent))
+		{
+			error = "An automation module cannot be installed into itself.";
+			return true;
+		}
+
+		if (IsMountedOnOrInside(Parent, moduleItem) || IsMountedOnOrInside(moduleItem, Parent))
+		{
+			error = "That automation installation would create a cyclic mount.";
+			return true;
+		}
+
+		error = string.Empty;
+		return false;
+	}
+
+	private static bool IsMountedOnOrInside(IGameItem start, IGameItem target)
+	{
+		var visited = new HashSet<IGameItem>();
+		var current = start;
+		while (visited.Add(current))
+		{
+			if (ReferenceEquals(current, target))
+			{
+				return true;
+			}
+
+			var mountHost = current.GetItemType<IAutomationMountable>()?.MountHost;
+			if (mountHost is null)
+			{
+				return false;
+			}
+
+			current = mountHost.Parent;
+		}
+
+		return true;
 	}
 }

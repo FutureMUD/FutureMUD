@@ -33,7 +33,7 @@ public class KeypadGameItemComponentProto : PoweredMachineBaseGameItemComponentP
 	{
 		UseMountHostPowerSource = true;
 		Wattage = 35.0;
-		Code = "1234";
+		Code = string.Empty;
 		SignalValue = 1.0;
 		SignalDuration = TimeSpan.FromSeconds(1);
 		EntryEmote = "@ tap|taps digits into $1";
@@ -61,9 +61,17 @@ public class KeypadGameItemComponentProto : PoweredMachineBaseGameItemComponentP
 	protected override void LoadFromXml(XElement root)
 	{
 		base.LoadFromXml(root);
-		Code = root.Element("Code")?.Value ?? "1234";
-		SignalValue = double.Parse(root.Element("SignalValue")?.Value ?? "1.0");
-		SignalDuration = TimeSpan.FromSeconds(double.Parse(root.Element("SignalDurationSeconds")?.Value ?? "1.0"));
+		Code = root.Element("Code")?.Value ?? string.Empty;
+		SignalValue = double.TryParse(root.Element("SignalValue")?.Value, out var signalValue) && double.IsFinite(signalValue)
+			? signalValue
+			: 1.0;
+		SignalDuration = TimeSpan.FromSeconds(
+			double.TryParse(root.Element("SignalDurationSeconds")?.Value, out var duration) &&
+			double.IsFinite(duration) &&
+			duration > 0.0 &&
+			duration <= TimeSpan.MaxValue.TotalSeconds
+				? duration
+				: 1.0);
 		EntryEmote = root.Element("EntryEmote")?.Value ?? "@ tap|taps digits into $1";
 	}
 
@@ -127,7 +135,7 @@ public class KeypadGameItemComponentProto : PoweredMachineBaseGameItemComponentP
 			return false;
 		}
 
-		if (!double.TryParse(command.SafeRemainingArgument, out var value))
+		if (!double.TryParse(command.SafeRemainingArgument, out var value) || !double.IsFinite(value))
 		{
 			actor.Send("You must enter a valid number for the signal value.");
 			return false;
@@ -148,7 +156,10 @@ public class KeypadGameItemComponentProto : PoweredMachineBaseGameItemComponentP
 			return false;
 		}
 
-		if (!double.TryParse(command.SafeRemainingArgument, out var value) || value <= 0.0)
+		if (!double.TryParse(command.SafeRemainingArgument, out var value) ||
+		    !double.IsFinite(value) ||
+		    value <= 0.0 ||
+		    value > TimeSpan.MaxValue.TotalSeconds)
 		{
 			actor.Send("You must enter a positive number of seconds.");
 			return false;

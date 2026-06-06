@@ -139,6 +139,23 @@ return @togglevalue");
 	}
 
 	[TestMethod]
+	public void ComputerMutableFileSystem_WriteAndAppend_EnforceCapacity()
+	{
+		var fileSystem = new ComputerMutableFileSystem(5);
+
+		fileSystem.WriteFile("signal.txt", "12345");
+
+		Assert.AreEqual(5, fileSystem.UsedBytes);
+		Assert.ThrowsException<ComputerFileSystemCapacityException>(() => fileSystem.AppendFile("signal.txt", "6"));
+		Assert.ThrowsException<ComputerFileSystemCapacityException>(() => fileSystem.WriteFile("other.txt", "1"));
+
+		fileSystem.WriteFile("signal.txt", "12");
+		fileSystem.WriteFile("other.txt", "123");
+
+		Assert.AreEqual(5, fileSystem.UsedBytes);
+	}
+
+	[TestMethod]
 	public void ComputerFileTransferUtilities_EnumerateOwners_IncludesHostLocalFileSignalGenerator()
 	{
 		var gameworld = CreateGameworld();
@@ -1483,6 +1500,7 @@ return @togglevalue");
 			true);
 		cableItem.SetupGet(x => x.Components).Returns([cable]);
 		sharedCell.Setup(x => x.LayerGameItems(RoomLayer.GroundLevel)).Returns([sensorItem.Object, cableItem.Object]);
+		actor.Setup(x => x.CanSee(cableItem.Object, It.IsAny<PerceiveIgnoreFlags>())).Returns(true);
 		gameworld.Setup(x => x.TryGetItem(It.IsAny<long>(), It.IsAny<bool>()))
 			.Returns((long id, bool _) => id == sensorItem.Object.Id ? sensorItem.Object : null!);
 

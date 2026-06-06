@@ -106,7 +106,8 @@ public class ElectronicLockGameItemComponent : ProgLockGameItemComponent, IRunti
 			return;
 		}
 
-		ApplySignalValue(0.0);
+		CurrentValue = 0.0;
+		SetLocked(true, true);
 	}
 
 	public void ReceiveSignal(ComputerSignal signal, ISignalSource source)

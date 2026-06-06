@@ -59,6 +59,7 @@ internal static class ComputerCompilationRestrictions
 		"Items",
 		"Lookup",
 		"Manipulation",
+		"Markets",
 		"NPCs",
 		"Outfits",
 		"Perception",

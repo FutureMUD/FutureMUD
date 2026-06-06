@@ -142,6 +142,8 @@ return 42");
 		Assert.IsFalse(functions.Any(x => x.FunctionName.EqualTo("LoadItem")));
 		Assert.IsTrue(functions.Any(x => x.FunctionName.EqualTo("UserInput")));
 		Assert.IsTrue(functions.Any(x => x.FunctionName.EqualTo("WaitSignal")));
+		Assert.IsFalse(functions.Any(x => x.FunctionName.EqualTo("BeginInfluence")));
+		Assert.IsFalse(functions.Any(x => x.FunctionName.EqualTo("EndInfluence")));
 		Assert.IsFalse(functions.Any(x => x.FunctionName.EqualTo("SendDiscord")));
 		Assert.IsFalse(service.GetFunctionHelp(FutureProgCompilationContext.ComputerFunction)
 			.Any(x => x.FunctionName.EqualTo("UserInput")));
@@ -203,6 +205,20 @@ return 1");
 
 		Assert.AreEqual(ComputerProcessStatus.Failed, outcome.Status);
 		StringAssert.Contains(outcome.Error, "For loop of greater than 10,000 iterations");
+	}
+
+	[TestMethod]
+	public void ComputerProgramExecutor_RejectsUnboundedTextHelpersWithoutThrowing()
+	{
+		var program = CompileProgramWithReturnType(
+			"HugeRepeatText",
+			ProgVariableTypes.Text,
+			@"return repeattext(""A"", 1000000000)");
+
+		var outcome = ComputerProgramExecutor.Execute(program, Array.Empty<object?>());
+
+		Assert.AreEqual(ComputerProcessStatus.Failed, outcome.Status);
+		StringAssert.Contains(outcome.Error, "repeattext cannot create text longer");
 	}
 
 	[TestMethod]
@@ -758,7 +774,7 @@ return userinput()";
 	}
 
 	[TestMethod]
-	public void ComputerExecutionService_ExecuteBuiltInApplication_SysMonWritesToTerminalAndCreatesHostProcess()
+	public void ComputerExecutionService_ExecuteBuiltInApplication_SysMonWritesToTerminalAndPrunesCompletedProcess()
 	{
 		var scheduler = new Mock<IScheduler>();
 		var gameworld = CreateGameworld(scheduler);
@@ -795,7 +811,7 @@ return userinput()";
 		Assert.IsTrue(result.Success, result.ErrorMessage);
 		Assert.AreEqual(ComputerProcessStatus.Completed, result.Status);
 		Assert.IsNotNull(result.Process);
-		Assert.IsNotNull(host.GetProcess(result.Process!.Id));
+		Assert.IsNull(host.GetProcess(result.Process!.Id));
 		Assert.IsFalse(owner.Processes.Any(x => x.Id == result.Process.Id));
 		output.Verify(x => x.Send(
 				It.Is<string>(s => s.Contains("SysMon") && s.Contains("Processes:")),
@@ -939,7 +955,7 @@ return userinput()";
 		Assert.AreEqual(ComputerProcessWaitType.UserInput, liveProcess.WaitType);
 
 		Assert.IsTrue(service.TrySubmitTerminalInput(session, "exit", out var exitError), exitError);
-		Assert.AreEqual(ComputerProcessStatus.Completed, host.GetProcess(start.Process.Id)!.Status);
+		Assert.IsNull(host.GetProcess(start.Process.Id));
 		output.Verify(x => x.Send(
 				It.Is<string>(s => s.Contains("Copied") && s.Contains("notes.txt")),
 				true,
@@ -1813,6 +1829,15 @@ return userinput()";
 			var authentication = mailService.Authenticate(localHost, "alice@local.example", "secret");
 			Assert.IsTrue(authentication.Success, authentication.ErrorMessage);
 
+			Assert.IsFalse(mailService.SendMessage(
+					localHost,
+					authentication.Account!,
+					"bob@remote.example",
+					new string('S', 501),
+					"Test Body",
+					out var longSubjectError));
+			StringAssert.Contains(longSubjectError, "500");
+
 			Assert.IsTrue(mailService.SendMessage(
 					localHost,
 					authentication.Account!,
@@ -2387,13 +2412,20 @@ return userinput()";
 			Assert.IsTrue(service.TrySubmitTerminalInput(session, "use general", out var useError), useError);
 			Assert.IsTrue(service.TrySubmitTerminalInput(session, "read 1", out var readError), readError);
 			output.Verify(x => x.Send(
-				It.Is<string>(s => s.Contains("Welcome") && s.Contains("Welcome to the board service.")),
+				It.Is<string>(s => s.Contains("Log in first") && s.Contains("before reading posts")),
 				true,
 				true), Times.AtLeastOnce);
 
 			Assert.IsTrue(service.TrySubmitTerminalInput(session, "login alice@bbs.example secret", out var loginError), loginError);
 			output.Verify(x => x.Send(
 				It.Is<string>(s => s.Contains("alice@bbs.example") && s.Contains("log in")),
+				true,
+				true), Times.AtLeastOnce);
+
+			Assert.IsTrue(service.TrySubmitTerminalInput(session, "read 1", out var authenticatedReadError),
+				authenticatedReadError);
+			output.Verify(x => x.Send(
+				It.Is<string>(s => s.Contains("Welcome") && s.Contains("Welcome to the board service.")),
 				true,
 				true), Times.AtLeastOnce);
 
@@ -2417,12 +2449,18 @@ return userinput()";
 	private static ComputerWorkspaceProgram CompileProgram(string name, string source,
 		params ComputerExecutableParameter[] parameters)
 	{
+		return CompileProgramWithReturnType(name, ProgVariableTypes.Number, source, parameters);
+	}
+
+	private static ComputerWorkspaceProgram CompileProgramWithReturnType(string name, ProgVariableTypes returnType, string source,
+		params ComputerExecutableParameter[] parameters)
+	{
 		var gameworld = new Mock<IFuturemud>();
 		var (prog, error) = ComputerExecutableCompiler.Compile(
 			gameworld.Object,
 			name,
 			ComputerExecutableKind.Program,
-			ProgVariableTypes.Number,
+			returnType,
 			parameters,
 			source);
 
@@ -2430,7 +2468,7 @@ return userinput()";
 		var program = new ComputerWorkspaceProgram(1, gameworld.Object)
 		{
 			Name = name,
-			ReturnType = ProgVariableTypes.Number,
+			ReturnType = returnType,
 			Parameters = parameters,
 			SourceCode = source,
 			CompilationStatus = ComputerCompilationStatus.Compiled,

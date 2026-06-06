@@ -12,6 +12,8 @@ namespace MudSharp.Computers;
 
 public sealed class ComputerMailService : IComputerMailService
 {
+	private const int MaximumSubjectLength = 500;
+
 	private sealed class RuntimeMailAccount : IComputerMailAccount
 	{
 		public long Id { get; init; }
@@ -568,6 +570,13 @@ public sealed class ComputerMailService : IComputerMailService
 			return false;
 		}
 
+		var trimmedSubject = subject.Trim();
+		if (trimmedSubject.Length > MaximumSubjectLength)
+		{
+			error = $"Mail subjects must be {MaximumSubjectLength:N0} characters or fewer.";
+			return false;
+		}
+
 		if (string.IsNullOrWhiteSpace(body))
 		{
 			error = "You must set a body before posting the message.";
@@ -595,7 +604,7 @@ public sealed class ComputerMailService : IComputerMailService
 			{
 				SenderAddress = senderAccount.Address,
 				RecipientAddress = recipientAddress.ToLowerInvariant(),
-				Subject = subject.Trim(),
+				Subject = trimmedSubject,
 				Body = body,
 				SentAtUtc = DateTime.UtcNow
 			};

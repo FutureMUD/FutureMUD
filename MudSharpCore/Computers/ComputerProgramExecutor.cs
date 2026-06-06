@@ -473,6 +473,10 @@ internal static class ComputerProgramExecutor
 					StateJson = PersistFrames(frames)
 				};
 			}
+			catch (Exception ex) when (ex is not OutOfMemoryException)
+			{
+				return Failure($"Computer program execution failed: {ex.Message}");
+			}
 		}
 
 		return Complete(program.ReturnType, frames);

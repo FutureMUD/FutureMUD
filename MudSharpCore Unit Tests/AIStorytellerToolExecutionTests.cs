@@ -32,6 +32,8 @@ using OpenAI.Responses;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Text.Json;
 using ModelStoryteller = MudSharp.Models.AIStoryteller;
 
@@ -205,6 +207,22 @@ public class AIStorytellerToolExecutionTests
 
         Assert.IsNotNull(options.ToolChoice);
         Assert.AreEqual(ResponseToolChoiceKind.Auto, options.ToolChoice.Kind);
+    }
+
+    [TestMethod]
+    public void ConfigureToolLoopResponseOptions_WithSystemPrompt_SetsToolBoundaryInstructions()
+    {
+        AIStoryteller storyteller = CreateStoryteller();
+        CreateResponseOptions options = new(new List<ResponseItem>());
+
+        storyteller.ConfigureToolLoopResponseOptions(options, includeEchoTools: true, requireToolCall: true,
+            toolProfile: AIStoryteller.StorytellerToolProfile.EventFocused,
+            systemPrompt: "Keep the fiction grounded.");
+
+        StringAssert.Contains(options.Instructions, "Keep the fiction grounded.");
+        StringAssert.Contains(options.Instructions, "untrusted world context");
+        StringAssert.Contains(options.Instructions, "prefer Noop");
+        Assert.AreEqual(false, options.StoredOutputEnabled);
     }
 
     [TestMethod]
@@ -1348,6 +1366,25 @@ public class AIStorytellerToolExecutionTests
         Assert.AreEqual(string.Empty, reason);
         Assert.IsFalse(string.IsNullOrWhiteSpace(loggedMessage));
         StringAssert.Contains(loggedMessage, "Attention classifier contract violation");
+    }
+
+    [TestMethod]
+    public void QueueStorytellerWork_RejectsWorkBeyondBoundedQueue()
+    {
+        AIStoryteller storyteller = CreateStoryteller();
+        TaskCompletionSource<object?> blocker = new(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        for (int i = 0; i < 25; i++)
+        {
+            Assert.IsTrue(storyteller.QueueStorytellerWork(() => blocker.Task));
+        }
+
+        Assert.AreEqual(25, storyteller.PendingStorytellerWorkCount);
+        Assert.IsFalse(storyteller.QueueStorytellerWork(() => Task.CompletedTask));
+
+        blocker.SetResult(null);
+        SpinWait.SpinUntil(() => storyteller.PendingStorytellerWorkCount == 0, TimeSpan.FromSeconds(2));
+        Assert.AreEqual(0, storyteller.PendingStorytellerWorkCount);
     }
 
     private static AIStoryteller CreateStoryteller(IEnumerable<IFutureProg>? progs = null,

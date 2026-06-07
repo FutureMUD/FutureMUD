@@ -4,20 +4,20 @@ This document consolidates the medieval clothing guidance and target catalogue f
 
 ## Executive summary
 
-- Total target unique wearable item prototypes in this reference: **259**.
-- Total outfit manifests: **100**.
+- Total target unique wearable item prototypes in this reference: **408**.
+- Total outfit manifests: **164**.
 - Each inspiration family has four builder-facing outfit manifests: common male, elite male, common female, and elite female.
 - All target items are finished goods, skinnable, player-visible, and ordinary portable inventory items unless a later seeder implementation explicitly marks a narrow exception.
 - Public item fields should use culture-neutral, in-world descriptions. Builder-facing notes and outfit labels may still use historical inspiration labels for organization and source grounding.
 - The item set is intended as a historically grounded base layer: skins may create local, fantasy, status, textile, dye, motif, household, seasonal, and professional variants without duplicating behaviour-heavy item prototypes.
-- The catalogue includes **34** cold-weather overlay items and **68** urban/professional overlay items; both are optional additions or substitutions rather than mandatory default outfit pieces.
+- The catalogue includes **34** cold-weather overlay items, **68** urban/professional overlay items, **79** religious-clothing overlay items, and **70** accessory/social-context overlay items; these overlays are optional additions or substitutions unless a builder-facing outfit manifest intentionally promotes them into a complete outfit. The accessory/social-context pass covers **30** worn accessories and fasteners, **14** travel/rural-specialist items, **10** household/service-labour items, **8** scholar/literate-professional items, and **8** child or apprentice items, while deliberately omitting wearable containers such as pouches, purses, alms bags, travel scrips, satchels, backpacks, and tool bags.
 
 ## Scope and era model
 
 - Chronological band: 500AD to 1300AD.
 - Geographic coverage in this consolidated document: Britain and Ireland; Scandinavia and the North Sea; western, central, and southern Europe; Iberia; Byzantium; the Levant; Egypt and North Africa; the Eurasian steppe; Rus/Novgorod; northern and southern India; China; Korea; and Japan.
 - Historical inspiration families: Early Anglo-Saxon, Anglo-Danish, Norse / Viking Age, Norman, Anglo-Norman, High English / British, Irish / Gaelic, Scottish / Gaelic-Lowland, Carolingian / Frankish, Capetian French, Holy Roman Empire / German, Christian Iberian, Andalusian, Byzantine, Abbasid, Fatimid, Seljuk / Ayyubid-Mamluk, Magyar, Rus / Novgorod, Steppe Turkic / Mongol, North Indian / Rajput, South Indian / Chola, Song China, Goryeo Korea, Heian / Kamakura Japan. These labels are builder-facing organizational buckets, not required public item wording.
-- Resolution: standard garment prototypes rather than exhaustive local subtypes. The defaults should be credible on their own, while later skins can handle exact regional trim, textile patterns, motifs, dyes, household marks, rank marks, religious variants, and world-specific names.
+- Resolution: standard garment prototypes rather than exhaustive local subtypes. The defaults should be credible on their own, while later skins can handle exact regional trim, textile patterns, motifs, dyes, household marks, rank marks, religious variants, monastic order variants, liturgical textile details, and world-specific names.
 - Coverage deliberately excludes cultures outside this document's selected 500AD-1300AD seeder slice. South-east Asian, Tibetan, Ethiopian, West African, Mesoamerican, Andean, late medieval Ottoman, later Mamluk, late medieval European fitted-fashion, Renaissance, early modern, modern, and American traditions are left for separate references.
 - Culture labels are used to ensure design coverage; they are not public naming requirements and should not be mechanically inserted into `noun`, `sdesc`, or `fdesc`.
 
@@ -51,6 +51,25 @@ This document consolidates the medieval clothing guidance and target catalogue f
 | Goryeo Korea | c. 1150AD | Goryeo-period Korean clothing as an East Asian court and commoner family | cross-collar jackets, baji trousers, chima skirts, po over-robes, headcloths, caps, cloth shoes, and fine silk over-robes for elites |
 | Heian / Kamakura Japan | c. 1200AD | late Heian to early Kamakura Japanese clothing | kosode, hakama, suikan, hitatare, uchigi, kariginu, eboshi, hemp sandals, layered silk courtwear, and simpler tight-sleeved robes for common dress |
 
+
+### Religious tradition coverage table
+
+This table is builder-facing. It documents the religious clothing traditions implied by the selected culture families and keeps shared religious outfits from being duplicated as culture-specific priest, monk, nun, or scholar variants.
+
+| Religious tradition | Covered culture families | Catalogue treatment | Notes and limits |
+|---|---|---|---|
+| Latin Catholic / Western Christian | Early Anglo-Saxon, Anglo-Danish, Norse after conversion, Norman, Anglo-Norman, High English / British, Irish / Gaelic, Scottish / Gaelic-Lowland, Carolingian / Frankish, Capetian French, Holy Roman Empire / German, Christian Iberian, Magyar | Shared western monastic, mendicant, clerical, liturgical, bishop, and archbishop outfits. | Order labels are builder-facing. Public item text should describe garment form, colour, and construction rather than naming a real-world order unless the garment name itself is useful and historically intelligible. |
+| Eastern Orthodox / Byzantine-rite Christian | Byzantine, Rus / Novgorod, and Orthodox-facing neighbouring or frontier contexts | Shared Eastern Christian monastic, deacon, priest, and bishop outfits. | Byzantine-rite vestments are distinct from Latin vestments and should not be reskinned as western chasuble/dalmatic sets without intentional local design work. |
+| Islam | Andalusian, Abbasid, Fatimid, Seljuk / Ayyubid-Mamluk, Islamic Indian and steppe contact settings | Imam/khatib, qadi/scholar, and Sufi clothing overlays using qamis, sirwal, jubba, turban, taylasan, khirqa, sash, and cap forms. | Islam is not modelled as having an ordained priesthood uniform. These are learned, mosque, judicial, and Sufi-specialist outfits rather than universal religious uniforms. |
+| Judaism | Jewish communities in western Christian, Byzantine, Islamic Mediterranean, Near Eastern, North African, Iberian, and Indian Ocean urban settings | Prayer shawls, small prayer garments, skullcap, and learned robe overlays. | No forced badge, discriminatory dress, or other externally imposed status mark is included. Local everyday clothing should come from the surrounding culture family. |
+| Hindu temple and ascetic traditions | North Indian / Rajput and South Indian / Chola | Temple-priest white dhoti/uttariya and ochre ascetic wrap variants. | The items are conservative clothing forms only; sect marks, sacred threads, beads, and ritual tools are left to later non-clothing passes or skins. |
+| Jain Śvetāmbara | North Indian / Rajput and western/south Indian urban religious contexts | White ascetic robe and shoulder-wrap outfits for monks and nuns. | Digambara male ascetics are not represented with clothing prototypes because the distinctive practice is non-clothing. No mouth-cloth or broom is included in this clothing pass. |
+| Buddhism | Song China, Goryeo Korea, Heian / Kamakura Japan, and residual Indian Buddhist contexts | Plain under-robes, patched kasaya/kesa mantles, nun robes, formal mantles, and travelling monastic layers. | Regional colour and sect nuance should be carried by skins; the base set focuses on robe and mantle construction rather than exhaustive school distinctions. |
+| Daoism | Song China and neighbouring East Asian religious settings | Cross-collar robe, formal cloud-sleeved robe, and ritual cap overlays. | The base items avoid talismans, written charms, registers, or ritual implements. |
+| Shinto | Heian / Kamakura Japan | Shrine-priest jōe robe, hakama, eboshi, and shrine-attendant kosode/hakama outfits. | The emphasis is on Heian-derived courtly shrine clothing. Later standardized modern shrine uniforms are outside scope. |
+| Steppe animist / Tengri / shamanic specialist | Steppe Turkic / Mongol and steppe-influenced Magyar or frontier settings | Felt-lined coat, fur cap, and braided sash overlays worn over normal steppe clothing. | These are conservative clothing signals for ritual specialists, not a claim of standardized shamanic uniform. Drums, charms, masks, and other paraphernalia are intentionally excluded. |
+| Poorly evidenced pre-Christian Norse, Slavic, Gaelic, and local folk-priesthood dress | Norse / Viking Age, Rus / Novgorod, Irish / Gaelic, Scottish / Gaelic-Lowland, and other local contexts | No separate base outfit. Use ordinary elite/common local garments plus later skins if a setting needs ritual colour, trim, or symbolic textile work. | This avoids inventing confident uniform systems where the evidence is thin or where religious clothing is not clearly separable from local elite or household dress. |
+
 ## Seeder and project grounding rules
 
 - Use the project-standard `CreateItem(...)` seeder call shape for item implementation.
@@ -82,13 +101,14 @@ This document consolidates the medieval clothing guidance and target catalogue f
 - Public item text avoids real-world culture labels such as Anglo-Saxon, Norse, Norman, English, Irish, Scottish, Frankish, French, German, Iberian, Andalusian, Byzantine, Abbasid, Fatimid, Seljuk, Magyar, Rus, Turkic, Mongol, Indian, Chinese, Korean, or Japanese unless both absolutely unavoidable and contemporarily supported. These labels can be used in builder-facing manifests and source notes.
 - Garment names are acceptable when they identify a form rather than merely naming a people. Examples used here include `braies`, `chausses`, `chainse`, `cotte`, `kirtle`, `bliaut`, `surcoat`, `saya`, `pellote`, `manto`, `toca`, `qamis`, `sirwal`, `jubba`, `izar`, `burnous`, `tiraz`, `kamision`, `dalmatic`, `skaramangion`, `sagion`, `loros`, `maforion`, `caftan`, `deel`, `rubakha`, `onuchi`, `poneva`, `shuba`, `dhoti`, `uttariya`, `sari`, `veshti`, `angavastram`, `cross-collar robe`, `beizi`, `baji`, `chima`, `po`, `kosode`, `hakama`, `suikan`, `hitatare`, `uchigi`, `kariginu`, and `eboshi`.
 - Where no useful garment name exists, public naming should use visible descriptors: short, long, straight, fitted, full, folded, bordered, checked, pleated, wrapped, woolly, belted, sleeveless, front-opening, split-skirt, fur-lined, or similar.
+- Religious public text may use garment-form names such as habit, scapular, cowl, alb, stole, chasuble, dalmatic, cope, mitre, phelonion, sakkos, qamis, jubba, khirqa, tallit, kasaya, kesa, jōe, hakama, or eboshi when those are useful object names rather than merely culture labels. Builder-facing manifest labels may name orders or traditions; public `sdesc` and `fdesc` should still describe visible garment form, colour, textile, and construction.
 - Avoid male-default naming. Do not create unmarked `tunic` plus marked `women's tunic` pairs when the meaningful distinction is length, fullness, sleeve form, drape, or layering. Gender can appear in builder-facing outfit manifests, but public text should prefer form-based distinctions.
 
 ## Skin strategy
 
 - All target garments are skinnable because they are finished wearable goods.
 - A skin can override presentation fields and quality without changing the underlying item behaviour.
-- Skins should carry high-variance presentation: local fantasy-culture names, exact trim patterns, tablet-woven bands, embroidery, tiraz text, rank borders, official insignia, household marks, clan marks, religious or temple motifs, silk patterning, brooch placement, dye intensity, material nuance, and fantasy-world motifs.
+- Skins should carry high-variance presentation: local fantasy-culture names, exact trim patterns, tablet-woven bands, embroidery, tiraz text, rank borders, official insignia, household marks, clan marks, religious or temple motifs, order-specific trim nuance, vestment embroidery, silk patterning, brooch placement, dye intensity, material nuance, and fantasy-world motifs.
 - Default unskinned items still need to be credible standalone garments. Skinability must not be used as an excuse for a bland, incomplete, or out-of-world base description.
 - Player-facing base descriptions should never tell the player that a skin may later change the appearance.
 
@@ -1023,9 +1043,533 @@ The following outfit manifests are builder-facing. Their labels use historical i
 - `medieval_japanese_kariginu` - a fine $colour kariginu robe
 - `medieval_japanese_eboshi` - a black eboshi cap
 
+
+### Latin Christian Benedictine monk
+
+- `medieval_linen_undertunic` - a $colour linen undertunic
+- `medieval_plain_leather_sandals` - a pair of plain leather sandals
+- `medieval_latin_black_monastic_habit` - a black wool monastic habit
+- `medieval_latin_black_scapular` - a black wool scapular
+- `medieval_latin_black_cowl` - a black wool cowl
+
+### Latin Christian Benedictine nun
+
+- `medieval_linen_chemise` - a $colour linen chemise
+- `medieval_soft_leather_shoes` - a pair of soft leather shoes
+- `medieval_latin_simple_nun_habit` - a dark wool nun's habit
+- `medieval_latin_black_scapular` - a black wool scapular
+- `medieval_latin_nun_wimple_veil` - a white linen wimple and veil
+
+### Latin Christian Cistercian monk
+
+- `medieval_linen_undertunic` - a $colour linen undertunic
+- `medieval_plain_leather_sandals` - a pair of plain leather sandals
+- `medieval_latin_white_monastic_tunic` - an undyed wool monastic tunic
+- `medieval_latin_black_over_scapular` - a black wool over-scapular
+- `medieval_latin_black_cowl` - a black wool cowl
+
+### Latin Christian Cistercian nun
+
+- `medieval_linen_chemise` - a $colour linen chemise
+- `medieval_soft_leather_shoes` - a pair of soft leather shoes
+- `medieval_latin_white_monastic_tunic` - an undyed wool monastic tunic
+- `medieval_latin_black_over_scapular` - a black wool over-scapular
+- `medieval_latin_nun_wimple_veil` - a white linen wimple and veil
+
+### Latin Christian Carthusian monk
+
+- `medieval_linen_undertunic` - a $colour linen undertunic
+- `medieval_plain_leather_sandals` - a pair of plain leather sandals
+- `medieval_latin_white_carthusian_habit` - a white wool hermit's habit
+- `medieval_latin_black_cowl` - a black wool cowl
+
+### Latin Christian Augustinian canon
+
+- `medieval_linen_undertunic` - a $colour linen undertunic
+- `medieval_soft_leather_shoes` - a pair of soft leather shoes
+- `medieval_latin_canon_black_habit` - a black wool canon's habit
+- `medieval_latin_white_rochet` - a white linen rochet
+
+### Latin Christian Premonstratensian canon
+
+- `medieval_linen_undertunic` - a $colour linen undertunic
+- `medieval_plain_leather_sandals` - a pair of plain leather sandals
+- `medieval_latin_white_monastic_tunic` - an undyed wool monastic tunic
+- `medieval_latin_white_rochet` - a white linen rochet
+
+### Latin Christian Franciscan friar
+
+- `medieval_linen_undertunic` - a $colour linen undertunic
+- `medieval_plain_leather_sandals` - a pair of plain leather sandals
+- `medieval_latin_friar_grey_habit` - a grey wool friar's habit
+- `medieval_latin_rope_cincture` - a knotted rope cincture
+
+### Latin Christian Dominican friar
+
+- `medieval_linen_undertunic` - a $colour linen undertunic
+- `medieval_soft_leather_shoes` - a pair of soft leather shoes
+- `medieval_latin_white_friar_habit` - a white wool friar's habit
+- `medieval_latin_black_friar_cappa` - a black wool friar's cappa
+- `medieval_plain_leather_belt` - a plain leather belt
+
+### Latin Christian Carmelite friar
+
+- `medieval_linen_undertunic` - a $colour linen undertunic
+- `medieval_plain_leather_sandals` - a pair of plain leather sandals
+- `medieval_latin_brown_friar_habit` - a brown wool friar's habit
+- `medieval_latin_white_friar_mantle` - a white wool friar's mantle
+- `medieval_plain_leather_belt` - a plain leather belt
+
+### Latin Christian Poor Clare nun
+
+- `medieval_linen_chemise` - a $colour linen chemise
+- `medieval_plain_leather_sandals` - a pair of plain leather sandals
+- `medieval_latin_poor_clare_grey_habit` - a grey wool sister's habit
+- `medieval_latin_rope_cincture` - a knotted rope cincture
+- `medieval_latin_poor_clare_veil` - a plain linen sister's veil
+
+### Latin Christian parish cleric
+
+- `medieval_linen_undertunic` - a $colour linen undertunic
+- `medieval_soft_leather_shoes` - a pair of soft leather shoes
+- `medieval_latin_black_clerical_gown` - a black wool clerical gown
+- `medieval_linen_coif` - a $colour linen coif
+
+### Latin Christian priest at Mass
+
+- `medieval_latin_amice` - a white linen amice
+- `medieval_latin_white_alb` - a white linen alb
+- `medieval_latin_linen_cincture` - a white linen cincture
+- `medieval_latin_stole` - a $colour silk stole
+- `medieval_latin_maniple` - a $colour silk maniple
+- `medieval_latin_chasuble` - a fine $colour silk chasuble
+
+### Latin Christian deacon at Mass
+
+- `medieval_latin_amice` - a white linen amice
+- `medieval_latin_white_alb` - a white linen alb
+- `medieval_latin_linen_cincture` - a white linen cincture
+- `medieval_latin_stole` - a $colour silk stole
+- `medieval_latin_maniple` - a $colour silk maniple
+- `medieval_latin_dalmatic_vestment` - a fine $colour silk dalmatic
+
+### Latin Christian bishop in pontificals
+
+- `medieval_latin_amice` - a white linen amice
+- `medieval_latin_white_alb` - a white linen alb
+- `medieval_latin_linen_cincture` - a white linen cincture
+- `medieval_latin_stole` - a $colour silk stole
+- `medieval_latin_chasuble` - a fine $colour silk chasuble
+- `medieval_latin_processional_cope` - a fine $colour silk cope
+- `medieval_latin_bishop_mitre` - a fine white silk mitre
+- `medieval_latin_bishop_gloves` - a pair of fine white liturgical gloves
+
+### Latin Christian archbishop in pallium vestments
+
+- `medieval_latin_amice` - a white linen amice
+- `medieval_latin_white_alb` - a white linen alb
+- `medieval_latin_linen_cincture` - a white linen cincture
+- `medieval_latin_stole` - a $colour silk stole
+- `medieval_latin_chasuble` - a fine $colour silk chasuble
+- `medieval_latin_processional_cope` - a fine $colour silk cope
+- `medieval_latin_bishop_mitre` - a fine white silk mitre
+- `medieval_latin_bishop_gloves` - a pair of fine white liturgical gloves
+- `medieval_latin_archbishop_pallium` - a white wool pallium band
+
+### Eastern Christian monk
+
+- `medieval_linen_undertunic` - a $colour linen undertunic
+- `medieval_soft_leather_shoes` - a pair of soft leather shoes
+- `medieval_eastern_black_riassa` - a black wool riassa
+- `medieval_eastern_monastic_mantle` - a black wool monastic mantle
+- `medieval_eastern_black_klobuk` - a black veiled klobuk
+
+### Eastern Christian nun
+
+- `medieval_linen_chemise` - a $colour linen chemise
+- `medieval_soft_leather_shoes` - a pair of soft leather shoes
+- `medieval_eastern_black_riassa` - a black wool riassa
+- `medieval_eastern_monastic_mantle` - a black wool monastic mantle
+- `medieval_eastern_womens_monastic_veil` - a black monastic veil
+
+### Eastern Christian deacon
+
+- `medieval_eastern_sticharion` - a white linen sticharion
+- `medieval_eastern_orarion` - a $colour silk orarion
+- `medieval_eastern_epimanikia` - a pair of $colour silk epimanikia
+- `medieval_soft_leather_shoes` - a pair of soft leather shoes
+
+### Eastern Christian priest
+
+- `medieval_eastern_sticharion` - a white linen sticharion
+- `medieval_eastern_epitrachelion` - a $colour silk epitrachelion
+- `medieval_eastern_epimanikia` - a pair of $colour silk epimanikia
+- `medieval_eastern_phelonion` - a fine $colour silk phelonion
+- `medieval_eastern_kamilavkion` - a black felt kamilavkion
+
+### Eastern Christian bishop
+
+- `medieval_eastern_sticharion` - a white linen sticharion
+- `medieval_eastern_epitrachelion` - a $colour silk epitrachelion
+- `medieval_eastern_epimanikia` - a pair of $colour silk epimanikia
+- `medieval_eastern_sakkos` - a fine $colour silk sakkos
+- `medieval_eastern_omophorion` - a fine white silk omophorion
+- `medieval_eastern_kamilavkion` - a black felt kamilavkion
+
+### Islamic imam / khatib
+
+- `medieval_cotton_sirwal` - a pair of $colour cotton sirwal
+- `medieval_islamic_plain_imam_qamis` - a plain white cotton imam qamis
+- `medieval_islamic_plain_imam_turban` - a plain white cotton imam turban
+- `medieval_plain_leather_sandals` - a pair of plain leather sandals
+
+### Islamic qadi / madrasa scholar
+
+- `medieval_cotton_sirwal` - a pair of $colour cotton sirwal
+- `medieval_linen_qamis` - a $colour linen qamis
+- `medieval_islamic_scholars_jubba` - a dark wool scholar's jubba
+- `medieval_islamic_taylasan` - a dark wool taylasan hood
+- `medieval_islamic_qadi_turban` - a fine white scholar's turban
+- `medieval_soft_leather_slippers` - a pair of soft leather slippers
+
+### Islamic Sufi dervish
+
+- `medieval_linen_qamis` - a $colour linen qamis
+- `medieval_cotton_sirwal` - a pair of $colour cotton sirwal
+- `medieval_sufi_patched_khirqa` - a patched wool khirqa
+- `medieval_sufi_wool_sash` - a coarse wool Sufi sash
+- `medieval_sufi_felt_cap` - a plain felt dervish cap
+
+### Islamic Sufi sheikh
+
+- `medieval_cotton_qamis` - a $colour cotton qamis
+- `medieval_cotton_sirwal` - a pair of $colour cotton sirwal
+- `medieval_islamic_scholars_jubba` - a dark wool scholar's jubba
+- `medieval_sufi_coarse_wool_cloak` - a coarse wool Sufi cloak
+- `medieval_islamic_plain_imam_turban` - a plain white cotton imam turban
+
+### Jewish synagogue scholar
+
+- `medieval_linen_undertunic` - a $colour linen undertunic
+- `medieval_jewish_scholars_robe` - a dark wool scholar's robe
+- `medieval_jewish_skullcap` - a plain wool skullcap
+- `medieval_jewish_tallit_gadol` - a white wool tallit gadol
+
+### Jewish prayer leader
+
+- `medieval_linen_undertunic` - a $colour linen undertunic
+- `medieval_simple_woven_sash` - a simple woven sash
+- `medieval_jewish_tallit_katan` - a white wool tallit katan
+- `medieval_jewish_tallit_gadol` - a white wool tallit gadol
+- `medieval_jewish_skullcap` - a plain wool skullcap
+
+### Hindu temple priest
+
+- `medieval_hindu_white_priest_dhoti` - a white cotton priest's dhoti
+- `medieval_hindu_white_uttariya` - a white cotton uttariya
+- `medieval_plain_leather_sandals` - a pair of plain leather sandals
+
+### Hindu ascetic
+
+- `medieval_hindu_kaupina` - a plain cotton kaupina
+- `medieval_hindu_ochre_ascetic_wrap` - an ochre cotton ascetic wrap
+- `medieval_hindu_ochre_shoulder_cloth` - an ochre cotton shoulder cloth
+- `medieval_plain_leather_sandals` - a pair of plain leather sandals
+
+### Jain Śvetāmbara monk
+
+- `medieval_jain_white_ascetic_robe` - a white cotton ascetic robe
+- `medieval_jain_white_shoulder_wrap` - a white cotton shoulder wrap
+- `medieval_plain_leather_sandals` - a pair of plain leather sandals
+
+### Jain Śvetāmbara nun
+
+- `medieval_jain_white_ascetic_robe` - a white cotton ascetic robe
+- `medieval_jain_white_shoulder_wrap` - a white cotton shoulder wrap
+- `medieval_linen_veil` - a $colour linen veil
+- `medieval_plain_leather_sandals` - a pair of plain leather sandals
+
+### Buddhist monk
+
+- `medieval_buddhist_plain_underrobe` - a plain hemp monastic underrobe
+- `medieval_buddhist_patched_kasaya` - a patched cotton kasaya
+- `medieval_hemp_sandals` - a pair of hemp sandals
+
+### Buddhist nun
+
+- `medieval_buddhist_nun_robe` - a dark hemp nun robe
+- `medieval_buddhist_patched_kasaya` - a patched cotton kasaya
+- `medieval_hemp_sandals` - a pair of hemp sandals
+
+### Buddhist formal officiant
+
+- `medieval_buddhist_plain_underrobe` - a plain hemp monastic underrobe
+- `medieval_buddhist_formal_kesa` - a fine silk kesa mantle
+- `medieval_buddhist_travelling_mantle` - a dark wool monastic travelling mantle
+- `medieval_hemp_sandals` - a pair of hemp sandals
+
+### Buddhist travelling monk
+
+- `medieval_buddhist_black_monastic_robe` - a black hemp monastic robe
+- `medieval_buddhist_patched_kasaya` - a patched cotton kasaya
+- `medieval_buddhist_travelling_mantle` - a dark wool monastic travelling mantle
+- `medieval_hemp_sandals` - a pair of hemp sandals
+
+### Daoist priest
+
+- `medieval_song_cloth_shoes` - a pair of cloth shoes
+- `medieval_daoist_cross_collar_robe` - a dark cotton Daoist robe
+- `medieval_daoist_cloud_sleeved_robe` - a fine $colour cloud-sleeved robe
+- `medieval_daoist_ritual_cap` - a black cloth ritual cap
+
+### Daoist nun
+
+- `medieval_song_cloth_shoes` - a pair of cloth shoes
+- `medieval_daoist_cross_collar_robe` - a dark cotton Daoist robe
+- `medieval_daoist_ritual_cap` - a black cloth ritual cap
+
+### Shinto priest
+
+- `medieval_shinto_white_joe_robe` - a white hemp jōe robe
+- `medieval_shinto_priest_hakama` - a pair of white shrine hakama
+- `medieval_shinto_priest_eboshi` - a black lacquered eboshi
+- `medieval_hemp_sandals` - a pair of hemp sandals
+
+### Shrine attendant
+
+- `medieval_shinto_miko_white_kosode` - a white hemp shrine kosode
+- `medieval_shinto_miko_red_hakama` - a pair of red shrine hakama
+- `medieval_hemp_sandals` - a pair of hemp sandals
+
+### Steppe ritual specialist
+
+- `medieval_wool_deel` - a $colour wool deel
+- `medieval_steppe_ritual_felt_coat` - a felt-lined ritual coat
+- `medieval_steppe_ritual_fur_cap` - a fur-trimmed ritual cap
+- `medieval_steppe_ritual_sash` - a braided wool ritual sash
+- `medieval_high_leather_boots` - a pair of high leather boots
+
+
+#### Shared travel, service, scholarly, and life-stage outfits
+
+These social-context manifests are builder-facing overlays and complete outfit examples. They are shared across compatible culture families and should be adjusted with local skins rather than duplicated for every inspiration family. They intentionally omit wearable containers such as pouches, purses, alms bags, travel scrips, satchels, backpacks, or tool bags.
+
+### Shared western road traveller
+
+- `medieval_linen_undertunic` - a $colour linen undertunic
+- `medieval_wool_tunic` - a $colour wool tunic
+- `medieval_wool_hose` - a pair of $colour wool hose
+- `medieval_soft_leather_shoes` - a pair of soft leather shoes
+- `medieval_travel_wool_gaiters` - a pair of $colour wool travel gaiters
+- `medieval_travel_wool_cloak` - a weather-stained $colour wool travel cloak
+- `medieval_broad_brim_felt_hat` - a broad-brim $colour felt travel hat
+- `medieval_annular_bronze_brooch` - a bronze annular brooch
+
+### Shared western pilgrim or pious road traveller
+
+- `medieval_linen_undertunic` - a $colour linen undertunic
+- `medieval_long_wool_tunic` - a long $colour wool tunic
+- `medieval_hemp_waist_cord` - a plaited hemp waist cord
+- `medieval_soft_leather_shoes` - a pair of soft leather shoes
+- `medieval_travel_wool_cloak` - a weather-stained $colour wool travel cloak
+- `medieval_broad_brim_felt_hat` - a broad-brim $colour felt travel hat
+
+### Islamic road traveller
+
+- `medieval_linen_qamis` - a $colour linen qamis
+- `medieval_cotton_sirwal` - a pair of $colour cotton sirwal
+- `medieval_wrapped_cotton_turban` - a $colour cotton turban
+- `medieval_soft_leather_slippers` - a pair of soft leather slippers
+- `medieval_silk_robe_sash` - a fine $colour silk robe sash
+- `medieval_oiled_linen_rain_cape` - an oiled linen rain cape
+
+### Indian road traveller
+
+- `medieval_cotton_dhoti` - a $colour cotton dhoti
+- `medieval_cotton_uttariya` - a $colour cotton uttariya
+- `medieval_wrapped_cotton_turban` - a $colour cotton turban
+- `medieval_cotton_waist_cord` - a white cotton waist cord
+- `medieval_rope_soled_hemp_sandals` - a pair of rope-soled hemp sandals
+- `medieval_thick_cotton_shawl` - a thick $colour cotton shawl
+
+### East Asian road traveller
+
+- `medieval_song_cloth_shoes` - a pair of cloth shoes
+- `medieval_song_work_shan_jacket` - a plain $colour work shan jacket
+- `medieval_song_short_work_trousers` - a pair of short $colour work trousers
+- `medieval_linen_headband` - a $colour linen headband
+- `medieval_oiled_linen_rain_cape` - an oiled linen rain cape
+- `medieval_travel_wool_gaiters` - a pair of $colour wool travel gaiters
+
+### Steppe mounted courier
+
+- `medieval_wool_deel` - a $colour belted steppe robe
+- `medieval_narrow_wool_trousers` - a pair of narrow $colour wool trousers
+- `medieval_steppe_felt_cap` - a $colour steppe felt cap
+- `medieval_high_leather_boots` - a pair of high leather boots
+- `medieval_silver_mounted_leather_belt` - a fine silver-mounted belt
+- `medieval_steppe_riding_caftan` - a $colour riding caftan
+
+### Shepherd or upland herder
+
+- `medieval_wool_tunic` - a $colour wool tunic
+- `medieval_narrow_wool_trousers` - a pair of narrow $colour wool trousers
+- `medieval_rough_wool_gaiters` - a pair of rough $colour wool gaiters
+- `medieval_shepherds_hooded_cloak` - a rough $colour shepherd's cloak
+- `medieval_rough_felt_herder_hat` - a rough felt herder's hat
+- `medieval_iron_cloak_pin` - an iron cloak pin
+
+### Forester or hawking retainer
+
+- `medieval_linen_undertunic` - a $colour linen undertunic
+- `medieval_wool_tunic` - a $colour wool tunic
+- `medieval_wool_hose` - a pair of $colour wool hose
+- `medieval_ankle_leather_boots` - a pair of ankle leather boots
+- `medieval_leather_hawking_glove` - a single leather hawking glove
+- `medieval_wool_hood` - a $colour wool hood
+- `medieval_cart_driver_wool_coat` - a belted $colour cart driver's coat
+
+### Fisher or boatman
+
+- `medieval_short_boatmans_tunic` - a short $colour boatman's tunic
+- `medieval_fisher_headcloth` - a $colour fisher's headcloth
+- `medieval_rope_soled_hemp_sandals` - a pair of rope-soled hemp sandals
+- `medieval_oiled_linen_rain_cape` - an oiled linen rain cape
+- `medieval_wool_leg_ties` - a pair of $colour wool leg ties
+
+### Field labourer in poor weather
+
+- `medieval_linen_undertunic` - a $colour linen undertunic
+- `medieval_wool_tunic` - a $colour wool tunic
+- `medieval_wool_leg_wraps` - a pair of $colour wool leg wraps
+- `medieval_soft_leather_shoes` - a pair of soft leather shoes
+- `medieval_rough_wool_gaiters` - a pair of rough $colour wool gaiters
+- `medieval_patched_wool_cloak` - a patched $colour wool cloak
+- `medieval_iron_cloak_pin` - an iron cloak pin
+
+### Stable hand or carter
+
+- `medieval_short_service_tunic` - a short $colour service tunic
+- `medieval_narrow_wool_trousers` - a pair of narrow $colour wool trousers
+- `medieval_ankle_leather_boots` - a pair of ankle leather boots
+- `medieval_stablehand_wool_cap` - a $colour stablehand's wool cap
+- `medieval_leather_stable_apron` - a leather stable apron
+- `medieval_cart_driver_wool_coat` - a belted $colour cart driver's coat
+
+### Western household servant
+
+- `medieval_linen_undertunic` - a $colour linen undertunic
+- `medieval_short_service_tunic` - a short $colour service tunic
+- `medieval_wool_hose` - a pair of $colour wool hose
+- `medieval_soft_leather_shoes` - a pair of soft leather shoes
+- `medieval_household_work_sash` - a $colour household work sash
+- `medieval_linen_coif` - a $colour linen coif
+
+### Kitchen worker or cook
+
+- `medieval_short_service_tunic` - a short $colour service tunic
+- `medieval_large_linen_work_apron` - a large $colour linen work apron
+- `medieval_kitchen_sleeve_ties` - a pair of $colour kitchen sleeve ties
+- `medieval_scullion_linen_coif` - a $colour scullion's linen coif
+- `medieval_soft_leather_shoes` - a pair of soft leather shoes
+
+### Laundress or washerwoman
+
+- `medieval_linen_chemise` - a $colour linen chemise
+- `medieval_tucked_work_kirtle` - a tucked $colour work kirtle
+- `medieval_large_linen_work_apron` - a large $colour linen work apron
+- `medieval_linen_laundry_headcloth` - a $colour laundry headcloth
+- `medieval_soft_leather_shoes` - a pair of soft leather shoes
+
+### Inn or tavern worker
+
+- `medieval_linen_undertunic` - a $colour linen undertunic
+- `medieval_short_service_tunic` - a short $colour service tunic
+- `medieval_wool_hose` - a pair of $colour wool hose
+- `medieval_large_linen_work_apron` - a large $colour linen work apron
+- `medieval_inn_workers_wool_hood` - a $colour inn worker's wool hood
+- `medieval_soft_leather_shoes` - a pair of soft leather shoes
+
+### Byzantine or Islamic household servant
+
+- `medieval_linen_qamis` - a $colour linen qamis
+- `medieval_cotton_sirwal` - a pair of $colour cotton sirwal
+- `medieval_household_work_sash` - a $colour household work sash
+- `medieval_large_linen_work_apron` - a large $colour linen work apron
+- `medieval_fisher_headcloth` - a $colour fisher's headcloth
+- `medieval_soft_leather_slippers` - a pair of soft leather slippers
+
+### East Asian household servant
+
+- `medieval_japanese_work_kosode` - a plain $colour work kosode
+- `medieval_japanese_work_hakama` - a pair of $colour work hakama
+- `medieval_woven_kosode_sash` - a $colour woven kosode sash
+- `medieval_japanese_hemp_work_apron` - a hemp work apron
+- `medieval_linen_headband` - a $colour linen headband
+- `medieval_japanese_hemp_sandals` - a pair of hemp sandals
+
+### University student or junior scholar
+
+- `medieval_linen_undertunic` - a $colour linen undertunic
+- `medieval_student_wool_gown` - a plain $colour student gown
+- `medieval_lined_scholars_hood` - a lined $colour scholar's hood
+- `medieval_plain_black_skullcap` - a plain black skullcap
+- `medieval_soft_leather_shoes` - a pair of soft leather shoes
+
+### Master scholar or lecturer
+
+- `medieval_linen_undertunic` - a $colour linen undertunic
+- `medieval_master_scholar_gown` - a sober $colour scholar's gown
+- `medieval_sober_lecture_mantle` - a sober $colour lecture mantle
+- `medieval_fine_scholars_cap` - a fine $colour scholar's cap
+- `medieval_fine_leather_shoes` - a pair of fine leather shoes
+- `medieval_fine_silver_ring` - a fine silver finger ring
+
+### Physician
+
+- `medieval_linen_undertunic` - a $colour linen undertunic
+- `medieval_physician_wool_gown` - a long $colour physician's gown
+- `medieval_lined_scholars_hood` - a lined $colour scholar's hood
+- `medieval_fine_scholars_cap` - a fine $colour scholar's cap
+- `medieval_fine_leather_shoes` - a pair of fine leather shoes
+- `medieval_fine_silver_ring` - a fine silver finger ring
+
+### Legal clerk or notary
+
+- `medieval_linen_undertunic` - a $colour linen undertunic
+- `medieval_notary_wool_gown` - a neat $colour notary's gown
+- `medieval_plain_black_skullcap` - a plain black skullcap
+- `medieval_scribe_linen_sleeves` - a pair of $colour linen scribe sleeves
+- `medieval_soft_leather_shoes` - a pair of soft leather shoes
+- `medieval_simple_bronze_ring` - a simple bronze finger ring
+
+### Common child
+
+- `medieval_child_linen_shift` - a small $colour child's linen shift
+- `medieval_child_wool_tunic` - a small $colour child's wool tunic
+- `medieval_child_leather_shoes` - a pair of small leather child's shoes
+- `medieval_child_wool_cloak` - a small $colour child's wool cloak
+
+### Elite child
+
+- `medieval_child_linen_shift` - a small $colour child's linen shift
+- `medieval_child_silk_court_robe` - a small fine $colour silk court robe
+- `medieval_child_leather_shoes` - a pair of small leather child's shoes
+- `medieval_child_wool_cloak` - a small $colour child's wool cloak
+- `medieval_silk_hair_ribbon` - a fine $colour silk hair ribbon
+
+### Apprentice
+
+- `medieval_linen_undertunic` - a $colour linen undertunic
+- `medieval_apprentice_work_tunic` - a short $colour apprentice's tunic
+- `medieval_apprentice_canvas_apron` - a $colour apprentice's canvas apron
+- `medieval_apprentice_linen_cap` - a $colour apprentice's linen cap
+- `medieval_soft_leather_shoes` - a pair of soft leather shoes
+- `medieval_household_work_sash` - a $colour household work sash
+
 ## Item catalogue
 
-Catalogue line format: `uniqueReference` - public short description; noun; primary material; size/quality; weight/cost; wear component; variable component. Seasonal, urban, and professional add-on lines may append `matches:` to identify the outfit manifests they can be added to or substituted into. Full descriptions remain in the seeder calls and are not duplicated here.
+Catalogue line format: `uniqueReference` - public short description; noun; primary material; size/quality; weight/cost; wear component; variable component. Seasonal, urban, professional, religious, accessory, and social-context add-on lines may append `matches:` to identify the outfit manifests they can be added to or substituted into. Full descriptions remain in the seeder calls and are not duplicated here.
 
 ### Shared medieval underlayers, belts, footwear, and common outerwear
 
@@ -1354,6 +1898,180 @@ These catalogue overlays distinguish town-dwellers, skilled artisans, shopkeeper
 - `medieval_japanese_hemp_work_apron` - a hemp work apron; noun: `apron`; material: `hemp`; size/quality: `Small`/`Standard`; weight/cost: 170g/6.0m; wear: `Wear_Apron`; variables: none; matches: Heian / Kamakura Japan kitchen, workshop, dyeing, stable, market, and household craft variants as a rough protective layer.
 - `medieval_japanese_yumaki_wrap` - a $colour yumaki waist wrap; noun: `yumaki`; material: `hemp`; size/quality: `Small`/`Standard`; weight/cost: 190g/8.0m; wear: `Wear_Apron`; variables: Variable_BasicColour; matches: Heian / Kamakura Japan female and household-service town-worker variants as an apron-like waist wrap over a work kosode.
 
+
+### Religious clothing additions/substitutions by tradition
+
+Religious clothing additions are shared overlays and outfit manifests rather than culture-specific duplicates. They cover clothing for monastic orders, friars, nuns, clergy, bishops, scholars, prayer leaders, temple priests, ascetics, Buddhist and Daoist monastics, Shinto shrine service, and steppe ritual specialists. They intentionally exclude non-clothing religious paraphernalia, carried objects, jewellery, badges, tools, books, masks, insignia not inherent to the garment, and mechanically meaningful ritual equipment.
+
+- `medieval_latin_black_monastic_habit` - a black wool monastic habit; noun: `habit`; material: `wool`; size/quality: `Normal`/`Standard`; weight/cost: 900g/24.0m; wear: `Wear_Robe`; variables: none; matches: Latin Christian Benedictine monk/nun and other black-habit western monastic variants.
+- `medieval_latin_black_scapular` - a black wool scapular; noun: `scapular`; material: `wool`; size/quality: `Small`/`Standard`; weight/cost: 260g/8.0m; wear: `Wear_Tabard`; variables: none; matches: Latin Christian Benedictine monk/nun and black-habit monastic variants over a habit.
+- `medieval_latin_black_cowl` - a black wool cowl; noun: `cowl`; material: `wool`; size/quality: `Normal`/`Standard`; weight/cost: 650g/18.0m; wear: `Wear_Cloak_(Closed)`; variables: none; matches: Latin Christian Benedictine, Cistercian, Carthusian, and other cloistered monastic variants.
+- `medieval_latin_white_monastic_tunic` - an undyed wool monastic tunic; noun: `tunic`; material: `wool`; size/quality: `Normal`/`Standard`; weight/cost: 820g/24.0m; wear: `Wear_Robe`; variables: none; matches: Latin Christian Cistercian, Premonstratensian, and white-habit monastic variants.
+- `medieval_latin_black_over_scapular` - a black wool over-scapular; noun: `scapular`; material: `wool`; size/quality: `Small`/`Standard`; weight/cost: 280g/8.0m; wear: `Wear_Tabard`; variables: none; matches: Latin Christian Cistercian monk/nun and other white-tunic black-scapular variants.
+- `medieval_latin_white_carthusian_habit` - a white wool hermit's habit; noun: `habit`; material: `wool`; size/quality: `Normal`/`Standard`; weight/cost: 950g/30.0m; wear: `Wear_Robe`; variables: none; matches: Latin Christian Carthusian monk and austere white-hermit variants.
+- `medieval_latin_canon_black_habit` - a black wool canon's habit; noun: `habit`; material: `wool`; size/quality: `Normal`/`Standard`; weight/cost: 850g/28.0m; wear: `Wear_Robe`; variables: none; matches: Latin Christian Augustinian canon and other black-robed canon variants.
+- `medieval_latin_white_rochet` - a white linen rochet; noun: `rochet`; material: `linen`; size/quality: `Normal`/`Good`; weight/cost: 320g/28.0m; wear: `Wear_Shirt`; variables: none; matches: Latin Christian Augustinian, Premonstratensian, cathedral, and choir-office clergy variants.
+- `medieval_latin_friar_grey_habit` - a grey wool friar's habit; noun: `habit`; material: `wool`; size/quality: `Normal`/`Standard`; weight/cost: 850g/20.0m; wear: `Wear_Robe`; variables: none; matches: Latin Christian Franciscan friar and grey-friar mendicant variants.
+- `medieval_latin_rope_cincture` - a knotted rope cincture; noun: `cincture`; material: `hemp`; size/quality: `Small`/`Standard`; weight/cost: 160g/4.0m; wear: `Wear_Sash`; variables: none; matches: Latin Christian Franciscan friar, Poor Clare nun, and other cord-belt mendicant variants.
+- `medieval_latin_white_friar_habit` - a white wool friar's habit; noun: `habit`; material: `wool`; size/quality: `Normal`/`Standard`; weight/cost: 780g/28.0m; wear: `Wear_Robe`; variables: none; matches: Latin Christian Dominican friar and white-habit preaching-order variants.
+- `medieval_latin_black_friar_cappa` - a black wool friar's cappa; noun: `cappa`; material: `wool`; size/quality: `Normal`/`Standard`; weight/cost: 720g/24.0m; wear: `Wear_Cloak_(Open)`; variables: none; matches: Latin Christian Dominican friar and black-cappa travelling or choir variants.
+- `medieval_latin_brown_friar_habit` - a brown wool friar's habit; noun: `habit`; material: `wool`; size/quality: `Normal`/`Standard`; weight/cost: 800g/22.0m; wear: `Wear_Robe`; variables: none; matches: Latin Christian Carmelite friar and brown-habit mendicant variants.
+- `medieval_latin_white_friar_mantle` - a white wool friar's mantle; noun: `mantle`; material: `wool`; size/quality: `Normal`/`Good`; weight/cost: 640g/28.0m; wear: `Wear_Mantle`; variables: none; matches: Latin Christian Carmelite friar and white-mantled mendicant variants.
+- `medieval_latin_simple_nun_habit` - a dark wool nun's habit; noun: `habit`; material: `wool`; size/quality: `Normal`/`Standard`; weight/cost: 820g/22.0m; wear: `Wear_Robe`; variables: none; matches: Latin Christian Benedictine nun and other cloistered western nun variants.
+- `medieval_latin_nun_wimple_veil` - a white linen wimple and veil; noun: `veil`; material: `linen`; size/quality: `Small`/`Standard`; weight/cost: 220g/12.0m; wear: `Wear_Veil`; variables: none; matches: Latin Christian Benedictine, Cistercian, Augustinian, and comparable nun variants.
+- `medieval_latin_poor_clare_grey_habit` - a grey wool sister's habit; noun: `habit`; material: `wool`; size/quality: `Normal`/`Standard`; weight/cost: 760g/18.0m; wear: `Wear_Robe`; variables: none; matches: Latin Christian Poor Clare nun and simple grey sister variants.
+- `medieval_latin_poor_clare_veil` - a plain linen sister's veil; noun: `veil`; material: `linen`; size/quality: `Small`/`Standard`; weight/cost: 180g/8.0m; wear: `Wear_Veil`; variables: none; matches: Latin Christian Poor Clare nun and austere mendicant-nun variants.
+- `medieval_latin_black_clerical_gown` - a black wool clerical gown; noun: `gown`; material: `wool`; size/quality: `Normal`/`Standard`; weight/cost: 780g/30.0m; wear: `Wear_Robe`; variables: none; matches: Latin Christian parish cleric, cathedral clerk, schoolman, and non-liturgical clergy variants.
+- `medieval_latin_white_alb` - a white linen alb; noun: `alb`; material: `linen`; size/quality: `Normal`/`Good`; weight/cost: 460g/36.0m; wear: `Wear_Robe`; variables: none; matches: Latin Christian priest, deacon, bishop, and higher liturgical vestment variants.
+- `medieval_latin_amice` - a white linen amice; noun: `amice`; material: `linen`; size/quality: `Small`/`Standard`; weight/cost: 120g/10.0m; wear: `Wear_Scarf`; variables: none; matches: Latin Christian priest, deacon, bishop, and higher liturgical vestment variants.
+- `medieval_latin_linen_cincture` - a white linen cincture; noun: `cincture`; material: `linen`; size/quality: `Small`/`Standard`; weight/cost: 80g/6.0m; wear: `Wear_Sash`; variables: none; matches: Latin Christian priest, deacon, bishop, and alb-belted liturgical variants.
+- `medieval_latin_stole` - a $colour silk stole; noun: `stole`; material: `silk`; size/quality: `Small`/`Good`; weight/cost: 110g/50.0m; wear: `Wear_Scarf`; variables: Variable_FineColour; matches: Latin Christian priest, deacon, bishop, and formal liturgical variants.
+- `medieval_latin_maniple` - a $colour silk maniple; noun: `maniple`; material: `silk`; size/quality: `Small`/`Good`; weight/cost: 60g/30.0m; wear: `Wear_Bracer`; variables: Variable_FineColour; matches: Latin Christian priest, deacon, bishop, and formal liturgical variants.
+- `medieval_latin_chasuble` - a fine $colour silk chasuble; noun: `chasuble`; material: `silk`; size/quality: `Normal`/`Good`; weight/cost: 720g/160.0m; wear: `Wear_Poncho`; variables: Variable_FineColour; matches: Latin Christian priest-at-Mass, bishop, and high liturgical variants over alb and stole.
+- `medieval_latin_dalmatic_vestment` - a fine $colour silk dalmatic; noun: `dalmatic`; material: `silk`; size/quality: `Normal`/`Good`; weight/cost: 650g/140.0m; wear: `Wear_Robe`; variables: Variable_FineColour; matches: Latin Christian deacon-at-Mass and episcopal layered vestment variants.
+- `medieval_latin_processional_cope` - a fine $colour silk cope; noun: `cope`; material: `silk`; size/quality: `Normal`/`Good`; weight/cost: 900g/180.0m; wear: `Wear_Cloak_(Open)`; variables: Variable_FineColour; matches: Latin Christian bishop, archbishop, procession, choir, and solemn-office variants.
+- `medieval_latin_bishop_mitre` - a fine white silk mitre; noun: `mitre`; material: `silk`; size/quality: `Small`/`Good`; weight/cost: 160g/140.0m; wear: `Wear_Hat`; variables: none; matches: Latin Christian bishop and archbishop pontifical variants.
+- `medieval_latin_bishop_gloves` - a pair of fine white liturgical gloves; noun: `gloves`; material: `silk`; size/quality: `Small`/`Good`; weight/cost: 90g/80.0m; wear: `Wear_Gloves`; variables: none; matches: Latin Christian bishop and archbishop pontifical variants.
+- `medieval_latin_archbishop_pallium` - a white wool pallium band; noun: `pallium`; material: `wool`; size/quality: `Small`/`Good`; weight/cost: 140g/100.0m; wear: `Wear_Scarf`; variables: none; matches: Latin Christian archbishop and metropolitan-bishop variants only.
+- `medieval_eastern_black_riassa` - a black wool riassa; noun: `riassa`; material: `wool`; size/quality: `Normal`/`Standard`; weight/cost: 850g/30.0m; wear: `Wear_Robe`; variables: none; matches: Eastern Christian monk, nun, priest, and non-liturgical clergy variants.
+- `medieval_eastern_monastic_mantle` - a black wool monastic mantle; noun: `mantle`; material: `wool`; size/quality: `Normal`/`Standard`; weight/cost: 950g/34.0m; wear: `Wear_Mantle`; variables: none; matches: Eastern Christian monk, nun, abbot, and travelling monastic variants.
+- `medieval_eastern_black_klobuk` - a black veiled klobuk; noun: `klobuk`; material: `wool`; size/quality: `Small`/`Standard`; weight/cost: 240g/18.0m; wear: `Wear_Hat`; variables: none; matches: Eastern Christian monk and senior monastic headwear variants.
+- `medieval_eastern_womens_monastic_veil` - a black monastic veil; noun: `veil`; material: `wool`; size/quality: `Small`/`Standard`; weight/cost: 200g/12.0m; wear: `Wear_Veil`; variables: none; matches: Eastern Christian nun and women's monastic variants.
+- `medieval_eastern_sticharion` - a white linen sticharion; noun: `sticharion`; material: `linen`; size/quality: `Normal`/`Good`; weight/cost: 480g/40.0m; wear: `Wear_Robe`; variables: none; matches: Eastern Christian deacon, priest, bishop, and altar-serving liturgical variants.
+- `medieval_eastern_orarion` - a $colour silk orarion; noun: `orarion`; material: `silk`; size/quality: `Small`/`Good`; weight/cost: 130g/60.0m; wear: `Wear_Scarf`; variables: Variable_FineColour; matches: Eastern Christian deacon liturgical variants over a sticharion.
+- `medieval_eastern_epitrachelion` - a $colour silk epitrachelion; noun: `epitrachelion`; material: `silk`; size/quality: `Small`/`Good`; weight/cost: 190g/70.0m; wear: `Wear_Scarf`; variables: Variable_FineColour; matches: Eastern Christian priest and bishop liturgical variants.
+- `medieval_eastern_epimanikia` - a pair of $colour silk epimanikia; noun: `epimanikia`; material: `silk`; size/quality: `Small`/`Good`; weight/cost: 80g/50.0m; wear: `Wear_Bracers`; variables: Variable_FineColour; matches: Eastern Christian deacon, priest, bishop, and other vested clergy variants.
+- `medieval_eastern_phelonion` - a fine $colour silk phelonion; noun: `phelonion`; material: `silk`; size/quality: `Normal`/`Good`; weight/cost: 780g/170.0m; wear: `Wear_Poncho`; variables: Variable_FineColour; matches: Eastern Christian priest liturgical variants over sticharion and epitrachelion.
+- `medieval_eastern_sakkos` - a fine $colour silk sakkos; noun: `sakkos`; material: `silk`; size/quality: `Normal`/`Good`; weight/cost: 800g/210.0m; wear: `Wear_Robe`; variables: Variable_FineColour; matches: Eastern Christian bishop and high Byzantine-rite episcopal variants.
+- `medieval_eastern_omophorion` - a fine white silk omophorion; noun: `omophorion`; material: `silk`; size/quality: `Small`/`Good`; weight/cost: 220g/120.0m; wear: `Wear_Scarf`; variables: none; matches: Eastern Christian bishop and high Byzantine-rite episcopal variants.
+- `medieval_eastern_kamilavkion` - a black felt kamilavkion; noun: `kamilavkion`; material: `felt`; size/quality: `Small`/`Standard`; weight/cost: 170g/20.0m; wear: `Wear_Hat`; variables: none; matches: Eastern Christian priest, monk, and bishop headwear variants where appropriate.
+- `medieval_islamic_plain_imam_qamis` - a plain white cotton imam qamis; noun: `qamis`; material: `cotton`; size/quality: `Normal`/`Standard`; weight/cost: 420g/18.0m; wear: `Wear_Robe`; variables: none; matches: Islamic imam, khatib, mosque teacher, and plain learned-clergy variants across Andalusian, Abbasid, Fatimid, Seljuk, and Indian Muslim settings.
+- `medieval_islamic_plain_imam_turban` - a plain white cotton imam turban; noun: `turban`; material: `cotton`; size/quality: `Small`/`Standard`; weight/cost: 260g/14.0m; wear: `Wear_Turban`; variables: none; matches: Islamic imam, khatib, teacher, and mosque-official variants where a plain wrapped turban is wanted.
+- `medieval_islamic_scholars_jubba` - a dark wool scholar's jubba; noun: `jubba`; material: `wool`; size/quality: `Normal`/`Good`; weight/cost: 850g/48.0m; wear: `Wear_Robe`; variables: none; matches: Islamic qadi, madrasa scholar, preacher, legal official, and Sufi sheikh variants.
+- `medieval_islamic_taylasan` - a dark wool taylasan hood; noun: `taylasan`; material: `wool`; size/quality: `Small`/`Good`; weight/cost: 240g/30.0m; wear: `Wear_Hat`; variables: none; matches: Islamic qadi, madrasa scholar, judge, and learned urban variants.
+- `medieval_islamic_qadi_turban` - a fine white scholar's turban; noun: `turban`; material: `cotton`; size/quality: `Small`/`Good`; weight/cost: 300g/26.0m; wear: `Wear_Turban`; variables: none; matches: Islamic qadi, madrasa scholar, senior teacher, and legal-office variants.
+- `medieval_sufi_patched_khirqa` - a patched wool khirqa; noun: `khirqa`; material: `wool`; size/quality: `Normal`/`Standard`; weight/cost: 780g/18.0m; wear: `Wear_Robe`; variables: none; matches: Islamic Sufi dervish, wandering ascetic, and voluntary-poverty variants across the Islamic inspiration families.
+- `medieval_sufi_wool_sash` - a coarse wool Sufi sash; noun: `sash`; material: `wool`; size/quality: `Small`/`Standard`; weight/cost: 180g/6.0m; wear: `Wear_Sash`; variables: none; matches: Islamic Sufi dervish, Sufi sheikh, and ascetic robe variants.
+- `medieval_sufi_felt_cap` - a plain felt dervish cap; noun: `cap`; material: `felt`; size/quality: `Small`/`Standard`; weight/cost: 140g/10.0m; wear: `Wear_Hat`; variables: none; matches: Islamic Sufi dervish, Sufi sheikh, and plain ascetic headwear variants.
+- `medieval_sufi_coarse_wool_cloak` - a coarse wool Sufi cloak; noun: `cloak`; material: `wool`; size/quality: `Normal`/`Standard`; weight/cost: 980g/22.0m; wear: `Wear_Cloak_(Open)`; variables: none; matches: Islamic Sufi sheikh, Sufi dervish, and poor travelling-preacher variants.
+- `medieval_jewish_tallit_gadol` - a white wool tallit gadol; noun: `tallit`; material: `wool`; size/quality: `Normal`/`Good`; weight/cost: 420g/40.0m; wear: `Wear_Mantle`; variables: none; matches: Jewish synagogue prayer leader, scholar, worshipper, and Sabbath or festival prayer variants.
+- `medieval_jewish_tallit_katan` - a white wool tallit katan; noun: `tallit`; material: `wool`; size/quality: `Small`/`Standard`; weight/cost: 230g/22.0m; wear: `Wear_Vest`; variables: none; matches: Jewish daily pious dress, prayer leader, scholar, and underlayer variants.
+- `medieval_jewish_skullcap` - a plain wool skullcap; noun: `skullcap`; material: `wool`; size/quality: `Small`/`Standard`; weight/cost: 60g/6.0m; wear: `Wear_Skullcap`; variables: none; matches: Jewish scholar, synagogue worshipper, prayer leader, and modest headwear variants.
+- `medieval_jewish_scholars_robe` - a dark wool scholar's robe; noun: `robe`; material: `wool`; size/quality: `Normal`/`Good`; weight/cost: 820g/44.0m; wear: `Wear_Robe`; variables: none; matches: Jewish scholar, synagogue elder, court physician, merchant-scholar, and learned urban variants.
+- `medieval_hindu_white_priest_dhoti` - a white cotton priest's dhoti; noun: `dhoti`; material: `cotton`; size/quality: `Normal`/`Standard`; weight/cost: 360g/16.0m; wear: `Wear_Loincloth`; variables: none; matches: Hindu temple priest, ritual assistant, and clean white priestly lower-drape variants in North Indian / Rajput and South Indian / Chola settings.
+- `medieval_hindu_white_uttariya` - a white cotton uttariya; noun: `uttariya`; material: `cotton`; size/quality: `Small`/`Standard`; weight/cost: 180g/10.0m; wear: `Wear_Mantle`; variables: none; matches: Hindu temple priest, ritual assistant, and plain upper-cloth variants.
+- `medieval_hindu_kaupina` - a plain cotton kaupina; noun: `kaupina`; material: `cotton`; size/quality: `Small`/`Standard`; weight/cost: 90g/4.0m; wear: `Wear_Loincloth`; variables: none; matches: Hindu ascetic, renunciant, and austere underlayer variants.
+- `medieval_hindu_ochre_ascetic_wrap` - an ochre cotton ascetic wrap; noun: `wrap`; material: `cotton`; size/quality: `Normal`/`Standard`; weight/cost: 420g/14.0m; wear: `Wear_Robe`; variables: none; matches: Hindu ascetic, renunciant, mendicant teacher, and saffron-or-ochre religious variants.
+- `medieval_hindu_ochre_shoulder_cloth` - an ochre cotton shoulder cloth; noun: `cloth`; material: `cotton`; size/quality: `Small`/`Standard`; weight/cost: 160g/8.0m; wear: `Wear_Mantle`; variables: none; matches: Hindu ascetic, renunciant, and religious teacher upper-layer variants.
+- `medieval_jain_white_ascetic_robe` - a white cotton ascetic robe; noun: `robe`; material: `cotton`; size/quality: `Normal`/`Standard`; weight/cost: 420g/16.0m; wear: `Wear_Robe`; variables: none; matches: Jain Śvetāmbara monk, nun, and white-clad ascetic variants in Indian urban and temple settings.
+- `medieval_jain_white_shoulder_wrap` - a white cotton shoulder wrap; noun: `wrap`; material: `cotton`; size/quality: `Small`/`Standard`; weight/cost: 160g/8.0m; wear: `Wear_Mantle`; variables: none; matches: Jain Śvetāmbara monk, nun, and white-clad ascetic upper-layer variants.
+- `medieval_buddhist_plain_underrobe` - a plain hemp monastic underrobe; noun: `underrobe`; material: `hemp`; size/quality: `Normal`/`Standard`; weight/cost: 520g/16.0m; wear: `Wear_Robe`; variables: none; matches: Buddhist monk, nun, novice, and travelling monastic variants across Song China, Goryeo Korea, Heian / Kamakura Japan, and comparable Buddhist settings.
+- `medieval_buddhist_patched_kasaya` - a patched cotton kasaya; noun: `kasaya`; material: `cotton`; size/quality: `Normal`/`Standard`; weight/cost: 320g/24.0m; wear: `Wear_Mantle`; variables: none; matches: Buddhist monk, nun, and ordinary monastic mantle variants.
+- `medieval_buddhist_nun_robe` - a dark hemp nun robe; noun: `robe`; material: `hemp`; size/quality: `Normal`/`Standard`; weight/cost: 560g/18.0m; wear: `Wear_Robe`; variables: none; matches: Buddhist nun, female novice, and modest monastic robe variants.
+- `medieval_buddhist_formal_kesa` - a fine silk kesa mantle; noun: `kesa`; material: `silk`; size/quality: `Normal`/`Good`; weight/cost: 360g/110.0m; wear: `Wear_Mantle`; variables: none; matches: Buddhist abbot, formal officiant, temple elder, and ceremonial Japanese or East Asian Buddhist variants.
+- `medieval_buddhist_travelling_mantle` - a dark wool monastic travelling mantle; noun: `mantle`; material: `wool`; size/quality: `Normal`/`Standard`; weight/cost: 760g/24.0m; wear: `Wear_Cloak_(Open)`; variables: none; matches: Buddhist travelling monk, cold-weather monastery, pilgrimage, and mendicant road variants.
+- `medieval_buddhist_black_monastic_robe` - a black hemp monastic robe; noun: `robe`; material: `hemp`; size/quality: `Normal`/`Standard`; weight/cost: 540g/18.0m; wear: `Wear_Robe`; variables: none; matches: Buddhist monk, Zen/Chan-adjacent, travelling monastic, and severe black-robe variants.
+- `medieval_daoist_cross_collar_robe` - a dark cotton Daoist robe; noun: `robe`; material: `cotton`; size/quality: `Normal`/`Standard`; weight/cost: 520g/24.0m; wear: `Wear_Robe`; variables: none; matches: Daoist priest, nun, temple assistant, and everyday ritual-service variants in Song China settings.
+- `medieval_daoist_cloud_sleeved_robe` - a fine $colour cloud-sleeved robe; noun: `robe`; material: `silk`; size/quality: `Normal`/`Good`; weight/cost: 680g/130.0m; wear: `Wear_Robe`; variables: Variable_FineColour; matches: Daoist priest, senior ritualist, temple ceremony, and formal Song religious variants.
+- `medieval_daoist_ritual_cap` - a black cloth ritual cap; noun: `cap`; material: `cotton`; size/quality: `Small`/`Standard`; weight/cost: 90g/12.0m; wear: `Wear_Hat`; variables: none; matches: Daoist priest, nun, and temple ritual headwear variants.
+- `medieval_shinto_white_joe_robe` - a white hemp jōe robe; noun: `jōe`; material: `hemp`; size/quality: `Normal`/`Good`; weight/cost: 520g/42.0m; wear: `Wear_Robe`; variables: none; matches: Shinto priest, shrine ritualist, and Heian / Kamakura Japanese shrine-service variants.
+- `medieval_shinto_priest_hakama` - a pair of white shrine hakama; noun: `hakama`; material: `hemp`; size/quality: `Normal`/`Good`; weight/cost: 480g/34.0m; wear: `Wear_Trousers`; variables: none; matches: Shinto priest, shrine ritualist, and ceremonial Japanese shrine-service variants.
+- `medieval_shinto_priest_eboshi` - a black lacquered eboshi; noun: `eboshi`; material: `silk`; size/quality: `Small`/`Good`; weight/cost: 110g/38.0m; wear: `Wear_Hat`; variables: none; matches: Shinto priest, shrine ritualist, and formal Heian / Kamakura Japanese headwear variants.
+- `medieval_shinto_miko_white_kosode` - a white hemp shrine kosode; noun: `kosode`; material: `hemp`; size/quality: `Normal`/`Standard`; weight/cost: 420g/24.0m; wear: `Wear_Robe`; variables: none; matches: Shrine attendant, miko, female temple-helper, and Japanese shrine household-service variants.
+- `medieval_shinto_miko_red_hakama` - a pair of red shrine hakama; noun: `hakama`; material: `hemp`; size/quality: `Normal`/`Standard`; weight/cost: 460g/28.0m; wear: `Wear_Trousers`; variables: none; matches: Shrine attendant, miko, female temple-helper, and Japanese shrine-service variants.
+- `medieval_steppe_ritual_felt_coat` - a felt-lined ritual coat; noun: `coat`; material: `felt`; size/quality: `Normal`/`Standard`; weight/cost: 1100g/34.0m; wear: `Wear_Long_Coat`; variables: none; matches: Steppe animist/Tengri ritual specialist, shamanic healer, winter rite, and nomad religious-service variants.
+- `medieval_steppe_ritual_fur_cap` - a fur-trimmed ritual cap; noun: `cap`; material: `fur`; size/quality: `Small`/`Standard`; weight/cost: 220g/24.0m; wear: `Wear_Hat`; variables: none; matches: Steppe animist/Tengri ritual specialist, shamanic healer, winter rite, and nomad religious-service variants.
+- `medieval_steppe_ritual_sash` - a braided wool ritual sash; noun: `sash`; material: `wool`; size/quality: `Small`/`Standard`; weight/cost: 190g/12.0m; wear: `Wear_Sash`; variables: none; matches: Steppe animist/Tengri ritual specialist, shamanic healer, and nomad religious-service variants over a deel or felt coat.
+
+### Accessory, travel, service, scholar, and life-stage additions/substitutions
+
+These catalogue overlays add visible worn fasteners, jewellery, road clothing, rural specialist clothing, household-service dress, literate-professional clothing, and child or apprentice garments. They are shared overlays rather than culture-by-culture duplicates. Wearable containers are deliberately omitted from this pass: no pouches, purses, alms bags, travel scrips, satchels, backpacks, or tool bags are included, and descriptions should not imply hidden storage or attachment behaviour.
+
+#### Worn accessories and fasteners
+
+- `medieval_annular_bronze_brooch` - a bronze annular brooch; noun: `brooch`; material: `bronze`; size/quality: `Small`/`Standard`; weight/cost: 45g/18.0m; wear: `Wear_Shoulder`; variables: none; matches: Early Anglo-Saxon, Anglo-Danish, Norse / Viking Age, Carolingian / Frankish, Irish / Gaelic, Scottish / Gaelic-Lowland, Rus / Novgorod, and western traveller cloak variants.
+- `medieval_penannular_bronze_brooch` - a bronze penannular brooch; noun: `brooch`; material: `bronze`; size/quality: `Small`/`Good`; weight/cost: 55g/32.0m; wear: `Wear_Shoulder`; variables: none; matches: Irish / Gaelic, Scottish / Gaelic-Lowland, Norse / Viking Age, Anglo-Danish, Rus / Novgorod, and elite cloak variants using shoulder-fastened outerwear.
+- `medieval_pair_oval_brooches` - a pair of bronze oval brooches; noun: `brooches`; material: `bronze`; size/quality: `Small`/`Good`; weight/cost: 110g/70.0m; wear: `Wear_Shoulders`; variables: none; matches: Norse / Viking Age and Anglo-Danish hangerok, særk, elite female, festive, and North Sea household variants.
+- `medieval_plain_bronze_cloak_pin` - a plain bronze cloak pin; noun: `pin`; material: `bronze`; size/quality: `Small`/`Standard`; weight/cost: 35g/12.0m; wear: `Wear_Shoulder`; variables: none; matches: all cloak, brat, mantle, paenula, sagion, brat, and travel-cloak variants where a simple visible fastening is useful.
+- `medieval_iron_cloak_pin` - an iron cloak pin; noun: `pin`; material: `wrought iron`; size/quality: `Small`/`Standard`; weight/cost: 45g/8.0m; wear: `Wear_Shoulder`; variables: none; matches: rural, servant, traveller, shepherd, herder, field-labour, and poorer cloak or mantle variants across northern, western, Rus, and steppe-facing families.
+- `medieval_bronze_mounted_leather_belt` - a leather belt with bronze mounts; noun: `belt`; material: `leather`; size/quality: `Small`/`Good`; weight/cost: 300g/46.0m; wear: `Wear_Waist`; variables: none; matches: Norse / Viking Age, Rus / Novgorod, Magyar, Steppe Turkic / Mongol, merchant, retainer, elite town, and riding variants where a more visible fitted belt is wanted.
+- `medieval_silver_mounted_leather_belt` - a fine silver-mounted belt; noun: `belt`; material: `leather`; size/quality: `Small`/`Good`; weight/cost: 280g/150.0m; wear: `Wear_Waist`; variables: none; matches: elite Norse / Viking Age, Rus / Novgorod, Magyar, Steppe Turkic / Mongol, Byzantine, court, merchant, and formal riding variants.
+- `medieval_tablet_woven_garters` - a pair of $colour tablet-woven garters; noun: `garters`; material: `wool`; size/quality: `Small`/`Good`; weight/cost: 60g/16.0m; wear: `Wear_Leggings`; variables: Variable_FineColour; matches: hose, chausses, leg-wrap, high-medieval western, northern elite, and prosperous town variants.
+- `medieval_wool_leg_ties` - a pair of $colour wool leg ties; noun: `leg ties`; material: `wool`; size/quality: `Small`/`Standard`; weight/cost: 50g/5.0m; wear: `Wear_Leggings`; variables: Variable_BasicColour; matches: leg-wrap, onuchi, gaiter, trouser, herder, traveller, rural worker, and northern commoner variants.
+- `medieval_linen_headband` - a $colour linen headband; noun: `headband`; material: `linen`; size/quality: `Small`/`Standard`; weight/cost: 35g/4.0m; wear: `Wear_Headband`; variables: Variable_BasicColour; matches: common town, workshop, field-labour, East Asian, Indian, and warm-climate variants needing a simple hair or brow binding.
+- `medieval_silk_hair_ribbon` - a fine $colour silk hair ribbon; noun: `ribbon`; material: `silk`; size/quality: `Small`/`Good`; weight/cost: 20g/30.0m; wear: `Wear_Headband`; variables: Variable_FineColour; matches: elite town, court, Byzantine, Islamic, Indian, Song China, Goryeo Korea, and Heian / Kamakura Japan hair-binding or decorative headwear variants.
+- `medieval_silk_robe_sash` - a fine $colour silk robe sash; noun: `sash`; material: `silk`; size/quality: `Small`/`Good`; weight/cost: 130g/78.0m; wear: `Wear_Sash`; variables: Variable_FineColour; matches: Byzantine, Abbasid, Fatimid, Seljuk / Ayyubid-Mamluk, Song China, Goryeo Korea, Indian court, merchant, scholar, and formal robe variants.
+- `medieval_woven_kosode_sash` - a $colour woven kosode sash; noun: `sash`; material: `silk`; size/quality: `Small`/`Standard`; weight/cost: 120g/34.0m; wear: `Wear_Sash`; variables: Variable_BasicColour; matches: Heian / Kamakura Japan kosode, work kosode, travelling kosode, household-service kosode, and modest court-underlayer variants.
+- `medieval_hemp_waist_cord` - a plaited hemp waist cord; noun: `cord`; material: `hemp`; size/quality: `Small`/`Standard`; weight/cost: 70g/3.0m; wear: `Wear_Waist`; variables: none; matches: rural, servant, labourer, ascetic, apprentice, kitchen, field, and poor traveller variants where a plain cord substitutes for a belt or girdle.
+- `medieval_cotton_waist_cord` - a white cotton waist cord; noun: `cord`; material: `cotton`; size/quality: `Small`/`Standard`; weight/cost: 55g/4.0m; wear: `Wear_Waist`; variables: none; matches: Indian, Jain, Hindu, Islamic warm-climate, South Indian / Chola, North Indian / Rajput, and light-cloth service variants.
+- `medieval_glass_bead_necklace` - a glass bead necklace; noun: `necklace`; material: `glass`; size/quality: `Small`/`Standard`; weight/cost: 85g/20.0m; wear: `Wear_Necklace`; variables: none; matches: Norse / Viking Age, Rus / Novgorod, Byzantine, Islamic, Indian, East Asian, market, festive, and prosperous commoner variants.
+- `medieval_amber_bead_necklace` - an amber bead necklace; noun: `necklace`; material: `amber`; size/quality: `Small`/`Good`; weight/cost: 70g/82.0m; wear: `Wear_Necklace`; variables: none; matches: Norse / Viking Age, Rus / Novgorod, Baltic-facing, northern merchant, elite female, and trade-linked festive variants.
+- `medieval_shell_bead_necklace` - a shell bead necklace; noun: `necklace`; material: `shell`; size/quality: `Small`/`Standard`; weight/cost: 65g/18.0m; wear: `Wear_Necklace`; variables: none; matches: Indian Ocean, Islamic Mediterranean, Fatimid, Andalusian, North Indian / Rajput, South Indian / Chola, coastal, and warm-climate trade-linked variants.
+- `medieval_bronze_armlet` - a bronze armlet; noun: `armlet`; material: `bronze`; size/quality: `Small`/`Standard`; weight/cost: 95g/24.0m; wear: `Wear_Armlet`; variables: none; matches: Norse / Viking Age, Rus / Novgorod, Steppe Turkic / Mongol, Magyar, Indian, Byzantine, and festive or elite commoner variants.
+- `medieval_bronze_bracelets` - a pair of bronze bracelets; noun: `bracelets`; material: `bronze`; size/quality: `Small`/`Standard`; weight/cost: 90g/22.0m; wear: `Wear_Bracelets`; variables: none; matches: Byzantine, Islamic, Indian, Rus / Novgorod, market, household, festive, and prosperous commoner variants.
+- `medieval_bronze_bangles` - a pair of bronze bangles; noun: `bangles`; material: `bronze`; size/quality: `Small`/`Standard`; weight/cost: 110g/24.0m; wear: `Wear_Bracelets`; variables: none; matches: North Indian / Rajput, South Indian / Chola, Islamic Mediterranean, Byzantine, steppe, and warm-climate festive variants.
+- `medieval_bronze_anklets` - a pair of bronze anklets; noun: `anklets`; material: `bronze`; size/quality: `Small`/`Standard`; weight/cost: 115g/26.0m; wear: `Wear_Anklets`; variables: none; matches: Indian, Islamic warm-climate, Byzantine, court, dancer, festive, and household adornment variants where ankle jewellery is setting-appropriate.
+- `medieval_silver_earrings` - a pair of silver earrings; noun: `earrings`; material: `silver`; size/quality: `Small`/`Good`; weight/cost: 18g/90.0m; wear: `Wear_Earrings`; variables: none; matches: Byzantine, Islamic, Indian, Rus / Novgorod, steppe, merchant, court, and elite town variants.
+- `medieval_simple_bronze_ring` - a simple bronze finger ring; noun: `ring`; material: `bronze`; size/quality: `Small`/`Standard`; weight/cost: 10g/10.0m; wear: `Wear_Ring`; variables: none; matches: broad everyday, town, rural prosperous, merchant, servant-best, religious lay, and common festive variants.
+- `medieval_fine_silver_ring` - a fine silver finger ring; noun: `ring`; material: `silver`; size/quality: `Small`/`Good`; weight/cost: 12g/80.0m; wear: `Wear_Ring`; variables: none; matches: elite, merchant, clerical, scholar, court, formal, and prosperous urban variants where a refined personal ornament is appropriate.
+- `medieval_bone_hairpin` - a bone hairpin; noun: `hairpin`; material: `bone`; size/quality: `Small`/`Standard`; weight/cost: 12g/5.0m; wear: `Wear_Headband`; variables: none; matches: broad female, household, town, rural, East Asian, Byzantine, Islamic, and Indian hair-binding variants where a plain pin is useful.
+- `medieval_bronze_hairpin` - a bronze hairpin; noun: `hairpin`; material: `bronze`; size/quality: `Small`/`Standard`; weight/cost: 18g/16.0m; wear: `Wear_Headband`; variables: none; matches: Byzantine, Islamic, Indian, Song China, Goryeo Korea, Heian / Kamakura Japan, merchant, and elite commoner hair variants.
+- `medieval_silver_hairpins` - a pair of silver hairpins; noun: `hairpins`; material: `silver`; size/quality: `Small`/`Good`; weight/cost: 28g/110.0m; wear: `Wear_Headband`; variables: none; matches: elite Byzantine, Islamic, Indian, Song China, Goryeo Korea, Heian / Kamakura Japan, court, wedding, and formal town variants.
+- `medieval_tablet_woven_belt` - a $colour tablet-woven belt; noun: `belt`; material: `wool`; size/quality: `Small`/`Good`; weight/cost: 95g/22.0m; wear: `Wear_Waist`; variables: Variable_FineColour; matches: Early Anglo-Saxon, Anglo-Danish, Norse / Viking Age, Carolingian / Frankish, Capetian, Anglo-Norman, and prosperous textile-display variants.
+- `medieval_decorated_leather_girdle` - a decorated leather girdle; noun: `girdle`; material: `leather`; size/quality: `Small`/`Good`; weight/cost: 170g/48.0m; wear: `Wear_Waist`; variables: none; matches: High English / British, Anglo-Norman, Capetian French, Holy Roman Empire / German, Christian Iberian, elite town, and courtly kirtle or gown variants.
+
+#### Travel and rural specialist overlays
+
+- `medieval_travel_wool_cloak` - a weather-stained $colour wool travel cloak; noun: `cloak`; material: `wool`; size/quality: `Normal`/`Standard`; weight/cost: 1150g/24.0m; wear: `Wear_Cloak_(Closed)`; variables: Variable_DrabColour; matches: western traveller, pilgrim, road worker, messenger, poorer merchant, shepherd, carter, and cold-road variants across Europe and Rus / Novgorod.
+- `medieval_broad_brim_felt_hat` - a broad-brim $colour felt travel hat; noun: `hat`; material: `felt`; size/quality: `Small`/`Standard`; weight/cost: 190g/12.0m; wear: `Wear_Hat`; variables: Variable_BasicColour; matches: western traveller, pilgrim, market-road, herder, messenger, field-worker, and warm-season road variants.
+- `medieval_travel_wool_gaiters` - a pair of $colour wool travel gaiters; noun: `gaiters`; material: `wool`; size/quality: `Small`/`Standard`; weight/cost: 210g/8.0m; wear: `Wear_Leggings`; variables: Variable_BasicColour; matches: western traveller, messenger, carter, pilgrim, fisher, field-labour, and road variants worn over hose, trousers, or leg wraps.
+- `medieval_oiled_linen_rain_cape` - an oiled linen rain cape; noun: `cape`; material: `linen`; size/quality: `Normal`/`Standard`; weight/cost: 520g/24.0m; wear: `Wear_Cape`; variables: none; matches: traveller, sailor, fisher, boatman, messenger, watchman, and cool wet-weather variants across western, Byzantine, Islamic, and East Asian settings where local skins support it.
+- `medieval_shepherds_hooded_cloak` - a rough $colour shepherd's cloak; noun: `cloak`; material: `wool`; size/quality: `Normal`/`Standard`; weight/cost: 1320g/22.0m; wear: `Wear_Cloak_(Closed)`; variables: Variable_BasicColour; matches: shepherd, goatherd, upland herder, rural watch, poor traveller, and cold-field variants across northern, western, Rus, and steppe-edge cultures.
+- `medieval_rough_felt_herder_hat` - a rough felt herder's hat; noun: `hat`; material: `felt`; size/quality: `Small`/`Standard`; weight/cost: 160g/8.0m; wear: `Wear_Hat`; variables: none; matches: shepherd, goatherd, steppe herder, Magyar, Rus / Novgorod, rural worker, and upland travel variants.
+- `medieval_fisher_headcloth` - a $colour fisher's headcloth; noun: `headcloth`; material: `linen`; size/quality: `Small`/`Standard`; weight/cost: 75g/5.0m; wear: `Wear_Kerchief`; variables: Variable_BasicColour; matches: fisher, boatman, laundress, dock worker, river trader, coastal servant, and warm-climate water-work variants.
+- `medieval_short_boatmans_tunic` - a short $colour boatman's tunic; noun: `tunic`; material: `wool`; size/quality: `Normal`/`Standard`; weight/cost: 470g/14.0m; wear: `Wear_Tunic`; variables: Variable_BasicColour; matches: fisher, boatman, ferryman, dock worker, river trader, sailor, and short work-tunic variants across western, Byzantine, Islamic, and Rus settings.
+- `medieval_rope_soled_hemp_sandals` - a pair of rope-soled hemp sandals; noun: `sandals`; material: `hemp`; size/quality: `Small`/`Standard`; weight/cost: 260g/5.0m; wear: `Wear_Sandals`; variables: none; matches: fisher, boatman, warm-climate field worker, Indian, East Asian, Japanese, coastal, and poorer traveller variants.
+- `medieval_leather_hawking_glove` - a single leather hawking glove; noun: `glove`; material: `leather`; size/quality: `Small`/`Good`; weight/cost: 170g/36.0m; wear: `Wear_Gloves`; variables: none; matches: forester, hunting retainer, elite rural retinue, falconry-facing court, and outdoor service variants where a single protective glove is appropriate.
+- `medieval_rough_wool_gaiters` - a pair of rough $colour wool gaiters; noun: `gaiters`; material: `wool`; size/quality: `Small`/`Standard`; weight/cost: 230g/6.0m; wear: `Wear_Leggings`; variables: Variable_DrabColour; matches: field labourer, shepherd, stable hand, carter, poor traveller, forester, and wet-weather rural variants.
+- `medieval_patched_wool_cloak` - a patched $colour wool cloak; noun: `cloak`; material: `wool`; size/quality: `Normal`/`Standard`; weight/cost: 1040g/14.0m; wear: `Wear_Cloak_(Open)`; variables: Variable_DrabColour; matches: poor traveller, shepherd, field labourer, servant, beggar, rural commoner, and hard-weather common variants.
+- `medieval_stablehand_wool_cap` - a $colour stablehand's wool cap; noun: `cap`; material: `wool`; size/quality: `Small`/`Standard`; weight/cost: 95g/5.0m; wear: `Wear_Hat`; variables: Variable_BasicColour; matches: stable hand, carter, household servant, rural worker, porter, inn worker, and town yard-service variants.
+- `medieval_cart_driver_wool_coat` - a belted $colour cart driver's coat; noun: `coat`; material: `wool`; size/quality: `Normal`/`Standard`; weight/cost: 820g/26.0m; wear: `Wear_Long_Coat`; variables: Variable_BasicColour; matches: carter, waggoner, messenger, road worker, stable servant, rural trader, and cool-weather travel variants.
+
+#### Household and service-labour overlays
+
+- `medieval_plain_service_gown` - a plain $colour service gown; noun: `gown`; material: `wool`; size/quality: `Normal`/`Standard`; weight/cost: 700g/18.0m; wear: `Wear_Gown`; variables: Variable_BasicColour; matches: western household servant, castle servant, monastic lay helper, inn worker, kitchen worker, and female or ungendered service variants.
+- `medieval_tucked_work_kirtle` - a tucked $colour work kirtle; noun: `kirtle`; material: `wool`; size/quality: `Normal`/`Standard`; weight/cost: 620g/18.0m; wear: `Wear_Gown`; variables: Variable_BasicColour; matches: laundress, kitchen worker, market worker, household servant, western town woman, and active service variants needing a shorter working line.
+- `medieval_large_linen_work_apron` - a large $colour linen work apron; noun: `apron`; material: `linen`; size/quality: `Small`/`Standard`; weight/cost: 180g/6.0m; wear: `Wear_Apron`; variables: Variable_BasicColour; matches: kitchen worker, baker, laundress, household servant, inn worker, market cook, butcher-adjacent service, and workshop-cleanliness variants.
+- `medieval_linen_laundry_headcloth` - a $colour laundry headcloth; noun: `headcloth`; material: `linen`; size/quality: `Small`/`Standard`; weight/cost: 80g/5.0m; wear: `Wear_Kerchief`; variables: Variable_BasicColour; matches: laundress, washerwoman, bathhouse helper, household servant, market washer, and warm-weather service variants.
+- `medieval_short_service_tunic` - a short $colour service tunic; noun: `tunic`; material: `wool`; size/quality: `Normal`/`Standard`; weight/cost: 470g/14.0m; wear: `Wear_Tunic`; variables: Variable_BasicColour; matches: male or ungendered household servant, inn worker, stable hand, porter, kitchen assistant, messenger, and town service variants.
+- `medieval_household_work_sash` - a $colour household work sash; noun: `sash`; material: `wool`; size/quality: `Small`/`Standard`; weight/cost: 110g/5.0m; wear: `Wear_Sash`; variables: Variable_BasicColour; matches: household servant, cook, laundress, inn worker, apprentice, East Asian service, Islamic household, and Byzantine household variants needing a simple waist tie.
+- `medieval_kitchen_sleeve_ties` - a pair of $colour kitchen sleeve ties; noun: `sleeve ties`; material: `linen`; size/quality: `Small`/`Standard`; weight/cost: 45g/3.0m; wear: `Wear_Bracers`; variables: Variable_BasicColour; matches: cook, baker, scullion, laundress, dyer, scribe, workshop, household, and service variants where sleeves need to be visibly gathered.
+- `medieval_scullion_linen_coif` - a $colour scullion's linen coif; noun: `coif`; material: `linen`; size/quality: `Small`/`Standard`; weight/cost: 85g/4.0m; wear: `Wear_Coif`; variables: Variable_BasicColour; matches: scullion, cook, kitchen servant, baker, inn worker, and western household service variants.
+- `medieval_leather_stable_apron` - a leather stable apron; noun: `apron`; material: `leather`; size/quality: `Small`/`Standard`; weight/cost: 420g/18.0m; wear: `Wear_Apron`; variables: none; matches: stable hand, farrier-adjacent service, carter, yard worker, animal handler, and heavy household-labour variants.
+- `medieval_inn_workers_wool_hood` - a $colour inn worker's wool hood; noun: `hood`; material: `wool`; size/quality: `Small`/`Standard`; weight/cost: 230g/10.0m; wear: `Wear_Hoodie`; variables: Variable_BasicColour; matches: inn worker, tavern servant, porter, market helper, kitchen worker, urban servant, and cool-weather service variants.
+
+#### Scholars, students, physicians, and legal-administrative overlays
+
+- `medieval_student_wool_gown` - a plain $colour student gown; noun: `gown`; material: `wool`; size/quality: `Normal`/`Standard`; weight/cost: 760g/28.0m; wear: `Wear_Gown`; variables: Variable_BasicColour; matches: university student, junior scholar, clerk-in-training, Latin Christian school, urban literate, and western town variants.
+- `medieval_master_scholar_gown` - a sober $colour scholar's gown; noun: `gown`; material: `wool`; size/quality: `Normal`/`Good`; weight/cost: 820g/60.0m; wear: `Wear_Gown`; variables: Variable_FineColour; matches: master scholar, lecturer, senior clerk, legal teacher, learned town professional, and formal school variants.
+- `medieval_physician_wool_gown` - a long $colour physician's gown; noun: `gown`; material: `wool`; size/quality: `Normal`/`Good`; weight/cost: 840g/70.0m; wear: `Wear_Gown`; variables: Variable_FineColour; matches: physician, learned healer, court doctor, town medical practitioner, and formal literate-professional variants.
+- `medieval_notary_wool_gown` - a neat $colour notary's gown; noun: `gown`; material: `wool`; size/quality: `Normal`/`Good`; weight/cost: 760g/54.0m; wear: `Wear_Gown`; variables: Variable_FineColour; matches: notary, legal clerk, court administrator, chancery worker, literate town official, and merchant-accounting variants.
+- `medieval_lined_scholars_hood` - a lined $colour scholar's hood; noun: `hood`; material: `wool`; size/quality: `Small`/`Good`; weight/cost: 300g/30.0m; wear: `Wear_Hoodie`; variables: Variable_FineColour; matches: student, master scholar, physician, notary, clerk, university, and western learned-professional variants.
+- `medieval_plain_black_skullcap` - a plain black skullcap; noun: `skullcap`; material: `wool`; size/quality: `Small`/`Standard`; weight/cost: 45g/8.0m; wear: `Wear_Skullcap`; variables: none; matches: clerks, scholars, physicians, notaries, Jewish scholar variants where appropriate, and sober learned-professional headwear variants.
+- `medieval_sober_lecture_mantle` - a sober $colour lecture mantle; noun: `mantle`; material: `wool`; size/quality: `Normal`/`Good`; weight/cost: 720g/52.0m; wear: `Wear_Mantle`; variables: Variable_FineColour; matches: master scholar, lecturer, senior clerk, legal professional, physician, and formal academic or administrative variants.
+- `medieval_fine_scholars_cap` - a fine $colour scholar's cap; noun: `cap`; material: `wool`; size/quality: `Small`/`Good`; weight/cost: 80g/28.0m; wear: `Wear_Hat`; variables: Variable_FineColour; matches: master scholar, physician, notary, court administrator, senior clerk, and formal town learned variants.
+
+#### Children and apprentices
+
+- `medieval_child_wool_tunic` - a small $colour child's wool tunic; noun: `tunic`; material: `wool`; size/quality: `Small`/`Standard`; weight/cost: 300g/8.0m; wear: `Wear_Tunic`; variables: Variable_BasicColour; matches: common child, servant child, rural child, town child, apprentice underlayer, and general child-population variants across most culture families.
+- `medieval_child_linen_shift` - a small $colour child's linen shift; noun: `shift`; material: `linen`; size/quality: `Small`/`Standard`; weight/cost: 150g/5.0m; wear: `Wear_Shirt`; variables: Variable_BasicColour; matches: common child, elite child underlayer, household child, novice child where appropriate, and warm-climate child variants.
+- `medieval_child_leather_shoes` - a pair of small leather child's shoes; noun: `shoes`; material: `leather`; size/quality: `Small`/`Standard`; weight/cost: 230g/10.0m; wear: `Wear_Shoes`; variables: none; matches: common child, elite child, apprentice, household child, town child, and general child-footwear variants.
+- `medieval_child_wool_cloak` - a small $colour child's wool cloak; noun: `cloak`; material: `wool`; size/quality: `Small`/`Standard`; weight/cost: 480g/12.0m; wear: `Wear_Cloak_(Closed)`; variables: Variable_BasicColour; matches: common child, elite child, apprentice, travelling child, cold-weather household child, and general child outerwear variants.
+- `medieval_apprentice_work_tunic` - a short $colour apprentice's tunic; noun: `tunic`; material: `wool`; size/quality: `Normal`/`Standard`; weight/cost: 440g/12.0m; wear: `Wear_Tunic`; variables: Variable_BasicColour; matches: apprentice, junior workshop helper, errand runner, town labour youth, stable apprentice, and service-training variants.
+- `medieval_apprentice_linen_cap` - a $colour apprentice's linen cap; noun: `cap`; material: `linen`; size/quality: `Small`/`Standard`; weight/cost: 55g/4.0m; wear: `Wear_Hat`; variables: Variable_BasicColour; matches: apprentice, shop boy, junior servant, errand runner, clerk-in-training, and town youth variants.
+- `medieval_child_silk_court_robe` - a small fine $colour silk court robe; noun: `robe`; material: `silk`; size/quality: `Small`/`Good`; weight/cost: 360g/110.0m; wear: `Wear_Robe`; variables: Variable_FineColour; matches: elite child, court child, noble household child, East Asian court child, Byzantine court child, Islamic court child, and Indian court-child variants where local skins support it.
+- `medieval_apprentice_canvas_apron` - a $colour apprentice's canvas apron; noun: `apron`; material: `canvas`; size/quality: `Small`/`Standard`; weight/cost: 220g/6.0m; wear: `Wear_Apron`; variables: Variable_BasicColour; matches: apprentice, workshop helper, kitchen trainee, stable apprentice, market youth, and junior craft variants across urban settings.
+
 ## Validation target
 
 - The target output contains no hidden or non-skinnable items.
@@ -1365,6 +2083,10 @@ These catalogue overlays distinguish town-dwellers, skilled artisans, shopkeeper
 - Cold-weather additions are catalogue overlays with `matches:` notes; they are not mandatory default manifest entries unless a later implementation intentionally promotes them into a manifest.
 - Urban and professional additions are catalogue overlays with `matches:` notes; they are not mandatory default manifest entries and should not imply formal uniforms, badges, hidden storage, or guild mechanics unless later supported by components or skins.
 - Urban and professional additions distinguish town workers from rural commoners through cleaner headwear, work aprons, sleeve guards, work caps, short tunics or jackets, merchant and clerk robes, and culture-specific workshop garments.
+- Religious clothing additions are shared tradition overlays and should not be duplicated as culture-specific priest, monk, nun, scholar, or ritual-specialist garments unless a later setting requires a genuinely different local form.
+- Religious clothing additions intentionally omit non-clothing religious paraphernalia, carried ritual objects, books, rosaries, beads, staves, bowls, masks, instruments, sect marks painted on the body, and mechanically meaningful ritual equipment.
+- Accessory and social-context additions are shared overlays with `matches:` notes. They should be used to distinguish road travellers, rural specialists, household servants, literate professionals, children, apprentices, and visibly accessorised outfits without duplicating every culture family.
+- This pass intentionally omits wearable containers and container-adjacent clothing: pouches, purses, alms bags, travel scrips, satchels, backpacks, baskets, tool bags, and storage aprons are left for a separate container patch. Belts, sashes, girdles, pins, and brooches must not claim storage or mechanically meaningful attachment behaviour unless later implementation adds a supporting component.
 
 ## Source notes
 
@@ -1392,6 +2114,23 @@ These catalogue overlays distinguish town-dwellers, skilled artisans, shopkeeper
 - Victoria and Albert Museum, `Hanbok - traditional Korean dress` - used for Korean garment-structure grounding: jeogori, baji, chima, po/durumagi, wrap direction, and long-lived outer-coat forms.
 - Minneapolis Institute of Art, `Japanese Kimono` - used for the Heian-to-Kamakura transition from many courtly layers toward kosode-based dress, and with caution for the broader principle that garments and styles can mark activity or profession.
 - Urban/professional source limitation: most catalogue items here are practical overlays, not exact uniforms. For non-European town workers especially, the design extrapolates from documented base garments, material cultures, and market/workshop iconography rather than asserting standardized occupational dress.
+
+- Religious expansion source: Catholic Encyclopedia, `Vestments` - used for the Latin liturgical set, including amice, alb, cincture, maniple, stole, dalmatic, chasuble, cope, bishop gloves, mitre, and archbishop pallium.
+- Religious expansion source: Catholic Encyclopedia, `Pontifical Mass` - used as a check on bishop and papal-style pontifical layering, especially the compatibility of alb, cincture, stole, dalmatic, gloves, chasuble, pallium, and mitre.
+- Religious expansion source: Dominican Friars / Order of Preachers habit descriptions - used for the white habit, scapular/capuce, black cappa, and the black-friar visual distinction; rosary references were intentionally excluded as non-clothing.
+- Religious expansion source: Franciscan habit and Carmelite habit summaries - used for the cord-belt, grey/brown mendicant habit, and white-mantled Carmelite variants while avoiding late or modern order-specific accessories.
+- Religious expansion source: Cistercian habit summaries - used for the white or grey habit with black scapular distinction and the c. 1098 Cistercian reform context.
+- Religious expansion source: Orthodox vestment guides and OrthodoxWiki / Greek Orthodox sources - used for sticharion, orarion, epitrachelion, epimanikia, phelonion, sakkos, omophorion, kamilavkion, and monastic black-robe assumptions.
+- Religious expansion source: Encyclopaedia Iranica and Britannica on `khirqa` - used for the Sufi patched wool cloak/robe and the caution that colour and exact shape were not uniform.
+- Religious expansion source: Jainpedia, `Monastic clothing` and `Monastic equipment` - used for white Śvetāmbara mendicant robe assumptions and the decision to omit Digambara male ascetic clothing prototypes.
+- Religious expansion source: Britannica and museum/object sources on tallit and kesa/kasaya - used for Jewish tallit/tallit katan/fringe assumptions and Buddhist rectangular patched mantle assumptions.
+- Religious expansion source: Nippon.com, Britannica, and museum records on Shintō vestments and kariginu - used for Heian-derived shrine clothing assumptions, including white jōe-style robe, hakama, and eboshi headwear.
+- Religious expansion source: World History Encyclopedia, `Clothing in the Mongol Empire` - used conservatively for steppe felt, fur, long coat, and hat materials in the steppe ritual-specialist overlay.
+
+- Accessory/social-context expansion source: Egan and Pritchard / Museum of London-style medieval dress-accessory catalogues - used cautiously for brooches, cloak pins, belts, rings, earrings, hairpins, garters, and small worn jewellery, with later high-medieval material kept conservative for the 500AD-1300AD seeder window.
+- Accessory/social-context expansion source: the existing Viking, Rus, steppe, Indian, Islamic, and East Asian textile source notes - reused for oval brooches, bead necklaces, tablet-woven bands, metal-fitted belts, robe sashes, waist cords, bangles, hairpins, and warm-climate jewellery without making culture labels player-facing.
+- Travel, service, and rural-specialist expansion source: the existing winter, urban/professional, and manuscript-iconography source base - used for road cloaks, broad-brim hats, gaiters, hooded shepherd cloaks, fisher headcloths, boatman tunics, stable aprons, sleeve ties, kitchen aprons, and service coifs as practical social-context clothing rather than uniformed occupational dress.
+- Scholar, child, and apprentice expansion source: medieval urban, clerical, and university clothing assumptions already present in the clerk, scholar, and religious sections - used for sober gowns, scholar hoods, skullcaps, apprentice tunics, child tunics, small cloaks, and elite child robe variants without adding books, badges, seals, degree regalia, or other paraphernalia.
 
 ## Appendix A: colour variable value lists
 

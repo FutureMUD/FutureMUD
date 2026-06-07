@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using MudSharp.Arenas;
 using MudSharp.Character;
+using MudSharp.Construction;
 using MudSharp.Economy;
 using MudSharp.Economy.Currency;
 using MudSharp.Framework;
@@ -942,7 +943,6 @@ internal static class EmploymentFinanceService
 
 		currency = resolvedCurrency;
 		var piles = context.CarriedTaskItems(actor)
-		                   .Concat(actor.Body.HeldItems)
 		                   .Where(x => x is not null)
 		                   .Select(x => x.GetItemType<ICurrencyPile>())
 		                   .Where(x => x is not null)
@@ -1107,6 +1107,53 @@ internal static class EmploymentFinanceService
 		}
 	}
 
+	internal static bool CanSettlePayroll(IEmploymentHost host, MoneyAmount amount, out string reason)
+	{
+		if (!TryResolveFinanceHost(host, amount, out var finance, out reason))
+		{
+			return false;
+		}
+
+		var available = AvailableFundsWithoutReservations(finance);
+		if (available >= amount.Amount)
+		{
+			reason = string.Empty;
+			return true;
+		}
+
+		reason =
+			$"{host.EmploymentHostName} only has {amount.Currency.Describe(available, CurrencyDescriptionPatternType.ShortDecimal)} available for payroll settlement, but {amount.Currency.Describe(amount.Amount, CurrencyDescriptionPatternType.ShortDecimal)} is required.";
+		return false;
+	}
+
+	internal static bool TrySettlePayroll(IEmploymentHost host, ICharacter? actor, MoneyAmount amount,
+		Guid correlationId, out string reason)
+	{
+		if (!TryResolveFinanceHost(host, amount, out var finance, out reason))
+		{
+			return false;
+		}
+
+		return DebitAvailable(finance, amount.Amount, actor, finance.Owner, "Payroll",
+			$"employment payroll settlement {correlationId:D}", EmploymentClock.CurrentDateTime(host), out reason);
+	}
+
+	internal static IReadOnlyCollection<ICell> PurchaseLocationHints(IEmploymentTaskContext context, ICharacter? actor,
+		PurchaseActionStep purchase)
+	{
+		var gameworld = (context.Employer as IHaveFuturemud)?.Gameworld ?? actor?.Gameworld;
+		if (gameworld is null)
+		{
+			return [];
+		}
+
+		return SupplierShops(gameworld, purchase.SupplierSelector ?? "any")
+		       .SelectMany(x => x.CurrentLocations)
+		       .Where(x => x is not null)
+		       .DistinctBy(x => x.Id)
+		       .ToList();
+	}
+
 	private static bool TryResolvePurchaseTarget(EmploymentTaskContext context, ICharacter? actor,
 		PurchaseActionStep purchase, out PurchaseTarget target, out string reason)
 	{
@@ -1119,14 +1166,10 @@ internal static class EmploymentFinanceService
 		}
 
 		var supplierSelector = purchase.SupplierSelector ?? "any";
-		var suppliers = supplierSelector.EqualTo("any")
-			? gameworld.Shops.ToList()
-			: gameworld.Shops.GetByIdOrName(supplierSelector) is { } supplier ? [supplier] : [];
+		var suppliers = SupplierShops(gameworld, supplierSelector);
 		var candidates = suppliers
-		                 .Where(x => x is not null)
-		                 .Cast<IShop>()
 		                 .Where(shop => actor is null ||
-		                                shop.CurrentLocations.Any(location => context.CanPath(actor, location)))
+		                                shop.CurrentLocations.Any(location => actor.Location?.Id == location.Id))
 		                 .Select(shop => ResolvePurchaseTargetInShop(context, actor, shop, purchase))
 		                 .Where(x => x is not null)
 		                 .Cast<PurchaseTarget>()
@@ -1141,9 +1184,17 @@ internal static class EmploymentFinanceService
 		}
 
 		reason = supplierSelector.EqualTo("any")
-			? $"No reachable shop has stock matching {purchase.PurchaseDescription}."
-			: $"No supplier shop matching {supplierSelector} has stock matching {purchase.PurchaseDescription}.";
+			? $"No supplier shop at the assigned employee's current location has stock matching {purchase.PurchaseDescription}."
+			: $"No supplier shop matching {supplierSelector} at the assigned employee's current location has stock matching {purchase.PurchaseDescription}.";
 		return false;
+	}
+
+	private static IReadOnlyCollection<IShop> SupplierShops(IFuturemud gameworld, string supplierSelector)
+	{
+		supplierSelector = string.IsNullOrWhiteSpace(supplierSelector) ? "any" : supplierSelector.Trim();
+		return supplierSelector.EqualTo("any")
+			? gameworld.Shops.ToList()
+			: gameworld.Shops.GetByIdOrName(supplierSelector) is { } supplier ? [supplier] : [];
 	}
 
 	private static PurchaseTarget? ResolvePurchaseTargetInShop(EmploymentTaskContext context, ICharacter? actor,
@@ -1173,6 +1224,11 @@ internal static class EmploymentFinanceService
 			return null;
 		}
 
+		if (merchandise.MerchandiseType == MerchandiseType.Commodity)
+		{
+			return null;
+		}
+
 		var quantity = purchase.Quantity ?? 1;
 		var stockedItems = shop.StockedItems(merchandise).ToList();
 		if (!string.IsNullOrWhiteSpace(purchase.KeywordFilter))
@@ -1196,6 +1252,11 @@ internal static class EmploymentFinanceService
 	{
 		foreach (var merchandise in shop.Merchandises)
 		{
+			if (merchandise.MerchandiseType == MerchandiseType.Commodity)
+			{
+				continue;
+			}
+
 			var matching = shop.StockedItems(merchandise)
 			                   .Where(x => ItemThresholdCondition.MatchesSelector(context, x, purchase.ItemSelector!))
 			                   .ToList();
@@ -1455,6 +1516,9 @@ internal static class EmploymentFinanceService
 			case IBank bank:
 				finance = new FinanceHost(bank, bank.PrimaryCurrency, null);
 				break;
+			case IHaveCurrency currencyHost:
+				finance = new FinanceHost(host, currencyHost.Currency, null);
+				break;
 			default:
 				reason =
 					$"{host.EmploymentHostName} does not expose a native employment finance adapter yet.";
@@ -1499,7 +1563,7 @@ internal static class EmploymentFinanceService
 		};
 	}
 
-	private static bool DebitAvailable(FinanceHost finance, decimal amount, ICharacter actor,
+	private static bool DebitAvailable(FinanceHost finance, decimal amount, ICharacter? actor,
 		IFrameworkItem counterparty, string sourceKind, string reference, MudDateTime? mudDateTime,
 		out string reason)
 	{
@@ -1521,7 +1585,7 @@ internal static class EmploymentFinanceService
 			sourceKind, reference, finance.BankAccount, mudDateTime, out reason, finance.Owner, reference);
 	}
 
-	private static bool DebitVirtual(FinanceHost finance, decimal amount, ICharacter actor,
+	private static bool DebitVirtual(FinanceHost finance, decimal amount, ICharacter? actor,
 		IFrameworkItem? counterparty, string sourceKind, string reference, MudDateTime? mudDateTime,
 		out string reason)
 	{
@@ -1543,7 +1607,7 @@ internal static class EmploymentFinanceService
 			sourceKind, reference, null, mudDateTime, out reason, finance.Owner, reference);
 	}
 
-	private static void CreditVirtual(FinanceHost finance, decimal amount, ICharacter actor,
+	private static void CreditVirtual(FinanceHost finance, decimal amount, ICharacter? actor,
 		IFrameworkItem? counterparty, string sourceKind, string reference, MudDateTime? mudDateTime)
 	{
 		if (finance.Owner is ICombatArena arena)

@@ -374,7 +374,10 @@ Current operational boundaries:
 
 - task routing uses `IEmploymentTaskBoard`; the staff `IBoard` is only an employee/manager communication surface
 - financial actions require delegated authority plus explicit authorisation/reservation state and write employment audit evidence while reusing native finance records where available
-- item movement uses inventory plans where possible, with narrow fallbacks for behaviours the inventory-plan API does not model cleanly
+- executable shop-purchase tasks must be completed at a supplier shop location; commodity merchandise stays on the weighted purchase path and is not eligible for count-priced merchandise or item-selector purchases
+- payroll settlement debits backed employer funds before payables become claimable or settled; hosts without a native finance adapter must explicitly expose a currency-backed finance surface
+- item movement uses inventory plans where possible, with narrow fallbacks for behaviours the inventory-plan API does not model cleanly; physical employment logistics are constrained to the host's work locations and physical cash steps only consume task-custody currency piles
+- proprietor contracts cannot be terminated by non-admin managers, and manager goals must require the combined authority of the declared goal, its conditions, and its action plan
 - durable hotel roots and hotel room/rental/furnishing/lost-property internals are persisted through normalized hotel tables
 - central scheduled-rule evaluation runs once per minute and worker AI can also evaluate its current host before claiming work
 - legacy shop/stable employee XML, bank/arena manager lists, and the PC-facing job system are not migrated into the new contracts by default

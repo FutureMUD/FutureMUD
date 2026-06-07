@@ -547,6 +547,29 @@ public class EmploymentCommandServiceTests
 	}
 
 	[TestMethod]
+	public void EmploymentCommandService_ManagersCannotCreateOrTerminateProprietorContracts()
+	{
+		var currency = Currency();
+		IEmploymentHost host = new TestEmploymentHost(1, "market shop", currency.Object);
+		var manager = Character(54, "Manager").Object;
+		var owner = Character(55, "Owner").Object;
+		var employee = Character(56, "Employee").Object;
+		host.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.HireEmployees | EmploymentAuthority.FireEmployees), null);
+		var proprietor = host.Hire(owner, Offer(currency.Object, EmploymentRole.Proprietor), null);
+		var service = new EmploymentCommandService();
+
+		Assert.IsFalse(service.TryHireDirectContract(manager, host, employee, EmploymentRole.Proprietor,
+			out var contract, out var hireMessage));
+		Assert.IsNull(contract);
+		StringAssert.Contains(hireMessage, "proprietor");
+
+		Assert.IsFalse(service.TryTerminateContract(manager, host, proprietor.Id, out var fireMessage));
+		StringAssert.Contains(fireMessage, "proprietor");
+		Assert.AreEqual(EmploymentStatus.Active, proprietor.Status);
+	}
+
+	[TestMethod]
 	public void EmploymentCommandService_ContractDelegationsCanBeGrantedAndRevoked()
 	{
 		var currency = Currency();
@@ -691,12 +714,14 @@ public class EmploymentCommandServiceTests
 	[TestMethod]
 	public void EmploymentCommandService_PayrollRunSettleAndListUsesOverdueDays()
 	{
+		VirtualCashLedger.ClearInMemoryForTests();
 		var currency = Currency();
-		IEmploymentHost host = new TestEmploymentHost(1, "market shop", currency.Object);
+		var (shop, state) = ShopHost(1, "market shop", currency.Object);
+		IEmploymentHost host = shop.Object;
 		var manager = Character(60, "Manager").Object;
 		var employee = Character(61, "Employee").Object;
 		var service = new EmploymentCommandService();
-		host.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+		state.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
 			EmploymentAuthority.HireEmployees | EmploymentAuthority.ManagePayroll), null);
 		var compensation = new CompensationTerms(
 			new MoneyAmount(currency.Object, 10.0M),
@@ -704,7 +729,7 @@ public class EmploymentCommandServiceTests
 			PayCadence.Daily,
 			new MoneyAmount(currency.Object, 10.0M),
 			PaymentSource.HostCash);
-		var contract = host.Hire(employee, new EmploymentOffer(
+		var contract = state.Hire(employee, new EmploymentOffer(
 			EmploymentRole.Employee,
 			compensation,
 			WorkSchedule.AnyTime,
@@ -712,6 +737,9 @@ public class EmploymentCommandServiceTests
 			new PaymentMethod(PaymentMethodKind.Cash),
 			EmploymentAuthoritySet.Empty), manager);
 		host.Payroll.EvaluatePayroll(contract.StartedAt.AddDays(2).AddMinutes(1));
+		VirtualCashLedger.Credit(shop.Object, currency.Object,
+			host.Payroll.OutstandingLiabilities.Sum(x => x.Amount.Amount), null, shop.Object, "Seed",
+			"Seed payroll balance");
 
 		var list = service.RenderPayroll(manager, host);
 
@@ -1588,6 +1616,22 @@ public class EmploymentCommandServiceTests
 	}
 
 	[TestMethod]
+	public void EmploymentScheduledRuleAuthoring_RejectsOverflowCooldown()
+	{
+		var currency = Currency();
+		IEmploymentHost host = new TestEmploymentHost(1, "market shop", currency.Object);
+		var manager = Character(182, "Manager").Object;
+		host.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.CreateScheduledRules), null);
+		var service = new EmploymentScheduledRuleAuthoringService();
+
+		Assert.IsTrue(service.TryStartDraft(manager, host, "Overflow", out var message), message);
+		Assert.IsFalse(service.TrySetDraftCooldown(manager, host, "9999999999999999999999999999d", out message));
+		StringAssert.Contains(message, "positive duration");
+		Assert.AreEqual(0, host.TaskBoard.ScheduledRules.Count);
+	}
+
+	[TestMethod]
 	public void EmploymentCommandService_ScheduledRuleOneShotEvaluateAndCancel()
 	{
 		var currency = Currency();
@@ -1853,6 +1897,32 @@ public class EmploymentCommandServiceTests
 		return currency;
 	}
 
+	private static (Mock<IShop> Shop, IEmploymentHostState State) ShopHost(long id, string name, ICurrency currency)
+	{
+		var shop = new Mock<IShop>();
+		shop.SetupGet(x => x.Id).Returns(id);
+		shop.SetupGet(x => x.Name).Returns(name);
+		shop.SetupGet(x => x.FrameworkItemType).Returns("Shop");
+		shop.SetupGet(x => x.EmploymentHostName).Returns(name);
+		shop.SetupGet(x => x.EmploymentHostType).Returns(EmploymentHostType.Shop);
+		shop.SetupGet(x => x.Market).Returns((IMarket?)null);
+		shop.SetupGet(x => x.Currency).Returns(currency);
+		shop.SetupGet(x => x.BankAccount).Returns((IBankAccount)null!);
+		shop.SetupGet(x => x.CashBalance).Returns(() => VirtualCashLedger.Balance(shop.Object, currency));
+		var state = new EmploymentHostState(shop.Object);
+		shop.SetupGet(x => x.Employment).Returns(state);
+		shop.SetupGet(x => x.BusinessLedger).Returns(state.BusinessLedger);
+		shop.SetupGet(x => x.EmploymentRegister).Returns(state.EmploymentRegister);
+		shop.SetupGet(x => x.TaskBoard).Returns(state.TaskBoard);
+		shop.SetupGet(x => x.ManagerGoalBoard).Returns(state.ManagerGoalBoard);
+		shop.SetupGet(x => x.Payroll).Returns(state.Payroll);
+		shop.SetupGet(x => x.EmploymentContracts).Returns(() => state.EmploymentContracts);
+		shop.SetupGet(x => x.JobOpenings).Returns(() => state.JobOpenings);
+		shop.Setup(x => x.HasAuthority(It.IsAny<ICharacter>(), It.IsAny<EmploymentAuthority>()))
+		    .Returns((ICharacter actor, EmploymentAuthority authority) => state.HasAuthority(actor, authority));
+		return (shop, state);
+	}
+
 	private static Mock<ICell> Cell(long id, string name)
 	{
 		var cell = new Mock<ICell>();
@@ -1936,6 +2006,7 @@ public class EmploymentCommandServiceTests
 		output.Setup(x => x.Send(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>())).Returns(true);
 		character.SetupGet(x => x.Id).Returns(id);
 		character.SetupGet(x => x.Name).Returns(name);
+		character.SetupGet(x => x.PersonalName).Returns(personalName.Object);
 		character.SetupGet(x => x.Gameworld).Returns(gameworld!);
 		character.SetupGet(x => x.CurrentName).Returns(personalName.Object);
 		character.SetupGet(x => x.Body).Returns(body.Object);

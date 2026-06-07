@@ -221,7 +221,7 @@ public abstract class EmploymentActionStepBase : IEmploymentActionStep
 	public abstract EmploymentActionStepResult Execute(IEmploymentTaskContext context, ICharacter actor);
 }
 
-public sealed class PurchaseActionStep : EmploymentActionStepBase
+public sealed class PurchaseActionStep : EmploymentActionStepBase, IEmploymentActionStepLocationHint
 {
 	public PurchaseActionStep(string purchaseDescription, MoneyAmount amount, string? existingFinancialRecord = null)
 		: base(
@@ -362,6 +362,11 @@ public sealed class PurchaseActionStep : EmploymentActionStepBase
 		}
 
 		return EmploymentActionStepResult.CompletedResult($"Recorded audit-only purchase for {PurchaseDescription}.");
+	}
+
+	public IReadOnlyCollection<ICell> ExecutionLocationHints(IEmploymentTaskContext context, ICharacter actor)
+	{
+		return IsExecutablePurchase ? EmploymentFinanceService.PurchaseLocationHints(context, actor, this) : [];
 	}
 }
 
@@ -1652,9 +1657,16 @@ public sealed class ReturnAssetActionStep : EmploymentActionStepBase, IEmploymen
 			return false;
 		}
 
-		if (ResolveContainer(context, actor) is null)
+		var container = ResolveContainer(context, actor);
+		if (container is null)
 		{
 			reason = $"There is no return container matching {EmploymentItemSelectorResolver.Describe(ContainerSelector)}.";
+			return false;
+		}
+
+		if (container.GetItemType<IContainer>() is null)
+		{
+			reason = $"{container.Name} is not a container.";
 			return false;
 		}
 
@@ -1752,8 +1764,7 @@ public sealed class ReturnAssetActionStep : EmploymentActionStepBase, IEmploymen
 
 	private static bool ActorCarriesTaskItem(IEmploymentTaskContext context, ICharacter actor, IGameItem item)
 	{
-		return context.CarriedTaskItems(actor).Any(x => x.Id == item.Id) ||
-		       actor.Inventory.Any(x => x.Id == item.Id);
+		return context.CarriedTaskItems(actor).Any(x => x.Id == item.Id);
 	}
 }
 

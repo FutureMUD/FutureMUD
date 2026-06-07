@@ -126,6 +126,27 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 		return destination is null || !_unreachableCellIds.Contains(destination.Id);
 	}
 
+	private bool HasHostLogisticsBoundary => _usePhysicalItemMovement && Employer.EmploymentHostLocations().Any();
+
+	private bool IsHostLogisticsLocation(ICell? location)
+	{
+		return !HasHostLogisticsBoundary ||
+		       location is null ||
+		       Employer.EmploymentHostLocations().Any(x => x.Id == location.Id);
+	}
+
+	private bool TryRequireHostLogisticsLocation(ICell? location, string action, out string reason)
+	{
+		if (IsHostLogisticsLocation(location))
+		{
+			reason = string.Empty;
+			return true;
+		}
+
+		reason = $"Employment logistics can only {action} within this host's assigned work locations.";
+		return false;
+	}
+
 	public void SetAvailableItems(ICell location, IEnumerable<IGameItem> items)
 	{
 		_locationItems[location.Id] = items.ToList();
@@ -136,6 +157,11 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 	{
 		if (_usePhysicalItemMovement && !_configuredLocationItems.Contains(location.Id))
 		{
+			if (!IsHostLogisticsLocation(location))
+			{
+				return [];
+			}
+
 			return location.GameItems
 			               .SelectMany(x => x.DeepItems)
 			               .DistinctBy(x => x.Id)
@@ -493,6 +519,11 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 
 		foreach (var source in items.Select(x => x.Source).DistinctBy(x => x.Id))
 		{
+			if (!TryRequireHostLogisticsLocation(source, "collect task items", out reason))
+			{
+				return false;
+			}
+
 			if (!CanPath(actor, source))
 			{
 				reason = "The assigned employee cannot path to the source location.";
@@ -576,6 +607,11 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 	public bool TryDeliverTaskItems(ICharacter actor, ICell destination, IGameItem? container, string? containerTag,
 		out string reason)
 	{
+		if (!TryRequireHostLogisticsLocation(destination, "deliver task items", out reason))
+		{
+			return false;
+		}
+
 		if (!CanPath(actor, destination))
 		{
 			reason = "The assigned employee cannot path to the delivery destination.";
@@ -757,6 +793,11 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 		out EmploymentActionStepOperationalState operationalState)
 	{
 		operationalState = EmploymentActionStepOperationalState.Empty;
+		if (!TryRequireHostLogisticsLocation(destination, "return task containers", out reason))
+		{
+			return false;
+		}
+
 		if (!CanPath(actor, destination))
 		{
 			reason = "The assigned employee cannot path to the container return destination.";
@@ -3844,6 +3885,7 @@ public sealed class ManagerGoalBoard : IManagerGoalBoard
 
 	public IManagerGoal CreateGoal(ManagerGoalDefinition definition, ICharacter authorisedBy)
 	{
+		var requiredAuthority = RequiredAuthorityFor(definition);
 		if (!_host.HasAuthority(authorisedBy, EmploymentAuthority.CreateManagerGoals))
 		{
 			throw new InvalidOperationException($"{authorisedBy.HowSeen(authorisedBy, colour: false)} is not authorised to create manager goals for {_host.EmploymentHostName}.");
@@ -3851,7 +3893,7 @@ public sealed class ManagerGoalBoard : IManagerGoalBoard
 
 		if (!authorisedBy.IsAdministrator() &&
 		    !_host.EmploymentContracts.Where(x => x.Employee.Id == authorisedBy.Id && x.Status == EmploymentStatus.Active)
-		          .Any(x => x.Authority.ContainsAll(definition.RequiredAuthority)))
+		          .Any(x => x.Authority.ContainsAll(requiredAuthority)))
 		{
 			throw new InvalidOperationException("A manager cannot create a goal that requires authority they do not possess.");
 		}
@@ -3860,7 +3902,7 @@ public sealed class ManagerGoalBoard : IManagerGoalBoard
 			Interlocked.Increment(ref _nextId),
 			_host,
 			definition.GoalType,
-			definition.RequiredAuthority,
+			requiredAuthority,
 			ManagerGoalStatus.Active,
 			definition.Configuration,
 			definition.Priority,
@@ -3874,6 +3916,18 @@ public sealed class ManagerGoalBoard : IManagerGoalBoard
 		_host.DebugEmployment($"Created manager goal {definition.GoalType.DescribeEnum()} #{goal.Id:N0}.",
 			authorisedBy.Gameworld);
 		return goal;
+	}
+
+	private static EmploymentAuthoritySet RequiredAuthorityFor(ManagerGoalDefinition definition)
+	{
+		var authority = definition.RequiredAuthority.Authorities |
+		                (definition.Configuration.ActionPlan?.RequiredAuthority.Authorities ?? EmploymentAuthority.None);
+		foreach (var condition in definition.Configuration.Conditions ?? [])
+		{
+			authority |= condition.RequiredAuthority.Authorities;
+		}
+
+		return new EmploymentAuthoritySet(authority);
 	}
 
 	public void CancelGoal(IManagerGoal goal, ICharacter cancelledBy, string reason)

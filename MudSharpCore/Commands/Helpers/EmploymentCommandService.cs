@@ -664,6 +664,12 @@ internal sealed class EmploymentCommandService
 			return false;
 		}
 
+		if (role == EmploymentRole.Proprietor && !host.HasProprietorEmploymentAccess(actor))
+		{
+			message = "Only a proprietor or administrator can create proprietor employment contracts.";
+			return false;
+		}
+
 		var offer = new EmploymentOffer(
 			role,
 			UnpaidCompensation(),

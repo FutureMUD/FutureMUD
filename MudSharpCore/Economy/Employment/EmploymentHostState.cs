@@ -169,6 +169,20 @@ public sealed class EmploymentHostState : IEmploymentHostState
 			throw new InvalidOperationException($"{authorisedBy.HowSeen(authorisedBy, colour: false)} is not authorised to fire employees for {Host.EmploymentHostName}.");
 		}
 
+		if (authorisedBy is not null && !authorisedBy.IsAdministrator())
+		{
+			if (concrete.Role == EmploymentRole.Proprietor)
+			{
+				throw new InvalidOperationException("Only an administrator can terminate a proprietor employment contract.");
+			}
+
+			if (concrete.Role == EmploymentRole.Manager &&
+			    !Host.HasActiveEmploymentRole(authorisedBy, EmploymentRole.Proprietor))
+			{
+				throw new InvalidOperationException("Only a proprietor or administrator can terminate manager employment contracts.");
+			}
+		}
+
 		if (concrete.Status == EmploymentStatus.Ended)
 		{
 			return;
@@ -783,6 +797,27 @@ public sealed class EmploymentPayroll : IEmploymentPayroll
 		{
 			message = "There are no outstanding employment payables to settle.";
 			return false;
+		}
+
+		var accruedAmounts = targets
+		                     .Where(x => x.Status == EmploymentPayableStatus.Accrued)
+		                     .GroupBy(x => x.Amount.Currency.Id)
+		                     .Select(x => new MoneyAmount(x.First().Amount.Currency, x.Sum(y => y.Amount.Amount)))
+		                     .ToList();
+		foreach (var amount in accruedAmounts)
+		{
+			if (!EmploymentFinanceService.CanSettlePayroll(_state.Host, amount, out message))
+			{
+				return false;
+			}
+		}
+
+		foreach (var amount in accruedAmounts)
+		{
+			if (!EmploymentFinanceService.TrySettlePayroll(_state.Host, actor, amount, Guid.NewGuid(), out message))
+			{
+				return false;
+			}
 		}
 
 		var newlyFunded = 0;

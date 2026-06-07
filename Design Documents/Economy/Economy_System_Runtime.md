@@ -201,7 +201,7 @@ Runtime safety invariants:
 
 - shop purchases revalidate stock selection and payment authority immediately before removing stock, including delayed confirmation purchases
 - permanent-shop public stock comes from shopfront-held items and shallow shopfront/stockroom display paths, not private workshops or deeply nested private containers
-- merchandise repricing rejects unsafe overflow multipliers rather than allowing decimal arithmetic to crash command handling
+- merchandise repricing permits ordinary reductions and rejects unsafe markup multipliers rather than allowing decimal arithmetic to crash command handling
 - item preview follows normal container visibility rules; closed opaque containers do not reveal contents through shop preview
 
 ### Markets, Influences, Populations, and Shoppers

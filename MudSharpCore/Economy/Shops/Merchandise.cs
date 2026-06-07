@@ -1154,8 +1154,20 @@ public class Merchandise : LateInitialisingItem, IMerchandise
     public bool CanReprice(decimal multiplier)
     {
         return multiplier > 0.0M &&
-               (BasePrice <= 0.0M || BasePrice <= decimal.MaxValue / multiplier) &&
-               (AutoReorderPrice <= 0.0M || AutoReorderPrice <= decimal.MaxValue / multiplier);
+               PriceCanReprice(BasePrice, multiplier) &&
+               PriceCanReprice(AutoReorderPrice, multiplier);
+    }
+
+    private static bool PriceCanReprice(decimal price, decimal multiplier)
+    {
+        if (price == 0.0M || multiplier <= 1.0M)
+        {
+            return true;
+        }
+
+        return price > 0.0M
+            ? price <= decimal.MaxValue / multiplier
+            : price >= decimal.MinValue / multiplier;
     }
 
     public void Reprice(decimal multiplier)

@@ -218,6 +218,8 @@ public class ShopTests
         _shop.BankAccount = shopAccount.Object;
         Mock<IBankAccount> playerAccount = new();
         playerAccount.SetupGet(x => x.Currency).Returns(_currency.Object);
+        playerAccount.Setup(x => x.IsAuthorisedPaymentItem(It.IsAny<IBankPaymentItem>())).Returns(true);
+        playerAccount.Setup(x => x.MaximumWithdrawal()).Returns(100.0M);
         playerAccount.Setup(x => x.WithdrawFromTransaction(It.IsAny<decimal>(), It.IsAny<string>()));
         shopAccount.Setup(x => x.DepositFromTransaction(It.IsAny<decimal>(), It.IsAny<string>()));
 
@@ -290,6 +292,35 @@ public class ShopTests
         CollectionAssert.DoesNotContain(_shop.StockedItems(merch).ToList(), selectedItem.Object);
         bankActor.Body.Verify(x => x.Get(selectedItem.Object, 0, It.IsAny<IEmote>(), true, ItemCanGetIgnore.None), Times.Once);
         bankActor.Body.Verify(x => x.Get(firstItem.Object, 0, It.IsAny<IEmote>(), true, ItemCanGetIgnore.None), Times.Never);
+    }
+
+    [TestMethod]
+    public void BuyExact_RevalidatesPaymentBeforeRemovingStock()
+    {
+        Mock<IGameItemProto> proto = RegisterPrototype(14);
+        proto.SetupGet(x => x.Morphs).Returns(false);
+        proto.SetupGet(x => x.MorphTimeSpan).Returns(TimeSpan.Zero);
+        Merchandise merch = new(_shop, "item", proto.Object, 10m, false, null, null);
+        _shop.AddMerchandise(merch);
+
+        Mock<IGameItem> selectedItem = CreateStackedItem(112L, 1, proto.Object);
+        selectedItem.Setup(x => x.DropsWhole(It.IsAny<int>())).Returns(true);
+        selectedItem.SetupGet(x => x.InInventoryOf).Returns((IBody)null);
+        selectedItem.SetupGet(x => x.ContainedIn).Returns((IGameItem)null);
+        selectedItem.SetupGet(x => x.Location).Returns((ICell)null);
+        _shop.AddToStock(null, selectedItem.Object, merch);
+
+        var bankActor = CreateBankPaymentActor();
+        Assert.IsTrue(_shop.CanBuyExact(bankActor.Actor.Object, merch, 1, bankActor.Payment, new[] { selectedItem.Object }).Truth);
+        bankActor.PlayerAccount.Setup(x => x.MaximumWithdrawal()).Returns(0.0M);
+
+        var bought = _shop.BuyExact(bankActor.Actor.Object, merch, 1, bankActor.Payment, new[] { selectedItem.Object }).ToList();
+
+        Assert.IsFalse(bought.Any());
+        CollectionAssert.Contains(_shop.StockedItems(merch).ToList(), selectedItem.Object);
+        bankActor.PlayerAccount.Verify(x => x.WithdrawFromTransaction(It.IsAny<decimal>(), It.IsAny<string>()), Times.Never);
+        bankActor.ShopAccount.Verify(x => x.DepositFromTransaction(It.IsAny<decimal>(), It.IsAny<string>()), Times.Never);
+        bankActor.Body.Verify(x => x.Get(It.IsAny<IGameItem>(), 0, It.IsAny<IEmote>(), true, ItemCanGetIgnore.None), Times.Never);
     }
 
     [TestMethod]
@@ -384,6 +415,18 @@ public class ShopTests
         Assert.AreEqual(90m, _shop.PriceForMerchandise(null, merch, 9));
         Assert.AreEqual(80m, _shop.PriceForMerchandise(null, merch, 10));
         Assert.IsTrue(_shop.GetDetailedPriceInfo(null, merch).VolumeDealsExist);
+    }
+
+    [TestMethod]
+    public void MerchandiseReprice_RejectsOverflowingMultiplier()
+    {
+        Mock<IGameItemProto> proto = RegisterPrototype(38);
+        Merchandise merch = new(_shop, "expensive", proto.Object, decimal.MaxValue / 2.0M, false, null, null);
+
+        Assert.IsFalse(merch.CanReprice(3.0M));
+        merch.Reprice(3.0M);
+
+        Assert.AreEqual(decimal.MaxValue / 2.0M, merch.BasePrice);
     }
 
     [TestMethod]
@@ -601,6 +644,8 @@ public class ShopTests
         _shop.BankAccount = shopAccount.Object;
         Mock<IBankAccount> playerAccount = new();
         playerAccount.SetupGet(x => x.Currency).Returns(_currency.Object);
+        playerAccount.Setup(x => x.IsAuthorisedPaymentItem(It.IsAny<IBankPaymentItem>())).Returns(true);
+        playerAccount.Setup(x => x.MaximumWithdrawal()).Returns(100.0M);
         playerAccount.Setup(x => x.WithdrawFromTransaction(It.IsAny<decimal>(), It.IsAny<string>()));
         shopAccount.Setup(x => x.DepositFromTransaction(It.IsAny<decimal>(), It.IsAny<string>()));
 

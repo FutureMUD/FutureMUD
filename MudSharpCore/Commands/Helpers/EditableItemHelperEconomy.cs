@@ -358,24 +358,40 @@ public partial class EditableItemHelper
             //actor.OutputHandler.Send($"You clone the bank {bank.Name.ColourValue()} to a new bank called {clone.Name.ColourValue()}, which you are now editing.");
         },
 
-        GetListTableHeaderFunc = character => new List<string>
-        {
-            "Id",
-            "Name",
-            "Zone",
-            "# Accounts",
-            "Locations"
-        },
+        GetListTableHeaderFunc = character => character.IsAdministrator()
+            ? new List<string>
+            {
+                "Id",
+                "Name",
+                "Zone",
+                "# Accounts",
+                "Locations"
+            }
+            : new List<string>
+            {
+                "Id",
+                "Name",
+                "Zone",
+                "Branches"
+            },
 
         GetListTableContentsFunc = (character, protos) => from proto in protos.OfType<IBank>()
-                                                          select new List<string>
-                                                          {
-                                                              proto.Id.ToString("N0", character),
-                                                              proto.Name,
-                                                              proto.EconomicZone.Name,
-                                                              proto.BankAccounts.Count().ToString("N0", character),
-                                                              proto.BranchLocations.Select(x => x.GetFriendlyReference(character)).ListToCommaSeparatedValues(", ")
-                                                          },
+                                                          select character.IsAdministrator()
+                                                              ? new List<string>
+                                                              {
+                                                                  proto.Id.ToString("N0", character),
+                                                                  proto.Name,
+                                                                  proto.EconomicZone.Name,
+                                                                  proto.BankAccounts.Count().ToString("N0", character),
+                                                                  proto.BranchLocations.Select(x => x.GetFriendlyReference(character)).ListToCommaSeparatedValues(", ")
+                                                              }
+                                                              : new List<string>
+                                                              {
+                                                                  proto.Id.ToString("N0", character),
+                                                                  proto.Name,
+                                                                  proto.EconomicZone.Name,
+                                                                  proto.BranchLocations.Count().ToString("N0", character)
+                                                              },
 
         CustomSearch = (protos, keyword, gameworld) => protos,
         GetEditHeader = item => $"Bank #{item.Id:N0} ({item.Name})",

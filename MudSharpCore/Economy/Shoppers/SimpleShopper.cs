@@ -314,6 +314,12 @@ internal class SimpleShopper : ShopperBase
 
             // Buy the item
             shop.BuyVirtualShopper(item.Merchandise, item.Item, quantity);
+            allItems.RemoveAll(x => x.Item == item.Item);
+            if (item.Price <= 0.0M)
+            {
+                continue;
+            }
+
             budget -= quantity * item.Price;
         }
         DoLogEntry("finish", "Finished shopping (ran out of budget or valid items)");

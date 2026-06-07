@@ -62,44 +62,44 @@ public static class MorgueService
             corpseItem.AddEffect(new MorgueStoredCorpse(corpseItem, corpse.OriginalCharacter, estate, zone));
         }
 
+        List<IGameItem> items = corpse.Body.ExternalItems.ToList();
+        List<IGameItem> strippedItems = new();
+        foreach (IGameItem item in items)
+        {
+            if (!corpse.Take(item))
+            {
+                continue;
+            }
+
+            strippedItems.Add(item);
+        }
+
+        if (strippedItems.Any())
+        {
+            IGameItem bundle = zone.MorgueStorageCell.GameItems.FirstOrDefault(x =>
+                x.EffectsOfType<MorgueBelongings>().Any(y =>
+                    y.CharacterOwnerId == corpse.OriginalCharacter.Id &&
+                    y.EstateId == (estate?.Id ?? 0) &&
+                    y.EconomicZoneId == zone.Id));
+            if (bundle == null)
+            {
+                bundle = PileGameItemComponentProto.CreateNewBundle(strippedItems);
+                zone.Gameworld.Add(bundle);
+                bundle.AddEffect(new MorgueBelongings(bundle, corpse.OriginalCharacter, estate, zone));
+                zone.MorgueStorageCell.Insert(bundle, true);
+            }
+            else
+            {
+                IContainer container = bundle.GetItemType<IContainer>();
+                foreach (IGameItem item in strippedItems)
+                {
+                    container.Put(null, item);
+                }
+            }
+        }
+
         if (estate != null)
         {
-            List<IGameItem> items = corpse.Body.ExternalItems.ToList();
-            List<IGameItem> strippedItems = new();
-            foreach (IGameItem item in items)
-            {
-                if (!corpse.Take(item))
-                {
-                    continue;
-                }
-
-                strippedItems.Add(item);
-            }
-
-            if (strippedItems.Any())
-            {
-                IGameItem bundle = zone.MorgueStorageCell.GameItems.FirstOrDefault(x =>
-                    x.EffectsOfType<MorgueBelongings>().Any(y =>
-                        y.CharacterOwnerId == corpse.OriginalCharacter.Id &&
-                        y.EstateId == estate.Id &&
-                        y.EconomicZoneId == zone.Id));
-                if (bundle == null)
-                {
-                    bundle = PileGameItemComponentProto.CreateNewBundle(strippedItems);
-                    zone.Gameworld.Add(bundle);
-                    bundle.AddEffect(new MorgueBelongings(bundle, corpse.OriginalCharacter, estate, zone));
-                    zone.MorgueStorageCell.Insert(bundle, true);
-                }
-                else
-                {
-                    IContainer container = bundle.GetItemType<IContainer>();
-                    foreach (IGameItem item in strippedItems)
-                    {
-                        container.Put(null, item);
-                    }
-                }
-            }
-
             estate.OpenProbate();
         }
 

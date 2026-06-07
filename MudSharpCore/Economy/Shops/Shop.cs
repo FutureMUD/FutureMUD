@@ -726,20 +726,21 @@ public abstract partial class Shop : SaveableItem, IShop
 
                 break;
             case BankPayment bp:
+                var paymentItemDescription = bp.Item.Parent?.HowSeen(actor) ?? "That payment item";
                 if (bp.Item.BankAccount is null)
                 {
-                    return (false, $"{bp.Item.Parent.HowSeen(actor)} is not tied to an actual bank account.");
+                    return (false, $"{paymentItemDescription} is not tied to an actual bank account.");
                 }
 
                 price = PriceForMerchandise(actor, merchandise, quantity);
                 if (!bp.Item.BankAccount.IsAuthorisedPaymentItem(bp.Item))
                 {
-                    return (false, $"{bp.Item.Parent.HowSeen(actor)} is no longer valid for payment.");
+                    return (false, $"{paymentItemDescription} is no longer valid for payment.");
                 }
 
                 if (bp.Currency != Currency)
                 {
-                    return (false, $"{bp.Item.Parent.HowSeen(actor)} is for a different currency than this shop uses.");
+                    return (false, $"{paymentItemDescription} is for a different currency than this shop uses.");
                 }
 
                 decimal cashinbank = bp.AccessibleMoneyForPayment();
@@ -879,19 +880,20 @@ public abstract partial class Shop : SaveableItem, IShop
 
                 break;
             case BankPayment bp:
+                var paymentItemDescription = bp.Item.Parent?.HowSeen(actor) ?? "That payment item";
                 if (bp.Item.BankAccount is null)
                 {
-                    return (false, $"{bp.Item.Parent.HowSeen(actor)} is not tied to an actual bank account.");
+                    return (false, $"{paymentItemDescription} is not tied to an actual bank account.");
                 }
 
                 if (!bp.Item.BankAccount.IsAuthorisedPaymentItem(bp.Item))
                 {
-                    return (false, $"{bp.Item.Parent.HowSeen(actor)} is no longer valid for payment.");
+                    return (false, $"{paymentItemDescription} is no longer valid for payment.");
                 }
 
                 if (bp.Currency != Currency)
                 {
-                    return (false, $"{bp.Item.Parent.HowSeen(actor)} is for a different currency than this shop uses.");
+                    return (false, $"{paymentItemDescription} is for a different currency than this shop uses.");
                 }
 
                 var cashinbank = bp.AccessibleMoneyForPayment();
@@ -1013,6 +1015,13 @@ public abstract partial class Shop : SaveableItem, IShop
     private IEnumerable<IGameItem> BuyFromStockedItems(ICharacter actor, IMerchandise merchandise, int quantity,
         IPaymentMethod method, List<IGameItem> stockedItems)
     {
+        var canBuy = CanBuyExact(actor, merchandise, quantity, method, stockedItems);
+        if (!canBuy.Truth)
+        {
+            actor.OutputHandler.Send($"You cannot buy {quantity.ToString("N0", actor)}x {merchandise.Item.ShortDescription.Colour(merchandise.Item.CustomColour ?? Telnet.Green)} because {canBuy.Reason}.");
+            return Enumerable.Empty<IGameItem>();
+        }
+
         List<IGameItem> boughtItems = new();
         int quantitySought = quantity;
         foreach (IGameItem item in stockedItems)
@@ -1134,6 +1143,13 @@ public abstract partial class Shop : SaveableItem, IShop
     private IEnumerable<IGameItem> BuyCommodityWeightFromStockedItems(ICharacter actor, IMerchandise merchandise,
         double weight, IPaymentMethod method, List<IGameItem> stockedItems)
     {
+        var canBuy = CanBuyCommodityWeight(actor, merchandise, weight, method, stockedItems);
+        if (!canBuy.Truth)
+        {
+            actor.OutputHandler.Send($"You cannot buy {Gameworld.UnitManager.DescribeExact(weight, Framework.Units.UnitType.Mass, actor)} of {merchandise.ListDescription.ColourObject()} because {canBuy.Reason}.");
+            return Enumerable.Empty<IGameItem>();
+        }
+
         List<IGameItem> boughtItems = new();
         var weightSought = weight;
         foreach (var item in stockedItems)

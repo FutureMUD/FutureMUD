@@ -1393,7 +1393,7 @@ The syntax is as follows:
             sb.AppendLine();
             sb.AppendLine(item.Evaluate(actor));
             IContainer container = item.GetItemType<IContainer>();
-            if (container is not null && container.Contents.Any())
+            if (container is not null && CanInspectContainedItems(actor, item) && container.Contents.Any())
             {
                 sb.AppendLine();
                 sb.AppendLine("It also contains the following items:\n");
@@ -1615,8 +1615,9 @@ The syntax for this command is as follows:
             ? (shop.PriceForMerchandiseWeight(actor, merch, commodityWeight.Value),
                 shop.StockedItems(merch).Where(x => x.GetItemType<ICommodity>() is not null))
             : shop.PreviewBuy(actor, merch, quantity, payment);
+        var previewItems = preview.Items.ToList();
         if (actor.Account.ActLawfully &&
-            preview.Items.Any(x => CrimeTypes.PossessingContraband.CheckWouldBeACrime(actor, null, x, "")))
+            previewItems.Any(x => CrimeTypes.PossessingContraband.CheckWouldBeACrime(actor, null, x, "")))
         {
             actor.OutputHandler.Send(
                 $"That action would be a crime.\n{CrimeExtensions.StandardDisableIllegalFlagText}");
@@ -1638,9 +1639,20 @@ The syntax for this command is as follows:
                 DescriptionString = "confirming near-morph purchase",
                 AcceptAction = text =>
                 {
+                    var recheck = commodityWeight.HasValue
+                        ? shop.CanBuyCommodityWeight(actor, merch, commodityWeight.Value, payment, previewItems)
+                        : shop.CanBuyExact(actor, merch, quantity, payment, previewItems);
+                    if (!recheck.Truth)
+                    {
+                        actor.OutputHandler.Send(commodityWeight.HasValue
+                            ? $"You cannot buy {actor.Gameworld.UnitManager.DescribeExact(commodityWeight.Value, Framework.Units.UnitType.Mass, actor)} of {merch.ListDescription.ColourObject()} because {recheck.Reason}"
+                            : $"You cannot buy {quantity}x {merch.Item.ShortDescription.Colour(merch.Item.CustomColour ?? Telnet.Green)} because {recheck.Reason}");
+                        return;
+                    }
+
                     List<IGameItem> bought = commodityWeight.HasValue
-                        ? shop.BuyCommodityWeight(actor, merch, commodityWeight.Value, payment, []).ToList()
-                        : shop.Buy(actor, merch, quantity, payment).ToList();
+                        ? shop.BuyCommodityWeight(actor, merch, commodityWeight.Value, payment, previewItems).ToList()
+                        : shop.BuyExact(actor, merch, quantity, payment, previewItems).ToList();
                     foreach (IGameItem contrabandItem in bought)
                     {
                         CrimeExtensions.CheckPossibleCrimeAllAuthorities(actor, CrimeTypes.PossessingContraband, null,
@@ -2231,6 +2243,20 @@ Additionally, you can use the following shop admin subcommands:
         if (!shop.IsManager(actor) && !actor.IsAdministrator())
         {
             actor.OutputHandler.Send($"You are not a manager of {shop.Name.TitleCase().Colour(Telnet.Cyan)}.");
+            return;
+        }
+
+        if (value > 100.0M)
+        {
+            actor.OutputHandler.Send("You cannot reprice merchandise by more than 10,000% at once.");
+            return;
+        }
+
+        var overflowing = shop.Merchandises.Where(x => !x.CanReprice(value)).ToList();
+        if (overflowing.Any())
+        {
+            actor.OutputHandler.Send(
+                $"That repricing would exceed the maximum supported price for {overflowing.Select(x => x.Name).ListToString().ColourName()}.");
             return;
         }
 

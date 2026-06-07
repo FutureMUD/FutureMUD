@@ -994,6 +994,7 @@ Economic zone manager commands:
 			return;
 		}
 
+		count = VirtualCashLedger.ClampLedgerEntryCount(count);
 		var entries = VirtualCashLedger.LedgerEntries(property, count).ToList();
 		if (!entries.Any())
 		{
@@ -1253,6 +1254,12 @@ Economic zone manager commands:
 			return;
 		}
 
+		if (price < 0.0M)
+		{
+			actor.OutputHandler.Send("Hotel room prices cannot be negative.");
+			return;
+		}
+
 		if (ss.IsFinished)
 		{
 			actor.OutputHandler.Send("What security deposit should this room require?");
@@ -1262,6 +1269,12 @@ Economic zone manager commands:
 		if (!property.EconomicZone.Currency.TryGetBaseCurrency(ss.PopSpeech(), out var deposit))
 		{
 			actor.OutputHandler.Send($"That is not a valid amount of {property.EconomicZone.Currency.Name.ColourName()}.");
+			return;
+		}
+
+		if (deposit < 0.0M)
+		{
+			actor.OutputHandler.Send("Hotel room deposits cannot be negative.");
 			return;
 		}
 
@@ -1284,6 +1297,12 @@ Economic zone manager commands:
 		}
 
 		var name = ss.IsFinished ? actor.Location.GetFriendlyReference(actor) : ss.SafeRemainingArgument;
+		if (name.Length > HotelRoom.MaximumNameLength)
+		{
+			actor.OutputHandler.Send($"Hotel room names must be {HotelRoom.MaximumNameLength.ToString("N0", actor).ColourValue()} characters or fewer.");
+			return;
+		}
+
 		property.AddHotelRoom(actor.Location, name, price, deposit, minimum, maximum);
 		actor.OutputHandler.Send($"{name.ColourName()} is now a hotel room for {property.Name.ColourName()}.");
 	}
@@ -1332,6 +1351,12 @@ Economic zone manager commands:
 			return;
 		}
 
+		if (amount < 0.0M)
+		{
+			actor.OutputHandler.Send("Hotel room prices cannot be negative.");
+			return;
+		}
+
 		room.PricePerDay = amount;
 		actor.OutputHandler.Send(
 			$"{room.Name.ColourName()} now rents for {property.EconomicZone.Currency.Describe(amount, CurrencyDescriptionPatternType.Short).ColourValue()} per day.");
@@ -1354,6 +1379,12 @@ Economic zone manager commands:
 		if (ss.IsFinished || !property.EconomicZone.Currency.TryGetBaseCurrency(ss.SafeRemainingArgument, out var amount))
 		{
 			actor.OutputHandler.Send($"What should the security deposit be, in {property.EconomicZone.Currency.Name.ColourName()}?");
+			return;
+		}
+
+		if (amount < 0.0M)
+		{
+			actor.OutputHandler.Send("Hotel room deposits cannot be negative.");
 			return;
 		}
 
@@ -1421,6 +1452,12 @@ Economic zone manager commands:
 		}
 
 		var name = ss.SafeRemainingArgument;
+		if (name.Length > HotelRoom.MaximumNameLength)
+		{
+			actor.OutputHandler.Send($"Hotel room names must be {HotelRoom.MaximumNameLength.ToString("N0", actor).ColourValue()} characters or fewer.");
+			return;
+		}
+
 		room.Name = name;
 		actor.OutputHandler.Send($"That hotel room is now named {name.ColourName()}.");
 	}

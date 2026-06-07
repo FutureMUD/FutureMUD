@@ -186,6 +186,8 @@ public class HotelLostProperty : IHotelLostProperty
 
 public class HotelRoom : IHotelRoom
 {
+	public const int MaximumNameLength = 200;
+
 	private readonly Property _property;
 	private readonly List<long> _keyIds = new();
 	private readonly List<IHotelFurnishing> _furnishings = new();
@@ -205,10 +207,10 @@ public class HotelRoom : IHotelRoom
 		_property = property;
 		DatabaseId = record.Id;
 		_cellId = record.CellId;
-		_name = record.Name;
+		_name = NormaliseName(record.Name);
 		_listed = record.Listed;
-		_pricePerDay = record.PricePerDay;
-		_securityDeposit = record.SecurityDeposit;
+		_pricePerDay = Math.Max(0.0M, record.PricePerDay);
+		_securityDeposit = Math.Max(0.0M, record.SecurityDeposit);
 		_minimumDuration = TimeSpan.FromTicks(record.MinimumDurationTicks);
 		_maximumDuration = TimeSpan.FromTicks(record.MaximumDurationTicks);
 		_keyIds.AddRange(record.Keys.Select(x => x.PropertyKeyId));
@@ -229,10 +231,10 @@ public class HotelRoom : IHotelRoom
 		_property = property;
 		_cell = cell;
 		_cellId = cell.Id;
-		_name = name;
+		_name = NormaliseName(name);
 		_listed = true;
-		_pricePerDay = pricePerDay;
-		_securityDeposit = securityDeposit;
+		_pricePerDay = Math.Max(0.0M, pricePerDay);
+		_securityDeposit = Math.Max(0.0M, securityDeposit);
 		_minimumDuration = minimumDuration;
 		_maximumDuration = maximumDuration;
 	}
@@ -245,7 +247,7 @@ public class HotelRoom : IHotelRoom
 		get => _name;
 		set
 		{
-			_name = value;
+			_name = NormaliseName(value);
 			_property.NoteHotelChanged();
 		}
 	}
@@ -265,7 +267,7 @@ public class HotelRoom : IHotelRoom
 		get => _pricePerDay;
 		set
 		{
-			_pricePerDay = value;
+			_pricePerDay = Math.Max(0.0M, value);
 			_property.NoteHotelChanged();
 		}
 	}
@@ -275,7 +277,7 @@ public class HotelRoom : IHotelRoom
 		get => _securityDeposit;
 		set
 		{
-			_securityDeposit = value;
+			_securityDeposit = Math.Max(0.0M, value);
 			_property.NoteHotelChanged();
 		}
 	}
@@ -355,4 +357,10 @@ public class HotelRoom : IHotelRoom
 	}
 
 	public IEnumerable<string> Keywords => new ExplodedString(Name).Words.Append(Cell.Id.ToString());
+
+	private static string NormaliseName(string name)
+	{
+		name = name?.Trim() ?? string.Empty;
+		return name.Length <= MaximumNameLength ? name : name.Substring(0, MaximumNameLength);
+	}
 }

@@ -193,14 +193,13 @@ public class EmailHelper
             }
         }
 
-        using SmtpClient client = new();
-        try
-        {
-            client.ServerCertificateValidationCallback = delegate { return true; };
-            client.Connect(_host, _port, _ssl);
-            if (!_defaultCredentials)
-            {
-                client.Authenticate(_username, _password);
+		using SmtpClient client = new();
+		try
+		{
+			client.Connect(_host, _port, _ssl);
+			if (!_defaultCredentials)
+			{
+				client.Authenticate(_username, _password);
             }
         }
         catch (Exception e)

@@ -430,6 +430,19 @@ public class ShopTests
     }
 
     [TestMethod]
+    public void MerchandiseReprice_AcceptsReductionMultiplier()
+    {
+        Mock<IGameItemProto> proto = RegisterPrototype(39);
+        Merchandise merch = new(_shop, "discounted", proto.Object, 10.0M, false, null, null);
+
+        Assert.IsTrue(merch.CanReprice(0.5M));
+        merch.Reprice(0.5M);
+
+        Assert.AreEqual(5.0M, merch.BasePrice);
+        Assert.AreEqual(5.0M, merch.AutoReorderPrice);
+    }
+
+    [TestMethod]
     public void TagTargetedDeal_OnlyAppliesToMatchingMerchandise()
     {
         Mock<ITag> tag = RegisterTag(1, "Discounted");

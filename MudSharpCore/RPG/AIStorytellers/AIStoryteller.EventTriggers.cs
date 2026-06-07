@@ -14,6 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 #pragma warning disable OPENAI001 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
@@ -350,8 +351,8 @@ Echo:
         CreateResponseOptions options = new([
             ResponseItem.CreateUserMessageItem(trimmedPrompt)
         ]);
-        options.Instructions = classifierPrompt;
-        options.StoredOutputEnabled = true;
+		options.Instructions = classifierPrompt;
+		options.StoredOutputEnabled = false;
         options.TruncationMode = ResponseTruncationMode.Auto;
         options.ReasoningOptions ??= new();
         options.ReasoningOptions.ReasoningEffortLevel = AttentionClassifierReasoningEffort;
@@ -379,11 +380,19 @@ Echo:
         return true;
     }
 
-    private void QueueStorytellerWork(Func<Task> work)
-    {
-        _ = Task.Run(async () =>
-        {
-            await _storytellerWorkerSemaphore.WaitAsync().ConfigureAwait(false);
+	internal bool QueueStorytellerWork(Func<Task> work)
+	{
+		if (Interlocked.Increment(ref _queuedStorytellerWorkItems) > MaxQueuedStorytellerWorkItems)
+		{
+			Interlocked.Decrement(ref _queuedStorytellerWorkItems);
+			LogStorytellerError(
+				$"Storyteller background work queue is full ({MaxQueuedStorytellerWorkItems:N0} pending/running items). New event dropped.");
+			return false;
+		}
+
+		_ = Task.Run(async () =>
+		{
+			await _storytellerWorkerSemaphore.WaitAsync().ConfigureAwait(false);
             try
             {
                 await work().ConfigureAwait(false);
@@ -392,20 +401,22 @@ Echo:
             {
                 LogStorytellerException(e);
             }
-            finally
-            {
-                _storytellerWorkerSemaphore.Release();
-            }
-        });
-    }
+			finally
+			{
+				_storytellerWorkerSemaphore.Release();
+				Interlocked.Decrement(ref _queuedStorytellerWorkItems);
+			}
+		});
+		return true;
+	}
 
     private void ExecuteAttentionFilteredStorytellerPrompt(string apiKey, string trigger, string userPrompt,
         bool includeEchoTools, string systemPrompt, string model, ResponseReasoningEffortLevel reasoningEffort,
         StorytellerToolProfile toolProfile = StorytellerToolProfile.Full,
         string? attentionPromptOverride = null, bool bypassAttention = false, string? bypassReason = null)
     {
-        QueueStorytellerWork(() =>
-        {
+		QueueStorytellerWork(() =>
+		{
             if (bypassAttention)
             {
                 string bypassPrompt = AppendAttentionReasonToPrompt(userPrompt,
@@ -431,8 +442,8 @@ Echo:
         string systemPrompt, string model, ResponseReasoningEffortLevel reasoningEffort,
         StorytellerToolProfile toolProfile = StorytellerToolProfile.Full)
     {
-        QueueStorytellerWork(() =>
-        {
+		QueueStorytellerWork(() =>
+		{
             ExecuteStorytellerPromptImmediate(apiKey, trigger, userPrompt, includeEchoTools, toolProfile, systemPrompt,
                 model, reasoningEffort);
             return Task.CompletedTask;
@@ -461,6 +472,6 @@ User Prompt:
         [
             ResponseItem.CreateUserMessageItem(prompt)
         ];
-        ExecuteToolCall(client, messages, includeEchoTools, toolProfile);
-    }
+		ExecuteToolCall(client, messages, includeEchoTools, toolProfile, systemPrompt);
+	}
 }

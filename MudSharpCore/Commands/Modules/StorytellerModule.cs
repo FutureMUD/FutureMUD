@@ -2901,7 +2901,7 @@ The syntax is as follows:
         sb.AppendLine();
         sb.AppendLine("Variables:");
         sb.AppendLine();
-        foreach (Tuple<string, ProgVariableTypes> variable in actor.Gameworld.VariableRegister.AllVariables(ProgVariableTypes.Zone))
+		foreach (Tuple<string, ProgVariableTypes> variable in actor.Gameworld.VariableRegister.AllVariables(ProgVariableTypes.Shard))
         {
             IProgVariable value = actor.Gameworld.VariableRegister.GetValue(shard, variable.Item1);
             sb.AppendLine(

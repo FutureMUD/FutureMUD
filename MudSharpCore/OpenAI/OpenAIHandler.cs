@@ -171,11 +171,12 @@ internal static class OpenAIHandler
 
 
         }
-        catch (Exception e)
-        {
-            e.ToString().Prepend("#2GPT Error#0\n").WriteLineConsole();
-            Futuremud.Games.First().DiscordConnection.NotifyAdmins($"**GPT Error**\n\n```\n{e}```");
-        }
+			catch (Exception e)
+			{
+				e.ToString().Prepend("#2GPT Error#0\n").WriteLineConsole();
+				Futuremud.Games.First().DiscordConnection.NotifyAdmins(
+					ExternalIntegrationAlertHelper.BuildSafeGptErrorAlert(e, "GPT request"));
+			}
 
         $"#CGPT Request#0:\n\n#3{context}#0\n\n#2{requestText}#0".WriteLineConsole();
         return true;
@@ -242,11 +243,12 @@ internal static class OpenAIHandler
 
                 callback(result.Value.Content[0].Text);
             }
-            catch (Exception e)
-            {
-                e.ToString().Prepend("#2GPT Error#0\n").WriteLineConsole();
-                Futuremud.Games.First().DiscordConnection.NotifyAdmins($"**GPT Error**\n\n```\n{e}```");
-            }
+			catch (Exception e)
+			{
+				e.ToString().Prepend("#2GPT Error#0\n").WriteLineConsole();
+				Futuremud.Games.First().DiscordConnection.NotifyAdmins(
+					ExternalIntegrationAlertHelper.BuildSafeGptErrorAlert(e, $"GPT thread #{thread.Id:N0}"));
+			}
 
         });
         return true;

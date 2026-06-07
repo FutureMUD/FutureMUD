@@ -39,12 +39,13 @@ namespace MudSharp.RPG.AIStorytellers;
 public partial class AIStoryteller : SaveableItem, IAIStoryteller
 {
     public override string FrameworkItemType => "AIStoryteller";
-    private const int MaxToolCallDepth = 16;
-    private const int MaxMalformedToolCallRetries = 3;
-    private const int MaxMissingToolCallRetries = 2;
-    private const int MaxStorytellerOutputTokens = 1200;
-    private const int MaxAttentionClassifierOutputTokens = 120;
-    private static readonly TimeSpan MaxToolExecutionDuration = TimeSpan.FromSeconds(30);
+	private const int MaxToolCallDepth = 16;
+	private const int MaxMalformedToolCallRetries = 3;
+	private const int MaxMissingToolCallRetries = 2;
+	private const int MaxQueuedStorytellerWorkItems = 25;
+	private const int MaxStorytellerOutputTokens = 1200;
+	private const int MaxAttentionClassifierOutputTokens = 120;
+	private static readonly TimeSpan MaxToolExecutionDuration = TimeSpan.FromSeconds(30);
     private const int MaxSituationTitlesInPrompt = 25;
     private const int MaxPromptCharacters = 24_000;
     private const int MaxDebugMessageCharacters = 32_000;
@@ -210,13 +211,14 @@ public partial class AIStoryteller : SaveableItem, IAIStoryteller
     public IAIStorytellerSurveillanceStrategy SurveillanceStrategy { get; private set; }
     public IFutureProg? CustomPlayerInformationProg { get; private set; }
 
-    private readonly List<ICell> _subscribedCells = [];
-    private readonly List<IAIStorytellerCharacterMemory> _characterMemories = [];
-    public IEnumerable<IAIStorytellerCharacterMemory> CharacterMemories => _characterMemories;
-    private readonly SemaphoreSlim _storytellerWorkerSemaphore = new(1, 1);
-    private readonly object _attentionBypassLock = new();
-    private readonly HashSet<long> _bypassAttentionCharacterIds = [];
-    private readonly HashSet<long> _bypassAttentionRoomIds = [];
+	private readonly List<ICell> _subscribedCells = [];
+	private readonly List<IAIStorytellerCharacterMemory> _characterMemories = [];
+	public IEnumerable<IAIStorytellerCharacterMemory> CharacterMemories => _characterMemories;
+	private readonly SemaphoreSlim _storytellerWorkerSemaphore = new(1, 1);
+	private int _queuedStorytellerWorkItems;
+	private readonly object _attentionBypassLock = new();
+	private readonly HashSet<long> _bypassAttentionCharacterIds = [];
+	private readonly HashSet<long> _bypassAttentionRoomIds = [];
 
     private readonly List<IAIStorytellerSituation> _situations = [];
     public IEnumerable<IAIStorytellerSituation> Situations => _situations;
@@ -231,16 +233,22 @@ public partial class AIStoryteller : SaveableItem, IAIStoryteller
         _characterMemories.Add(memory);
     }
 
-    private void DebugAIMessaging(string stage, string payload)
-    {
-        if (string.IsNullOrWhiteSpace(payload))
-        {
-            payload = "(empty)";
-        }
-        else if (payload.Length > MaxDebugMessageCharacters)
-        {
-            payload = $"{payload[..MaxDebugMessageCharacters]}\n[Debug payload truncated.]";
-        }
+	internal int PendingStorytellerWorkCount => Volatile.Read(ref _queuedStorytellerWorkItems);
+
+	private void DebugAIMessaging(string stage, string payload, bool sensitivePayload = true)
+	{
+		if (string.IsNullOrWhiteSpace(payload))
+		{
+			payload = "(empty)";
+		}
+		else if (sensitivePayload)
+		{
+			payload = ExternalIntegrationAlertHelper.SummariseSensitivePayload(payload);
+		}
+		else if (payload.Length > MaxDebugMessageCharacters)
+		{
+			payload = $"{payload[..MaxDebugMessageCharacters]}\n[Debug payload truncated.]";
+		}
 
         Gameworld.DebugMessage($"[AI Storyteller #{Id:N0} - {Name}] {stage}\n{payload}");
     }

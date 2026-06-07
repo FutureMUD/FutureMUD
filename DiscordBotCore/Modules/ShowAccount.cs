@@ -45,11 +45,14 @@ public class ShowAccount : BaseCommandModule
     {
         StringStack ss = new(text);
         string type = ss.Pop();
-        switch (type)
-        {
-            case "nosuchaccount":
-                await context.RespondAsync($"{context.User.Mention} - There is no account with the name or id **{ss.RemainingArgument}**.");
-                return;
+		switch (type)
+		{
+			case "notauthorised":
+				await context.RespondAsync($"{context.User.Mention} - your linked MUD account is not authorised to use that command.");
+				return;
+			case "nosuchaccount":
+				await context.RespondAsync($"{context.User.Mention} - There is no account with the name or id **{ss.RemainingArgument}**.");
+				return;
             case "accountinfo":
                 string message = ss.RemainingArgument;
                 foreach (string part in message.SplitStringsForDiscord())

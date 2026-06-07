@@ -152,14 +152,14 @@ public sealed class DiscordConnection : IDiscordConnection
         }
     }
 
-    public void NotifyAdmins(string echo)
-    {
-        try
-        {
-            SendClientMessage($"notifyadmins {echo}");
-        }
-        catch (SocketException)
-        {
+	public void NotifyAdmins(string echo)
+	{
+		try
+		{
+			SendClientMessage($"notifyadmins {ExternalIntegrationAlertHelper.SanitiseDiscordAdminAlert(echo)}");
+		}
+		catch (SocketException)
+		{
             CloseTcpConnection();
         }
     }
@@ -650,21 +650,27 @@ public sealed class DiscordConnection : IDiscordConnection
         }), TimeSpan.FromSeconds(120));
     }
 
-    private void HandleShowAccountTcpCommand(StringStack ss)
-    {
-        ulong request = ulong.Parse(ss.PopSpeech());
-        long requesterId = long.Parse(ss.PopSpeech(), CultureInfo.InvariantCulture.NumberFormat);
-        string which = ss.PopSpeech();
+	private void HandleShowAccountTcpCommand(StringStack ss)
+	{
+		ulong request = ulong.Parse(ss.PopSpeech());
+		long requesterId = long.Parse(ss.PopSpeech(), CultureInfo.InvariantCulture.NumberFormat);
+		string which = ss.PopSpeech();
 
-        IAccount viewer;
+		IAccount viewer;
         MudSharp.Models.Account dbitem;
         IAccount account;
-        using (new FMDB())
-        {
-            viewer = Gameworld.TryAccount(FMDB.Context.Accounts.Find(requesterId));
-            dbitem = long.TryParse(which, out long value)
-                    ? FMDB.Context.Accounts.FirstOrDefault(x => x.Id == value)
-                    : FMDB.Context.Accounts.FirstOrDefault(x => x.Name == which);
+		using (new FMDB())
+		{
+			viewer = Gameworld.TryAccount(FMDB.Context.Accounts.Find(requesterId));
+			if (!DiscordRequesterCanUseShowCommands(viewer))
+			{
+				SendClientMessage($"request {request} notauthorised");
+				return;
+			}
+
+			dbitem = long.TryParse(which, out long value)
+					? FMDB.Context.Accounts.FirstOrDefault(x => x.Id == value)
+					: FMDB.Context.Accounts.FirstOrDefault(x => x.Name == which);
             if (dbitem == null)
             {
                 SendClientMessage($"request {request} nosuchaccount {which}");
@@ -677,22 +683,39 @@ public sealed class DiscordConnection : IDiscordConnection
         SendClientMessage($"request {request} accountinfo {text}");
     }
 
-    private void HandleShowCharacterTcpCommand(StringStack ss)
-    {
-        ulong request = ulong.Parse(ss.PopSpeech());
-        ss.PopSpeech(); // requester id, currently unused
-        long which = long.Parse(ss.PopSpeech(), CultureInfo.InvariantCulture.NumberFormat);
+	private void HandleShowCharacterTcpCommand(StringStack ss)
+	{
+		ulong request = ulong.Parse(ss.PopSpeech());
+		long requesterId = long.Parse(ss.PopSpeech(), CultureInfo.InvariantCulture.NumberFormat);
+		long which = long.Parse(ss.PopSpeech(), CultureInfo.InvariantCulture.NumberFormat);
 
-        ICharacter character = Gameworld.TryGetCharacter(which, true);
-        if (character == null)
+		IAccount viewer;
+		using (new FMDB())
+		{
+			viewer = Gameworld.TryAccount(FMDB.Context.Accounts.Find(requesterId));
+		}
+
+		if (!DiscordRequesterCanUseShowCommands(viewer))
+		{
+			SendClientMessage($"request {request} notauthorised");
+			return;
+		}
+
+		ICharacter character = Gameworld.TryGetCharacter(which, true);
+		if (character == null)
         {
             SendClientMessage($"request {request} nosuchcharacter {which}");
             return;
         }
 
-        string text = character.ShowStat(new DummyPerceiver()).RawText();
-        SendClientMessage($"request {request} characterinfo {text}");
-    }
+		string text = character.ShowStat(new DummyPerceiver()).RawText();
+		SendClientMessage($"request {request} characterinfo {text}");
+	}
+
+	internal static bool DiscordRequesterCanUseShowCommands(IAccount account)
+	{
+		return account?.Authority?.Level >= PermissionLevel.JuniorAdmin;
+	}
 
     private void HandleMapTcpCommand(StringStack ss)
     {

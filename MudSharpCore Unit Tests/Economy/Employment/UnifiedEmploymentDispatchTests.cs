@@ -189,8 +189,10 @@ public class UnifiedEmploymentDispatchTests
 	[TestMethod]
 	public void Payroll_AccruesOverdueDaysAndSettlementClearsEmployerReputationAfterContractEnds()
 	{
+		VirtualCashLedger.ClearInMemoryForTests();
 		var currency = Currency();
-		IEmploymentHost host = new TestEmploymentHost("stable", currency.Object);
+		var (shop, state) = ShopHost(401, "stable", currency.Object, null);
+		IEmploymentHost host = shop.Object;
 		var employee = Character(10, "Employee").Object;
 		var compensation = new CompensationTerms(
 			new MoneyAmount(currency.Object, 10.0M),
@@ -198,7 +200,7 @@ public class UnifiedEmploymentDispatchTests
 			PayCadence.Daily,
 			new MoneyAmount(currency.Object, 10.0M),
 			PaymentSource.HostCash);
-		var contract = host.Hire(employee, new EmploymentOffer(
+		var contract = state.Hire(employee, new EmploymentOffer(
 			EmploymentRole.Employee,
 			compensation,
 			WorkSchedule.AnyTime,
@@ -211,6 +213,8 @@ public class UnifiedEmploymentDispatchTests
 
 		Assert.AreEqual(10, created.Count);
 		Assert.AreEqual(9, host.Payroll.MaximumOverdueDays(evaluationTime));
+		VirtualCashLedger.Credit(shop.Object, currency.Object, created.Sum(x => x.Amount.Amount), null, shop.Object,
+			"Seed", "Seed payroll balance");
 		host.Fire(contract, EmploymentTerminationReason.Resigned, null);
 		Assert.IsTrue(host.Payroll.TrySettlePayables(host.Payroll.OutstandingLiabilities, null, false,
 			"Settled after resignation.", out var message), message);
@@ -218,6 +222,38 @@ public class UnifiedEmploymentDispatchTests
 		Assert.IsTrue(host.Payroll.Payables.All(x => x.Status == EmploymentPayableStatus.Settled));
 		Assert.IsTrue(host.BusinessLedger.Entries.Any(x => x.EntryType == EmploymentLedgerEntryType.Wage));
 		Assert.IsTrue(host.EmploymentRegister.Entries.Any(x => x.EntryType == EmploymentRegisterEntryType.WageSettled));
+		Assert.AreEqual(0.0M, VirtualCashLedger.Balance(shop.Object, currency.Object));
+	}
+
+	[TestMethod]
+	public void Payroll_SettlementRequiresBackedEmployerFunds()
+	{
+		VirtualCashLedger.ClearInMemoryForTests();
+		var currency = Currency();
+		var (shop, state) = ShopHost(402, "stable", currency.Object, null);
+		IEmploymentHost host = shop.Object;
+		var employee = Character(10, "Employee").Object;
+		var compensation = new CompensationTerms(
+			new MoneyAmount(currency.Object, 10.0M),
+			null,
+			PayCadence.Daily,
+			new MoneyAmount(currency.Object, 10.0M),
+			PaymentSource.HostCash);
+		var contract = state.Hire(employee, new EmploymentOffer(
+			EmploymentRole.Employee,
+			compensation,
+			WorkSchedule.AnyTime,
+			EmploymentDuration.Indefinite,
+			new PaymentMethod(PaymentMethodKind.Cash),
+			EmploymentAuthoritySet.Empty), null);
+		host.Payroll.EvaluatePayroll(contract.StartedAt.AddDays(1).AddMinutes(1));
+
+		var settled = host.Payroll.TrySettlePayables(host.Payroll.OutstandingLiabilities, null, true,
+			"Settle without funds.", out var message);
+
+		Assert.IsFalse(settled);
+		StringAssert.Contains(message, "available for payroll settlement");
+		Assert.IsTrue(host.Payroll.Payables.All(x => x.Status == EmploymentPayableStatus.Accrued));
 	}
 
 	[TestMethod]
@@ -727,6 +763,7 @@ public class UnifiedEmploymentDispatchTests
 		actor.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
 		var cell = new Mock<ICell>();
 		cell.SetupGet(x => x.Id).Returns(456);
+		actor.SetupGet(x => x.Location).Returns(cell.Object);
 		var proto = new Mock<IGameItemProto>();
 		proto.SetupGet(x => x.Id).Returns(700);
 		var merchandise = Merchandise(10, "matching goods");
@@ -800,6 +837,7 @@ public class UnifiedEmploymentDispatchTests
 		actor.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
 		var cell = new Mock<ICell>();
 		cell.SetupGet(x => x.Id).Returns(457);
+		actor.SetupGet(x => x.Location).Returns(cell.Object);
 		var material = new Mock<ISolid>();
 		material.SetupGet(x => x.Id).Returns(800);
 		material.SetupGet(x => x.Name).Returns("iron");
@@ -871,6 +909,57 @@ public class UnifiedEmploymentDispatchTests
 			It.Is<IEnumerable<IGameItem>>(items => items.Single().Id == selectedItem.Object.Id)), Times.Once);
 		shop.Verify(x => x.Buy(actor.Object, merchandise.Object, It.IsAny<int>(), It.IsAny<IPaymentMethod>(), It.IsAny<string?>()),
 			Times.Never);
+	}
+
+	[TestMethod]
+	public void EmploymentPurchaseByMerchandiseSelector_DoesNotCountPriceCommodityMerchandise()
+	{
+		VirtualCashLedger.ClearInMemoryForTests();
+		var currency = Currency();
+		var (shop, _) = ShopHost(48, "Commodity Shop", currency.Object, null);
+		var actor = Character(2, "Purchaser");
+		var gameworld = new Mock<IFuturemud>();
+		var shops = new All<IShop> { shop.Object };
+		gameworld.SetupGet(x => x.Shops).Returns(shops);
+		shop.As<IHaveFuturemud>().SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		actor.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		var cell = Cell(458, "market").Object;
+		actor.SetupGet(x => x.Location).Returns(cell);
+		var merchandise = Merchandise(12, "iron commodity");
+		merchandise.SetupGet(x => x.MerchandiseType).Returns(MerchandiseType.Commodity);
+		shop.SetupGet(x => x.CurrentLocations).Returns(new[] { cell });
+		shop.SetupGet(x => x.Merchandises).Returns(new[] { merchandise.Object });
+		var purchase = new PurchaseActionStep(1, "iron commodity", "any", currency.Object,
+			new MoneyAmount(currency.Object, 10.0M));
+		var context = new EmploymentTaskContext(shop.Object);
+
+		Assert.IsFalse(context.CanPurchase(purchase, out var reason));
+		StringAssert.Contains(reason, "stock matching");
+		shop.Verify(x => x.PriceForMerchandise(It.IsAny<ICharacter?>(), merchandise.Object, It.IsAny<int>()),
+			Times.Never);
+	}
+
+	[TestMethod]
+	public void EmploymentPurchaseRequiresEmployeeAtSupplierLocation()
+	{
+		var currency = Currency();
+		var (shop, _) = ShopHost(49, "Local Shop", currency.Object, null);
+		var actor = Character(2, "Purchaser");
+		var gameworld = new Mock<IFuturemud>();
+		var shops = new All<IShop> { shop.Object };
+		gameworld.SetupGet(x => x.Shops).Returns(shops);
+		shop.As<IHaveFuturemud>().SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		actor.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		var shopCell = Cell(459, "market").Object;
+		var remoteCell = Cell(460, "warehouse").Object;
+		actor.SetupGet(x => x.Location).Returns(remoteCell);
+		shop.SetupGet(x => x.CurrentLocations).Returns(new[] { shopCell });
+		var purchase = new PurchaseActionStep(1, "thread", "any", currency.Object,
+			new MoneyAmount(currency.Object, 10.0M));
+		var context = new EmploymentTaskContext(shop.Object);
+
+		Assert.IsFalse(context.TryPurchase(actor.Object, purchase, out var reason, out _));
+		StringAssert.Contains(reason, "current location");
 	}
 
 	[TestMethod]
@@ -1286,6 +1375,31 @@ public class UnifiedEmploymentDispatchTests
 	}
 
 	[TestMethod]
+	public void PhysicalEmploymentLogistics_RejectsItemsOutsideHostLocations()
+	{
+		var currency = Currency();
+		var manager = Character(1, "Manager").Object;
+		var stockroomItems = new List<IGameItem>();
+		var shopfrontItems = new List<IGameItem>();
+		var externalItems = new List<IGameItem>();
+		var stockroom = PhysicalCell(60, "stockroom", stockroomItems).Object;
+		var shopfront = PhysicalCell(61, "shopfront", shopfrontItems).Object;
+		var externalCell = PhysicalCell(62, "private room", externalItems).Object;
+		var item = Item(610, "private ledger", trueLocations: [externalCell]).Object;
+		externalItems.Add(item);
+		var merchandise = Merchandise(800, "linen");
+		var shop = PermanentShop(900, "linen shop", currency.Object, manager,
+			EmploymentAuthority.AssignTasks | EmploymentAuthority.ManageDeliveryRoutes,
+			stockroom, [shopfront], [], [merchandise.Object], []);
+		var context = new ShopEmploymentTaskService().CreatePhysicalContext(shop.Shop.Object);
+
+		Assert.IsFalse(context.TryCollectTaskItem(manager, item, externalCell, out var reason));
+		StringAssert.Contains(reason, "assigned work locations");
+		Assert.AreEqual(1, externalItems.Count);
+		Assert.IsFalse(context.AvailableItems(externalCell).Any());
+	}
+
+	[TestMethod]
 	public void ShopEmploymentTaskService_RequiresDelegatedDeliveryAuthority()
 	{
 		var currency = Currency();
@@ -1335,6 +1449,26 @@ public class UnifiedEmploymentDispatchTests
 
 		Assert.AreEqual(1, tasks.Count);
 		Assert.IsTrue(host.EmploymentRegister.Entries.Any(x => x.EntryType == EmploymentRegisterEntryType.ManagerGoalEvaluated));
+	}
+
+	[TestMethod]
+	public void ManagerGoals_CannotUnderDeclareActionPlanAuthority()
+	{
+		var currency = Currency();
+		IEmploymentHost host = new TestEmploymentHost("hotel", currency.Object);
+		var limited = Character(2, "Limited").Object;
+		var destination = Cell(90, "storeroom").Object;
+		host.Hire(limited, Offer(currency.Object, EmploymentRole.Manager, EmploymentAuthority.CreateManagerGoals), null);
+		var definition = new ManagerGoalDefinition(
+			ManagerGoalType.MaintainHotelOperations,
+			EmploymentAuthority.None,
+			new ManagerGoalConfiguration("move room stock", new EmploymentActionPlan([
+				new DeliverItemsActionStep(destination)
+			])),
+			1,
+			TimeSpan.Zero);
+
+		Assert.ThrowsException<InvalidOperationException>(() => host.ManagerGoalBoard.CreateGoal(definition, limited));
 	}
 
 	[TestMethod]
@@ -1562,6 +1696,7 @@ public class UnifiedEmploymentDispatchTests
 			};
 			var gameworld = Gameworld(currency.Object, characters);
 			IEmploymentHost host = new PersistedEmploymentHost(151, "Payroll Shop", gameworld.Object, currency.Object);
+			VirtualCashLedger.Credit(host, currency.Object, 750.0M, null, host, "Seed", "Seed payroll balance");
 			var compensation = new CompensationTerms(
 				new MoneyAmount(currency.Object, 10.0M),
 				null,
@@ -2409,7 +2544,7 @@ public class UnifiedEmploymentDispatchTests
 		public IEmploymentHostState Employment { get; }
 	}
 
-	private sealed class PersistedEmploymentHost : FrameworkItem, IEmploymentHost, IHaveFuturemud
+	private sealed class PersistedEmploymentHost : FrameworkItem, IEmploymentHost, IHaveFuturemud, IHaveCurrency
 	{
 		private IEmploymentHostState? _employment;
 
@@ -2423,7 +2558,7 @@ public class UnifiedEmploymentDispatchTests
 
 		public override string FrameworkItemType => "PersistedEmploymentHost";
 		public IFuturemud Gameworld { get; }
-		public ICurrency Currency { get; }
+		public ICurrency Currency { get; set; }
 		public EmploymentHostType EmploymentHostType => MudSharp.Economy.Employment.EmploymentHostType.Shop;
 		public IMarket? Market => null;
 		public IEmploymentHostState Employment => _employment ??= EmploymentPersistenceStore.LoadOrCreate(this);

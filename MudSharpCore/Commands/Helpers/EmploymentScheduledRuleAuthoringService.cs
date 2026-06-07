@@ -2349,14 +2349,23 @@ internal sealed class EmploymentScheduledRuleAuthoringService
 			return false;
 		}
 
-		duration = unit.CollapseString().ToLowerInvariant() switch
+		try
 		{
-			"s" or "sec" or "secs" or "second" or "seconds" => TimeSpan.FromSeconds((double)value),
-			"m" or "min" or "mins" or "minute" or "minutes" => TimeSpan.FromMinutes((double)value),
-			"h" or "hr" or "hrs" or "hour" or "hours" => TimeSpan.FromHours((double)value),
-			"d" or "day" or "days" => TimeSpan.FromDays((double)value),
-			_ => TimeSpan.Zero
-		};
+			duration = unit.CollapseString().ToLowerInvariant() switch
+			{
+				"s" or "sec" or "secs" or "second" or "seconds" => TimeSpan.FromSeconds((double)value),
+				"m" or "min" or "mins" or "minute" or "minutes" => TimeSpan.FromMinutes((double)value),
+				"h" or "hr" or "hrs" or "hour" or "hours" => TimeSpan.FromHours((double)value),
+				"d" or "day" or "days" => TimeSpan.FromDays((double)value),
+				_ => TimeSpan.Zero
+			};
+		}
+		catch (OverflowException)
+		{
+			duration = TimeSpan.Zero;
+			return false;
+		}
+
 		return duration > TimeSpan.Zero;
 	}
 

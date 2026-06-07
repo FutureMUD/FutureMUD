@@ -136,8 +136,8 @@ public class ItemSeederMedievalCraftingTests
 	public void MedievalClothingSeeder_ImplementsReferenceCatalogueWithDirectCreateItemCalls()
 	{
 		var clothingSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.MedievalClothing.cs");
-		var designReference = ReadSource("Design Documents", "Crafting", "Medieval_Clothing_Seeder_Design_Reference.md");
-		var fdescCatalogue = ReadSource("Design Documents", "Crafting", "Medieval_Clothing_FDesc_Catalogue.csv");
+		var designReference = ReadSource("Design Documents", "Seeding", "Medieval_Clothing_Seeder_Design_Reference.md");
+		var fdescCatalogue = ReadSource("Design Documents", "Seeding", "Medieval_Clothing_FDesc_Catalogue.csv");
 
 		var designReferences = Regex.Matches(
 				designReference,
@@ -161,7 +161,7 @@ public class ItemSeederMedievalCraftingTests
 			.Select(x => x.Groups["ref"].Value)
 			.ToArray();
 
-		Assert.AreEqual(259, designReferences.Length, "The design reference should contain the full 259-garment catalogue.");
+		Assert.AreEqual(408, designReferences.Length, "The design reference should contain the full 408-garment catalogue.");
 		CollectionAssert.AreEqual(designReferences, csvReferences,
 			"The fdesc catalogue should stay in the same order as the design reference.");
 		CollectionAssert.AreEqual(designReferences, sourceReferences,
@@ -241,33 +241,33 @@ public class ItemSeederMedievalCraftingTests
 	[TestMethod]
 	public void MedievalRetiredDesignDocuments_AreRemovedAndIndexPointsAtCurrentDocs()
 	{
-		var craftingDocPath = SourcePath("Design Documents", "Crafting");
+		var seedingDocPath = SourcePath("Design Documents", "Seeding");
 		foreach (var removed in RetiredMedievalDesignDocuments)
 		{
-			Assert.IsFalse(File.Exists(Path.Combine(craftingDocPath, removed)),
+			Assert.IsFalse(File.Exists(Path.Combine(seedingDocPath, removed)),
 				$"Expected retired medieval design document {removed} to be removed with the old seeder content.");
 		}
 
-		var medievalDocs = Directory.GetFiles(craftingDocPath, "Medieval_*.md")
+		var medievalDocs = Directory.GetFiles(seedingDocPath, "Medieval_*.md")
 			.Select(Path.GetFileName)
 			.ToArray();
 		CollectionAssert.AreEquivalent(
 			new[] { "Medieval_Crafting_Audit.md", "Medieval_Clothing_Seeder_Design_Reference.md" },
 			medievalDocs,
 			"The only surviving medieval design documents should be the current audit and live clothing reference.");
-		Assert.IsTrue(File.Exists(Path.Combine(craftingDocPath, "Medieval_Clothing_FDesc_Catalogue.csv")),
+		Assert.IsTrue(File.Exists(Path.Combine(seedingDocPath, "Medieval_Clothing_FDesc_Catalogue.csv")),
 			"The live medieval clothing fdesc catalogue should remain beside its design reference.");
 
 		var indexSource = ReadSource("Design Documents", "README.md");
-		AssertContains(indexSource, "[Medieval ItemSeeder Rebuild Audit](./Crafting/Medieval_Crafting_Audit.md)");
-		AssertContains(indexSource, "[Medieval Clothing Seeder Design Reference](./Crafting/Medieval_Clothing_Seeder_Design_Reference.md)");
+		AssertContains(indexSource, "[Medieval ItemSeeder Rebuild Audit](./Seeding/Medieval_Crafting_Audit.md)");
+		AssertContains(indexSource, "[Medieval Clothing Seeder Design Reference](./Seeding/Medieval_Clothing_Seeder_Design_Reference.md)");
 		foreach (var removed in RetiredMedievalDesignDocuments)
 		{
 			Assert.IsFalse(indexSource.Contains(removed, StringComparison.Ordinal),
 				$"Design document index should not link retired medieval document {removed}.");
 		}
 
-		var auditSource = ReadSource("Design Documents", "Crafting", "Medieval_Crafting_Audit.md");
+		var auditSource = ReadSource("Design Documents", "Seeding", "Medieval_Crafting_Audit.md");
 		AssertContains(auditSource, "`SeedMedievalClothing` is the first rebuilt medieval item slice");
 		AssertContains(auditSource, "Medieval_Clothing_Seeder_Design_Reference.md");
 		AssertContains(auditSource, "Medieval_Clothing_FDesc_Catalogue.csv");

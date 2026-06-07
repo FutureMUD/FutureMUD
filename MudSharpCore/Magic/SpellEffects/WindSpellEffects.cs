@@ -525,7 +525,8 @@ public class ForcedPathMovementEffect : IMagicSpellEffectTemplate
 	protected ForcedPathMovementEffect(XElement root, IMagicSpell spell)
 	{
 		Spell = spell;
-		Steps = Math.Max(1, int.Parse(root.Element("Steps")?.Value ?? "1"));
+		Steps = Math.Clamp(int.Parse(root.Element("Steps")?.Value ?? "1"), 1,
+			MagicBuilderValidation.MaximumForcedPathMovementSteps);
 		AllowFallExits = bool.Parse(root.Element("AllowFallExits")?.Value ?? "false");
 	}
 
@@ -684,9 +685,11 @@ public class ForcedPathMovementEffect : IMagicSpellEffectTemplate
 
 	private bool BuildingCommandSteps(ICharacter actor, StringStack command)
 	{
-		if (!int.TryParse(command.SafeRemainingArgument, out var value) || value < 1)
+		if (!int.TryParse(command.SafeRemainingArgument, out var value) ||
+		    value < 1 ||
+		    value > MagicBuilderValidation.MaximumForcedPathMovementSteps)
 		{
-			actor.OutputHandler.Send("You must enter a positive number of steps.");
+			actor.OutputHandler.Send($"You must enter a positive number of steps no more than {MagicBuilderValidation.MaximumForcedPathMovementSteps.ToString("N0", actor).ColourValue()}.");
 			return false;
 		}
 

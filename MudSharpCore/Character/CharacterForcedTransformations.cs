@@ -43,6 +43,11 @@ public partial class Character
 
 	public void ReevaluateForcedBodyTransformation()
 	{
+		ReevaluateForcedBodyTransformation(null);
+	}
+
+	internal void ReevaluateForcedBodyTransformation(SpellTransformFormEffect excludingSpellTransform)
+	{
 		if (_reevaluatingForcedBodyTransformation || _isSwitchingBodies)
 		{
 			return;
@@ -52,7 +57,7 @@ public partial class Character
 		try
 		{
 			RefreshForcedTransformationHeartbeatRegistration();
-			var demands = OrderedForcedTransformationDemands().ToList();
+			var demands = OrderedForcedTransformationDemands(excludingSpellTransform).ToList();
 			var baselineEffect = EffectsOfType<ForcedTransformationBaselineEffect>().FirstOrDefault();
 			if (demands.Any())
 			{
@@ -129,9 +134,9 @@ public partial class Character
 			.FirstOrDefault(x => x.Body == CurrentBody || CanSwitchBody(x.Body, BodySwitchIntent.Forced, out _));
 	}
 
-	private IEnumerable<ForcedTransformationDemand> OrderedForcedTransformationDemands()
+	private IEnumerable<ForcedTransformationDemand> OrderedForcedTransformationDemands(SpellTransformFormEffect excludingSpellTransform = null)
 	{
-		return GetActiveForcedTransformationDemands()
+		return GetActiveForcedTransformationDemands(excludingSpellTransform)
 			.OrderByDescending(x => x.PriorityBand)
 			.ThenByDescending(x => x.PriorityOffset)
 			.ThenByDescending(x => x.TieBreaker)
@@ -139,7 +144,7 @@ public partial class Character
 			.ThenBy(x => x.Form.Alias);
 	}
 
-	private IEnumerable<ForcedTransformationDemand> GetActiveForcedTransformationDemands()
+	private IEnumerable<ForcedTransformationDemand> GetActiveForcedTransformationDemands(SpellTransformFormEffect excludingSpellTransform = null)
 	{
 		foreach (var merit in AutoTransformingBodyFormMerits().Where(x => x.Applies(this)))
 		{
@@ -153,7 +158,8 @@ public partial class Character
 				merit.ForcedTransformationPriorityOffset, merit.Id, $"merit #{merit.Id.ToString("N0")}");
 		}
 
-		foreach (var effect in EffectsOfType<SpellTransformFormEffect>().Where(x => x.Applies()))
+		foreach (var effect in EffectsOfType<SpellTransformFormEffect>()
+		         .Where(x => !ReferenceEquals(x, excludingSpellTransform) && x.Applies()))
 		{
 			var form = GetProvisionedFormForSpellTransform(effect);
 			if (form is null)

@@ -19,7 +19,7 @@ public static class RemoteLookRenderer
 {
 	public static string DescribeRemoteCell(ICharacter viewer, ICell location, RoomLayer layer)
 	{
-		var flags = PerceiveIgnoreFlags.IgnoreCanSee | PerceiveIgnoreFlags.IgnoreDark;
+		var flags = PerceiveIgnoreFlags.None;
 		var sb = new StringBuilder();
 		sb.AppendLine(location.HowSeen(viewer, type: DescriptionType.Full));
 

@@ -28,6 +28,7 @@ public class MindAnesthesiaPower : SustainedMagicPower
     public static void RegisterLoader()
     {
         MagicPowerFactory.RegisterLoader("anesthesia", (power, gameworld) => new MindAnesthesiaPower(power, gameworld));
+        MagicPowerFactory.RegisterLoader("mindanesthesia", (power, gameworld) => new MindAnesthesiaPower(power, gameworld));
         MagicPowerFactory.RegisterBuilderLoader("anesthesia", (gameworld, school, name, actor, command) =>
         {
             if (command.IsFinished)
@@ -879,7 +880,7 @@ public class MindAnesthesiaPower : SustainedMagicPower
             return false;
         }
 
-        if (!double.TryParse(command.SafeRemainingArgument, out double value))
+        if (!MagicBuilderValidation.TryParseFiniteDouble(command.SafeRemainingArgument, out double value))
         {
             actor.OutputHandler.Send($"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid number.");
             return false;
@@ -893,6 +894,12 @@ public class MindAnesthesiaPower : SustainedMagicPower
             Changed = true;
             actor.OutputHandler.Send($"The target will no longer get any kind of resistance check to this power.");
             return true;
+        }
+
+        if (value > MagicBuilderValidation.MaximumResistanceIntervalSeconds)
+        {
+            actor.OutputHandler.Send($"The resistance interval must be no more than {MagicBuilderValidation.MaximumResistanceIntervalSeconds.ToString("N0", actor).ColourValue()} seconds.");
+            return false;
         }
 
         ResistCheckInterval = TimeSpan.FromSeconds(value);

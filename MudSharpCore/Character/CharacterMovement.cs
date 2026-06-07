@@ -188,24 +188,10 @@ public partial class Character
     private static void ReconcileTeleportCellMembership(ICharacter character, ICell target, ICell source)
     {
         ICell canonicalCell = character.Location ?? target;
-        HashSet<IZone> zones = new()
-        {
-            target.Zone,
-            canonicalCell.Zone
-        };
-        if (source is not null)
-        {
-            zones.Add(source.Zone);
-        }
-
-        List<ICell> duplicateCells = zones
-            .SelectMany(x => x.Cells)
-            .Distinct()
-            .Where(x => !ReferenceEquals(x, canonicalCell))
-            .Where(x => x.Characters.Contains(character))
-            .ToList();
-
-        foreach (ICell duplicateCell in duplicateCells)
+        foreach (ICell duplicateCell in new[] { source, target }
+                 .Where(x => x is not null && !ReferenceEquals(x, canonicalCell))
+                 .Distinct()
+                 .Where(x => x.Characters.Contains(character)))
         {
             duplicateCell.Leave(character);
         }

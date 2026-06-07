@@ -207,6 +207,8 @@ Transformation echoes are per-form metadata:
 
 The default static string is currently `@ transform|transforms into ^1.`, where `^1` is the new body in the emote context rendered with the emote system's non-self token so the transforming player sees their own new short description instead of `you`.
 
+Custom transformation echoes are sanitised when they are loaded, edited, or emitted. This preserves ordinary emote syntax while preventing literal brace characters in persisted or builder-supplied text from breaking the emote parser during a body switch.
+
 ### Player Command Surface
 
 The player-facing command is intentionally small:
@@ -264,6 +266,8 @@ Auto-transforming merits are the current racial or intrinsic transformation path
 The `transformform` spell effect is implemented by [TransformFormEffect.cs](../../MudSharpCore/Magic/SpellEffects/TransformFormEffect.cs) and its active runtime effect [SpellTransformFormEffect.cs](../../MudSharpCore/Effects/Concrete/SpellEffects/SpellTransformFormEffect.cs).
 
 The spell effect ensures or reuses a keyed form and contributes a forced transformation demand while the spell effect applies. The spell stores the prior body id so it can revert after expiry or save/load. If the prior body is unavailable or cannot be switched into, the resolver attempts another valid owned form. If no fallback works, the character remains in the current form and staff-facing diagnostics are emitted rather than deleting the cached form.
+
+When a spell transform effect is removed, the forced-transformation resolver excludes the effect currently being removed from its active-demand scan. This matters because effect removal callbacks run before the effect has disappeared from the character's effect list; excluding the removing effect prevents expired spell transforms from keeping their forced form alive until a later reevaluation.
 
 Spell builders can configure the same first-creation form metadata as merits, plus a stable `FormKey`, priority band, and priority offset. Repeated casts of the same spell and key reuse the same body.
 

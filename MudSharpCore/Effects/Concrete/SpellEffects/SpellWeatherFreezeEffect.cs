@@ -13,24 +13,31 @@ namespace MudSharp.Effects.Concrete.SpellEffects;
 public class SpellWeatherFreezeEffect : MagicSpellEffectBase
 {
     private readonly IWeatherController _controller;
+    private bool _weatherIsFrozen;
+    private bool _pendingNextTransition;
 
     public static void InitialiseEffectType()
     {
         RegisterFactory("SpellWeatherFreeze", (effect, owner) => new SpellWeatherFreezeEffect(effect, owner));
     }
 
-    public SpellWeatherFreezeEffect(IPerceivable owner, IMagicSpellEffectParent parent, IFutureProg prog, IWeatherEvent? weatherEvent = null) : base(owner, parent, prog)
+    public SpellWeatherFreezeEffect(IPerceivable owner, IMagicSpellEffectParent parent, IFutureProg prog, IWeatherEvent? weatherEvent = null, bool nextTransition = false) : base(owner, parent, prog)
     {
         WeatherEvent = weatherEvent;
         _controller = (owner as ICell)?.WeatherController ?? (owner as IZone)?.WeatherController;
-        if (_controller != null)
+        if (_controller == null)
         {
-            if (WeatherEvent != null)
-            {
-                _controller.SetWeather(WeatherEvent);
-            }
-            _controller.FreezeWeather();
+            return;
         }
+
+        if (nextTransition)
+        {
+            _controller.WeatherChanged += WeatherChanged;
+            _pendingNextTransition = true;
+            return;
+        }
+
+        ApplyFreeze();
     }
 
     protected SpellWeatherFreezeEffect(XElement root, IPerceivable owner) : base(root, owner)
@@ -41,12 +48,31 @@ public class SpellWeatherFreezeEffect : MagicSpellEffectBase
         _controller = (owner as ICell)?.WeatherController ?? (owner as IZone)?.WeatherController;
         if (_controller != null)
         {
-            if (WeatherEvent != null)
-            {
-                _controller.SetWeather(WeatherEvent);
-            }
-            _controller.FreezeWeather();
+            ApplyFreeze();
         }
+    }
+
+    private void ApplyFreeze()
+    {
+        if (_controller == null || _weatherIsFrozen)
+        {
+            return;
+        }
+
+        if (WeatherEvent != null)
+        {
+            _controller.SetWeather(WeatherEvent);
+        }
+
+        _controller.FreezeWeather();
+        _weatherIsFrozen = true;
+    }
+
+    private void WeatherChanged(IWeatherController sender, IWeatherEvent oldWeather, IWeatherEvent newWeather)
+    {
+        sender.WeatherChanged -= WeatherChanged;
+        _pendingNextTransition = false;
+        ApplyFreeze();
     }
 
     protected override XElement SaveDefinition()
@@ -70,7 +96,30 @@ public class SpellWeatherFreezeEffect : MagicSpellEffectBase
 
     public override void ExpireEffect()
     {
+        ReleaseFreeze();
         base.ExpireEffect();
+    }
+
+    public override void RemovalEffect()
+    {
+        ReleaseFreeze();
+        base.RemovalEffect();
+    }
+
+    private void ReleaseFreeze()
+    {
+        if (_pendingNextTransition)
+        {
+            _controller?.WeatherChanged -= WeatherChanged;
+            _pendingNextTransition = false;
+        }
+
+        if (!_weatherIsFrozen)
+        {
+            return;
+        }
+
         _controller?.UnfreezeWeather();
+        _weatherIsFrozen = false;
     }
 }

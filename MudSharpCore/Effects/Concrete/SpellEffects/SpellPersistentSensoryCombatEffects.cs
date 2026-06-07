@@ -8,6 +8,7 @@ using MudSharp.Framework;
 using MudSharp.FutureProg;
 using MudSharp.GameItems;
 using MudSharp.Health;
+using MudSharp.Magic;
 using MudSharp.Movement;
 using MudSharp.RPG.Checks;
 using System;
@@ -35,8 +36,9 @@ public class SpellBurningEffect : MagicSpellEffectBase, IDescriptionAdditionEffe
 		PainPerTick = Math.Max(0.0, painPerTick);
 		StunPerTick = Math.Max(0.0, stunPerTick);
 		ThermalLoadPerTick = Math.Max(0.0, thermalLoadPerTick);
-		TickInterval = TimeSpan.FromSeconds(Math.Max(1.0, tickSeconds));
-		MinimumOxidation = Math.Max(0.0, minimumOxidation);
+		TickInterval = TimeSpan.FromSeconds(MagicBuilderValidation.ClampFinite(tickSeconds, 1.0,
+			MagicBuilderValidation.MaximumSpellTickSeconds, 10.0));
+		MinimumOxidation = MagicBuilderValidation.ClampFinite(minimumOxidation, 0.0, double.MaxValue, 0.0);
 		SelfOxidising = selfOxidising;
 		SDescAddendum = sdescAddendum;
 		DescAddendum = descAddendum;
@@ -52,8 +54,12 @@ public class SpellBurningEffect : MagicSpellEffectBase, IDescriptionAdditionEffe
 		PainPerTick = Math.Max(0.0, double.Parse(trueRoot?.Element("PainPerTick")?.Value ?? "0"));
 		StunPerTick = Math.Max(0.0, double.Parse(trueRoot?.Element("StunPerTick")?.Value ?? "0"));
 		ThermalLoadPerTick = Math.Max(0.0, double.Parse(trueRoot?.Element("ThermalLoadPerTick")?.Value ?? "0"));
-		TickInterval = TimeSpan.FromSeconds(Math.Max(1.0, double.Parse(trueRoot?.Element("TickSeconds")?.Value ?? "10")));
-		MinimumOxidation = Math.Max(0.0, double.Parse(trueRoot?.Element("MinimumOxidation")?.Value ?? "0"));
+		TickInterval = TimeSpan.FromSeconds(MagicBuilderValidation.ClampFinite(
+			MagicBuilderValidation.ParseFiniteOrDefault(trueRoot?.Element("TickSeconds")?.Value, 10.0), 1.0,
+			MagicBuilderValidation.MaximumSpellTickSeconds, 10.0));
+		MinimumOxidation = MagicBuilderValidation.ClampFinite(
+			MagicBuilderValidation.ParseFiniteOrDefault(trueRoot?.Element("MinimumOxidation")?.Value, 0.0), 0.0,
+			double.MaxValue, 0.0);
 		SelfOxidising = bool.Parse(trueRoot?.Element("SelfOxidising")?.Value ?? "false");
 		SDescAddendum = trueRoot?.Element("SDescAddendum")?.Value ?? "(burning)";
 		DescAddendum = trueRoot?.Element("DescAddendum")?.Value ?? "@ is burning with magical fire.";

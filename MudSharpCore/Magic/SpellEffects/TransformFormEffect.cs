@@ -95,7 +95,7 @@ public class TransformFormEffect : IMagicSpellEffectTemplate
 		_transformationEcho = root.Element("TransformationEcho")?.Attribute("mode")?.Value switch
 		{
 			"none" => string.Empty,
-			_ => root.Element("TransformationEcho")?.Value
+			_ => root.Element("TransformationEcho")?.Value.Sanitise()
 		};
 		if (_transformationEcho == string.Empty &&
 		    root.Element("TransformationEcho")?.Attribute("mode")?.Value != "none")
@@ -487,7 +487,7 @@ public class TransformFormEffect : IMagicSpellEffectTemplate
 			? null
 			: text.EqualToAny("none", "suppress", "blank")
 				? string.Empty
-				: text;
+				: text.Sanitise();
 		Spell.Changed = true;
 		actor.OutputHandler.Send(_transformationEcho switch
 		{

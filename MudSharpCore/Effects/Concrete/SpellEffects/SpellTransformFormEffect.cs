@@ -79,7 +79,10 @@ public class SpellTransformFormEffect : SimpleSpellStatusEffectBase
 	public override void RemovalEffect()
 	{
 		base.RemovalEffect();
-		(Owner as ICharacter)?.ReevaluateForcedBodyTransformation();
+		if (Owner is MudSharp.Character.Character character)
+		{
+			character.ReevaluateForcedBodyTransformation(this);
+		}
 	}
 
 	public override string Describe(IPerceiver voyeur)

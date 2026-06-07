@@ -24,6 +24,7 @@ public class InvisibilityPower : SustainedMagicPower
     public static void RegisterLoader()
     {
         MagicPowerFactory.RegisterLoader("invisibility", (power, gameworld) => new InvisibilityPower(power, gameworld));
+        MagicPowerFactory.RegisterLoader("Invisibility", (power, gameworld) => new InvisibilityPower(power, gameworld));
         MagicPowerFactory.RegisterBuilderLoader("invisibility", (gameworld, school, name, actor, command) =>
         {
             if (command.IsFinished)
@@ -46,10 +47,11 @@ public class InvisibilityPower : SustainedMagicPower
     protected override XElement SaveDefinition()
     {
         XElement definition = new("Definition",
-                new XElement("ConnectVerb", BeginVerb),
-                new XElement("DisconnectVerb", EndVerb),
+                new XElement("StartPowerVerb", BeginVerb),
+                new XElement("EndPowerVerb", EndVerb),
     new XElement("SkillCheckDifficulty", (int)SkillCheckDifficulty),
     new XElement("SkillCheckTrait", SkillCheckTrait.Id),
+    new XElement("MinimumSuccessThreshold", (int)MinimumSuccessThreshold),
     new XElement("InvisibilityAppliesProg", InvisibilityAppliesProg.Id),
     new XElement("CanEndPowerProg", CanEndPowerProg.Id),
     new XElement("WhyCantEndPowerProg", WhyCantEndPowerProg.Id),
@@ -66,7 +68,7 @@ public class InvisibilityPower : SustainedMagicPower
     private InvisibilityPower(Models.MagicPower power, IFuturemud gameworld) : base(power, gameworld)
     {
         XElement root = XElement.Parse(power.Definition);
-        XElement element = root.Element("StartPowerVerb");
+        XElement element = root.Element("StartPowerVerb") ?? root.Element("ConnectVerb");
         if (element == null)
         {
             throw new ApplicationException(
@@ -75,7 +77,7 @@ public class InvisibilityPower : SustainedMagicPower
 
         BeginVerb = element.Value;
 
-        element = root.Element("EndPowerVerb");
+        element = root.Element("EndPowerVerb") ?? root.Element("DisconnectVerb");
         if (element == null)
         {
             throw new ApplicationException($"There was no EndPowerVerb in the definition XML for power {Id} ({Name}).");
@@ -128,13 +130,7 @@ public class InvisibilityPower : SustainedMagicPower
         SkillCheckTrait = Gameworld.Traits.Get(long.Parse(element.Value));
 
         element = root.Element("MinimumSuccessThreshold");
-        if (element == null)
-        {
-            throw new ApplicationException(
-                $"There was no MinimumSuccessThreshold in the definition XML for power {Id} ({Name}).");
-        }
-
-        MinimumSuccessThreshold = (Outcome)int.Parse(element.Value);
+        MinimumSuccessThreshold = element is null ? Outcome.Fail : (Outcome)int.Parse(element.Value);
 
         element = root.Element("InvisibilityAppliesProg");
         if (element == null)

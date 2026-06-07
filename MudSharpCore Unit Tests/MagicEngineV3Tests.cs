@@ -20,6 +20,7 @@ using MudSharp.PerceptionEngine;
 using MudSharp.RPG.Checks;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Xml.Linq;
 
@@ -91,6 +92,141 @@ public class MagicEngineV3Tests
 		var saved = dispel.SaveToXml();
 		Assert.AreEqual(bool.TrueString.ToLowerInvariant(), saved.Element("Contest")?.Value.ToLowerInvariant());
 		Assert.AreEqual("3", saved.Element("ContestBonus")?.Value);
+	}
+
+	[TestMethod]
+	public void MagicSecurity_CreateLiquidEffect_RoundTripsLoadableLiquidIdXml()
+	{
+		var spell = CreateSpellMock();
+		var effect = SpellEffectFactory.LoadEffect(new XElement("Effect",
+			new XAttribute("type", "createliquid"),
+			new XElement("LiquidId", 123L),
+			new XElement("AmountFormula", new XCData("power + outcome"))), spell.Object);
+
+		var saved = effect.SaveToXml();
+
+		Assert.AreEqual("123", saved.Element("LiquidId")?.Value);
+		Assert.IsNull(saved.Element("Liquid"));
+
+		var legacy = SpellEffectFactory.LoadEffect(new XElement("Effect",
+			new XAttribute("type", "createliquid"),
+			new XElement("Liquid", 456L),
+			new XElement("AmountFormula", new XCData("power"))), spell.Object);
+
+		Assert.AreEqual("456", legacy.SaveToXml().Element("LiquidId")?.Value);
+	}
+
+	[TestMethod]
+	public void MagicSecurity_LoadedSpellEffects_ClampUnsafePersistedNumericValues()
+	{
+		var spell = CreateSpellMock();
+
+		var burning = SpellEffectFactory.LoadEffect(new XElement("Effect",
+			new XAttribute("type", "burning"),
+			new XElement("TickSeconds", double.NaN),
+			new XElement("MinimumOxidation", double.NaN)), spell.Object);
+		var burningXml = burning.SaveToXml();
+		Assert.AreEqual("10", burningXml.Element("TickSeconds")?.Value);
+		Assert.AreEqual("0.1", burningXml.Element("MinimumOxidation")?.Value);
+
+		var forcedMovement = SpellEffectFactory.LoadEffect(new XElement("Effect",
+			new XAttribute("type", "forcedpathmovement"),
+			new XElement("Steps", int.MaxValue),
+			new XElement("AllowFallExits", false)), spell.Object);
+		Assert.AreEqual(MagicBuilderValidation.MaximumForcedPathMovementSteps.ToString(),
+			forcedMovement.SaveToXml().Element("Steps")?.Value);
+
+		var needDelta = SpellEffectFactory.LoadEffect(new XElement("Effect",
+			new XAttribute("type", "needdelta"),
+			new XElement("Hunger", double.NaN),
+			new XElement("Thirst", 1E300),
+			new XElement("Drunk", double.PositiveInfinity)), spell.Object);
+		var needXml = needDelta.SaveToXml();
+		Assert.AreEqual("0", needXml.Element("Hunger")?.Value);
+		Assert.AreEqual(MagicBuilderValidation.MaximumNeedDeltaHours.ToString(), needXml.Element("Thirst")?.Value);
+		Assert.AreEqual("0", needXml.Element("Drunk")?.Value);
+	}
+
+	[TestMethod]
+	public void MagicSecurity_MagicPowerSerializers_PersistLoadableXmlAndAliases()
+	{
+		var attackSource = File.ReadAllText(GetSourcePath("MudSharpCore", "Magic", "Powers", "MagicAttackPower.cs"));
+		StringAssert.Contains(attackSource, "public override string DatabaseType => \"magicattack\";");
+		StringAssert.Contains(attackSource, "RegisterLoader(\"Magic Attack\"");
+
+		var connectSource = File.ReadAllText(GetSourcePath("MudSharpCore", "Magic", "Powers", "ConnectMindPower.cs"));
+		StringAssert.Contains(connectSource, "public override string DatabaseType => \"connectmind\";");
+		StringAssert.Contains(connectSource, "RegisterLoader(\"Connect Mind\"");
+
+		var invisibilitySource = File.ReadAllText(GetSourcePath("MudSharpCore", "Magic", "Powers", "InvisibilityPower.cs"));
+		StringAssert.Contains(invisibilitySource, "public override string DatabaseType => \"invisibility\";");
+		StringAssert.Contains(invisibilitySource, "RegisterLoader(\"Invisibility\"");
+		StringAssert.Contains(invisibilitySource, "new XElement(\"StartPowerVerb\", BeginVerb)");
+		StringAssert.Contains(invisibilitySource, "new XElement(\"EndPowerVerb\", EndVerb)");
+		StringAssert.Contains(invisibilitySource, "new XElement(\"MinimumSuccessThreshold\", (int)MinimumSuccessThreshold)");
+		StringAssert.Contains(invisibilitySource, "root.Element(\"StartPowerVerb\") ?? root.Element(\"ConnectVerb\")");
+
+		var armourSource = File.ReadAllText(GetSourcePath("MudSharpCore", "Magic", "Powers", "MagicArmourPower.cs"));
+		StringAssert.Contains(armourSource, "public override string DatabaseType => \"armour\";");
+		StringAssert.Contains(armourSource, "RegisterLoader(\"Armour\"");
+		StringAssert.Contains(armourSource, "new XElement(\"MinimumSuccessThreshold\", (int)MinimumSuccessThreshold)");
+
+		var anesthesiaSource = File.ReadAllText(GetSourcePath("MudSharpCore", "Magic", "Powers", "MindAnesthesiaPower.cs"));
+		StringAssert.Contains(anesthesiaSource, "public override string DatabaseType => \"mindanesthesia\";");
+		StringAssert.Contains(anesthesiaSource, "RegisterLoader(\"mindanesthesia\"");
+		StringAssert.Contains(anesthesiaSource, "TryParseFiniteDouble(command.SafeRemainingArgument");
+		StringAssert.Contains(anesthesiaSource, "MaximumResistanceIntervalSeconds");
+
+		var broadcastSource = File.ReadAllText(GetSourcePath("MudSharpCore", "Magic", "Powers", "MindBroadcastPower.cs"));
+		StringAssert.Contains(broadcastSource, "new XElement(\"PowerDistance\", (int)PowerDistance)");
+		StringAssert.Contains(broadcastSource, "root.Element(\"PowerDistance\") ?? root.Element(\"Distance\")");
+		StringAssert.Contains(broadcastSource, "text.Sanitise().ProperSentences().Fullstop()");
+	}
+
+	[TestMethod]
+	public void MagicSecurity_RuntimeSources_EnforceVisibilityCleanupAndLifecycleInvariants()
+	{
+		var remoteLookSource = File.ReadAllText(GetSourcePath("MudSharpCore", "Magic", "RemoteLookRenderer.cs"));
+		StringAssert.Contains(remoteLookSource, "var flags = PerceiveIgnoreFlags.None;");
+		Assert.IsFalse(remoteLookSource.Contains("IgnoreCanSee", StringComparison.Ordinal));
+		Assert.IsFalse(remoteLookSource.Contains("IgnoreDark", StringComparison.Ordinal));
+
+		var weatherFreezeSource = File.ReadAllText(GetSourcePath("MudSharpCore", "Effects", "Concrete",
+			"SpellEffects", "SpellWeatherFreezeEffect.cs"));
+		StringAssert.Contains(weatherFreezeSource, "public override void RemovalEffect()");
+		StringAssert.Contains(weatherFreezeSource, "ReleaseFreeze();");
+		StringAssert.Contains(weatherFreezeSource, "_controller.WeatherChanged += WeatherChanged;");
+		StringAssert.Contains(weatherFreezeSource, "_controller?.WeatherChanged -= WeatherChanged;");
+
+		var forcedTransformSource = File.ReadAllText(GetSourcePath("MudSharpCore", "Effects", "Concrete",
+			"SpellEffects", "SpellTransformFormEffect.cs"));
+		StringAssert.Contains(forcedTransformSource, "character.ReevaluateForcedBodyTransformation(this);");
+
+		var characterFormsSource = File.ReadAllText(GetSourcePath("MudSharpCore", "Character", "CharacterForms.cs"));
+		StringAssert.Contains(characterFormsSource, "echo.Sanitise()");
+		StringAssert.Contains(characterFormsSource, "transformationEcho?.Sanitise()");
+
+		var transformFormSource = File.ReadAllText(GetSourcePath("MudSharpCore", "Magic", "SpellEffects",
+			"TransformFormEffect.cs"));
+		StringAssert.Contains(transformFormSource, "root.Element(\"TransformationEcho\")?.Value.Sanitise()");
+		StringAssert.Contains(transformFormSource, "text.Sanitise()");
+
+		var telepathySource = File.ReadAllText(GetSourcePath("MudSharpCore", "Effects", "Concrete",
+			"SpellEffects", "SpellTelepathyEffect.cs"));
+		StringAssert.Contains(telepathySource, "public override bool Applies(object target)");
+		StringAssert.Contains(telepathySource, "ReferenceEquals(target, ParentEffect.Caster)");
+
+		var teleportSource = File.ReadAllText(GetSourcePath("MudSharpCore", "Character", "CharacterMovement.cs"));
+		Assert.IsFalse(teleportSource.Contains(".SelectMany(x => x.Cells)", StringComparison.Ordinal));
+
+		var spellSource = File.ReadAllText(GetSourcePath("MudSharpCore", "Magic", "MagicSpell.cs"));
+		StringAssert.Contains(spellSource, "EchoInterdiction(originalTarget, interdiction, false);");
+		StringAssert.Contains(spellSource, "return true;");
+
+		var poisonSource = File.ReadAllText(GetSourcePath("MudSharpCore", "Effects", "Concrete",
+			"SpellEffects", "StandaloneSpellStatusEffects.cs"));
+		StringAssert.Contains(poisonSource, "RemoveDrugDosages(IsLegacyUnownedDose)");
+		StringAssert.Contains(poisonSource, "ReferenceEquals(x.Originator, this) || IsLegacyUnownedDose(x)");
 	}
 
 	[TestMethod]
@@ -344,5 +480,22 @@ public class MagicEngineV3Tests
 		collection.Setup(x => x.GetEnumerator()).Returns(() => ((IEnumerable<T>)items).GetEnumerator());
 		collection.As<IEnumerable<T>>().Setup(x => x.GetEnumerator()).Returns(() => ((IEnumerable<T>)items).GetEnumerator());
 		return collection;
+	}
+
+	private static string GetSourcePath(params string[] parts)
+	{
+		var directory = AppContext.BaseDirectory;
+		while (directory is not null)
+		{
+			var candidate = Path.Combine(new[] { directory }.Concat(parts).ToArray());
+			if (File.Exists(candidate))
+			{
+				return candidate;
+			}
+
+			directory = Directory.GetParent(directory)?.FullName;
+		}
+
+		throw new FileNotFoundException($"Could not locate source file {Path.Combine(parts)}.");
 	}
 }

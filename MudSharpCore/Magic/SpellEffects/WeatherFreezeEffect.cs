@@ -77,7 +77,6 @@ public class WeatherFreezeEffect : IMagicSpellEffectTemplate
         {
             return null;
         }
-        loc.WeatherController.FreezeWeather();
         return new SpellWeatherFreezeEffect(loc, parent, null);
     }
 

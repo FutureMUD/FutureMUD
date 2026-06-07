@@ -30,6 +30,7 @@ public class MagicAttackPower : MagicPowerBase, IMagicAttackPower
     public static void RegisterLoader()
     {
         MagicPowerFactory.RegisterLoader("magicattack", (power, gameworld) => new MagicAttackPower(power, gameworld));
+        MagicPowerFactory.RegisterLoader("Magic Attack", (power, gameworld) => new MagicAttackPower(power, gameworld));
         MagicPowerFactory.RegisterBuilderLoader("magicattack", (gameworld, school, name, actor, command) =>
         {
             if (command.IsFinished)

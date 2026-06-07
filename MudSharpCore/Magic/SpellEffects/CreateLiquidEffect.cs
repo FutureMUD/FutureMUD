@@ -47,7 +47,7 @@ public class CreateLiquidEffect : IMagicSpellEffectTemplate
     protected CreateLiquidEffect(XElement root, IMagicSpell spell)
     {
         Spell = spell;
-        _liquidId = long.Parse(root.Element("LiquidId").Value);
+        _liquidId = long.Parse((root.Element("LiquidId") ?? root.Element("Liquid"))!.Value);
         AmountFormula = new Expression(root.Element("AmountFormula").Value);
     }
     public IFuturemud Gameworld => Spell.Gameworld;
@@ -64,7 +64,7 @@ public class CreateLiquidEffect : IMagicSpellEffectTemplate
     {
         return new XElement("Effect",
             new XAttribute("type", "createliquid"),
-            new XElement("Liquid", _liquidId),
+            new XElement("LiquidId", _liquidId),
             new XElement("AmountFormula", new XCData(AmountFormula.OriginalExpression))
         );
     }

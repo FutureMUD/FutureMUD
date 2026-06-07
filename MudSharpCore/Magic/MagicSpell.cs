@@ -1605,7 +1605,7 @@ public class MagicSpell : SaveableItem, IMagicSpell
 			if (interdiction is not null && !reflected)
 			{
 				EchoInterdiction(originalTarget, interdiction, false);
-				return false;
+				return true;
 			}
 
 			if (TargetResisted(actualTarget, out OpposedOutcome outcome, reflected))
@@ -1632,7 +1632,10 @@ public class MagicSpell : SaveableItem, IMagicSpell
 		{
 			foreach (IPerceivable individual in pg.Members)
 			{
-				ProcessSpellTarget(individual, false);
+				if (ProcessSpellTarget(individual, false))
+				{
+					return;
+				}
 			}
 		}
 		else if (target is ICharacter tch && tch != magician)
@@ -1644,7 +1647,10 @@ public class MagicSpell : SaveableItem, IMagicSpell
 		}
 		else if (target is not null)
 		{
-			ProcessSpellTarget(target, false);
+			if (ProcessSpellTarget(target, false))
+			{
+				return;
+			}
 		}
 
 		if (_casterSpellEffects.Any())

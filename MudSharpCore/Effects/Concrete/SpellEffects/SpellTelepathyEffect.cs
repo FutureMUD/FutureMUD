@@ -55,6 +55,13 @@ public class SpellTelepathyEffect : MagicSpellEffectBase, ITelepathyEffect
         return true;
     }
 
+    public override bool Applies(object target)
+    {
+        return ParentEffect?.Caster is not null &&
+               ReferenceEquals(target, ParentEffect.Caster) &&
+               base.Applies(target);
+    }
+
     public bool ShowName(ICharacter thinker)
     {
         return false;

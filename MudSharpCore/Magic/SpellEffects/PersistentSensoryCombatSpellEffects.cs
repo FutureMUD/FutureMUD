@@ -83,8 +83,12 @@ public class BurningEffect : IMagicSpellEffectTemplate
 		PainFormula = new Expression(root.Element("PainFormula")?.Value ?? "power");
 		StunFormula = new Expression(root.Element("StunFormula")?.Value ?? "power * 0.5");
 		ThermalFormula = new Expression(root.Element("ThermalFormula")?.Value ?? "0");
-		TickSeconds = Math.Max(1.0, double.Parse(root.Element("TickSeconds")?.Value ?? "10"));
-		MinimumOxidation = Math.Max(0.0, double.Parse(root.Element("MinimumOxidation")?.Value ?? "0.1"));
+		TickSeconds = MagicBuilderValidation.ClampFinite(
+			MagicBuilderValidation.ParseFiniteOrDefault(root.Element("TickSeconds")?.Value, 10.0),
+			1.0, MagicBuilderValidation.MaximumSpellTickSeconds, 10.0);
+		MinimumOxidation = MagicBuilderValidation.ClampFinite(
+			MagicBuilderValidation.ParseFiniteOrDefault(root.Element("MinimumOxidation")?.Value, 0.1),
+			0.0, double.MaxValue, 0.1);
 		SelfOxidising = bool.Parse(root.Element("SelfOxidising")?.Value ?? "false");
 		SDescAddendum = root.Element("SDescAddendum")?.Value ?? "(burning)";
 		DescAddendum = root.Element("DescAddendum")?.Value ?? "@ is wreathed in magical flames.";
@@ -269,9 +273,11 @@ public class BurningEffect : IMagicSpellEffectTemplate
 
 	private bool BuildingCommandTick(ICharacter actor, StringStack command)
 	{
-		if (command.IsFinished || !double.TryParse(command.SafeRemainingArgument, out var seconds) || seconds < 1.0)
+		if (command.IsFinished ||
+		    !MagicBuilderValidation.TryParseFiniteDoubleInRange(command.SafeRemainingArgument, 1.0,
+			    MagicBuilderValidation.MaximumSpellTickSeconds, out var seconds))
 		{
-			actor.OutputHandler.Send("You must enter a number of seconds of at least 1.0.");
+			actor.OutputHandler.Send($"You must enter a number of seconds between {1.0.ToString("N1", actor).ColourValue()} and {MagicBuilderValidation.MaximumSpellTickSeconds.ToString("N0", actor).ColourValue()}.");
 			return false;
 		}
 
@@ -283,7 +289,7 @@ public class BurningEffect : IMagicSpellEffectTemplate
 
 	private bool BuildingCommandOxygen(ICharacter actor, StringStack command)
 	{
-		if (command.IsFinished || !double.TryParse(command.SafeRemainingArgument, out var factor) || factor < 0.0)
+		if (command.IsFinished || !MagicBuilderValidation.TryParseFiniteDouble(command.SafeRemainingArgument, out var factor) || factor < 0.0)
 		{
 			actor.OutputHandler.Send("You must enter an atmospheric oxidation factor of 0.0 or greater.");
 			return false;

@@ -198,7 +198,7 @@ public partial class Character
 			return;
 		}
 
-		OutputHandler.Handle(new EmoteOutput(new Emote(echo, this, oldBody, newBody)));
+		OutputHandler.Handle(new EmoteOutput(new Emote(echo.Sanitise(), this, oldBody, newBody)));
 	}
 
 	private CharacterForm DefaultFormFor(IBody body)
@@ -538,7 +538,7 @@ public partial class Character
 			return false;
 		}
 
-		form.TransformationEcho = transformationEcho;
+		form.TransformationEcho = transformationEcho?.Sanitise();
 		Changed = true;
 		whyNot = string.Empty;
 		return true;

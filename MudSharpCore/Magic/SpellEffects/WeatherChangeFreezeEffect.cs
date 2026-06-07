@@ -124,22 +124,11 @@ public class WeatherChangeFreezeEffect : IMagicSpellEffectTemplate
 
         if (NextTransition)
         {
-            void Handler(IWeatherController sender, IWeatherEvent oldw, IWeatherEvent neww)
-            {
-                sender.WeatherChanged -= Handler;
-                sender.SetWeather(WeatherEvent);
-                sender.FreezeWeather();
-                SpellWeatherFreezeEffect eff = new(loc, parent, null);
-                parent.AddSpellEffect(eff);
-                loc.AddEffect(eff);
-            }
-            loc.WeatherController.WeatherChanged += Handler;
-            return null;
+            return new SpellWeatherFreezeEffect(loc, parent, null, WeatherEvent, true);
         }
         else
         {
             loc.WeatherController.SetWeather(WeatherEvent);
-            loc.WeatherController.FreezeWeather();
             return new SpellWeatherFreezeEffect(loc, parent, null);
         }
     }

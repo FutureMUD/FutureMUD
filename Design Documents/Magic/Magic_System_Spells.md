@@ -134,6 +134,7 @@ Current behavior is:
 - `reflect` wards only retarget ordinary `character` spells back at the caster
 - non-character-targeted invokes downgrade `reflect` to `fail`
 - self-targeted character casts do not reflect back onto the same caster; they also downgrade to `fail`
+- a blocked or resisted target aborts that invoke before caster-side spell effects are applied
 
 ### 9. Resist check
 If a resisting target beats the caster's result, the target-resisted emote is shown and the spell does not apply to that target.
@@ -332,7 +333,7 @@ Key runtime semantics:
 - `paralysis` uses the forced-paralysis health hook.
 - `flying` extends the normal flight checks without forcing a flying position state.
 - `waterbreathing` extends breathing logic by granting additional breathable fluids.
-- `poison` and `disease` create spell-owned payloads with origin metadata, and the matching removal effects only clear matching payloads created by those spell effects.
+- `poison` and `disease` create spell-owned payloads with origin metadata, and the matching removal effects only clear matching payloads created by those spell effects. Poison cleanup also recognises matching legacy originless saved payloads so older rows can be repaired without removing unrelated active poisons.
 - `detectmagick`, `detectinvisible`, `detectethereal`, and `infravision` rely on additive `IEffect.PerceptionGranting` support rather than replacing a target's base perception flags.
 - `detectmagick` also exposes active magical auras from ordinary character, item, and room description flows whenever the perceiver can sense magic.
 - `comprehendlanguage` bypasses language comprehension checks, but not illiteracy or unknown-script gating.
@@ -343,6 +344,12 @@ Other Phase 1 primitives:
 - `magicresourcedelta` works against any `IHaveMagicResource` target and relies on the holder's normal clamping rules.
 - `spellarmour` reuses the shared `MagicArmourConfiguration` model so spell armour and power armour stay in sync.
 - `roomflag` / `removeroomflag` is the early room-state primitive for `peaceful`, `nodream`, `alarm`, `darkness`, and `wardtag`.
+
+Persistence and numeric-safety invariants for current primitives:
+
+- XML loaders for builder-authored effects must tolerate legacy element names where that is unambiguous, while new saves should emit one canonical shape. For example, `createliquid` now saves `LiquidId` and still loads older `Liquid` rows.
+- Builder-controlled effect parameters that later feed `TimeSpan`, movement loops, need deltas, or weather/lifecycle state must reject `NaN`, infinity, and impractically large values before persistence. Loaders clamp legacy rows into bounded defaults instead of letting malformed data crash the game loop.
+- `telepathy` spell effects apply to the spell caster as the listener for the intended target only; they do not become global passive listeners when no applicability prog is present.
 
 ### Wind movement and fall-control primitives
 The Wind parity slice adds first-class movement and fall-control effects rather than modelling them as generic tags.
@@ -361,6 +368,7 @@ Key runtime semantics:
 - `featherfall` applies configurable fall-distance and fall-damage multipliers. It mitigates impact harm while leaving normal descent and fall exits intact.
 - `removeinvisibility` removes only `SpellInvisibilityEffect` child effects from the target. `dispelinvisibility` is a builder/load alias that saves as `removeinvisibility`.
 - `forcedpathmovement` uses a `characterexit` trigger's `exit` parameter, validates each exit with the normal movement and crossing checks, and can force a target through one or more same-direction exits. `handsofwind` is a builder/load alias that saves as `forcedpathmovement`.
+- `forcedpathmovement` caps repeated same-direction movement at a small bounded step count so player-triggered wind spells cannot monopolise the command loop.
 - `transference` swaps the caster and target character locations, optionally including followers, dragged targets, riders, and room-layer swapping.
 - Magical flight expiry now calls the flight-continuation check instead of the start-flight check, so a target only drops when no remaining spell, immwalk, or physical flight source can sustain them.
 - `dispelmagic effect invisibility|flight|levitation|featherfall` can target these Wind statuses through the general dispel flow.
@@ -395,6 +403,7 @@ Important builder implications:
 - overlapping forced sources are resolved centrally in this default order: merit or intrinsic, drug or chemical, spell or power, admin forced
 - if no explicit short or full description pattern is supplied, the runtime tries to pick a random valid pattern for the target form and only falls back to generic text when no valid pattern exists
 - switching emits the form's configured transformation echo after the new body has been stabilised; `default` uses the `DefaultFormTransformationEcho` static string and a blank echo suppresses the emote entirely
+- custom transformation echoes are sanitised before being stored or emitted so brace characters cannot break emote parsing
 - switch activation intentionally delays normal health and consequence feedback until organ functions and positioning have been recalculated, preventing transient `can't breathe` or `tumble to the ground` noise during valid transformations
 
 The `transformform` builder effect currently supports:
@@ -453,6 +462,10 @@ The persistent sensory/combat slice adds:
 - `burning` / `ignite`: spell-owned recurring burning for characters or items, with configurable per-tick damage, pain, stun, thermal load, oxidation requirement, and visible addenda.
 - `trackmark` / `tracktrail`: spell-owned track intensity modification for characters, with visual/olfactory multipliers or bonuses and optional magically-marked track circumstances.
 - `dispelmagic effect burning` and `dispelmagic effect trackmark` for targeted cleanup.
+
+Burning and need-delta effects share the spell numeric-safety invariant: persisted non-finite values fall back to safe defaults, large finite values are clamped to bounded maxima, and builders reject unsafe values before saving.
+
+Weather-freeze effects own the freeze counter they acquire. Immediate freezes and "next transition" freezes both clean up through the same active effect, so expiry or removal unfreezes owned weather state or unsubscribes a pending transition listener.
 
 Simple portals remain saved spell effects, not database exits. The `portal` effect creates paired transient exits registered with `IExitManager`; active magical portals expose `IMagicPortalExit` metadata and can be inspected with `magic portals`. Anchor tags can be placed on rooms or items/objects with `magictag`; `portal` resolves caster-owned room anchors first, then caster-owned item anchors by using the item location. If more than one caster-owned anchor matches the configured tag/value, the lowest-ID matching room or item is selected deterministically instead of treating duplicate anchors as a runtime error. Builders can inspect active anchors with `magic anchors [tag]`.
 

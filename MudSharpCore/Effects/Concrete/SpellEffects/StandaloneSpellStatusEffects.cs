@@ -9,6 +9,7 @@ using MudSharp.Health;
 using MudSharp.Health.Infections;
 using MudSharp.Magic;
 using MudSharp.RPG.Checks;
+using System;
 using System.Linq;
 using System.Xml.Linq;
 
@@ -481,6 +482,7 @@ public class SpellPoisonEffect : SimpleSpellStatusEffectBase
 		base.InitialEffect();
 		if (Owner is ICharacter character)
 		{
+			character.Body.RemoveDrugDosages(IsLegacyUnownedDose);
 			character.Body.Dose(Drug, Vector, Grams, this);
 		}
 	}
@@ -489,10 +491,18 @@ public class SpellPoisonEffect : SimpleSpellStatusEffectBase
 	{
 		if (Owner is ICharacter character)
 		{
-			character.Body.RemoveDrugDosages(x => ReferenceEquals(x.Originator, this));
+			character.Body.RemoveDrugDosages(x => ReferenceEquals(x.Originator, this) || IsLegacyUnownedDose(x));
 		}
 
 		base.RemovalEffect();
+	}
+
+	private bool IsLegacyUnownedDose(DrugDosage dosage)
+	{
+		return dosage.Originator is null &&
+		       dosage.Drug == Drug &&
+		       dosage.OriginalVector == Vector &&
+		       Math.Abs(dosage.Grams - Grams) < 0.001;
 	}
 
 	protected override XElement SaveDefinition()

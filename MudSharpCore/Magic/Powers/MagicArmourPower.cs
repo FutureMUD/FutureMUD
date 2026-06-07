@@ -30,6 +30,8 @@ public class MagicArmourPower : SustainedMagicPower
     {
         MagicPowerFactory.RegisterLoader("armour", (power, gameworld) => new MagicArmourPower(power, gameworld));
         MagicPowerFactory.RegisterLoader("armor", (power, gameworld) => new MagicArmourPower(power, gameworld));
+        MagicPowerFactory.RegisterLoader("Armour", (power, gameworld) => new MagicArmourPower(power, gameworld));
+        MagicPowerFactory.RegisterLoader("Armor", (power, gameworld) => new MagicArmourPower(power, gameworld));
         MagicPowerFactory.RegisterBuilderLoader("armour", (gameworld, school, name, actor, command) =>
         {
             if (command.IsFinished)
@@ -56,6 +58,7 @@ public class MagicArmourPower : SustainedMagicPower
     new XElement("EndVerb", EndVerb),
     new XElement("SkillCheckDifficulty", (int)SkillCheckDifficulty),
     new XElement("SkillCheckTrait", SkillCheckTrait.Id),
+    new XElement("MinimumSuccessThreshold", (int)MinimumSuccessThreshold),
     new XElement("EmoteText", new XCData(EmoteText)),
     new XElement("FailEmoteText", new XCData(FailEmoteText)),
     new XElement("EndPowerEmoteText", new XCData(EndPowerEmoteText))
@@ -144,13 +147,7 @@ public class MagicArmourPower : SustainedMagicPower
         SkillCheckTrait = Gameworld.Traits.Get(long.Parse(element.Value));
 
         element = root.Element("MinimumSuccessThreshold");
-        if (element == null)
-        {
-            throw new ApplicationException(
-                $"There was no MinimumSuccessThreshold in the definition XML for power {Id} ({Name}).");
-        }
-
-        MinimumSuccessThreshold = (Outcome)int.Parse(element.Value);
+        MinimumSuccessThreshold = element is null ? Outcome.Fail : (Outcome)int.Parse(element.Value);
         ArmourConfiguration = new MagicArmourConfiguration(root, Gameworld);
     }
 

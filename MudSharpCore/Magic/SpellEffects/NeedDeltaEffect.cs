@@ -36,9 +36,12 @@ public class NeedDeltaEffect : IMagicSpellEffectTemplate
     protected NeedDeltaEffect(XElement root, IMagicSpell spell)
     {
         Spell = spell;
-        HungerDelta = double.Parse(root.Element("Hunger")!.Value);
-        ThirstDelta = double.Parse(root.Element("Thirst")!.Value);
-        DrunkDelta = double.Parse(root.Element("Drunk")!.Value);
+        HungerDelta = MagicBuilderValidation.ClampFinite(MagicBuilderValidation.ParseFiniteOrDefault(root.Element("Hunger")?.Value, 0.0),
+            -MagicBuilderValidation.MaximumNeedDeltaHours, MagicBuilderValidation.MaximumNeedDeltaHours, 0.0);
+        ThirstDelta = MagicBuilderValidation.ClampFinite(MagicBuilderValidation.ParseFiniteOrDefault(root.Element("Thirst")?.Value, 0.0),
+            -MagicBuilderValidation.MaximumNeedDeltaHours, MagicBuilderValidation.MaximumNeedDeltaHours, 0.0);
+        DrunkDelta = MagicBuilderValidation.ClampFinite(MagicBuilderValidation.ParseFiniteOrDefault(root.Element("Drunk")?.Value, 0.0),
+            -MagicBuilderValidation.MaximumNeedDeltaAlcoholLitres, MagicBuilderValidation.MaximumNeedDeltaAlcoholLitres, 0.0);
     }
 
     public IMagicSpell Spell { get; }
@@ -80,9 +83,12 @@ public class NeedDeltaEffect : IMagicSpellEffectTemplate
 
     private bool BuildingCommandHunger(ICharacter actor, StringStack command)
     {
-        if (command.IsFinished || !double.TryParse(command.SafeRemainingArgument, out double value))
+        if (command.IsFinished ||
+            !MagicBuilderValidation.TryParseFiniteDoubleInRange(command.SafeRemainingArgument,
+                -MagicBuilderValidation.MaximumNeedDeltaHours, MagicBuilderValidation.MaximumNeedDeltaHours,
+                out double value))
         {
-            actor.OutputHandler.Send("You must enter a valid value in hours.");
+            actor.OutputHandler.Send($"You must enter a valid value in hours between {-MagicBuilderValidation.MaximumNeedDeltaHours:N0} and {MagicBuilderValidation.MaximumNeedDeltaHours:N0}.");
             return false;
         }
         HungerDelta = value;
@@ -93,9 +99,12 @@ public class NeedDeltaEffect : IMagicSpellEffectTemplate
 
     private bool BuildingCommandThirst(ICharacter actor, StringStack command)
     {
-        if (command.IsFinished || !double.TryParse(command.SafeRemainingArgument, out double value))
+        if (command.IsFinished ||
+            !MagicBuilderValidation.TryParseFiniteDoubleInRange(command.SafeRemainingArgument,
+                -MagicBuilderValidation.MaximumNeedDeltaHours, MagicBuilderValidation.MaximumNeedDeltaHours,
+                out double value))
         {
-            actor.OutputHandler.Send("You must enter a valid value in hours.");
+            actor.OutputHandler.Send($"You must enter a valid value in hours between {-MagicBuilderValidation.MaximumNeedDeltaHours:N0} and {MagicBuilderValidation.MaximumNeedDeltaHours:N0}.");
             return false;
         }
         ThirstDelta = value;
@@ -106,9 +115,12 @@ public class NeedDeltaEffect : IMagicSpellEffectTemplate
 
     private bool BuildingCommandDrunk(ICharacter actor, StringStack command)
     {
-        if (command.IsFinished || !double.TryParse(command.SafeRemainingArgument, out double value))
+        if (command.IsFinished ||
+            !MagicBuilderValidation.TryParseFiniteDoubleInRange(command.SafeRemainingArgument,
+                -MagicBuilderValidation.MaximumNeedDeltaAlcoholLitres,
+                MagicBuilderValidation.MaximumNeedDeltaAlcoholLitres, out double value))
         {
-            actor.OutputHandler.Send("You must enter a valid value in litres of alcohol.");
+            actor.OutputHandler.Send($"You must enter a valid value in litres of alcohol between {-MagicBuilderValidation.MaximumNeedDeltaAlcoholLitres:N0} and {MagicBuilderValidation.MaximumNeedDeltaAlcoholLitres:N0}.");
             return false;
         }
         DrunkDelta = value;

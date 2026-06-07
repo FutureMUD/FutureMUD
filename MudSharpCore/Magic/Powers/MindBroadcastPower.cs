@@ -61,7 +61,7 @@ public class MindBroadcastPower : MagicPowerBase
     new XElement("SkillCheckDifficulty", (int)SkillCheckDifficulty),
     new XElement("CanInvokePowerProg", CanInvokePowerProg?.Id ?? 0L),
     new XElement("WhyCantInvokePowerProg", WhyCantInvokePowerProg?.Id ?? 0L),
-                new XElement("Distance", (int)PowerDistance)
+                new XElement("PowerDistance", (int)PowerDistance)
         );
         AddBaseDefinition(definition);
         return definition;
@@ -101,7 +101,7 @@ public class MindBroadcastPower : MagicPowerBase
 
         UnknownIdentityDescription = element.Value;
 
-        PowerDistance = (MagicPowerDistance)int.Parse(root.Element("PowerDistance")?.Value ?? "2");
+        PowerDistance = (MagicPowerDistance)int.Parse((root.Element("PowerDistance") ?? root.Element("Distance"))?.Value ?? "2");
 
         element = root.Element("TargetCanSeeIdentityProg");
         if (element == null)
@@ -269,11 +269,11 @@ public class MindBroadcastPower : MagicPowerBase
         {
             foreach (ICharacter target in targets.AsEnumerable())
             {
-                EmoteOutput emote = new(new Emote($"{GetAppropriateTargetEmote(actor, target)} \"{text.ProperSentences().Fullstop()}\"", actor, PermitLanguageOptions.IgnoreLanguage, actor, target), flags: OutputFlags.NoLanguage);
+                EmoteOutput emote = new(new Emote($"{GetAppropriateTargetEmote(actor, target)} \"{text.Sanitise().ProperSentences().Fullstop()}\"", actor, PermitLanguageOptions.IgnoreLanguage, actor, target), flags: OutputFlags.NoLanguage);
                 target.OutputHandler.Send(emote);
             }
 
-            actor.OutputHandler.Send(new EmoteOutput(new Emote($"{EmoteText} \"{text.ProperSentences().Fullstop()}\"", actor, PermitLanguageOptions.IgnoreLanguage, actor), flags: OutputFlags.NoLanguage));
+            actor.OutputHandler.Send(new EmoteOutput(new Emote($"{EmoteText} \"{text.Sanitise().ProperSentences().Fullstop()}\"", actor, PermitLanguageOptions.IgnoreLanguage, actor), flags: OutputFlags.NoLanguage));
         }
 
         PsionicActivityNotifier.Notify(actor, this, "a psychic broadcast", targets);

@@ -28,6 +28,8 @@ public class ConnectMindPower : SustainedMagicPower
     {
         MagicPowerFactory.RegisterLoader("connectmind",
             (power, gameworld) => new ConnectMindPower(power, gameworld));
+        MagicPowerFactory.RegisterLoader("Connect Mind",
+            (power, gameworld) => new ConnectMindPower(power, gameworld));
         MagicPowerFactory.RegisterBuilderLoader("connectmind", (gameworld, school, name, actor, command) =>
         {
             if (command.IsFinished)

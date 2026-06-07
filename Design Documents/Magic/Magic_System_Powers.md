@@ -108,6 +108,14 @@ The persisted model stores:
 - a `PowerModel` token
 - subtype XML in `Definition`
 
+Power load invariants:
+
+- `DatabaseType` is the authoritative persisted `PowerModel` token for new rows.
+- Builder tokens and display names may differ from the database token, but load aliases should be registered for older display-name or spelling variants that may already exist in world data.
+- `Definition` XML must round-trip every required subtype field. Loaders should tolerate legacy element names where that can be done unambiguously, but new saves should emit the canonical element names.
+- Builder-controlled numeric settings must reject non-finite values and enforce a practical upper bound before persistence.
+- Player-authored or externally supplied text that is embedded into runtime emotes must be sanitised before it reaches the emote parser.
+
 ## Builder Workflow
 ### Entry point
 The builder entry point is `magic power`.
@@ -162,6 +170,7 @@ Current seeder implications:
 - the school must already exist
 - any referenced resources, progs, and other content must already exist
 - the `PowerModel` token and `Definition` XML must match the concrete runtime class
+- persisted `PowerModel` values should use the canonical `DatabaseType`; aliases exist for backwards compatibility, not as preferred seed data
 
 Recommended manual data order:
 
@@ -242,6 +251,7 @@ These are the currently builder-creatable power tokens registered through `Magic
 Important current-state note:
 
 - `MagicArmourPower` also registers a runtime load alias of `armor` in addition to the builder-facing `armour` token. That alias matters to developers and seeder authors working with persisted `PowerModel` values, but it is not exposed as a distinct builder creation type.
+- Several power classes also register legacy display-name aliases such as `Magic Attack`, `Connect Mind`, `Invisibility`, and `mindanesthesia` so older rows can still load. New rows should still use the lower-case database tokens.
 
 ### Psionic identity and passive traffic
 The mind-link stack now shares a first-class concealment policy through `IMindContactConcealmentEffect`.
@@ -255,6 +265,8 @@ The mind-link stack now shares a first-class concealment policy through `IMindCo
 
 Passive psionic traffic can use either the existing `telepathy` flow or the dedicated V4 `hear` power, depending on whether the content wants ordinary telepathic communication or a sustained listener. Configure `telepathy` with `thinks`, `feels`, and `thinkemote` to represent broad passive links such as Thoughtsense or Immersion. When the thinker is sustaining `mindconceal`, passive `think` and `feel` traffic uses the concealed identity instead of leaking the actor's short description or personal name.
 
+`mindbroadcast` persists its range as `PowerDistance`; loaders also accept the older `Distance` element. Broadcast text is sanitised before it is embedded into the internal emote used for psychic speech delivery.
+
 V4 adds a shared psionic traffic/coercion helper used by `projectemotion`, `suggest`, and `coerce`. It handles involuntary mental delivery, eligible listener forwarding, opt-out/refusal checks, consistent source/target messaging, and wiz-audit output. `coerce` supports stamina, hunger, thirst, and thought modes; it does not run the victim's command parser.
 
 V5b adds timed residual psionic traces. `PsionicActivityNotifier` still broadcasts activity pings to `sensitivity`, and now also creates saveable `PsionicTrace` effects for powers with tracing enabled. Traces are placed on the source, involved targets, and the source cell where useful, using ordinary `EffectData` persistence and timed expiry rather than a permanent audit ledger. The trace facts include source, optional target, source cell, school, power, activity kind, created time, duration, read difficulty, and fallback identity text for unreadable sources.
@@ -262,6 +274,8 @@ V5b adds timed residual psionic traces. `PsionicActivityNotifier` still broadcas
 `trace <target>` reports active mind links first. It then reports residual traces if any exist, including cases where the active link has ended or where both live links and residual evidence are present. Residual trace identity checks re-evaluate `mindconceal` against the current trace reader, so observer-specific concealment progs still decide whether that reader sees the source or the configured unknown identity text.
 
 This is intentionally separate from true projection or possession. `mindconceal` hides identity across mind-contact and passive telepathy surfaces; `clairaudience` forwards remote audible output through another mind's location; neither creates a second acting body or remote command shell.
+
+`clairvoyance` uses `RemoteLookRenderer` to render a normal LOOK-style view from the target's current location without moving the caster. The renderer respects ordinary visibility and darkness checks; clairvoyance should not grant implicit `IgnoreCanSee` or `IgnoreDark` perception.
 
 The Old SOI parity slice adds seven builder-created psionic powers. `dangersense` and `sensitivity` are sustained self powers; `empathy`, `hex`, `clairvoyance`, and `psychicbolt` are targeted powers; `prescience` is a board-submission power. They reuse the shared power XML, cost, psionic-crime, and builder-command systems, with subtype XML for Old SOI-style defaults and FutureMUD-specific extensions such as wound remapping, configurable check categories, activity filters, and capability-read difficulty.
 

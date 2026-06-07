@@ -51,13 +51,13 @@ It is intended for:
 | `spellremainingduration`, `spellduration`, `setspellduration`, `addspellduration`, `subtractspellduration`, `removespell` | Spell effects | Reads, changes, or removes active spell-parent effects for a specific spell on a character |
 
 ## Power Types
-Current count: 32 power tokens, including 31 builder-creatable tokens and the non-builder `armor` runtime alias. V4 added 9 builder-creatable psionic powers, and the Old SOI parity slice added 7 more psionic power tokens in per-power files under `MudSharpCore/Magic/Powers/`. V5b adds residual trace support to existing psionic powers without changing this token count.
+Current count: 32 documented power tokens, including 31 builder-creatable tokens and the non-builder `armor` runtime alias. Compatibility display-name and case aliases are not counted as distinct builder tokens. V4 added 9 builder-creatable psionic powers, and the Old SOI parity slice added 7 more psionic power tokens in per-power files under `MudSharpCore/Magic/Powers/`. V5b adds residual trace support to existing psionic powers without changing this token count.
 
 | Builder/runtime token | Class | Subsystem | Where registered or dispatched | Builder-creatable | Purpose |
 | --- | --- | --- | --- | --- | --- |
 | `armour` | `MagicArmourPower` | Power | Static `RegisterLoader` in `MudSharpCore/Magic/Powers/MagicArmourPower.cs` via `MagicPowerFactory` | Yes | Applies magical armour behavior |
 | `armor` | `MagicArmourPower` | Power | Static `RegisterLoader` in `MudSharpCore/Magic/Powers/MagicArmourPower.cs` via `MagicPowerFactory` | No | Runtime compatibility alias for the armour power model |
-| `anesthesia` | `MindAnesthesiaPower` | Power | Static `RegisterLoader` in `MudSharpCore/Magic/Powers/MindAnesthesiaPower.cs` via `MagicPowerFactory` | Yes | Applies mental anesthesia behavior |
+| `anesthesia` builder / `mindanesthesia` database | `MindAnesthesiaPower` | Power | Static `RegisterLoader` in `MudSharpCore/Magic/Powers/MindAnesthesiaPower.cs` via `MagicPowerFactory` | Yes | Applies mental anesthesia behavior |
 | `allspeak` | `AllspeakPower` | Power | Static `RegisterLoader` in `MudSharpCore/Magic/Powers/AllspeakPower.cs` via `MagicPowerFactory` | Yes | Sustains spoken-language comprehension without adding permanent language knowledge or literacy |
 | `babble` | `BabblePower` | Power | Static `RegisterLoader` in `MudSharpCore/Magic/Powers/BabblePower.cs` via `MagicPowerFactory` | Yes | Applies hostile timed speech obfuscation before language comprehension can decode speech |
 | `choke` | `ChokePower` | Power | Static `RegisterLoader` in `MudSharpCore/Magic/Powers/ChokePower.cs` via `MagicPowerFactory` | Yes | Applies choking or constriction behavior |
@@ -90,6 +90,8 @@ Current count: 32 power tokens, including 31 builder-creatable tokens and the no
 | n/a | `MagicPowerBase` | Power support | Shared base in `MudSharpCore/Magic/Powers/MagicPowerBase.cs` | No | Shared costs, progs, help text, crime handling, builder support, and base psionic trace configuration |
 | n/a | `SustainedMagicPower` | Power support | Shared base in `MudSharpCore/Magic/Powers/SustainedMagicPower.cs` | No | Shared support for sustained powers |
 | n/a | `MagicalMeleeAttackPower` | Power support | Shared base in `MudSharpCore/Magic/Powers/MagicalMeleeAttackPower.cs` | No | Shared support base for melee-style magical attacks |
+
+Compatibility load aliases are registered for older persisted rows and display-name saves, including `Armor`, `Armour`, `Magic Attack`, `Connect Mind`, and `Invisibility`. New seeded rows should prefer each class's canonical `DatabaseType`.
 
 ## Spell Trigger Types
 

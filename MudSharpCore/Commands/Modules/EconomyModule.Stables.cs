@@ -275,7 +275,7 @@ Administrators can also use:
 			return;
         }
 
-        if (!stable.IsManager(actor))
+        if (!stable.IsManager(actor) && !stable.IsProprietor(actor))
         {
             actor.OutputHandler.Send(stable.ShowToNonEmployee(actor));
             return;
@@ -674,6 +674,7 @@ Administrators can also use:
 			return;
 		}
 
+		count = VirtualCashLedger.ClampLedgerEntryCount(count);
 		var entries = VirtualCashLedger.LedgerEntries(stable, count).ToList();
 		if (!entries.Any())
 		{

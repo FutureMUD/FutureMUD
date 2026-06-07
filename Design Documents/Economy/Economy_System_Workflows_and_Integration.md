@@ -222,6 +222,8 @@ Practical builder work currently includes:
 - set up bank accounts if the shop should hold money outside loose cash
 - define merchandise rows and their pricing behavior
 - configure stocking, display containers, and restock behavior
+- keep public sale stock in shopfront/stockroom display paths; workshops are private operational spaces, and deeply nested private container contents are not public purchase candidates
+- use `shop reprice` for normal adjustments only; very large repricing multipliers are rejected, and bulk historical repricing should be handled as deliberate data maintenance
 - configure line-of-credit accounts if credit sales should be allowed
 - decide what payment methods the world wants players to use
 
@@ -316,6 +318,8 @@ Contributor note:
 
 - sale-order and lease-order consent loading must compare property owners by stored owner id and owner type rather than dereferencing `PropertyOwner.Owner` during boot
 - hotel-room rental state now persists through normalized hotel tables, so room, key, furnishing, rental, patron balance, ban, and lost-property changes should update those tables through the property/hotel save path rather than reintroducing XML payload state
+- hotel room names are bounded to the normalized database column size, and room prices/deposits must be zero or positive so rental and refund flows cannot create value from negative charges
+- in-game virtual-reserve ledger commands show bounded recent history; use external reporting or database tooling for bulk audit exports
 
 Job builders need:
 

@@ -281,10 +281,12 @@ public static class HotelPersistenceStore
 		{
 			Hotel = hotel,
 			CellId = room.Cell.Id,
-			Name = room.Name,
+			Name = room.Name.Length <= HotelRoom.MaximumNameLength
+				? room.Name
+				: room.Name.Substring(0, HotelRoom.MaximumNameLength),
 			Listed = room.Listed,
-			PricePerDay = room.PricePerDay,
-			SecurityDeposit = room.SecurityDeposit,
+			PricePerDay = Math.Max(0.0M, room.PricePerDay),
+			SecurityDeposit = Math.Max(0.0M, room.SecurityDeposit),
 			MinimumDurationTicks = room.MinimumDuration.Ticks,
 			MaximumDurationTicks = room.MaximumDuration.Ticks
 		};

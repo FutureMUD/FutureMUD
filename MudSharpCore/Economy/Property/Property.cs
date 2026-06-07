@@ -603,8 +603,13 @@ public partial class Property : SaveableItem, IProperty
 
         foreach (ICell cell in PropertyLocations)
         {
-            foreach (GameItems.IGameItem item in cell.GameItems.SelectMany(x => x.DeepItems))
+            foreach (GameItems.IGameItem item in cell.GameItems.SelectMany(x => x.ShallowItems))
             {
+                if (!item.IsOwnedBy(this))
+                {
+                    continue;
+                }
+
                 foreach (ILock lockComp in item.Components.OfType<ILock>())
                 {
                     lockComp.Pattern = pattern;

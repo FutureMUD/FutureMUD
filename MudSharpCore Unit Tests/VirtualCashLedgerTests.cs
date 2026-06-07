@@ -93,6 +93,20 @@ public class VirtualCashLedgerTests
 		Assert.AreEqual(account.Object.Id, entry.LinkedBankAccountId);
 	}
 
+	[TestMethod]
+	public void LedgerEntries_ClampsRequestedCount()
+	{
+		var owner = CreateOwner(5L, "Property");
+		var currency = CreateCurrency();
+		for (var i = 0; i < 150; i++)
+		{
+			VirtualCashLedger.Credit(owner.Object, currency.Object, 1.0M, null, null, "Cash", $"entry {i}");
+		}
+
+		Assert.AreEqual(VirtualCashLedger.MaximumLedgerEntryCount, VirtualCashLedger.LedgerEntries(owner.Object, int.MaxValue).Count);
+		Assert.AreEqual(1, VirtualCashLedger.LedgerEntries(owner.Object, 0).Count);
+	}
+
 	private static Mock<IFrameworkItem> CreateOwner(long id, string type)
 	{
 		var owner = new Mock<IFrameworkItem>();

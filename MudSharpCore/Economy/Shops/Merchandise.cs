@@ -1151,8 +1151,20 @@ public class Merchandise : LateInitialisingItem, IMerchandise
         Changed = true;
     }
 
+    public bool CanReprice(decimal multiplier)
+    {
+        return multiplier > 0.0M &&
+               (BasePrice <= 0.0M || BasePrice <= decimal.MaxValue / multiplier) &&
+               (AutoReorderPrice <= 0.0M || AutoReorderPrice <= decimal.MaxValue / multiplier);
+    }
+
     public void Reprice(decimal multiplier)
     {
+        if (!CanReprice(multiplier))
+        {
+            return;
+        }
+
         BasePrice *= multiplier;
         BasePrice = Math.Round(BasePrice, 0);
         AutoReorderPrice *= multiplier;

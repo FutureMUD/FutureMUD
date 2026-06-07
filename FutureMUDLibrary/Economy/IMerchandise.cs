@@ -54,6 +54,7 @@ namespace MudSharp.Economy
         bool BuildingCommand(ICharacter actor, StringStack command);
         void ShowToBuilder(ICharacter actor);
         void ShopCurrencyChanged(ICurrency oldCurrency, ICurrency newCurrency);
+        bool CanReprice(decimal multiplier);
         void Reprice(decimal multiplier);
         event EventHandler OnDelete;
     }

@@ -230,6 +230,11 @@ public class PermanentShop : Shop, IPermanentShop
         StockroomCell
     }.WhereNotNull(x => x));
 
+    private IEnumerable<ICell> PublicSaleStockCells => ShopfrontCells.Concat(new[]
+    {
+        StockroomCell
+    }.WhereNotNull(x => x));
+
     private readonly HashSet<long> _tillItemIds = new();
 
     public IEnumerable<IGameItem> TillItems =>
@@ -378,14 +383,15 @@ public class PermanentShop : Shop, IPermanentShop
 
     public override IEnumerable<IGameItem> StockedItems(IMerchandise merchandise)
     {
-        List<ICell> shopCells = AllShopCells.ToList();
-        return shopCells
+        List<ICell> shopfrontCells = ShopfrontCells.ToList();
+        List<ICell> stockCells = PublicSaleStockCells.ToList();
+        return shopfrontCells
             .SelectMany(x => x.Characters)
             .SelectMany(x => x.Body.HeldItems)
             .Concat(
-                shopCells
+                stockCells
                     .SelectMany(x => x.GameItems)
-                    .SelectMany(x => x.DeepItems)
+                    .SelectMany(x => x.ShallowItems)
             )
             .Where(x => x.AffectedBy<ItemOnDisplayInShop>(merchandise))
             .Distinct();
@@ -395,14 +401,15 @@ public class PermanentShop : Shop, IPermanentShop
     {
         get
         {
-            List<ICell> shopCells = AllShopCells.ToList();
-            return shopCells
+            List<ICell> shopfrontCells = ShopfrontCells.ToList();
+            List<ICell> stockCells = PublicSaleStockCells.ToList();
+            return shopfrontCells
                 .SelectMany(x => x.Characters)
                 .SelectMany(x => x.Body.HeldItems)
                 .Concat(
-                    shopCells
+                    stockCells
                         .SelectMany(x => x.GameItems)
-                        .SelectMany(x => x.DeepItems)
+                        .SelectMany(x => x.ShallowItems)
                 )
                 .Where(x => x.AffectedBy<ItemOnDisplayInShop>())
                 .Distinct();

@@ -15,6 +15,8 @@ namespace MudSharp.Economy;
 
 public static class VirtualCashLedger
 {
+	public const int DefaultLedgerEntryCount = 50;
+	public const int MaximumLedgerEntryCount = 100;
 	private static readonly object InMemoryLock = new();
 	private static readonly Dictionary<(string OwnerType, long OwnerId, long CurrencyId), decimal> InMemoryBalances = new();
 	private static readonly List<MudSharp.Models.VirtualCashLedgerEntry> InMemoryLedger = new();
@@ -97,8 +99,14 @@ public static class VirtualCashLedger
 		return balance + bankAccount.MaximumWithdrawal();
 	}
 
-	public static IReadOnlyList<MudSharp.Models.VirtualCashLedgerEntry> LedgerEntries(IFrameworkItem owner, int count = 50)
+	public static int ClampLedgerEntryCount(int count)
 	{
+		return Math.Clamp(count, 1, MaximumLedgerEntryCount);
+	}
+
+	public static IReadOnlyList<MudSharp.Models.VirtualCashLedgerEntry> LedgerEntries(IFrameworkItem owner, int count = DefaultLedgerEntryCount)
+	{
+		count = ClampLedgerEntryCount(count);
 		if (UseInMemoryLedger)
 		{
 			lock (InMemoryLock)

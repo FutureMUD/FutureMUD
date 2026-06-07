@@ -150,6 +150,8 @@ Every successful movement through the generic reserve helper writes a `VirtualCa
 
 Current users of this shared reserve/ledger path include auction houses, stables, hotel rentals, property-owner revenues, clan virtual treasuries, legal-authority fine and bail revenue, economic-zone retained revenue, estate fallback liquidation, and job coffer/audit movements. Arenas keep their existing `VirtualBalance` column but now write virtual-cash ledger rows for arena cash and bank settlement movements.
 
+Ledger review is intentionally bounded. Command surfaces can request fewer rows, but large requested counts are clamped before database materialisation and text-table generation.
+
 ### Shops, Merchandise, and Payments
 Shops are one of the largest and most integrated pieces of the economy runtime.
 
@@ -194,6 +196,13 @@ Payment methods are currently separate concrete strategy objects:
 - `LineOfCreditPayment`
 
 This separation is important for future extension because shop purchase logic consumes an `IPaymentMethod` rather than assuming one money source.
+
+Runtime safety invariants:
+
+- shop purchases revalidate stock selection and payment authority immediately before removing stock, including delayed confirmation purchases
+- permanent-shop public stock comes from shopfront-held items and shallow shopfront/stockroom display paths, not private workshops or deeply nested private containers
+- merchandise repricing rejects unsafe overflow multipliers rather than allowing decimal arithmetic to crash command handling
+- item preview follows normal container visibility rules; closed opaque containers do not reveal contents through shop preview
 
 ### Markets, Influences, Populations, and Shoppers
 The market subsystem models macroeconomic pressure rather than only local shop stock.

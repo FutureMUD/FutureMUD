@@ -544,7 +544,6 @@ public partial class Stable : SavableKeywordedItem, IStable
 
 	public string ShowToNonEmployee(ICharacter actor)
 	{
-		AssessAllActiveStays();
 		var sb = new StringBuilder();
 
 		sb.AppendLine(Name.GetLineWithTitleInner(actor, Telnet.Yellow, Telnet.BoldWhite));

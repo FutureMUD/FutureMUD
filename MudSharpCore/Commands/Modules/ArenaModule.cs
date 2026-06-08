@@ -499,6 +499,14 @@ Use #3arena tasks actions#0 and #3arena tasks conditions#0 for the full task act
             return;
         }
 
+        if (interval > ArenaScheduler.MaximumRecurringInterval)
+        {
+            actor.OutputHandler.Send(
+                $"The interval cannot be longer than {ArenaScheduler.MaximumRecurringInterval.Describe(actor).ColourValue()}."
+                    .ColourError());
+            return;
+        }
+
         if (!ss.IsFinished && ss.PeekSpeech().EqualToAny("from", "at", "start", "starting"))
         {
             ss.PopSpeech();
@@ -813,15 +821,19 @@ Use #3arena tasks actions#0 and #3arena tasks conditions#0 for the full task act
             return;
         }
 
-        ICharacter? target = ResolveCharacter(actor, characterText);
+        ArenaRatingLookupTarget? target = ResolveArenaRatingLookupTarget(actor, arena, characterText);
         if (target is null)
         {
             actor.OutputHandler.Send("There is no character matching that description.".ColourError());
             return;
         }
 
-        Dictionary<long, ArenaRatingSummary> summaries = actor.Gameworld.ArenaRatingsService.GetCharacterRatings(arena, target)
-            .ToDictionary(x => x.CombatantClassId, x => x);
+        Dictionary<long, ArenaRatingSummary> summaries = target.Character is not null
+            ? actor.Gameworld.ArenaRatingsService.GetCharacterRatings(arena, target.Character)
+                .ToDictionary(x => x.CombatantClassId, x => x)
+            : actor.Gameworld.ArenaRatingsService.GetArenaRatings(arena)
+                .Where(x => x.CharacterId == target.CharacterId)
+                .ToDictionary(x => x.CombatantClassId, x => x);
         List<string[]> rows = arena.CombatantClasses
             .OrderBy(x => x.Name)
             .Select(combatantClass =>
@@ -836,24 +848,30 @@ Use #3arena tasks actions#0 and #3arena tasks conditions#0 for the full task act
                     };
                 }
 
+                if (target.Character is null)
+                {
+                    return null;
+                }
+
                 return new[]
                 {
                     combatantClass.Name.ColourName(),
-                    actor.Gameworld.ArenaRatingsService.GetRating(target, combatantClass).ToString("N2", actor)
+                    actor.Gameworld.ArenaRatingsService.GetRating(target.Character, combatantClass).ToString("N2", actor)
                         .ColourValue(),
                     "Never".ColourValue()
                 };
             })
+            .OfType<string[]>()
             .ToList();
 
         if (!rows.Any())
         {
-            actor.OutputHandler.Send("That arena has no combatant classes to report ratings for.".ColourError());
+            actor.OutputHandler.Send("That character has no ratings in this arena.".ColourError());
             return;
         }
 
         actor.OutputHandler.Send(
-            $"Ratings for {target.HowSeen(actor, flags: PerceiveIgnoreFlags.TrueDescription).ColourName()} in {arena.Name.ColourName()}:\n" +
+            $"Ratings for {target.DisplayName.ColourName()} in {arena.Name.ColourName()}:\n" +
             StringUtilities.GetTextTable(rows, new[] { "Class", "Rating", "Updated" }, actor, Telnet.Green));
     }
 
@@ -1729,6 +1747,14 @@ Use #3arena tasks actions#0 and #3arena tasks conditions#0 for the full task act
                 actor.OutputHandler.Send("You must specify a positive number of wagers to show.".ColourError());
                 return;
             }
+
+            if (count > ArenaBettingService.MaximumBetHistoryCount)
+            {
+                actor.OutputHandler.Send(
+                    $"You can show at most {ArenaBettingService.MaximumBetHistoryCount.ToString("N0", actor).ColourValue()} wagers at once."
+                        .ColourError());
+                return;
+            }
         }
 
         List<ArenaBetSummary> bets = actor.Gameworld.ArenaBettingService.GetBetHistory(actor, count).ToList();
@@ -1912,7 +1938,9 @@ Use #3arena tasks actions#0 and #3arena tasks conditions#0 for the full task act
         return explicitArena;
     }
 
-    private static ICharacter? ResolveCharacter(ICharacter actor, string text)
+    private sealed record ArenaRatingLookupTarget(long CharacterId, string DisplayName, ICharacter? Character);
+
+    private static ArenaRatingLookupTarget? ResolveArenaRatingLookupTarget(ICharacter actor, ICombatArena arena, string text)
     {
         if (string.IsNullOrWhiteSpace(text))
         {
@@ -1922,15 +1950,27 @@ Use #3arena tasks actions#0 and #3arena tasks conditions#0 for the full task act
         ICharacter? localMatch = actor.TargetActor(text);
         if (localMatch is not null)
         {
-            return localMatch;
+            return new ArenaRatingLookupTarget(
+                localMatch.Id,
+                localMatch.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreSelf),
+                localMatch);
         }
 
+        List<ArenaRatingSummary> arenaRatings = actor.Gameworld.ArenaRatingsService.GetArenaRatings(arena).ToList();
         if (long.TryParse(text, NumberStyles.Integer, CultureInfo.InvariantCulture, out long id))
         {
-            return actor.Gameworld.TryGetCharacter(id, true);
+            ArenaRatingSummary? rating = arenaRatings.FirstOrDefault(x => x.CharacterId == id);
+            return rating is null
+                ? null
+                : new ArenaRatingLookupTarget(rating.CharacterId, rating.CharacterName, null);
         }
 
-        return actor.Gameworld.Characters.GetByIdOrName(text);
+        List<ArenaRatingLookupTarget> matches = arenaRatings
+            .Where(x => x.CharacterName.EqualTo(text))
+            .GroupBy(x => x.CharacterId)
+            .Select(x => new ArenaRatingLookupTarget(x.Key, x.First().CharacterName, null))
+            .ToList();
+        return matches.Count == 1 ? matches[0] : null;
     }
 
     private static bool IsEligibleForCombatantClass(ICharacter character, ICombatantClass combatantClass)
@@ -2141,6 +2181,7 @@ Use #3arena tasks actions#0 and #3arena tasks conditions#0 for the full task act
         return eventType.AutoScheduleEnabled &&
                eventType.AutoScheduleInterval.HasValue &&
                eventType.AutoScheduleInterval.Value > TimeSpan.Zero &&
+               eventType.AutoScheduleInterval.Value <= ArenaScheduler.MaximumRecurringInterval &&
                eventType.AutoScheduleReferenceTime.HasValue;
     }
 
@@ -2161,13 +2202,18 @@ Use #3arena tasks actions#0 and #3arena tasks conditions#0 for the full task act
         }
 
         long cycles = elapsedTicks / intervalTicks;
-        DateTime next = reference.AddTicks(cycles * intervalTicks);
-        if (next < now)
+        long nextTicks = reference.Ticks + cycles * intervalTicks;
+        if (nextTicks < now.Ticks)
         {
-            next = next.AddTicks(intervalTicks);
+            if (DateTime.MaxValue.Ticks - nextTicks < intervalTicks)
+            {
+                return DateTime.MaxValue;
+            }
+
+            nextTicks += intervalTicks;
         }
 
-        return next;
+        return new DateTime(nextTicks, reference.Kind);
     }
 
     private static bool TryParseSideSpecifier(string? text, out int? sideIndex)

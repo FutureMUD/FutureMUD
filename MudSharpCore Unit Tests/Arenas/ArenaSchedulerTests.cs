@@ -200,6 +200,21 @@ public class ArenaSchedulerTests
         _scheduler.Verify(x => x.AddSchedule(It.IsAny<ISchedule>()), Times.Never);
     }
 
+    [TestMethod]
+    public void SyncRecurringSchedule_OverlargeInterval_DoesNotAddSchedule()
+    {
+        Mock<IArenaEventType> eventType = BuildEventType();
+        eventType.SetupGet(x => x.Id).Returns(42L);
+        eventType.SetupGet(x => x.AutoScheduleEnabled).Returns(true);
+        eventType.SetupGet(x => x.AutoScheduleInterval).Returns(TimeSpan.MaxValue);
+        eventType.SetupGet(x => x.AutoScheduleReferenceTime).Returns(new DateTime(2020, 1, 1, 0, 0, 0, DateTimeKind.Utc));
+
+        _service.SyncRecurringSchedule(eventType.Object);
+
+        _scheduler.Verify(x => x.Destroy(eventType.Object, ScheduleType.ArenaRecurringEvent), Times.Once);
+        _scheduler.Verify(x => x.AddSchedule(It.IsAny<ISchedule>()), Times.Never);
+    }
+
     private static Mock<IArenaEventType> BuildEventType()
     {
         Mock<IArenaEventType> eventType = new();

@@ -18,6 +18,8 @@ namespace MudSharp.Arenas;
 /// </summary>
 public class ArenaBettingService : IArenaBettingService
 {
+    public const int MaximumBetHistoryCount = 100;
+
     private readonly IFuturemud _gameworld;
     private readonly IArenaFinanceService _financeService;
     private readonly IArenaBetPaymentService _paymentService;
@@ -55,7 +57,7 @@ public class ArenaBettingService : IArenaBettingService
                 return (false, "Betting is closed for this event.");
         }
 
-        if (arenaEvent.Participants.Any(x => x.Character == actor))
+        if (arenaEvent.Participants.Any(x => x.CharacterId == actor.Id))
         {
             return (false, "Participants cannot bet on their own bout.");
         }
@@ -241,7 +243,7 @@ public class ArenaBettingService : IArenaBettingService
                 continue;
             }
 
-            decimal payout = CalculatePayout(arenaEvent, bet, pools);
+            decimal payout = CalculatePayout(arenaEvent, bet, pools, outcome, winningSet);
             if (payout <= 0)
             {
                 continue;
@@ -430,6 +432,7 @@ public class ArenaBettingService : IArenaBettingService
             return Array.Empty<ArenaBetSummary>();
         }
 
+        count = Math.Min(count, MaximumBetHistoryCount);
         using IDisposable? scope = BeginContext(out FuturemudDatabaseContext? context);
         Dictionary<long, PayoutTotals> payoutTotals = GetPayoutTotals(context, actor.Id);
         var bets = context.ArenaBets
@@ -611,7 +614,8 @@ public class ArenaBettingService : IArenaBettingService
         };
     }
 
-    private decimal CalculatePayout(IArenaEvent arenaEvent, ArenaBet bet, IReadOnlyCollection<ArenaBetPool> pools)
+    private decimal CalculatePayout(IArenaEvent arenaEvent, ArenaBet bet, IReadOnlyCollection<ArenaBetPool> pools,
+        ArenaOutcome outcome, IReadOnlySet<int> winningSides)
     {
         switch (arenaEvent.EventType.BettingModel)
         {
@@ -632,14 +636,32 @@ public class ArenaBettingService : IArenaBettingService
                 }
 
                 // Winners always get at least their original stake back.
-                decimal losingPool = Math.Max(0.0m, totalPool - pool.TotalStake);
-                decimal share = bet.Stake / pool.TotalStake;
+                decimal winningPoolTotal = pools
+                    .Where(x => IsWinningPool(x, outcome, winningSides))
+                    .Sum(x => x.TotalStake);
+                if (winningPoolTotal <= 0.0m)
+                {
+                    return bet.Stake;
+                }
+
+                decimal losingPool = Math.Max(0.0m, totalPool - winningPoolTotal);
+                decimal share = bet.Stake / winningPoolTotal;
                 decimal takeRate = Clamp(pool.TakeRate, 0.0m, 1.0m);
                 decimal distributableLosingPool = losingPool * (1.0m - takeRate);
                 return bet.Stake + share * distributableLosingPool;
             default:
                 return 0.0m;
         }
+    }
+
+    private static bool IsWinningPool(ArenaBetPool pool, ArenaOutcome outcome, IReadOnlySet<int> winningSides)
+    {
+        return outcome switch
+        {
+            ArenaOutcome.Win => pool.SideIndex.HasValue && winningSides.Contains(pool.SideIndex.Value),
+            ArenaOutcome.Draw => !pool.SideIndex.HasValue,
+            _ => false
+        };
     }
 
     private decimal ComputeFixedOdds(IArenaEvent arenaEvent, int? sideIndex)
@@ -700,12 +722,12 @@ public class ArenaBettingService : IArenaBettingService
     {
         if (participant.StartingRating.HasValue)
         {
-            return participant.StartingRating.Value;
+            return ArenaRatingLimits.ClampRating(participant.StartingRating.Value);
         }
 
         return participant.Character is null
             ? null
-            : _gameworld.ArenaRatingsService.GetRating(participant.Character, participant.CombatantClass);
+            : ArenaRatingLimits.ClampRating(_gameworld.ArenaRatingsService.GetRating(participant.Character, participant.CombatantClass));
     }
 
     private static IReadOnlyDictionary<int, decimal> ComputeSideWinProbabilities(
@@ -716,11 +738,16 @@ public class ArenaBettingService : IArenaBettingService
             return new Dictionary<int, decimal>();
         }
 
+        decimal maxRating = sideRatings.Values.Max();
         Dictionary<int, double> strengths = sideRatings.ToDictionary(
             x => x.Key,
-            x => Math.Pow(10.0, (double)(x.Value / 400.0m)));
+            x =>
+            {
+                double strength = Math.Pow(10.0, (double)((x.Value - maxRating) / 400.0m));
+                return double.IsFinite(strength) && strength > 0.0 ? strength : 0.0;
+            });
         double totalStrength = strengths.Sum(x => x.Value);
-        if (totalStrength <= 0.0)
+        if (!double.IsFinite(totalStrength) || totalStrength <= 0.0)
         {
             decimal equalShare = 1.0m / sideRatings.Count;
             return sideRatings.Keys.ToDictionary(x => x, _ => equalShare);

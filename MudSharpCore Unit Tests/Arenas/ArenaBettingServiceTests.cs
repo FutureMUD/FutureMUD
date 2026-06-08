@@ -164,6 +164,30 @@ public class ArenaBettingServiceTests
     }
 
     [TestMethod]
+    public void CanBet_ReturnsFalse_WhenParticipantCharacterReferenceDiffers()
+    {
+        using FuturemudDatabaseContext context = BuildContext();
+        Mock<IArenaFinanceService> financeMock = new();
+        Mock<IArenaBetPaymentService> paymentMock = new();
+        ArenaBettingService service = CreateService(context, financeMock, paymentMock, new Dictionary<long, ICharacter>());
+        Mock<ICharacter> actor = new();
+        actor.SetupGet(x => x.Id).Returns(10L);
+        Mock<ICharacter> cachedParticipantCharacter = new();
+        cachedParticipantCharacter.SetupGet(x => x.Id).Returns(10L);
+        Mock<IArenaParticipant> participant = new();
+        participant.SetupGet(x => x.CharacterId).Returns(10L);
+        participant.SetupGet(x => x.Character).Returns(cachedParticipantCharacter.Object);
+        Mock<ICombatArena> arena = new();
+        IArenaEvent evt = BuildEvent(arena, BettingModel.FixedOdds, ArenaEventState.RegistrationOpen,
+            new[] { participant.Object }, sideCount: 2);
+
+        (bool Truth, string Reason) result = service.CanBet(actor.Object, evt);
+
+        Assert.IsFalse(result.Truth);
+        StringAssert.Contains(result.Reason, "Participants cannot bet");
+    }
+
+    [TestMethod]
     public void PlaceBet_FixedOdds_CreatesBetAndCreditsArena()
     {
         using FuturemudDatabaseContext context = BuildContext();
@@ -342,6 +366,29 @@ public class ArenaBettingServiceTests
     }
 
     [TestMethod]
+    public void GetQuote_FixedOdds_ExtremeStartingRatings_DoesNotThrow()
+    {
+        using FuturemudDatabaseContext context = BuildContext();
+        Mock<IArenaFinanceService> financeMock = new();
+        Mock<IArenaBetPaymentService> paymentMock = new();
+        ArenaBettingService service = CreateService(context, financeMock, paymentMock, new Dictionary<long, ICharacter>());
+        Mock<ICombatArena> arena = new();
+        IArenaParticipant[] participants =
+        [
+            BuildParticipant(1L, 0, decimal.MaxValue),
+            BuildParticipant(2L, 1, ArenaRatingsService.DefaultRating)
+        ];
+        IArenaEvent evt = BuildEvent(arena, BettingModel.FixedOdds, ArenaEventState.RegistrationOpen, participants,
+            sideCount: 2);
+
+        decimal? quote = service.GetQuote(evt, 0).FixedOdds;
+
+        Assert.IsTrue(quote.HasValue);
+        Assert.IsTrue(quote.Value >= 1.1m);
+        Assert.IsTrue(quote.Value <= 20.0m);
+    }
+
+    [TestMethod]
     public void Settle_Solvent_CreatesPayoutRecords()
     {
         using FuturemudDatabaseContext context = BuildContext();
@@ -410,6 +457,51 @@ public class ArenaBettingServiceTests
 
         ArenaBetPayout payout = context.ArenaBetPayouts.Single();
         Assert.AreEqual(70m, payout.Amount);
+    }
+
+    [TestMethod]
+    public void Settle_PariMutuelMultipleWinningSides_DistributesLosingPoolOnce()
+    {
+        using FuturemudDatabaseContext context = BuildContext();
+        Mock<IArenaFinanceService> financeMock = new();
+        financeMock.Setup(x => x.IsSolvent(It.IsAny<ICombatArena>(), It.IsAny<decimal>())).Returns((true, string.Empty));
+        Mock<ICombatArena> arena = new();
+        arena.Setup(x => x.EnsureFunds(It.IsAny<decimal>())).Returns((true, string.Empty));
+        Mock<ICurrency> currency = new();
+        currency.Setup(x => x.Describe(It.IsAny<decimal>(), It.IsAny<CurrencyDescriptionPatternType>()))
+            .Returns<decimal, CurrencyDescriptionPatternType>((amount, _) => amount.ToString("F2"));
+        arena.SetupGet(x => x.Currency).Returns(currency.Object);
+        Mock<IArenaBetPaymentService> paymentMock = new();
+        paymentMock.Setup(x => x.CollectStake(It.IsAny<ICharacter>(), It.IsAny<IArenaEvent>(), It.IsAny<decimal>()))
+            .Returns((true, string.Empty));
+        paymentMock.Setup(x => x.TryDisburse(It.IsAny<ICharacter>(), It.IsAny<IArenaEvent>(), It.IsAny<decimal>()))
+            .Returns(true);
+        Dictionary<long, ICharacter> characters = new();
+        foreach (long id in new[] { 21L, 22L, 23L })
+        {
+            Mock<ICharacter> character = new();
+            character.SetupGet(x => x.Id).Returns(id);
+            Mock<IOutputHandler> outputHandler = new();
+            outputHandler.Setup(x => x.Send(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>())).Returns(true);
+            outputHandler.Setup(x => x.Send(It.IsAny<IOutput>(), It.IsAny<bool>(), It.IsAny<bool>())).Returns(true);
+            character.SetupGet(x => x.OutputHandler).Returns(outputHandler.Object);
+            characters[id] = character.Object;
+        }
+
+        ArenaBettingService service = CreateService(context, financeMock, paymentMock, characters);
+        IArenaEvent evt = BuildEvent(arena, BettingModel.PariMutuel, ArenaEventState.RegistrationOpen, sideCount: 3);
+        service.PlaceBet(characters[21L], evt, 0, 100m);
+        service.PlaceBet(characters[22L], evt, 1, 100m);
+        service.PlaceBet(characters[23L], evt, 2, 100m);
+
+        service.Settle(evt, ArenaOutcome.Win, new[] { 0, 1 });
+
+        List<decimal> payouts = context.ArenaBetPayouts
+            .OrderBy(x => x.CharacterId)
+            .Select(x => x.Amount)
+            .ToList();
+        CollectionAssert.AreEqual(new[] { 145.0m, 145.0m }, payouts);
+        Assert.AreEqual(290.0m, payouts.Sum());
     }
 
     [TestMethod]
@@ -517,6 +609,39 @@ public class ArenaBettingServiceTests
         ArenaBetSummary history = service.GetBetHistory(actor.Object, 5).Single();
 
         Assert.AreEqual(75m, history.CollectedPayout);
+    }
+
+    [TestMethod]
+    public void GetBetHistory_ClampsRequestedCount()
+    {
+        using FuturemudDatabaseContext context = BuildContext();
+        SeedArenaGraph(context, arenaId: 3, eventTypeId: 3, eventId: 3, state: ArenaEventState.Completed);
+        for (int i = 0; i < ArenaBettingService.MaximumBetHistoryCount + 25; i++)
+        {
+            context.ArenaBets.Add(new ArenaBet
+            {
+                ArenaEventId = 3,
+                CharacterId = 66,
+                SideIndex = 0,
+                Stake = 1m,
+                PlacedAt = DateTime.UtcNow.AddMinutes(-i),
+                FixedDecimalOdds = 2.0m,
+                IsCancelled = false,
+                ModelSnapshot = "{}"
+            });
+        }
+        context.SaveChanges();
+
+        Mock<IArenaFinanceService> financeMock = new();
+        Mock<IArenaBetPaymentService> paymentMock = new();
+        Mock<ICharacter> actor = new();
+        actor.SetupGet(x => x.Id).Returns(66L);
+        ArenaBettingService service = CreateService(context, financeMock, paymentMock,
+            new Dictionary<long, ICharacter> { { 66L, actor.Object } });
+
+        IReadOnlyCollection<ArenaBetSummary> history = service.GetBetHistory(actor.Object, int.MaxValue);
+
+        Assert.AreEqual(ArenaBettingService.MaximumBetHistoryCount, history.Count);
     }
 
     [TestMethod]

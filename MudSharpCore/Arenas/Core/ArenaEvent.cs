@@ -29,6 +29,8 @@ namespace MudSharp.Arenas;
 
 public sealed class ArenaEvent : SaveableItem, IArenaEvent
 {
+	private const int MaximumScoringSnapshots = 512;
+
 	private readonly List<ArenaParticipant> _participants = new();
 	private readonly List<ArenaReservation> _reservations = new();
 	private readonly List<ArenaScoringSnapshot> _scoringSnapshots = new();
@@ -388,13 +390,18 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
             return (false, "Surrender is not permitted for this event.");
         }
 
-        if (_participants.All(x => x.Character?.Id != participant.Id))
-        {
-            return (false, "You are not a participant in this event.");
-        }
+		if (_participants.All(x => x.CharacterId != participant.Id))
+		{
+			return (false, "You are not a participant in this event.");
+		}
 
-        if (_surrenderedParticipantIds.Contains(participant.Id))
-        {
+		if (!IsArenaBoutCombat(participant))
+		{
+			return (false, "You can only surrender while you are fighting in this arena bout.");
+		}
+
+		if (_surrenderedParticipantIds.Contains(participant.Id))
+		{
             return (false, "You have already surrendered this bout.");
         }
 
@@ -533,6 +540,11 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
         {
             return (false, "You are already signed up for this event.");
         }
+
+		if (!ignoreNpcRestriction && character.IsPlayerCharacter && !IsAtArenaVenue(character))
+		{
+			return (false, "You must be at the arena to sign up for that event.");
+		}
 
         if (_participants.Count(x => x.SideIndex == sideIndex) >= side.Capacity)
         {
@@ -691,6 +703,10 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 		}
 
 		_scoringSnapshots.Add(snapshot);
+		if (_scoringSnapshots.Count > MaximumScoringSnapshots)
+		{
+			_scoringSnapshots.RemoveRange(0, _scoringSnapshots.Count - MaximumScoringSnapshots);
+		}
 	}
 
 	internal bool TryGetParticipantSideIndex(ICharacter character, out int sideIndex)
@@ -1497,8 +1513,44 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
         RestorePlayerParticipants();
         ClearParticipantPhaseEffects();
         ClearObservationEffects();
+        _scoringSnapshots.Clear();
         _surrenderedParticipantIds.Clear();
     }
+
+	private bool IsArenaBoutCombat(ICharacter participant)
+	{
+		if (participant.Combat is null)
+		{
+			return false;
+		}
+
+		if (!Arena.ArenaCells.Contains(participant.Location))
+		{
+			return false;
+		}
+
+		HashSet<long> participantIds = _participants.Select(x => x.CharacterId).ToHashSet();
+		List<ICharacter> combatants = participant.Combat.Combatants.OfType<ICharacter>().ToList();
+		return combatants.Any(x => x.Id == participant.Id) &&
+		       combatants.Any(x => x.Id != participant.Id) &&
+		       combatants.All(x => participantIds.Contains(x.Id));
+	}
+
+	private bool IsAtArenaVenue(ICharacter character)
+	{
+		ICell? location = character.Location;
+		if (location is null)
+		{
+			return false;
+		}
+
+		return Arena.WaitingCells.Contains(location) ||
+		       Arena.ArenaCells.Contains(location) ||
+		       Arena.ObservationCells.Contains(location) ||
+		       Arena.InfirmaryCells.Contains(location) ||
+		       Arena.AfterFightCells.Contains(location) ||
+		       Arena.NpcStablesCells.Contains(location);
+	}
 
     private void DisengageParticipantCombats()
     {

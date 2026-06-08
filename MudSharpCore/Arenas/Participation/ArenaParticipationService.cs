@@ -97,7 +97,12 @@ public class ArenaParticipationService : IArenaParticipationService
             throw new ArgumentNullException(nameof(arenaEvent));
         }
 
-        List<ICharacter> affectedParticipants = _gameworld.Actors
+        List<ICharacter> affectedParticipants = arenaEvent.Participants
+            .Select(x => x.Character)
+            .OfType<ICharacter>()
+            .Concat(_gameworld.Actors)
+            .Concat(_gameworld.CachedActors)
+            .DistinctBy(x => x.Id)
             .Where(x => x.CombinedEffectsOfType<ArenaParticipationEffect>()
                 .Any(effect => effect.Matches(arenaEvent)))
             .ToList();

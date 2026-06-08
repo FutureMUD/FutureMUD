@@ -41,6 +41,10 @@ This feature must remain **data-driven**, **extensible**, and **safe under failu
 - `Animal Bohort` now seeds with the shared `isanimal(character)` eligibility helper and a blank stock NPC loader prog that intentionally returns an empty character collection for builder override.
 - Arena scoring progs now receive appended live scoring telemetry collections for scoring attackers/defenders, side indices, landed-hit flags, undefended-hit flags, normalized impact locations, and impact bodypart descriptions. These collections are populated only for successful live combat resolutions where both combatants are active participants in the same arena event.
 - The seeded boxing scoring prog now awards exactly 1 point per landed, undefended strike to the head or torso, independent of wound count.
+- Arena guardrails now cap live scoring telemetry snapshots and clear them during cleanup/completion/abort, require signup commands to originate from the arena venue before staging teleports occur, and require surrender to be tied to the participant's current arena bout rather than unrelated combat.
+- Arena betting and ratings now use persistent character IDs for participant/self-bet checks, bound bet-history output, rating values, Elo K-factors, and recurring schedule intervals, settle multi-winner pari-mutuel pools by distributing the losing pool once across all winners, and reject missing-winner Elo results without rating changes.
+- Arena manager rating lookup now resolves only visible characters or characters with existing ratings in the managed arena, avoiding arbitrary offline character materialisation and true-description disclosure.
+- Arena date/time entry paths rely on shared date parsing that rejects daylight-saving invalid local times as normal validation failures instead of throwing command exceptions.
 
 ## 2) Core Concepts (finalized)
 - **Combat Arena** = venue + operator. Belongs to an **Economic Zone**; behaves like a business (P&L, tax per period; bank/virtual cash; solvency enforced).

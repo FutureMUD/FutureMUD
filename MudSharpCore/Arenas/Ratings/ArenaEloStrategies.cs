@@ -227,9 +227,7 @@ internal static class ArenaEloMath
     {
         return outcome switch
         {
-            ArenaOutcome.Win => winningSides.Count == 0
-                ? (totalSides == 2 ? 1.0m : 0.0m)
-                : (winningSides.Contains(sideIndex) ? 1.0m : 0.0m),
+            ArenaOutcome.Win => winningSides.Contains(sideIndex) ? 1.0m : 0.0m,
             ArenaOutcome.Draw => 0.5m,
             _ => 0.0m
         };

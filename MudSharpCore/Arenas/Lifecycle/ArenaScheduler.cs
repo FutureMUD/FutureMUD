@@ -12,6 +12,8 @@ namespace MudSharp.Arenas;
 /// </summary>
 public class ArenaScheduler : IArenaScheduler
 {
+    public static readonly TimeSpan MaximumRecurringInterval = TimeSpan.FromSeconds(int.MaxValue);
+
     private static readonly TimeSpan ResolvingGracePeriod = TimeSpan.FromSeconds(2);
     private static readonly TimeSpan CleanupGracePeriod = TimeSpan.FromSeconds(1);
     private static readonly TimeSpan LivePollingInterval = TimeSpan.FromSeconds(2);
@@ -284,6 +286,7 @@ public class ArenaScheduler : IArenaScheduler
         return eventType.AutoScheduleEnabled &&
                eventType.AutoScheduleInterval.HasValue &&
                eventType.AutoScheduleInterval.Value > TimeSpan.Zero &&
+               eventType.AutoScheduleInterval.Value <= MaximumRecurringInterval &&
                eventType.AutoScheduleReferenceTime.HasValue;
     }
 
@@ -304,13 +307,18 @@ public class ArenaScheduler : IArenaScheduler
         }
 
         long cycles = elapsedTicks / intervalTicks;
-        DateTime next = reference.AddTicks(cycles * intervalTicks);
-        if (next < now)
+        long nextTicks = reference.Ticks + cycles * intervalTicks;
+        if (nextTicks < now.Ticks)
         {
-            next = next.AddTicks(intervalTicks);
+            if (DateTime.MaxValue.Ticks - nextTicks < intervalTicks)
+            {
+                return DateTime.MaxValue;
+            }
+
+            nextTicks += intervalTicks;
         }
 
-        return next;
+        return new DateTime(nextTicks, reference.Kind);
     }
 
     private static bool IsEventFull(IArenaEvent arenaEvent)

@@ -1,7 +1,12 @@
+#nullable enable
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
+using MudSharp.Accounts;
 using MudSharp.Framework;
 using MudSharp.TimeAndDate;
 using System;
+using System.Globalization;
 
 namespace MudSharp_Unit_Tests;
 
@@ -37,5 +42,43 @@ public class DateUtilitiesTests
 		Assert.AreEqual("2 years", TimeSpan.FromDays(730).Describe());
 		Assert.AreEqual("2 years", TimeSpan.FromDays(730).DescribePrecise());
 		Assert.AreEqual("2y", TimeSpan.FromDays(730).DescribePreciseBrief());
+	}
+
+	[TestMethod]
+	public void TryParseDateTimeOrRelative_DstInvalidLocalTime_ReturnsFalse()
+	{
+		TimeZoneInfo? timezone = ResolveNewYorkTimeZone();
+		if (timezone is null)
+		{
+			Assert.Inconclusive("No New York time zone was available on this test host.");
+		}
+
+		Mock<IAccount> account = new();
+		account.SetupGet(x => x.Culture).Returns(CultureInfo.InvariantCulture);
+		account.SetupGet(x => x.TimeZone).Returns(timezone!);
+
+		bool result = DateUtilities.TryParseDateTimeOrRelative("2026-03-08 02:30", account.Object, false, out DateTime parsed);
+
+		Assert.IsFalse(result);
+		Assert.AreEqual(default, parsed);
+	}
+
+	private static TimeZoneInfo? ResolveNewYorkTimeZone()
+	{
+		foreach (string id in new[] { "America/New_York", "Eastern Standard Time" })
+		{
+			try
+			{
+				return TimeZoneInfo.FindSystemTimeZoneById(id);
+			}
+			catch (TimeZoneNotFoundException)
+			{
+			}
+			catch (InvalidTimeZoneException)
+			{
+			}
+		}
+
+		return null;
 	}
 }

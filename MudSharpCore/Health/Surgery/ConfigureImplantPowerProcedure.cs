@@ -40,7 +40,7 @@ public class ConfigureImplantPowerProcedure : BodypartSpecificSurgicalProcedure
     /// <inheritdoc />
     public override IBodypart GetTargetBodypart(object[] parameters)
     {
-        return (IBodypart)parameters[0];
+        return parameters.ElementAtOrDefault(1) as IBodypart;
     }
 
     protected override object[] GetProcessedAdditionalArguments(ICharacter surgeon, ICharacter patient,

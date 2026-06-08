@@ -191,7 +191,7 @@ public class SimpleCharacteristicsPickerScreenStoryboard : ChargenScreenStoryboa
                 sb.AppendLine(
                     SelectedCharacteristics
                         .Select(x =>
-                            $"{x.Key.Name.TitleCase()}: {x.Value.Name.TitleCase().ColourValue()}"
+                            $"{x.Key.Name.TitleCase()}: {(x.Value?.Name.TitleCase().ColourValue() ?? "Not Selected".Colour(Telnet.Red))}"
                         )
                         .ArrangeStringsOntoLines((uint)Chargen.Account.LineFormatLength / 40, (uint)Chargen.Account.LineFormatLength)
                 );

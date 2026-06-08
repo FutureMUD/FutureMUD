@@ -15,6 +15,13 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class CommonUtilitiesTests
 {
+    [TestMethod]
+    public void SubstituteANSIColour_InvalidRgbValuesRemainLiteral()
+    {
+        Assert.AreEqual("#`999999999999999999999999;0;0;", "#`999999999999999999999999;0;0;".SubstituteANSIColour());
+        Assert.AreEqual("#`256;0;0;", "#`256;0;0;".SubstituteANSIColour());
+    }
+
     [Flags]
     private enum TestEnum
     {

@@ -419,6 +419,12 @@ Note: The formula for the #3amount#0 expression is a trait expression and also h
             return 0.0;
         }
 
+        TimeSpan noGainTimespan = TimeSpan.FromSeconds(Dice.Roll(NoGainSecondsDiceExpression));
+        if (person is IHaveEffects phe && noGainTimespan.TotalSeconds > 0)
+        {
+            phe.AddEffect(new NoTraitGain((IPerceivable)person, trait.Definition), noGainTimespan);
+        }
+
         double gain =
             ImprovementProg is not null && person is ICharacter ch ?
             ImprovementProg.ExecuteDouble(ch, trait.Definition) :
@@ -427,11 +433,6 @@ Note: The formula for the #3amount#0 expression is a trait expression and also h
         {
             trait.Gameworld.LogManager.CustomLogEntry(Logging.LogEntryType.SkillImprovement, $"-- NoGain [Gain amount was {gain:N2}]");
             return 0.0;
-        }
-        TimeSpan noGainTimespan = TimeSpan.FromSeconds(Dice.Roll(NoGainSecondsDiceExpression));
-        if (person is IHaveEffects phe && noGainTimespan.TotalSeconds > 0)
-        {
-            phe.AddEffect(new NoTraitGain((IPerceivable)person, trait.Definition), noGainTimespan);
         }
 
         trait.Gameworld.LogManager.CustomLogEntry(Logging.LogEntryType.SkillImprovement, $"-- Skill Gain of {gain:N4}");

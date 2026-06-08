@@ -1,6 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MudSharp.Body;
 using MudSharp.Body.Needs;
+using MudSharp.Character.Heritage;
 
 namespace MudSharp_Unit_Tests;
 
@@ -21,6 +22,16 @@ public class ChangingNeedsModelBaseTests
     {
         Assert.AreEqual(0.0, ChangingNeedsModelBase.CalculateOversatiationLevel(540.0, 720.0), 1e-6);
         Assert.AreEqual(60.0, ChangingNeedsModelBase.CalculateOversatiationLevel(600.0, 720.0), 1e-6);
+    }
+
+    [TestMethod]
+    public void EffectiveSatiationLimit_RejectsTinyOrNonFiniteValues()
+    {
+        Assert.AreEqual(RacialSatiationDefaults.MaximumFoodSatiatedHours,
+            ChangingNeedsModelBase.GetEffectiveFoodSatiationLimit(double.Epsilon), 1e-6);
+        Assert.AreEqual(RacialSatiationDefaults.MaximumFoodSatiatedHours,
+            ChangingNeedsModelBase.GetEffectiveFoodSatiationLimit(double.PositiveInfinity), 1e-6);
+        Assert.AreEqual(1.0, ChangingNeedsModelBase.GetEffectiveFoodSatiationLimit(1.0), 1e-6);
     }
 
     [TestMethod]

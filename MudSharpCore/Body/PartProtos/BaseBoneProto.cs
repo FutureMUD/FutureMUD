@@ -325,7 +325,7 @@ public abstract class BaseBoneProto : BodypartPrototype, IBone
         if (part.BoneInfo.ContainsKey(this))
         {
             bool primary = part.BoneInfo[this].IsPrimaryInternalLocation;
-            part.BoneInfo[this] = new BodypartInternalInfo(hitchance, primary, group);
+            part.BoneInfo[this] = new BodypartInternalInfo(hitchance * 100.0, primary, group);
             using (new FMDB())
             {
                 BodypartProto dbtarget = FMDB.Context
@@ -344,7 +344,7 @@ public abstract class BaseBoneProto : BodypartPrototype, IBone
             return true;
         }
 
-        part.BoneInfo[this] = new BodypartInternalInfo(hitchance, false, group);
+        part.BoneInfo[this] = new BodypartInternalInfo(hitchance * 100.0, false, group);
         using (new FMDB())
         {
             BodypartInternalInfos dbinternal = new();

@@ -10,6 +10,7 @@ using MudSharp.Magic;
 using MudSharp.Planes;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 
@@ -144,18 +145,14 @@ public class Drug : SaveableItem, IDrug
             case DrugType.NeutraliseDrugEffect:
                 return new NeutraliseDrugAdditionalInfo
                 {
-                    NeutralisedTypes = extra
-                                       .Split(' ')
-                                       .Select(int.Parse)
+                    NeutralisedTypes = ParseStoredIntList(extra)
                                        .Cast<DrugType>()
                                        .ToList()
                 };
             case DrugType.BodypartDamage:
                 return new BodypartDamageAdditionalInfo
                 {
-                    BodypartTypes = extra
-                                    .Split(' ', StringSplitOptions.RemoveEmptyEntries)
-                                    .Select(int.Parse)
+                    BodypartTypes = ParseStoredIntList(extra)
                                     .Cast<BodypartTypeEnum>()
                                     .ToList()
                 };
@@ -168,17 +165,12 @@ public class Drug : SaveableItem, IDrug
             case DrugType.MagicAbility:
                 return new MagicAbilityAdditionalInfo
                 {
-                    MagicCapabilityIds = extra
-                                             .Split(' ')
-                                             .Select(long.Parse)
-                                             .ToList()
+                    MagicCapabilityIds = ParseStoredLongList(extra)
                 };
             case DrugType.OrganFunction:
                 return new OrganFunctionAdditionalInfo
                 {
-                    OrganTypes = extra
-                                        .Split(' ', StringSplitOptions.RemoveEmptyEntries)
-                                        .Select(int.Parse)
+                    OrganTypes = ParseStoredIntList(extra)
                                         .Cast<BodypartTypeEnum>()
                                         .ToList()
                 };
@@ -195,14 +187,42 @@ public class Drug : SaveableItem, IDrug
             case DrugType.NeutraliseSpecificDrug:
                 return new NeutraliseSpecificDrugAdditionalInfo()
                 {
-                    NeutralisedIds = extra
-                                         .Split(' ')
-                     .Select(long.Parse)
-                     .ToList()
+                    NeutralisedIds = ParseStoredLongList(extra)
                 };
             default:
                 return null;
         }
+    }
+
+    private static List<int> ParseStoredIntList(string extra)
+    {
+        return ParseStoredLongList(extra)
+               .Where(x => x >= int.MinValue && x <= int.MaxValue)
+               .Select(x => (int)x)
+               .ToList();
+    }
+
+    private static List<long> ParseStoredLongList(string extra)
+    {
+        List<long> results = new();
+        foreach (string token in (extra ?? string.Empty).Split(' ', StringSplitOptions.RemoveEmptyEntries))
+        {
+            if (long.TryParse(token, NumberStyles.Integer, CultureInfo.InvariantCulture, out long longValue))
+            {
+                results.Add(longValue);
+                continue;
+            }
+
+            if (decimal.TryParse(token, NumberStyles.Number, CultureInfo.InvariantCulture, out decimal decimalValue) &&
+                decimalValue == decimal.Truncate(decimalValue) &&
+                decimalValue >= long.MinValue &&
+                decimalValue <= long.MaxValue)
+            {
+                results.Add((long)decimalValue);
+            }
+        }
+
+        return results;
     }
 
     public const string HelpText = @"You can use the following options with this command:

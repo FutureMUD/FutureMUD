@@ -198,6 +198,11 @@ public abstract class BodypartSpecificSurgicalProcedure : SurgicalProcedure
         return ((surgeon, patient, parameters) =>
                 {
                     IBodypart bodypart = GetTargetBodypart(parameters);
+                    if (bodypart is null)
+                    {
+                        return false;
+                    }
+
                     if (patient.Body.ExposedBodyparts.Any(x => x.CountsAs(bodypart)))
                     {
                         return true;
@@ -208,6 +213,11 @@ public abstract class BodypartSpecificSurgicalProcedure : SurgicalProcedure
                 (surgeon, patient, parameters) =>
                 {
                     IBodypart bodypart = GetTargetBodypart(parameters);
+                    if (bodypart is null)
+                    {
+                        return "$1 does not have a valid target bodypart for this procedure.";
+                    }
+
                     return
                         $"$1's {bodypart.FullDescription()} is not exposed, and so the procedure cannot continue.";
                 },

@@ -23,6 +23,26 @@ namespace MudSharp_Unit_Tests;
 public class CultureSeederNameAndHeightDefaultTests
 {
 	[TestMethod]
+	public void MedievalLevantineAndMorrocanNameRegexes_UsePrintableSpacesForPatronyms()
+	{
+		string source = File.ReadAllText(Path.Combine(
+			"..",
+			"..",
+			"..",
+			"..",
+			"DatabaseSeeder",
+			"Seeders",
+			"CultureSeederMedievalNamesComplex.cs"));
+
+		StringAssert.Contains(source,
+			"AddNameCulture(\"Levantine\", \"^(?<birthname>[\\\\w'-]{2,}) (?<patronym>(?:Ibnat|Bin|Ibn|Bint)[ ]*[\\\\w'-]{2,})");
+		StringAssert.Contains(source,
+			"AddNameCulture(\"Morrocan\", \"^(?<birthname>[\\\\w'-]{2,}) (?<patronym>(?:Ibnat|Bin|Ibn|Bint)[ ]*[\\\\w'-]{2,})");
+		Assert.IsFalse(source.Contains("(?:Ibnat|Bin|Ibn|Bint)\\\\s*"),
+			"Patronym separators must not use \\s because aliases can persist control whitespace.");
+	}
+
+	[TestMethod]
 	public void CultureRaceAttributeProfilesForTesting_SecondPassFantasyDefaults_AreDistinct()
 	{
 		IReadOnlyDictionary<string, NonHumanAttributeProfile> profiles =

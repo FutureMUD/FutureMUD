@@ -1,6 +1,8 @@
 using MudSharp.Character;
 using MudSharp.Communication.Language;
 using MudSharp.Framework;
+using MudSharp.GameItems;
+using MudSharp.GameItems.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -58,6 +60,12 @@ public static class TattooTextCommandHelper
                     return false;
                 }
 
+                if (!CanCopyWriting(actor, writing))
+                {
+                    errorMessage = "You must be able to see a readable item containing that writing to copy it.";
+                    return false;
+                }
+
                 string copiedText = GetWritingText(writing);
                 if (copiedText.Length > MaximumLengthFor(slot, writing.Script))
                 {
@@ -104,6 +112,14 @@ public static class TattooTextCommandHelper
     public static int MaximumLengthFor(ITattooTemplateTextSlot slot, IScript script)
     {
         return Math.Max(1, (int)Math.Floor(slot.MaximumLength * (script?.DocumentLengthModifier ?? 1.0)));
+    }
+
+    private static bool CanCopyWriting(ICharacter actor, IWriting writing)
+    {
+        return actor.Gameworld.Items
+                    .Where(x => actor.CanSee(x))
+                    .SelectMany(x => x.GetItemTypes<IReadable>())
+                    .Any(x => x.Writings.Contains(writing) || x.Readables.Contains(writing));
     }
 
     private static string GetWritingText(IWriting writing)

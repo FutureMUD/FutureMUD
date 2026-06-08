@@ -7,6 +7,7 @@ using MudSharp.Magic;
 using MudSharp.Models;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 
 namespace MudSharp.Health
@@ -42,7 +43,7 @@ namespace MudSharp.Health
         #region Overrides of DrugAdditionalInfo
 
         /// <inheritdoc />
-        public override string DatabaseString => NeutralisedTypes.Select(x => ((int)x).ToString("F0")).ListToCommaSeparatedValues(" ");
+        public override string DatabaseString => NeutralisedTypes.Select(x => ((int)x).ToString(System.Globalization.CultureInfo.InvariantCulture)).ListToCommaSeparatedValues(" ");
 
         #endregion
     }
@@ -54,7 +55,7 @@ namespace MudSharp.Health
         #region Overrides of DrugAdditionalInfo
 
         /// <inheritdoc />
-        public override string DatabaseString => NeutralisedIds.Select(x => x.ToString("F0")).ListToCommaSeparatedValues(" ");
+        public override string DatabaseString => NeutralisedIds.Select(x => x.ToString(System.Globalization.CultureInfo.InvariantCulture)).ListToCommaSeparatedValues(" ");
 
         #endregion
     }
@@ -62,7 +63,7 @@ namespace MudSharp.Health
     public class BodypartDamageAdditionalInfo : DrugAdditionalInfo
     {
         public required List<BodypartTypeEnum> BodypartTypes { get; set; }
-        public override string DatabaseString => BodypartTypes.Select(x => ((int)x).ToString("F0")).ListToCommaSeparatedValues(" ");
+        public override string DatabaseString => BodypartTypes.Select(x => ((int)x).ToString(System.Globalization.CultureInfo.InvariantCulture)).ListToCommaSeparatedValues(" ");
     }
 
     public class HealingRateAdditionalInfo : DrugAdditionalInfo
@@ -85,7 +86,7 @@ namespace MudSharp.Health
         #region Overrides of DrugAdditionalInfo
 
         /// <inheritdoc />
-        public override string DatabaseString => MagicCapabilityIds.Select(x => x.ToString("F0")).ListToCommaSeparatedValues(" ");
+        public override string DatabaseString => MagicCapabilityIds.Select(x => x.ToString(System.Globalization.CultureInfo.InvariantCulture)).ListToCommaSeparatedValues(" ");
 
         #endregion
     }
@@ -94,7 +95,7 @@ namespace MudSharp.Health
     {
         public required List<BodypartTypeEnum> OrganTypes { get; set; }
 
-        public override string DatabaseString => OrganTypes.Select(x => ((int)x).ToString("F0")).ListToCommaSeparatedValues(" ");
+        public override string DatabaseString => OrganTypes.Select(x => ((int)x).ToString(System.Globalization.CultureInfo.InvariantCulture)).ListToCommaSeparatedValues(" ");
     }
 
     public class PlanarStateAdditionalInfo : DrugAdditionalInfo

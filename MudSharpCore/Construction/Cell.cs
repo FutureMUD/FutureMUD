@@ -506,7 +506,7 @@ public partial class Cell : Location, IDisposable, ICell
     {
         Difficulty spotDifficultyWeather =
             CurrentWeather(spotter)?.Precipitation.MinimumSightDifficulty() ?? Difficulty.Automatic;
-        Difficulty spotDifficultyLight = spotter is ICharacter ch ? ch.IlluminationSightDifficulty() : Difficulty.Automatic;
+        Difficulty spotDifficultyLight = spotter is ICharacter ch ? ch.IlluminationSightDifficulty(this) : Difficulty.Automatic;
         Difficulty spotDifficultyTerrain = Terrain(spotter).SpotDifficulty;
         return spotDifficultyLight.Highest(spotDifficultyWeather, spotDifficultyTerrain);
     }

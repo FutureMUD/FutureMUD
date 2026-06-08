@@ -200,7 +200,14 @@ namespace MudSharp.Framework
 
             input = _substituteANSIColourRGBRegex.Replace(input, match =>
             {
-                return $"\x1b[38;2;{int.Parse(match.Groups["red"].Value)};{int.Parse(match.Groups["green"].Value)};{int.Parse(match.Groups["blue"].Value)}m";
+                if (!byte.TryParse(match.Groups["red"].Value, out var red) ||
+                    !byte.TryParse(match.Groups["green"].Value, out var green) ||
+                    !byte.TryParse(match.Groups["blue"].Value, out var blue))
+                {
+                    return match.Value;
+                }
+
+                return $"\x1b[38;2;{red};{green};{blue}m";
             });
 
             return _substituteANSIColourRegex.Replace(input, match =>

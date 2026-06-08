@@ -263,6 +263,7 @@ public class SkillCostPickerScreenStoryboard : ChargenScreenStoryboard
                                 .SelectMany(x => x.TraitAdjustments.Where(y => y.Value.giveIfMissing && y.Key is ISkillDefinition)).Select(x => x.Key)
                                 .Distinct()
                                 .Where(x => !FreeSkills.Contains(x))
+                                .Where(x => !x.Hidden)
                                 .ToList();
             Chargen.SelectedSkills.AddRange(FreeSkills);
             SetCurrentSelectables();
@@ -357,7 +358,7 @@ You get the following skills for free:
 
 You are also potentially getting the following skills from roles, but may get a higher value from selecting them here too:
 
-{RoleSkills.Select(x => x.Name.Colour(Telnet.Green)).DefaultIfEmpty("None".Colour(Telnet.Yellow)).ListToString().Wrap(Chargen.Account.InnerLineFormatLength)}" : "")}
+{RoleSkills.Where(x => !x.Hidden).Select(x => x.Name.Colour(Telnet.Green)).DefaultIfEmpty("None".Colour(Telnet.Yellow)).ListToString().Wrap(Chargen.Account.InnerLineFormatLength)}" : "")}
 
 You can select from the following skills:
 
@@ -381,7 +382,7 @@ You get the following skills for free:
 
 You are also potentially getting the following skills from roles, but may get a higher value from selecting them here too:
 
-{RoleSkills.Select(x => x.Name.Colour(Telnet.Green)).DefaultIfEmpty("None".Colour(Telnet.Yellow)).ListToString().Wrap(Chargen.Account.InnerLineFormatLength)}" : "")}
+{RoleSkills.Where(x => !x.Hidden).Select(x => x.Name.Colour(Telnet.Green)).DefaultIfEmpty("None".Colour(Telnet.Yellow)).ListToString().Wrap(Chargen.Account.InnerLineFormatLength)}" : "")}
 
 You can select from the following skills:
 

@@ -474,6 +474,7 @@ namespace MudSharp.Character
         IEnumerable<INameCulture> NameCultures { get; }
         INameCulture NameCultureForGender(Gender gender);
         Difficulty IlluminationSightDifficulty();
+        Difficulty IlluminationSightDifficulty(ICell location);
 #nullable enable
         ICharacter? RidingMount { get; set; }
 #nullable restore

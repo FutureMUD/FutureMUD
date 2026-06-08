@@ -155,8 +155,13 @@ public partial class Body : PerceiverItem, IBody
 
         foreach (ComboMerit merit in comboMerits)
         {
-            foreach (ICharacterMerit included in merit.CharacterMerits.Where(x => x.MeritScope == MeritScope.Character))
+            foreach (ICharacterMerit included in merit.CharacterMerits.Where(x => x.MeritScope == MeritScope.Body))
             {
+                if (_merits.Contains(included))
+                {
+                    continue;
+                }
+
                 _merits.Add(included);
             }
         }

@@ -955,7 +955,24 @@ public class GridSystemTests
         LiquidMixture mixture = CreateMixture(gameworld.Object, (CreateLiquid(1, "water").Object, 1.0));
 
         Assert.AreEqual(0.0, component.LiquidCapacity, 0.0001);
-        Assert.ThrowsException<InvalidOperationException>(() => component.MergeLiquid(mixture, null!, "test"));
+        component.MergeLiquid(mixture, null!, "test");
+        Assert.AreEqual(0.0, component.LiquidCapacity, 0.0001);
+    }
+
+    [TestMethod]
+    public void GridLiquidSourceGameItemComponent_ReduceLiquidQuantity_RemovesFromGrid()
+    {
+        Mock<IFuturemud> gameworld = CreateGameworld();
+        Mock<IGameItem> parent = new();
+        parent.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+        GridLiquidSourceGameItemComponentProto proto = CreateGridLiquidSourceProto(gameworld.Object);
+        GridLiquidSourceGameItemComponent component = new(proto, parent.Object, true);
+        var grid = new Mock<ILiquidGrid>();
+        component.LiquidGrid = grid.Object;
+
+        component.ReduceLiquidQuantity(2.5, null!, "drink");
+
+        grid.Verify(x => x.RemoveLiquidAmount(2.5, null, "drink"), Times.Once);
     }
 
     [TestMethod]

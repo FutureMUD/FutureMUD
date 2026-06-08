@@ -885,101 +885,101 @@ public class ImplementorModule : Module<ICharacter>
     private static void DebugExportCrafts(ICharacter actor, StringStack ss)
     {
         StringBuilder sb = new();
-        sb.AppendLine("Id,Revision,Name,Category,Blurb,Status,Action,Item SDesc,Appear Prog,CanUse Prog,WhyCantUse Prog,OnStart Prog,OnCancel Prog,OnFinishProg,Trait,Difficulty,Threshold,FreeChecks,FailPhase,Interruptable,PhaseLength1,PhaseLength2,PhaseLength3,PhaseLength4,PhaseLength5,PhaseLength6,PhaseLength7,PhaseLength8,PhaseLength9,PhaseLength10,PhaseEcho1,PhaseEcho2,PhaseEcho3,PhaseEcho4,PhaseEcho5,PhaseEcho6,PhaseEcho7,PhaseEcho8,PhaseEcho9,PhaseEcho10,PhaseFailEcho1,PhaseFailEcho2,PhaseFailEcho3,PhaseFailEcho4,PhaseFailEcho5,PhaseFailEcho6,PhaseFailEcho7,PhaseFailEcho8,PhaseFailEcho9,PhaseFailEcho10,Input1,Input2,Input3,Input4,Input5,Input6,Input7,Input8,Input9,Input10,Tool1,Tool2,Tool3,Tool4,Tool5,Tool6,Tool7,Tool8,Tool9,Tool10,Product1,Product2,Product3,Product4,Product5,Product6,Product7,Product8,Product9,Product10,FailProduct1,FailProduct2,FailProduct3,FailProduct4,FailProduct5,FailProduct6,FailProduct7,FailProduct8,FailProduct9,FailProduct10");
+        AppendCraftExportRow(sb,
+        [
+            "Id", "Revision", "Name", "Category", "Blurb", "Status", "Action", "Item SDesc", "Appear Prog",
+            "CanUse Prog", "WhyCantUse Prog", "OnStart Prog", "OnCancel Prog", "OnFinishProg", "Trait", "Difficulty",
+            "Threshold", "FreeChecks", "FailPhase", "Interruptable", "PhaseLength1", "PhaseLength2", "PhaseLength3",
+            "PhaseLength4", "PhaseLength5", "PhaseLength6", "PhaseLength7", "PhaseLength8", "PhaseLength9",
+            "PhaseLength10", "PhaseEcho1", "PhaseEcho2", "PhaseEcho3", "PhaseEcho4", "PhaseEcho5", "PhaseEcho6",
+            "PhaseEcho7", "PhaseEcho8", "PhaseEcho9", "PhaseEcho10", "PhaseFailEcho1", "PhaseFailEcho2",
+            "PhaseFailEcho3", "PhaseFailEcho4", "PhaseFailEcho5", "PhaseFailEcho6", "PhaseFailEcho7",
+            "PhaseFailEcho8", "PhaseFailEcho9", "PhaseFailEcho10", "Input1", "Input2", "Input3", "Input4",
+            "Input5", "Input6", "Input7", "Input8", "Input9", "Input10", "Tool1", "Tool2", "Tool3", "Tool4",
+            "Tool5", "Tool6", "Tool7", "Tool8", "Tool9", "Tool10", "Product1", "Product2", "Product3",
+            "Product4", "Product5", "Product6", "Product7", "Product8", "Product9", "Product10", "FailProduct1",
+            "FailProduct2", "FailProduct3", "FailProduct4", "FailProduct5", "FailProduct6", "FailProduct7",
+            "FailProduct8", "FailProduct9", "FailProduct10"
+        ]);
         foreach (ICraft craft in actor.Gameworld.Crafts)
         {
-            sb.Append($"{craft.Id},{craft.RevisionNumber},\"{craft.Name}\",\"{craft.Category}\",\"{craft.Blurb}\",{craft.Status.DescribeEnum()},\"{craft.ActionDescription}\",\"{craft.ActiveCraftItemSDesc}\",");
-            sb.Append($"{craft.AppearInCraftsListProg?.Name ?? ""},{craft.CanUseProg?.Name ?? ""},{craft.WhyCannotUseProg?.Name ?? ""},{craft.OnUseProgStart?.Name ?? ""},{craft.OnUseProgCancel?.Name ?? ""},{craft.OnUseProgComplete?.Name ?? ""},");
-            sb.Append($"{craft.CheckTrait?.Name ?? ""},{craft.CheckDifficulty.DescribeEnum()},{craft.FailThreshold.DescribeEnum()},{craft.FreeSkillChecks},{craft.FailPhase},{craft.Interruptable}");
+            List<string> row =
+            [
+                craft.Id.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                craft.RevisionNumber.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                craft.Name,
+                craft.Category,
+                craft.Blurb,
+                craft.Status.DescribeEnum(),
+                craft.ActionDescription,
+                craft.ActiveCraftItemSDesc,
+                craft.AppearInCraftsListProg?.Name ?? string.Empty,
+                craft.CanUseProg?.Name ?? string.Empty,
+                craft.WhyCannotUseProg?.Name ?? string.Empty,
+                craft.OnUseProgStart?.Name ?? string.Empty,
+                craft.OnUseProgCancel?.Name ?? string.Empty,
+                craft.OnUseProgComplete?.Name ?? string.Empty,
+                craft.CheckTrait?.Name ?? string.Empty,
+                craft.CheckDifficulty.DescribeEnum(),
+                craft.FailThreshold.DescribeEnum(),
+                craft.FreeSkillChecks.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                craft.FailPhase.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                craft.Interruptable.ToString(System.Globalization.CultureInfo.InvariantCulture)
+            ];
+
             List<TimeSpan> lengths = craft.PhaseLengths.ToList();
             for (int i = 0; i < 10; i++)
             {
-                if (i < lengths.Count)
-                {
-                    sb.Append($",{lengths[i].TotalSeconds}");
-                    continue;
-                }
-
-                sb.Append(",");
+                row.Add(i < lengths.Count
+                    ? lengths[i].TotalSeconds.ToString(System.Globalization.CultureInfo.InvariantCulture)
+                    : string.Empty);
             }
 
             List<string> echoes = craft.PhaseEchoes.ToList();
             for (int i = 0; i < 10; i++)
             {
-                if (i < echoes.Count)
-                {
-                    sb.Append($",\"{echoes[i]}\"");
-                    continue;
-                }
-
-                sb.Append(",");
+                row.Add(i < echoes.Count ? echoes[i] : string.Empty);
             }
 
             List<string> failEchoes = craft.FailPhaseEchoes.ToList();
             for (int i = 0; i < 10; i++)
             {
-                if (i < failEchoes.Count)
-                {
-                    sb.Append($",\"{failEchoes[i]}\"");
-                    continue;
-                }
-
-                sb.Append(",");
+                row.Add(i < failEchoes.Count ? failEchoes[i] : string.Empty);
             }
 
             List<ICraftInput> inputs = craft.Inputs.ToList();
             for (int i = 0; i < 10; i++)
             {
-                if (i < inputs.Count)
-                {
-                    ICraftInput input = inputs[i];
-                    sb.Append($",\"{input.InputType} - {input.HowSeen(actor).StripANSIColour()}\"");
-                    continue;
-                }
-
-                sb.Append(",");
+                row.Add(i < inputs.Count
+                    ? $"{inputs[i].InputType} - {inputs[i].HowSeen(actor).StripANSIColour()}"
+                    : string.Empty);
             }
 
             List<ICraftTool> tools = craft.Tools.ToList();
             for (int i = 0; i < 10; i++)
             {
-                if (i < tools.Count)
-                {
-                    ICraftTool tool = tools[i];
-                    sb.Append($",\"{tool.ToolType} - {tool.DesiredState.DescribeEnum()} - {tool.HowSeen(actor).StripANSIColour()}\"");
-                    continue;
-                }
-
-                sb.Append(",");
+                row.Add(i < tools.Count
+                    ? $"{tools[i].ToolType} - {tools[i].DesiredState.DescribeEnum()} - {tools[i].HowSeen(actor).StripANSIColour()}"
+                    : string.Empty);
             }
 
             List<ICraftProduct> products = craft.Products.ToList();
             for (int i = 0; i < 10; i++)
             {
-                if (i < products.Count)
-                {
-                    ICraftProduct product = products[i];
-                    sb.Append($",\"{product.ProductType} - {product.HowSeen(actor).StripANSIColour()}\"");
-                    continue;
-                }
-
-                sb.Append(",");
+                row.Add(i < products.Count
+                    ? $"{products[i].ProductType} - {products[i].HowSeen(actor).StripANSIColour()}"
+                    : string.Empty);
             }
 
             List<ICraftProduct> failProducts = craft.FailProducts.ToList();
             for (int i = 0; i < 10; i++)
             {
-                if (i < failProducts.Count)
-                {
-                    ICraftProduct product = failProducts[i];
-                    sb.Append($",\"{product.ProductType} - {product.HowSeen(actor).StripANSIColour()}\"");
-                    continue;
-                }
-
-                sb.Append(",");
+                row.Add(i < failProducts.Count
+                    ? $"{failProducts[i].ProductType} - {failProducts[i].HowSeen(actor).StripANSIColour()}"
+                    : string.Empty);
             }
 
-            sb.AppendLine();
+            AppendCraftExportRow(sb, row);
         }
 
         using FileStream fs = new($"CraftsExport{DateTime.UtcNow.ToFileTimeUtc()}.csv", FileMode.Create);
@@ -989,6 +989,22 @@ public class ImplementorModule : Module<ICharacter>
         writer.Close();
         actor.OutputHandler.Send($"Successfully exported crafts list to {fs.Name.ColourCommand()}");
         fs.Close();
+    }
+
+    private static void AppendCraftExportRow(StringBuilder sb, IEnumerable<string> cells)
+    {
+        sb.AppendLine(string.Join(",", cells.Select(EncodeCraftExportCsvCell)));
+    }
+
+    private static string EncodeCraftExportCsvCell(string value)
+    {
+        var text = value ?? string.Empty;
+        if (text.Length > 0 && text[0].In('=', '+', '-', '@', '\t', '\r', '\n'))
+        {
+            text = $"'{text}";
+        }
+
+        return $"\"{text.Replace("\"", "\"\"")}\"";
     }
 
     private static void DebugTestCover(ICharacter actor, StringStack ss)

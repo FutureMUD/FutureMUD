@@ -555,6 +555,21 @@ Admin Syntax:
 			return;
 		}
 
+		var (canCross, failureOutput) = actor.CanCross(exit);
+		if (!canCross)
+		{
+			if (failureOutput != null)
+			{
+				actor.OutputHandler.Send(failureOutput);
+			}
+			else
+			{
+				actor.OutputHandler.Send("You cannot drive the herd through that exit.");
+			}
+
+			return;
+		}
+
 		var count = 0;
 		if (!ss.IsFinished)
 		{

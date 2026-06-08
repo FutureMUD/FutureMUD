@@ -77,7 +77,6 @@ public class SimpleProduct : BaseProduct
             }
 
             newItem.GetItemType<IStackable>().Quantity = Quantity;
-            newItem.HandleEvent(EventType.ItemFinishedLoading, newItem);
             return new SimpleProductData(new[] { newItem });
         }
 
@@ -98,7 +97,6 @@ public class SimpleProduct : BaseProduct
             {
                 item.Material = material;
             }
-            item.HandleEvent(EventType.ItemFinishedLoading, item);
             items.Add(item);
         }
 

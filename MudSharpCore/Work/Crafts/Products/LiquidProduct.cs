@@ -99,7 +99,6 @@ public class LiquidProduct : BaseProduct
 			}
 
 			Gameworld.Add(item);
-			item.HandleEvent(EventType.ItemFinishedLoading, item);
 			items.Add(item);
 		}
 

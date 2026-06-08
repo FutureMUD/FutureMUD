@@ -123,7 +123,7 @@ public class AgricultureFieldInput : BaseInput
 	{
 		var location = character.Location;
 		var field = location?.AgricultureField;
-		return location != null && field != null && FieldMatches(field)
+		return location != null && field != null && FieldMatches(field) && CanActorUseField(character, field)
 			? [location]
 			: Enumerable.Empty<IPerceivable>();
 	}
@@ -192,6 +192,15 @@ public class AgricultureFieldInput : BaseInput
 		}
 
 		return MinimumHealth == 0 && MinimumYield == 0 && YieldConsumed == 0;
+	}
+
+	private static bool CanActorUseField(ICharacter actor, IAgricultureField field)
+	{
+		var property = actor.Gameworld.Properties.FirstOrDefault(x => x.PropertyLocations.Contains(field.Cell));
+		return property == null ||
+		       actor.IsAdministrator() ||
+		       property.IsAuthorisedOwner(actor) ||
+		       property.IsAuthorisedLeaseHolder(actor);
 	}
 
 	private static int FieldHealth(IAgricultureField field)

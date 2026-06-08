@@ -20,12 +20,21 @@ using MudSharp.RPG.Checks;
 using MudSharp.Work.Crafts;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace MudSharp_Unit_Tests;
 
 [TestClass]
 public class CraftToolUsageTests
 {
+    [TestMethod]
+    public void PhaseLengths_InvalidPersistedDuration_ReturnsZeroInsteadOfThrowing()
+    {
+        var craft = BuildCraftWithPhase(double.PositiveInfinity);
+
+        Assert.AreEqual(TimeSpan.Zero, craft.PhaseLengths.Single());
+    }
+
     [TestMethod]
     public void HandleCraftPhase_ToolUsedInMultiplePhases_UsesToolEachPhase()
     {
@@ -169,6 +178,65 @@ public class CraftToolUsageTests
         Assert.IsTrue(craft.HandleCraftPhase(character.Object, effect.Object, craftComponent.Object, 2));
 
         toolItemComponent.Verify(x => x.UseTool(null!, It.IsAny<TimeSpan>()), Times.Exactly(2));
+    }
+
+    private static Craft BuildCraftWithPhase(double phaseLengthInSeconds)
+    {
+        Mock<IUneditableAll<ITag>> tags = new();
+        tags.Setup(x => x.Get(It.IsAny<long>())).Returns((ITag)null!);
+        Mock<IUneditableAll<ITraitDefinition>> traits = new();
+        traits.Setup(x => x.Get(It.IsAny<long>())).Returns((ITraitDefinition)null!);
+        Mock<IUneditableAll<IFutureProg>> progs = new();
+        progs.Setup(x => x.Get(It.IsAny<long>())).Returns((IFutureProg)null!);
+        Mock<IFuturemud> gameworld = new();
+        gameworld.SetupGet(x => x.Tags).Returns(tags.Object);
+        gameworld.SetupGet(x => x.Traits).Returns(traits.Object);
+        gameworld.SetupGet(x => x.FutureProgs).Returns(progs.Object);
+        gameworld.Setup(x => x.DebugMessage(It.IsAny<string>()));
+
+        MudSharp.Models.Craft craftModel = new()
+        {
+            Id = 1,
+            RevisionNumber = 0,
+            Name = "Invalid Phase Craft",
+            Blurb = "Test",
+            ActionDescription = "crafting",
+            Category = "test",
+            Interruptable = false,
+            ToolQualityWeighting = 1.0,
+            InputQualityWeighting = 1.0,
+            CheckQualityWeighting = 1.0,
+            FreeSkillChecks = 0,
+            FailThreshold = (int)Outcome.MinorFail,
+            CheckDifficulty = (int)Difficulty.Normal,
+            FailPhase = 1,
+            QualityFormula = "5",
+            ActiveCraftItemSdesc = "a craft",
+            IsPracticalCheck = true,
+            EditableItem = new MudSharp.Models.EditableItem
+            {
+                RevisionNumber = 0,
+                RevisionStatus = (int)RevisionStatus.Current,
+                BuilderAccountId = 1,
+                BuilderDate = DateTime.UtcNow,
+                BuilderComment = string.Empty,
+                ReviewerComment = string.Empty
+            }
+        };
+        craftModel.CraftPhases.Add(new MudSharp.Models.CraftPhase
+        {
+            PhaseNumber = 1,
+            PhaseLengthInSeconds = phaseLengthInSeconds,
+            Echo = "Phase 1",
+            FailEcho = "Fail 1",
+            ExertionLevel = 0,
+            StaminaUsage = 0.0
+        });
+
+        return new Craft(craftModel, gameworld.Object)
+        {
+            QualityFormula = null
+        };
     }
 
     [TestMethod]

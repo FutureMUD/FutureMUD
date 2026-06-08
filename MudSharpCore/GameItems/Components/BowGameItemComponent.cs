@@ -20,10 +20,18 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Components;
 
-public class BowGameItemComponent : GameItemComponent, IRangedWeaponWithUnreadyEvent, IMeleeWeapon, IReadiedRangedWeaponStaminaSource
+public class BowGameItemComponent : GameItemComponent, IRangedWeaponWithUnreadyEvent, IMeleeWeapon,
+    IReadiedRangedWeaponStaminaSource, IConditionDegradingComponent
 {
     protected BowGameItemComponentProto _prototype;
     public override IGameItemComponentProto Prototype => _prototype;
+    public bool ConditionDegradesOnUse => _prototype.ConditionMaintenance.ConditionDegradesOnUse;
+    public int ItemQualityStages => _prototype.ConditionMaintenance.QualityPenaltyStages(Parent);
+
+    public void UseCondition(ItemConditionUseContext context)
+    {
+        _prototype.ConditionMaintenance.UseCondition(Parent, context);
+    }
 
     public override IGameItemComponent Copy(IGameItem newParent, bool temporary = false)
     {
@@ -430,6 +438,8 @@ public class BowGameItemComponent : GameItemComponent, IRangedWeaponWithUnreadyE
         Changed = true;
         ammo.Fire(actor, target, shotOutcome, coverOutcome, defenseOutcome, bodypart, ammo.Parent, WeaponType,
             defenseEmote);
+        UseCondition(new ItemConditionUseContext(ItemConditionUseKind.RangedFire, shotOutcome,
+            (int)(defenseOutcome?.Degree ?? OpposedOutcomeDegree.None)));
         OnFire?.Invoke(Parent);
     }
 

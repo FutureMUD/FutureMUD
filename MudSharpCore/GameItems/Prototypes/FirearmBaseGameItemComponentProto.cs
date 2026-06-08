@@ -14,7 +14,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public abstract class FirearmBaseGameItemComponentProto : GameItemComponentProto, IRangedWeaponPrototype, ISwitchablePrototype, IMeleeWeaponPrototype
+public abstract class FirearmBaseGameItemComponentProto : GameItemComponentProto, IRangedWeaponPrototype, ISwitchablePrototype, IMeleeWeaponPrototype, IConditionDegradingComponentPrototype
 {
     protected FirearmBaseGameItemComponentProto(IFuturemud gameworld, IAccount originator, string type)
         : base(gameworld, originator, type)
@@ -48,9 +48,11 @@ public abstract class FirearmBaseGameItemComponentProto : GameItemComponentProto
         {
             MeleeWeaponType = Gameworld.WeaponTypes.Get(Gameworld.GetStaticLong("DefaultGunMeleeWeaponType"));
         }
+        ConditionMaintenance.LoadFromXml(root);
     }
 
     public IWeaponType MeleeWeaponType { get; set; }
+    public ConditionMaintenanceProfile ConditionMaintenance { get; } = new(ConditionMaintenanceProfile.DefaultRangedOrMeleeUseExpression);
 
     public IInventoryPlanTemplate LoadTemplate { get; set; }
 
@@ -104,7 +106,8 @@ public abstract class FirearmBaseGameItemComponentProto : GameItemComponentProto
 	#3unready <emote>#0 - sets the emote for unreadying this gun. $0 is the loader, $1 is the gun and $2 is the chambered round.
 	#3unreadyempty <emote>#0 - sets the emote for unreadying this gun when there is no chambered round. $0 is the loader, $1 is the gun.
 	#3fire <emote>#0 - sets the emote for firing the gun. $0 is the firer, $1 is the target, $2 is the gun.
-	#3fireempty <emote>#0 - sets the emote for firing the gun when it is empty. $0 is the firer, $1 is the target, $2 is the gun.";
+	#3fireempty <emote>#0 - sets the emote for firing the gun when it is empty. $0 is the firer, $1 is the target, $2 is the gun.
+	#3condition <option>#0 - configures optional condition degradation.";
 
     public override string ShowBuildingHelp =>
         BuildingHelpText;
@@ -153,6 +156,8 @@ public abstract class FirearmBaseGameItemComponentProto : GameItemComponentProto
             case "whycannotwield":
             case "whycannotwieldprog":
                 return BuildingCommandWhyCannotWieldProg(actor, command);
+            case "condition":
+                return ConditionMaintenance.BuildingCommand(actor, command, () => Changed = true);
             default:
                 return base.BuildingCommand(actor, command);
         }

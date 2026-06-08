@@ -12,7 +12,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class MeleeWeaponGameItemComponentProto : GameItemComponentProto, IMeleeWeaponPrototype
+public class MeleeWeaponGameItemComponentProto : GameItemComponentProto, IMeleeWeaponPrototype, IConditionDegradingComponentPrototype
 {
     protected MeleeWeaponGameItemComponentProto(IFuturemud gameworld, IAccount originator)
         : base(gameworld, originator, "MeleeWeapon")
@@ -25,6 +25,7 @@ public class MeleeWeaponGameItemComponentProto : GameItemComponentProto, IMeleeW
     }
 
     public IWeaponType WeaponType { get; private set; }
+    public ConditionMaintenanceProfile ConditionMaintenance { get; } = new(ConditionMaintenanceProfile.DefaultMeleeUseExpression);
 #nullable enable
     public IFutureProg? CanWieldProg { get; private set; }
     public IFutureProg? WhyCannotWieldProg { get; private set; }
@@ -41,18 +42,20 @@ public class MeleeWeaponGameItemComponentProto : GameItemComponentProto, IMeleeW
         }
         CanWieldProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("CanWieldProg")?.Value ?? "0"));
         WhyCannotWieldProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("WhyCannotWieldProg")?.Value ?? "0"));
+        ConditionMaintenance.LoadFromXml(root);
     }
 
     public override string ComponentDescriptionOLC(ICharacter actor)
     {
-        return string.Format(actor, "{0} (#{1:N0}r{2:N0}, {3})\n\nThis item is a melee weapon of type {4}.\nThe CanWield prog is {5} and the WhyCannotWield prog is {6}.",
+        return string.Format(actor, "{0} (#{1:N0}r{2:N0}, {3})\n\nThis item is a melee weapon of type {4}.\nThe CanWield prog is {5} and the WhyCannotWield prog is {6}.\n{7}",
             "Melee Weapon Game Item Component".Colour(Telnet.Cyan),
             Id,
             RevisionNumber,
             Name,
             WeaponType?.Name.TitleCase().Colour(Telnet.Green) ?? "None".Colour(Telnet.Red),
             CanWieldProg?.MXPClickableFunctionName() ?? "None".ColourError(),
-            WhyCannotWieldProg?.MXPClickableFunctionName() ?? "None".ColourError()
+            WhyCannotWieldProg?.MXPClickableFunctionName() ?? "None".ColourError(),
+            ConditionMaintenance.Describe(actor)
         );
     }
 
@@ -62,7 +65,8 @@ public class MeleeWeaponGameItemComponentProto : GameItemComponentProto, IMeleeW
             new XElement("Definition",
                 new XElement("WeaponType", WeaponType?.Id ?? 0),
                 new XElement("CanWieldProg", CanWieldProg?.Id ?? 0),
-                new XElement("WhyCannotWieldProg", WhyCannotWieldProg?.Id ?? 0)
+                new XElement("WhyCannotWieldProg", WhyCannotWieldProg?.Id ?? 0),
+                ConditionMaintenance.SaveToXml()
             ).ToString();
     }
 
@@ -83,7 +87,7 @@ public class MeleeWeaponGameItemComponentProto : GameItemComponentProto, IMeleeW
         manager.AddTypeHelpInfo(
             "MeleeWeapon",
             $"Turns an item into a {"[melee weapon]".Colour(Telnet.BoldGreen)}",
-            $"You can use the following options:\n\tname <name> - sets the name of the component\n\tdesc <desc> - sets the description of the component\n\tmelee <melee type> - sets the melee weapon type for this component. See {"show weapons".FluentTagMXP("send", "href='show weapons'")} for a list."
+            $"You can use the following options:\n\tname <name> - sets the name of the component\n\tdesc <desc> - sets the description of the component\n\tmelee <melee type> - sets the melee weapon type for this component. See {"show weapons".FluentTagMXP("send", "href='show weapons'")} for a list.\n\tcondition <option> - configures optional condition degradation."
         );
     }
 
@@ -114,7 +118,8 @@ public class MeleeWeaponGameItemComponentProto : GameItemComponentProto, IMeleeW
 	#3canwield <prog>#0 - sets a prog controlling if this can be wielded
 	#3canwield none#0 - removes a canwield prog
 	#3whycantwield <prog>#0 - sets a prog giving the error message if canwield fails
-	#3whycantwield none#0 - clears the whycantwield prog";
+	#3whycantwield none#0 - clears the whycantwield prog
+	#3condition <option>#0 - configures optional condition degradation";
 
     public override bool BuildingCommand(ICharacter actor, StringStack command)
     {
@@ -131,6 +136,8 @@ public class MeleeWeaponGameItemComponentProto : GameItemComponentProto, IMeleeW
             case "whycannotwield":
             case "whycannotwieldprog":
                 return BuildingCommandWhyCannotWieldProg(actor, command);
+            case "condition":
+                return ConditionMaintenance.BuildingCommand(actor, command, () => Changed = true);
             default:
                 return base.BuildingCommand(actor, command);
         }

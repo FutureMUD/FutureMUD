@@ -6,6 +6,7 @@ using MudSharp.Effects.Concrete;
 using MudSharp.Form.Material;
 using MudSharp.Framework;
 using MudSharp.Framework.Scheduling;
+using MudSharp.GameItems.Interfaces;
 using MudSharp.Health;
 using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Outputs;
@@ -276,6 +277,9 @@ public class NaturalAttackMove : WeaponAttackMove
         {
             recovery = recovery.StageUp(2);
         }
+        (block.Shield as IConditionDegradingComponent)?.UseCondition(
+            new ItemConditionUseContext(ItemConditionUseKind.ShieldBlock, blockCheck[defenderDifficulty],
+                (int)result.Degree));
         return new CombatMoveResult
         {
             MoveWasSuccessful = result.Outcome == OpposedOutcomeDirection.Proponent,
@@ -445,6 +449,9 @@ public class NaturalAttackMove : WeaponAttackMove
 
         Assailant.Body?.SetExertionToMinimumLevel(AssociatedExertion);
         defenderMove.Assailant.Body?.SetExertionToMinimumLevel(defenderMove.AssociatedExertion);
+        (parry.Weapon as IConditionDegradingComponent)?.UseCondition(
+            new ItemConditionUseContext(ItemConditionUseKind.Parry, parryCheck[defenderDifficulty],
+                (int)result.Degree));
         return new CombatMoveResult
         {
             MoveWasSuccessful = result.Outcome == OpposedOutcomeDirection.Proponent,

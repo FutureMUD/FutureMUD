@@ -13,7 +13,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class ShieldGameItemComponentProto : GameItemComponentProto, IShieldPrototype, IMeleeWeaponPrototype
+public class ShieldGameItemComponentProto : GameItemComponentProto, IShieldPrototype, IMeleeWeaponPrototype, IConditionDegradingComponentPrototype
 {
     protected ShieldGameItemComponentProto(IFuturemud gameworld, IAccount originator)
         : base(gameworld, originator, "Shield")
@@ -29,6 +29,7 @@ public class ShieldGameItemComponentProto : GameItemComponentProto, IShieldProto
 
     public IShieldType ShieldType { get; set; }
     public IWeaponType MeleeWeaponType { get; set; }
+    public ConditionMaintenanceProfile ConditionMaintenance { get; } = new(ConditionMaintenanceProfile.DefaultShieldOrMeleeUseExpression);
 #nullable enable
     public IFutureProg? CanWieldProg { get; private set; }
     public IFutureProg? WhyCannotWieldProg { get; private set; }
@@ -55,12 +56,13 @@ public class ShieldGameItemComponentProto : GameItemComponentProto, IShieldProto
 
         CanWieldProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("CanWieldProg")?.Value ?? "0"));
         WhyCannotWieldProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("WhyCannotWieldProg")?.Value ?? "0"));
+        ConditionMaintenance.LoadFromXml(root);
     }
 
     public override string ComponentDescriptionOLC(ICharacter actor)
     {
         return string.Format(actor,
-            "{0} (#{1:N0}r{2:N0}, {3})\n\nThis item is a shield of type {4} and melee weapon type {5}.\nThe CanWield prog is {6} and the WhyCannotWield prog is {7}.",
+            "{0} (#{1:N0}r{2:N0}, {3})\n\nThis item is a shield of type {4} and melee weapon type {5}.\nThe CanWield prog is {6} and the WhyCannotWield prog is {7}.\n{8}",
             "Shield Game Item Component".Colour(Telnet.Cyan),
             Id,
             RevisionNumber,
@@ -68,7 +70,8 @@ public class ShieldGameItemComponentProto : GameItemComponentProto, IShieldProto
             ShieldType?.Name.TitleCase().Colour(Telnet.Green) ?? "None".Colour(Telnet.Red),
             MeleeWeaponType?.Name.TitleCase().Colour(Telnet.Green) ?? "None".Colour(Telnet.Red),
             CanWieldProg?.MXPClickableFunctionName() ?? "None".ColourError(),
-            WhyCannotWieldProg?.MXPClickableFunctionName() ?? "None".ColourError()
+            WhyCannotWieldProg?.MXPClickableFunctionName() ?? "None".ColourError(),
+            ConditionMaintenance.Describe(actor)
         );
     }
 
@@ -79,7 +82,8 @@ public class ShieldGameItemComponentProto : GameItemComponentProto, IShieldProto
                 new XElement("ShieldType", ShieldType?.Id ?? 0),
                 new XElement("MeleeWeaponType", MeleeWeaponType?.Id ?? 0),
                 new XElement("CanWieldProg", CanWieldProg?.Id ?? 0),
-                new XElement("WhyCannotWieldProg", WhyCannotWieldProg?.Id ?? 0)
+                new XElement("WhyCannotWieldProg", WhyCannotWieldProg?.Id ?? 0),
+                ConditionMaintenance.SaveToXml()
             ).ToString();
     }
 
@@ -124,7 +128,8 @@ public class ShieldGameItemComponentProto : GameItemComponentProto, IShieldProto
 	#3canwield <prog>#0 - sets a prog controlling if this can be wielded
 	#3canwield none#0 - removes a canwield prog
 	#3whycantwield <prog>#0 - sets a prog giving the error message if canwield fails
-	#3whycantwield none#0 - clears the whycantwield prog";
+	#3whycantwield none#0 - clears the whycantwield prog
+	#3condition <option>#0 - configures optional condition degradation";
 
     public override string ShowBuildingHelp => BuildingHelpText;
 
@@ -151,6 +156,8 @@ public class ShieldGameItemComponentProto : GameItemComponentProto, IShieldProto
             case "whycannotwield":
             case "whycannotwieldprog":
                 return BuildingCommandWhyCannotWieldProg(actor, command);
+            case "condition":
+                return ConditionMaintenance.BuildingCommand(actor, command, () => Changed = true);
             default:
                 return base.BuildingCommand(actor, command);
         }

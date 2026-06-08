@@ -29,9 +29,18 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Components;
 
-public abstract class FirearmBaseGameItemComponent : GameItemComponent, IRangedWeapon, ISwitchable, IMeleeWeapon
+public abstract class FirearmBaseGameItemComponent : GameItemComponent, IRangedWeapon, ISwitchable, IMeleeWeapon,
+    IConditionDegradingComponent
 {
     private FirearmBaseGameItemComponentProto _prototype;
+    public bool ConditionDegradesOnUse => _prototype.ConditionMaintenance.ConditionDegradesOnUse;
+    public int ItemQualityStages => _prototype.ConditionMaintenance.QualityPenaltyStages(Parent);
+
+    public void UseCondition(ItemConditionUseContext context)
+    {
+        _prototype.ConditionMaintenance.UseCondition(Parent, context);
+    }
+
     protected override void UpdateComponentNewPrototype(IGameItemComponentProto newProto)
     {
         _prototype = (FirearmBaseGameItemComponentProto)newProto;
@@ -324,6 +333,8 @@ public abstract class FirearmBaseGameItemComponent : GameItemComponent, IRangedW
         ICell originalLocation =
             actor.Location; // If the character is firing at themselves, their location can be changed by the ammo.Fire call.
         ammo.Fire(actor, target, shotOutcome, coverOutcome, defenseOutcome, bodypart, bullet, WeaponType, defenseEmote);
+        UseCondition(new ItemConditionUseContext(ItemConditionUseKind.RangedFire, shotOutcome,
+            (int)(defenseOutcome?.Degree ?? OpposedOutcomeDegree.None)));
 
         HandleShellCasingOnFire(actor, originalLocation, shell);
 

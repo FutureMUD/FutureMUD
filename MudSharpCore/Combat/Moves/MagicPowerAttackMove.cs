@@ -7,6 +7,7 @@ using MudSharp.Effects.Concrete;
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
 using MudSharp.Framework.Scheduling;
+using MudSharp.GameItems.Interfaces;
 using MudSharp.Health;
 using MudSharp.Magic.Powers;
 using MudSharp.PerceptionEngine;
@@ -291,6 +292,8 @@ public class MagicPowerAttackMove : WeaponAttackMove, IMagicPowerAttackMove
         {
             recovery = recovery.StageUp(2);
         }
+        (defenderMove.Shield as IConditionDegradingComponent)?.UseCondition(
+            new ItemConditionUseContext(ItemConditionUseKind.ShieldBlock, blockCheck, (int)result.Degree));
         return new CombatMoveResult
         {
             MoveWasSuccessful = result.Outcome == OpposedOutcomeDirection.Proponent,
@@ -484,6 +487,8 @@ public class MagicPowerAttackMove : WeaponAttackMove, IMagicPowerAttackMove
 
         Assailant.Body?.SetExertionToMinimumLevel(AssociatedExertion);
         defenderMove.Assailant.Body?.SetExertionToMinimumLevel(defenderMove.AssociatedExertion);
+        (parry.Weapon as IConditionDegradingComponent)?.UseCondition(
+            new ItemConditionUseContext(ItemConditionUseKind.Parry, parryCheck, (int)result.Degree));
         return new CombatMoveResult
         {
             MoveWasSuccessful = result.Outcome == OpposedOutcomeDirection.Proponent,

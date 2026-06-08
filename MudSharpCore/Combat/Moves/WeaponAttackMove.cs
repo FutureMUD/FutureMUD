@@ -419,6 +419,8 @@ public abstract class WeaponAttackMove : CombatMoveBase, IWeaponAttackMove
                             .Fullstop(), defender,
                         defender, aggressor, wardResult.WardWeapon.Parent), style: OutputStyle.CombatMessage,
                     flags: OutputFlags.InnerWrap));
+            (wardResult.WardWeapon as IConditionDegradingComponent)?.UseCondition(
+                new ItemConditionUseContext(ItemConditionUseKind.MeleeAttack, attackRoll, (int)result.Degree));
             return Enumerable.Empty<IWound>();
         }
         else
@@ -498,6 +500,8 @@ public abstract class WeaponAttackMove : CombatMoveBase, IWeaponAttackMove
                     context: TraitBonusContext.ArmedDamageCalculation) * 2 * finalAngle / Math.PI
         };
 
+        (wardResult.WardWeapon as IConditionDegradingComponent)?.UseCondition(
+            new ItemConditionUseContext(ItemConditionUseKind.MeleeAttack, attackRoll, (int)result.Degree));
         List<IWound> wounds = aggressor.PassiveSufferDamage(finalDamage).ToList();
         defender.Body?.SetExertionToMinimumLevel(weaponAttack.ExertionLevel);
         return wounds;
@@ -720,6 +724,8 @@ public abstract class WeaponAttackMove : CombatMoveBase, IWeaponAttackMove
                 wardDefenseEmote = Gameworld.CombatMessageManager.GetFailMessageFor(ward.Assailant, Assailant,
                     ward.WardWeapon?.Parent, Attack, BuiltInCombatMoveType.WardCounter, wardCheck[warderDifficulty],
                     null);
+                (ward.WardWeapon as IConditionDegradingComponent)?.UseCondition(
+                    new ItemConditionUseContext(ItemConditionUseKind.Parry, wardCheck[warderDifficulty], (int)result.Degree));
                 return new WardResult
                 {
                     WardAttack = false,
@@ -732,6 +738,8 @@ public abstract class WeaponAttackMove : CombatMoveBase, IWeaponAttackMove
             // If we get this far, they are ignoring the ward and the attacker gets a counter attack
             wardDefenseEmote = Gameworld.CombatMessageManager.GetMessageFor(ward.Assailant, Assailant,
                 ward.WardWeapon?.Parent, Attack, BuiltInCombatMoveType.WardCounter, wardCheck[warderDifficulty], null);
+            (ward.WardWeapon as IConditionDegradingComponent)?.UseCondition(
+                new ItemConditionUseContext(ItemConditionUseKind.Parry, wardCheck[warderDifficulty], (int)result.Degree));
             return new WardResult
             {
                 WardAttack = true,
@@ -743,6 +751,8 @@ public abstract class WeaponAttackMove : CombatMoveBase, IWeaponAttackMove
 
         wardDefenseEmote = Gameworld.CombatMessageManager.GetMessageFor(ward.Assailant, Assailant,
             ward.WardWeapon?.Parent, Attack, BuiltInCombatMoveType.WardCounter, wardCheck[warderDifficulty], null);
+        (ward.WardWeapon as IConditionDegradingComponent)?.UseCondition(
+            new ItemConditionUseContext(ItemConditionUseKind.Parry, wardCheck[warderDifficulty], (int)result.Degree));
         return new WardResult
         {
             WardAttack = false,

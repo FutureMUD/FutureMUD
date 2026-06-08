@@ -14,7 +14,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Components;
 
-public class MeasuringInstrumentGameItemComponent : GameItemComponent, IMeasuringInstrument
+public class MeasuringInstrumentGameItemComponent : GameItemComponent, IMeasuringInstrument, IConditionDegradingComponent
 {
 	private MeasuringInstrumentGameItemComponentProto _prototype;
 	private double _calibrationBias;
@@ -24,6 +24,8 @@ public class MeasuringInstrumentGameItemComponent : GameItemComponent, IMeasurin
 	private int _driftDirection;
 
 	public override IGameItemComponentProto Prototype => _prototype;
+	public bool ConditionDegradesOnUse => _prototype.ConditionMaintenance.ConditionDegradesOnUse;
+	public int ItemQualityStages => _prototype.ConditionMaintenance.QualityPenaltyStages(Parent);
 	public MeasuringInstrumentMode Mode => _prototype.Mode;
 	public UnitType UnitType => _prototype.UnitType;
 	public double Precision => _prototype.Precision;
@@ -36,6 +38,11 @@ public class MeasuringInstrumentGameItemComponent : GameItemComponent, IMeasurin
 	protected override void UpdateComponentNewPrototype(IGameItemComponentProto newProto)
 	{
 		_prototype = (MeasuringInstrumentGameItemComponentProto)newProto;
+	}
+
+	public void UseCondition(ItemConditionUseContext context)
+	{
+		_prototype.ConditionMaintenance.UseCondition(Parent, context);
 	}
 
 	public MeasuringInstrumentGameItemComponent(MeasuringInstrumentGameItemComponentProto proto, IGameItem parent,
@@ -135,6 +142,7 @@ public class MeasuringInstrumentGameItemComponent : GameItemComponent, IMeasurin
 		var drift = CurrentDrift(trueValue);
 		var bias = _calibrationBiasIsPercentage ? trueValue * _calibrationBias : _calibrationBias;
 		var reported = RoundToPrecision(Math.Max(0.0, trueValue + drift + bias));
+		UseCondition(new ItemConditionUseContext(ItemConditionUseKind.Measurement));
 		Changed = true;
 		return new MeasurementResult(Mode, UnitType, trueValue, reported, drift, bias, _usesSinceCalibration);
 	}

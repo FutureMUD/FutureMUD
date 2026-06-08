@@ -15,7 +15,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class MeasuringInstrumentGameItemComponentProto : GameItemComponentProto, IMeasuringInstrumentPrototype
+public class MeasuringInstrumentGameItemComponentProto : GameItemComponentProto, IMeasuringInstrumentPrototype, IConditionDegradingComponentPrototype
 {
 	public override string TypeDescription => "MeasuringInstrument";
 
@@ -27,6 +27,7 @@ public class MeasuringInstrumentGameItemComponentProto : GameItemComponentProto,
 	public double MaximumDrift { get; protected set; } = 0.05;
 	public double MaximumWrongCalibration { get; protected set; } = 0.5;
 	public Difficulty CalibrationInspectionDifficulty { get; protected set; } = Difficulty.Normal;
+	public ConditionMaintenanceProfile ConditionMaintenance { get; } = new(ConditionMaintenanceProfile.DefaultMeasurementUseExpression);
 
 	protected MeasuringInstrumentGameItemComponentProto(IFuturemud gameworld, IAccount originator) : base(gameworld,
 		originator, "MeasuringInstrument")
@@ -49,6 +50,7 @@ public class MeasuringInstrumentGameItemComponentProto : GameItemComponentProto,
 		MaximumDrift = double.Parse(root.Element("MaximumDrift")?.Value ?? "0.05");
 		MaximumWrongCalibration = double.Parse(root.Element("MaximumWrongCalibration")?.Value ?? "0.5");
 		CalibrationInspectionDifficulty = (Difficulty)int.Parse(root.Element("CalibrationInspectionDifficulty")?.Value ?? ((int)Difficulty.Normal).ToString());
+		ConditionMaintenance.LoadFromXml(root);
 	}
 
 	protected override string SaveToXml()
@@ -60,7 +62,8 @@ public class MeasuringInstrumentGameItemComponentProto : GameItemComponentProto,
 			new XElement("BaseDriftPerUse", BaseDriftPerUse),
 			new XElement("MaximumDrift", MaximumDrift),
 			new XElement("MaximumWrongCalibration", MaximumWrongCalibration),
-			new XElement("CalibrationInspectionDifficulty", (int)CalibrationInspectionDifficulty)).ToString();
+			new XElement("CalibrationInspectionDifficulty", (int)CalibrationInspectionDifficulty),
+			ConditionMaintenance.SaveToXml()).ToString();
 	}
 
 	public override IGameItemComponent CreateNew(IGameItem parent, ICharacter? loader = null, bool temporary = false)
@@ -101,7 +104,8 @@ public class MeasuringInstrumentGameItemComponentProto : GameItemComponentProto,
 	#3drift <percent>#0 - sets the drift accumulated per use at standard quality
 	#3maxdrift <percent>#0 - sets the maximum honest drift
 	#3maxwrong <percent>#0 - sets the maximum deliberate wrong-calibration bias
-	#3difficulty <difficulty>#0 - sets the appraise difficulty to inspect calibration";
+	#3difficulty <difficulty>#0 - sets the appraise difficulty to inspect calibration
+	#3condition <option>#0 - configures optional condition degradation";
 
 	public override string ShowBuildingHelp => BuildingHelpText;
 
@@ -133,6 +137,8 @@ public class MeasuringInstrumentGameItemComponentProto : GameItemComponentProto,
 			case "inspect":
 			case "inspection":
 				return BuildingCommandDifficulty(actor, command);
+			case "condition":
+				return ConditionMaintenance.BuildingCommand(actor, command, () => Changed = true);
 			default:
 				return base.BuildingCommand(actor, command);
 		}
@@ -253,6 +259,7 @@ Precision: {Gameworld.UnitManager.DescribeExact(Precision, UnitType, actor).Colo
 Base Drift Per Use: {BaseDriftPerUse.ToString("P3", actor).ColourValue()}
 Maximum Drift: {MaximumDrift.ToString("P3", actor).ColourValue()}
 Maximum Wrong Calibration: {MaximumWrongCalibration.ToString("P3", actor).ColourValue()}
-Calibration Inspection Difficulty: {CalibrationInspectionDifficulty.DescribeColoured()}";
+Calibration Inspection Difficulty: {CalibrationInspectionDifficulty.DescribeColoured()}
+{ConditionMaintenance.Describe(actor)}";
 	}
 }

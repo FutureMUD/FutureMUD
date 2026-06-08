@@ -23,10 +23,17 @@ using System.Xml.Linq;
 namespace MudSharp.GameItems.Components;
 
 public class SlingGameItemComponent : GameItemComponent, IRangedWeaponWithUnreadyEvent,
-	IReadiedRangedWeaponStaminaSource
+	IReadiedRangedWeaponStaminaSource, IConditionDegradingComponent
 {
 	protected SlingGameItemComponentProto _prototype;
 	public override IGameItemComponentProto Prototype => _prototype;
+	public bool ConditionDegradesOnUse => _prototype.ConditionMaintenance.ConditionDegradesOnUse;
+	public int ItemQualityStages => _prototype.ConditionMaintenance.QualityPenaltyStages(Parent);
+
+	public void UseCondition(ItemConditionUseContext context)
+	{
+		_prototype.ConditionMaintenance.UseCondition(Parent, context);
+	}
 
 	public override IGameItemComponent Copy(IGameItem newParent, bool temporary = false)
 	{
@@ -401,6 +408,8 @@ public class SlingGameItemComponent : GameItemComponent, IRangedWeaponWithUnread
 		Changed = true;
 		ammo.Fire(actor, target, shotOutcome, coverOutcome, defenseOutcome, bodypart, ammo.Parent, WeaponType,
 			defenseEmote);
+		UseCondition(new ItemConditionUseContext(ItemConditionUseKind.RangedFire, shotOutcome,
+			(int)(defenseOutcome?.Degree ?? OpposedOutcomeDegree.None)));
 		OnFire?.Invoke(Parent);
 	}
 

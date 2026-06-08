@@ -17,6 +17,7 @@ public class GameItemComponentPrototypeExclusivityTests
 	private static readonly HashSet<Type> AggregateComponentTypes =
 	[
 		typeof(IAffectQuality),
+		typeof(IConditionDegradingComponent),
 		typeof(ICanConnectToElectricalGrid),
 		typeof(ICanConnectToGrid),
 		typeof(ICanConnectToLiquidGrid),

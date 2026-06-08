@@ -23,7 +23,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class LaserGameItemComponentProto : GameItemComponentProto, IRangedWeaponPrototype, ISwitchablePrototype, IMeleeWeaponPrototype
+public class LaserGameItemComponentProto : GameItemComponentProto, IRangedWeaponPrototype, ISwitchablePrototype, IMeleeWeaponPrototype, IConditionDegradingComponentPrototype
 {
     private IRangedWeaponType _rangedRangedWeaponType;
 
@@ -89,6 +89,7 @@ public class LaserGameItemComponentProto : GameItemComponentProto, IRangedWeapon
     }
 
     public IWeaponType MeleeWeaponType { get; set; }
+    public ConditionMaintenanceProfile ConditionMaintenance { get; } = new(ConditionMaintenanceProfile.DefaultRangedOrMeleeUseExpression);
 #nullable enable
     public IFutureProg? CanWieldProg { get; private set; }
     public IFutureProg? WhyCannotWieldProg { get; private set; }
@@ -171,6 +172,7 @@ public class LaserGameItemComponentProto : GameItemComponentProto, IRangedWeapon
         {
             MeleeWeaponType = Gameworld.WeaponTypes.Get(Gameworld.GetStaticLong("DefaultGunMeleeWeaponType"));
         }
+        ConditionMaintenance.LoadFromXml(root);
     }
 
     #endregion
@@ -194,7 +196,8 @@ public class LaserGameItemComponentProto : GameItemComponentProto, IRangedWeapon
             new XElement("StunMultiplier", StunMultiplier),
             new XElement("MeleeWeaponType", MeleeWeaponType?.Id ?? 0),
             new XElement("CanWieldProg", CanWieldProg?.Id ?? 0),
-            new XElement("WhyCannotWieldProg", WhyCannotWieldProg?.Id ?? 0)
+            new XElement("WhyCannotWieldProg", WhyCannotWieldProg?.Id ?? 0),
+            ConditionMaintenance.SaveToXml()
         ).ToString();
     }
 
@@ -258,7 +261,8 @@ public class LaserGameItemComponentProto : GameItemComponentProto, IRangedWeapon
 	#3canwield <prog>#0 - sets a prog controlling if this can be wielded
 	#3canwield none#0 - removes a canwield prog
 	#3whycantwield <prog>#0 - sets a prog giving the error message if canwield fails
-	#3whycantwield none#0 - clears the whycantwield prog";
+	#3whycantwield none#0 - clears the whycantwield prog
+	#3condition <option>#0 - configures optional condition degradation";
 
     public override bool BuildingCommand(ICharacter actor, StringStack command)
     {
@@ -311,6 +315,8 @@ public class LaserGameItemComponentProto : GameItemComponentProto, IRangedWeapon
             case "whycannotwield":
             case "whycannotwieldprog":
                 return BuildingCommandWhyCannotWieldProg(actor, command);
+            case "condition":
+                return ConditionMaintenance.BuildingCommand(actor, command, () => Changed = true);
             default:
                 return base.BuildingCommand(actor, command);
         }
@@ -632,7 +638,7 @@ public class LaserGameItemComponentProto : GameItemComponentProto, IRangedWeapon
     public override string ComponentDescriptionOLC(ICharacter actor)
     {
         return string.Format(actor,
-            "{0} (#{1:N0}r{2:N0}, {3})\r\n\r\nThis is a laser of type {4} and melee type {16}.\nThe CanWield prog is {17} and the WhyCannotWield prog is {18}.\n\nFire: {5}\nFireEmpty: {6}\nLoad: {7}\nUnload: {8}\nReady: {9}\nUnready: {10}\nVolume: {11}\nClip Type: {12}\nWatts per Shot: {13}\nPain Multiplier: {14:P2}\nStun Multiplier: {15:P2}",
+            "{0} (#{1:N0}r{2:N0}, {3})\r\n\r\nThis is a laser of type {4} and melee type {16}.\nThe CanWield prog is {17} and the WhyCannotWield prog is {18}.\n{19}\n\nFire: {5}\nFireEmpty: {6}\nLoad: {7}\nUnload: {8}\nReady: {9}\nUnready: {10}\nVolume: {11}\nClip Type: {12}\nWatts per Shot: {13}\nPain Multiplier: {14:P2}\nStun Multiplier: {15:P2}",
             "Laser Game Item Component".Colour(Telnet.Cyan),
             Id,
             RevisionNumber,
@@ -651,7 +657,8 @@ public class LaserGameItemComponentProto : GameItemComponentProto, IRangedWeapon
             StunMultiplier,
             MeleeWeaponType?.Name.TitleCase().Colour(Telnet.Green) ?? "None".Colour(Telnet.Red),
             CanWieldProg?.MXPClickableFunctionName() ?? "None".ColourError(),
-            WhyCannotWieldProg?.MXPClickableFunctionName() ?? "None".ColourError()
+            WhyCannotWieldProg?.MXPClickableFunctionName() ?? "None".ColourError(),
+            ConditionMaintenance.Describe(actor)
         );
     }
 

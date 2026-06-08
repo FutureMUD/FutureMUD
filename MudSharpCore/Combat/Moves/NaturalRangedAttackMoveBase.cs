@@ -112,6 +112,8 @@ public abstract class NaturalRangedAttackMoveBase : WeaponAttackMove, IRangedAtt
         OpposedOutcome opposed = new(attackOutcome, blockCheck);
         if (opposed.Outcome == OpposedOutcomeDirection.Opponent)
         {
+            (block.Shield as IConditionDegradingComponent)?.UseCondition(
+                new ItemConditionUseContext(ItemConditionUseKind.ShieldBlock, blockCheck, (int)opposed.Degree));
             return new CombatMoveResult
             {
                 RecoveryDifficulty = RecoveryDifficultyFailure,
@@ -122,6 +124,8 @@ public abstract class NaturalRangedAttackMoveBase : WeaponAttackMove, IRangedAtt
 
         List<IWound> wounds = ApplySuccessfulHit(target, attackOutcome, opposed.Degree, TargetBodypart).ToList();
         wounds.ProcessPassiveWounds();
+        (block.Shield as IConditionDegradingComponent)?.UseCondition(
+            new ItemConditionUseContext(ItemConditionUseKind.ShieldBlock, blockCheck, (int)opposed.Degree));
         return new CombatMoveResult
         {
             MoveWasSuccessful = true,

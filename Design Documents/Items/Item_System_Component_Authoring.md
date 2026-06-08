@@ -105,6 +105,21 @@ These markers let item prototypes catch invalid component combinations before re
 
 If you add a new public `IGameItemComponent` interface, add its matching `I...Prototype` marker at the same time and classify it as exclusive unless the runtime deliberately aggregates multiple sibling components of that interface.
 
+### Opt-in condition maintenance
+Use `IConditionDegradingComponent` when a component should optionally consume `IGameItem.Condition` as it is used. The interface extends `IAffectQuality`, and the matching `IConditionDegradingComponentPrototype` marker is aggregate, so a component can contribute a maintenance quality penalty without becoming the item's only quality-affecting component.
+
+Supported component protos expose the shared builder commands:
+- `condition on|off`
+- `condition use <formula>`
+- `condition quality <formula>`
+- `condition defaults`
+
+Legacy XML and fresh component protos must load disabled by default. Do not make old weapons, armour, shields, measuring instruments, or firearms begin degrading merely because the code now supports it; builders opt specific component revisions in.
+
+Use the shared `ConditionMaintenanceProfile` helper for XML load/save, builder parsing, formula validation, and clamping. Its formula variables are `condition`, `rawquality`, `basequality`, `usekind`, `outcome`, `degree`, `damage`, `absorbed`, and `passed`. The default quality formula applies no penalty above 20 percent condition and becomes progressively harsher only at very low condition. Hybrid combat profiles should branch their stock use-loss formula on `usekind`, so ranged firing and shield blocks can use the higher default while melee attacks, parries, and warding weapon uses keep the lower melee default.
+
+Place use hooks after the use attempt has resolved so the current action uses the pre-use quality. Combat components should map melee attacks, parries, warding attacks, shield blocks, ranged shots, and armour absorption to the matching `ItemConditionUseKind`. Non-combat components should hook meaningful operation attempts such as a completed measurement or a breathing-filter gas consumption tick.
+
 ### Registration requirements
 Every normal component proto must register itself with `GameItemComponentManager` using a static `RegisterComponentInitialiser(...)`.
 
@@ -148,6 +163,8 @@ Use `SealStamp` for signets, cylinder seals, office stamps, or similar authority
 Use `Sealable` as a separate attachable component rather than folding seal state into containers, books, scrolls, or writing surfaces. This lets the same tamper-evidence behaviour compose with `IContainer`, `IWriteable`, `IReadable`, openable items, and other ordinary item capabilities. The prototype stores allowed media, inspection difficulty, and broken-residue behaviour. The live component stores the active seal snapshot, sealing actor/time evidence where available, medium descriptor, broken state, and residue state.
 
 Use `MeasuringInstrument` for physical measurement tools that should produce falsifiable reported quantities. The current implementation supports `Weight` and `FluidVolume` modes. Length, cubit, and surveying tools should remain prop-only until item dimensions exist. The prototype stores mode, precision, capacity, base drift per use, display unit text, and wrong-calibration limits. The live component stores stable drift direction, use count since calibration, calibration state, and any deliberate base-unit or percentage bias.
+
+Measuring instruments can also opt in to shared condition maintenance. The stock loss formula is `0.0001` per measurement. Effective quality penalties from low condition feed the existing calibration-drift calculation, so a poorly maintained instrument becomes less reliable without a measuring-specific penalty path.
 
 ### Incense and offering components
 

@@ -143,6 +143,8 @@ public class MeleeWeaponSmashItemAttack : WeaponAttackMove
 
         wounds.ProcessPassiveWounds();
         selfwounds.ProcessPassiveWounds();
+        (Weapon as IConditionDegradingComponent)?.UseCondition(
+            new ItemConditionUseContext(ItemConditionUseKind.MeleeAttack, check));
         return new CombatMoveResult
         {
             RecoveryDifficulty = check.Outcome.IsPass() ? Difficulty.Normal : Difficulty.Hard,

@@ -67,7 +67,8 @@ public class GunGameItemComponentProto : FirearmBaseGameItemComponentProto, IRan
             new XElement("ClipType", new XCData(ClipType)),
             new XElement("MeleeWeaponType", MeleeWeaponType?.Id ?? 0),
             new XElement("CanWieldProg", CanWieldProg?.Id ?? 0),
-            new XElement("WhyCannotWieldProg", WhyCannotWieldProg?.Id ?? 0)
+            new XElement("WhyCannotWieldProg", WhyCannotWieldProg?.Id ?? 0),
+            ConditionMaintenance.SaveToXml()
         ).ToString();
     }
 
@@ -231,6 +232,7 @@ public class GunGameItemComponentProto : FirearmBaseGameItemComponentProto, IRan
 
 This is a modern firearm of type {4} and melee type {13}.
 The CanWield prog is {14} and the WhyCannotWield prog is {15}.
+{16}
 
 Fire: {5}
 FireEmpty: {6}
@@ -255,7 +257,8 @@ Clip Type: {12}",
             ClipType.Colour(Telnet.Green),
             MeleeWeaponType?.Name.TitleCase().Colour(Telnet.Green) ?? "None".Colour(Telnet.Red),
             CanWieldProg?.MXPClickableFunctionName() ?? "None".ColourError(),
-            WhyCannotWieldProg?.MXPClickableFunctionName() ?? "None".ColourError()
+            WhyCannotWieldProg?.MXPClickableFunctionName() ?? "None".ColourError(),
+            ConditionMaintenance.Describe(actor)
         );
     }
 }

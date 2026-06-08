@@ -137,6 +137,10 @@ public interface ICommodityPrototype : IExclusiveGameItemComponentPrototype<ICom
 {
 }
 
+public interface IConditionDegradingComponentPrototype : IAggregateGameItemComponentPrototype<IConditionDegradingComponent>, IAffectQualityPrototype
+{
+}
+
 public interface IConnectablePrototype : IAggregateGameItemComponentPrototype<IConnectable>
 {
 }

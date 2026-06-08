@@ -11,7 +11,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class ArmourGameItemComponentProto : GameItemComponentProto, IArmourPrototype
+public class ArmourGameItemComponentProto : GameItemComponentProto, IArmourPrototype, IConditionDegradingComponentPrototype
 {
     protected ArmourGameItemComponentProto(IFuturemud gameworld, IAccount originator)
         : base(gameworld, originator, "Armour")
@@ -25,6 +25,7 @@ public class ArmourGameItemComponentProto : GameItemComponentProto, IArmourProto
 
     public IArmourType ArmourType { get; set; }
     public bool ApplyArmourPenalties { get; set; } = true;
+    public ConditionMaintenanceProfile ConditionMaintenance { get; } = new(ConditionMaintenanceProfile.DefaultArmourUseExpression);
 
     public override string TypeDescription => "Armour";
 
@@ -38,6 +39,7 @@ public class ArmourGameItemComponentProto : GameItemComponentProto, IArmourProto
 
         element = root.Element("ApplyArmourPenalties");
         ApplyArmourPenalties = element is null || bool.Parse(element.Value);
+        ConditionMaintenance.LoadFromXml(root);
     }
 
     public override string ComponentDescriptionOLC(ICharacter actor)
@@ -45,13 +47,15 @@ public class ArmourGameItemComponentProto : GameItemComponentProto, IArmourProto
         return string.Format(actor, @"{0} (#{1:N0}r{2:N0}, {3})
 
 This item is armour of type {4}.
-It {5} apply armour type penalties for stacking.",
+It {5} apply armour type penalties for stacking.
+{6}",
             "Armour Game Item Component".Colour(Telnet.Cyan),
             Id,
             RevisionNumber,
             Name,
             ArmourType?.Name.TitleCase().Colour(Telnet.Green) ?? "None".Colour(Telnet.Red),
-            ApplyArmourPenalties ? "does".ColourValue() : "does not".ColourError()
+            ApplyArmourPenalties ? "does".ColourValue() : "does not".ColourError(),
+            ConditionMaintenance.Describe(actor)
         );
     }
 
@@ -60,7 +64,8 @@ It {5} apply armour type penalties for stacking.",
         return
             new XElement("Definition",
                 new XElement("ArmourType", ArmourType?.Id ?? 0),
-                new XElement("ApplyArmourPenalties", ApplyArmourPenalties)
+                new XElement("ApplyArmourPenalties", ApplyArmourPenalties),
+                ConditionMaintenance.SaveToXml()
             ).ToString();
     }
 
@@ -105,7 +110,8 @@ It {5} apply armour type penalties for stacking.",
 	#3name <name>#0 - sets the name of the component
 	#3desc <desc>#0 - sets the description of the component
 	#3type <armour type>#0 - sets the armour type for this component. See {"show armours".FluentTagMXP("send", "href='show armours'")} for a list.
-	#3penalties#0 - toggles applying armour skill penalties for this armour";
+	#3penalties#0 - toggles applying armour skill penalties for this armour
+	#3condition <option>#0 - configures optional condition degradation";
 
     public override bool BuildingCommand(ICharacter actor, StringStack command)
     {
@@ -115,6 +121,8 @@ It {5} apply armour type penalties for stacking.",
                 return BuildingCommand_Type(actor, command);
             case "penalties":
                 return BuildingCommandPenalties(actor);
+            case "condition":
+                return ConditionMaintenance.BuildingCommand(actor, command, () => Changed = true);
             default:
                 return base.BuildingCommand(actor, command);
         }

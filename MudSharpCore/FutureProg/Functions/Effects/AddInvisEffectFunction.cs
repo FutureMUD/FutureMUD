@@ -44,7 +44,13 @@ internal class AddInvisEffectFunction : BuiltInFunction
 
         IFutureProg prog = (ParameterFunctions[1].ReturnType.CompatibleWith(ProgVariableTypes.Number)
             ? _gameworld.FutureProgs.Get(Convert.ToInt64(ParameterFunctions[1].Result?.GetObject ?? 0))
-            : _gameworld.FutureProgs.GetByName((string)ParameterFunctions[1].Result?.GetObject ?? "")) ?? _gameworld.AlwaysTrueProg;
+            : _gameworld.FutureProgs.GetByName((string)ParameterFunctions[1].Result?.GetObject ?? ""));
+
+        if (prog is null)
+        {
+            Result = new NullVariable(ProgVariableTypes.Effect);
+            return StatementResult.Normal;
+        }
 
         if (prog.ReturnType != ProgVariableTypes.Boolean ||
             !prog.MatchesParameters([ProgVariableTypes.Perceivable, ProgVariableTypes.Perceivable])

@@ -1102,7 +1102,8 @@ public partial class Body
         if (!string.IsNullOrWhiteSpace(damage.Bodypart.SeverFormula))
         {
             IExpression expression = new Expression(damage.Bodypart.SeverFormula);
-            return expression.EvaluateDoubleWith(("damage", damage.DamageAmount), ("damagetype", (int)damage.DamageType)) >= 1.0;
+            double result = expression.EvaluateDoubleWith(("damage", damage.DamageAmount), ("damagetype", (int)damage.DamageType));
+            return double.IsFinite(result) && result >= 1.0;
         }
 
         return damage.DamageAmount >= Race.ModifiedSeverthreshold(damage.Bodypart) &&

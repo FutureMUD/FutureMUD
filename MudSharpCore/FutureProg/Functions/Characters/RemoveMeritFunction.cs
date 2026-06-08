@@ -70,8 +70,7 @@ internal class RemoveMeritFunction : BuiltInFunction
 
         if (target.Merits.Contains(merit))
         {
-            target.RemoveMerit(merit);
-            Result = new BooleanVariable(true);
+            Result = new BooleanVariable(target.RemoveMerit(merit));
             return StatementResult.Normal;
         }
 

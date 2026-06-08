@@ -70,7 +70,7 @@ internal class GiveAccentFunction : BuiltInFunction
             return StatementResult.Error;
         }
 
-        if (target.AccentDifficulty(accent, false) == Difficulty.Automatic)
+        if (target.Accents.Contains(accent))
         {
             Result = new BooleanVariable(false);
             return StatementResult.Normal;

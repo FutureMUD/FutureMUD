@@ -9,6 +9,10 @@ namespace MudSharp.Framework;
 /// </summary>
 public static class Dice
 {
+    public const int MaximumDiceCount = 1000;
+    public const int MaximumSidesPerDie = 10000;
+    public const int MaximumRollsPerExpression = 10000;
+
     // TODO: improve regex to avoid false positive.
     private static readonly Regex _regex = new(@"(?<sign>\+|\-){0,1}(?<numdice>\d+){1}(?:d(?<sides>\d+))*(?:\s*(?<mod1>m|M|k|K|e|r|R|l)(?<val1>\d+)){0,1}(?:\s*(?<mod2>m|M|k|K|e|r|R|l)(?<val2>\d+)){0,1}(?:\s*(?<mod3>m|M|k|K|e|r|R|l)(?<val3>\d+)){0,1}", RegexOptions.IgnoreCase);
 
@@ -32,6 +36,77 @@ public static class Dice
             if (_regex.Replace(text, "").Length > 0)
             {
                 return false;
+            }
+        }
+
+        return true;
+    }
+
+    public static bool TryValidateDiceExpression(string input, out string error)
+    {
+        error = string.Empty;
+        if (string.IsNullOrWhiteSpace(input))
+        {
+            error = "The dice expression was blank.";
+            return false;
+        }
+
+        var totalDice = 0;
+        foreach (string text in input.Split([';']))
+        {
+            if (_regex.Replace(text, "").Length > 0)
+            {
+                error = "The expression contained unsupported dice syntax.";
+                return false;
+            }
+
+            foreach (Match match in _regex.Matches(text))
+            {
+                int sides = match.Groups["sides"].Length > 0 ? int.Parse(match.Groups["sides"].Value) : 1;
+                int numdice = match.Groups["numdice"].Length > 0 ? int.Parse(match.Groups["numdice"].Value) : 0;
+                bool isBareConstant = match.Groups["sides"].Length == 0 &&
+                                      string.IsNullOrEmpty(match.Groups["mod1"].Value) &&
+                                      string.IsNullOrEmpty(match.Groups["mod2"].Value) &&
+                                      string.IsNullOrEmpty(match.Groups["mod3"].Value);
+                if (isBareConstant)
+                {
+                    continue;
+                }
+
+                if (sides <= 0 || sides > MaximumSidesPerDie)
+                {
+                    error = $"Dice expressions support 1 to {MaximumSidesPerDie:N0} sides per die.";
+                    return false;
+                }
+
+                if (numdice < 0 || numdice > MaximumDiceCount)
+                {
+                    error = $"Dice expressions support 0 to {MaximumDiceCount:N0} dice per group.";
+                    return false;
+                }
+
+                totalDice += numdice;
+                if (totalDice > MaximumRollsPerExpression)
+                {
+                    error = $"Dice expressions support at most {MaximumRollsPerExpression:N0} base rolls.";
+                    return false;
+                }
+
+                for (var i = 1; i <= 3; i++)
+                {
+                    var modifier = match.Groups[$"mod{i}"].Value;
+                    if (!modifier.Equals("e", System.StringComparison.OrdinalIgnoreCase))
+                    {
+                        continue;
+                    }
+
+                    var threshold = int.Parse(match.Groups[$"val{i}"].Value);
+                    if (threshold <= 1)
+                    {
+                        error = "Exploding dice must use a threshold greater than 1.";
+                        return false;
+                    }
+                }
             }
         }
 
@@ -104,8 +179,14 @@ public static class Dice
 
     private static int RollInternal(string expression, List<int> rawRolls)
     {
+        if (!TryValidateDiceExpression(expression, out _))
+        {
+            return 0;
+        }
+
         string[] strings = expression.Split([';']);
         int sum = 0;
+        int remainingRolls = MaximumRollsPerExpression;
         foreach (string s in strings)
         {
             if (int.TryParse(s, out int number))
@@ -126,6 +207,15 @@ public static class Dice
                 string opt1 = match.Groups["mod1"].Value;
                 string opt2 = match.Groups["mod2"].Value;
                 string opt3 = match.Groups["mod3"].Value;
+                bool isBareConstant = match.Groups["sides"].Length == 0 &&
+                                      string.IsNullOrEmpty(opt1) &&
+                                      string.IsNullOrEmpty(opt2) &&
+                                      string.IsNullOrEmpty(opt3);
+                if (isBareConstant)
+                {
+                    sum += sign * numdice;
+                    continue;
+                }
 
                 bool isMin = false, isMax = false, isKeep = false, isKeepLowest = false, isRerollOnce = false, isRerollUntil = false, isExplodes = false;
                 int minMaxReference = 0;
@@ -266,6 +356,11 @@ public static class Dice
                 List<int> rolls = new(sides);
                 for (int i = 0; i < numdice; i++)
                 {
+                    if (--remainingRolls < 0)
+                    {
+                        return 0;
+                    }
+
                     int roll = Constants.Random.Next(1, sides + 1);
                     rawRolls?.Add(roll);
                     if (isRerollOnce && roll <= rerollReference)

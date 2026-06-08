@@ -76,8 +76,7 @@ internal class GiveMeritFunction : BuiltInFunction
             return StatementResult.Normal;
         }
 
-        target.AddMerit(merit);
-        Result = new BooleanVariable(true);
+        Result = new BooleanVariable(target.AddMerit(merit));
         return StatementResult.Normal;
     }
 }

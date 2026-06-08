@@ -66,6 +66,7 @@ internal class VariableRegister : SaveableItem, IVariableRegister
                         case ProgVariableTypeCode.TimeSpan:
                         case ProgVariableTypeCode.DateTime:
                         case ProgVariableTypeCode.MudDateTime:
+                        case ProgVariableTypeCode.LiquidMixture:
                             newValue = new ValueVariableValue(XElement.Parse(sub.DefaultValue), valueType, gameworld);
                             break;
                         default:
@@ -115,6 +116,7 @@ internal class VariableRegister : SaveableItem, IVariableRegister
                     case ProgVariableTypeCode.DateTime:
                     case ProgVariableTypeCode.TimeSpan:
                     case ProgVariableTypeCode.MudDateTime:
+                    case ProgVariableTypeCode.LiquidMixture:
                         newValue = new ValueVariableValue(XElement.Parse(item.ValueDefinition), type, gameworld);
                         break;
                     default:
@@ -191,6 +193,16 @@ internal class VariableRegister : SaveableItem, IVariableRegister
             foreach (VariableReference item in _changedReferences)
             {
                 Models.VariableValue dbitem = FMDB.Context.VariableValues.Find(item.Type.ToStorageString(), item.ID, item.VariableName);
+                if (!_values.TryGetValue(item, out IVariableValue value))
+                {
+                    if (dbitem is not null)
+                    {
+                        FMDB.Context.VariableValues.Remove(dbitem);
+                    }
+
+                    continue;
+                }
+
                 if (dbitem == null)
                 {
                     dbitem = new Models.VariableValue
@@ -202,7 +214,6 @@ internal class VariableRegister : SaveableItem, IVariableRegister
                     FMDB.Context.VariableValues.Add(dbitem);
                 }
 
-                IVariableValue value = _values[item];
                 dbitem.ValueDefinition = value.SaveToXml().ToString();
                 dbitem.ValueTypeDefinition = value.Type.ToStorageString();
             }
@@ -306,6 +317,7 @@ internal class VariableRegister : SaveableItem, IVariableRegister
                     case ProgVariableTypeCode.DateTime:
                     case ProgVariableTypeCode.TimeSpan:
                     case ProgVariableTypeCode.MudDateTime:
+                    case ProgVariableTypeCode.LiquidMixture:
                         Collection.Add(new ValueVariableValue(element, UnderlyingType, gameworld));
                         break;
                     default:
@@ -373,6 +385,7 @@ internal class VariableRegister : SaveableItem, IVariableRegister
                     case ProgVariableTypeCode.DateTime:
                     case ProgVariableTypeCode.TimeSpan:
                     case ProgVariableTypeCode.MudDateTime:
+                    case ProgVariableTypeCode.LiquidMixture:
                         foreach (XElement sub in element.Elements("var"))
                         {
                             Dictionary.Add(key, new ValueVariableValue(sub, UnderlyingType, gameworld));
@@ -458,6 +471,7 @@ internal class VariableRegister : SaveableItem, IVariableRegister
                     case ProgVariableTypeCode.DateTime:
                     case ProgVariableTypeCode.TimeSpan:
                     case ProgVariableTypeCode.MudDateTime:
+                    case ProgVariableTypeCode.LiquidMixture:
                         Dictionary.Add(element.Element("key").Value,
                             new ValueVariableValue(element.Element("var"), UnderlyingType, gameworld));
                         break;
@@ -515,34 +529,35 @@ internal class VariableRegister : SaveableItem, IVariableRegister
         public ValueVariableValue(XElement root, ProgVariableTypes type, IFuturemud gameworld)
         {
             Type = type;
-            if (root.HasElements)
-            {
-                root = root.Element("var");
-            }
+            XElement valueRoot = root.Name == "var" ? root : root.Element("var") ?? root;
 
             switch (type.LegacyCode)
             {
                 case ProgVariableTypeCode.Boolean:
-                    Value = bool.Parse(root.Value);
+                    Value = bool.Parse(valueRoot.Value);
                     break;
                 case ProgVariableTypeCode.Gender:
-                    Value = (Gender)short.Parse(root.Value);
+                    Value = (Gender)short.Parse(valueRoot.Value);
                     break;
                 case ProgVariableTypeCode.Number:
-                    Value = decimal.Parse(root.Value);
+                    Value = decimal.Parse(valueRoot.Value);
                     break;
                 case ProgVariableTypeCode.Text:
-                    Value = root.Value;
+                    Value = valueRoot.Value;
                     break;
                 case ProgVariableTypeCode.TimeSpan:
-                    Value = TimeSpan.Parse(root.Value, CultureInfo.InvariantCulture);
+                    Value = TimeSpan.Parse(valueRoot.Value, CultureInfo.InvariantCulture);
                     break;
                 case ProgVariableTypeCode.DateTime:
-                    Value = DateTime.Parse(root.Value, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal);
+                    Value = DateTime.Parse(valueRoot.Value, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal);
                     break;
                 case ProgVariableTypeCode.MudDateTime:
-                    Value = MudDateTime.FromStoredStringOrFallback(root.Value, gameworld,
+                    Value = MudDateTime.FromStoredStringOrFallback(valueRoot.Value, gameworld,
                         StoredMudDateTimeFallback.Never, "FutureProgVariable", null, null, "MudDateTime");
+                    break;
+                case ProgVariableTypeCode.LiquidMixture:
+                    Value = valueRoot.Element("Mix")?.ToString() ??
+                            (valueRoot.Name == "Mix" ? valueRoot.ToString() : valueRoot.Value);
                     break;
             }
         }
@@ -587,7 +602,13 @@ internal class VariableRegister : SaveableItem, IVariableRegister
                 case ProgVariableTypeCode.MudDateTime:
                     return (MudDateTime)Value;
                 case ProgVariableTypeCode.LiquidMixture:
-                    return new LiquidMixture(XElement.Parse(Value.ToString()), game);
+                    return Value switch
+                    {
+                        LiquidMixture mixture => mixture,
+                        XElement element => new LiquidMixture(element, game),
+                        string text when !string.IsNullOrWhiteSpace(text) => new LiquidMixture(XElement.Parse(text), game),
+                        _ => LiquidMixture.CreateEmpty(game)
+                    };
             }
 
             return null;
@@ -601,6 +622,23 @@ internal class VariableRegister : SaveableItem, IVariableRegister
                     return new XElement("var", ((DateTime)Value).ToString(CultureInfo.InvariantCulture));
                 case ProgVariableTypeCode.MudDateTime:
                     return new XElement("var", ((MudDateTime)Value).GetDateTimeString());
+                case ProgVariableTypeCode.LiquidMixture:
+                    if (Value is LiquidMixture mixture)
+                    {
+                        return new XElement("var", mixture.SaveToXml());
+                    }
+
+                    if (Value is string text && !string.IsNullOrWhiteSpace(text))
+                    {
+                        return new XElement("var", XElement.Parse(text));
+                    }
+
+                    if (Value is XElement element)
+                    {
+                        return new XElement("var", element);
+                    }
+
+                    return new XElement("var");
             }
 
             return new XElement("var", Value);
@@ -887,7 +925,9 @@ internal class VariableRegister : SaveableItem, IVariableRegister
             {
                 Collection =
                     ((IList<IProgVariable>)value.GetObject).Select(
-                        x => GetValue(type ^ ProgVariableTypes.Collection, x)).ToList(),
+                        x => GetValue(type ^ ProgVariableTypes.Collection, x))
+                       .Where(x => x is not null)
+                       .ToList(),
                 UnderlyingType = type ^ ProgVariableTypes.Collection
             };
         }
@@ -902,7 +942,9 @@ internal class VariableRegister : SaveableItem, IVariableRegister
             return new DictionaryVariableValue
             {
                 Dictionary = ((Dictionary<string, IProgVariable>)value.GetObject).ToDictionary(x => x.Key,
-                    x => GetValue(type ^ ProgVariableTypes.Dictionary, x.Value)),
+                    x => GetValue(type ^ ProgVariableTypes.Dictionary, x.Value))
+                    .Where(x => x.Value is not null)
+                    .ToDictionary(x => x.Key, x => x.Value),
                 UnderlyingType = type ^ ProgVariableTypes.Dictionary
             };
         }
@@ -920,11 +962,15 @@ internal class VariableRegister : SaveableItem, IVariableRegister
             {
                 foreach (IProgVariable sub in item.Value)
                 {
-                    collection.Add(item.Key, GetValue(underlying, sub));
+                    IVariableValue serialised = GetValue(underlying, sub);
+                    if (serialised is not null)
+                    {
+                        collection.Add(item.Key, serialised);
+                    }
                 }
             }
 
-            return new CollectionDictionaryVariableValue { Dictionary = collection };
+            return new CollectionDictionaryVariableValue { Dictionary = collection, UnderlyingType = underlying };
         }
 
         switch (type.LegacyCode)
@@ -942,6 +988,12 @@ internal class VariableRegister : SaveableItem, IVariableRegister
             case ProgVariableTypeCode.DateTime:
             case ProgVariableTypeCode.MudDateTime:
                 return new ValueVariableValue { Type = type, Value = value.GetObject };
+            case ProgVariableTypeCode.LiquidMixture:
+                return new ValueVariableValue
+                {
+                    Type = type,
+                    Value = value.GetObject is LiquidMixture mixture ? mixture.SaveToXml().ToString() : value.GetObject
+                };
             default:
                 return new ReferenceVariableValue
                 {
@@ -966,7 +1018,20 @@ internal class VariableRegister : SaveableItem, IVariableRegister
             return false;
         }
 
+        if (value is null)
+        {
+            _values.Remove(reference);
+            Changed = true;
+            _changedReferences.Add(reference);
+            return true;
+        }
+
         IVariableValue newValue = GetValue(type, value);
+        if (newValue is null)
+        {
+            return false;
+        }
+
         _values[reference] = newValue;
         Changed = true;
         _changedReferences.Add(reference);
@@ -982,7 +1047,23 @@ internal class VariableRegister : SaveableItem, IVariableRegister
             _defaultValues[type] = new Dictionary<string, IVariableValue>();
         }
 
-        _defaultValues[type][variable] = GetValue(_types[type][variable], value);
+        ProgVariableTypes variableType = _types[type][variable];
+        IVariableValue newValue = GetValue(variableType, value);
+        if (newValue is null &&
+            !variableType.HasFlag(ProgVariableTypes.Collection) &&
+            !variableType.HasFlag(ProgVariableTypes.Dictionary) &&
+            !variableType.HasFlag(ProgVariableTypes.CollectionDictionary) &&
+            !ProgVariableTypes.ValueType.HasFlag(variableType))
+        {
+            newValue = new ReferenceVariableValue { Type = variableType, ID = 0 };
+        }
+
+        if (newValue is null)
+        {
+            return;
+        }
+
+        _defaultValues[type][variable] = newValue;
         Changed = true;
         _changedDefaults.Add(Tuple.Create(type, variable));
     }
@@ -1084,6 +1165,15 @@ internal class VariableRegister : SaveableItem, IVariableRegister
                     defaultDictionary[variable.ToLowerInvariant()] =
                         new ValueVariableValue { Type = variableType, Value = defaultValue };
                     break;
+                case ProgVariableTypeCode.LiquidMixture:
+                    defaultDictionary[variable.ToLowerInvariant()] = new ValueVariableValue
+                    {
+                        Type = variableType,
+                        Value = defaultValue is LiquidMixture mixture
+                            ? mixture.SaveToXml().ToString()
+                            : LiquidMixture.CreateEmpty(Gameworld).SaveToXml().ToString()
+                    };
+                    break;
             }
         }
         else
@@ -1114,8 +1204,14 @@ internal class VariableRegister : SaveableItem, IVariableRegister
             }
             else
             {
+                IVariableValue defaultVariableValue = GetValue(variableType, defaultValue as IProgVariable) ??
+                                                      new ReferenceVariableValue
+                                                      {
+                                                          ID = (defaultValue as IFrameworkItem)?.Id ?? 0,
+                                                          Type = variableType
+                                                      };
                 defaultDictionary[variable.ToLowerInvariant()] =
-                    GetValue(variableType, defaultValue as IProgVariable);
+                    defaultVariableValue;
             }
         }
 

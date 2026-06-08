@@ -463,9 +463,9 @@ public partial class GameItem
             case "quality":
                 return new NumberVariable((int)Quality);
             case "qualityname":
-                return new TextVariable(RawQuality.DescribeEnum());
+                return new TextVariable(Quality.DescribeEnum());
             case "rawquality":
-                return new NumberVariable((int)Quality);
+                return new NumberVariable((int)RawQuality);
             case "rawqualityname":
                 return new TextVariable(RawQuality.DescribeEnum());
             default:

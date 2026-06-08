@@ -78,7 +78,7 @@ internal class ToClanRankFunction : BuiltInFunction
 
         FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
             "torank",
-            new[] { ProgVariableTypes.Clan, ProgVariableTypes.Text },
+            new[] { ProgVariableTypes.Clan, ProgVariableTypes.Number },
             (pars, gameworld) => new ToClanRankFunction(pars, gameworld),
             new List<string> { "clan", "name" },
             new List<string> { "The clan in which you want to search", "The name to look up" },

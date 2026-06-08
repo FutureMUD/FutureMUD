@@ -260,7 +260,7 @@ public class SimpleWriting : LateInitialisingItem, IWriting, ILazyLoadDuringIdle
             case "languageskill":
                 return new NumberVariable(LanguageSkill);
             case "text":
-                return new TextVariable(ParseFor(null));
+                return new TextVariable(string.Empty);
             case "simple":
                 return new BooleanVariable(true);
             case "printed":
@@ -311,7 +311,7 @@ public class SimpleWriting : LateInitialisingItem, IWriting, ILazyLoadDuringIdle
             { "literacy", "The literacy skill of the author" },
             { "forgery", "The forgery skill of the author" },
             { "languageskill", "The language skill of the author" },
-            { "text", "The parsed text of the writing" },
+            { "text", "Writing text is not exposed through FutureProg; use in-character read workflows instead" },
             { "simple", "True if simple writing, false is composite (drawing+writing) or printed" },
             { "printed", "True if this is printed writing without a character author" },
             { "provenance", "The publisher, source, or other provenance text for printed writing" }

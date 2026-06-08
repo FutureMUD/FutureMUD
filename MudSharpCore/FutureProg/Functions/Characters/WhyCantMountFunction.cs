@@ -26,7 +26,7 @@ internal class WhyCantMountFunction : BuiltInFunction
                 },
                 "Returns an error message about why a character cannot mount the mount.",
                 "Characters",
-                ProgVariableTypes.Boolean
+                ProgVariableTypes.Text
             )
         );
     }
@@ -44,7 +44,7 @@ internal class WhyCantMountFunction : BuiltInFunction
 
     public override ProgVariableTypes ReturnType
     {
-        get => ProgVariableTypes.Boolean;
+        get => ProgVariableTypes.Text;
         protected set { }
     }
 

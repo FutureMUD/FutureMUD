@@ -160,6 +160,21 @@ See also #3=#0, #3-=#0, #3*=#0, #3/=#0, #3%=#0 and #3^=#0 for other ways of assi
             ((IList<IProgVariable>)collection.GetObject).Add(ValueFunction.Result);
             return StatementResult.Normal;
         }
+
+        if (TypeToSet.CompatibleWith(ProgVariableTypes.TimeSpan))
+        {
+            TimeSpan? current = variables.GetVariable(NameToSet)?.GetObject as TimeSpan?;
+            if (current is null)
+            {
+                ErrorMessage = "Tried to += a null timespan.";
+                return StatementResult.Error;
+            }
+
+            TimeSpan newValue = current.Value + ((TimeSpan?)ValueFunction.Result?.GetObject ?? TimeSpan.Zero);
+            variables.SetVariable(NameToSet, new TimeSpanVariable(newValue));
+            return StatementResult.Normal;
+        }
+
         if (TypeToSet.CompatibleWith(ProgVariableTypes.DateTime))
         {
             DateTime? current = variables.GetVariable(NameToSet)?.GetObject as DateTime?;

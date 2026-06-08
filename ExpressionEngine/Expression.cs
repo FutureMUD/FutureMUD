@@ -10,6 +10,9 @@ namespace ExpressionEngine
 {
     public class Expression : IExpression
     {
+        public const int MaximumDiceCount = 10000;
+        public const int MaximumDiceSides = 100000;
+
         public static event EventHandler<string> ExpressionError;
         public static Random RandomInstance { get; } = new();
 
@@ -66,6 +69,12 @@ namespace ExpressionEngine
                 ExpressionError?.Invoke(this, $"Exception in expression {OriginalExpression}:\n\n{e}");
                 return 0.0;
             }
+            catch (Exception e) when (e is ArgumentException or OverflowException or InvalidOperationException)
+            {
+                Console.WriteLine($"Exception in expression {OriginalExpression}:\n\n{e}");
+                ExpressionError?.Invoke(this, $"Exception in expression {OriginalExpression}:\n\n{e}");
+                return 0.0;
+            }
         }
 
         public double EvaluateDouble()
@@ -113,6 +122,12 @@ namespace ExpressionEngine
                 return 0.0;
             }
             catch (NCalcEvaluationException e)
+            {
+                Console.WriteLine($"Exception in expression {OriginalExpression}:\n\n{e}");
+                ExpressionError?.Invoke(this, $"Exception in expression {OriginalExpression}:\n\n{e}");
+                return 0.0;
+            }
+            catch (Exception e) when (e is ArgumentException or OverflowException or InvalidOperationException)
             {
                 Console.WriteLine($"Exception in expression {OriginalExpression}:\n\n{e}");
                 ExpressionError?.Invoke(this, $"Exception in expression {OriginalExpression}:\n\n{e}");
@@ -182,6 +197,11 @@ namespace ExpressionEngine
             }
 
             double value = Convert.ToDouble(args.Parameters[0].Evaluate());
+            if (!double.IsFinite(value))
+            {
+                throw new ArgumentException("Not() requires a finite numeric argument");
+            }
+
             args.Result = value == 0.0 ? 1.0 : 0.0;
         }
         private void DRandFunction(string name, FunctionArgs args)
@@ -198,6 +218,11 @@ namespace ExpressionEngine
 
             double randleft = Convert.ToDouble(args.Parameters[0].Evaluate());
             double randright = Convert.ToDouble(args.Parameters[1].Evaluate());
+            if (!double.IsFinite(randleft) || !double.IsFinite(randright))
+            {
+                throw new ArgumentException("DRand() requires finite numeric arguments");
+            }
+
             args.Result = (RandomInstance.NextDouble() * (randright - randleft)) + randleft;
         }
 
@@ -224,6 +249,11 @@ namespace ExpressionEngine
 
             if (arg1 is double arg1d && arg2 is double arg2d)
             {
+                if (!double.IsFinite(arg1d) || !double.IsFinite(arg2d))
+                {
+                    throw new ArgumentException("Rand() requires finite numeric arguments");
+                }
+
                 args.Result = (RandomInstance.NextDouble() * (arg2d - arg1d)) + arg1d;
                 return;
             }
@@ -257,6 +287,11 @@ namespace ExpressionEngine
 
             int left = Convert.ToInt32(args.Parameters[0].Evaluate());
             int right = Convert.ToInt32(args.Parameters[1].Evaluate());
+            if (left < 0 || left > MaximumDiceCount || right <= 0 || right > MaximumDiceSides)
+            {
+                throw new ArgumentException($"Dice() requires 0-{MaximumDiceCount} dice and 1-{MaximumDiceSides} sides");
+            }
+
             int result = 0;
             if (left > 0)
             {

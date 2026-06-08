@@ -96,6 +96,16 @@ Builder-facing parsing now routes through `ProgVariableTypes.TryParse(...)` rath
 
 Type display and description logic is centralised through the registry-backed `Describe()` behavior. Existing player/builder output continues to use the same symbolic type names where possible.
 
+## Runtime Safety Invariants
+
+Collection variables must expose `IProgVariable` elements at runtime, even when a helper or dot reference builds a collection from scalar CLR values such as `string`, `decimal`, `bool`, `DateTime`, `TimeSpan`, `MudDateTime`, or `Gender`. The `CollectionVariable` constructor normalises those scalar elements so collection extension functions, admin result display, and dot references like `first`, `last`, and `reverse` all see the same element shape.
+
+Variable-register persistence must be total for every type that can be registered and saved. Value types, including `LiquidMixture`, serialise through value XML rather than reference IDs; unsupported or null preserved values must not create null `IVariableValue` entries. Resetting a stored register value removes the persisted override row and falls back to the default value.
+
+Script-time helpers that search, roll, or evaluate user-authored formulas must enforce bounded work. Weekday occurrence helpers reject zero or excessive occurrence counts, dice formulas have explicit dice/sides/roll limits, exploding dice must not be guaranteed infinite, and formula evaluation fails closed on invalid custom-function arguments, overflow, or non-finite numeric output.
+
+Writing text is not exposed through the `writing.text` FutureProg dot reference. Scripts may inspect writing metadata, but readable text still goes through the normal in-character read workflow so language, literacy, script, and access checks remain authoritative.
+
 ## Date, Time, And Celestial Event Values
 
 `ProgVariableTypes.MudDateTime` remains the FutureProg type for in-game dates and times. `MudDateTime` values now expose a `mudinstant` dot reference that returns the absolute `MudInstant` storage string for the value.

@@ -1820,17 +1820,21 @@ internal sealed class EmploymentCommandService
 		{
 			case "":
 			case "list":
-				actor.OutputHandler.Send(_scheduledRuleAuthoring.RenderPredicates(actor, host));
+				SendOperationalView(actor, host,
+					(viewer, employmentHost) => _scheduledRuleAuthoring.RenderPredicates(viewer, employmentHost));
 				return;
 			case "show":
 			case "view":
 				if (input.IsFinished)
 				{
-					actor.OutputHandler.Send(_scheduledRuleAuthoring.RenderPredicates(actor, host));
+					SendOperationalView(actor, host,
+						(viewer, employmentHost) => _scheduledRuleAuthoring.RenderPredicates(viewer, employmentHost));
 					return;
 				}
 
-				actor.OutputHandler.Send(_scheduledRuleAuthoring.RenderPredicates(actor, host, input.SafeRemainingArgument));
+				SendOperationalView(actor, host,
+					(viewer, employmentHost) => _scheduledRuleAuthoring.RenderPredicates(viewer, employmentHost,
+						input.SafeRemainingArgument));
 				return;
 			case "create":
 			case "save":
@@ -1877,17 +1881,21 @@ internal sealed class EmploymentCommandService
 		{
 			case "":
 			case "list":
-				actor.OutputHandler.Send(_scheduledRuleAuthoring.RenderTemplates(actor, host));
+				SendOperationalView(actor, host,
+					(viewer, employmentHost) => _scheduledRuleAuthoring.RenderTemplates(viewer, employmentHost));
 				return;
 			case "show":
 			case "view":
 				if (input.IsFinished)
 				{
-					actor.OutputHandler.Send(_scheduledRuleAuthoring.RenderTemplates(actor, host));
+					SendOperationalView(actor, host,
+						(viewer, employmentHost) => _scheduledRuleAuthoring.RenderTemplates(viewer, employmentHost));
 					return;
 				}
 
-				actor.OutputHandler.Send(_scheduledRuleAuthoring.RenderTemplates(actor, host, input.SafeRemainingArgument));
+				SendOperationalView(actor, host,
+					(viewer, employmentHost) => _scheduledRuleAuthoring.RenderTemplates(viewer, employmentHost,
+						input.SafeRemainingArgument));
 				return;
 			case "save":
 			case "create":

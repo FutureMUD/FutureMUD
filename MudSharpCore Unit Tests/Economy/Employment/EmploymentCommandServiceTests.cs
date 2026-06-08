@@ -1818,6 +1818,49 @@ public class EmploymentCommandServiceTests
 	}
 
 	[TestMethod]
+	public void EmploymentCommandService_ScheduledRulePredicateAndTemplateViewsRequireOperationalAccess()
+	{
+		var currency = Currency();
+		IEmploymentHost host = new TestEmploymentHost(1, "market shop", currency.Object);
+		var manager = Character(90, "Manager").Object;
+		var outsider = Character(91, "Outsider").Object;
+		host.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.CreateScheduledRules |
+			EmploymentAuthority.ModifyScheduledRules |
+			EmploymentAuthority.PostToHostBoard), null);
+		var service = new EmploymentCommandService();
+
+		service.ExecuteForHost(manager, host, new StringStack("tasks rule draft new Reusable Window"));
+		service.ExecuteForHost(manager, host, new StringStack("tasks rule condition manual window-open"));
+		service.ExecuteForHost(manager, host, new StringStack("tasks rule draft expression #1"));
+		service.ExecuteForHost(manager, host, new StringStack("tasks rule predicate create window-open"));
+		service.ExecuteForHost(manager, host, new StringStack("tasks rule draft new Window Notice"));
+		service.ExecuteForHost(manager, host, new StringStack("tasks rule condition manual override"));
+		service.ExecuteForHost(manager, host, new StringStack("tasks rule draft expression @window-open or #1"));
+		service.ExecuteForHost(manager, host, new StringStack("tasks rule step board Window = Open the shop."));
+		service.ExecuteForHost(manager, host, new StringStack("tasks rule draft key window-template-key"));
+		service.ExecuteForHost(manager, host, new StringStack("tasks rule template save Window Template"));
+
+		var outsiderMessages = new List<string>();
+		Mock.Get(outsider.OutputHandler)
+		    .Setup(x => x.Send(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>()))
+		    .Callback<string, bool, bool>((text, _, _) => outsiderMessages.Add(text))
+		    .Returns(true);
+
+		service.ExecuteForHost(outsider, host, new StringStack("tasks rule predicates"));
+		service.ExecuteForHost(outsider, host, new StringStack("tasks rule predicate show 1"));
+		service.ExecuteForHost(outsider, host, new StringStack("tasks rule templates"));
+		service.ExecuteForHost(outsider, host, new StringStack("tasks rule template show 1"));
+
+		Assert.AreEqual(4, outsiderMessages.Count);
+		Assert.IsTrue(outsiderMessages.All(x => x.Contains("not an employee", StringComparison.OrdinalIgnoreCase)));
+		Assert.IsFalse(outsiderMessages.Any(x =>
+			x.Contains("window-open", StringComparison.OrdinalIgnoreCase) ||
+			x.Contains("window-template-key", StringComparison.OrdinalIgnoreCase) ||
+			x.Contains("Window Template", StringComparison.OrdinalIgnoreCase)));
+	}
+
+	[TestMethod]
 	public void EmploymentScheduledRuleAuthoring_MarketPriceCondition_ParsesAndEvaluates()
 	{
 		var currency = Currency();

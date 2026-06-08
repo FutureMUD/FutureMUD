@@ -795,6 +795,12 @@
                  ]
     },
     {
+        "Material Name":  "cane",
+        "Tags":  [
+                     "Materials / Natural Materials / Wood"
+                 ]
+    },
+    {
         "Material Name":  "canihua",
         "Tags":  [
                      "Materials / Natural Materials / Agricultural Crop / Food Crop"
@@ -2109,6 +2115,12 @@
                  ]
     },
     {
+        "Material Name":  "goat leather",
+        "Tags":  [
+                     "Materials / Natural Materials / Leather"
+                 ]
+    },
+    {
         "Material Name":  "gold",
         "Tags":  [
                      "Materials / Manufactured Materials / Manufactured Metal / Bronze Age",
@@ -2332,6 +2344,13 @@
                  ]
     },
     {
+        "Material Name":  "horsehair",
+        "Tags":  [
+                     "Materials / Animal Product",
+                     "Materials / Natural Materials / Hair"
+                 ]
+    },
+    {
         "Material Name":  "human hair",
         "Tags":  [
                      "Materials / Natural Materials / Hair"
@@ -2541,6 +2560,12 @@
         "Material Name":  "lace",
         "Tags":  [
                      "Materials / Manufactured Materials / Fabric / Natural Fiber Fabric"
+                 ]
+    },
+    {
+        "Material Name":  "lacquer",
+        "Tags":  [
+                     "Materials / Manufactured Materials"
                  ]
     },
     {
@@ -3945,6 +3970,19 @@
                  ]
     },
     {
+        "Material Name":  "rattan",
+        "Tags":  [
+                     "Materials / Natural Materials / Wood"
+                 ]
+    },
+    {
+        "Material Name":  "rawhide",
+        "Tags":  [
+                     "Materials / Animal Product",
+                     "Materials / Natural Materials / Animal Skin"
+                 ]
+    },
+    {
         "Material Name":  "rayon",
         "Tags":  [
                      "Materials / Manufactured Materials / Fabric / Synthetic Fiber Fabric"
@@ -3954,6 +3992,12 @@
         "Material Name":  "redwood",
         "Tags":  [
                      "Materials / Natural Materials / Wood / Hardwood"
+                 ]
+    },
+    {
+        "Material Name":  "reed",
+        "Tags":  [
+                     "Materials / Natural Materials / Vegetation"
                  ]
     },
     {
@@ -4302,6 +4346,12 @@
                  ]
     },
     {
+        "Material Name":  "sheep leather",
+        "Tags":  [
+                     "Materials / Natural Materials / Leather"
+                 ]
+    },
+    {
         "Material Name":  "shellfish",
         "Tags":  [
                      "Materials / Natural Materials / Food / Meat"
@@ -4379,6 +4429,12 @@
         "Tags":  [
                      "Materials / Manufactured Materials / Manufactured Metal / Bronze Age",
                      "Materials / Manufactured Materials / Manufactured Metal / Precious Metal"
+                 ]
+    },
+    {
+        "Material Name":  "sinew",
+        "Tags":  [
+                     "Materials / Animal Product"
                  ]
     },
     {
@@ -5189,6 +5245,12 @@
         "Material Name":  "white pepper",
         "Tags":  [
                      "Materials / Natural Materials / Food / Spice"
+                 ]
+    },
+    {
+        "Material Name":  "wicker",
+        "Tags":  [
+                     "Materials / Natural Materials / Wood / Manufactured Wood"
                  ]
     },
     {

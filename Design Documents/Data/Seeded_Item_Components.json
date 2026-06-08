@@ -2480,8 +2480,28 @@
         "Component Type":  "Latch"
     },
     {
+        "Component Name":  "Latch_Container_Hasp",
+        "Component Description":  "This is a sturdier hasp latch for chests, trunks and other lockable containers",
+        "Component Type":  "Latch"
+    },
+    {
+        "Component Name":  "Latch_Container_Hook",
+        "Component Description":  "This is a small hook-and-eye latch for cupboards, hatches and light containers",
+        "Component Type":  "Latch"
+    },
+    {
+        "Component Name":  "Latch_Door_Bar",
+        "Component Description":  "This is a heavy sliding bar latch for doors and interior shutters",
+        "Component Type":  "Latch"
+    },
+    {
         "Component Name":  "Latch_Excellent",
         "Component Description":  "This is an excellent quality simple latch (one-sided lock)",
+        "Component Type":  "Latch"
+    },
+    {
+        "Component Name":  "Latch_Gate_DropBar",
+        "Component Description":  "This is a weighty drop-bar latch for yard gates, stable gates and palisade gates",
         "Component Type":  "Latch"
     },
     {
@@ -2502,6 +2522,11 @@
     {
         "Component Name":  "Latch_Normal",
         "Component Description":  "This is a normal quality simple latch (one-sided lock)",
+        "Component Type":  "Latch"
+    },
+    {
+        "Component Name":  "Latch_Portcullis_Pawl",
+        "Component Description":  "This is a winch pawl or brake latch for holding a portcullis or similar heavy barrier",
         "Component Type":  "Latch"
     },
     {
@@ -5060,8 +5085,33 @@
         "Component Type":  "WaterSource"
     },
     {
+        "Component Name":  "Infinite_DrinkingFountainWaterSource",
+        "Component Description":  "Turns an item into a public drinking fountain or bubbler.",
+        "Component Type":  "WaterSource"
+    },
+    {
         "Component Name":  "Infinite_LakeWaterSource",
         "Component Description":  "Turns an item into a self-refilling source of lake water.",
+        "Component Type":  "WaterSource"
+    },
+    {
+        "Component Name":  "Infinite_PublicCisternWaterSource",
+        "Component Description":  "Turns an item into a large communal cistern with a managed refill supply.",
+        "Component Type":  "WaterSource"
+    },
+    {
+        "Component Name":  "Infinite_PublicPumpWaterSource",
+        "Component Description":  "Turns an item into a hand pump, village pump or similar public potable water source.",
+        "Component Type":  "WaterSource"
+    },
+    {
+        "Component Name":  "Infinite_PublicTapWaterSource",
+        "Component Description":  "Turns an item into a public tap, hydrant-fed fixture or similar potable water point.",
+        "Component Type":  "WaterSource"
+    },
+    {
+        "Component Name":  "Infinite_PublicTroughWaterSource",
+        "Component Description":  "Turns an item into a public water trough with a steady self-refilling supply.",
         "Component Type":  "WaterSource"
     },
     {
@@ -5077,6 +5127,11 @@
     {
         "Component Name":  "Infinite_SpringWaterSource",
         "Component Description":  "Turns an item into a self-refilling source of spring water.",
+        "Component Type":  "WaterSource"
+    },
+    {
+        "Component Name":  "Infinite_StandpipeWaterSource",
+        "Component Description":  "Turns an item into a standpipe, yard spigot or high-flow public tap.",
         "Component Type":  "WaterSource"
     },
     {

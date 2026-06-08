@@ -8,6 +8,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MudSharp.Database;
 using MudSharp.Health;
 using MudSharp.Models;
+using MudSharp.RPG.Checks;
 using System;
 using System.Linq;
 using System.Xml.Linq;
@@ -324,11 +325,65 @@ public class UsefulSeederItemPackageTests
 		Assert.IsTrue(UsefulSeeder.StockItemMarkersForTesting.Contains("IncenseBurner_Antiquity_BronzeCenser"));
 		Assert.IsTrue(UsefulSeeder.StockItemMarkersForTesting.Contains("OfferingReceiver_Antiquity_HouseholdAltar"));
 		Assert.IsTrue(UsefulSeeder.StockItemMarkersForTesting.Contains("Destroyable_Shield"));
+		Assert.IsTrue(UsefulSeeder.StockItemMarkersForTesting.Contains("Latch_Portcullis_Pawl"));
+		Assert.IsTrue(UsefulSeeder.StockItemMarkersForTesting.Contains("Infinite_PublicTapWaterSource"));
 
 		context.GameItemComponentProtos.Add(CreateComponentMarker(id++, "Container_Bookcase_Shelves"));
 		context.SaveChanges();
 
 		Assert.AreEqual(ShouldSeedResult.MayAlreadyBeInstalled, UsefulSeeder.ClassifyItemPackagePresence(context));
+	}
+
+	[TestMethod]
+	public void SeedLockAndWaterSourceCoverageForTesting_RerunDoesNotDuplicateAndCreatesPublicVariants()
+	{
+		using FuturemudDatabaseContext context = BuildContext();
+		SeedGeneralPrerequisites(context);
+		UsefulSeeder seeder = new();
+
+		seeder.SeedLockAndWaterSourceCoverageForTesting(context);
+		seeder.SeedLockAndWaterSourceCoverageForTesting(context);
+
+		string[] expectedLatchNames =
+		[
+			"Latch_Container_Hook",
+			"Latch_Container_Hasp",
+			"Latch_Door_Bar",
+			"Latch_Gate_DropBar",
+			"Latch_Portcullis_Pawl"
+		];
+
+		string[] expectedWaterSourceNames =
+		[
+			"Infinite_PublicTapWaterSource",
+			"Infinite_DrinkingFountainWaterSource",
+			"Infinite_PublicPumpWaterSource",
+			"Infinite_StandpipeWaterSource",
+			"Infinite_PublicTroughWaterSource",
+			"Infinite_PublicCisternWaterSource"
+		];
+
+		foreach (string name in expectedLatchNames.Concat(expectedWaterSourceNames))
+		{
+			Assert.AreEqual(1, context.GameItemComponentProtos.Count(x => x.Name == name), $"Expected a single component named {name}.");
+		}
+
+		XElement Definition(string name) => XElement.Parse(context.GameItemComponentProtos.Single(x => x.Name == name).Definition);
+
+		GameItemComponentProto doorBar = context.GameItemComponentProtos.Single(x => x.Name == "Latch_Door_Bar");
+		Assert.AreEqual("Latch", doorBar.Type);
+		Assert.AreEqual((int)Difficulty.VeryHard, (int)Definition("Latch_Door_Bar").Element("ForceDifficulty")!);
+		Assert.AreEqual((int)Difficulty.Hard, (int)Definition("Latch_Door_Bar").Element("PickDifficulty")!);
+		StringAssert.Contains(Definition("Latch_Portcullis_Pawl").Element("LockEmote")!.Value, "portcullis");
+
+		GameItemComponentProto publicTap = context.GameItemComponentProtos.Single(x => x.Name == "Infinite_PublicTapWaterSource");
+		Assert.AreEqual("WaterSource", publicTap.Type);
+		Assert.AreEqual(1000000.0, (double)Definition("Infinite_PublicTapWaterSource").Attribute("LiquidCapacity")!);
+		Assert.AreEqual(0.8333333333333334, (double)Definition("Infinite_PublicTapWaterSource").Attribute("RefillRate")!);
+		Assert.IsTrue(bool.Parse((string)Definition("Infinite_PublicTapWaterSource").Attribute("UseOnOffForRefill")!));
+		Assert.AreEqual(500.0, (double)Definition("Infinite_PublicTroughWaterSource").Attribute("LiquidCapacity")!);
+		Assert.IsFalse(bool.Parse((string)Definition("Infinite_PublicTroughWaterSource").Attribute("UseOnOffForRefill")!));
+		Assert.AreEqual(10000.0, (double)Definition("Infinite_PublicCisternWaterSource").Attribute("LiquidCapacity")!);
 	}
 
 	[TestMethod]

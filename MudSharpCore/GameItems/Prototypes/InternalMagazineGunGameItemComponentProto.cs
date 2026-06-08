@@ -88,7 +88,8 @@ public class InternalMagazineGunGameItemComponentProto : FirearmBaseGameItemComp
             new XElement("MeleeWeaponType", MeleeWeaponType?.Id ?? 0),
             new XElement("InternalMagazineCapacity", InternalMagazineCapacity),
             new XElement("CanWieldProg", CanWieldProg?.Id ?? 0),
-            new XElement("WhyCannotWieldProg", WhyCannotWieldProg?.Id ?? 0)
+            new XElement("WhyCannotWieldProg", WhyCannotWieldProg?.Id ?? 0),
+            ConditionMaintenance.SaveToXml()
         ).ToString();
     }
 
@@ -210,7 +211,7 @@ public class InternalMagazineGunGameItemComponentProto : FirearmBaseGameItemComp
     public override string ComponentDescriptionOLC(ICharacter actor)
     {
         return string.Format(actor,
-            "{0} (#{1:N0}r{2:N0}, {3})\r\n\r\nThis is an internal-magazine bolt-action firearm of type {4} and melee type {13}.\nIt will {5}, and has an internal magazine capacity of {14}.\nThe CanWield prog is {15} and the WhyCannotWield prog is {16}.\n\nFire: {6}\nFireEmpty: {7}\nLoad: {8}\nUnload: {9}\nReady: {10}\nUnready: {11}\nUnreadyEmpty: {12}",
+            "{0} (#{1:N0}r{2:N0}, {3})\r\n\r\nThis is an internal-magazine bolt-action firearm of type {4} and melee type {13}.\nIt will {5}, and has an internal magazine capacity of {14}.\nThe CanWield prog is {15} and the WhyCannotWield prog is {16}.\n{17}\n\nFire: {6}\nFireEmpty: {7}\nLoad: {8}\nUnload: {9}\nReady: {10}\nUnready: {11}\nUnreadyEmpty: {12}",
             "Internal Magazine Gun Game Item Component".Colour(Telnet.Cyan),
             Id.ToString("N0", actor),
             RevisionNumber.ToString("N0", actor),
@@ -227,7 +228,8 @@ public class InternalMagazineGunGameItemComponentProto : FirearmBaseGameItemComp
             MeleeWeaponType?.Name.TitleCase().Colour(Telnet.Green) ?? "None".Colour(Telnet.Red),
             InternalMagazineCapacity.ToString("N0", actor).ColourValue(),
             CanWieldProg?.MXPClickableFunctionName() ?? "None".ColourError(),
-            WhyCannotWieldProg?.MXPClickableFunctionName() ?? "None".ColourError()
+            WhyCannotWieldProg?.MXPClickableFunctionName() ?? "None".ColourError(),
+            ConditionMaintenance.Describe(actor)
         );
     }
 

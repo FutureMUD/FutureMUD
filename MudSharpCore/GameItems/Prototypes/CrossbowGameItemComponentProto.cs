@@ -17,7 +17,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class CrossbowGameItemComponentProto : GameItemComponentProto, IRangedWeaponPrototype, IMeleeWeaponPrototype
+public class CrossbowGameItemComponentProto : GameItemComponentProto, IRangedWeaponPrototype, IMeleeWeaponPrototype, IConditionDegradingComponentPrototype
 {
     public override string TypeDescription => "Crossbow";
 
@@ -54,6 +54,7 @@ public class CrossbowGameItemComponentProto : GameItemComponentProto, IRangedWea
     }
 
     public IWeaponType MeleeWeaponType { get; set; }
+    public ConditionMaintenanceProfile ConditionMaintenance { get; } = new(ConditionMaintenanceProfile.DefaultRangedOrMeleeUseExpression);
 #nullable enable
     public IFutureProg? CanWieldProg { get; private set; }
     public IFutureProg? WhyCannotWieldProg { get; private set; }
@@ -95,6 +96,7 @@ public class CrossbowGameItemComponentProto : GameItemComponentProto, IRangedWea
 
         CanWieldProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("CanWieldProg")?.Value ?? "0"));
         WhyCannotWieldProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("WhyCannotWieldProg")?.Value ?? "0"));
+        ConditionMaintenance.LoadFromXml(root);
     }
 
     #endregion
@@ -108,7 +110,8 @@ public class CrossbowGameItemComponentProto : GameItemComponentProto, IRangedWea
                 new XElement("RangedWeaponType", RangedWeaponType?.Id ?? 0),
                 new XElement("MeleeWeaponType", MeleeWeaponType?.Id ?? 0),
                 new XElement("CanWieldProg", CanWieldProg?.Id ?? 0),
-                new XElement("WhyCannotWieldProg", WhyCannotWieldProg?.Id ?? 0)
+                new XElement("WhyCannotWieldProg", WhyCannotWieldProg?.Id ?? 0),
+                ConditionMaintenance.SaveToXml()
             ).ToString();
     }
 
@@ -162,7 +165,8 @@ public class CrossbowGameItemComponentProto : GameItemComponentProto, IRangedWea
 	#3canwield <prog>#0 - sets a prog controlling if this can be wielded
 	#3canwield none#0 - removes a canwield prog
 	#3whycantwield <prog>#0 - sets a prog giving the error message if canwield fails
-	#3whycantwield none#0 - clears the whycantwield prog";
+	#3whycantwield none#0 - clears the whycantwield prog
+	#3condition <option>#0 - configures optional condition degradation";
 
     public override bool BuildingCommand(ICharacter actor, StringStack command)
     {
@@ -186,6 +190,8 @@ public class CrossbowGameItemComponentProto : GameItemComponentProto, IRangedWea
             case "whycannotwield":
             case "whycannotwieldprog":
                 return BuildingCommandWhyCannotWieldProg(actor, command);
+            case "condition":
+                return ConditionMaintenance.BuildingCommand(actor, command, () => Changed = true);
             default:
                 return base.BuildingCommand(actor, command);
         }
@@ -315,7 +321,7 @@ public class CrossbowGameItemComponentProto : GameItemComponentProto, IRangedWea
     public override string ComponentDescriptionOLC(ICharacter actor)
     {
         return string.Format(
-            actor, "{0} (#{1:N0}r{2:N0}, {3})\n\nThis item is a crossbow of type {4} and melee type {5}.\nThe CanWield prog is {6} and the WhyCannotWield prog is {7}.",
+            actor, "{0} (#{1:N0}r{2:N0}, {3})\n\nThis item is a crossbow of type {4} and melee type {5}.\nThe CanWield prog is {6} and the WhyCannotWield prog is {7}.\n{8}",
             "Crossbow Weapon Game Item Component".Colour(Telnet.Cyan),
             Id,
             RevisionNumber,
@@ -323,7 +329,8 @@ public class CrossbowGameItemComponentProto : GameItemComponentProto, IRangedWea
             RangedWeaponType?.Name.TitleCase().Colour(Telnet.Green) ?? "None".Colour(Telnet.Red),
             MeleeWeaponType?.Name.TitleCase().Colour(Telnet.Green) ?? "None".Colour(Telnet.Red),
             CanWieldProg?.MXPClickableFunctionName() ?? "None".ColourError(),
-            WhyCannotWieldProg?.MXPClickableFunctionName() ?? "None".ColourError()
+            WhyCannotWieldProg?.MXPClickableFunctionName() ?? "None".ColourError(),
+            ConditionMaintenance.Describe(actor)
         );
     }
 

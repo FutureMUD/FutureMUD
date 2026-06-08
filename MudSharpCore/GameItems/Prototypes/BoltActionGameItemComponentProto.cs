@@ -77,7 +77,8 @@ public class BoltActionGameItemComponentProto : FirearmBaseGameItemComponentProt
             new XElement("EjectOnFire", EjectOnFire),
             new XElement("MeleeWeaponType", MeleeWeaponType?.Id ?? 0),
             new XElement("CanWieldProg", CanWieldProg?.Id ?? 0),
-            new XElement("WhyCannotWieldProg", WhyCannotWieldProg?.Id ?? 0)
+            new XElement("WhyCannotWieldProg", WhyCannotWieldProg?.Id ?? 0),
+            ConditionMaintenance.SaveToXml()
         ).ToString();
     }
 
@@ -262,6 +263,7 @@ public class BoltActionGameItemComponentProto : FirearmBaseGameItemComponentProt
 This is a bolt-action firearm of type {4} and melee type {13}.
 The CanWield prog is {14} and the WhyCannotWield prog is {15}.
 It will {5}
+{17}
 
 Fire: {6}
 FireEmpty: {7}
@@ -287,7 +289,8 @@ Clip Type: {16}",
             MeleeWeaponType?.Name.TitleCase().Colour(Telnet.Green) ?? "None".Colour(Telnet.Red),
             CanWieldProg?.MXPClickableFunctionName() ?? "None".ColourError(),
             WhyCannotWieldProg?.MXPClickableFunctionName() ?? "None".ColourError(),
-            ClipType.Colour(Telnet.Green)
+            ClipType.Colour(Telnet.Green),
+            ConditionMaintenance.Describe(actor)
         );
     }
 }

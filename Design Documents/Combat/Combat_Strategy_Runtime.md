@@ -62,6 +62,16 @@ Ranged-family strategies select active attacks through:
 
 Ranged firing normally reveals a hidden firer when out-of-combat fire engages the target. The exception is explicit weapon capability: `IRangedWeapon.CanFireWhileHidden` defaults false, and only weapons such as blowguns opt in. When that flag is true, `fire` passes `preserveHide` through `Engage` and `JoinCombat`, which skips removing `IHideEffect` while still removing other combat-start effects. This does not make the firer permanently undetectable; blowgun output uses the normal obscured-emote path and observers can still identify the firer if their perception allows it. Blowguns only reach this path if the component can ready/fire normally, which includes having active breath and an uncovered mouth.
 
+## Condition Maintenance In Combat
+
+Combat equipment can opt in to shared condition maintenance through its component prototype. Legacy XML and new prototypes default off. When enabled, melee weapons, shields, armour, thrown weapons, bows, crossbows, slings, blowguns, lasers, firearms, internal-magazine firearms, bolt-action firearms, and muskets lose a small formula-driven amount of `IGameItem.Condition` after a resolved combat use.
+
+Use-loss is applied after resolution, so the attack, block, parry, shot, warding counterattack, or absorption event uses the item's pre-use effective quality. Low condition lowers effective `GameItem.Quality` through `IAffectQuality`; it is not a combat-only quality side channel. This means damage formulas, ranged accuracy formulas, armour absorption quality, musket jam/misfire formula inputs, and other quality-aware systems all observe the same degraded quality on later uses.
+
+The default use-loss formulas are small: `0.00025` for melee attacks, parries, warding weapon uses, and armour absorption events; `0.0005` for ranged firing and shield blocks. Hybrid weapon and shield profiles branch on `usekind`, so a bow, gun, thrown weapon, or shield used in melee consumes the melee default rather than the ranged or block default. Armour loses condition only when it participates in absorbing damage, not merely because it is worn.
+
+Muskets still evaluate their direct `condition` jam and misfire formulas before the shot's condition loss is applied. Modern firearms only receive the shared effective-quality degradation in this slice; no new jamming or misfire mechanic is introduced for them.
+
 ## Manual Combat Commands
 
 Manual combat commands are builder-authored `ManualCombatCommand` rows that register verbs such as `kick` or `bash` without hardcoding a command method per move. The loader brings them in after weapon attacks, auxiliary actions, FutureProgs, and dynamic magic verbs are available. Startup registration validates the primary verb and aliases against existing command trees and already-claimed manual words; invalid or colliding aliases are skipped with console warnings instead of preventing command loading.

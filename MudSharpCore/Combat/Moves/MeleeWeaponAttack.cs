@@ -133,6 +133,8 @@ public class MeleeWeaponAttack : WeaponAttackMove
                     new EmoteOutput(new Emote($"{attackEmote}{wardResult.WardEmotes}".Fullstop(), Assailant,
                             Assailant, defenderHaveWounds, Weapon.Parent, null, wardResult.WardWeapon?.Parent),
                         style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap));
+                (Weapon as IConditionDegradingComponent)?.UseCondition(
+                    new ItemConditionUseContext(ItemConditionUseKind.MeleeAttack, attackRoll[CheckDifficulty]));
                 return new CombatMoveResult { RecoveryDifficulty = RecoveryDifficultyFailure };
             }
 
@@ -331,6 +333,10 @@ public class MeleeWeaponAttack : WeaponAttackMove
         {
             recovery = recovery.StageUp(2);
         }
+        (Weapon as IConditionDegradingComponent)?.UseCondition(
+            new ItemConditionUseContext(ItemConditionUseKind.MeleeAttack, attackRoll[CheckDifficulty], (int)result.Degree));
+        (defenderMove.Shield as IConditionDegradingComponent)?.UseCondition(
+            new ItemConditionUseContext(ItemConditionUseKind.ShieldBlock, blockCheck[defenderDifficulty], (int)result.Degree));
         return new CombatMoveResult
         {
             MoveWasSuccessful = result.Outcome == OpposedOutcomeDirection.Proponent,
@@ -551,6 +557,10 @@ public class MeleeWeaponAttack : WeaponAttackMove
 
         Assailant.Body?.SetExertionToMinimumLevel(AssociatedExertion);
         defenderMove.Assailant.Body?.SetExertionToMinimumLevel(defenderMove.AssociatedExertion);
+        (Weapon as IConditionDegradingComponent)?.UseCondition(
+            new ItemConditionUseContext(ItemConditionUseKind.MeleeAttack, attackRoll[CheckDifficulty], (int)result.Degree));
+        (parry.Weapon as IConditionDegradingComponent)?.UseCondition(
+            new ItemConditionUseContext(ItemConditionUseKind.Parry, parryCheck[defenderDifficulty], (int)result.Degree));
         return new CombatMoveResult
         {
             MoveWasSuccessful = result.Outcome == OpposedOutcomeDirection.Proponent,
@@ -699,6 +709,8 @@ public class MeleeWeaponAttack : WeaponAttackMove
 
         Assailant.Body?.SetExertionToMinimumLevel(AssociatedExertion);
         defenderMove.Assailant.Body?.SetExertionToMinimumLevel(defenderMove.AssociatedExertion);
+        (Weapon as IConditionDegradingComponent)?.UseCondition(
+            new ItemConditionUseContext(ItemConditionUseKind.MeleeAttack, attackRoll[CheckDifficulty], (int)result.Degree));
         return new CombatMoveResult
         {
             MoveWasSuccessful = result.Outcome == OpposedOutcomeDirection.Proponent,
@@ -737,6 +749,8 @@ public class MeleeWeaponAttack : WeaponAttackMove
         wounds.ProcessPassiveWounds();
         Assailant.Body?.SetExertionToMinimumLevel(AssociatedExertion);
         defenderMove.Assailant.Body?.SetExertionToMinimumLevel(defenderMove.AssociatedExertion);
+        (Weapon as IConditionDegradingComponent)?.UseCondition(
+            new ItemConditionUseContext(ItemConditionUseKind.MeleeAttack, attackRoll[CheckDifficulty], (int)result.Degree));
         return new CombatMoveResult
         {
             MoveWasSuccessful = true,

@@ -25,10 +25,18 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Components;
 
-public class LaserGameItemComponent : GameItemComponent, IRangedWeapon, ISwitchable, IMeleeWeapon
+public class LaserGameItemComponent : GameItemComponent, IRangedWeapon, ISwitchable, IMeleeWeapon,
+    IConditionDegradingComponent
 {
     protected LaserGameItemComponentProto _prototype;
     public override IGameItemComponentProto Prototype => _prototype;
+    public bool ConditionDegradesOnUse => _prototype.ConditionMaintenance.ConditionDegradesOnUse;
+    public int ItemQualityStages => _prototype.ConditionMaintenance.QualityPenaltyStages(Parent);
+
+    public void UseCondition(ItemConditionUseContext context)
+    {
+        _prototype.ConditionMaintenance.UseCondition(Parent, context);
+    }
 
     protected override void UpdateComponentNewPrototype(IGameItemComponentProto newProto)
     {
@@ -286,6 +294,8 @@ public class LaserGameItemComponent : GameItemComponent, IRangedWeapon, ISwitcha
         PowerPack.Draw(_prototype.WattsPerShot);
         PowerPack.Fire(actor, target, shotOutcome, coverOutcome, defenseOutcome, bodypart, WeaponType,
             _prototype.PainMultiplier, _prototype.StunMultiplier, defenseEmote);
+        UseCondition(new ItemConditionUseContext(ItemConditionUseKind.RangedFire, shotOutcome,
+            (int)(defenseOutcome?.Degree ?? OpposedOutcomeDegree.None)));
 
         if (PowerPack.PowerLevel <= 0.0)
         {

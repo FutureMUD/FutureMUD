@@ -12,7 +12,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Components;
 
-public class ShieldGameItemComponent : GameItemComponent, IShield, IMeleeWeapon
+public class ShieldGameItemComponent : GameItemComponent, IShield, IMeleeWeapon, IConditionDegradingComponent
 {
     protected ShieldGameItemComponentProto _prototype;
 
@@ -23,6 +23,13 @@ public class ShieldGameItemComponent : GameItemComponent, IShield, IMeleeWeapon
     #endregion
 
     public override IGameItemComponentProto Prototype => _prototype;
+    public bool ConditionDegradesOnUse => _prototype.ConditionMaintenance.ConditionDegradesOnUse;
+    public int ItemQualityStages => _prototype.ConditionMaintenance.QualityPenaltyStages(Parent);
+
+    public void UseCondition(ItemConditionUseContext context)
+    {
+        _prototype.ConditionMaintenance.UseCondition(Parent, context);
+    }
 
     public override IGameItemComponent Copy(IGameItem newParent, bool temporary = false)
     {

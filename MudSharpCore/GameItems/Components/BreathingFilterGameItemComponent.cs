@@ -1,6 +1,7 @@
 using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Form.Material;
+using MudSharp.Form.Shape;
 using MudSharp.Framework;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Prototypes;
@@ -110,7 +111,8 @@ public class BreathingFilterGameItemComponent : GameItemComponent, IProvideGasFo
     {
         if (Functional())
         {
-            _installedFilterConsumable.Condition -= volume / _prototype.VolumePerFilter;
+            _installedFilterConsumable.Condition = Math.Clamp(
+                _installedFilterConsumable.Condition - volume / _prototype.VolumePerFilter, 0.0, 1.0);
         }
 
         return true;
@@ -240,6 +242,41 @@ public class BreathingFilterGameItemComponent : GameItemComponent, IProvideGasFo
     }
 
     #endregion
+
+    public override bool DescriptionDecorator(DescriptionType type)
+    {
+        return type is DescriptionType.Full or DescriptionType.Evaluate || base.DescriptionDecorator(type);
+    }
+
+    public override string Decorate(IPerceiver voyeur, string name, string description, DescriptionType type,
+        bool colour, PerceiveIgnoreFlags flags)
+    {
+        var baseDescription = base.Decorate(voyeur, name, description, type, colour, flags);
+        if (type is not (DescriptionType.Full or DescriptionType.Evaluate))
+        {
+            return baseDescription;
+        }
+
+        if (_installedFilterConsumable is null)
+        {
+            return $"{baseDescription}\n\nIt does not have a filter consumable installed.";
+        }
+
+        if (type == DescriptionType.Evaluate)
+        {
+            return
+                $"{baseDescription}\n\nIt has {_installedFilterConsumable.HowSeen(voyeur)} installed with {_installedFilterConsumable.Condition.ToString("P0", voyeur).ColourValue()} condition remaining.";
+        }
+
+        var status = _installedFilterConsumable.Condition switch
+        {
+            <= 0.0 => "spent",
+            < 0.25 => "nearly spent",
+            < 0.5 => "well-used",
+            _ => "usable"
+        };
+        return $"{baseDescription}\n\nIt has {_installedFilterConsumable.HowSeen(voyeur)} installed; the filter looks {status}.";
+    }
 
     public override void Quit()
     {

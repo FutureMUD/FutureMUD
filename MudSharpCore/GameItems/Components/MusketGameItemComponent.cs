@@ -34,10 +34,18 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Components;
 
-public class MusketGameItemComponent : GameItemComponent, IJammableWeapon, IBelt, IMeleeWeapon
+public class MusketGameItemComponent : GameItemComponent, IJammableWeapon, IBelt, IMeleeWeapon,
+    IConditionDegradingComponent
 {
     protected MusketGameItemComponentProto _prototype;
     public override IGameItemComponentProto Prototype => _prototype;
+    public bool ConditionDegradesOnUse => _prototype.ConditionMaintenance.ConditionDegradesOnUse;
+    public int ItemQualityStages => _prototype.ConditionMaintenance.QualityPenaltyStages(Parent);
+
+    public void UseCondition(ItemConditionUseContext context)
+    {
+        _prototype.ConditionMaintenance.UseCondition(Parent, context);
+    }
 
     protected override void UpdateComponentNewPrototype(IGameItemComponentProto newProto)
     {
@@ -959,6 +967,8 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
             wounds.AddRange(actor.Body.InventoryExploded(Parent, explosion));
             wounds.AddRange(Parent.PassiveSufferDamage(explosion, Proximity.Intimate, Facing.Front));
             wounds.ProcessPassiveWounds();
+            UseCondition(new ItemConditionUseContext(ItemConditionUseKind.RangedFire, shotOutcome,
+                (int)(defenseOutcome?.Degree ?? OpposedOutcomeDegree.None)));
             return;
         }
 
@@ -1025,12 +1035,16 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
         {
             actor.OutputHandler.Handle(new EmoteOutput(new Emote(_prototype.FireEmoteJam, actor, actor, target ?? (IPerceivable)new DummyPerceivable("the air"), Parent), style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap));
             IsJammed = true;
+            UseCondition(new ItemConditionUseContext(ItemConditionUseKind.RangedFire, shotOutcome,
+                (int)(defenseOutcome?.Degree ?? OpposedOutcomeDegree.None)));
             return;
         }
 
         if (misfire)
         {
             actor.OutputHandler.Handle(new EmoteOutput(new Emote(_prototype.FireEmoteMisfire, actor, actor, target ?? (IPerceivable)new DummyPerceivable("the air"), Parent), style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap));
+            UseCondition(new ItemConditionUseContext(ItemConditionUseKind.RangedFire, shotOutcome,
+                (int)(defenseOutcome?.Degree ?? OpposedOutcomeDegree.None)));
             return;
         }
 
@@ -1047,6 +1061,8 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
         }
 
         ammo.Fire(actor, target, shotOutcome, coverOutcome, defenseOutcome, bodypart, bullet, WeaponType, defenseEmote);
+        UseCondition(new ItemConditionUseContext(ItemConditionUseKind.RangedFire, shotOutcome,
+            (int)(defenseOutcome?.Degree ?? OpposedOutcomeDegree.None)));
     }
 
     #endregion

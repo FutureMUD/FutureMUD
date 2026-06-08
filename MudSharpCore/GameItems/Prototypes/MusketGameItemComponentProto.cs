@@ -29,7 +29,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class MusketGameItemComponentProto : GameItemComponentProto, IJammableWeaponPrototype, IBeltPrototype, IMeleeWeaponPrototype
+public class MusketGameItemComponentProto : GameItemComponentProto, IJammableWeaponPrototype, IBeltPrototype, IMeleeWeaponPrototype, IConditionDegradingComponentPrototype
 {
     public static ISolid GunpowderMaterial => Futuremud.Games.First().Materials.Get(Futuremud.Games.First().GetStaticLong("GunpowderMaterialId"));
 
@@ -103,6 +103,7 @@ public class MusketGameItemComponentProto : GameItemComponentProto, IJammableWea
 
         CanWieldProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("CanWieldProg")?.Value ?? "0"));
         WhyCannotWieldProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("WhyCannotWieldProg")?.Value ?? "0"));
+        ConditionMaintenance.LoadFromXml(root);
 
         _rangedWeaponType = Gameworld.RangedWeaponTypes.Get(long.Parse(root.Element("RangedWeaponType").Value));
         XElement element = root.Element("MeleeWeaponType");
@@ -149,7 +150,8 @@ public class MusketGameItemComponentProto : GameItemComponentProto, IJammableWea
             new XElement("JamChance", JamChance.OriginalFormulaText),
             new XElement("CatastrophyDamageFormula", CatastrophyDamageFormula.OriginalExpression),
             new XElement("CanWieldProg", CanWieldProg?.Id ?? 0),
-            new XElement("WhyCannotWieldProg", WhyCannotWieldProg?.Id ?? 0)
+            new XElement("WhyCannotWieldProg", WhyCannotWieldProg?.Id ?? 0),
+            ConditionMaintenance.SaveToXml()
         ).ToString();
     }
 
@@ -379,6 +381,7 @@ public class MusketGameItemComponentProto : GameItemComponentProto, IJammableWea
     public ITraitExpression MisfireChance { get; set; }
     public ITraitExpression JamChance { get; set; }
     public ExpressionEngine.Expression CatastrophyDamageFormula { get; set; }
+    public ConditionMaintenanceProfile ConditionMaintenance { get; } = new(ConditionMaintenanceProfile.DefaultRangedOrMeleeUseExpression);
 
     #endregion
 
@@ -392,6 +395,7 @@ public class MusketGameItemComponentProto : GameItemComponentProto, IJammableWea
 	#3canwield none#0 - removes a canwield prog
 	#3whycantwield <prog>#0 - sets a prog giving the error message if canwield fails
 	#3whycantwield none#0 - clears the whycantwield prog
+	#3condition <option>#0 - configures optional condition degradation
 	#3load <emote>#0 - sets the emote for loading this weapon. $0 is the loader, $1 is the gun, $2 is the clip.
 	#3unload <emote>#0 - sets the emote for unloading this weapon. $0 is the loader, $1 is the gun, $2 is the clip.
 	#3ready <emote>#0 - sets the emote for readying this gun. $0 is the loader, $1 is the gun.
@@ -471,6 +475,8 @@ public class MusketGameItemComponentProto : GameItemComponentProto, IJammableWea
             case "whycannotwield":
             case "whycannotwieldprog":
                 return BuildingCommandWhyCannotWieldProg(actor, command);
+            case "condition":
+                return ConditionMaintenance.BuildingCommand(actor, command, () => Changed = true);
             default:
                 return base.BuildingCommand(actor, command);
         }
@@ -1055,6 +1061,7 @@ This item is a muzzle-loading musket and uses the {4} ranged weapon type.
 It has a barrel bore of {5} and uses {6} of gunpowder per shot.
 It is also a melee weapon with type {7}.
 The CanWield prog is {27} and the WhyCannotWield prog is {28}.
+{29}
 Misfire formula: {8}
 Jam formula: {9}
 Catastrophy Damage: {10}
@@ -1103,7 +1110,8 @@ Fire Emote (Catasrophy): {26}",
             FireEmoteJam.ColourCommand(),
             FireEmoteCatastrophy.ColourCommand(),
             CanWieldProg?.MXPClickableFunctionName() ?? "None".ColourError(),
-            WhyCannotWieldProg?.MXPClickableFunctionName() ?? "None".ColourError()
+            WhyCannotWieldProg?.MXPClickableFunctionName() ?? "None".ColourError(),
+            ConditionMaintenance.Describe(actor)
             );
     }
 }

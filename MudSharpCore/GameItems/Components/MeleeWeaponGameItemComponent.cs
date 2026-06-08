@@ -13,10 +13,17 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Components;
 
-public class MeleeWeaponGameItemComponent : GameItemComponent, IMeleeWeapon
+public class MeleeWeaponGameItemComponent : GameItemComponent, IMeleeWeapon, IConditionDegradingComponent
 {
     protected MeleeWeaponGameItemComponentProto _prototype;
     public override IGameItemComponentProto Prototype => _prototype;
+    public bool ConditionDegradesOnUse => _prototype.ConditionMaintenance.ConditionDegradesOnUse;
+    public int ItemQualityStages => _prototype.ConditionMaintenance.QualityPenaltyStages(Parent);
+
+    public void UseCondition(ItemConditionUseContext context)
+    {
+        _prototype.ConditionMaintenance.UseCondition(Parent, context);
+    }
 
     public override IGameItemComponent Copy(IGameItem newParent, bool temporary = false)
     {

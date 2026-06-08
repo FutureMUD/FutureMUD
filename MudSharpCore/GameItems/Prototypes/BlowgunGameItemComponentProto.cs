@@ -17,7 +17,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class BlowgunGameItemComponentProto : GameItemComponentProto, IRangedWeaponPrototype
+public class BlowgunGameItemComponentProto : GameItemComponentProto, IRangedWeaponPrototype, IConditionDegradingComponentPrototype
 {
 	private IRangedWeaponType _rangedWeaponType;
 
@@ -67,6 +67,7 @@ public class BlowgunGameItemComponentProto : GameItemComponentProto, IRangedWeap
 	public IFutureProg? WhyCannotWieldProg { get; private set; }
 #nullable disable warnings
 
+	public ConditionMaintenanceProfile ConditionMaintenance { get; } = new(ConditionMaintenanceProfile.DefaultRangedUseExpression);
 	public IInventoryPlanTemplate LoadTemplate { get; set; }
 	public override string TypeDescription => "Blowgun";
 
@@ -80,20 +81,22 @@ public class BlowgunGameItemComponentProto : GameItemComponentProto, IRangedWeap
 
 		CanWieldProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("CanWieldProg")?.Value ?? "0"));
 		WhyCannotWieldProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("WhyCannotWieldProg")?.Value ?? "0"));
+		ConditionMaintenance.LoadFromXml(root);
 	}
 
 	public override string ComponentDescriptionOLC(ICharacter actor)
 	{
 		return string.Format(
 			actor,
-			"{0} (#{1:N0}r{2:N0}, {3})\n\nThis item is a blowgun of type {4}. It can be fired from hiding without automatically revealing the firer.\nThe CanWield prog is {5} and the WhyCannotWield prog is {6}.",
+			"{0} (#{1:N0}r{2:N0}, {3})\n\nThis item is a blowgun of type {4}. It can be fired from hiding without automatically revealing the firer.\nThe CanWield prog is {5} and the WhyCannotWield prog is {6}.\n{7}",
 			"Blowgun Game Item Component".Colour(Telnet.Cyan),
 			Id,
 			RevisionNumber,
 			Name,
 			RangedWeaponType?.Name.TitleCase().Colour(Telnet.Green) ?? "None".Colour(Telnet.Red),
 			CanWieldProg?.MXPClickableFunctionName() ?? "None".ColourError(),
-			WhyCannotWieldProg?.MXPClickableFunctionName() ?? "None".ColourError()
+			WhyCannotWieldProg?.MXPClickableFunctionName() ?? "None".ColourError(),
+			ConditionMaintenance.Describe(actor)
 		);
 	}
 
@@ -102,7 +105,8 @@ public class BlowgunGameItemComponentProto : GameItemComponentProto, IRangedWeap
 		return new XElement("Definition",
 			new XElement("RangedWeaponType", RangedWeaponType?.Id ?? 0),
 			new XElement("CanWieldProg", CanWieldProg?.Id ?? 0),
-			new XElement("WhyCannotWieldProg", WhyCannotWieldProg?.Id ?? 0)
+			new XElement("WhyCannotWieldProg", WhyCannotWieldProg?.Id ?? 0),
+			ConditionMaintenance.SaveToXml()
 		).ToString();
 	}
 
@@ -144,7 +148,8 @@ public class BlowgunGameItemComponentProto : GameItemComponentProto, IRangedWeap
 	#3canwield <prog>#0 - sets a prog controlling if this can be wielded
 	#3canwield none#0 - removes a canwield prog
 	#3whycantwield <prog>#0 - sets a prog giving the error message if canwield fails
-	#3whycantwield none#0 - clears the whycantwield prog";
+	#3whycantwield none#0 - clears the whycantwield prog
+	#3condition <option>#0 - configures optional condition degradation";
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
@@ -163,6 +168,8 @@ public class BlowgunGameItemComponentProto : GameItemComponentProto, IRangedWeap
 			case "whycannotwield":
 			case "whycannotwieldprog":
 				return BuildingCommandWhyCannotWieldProg(actor, command);
+			case "condition":
+				return ConditionMaintenance.BuildingCommand(actor, command, () => Changed = true);
 			default:
 				return base.BuildingCommand(actor, command);
 		}

@@ -361,6 +361,8 @@ public abstract class RangedWeaponAttackBase : CombatMoveBase, IRangedWeaponAtta
                             null, BuiltInCombatMoveType.BlockRange, blockResult, TargetBodypart),
                         target, target, Assailant, Weapon.Parent, block.Shield.Parent),
                     style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap), target);
+                (block.Shield as IConditionDegradingComponent)?.UseCondition(
+                    new ItemConditionUseContext(ItemConditionUseKind.ShieldBlock, blockResult, (int)opposed.Degree));
                 return new CombatMoveResult
                 {
                     MoveWasSuccessful = true,
@@ -380,6 +382,8 @@ public abstract class RangedWeaponAttackBase : CombatMoveBase, IRangedWeaponAtta
                         target, Assailant, Weapon.Parent, block.Shield.Parent),
                     style: OutputStyle.CombatMessage,
                     flags: OutputFlags.InnerWrap), target);
+            (block.Shield as IConditionDegradingComponent)?.UseCondition(
+                new ItemConditionUseContext(ItemConditionUseKind.ShieldBlock, blockResult, (int)opposed.Degree));
             return new CombatMoveResult
             {
                 RecoveryDifficulty = RecoveryDifficultyFailure,

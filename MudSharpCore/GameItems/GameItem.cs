@@ -1271,12 +1271,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
         get => _condition;
         set
         {
-            if (value < 0.0)
-            {
-                value = 0.0;
-            }
-
-            _condition = value;
+            _condition = Math.Clamp(value, 0.0, 1.0);
             Changed = true;
         }
     }

@@ -13,7 +13,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class ThrownWeaponGameItemComponentProto : GameItemComponentProto, IRangedWeaponPrototype, IMeleeWeaponPrototype
+public class ThrownWeaponGameItemComponentProto : GameItemComponentProto, IRangedWeaponPrototype, IMeleeWeaponPrototype, IConditionDegradingComponentPrototype
 {
     protected ThrownWeaponGameItemComponentProto(IFuturemud gameworld, IAccount originator)
         : base(gameworld, originator, "ThrownWeapon")
@@ -29,6 +29,7 @@ public class ThrownWeaponGameItemComponentProto : GameItemComponentProto, IRange
 
     public IRangedWeaponType RangedWeaponType { get; set; }
     public IWeaponType MeleeWeaponType { get; set; }
+    public ConditionMaintenanceProfile ConditionMaintenance { get; } = new(ConditionMaintenanceProfile.DefaultRangedOrMeleeUseExpression);
 #nullable enable
     public IFutureProg? CanWieldProg { get; private set; }
     public IFutureProg? WhyCannotWieldProg { get; private set; }
@@ -50,12 +51,13 @@ public class ThrownWeaponGameItemComponentProto : GameItemComponentProto, IRange
         }
         CanWieldProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("CanWieldProg")?.Value ?? "0"));
         WhyCannotWieldProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("WhyCannotWieldProg")?.Value ?? "0"));
+        ConditionMaintenance.LoadFromXml(root);
     }
 
     public override string ComponentDescriptionOLC(ICharacter actor)
     {
         return string.Format(actor,
-            "{0} (#{1:N0}r{2:N0}, {3})\n\nThis item is a thrown weapon of ranged type {4} and melee type {5}.\nThe CanWield prog is {6} and the WhyCannotWield prog is {7}.",
+            "{0} (#{1:N0}r{2:N0}, {3})\n\nThis item is a thrown weapon of ranged type {4} and melee type {5}.\nThe CanWield prog is {6} and the WhyCannotWield prog is {7}.\n{8}",
             "Thrown Weapon Game Item Component".Colour(Telnet.Cyan),
             Id,
             RevisionNumber,
@@ -63,7 +65,8 @@ public class ThrownWeaponGameItemComponentProto : GameItemComponentProto, IRange
             RangedWeaponType?.Name.TitleCase().Colour(Telnet.Green) ?? "None".Colour(Telnet.Red),
             MeleeWeaponType?.Name.TitleCase().Colour(Telnet.Green) ?? "None".Colour(Telnet.Red),
             CanWieldProg?.MXPClickableFunctionName() ?? "None".ColourError(),
-            WhyCannotWieldProg?.MXPClickableFunctionName() ?? "None".ColourError()
+            WhyCannotWieldProg?.MXPClickableFunctionName() ?? "None".ColourError(),
+            ConditionMaintenance.Describe(actor)
         );
     }
 
@@ -74,7 +77,8 @@ public class ThrownWeaponGameItemComponentProto : GameItemComponentProto, IRange
                 new XElement("RangedWeaponType", RangedWeaponType?.Id ?? 0),
                 new XElement("MeleeWeaponType", MeleeWeaponType?.Id ?? 0),
                 new XElement("CanWieldProg", CanWieldProg?.Id ?? 0),
-                new XElement("WhyCannotWieldProg", WhyCannotWieldProg?.Id ?? 0)
+                new XElement("WhyCannotWieldProg", WhyCannotWieldProg?.Id ?? 0),
+                ConditionMaintenance.SaveToXml()
             ).ToString();
     }
 
@@ -126,7 +130,8 @@ public class ThrownWeaponGameItemComponentProto : GameItemComponentProto, IRange
 	#3canwield <prog>#0 - sets a prog controlling if this can be wielded
 	#3canwield none#0 - removes a canwield prog
 	#3whycantwield <prog>#0 - sets a prog giving the error message if canwield fails
-	#3whycantwield none#0 - clears the whycantwield prog";
+	#3whycantwield none#0 - clears the whycantwield prog
+	#3condition <option>#0 - configures optional condition degradation";
 
     public override bool BuildingCommand(ICharacter actor, StringStack command)
     {
@@ -148,6 +153,8 @@ public class ThrownWeaponGameItemComponentProto : GameItemComponentProto, IRange
             case "whycannotwield":
             case "whycannotwieldprog":
                 return BuildingCommandWhyCannotWieldProg(actor, command);
+            case "condition":
+                return ConditionMaintenance.BuildingCommand(actor, command, () => Changed = true);
             default:
                 return base.BuildingCommand(actor, command);
         }

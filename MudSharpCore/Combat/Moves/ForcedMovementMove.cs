@@ -109,6 +109,7 @@ public class ForcedMovementMove : CombatMoveBase
 						$"{attackEmote}, but $1 resist|resists being moved.",
 						Assailant, Assailant, CharacterTarget),
 					style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap));
+				UseWeaponCondition(attackRoll[CheckDifficulty], opposed);
 				return new CombatMoveResult
 				{
 					RecoveryDifficulty = RecoveryDifficultyFailure,
@@ -124,6 +125,7 @@ public class ForcedMovementMove : CombatMoveBase
 					$"{attackEmote}, but {why}",
 					Assailant, Assailant, CharacterTarget),
 				style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap));
+			UseWeaponCondition(attackRoll[CheckDifficulty]);
 			return new CombatMoveResult
 			{
 				RecoveryDifficulty = RecoveryDifficultyFailure,
@@ -135,6 +137,7 @@ public class ForcedMovementMove : CombatMoveBase
 				$"{attackEmote}, and $1 $1|are|is forced away.",
 				Assailant, Assailant, CharacterTarget),
 			style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap));
+		UseWeaponCondition(attackRoll[CheckDifficulty]);
 		return new CombatMoveResult
 		{
 			RecoveryDifficulty = RecoveryDifficultySuccess,
@@ -159,6 +162,13 @@ public class ForcedMovementMove : CombatMoveBase
 		Assailant.OutputHandler.Handle(new EmoteOutput(new Emote(message, Assailant, Assailant, CharacterTarget),
 			style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap));
 		return new CombatMoveResult { RecoveryDifficulty = RecoveryDifficultyFailure };
+	}
+
+	private void UseWeaponCondition(CheckOutcome outcome, OpposedOutcome opposed = null)
+	{
+		(Weapon as IConditionDegradingComponent)?.UseCondition(
+			new ItemConditionUseContext(ItemConditionUseKind.MeleeAttack, outcome,
+				opposed is null ? 0.0 : (int)opposed.Degree));
 	}
 
 	private bool TryApplyMovement(out string why)

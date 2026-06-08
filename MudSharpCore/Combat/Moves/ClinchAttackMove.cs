@@ -187,6 +187,8 @@ public class ClinchAttackMove : WeaponAttackMove
         wounds.ProcessPassiveWounds();
         Assailant.Body?.SetExertionToMinimumLevel(AssociatedExertion);
         CharacterTarget.Body?.SetExertionToMinimumLevel(dodge.AssociatedExertion);
+        (Weapon as IConditionDegradingComponent)?.UseCondition(
+            new ItemConditionUseContext(ItemConditionUseKind.MeleeAttack, attackRoll, (int)result.Degree));
         return new CombatMoveResult
         {
             MoveWasSuccessful = true,
@@ -242,6 +244,8 @@ public class ClinchAttackMove : WeaponAttackMove
         wounds.ProcessPassiveWounds();
         Assailant.Body?.SetExertionToMinimumLevel(AssociatedExertion);
         CharacterTarget.Body?.SetExertionToMinimumLevel(defenderMove.AssociatedExertion);
+        (Weapon as IConditionDegradingComponent)?.UseCondition(
+            new ItemConditionUseContext(ItemConditionUseKind.MeleeAttack, attackRoll, (int)result.Degree));
         return new CombatMoveResult
         {
             MoveWasSuccessful = true,

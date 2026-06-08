@@ -22,10 +22,17 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Components;
 
-public class ThrownWeaponGameItemComponent : GameItemComponent, IRangedWeapon, IMeleeWeapon
+public class ThrownWeaponGameItemComponent : GameItemComponent, IRangedWeapon, IMeleeWeapon, IConditionDegradingComponent
 {
     protected ThrownWeaponGameItemComponentProto _prototype;
     public override IGameItemComponentProto Prototype => _prototype;
+    public bool ConditionDegradesOnUse => _prototype.ConditionMaintenance.ConditionDegradesOnUse;
+    public int ItemQualityStages => _prototype.ConditionMaintenance.QualityPenaltyStages(Parent);
+
+    public void UseCondition(ItemConditionUseContext context)
+    {
+        _prototype.ConditionMaintenance.UseCondition(Parent, context);
+    }
 
     public override IGameItemComponent Copy(IGameItem newParent, bool temporary = false)
     {
@@ -212,6 +219,8 @@ public class ThrownWeaponGameItemComponent : GameItemComponent, IRangedWeapon, I
             StunAmount = payloadEffects.Sum(x => x.ProjectileStunBonus),
             LodgableItem = Parent
         };
+        UseCondition(new ItemConditionUseContext(ItemConditionUseKind.RangedFire, shotOutcome,
+            (int)(defenseOutcome?.Degree ?? OpposedOutcomeDegree.None)));
 
         List<IWound> wounds = new();
         if (shotOutcome.IsPass() && coverOutcome.IsFail() && target.Cover != null)

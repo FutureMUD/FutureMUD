@@ -73,6 +73,8 @@ public class CoupDeGrace : WeaponAttackMove
         List<IWound> wounds = Target.PassiveSufferDamage(finalDamage).ToList();
         wounds.ProcessPassiveWounds();
         Assailant.Body?.SetExertionToMinimumLevel(AssociatedExertion);
+        (Weapon as IConditionDegradingComponent)?.UseCondition(
+            new ItemConditionUseContext(ItemConditionUseKind.MeleeAttack, attackRoll, (int)result.Degree));
         return new CombatMoveResult
         {
             MoveWasSuccessful = true,

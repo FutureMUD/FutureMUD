@@ -19,10 +19,17 @@ using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Components;
 
-public class CrossbowGameItemComponent : GameItemComponent, IRangedWeapon, IMeleeWeapon
+public class CrossbowGameItemComponent : GameItemComponent, IRangedWeapon, IMeleeWeapon, IConditionDegradingComponent
 {
     protected CrossbowGameItemComponentProto _prototype;
     public override IGameItemComponentProto Prototype => _prototype;
+    public bool ConditionDegradesOnUse => _prototype.ConditionMaintenance.ConditionDegradesOnUse;
+    public int ItemQualityStages => _prototype.ConditionMaintenance.QualityPenaltyStages(Parent);
+
+    public void UseCondition(ItemConditionUseContext context)
+    {
+        _prototype.ConditionMaintenance.UseCondition(Parent, context);
+    }
 
     protected override void UpdateComponentNewPrototype(IGameItemComponentProto newProto)
     {
@@ -397,6 +404,8 @@ public class CrossbowGameItemComponent : GameItemComponent, IRangedWeapon, IMele
         Changed = true;
         ammo.Fire(actor, target, shotOutcome, coverOutcome, defenseOutcome, bodypart, ammo.Parent, WeaponType,
             defenseEmote);
+        UseCondition(new ItemConditionUseContext(ItemConditionUseKind.RangedFire, shotOutcome,
+            (int)(defenseOutcome?.Degree ?? OpposedOutcomeDegree.None)));
     }
 
     #endregion

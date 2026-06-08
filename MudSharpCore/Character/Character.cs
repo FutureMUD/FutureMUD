@@ -250,6 +250,11 @@ public partial class Character : PerceiverItem, ICharacter
         {
             foreach (ICharacterMerit included in merit.CharacterMerits.Where(x => x.MeritScope == MeritScope.Character))
             {
+                if (_merits.Contains(included))
+                {
+                    continue;
+                }
+
                 _merits.Add(included);
             }
         }
@@ -1143,8 +1148,8 @@ public partial class Character : PerceiverItem, ICharacter
         sb.AppendLine($"Aliases: {Aliases.Select(x => x.GetName(NameStyle.FullWithNickname).ColourName()).ListToString()}");
         sb.AppendLine($"Current Name: {CurrentName.GetName(NameStyle.FullWithNickname).ColourName()}");
         sb.AppendLine($"Short Description: {HowSeen(voyeur, flags: PerceiveIgnoreFlags.IgnoreCanSee | PerceiveIgnoreFlags.IgnoreLoadThings | PerceiveIgnoreFlags.IgnoreObscured | PerceiveIgnoreFlags.IgnoreSelf | PerceiveIgnoreFlags.IgnoreDisguises)}");
-        sb.AppendLine($"SDesc Pattern: {_shortDescriptionPattern?.Id.ToStringN0Colour(voyeur) ?? "None".ColourError()}");
-        sb.AppendLine($"FDesc Pattern: {_fullDescriptionPattern?.Id.ToStringN0Colour(voyeur) ?? "None".ColourError()}");
+        sb.AppendLine($"SDesc Pattern: {Body.ShortDescriptionPattern?.Id.ToStringN0Colour(voyeur) ?? "None".ColourError()}");
+        sb.AppendLine($"FDesc Pattern: {Body.FullDescriptionPattern?.Id.ToStringN0Colour(voyeur) ?? "None".ColourError()}");
         sb.AppendLine($"Race: {Race.Name.ColourValue()}");
         sb.AppendLine($"Culture: {Culture.Name.ColourValue()}");
         sb.AppendLine($"Ethnicity: {Ethnicity.Name.ColourValue()}");
@@ -1812,8 +1817,13 @@ public partial class Character : PerceiverItem, ICharacter
 
     public Difficulty IlluminationSightDifficulty()
     {
+        return IlluminationSightDifficulty(Location);
+    }
+
+    public Difficulty IlluminationSightDifficulty(ICell location)
+    {
         Difficulty difficulty = Gameworld.LightModel.GetSightDifficulty(
-            Location.CurrentIllumination(this) *
+            location.CurrentIllumination(this) *
             Race.IlluminationPerceptionMultiplier
             );
 

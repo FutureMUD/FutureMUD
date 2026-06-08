@@ -206,15 +206,35 @@ public class ShowModule : Module<ICharacter>
         switch (ss.PopForSwitch())
         {
             case "popbloodmodels":
+                if (!actor.IsAdministrator())
+                {
+                    actor.OutputHandler.Send("You are not authorised to view population blood models.");
+                    return;
+                }
                 Show_PopulationBloodModels(actor, ss);
                 return;
             case "bloodmodels":
+                if (!actor.IsAdministrator())
+                {
+                    actor.OutputHandler.Send("You are not authorised to view blood models.");
+                    return;
+                }
                 Show_BloodModels(actor, ss);
                 return;
             case "bloodantigens":
+                if (!actor.IsAdministrator())
+                {
+                    actor.OutputHandler.Send("You are not authorised to view blood antigens.");
+                    return;
+                }
                 Show_BloodAntigens(actor, ss);
                 return;
             case "bloodtypes":
+                if (!actor.IsAdministrator())
+                {
+                    actor.OutputHandler.Send("You are not authorised to view blood types.");
+                    return;
+                }
                 Show_BloodTypes(actor, ss);
                 return;
             case "speeds":

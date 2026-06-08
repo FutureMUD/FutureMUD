@@ -256,6 +256,11 @@ public class TheoreticalImprovementModel : ImprovementModel
             return 0.0;
         }
 
+        TimeSpan noGainTimespan = TimeSpan.FromSeconds(Dice.Roll(NoGainSecondsDiceExpression));
+        if (person is IHaveEffects phe && noGainTimespan.TotalSeconds > 0)
+        {
+            phe.AddEffect(new NoTraitGain((IPerceivable)person, trait.Definition), noGainTimespan);
+        }
 
         TheoreticalSkill tts = (trait as TheoreticalSkill);
         double gain = ImprovementProg is not null && person is ICharacter ch ?
@@ -265,12 +270,6 @@ public class TheoreticalImprovementModel : ImprovementModel
         {
             trait.Gameworld.LogManager.CustomLogEntry(Logging.LogEntryType.SkillImprovement, $"-- NoGain [Gain amount was {gain:N2}]");
             return 0.0;
-        }
-
-        TimeSpan noGainTimespan = TimeSpan.FromSeconds(Dice.Roll(NoGainSecondsDiceExpression));
-        if (person is IHaveEffects phe && noGainTimespan.TotalSeconds > 0)
-        {
-            phe.AddEffect(new NoTraitGain((IPerceivable)person, trait.Definition), noGainTimespan);
         }
 
         trait.Gameworld.LogManager.CustomLogEntry(Logging.LogEntryType.SkillImprovement, $"-- Skill Gain of {gain:N4}");

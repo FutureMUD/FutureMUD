@@ -13,6 +13,7 @@ namespace MudSharp.Body.Needs;
 
 public abstract class ChangingNeedsModelBase : INeedsModel
 {
+    public const double MinimumSatiationLimitHours = 0.1;
     public static double StaticRealSecondsToInGameSeconds { get; set; }
     protected double RealSecondsToInGameSeconds => StaticRealSecondsToInGameSeconds;
 
@@ -285,7 +286,7 @@ public abstract class ChangingNeedsModelBase : INeedsModel
 
     private static double GetEffectiveSatiationLimit(double configuredLimit, double fallbackLimit)
     {
-        if (double.IsNaN(configuredLimit) || double.IsInfinity(configuredLimit) || configuredLimit <= 0.0)
+        if (!double.IsFinite(configuredLimit) || configuredLimit < MinimumSatiationLimitHours)
         {
             return fallbackLimit;
         }

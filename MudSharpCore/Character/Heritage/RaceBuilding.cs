@@ -531,9 +531,10 @@ public partial class Race
     {
         if (command.IsFinished ||
             !double.TryParse(command.SafeRemainingArgument, actor.Account.Culture, out double value) ||
-            value <= 0.0)
+            !double.IsFinite(value) ||
+            value < MudSharp.Body.Needs.ChangingNeedsModelBase.MinimumSatiationLimitHours)
         {
-            actor.OutputHandler.Send("You must enter a valid number of hours greater than zero.");
+            actor.OutputHandler.Send($"You must enter a valid number of hours greater than or equal to {MudSharp.Body.Needs.ChangingNeedsModelBase.MinimumSatiationLimitHours.ToString("N2", actor).ColourValue()}.");
             return false;
         }
 
@@ -562,9 +563,10 @@ public partial class Race
     {
         if (command.IsFinished ||
             !double.TryParse(command.SafeRemainingArgument, actor.Account.Culture, out double value) ||
-            value <= 0.0)
+            !double.IsFinite(value) ||
+            value < MudSharp.Body.Needs.ChangingNeedsModelBase.MinimumSatiationLimitHours)
         {
-            actor.OutputHandler.Send("You must enter a valid number of hours greater than zero.");
+            actor.OutputHandler.Send($"You must enter a valid number of hours greater than or equal to {MudSharp.Body.Needs.ChangingNeedsModelBase.MinimumSatiationLimitHours.ToString("N2", actor).ColourValue()}.");
             return false;
         }
 
@@ -1014,8 +1016,7 @@ public partial class Race
         }
 
         string emoteText = command.SafeRemainingArgument;
-        Emote emote = new(emoteText, new DummyPerceiver(), new DummyPerceiver(), new DummyPerceiver(),
-            new DummyPerceiver());
+        Emote emote = new(emoteText, new DummyPerceiver(), new DummyPerceiver(), new DummyPerceiver());
         if (!emote.Valid)
         {
             actor.OutputHandler.Send(emote.ErrorMessage);

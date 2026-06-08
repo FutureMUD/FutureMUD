@@ -7,6 +7,9 @@ using MudSharp.Character;
 using MudSharp.Communication.Language;
 using MudSharp.Form.Colour;
 using MudSharp.Framework;
+using MudSharp.FutureProg.Variables;
+using MudSharp.GameItems;
+using MudSharp.GameItems.Interfaces;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -53,6 +56,35 @@ public class TattooTextSlotTests
             "Viewers who cannot read the writing should see the alternate text instead.");
     }
 
+    [TestMethod]
+    public void TattooTextCopy_RejectsWritingIdNotVisibleOnReadableItem()
+    {
+        TattooTestContext context = CreateTattooTestContext();
+        Mock<IWriting> writing = context.CreateWriting("Secret");
+        Mock<ICharacter> actor = context.CreateActor(writing.Object, []);
+
+        bool result = TattooTextCommandHelper.TryParseTextValues(actor.Object, context.Template.Object,
+            new StringStack("banner=copy:99"), true, out _, out _, out string error);
+
+        Assert.IsFalse(result);
+        StringAssert.Contains(error, "readable item");
+    }
+
+    [TestMethod]
+    public void TattooTextCopy_AllowsWritingVisibleOnReadableItem()
+    {
+        TattooTestContext context = CreateTattooTestContext();
+        Mock<IWriting> writing = context.CreateWriting("Visible");
+        Mock<IGameItem> item = context.CreateReadableItem(writing.Object);
+        Mock<ICharacter> actor = context.CreateActor(writing.Object, [item.Object]);
+
+        bool result = TattooTextCommandHelper.TryParseTextValues(actor.Object, context.Template.Object,
+            new StringStack("banner=copy:99"), true, out List<ITattooTextValue> values, out _, out string error);
+
+        Assert.IsTrue(result, error);
+        Assert.AreEqual("Visible", values.Single().Text);
+    }
+
     private static TattooTestContext CreateTattooTestContext()
     {
         Mock<ITraitDefinition> languageTrait = new();
@@ -76,6 +108,7 @@ public class TattooTextSlotTests
         gameworld.SetupGet(x => x.Languages).Returns(CreateCollection(language.Object));
         gameworld.SetupGet(x => x.Scripts).Returns(CreateCollection(script.Object));
         gameworld.SetupGet(x => x.Colours).Returns(CreateCollection(colour.Object));
+        gameworld.SetupGet(x => x.Items).Returns(CreateCollection<IGameItem>());
         gameworld.Setup(x => x.GetStaticInt("DefaultWritingStyleInText")).Returns((int)WritingStyleDescriptors.None);
         gameworld.Setup(x => x.GetStaticLong("DefaultWritingColourInText")).Returns(colour.Object.Id);
         gameworld.Setup(x => x.GetStaticString("DefaultAlternateTextValue")).Returns("unknown writing");
@@ -97,6 +130,7 @@ public class TattooTextSlotTests
         template.SetupGet(x => x.ShortDescription).Returns("a heart banner reading $template{banner}");
         template.SetupGet(x => x.FullDescription).Returns("A heart banner tattoo reading $template{banner}.");
         template.SetupGet(x => x.TextSlots).Returns([slot.Object]);
+        template.Setup(x => x.GetTextSlot("banner")).Returns(slot.Object);
         template.Setup(x => x.ResolveDescription(It.IsAny<string>(), It.IsAny<IReadOnlyDictionary<string, ITattooTextValue>>()))
             .Returns<string, IReadOnlyDictionary<string, ITattooTextValue>>((description, textValues) =>
             {
@@ -148,6 +182,47 @@ public class TattooTextSlotTests
             trait.SetupGet(x => x.Value).Returns(canRead ? 100.0 : 0.0);
             languageViewer.Setup(x => x.GetTrait(LanguageTrait.Object)).Returns(trait.Object);
             return perceiver;
+        }
+
+        public Mock<IWriting> CreateWriting(string text)
+        {
+            Mock<IWriting> writing = new();
+            writing.SetupGet(x => x.Id).Returns(99);
+            writing.SetupGet(x => x.Name).Returns("test writing");
+            writing.SetupGet(x => x.Language).Returns(Language.Object);
+            writing.SetupGet(x => x.Script).Returns(Script.Object);
+            writing.SetupGet(x => x.Style).Returns(WritingStyleDescriptors.None);
+            writing.SetupGet(x => x.WritingColour).Returns(Colour.Object);
+            writing.SetupGet(x => x.LanguageSkill).Returns(0.0);
+            writing.Setup(x => x.GetProperty("text")).Returns(new TextVariable(text));
+            return writing;
+        }
+
+        public Mock<IGameItem> CreateReadableItem(IWriting writing)
+        {
+            Mock<IReadable> readable = new();
+            readable.SetupGet(x => x.Writings).Returns([writing]);
+            readable.SetupGet(x => x.Readables).Returns([writing]);
+
+            Mock<IGameItem> item = new();
+            item.SetupGet(x => x.Id).Returns(100);
+            item.SetupGet(x => x.Name).Returns("paper");
+            item.Setup(x => x.GetItemTypes<IReadable>()).Returns([readable.Object]);
+            return item;
+        }
+
+        public Mock<ICharacter> CreateActor(IWriting writing, IGameItem[] visibleItems)
+        {
+            Mock<IFuturemud> gameworld = Gameworld;
+            gameworld.SetupGet(x => x.Writings).Returns(CreateCollection(writing));
+            gameworld.SetupGet(x => x.Items).Returns(CreateCollection(visibleItems));
+
+            Mock<ICharacter> actor = new();
+            actor.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+            actor.Setup(x => x.CanSee(It.IsAny<IGameItem>(), It.IsAny<PerceiveIgnoreFlags>()))
+                .Returns<IGameItem, PerceiveIgnoreFlags>((item, _) => visibleItems.Contains(item));
+            actor.Setup(x => x.CanRead(writing)).Returns(true);
+            return actor;
         }
     }
 }

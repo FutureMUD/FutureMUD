@@ -154,7 +154,7 @@ remove <bloodtype> - removes a blood type from this model";
             return false;
         }
 
-        if (command.IsFinished || !double.TryParse(command.SafeRemainingArgument, out double weight) || weight <= 0)
+        if (command.IsFinished || !double.TryParse(command.SafeRemainingArgument, out double weight) || weight <= 0 || !double.IsFinite(weight))
         {
             actor.OutputHandler.Send("You must supply a positive weight.");
             return false;
@@ -162,7 +162,12 @@ remove <bloodtype> - removes a blood type from this model";
 
         if (BloodModel is null)
         {
-            BloodModel = Gameworld.BloodModels.First(x => x.Bloodtypes.Contains(bt));
+            BloodModel = Gameworld.BloodModels.FirstOrDefault(x => x.Bloodtypes.Contains(bt));
+            if (BloodModel is null)
+            {
+                actor.OutputHandler.Send("That blood type is not attached to any blood model.");
+                return false;
+            }
         }
         else if (!BloodModel.Bloodtypes.Contains(bt))
         {

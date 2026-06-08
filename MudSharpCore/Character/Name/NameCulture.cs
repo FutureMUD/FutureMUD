@@ -145,6 +145,11 @@ public class NameCulture : SaveableItem, INameCulture
     {
         try
         {
+            if (string.IsNullOrWhiteSpace(pattern) || pattern.Any(char.IsControl))
+            {
+                return null;
+            }
+
             Match match = _nameEntryRegex.Match(pattern);
             if (!match.Success)
             {
@@ -159,6 +164,11 @@ public class NameCulture : SaveableItem, INameCulture
                 {
                     string[] names =
                         _nameCultureElements.First(x => x.Usage == item).MaximumCount > 1 ? match.Groups[name].Value.Split(new[] { ' ', '-' }, StringSplitOptions.RemoveEmptyEntries) : [match.Groups[name].Value];
+                    if (names.Any(x => x.Any(char.IsControl)))
+                    {
+                        return null;
+                    }
+
                     elements.Add(item, names.ToList());
                 }
             }

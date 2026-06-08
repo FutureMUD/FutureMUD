@@ -1385,9 +1385,14 @@ public partial class Chargen : FrameworkItem, IChargen
                 foreach (XElement item in element.Elements())
                 {
                     long bodypartId = long.Parse(item.Attribute("bodypart").Value);
-                    SelectedDisfigurements.Add((
-                        Gameworld.DisfigurementTemplates.Get(long.Parse(item.Attribute("id").Value)),
-                        SelectedRace.BaseBody.AllExternalBodyparts.First(x => x.Id == bodypartId)));
+                    IDisfigurementTemplate disfigurement = Gameworld.DisfigurementTemplates.Get(long.Parse(item.Attribute("id").Value));
+                    IExternalBodypart bodypart = SelectedRace.BaseBody.AllExternalBodyparts.FirstOrDefault(x => x.Id == bodypartId);
+                    if (disfigurement is null || bodypart is null)
+                    {
+                        continue;
+                    }
+
+                    SelectedDisfigurements.Add((disfigurement, bodypart));
                 }
             }
 

@@ -1504,7 +1504,7 @@ public partial class CultureSeeder
         #endregion
 
         #region Levantine
-        NameCulture levantine = AddNameCulture("Levantine", "^(?<birthname>[\\w'-]{2,}) (?<patronym>(?:Ibnat|Bin|Ibn|Bint)\\s*[\\w'-]{2,}) (?<surname>[\\w' -]{2,})$",
+        NameCulture levantine = AddNameCulture("Levantine", "^(?<birthname>[\\w'-]{2,}) (?<patronym>(?:Ibnat|Bin|Ibn|Bint)[ ]*[\\w'-]{2,}) (?<surname>[\\w' -]{2,})$",
             new[]{
                 ("Given Name", 1, 1, "Every person has a given name. This is the name given to the child by their parents.", NameUsage.BirthName),
                 ("Patronym", 1, 1, "Patronym is a name derived from the person's father, and is preceded by Ibn or Bin (for males), and Ibnat or Bint (for females), however ", NameUsage.Patronym),
@@ -2135,7 +2135,7 @@ public partial class CultureSeeder
         #endregion
 
         #region Morrocan
-        NameCulture morrocan = AddNameCulture("Morrocan", "^(?<birthname>[\\w'-]{2,}) (?<patronym>(?:Ibnat|Bin|Ibn|Bint)\\s*[\\w'-]{2,}) (?<surname>[\\w' -]{2,})$",
+        NameCulture morrocan = AddNameCulture("Morrocan", "^(?<birthname>[\\w'-]{2,}) (?<patronym>(?:Ibnat|Bin|Ibn|Bint)[ ]*[\\w'-]{2,}) (?<surname>[\\w' -]{2,})$",
             new[]{
                 ("Given Name", 1, 1, "Every person has a given name. This is the name given to the child by their parents.", NameUsage.BirthName),
                 ("Patronym", 1, 1, "Patronym is a name derived from the person's father, and is preceded by Ibn or Bin (for males), and Ibnat or Bint (for females), however ", NameUsage.Patronym),

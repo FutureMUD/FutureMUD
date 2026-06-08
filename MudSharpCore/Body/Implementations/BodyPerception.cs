@@ -219,7 +219,7 @@ public partial class Body
             }
         }
 
-        if (flags.HasFlag(PerceiveIgnoreFlags.IgnoreDark) && thing.Location != null && Actor.IlluminationSightDifficulty() == Difficulty.Impossible)
+        if (flags.HasFlag(PerceiveIgnoreFlags.IgnoreDark) && thing.Location != null && Actor.IlluminationSightDifficulty(thing.Location) == Difficulty.Impossible)
         {
             if (!visionExemptThing && Actor.Party?.Members.Any(x => x.IsSelf(thing)) != true)
             {
@@ -896,10 +896,13 @@ public partial class Body
             List<IImplant> externalImplants = actor.Body.Implants.Where(x =>
                 x.External && !string.IsNullOrWhiteSpace(x.ExternalDescription)).ToList();
             List<IImplant> visibleExternalImplants = externalImplants.Where(x => actor.Body.ExposedBodyparts.Any(y => y.CountsAs(x.TargetBodypart))).ToList();
-            if (visibleExternalImplants.Any() || ((Actor.IsAdministrator() || Actor == actor) && externalImplants.Any()))
+            List<IImplant> displayedExternalImplants = Actor.IsAdministrator() || Actor == actor
+                ? externalImplants
+                : visibleExternalImplants;
+            if (displayedExternalImplants.Any())
             {
                 sb.AppendLine(
-                    $"{gender.Subjective(true)} {gender.Has()} {externalImplants.Select(x => $"{x.ExternalDescription.Colour(Telnet.Yellow)} in {gender.Possessive()} {x.TargetBodypart.FullDescription()}{(visibleExternalImplants.Contains(x) ? "" : " [Covered]".ColourCommand())}").ListToString()}."
+                    $"{gender.Subjective(true)} {gender.Has()} {displayedExternalImplants.Select(x => $"{x.ExternalDescription.Colour(Telnet.Yellow)} in {gender.Possessive()} {x.TargetBodypart.FullDescription()}{(visibleExternalImplants.Contains(x) ? "" : " [Covered]".ColourCommand())}").ListToString()}."
                         .Wrap(Actor.Account.InnerLineFormatLength));
             }
 

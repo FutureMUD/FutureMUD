@@ -50,6 +50,16 @@
         "Component Type":  "Ammunition"
     },
     {
+        "Component Name":  "Ammo_BodkinArrow",
+        "Component Description":  "Turns an item into a Bodkin Arrow",
+        "Component Type":  "Ammunition"
+    },
+    {
+        "Component Name":  "Ammo_BodkinBolt",
+        "Component Description":  "Turns an item into a Bodkin Bolt",
+        "Component Type":  "Ammunition"
+    },
+    {
         "Component Name":  "Ammo_BroadheadArrow",
         "Component Description":  "Turns an item into a Broadhead Arrow",
         "Component Type":  "Ammunition"
@@ -1272,6 +1282,11 @@
     {
         "Component Name":  "Destroyable_Paper",
         "Component Description":  "Turns an item into a fragile paper or parchment object.",
+        "Component Type":  "Destroyable"
+    },
+    {
+        "Component Name":  "Destroyable_Shield",
+        "Component Description":  "Turns an item into a durable shield.",
         "Component Type":  "Destroyable"
     },
     {
@@ -5200,6 +5215,11 @@
         "Component Type":  "Wearable"
     },
     {
+        "Component Name":  "Wear_Bit",
+        "Component Description":  "Permits the item to be worn in the Bit wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
         "Component Name":  "Wear_Bodysuit",
         "Component Description":  "Permits the item to be worn in the Bodysuit wear configuration",
         "Component Type":  "Wearable"
@@ -5280,6 +5300,11 @@
         "Component Type":  "Wearable"
     },
     {
+        "Component Name":  "Wear_Bridle",
+        "Component Description":  "Permits the item to be worn in the Bridle wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
         "Component Name":  "Wear_Briefs",
         "Component Description":  "Permits the item to be worn in the Briefs wear configuration",
         "Component Type":  "Wearable"
@@ -5295,8 +5320,18 @@
         "Component Type":  "Wearable"
     },
     {
+        "Component Name":  "Wear_Caparison",
+        "Component Description":  "Permits the item to be worn in the Caparison wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
         "Component Name":  "Wear_Capris",
         "Component Description":  "Permits the item to be worn in the Capris wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Chanfron",
+        "Component Description":  "Permits the item to be worn in the Chanfron wear configuration",
         "Component Type":  "Wearable"
     },
     {
@@ -5337,6 +5372,16 @@
     {
         "Component Name":  "Wear_Couters",
         "Component Description":  "Permits the item to be worn in the Couters wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Criniere",
+        "Component Description":  "Permits the item to be worn in the Criniere wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Croupiere",
+        "Component Description":  "Permits the item to be worn in the Croupiere wear configuration",
         "Component Type":  "Wearable"
     },
     {
@@ -5392,6 +5437,11 @@
     {
         "Component Name":  "Wear_Fingerless_Gloves",
         "Component Description":  "Permits the item to be worn in the Fingerless Gloves wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Flanchards",
+        "Component Description":  "Permits the item to be worn in the Flanchards wear configuration",
         "Component Type":  "Wearable"
     },
     {
@@ -5630,6 +5680,11 @@
         "Component Type":  "Wearable"
     },
     {
+        "Component Name":  "Wear_Peytral",
+        "Component Description":  "Permits the item to be worn in the Peytral wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
         "Component Name":  "Wear_Pixane",
         "Component Description":  "Permits the item to be worn in the Pixane wear configuration",
         "Component Type":  "Wearable"
@@ -5662,6 +5717,11 @@
     {
         "Component Name":  "Wear_Sabatons",
         "Component Description":  "Permits the item to be worn in the Sabatons wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Saddle",
+        "Component Description":  "Permits the item to be worn in the Saddle wear configuration",
         "Component Type":  "Wearable"
     },
     {
@@ -5792,6 +5852,11 @@
     {
         "Component Name":  "Wear_Tabard",
         "Component Description":  "Permits the item to be worn in the Tabard wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Tassets",
+        "Component Description":  "Permits the item to be worn in the Tassets wear configuration",
         "Component Type":  "Wearable"
     },
     {

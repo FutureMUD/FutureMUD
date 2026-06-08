@@ -14,8 +14,10 @@ using MudSharp.Models;
 using MudSharp.NPC.AI;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using System.Xml.Linq;
 
 namespace MudSharp_Unit_Tests;
@@ -122,7 +124,8 @@ public class AnimalSeederTemplateTests
         bool includeAcidSpit = true,
         string? omittedRaceName = null,
         bool beetleOnCorrectBody = true,
-        bool includeDietSettings = false)
+        bool includeDietSettings = false,
+        bool includeUngulateWearProfiles = true)
     {
         FuturemudDatabaseContext context = BuildContext();
         long nextBodyId = 1;
@@ -267,6 +270,56 @@ public class AnimalSeederTemplateTests
 
         context.SaveChanges();
 
+        if (includeUngulateWearProfiles &&
+            bodies.TryGetValue(AnimalSeeder.StockUngulateWearBodyNameForTesting, out BodyProto? ungulateBody))
+        {
+            long nextWearProfileId = 1;
+            foreach (string name in AnimalSeeder.StockUngulateWearProfileNamesForTesting)
+            {
+                context.WearProfiles.Add(new WearProfile
+                {
+                    Id = nextWearProfileId++,
+                    Name = name,
+                    BodyPrototypeId = ungulateBody.Id,
+                    WearStringInventory = "worn on",
+                    WearAction1st = "put",
+                    WearAction3rd = "puts",
+                    WearAffix = "on",
+                    WearlocProfiles = "<Profiles />",
+                    Type = "Direct",
+                    Description = $"{name} test profile",
+                    RequireContainerIsEmpty = false
+                });
+            }
+
+            long nextComponentId = 1;
+            foreach (string name in AnimalSeeder.StockUngulateWearComponentNamesForTesting)
+            {
+                context.GameItemComponentProtos.Add(new MudSharp.Models.GameItemComponentProto
+                {
+                    Id = nextComponentId++,
+                    Name = name,
+                    Type = "Wearable",
+                    Description = $"{name} test component",
+                    Definition = "<Definition />",
+                    RevisionNumber = 0,
+                    EditableItem = new EditableItem
+                    {
+                        RevisionNumber = 0,
+                        RevisionStatus = 4,
+                        BuilderAccountId = 1,
+                        BuilderDate = DateTime.UtcNow,
+                        BuilderComment = "test",
+                        ReviewerAccountId = 1,
+                        ReviewerComment = "test",
+                        ReviewerDate = DateTime.UtcNow
+                    }
+                });
+            }
+
+            context.SaveChanges();
+        }
+
         if (includeDietSettings)
         {
             long nextMaterialId = 1;
@@ -301,6 +354,58 @@ public class AnimalSeederTemplateTests
         }
 
         return context;
+    }
+
+    private static void SeedAccount(FuturemudDatabaseContext context)
+    {
+        context.Accounts.Add(new Account
+        {
+            Id = 1,
+            Name = "SeederTest",
+            Password = "password",
+            Salt = 1,
+            AccessStatus = 0,
+            Email = "seeder@example.com",
+            LastLoginIp = "127.0.0.1",
+            FormatLength = 80,
+            InnerFormatLength = 78,
+            UseMxp = false,
+            UseMsp = false,
+            UseMccp = false,
+            ActiveCharactersAllowed = 1,
+            UseUnicode = true,
+            TimeZoneId = "UTC",
+            CultureName = "en-AU",
+            RegistrationCode = string.Empty,
+            IsRegistered = true,
+            RecoveryCode = string.Empty,
+            UnitPreference = "metric",
+            CreationDate = DateTime.UtcNow,
+            PageLength = 22,
+            PromptType = 0,
+            TabRoomDescriptions = false,
+            CodedRoomDescriptionAdditionsOnNewLine = false,
+            CharacterNameOverlaySetting = 0,
+            AppendNewlinesBetweenMultipleEchoesPerPrompt = false,
+            ActLawfully = false,
+            HasBeenActiveInWeek = true,
+            HintsEnabled = true,
+            AutoReacquireTargets = false
+        });
+        context.SaveChanges();
+    }
+
+    private static string ReadAnimalSeederSource()
+    {
+        return File.ReadAllText(Path.GetFullPath(Path.Combine(
+            AppContext.BaseDirectory,
+            "..",
+            "..",
+            "..",
+            "..",
+            "DatabaseSeeder",
+            "Seeders",
+            "AnimalSeeder.cs")));
     }
 
     private static int ParagraphCount(string text)
@@ -535,6 +640,77 @@ public class AnimalSeederTemplateTests
             ])!;
 
             Assert.IsTrue(result.Ready, $"{template.Name} should be a valid AnimalAI template: {result.Reason}");
+        }
+    }
+
+    [TestMethod]
+    public void StockUngulateWearProfiles_DefineExpectedHorseEquipmentForUngulateBody()
+    {
+        string[] expectedProfiles =
+        [
+            "Saddle",
+            "Bridle",
+            "Bit",
+            "Chanfron",
+            "Criniere",
+            "Croupiere",
+            "Flanchards",
+            "Peytral",
+            "Caparison"
+        ];
+
+        CollectionAssert.AreEquivalent(expectedProfiles, AnimalSeeder.StockUngulateWearProfileNamesForTesting.ToArray());
+        CollectionAssert.AreEquivalent(
+            expectedProfiles.Select(x => $"Wear_{x.Replace(' ', '_')}").ToArray(),
+            AnimalSeeder.StockUngulateWearComponentNamesForTesting.ToArray());
+        Assert.AreEqual("Ungulate", AnimalSeeder.StockUngulateWearBodyNameForTesting);
+
+        string animalSeederSource = ReadAnimalSeederSource();
+        HashSet<string> directAnimalBodypartAliases = Regex
+            .Matches(animalSeederSource, @"AddBodypart\((?:quadrupedBody|ungulateBody),\s*""(?<alias>[^""]+)""")
+            .Select(x => x.Groups["alias"].Value)
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        foreach ((string name, IReadOnlyList<string> locations) in AnimalSeeder.StockUngulateWearProfileDefinitionsForTesting)
+        {
+            Assert.IsTrue(locations.Count > 0, $"{name} should cover at least one bodypart.");
+            Assert.AreEqual(locations.Count, locations.Distinct(StringComparer.OrdinalIgnoreCase).Count(),
+                $"{name} should not duplicate bodypart aliases.");
+            foreach (string location in locations)
+            {
+                Assert.IsTrue(directAnimalBodypartAliases.Contains(location),
+                    $"{name} references unknown direct animal bodypart alias {location}.");
+            }
+        }
+    }
+
+    [TestMethod]
+    public void SeedStockUngulateWearProfilesForTesting_RerunDoesNotDuplicateAndTargetsUngulate()
+    {
+        using FuturemudDatabaseContext context = BuildExpandedAnimalCatalogueContext(includeUngulateWearProfiles: false);
+        SeedAccount(context);
+
+        Assert.IsTrue(AnimalSeeder.SeedStockUngulateWearProfilesForTesting(context),
+            "First install should create missing ungulate wear profiles and components.");
+        Assert.IsFalse(AnimalSeeder.SeedStockUngulateWearProfilesForTesting(context),
+            "Second install should be a no-op.");
+
+        BodyProto ungulateBody = context.BodyProtos.Single(x => x.Name == AnimalSeeder.StockUngulateWearBodyNameForTesting);
+        foreach (string name in AnimalSeeder.StockUngulateWearProfileNamesForTesting)
+        {
+            WearProfile profile = context.WearProfiles.Single(x => x.Name == name);
+            Assert.AreEqual(ungulateBody.Id, profile.BodyPrototypeId, $"{name} should target the ungulate body.");
+            Assert.AreEqual("Direct", profile.Type);
+            Assert.AreEqual("Profiles", XElement.Parse(profile.WearlocProfiles).Name.LocalName);
+        }
+
+        foreach (string name in AnimalSeeder.StockUngulateWearComponentNamesForTesting)
+        {
+            MudSharp.Models.GameItemComponentProto component = context.GameItemComponentProtos.Single(x => x.Name == name);
+            Assert.AreEqual("Wearable", component.Type);
+            XElement definition = XElement.Parse(component.Definition);
+            Assert.AreEqual("true", definition.Attribute("DisplayInventoryWhenWorn")!.Value);
+            Assert.IsNotNull(definition.Element("Profiles")!.Attribute("Default"), $"{name} should have a default profile.");
         }
     }
 
@@ -1303,6 +1479,19 @@ public class AnimalSeederTemplateTests
 
         Assert.AreEqual(ShouldSeedResult.MayAlreadyBeInstalled, new AnimalSeeder().ShouldSeedData(context),
             "Once the expanded animal catalogue is present, the seeder should stop advertising extra stock content.");
+    }
+
+    [TestMethod]
+    public void ShouldSeedData_ExistingCatalogueMissingUngulateWearProfiles_ReturnsExtraPackagesAvailable()
+    {
+        using FuturemudDatabaseContext context = BuildExpandedAnimalCatalogueContext(
+            includeDietSettings: true,
+            includeUngulateWearProfiles: false);
+        SeedAnimalAiPrerequisiteProgs(context);
+        AnimalSeeder.SeedAnimalAIStockTemplatesForTesting(context);
+
+        Assert.AreEqual(ShouldSeedResult.ExtraPackagesAvailable, new AnimalSeeder().ShouldSeedData(context),
+            "Existing animal catalogues should advertise rerun stock when horse equipment wear profiles are missing.");
     }
 
     [TestMethod]

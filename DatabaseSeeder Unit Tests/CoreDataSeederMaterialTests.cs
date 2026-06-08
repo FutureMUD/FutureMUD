@@ -227,6 +227,65 @@ public class CoreDataSeederMaterialTests
         Assert.IsTrue(context.Materials.Any(x => x.Name == "saffron crocus"));
     }
 
+	[TestMethod]
+	public void SeedMaterials_SeedsTraditionalCraftMaterialsWithExpectedTags()
+	{
+		using FuturemudDatabaseContext context = BuildContext();
+		SeedMaterials(context);
+
+		Dictionary<string, (MaterialBehaviourType Behaviour, string[] Tags)> expectations = new(StringComparer.InvariantCultureIgnoreCase)
+		{
+			["rawhide"] = (MaterialBehaviourType.Skin, ["Animal Skin", "Animal Product"]),
+			["sinew"] = (MaterialBehaviourType.Muscle, ["Animal Product"]),
+			["rattan"] = (MaterialBehaviourType.Wood, ["Wood"]),
+			["wicker"] = (MaterialBehaviourType.Wood, ["Manufactured Wood"]),
+			["reed"] = (MaterialBehaviourType.Plant, ["Vegetation"]),
+			["cane"] = (MaterialBehaviourType.Wood, ["Wood"]),
+			["lacquer"] = (MaterialBehaviourType.Paste, ["Manufactured Materials"]),
+			["horsehair"] = (MaterialBehaviourType.Hair, ["Hair", "Animal Product"]),
+			["goat leather"] = (MaterialBehaviourType.Leather, ["Leather"]),
+			["sheep leather"] = (MaterialBehaviourType.Leather, ["Leather"])
+		};
+
+		Dictionary<string, MudSharp.Models.Material> materials = context.Materials
+			.Include(x => x.MaterialsTags)
+			.ThenInclude(x => x.Tag)
+			.AsEnumerable()
+			.Where(x => expectations.ContainsKey(x.Name))
+			.ToDictionary(x => x.Name, StringComparer.InvariantCultureIgnoreCase);
+
+		foreach (KeyValuePair<string, (MaterialBehaviourType Behaviour, string[] Tags)> expectation in expectations)
+		{
+			Assert.IsTrue(materials.TryGetValue(expectation.Key, out MudSharp.Models.Material? material),
+				$"{expectation.Key} should be seeded.");
+			Assert.IsNotNull(material);
+			Assert.AreEqual((int)expectation.Value.Behaviour, material!.BehaviourType,
+				$"{expectation.Key} should use the expected material behaviour.");
+
+			foreach (string tag in expectation.Value.Tags)
+			{
+				Assert.IsTrue(material.MaterialsTags.Any(x => x.Tag.Name == tag),
+					$"{expectation.Key} should be tagged as {tag}.");
+			}
+		}
+
+		(string Material, string Alias)[] expectedAliases =
+		[
+			("rawhide", "raw hide"),
+			("reed", "reeds"),
+			("horsehair", "horse hair"),
+			("goat leather", "goatskin"),
+			("sheep leather", "sheepskin"),
+			("lacquer", "urushi")
+		];
+
+		foreach ((string material, string alias) in expectedAliases)
+		{
+			Assert.IsTrue(context.MaterialAliases.Any(x => x.Material.Name == material && x.Alias == alias),
+				$"{material} should have the {alias} alias.");
+		}
+	}
+
     [TestMethod]
     public void SeedMaterials_IncludesAllAgricultureCommodityOutputs()
     {

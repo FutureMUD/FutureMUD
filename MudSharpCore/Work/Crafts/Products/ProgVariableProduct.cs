@@ -215,7 +215,6 @@ namespace MudSharp.Work.Crafts.Products
                     newItem.Material = material;
                 }
 
-                newItem.HandleEvent(EventType.ItemFinishedLoading, newItem);
                 return new SimpleProductData(new[] { newItem });
             }
 
@@ -235,7 +234,6 @@ namespace MudSharp.Work.Crafts.Products
                     item.Material = material;
                 }
 
-                item.HandleEvent(EventType.ItemFinishedLoading, item);
             }
 
             return new SimpleProductData(items);

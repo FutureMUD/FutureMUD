@@ -151,10 +151,57 @@ public class Gas : Fluid, IGas
 
     public bool GasCountAs(IGas otherGas)
     {
-        return CountsAsGas == otherGas || (CountsAsGas?.GasCountAs(otherGas) ?? false);
+        return GasCountsAs(otherGas, new HashSet<long>());
     }
 
     public override bool CountsAs(IFluid other)
+    {
+        return CountsAs(other, new HashSet<long>());
+    }
+
+    public override ItemQuality CountAsQuality(IFluid other)
+    {
+        return CountAsQuality(other, new HashSet<long>());
+    }
+
+    #region Overrides of Fluid
+
+    /// <inheritdoc />
+    public override double CountsAsMultiplier(IFluid other)
+    {
+        return CountsAsMultiplier(other, new HashSet<long>());
+    }
+
+    private bool GasCountsAs(IGas otherGas, HashSet<long> visited)
+    {
+        if (otherGas == null)
+        {
+            return false;
+        }
+
+        if (otherGas == this)
+        {
+            return true;
+        }
+
+        if (!visited.Add(Id))
+        {
+            return false;
+        }
+
+        var countsAs = CountsAsGas;
+        if (countsAs is null)
+        {
+            return false;
+        }
+
+        return countsAs == otherGas ||
+               (countsAs is Gas concrete
+                   ? concrete.GasCountsAs(otherGas, visited)
+                   : countsAs.GasCountAs(otherGas));
+    }
+
+    private bool CountsAs(IFluid other, HashSet<long> visited)
     {
         if (other == null)
         {
@@ -167,20 +214,24 @@ public class Gas : Fluid, IGas
         }
 
         IGas otherGas = other as IGas;
-        if (otherGas is null)
+        if (otherGas is null || !visited.Add(Id))
         {
             return false;
         }
 
-        if (CountsAsGas is null)
+        var countsAs = CountsAsGas;
+        if (countsAs is null)
         {
             return false;
         }
 
-        return CountsAsGas.CountsAs(other);
+        return countsAs == otherGas ||
+               (countsAs is Gas concrete
+                   ? concrete.CountsAs(other, visited)
+                   : countsAs.CountsAs(other));
     }
 
-    public override ItemQuality CountAsQuality(IFluid other)
+    private ItemQuality CountAsQuality(IFluid other, HashSet<long> visited)
     {
         if (other == null)
         {
@@ -193,28 +244,28 @@ public class Gas : Fluid, IGas
         }
 
         IGas otherGas = other as IGas;
-        if (otherGas is null)
+        if (otherGas is null || !visited.Add(Id))
         {
             return ItemQuality.Terrible;
         }
 
-        if (otherGas == CountsAsGas)
+        var countsAs = CountsAsGas;
+        if (countsAs is null)
+        {
+            return ItemQuality.Terrible;
+        }
+
+        if (otherGas == countsAs)
         {
             return CountsAsQuality;
         }
 
-        if (CountsAsGas is null)
-        {
-            return ItemQuality.Terrible;
-        }
-
-        return CountsAsGas.CountAsQuality(other);
+        return countsAs is Gas concrete
+            ? concrete.CountAsQuality(other, visited)
+            : countsAs.CountAsQuality(other);
     }
 
-    #region Overrides of Fluid
-
-    /// <inheritdoc />
-    public override double CountsAsMultiplier(IFluid other)
+    private double CountsAsMultiplier(IFluid other, HashSet<long> visited)
     {
         if (other == null)
         {
@@ -227,22 +278,26 @@ public class Gas : Fluid, IGas
         }
 
         IGas otherGas = other as IGas;
-        if (otherGas is null)
+        if (otherGas is null || !visited.Add(Id))
         {
             return 0.0;
         }
 
-        if (otherGas == CountsAsGas)
+        var countsAs = CountsAsGas;
+        if (otherGas == countsAs)
         {
             return (int)CountsAsQuality / 11.0;
         }
 
-        if (CountsAsGas is null)
+        if (countsAs is null)
         {
             return 0.0;
         }
 
-        return CountsAsGas.CountsAsMultiplier(other) * ((int)CountsAsGas.CountsAsQuality / 11.0);
+        return (countsAs is Gas concrete
+                   ? concrete.CountsAsMultiplier(other, visited)
+                   : countsAs.CountsAsMultiplier(other)) *
+               ((int)countsAs.CountsAsQuality / 11.0);
     }
 
     #endregion
@@ -512,6 +567,12 @@ public class Gas : Fluid, IGas
         if (gas is null)
         {
             actor.OutputHandler.Send("There is no such gas.");
+            return false;
+        }
+
+        if (gas == this || gas.CountsAs(this))
+        {
+            actor.OutputHandler.Send("You cannot create a circular counts-as chain.");
             return false;
         }
 

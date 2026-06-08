@@ -87,7 +87,6 @@ public class CookedFoodProduct : BaseProduct
 			var item = CreateOneItem(component, proto, referenceQuality, material);
 			item.GetItemType<IStackable>().Quantity = Quantity;
 			InitialisePreparedFood(component, item);
-			item.HandleEvent(EventType.ItemFinishedLoading, item);
 			return new SimpleProductData(new[] { item });
 		}
 
@@ -96,7 +95,6 @@ public class CookedFoodProduct : BaseProduct
 		{
 			var item = CreateOneItem(component, proto, referenceQuality, material);
 			InitialisePreparedFood(component, item);
-			item.HandleEvent(EventType.ItemFinishedLoading, item);
 			items.Add(item);
 		}
 

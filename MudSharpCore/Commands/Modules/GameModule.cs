@@ -1996,13 +1996,13 @@ You can also type 'forage' on its own to see what kinds of yields you can search
             return item.Effects.Contains(effect) &&
                    actor.ContextualItems.Contains(item) &&
                    actor.CanSee(item) &&
-                   (effect.CleaningToolTag != null || effect.LiquidRequired != null) &&
+                   effect.LiquidRequired != null &&
                    (effect.CleaningToolTag == null ||
                     actor.Body.HeldOrWieldedItems.Any(x => x.IsA(effect.CleaningToolTag))) &&
-                   (effect.LiquidRequired == null || actor.ContextualItems
-                                                          .SelectNotNull(x => x.GetItemType<ILiquidContainer>()).Any(
-                                                              x => x.LiquidMixture?.CountsAs(effect.LiquidRequired)
-                                                                    .Truth == true && x.IsOpen));
+                   actor.ContextualItems
+                        .SelectNotNull(x => x.GetItemType<ILiquidContainer>()).Any(
+                            x => x.LiquidMixture?.CountsAs(effect.LiquidRequired)
+                                  .Truth == true && x.IsOpen);
         }
 
         return item =>
@@ -2255,8 +2255,9 @@ You can also type 'forage' on its own to see what kinds of yields you can search
 
         cleanableEffects =
             cleanableEffects.Where(
+                                x => x.LiquidRequired != null)
+                            .Where(
                                 x =>
-                                    x.LiquidRequired == null ||
                                     actor.ContextualItems.Any(y => IsSuitable(x, y)))
                             .ToList();
 

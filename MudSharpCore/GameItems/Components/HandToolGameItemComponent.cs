@@ -70,23 +70,18 @@ public class HandToolGameItemComponent : GameItemComponent, IToolItem
 
     private TimeSpan MaximumDuration()
     {
-        double maximum = _prototype.ToolDurabilitySecondsExpression.EvaluateDoubleWith(("quality", (int)Parent.Quality));
-        if (maximum <= 0.0)
-        {
-            return TimeSpan.Zero;
-        }
-        return TimeSpan.FromSeconds(maximum);
+        return ToolDurabilityExpressionHelper.EvaluateDuration(_prototype.ToolDurabilitySecondsExpression, Parent.Quality);
     }
 
     private TimeSpan EffectiveDurationAvailable()
     {
-        double maximum = _prototype.ToolDurabilitySecondsExpression.EvaluateDoubleWith(("quality", (int)Parent.Quality));
-        if (maximum <= 0.0)
+        var maximum = MaximumDuration();
+        if (maximum <= TimeSpan.Zero)
         {
             return TimeSpan.Zero;
         }
-        double remaining = Parent.Condition * maximum;
-        return TimeSpan.FromSeconds(remaining);
+
+        return TimeSpan.FromSeconds(Parent.Condition * maximum.TotalSeconds);
     }
 
     public bool CountAsTool(ITag toolTag)

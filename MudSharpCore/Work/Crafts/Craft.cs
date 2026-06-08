@@ -430,7 +430,8 @@ public class Craft : Framework.Revision.EditableItem, ICraft
     public ITraitDefinition CheckTrait { get; set; }
     public Difficulty CheckDifficulty { get; set; }
     public IEnumerable<string> PhaseEchoes => _craftPhases.Select(x => x.Echo);
-    public IEnumerable<TimeSpan> PhaseLengths => _craftPhases.Select(x => TimeSpan.FromSeconds(x.PhaseLengthInSeconds));
+    public IEnumerable<TimeSpan> PhaseLengths => _craftPhases.Select(x =>
+        TryGetPhaseLength(x.PhaseLengthInSeconds, out var phaseLength) ? phaseLength : TimeSpan.Zero);
     public IEnumerable<string> FailPhaseEchoes => _craftPhases.Select(x => x.FailEcho);
     public int FailPhase { get; set; }
     public ITraitExpression QualityFormula { get; set; }
@@ -1002,8 +1003,53 @@ public class Craft : Framework.Revision.EditableItem, ICraft
         {
             _craftIsValid = Inputs.All(x => x.IsValid()) && Tools.All(x => x.IsValid()) &&
                             Products.All(x => x.IsValid()) && FailProducts.All(x => x.IsValid()) &&
+                            _craftPhases.All(x => IsValidPhaseLength(x.PhaseLengthInSeconds)) &&
                             PhaseEchoes.Any() && AppearInCraftsListProg != null;
         }
+    }
+
+    private static bool IsValidPhaseLength(double seconds)
+    {
+        return double.IsFinite(seconds) &&
+               seconds >= 0.0 &&
+               seconds <= TimeSpan.MaxValue.TotalSeconds;
+    }
+
+    private static bool TryGetPhaseLength(double seconds, out TimeSpan phaseLength)
+    {
+        if (!IsValidPhaseLength(seconds))
+        {
+            phaseLength = TimeSpan.Zero;
+            return false;
+        }
+
+        phaseLength = TimeSpan.FromSeconds(seconds);
+        return true;
+    }
+
+    private static bool TryParsePhaseLength(ICharacter actor, string text, out double seconds)
+    {
+        if (!double.TryParse(text, out seconds))
+        {
+            actor.OutputHandler.Send("You must specify a number of seconds for the phase to last.");
+            return false;
+        }
+
+        if (IsValidPhaseLength(seconds))
+        {
+            return true;
+        }
+
+        actor.OutputHandler.Send(
+            $"Phase length must be a finite, non-negative number no greater than {TimeSpan.MaxValue.TotalSeconds.ToString("N0", actor).ColourValue()} seconds.");
+        return false;
+    }
+
+    private static string DescribePhaseLength(ICraftPhase phase, ICharacter actor)
+    {
+        return TryGetPhaseLength(phase.PhaseLengthInSeconds, out var phaseLength)
+            ? phaseLength.DescribePreciseBrief(actor)
+            : "Invalid".ColourError();
     }
 
     public bool AppearInCraftsList(ICharacter actor)
@@ -1216,7 +1262,15 @@ public class Craft : Framework.Revision.EditableItem, ICraft
             phaseLengthSeconds *= tool.PhaseLengthMultiplier(item);
         }
 
-        TimeSpan phaseLength = TimeSpan.FromSeconds(phaseLengthSeconds);
+        if (!TryGetPhaseLength(phaseLengthSeconds, out var phaseLength))
+        {
+            character.OutputHandler.Handle(new EmoteOutput(
+                new Emote($"@ stop|stops {ActionDescription} because this craft has an invalid phase duration.",
+                    character, character)));
+            PauseCraft(character, component, effect);
+            return false;
+        }
+
         foreach ((IGameItem item, ICraftTool tool) in tools)
         {
             tool.UseTool(item, phaseLength, component.HasFailed);
@@ -1916,9 +1970,8 @@ public class Craft : Framework.Revision.EditableItem, ICraft
             return false;
         }
 
-        if (!double.TryParse(command.PopSpeech(), out double value))
+        if (!TryParsePhaseLength(actor, command.PopSpeech(), out double value))
         {
-            actor.OutputHandler.Send("You must specify a number of seconds for the phase to last.");
             return false;
         }
 
@@ -1980,9 +2033,8 @@ public class Craft : Framework.Revision.EditableItem, ICraft
             return false;
         }
 
-        if (!double.TryParse(command.PopSpeech(), out double seconds))
+        if (!TryParsePhaseLength(actor, command.PopSpeech(), out double seconds))
         {
-            actor.OutputHandler.Send("You must specify a number of seconds for the phase to last.");
             return false;
         }
 
@@ -2560,7 +2612,7 @@ public class Craft : Framework.Revision.EditableItem, ICraft
         {
             phaseStrings.Add([
                 phase.PhaseNumber.ToStringN0(actor).Colour(Telnet.Cyan),
-                TimeSpan.FromSeconds(phase.PhaseLengthInSeconds).DescribePreciseBrief(actor),
+                DescribePhaseLength(phase, actor),
                 phase.StaminaUsage.ToStringN2Colour(actor),
                 phase.ExertionLevel.Describe(),
                 phase.Echo

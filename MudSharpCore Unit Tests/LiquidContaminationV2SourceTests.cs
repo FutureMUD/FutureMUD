@@ -98,6 +98,21 @@ public class LiquidContaminationV2SourceTests
 	}
 
 	[TestMethod]
+	public void Cleaning_DoesNotQueueEffectsWithoutRequiredLiquid()
+	{
+		var gameModule = File.ReadAllText(GetSourcePath("MudSharpCore", "Commands", "Modules",
+			"GameModule.cs"));
+		var queueStart = gameModule.IndexOf("private static Queue<ICleanableEffect> GetCleanableEffectQueue", StringComparison.Ordinal);
+		var queueEnd = gameModule.IndexOf("private static void CleanTarget", queueStart, StringComparison.Ordinal);
+		Assert.IsTrue(queueStart > 0);
+		Assert.IsTrue(queueEnd > queueStart);
+
+		var cleanQueue = gameModule[queueStart..queueEnd];
+		StringAssert.Contains(cleanQueue, "x.LiquidRequired != null");
+		Assert.IsFalse(cleanQueue.Contains("x.LiquidRequired == null ||", StringComparison.Ordinal));
+	}
+
+	[TestMethod]
 	public void WashingMachine_SpinDriesSurfaceStateAndCompletesCycle()
 	{
 		var washingMachine = File.ReadAllText(GetSourcePath("MudSharpCore", "GameItems", "Components",

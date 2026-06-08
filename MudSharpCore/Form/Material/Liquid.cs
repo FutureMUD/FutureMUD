@@ -350,6 +350,22 @@ public class Liquid : Fluid, ILiquid
     /// <inheritdoc />
     public override bool CountsAs(IFluid other)
     {
+        return CountsAs(other, new HashSet<long>());
+    }
+
+    /// <inheritdoc />
+    public override ItemQuality CountAsQuality(IFluid other)
+    {
+        return CountAsQuality(other, new HashSet<long>());
+    }
+
+    public override double CountsAsMultiplier(IFluid other)
+    {
+        return CountsAsMultiplier(other, new HashSet<long>());
+    }
+
+    private bool CountsAs(IFluid other, HashSet<long> visited)
+    {
         if (other == null)
         {
             return false;
@@ -361,21 +377,24 @@ public class Liquid : Fluid, ILiquid
         }
 
         ILiquid otherLiquid = other as ILiquid;
-        if (otherLiquid is null)
+        if (otherLiquid is null || !visited.Add(Id))
         {
             return false;
         }
 
-        if (CountsAsLiquid is null)
+        var countsAs = CountsAsLiquid;
+        if (countsAs is null)
         {
             return false;
         }
 
-        return CountsAsLiquid.CountsAs(other);
+        return countsAs == otherLiquid ||
+               (countsAs is Liquid concrete
+                   ? concrete.CountsAs(other, visited)
+                   : countsAs.CountsAs(other));
     }
 
-    /// <inheritdoc />
-    public override ItemQuality CountAsQuality(IFluid other)
+    private ItemQuality CountAsQuality(IFluid other, HashSet<long> visited)
     {
         if (other == null)
         {
@@ -388,25 +407,28 @@ public class Liquid : Fluid, ILiquid
         }
 
         ILiquid otherLiquid = other as ILiquid;
-        if (otherLiquid is null)
+        if (otherLiquid is null || !visited.Add(Id))
         {
             return ItemQuality.Terrible;
         }
 
-        if (otherLiquid == CountsAsLiquid)
+        var countsAs = CountsAsLiquid;
+        if (countsAs is null)
+        {
+            return ItemQuality.Terrible;
+        }
+
+        if (otherLiquid == countsAs)
         {
             return CountsAsQuality;
         }
 
-        if (CountsAsLiquid is null)
-        {
-            return ItemQuality.Terrible;
-        }
-
-        return CountsAsLiquid.CountAsQuality(other);
+        return countsAs is Liquid concrete
+            ? concrete.CountAsQuality(other, visited)
+            : countsAs.CountAsQuality(other);
     }
 
-    public override double CountsAsMultiplier(IFluid other)
+    private double CountsAsMultiplier(IFluid other, HashSet<long> visited)
     {
         if (other == null)
         {
@@ -419,22 +441,26 @@ public class Liquid : Fluid, ILiquid
         }
 
         ILiquid otherLiquid = other as ILiquid;
-        if (otherLiquid is null)
+        if (otherLiquid is null || !visited.Add(Id))
         {
             return 0.0;
         }
 
-        if (otherLiquid == CountsAsLiquid)
+        var countsAs = CountsAsLiquid;
+        if (otherLiquid == countsAs)
         {
             return (int)CountsAsQuality / 11.0;
         }
 
-        if (CountsAsLiquid is null)
+        if (countsAs is null)
         {
             return 0.0;
         }
 
-        return CountsAsLiquid.CountsAsMultiplier(other) * ((int)CountsAsLiquid.CountsAsQuality / 11.0);
+        return (countsAs is Liquid concrete
+                   ? concrete.CountsAsMultiplier(other, visited)
+                   : countsAs.CountsAsMultiplier(other)) *
+               ((int)countsAs.CountsAsQuality / 11.0);
     }
 
     #endregion
@@ -454,8 +480,36 @@ public class Liquid : Fluid, ILiquid
 
     public bool LiquidCountsAs(ILiquid otherLiquid)
     {
-        return otherLiquid != null && (otherLiquid == this || CountsAsLiquid == otherLiquid ||
-                                       (CountsAsLiquid?.LiquidCountsAs(otherLiquid) ?? false));
+        return LiquidCountsAs(otherLiquid, new HashSet<long>());
+    }
+
+    private bool LiquidCountsAs(ILiquid otherLiquid, HashSet<long> visited)
+    {
+        if (otherLiquid == null)
+        {
+            return false;
+        }
+
+        if (otherLiquid == this)
+        {
+            return true;
+        }
+
+        if (!visited.Add(Id))
+        {
+            return false;
+        }
+
+        var countsAs = CountsAsLiquid;
+        if (countsAs is null)
+        {
+            return false;
+        }
+
+        return countsAs == otherLiquid ||
+               (countsAs is Liquid concrete
+                   ? concrete.LiquidCountsAs(otherLiquid, visited)
+                   : countsAs.LiquidCountsAs(otherLiquid));
     }
 
     public ItemQuality LiquidCountsAsQuality(ILiquid otherLiquid)
@@ -961,6 +1015,12 @@ public class Liquid : Fluid, ILiquid
             return false;
         }
 
+        if (liquid == this || liquid.CountsAs(this))
+        {
+            actor.OutputHandler.Send("You cannot create a circular counts-as chain.");
+            return false;
+        }
+
         _countsAs = liquid;
         _countsAsId = liquid.Id;
         CountsAsQuality = ItemQuality.Standard;
@@ -1318,6 +1378,12 @@ public class Liquid : Fluid, ILiquid
         dbitem.TasteIntensity = TasteIntensity;
         dbitem.TasteText = TasteText;
         dbitem.VagueTasteText = VagueTasteText;
+        dbitem.DampDescription = DampDescription;
+        dbitem.WetDescription = WetDescription;
+        dbitem.DrenchedDescription = DrenchedDescription;
+        dbitem.DampShortDescription = DampShortDescription;
+        dbitem.WetShortDescription = WetShortDescription;
+        dbitem.DrenchedShortDescription = DrenchedShortDescription;
         dbitem.InjectionConsequence = (int)InjectionConsequence;
         dbitem.GasFormId = _gasFormId;
         dbitem.SurfaceReactionInfo = SaveSurfaceReactions();

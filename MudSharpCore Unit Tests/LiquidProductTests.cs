@@ -39,7 +39,13 @@ public class LiquidProductTests
 		Assert.AreEqual(1, products.Count);
 		Assert.AreSame(item.Object, products[0]);
 		container.Verify(x => x.MergeLiquid(It.Is<LiquidMixture>(m => Math.Abs(m.TotalVolume - 3.0) < 0.0001), null, "craft"), Times.Once);
+		item.Verify(x => x.HandleEvent(EventType.ItemFinishedLoading, item.Object), Times.Never);
+
+		var location = new Mock<ICell>();
+		data.ReleaseProducts(location.Object, RoomLayer.GroundLevel);
+
 		item.Verify(x => x.HandleEvent(EventType.ItemFinishedLoading, item.Object), Times.Once);
+		item.Verify(x => x.Login(), Times.Once);
 	}
 
 	[TestMethod]

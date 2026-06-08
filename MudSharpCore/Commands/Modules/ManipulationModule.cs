@@ -3530,6 +3530,13 @@ The syntax to use this command is as follows:
             return;
         }
 
+        (truth, error) = character.CanManipulateItem(source);
+        if (!truth)
+        {
+            character.Send(error);
+            return;
+        }
+
         if (targetContainer.Gas == null)
         {
             targetContainer.Gas = sourceContainer.Gas;

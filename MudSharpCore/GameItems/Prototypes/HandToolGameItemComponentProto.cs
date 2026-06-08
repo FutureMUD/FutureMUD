@@ -139,8 +139,12 @@ public class HandToolGameItemComponentProto : GameItemComponentProto, IToolItemP
         try
         {
             Expression expr = new(exprText);
-            // Test it
-            expr.EvaluateDoubleWith(("quality", (int)ItemQuality.Standard));
+            if (!ToolDurabilityExpressionHelper.TryValidate(expr, out var error))
+            {
+                actor.OutputHandler.Send(error);
+                return false;
+            }
+
             ToolDurabilitySecondsExpression = expr;
             Changed = true;
             actor.OutputHandler.Send(
@@ -220,9 +224,9 @@ The formula for usage hours is {8} - best {9} typ {10} worst {11}",
             (BaseMultiplier - (int)ItemQuality.Terrible * MultiplierReductionPerQuality).ToString("P3", actor)
             .ColourValue(),
             ToolDurabilitySecondsExpression.OriginalExpression.Colour(Telnet.Yellow),
-            TimeSpan.FromSeconds(ToolDurabilitySecondsExpression.EvaluateDoubleWith(("quality", (int)ItemQuality.Legendary))).DescribePreciseBrief(actor).ColourValue(),
-            TimeSpan.FromSeconds(ToolDurabilitySecondsExpression.EvaluateDoubleWith(("quality", (int)ItemQuality.Standard))).DescribePreciseBrief(actor).ColourValue(),
-            TimeSpan.FromSeconds(ToolDurabilitySecondsExpression.EvaluateDoubleWith(("quality", (int)ItemQuality.Terrible))).DescribePreciseBrief(actor).ColourValue()
+            ToolDurabilityExpressionHelper.EvaluateDuration(ToolDurabilitySecondsExpression, ItemQuality.Legendary).DescribePreciseBrief(actor).ColourValue(),
+            ToolDurabilityExpressionHelper.EvaluateDuration(ToolDurabilitySecondsExpression, ItemQuality.Standard).DescribePreciseBrief(actor).ColourValue(),
+            ToolDurabilityExpressionHelper.EvaluateDuration(ToolDurabilitySecondsExpression, ItemQuality.Terrible).DescribePreciseBrief(actor).ColourValue()
         );
     }
 }

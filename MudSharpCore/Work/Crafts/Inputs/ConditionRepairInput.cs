@@ -13,7 +13,7 @@ using System.Xml.Linq;
 
 namespace MudSharp.Work.Crafts.Inputs;
 
-public class ConditionRepairInput : BaseInput, ICraftInputConsumesGameItem
+public class ConditionRepairInput : BaseInput
 {
     public override string InputType => "ConditionRepair";
     public ITag TargetTag { get; set; }

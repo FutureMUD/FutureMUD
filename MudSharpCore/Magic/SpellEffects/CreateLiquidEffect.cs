@@ -138,6 +138,11 @@ public class CreateLiquidEffect : IMagicSpellEffectTemplate
                 mixture.SetLiquidVolume(amount);
             }
 
+            if (amount <= 0.0 || mixture.TotalVolume <= 0.0)
+            {
+                return null;
+            }
+
             if (container.LiquidMixture?.CanMerge(mixture) == true)
             {
                 container.MergeLiquid(mixture, null, "spell");

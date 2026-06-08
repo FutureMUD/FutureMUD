@@ -122,7 +122,6 @@ internal class InputVariableProduct : BaseProduct
                 newItem.Material = material;
             }
 
-            newItem.HandleEvent(EventType.ItemFinishedLoading, newItem);
             return new SimpleProductData(new[] { newItem });
         }
 
@@ -142,7 +141,6 @@ internal class InputVariableProduct : BaseProduct
                 item.Material = material;
             }
 
-            item.HandleEvent(EventType.ItemFinishedLoading, item);
         }
 
         return new SimpleProductData(items);

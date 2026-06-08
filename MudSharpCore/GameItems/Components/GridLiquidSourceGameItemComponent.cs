@@ -59,11 +59,11 @@ public class GridLiquidSourceGameItemComponent : GameItemComponent, ILiquidConta
 
     public void ReduceLiquidQuantity(double amount, ICharacter who, string action)
     {
+        RemoveLiquidAmount(amount, who, action);
     }
 
     public void MergeLiquid(LiquidMixture otherMixture, ICharacter who, string action)
     {
-        throw new InvalidOperationException("You cannot add liquid directly to a grid liquid source.");
     }
 
     public LiquidMixture? RemoveLiquidAmount(double amount, ICharacter who, string action)

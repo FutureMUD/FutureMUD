@@ -6,6 +6,7 @@ using System.Text;
 using System.Xml.Linq;
 using Microsoft.EntityFrameworkCore;
 using MudSharp.Character;
+using MudSharp.Character.Heritage;
 using MudSharp.Climate;
 using MudSharp.Construction;
 using MudSharp.Database;
@@ -1157,9 +1158,16 @@ public class AgricultureField : SaveableItem, IAgricultureField
 
 	public bool AbsorbNpcIntoHerd(ICharacter npc, IAgricultureHerdDefinition definition, ICharacter actor, out string result)
 	{
-		if (npc == null || npc.IsPlayerCharacter || npc.Location != Cell)
+		if (npc == null || npc.IsPlayerCharacter || npc.Location != Cell || !AnimalLineageHelper.IsAnimal(npc))
 		{
 			result = "You can only absorb a non-player animal in this field.";
+			return false;
+		}
+
+		if (definition.NpcTemplate != null && npc is INPC concreteNpc &&
+		    concreteNpc.Template?.Id != definition.NpcTemplate.Id)
+		{
+			result = $"You can only absorb animals that match the {definition.Name} herd definition.";
 			return false;
 		}
 

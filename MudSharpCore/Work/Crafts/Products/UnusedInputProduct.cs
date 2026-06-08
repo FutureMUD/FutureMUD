@@ -144,7 +144,6 @@ public class UnusedInputProduct : BaseProduct
                 newItem.Quality = referenceQuality;
             }
 
-            newItem.HandleEvent(EventType.ItemFinishedLoading, newItem);
             return new UnusedInputProductData(new[] { newItem });
         }
 
@@ -158,7 +157,6 @@ public class UnusedInputProduct : BaseProduct
             {
                 item.Quality = referenceQuality;
             }
-            item.HandleEvent(EventType.ItemFinishedLoading, item);
         }
 
         return new UnusedInputProductData(items);

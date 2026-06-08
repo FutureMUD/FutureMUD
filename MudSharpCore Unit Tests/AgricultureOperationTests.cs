@@ -1,13 +1,20 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using MudSharp.Accounts;
+using MudSharp.Body;
 using MudSharp.Celestial;
+using MudSharp.Character;
+using MudSharp.Character.Heritage;
 using MudSharp.Climate;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.Work.Agriculture;
+using MudSharp.Work.Crafts;
+using MudSharp.Work.Crafts.Inputs;
 using MudSharp.Economy.Property;
+using MudSharp.NPC.Templates;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -430,6 +437,71 @@ public class AgricultureOperationTests
 		StringAssert.Contains(result, "fallow or pasture");
 		Assert.AreEqual(7, source.Herds.Single().HeadCount);
 		Assert.IsFalse(destination.Herds.Any());
+	}
+
+	[TestMethod]
+	public void AgricultureFieldInput_ScoutInput_RejectsOwnedFieldWithoutAuthorisation()
+	{
+		var gameworld = BuildGameworldWithCustomScore(enabled: false);
+		var cell = new Mock<ICell>();
+		cell.SetupGet(x => x.Id).Returns(1L);
+		cell.SetupGet(x => x.Name).Returns("Owned Crop Field");
+		cell.SetupGet(x => x.FrameworkItemType).Returns("Cell");
+		cell.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		var cells = new All<ICell>();
+		cells.Add(cell.Object);
+		gameworld.SetupGet(x => x.Cells).Returns(cells);
+		var field = BuildFieldWithCustomScore(gameworld.Object, 50, AgricultureFieldUse.Fallow);
+		cell.SetupGet(x => x.AgricultureField).Returns(field);
+		var property = new Mock<IProperty>();
+		property.SetupGet(x => x.Id).Returns(1L);
+		property.SetupGet(x => x.Name).Returns("Owned Farm");
+		property.SetupGet(x => x.FrameworkItemType).Returns("Property");
+		property.SetupGet(x => x.PropertyLocations).Returns([cell.Object]);
+		var properties = new All<IProperty>();
+		properties.Add(property.Object);
+		gameworld.SetupGet(x => x.Properties).Returns(properties);
+		var actor = new Mock<ICharacter>();
+		actor.SetupGet(x => x.Location).Returns(cell.Object);
+		actor.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		actor.Setup(x => x.IsAdministrator(It.IsAny<PermissionLevel>())).Returns(false);
+		var input = AgricultureFieldInputFromDefinition(gameworld.Object,
+			new XElement("Definition",
+				new XElement("RequiredUse", AgricultureFieldUse.Fallow),
+				new XElement("CropDefinitionId", 0),
+				new XElement("WoodlandDefinitionId", 0),
+				new XElement("MinimumFieldCondition", 0),
+				new XElement("MinimumHealth", 0),
+				new XElement("MinimumYield", 0),
+				new XElement("YieldConsumed", 0)));
+
+		Assert.IsFalse(input.ScoutInput(actor.Object).Any());
+	}
+
+	[TestMethod]
+	public void AbsorbNpcIntoHerd_RejectsNonAnimalNpc()
+	{
+		var (gameworld, herd) = BuildTwoFieldGameworld();
+		gameworld.SetupGet(x => x.BodyPrototypes).Returns(new All<IBodyPrototype>());
+		var source = BuildFieldWithHerd(gameworld.Object, 1, 1, AgricultureFieldUse.Pasture, herd, 0, 60.0);
+		var baseBody = new Mock<IBodyPrototype>();
+		baseBody.SetupGet(x => x.Id).Returns(1L);
+		baseBody.SetupGet(x => x.Name).Returns("Humanoid");
+		baseBody.SetupGet(x => x.FrameworkItemType).Returns("BodyPrototype");
+		var race = new Mock<IRace>();
+		race.SetupGet(x => x.BaseBody).Returns(baseBody.Object);
+		var npc = new Mock<ICharacter>();
+		npc.SetupGet(x => x.IsPlayerCharacter).Returns(false);
+		npc.SetupGet(x => x.Location).Returns(source.Cell);
+		npc.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		npc.SetupGet(x => x.Race).Returns(race.Object);
+		var actor = new Mock<ICharacter>();
+
+		var success = source.AbsorbNpcIntoHerd(npc.Object, herd, actor.Object, out var result);
+
+		Assert.IsFalse(success);
+		StringAssert.Contains(result, "non-player animal");
+		npc.Verify(x => x.Quit(It.IsAny<bool>()), Times.Never);
 	}
 
 	[TestMethod]
@@ -928,6 +1000,24 @@ public class AgricultureOperationTests
 		}
 
 		return new AgricultureField(model, gameworld);
+	}
+
+	private static AgricultureFieldInput AgricultureFieldInputFromDefinition(IFuturemud gameworld, XElement definition)
+	{
+		var model = new MudSharp.Models.CraftInput
+		{
+			Id = 1,
+			InputQualityWeight = 1.0,
+			OriginalAdditionTime = DateTime.UtcNow,
+			Definition = definition.ToString()
+		};
+
+		return (AgricultureFieldInput)Activator.CreateInstance(
+			typeof(AgricultureFieldInput),
+			BindingFlags.Instance | BindingFlags.NonPublic,
+			null,
+			[model, new Mock<ICraft>().Object, gameworld],
+			null)!;
 	}
 
 	private sealed record TestApiaryState(int HiveCount, int ColonyHealth, int Stores, int YieldPotential,

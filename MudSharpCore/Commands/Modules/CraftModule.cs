@@ -50,6 +50,11 @@ internal class CraftModule : Module<ICharacter>
         {
             parameters = true;
             string arg = ss.PopSpeech();
+            if (string.IsNullOrEmpty(arg))
+            {
+                continue;
+            }
+
             if (arg[0] == '+')
             {
                 crafts = crafts
@@ -549,6 +554,11 @@ You can use the following syntax:
         {
             parameters = true;
             var arg = ss.PopSpeech();
+            if (string.IsNullOrEmpty(arg))
+            {
+                continue;
+            }
+
             if (arg[0] == '+')
             {
                 crafts = crafts

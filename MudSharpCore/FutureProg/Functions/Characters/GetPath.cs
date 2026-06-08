@@ -142,13 +142,13 @@ internal class GetPath : BuiltInFunction
 
         if (ParameterFunctions[0].Result is not ICharacter target)
         {
-            Result = new BooleanVariable(false);
+            Result = new CollectionVariable(new List<IProgVariable>(), ProgVariableTypes.Text);
             return StatementResult.Normal;
         }
 
         if (ParameterFunctions[1].Result is not ICell location)
         {
-            Result = new BooleanVariable(false);
+            Result = new CollectionVariable(new List<IProgVariable>(), ProgVariableTypes.Text);
             return StatementResult.Normal;
         }
 

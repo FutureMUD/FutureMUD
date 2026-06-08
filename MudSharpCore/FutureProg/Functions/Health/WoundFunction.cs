@@ -193,7 +193,7 @@ internal class WoundFunction : BuiltInFunction
         else
         {
             string expr = ParameterFunctions[2].Result?.GetObject?.ToString() ?? "";
-            if (!Dice.IsDiceExpression(expr))
+            if (!Dice.TryValidateDiceExpression(expr, out _))
             {
                 Result = new BooleanVariable(false);
                 return StatementResult.Normal;

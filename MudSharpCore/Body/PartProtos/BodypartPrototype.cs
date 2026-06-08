@@ -673,6 +673,23 @@ public abstract partial class BodypartPrototype : LateKeywordedInitialisingItem,
             return false;
         }
 
+        List<string> invalidParameters = expression.ParameterNames
+                                                    .Where(x => !x.EqualTo("damage") && !x.EqualTo("damagetype"))
+                                                    .ToList();
+        if (invalidParameters.Any())
+        {
+            builder.OutputHandler.Send(
+                $"Sever formulas may only use the {"damage".ColourCommand()} and {"damagetype".ColourCommand()} parameters. Unknown parameters: {invalidParameters.ListToString().ColourError()}.");
+            return false;
+        }
+
+        double result = expression.EvaluateDoubleWith(("damage", 1.0), ("damagetype", (int)DamageType.Chopping));
+        if (!double.IsFinite(result))
+        {
+            builder.OutputHandler.Send("That sever formula did not produce a finite numeric result when tested.".ColourError());
+            return false;
+        }
+
         SeverFormula = formula;
         Changed = true;
         builder.OutputHandler.Send(

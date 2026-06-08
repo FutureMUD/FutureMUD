@@ -564,6 +564,11 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
             return "null";
         }
 
+        if (result is IProgVariable progVariable)
+        {
+            result = progVariable.GetObject;
+        }
+
         if (returnType.IsCollection)
         {
             StringBuilder sb = new();

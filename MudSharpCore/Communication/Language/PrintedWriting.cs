@@ -210,7 +210,7 @@ public class PrintedWriting : LateInitialisingItem, IWriting
 			case "languageskill":
 				return new NumberVariable(LanguageSkill);
 			case "text":
-				return new TextVariable(ParseFor(null));
+				return new TextVariable(string.Empty);
 			case "simple":
 				return new BooleanVariable(false);
 			case "printed":

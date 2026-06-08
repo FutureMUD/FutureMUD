@@ -49,6 +49,14 @@ public class ExpressionEngineTests
     }
 
     [TestMethod]
+    public void InvalidCustomFunctionArguments_ReturnZeroInsteadOfThrowing()
+    {
+        Assert.AreEqual(0.0, new Expression("rand(1)").EvaluateDouble());
+        Assert.AreEqual(0.0, new Expression($"dice({Expression.MaximumDiceCount + 1},6)").EvaluateDouble());
+        Assert.AreEqual(0.0, new Expression("dice(1,0)").EvaluateDouble());
+    }
+
+    [TestMethod]
     public void TestRandomFunctionOverrides()
     {
         Expression expr1 = new("rand(0.7,1.0)");

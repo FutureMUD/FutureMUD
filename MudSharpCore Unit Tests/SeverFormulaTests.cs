@@ -85,4 +85,20 @@ public class SeverFormulaTests
 		Assert.IsTrue(InvokeShouldSever(body, damage.Object),
 			"The sever formula path should work even for damage types that the legacy CanSever rules would reject.");
 	}
+
+	[TestMethod]
+	public void ShouldSever_InvalidCustomFunctionArguments_FailClosed()
+	{
+		Mock<IBodypart> bodypart = new();
+		bodypart.SetupGet(x => x.CanSever).Returns(true);
+		bodypart.SetupGet(x => x.SeverFormula).Returns("rand(1)");
+
+		Mock<IRace> race = new();
+		race.Setup(x => x.ModifiedSeverthreshold(bodypart.Object)).Returns(1.0);
+
+		Body body = BuildBody(race);
+		Mock<IDamage> damage = BuildDamage(bodypart.Object, 25.0, DamageType.Chopping);
+
+		Assert.IsFalse(InvokeShouldSever(body, damage.Object));
+	}
 }

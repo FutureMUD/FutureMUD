@@ -10,6 +10,7 @@ namespace MudSharp.FutureProg.Functions.DateTime;
 
 internal class WeekdayFunction : BuiltInFunction
 {
+	private const int MaximumWeekdayOccurrences = 10000;
 	private readonly int _direction;
 	private readonly ProgVariableTypes _returnType;
 
@@ -33,12 +34,13 @@ internal class WeekdayFunction : BuiltInFunction
 			return StatementResult.Error;
 		}
 
-		var count = _direction * GetOccurrenceCount();
-		if (count == 0)
+		var occurrences = GetOccurrenceCount();
+		if (occurrences is null)
 		{
-			ErrorMessage = $"{FunctionName} must be supplied a non-zero occurrence number.";
+			ErrorMessage = $"{FunctionName} must be supplied a non-zero occurrence number no greater than {MaximumWeekdayOccurrences:N0}.";
 			return StatementResult.Error;
 		}
+		var count = _direction * occurrences.Value;
 
 		switch ((_returnType & ~ProgVariableTypes.Literal).LegacyCode)
 		{
@@ -53,7 +55,7 @@ internal class WeekdayFunction : BuiltInFunction
 
 	private string FunctionName => _direction > 0 ? "NextWeekday" : "LastWeekday";
 
-	private int GetOccurrenceCount()
+	private int? GetOccurrenceCount()
 	{
 		if (ParameterFunctions.Count == 2)
 		{
@@ -65,10 +67,11 @@ internal class WeekdayFunction : BuiltInFunction
 		    value > int.MaxValue ||
 		    value <= int.MinValue)
 		{
-			return 0;
+			return null;
 		}
 
-		return (int)value;
+		var occurrences = (int)value;
+		return Math.Abs(occurrences) <= MaximumWeekdayOccurrences && occurrences != 0 ? occurrences : null;
 	}
 
 	private StatementResult ExecuteSystemDateTime(int count)

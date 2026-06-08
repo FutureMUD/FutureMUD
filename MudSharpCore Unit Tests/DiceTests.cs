@@ -108,6 +108,20 @@ public class DiceTests
     }
 
     [TestMethod]
+    public void TryValidateDiceExpression_RejectsGuaranteedInfiniteExplosion()
+    {
+        Assert.IsFalse(Dice.TryValidateDiceExpression("1d1e1", out string error));
+        StringAssert.Contains(error, "Exploding dice");
+    }
+
+    [TestMethod]
+    public void TryValidateDiceExpression_RejectsOversizedRolls()
+    {
+        Assert.IsFalse(Dice.TryValidateDiceExpression($"{Dice.MaximumDiceCount + 1}d6", out _));
+        Assert.AreEqual(0, Dice.Roll($"{Dice.MaximumDiceCount + 1}d6"));
+    }
+
+    [TestMethod]
     public void RollNumeric_ReturnsTotalWithBonus()
     {
         Assert.AreEqual(5, Dice.Roll(3, 1, 2));

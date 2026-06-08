@@ -3,11 +3,14 @@ using Moq;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.FutureProg;
+using MudSharp.FutureProg.Functions;
+using MudSharp.FutureProg.Variables;
 using MudSharp.TimeAndDate;
 using MudSharp.TimeAndDate.Date;
 using MudSharp.TimeAndDate.Time;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Xml.Linq;
 
 namespace MudSharp_Unit_Tests;
@@ -85,6 +88,26 @@ public class FutureProgDateTimeFunctionTests
 		var result = prog.Execute<System.DateTime>(new System.DateTime(2026, 4, 22, 15, 30, 0, DateTimeKind.Utc));
 
 		Assert.AreEqual(new System.DateTime(2026, 4, 20, 15, 30, 0, DateTimeKind.Utc), result);
+	}
+
+	[TestMethod]
+	public void NextWeekday_SystemDateTime_RejectsOversizedOccurrence()
+	{
+		var info = MudSharp.FutureProg.FutureProg.GetFunctionCompilerInformations()
+		                     .Single(x => x.FunctionName == "nextweekday" &&
+		                                  x.Parameters.SequenceEqual([
+			                                  ProgVariableTypes.DateTime,
+			                                  ProgVariableTypes.Text,
+			                                  ProgVariableTypes.Number
+		                                  ]));
+		var function = info.CompilerFunction([
+			new ConstantFunction(new DateTimeVariable(new System.DateTime(2026, 4, 22, 15, 30, 0, DateTimeKind.Utc))),
+			new ConstantFunction(new TextVariable("Monday")),
+			new ConstantFunction(new NumberVariable(10001M))
+		], _gameworld);
+
+		Assert.AreEqual(StatementResult.Error, function.Execute(null!));
+		StringAssert.Contains(function.ErrorMessage, "10,000");
 	}
 
 	[TestMethod]
@@ -206,6 +229,21 @@ public class FutureProgDateTimeFunctionTests
 	}
 
 	[TestMethod]
+	public void TimeSpanCompoundAssignments_Execute()
+	{
+		var prog = Compile<TimeSpan>(
+			"TimeSpanCompoundAssignments",
+			ProgVariableTypes.TimeSpan,
+			[],
+			@"var duration = maketimespan(0, 1, 0, 0, 0)
+duration += maketimespan(0, 0, 30, 0, 0)
+duration -= maketimespan(0, 0, 10, 0, 0)
+return @duration");
+
+		Assert.AreEqual(new TimeSpan(0, 1, 20, 0), prog.Execute<TimeSpan>());
+	}
+
+	[TestMethod]
 	public void DateTimeComponentFunctions_ExecuteRepresentativeHelpers()
 	{
 		var dateProg = Compile<decimal>(
@@ -291,5 +329,22 @@ public class FutureProgDateTimeFunctionTests
 		var prog = new FutureProg(_gameworld, name, returnType, parameters, functionText);
 		Assert.IsTrue(prog.Compile(), prog.CompileError);
 		return prog;
+	}
+
+	private sealed class ConstantFunction(IProgVariable result) : IFunction
+	{
+		public IProgVariable Result { get; } = result;
+		public ProgVariableTypes ReturnType => Result.Type;
+		public string ErrorMessage => string.Empty;
+		public StatementResult ExpectedResult => StatementResult.Normal;
+		public StatementResult Execute(IVariableSpace variables)
+		{
+			return StatementResult.Normal;
+		}
+
+		public bool IsReturnOrContainsReturnOnAllBranches()
+		{
+			return false;
+		}
 	}
 }

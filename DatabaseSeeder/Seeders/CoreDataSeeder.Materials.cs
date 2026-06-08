@@ -338,11 +338,19 @@ public partial class CoreDataSeeder
 			AddMaterial(name, MaterialBehaviourType.Plant, 0.2, true, 1000, 1000, 0.1, 0.08, 0.0001, 500,
 				"Vegetation", "Agricultural Crop");
 		}
+		AddMaterial("reed", MaterialBehaviourType.Plant, 0.3, true, 5000, 5000, 0.1, 0.08, 0.0001, 500,
+			"Vegetation");
 
 		AddMaterial("firewood", MaterialBehaviourType.Wood, 0.5, true, 10000, 10000, 0.02, 0.15, 0.0001, 500,
 			"Wood");
 		AddMaterial("hazel", MaterialBehaviourType.Wood, 0.5, true, 40000, 10000, 0.05, 0.14, 0.0001, 420,
 			"Hardwood");
+		AddMaterial("rattan", MaterialBehaviourType.Wood, 0.4, true, 30000, 10000, 0.08, 0.14, 0.0001, 420,
+			"Wood");
+		AddMaterial("cane", MaterialBehaviourType.Wood, 0.4, true, 25000, 8000, 0.08, 0.14, 0.0001, 420,
+			"Wood");
+		AddMaterial("wicker", MaterialBehaviourType.Wood, 0.35, true, 15000, 8000, 0.12, 0.12, 0.0001, 500,
+			"Manufactured Wood");
 
 		EnsureAlias(materials["corn"], "maize");
 
@@ -524,6 +532,16 @@ public partial class CoreDataSeeder
 			"Animal Product");
 		AddMaterial("beak", MaterialBehaviourType.Beak, 1.2, true, 20000, 50000, 0.05, 0.14, 0.0001, 500,
 			"Animal Product");
+		AddMaterial("rawhide", MaterialBehaviourType.Skin, 1.4, true, 18000, 10000, 0.25, 0.14, 0.0001, 500,
+			"Animal Skin", "Animal Product");
+		AddMaterial("sinew", MaterialBehaviourType.Muscle, 1.3, true, 30000, 40000, 0.1, 0.14, 0.0001, 500,
+			"Animal Product");
+		AddMaterial("horsehair", MaterialBehaviourType.Hair, 1.4, true, 15000, 10000, 0.1, 0.14, 0.0001, 500,
+			"Hair", "Animal Product");
+		AddMaterial("goat leather", MaterialBehaviourType.Leather, 1.4, true, 26000, 10000, 0.2, 0.14, 0.0001, 500,
+			"Leather");
+		AddMaterial("sheep leather", MaterialBehaviourType.Leather, 1.3, true, 22000, 10000, 0.22, 0.14, 0.0001,
+			500, "Leather");
 		AddMaterial("resin", MaterialBehaviourType.Paste, 1.1, true, 8000, 12000, 0.0, 0.19, 0.0001, 1800,
 			"Natural Materials");
 		AddMaterial("pitch", MaterialBehaviourType.Paste, 1.2, false, 8000, 12000, 0.0, 0.15, 0.0001, 1700,
@@ -532,6 +550,8 @@ public partial class CoreDataSeeder
 			"Manufactured Materials");
 		AddMaterial("shellac", MaterialBehaviourType.Paste, 1.1, true, 8000, 12000, 0.0, 0.18, 0.0001, 1700,
 			"Animal Product");
+		AddMaterial("lacquer", MaterialBehaviourType.Paste, 1.1, true, 10000, 15000, 0.0, 0.18, 0.0001, 1700,
+			"Manufactured Materials");
 		AddMaterial("latex", MaterialBehaviourType.Elastomer, 0.95, true, 12000, 25000, 0.0, 0.14, 0.0001, 2000,
 			"Elastomer");
 		AddMaterial("charcoal", MaterialBehaviourType.Powder, 0.4, true, 2000, 2000, 0.2, 0.08, 0.0001, 1000,
@@ -543,6 +563,12 @@ public partial class CoreDataSeeder
 			"Stone");
 		AddMaterial("sponge", MaterialBehaviourType.Fabric, 0.3, true, 2000, 5000, 5.0, 0.05, 0.0001, 600,
 			"Natural Materials");
+		EnsureAlias(materials["rawhide"], "raw hide");
+		EnsureAlias(materials["reed"], "reeds");
+		EnsureAlias(materials["horsehair"], "horse hair");
+		EnsureAlias(materials["goat leather"], "goatskin", "goatskin leather");
+		EnsureAlias(materials["sheep leather"], "sheepskin", "sheepskin leather");
+		EnsureAlias(materials["lacquer"], "urushi");
 
 		EnsureAlias(materials["PTFE"], "teflon");
 		EnsureAlias(materials["silicone rubber"], "silicone");

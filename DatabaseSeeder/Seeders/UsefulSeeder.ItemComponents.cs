@@ -225,6 +225,18 @@ public partial class UsefulSeeder
         context.SaveChanges();
     }
 
+    internal void SeedLockAndWaterSourceCoverageForTesting(FuturemudDatabaseContext context)
+    {
+        _context = context;
+        PrepareItemProtoCache(context);
+        DateTime now = DateTime.UtcNow;
+        Account dbaccount = context.Accounts.First();
+        long nextId = context.GameItemComponentProtos.Any() ? context.GameItemComponentProtos.Max(x => x.Id) + 1 : 1;
+        SeedLocks(now, ref nextId);
+        SeedWaterSources(context, now, dbaccount, ref nextId);
+        context.SaveChanges();
+    }
+
     internal void SeedContainersForTesting(FuturemudDatabaseContext context)
     {
         _context = context;
@@ -1969,19 +1981,24 @@ public partial class UsefulSeeder
 </Definition>");
         }
 
-        GameItemComponentProto CreateLatch(string name, string description, Difficulty force, Difficulty pick)
+        GameItemComponentProto CreateLatch(string name, string description, Difficulty force, Difficulty pick,
+            string lockEmote = "@ latch|latches $1$?2| on $2||$",
+            string unlockEmote = "@ unlatch|unlatches $1$?2| on $2||$",
+            string lockEmoteNoActor = "$0$?1| on $1||$ open|opens",
+            string unlockEmoteNoActor = "$0$?1| on $1||$ close|closes",
+            string lockEmoteOtherSide = "$0$?1| on $1||$ is latched from the other side.",
+            string unlockEmoteOtherSide = "$0$?1| on $1||$ is unlatched from the other side.")
         {
             return CreateItemProto(currentId++, now, "Latch", name, description,
-                    $@"<Definition>
-  <ForceDifficulty>{(int)force}</ForceDifficulty>
-  <PickDifficulty>{(int)pick}</PickDifficulty>
-  <LockEmote><![CDATA[@ latch|latches $1$?2| on $2||$]]></LockEmote>
-  <UnlockEmote><![CDATA[@ unlatch|unlatches $1$?2| on $2||$]]></UnlockEmote>
-  <LockEmoteNoActor><![CDATA[$0$?1| on $1||$ open|opens]]></LockEmoteNoActor>
-  <UnlockEmoteNoActor><![CDATA[$0$?1| on $1||$ close|closes]]></UnlockEmoteNoActor>
-  <LockEmoteOtherSide><![CDATA[$0$?1| on $1||$ is latched from the other side.]]></LockEmoteOtherSide>
-  <UnlockEmoteOtherSide><![CDATA[$0$?1| on $1||$ is unlatched from the other side.]]></UnlockEmoteOtherSide>
-</Definition>");
+                new XElement("Definition",
+                    new XElement("ForceDifficulty", (int)force),
+                    new XElement("PickDifficulty", (int)pick),
+                    new XElement("LockEmote", new XCData(lockEmote)),
+                    new XElement("UnlockEmote", new XCData(unlockEmote)),
+                    new XElement("LockEmoteNoActor", new XCData(lockEmoteNoActor)),
+                    new XElement("UnlockEmoteNoActor", new XCData(unlockEmoteNoActor)),
+                    new XElement("LockEmoteOtherSide", new XCData(lockEmoteOtherSide)),
+                    new XElement("UnlockEmoteOtherSide", new XCData(unlockEmoteOtherSide))).ToString());
         }
 
         GameItemComponentProto CreateSimpleKey(string name, string description, string lockType)
@@ -2008,6 +2025,46 @@ public partial class UsefulSeeder
         CreateLatch("Latch_Master", "This is a masterful quality simple latch (one-sided lock)", Difficulty.ExtremelyHard, Difficulty.VeryHard);
         CreateLatch("Latch_Legendary", "This is a legendary quality simple latch (one-sided lock)", Difficulty.Insane, Difficulty.ExtremelyHard);
         CreateLatch("Latch_Admin", "This is a simple latch (one-sided lock) that cannot be picked or forced", Difficulty.Impossible, Difficulty.Impossible);
+        CreateLatch("Latch_Container_Hook", "This is a small hook-and-eye latch for cupboards, hatches and light containers",
+            Difficulty.Easy, Difficulty.VeryEasy,
+            "@ hook|hooks $1$?2| on $2||$ closed",
+            "@ unhook|unhooks $1$?2| on $2||$",
+            "$0$?1| on $1||$ settles into its hook.",
+            "$0$?1| on $1||$ slips free of its hook.",
+            "$0$?1| on $1||$ is hooked closed from the other side.",
+            "$0$?1| on $1||$ is unhooked from the other side.");
+        CreateLatch("Latch_Container_Hasp", "This is a sturdier hasp latch for chests, trunks and other lockable containers",
+            Difficulty.Normal, Difficulty.Normal,
+            "@ drop|drops $1$?2| on $2||$ into its hasp",
+            "@ lift|lifts $1$?2| on $2||$ free of its hasp",
+            "$0$?1| on $1||$ drops into its hasp.",
+            "$0$?1| on $1||$ lifts free of its hasp.",
+            "$0$?1| on $1||$ is secured by a hasp from the other side.",
+            "$0$?1| on $1||$ is released from its hasp on the other side.");
+        CreateLatch("Latch_Door_Bar", "This is a heavy sliding bar latch for doors and interior shutters",
+            Difficulty.VeryHard, Difficulty.Hard,
+            "@ slide|slides $1$?2| across $2||$",
+            "@ draw|draws $1$?2| back from $2||$",
+            "$0$?1| on $1||$ slides heavily into place.",
+            "$0$?1| on $1||$ slides heavily aside.",
+            "$0$?1| on $1||$ is barred from the other side.",
+            "$0$?1| on $1||$ is unbarred from the other side.");
+        CreateLatch("Latch_Gate_DropBar", "This is a weighty drop-bar latch for yard gates, stable gates and palisade gates",
+            Difficulty.ExtremelyHard, Difficulty.Hard,
+            "@ drop|drops $1$?2| across $2||$ into its brackets",
+            "@ heft|hefts $1$?2| clear of $2||$",
+            "$0$?1| on $1||$ drops into its gate brackets.",
+            "$0$?1| on $1||$ lifts clear of its gate brackets.",
+            "$0$?1| on $1||$ is barred by a heavy drop-bar from the other side.",
+            "$0$?1| on $1||$ is freed from its drop-bar on the other side.");
+        CreateLatch("Latch_Portcullis_Pawl", "This is a winch pawl or brake latch for holding a portcullis or similar heavy barrier",
+            Difficulty.Insane, Difficulty.VeryHard,
+            "@ set|sets $1$?2| on $2||$ to hold the portcullis mechanism",
+            "@ release|releases $1$?2| on $2||$ from the portcullis mechanism",
+            "$0$?1| on $1||$ bites into the portcullis mechanism.",
+            "$0$?1| on $1||$ releases the portcullis mechanism.",
+            "$0$?1| on $1||$ locks the portcullis mechanism from the other side.",
+            "$0$?1| on $1||$ releases the portcullis mechanism from the other side.");
 
         nextId = currentId;
         _context.SaveChanges();
@@ -6617,6 +6674,26 @@ public partial class UsefulSeeder
 
         Liquid tapWaterLiquid = context.Liquids.FirstOrDefault(x => x.Name == "tap water") ??
             context.Liquids.First(x => x.Name == "water");
+        Liquid rainWaterLiquid = context.Liquids.FirstOrDefault(x => x.Name == "rain water") ??
+            context.Liquids.First(x => x.Name == "water");
+        CreateWaterSourceComponent(context, ref nextId, dbaccount, now, "Infinite_PublicTapWaterSource",
+            "Turns an item into a public tap, hydrant-fed fixture or similar potable water point.",
+            1000000, tapWaterLiquid.Id, 0.8333333333333334, true);
+        CreateWaterSourceComponent(context, ref nextId, dbaccount, now, "Infinite_DrinkingFountainWaterSource",
+            "Turns an item into a public drinking fountain or bubbler.",
+            1000000, tapWaterLiquid.Id, 0.25, true);
+        CreateWaterSourceComponent(context, ref nextId, dbaccount, now, "Infinite_PublicPumpWaterSource",
+            "Turns an item into a hand pump, village pump or similar public potable water source.",
+            1000000, springLiquid.Id, 0.5, true);
+        CreateWaterSourceComponent(context, ref nextId, dbaccount, now, "Infinite_StandpipeWaterSource",
+            "Turns an item into a standpipe, yard spigot or high-flow public tap.",
+            1000000, tapWaterLiquid.Id, 1.6666666666666667, true);
+        CreateWaterSourceComponent(context, ref nextId, dbaccount, now, "Infinite_PublicTroughWaterSource",
+            "Turns an item into a public water trough with a steady self-refilling supply.",
+            500, waterLiquid.Id, 0.5, false);
+        CreateWaterSourceComponent(context, ref nextId, dbaccount, now, "Infinite_PublicCisternWaterSource",
+            "Turns an item into a large communal cistern with a managed refill supply.",
+            10000, rainWaterLiquid.Id, 0.25, false);
         CreateWaterSourceComponent(context, ref nextId, dbaccount, now, "Sink_5L",
             "Turns an item into a 5L sink that can be filled up.",
             5, tapWaterLiquid.Id, 0.8333333333333334, true);

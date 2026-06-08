@@ -188,22 +188,20 @@ public class RandomNameProfile : SaveableItem, IEditableItem, IRandomNameProfile
             }
 
             int number = Dice.Roll(element.Value);
-            for (int i = 0; i < number; i++)
+            List<(string Value, int Weight)> availableNames = _randomNamesDictionary[element.Key]
+                .Where(x => !allResults.Contains(x.Value))
+                .ToList();
+            for (int i = 0; i < number && availableNames.Any(); i++)
             {
-                string result = _randomNamesDictionary[element.Key].GetWeightedRandom();
+                string result = availableNames.GetWeightedRandom(x => x.Weight).Value;
                 if (result == null)
                 {
                     break;
                 }
 
-                if (allResults.Contains(result))
-                {
-                    i--;
-                    continue;
-                }
-
                 resultsDictionary[element.Key].Add(result);
                 allResults.Add(result);
+                availableNames.RemoveAll(x => x.Value == result);
             }
         }
 

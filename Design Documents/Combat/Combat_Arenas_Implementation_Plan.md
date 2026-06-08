@@ -34,6 +34,10 @@ Current Runtime Snapshot (2026-04-10)
 - `Animal Bohort` now uses the shared `isanimal(character)` helper plus a blank stock NPC loader prog returning `emptycharacters()`, giving builders a safe override point.
 - Arena scoring progs now receive append-only live combat telemetry collections (attackers, defenders, side indices, landed flags, undefended flags, normalized impact locations, impact bodypart descriptions) so body-location-aware formats such as boxing can score from live strikes without schema changes.
 - The stock boxing scoring prog now counts one point per landed undefended head or torso strike, while wrestling remains a knockout-driven 1v1 format with no inventory loadout.
+- Arena security guardrails now cap and clear scoring telemetry snapshots, clear participation effects across live and cached actors, require public signup to originate from the arena venue, and restrict surrender to the participant's current arena bout.
+- Arena numeric guardrails now bound bet-history page size, fixed-odds rating math, persisted rating updates, Elo K-factors, and recurring schedule intervals; daylight-saving invalid local command times fail validation instead of throwing.
+- Arena betting and ratings integrity now use persistent character IDs for participant/self-bet checks, distribute pari-mutuel multi-winner losing pools only once across all winners, and skip Elo updates for malformed win outcomes without winning sides.
+- Arena manager rating lookup now avoids arbitrary offline character loads by resolving only visible targets or existing rating summaries in the managed arena.
 
 ---
 

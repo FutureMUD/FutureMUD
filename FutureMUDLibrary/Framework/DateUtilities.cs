@@ -330,10 +330,18 @@ public static partial class DateUtilities
 
         if (DateTime.TryParse(text, account.Culture, DateTimeStyles.None, out DateTime parsed))
         {
-            utcDateTime = parsed.Kind == DateTimeKind.Unspecified
-                ? TimeZoneInfo.ConvertTimeToUtc(parsed, account.TimeZone)
-                : parsed.ToUniversalTime();
-            return true;
+            try
+            {
+                utcDateTime = parsed.Kind == DateTimeKind.Unspecified
+                    ? TimeZoneInfo.ConvertTimeToUtc(parsed, account.TimeZone)
+                    : parsed.ToUniversalTime();
+                return true;
+            }
+            catch (ArgumentException)
+            {
+                utcDateTime = default;
+                return false;
+            }
         }
 
         if (!allowRelative)

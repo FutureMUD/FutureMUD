@@ -100,6 +100,29 @@ public class ArenaRatingsServiceTests
     }
 
     [TestMethod]
+    public void ApplyDefaultElo_WinWithoutWinningSides_DoesNotUpdateRatings()
+    {
+        using FuturemudDatabaseContext context = BuildContext();
+        ArenaRatingsService service = CreateService(context);
+        Mock<ICombatArena> arena = new();
+        arena.SetupGet(x => x.Id).Returns(6L);
+
+        (Mock<IArenaParticipant> Participant, Mock<ICharacter> Character, Mock<ICombatantClass> CombatantClass) participantA = BuildParticipant(31L, 301L, 0, 1500.0m);
+        (Mock<IArenaParticipant> Participant, Mock<ICharacter> Character, Mock<ICombatantClass> CombatantClass) participantB = BuildParticipant(41L, 401L, 1, 1500.0m);
+
+        Mock<IArenaEvent> evt = new();
+        evt.SetupGet(x => x.Arena).Returns(arena.Object);
+        evt.SetupGet(x => x.Participants)
+           .Returns(new[] { participantA.Participant.Object, participantB.Participant.Object });
+        evt.SetupGet(x => x.Outcome).Returns(ArenaOutcome.Win);
+        evt.SetupGet(x => x.WinningSides).Returns(Array.Empty<int>());
+
+        service.ApplyDefaultElo(evt.Object);
+
+        Assert.AreEqual(0, context.ArenaRatings.Count());
+    }
+
+    [TestMethod]
     public void ApplyDefaultElo_UsesCharacterIds_WhenCharactersAreNotLoaded()
     {
         using FuturemudDatabaseContext context = BuildContext();
@@ -150,6 +173,34 @@ public class ArenaRatingsServiceTests
         Dictionary<long, decimal> ratings = context.ArenaRatings.ToDictionary(x => x.CharacterId, x => x.Rating);
         Assert.AreEqual(1508.00m, ratings[70L]);
         Assert.AreEqual(1492.00m, ratings[80L]);
+    }
+
+    [TestMethod]
+    public void ApplyDefaultElo_ExtremeKFactorAndRatings_ClampsResults()
+    {
+        using FuturemudDatabaseContext context = BuildContext();
+        ArenaRatingsService service = CreateService(context);
+        Mock<ICombatArena> arena = new();
+        arena.SetupGet(x => x.Id).Returns(13L);
+        Mock<IArenaEventType> eventType = new();
+        eventType.SetupGet(x => x.EloStyle).Returns(ArenaEloStyle.TeamAverage);
+        eventType.SetupGet(x => x.EloKFactor).Returns(decimal.MaxValue);
+
+        (Mock<IArenaParticipant> Participant, Mock<ICharacter> Character, Mock<ICombatantClass> CombatantClass) winner = BuildParticipant(90L, 900L, 0, decimal.MaxValue);
+        (Mock<IArenaParticipant> Participant, Mock<ICharacter> Character, Mock<ICombatantClass> CombatantClass) loser = BuildParticipant(91L, 901L, 1, decimal.MinValue);
+
+        Mock<IArenaEvent> evt = new();
+        evt.SetupGet(x => x.Arena).Returns(arena.Object);
+        evt.SetupGet(x => x.EventType).Returns(eventType.Object);
+        evt.SetupGet(x => x.Participants).Returns(new[] { winner.Participant.Object, loser.Participant.Object });
+        evt.SetupGet(x => x.Outcome).Returns(ArenaOutcome.Win);
+        evt.SetupGet(x => x.WinningSides).Returns([0]);
+
+        service.ApplyDefaultElo(evt.Object);
+
+        Dictionary<long, decimal> ratings = context.ArenaRatings.ToDictionary(x => x.CharacterId, x => x.Rating);
+        Assert.AreEqual(ArenaRatingLimits.MaximumRating, ratings[90L]);
+        Assert.AreEqual(ArenaRatingLimits.MinimumRating, ratings[91L]);
     }
 
     [TestMethod]

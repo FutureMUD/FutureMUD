@@ -98,6 +98,35 @@ public class ArenaParticipationServiceTests
     }
 
     [TestMethod]
+    public void ClearParticipation_Event_RemovesCachedActorEffect()
+    {
+        Mock<ICharacter> cachedParticipant = new();
+        cachedParticipant.SetupGet(x => x.Id).Returns(200L);
+        cachedParticipant.SetupGet(x => x.Name).Returns("Cached Participant");
+        cachedParticipant.SetupGet(x => x.FrameworkItemType).Returns("Character");
+        cachedParticipant.SetupGet(x => x.IsPlayerCharacter).Returns(true);
+        cachedParticipant.SetupGet(x => x.Gameworld).Returns(_gameworld.Object);
+
+        Mock<IArenaEvent> arenaEvent = new();
+        arenaEvent.SetupGet(x => x.Id).Returns(21);
+        arenaEvent.SetupGet(x => x.Name).Returns("Cached Event");
+        arenaEvent.SetupGet(x => x.Participants).Returns(Array.Empty<IArenaParticipant>());
+
+        ArenaParticipationEffect effect = new(cachedParticipant.Object, arenaEvent.Object);
+        cachedParticipant.Setup(x => x.CombinedEffectsOfType<ArenaParticipationEffect>())
+                .Returns(new[] { effect });
+        All<ICharacter> actors = new();
+        All<ICharacter> cachedActors = new();
+        cachedActors.Add(cachedParticipant.Object);
+        _gameworld.SetupGet(x => x.Actors).Returns(actors);
+        _gameworld.SetupGet(x => x.CachedActors).Returns(cachedActors);
+
+        _service.ClearParticipation(arenaEvent.Object);
+
+        cachedParticipant.Verify(x => x.RemoveEffect(effect, true), Times.Once);
+    }
+
+    [TestMethod]
     public void HasParticipation_ReturnsTrueWhenEffectPresent()
     {
         Mock<ICharacter> participant = new();

@@ -47,6 +47,58 @@ public class ArenaEventCleanupTests
         combat.Verify(x => x.LeaveCombat(character.Object), Times.Once);
     }
 
+    [TestMethod]
+    public void Cleanup_ClearsScoringSnapshots()
+    {
+        Mock<ICharacter> attacker = new();
+        attacker.SetupGet(x => x.Id).Returns(500L);
+        attacker.SetupGet(x => x.IsPlayerCharacter).Returns(true);
+        attacker.Setup(x => x.CombinedEffectsOfType<ArenaPreparingEffect>())
+            .Returns([]);
+        attacker.Setup(x => x.CombinedEffectsOfType<ArenaStagingEffect>())
+            .Returns([]);
+        attacker.Setup(x => x.CombinedEffectsOfType<ArenaParticipantPreparationEffect>())
+            .Returns([]);
+        Mock<ICharacter> defender = new();
+        defender.SetupGet(x => x.Id).Returns(501L);
+
+        Mock<IFuturemud> gameworld = BuildGameworld(attacker.Object);
+        MudSharp.Arenas.ArenaEvent arenaEvent = (MudSharp.Arenas.ArenaEvent)BuildLiveEvent(gameworld.Object);
+        for (int i = 0; i < 600; i++)
+        {
+            arenaEvent.RecordScoringCandidate(new ArenaScoringSnapshot(
+                attacker.Object,
+                defender.Object,
+                0,
+                1,
+                1,
+                1,
+                "head",
+                "head"));
+        }
+
+        Assert.AreEqual(512, arenaEvent.ScoringSnapshots.Count);
+
+        arenaEvent.Cleanup();
+
+        Assert.AreEqual(0, arenaEvent.ScoringSnapshots.Count);
+    }
+
+    [TestMethod]
+    public void CanSurrender_RegisteredParticipantWithoutArenaBoutCombat_ReturnsFalse()
+    {
+        Mock<ICharacter> character = new();
+        character.SetupGet(x => x.Id).Returns(500L);
+        character.SetupGet(x => x.IsPlayerCharacter).Returns(true);
+
+        Mock<IFuturemud> gameworld = BuildGameworld(character.Object);
+        IArenaEvent arenaEvent = BuildLiveEvent(gameworld.Object);
+
+        (bool truth, _) = arenaEvent.CanSurrender(character.Object);
+
+        Assert.IsFalse(truth);
+    }
+
     private static IArenaEvent BuildLiveEvent(IFuturemud gameworld)
     {
         Arena arenaModel = new()

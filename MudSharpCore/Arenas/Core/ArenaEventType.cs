@@ -50,7 +50,7 @@ public sealed class ArenaEventType : SaveableItem, IArenaEventType
         EloStyle = Enum.IsDefined(typeof(ArenaEloStyle), model.EloStyle)
             ? (ArenaEloStyle)model.EloStyle
             : ArenaEloStyle.TeamAverage;
-        EloKFactor = model.EloKFactor > 0.0m ? model.EloKFactor : DefaultEloKFactor;
+        EloKFactor = model.EloKFactor > 0.0m ? ArenaRatingLimits.ClampKFactor(model.EloKFactor) : DefaultEloKFactor;
         EliminationMode = Enum.IsDefined(typeof(ArenaEliminationMode), model.EliminationMode)
             ? (ArenaEliminationMode)model.EliminationMode
             : ArenaEliminationMode.NoElimination;
@@ -363,6 +363,14 @@ public sealed class ArenaEventType : SaveableItem, IArenaEventType
             return false;
         }
 
+        if (interval > ArenaScheduler.MaximumRecurringInterval)
+        {
+            actor.OutputHandler.Send(
+                $"The interval cannot be longer than {ArenaScheduler.MaximumRecurringInterval.Describe(actor).ColourValue()}."
+                    .ColourError());
+            return false;
+        }
+
         if (!command.IsFinished && command.PeekSpeech().EqualToAny("from", "at", "start", "starting"))
         {
             command.PopSpeech();
@@ -596,6 +604,13 @@ public sealed class ArenaEventType : SaveableItem, IArenaEventType
             return false;
         }
 
+        if (value > ArenaRatingLimits.MaximumEloKFactor)
+        {
+            actor.OutputHandler.Send(
+                $"The Elo K-factor cannot be greater than {ArenaRatingLimits.MaximumEloKFactor.ToString("N2", actor).ColourValue()}.");
+            return false;
+        }
+
         EloKFactor = value;
         Changed = true;
         actor.OutputHandler.Send($"Elo K-factor is now {EloKFactor.ToString("N2", actor).ColourValue()}.");
@@ -737,7 +752,10 @@ public sealed class ArenaEventType : SaveableItem, IArenaEventType
 
     public void ConfigureAutoSchedule(TimeSpan? interval, DateTime? referenceTime)
     {
-        bool isEnabled = interval.HasValue && interval.Value > TimeSpan.Zero && referenceTime.HasValue;
+        bool isEnabled = interval.HasValue &&
+                         interval.Value > TimeSpan.Zero &&
+                         interval.Value <= ArenaScheduler.MaximumRecurringInterval &&
+                         referenceTime.HasValue;
         AutoScheduleInterval = isEnabled ? interval : null;
         AutoScheduleReferenceTime = isEnabled ? referenceTime : null;
         Changed = true;

@@ -69,7 +69,7 @@ public class ArenaRatingsService : IArenaRatingsService
                 x.Character.Name ?? $"Character #{x.CharacterId}",
                 x.CombatantClassId,
                 x.CombatantClass.Name ?? $"Class #{x.CombatantClassId}",
-                x.Rating,
+                ArenaRatingLimits.ClampRating(x.Rating),
                 x.LastUpdatedAt))
             .ToList();
     }
@@ -98,7 +98,7 @@ public class ArenaRatingsService : IArenaRatingsService
                 x.Character.Name ?? $"Character #{x.CharacterId}",
                 x.CombatantClassId,
                 x.CombatantClass.Name ?? $"Class #{x.CombatantClassId}",
-                x.Rating,
+                ArenaRatingLimits.ClampRating(x.Rating),
                 x.LastUpdatedAt))
             .ToList();
     }
@@ -108,7 +108,7 @@ public class ArenaRatingsService : IArenaRatingsService
         using IDisposable? scope = BeginContext(out FuturemudDatabaseContext? context);
         ArenaRating? rating = context.ArenaRatings.FirstOrDefault(x => x.CharacterId == characterId &&
                                                        x.CombatantClassId == combatantClass.Id);
-        return rating?.Rating ?? DefaultRating;
+        return rating is null ? DefaultRating : ArenaRatingLimits.ClampRating(rating.Rating);
     }
 
     /// <inheritdoc />
@@ -176,7 +176,7 @@ public class ArenaRatingsService : IArenaRatingsService
                 context.ArenaRatings.Add(rating);
             }
 
-            rating.Rating = Math.Round(rating.Rating + delta, 2, MidpointRounding.AwayFromZero);
+            rating.Rating = Math.Round(ArenaRatingLimits.AddAndClampRating(rating.Rating, delta), 2, MidpointRounding.AwayFromZero);
             rating.LastUpdatedAt = now;
         }
 
@@ -209,10 +209,15 @@ public class ArenaRatingsService : IArenaRatingsService
             return;
         }
         HashSet<int> winningSet = winningSides?.ToHashSet() ?? new HashSet<int>();
+        if (outcome == ArenaOutcome.Win && winningSet.Count == 0)
+        {
+            return;
+        }
+
         IArenaEventType? eventType = arenaEvent.EventType;
         ArenaEloStyle style = eventType?.EloStyle ?? ArenaEloStyle.TeamAverage;
         decimal kFactor = eventType is { EloKFactor: > 0.0m }
-            ? eventType.EloKFactor
+            ? ArenaRatingLimits.ClampKFactor(eventType.EloKFactor)
             : DefaultKFactor;
         IArenaEloStrategy strategy = _eloStrategies.TryGetValue(style, out IArenaEloStrategy? selectedStrategy)
             ? selectedStrategy
@@ -242,7 +247,10 @@ public class ArenaRatingsService : IArenaRatingsService
                     characterId = x.Character?.Id ?? 0L;
                 }
 
-                return new ArenaRatingParticipant(characterId, x.SideIndex, x.CombatantClass, x.StartingRating);
+                decimal? startingRating = x.StartingRating.HasValue
+                    ? ArenaRatingLimits.ClampRating(x.StartingRating.Value)
+                    : null;
+                return new ArenaRatingParticipant(characterId, x.SideIndex, x.CombatantClass, startingRating);
             })
             .Where(x => x.CharacterId > 0)
             .ToList();

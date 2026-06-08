@@ -386,6 +386,16 @@ public class CombatSeederSourceTests
 	}
 
 	[TestMethod]
+	public void CombatSeederSource_StockArrowAndBoltAmmunition_IncludesBodkinVariants()
+	{
+		string source = File.ReadAllText(GetCombatSeederSourcePath());
+
+		StringAssert.Contains(source, "AddAmmoType(\"Bodkin Arrow\"");
+		StringAssert.Contains(source, "AddAmmoType(\"Bodkin Bolt\"");
+		StringAssert.Contains(source, "Ammo_{name.CollapseString()}");
+	}
+
+	[TestMethod]
 	public void CombatSeederSource_ExpandedShieldCatalogue_HasHistoricalAndModernTypes()
 	{
 		string source = File.ReadAllText(GetCombatSeederSourcePath());

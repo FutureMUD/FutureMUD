@@ -1392,10 +1392,13 @@ namespace DatabaseSeeder.Seeders
             AddTag(context, "Other Weapons", "Weapons");
             AddTag(context, "Ammunition", "Military Goods");
             AddTag(context, "Arrows", "Ammunition");
+            AddTag(context, "Bodkin Arrows", "Arrows");
             AddTag(context, "Bolts", "Ammunition");
+            AddTag(context, "Bodkin Bolts", "Bolts");
             AddTag(context, "Bullets", "Ammunition");
             AddTag(context, "Blackpowder", "Ammunition");
             AddTag(context, "Armour", "Military Goods");
+            AddTag(context, "Horse Armour", "Armour");
             AddTag(context, "Leather Armour", "Armour");
             AddTag(context, "Mail Armour", "Armour");
             AddTag(context, "Plate Armour", "Armour");
@@ -1413,6 +1416,7 @@ namespace DatabaseSeeder.Seeders
             AddTag(context, "Horse Passage", "Passenger Transportation");
             AddTag(context, "Wagon Passage", "Passenger Transportation");
             AddTag(context, "Ship Passage", "Passenger Transportation");
+            AddTag(context, "Horse Tack", "Transportation");
 
             AddTag(context, "Medicine", "Market");
             AddTag(context, "Simple Medicine", "Medicine");

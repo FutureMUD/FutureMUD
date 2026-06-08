@@ -4168,6 +4168,8 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 
         AddAmmoType("Field Point Arrow", "Arrow", RangedWeaponType.Bow, 0.0, AudioVolume.Quiet, 0.5, 0.3,
             Difficulty.Easy, Difficulty.VeryHard, DamageType.BallisticArmourPiercing, "15 + quality * 0.75 * degree");
+        AddAmmoType("Bodkin Arrow", "Arrow", RangedWeaponType.Bow, 0.0, AudioVolume.Quiet, 0.5, 0.3,
+            Difficulty.Easy, Difficulty.VeryHard, DamageType.BallisticArmourPiercing, "20 + quality * 0.75 * degree");
         AddAmmoType("Broadhead Arrow", "Arrow", RangedWeaponType.Bow, 0.0, AudioVolume.Quiet, 0.5, 0.3, Difficulty.Easy,
             Difficulty.VeryHard, DamageType.Piercing, "30 + quality * 0.75 * degree");
         AddAmmoType("Concussive Arrow", "Arrow", RangedWeaponType.Bow, 0.0, AudioVolume.Quiet, 0.6, 0.4,
@@ -4178,6 +4180,8 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
             Difficulty.VeryHard, DamageType.Crushing, "10-quality");
         AddAmmoType("Field Point Bolt", "Bolt", RangedWeaponType.Crossbow, 0.0, AudioVolume.Quiet, 0.5, 0.3,
             Difficulty.Easy, Difficulty.VeryHard, DamageType.BallisticArmourPiercing, "15 + quality * 0.75 * degree");
+        AddAmmoType("Bodkin Bolt", "Bolt", RangedWeaponType.Crossbow, 0.0, AudioVolume.Quiet, 0.5, 0.3,
+            Difficulty.Easy, Difficulty.VeryHard, DamageType.BallisticArmourPiercing, "20 + quality * 0.75 * degree");
         AddAmmoType("Broadhead Bolt", "Bolt", RangedWeaponType.Crossbow, 0.0, AudioVolume.Quiet, 0.5, 0.3,
             Difficulty.Easy, Difficulty.VeryHard, DamageType.Piercing, "30 + quality * 0.75 * degree");
         AddAmmoType("Concussive Bolt", "Bolt", RangedWeaponType.Crossbow, 0.0, AudioVolume.Quiet, 0.6, 0.4,

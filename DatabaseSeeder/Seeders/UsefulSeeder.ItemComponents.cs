@@ -7202,6 +7202,16 @@ public partial class UsefulSeeder
                 new XElement("DamageMultipliers",
                     new XElement("DamageMultiplier", new XAttribute("type", (int)DamageType.Burning), new XAttribute("multiplier", 2.5)),
                     new XElement("DamageMultiplier", new XAttribute("type", (int)DamageType.Piercing), new XAttribute("multiplier", 1.1)))));
+        AddExtraComponent("Destroyable", "Destroyable_Shield",
+            "Turns an item into a durable shield.",
+            new XElement("Definition",
+                new XElement("HpExpression", new XCData("12 * quality")),
+                new XElement("DamageMultipliers",
+                    new XElement("DamageMultiplier", new XAttribute("type", (int)DamageType.Chopping), new XAttribute("multiplier", 1.15)),
+                    new XElement("DamageMultiplier", new XAttribute("type", (int)DamageType.Crushing), new XAttribute("multiplier", 0.9)),
+                    new XElement("DamageMultiplier", new XAttribute("type", (int)DamageType.Piercing), new XAttribute("multiplier", 0.8)),
+                    new XElement("DamageMultiplier", new XAttribute("type", (int)DamageType.Ballistic), new XAttribute("multiplier", 0.75)),
+                    new XElement("DamageMultiplier", new XAttribute("type", (int)DamageType.Burning), new XAttribute("multiplier", 0.5)))));
         AddExtraComponent("Destroyable", "Destroyable_WoodenHeavy",
             "Turns an item into a sturdy wooden object.",
             new XElement("Definition",

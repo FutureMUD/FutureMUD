@@ -323,6 +323,7 @@ public class UsefulSeederItemPackageTests
 		Assert.IsTrue(UsefulSeeder.StockItemMarkersForTesting.Contains("MeasuringInstrument_Antiquity_BalanceScale"));
 		Assert.IsTrue(UsefulSeeder.StockItemMarkersForTesting.Contains("IncenseBurner_Antiquity_BronzeCenser"));
 		Assert.IsTrue(UsefulSeeder.StockItemMarkersForTesting.Contains("OfferingReceiver_Antiquity_HouseholdAltar"));
+		Assert.IsTrue(UsefulSeeder.StockItemMarkersForTesting.Contains("Destroyable_Shield"));
 
 		context.GameItemComponentProtos.Add(CreateComponentMarker(id++, "Container_Bookcase_Shelves"));
 		context.SaveChanges();
@@ -409,6 +410,7 @@ public class UsefulSeederItemPackageTests
 			"DragAid_Travois",
 			"Treatment_AntiInflammatory_Single",
 			"Treatment_AntiInflammatory_Kit",
+			"Destroyable_Shield",
 			"TimePiece_PocketWatch",
 			"TimePiece_WallClock"
 		];
@@ -419,6 +421,9 @@ public class UsefulSeederItemPackageTests
 		}
 
 		Assert.AreEqual(1, context.GameItemComponentProtos.Count(x => x.Name == "Cigarette"));
+		GameItemComponentProto shieldDestroyable = context.GameItemComponentProtos.Single(x => x.Name == "Destroyable_Shield");
+		Assert.AreEqual("Destroyable", shieldDestroyable.Type);
+		StringAssert.Contains(shieldDestroyable.Definition, "12 * quality");
 		Assert.AreEqual(1, context.FutureProgs.Count(x => x.FunctionName == "OnSmokeCigarette"));
 		Assert.AreEqual(1, context.VariableDefinitions.Count(x => x.Property == "nicotineuntil"));
 		Assert.AreEqual(1, context.VariableDefaults.Count(x => x.Property == "nicotineuntil"));
@@ -573,6 +578,7 @@ public class UsefulSeederItemPackageTests
 			"Destroyable_Furniture",
 			"Destroyable_WoodenHeavy",
 			"Destroyable_HeavyMetal",
+			"Destroyable_Shield",
 			"Container_Tray",
 			"Container_Pouch",
 			"Container_Small_Drum",

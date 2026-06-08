@@ -57,6 +57,7 @@ public class HumanSeederWearProfileTests
 			"Mittens",
 			"Backplate",
 			"Sabatons",
+			"Tassets",
 			"Sash",
 			"Bandolier",
 			"Armlet",

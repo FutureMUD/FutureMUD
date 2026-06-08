@@ -1209,10 +1209,13 @@ Treatment Supplies	Medicine	Market / Medicine / Treatment Supplies
 Military Goods	Market	Market / Military Goods
 Ammunition	Military Goods	Market / Military Goods / Ammunition
 Arrows	Ammunition	Market / Military Goods / Ammunition / Arrows
+Bodkin Arrows	Arrows	Market / Military Goods / Ammunition / Arrows / Bodkin Arrows
 Blackpowder	Ammunition	Market / Military Goods / Ammunition / Blackpowder
 Bolts	Ammunition	Market / Military Goods / Ammunition / Bolts
+Bodkin Bolts	Bolts	Market / Military Goods / Ammunition / Bolts / Bodkin Bolts
 Bullets	Ammunition	Market / Military Goods / Ammunition / Bullets
 Armour	Military Goods	Market / Military Goods / Armour
+Horse Armour	Armour	Market / Military Goods / Armour / Horse Armour
 Leather Armour	Armour	Market / Military Goods / Armour / Leather Armour
 Mail Armour	Armour	Market / Military Goods / Armour / Mail Armour
 Plate Armour	Armour	Market / Military Goods / Armour / Plate Armour
@@ -1283,6 +1286,7 @@ Cart Passage	Passenger Transportation	Market / Transportation / Passenger Transp
 Horse Passage	Passenger Transportation	Market / Transportation / Passenger Transportation / Horse Passage
 Ship Passage	Passenger Transportation	Market / Transportation / Passenger Transportation / Ship Passage
 Wagon Passage	Passenger Transportation	Market / Transportation / Passenger Transportation / Wagon Passage
+Horse Tack	Transportation	Market / Transportation / Horse Tack
 Warehousing	Market	Market / Warehousing
 Writing Materials	Market	Market / Writing Materials
 Ink	Writing Materials	Market / Writing Materials / Ink

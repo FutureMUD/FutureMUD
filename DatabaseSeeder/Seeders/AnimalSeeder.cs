@@ -266,6 +266,7 @@ public partial class AnimalSeeder : IDatabaseSeeder
                 .AsEnumerable()
                 .First(x => x.Name.In("Strength", "Physique", "Body", "Upper Body Strength"));
             RefreshExistingAnimalBaseBodies();
+            bool hasMissingAnimalWearProfiles = HasMissingAnimalWearProfiles(_context);
             bool hasMissingCatalogue = HasMissingAnimalCatalogue(_context);
             bool hasMissingAnimalAiTemplates = HasMissingAnimalAIStockTemplates(_context);
             bool hasMissingDietSettings = HasMissingAnimalDietSettings(_context);
@@ -281,6 +282,8 @@ public partial class AnimalSeeder : IDatabaseSeeder
                 BackfillAnimalCatalogue();
             }
 
+            bool updatedAnimalWearProfiles = EnsureStockUngulateWearProfiles();
+
             if (hasMissingAnimalAiTemplates)
             RefreshExistingAnimalDietSettings();
             {
@@ -294,6 +297,11 @@ public partial class AnimalSeeder : IDatabaseSeeder
             if (hasMissingCatalogue)
             {
                 updates.Add("backfilled missing animal catalogue content");
+            }
+
+            if (hasMissingAnimalWearProfiles || updatedAnimalWearProfiles)
+            {
+                updates.Add("installed or repaired animal wear profiles");
             }
 
             if (hasMissingDisfigurementTemplates)
@@ -497,6 +505,7 @@ public partial class AnimalSeeder : IDatabaseSeeder
         context.SaveChanges();
 
         SeedQuadruped(quadrupedBody, ungulateBody, toedQuadruped);
+        EnsureStockUngulateWearProfiles(ungulateBody);
 
         Console.WriteLine("Installing avians...");
         BodyProto avianBody = new()
@@ -874,6 +883,7 @@ public partial class AnimalSeeder : IDatabaseSeeder
         {
             return HasMissingAnimalDisfigurementTemplates(context) ||
                    HasMissingAnimalCatalogue(context) ||
+                   HasMissingAnimalWearProfiles(context) ||
                    HasMissingAnimalAIStockTemplates(context) ||
                    HasMissingAnimalDietSettings(context)
                 ? ShouldSeedResult.ExtraPackagesAvailable

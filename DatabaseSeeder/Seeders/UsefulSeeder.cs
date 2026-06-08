@@ -52,6 +52,7 @@ public partial class UsefulSeeder : IDatabaseSeeder
         "Container_Bookcase_Shelves",
         "Insulation_Minor",
         "Destroyable_Misc",
+        "Destroyable_Shield",
         "Torch_Infinite",
         "Smokeable_Cigar",
         "DragAid_Stretcher",

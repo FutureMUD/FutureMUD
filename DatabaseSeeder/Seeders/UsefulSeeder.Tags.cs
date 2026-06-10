@@ -1331,6 +1331,12 @@ namespace DatabaseSeeder.Seeders
             AddTag(context, "Edge Brush", "Grooming");
             AddTag(context, "Diffuser", "Grooming");
 
+            // Food and Drink
+            AddTag(context, "Food and Drink", "");
+            AddTag(context, "Vessels", "Food and Drink");
+            AddTag(context, "Beverage Serving Vessel", "Vessels");
+            AddTag(context, "Fermenting Vessel", "Vessels");
+
             // Market Items
             #region Market Items
             AddTag(context, "Market", "");

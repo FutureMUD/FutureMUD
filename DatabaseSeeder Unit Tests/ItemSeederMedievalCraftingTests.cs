@@ -110,7 +110,9 @@ public class ItemSeederMedievalCraftingTests
 	{
 		foreach (var (fileName, methodName) in MedievalItemLaunchers
 			         .Where(x => !x.Value.Equals("SeedMedievalClothing", StringComparison.Ordinal))
-			         .Where(x => !x.Value.Equals("SeedMedievalHouseholdFurniture", StringComparison.Ordinal)))
+			         .Where(x => !x.Value.Equals("SeedMedievalHouseholdFurniture", StringComparison.Ordinal))
+			         .Where(x => !x.Value.Equals("SeedMedievalArmour", StringComparison.Ordinal))
+			         .Where(x => !x.Value.Equals("SeedMedievalWeaponsShieldsAccessories", StringComparison.Ordinal)))
 		{
 			var source = ReadSource("DatabaseSeeder", "Seeders", fileName);
 			AssertNoOpMethod(source, methodName);
@@ -118,7 +120,9 @@ public class ItemSeederMedievalCraftingTests
 
 		var medievalItemSource = ReadMedievalItemSources(
 			"ItemSeeder.Rework.MedievalClothing.cs",
-			"ItemSeeder.Rework.MedievalFurniture.cs");
+			"ItemSeeder.Rework.MedievalFurniture.cs",
+			"ItemSeeder.Rework.MedievalArmour.cs",
+			"ItemSeeder.Rework.MedievalWeapons.cs");
 		foreach (var forbidden in new[]
 		{
 			"CreateItem(",
@@ -132,6 +136,91 @@ public class ItemSeederMedievalCraftingTests
 		{
 			Assert.IsFalse(medievalItemSource.Contains(forbidden, StringComparison.Ordinal),
 				$"Medieval item launch stubs should not retain retired source token {forbidden}.");
+		}
+	}
+
+	[TestMethod]
+	public void MedievalMilitarySeeder_ImplementsFullCatalogueWithDirectCreateItemCalls()
+	{
+		var armourSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.MedievalArmour.cs");
+		var weaponsSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.MedievalWeapons.cs");
+		var armourReferences = Regex.Matches(
+				armourSource,
+				@"CreateItem\s*\(\s*""(?<ref>medieval_military_[^""]+)""",
+				RegexOptions.Multiline | RegexOptions.CultureInvariant)
+			.Cast<Match>()
+			.Select(x => x.Groups["ref"].Value)
+			.ToArray();
+		var weaponReferences = Regex.Matches(
+				weaponsSource,
+				@"CreateItem\s*\(\s*""(?<ref>medieval_military_[^""]+)""",
+				RegexOptions.Multiline | RegexOptions.CultureInvariant)
+			.Cast<Match>()
+			.Select(x => x.Groups["ref"].Value)
+			.ToArray();
+
+		Assert.AreEqual(142, weaponReferences.Length,
+			"SeedMedievalWeaponsShieldsAccessories should contain exactly one direct CreateItem call for each melee, ranged, ammunition, and thrown catalogue row.");
+		Assert.AreEqual(239, armourReferences.Length,
+			"SeedMedievalArmour should contain exactly one direct CreateItem call for each armour, shield, and military carrying, storage, and support gear row.");
+		Assert.AreEqual(weaponReferences.Length, weaponReferences.Distinct(StringComparer.OrdinalIgnoreCase).Count(),
+			"Each medieval military weapon or ammunition item should be created exactly once.");
+		Assert.AreEqual(armourReferences.Length, armourReferences.Distinct(StringComparer.OrdinalIgnoreCase).Count(),
+			"Each medieval military armour, shield, or support gear item should be created exactly once.");
+
+		CollectionAssert.AreEqual(
+			new[]
+			{
+				"medieval_military_worn_fighting_knife",
+				"medieval_military_training_axe_headed_polearm",
+				"medieval_military_worn_ash_shortbow",
+				"medieval_military_short_throwing_spear"
+			},
+			new[]
+			{
+				weaponReferences.First(),
+				weaponReferences[76],
+				weaponReferences[77],
+				weaponReferences.Last()
+			},
+			"The weapons partial should contain the melee and ranged/ammunition/thrown catalogue slices in source order.");
+		CollectionAssert.AreEqual(
+			new[]
+			{
+				"medieval_military_padded_arming_cap",
+				"medieval_military_lamellar_croupiere",
+				"medieval_military_worn_round_shield",
+				"medieval_military_door_board_shield",
+				"medieval_military_rough_rawhide_knife_sheath",
+				"medieval_military_spare_crossbow_string"
+			},
+			new[]
+			{
+				armourReferences.First(),
+				armourReferences[104],
+				armourReferences[105],
+				armourReferences[169],
+				armourReferences[170],
+				armourReferences.Last()
+			},
+			"The armour partial should contain the armour/tack/barding, shield, and carrying/storage/support catalogue slices in source order.");
+
+		foreach (var forbidden in new[]
+		{
+			"foreach",
+			"for (",
+			"Dictionary<",
+			"IReadOnly",
+			"record ",
+			"BuildMedieval",
+			"SeedEraItemSpecs(",
+			"EnsureMedieval"
+		})
+		{
+			Assert.IsFalse(armourSource.Contains(forbidden, StringComparison.Ordinal),
+				$"SeedMedievalArmour should remain direct CreateItem calls without helper catalogue token {forbidden}.");
+			Assert.IsFalse(weaponsSource.Contains(forbidden, StringComparison.Ordinal),
+				$"SeedMedievalWeaponsShieldsAccessories should remain direct CreateItem calls without helper catalogue token {forbidden}.");
 		}
 	}
 
@@ -288,15 +377,21 @@ public class ItemSeederMedievalCraftingTests
 			.Select(Path.GetFileName)
 			.ToArray();
 		CollectionAssert.AreEquivalent(
-			new[] { "Medieval_Crafting_Audit.md", "Medieval_Clothing_Seeder_Design_Reference.md" },
+			new[]
+			{
+				"Medieval_Crafting_Audit.md",
+				"Medieval_Clothing_Seeder_Design_Reference.md",
+				"Medieval_Military_Seeder_Design_Reference.md"
+			},
 			medievalDocs,
-			"The only surviving medieval design documents should be the current audit and live clothing reference.");
+			"The surviving medieval design documents should be the current audit and live source references.");
 		Assert.IsTrue(File.Exists(Path.Combine(seedingDocPath, "Medieval_Clothing_FDesc_Catalogue.csv")),
 			"The live medieval clothing fdesc catalogue should remain beside its design reference.");
 
 		var indexSource = ReadSource("Design Documents", "README.md");
 		AssertContains(indexSource, "[Medieval ItemSeeder Rebuild Audit](./Seeding/Medieval_Crafting_Audit.md)");
 		AssertContains(indexSource, "[Medieval Clothing Seeder Design Reference](./Seeding/Medieval_Clothing_Seeder_Design_Reference.md)");
+		AssertContains(indexSource, "[Medieval Military Seeder Design Reference](./Seeding/Medieval_Military_Seeder_Design_Reference.md)");
 		foreach (var removed in RetiredMedievalDesignDocuments)
 		{
 			Assert.IsFalse(indexSource.Contains(removed, StringComparison.Ordinal),
@@ -307,6 +402,11 @@ public class ItemSeederMedievalCraftingTests
 		AssertContains(auditSource, "`SeedMedievalClothing` is the first rebuilt medieval item slice");
 		AssertContains(auditSource, "Medieval_Clothing_Seeder_Design_Reference.md");
 		AssertContains(auditSource, "Medieval_Clothing_FDesc_Catalogue.csv");
+		AssertContains(auditSource, "`SeedMedievalWeaponsShieldsAccessories` contains the direct melee weapon, ranged weapon, ammunition, and thrown-weapon `CreateItem(...)` calls.");
+		AssertContains(auditSource, "`SeedMedievalArmour` contains the direct armour, horse tack, barding, shield, and military support-gear `CreateItem(...)` calls.");
+		AssertContains(auditSource, "Medieval_Military_Seeder_Design_Reference.md");
+		AssertContains(auditSource, "ItemSeeder.Rework.MedievalWeapons.cs");
+		AssertContains(auditSource, "ItemSeeder.Rework.MedievalArmour.cs");
 		AssertContains(auditSource, "ItemSeeder.Rework.HistoricFoundation.cs");
 		AssertContains(auditSource, "ItemSeederCrafting.HistoricFoundation.cs");
 		Assert.IsFalse(auditSource.Contains("Medieval_Outfit_Catalogue.md", StringComparison.Ordinal),

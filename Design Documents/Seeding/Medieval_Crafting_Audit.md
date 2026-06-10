@@ -1,13 +1,16 @@
 # Medieval ItemSeeder Rebuild Audit
 
-The medieval `ItemSeeder.Rework` item and craft implementation was reset to launch stubs for a from-scratch rebuild. The rebuild has now begun with direct seeded clothing prototypes.
+The medieval `ItemSeeder.Rework` item and craft implementation was reset to launch stubs for a from-scratch rebuild. The rebuild has now begun with direct seeded clothing, household furniture, and military-goods prototypes.
 
 ## Current Runtime State
 
 - `ItemSeeder.Rework.cs` still dispatches the medieval item launch methods when the `medieval` era is selected.
 - `ItemSeederCrafting.cs` still dispatches the medieval craft launch methods.
 - `SeedMedievalClothing` is the first rebuilt medieval item slice and now contains the direct clothing item `CreateItem(...)` calls.
-- The other `ItemSeeder.Rework.Medieval*.cs` category files are currently no-op launch points only.
+- `SeedMedievalHouseholdFurniture` contains the direct household furniture and fixture `CreateItem(...)` calls.
+- `SeedMedievalWeaponsShieldsAccessories` contains the direct melee weapon, ranged weapon, ammunition, and thrown-weapon `CreateItem(...)` calls.
+- `SeedMedievalArmour` contains the direct armour, horse tack, barding, shield, and military support-gear `CreateItem(...)` calls.
+- The remaining `ItemSeeder.Rework.Medieval*.cs` category files are currently no-op launch points only.
 - `ItemSeederCrafting.Medieval.cs` currently contains no-op medieval craft launch points only.
 - The old authored outfit catalogue, explicit culture catalogue, generated helper/data model, and medieval craft helper families have been removed.
 
@@ -16,10 +19,20 @@ The medieval `ItemSeeder.Rework` item and craft implementation was reset to laun
 The live medieval clothing item source is intentionally direct-call only:
 
 - Item prototypes live in `DatabaseSeeder/Seeders/ItemSeeder.Rework.MedievalClothing.cs`.
-- Catalogue metadata lives in `Design Documents/Crafting/Medieval_Clothing_Seeder_Design_Reference.md`.
-- Full descriptions live in `Design Documents/Crafting/Medieval_Clothing_FDesc_Catalogue.csv`.
+- Catalogue metadata lives in `Design Documents/Seeding/Medieval_Clothing_Seeder_Design_Reference.md`.
+- Full descriptions live in `Design Documents/Seeding/Medieval_Clothing_FDesc_Catalogue.csv`.
 - Each clothing garment is represented by exactly one `CreateItem(...)` call in `SeedMedievalClothing`.
 - Clothing crafts are not rebuilt yet; `SeedMedievalClothingCrafts` remains a no-op.
+
+## Active Military Goods Source
+
+The live medieval military item source is intentionally direct-call only:
+
+- Military design metadata lives in `Design Documents/Seeding/Medieval_Military_Seeder_Design_Reference.md`.
+- Melee weapons, ranged weapons, ammunition, and thrown weapons live in `DatabaseSeeder/Seeders/ItemSeeder.Rework.MedievalWeapons.cs`.
+- Armour, horse tack, barding, shields, and military support gear live in `DatabaseSeeder/Seeders/ItemSeeder.Rework.MedievalArmour.cs`.
+- Each military-goods prototype is represented by exactly one `CreateItem(...)` call in its owning method.
+- Military crafts are not rebuilt yet; the medieval craft launch points remain no-op methods.
 
 ## Shared Historic Foundations
 

@@ -164,12 +164,7 @@ public abstract class BodypartSpecificSurgicalProcedure : SurgicalProcedure
     {
         if (command.PeekSpeech().EqualTo("exposed"))
         {
-            (Func<ICharacter, ICharacter, object[], bool> truth, Func<ICharacter, ICharacter, object[], string> error, string desc) = ExposedPhaseSpecialAction();
-            phase.PhaseSpecialEffects = (phase.PhaseSpecialEffects ?? "").ConcatIfNotEmpty("\n")
-                                                                         .FluentAppend($"exposed", true);
-            phase.PhaseSuccessful += truth;
-            phase.WhyPhaseNotSuccessful += error;
-            phase.PhaseSpecialEffectsDescription = (phase.PhaseSpecialEffects ?? "").ConcatIfNotEmpty("\n").FluentAppend(desc, true);
+            AppendPhaseSpecialAction(phase, "exposed");
             Changed = true;
             actor.OutputHandler.Send($"This phase will now check whether the bodypart is uncovered, and stop if not true.");
             return true;
@@ -182,46 +177,52 @@ public abstract class BodypartSpecificSurgicalProcedure : SurgicalProcedure
 
     protected override (Func<ICharacter, ICharacter, object[], bool>, Func<ICharacter, ICharacter, object[], string>, string)
         GetSpecialPhaseAction(string actionText)
-    {
-        if (actionText.EqualTo("exposed"))
-        {
-            return ExposedPhaseSpecialAction();
-        }
+	{
+		if (actionText.EqualTo("exposed"))
+		{
+			return ExposedPhaseSpecialAction();
+		}
 
-        return base.GetSpecialPhaseAction(actionText);
-    }
+		return base.GetSpecialPhaseAction(actionText);
+	}
 
-    public abstract IBodypart GetTargetBodypart(object[] parameters);
+	public abstract IBodypart GetTargetBodypart(object[] parameters);
 
-    private (Func<ICharacter, ICharacter, object[], bool>, Func<ICharacter, ICharacter, object[], string>, string) ExposedPhaseSpecialAction()
-    {
-        return ((surgeon, patient, parameters) =>
-                {
-                    IBodypart bodypart = GetTargetBodypart(parameters);
-                    if (bodypart is null)
-                    {
-                        return false;
-                    }
+	internal static bool TargetBodypartIsExposed(IBody body, IBodypart bodypart)
+	{
+		return body.ExposedBodyparts.Any(x => x == bodypart || x.CountsAs(bodypart) || bodypart.CountsAs(x)) ||
+		       body.VisiblySeveredBodyparts.Any(x => x == bodypart || x.CountsAs(bodypart) || bodypart.CountsAs(x));
+	}
 
-                    if (patient.Body.ExposedBodyparts.Any(x => x.CountsAs(bodypart)))
-                    {
-                        return true;
-                    }
-                    return false;
-                }
-                ,
-                (surgeon, patient, parameters) =>
-                {
-                    IBodypart bodypart = GetTargetBodypart(parameters);
-                    if (bodypart is null)
-                    {
-                        return "$1 does not have a valid target bodypart for this procedure.";
-                    }
+	private (Func<ICharacter, ICharacter, object[], bool>, Func<ICharacter, ICharacter, object[], string>, string) ExposedPhaseSpecialAction()
+	{
+		return ((surgeon, patient, parameters) =>
+				{
+					IBodypart bodypart = GetTargetBodypart(parameters);
+					if (bodypart is null)
+					{
+						return false;
+					}
 
-                    return
-                        $"$1's {bodypart.FullDescription()} is not exposed, and so the procedure cannot continue.";
-                },
-                "Checks part for being exposed"
-            );
-    }
+					if (TargetBodypartIsExposed(patient.Body, bodypart))
+					{
+						return true;
+					}
+					return false;
+				}
+				,
+				(surgeon, patient, parameters) =>
+				{
+					IBodypart bodypart = GetTargetBodypart(parameters);
+					if (bodypart is null)
+					{
+						return "$1 does not have a valid target bodypart for this procedure.";
+					}
+
+					return
+						$"$1's {bodypart.FullDescription()} is not exposed, and so the procedure cannot continue.";
+				},
+				"Checks part for being exposed or a severed root being visible"
+			);
+	}
 }

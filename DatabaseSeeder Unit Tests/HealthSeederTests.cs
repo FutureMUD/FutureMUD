@@ -8,6 +8,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MudSharp.Database;
 using MudSharp.Health;
 using MudSharp.Models;
+using MudSharp.RPG.Checks;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -344,6 +345,13 @@ public class HealthSeederTests
 
         IReadOnlyList<string> issues = ValidateSeededSurgicalDefinitions(context);
         Assert.AreEqual(0, issues.Count, string.Join(Environment.NewLine, issues));
+
+        SurgicalProcedure prostheticFitting = context.SurgicalProcedures
+            .Include(x => x.SurgicalProcedurePhases)
+            .Single(x => x.Name == "Prosthetic Fitting");
+        Assert.AreEqual((int)SurgicalProcedureType.InstallProsthetic, prostheticFitting.Procedure);
+        Assert.AreEqual((int)CheckType.InstallProstheticSurgery, prostheticFitting.Check);
+        Assert.IsTrue(prostheticFitting.SurgicalProcedurePhases.Any(x => x.PhaseSpecialEffects == "exposed"));
     }
 
     [TestMethod]
@@ -392,7 +400,8 @@ public class HealthSeederTests
             new SurgicalProcedure { Id = 5, Name = "Trauma Control", ProcedureName = "Trauma Control", MedicalSchool = "Test", Procedure = 0, BaseCheckBonus = 0.0, Check = 0, ProcedureBeginEmote = string.Empty, ProcedureDescriptionEmote = string.Empty, ProcedureGerund = "Trauma Control", Definition = string.Empty, TargetBodyTypeId = 0 },
             new SurgicalProcedure { Id = 6, Name = "Organ Extraction", ProcedureName = "Organ Extraction", MedicalSchool = "Test", Procedure = 0, BaseCheckBonus = 0.0, Check = 0, ProcedureBeginEmote = string.Empty, ProcedureDescriptionEmote = string.Empty, ProcedureGerund = "Organ Extraction", Definition = string.Empty, TargetBodyTypeId = 0 },
             new SurgicalProcedure { Id = 7, Name = "General Organ Repair", ProcedureName = "General Organ Repair", MedicalSchool = "Test", Procedure = 0, BaseCheckBonus = 0.0, Check = 0, ProcedureBeginEmote = string.Empty, ProcedureDescriptionEmote = string.Empty, ProcedureGerund = "General Organ Repair", Definition = string.Empty, TargetBodyTypeId = 0 },
-            new SurgicalProcedure { Id = 8, Name = "Bone Setting", ProcedureName = "Bone Setting", MedicalSchool = "Test", Procedure = 0, BaseCheckBonus = 0.0, Check = 0, ProcedureBeginEmote = string.Empty, ProcedureDescriptionEmote = string.Empty, ProcedureGerund = "Bone Setting", Definition = string.Empty, TargetBodyTypeId = 0 });
+            new SurgicalProcedure { Id = 8, Name = "Bone Setting", ProcedureName = "Bone Setting", MedicalSchool = "Test", Procedure = 0, BaseCheckBonus = 0.0, Check = 0, ProcedureBeginEmote = string.Empty, ProcedureDescriptionEmote = string.Empty, ProcedureGerund = "Bone Setting", Definition = string.Empty, TargetBodyTypeId = 0 },
+            new SurgicalProcedure { Id = 9, Name = "Prosthetic Fitting", ProcedureName = "Prosthetic Fitting", MedicalSchool = "Test", Procedure = 0, BaseCheckBonus = 0.0, Check = 0, ProcedureBeginEmote = string.Empty, ProcedureDescriptionEmote = string.Empty, ProcedureGerund = "Prosthetic Fitting", Definition = string.Empty, TargetBodyTypeId = 0 });
 
         context.Drugs.AddRange(
             new Drug { Id = 1, Name = "General Anaesthetic", DrugVectors = (int)DrugVector.Inhaled, IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },
@@ -435,7 +444,8 @@ public class HealthSeederTests
             new SurgicalProcedure { Id = 4, Name = "Trauma Control", ProcedureName = "Trauma Control", MedicalSchool = "Test", Procedure = 0, BaseCheckBonus = 0.0, Check = 0, ProcedureBeginEmote = string.Empty, ProcedureDescriptionEmote = string.Empty, ProcedureGerund = "Trauma Control", Definition = string.Empty, TargetBodyTypeId = 0 },
             new SurgicalProcedure { Id = 5, Name = "Organ Extraction", ProcedureName = "Organ Extraction", MedicalSchool = "Test", Procedure = 0, BaseCheckBonus = 0.0, Check = 0, ProcedureBeginEmote = string.Empty, ProcedureDescriptionEmote = string.Empty, ProcedureGerund = "Organ Extraction", Definition = string.Empty, TargetBodyTypeId = 0 },
             new SurgicalProcedure { Id = 6, Name = "Crude Organ Repair", ProcedureName = "Crude Organ Repair", MedicalSchool = "Test", Procedure = 0, BaseCheckBonus = 0.0, Check = 0, ProcedureBeginEmote = string.Empty, ProcedureDescriptionEmote = string.Empty, ProcedureGerund = "Crude Organ Repair", Definition = string.Empty, TargetBodyTypeId = 0 },
-            new SurgicalProcedure { Id = 7, Name = "Bone Setting", ProcedureName = "Bone Setting", MedicalSchool = "Test", Procedure = 0, BaseCheckBonus = 0.0, Check = 0, ProcedureBeginEmote = string.Empty, ProcedureDescriptionEmote = string.Empty, ProcedureGerund = "Bone Setting", Definition = string.Empty, TargetBodyTypeId = 0 });
+            new SurgicalProcedure { Id = 7, Name = "Bone Setting", ProcedureName = "Bone Setting", MedicalSchool = "Test", Procedure = 0, BaseCheckBonus = 0.0, Check = 0, ProcedureBeginEmote = string.Empty, ProcedureDescriptionEmote = string.Empty, ProcedureGerund = "Bone Setting", Definition = string.Empty, TargetBodyTypeId = 0 },
+            new SurgicalProcedure { Id = 8, Name = "Prosthetic Fitting", ProcedureName = "Prosthetic Fitting", MedicalSchool = "Test", Procedure = 0, BaseCheckBonus = 0.0, Check = 0, ProcedureBeginEmote = string.Empty, ProcedureDescriptionEmote = string.Empty, ProcedureGerund = "Prosthetic Fitting", Definition = string.Empty, TargetBodyTypeId = 0 });
 
         context.Drugs.AddRange(
             new Drug { Id = 1, Name = "Willow Bark Tea", DrugVectors = (int)DrugVector.Ingested, IntensityPerGram = 1.0, RelativeMetabolisationRate = 0.1 },

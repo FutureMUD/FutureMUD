@@ -40,7 +40,8 @@ namespace DatabaseSeeder.Seeders
             "Trauma Control",
             "Organ Extraction",
             "Crude Organ Repair",
-            "Bone Setting"
+            "Bone Setting",
+            "Prosthetic Fitting"
         ];
         private static readonly string[] PreModernHealthProcedures =
         [
@@ -50,7 +51,8 @@ namespace DatabaseSeeder.Seeders
             "Trauma Control",
             "Organ Extraction",
             "General Organ Repair",
-            "Bone Setting"
+            "Bone Setting",
+            "Prosthetic Fitting"
         ];
         private static readonly string[] ModernHealthProcedures =
         [
@@ -61,7 +63,8 @@ namespace DatabaseSeeder.Seeders
             "Trauma Control",
             "Organ Extraction",
             "General Organ Repair",
-            "Bone Setting"
+            "Bone Setting",
+            "Prosthetic Fitting"
         ];
         private static readonly string[] PrimitiveVeterinaryProcedures =
         [
@@ -510,6 +513,8 @@ Please answer #3primitive#F, #3pre-modern#0, or #3modern#F: ",
                 "The amputation procedure removes a leg or major section of a leg from the patient.", HumanLegParts);
             AddAmputation("Digit Amputation", "digit amputation", "Medicine", "Human Medicine", _humanBody, -4.0,
                 "This procedure removes ruined fingers or toes that can no longer be saved.", HumanDigitParts);
+            AddProstheticFitting("Prosthetic Fitting", "prosthetic fitting", "Medicine", "Human Medicine", _humanBody,
+                -3.0, "A practical fitting procedure for securing a simple prosthetic to a compatible severed limb or part.");
             AddPrimitiveTraumaControl("Trauma Control", "trauma control", "Medicine", "Human Medicine", _humanBody, -5.0);
             AddPrimitiveOrganExtraction("Organ Extraction", "organ extraction", "Medicine", "Human Medicine", _humanBody,
                 -5.0);
@@ -543,6 +548,9 @@ Please answer #3primitive#F, #3pre-modern#0, or #3modern#F: ",
                 "The amputation procedure removes a leg or major section of a leg from the patient.", HumanLegParts);
             AddAmputation("Digit Amputation", "digit amputation", "Chiurgery", "Human Medicine", _humanBody, -1.0,
                 "This procedure removes ruined fingers or toes that can no longer be saved.", HumanDigitParts);
+            AddProstheticFitting("Prosthetic Fitting", "prosthetic fitting", "Physical Medicine", "Human Medicine",
+                _humanBody, -1.0,
+                "A measured fitting procedure for securing and aligning a prosthetic to a compatible severed limb or part.");
             AddPreModernTraumaControl("Trauma Control", "trauma control", "Chiurgery", "Human Medicine", _humanBody, -1.5);
             AddPreModernOrganExtraction("Organ Extraction", "organ extraction", "Chiurgery", "Human Medicine", _humanBody,
                 -1.5);
@@ -593,6 +601,9 @@ Please answer #3primitive#F, #3pre-modern#0, or #3modern#F: ",
                 "The amputation procedure removes a leg or major section of a leg from the patient.", HumanLegParts);
             AddAmputation("Digit Amputation", "digit amputation", "Surgery", "Human Medicine", _humanBody, 0.5,
                 "This procedure removes ruined fingers or toes that can no longer be saved.", HumanDigitParts);
+            AddProstheticFitting("Prosthetic Fitting", "prosthetic fitting", "Clinical Medicine", "Human Medicine",
+                _humanBody, 0.5,
+                "A clinical fitting procedure for checking alignment, comfort, and attachment security for a prosthetic.");
             AddModernReplantation();
             AddModernCannulation();
             AddModernDecannulation();
@@ -1149,7 +1160,7 @@ Please answer #3primitive#F, #3pre-modern#0, or #3modern#F: ",
                 "This procedure cleanly removes a targeted organ from the patient's body.",
                 string.Empty,
                 targetBody);
-            AddSurgicalProcedurePhase(_procedures[name], 1, 30, "checkorgan exposed",
+            AddSurgicalProcedurePhase(_procedures[name], 1, 30, "checkorgan\nexposed",
                 "@ make|makes a precise opening to reach the {1} in $1's {0} with $i1", ScalpelPlan());
             AddSurgicalProcedurePhase(_procedures[name], 2, 35, null,
                 "@ free|frees the {1} from connective tissue with $i1", ForcepsPlan());
@@ -1173,7 +1184,7 @@ Please answer #3primitive#F, #3pre-modern#0, or #3modern#F: ",
                 description,
                 definition,
                 targetBody);
-            AddSurgicalProcedurePhase(_procedures[name], 1, 35, "checkorgan bleeding 0.05 0.03 0.02 0.01 0.005 0",
+            AddSurgicalProcedurePhase(_procedures[name], 1, 35, "checkorgan\nbleeding 0.05 0.03 0.02 0.01 0.005 0",
                 "@ open|opens $1's {0} to reach the {1}");
             AddSurgicalProcedurePhase(_procedures[name], 2, 35, null,
                 "@ pack|packs, trims, and secures the damaged {1}");
@@ -1221,7 +1232,7 @@ Please answer #3primitive#F, #3pre-modern#0, or #3modern#F: ",
                 description,
                 definition,
                 targetBody);
-            AddSurgicalProcedurePhase(_procedures[name], 1, 30, "checkorgan exposed",
+            AddSurgicalProcedurePhase(_procedures[name], 1, 30, "checkorgan\nexposed",
                 "@ open|opens $1's {0} to expose the {1} with $i1", ScalpelPlan());
             AddSurgicalProcedurePhase(_procedures[name], 2, 35, null,
                 "@ repair|repairs and trims damaged portions of the {1} with $i1", ForcepsPlan());
@@ -1280,6 +1291,30 @@ Please answer #3primitive#F, #3pre-modern#0, or #3modern#F: ",
                 "@ align|aligns the damaged {1} and works it back into place");
             AddSurgicalProcedurePhase(_procedures[name], 3, 20, null,
                 "@ secure|secures the bone with splints and wrappings");
+        }
+
+        private void AddProstheticFitting(string name, string procedureName, string knowledgeName, string school,
+            BodyProto targetBody, double baseCheckBonus, string description)
+        {
+            AddSurgicalProcedure(
+                name,
+                procedureName,
+                school,
+                SurgicalProcedureType.InstallProsthetic,
+                baseCheckBonus,
+                _knowledges[knowledgeName].Id,
+                CheckType.InstallProstheticSurgery,
+                "fitting",
+                "@ begin|begins fitting a prosthetic to $1",
+                description,
+                string.Empty,
+                targetBody);
+            AddSurgicalProcedurePhase(_procedures[name], 1, 15, null,
+                "@ inspect|inspects {0} and $1's {1}");
+            AddSurgicalProcedurePhase(_procedures[name], 2, 20, "exposed",
+                "@ align|aligns {0} with $1's {1}");
+            AddSurgicalProcedurePhase(_procedures[name], 3, 20, null,
+                "@ fasten|fastens {0} into place and test|tests the fit");
         }
 
         private void AddAmputation(string name, string procedureName, string knowledgeName, string school,
@@ -1407,7 +1442,7 @@ Please answer #3primitive#F, #3pre-modern#0, or #3modern#F: ",
                 "This procedure installs an implant item into a compatible bodypart.",
                 string.Empty,
                 _humanBody);
-            AddSurgicalProcedurePhase(_procedures["Install Implant"], 1, 30, "exposed checkspace",
+            AddSurgicalProcedurePhase(_procedures["Install Implant"], 1, 30, "exposed\ncheckspace",
                 "@ open|opens $1's {1} to make room for {0}", ScalpelPlan());
             AddSurgicalProcedurePhase(_procedures["Install Implant"], 2, 30, null,
                 "@ insert|inserts {0} and settle|settles it into position");

@@ -1839,7 +1839,7 @@ The syntax is as follows:
 
         if (target == actor && !procedure.Procedure.In(SurgicalProcedureType.Triage,
                 SurgicalProcedureType.DetailedExamination, SurgicalProcedureType.Cannulation,
-                SurgicalProcedureType.Decannulation))
+                SurgicalProcedureType.Decannulation, SurgicalProcedureType.InstallProsthetic))
         {
             actor.Send("You cannot perform surgery on yourself...you're not that hardcore.");
             return;

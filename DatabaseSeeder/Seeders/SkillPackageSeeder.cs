@@ -993,6 +993,10 @@ Please choose either #6simple#0 or #6complex#0: ", (context, answers) => true,
                     AddCheck(check, new TraitExpression { Expression = $"surgery:{surgeryTrait.Id}" },
                         templates["Skill Check"].Id, Difficulty.Impossible);
                     continue;
+                case CheckType.InstallProstheticSurgery:
+                    AddCheck(check, new TraitExpression { Expression = $"surgery:{surgeryTrait.Id}" },
+                        templates["Skill Check"].Id, Difficulty.Impossible);
+                    continue;
                 case CheckType.RemoveImplantSurgery:
                     AddCheck(check, new TraitExpression { Expression = $"surgery:{surgeryTrait.Id}" },
                         templates["Skill Check"].Id, Difficulty.Impossible);

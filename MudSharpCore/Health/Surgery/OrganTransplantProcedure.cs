@@ -328,34 +328,17 @@ public class OrganTransplantProcedure : BodypartSpecificSurgicalProcedure
     protected override (Func<ICharacter, ICharacter, object[], bool>, Func<ICharacter, ICharacter, object[], string>, string)
         GetSpecialPhaseAction(string actionText)
     {
-        List<(Func<ICharacter, ICharacter, object[], bool>, Func<ICharacter, ICharacter, object[], string>, string)> actions =
-            new();
-        foreach (string text in actionText.Split(' '))
+        if (actionText.EqualTo("checkspace"))
         {
-            if (actionText.EqualTo("checkspace"))
-            {
-                actions.Add(
-                    CheckSpacePhaseSpecialAction());
-                continue;
-            }
-
-            if (actionText.EqualTo("checkorgan"))
-            {
-                actions.Add(
-                    CheckOrganPhaseSpecialAction());
-            }
-
-            actions.Add(base.GetSpecialPhaseAction(actionText));
+            return CheckSpacePhaseSpecialAction();
         }
 
-        return ((surgeon, patient, parameters) => { return actions.All(x => x.Item1(surgeon, patient, parameters)); },
-                (surgeon, patient, parameters) =>
-                {
-                    return actions.First(x => !x.Item1(surgeon, patient, parameters))
-                                  .Item2(surgeon, patient, parameters);
-                },
-                actions.Select(x => x.Item3).ListToString()
-            );
+        if (actionText.EqualTo("checkorgan"))
+        {
+            return CheckOrganPhaseSpecialAction();
+        }
+
+        return base.GetSpecialPhaseAction(actionText);
     }
 
     private static (Func<ICharacter, ICharacter, object[], bool>, Func<ICharacter, ICharacter, object[], string>, string) CheckOrganPhaseSpecialAction()
@@ -425,24 +408,14 @@ public class OrganTransplantProcedure : BodypartSpecificSurgicalProcedure
     {
         if (command.PeekSpeech().EqualTo("checkspace"))
         {
-            (Func<ICharacter, ICharacter, object[], bool> truth, Func<ICharacter, ICharacter, object[], string> error, string desc) = CheckSpacePhaseSpecialAction();
-            phase.PhaseSpecialEffects = (phase.PhaseSpecialEffects ?? "").ConcatIfNotEmpty("\n")
-                                                                         .FluentAppend($"checkspace", true);
-            phase.PhaseSuccessful += truth;
-            phase.WhyPhaseNotSuccessful += error;
-            phase.PhaseSpecialEffectsDescription = (phase.PhaseSpecialEffects ?? "").ConcatIfNotEmpty("\n").FluentAppend(desc, true);
+            AppendPhaseSpecialAction(phase, "checkspace");
             Changed = true;
             actor.OutputHandler.Send($"This phase will now check whether the bodypart has space for the implant, and stop if not true.");
             return true;
         }
         if (command.PeekSpeech().EqualTo("checkorgan"))
         {
-            (Func<ICharacter, ICharacter, object[], bool> truth, Func<ICharacter, ICharacter, object[], string> error, string desc) = CheckOrganPhaseSpecialAction();
-            phase.PhaseSpecialEffects = (phase.PhaseSpecialEffects ?? "").ConcatIfNotEmpty("\n")
-                                                                         .FluentAppend($"checkorgan", true);
-            phase.PhaseSuccessful += truth;
-            phase.WhyPhaseNotSuccessful += error;
-            phase.PhaseSpecialEffectsDescription = (phase.PhaseSpecialEffects ?? "").ConcatIfNotEmpty("\n").FluentAppend(desc, true);
+            AppendPhaseSpecialAction(phase, "checkorgan");
             Changed = true;
             actor.OutputHandler.Send($"This phase will now check whether the bodypart has the organ already, and stop if true.");
             return true;

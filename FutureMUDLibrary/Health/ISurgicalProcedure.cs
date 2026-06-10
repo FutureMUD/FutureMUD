@@ -76,7 +76,12 @@ namespace MudSharp.Health
         InstallImplant,
         RemoveImplant,
         ConfigureImplantPower,
-        ConfigureImplantInterface
+        ConfigureImplantInterface,
+
+        /// <summary>
+        /// Fitting a prosthetic item to a compatible severed bodypart
+        /// </summary>
+        InstallProsthetic
     }
 
     public class SurgicalProcedurePhase

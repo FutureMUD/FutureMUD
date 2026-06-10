@@ -22,6 +22,7 @@ using MudSharp.RPG.Merits.Interfaces;
 using Org.BouncyCastle.Crypto.Engines;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -211,13 +212,14 @@ public abstract class SurgicalProcedure : SaveableItem, ISurgicalProcedure
             return WhyCannotUseProg?.Execute(surgeon, patient)?.ToString() ?? "You cannot perform that procedure";
         }
 
-        if (
-            Phases.Select(x => x.InventoryPlanTemplate.CreatePlan(surgeon))
-                  .Any(x => x.PlanIsFeasible() != InventoryPlanFeasibility.Feasible))
+        List<IInventoryPlan> inventoryPlans =
+            Phases.Where(x => x.InventoryPlanTemplate != null)
+                  .Select(x => x.InventoryPlanTemplate.CreatePlan(surgeon))
+                  .ToList();
+        IInventoryPlan failedPlan = inventoryPlans.FirstOrDefault(x => x.PlanIsFeasible() != InventoryPlanFeasibility.Feasible);
+        if (failedPlan != null)
         {
-            switch (
-                Phases.Select(x => x.InventoryPlanTemplate.CreatePlan(surgeon).PlanIsFeasible())
-                      .First(x => x != InventoryPlanFeasibility.Feasible))
+            switch (failedPlan.PlanIsFeasible())
             {
                 case InventoryPlanFeasibility.NotFeasibleMissingItems:
                     return "You do not have all of the items you require to perform that procedure.";
@@ -230,7 +232,7 @@ public abstract class SurgicalProcedure : SaveableItem, ISurgicalProcedure
             }
         }
 
-        throw new NotImplementedException("Got to the bottom of SurgicalProcedure.WhyCannotPerformProcedure");
+        return "You can perform that procedure.";
     }
 
     public abstract Difficulty GetProcedureDifficulty(ICharacter surgeon, ICharacter patient,
@@ -411,15 +413,18 @@ public abstract class SurgicalProcedure : SaveableItem, ISurgicalProcedure
                             return;
                         }
 
-                        plan?.ExecuteWholePlan();
+                        List<InventoryPlanActionResult> planResults = plan?.ExecuteWholePlan().ToList() ??
+                                                                      new List<InventoryPlanActionResult>();
                         plan?.FinalisePlanNoRestore();
+                        IPerceivable[] emoteArgs = new IPerceivable[] { surgeon, patient }
+                                                   .Concat(planResults.Select(x => x.PrimaryTarget))
+                                                   .ToArray();
                         surgeon.OutputHandler.Handle(new EmoteOutput(
                             new Emote(
-                                DressPhaseEmote(phase.PhaseEmote,
+                                PreparePhaseEmoteText(DressPhaseEmote(phase.PhaseEmote,
                                     surgeon, patient,
-                                    additionalArguments), surgeon,
-                                surgeon,
-                                patient)));
+                                    additionalArguments)), surgeon,
+                                emoteArgs)));
                         Gameworld.GetCheck(Check).Check(surgeon,
                             GetProcedureDifficulty(surgeon, patient, additionalArguments),
                             patient);
@@ -545,6 +550,15 @@ public abstract class SurgicalProcedure : SaveableItem, ISurgicalProcedure
 
     public virtual int DressPhaseEmoteExtraArgumentCount => 0;
 
+    protected virtual string PreparePhaseEmoteText(string emote)
+    {
+        return PhaseEmoteRegexInvPlan.Replace(emote, match =>
+        {
+            int index = int.Parse(match.Groups["index"].Value);
+            return index <= 0 ? match.Value : $"${index + 1}";
+        });
+    }
+
     #region Constructors
 
     protected SurgicalProcedure(MudSharp.Models.SurgicalProcedure procedure, IFuturemud gameworld)
@@ -580,7 +594,7 @@ public abstract class SurgicalProcedure : SaveableItem, ISurgicalProcedure
                 WhyCannotUseProgId = null,
                 CompletionProgId = null,
                 AbortProgId = null,
-                ProcedureBeginEmote = null,
+                ProcedureBeginEmote = ProcedureBeginEmote,
                 ProcedureDescriptionEmote = ProcedureDescription,
                 ProcedureGerund = ProcedureGerund,
                 Definition = SaveDefinition(),
@@ -600,13 +614,24 @@ public abstract class SurgicalProcedure : SaveableItem, ISurgicalProcedure
     {
         if (actionText.StartsWith("bleeding", StringComparison.InvariantCultureIgnoreCase))
         {
-            List<double> bloodAmounts = new StringStack(actionText.RemoveFirstWord()).PopSpeechAll().Select(x => double.Parse(x)).ToList();
+            List<double> bloodAmounts = new();
+            foreach (string text in new StringStack(actionText.RemoveFirstWord()).PopSpeechAll())
+            {
+                if (!double.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out double amount) &&
+                    !double.TryParse(text, out amount))
+                {
+                    return ((surgeon, patient, paramaters) => true, (surgeon, patient, paramaters) => "of an unknown reason", "");
+                }
+
+                bloodAmounts.Add(amount);
+            }
+
             Dictionary<Outcome, double> bleedingDictionary = new();
             Outcome outcome = Outcome.MajorFail;
             foreach (double amount in bloodAmounts)
             {
                 bleedingDictionary[outcome] = amount;
-                outcome.StageUp();
+                outcome = outcome.StageUp();
             }
 
             if (bleedingDictionary.Keys.OrderBy(x => x).SequenceEqual(new[]
@@ -625,6 +650,95 @@ public abstract class SurgicalProcedure : SaveableItem, ISurgicalProcedure
         return ((surgeon, patient, paramaters) => true, (surgeon, patient, paramaters) => "of an unknown reason", "");
     }
 
+    internal static IEnumerable<string> ExpandSpecialPhaseActionTexts(string actionText)
+    {
+        if (string.IsNullOrWhiteSpace(actionText))
+        {
+            yield break;
+        }
+
+        foreach (string line in actionText.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
+                                          .Select(x => x.Trim())
+                                          .Where(x => !string.IsNullOrWhiteSpace(x)))
+        {
+            StringStack stack = new(line);
+            while (!stack.IsFinished)
+            {
+                string action = stack.PopSpeech();
+                if (action.EqualToAny("bleeding", "bleed", "blood"))
+                {
+                    List<string> amounts = new();
+                    while (!stack.IsFinished && amounts.Count < 6)
+                    {
+                        amounts.Add(stack.PopSpeech());
+                    }
+
+                    yield return $"bleeding {string.Join(" ", amounts)}";
+                    continue;
+                }
+
+                yield return action;
+            }
+        }
+    }
+
+    protected void ConfigurePhaseSpecialActions(SurgicalProcedurePhase phase)
+    {
+        List<(Func<ICharacter, ICharacter, object[], bool> Success, Func<ICharacter, ICharacter, object[], string> Error, string Description)> actions =
+            ExpandSpecialPhaseActionTexts(phase.PhaseSpecialEffects)
+                .Select(GetSpecialPhaseAction)
+                .Where(x => !string.IsNullOrWhiteSpace(x.Description))
+                .ToList();
+
+        if (!actions.Any())
+        {
+            phase.PhaseSuccessful = (_, _, _) => true;
+            phase.WhyPhaseNotSuccessful = (_, _, _) => "of an unknown reason";
+            phase.PhaseSpecialEffectsDescription = string.Empty;
+            return;
+        }
+
+        Dictionary<(long SurgeonId, long PatientId), string> failureReasons = new();
+        phase.PhaseSuccessful = (surgeon, patient, parameters) =>
+        {
+            var key = (surgeon.Id, patient.Id);
+            failureReasons.Remove(key);
+            foreach (var action in actions)
+            {
+                if (action.Success(surgeon, patient, parameters))
+                {
+                    continue;
+                }
+
+                failureReasons[key] = action.Error(surgeon, patient, parameters);
+                return false;
+            }
+
+            return true;
+        };
+        phase.WhyPhaseNotSuccessful = (surgeon, patient, parameters) =>
+        {
+            var key = (surgeon.Id, patient.Id);
+            if (failureReasons.TryGetValue(key, out string reason))
+            {
+                failureReasons.Remove(key);
+                return reason;
+            }
+
+            return "of an unknown reason";
+        };
+        phase.PhaseSpecialEffectsDescription = actions.Select(x => x.Description).ListToLines();
+    }
+
+    protected string AppendPhaseSpecialAction(SurgicalProcedurePhase phase, string actionText)
+    {
+        List<string> actions = ExpandSpecialPhaseActionTexts(phase.PhaseSpecialEffects).ToList();
+        actions.AddRange(ExpandSpecialPhaseActionTexts(actionText));
+        phase.PhaseSpecialEffects = actions.ListToLines();
+        ConfigurePhaseSpecialActions(phase);
+        return GetSpecialPhaseAction(actionText).Description;
+    }
+
     private (Func<ICharacter, ICharacter, object[], bool> Success, Func<ICharacter, ICharacter, object[], string> Error, string Description) BleedingPhaseAction(Dictionary<Outcome, double> bleedingDictionary)
     {
         return ((surgeon, patient, parameters) =>
@@ -641,7 +755,7 @@ public abstract class SurgicalProcedure : SaveableItem, ISurgicalProcedure
                 {
                     return $"of an unknown reason";
                 },
-                $"causes bleeding [{bleedingDictionary[Outcome.MajorFail].ToString("N2").Colour(Telnet.BoldRed)}|{bleedingDictionary[Outcome.Fail].ToString("N2").Colour(Telnet.Red)}|{bleedingDictionary[Outcome.MinorFail].ToString("N2").Colour(Telnet.BoldYellow)}|{bleedingDictionary[Outcome.MinorPass].ToString("N2").Colour(Telnet.Green)}|{bleedingDictionary[Outcome.Pass].ToString("N2").Colour(Telnet.BoldGreen)}|{bleedingDictionary[Outcome.MajorPass].ToString("N2").Colour(Telnet.BoldBlue)}"
+                $"causes bleeding [{bleedingDictionary[Outcome.MajorFail].ToString("N2").Colour(Telnet.BoldRed)}|{bleedingDictionary[Outcome.Fail].ToString("N2").Colour(Telnet.Red)}|{bleedingDictionary[Outcome.MinorFail].ToString("N2").Colour(Telnet.BoldYellow)}|{bleedingDictionary[Outcome.MinorPass].ToString("N2").Colour(Telnet.Green)}|{bleedingDictionary[Outcome.Pass].ToString("N2").Colour(Telnet.BoldGreen)}|{bleedingDictionary[Outcome.MajorPass].ToString("N2").Colour(Telnet.BoldBlue)}]"
             );
     }
 
@@ -677,8 +791,7 @@ public abstract class SurgicalProcedure : SaveableItem, ISurgicalProcedure
             };
             if (!string.IsNullOrWhiteSpace(phase.PhaseSpecialEffects))
             {
-                (nPhase.PhaseSuccessful, nPhase.WhyPhaseNotSuccessful, nPhase.PhaseSpecialEffectsDescription) =
-                    GetSpecialPhaseAction(phase.PhaseSpecialEffects);
+                ConfigurePhaseSpecialActions(nPhase);
             }
 
             _phases.Add(nPhase);
@@ -993,10 +1106,10 @@ There are the following special phase actions available for this surgical proced
         switch (command.PopSpeech())
         {
             case "none":
+            case "clear":
                 phase.PhaseSpecialEffectsDescription = "";
                 phase.PhaseSpecialEffects = "";
-                phase.PhaseSuccessful = (surgeon, patient, additional) => true;
-                phase.WhyPhaseNotSuccessful = (surgeon, patient, additional) => "for an unknown reason";
+                ConfigurePhaseSpecialActions(phase);
                 actor.OutputHandler.Send($"Phase {(_phases.IndexOf(phase) + 1).ToString("N0", actor).ColourValue()} will no longer have a special action.");
                 Changed = true;
                 return true;
@@ -1010,28 +1123,16 @@ There are the following special phase actions available for this surgical proced
                     return false;
                 }
 
-                if ((phase.PhaseSpecialEffects ?? "").Split('\n').Length < value)
+                List<string> existingActions = ExpandSpecialPhaseActionTexts(phase.PhaseSpecialEffects).ToList();
+                if (existingActions.Count < value)
                 {
-                    actor.OutputHandler.Send($"There are only {(phase.PhaseSpecialEffects ?? "").Split('\n').Length.ToString("N0", actor)} special actions on this phase.");
+                    actor.OutputHandler.Send($"There are only {existingActions.Count.ToString("N0", actor)} special actions on this phase.");
                     return false;
                 }
 
-                phase.PhaseSpecialEffects = phase.PhaseSpecialEffects.Split('\n').Exclude(value - 1, 1).ListToLines();
-                phase.PhaseSpecialEffectsDescription = phase.PhaseSpecialEffectsDescription.Split('\n').Exclude(value - 1, 1).ListToLines();
-
-                List<Delegate> successes = phase.PhaseSuccessful?.GetInvocationList().Exclude(value - 1, 1).ToList();
-                phase.PhaseSuccessful = null;
-                foreach (Delegate success in successes ?? Enumerable.Empty<Delegate>())
-                {
-                    phase.PhaseSuccessful += (Func<ICharacter, ICharacter, object[], bool>)success;
-                }
-
-                List<Delegate> whys = phase.WhyPhaseNotSuccessful?.GetInvocationList().Exclude(value - 1, 1).ToList();
-                phase.WhyPhaseNotSuccessful = null;
-                foreach (Delegate why in whys ?? Enumerable.Empty<Delegate>())
-                {
-                    phase.WhyPhaseNotSuccessful += (Func<ICharacter, ICharacter, object[], string>)why;
-                }
+                existingActions.RemoveAt(value - 1);
+                phase.PhaseSpecialEffects = existingActions.ListToLines();
+                ConfigurePhaseSpecialActions(phase);
 
                 Changed = true;
                 actor.OutputHandler.Send($"You delete the {value.ToOrdinal().ColourValue()} special action from phase {(_phases.IndexOf(phase) + 1).ToString("N0", actor).ColourValue()}.");
@@ -1060,12 +1161,8 @@ There are the following special phase actions available for this surgical proced
                     outcome = outcome.StageUp();
                 }
 
-                (Func<ICharacter, ICharacter, object[], bool> truth, Func<ICharacter, ICharacter, object[], string> error, string desc) = BleedingPhaseAction(bleedingDictionary);
-                phase.PhaseSpecialEffects = (phase.PhaseSpecialEffects ?? "").ConcatIfNotEmpty("\n")
-                                                                             .FluentAppend($"bleeding {bleedingDictionary[Outcome.MajorFail]} {bleedingDictionary[Outcome.Fail]} {bleedingDictionary[Outcome.MinorFail]} {bleedingDictionary[Outcome.MinorPass]} {bleedingDictionary[Outcome.Pass]} {bleedingDictionary[Outcome.MajorPass]}", true);
-                phase.PhaseSuccessful += truth;
-                phase.WhyPhaseNotSuccessful += error;
-                phase.PhaseSpecialEffectsDescription = (phase.PhaseSpecialEffects ?? "").ConcatIfNotEmpty("\n").FluentAppend(desc, true);
+                string desc = AppendPhaseSpecialAction(phase,
+                    $"bleeding {bleedingDictionary[Outcome.MajorFail].ToString("R", CultureInfo.InvariantCulture)} {bleedingDictionary[Outcome.Fail].ToString("R", CultureInfo.InvariantCulture)} {bleedingDictionary[Outcome.MinorFail].ToString("R", CultureInfo.InvariantCulture)} {bleedingDictionary[Outcome.MinorPass].ToString("R", CultureInfo.InvariantCulture)} {bleedingDictionary[Outcome.Pass].ToString("R", CultureInfo.InvariantCulture)} {bleedingDictionary[Outcome.MajorPass].ToString("R", CultureInfo.InvariantCulture)}");
                 Changed = true;
                 actor.OutputHandler.Send($"There will now be a bleeding effect on this phase, described as \"{desc}\"");
                 return true;
@@ -1157,7 +1254,7 @@ There are the following special phase actions available for this surgical proced
         foreach (Match match in PhaseEmoteRegexInvPlan.Matches(emoteText))
         {
             int index = int.Parse(match.Groups["index"].Value);
-            if (index < 0 || index > phaseItems.Count)
+            if (index < 1 || index > phaseItems.Count)
             {
                 actor.OutputHandler.Send($"The text #3$i{index.ToString("F0", actor)}#0 is not a valid inclusion in this emote as there are only {phaseItems.Count.ToString("N0", actor).ColourValue()} items.".SubstituteANSIColour());
                 return false;
@@ -1441,6 +1538,14 @@ There are the following special phase actions available for this surgical proced
             return false;
         }
 
+        if (command.PeekSpeech().EqualToAny("none", "clear", "remove", "delete"))
+        {
+            WhyCannotUseProg = null;
+            Changed = true;
+            actor.OutputHandler.Send("This procedure will no longer use a custom prog to explain why it cannot be used.");
+            return true;
+        }
+
         IFutureProg prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
             ProgVariableTypes.Text,
             new[]
@@ -1465,6 +1570,14 @@ There are the following special phase actions available for this surgical proced
         {
             actor.OutputHandler.Send("You must specify a prog.");
             return false;
+        }
+
+        if (command.PeekSpeech().EqualToAny("none", "clear", "remove", "delete"))
+        {
+            UsabilityProg = null;
+            Changed = true;
+            actor.OutputHandler.Send("This procedure will no longer use a custom prog to control usability.");
+            return true;
         }
 
         IFutureProg prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
@@ -1614,7 +1727,7 @@ Enter your new description in the editor below:");
         sb.AppendLine($"Procedure Name: {ProcedureName.ColourValue()}");
         sb.AppendLine($"Procedure Type: {Procedure.DescribeEnum(true, Telnet.Green)}");
         sb.AppendLine($"Gerund: {ProcedureGerund.ColourValue()}");
-        sb.AppendLine($"Target Body: {TargetBodyType.Name.ColourValue()}");
+        sb.AppendLine($"Target Body: {(TargetBodyType?.Name ?? "None").ColourValue()}");
         sb.AppendLine($"School: {MedicalSchool.ColourValue()}");
         sb.AppendLine($"Knowledge Required: {KnowledgeRequired?.Name.ColourValue() ?? "None".ColourError()}");
         sb.AppendLine($"Check: {Check.DescribeEnum().ColourValue()}");

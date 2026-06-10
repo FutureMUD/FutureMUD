@@ -2,6 +2,7 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using MudSharp.Body;
 using MudSharp.Character;
 using MudSharp.Body.Position;
 using MudSharp.Body.Position.PositionStates;
@@ -76,6 +77,40 @@ public class MovementTests
         Assert.IsTrue(mountedGuard >= 0, "Mounted riders must be handled before generic movement creation.");
         Assert.IsTrue(riderMove > mountedGuard, "Mounted rider movement must delegate through RiderMove.");
         Assert.IsTrue(createMovement > riderMove, "RiderMove authorization must happen before creating a movement group.");
+    }
+
+    [TestMethod]
+    public void EvaluateCharacterForAdditionToMovement_MountedRiderKeepsRiderInMovementSet()
+    {
+        var exit = new Mock<ICellExit>();
+        var rider = CreateMountedCharacterMock("rider");
+        var mount = CreateMountedCharacterMock("mount");
+        rider.SetupGet(x => x.RidingMount).Returns(mount.Object);
+        rider.SetupGet(x => x.Riders).Returns([]);
+        mount.SetupGet(x => x.RidingMount).Returns((ICharacter?)null);
+        mount.SetupGet(x => x.Riders).Returns([rider.Object]);
+        mount.Setup(x => x.IsPrimaryRider(rider.Object)).Returns(true);
+        mount.Setup(x => x.PermitControl(rider.Object)).Returns(true);
+        mount.Setup(x => x.ControlMountDifficulty(rider.Object)).Returns(MudSharp.RPG.Checks.Difficulty.Automatic);
+        mount.Setup(x => x.CanMove(exit.Object, CanMoveFlags.None)).Returns(CanMoveResponse.True);
+
+        var considered = new List<ICharacter>();
+        var nonDraggers = new List<ICharacter>();
+        var mounts = new List<ICharacter>();
+        var draggers = new List<ICharacter>();
+        var helpers = new List<ICharacter>();
+        var nonConsensual = new List<ICharacter>();
+        var targets = new List<IPerceivable>();
+        var dragEffects = new List<Dragging>();
+
+        var result = Movement.EvaluateCharacterForAdditionToMovement(null!, rider.Object, exit.Object, considered,
+            nonDraggers, mounts, draggers, helpers, nonConsensual, targets, dragEffects, false, false);
+
+        Assert.IsTrue(result);
+        CollectionAssert.Contains(nonDraggers, rider.Object);
+        CollectionAssert.Contains(nonDraggers, mount.Object);
+        CollectionAssert.Contains(mounts, mount.Object);
+        CollectionAssert.Contains(nonConsensual, rider.Object);
     }
 
     [TestMethod]
@@ -158,5 +193,21 @@ public class MovementTests
         mover.SetupProperty(x => x.Movement);
         mover.Setup(x => x.Move(It.IsAny<string>())).Returns(true);
         return mover;
+    }
+
+    private static Mock<ICharacter> CreateMountedCharacterMock(string name)
+    {
+        var body = new Mock<IBody>();
+        body.SetupGet(x => x.ExternalItems).Returns([]);
+        body.SetupGet(x => x.ExternalItemsForOtherActors).Returns([]);
+
+        var character = new Mock<ICharacter>();
+        character.SetupGet(x => x.Name).Returns(name);
+        character.SetupGet(x => x.Body).Returns(body.Object);
+        character.SetupGet(x => x.IsEngagedInMelee).Returns(false);
+        character.Setup(x => x.EffectsOfType<Dragging>()).Returns([]);
+        character.Setup(x => x.Equals(It.IsAny<ICharacter>()))
+            .Returns<ICharacter>(other => ReferenceEquals(other, character.Object));
+        return character;
     }
 }

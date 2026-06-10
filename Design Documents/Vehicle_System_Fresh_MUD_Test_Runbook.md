@@ -34,13 +34,14 @@ comp list holdable
 comp list container
 comp list +trunk
 comp list dragaid
+comp list hitchgear
 ```
 
 The runbook uses:
 
 - `Holdable` for crate, towbar, and installable module test items.
 - `Container_Trunk` for the cargo projection item.
-- `DragAid_Harness` or another `DragAid` component for yoke/harness hitch tests.
+- `HitchGear_TowBar`, `HitchGear_Yoke`, `HitchGear_Harness`, `HitchGear_Rope`, or a legacy `DragAid` component for hitch tests. New content should prefer `HitchGear`.
 
 If `Container_Trunk` is not installed, use any current component prototype of type `Container` instead.
 
@@ -123,10 +124,10 @@ Build these item prototypes before creating vehicles:
 | `<hatch-proto>` | access point projection item | noun `hatch`, sdesc `a QA test car hatch`, size `normal`, weight `25 kg` | none |
 | `<trunk-proto>` | cargo projection item | noun `trunk`, sdesc `a QA test car trunk`, size `normal`, weight `30 kg` | `Container_Trunk`, or another seeded `Container` component |
 | `<engine-module-proto>` | installable module item | noun `engine`, sdesc `a QA test engine module`, size `normal`, weight `80 kg` | `Holdable`, `<engine-installable-component-id>` |
-| `<towbar-proto>` | physical hitch item | noun `towbar`, sdesc `a QA test towbar`, size `normal`, weight `10 kg` | `Holdable` |
+| `<towbar-proto>` | physical hitch item | noun `towbar`, sdesc `a QA test towbar`, size `normal`, weight `10 kg` | `Holdable`, `HitchGear_TowBar` |
 | `<crate-proto>` | cargo contents | noun `crate`, sdesc `a QA test crate`, size `small`, weight `5 kg` | `Holdable` |
 | `<cart-hull-proto>` | mount-pulled cart exterior item | noun `cart`, sdesc `a QA test hand cart`, size `normal`, weight `120 kg` | none |
-| `<yoke-proto>` | optional mount hitch aid | noun `yoke`, sdesc `a QA test yoke`, size `normal`, weight `8 kg` | `Holdable`, `DragAid_Harness` or another `DragAid` component |
+| `<yoke-proto>` | optional mount hitch aid | noun `yoke`, sdesc `a QA test yoke`, size `normal`, weight `8 kg` | `Holdable`, `HitchGear_Yoke` or `HitchGear_Harness` |
 
 After `vehicleproto set exterior`, `vehicleproto set access add`, or `vehicleproto set cargo add`, try this negative test:
 
@@ -332,8 +333,8 @@ unhitch front@trailer
 
 Expected result:
 
-- Hitching requires the hitch item to be held.
-- The hitch item is dropped into the tow train's location and persisted on the tow link.
+- Hitching non-direct tow points requires a compatible hitch item to be held.
+- The hitch item is dropped into the tow train's location, receives an in-use/no-get effect, and is persisted on the tow link.
 - Movement moves the full recursive tow train and occupants together.
 - If the hitch item is removed from the train location, destroyed, or deleted, movement should block and `vehicle show` should report an invalid tow-link cause.
 - `unhitch <vehicle>` removes all links involving that vehicle, while `unhitch <towpoint>@<vehicle>` removes only links using that point.
@@ -400,8 +401,8 @@ unhitch yoke@cart
 
 Expected result:
 
-- `hitch horse yoke@cart` is rejected because `yoke` tow points require a drag-aid item.
-- `hitch horse yoke@cart with yoke` succeeds if the yoke item has an approved `DragAid` component and is visible/available to the actor.
+- `hitch horse yoke@cart` is rejected because `yoke` tow points require a compatible hitch item.
+- `hitch horse yoke@cart with yoke` succeeds if the yoke item has an approved `HitchGear` yoke/harness component or a compatible legacy `DragAid` component and is visible/available to the actor.
 - The tow point's `pull <multiplier>` setting reduces the cart's effective pulled weight for the horse/mount capacity check.
 - `unhitch yoke@cart` removes the active character/mount hitch for that tow point.
 
@@ -427,7 +428,7 @@ Current limitations:
 
 - Active character/mount hitches are not persisted reboot-safe tow-link records and do not appear as durable tow links in `vehicle show`.
 - A character/mount hitch cannot currently pull a vehicle that already has persisted vehicle-to-vehicle tow links.
-- The hitch item is used as a normal `IDragAid` reference for the active drag effect. It is not consumed or converted into a persistent tow-link record.
+- The hitch item is reserved with a no-get effect while the active link exists. NPC-only persistent hitches save the hitch item id; PC-inclusive hitches remain transient and are cleared by reboot.
 
 ## Negative Tests
 

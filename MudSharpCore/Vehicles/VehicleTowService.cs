@@ -4,6 +4,7 @@ using MudSharp.Character;
 using MudSharp.Construction.Boundary;
 using MudSharp.Framework;
 using MudSharp.GameItems;
+using MudSharp.GameItems.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -131,6 +132,12 @@ public class VehicleTowService : IVehicleTowService
 			return false;
 		}
 
+		if (HitchGearRules.TowPointsRequireHitchItem(sourceTowPoint, targetTowPoint) && hitchItem is null)
+		{
+			reason = "Those tow points require a hitch item. Use #3with <item>#0.".SubstituteANSIColour();
+			return false;
+		}
+
 		if (hitchItem is not null)
 		{
 			if (hitchItem.Deleted || hitchItem.Destroyed)
@@ -148,6 +155,11 @@ public class VehicleTowService : IVehicleTowService
 			if (!actor.Body.CanDrop(hitchItem, 0))
 			{
 				reason = actor.Body.WhyCannotDrop(hitchItem, 0);
+				return false;
+			}
+
+			if (!HitchGearRules.GearCompatible(hitchItem, targetTrainWeight, out reason, sourceTowPoint, targetTowPoint))
+			{
 				return false;
 			}
 		}
@@ -234,6 +246,13 @@ public class VehicleTowService : IVehicleTowService
 			return false;
 		}
 
+		var targetTrainWeight = TowTrainWeight(targetVehicle);
+		if (HitchGearRules.TowPointsRequireHitchItem(sourceTowPoint, targetTowPoint) && link.HitchItemId is null)
+		{
+			reason = "the tow point requires a hitch item";
+			return false;
+		}
+
 		if (link.HitchItemId is not null)
 		{
 			var item = link.HitchItem;
@@ -255,6 +274,11 @@ public class VehicleTowService : IVehicleTowService
 				reason = "the hitch item is not with the tow train";
 				return false;
 			}
+
+			if (!HitchGearRules.GearCompatible(item, targetTrainWeight, out reason, false, sourceTowPoint, targetTowPoint))
+			{
+				return false;
+			}
 		}
 
 		if (!string.IsNullOrWhiteSpace(link.WhyInvalid))
@@ -263,7 +287,6 @@ public class VehicleTowService : IVehicleTowService
 			return false;
 		}
 
-		var targetTrainWeight = TowTrainWeight(targetVehicle);
 		if (targetTrainWeight > sourceTowPoint.MaximumTowedWeight)
 		{
 			reason = $"target train weighs {targetTrainWeight:N2}, exceeding {sourceTowPoint.Name}'s {sourceTowPoint.MaximumTowedWeight:N2} limit";

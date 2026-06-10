@@ -193,6 +193,14 @@ public interface IDragAidPrototype : IExclusiveGameItemComponentPrototype<IDragA
 {
 }
 
+public interface IHitchGearPrototype : IExclusiveGameItemComponentPrototype<IHitchGear>, IDragAidPrototype
+{
+}
+
+public interface IRidingGearPrototype : IExclusiveGameItemComponentPrototype<IRidingGear>
+{
+}
+
 public interface IDripPrototype : IExclusiveGameItemComponentPrototype<IDrip>, IConnectablePrototype
 {
 }

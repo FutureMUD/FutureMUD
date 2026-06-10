@@ -27,8 +27,8 @@ Phase 1 and the first four Phase 2 vehicle-systems slices are present:
 - Player commands: `embark`, `disembark`, `drive`, and ordinary movement commands while controlling a vehicle.
 - Admin/builder commands: `vehicleproto` for prototype authoring and creation, `vehicle` for live diagnostics and relinking.
 - Cell-exit movement strategy with controller, location, profile, exit-size, transition, disabled/destroyed, closed-access, required installation, required role, fuel, power, and recursive tow-train validation.
-- Tow-train service for hitch validation, cycle prevention, tow-point usage checks, recursive train weight checks, hitch-item validity, and loaded broken-link diagnostics.
-- Active character/mount hitching through the normal drag movement system, including character-to-character chains and character/mount-to-vehicle tow-point hitches.
+- Tow-train service for hitch validation, cycle prevention, tow-point usage checks, recursive train weight checks, required `IHitchGear`/legacy `IDragAid` connector item validity, in-use item reservation, and loaded broken-link diagnostics.
+- Active character/mount hitching through the normal drag movement system, including character-to-character chains and character/mount-to-vehicle tow-point hitches with physical connector gear for non-direct tow points.
 - Tow point authoring includes a character pull multiplier that scales effective pull capacity for mounts, animals, or people pulling that vehicle point.
 - Persistent mixed hitch graph foundation: `VehicleHitchEndpointType`, `IVehicleHitchLink`, `IVehicleHitchService`, `VehicleHitchLinks` EF schema, runtime invalid-link diagnostics, gameworld registry/load order, and reboot projection into active `CharacterHitch`/`Dragging` effects.
 - `vehicle show` includes mixed persistent hitch links involving that vehicle and reports invalid causes without requiring endpoint load success.
@@ -182,8 +182,8 @@ Important persistence rules:
 - `VehicleExteriorGameItemComponent.VehicleId` is a repairable bridge value, not the source of truth.
 - Access and cargo projection components store only repairable bridge ids; their canonical state lives on the vehicle records.
 - Cargo contents remain ordinary item/container state on the cargo projection item.
-- `VehicleTowLinks` persist vehicle-to-vehicle tow links with vehicle-only endpoints.
-- `VehicleHitchLinks` are the canonical persistent graph for mixed character/vehicle hitching when every character endpoint is an NPC. PC-inclusive hitches remain transient runtime links.
+- `VehicleTowLinks` persist vehicle-to-vehicle tow links with vehicle-only endpoints and the optional hitch item id. Non-direct tow point types now require a valid connector item; old non-direct links without one remain diagnosable but cannot move until repaired or unhitched.
+- `VehicleHitchLinks` are the canonical persistent graph for mixed character/vehicle hitching when every character endpoint is an NPC. PC-inclusive hitches remain transient runtime links. Persistent NPC hitches recover only when any required hitch item still exists, is compatible, and remains with the chain.
 - Vehicle damage-zone wounds are ordinary wound records with optional `VehicleId` and `VehicleDamageZoneId`.
 - Damage-zone effects are prototype state. Live system disablement from damage is derived at runtime from canonical zone status, so manual disabled flags remain separate.
 
@@ -203,7 +203,7 @@ This order allows vehicle prototypes to resolve item prototypes, live vehicles t
 
 When vehicles load, they call `SynchroniseExteriorItemToLocation()` so the exterior item projection returns to the vehicle's canonical cell and room layer after reboot.
 
-Persistent hitch links are loaded after vehicles, world items, and NPCs are available. Endpoints resolve lazily and invalid rows remain diagnosable rather than crashing boot. Missing vehicles, NPCs, tow points, hitch items, or co-location failures make the link invalid until repaired or unhitched. Valid NPC/vehicle links are projected back into active `CharacterHitch` and `Dragging` effects at boot so ordinary movement continues to move the hitch chain. PC endpoints are not persisted; any PC-inclusive hitch is treated as a transient runtime hitch and blocks voluntary quit or timeout while active.
+Persistent hitch links are loaded after vehicles, world items, and NPCs are available. Endpoints resolve lazily and invalid rows remain diagnosable rather than crashing boot. Missing vehicles, NPCs, tow points, required hitch items, incompatible hitch gear, or co-location failures make the link invalid until repaired or unhitched. Valid NPC/vehicle links are projected back into active `CharacterHitch` and `Dragging` effects at boot so ordinary movement continues to move the hitch chain. PC endpoints are not persisted; any PC-inclusive hitch is treated as a transient runtime hitch and blocks voluntary quit or timeout while active.
 
 ## Creation Flow
 
@@ -302,7 +302,7 @@ Supported forms:
 - `unhitch <vehicle>`
 - `unhitch <towpoint@vehicle>`
 
-For vehicle targets, the target tow point must be authored as `towed` or `both`, must not be damage-disabled, must pass required access checks, and the vehicle must be in the same cell and layer. Tow point types `hand`, `manual`, `direct`, `none`, and `pull` are treated as direct hitches that do not require a drag-aid item. Other tow point types, such as `hitch`, `yoke`, or `harness`, require `with <drag aid>` and the named item must expose `IDragAid`.
+For vehicle targets, the target tow point must be authored as `towed` or `both`, must not be damage-disabled, must pass required access checks, and the vehicle must be in the same cell and layer. Tow point types `hand`, `manual`, `direct`, `none`, and `pull` are treated as direct hitches that do not require a connector item. Other tow point types, such as `hitch`, `yoke`, `harness`, `rope`, or `chain`, require `with <item>` and the named item must expose `IHitchGear` or legacy `IDragAid`. New content should use `IHitchGear` so the item declares a compatible role such as tow bar, yoke, harness, rope, chain, traces, or lead rope.
 
 Pull capacity is:
 
@@ -314,7 +314,7 @@ Pull capacity is:
 
 The multiplier is represented internally by dividing the vehicle exterior's effective pulled weight by the tow point multiplier. This deliberately reuses character and mount drag capacity so race/body tuning for animals immediately affects vehicle pulling.
 
-Character-to-character links can form chains, so a leader can pull or lead another character/mount that is itself pulling a cart. A target can only have one incoming drag/hitch relationship at a time, and a source can only actively pull one target at a time. The actor can hitch themselves, a source that trusts them as an ally, a helpless source, or a mount they can currently control or mount. Other conscious sources receive an `accept` proposal before the hitch is applied, and the command revalidates location, capacity, hitch item availability, and vehicle tow-point state when the proposal is accepted. Eligible NPC-only character hitch chains are persisted through `VehicleHitchLinks`; PC-inclusive hitches remain active runtime effects only. For persistent hitches, a hitch item must be in the chain location or on an endpoint, and actor-held hitch items are silently placed with the chain before the canonical link is saved.
+Character-to-character links can form chains, so a leader can pull or lead another character/mount that is itself pulling a cart. A target can only have one incoming drag/hitch relationship at a time, and a source can only actively pull one target at a time. The actor can hitch themselves, a source that trusts them as an ally, a helpless source, or a mount they can currently control or mount. Other conscious sources receive an `accept` proposal before the hitch is applied, and the command revalidates location, capacity, hitch item availability, and vehicle tow-point state when the proposal is accepted. Eligible NPC-only character hitch chains are persisted through `VehicleHitchLinks`; PC-inclusive hitches remain active runtime effects only. While a hitch is active, the connector item receives a no-get in-use effect and is released by `unhitch`, `stop`, link invalidation, or effect cleanup. For persistent hitches, a hitch item must be in the chain location or on an endpoint, and actor-held hitch items are silently placed with the chain before the canonical link is saved.
 
 ### Persistent Hitch Graph Plan
 
@@ -330,7 +330,7 @@ Canonical persistent links use typed endpoints:
 - `TargetType`: vehicle or character.
 - `TargetVehicleId` / `TargetCharacterId`: one is populated according to target type.
 - `TargetTowPointPrototypeId`: required only for vehicle targets.
-- `HitchItemId`: optional physical hitch reference.
+- `HitchItemId`: optional physical hitch reference; required for non-direct vehicle tow point types and validated against `IHitchGear` roles where present.
 - `IsDisabled`: manual/admin disabled state.
 - `CreatedDateTime`: diagnostics and repair context.
 
@@ -511,8 +511,8 @@ Currently covered by implementation:
 - Exterior item damage creates vehicle-zone wounds rather than ordinary exterior item wounds.
 - Damage-zone effects disable linked access, cargo, installation, tow-point, movement-profile, or whole-vehicle movement targets.
 - Admin `vehicle repair <vehicle> damage <zone|all>` clears vehicle damage-zone wounds/status while preserving manually disabled system flags.
-- Hitch/unhitch persists tow links, validates recursive tow trains, records optional physical hitch items, and moves all linked towed vehicles.
-- Active character/mount hitches let characters or mounts pull another character or a vehicle tow point through ordinary cell-exit movement, with optional `IDragAid` items and tow-point pull multipliers.
+- Hitch/unhitch persists tow links, validates recursive tow trains, records required physical hitch items for non-direct tow points, reserves those items while linked, and moves all linked towed vehicles.
+- Active character/mount hitches let characters or mounts pull another character or a vehicle tow point through ordinary cell-exit movement, with `IHitchGear` or legacy `IDragAid` items for non-direct tow points and tow-point pull multipliers.
 
 Still to implement:
 

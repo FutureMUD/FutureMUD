@@ -105,6 +105,7 @@ public class VehicleHitchService : IVehicleHitchService
 		var link = gameworld.VehicleHitchLinks?.Get(linkId);
 		if (link is not null)
 		{
+			HitchGearRules.Release(link.HitchItem, vehicleHitchLinkId: link.Id);
 			gameworld.Destroy(link);
 		}
 	}
@@ -185,10 +186,10 @@ public class VehicleHitchService : IVehicleHitchService
 
 		if (link.TargetType == VehicleHitchEndpointType.Vehicle &&
 		    link.TargetTowPoint is not null &&
-		    TowPointRequiresHitchItem(link.TargetTowPoint) &&
-		    link.HitchItem?.GetItemType<IDragAid>() is null)
+		    HitchGearRules.TowPointRequiresHitchItem(link.TargetTowPoint) &&
+		    !HitchGearRules.GearCompatible(link.HitchItem, link.TargetVehicle?.ExteriorItem?.Weight ?? 0.0,
+			    out reason, false, link.TargetTowPoint))
 		{
-			reason = "the vehicle tow point requires a usable hitch item";
 			return false;
 		}
 
@@ -206,8 +207,11 @@ public class VehicleHitchService : IVehicleHitchService
 		}
 
 		var towPoint = link.TargetTowPoint;
-		source.AddEffect(new CharacterHitch(source, target, towPoint?.CharacterPullMultiplier ?? 1.0, towPoint?.Id, link.Id));
-		source.AddEffect(new Dragging(source, link.HitchItem?.GetItemType<IDragAid>(), target));
+		HitchGearRules.Reserve(link.HitchItem, vehicleHitchLinkId: link.Id, sourceCharacterId: source.Id,
+			targetId: target.Id);
+		source.AddEffect(new CharacterHitch(source, target, towPoint?.CharacterPullMultiplier ?? 1.0, towPoint?.Id,
+			link.Id, link.HitchItemId));
+		source.AddEffect(new Dragging(source, HitchGearRules.DragAidFor(link.HitchItem), target));
 	}
 
 	private static IPerceivable? TargetPerceivable(IVehicleHitchLink link)
@@ -222,6 +226,6 @@ public class VehicleHitchService : IVehicleHitchService
 
 	private static bool TowPointRequiresHitchItem(IVehicleTowPointPrototype towPoint)
 	{
-		return !towPoint.TowType.EqualToAny("hand", "manual", "direct", "none", "pull");
+		return HitchGearRules.TowPointRequiresHitchItem(towPoint);
 	}
 }

@@ -208,6 +208,7 @@ namespace MudSharp.RPG.Checks
         PsychicBoltPower = 199,
         StealCheck = 200, // Called when someone uses the steal command or palms into someone else's belongings
         ApplyPoisonToWeapon = 201, // Called when someone applies a poison coating to a melee weapon or ammunition
+        InstallProstheticSurgery = 202, // Called when someone fits a prosthetic with a surgical procedure
     }
 
     public enum FailIfTraitMissingType
@@ -320,6 +321,7 @@ namespace MudSharp.RPG.Checks
                 case CheckType.InstallImplantSurgery:
                 case CheckType.RemoveImplantSurgery:
                 case CheckType.ConfigureImplantPowerSurgery:
+                case CheckType.InstallProstheticSurgery:
                 case CheckType.ButcheryCheck:
                 case CheckType.SkinningCheck:
                 case CheckType.TossItemCheck:
@@ -435,6 +437,7 @@ namespace MudSharp.RPG.Checks
                 case CheckType.OrganStabilisationCheck:
                 case CheckType.ConfigureImplantInterfaceSurgery:
                 case CheckType.ConfigureImplantPowerSurgery:
+                case CheckType.InstallProstheticSurgery:
                 case CheckType.RescueCheck:
                 case CheckType.DefendLegalCase:
                 case CheckType.EmpathyPower:
@@ -650,6 +653,7 @@ namespace MudSharp.RPG.Checks
                 case CheckType.ActiveSearchCheck:
                 case CheckType.ClimbCheck:
                 case CheckType.ConfigureImplantInterfaceSurgery:
+                case CheckType.InstallProstheticSurgery:
                 case CheckType.InkTattooCheck:
                 case CheckType.SwimmingCheck:
                 case CheckType.FlyCheck:

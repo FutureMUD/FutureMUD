@@ -102,6 +102,7 @@ This makes surgery much more data-driven than ordinary wound treatment.
 | Vascular access | `CannulationProcedure`, `DecannulationProcedure` | Add or remove cannula-based access |
 | Organ surgery | `OrganExtractionProcedure`, `OrganStabilisationProcedure`, `OrganTransplantProcedure` | Remove, stabilize, or replace organs |
 | Implant surgery | `InstallImplantProcedure`, `RemoveImplantProcedure`, `ConfigureImplantPowerProcedure`, `ConfigureImplantInterfaceProcedure` | Install and configure implant systems |
+| Prosthetic fitting | `InstallProstheticProcedure` | Skill-gated fitting of supported prosthetic items to compatible visible severed bodyparts |
 
 ### Seeder relationship
 Stock surgery content is now authored in two places:
@@ -272,6 +273,7 @@ The current stock experience includes:
 - treatment-capable low-tech medical items from `ItemSeeder` and `UsefulSeeder`
 - stock skills and checks for common treatment and rescue flows
 - an enabled `HealthSeeder` that installs tech-level surgery content, including optional mammal veterinary procedures
+- formal human prosthetic fitting procedures for the primitive, pre-modern, and modern medical tiers
 - a broader stock drug catalogue covering pain control, anesthesia, infection control, healing support, organ support, nausea control, paralysis, adrenaline, and overdose reversal
 
 ## Gaps and Extension Pressure

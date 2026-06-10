@@ -243,7 +243,7 @@ public abstract class BoneViaBodypartProcedure : SurgicalProcedure
                 }
             }
 
-            XElement element = partsElement.Element("FixedBone");
+            XElement element = root.Element("FixedBone");
             if (element != null)
             {
                 if (Gameworld.BodypartPrototypes.Get(long.Parse(element.Value)) is IBone gPart)
@@ -252,7 +252,7 @@ public abstract class BoneViaBodypartProcedure : SurgicalProcedure
                 }
             }
 
-            element = partsElement.Element("FixedPart");
+            element = root.Element("FixedPart");
             if (element != null)
             {
                 IBodypart gPart = Gameworld.BodypartPrototypes.Get(long.Parse(element.Value));
@@ -275,12 +275,7 @@ public abstract class BoneViaBodypartProcedure : SurgicalProcedure
     {
         if (command.PeekSpeech().EqualTo("checkbone"))
         {
-            (Func<ICharacter, ICharacter, object[], bool> truth, Func<ICharacter, ICharacter, object[], string> error, string desc) = CheckBonePhaseSpecialAction();
-            phase.PhaseSpecialEffects = (phase.PhaseSpecialEffects ?? "").ConcatIfNotEmpty("\n")
-                                                                         .FluentAppend($"checkbone", true);
-            phase.PhaseSuccessful += truth;
-            phase.WhyPhaseNotSuccessful += error;
-            phase.PhaseSpecialEffectsDescription = (phase.PhaseSpecialEffects ?? "").ConcatIfNotEmpty("\n").FluentAppend(desc, true);
+            AppendPhaseSpecialAction(phase, "checkbone");
             Changed = true;
             actor.OutputHandler.Send($"This phase will now check for the presence of the bone, and stop if not found.");
             return true;
@@ -394,14 +389,14 @@ public abstract class BoneViaBodypartProcedure : SurgicalProcedure
             return false;
         }
 
-        IBodypart bone = TargetBodyType.Organs.GetBodypartByName(command.SafeRemainingArgument);
-        if (bone is null)
+        IBodypart bone = TargetBodyType.Bones.GetBodypartByName(command.SafeRemainingArgument);
+        if (bone is not IBone boneTarget)
         {
             actor.OutputHandler.Send($"The {TargetBodyType.Name.ColourValue()} body has no such bone.");
             return false;
         }
 
-        FixedBoneTarget = (IBone)bone;
+        FixedBoneTarget = boneTarget;
         Changed = true;
         actor.OutputHandler.Send(
             $"This surgical procedure now specifically targets the {bone.FullDescription().ColourValue()} bone.");

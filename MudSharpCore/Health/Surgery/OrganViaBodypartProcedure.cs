@@ -240,7 +240,7 @@ public abstract class OrganViaBodypartProcedure : SurgicalProcedure
                 }
             }
 
-            XElement element = partsElement.Element("FixedOrgan");
+            XElement element = root.Element("FixedOrgan");
             if (element != null)
             {
                 if (Gameworld.BodypartPrototypes.Get(long.Parse(element.Value)) is IOrganProto gPart)
@@ -249,7 +249,7 @@ public abstract class OrganViaBodypartProcedure : SurgicalProcedure
                 }
             }
 
-            element = partsElement.Element("FixedPart");
+            element = root.Element("FixedPart");
             if (element != null)
             {
                 IBodypart gPart = Gameworld.BodypartPrototypes.Get(long.Parse(element.Value));
@@ -269,12 +269,7 @@ public abstract class OrganViaBodypartProcedure : SurgicalProcedure
     {
         if (command.PeekSpeech().EqualTo("checkorgan"))
         {
-            (Func<ICharacter, ICharacter, object[], bool> truth, Func<ICharacter, ICharacter, object[], string> error, string desc) = CheckOrganPhaseSpecialAction();
-            phase.PhaseSpecialEffects = (phase.PhaseSpecialEffects ?? "").ConcatIfNotEmpty("\n")
-                                                                         .FluentAppend($"checkorgan", true);
-            phase.PhaseSuccessful += truth;
-            phase.WhyPhaseNotSuccessful += error;
-            phase.PhaseSpecialEffectsDescription = (phase.PhaseSpecialEffects ?? "").ConcatIfNotEmpty("\n").FluentAppend(desc, true);
+            AppendPhaseSpecialAction(phase, "checkorgan");
             Changed = true;
             actor.OutputHandler.Send($"This phase will now check whether the bodypart has the organ already, and stop if true.");
             return true;

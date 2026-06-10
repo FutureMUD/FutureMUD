@@ -10,11 +10,13 @@ using MudSharp.Character;
 using MudSharp.Form.Audio;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
+using MudSharp.GameItems.Interfaces;
 using MudSharp.Health;
 using MudSharp.Health.Strategies;
 using MudSharp.Health.Surgery;
 using MudSharp.Health.Wounds;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace MudSharp_Unit_Tests;
 
@@ -93,11 +95,11 @@ public class RobotRuntimeTests
     }
 
     [TestMethod]
-    public void MatchesPermissableOrganTarget_CountsAsTargetsAreHonoured()
-    {
-        Mock<IBodypart> targetedPart = new();
-        Mock<IOrganProto> actualOrgan = new();
-        actualOrgan.Setup(x => x.CountsAs(targetedPart.Object)).Returns(true);
+	public void MatchesPermissableOrganTarget_CountsAsTargetsAreHonoured()
+	{
+		Mock<IBodypart> targetedPart = new();
+		Mock<IOrganProto> actualOrgan = new();
+		actualOrgan.Setup(x => x.CountsAs(targetedPart.Object)).Returns(true);
 
         Assert.IsTrue(
             OrganViaBodypartProcedure.MatchesPermissableOrganTarget(
@@ -107,8 +109,64 @@ public class RobotRuntimeTests
         Assert.IsFalse(
             OrganViaBodypartProcedure.MatchesPermissableOrganTarget(
                 new[] { targetedPart.Object },
-                true,
-                actualOrgan.Object));
+				true,
+				actualOrgan.Object));
+	}
+
+	[TestMethod]
+	public void TargetBodypartIsExposed_VisibleSeveredRootCountsAsExposed()
+	{
+		Mock<IBodypart> severedRoot = new();
+		Mock<IBody> body = new();
+		body.SetupGet(x => x.ExposedBodyparts).Returns(Enumerable.Empty<IBodypart>());
+		body.SetupGet(x => x.VisiblySeveredBodyparts).Returns(new[] { severedRoot.Object });
+
+		Assert.IsTrue(BodypartSpecificSurgicalProcedure.TargetBodypartIsExposed(body.Object, severedRoot.Object));
+	}
+
+	[TestMethod]
+	public void CanInstallProstheticOnBody_ExistingProstheticForTargetRejects()
+	{
+		Mock<IBodyPrototype> targetBodyType = new();
+		Mock<IBodyPrototype> patientBodyType = new();
+		patientBodyType.Setup(x => x.CountsAs(targetBodyType.Object)).Returns(true);
+
+		Mock<IBodypart> bodypart = new();
+		Mock<IProsthetic> newProsthetic = new();
+		newProsthetic.SetupGet(x => x.TargetBody).Returns(targetBodyType.Object);
+		newProsthetic.SetupGet(x => x.TargetBodypart).Returns(bodypart.Object);
+		newProsthetic.SetupGet(x => x.InstalledBody).Returns((IBody)null!);
+
+		Mock<IProsthetic> existingProsthetic = new();
+		existingProsthetic.SetupGet(x => x.TargetBodypart).Returns(bodypart.Object);
+
+		Mock<IBody> body = new();
+		body.SetupGet(x => x.Prototype).Returns(patientBodyType.Object);
+		body.SetupGet(x => x.SeveredRoots).Returns(new[] { bodypart.Object });
+		body.SetupGet(x => x.Prosthetics).Returns(new[] { existingProsthetic.Object });
+
+		Assert.IsFalse(InstallProstheticProcedure.CanInstallProstheticOnBody(
+			body.Object,
+			newProsthetic.Object,
+			bodypart.Object));
+	}
+
+	[TestMethod]
+	public void ExpandSpecialPhaseActionTexts_SplitsLegacyCompositeActions()
+	{
+		string[] actions = SurgicalProcedure
+			.ExpandSpecialPhaseActionTexts("checkorgan bleeding 0.05 0.03 0.02 0.01 0.005 0\nexposed checkspace")
+            .ToArray();
+
+        CollectionAssert.AreEqual(
+            new[]
+            {
+                "checkorgan",
+                "bleeding 0.05 0.03 0.02 0.01 0.005 0",
+                "exposed",
+                "checkspace"
+            },
+            actions);
     }
 
     [TestMethod]

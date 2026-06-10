@@ -312,12 +312,7 @@ public class InstallImplantProcedure : BodypartSpecificSurgicalProcedure
     {
         if (command.PeekSpeech().EqualTo("checkspace"))
         {
-            (Func<ICharacter, ICharacter, object[], bool> truth, Func<ICharacter, ICharacter, object[], string> error, string desc) = CheckSpacePhaseSpecialAction();
-            phase.PhaseSpecialEffects = (phase.PhaseSpecialEffects ?? "").ConcatIfNotEmpty("\n")
-                                                                         .FluentAppend($"checkspace", true);
-            phase.PhaseSuccessful += truth;
-            phase.WhyPhaseNotSuccessful += error;
-            phase.PhaseSpecialEffectsDescription = (phase.PhaseSpecialEffects ?? "").ConcatIfNotEmpty("\n").FluentAppend(desc, true);
+            AppendPhaseSpecialAction(phase, "checkspace");
             Changed = true;
             actor.OutputHandler.Send($"This phase will now check whether the bodypart has space for the implant, and stop if not true.");
             return true;

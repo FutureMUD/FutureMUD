@@ -13,4 +13,12 @@ public class CheckEnumExtensionsTests
 		Assert.IsTrue(CheckType.ConfigureElectricalComponentCheck.IsPhysicalActivityCheck());
 		Assert.IsFalse(CheckType.ProgrammingComponentCheck.IsPhysicalActivityCheck());
 	}
+
+	[TestMethod]
+	public void InstallProstheticSurgery_IsPhysicalFriendlyAndVisionInfluenced()
+	{
+		Assert.IsTrue(CheckType.InstallProstheticSurgery.IsPhysicalActivityCheck());
+		Assert.IsTrue(CheckType.InstallProstheticSurgery.IsTargettedFriendlyCheck());
+		Assert.IsTrue(CheckType.InstallProstheticSurgery.IsVisionInfluencedCheck());
+	}
 }

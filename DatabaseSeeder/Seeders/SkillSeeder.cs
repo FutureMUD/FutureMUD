@@ -364,6 +364,7 @@ Again, the choices you make here can be fixed later so don't stress it too great
                 case CheckType.InstallImplantSurgery:
                 case CheckType.RemoveImplantSurgery:
                 case CheckType.ConfigureImplantPowerSurgery:
+                case CheckType.InstallProstheticSurgery:
                 case CheckType.ButcheryCheck:
                 case CheckType.SkinningCheck:
                 case CheckType.TossItemCheck:

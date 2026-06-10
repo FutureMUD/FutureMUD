@@ -53,6 +53,8 @@ public class SurgicalProcedureFactory
                 return new ConfigureImplantPowerProcedure(gameworld, name, gerund, body, school, knowledge);
             case SurgicalProcedureType.ConfigureImplantInterface:
                 return new ConfigureImplantInterfaceProcedure(gameworld, name, gerund, body, school, knowledge);
+            case SurgicalProcedureType.InstallProsthetic:
+                return new InstallProstheticProcedure(gameworld, name, gerund, body, school, knowledge);
             default:
                 throw new ArgumentOutOfRangeException(nameof(type), type, null);
         }
@@ -96,6 +98,8 @@ public class SurgicalProcedureFactory
                 return new ConfigureImplantPowerProcedure(procedure, gameworld);
             case SurgicalProcedureType.ConfigureImplantInterface:
                 return new ConfigureImplantInterfaceProcedure(procedure, gameworld);
+            case SurgicalProcedureType.InstallProsthetic:
+                return new InstallProstheticProcedure(procedure, gameworld);
             default:
                 throw new NotImplementedException();
         }

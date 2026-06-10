@@ -1,13 +1,13 @@
 # Medieval ItemSeeder Rebuild Audit
 
-The medieval `ItemSeeder.Rework` item and craft implementation was reset to launch stubs for a from-scratch rebuild. The rebuild has now begun with direct seeded clothing, household furniture, and military-goods prototypes.
+The medieval `ItemSeeder.Rework` item and craft implementation was reset to launch stubs for a from-scratch rebuild. The rebuild has now begun with direct seeded clothing, household goods and furniture, and military-goods prototypes.
 
 ## Current Runtime State
 
 - `ItemSeeder.Rework.cs` still dispatches the medieval item launch methods when the `medieval` era is selected.
 - `ItemSeederCrafting.cs` still dispatches the medieval craft launch methods.
-- `SeedMedievalClothing` is the first rebuilt medieval item slice and now contains the direct clothing item `CreateItem(...)` calls.
-- `SeedMedievalHouseholdFurniture` contains the direct household furniture and fixture `CreateItem(...)` calls.
+- `SeedMedievalClothing` contains the direct clothing item `CreateItem(...)` calls.
+- `SeedMedievalHouseholdFurniture` contains the direct household goods, furniture, lighting, vessel, water-source, door, lock, and decoration `CreateItem(...)` calls.
 - `SeedMedievalWeaponsShieldsAccessories` contains the direct melee weapon, ranged weapon, ammunition, and thrown-weapon `CreateItem(...)` calls.
 - `SeedMedievalArmour` contains the direct armour, horse tack, barding, shield, and military support-gear `CreateItem(...)` calls.
 - The remaining `ItemSeeder.Rework.Medieval*.cs` category files are currently no-op launch points only.
@@ -33,6 +33,15 @@ The live medieval military item source is intentionally direct-call only:
 - Armour, horse tack, barding, shields, and military support gear live in `DatabaseSeeder/Seeders/ItemSeeder.Rework.MedievalArmour.cs`.
 - Each military-goods prototype is represented by exactly one `CreateItem(...)` call in its owning method.
 - Military crafts are not rebuilt yet; the medieval craft launch points remain no-op methods.
+
+## Active Household Goods and Furniture Source
+
+The live medieval household goods and furniture item source is intentionally direct-call only:
+
+- Item prototypes live in `DatabaseSeeder/Seeders/ItemSeeder.Rework.MedievalFurniture.cs`.
+- Catalogue metadata lives in `Design Documents/Seeding/Medieval_Household_Goods_Furniture_Seeder_Design_Reference.md`.
+- Each household-goods prototype is represented by exactly one `CreateItem(...)` call in `SeedMedievalHouseholdFurniture`.
+- Furniture and container crafts are not rebuilt yet; `SeedMedievalFurnitureAndContainerCrafts` remains a no-op.
 
 ## Shared Historic Foundations
 

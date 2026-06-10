@@ -50,6 +50,7 @@ This folder is organised by subsystem so implementation notes, builder workflows
 - [Antiquity Writing Implements and Documents Crafting Suite](./Crafting/Antiquity_Writing_Implements_Crafting_Suite.md)
 - [Medieval ItemSeeder Rebuild Audit](./Seeding/Medieval_Crafting_Audit.md)
 - [Medieval Clothing Seeder Design Reference](./Seeding/Medieval_Clothing_Seeder_Design_Reference.md)
+- [Medieval Military Seeder Design Reference](./Seeding/Medieval_Military_Seeder_Design_Reference.md)
 - [Butchering System](./Crafting/Butchering_System.md)
 - [Crafting System Overview](./Crafting/Crafting_System_Overview.md)
 - [Crafting System Runtime and Extensibility](./Crafting/Crafting_System_Runtime_and_Extensibility.md)

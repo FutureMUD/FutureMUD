@@ -106,16 +106,19 @@ public class ItemSeederMedievalCraftingTests
 	}
 
 	[TestMethod]
-	public void MedievalItemLaunchers_AreNoOpsExceptClothing()
+	public void MedievalItemLaunchers_AreNoOpsExceptImplementedDirectCatalogues()
 	{
 		foreach (var (fileName, methodName) in MedievalItemLaunchers
-			         .Where(x => !x.Value.Equals("SeedMedievalClothing", StringComparison.Ordinal)))
+			         .Where(x => !x.Value.Equals("SeedMedievalClothing", StringComparison.Ordinal))
+			         .Where(x => !x.Value.Equals("SeedMedievalHouseholdFurniture", StringComparison.Ordinal)))
 		{
 			var source = ReadSource("DatabaseSeeder", "Seeders", fileName);
 			AssertNoOpMethod(source, methodName);
 		}
 
-		var medievalItemSource = ReadMedievalItemSources("ItemSeeder.Rework.MedievalClothing.cs");
+		var medievalItemSource = ReadMedievalItemSources(
+			"ItemSeeder.Rework.MedievalClothing.cs",
+			"ItemSeeder.Rework.MedievalFurniture.cs");
 		foreach (var forbidden in new[]
 		{
 			"CreateItem(",
@@ -183,6 +186,39 @@ public class ItemSeederMedievalCraftingTests
 		{
 			Assert.IsFalse(clothingSource.Contains(forbidden, StringComparison.Ordinal),
 				$"SeedMedievalClothing should remain direct CreateItem calls without helper catalogue token {forbidden}.");
+		}
+	}
+
+	[TestMethod]
+	public void MedievalFurnitureSeeder_ImplementsReferenceCatalogueWithDirectCreateItemCalls()
+	{
+		var furnitureSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.MedievalFurniture.cs");
+		var sourceReferences = Regex.Matches(
+				furnitureSource,
+				@"CreateItem\s*\(\s*""(?<ref>medieval_[^""]+)""",
+				RegexOptions.Multiline | RegexOptions.CultureInvariant)
+			.Cast<Match>()
+			.Select(x => x.Groups["ref"].Value)
+			.ToArray();
+
+		Assert.AreEqual(1751, sourceReferences.Length,
+			"SeedMedievalHouseholdFurniture should contain exactly one direct CreateItem call for each source catalogue row.");
+		Assert.AreEqual(sourceReferences.Length, sourceReferences.Distinct(StringComparer.OrdinalIgnoreCase).Count(),
+			"Each medieval household item should be created exactly once.");
+
+		foreach (var forbidden in new[]
+		{
+			"foreach",
+			"for (",
+			"Dictionary<",
+			"IReadOnly",
+			"BuildMedieval",
+			"SeedEraItemSpecs(",
+			"EnsureMedieval"
+		})
+		{
+			Assert.IsFalse(furnitureSource.Contains(forbidden, StringComparison.Ordinal),
+				$"SeedMedievalHouseholdFurniture should remain direct CreateItem calls without helper catalogue token {forbidden}.");
 		}
 	}
 

@@ -916,6 +916,95 @@ public class Craft : Framework.Revision.EditableItem, ICraft
         return (true, clashResults.Solution, plans, null);
     }
 
+    public (bool Success, string Error, CraftResourceReservation Reservation) CreateResourceReservation(
+        ICharacter character, IActiveCraftGameItemComponent component, int fromPhase = 1, int toPhase = int.MaxValue)
+    {
+        var actualToPhase = Math.Min(toPhase, PhaseEchoes.Count());
+        (bool success, IEnumerable<(ICraftInput Input, IPerceivable Target)> inputs, Dictionary<int, IInventoryPlan> plans, IEnumerable<ICraftInput> missingInput) =
+            ScoutToolsAndInputs(character, component, fromPhase, actualToPhase);
+        if (!success)
+        {
+            return (false, DescribeScoutFailure(character, plans, missingInput), null);
+        }
+
+        var inputReservations = inputs
+                                .Where(x => x.Target is not null)
+                                .Select(x => new CraftInputReservation(
+                                    x.Input.Id,
+                                    x.Input.Name,
+                                    x.Input.InputType,
+                                    x.Target.Id,
+                                    x.Target.FrameworkItemType,
+                                    x.Target.HowSeen(character),
+                                    _craftInputConsumedPhases.TryGetValue(x.Input.Id, out var consumedPhase) ? consumedPhase : 0,
+                                    ItemIdsForReservation(x.Target)))
+                                .ToList();
+
+        var toolReservations = plans
+                               .SelectMany(x => x.Value.ScoutAllTargets()
+                                                 .Where(y => y.PrimaryTarget is not null &&
+                                                             y.OriginalReference is ICraftTool)
+                                                 .Select(y => (Phase: x.Key, Item: y.PrimaryTarget,
+                                                     Tool: (ICraftTool)y.OriginalReference)))
+                               .Select(x => new CraftToolReservation(
+                                   x.Tool.Id,
+                                   x.Tool.Name,
+                                   x.Tool.ToolType,
+                                   x.Item.Id,
+                                   x.Item.HowSeen(character),
+                                   x.Phase))
+                               .ToList();
+
+        return (true, string.Empty, new CraftResourceReservation(
+            Id,
+            RevisionNumber,
+            Name,
+            fromPhase,
+            actualToPhase,
+            inputReservations,
+            toolReservations));
+    }
+
+    private static IReadOnlyCollection<long> ItemIdsForReservation(IPerceivable target)
+    {
+        if (target is IGameItem item)
+        {
+            return [item.Id];
+        }
+
+        if (target is IPerceivableGroup group)
+        {
+            return group.Members
+                        .OfType<IGameItem>()
+                        .Select(x => x.Id)
+                        .Distinct()
+                        .ToList();
+        }
+
+        return [];
+    }
+
+    private static string DescribeScoutFailure(ICharacter character, Dictionary<int, IInventoryPlan> plans,
+        IEnumerable<ICraftInput> missingInput)
+    {
+        foreach (var plan in plans)
+        {
+            switch (plan.Value.PlanIsFeasible())
+            {
+                case InventoryPlanFeasibility.NotFeasibleNotEnoughHands:
+                    return $"You cannot do that craft because you do not have enough {character.Body.Prototype.WielderDescriptionPlural} to hold all the tools you will need.";
+                case InventoryPlanFeasibility.NotFeasibleNotEnoughWielders:
+                    return $"You cannot do that craft because you do not have enough {character.Body.Prototype.WielderDescriptionPlural} to wield all the tools you will need.";
+                case InventoryPlanFeasibility.NotFeasibleMissingItems:
+                    return "You cannot do that craft because you are missing some of the necessary tools.";
+            }
+        }
+
+        return missingInput?.Any() == true
+            ? $"You cannot do that craft because you cannot find the materials to do some or all of {missingInput.Select(x => x.Name.Colour(Telnet.Green)).ListToString()}."
+            : "You cannot do that craft because the necessary tools or materials could not be reserved.";
+    }
+
     public (bool Success, string Error) CanDoCraft(ICharacter character, IActiveCraftGameItemComponent component,
         bool allowStartOnly, bool ignoreToolAndMaterialFailure)
     {

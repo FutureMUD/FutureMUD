@@ -1007,12 +1007,12 @@ internal sealed class EmploymentCommandService
 
 			if (operationalStates is not null && i < operationalStates.Count && !operationalStates[i].IsEmpty)
 			{
-				sb.AppendLine($"\t\tState: {DescribeOperationalState(operationalStates[i])}");
+				sb.AppendLine($"\t\tState: {DescribeOperationalState(operationalStates[i], actor)}");
 			}
 		}
 	}
 
-	private static string DescribeOperationalState(EmploymentActionStepOperationalState state)
+	private static string DescribeOperationalState(EmploymentActionStepOperationalState state, IPerceiver voyeur)
 	{
 		var parts = new List<string>();
 		if (!string.IsNullOrWhiteSpace(state.OperationalPayload))
@@ -1042,7 +1042,7 @@ internal sealed class EmploymentCommandService
 
 		if (!string.IsNullOrWhiteSpace(state.CraftJobReference))
 		{
-			parts.Add($"Craft: {state.CraftJobReference.ColourValue()}");
+			parts.Add($"Craft: {EmploymentCraftService.DescribeCraftReference(state.CraftJobReference, voyeur).ColourValue()}");
 		}
 
 		if (!string.IsNullOrWhiteSpace(state.LoadedAssets))

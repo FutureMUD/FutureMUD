@@ -2861,6 +2861,7 @@ public sealed class EmploymentTaskBoard : IEmploymentTaskBoard
 
 		reason = string.IsNullOrWhiteSpace(reason) ? "Cancelled by a manager." : reason.Trim();
 		concrete.Cancel(reason);
+		EmploymentCraftService.ReleaseCraftReservations(concrete, cancelledBy?.Gameworld);
 		_host.EmploymentRegister.Record(EmploymentRegisterEntryType.ActiveTaskCancelled, cancelledBy,
 			$"Cancelled active task {task.Name}: {reason}", task.CorrelationId);
 		_host.DebugEmployment($"Cancelled active task {task.Name}: {reason}", cancelledBy?.Gameworld);
@@ -3763,9 +3764,14 @@ public sealed class EmploymentTaskDispatcher
 			task.AssignedEmployee.Gameworld);
 		if (concrete.Status == EmploymentTaskStatus.Completed)
 		{
+			EmploymentCraftService.ReleaseCraftReservations(concrete, task.AssignedEmployee.Gameworld);
 			context.RecordRegister(EmploymentRegisterEntryType.ActiveTaskCompleted, task.AssignedEmployee,
 				$"Completed active task {task.Name}.", task.CorrelationId);
 			context.Employer.DebugEmployment($"Completed active task {task.Name}.", task.AssignedEmployee.Gameworld);
+		}
+		else if (concrete.Status == EmploymentTaskStatus.Failed)
+		{
+			EmploymentCraftService.ReleaseCraftReservations(concrete, task.AssignedEmployee.Gameworld);
 		}
 
 		return result;

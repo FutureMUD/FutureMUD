@@ -27,6 +27,7 @@ public static class DefaultStaticSettings
             { "TimeIsFrozen", "false"},
             { "DefaultNonCardinalExitForDwellings", "1"},
             { "DisableCraftQualityCalculation", "false"},
+            { "EmploymentCraftReservationDurationMinutes", "30"},
             { "LookingForTracksTimeExpression", "10"},
             { "MaximumLandmarkDirectionsDistance", "20"},
             { "RangeCountingMode", "pythagoreanround"},

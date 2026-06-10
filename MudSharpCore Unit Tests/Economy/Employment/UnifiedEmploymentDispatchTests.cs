@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -12,6 +13,8 @@ using MudSharp.Character.Name;
 using MudSharp.Community.Boards;
 using MudSharp.Construction;
 using MudSharp.Database;
+using MudSharp.Effects.Concrete;
+using MudSharp.Effects.Interfaces;
 using MudSharp.Economy;
 using MudSharp.Economy.Auctions;
 using MudSharp.Economy.Banking;
@@ -24,12 +27,14 @@ using MudSharp.Economy.Stables;
 using MudSharp.Form.Material;
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
+using MudSharp.Framework.Revision;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.NPC;
 using MudSharp.NPC.AI;
 using MudSharp.TimeAndDate;
 using MudSharp.TimeAndDate.Date;
+using MudSharp.Work.Crafts;
 
 #nullable enable
 
@@ -1985,6 +1990,328 @@ public class UnifiedEmploymentDispatchTests
 	}
 
 	[TestMethod]
+	public void EmploymentCraftReservations_CancelActiveTaskReleasesReservedItems()
+	{
+		var currency = Currency();
+		var manager = Character(1, "Manager");
+		var input = ReservationTrackedItem(101, "reserved ore", out var inputPredicates);
+		var tool = ReservationTrackedItem(102, "reserved hammer", out var toolPredicates);
+		var station = ReservationTrackedItem(103, "reserved forge", out var stationPredicates);
+		var items = new Dictionary<long, IGameItem>
+		{
+			[input.Object.Id] = input.Object,
+			[tool.Object.Id] = tool.Object,
+			[station.Object.Id] = station.Object
+		};
+		var gameworld = Gameworld(currency.Object, new Dictionary<long, ICharacter>
+		{
+			[manager.Object.Id] = manager.Object
+		}, items: items);
+		manager.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		IEmploymentHost host = new TestEmploymentHost("shop", currency.Object);
+		host.Hire(manager.Object, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.AssignTasks | EmploymentAuthority.CancelTasks), null);
+		var task = (EmploymentActiveTask)host.TaskBoard.CreateActiveTask("abandoned craft",
+			new EmploymentActionPlan([new CataloguedActionShellStep("report", "craft abandoned")]),
+			manager.Object);
+		task.MarkStep(0, EmploymentActionStepStatus.Pending,
+			new EmploymentActionStepOperationalState(
+				CraftJobReference: CraftReservationStateJson(input.Object.Id, tool.Object.Id, station.Object.Id)));
+
+		Assert.IsTrue(host.TaskBoard.CancelActiveTask(task, manager.Object, "craft was abandoned"));
+
+		AssertReservationCleanup(input, inputPredicates, task);
+		AssertReservationCleanup(tool, toolPredicates, task);
+		AssertReservationCleanup(station, stationPredicates, task);
+	}
+
+	[TestMethod]
+	public void EmploymentCraftReservations_CompletedTaskReleasesReservedItems()
+	{
+		var currency = Currency();
+		var manager = Character(1, "Manager");
+		var input = ReservationTrackedItem(201, "reserved ore", out var inputPredicates);
+		var tool = ReservationTrackedItem(202, "reserved hammer", out var toolPredicates);
+		var station = ReservationTrackedItem(203, "reserved forge", out var stationPredicates);
+		var items = new Dictionary<long, IGameItem>
+		{
+			[input.Object.Id] = input.Object,
+			[tool.Object.Id] = tool.Object,
+			[station.Object.Id] = station.Object
+		};
+		var gameworld = Gameworld(currency.Object, new Dictionary<long, ICharacter>
+		{
+			[manager.Object.Id] = manager.Object
+		}, items: items);
+		manager.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		IEmploymentHost host = new TestEmploymentHost("shop", currency.Object);
+		host.Hire(manager.Object, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.AssignTasks), null);
+		var task = (EmploymentActiveTask)host.TaskBoard.CreateActiveTask("finish craft",
+			new EmploymentActionPlan([new CataloguedActionShellStep("report", "craft finished")]),
+			manager.Object);
+		task.MarkStep(0, EmploymentActionStepStatus.Pending,
+			new EmploymentActionStepOperationalState(
+				CraftJobReference: CraftReservationStateJson(input.Object.Id, tool.Object.Id, station.Object.Id)));
+		task.Assign(manager.Object);
+		var dispatcher = new EmploymentTaskDispatcher();
+
+		var result = dispatcher.AdvanceTask(task, new EmploymentTaskContext(host));
+
+		Assert.IsTrue(result.Success);
+		Assert.AreEqual(EmploymentTaskStatus.Completed, task.Status);
+		AssertReservationCleanup(input, inputPredicates, task);
+		AssertReservationCleanup(tool, toolPredicates, task);
+		AssertReservationCleanup(station, stationPredicates, task);
+	}
+
+	[TestMethod]
+	public void EmploymentCraftReservations_CraftStationReservationUsesFiniteExpiry()
+	{
+		var currency = Currency();
+		var manager = Character(1, "Manager");
+		var cell = Cell(10, "workshop").Object;
+		var station = Item(301, "reserved forge");
+		var addedEffects = new List<EmploymentCraftReservationEffect>();
+		var addedDurations = new List<TimeSpan>();
+		var gameworld = Gameworld(currency.Object, new Dictionary<long, ICharacter>
+		{
+			[manager.Object.Id] = manager.Object
+		}, [cell], new Dictionary<long, IGameItem>
+		{
+			[station.Object.Id] = station.Object
+		});
+		gameworld.Setup(x => x.GetStaticDouble("EmploymentCraftReservationDurationMinutes")).Returns(7.0);
+		manager.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		manager.SetupGet(x => x.Location).Returns(cell);
+		manager.Setup(x => x.TargetLocalOrHeldItem("forge")).Returns(station.Object);
+		station.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		station.Setup(x => x.AddEffect(It.IsAny<MudSharp.Effects.IEffect>(), It.IsAny<TimeSpan>()))
+		       .Callback<MudSharp.Effects.IEffect, TimeSpan>((effect, duration) =>
+		       {
+			       addedEffects.Add((EmploymentCraftReservationEffect)effect);
+			       addedDurations.Add(duration);
+		       });
+		IEmploymentHost host = new TestEmploymentHost("shop", currency.Object);
+		host.Hire(manager.Object, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.AssignTasks | EmploymentAuthority.ManageCraftRules), null);
+		var task = host.TaskBoard.CreateActiveTask("reserve forge",
+			new EmploymentActionPlan([new CraftStationActionStep("forge")]),
+			manager.Object);
+		var context = new EmploymentTaskContext(host);
+		context.HydrateTaskState(task, 0);
+
+		Assert.IsTrue(context.TryUseCraftStation(manager.Object, "forge", out var reason, out var state), reason);
+
+		Assert.IsFalse(string.IsNullOrWhiteSpace(state.CraftJobReference));
+		Assert.AreEqual(1, addedEffects.Count);
+		Assert.AreEqual(task.CorrelationId, addedEffects.Single().CorrelationId);
+		Assert.IsTrue(addedDurations.Single() > TimeSpan.FromMinutes(6.5));
+		Assert.IsTrue(addedDurations.Single() <= TimeSpan.FromMinutes(7.0));
+	}
+
+	[TestMethod]
+	public void EmploymentCraftReservations_CraftStationReservationRejectsConflictingActiveLock()
+	{
+		var currency = Currency();
+		var manager = Character(1, "Manager");
+		var cell = Cell(10, "workshop").Object;
+		var station = Item(302, "reserved forge");
+		var gameworld = Gameworld(currency.Object, new Dictionary<long, ICharacter>
+		{
+			[manager.Object.Id] = manager.Object
+		}, [cell], new Dictionary<long, IGameItem>
+		{
+			[station.Object.Id] = station.Object
+		});
+		gameworld.Setup(x => x.GetStaticDouble("EmploymentCraftReservationDurationMinutes")).Returns(7.0);
+		manager.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		manager.SetupGet(x => x.Location).Returns(cell);
+		manager.Setup(x => x.TargetLocalOrHeldItem("forge")).Returns(station.Object);
+		station.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		var existingReservation = new EmploymentCraftReservationEffect(
+			station.Object,
+			Guid.NewGuid(),
+			Guid.NewGuid(),
+			"other craft task",
+			"craft station forge",
+			DateTimeOffset.UtcNow.AddMinutes(5));
+		SetupCraftReservationEffects(station, [existingReservation]);
+		IEmploymentHost host = new TestEmploymentHost("shop", currency.Object);
+		host.Hire(manager.Object, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.AssignTasks | EmploymentAuthority.ManageCraftRules), null);
+		var task = host.TaskBoard.CreateActiveTask("reserve forge",
+			new EmploymentActionPlan([new CraftStationActionStep("forge")]),
+			manager.Object);
+		var context = new EmploymentTaskContext(host);
+		context.HydrateTaskState(task, 0);
+
+		Assert.IsFalse(context.TryUseCraftStation(manager.Object, "forge", out var reason, out _));
+
+		StringAssert.Contains(reason, "already reserved");
+		station.Verify(x => x.AddEffect(It.IsAny<MudSharp.Effects.IEffect>(), It.IsAny<TimeSpan>()), Times.Never);
+	}
+
+	[TestMethod]
+	public void EmploymentCraftReservations_CraftStartRejectsConflictingResourceLock()
+	{
+		var currency = Currency();
+		var manager = Character(1, "Manager");
+		var cell = Cell(10, "workshop").Object;
+		var reservedInput = Item(402, "reserved ore");
+		var craft = new Mock<ICraft>();
+		craft.SetupGet(x => x.Id).Returns(501);
+		craft.SetupGet(x => x.Name).Returns("reserve craft");
+		craft.SetupGet(x => x.FrameworkItemType).Returns("Craft");
+		craft.SetupGet(x => x.RevisionNumber).Returns(1);
+		craft.SetupGet(x => x.Status).Returns(RevisionStatus.Current);
+		craft.Setup(x => x.AppearInCraftsList(manager.Object)).Returns(true);
+		craft.Setup(x => x.CanDoCraft(manager.Object, It.IsAny<IActiveCraftGameItemComponent>(), true, false))
+		     .Returns((true, string.Empty));
+		craft.Setup(x => x.CreateResourceReservation(
+				manager.Object,
+				It.IsAny<IActiveCraftGameItemComponent>(),
+				It.IsAny<int>(),
+				It.IsAny<int>()))
+		     .Returns((true, string.Empty, new CraftResourceReservation(
+			     craft.Object.Id,
+			     craft.Object.RevisionNumber,
+			     craft.Object.Name,
+			     1,
+			     int.MaxValue,
+			     [
+				     new CraftInputReservation(
+					     501,
+					     "ore",
+					     "simple",
+					     reservedInput.Object.Id,
+					     "GameItem",
+					     reservedInput.Object.Name,
+					     1,
+					     [reservedInput.Object.Id])
+			     ],
+			     [])));
+		var crafts = new RevisableAll<ICraft>();
+		crafts.Add(craft.Object);
+		var gameworld = Gameworld(currency.Object, new Dictionary<long, ICharacter>
+		{
+			[manager.Object.Id] = manager.Object
+		}, [cell], new Dictionary<long, IGameItem>
+		{
+			[reservedInput.Object.Id] = reservedInput.Object
+		});
+		gameworld.SetupGet(x => x.Crafts).Returns(crafts);
+		gameworld.Setup(x => x.GetStaticDouble("EmploymentCraftReservationDurationMinutes")).Returns(7.0);
+		manager.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		manager.SetupGet(x => x.Location).Returns(cell);
+		manager.SetupGet(x => x.State).Returns(CharacterState.Awake);
+		manager.SetupGet(x => x.Effects).Returns([]);
+		manager.Setup(x => x.EffectsOfType<IActiveCraftEffect>(It.IsAny<Predicate<IActiveCraftEffect>>()))
+		       .Returns(Array.Empty<IActiveCraftEffect>());
+		var existingReservation = new EmploymentCraftReservationEffect(
+			reservedInput.Object,
+			Guid.NewGuid(),
+			Guid.NewGuid(),
+			"other craft task",
+			"craft input ore",
+			DateTimeOffset.UtcNow.AddMinutes(5));
+		SetupCraftReservationEffects(reservedInput, [existingReservation]);
+		IEmploymentHost host = new TestEmploymentHost("shop", currency.Object);
+		host.Hire(manager.Object, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.AssignTasks | EmploymentAuthority.ManageCraftRules), null);
+		var task = host.TaskBoard.CreateActiveTask("start craft",
+			new EmploymentActionPlan([new CraftTriggerActionStep("reserve craft")]),
+			manager.Object);
+		var context = new EmploymentTaskContext(host);
+		context.HydrateTaskState(task, 0);
+
+		Assert.IsFalse(context.TryStartCraft(manager.Object, "reserve craft", out var reason, out _));
+
+		StringAssert.Contains(reason, "already reserved");
+		craft.Verify(x => x.BeginCraft(manager.Object), Times.Never);
+		reservedInput.Verify(x => x.AddEffect(It.IsAny<MudSharp.Effects.IEffect>(), It.IsAny<TimeSpan>()),
+			Times.Never);
+	}
+
+	[TestMethod]
+	public void EmploymentCraftReservations_FailedCraftStartReleasesFreshReservationLocks()
+	{
+		var currency = Currency();
+		var manager = Character(1, "Manager");
+		var cell = Cell(10, "workshop").Object;
+		var reservedInput = ReservationTrackedItem(401, "reserved ore", out var inputPredicates);
+		var addedEffects = new List<EmploymentCraftReservationEffect>();
+		var craft = new Mock<ICraft>();
+		craft.SetupGet(x => x.Id).Returns(500);
+		craft.SetupGet(x => x.Name).Returns("reserve craft");
+		craft.SetupGet(x => x.FrameworkItemType).Returns("Craft");
+		craft.SetupGet(x => x.RevisionNumber).Returns(1);
+		craft.SetupGet(x => x.Status).Returns(RevisionStatus.Current);
+		craft.Setup(x => x.AppearInCraftsList(manager.Object)).Returns(true);
+		craft.Setup(x => x.CanDoCraft(manager.Object, It.IsAny<IActiveCraftGameItemComponent>(), true, false))
+		     .Returns((true, string.Empty));
+		craft.Setup(x => x.CreateResourceReservation(
+				manager.Object,
+				It.IsAny<IActiveCraftGameItemComponent>(),
+				It.IsAny<int>(),
+				It.IsAny<int>()))
+		     .Returns((true, string.Empty, new CraftResourceReservation(
+			     craft.Object.Id,
+			     craft.Object.RevisionNumber,
+			     craft.Object.Name,
+			     1,
+			     int.MaxValue,
+			     [
+				     new CraftInputReservation(
+					     501,
+					     "ore",
+					     "simple",
+					     reservedInput.Object.Id,
+					     "GameItem",
+					     reservedInput.Object.Name,
+					     1,
+					     [reservedInput.Object.Id])
+			     ],
+			     [])));
+		var crafts = new RevisableAll<ICraft>();
+		crafts.Add(craft.Object);
+		var gameworld = Gameworld(currency.Object, new Dictionary<long, ICharacter>
+		{
+			[manager.Object.Id] = manager.Object
+		}, [cell], new Dictionary<long, IGameItem>
+		{
+			[reservedInput.Object.Id] = reservedInput.Object
+		});
+		gameworld.SetupGet(x => x.Crafts).Returns(crafts);
+		gameworld.Setup(x => x.GetStaticDouble("EmploymentCraftReservationDurationMinutes")).Returns(7.0);
+		manager.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		manager.SetupGet(x => x.Location).Returns(cell);
+		manager.SetupGet(x => x.State).Returns(CharacterState.Awake);
+		manager.SetupGet(x => x.Effects).Returns([]);
+		manager.Setup(x => x.EffectsOfType<IActiveCraftEffect>(It.IsAny<Predicate<IActiveCraftEffect>>()))
+		       .Returns(Array.Empty<IActiveCraftEffect>());
+		SetupCraftReservationEffects(reservedInput, []);
+		reservedInput.Setup(x => x.AddEffect(It.IsAny<MudSharp.Effects.IEffect>(), It.IsAny<TimeSpan>()))
+		             .Callback<MudSharp.Effects.IEffect, TimeSpan>((effect, _) =>
+			             addedEffects.Add((EmploymentCraftReservationEffect)effect));
+		IEmploymentHost host = new TestEmploymentHost("shop", currency.Object);
+		host.Hire(manager.Object, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.AssignTasks | EmploymentAuthority.ManageCraftRules), null);
+		var task = host.TaskBoard.CreateActiveTask("start craft",
+			new EmploymentActionPlan([new CraftTriggerActionStep("reserve craft")]),
+			manager.Object);
+		var context = new EmploymentTaskContext(host);
+		context.HydrateTaskState(task, 0);
+
+		Assert.IsFalse(context.TryStartCraft(manager.Object, "reserve craft", out var reason, out _));
+
+		StringAssert.Contains(reason, "did not create a native active craft effect");
+		Assert.AreEqual(1, addedEffects.Count);
+		Assert.AreEqual(task.CorrelationId, addedEffects.Single().CorrelationId);
+		AssertReservationCleanup(reservedInput, inputPredicates, task);
+	}
+
+	[TestMethod]
 	public void EmploymentPersistence_AllowsHostLocalRuntimeIdsAcrossDifferentHosts()
 	{
 		var fmdbState = CaptureFMDBState();
@@ -2341,6 +2668,105 @@ public class UnifiedEmploymentDispatchTests
 				It.IsAny<PerceiveIgnoreFlags>()))
 		    .Returns(name);
 		return item;
+	}
+
+	private static Mock<IGameItem> ReservationTrackedItem(long id, string name,
+		out List<Predicate<EmploymentCraftReservationEffect>> cleanupPredicates)
+	{
+		cleanupPredicates = [];
+		var capturedPredicates = cleanupPredicates;
+		var item = Item(id, name);
+		item.Setup(x => x.RemoveAllEffects(It.IsAny<Predicate<EmploymentCraftReservationEffect>>(), true))
+		    .Callback<Predicate<EmploymentCraftReservationEffect>, bool>((predicate, _) =>
+			    capturedPredicates.Add(predicate))
+		    .Returns(true);
+		return item;
+	}
+
+	private static void SetupCraftReservationEffects(Mock<IGameItem> item,
+		IReadOnlyCollection<EmploymentCraftReservationEffect> effects)
+	{
+		item.Setup(x => x.EffectsOfType<EmploymentCraftReservationEffect>(
+				It.IsAny<Predicate<EmploymentCraftReservationEffect>>()))
+		    .Returns((Predicate<EmploymentCraftReservationEffect> predicate) =>
+			    predicate is null
+				    ? effects.ToList()
+				    : effects.Where(x => predicate(x)).ToList());
+	}
+
+	private static void AssertReservationCleanup(Mock<IGameItem> item,
+		IReadOnlyCollection<Predicate<EmploymentCraftReservationEffect>> cleanupPredicates,
+		IEmploymentActiveTask task)
+	{
+		item.Verify(x => x.RemoveAllEffects(It.IsAny<Predicate<EmploymentCraftReservationEffect>>(), true),
+			Times.Once);
+		var predicate = cleanupPredicates.Single();
+		Assert.IsTrue(predicate(new EmploymentCraftReservationEffect(item.Object, task.Id, task.CorrelationId,
+			task.Name, "test", DateTimeOffset.UtcNow.AddMinutes(5))));
+		Assert.IsFalse(predicate(new EmploymentCraftReservationEffect(item.Object, Guid.NewGuid(), Guid.NewGuid(),
+			"other", "test", DateTimeOffset.UtcNow.AddMinutes(5))));
+	}
+
+	private static string CraftReservationStateJson(long inputItemId, long toolItemId, long stationItemId)
+	{
+		var reservedAt = DateTimeOffset.UtcNow;
+		var expiresAt = reservedAt.AddMinutes(30);
+		return JsonSerializer.Serialize(new
+		{
+			Version = "craft-v2",
+			CraftId = 42L,
+			Revision = 3,
+			CraftName = "test craft",
+			ActiveItemId = 9001L,
+			PreExistingItemIds = Array.Empty<long>(),
+			ReservedAt = reservedAt,
+			ExpiresAt = expiresAt,
+			Reservation = new
+			{
+				CraftId = 42L,
+				RevisionNumber = 3,
+				CraftName = "test craft",
+				FromPhase = 1,
+				ToPhase = 1,
+				Inputs = new[]
+				{
+					new
+					{
+						InputId = 4201L,
+						InputName = "ore",
+						InputType = "simple",
+						PerceivableId = inputItemId,
+						PerceivableType = "GameItem",
+						PerceivableDescription = "reserved ore",
+						ConsumedPhase = 1,
+						ItemIds = new[] { inputItemId }
+					}
+				},
+				Tools = new[]
+				{
+					new
+					{
+						ToolId = 4202L,
+						ToolName = "hammer",
+						ToolType = "simple",
+						ItemId = toolItemId,
+						ItemDescription = "reserved hammer",
+						Phase = 1
+					}
+				}
+			},
+			Station = new
+			{
+				Version = "craft-station-v1",
+				Selector = "forge",
+				CellId = 1L,
+				ItemId = stationItemId,
+				Description = "reserved forge",
+				ReservedAt = reservedAt,
+				ExpiresAt = expiresAt
+			},
+			OutputItemIds = Array.Empty<long>()
+		});
 	}
 
 	private static Mock<IGameItem> ContainerItem(long id, string name, IEnumerable<ICell> trueLocations,

@@ -41,6 +41,7 @@ public interface ICraft : IEditableRevisableItem
     IFutureProg OnUseProgComplete { get; }
     IFutureProg OnUseProgCancel { get; }
     bool AppearInCraftsList(ICharacter actor);
+    (bool Success, string Error, CraftResourceReservation Reservation) CreateResourceReservation(ICharacter character, IActiveCraftGameItemComponent component, int fromPhase = 1, int toPhase = int.MaxValue);
     (bool Success, string Error) CanDoCraft(ICharacter character, IActiveCraftGameItemComponent component, bool allowStartOnly, bool ignoreToolAndMaterialFailure);
     string GetMaterialPreview(ICharacter character);
     void BeginCraft(ICharacter character);

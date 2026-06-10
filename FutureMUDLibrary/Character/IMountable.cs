@@ -23,8 +23,10 @@ public interface IMountable
     void Dismount(ICharacter rider);
     void RemoveRider(ICharacter rider);
     Difficulty ControlMountDifficulty(ICharacter rider);
+    Difficulty ResistBuckDifficulty(ICharacter rider);
     bool IsPrimaryRider(ICharacter rider);
     bool BuckRider();
+    bool BuckRider(ICharacter rider);
     bool PermitControl(ICharacter rider);
     void HandleControlDenied(ICharacter rider);
     bool RiderMove(ICellExit exit, ICharacter rider, IEmote? emote = null, bool ignoreSafeMovement = false);

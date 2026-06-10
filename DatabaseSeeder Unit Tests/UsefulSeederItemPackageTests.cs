@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MudSharp.Database;
+using MudSharp.GameItems.Interfaces;
 using MudSharp.Health;
 using MudSharp.Models;
 using MudSharp.RPG.Checks;
@@ -463,6 +464,22 @@ public class UsefulSeederItemPackageTests
 			"DragAid_Stretcher",
 			"DragAid_Sled",
 			"DragAid_Travois",
+			"RidingGear_Saddle",
+			"RidingGear_SaddlePad",
+			"RidingGear_Bridle",
+			"RidingGear_Reins",
+			"RidingGear_Bit",
+			"RidingGear_Stirrups",
+			"RidingGear_PackSaddle",
+			"RidingGear_BitlessBridle",
+			"RidingGear_RidingHarness",
+			"HitchGear_LeadRope",
+			"HitchGear_Yoke",
+			"HitchGear_Harness",
+			"HitchGear_Chain",
+			"HitchGear_Rope",
+			"HitchGear_Traces",
+			"HitchGear_TowBar",
 			"Treatment_AntiInflammatory_Single",
 			"Treatment_AntiInflammatory_Kit",
 			"Destroyable_Shield",
@@ -483,6 +500,25 @@ public class UsefulSeederItemPackageTests
 		Assert.AreEqual(1, context.VariableDefinitions.Count(x => x.Property == "nicotineuntil"));
 		Assert.AreEqual(1, context.VariableDefaults.Count(x => x.Property == "nicotineuntil"));
 		Assert.AreEqual(0, context.GameItemComponentProtos.Count(x => x.Name.StartsWith("Food_")));
+
+		XElement Definition(string name) => XElement.Parse(context.GameItemComponentProtos.Single(x => x.Name == name).Definition);
+		Assert.AreEqual("RidingGear", context.GameItemComponentProtos.Single(x => x.Name == "RidingGear_Saddle").Type);
+		Assert.AreEqual(RidingGearRole.Saddle,
+			Enum.Parse<RidingGearRole>(Definition("RidingGear_Saddle").Element("Roles")!.Value));
+		var bitlessRoles = Enum.Parse<RidingGearRole>(Definition("RidingGear_BitlessBridle").Element("Roles")!.Value);
+		Assert.IsTrue(bitlessRoles.HasFlag(RidingGearRole.Bridle));
+		Assert.IsTrue(bitlessRoles.HasFlag(RidingGearRole.Reins));
+		Assert.IsTrue(bitlessRoles.HasFlag(RidingGearRole.BitlessControl));
+		Assert.AreEqual(7.0, (double)Definition("RidingGear_BitlessBridle").Element("ControlBonus")!);
+
+		Assert.AreEqual("HitchGear", context.GameItemComponentProtos.Single(x => x.Name == "HitchGear_Yoke").Type);
+		Assert.AreEqual(HitchGearRole.Yoke,
+			Enum.Parse<HitchGearRole>(Definition("HitchGear_Yoke").Element("Roles")!.Value));
+		Assert.AreEqual(2, (int)Definition("HitchGear_Yoke").Element("MaximumUsers")!);
+		Assert.AreEqual(2.5, (double)Definition("HitchGear_Yoke").Element("EffortMultiplier")!);
+		var leadRopeRoles = Enum.Parse<HitchGearRole>(Definition("HitchGear_LeadRope").Element("Roles")!.Value);
+		Assert.IsTrue(leadRopeRoles.HasFlag(HitchGearRole.LeadRope));
+		Assert.IsTrue(leadRopeRoles.HasFlag(HitchGearRole.Rope));
 	}
 
 	[TestMethod]

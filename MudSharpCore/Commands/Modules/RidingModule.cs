@@ -21,7 +21,7 @@ public class RidingModule : Module<ICharacter>
     [RequiredCharacterState(CharacterState.Able)]
     [NoMovementCommand]
     [NoHideCommand]
-    [HelpInfo("mount", @"", AutoHelp.HelpArg)]
+    [HelpInfo("mount", @"Use #3mount <mount>#0 to ride a mountable creature. Mounting bareback is allowed, but missing saddles, bridles, reins and similar tack make control and staying mounted harder.", AutoHelp.HelpArg)]
     protected static void Mount(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
@@ -88,7 +88,7 @@ public class RidingModule : Module<ICharacter>
     [RequiredCharacterState(CharacterState.Able)]
     [NoMovementCommand]
     [NoHideCommand]
-    [HelpInfo("dismount", @"", AutoHelp.HelpArg)]
+    [HelpInfo("dismount", @"Use #3dismount#0 to get off your current mount.", AutoHelp.HelpArg)]
     protected static void Dismount(ICharacter actor, string command)
     {
         if (actor.RidingMount is null)
@@ -105,9 +105,36 @@ public class RidingModule : Module<ICharacter>
     [RequiredCharacterState(CharacterState.Able)]
     [NoMovementCommand]
     [NoHideCommand]
-    [HelpInfo("buck", @"", AutoHelp.HelpArg)]
+    [HelpInfo("buck", @"Use #3buck#0 to try to throw off your primary rider, or #3buck <rider>#0 to target a specific rider.", AutoHelp.HelpArg)]
     protected static void Buck(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
+        if (!actor.Riders.Any())
+        {
+            actor.OutputHandler.Send("You are not currently carrying any riders.");
+            return;
+        }
+
+        ICharacter target;
+        if (ss.IsFinished)
+        {
+            target = actor.Riders.First();
+        }
+        else
+        {
+            target = actor.TargetActor(ss.SafeRemainingArgument);
+            if (target is null || !actor.Riders.Contains(target))
+            {
+                actor.OutputHandler.Send("You are not carrying any rider like that.");
+                return;
+            }
+        }
+
+        if (!actor.BuckRider(target))
+        {
+            actor.OutputHandler.Send(new PerceptionEngine.Outputs.EmoteOutput(
+                new PerceptionEngine.Parsers.Emote("$1 keep|keeps $1's seat despite $0's bucking.", actor, actor,
+                    target)));
+        }
     }
 }

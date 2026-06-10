@@ -3583,7 +3583,8 @@ public partial class Body
         Dictionary<ICurrencyPile, Dictionary<ICoin, int>> targetCoins =
             currency.FindCurrency(
                 Location.LayerGameItems(RoomLayer).SelectNotNull(x => x.GetItemType<ICurrencyPile>())
-                        .Where(x => Location.CanGet(x.Parent, Actor)), amount);
+                        .Where(x => Location.CanGet(x.Parent, Actor))
+                        .Where(x => Actor.MountedCanRetrieve(x.Parent, out _)), amount);
         if (!targetCoins.Any())
         {
             return false;
@@ -3641,12 +3642,19 @@ public partial class Body
         Dictionary<ICurrencyPile, Dictionary<ICoin, int>> targetCoins =
             currency.FindCurrency(
                 Location.LayerGameItems(RoomLayer).SelectNotNull(x => x.GetItemType<ICurrencyPile>())
-                        .Where(x => Location.CanGet(x.Parent, Actor)), amount);
+                        .Where(x => Location.CanGet(x.Parent, Actor))
+                        .Where(x => Actor.MountedCanRetrieve(x.Parent, out _)), amount);
         Dictionary<ICurrencyPile, Dictionary<ICoin, int>> trueTargetCoins =
             currency.FindCurrency(Location.LayerGameItems(RoomLayer).SelectNotNull(x => x.GetItemType<ICurrencyPile>()),
                 amount);
         if (!targetCoins.Any())
         {
+            var mountBlockedPile = trueTargetCoins.Keys.FirstOrDefault(x => !Actor.MountedCanRetrieve(x.Parent, out _));
+            if (mountBlockedPile is not null && !Actor.MountedCanRetrieve(mountBlockedPile.Parent, out var mountMessage))
+            {
+                return mountMessage;
+            }
+
             return trueTargetCoins.Any()
                 ? Location.WhyCannotGet(trueTargetCoins.First().Key.Parent, Actor)
                 : "There is no money at all to get.";

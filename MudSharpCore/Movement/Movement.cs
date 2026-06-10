@@ -166,7 +166,12 @@ public class Movement : IMovement
         if (character.RidingMount is not null)
         {
             nonConsensualMovers.Add(character);
-            EvaluateCharacterForAdditionToMovement(party, character.RidingMount, exit, considered, nonDraggers, mounts, draggers, helpers, nonConsensualMovers, targets, dragEffects, ignoreSafeMovement, ignoreNotLeadDragger);
+            if (!considered.Contains(character.RidingMount) &&
+                (!MountGearService.CanControlMount(character.RidingMount, character) ||
+                 !EvaluateCharacterForAdditionToMovement(party, character.RidingMount, exit, considered, nonDraggers, mounts, draggers, helpers, nonConsensualMovers, targets, dragEffects, ignoreSafeMovement, ignoreNotLeadDragger)))
+            {
+                return false;
+            }
         }
 
         if (character.Riders.Any())
@@ -589,12 +594,17 @@ public class Movement : IMovement
                 {
                     foreach (IGrouping<ICharacter, ICharacter> item in group.GroupBy(x => x.RidingMount))
                     {
-                        sb.AppendLine($"{item.Key.HowSeen(voyeur)}{(item.Key.AffectedBy<ISneakMoveEffect>(y => !y.Subtle) ? " sneakily" : "")} {(item.Key == voyeur ? item.Key.CurrentSpeed.FirstPersonVerb : item.Key.CurrentSpeed.ThirdPersonVerb)} {suffix}, ridden by {group.OrderBy(y => y == voyeur).Select(x => x.HowSeen(voyeur)).ListToString()}".Proper());
+                        var speed = item.Key.CurrentSpeed ?? group.Key.Speed;
+                        var verb = speed is null ? item.Key == voyeur ? "move" : "moves" : item.Key == voyeur ? speed.FirstPersonVerb : speed.ThirdPersonVerb;
+                        sb.AppendLine($"{item.Key.HowSeen(voyeur)}{(item.Key.AffectedBy<ISneakMoveEffect>(y => !y.Subtle) ? " sneakily" : "")} {verb} {suffix}, ridden by {group.OrderBy(y => y == voyeur).Select(x => x.HowSeen(voyeur)).ListToString()}".Proper());
                     }
                 }
                 else
                 {
-                    sb.AppendLine($"{group.Select(x => x.HowSeen(voyeur)).ListToString()} {(group.Count() == 1 && !group.First().IsSelf(voyeur) ? group.Key.Speed.ThirdPersonVerb : group.Key.Speed.FirstPersonVerb)} {(group.Key.Sneaking ? "sneakily " : "")}{suffix}.".Proper());
+                    var verb = group.Key.Speed is null
+                        ? group.Count() == 1 && !group.First().IsSelf(voyeur) ? "moves" : "move"
+                        : group.Count() == 1 && !group.First().IsSelf(voyeur) ? group.Key.Speed.ThirdPersonVerb : group.Key.Speed.FirstPersonVerb;
+                    sb.AppendLine($"{group.Select(x => x.HowSeen(voyeur)).ListToString()} {verb} {(group.Key.Sneaking ? "sneakily " : "")}{suffix}.".Proper());
                 }
             }
         }
@@ -632,12 +642,13 @@ public class Movement : IMovement
                 {
                     foreach (IGrouping<ICharacter, ICharacter> item in group.GroupBy(x => x.RidingMount))
                     {
-                        sb.AppendLine($"{item.Key.HowSeen(voyeur)} {(voyeur == item.Key ? "begin" : "begins")}{(item.Key.AffectedBy<ISneakMoveEffect>(y => !y.Subtle) ? " sneakily" : "")} {item.Key.CurrentSpeed.PresentParticiple} {suffix}, ridden by {group.OrderBy(y => y == voyeur).Select(x => x.HowSeen(voyeur)).ListToString()}".Proper());
+                        var speed = item.Key.CurrentSpeed ?? group.Key.Speed;
+                        sb.AppendLine($"{item.Key.HowSeen(voyeur)} {(voyeur == item.Key ? "begin" : "begins")}{(item.Key.AffectedBy<ISneakMoveEffect>(y => !y.Subtle) ? " sneakily" : "")} {speed?.PresentParticiple ?? "moving"} {suffix}, ridden by {group.OrderBy(y => y == voyeur).Select(x => x.HowSeen(voyeur)).ListToString()}".Proper());
                     }
                 }
                 else
                 {
-                    sb.AppendLine($"{group.Select(x => x.HowSeen(voyeur)).ListToString()} {(group.Count() == 1 && !group.First().IsSelf(voyeur) ? "begins" : "begin")} {(group.Key.Sneaking ? "sneakily " : "")}{group.Key.Speed.PresentParticiple} {suffix}.".Proper());
+                    sb.AppendLine($"{group.Select(x => x.HowSeen(voyeur)).ListToString()} {(group.Count() == 1 && !group.First().IsSelf(voyeur) ? "begins" : "begin")} {(group.Key.Sneaking ? "sneakily " : "")}{group.Key.Speed?.PresentParticiple ?? "moving"} {suffix}.".Proper());
                 }
             }
         }
@@ -676,12 +687,13 @@ public class Movement : IMovement
                 {
                     foreach (IGrouping<ICharacter, ICharacter> item in group.GroupBy(x => x.RidingMount))
                     {
-                        sb.AppendLine($"{item.Key.HowSeen(voyeur)} {(item.Key == voyeur ? "are" : "is")} {(item.Key.AffectedBy<ISneakMoveEffect>(y => !y.Subtle) ? "sneakily " : "")}{item.Key.CurrentSpeed.PresentParticiple} {suffix}, ridden by {group.OrderBy(y => y == voyeur).Select(x => x.HowSeen(voyeur)).ListToString()}".Proper());
+                        var speed = item.Key.CurrentSpeed ?? group.Key.Speed;
+                        sb.AppendLine($"{item.Key.HowSeen(voyeur)} {(item.Key == voyeur ? "are" : "is")} {(item.Key.AffectedBy<ISneakMoveEffect>(y => !y.Subtle) ? "sneakily " : "")}{speed?.PresentParticiple ?? "moving"} {suffix}, ridden by {group.OrderBy(y => y == voyeur).Select(x => x.HowSeen(voyeur)).ListToString()}".Proper());
                     }
                 }
                 else
                 {
-                    sb.AppendLine($"{group.Select(x => x.HowSeen(voyeur)).ListToString()} {(group.Count() == 1 && !group.First().IsSelf(voyeur) ? "is" : "are")} {(group.Key.Sneaking ? "sneakily " : "")}{group.Key.Speed.PresentParticiple} {suffix}.".Proper());
+                    sb.AppendLine($"{group.Select(x => x.HowSeen(voyeur)).ListToString()} {(group.Count() == 1 && !group.First().IsSelf(voyeur) ? "is" : "are")} {(group.Key.Sneaking ? "sneakily " : "")}{group.Key.Speed?.PresentParticiple ?? "moving"} {suffix}.".Proper());
                 }
             }
         }

@@ -159,6 +159,80 @@ public class VehicleTowServiceTests
 	}
 
 	[TestMethod]
+	public void CanHitch_NonDirectTowPointsWithoutHitchGear_Fails()
+	{
+		var service = new VehicleTowService();
+		var location = new Mock<ICell>().Object;
+		var actor = CreateActor();
+		var source = CreateVehicle(1, "tractor", location);
+		var target = CreateVehicle(2, "trailer", location);
+		var sourcePoint = CreateTowPoint(11, "yoke", canTow: true, canBeTowed: false, towType: "yoke");
+		var targetPoint = CreateTowPoint(12, "yoke ring", canTow: false, canBeTowed: true, towType: "yoke");
+
+		var result = service.CanHitch(actor.Object, source.Vehicle.Object, sourcePoint.Object, target.Vehicle.Object,
+			targetPoint.Object, null, out var reason);
+
+		Assert.IsFalse(result);
+		StringAssert.Contains(reason, "require a hitch item");
+	}
+
+	[TestMethod]
+	public void CanHitch_DirectTowPointsWithoutHitchGear_Succeeds()
+	{
+		var service = new VehicleTowService();
+		var location = new Mock<ICell>().Object;
+		var actor = CreateActor();
+		var source = CreateVehicle(1, "tractor", location);
+		var target = CreateVehicle(2, "trailer", location);
+		var sourcePoint = CreateTowPoint(11, "hand bar", canTow: true, canBeTowed: false, towType: "hand");
+		var targetPoint = CreateTowPoint(12, "hand ring", canTow: false, canBeTowed: true, towType: "hand");
+
+		var result = service.CanHitch(actor.Object, source.Vehicle.Object, sourcePoint.Object, target.Vehicle.Object,
+			targetPoint.Object, null, out var reason);
+
+		Assert.IsTrue(result, reason);
+		Assert.AreEqual(string.Empty, reason);
+	}
+
+	[TestMethod]
+	public void CanHitch_CompatibleHitchGear_Succeeds()
+	{
+		var service = new VehicleTowService();
+		var location = new Mock<ICell>().Object;
+		var actor = CreateActor();
+		var source = CreateVehicle(1, "tractor", location);
+		var target = CreateVehicle(2, "trailer", location);
+		var sourcePoint = CreateTowPoint(11, "yoke", canTow: true, canBeTowed: false, towType: "yoke");
+		var targetPoint = CreateTowPoint(12, "yoke ring", canTow: false, canBeTowed: true, towType: "yoke");
+		var hitchItem = CreateHitchItem(50, location, HitchGearRole.Yoke, actor.Object.Body);
+
+		var result = service.CanHitch(actor.Object, source.Vehicle.Object, sourcePoint.Object, target.Vehicle.Object,
+			targetPoint.Object, hitchItem.Object, out var reason);
+
+		Assert.IsTrue(result, reason);
+		Assert.AreEqual(string.Empty, reason);
+	}
+
+	[TestMethod]
+	public void CanHitch_IncompatibleHitchGear_Fails()
+	{
+		var service = new VehicleTowService();
+		var location = new Mock<ICell>().Object;
+		var actor = CreateActor();
+		var source = CreateVehicle(1, "tractor", location);
+		var target = CreateVehicle(2, "trailer", location);
+		var sourcePoint = CreateTowPoint(11, "yoke", canTow: true, canBeTowed: false, towType: "yoke");
+		var targetPoint = CreateTowPoint(12, "yoke ring", canTow: false, canBeTowed: true, towType: "yoke");
+		var hitchItem = CreateHitchItem(50, location, HitchGearRole.Chain, actor.Object.Body, "a chain");
+
+		var result = service.CanHitch(actor.Object, source.Vehicle.Object, sourcePoint.Object, target.Vehicle.Object,
+			targetPoint.Object, hitchItem.Object, out var reason);
+
+		Assert.IsFalse(result);
+		Assert.AreEqual("a chain is not compatible with a yoke tow point.", reason);
+	}
+
+	[TestMethod]
 	public void TowTrainFrom_ReturnsRecursiveTrain()
 	{
 		var service = new VehicleTowService();
@@ -175,6 +249,23 @@ public class VehicleTowServiceTests
 		var train = service.TowTrainFrom(root.Vehicle.Object);
 
 		CollectionAssert.AreEqual(new[] { 1L, 2L, 3L }, train.Select(x => x.Id).ToArray());
+	}
+
+	[TestMethod]
+	public void ValidateLink_WhenNonDirectTowPointHasNoHitchItem_FailsSafely()
+	{
+		var service = new VehicleTowService();
+		var location = new Mock<ICell>().Object;
+		var source = CreateVehicle(1, "tractor", location);
+		var target = CreateVehicle(2, "trailer", location);
+		var sourcePoint = CreateTowPoint(11, "hitch", canTow: true, canBeTowed: false);
+		var targetPoint = CreateTowPoint(12, "ring", canTow: false, canBeTowed: true);
+		var link = AddLink(20, source, sourcePoint, target, targetPoint);
+
+		var result = service.ValidateLink(link.Object, out var reason);
+
+		Assert.IsFalse(result);
+		Assert.AreEqual("the tow point requires a hitch item", reason);
 	}
 
 	[TestMethod]
@@ -229,6 +320,24 @@ public class VehicleTowServiceTests
 
 		Assert.IsFalse(result);
 		Assert.AreEqual("the link is manually disabled", reason);
+	}
+
+	[TestMethod]
+	public void ValidateLink_WithCompatibleHitchItem_Succeeds()
+	{
+		var service = new VehicleTowService();
+		var location = new Mock<ICell>().Object;
+		var source = CreateVehicle(1, "tractor", location);
+		var target = CreateVehicle(2, "trailer", location);
+		var sourcePoint = CreateTowPoint(11, "hitch", canTow: true, canBeTowed: false);
+		var targetPoint = CreateTowPoint(12, "ring", canTow: false, canBeTowed: true);
+		var hitchItem = CreateHitchItem(50, location, HitchGearRole.TowBar);
+		var link = AddLink(20, source, sourcePoint, target, targetPoint, hitchItem: hitchItem.Object);
+
+		var result = service.ValidateLink(link.Object, out var reason);
+
+		Assert.IsTrue(result, reason);
+		Assert.AreEqual(string.Empty, reason);
 	}
 
 	[TestMethod]
@@ -401,8 +510,10 @@ public class VehicleTowServiceTests
 		var sourcePoint = CreateTowPoint(11, "hitch", canTow: true, canBeTowed: false);
 		var middleSourcePoint = CreateTowPoint(12, "rear", canTow: true, canBeTowed: false);
 		var targetPoint = CreateTowPoint(13, "ring", canTow: false, canBeTowed: true);
-		AddLink(20, root, sourcePoint, middle, targetPoint);
-		AddLink(21, middle, middleSourcePoint, rear, targetPoint);
+		AddLink(20, root, sourcePoint, middle, targetPoint,
+			hitchItem: CreateHitchItem(50, location, HitchGearRole.TowBar).Object);
+		AddLink(21, middle, middleSourcePoint, rear, targetPoint,
+			hitchItem: CreateHitchItem(51, location, HitchGearRole.TowBar).Object);
 		var exit = CreateExit(location, destination, SizeCategory.Huge);
 
 		var result = strategy.Move(root.Vehicle.Object, controller, exit.Object);
@@ -455,8 +566,10 @@ public class VehicleTowServiceTests
 		var otherSourcePoint = CreateTowPoint(12, "rear hitch", canTow: true, canBeTowed: false);
 		var targetPoint = CreateTowPoint(13, "ring", canTow: false, canBeTowed: true);
 		var otherTargetPoint = CreateTowPoint(14, "front ring", canTow: false, canBeTowed: true);
-		AddLink(20, root, sourcePoint, target, targetPoint);
-		AddLink(21, otherSource, otherSourcePoint, target, otherTargetPoint);
+		AddLink(20, root, sourcePoint, target, targetPoint,
+			hitchItem: CreateHitchItem(50, location, HitchGearRole.TowBar).Object);
+		AddLink(21, otherSource, otherSourcePoint, target, otherTargetPoint,
+			hitchItem: CreateHitchItem(51, location, HitchGearRole.TowBar).Object);
 		var exit = CreateExit(location, destination, SizeCategory.Huge);
 
 		var result = service.CanMoveTowTrain(root.Vehicle.Object, exit.Object, out _, out var reason);
@@ -534,13 +647,37 @@ public class VehicleTowServiceTests
 		link.SetupGet(x => x.SourceTowPointPrototypeId).Returns(sourcePoint.Object.Id);
 		link.SetupGet(x => x.TargetTowPointPrototypeId).Returns(targetPoint.Object.Id);
 		link.SetupGet(x => x.IsManuallyDisabled).Returns(manuallyDisabled);
-		link.SetupGet(x => x.HitchItemId).Returns(hitchItemId);
+		var resolvedHitchItemId = hitchItemId ?? hitchItem?.Id;
+		link.SetupGet(x => x.HitchItemId).Returns(resolvedHitchItemId);
 		link.SetupGet(x => x.HitchItem).Returns(hitchItem!);
 		link.SetupGet(x => x.WhyInvalid).Returns(string.Empty);
 		link.SetupGet(x => x.IsDisabled).Returns(manuallyDisabled);
 		source.Links.Add(link.Object);
 		target.Links.Add(link.Object);
 		return link;
+	}
+
+	private static Mock<IGameItem> CreateHitchItem(long id, ICell location, HitchGearRole roles,
+		IBody? carriedBy = null, string name = "a hitch item", double maximumTowedWeight = 1000.0)
+	{
+		var gear = new Mock<IHitchGear>();
+		gear.SetupGet(x => x.Roles).Returns(roles);
+		gear.SetupGet(x => x.MaximumTowedWeight).Returns(maximumTowedWeight);
+		gear.SetupGet(x => x.EffortMultiplier).Returns(1.0);
+		gear.SetupGet(x => x.MaximumUsers).Returns(1);
+
+		var item = new Mock<IGameItem>();
+		item.SetupGet(x => x.Id).Returns(id);
+		item.SetupGet(x => x.Name).Returns(name);
+		item.SetupGet(x => x.Location).Returns(location);
+		item.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
+		item.SetupGet(x => x.InInventoryOf).Returns(carriedBy!);
+		item.Setup(x => x.GetItemType<IHitchGear>()).Returns(gear.Object);
+		item.Setup(x => x.GetItemType<IDragAid>()).Returns(gear.Object);
+		item.Setup(x => x.AffectedBy<HitchGearInUse>()).Returns(false);
+		item.Setup(x => x.HowSeen(It.IsAny<IPerceiver>(), It.IsAny<bool>(), It.IsAny<DescriptionType>(),
+			It.IsAny<bool>(), It.IsAny<PerceiveIgnoreFlags>())).Returns(name);
+		return item;
 	}
 
 	private static void SetupCellExitProfile(VehicleHarness vehicle, ICharacter controller, double requiredPower = 0.0)

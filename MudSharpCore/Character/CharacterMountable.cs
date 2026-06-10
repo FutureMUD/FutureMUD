@@ -1,4 +1,5 @@
 using MudSharp.Body.Position;
+using MudSharp.Body.Position.PositionStates;
 using MudSharp.Character.Heritage;
 using MudSharp.Construction.Boundary;
 using MudSharp.Events;
@@ -148,29 +149,29 @@ public partial class Character
 
         _riders.Add(rider);
         rider.RidingMount = this;
+        rider.SetPosition(PositionRiding.Instance, PositionModifier.None, this, null);
         rider.OutputHandler.Handle(new EmoteOutput(new Emote(ai.MountEmote(this, rider), this, this, rider)));
         HandleMountEvent(EventType.CharacterMounted, EventType.CharacterMountedWitness, rider);
-        return false;
+        MountGearService.WarnIfIncomplete(this, rider);
+        return true;
     }
 
     public void Dismount(ICharacter rider)
     {
         IMountableAI ai = (this as INPC)?.AIs.OfType<IMountableAI>().FirstOrDefault();
-        if (ai is null)
-        {
-            rider.OutputHandler.Handle(new EmoteOutput(new Emote("$1 $1|dismount|dismounts $0.", this, this, rider)));
-            return;
-        }
-
-        rider.OutputHandler.Handle(new EmoteOutput(new Emote(ai.DismountEmote(this, rider), this, this, rider)));
+        rider.OutputHandler.Handle(new EmoteOutput(new Emote(
+            ai?.DismountEmote(this, rider) ?? "$1 $1|dismount|dismounts $0.", this, this, rider)));
         HandleMountEvent(EventType.CharacterDismounted, EventType.CharacterDismountedWitness, rider);
-        rider.RidingMount = null;
-        _riders.Remove(rider);
+        ClearRidingState(rider);
     }
 
     public void RemoveRider(ICharacter rider)
     {
         _riders.Remove(rider);
+        if (rider.RidingMount == this)
+        {
+            ClearRidingState(rider);
+        }
     }
 
     public Difficulty ControlMountDifficulty(ICharacter rider)
@@ -184,6 +185,17 @@ public partial class Character
         return ai.ControlDifficulty(this, rider);
     }
 
+    public Difficulty ResistBuckDifficulty(ICharacter rider)
+    {
+        IMountableAI ai = (this as INPC)?.AIs.OfType<IMountableAI>().FirstOrDefault();
+        if (ai is null)
+        {
+            return Difficulty.Impossible;
+        }
+
+        return ai.ResistBuckDifficulty(this, rider);
+    }
+
     public bool IsPrimaryRider(ICharacter rider)
     {
         return _riders.FirstOrDefault() == rider;
@@ -191,7 +203,18 @@ public partial class Character
 
     public bool BuckRider()
     {
-        return false;
+        ICharacter rider = _riders.FirstOrDefault();
+        return rider is not null && BuckRider(rider);
+    }
+
+    public bool BuckRider(ICharacter rider)
+    {
+        if (!_riders.Contains(rider))
+        {
+            return false;
+        }
+
+        return MountGearService.BuckRider(this, rider);
     }
 
     public bool PermitControl(ICharacter rider)
@@ -208,15 +231,8 @@ public partial class Character
 
     public bool RiderMove(ICellExit exit, ICharacter rider, IEmote? emote = null, bool ignoreSafeMovement = false)
     {
-        if (!IsPrimaryRider(rider))
+        if (!MountGearService.CanControlMount(this, rider))
         {
-            rider.OutputHandler.Send("You are not in control of this mount.");
-            return false;
-        }
-
-        if (!PermitControl(rider))
-        {
-            HandleControlDenied(rider);
             return false;
         }
 
@@ -231,15 +247,8 @@ public partial class Character
 
     public bool RiderFly(ICharacter rider, IEmote? emote = null)
     {
-        if (!IsPrimaryRider(rider))
+        if (!MountGearService.CanControlMount(this, rider))
         {
-            rider.OutputHandler.Send("You are not in control of this mount.");
-            return false;
-        }
-
-        if (!PermitControl(rider))
-        {
-            HandleControlDenied(rider);
             return false;
         }
 
@@ -256,15 +265,8 @@ public partial class Character
 
     public bool RiderAscend(ICharacter rider, IEmote? emote = null)
     {
-        if (!IsPrimaryRider(rider))
+        if (!MountGearService.CanControlMount(this, rider))
         {
-            rider.OutputHandler.Send("You are not in control of this mount.");
-            return false;
-        }
-
-        if (!PermitControl(rider))
-        {
-            HandleControlDenied(rider);
             return false;
         }
 
@@ -281,15 +283,8 @@ public partial class Character
 
     public bool RiderDive(ICharacter rider, IEmote? emote = null)
     {
-        if (!IsPrimaryRider(rider))
+        if (!MountGearService.CanControlMount(this, rider))
         {
-            rider.OutputHandler.Send("You are not in control of this mount.");
-            return false;
-        }
-
-        if (!PermitControl(rider))
-        {
-            HandleControlDenied(rider);
             return false;
         }
 
@@ -306,15 +301,8 @@ public partial class Character
 
     public bool RiderClimbUp(ICharacter rider, IEmote? emote = null)
     {
-        if (!IsPrimaryRider(rider))
+        if (!MountGearService.CanControlMount(this, rider))
         {
-            rider.OutputHandler.Send("You are not in control of this mount.");
-            return false;
-        }
-
-        if (!PermitControl(rider))
-        {
-            HandleControlDenied(rider);
             return false;
         }
 
@@ -331,15 +319,8 @@ public partial class Character
 
     public bool RiderClimbDown(ICharacter rider, IEmote? emote = null)
     {
-        if (!IsPrimaryRider(rider))
+        if (!MountGearService.CanControlMount(this, rider))
         {
-            rider.OutputHandler.Send("You are not in control of this mount.");
-            return false;
-        }
-
-        if (!PermitControl(rider))
-        {
-            HandleControlDenied(rider);
             return false;
         }
 
@@ -358,15 +339,8 @@ public partial class Character
             ICharacter rider, IEmote? playerEmote = null, IEmote? playerPmote = null,
             bool ignoreMovementRestrictions = false, bool ignoreMovement = false)
     {
-        if (!IsPrimaryRider(rider))
+        if (!MountGearService.CanControlMount(this, rider))
         {
-            rider.OutputHandler.Send("You are not in control of this mount.");
-            return false;
-        }
-
-        if (!PermitControl(rider))
-        {
-            HandleControlDenied(rider);
             return false;
         }
 
@@ -378,5 +352,22 @@ public partial class Character
 
         MovePosition(whichPosition, whichModifier, target, playerEmote, playerPmote, ignoreMovementRestrictions, ignoreMovement);
         return true;
+    }
+
+    private void ClearRidingState(ICharacter rider)
+    {
+        _riders.Remove(rider);
+        if (rider.RidingMount == this)
+        {
+            rider.RidingMount = null;
+        }
+
+        if (rider.PositionState == PositionRiding.Instance)
+        {
+            rider.SetPosition(rider.Location?.IsSwimmingLayer(rider.RoomLayer) == true
+                    ? PositionSwimming.Instance
+                    : PositionStanding.Instance,
+                PositionModifier.None, null, null);
+        }
     }
 }

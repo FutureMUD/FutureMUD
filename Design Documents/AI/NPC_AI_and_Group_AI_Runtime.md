@@ -31,6 +31,8 @@ This document does not attempt to be a full event-system reference. Use the comp
 | `IMountableAI` | Narrow extension for mount/rider behavior layered on top of normal AI behavior. Mounted movement is routed through the mount's rider-control path so only the primary rider can direct travel and `PermitControl` can deny control before any shared movement group is created. |
 | `IHandleEvents` | Event-handling surface inherited by AI definitions so they can react to engine events and heartbeat ticks |
 
+`IMountableAI` supplies the authored mount-control and buck-resistance difficulties, while item-mounted tack semantics come from the item system. The riding gear profile aggregates `IRidingGear` components from the mount and rider, then applies penalties for missing saddle, bridle, reins, bit or explicit bitless control, saddle pad, and stirrups. Bareback riding is still allowed, but movement control and buck/fall resistance checks are harder. Group movement cannot add a rider's mount unless that rider is the primary controller and passes the same mounted control path.
+
 ### Group AI
 | Contract | Role |
 | --- | --- |

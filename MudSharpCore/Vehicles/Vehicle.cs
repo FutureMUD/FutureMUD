@@ -98,7 +98,9 @@ public class Vehicle : SaveableItem, IVehicle
 
 		foreach (var towLink in dbitem.SourceTowLinks.Concat(dbitem.TargetTowLinks).OrderBy(x => x.Id))
 		{
-			_towLinks.Add(new VehicleTowLink(gameworld, towLink));
+			var runtime = new VehicleTowLink(gameworld, towLink);
+			_towLinks.Add(runtime);
+			HitchGearRules.Reserve(runtime.HitchItem, vehicleTowLinkId: runtime.Id);
 		}
 
 		foreach (var damageZone in dbitem.DamageZones.OrderBy(x => x.Id))

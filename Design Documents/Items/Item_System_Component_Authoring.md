@@ -348,6 +348,18 @@ Use this checklist when adding a new capability:
 - `ContainerGameItemComponentProto` and `ContainerGameItemComponent`
 - `WearableGameItemComponentProto` and `WearableGameItemComponent`
 - `HoldableGameItemComponentProto` and `HoldableGameItemComponent` for the read-only special-case pattern
+- `RidingGearGameItemComponentProto` and `HitchGearGameItemComponentProto` for semantic capability components where ordinary wearable or holdable items gain domain roles without becoming special item classes
+
+## Riding And Hitch Gear Authoring
+Riding and hitch gear are ordinary item components layered onto normal items:
+
+- `RidingGear` declares one or more tack roles: saddle, saddle pad, bridle, reins, bit, stirrups, pack saddle, harness, and bitless control.
+- `RidingGear` can add signed control and stability modifiers. Missing tack applies default penalties at runtime, so builders can still author bareback or rough riding scenes.
+- `HitchGear` declares connector roles: tow bar, yoke, harness, lead rope, rope, chain, and traces.
+- `HitchGear` also exposes the legacy drag-aid multiplier and maximum users because it implements `IDragAid` for compatibility.
+- Non-direct vehicle tow point types use these roles to decide whether a physical connector item is valid. Direct/manual pull points such as `hand`, `manual`, `direct`, `none`, and `pull` remain item-free.
+
+Seeded component prototypes include saddle, saddle pad, bridle, reins, bit, stirrups, pack saddle, bitless bridle, riding harness, lead rope, yoke, harness, rope, chain, traces, and tow bar templates.
 
 ## Signal Automation Authoring
 The current computer-automation slice is a good reference for "shared contracts, separate concrete behaviours".

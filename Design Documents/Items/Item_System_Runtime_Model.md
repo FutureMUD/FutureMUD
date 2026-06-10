@@ -113,6 +113,8 @@ Blowgun use is breath-gated at the component level. A character must have a brea
 
 Hidden ranged fire is an explicit weapon capability, not a general ranged rule. `IRangedWeapon.CanFireWhileHidden` defaults to false, so existing ranged weapons still reveal the firer when combat engagement begins. Blowguns return true, and the `fire` command passes that through the combat engagement path so hide effects are preserved only for weapons that opted in. Their output uses the normal obscured-emote visibility path, so a hidden blowgun firer is not automatically named to observers but can still be discovered by ordinary perception.
 
+Riding tack and hitch connectors follow the same component rule. `IRidingGear` marks ordinary wearable or held items as saddles, saddle pads, bridles, reins, bits, stirrups, pack saddles, riding harnesses, or explicit bitless-control gear. The mount gear profile aggregates those components from the mount and rider and feeds riding control, buck, and diagnostics without hard-coding particular item prototypes. `IHitchGear` extends the legacy `IDragAid` capacity contract with semantic roles such as tow bar, yoke, harness, lead rope, rope, chain, and traces. Vehicle and character hitching still accepts old `IDragAid` content for compatibility, but new connector content should use `IHitchGear` so non-direct tow point types can require compatible physical gear.
+
 Ordinary wetness and residues now live in compact surface-liquid state on the item rather than saved contamination effects. The state records a liquid mixture, residue entries, saturation, and last-resolved time; player-facing descriptions stay coarse, such as damp, wet, drenched, or visibly stained. Cleaning, washing, spills, rain exposure, food transfer, and material reactions query this surface state rather than scanning `LiquidContamination` effects.
 
 Deliberate poison coatings are still a saved item effect rather than a weapon component. `WeaponPoisonCoating` implements `IWeaponPoisonCoatingEffect`, but it is intentionally decoupled from ordinary liquid contamination: it is not cleanable wetness, does not merge with spill or washing liquid, and is not used for powder-wetness checks. The dedicated effect is the combat-deliverable marker; incidental liquid exposure remains descriptive/reactive surface state and does not deliver poison through weapon hits.
@@ -358,6 +360,7 @@ Grid creator items for power, liquid, and telecommunications are also responsibl
 - attached and connected item relationships are exposed through component-provided interfaces
 - location resolution checks components such as chairs, doors, belts, connectables, worn items, implants, and prosthetics
 - connector-aware components can also persist and restore linked items so that networks survive save/load cycles
+- hitch connector items can receive temporary no-get effects while reserved by active vehicle or mount hitch links
 
 This aggregation layer is why item code often looks simple at the call site even when item behaviour is complex.
 

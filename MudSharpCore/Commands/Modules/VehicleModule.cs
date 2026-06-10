@@ -147,7 +147,7 @@ Syntax:
 	[NoHideCommand]
 	[NoCombatCommand]
 	[NoMovementCommand]
-	[HelpInfo("hitch", "Use #3hitch <towpoint>@<vehicle> <towpoint>@<target> [with <item>]#0 to link vehicles for towing, or #3hitch <character> <character|towpoint@vehicle> [with <drag aid>]#0 to hitch a character or mount to pull something.", AutoHelp.HelpArgOrNoArg)]
+	[HelpInfo("hitch", "Use #3hitch <towpoint>@<vehicle> <towpoint>@<target> [with <hitch item>]#0 to link vehicles for towing, or #3hitch <character> <character|towpoint@vehicle> [with <hitch item>]#0 to hitch a character or mount to pull something. Non-direct tow point types require compatible hitch gear or a legacy drag aid; direct hand/manual/pull-style points do not.", AutoHelp.HelpArgOrNoArg)]
 	protected static void Hitch(ICharacter actor, string input)
 	{
 		var ss = new StringStack(input.RemoveFirstWord());
@@ -254,6 +254,7 @@ Syntax:
 			target.AddTowLink(link);
 		}
 
+		HitchGearRules.Reserve(hitchItem, vehicleTowLinkId: link.Id);
 		actor.OutputHandler.Handle(new EmoteOutput(new Emote("@ hitch|hitches $1 to $2.", actor, actor,
 			sourceVehicle.ExteriorItem, targetVehicle.ExteriorItem)));
 	}
@@ -319,21 +320,21 @@ Syntax:
 				return;
 			}
 
-			dragAid = hitchItem.GetItemType<IDragAid>();
+			dragAid = HitchGearRules.DragAidFor(hitchItem);
 			if (dragAid is null)
 			{
-				actor.OutputHandler.Send($"{hitchItem.HowSeen(actor, true)} is not a usable drag aid.");
+				actor.OutputHandler.Send($"{hitchItem.HowSeen(actor, true)} is not usable hitch gear.");
 				return;
 			}
 		}
 
-		if (targetVehicle is not null && TowPointRequiresCharacterHitchItem(targetTowPoint) && dragAid is null)
+		if (targetVehicle is not null && HitchGearRules.TowPointRequiresHitchItem(targetTowPoint) && dragAid is null)
 		{
 			actor.OutputHandler.Send($"That {targetTowPoint.TowType.ColourCommand()} tow point requires a hitch item. Use #3with <item>#0.".SubstituteANSIColour());
 			return;
 		}
 
-		if (!CanCharacterHitch(actor, source, target, targetVehicle, targetTowPoint, dragAid, out var reason))
+		if (!CanCharacterHitch(actor, source, target, targetVehicle, targetTowPoint, hitchItem, dragAid, out var reason))
 		{
 			actor.OutputHandler.Send(reason);
 			return;
@@ -353,7 +354,7 @@ Syntax:
 	[NoHideCommand]
 	[NoCombatCommand]
 	[NoMovementCommand]
-	[HelpInfo("unhitch", "Use #3unhitch <vehicle>#0, #3unhitch <towpoint>@<vehicle>#0, or #3unhitch <character>#0 to remove tow or character hitches.", AutoHelp.HelpArgOrNoArg)]
+	[HelpInfo("unhitch", "Use #3unhitch <vehicle>#0, #3unhitch <towpoint>@<vehicle>#0, or #3unhitch <character>#0 to remove tow or character hitches and release any reserved hitch gear.", AutoHelp.HelpArgOrNoArg)]
 	protected static void Unhitch(ICharacter actor, string input)
 	{
 		var ss = new StringStack(input.RemoveFirstWord());
@@ -433,6 +434,8 @@ Syntax:
 				{
 					target.RemoveTowLink(link.Id);
 				}
+
+				HitchGearRules.Release(link.HitchItem, vehicleTowLinkId: link.Id);
 			}
 
 			FMDB.Context.SaveChanges();
@@ -564,6 +567,12 @@ Syntax:
 		                      .ToList();
 		if (candidates.Contains(hitchItem))
 		{
+			if (HitchGearRules.IsReserved(hitchItem))
+			{
+				reason = $"{hitchItem.HowSeen(actor, true)} is already being used as hitch gear.";
+				return false;
+			}
+
 			reason = string.Empty;
 			return true;
 		}
@@ -585,6 +594,12 @@ Syntax:
 		{
 			reason = string.Empty;
 			return true;
+		}
+
+		if (HitchGearRules.IsReserved(hitchItem))
+		{
+			reason = $"{hitchItem.HowSeen(actor, true)} is already being used as hitch gear.";
+			return false;
 		}
 
 		if (PersistentHitchItemIsOnEndpoint(source, target, hitchItem))
@@ -648,7 +663,10 @@ Syntax:
 		}
 
 		var pullMultiplier = targetTowPoint?.CharacterPullMultiplier ?? 1.0;
-		source.AddEffect(new CharacterHitch(source, target, pullMultiplier, targetTowPoint?.Id, persistentLinkId));
+		HitchGearRules.Reserve(hitchItem, vehicleHitchLinkId: persistentLinkId, sourceCharacterId: source.Id,
+			targetId: target.Id);
+		source.AddEffect(new CharacterHitch(source, target, pullMultiplier, targetTowPoint?.Id, persistentLinkId,
+			hitchItem?.Id));
 		source.AddEffect(new Dragging(source, dragAid, target));
 		actor.OutputHandler.Handle(new EmoteOutput(new Emote("@ hitch|hitches $1 to $2$?3| with $3||.", actor, actor,
 			source, target, hitchItem)));
@@ -668,16 +686,17 @@ Syntax:
 					return;
 				}
 
-				var currentDragAid = hitchItem?.GetItemType<IDragAid>() ?? dragAid;
+				var currentDragAid = HitchGearRules.DragAidFor(hitchItem) ?? dragAid;
 				if (hitchItem is not null && currentDragAid is null)
 				{
-					var dragAidReason = $"{hitchItem.HowSeen(actor, true)} is no longer a usable drag aid.";
+					var dragAidReason = $"{hitchItem.HowSeen(actor, true)} is no longer usable hitch gear.";
 					actor.OutputHandler.Send(dragAidReason);
 					source.OutputHandler.Send(dragAidReason);
 					return;
 				}
 
-				if (!CanCharacterHitch(actor, source, target, targetVehicle, targetTowPoint, currentDragAid, out var reason))
+				if (!CanCharacterHitch(actor, source, target, targetVehicle, targetTowPoint, hitchItem, currentDragAid,
+					    out var reason))
 				{
 					actor.OutputHandler.Send(reason);
 					source.OutputHandler.Send(reason);
@@ -708,7 +727,8 @@ Syntax:
 	}
 
 	private static bool CanCharacterHitch(ICharacter actor, ICharacter source, IPerceivable target,
-		IVehicle targetVehicle, IVehicleTowPointPrototype targetTowPoint, IDragAid dragAid, out string reason)
+		IVehicle targetVehicle, IVehicleTowPointPrototype targetTowPoint, IGameItem hitchItem, IDragAid dragAid,
+		out string reason)
 	{
 		if (target is null)
 		{
@@ -795,6 +815,12 @@ Syntax:
 				return false;
 			}
 
+			if (hitchItem is not null &&
+			    !HitchGearRules.GearCompatible(hitchItem, targetCharacter.Weight, out reason))
+			{
+				return false;
+			}
+
 			return CanPullWeight(actor, source, targetCharacter, dragAid, 1.0, out reason);
 		}
 
@@ -851,6 +877,12 @@ Syntax:
 			return false;
 		}
 
+		if (HitchGearRules.TowPointRequiresHitchItem(targetTowPoint) && hitchItem is null)
+		{
+			reason = $"That {targetTowPoint.TowType.ColourCommand()} tow point requires a hitch item. Use #3with <item>#0.".SubstituteANSIColour();
+			return false;
+		}
+
 		if (actor.Gameworld.VehicleHitchLinks?.Any(x =>
 			    x.TargetType == VehicleHitchEndpointType.Vehicle &&
 			    x.TargetVehicleId == targetVehicle.Id) == true)
@@ -863,6 +895,12 @@ Syntax:
 		if (weight > targetTowPoint.MaximumTowedWeight)
 		{
 			reason = $"That tow point can only handle {targetTowPoint.MaximumTowedWeight.ToString("N2", actor)} weight, but the vehicle weighs {weight.ToString("N2", actor)}.";
+			return false;
+		}
+
+		if (hitchItem is not null &&
+		    !HitchGearRules.GearCompatible(hitchItem, weight, out reason, targetTowPoint))
+		{
 			return false;
 		}
 

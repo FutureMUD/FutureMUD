@@ -590,6 +590,11 @@ public class VehicleTowLink : FrameworkItem, IVehicleTowLink
 				return $"{targetTowPoint.Name} is disabled because {targetVehicle.DamageDisabledReason(VehicleDamageEffectTargetType.TowPoint, targetTowPoint.Id)}";
 			}
 
+			if (HitchGearRules.TowPointsRequireHitchItem(sourceTowPoint, targetTowPoint) && _hitchItemId is null)
+			{
+				return "the tow point requires a hitch item";
+			}
+
 			if (_hitchItemId is not null)
 			{
 				var item = HitchItem;
@@ -607,6 +612,12 @@ public class VehicleTowLink : FrameworkItem, IVehicleTowLink
 				    item.Location != sourceVehicle.Location || item.RoomLayer != sourceVehicle.RoomLayer)
 				{
 					return "the hitch item is not with the tow train";
+				}
+
+				if (!HitchGearRules.GearCompatible(item, targetVehicle.ExteriorItem?.Weight ?? 0.0, out var reason,
+					    false, sourceTowPoint, targetTowPoint))
+				{
+					return reason;
 				}
 			}
 
@@ -724,6 +735,14 @@ public class VehicleHitchLink : FrameworkItem, IVehicleHitchLink
 				return "the hitch endpoints are not in the same location and layer";
 			}
 
+			if (TargetType == VehicleHitchEndpointType.Vehicle &&
+			    TargetTowPoint is not null &&
+			    HitchGearRules.TowPointRequiresHitchItem(TargetTowPoint) &&
+			    _hitchItemId is null)
+			{
+				return "the vehicle tow point requires a hitch item";
+			}
+
 			if (_hitchItemId is not null)
 			{
 				var item = HitchItem;
@@ -740,6 +759,14 @@ public class VehicleHitchLink : FrameworkItem, IVehicleHitchLink
 				if (!HitchItemIsWithChain(item, sourceLocation, SourceRoomLayer()))
 				{
 					return "the hitch item is not with the hitch chain";
+				}
+
+				if (TargetType == VehicleHitchEndpointType.Vehicle &&
+				    TargetTowPoint is not null &&
+				    !HitchGearRules.GearCompatible(item, TargetVehicle?.ExteriorItem?.Weight ?? 0.0,
+					    out var reason, false, TargetTowPoint))
+				{
+					return reason;
 				}
 			}
 

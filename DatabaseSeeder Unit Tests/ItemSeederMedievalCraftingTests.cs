@@ -381,6 +381,7 @@ public class ItemSeederMedievalCraftingTests
 			{
 				"Medieval_Crafting_Audit.md",
 				"Medieval_Clothing_Seeder_Design_Reference.md",
+				"Medieval_Household_Goods_Furniture_Seeder_Design_Reference.md",
 				"Medieval_Military_Seeder_Design_Reference.md"
 			},
 			medievalDocs,
@@ -391,6 +392,7 @@ public class ItemSeederMedievalCraftingTests
 		var indexSource = ReadSource("Design Documents", "README.md");
 		AssertContains(indexSource, "[Medieval ItemSeeder Rebuild Audit](./Seeding/Medieval_Crafting_Audit.md)");
 		AssertContains(indexSource, "[Medieval Clothing Seeder Design Reference](./Seeding/Medieval_Clothing_Seeder_Design_Reference.md)");
+		AssertContains(indexSource, "[Medieval Household Goods and Furniture Seeder Design Reference](./Seeding/Medieval_Household_Goods_Furniture_Seeder_Design_Reference.md)");
 		AssertContains(indexSource, "[Medieval Military Seeder Design Reference](./Seeding/Medieval_Military_Seeder_Design_Reference.md)");
 		foreach (var removed in RetiredMedievalDesignDocuments)
 		{
@@ -399,9 +401,12 @@ public class ItemSeederMedievalCraftingTests
 		}
 
 		var auditSource = ReadSource("Design Documents", "Seeding", "Medieval_Crafting_Audit.md");
-		AssertContains(auditSource, "`SeedMedievalClothing` is the first rebuilt medieval item slice");
+		AssertContains(auditSource, "`SeedMedievalClothing` contains the direct clothing item `CreateItem(...)` calls.");
+		AssertContains(auditSource, "`SeedMedievalHouseholdFurniture` contains the direct household goods");
 		AssertContains(auditSource, "Medieval_Clothing_Seeder_Design_Reference.md");
 		AssertContains(auditSource, "Medieval_Clothing_FDesc_Catalogue.csv");
+		AssertContains(auditSource, "Medieval_Household_Goods_Furniture_Seeder_Design_Reference.md");
+		AssertContains(auditSource, "ItemSeeder.Rework.MedievalFurniture.cs");
 		AssertContains(auditSource, "`SeedMedievalWeaponsShieldsAccessories` contains the direct melee weapon, ranged weapon, ammunition, and thrown-weapon `CreateItem(...)` calls.");
 		AssertContains(auditSource, "`SeedMedievalArmour` contains the direct armour, horse tack, barding, shield, and military support-gear `CreateItem(...)` calls.");
 		AssertContains(auditSource, "Medieval_Military_Seeder_Design_Reference.md");

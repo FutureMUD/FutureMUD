@@ -321,6 +321,13 @@ public class UsefulSeederItemPackageTests
 		Assert.IsTrue(UsefulSeeder.StockItemMarkersForTesting.Contains("Container_Bookcase_Shelves"));
 		Assert.IsTrue(UsefulSeeder.StockItemMarkersForTesting.Contains("TimePiece_Antiquity_Sundial"));
 		Assert.IsTrue(UsefulSeeder.StockItemMarkersForTesting.Contains("SealStamp_Antiquity_BronzeSignet"));
+		Assert.IsTrue(UsefulSeeder.StockItemMarkersForTesting.Contains("Medieval_Parchment_Sheet_Surface"));
+		Assert.IsTrue(UsefulSeeder.StockItemMarkersForTesting.Contains("Medieval_Wax_Tablet_Surface"));
+		Assert.IsTrue(UsefulSeeder.StockItemMarkersForTesting.Contains("Medieval_Quill_Pen"));
+		Assert.IsTrue(UsefulSeeder.StockItemMarkersForTesting.Contains("SealStamp_Medieval_BronzeSignet"));
+		Assert.IsTrue(UsefulSeeder.StockItemMarkersForTesting.Contains("Medieval_Parchment_Codex_40_Page"));
+		Assert.IsTrue(UsefulSeeder.StockItemMarkersForTesting.Contains("Container_Document_Pouch"));
+		Assert.IsTrue(UsefulSeeder.StockItemMarkersForTesting.Contains("Container_Archive_Chest"));
 		Assert.IsTrue(UsefulSeeder.StockItemMarkersForTesting.Contains("Sealable_Envelope"));
 		Assert.IsTrue(UsefulSeeder.StockItemMarkersForTesting.Contains("MeasuringInstrument_Antiquity_BalanceScale"));
 		Assert.IsTrue(UsefulSeeder.StockItemMarkersForTesting.Contains("IncenseBurner_Antiquity_BronzeCenser"));
@@ -566,6 +573,10 @@ public class UsefulSeederItemPackageTests
 			"Locksmithing_Antiquity_Fabrication",
 			"SealStamp_Antiquity_BronzeSignet",
 			"SealStamp_Antiquity_CylinderSeal",
+			"SealStamp_Medieval_BronzeSignet",
+			"SealStamp_Medieval_IronSealMatrix",
+			"SealStamp_Medieval_BrassOfficeSeal",
+			"SealStamp_Medieval_LeadSealMatrix",
 			"Sealable_Document_Wax",
 			"Sealable_Document_Clay",
 			"Sealable_Envelope",
@@ -578,6 +589,54 @@ public class UsefulSeederItemPackageTests
 			"MeasuringInstrument_Antiquity_OilCup",
 			"MeasuringInstrument_Antiquity_WineCup",
 			"MeasuringInstrument_Antiquity_TaxAssessorKit",
+			"Medieval_Parchment_Sheet_Surface",
+			"Medieval_Parchment_Bifolium_Surface",
+			"Medieval_Parchment_Roll_Surface",
+			"Medieval_Rag_Paper_Sheet_Surface",
+			"Medieval_Rag_Paper_Letter_Surface",
+			"Medieval_Rag_Paper_Scroll_Surface",
+			"Medieval_Papyrus_Sheet_Surface",
+			"Medieval_Papyrus_Scroll_Surface",
+			"Medieval_East_Asian_Paper_Scroll_Surface",
+			"Medieval_East_Asian_Paper_Sheet_Surface",
+			"Medieval_Palm_Leaf_Manuscript_Surface",
+			"Medieval_Wax_Tablet_Surface",
+			"Medieval_Wax_Diptych_Surface",
+			"Medieval_Wax_Triptych_Surface",
+			"Medieval_Wooden_Tablet_Surface",
+			"Medieval_Slate_Tablet_Surface",
+			"Medieval_Birch_Bark_Surface",
+			"Medieval_Bamboo_Slip_Surface",
+			"Medieval_Ostracon_Surface",
+			"Medieval_Practice_Board_Surface",
+			"Medieval_Quill_Pen",
+			"Medieval_Fine_Quill_Pen",
+			"Medieval_Reed_Pen",
+			"Medieval_Qalam",
+			"Medieval_Calligraphy_Brush",
+			"Medieval_East_Asian_Writing_Brush",
+			"Medieval_Charcoal_Stick",
+			"Medieval_Bone_Stylus",
+			"Medieval_Bronze_Stylus",
+			"Medieval_Iron_Stylus",
+			"Medieval_Reed_Stylus",
+			"Medieval_Scribing_Chisel",
+			"Medieval_Parchment_Codex_20_Page",
+			"Medieval_Parchment_Codex_40_Page",
+			"Medieval_Parchment_Codex_90_Page",
+			"Medieval_Rag_Paper_Codex_40_Page",
+			"Medieval_Account_Ledger_90_Page",
+			"Medieval_East_Asian_Stitched_Book",
+			"Medieval_Palm_Leaf_Manuscript_Bundle",
+			"Container_Document_Pouch",
+			"Container_Scroll_Tube",
+			"Container_Seal_Box",
+			"Container_Archive_Box",
+			"Container_Document_Satchel",
+			"Container_Document_Bookcase_Shelves",
+			"Container_Writing_Desk_Surface",
+			"Container_Writing_Desk_Drawers",
+			"Container_Archive_Chest",
 			"Container_Envelope",
 			"PaperSheet_Envelope",
 			"PaperSheet_Scroll",
@@ -602,10 +661,35 @@ public class UsefulSeederItemPackageTests
 		Assert.AreEqual("on", (string)Definition("ShopStall_Antiquity_OpenCounter").Attribute("Preposition")!);
 		Assert.AreEqual("a bronze signet showing a lion beneath a civic star",
 			(string)Definition("SealStamp_Antiquity_BronzeSignet").Element("SealDesign")!);
+		Assert.AreEqual("a brass office seal bearing an institutional device",
+			(string)Definition("SealStamp_Medieval_BrassOfficeSeal").Element("SealDesign")!);
 		Assert.IsTrue(Definition("Sealable_Envelope").Element("AllowedMedia")!.Elements("Medium")
 		                                      .Any(x => (string)x == "wax"));
 		Assert.AreEqual("Weight", (string)Definition("MeasuringInstrument_Antiquity_BalanceScale").Element("Mode")!);
 		Assert.AreEqual("FluidVolume", (string)Definition("MeasuringInstrument_Antiquity_OilCup").Element("Mode")!);
+		Assert.AreEqual(3600,
+			(int)Definition("Medieval_Parchment_Sheet_Surface").Element("MaximumCharacterLengthOfText")!);
+		CollectionAssert.AreEquivalent(new[] { "Stylus" },
+			Definition("Medieval_Wax_Tablet_Surface").Element("AllowedImplementTypes")!.Elements("Type")
+			                                      .Select(x => x.Value)
+			                                      .ToArray());
+		CollectionAssert.Contains(
+			Definition("Medieval_Practice_Board_Surface").Element("AllowedImplementTypes")!.Elements("Type")
+			                                            .Select(x => x.Value)
+			                                            .ToArray(),
+			"Chisel");
+		Assert.AreEqual("Quill", (string)Definition("Medieval_Quill_Pen").Element("ImplementType")!);
+		Assert.IsTrue((int)Definition("Medieval_Quill_Pen").Element("TotalUses")! > 0);
+		Assert.AreEqual(0, (int)Definition("Medieval_Bone_Stylus").Element("TotalUses")!);
+		Assert.AreEqual("in", (string)Definition("Container_Document_Pouch").Attribute("Preposition")!);
+		Assert.IsTrue(bool.Parse((string)Definition("Container_Document_Pouch").Attribute("Closable")!));
+		Assert.AreEqual((int)SizeCategory.Large,
+			(int)Definition("Container_Archive_Chest").Attribute("MaxSize")!);
+		var parchmentBookPageId = (long)Definition("Medieval_Parchment_Codex_90_Page").Element("PaperProto")!;
+		var parchmentBookPage = context.GameItemProtos.Single(x => x.Id == parchmentBookPageId);
+		Assert.AreEqual("a parchment codex leaf", parchmentBookPage.ShortDescription);
+		Assert.AreNotEqual("a sheet of paper", parchmentBookPage.ShortDescription,
+			"Medieval codex components should not borrow the modern A-size paper prototype.");
 		Assert.AreEqual(1, (int)Definition("IncenseBurner_Antiquity_BronzeCenser").Element("ScentRange")!);
 		Assert.AreEqual(4, (int)Definition("IncenseBurner_Antiquity_BronzeCenser").Element("ScentDifficulty")!);
 		Assert.IsTrue(Definition("IncenseBurner_Antiquity_BronzeCenser").Element("SourceScentDescription")!.Value

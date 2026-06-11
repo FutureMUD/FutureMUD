@@ -702,7 +702,12 @@ public class EmploymentWorkerAI : PathingAIBase
 	private bool TryClaimOrAdvanceTask(ICharacter worker, IEmploymentHost host)
 	{
 		host.TaskBoard.AuditActiveTaskAssignments();
-		var task = AssignedTaskFor(worker, host);
+		if (AssignedBlockedTaskFor(worker, host) is not null)
+		{
+			return false;
+		}
+
+		var task = AssignedRunnableTaskFor(worker, host);
 		var context = task is null ? null : ContextFor(worker, host, task);
 		if (task is null)
 		{
@@ -823,6 +828,24 @@ public class EmploymentWorkerAI : PathingAIBase
 		           .FirstOrDefault();
 	}
 
+	private IEmploymentActiveTask? AssignedRunnableTaskFor(ICharacter worker, IEmploymentHost host)
+	{
+		return host.TaskBoard.ActiveTasks
+		           .Where(x => x.AssignedEmployee?.Id == worker.Id)
+		           .Where(x => x.Status is EmploymentTaskStatus.Assigned or EmploymentTaskStatus.InProgress)
+		           .OrderBy(x => x.Name)
+		           .FirstOrDefault();
+	}
+
+	private IEmploymentActiveTask? AssignedBlockedTaskFor(ICharacter worker, IEmploymentHost host)
+	{
+		return host.TaskBoard.ActiveTasks
+		           .Where(x => x.AssignedEmployee?.Id == worker.Id)
+		           .Where(x => x.Status == EmploymentTaskStatus.Blocked)
+		           .OrderBy(x => x.Name)
+		           .FirstOrDefault();
+	}
+
 	private EmploymentTaskContext ContextFor(ICharacter worker, IEmploymentHost host, IEmploymentActiveTask task)
 	{
 		var existing = worker.EffectsOfType<EmploymentWorkerTaskContextEffect>()
@@ -850,7 +873,7 @@ public class EmploymentWorkerAI : PathingAIBase
 			return null;
 		}
 
-		var task = AssignedTaskFor(worker, host);
+		var task = AssignedRunnableTaskFor(worker, host);
 		if (task is not null)
 		{
 			var context = ContextFor(worker, host, task);

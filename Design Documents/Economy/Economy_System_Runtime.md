@@ -377,6 +377,7 @@ Current operational boundaries:
 - executable shop-purchase tasks must be completed at a supplier shop location; commodity merchandise stays on the weighted purchase path and is not eligible for count-priced merchandise or item-selector purchases
 - payroll settlement debits backed employer funds before payables become claimable or settled; hosts without a native finance adapter must explicitly expose a currency-backed finance surface
 - item movement uses inventory plans where possible, with narrow fallbacks for behaviours the inventory-plan API does not model cleanly; physical employment logistics are constrained to the host's work locations and physical cash steps only consume task-custody currency piles
+- worker AI does not autonomously retry active tasks once they enter `Blocked`; blocked logistics tasks preserve any task-item custody for manager review instead of producing repeated delivery attempts
 - proprietor contracts cannot be terminated by non-admin managers, and manager goals must require the combined authority of the declared goal, its conditions, and its action plan
 - durable hotel roots and hotel room/rental/furnishing/lost-property internals are persisted through normalized hotel tables
 - central scheduled-rule evaluation runs once per minute and worker AI can also evaluate its current host before claiming work

@@ -76,9 +76,16 @@ public partial class UsefulSeeder : IDatabaseSeeder
         "Locksmithing_Antiquity_BronzePoor",
         "ShopStall_Antiquity_OpenCounter",
         "MarketGoodWeight_Antiquity_StapleFood",
+        "Medieval_Parchment_Sheet_Surface",
+        "Medieval_Wax_Tablet_Surface",
+        "Medieval_Quill_Pen",
         "SealStamp_Antiquity_BronzeSignet",
+        "SealStamp_Medieval_BronzeSignet",
         "Sealable_Envelope",
         "MeasuringInstrument_Antiquity_BalanceScale",
+        "Medieval_Parchment_Codex_40_Page",
+        "Container_Document_Pouch",
+        "Container_Archive_Chest",
         "IncenseBurner_Antiquity_BronzeCenser",
         "OfferingReceiver_Antiquity_HouseholdAltar"
     ];

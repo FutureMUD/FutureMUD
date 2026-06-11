@@ -7636,6 +7636,62 @@ public partial class UsefulSeeder
                 new XElement("BrokenSealLeavesResidue", brokenSealLeavesResidue));
         }
 
+        XElement PaperSheetDefinition(int maxCharacters)
+        {
+            return new XElement("Definition",
+                new XElement("MaximumCharacterLengthOfText", maxCharacters));
+        }
+
+        XElement InscribableSurfaceDefinition(int maxCharacters, params WritingImplementType[] allowedImplements)
+        {
+            return new XElement("Definition",
+                new XElement("MaximumCharacterLengthOfText", maxCharacters),
+                new XElement("AllowedImplementTypes",
+                    allowedImplements
+                        .Distinct()
+                        .Select(x => new XElement("Type", x.ToString()))));
+        }
+
+        XElement ScribingImplementDefinition(WritingImplementType implementType, string colourName, int totalUses)
+        {
+            var colour = context.Colours.Local
+                                .FirstOrDefault(x => x.Name.Equals(colourName, StringComparison.OrdinalIgnoreCase)) ??
+                         context.Colours
+                                .AsEnumerable()
+                                .FirstOrDefault(x => x.Name.Equals(colourName, StringComparison.OrdinalIgnoreCase));
+            return new XElement("Definition",
+                new XElement("ImplementType", implementType.ToString()),
+                new XElement("Colour", colour?.Id ?? 0),
+                new XElement("ColourCharacteristic", 0),
+                new XElement("TotalUses", totalUses));
+        }
+
+        XElement BookDefinition(GameItemProto pageItem, int pages, string defaultTitle = "")
+        {
+            return new XElement("Definition",
+                new XElement("PaperProto", pageItem.Id),
+                new XElement("PageCount", pages),
+                new XElement("DefaultTitle", new XCData(defaultTitle)),
+                new XElement("InitialReadables"));
+        }
+
+        XElement ContainerDefinition(double weight, SizeCategory maxSize, bool closable, bool transparent,
+            string preposition, bool onceOnly = false)
+        {
+            XElement definition = new("Definition",
+                new XAttribute("Weight", weight),
+                new XAttribute("MaxSize", (int)maxSize),
+                new XAttribute("Preposition", preposition),
+                new XAttribute("Closable", closable),
+                new XAttribute("Transparent", transparent));
+            if (onceOnly)
+            {
+                definition.Add(new XAttribute("OnceOnly", true));
+            }
+
+            return definition;
+        }
+
         XElement MeasuringDefinition(string mode, double precision, double capacity, double baseDriftPerUse,
             double maximumDrift, double maximumWrongCalibration, Difficulty inspectionDifficulty)
         {
@@ -7660,7 +7716,9 @@ public partial class UsefulSeeder
 
             material = new Material
             {
-                Id = context.Materials.Any() ? context.Materials.Max(x => x.Id) + 1 : 1,
+                Id = Math.Max(
+                    context.Materials.Any() ? context.Materials.Max(x => x.Id) : 0L,
+                    context.Materials.Local.Any() ? context.Materials.Local.Max(x => x.Id) : 0L) + 1,
                 Name = name,
                 MaterialDescription = name.ToLowerInvariant(),
                 BehaviourType = (int)behaviourType,
@@ -7693,7 +7751,7 @@ public partial class UsefulSeeder
             });
         }
 
-        void EnsureItemPrototype(string name, string keywords, Material material, SizeCategory size, double weight,
+        GameItemProto EnsureItemPrototype(string name, string keywords, Material material, SizeCategory size, double weight,
             string shortDescription, string fullDescription, params GameItemComponentProto[] components)
         {
             GameItemProto? item = context.GameItemProtos.Local
@@ -7758,7 +7816,113 @@ public partial class UsefulSeeder
             {
                 EnsureComponentLink(item, component);
             }
+
+            return item;
         }
+
+        GameItemComponentProto medievalParchmentSheetSurface = UpsertStockComponent("PaperSheet", "Medieval_Parchment_Sheet_Surface",
+            "Turns a single parchment sheet into a writable medieval document surface.",
+            PaperSheetDefinition(3600));
+        _ = UpsertStockComponent("PaperSheet", "Medieval_Parchment_Bifolium_Surface",
+            "Turns a folded parchment bifolium into a writable medieval document surface.",
+            PaperSheetDefinition(7200));
+        _ = UpsertStockComponent("PaperSheet", "Medieval_Parchment_Roll_Surface",
+            "Turns a parchment roll into a long writable medieval document surface.",
+            PaperSheetDefinition(15000));
+        GameItemComponentProto medievalRagPaperSheetSurface = UpsertStockComponent("PaperSheet", "Medieval_Rag_Paper_Sheet_Surface",
+            "Turns a rag-paper sheet into a writable medieval document surface.",
+            PaperSheetDefinition(3600));
+        _ = UpsertStockComponent("PaperSheet", "Medieval_Rag_Paper_Letter_Surface",
+            "Turns a folded rag-paper letter into a compact writable medieval document surface.",
+            PaperSheetDefinition(2400));
+        _ = UpsertStockComponent("PaperSheet", "Medieval_Rag_Paper_Scroll_Surface",
+            "Turns a rag-paper scroll into a long writable medieval document surface.",
+            PaperSheetDefinition(12000));
+        _ = UpsertStockComponent("PaperSheet", "Medieval_Papyrus_Sheet_Surface",
+            "Turns a papyrus sheet into a writable pre-modern document surface.",
+            PaperSheetDefinition(2400));
+        _ = UpsertStockComponent("PaperSheet", "Medieval_Papyrus_Scroll_Surface",
+            "Turns a papyrus scroll into a long writable pre-modern document surface.",
+            PaperSheetDefinition(12000));
+        _ = UpsertStockComponent("PaperSheet", "Medieval_East_Asian_Paper_Scroll_Surface",
+            "Turns an East Asian paper scroll into a long writable medieval document surface.",
+            PaperSheetDefinition(12000));
+        GameItemComponentProto medievalEastAsianPaperSheetSurface = UpsertStockComponent("PaperSheet", "Medieval_East_Asian_Paper_Sheet_Surface",
+            "Turns an East Asian paper sheet into a writable medieval document surface.",
+            PaperSheetDefinition(3600));
+        GameItemComponentProto medievalPalmLeafSurface = UpsertStockComponent("PaperSheet", "Medieval_Palm_Leaf_Manuscript_Surface",
+            "Turns a palm-leaf manuscript strip into a writable pre-modern manuscript surface.",
+            PaperSheetDefinition(1800));
+
+        _ = UpsertStockComponent("InscribableSurface", "Medieval_Wax_Tablet_Surface",
+            "Allows a wax writing tablet to take stylus marks.",
+            InscribableSurfaceDefinition(1800, WritingImplementType.Stylus));
+        _ = UpsertStockComponent("InscribableSurface", "Medieval_Wax_Diptych_Surface",
+            "Allows paired wax tablets to take stylus marks.",
+            InscribableSurfaceDefinition(3600, WritingImplementType.Stylus));
+        _ = UpsertStockComponent("InscribableSurface", "Medieval_Wax_Triptych_Surface",
+            "Allows tripled wax tablets to take stylus marks.",
+            InscribableSurfaceDefinition(5400, WritingImplementType.Stylus));
+        _ = UpsertStockComponent("InscribableSurface", "Medieval_Wooden_Tablet_Surface",
+            "Allows a wooden writing tablet to take incised, stylus or charcoal marks.",
+            InscribableSurfaceDefinition(2200, WritingImplementType.Stylus, WritingImplementType.Chisel,
+                WritingImplementType.Charcoal));
+        _ = UpsertStockComponent("InscribableSurface", "Medieval_Slate_Tablet_Surface",
+            "Allows a slate writing tablet to take stylus or chisel marks.",
+            InscribableSurfaceDefinition(1800, WritingImplementType.Stylus, WritingImplementType.Chisel));
+        _ = UpsertStockComponent("InscribableSurface", "Medieval_Birch_Bark_Surface",
+            "Allows birch-bark documents to take ink, brush, charcoal or incised marks.",
+            InscribableSurfaceDefinition(1800, WritingImplementType.Quill, WritingImplementType.ReedPen,
+                WritingImplementType.Brush, WritingImplementType.Charcoal, WritingImplementType.Stylus));
+        _ = UpsertStockComponent("InscribableSurface", "Medieval_Bamboo_Slip_Surface",
+            "Allows a bamboo slip to take brush or stylus writing.",
+            InscribableSurfaceDefinition(800, WritingImplementType.Brush, WritingImplementType.Stylus));
+        _ = UpsertStockComponent("InscribableSurface", "Medieval_Ostracon_Surface",
+            "Allows an ostracon to take ink, brush or charcoal marks.",
+            InscribableSurfaceDefinition(900, WritingImplementType.ReedPen, WritingImplementType.Quill,
+                WritingImplementType.Brush, WritingImplementType.Charcoal));
+        _ = UpsertStockComponent("InscribableSurface", "Medieval_Practice_Board_Surface",
+            "Allows a reusable practice board to take common pre-modern writing and incising implements.",
+            InscribableSurfaceDefinition(2500, WritingImplementType.Stylus, WritingImplementType.Quill,
+                WritingImplementType.ReedPen, WritingImplementType.Brush, WritingImplementType.Charcoal,
+                WritingImplementType.Chisel));
+
+        _ = UpsertStockComponent("ScribingImplement", "Medieval_Quill_Pen",
+            "Turns an item into a finite black quill writing implement.",
+            ScribingImplementDefinition(WritingImplementType.Quill, "black", 9000));
+        _ = UpsertStockComponent("ScribingImplement", "Medieval_Fine_Quill_Pen",
+            "Turns an item into a fine finite black quill writing implement.",
+            ScribingImplementDefinition(WritingImplementType.Quill, "black", 12000));
+        _ = UpsertStockComponent("ScribingImplement", "Medieval_Reed_Pen",
+            "Turns an item into a finite black reed writing implement.",
+            ScribingImplementDefinition(WritingImplementType.ReedPen, "black", 7000));
+        _ = UpsertStockComponent("ScribingImplement", "Medieval_Qalam",
+            "Turns an item into a finite black qalam-style reed writing implement.",
+            ScribingImplementDefinition(WritingImplementType.ReedPen, "black", 8000));
+        _ = UpsertStockComponent("ScribingImplement", "Medieval_Calligraphy_Brush",
+            "Turns an item into a finite black calligraphy brush writing implement.",
+            ScribingImplementDefinition(WritingImplementType.Brush, "black", 6000));
+        _ = UpsertStockComponent("ScribingImplement", "Medieval_East_Asian_Writing_Brush",
+            "Turns an item into a finite black East Asian writing brush.",
+            ScribingImplementDefinition(WritingImplementType.Brush, "black", 7000));
+        _ = UpsertStockComponent("ScribingImplement", "Medieval_Charcoal_Stick",
+            "Turns an item into a finite charcoal writing stick.",
+            ScribingImplementDefinition(WritingImplementType.Charcoal, "black", 2500));
+        _ = UpsertStockComponent("ScribingImplement", "Medieval_Bone_Stylus",
+            "Turns an item into a non-consuming bone stylus.",
+            ScribingImplementDefinition(WritingImplementType.Stylus, "black", 0));
+        _ = UpsertStockComponent("ScribingImplement", "Medieval_Bronze_Stylus",
+            "Turns an item into a non-consuming bronze stylus.",
+            ScribingImplementDefinition(WritingImplementType.Stylus, "black", 0));
+        _ = UpsertStockComponent("ScribingImplement", "Medieval_Iron_Stylus",
+            "Turns an item into a non-consuming iron stylus.",
+            ScribingImplementDefinition(WritingImplementType.Stylus, "black", 0));
+        _ = UpsertStockComponent("ScribingImplement", "Medieval_Reed_Stylus",
+            "Turns an item into a non-consuming reed stylus.",
+            ScribingImplementDefinition(WritingImplementType.Stylus, "black", 0));
+        _ = UpsertStockComponent("ScribingImplement", "Medieval_Scribing_Chisel",
+            "Turns an item into a non-consuming scribing chisel.",
+            ScribingImplementDefinition(WritingImplementType.Chisel, "black", 0));
 
         GameItemComponentProto bronzeSignet = UpsertStockComponent("SealStamp", "SealStamp_Antiquity_BronzeSignet",
             "Turns an item into a bronze signet ring style seal stamp.",
@@ -7768,6 +7932,22 @@ public partial class UsefulSeeder
             "Turns an item into a cylinder seal for rolling an authority impression through clay or wax.",
             SealStampDefinition("a rolled procession of officials, reeds and account marks", "Temple Archive",
                 string.Empty, "Temple Household", "Archive Steward", "stone", Difficulty.ExtremelyHard));
+        _ = UpsertStockComponent("SealStamp", "SealStamp_Medieval_BronzeSignet",
+            "Turns an item into a medieval bronze signet seal stamp.",
+            SealStampDefinition("a bronze signet bearing a personal device cut for wax", string.Empty,
+                "Signet Owner", string.Empty, string.Empty, "bronze", Difficulty.VeryHard));
+        _ = UpsertStockComponent("SealStamp", "SealStamp_Medieval_IronSealMatrix",
+            "Turns an item into a medieval iron seal matrix.",
+            SealStampDefinition("an iron matrix bearing a formal seal legend", string.Empty,
+                string.Empty, "Chartered Household", "Seal Keeper", "iron", Difficulty.ExtremelyHard));
+        _ = UpsertStockComponent("SealStamp", "SealStamp_Medieval_BrassOfficeSeal",
+            "Turns an item into a medieval brass office seal stamp.",
+            SealStampDefinition("a brass office seal bearing an institutional device", "Chancery Office",
+                string.Empty, "Chancery", "Authorised Clerk", "brass", Difficulty.ExtremelyHard));
+        _ = UpsertStockComponent("SealStamp", "SealStamp_Medieval_LeadSealMatrix",
+            "Turns an item into a medieval lead seal matrix for official packets.",
+            SealStampDefinition("a lead seal matrix bearing a sober administrative mark", "Record Office",
+                string.Empty, string.Empty, "Seal Officer", "lead", Difficulty.VeryHard));
 
         GameItemComponentProto sealableWaxDocument = UpsertStockComponent("Sealable", "Sealable_Document_Wax",
             "Lets a document be sealed with wax and leave broken-seal residue.",
@@ -7807,7 +7987,37 @@ public partial class UsefulSeeder
             "Turns an item into a tax assessor's kit for weighing taxable goods.",
             MeasuringDefinition("Weight", 5.0, 250000.0, 0.0002, 0.025, 0.20, Difficulty.Hard));
 
+        _ = UpsertStockComponent("Container", "Container_Document_Pouch",
+            "A closable pouch sized for folded documents, tablet packets and small writing supplies.",
+            ContainerDefinition(2000, SizeCategory.VerySmall, true, false, "in"));
+        _ = UpsertStockComponent("Container", "Container_Scroll_Tube",
+            "A closable tube sized for scrolls, maps, narrow rolls and document rods.",
+            ContainerDefinition(10000, SizeCategory.Small, true, false, "in"));
+        _ = UpsertStockComponent("Container", "Container_Seal_Box",
+            "A closable box sized for seal matrices, signets, wax lumps and authentication tools.",
+            ContainerDefinition(2500, SizeCategory.VerySmall, true, false, "in"));
+        _ = UpsertStockComponent("Container", "Container_Archive_Box",
+            "A closable archive box sized for bundled papers, charters and small ledgers.",
+            ContainerDefinition(40000, SizeCategory.Normal, true, false, "in"));
+        _ = UpsertStockComponent("Container", "Container_Document_Satchel",
+            "A closable satchel sized for books, documents, tablets and portable writing kits.",
+            ContainerDefinition(25000, SizeCategory.Small, true, false, "in"));
+        _ = UpsertStockComponent("Container", "Container_Document_Bookcase_Shelves",
+            "Allows bookcases and library shelves to hold books, scrolls and document boxes on them.",
+            ContainerDefinition(175000, SizeCategory.Large, false, true, "on"));
+        _ = UpsertStockComponent("Container", "Container_Writing_Desk_Surface",
+            "Allows a writing desk surface to hold books, documents, seals and writing tools on it.",
+            ContainerDefinition(75000, SizeCategory.Normal, false, true, "on"));
+        _ = UpsertStockComponent("Container", "Container_Writing_Desk_Drawers",
+            "A closable drawer container for writing desks, document desks and scribal work tables.",
+            ContainerDefinition(30000, SizeCategory.Small, true, false, "in"));
+        _ = UpsertStockComponent("Container", "Container_Archive_Chest",
+            "A closable chest container for archive bundles, ledgers, tablets and sealed records.",
+            ContainerDefinition(160000, SizeCategory.Large, true, false, "in"));
+
         Material paperMaterial = EnsureMaterial("Paper", MaterialBehaviourType.Plant);
+        Material parchmentMaterial = EnsureMaterial("Parchment", MaterialBehaviourType.Skin);
+        Material palmLeafMaterial = EnsureMaterial("Palm Leaf", MaterialBehaviourType.Plant);
         GameItemComponentProto holdable = EnsureComponent("Holdable", "Holdable",
             "Allows an item to be picked up and manipulated.",
             new XElement("Definition"));
@@ -7835,6 +8045,45 @@ public partial class UsefulSeeder
                 new XElement("DamageMultipliers",
                     new XElement("DamageMultiplier", new XAttribute("type", (int)DamageType.Burning), new XAttribute("multiplier", 2.5)),
                     new XElement("DamageMultiplier", new XAttribute("type", (int)DamageType.Piercing), new XAttribute("multiplier", 1.1)))));
+
+        GameItemProto parchmentCodexLeaf = EnsureItemPrototype("leaf", "leaf parchment codex page",
+            parchmentMaterial, SizeCategory.Tiny, 3.0, "a parchment codex leaf",
+            "This is a trimmed parchment leaf prepared for binding into a codex.",
+            holdable, medievalParchmentSheetSurface, destroyablePaper);
+        GameItemProto ragPaperCodexLeaf = EnsureItemPrototype("leaf", "leaf rag paper codex page",
+            paperMaterial, SizeCategory.Tiny, 1.0, "a rag-paper codex leaf",
+            "This is a trimmed rag-paper leaf prepared for binding into a codex or ledger.",
+            holdable, medievalRagPaperSheetSurface, destroyablePaper);
+        GameItemProto eastAsianPaperLeaf = EnsureItemPrototype("leaf", "leaf east asian paper stitched book page",
+            paperMaterial, SizeCategory.Tiny, 1.0, "an East Asian stitched-book leaf",
+            "This is a thin paper leaf prepared for binding into a stitched book.",
+            holdable, medievalEastAsianPaperSheetSurface, destroyablePaper);
+        GameItemProto palmLeafManuscriptStrip = EnsureItemPrototype("strip", "strip palm leaf manuscript page",
+            palmLeafMaterial, SizeCategory.Tiny, 4.0, "a palm-leaf manuscript strip",
+            "This is a trimmed palm-leaf strip prepared for inscription and bundling into a manuscript.",
+            holdable, medievalPalmLeafSurface, destroyablePaper);
+
+        _ = UpsertStockComponent("Book", "Medieval_Parchment_Codex_20_Page",
+            "Turns an item into a 20 page medieval parchment codex.",
+            BookDefinition(parchmentCodexLeaf, 20));
+        _ = UpsertStockComponent("Book", "Medieval_Parchment_Codex_40_Page",
+            "Turns an item into a 40 page medieval parchment codex.",
+            BookDefinition(parchmentCodexLeaf, 40));
+        _ = UpsertStockComponent("Book", "Medieval_Parchment_Codex_90_Page",
+            "Turns an item into a 90 page medieval parchment codex.",
+            BookDefinition(parchmentCodexLeaf, 90));
+        _ = UpsertStockComponent("Book", "Medieval_Rag_Paper_Codex_40_Page",
+            "Turns an item into a 40 page medieval rag-paper codex.",
+            BookDefinition(ragPaperCodexLeaf, 40));
+        _ = UpsertStockComponent("Book", "Medieval_Account_Ledger_90_Page",
+            "Turns an item into a 90 page medieval account ledger.",
+            BookDefinition(ragPaperCodexLeaf, 90, "Account Ledger"));
+        _ = UpsertStockComponent("Book", "Medieval_East_Asian_Stitched_Book",
+            "Turns an item into a 40 leaf medieval East Asian stitched book.",
+            BookDefinition(eastAsianPaperLeaf, 40));
+        _ = UpsertStockComponent("Book", "Medieval_Palm_Leaf_Manuscript_Bundle",
+            "Turns an item into a 40 strip palm-leaf manuscript bundle.",
+            BookDefinition(palmLeafManuscriptStrip, 40));
 
         EnsureItemPrototype("envelope", "envelope paper sealable writable", paperMaterial, SizeCategory.Tiny, 10.0,
             "a sealable envelope",

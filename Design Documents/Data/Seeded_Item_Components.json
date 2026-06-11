@@ -6308,5 +6308,265 @@
         "Component Name":  "ZeroGravityTether_3Room",
         "Component Description":  "Turns an item into a zero-gravity tether with a three-room maximum length.",
         "Component Type":  "ZeroGravityTether"
+    },
+    {
+        "Component Name":  "Container_Archive_Box",
+        "Component Description":  "A closable archive box sized for bundled papers, charters and small ledgers.",
+        "Component Type":  "Container"
+    },
+    {
+        "Component Name":  "Container_Archive_Chest",
+        "Component Description":  "A closable chest container for archive bundles, ledgers, tablets and sealed records.",
+        "Component Type":  "Container"
+    },
+    {
+        "Component Name":  "Container_Document_Bookcase_Shelves",
+        "Component Description":  "Allows bookcases and library shelves to hold books, scrolls and document boxes on them.",
+        "Component Type":  "Container"
+    },
+    {
+        "Component Name":  "Container_Document_Pouch",
+        "Component Description":  "A closable pouch sized for folded documents, tablet packets and small writing supplies.",
+        "Component Type":  "Container"
+    },
+    {
+        "Component Name":  "Container_Document_Satchel",
+        "Component Description":  "A closable satchel sized for books, documents, tablets and portable writing kits.",
+        "Component Type":  "Container"
+    },
+    {
+        "Component Name":  "Container_Scroll_Tube",
+        "Component Description":  "A closable tube sized for scrolls, maps, narrow rolls and document rods.",
+        "Component Type":  "Container"
+    },
+    {
+        "Component Name":  "Container_Seal_Box",
+        "Component Description":  "A closable box sized for seal matrices, signets, wax lumps and authentication tools.",
+        "Component Type":  "Container"
+    },
+    {
+        "Component Name":  "Container_Writing_Desk_Drawers",
+        "Component Description":  "A closable drawer container for writing desks, document desks and scribal work tables.",
+        "Component Type":  "Container"
+    },
+    {
+        "Component Name":  "Container_Writing_Desk_Surface",
+        "Component Description":  "Allows a writing desk surface to hold books, documents, seals and writing tools on it.",
+        "Component Type":  "Container"
+    },
+    {
+        "Component Name":  "Medieval_Account_Ledger_90_Page",
+        "Component Description":  "Turns an item into a 90 page medieval account ledger.",
+        "Component Type":  "Book"
+    },
+    {
+        "Component Name":  "Medieval_Bamboo_Slip_Surface",
+        "Component Description":  "Allows a bamboo slip to take brush or stylus writing.",
+        "Component Type":  "InscribableSurface"
+    },
+    {
+        "Component Name":  "Medieval_Birch_Bark_Surface",
+        "Component Description":  "Allows birch-bark documents to take ink, brush, charcoal or incised marks.",
+        "Component Type":  "InscribableSurface"
+    },
+    {
+        "Component Name":  "Medieval_Bone_Stylus",
+        "Component Description":  "Turns an item into a non-consuming bone stylus.",
+        "Component Type":  "ScribingImplement"
+    },
+    {
+        "Component Name":  "Medieval_Bronze_Stylus",
+        "Component Description":  "Turns an item into a non-consuming bronze stylus.",
+        "Component Type":  "ScribingImplement"
+    },
+    {
+        "Component Name":  "Medieval_Calligraphy_Brush",
+        "Component Description":  "Turns an item into a finite black calligraphy brush writing implement.",
+        "Component Type":  "ScribingImplement"
+    },
+    {
+        "Component Name":  "Medieval_Charcoal_Stick",
+        "Component Description":  "Turns an item into a finite charcoal writing stick.",
+        "Component Type":  "ScribingImplement"
+    },
+    {
+        "Component Name":  "Medieval_East_Asian_Paper_Scroll_Surface",
+        "Component Description":  "Turns an East Asian paper scroll into a long writable medieval document surface.",
+        "Component Type":  "PaperSheet"
+    },
+    {
+        "Component Name":  "Medieval_East_Asian_Paper_Sheet_Surface",
+        "Component Description":  "Turns an East Asian paper sheet into a writable medieval document surface.",
+        "Component Type":  "PaperSheet"
+    },
+    {
+        "Component Name":  "Medieval_East_Asian_Stitched_Book",
+        "Component Description":  "Turns an item into a 40 leaf medieval East Asian stitched book.",
+        "Component Type":  "Book"
+    },
+    {
+        "Component Name":  "Medieval_East_Asian_Writing_Brush",
+        "Component Description":  "Turns an item into a finite black East Asian writing brush.",
+        "Component Type":  "ScribingImplement"
+    },
+    {
+        "Component Name":  "Medieval_Fine_Quill_Pen",
+        "Component Description":  "Turns an item into a fine finite black quill writing implement.",
+        "Component Type":  "ScribingImplement"
+    },
+    {
+        "Component Name":  "Medieval_Iron_Stylus",
+        "Component Description":  "Turns an item into a non-consuming iron stylus.",
+        "Component Type":  "ScribingImplement"
+    },
+    {
+        "Component Name":  "Medieval_Ostracon_Surface",
+        "Component Description":  "Allows an ostracon to take ink, brush or charcoal marks.",
+        "Component Type":  "InscribableSurface"
+    },
+    {
+        "Component Name":  "Medieval_Palm_Leaf_Manuscript_Bundle",
+        "Component Description":  "Turns an item into a 40 strip palm-leaf manuscript bundle.",
+        "Component Type":  "Book"
+    },
+    {
+        "Component Name":  "Medieval_Palm_Leaf_Manuscript_Surface",
+        "Component Description":  "Turns a palm-leaf manuscript strip into a writable pre-modern manuscript surface.",
+        "Component Type":  "PaperSheet"
+    },
+    {
+        "Component Name":  "Medieval_Papyrus_Scroll_Surface",
+        "Component Description":  "Turns a papyrus scroll into a long writable pre-modern document surface.",
+        "Component Type":  "PaperSheet"
+    },
+    {
+        "Component Name":  "Medieval_Papyrus_Sheet_Surface",
+        "Component Description":  "Turns a papyrus sheet into a writable pre-modern document surface.",
+        "Component Type":  "PaperSheet"
+    },
+    {
+        "Component Name":  "Medieval_Parchment_Bifolium_Surface",
+        "Component Description":  "Turns a folded parchment bifolium into a writable medieval document surface.",
+        "Component Type":  "PaperSheet"
+    },
+    {
+        "Component Name":  "Medieval_Parchment_Codex_20_Page",
+        "Component Description":  "Turns an item into a 20 page medieval parchment codex.",
+        "Component Type":  "Book"
+    },
+    {
+        "Component Name":  "Medieval_Parchment_Codex_40_Page",
+        "Component Description":  "Turns an item into a 40 page medieval parchment codex.",
+        "Component Type":  "Book"
+    },
+    {
+        "Component Name":  "Medieval_Parchment_Codex_90_Page",
+        "Component Description":  "Turns an item into a 90 page medieval parchment codex.",
+        "Component Type":  "Book"
+    },
+    {
+        "Component Name":  "Medieval_Parchment_Roll_Surface",
+        "Component Description":  "Turns a parchment roll into a long writable medieval document surface.",
+        "Component Type":  "PaperSheet"
+    },
+    {
+        "Component Name":  "Medieval_Parchment_Sheet_Surface",
+        "Component Description":  "Turns a single parchment sheet into a writable medieval document surface.",
+        "Component Type":  "PaperSheet"
+    },
+    {
+        "Component Name":  "Medieval_Practice_Board_Surface",
+        "Component Description":  "Allows a reusable practice board to take common pre-modern writing and incising implements.",
+        "Component Type":  "InscribableSurface"
+    },
+    {
+        "Component Name":  "Medieval_Qalam",
+        "Component Description":  "Turns an item into a finite black qalam-style reed writing implement.",
+        "Component Type":  "ScribingImplement"
+    },
+    {
+        "Component Name":  "Medieval_Quill_Pen",
+        "Component Description":  "Turns an item into a finite black quill writing implement.",
+        "Component Type":  "ScribingImplement"
+    },
+    {
+        "Component Name":  "Medieval_Rag_Paper_Codex_40_Page",
+        "Component Description":  "Turns an item into a 40 page medieval rag-paper codex.",
+        "Component Type":  "Book"
+    },
+    {
+        "Component Name":  "Medieval_Rag_Paper_Letter_Surface",
+        "Component Description":  "Turns a folded rag-paper letter into a compact writable medieval document surface.",
+        "Component Type":  "PaperSheet"
+    },
+    {
+        "Component Name":  "Medieval_Rag_Paper_Scroll_Surface",
+        "Component Description":  "Turns a rag-paper scroll into a long writable medieval document surface.",
+        "Component Type":  "PaperSheet"
+    },
+    {
+        "Component Name":  "Medieval_Rag_Paper_Sheet_Surface",
+        "Component Description":  "Turns a rag-paper sheet into a writable medieval document surface.",
+        "Component Type":  "PaperSheet"
+    },
+    {
+        "Component Name":  "Medieval_Reed_Pen",
+        "Component Description":  "Turns an item into a finite black reed writing implement.",
+        "Component Type":  "ScribingImplement"
+    },
+    {
+        "Component Name":  "Medieval_Reed_Stylus",
+        "Component Description":  "Turns an item into a non-consuming reed stylus.",
+        "Component Type":  "ScribingImplement"
+    },
+    {
+        "Component Name":  "Medieval_Scribing_Chisel",
+        "Component Description":  "Turns an item into a non-consuming scribing chisel.",
+        "Component Type":  "ScribingImplement"
+    },
+    {
+        "Component Name":  "Medieval_Slate_Tablet_Surface",
+        "Component Description":  "Allows a slate writing tablet to take stylus or chisel marks.",
+        "Component Type":  "InscribableSurface"
+    },
+    {
+        "Component Name":  "Medieval_Wax_Diptych_Surface",
+        "Component Description":  "Allows paired wax tablets to take stylus marks.",
+        "Component Type":  "InscribableSurface"
+    },
+    {
+        "Component Name":  "Medieval_Wax_Tablet_Surface",
+        "Component Description":  "Allows a wax writing tablet to take stylus marks.",
+        "Component Type":  "InscribableSurface"
+    },
+    {
+        "Component Name":  "Medieval_Wax_Triptych_Surface",
+        "Component Description":  "Allows tripled wax tablets to take stylus marks.",
+        "Component Type":  "InscribableSurface"
+    },
+    {
+        "Component Name":  "Medieval_Wooden_Tablet_Surface",
+        "Component Description":  "Allows a wooden writing tablet to take incised, stylus or charcoal marks.",
+        "Component Type":  "InscribableSurface"
+    },
+    {
+        "Component Name":  "SealStamp_Medieval_BrassOfficeSeal",
+        "Component Description":  "Turns an item into a medieval brass office seal stamp.",
+        "Component Type":  "SealStamp"
+    },
+    {
+        "Component Name":  "SealStamp_Medieval_BronzeSignet",
+        "Component Description":  "Turns an item into a medieval bronze signet seal stamp.",
+        "Component Type":  "SealStamp"
+    },
+    {
+        "Component Name":  "SealStamp_Medieval_IronSealMatrix",
+        "Component Description":  "Turns an item into a medieval iron seal matrix.",
+        "Component Type":  "SealStamp"
+    },
+    {
+        "Component Name":  "SealStamp_Medieval_LeadSealMatrix",
+        "Component Description":  "Turns an item into a medieval lead seal matrix for official packets.",
+        "Component Type":  "SealStamp"
     }
 ]

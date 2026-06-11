@@ -530,6 +530,54 @@ public class EmploymentWorkerAITests
 	}
 
 	[TestMethod]
+	public void EmploymentWorkerAI_DoesNotRetryBlockedDeliveryOutsideHostLocations()
+	{
+		var currency = Currency();
+		var workplace = Cell(35, "stockroom");
+		var destination = Cell(36, "public lane");
+		var item = Item(350, "socks");
+		var cellItems = new List<IGameItem> { item.Object };
+		workplace.SetupGet(x => x.GameItems).Returns(() => cellItems);
+		workplace.Setup(x => x.Extract(It.IsAny<IGameItem>()))
+		         .Callback<IGameItem>(target => cellItems.RemoveAll(x => x.Id == target.Id));
+		var host = Shop(35, "task shop", currency.Object, workplace.Object);
+		var gameworld = Gameworld(shops: [host.Shop.Object], currencies: [currency.Object]);
+		var worker = Character(35, "Worker", gameworld.Object, workplace.Object).Object;
+		host.State.Hire(worker, Offer(currency.Object, EmploymentRole.Employee, EmploymentAuthority.ManageDeliveryRoutes), null);
+		var task = host.State.TaskBoard.CreateActiveTask(
+			"Move socks",
+			new EmploymentActionPlan(new IEmploymentActionStep[]
+			{
+				new GetItemsByIdActionStep(1, [item.Object.Prototype.Id], [workplace.Object]),
+				new DeliverItemsActionStep(destination.Object)
+			}),
+			null);
+		var dispatcher = new EmploymentTaskDispatcher();
+		var context = new EmploymentTaskContext(host.Shop.Object, usePhysicalItemMovement: true);
+		var profile = Profile(worker);
+
+		Assert.IsTrue(dispatcher.TryAssignTask(task, [profile], context, out var assignReason), assignReason);
+		Assert.IsTrue(dispatcher.AdvanceTask(task, context).Success);
+		var blockedResult = dispatcher.AdvanceTask(task, context);
+
+		Assert.IsFalse(blockedResult.Success);
+		Assert.AreEqual(EmploymentTaskStatus.Blocked, task.Status);
+		Assert.AreEqual(EmploymentActionStepStatus.Blocked, task.StepStates[1]);
+		StringAssert.Contains(task.BlockedReason, "assigned work locations");
+		Assert.IsTrue(worker.Inventory.Any(x => x.Id == item.Object.Id));
+		gameworld.Invocations.Clear();
+
+		var acted = LoadAI(gameworld.Object).HandleMinuteTick(worker);
+
+		Assert.IsFalse(acted);
+		Assert.AreEqual(EmploymentTaskStatus.Blocked, task.Status);
+		Assert.AreEqual(EmploymentActionStepStatus.Blocked, task.StepStates[1]);
+		Assert.IsTrue(worker.Inventory.Any(x => x.Id == item.Object.Id));
+		gameworld.Verify(x => x.DebugMessage(It.Is<string>(text => text.Contains("advanced task Move socks"))),
+			Times.Never);
+	}
+
+	[TestMethod]
 	public void EmploymentWorkerAI_EvaluatesScheduledRulesBeforeClaimingTasks()
 	{
 		var currency = Currency();

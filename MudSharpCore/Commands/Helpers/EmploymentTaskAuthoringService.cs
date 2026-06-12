@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using MudSharp.Arenas;
@@ -11,6 +12,7 @@ using MudSharp.Economy.Employment;
 using MudSharp.Effects.Concrete;
 using MudSharp.Framework;
 using MudSharp.GameItems;
+using MudSharp.TimeAndDate;
 using MudSharp.Vehicles;
 
 #nullable enable
@@ -446,9 +448,13 @@ internal sealed class EmploymentTaskAuthoringService
 			"bankwithdraw" => TryParseBankWithdraw(host, input, out step, out message),
 			"storepay" => TryParseStorePay(host, input, out step, out message),
 			"paytax" => TryParsePayTax(host, input, out step, out message),
+			"payroll" => TryParsePayrollSettlement(input, out step, out message),
 			"float" => TryParseShopFloat(actor, host, input, out step, out message),
 			"physicalfloat" or "cashtrip" or "employeefloat" =>
 				TryParsePhysicalFloat(actor, host, input, out step, out message),
+			"price" or "pricing" => TryParsePriceChange(actor, host, input, out step, out message),
+			"jobopening" or "opening" or "job" =>
+				TryParseJobOpeningAdministration(actor, host, input, out step, out message),
 			"craft" => TryParseCraft(input, out step, out message),
 			"station" => TryParseCraftStation(input, out step, out message),
 			"report" or "authorise" or "reserve" or "release" or "select" or "estimate" =>
@@ -1331,6 +1337,28 @@ internal sealed class EmploymentTaskAuthoringService
 		return true;
 	}
 
+	private static bool TryParsePayrollSettlement(StringStack input, out IEmploymentActionStep step, out string message)
+	{
+		step = null!;
+		if (!input.IsFinished && input.PeekSpeech().EqualTo("settle"))
+		{
+			input.PopSpeech();
+		}
+
+		if (input.IsFinished)
+		{
+			message = $"Payroll settlement steps use the syntax: {"tasks step payroll settle <all|#payable> [reason]".ColourCommand()}";
+			return false;
+		}
+
+		var selector = input.PopSpeech();
+		var reason = input.SafeRemainingArgument.Trim();
+		ConsumeRemaining(input);
+		step = new PayrollSettlementActionStep(selector, reason);
+		message = string.Empty;
+		return true;
+	}
+
 	private static bool TryParseShopFloat(ICharacter actor, IEmploymentHost host, StringStack input,
 		out IEmploymentActionStep step, out string message)
 	{
@@ -1454,6 +1482,364 @@ internal sealed class EmploymentTaskAuthoringService
 		}
 
 		step = new PhysicalFloatActionStep(operation, amount, target, selector);
+		message = string.Empty;
+		return true;
+	}
+
+	private static bool TryParsePriceChange(ICharacter actor, IEmploymentHost host, StringStack input,
+		out IEmploymentActionStep step, out string message)
+	{
+		step = null!;
+		if (input.IsFinished)
+		{
+			message = $"Price steps use the syntax: {"tasks step price merch <id|name> <amount>".ColourCommand()} or {"tasks step price market <host|market> category <category> [supply <pct>] [demand <pct>] [flat <pct>] [duration <timespan>|until <date|never>]".ColourCommand()}.";
+			return false;
+		}
+
+		var mode = input.PopSpeech().CollapseString().ToLowerInvariant();
+		if (mode.EqualTo("merch") || mode.EqualTo("merchandise") || mode.EqualTo("item"))
+		{
+			var tokens = PopRemainingTokens(input).ToList();
+			if (!TrySplitTrailingMoney(host, tokens, out var selector, out var amount, out message))
+			{
+				return false;
+			}
+
+			step = new PriceChangeActionStep(selector, amount);
+			message = string.Empty;
+			return true;
+		}
+
+		if (!mode.EqualTo("market"))
+		{
+			message = $"Unknown price mode {mode.ColourCommand()}. Use {"merch".ColourCommand()} or {"market".ColourCommand()}.";
+			return false;
+		}
+
+		var marketTokens = PopTokensUntil(input, "category").ToList();
+		if (input.IsFinished || !input.PopSpeech().EqualTo("category"))
+		{
+			message = $"Market price steps use the syntax: {"tasks step price market <host|market id|name> category <category> [supply <pct>] [demand <pct>] [flat <pct>] [duration <timespan>|until <date|never>]".ColourCommand()}.";
+			return false;
+		}
+
+		var categoryTokens = new List<string>();
+		while (!input.IsFinished && !IsPriceMarketOption(input.PeekSpeech()))
+		{
+			categoryTokens.Add(input.PopSpeech());
+		}
+
+		if (!categoryTokens.Any())
+		{
+			message = "Which market category should this price influence affect?";
+			return false;
+		}
+
+		double supply = 0.0;
+		double demand = 0.0;
+		double flat = 0.0;
+		string? name = null;
+		TimeSpan? duration = null;
+		string? until = null;
+		while (!input.IsFinished)
+		{
+			var option = input.PopSpeech().CollapseString().ToLowerInvariant();
+			switch (option)
+			{
+				case "supply":
+					if (input.IsFinished || !input.PopSpeech().TryParsePercentage(actor.Account.Culture, out supply))
+					{
+						message = "What percentage supply impact should this market influence use?";
+						return false;
+					}
+					break;
+				case "demand":
+					if (input.IsFinished || !input.PopSpeech().TryParsePercentage(actor.Account.Culture, out demand))
+					{
+						message = "What percentage demand impact should this market influence use?";
+						return false;
+					}
+					break;
+				case "flat":
+					if (input.IsFinished || !input.PopSpeech().TryParsePercentage(actor.Account.Culture, out flat))
+					{
+						message = "What flat percentage price impact should this market influence use?";
+						return false;
+					}
+					break;
+				case "name":
+					name = string.Join(" ", PopTokensUntilAny(input, PriceMarketOptions)).Trim();
+					if (string.IsNullOrWhiteSpace(name))
+					{
+						message = "What name should this employment-generated market influence use?";
+						return false;
+					}
+					break;
+				case "duration":
+					var durationText = string.Join(" ", PopTokensUntilAny(input, PriceMarketOptions)).Trim();
+					if (!TryParseTimeSpan(actor, durationText, out var parsedDuration))
+					{
+						message = $"Could not parse {durationText.ColourCommand()} as a duration.";
+						return false;
+					}
+					duration = parsedDuration;
+					break;
+				case "until":
+					until = string.Join(" ", PopTokensUntilAny(input, PriceMarketOptions)).Trim();
+					if (string.IsNullOrWhiteSpace(until))
+					{
+						message = "What date should this market influence apply until?";
+						return false;
+					}
+					break;
+				default:
+					message = $"Unknown market price option {option.ColourCommand()}.";
+					return false;
+			}
+		}
+
+		step = new PriceChangeActionStep(
+			marketTokens.Any() ? string.Join(" ", marketTokens) : "host",
+			string.Join(" ", categoryTokens),
+			supply,
+			demand,
+			flat,
+			name,
+			duration,
+			until);
+		message = string.Empty;
+		return true;
+	}
+
+	private static bool TryParseJobOpeningAdministration(ICharacter actor, IEmploymentHost host, StringStack input,
+		out IEmploymentActionStep step, out string message)
+	{
+		step = null!;
+		if (input.IsFinished)
+		{
+			message = $"Job-opening steps use the syntax: {"tasks step jobopening create ...".ColourCommand()}, {"tasks step jobopening close <#opening> [reason]".ColourCommand()}, or {"tasks step jobopening modify <#opening> ...".ColourCommand()}.";
+			return false;
+		}
+
+		var operation = input.PopSpeech().CollapseString().ToLowerInvariant();
+		switch (operation)
+		{
+			case "create":
+			case "new":
+				if (!TryParseJobOpeningDefinition(actor, host, input, null, out var definition, out message))
+				{
+					return false;
+				}
+
+				step = new JobOpeningAdministrationActionStep(definition, "Created by employment task.");
+				message = string.Empty;
+				return true;
+			case "close":
+			case "closed":
+			case "cancel":
+				if (input.IsFinished || !TryParseCommandNumber(input.PopSpeech(), out var closeId))
+				{
+					message = "Which job opening should this step close?";
+					return false;
+				}
+
+				step = new JobOpeningAdministrationActionStep(
+					JobOpeningAdministrationActionKind.Close,
+					closeId,
+					reason: input.IsFinished ? "Closed by employment task." : input.SafeRemainingArgument);
+				ConsumeRemaining(input);
+				message = string.Empty;
+				return true;
+			case "modify":
+			case "edit":
+				if (input.IsFinished || !TryParseCommandNumber(input.PopSpeech(), out var modifyId))
+				{
+					message = "Which job opening should this step modify?";
+					return false;
+				}
+
+				var opening = host.JobOpenings.FirstOrDefault(x => x.Id == modifyId);
+				if (opening is null)
+				{
+					message = $"There is no job opening #{modifyId.ToString("N0", actor)} for {host.EmploymentHostName.ColourName()}.";
+					return false;
+				}
+
+				if (!TryParseJobOpeningDefinition(actor, host, input, opening, out var modifiedDefinition, out message))
+				{
+					return false;
+				}
+
+				step = new JobOpeningAdministrationActionStep(
+					JobOpeningAdministrationActionKind.Modify,
+					modifyId,
+					modifiedDefinition,
+					"Modified by employment task.");
+				message = string.Empty;
+				return true;
+			default:
+				message = $"Unknown job-opening operation {operation.ColourCommand()}. Use {"create".ColourCommand()}, {"close".ColourCommand()}, or {"modify".ColourCommand()}.";
+				return false;
+		}
+	}
+
+	private static bool TryParseJobOpeningDefinition(ICharacter actor, IEmploymentHost host, StringStack input,
+		IJobOpening? existing, out JobOpeningDefinition definition, out string message)
+	{
+		definition = null!;
+		var role = existing?.Role;
+		var requirements = existing?.Requirements ?? JobRequirementSet.None;
+		var compensation = existing?.Compensation;
+		var schedule = existing?.Schedule ?? WorkSchedule.AnyTime;
+		var duration = existing?.Duration ?? EmploymentDuration.Indefinite;
+		var maxPositions = existing?.MaxPositions ?? 1;
+		var npcOnly = existing?.NpcApplicationsOnly ?? true;
+		var paymentMethod = existing?.PaymentMethod ?? new PaymentMethod(PaymentMethodKind.Cash);
+		EmploymentAuthoritySet? authority = existing?.Authority;
+		PaymentSource? paymentSourceOverride = null;
+		var requirementSkills = requirements.Skills.ToList();
+		var requirementKnowledges = requirements.Knowledges.ToList();
+		var requirementCapabilities = requirements.Capabilities.ToList();
+		var requirementTags = requirements.Tags.ToList();
+		var requirementsExplicit = false;
+
+		if (existing is null && !input.IsFinished && !IsJobOpeningDefinitionKeyword(input.PeekSpeech()) &&
+		    input.PeekSpeech().TryParseEnum<EmploymentRole>(out var legacyRole))
+		{
+			role = legacyRole;
+			input.PopSpeech();
+			if (!input.IsFinished && !IsJobOpeningDefinitionKeyword(input.PeekSpeech()))
+			{
+				var legacyTokens = PopRemainingTokens(input).ToList();
+				if (!TryParseLegacyOpeningPay(host, legacyTokens, out compensation, out maxPositions, out message))
+				{
+					return false;
+				}
+			}
+		}
+
+		while (!input.IsFinished)
+		{
+			var keyword = input.PopSpeech().CollapseString().ToLowerInvariant();
+			switch (keyword)
+			{
+				case "role":
+					if (input.IsFinished || !input.PopSpeech().TryParseEnum<EmploymentRole>(out var parsedRole))
+					{
+						message = $"That is not a valid employment role. The options are {Enum.GetValues<EmploymentRole>().Select(x => x.DescribeEnum().ColourName()).ListToString()}.";
+						return false;
+					}
+					role = parsedRole;
+					break;
+				case "positions":
+				case "position":
+					if (input.IsFinished || !int.TryParse(input.PopSpeech(), out maxPositions) || maxPositions <= 0)
+					{
+						message = "How many positive positions should this job opening advertise?";
+						return false;
+					}
+					break;
+				case "npc":
+					if (input.IsFinished || !TryParseBoolean(input.PopSpeech(), out npcOnly))
+					{
+						message = "Should this job opening accept NPC applications only? Use true or false.";
+						return false;
+					}
+					break;
+				case "pay":
+					if (!TryParseJobOpeningPay(actor, host, input, out compensation, out message))
+					{
+						return false;
+					}
+					break;
+				case "paymentsource":
+				case "source":
+					if (input.IsFinished || !TryParsePaymentSource(input.PopSpeech(), out var source))
+					{
+						message = "Which employer payment source should this opening use?";
+						return false;
+					}
+					paymentSourceOverride = source;
+					break;
+				case "payment":
+				case "method":
+					if (!TryParsePaymentMethod(actor, input, out paymentMethod, out message))
+					{
+						return false;
+					}
+					break;
+				case "schedule":
+					if (!TryParseWorkSchedule(actor, input, out schedule, out message))
+					{
+						return false;
+					}
+					break;
+				case "duration":
+					if (!TryParseEmploymentDuration(actor, input, out duration, out message))
+					{
+						return false;
+					}
+					break;
+				case "authority":
+				case "authorities":
+					if (!TryParseOpeningAuthority(input, role, out authority, out message))
+					{
+						return false;
+					}
+					break;
+				case "requires":
+				case "require":
+					if (!requirementsExplicit)
+					{
+						requirementSkills.Clear();
+						requirementKnowledges.Clear();
+						requirementCapabilities.Clear();
+						requirementTags.Clear();
+						requirementsExplicit = true;
+					}
+
+					if (!TryParseJobRequirement(input, requirementSkills, requirementKnowledges,
+						    requirementCapabilities, requirementTags, out message))
+					{
+						return false;
+					}
+					break;
+				default:
+					message = $"Unknown job-opening definition keyword {keyword.ColourCommand()}.";
+					return false;
+			}
+		}
+
+		if (!role.HasValue)
+		{
+			message = "Which employment role should this job opening use?";
+			return false;
+		}
+
+		if (compensation is null)
+		{
+			message = existing is null
+				? $"New job-opening steps must specify pay, for example {"pay fixed 12.50 hourly".ColourCommand()} or {"pay unpaid".ColourCommand()}."
+				: "The existing job opening does not have compensation terms to copy.";
+			return false;
+		}
+
+		if (paymentSourceOverride.HasValue)
+		{
+			compensation = compensation with { EmployerPaymentSource = paymentSourceOverride.Value };
+		}
+
+		authority ??= DefaultOpeningAuthority(role.Value);
+		definition = new JobOpeningDefinition(
+			role.Value,
+			new JobRequirementSet(requirementSkills, requirementKnowledges, requirementCapabilities, requirementTags),
+			compensation,
+			schedule,
+			duration,
+			maxPositions,
+			npcOnly,
+			paymentMethod,
+			authority.Value);
 		message = string.Empty;
 		return true;
 	}
@@ -1749,9 +2135,689 @@ internal sealed class EmploymentTaskAuthoringService
 		return true;
 	}
 
+	private static readonly string[] PriceMarketOptions =
+	[
+		"supply",
+		"demand",
+		"flat",
+		"name",
+		"duration",
+		"until"
+	];
+
+	private static readonly string[] JobOpeningDefinitionKeywords =
+	[
+		"role",
+		"positions",
+		"position",
+		"npc",
+		"pay",
+		"paymentsource",
+		"source",
+		"payment",
+		"method",
+		"schedule",
+		"duration",
+		"authority",
+		"authorities",
+		"requires",
+		"require"
+	];
+
+	private static bool TrySplitTrailingMoney(IEmploymentHost host, IReadOnlyList<string> tokens, out string selector,
+		out MoneyAmount amount, out string message)
+	{
+		selector = string.Empty;
+		amount = null!;
+		if (tokens.Count < 2)
+		{
+			message = $"Price merchandise steps use the syntax: {"tasks step price merch <id|name> <amount>".ColourCommand()}.";
+			return false;
+		}
+
+		for (var split = 1; split < tokens.Count; split++)
+		{
+			var selectorText = string.Join(" ", tokens.Take(split)).Trim();
+			var amountText = string.Join(" ", tokens.Skip(split)).Trim();
+			if (string.IsNullOrWhiteSpace(selectorText))
+			{
+				continue;
+			}
+
+			if (TryParseMoney(host, amountText, out amount, out _))
+			{
+				selector = selectorText;
+				message = string.Empty;
+				return true;
+			}
+		}
+
+		message = $"Could not parse a positive price amount at the end of {string.Join(" ", tokens).ColourCommand()}.";
+		return false;
+	}
+
+	private static bool TryParseLegacyOpeningPay(IEmploymentHost host, IReadOnlyList<string> tokens,
+		out CompensationTerms compensation, out int maxPositions, out string message)
+	{
+		compensation = null!;
+		maxPositions = 1;
+		if (!tokens.Any())
+		{
+			message = "What positive hourly rate should this opening advertise?";
+			return false;
+		}
+
+		var amountTokens = tokens;
+		if (tokens.Count > 1 && int.TryParse(tokens[^1], out var parsedPositions) && parsedPositions > 0)
+		{
+			maxPositions = parsedPositions;
+			amountTokens = tokens.Take(tokens.Count - 1).ToList();
+		}
+
+		if (!TryParseMoney(host, string.Join(" ", amountTokens), out var hourlyRate, out message))
+		{
+			return false;
+		}
+
+		compensation = new CompensationTerms(
+			hourlyRate,
+			null,
+			PayCadence.Hourly,
+			hourlyRate,
+			PaymentSource.HostCash);
+		return true;
+	}
+
+	private static bool TryParseJobOpeningPay(ICharacter actor, IEmploymentHost host, StringStack input,
+		out CompensationTerms compensation, out string message)
+	{
+		compensation = null!;
+		if (input.IsFinished)
+		{
+			message = "What kind of pay should this opening advertise?";
+			return false;
+		}
+
+		var payKind = input.PopSpeech().CollapseString().ToLowerInvariant();
+		if (payKind.EqualTo("unpaid"))
+		{
+			compensation = new CompensationTerms(null, null, PayCadence.Unpaid, null, PaymentSource.HostCash);
+			message = string.Empty;
+			return true;
+		}
+
+		if (payKind.EqualTo("fixed"))
+		{
+			var amountTokens = new List<string>();
+			while (!input.IsFinished && !input.PeekSpeech().TryParseEnum<PayCadence>(out _) &&
+			       !input.PeekSpeech().EqualTo("min"))
+			{
+				amountTokens.Add(input.PopSpeech());
+			}
+
+			if (!amountTokens.Any())
+			{
+				message = "What positive fixed pay amount should this opening advertise?";
+				return false;
+			}
+
+			if (!TryParseMoney(host, string.Join(" ", amountTokens), out var fixedRate, out message))
+			{
+				return false;
+			}
+
+			if (input.IsFinished || !input.PopSpeech().TryParseEnum<PayCadence>(out var cadence) ||
+			    cadence == PayCadence.Unpaid)
+			{
+				message = "Which paid cadence should this fixed pay use?";
+				return false;
+			}
+
+			var minimum = fixedRate;
+			if (!input.IsFinished && input.PeekSpeech().EqualTo("min"))
+			{
+				input.PopSpeech();
+				var minTokens = PopTokensUntilAny(input, JobOpeningDefinitionKeywords).ToList();
+				if (!TryParseMoney(host, string.Join(" ", minTokens), out minimum, out message))
+				{
+					return false;
+				}
+			}
+
+			compensation = new CompensationTerms(fixedRate, null, cadence, minimum, PaymentSource.HostCash);
+			message = string.Empty;
+			return true;
+		}
+
+		if (payKind.EqualTo("market"))
+		{
+			if (input.IsFinished || !input.PopSpeech().TryParseEnum<MarketRateBindingType>(out var bindingType) ||
+			    bindingType == MarketRateBindingType.None)
+			{
+				message = "Which market binding should this opening use: multiplier, floor, or premium?";
+				return false;
+			}
+
+			if (input.IsFinished || !decimal.TryParse(input.PopSpeech(), NumberStyles.Any, actor.Account.Culture,
+				    out var bindingValue))
+			{
+				message = "What value should this market binding use?";
+				return false;
+			}
+
+			if (input.IsFinished || !input.PopSpeech().TryParseEnum<PayCadence>(out var cadence) ||
+			    cadence == PayCadence.Unpaid)
+			{
+				message = "Which paid cadence should this market pay use?";
+				return false;
+			}
+
+			MoneyAmount? minimum = null;
+			if (!input.IsFinished && input.PeekSpeech().EqualTo("min"))
+			{
+				input.PopSpeech();
+				var minTokens = PopTokensUntilAny(input, JobOpeningDefinitionKeywords).ToList();
+				if (!TryParseMoney(host, string.Join(" ", minTokens), out var parsedMinimum, out message))
+				{
+					return false;
+				}
+
+				minimum = parsedMinimum;
+			}
+
+			if (minimum is null)
+			{
+				message = "Market-rate openings must specify a positive minimum effective pay with the min keyword.";
+				return false;
+			}
+
+			compensation = new CompensationTerms(
+				null,
+				new MarketRateBinding(bindingType, bindingValue),
+				cadence,
+				minimum,
+				PaymentSource.HostCash);
+			message = string.Empty;
+			return true;
+		}
+
+		message = $"Unknown pay kind {payKind.ColourCommand()}. Use {"unpaid".ColourCommand()}, {"fixed".ColourCommand()}, or {"market".ColourCommand()}.";
+		return false;
+	}
+
+	private static bool TryParsePaymentSource(string text, out PaymentSource source)
+	{
+		if (text.TryParseEnum(out source))
+		{
+			return true;
+		}
+
+		var parsed = text.CollapseString().ToLowerInvariant() switch
+		{
+			"hostcash" or "cash" => (PaymentSource?)PaymentSource.HostCash,
+			"hostbank" or "hostbankaccount" or "bank" => PaymentSource.HostBankAccount,
+			"specifiedemployeraccount" or "employeraccount" or "specifiedaccount" => PaymentSource.SpecifiedEmployerAccount,
+			"store" or "storeaccount" => PaymentSource.StoreAccount,
+			"float" or "employeefloat" => PaymentSource.EmployeeFloat,
+			_ => null
+		};
+		source = parsed ?? PaymentSource.HostCash;
+		return parsed.HasValue;
+	}
+
+	private static bool TryParsePaymentMethod(ICharacter actor, StringStack input, out PaymentMethod method,
+		out string message)
+	{
+		method = null!;
+		if (input.IsFinished)
+		{
+			message = "Which payment method should this opening use?";
+			return false;
+		}
+
+		var kind = input.PopSpeech().CollapseString().ToLowerInvariant();
+		switch (kind)
+		{
+			case "cash":
+				method = new PaymentMethod(PaymentMethodKind.Cash);
+				message = string.Empty;
+				return true;
+			case "employeebankaccount":
+			case "employeebank":
+				method = new PaymentMethod(PaymentMethodKind.EmployeeBankAccount);
+				message = string.Empty;
+				return true;
+			case "specifiedbankaccount":
+			case "bankaccount":
+				if (input.IsFinished || !long.TryParse(input.PopSpeech().TrimStart('#'), out var bankAccountId))
+				{
+					message = "Which bank account id should this payment method use?";
+					return false;
+				}
+
+				var bankAccount = actor.Gameworld.BankAccounts.Get(bankAccountId);
+				if (bankAccount is null)
+				{
+					message = $"There is no bank account #{bankAccountId.ToString("N0", actor)}.";
+					return false;
+				}
+
+				method = new PaymentMethod(PaymentMethodKind.SpecifiedBankAccount, bankAccount);
+				message = string.Empty;
+				return true;
+			case "paymentitem":
+			case "item":
+				if (input.IsFinished || !long.TryParse(input.PopSpeech().TrimStart('#'), out var itemProtoId))
+				{
+					message = "Which payment item prototype id should this payment method use?";
+					return false;
+				}
+
+				var prototype = actor.Gameworld.ItemProtos.Get(itemProtoId);
+				if (prototype is null)
+				{
+					message = $"There is no item prototype #{itemProtoId.ToString("N0", actor)}.";
+					return false;
+				}
+
+				method = new PaymentMethod(PaymentMethodKind.PaymentItem, PaymentItemPrototype: prototype);
+				message = string.Empty;
+				return true;
+			case "employerfloat":
+			case "float":
+				method = new PaymentMethod(PaymentMethodKind.EmployerFloat);
+				message = string.Empty;
+				return true;
+			default:
+				message = $"Unknown payment method {kind.ColourCommand()}.";
+				return false;
+		}
+	}
+
+	private static bool TryParseWorkSchedule(ICharacter actor, StringStack input, out WorkSchedule schedule,
+		out string message)
+	{
+		schedule = WorkSchedule.AnyTime;
+		if (input.IsFinished)
+		{
+			message = "What schedule should this opening use?";
+			return false;
+		}
+
+		var mode = input.PopSpeech().CollapseString().ToLowerInvariant();
+		if (mode.EqualTo("any"))
+		{
+			message = string.Empty;
+			return true;
+		}
+
+		if (mode.EqualTo("description") || mode.EqualTo("desc"))
+		{
+			var description = string.Join(" ", PopTokensUntilAny(input, JobOpeningDefinitionKeywords)).Trim();
+			if (string.IsNullOrWhiteSpace(description))
+			{
+				message = "What schedule description should this opening use?";
+				return false;
+			}
+
+			schedule = new WorkSchedule(description);
+			message = string.Empty;
+			return true;
+		}
+
+		if (mode.EqualTo("between"))
+		{
+			if (input.IsFinished || !TimeSpan.TryParse(input.PopSpeech(), actor.Account.Culture, out var start))
+			{
+				message = "What start time should this schedule use?";
+				return false;
+			}
+
+			if (!input.IsFinished && input.PeekSpeech().EqualTo("and"))
+			{
+				input.PopSpeech();
+			}
+
+			if (input.IsFinished || !TimeSpan.TryParse(input.PopSpeech(), actor.Account.Culture, out var end))
+			{
+				message = "What end time should this schedule use?";
+				return false;
+			}
+
+			schedule = new WorkSchedule($"Between {start:g} and {end:g}", start, end);
+			message = string.Empty;
+			return true;
+		}
+
+		message = $"Unknown schedule mode {mode.ColourCommand()}. Use any, between, or description.";
+		return false;
+	}
+
+	private static bool TryParseEmploymentDuration(ICharacter actor, StringStack input, out EmploymentDuration duration,
+		out string message)
+	{
+		duration = EmploymentDuration.Indefinite;
+		if (input.IsFinished)
+		{
+			message = "What duration should this opening use?";
+			return false;
+		}
+
+		var mode = input.PopSpeech().CollapseString().ToLowerInvariant();
+		if (mode.EqualTo("indefinite"))
+		{
+			message = string.Empty;
+			return true;
+		}
+
+		var durationType = mode switch
+		{
+			"fixed" or "fixedterm" => EmploymentDurationType.FixedTerm,
+			"seasonal" or "season" => EmploymentDurationType.Seasonal,
+			"tasklimited" or "task" => EmploymentDurationType.TaskLimited,
+			_ => (EmploymentDurationType?)null
+		};
+		if (!durationType.HasValue)
+		{
+			message = $"Unknown duration mode {mode.ColourCommand()}.";
+			return false;
+		}
+
+		var durationText = string.Join(" ", PopTokensUntilAny(input, JobOpeningDefinitionKeywords)).Trim();
+		if (!TryParseTimeSpan(actor, durationText, out var length) || length <= TimeSpan.Zero)
+		{
+			message = $"Could not parse {durationText.ColourCommand()} as a positive duration.";
+			return false;
+		}
+
+		duration = new EmploymentDuration(durationType.Value, length);
+		message = string.Empty;
+		return true;
+	}
+
+	private static bool TryParseOpeningAuthority(StringStack input, EmploymentRole? role,
+		out EmploymentAuthoritySet? authority, out string message)
+	{
+		authority = null;
+		var tokens = PopTokensUntilAny(input, JobOpeningDefinitionKeywords).ToList();
+		if (!tokens.Any())
+		{
+			message = "Which delegated authority should this opening use?";
+			return false;
+		}
+
+		if (tokens.Count == 1 && tokens[0].EqualTo("default"))
+		{
+			if (!role.HasValue)
+			{
+				message = "Set the role before using default authority.";
+				return false;
+			}
+
+			authority = DefaultOpeningAuthority(role.Value);
+			message = string.Empty;
+			return true;
+		}
+
+		return TryParseAuthoritySet(tokens, out authority, out message, allowNone: true);
+	}
+
+	private static bool TryParseJobRequirement(StringStack input, List<SkillRequirement> skills,
+		List<KnowledgeRequirement> knowledges, List<AICapabilityRequirement> capabilities,
+		List<TagRequirement> tags, out string message)
+	{
+		if (input.IsFinished)
+		{
+			message = "Which requirement kind should this opening use?";
+			return false;
+		}
+
+		var kind = input.PopSpeech().CollapseString().ToLowerInvariant();
+		switch (kind)
+		{
+			case "skill":
+			{
+				var tokens = PopTokensUntilAny(input, JobOpeningDefinitionKeywords).ToList();
+				if (tokens.Count < 2 || !double.TryParse(tokens[^1], out var minimum))
+				{
+					message = "Skill requirements use the syntax: requires skill <name> <minimum>.";
+					return false;
+				}
+
+				skills.Add(new SkillRequirement(string.Join(" ", tokens.Take(tokens.Count - 1)), minimum));
+				message = string.Empty;
+				return true;
+			}
+			case "knowledge":
+			{
+				var name = string.Join(" ", PopTokensUntilAny(input, JobOpeningDefinitionKeywords)).Trim();
+				if (string.IsNullOrWhiteSpace(name))
+				{
+					message = "Knowledge requirements use the syntax: requires knowledge <name>.";
+					return false;
+				}
+
+				knowledges.Add(new KnowledgeRequirement(name));
+				message = string.Empty;
+				return true;
+			}
+			case "capability":
+			{
+				var name = string.Join(" ", PopTokensUntilAny(input, JobOpeningDefinitionKeywords)).Trim();
+				if (!name.TryParseEnum<EmploymentAICapability>(out var capability))
+				{
+					message = $"Unknown employment AI capability {name.ColourCommand()}.";
+					return false;
+				}
+
+				capabilities.Add(new AICapabilityRequirement(capability));
+				message = string.Empty;
+				return true;
+			}
+			case "tag":
+			{
+				var name = string.Join(" ", PopTokensUntilAny(input, JobOpeningDefinitionKeywords)).Trim();
+				if (string.IsNullOrWhiteSpace(name))
+				{
+					message = "Tag requirements use the syntax: requires tag <tag>.";
+					return false;
+				}
+
+				tags.Add(new TagRequirement(name));
+				message = string.Empty;
+				return true;
+			}
+			default:
+				message = $"Unknown requirement kind {kind.ColourCommand()}.";
+				return false;
+		}
+	}
+
+	private static bool TryParseAuthoritySet(IEnumerable<string> tokens, out EmploymentAuthoritySet? authority,
+		out string error, bool allowNone = false)
+	{
+		authority = null;
+		error = string.Empty;
+		var authorities = EmploymentAuthority.None;
+		foreach (var token in tokens)
+		foreach (var part in token.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+		{
+			if (part.EqualTo("all"))
+			{
+				authority = EmploymentAuthoritySet.All;
+				return true;
+			}
+
+			if (part.EqualTo("none") || part.EqualTo("clear"))
+			{
+				if (!allowNone)
+				{
+					error = "Use a specific authority name.";
+					return false;
+				}
+
+				authorities = EmploymentAuthority.None;
+				continue;
+			}
+
+			if (!TryParseAuthority(part, out var parsed))
+			{
+				error = $"Unknown delegated authority {part.ColourCommand()}.";
+				return false;
+			}
+
+			authorities |= parsed;
+		}
+
+		if (authorities == EmploymentAuthority.None && !allowNone)
+		{
+			error = "Which delegated authority do you want to use?";
+			return false;
+		}
+
+		authority = new EmploymentAuthoritySet(authorities);
+		return true;
+	}
+
+	private static bool TryParseAuthority(string text, out EmploymentAuthority authority)
+	{
+		if (text.TryParseEnum(out authority) && authority != EmploymentAuthority.None)
+		{
+			return true;
+		}
+
+		authority = text.CollapseString().ToLowerInvariant() switch
+		{
+			"view" or "viewemployees" or "employees" => EmploymentAuthority.ViewEmployees,
+			"hire" or "hiring" => EmploymentAuthority.HireEmployees,
+			"fire" or "firing" => EmploymentAuthority.FireEmployees,
+			"openings" or "createopenings" or "createjobopenings" => EmploymentAuthority.CreateJobOpenings,
+			"modifyopenings" or "modifyjobopenings" => EmploymentAuthority.ModifyJobOpenings,
+			"pay" or "setpay" or "setpaywithinband" => EmploymentAuthority.SetPayWithinBand,
+			"tasks" or "task" or "assign" or "assigntasks" => EmploymentAuthority.AssignTasks,
+			"canceltasks" or "cancel" => EmploymentAuthority.CancelTasks,
+			"rules" or "schedulerules" or "createscheduledrules" => EmploymentAuthority.CreateScheduledRules,
+			"modifyrules" or "modifyscheduledrules" => EmploymentAuthority.ModifyScheduledRules,
+			"goals" or "creategoals" or "createmanagergoals" => EmploymentAuthority.CreateManagerGoals,
+			"modifygoals" or "modifymanagergoals" => EmploymentAuthority.ModifyManagerGoals,
+			"purchases" or "purchase" or "approvepurchases" => EmploymentAuthority.ApprovePurchases,
+			"storeaccount" or "usestoreaccount" => EmploymentAuthority.UseStoreAccount,
+			"cashwithdraw" or "withdraw" or "withdrawbusinesscash" => EmploymentAuthority.WithdrawBusinessCash,
+			"cashdeposit" or "deposit" or "depositbusinesscash" => EmploymentAuthority.DepositBusinessCash,
+			"stock" or "stockrules" or "managestockrules" => EmploymentAuthority.ManageStockRules,
+			"craft" or "crafting" or "craftrules" or "managecraftrules" => EmploymentAuthority.ManageCraftRules,
+			"delivery" or "deliver" or "routes" or "managedeliveryroutes" => EmploymentAuthority.ManageDeliveryRoutes,
+			"prices" or "pricing" or "adjustprices" => EmploymentAuthority.AdjustPrices,
+			"tax" or "taxes" or "paytaxes" => EmploymentAuthority.PayTaxes,
+			"board" or "postboard" or "posttohostboard" => EmploymentAuthority.PostToHostBoard,
+			"moderateboard" or "moderatehostboard" => EmploymentAuthority.ModerateHostBoard,
+			"payroll" or "wages" or "managepayroll" => EmploymentAuthority.ManagePayroll,
+			_ => EmploymentAuthority.None
+		};
+
+		return authority != EmploymentAuthority.None;
+	}
+
+	private static EmploymentAuthoritySet DefaultOpeningAuthority(EmploymentRole role)
+	{
+		return role switch
+		{
+			EmploymentRole.Proprietor => EmploymentAuthoritySet.All,
+			EmploymentRole.Manager => new EmploymentAuthoritySet(
+				EmploymentAuthority.ViewEmployees |
+				EmploymentAuthority.HireEmployees |
+				EmploymentAuthority.FireEmployees |
+				EmploymentAuthority.CreateJobOpenings |
+				EmploymentAuthority.ModifyJobOpenings |
+				EmploymentAuthority.SetPayWithinBand |
+				EmploymentAuthority.AssignTasks |
+				EmploymentAuthority.CancelTasks |
+				EmploymentAuthority.CreateScheduledRules |
+				EmploymentAuthority.ModifyScheduledRules |
+				EmploymentAuthority.CreateManagerGoals |
+				EmploymentAuthority.ModifyManagerGoals |
+				EmploymentAuthority.ManageStockRules |
+				EmploymentAuthority.ManageCraftRules |
+				EmploymentAuthority.ManageDeliveryRoutes |
+				EmploymentAuthority.AdjustPrices |
+				EmploymentAuthority.ManagePayroll |
+				EmploymentAuthority.PostToHostBoard |
+				EmploymentAuthority.ModerateHostBoard),
+			EmploymentRole.Employee or
+			EmploymentRole.Clerk or
+			EmploymentRole.Courier or
+			EmploymentRole.StableHand or
+			EmploymentRole.HotelWorker => new EmploymentAuthoritySet(EmploymentAuthority.ManageDeliveryRoutes),
+			EmploymentRole.Crafter => new EmploymentAuthoritySet(
+				EmploymentAuthority.ManageCraftRules |
+				EmploymentAuthority.ManageDeliveryRoutes),
+			EmploymentRole.BankTeller => new EmploymentAuthoritySet(
+				EmploymentAuthority.DepositBusinessCash |
+				EmploymentAuthority.WithdrawBusinessCash),
+			_ => EmploymentAuthoritySet.Empty
+		};
+	}
+
+	private static bool TryParseBoolean(string text, out bool value)
+	{
+		if (bool.TryParse(text, out value))
+		{
+			return true;
+		}
+
+		if (text.EqualTo("yes") || text.EqualTo("y"))
+		{
+			value = true;
+			return true;
+		}
+
+		if (text.EqualTo("no") || text.EqualTo("n"))
+		{
+			value = false;
+			return true;
+		}
+
+		return false;
+	}
+
+	private static bool TryParseCommandNumber(string text, out long number)
+	{
+		text = text.Trim();
+		if (text.StartsWith("#", StringComparison.Ordinal))
+		{
+			text = text[1..];
+		}
+
+		return long.TryParse(text, out number);
+	}
+
+	private static bool TryParseTimeSpan(ICharacter actor, string text, out TimeSpan timespan)
+	{
+		if (TimeSpan.TryParse(text, actor.Account.Culture, out timespan))
+		{
+			return true;
+		}
+
+		if (MudTimeSpan.TryParse(text, actor.Account.Culture, out var mudTimeSpan))
+		{
+			timespan = mudTimeSpan.AsTimeSpan();
+			return true;
+		}
+
+		return false;
+	}
+
 	private static IEnumerable<string> PopTokensUntil(StringStack input, string token)
 	{
 		while (!input.IsFinished && !input.PeekSpeech().EqualTo(token))
+		{
+			yield return input.PopSpeech();
+		}
+	}
+
+	private static IEnumerable<string> PopTokensUntilAny(StringStack input, IReadOnlyCollection<string> tokens)
+	{
+		while (!input.IsFinished && !tokens.Any(x => input.PeekSpeech().EqualTo(x)))
 		{
 			yield return input.PopSpeech();
 		}
@@ -1776,6 +2842,16 @@ internal sealed class EmploymentTaskAuthoringService
 	private static bool IsAny(string text, params string[] options)
 	{
 		return options.Any(x => text.EqualTo(x));
+	}
+
+	private static bool IsPriceMarketOption(string text)
+	{
+		return PriceMarketOptions.Any(x => text.EqualTo(x));
+	}
+
+	private static bool IsJobOpeningDefinitionKeyword(string text)
+	{
+		return JobOpeningDefinitionKeywords.Any(x => text.EqualTo(x));
 	}
 
 	private static IEnumerable<List<string>> SplitActionTokens(IEnumerable<string> tokens)
@@ -1995,10 +3071,16 @@ internal sealed class EmploymentTaskAuthoringService
 				tax.MaximumAmount is null
 					? "pay all supported host taxes owing"
 					: $"pay supported host taxes up to {DescribeMoney(tax.MaximumAmount)}",
+			PayrollSettlementActionStep payroll =>
+				$"settle payroll payables matching {payroll.Selector.ColourCommand()}",
 			ShopFloatAdjustmentActionStep shopFloat =>
 				$"{(shopFloat.FillRegister ? "fill" : "skim")} shop cash-register float by {DescribeMoney(shopFloat.Amount)}{(shopFloat.RegisterSelector is null ? string.Empty : $" at {DescribeItemSelector(shopFloat.RegisterSelector, actor)}")}",
 			PhysicalFloatActionStep physicalFloat =>
 				DescribePhysicalFloatStep(physicalFloat, actor),
+			PriceChangeActionStep price =>
+				DescribePriceChangeStep(price, actor),
+			JobOpeningAdministrationActionStep opening =>
+				DescribeJobOpeningAdministrationStep(opening, actor),
 			BoardPostActionStep board =>
 				$"post {board.Title.ColourName()} to the host staff communication board",
 			CataloguedActionShellStep shell =>
@@ -2071,6 +3153,42 @@ internal sealed class EmploymentTaskAuthoringService
 		};
 	}
 
+	private static string DescribePriceChangeStep(PriceChangeActionStep price, ICharacter actor)
+	{
+		if (price.PriceChangeKind == PriceChangeActionKind.Merchandise)
+		{
+			return $"set merchandise {price.MerchandiseSelector.ColourName()} base price to {DescribeMoney(price.ExactPrice!)}";
+		}
+
+		var impacts = new[]
+		{
+			$"supply {price.SupplyImpact.ToBonusPercentageString(actor)}",
+			$"demand {price.DemandImpact.ToBonusPercentageString(actor)}",
+			$"flat {price.FlatPriceImpact.ToBonusPercentageString(actor)}"
+		};
+		var expiry = price.Duration.HasValue
+			? $" for {price.Duration.Value.Describe(actor)}"
+			: string.IsNullOrWhiteSpace(price.UntilText)
+				? string.Empty
+				: $" until {price.UntilText.ColourValue()}";
+		return $"set market influence {price.InfluenceName.ColourName()} on {price.MarketSelector.ColourName()} category {price.CategorySelector.ColourName()} ({impacts.ListToString()}){expiry}";
+	}
+
+	private static string DescribeJobOpeningAdministrationStep(JobOpeningAdministrationActionStep opening,
+		ICharacter actor)
+	{
+		return opening.Operation switch
+		{
+			JobOpeningAdministrationActionKind.Create when opening.Definition is not null =>
+				$"create {opening.Definition.Role.DescribeEnum().ColourName()} job opening for {opening.Definition.MaxPositions.ToString("N0", actor).ColourValue()} position{(opening.Definition.MaxPositions == 1 ? string.Empty : "s")}",
+			JobOpeningAdministrationActionKind.Close =>
+				$"close job opening #{opening.OpeningId?.ToString("N0", actor) ?? "?".ColourError()}",
+			JobOpeningAdministrationActionKind.Modify when opening.Definition is not null =>
+				$"modify job opening #{opening.OpeningId?.ToString("N0", actor) ?? "?".ColourError()} to {opening.Definition.Role.DescribeEnum().ColourName()} / {opening.Definition.MaxPositions.ToString("N0", actor).ColourValue()} position{(opening.Definition.MaxPositions == 1 ? string.Empty : "s")}",
+			_ => $"administer job opening with {opening.Operation.DescribeEnum().ColourCommand()}"
+		};
+	}
+
 	internal static EmploymentActionDefinition? DefinitionFor(IEmploymentActionStep step)
 	{
 		return step switch
@@ -2085,8 +3203,11 @@ internal sealed class EmploymentTaskAuthoringService
 			BankWithdrawalActionStep => EmploymentActionCatalog.Get("bankwithdraw"),
 			StoreAccountPaymentActionStep => EmploymentActionCatalog.Get("storepay"),
 			TaxPaymentActionStep => EmploymentActionCatalog.Get("paytax"),
+			PayrollSettlementActionStep => EmploymentActionCatalog.Get("payroll"),
 			ShopFloatAdjustmentActionStep => EmploymentActionCatalog.Get("float"),
 			PhysicalFloatActionStep => EmploymentActionCatalog.Get("physicalfloat"),
+			PriceChangeActionStep => EmploymentActionCatalog.Get("price"),
+			JobOpeningAdministrationActionStep => EmploymentActionCatalog.Get("jobopening"),
 			BoardPostActionStep => EmploymentActionCatalog.Get("board"),
 			GetItemsByIdActionStep => EmploymentActionCatalog.Get("getid"),
 			GetItemsByTagActionStep => EmploymentActionCatalog.Get("gettag"),

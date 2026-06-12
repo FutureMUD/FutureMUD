@@ -320,6 +320,92 @@ public sealed class EmploymentHostState : IEmploymentHostState
 		return opening;
 	}
 
+	public void CloseJobOpening(IJobOpening opening, ICharacter? authorisedBy, string reason)
+	{
+		if (opening is not JobOpening concrete || !ReferenceEquals(concrete.Employer, Host))
+		{
+			throw new InvalidOperationException("That job opening does not belong to this host.");
+		}
+
+		if (authorisedBy is not null && !HasAuthority(authorisedBy, EmploymentAuthority.ModifyJobOpenings))
+		{
+			throw new InvalidOperationException($"{authorisedBy.HowSeen(authorisedBy, colour: false)} is not authorised to close job openings for {Host.EmploymentHostName}.");
+		}
+
+		if (concrete.Status == JobOpeningStatus.Closed)
+		{
+			throw new InvalidOperationException("That job opening is already closed.");
+		}
+
+		concrete.Close();
+		_persistence?.SaveJobOpening(concrete);
+		var closeReason = string.IsNullOrWhiteSpace(reason) ? "Closed by a manager." : reason.Trim();
+		EmploymentRegister.Record(
+			EmploymentRegisterEntryType.JobOpeningClosed,
+			authorisedBy,
+			$"Closed {concrete.Role} job opening #{concrete.Id:N0}: {closeReason}");
+		Host.DebugEmployment(
+			$"Closed {concrete.Role.DescribeEnum()} opening #{concrete.Id:N0}: {closeReason}.",
+			authorisedBy?.Gameworld);
+	}
+
+	public void ModifyJobOpening(IJobOpening opening, JobOpeningDefinition definition, ICharacter? authorisedBy,
+		string reason)
+	{
+		if (opening is not JobOpening concrete || !ReferenceEquals(concrete.Employer, Host))
+		{
+			throw new InvalidOperationException("That job opening does not belong to this host.");
+		}
+
+		if (authorisedBy is not null && !authorisedBy.IsAdministrator())
+		{
+			var authorisingAuthority = AuthorityFor(authorisedBy);
+			if (!authorisingAuthority.Contains(EmploymentAuthority.ModifyJobOpenings))
+			{
+				throw new InvalidOperationException($"{authorisedBy.HowSeen(authorisedBy, colour: false)} is not authorised to modify job openings for {Host.EmploymentHostName}.");
+			}
+
+			if (!authorisingAuthority.ContainsAll(definition.Authority))
+			{
+				throw new InvalidOperationException("Managers cannot modify job openings to delegate authority they do not personally possess.");
+			}
+		}
+
+		if (concrete.Status == JobOpeningStatus.Closed)
+		{
+			throw new InvalidOperationException("Closed job openings cannot be modified.");
+		}
+
+		if (definition.MaxPositions <= 0)
+		{
+			throw new InvalidOperationException("Job openings must have at least one available position.");
+		}
+
+		if (definition.Compensation.IsPaid && definition.Compensation.NominalAmount <= 0.0M)
+		{
+			throw new InvalidOperationException("Paid job openings must advertise a positive effective rate.");
+		}
+
+		var acceptedApplications = _applications.Count(x =>
+			x.Opening.Id == concrete.Id &&
+			x.Status == JobApplicationStatus.Accepted);
+		if (definition.MaxPositions < acceptedApplications)
+		{
+			throw new InvalidOperationException("A job opening cannot be reduced below its accepted application count.");
+		}
+
+		concrete.Modify(definition);
+		_persistence?.SaveJobOpening(concrete);
+		var modifyReason = string.IsNullOrWhiteSpace(reason) ? "Modified by a manager." : reason.Trim();
+		EmploymentRegister.Record(
+			EmploymentRegisterEntryType.JobOpeningModified,
+			authorisedBy,
+			$"Modified {concrete.Role} job opening #{concrete.Id:N0}: {modifyReason}");
+		Host.DebugEmployment(
+			$"Modified {concrete.Role.DescribeEnum()} opening #{concrete.Id:N0}: {modifyReason}.",
+			authorisedBy?.Gameworld);
+	}
+
 	public IEmploymentApplication Apply(IJobOpening opening, EmploymentCandidateProfile candidate)
 	{
 		if (opening is not JobOpening concrete || !ReferenceEquals(concrete.Employer, Host))
@@ -503,25 +589,62 @@ public sealed class EmploymentContract : IEmploymentContract
 	}
 }
 
-public sealed record JobOpening(
-	long Id,
-	IEmploymentHost Employer,
-	EmploymentRole Role,
-	JobRequirementSet Requirements,
-	CompensationTerms Compensation,
-	WorkSchedule Schedule,
-	EmploymentDuration Duration,
-	JobOpeningStatus Status,
-	int MaxPositions,
-	bool NpcApplicationsOnly,
-	PaymentMethod PaymentMethod,
-	EmploymentAuthoritySet Authority) : IJobOpening
+public sealed class JobOpening : IJobOpening
 {
+	public JobOpening(long id, IEmploymentHost employer, EmploymentRole role, JobRequirementSet requirements,
+		CompensationTerms compensation, WorkSchedule schedule, EmploymentDuration duration, JobOpeningStatus status,
+		int maxPositions, bool npcApplicationsOnly, PaymentMethod paymentMethod, EmploymentAuthoritySet authority)
+	{
+		Id = id;
+		Employer = employer;
+		Role = role;
+		Requirements = requirements;
+		Compensation = compensation;
+		Schedule = schedule;
+		Duration = duration;
+		Status = status;
+		MaxPositions = maxPositions;
+		NpcApplicationsOnly = npcApplicationsOnly;
+		PaymentMethod = paymentMethod;
+		Authority = authority;
+	}
+
+	public long Id { get; }
+	public IEmploymentHost Employer { get; }
+	public EmploymentRole Role { get; private set; }
+	public JobRequirementSet Requirements { get; private set; }
+	public CompensationTerms Compensation { get; private set; }
+	public WorkSchedule Schedule { get; private set; }
+	public EmploymentDuration Duration { get; private set; }
+	public JobOpeningStatus Status { get; private set; }
+	public int MaxPositions { get; private set; }
+	public bool NpcApplicationsOnly { get; private set; }
+	public PaymentMethod PaymentMethod { get; private set; }
+	public EmploymentAuthoritySet Authority { get; private set; }
+
 	public bool AcceptsApplications =>
 		Status == JobOpeningStatus.Open &&
 		Employer.Employment.Applications.Count(x =>
 			x.Opening.Id == Id &&
 			x.Status == JobApplicationStatus.Accepted) < MaxPositions;
+
+	public void Close()
+	{
+		Status = JobOpeningStatus.Closed;
+	}
+
+	public void Modify(JobOpeningDefinition definition)
+	{
+		Role = definition.Role;
+		Requirements = definition.Requirements;
+		Compensation = definition.Compensation;
+		Schedule = definition.Schedule;
+		Duration = definition.Duration;
+		MaxPositions = definition.MaxPositions;
+		NpcApplicationsOnly = definition.NpcApplicationsOnly;
+		PaymentMethod = definition.PaymentMethod;
+		Authority = definition.Authority;
+	}
 }
 
 public sealed class EmploymentApplication : IEmploymentApplication

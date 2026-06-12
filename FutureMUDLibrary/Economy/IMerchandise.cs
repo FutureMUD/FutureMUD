@@ -56,6 +56,8 @@ namespace MudSharp.Economy
         void ShopCurrencyChanged(ICurrency oldCurrency, ICurrency newCurrency);
         bool CanReprice(decimal multiplier);
         void Reprice(decimal multiplier);
+        bool CanSetBasePrice(decimal amount, out string reason);
+        void SetBasePrice(decimal amount, ICharacter actor);
         event EventHandler OnDelete;
     }
 }

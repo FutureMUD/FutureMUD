@@ -256,7 +256,7 @@ An employment opening should be the canonical way for NPC workers to discover ho
 - Required tags/traits where the existing character system supports them.
 - Rate of pay.
 - Pay type: hourly, daily, weekly, per-task, salary, commission, mixed.
-- Market-rate linkage: fixed value, market-rate multiplier, market-rate floor, or market-rate plus premium.
+- Market-rate linkage: fixed value, market-rate multiplier, market-rate floor, or market-rate plus premium. Executable job-opening task actions require a positive `min <amount>` with market-rate pay clauses until the employment layer has a concrete market-wage evaluator for deriving effective pay.
 - Hours/schedule.
 - Employment duration.
 - Number of positions.
@@ -700,6 +700,8 @@ A manager goal should contain:
 - Last evaluation time/result.
 - Register correlation ID.
 
+Manager-goal evaluations should use a goal-scoped idempotency key for spawned active tasks. While a pending, assigned, in-progress, or blocked task from the same goal exists, the goal records the evaluation but does not enqueue duplicate work.
+
 Recommended interface shape:
 
 ```csharp
@@ -722,35 +724,53 @@ public interface IManagerGoal
 }
 ```
 
-Initial manager goal types should include:
+Initial manager goal types should include the catalogue-backed families below. Older broader types can remain loadable for existing persisted goals, but new manager-facing authoring should start from these explicit keys:
 
-### Maintain minimum stock levels
+### Keep physical cash float between certain levels
 
-The manager monitors configured commodities/items/prototypes and creates scheduled rules or active tasks to purchase, craft, or move stock when levels fall below target.
+The manager monitors supported physical register/till/float cash through two explicit catalogue-backed goals: `cashfloatlow` restores cash when a float falls below a configured minimum, and `cashfloathigh` reduces cash when a float rises above a configured maximum. A complete target band is represented by one low-float goal plus one high-float goal so the current flat AND-composed goal conditions remain meaningful.
 
-### Keep shop accounts paid
+### Pay taxes
+
+The manager monitors supported tax liabilities and creates tax-payment tasks or warnings when configured owing thresholds are reached.
+
+### Pay other shop accounts that are owing
 
 The manager monitors store-account balances and due dates, then creates payment tasks when balances exceed thresholds or approach due dates.
 
-### Pay business taxes
+### Maintain shop stock levels by crafting merchandise
 
-The manager monitors tax liabilities and due dates, then creates payment tasks or board warnings before tax deadlines.
+The manager monitors configured merchandise, item, or stock thresholds and creates station/craft/delivery work when crafted merchandise needs replenishment.
 
-### Adjust prices to keep shop profitable
+### Maintain materials required for crafting merchandise
 
-The manager reviews purchase costs, market prices, sales velocity, and configured margin targets, then adjusts prices within authority limits.
+The manager monitors item or commodity material thresholds and creates purchase, retrieval, loading, unloading, or delivery work to keep craft inputs available.
+
+### Keep employment payroll current
+
+The manager monitors accrued payroll liabilities, total outstanding wage amounts, and maximum overdue payroll days, then creates native payroll-settlement work through the employment payroll service when thresholds are reached.
 
 ### Maintain business cash and bank balances
 
-The manager creates deposit, withdrawal, or transfer tasks to keep till cash, floats, and bank balances within configured ranges.
+The manager monitors supported host cash, bank, or available-funds balances through two explicit catalogue-backed goals: `bankbalancelow` creates withdrawal or review work when business funds fall below a configured minimum, and `bankbalancehigh` creates deposit or review work when virtual cash rises above a configured maximum.
+
+### Adjust prices to keep shop profitable
+
+The manager reviews purchase costs, market prices, sales velocity, and configured margin targets. In the current hybrid implementation, `pricemargin` can create executable `price` action steps that either set exact shop merchandise base prices or apply category-level market influence impacts. Market modifiers are intentionally modelled as market influence category impacts; direct item/prototype persisted market modifiers remain out of scope because the current market model derives item/prototype pricing from categories.
 
 ### Maintain staffing levels
 
-The manager creates, modifies, or closes employment openings when the host has too few employees/managers with required capabilities.
+The manager monitors active contracts, open positions, or combined coverage for configured roles. In the current hybrid implementation, `staffing` can create executable `jobopening` action steps to create, close, or modify openings through the same `JobOpeningDefinition` model used by normal employment host state.
+
+Additional later manager goal families can include:
 
 ### Maintain hotel operations
 
 The manager monitors hotel room occupancy, rental payments, cleaning/maintenance needs, guest notices, lost property, and supply levels, then creates appropriate active tasks or board posts.
+
+### Adjust prices and staffing through executable administrative tasks
+
+Price changes and job-opening changes are task-executable administrative mutations. `price merch <id|name> <amount>` changes exact shop merchandise base price and records the native shop price-adjustment transaction plus employment audit evidence. `price market <host|market id|name> category <category> ...` creates or updates an employment-generated market influence and sets the requested category impact. `jobopening create|close|modify` creates, closes, or fully modifies employment openings with normal authority validation and register entries.
 
 Manager goals may be less composable than scheduled task rules. Some goal types can be hardcoded objective types because they involve policy decisions rather than a simple condition/action sequence. Even so, goal outputs should use the same shared services: create active tasks, create scheduled rules, create employment openings, adjust prices, pay accounts, or post to the host board through permissioned actions.
 
@@ -918,7 +938,7 @@ Recommended integration scenario:
 
 Codex should update this section during implementation.
 
-Last reviewed against the implementation on 2026-06-10.
+Last reviewed against the implementation on 2026-06-12.
 
 ### Completed
 
@@ -962,7 +982,8 @@ Last reviewed against the implementation on 2026-06-10.
 - Worker AI task claiming and advancement now also runs from the existing fuzzy five-second NPC heartbeat. The longer minute/hour ticks remain responsible for heavier job search, host scheduled-rule evaluation, arrears checks, and payroll claiming, while active assigned work can resume quickly after movement or a completed step.
 - Added active task cancellation on the shared task board and command surface (`tasks cancel <#|name> [reason]`) with delegated `CancelTasks` authority, persistence state updates, debug traces, and `ActiveTaskCancelled` operational register entries.
 - Added one-shot active task creation syntax (`tasks create <name> <action> [then <action> ...]`) for managers who want to compose and finalise a simple action plan in a single command while still using the same parser, authority checks, task board, persistence, and register path as drafted tasks.
-- Added the employment task action catalogue. `tasks actions [all|category|action]` now exposes grouped action metadata, syntax, catalogue status, required authority, required AI capabilities, payment-authorisation requirements, and financial flags. Existing retrieval/delivery, movement, board-post, command, purchase, bank deposit/withdrawal, store-account payment, tax payment, shop-float adjustment, physical-float, craft-station, and craft-trigger steps are catalogue-backed; planning/authorisation/report actions (`report`, `authorise`, `reserve`, `release`, `select`, `estimate`, and `route`) are now executable catalogue steps that write operational register entries and durable per-step operational state. The logistics catalogue now includes inventory-plan-backed `load`, `unload`, and `return container` actions plus `vehicle cargo` selection that validates and records accessible cargo spaces without autonomous driving. Real shop purchases now call the native shop sale flow using an employer-backed payment method, store-account payments mutate native line-of-credit balances, shop and hotel tax payments use supported native tax paths, supported host bank/virtual-cash movements now use native finance adapters, physical-float steps can issue, return, or settle task-custody cash, craft-station steps validate a craft location/selector, and craft-trigger steps start/resume native crafts and adopt newly produced item outputs into task custody. Account transfer, pricing, autonomous vehicle driving, animal leading, load optimisation, station-capacity scheduling, and administrative mutations remain deferred until they can call their owning subsystem services with complete resource custody.
+- Added catalogue-backed manager-goal authoring. `goals types [all|category|type]` documents the initial explicit goal families (`cashfloatlow`, `cashfloathigh`, `taxes`, `accounts`, `craftstock`, `craftmaterials`, `payroll`, `bankbalancelow`, `bankbalancehigh`, `pricemargin`, and `staffing`); managers with delegated `CreateManagerGoals` authority can draft, copy, edit by draft, add goal conditions through the scheduled-condition parser, add goal action steps through the task-action parser, set priority/cadence/required authority, finalise goals through `IManagerGoalBoard.CreateGoal`, inspect details, cancel goals with `ModifyManagerGoals`, and manually evaluate goals for testing. Existing scheduled-rule condition authority is normalised so manager goals do not require `CreateScheduledRules` merely to use read-only finance conditions, while stock/action authorities still contribute to the final required authority. Payroll, bank-balance, price-margin, and staffing goals can now use executable native action steps.
+- Added the employment task action catalogue. `tasks actions [all|category|action]` now exposes grouped action metadata, syntax, catalogue status, required authority, required AI capabilities, payment-authorisation requirements, and financial flags. Existing retrieval/delivery, movement, board-post, command, purchase, bank deposit/withdrawal, store-account payment, tax payment, shop-float adjustment, physical-float, craft-station, craft-trigger, price-change, and job-opening administration steps are catalogue-backed; planning/authorisation/report actions (`report`, `authorise`, `reserve`, `release`, `select`, `estimate`, and `route`) are now executable catalogue steps that write operational register entries and durable per-step operational state. The logistics catalogue now includes inventory-plan-backed `load`, `unload`, and `return container` actions plus `vehicle cargo` selection that validates and records accessible cargo spaces without autonomous driving. Real shop purchases now call the native shop sale flow using an employer-backed payment method, store-account payments mutate native line-of-credit balances, shop and hotel tax payments use supported native tax paths, supported host bank/virtual-cash movements now use native finance adapters, physical-float steps can issue, return, or settle task-custody cash, craft-station steps validate a craft location/selector, craft-trigger steps start/resume native crafts and adopt newly produced item outputs into task custody, price steps mutate exact shop merchandise prices or market influence category impacts, and job-opening steps create, close, or fully modify `JobOpeningDefinition` state. Account transfer, autonomous vehicle driving, animal leading, load optimisation, station-capacity scheduling, and recursive rule/task/goal administration remain deferred until they can call their owning subsystem services with complete resource custody.
 - Item-selector purchase steps now resolve concrete stocked items and call the native exact-stock shop sale path (`CanBuyExact` / `BuyExact`) so NPC task purchases buy the selected stock rather than falling back to shop keyword matching. Commodity-selector purchase steps now resolve first-class commodity merchandise and call the native weighted commodity sale path (`CanBuyCommodityWeight` / `BuyCommodityWeight`) so NPCs buy exactly the requested material/tag/characteristic weight where matching commodity stock can be split by the item system. The ordinary player-facing `buy` command also supports commodity merchandise by weight without changing existing item/prototype merchandise purchase semantics.
 - Added first-class commodity shop merchandise. Merchandise records now persist a merchandise kind, commodity material, optional commodity tag, optional characteristic payload, and pricing weight; shop list/show surfaces render commodity stock by weight and prices as currency per configured weight; and shop merchandise builder flows can create commodity merchandise with an associated commodity item prototype anchor for existing item creation/splitting systems.
 - Added the first real employment finance foundation. `authorise [<amount> for] <description>` records durable payment authorisation for later financial steps in the same active task; `reserve [<amount> for] <description>` creates durable reservation references in step operational state after checking host available funds; and `release [reservation <id>|all]` clears matching task reservations. `bankdeposit <amount>` and `bankwithdraw <amount>` are now executable for supported employment hosts with a linked native bank account: deposits debit only employer virtual cash before calling `IBankAccount.DepositFromTransaction`, and withdrawals call native `IBankAccount.CanWithdraw`/`WithdrawFromTransaction` before crediting employer virtual cash. The finance adapter now covers shops, stables, hotels, auction houses, combat arenas, and banks where those hosts expose currency/cash/bank state; unsupported combinations block with diagnostics and do not write partial records. Employment register/ledger rows cross-reference native finance movements rather than becoming the canonical accounting record.
@@ -981,7 +1002,7 @@ Last reviewed against the implementation on 2026-06-10.
 ### Deferred
 
 - Existing shop/stable legacy employee XML and existing bank/arena manager lists are not migrated into new contracts in this slice. That is intentional under the legacy data stance, but command adapters may later choose to bootstrap new contracts where useful.
-- Additional player/builder command adapters, real account-transfer mutations, physical employer cash-reserve debiting for wage settlement, autonomous vehicle driving, animal leading/return, craft station-capacity scheduling, craft production-chain automation, price adjustment, job-opening/rule/task administrative actions, skill/knowledge/tag candidate profiles, and deeper real board command integration are deferred. The completed command-adapter, worker-AI, inventory-movement, payroll-liability, durable step-state, action-catalogue, logistics, broadened host finance, scheduled-rule authoring, rich scheduled-rule expressions, finance-foundation, physical-float, exact-stock and weighted-commodity purchase, hotel normalization, craft-progress, and craft-resource-reservation slices supply read/access views, authorised host-board posting, safe creation of non-financial openings, manager application decisions, drafted retrieval/delivery/planning/finance/craft active tasks, central host-level scheduled-rule evaluation, real shop purchase/store-account/tax/float/craft-trigger adapters where supported, a first live NPC application/task loop, and recoverable overdue-wage reputation pressure without replacing legacy host-specific employment commands.
+- Additional player/builder command adapters, real account-transfer mutations, physical employer cash-reserve debiting for wage settlement, autonomous vehicle driving, animal leading/return, craft station-capacity scheduling, craft production-chain automation, scheduled-rule/task/manager-goal administrative actions, skill/knowledge/tag candidate profiles, and deeper real board command integration are deferred. The completed command-adapter, worker-AI, inventory-movement, payroll-liability, durable step-state, action-catalogue, logistics, broadened host finance, scheduled-rule authoring, rich scheduled-rule expressions, finance-foundation, physical-float, exact-stock and weighted-commodity purchase, hotel normalization, craft-progress, craft-resource-reservation, executable price-change, and executable job-opening slices supply read/access views, authorised host-board posting, safe creation and modification of non-financial openings, manager application decisions, drafted retrieval/delivery/planning/finance/craft/price/opening active tasks, central host-level scheduled-rule evaluation, real shop purchase/store-account/tax/float/craft-trigger/price adapters where supported, a first live NPC application/task loop, and recoverable overdue-wage reputation pressure without replacing legacy host-specific employment commands.
 
 ### Current gap map
 
@@ -990,8 +1011,8 @@ The foundation is now testable for live NPC employment, scheduled rules, exact-s
 1. **Account transfer and broader finance targets.** Bank deposit/withdrawal, store-account payment, tax payment, register float, physical float, weighted commodity purchase, and supported host virtual-cash movement are executable. Cross-account transfers, arbitrary host-to-host settlement, wage-reserve physical-cash backing, and richer employee-float recovery policies still need native service boundaries.
 2. **Craft production-chain recovery and capacity polish.** Craft steps now reserve exact input/tool/item-station resources with expiry and cleanup, start/resume native crafts, and adopt outputs. Remaining craft work is deeper station-capacity policy, multi-craft production-chain automation, and richer recovery workflows when an intermediate craft fails, is manually interrupted, or needs manager-directed output salvage.
 3. **Autonomous vehicles and animals.** Vehicle cargo selection validates and records accessible cargo spaces, but autonomous driving, animal leading, mount return, route optimisation, load balancing, and multi-stop delivery batching remain deferred.
-4. **Administrative task mutations.** Price changes, job-opening administration, scheduled-rule administration, active-task administration from inside tasks, and manager-goal mutation are still command/service surfaces rather than task-executable actions. That is deliberate to avoid recursive task mutation until the audit and authority model is tighter.
-5. **Manager AI autonomy.** Manager-goal boards exist and can create operational work through services, but there is not yet a broad autonomous manager AI that routinely interprets goals, chooses between purchase/craft/price/account actions, and tunes rules over time.
+4. **Remaining administrative task mutations.** Price changes and job-opening administration are task-executable with native service calls and audit evidence. Scheduled-rule administration, active-task administration from inside tasks, and manager-goal mutation remain command/service surfaces rather than task-executable actions.
+5. **Manager AI autonomy.** Manager-goal boards and catalogue-backed manager-goal authoring exist and can create operational work through services, but there is not yet a broad autonomous manager AI that routinely interprets goals, chooses between purchase/craft/price/account actions, and tunes rules over time.
 6. **Candidate profile depth.** Worker matching covers reservation wage, accepted payment methods, host filters, capabilities, pathability, skills, and simple rejection memory. Deeper knowledge checks, world-specific tags, personality preferences, reliability, employer reputation beyond overdue wage tolerance, and local labour-market dynamics are still future slices.
 7. **Legacy command replacement.** Several host aliases now route employment views and selected staff operations through the shared model, but the PC-facing `IJobListing`/`IActiveJob` system, `job` command, job-finding cells, job coffers, and remaining legacy host-specific behaviours remain separate by design.
 
@@ -1001,7 +1022,7 @@ The recommended active milestone is **native subsystem closure and scheduled-ope
 
 - define native service boundaries for account transfers, wage-reserve cash backing, and richer physical employee floats;
 - add craft station-capacity policy and deeper production-chain/output recovery;
-- then move to autonomous vehicle/animal logistics, price/admin actions, and manager AI autonomy.
+- then move to autonomous vehicle/animal logistics, remaining recursive admin actions, and manager AI autonomy.
 
 ## 27. Suggested next Codex goal
 

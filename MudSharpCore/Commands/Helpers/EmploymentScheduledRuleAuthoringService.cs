@@ -1021,6 +1021,8 @@ internal sealed class EmploymentScheduledRuleAuthoringService
 			"float" => TryParseFloat(actor, host, input, out condition, out message),
 			"tax" => TryParseTax(host, input, out condition, out message),
 			"marketprice" => TryParseMarketPrice(actor, host, input, out condition, out message),
+			"payroll" => TryParsePayroll(host, input, out condition, out message),
+			"staffing" => TryParseStaffing(input, out condition, out message),
 			"weather" => TryParseWeather(input, out condition, out message),
 			_ => UnknownCondition(conditionKey, out condition, out message)
 		};
@@ -1050,6 +1052,10 @@ internal sealed class EmploymentScheduledRuleAuthoringService
 				$"supported host taxes owing {(tax.AboveThreshold ? "above" : "below").ColourCommand()} {DescribeConditionAmount(host, tax.Threshold)}",
 			MarketPriceCondition marketPrice =>
 				$"market price {MarketPriceCondition.DescribeKey(marketPrice.PriceKey, host).ColourName()} {(marketPrice.AboveThreshold ? "above" : "below").ColourCommand()} {marketPrice.Threshold.ToString("N2", actor).ColourValue()}",
+			PayrollLiabilityCondition payroll =>
+				$"payroll {PayrollLiabilityCondition.DescribeMetric(payroll.Metric).ColourName()} {(payroll.AboveThreshold ? "above" : "below").ColourCommand()} {DescribePayrollThreshold(host, payroll)}",
+			StaffingLevelCondition staffing =>
+				$"staffing {StaffingLevelCondition.DescribeKey(staffing.StaffingKey).ColourName()} {(staffing.BelowThreshold ? "below" : "at least").ColourCommand()} {staffing.Threshold.ToString("N0", actor).ColourValue()}",
 			WeatherLevelCondition weather =>
 				$"weather begins as {WeatherLevelCondition.DescribeKey(weather.WeatherKey).ColourName()}",
 			_ => condition.ConditionType.DescribeEnum().ColourName()
@@ -1654,6 +1660,119 @@ internal sealed class EmploymentScheduledRuleAuthoringService
 		return true;
 	}
 
+	private static bool TryParsePayroll(IEmploymentHost host, StringStack input,
+		out IEmploymentTaskCondition condition, out string message)
+	{
+		condition = null!;
+		if (input.IsFinished)
+		{
+			message = $"Payroll conditions use the syntax: {"tasks rule condition payroll outstanding|amount|overdue above|below <threshold>".ColourCommand()}";
+			return false;
+		}
+
+		var metric = PayrollLiabilityCondition.NormaliseMetric(input.PopSpeech());
+		if (metric is not PayrollLiabilityCondition.OutstandingMetric and
+		    not PayrollLiabilityCondition.AmountMetric and
+		    not PayrollLiabilityCondition.OverdueMetric)
+		{
+			message = "Payroll metrics are outstanding, amount, or overdue.";
+			return false;
+		}
+
+		if (!TryParseComparison(input, out var below, out message))
+		{
+			return false;
+		}
+
+		var thresholdText = input.SafeRemainingArgument;
+		decimal threshold;
+		if (metric == PayrollLiabilityCondition.AmountMetric)
+		{
+			var currency = EmploymentTaskAuthoringService.ResolveHostCurrency(host);
+			if (currency is null ||
+			    string.IsNullOrWhiteSpace(thresholdText) ||
+			    !currency.TryGetBaseCurrency(thresholdText, out threshold) ||
+			    threshold < 0.0M)
+			{
+				message = currency is null
+					? $"{host.EmploymentHostName.ColourName()} does not expose a currency for payroll amount conditions."
+					: $"Payroll amount conditions use the syntax: {"tasks rule condition payroll amount above|below <amount>".ColourCommand()}";
+				return false;
+			}
+		}
+		else if (string.IsNullOrWhiteSpace(thresholdText) ||
+		         !decimal.TryParse(thresholdText, NumberStyles.Number, CultureInfo.InvariantCulture, out threshold) ||
+		         threshold < 0.0M)
+		{
+			message = $"Payroll {metric} conditions require a non-negative numeric threshold.";
+			return false;
+		}
+
+		ConsumeRemaining(input);
+		condition = new PayrollLiabilityCondition(metric, threshold, !below);
+		message = string.Empty;
+		return true;
+	}
+
+	private static bool TryParseStaffing(StringStack input, out IEmploymentTaskCondition condition, out string message)
+	{
+		condition = null!;
+		if (!input.IsFinished && input.PeekSpeech().EqualTo("role"))
+		{
+			input.PopSpeech();
+		}
+
+		if (input.IsFinished)
+		{
+			message = $"Staffing conditions use the syntax: {"tasks rule condition staffing role <role|any> active|open|combined below|atleast <count>".ColourCommand()}";
+			return false;
+		}
+
+		var roleText = input.PopSpeech();
+		EmploymentRole? role = null;
+		if (!roleText.EqualTo("any"))
+		{
+			if (!roleText.TryParseEnum<EmploymentRole>(out var parsedRole))
+			{
+				message = $"There is no employment role matching {roleText.ColourCommand()}.";
+				return false;
+			}
+
+			role = parsedRole;
+		}
+
+		if (input.IsFinished)
+		{
+			message = "Which staffing metric do you want to inspect: active, open, or combined?";
+			return false;
+		}
+
+		var metric = StaffingLevelCondition.NormaliseMetric(input.PopSpeech());
+		if (metric is not StaffingLevelCondition.ActiveMetric and
+		    not StaffingLevelCondition.OpenMetric and
+		    not StaffingLevelCondition.CombinedMetric)
+		{
+			message = "Staffing metrics are active, open, or combined.";
+			return false;
+		}
+
+		if (!TryParseComparison(input, out var below, out message))
+		{
+			return false;
+		}
+
+		if (input.IsFinished || !int.TryParse(input.PopSpeech(), NumberStyles.Integer, CultureInfo.InvariantCulture,
+			    out var threshold) || threshold < 0)
+		{
+			message = "What non-negative staffing threshold should this condition use?";
+			return false;
+		}
+
+		condition = new StaffingLevelCondition(StaffingLevelCondition.CreateKey(role, metric), threshold, below);
+		message = string.Empty;
+		return true;
+	}
+
 	private static bool TryParseWeather(StringStack input, out IEmploymentTaskCondition condition, out string message)
 	{
 		condition = null!;
@@ -2134,6 +2253,13 @@ internal sealed class EmploymentScheduledRuleAuthoringService
 		return currency is null
 			? amount.ToString("N2", CultureInfo.InvariantCulture).ColourValue()
 			: currency.Describe(amount, CurrencyDescriptionPatternType.ShortDecimal).ColourValue();
+	}
+
+	private static string DescribePayrollThreshold(IEmploymentHost host, PayrollLiabilityCondition condition)
+	{
+		return PayrollLiabilityCondition.NormaliseMetric(condition.Metric) == PayrollLiabilityCondition.AmountMetric
+			? DescribeConditionAmount(host, condition.Threshold)
+			: condition.Threshold.ToString("N2", CultureInfo.InvariantCulture).ColourValue();
 	}
 
 	private static bool TryParseComparison(StringStack input, out bool below, out string message)

@@ -5,9 +5,11 @@ using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Economy.Currency;
 using MudSharp.Economy.Employment;
+using MudSharp.Economy.Markets;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.Framework;
+using MudSharp.TimeAndDate;
 using MudSharp.Vehicles;
 
 #nullable enable
@@ -751,6 +753,86 @@ public sealed class TaxPaymentActionStep : EmploymentActionStepBase
 		return context.TryPayTaxes(actor, MaximumAmount, out var reason, out var operationalState)
 			? new EmploymentActionStepResult(true, "Paid supported host taxes.", true, operationalState)
 			: EmploymentActionStepResult.Blocked(reason);
+	}
+}
+
+public sealed class PayrollSettlementActionStep : EmploymentActionStepBase
+{
+	public PayrollSettlementActionStep(string selector, string? reason = null)
+		: base(
+			EmploymentActionStepType.PayrollSettlement,
+			EmploymentAuthority.ManagePayroll,
+			new[] { EmploymentAICapability.CanUseBankAccount, EmploymentAICapability.CanHandleCash },
+			false,
+			true)
+	{
+		Selector = string.IsNullOrWhiteSpace(selector) ? "all" : selector.Trim();
+		Reason = string.IsNullOrWhiteSpace(reason) ? "Employment task payroll settlement." : reason.Trim();
+	}
+
+	public string Selector { get; }
+	public string Reason { get; }
+
+	public override bool CanExecute(IEmploymentTaskContext context, ICharacter actor, out string reason)
+	{
+		if (!base.CanExecute(context, actor, out reason))
+		{
+			return false;
+		}
+
+		context.Employer.Payroll.EvaluatePayroll();
+		var targets = SelectPayables(context.Employer, Selector).ToList();
+		if (!targets.Any())
+		{
+			reason = $"There are no outstanding employment payables matching {Selector}.";
+			return false;
+		}
+
+		foreach (var amount in targets
+			         .Where(x => x.Status == EmploymentPayableStatus.Accrued)
+			         .GroupBy(x => x.Amount.Currency.Id)
+			         .Select(x => new MoneyAmount(x.First().Amount.Currency, x.Sum(y => y.Amount.Amount))))
+		{
+			if (!EmploymentFinanceService.CanSettlePayroll(context.Employer, amount, out reason))
+			{
+				return false;
+			}
+		}
+
+		reason = string.Empty;
+		return true;
+	}
+
+	public override EmploymentActionStepResult Execute(IEmploymentTaskContext context, ICharacter actor)
+	{
+		context.Employer.Payroll.EvaluatePayroll();
+		var targets = SelectPayables(context.Employer, Selector).ToList();
+		if (!context.Employer.Payroll.TrySettlePayables(targets, actor, true, Reason, out var message))
+		{
+			return EmploymentActionStepResult.Blocked(message);
+		}
+
+		return new EmploymentActionStepResult(true, message, true,
+			new EmploymentActionStepOperationalState(
+				OperationalPayload: $"Payroll selector {Selector}",
+				TransactionReference: message));
+	}
+
+	private static IEnumerable<IEmploymentPayable> SelectPayables(IEmploymentHost host, string selector)
+	{
+		var outstanding = host.Payroll.OutstandingLiabilities
+		                      .OrderBy(x => x.DueAt)
+		                      .ThenBy(x => x.Id)
+		                      .ToList();
+		if (selector.EqualTo("all") || selector.EqualTo("outstanding"))
+		{
+			return outstanding;
+		}
+
+		var trimmed = selector.TrimStart('#');
+		return long.TryParse(trimmed, out var id)
+			? outstanding.Where(x => x.Id == id)
+			: [];
 	}
 }
 
@@ -1838,5 +1920,438 @@ public sealed class VehicleOperationActionStep : EmploymentActionStepBase, IEmpl
 	public IReadOnlyCollection<ICell> ExecutionLocationHints(IEmploymentTaskContext context, ICharacter actor)
 	{
 		return Vehicle.Location is null ? [] : [Vehicle.Location];
+	}
+}
+
+public sealed class PriceChangeActionStep : EmploymentActionStepBase
+{
+	public PriceChangeActionStep(string merchandiseSelector, MoneyAmount exactPrice)
+		: base(
+			EmploymentActionStepType.PriceChange,
+			EmploymentAuthority.AdjustPrices,
+			new[] { EmploymentAICapability.CanManagePrices },
+			false,
+			false)
+	{
+		PriceChangeKind = PriceChangeActionKind.Merchandise;
+		MerchandiseSelector = merchandiseSelector.Trim();
+		ExactPrice = exactPrice;
+		MarketSelector = "host";
+		CategorySelector = string.Empty;
+		InfluenceName = string.Empty;
+	}
+
+	public PriceChangeActionStep(string marketSelector, string categorySelector, double supplyImpact,
+		double demandImpact, double flatPriceImpact, string? influenceName = null, TimeSpan? duration = null,
+		string? untilText = null)
+		: base(
+			EmploymentActionStepType.PriceChange,
+			EmploymentAuthority.AdjustPrices,
+			new[] { EmploymentAICapability.CanManagePrices },
+			false,
+			false)
+	{
+		PriceChangeKind = PriceChangeActionKind.MarketCategory;
+		MerchandiseSelector = string.Empty;
+		MarketSelector = string.IsNullOrWhiteSpace(marketSelector) ? "host" : marketSelector.Trim();
+		CategorySelector = categorySelector.Trim();
+		SupplyImpact = supplyImpact;
+		DemandImpact = demandImpact;
+		FlatPriceImpact = flatPriceImpact;
+		InfluenceName = string.IsNullOrWhiteSpace(influenceName)
+			? $"Employment price adjustment - {CategorySelector}"
+			: influenceName.Trim();
+		Duration = duration;
+		UntilText = string.IsNullOrWhiteSpace(untilText) ? null : untilText.Trim();
+	}
+
+	public PriceChangeActionKind PriceChangeKind { get; }
+	public string MerchandiseSelector { get; }
+	public MoneyAmount? ExactPrice { get; }
+	public string MarketSelector { get; }
+	public string CategorySelector { get; }
+	public double SupplyImpact { get; }
+	public double DemandImpact { get; }
+	public double FlatPriceImpact { get; }
+	public string InfluenceName { get; }
+	public TimeSpan? Duration { get; }
+	public string? UntilText { get; }
+	private bool HasExplicitExpiry => Duration.HasValue || !string.IsNullOrWhiteSpace(UntilText);
+
+	public override bool CanExecute(IEmploymentTaskContext context, ICharacter actor, out string reason)
+	{
+		if (!base.CanExecute(context, actor, out reason))
+		{
+			return false;
+		}
+
+		if (PriceChangeKind == PriceChangeActionKind.Merchandise)
+		{
+			if (context.Employer is not IShop shop)
+			{
+				reason = "Exact merchandise price changes can only target shop employment hosts.";
+				return false;
+			}
+
+			var merchandise = ResolveMerchandise(shop);
+			if (merchandise is null)
+			{
+				reason = $"There is no merchandise belonging to {shop.Name} matching {MerchandiseSelector}.";
+				return false;
+			}
+
+			if (ExactPrice is null || !merchandise.CanSetBasePrice(ExactPrice.Amount, out reason))
+			{
+				reason = string.IsNullOrWhiteSpace(reason) ? "The requested merchandise price is invalid." : reason;
+				return false;
+			}
+
+			reason = string.Empty;
+			return true;
+		}
+
+		var market = ResolveMarket(context.Employer, actor);
+		if (market is null)
+		{
+			reason = $"There is no market matching {MarketSelector}.";
+			return false;
+		}
+
+		var category = ResolveCategory(actor);
+		if (category is null)
+		{
+			reason = $"There is no market category matching {CategorySelector}.";
+			return false;
+		}
+
+		if (!market.MarketCategories.Any(x => x.Id == category.Id))
+		{
+			reason = $"{category.Name} is not part of {market.Name}.";
+			return false;
+		}
+
+		if (!TryResolveAppliesUntil(market, actor, out _, out reason))
+		{
+			return false;
+		}
+
+		reason = string.Empty;
+		return true;
+	}
+
+	public override EmploymentActionStepResult Execute(IEmploymentTaskContext context, ICharacter actor)
+	{
+		if (PriceChangeKind == PriceChangeActionKind.Merchandise)
+		{
+			if (context.Employer is not IShop shop)
+			{
+				return EmploymentActionStepResult.Blocked("Exact merchandise price changes can only target shop employment hosts.");
+			}
+
+			var merchandise = ResolveMerchandise(shop);
+			if (merchandise is null || ExactPrice is null)
+			{
+				return EmploymentActionStepResult.Blocked("The merchandise price target is no longer available.");
+			}
+
+			if (!merchandise.CanSetBasePrice(ExactPrice.Amount, out var priceReason))
+			{
+				return EmploymentActionStepResult.Blocked(priceReason);
+			}
+
+			var oldPrice = merchandise.BasePrice;
+			merchandise.SetBasePrice(ExactPrice.Amount, actor);
+			context.RecordRegister(EmploymentRegisterEntryType.AuditActionRecorded, actor,
+				$"Changed merchandise {merchandise.Name} base price from {shop.Currency.Describe(oldPrice, CurrencyDescriptionPatternType.ShortDecimal)} to {shop.Currency.Describe(ExactPrice.Amount, CurrencyDescriptionPatternType.ShortDecimal)}.");
+			return new EmploymentActionStepResult(
+				true,
+				$"Changed {merchandise.Name} base price to {shop.Currency.Describe(ExactPrice.Amount, CurrencyDescriptionPatternType.ShortDecimal)}.",
+				true,
+				new EmploymentActionStepOperationalState(
+					OperationalPayload:
+					$"price:merchandise={merchandise.Id};old={oldPrice};new={ExactPrice.Amount};currency={ExactPrice.Currency.Id}"));
+		}
+
+		var market = ResolveMarket(context.Employer, actor);
+		var category = ResolveCategory(actor);
+		if (market is null || category is null)
+		{
+			return EmploymentActionStepResult.Blocked("The market price target is no longer available.");
+		}
+
+		if (!market.MarketCategories.Any(x => x.Id == category.Id))
+		{
+			return EmploymentActionStepResult.Blocked($"{category.Name} is not part of {market.Name}.");
+		}
+
+		if (!TryResolveAppliesUntil(market, actor, out var appliesUntil, out var untilReason))
+		{
+			return EmploymentActionStepResult.Blocked(untilReason);
+		}
+
+		var influence = market.MarketInfluences.FirstOrDefault(x => x.Name.EqualTo(InfluenceName));
+		if (influence is null)
+		{
+			var now = market.EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime;
+			influence = new MarketInfluence(
+				market,
+				InfluenceName,
+				$"Employment generated price adjustment for {category.Name}.",
+				now,
+				appliesUntil!);
+			actor.Gameworld.Add(influence);
+			market.ApplyMarketInfluence(influence);
+		}
+		else if (HasExplicitExpiry)
+		{
+			influence.SetAppliesUntil(appliesUntil);
+		}
+
+		influence.SetCategoryImpact(category, SupplyImpact, DemandImpact, FlatPriceImpact);
+		context.RecordRegister(EmploymentRegisterEntryType.AuditActionRecorded, actor,
+			$"Applied market price influence {InfluenceName} to category {category.Name} on {market.Name}.");
+		return new EmploymentActionStepResult(
+			true,
+			$"Applied market price influence {InfluenceName} to {category.Name}.",
+			true,
+			new EmploymentActionStepOperationalState(
+				OperationalPayload:
+				$"price:market={market.Id};category={category.Id};influence={influence.Id};supply={SupplyImpact};demand={DemandImpact};flat={FlatPriceImpact}"));
+	}
+
+	private IMerchandise? ResolveMerchandise(IShop shop)
+	{
+		if (long.TryParse(MerchandiseSelector.TrimStart('#'), out var id))
+		{
+			return shop.Merchandises.FirstOrDefault(x => x.Id == id);
+		}
+
+		return shop.Merchandises.GetByIdOrName(MerchandiseSelector) ??
+		       shop.Merchandises.FirstOrDefault(x =>
+			       x.Name.EqualTo(MerchandiseSelector) ||
+			       x.ListDescription.EqualTo(MerchandiseSelector));
+	}
+
+	private IMarket? ResolveMarket(IEmploymentHost host, ICharacter actor)
+	{
+		if (MarketSelector.EqualTo("host") || MarketSelector.EqualTo("market"))
+		{
+			return host.Market ?? (host as IShop)?.MarketForPricingPurposes;
+		}
+
+		if (long.TryParse(MarketSelector.TrimStart('#'), out var id))
+		{
+			return actor.Gameworld.Markets.Get(id);
+		}
+
+		return actor.Gameworld.Markets.GetByIdOrName(MarketSelector);
+	}
+
+	private IMarketCategory? ResolveCategory(ICharacter actor)
+	{
+		if (long.TryParse(CategorySelector.TrimStart('#'), out var id))
+		{
+			return actor.Gameworld.MarketCategories.Get(id);
+		}
+
+		return actor.Gameworld.MarketCategories.GetByIdOrName(CategorySelector);
+	}
+
+	private bool TryResolveAppliesUntil(IMarket market, ICharacter actor, out MudDateTime? appliesUntil,
+		out string reason)
+	{
+		appliesUntil = null;
+		if (!string.IsNullOrWhiteSpace(UntilText))
+		{
+			if (UntilText.EqualToAny("never", "always", "forever"))
+			{
+				reason = string.Empty;
+				return true;
+			}
+
+			if (!MudDateTime.TryParse(UntilText, market.EconomicZone.FinancialPeriodReferenceCalendar,
+				    market.EconomicZone.FinancialPeriodReferenceClock, actor, out var until, out reason))
+			{
+				return false;
+			}
+
+			appliesUntil = until;
+			return true;
+		}
+
+		if (Duration.HasValue)
+		{
+			appliesUntil = market.EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime + Duration.Value;
+		}
+
+		reason = string.Empty;
+		return true;
+	}
+}
+
+public sealed class JobOpeningAdministrationActionStep : EmploymentActionStepBase
+{
+	public JobOpeningAdministrationActionStep(JobOpeningDefinition definition, string? reason = null)
+		: base(
+			EmploymentActionStepType.JobOpeningAdministration,
+			EmploymentAuthority.CreateJobOpenings,
+			Array.Empty<EmploymentAICapability>(),
+			false,
+			false)
+	{
+		Operation = JobOpeningAdministrationActionKind.Create;
+		Definition = definition;
+		Reason = string.IsNullOrWhiteSpace(reason) ? "Created by employment task." : reason.Trim();
+	}
+
+	public JobOpeningAdministrationActionStep(JobOpeningAdministrationActionKind operation, long openingId,
+		JobOpeningDefinition? definition = null, string? reason = null)
+		: base(
+			EmploymentActionStepType.JobOpeningAdministration,
+			operation == JobOpeningAdministrationActionKind.Create
+				? EmploymentAuthority.CreateJobOpenings
+				: EmploymentAuthority.ModifyJobOpenings,
+			Array.Empty<EmploymentAICapability>(),
+			false,
+			false)
+	{
+		Operation = operation;
+		OpeningId = openingId;
+		Definition = definition;
+		Reason = string.IsNullOrWhiteSpace(reason)
+			? operation == JobOpeningAdministrationActionKind.Close
+				? "Closed by employment task."
+				: "Modified by employment task."
+			: reason.Trim();
+	}
+
+	public JobOpeningAdministrationActionKind Operation { get; }
+	public long? OpeningId { get; }
+	public JobOpeningDefinition? Definition { get; }
+	public string Reason { get; }
+
+	public override bool CanExecute(IEmploymentTaskContext context, ICharacter actor, out string reason)
+	{
+		if (!base.CanExecute(context, actor, out reason))
+		{
+			return false;
+		}
+
+		if (Operation == JobOpeningAdministrationActionKind.Create)
+		{
+			if (Definition is null)
+			{
+				reason = "Job-opening create steps require an opening definition.";
+				return false;
+			}
+
+			reason = string.Empty;
+			return true;
+		}
+
+		var opening = ResolveOpening(context.Employer);
+		if (opening is null)
+		{
+			reason = $"There is no job opening #{OpeningId?.ToString("F0") ?? "?"} for {context.Employer.EmploymentHostName}.";
+			return false;
+		}
+
+		if (Operation == JobOpeningAdministrationActionKind.Modify)
+		{
+			if (opening.Status == JobOpeningStatus.Closed)
+			{
+				reason = "Closed job openings cannot be modified.";
+				return false;
+			}
+
+			if (Definition is null)
+			{
+				reason = "Job-opening modify steps require an opening definition.";
+				return false;
+			}
+		}
+		else if (opening.Status == JobOpeningStatus.Closed)
+		{
+			reason = "That job opening is already closed.";
+			return false;
+		}
+
+		reason = string.Empty;
+		return true;
+	}
+
+	public override EmploymentActionStepResult Execute(IEmploymentTaskContext context, ICharacter actor)
+	{
+		try
+		{
+			switch (Operation)
+			{
+				case JobOpeningAdministrationActionKind.Create:
+				{
+					if (Definition is null)
+					{
+						return EmploymentActionStepResult.Failed("Job-opening create steps require an opening definition.");
+					}
+
+					var opening = context.Employer.Employment.CreateJobOpening(Definition, actor);
+					return new EmploymentActionStepResult(
+						true,
+						$"Created {opening.Role.DescribeEnum()} job opening #{opening.Id:N0}.",
+						true,
+						new EmploymentActionStepOperationalState(
+							OperationalPayload: $"jobopening:create={opening.Id};role={opening.Role}"));
+				}
+				case JobOpeningAdministrationActionKind.Close:
+				{
+					var opening = ResolveOpening(context.Employer);
+					if (opening is null)
+					{
+						return EmploymentActionStepResult.Blocked("The job opening to close is no longer available.");
+					}
+
+					context.Employer.Employment.CloseJobOpening(opening, actor, Reason);
+					return new EmploymentActionStepResult(
+						true,
+						$"Closed {opening.Role.DescribeEnum()} job opening #{opening.Id:N0}.",
+						true,
+						new EmploymentActionStepOperationalState(
+							OperationalPayload: $"jobopening:close={opening.Id};reason={Reason}"));
+				}
+				case JobOpeningAdministrationActionKind.Modify:
+				{
+					var opening = ResolveOpening(context.Employer);
+					if (opening is null)
+					{
+						return EmploymentActionStepResult.Blocked("The job opening to modify is no longer available.");
+					}
+
+					if (Definition is null)
+					{
+						return EmploymentActionStepResult.Failed("Job-opening modify steps require an opening definition.");
+					}
+
+					context.Employer.Employment.ModifyJobOpening(opening, Definition, actor, Reason);
+					return new EmploymentActionStepResult(
+						true,
+						$"Modified {opening.Role.DescribeEnum()} job opening #{opening.Id:N0}.",
+						true,
+						new EmploymentActionStepOperationalState(
+							OperationalPayload: $"jobopening:modify={opening.Id};role={opening.Role};reason={Reason}"));
+				}
+				default:
+					return EmploymentActionStepResult.Failed("Unknown job-opening administration action.");
+			}
+		}
+		catch (InvalidOperationException ex)
+		{
+			return EmploymentActionStepResult.Blocked(ex.Message);
+		}
+	}
+
+	private IJobOpening? ResolveOpening(IEmploymentHost host)
+	{
+		return OpeningId.HasValue
+			? host.JobOpenings.FirstOrDefault(x => x.Id == OpeningId.Value)
+			: null;
 	}
 }

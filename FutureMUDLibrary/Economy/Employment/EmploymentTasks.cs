@@ -33,7 +33,9 @@ public enum EmploymentTaskConditionType
 	ShopFloatThreshold,
 	WeatherLevel,
 	TaxOwing,
-	MarketPrice
+	MarketPrice,
+	PayrollLiability,
+	StaffingLevel
 }
 
 public enum EmploymentScheduledRuleStatus
@@ -114,7 +116,10 @@ public enum EmploymentActionStepType
 	TaxPayment,
 	ShopFloatAdjustment,
 	PhysicalFloat,
-	CraftStation
+	CraftStation,
+	PayrollSettlement,
+	PriceChange,
+	JobOpeningAdministration
 }
 
 public enum EmploymentActionStepStatus
@@ -321,6 +326,7 @@ public interface IEmploymentActiveTask
 	IReadOnlyList<EmploymentActionStepStatus> StepStates { get; }
 	IReadOnlyList<EmploymentActionStepOperationalState> StepOperationalStates { get; }
 	Guid CorrelationId { get; }
+	string IdempotencyKey { get; }
 }
 
 public interface IEmploymentScheduledTaskRule
@@ -382,11 +388,12 @@ public interface IEmploymentTaskBoard
 		EmploymentActionPlan actionPlan, TimeSpan cooldown, ICharacter? authorisedBy);
 	bool CancelScheduledRuleTemplate(IEmploymentScheduledRuleTemplate template, ICharacter? cancelledBy, string reason);
 	IEmploymentActiveTask CreateActiveTask(string name, EmploymentActionPlan actionPlan, ICharacter? authorisedBy,
-		Guid? correlationId = null);
+		Guid? correlationId = null, string? idempotencyKey = null);
 	bool CancelActiveTask(IEmploymentActiveTask task, ICharacter? cancelledBy, string reason);
 	bool CancelScheduledRule(IEmploymentScheduledTaskRule rule, ICharacter? cancelledBy, string reason);
 	bool PauseScheduledRule(IEmploymentScheduledTaskRule rule, ICharacter? pausedBy, string reason);
 	bool ResumeScheduledRule(IEmploymentScheduledTaskRule rule, ICharacter? resumedBy, string reason);
+	bool HasBlockingActiveTask(string idempotencyKey);
 	IReadOnlyCollection<EmploymentTaskAssignmentAuditResult> AuditActiveTaskAssignments();
 	IReadOnlyCollection<IEmploymentActiveTask> EvaluateScheduledRule(IEmploymentScheduledTaskRule rule,
 		IEmploymentTaskContext context, DateTimeOffset now);
@@ -480,6 +487,19 @@ public enum PhysicalFloatOperation
 	Settle
 }
 
+public enum PriceChangeActionKind
+{
+	Merchandise,
+	MarketCategory
+}
+
+public enum JobOpeningAdministrationActionKind
+{
+	Create,
+	Close,
+	Modify
+}
+
 public enum ManagerGoalType
 {
 	MaintainMinimumStock,
@@ -488,7 +508,17 @@ public enum ManagerGoalType
 	AdjustPricesForProfit,
 	MaintainCashAndBankBalances,
 	MaintainStaffingLevels,
-	MaintainHotelOperations
+	MaintainHotelOperations,
+	MaintainPhysicalCashFloat,
+	PayTaxes,
+	PayShopAccountsOwing,
+	MaintainCraftedMerchandiseStock,
+	MaintainCraftMaterialSupply,
+	MaintainMinimumPhysicalCashFloat,
+	MaintainMaximumPhysicalCashFloat,
+	KeepEmploymentPayrollCurrent,
+	MaintainMinimumBusinessFunds,
+	MaintainMaximumBusinessFunds
 }
 
 public enum ManagerGoalStatus
@@ -521,6 +551,7 @@ public interface IManagerGoal
 	ManagerGoalStatus Status { get; }
 	ManagerGoalConfiguration Configuration { get; }
 	int Priority { get; }
+	TimeSpan EvaluationCadence { get; }
 	DateTimeOffset? LastEvaluatedAt { get; }
 	string? LastEvaluationResult { get; }
 	Guid CorrelationId { get; }

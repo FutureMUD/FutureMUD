@@ -110,6 +110,38 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 	private sealed record PhysicalFloatStepPayload(string Operation, long? CurrencyId, decimal? Amount,
 		string TargetKind, ItemSelectorPayload? TargetSelector);
 
+	private sealed record PriceChangeStepPayload(string Kind, string MerchandiseSelector, long? CurrencyId,
+		decimal? ExactPrice, string MarketSelector, string CategorySelector, double SupplyImpact, double DemandImpact,
+		double FlatPriceImpact, string InfluenceName, long? DurationTicks, string? UntilText);
+
+	private sealed record JobOpeningDefinitionPayload(
+		string Role,
+		JobRequirementsPayload Requirements,
+		CompensationTermsPayload Compensation,
+		WorkSchedulePayload Schedule,
+		EmploymentDurationPayload Duration,
+		int MaxPositions,
+		bool NpcApplicationsOnly,
+		PaymentMethodPayload PaymentMethod,
+		long Authority);
+
+	private sealed record JobRequirementsPayload(string[] Skills, double[] SkillMinimums, string[] Knowledges,
+		string[] Capabilities, string[] Tags);
+
+	private sealed record CompensationTermsPayload(long? FixedCurrencyId, decimal? FixedAmount,
+		string? MarketBindingType, decimal? MarketBindingValue, string Cadence, long? MinimumCurrencyId,
+		decimal? MinimumAmount, string EmployerPaymentSource);
+
+	private sealed record WorkSchedulePayload(string Description, long? StartsAtTicks, long? EndsAtTicks);
+
+	private sealed record EmploymentDurationPayload(string DurationType, long? LengthTicks);
+
+	private sealed record PaymentMethodPayload(string MethodKind, long? BankAccountId, long? PaymentItemId,
+		string? PaymentItemType, string? Notes);
+
+	private sealed record JobOpeningAdministrationStepPayload(string Operation, long? OpeningId,
+		JobOpeningDefinitionPayload? Definition, string Reason);
+
 	private readonly IEmploymentHost _host;
 	private readonly IFuturemud _gameworld;
 
@@ -228,13 +260,28 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 	{
 		WithContext(context =>
 		{
-			if (context.EmploymentJobOpenings.Any(x => x.RuntimeId == opening.Id && x.EmploymentHostStateId == StateId))
+			var dbitem = context.EmploymentJobOpenings
+			                    .Include(x => x.Requirements)
+			                    .FirstOrDefault(x =>
+				                    x.RuntimeId == opening.Id &&
+				                    x.EmploymentHostStateId == StateId);
+			if (dbitem is null)
 			{
-				return;
+				dbitem = ToRecord(opening);
+				context.EmploymentJobOpenings.Add(dbitem);
+			}
+			else
+			{
+				dbitem.Role = (int)opening.Role;
+				dbitem.Status = (int)opening.Status;
+				dbitem.MaxPositions = opening.MaxPositions;
+				dbitem.NpcApplicationsOnly = opening.NpcApplicationsOnly;
+				dbitem.Authority = (long)opening.Authority.Authorities;
+				WriteTerms(dbitem, opening.Compensation, opening.Schedule, opening.Duration, opening.PaymentMethod);
+				context.EmploymentJobOpeningRequirements.RemoveRange(dbitem.Requirements);
+				dbitem.Requirements.Clear();
 			}
 
-			var dbitem = ToRecord(opening);
-			context.EmploymentJobOpenings.Add(dbitem);
 			foreach (var requirement in ToRequirementRecords(opening))
 			{
 				dbitem.Requirements.Add(requirement);
@@ -1270,12 +1317,19 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 				ToCataloguedShellStep(record, destination),
 			EmploymentActionStepType.TaxPayment =>
 				new TaxPaymentActionStep(amount),
+			EmploymentActionStepType.PayrollSettlement =>
+				new PayrollSettlementActionStep(record.AccountName ?? record.CommandArguments ?? "all",
+					record.Description),
 			EmploymentActionStepType.ShopFloatAdjustment =>
 				ToShopFloatAdjustmentStep(record),
 			EmploymentActionStepType.PhysicalFloat =>
 				ToPhysicalFloatStep(record),
 			EmploymentActionStepType.CraftStation =>
 				new CraftStationActionStep(record.Description ?? "here"),
+			EmploymentActionStepType.PriceChange =>
+				ToPriceChangeStep(record),
+			EmploymentActionStepType.JobOpeningAdministration =>
+				ToJobOpeningAdministrationStep(record),
 			_ => null
 		};
 	}
@@ -1332,6 +1386,52 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 		var amount = payload.Amount.HasValue ? ToMoney(payload.CurrencyId, payload.Amount) : null;
 		return new PhysicalFloatActionStep(operation, amount, payload.TargetKind,
 			ToItemSelector(payload.TargetSelector));
+	}
+
+	private PriceChangeActionStep? ToPriceChangeStep(DbActionStep record)
+	{
+		var payload = TryDeserializeActionPayload<PriceChangeStepPayload>(record.BoardText);
+		if (payload is null || !payload.Kind.TryParseEnum<PriceChangeActionKind>(out var kind))
+		{
+			return null;
+		}
+
+		return kind switch
+		{
+			PriceChangeActionKind.Merchandise when payload.CurrencyId.HasValue && payload.ExactPrice.HasValue &&
+			                                       ToMoney(payload.CurrencyId, payload.ExactPrice) is { } amount =>
+				new PriceChangeActionStep(payload.MerchandiseSelector, amount),
+			PriceChangeActionKind.MarketCategory =>
+				new PriceChangeActionStep(
+					payload.MarketSelector,
+					payload.CategorySelector,
+					payload.SupplyImpact,
+					payload.DemandImpact,
+					payload.FlatPriceImpact,
+					payload.InfluenceName,
+					payload.DurationTicks.HasValue ? TimeSpan.FromTicks(payload.DurationTicks.Value) : null,
+					payload.UntilText),
+			_ => null
+		};
+	}
+
+	private JobOpeningAdministrationActionStep? ToJobOpeningAdministrationStep(DbActionStep record)
+	{
+		var payload = TryDeserializeActionPayload<JobOpeningAdministrationStepPayload>(record.BoardText);
+		if (payload is null || !payload.Operation.TryParseEnum<JobOpeningAdministrationActionKind>(out var operation))
+		{
+			return null;
+		}
+
+		var definition = payload.Definition is null ? null : ToJobOpeningDefinition(payload.Definition);
+		if (operation == JobOpeningAdministrationActionKind.Create)
+		{
+			return definition is null ? null : new JobOpeningAdministrationActionStep(definition, payload.Reason);
+		}
+
+		return payload.OpeningId.HasValue
+			? new JobOpeningAdministrationActionStep(operation, payload.OpeningId.Value, definition, payload.Reason)
+			: null;
 	}
 
 	private GetItemsByIdActionStep? ToGetItemsByIdStep(DbActionStep record)
@@ -1480,6 +1580,115 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 		return selector is null
 			? null
 			: new ItemSelectorPayload(selector.Kind.ToString(), selector.Id, selector.Text);
+	}
+
+	private JobOpeningDefinition? ToJobOpeningDefinition(JobOpeningDefinitionPayload payload)
+	{
+		if (!payload.Role.TryParseEnum<EmploymentRole>(out var role))
+		{
+			return null;
+		}
+
+		if (!payload.Compensation.Cadence.TryParseEnum<PayCadence>(out var cadence) ||
+		    !payload.Compensation.EmployerPaymentSource.TryParseEnum<PaymentSource>(out var source))
+		{
+			return null;
+		}
+
+		var compensation = new CompensationTerms(
+			ToMoney(payload.Compensation.FixedCurrencyId, payload.Compensation.FixedAmount),
+			string.IsNullOrWhiteSpace(payload.Compensation.MarketBindingType) ||
+			!payload.Compensation.MarketBindingType.TryParseEnum<MarketRateBindingType>(out var bindingType) ||
+			bindingType == MarketRateBindingType.None
+				? null
+				: new MarketRateBinding(bindingType, payload.Compensation.MarketBindingValue ?? 0.0M),
+			cadence,
+			ToMoney(payload.Compensation.MinimumCurrencyId, payload.Compensation.MinimumAmount),
+			source);
+
+		if (!payload.Duration.DurationType.TryParseEnum<EmploymentDurationType>(out var durationType) ||
+		    !payload.PaymentMethod.MethodKind.TryParseEnum<PaymentMethodKind>(out var paymentKind))
+		{
+			return null;
+		}
+
+		return new JobOpeningDefinition(
+			role,
+			ToJobRequirements(payload.Requirements),
+			compensation,
+			new WorkSchedule(
+				payload.Schedule.Description,
+				payload.Schedule.StartsAtTicks.HasValue ? TimeSpan.FromTicks(payload.Schedule.StartsAtTicks.Value) : null,
+				payload.Schedule.EndsAtTicks.HasValue ? TimeSpan.FromTicks(payload.Schedule.EndsAtTicks.Value) : null),
+			new EmploymentDuration(
+				durationType,
+				payload.Duration.LengthTicks.HasValue ? TimeSpan.FromTicks(payload.Duration.LengthTicks.Value) : null),
+			payload.MaxPositions,
+			payload.NpcApplicationsOnly,
+			new PaymentMethod(
+				paymentKind,
+				payload.PaymentMethod.BankAccountId.HasValue
+					? _gameworld.BankAccounts.Get(payload.PaymentMethod.BankAccountId.Value)
+					: null,
+				ResolveFrameworkItem(payload.PaymentMethod.PaymentItemId, payload.PaymentMethod.PaymentItemType),
+				payload.PaymentMethod.Notes),
+			new EmploymentAuthoritySet((EmploymentAuthority)payload.Authority));
+	}
+
+	private static JobRequirementSet ToJobRequirements(JobRequirementsPayload payload)
+	{
+		var skillRequirements = payload.Skills
+		                               .Select((name, index) => new SkillRequirement(
+			                               name,
+			                               index < payload.SkillMinimums.Length ? payload.SkillMinimums[index] : 0.0))
+		                               .ToList();
+		return new JobRequirementSet(
+			skillRequirements,
+			payload.Knowledges.Select(x => new KnowledgeRequirement(x)).ToList(),
+			payload.Capabilities
+			       .Select(x => x.TryParseEnum<EmploymentAICapability>(out var capability)
+				       ? new AICapabilityRequirement(capability)
+				       : null)
+			       .OfType<AICapabilityRequirement>()
+			       .ToList(),
+			payload.Tags.Select(x => new TagRequirement(x)).ToList());
+	}
+
+	private static JobOpeningDefinitionPayload FromJobOpeningDefinition(JobOpeningDefinition definition)
+	{
+		return new JobOpeningDefinitionPayload(
+			definition.Role.ToString(),
+			new JobRequirementsPayload(
+				definition.Requirements.Skills.Select(x => x.SkillName).ToArray(),
+				definition.Requirements.Skills.Select(x => x.MinimumValue).ToArray(),
+				definition.Requirements.Knowledges.Select(x => x.KnowledgeName).ToArray(),
+				definition.Requirements.Capabilities.Select(x => x.Capability.ToString()).ToArray(),
+				definition.Requirements.Tags.Select(x => x.TagName).ToArray()),
+			new CompensationTermsPayload(
+				definition.Compensation.FixedRate?.Currency.Id,
+				definition.Compensation.FixedRate?.Amount,
+				definition.Compensation.MarketBinding?.BindingType.ToString(),
+				definition.Compensation.MarketBinding?.Value,
+				definition.Compensation.Cadence.ToString(),
+				definition.Compensation.MinimumEffectivePay?.Currency.Id,
+				definition.Compensation.MinimumEffectivePay?.Amount,
+				definition.Compensation.EmployerPaymentSource.ToString()),
+			new WorkSchedulePayload(
+				definition.Schedule.Description,
+				definition.Schedule.StartsAt?.Ticks,
+				definition.Schedule.EndsAt?.Ticks),
+			new EmploymentDurationPayload(
+				definition.Duration.DurationType.ToString(),
+				definition.Duration.Length?.Ticks),
+			definition.MaxPositions,
+			definition.NpcApplicationsOnly,
+			new PaymentMethodPayload(
+				definition.PaymentMethod.MethodKind.ToString(),
+				definition.PaymentMethod.BankAccount?.Id,
+				definition.PaymentMethod.PaymentItemPrototype?.Id,
+				definition.PaymentMethod.PaymentItemPrototype?.FrameworkItemType,
+				definition.PaymentMethod.Notes),
+			(long)definition.Authority.Authorities);
 	}
 
 	private CataloguedActionShellStep? ToCataloguedShellStep(DbActionStep record, ICell? destination)
@@ -1698,6 +1907,10 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 				record.AmountCurrencyId = tax.MaximumAmount?.Currency.Id;
 				record.Amount = tax.MaximumAmount?.Amount;
 				break;
+			case PayrollSettlementActionStep payroll:
+				record.Description = payroll.Reason;
+				record.AccountName = payroll.Selector;
+				break;
 			case ShopFloatAdjustmentActionStep shopFloat:
 				record.Description = shopFloat.FillRegister ? "fill shop float" : "skim shop float";
 				record.AmountCurrencyId = shopFloat.Amount.Currency.Id;
@@ -1718,6 +1931,35 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 					physicalFloat.Amount?.Amount,
 					physicalFloat.TargetKind,
 					FromItemSelector(physicalFloat.TargetSelector)));
+				break;
+			case PriceChangeActionStep price:
+				record.Description = price.PriceChangeKind == PriceChangeActionKind.Merchandise
+					? $"price merchandise {price.MerchandiseSelector}"
+					: $"price market {price.MarketSelector} category {price.CategorySelector}";
+				record.AmountCurrencyId = price.ExactPrice?.Currency.Id;
+				record.Amount = price.ExactPrice?.Amount;
+				record.BoardText = SerializeActionPayload(new PriceChangeStepPayload(
+					price.PriceChangeKind.ToString(),
+					price.MerchandiseSelector,
+					price.ExactPrice?.Currency.Id,
+					price.ExactPrice?.Amount,
+					price.MarketSelector,
+					price.CategorySelector,
+					price.SupplyImpact,
+					price.DemandImpact,
+					price.FlatPriceImpact,
+					price.InfluenceName,
+					price.Duration?.Ticks,
+					price.UntilText));
+				break;
+			case JobOpeningAdministrationActionStep opening:
+				record.Description = $"{opening.Operation} job opening";
+				record.AccountName = opening.OpeningId?.ToString("F0");
+				record.BoardText = SerializeActionPayload(new JobOpeningAdministrationStepPayload(
+					opening.Operation.ToString(),
+					opening.OpeningId,
+					opening.Definition is null ? null : FromJobOpeningDefinition(opening.Definition),
+					opening.Reason));
 				break;
 		}
 
@@ -1875,6 +2117,12 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 			EmploymentTaskConditionType.MarketPrice =>
 				new MarketPriceCondition(record.Key ?? string.Empty, record.ThresholdDecimal ?? 0.0M,
 					record.BoolValue ?? true),
+			EmploymentTaskConditionType.PayrollLiability =>
+				new PayrollLiabilityCondition(record.Key ?? string.Empty, record.ThresholdDecimal ?? 0.0M,
+					record.BoolValue ?? true),
+			EmploymentTaskConditionType.StaffingLevel =>
+				new StaffingLevelCondition(record.Key ?? string.Empty, record.ThresholdInt ?? 0,
+					record.BoolValue ?? true),
 			_ => null
 		};
 	}
@@ -1946,6 +2194,16 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 				record.Key = marketPrice.PriceKey;
 				record.ThresholdDecimal = marketPrice.Threshold;
 				record.BoolValue = marketPrice.AboveThreshold;
+				break;
+			case PayrollLiabilityCondition payroll:
+				record.Key = payroll.Metric;
+				record.ThresholdDecimal = payroll.Threshold;
+				record.BoolValue = payroll.AboveThreshold;
+				break;
+			case StaffingLevelCondition staffing:
+				record.Key = staffing.StaffingKey;
+				record.ThresholdInt = staffing.Threshold;
+				record.BoolValue = staffing.BelowThreshold;
 				break;
 		}
 

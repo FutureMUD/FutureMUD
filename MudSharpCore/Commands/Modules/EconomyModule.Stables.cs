@@ -127,7 +127,7 @@ Stable scheduled rules:
 
 Stable employment communication and audit:
 
-	#3stable goals#0 - lists manager goals
+	#3stable goals#0 - lists and manages manager goals
 	#3stable register#0 - shows employment register entries
 	#3stable employmentledger|empledger#0 - shows employment ledger entries
 	#3stable board [read <##>|write <title>]#0 - uses the staff board

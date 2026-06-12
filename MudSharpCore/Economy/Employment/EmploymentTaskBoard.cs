@@ -1440,6 +1440,63 @@ public sealed record AccountBalanceCondition(string AccountKey, decimal Threshol
 	}
 }
 
+public sealed record PayrollLiabilityCondition(string Metric, decimal Threshold, bool AboveThreshold) : IEmploymentTaskCondition
+{
+	public const string OutstandingMetric = "outstanding";
+	public const string AmountMetric = "amount";
+	public const string OverdueMetric = "overdue";
+
+	public EmploymentTaskConditionType ConditionType => EmploymentTaskConditionType.PayrollLiability;
+	public EmploymentAuthoritySet RequiredAuthority => EmploymentAuthority.ManagePayroll;
+
+	public bool IsSatisfied(IEmploymentTaskContext context, DateTimeOffset now, out string reason)
+	{
+		context.Employer.Payroll.EvaluatePayroll(now);
+		var metric = NormaliseMetric(Metric);
+		var value = metric switch
+		{
+			OutstandingMetric => context.Employer.Payroll.OutstandingLiabilities.Count,
+			AmountMetric => context.Employer.Payroll.OutstandingLiabilities.Sum(x => x.Amount.Amount),
+			OverdueMetric => context.Employer.Payroll.MaximumOverdueDays(now),
+			_ => decimal.MinValue
+		};
+
+		if (value == decimal.MinValue)
+		{
+			reason = $"Payroll metric {Metric} is not supported.";
+			return false;
+		}
+
+		var satisfied = AboveThreshold ? value > Threshold : value < Threshold;
+		reason = satisfied
+			? string.Empty
+			: $"Payroll {DescribeMetric(metric)} is {value:N2}, which is not {(AboveThreshold ? "above" : "below")} {Threshold:N2}.";
+		return satisfied;
+	}
+
+	public static string NormaliseMetric(string metric)
+	{
+		return metric.CollapseString().ToLowerInvariant() switch
+		{
+			"outstanding" or "count" or "payables" or "liabilities" => OutstandingMetric,
+			"amount" or "total" or "money" or "value" => AmountMetric,
+			"overdue" or "days" or "overduedays" or "maxoverdue" => OverdueMetric,
+			var other => other
+		};
+	}
+
+	public static string DescribeMetric(string metric)
+	{
+		return NormaliseMetric(metric) switch
+		{
+			OutstandingMetric => "outstanding payable count",
+			AmountMetric => "outstanding amount",
+			OverdueMetric => "maximum overdue days",
+			_ => metric
+		};
+	}
+}
+
 public sealed record ItemThresholdCondition(string ItemKey, int Threshold, bool BelowThreshold) : IEmploymentTaskCondition
 {
 	private const string KeyPrefix = "item:v1";
@@ -2183,6 +2240,139 @@ public sealed record MarketPriceCondition(string PriceKey, decimal Threshold, bo
 	}
 }
 
+public sealed record StaffingLevelCondition(string StaffingKey, int Threshold, bool BelowThreshold) : IEmploymentTaskCondition
+{
+	private const string KeyPrefix = "staffing:v1";
+	public const string ActiveMetric = "active";
+	public const string OpenMetric = "open";
+	public const string CombinedMetric = "combined";
+
+	public EmploymentTaskConditionType ConditionType => EmploymentTaskConditionType.StaffingLevel;
+	public EmploymentAuthoritySet RequiredAuthority => EmploymentAuthority.CreateJobOpenings;
+
+	public static string CreateKey(EmploymentRole? role, string metric)
+	{
+		return $"{KeyPrefix}|role={(role?.ToString() ?? "any")}|metric={NormaliseMetric(metric)}";
+	}
+
+	public bool IsSatisfied(IEmploymentTaskContext context, DateTimeOffset now, out string reason)
+	{
+		if (!TryParseKey(StaffingKey, out var role, out var metric))
+		{
+			reason = "The staffing condition key is invalid.";
+			return false;
+		}
+
+		var active = context.Employer.EmploymentContracts
+		                    .Count(x => x.Status == EmploymentStatus.Active && MatchesRole(x.Role, role));
+		var open = context.Employer.JobOpenings
+		                  .Where(x => x.Status == JobOpeningStatus.Open && MatchesRole(x.Role, role))
+		                  .Sum(x => RemainingPositions(context.Employer, x));
+		var value = metric switch
+		{
+			ActiveMetric => active,
+			OpenMetric => open,
+			CombinedMetric => active + open,
+			_ => int.MinValue
+		};
+
+		if (value == int.MinValue)
+		{
+			reason = $"Staffing metric {metric} is not supported.";
+			return false;
+		}
+
+		var satisfied = BelowThreshold ? value < Threshold : value >= Threshold;
+		reason = satisfied
+			? string.Empty
+			: $"{DescribeKey(StaffingKey)} is {value:N0}, which is not {(BelowThreshold ? "below" : "at least")} {Threshold:N0}.";
+		return satisfied;
+	}
+
+	internal static bool TryParseKey(string key, out EmploymentRole? role, out string metric)
+	{
+		role = null;
+		metric = string.Empty;
+		var values = ParseKeyValues(key, KeyPrefix);
+		if (values is null ||
+		    !values.TryGetValue("role", out var roleText) ||
+		    !values.TryGetValue("metric", out var metricText))
+		{
+			return false;
+		}
+
+		if (!roleText.EqualTo("any"))
+		{
+			if (!roleText.TryParseEnum<EmploymentRole>(out var parsedRole))
+			{
+				return false;
+			}
+
+			role = parsedRole;
+		}
+
+		metric = NormaliseMetric(metricText);
+		return metric is ActiveMetric or OpenMetric or CombinedMetric;
+	}
+
+	internal static string DescribeKey(string key)
+	{
+		return TryParseKey(key, out var role, out var metric)
+			? $"{DescribeMetric(metric)} staffing for {(role?.DescribeEnum() ?? "any role")}"
+			: key;
+	}
+
+	public static string NormaliseMetric(string metric)
+	{
+		return metric.CollapseString().ToLowerInvariant() switch
+		{
+			"employee" or "employees" or "contract" or "contracts" or "active" => ActiveMetric,
+			"opening" or "openings" or "vacancy" or "vacancies" or "open" => OpenMetric,
+			"coverage" or "covered" or "combined" or "total" => CombinedMetric,
+			var other => other
+		};
+	}
+
+	public static string DescribeMetric(string metric)
+	{
+		return NormaliseMetric(metric) switch
+		{
+			ActiveMetric => "active",
+			OpenMetric => "open-position",
+			CombinedMetric => "combined active/open",
+			_ => metric
+		};
+	}
+
+	private static bool MatchesRole(EmploymentRole actual, EmploymentRole? expected)
+	{
+		return expected is null || actual == expected;
+	}
+
+	private static int RemainingPositions(IEmploymentHost employer, IJobOpening opening)
+	{
+		var accepted = employer.Employment.Applications.Count(x =>
+			x.Opening.Id == opening.Id &&
+			x.Status == JobApplicationStatus.Accepted);
+		return Math.Max(0, opening.MaxPositions - accepted);
+	}
+
+	private static Dictionary<string, string>? ParseKeyValues(string key, string prefix)
+	{
+		if (string.IsNullOrWhiteSpace(key) ||
+		    !key.StartsWith(prefix, StringComparison.InvariantCultureIgnoreCase))
+		{
+			return null;
+		}
+
+		return key.Split('|', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+		          .Skip(1)
+		          .Select(x => x.Split('=', 2, StringSplitOptions.TrimEntries))
+		          .Where(x => x.Length == 2)
+		          .ToDictionary(x => x[0], x => x[1], StringComparer.InvariantCultureIgnoreCase);
+	}
+}
+
 public sealed record WeatherLevelCondition(string WeatherKey) : IEmploymentTaskCondition
 {
 	private const string KeyPrefix = "weather:v1";
@@ -2820,7 +3010,7 @@ public sealed class EmploymentTaskBoard : IEmploymentTaskBoard
 	}
 
 	public IEmploymentActiveTask CreateActiveTask(string name, EmploymentActionPlan actionPlan, ICharacter? authorisedBy,
-		Guid? correlationId = null)
+		Guid? correlationId = null, string? idempotencyKey = null)
 	{
 		if (!IsAuthorised(authorisedBy, EmploymentAuthority.AssignTasks))
 		{
@@ -2833,7 +3023,10 @@ public sealed class EmploymentTaskBoard : IEmploymentTaskBoard
 			throw new InvalidOperationException($"{ActorName(authorisedBy)} is not authorised to create tasks with {actionPlan.RequiredAuthority.Authorities.DescribeEnum()} authority for {_host.EmploymentHostName}.");
 		}
 
-		var task = new EmploymentActiveTask(_host, name, actionPlan, correlationId ?? Guid.NewGuid(), _persistence);
+		var task = new EmploymentActiveTask(_host, name, actionPlan, correlationId ?? Guid.NewGuid(), _persistence)
+		{
+			IdempotencyKey = string.IsNullOrWhiteSpace(idempotencyKey) ? string.Empty : idempotencyKey.Trim()
+		};
 		_activeTasks.Add(task);
 		_persistence?.SaveActiveTask(task);
 		_host.EmploymentRegister.Record(EmploymentRegisterEntryType.ActiveTaskCreated, authorisedBy,
@@ -3051,8 +3244,13 @@ public sealed class EmploymentTaskBoard : IEmploymentTaskBoard
 		return [task];
 	}
 
-	internal bool HasBlockingActiveTask(string idempotencyKey)
+	public bool HasBlockingActiveTask(string idempotencyKey)
 	{
+		if (string.IsNullOrWhiteSpace(idempotencyKey))
+		{
+			return false;
+		}
+
 		AuditActiveTaskAssignments();
 		return _activeTasks.OfType<EmploymentActiveTask>().Any(x =>
 			x.IdempotencyKey.Equals(idempotencyKey, StringComparison.InvariantCultureIgnoreCase) &&
@@ -3930,10 +4128,15 @@ public sealed class ManagerGoalBoard : IManagerGoalBoard
 		                (definition.Configuration.ActionPlan?.RequiredAuthority.Authorities ?? EmploymentAuthority.None);
 		foreach (var condition in definition.Configuration.Conditions ?? [])
 		{
-			authority |= condition.RequiredAuthority.Authorities;
+			authority |= RequiredGoalConditionAuthority(condition.RequiredAuthority.Authorities);
 		}
 
 		return new EmploymentAuthoritySet(authority);
+	}
+
+	private static EmploymentAuthority RequiredGoalConditionAuthority(EmploymentAuthority authority)
+	{
+		return authority & ~EmploymentAuthority.CreateScheduledRules;
 	}
 
 	public void CancelGoal(IManagerGoal goal, ICharacter cancelledBy, string reason)
@@ -3983,8 +4186,19 @@ public sealed class ManagerGoalBoard : IManagerGoalBoard
 				continue;
 			}
 
+			var idempotencyKey = GoalIdempotencyKey(goal);
+			if (_host.TaskBoard.HasBlockingActiveTask(idempotencyKey))
+			{
+				goal.MarkEvaluated(now,
+					$"An active task for manager goal #{goal.Id:N0} already exists.");
+				_host.EmploymentRegister.Record(EmploymentRegisterEntryType.ManagerGoalEvaluated, null,
+					goal.LastEvaluationResult!, goal.CorrelationId);
+				_host.DebugEmployment($"Manager goal #{goal.Id:N0} did not create work: {goal.LastEvaluationResult}");
+				continue;
+			}
+
 			var task = _host.TaskBoard.CreateActiveTask(goal.Configuration.Description, goal.Configuration.ActionPlan, null,
-				goal.CorrelationId);
+				goal.CorrelationId, idempotencyKey);
 			tasks.Add(task);
 			goal.MarkEvaluated(now, $"Created active task {task.Name}.");
 			_host.EmploymentRegister.Record(EmploymentRegisterEntryType.ManagerGoalEvaluated, null,
@@ -3993,6 +4207,11 @@ public sealed class ManagerGoalBoard : IManagerGoalBoard
 		}
 
 		return tasks;
+	}
+
+	private static string GoalIdempotencyKey(IManagerGoal goal)
+	{
+		return $"manager-goal:{goal.CorrelationId:D}";
 	}
 }
 

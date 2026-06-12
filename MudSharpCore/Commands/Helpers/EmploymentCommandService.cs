@@ -89,14 +89,17 @@ internal sealed class EmploymentCommandService
 	private readonly IEmploymentHostResolver _resolver;
 	private readonly EmploymentTaskAuthoringService _taskAuthoring;
 	private readonly EmploymentScheduledRuleAuthoringService _scheduledRuleAuthoring;
+	private readonly EmploymentManagerGoalAuthoringService _managerGoalAuthoring;
 
 	public EmploymentCommandService(IEmploymentHostResolver? resolver = null,
 		EmploymentTaskAuthoringService? taskAuthoring = null,
-		EmploymentScheduledRuleAuthoringService? scheduledRuleAuthoring = null)
+		EmploymentScheduledRuleAuthoringService? scheduledRuleAuthoring = null,
+		EmploymentManagerGoalAuthoringService? managerGoalAuthoring = null)
 	{
 		_resolver = resolver ?? new EmploymentHostResolver();
 		_taskAuthoring = taskAuthoring ?? new EmploymentTaskAuthoringService();
 		_scheduledRuleAuthoring = scheduledRuleAuthoring ?? new EmploymentScheduledRuleAuthoringService(_taskAuthoring);
+		_managerGoalAuthoring = managerGoalAuthoring ?? new EmploymentManagerGoalAuthoringService(_taskAuthoring, _scheduledRuleAuthoring);
 	}
 
 	public IEmploymentHost? ResolveHost(IFuturemud gameworld, string hostType, string identifier, out string error)
@@ -1958,8 +1961,206 @@ internal sealed class EmploymentCommandService
 		{
 			case "":
 			case "list":
-			case "show":
 				SendOperationalView(actor, host, RenderGoals);
+				return;
+			case "show":
+			case "view":
+				if (input.IsFinished)
+				{
+					SendOperationalView(actor, host, RenderGoals);
+					return;
+				}
+
+				var showSelector = input.SafeRemainingArgument;
+				SendOperationalView(actor, host,
+					(character, employmentHost) =>
+						_managerGoalAuthoring.RenderGoalDetail(character, employmentHost, showSelector));
+				return;
+			case "types":
+			case "type":
+			case "catalogue":
+			case "catalog":
+			case "help":
+				actor.OutputHandler.Send(_managerGoalAuthoring.RenderGoalTypes(actor, input.SafeRemainingArgument));
+				return;
+			case "new":
+			case "create":
+				HandleGoalDraft(actor, host, new StringStack($"new {input.SafeRemainingArgument}"));
+				return;
+			case "edit":
+			case "copy":
+				if (input.IsFinished)
+				{
+					actor.OutputHandler.Send("Which manager goal do you want to copy into a draft?");
+					return;
+				}
+
+				var editSelector = input.PopSpeech();
+				var editDescription = input.IsFinished ? null : input.SafeRemainingArgument;
+				_managerGoalAuthoring.TryCopyGoalToDraft(actor, host, editSelector, editDescription,
+					out var editMessage);
+				actor.OutputHandler.Send(editMessage);
+				return;
+			case "draft":
+				HandleGoalDraft(actor, host, input);
+				return;
+			case "condition":
+			case "when":
+				_managerGoalAuthoring.TryAddCondition(actor, host, input, out var conditionMessage);
+				actor.OutputHandler.Send(conditionMessage);
+				return;
+			case "step":
+			case "action":
+			case "do":
+				_managerGoalAuthoring.TryAddStep(actor, host, input, out var stepMessage);
+				actor.OutputHandler.Send(stepMessage);
+				return;
+			case "cancel":
+			case "delete":
+			case "remove":
+				if (input.IsFinished)
+				{
+					actor.OutputHandler.Send("Which manager goal do you want to cancel?");
+					return;
+				}
+
+				var cancelSelector = input.PopSpeech();
+				var cancelReason = input.IsFinished ? "Cancelled by a manager." : input.SafeRemainingArgument;
+				_managerGoalAuthoring.TryCancelGoal(actor, host, cancelSelector, cancelReason, out var cancelMessage);
+				actor.OutputHandler.Send(cancelMessage);
+				return;
+			case "evaluate":
+			case "eval":
+			case "run":
+				_managerGoalAuthoring.TryEvaluateGoals(actor, host, out var evaluateMessage);
+				actor.OutputHandler.Send(evaluateMessage);
+				return;
+		}
+
+		actor.OutputHandler.Send(EmploymentHelp.SubstituteANSIColour());
+	}
+
+	private void HandleGoalDraft(ICharacter actor, IEmploymentHost host, StringStack input)
+	{
+		var draftCommand = input.PopSpeech().CollapseString().ToLowerInvariant();
+		switch (draftCommand)
+		{
+			case "":
+			case "show":
+			case "list":
+				actor.OutputHandler.Send(_managerGoalAuthoring.RenderDraft(actor, host));
+				return;
+			case "new":
+			case "create":
+				if (input.IsFinished)
+				{
+					actor.OutputHandler.Send($"Manager goal drafts use the syntax: {"goals draft new <type> <description>".ColourCommand()}.");
+					return;
+				}
+
+				var typeSelector = input.PopSpeech();
+				_managerGoalAuthoring.TryStartDraft(actor, host, typeSelector, input.SafeRemainingArgument,
+					out var startMessage);
+				actor.OutputHandler.Send(startMessage);
+				return;
+			case "copy":
+			case "edit":
+				if (input.IsFinished)
+				{
+					actor.OutputHandler.Send("Which manager goal do you want to copy into a draft?");
+					return;
+				}
+
+				var copySelector = input.PopSpeech();
+				var copyDescription = input.IsFinished ? null : input.SafeRemainingArgument;
+				_managerGoalAuthoring.TryCopyGoalToDraft(actor, host, copySelector, copyDescription,
+					out var copyMessage);
+				actor.OutputHandler.Send(copyMessage);
+				return;
+			case "type":
+				if (input.IsFinished)
+				{
+					actor.OutputHandler.Send("Which manager goal type should this draft use?");
+					return;
+				}
+
+				_managerGoalAuthoring.TrySetDraftType(actor, host, input.PopSpeech(), out var typeMessage);
+				actor.OutputHandler.Send(typeMessage);
+				return;
+			case "name":
+			case "rename":
+			case "description":
+			case "desc":
+				_managerGoalAuthoring.TrySetDraftDescription(actor, host, input.SafeRemainingArgument,
+					out var descriptionMessage);
+				actor.OutputHandler.Send(descriptionMessage);
+				return;
+			case "priority":
+				_managerGoalAuthoring.TrySetDraftPriority(actor, host, input.SafeRemainingArgument,
+					out var priorityMessage);
+				actor.OutputHandler.Send(priorityMessage);
+				return;
+			case "cadence":
+			case "cooldown":
+			case "interval":
+				_managerGoalAuthoring.TrySetDraftCadence(actor, host, input.SafeRemainingArgument,
+					out var cadenceMessage);
+				actor.OutputHandler.Send(cadenceMessage);
+				return;
+			case "authority":
+			case "authorities":
+				_managerGoalAuthoring.TrySetDraftAuthority(actor, host, input, out var authorityMessage);
+				actor.OutputHandler.Send(authorityMessage);
+				return;
+			case "condition":
+			case "when":
+				_managerGoalAuthoring.TryAddCondition(actor, host, input, out var conditionMessage);
+				actor.OutputHandler.Send(conditionMessage);
+				return;
+			case "step":
+			case "action":
+			case "do":
+				_managerGoalAuthoring.TryAddStep(actor, host, input, out var stepMessage);
+				actor.OutputHandler.Send(stepMessage);
+				return;
+			case "removecondition":
+			case "removecond":
+			case "rmcondition":
+			case "rmcond":
+				if (input.IsFinished || !TryParseCommandNumber(input.PopSpeech(), out var conditionNumber))
+				{
+					actor.OutputHandler.Send("Which condition number do you want to remove from the manager goal draft?");
+					return;
+				}
+
+				_managerGoalAuthoring.TryRemoveCondition(actor, host, (int)conditionNumber, out var removeConditionMessage);
+				actor.OutputHandler.Send(removeConditionMessage);
+				return;
+			case "removestep":
+			case "rmstep":
+			case "removeaction":
+			case "rmaction":
+				if (input.IsFinished || !TryParseCommandNumber(input.PopSpeech(), out var stepNumber))
+				{
+					actor.OutputHandler.Send("Which action step number do you want to remove from the manager goal draft?");
+					return;
+				}
+
+				_managerGoalAuthoring.TryRemoveStep(actor, host, (int)stepNumber, out var removeStepMessage);
+				actor.OutputHandler.Send(removeStepMessage);
+				return;
+			case "discard":
+			case "cancel":
+			case "clear":
+				_managerGoalAuthoring.TryDiscardDraft(actor, host, out var discardMessage);
+				actor.OutputHandler.Send(discardMessage);
+				return;
+			case "finalise":
+			case "finalize":
+			case "finish":
+			case "done":
+				_managerGoalAuthoring.TryFinaliseDraft(actor, host, out _, out var finaliseMessage);
+				actor.OutputHandler.Send(finaliseMessage);
 				return;
 		}
 
@@ -2636,7 +2837,14 @@ Scheduled rules:
 
 Communication and audit:
 
-	#3employment <host type> <host> goals#0 - lists manager goals
+	#3employment <host type> <host> goals#0 - lists and manages manager goals
+	#3employment <host type> <host> goals types [all|category|type]#0 - shows manager goal type help
+	#3employment <host type> <host> goals show <##|type|description>#0 - shows a manager goal
+	#3employment <host type> <host> goals draft new|copy|show|type|description|priority|cadence|authority|removecondition|removestep|discard|finalise ...#0 - drafts and edits manager goals
+	#3employment <host type> <host> goals condition <condition>#0 - adds a condition to the current manager-goal draft
+	#3employment <host type> <host> goals step <action syntax>#0 - adds an action step to the current manager-goal draft
+	#3employment <host type> <host> goals cancel <##|type|description> [reason]#0 - cancels a manager goal
+	#3employment <host type> <host> goals evaluate#0 - manually evaluates manager goals for testing
 	#3employment <host type> <host> register#0 - shows recent employment register entries
 	#3employment <host type> <host> employmentledger|empledger#0 - shows recent employment ledger entries
 	#3employment <host type> <host> board [read <##>|write <title>]#0 - uses the staff communication board

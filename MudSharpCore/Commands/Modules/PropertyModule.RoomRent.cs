@@ -114,7 +114,7 @@ Hotel scheduled rules:
 
 Hotel employment communication and audit:
 
-	#3roomrent goals#0 - lists manager goals
+	#3roomrent goals#0 - lists and manages manager goals
 	#3roomrent register#0 - shows employment register entries
 	#3roomrent employmentledger|empledger#0 - shows employment ledger entries
 	#3roomrent board [read <##>|write <title>]#0 - uses the staff board

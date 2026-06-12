@@ -26,5 +26,8 @@ public interface IMarketInfluence : ISaveable, IEditableItem
     string TextForMarketShow(ICharacter actor);
     XElement SaveImpacts();
     IMarketInfluence Clone(string newName);
+    void SetAppliesUntil(MudDateTime? appliesUntil);
+    void SetCategoryImpact(IMarketCategory category, double supplyImpact, double demandImpact, double flatPriceImpact);
+    void RemoveCategoryImpact(IMarketCategory category);
     void EndOrCancel();
 }

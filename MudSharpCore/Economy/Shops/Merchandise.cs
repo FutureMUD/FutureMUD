@@ -609,12 +609,9 @@ public class Merchandise : LateInitialisingItem, IMerchandise
             CommodityPricingWeight = weight;
         }
 
-        decimal old = BasePrice;
-        BasePrice = amount;
-        Changed = true;
+        SetBasePrice(amount, actor);
         actor.OutputHandler.Send(
             $"This merchandise will now have a pre-tax price of {Shop.Currency.Describe(BasePrice, CurrencyDescriptionPatternType.Short)}{(MerchandiseType == MerchandiseType.Commodity ? $" per {Gameworld.UnitManager.DescribeExact(CommodityPricingWeight, Framework.Units.UnitType.Mass, actor)}" : string.Empty)}.");
-        Shop.PriceAdjustmentForMerchandise(this, old, actor);
         return true;
     }
 
@@ -1182,6 +1179,31 @@ public class Merchandise : LateInitialisingItem, IMerchandise
         AutoReorderPrice *= multiplier;
         AutoReorderPrice = Math.Round(AutoReorderPrice, 0);
         Changed = true;
+    }
+
+    public bool CanSetBasePrice(decimal amount, out string reason)
+    {
+        if (amount <= 0.0M)
+        {
+            reason = "Merchandise prices must be positive.";
+            return false;
+        }
+
+        reason = string.Empty;
+        return true;
+    }
+
+    public void SetBasePrice(decimal amount, ICharacter actor)
+    {
+        if (!CanSetBasePrice(amount, out var reason))
+        {
+            throw new InvalidOperationException(reason);
+        }
+
+        var old = BasePrice;
+        BasePrice = amount;
+        Changed = true;
+        Shop.PriceAdjustmentForMerchandise(this, old, actor);
     }
 
 

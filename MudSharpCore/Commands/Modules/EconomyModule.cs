@@ -2067,7 +2067,7 @@ Shop scheduled rules:
 
 Shop employment communication and audit:
 
-	#3shop goals#0 - lists manager goals
+	#3shop goals#0 - lists and manages manager goals
 	#3shop register#0 - shows employment register entries
 	#3shop employmentledger|empledger#0 - shows employment ledger entries
 	#3shop board [read <##>|write <title>]#0 - uses the staff board
@@ -2144,7 +2144,7 @@ Shop scheduled rules:
 
 Shop employment communication and audit:
 
-	#3shop goals#0 - lists manager goals
+	#3shop goals#0 - lists and manages manager goals
 	#3shop register#0 - shows employment register entries
 	#3shop employmentledger|empledger#0 - shows employment ledger entries
 	#3shop board [read <##>|write <title>]#0 - uses the staff board
@@ -5037,7 +5037,7 @@ Bank scheduled rules:
 
 Bank employment communication and audit:
 
-	#3bank goals#0 - lists manager goals
+	#3bank goals#0 - lists and manages manager goals
 	#3bank register#0 - shows employment register entries
 	#3bank employmentledger|empledger#0 - shows employment ledger entries
 	#3bank board [read <##>|write <title>]#0 - uses the staff board
@@ -5144,7 +5144,7 @@ Bank scheduled rules:
 
 Bank employment communication and audit:
 
-	#3bank goals#0 - lists manager goals
+	#3bank goals#0 - lists and manages manager goals
 	#3bank register#0 - shows employment register entries
 	#3bank employmentledger|empledger#0 - shows employment ledger entries
 	#3bank board [read <##>|write <title>]#0 - uses the staff board
@@ -6103,7 +6103,7 @@ Auction house scheduled rules:
 
 Auction house employment communication and audit:
 
-	#3auction goals#0 - lists manager goals
+	#3auction goals#0 - lists and manages manager goals
 	#3auction register#0 - shows employment register entries
 	#3auction employmentledger|empledger#0 - shows employment ledger entries
 	#3auction board [read <##>|write <title>]#0 - uses the staff board
@@ -6188,7 +6188,7 @@ Auction house scheduled rules:
 
 Auction house employment communication and audit:
 
-	#3auction goals#0 - lists manager goals
+	#3auction goals#0 - lists and manages manager goals
 	#3auction register#0 - shows employment register entries
 	#3auction employmentledger|empledger#0 - shows employment ledger entries
 	#3auction board [read <##>|write <title>]#0 - uses the staff board

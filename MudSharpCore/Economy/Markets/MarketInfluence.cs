@@ -437,18 +437,9 @@ public class MarketInfluence : SaveableItem, IMarketInfluence
 			return false;
 		}
 
-		_marketImpacts.RemoveAll(x => x.MarketCategory == category);
-		_marketImpacts.Add(new MarketImpact
-		{
-			MarketCategory = category,
-			SupplyImpact = supply,
-			DemandImpact = demand,
-			FlatPriceImpact = price
-		});
+		SetCategoryImpact(category, supply, demand, price);
 		actor.OutputHandler.Send(
 			$"You set the impact for the {category.Name.ColourValue()} market category to {supply.ToBonusPercentageString(actor)} supply, {demand.ToBonusPercentageString(actor)} demand and {price.ToBonusPercentageString(actor)} flat price.");
-		Changed = true;
-		InvalidatePricingCache();
 		return true;
 	}
 
@@ -701,6 +692,12 @@ public class MarketInfluence : SaveableItem, IMarketInfluence
 		}
 	}
 
+	public void SetAppliesUntil(MudDateTime? appliesUntil)
+	{
+		AppliesUntil = appliesUntil;
+		InvalidatePricingCache();
+	}
+
 	public void EndOrCancel()
 	{
 		var now = Market.EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime;
@@ -738,6 +735,32 @@ public class MarketInfluence : SaveableItem, IMarketInfluence
 
 	/// <inheritdoc />
 	public IEnumerable<MarketImpact> MarketImpacts => _marketImpacts;
+
+	public void SetCategoryImpact(IMarketCategory category, double supplyImpact, double demandImpact,
+		double flatPriceImpact)
+	{
+		_marketImpacts.RemoveAll(x => x.MarketCategory == category);
+		_marketImpacts.Add(new MarketImpact
+		{
+			MarketCategory = category,
+			SupplyImpact = supplyImpact,
+			DemandImpact = demandImpact,
+			FlatPriceImpact = flatPriceImpact
+		});
+		Changed = true;
+		InvalidatePricingCache();
+	}
+
+	public void RemoveCategoryImpact(IMarketCategory category)
+	{
+		if (_marketImpacts.RemoveAll(x => x.MarketCategory == category) == 0)
+		{
+			return;
+		}
+
+		Changed = true;
+		InvalidatePricingCache();
+	}
 
 	private readonly List<MarketPopulationIncomeImpact> _populationIncomeImpacts = [];
 	private readonly List<(long PopulationId, decimal AdditiveIncomeImpact, decimal MultiplicativeIncomeImpact)>

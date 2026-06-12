@@ -101,7 +101,7 @@ Arena scheduled rules:
 
 Arena employment communication and audit:
 
-	#3arena goals#0 - lists manager goals
+	#3arena goals#0 - lists and manages manager goals
 	#3arena register#0 - shows employment register entries
 	#3arena employmentledger|empledger#0 - shows employment ledger entries
 	#3arena board [read <##>|write <title>]#0 - uses the staff board

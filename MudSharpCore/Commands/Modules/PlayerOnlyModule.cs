@@ -93,7 +93,7 @@ The syntax is:
         {
             target = index > 0 && index <= instances.Count
                 ? instances[index - 1]
-                : instances.FirstOrDefault(x => x.InstanceId == index);
+                : null;
         }
         else
         {
@@ -144,7 +144,7 @@ The syntax is:
             return "your primary body".ColourName();
         }
 
-        return $"{OwnInstanceFormName(actor, instance)} (#{instance.InstanceId.ToString("N0", actor)})".ColourName();
+        return OwnInstanceFormName(actor, instance).ColourName();
     }
 
     private static string OwnInstanceControlText(ICharacter actor, ICharacterInstance instance)

@@ -323,7 +323,7 @@ public partial class Character
 
 		var form = Identity.Forms.FirstOrDefault(x => ReferenceEquals(x.Body, Body));
 		var name = form?.Alias ?? Body.Prototype.Name;
-		return $"\n<Focus: {name.ColourName()} #{InstanceId.ToString("N0", this).ColourValue()}>\n";
+		return $"\n<Focus: {name.ColourName()}>\n";
 	}
 
 	internal void SetInstanceEmbodied(bool value)

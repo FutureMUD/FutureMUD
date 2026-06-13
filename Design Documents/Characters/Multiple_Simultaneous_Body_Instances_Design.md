@@ -1563,6 +1563,8 @@ Implementation progress:
 - Completed: added `CharacterInstanceDiagnostics.RenderDiagnosticsTable(...)` so staff commands and tests use one consistent diagnostic table shape.
 - Completed: extended the staff `instance` command with `instance audit <character>` for loaded identity diagnostics and `instance audit all` for persisted `CharacterInstances` integrity checks.
 - Completed: added small compatibility-boundary comments at the global-cache exclusion, primary compatibility mirror save, and same-identity versus same-physical-instance comparer seams.
+- Completed: post-review hardening now sweeps loaded secondary actors on primary logout. Temporary secondaries are retired/deleted, while persistent secondaries are saved, removed from live cell membership, detached from AI/controller/body heartbeat/scheduler state, and left as persisted rows for the next owner load; persistent intangible copy effects reapply their planar overlay when they load again.
+- Completed: player-facing `instances`/`focus` and prompt output no longer expose raw internal instance IDs; ordinary players continue to use the display index from the `instances` table or form names, while staff-only IDs remain in the admin `instance` tooling.
 - Verified: `dotnet test 'FutureMUDLibrary Unit Tests\FutureMUDLibrary Unit Tests.csproj' -c Debug --no-restore -m:1 --filter CharacterInstance` passed 6 tests.
 - Verified: `dotnet test 'MudSharpCore Unit Tests\MudSharpCore Unit Tests.csproj' -c Debug --no-restore -m:1 --filter "CharacterInstance|InstanceAudit|MagicalCopy|PhysicalClone|AstralProjection|NPCAIEventSubscription"` passed 38 tests.
 - Verified: `dotnet build MudSharpCore\MudSharpCore.csproj -c Debug --no-restore -m:1 -p:NoWarn=NU1902%3BNU1510` passed with 0 warnings.

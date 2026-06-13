@@ -169,6 +169,6 @@ public static class CharacterInstanceFocusService
 
 		var form = instance.Identity.Forms.FirstOrDefault(x => ReferenceEquals(x.Body, instance.Body));
 		var name = form?.Alias ?? instance.Body.Prototype.Name;
-		return $"{name} (#{instance.InstanceId.ToString("N0", instance)})".ColourName();
+		return name.ColourName();
 	}
 }

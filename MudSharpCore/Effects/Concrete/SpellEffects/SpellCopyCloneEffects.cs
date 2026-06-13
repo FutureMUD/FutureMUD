@@ -124,10 +124,22 @@ public class SpellMagicalCopyEffect : SimpleSpellStatusEffectBase, IMagicalCopyE
 	public override void Login()
 	{
 		base.Login();
-		if (Owner is ICharacter anchor && CopyInstance(anchor) is null)
+		if (Owner is not ICharacter anchor)
 		{
-			anchor.RemoveEffect(this, true);
+			return;
 		}
+
+		if (CopyInstance(anchor) is ICharacter copy)
+		{
+			if (Intangible)
+			{
+				ApplyCopyPlanarOverlay(copy);
+			}
+
+			return;
+		}
+
+		anchor.RemoveEffect(this, true);
 	}
 
 	public override void RemovalEffect()

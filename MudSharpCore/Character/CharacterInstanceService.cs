@@ -422,6 +422,8 @@ public static class CharacterInstanceService
 		secondary.Movement?.CancelForMoverOnly(secondary);
 		secondary.CombatTarget = null;
 		secondary.PositionTarget = null!;
+		secondary.Gameworld.EffectScheduler.Destroy(secondary, true);
+		secondary.Gameworld.Scheduler.Destroy(secondary);
 		secondary.Location?.Leave(secondary);
 		secondary.ClearInstanceLocation();
 		secondary.SetInstanceEmbodied(false);
@@ -471,5 +473,56 @@ public static class CharacterInstanceService
 		secondary.Changed = false;
 		whyNot = string.Empty;
 		return true;
+	}
+
+	public static void UnloadLoadedSecondariesForOwnerLogout(ICharacter owner)
+	{
+		if (owner.Identity is not Character identity)
+		{
+			return;
+		}
+
+		foreach (var instance in identity.Instances
+		                                .Where(x => !x.IsPrimaryInstance)
+		                                .OfType<Character>()
+		                                .ToList())
+		{
+			if (instance.PersistencePolicy == CharacterInstancePersistencePolicy.Persistent)
+			{
+				UnloadPersistentSecondary(identity, instance);
+				continue;
+			}
+
+			Retire(instance, out _, deleteTemporaryRows: true, removeOwningEffects: false);
+		}
+
+		identity.SetFocusedInstance(null);
+	}
+
+	private static void UnloadPersistentSecondary(Character owner, Character secondary)
+	{
+		CharacterInstanceFocusService.TryReturnFocusToPrimary(secondary, string.Empty, false);
+		if (secondary is INPC npc)
+		{
+			npc.ReleaseEventSubscriptions();
+		}
+
+		secondary.Combat?.LeaveCombat(secondary);
+		secondary.Movement?.CancelForMoverOnly(secondary);
+		secondary.CombatTarget = null;
+		secondary.PositionTarget = null!;
+		secondary.Save();
+		secondary.Gameworld.EffectScheduler.Destroy(secondary, true);
+		secondary.Gameworld.Scheduler.Destroy(secondary);
+		secondary.Location?.Leave(secondary);
+		if (secondary.CharacterController is not null)
+		{
+			secondary.LoseControl(secondary.CharacterController);
+		}
+
+		secondary.Body.SuspendForCharacter();
+		secondary.Body.Actor = owner;
+		owner.ForgetSecondaryInstance(secondary);
+		secondary.Changed = false;
 	}
 }

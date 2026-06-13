@@ -92,7 +92,10 @@ public class CharacterInstanceFocusServiceTests
 
 		Assert.IsTrue(result.Success);
 		fixture.Controller.Verify(x => x.SetContext(fixture.Secondary.Object), Times.Once);
-		fixture.SecondaryOutput.Verify(x => x.Send(It.Is<string>(text => text.Contains("focus shifts")), true, false),
+		fixture.SecondaryOutput.Verify(x => x.Send(
+				It.Is<string>(text => text.Contains("focus shifts") && !text.Contains("#2")),
+				true,
+				false),
 			Times.Once);
 	}
 

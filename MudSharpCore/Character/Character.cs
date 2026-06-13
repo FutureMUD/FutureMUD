@@ -2349,6 +2349,7 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
                 x => x.AnchorInstanceId == InstanceId &&
                      x.PersistencePolicy != CharacterInstancePersistencePolicy.Persistent,
                 true);
+            CharacterInstanceService.UnloadLoadedSecondariesForOwnerLogout(this);
             SetFocusedInstance(null);
         }
 

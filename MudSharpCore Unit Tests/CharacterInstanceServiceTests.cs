@@ -73,6 +73,66 @@ public class CharacterInstanceServiceTests
 	}
 
 	[TestMethod]
+	public void CreateMagicalCopySpawnOptions_SetsCopyPoliciesAndMetadata()
+	{
+		var pc = BuildPlayerCharacter();
+		pc.SetupGet(x => x.Id).Returns(11);
+		pc.SetupGet(x => x.InstanceId).Returns(111);
+		var form = BuildForm(222, "mirror copy");
+		var location = new Mock<ICell>();
+
+		var options = CharacterInstanceService.CreateMagicalCopySpawnOptions(pc.Object, form.Object,
+			location.Object, RoomLayer.GroundLevel, 333, 444, "copy", true, true,
+			CharacterInstancePersistencePolicy.DespawnOnLogout);
+
+		Assert.AreEqual(CharacterInstanceKind.MagicalCopy, options.InstanceKind);
+		Assert.AreEqual(CharacterInstanceControlPolicy.PlayerFocusable, options.ControlPolicy);
+		Assert.AreEqual(CharacterInstanceDeathPolicy.CollapseToAnchor, options.DeathPolicy);
+		Assert.AreEqual(CharacterInstancePerceptionPolicy.PlanarProjection, options.PerceptionPolicy);
+		Assert.AreEqual(CharacterInstancePersistencePolicy.DespawnOnLogout, options.PersistencePolicy);
+		Assert.AreEqual("mirror copy", options.InstanceName);
+		Assert.IsTrue(CharacterInstanceMetadata.TryGetMagicalCopyMetadata(options.EffectData, out var metadata));
+		Assert.AreEqual(11, metadata.AnchorCharacterId);
+		Assert.AreEqual(111, metadata.AnchorInstanceId);
+		Assert.AreEqual(222, metadata.CopyBodyId);
+		Assert.AreEqual(333, metadata.PlaneId);
+		Assert.AreEqual(444, metadata.SourceSpellId);
+		Assert.AreEqual("copy", metadata.FormKey);
+		Assert.IsTrue(metadata.PlayerFocusable);
+		Assert.IsTrue(metadata.Intangible);
+		Assert.AreEqual(CharacterInstancePersistencePolicy.DespawnOnLogout, metadata.PersistencePolicy);
+	}
+
+	[TestMethod]
+	public void CreatePhysicalCloneSpawnOptions_SetsClonePoliciesAndMetadata()
+	{
+		var pc = BuildPlayerCharacter();
+		pc.SetupGet(x => x.Id).Returns(12);
+		pc.SetupGet(x => x.InstanceId).Returns(121);
+		var form = BuildForm(232, "spare clone");
+		var location = new Mock<ICell>();
+
+		var options = CharacterInstanceService.CreatePhysicalCloneSpawnOptions(pc.Object, form.Object,
+			location.Object, RoomLayer.GroundLevel, 454, "clone", false,
+			CharacterInstancePersistencePolicy.Persistent);
+
+		Assert.AreEqual(CharacterInstanceKind.PhysicalClone, options.InstanceKind);
+		Assert.AreEqual(CharacterInstanceControlPolicy.NotControllable, options.ControlPolicy);
+		Assert.AreEqual(CharacterInstanceDeathPolicy.DestroyInstanceOnly, options.DeathPolicy);
+		Assert.AreEqual(CharacterInstancePerceptionPolicy.OrdinaryEmbodied, options.PerceptionPolicy);
+		Assert.AreEqual(CharacterInstancePersistencePolicy.Persistent, options.PersistencePolicy);
+		Assert.AreEqual("spare clone", options.InstanceName);
+		Assert.IsTrue(CharacterInstanceMetadata.TryGetPhysicalCloneMetadata(options.EffectData, out var metadata));
+		Assert.AreEqual(12, metadata.AnchorCharacterId);
+		Assert.AreEqual(121, metadata.AnchorInstanceId);
+		Assert.AreEqual(232, metadata.CloneBodyId);
+		Assert.AreEqual(454, metadata.SourceSpellId);
+		Assert.AreEqual("clone", metadata.FormKey);
+		Assert.IsFalse(metadata.PlayerFocusable);
+		Assert.AreEqual(CharacterInstancePersistencePolicy.Persistent, metadata.PersistencePolicy);
+	}
+
+	[TestMethod]
 	public void ValidateSecondarySpawnOptions_PlayerFocusable_RejectsNpcs()
 	{
 		var npc = BuildNpc();

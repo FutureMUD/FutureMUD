@@ -91,7 +91,10 @@ public sealed class PassiveCharacterInstance : Character
 		var oldLayer = RoomLayer;
 		if (oldLocation is not null && Body.Race.CorpseModel?.CreateCorpse == true)
 		{
-			remains = CorpseGameItemComponentProto.CreateNewBodyRemains(this, Body, BodyRemainsContext.AbandonedBody);
+			var remainsContext = InstanceKind == CharacterInstanceKind.PhysicalClone
+				? BodyRemainsContext.SpentClone
+				: BodyRemainsContext.AbandonedBody;
+			remains = CorpseGameItemComponentProto.CreateNewBodyRemains(this, Body, remainsContext);
 			Gameworld.Add(remains);
 			remains.RoomLayer = oldLayer;
 			oldLocation.Insert(remains);

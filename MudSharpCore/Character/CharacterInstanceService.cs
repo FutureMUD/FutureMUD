@@ -112,6 +112,82 @@ public static class CharacterInstanceService
 		};
 	}
 
+	public static SecondaryCharacterInstanceSpawnOptions CreateMagicalCopySpawnOptions(
+		ICharacter owner,
+		ICharacterForm form,
+		ICell location,
+		RoomLayer roomLayer,
+		long planeId,
+		long sourceSpellId,
+		string formKey,
+		bool playerFocusable,
+		bool intangible,
+		CharacterInstancePersistencePolicy persistencePolicy = CharacterInstancePersistencePolicy.DespawnOnReboot)
+	{
+		return new SecondaryCharacterInstanceSpawnOptions
+		{
+			Owner = owner,
+			Form = form,
+			Location = location,
+			RoomLayer = roomLayer,
+			InstanceKind = CharacterInstanceKind.MagicalCopy,
+			ControlPolicy = playerFocusable
+				? CharacterInstanceControlPolicy.PlayerFocusable
+				: CharacterInstanceControlPolicy.NotControllable,
+			DeathPolicy = CharacterInstanceDeathPolicy.CollapseToAnchor,
+			PerceptionPolicy = intangible
+				? CharacterInstancePerceptionPolicy.PlanarProjection
+				: CharacterInstancePerceptionPolicy.OrdinaryEmbodied,
+			PersistencePolicy = persistencePolicy,
+			InstanceName = form.Alias,
+			EffectData = CharacterInstanceMetadata.CreateMagicalCopyEffectData(
+				owner.Id,
+				owner.InstanceId,
+				form.Body.Id,
+				planeId,
+				sourceSpellId,
+				formKey,
+				playerFocusable,
+				intangible,
+				persistencePolicy)
+		};
+	}
+
+	public static SecondaryCharacterInstanceSpawnOptions CreatePhysicalCloneSpawnOptions(
+		ICharacter owner,
+		ICharacterForm form,
+		ICell location,
+		RoomLayer roomLayer,
+		long sourceSpellId,
+		string formKey,
+		bool playerFocusable,
+		CharacterInstancePersistencePolicy persistencePolicy = CharacterInstancePersistencePolicy.DespawnOnReboot)
+	{
+		return new SecondaryCharacterInstanceSpawnOptions
+		{
+			Owner = owner,
+			Form = form,
+			Location = location,
+			RoomLayer = roomLayer,
+			InstanceKind = CharacterInstanceKind.PhysicalClone,
+			ControlPolicy = playerFocusable
+				? CharacterInstanceControlPolicy.PlayerFocusable
+				: CharacterInstanceControlPolicy.NotControllable,
+			DeathPolicy = CharacterInstanceDeathPolicy.DestroyInstanceOnly,
+			PerceptionPolicy = CharacterInstancePerceptionPolicy.OrdinaryEmbodied,
+			PersistencePolicy = persistencePolicy,
+			InstanceName = form.Alias,
+			EffectData = CharacterInstanceMetadata.CreatePhysicalCloneEffectData(
+				owner.Id,
+				owner.InstanceId,
+				form.Body.Id,
+				sourceSpellId,
+				formKey,
+				playerFocusable,
+				persistencePolicy)
+		};
+	}
+
 	public static CharacterInstanceOperationResult ValidateSecondarySpawnMode(ICharacter owner,
 		SecondaryCharacterInstanceSpawnMode mode)
 	{
@@ -310,6 +386,22 @@ public static class CharacterInstanceService
 		var owner = secondary.Identity as Character;
 		if (removeOwningEffects &&
 		    owner?.RemoveAllEffects<IAstralProjectionEffect>(x => x.ProjectionInstanceId == secondary.InstanceId,
+			    true) == true)
+		{
+			whyNot = string.Empty;
+			return true;
+		}
+
+		if (removeOwningEffects &&
+		    owner?.RemoveAllEffects<IMagicalCopyEffect>(x => x.CopyInstanceId == secondary.InstanceId,
+			    true) == true)
+		{
+			whyNot = string.Empty;
+			return true;
+		}
+
+		if (removeOwningEffects &&
+		    owner?.RemoveAllEffects<IPhysicalCloneEffect>(x => x.CloneInstanceId == secondary.InstanceId,
 			    true) == true)
 		{
 			whyNot = string.Empty;

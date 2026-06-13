@@ -94,6 +94,23 @@ public class CorporealityCommandTests
 		Assert.IsFalse(projection.CanInteract(material, PlanarInteractionKind.Medical));
 	}
 
+	[TestMethod]
+	public void MagicalCopyPlanarPresence_CanPerceiveMaterialButCannotManipulateIt()
+	{
+		var prime = BuildPlane(1, "Prime Material");
+		var astral = BuildPlane(2, "Astral Plane");
+		var gameworld = BuildGameworld(prime.Object, astral.Object);
+		var copy = new PlanarPresence(
+			CopySpellEffect.CreateMagicalCopyPlanarPresence(gameworld.Object, astral.Object.Id));
+		var material = new PlanarPresence(PlanarPresenceDefinition.DefaultMaterial(prime.Object.Id));
+
+		Assert.IsTrue(copy.CanPerceive(material));
+		Assert.IsFalse(copy.CanInteract(material, PlanarInteractionKind.Inventory));
+		Assert.IsFalse(copy.CanInteract(material, PlanarInteractionKind.Physical));
+		Assert.IsFalse(copy.CanInteract(material, PlanarInteractionKind.Combat));
+		Assert.IsFalse(copy.CanInteract(material, PlanarInteractionKind.Medical));
+	}
+
 	private static Mock<IPlane> BuildPlane(long id, string name)
 	{
 		var plane = new Mock<IPlane>();

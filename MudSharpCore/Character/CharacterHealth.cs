@@ -52,6 +52,8 @@ public partial class Character
         if (IsPrimaryInstance)
         {
             RemoveAllEffects<IAstralProjectionEffect>(x => x.AnchorInstanceId == InstanceId, true);
+            RemoveAllEffects<IMagicalCopyEffect>(x => x.AnchorInstanceId == InstanceId, true);
+            RemoveAllEffects<IPhysicalCloneEffect>(x => x.AnchorInstanceId == InstanceId, true);
         }
 
         if (TryTransferToBodyBackupOnDeath(out IGameItem backupRemains))

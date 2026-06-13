@@ -2341,6 +2341,14 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
         if (IsPrimaryInstance)
         {
             RemoveAllEffects<IAstralProjectionEffect>(x => x.AnchorInstanceId == InstanceId, true);
+            RemoveAllEffects<IMagicalCopyEffect>(
+                x => x.AnchorInstanceId == InstanceId &&
+                     x.PersistencePolicy != CharacterInstancePersistencePolicy.Persistent,
+                true);
+            RemoveAllEffects<IPhysicalCloneEffect>(
+                x => x.AnchorInstanceId == InstanceId &&
+                     x.PersistencePolicy != CharacterInstancePersistencePolicy.Persistent,
+                true);
             SetFocusedInstance(null);
         }
 
@@ -2416,6 +2424,12 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
         {
             RemoveAllEffects<IAstralProjectionEffect>(
                 x => Instances.All(y => y.InstanceId != x.ProjectionInstanceId),
+                true);
+            RemoveAllEffects<IMagicalCopyEffect>(
+                x => Instances.All(y => y.InstanceId != x.CopyInstanceId),
+                true);
+            RemoveAllEffects<IPhysicalCloneEffect>(
+                x => Instances.All(y => y.InstanceId != x.CloneInstanceId),
                 true);
             SetFocusedInstance(null);
         }

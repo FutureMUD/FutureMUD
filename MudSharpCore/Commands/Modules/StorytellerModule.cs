@@ -225,6 +225,22 @@ Syntax:
                     $"Anchor #{projection.AnchorInstanceId.ToString("N0", actor)} / {(plane?.Name ?? $"Plane #{projection.PlaneId.ToString("N0", actor)}")} / {projection.AnchorPolicy.DescribeEnum()}";
             }
 
+            if (CharacterInstanceMetadata.TryGetMagicalCopyMetadata(instance.InstanceEffectData, out var copy))
+            {
+                var plane = actor.Gameworld.Planes.Get(copy.PlaneId);
+                var presence = copy.Intangible
+                    ? $"Intangible {(plane?.Name ?? $"Plane #{copy.PlaneId.ToString("N0", actor)}")}"
+                    : "Tangible";
+                return
+                    $"Anchor #{copy.AnchorInstanceId.ToString("N0", actor)} / Spell #{copy.SourceSpellId.ToString("N0", actor)} / {copy.FormKey.ColourCommand()} / {presence} / Focus {copy.PlayerFocusable.ToColouredString()} / {copy.PersistencePolicy.DescribeEnum()}";
+            }
+
+            if (CharacterInstanceMetadata.TryGetPhysicalCloneMetadata(instance.InstanceEffectData, out var clone))
+            {
+                return
+                    $"Anchor #{clone.AnchorInstanceId.ToString("N0", actor)} / Spell #{clone.SourceSpellId.ToString("N0", actor)} / {clone.FormKey.ColourCommand()} / Clone body #{clone.CloneBodyId.ToString("N0", actor)} / Focus {clone.PlayerFocusable.ToColouredString()} / {clone.PersistencePolicy.DescribeEnum()}";
+            }
+
             return npc is null
                 ? string.Empty
                 : $"{npc.AIs.Count().ToString("N0", actor)} AI / {(npc.CharacterController is null ? "Detached" : "Controlled")}";

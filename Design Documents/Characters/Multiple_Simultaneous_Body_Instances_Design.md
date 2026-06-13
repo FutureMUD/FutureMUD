@@ -1506,6 +1506,24 @@ Acceptance tests:
 - death/remains are body-specific and not always final identity death
 - same-identity targeting works correctly
 
+Implementation progress:
+
+- Completed: extended `CharacterInstances.EffectData` metadata with `MagicalCopy` and `PhysicalClone` records, including anchor instance id, body id, source spell id, form key, focusability, intangibility/plane for copies, and persistence policy.
+- Completed: added `IMagicalCopyEffect` and `IPhysicalCloneEffect` marker interfaces plus `SpellMagicalCopyEffect` and `SpellPhysicalCloneEffect` runtime effects. These effects own effect expiry/dispel cleanup, logout cleanup for temporary policies, focused-instance return, and non-final secondary retirement.
+- Completed: added `CharacterInstanceService.CreateMagicalCopySpawnOptions(...)` and `CreatePhysicalCloneSpawnOptions(...)`. Magical copies use `InstanceKind=MagicalCopy`, `DeathPolicy=CollapseToAnchor`, optional `PlayerFocusable`, optional planar intangibility, and no corpse on collapse. Physical clones use `InstanceKind=PhysicalClone`, ordinary embodied perception, `DeathPolicy=DestroyInstanceOnly`, body-specific clone remains, optional player focusability, and configurable persistence.
+- Completed: added `createcopy` and `createclone` spell effect templates with keyed form provisioning options (`formkey`, `race`, `ethnicity`, `gender`, `alias`, `sort`), focusability, persistence controls, copy `plane`/`intangible` controls, collapse/death echoes, and optional backlash echoes. Both spawn from owned dormant forms and do not copy inventory.
+- Completed: copy/clone lifecycle cleanup now hooks projection-style retirement paths: logout and stale-login cleanup remove temporary copy/clone effects, anchor death removes active copy/clone effects before normal primary death handling, and secondary retire/death delegates to the owning effect without recursive cleanup.
+- Completed: passive secondary death now treats `PhysicalClone` instances as `BodyRemainsContext.SpentClone`, while `CollapseToAnchor` magical copies retire without creating abandoned-body remains.
+- Completed: `instance list` now marks `MagicalCopy` and `PhysicalClone` rows with anchor, source spell, form key, plane/intangibility, focusability, persistence, and clone body metadata for staff acceptance testing.
+- Verified: `dotnet test 'FutureMUDLibrary Unit Tests\FutureMUDLibrary Unit Tests.csproj' -c Debug --no-restore -m:1 --filter CharacterInstance` passed 5 tests.
+- Verified: `dotnet test 'MudSharpCore Unit Tests\MudSharpCore Unit Tests.csproj' -c Debug --no-restore -m:1 --filter "CharacterInstance|MagicalCopy|PhysicalClone|Planar"` passed 28 tests.
+- Verified: `dotnet build MudSharpCore\MudSharpCore.csproj -c Debug --no-restore -m:1 -p:NoWarn=NU1902%3BNU1510` passed with 0 warnings.
+- Verified: `dotnet build MudsharpDatabaseLibrary\MudsharpDatabaseLibrary.csproj -c Debug --no-restore -m:1 -p:NoWarn=NU1902%3BNU1510` passed with 0 warnings.
+
+Next-phase reflection:
+
+Phase 9 should harden the compatibility boundaries that Phases 4-8 intentionally preserved. The most valuable next work is auditing identity-sensitive APIs that still consume `Character` as both identity and instance, strengthening admin diagnostics for stale or duplicate instance rows, clarifying observer-facing same-identity presentation without leaking staff ids, and deciding which compatibility mirrors can remain permanently versus which should become explicitly primary-instance-only.
+
 ### Phase 9: Hardening and Cleanup
 
 Deliverables:

@@ -75,6 +75,17 @@ public sealed class PassiveCharacterInstance : Character
 			return null;
 		}
 
+		if (DeathPolicy == CharacterInstanceDeathPolicy.CollapseToAnchor)
+		{
+			Combat?.LeaveCombat(this);
+			Movement?.CancelForMoverOnly(this);
+			CombatTarget = null;
+			SetInstanceStateAndStatus(CharacterState.Dead, CharacterStatus.Deceased);
+			CharacterInstanceService.Retire(this, out _, deleteTemporaryRows: true, deathRetirement: true);
+			Changed = true;
+			return null;
+		}
+
 		IGameItem? remains = null;
 		var oldLocation = Location;
 		var oldLayer = RoomLayer;

@@ -2,7 +2,10 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using MudSharp.Body;
 using MudSharp.Character;
+using MudSharp.Construction;
+using MudSharp.Effects.Interfaces;
 using MudSharp.NPC;
 
 namespace MudSharp_Unit_Tests;
@@ -19,6 +22,75 @@ public class CharacterInstanceServiceTests
 			SecondaryCharacterInstanceSpawnMode.Passive);
 
 		Assert.IsTrue(result.Success);
+	}
+
+	[TestMethod]
+	public void CreateSpawnOptionsForMode_Passive_PreservesPhaseFourDefaults()
+	{
+		var pc = BuildPlayerCharacter();
+		var form = BuildForm();
+		var location = new Mock<ICell>();
+
+		var options = CharacterInstanceService.CreateSpawnOptionsForMode(pc.Object, form.Object, location.Object,
+			RoomLayer.GroundLevel, CharacterInstancePersistencePolicy.DespawnOnReboot,
+			SecondaryCharacterInstanceSpawnMode.Passive);
+
+		Assert.AreEqual(CharacterInstanceKind.Other, options.InstanceKind);
+		Assert.AreEqual(CharacterInstanceControlPolicy.NotControllable, options.ControlPolicy);
+		Assert.AreEqual(CharacterInstanceDeathPolicy.DestroyInstanceOnly, options.DeathPolicy);
+		Assert.AreEqual(CharacterInstancePerceptionPolicy.OrdinaryEmbodied, options.PerceptionPolicy);
+		Assert.AreEqual(CharacterInstancePersistencePolicy.DespawnOnReboot, options.PersistencePolicy);
+		Assert.AreEqual("astral form", options.InstanceName);
+	}
+
+	[TestMethod]
+	public void CreateAstralProjectionSpawnOptions_SetsProjectionPoliciesAndMetadata()
+	{
+		var pc = BuildPlayerCharacter();
+		pc.SetupGet(x => x.Id).Returns(10);
+		pc.SetupGet(x => x.InstanceId).Returns(101);
+		var form = BuildForm(202, "silver projection");
+		var location = new Mock<ICell>();
+
+		var options = CharacterInstanceService.CreateAstralProjectionSpawnOptions(pc.Object, form.Object,
+			location.Object, RoomLayer.GroundLevel, 303, AstralProjectionAnchorPolicy.Sleep, 404, "astral");
+
+		Assert.AreEqual(CharacterInstanceKind.AstralProjection, options.InstanceKind);
+		Assert.AreEqual(CharacterInstanceControlPolicy.PlayerFocusable, options.ControlPolicy);
+		Assert.AreEqual(CharacterInstanceDeathPolicy.CollapseToAnchor, options.DeathPolicy);
+		Assert.AreEqual(CharacterInstancePerceptionPolicy.PlanarProjection, options.PerceptionPolicy);
+		Assert.AreEqual(CharacterInstancePersistencePolicy.DespawnOnReboot, options.PersistencePolicy);
+		Assert.AreEqual("silver projection", options.InstanceName);
+		Assert.IsTrue(CharacterInstanceMetadata.TryGetAstralProjectionMetadata(options.EffectData,
+			out var metadata));
+		Assert.AreEqual(10, metadata.AnchorCharacterId);
+		Assert.AreEqual(101, metadata.AnchorInstanceId);
+		Assert.AreEqual(202, metadata.ProjectionBodyId);
+		Assert.AreEqual(303, metadata.PlaneId);
+		Assert.AreEqual(AstralProjectionAnchorPolicy.Sleep, metadata.AnchorPolicy);
+		Assert.AreEqual(404, metadata.SourceSpellId);
+		Assert.AreEqual("astral", metadata.FormKey);
+	}
+
+	[TestMethod]
+	public void ValidateSecondarySpawnOptions_PlayerFocusable_RejectsNpcs()
+	{
+		var npc = BuildNpc();
+		var form = BuildForm();
+		var location = new Mock<ICell>();
+		var options = new SecondaryCharacterInstanceSpawnOptions
+		{
+			Owner = npc.Object,
+			Form = form.Object,
+			Location = location.Object,
+			RoomLayer = RoomLayer.GroundLevel,
+			ControlPolicy = CharacterInstanceControlPolicy.PlayerFocusable
+		};
+
+		var result = CharacterInstanceService.ValidateSecondarySpawnOptions(options);
+
+		Assert.IsFalse(result.Success);
+		StringAssert.Contains(result.Message, "player characters");
 	}
 
 	[TestMethod]
@@ -64,6 +136,16 @@ public class CharacterInstanceServiceTests
 		pc.SetupGet(x => x.IsPlayerCharacter).Returns(true);
 		pc.SetupGet(x => x.IsGuest).Returns(false);
 		return pc;
+	}
+
+	private static Mock<ICharacterForm> BuildForm(long bodyId = 100, string alias = "astral form")
+	{
+		var body = new Mock<IBody>();
+		body.SetupGet(x => x.Id).Returns(bodyId);
+		var form = new Mock<ICharacterForm>();
+		form.SetupGet(x => x.Body).Returns(body.Object);
+		form.SetupGet(x => x.Alias).Returns(alias);
+		return form;
 	}
 
 	private static Mock<INPC> BuildNpc()

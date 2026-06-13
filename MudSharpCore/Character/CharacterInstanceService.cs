@@ -4,6 +4,7 @@ using MudSharp.Body.Position;
 using MudSharp.Body.Position.PositionStates;
 using MudSharp.Construction;
 using MudSharp.Database;
+using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;
 using MudSharp.Models;
 using MudSharp.NPC;
@@ -27,8 +28,90 @@ public enum SecondaryCharacterInstanceSpawnMode
 	NpcAiControlled
 }
 
+public sealed record SecondaryCharacterInstanceSpawnOptions
+{
+	public required ICharacter Owner { get; init; }
+	public required ICharacterForm Form { get; init; }
+	public required ICell Location { get; init; }
+	public required RoomLayer RoomLayer { get; init; }
+	public CharacterInstanceKind InstanceKind { get; init; } = CharacterInstanceKind.Other;
+	public CharacterInstanceControlPolicy ControlPolicy { get; init; } = CharacterInstanceControlPolicy.NotControllable;
+	public CharacterInstanceDeathPolicy DeathPolicy { get; init; } = CharacterInstanceDeathPolicy.DestroyInstanceOnly;
+	public CharacterInstancePerceptionPolicy PerceptionPolicy { get; init; } =
+		CharacterInstancePerceptionPolicy.OrdinaryEmbodied;
+	public CharacterInstancePersistencePolicy PersistencePolicy { get; init; } =
+		CharacterInstancePersistencePolicy.DespawnOnReboot;
+	public CharacterState InitialState { get; init; } = CharacterState.Awake;
+	public CharacterStatus InitialStatus { get; init; } = CharacterStatus.Active;
+	public string? InstanceName { get; init; }
+	public string? EffectData { get; init; }
+}
+
 public static class CharacterInstanceService
 {
+	public static SecondaryCharacterInstanceSpawnOptions CreateSpawnOptionsForMode(
+		ICharacter owner,
+		ICharacterForm form,
+		ICell location,
+		RoomLayer roomLayer,
+		CharacterInstancePersistencePolicy persistencePolicy,
+		SecondaryCharacterInstanceSpawnMode mode)
+	{
+		var controlPolicy = mode switch
+		{
+			SecondaryCharacterInstanceSpawnMode.PlayerFocusable => CharacterInstanceControlPolicy.PlayerFocusable,
+			SecondaryCharacterInstanceSpawnMode.NpcAiControlled => CharacterInstanceControlPolicy.NpcAiControlled,
+			_ => CharacterInstanceControlPolicy.NotControllable
+		};
+
+		return new SecondaryCharacterInstanceSpawnOptions
+		{
+			Owner = owner,
+			Form = form,
+			Location = location,
+			RoomLayer = roomLayer,
+			InstanceKind = CharacterInstanceKind.Other,
+			ControlPolicy = controlPolicy,
+			DeathPolicy = CharacterInstanceDeathPolicy.DestroyInstanceOnly,
+			PerceptionPolicy = CharacterInstancePerceptionPolicy.OrdinaryEmbodied,
+			PersistencePolicy = persistencePolicy,
+			InstanceName = form.Alias
+		};
+	}
+
+	public static SecondaryCharacterInstanceSpawnOptions CreateAstralProjectionSpawnOptions(
+		ICharacter owner,
+		ICharacterForm form,
+		ICell location,
+		RoomLayer roomLayer,
+		long planeId,
+		AstralProjectionAnchorPolicy anchorPolicy,
+		long sourceSpellId,
+		string formKey)
+	{
+		return new SecondaryCharacterInstanceSpawnOptions
+		{
+			Owner = owner,
+			Form = form,
+			Location = location,
+			RoomLayer = roomLayer,
+			InstanceKind = CharacterInstanceKind.AstralProjection,
+			ControlPolicy = CharacterInstanceControlPolicy.PlayerFocusable,
+			DeathPolicy = CharacterInstanceDeathPolicy.CollapseToAnchor,
+			PerceptionPolicy = CharacterInstancePerceptionPolicy.PlanarProjection,
+			PersistencePolicy = CharacterInstancePersistencePolicy.DespawnOnReboot,
+			InstanceName = form.Alias,
+			EffectData = CharacterInstanceMetadata.CreateAstralProjectionEffectData(
+				owner.Id,
+				owner.InstanceId,
+				form.Body.Id,
+				planeId,
+				anchorPolicy,
+				sourceSpellId,
+				formKey)
+		};
+	}
+
 	public static CharacterInstanceOperationResult ValidateSecondarySpawnMode(ICharacter owner,
 		SecondaryCharacterInstanceSpawnMode mode)
 	{
@@ -50,6 +133,28 @@ public static class CharacterInstanceService
 		}
 	}
 
+	public static CharacterInstanceOperationResult ValidateSecondarySpawnOptions(
+		SecondaryCharacterInstanceSpawnOptions options)
+	{
+		if (options.ControlPolicy == CharacterInstanceControlPolicy.PlayerFocusable)
+		{
+			return options.Owner.IsPlayerCharacter && !options.Owner.IsGuest
+				? new CharacterInstanceOperationResult(true, string.Empty)
+				: new CharacterInstanceOperationResult(false,
+					"Only player characters can have player-focusable secondary instances.");
+		}
+
+		if (options.ControlPolicy == CharacterInstanceControlPolicy.NpcAiControlled)
+		{
+			return options.Owner is INPC || options.Owner.Identity is INPC
+				? new CharacterInstanceOperationResult(true, string.Empty)
+				: new CharacterInstanceOperationResult(false,
+					"Only NPC identities can have AI-controlled secondary instances.");
+		}
+
+		return new CharacterInstanceOperationResult(true, string.Empty);
+	}
+
 	public static CharacterInstanceOperationResult SpawnPassiveInstance(
 		ICharacter owner,
 		ICharacterForm form,
@@ -59,14 +164,15 @@ public static class CharacterInstanceService
 		bool playerFocusable = false)
 	{
 		return SpawnSecondaryInstance(
-			owner,
-			form,
-			location,
-			roomLayer,
-			persistencePolicy,
-			playerFocusable
-				? SecondaryCharacterInstanceSpawnMode.PlayerFocusable
-				: SecondaryCharacterInstanceSpawnMode.Passive);
+			CreateSpawnOptionsForMode(
+				owner,
+				form,
+				location,
+				roomLayer,
+				persistencePolicy,
+				playerFocusable
+					? SecondaryCharacterInstanceSpawnMode.PlayerFocusable
+					: SecondaryCharacterInstanceSpawnMode.Passive));
 	}
 
 	public static CharacterInstanceOperationResult SpawnSecondaryInstance(
@@ -77,6 +183,16 @@ public static class CharacterInstanceService
 		CharacterInstancePersistencePolicy persistencePolicy,
 		SecondaryCharacterInstanceSpawnMode mode)
 	{
+		return SpawnSecondaryInstance(CreateSpawnOptionsForMode(owner, form, location, roomLayer, persistencePolicy,
+			mode));
+	}
+
+	public static CharacterInstanceOperationResult SpawnSecondaryInstance(
+		SecondaryCharacterInstanceSpawnOptions options)
+	{
+		var owner = options.Owner;
+		var form = options.Form;
+		var location = options.Location;
 		if (owner.Identity is not Character identity)
 		{
 			return new CharacterInstanceOperationResult(false, "The target character is not loaded in this game world.");
@@ -102,7 +218,7 @@ public static class CharacterInstanceService
 			return new CharacterInstanceOperationResult(false, "There is no valid location for the instance.");
 		}
 
-		var modeValidation = ValidateSecondarySpawnMode(owner, mode);
+		var modeValidation = ValidateSecondarySpawnOptions(options);
 		if (!modeValidation.Success)
 		{
 			return modeValidation;
@@ -116,35 +232,29 @@ public static class CharacterInstanceService
 				return new CharacterInstanceOperationResult(false, "The target identity could not be found in the database.");
 			}
 
-			var controlPolicy = mode switch
-			{
-				SecondaryCharacterInstanceSpawnMode.PlayerFocusable => CharacterInstanceControlPolicy.PlayerFocusable,
-				SecondaryCharacterInstanceSpawnMode.NpcAiControlled => CharacterInstanceControlPolicy.NpcAiControlled,
-				_ => CharacterInstanceControlPolicy.NotControllable
-			};
 			var dbinstance = new MudSharp.Models.CharacterInstance
 			{
 				CharacterId = identity.Id,
 				Character = dbchar,
 				BodyId = form.Body.Id,
-				InstanceName = form.Alias,
-				InstanceKind = (int)CharacterInstanceKind.Other,
-				ControlPolicy = (int)controlPolicy,
-				DeathPolicy = (int)CharacterInstanceDeathPolicy.DestroyInstanceOnly,
-				PerceptionPolicy = (int)CharacterInstancePerceptionPolicy.OrdinaryEmbodied,
-				PersistencePolicy = (int)persistencePolicy,
+				InstanceName = options.InstanceName ?? form.Alias,
+				InstanceKind = (int)options.InstanceKind,
+				ControlPolicy = (int)options.ControlPolicy,
+				DeathPolicy = (int)options.DeathPolicy,
+				PerceptionPolicy = (int)options.PerceptionPolicy,
+				PersistencePolicy = (int)options.PersistencePolicy,
 				LocationId = location.Id,
-				RoomLayer = (int)roomLayer,
+				RoomLayer = (int)options.RoomLayer,
 				PositionId = (int)PositionStanding.Instance.Id,
 				PositionModifier = (int)PositionModifier.None,
 				PositionEmote = string.Empty,
-				State = (int)CharacterState.Awake,
-				Status = (int)CharacterStatus.Active,
+				State = (int)options.InitialState,
+				Status = (int)options.InitialStatus,
 				IsPrimary = false,
 				IsEmbodied = true,
-				IsControllable = controlPolicy != CharacterInstanceControlPolicy.NotControllable,
+				IsControllable = options.ControlPolicy != CharacterInstanceControlPolicy.NotControllable,
 				CreatedDateTime = DateTime.UtcNow,
-				EffectData = "<Effects/>"
+				EffectData = options.EffectData.IfNullOrWhiteSpace("<Effects/>")
 			};
 			FMDB.Context.CharacterInstances.Add(dbinstance);
 			FMDB.Context.SaveChanges();
@@ -183,7 +293,7 @@ public static class CharacterInstanceService
 	}
 
 	public static bool Retire(ICharacterInstance instance, out string whyNot, bool deleteTemporaryRows = true,
-		bool deathRetirement = false)
+		bool deathRetirement = false, bool removeOwningEffects = true)
 	{
 		if (instance is not Character secondary)
 		{
@@ -195,6 +305,15 @@ public static class CharacterInstanceService
 		{
 			whyNot = "Primary instances cannot be retired.";
 			return false;
+		}
+
+		var owner = secondary.Identity as Character;
+		if (removeOwningEffects &&
+		    owner?.RemoveAllEffects<IAstralProjectionEffect>(x => x.ProjectionInstanceId == secondary.InstanceId,
+			    true) == true)
+		{
+			whyNot = string.Empty;
+			return true;
 		}
 
 		CharacterInstanceFocusService.TryReturnFocusToPrimary(
@@ -226,7 +345,6 @@ public static class CharacterInstanceService
 			secondary.LoseControl(secondary.CharacterController);
 		}
 
-		var owner = secondary.Identity as Character;
 		if (owner is not null)
 		{
 			secondary.Body.Actor = owner;

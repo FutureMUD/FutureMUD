@@ -8,6 +8,7 @@ using MudSharp.Construction;
 using MudSharp.Database;
 using MudSharp.Economy.Estates;
 using MudSharp.Email;
+using MudSharp.Effects.Interfaces;
 using MudSharp.Events;
 using MudSharp.Form.Material;
 using MudSharp.Framework;
@@ -46,6 +47,11 @@ public partial class Character
         if (IsAdministrator())
         {
             return null;
+        }
+
+        if (IsPrimaryInstance)
+        {
+            RemoveAllEffects<IAstralProjectionEffect>(x => x.AnchorInstanceId == InstanceId, true);
         }
 
         if (TryTransferToBodyBackupOnDeath(out IGameItem backupRemains))

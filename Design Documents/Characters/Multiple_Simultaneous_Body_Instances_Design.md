@@ -1470,6 +1470,25 @@ Acceptance tests:
 - projection death returns or resolves according to policy
 - physical body death while projecting follows configured policy
 
+Implementation progress:
+
+- Completed: generalized secondary instance spawning with `SecondaryCharacterInstanceSpawnOptions`; passive, player-focusable, and NPC AI paths now wrap the shared options flow, and astral projection uses `InstanceKind=AstralProjection`, `ControlPolicy=PlayerFocusable`, `PerceptionPolicy=PlanarProjection`, `DeathPolicy=CollapseToAnchor`, and `PersistencePolicy=DespawnOnReboot`.
+- Completed: added astral projection instance metadata in `CharacterInstances.EffectData`, exposed as `ICharacterInstance.InstanceEffectData`, with staff-readable anchor, body, plane, source spell, form key, and anchor policy details.
+- Completed: added `astralprojection` spell effect template with keyed form provisioning options (`formkey`, `race`, `ethnicity`, `gender`, `alias`, `sort`), plane selection, anchor policy (`helpless`, `sleep`, `stasis`, `none`), projection/anchor/collapse echoes, and optional backlash echo.
+- Completed: added `SpellAstralProjectionEffect`/`IAstralProjectionEffect` to own the runtime tether, focus shift, projection planar overlay, anchor helpless/sleep/stasis policy, cleanup on removal, and projection retirement without final-killing the primary identity.
+- Completed: logout, reboot load cleanup, projection retire, projection death, and anchor death now collapse astral projections and return focus to the primary body when viable. Projection death under `CollapseToAnchor` does not create ordinary abandoned-body remains.
+- Completed: astral projections receive a normal `PlanarStateEffect` overlay that is present on the configured astral plane, perceives the material/default plane, and blocks ordinary physical, inventory, combat, and medical interactions with material-only targets.
+- Completed: `instance list` now marks astral projection rows with anchor instance, plane, and anchor policy metadata while preserving NPC AI/controller details for Phase 6 instances.
+- Verified: `dotnet test 'FutureMUDLibrary Unit Tests\FutureMUDLibrary Unit Tests.csproj' -c Debug --no-restore -m:1 --filter CharacterInstance` passed 5 tests.
+- Verified: `dotnet test 'MudSharpCore Unit Tests\MudSharpCore Unit Tests.csproj' -c Debug --no-restore -m:1 --filter "CharacterInstance|AstralProjection|Planar"` passed 21 tests.
+- Verified: `dotnet build MudSharpCore\MudSharpCore.csproj -c Debug --no-restore -m:1 -p:NoWarn=NU1902%3BNU1510` passed with 0 warnings.
+- Verified: `dotnet build MudsharpDatabaseLibrary\MudsharpDatabaseLibrary.csproj -c Debug --no-restore -m:1 -p:NoWarn=NU1902%3BNU1510` passed with 0 warnings.
+- Verified: `git diff --check` passed with no whitespace errors.
+
+Next-phase reflection:
+
+Phase 8 should build on the spell-owned projection path but treat magical copies and physical clones as deliberately different products. The important work is to define clone inventory transfer/copy rules, whether clones are tangible local actors or planar/illusory actors, who controls them, whether they can run AI or scripts, and what death/remains policy applies to each kind. Phase 8 should also harden observer-facing identity presentation so "same identity, different body" is clear without leaking staff-only instance ids to ordinary players.
+
 ### Phase 8: Magical Copies and Physical Clones
 
 Deliverables:

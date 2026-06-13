@@ -215,6 +215,21 @@ Syntax:
             return;
         }
 
+        string DetailsFor(ICharacterInstance instance, INPC npc)
+        {
+            if (CharacterInstanceMetadata.TryGetAstralProjectionMetadata(instance.InstanceEffectData,
+                    out var projection))
+            {
+                var plane = actor.Gameworld.Planes.Get(projection.PlaneId);
+                return
+                    $"Anchor #{projection.AnchorInstanceId.ToString("N0", actor)} / {(plane?.Name ?? $"Plane #{projection.PlaneId.ToString("N0", actor)}")} / {projection.AnchorPolicy.DescribeEnum()}";
+            }
+
+            return npc is null
+                ? string.Empty
+                : $"{npc.AIs.Count().ToString("N0", actor)} AI / {(npc.CharacterController is null ? "Detached" : "Controlled")}";
+        }
+
         actor.OutputHandler.Send(StringUtilities.GetTextTable(
             from instance in target.Identity.Instances
             let form = target.Identity.Forms.FirstOrDefault(x => ReferenceEquals(x.Body, instance.Body))
@@ -232,9 +247,7 @@ Syntax:
                 instance.RoomLayer.DescribeEnum(),
                 $"{instance.State.DescribeEnum()} / {instance.Status.DescribeEnum()}",
                 instance.ControlPolicy.DescribeEnum(),
-                npc is null
-                    ? string.Empty
-                    : $"{npc.AIs.Count().ToString("N0", actor)} / {(npc.CharacterController is null ? "Detached" : "Controlled")}",
+                DetailsFor(instance, npc),
                 instance.DeathPolicy.DescribeEnum(),
                 instance.PersistencePolicy.DescribeEnum()
             },
@@ -249,7 +262,7 @@ Syntax:
                 "Layer",
                 "State",
                 "Control",
-                "AI",
+                "Details",
                 "Death",
                 "Persistence"
             },

@@ -2340,6 +2340,7 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
     {
         if (IsPrimaryInstance)
         {
+            RemoveAllEffects<IAstralProjectionEffect>(x => x.AnchorInstanceId == InstanceId, true);
             SetFocusedInstance(null);
         }
 
@@ -2413,6 +2414,9 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
     {
         if (IsPrimaryInstance)
         {
+            RemoveAllEffects<IAstralProjectionEffect>(
+                x => Instances.All(y => y.InstanceId != x.ProjectionInstanceId),
+                true);
             SetFocusedInstance(null);
         }
 

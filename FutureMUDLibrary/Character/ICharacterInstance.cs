@@ -90,4 +90,5 @@ public interface ICharacterIdentity : IFrameworkItem
 
 public interface ICharacterInstance : ICharacter
 {
+	string InstanceEffectData { get; }
 }

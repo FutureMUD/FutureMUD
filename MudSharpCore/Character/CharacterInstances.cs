@@ -35,6 +35,7 @@ public partial class Character
 	private CharacterInstanceDeathPolicy _deathPolicy;
 	private CharacterInstancePerceptionPolicy _perceptionPolicy;
 	private CharacterInstancePersistencePolicy _persistencePolicy;
+	private string _instanceEffectData = "<Effects/>";
 	private bool _isPrimaryInstance;
 	private bool _isEmbodied;
 	private bool _isControllable;
@@ -49,6 +50,7 @@ public partial class Character
 	public virtual CharacterInstanceDeathPolicy DeathPolicy => _deathPolicy;
 	public virtual CharacterInstancePerceptionPolicy PerceptionPolicy => _perceptionPolicy;
 	public virtual CharacterInstancePersistencePolicy PersistencePolicy => _persistencePolicy;
+	public virtual string InstanceEffectData => _instanceEffectData;
 	public virtual bool IsPrimaryInstance => _isPrimaryInstance;
 	public virtual bool IsControllable => _isControllable;
 	public virtual bool IsEmbodied => _isEmbodied;
@@ -91,6 +93,7 @@ public partial class Character
 		_deathPolicy = (CharacterInstanceDeathPolicy)instance.DeathPolicy;
 		_perceptionPolicy = (CharacterInstancePerceptionPolicy)instance.PerceptionPolicy;
 		_persistencePolicy = (CharacterInstancePersistencePolicy)instance.PersistencePolicy;
+		_instanceEffectData = instance.EffectData.IfNullOrWhiteSpace("<Effects/>");
 		_isPrimaryInstance = instance.IsPrimary;
 		_isEmbodied = instance.IsEmbodied;
 		_isControllable = instance.IsControllable;
@@ -152,6 +155,7 @@ public partial class Character
 		_deathPolicy = CharacterInstanceDeathPolicy.FinalCharacterDeath;
 		_perceptionPolicy = CharacterInstancePerceptionPolicy.OrdinaryEmbodied;
 		_persistencePolicy = CharacterInstancePersistencePolicy.Persistent;
+		_instanceEffectData = "<Effects/>";
 		_isPrimaryInstance = true;
 		_isEmbodied = true;
 		_isControllable = _controlPolicy != CharacterInstanceControlPolicy.NotControllable;
@@ -196,6 +200,7 @@ public partial class Character
 		_deathPolicy = (CharacterInstanceDeathPolicy)primary.DeathPolicy;
 		_perceptionPolicy = (CharacterInstancePerceptionPolicy)primary.PerceptionPolicy;
 		_persistencePolicy = (CharacterInstancePersistencePolicy)primary.PersistencePolicy;
+		_instanceEffectData = primary.EffectData.IfNullOrWhiteSpace("<Effects/>");
 		_isPrimaryInstance = primary.IsPrimary;
 		_isEmbodied = primary.IsEmbodied;
 		_isControllable = primary.IsControllable;
@@ -346,6 +351,21 @@ public partial class Character
 		Location = null!;
 	}
 
+	internal void ResumeAfterProjectionAnchorStasis()
+	{
+		if (State.HasFlag(CharacterState.Stasis))
+		{
+			State &= ~CharacterState.Stasis;
+		}
+
+		if (!State.HasFlag(CharacterState.Dead))
+		{
+			StartNeedsHeartbeat();
+			ResumeMagicResourceGeneratorHeartbeats();
+			RefreshForcedTransformationHeartbeatRegistration();
+		}
+	}
+
 	private MudSharp.Models.CharacterInstance GetOrCreatePrimaryInstance(MudSharp.Models.Character dbchar)
 	{
 		var primary = dbchar.CharacterInstances
@@ -401,7 +421,7 @@ public partial class Character
 		primary.IsPrimary = true;
 		primary.IsEmbodied = _isEmbodied;
 		primary.IsControllable = _isControllable;
-		primary.EffectData = primary.EffectData.IfNullOrWhiteSpace("<Effects/>");
+		primary.EffectData = _instanceEffectData.IfNullOrWhiteSpace("<Effects/>");
 		if (primary.CreatedDateTime == default)
 		{
 			primary.CreatedDateTime = DateTime.UtcNow;
@@ -470,7 +490,7 @@ public partial class Character
 		instance.IsPrimary = false;
 		instance.IsEmbodied = _isEmbodied;
 		instance.IsControllable = _isControllable;
-		instance.EffectData = instance.EffectData.IfNullOrWhiteSpace("<Effects/>");
+		instance.EffectData = _instanceEffectData.IfNullOrWhiteSpace("<Effects/>");
 		if (instance.CreatedDateTime == default)
 		{
 			instance.CreatedDateTime = DateTime.UtcNow;

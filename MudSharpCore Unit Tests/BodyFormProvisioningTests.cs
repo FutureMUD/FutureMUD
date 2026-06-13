@@ -108,6 +108,22 @@ public class BodyFormProvisioningTests
 	}
 
 	[TestMethod]
+	public void SpellEffectFactory_RegistersAstralProjectionEffect()
+	{
+		Assert.IsTrue(SpellEffectFactory.MagicEffectTypes.Contains("astralprojection"));
+		var info = SpellEffectFactory.BuilderInfoForType("astralprojection");
+		Assert.IsTrue(info.BuilderHelp.Contains("formkey"));
+		Assert.IsTrue(info.BuilderHelp.Contains("plane"));
+		Assert.IsTrue(info.BuilderHelp.Contains("anchorpolicy"));
+		Assert.IsTrue(info.BuilderHelp.Contains("projectionecho"));
+		Assert.IsTrue(info.BuilderHelp.Contains("anchorecho"));
+		Assert.IsTrue(info.BuilderHelp.Contains("collapseecho"));
+		Assert.IsTrue(info.MatchingTriggers.Any());
+		Assert.IsFalse(info.Instant);
+		Assert.IsFalse(info.RequiresTarget);
+	}
+
+	[TestMethod]
 	public void BodyBackupEffect_ParsesContextsAndNormalisesEchoes()
 	{
 		Assert.IsTrue(BodyBackupEffect.TryParseRemainsContext("spent clone", out var context));

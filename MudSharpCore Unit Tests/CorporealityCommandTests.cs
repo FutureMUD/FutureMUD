@@ -7,6 +7,7 @@ using MudSharp.Commands.Modules;
 using MudSharp.Construction;
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
+using MudSharp.Magic.SpellEffects;
 using MudSharp.PerceptionEngine;
 using MudSharp.Planes;
 using System;
@@ -74,6 +75,23 @@ public class CorporealityCommandTests
 		PlanarVisibilityEchoHelper.EchoVisibilityChanges(target.Object, before);
 
 		output.Verify(x => x.Send("an astral figure fades from view.", true, false), Times.Once);
+	}
+
+	[TestMethod]
+	public void AstralProjectionPlanarPresence_CanPerceiveMaterialButCannotManipulateIt()
+	{
+		var prime = BuildPlane(1, "Prime Material");
+		var astral = BuildPlane(2, "Astral Plane");
+		var gameworld = BuildGameworld(prime.Object, astral.Object);
+		var projection = new PlanarPresence(
+			AstralProjectionSpellEffect.CreateAstralProjectionPlanarPresence(gameworld.Object, astral.Object.Id));
+		var material = new PlanarPresence(PlanarPresenceDefinition.DefaultMaterial(prime.Object.Id));
+
+		Assert.IsTrue(projection.CanPerceive(material));
+		Assert.IsFalse(projection.CanInteract(material, PlanarInteractionKind.Inventory));
+		Assert.IsFalse(projection.CanInteract(material, PlanarInteractionKind.Physical));
+		Assert.IsFalse(projection.CanInteract(material, PlanarInteractionKind.Combat));
+		Assert.IsFalse(projection.CanInteract(material, PlanarInteractionKind.Medical));
 	}
 
 	private static Mock<IPlane> BuildPlane(long id, string name)

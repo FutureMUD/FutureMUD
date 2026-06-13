@@ -51,8 +51,8 @@ public partial class Body
 
     public new RoomLayer RoomLayer
     {
-        get => Actor.RoomLayer;
-        set => Actor.RoomLayer = value;
+        get => EmbodiedActor.RoomLayer;
+        set => EmbodiedActor.RoomLayer = value;
     }
 
     public override bool CanHear(IPerceivable thing)

@@ -216,10 +216,14 @@ public partial class Body : PerceiverItem, IBody
     public PlanarPresenceDefinition BasePlanarPresence => Prototype.BasePlanarPresence;
 
     public ICharacter Actor { get; set; }
+    public ICharacterInstance EmbodiedInstance => Actor as ICharacterInstance;
+
+    private ICharacter EmbodiedActor => EmbodiedInstance ?? Actor;
+
     private bool IsActiveCharacterBody =>
-        Actor?.CurrentBody == this &&
-        !Actor.State.HasFlag(CharacterState.Dead) &&
-        !Actor.State.HasFlag(CharacterState.Stasis);
+        EmbodiedActor?.CurrentBody == this &&
+        !EmbodiedActor.State.HasFlag(CharacterState.Dead) &&
+        !EmbodiedActor.State.HasFlag(CharacterState.Stasis);
 
     public Alignment Handedness { get; set; }
 
@@ -315,30 +319,30 @@ public partial class Body : PerceiverItem, IBody
 
     public override ICell Location
     {
-        get => Actor.Location;
+        get => EmbodiedActor.Location;
         protected set => MoveTo(value, RoomLayer);
     }
 
     public override event LocatableEvent OnLocationChanged
     {
-        add => Actor.OnLocationChanged += value;
-        remove => Actor.OnLocationChanged -= value;
+        add => EmbodiedActor.OnLocationChanged += value;
+        remove => EmbodiedActor.OnLocationChanged -= value;
     }
 
     public override event LocatableEvent OnLocationChangedIntentionally
     {
-        add => Actor.OnLocationChangedIntentionally += value;
-        remove => Actor.OnLocationChangedIntentionally -= value;
+        add => EmbodiedActor.OnLocationChangedIntentionally += value;
+        remove => EmbodiedActor.OnLocationChangedIntentionally -= value;
     }
 
     public override void MoveTo(ICell location, RoomLayer layer, ICellExit exit = null, bool noSave = false)
     {
-        Actor.MoveTo(location, layer, exit, noSave);
+        EmbodiedActor.MoveTo(location, layer, exit, noSave);
     }
 
     public override bool HandleEvent(EventType type, params dynamic[] arguments)
     {
-        return Actor.HandleEvent(type, arguments);
+        return EmbodiedActor.HandleEvent(type, arguments);
     }
 
     #region Overrides of LateKeywordedInitialisingItem

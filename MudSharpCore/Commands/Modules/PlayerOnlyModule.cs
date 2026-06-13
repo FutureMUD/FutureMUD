@@ -44,6 +44,146 @@ The syntax for this command is as follows:
   #3journal history <character>#0 - shows you all the journal entries for a particular character of yours
   #3journal write <title>#0 - drops you into an editor to write a journal entry";
 
+    private const string InstancesHelp =
+        @"The instances command lists all of the bodies or projections that your character currently has loaded.
+
+The syntax is:
+
+  #3instances#0 - list your current instances";
+
+    private const string FocusHelp =
+        @"The focus command switches which one of your controllable instances receives your commands.
+
+The syntax is:
+
+  #3focus#0 - show your current focus and available instances
+  #3focus primary#0 - return focus to your primary body
+  #3focus <##>#0 - focus the numbered instance from the #3instances#0 list";
+
+    [PlayerCommand("Instances", "instances")]
+    [HelpInfo("instances", InstancesHelp, AutoHelp.HelpArgOrNoArg)]
+    [CustomModuleName("Game")]
+    protected static void Instances(ICharacter actor, string command)
+    {
+        SendInstancesList(actor);
+    }
+
+    [PlayerCommand("Focus", "focus")]
+    [HelpInfo("focus", FocusHelp, AutoHelp.HelpArgOrNoArg)]
+    [CustomModuleName("Game")]
+    protected static void Focus(ICharacter actor, string command)
+    {
+        StringStack ss = new(command.RemoveFirstWord());
+        if (ss.IsFinished || ss.PeekSpeech().EqualToAny("help", "?"))
+        {
+            var focused = actor.Identity.FocusedInstance ?? actor.Identity.PrimaryInstance;
+            actor.OutputHandler.Send($"You are currently focused on {DescribeOwnInstance(actor, focused)}.");
+            SendInstancesList(actor);
+            return;
+        }
+
+        var targetText = ss.PopSpeech();
+        var instances = OrderedOwnInstances(actor).ToList();
+        ICharacterInstance target = null;
+        if (targetText.EqualTo("primary"))
+        {
+            target = actor.Identity.PrimaryInstance;
+        }
+        else if (int.TryParse(targetText, out var index))
+        {
+            target = index > 0 && index <= instances.Count
+                ? instances[index - 1]
+                : instances.FirstOrDefault(x => x.InstanceId == index);
+        }
+        else
+        {
+            target = instances.FirstOrDefault(x =>
+                         OwnInstanceFormName(actor, x).EqualTo(targetText)) ??
+                     instances.FirstOrDefault(x =>
+                         OwnInstanceFormName(actor, x)
+                                               .StartsWith(targetText, StringComparison.InvariantCultureIgnoreCase));
+        }
+
+        if (target is null)
+        {
+            actor.OutputHandler.Send("You do not have any such instance to focus.");
+            return;
+        }
+
+        var wasFocused = actor.Identity.FocusedInstance?.InstanceId == target.InstanceId;
+        var result = CharacterInstanceFocusService.Focus(actor, target);
+        if (!result.Success)
+        {
+            actor.OutputHandler.Send(result.Message);
+            return;
+        }
+
+        if (wasFocused)
+        {
+            actor.OutputHandler.Send(result.Message);
+        }
+    }
+
+    private static IEnumerable<ICharacterInstance> OrderedOwnInstances(ICharacter actor)
+    {
+        return actor.Identity.Instances
+                    .OrderByDescending(x => x.IsPrimaryInstance)
+                    .ThenBy(x => x.InstanceId);
+    }
+
+    private static string OwnInstanceFormName(ICharacter actor, ICharacterInstance instance)
+    {
+        return actor.Identity.Forms.FirstOrDefault(x => ReferenceEquals(x.Body, instance.Body))?.Alias ??
+               instance.Body.Prototype.Name;
+    }
+
+    private static string DescribeOwnInstance(ICharacter actor, ICharacterInstance instance)
+    {
+        if (instance.IsPrimaryInstance)
+        {
+            return "your primary body".ColourName();
+        }
+
+        return $"{OwnInstanceFormName(actor, instance)} (#{instance.InstanceId.ToString("N0", actor)})".ColourName();
+    }
+
+    private static string OwnInstanceControlText(ICharacter actor, ICharacterInstance instance)
+    {
+        if (actor.Identity.FocusedInstance?.InstanceId == instance.InstanceId)
+        {
+            return "Focused".ColourValue();
+        }
+
+        return CharacterInstanceFocusService.CanFocus(actor, instance).Success
+            ? "Focusable".Colour(Telnet.Green)
+            : instance.IsControllable
+                ? instance.ControlPolicy.DescribeEnum().ColourName()
+                : "Passive".Colour(Telnet.Yellow);
+    }
+
+    private static void SendInstancesList(ICharacter actor)
+    {
+        var rows = OrderedOwnInstances(actor)
+                   .Select((instance, index) => new[]
+                   {
+                       (index + 1).ToString("N0", actor),
+                       (actor.Identity.FocusedInstance?.InstanceId == instance.InstanceId).ToColouredString(),
+                       instance.IsPrimaryInstance.ToColouredString(),
+                       OwnInstanceFormName(actor, instance).ColourName(),
+                       instance.Location?.HowSeen(actor) ?? "None",
+                       $"{instance.State.DescribeEnum()} / {instance.Status.DescribeEnum()}",
+                       OwnInstanceControlText(actor, instance)
+                   });
+
+        actor.OutputHandler.Send(StringUtilities.GetTextTable(
+            rows,
+            new[] { "#", "Focused", "Primary", "Form", "Location", "State", "Control" },
+            actor.LineFormatLength,
+            colour: Telnet.Cyan,
+            unicodeTable: actor.Account.UseUnicode
+        ));
+    }
+
 
     [PlayerCommand("Journal", "journal")]
     [HelpInfo("journal", JournalHelp, AutoHelp.HelpArg)]

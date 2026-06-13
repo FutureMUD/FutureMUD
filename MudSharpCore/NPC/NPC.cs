@@ -44,6 +44,7 @@ public class NPC : Character.Character, INPC
         : base(dbchar, gameworld)
     {
         LoadNPCFromDB(npc);
+        RefreshLoadedNpcSecondaryInstances();
         if (dbchar.CurrentCombatSettingId == null || Gameworld.CharacterCombatSettings.Get(dbchar.CurrentCombatSettingId.Value) is null)
         {
             CombatSettings = MudSharp.Combat.CharacterCombatSettingsResolver.ResolveFallback(this, Template);

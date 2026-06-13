@@ -76,7 +76,7 @@ using TraitExpression = MudSharp.Body.Traits.TraitExpression;
 
 namespace MudSharp.Character;
 
-public partial class Character : PerceiverItem, ICharacter
+public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, ICharacterInstance
 {
     private IPersonalName _currentName;
     public PlanarPresenceDefinition BasePlanarPresence => Body.BasePlanarPresence;
@@ -157,6 +157,7 @@ public partial class Character : PerceiverItem, ICharacter
         _dbTotalMinutesPlayed = 0;
         PositionState = PositionStanding.Instance;
         PositionModifier = PositionModifier.None;
+        InitialisePrimaryInstanceDefaults();
 
         List<ComboMerit> comboMerits = new();
         foreach (ICharacterMerit merit in template.SelectedMerits)
@@ -596,14 +597,10 @@ public partial class Character : PerceiverItem, ICharacter
 #endif
         }
 
-        dbchar.Location = Location?.Id ?? 1L;
-        dbchar.RoomLayer = (int)RoomLayer;
-        dbchar.State = (int)State;
-        dbchar.Status = (int)_status;
+        SaveCompatibilityWorldPresence(dbchar);
         dbchar.CurrencyId = Currency?.Id;
         dbchar.Gender = (short)Gender.Enum;
         dbchar.DominantHandAlignment = (int)Handedness;
-        dbchar.BodyId = Body.Id;
         dbchar.RoomBrief = BriefRoomDescs;
         dbchar.CombatBrief = BriefCombatMode;
         dbchar.NoMercy = NoMercy;
@@ -697,6 +694,7 @@ public partial class Character : PerceiverItem, ICharacter
         }
 
         SaveForms(dbchar);
+        SavePrimaryInstance(dbchar);
 
         Changed = false;
     }
@@ -1408,6 +1406,7 @@ public partial class Character : PerceiverItem, ICharacter
 
         Body.SetIDFromDatabase(item.Body);
         _handedness = Body.Handedness;
+        CaptureInsertedPrimaryInstanceId(item);
         foreach (ICharacterKnowledge ck in CharacterKnowledges)
         {
             ck.SetId(item.CharacterKnowledges.First(x => x.KnowledgeId == ck.Knowledge.Id).Id);
@@ -1436,13 +1435,18 @@ public partial class Character : PerceiverItem, ICharacter
             NeedsModel = CharacterCreation.Chargen.NeedsModelProg != null
                 ? (string)CharacterCreation.Chargen.NeedsModelProg.Execute(this)
                 : "NoNeeds",
+            State = (int)State,
+            Status = (int)_status,
+            RoomLayer = (int)RoomLayer,
             PositionId = (int)PositionStanding.Instance.Id,
             PositionModifier = (int)PositionModifier.None,
+            PositionEmote = string.Empty,
             EffectData = SaveEffects().ToString(),
             CurrentCombatSettingId = CombatSettings?.Id
         };
 
         InsertInitialForms(dbitem);
+        InsertInitialPrimaryInstance(dbitem);
         InsertInitialCharacterTraits(dbitem);
 
         foreach (IHook hook in _installedHooks)
@@ -1636,10 +1640,12 @@ public partial class Character : PerceiverItem, ICharacter
         }
 
         LoadForms(character);
+        var primaryInstance = LoadPrimaryInstance(character);
         LoadCharacterTraits(character);
         EnsureProvisionedFormsFromMerits();
-        LoadPosition(character.PositionId, character.PositionModifier, character.PositionEmote,
-            character.PositionTargetId, character.PositionTargetType);
+        LoadPosition(primaryInstance.PositionId, primaryInstance.PositionModifier, primaryInstance.PositionEmote,
+            primaryInstance.PositionTargetId, primaryInstance.PositionTargetType);
+        LoadSecondaryInstances(character);
         if (character.CharactersChargenRoles.Any())
         {
             _roles.AddRange(character.CharactersChargenRoles.Select(x => Gameworld.Roles.Get(x.ChargenRoleId))
@@ -2087,6 +2093,11 @@ public partial class Character : PerceiverItem, ICharacter
 
     public void SilentAssumeControl(IController controller)
     {
+        if (IsPrimaryInstance)
+        {
+            SetFocusedInstance(null);
+        }
+
         Controller = (ICharacterController)controller;
         Controller?.UpdateControlFocus(this);
         Register(Controller?.OutputHandler);
@@ -2327,6 +2338,11 @@ public partial class Character : PerceiverItem, ICharacter
 
     public virtual bool Quit(bool silent = false)
     {
+        if (IsPrimaryInstance)
+        {
+            SetFocusedInstance(null);
+        }
+
         EffectsChanged = true;
         PerceivableQuit();
         Movement?.CancelForMoverOnly(this);
@@ -2358,6 +2374,9 @@ public partial class Character : PerceiverItem, ICharacter
             {
                 Models.Character dbchar = FMDB.Context.Characters.Find(Id);
                 dbchar.LastLogoutTime = DateTime.UtcNow;
+                var logoutState = State | CharacterState.Stasis;
+                SaveCompatibilityWorldPresence(dbchar, logoutState);
+                SavePrimaryInstance(dbchar, logoutState);
                 SaveMinutes(dbchar);
                 FMDB.Context.SaveChanges();
             }
@@ -2392,6 +2411,11 @@ public partial class Character : PerceiverItem, ICharacter
 
     public void LoginCharacter()
     {
+        if (IsPrimaryInstance)
+        {
+            SetFocusedInstance(null);
+        }
+
         ScheduleCachedEffects();
         LoginDateTime = DateTime.UtcNow;
         OutputHandler.Handle(new EmoteOutput(new Emote("@ has entered the area.", this),
@@ -2889,9 +2913,10 @@ public partial class Character : PerceiverItem, ICharacter
                 Account.PromptType = PromptType.Full | PromptType.PositionInfo;
             }
 
+            var focusPrompt = InstanceFocusPromptLine();
             if (Account.PromptType.HasFlag(PromptType.Brief))
             {
-                return "\n>\n\n";
+                return focusPrompt + "\n>\n\n";
             }
 
             if (Account.PromptType.HasFlag(PromptType.Classic))
@@ -2938,7 +2963,7 @@ public partial class Character : PerceiverItem, ICharacter
                     classic = classic.Append(" / " + classicStealthString);
                 }
 
-                return "\n<" + classic + ">\n\n";
+                return focusPrompt + "\n<" + classic + ">\n\n";
             }
 
             string stealthString = "";
@@ -2990,7 +3015,15 @@ public partial class Character : PerceiverItem, ICharacter
             if (Account.PromptType.HasFlag(PromptType.Full))
             {
                 StringBuilder fpsb = new();
-                fpsb.Append("\n");
+                if (focusPrompt.Length > 0)
+                {
+                    fpsb.Append(focusPrompt);
+                }
+                else
+                {
+                    fpsb.Append("\n");
+                }
+
                 fpsb.Append(HealthStrategy.ReportConditionPrompt(this, PromptType.Full));
                 fpsb.Append("\n<Stamina: ");
                 fpsb.Append(boldColour ? staminaColour.Bold : staminaColour.Colour);
@@ -3172,11 +3205,11 @@ public partial class Character : PerceiverItem, ICharacter
 
             if (sb.Length == 0)
             {
-                return healthString.Equals(string.Empty) ? "" : $"\n{healthString}\n\n";
+                return focusPrompt + (healthString.Equals(string.Empty) ? "" : $"\n{healthString}\n\n");
             }
             else
             {
-                return $"\n{healthString}<{sb}>\n\n";
+                return focusPrompt + $"\n{healthString}<{sb}>\n\n";
             }
         }
     }

@@ -1227,6 +1227,17 @@ Deliverables:
 - identify direct uses of `Character.Body`, `CurrentBody`, `Location`, `RoomLayer`, `State`, `Die`, `Quit`, and `LoginCharacter`
 - classify systems as identity, instance, or body scoped
 
+Implementation progress:
+
+- Completed: the design document now anchors the simultaneous-instance rollout.
+- Completed: `CharacterInstanceStateScope` classifies state as identity, instance, body, compatibility mirror, or unknown.
+- Completed: `CharacterInstanceDiagnostics.AuditPrimaryInstance(...)` verifies the current compatibility assumptions that `Body`, `CurrentBody`, body actor, body location, body room layer, owned bodies, and form metadata all agree for the primary instance.
+- Confirmed current seams: `Character.Save()` mirrors active body/location/layer/state/status into `Characters`, `Character.LoadFromDatabase(...)` restores those fields from `Characters`, `CharacterForms.SwitchToBody(...)` is the exclusive transformation point, `Body.Location` and `Body.RoomLayer` currently proxy through the actor, and `Die()`, `Quit()`, and `LoginCharacter()` operate on the active `Character` world presence.
+
+Next-phase reflection:
+
+Phase 1 should preserve those audited assumptions while adding `CharacterInstances` persistence. The immediate goal is not to spawn a second presence; it is to create a durable primary-instance row that mirrors the current character row and can be audited against the old compatibility fields.
+
 Useful grep/search terms:
 
 ```text
@@ -1255,6 +1266,17 @@ Deliverables:
 - compatibility fields mirror primary instance
 - no behavioural changes for existing characters
 
+Implementation progress:
+
+- Completed: added the EF `CharacterInstance` model, `CharacterInstances` DbSet, navigation properties from `Character`, `Body`, and `Cell`, and explicit model configuration.
+- Completed: generated migration `20260612134150_CharacterInstances` with the table, indexes, foreign keys, and a deterministic backfill that creates one primary persistent instance from each existing `Characters` row.
+- Completed: `Character` now loads primary-instance rows when present, falls back to legacy `Characters` fields when absent, inserts a primary instance for new characters, and mirrors body/location/layer/position/state/status into the primary instance on save and final death persistence.
+- Verified: `dotnet build MudSharpCore\MudSharpCore.csproj -c Debug --no-restore -m:1 -p:NoWarn=NU1902%3BNU1510` succeeded after the phase-1 wiring.
+
+Next-phase reflection:
+
+Phase 2 should make the identity/instance split visible to callers without changing command semantics. `ICharacter` remains the active world actor facade, while new identity and instance contracts expose `Identity`, `InstanceId`, policy fields, and explicit same-identity versus same-physical-instance comparisons.
+
 Acceptance tests:
 
 - existing characters load and save
@@ -1272,6 +1294,18 @@ Deliverables:
 - make existing `Character` act as primary instance for compatibility
 - move or delegate identity-scoped accessors deliberately
 
+Implementation progress:
+
+- Completed: introduced `ICharacterIdentity`, `ICharacterInstance`, `CharacterInstanceKind`, control/death/perception/persistence policy enums, and `BodyEmbodimentState`.
+- Completed: added instance compatibility members directly to `ICharacter`, preserving existing `ICharacter` call sites while making active world actors explicitly instance-aware.
+- Completed: `Character` now implements `ICharacterIdentity` and `ICharacterInstance`; for the compatibility milestone it exposes itself as `Identity`, `PrimaryInstance`, and `FocusedInstance`, with `Instances` containing the primary instance only.
+- Completed: added `CharacterInstanceIdentityComparer` and delegated `Character.SameIdentity(...)` / `SamePhysicalInstance(...)` to it so same-identity and same-physical-presence semantics are explicit and testable.
+- Verified: `dotnet test 'FutureMUDLibrary Unit Tests\FutureMUDLibrary Unit Tests.csproj' -c Debug --no-restore -m:1 --filter CharacterInstanceIdentityComparerTests` passed 4 tests.
+
+Next-phase reflection:
+
+Phase 3 should keep the old world-facing `Character` object as the primary instance while treating its location, room layer, position, state, status, and current body as the persisted primary-instance mirror. The important hardening work is to make load/save and lifecycle paths consistently sync through that bridge, and to document that body location still resolves through the embodied instance actor until Phase 4 introduces a second actor.
+
 Acceptance tests:
 
 - no command output change
@@ -1288,6 +1322,19 @@ Deliverables:
 - primary instance still mirrors old character fields
 - login/quit/save use instance state
 
+Implementation progress:
+
+- Completed: the primary `Character` object is now the compatibility `ICharacterInstance`; its body, location, room layer, position, state, status, movement, combat, aim, and targeting state remain on the active world actor rather than on a separate durable identity object.
+- Completed: load uses `CharacterInstances` primary-instance rows as the source for body/location/layer/position/state/status when present, falling back to legacy `Characters` fields for pre-migration data.
+- Completed: save centralises legacy world-presence fields through `SaveCompatibilityWorldPresence(...)` and then mirrors the same state into the primary instance row.
+- Completed: logout now persists the legacy compatibility fields and primary-instance mirror at the same point it already writes logout metadata, and final death persistence updates both the old character row and primary instance row.
+- Completed: `Body` exposes `EmbodiedInstance` and resolves location, room layer, movement, event forwarding, and location-change events through the embodied actor/instance bridge instead of assuming the durable character identity is the physical world actor.
+- Verified: focused identity comparer tests, primary-instance diagnostic tests, and `dotnet build MudSharpCore\MudSharpCore.csproj -c Debug --no-restore -m:1 -p:NoWarn=NU1902%3BNU1510` all passed.
+
+Next-phase reflection:
+
+Phase 4 is the first behavioural expansion. It should add a staff-only passive second-instance spawn/retire path from an owned dormant form, enforce one live embodied instance per body, place the passive instance into a room as a visible/targetable actor, and prove that moving or killing the passive non-final instance does not move or final-kill the primary identity.
+
 Acceptance tests:
 
 - movement, teleport, fall, swimming/flying/climbing still work
@@ -1303,6 +1350,27 @@ Deliverables:
 - primary instance remains in its room
 - second instance can be retired/despawned
 - no PC focus yet
+
+Implementation progress:
+
+- Completed: added `PassiveCharacterInstance`, a non-controllable secondary `ICharacterInstance` that delegates identity to the owning primary `Character` while owning its own instance id, body, location, room layer, position, state, status, and policy fields.
+- Completed: added `CharacterInstanceService` as the lifecycle owner for passive spawn, move, retire, save, load, and passive death handling, keeping command parsing separate from lifecycle state changes.
+- Completed: persistent non-primary embodied rows now load as cell-local passive actors; `DespawnOnReboot` rows are pruned during character load.
+- Completed: passive instances are inserted only into cells and are not added to `Gameworld.Characters`, `Gameworld.NPCs`, or `Gameworld.Actors`, avoiding duplicate identity ids in the global character caches.
+- Completed: passive spawn uses owned non-current forms only, rejects bodies that already have live embodied instances, defaults to `NotControllable`, `DestroyInstanceOnly`, `OrdinaryEmbodied`, and `DespawnOnReboot`, and supports a staff-selected persistent policy.
+- Completed: passive move and retire operations clear movement/combat/position targets, remove the passive actor from its cell, free the form body for later use, and persist or delete the row according to policy.
+- Completed: passive death creates body-level remains with a non-final remains context, marks only the passive instance dead/retired, and leaves the primary identity and primary instance alive.
+- Completed: `instance list`, `instance spawn`, `instance move`, and `instance retire` are available as staff-only storyteller commands for acceptance testing and administrative control.
+- Completed: the Phase 1-3 review fixes were folded into this phase: resurrection now mirrors both `Characters` compatibility fields and the primary `CharacterInstances` row, diagnostics report duplicate primary rows and duplicate live embodied-body rows, and MySQL uniqueness uses generated nullable guard columns for primary identity and embodied body uniqueness.
+- Verified: `dotnet test 'FutureMUDLibrary Unit Tests\FutureMUDLibrary Unit Tests.csproj' -c Debug --no-restore -m:1 --filter CharacterInstance` passed 4 tests.
+- Verified: `dotnet test 'MudSharpCore Unit Tests\MudSharpCore Unit Tests.csproj' -c Debug --no-restore -m:1 --filter CharacterInstance` passed 4 tests.
+- Verified: `dotnet build MudSharpCore\MudSharpCore.csproj -c Debug --no-restore -m:1 -p:NoWarn=NU1902%3BNU1510` passed with 0 warnings.
+- Verified: `dotnet build MudsharpDatabaseLibrary\MudsharpDatabaseLibrary.csproj -c Debug --no-restore -m:1 -p:NoWarn=NU1902%3BNU1510` passed with 0 warnings.
+- Verified: `git diff --check` passed; it reported only existing line-ending normalization warnings.
+
+Next-phase reflection:
+
+Phase 5 should introduce player-facing focus switching only after the passive actor model has had staff acceptance testing. The main design goal is to move controller focus from the durable identity/primary object to a selected controllable instance without letting ordinary commands accidentally manipulate an unfocused body. The next phase should therefore concentrate on `instances`/`focus` discovery, command routing through `FocusedInstance`, prompt/output policy for focused and unfocused presences, and guardrails that keep primary-body death, stasis, and login/logout semantics coherent while a player is focused elsewhere.
 
 Acceptance tests:
 
@@ -1322,6 +1390,26 @@ Deliverables:
 - prompt indicates focused instance where useful
 - action effects and movement commands apply to focused instance only
 
+Implementation progress:
+
+- Completed: added `CharacterInstanceFocusService` as the runtime focus coordinator. It validates same-identity, loaded, embodied, controllable, non-dead, non-stasis `PlayerFocusable` targets and switches command routing through the existing controller `SetContext(...)` path.
+- Completed: primary `Character` identities now track a runtime-only focused secondary instance; focus resets to the primary on login, primary quit, linkdead detach, secondary retire, and focused-secondary death.
+- Completed: staff `instance spawn` keeps passive/non-controllable as the default and adds an explicit `focusable` option for Phase 5 acceptance testing before projection mechanics exist.
+- Completed: focusable secondary instances remain cell-local and outside global character/NPC caches, but mirror the owning player's permission level and command tree while controlled.
+- Completed: player-facing `instances` and `focus` commands list own instances, switch to numbered focus targets, and return to `focus primary` without exposing staff-only cell ids.
+- Completed: focused instances receive the player output handler and normal command/sensory output; unfocused instances use `NonPlayerOutputHandler` by default, with only explicit lifecycle focus-return messages emitted in Phase 5.
+- Completed: non-primary prompt output now includes a compact focus marker in full, classic, brief, and full-brief prompt modes.
+- Completed: `quit` while focused on a secondary validates and logs out through the primary identity instead of retiring the secondary, preserving account/logout persistence semantics.
+- Verified: `dotnet test 'FutureMUDLibrary Unit Tests\FutureMUDLibrary Unit Tests.csproj' -c Debug --no-restore -m:1 --filter CharacterInstance` passed 4 tests.
+- Verified: `dotnet test 'MudSharpCore Unit Tests\MudSharpCore Unit Tests.csproj' -c Debug --no-restore -m:1 --filter CharacterInstance` passed 12 tests.
+- Verified: `dotnet build MudSharpCore\MudSharpCore.csproj -c Debug --no-restore -m:1 -p:NoWarn=NU1902%3BNU1510` passed with 0 warnings.
+- Verified: `dotnet build MudsharpDatabaseLibrary\MudsharpDatabaseLibrary.csproj -c Debug --no-restore -m:1 -p:NoWarn=NU1902%3BNU1510` passed with 0 warnings.
+- Verified: `git diff --check` passed; it reported only existing line-ending normalization warnings.
+
+Next-phase reflection:
+
+Phase 6 should extend the now-proven cell-local secondary actor model to NPCs without reusing PC focus semantics. The important work is to give each AI-controlled NPC instance its own controller/heartbeat surface, audit identity-level effects so shared regeneration or periodic state does not multiply per instance, and keep staff clone/projection spawning tied to explicit instance policies rather than hidden global actor-cache assumptions.
+
 Acceptance tests:
 
 - player can focus projection and move it independently
@@ -1337,6 +1425,25 @@ Deliverables:
 - AI heartbeat is instance-safe
 - identity-level regeneration/effects are not multiplied
 - staff can spawn NPC clones/projections
+
+Implementation progress:
+
+- Completed: added `NpcCharacterInstance`, a secondary `Character` actor that implements `INPC`, delegates durable identity/template ownership to the primary NPC, and owns its own instance id, body, location, room layer, position, state, status, controller, and AI heartbeat subscriptions.
+- Completed: `Character.MaterialiseSecondaryInstance(...)` now materialises persisted non-primary `NpcAiControlled` rows as NPC secondary actors, while passive and player-focusable rows continue to use the existing secondary actor path.
+- Completed: staff `instance spawn` now uses a generalized `SpawnSecondaryInstance` options flow with `passive`, `focusable`, and `ai`/`npcai` modes. AI-controlled spawns are restricted to NPC identities, and player-focusable spawns remain PC-only.
+- Completed: NPC secondaries remain cell-local and are not added to `Gameworld.NPCs`, `Gameworld.Actors`, or cached actor collections; staff lookup discovers them through owner instances and local cell membership.
+- Completed: each NPC secondary receives its own `NPCController`, `NonPlayerOutputHandler`, and copied runtime AI list. The owner NPC refreshes already-materialised secondary AI lists after its template/AIs finish loading so persisted secondaries do not retain empty load-order copies.
+- Completed: retire/death cleanup now handles all non-primary secondary actors, releases NPC AI heartbeat subscriptions, detaches the secondary controller, leaves combat and movement, removes the actor from its cell, frees the body, and persists or deletes the row according to policy.
+- Completed: primary identity saves now flush loaded secondary instance rows, preserving persistent secondary location/state even though secondary NPCs deliberately stay out of the global actor save list.
+- Completed: `instance list` marks AI-controlled instances with AI count and controller status for staff acceptance testing.
+- Verified: `dotnet test 'FutureMUDLibrary Unit Tests\FutureMUDLibrary Unit Tests.csproj' -c Debug --no-restore -m:1 --filter CharacterInstance` passed 4 tests.
+- Verified: `dotnet test 'MudSharpCore Unit Tests\MudSharpCore Unit Tests.csproj' -c Debug --no-restore -m:1 --filter "CharacterInstance|NPCAIEventSubscription"` passed 20 tests.
+- Verified: `dotnet build MudSharpCore\MudSharpCore.csproj -c Debug --no-restore -m:1 -p:NoWarn=NU1902%3BNU1510` passed with 0 warnings.
+- Verified: `dotnet build MudsharpDatabaseLibrary\MudsharpDatabaseLibrary.csproj -c Debug --no-restore -m:1 -p:NoWarn=NU1902%3BNU1510` passed with 0 warnings.
+
+Next-phase reflection:
+
+Phase 7 should turn the staff-only instance architecture into a concrete astral projection feature. The important design work is to define the projection source effect, anchor/body vulnerability rules, astral form provisioning, planar interaction restrictions, tether/collapse behavior, and backlash/death policies without reopening the global actor-cache constraints that Phases 4-6 deliberately avoided. Builder-facing configuration should decide whether the physical body is helpless, asleep, stasis-locked, or still vulnerable while the projection is active.
 
 Acceptance tests:
 

@@ -1,0 +1,75 @@
+#nullable enable
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
+using MudSharp.Body;
+using MudSharp.Character;
+
+namespace MudSharp_Unit_Tests;
+
+[TestClass]
+public class CharacterInstanceIdentityComparerTests
+{
+	[TestMethod]
+	public void SameIdentity_DifferentInstancesSameIdentity_ReturnsTrue()
+	{
+		var primary = CreateCharacter(10, 10, 100);
+		var projection = CreateCharacter(20, 10, 200);
+
+		Assert.IsTrue(CharacterInstanceIdentityComparer.SameIdentity(primary.Object, projection.Object));
+	}
+
+	[TestMethod]
+	public void SamePhysicalInstance_DifferentInstancesSameIdentity_ReturnsFalse()
+	{
+		var primary = CreateCharacter(10, 10, 100);
+		var projection = CreateCharacter(20, 10, 200);
+
+		Assert.IsFalse(CharacterInstanceIdentityComparer.SamePhysicalInstance(primary.Object, projection.Object));
+	}
+
+	[TestMethod]
+	public void SamePhysicalInstance_SameInstanceId_ReturnsTrue()
+	{
+		var primary = CreateCharacter(10, 10, 100);
+		var sameInstanceFacade = CreateCharacter(20, 10, 100);
+
+		Assert.IsTrue(CharacterInstanceIdentityComparer.SamePhysicalInstance(primary.Object, sameInstanceFacade.Object));
+	}
+
+	[TestMethod]
+	public void SamePhysicalInstance_EmbodiedBody_ReturnsTrue()
+	{
+		var primary = CreateCharacter(10, 10, 100);
+		var body = new Mock<IBody>();
+		body.SetupGet(x => x.Actor).Returns(primary.Object);
+		primary.SetupGet(x => x.Body).Returns(body.Object);
+
+		Assert.IsTrue(CharacterInstanceIdentityComparer.SamePhysicalInstance(primary.Object, body.Object));
+	}
+
+	[TestMethod]
+	public void SamePhysicalInstance_DormantOwnedBody_ReturnsFalse()
+	{
+		var primary = CreateCharacter(10, 10, 100);
+		var activeBody = new Mock<IBody>();
+		var dormantBody = new Mock<IBody>();
+		activeBody.SetupGet(x => x.Actor).Returns(primary.Object);
+		dormantBody.SetupGet(x => x.Actor).Returns(primary.Object);
+		primary.SetupGet(x => x.Body).Returns(activeBody.Object);
+
+		Assert.IsFalse(CharacterInstanceIdentityComparer.SamePhysicalInstance(primary.Object, dormantBody.Object));
+	}
+
+	private static Mock<ICharacter> CreateCharacter(long characterId, long identityId, long instanceId)
+	{
+		var identity = new Mock<ICharacterIdentity>();
+		identity.SetupGet(x => x.Id).Returns(identityId);
+
+		var character = new Mock<ICharacter>();
+		character.SetupGet(x => x.Id).Returns(characterId);
+		character.SetupGet(x => x.Identity).Returns(identity.Object);
+		character.SetupGet(x => x.InstanceId).Returns(instanceId);
+		return character;
+	}
+}

@@ -47,6 +47,7 @@ namespace MudSharp.Body
         IBodyPrototype Prototype { get; }
 
         ICharacter Actor { get; set; }
+        ICharacterInstance EmbodiedInstance { get; }
         Alignment Handedness { get; set; }
 
         IController Controller { get; }

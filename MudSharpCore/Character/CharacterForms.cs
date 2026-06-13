@@ -992,6 +992,12 @@ public partial class Character
 			return false;
 		}
 
+		if (Instances.Any(x => !x.IsPrimaryInstance && x.IsEmbodied && ReferenceEquals(x.Body, target)))
+		{
+			whyNot = "That form is already embodied as another active instance.";
+			return false;
+		}
+
 		var form = GetForm(target);
 		if (form == null)
 		{

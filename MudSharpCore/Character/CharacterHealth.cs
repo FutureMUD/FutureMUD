@@ -161,6 +161,8 @@ public partial class Character
             dbchar.Status = (int)CharacterStatus.Deceased;
             dbchar.DeathTime = DateTime.UtcNow;
             dbchar.NeedsModel = "NoNeeds";
+            SaveCompatibilityWorldPresence(dbchar);
+            SavePrimaryInstance(dbchar);
             NeedsModel = new NoNeedsModel();
             FMDB.Context.SaveChanges();
         }
@@ -193,6 +195,7 @@ public partial class Character
                 : "NoNeeds";
             dbchar.DeathTime = null;
             NeedsModel = NeedsModelFactory.LoadNeedsModel(dbchar, this);
+            SaveInstanceResurrectionState(dbchar);
             FMDB.Context.SaveChanges();
         }
 

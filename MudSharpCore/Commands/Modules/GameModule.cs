@@ -1213,20 +1213,21 @@ The syntax is #3tagsearch <tag>#0.", AutoHelp.HelpArgOrNoArg)]
         }
 
 
-        if (!actor.IsAdministrator() && !actor.Location.SafeQuit)
+        var logoutActor = CharacterInstanceFocusService.GetLogoutIdentityActor(actor);
+        if (!actor.IsAdministrator() && !logoutActor.Location.SafeQuit)
         {
             actor.OutputHandler?.Send(actor.Gameworld.GetStaticString("CantQuitNoSafeQuitEcho"));
             return;
         }
 
-        if (actor.CombinedEffectsOfType<INoQuitEffect>().Any(x => x.Applies()))
+        if (logoutActor.CombinedEffectsOfType<INoQuitEffect>().Any(x => x.Applies()))
         {
-            actor.OutputHandler?.Send(actor.CombinedEffectsOfType<INoQuitEffect>().First(x => x.Applies())
+            actor.OutputHandler?.Send(logoutActor.CombinedEffectsOfType<INoQuitEffect>().First(x => x.Applies())
                                            .NoQuitReason);
             return;
         }
 
-        actor.Quit();
+        CharacterInstanceFocusService.QuitThroughPrimary(actor);
     }
 
     [PlayerCommand("Forage", "forage")]

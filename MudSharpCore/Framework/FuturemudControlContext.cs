@@ -117,6 +117,12 @@ public sealed class FuturemudControlContext : IFuturemudControlContext
         _connection = null;
         Account?.Gameworld.SystemMessage($"Account {Account.Name.Proper()} has disconnected.", true);
         ICharacter characterContext = _context as ICharacter;
+        if (characterContext is not null)
+        {
+            CharacterInstanceFocusService.TryReturnFocusToPrimary(characterContext, string.Empty, false);
+            characterContext = _context as ICharacter;
+        }
+
         bool hasNoTimeOutEffect = characterContext?.CombinedEffectsOfType<INoTimeOutEffect>()
             .Any(x => x.Applies()) ?? false;
         if (characterContext?.IsGuest ?? false)

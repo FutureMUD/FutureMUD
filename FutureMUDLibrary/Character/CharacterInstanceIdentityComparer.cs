@@ -7,6 +7,7 @@ namespace MudSharp.Character;
 
 public static class CharacterInstanceIdentityComparer
 {
+	// Identity equality answers "same person"; physical equality answers "same active world presence".
 	public static bool SameIdentity(ICharacter actor, ICharacter other)
 	{
 		if (actor is null || other is null)

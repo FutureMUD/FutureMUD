@@ -29,6 +29,29 @@ public class CharacterInstanceIdentityComparerTests
 	}
 
 	[TestMethod]
+	public void SameIdentityAndPhysicalInstance_PhaseFourToEightKinds_KeepIdentityAndInstanceDistinct()
+	{
+		var primary = CreateCharacter(10, 10, 100, CharacterInstanceKind.Primary);
+		foreach (var kind in new[]
+		         {
+			         CharacterInstanceKind.Other,
+			         CharacterInstanceKind.AstralProjection,
+			         CharacterInstanceKind.MagicalCopy,
+			         CharacterInstanceKind.PhysicalClone,
+			         CharacterInstanceKind.Puppet,
+			         CharacterInstanceKind.RemoteShell
+		         })
+		{
+			var secondary = CreateCharacter(20 + (int)kind, 10, 200 + (int)kind, kind);
+
+			Assert.IsTrue(CharacterInstanceIdentityComparer.SameIdentity(primary.Object, secondary.Object),
+				$"Expected {kind} to share identity.");
+			Assert.IsFalse(CharacterInstanceIdentityComparer.SamePhysicalInstance(primary.Object, secondary.Object),
+				$"Expected {kind} to remain a different physical instance.");
+		}
+	}
+
+	[TestMethod]
 	public void SamePhysicalInstance_SameInstanceId_ReturnsTrue()
 	{
 		var primary = CreateCharacter(10, 10, 100);
@@ -61,7 +84,8 @@ public class CharacterInstanceIdentityComparerTests
 		Assert.IsFalse(CharacterInstanceIdentityComparer.SamePhysicalInstance(primary.Object, dormantBody.Object));
 	}
 
-	private static Mock<ICharacter> CreateCharacter(long characterId, long identityId, long instanceId)
+	private static Mock<ICharacter> CreateCharacter(long characterId, long identityId, long instanceId,
+		CharacterInstanceKind instanceKind = CharacterInstanceKind.Other)
 	{
 		var identity = new Mock<ICharacterIdentity>();
 		identity.SetupGet(x => x.Id).Returns(identityId);
@@ -70,6 +94,7 @@ public class CharacterInstanceIdentityComparerTests
 		character.SetupGet(x => x.Id).Returns(characterId);
 		character.SetupGet(x => x.Identity).Returns(identity.Object);
 		character.SetupGet(x => x.InstanceId).Returns(instanceId);
+		character.SetupGet(x => x.InstanceKind).Returns(instanceKind);
 		return character;
 	}
 }

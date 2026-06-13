@@ -70,7 +70,8 @@ Syntax:
 	#3instance list <character>#0
 	#3instance spawn <character> <form> [here|room <cell id>] [persistent|temporary] [passive|focusable|ai]#0
 	#3instance move <instance id|target> here|room <cell id>#0
-	#3instance retire <instance id|target>#0";
+	#3instance retire <instance id|target>#0
+	#3instance audit <character>|all#0";
 
     [PlayerCommand("Instance", "instance")]
     [CommandPermission(PermissionLevel.Admin)]
@@ -98,6 +99,9 @@ Syntax:
             case "retire":
             case "despawn":
                 InstanceRetire(actor, ss);
+                return;
+            case "audit":
+                InstanceAudit(actor, ss);
                 return;
             default:
                 actor.OutputHandler.Send(InstanceCommandHelp.SubstituteANSIColour());
@@ -437,6 +441,45 @@ Syntax:
 
         actor.OutputHandler.Send(
             $"Retired secondary instance #{target.InstanceId.ToString("N0", actor).ColourValue()}.");
+    }
+
+    private static void InstanceAudit(ICharacter actor, StringStack ss)
+    {
+        if (ss.IsFinished)
+        {
+            actor.OutputHandler.Send("Which loaded character do you want to audit, or do you want to audit ALL persisted instances?");
+            return;
+        }
+
+        if (ss.SafeRemainingArgument.EqualTo("all"))
+        {
+            using (new FMDB())
+            {
+                var instances = FMDB.Context.CharacterInstances.ToList();
+                var references = new CharacterInstanceReferenceSets(
+                    FMDB.Context.Bodies.Select(x => x.Id).ToHashSet(),
+                    FMDB.Context.Cells.Select(x => x.Id).ToHashSet());
+                var persistedDiagnostics = CharacterInstanceDiagnostics.AuditPersistedInstances(instances, true,
+                    references);
+                actor.OutputHandler.Send(
+                    $"Audited {instances.Count.ToString("N0", actor).ColourValue()} persisted character instance rows.\n\n{CharacterInstanceDiagnostics.RenderDiagnosticsTable(persistedDiagnostics, actor.LineFormatLength, actor.Account.UseUnicode)}");
+            }
+
+            return;
+        }
+
+        var target = ResolveLoadedInstanceOwner(actor, ss.SafeRemainingArgument);
+        if (target is null)
+        {
+            actor.OutputHandler.Send("There is no such loaded character.");
+            return;
+        }
+
+        var diagnostics = target.Identity.PrimaryInstance is ICharacter primary
+            ? CharacterInstanceDiagnostics.AuditPrimaryInstance(primary)
+            : CharacterInstanceDiagnostics.AuditLoadedIdentity(target.Identity);
+        actor.OutputHandler.Send(
+            $"Audited loaded instances for {target.HowSeen(actor, true)}.\n\n{CharacterInstanceDiagnostics.RenderDiagnosticsTable(diagnostics, actor.LineFormatLength, actor.Account.UseUnicode)}");
     }
 
     [PlayerCommand("Spy", "spy")]

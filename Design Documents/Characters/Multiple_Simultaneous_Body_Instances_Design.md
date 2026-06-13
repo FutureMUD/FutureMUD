@@ -1524,6 +1524,27 @@ Next-phase reflection:
 
 Phase 9 should harden the compatibility boundaries that Phases 4-8 intentionally preserved. The most valuable next work is auditing identity-sensitive APIs that still consume `Character` as both identity and instance, strengthening admin diagnostics for stale or duplicate instance rows, clarifying observer-facing same-identity presentation without leaking staff ids, and deciding which compatibility mirrors can remain permanently versus which should become explicitly primary-instance-only.
 
+### Phase 0-8 Retrospective
+
+Original design goals:
+
+- Achieved: existing single-body behaviour and the exclusive body-form switch pipeline remain intact. Simultaneous bodies were added as a separate spawn/retire lifecycle rather than by weakening dormant-form switching safety checks.
+- Achieved: the runtime now has enough separation between durable identity, active instance, and physical body to support passive forms, PC focus switching, NPC AI instances, astral projection, magical copies, and physical clones.
+- Achieved: secondary instances are cell-local world actors and deliberately remain outside `Gameworld.Actors`, `Gameworld.Characters`, `Gameworld.NPCs`, and cached actor collections, avoiding duplicate identity-id collisions.
+- Achieved: one live embodied instance per body is guarded by diagnostics, database uniqueness, spawn validation, and retire/death cleanup.
+- Achieved: primary compatibility fields still mirror the primary instance, preserving old callers that read `Characters.BodyId`, location, room layer, state, status, and position fields.
+- Retained compromise: `Character` still acts as both durable identity and the primary `ICharacterInstance`, and `ICharacter` remains the world actor facade. That was intentional for incremental safety, but it leaves identity-sensitive code audits as continuing work.
+- Remaining risk: older systems still compare `actor.Id`, `target == actor`, or `IsSelf(...)` in places where the intended meaning may be identity, account/ownership, or physical instance. Phase 9 starts making these seams visible rather than attempting a high-risk global rewrite.
+
+Phase summary:
+
+- Phases 0-3 established the audit vocabulary, `CharacterInstances` persistence, identity/instance interfaces, and primary-instance compatibility mirroring.
+- Phase 4 proved passive secondary actors could exist in rooms without global cache collisions or primary identity death.
+- Phase 5 proved runtime PC focus switching, player-safe `instances`/`focus` commands, prompt markers, and logout guardrails.
+- Phase 6 proved NPC secondary instances with per-instance controllers and AI subscriptions.
+- Phase 7 proved spell-owned astral projection with planar restrictions and collapse-to-anchor lifecycle.
+- Phase 8 proved magical copies and physical clones without implicit inventory duplication or final identity death.
+
 ### Phase 9: Hardening and Cleanup
 
 Deliverables:
@@ -1533,6 +1554,24 @@ Deliverables:
 - add admin diagnostics
 - add data integrity reports
 - remove compatibility mirrors only if safe and desirable
+
+Implementation progress:
+
+- Completed: added structured diagnostic subject metadata and grouped diagnostic reports while preserving existing diagnostic codes.
+- Completed: added `AuditLoadedIdentity(...)` for loaded identity/instance checks, including duplicate primary instances, duplicate embodied bodies, primary policy mismatches, secondary rows carrying primary kind, embodied live instances without locations, and controllable rows with `NotControllable` policy.
+- Completed: extended persisted-row diagnostics to report stale body references, stale location references, malformed `EffectData`, primary policy mismatches, secondary-primary flag mismatches, embodied live rows without locations, and controllable rows with `NotControllable` policy. Phase 9 remains report-only and does not repair rows.
+- Completed: added `CharacterInstanceDiagnostics.RenderDiagnosticsTable(...)` so staff commands and tests use one consistent diagnostic table shape.
+- Completed: extended the staff `instance` command with `instance audit <character>` for loaded identity diagnostics and `instance audit all` for persisted `CharacterInstances` integrity checks.
+- Completed: added small compatibility-boundary comments at the global-cache exclusion, primary compatibility mirror save, and same-identity versus same-physical-instance comparer seams.
+- Verified: `dotnet test 'FutureMUDLibrary Unit Tests\FutureMUDLibrary Unit Tests.csproj' -c Debug --no-restore -m:1 --filter CharacterInstance` passed 6 tests.
+- Verified: `dotnet test 'MudSharpCore Unit Tests\MudSharpCore Unit Tests.csproj' -c Debug --no-restore -m:1 --filter "CharacterInstance|InstanceAudit|MagicalCopy|PhysicalClone|AstralProjection|NPCAIEventSubscription"` passed 38 tests.
+- Verified: `dotnet build MudSharpCore\MudSharpCore.csproj -c Debug --no-restore -m:1 -p:NoWarn=NU1902%3BNU1510` passed with 0 warnings.
+- Verified: `dotnet build MudsharpDatabaseLibrary\MudsharpDatabaseLibrary.csproj -c Debug --no-restore -m:1 -p:NoWarn=NU1902%3BNU1510` passed with 0 warnings.
+- Verified: `git diff --check` passed; it reported only line-ending normalization warnings for touched files.
+
+Next-phase reflection:
+
+Phase 10 should audit identity-sensitive subsystems outside the instance lifecycle itself. The highest-value targets are combat targeting, parties/movement following, economy/property/employment ownership checks, crime/legal identity, communications and telepathy, and medical/inventory commands that still use direct actor reference or identity-id comparisons. The goal should be to classify each comparison as identity-scoped or physical-instance-scoped and replace ambiguous checks with `SameIdentity(...)`, `SamePhysicalInstance(...)`, or explicit account/ownership checks where appropriate.
 
 ---
 

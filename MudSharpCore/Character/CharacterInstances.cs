@@ -55,6 +55,7 @@ public partial class Character
 	public virtual bool IsControllable => _isControllable;
 	public virtual bool IsEmbodied => _isEmbodied;
 
+	// Secondary instances are intentionally identity-local and cell-local; do not add them to global actor caches.
 	public virtual IEnumerable<ICharacterInstance> Instances =>
 		Enumerable.Repeat<ICharacterInstance>(this, 1).Concat(_secondaryInstances);
 	public virtual ICharacterInstance PrimaryInstance => this;
@@ -451,6 +452,7 @@ public partial class Character
 
 	private void SaveCompatibilityWorldPresence(MudSharp.Models.Character dbchar, CharacterState? stateOverride = null)
 	{
+		// Legacy Characters world-presence columns mirror only the primary instance during the transition.
 		dbchar.Location = Location?.Id ?? 1L;
 		dbchar.RoomLayer = (int)RoomLayer;
 		dbchar.State = (int)(stateOverride ?? State);

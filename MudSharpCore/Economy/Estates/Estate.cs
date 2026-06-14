@@ -180,7 +180,9 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
 
         foreach (var lostProperty in character.Gameworld.Properties
                      .SelectMany(x => x.HotelLostProperties)
-                     .Where(x => x.Bundle != null && (x.OwnerId == character.Id || x.Bundle.IsOwnedBy(character))))
+                     .Where(x => x.Bundle != null &&
+                                 (x.OwnerId == CharacterInstanceIdentityComparer.IdentityId(character) ||
+                                  x.Bundle.IsOwnedBy(character))))
         {
             yield return new EstateAssetSnapshot(lostProperty.Property.EconomicZone, lostProperty.Bundle, false, 1.0M);
         }
@@ -296,7 +298,7 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
         Gameworld = economicZone.Gameworld;
         EconomicZone = economicZone;
         _character = character;
-        _characterId = character.Id;
+        _characterId = CharacterInstanceIdentityComparer.IdentityId(character);
         EstateStatus = estateStatus;
         EstateStartTime = economicZone.FinancialPeriodReferenceCalendar.CurrentDateTime;
         SetInheritor(inheritor);
@@ -305,7 +307,7 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
             Models.Estate dbitem = new()
             {
                 EconomicZoneId = economicZone.Id,
-                CharacterId = character.Id,
+                CharacterId = CharacterInstanceIdentityComparer.IdentityId(character),
                 EstateStatus = (int)EstateStatus,
                 EstateStartTime = EstateStartTime.GetDateTimeString(),
                 FinalisationDate = null,
@@ -327,7 +329,7 @@ public class Estate : SaveableItem, IEstate, ILazyLoadDuringIdleTime
     {
         Models.Estate dbitem = FMDB.Context.Estates.Find(Id);
         dbitem.EconomicZoneId = EconomicZone.Id;
-        dbitem.CharacterId = Character.Id;
+        dbitem.CharacterId = CharacterInstanceIdentityComparer.IdentityId(Character);
         dbitem.EstateStatus = (int)EstateStatus;
         dbitem.EstateStartTime = EstateStartTime.GetDateTimeString();
         dbitem.FinalisationDate = FinalisationDate?.GetDateTimeString();

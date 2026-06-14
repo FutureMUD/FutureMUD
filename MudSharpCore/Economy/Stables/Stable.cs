@@ -564,7 +564,7 @@ public partial class Stable : SavableKeywordedItem, IStable
 		}
 
 		var accounts = StableAccounts.Where(x => x.IsAuthorisedToUse(actor, 0.0M) != StableAccountAuthorisationFailureReason.NotAuthorisedAccountUser).ToList();
-		var stays = ActiveStays.Where(x => x.OriginalOwnerId == actor.Id).ToList();
+		var stays = ActiveStays.Where(x => x.OriginalOwnerId == CharacterInstanceIdentityComparer.IdentityId(actor)).ToList();
 
 		sb.AppendLine();
 		sb.AppendLine($"Active Stays:");

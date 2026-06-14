@@ -19,6 +19,11 @@ public static class CharacterInstanceIdentityComparer
 		return identityId != 0 ? identityId : actor.Id;
 	}
 
+	public static long FrameworkItemId(IFrameworkItem? item)
+	{
+		return item is ICharacter character ? IdentityId(character) : item?.Id ?? 0;
+	}
+
 	public static bool SameIdentity(ICharacter actor, ICharacter other)
 	{
 		if (actor is null || other is null)

@@ -1552,7 +1552,7 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
                 //It may have been saved on the CharacterKnowledge.cs level, so no need to add again
                 Models.CharacterKnowledge dbitem = new()
                 {
-                    CharacterId = base.Id,
+                    CharacterId = CharacterInstanceIdentityComparer.IdentityId(this),
                     KnowledgeId = knowledge.Knowledge.Id,
                     WhenAcquired = knowledge.WhenAcquired,
                     HowAcquired = knowledge.HowAcquired,

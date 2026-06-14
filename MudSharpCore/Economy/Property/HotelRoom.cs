@@ -85,7 +85,7 @@ public class HotelRoomRental : IHotelRoomRental
 	{
 		_room = room;
 		_guest = guest;
-		GuestId = guest.Id;
+		GuestId = CharacterInstanceIdentityComparer.IdentityId(guest);
 		StartTime = start;
 		EndTime = end;
 		RentalCharge = rentalCharge;
@@ -162,7 +162,7 @@ public class HotelLostProperty : IHotelLostProperty
 		_room = room;
 		_owner = owner;
 		_bundle = bundle;
-		OwnerId = owner.Id;
+		OwnerId = CharacterInstanceIdentityComparer.IdentityId(owner);
 		BundleId = bundle.Id;
 		StoredUntil = storedUntil;
 		Status = HotelLostPropertyStatus.Held;

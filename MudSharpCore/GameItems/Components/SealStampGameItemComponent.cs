@@ -80,7 +80,7 @@ public class SealStampGameItemComponent : GameItemComponent, ISealStamp
 			OfficeText,
 			string.IsNullOrWhiteSpace(StampMaterial) ? Parent.Material?.Name ?? string.Empty : StampMaterial,
 			ForgeryDifficulty,
-			actor.Id,
+			CharacterInstanceIdentityComparer.IdentityId(actor),
 			actor.HowSeen(actor),
 			DateTime.UtcNow,
 			medium?.HowSeen(actor) ?? string.Empty);

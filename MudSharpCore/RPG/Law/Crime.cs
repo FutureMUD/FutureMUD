@@ -38,15 +38,15 @@ public class Crime : LateInitialisingItem, ICrime
     {
         Gameworld = criminal.Gameworld;
         var resolvedCrimeLocation = crimeLocation ?? criminal.Location;
-        CriminalId = criminal.Id;
+        CriminalId = CharacterInstanceIdentityComparer.IdentityId(criminal);
         _criminal = criminal;
-        VictimId = victim?.Id;
+        VictimId = victim is null ? null : CharacterInstanceIdentityComparer.IdentityId(victim);
         TimeOfCrime = resolvedCrimeLocation.DateTime();
         RealTimeOfCrime = DateTime.UtcNow;
         CrimeLocation = resolvedCrimeLocation;
-        _witnessIds.AddRange(witnesses.Select(x => x.Id));
+        _witnessIds.AddRange(witnesses.Select(CharacterInstanceIdentityComparer.IdentityId));
         Law = law;
-        ThirdPartyId = thirdparty?.Id;
+        ThirdPartyId = thirdparty is null ? null : CharacterInstanceIdentityComparer.FrameworkItemId(thirdparty);
         ThirdPartyFrameworkItemType = thirdparty?.FrameworkItemType;
         AdditionalInformation = additionalInformation;
         CriminalShortDescription = criminal.HowSeen(criminal,

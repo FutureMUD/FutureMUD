@@ -50,7 +50,7 @@ public sealed class ArenaByoEquipmentEffect : Effect
         return arenaEvent is not null &&
                owner is not null &&
                arenaEvent.Id == EventId &&
-               owner.Id == OwnerCharacterId;
+               CharacterInstanceIdentityComparer.IdentityId(owner) == OwnerCharacterId;
     }
 
     public static void InitialiseEffectType()

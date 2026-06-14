@@ -1869,7 +1869,7 @@ The syntax for this command is:
             //their account authority and character permission level.
             using (new FMDB())
             {
-                Models.Character dbcharacter = FMDB.Context.Characters.Find(target.Id);
+                Models.Character dbcharacter = FMDB.Context.Characters.Find(CharacterInstanceIdentityComparer.IdentityId(target));
                 dbcharacter.IsAdminAvatar = false;
                 FMDB.Context.SaveChanges();
             }
@@ -1908,7 +1908,7 @@ The syntax for this command is:
 
             using (new FMDB())
             {
-                Models.Character dbcharacter = FMDB.Context.Characters.Find(target.Id);
+                Models.Character dbcharacter = FMDB.Context.Characters.Find(CharacterInstanceIdentityComparer.IdentityId(target));
                 dbcharacter.IsAdminAvatar = true;
                 FMDB.Context.SaveChanges();
             }
@@ -4259,7 +4259,7 @@ For example:
                             ICharacter target = actor.TargetActor(cmd1);
                             if (target is not null)
                             {
-                                long targetId = target.Id;
+                                long targetId = CharacterInstanceIdentityComparer.IdentityId(target);
                                 logs = logs.Where(log => log.CharacterId == targetId);
                                 filterTexts.Add($"from character {target.HowSeen(actor)}");
                                 continue;

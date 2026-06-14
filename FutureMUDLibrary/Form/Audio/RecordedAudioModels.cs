@@ -97,7 +97,7 @@ public sealed record RecordedAudioSegment(
             spokenLanguage.Volume,
             spokenLanguage.OriginOutcome,
             new RecordedAudioSpeakerSnapshot(
-                speaker?.Id,
+                speaker is null ? null : CharacterInstanceIdentityComparer.IdentityId(speaker),
                 speaker?.HowSeen(speaker, proper: true, colour: false) ?? spokenLanguage.Origin.Name,
                 speaker?.ApparentGender(speaker).Enum ?? Gender.Neuter));
     }

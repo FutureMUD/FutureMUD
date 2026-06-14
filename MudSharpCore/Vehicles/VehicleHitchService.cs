@@ -32,6 +32,18 @@ public class VehicleHitchService : IVehicleHitchService
 
 	public bool CanPersistCharacterHitch(ICharacter source, IPerceivable target, out string reason)
 	{
+		if (!source.IsPrimaryInstance)
+		{
+			reason = "Persistent hitch links cannot use secondary character instances until hitch persistence tracks character instances.";
+			return false;
+		}
+
+		if (target is ICharacter { IsPrimaryInstance: false })
+		{
+			reason = "Persistent hitch links cannot target secondary character instances until hitch persistence tracks character instances.";
+			return false;
+		}
+
 		if (source.IsPlayerCharacter)
 		{
 			reason = "Player-character hitch endpoints remain transient and are not persisted.";
@@ -69,12 +81,14 @@ public class VehicleHitchService : IVehicleHitchService
 			dbitem = new DB.VehicleHitchLink
 			{
 				SourceType = (int)VehicleHitchEndpointType.Character,
-				SourceCharacterId = source.Id,
+				SourceCharacterId = CharacterInstanceIdentityComparer.IdentityId(source),
 				TargetType = targetVehicle is not null
 					? (int)VehicleHitchEndpointType.Vehicle
 					: (int)VehicleHitchEndpointType.Character,
 				TargetVehicleId = targetVehicle?.Id,
-				TargetCharacterId = targetCharacter?.Id,
+				TargetCharacterId = targetCharacter is null
+					? null
+					: CharacterInstanceIdentityComparer.IdentityId(targetCharacter),
 				TargetTowPointProtoId = targetTowPoint?.Id,
 				HitchItemId = hitchItem?.Id,
 				IsDisabled = false,
@@ -133,7 +147,8 @@ public class VehicleHitchService : IVehicleHitchService
 		{
 			VehicleHitchEndpointType.Vehicle => perceivable is IGameItem item &&
 			                                    item.GetItemType<IVehicleExterior>()?.Vehicle?.Id == vehicleId,
-			VehicleHitchEndpointType.Character => perceivable is ICharacter character && character.Id == characterId,
+			VehicleHitchEndpointType.Character => perceivable is ICharacter character &&
+			                                      CharacterInstanceIdentityComparer.IdentityId(character) == characterId,
 			_ => false
 		};
 	}
@@ -207,8 +222,9 @@ public class VehicleHitchService : IVehicleHitchService
 		}
 
 		var towPoint = link.TargetTowPoint;
-		HitchGearRules.Reserve(link.HitchItem, vehicleHitchLinkId: link.Id, sourceCharacterId: source.Id,
-			targetId: target.Id);
+		HitchGearRules.Reserve(link.HitchItem, vehicleHitchLinkId: link.Id,
+			sourceCharacterId: CharacterInstanceIdentityComparer.IdentityId(source),
+			targetId: CharacterInstanceIdentityComparer.FrameworkItemId(target));
 		source.AddEffect(new CharacterHitch(source, target, towPoint?.CharacterPullMultiplier ?? 1.0, towPoint?.Id,
 			link.Id, link.HitchItemId));
 		source.AddEffect(new Dragging(source, HitchGearRules.DragAidFor(link.HitchItem), target));

@@ -221,7 +221,8 @@ public class ArenaParticipantAI : PathingAIBase
 
     internal static IArenaParticipant? GetParticipant(IArenaEvent arenaEvent, ICharacter character)
     {
-        return arenaEvent.Participants.FirstOrDefault(x => x.Character?.Id == character.Id);
+        return arenaEvent.Participants.FirstOrDefault(x =>
+            x.CharacterId == CharacterInstanceIdentityComparer.IdentityId(character));
     }
 
     internal static IReadOnlyCollection<IArenaParticipant> GetOpponents(IArenaEvent arenaEvent, ICharacter character)

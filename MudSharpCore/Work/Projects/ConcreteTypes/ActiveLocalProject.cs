@@ -14,7 +14,7 @@ public class ActiveLocalProject : ActiveProject, ILocalProject
     public ActiveLocalProject(IProject project, ICharacter owner) : base(project)
     {
         _characterOwner = owner;
-        _characterOwnerId = owner.Id;
+        _characterOwnerId = CharacterInstanceIdentityComparer.IdentityId(owner);
         Location = owner.Location;
         Location.AddProject(this);
         project.OnStartProg?.Execute(this);

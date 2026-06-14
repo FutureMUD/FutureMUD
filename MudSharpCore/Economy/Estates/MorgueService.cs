@@ -16,7 +16,7 @@ public static class MorgueService
     public static IEstate EnsureEstate(IEconomicZone zone, ICharacter deceased)
     {
         IEstate estate = deceased.Gameworld.Estates
-            .Where(x => x.Character == deceased &&
+            .Where(x => CharacterInstanceIdentityComparer.SameIdentity(x.Character, deceased) &&
                         x.EconomicZone == zone &&
                         x.EstateStatus != EstateStatus.Cancelled &&
                         x.EstateStatus != EstateStatus.Finalised)
@@ -78,7 +78,7 @@ public static class MorgueService
         {
             IGameItem bundle = zone.MorgueStorageCell.GameItems.FirstOrDefault(x =>
                 x.EffectsOfType<MorgueBelongings>().Any(y =>
-                    y.CharacterOwnerId == corpse.OriginalCharacter.Id &&
+                    y.CharacterOwnerId == CharacterInstanceIdentityComparer.IdentityId(corpse.OriginalCharacter) &&
                     y.EstateId == (estate?.Id ?? 0) &&
                     y.EconomicZoneId == zone.Id));
             if (bundle == null)

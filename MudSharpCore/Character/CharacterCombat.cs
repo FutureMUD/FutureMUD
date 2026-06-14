@@ -857,7 +857,7 @@ public partial class Character
             dbchar.AlliesCharacter.Add(new Ally
             {
                 AllyId = ally,
-                CharacterId = _id
+                CharacterId = CharacterInstanceIdentityComparer.IdentityId(this)
             });
         }
 

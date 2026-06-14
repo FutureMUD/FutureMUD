@@ -227,7 +227,7 @@ The syntax is:
 
         oldCh = actor.Gameworld.TryGetCharacter(npc.BodyguardingCharacterID ?? 0, true);
         oldCh?.OutputHandler?.Send($"{npc.HowSeen(oldCh, true)} is no longer bodyguarding you.");
-        npc.BodyguardingCharacterID = target.Id;
+        npc.BodyguardingCharacterID = CharacterInstanceIdentityComparer.IdentityId(target);
         target.OutputHandler.Send($"{npc.HowSeen(target, true)} is now bodyguarding you.");
     }
 

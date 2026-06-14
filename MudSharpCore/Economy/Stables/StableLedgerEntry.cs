@@ -16,7 +16,7 @@ public class StableLedgerEntry : FrameworkItem, IStableLedgerEntry
 		Stay = stay;
 		EntryType = entryType;
 		MudDateTime = mudDateTime;
-		ActorId = actor?.Id;
+		ActorId = CharacterInstanceIdentityComparer.IdentityId(actor);
 		ActorName = actor?.PersonalName.GetName(MudSharp.Character.Name.NameStyle.FullName);
 		Amount = amount;
 		Note = note;

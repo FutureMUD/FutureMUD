@@ -2695,8 +2695,8 @@ Note: most often you will want to use the #3TRAITEXPRESSION#0 command to edit th
             if (deathProg?.ExecuteBool(character) != false)
             {
                 deathBoard.MakeNewPost(default(IAccount),
-                    $"{character.Id} - {character.PersonalName.GetName(NameStyle.FullWithNickname)} Resurrected by {actor.Account.Name.Proper()}",
-                    $"Character #{character.Id} ({character.PersonalName.GetName(NameStyle.FullWithNickname)}) was resurrected by {actor.Account.Name.Proper()}."
+                    $"{CharacterInstanceIdentityComparer.IdentityId(character)} - {character.PersonalName.GetName(NameStyle.FullWithNickname)} Resurrected by {actor.Account.Name.Proper()}",
+                    $"Character #{CharacterInstanceIdentityComparer.IdentityId(character)} ({character.PersonalName.GetName(NameStyle.FullWithNickname)}) was resurrected by {actor.Account.Name.Proper()}."
                 );
             }
         }

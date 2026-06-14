@@ -29,7 +29,8 @@ public class StableAccount : SaveableItem, IStableAccount
 		Gameworld = stable.Gameworld;
 		Stable = stable;
 		_accountName = accountName;
-		AccountOwnerId = accountOwner.Id;
+		var accountOwnerIdentityId = CharacterInstanceIdentityComparer.IdentityId(accountOwner);
+		AccountOwnerId = accountOwnerIdentityId;
 		_accountOwnerName = accountOwner.CurrentName;
 		_creditLimit = creditLimit;
 		_balance = 0.0M;
@@ -40,7 +41,7 @@ public class StableAccount : SaveableItem, IStableAccount
 			{
 				StableId = stable.Id,
 				AccountName = accountName,
-				AccountOwnerId = accountOwner.Id,
+				AccountOwnerId = accountOwnerIdentityId,
 				AccountOwnerName = accountOwner.CurrentName.SaveToXml().ToString(),
 				Balance = 0.0M,
 				CreditLimit = creditLimit,
@@ -53,7 +54,7 @@ public class StableAccount : SaveableItem, IStableAccount
 			dbitem.AccountUsers.Add(new MudSharp.Models.StableAccountUser
 			{
 				StableAccountId = dbitem.Id,
-				AccountUserId = accountOwner.Id,
+				AccountUserId = accountOwnerIdentityId,
 				AccountUserName = accountOwner.CurrentName.SaveToXml().ToString(),
 				SpendingLimit = null
 			});
@@ -62,7 +63,7 @@ public class StableAccount : SaveableItem, IStableAccount
 
 		_accountUsers.Add(new StableAccountUser
 		{
-			Id = accountOwner.Id,
+			Id = accountOwnerIdentityId,
 			PersonalName = accountOwner.CurrentName
 		});
 	}
@@ -143,7 +144,8 @@ public class StableAccount : SaveableItem, IStableAccount
 
 	public StableAccountAuthorisationFailureReason IsAuthorisedToUse(ICharacter actor, decimal amount)
 	{
-		var user = _accountUsers.FirstOrDefault(x => x.Id == actor.Id);
+		var actorIdentityId = CharacterInstanceIdentityComparer.IdentityId(actor);
+		var user = _accountUsers.FirstOrDefault(x => x.Id == actorIdentityId);
 		if (user is null)
 		{
 			return StableAccountAuthorisationFailureReason.NotAuthorisedAccountUser;
@@ -172,7 +174,7 @@ public class StableAccount : SaveableItem, IStableAccount
 
 	public decimal MaximumAuthorisedToUse(ICharacter actor)
 	{
-		var user = _accountUsers.FirstOrDefault(x => x.Id == actor.Id);
+		var user = _accountUsers.FirstOrDefault(x => x.Id == CharacterInstanceIdentityComparer.IdentityId(actor));
 		if (user is null || IsSuspended)
 		{
 			return 0.0M;
@@ -183,26 +185,27 @@ public class StableAccount : SaveableItem, IStableAccount
 
 	public bool IsAccountOwner(ICharacter actor)
 	{
-		return actor.Id == AccountOwnerId;
+		return CharacterInstanceIdentityComparer.IdentityId(actor) == AccountOwnerId;
 	}
 
 	public void SetAccountOwner(ICharacter actor)
 	{
-		AccountOwnerId = actor.Id;
+		AccountOwnerId = CharacterInstanceIdentityComparer.IdentityId(actor);
 		_accountOwnerName = actor.CurrentName;
 		Changed = true;
 	}
 
 	public void AddAuthorisation(ICharacter actor, decimal? spendingLimit)
 	{
-		if (_accountUsers.Any(x => x.Id == actor.Id))
+		var actorIdentityId = CharacterInstanceIdentityComparer.IdentityId(actor);
+		if (_accountUsers.Any(x => x.Id == actorIdentityId))
 		{
 			return;
 		}
 
 		_accountUsers.Add(new StableAccountUser
 		{
-			Id = actor.Id,
+			Id = actorIdentityId,
 			PersonalName = actor.CurrentName,
 			SpendingLimit = spendingLimit
 		});

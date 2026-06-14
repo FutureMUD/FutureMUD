@@ -1346,8 +1346,9 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
             if (!_characters.Has(actor))
             {
                 _characters.Add(actor);
-                _cachedPersonalNames.RemoveAll(x => x.Id == actor.Id);
-                _cachedPersonalNames.Add(new CharacterPersonalNameLookup { PersonalName = actor.PersonalName, Id = actor.Id });
+                var actorIdentityId = CharacterInstanceIdentityComparer.IdentityId(actor);
+                _cachedPersonalNames.RemoveAll(x => x.Id == actorIdentityId);
+                _cachedPersonalNames.Add(new CharacterPersonalNameLookup { PersonalName = actor.PersonalName, Id = actorIdentityId });
             }
 
             GameStatistics.UpdateOnlinePlayers();

@@ -1766,14 +1766,16 @@ You can also use this command to test against someone else. This always echoes.
             return;
         }
 
-        if (target == actor)
+        if (target == actor || target is ICharacter targetCharacter &&
+            CharacterInstanceIdentityComparer.SameIdentity(actor, targetCharacter))
         {
             actor.OutputHandler.Send("You cannot dub yourself.");
             return;
         }
 
+        var targetDubId = CharacterInstanceIdentityComparer.FrameworkItemId(target);
         IDub targetDub =
-            actor.Dubs.FirstOrDefault(x => x.TargetId == target.Id && x.TargetType == target.FrameworkItemType);
+            actor.Dubs.FirstOrDefault(x => x.TargetId == targetDubId && x.TargetType == target.FrameworkItemType);
         if (targetDub != null)
         {
             if (targetDub.Keywords.Any(x => x.Equals(keywordText, StringComparison.InvariantCultureIgnoreCase)))
@@ -1795,7 +1797,7 @@ You can also use this command to test against someone else. This always echoes.
                 dbdub.LastDescription = target.HowSeen(actor, colour: false, flags: PerceiveIgnoreFlags.IgnoreNamesSetting);
                 dbdub.LastUsage = DateTime.UtcNow;
                 dbdub.Keywords = keywordText;
-                dbdub.TargetId = target.Id;
+                dbdub.TargetId = targetDubId;
                 dbdub.TargetType = target.FrameworkItemType;
                 FMDB.Context.SaveChanges();
                 actor.Dubs.Add(new Dub(dbdub, actor, actor.Gameworld));
@@ -1820,7 +1822,9 @@ You can also use this command to test against someone else. This always echoes.
             return;
         }
 
-        IDub dub = actor.Dubs.FirstOrDefault(x => x.TargetId == target.Id && x.TargetType == target.FrameworkItemType);
+        var targetIdentityId = CharacterInstanceIdentityComparer.IdentityId(target);
+        IDub dub = actor.Dubs.FirstOrDefault(x =>
+            x.TargetId == targetIdentityId && x.TargetType == target.FrameworkItemType);
         if (dub == null)
         {
             actor.Send("You must first dub someone before you can set a dub name for them.");
@@ -1935,14 +1939,14 @@ You can also use this command to test against someone else. This always echoes.
             return;
         }
 
-        if (actor.Dubs.All(x => x.TargetId != target.Id || x.TargetType != "Character"))
+        var targetIdentityId = CharacterInstanceIdentityComparer.IdentityId(target);
+        if (actor.Dubs.All(x => x.TargetId != targetIdentityId || x.TargetType != "Character"))
         {
             actor.Send("You must know someone well enough to have given them a dub in order to make them your ally.");
             return;
         }
 
         bool trusted = ss.Peek().EqualTo("trusted");
-        var targetIdentityId = CharacterInstanceIdentityComparer.IdentityId(target);
         if (actor.AllyIDs.Contains(targetIdentityId))
         {
             if (trusted && actor.TrustedAllyIDs.Contains(targetIdentityId))
@@ -2001,7 +2005,10 @@ You can also use this command to test against someone else. This always echoes.
                 return;
             }
 
-            targetDub = actor.Dubs.FirstOrDefault(x => x.TargetId == target.Id && x.TargetType == "Character");
+            var targetIdentityId = target is ICharacter targetCharacter
+                ? CharacterInstanceIdentityComparer.IdentityId(targetCharacter)
+                : target.Id;
+            targetDub = actor.Dubs.FirstOrDefault(x => x.TargetId == targetIdentityId && x.TargetType == "Character");
             if (targetDub == null || !actor.AllyIDs.Contains(targetDub.TargetId))
             {
                 actor.Send("{0} is not someone that you have allied.", target.HowSeen(actor));

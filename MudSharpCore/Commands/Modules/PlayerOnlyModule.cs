@@ -707,15 +707,16 @@ The syntax is #3INTRODUCE ME#0 or #3INTRODUCE <person>#0. You can append a brack
         }
 
         string targetName, firstName;
-        if (target == actor)
+        if (target == actor || CharacterInstanceIdentityComparer.SameIdentity(actor, target))
         {
             targetName = actor.CurrentName.GetName(NameStyle.FullName);
             firstName = actor.CurrentName.GetName(NameStyle.GivenOnly).ToLowerInvariant();
         }
         else
         {
+            var targetDubId = CharacterInstanceIdentityComparer.IdentityId(target);
             IDub actorDub =
-                actor.Dubs.FirstOrDefault(x => x.TargetId == target.Id && x.TargetType == target.FrameworkItemType);
+                actor.Dubs.FirstOrDefault(x => x.TargetId == targetDubId && x.TargetType == target.FrameworkItemType);
             if (actorDub == null)
             {
                 actor.OutputHandler.Send("You can only introduce people that you have dubbed and given a name.");
@@ -740,6 +741,7 @@ The syntax is #3INTRODUCE ME#0 or #3INTRODUCE <person>#0. You can append a brack
         using (new FMDB())
         {
             List<(ICharacter owner, Models.Dub newDub)> addedDubs = new();
+            var targetDubId = CharacterInstanceIdentityComparer.IdentityId(target);
             foreach (ICharacter tch in actor.Location.LayerCharacters(actor.RoomLayer))
             {
                 if (tch == actor || !tch.CanHear(actor))
@@ -748,7 +750,7 @@ The syntax is #3INTRODUCE ME#0 or #3INTRODUCE <person>#0. You can append a brack
                 }
 
                 IDub dub = tch.Dubs.FirstOrDefault(x =>
-                    x.TargetId == target.Id && x.TargetType == target.FrameworkItemType);
+                    x.TargetId == targetDubId && x.TargetType == target.FrameworkItemType);
                 if (dub != null)
                 {
                     if (string.IsNullOrEmpty(dub.IntroducedName))
@@ -765,7 +767,7 @@ The syntax is #3INTRODUCE ME#0 or #3INTRODUCE <person>#0. You can append a brack
                 dbdub.LastDescription = target.HowSeen(tch, colour: false);
                 dbdub.LastUsage = DateTime.UtcNow;
                 dbdub.Keywords = firstName;
-                dbdub.TargetId = target.Id;
+                dbdub.TargetId = targetDubId;
                 dbdub.TargetType = target.FrameworkItemType;
                 dbdub.IntroducedName = targetName;
                 addedDubs.Add((tch, dbdub));

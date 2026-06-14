@@ -4,6 +4,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using MudSharp.Body;
 using MudSharp.Character;
+using MudSharp.Framework;
 
 namespace MudSharp_Unit_Tests;
 
@@ -27,6 +28,23 @@ public class CharacterInstanceIdentityComparerTests
 		character.SetupGet(x => x.Identity).Returns(identity);
 
 		Assert.AreEqual(42, CharacterInstanceIdentityComparer.IdentityId(character.Object));
+	}
+
+	[TestMethod]
+	public void FrameworkItemId_SecondaryCharacter_ReturnsOwningIdentityId()
+	{
+		var projection = CreateCharacter(20, 10, 200);
+
+		Assert.AreEqual(10, CharacterInstanceIdentityComparer.FrameworkItemId(projection.Object));
+	}
+
+	[TestMethod]
+	public void FrameworkItemId_NonCharacter_ReturnsFrameworkItemId()
+	{
+		var item = new Mock<IFrameworkItem>();
+		item.SetupGet(x => x.Id).Returns(99);
+
+		Assert.AreEqual(99, CharacterInstanceIdentityComparer.FrameworkItemId(item.Object));
 	}
 
 	[TestMethod]

@@ -278,6 +278,7 @@ public class ArenaBettingService : IArenaBettingService
 
         foreach ((ICharacter Winner, decimal Amount, bool Online) payout in payouts)
         {
+            var winnerIdentityId = CharacterInstanceIdentityComparer.IdentityId(payout.Winner);
             arenaEvent.Arena.Debit(payout.Amount, $"Arena payout for event #{arenaEvent.Id}");
             if (payout.Online && _paymentService.TryDisburse(payout.Winner, arenaEvent, payout.Amount))
             {
@@ -289,7 +290,7 @@ public class ArenaBettingService : IArenaBettingService
                 ArenaBetPayout record = new()
                 {
                     ArenaEventId = arenaEvent.Id,
-                    CharacterId = payout.Winner.Id,
+                    CharacterId = winnerIdentityId,
                     Amount = payout.Amount,
                     PayoutType = (int)ArenaPayoutType.Bet,
                     IsBlocked = false,
@@ -300,7 +301,7 @@ public class ArenaBettingService : IArenaBettingService
                 continue;
             }
 
-            RecordOutstandingPayout(context, arenaEvent, payout.Winner.Id, payout.Amount);
+            RecordOutstandingPayout(context, arenaEvent, winnerIdentityId, payout.Amount);
             if (payout.Online)
             {
                 string owedText = arenaEvent.Arena.Currency

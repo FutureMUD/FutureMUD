@@ -156,7 +156,8 @@ public partial class Clan
 	private bool CanManageExternalControl(ICharacter actor, IExternalClanControl control, IClan liegeClan,
 		out IClanMembership? actorMembership)
 	{
-		actorMembership = liegeClan.Memberships.FirstOrDefault(x => x.MemberId == actor.Id);
+		var actorIdentityId = CharacterInstanceIdentityComparer.IdentityId(actor);
+		actorMembership = liegeClan.Memberships.FirstOrDefault(x => x.MemberId == actorIdentityId);
 		if (actor.IsAdministrator(PermissionLevel.Admin))
 		{
 			return true;
@@ -640,7 +641,8 @@ public partial class Clan
 			return;
 		}
 
-		if (election.Nominees.Any(x => x.MemberId == actor.Id))
+		var actorIdentityId = CharacterInstanceIdentityComparer.IdentityId(actor);
+		if (election.Nominees.Any(x => x.MemberId == actorIdentityId))
 		{
 			actor.OutputHandler.Send(
 				$"You are already a candidate for the election of {election.Appointment.Title(actor).ColourName()} in {election.Appointment.Clan.FullName.ColourName()}.");
@@ -687,7 +689,8 @@ public partial class Clan
 				return;
 		}
 
-		if (!election.Nominees.Any(x => x.MemberId == actor.Id))
+		var actorIdentityId = CharacterInstanceIdentityComparer.IdentityId(actor);
+		if (!election.Nominees.Any(x => x.MemberId == actorIdentityId))
 		{
 			actor.OutputHandler.Send(
 				$"You are not a candidate for the election of {election.Appointment.Title(actor).ColourName()} in {election.Appointment.Clan.FullName.ColourName()}.");
@@ -769,8 +772,9 @@ public partial class Clan
 		}
 
 		var voteChoice = election.Nominees.First(x => x.PersonalName == nomineeName);
-		var verb = election.Votes.Any(x => x.Voter.MemberId == actor.Id) ? "change" : "cast";
-		var particle = election.Votes.Any(x => x.Voter.MemberId == actor.Id) ? "to" : "for";
+		var actorIdentityId = CharacterInstanceIdentityComparer.IdentityId(actor);
+		var verb = election.Votes.Any(x => x.Voter.MemberId == actorIdentityId) ? "change" : "cast";
+		var particle = election.Votes.Any(x => x.Voter.MemberId == actorIdentityId) ? "to" : "for";
 		election.Vote(actorMembership, voteChoice, votes);
 		actor.OutputHandler.Send(
 			$"You {verb} your {(votes == 1 ? "vote" : $"{votes.ToString("N0", actor)} votes")} in the election for {election.Appointment.Name.ColourName()} in {election.Appointment.Clan.FullName.ColourName()} {particle} {nomineeName.GetName(NameStyle.FullName)}.");
@@ -1339,7 +1343,8 @@ public partial class Clan
 			return;
 		}
 
-		var targetMembership = Memberships.FirstOrDefault(x => !x.IsArchivedMembership && x.MemberId == targetActor.Id);
+		var targetIdentityId = CharacterInstanceIdentityComparer.IdentityId(targetActor);
+		var targetMembership = Memberships.FirstOrDefault(x => !x.IsArchivedMembership && x.MemberId == targetIdentityId);
 		if (targetMembership is not null && targetMembership.Appointments.Contains(control!.ControlledAppointment))
 		{
 			actor.OutputHandler.Send("They already hold that position, and so cannot be appointed again.");
@@ -1356,7 +1361,7 @@ public partial class Clan
 		if (targetMembership is null)
 		{
 			var rank = control.ControlledAppointment.MinimumRankToHold ?? Ranks.FirstMin(x => x.RankNumber);
-			var archived = Memberships.FirstOrDefault(x => x.IsArchivedMembership && x.MemberId == targetActor.Id);
+			var archived = Memberships.FirstOrDefault(x => x.IsArchivedMembership && x.MemberId == targetIdentityId);
 			if (archived is not null)
 			{
 				archived.IsArchivedMembership = false;
@@ -1375,7 +1380,7 @@ public partial class Clan
 				{
 					var dbitem = new MudSharp.Models.ClanMembership
 					{
-						CharacterId = targetActor.Id,
+						CharacterId = targetIdentityId,
 						ClanId = Id,
 						RankId = rank!.Id,
 						PaygradeId = rank.Paygrades.Any() ? rank.Paygrades.First().Id : (long?)null,
@@ -1401,7 +1406,7 @@ public partial class Clan
 			var dbappointment = FMDB.Context.ExternalClanControls.Find(Id, liegeClan!.Id, control.ControlledAppointment.Id);
 			dbappointment!.ExternalClanControlsAppointments.Add(new ExternalClanControlsAppointment
 			{
-				CharacterId = targetActor.Id
+				CharacterId = targetIdentityId
 			});
 			FMDB.Context.SaveChanges();
 		}

@@ -41,11 +41,17 @@ public class Patrol : SaveableItem, IPatrol
             {
                 LegalAuthorityId = authority.Id,
                 PatrolRouteId = route.Id,
-                PatrolLeaderId = leader.Id,
+                PatrolLeaderId = CharacterInstanceIdentityComparer.IdentityId(leader),
                 PatrolPhase = (int)PatrolPhase.Preperation
             };
             dbitem.PatrolMembers =
-                members.Select(x => new PatrolMember { Patrol = dbitem, CharacterId = x.Id }).ToList();
+                members
+                    .Select(x => new PatrolMember
+                    {
+                        Patrol = dbitem,
+                        CharacterId = CharacterInstanceIdentityComparer.IdentityId(x)
+                    })
+                    .ToList();
 
             FMDB.Context.Patrols.Add(dbitem);
             FMDB.Context.SaveChanges();
@@ -187,12 +193,16 @@ public class Patrol : SaveableItem, IPatrol
         Models.Patrol dbitem = FMDB.Context.Patrols.Find(Id);
         dbitem.LastMajorNodeId = LastMajorNode?.Id;
         dbitem.NextMajorNodeId = NextMajorNode?.Id;
-        dbitem.PatrolLeaderId = PatrolLeader?.Id;
+        dbitem.PatrolLeaderId = PatrolLeader is null ? null : CharacterInstanceIdentityComparer.IdentityId(PatrolLeader);
         dbitem.PatrolPhase = (int)PatrolPhase;
         dbitem.PatrolMembers.Clear();
         foreach (ICharacter item in PatrolMembers)
         {
-            dbitem.PatrolMembers.Add(new PatrolMember { Patrol = dbitem, CharacterId = item.Id });
+            dbitem.PatrolMembers.Add(new PatrolMember
+            {
+                Patrol = dbitem,
+                CharacterId = CharacterInstanceIdentityComparer.IdentityId(item)
+            });
         }
 
         Changed = false;

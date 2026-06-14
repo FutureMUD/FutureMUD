@@ -389,7 +389,7 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 				EmploymentHostStateId = StateId,
 				CorrelationId = entry.CorrelationId.ToString("D"),
 				EntryType = (int)entry.EntryType,
-				ActorId = entry.Actor?.Id,
+				ActorId = entry.Actor is null ? null : CharacterInstanceIdentityComparer.IdentityId(entry.Actor),
 				Description = entry.Description,
 				RecordedAt = entry.RecordedAt.UtcDateTime
 			});
@@ -407,7 +407,7 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 				EmploymentHostStateId = StateId,
 				CorrelationId = entry.CorrelationId.ToString("D"),
 				EntryType = (int)entry.EntryType,
-				ActorId = entry.Actor?.Id,
+				ActorId = entry.Actor is null ? null : CharacterInstanceIdentityComparer.IdentityId(entry.Actor),
 				AmountCurrencyId = entry.Amount?.Currency.Id,
 				Amount = entry.Amount?.Amount,
 				Description = entry.Description,

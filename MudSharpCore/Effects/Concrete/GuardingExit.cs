@@ -136,7 +136,8 @@ public class GuardingExit : Effect, IGuardExitEffect
             return true;
         }
 
-        if (_permittedExemptionCharacterIds.Contains(ch.Id))
+        var characterIdentityId = CharacterInstanceIdentityComparer.IdentityId(ch);
+        if (_permittedExemptionCharacterIds.Contains(characterIdentityId))
         {
             return true;
         }
@@ -151,7 +152,8 @@ public class GuardingExit : Effect, IGuardExitEffect
             return true;
         }
 
-        if (ch.Party?.ActiveCharacterMembers.Any(x => _permittedExemptionCharacterIds.Contains(x.Id)) ==
+        if (ch.Party?.ActiveCharacterMembers.Any(x =>
+                _permittedExemptionCharacterIds.Contains(CharacterInstanceIdentityComparer.IdentityId(x))) ==
             true)
         {
             return true;
@@ -162,10 +164,11 @@ public class GuardingExit : Effect, IGuardExitEffect
 
     public void Exempt(ICharacter ch)
     {
-        if (!_permittedExemptionCharacterIds.Contains(ch.Id))
+        var characterIdentityId = CharacterInstanceIdentityComparer.IdentityId(ch);
+        if (!_permittedExemptionCharacterIds.Contains(characterIdentityId))
         {
-            _permittedExemptionCharacterIds.Add(ch.Id);
-            _permittedExemptionCharacterLastDescs[ch.Id] = ch.HowSeen(CharacterOwner, colour: false);
+            _permittedExemptionCharacterIds.Add(characterIdentityId);
+            _permittedExemptionCharacterLastDescs[characterIdentityId] = ch.HowSeen(CharacterOwner, colour: false);
             Changed = true;
         }
     }
@@ -182,8 +185,9 @@ public class GuardingExit : Effect, IGuardExitEffect
 
     public void RemoveExemption(ICharacter ch)
     {
-        _permittedExemptionCharacterIds.Remove(ch.Id);
-        _permittedExemptionCharacterLastDescs.Remove(ch.Id);
+        var characterIdentityId = CharacterInstanceIdentityComparer.IdentityId(ch);
+        _permittedExemptionCharacterIds.Remove(characterIdentityId);
+        _permittedExemptionCharacterLastDescs.Remove(characterIdentityId);
         Changed = true;
     }
 

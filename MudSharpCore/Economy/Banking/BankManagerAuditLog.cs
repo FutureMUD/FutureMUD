@@ -31,7 +31,7 @@ public class BankManagerAuditLog : LateInitialisingItem, IBankManagerAuditLog
         Bank = bank;
         DateTime = datetime;
         Detail = detail;
-        _characterId = character.Id;
+        _characterId = CharacterInstanceIdentityComparer.IdentityId(character);
         _character = character;
         Gameworld.SaveManager.AddInitialisation(this);
     }

@@ -74,11 +74,11 @@ public sealed class CharacterComputerWorkspace : ICharacterComputerWorkspace
 
 	public ICharacter Owner { get; }
 	public string Name => $"{Owner.HowSeen(Owner, true)} workspace";
-	public long FileOwnerId => Owner.Id;
-	public long? OwnerCharacterId => Owner.Id;
+	public long FileOwnerId => CharacterInstanceIdentityComparer.IdentityId(Owner);
+	public long? OwnerCharacterId => CharacterInstanceIdentityComparer.IdentityId(Owner);
 	public long? OwnerHostItemId => null;
 	public long? OwnerStorageItemId => null;
-	public IComputerHost ExecutionHost => new CharacterWorkspaceHost(Owner.Gameworld, Owner.Id,
+	public IComputerHost ExecutionHost => new CharacterWorkspaceHost(Owner.Gameworld, CharacterInstanceIdentityComparer.IdentityId(Owner),
 		() => Executables,
 		() => Processes);
 	public IComputerFileSystem? FileSystem => null;

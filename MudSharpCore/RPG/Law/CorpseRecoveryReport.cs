@@ -43,7 +43,7 @@ public class CorpseRecoveryReport : SaveableItem, ICorpseRecoveryReport
         _corpseId = corpse.Id;
         _sourceCellId = sourceCell.Id;
         _destinationCellId = economicZone.MorgueStorageCell.Id;
-        _reporterId = reporter?.Id;
+        _reporterId = reporter is null ? null : CharacterInstanceIdentityComparer.IdentityId(reporter);
         Status = CorpseRecoveryReportStatus.Pending;
 
         using (new FMDB())
@@ -55,7 +55,7 @@ public class CorpseRecoveryReport : SaveableItem, ICorpseRecoveryReport
                 CorpseId = corpse.Id,
                 SourceCellId = sourceCell.Id,
                 DestinationCellId = economicZone.MorgueStorageCell.Id,
-                ReporterId = reporter?.Id,
+                ReporterId = reporter is null ? null : CharacterInstanceIdentityComparer.IdentityId(reporter),
                 Status = (int)Status
             };
             FMDB.Context.CorpseRecoveryReports.Add(dbitem);

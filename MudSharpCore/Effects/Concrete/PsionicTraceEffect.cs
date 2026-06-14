@@ -25,8 +25,8 @@ public sealed class PsionicTraceEffect : Effect, IPsionicTraceEffect
 		Guid traceId, DateTime createdUtc, TimeSpan traceDuration) : base(owner)
 	{
 		TraceId = traceId;
-		SourceCharacterId = source.Id;
-		TargetCharacterId = target?.Id;
+		SourceCharacterId = CharacterInstanceIdentityComparer.IdentityId(source);
+		TargetCharacterId = target is null ? null : CharacterInstanceIdentityComparer.IdentityId(target);
 		SourceCellId = sourceCell?.Id;
 		PowerId = power.Id;
 		SchoolId = power.School.Id;
@@ -83,13 +83,14 @@ public sealed class PsionicTraceEffect : Effect, IPsionicTraceEffect
 	public IMagicSchool School => Gameworld.MagicSchools.Get(SchoolId)!;
 	public IMagicPower PowerOrigin => Gameworld.MagicPowers.Get(PowerId)!;
 	public Difficulty DetectMagicDifficulty => ReadDifficulty;
-	public ICharacter? SourceCharacter => SourceCharacterId > 0 ? Gameworld.Actors.Get(SourceCharacterId) : null;
-	public ICharacter? TargetCharacter => TargetCharacterId is > 0 ? Gameworld.Actors.Get(TargetCharacterId.Value) : null;
+	public ICharacter? SourceCharacter => SourceCharacterId > 0 ? Gameworld.TryGetCharacter(SourceCharacterId, true) : null;
+	public ICharacter? TargetCharacter => TargetCharacterId is > 0 ? Gameworld.TryGetCharacter(TargetCharacterId.Value, true) : null;
 	public ICell? SourceCell => SourceCellId is > 0 ? Gameworld.Cells.Get(SourceCellId.Value) : null;
 
 	public bool Involves(ICharacter character)
 	{
-		return character.Id == SourceCharacterId || character.Id == TargetCharacterId;
+		var characterIdentityId = CharacterInstanceIdentityComparer.IdentityId(character);
+		return characterIdentityId == SourceCharacterId || characterIdentityId == TargetCharacterId;
 	}
 
 	public override string Describe(IPerceiver voyeur)

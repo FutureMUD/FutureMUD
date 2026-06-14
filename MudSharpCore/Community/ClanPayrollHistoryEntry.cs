@@ -44,7 +44,7 @@ public class ClanPayrollHistoryEntry : IClanPayrollHistoryEntry
 		Paygrade = paygrade;
 		Appointment = appointment;
 		_actor = actor;
-		_actorId = actor?.Id;
+		_actorId = actor is null ? null : CharacterInstanceIdentityComparer.IdentityId(actor);
 		Currency = currency;
 		Amount = amount;
 		EntryType = entryType;
@@ -60,7 +60,7 @@ public class ClanPayrollHistoryEntry : IClanPayrollHistoryEntry
 				RankId = membership.Rank.Id,
 				PaygradeId = paygrade?.Id,
 				AppointmentId = appointment?.Id,
-				ActorId = actor?.Id,
+				ActorId = actor is null ? null : CharacterInstanceIdentityComparer.IdentityId(actor),
 				CurrencyId = currency.Id,
 				Amount = amount,
 				EntryType = (int)entryType,

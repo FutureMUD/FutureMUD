@@ -215,6 +215,12 @@ public class Vehicle : SaveableItem, IVehicle
 			return false;
 		}
 
+		if (!actor.IsPrimaryInstance)
+		{
+			reason = "Temporary and secondary bodies cannot board vehicles until vehicle occupancy tracks character instances.";
+			return false;
+		}
+
 		if (IsOccupant(actor))
 		{
 			reason = "You are already aboard that vehicle.";
@@ -320,7 +326,7 @@ public class Vehicle : SaveableItem, IVehicle
 			var dbitem = new DB.VehicleOccupancy
 			{
 				VehicleId = Id,
-				CharacterId = actor.Id,
+				CharacterId = CharacterInstanceIdentityComparer.IdentityId(actor),
 				VehicleOccupantSlotProtoId = slot.Id,
 				IsController = isController
 			};

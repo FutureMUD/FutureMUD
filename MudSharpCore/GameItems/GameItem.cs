@@ -274,6 +274,11 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
 
     public bool IsOwnedBy(IFrameworkItem owner)
     {
+        if (owner is ICharacter character && _ownerReference?.FrameworkItemType == "Character")
+        {
+            return _ownerReference.Id == CharacterInstanceIdentityComparer.IdentityId(character);
+        }
+
         return _ownerReference?.Equals(owner) == true;
     }
 
@@ -282,7 +287,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
         _owner = owner;
         _ownerReference = owner == null
             ? null
-            : new FrameworkItemReference(owner.Id, owner.FrameworkItemType, Gameworld);
+            : new FrameworkItemReference(CharacterInstanceIdentityComparer.FrameworkItemId(owner), owner.FrameworkItemType, Gameworld);
         Changed = true;
     }
 

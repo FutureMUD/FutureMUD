@@ -663,8 +663,9 @@ Syntax:
 		}
 
 		var pullMultiplier = targetTowPoint?.CharacterPullMultiplier ?? 1.0;
-		HitchGearRules.Reserve(hitchItem, vehicleHitchLinkId: persistentLinkId, sourceCharacterId: source.Id,
-			targetId: target.Id);
+		HitchGearRules.Reserve(hitchItem, vehicleHitchLinkId: persistentLinkId,
+			sourceCharacterId: CharacterInstanceIdentityComparer.IdentityId(source),
+			targetId: CharacterInstanceIdentityComparer.FrameworkItemId(target));
 		source.AddEffect(new CharacterHitch(source, target, pullMultiplier, targetTowPoint?.Id, persistentLinkId,
 			hitchItem?.Id));
 		source.AddEffect(new Dragging(source, dragAid, target));
@@ -756,7 +757,7 @@ Syntax:
 
 		if (actor.Gameworld.VehicleHitchLinks?.Any(x =>
 			    x.SourceType == VehicleHitchEndpointType.Character &&
-			    x.SourceCharacterId == source.Id) == true)
+			    x.SourceCharacterId == CharacterInstanceIdentityComparer.IdentityId(source)) == true)
 		{
 			reason = $"{source.HowSeen(actor, true)} already has a persistent hitch link.";
 			return false;
@@ -784,7 +785,7 @@ Syntax:
 		{
 			if (actor.Gameworld.VehicleHitchLinks?.Any(x =>
 				    x.TargetType == VehicleHitchEndpointType.Character &&
-				    x.TargetCharacterId == targetCharacter.Id) == true)
+				    x.TargetCharacterId == CharacterInstanceIdentityComparer.IdentityId(targetCharacter)) == true)
 			{
 				reason = $"{targetCharacter.HowSeen(actor, true)} already has a persistent hitch link.";
 				return false;

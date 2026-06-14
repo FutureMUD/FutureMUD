@@ -608,17 +608,18 @@ Economic zone manager commands:
 
 	private static void RoomRentCheckout(ICharacter actor, StringStack ss)
 	{
+		var actorIdentityId = CharacterInstanceIdentityComparer.IdentityId(actor);
 		IProperty property;
 		IHotelRoom room;
 		if (ss.IsFinished)
 		{
 			property = CurrentProperty(actor);
 			room = property?.HotelRoomForCell(actor.Location);
-			if (room?.ActiveRental?.GuestId != actor.Id)
+			if (room?.ActiveRental?.GuestId != actorIdentityId)
 			{
 				var rentals = actor.Gameworld.Properties
 								   .SelectMany(x => x.HotelRooms)
-								   .Where(x => x.ActiveRental?.GuestId == actor.Id)
+								   .Where(x => x.ActiveRental?.GuestId == actorIdentityId)
 								   .ToList();
 				if (rentals.Count == 1)
 				{
@@ -635,7 +636,7 @@ Economic zone manager commands:
 		else
 		{
 			property = FindRoomRentProperty(actor, ss,
-				actor.Gameworld.Properties.Where(x => x.HotelRooms.Any(y => y.ActiveRental?.GuestId == actor.Id)),
+				actor.Gameworld.Properties.Where(x => x.HotelRooms.Any(y => y.ActiveRental?.GuestId == actorIdentityId)),
 				"Which hotel property do you want to check out of?",
 				"You are not renting a room at such a hotel.");
 			if (property == null)
@@ -646,7 +647,7 @@ Economic zone manager commands:
 			room = FindHotelRoom(actor, property, ss, "check out of");
 		}
 
-		if (room?.ActiveRental?.GuestId != actor.Id)
+		if (room?.ActiveRental?.GuestId != actorIdentityId)
 		{
 			actor.OutputHandler.Send("You are not currently renting that room.");
 			return;
@@ -676,11 +677,12 @@ Economic zone manager commands:
 
 	private static void RoomRentClaim(ICharacter actor, StringStack ss)
 	{
+		var actorIdentityId = CharacterInstanceIdentityComparer.IdentityId(actor);
 		var properties = actor.Gameworld.Properties
 							  .Where(x => x.HotelBalanceFor(actor) > 0.0M ||
 										  x.HotelLostProperties.Any(y =>
 											  y.Status == HotelLostPropertyStatus.Held &&
-											  (y.OwnerId == actor.Id || y.Bundle?.IsOwnedBy(actor) == true)))
+											  (y.OwnerId == actorIdentityId || y.Bundle?.IsOwnedBy(actor) == true)))
 							  .ToList();
 		if (!ss.IsFinished)
 		{
@@ -707,7 +709,7 @@ Economic zone manager commands:
 			didAnything |= TryPayoutHotelBalance(actor, property);
 			foreach (var lost in property.HotelLostProperties
 										 .Where(x => x.Status == HotelLostPropertyStatus.Held &&
-													 (x.OwnerId == actor.Id || x.Bundle?.IsOwnedBy(actor) == true))
+													 (x.OwnerId == actorIdentityId || x.Bundle?.IsOwnedBy(actor) == true))
 										 .ToList())
 			{
 				lost.Bundle.Login();

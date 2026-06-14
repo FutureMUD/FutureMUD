@@ -59,7 +59,7 @@ public class GroupAI : LateInitialisingItem, IGroupAI
             new XElement("Alertness", (int)Alertness),
             new XElement("Members",
                 from ch in GroupMembers
-                select new XElement("Id", ch.Id)
+                select new XElement("Id", CharacterInstanceIdentityComparer.IdentityId(ch))
             )
         );
     }
@@ -140,14 +140,14 @@ public class GroupAI : LateInitialisingItem, IGroupAI
     {
         InitialiseGroupMembers();
         _groupMembers.Add(character);
-        _groupMemberIds.Add(character.Id);
+        _groupMemberIds.Add(CharacterInstanceIdentityComparer.IdentityId(character));
     }
 
     public void RemoveFromGroup(ICharacter character)
     {
         InitialiseGroupMembers();
         _groupMembers.Remove(character);
-        _groupMemberIds.Remove(character.Id);
+        _groupMemberIds.Remove(CharacterInstanceIdentityComparer.IdentityId(character));
     }
 
     public string Show(ICharacter actor)

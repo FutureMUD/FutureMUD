@@ -16,7 +16,7 @@ public class ActivePersonalProject : ActiveProject, IPersonalProject
     public ActivePersonalProject(IProject project, ICharacter owner) : base(project)
     {
         _characterOwner = owner;
-        _characterOwnerId = owner.Id;
+        _characterOwnerId = CharacterInstanceIdentityComparer.IdentityId(owner);
         project.OnStartProg?.Execute(this);
     }
 

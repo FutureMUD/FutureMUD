@@ -42,7 +42,7 @@ public class ClanBudgetTransaction : IClanBudgetTransaction
 	{
 		Budget = budget;
 		_actor = actor;
-		_actorId = actor.Id;
+		_actorId = CharacterInstanceIdentityComparer.IdentityId(actor);
 		_bankAccount = budget.BankAccount;
 		_bankAccountId = budget.BankAccount?.Id;
 		Currency = budget.Currency;
@@ -58,7 +58,7 @@ public class ClanBudgetTransaction : IClanBudgetTransaction
 			var dbitem = new MudSharp.Models.ClanBudgetTransaction
 			{
 				ClanBudgetId = budget.Id,
-				ActorId = actor.Id,
+				ActorId = CharacterInstanceIdentityComparer.IdentityId(actor),
 				BankAccountId = budget.BankAccount?.Id,
 				CurrencyId = budget.Currency.Id,
 				Amount = amount,

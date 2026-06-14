@@ -397,17 +397,18 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
     public void ConvictCrime(ICharacter criminal, ICrime crime, PunishmentResult result)
     {
         MudDateTime now = EnforcementZones.FirstOrDefault()?.DateTime() ?? Gameworld.Calendars.First().CurrentDateTime;
+        var criminalIdentityId = CharacterInstanceIdentityComparer.IdentityId(criminal);
         _knownCrimes.Remove(crime);
-        _knownCrimesLookup.Remove(criminal.Id, crime);
+        _knownCrimesLookup.Remove(criminalIdentityId, crime);
         _resolvedCrimes.Add(crime);
-        _resolvedCrimesLookup.Add(criminal.Id, crime);
+        _resolvedCrimesLookup.Add(criminalIdentityId, crime);
 
         if (result.Fine > 0)
         {
-            _finesOwed[criminal.Id] += result.Fine;
-            if (!_finePaymentDueDates.ContainsKey(criminal.Id))
+            _finesOwed[criminalIdentityId] += result.Fine;
+            if (!_finePaymentDueDates.ContainsKey(criminalIdentityId))
             {
-                _finePaymentDueDates[criminal.Id] = now + MudTimeSpan.FromMonths(1);
+                _finePaymentDueDates[criminalIdentityId] = now + MudTimeSpan.FromMonths(1);
             }
 
             Changed = true;
@@ -638,12 +639,13 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
 
     public (decimal Fine, MudDateTime DueDate) FinesOwed(ICharacter criminal)
     {
-        if (_finesOwed[criminal.Id] == 0.0M)
+        var criminalIdentityId = CharacterInstanceIdentityComparer.IdentityId(criminal);
+        if (_finesOwed[criminalIdentityId] == 0.0M)
         {
             return (0.0M, MudDateTime.Never);
         }
 
-        return (_finesOwed[criminal.Id], _finePaymentDueDates[criminal.Id]);
+        return (_finesOwed[criminalIdentityId], _finePaymentDueDates[criminalIdentityId]);
     }
 
     public void PayFine(ICharacter criminal, ICrime crime)
@@ -658,7 +660,7 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
             crime.TimeOfCrime);
 
         crime.FineHasBeenPaid = true;
-        _finesOwed[criminal.Id] -= crime.FineRecorded;
+        _finesOwed[CharacterInstanceIdentityComparer.IdentityId(criminal)] -= crime.FineRecorded;
     }
 
     public IEnumerable<ICrime> CheckPossibleCrime(ICharacter criminal, CrimeTypes crime, ICharacter victim,
@@ -702,8 +704,9 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
                 continue;
             }
 
-            if (law.DoNotAutomaticallyApplyRepeats && _unknownCrimesLookup[criminal.Id]
-                                                      .Concat(_knownCrimesLookup[criminal.Id]).Any(x =>
+            var criminalIdentityId = CharacterInstanceIdentityComparer.IdentityId(criminal);
+            if (law.DoNotAutomaticallyApplyRepeats && _unknownCrimesLookup[criminalIdentityId]
+                                                      .Concat(_knownCrimesLookup[criminalIdentityId]).Any(x =>
                                                           x.Law.Id == law.Id &&
                                                           x.Victim == victim &&
                                                           (item is null
@@ -725,7 +728,7 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
                 : explicitWitnesses.Except(criminal).Distinct().ToList();
             Crime newCrime = new(criminal, victim, witnesses, law, item, additionalInformation, location);
             _unknownCrimes.Add(newCrime);
-            _unknownCrimesLookup.Add(criminal.Id, newCrime);
+            _unknownCrimesLookup.Add(criminalIdentityId, newCrime);
             Gameworld.Add(newCrime);
             MudSharp.RPG.AIStorytellers.AIStoryteller.HandleCrimeCommittedInRoomEvent(newCrime);
             foreach (ICharacter witness in witnesses)
@@ -853,7 +856,7 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
                              witness?.Location?.DateTime() ?? EnforcementZones.First().DateTime();
         if (crime.AccuserId == null)
         {
-            crime.AccuserId = witness?.Id;
+            crime.AccuserId = witness is null ? null : CharacterInstanceIdentityComparer.IdentityId(witness);
         }
 
         _knownCrimesLookup.Add(crime.CriminalId, crime);
@@ -864,17 +867,17 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
     public IEnumerable<ICrime> KnownCrimesForIndividual(ICharacter character)
     {
         // TODO - compare characteristics
-        return _knownCrimesLookup[character.Id];
+        return _knownCrimesLookup[CharacterInstanceIdentityComparer.IdentityId(character)];
     }
 
     public IEnumerable<ICrime> UnknownCrimesForIndividual(ICharacter character)
     {
-        return _unknownCrimesLookup[character.Id];
+        return _unknownCrimesLookup[CharacterInstanceIdentityComparer.IdentityId(character)];
     }
 
     public IEnumerable<ICrime> ResolvedCrimesForIndividual(ICharacter individual)
     {
-        return _resolvedCrimesLookup[individual.Id];
+        return _resolvedCrimesLookup[CharacterInstanceIdentityComparer.IdentityId(individual)];
     }
     #endregion
 
@@ -1199,7 +1202,7 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
         }
 
         Gameworld.DiscordConnection.NotifyEnforcement("enforcement", DiscordChannelId.Value,
-            $"\"{Name}\" {crime.Criminal.Id} \"{crime.Criminal.PersonalName.GetName(NameStyle.FullName)}\" \"{patrol.PatrolRoute.Name}\" \"{crime.Name}\" \"{patrol.PatrolLeader.Location.GetFriendlyReference(null)}\" \"{crime.Law.EnforcementStrategy.DescribeEnum(true)}\"");
+            $"\"{Name}\" {CharacterInstanceIdentityComparer.IdentityId(crime.Criminal)} \"{crime.Criminal.PersonalName.GetName(NameStyle.FullName)}\" \"{patrol.PatrolRoute.Name}\" \"{crime.Name}\" \"{patrol.PatrolLeader.Location.GetFriendlyReference(null)}\" \"{crime.Law.EnforcementStrategy.DescribeEnum(true)}\"");
     }
 
     public void HandleDiscordNotificationOfConviction(ICharacter criminal, ICrime crime, PunishmentResult result,
@@ -1211,7 +1214,7 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
         }
 
         Gameworld.DiscordConnection.NotifyEnforcement("conviction", DiscordChannelId.Value,
-            $"\"{Name}\" {criminal.Id} \"{criminal.PersonalName.GetName(NameStyle.FullName)}\" \"{crime.Name}\" \"{result.Describe(null, this)}\"");
+            $"\"{Name}\" {CharacterInstanceIdentityComparer.IdentityId(criminal)} \"{criminal.PersonalName.GetName(NameStyle.FullName)}\" \"{crime.Name}\" \"{result.Describe(null, this)}\"");
     }
 
     public void HandleDiscordNotificationOfForgiveness(ICrime crime, ICharacter enforcer)
@@ -1231,7 +1234,7 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
         }
 
         Gameworld.DiscordConnection.NotifyEnforcement("crime", DiscordChannelId.Value,
-            $"\"{Name}\" {criminal.Id} \"{criminal.PersonalName.GetName(NameStyle.FullName)}\" \"{bailAmountText}\"");
+            $"\"{Name}\" {CharacterInstanceIdentityComparer.IdentityId(criminal)} \"{criminal.PersonalName.GetName(NameStyle.FullName)}\" \"{bailAmountText}\"");
     }
 
     public void HandleDiscordNotificationReturnFromBail(ICharacter criminal)
@@ -1242,7 +1245,7 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
         }
 
         Gameworld.DiscordConnection.NotifyEnforcement("returnfrombail", DiscordChannelId.Value,
-            $"\"{Name}\" {criminal.Id} \"{criminal.PersonalName.GetName(NameStyle.FullName)}\"");
+            $"\"{Name}\" {CharacterInstanceIdentityComparer.IdentityId(criminal)} \"{criminal.PersonalName.GetName(NameStyle.FullName)}\"");
     }
 
     public void HandleDiscordNotificationOfRelease(ICharacter criminal)
@@ -1253,7 +1256,7 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
         }
 
         Gameworld.DiscordConnection.NotifyEnforcement("release", DiscordChannelId.Value,
-            $"\"{Name}\" {criminal.Id} \"{criminal.PersonalName.GetName(NameStyle.FullName)}\"");
+            $"\"{Name}\" {CharacterInstanceIdentityComparer.IdentityId(criminal)} \"{criminal.PersonalName.GetName(NameStyle.FullName)}\"");
     }
 
     public void HandleDiscordNotificationOfImprisonment(ICharacter criminal, string imprisonmentLengthText)
@@ -1264,7 +1267,7 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
         }
 
         Gameworld.DiscordConnection.NotifyEnforcement("imprisonment", DiscordChannelId.Value,
-            $"\"{Name}\" {criminal.Id} \"{criminal.PersonalName.GetName(NameStyle.FullName)}\" \"{imprisonmentLengthText}\"");
+            $"\"{Name}\" {CharacterInstanceIdentityComparer.IdentityId(criminal)} \"{criminal.PersonalName.GetName(NameStyle.FullName)}\" \"{imprisonmentLengthText}\"");
     }
 
     private void HandleDiscordNotificationOfIncarceration(ICharacter criminal)
@@ -1275,7 +1278,7 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
         }
 
         Gameworld.DiscordConnection.NotifyEnforcement("incarceration", DiscordChannelId.Value,
-            $"\"{Name}\" {criminal.Id} \"{criminal.PersonalName.GetName(NameStyle.FullName)}\"");
+            $"\"{Name}\" {CharacterInstanceIdentityComparer.IdentityId(criminal)} \"{criminal.PersonalName.GetName(NameStyle.FullName)}\"");
     }
     #endregion
 }

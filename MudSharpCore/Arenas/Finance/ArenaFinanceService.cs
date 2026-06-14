@@ -112,9 +112,10 @@ public class ArenaFinanceService : IArenaFinanceService
             }
 
             int payoutType = (int)ArenaPayoutType.Bet;
+            var winnerIdentityId = CharacterInstanceIdentityComparer.IdentityId(winner);
             ArenaBetPayout? existing = context.ArenaBetPayouts.FirstOrDefault(x =>
                 x.ArenaEventId == arenaEvent.Id &&
-                x.CharacterId == winner.Id &&
+                x.CharacterId == winnerIdentityId &&
                 x.PayoutType == payoutType &&
                 x.IsBlocked &&
                 x.CollectedAt == null);
@@ -123,7 +124,7 @@ public class ArenaFinanceService : IArenaFinanceService
                 context.ArenaBetPayouts.Add(new ArenaBetPayout
                 {
                     ArenaEventId = arenaEvent.Id,
-                    CharacterId = winner.Id,
+                    CharacterId = winnerIdentityId,
                     Amount = amount,
                     PayoutType = payoutType,
                     IsBlocked = true,
@@ -190,7 +191,7 @@ public class ArenaFinanceService : IArenaFinanceService
         List<IArenaParticipant> participants = arenaEvent.Participants
             .Where(x => x.Character is not null)
             .Where(x => !x.IsNpc || arenaEvent.PayNpcAppearanceFee)
-            .GroupBy(x => x.Character!.Id)
+            .GroupBy(x => CharacterInstanceIdentityComparer.IdentityId(x.Character))
             .Select(x => x.First())
             .ToList();
         if (participants.Count == 0)
@@ -207,7 +208,8 @@ public class ArenaFinanceService : IArenaFinanceService
         foreach (IArenaParticipant? participant in participants)
         {
             ICharacter character = participant.Character!;
-            if (existingPayouts.ContainsKey(character.Id))
+            var characterIdentityId = CharacterInstanceIdentityComparer.IdentityId(character);
+            if (existingPayouts.ContainsKey(characterIdentityId))
             {
                 continue;
             }
@@ -219,7 +221,7 @@ public class ArenaFinanceService : IArenaFinanceService
             context.ArenaBetPayouts.Add(new ArenaBetPayout
             {
                 ArenaEventId = arenaEvent.Id,
-                CharacterId = character.Id,
+                CharacterId = characterIdentityId,
                 Amount = amount,
                 PayoutType = payoutType,
                 IsBlocked = blocked,

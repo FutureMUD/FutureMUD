@@ -847,15 +847,21 @@ public class ComputerExecutionService : IComputerExecutionService
 		}
 	}
 
+	private static long WorkspaceOwnerId(ICharacter owner)
+	{
+		return CharacterInstanceIdentityComparer.IdentityId(owner);
+	}
+
 	private ICharacterComputerWorkspace GetOrCreateWorkspace_NoLock(ICharacter owner)
 	{
-		if (_workspaceOwners.TryGetValue(owner.Id, out var existing))
+		var ownerIdentityId = WorkspaceOwnerId(owner);
+		if (_workspaceOwners.TryGetValue(ownerIdentityId, out var existing))
 		{
 			return existing;
 		}
 
 		var workspace = new CharacterComputerWorkspace(owner, () => GetExecutables(owner), () => GetProcesses(owner));
-		_workspaceOwners[owner.Id] = workspace;
+		_workspaceOwners[ownerIdentityId] = workspace;
 		return workspace;
 	}
 
@@ -863,7 +869,7 @@ public class ComputerExecutionService : IComputerExecutionService
 	{
 		if (owner is ICharacterComputerWorkspace workspace)
 		{
-			_workspaceOwners[workspace.Owner.Id] = workspace;
+			_workspaceOwners[WorkspaceOwnerId(workspace.Owner)] = workspace;
 			return;
 		}
 
@@ -882,7 +888,8 @@ public class ComputerExecutionService : IComputerExecutionService
 	{
 		if (owner is ICharacterComputerWorkspace workspace)
 		{
-			return _executables.Values.Where(x => x.OwnerCharacterId == workspace.Owner.Id).ToList();
+			var ownerIdentityId = WorkspaceOwnerId(workspace.Owner);
+			return _executables.Values.Where(x => x.OwnerCharacterId == ownerIdentityId).ToList();
 		}
 
 		return owner.Executables.ToList();
@@ -899,7 +906,8 @@ public class ComputerExecutionService : IComputerExecutionService
 	{
 		if (owner is ICharacterComputerWorkspace workspace)
 		{
-			return _processes.Values.Where(x => x.OwnerCharacterId == workspace.Owner.Id).ToList();
+			var ownerIdentityId = WorkspaceOwnerId(workspace.Owner);
+			return _processes.Values.Where(x => x.OwnerCharacterId == ownerIdentityId).ToList();
 		}
 
 		return owner.Processes.ToList();
@@ -909,7 +917,7 @@ public class ComputerExecutionService : IComputerExecutionService
 	{
 		if (owner is ICharacterComputerWorkspace workspace)
 		{
-			return executable.OwnerCharacterId == workspace.Owner.Id;
+			return executable.OwnerCharacterId == WorkspaceOwnerId(workspace.Owner);
 		}
 
 		return owner.OwnerStorageItemId.HasValue && executable.OwnerStorageItemId == owner.OwnerStorageItemId ||
@@ -1007,11 +1015,12 @@ public class ComputerExecutionService : IComputerExecutionService
 		string name)
 	{
 		var now = DateTime.UtcNow;
+		var ownerIdentityId = WorkspaceOwnerId(owner);
 		using (new FMDB())
 		{
 			var dbitem = new CharacterComputerExecutable
 			{
-				OwnerCharacterId = owner.Id,
+				OwnerCharacterId = ownerIdentityId,
 				Name = string.IsNullOrWhiteSpace(name) ? "Unnamed" : name.Trim(),
 				ExecutableKind = (int)kind,
 				CompilationContext = (int)ComputerExecutableCompiler.GetCompilationContext(kind),
@@ -1048,7 +1057,7 @@ public class ComputerExecutionService : IComputerExecutionService
 
 	private bool DeleteWorkspaceExecutable_NoLock(ICharacter owner, IComputerExecutableDefinition executable, out string error)
 	{
-		if (executable.OwnerCharacterId != owner.Id)
+		if (executable.OwnerCharacterId != WorkspaceOwnerId(owner))
 		{
 			error = "You do not own that computer executable.";
 			return false;
@@ -1132,13 +1141,14 @@ public class ComputerExecutionService : IComputerExecutionService
 	{
 		if (owner is ICharacterComputerWorkspace workspace)
 		{
+			var ownerIdentityId = WorkspaceOwnerId(workspace.Owner);
 			var now = DateTime.UtcNow;
 			using (new FMDB())
 			{
 				var dbprocess = new CharacterComputerProgramProcess
 				{
 					CharacterComputerExecutableId = program.Id,
-					OwnerCharacterId = workspace.Owner.Id,
+					OwnerCharacterId = ownerIdentityId,
 					ProcessName = program.Name,
 					Status = (int)ComputerProcessStatus.Running,
 					WaitType = (int)ComputerProcessWaitType.None,
@@ -1154,9 +1164,9 @@ public class ComputerExecutionService : IComputerExecutionService
 				{
 					Id = dbprocess.Id,
 					ProcessName = dbprocess.ProcessName,
-					OwnerCharacterId = workspace.Owner.Id,
+					OwnerCharacterId = ownerIdentityId,
 					Program = program,
-					Host = CreateWorkspaceHost_NoLock(workspace.Owner.Id),
+					Host = CreateWorkspaceHost_NoLock(ownerIdentityId),
 					Status = ComputerProcessStatus.Running,
 					WaitType = ComputerProcessWaitType.None,
 					PowerLossBehaviour = ComputerPowerLossBehaviour.PersistSuspended,
@@ -1418,7 +1428,7 @@ public class ComputerExecutionService : IComputerExecutionService
 			.OfType<ComputerRuntimeProcess>()
 			.Where(x => x.Status == ComputerProcessStatus.Sleeping)
 			.Where(x => x.WaitType == ComputerProcessWaitType.UserInput)
-			.Where(x => x.WaitingCharacterId == session.User.Id)
+			.Where(x => x.WaitingCharacterId == CharacterInstanceIdentityComparer.IdentityId(session.User))
 			.Where(x => x.WaitingTerminalItemId == session.Terminal.TerminalItemId)
 			.GroupBy(x => x.Id)
 			.Select(x => x.First())

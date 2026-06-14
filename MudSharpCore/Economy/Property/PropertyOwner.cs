@@ -97,7 +97,7 @@ public class PropertyOwner : SaveableItem, IPropertyOwner, ILazyLoadDuringIdleTi
         _ownerReference = new FrameworkItemReference
         {
             Gameworld = Gameworld,
-            Id = owner.Id,
+            Id = CharacterInstanceIdentityComparer.FrameworkItemId(owner),
             FrameworkItemType = owner.FrameworkItemType
         };
         _shareOfOwnership = share;
@@ -106,7 +106,7 @@ public class PropertyOwner : SaveableItem, IPropertyOwner, ILazyLoadDuringIdleTi
         {
             Models.PropertyOwner dbitem = new()
             {
-                FrameworkItemId = owner.Id,
+                FrameworkItemId = CharacterInstanceIdentityComparer.FrameworkItemId(owner),
                 FrameworkItemType = owner.FrameworkItemType,
                 RevenueAccountId = RevenueAccount?.Id,
                 ShareOfOwnership = ShareOfOwnership,

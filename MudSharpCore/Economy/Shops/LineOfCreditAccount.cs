@@ -23,7 +23,8 @@ public class LineOfCreditAccount : SaveableItem, ILineOfCreditAccount
         AccountLimit = outstandingBalanceLimit;
         OutstandingBalance = 0.0M;
         AccountName = accountName;
-        AccountOwnerId = accountOwner.Id;
+        var accountOwnerIdentityId = CharacterInstanceIdentityComparer.IdentityId(accountOwner);
+        AccountOwnerId = accountOwnerIdentityId;
         AccountOwnerName = accountOwner.CurrentName;
         IsSuspended = false;
         using (new FMDB())
@@ -31,7 +32,7 @@ public class LineOfCreditAccount : SaveableItem, ILineOfCreditAccount
             Models.LineOfCreditAccount dbitem = new()
             {
                 AccountName = accountName,
-                AccountOwnerId = accountOwner.Id,
+                AccountOwnerId = accountOwnerIdentityId,
                 AccountOwnerName = accountOwner.CurrentName.SaveToXml().ToString(),
                 ShopId = shop.Id,
                 OutstandingBalance = 0.0M,
@@ -45,7 +46,7 @@ public class LineOfCreditAccount : SaveableItem, ILineOfCreditAccount
             dbitem.AccountUsers.Add(new Models.LineOfCreditAccountUser
             {
                 LineOfCreditAccount = dbitem,
-                AccountUserId = accountOwner.Id,
+                AccountUserId = accountOwnerIdentityId,
                 AccountUserName = accountOwner.CurrentName.SaveToXml().ToString(),
                 SpendingLimit = null
             });
@@ -53,7 +54,7 @@ public class LineOfCreditAccount : SaveableItem, ILineOfCreditAccount
         }
 
         _accountUsers.Add(new LineOfCreditAccountUser
-        { Id = accountOwner.Id, PersonalName = accountOwner.CurrentName });
+        { Id = accountOwnerIdentityId, PersonalName = accountOwner.CurrentName });
     }
 
     public LineOfCreditAccount(Models.LineOfCreditAccount account, IShop shop, IFuturemud gameworld)
@@ -132,7 +133,8 @@ public class LineOfCreditAccount : SaveableItem, ILineOfCreditAccount
 
     public LineOfCreditAuthorisationFailureReason IsAuthorisedToUse(ICharacter actor, decimal amount)
     {
-        if (_accountUsers.All(x => x.Id != actor.Id))
+        var actorIdentityId = CharacterInstanceIdentityComparer.IdentityId(actor);
+        if (_accountUsers.All(x => x.Id != actorIdentityId))
         {
             return LineOfCreditAuthorisationFailureReason.NotAuthorisedAccountUser;
         }
@@ -149,7 +151,7 @@ public class LineOfCreditAccount : SaveableItem, ILineOfCreditAccount
                 return LineOfCreditAuthorisationFailureReason.AccountOverbalanced;
             }
 
-            if (amount > _accountUsers.First(x => x.Id == actor.Id).SpendingLimit)
+            if (amount > _accountUsers.First(x => x.Id == actorIdentityId).SpendingLimit)
             {
                 return LineOfCreditAuthorisationFailureReason.UserOverbalanced;
             }
@@ -160,19 +162,20 @@ public class LineOfCreditAccount : SaveableItem, ILineOfCreditAccount
 
     public decimal MaximumAuthorisedToUse(ICharacter actor)
     {
-        return _accountUsers.First(x => x.Id == actor.Id).SpendingLimit ?? AccountLimit - OutstandingBalance;
+        return _accountUsers.First(x => x.Id == CharacterInstanceIdentityComparer.IdentityId(actor)).SpendingLimit ??
+               AccountLimit - OutstandingBalance;
     }
 
     public long AccountOwnerId { get; set; }
 
     public bool IsAccountOwner(ICharacter actor)
     {
-        return actor.Id == AccountOwnerId;
+        return CharacterInstanceIdentityComparer.IdentityId(actor) == AccountOwnerId;
     }
 
     public void SetAccountOwner(ICharacter actor)
     {
-        AccountOwnerId = actor.Id;
+        AccountOwnerId = CharacterInstanceIdentityComparer.IdentityId(actor);
         AccountOwnerName = actor.CurrentName;
         Changed = true;
     }
@@ -183,7 +186,7 @@ public class LineOfCreditAccount : SaveableItem, ILineOfCreditAccount
     {
         _accountUsers.Add(new LineOfCreditAccountUser
         {
-            Id = actor.Id,
+            Id = CharacterInstanceIdentityComparer.IdentityId(actor),
             PersonalName = actor.CurrentName,
             SpendingLimit = spendingLimit
         });

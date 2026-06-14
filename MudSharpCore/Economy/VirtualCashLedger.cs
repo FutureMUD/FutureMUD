@@ -42,6 +42,11 @@ public static class VirtualCashLedger
 		};
 	}
 
+	private static long FrameworkItemId(IFrameworkItem? item)
+	{
+		return CharacterInstanceIdentityComparer.FrameworkItemId(item);
+	}
+
 	private static MudSharp.Models.VirtualCashBalance BalanceRecord(string ownerType, long ownerId, ICurrency currency)
 	{
 		var record = FMDB.Context.VirtualCashBalances.FirstOrDefault(x =>
@@ -66,11 +71,12 @@ public static class VirtualCashLedger
 
 	public static decimal Balance(IFrameworkItem owner, ICurrency currency)
 	{
+		var ownerId = FrameworkItemId(owner);
 		if (UseInMemoryLedger)
 		{
 			lock (InMemoryLock)
 			{
-				return InMemoryBalances.TryGetValue((owner.FrameworkItemType, owner.Id, currency.Id), out var value)
+				return InMemoryBalances.TryGetValue((owner.FrameworkItemType, ownerId, currency.Id), out var value)
 					? value
 					: 0.0M;
 			}
@@ -81,7 +87,7 @@ public static class VirtualCashLedger
 			return FMDB.Context.VirtualCashBalances
 			           .AsNoTracking()
 			           .Where(x => x.OwnerType == owner.FrameworkItemType &&
-			                       x.OwnerId == owner.Id &&
+			                       x.OwnerId == ownerId &&
 			                       x.CurrencyId == currency.Id)
 			           .Select(x => x.Balance)
 			           .FirstOrDefault();
@@ -107,12 +113,13 @@ public static class VirtualCashLedger
 	public static IReadOnlyList<MudSharp.Models.VirtualCashLedgerEntry> LedgerEntries(IFrameworkItem owner, int count = DefaultLedgerEntryCount)
 	{
 		count = ClampLedgerEntryCount(count);
+		var ownerId = FrameworkItemId(owner);
 		if (UseInMemoryLedger)
 		{
 			lock (InMemoryLock)
 			{
 				return InMemoryLedger
-					.Where(x => x.OwnerType == owner.FrameworkItemType && x.OwnerId == owner.Id)
+					.Where(x => x.OwnerType == owner.FrameworkItemType && x.OwnerId == ownerId)
 					.OrderByDescending(x => x.RealDateTime)
 					.ThenByDescending(x => x.Id)
 					.Take(count)
@@ -124,7 +131,7 @@ public static class VirtualCashLedger
 		{
 			return FMDB.Context.VirtualCashLedgerEntries
 			           .AsNoTracking()
-			           .Where(x => x.OwnerType == owner.FrameworkItemType && x.OwnerId == owner.Id)
+			           .Where(x => x.OwnerType == owner.FrameworkItemType && x.OwnerId == ownerId)
 			           .OrderByDescending(x => x.RealDateTime)
 			           .ThenByDescending(x => x.Id)
 			           .Take(count)
@@ -147,6 +154,10 @@ public static class VirtualCashLedger
 		IFrameworkItem? reference = null,
 		string? referenceText = null)
 	{
+		var ownerId = FrameworkItemId(owner);
+		var actorId = CharacterInstanceIdentityComparer.IdentityId(actor);
+		var counterpartyId = FrameworkItemId(counterparty);
+		var referenceId = FrameworkItemId(reference);
 		if (UseInMemoryLedger)
 		{
 			lock (InMemoryLock)
@@ -155,13 +166,13 @@ public static class VirtualCashLedger
 				{
 					Id = InMemoryLedger.Count + 1,
 					OwnerType = owner.FrameworkItemType,
-					OwnerId = owner.Id,
+					OwnerId = ownerId,
 					CurrencyId = currency.Id,
 					RealDateTime = DateTime.UtcNow,
 					MudDateTime = mudDateTime?.GetDateTimeString() ?? string.Empty,
-					ActorId = actor?.Id,
+					ActorId = actorId == 0 ? null : actorId,
 					ActorName = actor is null ? null : actor.PersonalName.GetName(NameStyle.FullName),
-					CounterpartyId = counterparty?.Id,
+					CounterpartyId = counterparty is null ? null : counterpartyId,
 					CounterpartyType = counterparty?.FrameworkItemType,
 					CounterpartyName = OwnerName(counterparty),
 					Amount = amount,
@@ -170,7 +181,7 @@ public static class VirtualCashLedger
 					DestinationKind = destinationKind,
 					LinkedBankAccountId = linkedBankAccount?.Id,
 					ReferenceType = reference?.FrameworkItemType,
-					ReferenceId = reference?.Id,
+					ReferenceId = reference is null ? null : referenceId,
 					Reference = referenceText,
 					Reason = reason
 				});
@@ -183,13 +194,13 @@ public static class VirtualCashLedger
 			FMDB.Context.VirtualCashLedgerEntries.Add(new MudSharp.Models.VirtualCashLedgerEntry
 			{
 				OwnerType = owner.FrameworkItemType,
-				OwnerId = owner.Id,
+				OwnerId = ownerId,
 				CurrencyId = currency.Id,
 				RealDateTime = DateTime.UtcNow,
 				MudDateTime = mudDateTime?.GetDateTimeString() ?? string.Empty,
-				ActorId = actor?.Id,
+				ActorId = actorId == 0 ? null : actorId,
 				ActorName = actor is null ? null : actor.PersonalName.GetName(NameStyle.FullName),
-				CounterpartyId = counterparty?.Id,
+				CounterpartyId = counterparty is null ? null : counterpartyId,
 				CounterpartyType = counterparty?.FrameworkItemType,
 				CounterpartyName = OwnerName(counterparty),
 				Amount = amount,
@@ -198,7 +209,7 @@ public static class VirtualCashLedger
 				DestinationKind = destinationKind,
 				LinkedBankAccountId = linkedBankAccount?.Id,
 				ReferenceType = reference?.FrameworkItemType,
-				ReferenceId = reference?.Id,
+				ReferenceId = reference is null ? null : referenceId,
 				Reference = referenceText,
 				Reason = reason
 			});
@@ -223,23 +234,27 @@ public static class VirtualCashLedger
 			return Balance(owner, currency);
 		}
 
+		var ownerId = FrameworkItemId(owner);
+		var actorId = CharacterInstanceIdentityComparer.IdentityId(actor);
+		var counterpartyId = FrameworkItemId(counterparty);
+		var referenceId = FrameworkItemId(reference);
 		if (UseInMemoryLedger)
 		{
 			lock (InMemoryLock)
 			{
-				var key = (owner.FrameworkItemType, owner.Id, currency.Id);
+				var key = (owner.FrameworkItemType, ownerId, currency.Id);
 				InMemoryBalances[key] = InMemoryBalances.GetValueOrDefault(key) + amount;
 				InMemoryLedger.Add(new MudSharp.Models.VirtualCashLedgerEntry
 				{
 					Id = InMemoryLedger.Count + 1,
 					OwnerType = owner.FrameworkItemType,
-					OwnerId = owner.Id,
+					OwnerId = ownerId,
 					CurrencyId = currency.Id,
 					RealDateTime = DateTime.UtcNow,
 					MudDateTime = mudDateTime?.GetDateTimeString() ?? string.Empty,
-					ActorId = actor?.Id,
+					ActorId = actorId == 0 ? null : actorId,
 					ActorName = actor is null ? null : actor.PersonalName.GetName(NameStyle.FullName),
-					CounterpartyId = counterparty?.Id,
+					CounterpartyId = counterparty is null ? null : counterpartyId,
 					CounterpartyType = counterparty?.FrameworkItemType,
 					CounterpartyName = OwnerName(counterparty),
 					Amount = amount,
@@ -247,7 +262,7 @@ public static class VirtualCashLedger
 					SourceKind = sourceKind,
 					DestinationKind = "VirtualCash",
 					ReferenceType = reference?.FrameworkItemType,
-					ReferenceId = reference?.Id,
+					ReferenceId = reference is null ? null : referenceId,
 					Reference = referenceText,
 					Reason = reason
 				});
@@ -257,18 +272,18 @@ public static class VirtualCashLedger
 
 		using (new FMDB())
 		{
-			var record = BalanceRecord(owner.FrameworkItemType, owner.Id, currency);
+			var record = BalanceRecord(owner.FrameworkItemType, ownerId, currency);
 			record.Balance += amount;
 			FMDB.Context.VirtualCashLedgerEntries.Add(new MudSharp.Models.VirtualCashLedgerEntry
 			{
 				OwnerType = owner.FrameworkItemType,
-				OwnerId = owner.Id,
+				OwnerId = ownerId,
 				CurrencyId = currency.Id,
 				RealDateTime = DateTime.UtcNow,
 				MudDateTime = mudDateTime?.GetDateTimeString() ?? string.Empty,
-				ActorId = actor?.Id,
+				ActorId = actorId == 0 ? null : actorId,
 				ActorName = actor is null ? null : actor.PersonalName.GetName(NameStyle.FullName),
-				CounterpartyId = counterparty?.Id,
+				CounterpartyId = counterparty is null ? null : counterpartyId,
 				CounterpartyType = counterparty?.FrameworkItemType,
 				CounterpartyName = OwnerName(counterparty),
 				Amount = amount,
@@ -276,7 +291,7 @@ public static class VirtualCashLedger
 				SourceKind = sourceKind,
 				DestinationKind = "VirtualCash",
 				ReferenceType = reference?.FrameworkItemType,
-				ReferenceId = reference?.Id,
+				ReferenceId = reference is null ? null : referenceId,
 				Reference = referenceText,
 				Reason = reason
 			});
@@ -342,11 +357,15 @@ public static class VirtualCashLedger
 
 		var bankAmount = 0.0M;
 		decimal balanceAfter;
+		var ownerId = FrameworkItemId(owner);
+		var actorId = CharacterInstanceIdentityComparer.IdentityId(actor);
+		var counterpartyId = FrameworkItemId(counterparty);
+		var referenceId = FrameworkItemId(reference);
 		if (UseInMemoryLedger)
 		{
 			lock (InMemoryLock)
 			{
-				var key = (owner.FrameworkItemType, owner.Id, currency.Id);
+				var key = (owner.FrameworkItemType, ownerId, currency.Id);
 				var balance = InMemoryBalances.GetValueOrDefault(key);
 				var virtualAmount = Math.Min(balance, amount);
 				InMemoryBalances[key] = balance - virtualAmount;
@@ -356,13 +375,13 @@ public static class VirtualCashLedger
 				{
 					Id = InMemoryLedger.Count + 1,
 					OwnerType = owner.FrameworkItemType,
-					OwnerId = owner.Id,
+					OwnerId = ownerId,
 					CurrencyId = currency.Id,
 					RealDateTime = DateTime.UtcNow,
 					MudDateTime = mudDateTime?.GetDateTimeString() ?? string.Empty,
-					ActorId = actor?.Id,
+					ActorId = actorId == 0 ? null : actorId,
 					ActorName = actor is null ? null : actor.PersonalName.GetName(NameStyle.FullName),
-					CounterpartyId = counterparty?.Id,
+					CounterpartyId = counterparty is null ? null : counterpartyId,
 					CounterpartyType = counterparty?.FrameworkItemType,
 					CounterpartyName = OwnerName(counterparty),
 					Amount = -amount,
@@ -373,7 +392,7 @@ public static class VirtualCashLedger
 					DestinationKind = destinationKind,
 					LinkedBankAccountId = bankAmount > 0.0M ? bankAccount?.Id : null,
 					ReferenceType = reference?.FrameworkItemType,
-					ReferenceId = reference?.Id,
+					ReferenceId = reference is null ? null : referenceId,
 					Reference = referenceText,
 					Reason = reason
 				});
@@ -383,7 +402,7 @@ public static class VirtualCashLedger
 		{
 		using (new FMDB())
 		{
-			var record = BalanceRecord(owner.FrameworkItemType, owner.Id, currency);
+			var record = BalanceRecord(owner.FrameworkItemType, ownerId, currency);
 			var virtualAmount = Math.Min(record.Balance, amount);
 			record.Balance -= virtualAmount;
 			balanceAfter = record.Balance;
@@ -391,13 +410,13 @@ public static class VirtualCashLedger
 			FMDB.Context.VirtualCashLedgerEntries.Add(new MudSharp.Models.VirtualCashLedgerEntry
 			{
 				OwnerType = owner.FrameworkItemType,
-				OwnerId = owner.Id,
+				OwnerId = ownerId,
 				CurrencyId = currency.Id,
 				RealDateTime = DateTime.UtcNow,
 				MudDateTime = mudDateTime?.GetDateTimeString() ?? string.Empty,
-				ActorId = actor?.Id,
+				ActorId = actorId == 0 ? null : actorId,
 				ActorName = actor is null ? null : actor.PersonalName.GetName(NameStyle.FullName),
-				CounterpartyId = counterparty?.Id,
+				CounterpartyId = counterparty is null ? null : counterpartyId,
 				CounterpartyType = counterparty?.FrameworkItemType,
 				CounterpartyName = OwnerName(counterparty),
 				Amount = -amount,
@@ -408,7 +427,7 @@ public static class VirtualCashLedger
 				DestinationKind = destinationKind,
 				LinkedBankAccountId = bankAmount > 0.0M ? bankAccount?.Id : null,
 				ReferenceType = reference?.FrameworkItemType,
-				ReferenceId = reference?.Id,
+				ReferenceId = reference is null ? null : referenceId,
 				Reference = referenceText,
 				Reason = reason
 			});

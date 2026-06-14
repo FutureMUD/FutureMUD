@@ -212,8 +212,9 @@ public partial class AuctionHouse : SaveableItem, IAuctionHouse, IPostCharacterL
             return false;
         }
 
+        var sellerId = CharacterInstanceIdentityComparer.FrameworkItemId(item.Seller);
         IPropertyOwner owner = property.PropertyOwners.FirstOrDefault(x =>
-            x.Owner.FrameworkItemEquals(item.Seller.Id, item.Seller.FrameworkItemType));
+            x.Owner.FrameworkItemEquals(sellerId, item.Seller.FrameworkItemType));
         return owner?.ShareOfOwnership >= item.PropertyShare;
     }
 
@@ -224,8 +225,9 @@ public partial class AuctionHouse : SaveableItem, IAuctionHouse, IPostCharacterL
             return false;
         }
 
+        var sellerId = CharacterInstanceIdentityComparer.FrameworkItemId(item.Seller);
         IPropertyOwner owner = property.PropertyOwners.FirstOrDefault(x =>
-            x.Owner.FrameworkItemEquals(item.Seller.Id, item.Seller.FrameworkItemType));
+            x.Owner.FrameworkItemEquals(sellerId, item.Seller.FrameworkItemType));
         if (owner == null)
         {
             return false;
@@ -337,7 +339,7 @@ public partial class AuctionHouse : SaveableItem, IAuctionHouse, IPostCharacterL
 
         if (payoutTarget is ICharacter character)
         {
-            BidderRefundsOwed[character.Id] += amount;
+            BidderRefundsOwed[CharacterInstanceIdentityComparer.IdentityId(character)] += amount;
             return true;
         }
 
@@ -377,7 +379,9 @@ public partial class AuctionHouse : SaveableItem, IAuctionHouse, IPostCharacterL
             return;
         }
 
-        _sellerPaymentsOwed[(payoutTarget.Id, payoutTarget.FrameworkItemType)] += sellerProceeds;
+        _sellerPaymentsOwed[
+            (CharacterInstanceIdentityComparer.FrameworkItemId(payoutTarget), payoutTarget.FrameworkItemType)] +=
+            sellerProceeds;
         Changed = true;
     }
 
@@ -473,9 +477,11 @@ public partial class AuctionHouse : SaveableItem, IAuctionHouse, IPostCharacterL
             Sold = winningBid != null,
             SalePrice = winningBid?.Bid ?? 0.0M,
             ResultDateTime = now,
-            SellerId = item.Seller.Id,
+            SellerId = CharacterInstanceIdentityComparer.FrameworkItemId(item.Seller),
             SellerType = item.Seller.FrameworkItemType,
-            PayoutTargetId = item.PayoutTarget?.Id,
+            PayoutTargetId = item.PayoutTarget is null
+                ? null
+                : CharacterInstanceIdentityComparer.FrameworkItemId(item.PayoutTarget),
             PayoutTargetType = item.PayoutTarget?.FrameworkItemType,
             SoldToId = winningBid?.BidderId ?? 0L,
             PaidOutAtTime = paid
@@ -696,7 +702,8 @@ public partial class AuctionHouse : SaveableItem, IAuctionHouse, IPostCharacterL
 
     public bool ClaimRefund(ICharacter actor)
     {
-        decimal owed = BidderRefundsOwed[actor.Id];
+        var actorIdentityId = CharacterInstanceIdentityComparer.IdentityId(actor);
+        decimal owed = BidderRefundsOwed[actorIdentityId];
         if (!VirtualCashLedger.Debit(this, EconomicZone.Currency, owed, actor, actor, "Refund",
                 "Refund for failed bid", ProfitsBankAccount, EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime,
                 out _))
@@ -704,7 +711,7 @@ public partial class AuctionHouse : SaveableItem, IAuctionHouse, IPostCharacterL
             return false;
         }
 
-        BidderRefundsOwed[actor.Id] = 0.0M;
+        BidderRefundsOwed[actorIdentityId] = 0.0M;
         Changed = true;
         return true;
     }

@@ -106,7 +106,7 @@ public class CharacterKnowledge : SaveableItem, ICharacterKnowledge
             {
                 Models.CharacterKnowledge dbnew = new()
                 {
-                    CharacterId = Character.Id,
+                    CharacterId = CharacterInstanceIdentityComparer.IdentityId(Character),
                     KnowledgeId = Knowledge.Id,
                     HowAcquired = HowAcquired,
                     TimesTaught = TimesTaught

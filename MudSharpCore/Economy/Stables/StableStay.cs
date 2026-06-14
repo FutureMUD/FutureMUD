@@ -32,9 +32,9 @@ public class StableStay : SaveableItem, IStableStay
 	{
 		Gameworld = stable.Gameworld;
 		Stable = stable;
-		MountId = mount.Id;
+		MountId = CharacterInstanceIdentityComparer.IdentityId(mount);
 		_mount = mount;
-		OriginalOwnerId = originalOwner.Id;
+		OriginalOwnerId = CharacterInstanceIdentityComparer.IdentityId(originalOwner);
 		_originalOwner = originalOwner;
 		OriginalOwnerName = originalOwner.CurrentName;
 		LodgedDateTime = new MudDateTime(stable.EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime);
@@ -47,8 +47,8 @@ public class StableStay : SaveableItem, IStableStay
 			MudSharp.Models.StableStay dbitem = new()
 			{
 				StableId = stable.Id,
-				MountId = mount.Id,
-				OriginalOwnerId = originalOwner.Id,
+				MountId = CharacterInstanceIdentityComparer.IdentityId(mount),
+				OriginalOwnerId = CharacterInstanceIdentityComparer.IdentityId(originalOwner),
 				OriginalOwnerName = originalOwner.CurrentName.SaveToXml().ToString(),
 				LodgedDateTime = LodgedDateTime.GetDateTimeString(),
 				LastDailyFeeDateTime = LastDailyFeeDateTime.GetDateTimeString(),
@@ -155,7 +155,7 @@ public class StableStay : SaveableItem, IStableStay
 				StableStayId = Id,
 				EntryType = (int)entryType,
 				MudDateTime = entry.MudDateTime.GetDateTimeString(),
-				ActorId = actor?.Id,
+				ActorId = CharacterInstanceIdentityComparer.IdentityId(actor),
 				ActorName = actor?.PersonalName.GetName(NameStyle.FullName),
 				Amount = amount,
 				Note = note

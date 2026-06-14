@@ -979,7 +979,7 @@ public partial class AIStoryteller
                     return false;
                 }
 
-                situation.SetScope(character.Id, null);
+                situation.SetScope(CharacterInstanceIdentityComparer.IdentityId(character), null);
                 break;
             case "room":
             case "cell":

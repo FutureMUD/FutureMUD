@@ -52,7 +52,8 @@ public class TollExitPermit : Effect
 
 	public void AddPermittedCharacter(ICharacter character)
 	{
-		_permittedCharacterDescriptions[character.Id] = character.HowSeen(CharacterOwner, colour: false);
+		_permittedCharacterDescriptions[CharacterInstanceIdentityComparer.IdentityId(character)] =
+			character.HowSeen(CharacterOwner, colour: false);
 		Changed = true;
 	}
 

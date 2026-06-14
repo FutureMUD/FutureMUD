@@ -21,7 +21,9 @@ public class ClanInviteProposal : Proposal, IProposal
 
     public override void Accept(string message = "")
     {
-        IClanMembership archived = Clan.Memberships.FirstOrDefault(x => x.MemberId == Recruit.Id && x.IsArchivedMembership);
+        var recruitIdentityId = CharacterInstanceIdentityComparer.IdentityId(Recruit);
+        IClanMembership archived = Clan.Memberships.FirstOrDefault(x =>
+            x.MemberId == recruitIdentityId && x.IsArchivedMembership);
         if (archived != null)
         {
             archived.IsArchivedMembership = false;
@@ -35,13 +37,13 @@ public class ClanInviteProposal : Proposal, IProposal
             {
                 Models.ClanMembership dbitem = new()
                 {
-                    CharacterId = Recruit.Id,
+                    CharacterId = recruitIdentityId,
                     ClanId = Clan.Id,
                     RankId = Rank.Id,
                     PaygradeId = Rank.Paygrades.Any() ? Rank.Paygrades.First().Id : (long?)null,
                     PersonalName = Recruit.CurrentName.SaveToXml().ToString(),
                     JoinDate = Clan.Calendar.CurrentDate.GetDateString(),
-                    ManagerId = Recruiter.Id
+                    ManagerId = CharacterInstanceIdentityComparer.IdentityId(Recruiter)
                 };
                 FMDB.Context.ClanMemberships.Add(dbitem);
                 FMDB.Context.SaveChanges();

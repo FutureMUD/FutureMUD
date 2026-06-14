@@ -46,7 +46,7 @@ public class ArenaRatingsService : IArenaRatingsService
             throw new ArgumentNullException(nameof(combatantClass));
         }
 
-        return GetRating(character.Id, combatantClass);
+        return GetRating(CharacterInstanceIdentityComparer.IdentityId(character), combatantClass);
     }
 
     /// <inheritdoc />
@@ -89,7 +89,7 @@ public class ArenaRatingsService : IArenaRatingsService
 
         using IDisposable? scope = BeginContext(out FuturemudDatabaseContext? context);
         return context.ArenaRatings
-            .Where(x => x.ArenaId == arena.Id && x.CharacterId == character.Id)
+            .Where(x => x.ArenaId == arena.Id && x.CharacterId == CharacterInstanceIdentityComparer.IdentityId(character))
             .OrderByDescending(x => x.Rating)
             .ThenBy(x => x.CombatantClass.Name)
             .Select(x => new ArenaRatingSummary(
@@ -131,7 +131,7 @@ public class ArenaRatingsService : IArenaRatingsService
 
         Dictionary<long, decimal> deltasByCharacterId = deltas
             .Where(x => x.Key is not null)
-            .GroupBy(x => x.Key.Id)
+            .GroupBy(x => CharacterInstanceIdentityComparer.IdentityId(x.Key))
             .ToDictionary(x => x.Key, x => x.Sum(y => y.Value));
         UpdateRatingsByCharacterId(arenaEvent, deltasByCharacterId);
     }
@@ -244,7 +244,7 @@ public class ArenaRatingsService : IArenaRatingsService
                 long characterId = x.CharacterId;
                 if (characterId <= 0)
                 {
-                    characterId = x.Character?.Id ?? 0L;
+                    characterId = CharacterInstanceIdentityComparer.IdentityId(x.Character);
                 }
 
                 decimal? startingRating = x.StartingRating.HasValue

@@ -3506,7 +3506,7 @@ If more than one terminal could be used, specify one explicitly or connect first
 
 	private static IComputerExecutableOwner? ResolveExecutableOwner(ICharacter actor, IComputerExecutableDefinition executable)
 	{
-		if (executable.OwnerCharacterId == actor.Id)
+		if (executable.OwnerCharacterId == CharacterInstanceIdentityComparer.IdentityId(actor))
 		{
 			return actor.Gameworld.ComputerExecutionService.GetWorkspace(actor);
 		}

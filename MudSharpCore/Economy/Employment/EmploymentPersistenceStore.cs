@@ -332,7 +332,7 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 			{
 				RuntimeId = application.Id,
 				EmploymentJobOpeningId = opening.Id,
-				CandidateId = application.Candidate.Id,
+				CandidateId = CharacterInstanceIdentityComparer.IdentityId(application.Candidate),
 				AppliedAt = application.AppliedAt.UtcDateTime,
 				Status = (int)application.Status,
 				DecisionReason = application.DecisionReason
@@ -587,7 +587,9 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 				Name = task.Name,
 				EmploymentActionPlanId = planId,
 				Status = (int)task.Status,
-				AssignedEmployeeId = task.AssignedEmployee?.Id,
+				AssignedEmployeeId = task.AssignedEmployee is null
+					? null
+					: CharacterInstanceIdentityComparer.IdentityId(task.AssignedEmployee),
 				BlockedReason = task.BlockedReason,
 				CorrelationId = task.CorrelationId.ToString("D"),
 				IdempotencyKey = task.IdempotencyKey
@@ -613,7 +615,9 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 			}
 
 			dbitem.Status = (int)task.Status;
-			dbitem.AssignedEmployeeId = task.AssignedEmployee?.Id;
+			dbitem.AssignedEmployeeId = task.AssignedEmployee is null
+				? null
+				: CharacterInstanceIdentityComparer.IdentityId(task.AssignedEmployee);
 			dbitem.BlockedReason = task.BlockedReason;
 			context.EmploymentActiveTaskStepStates.RemoveRange(dbitem.StepStates);
 			AddStepStates(dbitem.StepStates, task.StepStates, task.StepOperationalStates);
@@ -910,7 +914,7 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 		{
 			RuntimeId = contract.Id,
 			EmploymentHostStateId = StateId,
-			EmployeeId = contract.Employee.Id,
+			EmployeeId = CharacterInstanceIdentityComparer.IdentityId(contract.Employee),
 			Role = (int)contract.Role,
 			Status = (int)contract.Status,
 			Authority = (long)contract.Authority.Authorities,

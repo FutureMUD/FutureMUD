@@ -200,12 +200,13 @@ The syntax is:
                 return;
             }
 
+            var actorIdentityId = CharacterInstanceIdentityComparer.IdentityId(actor);
             if (ss.IsFinished)
             {
                 // Show journal entries for current character
                 List<Models.AccountNote> notes =
                     FMDB.Context.AccountNotes
-                        .Where(x => x.AccountId == account.Id && x.CharacterId == actor.Id && x.IsJournalEntry)
+                        .Where(x => x.AccountId == account.Id && x.CharacterId == actorIdentityId && x.IsJournalEntry)
                         .OrderByDescending(x => x.TimeStamp)
                         .ThenBy(x => x.Id)
                         .ToList();
@@ -249,7 +250,7 @@ The syntax is:
                         return;
                     }
 
-                    long character = actor.Id;
+                    long character = actorIdentityId;
                     string characterName = actor.PersonalName.GetName(NameStyle.FullName);
                     int index;
                     StringStack readArguments = new(ss.SafeRemainingArgument);
@@ -305,7 +306,7 @@ The syntax is:
 
                     if (!notes.Any())
                     {
-                        if (character != actor.Id)
+                        if (character != actorIdentityId)
                         {
                             actor.OutputHandler.Send(
                                 $"{characterName.ColourName()} does not have any journal entries to read.");
@@ -350,7 +351,7 @@ The syntax is:
                     string time = actor.Location.DateTime().GetDateTimeString();
                     actor.OutputHandler.Send("Write your journal entry in the text editor below.");
                     actor.EditorMode(JournalWritePost, JournalWriteCancel, 1.0,
-                        suppliedArguments: new object[] { account.Id, title, actor.Account.Id, time, actor.Id });
+                        suppliedArguments: new object[] { account.Id, title, actor.Account.Id, time, actorIdentityId });
                     break;
                 case "history":
                     if (ss.IsFinished)
@@ -760,7 +761,7 @@ The syntax is #3INTRODUCE ME#0 or #3INTRODUCE <person>#0. You can append a brack
 
                 Models.Dub dbdub = new();
                 FMDB.Context.Dubs.Add(dbdub);
-                dbdub.CharacterId = tch.Id;
+                dbdub.CharacterId = CharacterInstanceIdentityComparer.IdentityId(tch);
                 dbdub.LastDescription = target.HowSeen(tch, colour: false);
                 dbdub.LastUsage = DateTime.UtcNow;
                 dbdub.Keywords = firstName;

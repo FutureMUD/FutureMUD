@@ -294,7 +294,8 @@ public partial class Stable : SavableKeywordedItem, IStable
 
 	public void RemoveEmployee(ICharacter actor)
 	{
-		var record = _employeeRecords.FirstOrDefault(x => x.EmployeeCharacterId == actor.Id);
+		var actorIdentityId = CharacterInstanceIdentityComparer.IdentityId(actor);
+		var record = _employeeRecords.FirstOrDefault(x => x.EmployeeCharacterId == actorIdentityId);
 		if (record is not null)
 		{
 			RemoveEmployee(record);
@@ -309,14 +310,16 @@ public partial class Stable : SavableKeywordedItem, IStable
 
 	public void SetManager(ICharacter actor, bool isManager)
 	{
-		var record = _employeeRecords.First(x => x.EmployeeCharacterId == actor.Id);
+		var actorIdentityId = CharacterInstanceIdentityComparer.IdentityId(actor);
+		var record = _employeeRecords.First(x => x.EmployeeCharacterId == actorIdentityId);
 		record.IsManager = isManager;
 		Changed = true;
 	}
 
 	public void SetProprietor(ICharacter actor, bool isProprietor)
 	{
-		var record = _employeeRecords.First(x => x.EmployeeCharacterId == actor.Id);
+		var actorIdentityId = CharacterInstanceIdentityComparer.IdentityId(actor);
+		var record = _employeeRecords.First(x => x.EmployeeCharacterId == actorIdentityId);
 		record.IsProprietor = isProprietor;
 		Changed = true;
 	}

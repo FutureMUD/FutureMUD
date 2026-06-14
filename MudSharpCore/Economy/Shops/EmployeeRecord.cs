@@ -39,7 +39,7 @@ public class EmployeeRecord : IEmployeeRecord
 
     public EmployeeRecord(ICharacter actor)
     {
-        EmployeeCharacterId = actor.Id;
+        EmployeeCharacterId = CharacterInstanceIdentityComparer.IdentityId(actor);
         Name = actor.CurrentName;
         EmployeeSince = actor.Location.DateTime();
         ClockedIn = false;

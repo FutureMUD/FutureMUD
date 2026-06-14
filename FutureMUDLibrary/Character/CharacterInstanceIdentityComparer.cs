@@ -8,6 +8,17 @@ namespace MudSharp.Character;
 public static class CharacterInstanceIdentityComparer
 {
 	// Identity equality answers "same person"; physical equality answers "same active world presence".
+	public static long IdentityId(ICharacter? actor)
+	{
+		if (actor is null)
+		{
+			return 0;
+		}
+
+		var identityId = actor.Identity?.Id ?? 0;
+		return identityId != 0 ? identityId : actor.Id;
+	}
+
 	public static bool SameIdentity(ICharacter actor, ICharacter other)
 	{
 		if (actor is null || other is null)
@@ -20,8 +31,8 @@ public static class CharacterInstanceIdentityComparer
 			return true;
 		}
 
-		var actorIdentityId = actor.Identity?.Id ?? actor.Id;
-		var otherIdentityId = other.Identity?.Id ?? other.Id;
+		var actorIdentityId = IdentityId(actor);
+		var otherIdentityId = IdentityId(other);
 		return actorIdentityId != 0 && actorIdentityId == otherIdentityId;
 	}
 

@@ -11,6 +11,25 @@ namespace MudSharp_Unit_Tests;
 public class CharacterInstanceIdentityComparerTests
 {
 	[TestMethod]
+	public void IdentityId_SecondaryInstance_ReturnsOwningIdentityId()
+	{
+		var projection = CreateCharacter(20, 10, 200);
+
+		Assert.AreEqual(10, CharacterInstanceIdentityComparer.IdentityId(projection.Object));
+	}
+
+	[TestMethod]
+	public void IdentityId_NoIdentity_FallsBackToCharacterId()
+	{
+		var character = new Mock<ICharacter>();
+		ICharacterIdentity identity = null!;
+		character.SetupGet(x => x.Id).Returns(42);
+		character.SetupGet(x => x.Identity).Returns(identity);
+
+		Assert.AreEqual(42, CharacterInstanceIdentityComparer.IdentityId(character.Object));
+	}
+
+	[TestMethod]
 	public void SameIdentity_DifferentInstancesSameIdentity_ReturnsTrue()
 	{
 		var primary = CreateCharacter(10, 10, 100);

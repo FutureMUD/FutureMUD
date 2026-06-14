@@ -38,7 +38,7 @@ public class CharacterCombatSettings : SaveableItem, ICharacterCombatSettings
             CharacterCombatSetting dbitem = new()
             {
                 Name = name,
-                CharacterOwnerId = characterOwner?.Id,
+                CharacterOwnerId = characterOwner is null ? null : CharacterInstanceIdentityComparer.IdentityId(characterOwner),
                 Description = "An undescribed manner of fighting",
                 ClassificationsAllowed = "1 2 3 4 5 7",
                 RequiredIntentions = (long)CombatMoveIntentions.None,
@@ -92,7 +92,7 @@ public class CharacterCombatSettings : SaveableItem, ICharacterCombatSettings
             CharacterCombatSetting dbitem = new()
             {
                 Name = newName,
-                CharacterOwnerId = characterOwner?.Id,
+                CharacterOwnerId = characterOwner is null ? null : CharacterInstanceIdentityComparer.IdentityId(characterOwner),
                 Description = settingToCopy.Description,
                 AvailabilityProgId = settingToCopy.AvailabilityProg?.Id,
                 PriorityProgId = settingToCopy.PriorityProg?.Id,

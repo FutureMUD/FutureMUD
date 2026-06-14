@@ -20,17 +20,27 @@ public static class EmploymentHostAccessExtensions
 
 	public static bool HasActiveEmploymentContract(this IEmploymentHost host, ICharacter? actor)
 	{
-		return actor is not null &&
-		       host.ActiveEmploymentContracts().Any(x => x.Employee.Id == actor.Id);
+		if (actor is null)
+		{
+			return false;
+		}
+
+		var actorIdentityId = CharacterInstanceIdentityComparer.IdentityId(actor);
+		return host.ActiveEmploymentContracts().Any(x => x.Employee.Id == actorIdentityId);
 	}
 
 	public static bool HasActiveEmploymentRole(this IEmploymentHost host, ICharacter? actor,
 		params EmploymentRole[] roles)
 	{
-		return actor is not null &&
-		       host.ActiveEmploymentContracts().Any(x =>
-			       x.Employee.Id == actor.Id &&
-			       roles.Contains(x.Role));
+		if (actor is null)
+		{
+			return false;
+		}
+
+		var actorIdentityId = CharacterInstanceIdentityComparer.IdentityId(actor);
+		return host.ActiveEmploymentContracts().Any(x =>
+			x.Employee.Id == actorIdentityId &&
+			roles.Contains(x.Role));
 	}
 
 	public static bool HasManagerEmploymentAccess(this IEmploymentHost host, ICharacter? actor)

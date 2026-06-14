@@ -3229,16 +3229,17 @@ The syntax for this command is as follows:
 
     protected static IEnumerable<ICharacterCombatSettings> GetSettingsForCharacter(ICharacter actor, string argument)
     {
+        var actorIdentityId = CharacterInstanceIdentityComparer.IdentityId(actor);
         if (actor.IsAdministrator())
         {
             return actor.Gameworld.CharacterCombatSettings.ToList();
         }
 
         return argument.Equals("mine", StringComparison.InvariantCultureIgnoreCase)
-            ? actor.Gameworld.CharacterCombatSettings.Where(x => x.CharacterOwnerId == actor.Id).ToList()
+            ? actor.Gameworld.CharacterCombatSettings.Where(x => x.CharacterOwnerId == actorIdentityId).ToList()
             : actor.Gameworld.CharacterCombatSettings.Where(
                 x => (x.AvailabilityProg?.ExecuteBool(actor) ?? true) &&
-                     (x.GlobalTemplate || x.CharacterOwnerId == actor.Id)
+                     (x.GlobalTemplate || x.CharacterOwnerId == actorIdentityId)
             ).ToList();
     }
 
@@ -3281,7 +3282,8 @@ The syntax for this command is as follows:
                 return;
             }
 
-            if (!actor.IsAdministrator(PermissionLevel.Admin) && setting.CharacterOwnerId != actor.Id &&
+            var actorIdentityId = CharacterInstanceIdentityComparer.IdentityId(actor);
+            if (!actor.IsAdministrator(PermissionLevel.Admin) && setting.CharacterOwnerId != actorIdentityId &&
                 (!setting.GlobalTemplate || (setting.AvailabilityProg?.ExecuteBool(actor) ?? true)))
             {
                 actor.Send("You do not have permission to view that combat setting.");
@@ -3301,7 +3303,8 @@ The syntax for this command is as follows:
         }
 
         int maxSettings = actor.Gameworld.GetStaticInt("MaximumCombatSettingsPerPlayer");
-        if (actor.Gameworld.CharacterCombatSettings.Count(x => x.CharacterOwnerId == actor.Id) >= maxSettings)
+        var actorIdentityId = CharacterInstanceIdentityComparer.IdentityId(actor);
+        if (actor.Gameworld.CharacterCombatSettings.Count(x => x.CharacterOwnerId == actorIdentityId) >= maxSettings)
         {
             actor.Send(
                 $"You are only allowed a maximum of {maxSettings:N0} personal combat settings at any time. You must free some of your existing ones before you can clone any more.");
@@ -4216,7 +4219,7 @@ The following options refer to flags listed in the SHOW COMBATFLAGS list:
             return;
         }
 
-        actor.CombatSettings.CharacterOwnerId = target.Id;
+        actor.CombatSettings.CharacterOwnerId = CharacterInstanceIdentityComparer.IdentityId(target);
         actor.CombatSettings.Changed = true;
 
         actor.Send(StringUtilities.HMark +

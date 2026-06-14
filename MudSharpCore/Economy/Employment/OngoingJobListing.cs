@@ -637,6 +637,7 @@ You will be paid {PayDescriptionForJobListing()}.{(PersonalProject is not null ?
 
     public override IActiveJob ApplyForJob(ICharacter actor)
     {
+        var actorIdentityId = CharacterInstanceIdentityComparer.IdentityId(actor);
         MudDateTime? endingDate = MaximumDuration is not null
             ? EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime + MaximumDuration
             : default;
@@ -651,7 +652,7 @@ You will be paid {PayDescriptionForJobListing()}.{(PersonalProject is not null ?
         if (ClanMembership is not null)
         {
             IClanMembership? membership = null;
-            membership = ClanMembership.Memberships.FirstOrDefault(x => x.MemberId == actor.Id);
+            membership = ClanMembership.Memberships.FirstOrDefault(x => x.MemberId == actorIdentityId);
             if (membership is null)
             {
                 IRank rank = ClanRank ?? ClanMembership.Ranks.OrderBy(x => x.RankNumber).First();
@@ -666,7 +667,7 @@ You will be paid {PayDescriptionForJobListing()}.{(PersonalProject is not null ?
                 {
                     Models.ClanMembership dbitem = new()
                     {
-                        CharacterId = actor.Id,
+                        CharacterId = actorIdentityId,
                         ClanId = ClanMembership.Id,
                         RankId = rank.Id,
                         PaygradeId = paygrade?.Id,
@@ -680,7 +681,7 @@ You will be paid {PayDescriptionForJobListing()}.{(PersonalProject is not null ?
                         dbitem.ClanMembershipsAppointments.Add(new ClanMembershipsAppointments
                         {
                             ClanMembership = dbitem,
-                            CharacterId = actor.Id,
+                            CharacterId = actorIdentityId,
                             AppointmentId = ClanAppointment.Id
                         });
                     }

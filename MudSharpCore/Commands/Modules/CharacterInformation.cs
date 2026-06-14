@@ -1791,7 +1791,7 @@ You can also use this command to test against someone else. This always echoes.
             {
                 Models.Dub dbdub = new();
                 FMDB.Context.Dubs.Add(dbdub);
-                dbdub.CharacterId = actor.Id;
+                dbdub.CharacterId = CharacterInstanceIdentityComparer.IdentityId(actor);
                 dbdub.LastDescription = target.HowSeen(actor, colour: false, flags: PerceiveIgnoreFlags.IgnoreNamesSetting);
                 dbdub.LastUsage = DateTime.UtcNow;
                 dbdub.Keywords = keywordText;
@@ -1942,15 +1942,16 @@ You can also use this command to test against someone else. This always echoes.
         }
 
         bool trusted = ss.Peek().EqualTo("trusted");
-        if (actor.AllyIDs.Contains(target.Id))
+        var targetIdentityId = CharacterInstanceIdentityComparer.IdentityId(target);
+        if (actor.AllyIDs.Contains(targetIdentityId))
         {
-            if (trusted && actor.TrustedAllyIDs.Contains(target.Id))
+            if (trusted && actor.TrustedAllyIDs.Contains(targetIdentityId))
             {
                 actor.Send("{0} is already a trusted ally.", target.HowSeen(actor));
                 return;
             }
 
-            actor.SetTrusted(target.Id, true);
+            actor.SetTrusted(targetIdentityId, true);
             actor.Send("{0} is now a trusted ally.", target.HowSeen(actor));
             actor.Send(
                 "Warning: this means you will let them do nearly anything to you without resisting. Be very, very careful with this setting."
@@ -1958,8 +1959,8 @@ You can also use this command to test against someone else. This always echoes.
             return;
         }
 
-        actor.SetAlly(target.Id);
-        actor.SetTrusted(target.Id, trusted);
+        actor.SetAlly(targetIdentityId);
+        actor.SetTrusted(targetIdentityId, trusted);
         actor.Send($"{{0}} is now {(trusted ? "a trusted ally" : "an ally")}.", target.HowSeen(actor));
         if (trusted)
         {

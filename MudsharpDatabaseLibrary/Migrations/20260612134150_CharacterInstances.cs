@@ -55,30 +55,10 @@ namespace MudSharp.Migrations
                 },
                 constraints: table =>
                 {
+                    // Legacy Characters.BodyId and Characters.Location were compatibility mirrors rather than
+                    // enforced FKs. Keep the first-upgrade table tolerant and rely on diagnostics plus uniqueness
+                    // guards so stale legacy mirrors do not block boot on pre-branch databases.
                     table.PrimaryKey("PRIMARY", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_CharacterInstances_AnchorInstance",
-                        column: x => x.AnchorInstanceId,
-                        principalTable: "CharacterInstances",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.SetNull);
-                    table.ForeignKey(
-                        name: "FK_CharacterInstances_Bodies",
-                        column: x => x.BodyId,
-                        principalTable: "Bodies",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_CharacterInstances_Cells",
-                        column: x => x.LocationId,
-                        principalTable: "Cells",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.SetNull);
-                    table.ForeignKey(
-                        name: "FK_CharacterInstances_Characters",
-                        column: x => x.CharacterId,
-                        principalTable: "Characters",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -134,7 +114,15 @@ namespace MudSharp.Migrations
                     0,
                     0,
                     0,
-                    c.`Location`,
+                    CASE
+                        WHEN EXISTS (
+                            SELECT 1
+                            FROM `Cells` cell
+                            WHERE cell.`Id` = c.`Location`
+                        )
+                        THEN c.`Location`
+                        ELSE NULL
+                    END,
                     c.`RoomLayer`,
                     c.`PositionId`,
                     c.`PositionModifier`,

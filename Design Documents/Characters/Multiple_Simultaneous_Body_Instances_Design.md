@@ -1269,7 +1269,7 @@ Deliverables:
 Implementation progress:
 
 - Completed: added the EF `CharacterInstance` model, `CharacterInstances` DbSet, navigation properties from `Character`, `Body`, and `Cell`, and explicit model configuration.
-- Completed: generated migration `20260612134150_CharacterInstances` with the table, indexes, foreign keys, and a deterministic backfill that creates one primary persistent instance from each existing `Characters` row.
+- Completed: generated migration `20260612134150_CharacterInstances` with the table, indexes, generated uniqueness guards, and a deterministic backfill that creates one primary persistent instance from each existing `Characters` row. The first-upgrade migration deliberately does not add hard `CharacterInstances` foreign keys because pre-branch `Characters.BodyId` and `Characters.Location` were compatibility mirrors; stale locations are imported as null and stale bodies are reported by the Phase 9 audit tooling rather than blocking boot.
 - Completed: `Character` now loads primary-instance rows when present, falls back to legacy `Characters` fields when absent, inserts a primary instance for new characters, and mirrors body/location/layer/position/state/status into the primary instance on save and final death persistence.
 - Verified: `dotnet build MudSharpCore\MudSharpCore.csproj -c Debug --no-restore -m:1 -p:NoWarn=NU1902%3BNU1510` succeeded after the phase-1 wiring.
 
@@ -1564,6 +1564,7 @@ Implementation progress:
 - Completed: extended the staff `instance` command with `instance audit <character>` for loaded identity diagnostics and `instance audit all` for persisted `CharacterInstances` integrity checks.
 - Completed: added small compatibility-boundary comments at the global-cache exclusion, primary compatibility mirror save, and same-identity versus same-physical-instance comparer seams.
 - Completed: post-review hardening now sweeps loaded secondary actors on primary logout. Temporary secondaries are retired/deleted, while persistent secondaries are saved, removed from live cell membership, detached from AI/controller/body heartbeat/scheduler state, and left as persisted rows for the next owner load; persistent intangible copy effects reapply their planar overlay when they load again.
+- Completed: hardened the initial `CharacterInstances` migration for pre-branch databases by removing first-upgrade hard foreign keys and nulling stale legacy location mirrors during primary-instance backfill so `instance audit all` can report bad persisted data after startup instead of the server failing mid-migration.
 - Completed: player-facing `instances`/`focus` and prompt output no longer expose raw internal instance IDs; ordinary players continue to use the display index from the `instances` table or form names, while staff-only IDs remain in the admin `instance` tooling.
 - Verified: `dotnet test 'FutureMUDLibrary Unit Tests\FutureMUDLibrary Unit Tests.csproj' -c Debug --no-restore -m:1 --filter CharacterInstance` passed 6 tests.
 - Verified: `dotnet test 'MudSharpCore Unit Tests\MudSharpCore Unit Tests.csproj' -c Debug --no-restore -m:1 --filter "CharacterInstance|InstanceAudit|MagicalCopy|PhysicalClone|AstralProjection|NPCAIEventSubscription"` passed 38 tests.

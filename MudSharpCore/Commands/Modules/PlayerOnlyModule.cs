@@ -61,7 +61,7 @@ The syntax is:
   #3focus <##>#0 - focus the numbered instance from the #3instances#0 list";
 
     [PlayerCommand("Instances", "instances")]
-    [HelpInfo("instances", InstancesHelp, AutoHelp.HelpArgOrNoArg)]
+    [HelpInfo("instances", InstancesHelp, AutoHelp.HelpArg)]
     [CustomModuleName("Game")]
     protected static void Instances(ICharacter actor, string command)
     {
@@ -69,7 +69,7 @@ The syntax is:
     }
 
     [PlayerCommand("Focus", "focus")]
-    [HelpInfo("focus", FocusHelp, AutoHelp.HelpArgOrNoArg)]
+    [HelpInfo("focus", FocusHelp, AutoHelp.HelpArg)]
     [CustomModuleName("Game")]
     protected static void Focus(ICharacter actor, string command)
     {

@@ -82,6 +82,8 @@ public partial class UsefulSeeder : IDatabaseSeeder
         "SealStamp_Antiquity_BronzeSignet",
         "SealStamp_Medieval_BronzeSignet",
         "Sealable_Envelope",
+        "Sealable_Antiquity_Clay_Bulla",
+        "Sealable_Modern_Security_Envelope",
         "MeasuringInstrument_Antiquity_BalanceScale",
         "Medieval_Parchment_Codex_40_Page",
         "Container_Document_Pouch",

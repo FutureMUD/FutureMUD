@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using MudSharp.Accounts;
 using MudSharp.Body;
 using MudSharp.Body.Position;
@@ -82,9 +83,6 @@ public partial class Character
 		Aliases = identity.Aliases.ToList();
 		Body = body;
 		Body.Actor = this;
-		Body.ActivateForCharacter();
-		_handedness = Body.Handedness;
-		_gender = Body.Gender;
 		_status = (CharacterStatus)instance.Status;
 		_state = (CharacterState)instance.State;
 		_instanceId = instance.Id;
@@ -107,6 +105,10 @@ public partial class Character
 		CommandTree = Gameworld.RetrieveAppropriateCommandTree(this);
 		Location = instance.LocationId.HasValue ? Gameworld.Cells.Get(instance.LocationId.Value) : identity.Location;
 		_roomLayer = (RoomLayer)instance.RoomLayer;
+		EnsureSecondaryBodyInventoryLoaded(instance);
+		Body.ActivateForCharacter();
+		_handedness = Body.Handedness;
+		_gender = Body.Gender;
 		InitialiseDefaultForm(body);
 		_merits.AddRange(identity._merits);
 		_characterTraits.AddRange(identity._characterTraits);
@@ -146,6 +148,28 @@ public partial class Character
 		LoadInstanceProject(instance);
 		Changed = false;
 		_noSave = false;
+	}
+
+	private void EnsureSecondaryBodyInventoryLoaded(MudSharp.Models.CharacterInstance instance)
+	{
+		Body.RecalculateItemHelpers();
+		if (Body.InventoryLoaded)
+		{
+			return;
+		}
+
+		using (new FMDB())
+		{
+			var dbbody = FMDB.Context.Bodies
+			                   .Include(x => x.BodiesGameItems)
+			                   .FirstOrDefault(x => x.Id == instance.BodyId);
+			if (dbbody is null)
+			{
+				return;
+			}
+
+			Body.LoadInventory(dbbody);
+		}
 	}
 
 	private void InitialisePrimaryInstanceDefaults()

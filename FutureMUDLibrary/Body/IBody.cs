@@ -32,6 +32,7 @@ namespace MudSharp.Body
         IHaveStamina, IMortal, IMortalPerceiver, IHaveMerits, ILateInitialisingItem, IBreathe, IHaveContextualSizeCategory, IHavePositionalSizes, ITarget, IHavePlanarPresence,
         ISurfaceContaminable
     {
+        bool InventoryLoaded { get; }
         void LoadInventory(MudSharp.Models.Body body);
         bool InventoryChanged { get; set; }
         IEnumerable<IEntityDescriptionPattern> EntityDescriptionPatterns { get; }

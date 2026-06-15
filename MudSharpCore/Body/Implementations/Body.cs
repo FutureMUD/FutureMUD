@@ -867,6 +867,7 @@ public partial class Body : PerceiverItem, IBody
 
         LoadTattoos(body);
         LoadScars(body);
+        RecalculateItemHelpers();
         _loading = false;
     }
 

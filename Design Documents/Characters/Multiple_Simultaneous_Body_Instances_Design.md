@@ -1778,6 +1778,13 @@ Verification:
 - Verified: `dotnet build MudsharpDatabaseLibrary\MudsharpDatabaseLibrary.csproj -c Debug --no-restore -m:1 -p:NoWarn=NU1902%3BNU1510` passed with 0 warnings.
 - Verified: `git diff --check` passed; it reported only line-ending normalization warnings.
 
+Post-V1 hardening note, June 15, 2026:
+
+- Fixed: database-loaded dormant bodies now initialise their public inventory helper views even before full inventory load, so look/targeting/perception code sees empty collections rather than null collections.
+- Fixed: secondary instance materialisation now sets instance state, location, and room layer before hydrating the secondary body's inventory and activating the body. This allows invalid held/worn/wielded items to fall back into the correct cell and makes passive, focusable, NPC AI, astral, copy, and clone bodies look-ready before room exposure.
+- Verified: `dotnet build MudSharpCore\MudSharpCore.csproj -c Debug --no-restore -m:1 -p:NoWarn=NU1902%3BNU1510 -p:OutDir=C:\Users\luker\.codex\worktrees\88f6\FutureMUD\.codex-build\MudSharpCore\` passed with 0 warnings and 0 errors. The scratch output path was used because the live MudSharp process was locking the normal `bin` outputs.
+- Verified: `dotnet test 'MudSharpCore Unit Tests\MudSharpCore Unit Tests.csproj' -c Debug --no-restore -m:1 --filter BodyInventoryInitialisationTests -p:NoWarn=NU1902%3BNU1510 -p:OutDir=C:\Users\luker\.codex\worktrees\88f6\FutureMUD\.codex-build\MudSharpCoreTests\` passed 1 test.
+
 V1 reflection:
 
 Phase 12 makes the multi-instance architecture V1-foundation ready. The system now supports one durable identity with multiple loaded, cell-local physical actors; staff-created passive/focusable instances; NPC AI secondaries; astral projection; magical copies; physical clones; physical-instance persistence in the highest-risk legacy actor-reference surfaces; and explicit helper APIs for identity-vs-instance decisions. Later work should be treated as feature expansion rather than architectural prerequisite.

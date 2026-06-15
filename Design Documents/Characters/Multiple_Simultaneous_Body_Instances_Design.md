@@ -1678,6 +1678,7 @@ Project labour implementation result:
 NPC patrol, group AI, bodyguard cache, and stable implementation result:
 
 - Completed: added nullable `PatrolLeaderInstanceId`, `StableStays.MountInstanceId`, and defaulted `PatrolMembers.CharacterInstanceId` columns via EF migration `20260614233932_CharacterInstanceNpcPatrolStableInstances`.
+- Follow-up: hardened `20260614233932_CharacterInstanceNpcPatrolStableInstances` for mature MySQL upgrades by keeping the legacy `PatrolMembers` primary key on `(PatrolId, CharacterId)` and treating `CharacterInstanceId` as indexed actor-reference metadata. This avoids the MySQL `Cannot drop index 'PRIMARY': needed in a foreign key constraint` startup crash while preserving legacy patrol membership uniqueness.
 - Completed: extended `CharacterInstanceIdentityComparer` with physical instance id helpers, loaded instance resolution, physical list operations, and a physical-instance dictionary comparer for systems like `GroupRoles`.
 - Completed: patrol save/load now writes identity plus instance ids for leaders and members, resolves explicit instance refs without unsafe primary fallback, and removes patrol members by physical instance.
 - Completed: group AI save/load now supports legacy `<Id>` members and new `<Member character="" instance="">` refs; threat exclusion, group role cleanup, and emote selection now use physical-instance checks.

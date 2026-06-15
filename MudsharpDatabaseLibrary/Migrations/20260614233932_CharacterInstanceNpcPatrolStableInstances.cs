@@ -29,15 +29,6 @@ namespace MudSharp.Migrations
                 nullable: false,
                 defaultValue: 0L);
 
-            migrationBuilder.DropPrimaryKey(
-                name: "PRIMARY",
-                table: "PatrolMembers");
-
-            migrationBuilder.AddPrimaryKey(
-                name: "PRIMARY",
-                table: "PatrolMembers",
-                columns: new[] { "PatrolId", "CharacterId", "CharacterInstanceId" });
-
             migrationBuilder.CreateIndex(
                 name: "FK_StableStays_CharacterInstances_Mount_idx",
                 table: "StableStays",
@@ -68,15 +59,6 @@ namespace MudSharp.Migrations
             migrationBuilder.DropIndex(
                 name: "FK_PatrolMembers_CharacterInstances_idx",
                 table: "PatrolMembers");
-
-            migrationBuilder.DropPrimaryKey(
-                name: "PRIMARY",
-                table: "PatrolMembers");
-
-            migrationBuilder.AddPrimaryKey(
-                name: "PRIMARY",
-                table: "PatrolMembers",
-                columns: new[] { "PatrolId", "CharacterId" });
 
             migrationBuilder.DropColumn(
                 name: "MountInstanceId",

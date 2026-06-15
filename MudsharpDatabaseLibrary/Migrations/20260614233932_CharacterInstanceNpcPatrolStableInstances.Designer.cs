@@ -15985,7 +15985,7 @@ namespace MudSharp.Migrations
                     b.Property<long>("CharacterInstanceId")
                         .HasColumnType("bigint(20)");
 
-                    b.HasKey("PatrolId", "CharacterId", "CharacterInstanceId")
+                    b.HasKey("PatrolId", "CharacterId")
                         .HasName("PRIMARY");
 
                     b.HasIndex("CharacterId");

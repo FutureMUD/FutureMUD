@@ -865,7 +865,7 @@ namespace MudSharp.Database
                 entity.Property(e => e.CharacterId).HasColumnType("bigint(20)");
                 entity.Property(e => e.CharacterInstanceId).HasColumnType("bigint(20)");
                 entity.Property(e => e.PatrolId).HasColumnType("bigint(20)");
-                entity.HasKey(e => new { e.PatrolId, e.CharacterId, e.CharacterInstanceId }).HasName("PRIMARY");
+                entity.HasKey(e => new { e.PatrolId, e.CharacterId }).HasName("PRIMARY");
                 entity.HasIndex(e => e.CharacterInstanceId).HasDatabaseName("FK_PatrolMembers_CharacterInstances_idx");
 
                 entity

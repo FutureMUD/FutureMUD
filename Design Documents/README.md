@@ -69,6 +69,11 @@ This folder is organised by subsystem so implementation notes, builder workflows
 - [Seeded Gases](./Data/Seeded_Gases.json)
 - [Seeded Tag Hierarchy](./Data/SeededTagHierarchy.csv)
 
+## Drugs
+- [Drug System Documentation](./Drugs/README.md)
+- [Drug System Design](./Drugs/Drug_System_Design.md)
+- [Drug Builder Guide](./Drugs/Drug_Builder_Guide.md)
+
 ## Economy
 - [Economy System Runtime](./Economy/Economy_System_Runtime.md)
 - [Economy System Workflows and Integration](./Economy/Economy_System_Workflows_and_Integration.md)

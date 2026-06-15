@@ -329,6 +329,8 @@ public class UsefulSeederItemPackageTests
 		Assert.IsTrue(UsefulSeeder.StockItemMarkersForTesting.Contains("Container_Document_Pouch"));
 		Assert.IsTrue(UsefulSeeder.StockItemMarkersForTesting.Contains("Container_Archive_Chest"));
 		Assert.IsTrue(UsefulSeeder.StockItemMarkersForTesting.Contains("Sealable_Envelope"));
+		Assert.IsTrue(UsefulSeeder.StockItemMarkersForTesting.Contains("Sealable_Antiquity_Clay_Bulla"));
+		Assert.IsTrue(UsefulSeeder.StockItemMarkersForTesting.Contains("Sealable_Modern_Security_Envelope"));
 		Assert.IsTrue(UsefulSeeder.StockItemMarkersForTesting.Contains("MeasuringInstrument_Antiquity_BalanceScale"));
 		Assert.IsTrue(UsefulSeeder.StockItemMarkersForTesting.Contains("IncenseBurner_Antiquity_BronzeCenser"));
 		Assert.IsTrue(UsefulSeeder.StockItemMarkersForTesting.Contains("OfferingReceiver_Antiquity_HouseholdAltar"));
@@ -582,6 +584,31 @@ public class UsefulSeederItemPackageTests
 			"Sealable_Envelope",
 			"Sealable_Scroll",
 			"Sealable_Container_Wax",
+			"Sealable_Antiquity_Clay_Tablet_Edge",
+			"Sealable_Antiquity_Clay_Bulla",
+			"Sealable_Antiquity_Papyrus_Letter",
+			"Sealable_Antiquity_Papyrus_Scroll",
+			"Sealable_Antiquity_Papyrus_Packet",
+			"Sealable_Antiquity_Wax_Tablet_Diptych",
+			"Sealable_Antiquity_Linen_Document_Bundle",
+			"Sealable_Antiquity_Archive_Jar_Cap",
+			"Sealable_Medieval_Parchment_Charter",
+			"Sealable_Medieval_Parchment_Roll",
+			"Sealable_Medieval_Rag_Paper_Letter",
+			"Sealable_Medieval_Official_Writ",
+			"Sealable_Medieval_East_Asian_Scroll",
+			"Sealable_Medieval_Palm_Leaf_Bundle",
+			"Sealable_Medieval_Document_Pouch",
+			"Sealable_Medieval_Archive_Box",
+			"Sealable_Modern_Business_Envelope",
+			"Sealable_Modern_Padded_Envelope",
+			"Sealable_Modern_File_Folder",
+			"Sealable_Modern_Security_Envelope",
+			"Sealable_Modern_Evidence_Bag",
+			"Sealable_Modern_Registered_Mail_Pouch",
+			"Sealable_Modern_Courier_Tube",
+			"Sealable_Modern_Diplomatic_Pouch",
+			"Sealable_Modern_Archive_Box",
 			"MeasuringInstrument_Antiquity_BalanceScale",
 			"MeasuringInstrument_Antiquity_StandardWeights",
 			"MeasuringInstrument_Antiquity_FalseWeights",
@@ -665,6 +692,14 @@ public class UsefulSeederItemPackageTests
 			(string)Definition("SealStamp_Medieval_BrassOfficeSeal").Element("SealDesign")!);
 		Assert.IsTrue(Definition("Sealable_Envelope").Element("AllowedMedia")!.Elements("Medium")
 		                                      .Any(x => (string)x == "wax"));
+		Assert.IsTrue(context.GameItemComponentProtos.Count(x => x.Type == "Sealable") >= 30);
+		Assert.AreEqual((int)Difficulty.VeryHard,
+			(int)Definition("Sealable_Antiquity_Clay_Bulla").Element("InspectionDifficulty")!);
+		Assert.IsTrue(Definition("Sealable_Modern_Security_Envelope").Element("AllowedMedia")!.Elements("Medium")
+		                                      .Any(x => (string)x == "security tape"));
+		Assert.IsTrue(Definition("Sealable_Modern_Diplomatic_Pouch").Element("AllowedMedia")!.Elements("Medium")
+		                                      .Any(x => (string)x == "numbered seal"));
+		Assert.IsFalse(bool.Parse((string)Definition("Sealable_Modern_File_Folder").Element("BrokenSealLeavesResidue")!));
 		Assert.AreEqual("Weight", (string)Definition("MeasuringInstrument_Antiquity_BalanceScale").Element("Mode")!);
 		Assert.AreEqual("FluidVolume", (string)Definition("MeasuringInstrument_Antiquity_OilCup").Element("Mode")!);
 		Assert.AreEqual(3600,

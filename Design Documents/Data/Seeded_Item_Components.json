@@ -6568,5 +6568,155 @@
         "Component Name":  "SealStamp_Medieval_LeadSealMatrix",
         "Component Description":  "Turns an item into a medieval lead seal matrix for official packets.",
         "Component Type":  "SealStamp"
+    },
+    {
+        "Component Name":  "Sealable_Document_Wax",
+        "Component Description":  "Lets a document be sealed with wax and leave broken-seal residue.",
+        "Component Type":  "Sealable"
+    },
+    {
+        "Component Name":  "Sealable_Document_Clay",
+        "Component Description":  "Lets a document be sealed with clay and leave broken-seal residue.",
+        "Component Type":  "Sealable"
+    },
+    {
+        "Component Name":  "Sealable_Envelope",
+        "Component Description":  "Lets an envelope be sealed with wax, clay or paste.",
+        "Component Type":  "Sealable"
+    },
+    {
+        "Component Name":  "Sealable_Scroll",
+        "Component Description":  "Lets a scroll be sealed with wax, clay or paste.",
+        "Component Type":  "Sealable"
+    },
+    {
+        "Component Name":  "Sealable_Container_Wax",
+        "Component Description":  "Lets a closable container be sealed with wax or clay as tamper evidence.",
+        "Component Type":  "Sealable"
+    },
+    {
+        "Component Name":  "Sealable_Antiquity_Clay_Tablet_Edge",
+        "Component Description":  "Lets a clay tablet edge take a clay or wax authority seal.",
+        "Component Type":  "Sealable"
+    },
+    {
+        "Component Name":  "Sealable_Antiquity_Clay_Bulla",
+        "Component Description":  "Lets a clay bulla close tied antiquity documents, packets and account tags.",
+        "Component Type":  "Sealable"
+    },
+    {
+        "Component Name":  "Sealable_Antiquity_Papyrus_Letter",
+        "Component Description":  "Lets a small papyrus letter be folded and sealed with wax, clay or paste.",
+        "Component Type":  "Sealable"
+    },
+    {
+        "Component Name":  "Sealable_Antiquity_Papyrus_Scroll",
+        "Component Description":  "Lets a papyrus scroll be sealed after writing with reed pen or brush.",
+        "Component Type":  "Sealable"
+    },
+    {
+        "Component Name":  "Sealable_Antiquity_Papyrus_Packet",
+        "Component Description":  "Lets a packet of papyrus sheets or labels be closed with a small tamper-evident seal.",
+        "Component Type":  "Sealable"
+    },
+    {
+        "Component Name":  "Sealable_Antiquity_Wax_Tablet_Diptych",
+        "Component Description":  "Lets a wax tablet diptych or triptych be tied and sealed after stylus writing.",
+        "Component Type":  "Sealable"
+    },
+    {
+        "Component Name":  "Sealable_Antiquity_Linen_Document_Bundle",
+        "Component Description":  "Lets a cloth-wrapped document bundle be tied and sealed for archive handling.",
+        "Component Type":  "Sealable"
+    },
+    {
+        "Component Name":  "Sealable_Antiquity_Archive_Jar_Cap",
+        "Component Description":  "Lets a jar cap, amphora cover or archive vessel be sealed as tamper evidence.",
+        "Component Type":  "Sealable"
+    },
+    {
+        "Component Name":  "Sealable_Medieval_Parchment_Charter",
+        "Component Description":  "Lets a parchment charter be sealed with wax or a suspended lead bulla.",
+        "Component Type":  "Sealable"
+    },
+    {
+        "Component Name":  "Sealable_Medieval_Parchment_Roll",
+        "Component Description":  "Lets a long parchment roll be secured with a formal wax or lead seal.",
+        "Component Type":  "Sealable"
+    },
+    {
+        "Component Name":  "Sealable_Medieval_Rag_Paper_Letter",
+        "Component Description":  "Lets a folded rag-paper letter be sealed after quill or reed-pen writing.",
+        "Component Type":  "Sealable"
+    },
+    {
+        "Component Name":  "Sealable_Medieval_Official_Writ",
+        "Component Description":  "Lets an official writ, summons or chancery document carry a high-confidence seal.",
+        "Component Type":  "Sealable"
+    },
+    {
+        "Component Name":  "Sealable_Medieval_East_Asian_Scroll",
+        "Component Description":  "Lets an East Asian paper scroll or brush-written document be sealed.",
+        "Component Type":  "Sealable"
+    },
+    {
+        "Component Name":  "Sealable_Medieval_Palm_Leaf_Bundle",
+        "Component Description":  "Lets a palm-leaf manuscript bundle be corded and sealed after inscription.",
+        "Component Type":  "Sealable"
+    },
+    {
+        "Component Name":  "Sealable_Medieval_Document_Pouch",
+        "Component Description":  "Lets a document pouch be sealed for courier or archive custody.",
+        "Component Type":  "Sealable"
+    },
+    {
+        "Component Name":  "Sealable_Medieval_Archive_Box",
+        "Component Description":  "Lets a small archive box or record chest take a wax or lead tamper seal.",
+        "Component Type":  "Sealable"
+    },
+    {
+        "Component Name":  "Sealable_Modern_Business_Envelope",
+        "Component Description":  "Lets a modern business envelope be sealed with gummed paper or adhesive.",
+        "Component Type":  "Sealable"
+    },
+    {
+        "Component Name":  "Sealable_Modern_Padded_Envelope",
+        "Component Description":  "Lets a padded mailing envelope be sealed with adhesive or security tape.",
+        "Component Type":  "Sealable"
+    },
+    {
+        "Component Name":  "Sealable_Modern_File_Folder",
+        "Component Description":  "Lets a file folder or dossier be closed with a removable office seal.",
+        "Component Type":  "Sealable"
+    },
+    {
+        "Component Name":  "Sealable_Modern_Security_Envelope",
+        "Component Description":  "Lets a security envelope show tampering through adhesive or security tape residue.",
+        "Component Type":  "Sealable"
+    },
+    {
+        "Component Name":  "Sealable_Modern_Evidence_Bag",
+        "Component Description":  "Lets an evidence bag be sealed with numbered or tamper-evident evidence tape.",
+        "Component Type":  "Sealable"
+    },
+    {
+        "Component Name":  "Sealable_Modern_Registered_Mail_Pouch",
+        "Component Description":  "Lets a registered mail pouch or locked satchel receive a numbered custody seal.",
+        "Component Type":  "Sealable"
+    },
+    {
+        "Component Name":  "Sealable_Modern_Courier_Tube",
+        "Component Description":  "Lets a modern map, blueprint or document courier tube carry an external seal.",
+        "Component Type":  "Sealable"
+    },
+    {
+        "Component Name":  "Sealable_Modern_Diplomatic_Pouch",
+        "Component Description":  "Lets a diplomatic pouch or high-security courier bag carry formal custody seals.",
+        "Component Type":  "Sealable"
+    },
+    {
+        "Component Name":  "Sealable_Modern_Archive_Box",
+        "Component Description":  "Lets a records archive box be sealed for storage or chain-of-custody control.",
+        "Component Type":  "Sealable"
     }
 ]

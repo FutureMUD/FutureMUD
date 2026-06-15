@@ -112,7 +112,8 @@ public class ItemSeederMedievalCraftingTests
 			         .Where(x => !x.Value.Equals("SeedMedievalClothing", StringComparison.Ordinal))
 			         .Where(x => !x.Value.Equals("SeedMedievalHouseholdFurniture", StringComparison.Ordinal))
 			         .Where(x => !x.Value.Equals("SeedMedievalArmour", StringComparison.Ordinal))
-			         .Where(x => !x.Value.Equals("SeedMedievalWeaponsShieldsAccessories", StringComparison.Ordinal)))
+			         .Where(x => !x.Value.Equals("SeedMedievalWeaponsShieldsAccessories", StringComparison.Ordinal))
+			         .Where(x => !x.Value.Equals("SeedMedievalWritingAdministrationAndDocuments", StringComparison.Ordinal)))
 		{
 			var source = ReadSource("DatabaseSeeder", "Seeders", fileName);
 			AssertNoOpMethod(source, methodName);
@@ -122,7 +123,8 @@ public class ItemSeederMedievalCraftingTests
 			"ItemSeeder.Rework.MedievalClothing.cs",
 			"ItemSeeder.Rework.MedievalFurniture.cs",
 			"ItemSeeder.Rework.MedievalArmour.cs",
-			"ItemSeeder.Rework.MedievalWeapons.cs");
+			"ItemSeeder.Rework.MedievalWeapons.cs",
+			"ItemSeeder.Rework.MedievalWriting.cs");
 		foreach (var forbidden in new[]
 		{
 			"CreateItem(",
@@ -312,6 +314,60 @@ public class ItemSeederMedievalCraftingTests
 	}
 
 	[TestMethod]
+	public void MedievalWritingSeeder_ImplementsReferenceCatalogueWithDirectCreateItemCalls()
+	{
+		var writingSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.MedievalWriting.cs");
+		var designReference = ReadSource("Design Documents", "Seeding", "FutureMUD_Medieval_Writing_Books_Documents_Design_Reference.md");
+		var fdescCatalogue = ReadSource("Design Documents", "Seeding", "FutureMUD_Medieval_Writing_Books_Documents_FDesc_Catalogue.csv");
+
+		var designReferences = Regex.Matches(
+				designReference,
+				@"^\| `(?<ref>medieval_writing_[^`]+)` \|",
+				RegexOptions.Multiline | RegexOptions.CultureInvariant)
+			.Cast<Match>()
+			.Select(x => x.Groups["ref"].Value)
+			.ToArray();
+		var csvReferences = Regex.Matches(
+				fdescCatalogue,
+				@"^(?<ref>medieval_writing_[^,\r\n]+),",
+				RegexOptions.Multiline | RegexOptions.CultureInvariant)
+			.Cast<Match>()
+			.Select(x => x.Groups["ref"].Value)
+			.ToArray();
+		var sourceReferences = Regex.Matches(
+				writingSource,
+				@"CreateItem\s*\(\s*""(?<ref>medieval_writing_[^""]+)""",
+				RegexOptions.Multiline | RegexOptions.CultureInvariant)
+			.Cast<Match>()
+			.Select(x => x.Groups["ref"].Value)
+			.ToArray();
+
+		Assert.AreEqual(286, designReferences.Length,
+			"The writing design reference should contain the full 286-item catalogue.");
+		CollectionAssert.AreEqual(designReferences, csvReferences,
+			"The writing fdesc catalogue should stay in the same order as the design reference.");
+		CollectionAssert.AreEqual(designReferences, sourceReferences,
+			"SeedMedievalWritingAdministrationAndDocuments should contain exactly one direct CreateItem call for each writing reference.");
+		Assert.AreEqual(sourceReferences.Length, sourceReferences.Distinct(StringComparer.OrdinalIgnoreCase).Count(),
+			"Each medieval writing, book, document, seal, container, scribal-tool, or writing-support item should be created exactly once.");
+
+		foreach (var forbidden in new[]
+		{
+			"foreach",
+			"for (",
+			"Dictionary<",
+			"IReadOnly",
+			"BuildMedieval",
+			"SeedEraItemSpecs(",
+			"EnsureMedieval"
+		})
+		{
+			Assert.IsFalse(writingSource.Contains(forbidden, StringComparison.Ordinal),
+				$"SeedMedievalWritingAdministrationAndDocuments should remain direct CreateItem calls without helper catalogue token {forbidden}.");
+		}
+	}
+
+	[TestMethod]
 	public void MedievalCraftLaunchers_AreNoOps()
 	{
 		var medievalCraftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.Medieval.cs");
@@ -388,12 +444,17 @@ public class ItemSeederMedievalCraftingTests
 			"The surviving medieval design documents should be the current audit and live source references.");
 		Assert.IsTrue(File.Exists(Path.Combine(seedingDocPath, "Medieval_Clothing_FDesc_Catalogue.csv")),
 			"The live medieval clothing fdesc catalogue should remain beside its design reference.");
+		Assert.IsTrue(File.Exists(Path.Combine(seedingDocPath, "FutureMUD_Medieval_Writing_Books_Documents_Design_Reference.md")),
+			"The live medieval writing design reference should remain beside the other seeding references.");
+		Assert.IsTrue(File.Exists(Path.Combine(seedingDocPath, "FutureMUD_Medieval_Writing_Books_Documents_FDesc_Catalogue.csv")),
+			"The live medieval writing fdesc catalogue should remain beside its design reference.");
 
 		var indexSource = ReadSource("Design Documents", "README.md");
 		AssertContains(indexSource, "[Medieval ItemSeeder Rebuild Audit](./Seeding/Medieval_Crafting_Audit.md)");
 		AssertContains(indexSource, "[Medieval Clothing Seeder Design Reference](./Seeding/Medieval_Clothing_Seeder_Design_Reference.md)");
 		AssertContains(indexSource, "[Medieval Household Goods and Furniture Seeder Design Reference](./Seeding/Medieval_Household_Goods_Furniture_Seeder_Design_Reference.md)");
 		AssertContains(indexSource, "[Medieval Military Seeder Design Reference](./Seeding/Medieval_Military_Seeder_Design_Reference.md)");
+		AssertContains(indexSource, "[Medieval Writing, Books, and Documents Seeder Design Reference](./Seeding/FutureMUD_Medieval_Writing_Books_Documents_Design_Reference.md)");
 		foreach (var removed in RetiredMedievalDesignDocuments)
 		{
 			Assert.IsFalse(indexSource.Contains(removed, StringComparison.Ordinal),
@@ -409,9 +470,13 @@ public class ItemSeederMedievalCraftingTests
 		AssertContains(auditSource, "ItemSeeder.Rework.MedievalFurniture.cs");
 		AssertContains(auditSource, "`SeedMedievalWeaponsShieldsAccessories` contains the direct melee weapon, ranged weapon, ammunition, and thrown-weapon `CreateItem(...)` calls.");
 		AssertContains(auditSource, "`SeedMedievalArmour` contains the direct armour, horse tack, barding, shield, and military support-gear `CreateItem(...)` calls.");
+		AssertContains(auditSource, "`SeedMedievalWritingAdministrationAndDocuments` contains the direct writing-surface, book, document, seal, container, scribal-tool, and writing-support `CreateItem(...)` calls.");
 		AssertContains(auditSource, "Medieval_Military_Seeder_Design_Reference.md");
 		AssertContains(auditSource, "ItemSeeder.Rework.MedievalWeapons.cs");
 		AssertContains(auditSource, "ItemSeeder.Rework.MedievalArmour.cs");
+		AssertContains(auditSource, "FutureMUD_Medieval_Writing_Books_Documents_Design_Reference.md");
+		AssertContains(auditSource, "FutureMUD_Medieval_Writing_Books_Documents_FDesc_Catalogue.csv");
+		AssertContains(auditSource, "ItemSeeder.Rework.MedievalWriting.cs");
 		AssertContains(auditSource, "ItemSeeder.Rework.HistoricFoundation.cs");
 		AssertContains(auditSource, "ItemSeederCrafting.HistoricFoundation.cs");
 		Assert.IsFalse(auditSource.Contains("Medieval_Outfit_Catalogue.md", StringComparison.Ordinal),

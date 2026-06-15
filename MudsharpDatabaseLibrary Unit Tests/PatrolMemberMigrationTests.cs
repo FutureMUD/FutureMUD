@@ -59,6 +59,34 @@ public class PatrolMemberMigrationTests
 			"CharacterInstanceId is actor-reference metadata and must not become part of the PatrolMembers primary key.");
 	}
 
+	[TestMethod]
+	public void ActorReferenceModel_DoesNotHardForeignKeyCharacterInstances()
+	{
+		var options = new DbContextOptionsBuilder<FuturemudDatabaseContext>()
+			.UseMySql(
+				"server=localhost;port=3306;database=dbo;uid=futuremud;password=unused",
+				ServerVersion.Parse("8.0.36-mysql"))
+			.Options;
+		using var context = new FuturemudDatabaseContext(options);
+
+		AssertNoCharacterInstanceForeignKey<VehicleOccupancy>(context, nameof(VehicleOccupancy.CharacterInstanceId));
+		AssertNoCharacterInstanceForeignKey<VehicleHitchLink>(context, nameof(VehicleHitchLink.SourceCharacterInstanceId));
+		AssertNoCharacterInstanceForeignKey<VehicleHitchLink>(context, nameof(VehicleHitchLink.TargetCharacterInstanceId));
+		AssertNoCharacterInstanceForeignKey<ArenaSignup>(context, nameof(ArenaSignup.ActiveCharacterInstanceId));
+	}
+
+	[TestMethod]
+	public void CharacterInstanceActorReferences_DoesNotAddHardCharacterInstanceForeignKeys()
+	{
+		var operations = GetUpOperations(new CharacterInstanceActorReferences());
+
+		Assert.IsFalse(
+			operations
+				.OfType<AddForeignKeyOperation>()
+				.Any(x => x.PrincipalTable == "CharacterInstances"),
+			"Actor-reference columns should remain indexed nullable ids; stale instance refs are handled by diagnostics.");
+	}
+
 	private static MigrationOperation[] GetUpOperations(Migration migration)
 	{
 		var migrationBuilder = new MigrationBuilder("MySql");
@@ -67,5 +95,24 @@ public class PatrolMemberMigrationTests
 
 		up.Invoke(migration, new object[] { migrationBuilder });
 		return migrationBuilder.Operations.ToArray();
+	}
+
+	private static void AssertNoCharacterInstanceForeignKey<TEntity>(
+		FuturemudDatabaseContext context,
+		string propertyName)
+	{
+		var entityType = context.Model.FindEntityType(typeof(TEntity));
+		Assert.IsNotNull(entityType);
+
+		var property = entityType.FindProperty(propertyName);
+		Assert.IsNotNull(property, $"{typeof(TEntity).Name}.{propertyName} should remain mapped as an id column.");
+
+		Assert.IsFalse(
+			entityType
+				.GetForeignKeys()
+				.Any(x =>
+					x.PrincipalEntityType.ClrType == typeof(CharacterInstance) &&
+					x.Properties.Any(y => y.Name == propertyName)),
+			$"{typeof(TEntity).Name}.{propertyName} should not be a hard database foreign key.");
 	}
 }

@@ -514,6 +514,7 @@ public partial class FuturemudDatabaseContext
             entity.Property(e => e.StartingRating).HasColumnType("decimal(58,29)");
             entity.Property(e => e.SignedUpAt).HasColumnType("datetime");
             entity.Property(e => e.ArenaReservationId).HasColumnType("bigint(20)");
+            entity.Ignore(e => e.ActiveCharacterInstance);
 
             entity.HasOne(d => d.ArenaEvent)
                 .WithMany(p => p.ArenaSignups)
@@ -526,12 +527,6 @@ public partial class FuturemudDatabaseContext
                 .HasForeignKey(d => d.CharacterId)
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("FK_ArenaSignups_Characters");
-
-            entity.HasOne(d => d.ActiveCharacterInstance)
-                .WithMany()
-                .HasForeignKey(d => d.ActiveCharacterInstanceId)
-                .OnDelete(DeleteBehavior.SetNull)
-                .HasConstraintName("FK_ArenaSignups_ActiveCharacterInstances");
 
             entity.HasOne(d => d.CombatantClass)
                 .WithMany(p => p.ArenaSignups)

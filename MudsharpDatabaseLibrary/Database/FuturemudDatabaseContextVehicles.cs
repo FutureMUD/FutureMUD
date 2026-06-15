@@ -453,6 +453,7 @@ public partial class FuturemudDatabaseContext
 			      .HasComputedColumnSql("COALESCE(`CharacterInstanceId`, 0)", stored: true);
 			entity.Property(e => e.VehicleOccupantSlotProtoId).HasColumnType("bigint(20)");
 			entity.Property(e => e.IsController).HasColumnType("bit(1)");
+			entity.Ignore(e => e.CharacterInstance);
 
 			entity.HasOne(d => d.Vehicle)
 			      .WithMany(p => p.Occupancies)
@@ -463,12 +464,6 @@ public partial class FuturemudDatabaseContext
 			      .WithMany()
 			      .HasForeignKey(d => d.CharacterId)
 			      .HasConstraintName("FK_VehicleOccupancies_Characters");
-
-			entity.HasOne(d => d.CharacterInstance)
-			      .WithMany()
-			      .HasForeignKey(d => d.CharacterInstanceId)
-			      .OnDelete(DeleteBehavior.SetNull)
-			      .HasConstraintName("FK_VehicleOccupancies_CharacterInstances");
 
 			entity.HasOne(d => d.VehicleOccupantSlotProto)
 			      .WithMany()
@@ -693,6 +688,8 @@ public partial class FuturemudDatabaseContext
 			entity.Property(e => e.HitchItemId).HasColumnType("bigint(20)");
 			entity.Property(e => e.IsDisabled).HasColumnType("bit(1)");
 			entity.Property(e => e.CreatedDateTime).HasColumnType("datetime");
+			entity.Ignore(e => e.SourceCharacterInstance);
+			entity.Ignore(e => e.TargetCharacterInstance);
 
 			entity.HasOne(d => d.SourceVehicle)
 			      .WithMany()
@@ -705,12 +702,6 @@ public partial class FuturemudDatabaseContext
 			      .HasForeignKey(d => d.SourceCharacterId)
 			      .OnDelete(DeleteBehavior.SetNull)
 			      .HasConstraintName("FK_VehicleHitchLinks_SourceCharacters");
-
-			entity.HasOne(d => d.SourceCharacterInstance)
-			      .WithMany()
-			      .HasForeignKey(d => d.SourceCharacterInstanceId)
-			      .OnDelete(DeleteBehavior.SetNull)
-			      .HasConstraintName("FK_VehicleHitchLinks_SourceCharacterInstances");
 
 			entity.HasOne(d => d.SourceTowPointProto)
 			      .WithMany()
@@ -729,12 +720,6 @@ public partial class FuturemudDatabaseContext
 			      .HasForeignKey(d => d.TargetCharacterId)
 			      .OnDelete(DeleteBehavior.SetNull)
 			      .HasConstraintName("FK_VehicleHitchLinks_TargetCharacters");
-
-			entity.HasOne(d => d.TargetCharacterInstance)
-			      .WithMany()
-			      .HasForeignKey(d => d.TargetCharacterInstanceId)
-			      .OnDelete(DeleteBehavior.SetNull)
-			      .HasConstraintName("FK_VehicleHitchLinks_TargetCharacterInstances");
 
 			entity.HasOne(d => d.TargetTowPointProto)
 			      .WithMany()

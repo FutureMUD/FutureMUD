@@ -23576,12 +23576,6 @@ namespace MudSharp.Migrations
 
             modelBuilder.Entity("MudSharp.Models.ArenaSignup", b =>
                 {
-                    b.HasOne("MudSharp.Models.CharacterInstance", "ActiveCharacterInstance")
-                        .WithMany()
-                        .HasForeignKey("ActiveCharacterInstanceId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .HasConstraintName("FK_ArenaSignups_ActiveCharacterInstances");
-
                     b.HasOne("MudSharp.Models.ArenaEvent", "ArenaEvent")
                         .WithMany("ArenaSignups")
                         .HasForeignKey("ArenaEventId")
@@ -23608,8 +23602,6 @@ namespace MudSharp.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("FK_ArenaSignups_CombatantClasses");
-
-                    b.Navigation("ActiveCharacterInstance");
 
                     b.Navigation("ArenaEvent");
 
@@ -31565,12 +31557,6 @@ namespace MudSharp.Migrations
                         .OnDelete(DeleteBehavior.SetNull)
                         .HasConstraintName("FK_VehicleHitchLinks_SourceCharacters");
 
-                    b.HasOne("MudSharp.Models.CharacterInstance", "SourceCharacterInstance")
-                        .WithMany()
-                        .HasForeignKey("SourceCharacterInstanceId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .HasConstraintName("FK_VehicleHitchLinks_SourceCharacterInstances");
-
                     b.HasOne("MudSharp.Models.VehicleTowPointProto", "SourceTowPointProto")
                         .WithMany()
                         .HasForeignKey("SourceTowPointProtoId")
@@ -31589,12 +31575,6 @@ namespace MudSharp.Migrations
                         .OnDelete(DeleteBehavior.SetNull)
                         .HasConstraintName("FK_VehicleHitchLinks_TargetCharacters");
 
-                    b.HasOne("MudSharp.Models.CharacterInstance", "TargetCharacterInstance")
-                        .WithMany()
-                        .HasForeignKey("TargetCharacterInstanceId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .HasConstraintName("FK_VehicleHitchLinks_TargetCharacterInstances");
-
                     b.HasOne("MudSharp.Models.VehicleTowPointProto", "TargetTowPointProto")
                         .WithMany()
                         .HasForeignKey("TargetTowPointProtoId")
@@ -31611,15 +31591,11 @@ namespace MudSharp.Migrations
 
                     b.Navigation("SourceCharacter");
 
-                    b.Navigation("SourceCharacterInstance");
-
                     b.Navigation("SourceTowPointProto");
 
                     b.Navigation("SourceVehicle");
 
                     b.Navigation("TargetCharacter");
-
-                    b.Navigation("TargetCharacterInstance");
 
                     b.Navigation("TargetTowPointProto");
 
@@ -31696,12 +31672,6 @@ namespace MudSharp.Migrations
                         .IsRequired()
                         .HasConstraintName("FK_VehicleOccupancies_Characters");
 
-                    b.HasOne("MudSharp.Models.CharacterInstance", "CharacterInstance")
-                        .WithMany()
-                        .HasForeignKey("CharacterInstanceId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .HasConstraintName("FK_VehicleOccupancies_CharacterInstances");
-
                     b.HasOne("MudSharp.Models.Vehicle", "Vehicle")
                         .WithMany("Occupancies")
                         .HasForeignKey("VehicleId")
@@ -31717,8 +31687,6 @@ namespace MudSharp.Migrations
                         .HasConstraintName("FK_VehicleOccupancies_Slots");
 
                     b.Navigation("Character");
-
-                    b.Navigation("CharacterInstance");
 
                     b.Navigation("Vehicle");
 

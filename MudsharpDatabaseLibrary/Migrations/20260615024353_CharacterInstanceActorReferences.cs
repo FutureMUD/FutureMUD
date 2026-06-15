@@ -72,58 +72,11 @@ namespace MudSharp.Migrations
                 table: "ArenaSignups",
                 column: "ActiveCharacterInstanceId");
 
-            migrationBuilder.AddForeignKey(
-                name: "FK_ArenaSignups_ActiveCharacterInstances",
-                table: "ArenaSignups",
-                column: "ActiveCharacterInstanceId",
-                principalTable: "CharacterInstances",
-                principalColumn: "Id",
-                onDelete: ReferentialAction.SetNull);
-
-            migrationBuilder.AddForeignKey(
-                name: "FK_VehicleHitchLinks_SourceCharacterInstances",
-                table: "VehicleHitchLinks",
-                column: "SourceCharacterInstanceId",
-                principalTable: "CharacterInstances",
-                principalColumn: "Id",
-                onDelete: ReferentialAction.SetNull);
-
-            migrationBuilder.AddForeignKey(
-                name: "FK_VehicleHitchLinks_TargetCharacterInstances",
-                table: "VehicleHitchLinks",
-                column: "TargetCharacterInstanceId",
-                principalTable: "CharacterInstances",
-                principalColumn: "Id",
-                onDelete: ReferentialAction.SetNull);
-
-            migrationBuilder.AddForeignKey(
-                name: "FK_VehicleOccupancies_CharacterInstances",
-                table: "VehicleOccupancies",
-                column: "CharacterInstanceId",
-                principalTable: "CharacterInstances",
-                principalColumn: "Id",
-                onDelete: ReferentialAction.SetNull);
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropForeignKey(
-                name: "FK_ArenaSignups_ActiveCharacterInstances",
-                table: "ArenaSignups");
-
-            migrationBuilder.DropForeignKey(
-                name: "FK_VehicleHitchLinks_SourceCharacterInstances",
-                table: "VehicleHitchLinks");
-
-            migrationBuilder.DropForeignKey(
-                name: "FK_VehicleHitchLinks_TargetCharacterInstances",
-                table: "VehicleHitchLinks");
-
-            migrationBuilder.DropForeignKey(
-                name: "FK_VehicleOccupancies_CharacterInstances",
-                table: "VehicleOccupancies");
-
             migrationBuilder.DropIndex(
                 name: "FK_VehicleOccupancies_CharacterInstances_idx",
                 table: "VehicleOccupancies");

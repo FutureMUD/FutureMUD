@@ -485,6 +485,9 @@ public partial class FuturemudDatabaseContext
             entity.HasIndex(e => e.CharacterId)
                 .HasDatabaseName("FK_ArenaSignups_Characters");
 
+            entity.HasIndex(e => e.ActiveCharacterInstanceId)
+                .HasDatabaseName("FK_ArenaSignups_ActiveCharacterInstances");
+
             entity.HasIndex(e => e.CombatantClassId)
                 .HasDatabaseName("FK_ArenaSignups_CombatantClasses");
 
@@ -494,6 +497,7 @@ public partial class FuturemudDatabaseContext
             entity.Property(e => e.Id).HasColumnType("bigint(20)");
             entity.Property(e => e.ArenaEventId).HasColumnType("bigint(20)");
             entity.Property(e => e.CharacterId).HasColumnType("bigint(20)");
+            entity.Property(e => e.ActiveCharacterInstanceId).HasColumnType("bigint(20)");
             entity.Property(e => e.CombatantClassId).HasColumnType("bigint(20)");
             entity.Property(e => e.SideIndex).HasColumnType("int(11)");
             entity.Property(e => e.IsNpc)
@@ -522,6 +526,12 @@ public partial class FuturemudDatabaseContext
                 .HasForeignKey(d => d.CharacterId)
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("FK_ArenaSignups_Characters");
+
+            entity.HasOne(d => d.ActiveCharacterInstance)
+                .WithMany()
+                .HasForeignKey(d => d.ActiveCharacterInstanceId)
+                .OnDelete(DeleteBehavior.SetNull)
+                .HasConstraintName("FK_ArenaSignups_ActiveCharacterInstances");
 
             entity.HasOne(d => d.CombatantClass)
                 .WithMany(p => p.ArenaSignups)

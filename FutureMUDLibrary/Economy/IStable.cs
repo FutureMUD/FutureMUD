@@ -67,6 +67,7 @@ public interface IStableStay : IFrameworkItem, ISaveable
 	IStable Stable { get; }
 	ICharacter? Mount { get; }
 	long MountId { get; }
+	long? MountInstanceId { get; }
 	ICharacter? OriginalOwner { get; }
 	long OriginalOwnerId { get; }
 	IPersonalName? OriginalOwnerName { get; }

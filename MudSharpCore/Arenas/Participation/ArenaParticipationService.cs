@@ -55,7 +55,7 @@ public class ArenaParticipationService : IArenaParticipationService
         }
 
         foreach (ICharacter participant in arenaEvent.Participants
-                     .Select(x => x.Character)
+                     .Select(x => x.ActiveCharacter)
                      .OfType<ICharacter>())
         {
             EnsureParticipation(participant, arenaEvent);
@@ -98,11 +98,11 @@ public class ArenaParticipationService : IArenaParticipationService
         }
 
         List<ICharacter> affectedParticipants = arenaEvent.Participants
-            .Select(x => x.Character)
+            .Select(x => x.ActiveCharacter)
             .OfType<ICharacter>()
             .Concat(_gameworld.Actors)
             .Concat(_gameworld.CachedActors)
-            .DistinctBy(x => x.Id)
+            .DistinctPhysicalInstances()
             .Where(x => x.CombinedEffectsOfType<ArenaParticipationEffect>()
                 .Any(effect => effect.Matches(arenaEvent)))
             .ToList();

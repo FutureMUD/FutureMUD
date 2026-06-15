@@ -18,7 +18,7 @@ public partial class Character
 		character.CurrentProjectProjectHours = CurrentProjectProjectHours;
 
 		FMDB.Context.ProjectLabourQueues.RemoveRange(character.ProjectLabourQueues);
-		foreach (var entry in _projectLabourQueue.OrderBy(x => x.QueueOrder))
+		foreach (var entry in ProjectQueueOwner._projectLabourQueue.OrderBy(x => x.QueueOrder))
 		{
 			if (entry.Project == null || entry.Labour == null)
 			{
@@ -39,19 +39,48 @@ public partial class Character
 	private void LoadProjects(MudSharp.Models.Character character)
 	{
 		_personalProjects.AddRange(character.ActiveProjects.Select(x => Gameworld.ActiveProjects.Get(x.Id)).Where(x => x != null));
-		var project = Gameworld.ActiveProjects.Get(character.CurrentProjectId ?? 0);
+		var primaryInstance = character.CharacterInstances
+		                               .Where(x => x.IsPrimary)
+		                               .OrderBy(x => x.Id)
+		                               .FirstOrDefault();
+		var currentProjectId = primaryInstance?.CurrentProjectId ?? character.CurrentProjectId;
+		var currentProjectLabourId = primaryInstance?.CurrentProjectLabourId ?? character.CurrentProjectLabourId;
+		var currentProjectHours = primaryInstance?.CurrentProjectHours ?? character.CurrentProjectHours;
+		var currentProjectProjectHours = primaryInstance?.CurrentProjectProjectHours ??
+		                                 character.CurrentProjectProjectHours;
+		var project = Gameworld.ActiveProjects.Get(currentProjectId ?? 0);
 		_currentProject = (project,
-			project?.CurrentPhase.LabourRequirements.FirstOrDefault(x => x.Id == character.CurrentProjectLabourId));
-		_currentProjectHours = character.CurrentProjectHours;
-		_currentProjectProjectHours = character.CurrentProjectId.HasValue &&
-		                              character.CurrentProjectProjectHours <= 0.0
-			? character.CurrentProjectHours
-			: character.CurrentProjectProjectHours;
+			project?.CurrentPhase.LabourRequirements.FirstOrDefault(x => x.Id == currentProjectLabourId));
+		_currentProjectHours = currentProjectHours;
+		_currentProjectProjectHours = currentProjectId.HasValue &&
+		                              currentProjectProjectHours <= 0.0
+			? currentProjectHours
+			: currentProjectProjectHours;
 		_projectLabourQueue.Clear();
 		foreach (var queue in character.ProjectLabourQueues.OrderBy(x => x.QueueOrder))
 		{
 			_projectLabourQueue.Add(new ProjectLabourQueueEntry(queue, Gameworld, this));
 		}
+	}
+
+	private void LoadInstanceProject(MudSharp.Models.CharacterInstance instance)
+	{
+		var project = Gameworld.ActiveProjects.Get(instance.CurrentProjectId ?? 0);
+		_currentProject = (project,
+			project?.CurrentPhase.LabourRequirements.FirstOrDefault(x => x.Id == instance.CurrentProjectLabourId));
+		_currentProjectHours = instance.CurrentProjectHours;
+		_currentProjectProjectHours = instance.CurrentProjectId.HasValue &&
+		                              instance.CurrentProjectProjectHours <= 0.0
+			? instance.CurrentProjectHours
+			: instance.CurrentProjectProjectHours;
+	}
+
+	private void SaveInstanceProject(MudSharp.Models.CharacterInstance instance)
+	{
+		instance.CurrentProjectId = _currentProject.Project?.Id;
+		instance.CurrentProjectLabourId = _currentProject.Labour?.Id;
+		instance.CurrentProjectHours = _currentProjectHours;
+		instance.CurrentProjectProjectHours = _currentProjectProjectHours;
 	}
 
 	private readonly List<IActiveJob> _activeJobs = new();
@@ -70,11 +99,17 @@ public partial class Character
 	}
 
 	private readonly List<IActiveProject> _personalProjects = new();
-	public IEnumerable<IPersonalProject> PersonalProjects => _personalProjects.OfType<IPersonalProject>();
+	public IEnumerable<IPersonalProject> PersonalProjects => ProjectIdentityOwner._personalProjects.OfType<IPersonalProject>();
 	private readonly List<ProjectLabourQueueEntry> _projectLabourQueue = new();
-	public IEnumerable<IProjectLabourQueueEntry> ProjectLabourQueue => _projectLabourQueue.OrderBy(x => x.QueueOrder);
+	public IEnumerable<IProjectLabourQueueEntry> ProjectLabourQueue =>
+		ProjectQueueOwner._projectLabourQueue.OrderBy(x => x.QueueOrder);
 
 	private (IActiveProject Project, IProjectLabourRequirement Labour) _currentProject;
+
+	private Character ProjectIdentityOwner =>
+		!IsPrimaryInstance && Identity is Character identity ? identity : this;
+
+	private Character ProjectQueueOwner => ProjectIdentityOwner;
 
 	public (IActiveProject Project, IProjectLabourRequirement Labour) CurrentProject
 	{
@@ -124,12 +159,16 @@ public partial class Character
 
 	public void AddPersonalProject(IActiveProject project)
 	{
-		_personalProjects.Add(project);
+		var owner = ProjectIdentityOwner;
+		owner._personalProjects.Add(project);
+		owner.Changed = true;
 	}
 
 	public void RemovePersonalProject(IActiveProject project)
 	{
-		_personalProjects.Remove(project);
+		var owner = ProjectIdentityOwner;
+		owner._personalProjects.Remove(project);
+		owner.Changed = true;
 		if (CurrentProject.Project == project)
 		{
 			CurrentProject = (null, null);
@@ -140,21 +179,23 @@ public partial class Character
 
 	public IProjectLabourQueueEntry QueueProjectLabour(IActiveProject project, IProjectLabourRequirement labour)
 	{
-		var existing = _projectLabourQueue.FirstOrDefault(x => x.Project == project && x.Labour == labour);
+		var owner = ProjectQueueOwner;
+		var existing = owner._projectLabourQueue.FirstOrDefault(x => x.Project == project && x.Labour == labour);
 		if (existing != null)
 		{
 			return existing;
 		}
 
-		var entry = new ProjectLabourQueueEntry(this, project, labour, _projectLabourQueue.Count + 1);
-		_projectLabourQueue.Add(entry);
-		Changed = true;
+		var entry = new ProjectLabourQueueEntry(owner, project, labour, owner._projectLabourQueue.Count + 1);
+		owner._projectLabourQueue.Add(entry);
+		owner.Changed = true;
 		return entry;
 	}
 
 	public bool RemoveProjectQueueEntry(int position)
 	{
-		var entry = _projectLabourQueue
+		var owner = ProjectQueueOwner;
+		var entry = owner._projectLabourQueue
 			.OrderBy(x => x.QueueOrder)
 			.ElementAtOrDefault(position - 1);
 		if (entry == null)
@@ -162,21 +203,22 @@ public partial class Character
 			return false;
 		}
 
-		_projectLabourQueue.Remove(entry);
-		RenumberProjectQueue();
-		Changed = true;
+		owner._projectLabourQueue.Remove(entry);
+		owner.RenumberProjectQueue();
+		owner.Changed = true;
 		return true;
 	}
 
 	public void ClearProjectQueue()
 	{
-		if (!_projectLabourQueue.Any())
+		var owner = ProjectQueueOwner;
+		if (!owner._projectLabourQueue.Any())
 		{
 			return;
 		}
 
-		_projectLabourQueue.Clear();
-		Changed = true;
+		owner._projectLabourQueue.Clear();
+		owner.Changed = true;
 	}
 
 	public bool TryJoinQueuedProjectLabour()
@@ -186,22 +228,23 @@ public partial class Character
 			return false;
 		}
 
-		while (_projectLabourQueue.Any())
+		var owner = ProjectQueueOwner;
+		while (owner._projectLabourQueue.Any())
 		{
-			var next = _projectLabourQueue.OrderBy(x => x.QueueOrder).First();
-			switch (next.Status)
+			var next = owner._projectLabourQueue.OrderBy(x => x.QueueOrder).First();
+			switch (next.StatusFor(this))
 			{
 				case ProjectLabourQueueStatus.Stale:
 					OutputHandler.Send(
 						$"Your queued project labour entry for {(next.Project?.Name ?? "an unknown project").ColourName()} / {(next.Labour?.Name ?? "an unknown labour requirement").ColourValue()} has become stale and has been removed.");
-					_projectLabourQueue.Remove(next);
-					RenumberProjectQueue();
-					Changed = true;
+					owner._projectLabourQueue.Remove(next);
+					owner.RenumberProjectQueue();
+					owner.Changed = true;
 					continue;
 				case ProjectLabourQueueStatus.Ready:
-					_projectLabourQueue.Remove(next);
-					RenumberProjectQueue();
-					Changed = true;
+					owner._projectLabourQueue.Remove(next);
+					owner.RenumberProjectQueue();
+					owner.Changed = true;
 					next.Project.Join(this, next.Labour);
 					return true;
 				default:

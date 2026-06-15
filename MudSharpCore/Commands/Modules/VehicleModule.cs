@@ -755,9 +755,8 @@ Syntax:
 			return false;
 		}
 
-		if (actor.Gameworld.VehicleHitchLinks?.Any(x =>
-			    x.SourceType == VehicleHitchEndpointType.Character &&
-			    x.SourceCharacterId == CharacterInstanceIdentityComparer.IdentityId(source)) == true)
+		if (HitchService.LinksFrom(actor.Gameworld, source)
+		                .Any(x => x.SourceType == VehicleHitchEndpointType.Character))
 		{
 			reason = $"{source.HowSeen(actor, true)} already has a persistent hitch link.";
 			return false;
@@ -783,9 +782,8 @@ Syntax:
 
 		if (target is ICharacter targetCharacter)
 		{
-			if (actor.Gameworld.VehicleHitchLinks?.Any(x =>
-				    x.TargetType == VehicleHitchEndpointType.Character &&
-				    x.TargetCharacterId == CharacterInstanceIdentityComparer.IdentityId(targetCharacter)) == true)
+			if (HitchService.LinksInvolving(actor.Gameworld, targetCharacter)
+			                .Any(x => x.TargetType == VehicleHitchEndpointType.Character))
 			{
 				reason = $"{targetCharacter.HowSeen(actor, true)} already has a persistent hitch link.";
 				return false;
@@ -1179,7 +1177,7 @@ Syntax:
 		sb.AppendLine();
 		sb.AppendLine("Occupants:");
 		sb.AppendLine(vehicle.Occupancies.Any()
-			? vehicle.Occupancies.Select(x => $"\t{x.Occupant?.HowSeen(actor) ?? "missing".ColourError()} in {x.Slot.Name.ColourName()}{(x.IsController ? " controlling".Colour(Telnet.Green) : "")}").ListToString(separator: "\n", conjunction: "", twoItemJoiner: "\n")
+			? vehicle.Occupancies.Select(x => $"\t{x.Occupant?.RenderStaffActorReference() ?? "missing".ColourError()} in {x.Slot.Name.ColourName()}{(x.IsController ? " controlling".Colour(Telnet.Green) : "")}").ListToString(separator: "\n", conjunction: "", twoItemJoiner: "\n")
 			: "\tNone");
 		sb.AppendLine();
 		sb.AppendLine("Access Points:");
@@ -1300,7 +1298,7 @@ Syntax:
 		{
 			VehicleHitchEndpointType.Vehicle =>
 				$"{vehicle?.Name.ColourName() ?? "missing".ColourError()}:{towPoint?.Name.ColourName() ?? "missing".ColourError()}",
-			VehicleHitchEndpointType.Character => character?.HowSeen(actor) ?? "missing".ColourError(),
+			VehicleHitchEndpointType.Character => character?.RenderStaffActorReference() ?? "missing".ColourError(),
 			_ => "invalid".ColourError()
 		};
 	}

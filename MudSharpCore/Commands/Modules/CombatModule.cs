@@ -450,7 +450,7 @@ The syntax is one of the following:
                 }
 
                 if (actor.CombatTarget?.ColocatedWith(actor) != true &&
-                    actor.Combat.Combatants.All(x => x.CombatTarget != actor))
+                    actor.Combat.Combatants.All(x => !CharacterInstanceIdentityComparer.SamePhysicalInstanceOrBody(actor, x.CombatTarget)))
                 {
                     actor.OutputHandler.Send(
                         "You're not in close proximity to anyone you can surrender to. Try specifying a target.");
@@ -458,7 +458,9 @@ The syntax is one of the following:
                 }
 
                 target = actor.Combat.Combatants.OfType<ICharacter>().FirstOrDefault(x =>
-                    (x.CombatTarget == actor || actor.CombatTarget == x) && CanBeSurrenderedTo(x, actor).Truth);
+                    (CharacterInstanceIdentityComparer.SamePhysicalInstanceOrBody(actor, x.CombatTarget) ||
+                     CharacterInstanceIdentityComparer.SamePhysicalInstanceOrBody(x, actor.CombatTarget)) &&
+                    CanBeSurrenderedTo(x, actor).Truth);
                 if (target == null)
                 {
                     actor.OutputHandler.Send(
@@ -489,7 +491,8 @@ The syntax is one of the following:
         actor.OutputHandler.Handle(new EmoteOutput(new Emote("@ surrender|surrenders to $1.", actor, actor, target)));
         if (target.Combat != null)
         {
-            if (target.CombatTarget == null || target.CombatTarget == actor)
+            if (target.CombatTarget == null ||
+                CharacterInstanceIdentityComparer.SamePhysicalInstanceOrBody(actor, target.CombatTarget))
             {
                 if (!target.AffectedBy<ClinchEffect>())
                 {
@@ -1704,7 +1707,7 @@ Similarly to reverse the above you can use the following:
                 return;
             }
 
-            if (targetCharacter.IsSelf(actor))
+            if (CharacterInstanceIdentityComparer.SamePhysicalInstance(targetCharacter, actor))
             {
                 actor.Send("You can't target yourself with that command.");
                 return;
@@ -1777,7 +1780,7 @@ Similarly to reverse the above you can use the following:
                 return;
             }
 
-            if (targetCharacter.IsSelf(actor))
+            if (CharacterInstanceIdentityComparer.SamePhysicalInstance(targetCharacter, actor))
             {
                 actor.Send("You can't target yourself with that command.");
                 return;
@@ -1894,7 +1897,7 @@ Similarly to reverse the above you can use the following:
             return;
         }
 
-        if (target == actor)
+        if (CharacterInstanceIdentityComparer.SamePhysicalInstanceOrBody(actor, target))
         {
             actor.OutputHandler.Send("You cannot interpose with yourself.");
             return;
@@ -1950,7 +1953,7 @@ The syntax for this command is #3spar <target>#0.", AutoHelp.HelpArgOrNoArg)]
             return;
         }
 
-        if (target == actor)
+        if (CharacterInstanceIdentityComparer.SamePhysicalInstanceOrBody(actor, target))
         {
             actor.Send("You cannot engage yourself in a spar.");
             return;
@@ -2073,7 +2076,7 @@ The syntax for this command is #3hit <target>#0.", AutoHelp.HelpArgOrNoArg)]
             return;
         }
 
-        if (target == actor)
+        if (CharacterInstanceIdentityComparer.SamePhysicalInstance(target, actor))
         {
             actor.Send("You cannot engage yourself in combat.");
             return;
@@ -2871,7 +2874,7 @@ The syntax is as follows:
 
         if (aiming.Aim.Target is ICharacter)
         {
-            if (aiming.Aim.Target == actor)
+            if (CharacterInstanceIdentityComparer.SamePhysicalInstanceOrBody(actor, aiming.Aim.Target))
             {
                 aiming.Weapon.Fire(actor, actor, Outcome.Pass, Outcome.Pass,
                     new OpposedOutcome(OpposedOutcomeDirection.Proponent, OpposedOutcomeDegree.Total),
@@ -3213,7 +3216,9 @@ The syntax for this command is as follows:
         sb.AppendLine($"Combat settings attack information:");
         sb.AppendLine();
         ICombatStrategy setting = CombatStrategyFactory.GetStrategy(actor.CombatStrategyMode);
-        foreach (ICharacter tch in actor.Location.LayerCharacters(actor.RoomLayer).Where(x => x != actor && actor.CanSee(x)))
+        foreach (ICharacter tch in actor.Location.LayerCharacters(actor.RoomLayer)
+                                       .Where(x => !CharacterInstanceIdentityComparer.SamePhysicalInstance(x, actor) &&
+                                                   actor.CanSee(x)))
         {
             string why = setting.WhyWontAttack(actor, tch);
             if (string.IsNullOrEmpty(why))

@@ -90,12 +90,14 @@ public partial class FuturemudDatabaseContext
 
 			entity.HasIndex(e => e.StableId).HasDatabaseName("FK_StableStays_Stables_idx");
 			entity.HasIndex(e => e.MountId).HasDatabaseName("FK_StableStays_Characters_Mount_idx");
+			entity.HasIndex(e => e.MountInstanceId).HasDatabaseName("FK_StableStays_CharacterInstances_Mount_idx");
 			entity.HasIndex(e => e.OriginalOwnerId).HasDatabaseName("FK_StableStays_Characters_Owner_idx");
 			entity.HasIndex(e => e.TicketItemId).HasDatabaseName("FK_StableStays_GameItems_Ticket_idx");
 
 			entity.Property(e => e.Id).HasColumnType("bigint(20)");
 			entity.Property(e => e.StableId).HasColumnType("bigint(20)");
 			entity.Property(e => e.MountId).HasColumnType("bigint(20)");
+			entity.Property(e => e.MountInstanceId).HasColumnType("bigint(20)");
 			entity.Property(e => e.OriginalOwnerId).HasColumnType("bigint(20)");
 			entity.Property(e => e.OriginalOwnerName)
 			      .IsRequired()

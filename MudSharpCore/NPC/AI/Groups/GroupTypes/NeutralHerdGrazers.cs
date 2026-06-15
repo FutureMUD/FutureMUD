@@ -264,7 +264,8 @@ public class NeutralHerdGrazers : HerdGrazers
             foreach (IRace race in group.GroupMembers
                                       .SelectMany(x => x.Combat?.Combatants ?? Enumerable.Empty<IPerceiver>())
                                       .OfType<ICharacter>()
-                                      .Except(group.GroupMembers).Select(x => x.Race).Distinct())
+                                      .Where(x => !group.GroupMembers.ContainsPhysicalInstance(x))
+                                      .Select(x => x.Race).Distinct())
             {
                 if (!data.UntrustedRaces.Contains(race))
                 {
@@ -275,7 +276,7 @@ public class NeutralHerdGrazers : HerdGrazers
         }
 
         if (group.Alertness < GroupAlertness.VeryAgitated &&
-            group.GroupMembers.Any(x => x.Combat != null && !group.GroupMembers.Contains(x.CombatTarget)))
+            group.GroupMembers.Any(x => x.Combat != null && x.CombatTarget is ICharacter target && !group.GroupMembers.ContainsPhysicalInstance(target)))
         {
             group.Alertness = GroupAlertness.VeryAgitated;
             group.Changed = true;
@@ -400,7 +401,8 @@ public class NeutralHerdGrazers : HerdGrazers
             foreach (IRace race in group.GroupMembers
                                       .SelectMany(x => x.Combat?.Combatants ?? Enumerable.Empty<IPerceiver>())
                                       .OfType<ICharacter>()
-                                      .Except(group.GroupMembers).Select(x => x.Race).Distinct())
+                                      .Where(x => !group.GroupMembers.ContainsPhysicalInstance(x))
+                                      .Select(x => x.Race).Distinct())
             {
                 if (!data.UntrustedRaces.Contains(race))
                 {
@@ -610,7 +612,10 @@ public class NeutralHerdGrazers : HerdGrazers
                                    .SelectMany(x =>
                                        x.SeenTargets.Concat(x.Location.LayerCharacters(x.RoomLayer))
                                         .Where(y => x.CanSee(y)))
-                                   .Distinct().OfType<ICharacter>().Except(group.GroupMembers).ToList();
+                                   .OfType<ICharacter>()
+                                   .DistinctPhysicalInstances()
+                                   .Where(x => !group.GroupMembers.ContainsPhysicalInstance(x))
+                                   .ToList();
         List<ICharacter> threats = knownCharacters.Where(x =>
             data.UntrustedRaces.Any(y => x.Race.SameRace(y)) || group.ConsidersThreat(x, group.Alertness)).ToList();
         return threats;

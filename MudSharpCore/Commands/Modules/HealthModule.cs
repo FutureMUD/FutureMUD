@@ -67,7 +67,7 @@ internal class HealthModule : Module<ICharacter>
             return;
         }
 
-        if (target == actor)
+        if (CharacterInstanceIdentityComparer.SamePhysicalInstance(target, actor))
         {
             actor.Send("How do you propose to perform CPR on yourself?");
             return;
@@ -147,7 +147,7 @@ internal class HealthModule : Module<ICharacter>
         void Action(string text)
         {
             actor.OutputHandler.Handle(
-                new EmoteOutput(new Emote($"@ check|checks {(actor == target ? "&0's own" : "$0's")} vitals.", actor,
+                new EmoteOutput(new Emote($"@ check|checks {(CharacterInstanceIdentityComparer.SamePhysicalInstance(actor, target) ? "&0's own" : "$0's")} vitals.", actor,
                     target)));
             string breathingDescription = target.IsBreathing ? "breathing" : "not breathing";
             double bloodRatio = target.Body.CurrentBloodVolumeLitres / target.Body.TotalBloodVolumeLitres;
@@ -204,7 +204,7 @@ internal class HealthModule : Module<ICharacter>
                     target, target)));
         }
 
-        if (target != actor && CharacterState.Able.HasFlag(target.State))
+        if (!CharacterInstanceIdentityComparer.SamePhysicalInstance(target, actor) && CharacterState.Able.HasFlag(target.State))
         {
             actor.OutputHandler.Handle(
                 new EmoteOutput(new Emote("@ propose|proposes to check $1's vitals.", actor, actor, target)));
@@ -494,7 +494,7 @@ Options:
         (bool canClean, CleaningWounds.PeekCanCleanReason reason) = CleaningWounds.PeekCanClean(actor, target, severity, useItems);
         if (canClean)
         {
-            if (actor != target && !target.WillingToPermitMedicalIntervention(actor))
+            if (!CharacterInstanceIdentityComparer.SamePhysicalInstance(actor, target) && !target.WillingToPermitMedicalIntervention(actor))
             {
                 target.AddEffect(new Accept(target, new GenericProposal
                 {
@@ -652,7 +652,7 @@ Options:
                 return;
         }
 
-        if (actor != target && !target.WillingToPermitMedicalIntervention(actor))
+        if (!CharacterInstanceIdentityComparer.SamePhysicalInstance(actor, target) && !target.WillingToPermitMedicalIntervention(actor))
         {
             target.AddEffect(new Accept(target, new GenericProposal
             {
@@ -934,7 +934,7 @@ The syntaxes available include:
             List<IWound> wounds =
                 (target is ICharacter ch
                     ? ch.Body.VisibleWounds(actor,
-                        actor == target ? WoundExaminationType.Self : WoundExaminationType.Examination)
+                        CharacterInstanceIdentityComparer.SamePhysicalInstance(ch, actor) ? WoundExaminationType.Self : WoundExaminationType.Examination)
                     : ((IGameItem)target).Wounds).Where(x => x.Repairable).ToList();
             if (!wounds.Any())
             {
@@ -1011,7 +1011,7 @@ The syntaxes available include:
         List<IWound> twounds =
             (tch != null
                 ? tch.Body.VisibleWounds(actor,
-                    actor == target ? WoundExaminationType.Self : WoundExaminationType.Examination)
+                    CharacterInstanceIdentityComparer.SamePhysicalInstance(tch, actor) ? WoundExaminationType.Self : WoundExaminationType.Examination)
                 : ((IGameItem)target).Wounds).Where(x => x.Repairable).ToList();
 
         if (!twounds.Any())
@@ -1027,7 +1027,7 @@ The syntaxes available include:
             return;
         }
 
-        if (actor != target && tch != null && !tch.WillingToPermitMedicalIntervention(actor))
+        if (tch != null && !CharacterInstanceIdentityComparer.SamePhysicalInstance(actor, tch) && !tch.WillingToPermitMedicalIntervention(actor))
         {
             tch.AddEffect(new Accept(tch, new GenericProposal
             {
@@ -1071,7 +1071,7 @@ The syntaxes available include:
 
                     twounds = tch.Body
                                  .VisibleWounds(actor,
-                                     actor == target ? WoundExaminationType.Self : WoundExaminationType.Examination)
+                                     CharacterInstanceIdentityComparer.SamePhysicalInstance(tch, actor) ? WoundExaminationType.Self : WoundExaminationType.Examination)
                                  .Where(x => x.Repairable).ToList();
                     if (!twounds.Any())
                     {
@@ -1156,7 +1156,7 @@ The syntaxes available include:
         if (!wounds.Any())
         {
             actor.Send(
-                $"{target.HowSeen(actor, true)} {(target == actor ? "do" : "does")} not have any wounds that you can see with anything lodged in them.");
+                $"{target.HowSeen(actor, true)} {(CharacterInstanceIdentityComparer.SamePhysicalInstance(target, actor) ? "do" : "does")} not have any wounds that you can see with anything lodged in them.");
             return;
         }
 
@@ -1253,7 +1253,7 @@ The syntaxes available include:
             return;
         }
 
-        if (target == actor)
+        if (CharacterInstanceIdentityComparer.SamePhysicalInstance(target, actor))
         {
             BeginRemove();
         }
@@ -1837,7 +1837,7 @@ The syntax is as follows:
             }
         }
 
-        if (target == actor && !procedure.Procedure.In(SurgicalProcedureType.Triage,
+        if (CharacterInstanceIdentityComparer.SamePhysicalInstance(target, actor) && !procedure.Procedure.In(SurgicalProcedureType.Triage,
                 SurgicalProcedureType.DetailedExamination, SurgicalProcedureType.Cannulation,
                 SurgicalProcedureType.Decannulation, SurgicalProcedureType.InstallProsthetic))
         {
@@ -1859,7 +1859,7 @@ The syntax is as follows:
             return;
         }
 
-        if (!target.IsHelpless && target != actor)
+        if (!target.IsHelpless && !CharacterInstanceIdentityComparer.SamePhysicalInstance(target, actor))
         {
             target.AddEffect(new Accept(target, new GenericProposal(
                 text =>

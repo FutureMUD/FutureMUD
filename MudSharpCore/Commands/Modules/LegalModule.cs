@@ -583,7 +583,7 @@ You can also use the following options to change the properties of an authority 
                           .Where(x =>
                               x.AffectedBy<EnforcerEffect>(legal))
                           .ToList();
-            List<ICharacter> freeEnforcers = enforcers.Where(x => legal.Patrols.All(y => !y.PatrolMembers.Contains(x))).ToList();
+            List<ICharacter> freeEnforcers = enforcers.Where(x => legal.Patrols.All(y => !y.PatrolMembers.ContainsPhysicalInstance(x))).ToList();
             CollectionDictionary<IEnforcementAuthority, ICharacter> enforcerCounts = new();
             foreach (IGrouping<IEnforcementAuthority, ICharacter> group in freeEnforcers.GroupBy(x => legal.GetEnforcementAuthority(x)))
             {

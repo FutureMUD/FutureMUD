@@ -218,7 +218,8 @@ public class Movement : IMovement
     {
         // First get all of the party members who are present
         List<ICharacter> primaryMovers = new();
-        if (originalMover.Party is not null && originalMover.Party.Leader == originalMover)
+        if (originalMover.Party is not null &&
+            CharacterInstanceIdentityComparer.SamePhysicalInstance(originalMover.Party.Leader, originalMover))
         {
             primaryMovers.AddRange(originalMover.Party.CharacterMembers.Where(x => x.InRoomLocation == originalMover.InRoomLocation));
         }
@@ -245,7 +246,7 @@ public class Movement : IMovement
             }
         }
 
-        if (failedMovers.Contains(originalMover))
+        if (failedMovers.ContainsPhysicalInstance(originalMover))
         {
             CanMoveResponse response = originalMover.CanMove(exit, CanMoveFlags.None);
             string message = response.ErrorMessage;
@@ -269,9 +270,9 @@ public class Movement : IMovement
             // It's possible someone could have later been added back in as a non-consensual mover after failing initially
             foreach (ICharacter mover in failedMovers.ToList())
             {
-                if (nonConsensualMovers.Contains(mover))
+                if (nonConsensualMovers.ContainsPhysicalInstance(mover))
                 {
-                    failedMovers.Remove(mover);
+                    failedMovers.RemovePhysicalInstance(mover);
                     continue;
                 }
             }
@@ -287,7 +288,7 @@ public class Movement : IMovement
             .Concat(helpers)
             .Concat(nondraggers)
             .Concat(mounts)
-            .Distinct()
+            .DistinctPhysicalInstances()
             .ToList();
         if (AutomaticCrimeExtensions.CheckLawfulMovement(voluntaryMovers, exit, originalMover))
         {
@@ -361,7 +362,7 @@ public class Movement : IMovement
                 continue;
             }
 
-            if (Targets.Contains(ch))
+            if (Targets.Any(x => CharacterInstanceIdentityComparer.SamePhysicalInstanceOrBody(ch, x)))
             {
                 continue;
             }
@@ -432,12 +433,12 @@ public class Movement : IMovement
         }
 
         // This can happen when supporters are removed automatically but also later called into this function (such as in loops)
-        if (!CharacterMovers.Contains(mover))
+        if (!CharacterMovers.ContainsPhysicalInstance(ch))
         {
             return false;
         }
 
-        if (mover == Party?.Leader)
+        if (Party?.Leader is not null && CharacterInstanceIdentityComparer.SamePhysicalInstance(ch, Party.Leader))
         {
             return Cancel();
         }
@@ -470,9 +471,10 @@ public class Movement : IMovement
             }
         }
 
-        if (Draggers.Contains(ch))
+        if (Draggers.ContainsPhysicalInstance(ch))
         {
-            Dragging effect = DragEffects.First(x => x.TheDrag.CharacterOwner == ch);
+            Dragging effect = DragEffects.First(x => CharacterInstanceIdentityComparer
+                .SamePhysicalInstance(x.TheDrag.CharacterOwner, ch));
             DragEffects.Remove(effect);
             foreach (ICharacter helper in effect.Helpers)
             {
@@ -542,10 +544,10 @@ public class Movement : IMovement
     {
         if (Party is not null)
         {
-            return Party.Leader == character;
+            return CharacterInstanceIdentityComparer.SamePhysicalInstance(Party.Leader, character);
         }
 
-        if (Draggers.Contains(character))
+        if (Draggers.ContainsPhysicalInstance(character))
         {
             return true;
         }
@@ -944,7 +946,10 @@ public class Movement : IMovement
             CreateArrivalTracks(mover, DragEffects.Any(x => x.Target == mover) ? TrackCircumstances.Dragged : TrackCircumstances.None);
         }
 
-        foreach (ICharacter ch in Exit.Destination.Characters.Except(CharacterMovers).Where(x => SeenBy(x)).ToList())
+        foreach (ICharacter ch in Exit.Destination.Characters
+                                   .Where(x => !CharacterMovers.ContainsPhysicalInstance(x))
+                                   .Where(x => SeenBy(x))
+                                   .ToList())
         {
             ch.OutputHandler.Send(DescribeEnterMove(ch));
         }

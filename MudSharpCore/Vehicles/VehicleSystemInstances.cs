@@ -631,10 +631,12 @@ public class VehicleHitchLink : FrameworkItem, IVehicleHitchLink
 	private readonly VehicleHitchEndpointType _sourceType;
 	private readonly long? _sourceVehicleId;
 	private readonly long? _sourceCharacterId;
+	private readonly long? _sourceCharacterInstanceId;
 	private readonly long? _sourceTowPointProtoId;
 	private readonly VehicleHitchEndpointType _targetType;
 	private readonly long? _targetVehicleId;
 	private readonly long? _targetCharacterId;
+	private readonly long? _targetCharacterInstanceId;
 	private readonly long? _targetTowPointProtoId;
 	private readonly long? _hitchItemId;
 	private readonly bool _isDisabled;
@@ -649,10 +651,12 @@ public class VehicleHitchLink : FrameworkItem, IVehicleHitchLink
 		_sourceType = (VehicleHitchEndpointType)dbitem.SourceType;
 		_sourceVehicleId = dbitem.SourceVehicleId;
 		_sourceCharacterId = dbitem.SourceCharacterId;
+		_sourceCharacterInstanceId = dbitem.SourceCharacterInstanceId;
 		_sourceTowPointProtoId = dbitem.SourceTowPointProtoId;
 		_targetType = (VehicleHitchEndpointType)dbitem.TargetType;
 		_targetVehicleId = dbitem.TargetVehicleId;
 		_targetCharacterId = dbitem.TargetCharacterId;
+		_targetCharacterInstanceId = dbitem.TargetCharacterInstanceId;
 		_targetTowPointProtoId = dbitem.TargetTowPointProtoId;
 		_hitchItemId = dbitem.HitchItemId;
 		_isDisabled = dbitem.IsDisabled;
@@ -664,21 +668,40 @@ public class VehicleHitchLink : FrameworkItem, IVehicleHitchLink
 	public VehicleHitchEndpointType SourceType => _sourceType;
 	public long? SourceVehicleId => _sourceVehicleId;
 	public long? SourceCharacterId => _sourceCharacterId;
+	public long? SourceCharacterInstanceId => _sourceCharacterInstanceId;
 	public long? SourceTowPointPrototypeId => _sourceTowPointProtoId;
 	public VehicleHitchEndpointType TargetType => _targetType;
 	public long? TargetVehicleId => _targetVehicleId;
 	public long? TargetCharacterId => _targetCharacterId;
+	public long? TargetCharacterInstanceId => _targetCharacterInstanceId;
 	public long? TargetTowPointPrototypeId => _targetTowPointProtoId;
 	public long? HitchItemId => _hitchItemId;
 	public bool IsManuallyDisabled => _isDisabled;
 	public bool IsDisabled => IsBroken;
 	public DateTime CreatedDateTime => _createdDateTime;
 	public IVehicle? SourceVehicle => _sourceVehicleId is null ? null : Gameworld.TryGetVehicle(_sourceVehicleId.Value);
-	public ICharacter? SourceCharacter => _sourceCharacterId is null ? null : Gameworld.Characters.Get(_sourceCharacterId.Value);
+	public ICharacter? SourceCharacter => ResolveCharacterEndpoint(true);
 	public IVehicleTowPointPrototype? SourceTowPoint => SourceVehicle?.Prototype.TowPoints.FirstOrDefault(x => x.Id == _sourceTowPointProtoId);
 	public IVehicle? TargetVehicle => _targetVehicleId is null ? null : Gameworld.TryGetVehicle(_targetVehicleId.Value);
-	public ICharacter? TargetCharacter => _targetCharacterId is null ? null : Gameworld.Characters.Get(_targetCharacterId.Value);
+	public ICharacter? TargetCharacter => ResolveCharacterEndpoint(false);
 	public IVehicleTowPointPrototype? TargetTowPoint => TargetVehicle?.Prototype.TowPoints.FirstOrDefault(x => x.Id == _targetTowPointProtoId);
+
+	private ICharacter? ResolveCharacterEndpoint(bool source)
+	{
+		var characterId = source ? _sourceCharacterId : _targetCharacterId;
+		var instanceId = source ? _sourceCharacterInstanceId : _targetCharacterInstanceId;
+		if (characterId is null)
+		{
+			return null;
+		}
+
+		return Gameworld.ResolveActorReference(new CharacterActorReference(
+			characterId.Value,
+			instanceId,
+			ReferenceKind: instanceId is > 0L
+				? CharacterActorReferenceKind.SpecificInstance
+				: CharacterActorReferenceKind.IdentityOnly)).Actor;
+	}
 
 	public IGameItem? HitchItem
 	{
@@ -782,6 +805,7 @@ public class VehicleHitchLink : FrameworkItem, IVehicleHitchLink
 		var towPoint = source ? SourceTowPoint : TargetTowPoint;
 		var vehicleId = source ? _sourceVehicleId : _targetVehicleId;
 		var characterId = source ? _sourceCharacterId : _targetCharacterId;
+		var characterInstanceId = source ? _sourceCharacterInstanceId : _targetCharacterInstanceId;
 		var towPointId = source ? _sourceTowPointProtoId : _targetTowPointProtoId;
 		var label = source ? "source" : "target";
 
@@ -837,7 +861,9 @@ public class VehicleHitchLink : FrameworkItem, IVehicleHitchLink
 
 				if (character is null)
 				{
-					return $"the {label} character is missing";
+					return characterInstanceId is > 0L
+						? $"the {label} character instance is missing"
+						: $"the {label} character is missing";
 				}
 
 				return string.Empty;

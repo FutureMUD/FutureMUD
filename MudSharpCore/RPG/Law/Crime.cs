@@ -723,12 +723,21 @@ public class Crime : LateInitialisingItem, ICrime
         {
             sb.AppendLine($"Criminal: {Criminal.HowSeen(enforcer, flags: PerceiveIgnoreFlags.TrueDescription)}");
             sb.AppendLine($"Criminal Name: {Criminal.PersonalName.GetName(NameStyle.FullWithNickname).ColourName()}");
+            if (enforcer.IsAdministrator())
+            {
+                sb.AppendLine($"Staff Actor Ref: {Criminal.RenderStaffActorReference()}");
+            }
             sb.AppendLine("Criminal Description:");
             sb.AppendLine();
             sb.AppendLine(Criminal.HowSeen(enforcer, type: DescriptionType.Full, flags: PerceiveIgnoreFlags.TrueDescription).Wrap(enforcer.InnerLineFormatLength, "\t"));
         }
         else
         {
+            if (enforcer.IsAdministrator())
+            {
+                sb.AppendLine($"Criminal Identity Known: {false.ToColouredString()}");
+                sb.AppendLine($"Loaded Identity Ref: {Criminal.RenderStaffActorReference()}");
+            }
             sb.AppendLine($"Criminal: {CriminalShortDescription.ColourCharacter()}");
             sb.AppendLine("Criminal Description:");
             sb.AppendLine();

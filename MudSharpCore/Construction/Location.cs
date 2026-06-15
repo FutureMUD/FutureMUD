@@ -118,7 +118,7 @@ public abstract class Location : PerceivedItem, ILocation
     public virtual void Enter(ICharacter movingCharacter, ICellExit exit = null, bool noSave = false,
         RoomLayer roomLayer = RoomLayer.GroundLevel)
     {
-        if (_characters.Contains(movingCharacter))
+        if (_characters.ContainsPhysicalInstance(movingCharacter))
         {
             return;
         }
@@ -133,7 +133,7 @@ public abstract class Location : PerceivedItem, ILocation
 
     public virtual void Leave(ICharacter movingCharacter)
     {
-        _characters.Remove(movingCharacter);
+        _characters.RemovePhysicalInstance(movingCharacter);
     }
 
     protected void DoLeaveEvent(ICharacter character)

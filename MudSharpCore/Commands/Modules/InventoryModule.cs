@@ -165,7 +165,7 @@ The syntax is as follows:
             return;
         }
 
-        if (target == actor)
+        if (CharacterInstanceIdentityComparer.SamePhysicalInstance(target, actor))
         {
             actor.Send("You can't do a proper job of restraining yourself. Find someone else to do it.");
             return;
@@ -210,7 +210,7 @@ The syntax is as follows:
         if (!profiles.Any())
         {
             actor.OutputHandler.Send(
-                $"There are no valid ways for you to restrain {(target == actor ? "yourself" : target.HowSeen(actor))} with {item.HowSeen(actor)}.");
+                $"There are no valid ways for you to restrain {(CharacterInstanceIdentityComparer.SamePhysicalInstance(target, actor) ? "yourself" : target.HowSeen(actor))} with {item.HowSeen(actor)}.");
         }
 
         IWearProfile profile = null;
@@ -635,7 +635,7 @@ The syntax is as follows:
                 return;
             }
 
-            if (containerOwner == actor)
+            if (CharacterInstanceIdentityComparer.SamePhysicalInstance(containerOwner, actor))
             {
                 actor.OutputHandler.Send(
                     "You do not need to specify yourself when interacting with your own containers. Use the version of this command without a container owner specified instead.");
@@ -1572,15 +1572,15 @@ The syntax is as follows:
                 return;
             }
 
-            if (target == actor)
+            if (CharacterInstanceIdentityComparer.SamePhysicalInstance(target, actor))
             {
                 actor.Send("You don't need to give yourself permission to dress and undress yourself. Just do it.");
                 return;
             }
 
-            if (actor.EffectsOfType<BeDressedEffect>().Any(x => x.Dresser == target))
+            if (actor.EffectsOfType<BeDressedEffect>().Any(x => CharacterInstanceIdentityComparer.SamePhysicalInstance(x.Dresser, target)))
             {
-                actor.Reschedule(actor.EffectsOfType<BeDressedEffect>().First(x => x.Dresser == target),
+                actor.Reschedule(actor.EffectsOfType<BeDressedEffect>().First(x => CharacterInstanceIdentityComparer.SamePhysicalInstance(x.Dresser, target)),
                     TimeSpan.FromMinutes(10));
                 actor.Send("You renew the duration on your consent to be dressed and undressed by {0}.",
                     target.HowSeen(actor));
@@ -1621,7 +1621,7 @@ The syntax is as follows:
             }
         }
 
-        if (target == actor)
+        if (CharacterInstanceIdentityComparer.SamePhysicalInstance(target, actor))
         {
             actor.Send("You can't use the dress command on yourself, use the regular inventory commands instead.");
             return;
@@ -1986,7 +1986,7 @@ The possible syntaxes for this command are:
             return;
         }
 
-        if (target == actor)
+        if (CharacterInstanceIdentityComparer.SamePhysicalInstance(target, actor))
         {
             StripSelf(actor, ss, emote);
             return;
@@ -2841,7 +2841,7 @@ The valid syntaxes are:
             return;
         }
 
-        if (target == actor)
+        if (CharacterInstanceIdentityComparer.SamePhysicalInstance(target, actor))
         {
             actor.OutputHandler.Send(
                 "You cannot teach yourself an outfit. Use CLONE if you really want to make a copy of it.");

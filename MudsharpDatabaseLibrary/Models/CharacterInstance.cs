@@ -22,6 +22,10 @@ public partial class CharacterInstance
 	public int PerceptionPolicy { get; set; }
 	public int PersistencePolicy { get; set; }
 	public long? LocationId { get; set; }
+	public long? CurrentProjectId { get; set; }
+	public long? CurrentProjectLabourId { get; set; }
+	public double CurrentProjectHours { get; set; }
+	public double CurrentProjectProjectHours { get; set; }
 	public int RoomLayer { get; set; }
 	public int PositionId { get; set; }
 	public int PositionModifier { get; set; }

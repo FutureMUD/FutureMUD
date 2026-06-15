@@ -257,6 +257,7 @@ public class ArenaFinanceServiceTests
         character.SetupGet(x => x.Id).Returns(characterId);
         Mock<IArenaParticipant> participant = new();
         participant.SetupGet(x => x.Character).Returns(character.Object);
+        participant.SetupGet(x => x.ActiveCharacter).Returns(character.Object);
         participant.SetupGet(x => x.CharacterId).Returns(characterId);
         participant.SetupGet(x => x.IsNpc).Returns(isNpc);
         return participant.Object;

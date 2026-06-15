@@ -440,12 +440,17 @@ public partial class FuturemudDatabaseContext
 			entity.HasKey(e => e.Id).HasName("PRIMARY");
 			entity.HasIndex(e => e.VehicleId).HasDatabaseName("FK_VehicleOccupancies_Vehicles_idx");
 			entity.HasIndex(e => e.CharacterId).HasDatabaseName("FK_VehicleOccupancies_Characters_idx");
+			entity.HasIndex(e => e.CharacterInstanceId).HasDatabaseName("FK_VehicleOccupancies_CharacterInstances_idx");
 			entity.HasIndex(e => e.VehicleOccupantSlotProtoId).HasDatabaseName("FK_VehicleOccupancies_Slots_idx");
-			entity.HasIndex(e => new { e.VehicleId, e.CharacterId }).IsUnique().HasDatabaseName("IX_VehicleOccupancies_Vehicle_Character");
+			entity.HasIndex(e => new { e.VehicleId, e.CharacterId, e.CharacterInstanceKey }).IsUnique().HasDatabaseName("IX_VehicleOccupancies_Vehicle_Character_Instance");
 
 			entity.Property(e => e.Id).HasColumnType("bigint(20)");
 			entity.Property(e => e.VehicleId).HasColumnType("bigint(20)");
 			entity.Property(e => e.CharacterId).HasColumnType("bigint(20)");
+			entity.Property(e => e.CharacterInstanceId).HasColumnType("bigint(20)");
+			entity.Property(e => e.CharacterInstanceKey)
+			      .HasColumnType("bigint(20)")
+			      .HasComputedColumnSql("COALESCE(`CharacterInstanceId`, 0)", stored: true);
 			entity.Property(e => e.VehicleOccupantSlotProtoId).HasColumnType("bigint(20)");
 			entity.Property(e => e.IsController).HasColumnType("bit(1)");
 
@@ -458,6 +463,12 @@ public partial class FuturemudDatabaseContext
 			      .WithMany()
 			      .HasForeignKey(d => d.CharacterId)
 			      .HasConstraintName("FK_VehicleOccupancies_Characters");
+
+			entity.HasOne(d => d.CharacterInstance)
+			      .WithMany()
+			      .HasForeignKey(d => d.CharacterInstanceId)
+			      .OnDelete(DeleteBehavior.SetNull)
+			      .HasConstraintName("FK_VehicleOccupancies_CharacterInstances");
 
 			entity.HasOne(d => d.VehicleOccupantSlotProto)
 			      .WithMany()
@@ -660,9 +671,11 @@ public partial class FuturemudDatabaseContext
 			entity.HasKey(e => e.Id).HasName("PRIMARY");
 			entity.HasIndex(e => e.SourceVehicleId).HasDatabaseName("FK_VehicleHitchLinks_SourceVehicles_idx");
 			entity.HasIndex(e => e.SourceCharacterId).HasDatabaseName("FK_VehicleHitchLinks_SourceCharacters_idx");
+			entity.HasIndex(e => e.SourceCharacterInstanceId).HasDatabaseName("FK_VehicleHitchLinks_SourceCharacterInstances_idx");
 			entity.HasIndex(e => e.SourceTowPointProtoId).HasDatabaseName("FK_VehicleHitchLinks_SourceTowPointProtos_idx");
 			entity.HasIndex(e => e.TargetVehicleId).HasDatabaseName("FK_VehicleHitchLinks_TargetVehicles_idx");
 			entity.HasIndex(e => e.TargetCharacterId).HasDatabaseName("FK_VehicleHitchLinks_TargetCharacters_idx");
+			entity.HasIndex(e => e.TargetCharacterInstanceId).HasDatabaseName("FK_VehicleHitchLinks_TargetCharacterInstances_idx");
 			entity.HasIndex(e => e.TargetTowPointProtoId).HasDatabaseName("FK_VehicleHitchLinks_TargetTowPointProtos_idx");
 			entity.HasIndex(e => e.HitchItemId).HasDatabaseName("FK_VehicleHitchLinks_GameItems_idx");
 
@@ -670,10 +683,12 @@ public partial class FuturemudDatabaseContext
 			entity.Property(e => e.SourceType).HasColumnType("int(11)");
 			entity.Property(e => e.SourceVehicleId).HasColumnType("bigint(20)");
 			entity.Property(e => e.SourceCharacterId).HasColumnType("bigint(20)");
+			entity.Property(e => e.SourceCharacterInstanceId).HasColumnType("bigint(20)");
 			entity.Property(e => e.SourceTowPointProtoId).HasColumnType("bigint(20)");
 			entity.Property(e => e.TargetType).HasColumnType("int(11)");
 			entity.Property(e => e.TargetVehicleId).HasColumnType("bigint(20)");
 			entity.Property(e => e.TargetCharacterId).HasColumnType("bigint(20)");
+			entity.Property(e => e.TargetCharacterInstanceId).HasColumnType("bigint(20)");
 			entity.Property(e => e.TargetTowPointProtoId).HasColumnType("bigint(20)");
 			entity.Property(e => e.HitchItemId).HasColumnType("bigint(20)");
 			entity.Property(e => e.IsDisabled).HasColumnType("bit(1)");
@@ -690,6 +705,12 @@ public partial class FuturemudDatabaseContext
 			      .HasForeignKey(d => d.SourceCharacterId)
 			      .OnDelete(DeleteBehavior.SetNull)
 			      .HasConstraintName("FK_VehicleHitchLinks_SourceCharacters");
+
+			entity.HasOne(d => d.SourceCharacterInstance)
+			      .WithMany()
+			      .HasForeignKey(d => d.SourceCharacterInstanceId)
+			      .OnDelete(DeleteBehavior.SetNull)
+			      .HasConstraintName("FK_VehicleHitchLinks_SourceCharacterInstances");
 
 			entity.HasOne(d => d.SourceTowPointProto)
 			      .WithMany()
@@ -708,6 +729,12 @@ public partial class FuturemudDatabaseContext
 			      .HasForeignKey(d => d.TargetCharacterId)
 			      .OnDelete(DeleteBehavior.SetNull)
 			      .HasConstraintName("FK_VehicleHitchLinks_TargetCharacters");
+
+			entity.HasOne(d => d.TargetCharacterInstance)
+			      .WithMany()
+			      .HasForeignKey(d => d.TargetCharacterInstanceId)
+			      .OnDelete(DeleteBehavior.SetNull)
+			      .HasConstraintName("FK_VehicleHitchLinks_TargetCharacterInstances");
 
 			entity.HasOne(d => d.TargetTowPointProto)
 			      .WithMany()

@@ -56,7 +56,7 @@ public class PatrolController : IPatrolController
                           .Where(x =>
                               x.AffectedBy<EnforcerEffect>(LegalAuthority) &&
                               LegalAuthority.GetEnforcementAuthority(x) is not null &&
-                              LegalAuthority.Patrols.All(y => !y.PatrolMembers.Contains(x))
+                              LegalAuthority.Patrols.All(y => !y.PatrolMembers.ContainsPhysicalInstance(x))
                           )
                           .ToList();
         CollectionDictionary<IEnforcementAuthority, ICharacter> enforcerCounts = new();

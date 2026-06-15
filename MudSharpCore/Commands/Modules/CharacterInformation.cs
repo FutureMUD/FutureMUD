@@ -1734,9 +1734,38 @@ You can also use this command to test against someone else. This always echoes.
 
     [PlayerCommand("Dub", "dub")]
     [RequiredCharacterState(CharacterState.Conscious)]
+    [HelpInfo("dub",
+        @"The dub command lets you assign private keywords to people and things that you can see.
+
+For characters, ordinary dubs follow the person's known identity. Body/form dubs follow the visible physical body instead, which is useful for disguises, projections, copies, and clones.
+
+Syntax:
+
+	#3dub <target> <keyword>#0 - dub a thing, or a character identity
+	#3dub identity <target> <keyword>#0 - explicitly dub a character identity
+	#3dub body <target> <keyword>#0 - dub this physical body/form
+	#3dub form <target> <keyword>#0 - alias for #3dub body#0",
+        AutoHelp.HelpArgOrNoArg)]
     protected static void Dub(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
+        if (ss.IsFinished)
+        {
+            actor.OutputHandler.Send("Who do you want to dub?");
+            return;
+        }
+
+        var recognitionScope = CharacterRecognitionScope.Identity;
+        if (ss.PeekSpeech().EqualToAny("identity", "person", "character"))
+        {
+            ss.PopSpeech();
+        }
+        else if (ss.PeekSpeech().EqualToAny("body", "form", "appearance", "physical"))
+        {
+            recognitionScope = CharacterRecognitionScope.PhysicalBody;
+            ss.PopSpeech();
+        }
+
         if (ss.IsFinished)
         {
             actor.OutputHandler.Send("Who do you want to dub?");
@@ -1773,9 +1802,23 @@ You can also use this command to test against someone else. This always echoes.
             return;
         }
 
-        var targetDubId = CharacterInstanceIdentityComparer.FrameworkItemId(target);
+        if (recognitionScope == CharacterRecognitionScope.PhysicalBody &&
+            target is not ICharacter &&
+            target is not IBody)
+        {
+            actor.OutputHandler.Send("You can only use body or form dubs for characters and physical bodies.");
+            return;
+        }
+
+        var targetKey = CharacterInstanceIdentityComparer.RecognitionKeyFor(target, recognitionScope);
+        if (targetKey.TargetId <= 0)
+        {
+            actor.OutputHandler.Send("That target does not have a valid identity or body for a dub.");
+            return;
+        }
+
         IDub targetDub =
-            actor.Dubs.FirstOrDefault(x => x.TargetId == targetDubId && x.TargetType == target.FrameworkItemType);
+            actor.Dubs.FirstOrDefault(x => x.TargetId == targetKey.TargetId && x.TargetType == targetKey.TargetType);
         if (targetDub != null)
         {
             if (targetDub.Keywords.Any(x => x.Equals(keywordText, StringComparison.InvariantCultureIgnoreCase)))
@@ -1797,14 +1840,15 @@ You can also use this command to test against someone else. This always echoes.
                 dbdub.LastDescription = target.HowSeen(actor, colour: false, flags: PerceiveIgnoreFlags.IgnoreNamesSetting);
                 dbdub.LastUsage = DateTime.UtcNow;
                 dbdub.Keywords = keywordText;
-                dbdub.TargetId = targetDubId;
-                dbdub.TargetType = target.FrameworkItemType;
+                dbdub.TargetId = targetKey.TargetId;
+                dbdub.TargetType = targetKey.TargetType;
                 FMDB.Context.SaveChanges();
                 actor.Dubs.Add(new Dub(dbdub, actor, actor.Gameworld));
             }
         }
 
-        actor.Send("You dub {0} \"{1}\".", target.HowSeen(actor), keywordText);
+        actor.Send("You dub {0} \"{1}\"{2}.", target.HowSeen(actor), keywordText,
+            recognitionScope == CharacterRecognitionScope.PhysicalBody ? " for this body or form" : "");
     }
 
     [PlayerCommand("DubName", "dubname")]

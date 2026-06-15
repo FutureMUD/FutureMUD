@@ -208,6 +208,78 @@ public class CharacterInstanceDiagnosticsTests
 	}
 
 	[TestMethod]
+	public void AuditPersistedActorReferences_ReportsStaleAndMismatchedVehicleReferences()
+	{
+		var diagnostics = CharacterInstanceDiagnostics.AuditPersistedActorReferences(new[]
+		{
+			PersistedInstance(id: 1, characterId: 10),
+			PersistedInstance(id: 2, characterId: 20)
+		}, vehicleOccupancies: new[]
+		{
+			new MudSharp.Models.VehicleOccupancy { Id = 100, CharacterId = 10, CharacterInstanceId = 99 },
+			new MudSharp.Models.VehicleOccupancy { Id = 101, CharacterId = 10, CharacterInstanceId = 2 }
+		});
+
+		Assert.IsTrue(diagnostics.Any(x => x.Code == "vehicle-occupancy-stale-instance"));
+		Assert.IsTrue(diagnostics.Any(x => x.Code == "vehicle-occupancy-character-mismatch"));
+	}
+
+	[TestMethod]
+	public void AuditPersistedActorReferences_ReportsHitchEndpointProblems()
+	{
+		var diagnostics = CharacterInstanceDiagnostics.AuditPersistedActorReferences(new[]
+		{
+			PersistedInstance(id: 1, characterId: 10, isEmbodied: false),
+			PersistedInstance(id: 2, characterId: 20)
+		}, vehicleHitchLinks: new[]
+		{
+			new MudSharp.Models.VehicleHitchLink { Id = 100, SourceCharacterId = 10, SourceCharacterInstanceId = 1 },
+			new MudSharp.Models.VehicleHitchLink { Id = 101, TargetCharacterId = 10, TargetCharacterInstanceId = 2 },
+			new MudSharp.Models.VehicleHitchLink { Id = 102, TargetCharacterId = 10, TargetCharacterInstanceId = 99 }
+		});
+
+		Assert.IsTrue(diagnostics.Any(x => x.Code == "hitch-source-unembodied-instance"));
+		Assert.IsTrue(diagnostics.Any(x => x.Code == "hitch-target-character-mismatch"));
+		Assert.IsTrue(diagnostics.Any(x => x.Code == "hitch-target-stale-instance"));
+	}
+
+	[TestMethod]
+	public void AuditPersistedActorReferences_ReportsArenaActiveInstanceProblems()
+	{
+		var diagnostics = CharacterInstanceDiagnostics.AuditPersistedActorReferences(new[]
+		{
+			PersistedInstance(id: 1, characterId: 20)
+		}, arenaSignups: new[]
+		{
+			new MudSharp.Models.ArenaSignup { Id = 100, CharacterId = 10, ActiveCharacterInstanceId = 1 },
+			new MudSharp.Models.ArenaSignup { Id = 101, CharacterId = 10, ActiveCharacterInstanceId = 99 }
+		});
+
+		Assert.IsTrue(diagnostics.Any(x => x.Code == "arena-active-character-mismatch"));
+		Assert.IsTrue(diagnostics.Any(x => x.Code == "arena-active-stale-instance"));
+	}
+
+	[TestMethod]
+	public void AuditLoadedGlobalActorCaches_ReportsSecondaryLeakAndDuplicateIdentity()
+	{
+		var identity = new Mock<ICharacterIdentity>();
+		identity.SetupGet(x => x.Id).Returns(10);
+		var primary = BuildLoadedCharacter(identity.Object, 10, 100, 20, true);
+		var secondary = BuildLoadedCharacter(identity.Object, 10, 101, 21, false);
+
+		var diagnostics = CharacterInstanceDiagnostics.AuditLoadedGlobalActorCaches(
+			new[] { primary.Object, secondary.Object },
+			cachedActors: new[] { secondary.Object });
+
+		Assert.IsTrue(diagnostics.Any(x =>
+			x.Code == "global-cache-secondary-instance" &&
+			x.Subject?.InstanceId == 101));
+		Assert.IsTrue(diagnostics.Any(x =>
+			x.Code == "global-cache-duplicate-identity" &&
+			x.Subject?.CharacterId == 10));
+	}
+
+	[TestMethod]
 	public void RenderDiagnosticsTable_IncludesSeverityCodeScopeAndSubject()
 	{
 		var rendered = CharacterInstanceDiagnostics.RenderDiagnosticsTable(new[]
@@ -257,6 +329,23 @@ public class CharacterInstanceDiagnosticsTests
 		instance.SetupGet(x => x.State).Returns(CharacterState.Awake);
 		instance.SetupGet(x => x.Status).Returns(CharacterStatus.Active);
 		return instance;
+	}
+
+	private static Mock<ICharacter> BuildLoadedCharacter(ICharacterIdentity identity, long characterId, long instanceId,
+		long bodyId, bool primary)
+	{
+		var body = new Mock<IBody>();
+		body.SetupGet(x => x.Id).Returns(bodyId);
+		var location = new Mock<ICell>();
+		location.SetupGet(x => x.Id).Returns(30 + instanceId);
+		var character = new Mock<ICharacter>();
+		character.SetupGet(x => x.Id).Returns(characterId);
+		character.SetupGet(x => x.Identity).Returns(identity);
+		character.SetupGet(x => x.InstanceId).Returns(instanceId);
+		character.SetupGet(x => x.IsPrimaryInstance).Returns(primary);
+		character.SetupGet(x => x.Body).Returns(body.Object);
+		character.SetupGet(x => x.Location).Returns(location.Object);
+		return character;
 	}
 
 	private static MudSharp.Models.CharacterInstance PersistedInstance(long id, long characterId = 10,

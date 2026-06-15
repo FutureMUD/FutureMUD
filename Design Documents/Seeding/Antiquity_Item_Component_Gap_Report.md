@@ -262,6 +262,9 @@ Seeded prototypes:
 - `Sealable_Envelope`: envelope seal support.
 - `Sealable_Scroll`: scroll seal support.
 - `Sealable_Container_Wax`: wax-sealed container, jar, chest, or package support.
+- `Sealable_Antiquity_Clay_Tablet_Edge`, `Sealable_Antiquity_Clay_Bulla`, `Sealable_Antiquity_Papyrus_Letter`, `Sealable_Antiquity_Papyrus_Scroll`, `Sealable_Antiquity_Papyrus_Packet`, `Sealable_Antiquity_Wax_Tablet_Diptych`, `Sealable_Antiquity_Linen_Document_Bundle`, and `Sealable_Antiquity_Archive_Jar_Cap`: antiquity-specific tablet, scroll, packet, bundle, bulla, and archive-vessel seal support.
+- `Sealable_Medieval_Parchment_Charter`, `Sealable_Medieval_Parchment_Roll`, `Sealable_Medieval_Rag_Paper_Letter`, `Sealable_Medieval_Official_Writ`, `Sealable_Medieval_East_Asian_Scroll`, `Sealable_Medieval_Palm_Leaf_Bundle`, `Sealable_Medieval_Document_Pouch`, and `Sealable_Medieval_Archive_Box`: medieval parchment, paper, scroll, pouch, and archive seal support keyed to the seeded medieval writing surfaces.
+- `Sealable_Modern_Business_Envelope`, `Sealable_Modern_Padded_Envelope`, `Sealable_Modern_File_Folder`, `Sealable_Modern_Security_Envelope`, `Sealable_Modern_Evidence_Bag`, `Sealable_Modern_Registered_Mail_Pouch`, `Sealable_Modern_Courier_Tube`, `Sealable_Modern_Diplomatic_Pouch`, and `Sealable_Modern_Archive_Box`: modern envelope, evidence, courier, custody, and archive seal support using adhesive, security tape, numbered seal, plastic seal, and related media.
 
 Items enabled or improved:
 

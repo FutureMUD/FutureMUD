@@ -181,7 +181,7 @@ public class Vehicle : SaveableItem, IVehicle
 
 	public bool IsOccupant(ICharacter actor)
 	{
-		return _occupancies.Any(x => x.Occupant == actor);
+		return _occupancies.Any(x => x.Occupant?.SamePhysicalInstance(actor) == true);
 	}
 
 	public bool CanBoard(ICharacter actor, IVehicleOccupantSlotPrototype slot, out string reason)
@@ -215,12 +215,6 @@ public class Vehicle : SaveableItem, IVehicle
 			return false;
 		}
 
-		if (!actor.IsPrimaryInstance)
-		{
-			reason = "Temporary and secondary bodies cannot board vehicles until vehicle occupancy tracks character instances.";
-			return false;
-		}
-
 		if (IsOccupant(actor))
 		{
 			reason = "You are already aboard that vehicle.";
@@ -245,7 +239,7 @@ public class Vehicle : SaveableItem, IVehicle
 			return false;
 		}
 
-		if (_accessStates.Any() && !_accessStates.Any(x => x.Character == actor))
+		if (_accessStates.Any() && !_accessStates.Any(x => x.Character?.SameIdentity(actor) == true))
 		{
 			reason = "You do not have access to board that vehicle.";
 			return false;
@@ -327,6 +321,7 @@ public class Vehicle : SaveableItem, IVehicle
 			{
 				VehicleId = Id,
 				CharacterId = CharacterInstanceIdentityComparer.IdentityId(actor),
+				CharacterInstanceId = CharacterInstanceIdentityComparer.InstanceId(actor),
 				VehicleOccupantSlotProtoId = slot.Id,
 				IsController = isController
 			};
@@ -354,7 +349,7 @@ public class Vehicle : SaveableItem, IVehicle
 
 		if (_accessPoints.Any())
 		{
-			var occupancy = _occupancies.FirstOrDefault(x => x.Occupant == actor);
+			var occupancy = _occupancies.FirstOrDefault(x => x.Occupant?.SamePhysicalInstance(actor) == true);
 			var access = FirstViableAccessPoint(actor, occupancy?.Slot);
 			if (access is null)
 			{
@@ -374,7 +369,7 @@ public class Vehicle : SaveableItem, IVehicle
 			return false;
 		}
 
-		var occupancy = _occupancies.First(x => x.Occupant == actor);
+		var occupancy = _occupancies.First(x => x.Occupant?.SamePhysicalInstance(actor) == true);
 		using (new FMDB())
 		{
 			var dbitem = FMDB.Context.VehicleOccupancies.Find(occupancy.Id);
@@ -402,7 +397,7 @@ public class Vehicle : SaveableItem, IVehicle
 
 	public void ForceDisembark(ICharacter actor, bool cancelMovement = true)
 	{
-		var occupancy = _occupancies.FirstOrDefault(x => x.Occupant == actor);
+		var occupancy = _occupancies.FirstOrDefault(x => x.Occupant?.SamePhysicalInstance(actor) == true);
 		if (occupancy is null)
 		{
 			return;
@@ -732,7 +727,13 @@ public class VehicleOccupancy : FrameworkItem, IVehicleOccupancy
 		Vehicle = vehicle;
 		_id = dbitem.Id;
 		_name = $"Vehicle Occupancy #{dbitem.Id:N0}";
-		Occupant = vehicle.Gameworld.TryGetCharacter(dbitem.CharacterId);
+		CharacterInstanceId = dbitem.CharacterInstanceId;
+		Occupant = vehicle.Gameworld.ResolveActorReference(new CharacterActorReference(
+			dbitem.CharacterId,
+			dbitem.CharacterInstanceId,
+			ReferenceKind: dbitem.CharacterInstanceId is > 0
+				? CharacterActorReferenceKind.SpecificInstance
+				: CharacterActorReferenceKind.IdentityOnly)).Actor;
 		Slot = vehicle.Prototype.OccupantSlots.FirstOrDefault(x => x.Id == dbitem.VehicleOccupantSlotProtoId);
 		IsController = dbitem.IsController;
 	}
@@ -740,6 +741,7 @@ public class VehicleOccupancy : FrameworkItem, IVehicleOccupancy
 	public override string FrameworkItemType => "VehicleOccupancy";
 	public IVehicle Vehicle { get; }
 	public ICharacter Occupant { get; }
+	public long? CharacterInstanceId { get; }
 	public IVehicleOccupantSlotPrototype Slot { get; }
 	public bool IsController { get; }
 }

@@ -1099,7 +1099,7 @@ Note - you can use the #3stop#0 command to stop dragging someone", AutoHelp.Help
                 return;
             }
 
-            if (help == actor)
+            if (CharacterInstanceIdentityComparer.SamePhysicalInstance(help, actor))
             {
                 actor.Send("You cannot help yourself to drag something.");
                 return;
@@ -1190,7 +1190,7 @@ Note - you can use the #3stop#0 command to stop dragging someone", AutoHelp.Help
             return;
         }
 
-        if (target == actor)
+        if (CharacterInstanceIdentityComparer.SamePhysicalInstanceOrBody(actor, target))
         {
             actor.Send("You cannot drag yourself.");
             return;
@@ -1865,7 +1865,7 @@ The syntax is as follows:
                             return;
                         }
 
-                        character.OutputHandler.Handle(character == targetCharacter
+                        character.OutputHandler.Handle(CharacterInstanceIdentityComparer.SamePhysicalInstance(character, targetCharacter)
                                             ? new MixedEmoteOutput(new Emote($"@ apply|applies $1 to &0's {bodypart.FullDescription()}", character, item), flags: OutputFlags.SuppressObscured).Append(pemote)
                                             : new MixedEmoteOutput(new Emote($"@ apply|applies $1 to $2's {bodypart.FullDescription()}", character, item, targetCharacter), flags: OutputFlags.SuppressObscured).Append(pemote));
                         applicable.Apply(targetCharacter.Body, bodypart, amount, character);
@@ -1883,7 +1883,7 @@ The syntax is as follows:
             return;
         }
 
-        character.OutputHandler.Handle(character == targetCharacter
+        character.OutputHandler.Handle(CharacterInstanceIdentityComparer.SamePhysicalInstance(character, targetCharacter)
                 ? new MixedEmoteOutput(new Emote($"@ apply|applies $1 to &0's {bodypart.FullDescription()}", character, item), flags: OutputFlags.SuppressObscured).Append(pemote)
                 : new MixedEmoteOutput(new Emote($"@ apply|applies $1 to $2's {bodypart.FullDescription()}", character, item, targetCharacter), flags: OutputFlags.SuppressObscured).Append(pemote));
         applicable.Apply(targetCharacter.Body, bodypart, amount, character);
@@ -2478,7 +2478,7 @@ The syntax is #3inject <item> <target> <bodypart> [<amount>]#0.", AutoHelp.HelpA
             return;
         }
 
-        character.OutputHandler.Handle(character == targetCharacter
+        character.OutputHandler.Handle(CharacterInstanceIdentityComparer.SamePhysicalInstance(character, targetCharacter)
             ? new MixedEmoteOutput(
                 new Emote($"@ inject|injects &0's {bodypart.FullDescription()} with $1", character, character,
                     target), flags: OutputFlags.SuppressObscured).Append(pemote)
@@ -2514,7 +2514,7 @@ You can use the following syntaxes with this command:
             return;
         }
 
-        if (target == character)
+        if (CharacterInstanceIdentityComparer.SamePhysicalInstance(target, character))
         {
             character.Send("You can't feed yourself. Use the eat, drink and swallow commands instead.");
             return;
@@ -3319,7 +3319,7 @@ The syntax to use this command is as follows:
                 return;
             }
 
-            if (containerOwner == character)
+            if (CharacterInstanceIdentityComparer.SamePhysicalInstance(containerOwner, character))
             {
                 character.OutputHandler.Send(
                     "You cannot use the version of this command with a specified container owner with yourself as the target.");
@@ -3827,7 +3827,7 @@ The syntax is as follows:
 
         amount = Math.Min(amount, intoItemContainer.LiquidCapacity - intoItemContainer.LiquidVolume);
         ICharacter intoCharacter = intoItem.InInventoryOf?.Actor;
-        if (intoCharacter == null || intoCharacter == actor)
+        if (intoCharacter == null || CharacterInstanceIdentityComparer.SamePhysicalInstance(intoCharacter, actor))
         {
             actor.OutputHandler.Handle(
                 new MixedEmoteOutput(
@@ -5235,7 +5235,7 @@ Use quotes around multi-word offering or focus names.", AutoHelp.HelpArg)]
                     return;
                 }
 
-                if (openableOwner == actor)
+                if (CharacterInstanceIdentityComparer.SamePhysicalInstance(openableOwner, actor))
                 {
                     Open(actor, $"{cmd2} {ss.RemainingArgument}");
                     return;
@@ -5511,7 +5511,8 @@ The syntax is as follows:
             }
         }
 
-        if (actor != target && !actor.IsAdministrator() && CharacterState.Able.HasFlag(target.State) &&
+        if (!CharacterInstanceIdentityComparer.SamePhysicalInstance(actor, target) &&
+            !actor.IsAdministrator() && CharacterState.Able.HasFlag(target.State) &&
             !target.IsAlly(actor))
         {
             target.AddEffect(new Accept(target, new GenericProposal(
@@ -5599,7 +5600,7 @@ The syntax is as follows:
             }
 
             actor.Send(
-                $"{target.HowSeen(actor, true)} {(target == actor ? "are" : "is")} not the right body type to have {targetProsthetic.Parent.HowSeen(actor)} installed.");
+                $"{target.HowSeen(actor, true)} {(CharacterInstanceIdentityComparer.SamePhysicalInstance(target, actor) ? "are" : "is")} not the right body type to have {targetProsthetic.Parent.HowSeen(actor)} installed.");
             return false;
         }
 
@@ -5613,7 +5614,7 @@ The syntax is as follows:
             }
 
             actor.Send(
-                $"{target.HowSeen(actor, true)} {(target == actor ? "do" : "does")} not have the appropriate disability to have {targetProsthetic.Parent.HowSeen(actor)} installed. It is designed for individuals with a sever at the {targetProsthetic.TargetBodypart.FullDescription()}.");
+                $"{target.HowSeen(actor, true)} {(CharacterInstanceIdentityComparer.SamePhysicalInstance(target, actor) ? "do" : "does")} not have the appropriate disability to have {targetProsthetic.Parent.HowSeen(actor)} installed. It is designed for individuals with a sever at the {targetProsthetic.TargetBodypart.FullDescription()}.");
             return false;
         }
 
@@ -5627,15 +5628,15 @@ The syntax is as follows:
             }
 
             if (target.Body.Prosthetics.First(x => x.TargetBodypart == targetProsthetic.TargetBodypart).Obvious ||
-                actor == target || actor.IsAdministrator())
+                CharacterInstanceIdentityComparer.SamePhysicalInstance(actor, target) || actor.IsAdministrator())
             {
                 actor.Send(
-                    $"{target.HowSeen(actor, true)} already {(target == actor ? "have" : "has")} a prosthetic for that location. The existing one must first be removed.");
+                    $"{target.HowSeen(actor, true)} already {(CharacterInstanceIdentityComparer.SamePhysicalInstance(target, actor) ? "have" : "has")} a prosthetic for that location. The existing one must first be removed.");
                 return false;
             }
 
             actor.Send(
-                $"{target.HowSeen(actor, true)} {(target == actor ? "do" : "does")} not have the appropriate disability to have {targetProsthetic.Parent.HowSeen(actor)} installed. It is designed for individuals with a sever at the {targetProsthetic.TargetBodypart.FullDescription()}.");
+                $"{target.HowSeen(actor, true)} {(CharacterInstanceIdentityComparer.SamePhysicalInstance(target, actor) ? "do" : "does")} not have the appropriate disability to have {targetProsthetic.Parent.HowSeen(actor)} installed. It is designed for individuals with a sever at the {targetProsthetic.TargetBodypart.FullDescription()}.");
             return false;
         }
 
@@ -5662,7 +5663,7 @@ The syntax is as follows:
             }
 
             actor.Send(
-                $"{target.HowSeen(actor, true)} {(target == actor ? "have" : "has")} clothing obstructing the installation of {targetProsthetic.Parent.HowSeen(actor)}. You must first remove it.");
+                $"{target.HowSeen(actor, true)} {(CharacterInstanceIdentityComparer.SamePhysicalInstance(target, actor) ? "have" : "has")} clothing obstructing the installation of {targetProsthetic.Parent.HowSeen(actor)}. You must first remove it.");
             return false;
         }
 
@@ -5893,7 +5894,8 @@ The syntax is as follows:
             }
         }
 
-        if (actor != target && !actor.IsAdministrator() && CharacterState.Able.HasFlag(target.State) &&
+        if (!CharacterInstanceIdentityComparer.SamePhysicalInstance(actor, target) &&
+            !actor.IsAdministrator() && CharacterState.Able.HasFlag(target.State) &&
             !target.IsAlly(actor))
         {
             target.AddEffect(new Accept(target, new GenericProposal(
@@ -6015,7 +6017,7 @@ The syntax is as follows:
                     return;
                 }
 
-                if (openableOwner == actor)
+                if (CharacterInstanceIdentityComparer.SamePhysicalInstance(openableOwner, actor))
                 {
                     Close(actor, $"{cmd2} {ss.RemainingArgument}");
                     return;

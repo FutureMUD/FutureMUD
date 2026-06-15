@@ -753,6 +753,7 @@ public class NpcAiRegressionTests
     {
         Mock<IArenaParticipant> participant = new();
         participant.SetupGet(x => x.Character).Returns(character);
+        participant.SetupGet(x => x.ActiveCharacter).Returns(character);
         participant.SetupGet(x => x.CharacterId).Returns(character.Id);
         participant.SetupGet(x => x.SideIndex).Returns(sideIndex);
         return participant.Object;

@@ -1689,7 +1689,7 @@ public partial class Cell : Location, IDisposable, ICell
     public bool CanGetAccess(IGameItem item, ICharacter getter)
     {
         List<IGameItem> vicinity = LayerGameItems(getter.RoomLayer).Except(item).Where(x => x.InVicinity(item)).ToList();
-        return !LayerCharacters(getter.RoomLayer).Except(getter)
+        return !LayerCharacters(getter.RoomLayer).Where(x => !x.SamePhysicalInstance(getter))
                                                  .Any(
                                                      x =>
                                                          x.EffectsOfType<IGuardItemEffect>()
@@ -1703,7 +1703,7 @@ public partial class Cell : Location, IDisposable, ICell
     {
         List<IGameItem> vicinity = LayerGameItems(getter.RoomLayer).Except(item).Where(x => x.InVicinity(item)).ToList();
         List<ICharacter> guarders =
-            LayerCharacters(getter.RoomLayer).Except(getter)
+            LayerCharacters(getter.RoomLayer).Where(x => !x.SamePhysicalInstance(getter))
                                              .Where(
                                                  x =>
                                                      x.EffectsOfType<IGuardItemEffect>()

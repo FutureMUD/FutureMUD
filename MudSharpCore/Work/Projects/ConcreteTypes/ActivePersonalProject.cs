@@ -1,6 +1,7 @@
 ﻿using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Framework;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
@@ -15,7 +16,7 @@ public class ActivePersonalProject : ActiveProject, IPersonalProject
 
     public ActivePersonalProject(IProject project, ICharacter owner) : base(project)
     {
-        _characterOwner = owner;
+        _characterOwner = owner.Identity as ICharacter ?? owner;
         _characterOwnerId = CharacterInstanceIdentityComparer.IdentityId(owner);
         project.OnStartProg?.Execute(this);
     }
@@ -35,15 +36,48 @@ public class ActivePersonalProject : ActiveProject, IPersonalProject
     {
         actor.OutputHandler.Send($"You cancel your personal project '{Name.Colour(Telnet.Cyan)}'.");
         ProjectDefinition.OnCancelProg?.Execute(this);
+        var workers = ClearWorkersFromProject();
         CharacterOwner.RemovePersonalProject(this);
         Delete();
-        CharacterOwner.TryJoinQueuedProjectLabour();
+        foreach (var worker in workers.DefaultIfEmpty(CharacterOwner))
+        {
+            worker.TryJoinQueuedProjectLabour();
+        }
     }
 
-    private bool CheckForProjectCompletion(bool alreadyWorkingOnProject)
+    private List<ICharacter> ClearWorkersFromProject()
+    {
+        var workers = _activeLabour.Select(x => x.Character).DistinctBy(x => x.InstanceId).ToList();
+        foreach (var worker in workers.Where(x => x.CurrentProject.Project == this))
+        {
+            worker.CurrentProject = (null, null);
+        }
+
+        _activeLabour.Clear();
+        return workers;
+    }
+
+    private List<ICharacter> ClearWorkersFromLabour(IProjectLabourRequirement labour)
+    {
+        var workers = _activeLabour
+                      .Where(x => x.Labour == labour)
+                      .Select(x => x.Character)
+                      .DistinctBy(x => x.InstanceId)
+                      .ToList();
+        foreach (var worker in workers.Where(x => x.CurrentProject.Project == this))
+        {
+            worker.CurrentProject = (null, null);
+        }
+
+        _activeLabour.RemoveAll(x => x.Labour == labour);
+        return workers;
+    }
+
+    private bool CheckForProjectCompletion(IEnumerable<ICharacter> workersToResume)
     {
         if (AreCurrentPhaseCompletionRequirementsMet())
         {
+            var resumeList = workersToResume.DistinctBy(x => x.InstanceId).ToList();
             foreach (IProjectAction action in OrderedCompletionActions())
             {
                 action.CompleteAction(this);
@@ -54,13 +88,7 @@ public class ActivePersonalProject : ActiveProject, IPersonalProject
                                                             1);
             if (nextPhase != null)
             {
-                var ownerWasWorkingOnThisProject = alreadyWorkingOnProject;
-                _activeLabour.Clear();
-                if (CharacterOwner.CurrentProject.Project == this)
-                {
-                    CharacterOwner.CurrentProject = (null, null);
-                }
-
+                ClearWorkersFromProject();
                 CurrentPhase = nextPhase;
                 _labourProgress.Clear();
                 _materialProgress.Clear();
@@ -71,22 +99,30 @@ public class ActivePersonalProject : ActiveProject, IPersonalProject
                         $"Your {ProjectDefinition.Name.Colour(Telnet.Cyan)} personal project has entered the {CurrentPhase.Name.ColourBold(Telnet.White)} phase.");
                 }
 
-                IProjectLabourRequirement newLabour =
-                    CurrentPhase.LabourRequirements.FirstOrDefault(x => x.CharacterIsQualified(CharacterOwner));
-                if (ownerWasWorkingOnThisProject && newLabour != null)
+                foreach (var worker in resumeList)
                 {
-                    _activeLabour.Add((CharacterOwner, newLabour));
-                    CharacterOwner.CurrentProject = (this, newLabour);
-                    if (CharacterOwner.Location?.Characters.Contains(CharacterOwner) == true)
+                    var newLabour =
+                        CurrentPhase.LabourRequirements
+                                    .FirstOrDefault(x =>
+                                        x.CharacterIsQualified(worker) &&
+                                        _activeLabour.Count(y => y.Labour == x) < x.MaximumSimultaneousWorkers);
+                    if (newLabour == null)
                     {
-                        CharacterOwner.OutputHandler.Send(
+                        continue;
+                    }
+
+                    _activeLabour.Add((worker, newLabour));
+                    worker.CurrentProject = (this, newLabour);
+                    if (worker.Location?.Characters.Contains(worker) == true)
+                    {
+                        worker.OutputHandler.Send(
                             $"You begin working on the {newLabour.Name.ColourValue()} task of your {ProjectDefinition.Name.Colour(Telnet.Cyan)} personal project.");
                     }
                 }
 
-                if (CharacterOwner.CurrentProject.Project == null)
+                foreach (var worker in resumeList.Where(x => x.CurrentProject.Project == null).DefaultIfEmpty(CharacterOwner))
                 {
-                    CharacterOwner.TryJoinQueuedProjectLabour();
+                    worker.TryJoinQueuedProjectLabour();
                 }
 
                 return true;
@@ -99,9 +135,13 @@ public class ActivePersonalProject : ActiveProject, IPersonalProject
             }
 
             ProjectDefinition.OnFinishProg?.Execute(this);
+            var workers = ClearWorkersFromProject();
             CharacterOwner.RemovePersonalProject(this);
             Delete();
-            CharacterOwner.TryJoinQueuedProjectLabour();
+            foreach (var worker in workers.DefaultIfEmpty(CharacterOwner))
+            {
+                worker.TryJoinQueuedProjectLabour();
+            }
             return true;
         }
 
@@ -115,18 +155,23 @@ public class ActivePersonalProject : ActiveProject, IPersonalProject
         if (_labourProgress[labour] >= labour.TotalProgressRequired)
         {
             _labourProgress[labour] = labour.TotalProgressRequired;
-            if (CharacterOwner.Location?.Characters.Contains(CharacterOwner) == true)
+            var workers = ClearWorkersFromLabour(labour);
+            foreach (var worker in workers.DefaultIfEmpty(CharacterOwner))
             {
-                CharacterOwner.OutputHandler.Send(
-                    $"You have finished your work on the {labour.Name.ColourValue()} task of your {ProjectDefinition.Name.Colour(Telnet.Cyan)} personal project.");
+                if (worker.Location?.Characters.Contains(worker) == true)
+                {
+                    worker.OutputHandler.Send(
+                        $"You have finished your work on the {labour.Name.ColourValue()} task of your {ProjectDefinition.Name.Colour(Telnet.Cyan)} personal project.");
+                }
             }
 
-            CharacterOwner.CurrentProject = (null, null);
-            _activeLabour.Clear();
-            var changedProjectState = CheckForProjectCompletion(true);
+            var changedProjectState = CheckForProjectCompletion(workers);
             if (!changedProjectState)
             {
-                CharacterOwner.TryJoinQueuedProjectLabour();
+                foreach (var worker in workers.DefaultIfEmpty(CharacterOwner))
+                {
+                    worker.TryJoinQueuedProjectLabour();
+                }
             }
 
             return changedProjectState;
@@ -148,7 +193,7 @@ public class ActivePersonalProject : ActiveProject, IPersonalProject
                     $"The requirement for {material.Name.ColourValue()} with your {ProjectDefinition.Name.Colour(Telnet.Cyan)} personal project is now complete.");
             }
 
-            CheckForProjectCompletion(ActiveLabour.Any(x => x.Character == CharacterOwner));
+            CheckForProjectCompletion(ActiveLabour.Select(x => x.Character));
         }
     }
 

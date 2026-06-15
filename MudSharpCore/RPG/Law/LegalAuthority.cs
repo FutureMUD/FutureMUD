@@ -1202,7 +1202,7 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
         }
 
         Gameworld.DiscordConnection.NotifyEnforcement("enforcement", DiscordChannelId.Value,
-            $"\"{Name}\" {CharacterInstanceIdentityComparer.IdentityId(crime.Criminal)} \"{crime.Criminal.PersonalName.GetName(NameStyle.FullName)}\" \"{patrol.PatrolRoute.Name}\" \"{crime.Name}\" \"{patrol.PatrolLeader.Location.GetFriendlyReference(null)}\" \"{crime.Law.EnforcementStrategy.DescribeEnum(true)}\"");
+            $"\"{Name}\" {DiscordActorToken(crime.Criminal)} \"{crime.Criminal.PersonalName.GetName(NameStyle.FullName)}\" \"{patrol.PatrolRoute.Name}\" \"{crime.Name}\" \"{patrol.PatrolLeader.Location.GetFriendlyReference(null)}\" \"{crime.Law.EnforcementStrategy.DescribeEnum(true)}\"");
     }
 
     public void HandleDiscordNotificationOfConviction(ICharacter criminal, ICrime crime, PunishmentResult result,
@@ -1214,7 +1214,7 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
         }
 
         Gameworld.DiscordConnection.NotifyEnforcement("conviction", DiscordChannelId.Value,
-            $"\"{Name}\" {CharacterInstanceIdentityComparer.IdentityId(criminal)} \"{criminal.PersonalName.GetName(NameStyle.FullName)}\" \"{crime.Name}\" \"{result.Describe(null, this)}\"");
+            $"\"{Name}\" {DiscordActorToken(criminal)} \"{criminal.PersonalName.GetName(NameStyle.FullName)}\" \"{crime.Name}\" \"{result.Describe(null, this)}\"");
     }
 
     public void HandleDiscordNotificationOfForgiveness(ICrime crime, ICharacter enforcer)
@@ -1234,7 +1234,7 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
         }
 
         Gameworld.DiscordConnection.NotifyEnforcement("crime", DiscordChannelId.Value,
-            $"\"{Name}\" {CharacterInstanceIdentityComparer.IdentityId(criminal)} \"{criminal.PersonalName.GetName(NameStyle.FullName)}\" \"{bailAmountText}\"");
+            $"\"{Name}\" {DiscordActorToken(criminal)} \"{criminal.PersonalName.GetName(NameStyle.FullName)}\" \"{bailAmountText}\"");
     }
 
     public void HandleDiscordNotificationReturnFromBail(ICharacter criminal)
@@ -1245,7 +1245,7 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
         }
 
         Gameworld.DiscordConnection.NotifyEnforcement("returnfrombail", DiscordChannelId.Value,
-            $"\"{Name}\" {CharacterInstanceIdentityComparer.IdentityId(criminal)} \"{criminal.PersonalName.GetName(NameStyle.FullName)}\"");
+            $"\"{Name}\" {DiscordActorToken(criminal)} \"{criminal.PersonalName.GetName(NameStyle.FullName)}\"");
     }
 
     public void HandleDiscordNotificationOfRelease(ICharacter criminal)
@@ -1256,7 +1256,7 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
         }
 
         Gameworld.DiscordConnection.NotifyEnforcement("release", DiscordChannelId.Value,
-            $"\"{Name}\" {CharacterInstanceIdentityComparer.IdentityId(criminal)} \"{criminal.PersonalName.GetName(NameStyle.FullName)}\"");
+            $"\"{Name}\" {DiscordActorToken(criminal)} \"{criminal.PersonalName.GetName(NameStyle.FullName)}\"");
     }
 
     public void HandleDiscordNotificationOfImprisonment(ICharacter criminal, string imprisonmentLengthText)
@@ -1267,7 +1267,7 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
         }
 
         Gameworld.DiscordConnection.NotifyEnforcement("imprisonment", DiscordChannelId.Value,
-            $"\"{Name}\" {CharacterInstanceIdentityComparer.IdentityId(criminal)} \"{criminal.PersonalName.GetName(NameStyle.FullName)}\" \"{imprisonmentLengthText}\"");
+            $"\"{Name}\" {DiscordActorToken(criminal)} \"{criminal.PersonalName.GetName(NameStyle.FullName)}\" \"{imprisonmentLengthText}\"");
     }
 
     private void HandleDiscordNotificationOfIncarceration(ICharacter criminal)
@@ -1278,7 +1278,15 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
         }
 
         Gameworld.DiscordConnection.NotifyEnforcement("incarceration", DiscordChannelId.Value,
-            $"\"{Name}\" {CharacterInstanceIdentityComparer.IdentityId(criminal)} \"{criminal.PersonalName.GetName(NameStyle.FullName)}\"");
+            $"\"{Name}\" {DiscordActorToken(criminal)} \"{criminal.PersonalName.GetName(NameStyle.FullName)}\"");
+    }
+
+    private static string DiscordActorToken(ICharacter actor)
+    {
+        var identityId = CharacterInstanceIdentityComparer.IdentityId(actor);
+        var instanceId = CharacterInstanceIdentityComparer.InstanceId(actor);
+        var bodyId = actor.Body?.Id;
+        return $"identity#{identityId.ToString(System.Globalization.CultureInfo.InvariantCulture)};instance#{(instanceId ?? 0).ToString(System.Globalization.CultureInfo.InvariantCulture)};body#{(bodyId ?? 0).ToString(System.Globalization.CultureInfo.InvariantCulture)}";
     }
     #endregion
 }

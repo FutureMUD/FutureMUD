@@ -2461,9 +2461,13 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
 
         if (Gameworld.CachedBodyguards.ContainsKey(Id))
         {
-            foreach (ICharacter bodyguard in Gameworld.CachedBodyguards[Id])
+            foreach (ICharacter bodyguard in Gameworld.CachedBodyguards[Id].DistinctPhysicalInstances().ToList())
             {
-                Gameworld.Add(bodyguard, true);
+                if (bodyguard.IsPrimaryInstance)
+                {
+                    Gameworld.Add(bodyguard, true);
+                }
+
                 Location.Login(bodyguard);
             }
 
@@ -3264,9 +3268,9 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
             return false;
         }
 
+        var lookupKeys = CharacterInstanceIdentityComparer.RecognitionLookupKeys(perceivable).ToList();
         IDub dub = Dubs.FirstOrDefault(x =>
-            x.TargetId == perceivable.Id &&
-            x.TargetType == perceivable.FrameworkItemType &&
+            lookupKeys.Any(y => y.TargetId == x.TargetId && y.TargetType == x.TargetType) &&
             x.Keywords.Any(y => keywords.Any(z => y.StartsWith(z, StringComparison.InvariantCultureIgnoreCase)))
         );
 
@@ -3288,9 +3292,9 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
             return false;
         }
 
+        var lookupKeys = CharacterInstanceIdentityComparer.RecognitionLookupKeys(perceivable).ToList();
         IDub dub = Dubs.FirstOrDefault(x =>
-            x.TargetId == perceivable.Id &&
-            x.TargetType == perceivable.FrameworkItemType &&
+            lookupKeys.Any(y => y.TargetId == x.TargetId && y.TargetType == x.TargetType) &&
             x.Keywords.Any(y => y.StartsWith(keyword, StringComparison.InvariantCultureIgnoreCase))
         );
 

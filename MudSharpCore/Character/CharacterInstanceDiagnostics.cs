@@ -426,6 +426,119 @@ public static class CharacterInstanceDiagnostics
 		return diagnostics;
 	}
 
+	public static IReadOnlyList<CharacterInstanceDiagnostic> AuditPersistedActorReferences(
+		IEnumerable<MudSharp.Models.CharacterInstance> instances,
+		IEnumerable<MudSharp.Models.VehicleOccupancy>? vehicleOccupancies = null,
+		IEnumerable<MudSharp.Models.VehicleHitchLink>? vehicleHitchLinks = null,
+		IEnumerable<MudSharp.Models.ArenaSignup>? arenaSignups = null)
+	{
+		var diagnostics = new List<CharacterInstanceDiagnostic>();
+		var instancesById = instances?
+		                    .GroupBy(x => x.Id)
+		                    .ToDictionary(x => x.Key, x => x.First()) ??
+		                    new Dictionary<long, MudSharp.Models.CharacterInstance>();
+
+		foreach (var occupancy in vehicleOccupancies ?? Enumerable.Empty<MudSharp.Models.VehicleOccupancy>())
+		{
+			if (occupancy.CharacterInstanceId is not > 0L)
+			{
+				continue;
+			}
+
+			var subject = new CharacterInstanceDiagnosticSubject(
+				occupancy.CharacterId,
+				occupancy.CharacterInstanceId);
+			if (!instancesById.TryGetValue(occupancy.CharacterInstanceId.Value, out var instance))
+			{
+				diagnostics.Add(new CharacterInstanceDiagnostic(
+					CharacterInstanceDiagnosticSeverity.Error,
+					CharacterInstanceStateScope.Instance,
+					"vehicle-occupancy-stale-instance",
+					$"Vehicle occupancy #{occupancy.Id} references missing character instance #{occupancy.CharacterInstanceId.Value}.",
+					subject
+				));
+				continue;
+			}
+
+			AddActorReferenceDiagnostics(
+				diagnostics,
+				instance,
+				occupancy.CharacterId,
+				subject,
+				"vehicle-occupancy-character-mismatch",
+				$"Vehicle occupancy #{occupancy.Id}",
+				"vehicle-occupancy-unembodied-instance");
+		}
+
+		foreach (var link in vehicleHitchLinks ?? Enumerable.Empty<MudSharp.Models.VehicleHitchLink>())
+		{
+			AddEndpointDiagnostics(
+				diagnostics,
+				instancesById,
+				link.SourceCharacterId,
+				link.SourceCharacterInstanceId,
+				$"Vehicle hitch link #{link.Id} source",
+				"hitch-source-stale-instance",
+				"hitch-source-character-mismatch",
+				"hitch-source-unembodied-instance");
+			AddEndpointDiagnostics(
+				diagnostics,
+				instancesById,
+				link.TargetCharacterId,
+				link.TargetCharacterInstanceId,
+				$"Vehicle hitch link #{link.Id} target",
+				"hitch-target-stale-instance",
+				"hitch-target-character-mismatch",
+				"hitch-target-unembodied-instance");
+		}
+
+		foreach (var signup in arenaSignups ?? Enumerable.Empty<MudSharp.Models.ArenaSignup>())
+		{
+			if (signup.ActiveCharacterInstanceId is not > 0L)
+			{
+				continue;
+			}
+
+			var subject = new CharacterInstanceDiagnosticSubject(signup.CharacterId, signup.ActiveCharacterInstanceId);
+			if (!instancesById.TryGetValue(signup.ActiveCharacterInstanceId.Value, out var instance))
+			{
+				diagnostics.Add(new CharacterInstanceDiagnostic(
+					CharacterInstanceDiagnosticSeverity.Error,
+					CharacterInstanceStateScope.Instance,
+					"arena-active-stale-instance",
+					$"Arena signup #{signup.Id} references missing active character instance #{signup.ActiveCharacterInstanceId.Value}.",
+					subject
+				));
+				continue;
+			}
+
+			AddActorReferenceDiagnostics(
+				diagnostics,
+				instance,
+				signup.CharacterId,
+				subject,
+				"arena-active-character-mismatch",
+				$"Arena signup #{signup.Id}",
+				"arena-active-unembodied-instance");
+		}
+
+		return diagnostics;
+	}
+
+	public static IReadOnlyList<CharacterInstanceDiagnostic> AuditLoadedGlobalActorCaches(
+		IEnumerable<ICharacter>? actors,
+		IEnumerable<ICharacter>? characters = null,
+		IEnumerable<ICharacter>? npcs = null,
+		IEnumerable<ICharacter>? cachedActors = null)
+	{
+		var diagnostics = new List<CharacterInstanceDiagnostic>();
+		AddLoadedGlobalCacheDiagnostics(diagnostics, "Actors", actors);
+		AddLoadedGlobalCacheDiagnostics(diagnostics, "Characters", characters);
+		AddLoadedGlobalCacheDiagnostics(diagnostics, "NPCs", npcs);
+		AddLoadedGlobalCacheDiagnostics(diagnostics, "CachedActors", cachedActors);
+		return diagnostics;
+	}
+
 	public static string RenderDiagnosticsTable(IEnumerable<CharacterInstanceDiagnostic> diagnostics,
 		int lineFormatLength = 120, bool unicodeTable = false)
 	{
@@ -472,6 +585,110 @@ public static class CharacterInstanceDiagnostics
 		catch (Exception)
 		{
 			return false;
+		}
+	}
+
+	private static void AddLoadedGlobalCacheDiagnostics(
+		List<CharacterInstanceDiagnostic> diagnostics,
+		string cacheName,
+		IEnumerable<ICharacter>? actors)
+	{
+		var list = actors?
+		           .Where(x => x is not null)
+		           .ToList() ?? new List<ICharacter>();
+		foreach (var actor in list.Where(x => !x.IsPrimaryInstance))
+		{
+			diagnostics.Add(new CharacterInstanceDiagnostic(
+				CharacterInstanceDiagnosticSeverity.Error,
+				CharacterInstanceStateScope.Instance,
+				"global-cache-secondary-instance",
+				$"{cacheName} contains secondary instance #{actor.InstanceId} for identity #{CharacterInstanceIdentityComparer.IdentityId(actor)}. Secondary instances must remain cell-local and out of global actor caches.",
+				new CharacterInstanceDiagnosticSubject(
+					CharacterInstanceIdentityComparer.IdentityId(actor),
+					actor.InstanceId,
+					actor.Body?.Id,
+					actor.Location?.Id)
+			));
+		}
+
+		foreach (var group in list.GroupBy(CharacterInstanceIdentityComparer.IdentityId)
+		                          .Where(x => x.Key > 0)
+		                          .Where(x => x.Select(CharacterInstanceIdentityComparer.PhysicalInstanceKey)
+		                                       .Distinct()
+		                                       .Count() > 1))
+		{
+			diagnostics.Add(new CharacterInstanceDiagnostic(
+				CharacterInstanceDiagnosticSeverity.Error,
+				CharacterInstanceStateScope.Identity,
+				"global-cache-duplicate-identity",
+				$"{cacheName} contains {group.Count()} loaded actor objects for identity #{group.Key}. Global actor caches must contain only the primary identity actor.",
+				new CharacterInstanceDiagnosticSubject(group.Key)
+			));
+		}
+	}
+
+	private static void AddEndpointDiagnostics(
+		List<CharacterInstanceDiagnostic> diagnostics,
+		IReadOnlyDictionary<long, MudSharp.Models.CharacterInstance> instancesById,
+		long? characterId,
+		long? instanceId,
+		string prefix,
+		string staleCode,
+		string mismatchCode,
+		string unembodiedCode)
+	{
+		if (characterId is not > 0L || instanceId is not > 0L)
+		{
+			return;
+		}
+
+		var subject = new CharacterInstanceDiagnosticSubject(characterId, instanceId);
+		if (!instancesById.TryGetValue(instanceId.Value, out var instance))
+		{
+			diagnostics.Add(new CharacterInstanceDiagnostic(
+				CharacterInstanceDiagnosticSeverity.Error,
+				CharacterInstanceStateScope.Instance,
+				staleCode,
+				$"{prefix} references missing character instance #{instanceId.Value}.",
+				subject
+			));
+			return;
+		}
+
+		AddActorReferenceDiagnostics(diagnostics, instance, characterId.Value, subject, mismatchCode, prefix, unembodiedCode);
+	}
+
+	private static void AddActorReferenceDiagnostics(
+		List<CharacterInstanceDiagnostic> diagnostics,
+		MudSharp.Models.CharacterInstance instance,
+		long expectedCharacterId,
+		CharacterInstanceDiagnosticSubject subject,
+		string mismatchCode,
+		string prefix,
+		string unembodiedCode)
+	{
+		if (instance.CharacterId != expectedCharacterId)
+		{
+			diagnostics.Add(new CharacterInstanceDiagnostic(
+				CharacterInstanceDiagnosticSeverity.Error,
+				CharacterInstanceStateScope.Identity,
+				mismatchCode,
+				$"{prefix} points at character #{expectedCharacterId}, but instance #{instance.Id} belongs to character #{instance.CharacterId}.",
+				subject
+			));
+		}
+
+		if (!instance.IsEmbodied ||
+		    ((CharacterState)instance.State).HasFlag(CharacterState.Dead) ||
+		    (CharacterStatus)instance.Status == CharacterStatus.Deceased)
+		{
+			diagnostics.Add(new CharacterInstanceDiagnostic(
+				CharacterInstanceDiagnosticSeverity.Error,
+				CharacterInstanceStateScope.Instance,
+				unembodiedCode,
+				$"{prefix} references instance #{instance.Id}, but that instance is not a live embodied actor.",
+				subject
+			));
 		}
 	}
 

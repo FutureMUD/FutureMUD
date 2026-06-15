@@ -819,12 +819,14 @@ namespace MudSharp.Database
                 entity.Property(e => e.LastMajorNodeId).HasColumnType("bigint(20)");
                 entity.Property(e => e.NextMajorNodeId).HasColumnType("bigint(20)");
                 entity.Property(e => e.PatrolLeaderId).HasColumnType("bigint(20)");
+                entity.Property(e => e.PatrolLeaderInstanceId).HasColumnType("bigint(20)");
 
                 entity.HasIndex(e => e.PatrolRouteId).HasDatabaseName("FK_Patrols_PatrolRoutes_idx");
                 entity.HasIndex(e => e.LegalAuthorityId).HasDatabaseName("FK_Patrols_LegalAuthorities_idx");
                 entity.HasIndex(e => e.LastMajorNodeId).HasDatabaseName("FK_Patrols_LastMajorNode_idx");
                 entity.HasIndex(e => e.NextMajorNodeId).HasDatabaseName("FK_Patrols_NextMajorNode_idx");
                 entity.HasIndex(e => e.PatrolLeaderId).HasDatabaseName("FK_Patrols_Characters_idx");
+                entity.HasIndex(e => e.PatrolLeaderInstanceId).HasDatabaseName("FK_Patrols_CharacterInstances_Leader_idx");
 
                 entity
                 .HasOne(e => e.PatrolRoute)
@@ -861,8 +863,10 @@ namespace MudSharp.Database
             {
                 entity.ToTable("PatrolMembers");
                 entity.Property(e => e.CharacterId).HasColumnType("bigint(20)");
+                entity.Property(e => e.CharacterInstanceId).HasColumnType("bigint(20)");
                 entity.Property(e => e.PatrolId).HasColumnType("bigint(20)");
-                entity.HasKey(e => new { e.PatrolId, e.CharacterId }).HasName("PRIMARY");
+                entity.HasKey(e => new { e.PatrolId, e.CharacterId, e.CharacterInstanceId }).HasName("PRIMARY");
+                entity.HasIndex(e => e.CharacterInstanceId).HasDatabaseName("FK_PatrolMembers_CharacterInstances_idx");
 
                 entity
                 .HasOne(e => e.Character)

@@ -35,7 +35,7 @@ public class Party : PerceiverItem, IParty
 
     public void Join(IMove body)
     {
-        if (!_members.Contains(body))
+        if (!ContainsMember(body))
         {
             _members.Add(body);
         }
@@ -48,14 +48,15 @@ public class Party : PerceiverItem, IParty
 
     public bool Leave(IMove body)
     {
-        if (Movement?.CharacterMovers.Contains(body) ?? false)
+        if (body is ICharacter character && Movement?.CharacterMovers.ContainsPhysicalInstance(character) == true ||
+            body is not ICharacter && (Movement?.CharacterMovers.Contains(body) ?? false))
         {
             Movement.CancelForMoverOnly(body);
             body.Movement = null;
         }
 
-        _members.Remove(body);
-        if (Leader == body)
+        RemoveMember(body);
+        if (SameMove(Leader, body))
         {
             Leader = _members.OfType<ICharacter>().FirstOrDefault();
         }
@@ -85,7 +86,7 @@ public class Party : PerceiverItem, IParty
             sb.AppendLine("\t" + Leader.DisplayInGroup(voyeur, indent));
         }
 
-        foreach (IMove ch in Members.Except(Leader))
+        foreach (IMove ch in Members.Where(x => !SameMove(x, Leader)))
         {
             sb.AppendLine("\t" + ch.DisplayInGroup(voyeur, indent + 2));
         }
@@ -285,7 +286,7 @@ public class Party : PerceiverItem, IParty
         {
             if (ch.CanMove(flags))
             {
-                if (Leader == ch)
+                if (SameMove(Leader, ch))
                 {
                     leaderCanMove = true;
                 }
@@ -324,7 +325,7 @@ public class Party : PerceiverItem, IParty
         {
             if (ch.CanMove(exit, flags))
             {
-                if (Leader == ch)
+                if (SameMove(Leader, ch))
                 {
                     leaderCanMove = true;
                 }
@@ -480,6 +481,39 @@ public class Party : PerceiverItem, IParty
     public string WhyCannotMove()
     {
         return _cannotMoveReason ??= "You cannot move in that direction.";
+    }
+
+    private bool ContainsMember(IMove mover)
+    {
+        return _members.Any(x => SameMove(x, mover));
+    }
+
+    private void RemoveMember(IMove mover)
+    {
+        for (var i = _members.Count - 1; i >= 0; i--)
+        {
+            if (SameMove(_members[i], mover))
+            {
+                _members.RemoveAt(i);
+            }
+        }
+    }
+
+    private static bool SameMove(IMove first, IMove second)
+    {
+        if (first is null || second is null)
+        {
+            return false;
+        }
+
+        if (ReferenceEquals(first, second))
+        {
+            return true;
+        }
+
+        return first is ICharacter firstCharacter &&
+               second is ICharacter secondCharacter &&
+               CharacterInstanceIdentityComparer.SamePhysicalInstance(firstCharacter, secondCharacter);
     }
 
     #endregion

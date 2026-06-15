@@ -548,12 +548,14 @@ public class TollkeeperAI : PathingAIBase
 	private bool HandleCharacterEnterCellFinishWitness(ICharacter tollkeeper, ICharacter mover, ICell cell)
 	{
 		var exit = GuardExit(tollkeeper);
-		if (!CanActAsTollkeeper(tollkeeper) || exit is null || mover == tollkeeper || cell != exit.Origin || tollkeeper.Location != exit.Origin)
+		if (!CanActAsTollkeeper(tollkeeper) || exit is null ||
+		    CharacterInstanceIdentityComparer.SamePhysicalInstance(mover, tollkeeper) || cell != exit.Origin ||
+		    tollkeeper.Location != exit.Origin)
 		{
 			return false;
 		}
 
-		if (mover.Party is not null && mover.Party.Leader != mover)
+		if (mover.Party is not null && !CharacterInstanceIdentityComparer.SamePhysicalInstance(mover.Party.Leader, mover))
 		{
 			return false;
 		}
@@ -579,12 +581,14 @@ public class TollkeeperAI : PathingAIBase
 	private bool HandleCharacterAttemptMovement(ICharacter tollkeeper, ICharacter mover, ICellExit exit)
 	{
 		var guardExit = GuardExit(tollkeeper);
-		if (!CanActAsTollkeeper(tollkeeper) || guardExit is null || mover == tollkeeper || !IsConfiguredExit(exit, guardExit))
+		if (!CanActAsTollkeeper(tollkeeper) || guardExit is null ||
+		    CharacterInstanceIdentityComparer.SamePhysicalInstance(mover, tollkeeper) ||
+		    !IsConfiguredExit(exit, guardExit))
 		{
 			return false;
 		}
 
-		if (mover.Party is not null && mover.Party.Leader != mover)
+		if (mover.Party is not null && !CharacterInstanceIdentityComparer.SamePhysicalInstance(mover.Party.Leader, mover))
 		{
 			return false;
 		}
@@ -765,7 +769,8 @@ public class TollkeeperAI : PathingAIBase
 			return mover.Movement.CharacterMovers.ToList();
 		}
 
-		var primaryMovers = mover.Party?.Leader == mover
+		var primaryMovers = mover.Party?.Leader is not null &&
+		                    CharacterInstanceIdentityComparer.SamePhysicalInstance(mover.Party.Leader, mover)
 			? mover.Party.CharacterMembers.Where(x => x.InRoomLocation == mover.InRoomLocation).ToList()
 			: new List<ICharacter> { mover };
 

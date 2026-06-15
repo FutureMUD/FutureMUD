@@ -461,8 +461,22 @@ Syntax:
                     FMDB.Context.Cells.Select(x => x.Id).ToHashSet());
                 var persistedDiagnostics = CharacterInstanceDiagnostics.AuditPersistedInstances(instances, true,
                     references);
+                var actorReferenceDiagnostics = CharacterInstanceDiagnostics.AuditPersistedActorReferences(
+                    instances,
+                    FMDB.Context.VehicleOccupancies.ToList(),
+                    FMDB.Context.VehicleHitchLinks.ToList(),
+                    FMDB.Context.ArenaSignups.ToList());
+                var loadedCacheDiagnostics = CharacterInstanceDiagnostics.AuditLoadedGlobalActorCaches(
+                    actor.Gameworld.Actors,
+                    actor.Gameworld.Characters,
+                    actor.Gameworld.NPCs,
+                    actor.Gameworld.CachedActors);
+                persistedDiagnostics = persistedDiagnostics
+                    .Concat(actorReferenceDiagnostics)
+                    .Concat(loadedCacheDiagnostics)
+                    .ToList();
                 actor.OutputHandler.Send(
-                    $"Audited {instances.Count.ToString("N0", actor).ColourValue()} persisted character instance rows.\n\n{CharacterInstanceDiagnostics.RenderDiagnosticsTable(persistedDiagnostics, actor.LineFormatLength, actor.Account.UseUnicode)}");
+                    $"Audited {instances.Count.ToString("N0", actor).ColourValue()} persisted character instance rows and loaded actor caches.\n\n{CharacterInstanceDiagnostics.RenderDiagnosticsTable(persistedDiagnostics, actor.LineFormatLength, actor.Account.UseUnicode)}");
             }
 
             return;

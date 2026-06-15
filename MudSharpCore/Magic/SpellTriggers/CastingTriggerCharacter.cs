@@ -164,7 +164,7 @@ public class CastingTriggerCharacter : CastingTriggerBase
             return;
         }
 
-        if (target == actor && !CanTargetSelf)
+        if (CharacterInstanceIdentityComparer.SamePhysicalInstanceOrBody(actor, target) && !CanTargetSelf)
         {
             actor.OutputHandler.Send("That spell cannot be used to target yourself.");
             return;

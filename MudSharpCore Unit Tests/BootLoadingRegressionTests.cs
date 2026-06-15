@@ -17,8 +17,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
 using DbAuctionHouse = MudSharp.Models.AuctionHouse;
+using DbCharacterInstance = MudSharp.Models.CharacterInstance;
 using DbPropertyLeaseOrder = MudSharp.Models.PropertyLeaseOrder;
 using DbPropertySaleOrder = MudSharp.Models.PropertySaleOrder;
+using DbStableStay = MudSharp.Models.StableStay;
 
 namespace MudSharp_Unit_Tests;
 
@@ -67,6 +69,28 @@ public class BootLoadingRegressionTests
         bool result = Futuremud.ShouldLoadNpcAtBoot(123L, CharacterState.Awake, activeStableMountIds);
 
         Assert.IsTrue(result);
+    }
+
+    [TestMethod]
+    public void ActiveStablePrimaryMountIdentityIds_StabledSecondaryDoesNotSuppressPrimaryNpc()
+    {
+        var activeStays = new[]
+        {
+            new DbStableStay { MountId = 10L, MountInstanceId = null },
+            new DbStableStay { MountId = 20L, MountInstanceId = 200L },
+            new DbStableStay { MountId = 30L, MountInstanceId = 300L }
+        };
+        var instances = new[]
+        {
+            new DbCharacterInstance { Id = 200L, CharacterId = 20L, IsPrimary = true },
+            new DbCharacterInstance { Id = 300L, CharacterId = 30L, IsPrimary = false }
+        };
+
+        var result = Futuremud.ActiveStablePrimaryMountIdentityIds(activeStays, instances);
+
+        CollectionAssert.Contains(result.ToList(), 10L);
+        CollectionAssert.Contains(result.ToList(), 20L);
+        CollectionAssert.DoesNotContain(result.ToList(), 30L);
     }
 
     [TestMethod]

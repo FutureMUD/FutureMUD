@@ -33,6 +33,7 @@ public class StableStay : SaveableItem, IStableStay
 		Gameworld = stable.Gameworld;
 		Stable = stable;
 		MountId = CharacterInstanceIdentityComparer.IdentityId(mount);
+		MountInstanceId = CharacterInstanceIdentityComparer.InstanceId(mount);
 		_mount = mount;
 		OriginalOwnerId = CharacterInstanceIdentityComparer.IdentityId(originalOwner);
 		_originalOwner = originalOwner;
@@ -48,6 +49,7 @@ public class StableStay : SaveableItem, IStableStay
 			{
 				StableId = stable.Id,
 				MountId = CharacterInstanceIdentityComparer.IdentityId(mount),
+				MountInstanceId = CharacterInstanceIdentityComparer.InstanceId(mount),
 				OriginalOwnerId = CharacterInstanceIdentityComparer.IdentityId(originalOwner),
 				OriginalOwnerName = originalOwner.CurrentName.SaveToXml().ToString(),
 				LodgedDateTime = LodgedDateTime.GetDateTimeString(),
@@ -68,6 +70,7 @@ public class StableStay : SaveableItem, IStableStay
 		_id = stay.Id;
 		Stable = stable;
 		MountId = stay.MountId;
+		MountInstanceId = stay.MountInstanceId;
 		OriginalOwnerId = stay.OriginalOwnerId;
 		OriginalOwnerName = string.IsNullOrEmpty(stay.OriginalOwnerName)
 			? null
@@ -112,8 +115,13 @@ public class StableStay : SaveableItem, IStableStay
 	}
 
 	public IStable Stable { get; }
-	public ICharacter? Mount => _mount ??= Gameworld.TryGetCharacter(MountId, true);
+	public ICharacter? Mount => _mount ??= CharacterInstanceIdentityComparer.ResolvePhysicalInstance(
+		Gameworld,
+		MountId,
+		MountInstanceId,
+		fallbackToPrimary: MountInstanceId is null);
 	public long MountId { get; }
+	public long? MountInstanceId { get; }
 	public ICharacter? OriginalOwner => _originalOwner ??= Gameworld.TryGetCharacter(OriginalOwnerId, true);
 	public long OriginalOwnerId { get; }
 	public IPersonalName? OriginalOwnerName { get; }

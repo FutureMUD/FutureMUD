@@ -281,7 +281,9 @@ public partial class Body
     {
         if (!flags.HasFlag(PerceiveIgnoreFlags.IgnoreNamesSetting) && voyeur is ICharacter vch && vch.Account.CharacterNameOverlaySetting != Accounts.CharacterNameOverlaySetting.None)
         {
-            IDub dub = vch.Dubs.FirstOrDefault(x => x.TargetId == Actor.Id && x.TargetType == Actor.FrameworkItemType);
+            var lookupKeys = CharacterInstanceIdentityComparer.RecognitionLookupKeys(Actor).ToList();
+            IDub dub = vch.Dubs.FirstOrDefault(x =>
+                lookupKeys.Any(y => y.TargetId == x.TargetId && y.TargetType == x.TargetType));
             if (dub is not null)
             {
                 description = dub.HowSeen(vch);
@@ -732,7 +734,9 @@ public partial class Body
                 sb.AppendLine($"This item has graffiti. Use LOOK <item> GRAFFITI to view it.".Colour(Telnet.BoldCyan));
             }
 
-            IDub dub = Dubs.FirstOrDefault(x => x.TargetId == thing.Id && x.TargetType == thing.FrameworkItemType);
+            var lookupKeys = CharacterInstanceIdentityComparer.RecognitionLookupKeys(thing).ToList();
+            IDub dub = Dubs.FirstOrDefault(x =>
+                lookupKeys.Any(y => y.TargetId == x.TargetId && y.TargetType == x.TargetType));
             if (dub != null)
             {
                 sb.AppendLine(
@@ -1010,7 +1014,9 @@ public partial class Body
                     }
                 }
 
-                IDub dub = Dubs.FirstOrDefault(x => x.TargetId == thing.Id && x.TargetType == thing.FrameworkItemType);
+                var lookupKeys = CharacterInstanceIdentityComparer.RecognitionLookupKeys(thing).ToList();
+                IDub dub = Dubs.FirstOrDefault(x =>
+                    lookupKeys.Any(y => y.TargetId == x.TargetId && y.TargetType == x.TargetType));
                 if (dub != null)
                 {
                     sb.AppendLine(

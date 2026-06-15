@@ -12,6 +12,7 @@ public class StableStay
 	public long Id { get; set; }
 	public long StableId { get; set; }
 	public long MountId { get; set; }
+	public long? MountInstanceId { get; set; }
 	public long OriginalOwnerId { get; set; }
 	public string OriginalOwnerName { get; set; }
 	public string LodgedDateTime { get; set; }

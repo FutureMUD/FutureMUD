@@ -49,7 +49,8 @@ public class ArenaObservationService : IArenaObservationService
             return (false, "Registration has not opened for that event yet.");
         }
 
-        if (arenaEvent.Participants.Any(x => x.Character == observer))
+        if (arenaEvent.Participants.Any(x => x.ActiveCharacter is { } active &&
+                                             CharacterInstanceIdentityComparer.SamePhysicalInstance(observer, active)))
         {
             return (false, "Participants cannot observe the event from the observation rooms.");
         }

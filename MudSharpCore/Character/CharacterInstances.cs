@@ -143,6 +143,7 @@ public partial class Character
 			SetPosition(PositionStanding.Instance, PositionModifier.None, null, null);
 		}
 
+		LoadInstanceProject(instance);
 		Changed = false;
 		_noSave = false;
 	}
@@ -423,6 +424,7 @@ public partial class Character
 		primary.IsEmbodied = _isEmbodied;
 		primary.IsControllable = _isControllable;
 		primary.EffectData = _instanceEffectData.IfNullOrWhiteSpace("<Effects/>");
+		SaveInstanceProject(primary);
 		if (primary.CreatedDateTime == default)
 		{
 			primary.CreatedDateTime = DateTime.UtcNow;
@@ -493,6 +495,7 @@ public partial class Character
 		instance.IsEmbodied = _isEmbodied;
 		instance.IsControllable = _isControllable;
 		instance.EffectData = _instanceEffectData.IfNullOrWhiteSpace("<Effects/>");
+		SaveInstanceProject(instance);
 		if (instance.CreatedDateTime == default)
 		{
 			instance.CreatedDateTime = DateTime.UtcNow;
@@ -524,6 +527,10 @@ public partial class Character
 			IsPrimary = true,
 			IsEmbodied = true,
 			IsControllable = _isControllable,
+			CurrentProjectId = CurrentProject.Project?.Id,
+			CurrentProjectLabourId = CurrentProject.Labour?.Id,
+			CurrentProjectHours = CurrentProjectHours,
+			CurrentProjectProjectHours = CurrentProjectProjectHours,
 			CreatedDateTime = DateTime.UtcNow,
 			EffectData = "<Effects/>"
 		};

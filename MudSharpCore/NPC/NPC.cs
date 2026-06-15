@@ -142,7 +142,11 @@ public class NPC : Character.Character, INPC
                 Gameworld.CachedBodyguards[_bodyguardingCharacterId.Value] = new List<ICharacter>();
             }
 
-            Gameworld.CachedBodyguards[_bodyguardingCharacterId.Value].Add(this);
+            var cache = Gameworld.CachedBodyguards[_bodyguardingCharacterId.Value];
+            if (!cache.ContainsPhysicalInstance(this))
+            {
+                cache.Add(this);
+            }
         }
 
         return base.Quit(silent);

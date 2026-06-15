@@ -21,6 +21,12 @@ public partial class FuturemudDatabaseContext
 			entity.HasIndex(e => e.CharacterId)
 			      .HasDatabaseName("FK_CharacterInstances_Characters_idx");
 
+			entity.HasIndex(e => e.CurrentProjectId)
+			      .HasDatabaseName("FK_CharacterInstances_ActiveProjects_idx");
+
+			entity.HasIndex(e => e.CurrentProjectLabourId)
+			      .HasDatabaseName("FK_CharacterInstances_ProjectLabourRequirements_idx");
+
 			entity.HasIndex(e => e.EmbodiedBodyId)
 			      .IsUnique()
 			      .HasDatabaseName("UQ_CharacterInstances_EmbodiedBody");
@@ -40,6 +46,10 @@ public partial class FuturemudDatabaseContext
 			entity.Property(e => e.BodyId).HasColumnType("bigint(20)");
 			entity.Property(e => e.CharacterId).HasColumnType("bigint(20)");
 			entity.Property(e => e.ControlPolicy).HasColumnType("int(11)");
+			entity.Property(e => e.CurrentProjectHours).HasColumnType("double");
+			entity.Property(e => e.CurrentProjectId).HasColumnType("bigint(20)");
+			entity.Property(e => e.CurrentProjectLabourId).HasColumnType("bigint(20)");
+			entity.Property(e => e.CurrentProjectProjectHours).HasColumnType("double");
 			entity.Property(e => e.CreatedBySourceId).HasColumnType("bigint(20)");
 			entity.Property(e => e.CreatedBySourceType).HasColumnType("int(11)");
 			entity.Property(e => e.CreatedDateTime).HasColumnType("datetime");

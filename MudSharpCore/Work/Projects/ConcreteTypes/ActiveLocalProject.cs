@@ -13,7 +13,7 @@ public class ActiveLocalProject : ActiveProject, ILocalProject
 {
     public ActiveLocalProject(IProject project, ICharacter owner) : base(project)
     {
-        _characterOwner = owner;
+        _characterOwner = owner.Identity as ICharacter ?? owner;
         _characterOwnerId = CharacterInstanceIdentityComparer.IdentityId(owner);
         Location = owner.Location;
         Location.AddProject(this);

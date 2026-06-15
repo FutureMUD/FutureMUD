@@ -1,4 +1,5 @@
 using MudSharp.Accounts;
+using MudSharp.Arenas;
 using MudSharp.Body;
 using MudSharp.Body.Position;
 using MudSharp.Body.Position.PositionStates;
@@ -8,6 +9,7 @@ using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;
 using MudSharp.Models;
 using MudSharp.NPC;
+using MudSharp.Vehicles;
 using System;
 using System.Linq;
 
@@ -368,6 +370,83 @@ public static class CharacterInstanceService
 		return new CharacterInstanceOperationResult(true, "Secondary instance moved.", secondary);
 	}
 
+	public static CharacterInstanceOperationResult RestorePersistentSecondaryInstance(
+		ICharacter owner,
+		long instanceId,
+		ICell location,
+		RoomLayer roomLayer)
+	{
+		if (owner.Identity is not Character identity)
+		{
+			return new CharacterInstanceOperationResult(false, "The owner identity is not loaded.");
+		}
+
+		var loaded = identity.Instances
+		                     .OfType<ICharacterInstance>()
+		                     .FirstOrDefault(x => x.InstanceId == instanceId);
+		if (loaded is not null)
+		{
+			if (loaded.IsPrimaryInstance)
+			{
+				return new CharacterInstanceOperationResult(false, "Primary instances cannot be restored as secondary mounts.");
+			}
+
+			if (loaded is Character loadedCharacter)
+			{
+				loadedCharacter.Location?.Leave(loadedCharacter);
+				location.Enter(loadedCharacter, noSave: true, roomLayer: roomLayer);
+				loadedCharacter.SetInstanceEmbodied(true);
+				loadedCharacter.SetInstanceControllable(loadedCharacter.ControlPolicy != CharacterInstanceControlPolicy.NotControllable);
+				loadedCharacter.SetInstanceStateAndStatus(loadedCharacter.State & ~CharacterState.Stasis, loadedCharacter.Status);
+				loadedCharacter.Save();
+			}
+
+			return new CharacterInstanceOperationResult(true, "Secondary instance restored.", loaded);
+		}
+
+		using (new FMDB())
+		{
+			var dbinstance = FMDB.Context.CharacterInstances.Find(instanceId);
+			if (dbinstance is null || dbinstance.CharacterId != identity.Id)
+			{
+				return new CharacterInstanceOperationResult(false, "The secondary instance could not be found.");
+			}
+
+			if (dbinstance.IsPrimary)
+			{
+				return new CharacterInstanceOperationResult(false, "Primary instances cannot be restored as secondary mounts.");
+			}
+
+			if ((CharacterInstancePersistencePolicy)dbinstance.PersistencePolicy != CharacterInstancePersistencePolicy.Persistent)
+			{
+				return new CharacterInstanceOperationResult(false, "Only persistent secondary instances can be restored from stabling.");
+			}
+
+			var state = (CharacterState)dbinstance.State;
+			if (state.IsDead())
+			{
+				return new CharacterInstanceOperationResult(false, "Dead secondary instances cannot be restored from stabling.");
+			}
+
+			var body = identity.Bodies.FirstOrDefault(x => x.Id == dbinstance.BodyId);
+			if (body is null)
+			{
+				return new CharacterInstanceOperationResult(false, "The secondary instance body could not be found.");
+			}
+
+			dbinstance.LocationId = location.Id;
+			dbinstance.RoomLayer = (int)roomLayer;
+			dbinstance.IsEmbodied = true;
+			dbinstance.IsControllable = (CharacterInstanceControlPolicy)dbinstance.ControlPolicy !=
+			                            CharacterInstanceControlPolicy.NotControllable;
+			dbinstance.State = (int)(state & ~CharacterState.Stasis);
+			FMDB.Context.SaveChanges();
+
+			var materialised = identity.MaterialiseSecondaryInstance(dbinstance, body);
+			return new CharacterInstanceOperationResult(true, "Secondary instance restored.", materialised);
+		}
+	}
+
 	public static bool Retire(ICharacterInstance instance, out string whyNot, bool deleteTemporaryRows = true,
 		bool deathRetirement = false, bool removeOwningEffects = true)
 	{
@@ -412,6 +491,10 @@ public static class CharacterInstanceService
 			secondary,
 			"Your focus returns to your primary body as the secondary instance fades from control.",
 			true);
+
+		LeaveCurrentProject(secondary);
+		ClearVehicleBindings(secondary, deletePersistentHitches: true);
+		ClearArenaBindings(secondary);
 
 		if (secondary is INPC npc)
 		{
@@ -502,6 +585,8 @@ public static class CharacterInstanceService
 	private static void UnloadPersistentSecondary(Character owner, Character secondary)
 	{
 		CharacterInstanceFocusService.TryReturnFocusToPrimary(secondary, string.Empty, false);
+		LeaveCurrentProject(secondary);
+		ClearArenaBindings(secondary);
 		if (secondary is INPC npc)
 		{
 			npc.ReleaseEventSubscriptions();
@@ -524,5 +609,79 @@ public static class CharacterInstanceService
 		secondary.Body.Actor = owner;
 		owner.ForgetSecondaryInstance(secondary);
 		secondary.Changed = false;
+	}
+
+	private static void ClearVehicleBindings(Character secondary, bool deletePersistentHitches)
+	{
+		foreach (var vehicle in secondary.Gameworld.Vehicles.Where(x => x.IsOccupant(secondary)).ToList())
+		{
+			vehicle.ForceDisembark(secondary);
+		}
+
+		if (!deletePersistentHitches)
+		{
+			return;
+		}
+
+		var hitchService = new VehicleHitchService();
+		foreach (var link in hitchService.LinksInvolving(secondary.Gameworld, secondary).ToList())
+		{
+			hitchService.DeletePersistentLink(secondary.Gameworld, link.Id);
+		}
+	}
+
+	private static void ClearArenaBindings(Character secondary)
+	{
+		var arenaEvents = secondary.Gameworld.CombatArenas
+		                           .SelectMany(x => x.ActiveEvents)
+		                           .Where(x => x.Participants.Any(y => y.ActiveCharacter is { } active &&
+		                                                               CharacterInstanceIdentityComparer
+			                                                               .SamePhysicalInstance(secondary, active)))
+		                           .ToList();
+		foreach (var arenaEvent in arenaEvents)
+		{
+			try
+			{
+				switch (arenaEvent.State)
+				{
+					case ArenaEventState.RegistrationOpen:
+						arenaEvent.Withdraw(secondary);
+						break;
+					case ArenaEventState.Live:
+						var surrender = arenaEvent.CanSurrender(secondary);
+						if (surrender.Truth)
+						{
+							arenaEvent.Surrender(secondary);
+						}
+
+						break;
+				}
+			}
+			catch
+			{
+				// Retire must still proceed; stale arena references are reported by instance audit.
+			}
+
+			secondary.Gameworld.ArenaParticipationService.ClearParticipation(secondary, arenaEvent);
+		}
+
+		secondary.RemoveAllEffects(effect =>
+			effect.IsEffectType<ArenaStagingEffect>() ||
+			effect.IsEffectType<ArenaPreparingEffect>() ||
+			effect.IsEffectType<ArenaParticipationEffect>() ||
+			effect.IsEffectType<ArenaParticipantPreparationEffect>() ||
+			effect.IsEffectType<ArenaNpcPreparationEffect>());
+	}
+
+	private static void LeaveCurrentProject(Character secondary)
+	{
+		if (secondary.CurrentProject.Project is null)
+		{
+			return;
+		}
+
+		secondary.CurrentProject.Project.Leave(secondary);
+		secondary.CurrentProjectHours = 0.0;
+		secondary.CurrentProjectProjectHours = 0.0;
 	}
 }

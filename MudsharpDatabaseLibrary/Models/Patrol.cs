@@ -25,6 +25,7 @@ namespace MudSharp.Models
         public long? NextMajorNodeId { get; set; }
         [CanBeNull] public virtual Cell NextMajorNode { get; set; }
         public long? PatrolLeaderId { get; set; }
+        public long? PatrolLeaderInstanceId { get; set; }
         [CanBeNull] public virtual Character PatrolLeader { get; set; }
 
         public virtual ICollection<PatrolMember> PatrolMembers { get; set; }

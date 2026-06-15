@@ -9,6 +9,7 @@ using MudSharp.FutureProg.Variables;
 using MudSharp.Models;
 using MudSharp.Work.Agriculture;
 using MudSharp.Work.Projects.Impacts;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,6 +22,12 @@ public abstract class ActiveProject : LateInitialisingItem, IActiveProject, ILaz
 {
     public sealed override string FrameworkItemType => "ActiveProject";
 
+    private sealed record CachedActiveProjectLabour(
+        long CharacterId,
+        long? CharacterInstanceId,
+        IProjectLabourRequirement Labour
+    );
+
     protected ActiveProject(MudSharp.Models.ActiveProject project, IFuturemud gameworld)
     {
         Gameworld = gameworld;
@@ -30,9 +37,7 @@ public abstract class ActiveProject : LateInitialisingItem, IActiveProject, ILaz
         ProjectDefinition = gameworld.Projects.Get(project.ProjectId, project.ProjectRevisionNumber);
         CurrentPhase = ProjectDefinition.Phases.First(x => x.Id == project.CurrentPhaseId);
         _name = ProjectDefinition.Name;
-        _cachedActiveLabour = new List<(long CharacterId, IProjectLabourRequirement Labour)>(
-            project.Characters.Select(x =>
-                (x.Id, CurrentPhase.LabourRequirements.First(y => y.Id == x.CurrentProjectLabourId))));
+        _cachedActiveLabour = LoadCachedActiveLabour(project).ToList();
         foreach (ActiveProjectLabour labour in project.ActiveProjectLabours)
         {
             _labourProgress[CurrentPhase.LabourRequirements.First(x => x.Id == labour.ProjectLabourRequirementsId)] =
@@ -54,7 +59,44 @@ public abstract class ActiveProject : LateInitialisingItem, IActiveProject, ILaz
         ProjectDefinition = project;
         CurrentPhase = ProjectDefinition.Phases.First();
         _name = ProjectDefinition.Name;
-        _cachedActiveLabour = new List<(long CharacterId, IProjectLabourRequirement Labour)>();
+        _cachedActiveLabour = new List<CachedActiveProjectLabour>();
+    }
+
+    private IEnumerable<CachedActiveProjectLabour> LoadCachedActiveLabour(MudSharp.Models.ActiveProject project)
+    {
+        var instanceWorkers = FMDB.Context.CharacterInstances
+                                     .AsNoTracking()
+                                     .Where(x => x.CurrentProjectId == project.Id && x.CurrentProjectLabourId.HasValue)
+                                     .Select(x => new
+                                     {
+                                         x.CharacterId,
+                                         CharacterInstanceId = (long?)x.Id,
+                                         LabourId = x.CurrentProjectLabourId.Value
+                                     })
+                                     .ToList();
+
+        if (instanceWorkers.Any())
+        {
+            foreach (var worker in instanceWorkers)
+            {
+                var labour = CurrentPhase.LabourRequirements.FirstOrDefault(x => x.Id == worker.LabourId);
+                if (labour is not null)
+                {
+                    yield return new CachedActiveProjectLabour(worker.CharacterId, worker.CharacterInstanceId, labour);
+                }
+            }
+
+            yield break;
+        }
+
+        foreach (var worker in project.Characters.Where(x => x.CurrentProjectLabourId.HasValue))
+        {
+            var labour = CurrentPhase.LabourRequirements.FirstOrDefault(x => x.Id == worker.CurrentProjectLabourId);
+            if (labour is not null)
+            {
+                yield return new CachedActiveProjectLabour(worker.Id, null, labour);
+            }
+        }
     }
 
     protected void Delete()
@@ -112,19 +154,41 @@ public abstract class ActiveProject : LateInitialisingItem, IActiveProject, ILaz
     protected readonly DoubleCounter<IProjectMaterialRequirement> _materialProgress = new();
     public IReadOnlyDictionary<IProjectMaterialRequirement, double> MaterialProgress => _materialProgress;
 
-    private readonly List<(long CharacterId, IProjectLabourRequirement Labour)> _cachedActiveLabour;
+    private readonly List<CachedActiveProjectLabour> _cachedActiveLabour;
 
     protected void CheckCachedLabour()
     {
         if (_cachedActiveLabour.Count > 0)
         {
-            foreach ((long CharacterId, IProjectLabourRequirement Labour) labour in _cachedActiveLabour)
+            foreach (var labour in _cachedActiveLabour)
             {
-                _activeLabour.Add((Gameworld.TryGetCharacter(labour.CharacterId, true), labour.Labour));
+                var actor = ResolveCachedLabourActor(labour);
+                if (actor is null)
+                {
+                    continue;
+                }
+
+                _activeLabour.Add((actor, labour.Labour));
             }
 
             _cachedActiveLabour.Clear();
         }
+    }
+
+    private ICharacter ResolveCachedLabourActor(CachedActiveProjectLabour labour)
+    {
+        var identity = Gameworld.TryGetCharacter(labour.CharacterId, true);
+        if (identity is null)
+        {
+            return null;
+        }
+
+        if (labour.CharacterInstanceId is not long instanceId)
+        {
+            return identity;
+        }
+
+        return identity.Identity.Instances.FirstOrDefault(x => x.InstanceId == instanceId) as ICharacter;
     }
 
 
@@ -180,7 +244,7 @@ public abstract class ActiveProject : LateInitialisingItem, IActiveProject, ILaz
     {
         foreach (var character in characters
                      .Where(x => x != null)
-                     .Distinct()
+                     .DistinctBy(x => x.InstanceId)
                      .Where(x => x.CurrentProject.Project == null))
         {
             character.TryJoinQueuedProjectLabour();

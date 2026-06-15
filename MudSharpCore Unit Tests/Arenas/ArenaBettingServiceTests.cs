@@ -80,6 +80,7 @@ public class ArenaBettingServiceTests
         Mock<IArenaParticipant> participant = new();
         participant.SetupGet(x => x.CharacterId).Returns(characterId);
         participant.SetupGet(x => x.Character).Returns(character.Object);
+        participant.SetupGet(x => x.ActiveCharacter).Returns(character.Object);
         participant.SetupGet(x => x.CombatantClass).Returns(combatantClass.Object);
         participant.SetupGet(x => x.SideIndex).Returns(sideIndex);
         participant.SetupGet(x => x.StartingRating).Returns(startingRating);

@@ -235,7 +235,7 @@ public class ArenaParticipantAI : PathingAIBase
 
         return arenaEvent.Participants
             .Where(x => x.SideIndex != participant.SideIndex)
-            .Where(x => x.Character is not null)
+            .Where(x => x.ActiveCharacter is not null)
             .ToList();
     }
 
@@ -421,7 +421,7 @@ public class ArenaParticipantAI : PathingAIBase
         }
 
         List<ICharacter> opponents = GetOpponents(arenaEvent, ch)
-            .Select(x => x.Character)
+            .Select(x => x.ActiveCharacter)
             .Where(x => x is not null)
             .Cast<ICharacter>()
             .Where(x => !x.State.IsDead())

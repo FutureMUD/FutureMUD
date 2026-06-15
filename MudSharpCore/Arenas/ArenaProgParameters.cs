@@ -72,9 +72,9 @@ internal static class ArenaProgParameters
     internal static object[] BuildEventProgArguments(IArenaEvent arenaEvent)
     {
         List<IArenaParticipant> roster = arenaEvent.Participants
-                               .Where(x => x.Character is not null)
+                               .Where(x => x.ActiveCharacter is not null)
                                .ToList();
-        List<ICharacter> participants = roster.Select(x => x.Character!).ToList();
+        List<ICharacter> participants = roster.Select(x => x.ActiveCharacter!).ToList();
         List<int> sideIndices = roster.Select(x => x.SideIndex).ToList();
         IReadOnlyList<ArenaScoringSnapshot> snapshots = arenaEvent is ArenaEvent concreteEvent
             ? concreteEvent.ScoringSnapshots

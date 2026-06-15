@@ -16,6 +16,10 @@ public interface IArenaParticipant : IEditableItem
     long CharacterId { get; }
     /// <summary>Character occupying the slot, null if pending NPC fill.</summary>
     ICharacter? Character { get; }
+    /// <summary>Optional active physical actor instance bound to this slot for staging, equipment and combat.</summary>
+    long? ActiveCharacterInstanceId { get; }
+    /// <summary>Physical actor currently competing for this slot, or the identity's primary instance for legacy signups.</summary>
+    ICharacter? ActiveCharacter { get; }
     /// <summary>Combatant class chosen for the participant.</summary>
     ICombatantClass CombatantClass { get; }
     /// <summary>Side index this participant belongs to (zero-based).</summary>

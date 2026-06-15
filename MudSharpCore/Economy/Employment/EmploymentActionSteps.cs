@@ -165,12 +165,13 @@ internal static class EmploymentActionStepOperationalStateBuilder
 			actualCarried = selectedItems.DistinctBy(x => x.Id).ToList();
 		}
 
+		var actorKey = CharacterInstanceIdentityComparer.PhysicalInstanceKey(actor);
 		var transportBundleIds = actualCarried
 		                         .Where(x => !selectedItemIds.Contains(x.Id))
 		                         .Select(x => x.Id)
 		                         .ToList();
 		return new EmploymentActionStepOperationalState(
-			SelectedResources: EmploymentTaskContext.FormatTaskItemCustody("collect", actor.Id, actualCarried,
+			SelectedResources: EmploymentTaskContext.FormatTaskItemCustody("collect", actorKey, actualCarried,
 				transportBundleIds));
 	}
 }
@@ -1032,10 +1033,10 @@ public sealed class CataloguedActionShellStep : EmploymentActionStepBase, IEmplo
 		{
 			"authorise" => new EmploymentActionStepOperationalState(
 				OperationalPayload: Amount is null
-					? $"Authorised by {actor.Id}: {ActionDescription}"
-					: $"Authorised by {actor.Id}: {Amount.Currency.Describe(Amount.Amount, CurrencyDescriptionPatternType.ShortDecimal)} for {ActionDescription}"),
+					? $"Authorised by {CharacterInstanceIdentityComparer.IdentityId(actor)}: {ActionDescription}"
+					: $"Authorised by {CharacterInstanceIdentityComparer.IdentityId(actor)}: {Amount.Currency.Describe(Amount.Amount, CurrencyDescriptionPatternType.ShortDecimal)} for {ActionDescription}"),
 			"reserve" => new EmploymentActionStepOperationalState(
-				ReservationReference: $"Reserved by {actor.Id}: {ActionDescription}"),
+				ReservationReference: $"Reserved by {CharacterInstanceIdentityComparer.IdentityId(actor)}: {ActionDescription}"),
 			"select" => new EmploymentActionStepOperationalState(
 				SelectedResources: ActionDescription),
 			"estimate" => new EmploymentActionStepOperationalState(
@@ -1486,7 +1487,8 @@ public sealed class DeliverItemsActionStep : EmploymentActionStepBase, IEmployme
 
 		return new EmploymentActionStepResult(true, $"Delivered {count:N0} task item(s).", true,
 			new EmploymentActionStepOperationalState(
-				SelectedResources: EmploymentTaskContext.FormatTaskItemCustody("deliver", actor.Id, carried)));
+				SelectedResources: EmploymentTaskContext.FormatTaskItemCustody("deliver",
+					CharacterInstanceIdentityComparer.PhysicalInstanceKey(actor), carried)));
 	}
 
 	public IReadOnlyCollection<ICell> ExecutionLocationHints(IEmploymentTaskContext context, ICharacter actor)

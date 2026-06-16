@@ -95,7 +95,7 @@ arena still need to be constructed in-game.";
 				"Eligibility",
 				ProgVariableTypes.Boolean,
 				"Default eligibility prog that accepts all characters.",
-				"return true;",
+				"return true",
 				(ProgVariableTypes.Character, "character"));
 
 			FutureProg animalEligibilityProg = EnsureProg(context,
@@ -104,7 +104,7 @@ arena still need to be constructed in-game.";
 				"Eligibility",
 				ProgVariableTypes.Boolean,
 				"Default arena animal eligibility prog that checks stock animal body lineage.",
-				"return isanimal(@character);",
+				"return isanimal(@character)",
 				(ProgVariableTypes.Character, "character"));
 
 			FutureProg outfitProg = EnsureProg(context,
@@ -113,7 +113,7 @@ arena still need to be constructed in-game.";
 				"Loadout",
 				ProgVariableTypes.Void,
 				"Placeholder outfit prog for seeded arena formats.",
-				"return;",
+				"return",
 				(ProgVariableTypes.Character | ProgVariableTypes.Collection, "participants"),
 				(ProgVariableTypes.Number, "sideIndex"),
 				(ProgVariableTypes.Location, "arenaCell"),
@@ -127,7 +127,7 @@ arena still need to be constructed in-game.";
 				"Lifecycle",
 				ProgVariableTypes.Void,
 				"Placeholder intro prog that performs no announcements.",
-				"return;",
+				"return",
 				(ProgVariableTypes.Character | ProgVariableTypes.Collection, "participants"),
 				(ProgVariableTypes.Number | ProgVariableTypes.Collection, "sideIndices"),
 				(ProgVariableTypes.Location, "arenaCell"),
@@ -141,7 +141,7 @@ arena still need to be constructed in-game.";
 				"Scoring",
 				ProgVariableTypes.Number | ProgVariableTypes.Collection,
 				"Seeded boxing scoring prog that awards one point for landed undefended head or torso hits.",
-				"return arenaboxingscores(@sideIndices, @scoringAttackerSides, @landedHits, @undefendedHits, @impactLocations);",
+				"return arenaboxingscores(@sideIndices, @scoringAttackerSides, @landedHits, @undefendedHits, @impactLocations)",
 				(ProgVariableTypes.Character | ProgVariableTypes.Collection, "participants"),
 				(ProgVariableTypes.Number | ProgVariableTypes.Collection, "sideIndices"),
 				(ProgVariableTypes.Location, "arenaCell"),
@@ -163,7 +163,7 @@ arena still need to be constructed in-game.";
 				"NPC",
 				ProgVariableTypes.Character | ProgVariableTypes.Collection,
 				"Blank arena animal loader prog that intentionally returns no NPCs.",
-				"return emptycharacters();",
+				"return emptycharacters()",
 				(ProgVariableTypes.Number, "sideIndex"),
 				(ProgVariableTypes.Number, "slotsNeeded"),
 				(ProgVariableTypes.Location, "arenaCell"),

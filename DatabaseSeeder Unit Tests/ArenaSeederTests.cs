@@ -145,11 +145,12 @@ public class ArenaSeederTests
 				.ToArray());
 
 		FutureProg animalEligibility = context.FutureProgs.Single(x => x.FunctionName == "ArenaAnimalEligible");
-		Assert.AreEqual("return isanimal(@character);", animalEligibility.FunctionText);
+		Assert.AreEqual("return isanimal(@character)", animalEligibility.FunctionText);
 		FutureProg boxingScoring = context.FutureProgs.Single(x => x.FunctionName == "ArenaBoxingScoring");
 		Assert.AreEqual(
-			"return arenaboxingscores(@sideIndices, @scoringAttackerSides, @landedHits, @undefendedHits, @impactLocations);",
+			"return arenaboxingscores(@sideIndices, @scoringAttackerSides, @landedHits, @undefendedHits, @impactLocations)",
 			boxingScoring.FunctionText);
+		Assert.IsFalse(context.FutureProgs.Any(x => x.FunctionText.Contains(';')), "Seeded Arena FutureProg text should not contain semicolons.");
 	}
 
 	[TestMethod]

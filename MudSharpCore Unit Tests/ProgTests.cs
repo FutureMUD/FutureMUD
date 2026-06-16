@@ -295,6 +295,57 @@ return concat(@window, ""|"")");
 		Assert.IsFalse(prog.Compile(), "A toon collection should not be concat-able into a character collection return type.");
 	}
 
+	[TestMethod]
+	public void SeededStockAnimalAiSupportProgExpressions_Compile()
+	{
+		(IEnumerable<Tuple<ProgVariableTypes, string>> Parameters, string Text)[] progs =
+		[
+			(
+				new[] { Tuple.Create(ProgVariableTypes.Character, "animal"), Tuple.Create(ProgVariableTypes.Character, "target") },
+				"return true"
+			),
+			(
+				new[] { Tuple.Create(ProgVariableTypes.Character, "animal"), Tuple.Create(ProgVariableTypes.Character, "target") },
+				"return not(isanimal(@target))"
+			),
+			(
+				new[] { Tuple.Create(ProgVariableTypes.Character, "animal"), Tuple.Create(ProgVariableTypes.Location, "cell") },
+				"return isunderwater(@cell, \"Underwater\")"
+			)
+		];
+
+		foreach (var (parameters, text) in progs)
+		{
+			FutureProg prog = new(_gameworld, "SeededStockAnimalAiSupport", ProgVariableTypes.Boolean, parameters, text);
+			Assert.IsTrue(prog.Compile(), prog.CompileError);
+		}
+	}
+
+	[TestMethod]
+	public void SeededCombatAuxiliaryProgExpressions_Compile()
+	{
+		var parameters = new[]
+		{
+			Tuple.Create(ProgVariableTypes.Character, "ch"),
+			Tuple.Create(ProgVariableTypes.Item, "item"),
+			Tuple.Create(ProgVariableTypes.Character, "target")
+		};
+
+		FutureProg throwSand = new(_gameworld,
+			"AuxiliaryCanThrowSandOrDirt",
+			ProgVariableTypes.Boolean,
+			parameters,
+			@"return (istagged(@ch.Location.Terrain, ""Diggable Soil"") or istagged(@ch.Location.Terrain, ""Foragable Sand"")) and not(istagged(@ch.Location.Terrain, ""Vacuum"")) and not(istagged(@ch.Location.Terrain, ""Space"")) and not(isunderwater(@ch.Location, @ch.Layer))");
+		Assert.IsTrue(throwSand.Compile(), throwSand.CompileError);
+
+		FutureProg shieldGlint = new(_gameworld,
+			"AuxiliaryCanShieldGlint",
+			ProgVariableTypes.Boolean,
+			parameters,
+			@"return @ch.Location.Outdoors >= 2 and @ch.Location.Light > 100 and @ch.WieldedItems.any(wielded, istagged(@wielded, ""Shiny"") or istagged(@wielded, ""Reflective"")) and celestialelevation(@ch.Location, 1) > 0.26");
+		Assert.IsTrue(shieldGlint.Compile(), shieldGlint.CompileError);
+	}
+
     [TestMethod]
     public void TestGetTypeByName()
     {

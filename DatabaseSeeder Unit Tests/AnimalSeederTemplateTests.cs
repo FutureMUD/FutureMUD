@@ -740,6 +740,27 @@ public class AnimalSeederTemplateTests
         }
     }
 
+	[TestMethod]
+	public void SeedAnimalAIStockTemplates_SupportProgTextUsesValidFutureProgSyntax()
+	{
+		using FuturemudDatabaseContext context = BuildContext();
+		SeedAnimalAiPrerequisiteProgs(context);
+
+		AnimalSeeder.SeedAnimalAIStockTemplatesForTesting(context);
+
+		Dictionary<string, string> supportProgs = context.FutureProgs
+			.Where(x => x.FunctionName.StartsWith("StockAnimalAI"))
+			.ToDictionary(x => x.FunctionName, x => x.FunctionText);
+
+		Assert.AreEqual("return true", supportProgs["StockAnimalAIAnyEdiblePrey"]);
+		Assert.AreEqual("return not(isanimal(@target))", supportProgs["StockAnimalAIAvoidPeople"]);
+		Assert.AreEqual("return isunderwater(@cell, \"Underwater\")", supportProgs["StockAnimalAIAquaticCell"]);
+		Assert.AreEqual("return true", supportProgs["StockAnimalAIAmphibiousCell"]);
+		Assert.AreEqual("return true", supportProgs["StockAnimalAIShelterCell"]);
+		Assert.AreEqual("return true", supportProgs["StockAnimalAINestSite"]);
+		Assert.IsFalse(supportProgs.Values.Any(x => x.Contains(';')), "Seeded FutureProg text should not contain semicolons.");
+	}
+
     [TestMethod]
     public void RaceTemplatesForTesting_WeaselAndRhinocerous_UseExpectedBodyAssignments()
     {

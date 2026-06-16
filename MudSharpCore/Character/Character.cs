@@ -1645,6 +1645,7 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
         EnsureProvisionedFormsFromMerits();
         LoadPosition(primaryInstance.PositionId, primaryInstance.PositionModifier, primaryInstance.PositionEmote,
             primaryInstance.PositionTargetId, primaryInstance.PositionTargetType);
+        NeedsModel = NeedsModelFactory.LoadNeedsModel(character, this);
         LoadSecondaryInstances(character);
         if (character.CharactersChargenRoles.Any())
         {
@@ -1652,7 +1653,6 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
                                      .ToList());
         }
 
-        NeedsModel = NeedsModelFactory.LoadNeedsModel(character, this);
         LongTermPlan = character.LongTermPlan;
         ShortTermPlan = character.ShortTermPlan;
         if (character.EstateHeirId.HasValue && !string.IsNullOrWhiteSpace(character.EstateHeirType))
@@ -1961,6 +1961,7 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
 
     protected IControllable _nextContext;
     protected IControllable _subContext;
+    private bool _suppressNextAssumeControlLook;
 
     IControllable IControllable.SubContext => _subContext;
 
@@ -2088,7 +2089,18 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
     public void AssumeControl(IController controller)
     {
         SilentAssumeControl(controller);
+        if (_suppressNextAssumeControlLook)
+        {
+            _suppressNextAssumeControlLook = false;
+            return;
+        }
+
         Body.Look();
+    }
+
+    internal void SuppressNextAssumeControlLook()
+    {
+        _suppressNextAssumeControlLook = true;
     }
 
     public void SilentAssumeControl(IController controller)

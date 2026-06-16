@@ -166,7 +166,11 @@ public class SpellAstralProjectionEffect : SimpleSpellStatusEffectBase, IAstralP
 				if (projection is ICharacter projectionCharacter)
 				{
 					CleanupProjectionPlanarOverlay(projectionCharacter);
-					CharacterInstanceFocusService.TryReturnFocusToPrimary(projectionCharacter, CollapseEcho, true);
+					CharacterInstanceFocusService.TryReturnFocusToPrimary(
+						projectionCharacter,
+						CollapseEcho,
+						true,
+						suppressAutoLook: true);
 					CharacterInstanceService.Retire(projection, out _, deleteTemporaryRows: true,
 						deathRetirement: projection.State.HasFlag(CharacterState.Dead), removeOwningEffects: false);
 					SendIfNotSuppressed(anchor, BacklashEcho);

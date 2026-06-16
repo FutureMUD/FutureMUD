@@ -100,7 +100,11 @@ public static class CharacterInstanceFocusService
 		return new CharacterInstanceFocusResult(true, "Focus switched.", target);
 	}
 
-	public static bool TryReturnFocusToPrimary(ICharacter actor, string message, bool sendMessage)
+	public static bool TryReturnFocusToPrimary(
+		ICharacter actor,
+		string message,
+		bool sendMessage,
+		bool suppressAutoLook = false)
 	{
 		if (actor.Identity.PrimaryInstance is not ICharacterInstance primary)
 		{
@@ -128,6 +132,11 @@ public static class CharacterInstanceFocusService
 
 		if (controller is not null)
 		{
+			if (suppressAutoLook && primary is Character primaryCharacter)
+			{
+				primaryCharacter.SuppressNextAssumeControlLook();
+			}
+
 			controller.SetContext(primary);
 			if (sendMessage && !string.IsNullOrWhiteSpace(message))
 			{
@@ -148,7 +157,7 @@ public static class CharacterInstanceFocusService
 		var primary = GetLogoutIdentityActor(actor);
 		if (!ReferenceEquals(primary, actor))
 		{
-			TryReturnFocusToPrimary(actor, string.Empty, false);
+			TryReturnFocusToPrimary(actor, string.Empty, false, suppressAutoLook: true);
 		}
 
 		return primary.Quit(silent);

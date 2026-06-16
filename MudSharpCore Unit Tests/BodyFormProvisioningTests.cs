@@ -5,19 +5,25 @@ using Moq;
 using MudSharp.Body;
 using MudSharp.Character;
 using MudSharp.Character.Heritage;
+using MudSharp.CharacterCreation;
+using MudSharp.Form.Characteristics;
 using MudSharp.Effects.Concrete;
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
 using MudSharp.FutureProg;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.Magic;
+using MudSharp.NPC.Templates;
 using MudSharp.Planes;
 using MudSharp.RPG.Merits;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Xml.Linq;
+using CharacterClass = MudSharp.Character.Character;
 
 namespace MudSharp_Unit_Tests;
 
@@ -85,6 +91,194 @@ public class BodyFormProvisioningTests
 
 		Assert.IsFalse(result);
 		Assert.AreEqual("Moonrise only.", whyNot);
+	}
+
+	[TestMethod]
+	public void SelectProvisionedFormDimensions_DifferentRace_UsesTargetRaceModel()
+	{
+		var sourceRace = new Mock<IRace>();
+		var targetRace = new Mock<IRace>();
+		var heightWeightModel = new Mock<IHeightWeightModel>();
+		sourceRace.Setup(x => x.SameRace(targetRace.Object)).Returns(false);
+		heightWeightModel.Setup(x => x.GetRandomHeightWeight()).Returns((55.0, 12000.0));
+		targetRace.Setup(x => x.DefaultHeightWeightModel(Gender.Male)).Returns(heightWeightModel.Object);
+		var template = new SimpleCharacterTemplate
+		{
+			SelectedRace = sourceRace.Object,
+			SelectedHeight = 180.0,
+			SelectedWeight = 80000.0
+		};
+
+		var (height, weight) = CharacterClass.SelectProvisionedFormDimensions(template, targetRace.Object, Gender.Male);
+
+		Assert.AreEqual(55.0, height);
+		Assert.AreEqual(12000.0, weight);
+	}
+
+	[TestMethod]
+	public void SelectProvisionedFormDimensions_SameRace_PreservesSaneSourceDimensions()
+	{
+		var race = new Mock<IRace>();
+		race.Setup(x => x.SameRace(race.Object)).Returns(true);
+		var template = new SimpleCharacterTemplate
+		{
+			SelectedRace = race.Object,
+			SelectedHeight = 181.0,
+			SelectedWeight = 79000.0
+		};
+
+		var (height, weight) = CharacterClass.SelectProvisionedFormDimensions(template, race.Object, Gender.Female);
+
+		Assert.AreEqual(181.0, height);
+		Assert.AreEqual(79000.0, weight);
+	}
+
+	[TestMethod]
+	public void SelectProvisionedFormCharacteristics_MissingTargetRaceCharacteristic_UsesEthnicityProfile()
+	{
+		var definition = new Mock<ICharacteristicDefinition>();
+		definition.SetupGet(x => x.Pattern).Returns(new Regex("^furcolour$", RegexOptions.IgnoreCase));
+		definition.SetupGet(x => x.Type).Returns(CharacteristicType.Standard);
+		var generatedValue = new Mock<ICharacteristicValue>();
+		generatedValue.SetupGet(x => x.GetValue).Returns("black");
+		generatedValue.SetupGet(x => x.GetBasicValue).Returns("black");
+		generatedValue.SetupGet(x => x.GetFancyValue).Returns("glossy black");
+		var profile = new Mock<ICharacteristicProfile>();
+		ICharacterTemplate? generatedAgainstTemplate = null;
+		profile.Setup(x => x.GetRandomCharacteristic(It.IsAny<ICharacterTemplate>()))
+		       .Callback<ICharacterTemplate>(template => generatedAgainstTemplate = template)
+		       .Returns(generatedValue.Object);
+		var race = new Mock<IRace>();
+		race.Setup(x => x.Characteristics(Gender.Female)).Returns(new[] { definition.Object });
+		var ethnicity = new Mock<IEthnicity>();
+		ethnicity.SetupGet(x => x.CharacteristicChoices)
+		         .Returns(new Dictionary<ICharacteristicDefinition, ICharacteristicProfile>
+		         {
+			         { definition.Object, profile.Object }
+		         });
+		var template = new SimpleCharacterTemplate
+		{
+			SelectedCharacteristics = [],
+			SelectedHeight = 180.0,
+			SelectedWeight = 80000.0
+		};
+
+		var selected = CharacterClass.SelectProvisionedFormCharacteristics(template, race.Object, ethnicity.Object,
+			Gender.Female, 55.0, 12000.0);
+
+		Assert.AreEqual(1, selected.Count);
+		Assert.AreSame(definition.Object, selected[0].Item1);
+		Assert.AreSame(generatedValue.Object, selected[0].Item2);
+		Assert.IsNotNull(generatedAgainstTemplate);
+		Assert.AreSame(race.Object, generatedAgainstTemplate!.SelectedRace);
+		Assert.AreSame(ethnicity.Object, generatedAgainstTemplate.SelectedEthnicity);
+		Assert.AreEqual(Gender.Female, generatedAgainstTemplate.SelectedGender);
+		Assert.AreEqual(55.0, generatedAgainstTemplate.SelectedHeight);
+		Assert.AreEqual(12000.0, generatedAgainstTemplate.SelectedWeight);
+
+		var pattern = new Mock<IEntityDescriptionPattern>();
+		pattern.SetupGet(x => x.Pattern).Returns("a $furcolourbasic mongrel");
+		var resolvedTemplate = template with
+		{
+			SelectedRace = race.Object,
+			SelectedEthnicity = ethnicity.Object,
+			SelectedGender = Gender.Female,
+			SelectedCharacteristics = selected
+		};
+		Assert.IsTrue(CharacterClass.DescriptionPatternIsUsableForTemplate(pattern.Object, resolvedTemplate));
+	}
+
+	[TestMethod]
+	public void SelectProvisionedFormCharacteristics_CompatibleExistingValue_PreservesExistingValue()
+	{
+		var definition = new Mock<ICharacteristicDefinition>();
+		var existingValue = new Mock<ICharacteristicValue>();
+		definition.Setup(x => x.IsValue(existingValue.Object)).Returns(true);
+		var profile = new Mock<ICharacteristicProfile>();
+		var race = new Mock<IRace>();
+		race.Setup(x => x.Characteristics(Gender.Male)).Returns(new[] { definition.Object });
+		var ethnicity = new Mock<IEthnicity>();
+		ethnicity.SetupGet(x => x.CharacteristicChoices)
+		         .Returns(new Dictionary<ICharacteristicDefinition, ICharacteristicProfile>
+		         {
+			         { definition.Object, profile.Object }
+		         });
+		var template = new SimpleCharacterTemplate
+		{
+			SelectedCharacteristics = [(definition.Object, existingValue.Object)]
+		};
+
+		var selected = CharacterClass.SelectProvisionedFormCharacteristics(template, race.Object, ethnicity.Object,
+			Gender.Male, 181.0, 79000.0);
+
+		Assert.AreEqual(1, selected.Count);
+		Assert.AreSame(existingValue.Object, selected[0].Item2);
+		profile.Verify(x => x.GetRandomCharacteristic(It.IsAny<ICharacterTemplate>()), Times.Never);
+		profile.Verify(x => x.GetRandomCharacteristic(), Times.Never);
+	}
+
+	[TestMethod]
+	public void DescriptionPatternIsUsableForTemplate_UnresolvedCharacteristic_ReturnsFalse()
+	{
+		var pattern = new Mock<IEntityDescriptionPattern>();
+		pattern.SetupGet(x => x.Pattern).Returns("a $furcolourbasic mongrel");
+		var template = new SimpleCharacterTemplate
+		{
+			SelectedCharacteristics = new List<(ICharacteristicDefinition, ICharacteristicValue)>(),
+			SelectedGender = Gender.Male
+		};
+
+		Assert.IsFalse(CharacterClass.DescriptionPatternIsUsableForTemplate(pattern.Object, template));
+	}
+
+	[TestMethod]
+	public void DescriptionPatternIsUsableForTemplate_KnownCharacteristic_ReturnsTrue()
+	{
+		var definition = new Mock<ICharacteristicDefinition>();
+		definition.SetupGet(x => x.Pattern).Returns(new Regex("^furcolour$", RegexOptions.IgnoreCase));
+		definition.SetupGet(x => x.Type).Returns(CharacteristicType.Standard);
+		var value = new Mock<ICharacteristicValue>();
+		value.SetupGet(x => x.GetValue).Returns("brown");
+		value.SetupGet(x => x.GetBasicValue).Returns("brown");
+		value.SetupGet(x => x.GetFancyValue).Returns("brown");
+		var pattern = new Mock<IEntityDescriptionPattern>();
+		pattern.SetupGet(x => x.Pattern).Returns("a $furcolourbasic mongrel");
+		var template = new SimpleCharacterTemplate
+		{
+			SelectedCharacteristics = new List<(ICharacteristicDefinition, ICharacteristicValue)>
+			{
+				(definition.Object, value.Object)
+			},
+			SelectedGender = Gender.Male
+		};
+
+		Assert.IsTrue(CharacterClass.DescriptionPatternIsUsableForTemplate(pattern.Object, template));
+	}
+
+	[TestMethod]
+	public void BodyCommand_RegistersDeleteFormWithConfirmation()
+	{
+		var source = File.ReadAllText(GetSourcePath("MudSharpCore", "Commands", "Modules", "CharacterInformation.cs"));
+
+		StringAssert.Contains(source, "body delform <character> <form> confirm");
+		StringAssert.Contains(source, "case \"delform\":");
+		StringAssert.Contains(source, "BodyDeleteForm(actor, ss)");
+		StringAssert.Contains(source, "This cannot be undone");
+		StringAssert.Contains(source, "TryDeleteForm(form, out var whyNot)");
+	}
+
+	[TestMethod]
+	public void TryDeleteForm_GuardsActiveAndPersistedBodyReferencesBeforeCleanup()
+	{
+		var source = File.ReadAllText(GetSourcePath("MudSharpCore", "Character", "CharacterForms.cs"));
+
+		StringAssert.Contains(source, "You cannot delete the current body form.");
+		StringAssert.Contains(source, "x.IsEmbodied");
+		StringAssert.Contains(source, "EffectsOfType<IBodyBackupEffect>()");
+		StringAssert.Contains(source, "HasPhysicalReferenceToRetiredBody(body.Id, null)");
+		StringAssert.Contains(source, "PersistedInstanceReferencesBody(body, out whyNot)");
+		StringAssert.Contains(source, "TryCleanupRetiredBody(body)");
+		StringAssert.Contains(source, "_forms.AddRange(removedForms)");
 	}
 
 	[TestMethod]
@@ -374,6 +568,17 @@ public class BodyFormProvisioningTests
 		mock.SetupGet(x => x.Name).Returns(name);
 		mock.SetupGet(x => x.FrameworkItemType).Returns(typeof(T).Name);
 		return mock;
+	}
+
+	private static string GetSourcePath(params string[] parts)
+	{
+		var root = AppContext.BaseDirectory;
+		for (var i = 0; i < 8 && !File.Exists(Path.Combine(root, "MudSharp.sln")); i++)
+		{
+			root = Path.GetFullPath(Path.Combine(root, ".."));
+		}
+
+		return Path.Combine(new[] { root }.Concat(parts).ToArray());
 	}
 
 	private sealed record CopyCloneSpellContext(

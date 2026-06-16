@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using MudSharp.Accounts;
 using MudSharp.Body;
+using MudSharp.Body.Needs;
 using MudSharp.Body.Position;
 using MudSharp.Body.Position.PositionStates;
 using MudSharp.Combat;
@@ -81,6 +82,7 @@ public partial class Character
 		_personalName = identity.PersonalName;
 		_currentName = identity.CurrentName;
 		Aliases = identity.Aliases.ToList();
+		NeedsModel = ResolveSecondaryNeedsModel(identity);
 		Body = body;
 		Body.Actor = this;
 		_status = (CharacterStatus)instance.Status;
@@ -148,6 +150,11 @@ public partial class Character
 		LoadInstanceProject(instance);
 		Changed = false;
 		_noSave = false;
+	}
+
+	internal static INeedsModel ResolveSecondaryNeedsModel(Character identity)
+	{
+		return identity.NeedsModel ?? new NoNeedsModel();
 	}
 
 	private void EnsureSecondaryBodyInventoryLoaded(MudSharp.Models.CharacterInstance instance)
@@ -301,6 +308,7 @@ public partial class Character
 
 	internal ICharacterInstance MaterialiseSecondaryInstance(MudSharp.Models.CharacterInstance instance, IBody body)
 	{
+		EnsureProvisionedFormBodyVitals(body);
 		var materialised = this is INPC &&
 		                   (CharacterInstanceControlPolicy)instance.ControlPolicy ==
 		                   CharacterInstanceControlPolicy.NpcAiControlled

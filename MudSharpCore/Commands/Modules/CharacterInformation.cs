@@ -2078,6 +2078,7 @@ You can use the following options with this command:
 Implementors can also use:
 
 	#3body addform <character> <race> [<ethnicity>] [<gender>]#0 - adds a dormant alternate form
+	#3body delform <character> <form> confirm#0 - permanently deletes a dormant alternate form and its body
 	#3body formset <character> <form> alias <alias>#0 - changes a form alias
 	#3body formset <character> <form> trauma <auto|transfer|stash>#0 - sets how health state behaves on switch
 	#3body formset <character> <form> echo <text>|default|none#0 - sets, defaults or suppresses the transformation echo
@@ -2098,6 +2099,12 @@ Implementors can also use:
                 case "addform":
                     ss.PopSpeech();
                     BodyAddForm(actor, ss);
+                    return;
+                case "delform":
+                case "deleteform":
+                case "removeform":
+                    ss.PopSpeech();
+                    BodyDeleteForm(actor, ss);
                     return;
                 case "formset":
                     ss.PopSpeech();
@@ -2397,6 +2404,13 @@ You can use the following options with this command:
             : $"#{pattern.Id.ToString("N0")} {pattern.Pattern.ColourCommand()}";
     }
 
+	private static string CommandArgument(string text)
+	{
+		return text.Any(char.IsWhiteSpace)
+			? $"\"{text}\""
+			: text;
+	}
+
     private static void BodyAddForm(ICharacter actor, StringStack ss)
     {
         if (ss.IsFinished)
@@ -2465,6 +2479,57 @@ You can use the following options with this command:
         actor.OutputHandler.Send(
             $"You add the {form.Alias.ColourName()} form to {concreteTarget.HowSeen(actor, true)}.");
     }
+
+	private static void BodyDeleteForm(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which character do you want to delete a form from?");
+			return;
+		}
+
+		var targetText = ss.PopSpeech();
+		ICharacter target = actor.TargetActor(targetText);
+		if (target is not MudSharp.Character.Character concreteTarget)
+		{
+			actor.OutputHandler.Send("You do not see any such character.");
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which form do you want to delete?");
+			return;
+		}
+
+		var formText = ss.PopSpeech();
+		ICharacterForm form = ResolveForm(concreteTarget, formText);
+		if (form is null)
+		{
+			actor.OutputHandler.Send("They do not have any such form.");
+			return;
+		}
+
+		if (ss.IsFinished || !ss.SafeRemainingArgument.EqualTo("confirm"))
+		{
+			actor.OutputHandler.Send(
+				$"You are about to permanently delete the {form.Alias.ColourName()} form for {concreteTarget.HowSeen(actor, true)}.\n\n" +
+				$"This will delete dormant body #{form.Body.Id.ToString("N0", actor).ColourValue()} ({form.Body.Race.Name.ColourName()}, {form.Body.Ethnicity.Name.ColourName()}, {form.Body.Gender.Name.ColourValue()}), its form metadata, any source mappings for that body, and any items currently on that dormant body.\n\n" +
+				$"This cannot be undone. Type {"body delform".ColourCommand()} {CommandArgument(targetText).ColourCommand()} {CommandArgument(formText).ColourCommand()} {"confirm".ColourCommand()} to proceed.");
+			return;
+		}
+
+		var alias = form.Alias;
+		var bodyId = form.Body.Id;
+		if (!concreteTarget.TryDeleteForm(form, out var whyNot))
+		{
+			actor.OutputHandler.Send(whyNot);
+			return;
+		}
+
+		actor.OutputHandler.Send(
+			$"You delete the {alias.ColourName()} form and dormant body #{bodyId.ToString("N0", actor).ColourValue()} from {concreteTarget.HowSeen(actor, true)}.");
+	}
 
     private static void BodyFormSet(ICharacter actor, StringStack ss)
     {

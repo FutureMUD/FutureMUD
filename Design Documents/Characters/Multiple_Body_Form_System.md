@@ -227,6 +227,7 @@ The implementor-oriented command surface lives in [CharacterInformation.cs](../.
 | Command | Behaviour |
 | --- | --- |
 | `body addform <character> <race> [ethnicity] [gender]` | Adds a dormant form for testing and administration. |
+| `body delform <character> <form> confirm` | Permanently deletes a dormant form, its body, source mappings, and any items on that dormant body after explicit confirmation. |
 | `body formset <character> <form> alias ...` | Edits the form alias. |
 | `body formset <character> <form> trauma ...` | Edits trauma mode. |
 | `body formset <character> <form> echo ...` | Sets, clears to default, or suppresses transformation echo. |
@@ -346,6 +347,10 @@ A character owns a werewolf form with a false visibility prog. The `form` comman
 
 An implementor uses `body addform` to add a robot, wolf, bird, ghost, or other race form to a live character. The new form is dormant, has voluntary access disabled unless staff enables it, and persists across save/load.
 
+### Staff Deletes an Incorrect Dormant Form
+
+An implementor uses `body delform <character> <form> confirm` to remove an incorrectly provisioned dormant form. The command refuses to delete the current body, any form with a live embodied instance, any form referenced by persisted instance rows, any form referenced by body backup effects, or any form whose body still has corpse/remains-style physical references. A successful delete removes the form metadata, source mappings for that body, the dormant body row, and any items on that dormant body.
+
 ### A Racial Merit Grants a Reusable Form
 
 A builder creates an `Additional Body Form` merit for a race that can transform. Characters who gain the merit receive a cached form. Removing and re-adding the merit reuses the same body id and keeps any admin or prog edits already made to that character's form metadata.
@@ -385,6 +390,7 @@ Owned forms, form metadata, source mappings, character-scoped skills, body-scope
 - Give animal, robot, ghost, and other non-human forms their own description patterns instead of relying on the source character's description pattern.
 - Use priority bands for broad precedence and offsets for local ordering inside the same band. Avoid relying on alias ordering except as a deterministic tie-breaker.
 - Treat `body addform` as a staff test and repair tool, not the final in-play acquisition workflow.
+- Treat `body delform` as a cleanup tool for dormant mistake forms; retire active secondary instances and remove source gameplay/effects first if the command reports existing references.
 
 ## Current Boundaries
 

@@ -267,9 +267,10 @@ public class MagicSchool : SaveableItem, IMagicSchool
             return false;
         }
 
-        string cmd = command.SafeRemainingArgument.CollapseString();
+        string cmd = command.SafeRemainingArgument.CollapseString().ToLowerInvariant();
         SchoolVerb = cmd;
         Changed = true;
+        MudSharp.Commands.Modules.MagicModule.EnsureMagicSchoolVerbRegistered(cmd);
         actor.OutputHandler.Send($"This power will now use the verb {cmd.ColourCommand()} to interact with its spells and powers.");
         return true;
     }

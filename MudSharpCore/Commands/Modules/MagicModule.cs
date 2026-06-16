@@ -1,6 +1,7 @@
 ﻿using MudSharp.Accounts;
 using MudSharp.Character;
 using MudSharp.Commands.Helpers;
+using MudSharp.Commands.Trees;
 using MudSharp.Effects.Concrete;
 using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;
@@ -23,6 +24,28 @@ public class MagicModule : Module<ICharacter>
     }
 
     public static MagicModule Instance { get; } = new();
+
+    public static void EnsureMagicSchoolVerbRegistered(string verb)
+    {
+        var commandText = verb?.CollapseString().ToLowerInvariant();
+        if (string.IsNullOrWhiteSpace(commandText))
+        {
+            return;
+        }
+
+        Command<ICharacter> command = new(MagicGeneric, CharacterState.Conscious,
+            PermissionLevel.Any, commandText,
+            CommandDisplayOptions.None,
+            condition: MagicFilterFunction);
+        PlayerCommandTree.Instance.Commands.Add(commandText, command);
+        NPCCommandTree.Instance.Commands.Add(commandText, command);
+        GuideCommandTree.Instance.Commands.Add(commandText, command);
+        AdminCommandTree.JuniorAdminCommandTree.Commands.Add(commandText, command);
+        AdminCommandTree.StandardAdminCommandTree.Commands.Add(commandText, command);
+        AdminCommandTree.SeniorAdminCommandTree.Commands.Add(commandText, command);
+        AdminCommandTree.HighAdminCommandTree.Commands.Add(commandText, command);
+        FounderCommandTree.Instance.Commands.Add(commandText, command);
+    }
 
     public static bool MagicFilterFunction(object actorObject, string commandWord)
     {

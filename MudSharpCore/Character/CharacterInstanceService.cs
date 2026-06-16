@@ -490,7 +490,8 @@ public static class CharacterInstanceService
 		CharacterInstanceFocusService.TryReturnFocusToPrimary(
 			secondary,
 			"Your focus returns to your primary body as the secondary instance fades from control.",
-			true);
+			true,
+			suppressAutoLook: true);
 
 		LeaveCurrentProject(secondary);
 		ClearVehicleBindings(secondary, deletePersistentHitches: true);
@@ -584,7 +585,7 @@ public static class CharacterInstanceService
 
 	private static void UnloadPersistentSecondary(Character owner, Character secondary)
 	{
-		CharacterInstanceFocusService.TryReturnFocusToPrimary(secondary, string.Empty, false);
+		CharacterInstanceFocusService.TryReturnFocusToPrimary(secondary, string.Empty, false, suppressAutoLook: true);
 		LeaveCurrentProject(secondary);
 		ClearArenaBindings(secondary);
 		if (secondary is INPC npc)

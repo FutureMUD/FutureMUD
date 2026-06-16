@@ -9,6 +9,7 @@ using MudSharp.Database;
 using MudSharp.Communication.Language;
 using MudSharp.Effects.Concrete;
 using MudSharp.Effects.Interfaces;
+using MudSharp.Form.Characteristics;
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
 using MudSharp.FutureProg;
@@ -30,6 +31,10 @@ namespace MudSharp.Character;
 
 public partial class Character
 {
+	private const double FallbackProvisionedFormHeight = 170.0;
+	private const double FallbackProvisionedFormWeight = 70000.0;
+	private const double FallbackBloodVolumeLitresPerKilogram = 0.07;
+
 	private readonly List<ICharacterForm> _forms = new();
 	private readonly List<CharacterFormSourceMapping> _formSources = new();
 	private bool _isSwitchingBodies;
@@ -119,7 +124,15 @@ public partial class Character
 		return Gameworld.EntityDescriptionPatterns
 		                .Where(x => x.Type == type)
 		                .Where(x => x.IsValidSelection(template))
+		                .Where(x => DescriptionPatternIsUsableForTemplate(x, template))
 		                .GetWeightedRandom(x => x.RelativeWeight);
+	}
+
+	internal static bool DescriptionPatternIsUsableForTemplate(IEntityDescriptionPattern pattern,
+		ICharacterTemplate template)
+	{
+		var parsed = template.ParseCharacteristics(pattern.Pattern, null, true);
+		return !parsed.Contains('$');
 	}
 
 	private static string DefaultDescriptionFallback(IRace race, EntityDescriptionType type)
@@ -137,7 +150,8 @@ public partial class Character
 	{
 		var shortPattern = specification.ShortDescriptionPattern;
 		if (shortPattern is not null &&
-		    (shortPattern.Type != EntityDescriptionType.ShortDescription || !shortPattern.IsValidSelection(template)))
+		    (shortPattern.Type != EntityDescriptionType.ShortDescription || !shortPattern.IsValidSelection(template) ||
+		     !DescriptionPatternIsUsableForTemplate(shortPattern, template)))
 		{
 			whyNot = "That short description pattern is not valid for the selected form.";
 			return false;
@@ -145,7 +159,8 @@ public partial class Character
 
 		var fullPattern = specification.FullDescriptionPattern;
 		if (fullPattern is not null &&
-		    (fullPattern.Type != EntityDescriptionType.FullDescription || !fullPattern.IsValidSelection(template)))
+		    (fullPattern.Type != EntityDescriptionType.FullDescription || !fullPattern.IsValidSelection(template) ||
+		     !DescriptionPatternIsUsableForTemplate(fullPattern, template)))
 		{
 			whyNot = "That full description pattern is not valid for the selected form.";
 			return false;
@@ -178,6 +193,213 @@ public partial class Character
 
 		whyNot = string.Empty;
 		return true;
+	}
+
+	private static bool HasUsableDimension(double value)
+	{
+		return double.IsFinite(value) && value > 0.0;
+	}
+
+	private static (double Height, double Weight) SanitiseProvisionedFormDimensions(double height, double weight,
+		ICharacterTemplate template)
+	{
+		if (!HasUsableDimension(height))
+		{
+			height = HasUsableDimension(template.SelectedHeight)
+				? template.SelectedHeight
+				: FallbackProvisionedFormHeight;
+		}
+
+		if (!HasUsableDimension(weight))
+		{
+			weight = HasUsableDimension(template.SelectedWeight)
+				? template.SelectedWeight
+				: FallbackProvisionedFormWeight;
+		}
+
+		return (height, weight);
+	}
+
+	private static IHeightWeightModel? DefaultHeightWeightModelFor(IRace race, Gender gender)
+	{
+		return race.DefaultHeightWeightModel(gender) ??
+		       race.DefaultHeightWeightModel(MudSharp.Form.Shape.Gender.NonBinary) ??
+		       race.DefaultHeightWeightModel(MudSharp.Form.Shape.Gender.Male) ??
+		       race.DefaultHeightWeightModel(MudSharp.Form.Shape.Gender.Female) ??
+		       race.DefaultHeightWeightModel(MudSharp.Form.Shape.Gender.Neuter);
+	}
+
+	internal static (double Height, double Weight) SelectProvisionedFormDimensions(ICharacterTemplate template,
+		IRace race, Gender gender)
+	{
+		if (template.SelectedRace?.SameRace(race) == true &&
+		    HasUsableDimension(template.SelectedHeight) &&
+		    HasUsableDimension(template.SelectedWeight))
+		{
+			return (template.SelectedHeight, template.SelectedWeight);
+		}
+
+		var model = DefaultHeightWeightModelFor(race, gender);
+		if (model is null)
+		{
+			return SanitiseProvisionedFormDimensions(template.SelectedHeight, template.SelectedWeight, template);
+		}
+
+		var (height, weight) = model.GetRandomHeightWeight();
+		return SanitiseProvisionedFormDimensions(height, weight, template);
+	}
+
+	private static ICharacteristicValue? SelectProvisionedFormCharacteristicValue(
+		SimpleCharacterTemplate sourceTemplate,
+		SimpleCharacterTemplate targetTemplate,
+		IEthnicity ethnicity,
+		ICharacteristicDefinition definition)
+	{
+		var existingValue = sourceTemplate.SelectedCharacteristics is null
+			? null
+			: sourceTemplate.SelectedCharacteristics
+			                .FirstOrDefault(x => x.Item1 == definition)
+			                .Item2;
+		if (existingValue is not null && definition.IsValue(existingValue))
+		{
+			return existingValue;
+		}
+
+		if (ethnicity.CharacteristicChoices.TryGetValue(definition, out var profile))
+		{
+			return profile.GetRandomCharacteristic(targetTemplate) ??
+			       profile.GetRandomCharacteristic() ??
+			       definition.GetRandomValue() ??
+			       definition.DefaultValue;
+		}
+
+		return definition.GetRandomValue() ?? definition.DefaultValue;
+	}
+
+	internal static List<(ICharacteristicDefinition, ICharacteristicValue)> SelectProvisionedFormCharacteristics(
+		SimpleCharacterTemplate template,
+		IRace race,
+		IEthnicity ethnicity,
+		Gender gender,
+		double height,
+		double weight)
+	{
+		var targetTemplate = template with
+		{
+			SelectedRace = race,
+			SelectedEthnicity = ethnicity,
+			SelectedGender = gender,
+			SelectedHeight = height,
+			SelectedWeight = weight,
+			SelectedCharacteristics = []
+		};
+
+		return race.Characteristics(gender)
+		           .Distinct()
+		           .Select(definition => (
+			           Definition: definition,
+			           Value: SelectProvisionedFormCharacteristicValue(template, targetTemplate, ethnicity, definition)))
+		           .Where(x => x.Value is not null)
+		           .Select(x => (x.Definition, x.Value!))
+		           .ToList();
+	}
+
+	private double FallbackBloodVolumeFor(IBody body)
+	{
+		var kilogramsPerBaseUnit = Gameworld.UnitManager?.BaseWeightToKilograms ?? 0.001;
+		if (!double.IsFinite(kilogramsPerBaseUnit) || kilogramsPerBaseUnit <= 0.0)
+		{
+			kilogramsPerBaseUnit = 0.001;
+		}
+
+		var kilograms = body.Weight * kilogramsPerBaseUnit;
+		if (!double.IsFinite(kilograms) || kilograms <= 0.0)
+		{
+			return 0.0;
+		}
+
+		return kilograms * FallbackBloodVolumeLitresPerKilogram;
+	}
+
+	internal void EnsureProvisionedFormBodyVitals(IBody formBody, bool forceFresh = false)
+	{
+		if (formBody is not MudSharp.Body.Implementations.Body newBody)
+		{
+			return;
+		}
+
+		var originalBody = Body;
+		try
+		{
+			Body = newBody;
+			newBody.RecalculatePartsAndOrgans();
+			newBody.RecalculateItemHelpers();
+
+			var totalBlood = newBody.TotalBloodVolumeLitres;
+			if (forceFresh || !double.IsFinite(totalBlood) || totalBlood <= 0.0)
+			{
+				totalBlood = TotalBloodVolume(this);
+				if (!double.IsFinite(totalBlood) || totalBlood <= 0.0)
+				{
+					totalBlood = FallbackBloodVolumeFor(newBody);
+				}
+
+				newBody.TotalBloodVolumeLitres = totalBlood;
+			}
+
+			var currentBlood = newBody.CurrentBloodVolumeLitres;
+			if (!State.HasFlag(CharacterState.Dead) &&
+			    totalBlood > 0.0 &&
+			    (forceFresh || !double.IsFinite(currentBlood) || currentBlood <= 0.0 || currentBlood > totalBlood))
+			{
+				newBody.CurrentBloodVolumeLitres = totalBlood;
+			}
+
+			if (forceFresh ||
+			    !double.IsFinite(newBody.BaseLiverAlcoholRemovalKilogramsPerHour) ||
+			    newBody.BaseLiverAlcoholRemovalKilogramsPerHour <= 0.0)
+			{
+				var liverFunction = LiverFunction(this);
+				newBody.BaseLiverAlcoholRemovalKilogramsPerHour = double.IsFinite(liverFunction) && liverFunction > 0.0
+					? liverFunction
+					: 0.0;
+			}
+
+			if (forceFresh || !double.IsFinite(newBody.MaximumStamina) || newBody.MaximumStamina <= 0.0)
+			{
+				newBody.InitialiseStamina();
+			}
+
+			if (!double.IsFinite(newBody.MaximumStamina) || newBody.MaximumStamina < 0.0)
+			{
+				newBody.MaximumStamina = 0.0;
+			}
+
+			if (forceFresh ||
+			    !double.IsFinite(newBody.CurrentStamina) ||
+			    newBody.CurrentStamina <= 0.0 ||
+			    newBody.CurrentStamina > newBody.MaximumStamina)
+			{
+				newBody.CurrentStamina = newBody.MaximumStamina;
+			}
+
+			newBody.ExecuteWithSuppressedHealthFeedback(() =>
+			{
+				newBody.CalculateOrganFunctions(true);
+				newBody.ReevaluateLimbAndPartDamageEffects();
+			});
+			newBody.SanitizeIncompatibleHealthState(true);
+			newBody.Changed = true;
+		}
+		finally
+		{
+			Body = originalBody;
+		}
+	}
+
+	private void InitialiseProvisionedFormBody(MudSharp.Body.Implementations.Body newBody)
+	{
+		EnsureProvisionedFormBodyVitals(newBody, true);
 	}
 
 	private string DescribeTransformationEcho(ICharacterForm form)
@@ -435,6 +657,15 @@ public partial class Character
 		}
 
 		return forms.FirstOrDefault(x => x.Alias.EqualTo(text));
+	}
+
+	private static bool SameFormBody(IBody body, IBody other)
+	{
+		return ReferenceEquals(body, other) ||
+		       body is not null &&
+		       other is not null &&
+		       body.Id > 0 &&
+		       body.Id == other.Id;
 	}
 
 	internal ICharacterForm ResolveForm(string text)
@@ -700,6 +931,88 @@ public partial class Character
 		return true;
 	}
 
+	private bool PersistedInstanceReferencesBody(IBody body, out string whyNot)
+	{
+		if (body.Id <= 0)
+		{
+			whyNot = "That form body has not been saved yet, and cannot be safely deleted with this command.";
+			return true;
+		}
+
+		using (new FMDB())
+		{
+			var instanceRows = FMDB.Context.CharacterInstances
+			                         .Where(x => x.BodyId == body.Id)
+			                         .Select(x => new { x.Id, x.IsPrimary, x.IsEmbodied })
+			                         .ToList();
+			if (instanceRows.Any())
+			{
+				whyNot =
+					$"That form body is still referenced by character instance row(s) {instanceRows.Select(x => $"#{x.Id:N0}").ListToString()}. Retire or clean up those instances before deleting the form.";
+				return true;
+			}
+		}
+
+		whyNot = string.Empty;
+		return false;
+	}
+
+	internal bool TryDeleteForm(ICharacterForm form, out string whyNot)
+	{
+		if (form is null || !_forms.Any(x => ReferenceEquals(x, form)))
+		{
+			whyNot = "There is no such form.";
+			return false;
+		}
+
+		var body = form.Body;
+		if (SameFormBody(body, CurrentBody))
+		{
+			whyNot = "You cannot delete the current body form.";
+			return false;
+		}
+
+		if (Instances.Any(x => SameFormBody(x.Body, body) && x.IsEmbodied))
+		{
+			whyNot = "You cannot delete a form while it has a live embodied instance.";
+			return false;
+		}
+
+		if (EffectsOfType<IBodyBackupEffect>().Any(x => x.BackupBodyId == body.Id))
+		{
+			whyNot = "You cannot delete a form while it is referenced by a body backup effect.";
+			return false;
+		}
+
+		if (HasPhysicalReferenceToRetiredBody(body.Id, null))
+		{
+			whyNot = "You cannot delete a form while corpses, remains, or other physical references still point at its body.";
+			return false;
+		}
+
+		if (PersistedInstanceReferencesBody(body, out whyNot))
+		{
+			return false;
+		}
+
+		var removedForms = _forms.Where(x => SameFormBody(x.Body, body)).ToList();
+		var removedSources = _formSources.Where(x => SameFormBody(x.Body, body)).ToList();
+		_forms.RemoveAll(x => SameFormBody(x.Body, body));
+		_formSources.RemoveAll(x => SameFormBody(x.Body, body));
+
+		if (!TryCleanupRetiredBody(body))
+		{
+			_forms.AddRange(removedForms);
+			_formSources.AddRange(removedSources);
+			whyNot = "The form metadata was removed, but the dormant body could not be safely deleted. The form was restored in memory.";
+			return false;
+		}
+
+		Changed = true;
+		whyNot = string.Empty;
+		return true;
+	}
+
 	private CharacterFormSourceMapping GetFormSource(ICharacterFormSource source)
 	{
 		return _formSources.FirstOrDefault(x => x.Matches(source));
@@ -794,13 +1107,9 @@ public partial class Character
 		var baseTemplate = GetCharacterTemplate();
 		var template = baseTemplate as SimpleCharacterTemplate ?? new SimpleCharacterTemplate(baseTemplate.SaveToXml(), Gameworld);
 		var handedness = race.HandednessOptions.Contains(template.Handedness) ? template.Handedness : race.DefaultHandedness;
-		var selectedCharacteristics = race.Characteristics(gender)
-		                                 .Select(x => (
-			                                 x,
-			                                 template.SelectedCharacteristics.FirstOrDefault(y => y.Item1 == x).Item2 ??
-			                                 x.DefaultValue))
-		                                 .Where(x => x.Item2 is not null)
-		                                 .ToList();
+		var (height, weight) = SelectProvisionedFormDimensions(template, race, gender);
+		var selectedCharacteristics =
+			SelectProvisionedFormCharacteristics(template, race, ethnicity, gender, height, weight);
 		var selectedAttributes = template.SelectedAttributes
 		                                 .Where(x => x.Definition is IAttributeDefinition definition &&
 		                                             race.Attributes.Contains(definition))
@@ -814,6 +1123,8 @@ public partial class Character
 			SelectedCharacteristics = selectedCharacteristics,
 			SelectedAttributes = selectedAttributes,
 			Handedness = handedness,
+			SelectedHeight = height,
+			SelectedWeight = weight,
 			MissingBodyparts = [],
 			SelectedDisfigurements = [],
 			SelectedScars = [],
@@ -829,6 +1140,7 @@ public partial class Character
 		}
 
 		var newBody = new Body.Implementations.Body(Gameworld, this, newTemplate);
+		InitialiseProvisionedFormBody(newBody);
 		newBody.SuspendForCharacter();
 		Gameworld.SaveManager.AddInitialisation(newBody);
 		Gameworld.SaveManager.Flush();

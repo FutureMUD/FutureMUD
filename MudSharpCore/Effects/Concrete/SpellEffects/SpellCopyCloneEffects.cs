@@ -158,7 +158,11 @@ public class SpellMagicalCopyEffect : SimpleSpellStatusEffectBase, IMagicalCopyE
 				if (copy is ICharacter copyCharacter)
 				{
 					CleanupCopyPlanarOverlay(copyCharacter);
-					CharacterInstanceFocusService.TryReturnFocusToPrimary(copyCharacter, CollapseEcho, true);
+					CharacterInstanceFocusService.TryReturnFocusToPrimary(
+						copyCharacter,
+						CollapseEcho,
+						true,
+						suppressAutoLook: true);
 					CharacterInstanceService.Retire(copy, out _, deleteTemporaryRows: true,
 						deathRetirement: copy.State.HasFlag(CharacterState.Dead), removeOwningEffects: false);
 					SendIfNotSuppressed(anchor, BacklashEcho);
@@ -323,7 +327,11 @@ public class SpellPhysicalCloneEffect : SimpleSpellStatusEffectBase, IPhysicalCl
 				var clone = CloneInstance(anchor);
 				if (clone is ICharacter cloneCharacter)
 				{
-					CharacterInstanceFocusService.TryReturnFocusToPrimary(cloneCharacter, DeathEcho, true);
+					CharacterInstanceFocusService.TryReturnFocusToPrimary(
+						cloneCharacter,
+						DeathEcho,
+						true,
+						suppressAutoLook: true);
 					CharacterInstanceService.Retire(clone, out _, deleteTemporaryRows: true,
 						deathRetirement: clone.State.HasFlag(CharacterState.Dead), removeOwningEffects: false);
 					SendIfNotSuppressed(anchor, BacklashEcho);

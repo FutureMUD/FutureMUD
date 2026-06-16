@@ -1030,6 +1030,7 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
     public void Add(IMagicSchool school)
     {
         _magicSchools.Add(school);
+        MudSharp.Commands.Modules.MagicModule.EnsureMagicSchoolVerbRegistered(school.SchoolVerb);
     }
 
     public void Add(IMagicCapability capability)

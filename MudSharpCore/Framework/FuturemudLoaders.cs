@@ -1411,18 +1411,7 @@ For information on the syntax to use in emotes (such as those included in bracke
 
         foreach (string verb in _magicSchools.Select(x => x.SchoolVerb).Distinct())
         {
-            Command<ICharacter> command = new(MagicModule.MagicGeneric, CharacterState.Conscious,
-                PermissionLevel.Any, verb,
-                CommandDisplayOptions.None,
-                condition: MagicModule.MagicFilterFunction);
-            PlayerCommandTree.Instance.Commands.Add(verb, command);
-            NPCCommandTree.Instance.Commands.Add(verb, command);
-            GuideCommandTree.Instance.Commands.Add(verb, command);
-            AdminCommandTree.JuniorAdminCommandTree.Commands.Add(verb, command);
-            AdminCommandTree.StandardAdminCommandTree.Commands.Add(verb, command);
-            AdminCommandTree.SeniorAdminCommandTree.Commands.Add(verb, command);
-            AdminCommandTree.HighAdminCommandTree.Commands.Add(verb, command);
-            FounderCommandTree.Instance.Commands.Add(verb, command);
+            MagicModule.EnsureMagicSchoolVerbRegistered(verb);
         }
     }
 

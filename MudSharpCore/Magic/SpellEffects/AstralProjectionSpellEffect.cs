@@ -22,7 +22,9 @@ public class AstralProjectionSpellEffect : IMagicSpellEffectTemplate
 {
 	public const string AstralProjectionTransitionProfile = "astralprojection";
 	public const string DefaultProjectionEcho = "Your awareness slips free into an astral projection.";
-	public const string DefaultAnchorEcho = "Your body slackens as your awareness slips outward.";
+	public const string DefaultAnchorEcho = "";
+	public const string DefaultAnchorRoomEcho = "@ go|goes slack as &0's awareness slips outward.";
+	public const string DefaultProjectionRoomEcho = "@ shimmer|shimmers into being.";
 	public const string DefaultCollapseEcho =
 		"Your astral projection collapses and your focus returns to your primary body.";
 
@@ -35,8 +37,11 @@ public class AstralProjectionSpellEffect : IMagicSpellEffectTemplate
 	private AstralProjectionAnchorPolicy _anchorPolicy = AstralProjectionAnchorPolicy.Helpless;
 	private string _projectionEcho = DefaultProjectionEcho;
 	private string _anchorEcho = DefaultAnchorEcho;
+	private string _anchorRoomEcho = DefaultAnchorRoomEcho;
+	private string _projectionRoomEcho = DefaultProjectionRoomEcho;
 	private string _collapseEcho = DefaultCollapseEcho;
 	private string _backlashEcho = string.Empty;
+	private string _projectionSDescOverride = string.Empty;
 
 	public static void RegisterFactory()
 	{
@@ -69,8 +74,11 @@ public class AstralProjectionSpellEffect : IMagicSpellEffectTemplate
 			new XElement("AnchorPolicy", AstralProjectionAnchorPolicy.Helpless),
 			new XElement("ProjectionEcho", new XCData(DefaultProjectionEcho)),
 			new XElement("AnchorEcho", new XCData(DefaultAnchorEcho)),
+			new XElement("AnchorRoomEcho", new XCData(DefaultAnchorRoomEcho)),
+			new XElement("ProjectionRoomEcho", new XCData(DefaultProjectionRoomEcho)),
 			new XElement("CollapseEcho", new XCData(DefaultCollapseEcho)),
-			new XElement("BacklashEcho", new XCData(string.Empty))
+			new XElement("BacklashEcho", new XCData(string.Empty)),
+			new XElement("ProjectionSDescOverride", new XCData(string.Empty))
 		), spell), string.Empty);
 	}
 
@@ -105,8 +113,13 @@ public class AstralProjectionSpellEffect : IMagicSpellEffectTemplate
 
 		_projectionEcho = root.Element("ProjectionEcho")?.Value ?? DefaultProjectionEcho;
 		_anchorEcho = root.Element("AnchorEcho")?.Value ?? DefaultAnchorEcho;
+		_anchorRoomEcho = root.Element("AnchorRoomEcho")?.Value ?? DefaultAnchorRoomEcho;
+		_projectionRoomEcho = root.Element("ProjectionRoomEcho")?.Value ?? DefaultProjectionRoomEcho;
 		_collapseEcho = root.Element("CollapseEcho")?.Value ?? DefaultCollapseEcho;
 		_backlashEcho = root.Element("BacklashEcho")?.Value ?? string.Empty;
+		_projectionSDescOverride = root.Element("ProjectionSDescOverride")?.Value ??
+		                           root.Element("ProjectionShortDescriptionOverride")?.Value ??
+		                           string.Empty;
 	}
 
 	public IFuturemud Gameworld => Spell.Gameworld;
@@ -136,8 +149,11 @@ public class AstralProjectionSpellEffect : IMagicSpellEffectTemplate
 			new XElement("AnchorPolicy", _anchorPolicy),
 			new XElement("ProjectionEcho", new XCData(_projectionEcho)),
 			new XElement("AnchorEcho", new XCData(_anchorEcho)),
+			new XElement("AnchorRoomEcho", new XCData(_anchorRoomEcho)),
+			new XElement("ProjectionRoomEcho", new XCData(_projectionRoomEcho)),
 			new XElement("CollapseEcho", new XCData(_collapseEcho)),
-			new XElement("BacklashEcho", new XCData(_backlashEcho))
+			new XElement("BacklashEcho", new XCData(_backlashEcho)),
+			new XElement("ProjectionSDescOverride", new XCData(_projectionSDescOverride))
 		);
 	}
 
@@ -204,6 +220,8 @@ public class AstralProjectionSpellEffect : IMagicSpellEffectTemplate
 			return null;
 		}
 
+		ApplyProjectionShortDescriptionOverride(anchor, form);
+
 		var result = CharacterInstanceService.SpawnSecondaryInstance(
 			CharacterInstanceService.CreateAstralProjectionSpawnOptions(
 				anchor,
@@ -235,6 +253,8 @@ public class AstralProjectionSpellEffect : IMagicSpellEffectTemplate
 			_anchorPolicy,
 			_projectionEcho,
 			_anchorEcho,
+			_anchorRoomEcho,
+			_projectionRoomEcho,
 			_collapseEcho,
 			_backlashEcho);
 	}
@@ -255,15 +275,18 @@ public class AstralProjectionSpellEffect : IMagicSpellEffectTemplate
 	#3plane <which>#0 - sets the plane where the projection is present
 	#3anchorpolicy <helpless|sleep|stasis|none>#0 - sets what happens to the primary body while projected
 	#3projectionecho <text>|default|none#0 - sets the private echo sent to the projection
-	#3anchorecho <text>|default|none#0 - sets the private echo sent to the primary body
+	#3anchorecho <text>|default|none#0 - sets the optional private echo sent before leaving the primary body
+	#3anchorroomecho <emote>|default|none#0 - sets the room echo around the primary body
+	#3projectionroomecho <emote>|default|none#0 - sets the room echo around the appearing projection
 	#3collapseecho <text>|default|none#0 - sets the focus-return echo on collapse
-	#3backlashecho <text>|default|none#0 - sets optional private backlash text";
+	#3backlashecho <text>|default|none#0 - sets optional private backlash text
+	#3sdescoverride <text>|clear#0 - sets a projection sdesc template; $desc or $sdesc inserts the anchor's current sdesc";
 
 	public string Show(ICharacter actor)
 	{
 		var plane = Gameworld.Planes.Get(EffectivePlaneId());
 		return
-			$"AstralProjection [{FormKey.ColourCommand()}] Race {_race.Name.ColourName()}, Ethnicity {_ethnicity?.Name.ColourName() ?? "Auto".ColourValue()}, Gender {_gender?.DescribeEnum().ColourValue() ?? "Auto".ColourValue()}, Alias {(_alias ?? "auto").ColourCommand()}, Plane {(plane?.Name ?? $"#{EffectivePlaneId().ToString("N0", actor)}").ColourName()}, Anchor {_anchorPolicy.DescribeEnum().ColourValue()}, ProjectionEcho {DescribeEcho(_projectionEcho, DefaultProjectionEcho)}, AnchorEcho {DescribeEcho(_anchorEcho, DefaultAnchorEcho)}, CollapseEcho {DescribeEcho(_collapseEcho, DefaultCollapseEcho)}, Backlash {DescribeEcho(_backlashEcho, string.Empty)}";
+			$"AstralProjection [{FormKey.ColourCommand()}] Race {_race.Name.ColourName()}, Ethnicity {_ethnicity?.Name.ColourName() ?? "Auto".ColourValue()}, Gender {_gender?.DescribeEnum().ColourValue() ?? "Auto".ColourValue()}, Alias {(_alias ?? "auto").ColourCommand()}, Plane {(plane?.Name ?? $"#{EffectivePlaneId().ToString("N0", actor)}").ColourName()}, Anchor {_anchorPolicy.DescribeEnum().ColourValue()}, ProjectionEcho {DescribeEcho(_projectionEcho, DefaultProjectionEcho)}, AnchorEcho {DescribeEcho(_anchorEcho, DefaultAnchorEcho)}, AnchorRoomEcho {DescribeEcho(_anchorRoomEcho, DefaultAnchorRoomEcho)}, ProjectionRoomEcho {DescribeEcho(_projectionRoomEcho, DefaultProjectionRoomEcho)}, CollapseEcho {DescribeEcho(_collapseEcho, DefaultCollapseEcho)}, Backlash {DescribeEcho(_backlashEcho, string.Empty)}, SDescOverride {DescribeEcho(_projectionSDescOverride, string.Empty)}";
 	}
 
 	public bool BuildingCommand(ICharacter actor, StringStack command)
@@ -296,6 +319,14 @@ public class AstralProjectionSpellEffect : IMagicSpellEffectTemplate
 			case "anchorbodyecho":
 				return BuildingCommandEcho(actor, command, "anchor", DefaultAnchorEcho,
 					value => _anchorEcho = value);
+			case "anchorroomecho":
+			case "anchorroom":
+				return BuildingCommandEcho(actor, command, "anchor room", DefaultAnchorRoomEcho,
+					value => _anchorRoomEcho = value);
+			case "projectionroomecho":
+			case "projectionroom":
+				return BuildingCommandEcho(actor, command, "projection room", DefaultProjectionRoomEcho,
+					value => _projectionRoomEcho = value);
 			case "collapseecho":
 			case "collapse":
 				return BuildingCommandEcho(actor, command, "collapse", DefaultCollapseEcho,
@@ -304,10 +335,38 @@ public class AstralProjectionSpellEffect : IMagicSpellEffectTemplate
 			case "backlash":
 				return BuildingCommandEcho(actor, command, "backlash", string.Empty,
 					value => _backlashEcho = value);
+			case "sdesc":
+			case "sdescoverride":
+			case "sdesctemplate":
+				return BuildingCommandProjectionSDescOverride(actor, command);
 		}
 
 		actor.OutputHandler.Send(HelpText.SubstituteANSIColour());
 		return false;
+	}
+
+	private void ApplyProjectionShortDescriptionOverride(ICharacter anchor, ICharacterForm form)
+	{
+		if (string.IsNullOrWhiteSpace(_projectionSDescOverride))
+		{
+			return;
+		}
+
+		form.Body.SetShortDescription(RenderProjectionShortDescriptionOverride(anchor));
+	}
+
+	private string RenderProjectionShortDescriptionOverride(ICharacter anchor)
+	{
+		var anchorDescription = anchor.HowSeen(
+			anchor,
+			colour: false,
+			flags: PerceiveIgnoreFlags.IgnoreCanSee | PerceiveIgnoreFlags.IgnoreSelf);
+
+		return _projectionSDescOverride
+		       .Replace("$sdesc", anchorDescription, StringComparison.InvariantCultureIgnoreCase)
+		       .Replace("$desc", anchorDescription, StringComparison.InvariantCultureIgnoreCase)
+		       .SubstituteANSIColour()
+		       .StripANSIColour();
 	}
 
 	public static PlanarPresenceDefinition CreateAstralProjectionPlanarPresence(IFuturemud gameworld, long planeId)
@@ -565,6 +624,30 @@ public class AstralProjectionSpellEffect : IMagicSpellEffectTemplate
 			_ when echo == defaultEcho => $"This effect will now use the default {label} echo.",
 			_ => $"This effect will now use {echo.ColourCommand()} as its {label} echo."
 		});
+		return true;
+	}
+
+	private bool BuildingCommandProjectionSDescOverride(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What projection sdesc override should this effect use, or should it be cleared?");
+			return false;
+		}
+
+		var text = command.SafeRemainingArgument;
+		if (text.EqualToAny("clear", "none", "default", "blank"))
+		{
+			_projectionSDescOverride = string.Empty;
+			Spell.Changed = true;
+			actor.OutputHandler.Send("This effect will no longer override the projection's short description.");
+			return true;
+		}
+
+		_projectionSDescOverride = text;
+		Spell.Changed = true;
+		actor.OutputHandler.Send(
+			$"This effect will now use {_projectionSDescOverride.ColourCommand()} as the projection sdesc override.");
 		return true;
 	}
 

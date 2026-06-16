@@ -6,6 +6,9 @@ using MudSharp.Framework;
 using MudSharp.FutureProg;
 using MudSharp.Magic;
 using MudSharp.Magic.SpellEffects;
+using MudSharp.PerceptionEngine;
+using MudSharp.PerceptionEngine.Outputs;
+using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.Planes;
 using System.Linq;
 using System.Xml.Linq;
@@ -35,6 +38,8 @@ public class SpellAstralProjectionEffect : SimpleSpellStatusEffectBase, IAstralP
 		AstralProjectionAnchorPolicy anchorPolicy,
 		string projectionEcho,
 		string anchorEcho,
+		string anchorRoomEcho,
+		string projectionRoomEcho,
 		string collapseEcho,
 		string backlashEcho,
 		IFutureProg? prog = null)
@@ -48,6 +53,8 @@ public class SpellAstralProjectionEffect : SimpleSpellStatusEffectBase, IAstralP
 		AnchorPolicy = anchorPolicy;
 		ProjectionEcho = projectionEcho;
 		AnchorEcho = anchorEcho;
+		AnchorRoomEcho = anchorRoomEcho;
+		ProjectionRoomEcho = projectionRoomEcho;
 		CollapseEcho = collapseEcho;
 		BacklashEcho = backlashEcho;
 	}
@@ -68,6 +75,10 @@ public class SpellAstralProjectionEffect : SimpleSpellStatusEffectBase, IAstralP
 		ProjectionEcho = trueRoot?.Element("ProjectionEcho")?.Value ??
 		                  AstralProjectionSpellEffect.DefaultProjectionEcho;
 		AnchorEcho = trueRoot?.Element("AnchorEcho")?.Value ?? AstralProjectionSpellEffect.DefaultAnchorEcho;
+		AnchorRoomEcho = trueRoot?.Element("AnchorRoomEcho")?.Value ??
+		                 AstralProjectionSpellEffect.DefaultAnchorRoomEcho;
+		ProjectionRoomEcho = trueRoot?.Element("ProjectionRoomEcho")?.Value ??
+		                     AstralProjectionSpellEffect.DefaultProjectionRoomEcho;
 		CollapseEcho = trueRoot?.Element("CollapseEcho")?.Value ??
 		               AstralProjectionSpellEffect.DefaultCollapseEcho;
 		BacklashEcho = trueRoot?.Element("BacklashEcho")?.Value ?? string.Empty;
@@ -84,6 +95,8 @@ public class SpellAstralProjectionEffect : SimpleSpellStatusEffectBase, IAstralP
 	public AstralProjectionAnchorPolicy AnchorPolicy { get; }
 	public string ProjectionEcho { get; }
 	public string AnchorEcho { get; }
+	public string AnchorRoomEcho { get; }
+	public string ProjectionRoomEcho { get; }
 	public string CollapseEcho { get; }
 	public string BacklashEcho { get; }
 
@@ -98,6 +111,8 @@ public class SpellAstralProjectionEffect : SimpleSpellStatusEffectBase, IAstralP
 			new XElement("AnchorPolicy", AnchorPolicy),
 			new XElement("ProjectionEcho", new XCData(ProjectionEcho)),
 			new XElement("AnchorEcho", new XCData(AnchorEcho)),
+			new XElement("AnchorRoomEcho", new XCData(AnchorRoomEcho)),
+			new XElement("ProjectionRoomEcho", new XCData(ProjectionRoomEcho)),
 			new XElement("CollapseEcho", new XCData(CollapseEcho)),
 			new XElement("BacklashEcho", new XCData(BacklashEcho)),
 			new XElement("AnchorPolicyApplied", _anchorPolicyApplied),
@@ -130,9 +145,18 @@ public class SpellAstralProjectionEffect : SimpleSpellStatusEffectBase, IAstralP
 
 		ApplyAnchorPolicy(anchor);
 		ApplyProjectionPlanarOverlay(projectionCharacter);
+		EmitRoomEcho(anchor, AnchorRoomEcho, anchor, projectionCharacter);
 		SendIfNotSuppressed(anchor, AnchorEcho);
-		CharacterInstanceFocusService.Focus(anchor, projection, false);
+		var focus = CharacterInstanceFocusService.Focus(anchor, projection, false, suppressAutoLook: true);
+		if (!focus.Success)
+		{
+			anchor.OutputHandler.Send(focus.Message);
+			return;
+		}
+
+		EmitRoomEcho(projectionCharacter, ProjectionRoomEcho, projectionCharacter, anchor);
 		SendIfNotSuppressed(projectionCharacter, ProjectionEcho);
+		projectionCharacter.Body.Look();
 	}
 
 	public override void Login()
@@ -287,5 +311,19 @@ public class SpellAstralProjectionEffect : SimpleSpellStatusEffectBase, IAstralP
 		{
 			character.OutputHandler?.Send(echo.SubstituteANSIColour());
 		}
+	}
+
+	private static void EmitRoomEcho(ICharacter source, string echo, params IPerceivable[] targets)
+	{
+		if (string.IsNullOrWhiteSpace(echo) || source.Location is null)
+		{
+			return;
+		}
+
+		source.Location.Handle(
+			source.RoomLayer,
+			new EmoteOutput(
+				new Emote(echo, source, targets),
+				flags: OutputFlags.SuppressObscured | OutputFlags.SuppressSource));
 	}
 }

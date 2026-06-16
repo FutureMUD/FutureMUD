@@ -64,8 +64,11 @@ public static class CharacterInstanceFocusService
 		return new CharacterInstanceFocusResult(true, string.Empty, target);
 	}
 
-	public static CharacterInstanceFocusResult Focus(ICharacter actor, ICharacterInstance? target,
-		bool sendSuccessMessage = true)
+	public static CharacterInstanceFocusResult Focus(
+		ICharacter actor,
+		ICharacterInstance? target,
+		bool sendSuccessMessage = true,
+		bool suppressAutoLook = false)
 	{
 		var validation = CanFocus(actor, target);
 		if (!validation.Success || validation.Target is null)
@@ -89,6 +92,11 @@ public static class CharacterInstanceFocusService
 		if (actor.Identity is Character identity)
 		{
 			identity.SetFocusedInstance(target.IsPrimaryInstance ? null : target);
+		}
+
+		if (suppressAutoLook && target is Character targetCharacter)
+		{
+			targetCharacter.SuppressNextAssumeControlLook();
 		}
 
 		controller.SetContext(target);

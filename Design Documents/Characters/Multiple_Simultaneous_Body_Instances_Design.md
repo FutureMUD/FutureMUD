@@ -1474,8 +1474,9 @@ Implementation progress:
 
 - Completed: generalized secondary instance spawning with `SecondaryCharacterInstanceSpawnOptions`; passive, player-focusable, and NPC AI paths now wrap the shared options flow, and astral projection uses `InstanceKind=AstralProjection`, `ControlPolicy=PlayerFocusable`, `PerceptionPolicy=PlanarProjection`, `DeathPolicy=CollapseToAnchor`, and `PersistencePolicy=DespawnOnReboot`.
 - Completed: added astral projection instance metadata in `CharacterInstances.EffectData`, exposed as `ICharacterInstance.InstanceEffectData`, with staff-readable anchor, body, plane, source spell, form key, and anchor policy details.
-- Completed: added `astralprojection` spell effect template with keyed form provisioning options (`formkey`, `race`, `ethnicity`, `gender`, `alias`, `sort`), plane selection, anchor policy (`helpless`, `sleep`, `stasis`, `none`), projection/anchor/collapse echoes, and optional backlash echo.
+- Completed: added `astralprojection` spell effect template with keyed form provisioning options (`formkey`, `race`, `ethnicity`, `gender`, `alias`, `sort`), plane selection, anchor policy (`helpless`, `sleep`, `stasis`, `none`), private projection/anchor/collapse echoes, observer-facing anchor/projection room echoes, optional backlash echo, and an optional projection short-description override template using `$desc`/`$sdesc` for the anchor body's current short description.
 - Completed: added `SpellAstralProjectionEffect`/`IAstralProjectionEffect` to own the runtime tether, focus shift, projection planar overlay, anchor helpless/sleep/stasis policy, cleanup on removal, and projection retirement without final-killing the primary identity.
+- Completed: refined astral projection initial echo ordering so default spells produce one private focus-shift echo to the caster, room echoes are available for observers, and the projection look happens only after focus and observer echo handling have completed.
 - Completed: logout, reboot load cleanup, projection retire, projection death, and anchor death now collapse astral projections and return focus to the primary body when viable. Projection death under `CollapseToAnchor` does not create ordinary abandoned-body remains.
 - Completed: astral projections receive a normal `PlanarStateEffect` overlay that is present on the configured astral plane, perceives the material/default plane, and blocks ordinary physical, inventory, combat, and medical interactions with material-only targets.
 - Completed: `instance list` now marks astral projection rows with anchor instance, plane, and anchor policy metadata while preserving NPC AI/controller details for Phase 6 instances.
@@ -1484,6 +1485,8 @@ Implementation progress:
 - Verified: `dotnet build MudSharpCore\MudSharpCore.csproj -c Debug --no-restore -m:1 -p:NoWarn=NU1902%3BNU1510` passed with 0 warnings.
 - Verified: `dotnet build MudsharpDatabaseLibrary\MudsharpDatabaseLibrary.csproj -c Debug --no-restore -m:1 -p:NoWarn=NU1902%3BNU1510` passed with 0 warnings.
 - Verified: `git diff --check` passed with no whitespace errors.
+- Follow-up verified: `dotnet build MudSharpCore\MudSharpCore.csproj -c Debug --no-restore -m:1 -p:UseAppHost=false -p:OutDir=bin\CodexVerify\ -p:NoWarn=NU1902%3BNU1510%3BRS2008` passed with 0 warnings.
+- Follow-up verified: `dotnet test 'MudSharpCore Unit Tests\MudSharpCore Unit Tests.csproj' -c Debug --no-restore -m:1 --filter BodyFormProvisioningTests -p:UseAppHost=false -p:OutDir=bin\CodexVerifyTests\ -p:NoWarn=NU1902%3BNU1510%3BRS2008` passed 24 tests.
 
 Next-phase reflection:
 

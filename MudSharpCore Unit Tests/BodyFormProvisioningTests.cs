@@ -8,11 +8,13 @@ using MudSharp.Character.Heritage;
 using MudSharp.CharacterCreation;
 using MudSharp.Form.Characteristics;
 using MudSharp.Effects.Concrete;
+using MudSharp.Effects.Interfaces;
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
 using MudSharp.FutureProg;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.Magic;
+using MudSharp.Magic.SpellEffects;
 using MudSharp.NPC.Templates;
 using MudSharp.Planes;
 using MudSharp.RPG.Merits;
@@ -319,10 +321,67 @@ public class BodyFormProvisioningTests
 		Assert.IsTrue(info.BuilderHelp.Contains("anchorpolicy"));
 		Assert.IsTrue(info.BuilderHelp.Contains("projectionecho"));
 		Assert.IsTrue(info.BuilderHelp.Contains("anchorecho"));
+		Assert.IsTrue(info.BuilderHelp.Contains("anchorroomecho"));
+		Assert.IsTrue(info.BuilderHelp.Contains("projectionroomecho"));
 		Assert.IsTrue(info.BuilderHelp.Contains("collapseecho"));
+		Assert.IsTrue(info.BuilderHelp.Contains("sdescoverride"));
 		Assert.IsTrue(info.MatchingTriggers.Any());
 		Assert.IsFalse(info.Instant);
 		Assert.IsFalse(info.RequiresTarget);
+	}
+
+	[TestMethod]
+	public void SpellEffectFactory_AstralProjectionBuilderDefaultsAndXmlRoundTripsEchoesAndSDesc()
+	{
+		var context = CreateCopyCloneSpellContext();
+
+		var (built, error) =
+			SpellEffectFactory.LoadEffectFromBuilderInput("astralprojection", new StringStack(string.Empty),
+				context.Spell.Object);
+
+		Assert.AreEqual(string.Empty, error);
+		var defaultXml = built.SaveToXml();
+		Assert.AreEqual("astralprojection", defaultXml.Attribute("type")?.Value);
+		Assert.AreEqual("astral", defaultXml.Element("FormKey")?.Value);
+		Assert.AreEqual(string.Empty, defaultXml.Element("AnchorEcho")?.Value);
+		Assert.AreEqual(AstralProjectionSpellEffect.DefaultAnchorRoomEcho,
+			defaultXml.Element("AnchorRoomEcho")?.Value);
+		Assert.AreEqual(AstralProjectionSpellEffect.DefaultProjectionRoomEcho,
+			defaultXml.Element("ProjectionRoomEcho")?.Value);
+		Assert.AreEqual(string.Empty, defaultXml.Element("ProjectionSDescOverride")?.Value);
+
+		var effect = SpellEffectFactory.LoadEffect(new XElement("Effect",
+			new XAttribute("type", "astralprojection"),
+			new XElement("FormKey", "warlock-spectre"),
+			new XElement("Race", context.Race.Object.Id),
+			new XElement("Ethnicity", 0L),
+			new XElement("Gender", (int)Gender.Indeterminate),
+			new XElement("Alias", "banshee"),
+			new XElement("SortOrder", 4),
+			new XElement("Plane", context.AstralPlane.Object.Id),
+			new XElement("AnchorPolicy", AstralProjectionAnchorPolicy.Sleep),
+			new XElement("ProjectionEcho", new XCData("You tear free.")),
+			new XElement("AnchorEcho", new XCData("You fall still.")),
+			new XElement("AnchorRoomEcho", new XCData("@ go|goes slack.")),
+			new XElement("ProjectionRoomEcho", new XCData("@ coalesce|coalesces.")),
+			new XElement("CollapseEcho", new XCData("You wake.")),
+			new XElement("BacklashEcho", new XCData("A headache remains.")),
+			new XElement("ProjectionSDescOverride", new XCData("a spectre of $desc"))), context.Spell.Object);
+
+		var saved = effect.SaveToXml();
+
+		Assert.AreEqual("warlock-spectre", saved.Element("FormKey")?.Value);
+		Assert.AreEqual(((int)Gender.Indeterminate).ToString(), saved.Element("Gender")?.Value);
+		Assert.AreEqual("banshee", saved.Element("Alias")?.Value);
+		Assert.AreEqual("4", saved.Element("SortOrder")?.Value);
+		Assert.AreEqual(AstralProjectionAnchorPolicy.Sleep.ToString(), saved.Element("AnchorPolicy")?.Value);
+		Assert.AreEqual("You tear free.", saved.Element("ProjectionEcho")?.Value);
+		Assert.AreEqual("You fall still.", saved.Element("AnchorEcho")?.Value);
+		Assert.AreEqual("@ go|goes slack.", saved.Element("AnchorRoomEcho")?.Value);
+		Assert.AreEqual("@ coalesce|coalesces.", saved.Element("ProjectionRoomEcho")?.Value);
+		Assert.AreEqual("You wake.", saved.Element("CollapseEcho")?.Value);
+		Assert.AreEqual("A headache remains.", saved.Element("BacklashEcho")?.Value);
+		Assert.AreEqual("a spectre of $desc", saved.Element("ProjectionSDescOverride")?.Value);
 	}
 
 	[TestMethod]

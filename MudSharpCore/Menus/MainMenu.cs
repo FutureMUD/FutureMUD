@@ -753,7 +753,7 @@ public class MainMenu : Menu, IController
 
     private void CreateAccount()
     {
-        bool newAccount = Account.Create(_accountName, _accountPassword, _accountSalt, _culture, _timezone, _unicode,
+        bool newAccount = Account.Create(Gameworld, _accountName, _accountPassword, _accountSalt, _culture, _timezone, _unicode,
             (int)_linewidth, _email, _unitPreference, AccountController.IPAddress);
 
         if (newAccount)

@@ -17,6 +17,8 @@ namespace MudSharp.Accounts;
 
 public sealed class Account : SaveableItem, IAccount
 {
+    public const string DisableAccountRegistrationByEmailStaticConfiguration = "DisableAccountRegistrationByEmail";
+
     private static readonly object _creationMutex = new();
 
     private System.Globalization.CultureInfo _culture;
@@ -301,10 +303,27 @@ public sealed class Account : SaveableItem, IAccount
         }
     }
 
-    public bool IsRegistered { get; private set; }
+    private bool _isRegistered;
+
+    public bool IsRegistered
+    {
+        get => _isRegistered || AccountRegistrationByEmailDisabled(Gameworld);
+        private set => _isRegistered = value;
+    }
+
+    private static bool AccountRegistrationByEmailDisabled(IFuturemud gameworld)
+    {
+        return gameworld.GetStaticBool(DisableAccountRegistrationByEmailStaticConfiguration);
+    }
 
     public bool TryAccountRegistration(string text)
     {
+        if (AccountRegistrationByEmailDisabled(Gameworld))
+        {
+            IsRegistered = true;
+            return true;
+        }
+
         using (new FMDB())
         {
             Models.Account dbaccount = FMDB.Context.Accounts.Find(Id);
@@ -387,7 +406,7 @@ public sealed class Account : SaveableItem, IAccount
         Changed = false;
     }
 
-    public static bool Create(string name, string password, long salt, string culture, string timezone, bool unicode,
+    public static bool Create(IFuturemud gameworld, string name, string password, long salt, string culture, string timezone, bool unicode,
         int linewidth, string email, string unitPreference, string IP)
     {
         string nameLower = name.ToLowerInvariant().Trim();
@@ -401,6 +420,7 @@ public sealed class Account : SaveableItem, IAccount
                     return false;
                 }
 
+                var disableAccountRegistrationByEmail = AccountRegistrationByEmailDisabled(gameworld);
                 Models.Account newAccount = new()
                 {
                     Name = name.ToLowerInvariant(),
@@ -424,7 +444,7 @@ public sealed class Account : SaveableItem, IAccount
                     Email = email,
                     LastLoginTime = null,
                     LastLoginIp = null,
-                    IsRegistered = false,
+                    IsRegistered = disableAccountRegistrationByEmail,
                     RecoveryCode = null,
                     UnitPreference = unitPreference,
                     ActiveCharactersAllowed = 1,
@@ -433,8 +453,9 @@ public sealed class Account : SaveableItem, IAccount
                     HintsEnabled = true,
                     AutoReacquireTargets = true,
                     CreationDate = DateTime.UtcNow,
-                    RegistrationCode = SecurityUtilities.GetRandomString(8,
-                        Constants.ValidRandomCharacters.ToCharArray()),
+                    RegistrationCode = disableAccountRegistrationByEmail
+                        ? string.Empty
+                        : SecurityUtilities.GetRandomString(8, Constants.ValidRandomCharacters.ToCharArray()),
                     AuthorityGroup =
                         FMDB.Context.AuthorityGroups.First(x => x.AuthorityLevel == (int)PermissionLevel.Player),
                 };
@@ -446,8 +467,11 @@ public sealed class Account : SaveableItem, IAccount
                     FirstDate = newAccount.CreationDate
                 };
 
-                EmailHelper.Instance.SendEmail(EmailTemplateTypes.NewAccountVerification, email, name.Proper(),
-                    newAccount.RegistrationCode);
+                if (!disableAccountRegistrationByEmail)
+                {
+                    EmailHelper.Instance.SendEmail(EmailTemplateTypes.NewAccountVerification, email, name.Proper(),
+                        newAccount.RegistrationCode);
+                }
 
                 FMDB.Context.Accounts.Add(newAccount);
                 FMDB.Context.LoginIps.Add(ipLog);

@@ -699,6 +699,7 @@ public static class DefaultStaticSettings
             { "TemperatureImbalanceMaximumHyperthermiaKidneyPenalty", "0.85" },
             { "TemperatureImbalanceMaximumHyperthermiaLiverPenalty", "0.75" },
             { "UseSimpleAccountCreation", "false" },
+            { "DisableAccountRegistrationByEmail", "false" },
             { "DefaultAccountCulture", "en-UK" },
             { "DefaultAccountTimezone", "GMT Standard Time" },
             { "DefaultAccountUnitPreference", "Metric" },

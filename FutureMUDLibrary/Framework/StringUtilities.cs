@@ -72,32 +72,36 @@ namespace MudSharp.Framework
                 colour = Telnet.Green;
             }
 
-            int[] index = { 0 };
-            IList<string> headerList = header as IList<string> ?? header.ToList();
-            Dictionary<int, int> columnWidths = headerList.ToDictionary(hdtxt => index[0]++, hdtxt => hdtxt.RawTextLength());
-            IList<IEnumerable<string>> dataList = data as IList<IEnumerable<string>> ?? data.ToList();
+            var paddingWidth = denseTable ? 0 : 2;
+            List<string> headerList = header.Select(x => x ?? string.Empty).ToList();
+            List<int> columnWidths = headerList.Select(x => x.RawTextLength()).ToList();
+            List<List<string>> dataList = data
+                .Select(row => row?.Select(x => x ?? string.Empty).ToList() ?? new List<string>())
+                .ToList();
             int tableCharacterWidth = headerList.Count + 1;
             int truncateLength = -1;
 
-            foreach (IEnumerable<string> row in dataList)
+            foreach (List<string> row in dataList)
             {
-                index[0] = 0;
-                foreach (string col in row.TakeWhile(col => columnWidths.ContainsKey(index[0])))
+                for (var i = 0; i < Math.Min(row.Count, columnWidths.Count); i++)
                 {
-                    columnWidths[index[0]] = Math.Max(col.RawTextLength(), columnWidths[index[0]]);
-                    index[0]++;
+                    columnWidths[i] = Math.Max(row[i].RawTextLength(), columnWidths[i]);
                 }
             }
 
-            if (columnWidths.Sum(x => x.Value + (denseTable ? 0 : 2)) + tableCharacterWidth > maxwidth)
+            int tableWidth = columnWidths.Sum(x => x + paddingWidth) + tableCharacterWidth;
+            if (tableWidth > maxwidth && columnWidths.Count > 0)
             {
-                if (truncatableColumnIndex == -1)
+                if (truncatableColumnIndex < 0 || truncatableColumnIndex >= columnWidths.Count)
                 {
-                    truncatableColumnIndex = columnWidths.FirstMax(x => x.Value).Key;
+                    truncatableColumnIndex = columnWidths
+                        .Select((width, index) => (Index: index, Width: width))
+                        .FirstMax(x => x.Width)
+                        .Index;
                 }
 
                 truncateLength = columnWidths[truncatableColumnIndex] -
-                                 (columnWidths.Sum(x => x.Value + (denseTable ? 0 : 2)) + tableCharacterWidth - maxwidth) - 2;
+                                 (tableWidth - maxwidth) - 2;
                 if (truncateLength < 5)
                 {
                     truncateLength = -1;
@@ -106,6 +110,19 @@ namespace MudSharp.Framework
                 {
                     columnWidths[truncatableColumnIndex] = truncateLength;
                 }
+            }
+
+            string FormatCell(string value, int columnIndex, int columnWidth)
+            {
+                if ((truncateLength != -1) && (columnIndex == truncatableColumnIndex) &&
+                    (value.RawTextLength() > truncateLength))
+                {
+                    value = value.StripMXP().RawTextSubstring(0, truncateLength - 3) + "..." + Telnet.RESETALL;
+                }
+
+                return value
+                    .RawTextPadLeft(value.RawTextLength() + (denseTable ? 0 : 1))
+                    .RawTextPadRight(columnWidth + paddingWidth);
             }
 
             string ulsep = $"{(bColourTable ? colour.ToString() : "")}{(unicodeTable ? "╔" : "+")}";
@@ -120,68 +137,60 @@ namespace MudSharp.Framework
             char horizontal = unicodeTable ? '═' : '-';
             string vertical = $"{(bColourTable ? colour.ToString() : "")}{(unicodeTable ? "║" : "|")}{(bColourTable ? colour.Reset() : "")}";
 
-            string topseparator = ulsep;
-            string midseparator = lmsep;
-            string bottomseparator = llsep;
-            string headertext = vertical;
+            StringBuilder topseparator = new(ulsep);
+            StringBuilder midseparator = new(lmsep);
+            StringBuilder bottomseparator = new(llsep);
+            StringBuilder headertext = new(vertical);
 
-            int colIndex = 0;
-            foreach (KeyValuePair<int, int> col in columnWidths)
+            for (var colIndex = 0; colIndex < columnWidths.Count; colIndex++)
             {
-                topseparator += new string(horizontal, col.Value + (denseTable ? 0 : 2)) +
-                                (colIndex++ == (columnWidths.Count - 1) ? ursep : topsep);
-                midseparator += new string(horizontal, col.Value + (denseTable ? 0 : 2)) +
-                                (colIndex == columnWidths.Count ? rmsep : midsep);
-                bottomseparator += new string(horizontal, col.Value + (denseTable ? 0 : 2)) +
-                                   (colIndex == columnWidths.Count ? lrsep : bottomsep);
-
-                string value = headerList.ElementAt(col.Key);
-                headertext += value.PadLeft(value.RawTextLength() + 1).PadRight((denseTable ? 0 : 2) + col.Value) + vertical;
+                int columnWidth = columnWidths[colIndex];
+                topseparator.Append(new string(horizontal, columnWidth + paddingWidth));
+                topseparator.Append(colIndex == columnWidths.Count - 1 ? ursep : topsep);
+                midseparator.Append(new string(horizontal, columnWidth + paddingWidth));
+                midseparator.Append(colIndex == columnWidths.Count - 1 ? rmsep : midsep);
+                bottomseparator.Append(new string(horizontal, columnWidth + paddingWidth));
+                bottomseparator.Append(colIndex == columnWidths.Count - 1 ? lrsep : bottomsep);
+                headertext.Append(FormatCell(headerList[colIndex], colIndex, columnWidth));
+                headertext.Append(vertical);
             }
 
-            topseparator += bColourTable ? colour.Reset() : "";
-            midseparator += bColourTable ? colour.Reset() : "";
-            bottomseparator += bColourTable ? colour.Reset() : "";
-
-            sb.AppendLine(topseparator.NoWrap());
-            sb.AppendLine(headertext.NoWrap());
-            sb.AppendLine(midseparator.NoWrap());
-
-            foreach (IEnumerable<string> row in dataList)
+            if (bColourTable)
             {
-                List<string> rowList = row.ToList();
-                string line = vertical.NoWrap();
-                foreach (KeyValuePair<int, int> col in columnWidths)
+                topseparator.Append(colour.Reset());
+                midseparator.Append(colour.Reset());
+                bottomseparator.Append(colour.Reset());
+            }
+
+            sb.AppendLine(topseparator.ToString().NoWrap());
+            sb.AppendLine(headertext.ToString().NoWrap());
+            sb.AppendLine(midseparator.ToString().NoWrap());
+
+            foreach (List<string> row in dataList)
+            {
+                StringBuilder line = new(vertical.NoWrap());
+                for (var colIndex = 0; colIndex < columnWidths.Count; colIndex++)
                 {
-                    string value = rowList.ElementAtOrDefault(col.Key) ?? "";
-
-                    if ((truncateLength != -1) && (col.Key == truncatableColumnIndex) &&
-                        (value.RawTextLength() > truncateLength))
-                    {
-                        string truncatedText = value.StripMXP().RawTextSubstring(0, truncateLength - 3) + "..." + Telnet.RESETALL;
-                        line +=
-                            truncatedText.RawTextPadLeft(truncatedText.RawTextLength() + 1)
-                                .RawTextPadRight((denseTable ? 0 : 2) + truncateLength) + vertical;
-                        continue;
-                    }
-
-                    line += value.RawTextPadLeft(value.RawTextLength() + 1).RawTextPadRight((denseTable ? 0 : 2) + col.Value) + vertical;
+                    string value = row.Count > colIndex ? row[colIndex] : "";
+                    line.Append(FormatCell(value, colIndex, columnWidths[colIndex]));
+                    line.Append(vertical);
                 }
 
-                sb.AppendLine(line);
+                sb.AppendLine(line.ToString());
             }
 
             if (dataList.Count == 0)
             {
-                string line = vertical;
-                foreach (KeyValuePair<int, int> col in columnWidths)
+                StringBuilder line = new(vertical.NoWrap());
+                for (var colIndex = 0; colIndex < columnWidths.Count; colIndex++)
                 {
-                    line += "".RawTextPadLeft(1).RawTextPadRight((denseTable ? 0 : 2) + col.Value) + vertical;
+                    line.Append(FormatCell("", colIndex, columnWidths[colIndex]));
+                    line.Append(vertical);
                 }
-                sb.AppendLine(line);
+                sb.AppendLine(line.ToString());
             }
 
-            sb.AppendLine(bottomseparator.NoWrap());
+            sb.AppendLine(bottomseparator.ToString().NoWrap());
             return sb.ToString();
         }
 

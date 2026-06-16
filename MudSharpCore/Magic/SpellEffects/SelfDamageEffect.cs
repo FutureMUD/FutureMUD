@@ -101,7 +101,9 @@ public class SelfDamageEffect : IMagicSpellEffectTemplate
 
     public string Show(ICharacter actor)
     {
-        return $"SelfDamage {DamageType.DescribeEnum()} - {DamageExpression.OriginalFormulaText.ColourCommand()}";
+        return SpellEffectPresentation.Describe(actor, "Self Damage",
+            ("Type", DamageType.DescribeEnum().ColourValue()),
+            ("Formula", DamageExpression.OriginalFormulaText.ColourCommand()));
     }
 
     public bool IsInstantaneous => true;

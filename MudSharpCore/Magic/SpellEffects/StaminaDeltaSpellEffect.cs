@@ -73,7 +73,8 @@ public class StaminaDeltaSpellEffect : IMagicSpellEffectTemplate
 
     public string Show(ICharacter actor)
     {
-        return $"StaminaDelta {AmountExpression.OriginalFormulaText}";
+        return SpellEffectPresentation.Describe(actor, "Stamina Delta",
+            ("Formula", AmountExpression.OriginalFormulaText.ColourCommand()));
     }
 
     public bool IsInstantaneous => true;

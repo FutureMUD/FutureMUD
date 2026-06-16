@@ -78,7 +78,9 @@ public class RageSpellEffect : IMagicSpellEffectTemplate
 
     public string Show(ICharacter actor)
     {
-        return $"Rage - {Intensity.ToString("N2", actor)}";
+        return SpellEffectPresentation.Describe(actor, "Rage",
+            ("Intensity", Intensity.ToString("N2", actor).ColourValue())
+        );
     }
 
     public bool IsInstantaneous => false;

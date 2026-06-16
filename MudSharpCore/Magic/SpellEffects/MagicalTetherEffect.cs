@@ -78,7 +78,8 @@ public class MagicalTetherEffect : IMagicSpellEffectTemplate
 
 	public string Show(ICharacter actor)
 	{
-		return $"MagicalTether {MaximumRooms.ToString("N0", actor).ColourValue()} rooms";
+		return SpellEffectPresentation.Describe(actor, "Magical Tether",
+			("Maximum Rooms", MaximumRooms.ToString("N0", actor).ColourValue()));
 	}
 
 	public bool IsInstantaneous => false;

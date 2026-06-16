@@ -160,7 +160,11 @@ public class MagicTagEffect : IMagicSpellEffectTemplate, IMagicInterdictionTagPr
 
 	public string Show(ICharacter actor)
 	{
-		return $"MagicTag - {Tag.ColourName()} = {Value.ColourValue()} - Replace: {ReplaceExisting.ToColouredString()}";
+		return SpellEffectPresentation.Describe(actor, "Magic Tag",
+			("Tag", Tag.ColourName()),
+			("Value", Value.ColourValue()),
+			("Replace Existing", ReplaceExisting.ToColouredString())
+		);
 	}
 }
 
@@ -275,7 +279,10 @@ public class RemoveMagicTagEffect : IMagicSpellEffectTemplate
 
 	public string Show(ICharacter actor)
 	{
-		return $"RemoveMagicTag - {Tag.ColourName()} - Value: {(MatchValue ? Value.ColourValue() : "any".ColourValue())}";
+		return SpellEffectPresentation.Describe(actor, "Remove Magic Tag",
+			("Tag", Tag.ColourName()),
+			("Value", MatchValue ? Value.ColourValue() : "any".ColourValue())
+		);
 	}
 }
 
@@ -436,7 +443,12 @@ public class ItemDamageEffect : IMagicSpellEffectTemplate
 
 	public string Show(ICharacter actor)
 	{
-		return $"ItemDamage - {DamageType.DescribeEnum().ColourValue()} - Dmg {DamageFormula.OriginalExpression.ColourCommand()}";
+		return SpellEffectPresentation.Describe(actor, "Item Damage",
+			("Damage Type", DamageType.DescribeEnum().ColourValue()),
+			("Damage Formula", DamageFormula.OriginalExpression.ColourCommand()),
+			("Pain Formula", PainFormula.OriginalExpression.ColourCommand()),
+			("Stun Formula", StunFormula.OriginalExpression.ColourCommand())
+		);
 	}
 }
 
@@ -525,7 +537,9 @@ public class DestroyItemEffect : IMagicSpellEffectTemplate
 
 	public string Show(ICharacter actor)
 	{
-		return $"DestroyItem - Respect Warnings: {RespectPurgeWarnings.ToColouredString()}";
+		return SpellEffectPresentation.Describe(actor, "Destroy Item",
+			("Respect Purge Warnings", RespectPurgeWarnings.ToColouredString())
+		);
 	}
 }
 
@@ -899,7 +913,20 @@ public class ItemEnchantEffect : IMagicSpellEffectTemplate
 
 	public string Show(ICharacter actor)
 	{
-		return $"ItemEnchant - {SDescAddendum.Colour(Colour)} - Glow {GlowLux.ToString("N2", actor).ColourValue()} - Attack {AttackCheckBonus.ToBonusString(actor)} - Armour {ArmourDamageReduction.ToString("N2", actor).ColourValue()} - Projectile {ProjectileDamageBonus.ToBonusString(actor)} - Tool {ToolFitnessBonus.ToBonusString(actor)} - Power x{PowerProductionMultiplier.ToString("N2", actor).ColourValue()}";
+		return SpellEffectPresentation.Describe(actor, "Item Enchant",
+			("SDesc Addendum", SDescAddendum.Colour(Colour)),
+			("Desc Addendum", DescAddendum.Colour(Colour)),
+			("Glow Lux", GlowLux.ToString("N2", actor).ColourValue()),
+			("Attack Check", AttackCheckBonus.ToBonusString(actor)),
+			("Item Damage", $"Quality {QualityBonus.ToBonusString(actor)}, Damage {DamageBonus.ToBonusString(actor)}, Pain {PainBonus.ToBonusString(actor)}, Stun {StunBonus.ToBonusString(actor)}"),
+			("Armour Reduction", ArmourDamageReduction.ToString("N2", actor).ColourValue()),
+			("Projectile Damage", $"Quality {ProjectileQualityBonus.ToBonusString(actor)}, Damage {ProjectileDamageBonus.ToBonusString(actor)}, Pain {ProjectilePainBonus.ToBonusString(actor)}, Stun {ProjectileStunBonus.ToBonusString(actor)}"),
+			("Tool Use", $"Fitness {ToolFitnessBonus.ToBonusString(actor)}, Speed x{ToolSpeedMultiplier.ToString("N2", actor).ColourValue()}, Usage x{ToolUsageMultiplier.ToString("N2", actor).ColourValue()}"),
+			("Power", $"Production x{PowerProductionMultiplier.ToString("N2", actor).ColourValue()}, Consumption x{PowerConsumptionMultiplier.ToString("N2", actor).ColourValue()}, Fuel x{FuelUseMultiplier.ToString("N2", actor).ColourValue()}"),
+			("Item Event", ItemEventType?.DescribeEnum().ColourValue() ?? "None".ColourError()),
+			("Item Event Prog", ItemEventProg?.MXPClickableFunctionName() ?? "None".ColourError()),
+			("Applicability Prog", ApplicabilityProg?.MXPClickableFunctionName() ?? "None".ColourError())
+		);
 	}
 }
 
@@ -1017,7 +1044,7 @@ public class CorpsePreserveEffect : IMagicSpellEffectTemplate
 	}
 
 	public bool BuildingCommand(ICharacter actor, StringStack command) => false;
-	public string Show(ICharacter actor) => "CorpsePreserve";
+	public string Show(ICharacter actor) => SpellEffectPresentation.Describe(actor, "Corpse Preserve");
 }
 
 public class CorpseConsumeEffect : IMagicSpellEffectTemplate
@@ -1067,7 +1094,7 @@ public class CorpseConsumeEffect : IMagicSpellEffectTemplate
 
 	public IMagicSpellEffectTemplate Clone() => new CorpseConsumeEffect(SaveToXml(), Spell);
 	public bool BuildingCommand(ICharacter actor, StringStack command) => false;
-	public string Show(ICharacter actor) => "CorpseConsume";
+	public string Show(ICharacter actor) => SpellEffectPresentation.Describe(actor, "Corpse Consume");
 }
 
 public class CorpseSpawnEffect : IMagicSpellEffectTemplate
@@ -1243,7 +1270,12 @@ public class CorpseSpawnEffect : IMagicSpellEffectTemplate
 
 	public string Show(ICharacter actor)
 	{
-		return $"CorpseSpawn - NPC #{NPCPrototypeId.ToString("N0", actor)} Item #{ItemPrototypeId.ToString("N0", actor)} x{Quantity.ToString("N0", actor)} Consume: {ConsumeCorpse.ToColouredString()}";
+		return SpellEffectPresentation.Describe(actor, "Corpse Spawn",
+			("NPC Prototype", $"#{NPCPrototypeId.ToString("N0", actor).ColourValue()}"),
+			("Item Prototype", $"#{ItemPrototypeId.ToString("N0", actor).ColourValue()}"),
+			("Quantity", Quantity.ToString("N0", actor).ColourValue()),
+			("Consume Corpse", ConsumeCorpse.ToColouredString())
+		);
 	}
 }
 
@@ -1488,7 +1520,19 @@ public class PortalSpellEffect : IMagicSpellEffectTemplate
 
 	public string Show(ICharacter actor)
 	{
-		return $"Portal - {Verb.ColourCommand()} {OutboundKeyword.ColourCommand()} - Cross Zone: {AllowCrossZone.ToColouredString()} - Anchor {AnchorTag.ColourName()}={AnchorValue.ColourValue()}";
+		return SpellEffectPresentation.Describe(actor, "Portal",
+			("Verb", Verb.ColourCommand()),
+			("Outbound Keyword", OutboundKeyword.ColourCommand()),
+			("Inbound Keyword", InboundKeyword.ColourCommand()),
+			("Outbound Target", OutboundTarget.ColourCommand()),
+			("Inbound Target", InboundTarget.ColourCommand()),
+			("Outbound Description", OutboundDescription.ColourCommand()),
+			("Inbound Description", InboundDescription.ColourCommand()),
+			("Time Multiplier", TimeMultiplier.ToString("N2", actor).ColourValue()),
+			("Allow Cross Zone", AllowCrossZone.ToColouredString()),
+			("Anchor", $"{AnchorTag.ColourName()}={AnchorValue.ColourValue()}"),
+			("Destination Prog", DestinationProg?.MXPClickableFunctionName() ?? "None".ColourError())
+		);
 	}
 }
 
@@ -1597,7 +1641,9 @@ public class ForceCommandEffect : IMagicSpellEffectTemplate
 		return true;
 	}
 
-	public string Show(ICharacter actor) => $"ForceCommand - {Command.ColourCommand()}";
+	public string Show(ICharacter actor) => SpellEffectPresentation.Describe(actor, "Force Command",
+		("Command", Command.ColourCommand())
+	);
 }
 
 public class SubjectiveDescriptionEffect : IMagicSpellEffectTemplate
@@ -1759,6 +1805,13 @@ public class SubjectiveDescriptionEffect : IMagicSpellEffectTemplate
 
 	public string Show(ICharacter actor)
 	{
-		return $"{EffectType} - Fixed Viewer: {FixedViewer.ToColouredString()} - Priority: {Priority.ToString("N0", actor).ColourValue()} - Key: {(string.IsNullOrWhiteSpace(OverrideKey) ? "none".ColourError() : OverrideKey.ColourValue())} - {Description.ColourValue()}";
+		return SpellEffectPresentation.Describe(actor,
+			DescriptionType == DescriptionType.Short ? "Subjective SDesc" : "Subjective Description",
+			("Fixed Viewer", FixedViewer.ToColouredString()),
+			("Priority", Priority.ToString("N0", actor).ColourValue()),
+			("Override Key", string.IsNullOrWhiteSpace(OverrideKey) ? "none".ColourError() : OverrideKey.ColourValue()),
+			("Applicability Prog", ApplicabilityProg?.MXPClickableFunctionName() ?? "None".ColourError()),
+			("Description", Description.ColourValue())
+		);
 	}
 }

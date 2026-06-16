@@ -88,7 +88,11 @@ public class TelepathySpellEffect : IMagicSpellEffectTemplate
 
     public string Show(ICharacter actor)
     {
-        return $"Telepathy {(ShowThinks ? "[Thinks]" : "")} {(ShowFeels ? "[Feels]" : "")} {(ShowEmote ? "[Emote]" : "")}";
+        return SpellEffectPresentation.Describe(actor, "Telepathy",
+            ("Thinks", ShowThinks.ToColouredString()),
+            ("Feels", ShowFeels.ToColouredString()),
+            ("Emotes", ShowEmote.ToColouredString())
+        );
     }
 
     public bool IsInstantaneous => false;

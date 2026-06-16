@@ -48,7 +48,7 @@ public class WeatherFreezeEffect : IMagicSpellEffectTemplate
 
     public string Show(ICharacter actor)
     {
-        return "WeatherFreeze";
+        return SpellEffectPresentation.Describe(actor, "Weather Freeze");
     }
 
     public bool IsInstantaneous => false;

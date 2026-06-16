@@ -104,7 +104,9 @@ public class HealingRateSpellEffect : IMagicSpellEffectTemplate
 
     public string Show(ICharacter actor)
     {
-        return $"HealingRate - x{Multiplier.ToString("N2", actor)} {(Stages >= 0 ? "+" : "")}{Stages}";
+        return SpellEffectPresentation.Describe(actor, "Healing Rate",
+            ("Multiplier", Multiplier.ToString("N2", actor).ColourValue()),
+            ("Difficulty Stages", Stages.ToBonusString(actor)));
     }
 
     public bool IsInstantaneous => false;

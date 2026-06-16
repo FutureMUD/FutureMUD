@@ -161,12 +161,18 @@ public class RoomFlagEffect : RoomSpellEffectTemplateBase
 	{
 		return FlagType switch
 		{
-			RoomFlagKind.Peaceful => "Room Flag - Peaceful",
-			RoomFlagKind.NoDream => "Room Flag - NoDream",
-			RoomFlagKind.Alarm => $"Room Flag - Alarm [{AlarmEcho.ColourCommand()}]{(AlarmProg is null ? "" : $" ({AlarmProg.MXPClickableFunctionName()})")}",
-			RoomFlagKind.Darkness => $"Room Flag - Darkness [{DarknessLux.ToString("N2", actor).ColourValue()} lux]",
-			RoomFlagKind.WardTag => $"Room Flag - WardTag [{WardTag.ColourCommand()}]",
-			_ => "Room Flag - Unknown"
+			RoomFlagKind.Alarm => SpellEffectPresentation.Describe(actor, "Room Flag",
+				("Type", FlagType.DescribeEnum().ColourValue()),
+				("Echo", AlarmEcho.ColourCommand()),
+				("Prog", AlarmProg?.MXPClickableFunctionName() ?? "None".ColourError())),
+			RoomFlagKind.Darkness => SpellEffectPresentation.Describe(actor, "Room Flag",
+				("Type", FlagType.DescribeEnum().ColourValue()),
+				("Lux Penalty", $"{DarknessLux.ToString("N2", actor)} lux".ColourValue())),
+			RoomFlagKind.WardTag => SpellEffectPresentation.Describe(actor, "Room Flag",
+				("Type", FlagType.DescribeEnum().ColourValue()),
+				("Ward Tag", WardTag.ColourCommand())),
+			_ => SpellEffectPresentation.Describe(actor, "Room Flag",
+				("Type", FlagType.DescribeEnum().ColourValue()))
 		};
 	}
 
@@ -378,8 +384,11 @@ public class RemoveRoomFlagEffect : RoomSpellEffectTemplateBase
 	public override string Show(ICharacter actor)
 	{
 		return FlagType == RoomFlagKind.WardTag
-			? $"Remove Room Flag - WardTag [{WardTag.ColourCommand()}]"
-			: $"Remove Room Flag - {FlagType.DescribeEnum()}";
+			? SpellEffectPresentation.Describe(actor, "Remove Room Flag",
+				("Type", FlagType.DescribeEnum().ColourValue()),
+				("Ward Tag", WardTag.ColourCommand()))
+			: SpellEffectPresentation.Describe(actor, "Remove Room Flag",
+				("Type", FlagType.DescribeEnum().ColourValue()));
 	}
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)

@@ -102,8 +102,10 @@ public class TeleportEffect : IMagicSpellEffectTemplate
     #region Implementation of IEditableItem
     public string Show(ICharacter actor)
     {
-        return
-            $"Teleport {(TeleportParty ? "Self and Party".ColourCharacter() : "Self".ColourCharacter())} {(PreserveLayer ? "to same layer" : $"to {TargetLayer.DescribeEnum()}").ColourName()}";
+        return SpellEffectPresentation.Describe(actor, "Teleport",
+            ("Targets", TeleportParty ? "Self and Party".ColourCharacter() : "Self".ColourCharacter()),
+            ("Layer", PreserveLayer ? "Same Layer".ColourName() : TargetLayer.DescribeEnum().ColourName())
+        );
     }
 
     public const string HelpText = @"You can use the following options with this effect:

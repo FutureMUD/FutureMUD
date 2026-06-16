@@ -107,7 +107,7 @@ public class ForcedExitMovementEffect : IMagicSpellEffectTemplate
 
 	public string Show(ICharacter actor)
 	{
-		return "Forced Exit Movement".ColourName();
+		return SpellEffectPresentation.Describe(actor, "Forced Exit Movement");
 	}
 
 	public bool BuildingCommand(ICharacter actor, StringStack command)

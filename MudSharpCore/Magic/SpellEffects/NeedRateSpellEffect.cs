@@ -141,8 +141,12 @@ public class NeedRateSpellEffect : IMagicSpellEffectTemplate
 
     public string Show(ICharacter actor)
     {
-        string type = AppliesToPassive ? "Passive" : "Active";
-        return $"NeedRate {type} - H:{HungerMultiplier.ToStringP2(actor)} T:{ThirstMultiplier.ToStringP2(actor)} D:{DrunkennessMultiplier.ToStringP2(actor)}";
+        return SpellEffectPresentation.Describe(actor, "Need Rate",
+            ("Passive", AppliesToPassive.ToColouredString()),
+            ("Active", AppliesToActive.ToColouredString()),
+            ("Hunger", HungerMultiplier.ToStringP2(actor).ColourValue()),
+            ("Thirst", ThirstMultiplier.ToStringP2(actor).ColourValue()),
+            ("Drunk", DrunkennessMultiplier.ToStringP2(actor).ColourValue()));
     }
 
     public bool IsInstantaneous => false;

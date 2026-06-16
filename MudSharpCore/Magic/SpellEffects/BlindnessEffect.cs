@@ -51,7 +51,7 @@ public class BlindnessEffect : IMagicSpellEffectTemplate
 
     public string Show(ICharacter actor)
     {
-        return "Blindness";
+        return SpellEffectPresentation.Describe(actor, "Blindness");
     }
 
     public bool IsInstantaneous => false;
@@ -139,7 +139,7 @@ public class RemoveBlindnessEffect : IMagicSpellEffectTemplate
 
     public string Show(ICharacter actor)
     {
-        return "Remove Blindness";
+        return SpellEffectPresentation.Describe(actor, "Remove Blindness");
     }
 
     public bool IsInstantaneous => true;

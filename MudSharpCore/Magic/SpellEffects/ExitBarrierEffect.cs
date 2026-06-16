@@ -70,7 +70,7 @@ public class ExitBarrierEffect : IMagicSpellEffectTemplate
 
 	public string Show(ICharacter actor)
 	{
-		return "Exit Barrier".ColourName();
+		return SpellEffectPresentation.Describe(actor, "Exit Barrier");
 	}
 
 	public bool BuildingCommand(ICharacter actor, StringStack command)

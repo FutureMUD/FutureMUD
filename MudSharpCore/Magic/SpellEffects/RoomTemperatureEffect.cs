@@ -168,8 +168,9 @@ public class RoomTemperatureEffect : IMagicSpellEffectTemplate
 
     public string Show(ICharacter actor)
     {
-        return
-            $"RoomTemperatureEffect - {TemperatureDeltaPerPower.ToString("N3", actor)} lux - {DescAddendum.Colour(AddendumColour)}";
+        return SpellEffectPresentation.Describe(actor, "Room Temperature",
+            ("Delta Per Power", Gameworld.UnitManager.DescribeBonus(TemperatureDeltaPerPower, Framework.Units.UnitType.TemperatureDelta, actor).ColourValue()),
+            ("Description Addendum", string.IsNullOrWhiteSpace(DescAddendum) ? "None".ColourError() : DescAddendum.Colour(AddendumColour)));
     }
 
     #endregion

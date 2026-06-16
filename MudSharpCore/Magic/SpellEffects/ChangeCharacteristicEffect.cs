@@ -153,8 +153,10 @@ public class ChangeCharacteristicEffect : IMagicSpellEffectTemplate
     #region Building Commands
     public string Show(ICharacter actor)
     {
-        // A one-line description of the spell effect
-        return $"Change {WhichCharacteristic.Name.ColourValue()} to {CharacteristicValueTarget?.Name.ColourValue() ?? $"profile {CharacteristicProfileTarget?.Name.ColourValue() ?? "unknown".ColourError()}"}";
+        return SpellEffectPresentation.Describe(actor, "Change Characteristic",
+            ("Definition", WhichCharacteristic.Name.ColourValue()),
+            ("Value", CharacteristicValueTarget?.Name.ColourValue() ?? "None".ColourError()),
+            ("Profile", CharacteristicProfileTarget?.Name.ColourValue() ?? "None".ColourError()));
     }
 
     public const string HelpText = @"You can use the following options with this spell effect:

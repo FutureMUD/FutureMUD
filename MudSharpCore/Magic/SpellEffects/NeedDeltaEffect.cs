@@ -131,7 +131,10 @@ public class NeedDeltaEffect : IMagicSpellEffectTemplate
 
     public string Show(ICharacter actor)
     {
-        return $"NeedDelta H:{HungerDelta.ToStringN2(actor)} T:{ThirstDelta.ToStringN2(actor)} D:{DrunkDelta.ToStringN2(actor)}";
+        return SpellEffectPresentation.Describe(actor, "Need Delta",
+            ("Hunger", HungerDelta.ToStringN2(actor).ColourValue()),
+            ("Thirst", ThirstDelta.ToStringN2(actor).ColourValue()),
+            ("Drunk", DrunkDelta.ToStringN2(actor).ColourValue()));
     }
 
     public bool IsInstantaneous => true;

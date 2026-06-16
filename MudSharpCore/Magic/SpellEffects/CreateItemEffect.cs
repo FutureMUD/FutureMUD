@@ -228,8 +228,12 @@ Parameters for quality formula:
 	#6outcome#0 - the outcome of the skill check 0 (Marginal) to 5 (Total)";
     public string Show(ICharacter actor)
     {
-        return
-            $"CreateItem - {Quantity.ToStringN0(actor)}x {ItemPrototype?.EditHeaderColour(actor) ?? "nothing".ColourError()}, Quality: {ItemQuality.OriginalExpression.ColourCommand()}, Load String: {LoadString.ColourCommand()}";
+        return SpellEffectPresentation.Describe(actor, "Create Item",
+            ("Prototype", ItemPrototype?.EditHeaderColour(actor) ?? "nothing".ColourError()),
+            ("Skin", ItemSkin?.EditHeader() ?? "None".ColourError()),
+            ("Quantity", Quantity.ToStringN0(actor).ColourValue()),
+            ("Quality", ItemQuality.OriginalExpression.ColourCommand()),
+            ("Load String", string.IsNullOrWhiteSpace(LoadString) ? "None".ColourError() : LoadString.ColourCommand()));
     }
 
     public bool BuildingCommand(ICharacter actor, StringStack command)

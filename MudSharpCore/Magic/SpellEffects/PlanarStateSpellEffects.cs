@@ -108,7 +108,8 @@ public class PlanarStateSpellEffect : IMagicSpellEffectTemplate
 
 	public string Show(ICharacter actor)
 	{
-		return $"Planar State - {Definition.Describe(actor.Gameworld)}";
+		return SpellEffectPresentation.Describe(actor, _type.EqualTo("planeshift") ? "Plane Shift" : "Planar State",
+			("Definition", Definition.Describe(actor.Gameworld).ColourValue()));
 	}
 
 	public IMagicSpellEffect GetOrApplyEffect(ICharacter caster, IPerceivable target, OpposedOutcomeDegree outcome,
@@ -173,7 +174,7 @@ public class RemovePlanarStateSpellEffect : IMagicSpellEffectTemplate
 
 	public string Show(ICharacter actor)
 	{
-		return "Remove Planar State";
+		return SpellEffectPresentation.Describe(actor, "Remove Planar State");
 	}
 
 	public IMagicSpellEffect GetOrApplyEffect(ICharacter caster, IPerceivable target, OpposedOutcomeDegree outcome,

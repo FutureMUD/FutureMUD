@@ -156,7 +156,10 @@ public class DamageEffect : IMagicSpellEffectTemplate
         string target = BodypartId != 0
             ? Gameworld.BodypartPrototypes.Get(BodypartId)?.Name ?? "none"
             : Limb != (LimbType)(-1) ? Limb.DescribeEnum() : "random";
-        return $"Damage {DamageType.DescribeEnum()} - {DamageExpression.OriginalFormulaText.ColourCommand()} target {target}";
+        return SpellEffectPresentation.Describe(actor, "Damage",
+            ("Type", DamageType.DescribeEnum().ColourValue()),
+            ("Formula", DamageExpression.OriginalFormulaText.ColourCommand()),
+            ("Target", target.ColourValue()));
     }
 
     public bool IsInstantaneous => true;

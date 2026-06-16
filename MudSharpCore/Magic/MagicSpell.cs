@@ -1239,40 +1239,14 @@ public class MagicSpell : SaveableItem, IMagicSpell
         sb.AppendLine();
         sb.AppendLine(Description.SubstituteANSIColour().Wrap(actor.InnerLineFormatLength, "\t"));
         sb.AppendLine();
-        sb.AppendLine("Effects:");
+		AppendSpellEffectSection(sb, actor, "Effects", SpellEffects, School.PowerListColour);
         sb.AppendLine();
-        int i = 0;
-        if (SpellEffects.Any())
-        {
-            foreach (IMagicSpellEffectTemplate effect in SpellEffects)
-            {
-                sb.AppendLine($"\t{(++i).ToString("N0", actor)}) {effect.Show(actor)}");
-            }
-        }
-        else
-        {
-            sb.AppendLine("\tNone");
-        }
-
-        sb.AppendLine();
-        sb.AppendLine("Caster Effects:");
-        sb.AppendLine();
-        i = 0;
-        if (CasterSpellEffects.Any())
-        {
-            foreach (IMagicSpellEffectTemplate effect in CasterSpellEffects)
-            {
-                sb.AppendLine($"\t{(++i).ToString("N0", actor)}) {effect.Show(actor)}");
-            }
-        }
-        else
-        {
-            sb.AppendLine("\tNone");
-        }
+		AppendSpellEffectSection(sb, actor, "Caster Effects", CasterSpellEffects, School.PowerListColour);
 
         sb.AppendLine();
         sb.AppendLine("Casting Costs:");
         sb.AppendLine();
+        int i = 0;
         if (_castingCosts.Any())
         {
             foreach ((IMagicResource resource, ITraitExpression formula) in _castingCosts)
@@ -1309,6 +1283,47 @@ public class MagicSpell : SaveableItem, IMagicSpell
 
         return sb.ToString();
     }
+
+	private static void AppendSpellEffectSection(StringBuilder sb, ICharacter actor, string title,
+		IEnumerable<IMagicSpellEffectTemplate> effects, ANSIColour rulerColour)
+	{
+		sb.AppendLine(title.GetLineWithTitleInner(actor, rulerColour, Telnet.BoldWhite));
+		var effectList = effects.ToList();
+		if (effectList.Count == 0)
+		{
+			sb.AppendLine("\tNone");
+			return;
+		}
+
+		for (var i = 0; i < effectList.Count; i++)
+		{
+			AppendSpellEffectEntry(sb, actor, i + 1, effectList[i].Show(actor));
+			if (i < effectList.Count - 1)
+			{
+				sb.AppendLine();
+			}
+		}
+	}
+
+	internal static void AppendSpellEffectEntry(StringBuilder sb, ICharacter actor, int effectNumber,
+		string effectDescription)
+	{
+		var lines = (effectDescription ?? "Unknown".ColourError())
+			.SubstituteANSIColour()
+			.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None)
+			.Where(x => !string.IsNullOrWhiteSpace(x))
+			.ToList();
+		if (lines.Count == 0)
+		{
+			lines.Add("Unknown".ColourError());
+		}
+
+		sb.AppendLine($"\t{effectNumber.ToString("N0", actor)}) {lines[0].Trim()}");
+		foreach (var line in lines.Skip(1))
+		{
+			sb.AppendLine(line.Trim().Wrap(actor.InnerLineFormatLength, "\t   "));
+		}
+	}
 
     #endregion
 

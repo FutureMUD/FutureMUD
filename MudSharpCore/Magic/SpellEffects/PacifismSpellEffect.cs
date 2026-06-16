@@ -78,7 +78,8 @@ public class PacifismSpellEffect : IMagicSpellEffectTemplate
 
     public string Show(ICharacter actor)
     {
-        return $"Pacifism - {Intensity.ToString("N2", actor)}";
+        return SpellEffectPresentation.Describe(actor, "Pacifism",
+            ("Intensity", Intensity.ToString("N2", actor).ColourValue()));
     }
 
     public bool IsInstantaneous => false;

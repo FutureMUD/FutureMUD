@@ -149,7 +149,10 @@ public class RoomAtmosphereEffect : IMagicSpellEffectTemplate
 
     public string Show(ICharacter actor)
     {
-        return $"RoomAtmosphere {Atmosphere.Name.ColourValue()}";
+        return SpellEffectPresentation.Describe(actor, "Room Atmosphere",
+            ("Atmosphere", Atmosphere.Name.ColourValue()),
+            ("Type", (Atmosphere is IGas ? "Gas" : "Liquid").ColourValue()),
+            ("Description Addendum", string.IsNullOrWhiteSpace(DescAddendum) ? "None".ColourError() : DescAddendum.Colour(AddendumColour)));
     }
 
     public bool IsInstantaneous => false;

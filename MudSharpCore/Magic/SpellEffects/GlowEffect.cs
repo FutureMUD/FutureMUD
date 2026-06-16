@@ -183,8 +183,10 @@ Note: You can use {0} in the sdesc/desc addenda to have a light-level descriptio
 
     public string Show(ICharacter actor)
     {
-        return
-            $"GlowEffect - {GlowLuxPerPower.ToString("N3", actor)} lux - {SDescAddendum.Colour(GlowAddendumColour)} - {DescAddendum.Colour(GlowAddendumColour)}";
+        return SpellEffectPresentation.Describe(actor, "Glow",
+            ("Lux Per Power", $"{GlowLuxPerPower.ToString("N3", actor)} lux".ColourValue()),
+            ("Short Addendum", SDescAddendum.Colour(GlowAddendumColour)),
+            ("Description Addendum", DescAddendum.Colour(GlowAddendumColour)));
     }
 
     #endregion

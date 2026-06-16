@@ -503,6 +503,15 @@ public class DispelMagicEffect : IMagicSpellEffectTemplate
 
 	public string Show(ICharacter actor)
 	{
-		return $"DispelMagic - {Mode.DescribeEnum().ColourValue()} - Caster {CasterPolicy.DescribeEnum().ColourValue()} - Hostile {AllowHostile.ToColouredString()} - School #{SchoolId.ToString("N0", actor).ColourValue()} - Spell #{SpellId.ToString("N0", actor).ColourValue()} - Tag {(string.IsNullOrWhiteSpace(Tag) ? "any".ColourValue() : $"{Tag}={TagValue}".ColourName())} - Effect {EffectKey.ColourCommand()} - Contest {Contest.ToColouredString()} ({ContestBonus.ToString("N0", actor).ColourValue()})";
+		return SpellEffectPresentation.Describe(actor, "Dispel Magic",
+			("Mode", Mode.DescribeEnum().ColourValue()),
+			("Caster Policy", CasterPolicy.DescribeEnum().ColourValue()),
+			("Allow Hostile", AllowHostile.ToColouredString()),
+			("School", $"#{SchoolId.ToString("N0", actor).ColourValue()}"),
+			("Spell", $"#{SpellId.ToString("N0", actor).ColourValue()}"),
+			("Tag", string.IsNullOrWhiteSpace(Tag) ? "any".ColourValue() : $"{Tag}={TagValue}".ColourName()),
+			("Effect Key", EffectKey.ColourCommand()),
+			("Contest", $"{Contest.ToColouredString()} ({ContestBonus.ToString("N0", actor).ColourValue()})")
+		);
 	}
 }

@@ -101,7 +101,7 @@ public abstract class CharacterSpellEffectTemplateBase : IMagicSpellEffectTempla
 
 	public virtual string Show(ICharacter actor)
 	{
-		return ShowText;
+		return SpellEffectPresentation.Describe(actor, ShowText);
 	}
 
 	public bool IsCompatibleWithTrigger(IMagicTrigger trigger)

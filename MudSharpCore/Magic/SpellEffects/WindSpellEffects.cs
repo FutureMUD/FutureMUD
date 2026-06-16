@@ -213,9 +213,12 @@ public class LevitationEffect : IMagicSpellEffectTemplate
 
 	public string Show(ICharacter actor)
 	{
-		return PreserveLayer
-			? $"Levitate - current layer - {SDescAddendum.Colour(AddendumColour)}"
-			: $"Levitate - {TargetLayer.DescribeEnum().ColourName()} - {SDescAddendum.Colour(AddendumColour)}";
+		return SpellEffectPresentation.Describe(actor, "Levitate",
+			("Layer", PreserveLayer ? "Current Layer".ColourName() : TargetLayer.DescribeEnum().ColourName()),
+			("SDesc Addendum", SDescAddendum.Colour(AddendumColour)),
+			("Desc Addendum", DescAddendum.Colour(AddendumColour)),
+			("Colour", AddendumColour.Name.Colour(AddendumColour))
+		);
 	}
 
 	public const string HelpText = @"You can use the following options with this effect:
@@ -406,8 +409,13 @@ public class FeatherFallEffect : IMagicSpellEffectTemplate
 
 	public string Show(ICharacter actor)
 	{
-		return
-			$"Feather Fall - distance x{FallDistanceMultiplier.ToString("N2", actor).ColourValue()} damage x{FallDamageMultiplier.ToString("N2", actor).ColourValue()} - {SDescAddendum.Colour(AddendumColour)}";
+		return SpellEffectPresentation.Describe(actor, "Feather Fall",
+			("Fall Distance Multiplier", FallDistanceMultiplier.ToString("N2", actor).ColourValue()),
+			("Fall Damage Multiplier", FallDamageMultiplier.ToString("N2", actor).ColourValue()),
+			("SDesc Addendum", SDescAddendum.Colour(AddendumColour)),
+			("Desc Addendum", DescAddendum.Colour(AddendumColour)),
+			("Colour", AddendumColour.Name.Colour(AddendumColour))
+		);
 	}
 
 	public const string HelpText = @"You can use the following options with this effect:
@@ -486,7 +494,7 @@ public class RemoveInvisibilityEffect : IMagicSpellEffectTemplate
 
 	public string Show(ICharacter actor)
 	{
-		return "Remove Invisibility";
+		return SpellEffectPresentation.Describe(actor, "Remove Invisibility");
 	}
 
 	public const string HelpText = "This effect has no additional builder options.";
@@ -701,7 +709,10 @@ public class ForcedPathMovementEffect : IMagicSpellEffectTemplate
 
 	public string Show(ICharacter actor)
 	{
-		return $"Forced Path Movement - {Steps.ToString("N0", actor).ColourValue()} steps - Fall Exits {AllowFallExits.ToColouredString()}";
+		return SpellEffectPresentation.Describe(actor, "Forced Path Movement",
+			("Steps", Steps.ToString("N0", actor).ColourValue()),
+			("Allow Fall Exits", AllowFallExits.ToColouredString())
+		);
 	}
 
 	public const string HelpText = @"You can use the following options with this effect:
@@ -819,7 +830,10 @@ public class TransferenceEffect : IMagicSpellEffectTemplate
 
 	public string Show(ICharacter actor)
 	{
-		return $"Transference - Followers {IncludeFollowers.ToColouredString()} - Swap Layers {SwapLayers.ToColouredString()}";
+		return SpellEffectPresentation.Describe(actor, "Transference",
+			("Include Followers", IncludeFollowers.ToColouredString()),
+			("Swap Layers", SwapLayers.ToColouredString())
+		);
 	}
 
 	public const string HelpText = @"You can use the following options with this effect:

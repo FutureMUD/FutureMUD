@@ -138,8 +138,9 @@ class CreateNPCEffect : IMagicSpellEffectTemplate
 
     public string Show(ICharacter actor)
     {
-        return
-            $"CreateNPC - {NPCTemplate?.EditHeader() ?? "nothing".ColourError()} - OnLoad: {_onLoadProg?.MXPClickableFunctionName() ?? "none".ColourError()}";
+        return SpellEffectPresentation.Describe(actor, "Create NPC",
+            ("Template", NPCTemplate?.EditHeader() ?? "nothing".ColourError()),
+            ("On Load", _onLoadProg?.MXPClickableFunctionName() ?? "none".ColourError()));
     }
 
     public bool BuildingCommand(ICharacter actor, StringStack command)

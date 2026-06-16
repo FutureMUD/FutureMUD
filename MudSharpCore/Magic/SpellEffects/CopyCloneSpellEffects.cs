@@ -241,8 +241,19 @@ public partial class CopySpellEffect : IMagicSpellEffectTemplate
 	public string Show(ICharacter actor)
 	{
 		var plane = Gameworld.Planes.Get(EffectivePlaneId());
-		return
-			$"CreateCopy [{FormKey.ColourCommand()}] Race {_race.Name.ColourName()}, Ethnicity {_ethnicity?.Name.ColourName() ?? "Auto".ColourValue()}, Gender {_gender?.DescribeEnum().ColourValue() ?? "Auto".ColourValue()}, Alias {(_alias ?? "auto").ColourCommand()}, Focusable {_playerFocusable.ToColouredString()}, Persistence {_persistencePolicy.DescribeEnum().ColourValue()}, Intangible {_intangible.ToColouredString()}, Plane {(plane?.Name ?? $"#{EffectivePlaneId().ToString("N0", actor)}").ColourName()}, CollapseEcho {DescribeEcho(_collapseEcho, DefaultCollapseEcho)}, Backlash {DescribeEcho(_backlashEcho, string.Empty)}";
+		return SpellEffectPresentation.Describe(actor, "Create Copy",
+			("Form Key", FormKey.ColourCommand()),
+			("Race", _race.Name.ColourName()),
+			("Ethnicity", _ethnicity?.Name.ColourName() ?? "Auto".ColourValue()),
+			("Gender", _gender?.DescribeEnum().ColourValue() ?? "Auto".ColourValue()),
+			("Alias", (_alias ?? "auto").ColourCommand()),
+			("Focusable", _playerFocusable.ToColouredString()),
+			("Persistence", _persistencePolicy.DescribeEnum().ColourValue()),
+			("Intangible", _intangible.ToColouredString()),
+			("Plane", (plane?.Name ?? $"#{EffectivePlaneId().ToString("N0", actor)}").ColourName()),
+			("Collapse Echo", DescribeEcho(_collapseEcho, DefaultCollapseEcho)),
+			("Backlash", DescribeEcho(_backlashEcho, string.Empty))
+		);
 	}
 
 	public bool BuildingCommand(ICharacter actor, StringStack command)
@@ -830,8 +841,17 @@ public class CloneSpellEffect : IMagicSpellEffectTemplate
 
 	public string Show(ICharacter actor)
 	{
-		return
-			$"CreateClone [{FormKey.ColourCommand()}] Race {_race.Name.ColourName()}, Ethnicity {_ethnicity?.Name.ColourName() ?? "Auto".ColourValue()}, Gender {_gender?.DescribeEnum().ColourValue() ?? "Auto".ColourValue()}, Alias {(_alias ?? "auto").ColourCommand()}, Focusable {_playerFocusable.ToColouredString()}, Persistence {_persistencePolicy.DescribeEnum().ColourValue()}, DeathEcho {CopySpellEffect.DescribeEchoForClone(_deathEcho, DefaultDeathEcho)}, Backlash {CopySpellEffect.DescribeEchoForClone(_backlashEcho, string.Empty)}";
+		return SpellEffectPresentation.Describe(actor, "Create Clone",
+			("Form Key", FormKey.ColourCommand()),
+			("Race", _race.Name.ColourName()),
+			("Ethnicity", _ethnicity?.Name.ColourName() ?? "Auto".ColourValue()),
+			("Gender", _gender?.DescribeEnum().ColourValue() ?? "Auto".ColourValue()),
+			("Alias", (_alias ?? "auto").ColourCommand()),
+			("Focusable", _playerFocusable.ToColouredString()),
+			("Persistence", _persistencePolicy.DescribeEnum().ColourValue()),
+			("Death Echo", CopySpellEffect.DescribeEchoForClone(_deathEcho, DefaultDeathEcho)),
+			("Backlash", CopySpellEffect.DescribeEchoForClone(_backlashEcho, string.Empty))
+		);
 	}
 
 	public bool BuildingCommand(ICharacter actor, StringStack command)

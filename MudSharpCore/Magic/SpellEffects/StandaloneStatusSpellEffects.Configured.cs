@@ -46,6 +46,14 @@ public class PoisonEffect : CharacterSpellEffectTemplateBase
 	protected override string ShowText =>
 		$"Poison - {(Drug?.Name ?? "None")} via {Vector.Describe()} at {GramsExpression.OriginalFormulaText}";
 
+	public override string Show(ICharacter actor)
+	{
+		return SpellEffectPresentation.Describe(actor, "Poison",
+			("Drug", (Drug?.Name ?? "None").ColourValue()),
+			("Vector", Vector.Describe().ColourValue()),
+			("Grams", GramsExpression.OriginalFormulaText.ColourCommand()));
+	}
+
 	protected override void LoadFromXml(XElement root)
 	{
 		XElement? drugElement = root.Element("Drug");
@@ -199,6 +207,14 @@ public class RemovePoisonEffect : CharacterSpellEffectRemovalTemplateBase
 	protected override string BuilderEffectType => "removepoison";
 	protected override string ShowText => $"Remove Poison - {(Drug?.Name ?? "None")} via {Vector.Describe()} at {FormulaText}";
 
+	public override string Show(ICharacter actor)
+	{
+		return SpellEffectPresentation.Describe(actor, "Remove Poison",
+			("Drug", (Drug?.Name ?? "None").ColourValue()),
+			("Vector", Vector.Describe().ColourValue()),
+			("Formula", FormulaText.ColourCommand()));
+	}
+
 	protected override void LoadFromXml(XElement root)
 	{
 		XElement? drugElement = root.Element("Drug");
@@ -341,6 +357,15 @@ public class DiseaseEffect : CharacterSpellEffectTemplateBase
 	protected override string BuilderEffectType => "disease";
 	protected override string ShowText =>
 		$"Disease - {InfectionType.Describe()} @ {VirulenceDifficulty.DescribeEnum()} intensity {IntensityExpression.OriginalFormulaText} virulence {VirulenceExpression.OriginalFormulaText}";
+
+	public override string Show(ICharacter actor)
+	{
+		return SpellEffectPresentation.Describe(actor, "Disease",
+			("Type", InfectionType.Describe().ColourValue()),
+			("Virulence Difficulty", VirulenceDifficulty.DescribeEnum().ColourValue()),
+			("Intensity", IntensityExpression.OriginalFormulaText.ColourCommand()),
+			("Virulence", VirulenceExpression.OriginalFormulaText.ColourCommand()));
+	}
 
 	protected override void LoadFromXml(XElement root)
 	{
@@ -508,6 +533,15 @@ public class RemoveDiseaseEffect : CharacterSpellEffectRemovalTemplateBase
 	protected override string BuilderEffectType => "removedisease";
 	protected override string ShowText =>
 		$"Remove Disease - {InfectionType.Describe()} @ {VirulenceDifficulty.DescribeEnum()} intensity {IntensityFormulaText} virulence {VirulenceFormulaText}";
+
+	public override string Show(ICharacter actor)
+	{
+		return SpellEffectPresentation.Describe(actor, "Remove Disease",
+			("Type", InfectionType.Describe().ColourValue()),
+			("Virulence Difficulty", VirulenceDifficulty.DescribeEnum().ColourValue()),
+			("Intensity", IntensityFormulaText.ColourCommand()),
+			("Virulence", VirulenceFormulaText.ColourCommand()));
+	}
 
 	protected override void LoadFromXml(XElement root)
 	{

@@ -239,6 +239,46 @@ internal class KnowledgePickerBySkillScreenStoryboard : ChargenScreenStoryboard
             return true;
         }
 
+        internal static string FormatExistingKnowledges(IEnumerable<IKnowledge> selectedKnowledges, int lineFormatLength)
+        {
+            var knowledges = selectedKnowledges
+                             .OrderBy(x => x.Name)
+                             .Select(x => $"\t{x.Description.TitleCase().Colour(Telnet.Cyan)}"
+                                          .Wrap(Math.Max(lineFormatLength, 40), "\t"))
+                             .ToList();
+            if (!knowledges.Any())
+            {
+                return string.Empty;
+            }
+
+            return $"You already have the following knowledges:\n{string.Join("\n", knowledges)}";
+        }
+
+        internal static string FormatAvailableKnowledges(IEnumerable<IKnowledge> availableKnowledges,
+            ICollection<IKnowledge> currentPicks, int lineFormatLength)
+        {
+            var choice = 1;
+            var rows = availableKnowledges
+                       .OrderBy(x => x.Name)
+                       .Select(x =>
+                       {
+                       var prefix = $"{choice++}: ";
+                       var description = CurrentPickDescription(x, currentPicks);
+                       return $"{prefix}{description}"
+                              .Wrap(Math.Max(lineFormatLength, 40))
+                              .Replace("\n", $"\n{new string(' ', prefix.Length)}");
+                   });
+            return string.Join("\n", rows);
+        }
+
+        private static string CurrentPickDescription(IKnowledge knowledge, ICollection<IKnowledge> currentPicks)
+        {
+            var description = knowledge.Description.TitleCase();
+            return currentPicks.Contains(knowledge)
+                ? description.Colour(Telnet.Green).Parentheses()
+                : description;
+        }
+
         public override string Display()
         {
             if (!ShownIntroduction)
@@ -259,17 +299,23 @@ internal class KnowledgePickerBySkillScreenStoryboard : ChargenScreenStoryboard
                 return DisplayChargenAdvice();
             }
 
-            int choice = 1;
-            return
-                $@"#6Knowledges for {SkillEnumerator.Current.Trait.Name}#0
+            var sb = new StringBuilder();
+            sb.AppendLine($"#6Knowledges for {SkillEnumerator.Current.Trait.Name}#0");
+            sb.AppendLine();
+            var existingKnowledges = FormatExistingKnowledges(Chargen.SelectedKnowledges, Account.LineFormatLength);
+            if (!string.IsNullOrEmpty(existingKnowledges))
+            {
+                sb.AppendLine(existingKnowledges);
+                sb.AppendLine();
+            }
 
-You already have the following knowledges: {Chargen.SelectedKnowledges.Select(x => x.Description.Colour(Telnet.Cyan)).ListToString()}
-
-{CurrentKnowledgesAvailable.OrderBy(x => x.Name).Select(x => $"{choice++}: {(CurrentPicks.Contains(x) ? x.Description.TitleCase().Colour(Telnet.Green).Parentheses() : x.Description.TitleCase())}").ArrangeStringsOntoLines((uint)Account.LineFormatLength / 55, (uint)Account.LineFormatLength)}
-
-You are allowed #2{Storyboard.NumberOfPicksProg.Execute(Chargen, SkillEnumerator.Current.Trait)}#0 picks. 
-
-Enter the name or number of the knowledge you would like to select, and #3done#0 to finish.".SubstituteANSIColour();
+            sb.AppendLine(FormatAvailableKnowledges(CurrentKnowledgesAvailable, CurrentPicks, Account.LineFormatLength));
+            sb.AppendLine();
+            sb.AppendLine(
+                $"You are allowed #2{Storyboard.NumberOfPicksProg.Execute(Chargen, SkillEnumerator.Current.Trait)}#0 picks. ");
+            sb.AppendLine();
+            sb.Append("Enter the name or number of the knowledge you would like to select, and #3done#0 to finish.");
+            return sb.ToString().SubstituteANSIColour();
         }
 
         public override string HandleCommand(string command)

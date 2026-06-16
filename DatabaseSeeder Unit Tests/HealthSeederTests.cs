@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MudSharp.Database;
+using MudSharp.FutureProg;
 using MudSharp.Health;
 using MudSharp.Models;
 using MudSharp.RPG.Checks;
@@ -14,6 +15,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
 using Drug = MudSharp.Models.Drug;
+using DbFutureProg = MudSharp.Models.FutureProg;
 
 namespace MudSharp_Unit_Tests;
 
@@ -103,7 +105,7 @@ public class HealthSeederTests
     {
         FuturemudDatabaseContext context = BuildContext();
         SeedAccount(context);
-        context.FutureProgs.Add(new FutureProg
+        context.FutureProgs.Add(new DbFutureProg
         {
             Id = 1,
             FunctionName = "AlwaysTrue",
@@ -352,6 +354,74 @@ public class HealthSeederTests
         Assert.AreEqual((int)SurgicalProcedureType.InstallProsthetic, prostheticFitting.Procedure);
         Assert.AreEqual((int)CheckType.InstallProstheticSurgery, prostheticFitting.Check);
         Assert.IsTrue(prostheticFitting.SurgicalProcedurePhases.Any(x => x.PhaseSpecialEffects == "exposed"));
+    }
+
+    [TestMethod]
+    public void SeedData_HealthKnowledges_UseSkillSpecificChargenAvailabilityProgs()
+    {
+        Dictionary<string, IReadOnlyDictionary<string, string>> expectations = new()
+        {
+            ["primitive"] = new Dictionary<string, string>
+            {
+                ["Medicine"] = "HealthCanPickBroadMedicalKnowledgeAtChargen",
+                ["Animal Medicine"] = "HealthCanPickBroadMedicalKnowledgeAtChargen"
+            },
+            ["pre-modern"] = new Dictionary<string, string>
+            {
+                ["Chiurgery"] = "HealthCanPickSurgicalKnowledgeAtChargen",
+                ["Physical Medicine"] = "HealthCanPickBroadMedicalKnowledgeAtChargen",
+                ["Veterinary Medicine"] = "HealthCanPickCareKnowledgeAtChargen",
+                ["Veterinary Chiurgery"] = "HealthCanPickSurgicalKnowledgeAtChargen"
+            },
+            ["modern"] = new Dictionary<string, string>
+            {
+                ["Diagnostic Medicine"] = "HealthCanPickDiagnosticKnowledgeAtChargen",
+                ["Clinical Medicine"] = "HealthCanPickCareKnowledgeAtChargen",
+                ["Surgery"] = "HealthCanPickSurgicalKnowledgeAtChargen",
+                ["Veterinary Medicine"] = "HealthCanPickCareKnowledgeAtChargen",
+                ["Veterinary Surgery"] = "HealthCanPickSurgicalKnowledgeAtChargen"
+            }
+        };
+
+        foreach ((string techLevel, IReadOnlyDictionary<string, string> expectedProgs) in expectations)
+        {
+            using FuturemudDatabaseContext context = BuildHealthSeederInstallContext();
+            HealthSeeder seeder = new();
+
+            seeder.SeedData(context, new Dictionary<string, string>
+            {
+                ["techlevel"] = techLevel
+            });
+
+            foreach ((string knowledgeName, string expectedProgName) in expectedProgs)
+            {
+                Knowledge knowledge = context.Knowledges
+                    .Include(x => x.CanAcquireProg)
+                    .ThenInclude(x => x.FutureProgsParameters)
+                    .Single(x => x.Name == knowledgeName);
+                Assert.IsNotNull(knowledge.CanAcquireProg, $"{knowledgeName} should have a chargen availability prog.");
+                Assert.AreEqual(expectedProgName, knowledge.CanAcquireProg!.FunctionName, knowledgeName);
+                Assert.AreNotEqual("AlwaysTrue", knowledge.CanAcquireProg.FunctionName, knowledgeName);
+                AssertSkillAvailabilityProgShape(knowledge.CanAcquireProg);
+            }
+        }
+    }
+
+    private static void AssertSkillAvailabilityProgShape(DbFutureProg prog)
+    {
+        Assert.AreEqual(ProgVariableTypes.Boolean.ToStorageString(), prog.ReturnTypeDefinition);
+        Assert.AreEqual("Chargen", prog.Category);
+        Assert.AreEqual("Knowledge", prog.Subcategory);
+        Assert.IsFalse(prog.AcceptsAnyParameters);
+
+        FutureProgsParameter[] parameters = prog.FutureProgsParameters
+            .OrderBy(x => x.ParameterIndex)
+            .ToArray();
+        Assert.AreEqual(2, parameters.Length);
+        Assert.AreEqual("ch", parameters[0].ParameterName);
+        Assert.AreEqual(ProgVariableTypes.Toon.ToStorageString(), parameters[0].ParameterTypeDefinition);
+        Assert.AreEqual("trait", parameters[1].ParameterName);
+        Assert.AreEqual(ProgVariableTypes.Trait.ToStorageString(), parameters[1].ParameterTypeDefinition);
     }
 
     [TestMethod]

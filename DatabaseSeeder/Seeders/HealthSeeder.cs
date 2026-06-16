@@ -4,6 +4,7 @@ using MudSharp.Body;
 using MudSharp.Combat;
 using MudSharp.Database;
 using MudSharp.Framework;
+using MudSharp.FutureProg;
 using MudSharp.GameItems.Inventory;
 using MudSharp.Health;
 using MudSharp.Models;
@@ -247,6 +248,10 @@ Please answer #3primitive#F, #3pre-modern#0, or #3modern#F: ",
         private BodyProto _humanBody = null!;
         private BodyProto? _quadrupedBody;
         private MudSharp.Models.FutureProg? _alwaysTrueProg;
+        private MudSharp.Models.FutureProg? _broadMedicalKnowledgeChargenProg;
+        private MudSharp.Models.FutureProg? _surgicalKnowledgeChargenProg;
+        private MudSharp.Models.FutureProg? _diagnosticKnowledgeChargenProg;
+        private MudSharp.Models.FutureProg? _careKnowledgeChargenProg;
 
         private MudSharp.Models.FutureProg AlwaysTrueProg
         {
@@ -255,6 +260,47 @@ Please answer #3primitive#F, #3pre-modern#0, or #3modern#F: ",
                 _alwaysTrueProg ??= _context.FutureProgs.First(x => x.FunctionName == "AlwaysTrue");
                 return _alwaysTrueProg;
             }
+        }
+
+        private MudSharp.Models.FutureProg BroadMedicalKnowledgeChargenProg =>
+            _broadMedicalKnowledgeChargenProg ??= EnsureHealthKnowledgeChargenProg(
+                "HealthCanPickBroadMedicalKnowledgeAtChargen",
+                "Allows broad stock health knowledges to be picked only for medical skills in chargen.",
+                @"return @trait.Group == ""Medical"" or @trait.Name == ""Medicine""");
+
+        private MudSharp.Models.FutureProg SurgicalKnowledgeChargenProg =>
+            _surgicalKnowledgeChargenProg ??= EnsureHealthKnowledgeChargenProg(
+                "HealthCanPickSurgicalKnowledgeAtChargen",
+                "Allows stock surgical knowledges to be picked for Surgery or the simple Medicine skill in chargen.",
+                @"return In(@trait.Name, ""Surgery"", ""Medicine"")");
+
+        private MudSharp.Models.FutureProg DiagnosticKnowledgeChargenProg =>
+            _diagnosticKnowledgeChargenProg ??= EnsureHealthKnowledgeChargenProg(
+                "HealthCanPickDiagnosticKnowledgeAtChargen",
+                "Allows stock diagnostic knowledges to be picked for Diagnosis or the simple Medicine skill in chargen.",
+                @"return In(@trait.Name, ""Diagnosis"", ""Medicine"")");
+
+        private MudSharp.Models.FutureProg CareKnowledgeChargenProg =>
+            _careKnowledgeChargenProg ??= EnsureHealthKnowledgeChargenProg(
+                "HealthCanPickCareKnowledgeAtChargen",
+                "Allows stock care knowledges to be picked for First Aid, Patient Care or the simple Medicine skill in chargen.",
+                @"return In(@trait.Name, ""First Aid"", ""Patient Care"", ""Medicine"")");
+
+        private MudSharp.Models.FutureProg EnsureHealthKnowledgeChargenProg(string name, string comment, string text)
+        {
+            return SeederRepeatabilityHelper.EnsureProg(
+                _context,
+                name,
+                "Chargen",
+                "Knowledge",
+                ProgVariableTypes.Boolean,
+                comment,
+                text,
+                false,
+                false,
+                FutureProgStaticType.NotStatic,
+                (ProgVariableTypes.Toon, "ch"),
+                (ProgVariableTypes.Trait, "trait"));
         }
 
         public int SortOrder => 250;
@@ -270,6 +316,11 @@ Please answer #3primitive#F, #3pre-modern#0, or #3modern#F: ",
             _questionAnswers = questionAnswers;
             _humanBody = _context.BodyProtos.First(x => x.Name == "Organic Humanoid");
             _quadrupedBody = _context.BodyProtos.FirstOrDefault(x => x.Name == "Quadruped Base");
+            _alwaysTrueProg = null;
+            _broadMedicalKnowledgeChargenProg = null;
+            _surgicalKnowledgeChargenProg = null;
+            _diagnosticKnowledgeChargenProg = null;
+            _careKnowledgeChargenProg = null;
 
             _tags.Clear();
             foreach (Tag? tag in _context.Tags.ToArray())
@@ -348,7 +399,7 @@ Please answer #3primitive#F, #3pre-modern#0, or #3modern#F: ",
         private string SelectedTechLevel => NormaliseTechLevel(_questionAnswers["techlevel"]);
 
         private void AddKnowledge(string name, string type, string subType, int sessions, Difficulty difficulty,
-            string description, string longDescription)
+            string description, string longDescription, MudSharp.Models.FutureProg? chargenAvailabilityProg = null)
         {
             Knowledge knowledge = SeederRepeatabilityHelper.EnsureNamedEntity(
                 _context.Knowledges,
@@ -370,7 +421,7 @@ Please answer #3primitive#F, #3pre-modern#0, or #3modern#F: ",
             knowledge.LearnDifficulty = (int)difficulty;
             knowledge.TeachDifficulty = (int)difficulty;
             knowledge.LearningSessionsRequired = sessions;
-            knowledge.CanAcquireProg = AlwaysTrueProg;
+            knowledge.CanAcquireProg = chargenAvailabilityProg ?? BroadMedicalKnowledgeChargenProg;
             knowledge.CanLearnProg = AlwaysTrueProg;
             _knowledges[name] = knowledge;
         }
@@ -404,7 +455,8 @@ Please answer #3primitive#F, #3pre-modern#0, or #3modern#F: ",
                         15,
                         Difficulty.Hard,
                         "Knowledge of performing surgery and major interventions on humans",
-                        "Chiurgery is the practical craft of opening, repairing, removing, and closing injured portions of the body.");
+                        "Chiurgery is the practical craft of opening, repairing, removing, and closing injured portions of the body.",
+                        SurgicalKnowledgeChargenProg);
                     AddKnowledge(
                         "Physical Medicine",
                         "Medicine",
@@ -418,13 +470,15 @@ Please answer #3primitive#F, #3pre-modern#0, or #3modern#F: ",
                         18,
                         Difficulty.Hard,
                         "Knowledge of diagnosing and treating mammalian patients",
-                        "This knowledge covers practical veterinary assessment, bandaging, fracture care, and stabilisation for mammals.");
+                        "This knowledge covers practical veterinary assessment, bandaging, fracture care, and stabilisation for mammals.",
+                        CareKnowledgeChargenProg);
                     AddOptionalVeterinaryKnowledge(
                         "Veterinary Chiurgery",
                         18,
                         Difficulty.VeryHard,
                         "Knowledge of surgical interventions on mammalian patients",
-                        "This knowledge covers the surgical craft required to open, repair, or remove damaged tissue in mammalian patients.");
+                        "This knowledge covers the surgical craft required to open, repair, or remove damaged tissue in mammalian patients.",
+                        SurgicalKnowledgeChargenProg);
                     break;
 
                 case "modern":
@@ -435,7 +489,8 @@ Please answer #3primitive#F, #3pre-modern#0, or #3modern#F: ",
                         20,
                         Difficulty.Hard,
                         "Knowledge of diagnosing illness and trauma in humans",
-                        "This knowledge covers the signs, symptoms, and assessments used to diagnose disease and injury in human patients.");
+                        "This knowledge covers the signs, symptoms, and assessments used to diagnose disease and injury in human patients.",
+                        DiagnosticKnowledgeChargenProg);
                     AddKnowledge(
                         "Clinical Medicine",
                         "Medicine",
@@ -443,7 +498,8 @@ Please answer #3primitive#F, #3pre-modern#0, or #3modern#F: ",
                         10,
                         Difficulty.Normal,
                         "Knowledge of routine clinical procedures used in human medicine",
-                        "This knowledge covers bedside practice, patient handling, and the common procedures used in clinical environments.");
+                        "This knowledge covers bedside practice, patient handling, and the common procedures used in clinical environments.",
+                        CareKnowledgeChargenProg);
                     AddKnowledge(
                         "Surgery",
                         "Medicine",
@@ -451,19 +507,22 @@ Please answer #3primitive#F, #3pre-modern#0, or #3modern#F: ",
                         15,
                         Difficulty.Hard,
                         "Knowledge of surgical procedures and techniques",
-                        "This knowledge covers the operative procedures used to expose, repair, remove, replace, and reconstruct parts of the human body.");
+                        "This knowledge covers the operative procedures used to expose, repair, remove, replace, and reconstruct parts of the human body.",
+                        SurgicalKnowledgeChargenProg);
                     AddOptionalVeterinaryKnowledge(
                         "Veterinary Medicine",
                         15,
                         Difficulty.Hard,
                         "Knowledge of modern veterinary diagnosis and care for mammals",
-                        "This knowledge covers diagnostic work, clinical care, and stabilisation for common mammalian veterinary patients.");
+                        "This knowledge covers diagnostic work, clinical care, and stabilisation for common mammalian veterinary patients.",
+                        CareKnowledgeChargenProg);
                     AddOptionalVeterinaryKnowledge(
                         "Veterinary Surgery",
                         18,
                         Difficulty.Hard,
                         "Knowledge of surgical procedures and techniques for mammals",
-                        "This knowledge covers operative veterinary work for mammalian patients, including trauma care and limb surgery.");
+                        "This knowledge covers operative veterinary work for mammalian patients, including trauma care and limb surgery.",
+                        SurgicalKnowledgeChargenProg);
                     break;
             }
 
@@ -471,14 +530,15 @@ Please answer #3primitive#F, #3pre-modern#0, or #3modern#F: ",
         }
 
         private void AddOptionalVeterinaryKnowledge(string name, int sessions, Difficulty difficulty, string description,
-            string longDescription)
+            string longDescription, MudSharp.Models.FutureProg? chargenAvailabilityProg = null)
         {
             if (_quadrupedBody is null)
             {
                 return;
             }
 
-            AddKnowledge(name, "Medicine", "Animal", sessions, difficulty, description, longDescription);
+            AddKnowledge(name, "Medicine", "Animal", sessions, difficulty, description, longDescription,
+                chargenAvailabilityProg);
         }
 
         private void SeedSurgery()

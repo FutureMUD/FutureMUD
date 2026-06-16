@@ -25,6 +25,8 @@ This folder is organised by subsystem so implementation notes, builder workflows
 - [Character Creation Builder Workflows](./Characters/Character_Creation_Builder_Workflows.md)
 - [Character Creation Seeder](./Characters/Character_Creation_Seeder.md)
 - [Multiple Body Form System](./Characters/Multiple_Body_Form_System.md)
+- [Multiple Body Forms and Instances Builder Guide](./Characters/Multiple_Body_Forms_and_Instances_Builder_Guide.md)
+- [Multiple Simultaneous Body Instances Design](./Characters/Multiple_Simultaneous_Body_Instances_Design.md)
 
 ## Combat
 - [Combat Arenas Design](./Combat/Combat_Arenas_Design.md)

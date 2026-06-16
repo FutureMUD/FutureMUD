@@ -7,10 +7,14 @@ using MudSharp.Construction;
 using MudSharp.Database;
 using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;
+using MudSharp.GameItems;
+using MudSharp.GameItems.Interfaces;
 using MudSharp.Models;
 using MudSharp.NPC;
+using MudSharp.NPC.AI;
 using MudSharp.Vehicles;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 #nullable enable
@@ -27,8 +31,17 @@ public enum SecondaryCharacterInstanceSpawnMode
 {
 	Passive,
 	PlayerFocusable,
-	NpcAiControlled
+	NpcAiControlled,
+	ScriptAiControlled
 }
+
+public sealed record CharacterInstanceInventoryCloneResult(
+	int WornCloned,
+	int WieldedCloned,
+	int HeldCloned,
+	int DroppedCloned,
+	int FailedCloned
+);
 
 public sealed record SecondaryCharacterInstanceSpawnOptions
 {
@@ -47,6 +60,9 @@ public sealed record SecondaryCharacterInstanceSpawnOptions
 	public CharacterStatus InitialStatus { get; init; } = CharacterStatus.Active;
 	public string? InstanceName { get; init; }
 	public string? EffectData { get; init; }
+	public IReadOnlyCollection<IArtificialIntelligence> ArtificialIntelligences { get; init; } =
+		Array.Empty<IArtificialIntelligence>();
+	public bool CloneInventoryFromPrimary { get; init; }
 }
 
 public static class CharacterInstanceService
@@ -63,6 +79,7 @@ public static class CharacterInstanceService
 		{
 			SecondaryCharacterInstanceSpawnMode.PlayerFocusable => CharacterInstanceControlPolicy.PlayerFocusable,
 			SecondaryCharacterInstanceSpawnMode.NpcAiControlled => CharacterInstanceControlPolicy.NpcAiControlled,
+			SecondaryCharacterInstanceSpawnMode.ScriptAiControlled => CharacterInstanceControlPolicy.ScriptOnly,
 			_ => CharacterInstanceControlPolicy.NotControllable
 		};
 
@@ -72,12 +89,49 @@ public static class CharacterInstanceService
 			Form = form,
 			Location = location,
 			RoomLayer = roomLayer,
-			InstanceKind = CharacterInstanceKind.Other,
+			InstanceKind = mode == SecondaryCharacterInstanceSpawnMode.ScriptAiControlled
+				? CharacterInstanceKind.ScriptedAi
+				: CharacterInstanceKind.Other,
 			ControlPolicy = controlPolicy,
 			DeathPolicy = CharacterInstanceDeathPolicy.DestroyInstanceOnly,
 			PerceptionPolicy = CharacterInstancePerceptionPolicy.OrdinaryEmbodied,
 			PersistencePolicy = persistencePolicy,
 			InstanceName = form.Alias
+		};
+	}
+
+	public static SecondaryCharacterInstanceSpawnOptions CreateScriptedAiSpawnOptions(
+		ICharacter owner,
+		ICharacterForm form,
+		ICell location,
+		RoomLayer roomLayer,
+		IEnumerable<IArtificialIntelligence>? artificialIntelligences = null,
+		bool cloneInventory = false,
+		CharacterInstancePersistencePolicy persistencePolicy = CharacterInstancePersistencePolicy.DespawnOnReboot)
+	{
+		var ais = artificialIntelligences?.Where(x => x is not null).Distinct().ToList() ??
+		          new List<IArtificialIntelligence>();
+		return new SecondaryCharacterInstanceSpawnOptions
+		{
+			Owner = owner,
+			Form = form,
+			Location = location,
+			RoomLayer = roomLayer,
+			InstanceKind = CharacterInstanceKind.ScriptedAi,
+			ControlPolicy = CharacterInstanceControlPolicy.ScriptOnly,
+			DeathPolicy = CharacterInstanceDeathPolicy.DestroyInstanceOnly,
+			PerceptionPolicy = CharacterInstancePerceptionPolicy.OrdinaryEmbodied,
+			PersistencePolicy = persistencePolicy,
+			InstanceName = form.Alias,
+			ArtificialIntelligences = ais,
+			CloneInventoryFromPrimary = cloneInventory,
+			EffectData = CharacterInstanceMetadata.CreateScriptedAiEffectData(
+				owner.Id,
+				owner.InstanceId,
+				form.Body.Id,
+				form.Alias,
+				ais.Select(x => x.Id),
+				cloneInventory)
 		};
 	}
 
@@ -205,6 +259,8 @@ public static class CharacterInstanceService
 					? new CharacterInstanceOperationResult(true, string.Empty)
 					: new CharacterInstanceOperationResult(false,
 						"Only NPC identities can have AI-controlled secondary instances.");
+			case SecondaryCharacterInstanceSpawnMode.ScriptAiControlled:
+				return new CharacterInstanceOperationResult(true, string.Empty);
 			case SecondaryCharacterInstanceSpawnMode.Passive:
 			default:
 				return new CharacterInstanceOperationResult(true, string.Empty);
@@ -228,6 +284,12 @@ public static class CharacterInstanceService
 				? new CharacterInstanceOperationResult(true, string.Empty)
 				: new CharacterInstanceOperationResult(false,
 					"Only NPC identities can have AI-controlled secondary instances.");
+		}
+
+		if (options.ControlPolicy == CharacterInstanceControlPolicy.ScriptOnly &&
+		    options.InstanceKind == CharacterInstanceKind.ScriptedAi)
+		{
+			return new CharacterInstanceOperationResult(true, string.Empty);
 		}
 
 		return new CharacterInstanceOperationResult(true, string.Empty);
@@ -263,6 +325,30 @@ public static class CharacterInstanceService
 	{
 		return SpawnSecondaryInstance(CreateSpawnOptionsForMode(owner, form, location, roomLayer, persistencePolicy,
 			mode));
+	}
+
+	public static CharacterInstanceOperationResult SpawnBodyInstance(
+		ICharacter owner,
+		ICharacterForm form,
+		ICell location,
+		RoomLayer roomLayer,
+		SecondaryCharacterInstanceSpawnMode mode,
+		CharacterInstancePersistencePolicy persistencePolicy = CharacterInstancePersistencePolicy.DespawnOnReboot,
+		IEnumerable<IArtificialIntelligence>? artificialIntelligences = null,
+		bool cloneInventory = false)
+	{
+		var ais = artificialIntelligences?.Where(x => x is not null).Distinct().ToList() ??
+		          new List<IArtificialIntelligence>();
+		var options = mode == SecondaryCharacterInstanceSpawnMode.ScriptAiControlled
+			? CreateScriptedAiSpawnOptions(owner, form, location, roomLayer, ais, cloneInventory,
+				persistencePolicy)
+			: CreateSpawnOptionsForMode(owner, form, location, roomLayer, persistencePolicy, mode) with
+			{
+				ArtificialIntelligences = ais,
+				CloneInventoryFromPrimary = cloneInventory
+			};
+
+		return SpawnSecondaryInstance(options);
 	}
 
 	public static CharacterInstanceOperationResult SpawnSecondaryInstance(
@@ -338,8 +424,169 @@ public static class CharacterInstanceService
 			FMDB.Context.SaveChanges();
 
 			var materialised = identity.MaterialiseSecondaryInstance(dbinstance, form.Body);
+			if (options.CloneInventoryFromPrimary)
+			{
+				CloneInventory(owner, materialised, out _);
+			}
+
 			return new CharacterInstanceOperationResult(true, "Secondary instance spawned.", materialised);
 		}
+	}
+
+	public static bool CloneInventory(
+		ICharacter source,
+		ICharacterInstance target,
+		out CharacterInstanceInventoryCloneResult result)
+	{
+		var worn = 0;
+		var wielded = 0;
+		var held = 0;
+		var dropped = 0;
+		var failed = 0;
+
+		if (source?.Body is null || target?.Body is null || target.Location is null)
+		{
+			result = new CharacterInstanceInventoryCloneResult(0, 0, 0, 0, 0);
+			return false;
+		}
+
+		var wornItems = source.Body.DirectWornItems
+		                      .Distinct()
+		                      .Select(x => (Item: x, Profile: x.GetItemType<IWearable>()?.CurrentProfile))
+		                      .Where(x => x.Profile is not null)
+		                      .ToList();
+		var wieldedItems = source.Body.WieldedItems
+		                         .Distinct()
+		                         .Select(x => (Item: x,
+			                         Flags: source.Body.WieldedHandCount(x) > 1
+				                         ? ItemCanWieldFlags.RequireTwoHands
+				                         : ItemCanWieldFlags.None))
+		                         .ToList();
+		var heldItems = source.Body.HeldItems
+		                      .Distinct()
+		                      .Except(wieldedItems.Select(x => x.Item))
+		                      .ToList();
+
+		foreach (var item in wornItems)
+		{
+			var clone = CloneInventoryItem(item.Item);
+			if (clone is null)
+			{
+				failed++;
+				continue;
+			}
+
+			if (!TryPutCloneInHands(target, clone))
+			{
+				DropCloneInRoom(target, clone);
+				dropped++;
+				continue;
+			}
+
+			if (target.Body.CanWear(clone, item.Profile!))
+			{
+				target.Body.Wear(clone, item.Profile!, silent: true);
+				worn++;
+			}
+			else if (target.Body.CanWear(clone))
+			{
+				target.Body.Wear(clone, silent: true);
+				worn++;
+			}
+			else
+			{
+				if (DropIfNotCarried(target, clone))
+				{
+					dropped++;
+					failed++;
+				}
+				else
+				{
+					held++;
+				}
+			}
+		}
+
+		foreach (var item in wieldedItems)
+		{
+			var clone = CloneInventoryItem(item.Item);
+			if (clone is null)
+			{
+				failed++;
+				continue;
+			}
+
+			if (!TryPutCloneInHands(target, clone))
+			{
+				DropCloneInRoom(target, clone);
+				dropped++;
+				continue;
+			}
+
+			if (target.Body.CanWield(clone, item.Flags) && target.Body.Wield(clone, silent: true, flags: item.Flags))
+			{
+				wielded++;
+			}
+			else
+			{
+				held++;
+			}
+		}
+
+		foreach (var item in heldItems)
+		{
+			var clone = CloneInventoryItem(item);
+			if (clone is null)
+			{
+				failed++;
+				continue;
+			}
+
+			if (TryPutCloneInHands(target, clone))
+			{
+				held++;
+			}
+			else
+			{
+				DropCloneInRoom(target, clone);
+				dropped++;
+			}
+		}
+
+		target.Body.RecalculateItemHelpers();
+		target.Changed = true;
+		result = new CharacterInstanceInventoryCloneResult(worn, wielded, held, dropped, failed);
+		return failed == 0;
+	}
+
+	private static IGameItem? CloneInventoryItem(IGameItem item)
+	{
+		return item.DeepCopy(addToGameworld: true, preserveMorphTime: true);
+	}
+
+	private static bool TryPutCloneInHands(ICharacterInstance target, IGameItem clone)
+	{
+		DropCloneInRoom(target, clone);
+		target.Body.Get(clone, silent: true, ignoreFlags: ItemCanGetIgnore.IgnoreWeight);
+		return target.Body.HeldOrWieldedItems.Contains(clone) || target.Body.WornItems.Contains(clone);
+	}
+
+	private static void DropCloneInRoom(ICharacterInstance target, IGameItem clone)
+	{
+		clone.Location?.Extract(clone);
+		clone.RoomLayer = target.RoomLayer;
+		target.Location?.Insert(clone);
+	}
+
+	private static bool DropIfNotCarried(ICharacterInstance target, IGameItem clone)
+	{
+		if (target.Body.AllItems.Contains(clone))
+		{
+			return false;
+		}
+
+		DropCloneInRoom(target, clone);
+		return true;
 	}
 
 	public static CharacterInstanceOperationResult Move(ICharacterInstance instance, ICell location, RoomLayer roomLayer)

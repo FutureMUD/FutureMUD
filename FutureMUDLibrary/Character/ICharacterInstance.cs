@@ -21,6 +21,7 @@ public enum CharacterInstanceKind
 	Puppet = 4,
 	PossessedBody = 5,
 	RemoteShell = 6,
+	ScriptedAi = 7,
 	Other = 99
 }
 

@@ -4298,6 +4298,7 @@ For information on the syntax to use in emotes (such as those included in bracke
                                       .Include(x => x.ChargenAdvicesRaces)
                                       .Include(x => x.RacesChargenResources)
                                       .Include(x => x.RacesAdditionalBodyparts)
+                                      .ThenInclude(x => x.Bodypart)
                                       .Include(x => x.RacesAdditionalCharacteristics)
                                       .Include(x => x.RacesWeaponAttacks)
                                       .Include(x => x.RacesAttributes)
@@ -4306,6 +4307,8 @@ For information on the syntax to use in emotes (such as those included in bracke
                                       .Include(x => x.RacesEdibleMaterials)
                                       .Include(x => x.RaceEdibleForagableYields)
                                       .Include(x => x.RacesCombatActions)
+                                      .AsSplitQuery()
+                                      .AsNoTracking()
                                    select race).ToList();
         List<Tuple<Race, Models.Race>> staging = new();
 

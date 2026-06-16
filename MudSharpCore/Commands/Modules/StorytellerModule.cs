@@ -68,7 +68,7 @@ internal class StorytellerModule : Module<ICharacter>
 
 Syntax:
 	#3instance list <character>#0
-	#3instance spawn <character> <form> [here|room <cell id>] [persistent|temporary] [passive|focusable|ai]#0
+	#3instance spawn <character> <form> [here|room <cell id>] [persistent|temporary] [passive|focusable|ai|npcai|scriptai] [cloneinventory]#0
 	#3instance move <instance id|target> here|room <cell id>#0
 	#3instance retire <instance id|target>#0
 	#3instance audit <character>|all#0";
@@ -219,7 +219,7 @@ Syntax:
             return;
         }
 
-        string DetailsFor(ICharacterInstance instance, INPC npc)
+        string DetailsFor(ICharacterInstance instance, IArtificialIntelligenceControlledCharacter aiActor)
         {
             if (CharacterInstanceMetadata.TryGetAstralProjectionMetadata(instance.InstanceEffectData,
                     out var projection))
@@ -245,15 +245,15 @@ Syntax:
                     $"Anchor #{clone.AnchorInstanceId.ToString("N0", actor)} / Spell #{clone.SourceSpellId.ToString("N0", actor)} / {clone.FormKey.ColourCommand()} / Clone body #{clone.CloneBodyId.ToString("N0", actor)} / Focus {clone.PlayerFocusable.ToColouredString()} / {clone.PersistencePolicy.DescribeEnum()}";
             }
 
-            return npc is null
+            return aiActor is null
                 ? string.Empty
-                : $"{npc.AIs.Count().ToString("N0", actor)} AI / {(npc.CharacterController is null ? "Detached" : "Controlled")}";
+                : $"{aiActor.AIs.Count().ToString("N0", actor)} AI / {(aiActor.CharacterController is null ? "Detached" : "Controlled")}";
         }
 
         actor.OutputHandler.Send(StringUtilities.GetTextTable(
             from instance in target.Identity.Instances
             let form = target.Identity.Forms.FirstOrDefault(x => ReferenceEquals(x.Body, instance.Body))
-            let npc = instance as INPC
+            let aiActor = instance as IArtificialIntelligenceControlledCharacter
             select new[]
             {
                 instance.InstanceId.ToString("N0", actor),
@@ -267,7 +267,7 @@ Syntax:
                 instance.RoomLayer.DescribeEnum(),
                 $"{instance.State.DescribeEnum()} / {instance.Status.DescribeEnum()}",
                 instance.ControlPolicy.DescribeEnum(),
-                DetailsFor(instance, npc),
+                DetailsFor(instance, aiActor),
                 instance.DeathPolicy.DescribeEnum(),
                 instance.PersistencePolicy.DescribeEnum()
             },
@@ -325,6 +325,7 @@ Syntax:
         var layer = actor.RoomLayer;
         var persistence = CharacterInstancePersistencePolicy.DespawnOnReboot;
         var mode = SecondaryCharacterInstanceSpawnMode.Passive;
+        var cloneInventory = false;
         while (!ss.IsFinished)
         {
             switch (ss.PeekSpeech().ToLowerInvariant())
@@ -354,9 +355,24 @@ Syntax:
                     mode = SecondaryCharacterInstanceSpawnMode.Passive;
                     break;
                 case "ai":
+                    ss.PopSpeech();
+                    mode = target is INPC || target.Identity is INPC
+                        ? SecondaryCharacterInstanceSpawnMode.NpcAiControlled
+                        : SecondaryCharacterInstanceSpawnMode.ScriptAiControlled;
+                    break;
                 case "npcai":
                     ss.PopSpeech();
                     mode = SecondaryCharacterInstanceSpawnMode.NpcAiControlled;
+                    break;
+                case "scriptai":
+                case "script":
+                    ss.PopSpeech();
+                    mode = SecondaryCharacterInstanceSpawnMode.ScriptAiControlled;
+                    break;
+                case "cloneinventory":
+                case "cloneinv":
+                    ss.PopSpeech();
+                    cloneInventory = true;
                     break;
                 default:
                     actor.OutputHandler.Send("Invalid syntax. See #3help instance#0.".SubstituteANSIColour());
@@ -364,8 +380,8 @@ Syntax:
             }
         }
 
-        var result = CharacterInstanceService.SpawnSecondaryInstance(target, form, location!, layer, persistence,
-            mode);
+        var result = CharacterInstanceService.SpawnBodyInstance(target, form, location!, layer, mode, persistence,
+            cloneInventory: cloneInventory);
         if (!result.Success || result.Instance is null)
         {
             actor.OutputHandler.Send(result.Message);
@@ -382,6 +398,7 @@ Syntax:
         {
             SecondaryCharacterInstanceSpawnMode.PlayerFocusable => "focusable",
             SecondaryCharacterInstanceSpawnMode.NpcAiControlled => "AI-controlled",
+            SecondaryCharacterInstanceSpawnMode.ScriptAiControlled => "script-AI-controlled",
             _ => "passive"
         };
     }

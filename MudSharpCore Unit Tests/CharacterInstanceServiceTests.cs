@@ -7,6 +7,8 @@ using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Effects.Interfaces;
 using MudSharp.NPC;
+using MudSharp.NPC.AI;
+using System.Linq;
 
 namespace MudSharp_Unit_Tests;
 
@@ -133,6 +135,37 @@ public class CharacterInstanceServiceTests
 	}
 
 	[TestMethod]
+	public void CreateScriptedAiSpawnOptions_SetsAiPoliciesAndMetadata()
+	{
+		var pc = BuildPlayerCharacter();
+		pc.SetupGet(x => x.Id).Returns(13);
+		pc.SetupGet(x => x.InstanceId).Returns(131);
+		var form = BuildForm(242, "evil twin");
+		var location = new Mock<ICell>();
+		var aiOne = BuildArtificialIntelligence(1);
+		var aiTwo = BuildArtificialIntelligence(2);
+
+		var options = CharacterInstanceService.CreateScriptedAiSpawnOptions(pc.Object, form.Object, location.Object,
+			RoomLayer.GroundLevel, new[] { aiOne.Object, aiTwo.Object, aiOne.Object }, true);
+
+		Assert.AreEqual(CharacterInstanceKind.ScriptedAi, options.InstanceKind);
+		Assert.AreEqual(CharacterInstanceControlPolicy.ScriptOnly, options.ControlPolicy);
+		Assert.AreEqual(CharacterInstanceDeathPolicy.DestroyInstanceOnly, options.DeathPolicy);
+		Assert.AreEqual(CharacterInstancePerceptionPolicy.OrdinaryEmbodied, options.PerceptionPolicy);
+		Assert.AreEqual(CharacterInstancePersistencePolicy.DespawnOnReboot, options.PersistencePolicy);
+		Assert.AreEqual("evil twin", options.InstanceName);
+		Assert.IsTrue(options.CloneInventoryFromPrimary);
+		CollectionAssert.AreEquivalent(new[] { aiOne.Object, aiTwo.Object }, options.ArtificialIntelligences.ToList());
+		Assert.IsTrue(CharacterInstanceMetadata.TryGetScriptedAiMetadata(options.EffectData, out var metadata));
+		Assert.AreEqual(13, metadata.AnchorCharacterId);
+		Assert.AreEqual(131, metadata.AnchorInstanceId);
+		Assert.AreEqual(242, metadata.BodyId);
+		Assert.AreEqual("evil twin", metadata.FormKey);
+		Assert.IsTrue(metadata.CloneInventory);
+		CollectionAssert.AreEqual(new long[] { 1, 2 }, metadata.ArtificialIntelligenceIds.ToArray());
+	}
+
+	[TestMethod]
 	public void ValidateSecondarySpawnOptions_PlayerFocusable_RejectsNpcs()
 	{
 		var npc = BuildNpc();
@@ -188,6 +221,34 @@ public class CharacterInstanceServiceTests
 		StringAssert.Contains(result.Message, "NPC identities");
 	}
 
+	[TestMethod]
+	public void ValidateSecondarySpawnMode_ScriptAiControlled_AllowsPlayerCharacters()
+	{
+		var pc = BuildPlayerCharacter();
+
+		var result = CharacterInstanceService.ValidateSecondarySpawnMode(pc.Object,
+			SecondaryCharacterInstanceSpawnMode.ScriptAiControlled);
+
+		Assert.IsTrue(result.Success);
+	}
+
+	[TestMethod]
+	public void ValidateSecondarySpawnOptions_ScriptAiControlled_AllowsPlayerCharacters()
+	{
+		var pc = BuildPlayerCharacter();
+		var form = BuildForm();
+		var location = new Mock<ICell>();
+		var options = CharacterInstanceService.CreateSpawnOptionsForMode(pc.Object, form.Object, location.Object,
+			RoomLayer.GroundLevel, CharacterInstancePersistencePolicy.DespawnOnReboot,
+			SecondaryCharacterInstanceSpawnMode.ScriptAiControlled);
+
+		var result = CharacterInstanceService.ValidateSecondarySpawnOptions(options);
+
+		Assert.IsTrue(result.Success);
+		Assert.AreEqual(CharacterInstanceKind.ScriptedAi, options.InstanceKind);
+		Assert.AreEqual(CharacterInstanceControlPolicy.ScriptOnly, options.ControlPolicy);
+	}
+
 	private static Mock<ICharacter> BuildPlayerCharacter()
 	{
 		var identity = new Mock<ICharacterIdentity>();
@@ -216,5 +277,14 @@ public class CharacterInstanceServiceTests
 		npc.SetupGet(x => x.IsPlayerCharacter).Returns(false);
 		npc.SetupGet(x => x.IsGuest).Returns(false);
 		return npc;
+	}
+
+	private static Mock<IArtificialIntelligence> BuildArtificialIntelligence(long id)
+	{
+		var ai = new Mock<IArtificialIntelligence>();
+		ai.SetupGet(x => x.Id).Returns(id);
+		ai.SetupGet(x => x.Name).Returns($"AI {id}");
+		ai.SetupGet(x => x.IsReadyToBeUsed).Returns(true);
+		return ai;
 	}
 }

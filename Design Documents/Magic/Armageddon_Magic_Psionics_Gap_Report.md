@@ -25,6 +25,7 @@ and the current runtime implementations under `MudSharpCore/Magic`.
 - A handful of Armageddon entries are under-specified in the dump (`Daylight`, `Empower`, `Drown`, `Cause Disease`, `Acid Spray`, some passive psionics). The first pass counted those conservatively unless the name clearly mapped to an existing FutureMUD primitive.
 - The original first-pass counts used a single `Needs engine work` bucket. This revision keeps those historical lists in the appendix, but current planning uses the two-way split above.
 - Status reviewed on 2026-05-28 against `Magic_System_Implemented_Types.md`, `Magic_System_Spells.md`, `Magic_System_Powers.md`, and the registered runtime types under `MudSharpCore/Magic`. Exact family-by-family counts were not recomputed in this pass; the stale top-line counts have therefore been removed from the planning sections. V4 added 9 builder-registered psionic power tokens and 2 builder-registered tag-aware ward effect tokens. The 2026-05-05 Old SOI parity slice added 7 more builder-registered psionic power tokens: `dangersense`, `empathy`, `hex`, `clairvoyance`, `prescience`, `sensitivity`, and `psychicbolt`. The 2026-05-28 persistent sensory/combat slice added 4 builder-registered spell-effect tokens: `burning`, `ignite`, `trackmark`, and `tracktrail`. The 2026-06-01 V5b trace slice added a saveable psionic trace effect and shared notifier-driven trace creation without adding new power tokens.
+- Status updated on 2026-06-16: the multi-body V1 work adds simultaneous body instances, `astralprojection`, `createcopy`, `createclone`, and staff/FutureProg instance spawning. Older references to body-left-behind projection as a missing supporting system now apply only to richer possession, send-shadow, possessed-corpse control, and campaign-specific recognition/consequence policy.
 
 ## Executive Summary
 
@@ -34,7 +35,7 @@ The major correction from the old report is that "requires engine work" is no lo
 | --- | --- | --- |
 | Buildable now | Existing spell effects, powers, triggers, planes, body forms, tags, wards, portals, or progs can author the behaviour today. | `Ethereal`, simple `Planeshift`, `Mark`, basic `Portal`, `Thoughtsense`, `Immersion`, `Conceal`, `Glyph`, `Vampiric Blade` |
 | Needs engine primitive | A new effect, power, hook, or formula is needed, but the surrounding model already exists. | open/close exit mutation, exact `Identify`/`Dead Speak`/`Recite` UX, source-specific anti-status or metaphysical wrappers |
-| Needs supporting system | The spell implies a runtime model that FutureMUD does not yet have. | true possession/projection, body-left-behind disembodiment, objective multi-viewer illusions, land/elemental relationship metaphysics |
+| Needs supporting system | The spell implies a runtime model that FutureMUD does not yet have. | possession and possessed-corpse control, objective multi-viewer illusions, land/elemental relationship metaphysics |
 
 Key takeaways:
 
@@ -42,7 +43,7 @@ Key takeaways:
 - The current system is strong at direct damage, healing, stamina/need adjustment, item or liquid conjuration, NPC summoning, invisibility, telepathy, self-only magical armour, planar state shifts, persistent burn/track spell effects, and single-active-body transformation.
 - Previous phases closed three medium-difficulty primitive gaps: local exit targeting, prog-resolved summon-style remote targeting, and reusable room or personal wards with shared spell and power interception.
 - The plane and body-form work moves several old blockers into the buildable bucket: `Ethereal`, `Detect Ethereal`, `Dispel Ethereal`, simple `Planeshift`, ghostly manifestation, and polymorph-style transformations can now use first-class effects rather than bespoke tags.
-- The biggest remaining architecture blockers are objective or group-scoped illusion policy, world-specific metaphysics, and true "dual body" mechanics like possession or shadow projection. Durable portal topology V1 and durable psionic trace V1 are now implemented.
+- The biggest remaining architecture blockers are objective or group-scoped illusion policy, world-specific metaphysics, and possession/send-shadow rules beyond the implemented simultaneous-instance foundation. Durable portal topology V1, durable psionic trace V1, astral projection, magical copies, and physical clones are now implemented.
 - Psionics are now better covered than the first pass suggested. The current mind-link stack handles contact, barriers, mind-looking, audits, expulsion, sense, messaging, direct mental attacks, passive thought/feeling traffic, identity concealment, active and residual trace inspection, psionic hearing, clairaudience, clairvoyance, language comprehension, babbling, magical or psychic sensitivity, danger sense, empathy, hexes, prescient board questions, emotion/thought injection, stun-only psychic bolts, and non-command coerce modes. Projection-style powers still need supporting-system work.
 
 ## Current Family Themes
@@ -52,12 +53,12 @@ Key takeaways:
 | Fire | damage, light, fire walls, fire-themed items, spell-owned burn-over-time | object-specific wards, source-specific `Empower` or `Daylight` semantics if the dump requires more than light/boosts | none obvious from the current report |
 | Water | healing, need/liquid manipulation, poison/disease application and removal, poison detection, silence, water breathing | exact `Drown` semantics if not just hypoxia/damage | land/relationship metaphysics for `Oasis` / `Determine Relationship` if they must model Armageddon's setting rules |
 | Earth / Stone | armour, trait boosts, sand walls, golems, item repair/damage/destruction, spell-owned sleep | `Burrow` if it needs temporary room creation or hidden exits, `Rewind` delayed callbacks, statue/item-form edge cases | persistent constructed burrow topology if burrows must become real world structure |
-| Wind | invisibility, teleport/relocate, local exit movement, walls, flight status, feather fall | `Hands Of Wind` if it needs special long-range forced movement, `Transference` swap semantics | projection-style `Shadowwalk` if interpreted as remote operation |
-| Shadow | blindness, cure blindness, darkness, curse/fear/infravision, ethereal states, dispel ethereal, hero/sword item magic | richer fear/curse variants if source-specific rules are needed | send-shadow projection and body-left-behind shadow walking |
+| Wind | invisibility, teleport/relocate, local exit movement, walls, flight status, feather fall | `Hands Of Wind` if it needs special long-range forced movement, `Transference` swap semantics | none obvious from the current report |
+| Shadow | blindness, cure blindness, darkness, curse/fear/infravision, ethereal states, dispel ethereal, hero/sword item magic, astral-style projection if authored with `astralprojection` or `createcopy` | richer fear/curse variants if source-specific rules are needed | send-shadow possession/control rules if the shadow should act with different ownership or identity policy |
 | Lightning | direct attacks, stamina effects, paralysis, footprint-style magical track marking | source-specific lightning wrappers only if content needs more than existing damage/status/trackmark primitives | none obvious from the current report |
-| Void | wards, portals, marks/runes, corpse preservation/consumption/spawn, resource drains, item enchantments, strength-contested dispel matching | exact `Identify`/`Dead Speak`/`Recite` surfaces if they need first-class UX | durable portal/rune topology, possession, disembodiment, setting-specific `Solace` / `Dragon Bane` / `Cathexis` |
+| Void | wards, portals, marks/runes, corpse preservation/consumption/spawn, resource drains, item enchantments, strength-contested dispel matching, body-left-behind projection and clone/copy effects | exact `Identify`/`Dead Speak`/`Recite` surfaces if they need first-class UX | possession, setting-specific `Solace` / `Dragon Bane` / `Cathexis` |
 | Unspecified / incomplete magic | `Puddle`; `Cause Disease` if the dump only requires disease application | `Acid Spray`, exact `Drown` if not covered by existing damage/need/breathing primitives | source clarification may be needed before classification |
-| Psionics | contact, barriers, locate/probe/expel/sense, mindblast, rejuvenate, dome, telepathy, passive traffic, identity concealment, active link and residual trace inspection, `Trace`, `Hear`, `Clairaudience`, `Clairvoyance`, `Allspeak`, `Babble`, `Magicksense`, `Danger Sense`, `Empathy`, `Hex`, `Prescience`, `Sensitivity`, `Psychic Bolt`, `Project Emotion`, `Suggest`, `Coerce`, and animal/wild contact variants via `connectmind` eligibility progs | content-specific `Cathexis`, `Mindwipe`, or beast/wild wrappers if they require unique UX beyond existing links and policy hooks | projection/remote-presence semantics and objective multi-viewer illusion state |
+| Psionics | contact, barriers, locate/probe/expel/sense, mindblast, rejuvenate, dome, telepathy, passive traffic, identity concealment, active link and residual trace inspection, `Trace`, `Hear`, `Clairaudience`, `Clairvoyance`, `Allspeak`, `Babble`, `Magicksense`, `Danger Sense`, `Empathy`, `Hex`, `Prescience`, `Sensitivity`, `Psychic Bolt`, `Project Emotion`, `Suggest`, `Coerce`, animal/wild contact variants via `connectmind` eligibility progs, and projection-style content through the multi-body instance layer | content-specific `Cathexis`, `Mindwipe`, or beast/wild wrappers if they require unique UX beyond existing links and policy hooks | possession-style remote control and objective multi-viewer illusion state |
 
 ## Where FutureMUD Is Already Strong
 
@@ -74,6 +75,7 @@ The current system already has good coverage for:
 - room ambience changes through `roomlight`, `roomtemperature`, `roomatmosphere`, and weather effects
 - planar state changes through `planarstate`, `planeshift`, `removeplanarstate`, planar merits, planar drugs, and planar FutureProg helpers
 - spell-driven alternate body forms through `transformform`, including stable form keys, first-creation race or description defaults, trauma handling, transformation echoes, and forced-transformation priority
+- simultaneous body spell effects through `astralprojection`, `createcopy`, and `createclone`, including keyed form provisioning, player-focusable secondaries where configured, planar/intangible projection rules, and non-final secondary death/collapse semantics
 - information-bearing spell metadata through `magictag` / `removemagictag` and FutureProg helpers `hasmagictag`, `magictagvalue`, `magictagvalues`, and `magictags`
 - item/corpse magic through `itemdamage`, `destroyitem`, `itemenchant`, `corpsemark`, `corpsepreserve`, `corpseconsume`, and `corpsespawn`, including projectile, craft-tool, powered-item, fuel-use, and item event hooks for enchantments
 - general spell cleanup through `dispelmagic`, including remove or shorten modes and criteria for caster policy, spell, school/subschool, magic tags, and approved effect/interface keys
@@ -110,7 +112,7 @@ Completed before Engine V1.
 - Added `transformform` as the magic bridge into the multiple-body-form system.
 - This made simple ethereal states, noncorporeal manifestation, single-active-body transformation, and straightforward "move this target to another plane" spells buildable.
 
-Deferred from this pass and still relevant: simultaneous active bodies, remote vessels, possessed corpses, descriptor handoff, source-body vulnerability, reconnect behaviour, and durable planar travel/topology beyond normal movement or saved effects.
+Deferred from this pass but now resolved by the multi-body V1 foundation: simultaneous active bodies, descriptor handoff for spell-owned forms, source-body vulnerability for astral projection, reconnect cleanup, and admin observability for active secondaries. Still relevant: possession-specific authority, remote vessels not owned by the identity, possessed corpses, and durable planar travel/topology beyond normal movement or saved effects.
 
 ### Engine V1: tags, item/corpse magic, portals, and coercion
 
@@ -140,7 +142,7 @@ Completed on 2026-05-02.
 
 Deferred from V2 but later resolved in V3 or V4: strength-contested dispel formulas, richer subjective-illusion priority and dispel policy, advanced non-command coercion primitives, and tag-aware ward matching.
 
-Deferred from V2 and still relevant: objective or group-scoped illusion state and the simultaneous-body possession/projection model. Persistent gate/rune topology and timed residual traces were resolved in later V5 slices.
+Deferred from V2 and still relevant: objective or group-scoped illusion state and possession/non-owned remote-control policy on top of the simultaneous-body foundation. Persistent gate/rune topology, timed residual traces, and same-identity projection/copy/clone instances were resolved in later slices.
 
 ### Engine V4: psionic and perception policy layer
 
@@ -364,7 +366,7 @@ Remaining limitations:
 
 ### 7. Body transformation, dual-body, possession, and projection mechanics
 
-Status: partially unblocked.
+Status: multi-body V1 foundation implemented; possession policy still open.
 
 The `transformform` spell effect and the multiple-body-form system now give FutureMUD a first-class answer for temporary or persistent single-active-body transformations. This supports spells that can honestly be represented as "the character becomes a different body for a duration" rather than "the character controls another body while the original remains elsewhere."
 
@@ -374,16 +376,20 @@ This now unlocks or materially improves:
 - animal, monster, elemental, ghost, or spirit body forms
 - some simplified `Pseudo Death` or `Sand Statue` interpretations if they are authored as a body form rather than a true corpse/item state
 - shadow or astral form spells where the caster becomes that form
+- body-left-behind astral projection through `astralprojection`
+- magical mirror-image style copies through `createcopy`
+- tangible physical clones through `createclone`
+- staff or FutureProg-created secondary instances for event content
 
-The remaining hard cases are still not just timed effects. They need a coherent answer for agency, perception, inventory, death, disconnects, source-body vulnerability, and admin visibility.
+The remaining hard cases are still not just timed effects. They need a coherent answer for agency, ownership, consent, recognition, inventory, death, disconnects, and admin visibility when the secondary actor is not simply a body owned by the same identity.
 
 Remaining work:
 
-- Needs supporting system: `Send Shadow`, possession-style `Shadowwalk`, `Possess Corpse`, and body-left-behind `Disembody`.
+- Needs supporting system or policy: `Send Shadow`, possession-style `Shadowwalk`, and `Possess Corpse` where control, criminal responsibility, recognition, or ownership differs from the same-identity projection/copy/clone model.
 - Needs engine primitive or content clarification: `Burrow`, if it only needs temporary room creation or hidden exits rather than true world-topology persistence.
 - Needs supporting system if interpreted durably: pieces of `Portal` and `Planeshift` that require persistent topology or plane travel graphs rather than changing the target's current planar presence.
 
-`Shadowwalk`, `Disembody`, and `Planeshift` should be split by intended semantics. If they mean "change this target's planar presence", they are now buildable. If they mean "leave one body behind and operate another", they remain blocked by simultaneous-body mechanics.
+`Shadowwalk`, `Disembody`, and `Planeshift` should be split by intended semantics. If they mean "change this target's planar presence", they are buildable through planar effects. If they mean "leave one body behind and operate another same-identity form", they can use `astralprojection`, `createcopy`, `createclone`, or the staff/FutureProg instance spawning surface. If they mean "possess another body, corpse, shadow, or identity", they remain future policy work.
 
 ### 8. Subjective perception, coercive psionics, and passive mind traffic
 
@@ -425,7 +431,7 @@ It does not yet cover:
 That means the remaining work splits cleanly:
 
 - Needs engine primitive: none from the V4 psionic/perception policy slice. Content-specific `Cathexis`, `Mindwipe`, or beast/wild wrappers may still need dedicated UX if progs and existing link effects are not enough.
-- Needs supporting system: projection-style psionics, permanent trace consequence ledgers if traces must outlive timed effects, and objective multi-viewer illusions if they need a general perception-overlay framework.
+- Needs supporting system: possession-style psionics, permanent trace consequence ledgers if traces must outlive timed effects, and objective multi-viewer illusions if they need a general perception-overlay framework.
 
 ## Future Work
 
@@ -444,7 +450,7 @@ These tasks should be ordinary implementation work inside the existing magic, pe
 
 These are the remaining true blockers. They should not be represented as one-off spell effects until the supporting model exists.
 
-- Simultaneous-body possession and projection: `Send Shadow`, possession-style `Shadowwalk`, `Possess Corpse`, and body-left-behind `Disembody` need command routing, perception routing, source-body vulnerability, inventory rules, combat/death rules, reconnect behaviour, and staff observability.
+- Possession and non-owned remote control: `Send Shadow`, possession-style `Shadowwalk`, and `Possess Corpse` need ownership, consent, recognition, criminal responsibility, and control policy beyond the same-identity simultaneous body instance foundation. Body-left-behind projection, magical copies, and physical clones now use the multi-body V1 instance layer.
 - Durable portal/rune topology: implemented as DB-backed `MagicPortalNetworks`, endpoints, and explicit links that materialise into topology-managed transient exits. V1 covers standing room gates, directly placed rune/portal objects, builder repair, and spell-created topology. One-way links and mobile/carried rune endpoints remain future extensions.
 - Objective or group-scoped illusions: if illusions must alter room state for multiple observers, stack with other illusions, and expose consistent dispel/priority rules, they need a general perception-overlay policy rather than only `subjectivedesc` / `subjectivesdesc`.
 - World-specific metaphysics: `Determine Relationship`, `Solace`, `Dragon Bane`, `Cathexis`, and richer `Planeshift` interpretations need a model for land/elemental relationships, plane travel graphs, and any clan/tribe/identity consequences.
@@ -491,9 +497,9 @@ Status: implemented on 2026-06-01.
 
 ### V5: supporting-system buildout
 
-V5 should tackle the remaining architecture blockers after V3/V4 make the easy and medium gaps boring:
+V5 and later slices should tackle the remaining architecture blockers after V3/V4 make the easy and medium gaps boring:
 
-- simultaneous-body possession and projection
+- possession and non-owned remote-control policy on top of the simultaneous-body foundation
 - objective or group-scoped illusion state that changes room facts for multiple observers
 - permanent psionic trace consequence ledgers, only if content needs traces to survive beyond the timed V5b effect
 - persistent rune/gate/portal topology is now implemented for explicit bidirectional networks; future work is limited to one-way links or mobile/carried rune endpoint semantics if content needs them
@@ -604,7 +610,7 @@ These are the parity items with the most engine-level uncertainty.
 
 ## Engine V2 Shipped Runtime Slice
 
-Engine V2 has shipped the deeper parity layer without jumping into simultaneous-body possession.
+Engine V2 shipped the deeper parity layer before simultaneous-body possession or projection. The later multi-body V1 work adds same-identity body-left-behind projection, magical copies, physical clones, and staff/FutureProg-created secondary instances; possession and non-owned remote control remain future work.
 
 1. General dispel and effect shortening.
    - `dispelmagic` can remove or shorten matching spell-parent effects.
@@ -631,9 +637,9 @@ Engine V2 has shipped the deeper parity layer without jumping into simultaneous-
    - Thoughtsense/Immersion-style passive traffic should use the existing `telepathy` `thinks` / `feels` / `thinkemote` flow.
    - V5b residual traces now use normal timed effect persistence rather than a permanent audit table.
 
-6. Still deferred.
-   - True possession, send-shadow projection, and body-left-behind disembodiment remain out of scope until the simultaneous-body model is designed.
-   - The existing form system deliberately supports one active body. Possession/projection still needs command routing, remote presence, body vulnerability, inventory rules, death rules, reconnect behavior, and admin observability.
+6. Later multi-body V1 update.
+   - Same-identity body-left-behind projection, magical copies, physical clones, and staff/FutureProg-created secondary instances are now implemented through the simultaneous body instance layer.
+   - True possession, send-shadow control, and possessed-corpse rules remain out of scope until ownership, consent, recognition, and identity-liability policy is designed.
 
 ## Recommended Next Shipping Slice After Engine V2
 
@@ -642,7 +648,7 @@ Engine V3 shipped the small edge-status slice that sat outside Engine V2: poison
 - durable portal/rune topology V1 is available for standing gate networks; use future slices only for one-way links, mobile rune objects, or richer safety policy
 - richer illusion stacking and perception policy
 - permanent psionic trace consequence ledgers only if the timed V5b model proves insufficient
-- the simultaneous-body possession/projection model
+- possession and non-owned remote-control policy on top of the simultaneous-body foundation
 
 ## Appendix: Classification By Family
 

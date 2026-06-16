@@ -1033,9 +1033,11 @@ The following options are available as filters with the #3list#0 subcommand:
                 return;
             }
 
-            List<INPC> npcs = actor.Gameworld.NPCs.OfType<INPC>().Where(x => x.AIs.Contains(ai)).ToList();
+            List<IArtificialIntelligenceControlledCharacter> npcs = LoadedAiControlledCharacters(actor)
+                .Where(x => x.AIs.Contains(ai))
+                .ToList();
             StringBuilder sb = new();
-            sb.AppendLine($"List of NPCs with the {ai.Name.ColourName()} AI attached:");
+            sb.AppendLine($"List of AI-controlled characters with the {ai.Name.ColourName()} AI attached:");
             sb.AppendLine();
             sb.AppendLine(StringUtilities.GetTextTable(
                 from npc in npcs
@@ -1044,8 +1046,10 @@ The following options are available as filters with the #3list#0 subcommand:
                     npc.Id.ToString("N0", actor),
                     npc.PersonalName.GetName(NameStyle.FullName),
                     npc.HowSeen(npc, flags: PerceiveIgnoreFlags.IgnoreObscured | PerceiveIgnoreFlags.IgnoreSelf | PerceiveIgnoreFlags.IgnoreCanSee),
-                    npc.Location.GetFriendlyReference(actor),
-                    $"{npc.Template.Id.ToString("N0", actor)}r{npc.Template.RevisionNumber.ToString("N0", actor)} ({npc.Name.ColourName()})"
+                    npc.Location?.GetFriendlyReference(actor) ?? "Nowhere",
+                    npc is INPC templateNpc
+                        ? $"{templateNpc.Template.Id.ToString("N0", actor)}r{templateNpc.Template.RevisionNumber.ToString("N0", actor)} ({templateNpc.Name.ColourName()})"
+                        : $"Instance #{npc.InstanceId.ToString("N0", actor)} ({npc.InstanceKind.DescribeEnum().ColourName()})"
                 },
                 new List<string>
                 {
@@ -1059,6 +1063,25 @@ The following options are available as filters with the #3list#0 subcommand:
                 Telnet.Orange
             ));
             actor.OutputHandler.Send(sb.ToString());
+        }
+
+        private static IEnumerable<IArtificialIntelligenceControlledCharacter> LoadedAiControlledCharacters(ICharacter actor)
+        {
+            return actor.Gameworld.NPCs
+                        .OfType<IArtificialIntelligenceControlledCharacter>()
+                        .Concat(actor.Gameworld.Actors.SelectMany(x => x.Identity.Instances)
+                                     .OfType<IArtificialIntelligenceControlledCharacter>())
+                        .Concat(actor.Gameworld.Characters.SelectMany(x => x.Identity.Instances)
+                                     .OfType<IArtificialIntelligenceControlledCharacter>())
+                        .Distinct();
+        }
+
+        private static ICharacter ResolveLocalAiTarget(ICharacter actor, string text)
+        {
+            return actor.TargetActor(text) ??
+                   actor.Location?.Characters
+                        .OfType<ICharacter>()
+                        .GetFromItemListByKeywordIncludingNames(text, actor);
         }
 
         private static void AIRemove(ICharacter actor, StringStack ss)
@@ -1078,20 +1101,20 @@ The following options are available as filters with the #3list#0 subcommand:
 
             if (ss.IsFinished)
             {
-                actor.OutputHandler.Send($"Which local NPC do you want to remove the {ai.Name.ColourName()} from?");
+                actor.OutputHandler.Send($"Which local AI-controlled character do you want to remove the {ai.Name.ColourName()} from?");
                 return;
             }
 
-            ICharacter target = actor.TargetActor(ss.SafeRemainingArgument);
+            ICharacter target = ResolveLocalAiTarget(actor, ss.SafeRemainingArgument);
             if (target is null)
             {
                 actor.OutputHandler.Send("There is nobody like that here.");
                 return;
             }
 
-            if (target is not INPC npc)
+            if (target is not IArtificialIntelligenceControlledCharacter npc)
             {
-                actor.OutputHandler.Send($"Unfortunately {target.HowSeen(actor)} is not an NPC, and only NPCs may have AI routines.");
+                actor.OutputHandler.Send($"Unfortunately {target.HowSeen(actor)} is not an AI-controlled character, and cannot have AI routines.");
                 return;
             }
 
@@ -1102,7 +1125,7 @@ The following options are available as filters with the #3list#0 subcommand:
             }
 
             npc.RemoveAI(ai);
-            actor.OutputHandler.Send($"You remove the {ai.Name.ColourName()} AI from NPC {target.HowSeen(actor)}.");
+            actor.OutputHandler.Send($"You remove the {ai.Name.ColourName()} AI from {target.HowSeen(actor)}.");
         }
 
         private static void AIAdd(ICharacter actor, StringStack ss)
@@ -1128,20 +1151,20 @@ The following options are available as filters with the #3list#0 subcommand:
 
             if (ss.IsFinished)
             {
-                actor.OutputHandler.Send($"Which local NPC do you want to add the {ai.Name.ColourName()} to?");
+                actor.OutputHandler.Send($"Which local AI-controlled character do you want to add the {ai.Name.ColourName()} to?");
                 return;
             }
 
-            ICharacter target = actor.TargetActor(ss.SafeRemainingArgument);
+            ICharacter target = ResolveLocalAiTarget(actor, ss.SafeRemainingArgument);
             if (target is null)
             {
                 actor.OutputHandler.Send("There is nobody like that here.");
                 return;
             }
 
-            if (target is not INPC npc)
+            if (target is not IArtificialIntelligenceControlledCharacter npc)
             {
-                actor.OutputHandler.Send($"Unfortunately {target.HowSeen(actor)} is not an NPC, and only NPCs may have AI routines.");
+                actor.OutputHandler.Send($"Unfortunately {target.HowSeen(actor)} is not an AI-controlled character, and cannot have AI routines.");
                 return;
             }
 
@@ -1152,7 +1175,7 @@ The following options are available as filters with the #3list#0 subcommand:
             }
 
             npc.AddAI(ai);
-            actor.OutputHandler.Send($"You add the {ai.Name.ColourName()} AI to NPC {target.HowSeen(actor)}.");
+            actor.OutputHandler.Send($"You add the {ai.Name.ColourName()} AI to {target.HowSeen(actor)}.");
         }
         #endregion
     }

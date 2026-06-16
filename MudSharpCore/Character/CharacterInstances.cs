@@ -309,11 +309,15 @@ public partial class Character
 	internal ICharacterInstance MaterialiseSecondaryInstance(MudSharp.Models.CharacterInstance instance, IBody body)
 	{
 		EnsureProvisionedFormBodyVitals(body);
+		var controlPolicy = (CharacterInstanceControlPolicy)instance.ControlPolicy;
+		var instanceKind = (CharacterInstanceKind)instance.InstanceKind;
 		var materialised = this is INPC &&
-		                   (CharacterInstanceControlPolicy)instance.ControlPolicy ==
-		                   CharacterInstanceControlPolicy.NpcAiControlled
+		                   controlPolicy == CharacterInstanceControlPolicy.NpcAiControlled
 			? (ICharacterInstance)new NpcCharacterInstance(this, instance, body)
-			: new PassiveCharacterInstance(this, instance, body);
+			: controlPolicy == CharacterInstanceControlPolicy.ScriptOnly ||
+			  instanceKind == CharacterInstanceKind.ScriptedAi
+				? new ScriptedAiCharacterInstance(this, instance, body)
+				: new PassiveCharacterInstance(this, instance, body);
 		_secondaryInstances.RemoveAll(x => ReferenceEquals(x, materialised) || x.InstanceId == materialised.InstanceId);
 		_secondaryInstances.Add(materialised);
 		if (materialised.IsEmbodied && materialised.Location is not null)
@@ -372,6 +376,11 @@ public partial class Character
 	internal void SetInstancePersistencePolicy(CharacterInstancePersistencePolicy policy)
 	{
 		_persistencePolicy = policy;
+	}
+
+	internal void SetInstanceEffectData(string? effectData)
+	{
+		_instanceEffectData = effectData.IfNullOrWhiteSpace("<Effects/>");
 	}
 
 	internal void SetInstanceStateAndStatus(CharacterState state, CharacterStatus status)

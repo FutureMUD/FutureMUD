@@ -5,9 +5,8 @@ using System.Collections.Generic;
 
 namespace MudSharp.NPC
 {
-    public interface INPC : ICharacter
+    public interface IArtificialIntelligenceControlledCharacter : ICharacter
     {
-        INPCTemplate Template { get; }
         IEnumerable<IArtificialIntelligence> AIs { get; }
         void AddAI(IArtificialIntelligence ai);
         void RemoveAI(IArtificialIntelligence ai);
@@ -15,5 +14,10 @@ namespace MudSharp.NPC
         void SetupEventSubscriptions();
         void ReleaseEventSubscriptions();
         long? BodyguardingCharacterID { get; set; }
+    }
+
+    public interface INPC : IArtificialIntelligenceControlledCharacter
+    {
+        INPCTemplate Template { get; }
     }
 }

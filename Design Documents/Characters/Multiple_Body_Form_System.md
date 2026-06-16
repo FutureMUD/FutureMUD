@@ -425,7 +425,7 @@ Currently forced transforms share a baseline-and-fallback strategy. Future conte
 
 ### Simultaneous Bodies and Remote Presence
 
-Astral projection, ghosts with corpses left behind, possession, puppeting, and remote vessels require a larger presence model. That future slice needs to answer which body perceives, which body receives commands, which body is locatable, which body owns combat state, and how effects target identity versus embodiment.
+Astral projection, magical copies, physical clones, passive second bodies, player focus switching, and AI-controlled secondaries now use the simultaneous body instance model rather than the exclusive form-switching pipeline. Builders should still use this form system to provision and configure owned dormant bodies, then use `instance`, spell effects, or `SpawnBodyInstance` when a form should become an additional active world actor.
 
 ### Form Acquisition Workflows
 
@@ -447,6 +447,8 @@ Multiple forms exposed older assumptions where character and body data were inte
 
 - [Character Creation Runtime](./Character_Creation_Runtime.md)
 - [Character Creation Builder Workflows](./Character_Creation_Builder_Workflows.md)
+- [Multiple Body Forms and Instances Builder Guide](./Multiple_Body_Forms_and_Instances_Builder_Guide.md)
+- [Multiple Simultaneous Body Instances Design](./Multiple_Simultaneous_Body_Instances_Design.md)
 - [Character Description System](../Markup/Character_Description_System.md)
 - [Magic System Spells](../Magic/Magic_System_Spells.md)
 - [Magic System Implemented Types](../Magic/Magic_System_Implemented_Types.md)

@@ -1,7 +1,9 @@
 using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;
 using System;
+using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Xml.Linq;
 
 #nullable enable
@@ -38,6 +40,15 @@ public sealed record PhysicalCloneInstanceMetadata(
 	string FormKey,
 	bool PlayerFocusable,
 	CharacterInstancePersistencePolicy PersistencePolicy
+);
+
+public sealed record ScriptedAiInstanceMetadata(
+	long AnchorCharacterId,
+	long AnchorInstanceId,
+	long BodyId,
+	string FormKey,
+	IReadOnlyList<long> ArtificialIntelligenceIds,
+	bool CloneInventory
 );
 
 public static class CharacterInstanceMetadata
@@ -114,6 +125,33 @@ public static class CharacterInstanceMetadata
 				new XAttribute("FormKey", formKey),
 				new XAttribute("PlayerFocusable", playerFocusable),
 				new XAttribute("PersistencePolicy", persistencePolicy.ToString())
+			)
+		).ToString(SaveOptions.DisableFormatting);
+	}
+
+	public static string CreateScriptedAiEffectData(
+		long anchorCharacterId,
+		long anchorInstanceId,
+		long bodyId,
+		string formKey,
+		IEnumerable<long> artificialIntelligenceIds,
+		bool cloneInventory)
+	{
+		return new XElement(
+			"Effects",
+			new XElement(
+				"ScriptedAi",
+				new XAttribute("AnchorCharacterId", anchorCharacterId.ToString(CultureInfo.InvariantCulture)),
+				new XAttribute("AnchorInstanceId", anchorInstanceId.ToString(CultureInfo.InvariantCulture)),
+				new XAttribute("BodyId", bodyId.ToString(CultureInfo.InvariantCulture)),
+				new XAttribute("FormKey", formKey),
+				new XAttribute("CloneInventory", cloneInventory),
+				new XElement(
+					"ArtificialIntelligences",
+					artificialIntelligenceIds
+						.Distinct()
+						.Select(x => new XElement("AI",
+							new XAttribute("Id", x.ToString(CultureInfo.InvariantCulture)))))
 			)
 		).ToString(SaveOptions.DisableFormatting);
 	}
@@ -257,6 +295,50 @@ public static class CharacterInstanceMetadata
 			(string?)element.Attribute("FormKey") ?? string.Empty,
 			TryGetBool(element, "PlayerFocusable"),
 			persistencePolicy
+		);
+		return true;
+	}
+
+	public static bool TryGetScriptedAiMetadata(
+		string? effectData,
+		out ScriptedAiInstanceMetadata metadata)
+	{
+		metadata = new ScriptedAiInstanceMetadata(0, 0, 0, string.Empty, Array.Empty<long>(), false);
+		var element = GetMetadataElement(effectData, "ScriptedAi");
+		if (element is null)
+		{
+			return false;
+		}
+
+		if (!TryGetLong(element, "AnchorCharacterId", out var anchorCharacterId) ||
+		    !TryGetLong(element, "AnchorInstanceId", out var anchorInstanceId) ||
+		    !TryGetLong(element, "BodyId", out var bodyId))
+		{
+			return false;
+		}
+
+		var aiIds = new List<long>();
+		foreach (var aiElement in element.Element("ArtificialIntelligences")?.Elements("AI") ??
+		                          Enumerable.Empty<XElement>())
+		{
+			if (long.TryParse(
+				    (string?)aiElement.Attribute("Id"),
+				    NumberStyles.Integer,
+				    CultureInfo.InvariantCulture,
+				    out var value) &&
+			    !aiIds.Contains(value))
+			{
+				aiIds.Add(value);
+			}
+		}
+
+		metadata = new ScriptedAiInstanceMetadata(
+			anchorCharacterId,
+			anchorInstanceId,
+			bodyId,
+			(string?)element.Attribute("FormKey") ?? string.Empty,
+			aiIds,
+			TryGetBool(element, "CloneInventory")
 		);
 		return true;
 	}

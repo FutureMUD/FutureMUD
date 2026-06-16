@@ -1,7 +1,12 @@
 using MudSharp.Character;
+using MudSharp.Construction;
 using MudSharp.Framework;
 using MudSharp.FutureProg.Variables;
+using MudSharp.NPC;
+using MudSharp.NPC.AI;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 
 #nullable enable
 
@@ -254,6 +259,263 @@ internal sealed class ToCharacterInstanceFunction : BuiltInFunction
 			["The durable character identity id.", "The active CharacterInstances row id."],
 			"Retrieves the currently loaded physical actor for an identity and instance id. Returns null if that specific instance is not loaded.",
 			"Lookup",
+			ProgVariableTypes.Character
+		));
+	}
+}
+
+internal sealed class SpawnBodyInstanceFunction : BuiltInFunction
+{
+	private readonly IFuturemud _gameworld;
+
+	private SpawnBodyInstanceFunction(IList<IFunction> parameters, IFuturemud gameworld)
+		: base(parameters)
+	{
+		_gameworld = gameworld;
+	}
+
+	public override ProgVariableTypes ReturnType
+	{
+		get => ProgVariableTypes.Character;
+		protected set { }
+	}
+
+	public override StatementResult Execute(IVariableSpace variables)
+	{
+		if (base.Execute(variables) == StatementResult.Error)
+		{
+			return StatementResult.Error;
+		}
+
+		if (ParameterFunctions[0].Result?.GetObject is not ICharacter owner)
+		{
+			ErrorMessage = "Owner Character was null in SpawnBodyInstance function.";
+			return StatementResult.Error;
+		}
+
+		var form = CharacterFormFunctionHelper.ResolveForm(owner, ParameterFunctions[1].Result);
+		if (form is null)
+		{
+			ErrorMessage = "SpawnBodyInstance could not find a matching dormant form on the owner character.";
+			return StatementResult.Error;
+		}
+
+		if (ParameterFunctions[2].Result?.GetObject is not ICell location)
+		{
+			ErrorMessage = "Location was null in SpawnBodyInstance function.";
+			return StatementResult.Error;
+		}
+
+		var modeText = ParameterFunctions[3].Result?.GetObject?.ToString() ?? string.Empty;
+		if (!TryParseMode(owner, modeText, out var mode, out var modeError))
+		{
+			ErrorMessage = modeError;
+			return StatementResult.Error;
+		}
+
+		var cloneInventory = false;
+		if (ParameterFunctions.Count > 4)
+		{
+			if (ParameterFunctions[4].Result?.GetObject is not bool clone)
+			{
+				ErrorMessage = "CloneInventory was not a boolean in SpawnBodyInstance function.";
+				return StatementResult.Error;
+			}
+
+			cloneInventory = clone;
+		}
+
+		var artificialIntelligences = Enumerable.Empty<IArtificialIntelligence>();
+		if (ParameterFunctions.Count > 5)
+		{
+			if (!TryParseArtificialIntelligences(
+				    ParameterFunctions[5].Result?.GetObject?.ToString() ?? string.Empty,
+				    out var ais,
+				    out var aiError))
+			{
+				ErrorMessage = aiError;
+				return StatementResult.Error;
+			}
+
+			artificialIntelligences = ais;
+		}
+
+		var result = CharacterInstanceService.SpawnBodyInstance(
+			owner,
+			form,
+			location,
+			owner.RoomLayer,
+			mode,
+			CharacterInstancePersistencePolicy.DespawnOnReboot,
+			artificialIntelligences,
+			cloneInventory);
+		if (!result.Success)
+		{
+			ErrorMessage = result.Message;
+			return StatementResult.Error;
+		}
+
+		Result = result.Instance;
+		return StatementResult.Normal;
+	}
+
+	private static bool TryParseMode(
+		ICharacter owner,
+		string modeText,
+		out SecondaryCharacterInstanceSpawnMode mode,
+		out string error)
+	{
+		switch (modeText.ToLowerInvariant().Trim())
+		{
+			case "":
+			case "passive":
+			case "temporary":
+			case "temp":
+				mode = SecondaryCharacterInstanceSpawnMode.Passive;
+				error = string.Empty;
+				return true;
+			case "focus":
+			case "focusable":
+			case "player":
+			case "playerfocusable":
+				mode = SecondaryCharacterInstanceSpawnMode.PlayerFocusable;
+				error = string.Empty;
+				return true;
+			case "npcai":
+			case "npc":
+				mode = SecondaryCharacterInstanceSpawnMode.NpcAiControlled;
+				error = string.Empty;
+				return true;
+			case "script":
+			case "scriptai":
+			case "scriptedai":
+			case "scripted":
+				mode = SecondaryCharacterInstanceSpawnMode.ScriptAiControlled;
+				error = string.Empty;
+				return true;
+			case "ai":
+				mode = owner is INPC || owner.Identity is INPC
+					? SecondaryCharacterInstanceSpawnMode.NpcAiControlled
+					: SecondaryCharacterInstanceSpawnMode.ScriptAiControlled;
+				error = string.Empty;
+				return true;
+			default:
+				mode = SecondaryCharacterInstanceSpawnMode.Passive;
+				error =
+					"SpawnBodyInstance mode must be one of passive, focusable, ai, npcai, or scriptai.";
+				return false;
+		}
+	}
+
+	private bool TryParseArtificialIntelligences(
+		string input,
+		out IReadOnlyList<IArtificialIntelligence> artificialIntelligences,
+		out string error)
+	{
+		var ais = new List<IArtificialIntelligence>();
+		foreach (var token in input.Split(new[] { ',', ';', '|' }, StringSplitOptions.RemoveEmptyEntries)
+		                           .Select(x => x.Trim())
+		                           .Where(x => !string.IsNullOrWhiteSpace(x)))
+		{
+			var ai = _gameworld.AIs.GetByIdOrName(token);
+			if (ai is null)
+			{
+				artificialIntelligences = Array.Empty<IArtificialIntelligence>();
+				error = $"SpawnBodyInstance could not find an AI called '{token}'.";
+				return false;
+			}
+
+			if (!ai.IsReadyToBeUsed)
+			{
+				artificialIntelligences = Array.Empty<IArtificialIntelligence>();
+				error = $"The AI '{ai.Name}' has building issues and is not ready to be used.";
+				return false;
+			}
+
+			if (!ais.Contains(ai))
+			{
+				ais.Add(ai);
+			}
+		}
+
+		artificialIntelligences = ais;
+		error = string.Empty;
+		return true;
+	}
+
+	public static void RegisterFunctionCompiler()
+	{
+		RegisterCompiler(ProgVariableTypes.Text, false);
+		RegisterCompiler(ProgVariableTypes.Number, false);
+		RegisterCompiler(ProgVariableTypes.Text, true);
+		RegisterCompiler(ProgVariableTypes.Number, true);
+		RegisterCompilerWithAIs(ProgVariableTypes.Text);
+		RegisterCompilerWithAIs(ProgVariableTypes.Number);
+	}
+
+	private static void RegisterCompiler(ProgVariableTypes formType, bool includeCloneInventory)
+	{
+		var parameterTypes = includeCloneInventory
+			? new[]
+			{
+				ProgVariableTypes.Character, formType, ProgVariableTypes.Location, ProgVariableTypes.Text,
+				ProgVariableTypes.Boolean
+			}
+			: new[] { ProgVariableTypes.Character, formType, ProgVariableTypes.Location, ProgVariableTypes.Text };
+		var parameterNames = includeCloneInventory
+			? new List<string> { "owner", "form", "location", "mode", "cloneInventory" }
+			: new List<string> { "owner", "form", "location", "mode" };
+		var parameterHelp = includeCloneInventory
+			? new List<string>
+			{
+				"The character identity whose dormant form should become a secondary body instance.",
+				"The form alias or body id to spawn.",
+				"The location where the body instance should appear.",
+				"The spawn mode: passive, focusable, ai, npcai, or scriptai.",
+				"Whether to deep-copy the owner's current direct inventory onto the spawned body."
+			}
+			: new List<string>
+			{
+				"The character identity whose dormant form should become a secondary body instance.",
+				"The form alias or body id to spawn.",
+				"The location where the body instance should appear.",
+				"The spawn mode: passive, focusable, ai, npcai, or scriptai."
+			};
+
+		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
+			"spawnbodyinstance",
+			parameterTypes,
+			(pars, gameworld) => new SpawnBodyInstanceFunction(pars, gameworld),
+			parameterNames,
+			parameterHelp,
+			"Spawns a secondary body instance from one of a loaded character's owned dormant forms. The returned character is the new physical actor, or the function errors with a builder-facing reason.",
+			"Character",
+			ProgVariableTypes.Character
+		));
+	}
+
+	private static void RegisterCompilerWithAIs(ProgVariableTypes formType)
+	{
+		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(
+			"spawnbodyinstance",
+			new[]
+			{
+				ProgVariableTypes.Character, formType, ProgVariableTypes.Location, ProgVariableTypes.Text,
+				ProgVariableTypes.Boolean, ProgVariableTypes.Text
+			},
+			(pars, gameworld) => new SpawnBodyInstanceFunction(pars, gameworld),
+			new List<string> { "owner", "form", "location", "mode", "cloneInventory", "ais" },
+			new List<string>
+			{
+				"The character identity whose dormant form should become a secondary body instance.",
+				"The form alias or body id to spawn.",
+				"The location where the body instance should appear.",
+				"The spawn mode: passive, focusable, ai, npcai, or scriptai.",
+				"Whether to deep-copy the owner's current direct inventory onto the spawned body.",
+				"A comma, semicolon, or pipe separated list of AI ids or names to attach to a script-AI body instance."
+			},
+			"Spawns a secondary body instance from one of a loaded character's owned dormant forms. For ai/scriptai modes, the final text argument attaches ready AI routines by id or name.",
+			"Character",
 			ProgVariableTypes.Character
 		));
 	}

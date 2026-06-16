@@ -1180,8 +1180,8 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
         return sb.ToString();
     }
 
-    public int AgeInYears => Location.Date(Birthday.Calendar).YearsDifference(Birthday);
-    public AgeCategory AgeCategory => Race.AgeCategory(this);
+    public int AgeInYears => Body?.AgeInYears ?? Birthday.Calendar.CurrentDate.YearsDifference(Birthday);
+    public AgeCategory AgeCategory => Body?.AgeCategory ?? Race.AgeCategory(AgeInYears);
 
     public string ShowScore(IPerceiver voyeur)
     {
@@ -1204,9 +1204,9 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
 
         sb.AppendLine(
               CommonStringUtilities.CultureFormat(
-                  $"You are {Location.Date(Birthday.Calendar).YearsDifference(Birthday).A_An(colour: Telnet.Green)} year old {Race.Name.ToLowerInvariant().Colour(Telnet.Green)} {Gender.GenderClass().Colour(Telnet.Green)}, and belong to the {Culture.Name.Colour(Telnet.Green)} culture.",
+                  $"You are {AgeInYears.A_An(colour: Telnet.Green)} year old {Race.Name.ToLowerInvariant().Colour(Telnet.Green)} {Gender.GenderClass().Colour(Telnet.Green)}, and belong to the {Culture.Name.Colour(Telnet.Green)} culture.",
                   Account))
-          .AppendLine($"You are {Race.AgeCategory(this).DescribeEnum(true).A_An(false, Telnet.Green)}.");
+          .AppendLine($"You are {AgeCategory.DescribeEnum(true).A_An(false, Telnet.Green)}.");
 
         if (Account.AccountResources.Any(x => x.Value > 0 && x.Key.ShowToPlayerInScore))
         {

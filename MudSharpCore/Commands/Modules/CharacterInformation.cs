@@ -630,9 +630,9 @@ Additionally, admins can use the following options:
         sb.AppendLine();
         if (target.Race == actor.Race || actor.IsAdministrator())
         {
-            double age = target.Birthday.Calendar.CurrentDate.YearsDifference(target.Birthday) + 0.001;
+            double age = target.AgeInYears + 0.001;
             sb.AppendLine(
-                $"{gender.Subjective(true)}{(gender == Indeterminate.Instance ? " are" : " is ")}between {(Math.Floor(age / 5.0) * 5).ToString("N0", actor).ColourValue()} and {(Math.Ceiling(age / 5.0) * 5).ToString("N0", actor).ColourValue()} years old, making {gender.Objective()} {target.Race.AgeCategory(target).DescribeEnum(true).A_An(false, Telnet.Green)}.");
+                $"{gender.Subjective(true)}{(gender == Indeterminate.Instance ? " are" : " is ")}between {(Math.Floor(age / 5.0) * 5).ToString("N0", actor).ColourValue()} and {(Math.Ceiling(age / 5.0) * 5).ToString("N0", actor).ColourValue()} years old, making {gender.Objective()} {target.AgeCategory.DescribeEnum(true).A_An(false, Telnet.Green)}.");
         }
 
         sb.AppendLine(

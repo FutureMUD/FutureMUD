@@ -233,8 +233,17 @@ public partial class Body : PerceiverItem, IBody
 
     public IEthnicity Ethnicity { get; protected set; }
 
-    public int AgeInYears => Actor.AgeInYears;
-    public AgeCategory AgeCategory => Actor.AgeCategory;
+    public int AgeInYears
+    {
+        get
+        {
+            var apparentBirthday = EffectsOfType<BodyFormApparentAgeEffect>().FirstOrDefault()?.ApparentBirthday ??
+                                   Actor.Birthday;
+            return apparentBirthday.Calendar.CurrentDate.YearsDifference(apparentBirthday);
+        }
+    }
+
+    public AgeCategory AgeCategory => Race.AgeCategory(AgeInYears);
 
     public bool Listening => throw new NotImplementedException();
 

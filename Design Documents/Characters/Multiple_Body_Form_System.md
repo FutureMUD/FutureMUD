@@ -165,7 +165,7 @@ The high-level switch flow is:
 6. Transfer or stash trauma according to the plan.
 7. Move inventory where possible, dropping ordinary items that no longer fit and rejecting restraints that cannot safely transfer.
 8. Recalculate body helpers, organ functions, breathing, stamina, and health consequences with health feedback suppressed during the switch.
-9. Set `CurrentBody`, activate the new body, reset the old body into dormant form state, emit the transformation echo, and fire `CurrentBodyChanged`.
+9. Set `CurrentBody`, activate the new body, reset the old body into dormant form state, emit the transformation echo from frozen old/new form description snapshots, and fire `CurrentBodyChanged`.
 
 Body switching does not use `Body.Quit()`. Dormant bodies stop health, drug, stamina, breathing, scheduled body actions, body-owned scheduled effects, and retained body-item lifecycles, and are treated as non-present shells until reactivated.
 
@@ -189,9 +189,15 @@ Relaxed mapping is used for wounds, scars, tattoos, infections, and some tempora
 
 Form switching supports both transfer and stasis.
 
-Transfer mode remaps compatible wounds, part infections, scars, tattoos, severed roots, implants, prosthetics, active and latent drugs, blood state, held breath time, stamina, and selected treatment effects. Internal bleeding, antiseptic treatment, anti-inflammatory treatment, and replanted bodypart effects are recreated on mapped bodyparts with their remaining duration.
+Transfer mode remaps compatible wounds, part infections, scars, tattoos, severed roots, implants, prosthetics, active and latent drugs, blood state, held breath time, stamina, and selected treatment effects. Blood state is transferred as current-blood percentage rather than raw litres, so switching between bodies with very different total blood volumes preserves equivalent physiological severity. Internal bleeding, antiseptic treatment, anti-inflammatory treatment, and replanted bodypart effects are recreated on mapped bodyparts with their remaining duration.
 
 Stash mode leaves trauma on the old body, caches scheduled effects, stops ongoing body ticks, clears body-owned scheduler entries, quits retained body items such as dormant implants or prosthetics, clears restraints and direct inventory state, and sanitises the target body for its health strategy. Incompatible wounds and organic-only health effects are removed from the active target form, and lost fluids can be restored when no compatible bleed sources remain. Health feedback is suppressed during the switch so players do not see transient "dying", "can't breathe", or organ recovery spam caused by intermediate recalculations.
+
+### Apparent Age
+
+Character `Birthday` remains identity-level chronology. Provisioned alternate forms do not copy the literal birthday into the new race, because a middle-aged human birthday can make a short-lived animal form appear ancient. Instead, form provisioning calculates the source race's current age category and fractional progress through that category, then maps that same life-stage progress into the target race's age thresholds.
+
+Each provisioned body stores this as body-level apparent-age metadata in its saved effect XML. Runtime `AgeInYears`, `AgeCategory`, description `&age` variables, score text, consider text, and FutureProg `age`/`agecategory` reads use the active body's apparent birthday. The original identity birthday is still retained on the character row for account, chronology, and compatibility uses.
 
 ### Description and Transformation Echoes
 
@@ -205,7 +211,7 @@ Transformation echoes are per-form metadata:
 | Empty string | Suppress the transformation echo. |
 | Text | Use the custom emote text. |
 
-The default static string is currently `@ transform|transforms into ^1.`, where `^1` is the new body in the emote context rendered with the emote system's non-self token so the transforming player sees their own new short description instead of `you`.
+The default static string is currently `@ transform|transforms into ^1.`, where `@` is a snapshot of the old form and `^1` is a snapshot of the new body in the emote context rendered with the emote system's non-self token so the transforming player sees their own new short description instead of `you`. Snapshotting avoids post-switch echoes such as "a dog transforms into a dog" when the character identity has already adopted the new active body.
 
 Custom transformation echoes are sanitised when they are loaded, edited, or emitted. This preserves ordinary emote syntax while preventing literal brace characters in persisted or builder-supplied text from breaking the emote parser during a body switch.
 

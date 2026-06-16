@@ -5,6 +5,7 @@ using MudSharp.Body.Traits;
 using MudSharp.Body.Traits.Subtypes;
 using MudSharp.Character.Heritage;
 using MudSharp.CharacterCreation;
+using MudSharp.Construction;
 using MudSharp.Database;
 using MudSharp.Communication.Language;
 using MudSharp.Effects.Concrete;
@@ -20,6 +21,7 @@ using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.RPG.Checks;
 using MudSharp.RPG.Merits;
 using MudSharp.RPG.Merits.Interfaces;
+using MudSharp.TimeAndDate.Date;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -70,11 +72,53 @@ public partial class Character
 		}
 	}
 
+	private sealed class BodyFormEchoSnapshot : DummyPerceiver
+	{
+		private readonly IPerceivable _self;
+		private readonly Gendering _gender;
+		private readonly bool _isSelf;
+
+		public BodyFormEchoSnapshot(string shortDescription, IPerceivable self, Gendering gender, bool isSelf, ICell? location,
+			RoomLayer roomLayer) : base(shortDescription, location: location, sentient: true)
+		{
+			_self = self;
+			_gender = gender;
+			_isSelf = isSelf;
+			RoomLayer = roomLayer;
+		}
+
+		public override Gendering ApparentGender(IPerceiver voyeur)
+		{
+			return _gender;
+		}
+
+		public override bool IsSelf(IPerceivable other)
+		{
+			return _isSelf && ReferenceEquals(other, _self);
+		}
+	}
+
 	public IEnumerable<ICharacterForm> Forms => _forms.OrderBy(x => x.SortOrder).ThenBy(x => x.Alias);
 	public IEnumerable<IBody> Bodies => Forms.Select(x => x.Body).Distinct();
 	public IEnumerable<ITrait> CharacterTraits => _characterTraits;
 	public IBody CurrentBody => Body;
 	public event CurrentBodyChangedEvent CurrentBodyChanged;
+
+	private static readonly AgeCategory[] OrderedAgeCategories =
+	[
+		AgeCategory.Baby,
+		AgeCategory.Child,
+		AgeCategory.Youth,
+		AgeCategory.YoungAdult,
+		AgeCategory.Adult,
+		AgeCategory.Elder,
+		AgeCategory.Venerable
+	];
+
+	private MudDate ApparentBirthdayForBody(IBody body)
+	{
+		return body.EffectsOfType<BodyFormApparentAgeEffect>().FirstOrDefault()?.ApparentBirthday ?? Birthday;
+	}
 
 	private SimpleCharacterTemplate GetCharacterTemplateForBody(IBody body)
 	{
@@ -104,7 +148,7 @@ public partial class Character
 			SelectedCulture = Culture,
 			SelectedEthnicity = body.Ethnicity,
 			SelectedRace = body.Race,
-			SelectedBirthday = Birthday,
+			SelectedBirthday = ApparentBirthdayForBody(body),
 			SelectedEntityDescriptionPatterns = body.EntityDescriptionPatterns.ToList(),
 			SelectedFullDesc = body.GetRawDescriptions.FullDescription,
 			SelectedSdesc = body.GetRawDescriptions.ShortDescription,
@@ -247,6 +291,79 @@ public partial class Character
 
 		var (height, weight) = model.GetRandomHeightWeight();
 		return SanitiseProvisionedFormDimensions(height, weight, template);
+	}
+
+	private static int MinimumAgeForLifeStage(IRace race, AgeCategory category)
+	{
+		return category == AgeCategory.Baby
+			? 0
+			: Math.Max(0, race.MinimumAgeForCategory(category));
+	}
+
+	private static int UpperAgeForLifeStage(IRace race, AgeCategory category)
+	{
+		var index = Array.IndexOf(OrderedAgeCategories, category);
+		var lower = MinimumAgeForLifeStage(race, category);
+		if (index < OrderedAgeCategories.Length - 1)
+		{
+			return Math.Max(lower + 1, MinimumAgeForLifeStage(race, OrderedAgeCategories[index + 1]));
+		}
+
+		var previousLower = index > 0 ? MinimumAgeForLifeStage(race, OrderedAgeCategories[index - 1]) : lower - 1;
+		return lower + Math.Max(1, lower - previousLower);
+	}
+
+	internal static (AgeCategory Category, double Fraction) GetLifeStageProgress(IRace race, int ageInYears)
+	{
+		var age = Math.Max(0, ageInYears);
+		var category = race.AgeCategory(age);
+		var lower = MinimumAgeForLifeStage(race, category);
+		var upper = UpperAgeForLifeStage(race, category);
+		var fraction = Math.Clamp((age - lower) / (double)Math.Max(1, upper - lower), 0.0, 1.0);
+		return (category, fraction);
+	}
+
+	internal static int EquivalentAgeForLifeStage(IRace sourceRace, int sourceAgeInYears, IRace targetRace)
+	{
+		if (sourceRace is null || targetRace is null)
+		{
+			return Math.Max(0, sourceAgeInYears);
+		}
+
+		if (sourceRace.SameRace(targetRace) || targetRace.SameRace(sourceRace))
+		{
+			return Math.Max(0, sourceAgeInYears);
+		}
+
+		var (category, fraction) = GetLifeStageProgress(sourceRace, sourceAgeInYears);
+		var lower = MinimumAgeForLifeStage(targetRace, category);
+		var upper = UpperAgeForLifeStage(targetRace, category);
+		var stageSpan = Math.Max(1, upper - lower);
+		var equivalent = lower + (int)Math.Round(stageSpan * fraction, MidpointRounding.AwayFromZero);
+		if (category != AgeCategory.Venerable)
+		{
+			equivalent = Math.Min(equivalent, upper - 1);
+		}
+
+		return Math.Max(0, equivalent);
+	}
+
+	private static MudDate EquivalentBirthdayForLifeStage(ICharacterTemplate template, IRace targetRace)
+	{
+		var sourceBirthday = template.SelectedBirthday;
+		var sourceAge = Math.Max(0, sourceBirthday.Calendar.CurrentDate.YearsDifference(sourceBirthday));
+		var targetAge = EquivalentAgeForLifeStage(template.SelectedRace, sourceAge, targetRace);
+		return sourceBirthday.Calendar.GetRandomBirthday(targetAge);
+	}
+
+	private void EnsureBodyFormApparentAge(IBody body, MudDate apparentBirthday)
+	{
+		if (body.EffectsOfType<BodyFormApparentAgeEffect>().Any())
+		{
+			return;
+		}
+
+		body.AddEffect(new BodyFormApparentAgeEffect(body, apparentBirthday));
 	}
 
 	private static ICharacteristicValue? SelectProvisionedFormCharacteristicValue(
@@ -412,6 +529,14 @@ public partial class Character
 		};
 	}
 
+	private static string SnapshotFormShortDescription(IBody body, IPerceiver voyeur)
+	{
+		return body
+		       .HowSeen(voyeur, flags: PerceiveIgnoreFlags.IgnoreCanSee | PerceiveIgnoreFlags.IgnoreSelf, colour: false)
+		       .SubstituteANSIColour()
+		       .StripANSIColour();
+	}
+
 	private void EmitTransformationEcho(ICharacterForm form, IBody oldBody, IBody newBody)
 	{
 		var echo = form.TransformationEcho ?? Gameworld.GetStaticString("DefaultFormTransformationEcho");
@@ -420,7 +545,23 @@ public partial class Character
 			return;
 		}
 
-		OutputHandler.Handle(new EmoteOutput(new Emote(echo.Sanitise(), this, oldBody, newBody)));
+		var oldSnapshot = new BodyFormEchoSnapshot(
+			SnapshotFormShortDescription(oldBody, this),
+			this,
+			oldBody.ApparentGender(this),
+			true,
+			oldBody.Location,
+			oldBody.RoomLayer
+		);
+		var newSnapshot = new BodyFormEchoSnapshot(
+			SnapshotFormShortDescription(newBody, this),
+			this,
+			newBody.ApparentGender(this),
+			false,
+			newBody.Location,
+			newBody.RoomLayer
+		);
+		OutputHandler.Handle(new EmoteOutput(new Emote(echo.Sanitise(), oldSnapshot, oldSnapshot, newSnapshot)));
 	}
 
 	private CharacterForm DefaultFormFor(IBody body)
@@ -1114,11 +1255,13 @@ public partial class Character
 		                                 .Where(x => x.Definition is IAttributeDefinition definition &&
 		                                             race.Attributes.Contains(definition))
 		                                 .ToList();
+		var apparentBirthday = EquivalentBirthdayForLifeStage(template, race);
 		var newTemplate = template with
 		{
 			SelectedRace = race,
 			SelectedEthnicity = ethnicity,
 			SelectedGender = gender,
+			SelectedBirthday = apparentBirthday,
 			SelectedEntityDescriptionPatterns = new List<IEntityDescriptionPattern>(template.SelectedEntityDescriptionPatterns),
 			SelectedCharacteristics = selectedCharacteristics,
 			SelectedAttributes = selectedAttributes,
@@ -1141,6 +1284,7 @@ public partial class Character
 
 		var newBody = new Body.Implementations.Body(Gameworld, this, newTemplate);
 		InitialiseProvisionedFormBody(newBody);
+		EnsureBodyFormApparentAge(newBody, apparentBirthday);
 		newBody.SuspendForCharacter();
 		Gameworld.SaveManager.AddInitialisation(newBody);
 		Gameworld.SaveManager.Flush();
@@ -1210,6 +1354,7 @@ public partial class Character
 				Changed = true;
 			}
 
+			EnsureBodyFormApparentAge(form.Body, EquivalentBirthdayForLifeStage(GetCharacterTemplate(), form.Body.Race));
 			whyNot = string.Empty;
 			return true;
 		}
@@ -1218,6 +1363,7 @@ public partial class Character
 		if (form != null)
 		{
 			SetFormSource(form.Body, source);
+			EnsureBodyFormApparentAge(form.Body, EquivalentBirthdayForLifeStage(GetCharacterTemplate(), form.Body.Race));
 			whyNot = string.Empty;
 			return true;
 		}

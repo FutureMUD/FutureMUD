@@ -234,7 +234,7 @@ public class GroupAI : LateInitialisingItem, IGroupAI
         sb.AppendLine($"Alertness: {Alertness.DescribeEnum().ColourValue()}");
         sb.AppendLine($"Priority: {CurrentAction.DescribeEnum().ColourValue()}");
         sb.AppendLine("Members: ");
-        foreach (ICharacter member in GroupMembers.OrderByDescending(x => x.Race.AgeCategory(x))
+        foreach (ICharacter member in GroupMembers.OrderByDescending(x => x.AgeCategory)
                                            .ThenByDescending(x => RoleFor(x) == GroupRole.Leader))
         {
             StringBuilder extra = new();
@@ -249,7 +249,7 @@ public class GroupAI : LateInitialisingItem, IGroupAI
             }
 
             sb.AppendLine(
-                $"\t[#{member.Id.ToString("N0", actor)}:{member.InstanceId.ToString("N0", actor)}] {member.HowSeen(actor)} ({member.Gender.GenderClass(true)} {member.Race.AgeCategory(member).DescribeEnum(true)} - {RoleFor(member).DescribeEnum()}){extra.ToString()}");
+                $"\t[#{member.Id.ToString("N0", actor)}:{member.InstanceId.ToString("N0", actor)}] {member.HowSeen(actor)} ({member.Gender.GenderClass(true)} {member.AgeCategory.DescribeEnum(true)} - {RoleFor(member).DescribeEnum()}){extra.ToString()}");
         }
 
         string dataText = Data.ShowText(actor);

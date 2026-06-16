@@ -90,10 +90,10 @@ public partial class Character
                 returnVar = Location;
                 break;
             case "age":
-                returnVar = new NumberVariable(Birthday.Calendar.CurrentDate.YearsDifference(Birthday));
+                returnVar = new NumberVariable(AgeInYears);
                 break;
             case "agecategory":
-                returnVar = new TextVariable(Race.AgeCategory(this).DescribeEnum());
+                returnVar = new TextVariable(AgeCategory.DescribeEnum());
                 break;
             case "race":
                 returnVar = Race;

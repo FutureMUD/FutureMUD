@@ -262,7 +262,7 @@ public abstract class GroupAIType : IGroupAIType, IHaveFuturemud
             }
 
             group.Changed = true;
-            AgeCategory age = ch.Race.AgeCategory(ch);
+            AgeCategory age = ch.AgeCategory;
             switch (age)
             {
                 case AgeCategory.Baby:

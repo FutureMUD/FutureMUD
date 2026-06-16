@@ -151,7 +151,7 @@ public class GroupEmote : IGroupEmote
             return false;
         }
 
-        if (RequiredAgeCategory.HasValue && ch.Race.AgeCategory(ch) != RequiredAgeCategory)
+        if (RequiredAgeCategory.HasValue && ch.AgeCategory != RequiredAgeCategory)
         {
             return false;
         }

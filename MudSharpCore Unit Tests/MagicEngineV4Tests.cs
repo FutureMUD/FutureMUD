@@ -4,6 +4,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using MudSharp.Body.Traits;
 using MudSharp.Character;
+using MudSharp.Commands.Modules;
 using MudSharp.Construction;
 using MudSharp.Effects;
 using MudSharp.Effects.Concrete;
@@ -68,6 +69,22 @@ public class MagicEngineV4Tests
 			Assert.IsTrue(power.IsPsionic, $"{type} should load as psionic.");
 			CollectionAssert.Contains(power.Verbs.ToArray(), PrimaryVerb(type));
 		}
+	}
+
+	[TestMethod]
+	public void MagicModule_SchoolVerbHelpText_ListsFullPlayerCommandSurface()
+	{
+		var help = MagicModule.SchoolVerbHelpText("psi");
+
+		StringAssert.Contains(help, "You can use the following options with this magic command:");
+		StringAssert.Contains(help, "#3psi#0 - see your current status, resources and sustained powers");
+		StringAssert.Contains(help, "#3psi powers#0 - lists your powers");
+		StringAssert.Contains(help, "#3psi help <power>#0 - shows help for a power");
+		StringAssert.Contains(help, "#3psi <power command> [arguments]#0 - invokes a power");
+		StringAssert.Contains(help, "#3psi spells#0 - lists spells for this school");
+		StringAssert.Contains(help, "#3psi spell <spell>#0 - shows help for a spell");
+		StringAssert.Contains(help, "#3psi spellhelp <spell>#0 - shows help for a spell");
+		StringAssert.Contains(help, "#3psi cast <spell> <power> [arguments]#0 - casts a spell");
 	}
 
 	[TestMethod]

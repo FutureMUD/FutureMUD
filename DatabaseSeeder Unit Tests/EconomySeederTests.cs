@@ -580,6 +580,12 @@ public class EconomySeederTests
 			.ToList();
 	}
 
+    private static void AssertPositiveExistingId(long id, ISet<long> validIds, string description)
+    {
+        Assert.IsTrue(id > 0, $"{description} should not use a placeholder ID.");
+        Assert.IsTrue(validIds.Contains(id), $"{description} should reference an existing seeded row.");
+    }
+
     private static List<XElement> GetPopulationIncomeImpacts(MarketInfluenceTemplate template)
     {
         return XElement.Parse(template.PopulationImpacts ?? "<PopulationImpacts />")
@@ -824,6 +830,71 @@ public class EconomySeederTests
                 0,
                 context.MarketCategories.Single(x => x.Name == familyName).MarketCategoryType,
                 $"{familyName} should remain standalone in the stock seeder.");
+        }
+    }
+
+    [TestMethod]
+    public void SeedData_DoesNotSerializePlaceholderIdsInStockXml()
+    {
+        using FuturemudDatabaseContext context = BuildContext();
+        SeedEconomyPrerequisites(context);
+
+        new EconomySeeder().SeedData(context, BuildAnswers());
+
+        HashSet<long> categoryIds = context.MarketCategories.Select(x => x.Id).ToHashSet();
+        HashSet<long> populationIds = context.MarketPopulations.Select(x => x.Id).ToHashSet();
+        HashSet<long> futureProgIds = context.FutureProgs.Select(x => x.Id).ToHashSet();
+
+        foreach (MarketCategory? category in context.MarketCategories.OrderBy(x => x.Name))
+        {
+            foreach ((long categoryId, _) in GetCombinationComponents(category))
+            {
+                AssertPositiveExistingId(categoryId, categoryIds, $"{category.Name} combination component {categoryId}");
+            }
+        }
+
+        foreach (MarketInfluenceTemplate? template in context.MarketInfluenceTemplates.OrderBy(x => x.Name))
+        {
+            foreach (XElement impact in XElement.Parse(template.Impacts ?? "<Impacts />").Elements("Impact"))
+            {
+                long categoryId = long.Parse(impact.Attribute("category")!.Value, CultureInfo.InvariantCulture);
+                AssertPositiveExistingId(categoryId, categoryIds, $"{template.Name} category impact {categoryId}");
+            }
+
+            foreach (XElement impact in GetPopulationIncomeImpacts(template))
+            {
+                long populationId = long.Parse(impact.Attribute("population")!.Value, CultureInfo.InvariantCulture);
+                AssertPositiveExistingId(populationId, populationIds, $"{template.Name} population impact {populationId}");
+            }
+        }
+
+        foreach (MarketPopulation? population in context.MarketPopulations.OrderBy(x => x.Name))
+        {
+            XElement needs = XElement.Parse(population.MarketPopulationNeeds ?? "<Needs />");
+            foreach (XElement need in needs.Elements("Need"))
+            {
+                long categoryId = long.Parse(need.Attribute("category")!.Value, CultureInfo.InvariantCulture);
+                AssertPositiveExistingId(categoryId, categoryIds, $"{population.Name} need category {categoryId}");
+            }
+
+            XElement stressPoints = XElement.Parse(population.MarketStressPoints ?? "<Stresses />");
+            foreach (XElement stress in stressPoints.Elements("Stress"))
+            {
+                long onStartId = long.Parse(stress.Attribute("onstart")!.Value, CultureInfo.InvariantCulture);
+                long onEndId = long.Parse(stress.Attribute("onend")!.Value, CultureInfo.InvariantCulture);
+                AssertPositiveExistingId(onStartId, futureProgIds, $"{population.Name} stress start prog {onStartId}");
+                AssertPositiveExistingId(onEndId, futureProgIds, $"{population.Name} stress end prog {onEndId}");
+            }
+        }
+
+        foreach (Shopper? shopper in context.Shoppers.OrderBy(x => x.Name))
+        {
+            XElement definition = XElement.Parse(shopper.Definition);
+            foreach (string progElementName in new[] { "WillShopAtShopProg", "ShopSelectionWeightProg", "WillBuyItemProg", "ItemBuyWeightProg" })
+            {
+                long progId = long.Parse(definition.Element(progElementName)!.Value, CultureInfo.InvariantCulture);
+                AssertPositiveExistingId(progId, futureProgIds, $"{shopper.Name} {progElementName} {progId}");
+            }
         }
     }
 

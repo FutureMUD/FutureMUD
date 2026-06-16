@@ -61,6 +61,11 @@ Not every stage has only one possible screen type. The most important alternativ
 - `SelectSkills`: `SkillPicker` or `SkillCostPicker`
 - `SpecialApplication`: the same stage can be configured to auto-short first-account applications
 
+### Knowledge Selection
+`KnowledgePickerBySkill` iterates the selected skill traits and offers only knowledges that are marked `LearnableAtChargen`, are not already selected, and whose `CanPickChargenProg` returns true for the current chargen application plus the current skill trait.
+
+The screen treats free and earlier picks as already selected. It only shows the "already have" section when that list is non-empty, and available knowledge options are rendered as wrapped numbered rows so long medical or craft knowledge descriptions remain readable within the account line width.
+
 ## Application Types
 Chargen tracks `ApplicationType` explicitly:
 - `Normal`

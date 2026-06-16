@@ -79,8 +79,7 @@ public class MagicModule : Module<ICharacter>
 
         if (cmdText.EqualToAny("?", "help") && ss.IsFinished)
         {
-            actor.OutputHandler.Send(
-                $"You can use the {$"{invoked} powers".ColourCommand()} command to list all of your powers, {$"{invoked} help <powername>".ColourCommand()} to get help on the usage of a power, or {$"{invoked} <power command>".ColourCommand()} to invoke that power (see individual power help for the commands).");
+            actor.OutputHandler.Send(SchoolVerbHelpText(invoked).SubstituteANSIColour());
             return;
         }
 
@@ -211,6 +210,20 @@ public class MagicModule : Module<ICharacter>
         string verb = power.Verbs.FirstOrDefault(x => x.EqualTo(cmdText)) ??
                    power.Verbs.First(x => x.StartsWith(cmdText, StringComparison.InvariantCultureIgnoreCase));
         power.UseCommand(actor, verb, ss);
+    }
+
+    public static string SchoolVerbHelpText(string invoked)
+    {
+        return @$"You can use the following options with this magic command:
+
+	#3{invoked}#0 - see your current status, resources and sustained powers
+	#3{invoked} powers#0 - lists your powers
+	#3{invoked} help <power>#0 - shows help for a power
+	#3{invoked} <power command> [arguments]#0 - invokes a power; see individual power help for the syntax
+	#3{invoked} spells#0 - lists spells for this school
+	#3{invoked} spell <spell>#0 - shows help for a spell
+	#3{invoked} spellhelp <spell>#0 - shows help for a spell
+	#3{invoked} cast <spell> <power> [arguments]#0 - casts a spell; see individual spell help for target syntax";
     }
 
     private static void MagicStatus(ICharacter actor, IMagicSchool school)

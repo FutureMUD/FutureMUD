@@ -1,6 +1,6 @@
 # Medieval ItemSeeder Rebuild Audit
 
-The medieval `ItemSeeder.Rework` item and craft implementation was reset to launch stubs for a from-scratch rebuild. The rebuild has now begun with direct seeded clothing, household goods and furniture, and military-goods prototypes.
+The medieval `ItemSeeder.Rework` item and craft implementation was reset to launch stubs for a from-scratch rebuild. The rebuild has now begun with direct seeded clothing, household goods and furniture, military-goods prototypes, and writing/book/document prototypes.
 
 ## Current Runtime State
 
@@ -10,6 +10,7 @@ The medieval `ItemSeeder.Rework` item and craft implementation was reset to laun
 - `SeedMedievalHouseholdFurniture` contains the direct household goods, furniture, lighting, vessel, water-source, door, lock, and decoration `CreateItem(...)` calls.
 - `SeedMedievalWeaponsShieldsAccessories` contains the direct melee weapon, ranged weapon, ammunition, and thrown-weapon `CreateItem(...)` calls.
 - `SeedMedievalArmour` contains the direct armour, horse tack, barding, shield, and military support-gear `CreateItem(...)` calls.
+- `SeedMedievalWritingAdministrationAndDocuments` contains the direct writing-surface, book, document, seal, container, scribal-tool, and writing-support `CreateItem(...)` calls.
 - The remaining `ItemSeeder.Rework.Medieval*.cs` category files are currently no-op launch points only.
 - `ItemSeederCrafting.Medieval.cs` currently contains no-op medieval craft launch points only.
 - The old authored outfit catalogue, explicit culture catalogue, generated helper/data model, and medieval craft helper families have been removed.
@@ -42,6 +43,16 @@ The live medieval household goods and furniture item source is intentionally dir
 - Catalogue metadata lives in `Design Documents/Seeding/Medieval_Household_Goods_Furniture_Seeder_Design_Reference.md`.
 - Each household-goods prototype is represented by exactly one `CreateItem(...)` call in `SeedMedievalHouseholdFurniture`.
 - Furniture and container crafts are not rebuilt yet; `SeedMedievalFurnitureAndContainerCrafts` remains a no-op.
+
+## Active Writing, Books, and Documents Source
+
+The live medieval writing, books, and documents item source is intentionally direct-call only:
+
+- Item prototypes live in `DatabaseSeeder/Seeders/ItemSeeder.Rework.MedievalWriting.cs`.
+- Catalogue metadata lives in `Design Documents/Seeding/FutureMUD_Medieval_Writing_Books_Documents_Design_Reference.md`.
+- Full descriptions live in `Design Documents/Seeding/FutureMUD_Medieval_Writing_Books_Documents_FDesc_Catalogue.csv`.
+- Each writing, book, document, seal, container, scribal-tool, and writing-support prototype is represented by exactly one `CreateItem(...)` call in `SeedMedievalWritingAdministrationAndDocuments`.
+- Writing and administration crafts are not rebuilt yet; `SeedMedievalWritingAdministrationCrafts` remains a no-op.
 
 ## Shared Historic Foundations
 

@@ -14,6 +14,14 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class StringUtilitiesTests
 {
+    private static string[] RenderedTableLines(string table)
+    {
+        return table
+            .StripANSIColour()
+            .Replace(Telnet.NoWordWrap, string.Empty)
+            .Split(new[] { "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries);
+    }
+
     [TestMethod]
     public void SubstituteANSIColour_BasicCodes()
     {
@@ -104,6 +112,77 @@ public class StringUtilitiesTests
         Assert.AreEqual(lines[1].IndexOf("Col1"), lines[3].IndexOf("short"));
         Assert.IsTrue(lines[3].Contains("longert..."));
         Assert.IsTrue(lines[4].Contains("bigger"));
+    }
+
+    [TestMethod]
+    public void GetTextTable_TruncatesHeaderInSpecifiedColumn()
+    {
+        string[][] data = new[]
+        {
+            new[] {"Jab", "At", "3.00"}
+        };
+        string[] header = new[] { "Name", "Intentions", "Stamina" };
+        const int maxWidth = 28;
+
+        string table = StringUtilities.GetTextTable(data, header, maxWidth, bColourTable: false,
+            truncatableColumnIndex: 1);
+        string[] lines = RenderedTableLines(table);
+
+        Assert.IsFalse(lines[1].Contains("Intentions", StringComparison.Ordinal));
+        Assert.IsTrue(lines[1].Contains("In...", StringComparison.Ordinal));
+        Assert.IsTrue(lines.All(x => x.Length <= maxWidth));
+    }
+
+    [TestMethod]
+    public void GetTextTable_ColouredHeaderUsesRawTextPadding()
+    {
+        string[][] data = new[]
+        {
+            new[] {"Al", "Standing"}
+        };
+        string[] header = new[] { "#2Name#0".SubstituteANSIColour(), "Status" };
+
+        string table = StringUtilities.GetTextTable(data, header, 80, bColourTable: false);
+        string[] lines = table
+            .Replace(Telnet.NoWordWrap, string.Empty)
+            .Split(new[] { "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries);
+
+        Assert.AreEqual(lines[0].RawTextLength(), lines[1].RawTextLength());
+        Assert.AreEqual(lines[0].RawTextLength(), lines[2].RawTextLength());
+    }
+
+    [TestMethod]
+    public void GetTextTable_DenseTableRowsMatchSeparatorWidths()
+    {
+        string[][] data = new[]
+        {
+            new[] {"AA", "BBBB"},
+            new[] {"C", "D"}
+        };
+        string[] header = new[] { "H1", "H2" };
+
+        string table = StringUtilities.GetTextTable(data, header, 80, bColourTable: false, denseTable: true);
+        string[] lines = RenderedTableLines(table);
+
+        Assert.AreEqual(1, lines.Select(x => x.Length).Distinct().Count());
+    }
+
+    [TestMethod]
+    public void GetTextTable_InvalidTruncationColumnFallsBackToLongestColumn()
+    {
+        string[][] data = new[]
+        {
+            new[] {"short", "thisvalueisverylong", "mid"}
+        };
+        string[] header = new[] { "A", "B", "C" };
+        const int maxWidth = 30;
+
+        string table = StringUtilities.GetTextTable(data, header, maxWidth, bColourTable: false,
+            truncatableColumnIndex: 99);
+        string[] lines = RenderedTableLines(table);
+
+        Assert.IsTrue(lines[3].Contains("thisval...", StringComparison.Ordinal));
+        Assert.IsTrue(lines.All(x => x.Length <= maxWidth));
     }
 
     [TestMethod]

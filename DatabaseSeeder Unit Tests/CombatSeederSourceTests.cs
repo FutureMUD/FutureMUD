@@ -250,7 +250,9 @@ public class CombatSeederSourceTests
 		StringAssert.Contains(helper, "\"Vacuum\"");
 		StringAssert.Contains(helper, "\"Space\"");
 		StringAssert.Contains(helper, "isunderwater(@ch.Location, @ch.Layer)");
-		StringAssert.Contains(helper, "istagged(@item, \"\"Shiny\"\") or istagged(@item, \"\"Reflective\"\")");
+		StringAssert.Contains(helper, "not(istagged(@ch.Location.Terrain, \"\"Vacuum\"\"))");
+		StringAssert.Contains(helper, "not(isunderwater(@ch.Location, @ch.Layer))");
+		StringAssert.Contains(helper, ".any(wielded, istagged(@wielded, \"\"Shiny\"\") or istagged(@wielded, \"\"Reflective\"\"))");
 		StringAssert.Contains(helper, "celestialelevation(@ch.Location");
 		StringAssert.Contains(helper, "> 0.26");
 		StringAssert.Contains(helper, "CombatMessagesCombatActions");

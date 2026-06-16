@@ -16,6 +16,7 @@ This is the head document for the health system set:
 - [Health Medical Interactions](./Health_Medical_Interactions.md) covers bedside treatment, surgery, CPR, defibrillation, drugs, and the main command surface.
 - [Health Adjacencies and Items](./Health_Adjacencies_and_Items.md) covers breathing, needs, corpses, severed bodyparts, implants, artificial organs, rebreathers, cannulae, prosthetics, and cross-cutting effects.
 - [Health Seeder State and Gaps](./Health_Seeder_State_and_Gaps.md) covers how stock content is currently seeded and where the current implementation is partial, broader than the stock data, or a natural extension point.
+- [Drug System Design](../Drugs/Drug_System_Design.md) and [Drug Builder Guide](../Drugs/Drug_Builder_Guide.md) cover the dedicated drug implementation and content-authoring workflow.
 - [Antiquity Medical Crafting Suite](../Crafting/Antiquity_Medical_Crafting_Suite.md) records the antiquity medical item and craft pass, including low-tech treatment goods, herbal remedies, prosthetics, and forage yield hooks.
 
 ## Core Mental Model

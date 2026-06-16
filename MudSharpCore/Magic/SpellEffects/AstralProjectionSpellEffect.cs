@@ -285,8 +285,22 @@ public class AstralProjectionSpellEffect : IMagicSpellEffectTemplate
 	public string Show(ICharacter actor)
 	{
 		var plane = Gameworld.Planes.Get(EffectivePlaneId());
-		return
-			$"AstralProjection [{FormKey.ColourCommand()}] Race {_race.Name.ColourName()}, Ethnicity {_ethnicity?.Name.ColourName() ?? "Auto".ColourValue()}, Gender {_gender?.DescribeEnum().ColourValue() ?? "Auto".ColourValue()}, Alias {(_alias ?? "auto").ColourCommand()}, Plane {(plane?.Name ?? $"#{EffectivePlaneId().ToString("N0", actor)}").ColourName()}, Anchor {_anchorPolicy.DescribeEnum().ColourValue()}, ProjectionEcho {DescribeEcho(_projectionEcho, DefaultProjectionEcho)}, AnchorEcho {DescribeEcho(_anchorEcho, DefaultAnchorEcho)}, AnchorRoomEcho {DescribeEcho(_anchorRoomEcho, DefaultAnchorRoomEcho)}, ProjectionRoomEcho {DescribeEcho(_projectionRoomEcho, DefaultProjectionRoomEcho)}, CollapseEcho {DescribeEcho(_collapseEcho, DefaultCollapseEcho)}, Backlash {DescribeEcho(_backlashEcho, string.Empty)}, SDescOverride {DescribeEcho(_projectionSDescOverride, string.Empty)}";
+		return SpellEffectPresentation.Describe(actor, "Astral Projection",
+			("Form Key", FormKey.ColourCommand()),
+			("Race", _race.Name.ColourName()),
+			("Ethnicity", _ethnicity?.Name.ColourName() ?? "Auto".ColourValue()),
+			("Gender", _gender?.DescribeEnum().ColourValue() ?? "Auto".ColourValue()),
+			("Alias", (_alias ?? "auto").ColourCommand()),
+			("Plane", (plane?.Name ?? $"#{EffectivePlaneId().ToString("N0", actor)}").ColourName()),
+			("Anchor Policy", _anchorPolicy.DescribeEnum().ColourValue()),
+			("Projection Echo", DescribeEcho(_projectionEcho, DefaultProjectionEcho)),
+			("Anchor Echo", DescribeEcho(_anchorEcho, DefaultAnchorEcho)),
+			("Anchor Room Echo", DescribeEcho(_anchorRoomEcho, DefaultAnchorRoomEcho)),
+			("Projection Room Echo", DescribeEcho(_projectionRoomEcho, DefaultProjectionRoomEcho)),
+			("Collapse Echo", DescribeEcho(_collapseEcho, DefaultCollapseEcho)),
+			("Backlash", DescribeEcho(_backlashEcho, string.Empty)),
+			("SDesc Override", DescribeEcho(_projectionSDescOverride, string.Empty))
+		);
 	}
 
 	public bool BuildingCommand(ICharacter actor, StringStack command)

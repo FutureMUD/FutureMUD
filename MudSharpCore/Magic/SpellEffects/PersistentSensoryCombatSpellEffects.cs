@@ -346,8 +346,17 @@ public class BurningEffect : IMagicSpellEffectTemplate
 
 	public string Show(ICharacter actor)
 	{
-		return
-			$"Burning - {DamageType.DescribeEnum().ColourValue()} - Dmg {DamageFormula.OriginalExpression.ColourCommand()} / Pain {PainFormula.OriginalExpression.ColourCommand()} / Stun {StunFormula.OriginalExpression.ColourCommand()} / Thermal {ThermalFormula.OriginalExpression.ColourCommand()} every {TickSeconds.ToString("N2", actor).ColourValue()}s";
+		return SpellEffectPresentation.Describe(actor, "Burning",
+			("Damage Type", DamageType.DescribeEnum().ColourValue()),
+			("Damage", DamageFormula.OriginalExpression.ColourCommand()),
+			("Pain", PainFormula.OriginalExpression.ColourCommand()),
+			("Stun", StunFormula.OriginalExpression.ColourCommand()),
+			("Thermal", ThermalFormula.OriginalExpression.ColourCommand()),
+			("Tick", $"{TickSeconds.ToString("N2", actor)}s".ColourValue()),
+			("Minimum Oxidation", MinimumOxidation.ToString("N2", actor).ColourValue()),
+			("Self Oxidising", SelfOxidising.ToColouredString()),
+			("Short Addendum", SDescAddendum.Colour(AddendumColour)),
+			("Description Addendum", DescAddendum.Colour(AddendumColour)));
 	}
 }
 
@@ -553,7 +562,12 @@ public class TrackMarkEffect : IMagicSpellEffectTemplate
 
 	public string Show(ICharacter actor)
 	{
-		return
-			$"TrackMark - Visual x{VisualTrackIntensityMultiplier.ToString("N2", actor).ColourValue()} +{VisualTrackIntensityBonus.ToString("N2", actor).ColourValue()} / Olfactory x{OlfactoryTrackIntensityMultiplier.ToString("N2", actor).ColourValue()} +{OlfactoryTrackIntensityBonus.ToString("N2", actor).ColourValue()} / Marked {MarkTracksMagical.ToColouredString()}";
+		return SpellEffectPresentation.Describe(actor, "Track Mark",
+			("Visual Multiplier", VisualTrackIntensityMultiplier.ToString("N2", actor).ColourValue()),
+			("Visual Bonus", VisualTrackIntensityBonus.ToString("N2", actor).ColourValue()),
+			("Olfactory Multiplier", OlfactoryTrackIntensityMultiplier.ToString("N2", actor).ColourValue()),
+			("Olfactory Bonus", OlfactoryTrackIntensityBonus.ToString("N2", actor).ColourValue()),
+			("Magical Tracks", MarkTracksMagical.ToColouredString()),
+			("Short Addendum", SDescAddendum.Colour(AddendumColour)));
 	}
 }

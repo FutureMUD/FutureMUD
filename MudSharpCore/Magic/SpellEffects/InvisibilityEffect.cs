@@ -136,7 +136,8 @@ public class InvisibilityEffect : IMagicSpellEffectTemplate
 
     public string Show(ICharacter actor)
     {
-        return $"Invisibility - Filter: {FilterProg?.MXPClickableFunctionName() ?? "None".Colour(Telnet.Red)}";
+        return SpellEffectPresentation.Describe(actor, "Invisibility",
+            ("Filter", FilterProg?.MXPClickableFunctionName() ?? "None".Colour(Telnet.Red)));
     }
 
     #endregion

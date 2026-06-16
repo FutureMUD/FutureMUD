@@ -91,7 +91,10 @@ public class WeatherChangeEffect : IMagicSpellEffectTemplate
 
     public string Show(ICharacter actor)
     {
-        return $"WeatherChange {WeatherEvent.Name.ColourValue()} {(NextTransition ? "next" : "immediate")}";
+        return SpellEffectPresentation.Describe(actor, "Weather Change",
+            ("Weather Event", WeatherEvent.Name.ColourValue()),
+            ("Timing", (NextTransition ? "Next Transition" : "Immediate").ColourValue())
+        );
     }
 
     public bool IsInstantaneous => true;

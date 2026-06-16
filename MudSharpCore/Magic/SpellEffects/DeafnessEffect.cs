@@ -49,7 +49,7 @@ public class DeafnessEffect : IMagicSpellEffectTemplate
 
     public string Show(ICharacter actor)
     {
-        return "Deafness";
+        return SpellEffectPresentation.Describe(actor, "Deafness");
     }
 
     public bool IsInstantaneous => false;

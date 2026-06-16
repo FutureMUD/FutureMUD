@@ -83,7 +83,9 @@ public class SpellArmourEffect : CharacterSpellEffectTemplateBase
 
 	public override string Show(ICharacter actor)
 	{
-		return $"Spell Armour - {ArmourConfiguration.Show(actor)}";
+		return SpellEffectPresentation.Describe(actor, "Spell Armour",
+			("Configuration", ArmourConfiguration.Show(actor))
+		);
 	}
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)

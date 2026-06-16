@@ -68,8 +68,12 @@ public abstract class TagWardSpellEffectBase : IMagicSpellEffectTemplate
 
 	public string Show(ICharacter actor)
 	{
-		return
-			$"{EffectName.ColourName()} - {Tag.ColourValue()}{(MatchValue ? $"={Value.ColourValue()}" : "")} - {Coverage.DescribeEnum().ColourValue()} - {Mode.DescribeEnum().ColourValue()} - Prog: {Prog?.MXPClickableFunctionName() ?? "None".ColourError()}";
+		return SpellEffectPresentation.Describe(actor, EffectName,
+			("Tag", Tag.ColourValue()),
+			("Value", MatchValue ? Value.ColourValue() : "Any".ColourValue()),
+			("Coverage", Coverage.DescribeEnum().ColourValue()),
+			("Mode", Mode.DescribeEnum().ColourValue()),
+			("Prog", Prog?.MXPClickableFunctionName() ?? "None".ColourError()));
 	}
 
 	public bool BuildingCommand(ICharacter actor, StringStack command)

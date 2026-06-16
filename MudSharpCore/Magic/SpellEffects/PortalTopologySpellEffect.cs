@@ -325,6 +325,13 @@ public class PortalTopologySpellEffect : IMagicSpellEffectTemplate
 	public string Show(ICharacter actor)
 	{
 		var network = Gameworld.MagicPortalNetworks.Get(NetworkId);
-		return $"PortalNetwork - Network: {network?.Name.ColourName() ?? "None".ColourError()} - Key: {EndpointKey.ColourCommand()} - Anchor: {AnchorMode.DescribeEnum().ColourName()} - Link: {(string.IsNullOrWhiteSpace(LinkEndpointKey) ? "none" : LinkEndpointKey.ColourCommand())} - Replace: {ReplaceExisting.ToColouredString()} - Permanent: {Permanent.ToColouredString()}";
+		return SpellEffectPresentation.Describe(actor, "Portal Network",
+			("Network", network?.Name.ColourName() ?? "None".ColourError()),
+			("Endpoint Key", EndpointKey.ColourCommand()),
+			("Anchor", AnchorMode.DescribeEnum().ColourName()),
+			("Link", string.IsNullOrWhiteSpace(LinkEndpointKey) ? "none".ColourValue() : LinkEndpointKey.ColourCommand()),
+			("Replace Existing", ReplaceExisting.ToColouredString()),
+			("Permanent", Permanent.ToColouredString())
+		);
 	}
 }

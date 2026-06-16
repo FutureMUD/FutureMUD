@@ -165,8 +165,9 @@ Note: You can use {0} in the desc addenda to have a light-level description (dim
 
     public string Show(ICharacter actor)
     {
-        return
-            $"RoomLightEffect - {AddedLuxPerPower.ToString("N3", actor)} lux - {DescAddendum.Colour(GlowAddendumColour)}";
+        return SpellEffectPresentation.Describe(actor, "Room Light",
+            ("Lux Per Power", $"{AddedLuxPerPower.ToString("N3", actor)} lux".ColourValue()),
+            ("Description Addendum", string.IsNullOrWhiteSpace(DescAddendum) ? "None".ColourError() : DescAddendum.Colour(GlowAddendumColour)));
     }
 
     #endregion

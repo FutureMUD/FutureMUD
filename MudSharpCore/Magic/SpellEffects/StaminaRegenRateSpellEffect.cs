@@ -67,7 +67,8 @@ public class StaminaRegenRateSpellEffect : IMagicSpellEffectTemplate
 
     public string Show(ICharacter actor)
     {
-        return $"StaminaRegenRate x{Multiplier.ToStringP2(actor)}";
+        return SpellEffectPresentation.Describe(actor, "Stamina Regen Rate",
+            ("Multiplier", Multiplier.ToStringP2(actor).ColourValue()));
     }
 
     public bool IsInstantaneous => false;

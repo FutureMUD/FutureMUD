@@ -87,8 +87,12 @@ public abstract class WardSpellEffectBase : IMagicSpellEffectTemplate
 
 	public string Show(ICharacter actor)
 	{
-		return
-			$"{EffectName.ColourName()} - {School.Name.Colour(School.PowerListColour)} - {Coverage.DescribeEnum().ColourValue()} - {Mode.DescribeEnum().ColourValue()}{(IncludesSubschools ? " incl. subschools" : "")} - Prog: {Prog?.MXPClickableFunctionName() ?? "None".ColourError()}";
+		return SpellEffectPresentation.Describe(actor, EffectName,
+			("School", School.Name.Colour(School.PowerListColour)),
+			("Coverage", Coverage.DescribeEnum().ColourValue()),
+			("Mode", Mode.DescribeEnum().ColourValue()),
+			("Includes Subschools", IncludesSubschools.ToColouredString()),
+			("Prog", Prog?.MXPClickableFunctionName() ?? "None".ColourError()));
 	}
 
 	public bool BuildingCommand(ICharacter actor, StringStack command)

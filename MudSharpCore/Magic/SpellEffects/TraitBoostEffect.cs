@@ -138,8 +138,10 @@ public class TraitBoostEffect : IMagicSpellEffectTemplate
 
     public string Show(ICharacter actor)
     {
-        return
-            $"TraitBoostEffect - {Trait?.Name.ColourValue() ?? "None".ColourError()} {Bonus.ToBonusString(actor)} (context: {TraitBonusContext.DescribeEnum().ColourValue()})";
+        return SpellEffectPresentation.Describe(actor, "Trait Boost",
+            ("Trait", Trait?.Name.ColourValue() ?? "None".ColourError()),
+            ("Bonus", Bonus.ToBonusString(actor)),
+            ("Context", TraitBonusContext.DescribeEnum().ColourValue()));
     }
 
     #region Implementation of IMagicSpellEffectTemplate

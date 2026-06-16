@@ -105,8 +105,9 @@ public class ResurrectionEffect : IMagicSpellEffectTemplate
 
     public string Show(ICharacter actor)
     {
-        return
-            $"ResurrectEffect - Heal {HealWounds.ToColouredString()} - Restore Severs {RestoreSevers.ToColouredString()}";
+        return SpellEffectPresentation.Describe(actor, "Resurrect",
+            ("Heal Wounds", HealWounds.ToColouredString()),
+            ("Restore Severs", RestoreSevers.ToColouredString()));
     }
 
     #endregion

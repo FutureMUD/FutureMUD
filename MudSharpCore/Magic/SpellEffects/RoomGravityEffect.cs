@@ -136,7 +136,9 @@ public class RoomGravityEffect : IMagicSpellEffectTemplate
 
 	public string Show(ICharacter actor)
 	{
-		return $"RoomGravity {GravityModel.DescribeColour()}";
+		return SpellEffectPresentation.Describe(actor, "Room Gravity",
+			("Gravity", GravityModel.DescribeColour()),
+			("Description Addendum", string.IsNullOrWhiteSpace(DescAddendum) ? "None".ColourError() : DescAddendum.Colour(AddendumColour)));
 	}
 
 	public bool IsInstantaneous => false;

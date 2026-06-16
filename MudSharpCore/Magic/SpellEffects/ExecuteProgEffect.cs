@@ -97,7 +97,8 @@ public class ExecuteProgEffect : IMagicSpellEffectTemplate
 	#3prog <which>#0 - sets the prog to be executed";
     public string Show(ICharacter actor)
     {
-        return $"Execute Prog [{Prog?.MXPClickableFunctionName() ?? "None".ColourError()}]";
+        return SpellEffectPresentation.Describe(actor, "Execute Prog",
+            ("Prog", Prog?.MXPClickableFunctionName() ?? "None".ColourError()));
     }
 
     public bool BuildingCommand(ICharacter actor, StringStack command)

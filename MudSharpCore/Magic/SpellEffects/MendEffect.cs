@@ -70,8 +70,10 @@ public class MendEffect : IMagicSpellEffectTemplate
     #region Implementation of IEditableItem
     public string Show(ICharacter actor)
     {
-        return
-            $"MendEffect - {HealingAmount.OriginalFormulaText.ColourCommand()} - {(HealWorstWoundsFirst ? "[WorstFirst]".Colour(Telnet.BoldYellow) : "[RandomTarget]".Colour(Telnet.Magenta))} {(HealOverflow ? "[Overflow]".Colour(Telnet.BoldGreen) : "[Single]".Colour(Telnet.BoldYellow))}";
+        return SpellEffectPresentation.Describe(actor, "Mend",
+            ("Amount", HealingAmount.OriginalFormulaText.ColourCommand()),
+            ("Targeting", (HealWorstWoundsFirst ? "Worst wounds first" : "Random wounds").ColourValue()),
+            ("Overflow", HealOverflow.ToColouredString()));
     }
 
     public const string HelpText = @"You can use the following options with this effect:

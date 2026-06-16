@@ -191,8 +191,19 @@ public class BodyBackupSpellEffect : IMagicSpellEffectTemplate
 
 	public string Show(ICharacter actor)
 	{
-		return
-			$"BodyBackup [{FormKey.ColourCommand()}] Race {_race.Name.ColourName()}, Ethnicity {_ethnicity?.Name.ColourName() ?? "Auto".ColourValue()}, Gender {_gender?.DescribeEnum().ColourValue() ?? "Auto".ColourValue()}, Alias {(_alias ?? "auto").ColourCommand()}, Priority {_priority.ToString("N0", actor).ColourValue()}, Remains {_remainsContext.DescribeEnum().ColourValue()}, Consume {_consumeOnUse.ToColouredString()}, OldEcho {DescribeEcho(_oldLocationEcho, BodyBackupEffect.DefaultOldLocationEcho)}, NewEcho {DescribeEcho(_newLocationEcho, BodyBackupEffect.DefaultNewLocationEcho)}, SelfEcho {DescribeEcho(_selfEcho, BodyBackupEffect.DefaultSelfEcho)}";
+		return SpellEffectPresentation.Describe(actor, "Body Backup",
+			("Form Key", FormKey.ColourCommand()),
+			("Race", _race.Name.ColourName()),
+			("Ethnicity", _ethnicity?.Name.ColourName() ?? "Auto".ColourValue()),
+			("Gender", _gender?.DescribeEnum().ColourValue() ?? "Auto".ColourValue()),
+			("Alias", (_alias ?? "auto").ColourCommand()),
+			("Priority", _priority.ToString("N0", actor).ColourValue()),
+			("Remains", _remainsContext.DescribeEnum().ColourValue()),
+			("Consume On Use", _consumeOnUse.ToColouredString()),
+			("Old Body Echo", DescribeEcho(_oldLocationEcho, BodyBackupEffect.DefaultOldLocationEcho)),
+			("Backup Body Echo", DescribeEcho(_newLocationEcho, BodyBackupEffect.DefaultNewLocationEcho)),
+			("Self Echo", DescribeEcho(_selfEcho, BodyBackupEffect.DefaultSelfEcho))
+		);
 	}
 
 	public bool BuildingCommand(ICharacter actor, StringStack command)

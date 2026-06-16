@@ -173,8 +173,9 @@ Parameters for amount formula:
 
     public string Show(ICharacter actor)
     {
-        return
-            $"CreateLiquid - {AmountFormula.OriginalExpression.ColourCommand()}ml of {Liquid?.Name.Colour(Liquid.DisplayColour) ?? "nothing".ColourError()}";
+        return SpellEffectPresentation.Describe(actor, "Create Liquid",
+            ("Liquid", Liquid?.Name.Colour(Liquid.DisplayColour) ?? "nothing".ColourError()),
+            ("Amount", $"{AmountFormula.OriginalExpression} ml".ColourCommand()));
     }
 
     public bool BuildingCommand(ICharacter actor, StringStack command)

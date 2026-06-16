@@ -105,8 +105,9 @@ public class MagicResourceDeltaEffect : IMagicSpellEffectTemplate
 
 	public string Show(ICharacter actor)
 	{
-		return
-			$"Magic Resource Delta - {(Resource?.Name ?? "None".ColourError())} by {DeltaExpression.OriginalFormulaText.ColourCommand()}";
+		return SpellEffectPresentation.Describe(actor, "Magic Resource Delta",
+			("Resource", Resource?.Name.ColourValue() ?? "None".ColourError()),
+			("Formula", DeltaExpression.OriginalFormulaText.ColourCommand()));
 	}
 
 	public bool BuildingCommand(ICharacter actor, StringStack command)

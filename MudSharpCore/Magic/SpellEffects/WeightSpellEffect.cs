@@ -81,7 +81,8 @@ public class WeightSpellEffect : IMagicSpellEffectTemplate
 
     public string Show(ICharacter actor)
     {
-        return $"Weight +{Gameworld.UnitManager.DescribeExact(AddedWeight, UnitType.Mass, actor)}";
+        return SpellEffectPresentation.Describe(actor, "Weight",
+            ("Added Weight", Gameworld.UnitManager.DescribeExact(AddedWeight, UnitType.Mass, actor).ColourValue()));
     }
 
     public bool IsInstantaneous => false;

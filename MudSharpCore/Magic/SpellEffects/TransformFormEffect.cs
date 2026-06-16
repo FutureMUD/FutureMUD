@@ -229,13 +229,27 @@ public class TransformFormEffect : IMagicSpellEffectTemplate
 
 	public string Show(ICharacter actor)
 	{
-		return
-			$"TransformForm [{FormKey.ColourCommand()}] Race {_race?.Name.ColourName() ?? "None".ColourError()}, Ethnicity {_ethnicity?.Name.ColourName() ?? "Auto".ColourValue()}, Gender {_gender?.DescribeEnum().ColourValue() ?? "Auto".ColourValue()}, Alias {(_alias ?? "auto").ColourCommand()}, Trauma {_traumaMode.DescribeEnum().ColourValue()}, Echo {(_transformationEcho switch
+		return SpellEffectPresentation.Describe(actor, "Transform Form",
+			("Form Key", FormKey.ColourCommand()),
+			("Race", _race?.Name.ColourName() ?? "None".ColourError()),
+			("Ethnicity", _ethnicity?.Name.ColourName() ?? "Auto".ColourValue()),
+			("Gender", _gender?.DescribeEnum().ColourValue() ?? "Auto".ColourValue()),
+			("Alias", (_alias ?? "auto").ColourCommand()),
+			("Trauma", _traumaMode.DescribeEnum().ColourValue()),
+			("Echo", _transformationEcho switch
 			{
 				null => "Default".ColourValue(),
 				"" => "Suppressed".ColourError(),
 				_ => _transformationEcho.ColourCommand()
-			})}, Voluntary {_allowVoluntarySwitch.ToColouredString()}, CanProg {_canVoluntarilySwitchProg?.MXPClickableFunctionName() ?? "None".ColourError()}, WhyCant {_whyCannotVoluntarilySwitchProg?.MXPClickableFunctionName() ?? "None".ColourError()}, Visible {_canSeeFormProg?.MXPClickableFunctionName() ?? "None".ColourError()}, Priority {_priorityBand.DescribeEnum().ColourValue()} {_priorityOffset.ToString("+#;-#;0", actor).ColourValue()}, SDesc {_shortDescriptionPattern?.Pattern.ColourCommand() ?? "Random Valid".ColourValue()}, FDesc {_fullDescriptionPattern?.Pattern.ColourCommand() ?? "Random Valid".ColourValue()}";
+			}),
+			("Voluntary Switch", _allowVoluntarySwitch.ToColouredString()),
+			("Can Prog", _canVoluntarilySwitchProg?.MXPClickableFunctionName() ?? "None".ColourError()),
+			("Why Can't Prog", _whyCannotVoluntarilySwitchProg?.MXPClickableFunctionName() ?? "None".ColourError()),
+			("Visible Prog", _canSeeFormProg?.MXPClickableFunctionName() ?? "None".ColourError()),
+			("Priority", $"{_priorityBand.DescribeEnum().ColourValue()} {_priorityOffset.ToString("+#;-#;0", actor).ColourValue()}"),
+			("SDesc Pattern", _shortDescriptionPattern?.Pattern.ColourCommand() ?? "Random Valid".ColourValue()),
+			("FDesc Pattern", _fullDescriptionPattern?.Pattern.ColourCommand() ?? "Random Valid".ColourValue())
+		);
 	}
 
 	public bool BuildingCommand(ICharacter actor, StringStack command)

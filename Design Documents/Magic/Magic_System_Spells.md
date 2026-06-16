@@ -170,6 +170,8 @@ At cast time:
 
 If all effects are instantaneous, the parent effect is not retained.
 
+In builder display, `magic spell show` presents target-side effects and caster-side effects as separate titled sections. Each effect owns its own builder-facing summary through `Show(ICharacter)`, which should return a compact multi-line description beginning with the effect name and followed by labelled rows for its configured values. `MagicSpell.Show` only numbers, indents, and wraps those returned lines; it must not parse packed one-line effect summaries.
+
 Some effects now also rely on trigger-supplied additional parameters:
 
 - `exit` from the `exit` and `characterexit` triggers
@@ -596,6 +598,7 @@ Recommended steps:
 Important implementation note:
 
 - `SpellEffectFactory` discovers effect registrations by scanning `IMagicSpellEffectTemplate` implementers and invoking static `RegisterFactory`
+- Effect `Show(ICharacter)` methods should use the shared spell-effect presentation helper to return effect-owned multi-line builder summaries. Keep labels and values in the concrete effect rather than encoding a single packed line for `MagicSpell.Show` to interpret.
 
 ### Design guidance
 - Use triggers to own invocation and targeting rules.

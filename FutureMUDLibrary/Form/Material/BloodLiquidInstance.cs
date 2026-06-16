@@ -21,7 +21,7 @@ namespace MudSharp.Form.Material
         {
             Gameworld = source.Gameworld;
             _source = source;
-            _sourceCharacterId = source?.Id ?? 0;
+            _sourceCharacterId = CharacterInstanceIdentityComparer.IdentityId(source);
             Race = source.Race;
             BloodType = source.Body.Bloodtype;
             Liquid = source.Body.BloodLiquid;
@@ -32,7 +32,7 @@ namespace MudSharp.Form.Material
         {
             Gameworld = gameworld;
             _source = source;
-            _sourceCharacterId = source?.Id ?? 0;
+            _sourceCharacterId = CharacterInstanceIdentityComparer.IdentityId(source);
             Race = race;
             BloodType = bloodtype;
             Liquid = liquid;

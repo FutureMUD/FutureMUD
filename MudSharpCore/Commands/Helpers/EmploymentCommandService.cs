@@ -294,7 +294,8 @@ internal sealed class EmploymentCommandService
 
 	public bool CanViewPayroll(ICharacter actor, IEmploymentHost host)
 	{
-		return CanViewOperational(actor, host) || host.Payroll.Payables.Any(x => x.EmployeeId == actor.Id);
+		var actorIdentityId = CharacterInstanceIdentityComparer.IdentityId(actor);
+		return CanViewOperational(actor, host) || host.Payroll.Payables.Any(x => x.EmployeeId == actorIdentityId);
 	}
 
 	public bool CanViewAllPayroll(ICharacter actor, IEmploymentHost host)
@@ -530,6 +531,7 @@ internal sealed class EmploymentCommandService
 
 	public bool TryClaimPayroll(ICharacter actor, IEmploymentHost host, string selector, out string message)
 	{
+		var actorIdentityId = CharacterInstanceIdentityComparer.IdentityId(actor);
 		host.Payroll.EvaluatePayroll();
 		var claimable = host.Payroll.ClaimablePayablesFor(actor)
 		                    .OrderBy(x => x.DueAt)
@@ -539,7 +541,7 @@ internal sealed class EmploymentCommandService
 		if (!targets.Any())
 		{
 			var outstanding = host.Payroll.Payables
-			                      .Where(x => x.EmployeeId == actor.Id)
+			                      .Where(x => x.EmployeeId == actorIdentityId)
 			                      .Count(x => x.Status == EmploymentPayableStatus.Accrued);
 			if (outstanding > 0)
 			{
@@ -696,8 +698,9 @@ internal sealed class EmploymentCommandService
 	public bool TryTerminateContractsForEmployee(ICharacter actor, IEmploymentHost host, ICharacter target,
 		out string message)
 	{
+		var targetIdentityId = CharacterInstanceIdentityComparer.IdentityId(target);
 		return TryTerminateContractsForEmployee(actor, host,
-			host.ActiveEmploymentContracts().Where(x => x.Employee.Id == target.Id).ToList(), out message);
+			host.ActiveEmploymentContracts().Where(x => x.Employee.Id == targetIdentityId).ToList(), out message);
 	}
 
 	public bool TryTerminateContractsForEmployee(ICharacter actor, IEmploymentHost host, string employeeName,
@@ -734,8 +737,9 @@ internal sealed class EmploymentCommandService
 	public bool TryToggleRoleContract(ICharacter actor, IEmploymentHost host, ICharacter target, EmploymentRole role,
 		out string message)
 	{
+		var targetIdentityId = CharacterInstanceIdentityComparer.IdentityId(target);
 		var existing = host.ActiveEmploymentContracts()
-		                   .FirstOrDefault(x => x.Employee.Id == target.Id && x.Role == role);
+		                   .FirstOrDefault(x => x.Employee.Id == targetIdentityId && x.Role == role);
 		if (existing is not null)
 		{
 			return TryTerminateContract(actor, host, existing.Id, out message);
@@ -746,8 +750,9 @@ internal sealed class EmploymentCommandService
 
 	public bool TryResignFromHost(ICharacter actor, IEmploymentHost host, out string message)
 	{
+		var actorIdentityId = CharacterInstanceIdentityComparer.IdentityId(actor);
 		var contracts = host.ActiveEmploymentContracts()
-		                    .Where(x => x.Employee.Id == actor.Id)
+		                    .Where(x => x.Employee.Id == actorIdentityId)
 		                    .ToList();
 		if (!contracts.Any())
 		{
@@ -850,9 +855,10 @@ internal sealed class EmploymentCommandService
 		}
 
 		var canViewAll = CanViewAllPayroll(actor, host);
+		var actorIdentityId = CharacterInstanceIdentityComparer.IdentityId(actor);
 		var payables = (canViewAll
 				? host.Payroll.Payables
-				: host.Payroll.Payables.Where(x => x.EmployeeId == actor.Id))
+				: host.Payroll.Payables.Where(x => x.EmployeeId == actorIdentityId))
 			.OrderByDescending(x => x.DueAt)
 			.ThenByDescending(x => x.Id)
 			.Take(25)
@@ -860,7 +866,7 @@ internal sealed class EmploymentCommandService
 
 		var allVisible = canViewAll
 			? host.Payroll.Payables
-			: host.Payroll.Payables.Where(x => x.EmployeeId == actor.Id).ToList();
+			: host.Payroll.Payables.Where(x => x.EmployeeId == actorIdentityId).ToList();
 		var outstanding = allVisible.Count(x => x.Status == EmploymentPayableStatus.Accrued);
 		var claimable = allVisible.Count(x => x.Status == EmploymentPayableStatus.ReadyToClaim);
 
@@ -2257,8 +2263,9 @@ internal sealed class EmploymentCommandService
 
 	private static IEmploymentContract? ActiveContractFor(ICharacter actor, IEmploymentHost host)
 	{
+		var actorIdentityId = CharacterInstanceIdentityComparer.IdentityId(actor);
 		return host.EmploymentContracts.FirstOrDefault(x =>
-			x.Employee.Id == actor.Id &&
+			x.Employee.Id == actorIdentityId &&
 			x.Status == EmploymentStatus.Active);
 	}
 

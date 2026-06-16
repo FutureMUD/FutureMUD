@@ -44,6 +44,146 @@ The syntax for this command is as follows:
   #3journal history <character>#0 - shows you all the journal entries for a particular character of yours
   #3journal write <title>#0 - drops you into an editor to write a journal entry";
 
+    private const string InstancesHelp =
+        @"The instances command lists all of the bodies or projections that your character currently has loaded.
+
+The syntax is:
+
+  #3instances#0 - list your current instances";
+
+    private const string FocusHelp =
+        @"The focus command switches which one of your controllable instances receives your commands.
+
+The syntax is:
+
+  #3focus#0 - show your current focus and available instances
+  #3focus primary#0 - return focus to your primary body
+  #3focus <##>#0 - focus the numbered instance from the #3instances#0 list";
+
+    [PlayerCommand("Instances", "instances")]
+    [HelpInfo("instances", InstancesHelp, AutoHelp.HelpArg)]
+    [CustomModuleName("Game")]
+    protected static void Instances(ICharacter actor, string command)
+    {
+        SendInstancesList(actor);
+    }
+
+    [PlayerCommand("Focus", "focus")]
+    [HelpInfo("focus", FocusHelp, AutoHelp.HelpArg)]
+    [CustomModuleName("Game")]
+    protected static void Focus(ICharacter actor, string command)
+    {
+        StringStack ss = new(command.RemoveFirstWord());
+        if (ss.IsFinished || ss.PeekSpeech().EqualToAny("help", "?"))
+        {
+            var focused = actor.Identity.FocusedInstance ?? actor.Identity.PrimaryInstance;
+            actor.OutputHandler.Send($"You are currently focused on {DescribeOwnInstance(actor, focused)}.");
+            SendInstancesList(actor);
+            return;
+        }
+
+        var targetText = ss.PopSpeech();
+        var instances = OrderedOwnInstances(actor).ToList();
+        ICharacterInstance target = null;
+        if (targetText.EqualTo("primary"))
+        {
+            target = actor.Identity.PrimaryInstance;
+        }
+        else if (int.TryParse(targetText, out var index))
+        {
+            target = index > 0 && index <= instances.Count
+                ? instances[index - 1]
+                : null;
+        }
+        else
+        {
+            target = instances.FirstOrDefault(x =>
+                         OwnInstanceFormName(actor, x).EqualTo(targetText)) ??
+                     instances.FirstOrDefault(x =>
+                         OwnInstanceFormName(actor, x)
+                                               .StartsWith(targetText, StringComparison.InvariantCultureIgnoreCase));
+        }
+
+        if (target is null)
+        {
+            actor.OutputHandler.Send("You do not have any such instance to focus.");
+            return;
+        }
+
+        var wasFocused = actor.Identity.FocusedInstance?.InstanceId == target.InstanceId;
+        var result = CharacterInstanceFocusService.Focus(actor, target);
+        if (!result.Success)
+        {
+            actor.OutputHandler.Send(result.Message);
+            return;
+        }
+
+        if (wasFocused)
+        {
+            actor.OutputHandler.Send(result.Message);
+        }
+    }
+
+    private static IEnumerable<ICharacterInstance> OrderedOwnInstances(ICharacter actor)
+    {
+        return actor.Identity.Instances
+                    .OrderByDescending(x => x.IsPrimaryInstance)
+                    .ThenBy(x => x.InstanceId);
+    }
+
+    private static string OwnInstanceFormName(ICharacter actor, ICharacterInstance instance)
+    {
+        return actor.Identity.Forms.FirstOrDefault(x => ReferenceEquals(x.Body, instance.Body))?.Alias ??
+               instance.Body.Prototype.Name;
+    }
+
+    private static string DescribeOwnInstance(ICharacter actor, ICharacterInstance instance)
+    {
+        if (instance.IsPrimaryInstance)
+        {
+            return "your primary body".ColourName();
+        }
+
+        return OwnInstanceFormName(actor, instance).ColourName();
+    }
+
+    private static string OwnInstanceControlText(ICharacter actor, ICharacterInstance instance)
+    {
+        if (actor.Identity.FocusedInstance?.InstanceId == instance.InstanceId)
+        {
+            return "Focused".ColourValue();
+        }
+
+        return CharacterInstanceFocusService.CanFocus(actor, instance).Success
+            ? "Focusable".Colour(Telnet.Green)
+            : instance.IsControllable
+                ? instance.ControlPolicy.DescribeEnum().ColourName()
+                : "Passive".Colour(Telnet.Yellow);
+    }
+
+    private static void SendInstancesList(ICharacter actor)
+    {
+        var rows = OrderedOwnInstances(actor)
+                   .Select((instance, index) => new[]
+                   {
+                       (index + 1).ToString("N0", actor),
+                       (actor.Identity.FocusedInstance?.InstanceId == instance.InstanceId).ToColouredString(),
+                       instance.IsPrimaryInstance.ToColouredString(),
+                       OwnInstanceFormName(actor, instance).ColourName(),
+                       instance.Location?.HowSeen(actor) ?? "None",
+                       $"{instance.State.DescribeEnum()} / {instance.Status.DescribeEnum()}",
+                       OwnInstanceControlText(actor, instance)
+                   });
+
+        actor.OutputHandler.Send(StringUtilities.GetTextTable(
+            rows,
+            new[] { "#", "Focused", "Primary", "Form", "Location", "State", "Control" },
+            actor.LineFormatLength,
+            colour: Telnet.Cyan,
+            unicodeTable: actor.Account.UseUnicode
+        ));
+    }
+
 
     [PlayerCommand("Journal", "journal")]
     [HelpInfo("journal", JournalHelp, AutoHelp.HelpArg)]
@@ -60,12 +200,13 @@ The syntax for this command is as follows:
                 return;
             }
 
+            var actorIdentityId = CharacterInstanceIdentityComparer.IdentityId(actor);
             if (ss.IsFinished)
             {
                 // Show journal entries for current character
                 List<Models.AccountNote> notes =
                     FMDB.Context.AccountNotes
-                        .Where(x => x.AccountId == account.Id && x.CharacterId == actor.Id && x.IsJournalEntry)
+                        .Where(x => x.AccountId == account.Id && x.CharacterId == actorIdentityId && x.IsJournalEntry)
                         .OrderByDescending(x => x.TimeStamp)
                         .ThenBy(x => x.Id)
                         .ToList();
@@ -109,7 +250,7 @@ The syntax for this command is as follows:
                         return;
                     }
 
-                    long character = actor.Id;
+                    long character = actorIdentityId;
                     string characterName = actor.PersonalName.GetName(NameStyle.FullName);
                     int index;
                     StringStack readArguments = new(ss.SafeRemainingArgument);
@@ -165,7 +306,7 @@ The syntax for this command is as follows:
 
                     if (!notes.Any())
                     {
-                        if (character != actor.Id)
+                        if (character != actorIdentityId)
                         {
                             actor.OutputHandler.Send(
                                 $"{characterName.ColourName()} does not have any journal entries to read.");
@@ -210,7 +351,7 @@ The syntax for this command is as follows:
                     string time = actor.Location.DateTime().GetDateTimeString();
                     actor.OutputHandler.Send("Write your journal entry in the text editor below.");
                     actor.EditorMode(JournalWritePost, JournalWriteCancel, 1.0,
-                        suppliedArguments: new object[] { account.Id, title, actor.Account.Id, time, actor.Id });
+                        suppliedArguments: new object[] { account.Id, title, actor.Account.Id, time, actorIdentityId });
                     break;
                 case "history":
                     if (ss.IsFinished)
@@ -566,15 +707,16 @@ The syntax is #3INTRODUCE ME#0 or #3INTRODUCE <person>#0. You can append a brack
         }
 
         string targetName, firstName;
-        if (target == actor)
+        if (target == actor || CharacterInstanceIdentityComparer.SameIdentity(actor, target))
         {
             targetName = actor.CurrentName.GetName(NameStyle.FullName);
             firstName = actor.CurrentName.GetName(NameStyle.GivenOnly).ToLowerInvariant();
         }
         else
         {
+            var targetDubId = CharacterInstanceIdentityComparer.IdentityId(target);
             IDub actorDub =
-                actor.Dubs.FirstOrDefault(x => x.TargetId == target.Id && x.TargetType == target.FrameworkItemType);
+                actor.Dubs.FirstOrDefault(x => x.TargetId == targetDubId && x.TargetType == target.FrameworkItemType);
             if (actorDub == null)
             {
                 actor.OutputHandler.Send("You can only introduce people that you have dubbed and given a name.");
@@ -599,6 +741,7 @@ The syntax is #3INTRODUCE ME#0 or #3INTRODUCE <person>#0. You can append a brack
         using (new FMDB())
         {
             List<(ICharacter owner, Models.Dub newDub)> addedDubs = new();
+            var targetDubId = CharacterInstanceIdentityComparer.IdentityId(target);
             foreach (ICharacter tch in actor.Location.LayerCharacters(actor.RoomLayer))
             {
                 if (tch == actor || !tch.CanHear(actor))
@@ -607,7 +750,7 @@ The syntax is #3INTRODUCE ME#0 or #3INTRODUCE <person>#0. You can append a brack
                 }
 
                 IDub dub = tch.Dubs.FirstOrDefault(x =>
-                    x.TargetId == target.Id && x.TargetType == target.FrameworkItemType);
+                    x.TargetId == targetDubId && x.TargetType == target.FrameworkItemType);
                 if (dub != null)
                 {
                     if (string.IsNullOrEmpty(dub.IntroducedName))
@@ -620,11 +763,11 @@ The syntax is #3INTRODUCE ME#0 or #3INTRODUCE <person>#0. You can append a brack
 
                 Models.Dub dbdub = new();
                 FMDB.Context.Dubs.Add(dbdub);
-                dbdub.CharacterId = tch.Id;
+                dbdub.CharacterId = CharacterInstanceIdentityComparer.IdentityId(tch);
                 dbdub.LastDescription = target.HowSeen(tch, colour: false);
                 dbdub.LastUsage = DateTime.UtcNow;
                 dbdub.Keywords = firstName;
-                dbdub.TargetId = target.Id;
+                dbdub.TargetId = targetDubId;
                 dbdub.TargetType = target.FrameworkItemType;
                 dbdub.IntroducedName = targetName;
                 addedDubs.Add((tch, dbdub));

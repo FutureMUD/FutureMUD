@@ -207,9 +207,10 @@ internal static class OpenAIHandler
         GPTMessage[] messages = maximumHistory == -1
             ? thread.Messages.ToArray()
             : thread.Messages.TakeLast(maximumHistory).ToArray();
+        long? characterIdentityId = character is null ? null : CharacterInstanceIdentityComparer.IdentityId(character);
         foreach (GPTMessage message in messages)
         {
-            if (message.CharacterId != character?.Id)
+            if (message.CharacterId != characterIdentityId)
             {
                 continue;
             }
@@ -236,7 +237,7 @@ internal static class OpenAIHandler
                         GPTThreadId = thread.Id,
                         Message = messageText,
                         Response = result.Value.Content[0].Text,
-                        CharacterId = character?.Id
+                        CharacterId = characterIdentityId
                     });
                     FMDB.Context.SaveChanges();
                 }

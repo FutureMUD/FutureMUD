@@ -141,7 +141,10 @@ public class VehicleMovement : IMovement
 		_originalMover = originalMover;
 		Exit = exit;
 		Phase = MovementPhase.OriginalRoom;
-		Party = originalMover.Party?.Leader == originalMover ? originalMover.Party : null;
+		Party = originalMover.Party?.Leader is not null &&
+		        CharacterInstanceIdentityComparer.SamePhysicalInstance(originalMover.Party.Leader, originalMover)
+			? originalMover.Party
+			: null;
 		_characterMovers = vehicle.Occupants.Distinct().ToList();
 		if (!_characterMovers.Contains(originalMover))
 		{
@@ -212,12 +215,12 @@ public class VehicleMovement : IMovement
 
 	public bool CancelForMoverOnly(IMove mover, bool echo = false)
 	{
-		if (mover is not ICharacter ch || !_characterMovers.Contains(ch))
+		if (mover is not ICharacter ch || !_characterMovers.ContainsPhysicalInstance(ch))
 		{
 			return false;
 		}
 
-		if (ch == _originalMover && !Cancelled)
+		if (CharacterInstanceIdentityComparer.SamePhysicalInstance(ch, _originalMover) && !Cancelled)
 		{
 			return Cancel();
 		}
@@ -228,7 +231,7 @@ public class VehicleMovement : IMovement
 
 	private void ClearMover(ICharacter mover)
 	{
-		_characterMovers.Remove(mover);
+		_characterMovers.RemovePhysicalInstance(mover);
 		mover.StopMovement(this);
 		if (mover.Movement == this)
 		{
@@ -244,7 +247,9 @@ public class VehicleMovement : IMovement
 
 	public bool IsMovementLeader(ICharacter character)
 	{
-		return Party?.Leader == character || character == _originalMover;
+		return Party?.Leader is not null &&
+		       CharacterInstanceIdentityComparer.SamePhysicalInstance(Party.Leader, character) ||
+		       CharacterInstanceIdentityComparer.SamePhysicalInstance(character, _originalMover);
 	}
 
 	public bool IsConsensualMover(ICharacter character)
@@ -331,7 +336,7 @@ public class VehicleMovement : IMovement
 		Phase = MovementPhase.NewRoom;
 
 		foreach (var witness in Exit.Destination.LayerCharacters(_transition.TargetLayer)
-		                            .Except(_characterMovers)
+		                            .Where(x => !_characterMovers.ContainsPhysicalInstance(x))
 		                            .Where(x => SeenBy(x))
 		                            .ToList())
 		{

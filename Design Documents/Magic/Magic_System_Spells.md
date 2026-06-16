@@ -427,8 +427,19 @@ The `transformform` builder effect currently supports:
 
 The `bodybackup` builder effect uses the same stable form provisioning idea for clone or sleeve magic, but it does not force a transformation while active. It readies the keyed form at the recipient's current cell and room layer as a non-permanent death-transfer target. Builders can configure the provisioned race/ethnicity/gender/alias/sort order, backup priority, non-final old-body remains context, whether the backup is consumed on use, and old-location, new-location, and self echoes.
 
+### Simultaneous body instance spell effects
+The multi-body V1 slice adds three spell effects that create additional active world actors instead of switching the caster's only current body:
+
+- `astralprojection` provisions or reuses a keyed astral form, spawns a temporary player-focusable secondary instance at the anchor's current cell/layer, applies astral planar presence, anchors the primary body according to the configured anchor policy, and collapses only the projection when the effect ends.
+- `createcopy` provisions or reuses a keyed magical-copy form, spawns a cell-local secondary instance, optionally makes it player-focusable, optionally applies an intangible/planar presentation, never copies inventory implicitly, and collapses without creating body remains.
+- `createclone` provisions or reuses a keyed physical-clone form, spawns a tangible cell-local secondary instance, optionally makes it player-focusable, uses body-local inventory only, and treats clone death as non-final for the owning identity.
+
+All three effects reuse the same owned-form provisioning conventions as `transformform`: stable `formkey`, first-creation race/ethnicity/gender/alias/sort defaults, and optional description replacement patterns. Unlike `transformform`, these effects materialise a non-primary `CharacterInstance` row and a loaded cell-local actor that remains out of the global character, NPC, and actor caches.
+
+Builder-facing examples and command sequences are in [Multiple Body Forms and Instances Builder Guide](../Characters/Multiple_Body_Forms_and_Instances_Builder_Guide.md).
+
 ### Engine V2 dispels, portals, item enchantments, and recipes
-Engine V2 adds a deeper parity layer without introducing true simultaneous-body possession or projection.
+Engine V2 adds a deeper parity layer. True body-left-behind projection and copy/clone gameplay now live in the simultaneous body instance effects above rather than in planar overlays alone.
 
 General dispels use `dispelmagic`. It can either remove matching spell-parent effects or shorten their scheduled duration. Matching can be restricted by:
 
@@ -487,10 +498,12 @@ Current recipe guidance:
 - `Ethereal`: use `planarstate` or `planeshift` with a noncorporeal plane definition.
 - `Dispel Ethereal`: use `removeplanarstate`, or `dispelmagic` restricted to `effect planarstate` / the relevant school.
 - `Planeshift`: use `planeshift` when the target itself moves into the configured planar state.
-- Shadow or astral walking: use plane definitions plus `planeshift` when the caster becomes the walker.
+- Shadow or astral walking without a left-behind body: use plane definitions plus `planeshift` when the caster becomes the walker.
+- Astral projection with a left-behind body: use `astralprojection` and configure its form, plane, anchor policy, and echoes.
+- Magical mirror images or tangible clones: use `createcopy` or `createclone` depending on whether the secondary should collapse illusion-style or behave as a body-local physical clone.
 - Polymorph: use `transformform` with a stable `FormKey` and first-creation body-form defaults.
 
-Still-deferred boundary: possession, send-shadow projection, and body-left-behind disembodiment are not just spell effects. They require a simultaneous-body model for command routing, source-body vulnerability, inventory rules, death semantics, reconnect behavior, and admin observability.
+Still-deferred boundary: possession and broader send-shadow control rules require additional policy for ownership, consent, recognition, and command authority. Body-left-behind projection, magical copies, and physical clones are implemented through the simultaneous-body model, with command routing, source-body vulnerability, inventory rules, death semantics, reconnect behavior, and admin observability handled by the instance layer.
 
 ### Material workflow
 Material requirements are authored through the spell's inventory plan:
@@ -619,12 +632,15 @@ The V4 spell-side catalogue adds 2 tag-aware ward tokens: `roomtagward` and `per
 
 | Token | Class | Summary |
 | --- | --- | --- |
+| `astralprojection` | `AstralProjectionSpellEffect` | Ensures or reuses a keyed astral form, spawns a temporary focusable projection, and anchors the primary body |
 | `blindness` | `BlindnessEffect` | Applies blindness |
 | `boost` | `TraitBoostEffect` | Boosts a trait |
 | `bodybackup` | `BodyBackupSpellEffect` | Ensures or reuses a keyed alternate body form and readies it as a death backup with configurable non-final remains context and transfer echoes |
 | `burning` | `BurningEffect` | Applies spell-owned recurring burning to characters or items, with configurable per-tick damage, pain, stun, thermal load, oxidation requirement, and visible addenda |
 | `changecharacteristic` | `ChangeCharacteristicEffect` | Changes a characteristic |
 | `comprehendlanguage` | `ComprehendLanguageEffect` | Grants broad spoken and written language comprehension without overriding literacy or script limits |
+| `createclone` | `CloneSpellEffect` | Ensures or reuses a keyed tangible clone form and spawns a cell-local physical-clone secondary instance |
+| `createcopy` | `CopySpellEffect` | Ensures or reuses a keyed magical-copy form and spawns a cell-local copy secondary instance |
 | `createitem` | `CreateItemEffect` | Creates an item |
 | `createliquid` | `CreateLiquidEffect` | Creates a liquid |
 | `createnpc` | `CreateNPCEffect` | Creates an NPC |

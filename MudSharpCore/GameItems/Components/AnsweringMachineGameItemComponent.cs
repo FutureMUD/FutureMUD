@@ -1307,7 +1307,7 @@ public class AnsweringMachineGameItemComponent : GameItemComponent, IAnsweringMa
     private void BeginGreetingRecording(ICharacter actor)
     {
         _isRecordingGreeting = true;
-        _greetingRecorderId = actor.Id;
+        _greetingRecorderId = CharacterInstanceIdentityComparer.IdentityId(actor);
         _workingGreetingSegments.Clear();
         _lastGreetingSegmentUtc = null;
         Changed = true;
@@ -1351,7 +1351,8 @@ public class AnsweringMachineGameItemComponent : GameItemComponent, IAnsweringMa
     private void AppendGreetingSegment(ICharacter speaker, AudioVolume volume, ILanguage language, IAccent accent,
         string text, IPerceivable? target)
     {
-        if (!_isRecordingGreeting || speaker.Id != _greetingRecorderId || speaker.Location == null ||
+        if (!_isRecordingGreeting || CharacterInstanceIdentityComparer.IdentityId(speaker) != _greetingRecorderId ||
+            speaker.Location == null ||
             !Parent.TrueLocations.Contains(speaker.Location))
         {
             return;

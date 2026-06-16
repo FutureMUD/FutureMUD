@@ -117,7 +117,7 @@ public static class AutomaticCrimeExtensions
 					.ToList()
 				: new List<ICharacter>();
 			var context =
-				$"automatic=death; victim=#{victim.Id}; wounds={group.Count()}; maxseverity={mostSerious.Severity.Describe()}; damagetype={mostSerious.DamageType.Describe()}; bodypart={ContextValue(mostSerious.Bodypart?.FullDescription() ?? "unknown")}; woundage={ContextValue(DescribeWoundAge(mostSerious.RealTimeOfWound, now))}; friendly={mostSerious.IsFriendlyWound.ToString().ToLowerInvariant()}; attackerpresent={attackerPresent.ToString().ToLowerInvariant()}";
+				$"automatic=death; victim=#{CharacterInstanceIdentityComparer.IdentityId(victim)}; wounds={group.Count()}; maxseverity={mostSerious.Severity.Describe()}; damagetype={mostSerious.DamageType.Describe()}; bodypart={ContextValue(mostSerious.Bodypart?.FullDescription() ?? "unknown")}; woundage={ContextValue(DescribeWoundAge(mostSerious.RealTimeOfWound, now))}; friendly={mostSerious.IsFriendlyWound.ToString().ToLowerInvariant()}; attackerpresent={attackerPresent.ToString().ToLowerInvariant()}";
 			CheckPossibleCrime(attacker.Gameworld, attacker, CrimeTypes.Murder, victim, mostSerious.ToolOrigin, context,
 				witnesses, false, deathLocation);
 		}
@@ -164,7 +164,7 @@ public static class AutomaticCrimeExtensions
 		}
 
 		var context =
-			$"automatic=wound; victim=#{victim.Id}; severity={wound.Severity.Describe()}; damagetype={wound.DamageType.Describe()}; bodypart={ContextValue(wound.Bodypart?.FullDescription() ?? "unknown")}";
+			$"automatic=wound; victim=#{CharacterInstanceIdentityComparer.IdentityId(victim)}; severity={wound.Severity.Describe()}; damagetype={wound.DamageType.Describe()}; bodypart={ContextValue(wound.Bodypart?.FullDescription() ?? "unknown")}";
 		CheckPossibleCrime(wound.ActorOrigin.Gameworld, wound.ActorOrigin, CrimeTypes.GreviousBodilyHarm, victim,
 			wound.ToolOrigin, context, null, true, victim.Location);
 	}
@@ -325,7 +325,7 @@ public static class AutomaticCrimeExtensions
 	private static string ContrabandTrafficContext(ICharacter actor, ICellExit exit, IGameItem item)
 	{
 		return
-			$"automatic=contraband-boundary; item=#{item.Id}; itemname={ContextValue(item.Name)}; from=#{exit.Origin.Id}; to=#{exit.Destination.Id}; actor=#{actor.Id}";
+			$"automatic=contraband-boundary; item=#{item.Id}; itemname={ContextValue(item.Name)}; from=#{exit.Origin.Id}; to=#{exit.Destination.Id}; actor=#{CharacterInstanceIdentityComparer.IdentityId(actor)}";
 	}
 
 	private static string DescribeWoundAge(DateTime? woundTime, DateTime now)

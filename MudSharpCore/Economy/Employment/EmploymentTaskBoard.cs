@@ -173,7 +173,7 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 
 	public IReadOnlyCollection<IGameItem> CarriedTaskItems(ICharacter actor)
 	{
-		if (!_carriedTaskItems.TryGetValue(actor.Id, out var items))
+		if (!_carriedTaskItems.TryGetValue(CharacterInstanceIdentityComparer.PhysicalInstanceKey(actor), out var items))
 		{
 			return [];
 		}
@@ -203,12 +203,13 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 		var previousCarriedItems = new List<IGameItem>();
 		if (_usePhysicalItemMovement && task.AssignedEmployee is not null)
 		{
-			if (_carriedTaskItems.TryGetValue(task.AssignedEmployee.Id, out var existingCarried))
+			var assignedEmployeeKey = CharacterInstanceIdentityComparer.PhysicalInstanceKey(task.AssignedEmployee);
+			if (_carriedTaskItems.TryGetValue(assignedEmployeeKey, out var existingCarried))
 			{
 				previousCarriedItems = existingCarried.ToList();
 			}
 
-			_carriedTaskItems.Remove(task.AssignedEmployee.Id);
+			_carriedTaskItems.Remove(assignedEmployeeKey);
 		}
 
 		foreach (var state in task.StepOperationalStates.Take(Math.Max(0, currentStepIndex)))
@@ -618,7 +619,7 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 			return false;
 		}
 
-		if (!_carriedTaskItems.TryGetValue(actor.Id, out var carried) || carried.Count == 0)
+		if (!_carriedTaskItems.TryGetValue(CharacterInstanceIdentityComparer.PhysicalInstanceKey(actor), out var carried) || carried.Count == 0)
 		{
 			reason = "The assigned employee is not carrying any task items to deliver.";
 			return false;
@@ -693,7 +694,7 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 		out EmploymentActionStepOperationalState operationalState)
 	{
 		operationalState = EmploymentActionStepOperationalState.Empty;
-		if (!_carriedTaskItems.TryGetValue(actor.Id, out var carried) || carried.Count == 0)
+		if (!_carriedTaskItems.TryGetValue(CharacterInstanceIdentityComparer.PhysicalInstanceKey(actor), out var carried) || carried.Count == 0)
 		{
 			reason = "The assigned employee is not carrying any task items to load.";
 			return false;
@@ -857,7 +858,7 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 			return true;
 		}
 
-		if (!_carriedTaskItems.TryGetValue(actor.Id, out var carried) || carried.All(x => x.Id != container.Id))
+		if (!_carriedTaskItems.TryGetValue(CharacterInstanceIdentityComparer.PhysicalInstanceKey(actor), out var carried) || carried.All(x => x.Id != container.Id))
 		{
 			reason = $"The assigned employee is not carrying {container.Name}.";
 			return false;
@@ -1034,10 +1035,11 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 
 	private void AddCarriedTaskItems(ICharacter actor, IEnumerable<IGameItem> items)
 	{
-		if (!_carriedTaskItems.TryGetValue(actor.Id, out var carried))
+		var actorKey = CharacterInstanceIdentityComparer.PhysicalInstanceKey(actor);
+		if (!_carriedTaskItems.TryGetValue(actorKey, out var carried))
 		{
 			carried = new List<IGameItem>();
-			_carriedTaskItems[actor.Id] = carried;
+			_carriedTaskItems[actorKey] = carried;
 		}
 
 		foreach (var item in items)
@@ -1051,7 +1053,7 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 
 	private void RemoveCarriedTaskItems(ICharacter actor, IEnumerable<IGameItem> items)
 	{
-		if (!_carriedTaskItems.TryGetValue(actor.Id, out var carried))
+		if (!_carriedTaskItems.TryGetValue(CharacterInstanceIdentityComparer.PhysicalInstanceKey(actor), out var carried))
 		{
 			return;
 		}

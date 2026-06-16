@@ -951,7 +951,7 @@ Malformed JSON retry {malformedRetries:N0}/{MaxMalformedToolCallRetries:N0}
                 return false;
             }
 
-            scopeCharacterId = character.Id;
+            scopeCharacterId = CharacterInstanceIdentityComparer.IdentityId(character);
             scopeSpecified = true;
             return true;
         }
@@ -1288,7 +1288,7 @@ Malformed JSON retry {malformedRetries:N0}/{MaxMalformedToolCallRetries:N0}
         return SuccessResult(new Dictionary<string, object>
         {
             ["Id"] = memory.Id,
-            ["CharacterId"] = player.Id,
+            ["CharacterId"] = CharacterInstanceIdentityComparer.IdentityId(player),
             ["Title"] = memory.MemoryTitle
         });
     }
@@ -1639,7 +1639,7 @@ Malformed JSON retry {malformedRetries:N0}/{MaxMalformedToolCallRetries:N0}
 
         return SuccessResult(new Dictionary<string, object>
         {
-            ["OriginCharacterId"] = originCharacter.Id,
+            ["OriginCharacterId"] = CharacterInstanceIdentityComparer.IdentityId(originCharacter),
             ["OriginRoomId"] = originCharacter.Location.Id,
             ["DestinationRoomId"] = destination.Id,
             ["PathSearchFunction"] = resolvedPathFunction,
@@ -1698,9 +1698,9 @@ Malformed JSON retry {malformedRetries:N0}/{MaxMalformedToolCallRetries:N0}
 
         return SuccessResult(new Dictionary<string, object>
         {
-            ["OriginCharacterId"] = originCharacter.Id,
+            ["OriginCharacterId"] = CharacterInstanceIdentityComparer.IdentityId(originCharacter),
             ["OriginRoomId"] = originCharacter.Location.Id,
-            ["DestinationCharacterId"] = destinationCharacter.Id,
+            ["DestinationCharacterId"] = CharacterInstanceIdentityComparer.IdentityId(destinationCharacter),
             ["DestinationRoomId"] = destinationCharacter.Location.Id,
             ["PathSearchFunction"] = resolvedPathFunction,
             ["HasPath"] = sameRoom || path.Any(),
@@ -1760,7 +1760,7 @@ Malformed JSON retry {malformedRetries:N0}/{MaxMalformedToolCallRetries:N0}
 
         return SuccessResult(new Dictionary<string, object?>
         {
-            ["Id"] = target.Id,
+            ["Id"] = CharacterInstanceIdentityComparer.IdentityId(target),
             ["Name"] = target.PersonalName.GetName(NameStyle.FullName),
             ["ShortDescription"] = target.HowSeen(null, colour: false, flags: PerceiveIgnoreFlags.TrueDescription),
             ["ShortTermPlan"] = target.ShortTermPlan ?? string.Empty,
@@ -1871,7 +1871,7 @@ Malformed JSON retry {malformedRetries:N0}/{MaxMalformedToolCallRetries:N0}
             }
 
             Dictionary<string, object?> result = BuildDateTimeResult(character.Location, calendar);
-            result["CharacterId"] = character.Id;
+            result["CharacterId"] = CharacterInstanceIdentityComparer.IdentityId(character);
             result["CharacterName"] = character.PersonalName.GetName(NameStyle.FullName);
             result["RoomId"] = character.Location.Id;
             result["RoomName"] = character.Location.HowSeen(null, colour: false);

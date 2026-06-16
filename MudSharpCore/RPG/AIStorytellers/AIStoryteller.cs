@@ -588,7 +588,7 @@ Total Tokens: {usage.TotalTokenCount:N0}
     {
         List<long> triggerCharacterIds = triggerCharacters?
             .Where(x => x is not null)
-            .Select(x => x!.Id)
+            .Select(x => CharacterInstanceIdentityComparer.IdentityId(x))
             .Distinct()
             .ToList() ?? [];
         bool hasTriggerScope = triggerRoom is not null || triggerCharacterIds.Any();

@@ -142,6 +142,7 @@ namespace MudSharp.Database
         public virtual DbSet<CharacterCombatSettingsManualCombatCommands> CharacterCombatSettingsManualCombatCommands { get; set; }
         public virtual DbSet<CharacterBody> CharacterBodies { get; set; }
         public virtual DbSet<CharacterBodySource> CharacterBodySources { get; set; }
+        public virtual DbSet<CharacterInstance> CharacterInstances { get; set; }
         public virtual DbSet<CharacterComputerExecutable> CharacterComputerExecutables { get; set; }
         public virtual DbSet<CharacterComputerExecutableParameter> CharacterComputerExecutableParameters { get; set; }
         public virtual DbSet<CharacterComputerProgramProcess> CharacterComputerProgramProcesses { get; set; }

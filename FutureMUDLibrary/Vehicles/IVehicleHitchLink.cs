@@ -12,10 +12,12 @@ public interface IVehicleHitchLink : IFrameworkItem, IHaveFuturemud
 	VehicleHitchEndpointType SourceType { get; }
 	long? SourceVehicleId { get; }
 	long? SourceCharacterId { get; }
+	long? SourceCharacterInstanceId { get; }
 	long? SourceTowPointPrototypeId { get; }
 	VehicleHitchEndpointType TargetType { get; }
 	long? TargetVehicleId { get; }
 	long? TargetCharacterId { get; }
+	long? TargetCharacterInstanceId { get; }
 	long? TargetTowPointPrototypeId { get; }
 	long? HitchItemId { get; }
 	bool IsManuallyDisabled { get; }

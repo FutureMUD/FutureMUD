@@ -262,7 +262,7 @@ public abstract class GroupAIType : IGroupAIType, IHaveFuturemud
             }
 
             group.Changed = true;
-            AgeCategory age = ch.Race.AgeCategory(ch);
+            AgeCategory age = ch.AgeCategory;
             switch (age)
             {
                 case AgeCategory.Baby:
@@ -290,7 +290,7 @@ public abstract class GroupAIType : IGroupAIType, IHaveFuturemud
         // Remove any group members who have since left the group
         foreach (ICharacter ch in group.GroupRoles.Keys.ToList())
         {
-            if (!group.GroupMembers.Contains(ch))
+            if (!group.GroupMembers.ContainsPhysicalInstance(ch))
             {
                 group.GroupRoles.Remove(ch);
                 group.Changed = true;

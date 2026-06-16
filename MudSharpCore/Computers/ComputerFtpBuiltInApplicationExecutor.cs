@@ -640,8 +640,8 @@ internal sealed class FtpBuiltInApplicationExecutor : IComputerBuiltInApplicatio
 		{
 			Status = ComputerProcessStatus.Sleeping,
 			WaitType = ComputerProcessWaitType.UserInput,
-			WaitArgument = ComputerProcessWaitArguments.CreateUserInput(session.User.Id, session.Terminal.TerminalItemId),
-			WaitingCharacterId = session.User.Id,
+			WaitArgument = ComputerProcessWaitArguments.CreateUserInput(CharacterInstanceIdentityComparer.IdentityId(session.User), session.Terminal.TerminalItemId),
+			WaitingCharacterId = CharacterInstanceIdentityComparer.IdentityId(session.User),
 			WaitingTerminalItemId = session.Terminal.TerminalItemId,
 			StateJson = JsonSerializer.Serialize(state)
 		};

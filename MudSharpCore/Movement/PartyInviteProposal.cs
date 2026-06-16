@@ -2,6 +2,7 @@
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace MudSharp.Movement;
 
@@ -35,7 +36,7 @@ public class PartyInviteProposal : Proposal, IProposal
 
         if (Supplicant.Party != null)
         {
-            foreach (IMove ch in Supplicant.Party.Members.Except(Supplicant))
+            foreach (IMove ch in Supplicant.Party.Members.Where(x => !SameMove(x, Supplicant)))
             {
                 ch.OutputHandler.Send(Supplicant.HowSeen(ch, true) + " leaves your party for " +
                                       Applicant.HowSeen(ch, type: DescriptionType.Possessive) + ".");
@@ -87,4 +88,21 @@ public class PartyInviteProposal : Proposal, IProposal
     public override IEnumerable<string> Keywords => _keywords;
 
     #endregion
+
+    private static bool SameMove(IMove first, IMove second)
+    {
+        if (first is null || second is null)
+        {
+            return false;
+        }
+
+        if (ReferenceEquals(first, second))
+        {
+            return true;
+        }
+
+        return first is ICharacter firstCharacter &&
+               second is ICharacter secondCharacter &&
+               CharacterInstanceIdentityComparer.SamePhysicalInstance(firstCharacter, secondCharacter);
+    }
 }

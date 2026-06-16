@@ -184,7 +184,10 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
             sb.AppendLine($"\tSide {ArenaSideIndexUtilities.ToDisplayString(actor, group.Key).ColourValue()}");
             foreach (IArenaParticipant? participant in group)
             {
-                string who = participant.Character?.HowSeen(actor) ?? participant.StageName ?? "NPC";
+                string who = participant.ActiveCharacter?.RenderStaffActorReference() ??
+                             participant.Character?.HowSeen(actor) ??
+                             participant.StageName ??
+                             "NPC";
                 sb.AppendLine($"\t\t{who.ColourName()} ({participant.CombatantClass.Name.ColourName()})" +
                               (participant.IsNpc ? " [NPC]".Colour(Telnet.Yellow) : string.Empty));
             }
@@ -352,7 +355,7 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 
     private static bool IsParticipantActive(ArenaParticipant participant)
     {
-        ICharacter? character = participant.Character;
+        ICharacter? character = participant.ActiveCharacter;
         return character != null && character.State.IsAble();
     }
 
@@ -390,9 +393,16 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
             return (false, "Surrender is not permitted for this event.");
         }
 
-		if (_participants.All(x => x.CharacterId != participant.Id))
+		var participantIdentityId = CharacterInstanceIdentityComparer.IdentityId(participant);
+		var participantRecord = _participants.FirstOrDefault(x => x.CharacterId == participantIdentityId);
+		if (participantRecord is null)
 		{
 			return (false, "You are not a participant in this event.");
+		}
+
+		if (!participantRecord.IsActivePhysicalInstance(participant))
+		{
+			return (false, "Only the active arena body can surrender this bout.");
 		}
 
 		if (!IsArenaBoutCombat(participant))
@@ -400,7 +410,7 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 			return (false, "You can only surrender while you are fighting in this arena bout.");
 		}
 
-		if (_surrenderedParticipantIds.Contains(participant.Id))
+		if (_surrenderedParticipantIds.Contains(participantIdentityId))
 		{
             return (false, "You have already surrendered this bout.");
         }
@@ -421,7 +431,7 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
             throw new InvalidOperationException(reason);
         }
 
-        _surrenderedParticipantIds.Add(participant.Id);
+        _surrenderedParticipantIds.Add(CharacterInstanceIdentityComparer.IdentityId(participant));
         participant.Combat?.LeaveCombat(participant);
         foreach (ICell? cell in Arena.ArenaCells.Where(x => x != null).Distinct())
         {
@@ -536,7 +546,8 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
                 $"Your arena rating of {rating.ToString("N2", character)} is above the maximum allowed rating of {side.MaximumRating.Value.ToString("N2", character)} for that side.");
         }
 
-        if (_participants.Any(x => x.Character?.Id == character.Id))
+        var characterIdentityId = CharacterInstanceIdentityComparer.IdentityId(character);
+        if (_participants.Any(x => x.CharacterId == characterIdentityId))
         {
             return (false, "You are already signed up for this event.");
         }
@@ -577,7 +588,8 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
             Models.ArenaSignup signup = new()
             {
                 ArenaEventId = Id,
-                CharacterId = character.Id,
+                CharacterId = CharacterInstanceIdentityComparer.IdentityId(character),
+                ActiveCharacterInstanceId = CharacterInstanceIdentityComparer.InstanceId(character),
                 CombatantClassId = combatantClass.Id,
                 SideIndex = sideIndex,
                 IsNpc = !character.IsPlayerCharacter,
@@ -587,7 +599,8 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
                 SignedUpAt = DateTime.UtcNow
             };
 
-            ArenaReservation? priorReservation = _reservations.FirstOrDefault(x => x.CharacterId == character.Id);
+            ArenaReservation? priorReservation = _reservations.FirstOrDefault(x =>
+                x.CharacterId == CharacterInstanceIdentityComparer.IdentityId(character));
             if (priorReservation != null)
             {
                 signup.ArenaReservationId = priorReservation.ReservationId;
@@ -675,7 +688,8 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 			throw new InvalidOperationException("You can no longer withdraw from that event.");
 		}
 
-		ArenaParticipant? participant = _participants.FirstOrDefault(x => x.Character?.Id == character.Id);
+		var characterIdentityId = CharacterInstanceIdentityComparer.IdentityId(character);
+		ArenaParticipant? participant = _participants.FirstOrDefault(x => x.CharacterId == characterIdentityId);
 		if (participant == null)
 		{
 			return;
@@ -711,7 +725,10 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 
 	internal bool TryGetParticipantSideIndex(ICharacter character, out int sideIndex)
 	{
-		ArenaParticipant? participant = _participants.FirstOrDefault(x => x.Character?.Id == character.Id);
+		var characterIdentityId = CharacterInstanceIdentityComparer.IdentityId(character);
+		ArenaParticipant? participant = _participants.FirstOrDefault(x =>
+			x.CharacterId == characterIdentityId &&
+			x.IsActivePhysicalInstance(character));
 		if (participant is null)
 		{
 			sideIndex = default;
@@ -894,7 +911,8 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
     {
         DateTime now = DateTime.UtcNow;
         _reservations.RemoveAll(x => x.ExpiresAt < now);
-        if (_reservations.Any(x => x.CharacterId == character.Id))
+        var characterIdentityId = CharacterInstanceIdentityComparer.IdentityId(character);
+        if (_reservations.Any(x => x.CharacterId == characterIdentityId))
         {
             return true;
         }
@@ -947,7 +965,7 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 
             List<ICharacter> participants = _participants
                 .Where(x => x.SideIndex == side.Index)
-                .Select(x => x.Character)
+                .Select(x => x.ActiveCharacter)
                 .OfType<ICharacter>()
                 .ToList();
 
@@ -1148,13 +1166,13 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 
     private bool IsParticipantEliminated(ArenaParticipant participant, ArenaEliminationMode mode)
     {
-        ICharacter? character = participant.Character;
+        ICharacter? character = participant.ActiveCharacter;
         if (character is null)
         {
             return true;
         }
 
-        if (_surrenderedParticipantIds.Contains(character.Id))
+        if (_surrenderedParticipantIds.Contains(CharacterInstanceIdentityComparer.IdentityId(character)))
         {
             return true;
         }
@@ -1296,7 +1314,7 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
             return winner.StageName;
         }
 
-        if (winner.Character is not ICharacter character)
+        if (winner.ActiveCharacter is not ICharacter character)
         {
             return null;
         }
@@ -1313,9 +1331,8 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
         }
 
         HashSet<long> existingIds = _participants
-            .Select(x => x.Character?.Id)
-            .Where(x => x.HasValue)
-            .Select(x => x.GetValueOrDefault())
+            .Select(x => x.CharacterId)
+            .Where(x => x > 0)
             .ToHashSet();
 
         foreach (IArenaEventTypeSide side in EventType.Sides)
@@ -1451,7 +1468,7 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
     {
         foreach (ArenaParticipant? participant in _participants.Where(x => x.IsNpc))
         {
-            if (participant.Character is not ICharacter npc)
+            if (participant.ActiveCharacter is not ICharacter npc)
             {
                 continue;
             }
@@ -1464,7 +1481,7 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
     {
         foreach (ArenaParticipant participant in _participants)
         {
-            ICharacter? character = participant.Character;
+            ICharacter? character = participant.ActiveCharacter;
             if (character is null)
             {
                 continue;
@@ -1531,9 +1548,9 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 
 		HashSet<long> participantIds = _participants.Select(x => x.CharacterId).ToHashSet();
 		List<ICharacter> combatants = participant.Combat.Combatants.OfType<ICharacter>().ToList();
-		return combatants.Any(x => x.Id == participant.Id) &&
-		       combatants.Any(x => x.Id != participant.Id) &&
-		       combatants.All(x => participantIds.Contains(x.Id));
+		return combatants.Any(x => CharacterInstanceIdentityComparer.SamePhysicalInstance(participant, x)) &&
+		       combatants.Any(x => !CharacterInstanceIdentityComparer.SamePhysicalInstance(participant, x)) &&
+		       combatants.All(x => participantIds.Contains(CharacterInstanceIdentityComparer.IdentityId(x)));
 	}
 
 	private bool IsAtArenaVenue(ICharacter character)
@@ -1555,7 +1572,7 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
     private void DisengageParticipantCombats()
     {
         List<ICharacter> participantsInCombat = _participants
-            .Select(x => x.Character)
+            .Select(x => x.ActiveCharacter)
             .OfType<ICharacter>()
             .Where(x => x.Combat is not null)
             .ToList();
@@ -1594,7 +1611,7 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 
         foreach (ArenaParticipant? participant in _participants.Where(x => x.IsNpc))
         {
-            ICharacter? npc = participant.Character;
+            ICharacter? npc = participant.ActiveCharacter;
             if (npc is null)
             {
                 continue;
@@ -1737,7 +1754,7 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
     {
         foreach (ArenaParticipant participant in _participants)
         {
-            ICharacter? character = participant.Character;
+            ICharacter? character = participant.ActiveCharacter;
             if (character is null)
             {
                 continue;
@@ -1773,7 +1790,8 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
         {
             ArenaByoEquipmentEffect? existing = item.EffectsOfType<ArenaByoEquipmentEffect>()
                 .FirstOrDefault(x => x.Matches(this));
-            if (existing is not null && existing.OwnerCharacterId == participant.Id)
+            var participantIdentityId = CharacterInstanceIdentityComparer.IdentityId(participant);
+            if (existing is not null && existing.OwnerCharacterId == participantIdentityId)
             {
                 continue;
             }
@@ -1783,7 +1801,7 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
                 item.RemoveEffect(existing, true);
             }
 
-            item.AddEffect(new ArenaByoEquipmentEffect(item, Id, participant.Id));
+            item.AddEffect(new ArenaByoEquipmentEffect(item, Id, participantIdentityId));
         }
     }
 
@@ -1796,7 +1814,7 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 
         Dictionary<long, ArenaParticipant> participantsByCharacterId = _participants
             .Where(x => x.Character is not null)
-            .ToDictionary(x => x.Character!.Id, x => x);
+            .ToDictionary(x => x.CharacterId, x => x);
 
         List<(IGameItem Item, ArenaByoEquipmentEffect Effect)> taggedItems = Gameworld.Items
             .SelectMany(item => item.EffectsOfType<ArenaByoEquipmentEffect>()
@@ -1827,7 +1845,7 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
                 continue;
             }
 
-            if (participant.Character is not { } owner)
+            if (participant.ActiveCharacter is not { } owner)
             {
                 item.RemoveEffect(effect, true);
                 continue;
@@ -1917,7 +1935,7 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
 
         foreach (ArenaParticipant? participant in _participants.Where(x => !x.IsNpc))
         {
-            ICharacter? character = participant.Character;
+            ICharacter? character = participant.ActiveCharacter;
             if (character is null)
             {
                 continue;
@@ -1961,7 +1979,7 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
         Dictionary<int, int> sideOffsets = new();
         foreach (ArenaParticipant participant in _participants)
         {
-            ICharacter? character = participant.Character;
+            ICharacter? character = participant.ActiveCharacter;
             if (character is null)
             {
                 continue;
@@ -2361,7 +2379,7 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
     {
         foreach (ArenaParticipant participant in _participants)
         {
-            ICharacter? character = participant.Character;
+            ICharacter? character = participant.ActiveCharacter;
             if (character is null)
             {
                 continue;
@@ -2383,7 +2401,7 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
     {
         foreach (ArenaParticipant participant in _participants)
         {
-            ICharacter? character = participant.Character;
+            ICharacter? character = participant.ActiveCharacter;
             if (character is null)
             {
                 continue;
@@ -2409,7 +2427,7 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
     {
         foreach (ArenaParticipant participant in _participants)
         {
-            ICharacter? character = participant.Character;
+            ICharacter? character = participant.ActiveCharacter;
             if (character is null)
             {
                 continue;
@@ -2471,7 +2489,7 @@ public sealed class ArenaEvent : SaveableItem, IArenaEvent
     {
         foreach (ArenaParticipant? participant in _participants.Where(x => !x.IsNpc))
         {
-            ICharacter? character = participant.Character;
+            ICharacter? character = participant.ActiveCharacter;
             if (character is null)
             {
                 continue;
@@ -2560,13 +2578,16 @@ internal sealed class ArenaParticipant : IArenaParticipant
 {
     private readonly ArenaEvent _event;
     private readonly long _characterId;
+    private readonly long? _activeCharacterInstanceId;
     private ICharacter? _characterCache;
+    private ICharacter? _activeCharacterCache;
 
     public ArenaParticipant(MudSharp.Models.ArenaSignup signup, ArenaEvent parent)
     {
         _event = parent;
         SignupId = signup.Id;
         _characterId = signup.CharacterId;
+        _activeCharacterInstanceId = signup.ActiveCharacterInstanceId;
         CombatantClass = parent.Arena.GetCombatantClass(signup.CombatantClassId)!;
         SideIndex = signup.SideIndex;
         IsNpc = signup.IsNpc;
@@ -2578,6 +2599,29 @@ internal sealed class ArenaParticipant : IArenaParticipant
     public long SignupId { get; }
     public long CharacterId => _characterId;
     public ICharacter? Character => _characterCache ??= _event.Gameworld.TryGetCharacter(_characterId, true);
+    public long? ActiveCharacterInstanceId => _activeCharacterInstanceId;
+    public ICharacter? ActiveCharacter
+    {
+        get
+        {
+            if (_activeCharacterInstanceId is null or <= 0L)
+            {
+                return Character;
+            }
+
+            if (_activeCharacterCache is not null)
+            {
+                return _activeCharacterCache;
+            }
+
+            var resolution = _event.Gameworld.ResolveActorReference(new CharacterActorReference(
+                _characterId,
+                _activeCharacterInstanceId,
+                ReferenceKind: CharacterActorReferenceKind.SpecificInstance));
+            _activeCharacterCache = resolution.Actor;
+            return _activeCharacterCache;
+        }
+    }
     public ICombatantClass CombatantClass { get; }
     public int SideIndex { get; }
     public bool IsNpc { get; }
@@ -2595,6 +2639,7 @@ internal sealed class ArenaParticipant : IArenaParticipant
         sb.AppendLine(
             $"Arena Participant #{SignupId.ToStringN0(actor)}".GetLineWithTitleInner(actor, Telnet.Cyan, Telnet.BoldWhite));
         sb.AppendLine($"Character: {(Character?.HowSeen(actor) ?? "NPC".Colour(Telnet.Yellow))}");
+        sb.AppendLine($"Active Body: {(ActiveCharacter?.RenderStaffActorReference() ?? "Not Loaded".ColourError())}");
         sb.AppendLine($"Combatant Class: {CombatantClass.Name.ColourName()}");
         sb.AppendLine($"Side: {ArenaSideIndexUtilities.ToDisplayString(actor, SideIndex).ColourValue()}");
         sb.AppendLine($"NPC Signup: {IsNpc.ToColouredString()}");
@@ -2612,6 +2657,17 @@ internal sealed class ArenaParticipant : IArenaParticipant
     {
         actor.OutputHandler.Send("Arena participants are informational only and cannot be edited directly.");
         return false;
+    }
+
+    public bool IsActivePhysicalInstance(ICharacter character)
+    {
+        if (character is null || CharacterInstanceIdentityComparer.IdentityId(character) != CharacterId)
+        {
+            return false;
+        }
+
+        return ActiveCharacter is { } active &&
+               CharacterInstanceIdentityComparer.SamePhysicalInstance(character, active);
     }
 
 }

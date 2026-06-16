@@ -75,7 +75,7 @@ public class ActiveOngoingJob : ActiveJobBase
                 IsJournalEntry = true,
                 InGameTimeStamp = Listing.EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime
                                          .GetDateTimeString(),
-                CharacterId = Character.Id
+                CharacterId = CharacterInstanceIdentityComparer.IdentityId(Character)
             };
             FMDB.Context.AccountNotes.Add(note);
             FMDB.Context.SaveChanges();
@@ -116,7 +116,7 @@ public class ActiveOngoingJob : ActiveJobBase
                 IsJournalEntry = true,
                 InGameTimeStamp = Listing.EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime
                                          .GetDateTimeString(),
-                CharacterId = Character.Id
+                CharacterId = CharacterInstanceIdentityComparer.IdentityId(Character)
             };
             FMDB.Context.AccountNotes.Add(note);
             FMDB.Context.SaveChanges();
@@ -157,7 +157,7 @@ public class ActiveOngoingJob : ActiveJobBase
                 IsJournalEntry = true,
                 InGameTimeStamp = Listing.EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime
                                          .GetDateTimeString(),
-                CharacterId = Character.Id
+                CharacterId = CharacterInstanceIdentityComparer.IdentityId(Character)
             };
             FMDB.Context.AccountNotes.Add(note);
             FMDB.Context.SaveChanges();
@@ -198,7 +198,7 @@ public class ActiveOngoingJob : ActiveJobBase
                 IsJournalEntry = true,
                 InGameTimeStamp = Listing.EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime
                                          .GetDateTimeString(),
-                CharacterId = Character.Id
+                CharacterId = CharacterInstanceIdentityComparer.IdentityId(Character)
             };
             FMDB.Context.AccountNotes.Add(note);
             FMDB.Context.SaveChanges();

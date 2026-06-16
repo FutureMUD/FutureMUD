@@ -76,7 +76,7 @@ using TraitExpression = MudSharp.Body.Traits.TraitExpression;
 
 namespace MudSharp.Character;
 
-public partial class Character : PerceiverItem, ICharacter
+public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, ICharacterInstance
 {
     private IPersonalName _currentName;
     public PlanarPresenceDefinition BasePlanarPresence => Body.BasePlanarPresence;
@@ -157,6 +157,7 @@ public partial class Character : PerceiverItem, ICharacter
         _dbTotalMinutesPlayed = 0;
         PositionState = PositionStanding.Instance;
         PositionModifier = PositionModifier.None;
+        InitialisePrimaryInstanceDefaults();
 
         List<ComboMerit> comboMerits = new();
         foreach (ICharacterMerit merit in template.SelectedMerits)
@@ -596,14 +597,10 @@ public partial class Character : PerceiverItem, ICharacter
 #endif
         }
 
-        dbchar.Location = Location?.Id ?? 1L;
-        dbchar.RoomLayer = (int)RoomLayer;
-        dbchar.State = (int)State;
-        dbchar.Status = (int)_status;
+        SaveCompatibilityWorldPresence(dbchar);
         dbchar.CurrencyId = Currency?.Id;
         dbchar.Gender = (short)Gender.Enum;
         dbchar.DominantHandAlignment = (int)Handedness;
-        dbchar.BodyId = Body.Id;
         dbchar.RoomBrief = BriefRoomDescs;
         dbchar.CombatBrief = BriefCombatMode;
         dbchar.NoMercy = NoMercy;
@@ -697,6 +694,7 @@ public partial class Character : PerceiverItem, ICharacter
         }
 
         SaveForms(dbchar);
+        SavePrimaryInstance(dbchar);
 
         Changed = false;
     }
@@ -1182,8 +1180,8 @@ public partial class Character : PerceiverItem, ICharacter
         return sb.ToString();
     }
 
-    public int AgeInYears => Location.Date(Birthday.Calendar).YearsDifference(Birthday);
-    public AgeCategory AgeCategory => Race.AgeCategory(this);
+    public int AgeInYears => Body?.AgeInYears ?? Birthday.Calendar.CurrentDate.YearsDifference(Birthday);
+    public AgeCategory AgeCategory => Body?.AgeCategory ?? Race.AgeCategory(AgeInYears);
 
     public string ShowScore(IPerceiver voyeur)
     {
@@ -1206,9 +1204,9 @@ public partial class Character : PerceiverItem, ICharacter
 
         sb.AppendLine(
               CommonStringUtilities.CultureFormat(
-                  $"You are {Location.Date(Birthday.Calendar).YearsDifference(Birthday).A_An(colour: Telnet.Green)} year old {Race.Name.ToLowerInvariant().Colour(Telnet.Green)} {Gender.GenderClass().Colour(Telnet.Green)}, and belong to the {Culture.Name.Colour(Telnet.Green)} culture.",
+                  $"You are {AgeInYears.A_An(colour: Telnet.Green)} year old {Race.Name.ToLowerInvariant().Colour(Telnet.Green)} {Gender.GenderClass().Colour(Telnet.Green)}, and belong to the {Culture.Name.Colour(Telnet.Green)} culture.",
                   Account))
-          .AppendLine($"You are {Race.AgeCategory(this).DescribeEnum(true).A_An(false, Telnet.Green)}.");
+          .AppendLine($"You are {AgeCategory.DescribeEnum(true).A_An(false, Telnet.Green)}.");
 
         if (Account.AccountResources.Any(x => x.Value > 0 && x.Key.ShowToPlayerInScore))
         {
@@ -1408,6 +1406,7 @@ public partial class Character : PerceiverItem, ICharacter
 
         Body.SetIDFromDatabase(item.Body);
         _handedness = Body.Handedness;
+        CaptureInsertedPrimaryInstanceId(item);
         foreach (ICharacterKnowledge ck in CharacterKnowledges)
         {
             ck.SetId(item.CharacterKnowledges.First(x => x.KnowledgeId == ck.Knowledge.Id).Id);
@@ -1436,13 +1435,18 @@ public partial class Character : PerceiverItem, ICharacter
             NeedsModel = CharacterCreation.Chargen.NeedsModelProg != null
                 ? (string)CharacterCreation.Chargen.NeedsModelProg.Execute(this)
                 : "NoNeeds",
+            State = (int)State,
+            Status = (int)_status,
+            RoomLayer = (int)RoomLayer,
             PositionId = (int)PositionStanding.Instance.Id,
             PositionModifier = (int)PositionModifier.None,
+            PositionEmote = string.Empty,
             EffectData = SaveEffects().ToString(),
             CurrentCombatSettingId = CombatSettings?.Id
         };
 
         InsertInitialForms(dbitem);
+        InsertInitialPrimaryInstance(dbitem);
         InsertInitialCharacterTraits(dbitem);
 
         foreach (IHook hook in _installedHooks)
@@ -1548,7 +1552,7 @@ public partial class Character : PerceiverItem, ICharacter
                 //It may have been saved on the CharacterKnowledge.cs level, so no need to add again
                 Models.CharacterKnowledge dbitem = new()
                 {
-                    CharacterId = base.Id,
+                    CharacterId = CharacterInstanceIdentityComparer.IdentityId(this),
                     KnowledgeId = knowledge.Knowledge.Id,
                     WhenAcquired = knowledge.WhenAcquired,
                     HowAcquired = knowledge.HowAcquired,
@@ -1636,17 +1640,19 @@ public partial class Character : PerceiverItem, ICharacter
         }
 
         LoadForms(character);
+        var primaryInstance = LoadPrimaryInstance(character);
         LoadCharacterTraits(character);
         EnsureProvisionedFormsFromMerits();
-        LoadPosition(character.PositionId, character.PositionModifier, character.PositionEmote,
-            character.PositionTargetId, character.PositionTargetType);
+        LoadPosition(primaryInstance.PositionId, primaryInstance.PositionModifier, primaryInstance.PositionEmote,
+            primaryInstance.PositionTargetId, primaryInstance.PositionTargetType);
+        NeedsModel = NeedsModelFactory.LoadNeedsModel(character, this);
+        LoadSecondaryInstances(character);
         if (character.CharactersChargenRoles.Any())
         {
             _roles.AddRange(character.CharactersChargenRoles.Select(x => Gameworld.Roles.Get(x.ChargenRoleId))
                                      .ToList());
         }
 
-        NeedsModel = NeedsModelFactory.LoadNeedsModel(character, this);
         LongTermPlan = character.LongTermPlan;
         ShortTermPlan = character.ShortTermPlan;
         if (character.EstateHeirId.HasValue && !string.IsNullOrWhiteSpace(character.EstateHeirType))
@@ -1955,6 +1961,7 @@ public partial class Character : PerceiverItem, ICharacter
 
     protected IControllable _nextContext;
     protected IControllable _subContext;
+    private bool _suppressNextAssumeControlLook;
 
     IControllable IControllable.SubContext => _subContext;
 
@@ -2082,11 +2089,27 @@ public partial class Character : PerceiverItem, ICharacter
     public void AssumeControl(IController controller)
     {
         SilentAssumeControl(controller);
+        if (_suppressNextAssumeControlLook)
+        {
+            _suppressNextAssumeControlLook = false;
+            return;
+        }
+
         Body.Look();
+    }
+
+    internal void SuppressNextAssumeControlLook()
+    {
+        _suppressNextAssumeControlLook = true;
     }
 
     public void SilentAssumeControl(IController controller)
     {
+        if (IsPrimaryInstance)
+        {
+            SetFocusedInstance(null);
+        }
+
         Controller = (ICharacterController)controller;
         Controller?.UpdateControlFocus(this);
         Register(Controller?.OutputHandler);
@@ -2327,6 +2350,21 @@ public partial class Character : PerceiverItem, ICharacter
 
     public virtual bool Quit(bool silent = false)
     {
+        if (IsPrimaryInstance)
+        {
+            RemoveAllEffects<IAstralProjectionEffect>(x => x.AnchorInstanceId == InstanceId, true);
+            RemoveAllEffects<IMagicalCopyEffect>(
+                x => x.AnchorInstanceId == InstanceId &&
+                     x.PersistencePolicy != CharacterInstancePersistencePolicy.Persistent,
+                true);
+            RemoveAllEffects<IPhysicalCloneEffect>(
+                x => x.AnchorInstanceId == InstanceId &&
+                     x.PersistencePolicy != CharacterInstancePersistencePolicy.Persistent,
+                true);
+            CharacterInstanceService.UnloadLoadedSecondariesForOwnerLogout(this);
+            SetFocusedInstance(null);
+        }
+
         EffectsChanged = true;
         PerceivableQuit();
         Movement?.CancelForMoverOnly(this);
@@ -2358,6 +2396,9 @@ public partial class Character : PerceiverItem, ICharacter
             {
                 Models.Character dbchar = FMDB.Context.Characters.Find(Id);
                 dbchar.LastLogoutTime = DateTime.UtcNow;
+                var logoutState = State | CharacterState.Stasis;
+                SaveCompatibilityWorldPresence(dbchar, logoutState);
+                SavePrimaryInstance(dbchar, logoutState);
                 SaveMinutes(dbchar);
                 FMDB.Context.SaveChanges();
             }
@@ -2392,6 +2433,20 @@ public partial class Character : PerceiverItem, ICharacter
 
     public void LoginCharacter()
     {
+        if (IsPrimaryInstance)
+        {
+            RemoveAllEffects<IAstralProjectionEffect>(
+                x => Instances.All(y => y.InstanceId != x.ProjectionInstanceId),
+                true);
+            RemoveAllEffects<IMagicalCopyEffect>(
+                x => Instances.All(y => y.InstanceId != x.CopyInstanceId),
+                true);
+            RemoveAllEffects<IPhysicalCloneEffect>(
+                x => Instances.All(y => y.InstanceId != x.CloneInstanceId),
+                true);
+            SetFocusedInstance(null);
+        }
+
         ScheduleCachedEffects();
         LoginDateTime = DateTime.UtcNow;
         OutputHandler.Handle(new EmoteOutput(new Emote("@ has entered the area.", this),
@@ -2418,9 +2473,13 @@ public partial class Character : PerceiverItem, ICharacter
 
         if (Gameworld.CachedBodyguards.ContainsKey(Id))
         {
-            foreach (ICharacter bodyguard in Gameworld.CachedBodyguards[Id])
+            foreach (ICharacter bodyguard in Gameworld.CachedBodyguards[Id].DistinctPhysicalInstances().ToList())
             {
-                Gameworld.Add(bodyguard, true);
+                if (bodyguard.IsPrimaryInstance)
+                {
+                    Gameworld.Add(bodyguard, true);
+                }
+
                 Location.Login(bodyguard);
             }
 
@@ -2889,9 +2948,10 @@ public partial class Character : PerceiverItem, ICharacter
                 Account.PromptType = PromptType.Full | PromptType.PositionInfo;
             }
 
+            var focusPrompt = InstanceFocusPromptLine();
             if (Account.PromptType.HasFlag(PromptType.Brief))
             {
-                return "\n>\n\n";
+                return focusPrompt + "\n>\n\n";
             }
 
             if (Account.PromptType.HasFlag(PromptType.Classic))
@@ -2938,7 +2998,7 @@ public partial class Character : PerceiverItem, ICharacter
                     classic = classic.Append(" / " + classicStealthString);
                 }
 
-                return "\n<" + classic + ">\n\n";
+                return focusPrompt + "\n<" + classic + ">\n\n";
             }
 
             string stealthString = "";
@@ -2990,7 +3050,15 @@ public partial class Character : PerceiverItem, ICharacter
             if (Account.PromptType.HasFlag(PromptType.Full))
             {
                 StringBuilder fpsb = new();
-                fpsb.Append("\n");
+                if (focusPrompt.Length > 0)
+                {
+                    fpsb.Append(focusPrompt);
+                }
+                else
+                {
+                    fpsb.Append("\n");
+                }
+
                 fpsb.Append(HealthStrategy.ReportConditionPrompt(this, PromptType.Full));
                 fpsb.Append("\n<Stamina: ");
                 fpsb.Append(boldColour ? staminaColour.Bold : staminaColour.Colour);
@@ -3172,11 +3240,11 @@ public partial class Character : PerceiverItem, ICharacter
 
             if (sb.Length == 0)
             {
-                return healthString.Equals(string.Empty) ? "" : $"\n{healthString}\n\n";
+                return focusPrompt + (healthString.Equals(string.Empty) ? "" : $"\n{healthString}\n\n");
             }
             else
             {
-                return $"\n{healthString}<{sb}>\n\n";
+                return focusPrompt + $"\n{healthString}<{sb}>\n\n";
             }
         }
     }
@@ -3212,9 +3280,9 @@ public partial class Character : PerceiverItem, ICharacter
             return false;
         }
 
+        var lookupKeys = CharacterInstanceIdentityComparer.RecognitionLookupKeys(perceivable).ToList();
         IDub dub = Dubs.FirstOrDefault(x =>
-            x.TargetId == perceivable.Id &&
-            x.TargetType == perceivable.FrameworkItemType &&
+            lookupKeys.Any(y => y.TargetId == x.TargetId && y.TargetType == x.TargetType) &&
             x.Keywords.Any(y => keywords.Any(z => y.StartsWith(z, StringComparison.InvariantCultureIgnoreCase)))
         );
 
@@ -3236,9 +3304,9 @@ public partial class Character : PerceiverItem, ICharacter
             return false;
         }
 
+        var lookupKeys = CharacterInstanceIdentityComparer.RecognitionLookupKeys(perceivable).ToList();
         IDub dub = Dubs.FirstOrDefault(x =>
-            x.TargetId == perceivable.Id &&
-            x.TargetType == perceivable.FrameworkItemType &&
+            lookupKeys.Any(y => y.TargetId == x.TargetId && y.TargetType == x.TargetType) &&
             x.Keywords.Any(y => y.StartsWith(keyword, StringComparison.InvariantCultureIgnoreCase))
         );
 

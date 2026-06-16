@@ -139,10 +139,11 @@ public class Dream : SaveableItem, IDream
 
     public bool GiveDream(ICharacter character)
     {
-        if (!_characters.Contains(character.Id))
+        var characterIdentityId = CharacterInstanceIdentityComparer.IdentityId(character);
+        if (!_characters.Contains(characterIdentityId))
         {
-            _characters.Add(character.Id);
-            _haveDreamedBefore.Remove(character.Id);
+            _characters.Add(characterIdentityId);
+            _haveDreamedBefore.Remove(characterIdentityId);
             Changed = true;
             return true;
         }
@@ -152,9 +153,10 @@ public class Dream : SaveableItem, IDream
 
     public bool RemoveDream(ICharacter character)
     {
-        if (_characters.Contains(character.Id))
+        var characterIdentityId = CharacterInstanceIdentityComparer.IdentityId(character);
+        if (_characters.Contains(characterIdentityId))
         {
-            _characters.Remove(character.Id);
+            _characters.Remove(characterIdentityId);
             Changed = true;
             return true;
         }
@@ -173,15 +175,17 @@ public class Dream : SaveableItem, IDream
 
     public bool CanDream(ICharacter character)
     {
-        return (!_onceOnly || !_haveDreamedBefore.Contains(character.Id)) &&
-               (_characters.Contains(character.Id) || (CanDreamProg?.ExecuteBool(character) ?? true));
+        var characterIdentityId = CharacterInstanceIdentityComparer.IdentityId(character);
+        return (!_onceOnly || !_haveDreamedBefore.Contains(characterIdentityId)) &&
+               (_characters.Contains(characterIdentityId) || (CanDreamProg?.ExecuteBool(character) ?? true));
     }
 
     public void FinishDream(ICharacter character)
     {
-        if (_onceOnly && !_haveDreamedBefore.Contains(character.Id))
+        var characterIdentityId = CharacterInstanceIdentityComparer.IdentityId(character);
+        if (_onceOnly && !_haveDreamedBefore.Contains(characterIdentityId))
         {
-            _haveDreamedBefore.Add(character.Id);
+            _haveDreamedBefore.Add(characterIdentityId);
         }
 
         OnDreamProg?.Execute(character, Id);

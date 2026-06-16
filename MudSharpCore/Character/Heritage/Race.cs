@@ -1987,7 +1987,7 @@ public partial class Race : SaveableItem, IRace
 
     public AgeCategory AgeCategory(ICharacter character)
     {
-        int age = character.Birthday.Calendar.CurrentDate.YearsDifference(character.Birthday);
+        int age = character.AgeInYears;
         return AgeCategory(age);
     }
 

@@ -290,7 +290,7 @@ public partial class Bank : SaveableItem, IBank, ILazyLoadDuringIdleTime
             }
         }
 
-        if (_bankManagerIds.Contains(target.Id))
+        if (_bankManagerIds.Contains(CharacterInstanceIdentityComparer.IdentityId(target)))
         {
             RemoveManager(target);
             actor.OutputHandler.Send(
@@ -1244,19 +1244,19 @@ public partial class Bank : SaveableItem, IBank, ILazyLoadDuringIdleTime
 
     public bool IsManager(ICharacter actor)
     {
-        return actor.IsAdministrator() || BankManagers.Any(x => x.Id == actor.Id);
+        return actor.IsAdministrator() || BankManagers.Any(x => CharacterInstanceIdentityComparer.SameIdentity(x, actor));
     }
 
     public void AddManager(ICharacter manager)
     {
-        _bankManagerIds.Add(manager.Id);
+        _bankManagerIds.Add(CharacterInstanceIdentityComparer.IdentityId(manager));
         _bankManagers?.Add(manager);
         Changed = true;
     }
 
     public void RemoveManager(ICharacter manager)
     {
-        _bankManagerIds.Remove(manager.Id);
+        _bankManagerIds.Remove(CharacterInstanceIdentityComparer.IdentityId(manager));
         _bankManagers?.Remove(manager);
         Changed = true;
     }

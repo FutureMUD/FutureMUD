@@ -41,11 +41,19 @@ public class Patrol : SaveableItem, IPatrol
             {
                 LegalAuthorityId = authority.Id,
                 PatrolRouteId = route.Id,
-                PatrolLeaderId = leader.Id,
+                PatrolLeaderId = CharacterInstanceIdentityComparer.IdentityId(leader),
+                PatrolLeaderInstanceId = CharacterInstanceIdentityComparer.InstanceId(leader),
                 PatrolPhase = (int)PatrolPhase.Preperation
             };
             dbitem.PatrolMembers =
-                members.Select(x => new PatrolMember { Patrol = dbitem, CharacterId = x.Id }).ToList();
+                members
+                    .Select(x => new PatrolMember
+                    {
+                        Patrol = dbitem,
+                        CharacterId = CharacterInstanceIdentityComparer.IdentityId(x),
+                        CharacterInstanceId = CharacterInstanceIdentityComparer.InstanceId(x) ?? 0L
+                    })
+                    .ToList();
 
             FMDB.Context.Patrols.Add(dbitem);
             FMDB.Context.SaveChanges();
@@ -72,8 +80,21 @@ public class Patrol : SaveableItem, IPatrol
         LastArrivedTime = DateTime.UtcNow;
         LastMajorNode = Gameworld.Cells.Get(patrol.LastMajorNodeId ?? 0);
         NextMajorNode = Gameworld.Cells.Get(patrol.NextMajorNodeId ?? 0);
-        _members.AddRange(patrol.PatrolMembers.SelectNotNull(x => Gameworld.NPCs.Get(x.CharacterId)));
-        PatrolLeader = Gameworld.NPCs.Get(patrol.PatrolLeaderId ?? 0) ?? PatrolMembers.GetRandomElement();
+        _members.AddRange(patrol.PatrolMembers
+                                .SelectNotNull(x => CharacterInstanceIdentityComparer.ResolvePhysicalInstance(
+                                    Gameworld,
+                                    x.CharacterId,
+                                    x.CharacterInstanceId,
+                                    fallbackToPrimary: x.CharacterInstanceId <= 0))
+                                .DistinctPhysicalInstances());
+        PatrolLeader = patrol.PatrolLeaderId is null
+            ? PatrolMembers.GetRandomElement()
+            : CharacterInstanceIdentityComparer.ResolvePhysicalInstance(
+                  Gameworld,
+                  patrol.PatrolLeaderId.Value,
+                  patrol.PatrolLeaderInstanceId,
+                  fallbackToPrimary: patrol.PatrolLeaderInstanceId is null) ??
+              PatrolMembers.GetRandomElement();
         ActiveCorpseRecoveryReport = authority.CorpseRecoveryReports
             .OfType<CorpseRecoveryReport>()
             .FirstOrDefault(x => x.AssignedPatrolId == _id && x.Status == CorpseRecoveryReportStatus.Assigned);
@@ -187,12 +208,18 @@ public class Patrol : SaveableItem, IPatrol
         Models.Patrol dbitem = FMDB.Context.Patrols.Find(Id);
         dbitem.LastMajorNodeId = LastMajorNode?.Id;
         dbitem.NextMajorNodeId = NextMajorNode?.Id;
-        dbitem.PatrolLeaderId = PatrolLeader?.Id;
+        dbitem.PatrolLeaderId = PatrolLeader is null ? null : CharacterInstanceIdentityComparer.IdentityId(PatrolLeader);
+        dbitem.PatrolLeaderInstanceId = CharacterInstanceIdentityComparer.InstanceId(PatrolLeader);
         dbitem.PatrolPhase = (int)PatrolPhase;
         dbitem.PatrolMembers.Clear();
         foreach (ICharacter item in PatrolMembers)
         {
-            dbitem.PatrolMembers.Add(new PatrolMember { Patrol = dbitem, CharacterId = item.Id });
+            dbitem.PatrolMembers.Add(new PatrolMember
+            {
+                Patrol = dbitem,
+                CharacterId = CharacterInstanceIdentityComparer.IdentityId(item),
+                CharacterInstanceId = CharacterInstanceIdentityComparer.InstanceId(item) ?? 0L
+            });
         }
 
         Changed = false;
@@ -263,7 +290,13 @@ public class Patrol : SaveableItem, IPatrol
 
     public void RemovePatrolMember(ICharacter character)
     {
-        _members.Remove(character);
+        _members.RemovePhysicalInstance(character);
         PatrolLeader?.Party?.Leave(character);
+        if (PatrolLeader?.SamePhysicalInstance(character) == true)
+        {
+            PatrolLeader = PatrolMembers.GetRandomElement();
+        }
+
+        Changed = true;
     }
 }

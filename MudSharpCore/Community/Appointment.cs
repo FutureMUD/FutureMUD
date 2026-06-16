@@ -285,7 +285,8 @@ public class Appointment : SaveableItem, IAppointment
 
         if (MaximumConsecutiveTerms > 0)
         {
-            if (ClanCommandUtilities.HasReachedConsecutiveTermLimit(Elections, character.Id,
+            if (ClanCommandUtilities.HasReachedConsecutiveTermLimit(Elections,
+                    CharacterInstanceIdentityComparer.IdentityId(character),
                     MaximumConsecutiveTerms))
             {
                 return (false,
@@ -295,7 +296,8 @@ public class Appointment : SaveableItem, IAppointment
 
         if (MaximumTotalTerms > 0)
         {
-            if (ClanCommandUtilities.HasReachedTotalTermLimit(Elections, character.Id, MaximumTotalTerms))
+            if (ClanCommandUtilities.HasReachedTotalTermLimit(Elections,
+                    CharacterInstanceIdentityComparer.IdentityId(character), MaximumTotalTerms))
             {
                 return (false,
                     $"You have reached the life-time limit of {MaximumTotalTerms.ToString("N0", character).ColourValue()} total terms as {Title(character).ColourValue()}.");

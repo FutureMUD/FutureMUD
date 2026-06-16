@@ -663,8 +663,9 @@ Syntax:
 		}
 
 		var pullMultiplier = targetTowPoint?.CharacterPullMultiplier ?? 1.0;
-		HitchGearRules.Reserve(hitchItem, vehicleHitchLinkId: persistentLinkId, sourceCharacterId: source.Id,
-			targetId: target.Id);
+		HitchGearRules.Reserve(hitchItem, vehicleHitchLinkId: persistentLinkId,
+			sourceCharacterId: CharacterInstanceIdentityComparer.IdentityId(source),
+			targetId: CharacterInstanceIdentityComparer.FrameworkItemId(target));
 		source.AddEffect(new CharacterHitch(source, target, pullMultiplier, targetTowPoint?.Id, persistentLinkId,
 			hitchItem?.Id));
 		source.AddEffect(new Dragging(source, dragAid, target));
@@ -754,9 +755,8 @@ Syntax:
 			return false;
 		}
 
-		if (actor.Gameworld.VehicleHitchLinks?.Any(x =>
-			    x.SourceType == VehicleHitchEndpointType.Character &&
-			    x.SourceCharacterId == source.Id) == true)
+		if (HitchService.LinksFrom(actor.Gameworld, source)
+		                .Any(x => x.SourceType == VehicleHitchEndpointType.Character))
 		{
 			reason = $"{source.HowSeen(actor, true)} already has a persistent hitch link.";
 			return false;
@@ -782,9 +782,8 @@ Syntax:
 
 		if (target is ICharacter targetCharacter)
 		{
-			if (actor.Gameworld.VehicleHitchLinks?.Any(x =>
-				    x.TargetType == VehicleHitchEndpointType.Character &&
-				    x.TargetCharacterId == targetCharacter.Id) == true)
+			if (HitchService.LinksInvolving(actor.Gameworld, targetCharacter)
+			                .Any(x => x.TargetType == VehicleHitchEndpointType.Character))
 			{
 				reason = $"{targetCharacter.HowSeen(actor, true)} already has a persistent hitch link.";
 				return false;
@@ -1178,7 +1177,7 @@ Syntax:
 		sb.AppendLine();
 		sb.AppendLine("Occupants:");
 		sb.AppendLine(vehicle.Occupancies.Any()
-			? vehicle.Occupancies.Select(x => $"\t{x.Occupant?.HowSeen(actor) ?? "missing".ColourError()} in {x.Slot.Name.ColourName()}{(x.IsController ? " controlling".Colour(Telnet.Green) : "")}").ListToString(separator: "\n", conjunction: "", twoItemJoiner: "\n")
+			? vehicle.Occupancies.Select(x => $"\t{x.Occupant?.RenderStaffActorReference() ?? "missing".ColourError()} in {x.Slot.Name.ColourName()}{(x.IsController ? " controlling".Colour(Telnet.Green) : "")}").ListToString(separator: "\n", conjunction: "", twoItemJoiner: "\n")
 			: "\tNone");
 		sb.AppendLine();
 		sb.AppendLine("Access Points:");
@@ -1299,7 +1298,7 @@ Syntax:
 		{
 			VehicleHitchEndpointType.Vehicle =>
 				$"{vehicle?.Name.ColourName() ?? "missing".ColourError()}:{towPoint?.Name.ColourName() ?? "missing".ColourError()}",
-			VehicleHitchEndpointType.Character => character?.HowSeen(actor) ?? "missing".ColourError(),
+			VehicleHitchEndpointType.Character => character?.RenderStaffActorReference() ?? "missing".ColourError(),
 			_ => "invalid".ColourError()
 		};
 	}

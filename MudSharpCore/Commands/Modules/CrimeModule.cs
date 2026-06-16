@@ -161,21 +161,22 @@ The syntax is as follows:
         List<ILegalAuthority> jurisdictions = actor.Gameworld.LegalAuthorities
                                  .Where(x => x.GetEnforcementAuthority(actor) is not null || actor.IsAdministrator())
                                  .ToList();
+        var actorIdentityId = CharacterInstanceIdentityComparer.IdentityId(actor);
 
         List<(ILegalAuthority Authority, List<ICrime> Known, List<ICrime> Unknown, List<ICrime> Resolved)> crimes = actor.Gameworld.LegalAuthorities
                           .Select(x => (
                               Authority: x,
                               Known:
                               x.KnownCrimesForIndividual(target)
-                               .Where(y => jurisdictions.Contains(x) || y.WitnessIds.Contains(actor.Id))
+                               .Where(y => jurisdictions.Contains(x) || y.WitnessIds.Contains(actorIdentityId))
                                .ToList(),
                               Unknown:
                               x.UnknownCrimesForIndividual(target)
-                               .Where(y => jurisdictions.Contains(x) || y.WitnessIds.Contains(actor.Id))
+                               .Where(y => jurisdictions.Contains(x) || y.WitnessIds.Contains(actorIdentityId))
                                .ToList(),
                               Resolved:
                               x.ResolvedCrimesForIndividual(target)
-                               .Where(y => jurisdictions.Contains(x) || y.WitnessIds.Contains(actor.Id))
+                               .Where(y => jurisdictions.Contains(x) || y.WitnessIds.Contains(actorIdentityId))
                                .ToList()
                           ))
                           .Where(x => x.Known.Count > 0 || x.Unknown.Count > 0 || x.Resolved.Count > 0)
@@ -369,7 +370,7 @@ The syntax for this command is as follows:
         }
 
         List<ICrime> accusableCrimes = actor.Gameworld.Crimes
-                                   .Where(x => !x.IsKnownCrime && x.WitnessIds.Contains(actor.Id))
+                                   .Where(x => !x.IsKnownCrime && x.WitnessIds.Contains(CharacterInstanceIdentityComparer.IdentityId(actor)))
                                    .OrderByDescending(x => x.RealTimeOfCrime)
                                    .ToList();
 
@@ -599,7 +600,7 @@ The syntax to use this command is:
 
         Crime crime = new(who, null, Enumerable.Empty<ICharacter>(), law, null)
         {
-            AccuserId = actor.Id,
+            AccuserId = CharacterInstanceIdentityComparer.IdentityId(actor),
             CriminalIdentityIsKnown = true,
             IsKnownCrime = true,
             CrimeLocation = null

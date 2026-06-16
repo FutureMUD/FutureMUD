@@ -38,15 +38,15 @@ public class Crime : LateInitialisingItem, ICrime
     {
         Gameworld = criminal.Gameworld;
         var resolvedCrimeLocation = crimeLocation ?? criminal.Location;
-        CriminalId = criminal.Id;
+        CriminalId = CharacterInstanceIdentityComparer.IdentityId(criminal);
         _criminal = criminal;
-        VictimId = victim?.Id;
+        VictimId = victim is null ? null : CharacterInstanceIdentityComparer.IdentityId(victim);
         TimeOfCrime = resolvedCrimeLocation.DateTime();
         RealTimeOfCrime = DateTime.UtcNow;
         CrimeLocation = resolvedCrimeLocation;
-        _witnessIds.AddRange(witnesses.Select(x => x.Id));
+        _witnessIds.AddRange(witnesses.Select(CharacterInstanceIdentityComparer.IdentityId));
         Law = law;
-        ThirdPartyId = thirdparty?.Id;
+        ThirdPartyId = thirdparty is null ? null : CharacterInstanceIdentityComparer.FrameworkItemId(thirdparty);
         ThirdPartyFrameworkItemType = thirdparty?.FrameworkItemType;
         AdditionalInformation = additionalInformation;
         CriminalShortDescription = criminal.HowSeen(criminal,
@@ -723,12 +723,21 @@ public class Crime : LateInitialisingItem, ICrime
         {
             sb.AppendLine($"Criminal: {Criminal.HowSeen(enforcer, flags: PerceiveIgnoreFlags.TrueDescription)}");
             sb.AppendLine($"Criminal Name: {Criminal.PersonalName.GetName(NameStyle.FullWithNickname).ColourName()}");
+            if (enforcer.IsAdministrator())
+            {
+                sb.AppendLine($"Staff Actor Ref: {Criminal.RenderStaffActorReference()}");
+            }
             sb.AppendLine("Criminal Description:");
             sb.AppendLine();
             sb.AppendLine(Criminal.HowSeen(enforcer, type: DescriptionType.Full, flags: PerceiveIgnoreFlags.TrueDescription).Wrap(enforcer.InnerLineFormatLength, "\t"));
         }
         else
         {
+            if (enforcer.IsAdministrator())
+            {
+                sb.AppendLine($"Criminal Identity Known: {false.ToColouredString()}");
+                sb.AppendLine($"Loaded Identity Ref: {Criminal.RenderStaffActorReference()}");
+            }
             sb.AppendLine($"Criminal: {CriminalShortDescription.ColourCharacter()}");
             sb.AppendLine("Criminal Description:");
             sb.AppendLine();

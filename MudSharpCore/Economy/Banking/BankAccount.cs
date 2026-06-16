@@ -121,7 +121,8 @@ public class BankAccount : SaveableItem, IBankAccount, ILazyLoadDuringIdleTime
 
     public bool IsAccountOwner(ICharacter character)
     {
-        return IsAccountOwner((IFrameworkItem)character);
+        return _accountOwnerReference?.FrameworkItemType == "Character" &&
+               _accountOwnerReference.Id == CharacterInstanceIdentityComparer.IdentityId(character);
     }
 
     public bool IsAccountOwner(IClan clan)
@@ -136,6 +137,11 @@ public class BankAccount : SaveableItem, IBankAccount, ILazyLoadDuringIdleTime
 
     public bool IsAccountOwner(IFrameworkItem owner)
     {
+        if (owner is ICharacter character)
+        {
+            return IsAccountOwner(character);
+        }
+
         return _accountOwnerReference?.Equals(owner) == true;
     }
 
@@ -157,7 +163,7 @@ public class BankAccount : SaveableItem, IBankAccount, ILazyLoadDuringIdleTime
         _accountOwner = owner;
         _accountOwnerReference = owner == null
             ? null
-            : new FrameworkItemReference(owner.Id, owner.FrameworkItemType, Gameworld);
+            : new FrameworkItemReference(CharacterInstanceIdentityComparer.FrameworkItemId(owner), owner.FrameworkItemType, Gameworld);
         SyncLegacyOwnerFields();
         Changed = true;
     }
@@ -172,7 +178,8 @@ public class BankAccount : SaveableItem, IBankAccount, ILazyLoadDuringIdleTime
         return AccountOwner switch
         {
             IShop shop => shop.IsManager(character),
-            IClan clan => clan.Memberships.FirstOrDefault(x => x.MemberId == character.Id)?.NetPrivileges
+            IClan clan => clan.Memberships
+                .FirstOrDefault(x => x.MemberId == CharacterInstanceIdentityComparer.IdentityId(character))?.NetPrivileges
                 .HasFlag(ClanPrivilegeType.CanManageBankAccounts) == true,
             _ => false
         };
@@ -569,7 +576,7 @@ public class BankAccount : SaveableItem, IBankAccount, ILazyLoadDuringIdleTime
 
         switch (AccountOwner)
         {
-            case ICharacter charOwner when charOwner.Id == actor.Id:
+            case ICharacter charOwner when CharacterInstanceIdentityComparer.SameIdentity(charOwner, actor):
                 sb.AppendLine($"Owner: {"You".ColourCharacter()}");
                 break;
             case ICharacter charOwner:

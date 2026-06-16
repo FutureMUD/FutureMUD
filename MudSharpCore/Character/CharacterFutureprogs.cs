@@ -59,14 +59,41 @@ public partial class Character
             case "id":
                 returnVar = new NumberVariable(Id);
                 break;
+            case "identityid":
+                returnVar = new NumberVariable(CharacterInstanceIdentityComparer.IdentityId(this));
+                break;
+            case "instanceid":
+                returnVar = new NumberVariable(CharacterInstanceIdentityComparer.InstanceId(this) ?? 0);
+                break;
+            case "physicalinstancekey":
+                returnVar = new NumberVariable(CharacterInstanceIdentityComparer.PhysicalInstanceKey(this));
+                break;
+            case "bodyid":
+                returnVar = new NumberVariable(Body?.Id ?? 0);
+                break;
+            case "isprimaryinstance":
+                returnVar = new BooleanVariable(IsPrimaryInstance);
+                break;
+            case "instancekind":
+                returnVar = new TextVariable(InstanceKind.DescribeEnum(true));
+                break;
+            case "instancekindid":
+                returnVar = new NumberVariable((int)InstanceKind);
+                break;
+            case "primaryinstance":
+                returnVar = PrimaryInstance as ICharacter;
+                break;
+            case "focusedinstance":
+                returnVar = FocusedInstance as ICharacter;
+                break;
             case "location":
                 returnVar = Location;
                 break;
             case "age":
-                returnVar = new NumberVariable(Birthday.Calendar.CurrentDate.YearsDifference(Birthday));
+                returnVar = new NumberVariable(AgeInYears);
                 break;
             case "agecategory":
-                returnVar = new TextVariable(Race.AgeCategory(this).DescribeEnum());
+                returnVar = new TextVariable(AgeCategory.DescribeEnum());
                 break;
             case "race":
                 returnVar = Race;
@@ -256,6 +283,15 @@ public partial class Character
         return new Dictionary<string, ProgVariableTypes>(StringComparer.InvariantCultureIgnoreCase)
         {
             { "id", ProgVariableTypes.Number },
+            { "identityid", ProgVariableTypes.Number },
+            { "instanceid", ProgVariableTypes.Number },
+            { "physicalinstancekey", ProgVariableTypes.Number },
+            { "bodyid", ProgVariableTypes.Number },
+            { "isprimaryinstance", ProgVariableTypes.Boolean },
+            { "instancekind", ProgVariableTypes.Text },
+            { "instancekindid", ProgVariableTypes.Number },
+            { "primaryinstance", ProgVariableTypes.Character },
+            { "focusedinstance", ProgVariableTypes.Character },
             { "effects", ProgVariableTypes.Collection | ProgVariableTypes.Effect },
             { "name", ProgVariableTypes.Text },
             { "type", ProgVariableTypes.Text },
@@ -333,7 +369,16 @@ public partial class Character
     {
         return new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
         {
-            { "id", "The id of the character" },
+            { "id", "The legacy id of the character identity. Use identityid, instanceid, bodyid, or physicalinstancekey when the distinction matters." },
+            { "identityid", "The durable character identity id, shared by all simultaneous bodies for the same character." },
+            { "instanceid", "The active CharacterInstances row id for this physical actor, or 0 if no instance row is available." },
+            { "physicalinstancekey", "A stable runtime key for comparing this physical actor; normally the instance id, falling back to identity id for legacy actors." },
+            { "bodyid", "The current physical body id for this actor, or 0 if no body is available." },
+            { "isprimaryinstance", "True if this actor is the primary instance for its identity." },
+            { "instancekind", "The text name of this actor's instance kind, such as Primary, Astral Projection, Magical Copy, or Physical Clone." },
+            { "instancekindid", "The numeric id of this actor's instance kind." },
+            { "primaryinstance", "The primary actor instance for this character identity." },
+            { "focusedinstance", "The currently focused actor instance for this character identity." },
             { "effects", "A collection of all effects on the character" },
             { "name", "Their real first name" },
             { "simplefullname", "The simple version of their real full name" },

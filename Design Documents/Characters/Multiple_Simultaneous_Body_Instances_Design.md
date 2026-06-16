@@ -1227,6 +1227,17 @@ Deliverables:
 - identify direct uses of `Character.Body`, `CurrentBody`, `Location`, `RoomLayer`, `State`, `Die`, `Quit`, and `LoginCharacter`
 - classify systems as identity, instance, or body scoped
 
+Implementation progress:
+
+- Completed: the design document now anchors the simultaneous-instance rollout.
+- Completed: `CharacterInstanceStateScope` classifies state as identity, instance, body, compatibility mirror, or unknown.
+- Completed: `CharacterInstanceDiagnostics.AuditPrimaryInstance(...)` verifies the current compatibility assumptions that `Body`, `CurrentBody`, body actor, body location, body room layer, owned bodies, and form metadata all agree for the primary instance.
+- Confirmed current seams: `Character.Save()` mirrors active body/location/layer/state/status into `Characters`, `Character.LoadFromDatabase(...)` restores those fields from `Characters`, `CharacterForms.SwitchToBody(...)` is the exclusive transformation point, `Body.Location` and `Body.RoomLayer` currently proxy through the actor, and `Die()`, `Quit()`, and `LoginCharacter()` operate on the active `Character` world presence.
+
+Next-phase reflection:
+
+Phase 1 should preserve those audited assumptions while adding `CharacterInstances` persistence. The immediate goal is not to spawn a second presence; it is to create a durable primary-instance row that mirrors the current character row and can be audited against the old compatibility fields.
+
 Useful grep/search terms:
 
 ```text
@@ -1255,6 +1266,17 @@ Deliverables:
 - compatibility fields mirror primary instance
 - no behavioural changes for existing characters
 
+Implementation progress:
+
+- Completed: added the EF `CharacterInstance` model, `CharacterInstances` DbSet, navigation properties from `Character`, `Body`, and `Cell`, and explicit model configuration.
+- Completed: generated migration `20260612134150_CharacterInstances` with the table, indexes, generated uniqueness guards, and a deterministic backfill that creates one primary persistent instance from each existing `Characters` row. The first-upgrade migration deliberately does not add hard `CharacterInstances` foreign keys because pre-branch `Characters.BodyId` and `Characters.Location` were compatibility mirrors; stale locations are imported as null and stale bodies are reported by the Phase 9 audit tooling rather than blocking boot.
+- Completed: `Character` now loads primary-instance rows when present, falls back to legacy `Characters` fields when absent, inserts a primary instance for new characters, and mirrors body/location/layer/position/state/status into the primary instance on save and final death persistence.
+- Verified: `dotnet build MudSharpCore\MudSharpCore.csproj -c Debug --no-restore -m:1 -p:NoWarn=NU1902%3BNU1510` succeeded after the phase-1 wiring.
+
+Next-phase reflection:
+
+Phase 2 should make the identity/instance split visible to callers without changing command semantics. `ICharacter` remains the active world actor facade, while new identity and instance contracts expose `Identity`, `InstanceId`, policy fields, and explicit same-identity versus same-physical-instance comparisons.
+
 Acceptance tests:
 
 - existing characters load and save
@@ -1272,6 +1294,18 @@ Deliverables:
 - make existing `Character` act as primary instance for compatibility
 - move or delegate identity-scoped accessors deliberately
 
+Implementation progress:
+
+- Completed: introduced `ICharacterIdentity`, `ICharacterInstance`, `CharacterInstanceKind`, control/death/perception/persistence policy enums, and `BodyEmbodimentState`.
+- Completed: added instance compatibility members directly to `ICharacter`, preserving existing `ICharacter` call sites while making active world actors explicitly instance-aware.
+- Completed: `Character` now implements `ICharacterIdentity` and `ICharacterInstance`; for the compatibility milestone it exposes itself as `Identity`, `PrimaryInstance`, and `FocusedInstance`, with `Instances` containing the primary instance only.
+- Completed: added `CharacterInstanceIdentityComparer` and delegated `Character.SameIdentity(...)` / `SamePhysicalInstance(...)` to it so same-identity and same-physical-presence semantics are explicit and testable.
+- Verified: `dotnet test 'FutureMUDLibrary Unit Tests\FutureMUDLibrary Unit Tests.csproj' -c Debug --no-restore -m:1 --filter CharacterInstanceIdentityComparerTests` passed 4 tests.
+
+Next-phase reflection:
+
+Phase 3 should keep the old world-facing `Character` object as the primary instance while treating its location, room layer, position, state, status, and current body as the persisted primary-instance mirror. The important hardening work is to make load/save and lifecycle paths consistently sync through that bridge, and to document that body location still resolves through the embodied instance actor until Phase 4 introduces a second actor.
+
 Acceptance tests:
 
 - no command output change
@@ -1288,6 +1322,19 @@ Deliverables:
 - primary instance still mirrors old character fields
 - login/quit/save use instance state
 
+Implementation progress:
+
+- Completed: the primary `Character` object is now the compatibility `ICharacterInstance`; its body, location, room layer, position, state, status, movement, combat, aim, and targeting state remain on the active world actor rather than on a separate durable identity object.
+- Completed: load uses `CharacterInstances` primary-instance rows as the source for body/location/layer/position/state/status when present, falling back to legacy `Characters` fields for pre-migration data.
+- Completed: save centralises legacy world-presence fields through `SaveCompatibilityWorldPresence(...)` and then mirrors the same state into the primary instance row.
+- Completed: logout now persists the legacy compatibility fields and primary-instance mirror at the same point it already writes logout metadata, and final death persistence updates both the old character row and primary instance row.
+- Completed: `Body` exposes `EmbodiedInstance` and resolves location, room layer, movement, event forwarding, and location-change events through the embodied actor/instance bridge instead of assuming the durable character identity is the physical world actor.
+- Verified: focused identity comparer tests, primary-instance diagnostic tests, and `dotnet build MudSharpCore\MudSharpCore.csproj -c Debug --no-restore -m:1 -p:NoWarn=NU1902%3BNU1510` all passed.
+
+Next-phase reflection:
+
+Phase 4 is the first behavioural expansion. It should add a staff-only passive second-instance spawn/retire path from an owned dormant form, enforce one live embodied instance per body, place the passive instance into a room as a visible/targetable actor, and prove that moving or killing the passive non-final instance does not move or final-kill the primary identity.
+
 Acceptance tests:
 
 - movement, teleport, fall, swimming/flying/climbing still work
@@ -1303,6 +1350,27 @@ Deliverables:
 - primary instance remains in its room
 - second instance can be retired/despawned
 - no PC focus yet
+
+Implementation progress:
+
+- Completed: added `PassiveCharacterInstance`, a non-controllable secondary `ICharacterInstance` that delegates identity to the owning primary `Character` while owning its own instance id, body, location, room layer, position, state, status, and policy fields.
+- Completed: added `CharacterInstanceService` as the lifecycle owner for passive spawn, move, retire, save, load, and passive death handling, keeping command parsing separate from lifecycle state changes.
+- Completed: persistent non-primary embodied rows now load as cell-local passive actors; `DespawnOnReboot` rows are pruned during character load.
+- Completed: passive instances are inserted only into cells and are not added to `Gameworld.Characters`, `Gameworld.NPCs`, or `Gameworld.Actors`, avoiding duplicate identity ids in the global character caches.
+- Completed: passive spawn uses owned non-current forms only, rejects bodies that already have live embodied instances, defaults to `NotControllable`, `DestroyInstanceOnly`, `OrdinaryEmbodied`, and `DespawnOnReboot`, and supports a staff-selected persistent policy.
+- Completed: passive move and retire operations clear movement/combat/position targets, remove the passive actor from its cell, free the form body for later use, and persist or delete the row according to policy.
+- Completed: passive death creates body-level remains with a non-final remains context, marks only the passive instance dead/retired, and leaves the primary identity and primary instance alive.
+- Completed: `instance list`, `instance spawn`, `instance move`, and `instance retire` are available as staff-only storyteller commands for acceptance testing and administrative control.
+- Completed: the Phase 1-3 review fixes were folded into this phase: resurrection now mirrors both `Characters` compatibility fields and the primary `CharacterInstances` row, diagnostics report duplicate primary rows and duplicate live embodied-body rows, and MySQL uniqueness uses generated nullable guard columns for primary identity and embodied body uniqueness.
+- Verified: `dotnet test 'FutureMUDLibrary Unit Tests\FutureMUDLibrary Unit Tests.csproj' -c Debug --no-restore -m:1 --filter CharacterInstance` passed 4 tests.
+- Verified: `dotnet test 'MudSharpCore Unit Tests\MudSharpCore Unit Tests.csproj' -c Debug --no-restore -m:1 --filter CharacterInstance` passed 4 tests.
+- Verified: `dotnet build MudSharpCore\MudSharpCore.csproj -c Debug --no-restore -m:1 -p:NoWarn=NU1902%3BNU1510` passed with 0 warnings.
+- Verified: `dotnet build MudsharpDatabaseLibrary\MudsharpDatabaseLibrary.csproj -c Debug --no-restore -m:1 -p:NoWarn=NU1902%3BNU1510` passed with 0 warnings.
+- Verified: `git diff --check` passed; it reported only existing line-ending normalization warnings.
+
+Next-phase reflection:
+
+Phase 5 should introduce player-facing focus switching only after the passive actor model has had staff acceptance testing. The main design goal is to move controller focus from the durable identity/primary object to a selected controllable instance without letting ordinary commands accidentally manipulate an unfocused body. The next phase should therefore concentrate on `instances`/`focus` discovery, command routing through `FocusedInstance`, prompt/output policy for focused and unfocused presences, and guardrails that keep primary-body death, stasis, and login/logout semantics coherent while a player is focused elsewhere.
 
 Acceptance tests:
 
@@ -1322,6 +1390,26 @@ Deliverables:
 - prompt indicates focused instance where useful
 - action effects and movement commands apply to focused instance only
 
+Implementation progress:
+
+- Completed: added `CharacterInstanceFocusService` as the runtime focus coordinator. It validates same-identity, loaded, embodied, controllable, non-dead, non-stasis `PlayerFocusable` targets and switches command routing through the existing controller `SetContext(...)` path.
+- Completed: primary `Character` identities now track a runtime-only focused secondary instance; focus resets to the primary on login, primary quit, linkdead detach, secondary retire, and focused-secondary death.
+- Completed: staff `instance spawn` keeps passive/non-controllable as the default and adds an explicit `focusable` option for Phase 5 acceptance testing before projection mechanics exist.
+- Completed: focusable secondary instances remain cell-local and outside global character/NPC caches, but mirror the owning player's permission level and command tree while controlled.
+- Completed: player-facing `instances` and `focus` commands list own instances, switch to numbered focus targets, and return to `focus primary` without exposing staff-only cell ids.
+- Completed: focused instances receive the player output handler and normal command/sensory output; unfocused instances use `NonPlayerOutputHandler` by default, with only explicit lifecycle focus-return messages emitted in Phase 5.
+- Completed: non-primary prompt output now includes a compact focus marker in full, classic, brief, and full-brief prompt modes.
+- Completed: `quit` while focused on a secondary validates and logs out through the primary identity instead of retiring the secondary, preserving account/logout persistence semantics.
+- Verified: `dotnet test 'FutureMUDLibrary Unit Tests\FutureMUDLibrary Unit Tests.csproj' -c Debug --no-restore -m:1 --filter CharacterInstance` passed 4 tests.
+- Verified: `dotnet test 'MudSharpCore Unit Tests\MudSharpCore Unit Tests.csproj' -c Debug --no-restore -m:1 --filter CharacterInstance` passed 12 tests.
+- Verified: `dotnet build MudSharpCore\MudSharpCore.csproj -c Debug --no-restore -m:1 -p:NoWarn=NU1902%3BNU1510` passed with 0 warnings.
+- Verified: `dotnet build MudsharpDatabaseLibrary\MudsharpDatabaseLibrary.csproj -c Debug --no-restore -m:1 -p:NoWarn=NU1902%3BNU1510` passed with 0 warnings.
+- Verified: `git diff --check` passed; it reported only existing line-ending normalization warnings.
+
+Next-phase reflection:
+
+Phase 6 should extend the now-proven cell-local secondary actor model to NPCs without reusing PC focus semantics. The important work is to give each AI-controlled NPC instance its own controller/heartbeat surface, audit identity-level effects so shared regeneration or periodic state does not multiply per instance, and keep staff clone/projection spawning tied to explicit instance policies rather than hidden global actor-cache assumptions.
+
 Acceptance tests:
 
 - player can focus projection and move it independently
@@ -1337,6 +1425,25 @@ Deliverables:
 - AI heartbeat is instance-safe
 - identity-level regeneration/effects are not multiplied
 - staff can spawn NPC clones/projections
+
+Implementation progress:
+
+- Completed: added `NpcCharacterInstance`, a secondary `Character` actor that implements `INPC`, delegates durable identity/template ownership to the primary NPC, and owns its own instance id, body, location, room layer, position, state, status, controller, and AI heartbeat subscriptions.
+- Completed: `Character.MaterialiseSecondaryInstance(...)` now materialises persisted non-primary `NpcAiControlled` rows as NPC secondary actors, while passive and player-focusable rows continue to use the existing secondary actor path.
+- Completed: staff `instance spawn` now uses a generalized `SpawnSecondaryInstance` options flow with `passive`, `focusable`, and `ai`/`npcai` modes. AI-controlled spawns are restricted to NPC identities, and player-focusable spawns remain PC-only.
+- Completed: NPC secondaries remain cell-local and are not added to `Gameworld.NPCs`, `Gameworld.Actors`, or cached actor collections; staff lookup discovers them through owner instances and local cell membership.
+- Completed: each NPC secondary receives its own `NPCController`, `NonPlayerOutputHandler`, and copied runtime AI list. The owner NPC refreshes already-materialised secondary AI lists after its template/AIs finish loading so persisted secondaries do not retain empty load-order copies.
+- Completed: retire/death cleanup now handles all non-primary secondary actors, releases NPC AI heartbeat subscriptions, detaches the secondary controller, leaves combat and movement, removes the actor from its cell, frees the body, and persists or deletes the row according to policy.
+- Completed: primary identity saves now flush loaded secondary instance rows, preserving persistent secondary location/state even though secondary NPCs deliberately stay out of the global actor save list.
+- Completed: `instance list` marks AI-controlled instances with AI count and controller status for staff acceptance testing.
+- Verified: `dotnet test 'FutureMUDLibrary Unit Tests\FutureMUDLibrary Unit Tests.csproj' -c Debug --no-restore -m:1 --filter CharacterInstance` passed 4 tests.
+- Verified: `dotnet test 'MudSharpCore Unit Tests\MudSharpCore Unit Tests.csproj' -c Debug --no-restore -m:1 --filter "CharacterInstance|NPCAIEventSubscription"` passed 20 tests.
+- Verified: `dotnet build MudSharpCore\MudSharpCore.csproj -c Debug --no-restore -m:1 -p:NoWarn=NU1902%3BNU1510` passed with 0 warnings.
+- Verified: `dotnet build MudsharpDatabaseLibrary\MudsharpDatabaseLibrary.csproj -c Debug --no-restore -m:1 -p:NoWarn=NU1902%3BNU1510` passed with 0 warnings.
+
+Next-phase reflection:
+
+Phase 7 should turn the staff-only instance architecture into a concrete astral projection feature. The important design work is to define the projection source effect, anchor/body vulnerability rules, astral form provisioning, planar interaction restrictions, tether/collapse behavior, and backlash/death policies without reopening the global actor-cache constraints that Phases 4-6 deliberately avoided. Builder-facing configuration should decide whether the physical body is helpless, asleep, stasis-locked, or still vulnerable while the projection is active.
 
 Acceptance tests:
 
@@ -1363,6 +1470,28 @@ Acceptance tests:
 - projection death returns or resolves according to policy
 - physical body death while projecting follows configured policy
 
+Implementation progress:
+
+- Completed: generalized secondary instance spawning with `SecondaryCharacterInstanceSpawnOptions`; passive, player-focusable, and NPC AI paths now wrap the shared options flow, and astral projection uses `InstanceKind=AstralProjection`, `ControlPolicy=PlayerFocusable`, `PerceptionPolicy=PlanarProjection`, `DeathPolicy=CollapseToAnchor`, and `PersistencePolicy=DespawnOnReboot`.
+- Completed: added astral projection instance metadata in `CharacterInstances.EffectData`, exposed as `ICharacterInstance.InstanceEffectData`, with staff-readable anchor, body, plane, source spell, form key, and anchor policy details.
+- Completed: added `astralprojection` spell effect template with keyed form provisioning options (`formkey`, `race`, `ethnicity`, `gender`, `alias`, `sort`), plane selection, anchor policy (`helpless`, `sleep`, `stasis`, `none`), private projection/anchor/collapse echoes, observer-facing anchor/projection room echoes, optional backlash echo, and an optional projection short-description override template using `$desc`/`$sdesc` for the anchor body's current short description.
+- Completed: added `SpellAstralProjectionEffect`/`IAstralProjectionEffect` to own the runtime tether, focus shift, projection planar overlay, anchor helpless/sleep/stasis policy, cleanup on removal, and projection retirement without final-killing the primary identity.
+- Completed: refined astral projection initial echo ordering so default spells produce one private focus-shift echo to the caster, room echoes are available for observers, and the projection look happens only after focus and observer echo handling have completed.
+- Completed: logout, reboot load cleanup, projection retire, projection death, and anchor death now collapse astral projections and return focus to the primary body when viable. Projection death under `CollapseToAnchor` does not create ordinary abandoned-body remains.
+- Completed: astral projections receive a normal `PlanarStateEffect` overlay that is present on the configured astral plane, perceives the material/default plane, and blocks ordinary physical, inventory, combat, and medical interactions with material-only targets.
+- Completed: `instance list` now marks astral projection rows with anchor instance, plane, and anchor policy metadata while preserving NPC AI/controller details for Phase 6 instances.
+- Verified: `dotnet test 'FutureMUDLibrary Unit Tests\FutureMUDLibrary Unit Tests.csproj' -c Debug --no-restore -m:1 --filter CharacterInstance` passed 5 tests.
+- Verified: `dotnet test 'MudSharpCore Unit Tests\MudSharpCore Unit Tests.csproj' -c Debug --no-restore -m:1 --filter "CharacterInstance|AstralProjection|Planar"` passed 21 tests.
+- Verified: `dotnet build MudSharpCore\MudSharpCore.csproj -c Debug --no-restore -m:1 -p:NoWarn=NU1902%3BNU1510` passed with 0 warnings.
+- Verified: `dotnet build MudsharpDatabaseLibrary\MudsharpDatabaseLibrary.csproj -c Debug --no-restore -m:1 -p:NoWarn=NU1902%3BNU1510` passed with 0 warnings.
+- Verified: `git diff --check` passed with no whitespace errors.
+- Follow-up verified: `dotnet build MudSharpCore\MudSharpCore.csproj -c Debug --no-restore -m:1 -p:UseAppHost=false -p:OutDir=bin\CodexVerify\ -p:NoWarn=NU1902%3BNU1510%3BRS2008` passed with 0 warnings.
+- Follow-up verified: `dotnet test 'MudSharpCore Unit Tests\MudSharpCore Unit Tests.csproj' -c Debug --no-restore -m:1 --filter BodyFormProvisioningTests -p:UseAppHost=false -p:OutDir=bin\CodexVerifyTests\ -p:NoWarn=NU1902%3BNU1510%3BRS2008` passed 24 tests.
+
+Next-phase reflection:
+
+Phase 8 should build on the spell-owned projection path but treat magical copies and physical clones as deliberately different products. The important work is to define clone inventory transfer/copy rules, whether clones are tangible local actors or planar/illusory actors, who controls them, whether they can run AI or scripts, and what death/remains policy applies to each kind. Phase 8 should also harden observer-facing identity presentation so "same identity, different body" is clear without leaking staff-only instance ids to ordinary players.
+
 ### Phase 8: Magical Copies and Physical Clones
 
 Deliverables:
@@ -1380,6 +1509,45 @@ Acceptance tests:
 - death/remains are body-specific and not always final identity death
 - same-identity targeting works correctly
 
+Implementation progress:
+
+- Completed: extended `CharacterInstances.EffectData` metadata with `MagicalCopy` and `PhysicalClone` records, including anchor instance id, body id, source spell id, form key, focusability, intangibility/plane for copies, and persistence policy.
+- Completed: added `IMagicalCopyEffect` and `IPhysicalCloneEffect` marker interfaces plus `SpellMagicalCopyEffect` and `SpellPhysicalCloneEffect` runtime effects. These effects own effect expiry/dispel cleanup, logout cleanup for temporary policies, focused-instance return, and non-final secondary retirement.
+- Completed: added `CharacterInstanceService.CreateMagicalCopySpawnOptions(...)` and `CreatePhysicalCloneSpawnOptions(...)`. Magical copies use `InstanceKind=MagicalCopy`, `DeathPolicy=CollapseToAnchor`, optional `PlayerFocusable`, optional planar intangibility, and no corpse on collapse. Physical clones use `InstanceKind=PhysicalClone`, ordinary embodied perception, `DeathPolicy=DestroyInstanceOnly`, body-specific clone remains, optional player focusability, and configurable persistence.
+- Completed: added `createcopy` and `createclone` spell effect templates with keyed form provisioning options (`formkey`, `race`, `ethnicity`, `gender`, `alias`, `sort`), focusability, persistence controls, copy `plane`/`intangible` controls, collapse/death echoes, and optional backlash echoes. Both spawn from owned dormant forms and do not copy inventory.
+- Completed: copy/clone lifecycle cleanup now hooks projection-style retirement paths: logout and stale-login cleanup remove temporary copy/clone effects, anchor death removes active copy/clone effects before normal primary death handling, and secondary retire/death delegates to the owning effect without recursive cleanup.
+- Completed: passive secondary death now treats `PhysicalClone` instances as `BodyRemainsContext.SpentClone`, while `CollapseToAnchor` magical copies retire without creating abandoned-body remains.
+- Completed: `instance list` now marks `MagicalCopy` and `PhysicalClone` rows with anchor, source spell, form key, plane/intangibility, focusability, persistence, and clone body metadata for staff acceptance testing.
+- Verified: `dotnet test 'FutureMUDLibrary Unit Tests\FutureMUDLibrary Unit Tests.csproj' -c Debug --no-restore -m:1 --filter CharacterInstance` passed 5 tests.
+- Verified: `dotnet test 'MudSharpCore Unit Tests\MudSharpCore Unit Tests.csproj' -c Debug --no-restore -m:1 --filter "CharacterInstance|MagicalCopy|PhysicalClone|Planar"` passed 28 tests.
+- Verified: `dotnet build MudSharpCore\MudSharpCore.csproj -c Debug --no-restore -m:1 -p:NoWarn=NU1902%3BNU1510` passed with 0 warnings.
+- Verified: `dotnet build MudsharpDatabaseLibrary\MudsharpDatabaseLibrary.csproj -c Debug --no-restore -m:1 -p:NoWarn=NU1902%3BNU1510` passed with 0 warnings.
+
+Next-phase reflection:
+
+Phase 9 should harden the compatibility boundaries that Phases 4-8 intentionally preserved. The most valuable next work is auditing identity-sensitive APIs that still consume `Character` as both identity and instance, strengthening admin diagnostics for stale or duplicate instance rows, clarifying observer-facing same-identity presentation without leaking staff ids, and deciding which compatibility mirrors can remain permanently versus which should become explicitly primary-instance-only.
+
+### Phase 0-8 Retrospective
+
+Original design goals:
+
+- Achieved: existing single-body behaviour and the exclusive body-form switch pipeline remain intact. Simultaneous bodies were added as a separate spawn/retire lifecycle rather than by weakening dormant-form switching safety checks.
+- Achieved: the runtime now has enough separation between durable identity, active instance, and physical body to support passive forms, PC focus switching, NPC AI instances, astral projection, magical copies, and physical clones.
+- Achieved: secondary instances are cell-local world actors and deliberately remain outside `Gameworld.Actors`, `Gameworld.Characters`, `Gameworld.NPCs`, and cached actor collections, avoiding duplicate identity-id collisions.
+- Achieved: one live embodied instance per body is guarded by diagnostics, database uniqueness, spawn validation, and retire/death cleanup.
+- Achieved: primary compatibility fields still mirror the primary instance, preserving old callers that read `Characters.BodyId`, location, room layer, state, status, and position fields.
+- Retained compromise: `Character` still acts as both durable identity and the primary `ICharacterInstance`, and `ICharacter` remains the world actor facade. That was intentional for incremental safety, but it leaves identity-sensitive code audits as continuing work.
+- Remaining risk: older systems still compare `actor.Id`, `target == actor`, or `IsSelf(...)` in places where the intended meaning may be identity, account/ownership, or physical instance. Phase 9 starts making these seams visible rather than attempting a high-risk global rewrite.
+
+Phase summary:
+
+- Phases 0-3 established the audit vocabulary, `CharacterInstances` persistence, identity/instance interfaces, and primary-instance compatibility mirroring.
+- Phase 4 proved passive secondary actors could exist in rooms without global cache collisions or primary identity death.
+- Phase 5 proved runtime PC focus switching, player-safe `instances`/`focus` commands, prompt markers, and logout guardrails.
+- Phase 6 proved NPC secondary instances with per-instance controllers and AI subscriptions.
+- Phase 7 proved spell-owned astral projection with planar restrictions and collapse-to-anchor lifecycle.
+- Phase 8 proved magical copies and physical clones without implicit inventory duplication or final identity death.
+
 ### Phase 9: Hardening and Cleanup
 
 Deliverables:
@@ -1389,6 +1557,272 @@ Deliverables:
 - add admin diagnostics
 - add data integrity reports
 - remove compatibility mirrors only if safe and desirable
+
+Implementation progress:
+
+- Completed: added structured diagnostic subject metadata and grouped diagnostic reports while preserving existing diagnostic codes.
+- Completed: added `AuditLoadedIdentity(...)` for loaded identity/instance checks, including duplicate primary instances, duplicate embodied bodies, primary policy mismatches, secondary rows carrying primary kind, embodied live instances without locations, and controllable rows with `NotControllable` policy.
+- Completed: extended persisted-row diagnostics to report stale body references, stale location references, malformed `EffectData`, primary policy mismatches, secondary-primary flag mismatches, embodied live rows without locations, and controllable rows with `NotControllable` policy. Phase 9 remains report-only and does not repair rows.
+- Completed: added `CharacterInstanceDiagnostics.RenderDiagnosticsTable(...)` so staff commands and tests use one consistent diagnostic table shape.
+- Completed: extended the staff `instance` command with `instance audit <character>` for loaded identity diagnostics and `instance audit all` for persisted `CharacterInstances` integrity checks.
+- Completed: added small compatibility-boundary comments at the global-cache exclusion, primary compatibility mirror save, and same-identity versus same-physical-instance comparer seams.
+- Completed: post-review hardening now sweeps loaded secondary actors on primary logout. Temporary secondaries are retired/deleted, while persistent secondaries are saved, removed from live cell membership, detached from AI/controller/body heartbeat/scheduler state, and left as persisted rows for the next owner load; persistent intangible copy effects reapply their planar overlay when they load again.
+- Completed: hardened the initial `CharacterInstances` migration for pre-branch databases by removing first-upgrade hard foreign keys and nulling stale legacy location mirrors during primary-instance backfill so `instance audit all` can report bad persisted data after startup instead of the server failing mid-migration.
+- Completed: player-facing `instances`/`focus` and prompt output no longer expose raw internal instance IDs; ordinary players continue to use the display index from the `instances` table or form names, while staff-only IDs remain in the admin `instance` tooling.
+- Verified: `dotnet test 'FutureMUDLibrary Unit Tests\FutureMUDLibrary Unit Tests.csproj' -c Debug --no-restore -m:1 --filter CharacterInstance` passed 6 tests.
+- Verified: `dotnet test 'MudSharpCore Unit Tests\MudSharpCore Unit Tests.csproj' -c Debug --no-restore -m:1 --filter "CharacterInstance|InstanceAudit|MagicalCopy|PhysicalClone|AstralProjection|NPCAIEventSubscription"` passed 38 tests.
+- Verified: `dotnet build MudSharpCore\MudSharpCore.csproj -c Debug --no-restore -m:1 -p:NoWarn=NU1902%3BNU1510` passed with 0 warnings.
+- Verified: `dotnet build MudsharpDatabaseLibrary\MudsharpDatabaseLibrary.csproj -c Debug --no-restore -m:1 -p:NoWarn=NU1902%3BNU1510` passed with 0 warnings.
+- Verified: `git diff --check` passed; it reported only line-ending normalization warnings for touched files.
+
+Next-phase reflection:
+
+Phase 10 should audit identity-sensitive subsystems outside the instance lifecycle itself. The highest-value targets are combat targeting, parties/movement following, economy/property/employment ownership checks, crime/legal identity, communications and telepathy, and medical/inventory commands that still use direct actor reference or identity-id comparisons. The goal should be to classify each comparison as identity-scoped or physical-instance-scoped and replace ambiguous checks with `SameIdentity(...)`, `SamePhysicalInstance(...)`, or explicit account/ownership checks where appropriate.
+
+### Phase 10: Instance-Aware Legacy Subsystems Investigation, Project Labour, NPC Operations, Vehicle, Hitch, Arena, and Reporting Slices
+
+Purpose:
+
+Phase 10 began as an investigation and design-hardening pass for legacy systems that were deliberately left identity-scoped, guarded, or partially compatible after Phases 4-9. The first implementation slice was project labour: secondary instances can now hold active work state as physical actors while personal project ownership and labour queues remain identity-owned compatibility surfaces. The second implementation slice covered NPC patrols, group AI membership, bodyguard caches, and stable stays. The final Phase 10 slice adds the shared actor-reference helper, removes the vehicle and arena guardrails that were waiting on instance-aware persistence, and extends staff diagnostics so stale physical-instance references are visible rather than silently collapsing to the primary body.
+
+Source observations:
+
+- Before the Phase 10 project-labour slice, project labour stored active work and queued labour through `Characters.CurrentProjectId`, `Characters.CurrentProjectLabourId`, project-hour compatibility fields, and `ProjectLabourQueues`. `ActiveProject.ActiveLabour` was runtime-physical, but persisted reload resolved workers through `TryGetCharacter(...)`, which meant it reloaded to the primary identity facade rather than a specific secondary instance.
+- After the project-labour slice, `CharacterInstances.CurrentProjectId`, `CharacterInstances.CurrentProjectLabourId`, `CurrentProjectHours`, and `CurrentProjectProjectHours` carry active work state for the physical instance. The legacy `Characters.CurrentProject*` columns remain primary-instance compatibility mirrors only.
+- NPC patrols and group AI still keep durable identity ids for compatibility, but now also persist optional physical instance ids. Old rows without instance ids fall back to the primary NPC; new rows with explicit instance ids resolve the loaded physical instance and do not silently fall back when that specific body is unavailable.
+- Vehicle occupancy and persistent character hitches now persist nullable `CharacterInstanceId` endpoints where a character endpoint needs physical-instance semantics. Legacy rows without instance ids remain primary-compatible, while explicit instance rows resolve the loaded physical actor and can report staleness when that actor is gone.
+- Arena signup rows now keep `CharacterId` for identity-owned signup, rating, betting, and payout semantics, plus nullable `ActiveCharacterInstanceId` for the physical competitor that is staged, equipped, moved, and resolved during the event.
+- Staff-facing vehicle, hitch, arena, and instance-audit output now has a shared actor-reference formatter for physical-instance-sensitive reports. Discord and older flat text reports may still need additional audit coverage where they are not part of these specific paths.
+
+Recommended persisted actor reference:
+
+```text
+CharacterId: durable identity row; required for characters and NPCs.
+CharacterInstanceId: optional physical instance row; required when the subsystem needs the same loaded body after save/load.
+BodyId: optional body row; useful for corpse/remains, clone, vehicle, medical, and equipment contexts.
+ReferenceKind: IdentityOnly | PrimaryInstance | SpecificInstance | BodyOnly | FrameworkItem.
+```
+
+The resolver for this shape should be centralized rather than reimplemented in every subsystem. It should return one of:
+
+```text
+LoadedSpecificInstance
+LoadedPrimaryFallback
+PersistentInstanceUnavailable
+TransientInstanceExpired
+BodyUnavailable
+IdentityUnavailable
+```
+
+The default compatibility rule should be conservative: old rows without `CharacterInstanceId` resolve to the primary instance, while newly instance-aware subsystems must write `CharacterInstanceId` whenever physical location, movement, combat, equipment, body state, or AI membership matters.
+
+Subsystem decision matrix:
+
+| Subsystem | Current storage key | Intended owner | Required model/API change | Migration/backfill | Cleanup and stale handling | Test focus |
+| --- | --- | --- | --- | --- | --- | --- |
+| Project active labour | `CharacterInstances.CurrentProject*` plus primary `Characters.CurrentProject*` compatibility mirrors | Physical instance for active work; identity for personal project ownership | Implemented for current work state; broader actor-reference helper still recommended for other systems | Backfilled current active work to the primary instance; preserved existing project progress rows | Retiring/death/logout of a working secondary must leave project work, clear current work state, and rerun queue matching | Secondary can work/tick/leave without changing primary; temporary worker retires cleanly; primary compatibility still loads old rows |
+| Project labour queue | `ProjectLabourQueues.CharacterId` | Identity by default, optionally physical instance for "this body should work here" | Identity-owned queue implemented with candidate-body readiness checks; optional body-specific queue scope remains deferred | Existing queues remain identity-wide | If a queued instance expires, identity queue can be claimed by another valid focused body; body-specific stale policy is deferred | Identity queue can be claimed by any valid focused body; later body-specific queues should resolve to the chosen instance |
+| Agriculture project ticks | Active project worker actor | Physical instance | Use active labour actor reference rather than identity fallback for trait checks and labour impacts | No data migration beyond active labour | If worker disappears mid-tick, skip and clean stale worker entry | Labour effects apply to focused/working body only |
+| NPC patrol membership | `PatrolLeaderId`/`PatrolLeaderInstanceId` and `PatrolMember.CharacterId`/`CharacterInstanceId` | Physical NPC instance for active patrol; identity for reporting | Implemented optional instance references and physical-instance removal/selection checks | Existing patrol rows resolve to primary NPC identities | Missing explicit instance references are pruned rather than silently primary-fallbacking | Persistent secondary patrol reloads same instance; removing one body does not remove another same-identity body |
+| Group AI membership | XML member actor refs with legacy identity-id compatibility | Physical NPC instance for herd/group movement and combat | Implemented `<Member character="" instance="">` XML, physical-instance `GroupRoles`, and physical threat/member exclusion | Existing member ids resolve to primary NPCs | Missing explicit members are pruned from loaded membership | Group roles can distinguish same-identity instances; threat scans do not exclude the wrong body |
+| NPC bodyguard cache | `Npc.BodyguardCharacterId` and `CachedBodyguards` keyed by guarded identity | Guarded target identity, guarding actor physical instance | Implemented duplicate-safe physical-instance cache entries while preserving identity-scoped guarded target | Existing rows keep target identity id | Login drains distinct physical guards only; secondary guards are not forced into global actor caches | Two same-identity NPC instances do not duplicate or collapse cache entries |
+| Stable stays | `StableStays.MountId`/`MountInstanceId` | Physical mount instance; owner identity for tickets and accounting | Implemented optional mount instance ids, boot suppression limited to legacy/primary rows, and persistent-secondary restore | Existing stays without instance id are treated as primary/legacy | Temporary secondary mounts are rejected; persistent secondaries rematerialize by instance row on redeem | Stabled secondary does not suppress primary NPC boot; redeem restores the lodged physical body |
+| Vehicle occupancy | `VehicleOccupancy.CharacterId` | Physical instance | Add `CharacterInstanceId` to occupancy rows and update `IsOccupant`, `Board`, `Leave`, controller assignment, movement ejection, and save/load | Existing occupants map to primary instance | Retiring/death/logout while aboard must leave/eject before secondary cleanup | Focusable secondary can board/leave; primary is not treated as aboard; persistent secondary occupancy reloads |
+| Persistent hitch character endpoints | source/target character ids | Physical instance endpoint when endpoint is a character | Add optional instance ids to character endpoints; keep framework item endpoints unchanged | Existing character hitches map to primary endpoints | Missing transient endpoint breaks or stales the hitch link | Secondary can be a hitch endpoint only when persistent enough to resolve |
+| Arena participant rows | `ArenaSignup.CharacterId`, reservations, ratings, payouts | Identity for signup/rating/betting; physical instance for live competitor | Split participant identity from active competitor instance; add active physical actor binding during staging/prep/live | Existing signups bind to primary instance | Retire/death during event withdraws, forfeits, or replaces by explicit arena policy | Secondary can compete without moving primary; rating/payout remains identity-scoped |
+| Arena equipment/staging | Effects and BYO equipment owner identity | Physical competitor for equipment movement and staging; identity for ownership/provenance | Bind staging/preparation effects to active competitor instance id | Existing effects resolve to primary competitor | Missing competitor cleans staging effects and releases equipment | Equipment is prepared on the competing body only |
+| Logs, Discord, diagnostics | Free text and assorted ids | Explicit display of identity and instance where relevant | Add staff-only formatter for actor references: identity id, instance id, body id, instance kind, and location | No migration | Missing instance displays stale/resolved status rather than pretending it is a character id | Staff output distinguishes primary and secondary in reports |
+
+Recommended implementation slices:
+
+1. **Actor reference infrastructure and diagnostics** - implemented as the final Phase 10 slice with a shared `CharacterActorReference`, loaded resolver, staff renderer, and `instance audit all` checks for stale vehicle, hitch, and arena instance references.
+2. **Project labour instance state** - implemented for active work and current-project hours in `CharacterInstances`, while leaving personal project ownership, labour queue rows, and old compatibility fields identity/primary scoped.
+3. **NPC patrol, group AI, bodyguard, and stable instance references** - implemented as the second Phase 10 slice with optional instance ids and physical-instance runtime comparisons.
+4. **Vehicle occupancy and hitch endpoints** - implemented nullable instance ids for vehicle occupancy and character hitch endpoints, physical-instance runtime comparisons, staff display, and retire cleanup.
+5. **Arena physical competitor binding** - implemented identity-level participant rows with nullable active physical instance binding for staging, equipment, movement, participation effects, surrender, and NPC AI opponent resolution.
+6. **Reporting standardization** - implemented shared staff actor-reference rendering for the new vehicle/hitch/arena/diagnostic surfaces; broader Discord and legacy flat-report coverage remains a Phase 11 audit item.
+
+Acceptance criteria for the investigation output:
+
+- Every investigated subsystem is classified as identity-scoped, physical-instance-scoped, body-scoped, or mixed.
+- Every mixed subsystem has a recommended storage shape and load/cleanup policy.
+- Existing guardrails remain documented until their corresponding storage model is implemented.
+- Old data without instance references has a deterministic primary-instance fallback.
+- Transient secondary references have an explicit stale/expired outcome rather than falling back silently to the primary when physical semantics matter.
+
+Tests to require when these slices are implemented:
+
+- A secondary project worker can join, tick, leave, retire, and die without altering the primary's current-project state.
+- Persistent NPC secondary patrol/group membership reloads to the same instance, while temporary members are pruned or abort the activity by policy.
+- Secondary vehicle occupancy survives save/load for persistent instances and clears on retire/logout for temporary instances.
+- Arena ratings, bets, and payouts remain identity-scoped while staging, equipment, scoring, and death target the active physical competitor.
+- Staff reports show identity id and instance id distinctly, while player-facing outputs continue to hide staff-only ids.
+
+Investigation result:
+
+- Completed: mapped the remaining design-sensitive areas to concrete current storage and runtime behaviours: project labour/current-project fields, NPC patrol/group membership, NPC bodyguard cache, vehicle occupancy/hitch endpoints, arena participant state, and staff/reporting output.
+- Completed: identified the shared prerequisite for further work: a reusable persisted actor reference and resolver that can express both identity ownership and physical instance binding.
+- Completed: preserved the current runtime guardrails as deliberate compatibility boundaries until their corresponding storage model was implemented, then removed them for project labour, NPC operations, vehicles, hitches, and arena participation.
+- Verified: `git diff --check` passed for the documentation update; it reported only line-ending normalization warnings.
+
+Project labour implementation result:
+
+- Completed: added per-instance active work fields to `CharacterInstances` and a narrow migration that backfills primary instance rows from the legacy `Characters.CurrentProject*` columns without adding first-upgrade foreign-key blockers.
+- Completed: primary character save/load now keeps legacy `Characters.CurrentProject*` compatibility mirrors aligned with the primary instance row, while secondary instance save/load persists current work only to that secondary `CharacterInstances` row.
+- Completed: active project reload now reconstructs active workers from `(CharacterId, CharacterInstanceId)` where available, falling back to primary identity only for legacy rows without an instance id.
+- Completed: personal and local project ownership now normalizes to the durable identity, while join/leave/tick/progress state remains on the physical actor instance that actually works.
+- Completed: project labour queues remain identity-owned for this slice, but queue readiness can be evaluated against the candidate physical instance trying to claim the work.
+- Deferred: optional body-specific labour queues, shared persisted actor-reference infrastructure, and the vehicle, hitch, arena, and reporting upgrades remain later Phase 11+ slices.
+- Verified: `dotnet build MudsharpDatabaseLibrary\MudsharpDatabaseLibrary.csproj -c Debug --no-restore -m:1 -p:NoWarn=NU1902%3BNU1510` passed with 0 warnings.
+- Verified: `dotnet build MudSharpCore\MudSharpCore.csproj -c Debug --no-restore -m:1 -p:NoWarn=NU1902%3BNU1510` passed with 0 warnings.
+- Verified: `dotnet test 'MudSharpCore Unit Tests\MudSharpCore Unit Tests.csproj' -c Debug --no-restore -m:1 --filter ProjectLabourQueueEntry` passed 1 test.
+- Verified: `git diff --check` passed; it reported only line-ending normalization warnings.
+
+NPC patrol, group AI, bodyguard cache, and stable implementation result:
+
+- Completed: added nullable `PatrolLeaderInstanceId`, `StableStays.MountInstanceId`, and defaulted `PatrolMembers.CharacterInstanceId` columns via EF migration `20260614233932_CharacterInstanceNpcPatrolStableInstances`.
+- Follow-up: hardened `20260614233932_CharacterInstanceNpcPatrolStableInstances` for mature MySQL upgrades by keeping the legacy `PatrolMembers` primary key on `(PatrolId, CharacterId)` and treating `CharacterInstanceId` as indexed actor-reference metadata. This avoids the MySQL `Cannot drop index 'PRIMARY': needed in a foreign key constraint` startup crash while preserving legacy patrol membership uniqueness.
+- Completed: extended `CharacterInstanceIdentityComparer` with physical instance id helpers, loaded instance resolution, physical list operations, and a physical-instance dictionary comparer for systems like `GroupRoles`.
+- Completed: patrol save/load now writes identity plus instance ids for leaders and members, resolves explicit instance refs without unsafe primary fallback, and removes patrol members by physical instance.
+- Completed: group AI save/load now supports legacy `<Id>` members and new `<Member character="" instance="">` refs; threat exclusion, group role cleanup, and emote selection now use physical-instance checks.
+- Completed: bodyguard caches remain keyed by guarded identity but now store distinct physical guard actors, avoid duplicate cache entries, and do not add secondary guards to global actor caches.
+- Completed: stable stays now remember the lodged mount instance, reject temporary secondary mounts, avoid suppressing the primary NPC at boot when only a secondary body is stabled, and restore persistent secondary mounts through the instance service.
+- Completed: local room membership add/remove now uses physical instance equality so same-identity bodies can coexist in a cell without `List<ICharacter>` equality collapsing them.
+- Verified: `dotnet test 'FutureMUDLibrary Unit Tests\FutureMUDLibrary Unit Tests.csproj' -c Debug --no-restore -m:1 --filter CharacterInstance` passed 16 tests.
+- Verified: `dotnet test 'MudSharpCore Unit Tests\MudSharpCore Unit Tests.csproj' -c Debug --no-restore -m:1 --filter "CharacterInstance|Stable|BootLoading|LegalPatrol|NPCAIEventSubscription|ProjectLabourQueueEntry"` passed 59 tests.
+- Verified: `dotnet build MudsharpDatabaseLibrary\MudsharpDatabaseLibrary.csproj -c Debug --no-restore -m:1 -p:NoWarn=NU1902%3BNU1510` passed with 0 warnings.
+- Verified: `dotnet build MudSharpCore\MudSharpCore.csproj -c Debug --no-restore -m:1 -p:NoWarn=NU1902%3BNU1510` passed with 0 warnings after rerunning sequentially; one earlier parallel build hit a transient compiler output file lock while the database project was building separately.
+- Verified: `git diff --check` passed; it reported only line-ending normalization warnings.
+
+Actor reference, vehicle, hitch, arena, and reporting implementation result:
+
+- Completed: added `CharacterActorReference`, `CharacterActorReferenceResolution`, a loaded actor resolver, and a staff renderer that displays identity id, instance id, body id, instance kind, location, and stale resolution status.
+- Completed: added nullable `VehicleOccupancies.CharacterInstanceId`, stored generated `CharacterInstanceKey`, nullable `VehicleHitchLinks.SourceCharacterInstanceId`, nullable `VehicleHitchLinks.TargetCharacterInstanceId`, and nullable `ArenaSignups.ActiveCharacterInstanceId` via EF migration `20260615024353_CharacterInstanceActorReferences`.
+- Follow-up: hardened `20260615024353_CharacterInstanceActorReferences` for mature database upgrades by keeping the new actor-reference columns indexed but removing hard `CharacterInstances` foreign keys. Stale vehicle, hitch, and arena instance references remain reportable through `instance audit all` instead of blocking startup when a mature database contains legacy or missing instance rows.
+- Completed: vehicle occupancy now uses physical-instance equality for boarding, controller checks, leave/eject flows, and persistence, so a secondary can board without making the primary appear aboard.
+- Completed: persistent character hitches now store optional source/target instance ids, resolve explicit instance endpoints without unsafe primary fallback, and reject non-persistent secondary endpoints.
+- Completed: arena signups remain identity-owned for reservations, ratings, betting, and payouts, but bind the active physical competitor for preparation, BYO/equipment movement, arena teleporting, participation effects, surrender checks, NPC AI opponent selection, and arena prog participant lists.
+- Completed: retiring or unloading a secondary now clears project, vehicle, hitch, and arena participation bindings before the instance is removed from its cell and persistence row.
+- Completed: `instance audit all` now reports stale or contradictory vehicle occupancy, hitch endpoint, and arena active-competitor references in the existing structured diagnostic table.
+- Completed: staff vehicle/hitch/arena output uses the shared actor-reference renderer where physical instance identity matters.
+- Verified: `dotnet test 'FutureMUDLibrary Unit Tests\FutureMUDLibrary Unit Tests.csproj' -c Debug --no-restore -m:1 --filter CharacterInstance` passed 20 tests.
+- Verified: `dotnet test 'MudSharpCore Unit Tests\MudSharpCore Unit Tests.csproj' -c Debug --no-restore -m:1 --filter "CharacterInstance|InstanceAudit|Vehicle|Hitch|Arena"` passed 162 tests.
+- Verified: `dotnet build MudsharpDatabaseLibrary\MudsharpDatabaseLibrary.csproj -c Debug --no-restore -m:1 -p:NoWarn=NU1902%3BNU1510` passed with 0 warnings.
+- Verified: `dotnet build MudSharpCore\MudSharpCore.csproj -c Debug --no-restore -m:1 -p:NoWarn=NU1902%3BNU1510` passed with 0 warnings.
+- Verified: `git diff --check` passed; it reported only line-ending normalization warnings.
+
+Next-phase reflection:
+
+Phase 11 should focus on broader identity-sensitive subsystem audits now that the main Phase 10 guarded behaviours have storage and runtime support. The highest-value remaining targets are combat helper edge cases, party and movement-following state, medical and inventory command paths, crime/legal reports, communications/telepathy, Discord/exported staff reports, and any old helper still comparing `actor.Id`, `target == actor`, or `IsSelf` without making identity-vs-physical semantics explicit. The goal should be steady hardening rather than new gameplay: classify each path, replace ambiguous comparisons with `SameIdentity(...)`, `SamePhysicalInstance(...)`, or explicit ownership/account checks, and add diagnostics where stale explicit instance references can occur.
+
+### Phase 11: Identity-Semantics Hardening and Legacy Command Audit
+
+Purpose:
+
+Phase 11 is a hardening slice rather than a new gameplay phase. It takes the broader Phase 10 reflection and applies it to legacy paths that still used direct object equality, `actor.Id`, or implicit self checks where the intended meaning was either physical actor instance or durable identity. The goal is not to make every old subsystem fully multi-instance-native in one pass; it is to make the most exposed player/staff command and movement paths explicit enough that passive bodies, focused PC instances, NPC secondaries, astral projections, magical copies, and physical clones do not collapse into the primary identity by accident.
+
+Implementation result:
+
+- Completed: extended `CharacterInstanceIdentityComparer` with `PhysicalInstanceKey(...)`, `SamePhysicalInstanceOrBody(...)`, and `SameIdentityOrPrimaryOwner(...)` helpers so call sites can choose physical-instance, body-owner, or durable-identity semantics explicitly.
+- Completed: party, follower, ordinary movement, vehicle movement, and tollkeeper prospective-mover checks now use physical-instance comparison for leader, member, witness, and same-mover decisions instead of direct object/list equality.
+- Completed: combat helper paths for surrender, self-aiming, visible target lists, guard permit/forbid, interpose, spar, and hit now treat "self" and "fighting me" as physical-instance semantics.
+- Completed: spell cast triggers with `CanTargetSelf` now evaluate self-targeting against the active physical instance or body, so a spell can distinguish another same-identity body from the focused caster body.
+- Completed: medical, inventory, and manipulation command gates for CPR, vitals consent, wound repair, surgery consent, restraint, dress/strip consent, outfit teaching, dragging, feeding, container delegation, open/close delegation, and prosthetic install/remove now use physical-instance semantics where they refer to the body being acted on.
+- Completed: employment task item custody now keys carried task resources and persisted collect/deliver resource metadata by physical instance. Finance authorisation/reservation strings remain identity-scoped because they record authority rather than body custody.
+- Completed: board post delete permissions now compare the post author to `IdentityId(actor)`, preserving identity-owned communications while the player is focused into another owned body.
+- Completed: `instance audit all` now includes loaded global actor-cache diagnostics for secondary instances leaking into `Actors`, `Characters`, `NPCs`, or `CachedActors`, and for multiple physical actors for the same identity in those global caches.
+- Completed: added focused regressions for the new comparer helpers and loaded global cache diagnostics.
+- Deferred: crime/legal reports, telepathy/channel/Discord/export reports, social recognition, disguise, and broader item/container owner displays still need a Phase 12 audit where the correct meaning may vary between legal identity, account identity, visible physical body, and staff reporting context.
+- Verified: `dotnet test "FutureMUDLibrary Unit Tests\FutureMUDLibrary Unit Tests.csproj" -c Debug --no-restore -m:1 --filter CharacterInstance` passed 24 tests.
+- Verified: `dotnet test "MudSharpCore Unit Tests\MudSharpCore Unit Tests.csproj" -c Debug --no-restore -m:1 --filter "CharacterInstance|InstanceAudit|Movement|Party|Combat|MagicTrigger|Health|Inventory|EmploymentTask|Communications"` passed 137 tests.
+- Verified: `dotnet build MudSharpCore\MudSharpCore.csproj -c Debug --no-restore -m:1 -p:NoWarn=NU1902%3BNU1510` passed with 0 warnings.
+- Verified: `dotnet build MudsharpDatabaseLibrary\MudsharpDatabaseLibrary.csproj -c Debug --no-restore -m:1 -p:NoWarn=NU1902%3BNU1510` passed with 0 warnings.
+- Verified: `git diff --check` passed; it reported only line-ending normalization warnings for touched files.
+
+Next-phase reflection:
+
+Phase 12 should continue the same classification work in systems where "same character" is not naturally one thing. Crime, law, warrants, witnesses, reports, telepathy, channels, Discord exports, elections, staff dashboards, social recognition, disguise, and ownership displays may need a mixed model: some checks should follow durable identity, some should follow the physical witnessable body, and some should render both for staff. The next slice should begin with an audit table of these paths, then implement the highest-risk runtime paths first rather than adding new instance gameplay.
+
+### Phase 12: Identity Policy Decisions, Recognition, Legal Reporting, Telepathy, and FutureProg APIs
+
+Purpose:
+
+Phase 12 is the final V1 foundation pass for the multi-instance stack. It turns the remaining design-sensitive areas into explicit policies, implements the low-risk API and runtime hardening needed now, and leaves broader gameplay content for later phases. It does not add a new instance kind or schema migration.
+
+Accepted policy matrix:
+
+| Area | V1 Policy | Implementation Notes |
+| --- | --- | --- |
+| Crime and legal liability | Mixed identity/body model. Crimes are identity-scoped when the criminal identity is known; otherwise the observed physical body/form is the enforcement target until identity is established. | This maps onto the existing `CriminalIdentityIsKnown` and `WitnessProfile.IdentityKnownProg` functionality. Witness/building progs can decide whether an astral projector, clone, disguised body, or ordinary actor is recognised as the wider identity. |
+| Arrest, custody, prison, release | Identity-known crimes may justify identity-wide enforcement policy, but the immediate arrest/custody action is performed on the physical actor body present to the enforcer. If identity is not known, only the physical body/form is the enforcement subject. | Existing custody commands continue to mutate the passed physical actor. Known-crime lookups remain identity-id based. Staff views now expose actor identity/instance/body context where available. |
+| Telepathy, think/feel, channels | Mental communication follows the identity and delivers to the currently focused controller context only. | `think` and `feel` still evaluate telepathy effects on loaded identity actors, but output now goes to the identity's focused instance when focus is on a secondary body. It does not echo to every loaded body. Ordinary account/channel communication remains identity/account scoped. |
+| Dubs, recognition, disguise | Option C now: ordinary character dubs remain identity dubs; body/form dubs are separate physical recognition keys. | `dub <target> <keyword>` keeps old character-identity behaviour. `dub body <target> <keyword>` and `dub form <target> <keyword>` create body-scoped dubs keyed to `Body` + body id. Recognition lookup checks both identity and body keys, so later disguise/projection systems can choose the correct key without rewriting existing dubs. |
+| Staff, Discord, and reports | Privacy split. Staff/admin reports may show identity, instance, and body context; player/public outputs do not leak staff ids. | Shared staff actor references remain the preferred report shape. Legal Discord enforcement tokens now carry compact identity/instance/body ids without changing the bot command shape. Crime info shows staff actor references for administrators. |
+| Community, clans, elections, payroll | Identity roles and entitlements stay identity-scoped; visible actions still use the physical actor taking the action. | No schema change in this phase. Existing clan/community/payroll semantics remain durable-identity based unless a later feature explicitly introduces body-specific office or legal personhood. |
+| FutureProg and builder APIs | Backward-compatible explicit APIs. Existing character `.id` semantics remain stable; new progs and dot references expose identity, instance, body, and comparison semantics. | Added character dot references `identityid`, `instanceid`, `physicalinstancekey`, `bodyid`, `isprimaryinstance`, `instancekind`, `instancekindid`, `primaryinstance`, and `focusedinstance`. Added built-in functions `sameidentity`, `samephysicalinstance`, `characteridentityid`, `characterinstanceid`, `characterbodyid`, and `tocharacterinstance`. |
+
+Implementation result:
+
+- Completed: `CharacterInstanceIdentityComparer` now exposes explicit recognition keys for durable identity (`Character` + identity id) and physical body/form recognition (`Body` + body id).
+- Completed: character and body perception dub lookups now consult identity and body recognition keys, so old identity dubs and new body/form dubs can both resolve.
+- Completed: `dub body` / `dub form` creates body-scoped physical recognition while preserving `dub <target>` as the legacy identity-scoped character dub path.
+- Completed: legal Discord enforcement messages keep the existing positional protocol but replace the plain character id token with a compact staff token containing identity id, current instance id, and body id.
+- Completed: administrator crime info includes staff actor references so legal investigations can distinguish identity-known records from the loaded physical actor currently associated with that identity.
+- Completed: `think` and `feel` deliver telepathy output to the recipient identity's currently focused instance instead of silently targeting only the primary character object.
+- Completed: FutureProg has explicit identity/instance/body dot references and comparison/lookup functions for builder-authored instance-aware logic.
+- Completed: focused unit coverage now verifies identity recognition keys and physical body recognition keys remain distinct.
+
+Verification:
+
+- Verified: `dotnet build FutureMUDLibrary\FutureMUDLibrary.csproj -c Debug --no-restore -m:1 -p:NoWarn=NU1902%3BNU1510` passed with 0 warnings.
+- Verified: `dotnet test 'FutureMUDLibrary Unit Tests\FutureMUDLibrary Unit Tests.csproj' -c Debug --no-restore -m:1 --filter CharacterInstance` passed 27 tests.
+- Verified: `dotnet build MudSharpCore\MudSharpCore.csproj -c Debug --no-restore -m:1 -p:NoWarn=NU1902%3BNU1510` passed with 0 warnings.
+- Verified: `dotnet test 'MudSharpCore Unit Tests\MudSharpCore Unit Tests.csproj' -c Debug --no-restore -m:1 --filter "CharacterInstance|Crime|Legal|Communication|Telepathy|Dub|FutureProg|InstanceAudit"` passed 116 tests.
+- Verified: `dotnet build MudsharpDatabaseLibrary\MudsharpDatabaseLibrary.csproj -c Debug --no-restore -m:1 -p:NoWarn=NU1902%3BNU1510` passed with 0 warnings.
+- Verified: `git diff --check` passed; it reported only line-ending normalization warnings.
+
+Post-V1 hardening note, June 15, 2026:
+
+- Fixed: database-loaded dormant bodies now initialise their public inventory helper views even before full inventory load, so look/targeting/perception code sees empty collections rather than null collections.
+- Fixed: secondary instance materialisation now sets instance state, location, and room layer before hydrating the secondary body's inventory and activating the body. This allows invalid held/worn/wielded items to fall back into the correct cell and makes passive, focusable, NPC AI, astral, copy, and clone bodies look-ready before room exposure.
+- Verified: `dotnet build MudSharpCore\MudSharpCore.csproj -c Debug --no-restore -m:1 -p:NoWarn=NU1902%3BNU1510 -p:OutDir=C:\Users\luker\.codex\worktrees\88f6\FutureMUD\.codex-build\MudSharpCore\` passed with 0 warnings and 0 errors. The scratch output path was used because the live MudSharp process was locking the normal `bin` outputs.
+- Verified: `dotnet test 'MudSharpCore Unit Tests\MudSharpCore Unit Tests.csproj' -c Debug --no-restore -m:1 --filter BodyInventoryInitialisationTests -p:NoWarn=NU1902%3BNU1510 -p:OutDir=C:\Users\luker\.codex\worktrees\88f6\FutureMUD\.codex-build\MudSharpCoreTests\` passed 1 test.
+
+Post-V1 hardening note, June 16, 2026:
+
+- Fixed: secondary instance materialisation now initialises `NeedsModel` from the primary identity before the secondary can be focused or queried by health/needs commands. Existing V1 behaviour keeps needs identity-wide and avoids registering duplicate needs heartbeats for secondary actors.
+- Fixed: primary load now creates the identity `NeedsModel` before persisted secondary rows are materialised, so reboot-loaded secondaries and newly spawned secondaries follow the same non-null needs initialisation path.
+- Fixed: newly provisioned dormant form bodies now choose target-race height/weight when the form race differs from the source body, generate target-race characteristic values from the selected ethnicity before validating description patterns, and initialise blood volume, liver function, organ state, and stamina before the form can be embodied as a secondary instance. Description patterns are still rejected if variables remain unresolved after characteristic generation, and secondary materialisation also repairs older dormant form rows with zero, negative, or non-finite blood/stamina values before they enter a room.
+- Added: `body delform <character> <form> confirm` lets founders permanently remove incorrectly provisioned dormant forms. The command requires explicit confirmation and refuses current bodies, live embodied instances, persisted instance references, body backup references, and corpse/remains-style physical references before deleting the form metadata, body source mappings, dormant body, and any items on that body.
+- Added: `spawnbodyinstance(character, form, location, mode[, cloneInventory[, ais]])` exposes the secondary instance lifecycle to FutureProg. The function resolves owned dormant forms by alias or body id, supports passive, player-focusable, NPC AI, and scripted AI modes, optionally deep-clones the source body's direct inventory, and returns the spawned physical actor as a `Character` prog value.
+- Added: `ScriptedAi` secondary instances provide a PC-capable AI-controlled body path for builder-authored scenarios such as evil twins. They use a cell-local secondary `Character`, NPC command tree/controller semantics, effect-data metadata for attached AI ids, non-final `DestroyInstanceOnly` death, and remain out of global character/NPC actor caches.
+- Added: `CharacterInstanceService.CloneInventory(...)` deep-copies direct worn, wielded, and held items from a source actor onto a secondary body without moving or duplicating by reference. Items that cannot be worn, wielded, or held by the new body are left in the target room instead of failing the spawn.
+- Added: staff `instance spawn` now accepts `ai` for NPC AI secondaries or PC scripted-AI secondaries, `scriptai` for explicit scripted-AI PC-style bodies, and `cloneinventory` for smoke-test inventory cloning. The AI builder `ai add/remove/list` path can now manage loaded `IArtificialIntelligenceControlledCharacter` secondaries as well as ordinary NPCs.
+- Verified: `dotnet build MudSharpCore\MudSharpCore.csproj -c Debug --no-restore -m:1 -p:NoWarn=NU1902%3BNU1510 -p:UseSharedCompilation=false` passed with 0 warnings and 0 errors.
+- Verified: `dotnet test 'MudSharpCore Unit Tests\MudSharpCore Unit Tests.csproj' -c Debug --no-restore -m:1 --filter CharacterInstance -p:NoWarn=NU1902%3BNU1510` passed 35 tests.
+- Verified: `dotnet test 'MudSharpCore Unit Tests\MudSharpCore Unit Tests.csproj' -c Debug --no-restore -m:1 --filter BodyFormProvisioningTests -p:NoWarn=NU1902%3BNU1510 -p:OutDir=C:\Users\luker\.codex\worktrees\88f6\FutureMUD\.codex-build\MudSharpCoreTests\` passed 19 tests.
+- Verified: `dotnet test 'MudSharpCore Unit Tests\MudSharpCore Unit Tests.csproj' -c Debug --no-restore -m:1 --filter "BodyFormProvisioningTests|CharacterInstance" -p:NoWarn=NU1902%3BNU1510 -p:OutDir=C:\Users\luker\.codex\worktrees\88f6\FutureMUD\.codex-build\MudSharpCoreTests\` passed 55 tests.
+- Verified: `dotnet build MudSharpCore\MudSharpCore.csproj -c Debug --no-restore -m:1 -p:NoWarn=NU1902%3BNU1510 -p:OutDir=C:\Users\luker\.codex\worktrees\88f6\FutureMUD\.codex-build\MudSharpCore\` passed with 0 warnings and 0 errors.
+
+Final V1 documentation and smoke-test pass, June 16, 2026:
+
+- Added: [Multiple Body Forms and Instances Builder Guide](./Multiple_Body_Forms_and_Instances_Builder_Guide.md) is the builder-facing runbook for exclusive forms, simultaneous instances, player focus, staff commands, spell effects, FutureProg APIs, diagnostics, and worked examples.
+- Updated: the design-document index and the multiple body form system document now link builders to both this architecture document and the builder guide.
+- Fixed: `PlayerConnection.PrepareOutgoing()` now snapshots the current control puppet and output handler for the send cycle, preventing a disconnect or focus-context transition from nulling `ControlPuppet.OutputHandler` between the initial guard and the buffered-output check.
+- Fixed: race loading now uses split/no-tracking query materialisation for the large race include graph and explicitly includes additional bodypart prototypes. Mature demo database startup logs improved from approximately 31.6 seconds for `Loading Races` to approximately 0.7-0.8 seconds for 293 races.
+- Verified live smoke: a prog-created `ScriptedAi` evil-twin secondary was spawned from an owned dormant form with inventory cloning enabled, appeared as a separate `ScriptedAi` instance, engaged the primary actor through a `trackingaggressor` AI using `SameIdentity` and `SamePhysicalInstance`, and was pruned on reboot as a `DespawnOnReboot` secondary.
+- Verified: `dotnet build MudSharpCore\MudSharpCore.csproj -c Debug --no-restore -m:1 -p:NoWarn=NU1902%3BNU1510 -p:UseSharedCompilation=false` passed with 0 warnings and 0 errors.
+- Verified: `dotnet test 'MudSharpCore Unit Tests\MudSharpCore Unit Tests.csproj' -c Debug --no-restore -m:1 --filter CharacterInstance -p:NoWarn=NU1902%3BNU1510 -p:UseSharedCompilation=false` passed 35 tests.
+- Verified: `dotnet test 'FutureMUDLibrary Unit Tests\FutureMUDLibrary Unit Tests.csproj' -c Debug --no-restore -m:1 --filter CharacterInstance -p:NoWarn=NU1902%3BNU1510 -p:UseSharedCompilation=false` passed 27 tests.
+- Verified: `git diff --check` passed; it reported only line-ending normalization warnings for touched files.
+
+V1 reflection:
+
+Phase 12 plus the final documentation and smoke-test pass makes the multi-instance architecture V1-foundation ready. The system now supports one durable identity with multiple loaded, cell-local physical actors; staff-created passive/focusable/scripted-AI instances; NPC AI secondaries; astral projection; magical copies; physical clones; physical-instance persistence in the highest-risk legacy actor-reference surfaces; explicit helper APIs for identity-vs-instance decisions; and a builder runbook that describes how to author and test the feature. Later work should be treated as feature expansion rather than architectural prerequisite.
+
+Post-V1 design work:
+
+Future phases can still add richer gameplay and deeper audits: body-specific legal personhood, disguise-aware identity discovery, observer memory and recognition decay, projection-specific criminal evidence, per-clone social consequences, channel/telepathy policy configuration, player-facing recognition controls, and broader FutureProg convenience APIs. Those are now content and policy layers on top of the V1 foundation rather than blockers for simultaneous body instances.
 
 ---
 
@@ -1731,6 +2165,8 @@ Once that works, astral projection can be built on top of it.
 
 These should be resolved before content implementation, though the framework can support multiple answers through policy.
 
+Phase 12 resolves the V1 defaults for legal identity, arrest/custody, telepathy focus, recognition keys, reporting privacy, community ownership, and FutureProg compatibility. The questions below remain useful for post-V1 gameplay expansion and content-specific policy decisions.
+
 1. Can a PC ever command multiple instances in the same action cycle?
 2. Are magic resource pools identity-wide, instance-wide, or configurable?
 3. Do physical clones share identity-level cooldowns?
@@ -1789,5 +2225,9 @@ The implementation should proceed incrementally:
 6. support NPC multi-instance AI.
 7. implement astral projection.
 8. implement physical clones and more advanced content.
+9. harden diagnostics, compatibility mirrors, and identity/instance boundaries.
+10. investigate legacy identity-only actor references and implement the project-labour, NPC patrol/group AI, bodyguard cache, and stable instance-state slices.
+11. harden identity-vs-physical-instance semantics in legacy movement, combat, medical, inventory, manipulation, employment, communications, and diagnostics paths.
+12. settle remaining V1 policy decisions for law, recognition, reports, telepathy, community, and FutureProg APIs, then expose explicit identity/instance/body helper surfaces for builders and staff.
 
-The most important technical risks are body location proxying, self/equality semantics, output routing, death policy, heartbeat multiplication, and legacy content that assumes `Character.Body` is the one physical body that matters. Addressing those deliberately will make the feature extensible rather than a one-off projection hack.
+The V1 foundation now exists. The most important ongoing risks are older subsystem paths that still treat `Character.Body`, `actor.Id`, direct object equality, or player-facing recognition as if one durable identity can only have one visible body. Future phases should extend the policy layer rather than reopen the core instance model.

@@ -87,7 +87,8 @@ public class ArenaCommandService : IArenaCommandService
             sb.AppendLine(title);
             foreach (IArenaParticipant? participant in group)
             {
-                string name = participant.Character?.PersonalName?.GetName(NameStyle.FullName) ??
+                string name = participant.ActiveCharacter?.RenderStaffActorReference() ??
+                           participant.Character?.PersonalName?.GetName(NameStyle.FullName) ??
                            participant.StageName ??
                            participant.Character?.Name ?? "NPC";
                 string className = participant.CombatantClass?.Name ?? "Unknown";

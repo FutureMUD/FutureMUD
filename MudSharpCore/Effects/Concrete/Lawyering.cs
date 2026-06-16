@@ -62,7 +62,7 @@ public class Lawyering : Effect, IEffect
         set
         {
             _engagedByCharacter = value;
-            _engagedByCharacterId = value?.Id;
+            _engagedByCharacterId = value is null ? null : CharacterInstanceIdentityComparer.IdentityId(value);
         }
     }
 }

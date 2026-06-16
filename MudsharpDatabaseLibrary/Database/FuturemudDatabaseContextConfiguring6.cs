@@ -485,6 +485,9 @@ public partial class FuturemudDatabaseContext
             entity.HasIndex(e => e.CharacterId)
                 .HasDatabaseName("FK_ArenaSignups_Characters");
 
+            entity.HasIndex(e => e.ActiveCharacterInstanceId)
+                .HasDatabaseName("FK_ArenaSignups_ActiveCharacterInstances");
+
             entity.HasIndex(e => e.CombatantClassId)
                 .HasDatabaseName("FK_ArenaSignups_CombatantClasses");
 
@@ -494,6 +497,7 @@ public partial class FuturemudDatabaseContext
             entity.Property(e => e.Id).HasColumnType("bigint(20)");
             entity.Property(e => e.ArenaEventId).HasColumnType("bigint(20)");
             entity.Property(e => e.CharacterId).HasColumnType("bigint(20)");
+            entity.Property(e => e.ActiveCharacterInstanceId).HasColumnType("bigint(20)");
             entity.Property(e => e.CombatantClassId).HasColumnType("bigint(20)");
             entity.Property(e => e.SideIndex).HasColumnType("int(11)");
             entity.Property(e => e.IsNpc)
@@ -510,6 +514,7 @@ public partial class FuturemudDatabaseContext
             entity.Property(e => e.StartingRating).HasColumnType("decimal(58,29)");
             entity.Property(e => e.SignedUpAt).HasColumnType("datetime");
             entity.Property(e => e.ArenaReservationId).HasColumnType("bigint(20)");
+            entity.Ignore(e => e.ActiveCharacterInstance);
 
             entity.HasOne(d => d.ArenaEvent)
                 .WithMany(p => p.ArenaSignups)

@@ -2281,6 +2281,9 @@ namespace MudSharp.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
 
+                    b.Property<long?>("ActiveCharacterInstanceId")
+                        .HasColumnType("bigint(20)");
+
                     b.Property<long>("ArenaEventId")
                         .HasColumnType("bigint(20)");
 
@@ -2320,6 +2323,9 @@ namespace MudSharp.Migrations
                         .HasColumnType("decimal(58,29)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ActiveCharacterInstanceId")
+                        .HasDatabaseName("FK_ArenaSignups_ActiveCharacterInstances");
 
                     b.HasIndex("ArenaEventId")
                         .HasDatabaseName("FK_ArenaSignups_ArenaEvents");
@@ -5295,6 +5301,174 @@ namespace MudSharp.Migrations
                         .HasDatabaseName("IX_CharacterComputerProgramProcesses_Owner_Status_Wake");
 
                     b.ToTable("CharacterComputerProgramProcesses", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.CharacterInstance", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<long?>("AnchorInstanceId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("BodyId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("CharacterId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<int>("ControlPolicy")
+                        .HasColumnType("int(11)");
+
+                    b.Property<long?>("CreatedBySourceId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<string>("CreatedBySourceKey")
+                        .HasColumnType("varchar(200)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("CreatedBySourceKey"), "utf8");
+
+                    b.Property<int?>("CreatedBySourceType")
+                        .HasColumnType("int(11)");
+
+                    b.Property<DateTime>("CreatedDateTime")
+                        .HasColumnType("datetime");
+
+                    b.Property<double>("CurrentProjectHours")
+                        .HasColumnType("double");
+
+                    b.Property<long?>("CurrentProjectId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long?>("CurrentProjectLabourId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<double>("CurrentProjectProjectHours")
+                        .HasColumnType("double");
+
+                    b.Property<int>("DeathPolicy")
+                        .HasColumnType("int(11)");
+
+                    b.Property<string>("EffectData")
+                        .IsRequired()
+                        .HasColumnType("mediumtext")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("EffectData"), "utf8");
+
+                    b.Property<long?>("EmbodiedBodyId")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bigint(20)")
+                        .HasComputedColumnSql("CASE WHEN `IsEmbodied` = b'1' THEN `BodyId` ELSE NULL END", true);
+
+                    b.Property<DateTime?>("ExpiryDateTime")
+                        .HasColumnType("datetime");
+
+                    b.Property<int>("InstanceKind")
+                        .HasColumnType("int(11)");
+
+                    b.Property<string>("InstanceName")
+                        .HasColumnType("varchar(100)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("InstanceName"), "utf8");
+
+                    b.Property<ulong>("IsControllable")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit(1)")
+                        .HasDefaultValueSql("b'1'");
+
+                    b.Property<ulong>("IsEmbodied")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit(1)")
+                        .HasDefaultValueSql("b'1'");
+
+                    b.Property<ulong>("IsPrimary")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit(1)")
+                        .HasDefaultValueSql("b'0'");
+
+                    b.Property<long?>("LocationId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<int>("PerceptionPolicy")
+                        .HasColumnType("int(11)");
+
+                    b.Property<int>("PersistencePolicy")
+                        .HasColumnType("int(11)");
+
+                    b.Property<string>("PositionEmote")
+                        .HasColumnType("text")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("PositionEmote"), "utf8");
+
+                    b.Property<int>("PositionId")
+                        .HasColumnType("int(11)");
+
+                    b.Property<int>("PositionModifier")
+                        .HasColumnType("int(11)");
+
+                    b.Property<long?>("PositionTargetId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<string>("PositionTargetType")
+                        .HasColumnType("varchar(50)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("PositionTargetType"), "utf8");
+
+                    b.Property<long?>("PrimaryCharacterId")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bigint(20)")
+                        .HasComputedColumnSql("CASE WHEN `IsPrimary` = b'1' THEN `CharacterId` ELSE NULL END", true);
+
+                    b.Property<int>("RoomLayer")
+                        .HasColumnType("int(11)");
+
+                    b.Property<int>("State")
+                        .HasColumnType("int(11)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int(11)");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("AnchorInstanceId")
+                        .HasDatabaseName("FK_CharacterInstances_AnchorInstance_idx");
+
+                    b.HasIndex("BodyId")
+                        .HasDatabaseName("FK_CharacterInstances_Bodies_idx");
+
+                    b.HasIndex("CharacterId")
+                        .HasDatabaseName("FK_CharacterInstances_Characters_idx");
+
+                    b.HasIndex("CurrentProjectId")
+                        .HasDatabaseName("FK_CharacterInstances_ActiveProjects_idx");
+
+                    b.HasIndex("CurrentProjectLabourId")
+                        .HasDatabaseName("FK_CharacterInstances_ProjectLabourRequirements_idx");
+
+                    b.HasIndex("EmbodiedBodyId")
+                        .IsUnique()
+                        .HasDatabaseName("UQ_CharacterInstances_EmbodiedBody");
+
+                    b.HasIndex("LocationId")
+                        .HasDatabaseName("FK_CharacterInstances_Cells_idx");
+
+                    b.HasIndex("PrimaryCharacterId")
+                        .IsUnique()
+                        .HasDatabaseName("UQ_CharacterInstances_PrimaryCharacter");
+
+                    b.HasIndex("LocationId", "RoomLayer")
+                        .HasDatabaseName("IX_CharacterInstances_Location_Layer");
+
+                    b.ToTable("CharacterInstances");
                 });
 
             modelBuilder.Entity("MudSharp.Models.CharacterIntroTemplate", b =>
@@ -15769,6 +15943,9 @@ namespace MudSharp.Migrations
                     b.Property<long?>("PatrolLeaderId")
                         .HasColumnType("bigint(20)");
 
+                    b.Property<long?>("PatrolLeaderInstanceId")
+                        .HasColumnType("bigint(20)");
+
                     b.Property<int>("PatrolPhase")
                         .HasColumnType("int(11)");
 
@@ -15791,6 +15968,9 @@ namespace MudSharp.Migrations
                     b.HasIndex("PatrolLeaderId")
                         .HasDatabaseName("FK_Patrols_Characters_idx");
 
+                    b.HasIndex("PatrolLeaderInstanceId")
+                        .HasDatabaseName("FK_Patrols_CharacterInstances_Leader_idx");
+
                     b.HasIndex("PatrolRouteId")
                         .HasDatabaseName("FK_Patrols_PatrolRoutes_idx");
 
@@ -15805,10 +15985,16 @@ namespace MudSharp.Migrations
                     b.Property<long>("CharacterId")
                         .HasColumnType("bigint(20)");
 
+                    b.Property<long>("CharacterInstanceId")
+                        .HasColumnType("bigint(20)");
+
                     b.HasKey("PatrolId", "CharacterId")
                         .HasName("PRIMARY");
 
                     b.HasIndex("CharacterId");
+
+                    b.HasIndex("CharacterInstanceId")
+                        .HasDatabaseName("FK_PatrolMembers_CharacterInstances_idx");
 
                     b.ToTable("PatrolMembers", (string)null);
                 });
@@ -19175,6 +19361,9 @@ namespace MudSharp.Migrations
                     b.Property<long>("MountId")
                         .HasColumnType("bigint(20)");
 
+                    b.Property<long?>("MountInstanceId")
+                        .HasColumnType("bigint(20)");
+
                     b.Property<long>("OriginalOwnerId")
                         .HasColumnType("bigint(20)");
 
@@ -19206,6 +19395,9 @@ namespace MudSharp.Migrations
 
                     b.HasIndex("MountId")
                         .HasDatabaseName("FK_StableStays_Characters_Mount_idx");
+
+                    b.HasIndex("MountInstanceId")
+                        .HasDatabaseName("FK_StableStays_CharacterInstances_Mount_idx");
 
                     b.HasIndex("OriginalOwnerId")
                         .HasDatabaseName("FK_StableStays_Characters_Owner_idx");
@@ -20848,6 +21040,9 @@ namespace MudSharp.Migrations
                     b.Property<long?>("SourceCharacterId")
                         .HasColumnType("bigint(20)");
 
+                    b.Property<long?>("SourceCharacterInstanceId")
+                        .HasColumnType("bigint(20)");
+
                     b.Property<long?>("SourceTowPointProtoId")
                         .HasColumnType("bigint(20)");
 
@@ -20858,6 +21053,9 @@ namespace MudSharp.Migrations
                         .HasColumnType("bigint(20)");
 
                     b.Property<long?>("TargetCharacterId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long?>("TargetCharacterInstanceId")
                         .HasColumnType("bigint(20)");
 
                     b.Property<long?>("TargetTowPointProtoId")
@@ -20878,6 +21076,9 @@ namespace MudSharp.Migrations
                     b.HasIndex("SourceCharacterId")
                         .HasDatabaseName("FK_VehicleHitchLinks_SourceCharacters_idx");
 
+                    b.HasIndex("SourceCharacterInstanceId")
+                        .HasDatabaseName("FK_VehicleHitchLinks_SourceCharacterInstances_idx");
+
                     b.HasIndex("SourceTowPointProtoId")
                         .HasDatabaseName("FK_VehicleHitchLinks_SourceTowPointProtos_idx");
 
@@ -20886,6 +21087,9 @@ namespace MudSharp.Migrations
 
                     b.HasIndex("TargetCharacterId")
                         .HasDatabaseName("FK_VehicleHitchLinks_TargetCharacters_idx");
+
+                    b.HasIndex("TargetCharacterInstanceId")
+                        .HasDatabaseName("FK_VehicleHitchLinks_TargetCharacterInstances_idx");
 
                     b.HasIndex("TargetTowPointProtoId")
                         .HasDatabaseName("FK_VehicleHitchLinks_TargetTowPointProtos_idx");
@@ -21064,6 +21268,14 @@ namespace MudSharp.Migrations
                     b.Property<long>("CharacterId")
                         .HasColumnType("bigint(20)");
 
+                    b.Property<long?>("CharacterInstanceId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("CharacterInstanceKey")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bigint(20)")
+                        .HasComputedColumnSql("COALESCE(`CharacterInstanceId`, 0)", true);
+
                     b.Property<ulong>("IsController")
                         .HasColumnType("bit(1)");
 
@@ -21079,15 +21291,18 @@ namespace MudSharp.Migrations
                     b.HasIndex("CharacterId")
                         .HasDatabaseName("FK_VehicleOccupancies_Characters_idx");
 
+                    b.HasIndex("CharacterInstanceId")
+                        .HasDatabaseName("FK_VehicleOccupancies_CharacterInstances_idx");
+
                     b.HasIndex("VehicleId")
                         .HasDatabaseName("FK_VehicleOccupancies_Vehicles_idx");
 
                     b.HasIndex("VehicleOccupantSlotProtoId")
                         .HasDatabaseName("FK_VehicleOccupancies_Slots_idx");
 
-                    b.HasIndex("VehicleId", "CharacterId")
+                    b.HasIndex("VehicleId", "CharacterId", "CharacterInstanceKey")
                         .IsUnique()
-                        .HasDatabaseName("IX_VehicleOccupancies_Vehicle_Character");
+                        .HasDatabaseName("IX_VehicleOccupancies_Vehicle_Character_Instance");
 
                     b.ToTable("VehicleOccupancies", (string)null);
                 });
@@ -24717,6 +24932,42 @@ namespace MudSharp.Migrations
                     b.Navigation("CharacterComputerExecutable");
 
                     b.Navigation("OwnerCharacter");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.CharacterInstance", b =>
+                {
+                    b.HasOne("MudSharp.Models.CharacterInstance", "AnchorInstance")
+                        .WithMany("AnchoredInstances")
+                        .HasForeignKey("AnchorInstanceId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK_CharacterInstances_AnchorInstance");
+
+                    b.HasOne("MudSharp.Models.Body", "Body")
+                        .WithMany("CharacterInstances")
+                        .HasForeignKey("BodyId")
+                        .IsRequired()
+                        .HasConstraintName("FK_CharacterInstances_Bodies");
+
+                    b.HasOne("MudSharp.Models.Character", "Character")
+                        .WithMany("CharacterInstances")
+                        .HasForeignKey("CharacterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_CharacterInstances_Characters");
+
+                    b.HasOne("MudSharp.Models.Cell", "Location")
+                        .WithMany("CharacterInstances")
+                        .HasForeignKey("LocationId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK_CharacterInstances_Cells");
+
+                    b.Navigation("AnchorInstance");
+
+                    b.Navigation("Body");
+
+                    b.Navigation("Character");
+
+                    b.Navigation("Location");
                 });
 
             modelBuilder.Entity("MudSharp.Models.CharacterIntroTemplate", b =>
@@ -32182,6 +32433,8 @@ namespace MudSharp.Migrations
 
                     b.Navigation("CharacterBodySources");
 
+                    b.Navigation("CharacterInstances");
+
                     b.Navigation("Characteristics");
 
                     b.Navigation("Characters");
@@ -32318,6 +32571,8 @@ namespace MudSharp.Migrations
 
                     b.Navigation("CellsTags");
 
+                    b.Navigation("CharacterInstances");
+
                     b.Navigation("CharacterLog");
 
                     b.Navigation("Characters");
@@ -32379,6 +32634,8 @@ namespace MudSharp.Migrations
                     b.Navigation("CharacterComputerExecutables");
 
                     b.Navigation("CharacterComputerProgramProcesses");
+
+                    b.Navigation("CharacterInstances");
 
                     b.Navigation("CharacterKnowledges");
 
@@ -32455,6 +32712,11 @@ namespace MudSharp.Migrations
                     b.Navigation("Parameters");
 
                     b.Navigation("Processes");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.CharacterInstance", b =>
+                {
+                    b.Navigation("AnchoredInstances");
                 });
 
             modelBuilder.Entity("MudSharp.Models.CharacteristicDefinition", b =>

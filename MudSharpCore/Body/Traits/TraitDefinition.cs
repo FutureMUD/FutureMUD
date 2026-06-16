@@ -108,7 +108,9 @@ public abstract class TraitDefinition : SaveableItem, ITraitDefinition
 
         // Note, it is necessary to do this prior to creating the MudSharp.Models.Trait because owner.ID
         // may trigger a database save, which would flush the DBContext
-        long ownerId = owner.Id;
+        long ownerId = OwnerScope == TraitOwnerScope.Character && owner is ICharacter character
+            ? CharacterInstanceIdentityComparer.IdentityId(character)
+            : owner.Id;
 
         using (new FMDB())
         {

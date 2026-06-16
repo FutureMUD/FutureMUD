@@ -84,12 +84,18 @@ public partial class Character
                 {
                     otherItems.Add(item);
                 }
-                otherMovers.AddRange(drag.CharacterDraggers.Except(this).Where(x => x.ColocatedWith(this)));
+                otherMovers.AddRange(drag.CharacterDraggers
+                                          .Where(x => !CharacterInstanceIdentityComparer.SamePhysicalInstance(x, this))
+                                          .Where(x => !otherMovers.ContainsPhysicalInstance(x))
+                                          .Where(x => x.ColocatedWith(this)));
             }
 
-            if (Party is not null && Party.Leader == this)
+            if (Party is not null && CharacterInstanceIdentityComparer.SamePhysicalInstance(Party.Leader, this))
             {
-                otherMovers.AddRange(Party.CharacterMembers.Except(this).Except(otherMovers).Where(x => x.ColocatedWith(this)));
+                otherMovers.AddRange(Party.CharacterMembers
+                                          .Where(x => !CharacterInstanceIdentityComparer.SamePhysicalInstance(x, this))
+                                          .Where(x => !otherMovers.ContainsPhysicalInstance(x))
+                                          .Where(x => x.ColocatedWith(this)));
             }
         }
         else

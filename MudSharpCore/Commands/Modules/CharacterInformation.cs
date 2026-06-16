@@ -630,9 +630,9 @@ Additionally, admins can use the following options:
         sb.AppendLine();
         if (target.Race == actor.Race || actor.IsAdministrator())
         {
-            double age = target.Birthday.Calendar.CurrentDate.YearsDifference(target.Birthday) + 0.001;
+            double age = target.AgeInYears + 0.001;
             sb.AppendLine(
-                $"{gender.Subjective(true)}{(gender == Indeterminate.Instance ? " are" : " is ")}between {(Math.Floor(age / 5.0) * 5).ToString("N0", actor).ColourValue()} and {(Math.Ceiling(age / 5.0) * 5).ToString("N0", actor).ColourValue()} years old, making {gender.Objective()} {target.Race.AgeCategory(target).DescribeEnum(true).A_An(false, Telnet.Green)}.");
+                $"{gender.Subjective(true)}{(gender == Indeterminate.Instance ? " are" : " is ")}between {(Math.Floor(age / 5.0) * 5).ToString("N0", actor).ColourValue()} and {(Math.Ceiling(age / 5.0) * 5).ToString("N0", actor).ColourValue()} years old, making {gender.Objective()} {target.AgeCategory.DescribeEnum(true).A_An(false, Telnet.Green)}.");
         }
 
         sb.AppendLine(
@@ -1734,9 +1734,38 @@ You can also use this command to test against someone else. This always echoes.
 
     [PlayerCommand("Dub", "dub")]
     [RequiredCharacterState(CharacterState.Conscious)]
+    [HelpInfo("dub",
+        @"The dub command lets you assign private keywords to people and things that you can see.
+
+For characters, ordinary dubs follow the person's known identity. Body/form dubs follow the visible physical body instead, which is useful for disguises, projections, copies, and clones.
+
+Syntax:
+
+	#3dub <target> <keyword>#0 - dub a thing, or a character identity
+	#3dub identity <target> <keyword>#0 - explicitly dub a character identity
+	#3dub body <target> <keyword>#0 - dub this physical body/form
+	#3dub form <target> <keyword>#0 - alias for #3dub body#0",
+        AutoHelp.HelpArgOrNoArg)]
     protected static void Dub(ICharacter actor, string command)
     {
         StringStack ss = new(command.RemoveFirstWord());
+        if (ss.IsFinished)
+        {
+            actor.OutputHandler.Send("Who do you want to dub?");
+            return;
+        }
+
+        var recognitionScope = CharacterRecognitionScope.Identity;
+        if (ss.PeekSpeech().EqualToAny("identity", "person", "character"))
+        {
+            ss.PopSpeech();
+        }
+        else if (ss.PeekSpeech().EqualToAny("body", "form", "appearance", "physical"))
+        {
+            recognitionScope = CharacterRecognitionScope.PhysicalBody;
+            ss.PopSpeech();
+        }
+
         if (ss.IsFinished)
         {
             actor.OutputHandler.Send("Who do you want to dub?");
@@ -1766,14 +1795,30 @@ You can also use this command to test against someone else. This always echoes.
             return;
         }
 
-        if (target == actor)
+        if (target == actor || target is ICharacter targetCharacter &&
+            CharacterInstanceIdentityComparer.SameIdentity(actor, targetCharacter))
         {
             actor.OutputHandler.Send("You cannot dub yourself.");
             return;
         }
 
+        if (recognitionScope == CharacterRecognitionScope.PhysicalBody &&
+            target is not ICharacter &&
+            target is not IBody)
+        {
+            actor.OutputHandler.Send("You can only use body or form dubs for characters and physical bodies.");
+            return;
+        }
+
+        var targetKey = CharacterInstanceIdentityComparer.RecognitionKeyFor(target, recognitionScope);
+        if (targetKey.TargetId <= 0)
+        {
+            actor.OutputHandler.Send("That target does not have a valid identity or body for a dub.");
+            return;
+        }
+
         IDub targetDub =
-            actor.Dubs.FirstOrDefault(x => x.TargetId == target.Id && x.TargetType == target.FrameworkItemType);
+            actor.Dubs.FirstOrDefault(x => x.TargetId == targetKey.TargetId && x.TargetType == targetKey.TargetType);
         if (targetDub != null)
         {
             if (targetDub.Keywords.Any(x => x.Equals(keywordText, StringComparison.InvariantCultureIgnoreCase)))
@@ -1791,18 +1836,19 @@ You can also use this command to test against someone else. This always echoes.
             {
                 Models.Dub dbdub = new();
                 FMDB.Context.Dubs.Add(dbdub);
-                dbdub.CharacterId = actor.Id;
+                dbdub.CharacterId = CharacterInstanceIdentityComparer.IdentityId(actor);
                 dbdub.LastDescription = target.HowSeen(actor, colour: false, flags: PerceiveIgnoreFlags.IgnoreNamesSetting);
                 dbdub.LastUsage = DateTime.UtcNow;
                 dbdub.Keywords = keywordText;
-                dbdub.TargetId = target.Id;
-                dbdub.TargetType = target.FrameworkItemType;
+                dbdub.TargetId = targetKey.TargetId;
+                dbdub.TargetType = targetKey.TargetType;
                 FMDB.Context.SaveChanges();
                 actor.Dubs.Add(new Dub(dbdub, actor, actor.Gameworld));
             }
         }
 
-        actor.Send("You dub {0} \"{1}\".", target.HowSeen(actor), keywordText);
+        actor.Send("You dub {0} \"{1}\"{2}.", target.HowSeen(actor), keywordText,
+            recognitionScope == CharacterRecognitionScope.PhysicalBody ? " for this body or form" : "");
     }
 
     [PlayerCommand("DubName", "dubname")]
@@ -1820,7 +1866,9 @@ You can also use this command to test against someone else. This always echoes.
             return;
         }
 
-        IDub dub = actor.Dubs.FirstOrDefault(x => x.TargetId == target.Id && x.TargetType == target.FrameworkItemType);
+        var targetIdentityId = CharacterInstanceIdentityComparer.IdentityId(target);
+        IDub dub = actor.Dubs.FirstOrDefault(x =>
+            x.TargetId == targetIdentityId && x.TargetType == target.FrameworkItemType);
         if (dub == null)
         {
             actor.Send("You must first dub someone before you can set a dub name for them.");
@@ -1935,22 +1983,23 @@ You can also use this command to test against someone else. This always echoes.
             return;
         }
 
-        if (actor.Dubs.All(x => x.TargetId != target.Id || x.TargetType != "Character"))
+        var targetIdentityId = CharacterInstanceIdentityComparer.IdentityId(target);
+        if (actor.Dubs.All(x => x.TargetId != targetIdentityId || x.TargetType != "Character"))
         {
             actor.Send("You must know someone well enough to have given them a dub in order to make them your ally.");
             return;
         }
 
         bool trusted = ss.Peek().EqualTo("trusted");
-        if (actor.AllyIDs.Contains(target.Id))
+        if (actor.AllyIDs.Contains(targetIdentityId))
         {
-            if (trusted && actor.TrustedAllyIDs.Contains(target.Id))
+            if (trusted && actor.TrustedAllyIDs.Contains(targetIdentityId))
             {
                 actor.Send("{0} is already a trusted ally.", target.HowSeen(actor));
                 return;
             }
 
-            actor.SetTrusted(target.Id, true);
+            actor.SetTrusted(targetIdentityId, true);
             actor.Send("{0} is now a trusted ally.", target.HowSeen(actor));
             actor.Send(
                 "Warning: this means you will let them do nearly anything to you without resisting. Be very, very careful with this setting."
@@ -1958,8 +2007,8 @@ You can also use this command to test against someone else. This always echoes.
             return;
         }
 
-        actor.SetAlly(target.Id);
-        actor.SetTrusted(target.Id, trusted);
+        actor.SetAlly(targetIdentityId);
+        actor.SetTrusted(targetIdentityId, trusted);
         actor.Send($"{{0}} is now {(trusted ? "a trusted ally" : "an ally")}.", target.HowSeen(actor));
         if (trusted)
         {
@@ -2000,7 +2049,10 @@ You can also use this command to test against someone else. This always echoes.
                 return;
             }
 
-            targetDub = actor.Dubs.FirstOrDefault(x => x.TargetId == target.Id && x.TargetType == "Character");
+            var targetIdentityId = target is ICharacter targetCharacter
+                ? CharacterInstanceIdentityComparer.IdentityId(targetCharacter)
+                : target.Id;
+            targetDub = actor.Dubs.FirstOrDefault(x => x.TargetId == targetIdentityId && x.TargetType == "Character");
             if (targetDub == null || !actor.AllyIDs.Contains(targetDub.TargetId))
             {
                 actor.Send("{0} is not someone that you have allied.", target.HowSeen(actor));
@@ -2026,6 +2078,7 @@ You can use the following options with this command:
 Implementors can also use:
 
 	#3body addform <character> <race> [<ethnicity>] [<gender>]#0 - adds a dormant alternate form
+	#3body delform <character> <form> confirm#0 - permanently deletes a dormant alternate form and its body
 	#3body formset <character> <form> alias <alias>#0 - changes a form alias
 	#3body formset <character> <form> trauma <auto|transfer|stash>#0 - sets how health state behaves on switch
 	#3body formset <character> <form> echo <text>|default|none#0 - sets, defaults or suppresses the transformation echo
@@ -2046,6 +2099,12 @@ Implementors can also use:
                 case "addform":
                     ss.PopSpeech();
                     BodyAddForm(actor, ss);
+                    return;
+                case "delform":
+                case "deleteform":
+                case "removeform":
+                    ss.PopSpeech();
+                    BodyDeleteForm(actor, ss);
                     return;
                 case "formset":
                     ss.PopSpeech();
@@ -2345,6 +2404,13 @@ You can use the following options with this command:
             : $"#{pattern.Id.ToString("N0")} {pattern.Pattern.ColourCommand()}";
     }
 
+	private static string CommandArgument(string text)
+	{
+		return text.Any(char.IsWhiteSpace)
+			? $"\"{text}\""
+			: text;
+	}
+
     private static void BodyAddForm(ICharacter actor, StringStack ss)
     {
         if (ss.IsFinished)
@@ -2413,6 +2479,57 @@ You can use the following options with this command:
         actor.OutputHandler.Send(
             $"You add the {form.Alias.ColourName()} form to {concreteTarget.HowSeen(actor, true)}.");
     }
+
+	private static void BodyDeleteForm(ICharacter actor, StringStack ss)
+	{
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which character do you want to delete a form from?");
+			return;
+		}
+
+		var targetText = ss.PopSpeech();
+		ICharacter target = actor.TargetActor(targetText);
+		if (target is not MudSharp.Character.Character concreteTarget)
+		{
+			actor.OutputHandler.Send("You do not see any such character.");
+			return;
+		}
+
+		if (ss.IsFinished)
+		{
+			actor.OutputHandler.Send("Which form do you want to delete?");
+			return;
+		}
+
+		var formText = ss.PopSpeech();
+		ICharacterForm form = ResolveForm(concreteTarget, formText);
+		if (form is null)
+		{
+			actor.OutputHandler.Send("They do not have any such form.");
+			return;
+		}
+
+		if (ss.IsFinished || !ss.SafeRemainingArgument.EqualTo("confirm"))
+		{
+			actor.OutputHandler.Send(
+				$"You are about to permanently delete the {form.Alias.ColourName()} form for {concreteTarget.HowSeen(actor, true)}.\n\n" +
+				$"This will delete dormant body #{form.Body.Id.ToString("N0", actor).ColourValue()} ({form.Body.Race.Name.ColourName()}, {form.Body.Ethnicity.Name.ColourName()}, {form.Body.Gender.Name.ColourValue()}), its form metadata, any source mappings for that body, and any items currently on that dormant body.\n\n" +
+				$"This cannot be undone. Type {"body delform".ColourCommand()} {CommandArgument(targetText).ColourCommand()} {CommandArgument(formText).ColourCommand()} {"confirm".ColourCommand()} to proceed.");
+			return;
+		}
+
+		var alias = form.Alias;
+		var bodyId = form.Body.Id;
+		if (!concreteTarget.TryDeleteForm(form, out var whyNot))
+		{
+			actor.OutputHandler.Send(whyNot);
+			return;
+		}
+
+		actor.OutputHandler.Send(
+			$"You delete the {alias.ColourName()} form and dormant body #{bodyId.ToString("N0", actor).ColourValue()} from {concreteTarget.HowSeen(actor, true)}.");
+	}
 
     private static void BodyFormSet(ICharacter actor, StringStack ss)
     {

@@ -10,6 +10,7 @@ using System.Linq;
 using System.Net;
 using System.Numerics;
 using System.Reflection;
+using System.Runtime.Versioning;
 using System.Text;
 using System.Threading;
 
@@ -19,13 +20,7 @@ internal class MudSharp
 {
     private static void Main(string[] args)
     {
-        Console.ForegroundColor = ConsoleColor.Gray;
-        if (OperatingSystem.IsWindows())
-        {
-            Console.BufferHeight = short.MaxValue - 1;
-            Console.Title = "FutureMUD";
-            Console.WindowHeight = (int)(Console.LargestWindowHeight * 0.9);
-        }
+        ConfigureConsoleHost();
 
         IPAddress hostIp;
         int tcpPort;
@@ -108,10 +103,7 @@ internal class MudSharp
             Thread.CurrentThread.Name = "Main Game Thread";
 
             ((IFuturemudLoader)mud).LoadFromDatabase();
-            if (Environment.OSVersion.Platform == PlatformID.Win32NT)
-            {
-                Console.Title = mud.Name;
-            }
+            TrySetConsoleTitle(mud.Name);
 
             File.Delete("BOOTING");
             mud.MarkStartupDatabaseUpgradeComplete();
@@ -185,5 +177,99 @@ internal class MudSharp
         }
 
         Futuremud.Games.First().DiscordConnection?.NotifyCrash(crashLog);
+    }
+
+    private static void ConfigureConsoleHost()
+    {
+        TrySetConsoleForeground(ConsoleColor.Gray);
+        if (!OperatingSystem.IsWindows() || !HasInteractiveConsole())
+        {
+            return;
+        }
+
+        TryResizeWindowsConsole();
+        TrySetConsoleTitle("FutureMUD");
+    }
+
+    private static bool HasInteractiveConsole()
+    {
+        if (Console.IsOutputRedirected)
+        {
+            return false;
+        }
+
+        try
+        {
+            _ = Console.WindowHeight;
+            _ = Console.BufferHeight;
+            return true;
+        }
+        catch (IOException)
+        {
+            return false;
+        }
+        catch (InvalidOperationException)
+        {
+            return false;
+        }
+        catch (PlatformNotSupportedException)
+        {
+            return false;
+        }
+    }
+
+    [SupportedOSPlatform("windows")]
+    private static void TryResizeWindowsConsole()
+    {
+        try
+        {
+            Console.BufferHeight = short.MaxValue - 1;
+            Console.WindowHeight = (int)(Console.LargestWindowHeight * 0.9);
+        }
+        catch (IOException)
+        {
+            // Headless launchers and automated smoke tests can run without a real Windows console.
+        }
+        catch (ArgumentOutOfRangeException)
+        {
+            // Some console hosts expose restricted buffer/window sizes; keep booting with defaults.
+        }
+    }
+
+    private static void TrySetConsoleTitle(string title)
+    {
+        if (!OperatingSystem.IsWindows() || !HasInteractiveConsole())
+        {
+            return;
+        }
+
+        try
+        {
+            Console.Title = title;
+        }
+        catch (IOException)
+        {
+            // Headless launchers and automated smoke tests can run without a real Windows console.
+        }
+        catch (InvalidOperationException)
+        {
+            // Some hosts expose an output stream but do not support console window operations.
+        }
+    }
+
+    private static void TrySetConsoleForeground(ConsoleColor colour)
+    {
+        try
+        {
+            Console.ForegroundColor = colour;
+        }
+        catch (IOException)
+        {
+            // Colour is cosmetic only; startup should not depend on console capabilities.
+        }
+        catch (InvalidOperationException)
+        {
+            // Some hosts expose an output stream but do not support colour operations.
+        }
     }
 }

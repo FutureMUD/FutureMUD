@@ -92,8 +92,9 @@ public sealed class EmploymentHostState : IEmploymentHostState
 			return false;
 		}
 
+		var candidateIdentityId = CharacterInstanceIdentityComparer.IdentityId(candidate);
 		if (_contracts.Any(x =>
-			    x.Employee.Id == candidate.Id &&
+			    x.Employee.Id == candidateIdentityId &&
 			    x.Role == role &&
 			    x.Status is EmploymentStatus.Active or EmploymentStatus.Suspended))
 		{
@@ -532,8 +533,9 @@ public sealed class EmploymentHostState : IEmploymentHostState
 
 	private EmploymentAuthoritySet AuthorityFor(ICharacter actor)
 	{
+		var actorIdentityId = CharacterInstanceIdentityComparer.IdentityId(actor);
 		return new EmploymentAuthoritySet(_contracts
-		                                  .Where(x => x.Employee.Id == actor.Id)
+		                                  .Where(x => x.Employee.Id == actorIdentityId)
 		                                  .Where(x => x.Status == EmploymentStatus.Active)
 		                                  .Aggregate(EmploymentAuthority.None,
 			                                  (current, contract) => current | contract.Authority.Authorities));
@@ -780,8 +782,9 @@ public sealed class EmploymentPayroll : IEmploymentPayroll
 
 	public IReadOnlyCollection<IEmploymentPayable> ClaimablePayablesFor(ICharacter employee)
 	{
+		var employeeIdentityId = CharacterInstanceIdentityComparer.IdentityId(employee);
 		return _payables
-		       .Where(x => x.EmployeeId == employee.Id)
+		       .Where(x => x.EmployeeId == employeeIdentityId)
 		       .Where(x => x.Status == EmploymentPayableStatus.ReadyToClaim)
 		       .OrderBy(x => x.DueAt)
 		       .ThenBy(x => x.Id)
@@ -1003,7 +1006,7 @@ public sealed class EmploymentPayroll : IEmploymentPayroll
 			return false;
 		}
 
-		if (concrete.EmployeeId != actor.Id)
+		if (concrete.EmployeeId != CharacterInstanceIdentityComparer.IdentityId(actor))
 		{
 			message = "That employment payable is not owed to you.";
 			return false;

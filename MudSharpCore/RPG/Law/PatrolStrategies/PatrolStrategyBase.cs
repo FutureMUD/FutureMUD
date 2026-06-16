@@ -79,7 +79,7 @@ public abstract class PatrolStrategyBase : IPatrolStrategy
         foreach (ICharacter person in patrol.PatrolLeader.Location.LayerCharacters(patrol.PatrolLeader.RoomLayer))
         {
             if (person == patrol.PatrolLeader ||
-                patrol.PatrolMembers.Contains(person) ||
+                patrol.PatrolMembers.ContainsPhysicalInstance(person) ||
                 person.State.IsDead() ||
                 person.State.IsInStatis() ||
                 person.IdentityIsObscured)
@@ -297,7 +297,7 @@ public abstract class PatrolStrategyBase : IPatrolStrategy
         }
 
         // Is criminal in combat with enforcers?
-        if (criminal.Combat?.Combatants.Any(x => patrol.PatrolMembers.Contains(x)) == true)
+        if (criminal.Combat?.Combatants.OfType<ICharacter>().Any(x => patrol.PatrolMembers.ContainsPhysicalInstance(x)) == true)
         {
             // Get the other enforcers to join in up to a limit
             foreach (ICharacter member in patrol.PatrolMembers)
@@ -311,11 +311,11 @@ public abstract class PatrolStrategyBase : IPatrolStrategy
         // Are any of the enforcers engaged with other targets?
         List<ICharacter> engagedPatrolMembers = patrol.PatrolMembers.Where(x =>
                                              x.Combat != null && x.Combat.Combatants.Any(y =>
-                                                 patrol.PatrolMembers.Contains(y.CombatTarget)))
+                                                 y.CombatTarget is ICharacter target && patrol.PatrolMembers.ContainsPhysicalInstance(target)))
                                          .ToList();
         if (engagedPatrolMembers.Any())
         {
-            foreach (ICharacter enforcer in patrol.PatrolMembers.Except(engagedPatrolMembers).ToArray())
+            foreach (ICharacter enforcer in patrol.PatrolMembers.Where(x => !engagedPatrolMembers.ContainsPhysicalInstance(x)).ToArray())
             {
                 enforcer.ExecuteCommand($"support {enforcer.BestKeywordFor(engagedPatrolMembers.GetRandomElement())}");
             }
@@ -336,7 +336,7 @@ public abstract class PatrolStrategyBase : IPatrolStrategy
             random.ExecuteCommand($"drag {random.BestKeywordFor(criminal)}");
             if (random.CombinedEffectsOfType<Dragging>().Any(x => x.Target == criminal))
             {
-                foreach (ICharacter other in patrol.PatrolMembers.Except(random))
+                foreach (ICharacter other in patrol.PatrolMembers.Where(x => !x.SamePhysicalInstance(random)))
                 {
                     if (other.Combat?.CanFreelyLeaveCombat(other) == true)
                     {

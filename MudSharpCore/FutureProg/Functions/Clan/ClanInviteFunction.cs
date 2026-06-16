@@ -66,13 +66,13 @@ internal class ClanInviteFunction : BuiltInFunction
         {
             Models.ClanMembership dbitem = new()
             {
-                CharacterId = character.Id,
+                CharacterId = CharacterInstanceIdentityComparer.IdentityId(character),
                 ClanId = clan.Id,
                 RankId = rank.Id,
                 PaygradeId = rank.Paygrades.Any() ? rank.Paygrades.First().Id : (long?)null,
                 PersonalName = character.CurrentName.SaveToXml().ToString(),
                 JoinDate = clan.Calendar.CurrentDate.GetDateString(),
-                ManagerId = manager?.Id
+                ManagerId = manager is null ? null : CharacterInstanceIdentityComparer.IdentityId(manager)
             };
             FMDB.Context.ClanMemberships.Add(dbitem);
             FMDB.Context.SaveChanges();

@@ -221,7 +221,8 @@ public class ArenaParticipantAI : PathingAIBase
 
     internal static IArenaParticipant? GetParticipant(IArenaEvent arenaEvent, ICharacter character)
     {
-        return arenaEvent.Participants.FirstOrDefault(x => x.Character?.Id == character.Id);
+        return arenaEvent.Participants.FirstOrDefault(x =>
+            x.CharacterId == CharacterInstanceIdentityComparer.IdentityId(character));
     }
 
     internal static IReadOnlyCollection<IArenaParticipant> GetOpponents(IArenaEvent arenaEvent, ICharacter character)
@@ -234,7 +235,7 @@ public class ArenaParticipantAI : PathingAIBase
 
         return arenaEvent.Participants
             .Where(x => x.SideIndex != participant.SideIndex)
-            .Where(x => x.Character is not null)
+            .Where(x => x.ActiveCharacter is not null)
             .ToList();
     }
 
@@ -420,7 +421,7 @@ public class ArenaParticipantAI : PathingAIBase
         }
 
         List<ICharacter> opponents = GetOpponents(arenaEvent, ch)
-            .Select(x => x.Character)
+            .Select(x => x.ActiveCharacter)
             .Where(x => x is not null)
             .Cast<ICharacter>()
             .Where(x => !x.State.IsDead())

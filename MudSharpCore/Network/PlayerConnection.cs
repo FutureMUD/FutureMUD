@@ -366,12 +366,14 @@ public class PlayerConnection : IPlayerConnection
     {
         try
         {
-            if (ControlPuppet?.OutputHandler == null)
+            var controlPuppet = ControlPuppet;
+            var outputHandler = controlPuppet?.OutputHandler;
+            if (controlPuppet is null || outputHandler is null)
             {
                 return;
             }
 
-            if (ControlPuppet.Closing)
+            if (controlPuppet.Closing)
             {
                 State = ConnectionState.Closing;
                 return;
@@ -379,7 +381,7 @@ public class PlayerConnection : IPlayerConnection
 
             if (State == ConnectionState.Open && HasTimedOut())
             {
-                if (ControlPuppet?.Timeout != 0)
+                if (controlPuppet.Timeout != 0)
                 {
                     AddOutgoing(
                         $"{"[System Message]".Colour(Telnet.Green)} You have been timed out due to inactivity.");
@@ -390,22 +392,22 @@ public class PlayerConnection : IPlayerConnection
                 return;
             }
 
-            if (!ControlPuppet.OutputHandler.HasBufferedOutput)
+            if (!outputHandler.HasBufferedOutput)
             {
                 return;
             }
 
-            ControlPuppet.CuePrompt();
-            ControlPuppet.UpdateObservers();
+            controlPuppet.CuePrompt();
+            controlPuppet.UpdateObservers();
 
             lock (_outgoingCommands)
             {
                 _outgoingCommands.Append(
-                    (ControlPuppet.Account != null
-                        ? ControlPuppet.OutputHandler.BufferedOutput.Wrap(ControlPuppet.Account.LineFormatLength)
-                        : ControlPuppet.OutputHandler.BufferedOutput)
+                    (controlPuppet.Account != null
+                        ? outputHandler.BufferedOutput.Wrap(controlPuppet.Account.LineFormatLength)
+                        : outputHandler.BufferedOutput)
                     .SanitiseMXP(MXPSupport));
-                ControlPuppet.OutputHandler.Flush();
+                outputHandler.Flush();
                 HasOutgoingCommands = true;
                 if (State == ConnectionState.Closing)
                 {

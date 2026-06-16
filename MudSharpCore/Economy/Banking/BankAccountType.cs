@@ -850,9 +850,9 @@ public class BankAccountType : SaveableItem, IBankAccountType
                 CurrentBalance = 0.0M,
                 CurrentMonthFees = 0.0M,
                 CurrentMonthInterest = 0.0M,
-                AccountOwnerFrameworkItemId = owner.Id,
+                AccountOwnerFrameworkItemId = CharacterInstanceIdentityComparer.FrameworkItemId(owner),
                 AccountOwnerFrameworkItemType = owner.FrameworkItemType,
-                AccountOwnerCharacterId = owner is ICharacter ch ? ch.Id : null,
+                AccountOwnerCharacterId = owner is ICharacter ch ? CharacterInstanceIdentityComparer.IdentityId(ch) : null,
                 AccountOwnerClanId = owner is IClan clan ? clan.Id : null,
                 AccountOwnerShopId = owner is IShop shop ? shop.Id : null
             };

@@ -1321,10 +1321,11 @@ Use #3arena tasks actions#0 and #3arena tasks conditions#0 for the full task act
         IArenaEvent? arenaEvent;
         if (ss.IsFinished)
         {
+            var actorIdentityId = CharacterInstanceIdentityComparer.IdentityId(actor);
             List<IArenaEvent> matchingEvents = actor.Gameworld.CombatArenas
                 .SelectMany(x => x.ActiveEvents)
                 .Where(x => x.State == ArenaEventState.Live)
-                .Where(x => x.Participants.Any(p => p.Character?.Id == actor.Id))
+                .Where(x => x.Participants.Any(p => p.CharacterId == actorIdentityId))
                 .ToList();
 
             switch (matchingEvents.Count)

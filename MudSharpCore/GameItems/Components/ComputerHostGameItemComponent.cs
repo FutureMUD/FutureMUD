@@ -546,7 +546,7 @@ public class ComputerHostGameItemComponent : PoweredMachineBaseGameItemComponent
 		{
 			Id = NextProcessId(),
 			ProcessName = program.Name,
-			OwnerCharacterId = actor?.Id ?? 0L,
+			OwnerCharacterId = CharacterInstanceIdentityComparer.IdentityId(actor),
 			Program = program,
 			Host = this,
 			Status = ComputerProcessStatus.Running,

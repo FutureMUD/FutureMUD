@@ -83,7 +83,7 @@ public class PreparedFoodGameItemComponentProto : GameItemComponentProto, IPrepa
 	{
 		var profile = new PreparedFoodProfile
 		{
-			ServingScope = Enum.Parse<FoodServingScope>(root.Attribute("ServingScope")?.Value ?? FoodServingScope.WholeItem.ToString()),
+			ServingScope = LoadServingScope(root.Attribute("ServingScope")?.Value),
 			SatiationPoints = LoadDouble(root, "Satiation", 6.0),
 			WaterLitres = LoadDouble(root, "Water", 0.05),
 			ThirstPoints = LoadDouble(root, "Thirst", 0.0),
@@ -135,6 +135,22 @@ public class PreparedFoodGameItemComponentProto : GameItemComponentProto, IPrepa
 
 		var seconds = double.Parse(text, CultureInfo.InvariantCulture);
 		return seconds <= 0.0 ? null : TimeSpan.FromSeconds(seconds);
+	}
+
+	public static FoodServingScope LoadServingScope(string? text)
+	{
+		if (string.IsNullOrWhiteSpace(text))
+		{
+			return FoodServingScope.WholeItem;
+		}
+
+		return text.Trim().ToLowerInvariant() switch
+		{
+			"item" or "whole" or "wholeitem" or "whole-item" => FoodServingScope.WholeItem,
+			"stack" or "unit" or "perunit" or "per-unit" or "perstackunit" or "per-stack-unit" => FoodServingScope.PerStackUnit,
+			_ when Enum.TryParse<FoodServingScope>(text, true, out var value) => value,
+			_ => FoodServingScope.WholeItem
+		};
 	}
 
 	protected override string SaveToXml()

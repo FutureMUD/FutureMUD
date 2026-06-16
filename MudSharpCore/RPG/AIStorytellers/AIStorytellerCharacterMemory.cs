@@ -35,7 +35,7 @@ public class AIStorytellerCharacterMemory : SaveableItem, IAIStorytellerCharacte
             Models.AIStorytellerCharacterMemory dbitem = new()
             {
                 AIStorytellerId = aiStoryteller.Id,
-                CharacterId = character.Id,
+                CharacterId = CharacterInstanceIdentityComparer.IdentityId(character),
                 MemoryTitle = title,
                 MemoryText = text,
                 CreatedOn = CreatedOn

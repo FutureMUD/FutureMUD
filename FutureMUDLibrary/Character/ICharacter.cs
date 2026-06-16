@@ -363,6 +363,18 @@ namespace MudSharp.Character
         IEnumerable<IBody> Bodies { get; }
         IEnumerable<ITrait> CharacterTraits { get; }
         IBody CurrentBody { get; }
+        ICharacterIdentity Identity { get; }
+        long InstanceId { get; }
+        CharacterInstanceKind InstanceKind { get; }
+        CharacterInstanceControlPolicy ControlPolicy { get; }
+        CharacterInstanceDeathPolicy DeathPolicy { get; }
+        CharacterInstancePerceptionPolicy PerceptionPolicy { get; }
+        CharacterInstancePersistencePolicy PersistencePolicy { get; }
+        bool IsPrimaryInstance { get; }
+        bool IsControllable { get; }
+        bool IsEmbodied { get; }
+        bool SameIdentity(ICharacter other);
+        bool SamePhysicalInstance(IPerceivable other);
         bool TryToDetermineIdentity(ICharacter observer);
         ICorpse Corpse { get; set; }
         bool IsGuest { get; }

@@ -10,6 +10,7 @@ namespace MudSharp.Models
     {
         public long PatrolId { get; set; }
         public long CharacterId { get; set; }
+        public long CharacterInstanceId { get; set; }
 
         public virtual Patrol Patrol { get; set; }
         public virtual Character Character { get; set; }

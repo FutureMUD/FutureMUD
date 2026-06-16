@@ -1089,8 +1089,9 @@ Administrators can also use:
 			return;
 		}
 
+		var actorIdentityId = CharacterInstanceIdentityComparer.IdentityId(actor);
 		var account = stable.AccountByName(ss.SafeRemainingArgument);
-		if (account is null || (!account.AccountUsers.Any(x => x.Id == actor.Id) && !stable.IsManager(actor)))
+		if (account is null || (!account.AccountUsers.Any(x => x.Id == actorIdentityId) && !stable.IsManager(actor)))
 		{
 			actor.OutputHandler.Send("There is no such stable account that you are authorised to view.");
 			return;
@@ -1112,8 +1113,9 @@ Administrators can also use:
 			return;
 		}
 
+		var actorIdentityId = CharacterInstanceIdentityComparer.IdentityId(actor);
 		var account = stable.AccountByName(ss.PopSpeech());
-		if (account is null || !account.AccountUsers.Any(x => x.Id == actor.Id))
+		if (account is null || !account.AccountUsers.Any(x => x.Id == actorIdentityId))
 		{
 			actor.OutputHandler.Send("There is no such stable account that you are authorised to pay.");
 			return;
@@ -1553,7 +1555,7 @@ Administrators can also use:
 		var target = actor.TargetActor(text);
 		if (user is null && target is not null)
 		{
-			user = account.AccountUsers.FirstOrDefault(x => x.Id == target.Id);
+			user = account.AccountUsers.FirstOrDefault(x => x.Id == CharacterInstanceIdentityComparer.IdentityId(target));
 		}
 
 		if (user is null)

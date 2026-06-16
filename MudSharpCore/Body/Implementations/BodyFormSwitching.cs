@@ -43,6 +43,28 @@ public partial class Body
 		public List<(ReplantedBodypartsEffect Effect, IBodypart TargetPart, TimeSpan Duration)> ReplantedEffects { get; init; } = new();
 	}
 
+	internal static double BloodVolumeRatioForFormSwitch(double currentBloodVolumeLitres, double totalBloodVolumeLitres)
+	{
+		if (!double.IsFinite(totalBloodVolumeLitres) || totalBloodVolumeLitres <= 0.0)
+		{
+			return 1.0;
+		}
+
+		if (!double.IsFinite(currentBloodVolumeLitres))
+		{
+			return 1.0;
+		}
+
+		return Math.Clamp(currentBloodVolumeLitres / totalBloodVolumeLitres, 0.0, 1.0);
+	}
+
+	private void SetBloodVolumeFromRatio(double ratio)
+	{
+		_currentBloodVolumeLitres = double.IsFinite(TotalBloodVolumeLitres) && TotalBloodVolumeLitres > 0.0
+			? TotalBloodVolumeLitres * Math.Clamp(ratio, 0.0, 1.0)
+			: 0.0;
+	}
+
 	internal bool TryPrepareSwitchFrom(Body source, BodySwitchTraumaMode traumaMode, out BodySwitchPlan? plan,
 		out string whyNot)
 	{
@@ -548,7 +570,7 @@ public partial class Body
 			Bloodtype = source.Bloodtype;
 			TotalBloodVolumeLitres = MudSharp.Character.Character.TotalBloodVolume(Actor);
 			BaseLiverAlcoholRemovalKilogramsPerHour = MudSharp.Character.Character.LiverFunction(Actor);
-			_currentBloodVolumeLitres = Math.Min(source._currentBloodVolumeLitres, TotalBloodVolumeLitres);
+			SetBloodVolumeFromRatio(BloodVolumeRatioForFormSwitch(source._currentBloodVolumeLitres, source.TotalBloodVolumeLitres));
 			HeldBreathTime = source.HeldBreathTime;
 		}
 		else

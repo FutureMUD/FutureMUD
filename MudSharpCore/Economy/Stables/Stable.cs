@@ -294,7 +294,8 @@ public partial class Stable : SavableKeywordedItem, IStable
 
 	public void RemoveEmployee(ICharacter actor)
 	{
-		var record = _employeeRecords.FirstOrDefault(x => x.EmployeeCharacterId == actor.Id);
+		var actorIdentityId = CharacterInstanceIdentityComparer.IdentityId(actor);
+		var record = _employeeRecords.FirstOrDefault(x => x.EmployeeCharacterId == actorIdentityId);
 		if (record is not null)
 		{
 			RemoveEmployee(record);
@@ -309,14 +310,16 @@ public partial class Stable : SavableKeywordedItem, IStable
 
 	public void SetManager(ICharacter actor, bool isManager)
 	{
-		var record = _employeeRecords.First(x => x.EmployeeCharacterId == actor.Id);
+		var actorIdentityId = CharacterInstanceIdentityComparer.IdentityId(actor);
+		var record = _employeeRecords.First(x => x.EmployeeCharacterId == actorIdentityId);
 		record.IsManager = isManager;
 		Changed = true;
 	}
 
 	public void SetProprietor(ICharacter actor, bool isProprietor)
 	{
-		var record = _employeeRecords.First(x => x.EmployeeCharacterId == actor.Id);
+		var actorIdentityId = CharacterInstanceIdentityComparer.IdentityId(actor);
+		var record = _employeeRecords.First(x => x.EmployeeCharacterId == actorIdentityId);
 		record.IsProprietor = isProprietor;
 		Changed = true;
 	}
@@ -437,6 +440,20 @@ public partial class Stable : SavableKeywordedItem, IStable
 		if (mount.Riders.Any())
 		{
 			return (false, $"{mount.HowSeen(actor, true)} is currently being ridden.");
+		}
+
+		if (ActiveStays.Any(x =>
+			    x.MountId == CharacterInstanceIdentityComparer.IdentityId(mount) &&
+			    (x.MountInstanceId is null || x.MountInstanceId == CharacterInstanceIdentityComparer.InstanceId(mount))))
+		{
+			return (false, $"{mount.HowSeen(actor, true)} is already stabled here.");
+		}
+
+		if (!mount.IsPrimaryInstance &&
+		    mount.PersistencePolicy != CharacterInstancePersistencePolicy.Persistent)
+		{
+			return (false,
+				$"{mount.HowSeen(actor, true)} is a temporary secondary instance and cannot be stabled.");
 		}
 
 		return CanUseStable(actor, mount);
@@ -561,7 +578,7 @@ public partial class Stable : SavableKeywordedItem, IStable
 		}
 
 		var accounts = StableAccounts.Where(x => x.IsAuthorisedToUse(actor, 0.0M) != StableAccountAuthorisationFailureReason.NotAuthorisedAccountUser).ToList();
-		var stays = ActiveStays.Where(x => x.OriginalOwnerId == actor.Id).ToList();
+		var stays = ActiveStays.Where(x => x.OriginalOwnerId == CharacterInstanceIdentityComparer.IdentityId(actor)).ToList();
 
 		sb.AppendLine();
 		sb.AppendLine($"Active Stays:");
@@ -625,6 +642,7 @@ public partial class Stable : SavableKeywordedItem, IStable
 		sb.AppendLine($"Stable Stay #{stay.Id.ToString("N0", actor)} - {Name.TitleCase().ColourName()}".GetLineWithTitle(actor, Telnet.Cyan, Telnet.BoldWhite));
 		sb.AppendLine($"Status: {stay.Status.DescribeEnum().ColourName()}");
 		sb.AppendLine($"Mount: {(stay.Mount is null ? $"#{stay.MountId.ToString("N0", actor)}".ColourValue() : stay.Mount.HowSeen(actor).ColourName())}");
+		sb.AppendLine($"Mount Instance: {(stay.MountInstanceId?.ToString("N0", actor).ColourValue() ?? "Legacy/Primary".ColourCommand())}");
 		sb.AppendLine($"Original Lodger: {(stay.OriginalOwnerName?.GetName(NameStyle.FullName) ?? $"#{stay.OriginalOwnerId.ToString("N0", actor)}").ColourName()}");
 		sb.AppendLine($"Lodged: {stay.LodgedDateTime.ToString(CalendarDisplayMode.Short, TimeDisplayTypes.Short).ColourValue()}");
 		sb.AppendLine($"Last Fee Assessment: {stay.LastDailyFeeDateTime.ToString(CalendarDisplayMode.Short, TimeDisplayTypes.Short).ColourValue()}");
@@ -668,16 +686,49 @@ public partial class Stable : SavableKeywordedItem, IStable
 	private void RestoreMount(IStableStay stay)
 	{
 		var mount = stay.Mount;
+		if (mount is null && stay.MountInstanceId is not null)
+		{
+			var owner = Gameworld.TryGetCharacter(stay.MountId, true);
+			if (owner is not null)
+			{
+				mount = CharacterInstanceService.RestorePersistentSecondaryInstance(
+						owner,
+						stay.MountInstanceId.Value,
+						Location,
+						RoomLayer.GroundLevel)
+					.Instance;
+			}
+		}
+
 		if (mount is null)
 		{
 			return;
 		}
 
-		if (!Gameworld.Actors.Has(mount))
+		if (mount.IsPrimaryInstance)
 		{
-			Gameworld.Add(mount, true);
+			if (!Gameworld.Actors.Has(mount))
+			{
+				Gameworld.Add(mount, true);
+			}
+
+			Location.Login(mount);
+			return;
 		}
 
-		Location.Login(mount);
+		if (mount is MudSharp.Character.Character secondary)
+		{
+			secondary.Location?.Leave(secondary);
+			secondary.SetInstanceEmbodied(true);
+			secondary.SetInstanceControllable(secondary.ControlPolicy != CharacterInstanceControlPolicy.NotControllable);
+			secondary.SetInstanceStateAndStatus(secondary.State & ~CharacterState.Stasis, secondary.Status);
+			Location.Enter(secondary, noSave: true, roomLayer: RoomLayer.GroundLevel);
+			secondary.Save();
+		}
+
+		if (mount is INPC npc)
+		{
+			npc.SetupEventSubscriptions();
+		}
 	}
 }

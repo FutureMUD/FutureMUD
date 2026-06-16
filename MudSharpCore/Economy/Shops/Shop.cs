@@ -333,13 +333,15 @@ public abstract partial class Shop : SaveableItem, IShop
 
     public void SetManager(ICharacter actor, bool isManager)
     {
-        _employeeRecords.First(x => x.EmployeeCharacterId == actor.Id).IsManager = isManager;
+        var actorIdentityId = CharacterInstanceIdentityComparer.IdentityId(actor);
+        _employeeRecords.First(x => x.EmployeeCharacterId == actorIdentityId).IsManager = isManager;
         Changed = true;
     }
 
     public void SetProprietor(ICharacter actor, bool isProprietor)
     {
-        _employeeRecords.First(x => x.EmployeeCharacterId == actor.Id).IsProprietor = isProprietor;
+        var actorIdentityId = CharacterInstanceIdentityComparer.IdentityId(actor);
+        _employeeRecords.First(x => x.EmployeeCharacterId == actorIdentityId).IsProprietor = isProprietor;
         Changed = true;
     }
 
@@ -399,7 +401,8 @@ public abstract partial class Shop : SaveableItem, IShop
 
     public void RemoveEmployee(ICharacter actor)
     {
-        IEmployeeRecord record = _employeeRecords.FirstOrDefault(x => x.EmployeeCharacterId == actor.Id);
+        var actorIdentityId = CharacterInstanceIdentityComparer.IdentityId(actor);
+        IEmployeeRecord record = _employeeRecords.FirstOrDefault(x => x.EmployeeCharacterId == actorIdentityId);
         if (record != null)
         {
             RemoveEmployee(record);
@@ -408,13 +411,15 @@ public abstract partial class Shop : SaveableItem, IShop
 
     public void EmployeeClockIn(ICharacter actor)
     {
-        _employeeRecords.First(x => x.EmployeeCharacterId == actor.Id).ClockedIn = true;
+        var actorIdentityId = CharacterInstanceIdentityComparer.IdentityId(actor);
+        _employeeRecords.First(x => x.EmployeeCharacterId == actorIdentityId).ClockedIn = true;
         Changed = true;
     }
 
     public void EmployeeClockOut(ICharacter actor)
     {
-        _employeeRecords.First(x => x.EmployeeCharacterId == actor.Id).ClockedIn = false;
+        var actorIdentityId = CharacterInstanceIdentityComparer.IdentityId(actor);
+        _employeeRecords.First(x => x.EmployeeCharacterId == actorIdentityId).ClockedIn = false;
         Changed = true;
     }
 

@@ -34,7 +34,7 @@ namespace MudSharp.Economy
         {
             get => BidDateTime.Gameworld.TryGetCharacter(BidderId, true)!;
 
-            init => BidderId = value.Id;
+            init => BidderId = CharacterInstanceIdentityComparer.IdentityId(value);
         }
         public decimal Bid { get; init; }
         public MudDateTime BidDateTime { get; init; } = null!;
@@ -73,7 +73,8 @@ namespace MudSharp.Economy
         {
             return seller != null &&
                    Seller.FrameworkItemType.Equals(seller.FrameworkItemType, StringComparison.OrdinalIgnoreCase) &&
-                   Seller.Id == seller.Id;
+                   CharacterInstanceIdentityComparer.FrameworkItemId(Seller) ==
+                   CharacterInstanceIdentityComparer.FrameworkItemId(seller);
         }
 
         public XElement SaveToXml(IEnumerable<AuctionBid> bids)
@@ -82,11 +83,11 @@ namespace MudSharp.Economy
                 new XAttribute("kind", LotType.ToString()),
                 new XAttribute("assetid", Asset.Id),
                 new XAttribute("assettype", Asset.FrameworkItemType),
-                new XAttribute("sellerid", Seller.Id),
+                new XAttribute("sellerid", CharacterInstanceIdentityComparer.FrameworkItemId(Seller)),
                 new XAttribute("sellertype", Seller.FrameworkItemType),
-                new XAttribute("payoutid", PayoutTarget?.Id ?? 0L),
+                new XAttribute("payoutid", CharacterInstanceIdentityComparer.FrameworkItemId(PayoutTarget)),
                 new XAttribute("payouttype", PayoutTarget?.FrameworkItemType ?? "None"),
-                new XAttribute("character", Seller is ICharacter ch ? ch.Id : 0L),
+                new XAttribute("character", Seller is ICharacter ch ? CharacterInstanceIdentityComparer.IdentityId(ch) : 0L),
                 new XAttribute("item", Item?.Id ?? 0L),
                 new XAttribute("share", PropertyShare),
                 new XAttribute("price", MinimumPrice),

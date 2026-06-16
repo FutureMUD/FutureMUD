@@ -16,6 +16,7 @@ namespace MudSharp.Models
             CellsTags = new HashSet<CellsTags>();
             CharacterLog = new HashSet<CharacterLog>();
             Characters = new HashSet<Character>();
+            CharacterInstances = new HashSet<CharacterInstance>();
             ClansAdministrationCells = new HashSet<ClanAdministrationCell>();
             ClansTreasuryCells = new HashSet<ClanTreasuryCell>();
             Crimes = new HashSet<Crime>();
@@ -46,6 +47,7 @@ namespace MudSharp.Models
         public virtual ICollection<CellsTags> CellsTags { get; set; }
         public virtual ICollection<CharacterLog> CharacterLog { get; set; }
         public virtual ICollection<Character> Characters { get; set; }
+        public virtual ICollection<CharacterInstance> CharacterInstances { get; set; }
         public virtual ICollection<ClanAdministrationCell> ClansAdministrationCells { get; set; }
         public virtual ICollection<ClanTreasuryCell> ClansTreasuryCells { get; set; }
         public virtual ICollection<Crime> Crimes { get; set; }

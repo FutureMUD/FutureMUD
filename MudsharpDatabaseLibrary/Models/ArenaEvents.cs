@@ -98,6 +98,7 @@ public class ArenaSignup
     public long Id { get; set; }
     public long ArenaEventId { get; set; }
     public long CharacterId { get; set; }
+    public long? ActiveCharacterInstanceId { get; set; }
     public long CombatantClassId { get; set; }
     public int SideIndex { get; set; }
     public bool IsNpc { get; set; }
@@ -109,6 +110,7 @@ public class ArenaSignup
 
     public virtual ArenaEvent ArenaEvent { get; set; }
     public virtual Character Character { get; set; }
+    public virtual CharacterInstance ActiveCharacterInstance { get; set; }
     public virtual ArenaCombatantClass CombatantClass { get; set; }
     public virtual ArenaReservation ArenaReservation { get; set; }
     public virtual ICollection<ArenaElimination> ArenaEliminations { get; set; }

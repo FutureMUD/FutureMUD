@@ -4,8 +4,13 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using MudSharp.Body;
 using MudSharp.Character;
+using MudSharp.Character.Heritage;
 using ConcreteBody = MudSharp.Body.Implementations.Body;
 using ConcreteCharacter = MudSharp.Character.Character;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Reflection;
 
 namespace MudSharp_Unit_Tests;
@@ -56,5 +61,122 @@ public class BodyFormLifecycleGuardTests
 
 		character.StartNeedsHeartbeat();
 		character.NeedsHeartbeat();
+	}
+
+	[TestMethod]
+	public void BodySwitchBloodRatio_UsesPercentageRatherThanLitres()
+	{
+		Assert.AreEqual(0.5, ConcreteBody.BloodVolumeRatioForFormSwitch(0.25, 0.5), 0.000001);
+		Assert.AreEqual(1.0, ConcreteBody.BloodVolumeRatioForFormSwitch(10.0, 5.0), 0.000001);
+		Assert.AreEqual(0.0, ConcreteBody.BloodVolumeRatioForFormSwitch(-1.0, 5.0), 0.000001);
+		Assert.AreEqual(1.0, ConcreteBody.BloodVolumeRatioForFormSwitch(0.0, 0.0), 0.000001);
+	}
+
+	[TestMethod]
+	public void BodySwitchEcho_UsesFormSnapshotsForOldAndNewDescriptions()
+	{
+		var source = File.ReadAllText(GetSourcePath("MudSharpCore", "Character", "CharacterForms.cs"));
+
+		StringAssert.Contains(source, "BodyFormEchoSnapshot");
+		StringAssert.Contains(source, "new Emote(echo.Sanitise(), oldSnapshot, oldSnapshot, newSnapshot)");
+		StringAssert.Contains(source, "PerceiveIgnoreFlags.IgnoreCanSee | PerceiveIgnoreFlags.IgnoreSelf");
+	}
+
+	[TestMethod]
+	public void EquivalentAgeForLifeStage_MapsAdultProgressToTargetRace()
+	{
+		var human = CreateRaceWithAgeThresholds(3, 10, 16, 21, 55, 75).Object;
+		var dog = CreateRaceWithAgeThresholds(1, 2, 3, 4, 10, 14).Object;
+
+		Assert.AreEqual(7, ConcreteCharacter.EquivalentAgeForLifeStage(human, 38, dog));
+	}
+
+	[TestMethod]
+	public void EquivalentAgeForLifeStage_PreservesAgeForSameRace()
+	{
+		var human = CreateRaceWithAgeThresholds(3, 10, 16, 21, 55, 75).Object;
+
+		Assert.AreEqual(38, ConcreteCharacter.EquivalentAgeForLifeStage(human, 38, human));
+	}
+
+	[TestMethod]
+	public void ProvisionedForms_AttachPersistentApparentAgeMetadata()
+	{
+		var source = File.ReadAllText(GetSourcePath("MudSharpCore", "Character", "CharacterForms.cs"));
+		var effect = File.ReadAllText(GetSourcePath("MudSharpCore", "Effects", "Concrete", "BodyFormApparentAgeEffect.cs"));
+
+		StringAssert.Contains(source, "EquivalentBirthdayForLifeStage(template, race)");
+		StringAssert.Contains(source, "SelectedBirthday = apparentBirthday");
+		StringAssert.Contains(source, "EnsureBodyFormApparentAge(newBody, apparentBirthday)");
+		StringAssert.Contains(source, "EnsureBodyFormApparentAge(form.Body, EquivalentBirthdayForLifeStage");
+		StringAssert.Contains(effect, "public override bool SavingEffect => true;");
+		StringAssert.Contains(effect, "ApparentBirthday.GetRoundtripString()");
+	}
+
+	private static Mock<IRace> CreateRaceWithAgeThresholds(int child, int youth, int youngAdult, int adult, int elder,
+		int venerable)
+	{
+		var thresholds = new Dictionary<AgeCategory, int>
+		{
+			[AgeCategory.Baby] = 0,
+			[AgeCategory.Child] = child,
+			[AgeCategory.Youth] = youth,
+			[AgeCategory.YoungAdult] = youngAdult,
+			[AgeCategory.Adult] = adult,
+			[AgeCategory.Elder] = elder,
+			[AgeCategory.Venerable] = venerable
+		};
+		var race = new Mock<IRace>();
+		race.Setup(x => x.MinimumAgeForCategory(It.IsAny<AgeCategory>()))
+		    .Returns((AgeCategory category) => thresholds[category]);
+		race.Setup(x => x.AgeCategory(It.IsAny<int>()))
+		    .Returns((int age) =>
+		    {
+			    if (age >= venerable)
+			    {
+				    return AgeCategory.Venerable;
+			    }
+
+			    if (age >= elder)
+			    {
+				    return AgeCategory.Elder;
+			    }
+
+			    if (age >= adult)
+			    {
+				    return AgeCategory.Adult;
+			    }
+
+			    if (age >= youngAdult)
+			    {
+				    return AgeCategory.YoungAdult;
+			    }
+
+			    if (age >= youth)
+			    {
+				    return AgeCategory.Youth;
+			    }
+
+			    if (age >= child)
+			    {
+				    return AgeCategory.Child;
+			    }
+
+			    return AgeCategory.Baby;
+		    });
+		race.Setup(x => x.SameRace(It.IsAny<IRace>()))
+		    .Returns((IRace other) => ReferenceEquals(other, race.Object));
+		return race;
+	}
+
+	private static string GetSourcePath(params string[] parts)
+	{
+		var root = AppContext.BaseDirectory;
+		for (var i = 0; i < 8 && !File.Exists(Path.Combine(root, "MudSharp.sln")); i++)
+		{
+			root = Path.GetFullPath(Path.Combine(root, ".."));
+		}
+
+		return Path.Combine(new[] { root }.Concat(parts).ToArray());
 	}
 }

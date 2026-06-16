@@ -345,7 +345,7 @@ internal partial class EconomyModule : Module<ICharacter>
             return true;
         }
 
-        if (item.Seller.FrameworkItemEquals(actor.Id, actor.FrameworkItemType))
+        if (item.IsSeller(actor))
         {
             return true;
         }
@@ -2614,7 +2614,8 @@ Additionally, you can use the following shop admin subcommands:
             return;
         }
 
-        if (account.AccountUsers.All(x => x.Id != actor.Id) && !actor.IsAdministrator() && !shop.IsEmployee(actor))
+        var actorIdentityId = CharacterInstanceIdentityComparer.IdentityId(actor);
+        if (account.AccountUsers.All(x => x.Id != actorIdentityId) && !actor.IsAdministrator() && !shop.IsEmployee(actor))
         {
             actor.OutputHandler.Send("You are not authorised to view that account.");
             return;
@@ -2632,7 +2633,7 @@ Additionally, you can use the following shop admin subcommands:
             $"The account has an outstanding balance of {shop.Currency.Describe(account.OutstandingBalance, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}.");
         sb.AppendLine(
             $"You are personally authorised to spend {shop.Currency.Describe(account.MaximumAuthorisedToUse(actor), CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}.");
-        if (actor.Id == account.AccountOwnerId)
+        if (actorIdentityId == account.AccountOwnerId)
         {
             sb.AppendLine();
             sb.AppendLine("The following people are authorised to use this account:");
@@ -3014,7 +3015,7 @@ Additionally, you can use the following shop admin subcommands:
             }
         }
 
-        if (account.AccountUsers.Any(x => x.Id == target.Id))
+        if (account.AccountUsers.Any(x => x.Id == CharacterInstanceIdentityComparer.IdentityId(target)))
         {
             actor.OutputHandler.Send(
                 $"{target.HowSeen(actor, true, flags: PerceiveIgnoreFlags.IgnoreSelf)} is already an authorised user of that account.");
@@ -6333,7 +6334,7 @@ Note: Admins can use the #3auction cancel#0 subcommand on other people's items";
 
         IGameItem gameitem = item.Item;
         gameitem.Login();
-        if (item.Seller.FrameworkItemEquals(actor.Id, actor.FrameworkItemType) && actor.Body.CanGet(gameitem, 0))
+        if (item.IsSeller(actor) && actor.Body.CanGet(gameitem, 0))
         {
             actor.Body.Get(gameitem, silent: true);
             return;
@@ -6347,9 +6348,9 @@ Note: Admins can use the #3auction cancel#0 subcommand on other people's items";
     {
         List<UnclaimedAuctionItem> unclaimed = auctionHouse.UnclaimedItems.Where(x =>
                                         x.AuctionItem.Item != null &&
-                                        (x.WinningBid?.Bidder == actor ||
+                                        (x.WinningBid?.BidderId == CharacterInstanceIdentityComparer.IdentityId(actor) ||
                                          (x.WinningBid == null &&
-                                          x.AuctionItem.Seller.FrameworkItemEquals(actor.Id, actor.FrameworkItemType))))
+                                          x.AuctionItem.IsSeller(actor))))
                                     .ToList();
         if (!unclaimed.Any())
         {
@@ -6447,10 +6448,10 @@ Note: Admins can use the #3auction cancel#0 subcommand on other people's items";
 
             if (actor.Gameworld.AuctionHouses.SelectMany(x => x.ActiveAuctionItems).Any(x =>
                     x.Asset.FrameworkItemEquals(property.Id, property.FrameworkItemType) &&
-                    x.Seller.FrameworkItemEquals(actor.Id, actor.FrameworkItemType)) ||
+                    x.IsSeller(actor)) ||
                 actor.Gameworld.AuctionHouses.SelectMany(x => x.UnclaimedItems).Any(x =>
                     x.AuctionItem.Asset.FrameworkItemEquals(property.Id, property.FrameworkItemType) &&
-                    x.AuctionItem.Seller.FrameworkItemEquals(actor.Id, actor.FrameworkItemType)))
+                    x.AuctionItem.IsSeller(actor)))
             {
                 actor.OutputHandler.Send(
                     $"Your ownership share in {property.Name.ColourName()} is already listed on an auction house.");
@@ -6783,7 +6784,7 @@ Note: Admins can use the #3auction cancel#0 subcommand on other people's items";
 
     private static void AuctionRefund(ICharacter actor, IAuctionHouse auctionHouse, StringStack ss)
     {
-        decimal owed = auctionHouse.BidderRefundsOwed[actor.Id];
+        decimal owed = auctionHouse.BidderRefundsOwed[CharacterInstanceIdentityComparer.IdentityId(actor)];
         if (owed <= 0.0M)
         {
             actor.OutputHandler.Send($"{auctionHouse.Name.ColourName()} does not owe you any refunds.");
@@ -7052,15 +7053,16 @@ Note: Admins can use the #3auction cancel#0 subcommand on other people's items";
 
         StringBuilder psb = new();
 
-        if (auctionHouse.BidderRefundsOwed[actor.Id] > 0)
+        var actorIdentityId = CharacterInstanceIdentityComparer.IdentityId(actor);
+        if (auctionHouse.BidderRefundsOwed[actorIdentityId] > 0)
         {
             psb.AppendLine(
-                $"\nThe auction house owes you {auctionHouse.EconomicZone.Currency.Describe(auctionHouse.BidderRefundsOwed[actor.Id], CurrencyDescriptionPatternType.ShortDecimal).ColourValue()} in refunds.\nType {"AUCTION REFUND".MXPSend("auction refund", "Click to send AUCTION REFUND to the MUD")} to claim your money.");
+                $"\nThe auction house owes you {auctionHouse.EconomicZone.Currency.Describe(auctionHouse.BidderRefundsOwed[actorIdentityId], CurrencyDescriptionPatternType.ShortDecimal).ColourValue()} in refunds.\nType {"AUCTION REFUND".MXPSend("auction refund", "Click to send AUCTION REFUND to the MUD")} to claim your money.");
         }
 
         List<UnclaimedAuctionItem> unclaimed = auctionHouse.UnclaimedItems.Where(x =>
-                                        (x.AuctionItem.Seller.FrameworkItemEquals(actor.Id, actor.FrameworkItemType) && x.WinningBid == null) ||
-                                        x.WinningBid?.BidderId == actor.Id
+                                        (x.AuctionItem.IsSeller(actor) && x.WinningBid == null) ||
+                                        x.WinningBid?.BidderId == actorIdentityId
                                     )
                                     .ToList();
         if (unclaimed.Any())

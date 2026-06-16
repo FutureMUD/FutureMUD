@@ -175,7 +175,7 @@ public sealed partial class CombatArena : SaveableItem, ICombatArena
         this.ActiveEmploymentContracts()
             .Where(x => x.Role is EmploymentRole.Manager or EmploymentRole.Proprietor)
             .Select(x => x.Employee)
-            .DistinctBy(x => x.Id);
+            .DistinctBy(CharacterInstanceIdentityComparer.IdentityId);
 
     public IEnumerable<ICell> WaitingCells => _cells[ArenaCellRole.Waiting];
     public IEnumerable<ICell> ArenaCells => _cells[ArenaCellRole.ArenaFloor];
@@ -195,7 +195,7 @@ public sealed partial class CombatArena : SaveableItem, ICombatArena
 
     public void AddManager(ICharacter actor)
     {
-        if (actor == null || !_managerIds.Add(actor.Id))
+        if (actor == null || !_managerIds.Add(CharacterInstanceIdentityComparer.IdentityId(actor)))
         {
             return;
         }
@@ -206,7 +206,7 @@ public sealed partial class CombatArena : SaveableItem, ICombatArena
 
     public void RemoveManager(ICharacter actor)
     {
-        if (actor == null || !_managerIds.Remove(actor.Id))
+        if (actor == null || !_managerIds.Remove(CharacterInstanceIdentityComparer.IdentityId(actor)))
         {
             return;
         }

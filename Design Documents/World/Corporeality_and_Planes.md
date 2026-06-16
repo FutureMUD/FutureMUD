@@ -127,6 +127,8 @@ Spell effect tokens are:
 - `planeshift`
 - `removeplanarstate`
 
+The multi-body spell effects `astralprojection` and `createcopy` also consume plane definitions. They create secondary body instances through the character instance service, then apply spell-owned planar presence to the projection or copy. Their lifecycle, focus switching, and body cleanup live in the simultaneous body instance system; their visibility, speech, interaction, and remote-observation behaviour still use the planar rules described here.
+
 `SamePlaneOnly` power filtering and `SensePower` now use shared planar overlap checks instead of the older placeholder logic.
 
 ### Merits And Drugs
@@ -185,7 +187,7 @@ If a transition does not propagate inventory, the body gently ejects direct held
 | Movement | `CharacterMovement` closed-door, magical-barrier, and falling checks |
 | Physiology | `BodyBiology.NeedsToBreathe` and `CanBreathe` |
 | Inventory transition | `Body.EjectInventoryForPlanarTransition()` |
-| Magic | `MagicPowerBase`, `SensePower`, planar spell effects |
+| Magic | `MagicPowerBase`, `SensePower`, planar spell effects, astral projection and magical-copy planar overlays |
 | Builder commands | `plane`, `corporeality`, item prototype `planar` |
 | FutureProg | `MudSharpCore/FutureProg/Functions/Planes` |
 

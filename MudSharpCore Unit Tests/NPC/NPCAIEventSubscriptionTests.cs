@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using MudSharp.Character;
 using MudSharp.Events;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
@@ -44,6 +45,33 @@ public class NPCAIEventSubscriptionTests
 		heartbeat.VerifyAdd(x => x.FuzzyMinuteHeartbeat += It.IsAny<HeartbeatManagerDelegate>(), Times.Never);
 	}
 
+	[TestMethod]
+	public void NpcSecondaryRegistersHeartbeatSubscriptionsForItsOwnAIs()
+	{
+		var heartbeat = new Mock<IHeartbeatManager>();
+		var secondary = BuildUninitialisedNpcSecondary(heartbeat.Object, [MinuteTickAI().Object]);
+
+		secondary.SetupEventSubscriptions();
+
+		heartbeat.VerifyAdd(x => x.FuzzyMinuteHeartbeat += It.IsAny<HeartbeatManagerDelegate>(), Times.Once);
+	}
+
+	[TestMethod]
+	public void NpcSecondaryReleaseDoesNotReleaseOwnerSubscription()
+	{
+		var heartbeat = new Mock<IHeartbeatManager>();
+		var ai = MinuteTickAI();
+		var npc = BuildUninitialisedNpc(heartbeat.Object, [ai.Object]);
+		var secondary = BuildUninitialisedNpcSecondary(heartbeat.Object, [ai.Object]);
+
+		npc.SetupEventSubscriptions();
+		secondary.SetupEventSubscriptions();
+		secondary.ReleaseEventSubscriptions();
+
+		heartbeat.VerifyAdd(x => x.FuzzyMinuteHeartbeat += It.IsAny<HeartbeatManagerDelegate>(), Times.Exactly(2));
+		heartbeat.VerifyRemove(x => x.FuzzyMinuteHeartbeat -= It.IsAny<HeartbeatManagerDelegate>(), Times.Exactly(3));
+	}
+
 	private static MudNpc BuildUninitialisedNpc(IHeartbeatManager heartbeatManager,
 		IEnumerable<IArtificialIntelligence>? ais = null)
 	{
@@ -57,6 +85,22 @@ public class NPCAIEventSubscriptionTests
 			.GetProperty("Gameworld", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)!
 			.SetValue(npc, gameworld.Object);
 		return npc;
+	}
+
+	private static NpcCharacterInstance BuildUninitialisedNpcSecondary(IHeartbeatManager heartbeatManager,
+		IEnumerable<IArtificialIntelligence>? ais = null)
+	{
+		var saveManager = new Mock<ISaveManager>();
+		var gameworld = new Mock<IFuturemud>();
+		gameworld.SetupGet(x => x.HeartbeatManager).Returns(heartbeatManager);
+		gameworld.SetupGet(x => x.SaveManager).Returns(saveManager.Object);
+		var secondary = (NpcCharacterInstance)RuntimeHelpers.GetUninitializedObject(typeof(NpcCharacterInstance));
+		SetField(typeof(NpcCharacterInstance), secondary, "_AIs",
+			new List<IArtificialIntelligence>(ais ?? []));
+		typeof(LateKeywordedInitialisingItem)
+			.GetProperty("Gameworld", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)!
+			.SetValue(secondary, gameworld.Object);
+		return secondary;
 	}
 
 	private static Mock<IArtificialIntelligence> MinuteTickAI()

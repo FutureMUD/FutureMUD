@@ -363,7 +363,7 @@ public abstract class CombatBase : ICombat
             return;
         }
 
-        attackMove.Attack.OnUseAttackProg?.Execute(move.Assailant, attackMove.Weapon?.Parent,
+        attackMove.Attack?.OnUseAttackProg?.Execute(move.Assailant, attackMove.Weapon?.Parent,
             attackMove.CharacterTargets.FirstOrDefault());
     }
 

@@ -92,14 +92,15 @@ public abstract class Trait : FrameworkItem, ITrait
             return;
         }
 
-        if (Definition.OwnerScope == TraitOwnerScope.Character && Owner is MudSharp.Character.ICharacter)
+        if (Definition.OwnerScope == TraitOwnerScope.Character && Owner is MudSharp.Character.ICharacter character)
         {
-            Models.CharacterTrait dbcharactertrait = FMDB.Context.CharacterTraits.Find(_owner.Id, Definition.Id);
+            var ownerIdentityId = MudSharp.Character.CharacterInstanceIdentityComparer.IdentityId(character);
+            Models.CharacterTrait dbcharactertrait = FMDB.Context.CharacterTraits.Find(ownerIdentityId, Definition.Id);
             if (dbcharactertrait is null)
             {
                 dbcharactertrait = new Models.CharacterTrait
                 {
-                    CharacterId = Owner.Id,
+                    CharacterId = ownerIdentityId,
                     TraitDefinitionId = Definition.Id,
                     Value = 0.0,
                     AdditionalValue = 0.0

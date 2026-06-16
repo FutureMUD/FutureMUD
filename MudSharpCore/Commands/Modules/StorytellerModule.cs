@@ -63,6 +63,456 @@ internal class StorytellerModule : Module<ICharacter>
 
     public static StorytellerModule Instance { get; } = new();
 
+    public const string InstanceCommandHelp =
+        @"This command gives staff limited controls for secondary character instances.
+
+Syntax:
+	#3instance list <character>#0
+	#3instance spawn <character> <form> [here|room <cell id>] [persistent|temporary] [passive|focusable|ai|npcai|scriptai] [cloneinventory]#0
+	#3instance move <instance id|target> here|room <cell id>#0
+	#3instance retire <instance id|target>#0
+	#3instance audit <character>|all#0";
+
+    [PlayerCommand("Instance", "instance")]
+    [CommandPermission(PermissionLevel.Admin)]
+    [HelpInfo("instance", InstanceCommandHelp, AutoHelp.HelpArgOrNoArg)]
+    protected static void InstanceCommand(ICharacter actor, string input)
+    {
+        StringStack ss = new(input.RemoveFirstWord());
+        if (ss.IsFinished)
+        {
+            actor.OutputHandler.Send(InstanceCommandHelp.SubstituteANSIColour());
+            return;
+        }
+
+        switch (ss.PopSpeech().ToLowerInvariant())
+        {
+            case "list":
+                InstanceList(actor, ss);
+                return;
+            case "spawn":
+                InstanceSpawn(actor, ss);
+                return;
+            case "move":
+                InstanceMove(actor, ss);
+                return;
+            case "retire":
+            case "despawn":
+                InstanceRetire(actor, ss);
+                return;
+            case "audit":
+                InstanceAudit(actor, ss);
+                return;
+            default:
+                actor.OutputHandler.Send(InstanceCommandHelp.SubstituteANSIColour());
+                return;
+        }
+    }
+
+    private static IEnumerable<ICharacter> LoadedInstanceOwners(ICharacter actor)
+    {
+        return actor.Gameworld.Actors
+                    .Concat(actor.Gameworld.Characters)
+                    .Concat(actor.Gameworld.NPCs)
+                    .Distinct();
+    }
+
+    private static ICharacter ResolveLoadedInstanceOwner(ICharacter actor, string text)
+    {
+        var targeted = actor.TargetActor(text);
+        if (targeted?.Identity is ICharacter identity)
+        {
+            return identity;
+        }
+
+        return targeted ??
+               actor.Gameworld.Actors.GetByIdOrName(text) ??
+               actor.Gameworld.Characters.GetByIdOrName(text) ??
+               actor.Gameworld.NPCs.GetByIdOrName(text) ??
+               LoadedInstanceOwners(actor).GetByPersonalName(text);
+    }
+
+    private static ICharacterInstance ResolveLoadedInstance(ICharacter actor, string text)
+    {
+        if (long.TryParse(text, out var id))
+        {
+            return LoadedInstanceOwners(actor)
+                   .SelectMany(x => x.Identity.Instances)
+                   .FirstOrDefault(x => x.InstanceId == id || x.Id == id);
+        }
+
+        return actor.TargetActor(text) as ICharacterInstance ??
+               actor.Location?.Characters.OfType<ICharacterInstance>()
+                    .GetFromItemListByKeywordIncludingNames(text, actor);
+    }
+
+    private static ICharacterForm ResolveOwnedForm(ICharacter owner, string text)
+    {
+        if (long.TryParse(text, out var id))
+        {
+            return owner.Forms.FirstOrDefault(x => x.Body.Id == id);
+        }
+
+        return owner.Forms.FirstOrDefault(x => x.Alias.EqualTo(text)) ??
+               owner.Forms.FirstOrDefault(x => x.Body.Prototype.Name.EqualTo(text)) ??
+               owner.Forms.FirstOrDefault(x =>
+                   x.Alias.StartsWith(text, StringComparison.InvariantCultureIgnoreCase) ||
+                   x.Body.Prototype.Name.StartsWith(text, StringComparison.InvariantCultureIgnoreCase));
+    }
+
+    private static bool TryPopInstanceDestination(ICharacter actor, StringStack ss, out ICell location,
+        out RoomLayer layer, out string error)
+    {
+        location = null;
+        layer = actor.RoomLayer;
+        error = string.Empty;
+
+        if (ss.IsFinished)
+        {
+            error = "You must specify HERE or ROOM <cell id>.";
+            return false;
+        }
+
+        var keyword = ss.PopSpeech();
+        if (keyword.EqualTo("here"))
+        {
+            location = actor.Location;
+            layer = actor.RoomLayer;
+            return true;
+        }
+
+        if (!keyword.EqualTo("room"))
+        {
+            error = "You must specify HERE or ROOM <cell id>.";
+            return false;
+        }
+
+        if (ss.IsFinished)
+        {
+            error = "Which room cell id do you want to use?";
+            return false;
+        }
+
+        location = RoomBuilderModule.LookupCell(actor.Gameworld, ss.PopSpeech());
+        layer = RoomLayer.GroundLevel;
+        if (location is not null)
+        {
+            return true;
+        }
+
+        error = "There is no such cell.";
+        return false;
+    }
+
+    private static void InstanceList(ICharacter actor, StringStack ss)
+    {
+        if (ss.IsFinished)
+        {
+            actor.OutputHandler.Send("Which loaded character do you want to list instances for?");
+            return;
+        }
+
+        var target = ResolveLoadedInstanceOwner(actor, ss.SafeRemainingArgument);
+        if (target is null)
+        {
+            actor.OutputHandler.Send("There is no such loaded character.");
+            return;
+        }
+
+        string DetailsFor(ICharacterInstance instance, IArtificialIntelligenceControlledCharacter aiActor)
+        {
+            if (CharacterInstanceMetadata.TryGetAstralProjectionMetadata(instance.InstanceEffectData,
+                    out var projection))
+            {
+                var plane = actor.Gameworld.Planes.Get(projection.PlaneId);
+                return
+                    $"Anchor #{projection.AnchorInstanceId.ToString("N0", actor)} / {(plane?.Name ?? $"Plane #{projection.PlaneId.ToString("N0", actor)}")} / {projection.AnchorPolicy.DescribeEnum()}";
+            }
+
+            if (CharacterInstanceMetadata.TryGetMagicalCopyMetadata(instance.InstanceEffectData, out var copy))
+            {
+                var plane = actor.Gameworld.Planes.Get(copy.PlaneId);
+                var presence = copy.Intangible
+                    ? $"Intangible {(plane?.Name ?? $"Plane #{copy.PlaneId.ToString("N0", actor)}")}"
+                    : "Tangible";
+                return
+                    $"Anchor #{copy.AnchorInstanceId.ToString("N0", actor)} / Spell #{copy.SourceSpellId.ToString("N0", actor)} / {copy.FormKey.ColourCommand()} / {presence} / Focus {copy.PlayerFocusable.ToColouredString()} / {copy.PersistencePolicy.DescribeEnum()}";
+            }
+
+            if (CharacterInstanceMetadata.TryGetPhysicalCloneMetadata(instance.InstanceEffectData, out var clone))
+            {
+                return
+                    $"Anchor #{clone.AnchorInstanceId.ToString("N0", actor)} / Spell #{clone.SourceSpellId.ToString("N0", actor)} / {clone.FormKey.ColourCommand()} / Clone body #{clone.CloneBodyId.ToString("N0", actor)} / Focus {clone.PlayerFocusable.ToColouredString()} / {clone.PersistencePolicy.DescribeEnum()}";
+            }
+
+            return aiActor is null
+                ? string.Empty
+                : $"{aiActor.AIs.Count().ToString("N0", actor)} AI / {(aiActor.CharacterController is null ? "Detached" : "Controlled")}";
+        }
+
+        actor.OutputHandler.Send(StringUtilities.GetTextTable(
+            from instance in target.Identity.Instances
+            let form = target.Identity.Forms.FirstOrDefault(x => ReferenceEquals(x.Body, instance.Body))
+            let aiActor = instance as IArtificialIntelligenceControlledCharacter
+            select new[]
+            {
+                instance.InstanceId.ToString("N0", actor),
+                (target.Identity.FocusedInstance?.InstanceId == instance.InstanceId).ToColouredString(),
+                instance.IsPrimaryInstance.ToColouredString(),
+                instance.InstanceKind.DescribeEnum(),
+                $"{form?.Alias ?? instance.Body.Prototype.Name} (#{instance.Body.Id.ToString("N0", actor)})",
+                instance.Location is null
+                    ? "None"
+                    : $"{instance.Location.HowSeen(actor)} (#{instance.Location.Id.ToString("N0", actor)})",
+                instance.RoomLayer.DescribeEnum(),
+                $"{instance.State.DescribeEnum()} / {instance.Status.DescribeEnum()}",
+                instance.ControlPolicy.DescribeEnum(),
+                DetailsFor(instance, aiActor),
+                instance.DeathPolicy.DescribeEnum(),
+                instance.PersistencePolicy.DescribeEnum()
+            },
+            new[]
+            {
+                "Instance",
+                "Focused",
+                "Primary",
+                "Kind",
+                "Form",
+                "Location",
+                "Layer",
+                "State",
+                "Control",
+                "Details",
+                "Death",
+                "Persistence"
+            },
+            actor.LineFormatLength,
+            colour: Telnet.Cyan,
+            unicodeTable: actor.Account.UseUnicode
+        ));
+    }
+
+    private static void InstanceSpawn(ICharacter actor, StringStack ss)
+    {
+        if (ss.IsFinished)
+        {
+            actor.OutputHandler.Send("Which loaded character do you want to spawn a secondary instance for?");
+            return;
+        }
+
+        var targetText = ss.PopSpeech();
+        var target = ResolveLoadedInstanceOwner(actor, targetText);
+        if (target is null)
+        {
+            actor.OutputHandler.Send("There is no such loaded character.");
+            return;
+        }
+
+        if (ss.IsFinished)
+        {
+            actor.OutputHandler.Send("Which owned form do you want to spawn?");
+            return;
+        }
+
+        var form = ResolveOwnedForm(target, ss.PopSpeech());
+        if (form is null)
+        {
+            actor.OutputHandler.Send("That character has no such owned form.");
+            return;
+        }
+
+        var location = actor.Location;
+        var layer = actor.RoomLayer;
+        var persistence = CharacterInstancePersistencePolicy.DespawnOnReboot;
+        var mode = SecondaryCharacterInstanceSpawnMode.Passive;
+        var cloneInventory = false;
+        while (!ss.IsFinished)
+        {
+            switch (ss.PeekSpeech().ToLowerInvariant())
+            {
+                case "here":
+                case "room":
+                    if (!TryPopInstanceDestination(actor, ss, out location, out layer, out var error))
+                    {
+                        actor.OutputHandler.Send(error);
+                        return;
+                    }
+                    break;
+                case "persistent":
+                    ss.PopSpeech();
+                    persistence = CharacterInstancePersistencePolicy.Persistent;
+                    break;
+                case "temporary":
+                    ss.PopSpeech();
+                    persistence = CharacterInstancePersistencePolicy.DespawnOnReboot;
+                    break;
+                case "focusable":
+                    ss.PopSpeech();
+                    mode = SecondaryCharacterInstanceSpawnMode.PlayerFocusable;
+                    break;
+                case "passive":
+                    ss.PopSpeech();
+                    mode = SecondaryCharacterInstanceSpawnMode.Passive;
+                    break;
+                case "ai":
+                    ss.PopSpeech();
+                    mode = target is INPC || target.Identity is INPC
+                        ? SecondaryCharacterInstanceSpawnMode.NpcAiControlled
+                        : SecondaryCharacterInstanceSpawnMode.ScriptAiControlled;
+                    break;
+                case "npcai":
+                    ss.PopSpeech();
+                    mode = SecondaryCharacterInstanceSpawnMode.NpcAiControlled;
+                    break;
+                case "scriptai":
+                case "script":
+                    ss.PopSpeech();
+                    mode = SecondaryCharacterInstanceSpawnMode.ScriptAiControlled;
+                    break;
+                case "cloneinventory":
+                case "cloneinv":
+                    ss.PopSpeech();
+                    cloneInventory = true;
+                    break;
+                default:
+                    actor.OutputHandler.Send("Invalid syntax. See #3help instance#0.".SubstituteANSIColour());
+                    return;
+            }
+        }
+
+        var result = CharacterInstanceService.SpawnBodyInstance(target, form, location!, layer, mode, persistence,
+            cloneInventory: cloneInventory);
+        if (!result.Success || result.Instance is null)
+        {
+            actor.OutputHandler.Send(result.Message);
+            return;
+        }
+
+        actor.OutputHandler.Send(
+            $"Spawned {DescribeSecondaryInstanceMode(mode)} instance #{result.Instance.InstanceId.ToString("N0", actor).ColourValue()} for {target.HowSeen(actor, true)} using form {form.Alias.ColourName()}.");
+    }
+
+    private static string DescribeSecondaryInstanceMode(SecondaryCharacterInstanceSpawnMode mode)
+    {
+        return mode switch
+        {
+            SecondaryCharacterInstanceSpawnMode.PlayerFocusable => "focusable",
+            SecondaryCharacterInstanceSpawnMode.NpcAiControlled => "AI-controlled",
+            SecondaryCharacterInstanceSpawnMode.ScriptAiControlled => "script-AI-controlled",
+            _ => "passive"
+        };
+    }
+
+    private static void InstanceMove(ICharacter actor, StringStack ss)
+    {
+        if (ss.IsFinished)
+        {
+            actor.OutputHandler.Send("Which secondary instance do you want to move?");
+            return;
+        }
+
+        var target = ResolveLoadedInstance(actor, ss.PopSpeech());
+        if (target is null)
+        {
+            actor.OutputHandler.Send("There is no such loaded instance.");
+            return;
+        }
+
+        if (!TryPopInstanceDestination(actor, ss, out var location, out var layer, out var error))
+        {
+            actor.OutputHandler.Send(error);
+            return;
+        }
+
+        var result = CharacterInstanceService.Move(target, location!, layer);
+        if (!result.Success)
+        {
+            actor.OutputHandler.Send(result.Message);
+            return;
+        }
+
+        actor.OutputHandler.Send(
+            $"Moved secondary instance #{target.InstanceId.ToString("N0", actor).ColourValue()} to {location!.HowSeen(actor)}.");
+    }
+
+    private static void InstanceRetire(ICharacter actor, StringStack ss)
+    {
+        if (ss.IsFinished)
+        {
+            actor.OutputHandler.Send("Which secondary instance do you want to retire?");
+            return;
+        }
+
+        var target = ResolveLoadedInstance(actor, ss.SafeRemainingArgument);
+        if (target is null)
+        {
+            actor.OutputHandler.Send("There is no such loaded instance.");
+            return;
+        }
+
+        if (!CharacterInstanceService.Retire(target, out var whyNot, deleteTemporaryRows: true))
+        {
+            actor.OutputHandler.Send(whyNot);
+            return;
+        }
+
+        actor.OutputHandler.Send(
+            $"Retired secondary instance #{target.InstanceId.ToString("N0", actor).ColourValue()}.");
+    }
+
+    private static void InstanceAudit(ICharacter actor, StringStack ss)
+    {
+        if (ss.IsFinished)
+        {
+            actor.OutputHandler.Send("Which loaded character do you want to audit, or do you want to audit ALL persisted instances?");
+            return;
+        }
+
+        if (ss.SafeRemainingArgument.EqualTo("all"))
+        {
+            using (new FMDB())
+            {
+                var instances = FMDB.Context.CharacterInstances.ToList();
+                var references = new CharacterInstanceReferenceSets(
+                    FMDB.Context.Bodies.Select(x => x.Id).ToHashSet(),
+                    FMDB.Context.Cells.Select(x => x.Id).ToHashSet());
+                var persistedDiagnostics = CharacterInstanceDiagnostics.AuditPersistedInstances(instances, true,
+                    references);
+                var actorReferenceDiagnostics = CharacterInstanceDiagnostics.AuditPersistedActorReferences(
+                    instances,
+                    FMDB.Context.VehicleOccupancies.ToList(),
+                    FMDB.Context.VehicleHitchLinks.ToList(),
+                    FMDB.Context.ArenaSignups.ToList());
+                var loadedCacheDiagnostics = CharacterInstanceDiagnostics.AuditLoadedGlobalActorCaches(
+                    actor.Gameworld.Actors,
+                    actor.Gameworld.Characters,
+                    actor.Gameworld.NPCs,
+                    actor.Gameworld.CachedActors);
+                persistedDiagnostics = persistedDiagnostics
+                    .Concat(actorReferenceDiagnostics)
+                    .Concat(loadedCacheDiagnostics)
+                    .ToList();
+                actor.OutputHandler.Send(
+                    $"Audited {instances.Count.ToString("N0", actor).ColourValue()} persisted character instance rows and loaded actor caches.\n\n{CharacterInstanceDiagnostics.RenderDiagnosticsTable(persistedDiagnostics, actor.LineFormatLength, actor.Account.UseUnicode)}");
+            }
+
+            return;
+        }
+
+        var target = ResolveLoadedInstanceOwner(actor, ss.SafeRemainingArgument);
+        if (target is null)
+        {
+            actor.OutputHandler.Send("There is no such loaded character.");
+            return;
+        }
+
+        var diagnostics = target.Identity.PrimaryInstance is ICharacter primary
+            ? CharacterInstanceDiagnostics.AuditPrimaryInstance(primary)
+            : CharacterInstanceDiagnostics.AuditLoadedIdentity(target.Identity);
+        actor.OutputHandler.Send(
+            $"Audited loaded instances for {target.HowSeen(actor, true)}.\n\n{CharacterInstanceDiagnostics.RenderDiagnosticsTable(diagnostics, actor.LineFormatLength, actor.Account.UseUnicode)}");
+    }
+
     [PlayerCommand("Spy", "spy")]
     [HelpInfo("spy",
         "This command allows you to toggle spying on a location, which means you'll see all output as if you were there.\r\n\r\nSyntax:\r\n\tSPY LIST - shows you where you're spying\r\n\tSPY HERE - toggles the current location's spy status\r\n\tSPY <ID> - toggles the specified cell ID's spy status",
@@ -2276,8 +2726,8 @@ Note: most often you will want to use the #3TRAITEXPRESSION#0 command to edit th
             if (deathProg?.ExecuteBool(character) != false)
             {
                 deathBoard.MakeNewPost(default(IAccount),
-                    $"{character.Id} - {character.PersonalName.GetName(NameStyle.FullWithNickname)} Resurrected by {actor.Account.Name.Proper()}",
-                    $"Character #{character.Id} ({character.PersonalName.GetName(NameStyle.FullWithNickname)}) was resurrected by {actor.Account.Name.Proper()}."
+                    $"{CharacterInstanceIdentityComparer.IdentityId(character)} - {character.PersonalName.GetName(NameStyle.FullWithNickname)} Resurrected by {actor.Account.Name.Proper()}",
+                    $"Character #{CharacterInstanceIdentityComparer.IdentityId(character)} ({character.PersonalName.GetName(NameStyle.FullWithNickname)}) was resurrected by {actor.Account.Name.Proper()}."
                 );
             }
         }

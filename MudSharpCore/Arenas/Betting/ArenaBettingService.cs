@@ -57,13 +57,14 @@ public class ArenaBettingService : IArenaBettingService
                 return (false, "Betting is closed for this event.");
         }
 
-        if (arenaEvent.Participants.Any(x => x.CharacterId == actor.Id))
+        var actorIdentityId = CharacterInstanceIdentityComparer.IdentityId(actor);
+        if (arenaEvent.Participants.Any(x => x.CharacterId == actorIdentityId))
         {
             return (false, "Participants cannot bet on their own bout.");
         }
 
         using IDisposable? scope = BeginContext(out FuturemudDatabaseContext? context);
-        bool hasExisting = context.ArenaBets.Any(x => x.ArenaEventId == arenaEvent.Id && x.CharacterId == actor.Id && !x.IsCancelled);
+        bool hasExisting = context.ArenaBets.Any(x => x.ArenaEventId == arenaEvent.Id && x.CharacterId == actorIdentityId && !x.IsCancelled);
         return hasExisting ? (false, "You already have an active wager on this event.") : (true, string.Empty);
     }
 
@@ -118,7 +119,7 @@ public class ArenaBettingService : IArenaBettingService
         ArenaBet bet = new()
         {
             ArenaEventId = arenaEvent.Id,
-            CharacterId = actor.Id,
+            CharacterId = CharacterInstanceIdentityComparer.IdentityId(actor),
             SideIndex = sideIndex,
             Stake = stake,
             PlacedAt = now,
@@ -180,7 +181,8 @@ public class ArenaBettingService : IArenaBettingService
         }
 
         using IDisposable? scope = BeginContext(out FuturemudDatabaseContext? context);
-        ArenaBet? bet = context.ArenaBets.FirstOrDefault(x => x.ArenaEventId == arenaEvent.Id && x.CharacterId == actor.Id && !x.IsCancelled);
+        var actorIdentityId = CharacterInstanceIdentityComparer.IdentityId(actor);
+        ArenaBet? bet = context.ArenaBets.FirstOrDefault(x => x.ArenaEventId == arenaEvent.Id && x.CharacterId == actorIdentityId && !x.IsCancelled);
         if (bet is null)
         {
             return;
@@ -276,6 +278,7 @@ public class ArenaBettingService : IArenaBettingService
 
         foreach ((ICharacter Winner, decimal Amount, bool Online) payout in payouts)
         {
+            var winnerIdentityId = CharacterInstanceIdentityComparer.IdentityId(payout.Winner);
             arenaEvent.Arena.Debit(payout.Amount, $"Arena payout for event #{arenaEvent.Id}");
             if (payout.Online && _paymentService.TryDisburse(payout.Winner, arenaEvent, payout.Amount))
             {
@@ -287,7 +290,7 @@ public class ArenaBettingService : IArenaBettingService
                 ArenaBetPayout record = new()
                 {
                     ArenaEventId = arenaEvent.Id,
-                    CharacterId = payout.Winner.Id,
+                    CharacterId = winnerIdentityId,
                     Amount = payout.Amount,
                     PayoutType = (int)ArenaPayoutType.Bet,
                     IsBlocked = false,
@@ -298,7 +301,7 @@ public class ArenaBettingService : IArenaBettingService
                 continue;
             }
 
-            RecordOutstandingPayout(context, arenaEvent, payout.Winner.Id, payout.Amount);
+            RecordOutstandingPayout(context, arenaEvent, winnerIdentityId, payout.Amount);
             if (payout.Online)
             {
                 string owedText = arenaEvent.Arena.Currency
@@ -401,9 +404,10 @@ public class ArenaBettingService : IArenaBettingService
         }
 
         using IDisposable? scope = BeginContext(out FuturemudDatabaseContext? context);
-        Dictionary<long, PayoutTotals> payoutTotals = GetPayoutTotals(context, actor.Id);
+        var actorIdentityId = CharacterInstanceIdentityComparer.IdentityId(actor);
+        Dictionary<long, PayoutTotals> payoutTotals = GetPayoutTotals(context, actorIdentityId);
         var bets = context.ArenaBets
-                          .Where(x => x.CharacterId == actor.Id)
+                          .Where(x => x.CharacterId == actorIdentityId)
                           .Where(x => !x.IsCancelled)
                           .Where(x => x.ArenaEvent.State < (int)ArenaEventState.Resolving)
                           .OrderByDescending(x => x.PlacedAt)
@@ -434,9 +438,10 @@ public class ArenaBettingService : IArenaBettingService
 
         count = Math.Min(count, MaximumBetHistoryCount);
         using IDisposable? scope = BeginContext(out FuturemudDatabaseContext? context);
-        Dictionary<long, PayoutTotals> payoutTotals = GetPayoutTotals(context, actor.Id);
+        var actorIdentityId = CharacterInstanceIdentityComparer.IdentityId(actor);
+        Dictionary<long, PayoutTotals> payoutTotals = GetPayoutTotals(context, actorIdentityId);
         var bets = context.ArenaBets
-                          .Where(x => x.CharacterId == actor.Id)
+                          .Where(x => x.CharacterId == actorIdentityId)
                           .OrderByDescending(x => x.PlacedAt)
                           .Take(count)
                           .Select(x => new
@@ -460,8 +465,9 @@ public class ArenaBettingService : IArenaBettingService
         }
 
         using IDisposable? scope = BeginContext(out FuturemudDatabaseContext? context);
+        var actorIdentityId = CharacterInstanceIdentityComparer.IdentityId(actor);
         var payouts = context.ArenaBetPayouts
-                             .Where(x => x.CharacterId == actor.Id && x.CollectedAt == null)
+                             .Where(x => x.CharacterId == actorIdentityId && x.CollectedAt == null)
                              .OrderBy(x => x.CreatedAt)
                              .Select(x => new
                              {
@@ -497,8 +503,9 @@ public class ArenaBettingService : IArenaBettingService
         }
 
         using IDisposable? scope = BeginContext(out FuturemudDatabaseContext? context);
+        var actorIdentityId = CharacterInstanceIdentityComparer.IdentityId(actor);
         IQueryable<ArenaBetPayout> query = context.ArenaBetPayouts
-                           .Where(x => x.CharacterId == actor.Id && x.CollectedAt == null);
+                           .Where(x => x.CharacterId == actorIdentityId && x.CollectedAt == null);
         if (arenaEventId.HasValue)
         {
             query = query.Where(x => x.ArenaEventId == arenaEventId.Value);

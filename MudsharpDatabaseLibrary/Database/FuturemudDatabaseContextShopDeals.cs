@@ -17,6 +17,7 @@ namespace MudSharp.Database
 			ConfigureEmployment(modelBuilder);
 			ConfigureMagicPortalTopology(modelBuilder);
 			ConfigureOutfitTemplates(modelBuilder);
+			ConfigureCharacterInstances(modelBuilder);
 
 			modelBuilder.Entity<ShopDeal>(entity =>
             {

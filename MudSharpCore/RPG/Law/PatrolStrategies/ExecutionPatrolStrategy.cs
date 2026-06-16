@@ -666,7 +666,7 @@ public class ExecutionPatrolStrategy : PatrolStrategyBase, IConfigurablePatrolSt
 			return false;
 		}
 
-		foreach (ICharacter helper in patrol.PatrolMembers.Except(dragger).Where(x => x.ColocatedWith(dragger)))
+		foreach (ICharacter helper in patrol.PatrolMembers.Where(x => !x.SamePhysicalInstance(dragger)).Where(x => x.ColocatedWith(dragger)))
 		{
 			if (helper.Combat?.CanFreelyLeaveCombat(helper) == true)
 			{

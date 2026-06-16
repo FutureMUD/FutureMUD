@@ -315,13 +315,14 @@ public partial class AIStoryteller
 
             foreach (ICharacter? character in involvedCharacters.Where(x => x is not null))
             {
-                if (!_bypassAttentionCharacterIds.Contains(character!.Id))
+                var characterIdentityId = CharacterInstanceIdentityComparer.IdentityId(character);
+                if (!_bypassAttentionCharacterIds.Contains(characterIdentityId))
                 {
                     continue;
                 }
 
                 reason =
-                    $"Bypass attention is active for character #{character.Id:N0} ({character.PersonalName.GetName(NameStyle.FullName)}).";
+                    $"Bypass attention is active for character #{characterIdentityId:N0} ({character!.PersonalName.GetName(NameStyle.FullName)}).";
                 return true;
             }
         }

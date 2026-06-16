@@ -27,7 +27,7 @@ internal class ScriptedEvent : SaveableItem, IScriptedEvent
             Models.ScriptedEvent dbitem = new()
             {
                 Name = Name,
-                CharacterId = character?.Id,
+                CharacterId = character is null ? null : CharacterInstanceIdentityComparer.IdentityId(character),
                 IsTemplate = false,
                 IsReady = true,
                 IsFinished = false,
@@ -213,7 +213,7 @@ internal class ScriptedEvent : SaveableItem, IScriptedEvent
         if (!IsTemplate)
         {
             _character = actor;
-            _characterId = actor.Id;
+            _characterId = CharacterInstanceIdentityComparer.IdentityId(actor);
             Changed = true;
             return this;
         }
@@ -262,7 +262,7 @@ internal class ScriptedEvent : SaveableItem, IScriptedEvent
             Models.AccountNote dbnote = new()
             {
                 AccountId = Character!.Account.Id,
-                CharacterId = Character.Id,
+                CharacterId = CharacterInstanceIdentityComparer.IdentityId(Character),
                 AuthorId = Character.Account.Id,
                 IsJournalEntry = true,
                 TimeStamp = DateTime.UtcNow,
@@ -708,7 +708,7 @@ internal class ScriptedEvent : SaveableItem, IScriptedEvent
         }
 
         _character = target;
-        _characterId = target.Id;
+        _characterId = CharacterInstanceIdentityComparer.IdentityId(target);
         Changed = true;
         actor.OutputHandler.Send($"This scripted event is now assigned to {target.PersonalName.GetName(MudSharp.Character.Name.NameStyle.FullWithNickname).ColourName()} ({target.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreCanSee | PerceiveIgnoreFlags.IgnoreSelf)}).");
         return true;

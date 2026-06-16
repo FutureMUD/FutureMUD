@@ -165,7 +165,7 @@ The high-level switch flow is:
 6. Transfer or stash trauma according to the plan.
 7. Move inventory where possible, dropping ordinary items that no longer fit and rejecting restraints that cannot safely transfer.
 8. Recalculate body helpers, organ functions, breathing, stamina, and health consequences with health feedback suppressed during the switch.
-9. Set `CurrentBody`, activate the new body, reset the old body into dormant form state, emit the transformation echo, and fire `CurrentBodyChanged`.
+9. Set `CurrentBody`, activate the new body, reset the old body into dormant form state, emit the transformation echo from frozen old/new form description snapshots, and fire `CurrentBodyChanged`.
 
 Body switching does not use `Body.Quit()`. Dormant bodies stop health, drug, stamina, breathing, scheduled body actions, body-owned scheduled effects, and retained body-item lifecycles, and are treated as non-present shells until reactivated.
 
@@ -189,9 +189,15 @@ Relaxed mapping is used for wounds, scars, tattoos, infections, and some tempora
 
 Form switching supports both transfer and stasis.
 
-Transfer mode remaps compatible wounds, part infections, scars, tattoos, severed roots, implants, prosthetics, active and latent drugs, blood state, held breath time, stamina, and selected treatment effects. Internal bleeding, antiseptic treatment, anti-inflammatory treatment, and replanted bodypart effects are recreated on mapped bodyparts with their remaining duration.
+Transfer mode remaps compatible wounds, part infections, scars, tattoos, severed roots, implants, prosthetics, active and latent drugs, blood state, held breath time, stamina, and selected treatment effects. Blood state is transferred as current-blood percentage rather than raw litres, so switching between bodies with very different total blood volumes preserves equivalent physiological severity. Internal bleeding, antiseptic treatment, anti-inflammatory treatment, and replanted bodypart effects are recreated on mapped bodyparts with their remaining duration.
 
 Stash mode leaves trauma on the old body, caches scheduled effects, stops ongoing body ticks, clears body-owned scheduler entries, quits retained body items such as dormant implants or prosthetics, clears restraints and direct inventory state, and sanitises the target body for its health strategy. Incompatible wounds and organic-only health effects are removed from the active target form, and lost fluids can be restored when no compatible bleed sources remain. Health feedback is suppressed during the switch so players do not see transient "dying", "can't breathe", or organ recovery spam caused by intermediate recalculations.
+
+### Apparent Age
+
+Character `Birthday` remains identity-level chronology. Provisioned alternate forms do not copy the literal birthday into the new race, because a middle-aged human birthday can make a short-lived animal form appear ancient. Instead, form provisioning calculates the source race's current age category and fractional progress through that category, then maps that same life-stage progress into the target race's age thresholds.
+
+Each provisioned body stores this as body-level apparent-age metadata in its saved effect XML. Runtime `AgeInYears`, `AgeCategory`, description `&age` variables, score text, consider text, and FutureProg `age`/`agecategory` reads use the active body's apparent birthday. The original identity birthday is still retained on the character row for account, chronology, and compatibility uses.
 
 ### Description and Transformation Echoes
 
@@ -205,7 +211,7 @@ Transformation echoes are per-form metadata:
 | Empty string | Suppress the transformation echo. |
 | Text | Use the custom emote text. |
 
-The default static string is currently `@ transform|transforms into ^1.`, where `^1` is the new body in the emote context rendered with the emote system's non-self token so the transforming player sees their own new short description instead of `you`.
+The default static string is currently `@ transform|transforms into ^1.`, where `@` is a snapshot of the old form and `^1` is a snapshot of the new body in the emote context rendered with the emote system's non-self token so the transforming player sees their own new short description instead of `you`. Snapshotting avoids post-switch echoes such as "a dog transforms into a dog" when the character identity has already adopted the new active body.
 
 Custom transformation echoes are sanitised when they are loaded, edited, or emitted. This preserves ordinary emote syntax while preventing literal brace characters in persisted or builder-supplied text from breaking the emote parser during a body switch.
 
@@ -227,6 +233,7 @@ The implementor-oriented command surface lives in [CharacterInformation.cs](../.
 | Command | Behaviour |
 | --- | --- |
 | `body addform <character> <race> [ethnicity] [gender]` | Adds a dormant form for testing and administration. |
+| `body delform <character> <form> confirm` | Permanently deletes a dormant form, its body, source mappings, and any items on that dormant body after explicit confirmation. |
 | `body formset <character> <form> alias ...` | Edits the form alias. |
 | `body formset <character> <form> trauma ...` | Edits trauma mode. |
 | `body formset <character> <form> echo ...` | Sets, clears to default, or suppresses transformation echo. |
@@ -346,6 +353,10 @@ A character owns a werewolf form with a false visibility prog. The `form` comman
 
 An implementor uses `body addform` to add a robot, wolf, bird, ghost, or other race form to a live character. The new form is dormant, has voluntary access disabled unless staff enables it, and persists across save/load.
 
+### Staff Deletes an Incorrect Dormant Form
+
+An implementor uses `body delform <character> <form> confirm` to remove an incorrectly provisioned dormant form. The command refuses to delete the current body, any form with a live embodied instance, any form referenced by persisted instance rows, any form referenced by body backup effects, or any form whose body still has corpse/remains-style physical references. A successful delete removes the form metadata, source mappings for that body, the dormant body row, and any items on that dormant body.
+
 ### A Racial Merit Grants a Reusable Form
 
 A builder creates an `Additional Body Form` merit for a race that can transform. Characters who gain the merit receive a cached form. Removing and re-adding the merit reuses the same body id and keeps any admin or prog edits already made to that character's form metadata.
@@ -385,6 +396,7 @@ Owned forms, form metadata, source mappings, character-scoped skills, body-scope
 - Give animal, robot, ghost, and other non-human forms their own description patterns instead of relying on the source character's description pattern.
 - Use priority bands for broad precedence and offsets for local ordering inside the same band. Avoid relying on alias ordering except as a deterministic tie-breaker.
 - Treat `body addform` as a staff test and repair tool, not the final in-play acquisition workflow.
+- Treat `body delform` as a cleanup tool for dormant mistake forms; retire active secondary instances and remove source gameplay/effects first if the command reports existing references.
 
 ## Current Boundaries
 
@@ -413,7 +425,7 @@ Currently forced transforms share a baseline-and-fallback strategy. Future conte
 
 ### Simultaneous Bodies and Remote Presence
 
-Astral projection, ghosts with corpses left behind, possession, puppeting, and remote vessels require a larger presence model. That future slice needs to answer which body perceives, which body receives commands, which body is locatable, which body owns combat state, and how effects target identity versus embodiment.
+Astral projection, magical copies, physical clones, passive second bodies, player focus switching, and AI-controlled secondaries now use the simultaneous body instance model rather than the exclusive form-switching pipeline. Builders should still use this form system to provision and configure owned dormant bodies, then use `instance`, spell effects, or `SpawnBodyInstance` when a form should become an additional active world actor.
 
 ### Form Acquisition Workflows
 
@@ -435,6 +447,8 @@ Multiple forms exposed older assumptions where character and body data were inte
 
 - [Character Creation Runtime](./Character_Creation_Runtime.md)
 - [Character Creation Builder Workflows](./Character_Creation_Builder_Workflows.md)
+- [Multiple Body Forms and Instances Builder Guide](./Multiple_Body_Forms_and_Instances_Builder_Guide.md)
+- [Multiple Simultaneous Body Instances Design](./Multiple_Simultaneous_Body_Instances_Design.md)
 - [Character Description System](../Markup/Character_Description_System.md)
 - [Magic System Spells](../Magic/Magic_System_Spells.md)
 - [Magic System Implemented Types](../Magic/Magic_System_Implemented_Types.md)

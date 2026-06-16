@@ -378,7 +378,7 @@ public partial class Property
 			return 0.0M;
 		}
 
-		if (!force && actor is not null && actor.Id != rental.GuestId)
+		if (!force && actor is not null && CharacterInstanceIdentityComparer.IdentityId(actor) != rental.GuestId)
 		{
 			return 0.0M;
 		}

@@ -151,7 +151,7 @@ public class GroupEmote : IGroupEmote
             return false;
         }
 
-        if (RequiredAgeCategory.HasValue && ch.Race.AgeCategory(ch) != RequiredAgeCategory)
+        if (RequiredAgeCategory.HasValue && ch.AgeCategory != RequiredAgeCategory)
         {
             return false;
         }
@@ -195,7 +195,7 @@ public class GroupEmote : IGroupEmote
                 foreach (ICharacter ch in primaryCandidates)
                 {
                     if (ch.Location.LayerCharacters(ch.RoomLayer).Any(x =>
-                            herd.ConsidersThreat(x, herd.Alertness) && !herd.GroupMembers.Contains(x)))
+                            herd.ConsidersThreat(x, herd.Alertness) && !herd.GroupMembers.ContainsPhysicalInstance(x)))
                     {
                         return true;
                     }

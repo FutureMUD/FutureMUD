@@ -71,6 +71,7 @@ public class ArenaObservationServiceTests
         arena.Setup(x => x.ObservationCells).Returns(new[] { observationCell.Object });
         Mock<IArenaParticipant> participant = new();
         participant.SetupGet(x => x.Character).Returns(observer.Object);
+        participant.SetupGet(x => x.ActiveCharacter).Returns(observer.Object);
         Mock<IArenaEvent> arenaEvent = new();
         arenaEvent.Setup(x => x.Arena).Returns(arena.Object);
         arenaEvent.Setup(x => x.State).Returns(ArenaEventState.Live);

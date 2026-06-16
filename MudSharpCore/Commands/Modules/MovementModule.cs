@@ -102,7 +102,7 @@ The syntax is as follows:
             return;
         }
 
-        if (target == actor)
+        if (CharacterInstanceIdentityComparer.SamePhysicalInstance(target, actor))
         {
             if (actor.Following == null)
             {
@@ -175,7 +175,7 @@ The syntax for this command is as follows:
                     return;
                 }
 
-                if (actor.Party.Leader != actor)
+                if (!CharacterInstanceIdentityComparer.SamePhysicalInstance(actor.Party.Leader, actor))
                 {
                     actor.OutputHandler.Send("You are not the leader of your party.");
                     return;
@@ -206,7 +206,7 @@ The syntax for this command is as follows:
                 actor.CurrentSpeeds[speed.Position] = speed;
                 foreach (ICharacter ch in actor.Party.CharacterMembers)
                 {
-                    if (ch == actor)
+                    if (CharacterInstanceIdentityComparer.SamePhysicalInstance(ch, actor))
                     {
                         continue;
                     }
@@ -324,7 +324,7 @@ The syntax for this command is as follows:
                     return;
                 }
 
-                if (actor.Party.Leader != actor)
+                if (!CharacterInstanceIdentityComparer.SamePhysicalInstance(actor.Party.Leader, actor))
                 {
                     actor.OutputHandler.Send("You are not the leader of your party.");
                     return;
@@ -333,7 +333,7 @@ The syntax for this command is as follows:
                 actor.Party.SetLeader(target);
                 foreach (IMove ch in actor.Party.Members)
                 {
-                    if (ch == actor)
+                    if (SameMove(ch, actor))
                     {
                         continue;
                     }
@@ -373,7 +373,7 @@ The syntax for this command is as follows:
                     return;
                 }
 
-                if (actor.Party.Leader != actor)
+                if (!CharacterInstanceIdentityComparer.SamePhysicalInstance(actor.Party.Leader, actor))
                 {
                     actor.OutputHandler.Send("You are not the leader of your party.");
                     return;
@@ -381,7 +381,7 @@ The syntax for this command is as follows:
 
                 foreach (IMove ch in actor.Party.Members)
                 {
-                    if (ch == actor)
+                    if (SameMove(ch, actor))
                     {
                         continue;
                     }
@@ -399,7 +399,7 @@ The syntax for this command is as follows:
                     return;
                 }
 
-                if (actor.Party.Leader != actor)
+                if (!CharacterInstanceIdentityComparer.SamePhysicalInstance(actor.Party.Leader, actor))
                 {
                     actor.OutputHandler.Send("You are not the leader of your party.");
                     return;
@@ -452,7 +452,7 @@ The syntax for this command is as follows:
                     return;
                 }
 
-                if (actor.Party.Leader != actor)
+                if (!CharacterInstanceIdentityComparer.SamePhysicalInstance(actor.Party.Leader, actor))
                 {
                     actor.OutputHandler.Send("You are not the leader of your party.");
                     return;
@@ -479,7 +479,7 @@ The syntax for this command is as follows:
                 }
 
                 actor.OutputHandler.Send("You eject " + target.HowSeen(actor) + " from your party.");
-                foreach (IMove ch in actor.Party.Members.Except(new IMove[] { actor, target }))
+                foreach (IMove ch in actor.Party.Members.Where(x => !SameMove(x, actor) && !SameMove(x, target)))
                 {
                     ch.OutputHandler.Send(actor.HowSeen(ch, true) + " ejects " + target.HowSeen(ch) +
                                           " from your party.");
@@ -494,6 +494,23 @@ The syntax for this command is as follows:
                 actor.OutputHandler.Send(PartyHelp.SubstituteANSIColour());
                 return;
         }
+    }
+
+    private static bool SameMove(IMove first, IMove second)
+    {
+        if (first is null || second is null)
+        {
+            return false;
+        }
+
+        if (ReferenceEquals(first, second))
+        {
+            return true;
+        }
+
+        return first is ICharacter firstCharacter &&
+               second is ICharacter secondCharacter &&
+               CharacterInstanceIdentityComparer.SamePhysicalInstance(firstCharacter, secondCharacter);
     }
 
     [PlayerCommand("Speed", "speed")]

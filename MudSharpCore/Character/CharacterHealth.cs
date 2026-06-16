@@ -8,6 +8,7 @@ using MudSharp.Construction;
 using MudSharp.Database;
 using MudSharp.Economy.Estates;
 using MudSharp.Email;
+using MudSharp.Effects.Interfaces;
 using MudSharp.Events;
 using MudSharp.Form.Material;
 using MudSharp.Framework;
@@ -46,6 +47,13 @@ public partial class Character
         if (IsAdministrator())
         {
             return null;
+        }
+
+        if (IsPrimaryInstance)
+        {
+            RemoveAllEffects<IAstralProjectionEffect>(x => x.AnchorInstanceId == InstanceId, true);
+            RemoveAllEffects<IMagicalCopyEffect>(x => x.AnchorInstanceId == InstanceId, true);
+            RemoveAllEffects<IPhysicalCloneEffect>(x => x.AnchorInstanceId == InstanceId, true);
         }
 
         if (TryTransferToBodyBackupOnDeath(out IGameItem backupRemains))
@@ -161,6 +169,8 @@ public partial class Character
             dbchar.Status = (int)CharacterStatus.Deceased;
             dbchar.DeathTime = DateTime.UtcNow;
             dbchar.NeedsModel = "NoNeeds";
+            SaveCompatibilityWorldPresence(dbchar);
+            SavePrimaryInstance(dbchar);
             NeedsModel = new NoNeedsModel();
             FMDB.Context.SaveChanges();
         }
@@ -193,6 +203,7 @@ public partial class Character
                 : "NoNeeds";
             dbchar.DeathTime = null;
             NeedsModel = NeedsModelFactory.LoadNeedsModel(dbchar, this);
+            SaveInstanceResurrectionState(dbchar);
             FMDB.Context.SaveChanges();
         }
 

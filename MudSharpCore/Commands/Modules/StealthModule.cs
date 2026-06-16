@@ -130,7 +130,7 @@ Note - anyone in the room at the time you hide yourself or an item will be able 
                 foreach (ICharacter witness in actor.Location.Characters)
                 {
                     witness.AddEffect(new SawHiddenItem(witness, target), TimeSpan.FromSeconds(300));
-                    effect.OriginalWitnesses.Add(witness.Id);
+                    effect.OriginalWitnesses.Add(CharacterInstanceIdentityComparer.IdentityId(witness));
                 }
             },
             "hiding an item",

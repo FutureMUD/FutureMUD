@@ -94,7 +94,7 @@ public class MagicPortalNetwork : SaveableItem, IMagicPortalNetwork
 				OutboundDescription = OutboundDescription,
 				InboundDescription = InboundDescription,
 				TimeMultiplier = TimeMultiplier,
-				CreatedByCharacterId = creator?.Id,
+				CreatedByCharacterId = CharacterInstanceIdentityComparer.IdentityId(creator),
 				CreatedDateTime = DateTime.UtcNow
 			};
 			FMDB.Context.MagicPortalNetworks.Add(dbitem);
@@ -1068,7 +1068,7 @@ public class MagicPortalTopologyService : IMagicPortalTopologyService
 				CellId = cell?.Id,
 				GameItemId = item?.Id,
 				IsActive = true,
-				CreatedByCharacterId = actor.Id,
+				CreatedByCharacterId = CharacterInstanceIdentityComparer.IdentityId(actor),
 				CreatedBySpellId = spellId,
 				CreatedDateTime = DateTime.UtcNow
 			};
@@ -1121,7 +1121,7 @@ public class MagicPortalTopologyService : IMagicPortalTopologyService
 				SourceEndpointId = source.Id,
 				DestinationEndpointId = destination.Id,
 				IsActive = true,
-				CreatedByCharacterId = actor.Id,
+				CreatedByCharacterId = CharacterInstanceIdentityComparer.IdentityId(actor),
 				CreatedBySpellId = spellId,
 				CreatedDateTime = DateTime.UtcNow
 			};

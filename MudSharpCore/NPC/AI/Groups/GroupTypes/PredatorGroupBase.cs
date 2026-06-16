@@ -568,7 +568,10 @@ public abstract class PredatorGroupBase : GroupAIType
                                    .SelectMany(x =>
                                        x.SeenTargets.Concat(x.Location.LayerCharacters(x.RoomLayer))
                                         .Where(y => x.CanSee(y)))
-                                   .Distinct().OfType<ICharacter>().Except(group.GroupMembers).ToList();
+                                   .OfType<ICharacter>()
+                                   .DistinctPhysicalInstances()
+                                   .Where(x => !group.GroupMembers.ContainsPhysicalInstance(x))
+                                   .ToList();
         List<ICharacter> threats = knownCharacters.Where(x => group.ConsidersThreat(x, group.Alertness)).ToList();
         return threats;
     }

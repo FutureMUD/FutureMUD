@@ -266,7 +266,7 @@ public class ComputerStorageGameItemComponent : GameItemComponent, IComputerStor
 		{
 			Id = NextProcessId(),
 			ProcessName = program.Name,
-			OwnerCharacterId = actor?.Id ?? 0L,
+			OwnerCharacterId = CharacterInstanceIdentityComparer.IdentityId(actor),
 			Program = program,
 			Host = ExecutionHost,
 			Status = ComputerProcessStatus.Running,

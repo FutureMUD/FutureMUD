@@ -68,7 +68,7 @@ public abstract class ActiveJobBase : SaveableItem, IActiveJob, ILazyLoadDuringI
     {
         Gameworld = listing.Gameworld;
         Listing = listing;
-        _characterId = character.Id;
+        _characterId = CharacterInstanceIdentityComparer.IdentityId(character);
         _character = character;
         JobCommenced = new MudDateTime(commenced);
         JobDueToEnd = ending;
@@ -80,7 +80,7 @@ public abstract class ActiveJobBase : SaveableItem, IActiveJob, ILazyLoadDuringI
             ActiveJob dbitem = new()
             {
                 JobListingId = listing.Id,
-                CharacterId = character.Id,
+                CharacterId = _characterId,
                 JobCommenced = JobCommenced.GetDateTimeString(),
                 JobDueToEnd = JobDueToEnd?.GetDateTimeString(),
                 JobEnded = null,

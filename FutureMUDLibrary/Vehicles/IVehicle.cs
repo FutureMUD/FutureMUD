@@ -63,6 +63,7 @@ public interface IVehicleOccupancy : IFrameworkItem
 {
 	IVehicle Vehicle { get; }
 	ICharacter Occupant { get; }
+	long? CharacterInstanceId { get; }
 	IVehicleOccupantSlotPrototype Slot { get; }
 	bool IsController { get; }
 }

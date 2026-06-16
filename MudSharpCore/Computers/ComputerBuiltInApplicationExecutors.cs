@@ -799,8 +799,8 @@ internal sealed class FileManagerBuiltInApplicationExecutor : IComputerBuiltInAp
 		{
 			Status = ComputerProcessStatus.Sleeping,
 			WaitType = ComputerProcessWaitType.UserInput,
-			WaitArgument = ComputerProcessWaitArguments.CreateUserInput(session.User.Id, session.Terminal.TerminalItemId),
-			WaitingCharacterId = session.User.Id,
+			WaitArgument = ComputerProcessWaitArguments.CreateUserInput(CharacterInstanceIdentityComparer.IdentityId(session.User), session.Terminal.TerminalItemId),
+			WaitingCharacterId = CharacterInstanceIdentityComparer.IdentityId(session.User),
 			WaitingTerminalItemId = session.Terminal.TerminalItemId,
 			StateJson = JsonSerializer.Serialize(state)
 		};
@@ -1576,8 +1576,8 @@ internal sealed class BoardsBuiltInApplicationExecutor : IComputerBuiltInApplica
 		{
 			Status = ComputerProcessStatus.Sleeping,
 			WaitType = ComputerProcessWaitType.UserInput,
-			WaitArgument = ComputerProcessWaitArguments.CreateUserInput(session.User.Id, session.Terminal.TerminalItemId),
-			WaitingCharacterId = session.User.Id,
+			WaitArgument = ComputerProcessWaitArguments.CreateUserInput(CharacterInstanceIdentityComparer.IdentityId(session.User), session.Terminal.TerminalItemId),
+			WaitingCharacterId = CharacterInstanceIdentityComparer.IdentityId(session.User),
 			WaitingTerminalItemId = session.Terminal.TerminalItemId,
 			StateJson = JsonSerializer.Serialize(state)
 		};
@@ -2037,8 +2037,8 @@ internal sealed class MailBuiltInApplicationExecutor : IComputerBuiltInApplicati
 		{
 			Status = ComputerProcessStatus.Sleeping,
 			WaitType = ComputerProcessWaitType.UserInput,
-			WaitArgument = ComputerProcessWaitArguments.CreateUserInput(session.User.Id, session.Terminal.TerminalItemId),
-			WaitingCharacterId = session.User.Id,
+			WaitArgument = ComputerProcessWaitArguments.CreateUserInput(CharacterInstanceIdentityComparer.IdentityId(session.User), session.Terminal.TerminalItemId),
+			WaitingCharacterId = CharacterInstanceIdentityComparer.IdentityId(session.User),
 			WaitingTerminalItemId = session.Terminal.TerminalItemId,
 			StateJson = JsonSerializer.Serialize(state)
 		};
@@ -2534,8 +2534,8 @@ internal sealed class DirectoryBuiltInApplicationExecutor : IComputerBuiltInAppl
 		{
 			Status = ComputerProcessStatus.Sleeping,
 			WaitType = ComputerProcessWaitType.UserInput,
-			WaitArgument = ComputerProcessWaitArguments.CreateUserInput(session.User.Id, session.Terminal.TerminalItemId),
-			WaitingCharacterId = session.User.Id,
+			WaitArgument = ComputerProcessWaitArguments.CreateUserInput(CharacterInstanceIdentityComparer.IdentityId(session.User), session.Terminal.TerminalItemId),
+			WaitingCharacterId = CharacterInstanceIdentityComparer.IdentityId(session.User),
 			WaitingTerminalItemId = session.Terminal.TerminalItemId,
 			StateJson = string.Empty
 		};

@@ -322,7 +322,7 @@ public class CorpseGameItemComponent : GameItemComponent, ICorpse, ILazyLoadDuri
         set
         {
             _originalCharacter = value;
-            _originalCharacterId = value?.Id ?? 0;
+            _originalCharacterId = CharacterInstanceIdentityComparer.IdentityId(value);
             if (_originalBody == null && value != null)
             {
                 OriginalBody = value.Body;

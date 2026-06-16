@@ -62,26 +62,20 @@ internal class CommunicationsModule : Module<ICharacter>
         string thinkText = ss.SafeRemainingArgument.Sanitise().ProperSentences().NormaliseSpacing().Fullstop();
         actor.Send(
             $"You think{(!string.IsNullOrWhiteSpace(emote.RawText) ? $", {emote.ParseFor(actor)}, " : "")}\n\t\"{thinkText}\"");
-        foreach (
-            ICharacter character in
-            actor.Gameworld.Characters.Where(
-                x => x != actor && x.EffectsOfType<ITelepathyEffect>().Any(y => y.Applies(actor) && y.ShowThinks))
-        )
+        foreach (var (_, recipient, effects) in TelepathyRecipients(actor, x => x.ShowThinks))
         {
-            List<ITelepathyEffect> effects =
-                character.EffectsOfType<ITelepathyEffect>().Where(x => x.Applies(actor) && x.ShowThinks).ToList();
             bool showDesc = effects.Any(x => x.ShowDescription(actor));
             var concealment = actor.EffectsOfType<IMindContactConcealmentEffect>()
                                   .FirstOrDefault(x => effects.OfType<IMagicEffect>()
-                                                             .Any(y => x.ConcealsIdentityFrom(actor, character,
-                                                                 y.School)));
+                                                              .Any(y => x.ConcealsIdentityFrom(actor, recipient,
+                                                                  y.School)));
             bool showName = concealment is null && effects.Any(x => x.ShowName(actor));
             bool showEmote = effects.Any(x => x.ShowThinkEmote(actor));
             var thinkerDescription = concealment?.UnknownIdentityDescription.ColourCharacter() ??
-                                     (showDesc ? actor.HowSeen(character, true) : "Someone");
+                                     (showDesc ? actor.HowSeen(recipient, true) : "Someone");
 
-            character.Send(
-                $"{thinkerDescription} {(showName ? $"({actor.PersonalName.GetName(NameStyle.SimpleFull)}) " : "")}thinks{(showEmote && !string.IsNullOrWhiteSpace(emote.RawText) ? $", {emote.ParseFor(character)}, " : ",")}\n\t\"{thinkText}\"");
+            recipient.Send(
+                $"{thinkerDescription} {(showName ? $"({actor.PersonalName.GetName(NameStyle.SimpleFull)}) " : "")}thinks{(showEmote && !string.IsNullOrWhiteSpace(emote.RawText) ? $", {emote.ParseFor(recipient)}, " : ",")}\n\t\"{thinkText}\"");
         }
     }
 
@@ -118,26 +112,40 @@ internal class CommunicationsModule : Module<ICharacter>
 
         actor.OutputHandler.Send(
             $"You feel{(!string.IsNullOrWhiteSpace(emote.RawText) ? $", {emote.ParseFor(actor)}, " : " ")}{feelEmote.ParseFor(actor)}");
-        foreach (
-            ICharacter character in
-            actor.Gameworld.Characters.Where(
-                x => x != actor && x.EffectsOfType<ITelepathyEffect>().Any(y => y.Applies(actor) && y.ShowFeels)))
+        foreach (var (_, recipient, effects) in TelepathyRecipients(actor, x => x.ShowFeels))
         {
-            List<ITelepathyEffect> effects =
-                character.EffectsOfType<ITelepathyEffect>().Where(x => x.Applies(actor) && x.ShowFeels).ToList();
             bool showDesc = effects.Any(x => x.ShowDescription(actor));
             var concealment = actor.EffectsOfType<IMindContactConcealmentEffect>()
                                   .FirstOrDefault(x => effects.OfType<IMagicEffect>()
-                                                             .Any(y => x.ConcealsIdentityFrom(actor, character,
-                                                                 y.School)));
+                                                              .Any(y => x.ConcealsIdentityFrom(actor, recipient,
+                                                                  y.School)));
             bool showName = concealment is null && effects.Any(x => x.ShowName(actor));
             bool showEmote = effects.Any(x => x.ShowThinkEmote(actor));
             var thinkerDescription = concealment?.UnknownIdentityDescription.ColourCharacter() ??
-                                     (showDesc ? actor.HowSeen(character, true) : "Someone");
+                                     (showDesc ? actor.HowSeen(recipient, true) : "Someone");
 
-            character.OutputHandler.Send(
-                $"{thinkerDescription} {(showName ? $"({actor.PersonalName.GetName(NameStyle.SimpleFull)}) " : "")}feels{(showEmote && !string.IsNullOrWhiteSpace(emote.RawText) ? $", {emote.ParseFor(character)}, " : " ")}{feelEmote.ParseFor(character)}");
+            recipient.OutputHandler.Send(
+                $"{thinkerDescription} {(showName ? $"({actor.PersonalName.GetName(NameStyle.SimpleFull)}) " : "")}feels{(showEmote && !string.IsNullOrWhiteSpace(emote.RawText) ? $", {emote.ParseFor(recipient)}, " : " ")}{feelEmote.ParseFor(recipient)}");
         }
+    }
+
+    private static IEnumerable<(ICharacter IdentityActor, ICharacter Recipient, List<ITelepathyEffect> Effects)> TelepathyRecipients(
+        ICharacter actor,
+        Func<ITelepathyEffect, bool> effectSelector)
+    {
+        return actor.Gameworld.Characters
+                    .Where(x => !CharacterInstanceIdentityComparer.SameIdentity(actor, x))
+                    .GroupBy(CharacterInstanceIdentityComparer.IdentityId)
+                    .Select(x => x.First())
+                    .Select(identityActor =>
+                    {
+                        var recipient = identityActor.Identity.FocusedInstance as ICharacter ?? identityActor;
+                        var effects = identityActor.EffectsOfType<ITelepathyEffect>()
+                                                   .Where(x => x.Applies(actor) && effectSelector(x))
+                                                   .ToList();
+                        return (IdentityActor: identityActor, Recipient: recipient, Effects: effects);
+                    })
+                    .Where(x => x.Effects.Any());
     }
 
     [PlayerCommand("Languages", "languages")]
@@ -1337,7 +1345,7 @@ You can use the following syntax with this command:
             return;
         }
 
-        if (!actor.IsAdministrator() && post.AuthorId != actor.Id)
+        if (!actor.IsAdministrator() && post.AuthorId != CharacterInstanceIdentityComparer.IdentityId(actor))
         {
             actor.OutputHandler.Send($"The post {post.Title.ColourName()} (#{post.Id.ToStringN0(actor)}) was not authored by you and so you cannot delete it.");
             return;

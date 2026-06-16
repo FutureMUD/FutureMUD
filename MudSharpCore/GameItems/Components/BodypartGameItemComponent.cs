@@ -617,7 +617,7 @@ public class BodypartGameItemComponent : GameItemComponent, ISeveredBodypart, IL
         set
         {
             _originalCharacter = value;
-            OriginalCharacterId = value?.Id ?? 0;
+            OriginalCharacterId = CharacterInstanceIdentityComparer.IdentityId(value);
             if (_originalBody == null && value != null)
             {
                 OriginalBody = value.Body;

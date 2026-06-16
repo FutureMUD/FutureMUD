@@ -63,7 +63,7 @@ internal static class AgricultureFunctionHelpers
 				TargetType = (int)operation.TargetType,
 				TargetId = target?.Id,
 				TargetText = target?.Name ?? string.Empty,
-				ActorId = actor.Id,
+				ActorId = CharacterInstanceIdentityComparer.IdentityId(actor),
 				Definition = "<Context />"
 			});
 			FMDB.Context.SaveChanges();

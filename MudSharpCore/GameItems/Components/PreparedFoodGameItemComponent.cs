@@ -455,7 +455,7 @@ public class PreparedFoodGameItemComponent : GameItemComponent, IPreparedFood
 	{
 		CreatedAt = DateTime.Parse(root.Attribute("created")?.Value ?? DateTime.UtcNow.ToString("o", CultureInfo.InvariantCulture),
 			CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind);
-		_servingScope = Enum.Parse<FoodServingScope>(root.Attribute("scope")?.Value ?? _servingScope.ToString());
+		_servingScope = PreparedFoodGameItemComponentProto.LoadServingScope(root.Attribute("scope")?.Value ?? _servingScope.ToString());
 		_satiationPoints = LoadDouble(root, "satiation", _satiationPoints);
 		_waterLitres = LoadDouble(root, "water", _waterLitres);
 		_thirstPoints = LoadDouble(root, "thirst", _thirstPoints);

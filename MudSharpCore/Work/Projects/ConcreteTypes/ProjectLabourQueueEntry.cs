@@ -50,38 +50,37 @@ public class ProjectLabourQueueEntry : IProjectLabourQueueEntry
 	public long ProjectId => _projectId;
 	public long LabourId => _labourId;
 
-	public ProjectLabourQueueStatus Status
+	public ProjectLabourQueueStatus Status => StatusFor(_character);
+
+	public ProjectLabourQueueStatus StatusFor(ICharacter character)
 	{
-		get
+		if (_project == null || _labour == null || _project.CurrentPhase == null)
 		{
-			if (_project == null || _labour == null || _project.CurrentPhase == null)
-			{
-				return ProjectLabourQueueStatus.Stale;
-			}
-
-			if (!_project.CurrentPhase.LabourRequirements.Contains(_labour))
-			{
-				return ProjectLabourQueueStatus.Stale;
-			}
-
-			if (_project is ActiveProject activeProject &&
-				_project is ILocalProject &&
-				activeProject.Location != _character.Location)
-			{
-				return ProjectLabourQueueStatus.WaitingForLocation;
-			}
-
-			if (!_labour.CharacterIsQualified(_character))
-			{
-				return ProjectLabourQueueStatus.WaitingForQualification;
-			}
-
-			if (_project.ActiveLabour.Count(x => x.Labour == _labour) >= _labour.MaximumSimultaneousWorkers)
-			{
-				return ProjectLabourQueueStatus.WaitingForSlot;
-			}
-
-			return ProjectLabourQueueStatus.Ready;
+			return ProjectLabourQueueStatus.Stale;
 		}
+
+		if (!_project.CurrentPhase.LabourRequirements.Contains(_labour))
+		{
+			return ProjectLabourQueueStatus.Stale;
+		}
+
+		if (_project is ActiveProject activeProject &&
+		    _project is ILocalProject &&
+		    activeProject.Location != character.Location)
+		{
+			return ProjectLabourQueueStatus.WaitingForLocation;
+		}
+
+		if (!_labour.CharacterIsQualified(character))
+		{
+			return ProjectLabourQueueStatus.WaitingForQualification;
+		}
+
+		if (_project.ActiveLabour.Count(x => x.Labour == _labour) >= _labour.MaximumSimultaneousWorkers)
+		{
+			return ProjectLabourQueueStatus.WaitingForSlot;
+		}
+
+		return ProjectLabourQueueStatus.Ready;
 	}
 }

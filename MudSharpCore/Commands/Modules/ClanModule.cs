@@ -3669,7 +3669,7 @@ Your next payday is {3}.
 
             Models.ClanMembership dbMembership = new();
             FMDB.Context.ClanMemberships.Add(dbMembership);
-            dbMembership.CharacterId = actor.Id;
+            dbMembership.CharacterId = CharacterInstanceIdentityComparer.IdentityId(actor);
             dbMembership.Clan = dbclan;
             dbMembership.ClanMembershipsAppointments.Add(new ClanMembershipsAppointments
             { ClanMembership = dbMembership, Appointment = dbpos });
@@ -3932,7 +3932,7 @@ Your next payday is {3}.
 
             Models.ClanMembership dbMembership = new();
             FMDB.Context.ClanMemberships.Add(dbMembership);
-            dbMembership.CharacterId = actor.Id;
+            dbMembership.CharacterId = CharacterInstanceIdentityComparer.IdentityId(actor);
             dbMembership.Clan = dbclan;
 
             IAppointment targetAppointment = newClan.Appointments.FirstOrDefault(x => x.Privileges == ClanPrivilegeType.All);

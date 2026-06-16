@@ -392,7 +392,9 @@ public class ConnectMindPower : SustainedMagicPower
                     return;
                 }
 
-                target = actor.Gameworld.Actors.FirstOrDefault(x => x.Id == dub.TargetId);
+                target = actor.Gameworld.TryGetCharacter(dub.TargetId, true) ??
+                         actor.Gameworld.Actors.FirstOrDefault(x =>
+                             CharacterInstanceIdentityComparer.IdentityId(x) == dub.TargetId);
                 if (target == null)
                 {
                     actor.OutputHandler.Send(

@@ -102,6 +102,6 @@ public class ItemHidden : Effect, IItemHiddenEffect
 
     public bool KnewOriginalHidingPlace(ICharacter actor)
     {
-        return OriginalWitnesses.Contains(actor.Id);
+        return OriginalWitnesses.Contains(CharacterInstanceIdentityComparer.IdentityId(actor));
     }
 }

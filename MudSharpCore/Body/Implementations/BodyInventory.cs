@@ -33,6 +33,9 @@ public partial class Body
 {
     private readonly HashSet<IProsthetic> _prosthetics = new();
     private bool _inventoryChanged;
+    private bool _inventoryLoaded;
+
+    public bool InventoryLoaded => _inventoryLoaded;
 
     private bool _prostheticsChanged;
 
@@ -206,6 +209,12 @@ public partial class Body
 
     public void LoadInventory(MudSharp.Models.Body body)
     {
+        if (_inventoryLoaded)
+        {
+            RecalculateItemHelpers();
+            return;
+        }
+
         List<IGameItem> loadedItems = new();
         _noSave = true;
 
@@ -268,6 +277,7 @@ public partial class Body
         }
 
         _noSave = false;
+        _inventoryLoaded = true;
         RecalculateItemHelpers();
     }
 
@@ -2560,10 +2570,10 @@ public partial class Body
     private readonly List<(IGameItem Item, IWear Wearloc, IWearlocProfile Profile)> _wornItems =
         new();
 
-    private List<IGameItem> _directWornItems;
+    private List<IGameItem> _directWornItems = new();
     public IEnumerable<IGameItem> DirectWornItems => _directWornItems;
 
-    private List<IGameItem> _wornItemsOnly;
+    private List<IGameItem> _wornItemsOnly = new();
     public IEnumerable<IGameItem> WornItems => _wornItemsOnly;
 
     public bool IsOuterwear(IGameItem item)
@@ -2571,7 +2581,7 @@ public partial class Body
         return _outerwear.Contains(item);
     }
 
-    private HashSet<IGameItem> _outerwear;
+    private HashSet<IGameItem> _outerwear = new();
 
     /// <summary>
     /// WornItems that are the outermost item for any of their wearlocs
@@ -3151,18 +3161,18 @@ public partial class Body
     private List<IGameItem> _directItems = new();
     public IEnumerable<IGameItem> DirectItems => _directItems;
 
-    private HashSet<IBodypart> _exposedBodyparts;
+    private HashSet<IBodypart> _exposedBodyparts = new();
 
     /// <summary>
     /// Bodyparts that have no items covering them
     /// </summary>
     public IEnumerable<IBodypart> ExposedBodyparts => _exposedBodyparts;
 
-    private HashSet<IBodypart> _visiblySeveredBodyparts;
+    private HashSet<IBodypart> _visiblySeveredBodyparts = new();
 
     public IEnumerable<IBodypart> VisiblySeveredBodyparts => _visiblySeveredBodyparts;
 
-    private HashSet<IGameItem> _itemsWornAgainstSkin;
+    private HashSet<IGameItem> _itemsWornAgainstSkin = new();
 
     /// <summary>
     /// Items that are the first-worn item for any of their slots

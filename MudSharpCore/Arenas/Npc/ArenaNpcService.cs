@@ -42,11 +42,11 @@ public class ArenaNpcService : IArenaNpcService
         }
 
         List<ICharacter> candidates = new();
-        HashSet<long> activeNpcIds = arenaEvent.Arena.ActiveEvents
+        HashSet<long> activeNpcInstances = arenaEvent.Arena.ActiveEvents
             .SelectMany(x => x.Participants)
-            .Select(x => x.Character?.Id)
-            .Where(x => x.HasValue)
-            .Select(x => x.GetValueOrDefault())
+            .Select(x => x.ActiveCharacter)
+            .OfType<ICharacter>()
+            .Select(x => CharacterInstanceIdentityComparer.InstanceId(x) ?? CharacterInstanceIdentityComparer.IdentityId(x))
             .ToHashSet();
 
         List<ICell> stableCells = arenaEvent.Arena.NpcStablesCells?.ToList() ?? [];
@@ -58,7 +58,8 @@ public class ArenaNpcService : IArenaNpcService
                 .Where(npc => !npc.IsPlayerCharacter)
                 .Where(npc => npc is INPC)
                 .Where(npc => npc.State.IsAble())
-                .Where(npc => !activeNpcIds.Contains(npc.Id))
+                .Where(npc => !activeNpcInstances.Contains(CharacterInstanceIdentityComparer.InstanceId(npc) ??
+                                                          CharacterInstanceIdentityComparer.IdentityId(npc)))
                 .Where(npc => IsEligibleForSide(npc, side));
 
             foreach (ICharacter? npc in stableNpcs)
@@ -87,7 +88,8 @@ public class ArenaNpcService : IArenaNpcService
             .OfType<INPC>()
             .Cast<ICharacter>()
             .Where(npc => npc.State.IsAble())
-            .Where(npc => !activeNpcIds.Contains(npc.Id))
+            .Where(npc => !activeNpcInstances.Contains(CharacterInstanceIdentityComparer.InstanceId(npc) ??
+                                                          CharacterInstanceIdentityComparer.IdentityId(npc)))
             .Where(npc => IsEligibleForSide(npc, side))
             .ToList();
 

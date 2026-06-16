@@ -1030,6 +1030,7 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
     public void Add(IMagicSchool school)
     {
         _magicSchools.Add(school);
+        MudSharp.Commands.Modules.MagicModule.EnsureMagicSchoolVerbRegistered(school.SchoolVerb);
     }
 
     public void Add(IMagicCapability capability)
@@ -1346,8 +1347,9 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
             if (!_characters.Has(actor))
             {
                 _characters.Add(actor);
-                _cachedPersonalNames.RemoveAll(x => x.Id == actor.Id);
-                _cachedPersonalNames.Add(new CharacterPersonalNameLookup { PersonalName = actor.PersonalName, Id = actor.Id });
+                var actorIdentityId = CharacterInstanceIdentityComparer.IdentityId(actor);
+                _cachedPersonalNames.RemoveAll(x => x.Id == actorIdentityId);
+                _cachedPersonalNames.Add(new CharacterPersonalNameLookup { PersonalName = actor.PersonalName, Id = actorIdentityId });
             }
 
             GameStatistics.UpdateOnlinePlayers();

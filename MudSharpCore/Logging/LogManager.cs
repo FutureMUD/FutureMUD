@@ -41,7 +41,7 @@ public class LogManager : ILogManager
         _commandQueue.Enqueue(new CharacterCommand
         {
             AccountId = character.Account?.Id == 0 ? default : character.Account?.Id,
-            CharacterId = character.Id,
+            CharacterId = CharacterInstanceIdentityComparer.IdentityId(character),
             CellId = character.Location?.Id ?? 0,
             Command = command,
             Time = DateTime.UtcNow,

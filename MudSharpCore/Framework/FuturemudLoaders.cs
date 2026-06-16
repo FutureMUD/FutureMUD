@@ -1411,18 +1411,7 @@ For information on the syntax to use in emotes (such as those included in bracke
 
         foreach (string verb in _magicSchools.Select(x => x.SchoolVerb).Distinct())
         {
-            Command<ICharacter> command = new(MagicModule.MagicGeneric, CharacterState.Conscious,
-                PermissionLevel.Any, verb,
-                CommandDisplayOptions.None,
-                condition: MagicModule.MagicFilterFunction);
-            PlayerCommandTree.Instance.Commands.Add(verb, command);
-            NPCCommandTree.Instance.Commands.Add(verb, command);
-            GuideCommandTree.Instance.Commands.Add(verb, command);
-            AdminCommandTree.JuniorAdminCommandTree.Commands.Add(verb, command);
-            AdminCommandTree.StandardAdminCommandTree.Commands.Add(verb, command);
-            AdminCommandTree.SeniorAdminCommandTree.Commands.Add(verb, command);
-            AdminCommandTree.HighAdminCommandTree.Commands.Add(verb, command);
-            FounderCommandTree.Instance.Commands.Add(verb, command);
+            MagicModule.EnsureMagicSchoolVerbRegistered(verb);
         }
     }
 
@@ -2684,6 +2673,29 @@ For information on the syntax to use in emotes (such as those included in bracke
                !activeStableMountIds.Contains(npcCharacterId);
     }
 
+    internal static ISet<long> ActiveStablePrimaryMountIdentityIds(IEnumerable<MudSharp.Models.StableStay> activeStableMounts,
+        IEnumerable<MudSharp.Models.CharacterInstance> characterInstances)
+    {
+        var activeStableMountList = activeStableMounts.ToList();
+        var activeStableMountIds = activeStableMountList
+                                   .Where(x => x.MountInstanceId is null)
+                                   .Select(x => x.MountId)
+                                   .ToHashSet();
+        var activeStableInstanceIds = activeStableMountList
+                                      .Select(x => x.MountInstanceId)
+                                      .Where(x => x is not null)
+                                      .Select(x => x!.Value)
+                                      .ToHashSet();
+        if (activeStableInstanceIds.Any())
+        {
+            activeStableMountIds.UnionWith(characterInstances
+                                               .Where(x => activeStableInstanceIds.Contains(x.Id) && x.IsPrimary)
+                                               .Select(x => x.CharacterId));
+        }
+
+        return activeStableMountIds;
+    }
+
     void IFuturemudLoader.LoadNPCs()
     {
         ConsoleUtilities.WriteLine("\nLoading #5NPCs#0...");
@@ -2692,11 +2704,12 @@ For information on the syntax to use in emotes (such as those included in bracke
         sw.Start();
 #endif
         DummyAccount.Instance.SetupGameworld(this);
-        var activeStableMountIds = FMDB.Context.StableStays
+        var activeStableMounts = FMDB.Context.StableStays
                                      .AsNoTracking()
                                      .Where(x => x.Status == (int)StableStayStatus.Active)
-                                     .Select(x => x.MountId)
-                                     .ToHashSet();
+                                     .ToList();
+        var activeStableMountIds = ActiveStablePrimaryMountIdentityIds(activeStableMounts,
+            FMDB.Context.CharacterInstances.AsNoTracking());
         List<Npc> npcs = (from npc in FMDB.Context.Npcs
                                     .Include(x => x.NpcsArtificialIntelligences)
                                     .Include(x => x.Character)
@@ -2739,7 +2752,10 @@ For information on the syntax to use in emotes (such as those included in bracke
                     CachedBodyguards[npc.BodyguardCharacterId.Value] = new List<ICharacter>();
                 }
 
-                CachedBodyguards[npc.BodyguardCharacterId.Value].Add(newNpc);
+                if (!CachedBodyguards[npc.BodyguardCharacterId.Value].ContainsPhysicalInstance(newNpc))
+                {
+                    CachedBodyguards[npc.BodyguardCharacterId.Value].Add(newNpc);
+                }
                 continue;
             }
 
@@ -4282,6 +4298,7 @@ For information on the syntax to use in emotes (such as those included in bracke
                                       .Include(x => x.ChargenAdvicesRaces)
                                       .Include(x => x.RacesChargenResources)
                                       .Include(x => x.RacesAdditionalBodyparts)
+                                      .ThenInclude(x => x.Bodypart)
                                       .Include(x => x.RacesAdditionalCharacteristics)
                                       .Include(x => x.RacesWeaponAttacks)
                                       .Include(x => x.RacesAttributes)
@@ -4290,6 +4307,8 @@ For information on the syntax to use in emotes (such as those included in bracke
                                       .Include(x => x.RacesEdibleMaterials)
                                       .Include(x => x.RaceEdibleForagableYields)
                                       .Include(x => x.RacesCombatActions)
+                                      .AsSplitQuery()
+                                      .AsNoTracking()
                                    select race).ToList();
         List<Tuple<Race, Models.Race>> staging = new();
 

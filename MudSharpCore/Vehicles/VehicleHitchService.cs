@@ -32,6 +32,18 @@ public class VehicleHitchService : IVehicleHitchService
 
 	public bool CanPersistCharacterHitch(ICharacter source, IPerceivable target, out string reason)
 	{
+		if (source.PersistencePolicy != CharacterInstancePersistencePolicy.Persistent)
+		{
+			reason = "Persistent hitch links require persistent source character instances.";
+			return false;
+		}
+
+		if (target is ICharacter { PersistencePolicy: not CharacterInstancePersistencePolicy.Persistent })
+		{
+			reason = "Persistent hitch links require persistent target character instances.";
+			return false;
+		}
+
 		if (source.IsPlayerCharacter)
 		{
 			reason = "Player-character hitch endpoints remain transient and are not persisted.";
@@ -69,12 +81,18 @@ public class VehicleHitchService : IVehicleHitchService
 			dbitem = new DB.VehicleHitchLink
 			{
 				SourceType = (int)VehicleHitchEndpointType.Character,
-				SourceCharacterId = source.Id,
+				SourceCharacterId = CharacterInstanceIdentityComparer.IdentityId(source),
+				SourceCharacterInstanceId = CharacterInstanceIdentityComparer.InstanceId(source),
 				TargetType = targetVehicle is not null
 					? (int)VehicleHitchEndpointType.Vehicle
 					: (int)VehicleHitchEndpointType.Character,
 				TargetVehicleId = targetVehicle?.Id,
-				TargetCharacterId = targetCharacter?.Id,
+				TargetCharacterId = targetCharacter is null
+					? null
+					: CharacterInstanceIdentityComparer.IdentityId(targetCharacter),
+				TargetCharacterInstanceId = targetCharacter is null
+					? null
+					: CharacterInstanceIdentityComparer.InstanceId(targetCharacter),
 				TargetTowPointProtoId = targetTowPoint?.Id,
 				HitchItemId = hitchItem?.Id,
 				IsDisabled = false,
@@ -128,12 +146,17 @@ public class VehicleHitchService : IVehicleHitchService
 		var type = source ? link.SourceType : link.TargetType;
 		var vehicleId = source ? link.SourceVehicleId : link.TargetVehicleId;
 		var characterId = source ? link.SourceCharacterId : link.TargetCharacterId;
+		var characterInstanceId = source ? link.SourceCharacterInstanceId : link.TargetCharacterInstanceId;
 
 		return type switch
 		{
 			VehicleHitchEndpointType.Vehicle => perceivable is IGameItem item &&
 			                                    item.GetItemType<IVehicleExterior>()?.Vehicle?.Id == vehicleId,
-			VehicleHitchEndpointType.Character => perceivable is ICharacter character && character.Id == characterId,
+			VehicleHitchEndpointType.Character => perceivable is ICharacter character &&
+			                                      CharacterInstanceIdentityComparer.IdentityId(character) == characterId &&
+			                                      (characterInstanceId is null or <= 0L ||
+			                                       CharacterInstanceIdentityComparer.InstanceId(character) ==
+			                                       characterInstanceId),
 			_ => false
 		};
 	}
@@ -207,8 +230,9 @@ public class VehicleHitchService : IVehicleHitchService
 		}
 
 		var towPoint = link.TargetTowPoint;
-		HitchGearRules.Reserve(link.HitchItem, vehicleHitchLinkId: link.Id, sourceCharacterId: source.Id,
-			targetId: target.Id);
+		HitchGearRules.Reserve(link.HitchItem, vehicleHitchLinkId: link.Id,
+			sourceCharacterId: CharacterInstanceIdentityComparer.IdentityId(source),
+			targetId: CharacterInstanceIdentityComparer.FrameworkItemId(target));
 		source.AddEffect(new CharacterHitch(source, target, towPoint?.CharacterPullMultiplier ?? 1.0, towPoint?.Id,
 			link.Id, link.HitchItemId));
 		source.AddEffect(new Dragging(source, HitchGearRules.DragAidFor(link.HitchItem), target));

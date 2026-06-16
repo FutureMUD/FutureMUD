@@ -27,9 +27,9 @@ public class GroupAI : LateInitialisingItem, IGroupAI
         XElement root = XElement.Parse(ai.Definition);
         CurrentAction = (GroupAction)int.Parse(root.Element("Action").Value);
         Alertness = (GroupAlertness)int.Parse(root.Element("Alertness").Value);
-        foreach (long id in root.Element("Members").Elements().Select(x => long.Parse(x.Value)))
+        foreach (var reference in LoadMemberReferences(root.Element("Members")))
         {
-            _groupMemberIds.Add(id);
+            _groupMemberReferences.Add(reference);
         }
 
         Template = Gameworld.GroupAITemplates.Get(ai.GroupAiTemplateId);
@@ -59,9 +59,53 @@ public class GroupAI : LateInitialisingItem, IGroupAI
             new XElement("Alertness", (int)Alertness),
             new XElement("Members",
                 from ch in GroupMembers
-                select new XElement("Id", ch.Id)
+                select SaveMemberReference(ch)
             )
         );
+    }
+
+    private static IEnumerable<GroupMemberReference> LoadMemberReferences(XElement membersRoot)
+    {
+        if (membersRoot is null)
+        {
+            yield break;
+        }
+
+        foreach (var element in membersRoot.Elements())
+        {
+            if (element.Name.LocalName.EqualTo("Member"))
+            {
+                var characterText = element.Attribute("character")?.Value ?? element.Attribute("id")?.Value;
+                if (!long.TryParse(characterText, out var characterId))
+                {
+                    continue;
+                }
+
+                var instanceId = long.TryParse(element.Attribute("instance")?.Value, out var parsedInstanceId)
+                    ? parsedInstanceId
+                    : (long?)null;
+                yield return new GroupMemberReference(characterId, instanceId);
+                continue;
+            }
+
+            if (long.TryParse(element.Value, out var legacyId))
+            {
+                yield return new GroupMemberReference(legacyId, null);
+            }
+        }
+    }
+
+    private static XElement SaveMemberReference(ICharacter character)
+    {
+        var element = new XElement("Member",
+            new XAttribute("character", CharacterInstanceIdentityComparer.IdentityId(character)));
+        var instanceId = CharacterInstanceIdentityComparer.InstanceId(character);
+        if (instanceId is not null)
+        {
+            element.Add(new XAttribute("instance", instanceId.Value));
+        }
+
+        return element;
     }
 
     public override void Save()
@@ -113,7 +157,9 @@ public class GroupAI : LateInitialisingItem, IGroupAI
         }
     }
 
-    private readonly List<long> _groupMemberIds = new();
+    private readonly record struct GroupMemberReference(long CharacterId, long? InstanceId);
+
+    private readonly List<GroupMemberReference> _groupMemberReferences = new();
     private List<ICharacter> _groupMembers;
     private IGroupTypeData _data;
 
@@ -121,7 +167,20 @@ public class GroupAI : LateInitialisingItem, IGroupAI
     {
         if (_groupMembers == null)
         {
-            _groupMembers = new List<ICharacter>(_groupMemberIds.Select(x => Gameworld.TryGetCharacter(x, true)));
+            _groupMembers = _groupMemberReferences
+                            .Select(x => CharacterInstanceIdentityComparer.ResolvePhysicalInstance(
+                                Gameworld,
+                                x.CharacterId,
+                                x.InstanceId,
+                                fallbackToPrimary: x.InstanceId is null))
+                            .Where(x => x is not null)
+                            .Select(x => x!)
+                            .DistinctPhysicalInstances()
+                            .ToList();
+            _groupMemberReferences.Clear();
+            _groupMemberReferences.AddRange(_groupMembers.Select(x => new GroupMemberReference(
+                CharacterInstanceIdentityComparer.IdentityId(x),
+                CharacterInstanceIdentityComparer.InstanceId(x))));
         }
     }
 
@@ -134,20 +193,36 @@ public class GroupAI : LateInitialisingItem, IGroupAI
         }
     }
 
-    public ICharacter GroupLeader => GroupMembers.FirstOrDefault(x => GroupRoles[x] == GroupRole.Leader);
+    public ICharacter GroupLeader => GroupMembers.FirstOrDefault(x => RoleFor(x) == GroupRole.Leader);
 
     public void AddToGroup(ICharacter character)
     {
         InitialiseGroupMembers();
+        if (_groupMembers.ContainsPhysicalInstance(character))
+        {
+            return;
+        }
+
         _groupMembers.Add(character);
-        _groupMemberIds.Add(character.Id);
+        _groupMemberReferences.Add(new GroupMemberReference(
+            CharacterInstanceIdentityComparer.IdentityId(character),
+            CharacterInstanceIdentityComparer.InstanceId(character)));
+        Changed = true;
     }
 
     public void RemoveFromGroup(ICharacter character)
     {
         InitialiseGroupMembers();
-        _groupMembers.Remove(character);
-        _groupMemberIds.Remove(character.Id);
+        _groupMembers.RemovePhysicalInstance(character);
+        _groupMemberReferences.RemoveAll(x =>
+            x.CharacterId == CharacterInstanceIdentityComparer.IdentityId(character) &&
+            (x.InstanceId is null || x.InstanceId == CharacterInstanceIdentityComparer.InstanceId(character)));
+        Changed = true;
+    }
+
+    private GroupRole RoleFor(ICharacter character)
+    {
+        return GroupRoles.TryGetValue(character, out var role) ? role : GroupRole.Adult;
     }
 
     public string Show(ICharacter actor)
@@ -159,8 +234,8 @@ public class GroupAI : LateInitialisingItem, IGroupAI
         sb.AppendLine($"Alertness: {Alertness.DescribeEnum().ColourValue()}");
         sb.AppendLine($"Priority: {CurrentAction.DescribeEnum().ColourValue()}");
         sb.AppendLine("Members: ");
-        foreach (ICharacter member in GroupMembers.OrderByDescending(x => x.Race.AgeCategory(x))
-                                           .ThenByDescending(x => GroupRoles[x] == GroupRole.Leader))
+        foreach (ICharacter member in GroupMembers.OrderByDescending(x => x.AgeCategory)
+                                           .ThenByDescending(x => RoleFor(x) == GroupRole.Leader))
         {
             StringBuilder extra = new();
             if (member.NeedsModel.Status.IsHungry())
@@ -174,7 +249,7 @@ public class GroupAI : LateInitialisingItem, IGroupAI
             }
 
             sb.AppendLine(
-                $"\t[#{member.Id.ToString("N0", actor)}] {member.HowSeen(actor)} ({member.Gender.GenderClass(true)} {member.Race.AgeCategory(member).DescribeEnum(true)} - {GroupRoles[member].DescribeEnum()}){extra.ToString()}");
+                $"\t[#{member.Id.ToString("N0", actor)}:{member.InstanceId.ToString("N0", actor)}] {member.HowSeen(actor)} ({member.Gender.GenderClass(true)} {member.AgeCategory.DescribeEnum(true)} - {RoleFor(member).DescribeEnum()}){extra.ToString()}");
         }
 
         string dataText = Data.ShowText(actor);
@@ -247,7 +322,7 @@ public class GroupAI : LateInitialisingItem, IGroupAI
         return Template.ConsidersThreat(ch, alertness) || GroupAIType.ConsidersThreat(ch, this, alertness);
     }
 
-    public Dictionary<ICharacter, GroupRole> GroupRoles { get; } = new();
+    public Dictionary<ICharacter, GroupRole> GroupRoles { get; } = new(CharacterPhysicalInstanceEqualityComparer.Instance);
 
     public IEnumerable<IGroupEmote> GroupEmotes => Template.GroupEmotes;
 }

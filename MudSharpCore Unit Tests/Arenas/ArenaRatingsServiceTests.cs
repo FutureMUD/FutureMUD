@@ -324,6 +324,7 @@ public class ArenaRatingsServiceTests
         Mock<IArenaParticipant> participant = new();
         participant.SetupGet(x => x.CharacterId).Returns(characterId);
         participant.SetupGet(x => x.Character).Returns(includeCharacter ? character.Object : null);
+        participant.SetupGet(x => x.ActiveCharacter).Returns(includeCharacter ? character.Object : null);
         participant.SetupGet(x => x.CombatantClass).Returns(combatantClass.Object);
         participant.SetupGet(x => x.SideIndex).Returns(sideIndex);
         participant.SetupGet(x => x.IsNpc).Returns(isNpc);

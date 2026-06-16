@@ -58,6 +58,7 @@ Current prerequisites for `EconomySeeder` are:
 Current rerun behavior for `EconomySeeder` is additive and repair-friendly:
 
 - rerunning the same era refreshes stock-owned categories, templates, populations, shoppers, and helper progs without duplicating them
+- reruns also refresh stock-owned XML references for combination-category components, population stress progs, population-income impacts, and shopper behavior progs, so databases seeded with earlier placeholder ID references can be repaired in place
 - running a different era installs another stock package alongside the existing one
 - deleting a stock-owned asset and rerunning restores it if the canonical seeded name still belongs to the package
 

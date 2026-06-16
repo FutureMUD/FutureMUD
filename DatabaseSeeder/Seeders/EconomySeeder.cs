@@ -1774,6 +1774,8 @@ It is intended to be additive across eras and safe to rerun to restore or refres
             result[tag.Id] = category;
         }
 
+        context.SaveChanges();
+
         foreach (Tag tag in marketTags)
         {
             if (!ShouldSeedCombinationCategory(tag, childTagsByParentId))
@@ -2159,6 +2161,7 @@ It is intended to be additive across eras and safe to rerun to restore or refres
         }
 
         List<PopulationSeedContext> populations = new();
+        List<(PopulationBlueprint Blueprint, MarketPopulation Population, IReadOnlyList<StressPointValue> StressPoints, decimal ScaledBudget)> seededPopulations = new();
         foreach (PopulationBlueprint blueprint in era.Populations)
         {
             string populationName = PopulationName(era, blueprint);
@@ -2190,13 +2193,20 @@ It is intended to be additive across eras and safe to rerun to restore or refres
             population.MarketPopulationNeeds = SaveNeeds(scaledNeeds);
             population.MarketStressPoints = SaveStressPoints(stressProgs);
 
-            populations.Add(new PopulationSeedContext(
+            seededPopulations.Add((
                 blueprint,
-                population.Id,
-                populationName,
+                population,
                 stressProgs,
                 ResolvePopulationBudget(blueprint, scaledNeeds.Sum(x => x.BaseExpenditure))));
         }
+
+        context.SaveChanges();
+        populations.AddRange(seededPopulations.Select(x => new PopulationSeedContext(
+            x.Blueprint,
+            RequirePersistedId(x.Population.Id, $"market population {x.Population.Name}"),
+            x.Population.Name,
+            x.StressPoints,
+            x.ScaledBudget)));
 
         return new PopulationContext(populations);
     }
@@ -2312,7 +2322,7 @@ It is intended to be additive across eras and safe to rerun to restore or refres
         PopulationBlueprint blueprint,
         IEnumerable<StressTemplateContext> stressTemplates)
     {
-        List<StressPointValue> results = new();
+        List<(StressTemplateContext Template, FutureProg StartProg, FutureProg EndProg)> progReferences = new();
         string populationName = PopulationName(era, blueprint);
         foreach (StressTemplateContext? template in stressTemplates.OrderBy(x => x.Level.Threshold))
         {
@@ -2346,15 +2356,18 @@ It is intended to be additive across eras and safe to rerun to restore or refres
                 (ProgVariableTypes.Boolean, "rising"),
                 (ProgVariableTypes.Market, "market"));
 
-            results.Add(new StressPointValue(
-                template.Level.DisplayName,
-                $"{populationName} is {template.Level.DisplayName.ToLowerInvariant()}, curbing lower-priority demand while also depressing supply in the sectors that population normally sustains.",
-                template.Level.Threshold,
-                startProg.Id,
-                endProg.Id));
+            progReferences.Add((template, startProg, endProg));
         }
 
-        return results;
+        context.SaveChanges();
+        return progReferences
+            .Select(x => new StressPointValue(
+                x.Template.Level.DisplayName,
+                $"{populationName} is {x.Template.Level.DisplayName.ToLowerInvariant()}, curbing lower-priority demand while also depressing supply in the sectors that population normally sustains.",
+                x.Template.Level.Threshold,
+                RequirePersistedId(x.StartProg.Id, $"stress start prog {x.StartProg.FunctionName}"),
+                RequirePersistedId(x.EndProg.Id, $"stress end prog {x.EndProg.FunctionName}")))
+            .ToList();
     }
 
     private static void EnsureShoppers(
@@ -2365,12 +2378,18 @@ It is intended to be additive across eras and safe to rerun to restore or refres
         decimal shopperScale,
         SupportProgSet supportProgs)
     {
+        List<(PopulationSeedContext Population, FutureProg BuyProg, FutureProg ItemWeightProg)> shopperProgs = populationContext.Populations
+            .Select(population => (
+                population,
+                BuyProg: EnsurePopulationBuyProg(context, era, population.Blueprint),
+                ItemWeightProg: EnsurePopulationItemWeightProg(context, era, population.Blueprint)))
+            .ToList();
+        context.SaveChanges();
+
         int[] nextShopOffsets = new[] { 2, 6, 10, 14, 18 };
-        for (int index = 0; index < populationContext.Populations.Count; index++)
+        for (int index = 0; index < shopperProgs.Count; index++)
         {
-            PopulationSeedContext population = populationContext.Populations[index];
-            FutureProg buyProg = EnsurePopulationBuyProg(context, era, population.Blueprint);
-            FutureProg itemWeightProg = EnsurePopulationItemWeightProg(context, era, population.Blueprint);
+            (PopulationSeedContext population, FutureProg buyProg, FutureProg itemWeightProg) = shopperProgs[index];
             Shopper shopper = SeederRepeatabilityHelper.EnsureNamedEntity(
                 context.Shoppers,
                 ShopperName(era, population.Blueprint),
@@ -2402,10 +2421,10 @@ It is intended to be additive across eras and safe to rerun to restore or refres
                 0);
             shopper.Definition = new XElement("Shopper",
                 new XElement("BudgetPerShop", budget.ToString(CultureInfo.InvariantCulture)),
-                new XElement("WillShopAtShopProg", supportProgs.AcceptAnyShopProg.Id),
-                new XElement("ShopSelectionWeightProg", supportProgs.EqualShopWeightProg.Id),
-                new XElement("WillBuyItemProg", buyProg.Id),
-                new XElement("ItemBuyWeightProg", itemWeightProg.Id),
+                new XElement("WillShopAtShopProg", RequirePersistedId(supportProgs.AcceptAnyShopProg.Id, $"shopper support prog {supportProgs.AcceptAnyShopProg.FunctionName}")),
+                new XElement("ShopSelectionWeightProg", RequirePersistedId(supportProgs.EqualShopWeightProg.Id, $"shopper support prog {supportProgs.EqualShopWeightProg.FunctionName}")),
+                new XElement("WillBuyItemProg", RequirePersistedId(buyProg.Id, $"shopper buy prog {buyProg.FunctionName}")),
+                new XElement("ItemBuyWeightProg", RequirePersistedId(itemWeightProg.Id, $"shopper item-weight prog {itemWeightProg.FunctionName}")),
                 new XElement("SkipEmptyShops", true)).ToString();
         }
     }
@@ -2475,14 +2494,14 @@ It is intended to be additive across eras and safe to rerun to restore or refres
                 new XAttribute("demand", impact.DemandImpact.ToString(CultureInfo.InvariantCulture)),
                 new XAttribute("supply", impact.SupplyImpact.ToString(CultureInfo.InvariantCulture)),
                 new XAttribute("price", impact.FlatPriceImpact.ToString(CultureInfo.InvariantCulture)),
-                new XAttribute("category", impact.CategoryId)))).ToString();
+                new XAttribute("category", RequirePersistedId(impact.CategoryId, "market impact category"))))).ToString();
     }
 
     private static string SavePopulationImpacts(IEnumerable<PopulationIncomeImpactValue> impacts)
     {
         return new XElement("PopulationImpacts",
             impacts.Select(impact => new XElement("PopulationImpact",
-                new XAttribute("population", impact.PopulationId),
+                new XAttribute("population", RequirePersistedId(impact.PopulationId, "population income impact population")),
                 new XAttribute("additive", impact.AdditiveIncomeImpact.ToString(CultureInfo.InvariantCulture)),
                 new XAttribute("multiplier", impact.MultiplicativeIncomeImpact.ToString(CultureInfo.InvariantCulture))))).ToString();
     }
@@ -2509,7 +2528,7 @@ It is intended to be additive across eras and safe to rerun to restore or refres
     {
         return new XElement("Needs",
             needs.Select(need => new XElement("Need",
-                new XAttribute("category", need.CategoryId),
+                new XAttribute("category", RequirePersistedId(need.CategoryId, "market population need category")),
                 new XAttribute("expenditure", need.BaseExpenditure.ToString(CultureInfo.InvariantCulture))))).ToString();
     }
 
@@ -2561,7 +2580,7 @@ It is intended to be additive across eras and safe to rerun to restore or refres
 	{
 		return new XElement("Components",
 			components.Select(component => new XElement("Component",
-				new XAttribute("category", component.Category.Id),
+				new XAttribute("category", RequirePersistedId(component.Category.Id, $"combination component category {component.Category.Name}")),
 				new XAttribute("weight", component.Weight.ToString(CultureInfo.InvariantCulture))))).ToString();
 	}
 
@@ -2570,10 +2589,20 @@ It is intended to be additive across eras and safe to rerun to restore or refres
         return new XElement("Stresses",
             stressPoints.Select(point => new XElement("Stress",
                 new XAttribute("stress", point.Threshold.ToString(CultureInfo.InvariantCulture)),
-                new XAttribute("onstart", point.OnStartProgId),
-                new XAttribute("onend", point.OnEndProgId),
+                new XAttribute("onstart", RequirePersistedId(point.OnStartProgId, $"stress start prog for {point.Name}")),
+                new XAttribute("onend", RequirePersistedId(point.OnEndProgId, $"stress end prog for {point.Name}")),
                 new XAttribute("name", point.Name),
                 new XCData(point.Description)))).ToString();
+    }
+
+    private static long RequirePersistedId(long id, string description)
+    {
+        if (id > 0)
+        {
+            return id;
+        }
+
+        throw new InvalidOperationException($"Cannot serialize {description} before it has a database ID.");
     }
 
     private static string ResolveTopFamilyName(Tag tag, IReadOnlyDictionary<long, Tag> tagsById)

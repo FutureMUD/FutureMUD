@@ -60,10 +60,14 @@ At runtime:
 1. the engine checks whether the character has a capability whose school verb matches the command word
 2. `MagicGeneric` resolves the school or schools behind that verb
 3. the player can use:
+   - `<schoolverb>` for current status, resources, and sustained powers
    - `<schoolverb> powers`
    - `<schoolverb> help <powername>`
    - the concrete power verb itself
-4. the chosen power's `UseCommand` method executes the type-specific behavior
+   - `<schoolverb> spells`
+   - `<schoolverb> spell <spellname>` / `<schoolverb> spellhelp <spellname>`
+   - `<schoolverb> cast <spellname> <power> ...`
+4. for powers, the chosen power's `UseCommand` method executes the type-specific behavior; for spells, trigger-specific help supplies the remaining cast arguments
 
 ### What `MagicPowerBase` handles
 `MagicPowerBase` is the shared runtime and builder foundation for most powers.

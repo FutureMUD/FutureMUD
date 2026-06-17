@@ -2168,6 +2168,19 @@ Please answer #3primitive#F, #3pre-modern#0, or #3modern#F: ",
                 (DrugType.Analgesic, 0.55, string.Empty));
             AddDrug("Mandrake Draught", 0.9, 0.08, DrugVector.Ingested | DrugVector.Inhaled,
                 (DrugType.Anesthesia, 0.45, string.Empty),
+                (DrugType.Arousal, 0.35,
+                    new ArousalAdditionalInfo
+                    {
+                        Mode = DrugArousalMode.SleepInducing | DrugArousalMode.Sedative,
+                        CheckBonusPerIntensity = -0.10,
+                        SleepIntensityThreshold = 0.60,
+                        KnockoutIntensityThreshold = 1.20,
+                        PainPassOutThresholdMultiplier = 0.95,
+                        StunUnconsciousThresholdMultiplier = 0.95,
+                        AnesthesiaUnconsciousThresholdMultiplier = 0.85,
+                        StaminaRegenMultiplier = 0.90,
+                        StaminaCostMultiplier = 1.10
+                    }.DatabaseString),
                 (DrugType.Nausea, 0.30, string.Empty),
                 (DrugType.VisionImpairment, 0.25, string.Empty));
             AddDrug("Honey Poultice", 0.7, 0.10, DrugVector.Touched,
@@ -2183,6 +2196,47 @@ Please answer #3primitive#F, #3pre-modern#0, or #3modern#F: ",
             AddDrug("Ephedra Brew", 0.8, 0.18, DrugVector.Ingested,
                 (DrugType.StaminaRegen, 0.35, string.Empty),
                 (DrugType.Adrenaline, 0.20, string.Empty),
+                (DrugType.NeedRate, 0.35,
+                    new NeedRateAdditionalInfo
+                    {
+                        HungerMultiplier = 0.70,
+                        ThirstMultiplier = 1.20,
+                        DrunkennessMultiplier = 0.90,
+                        AppliesToPassive = true,
+                        AppliesToActive = true
+                    }.DatabaseString),
+                (DrugType.Arousal, 0.45,
+                    new ArousalAdditionalInfo
+                    {
+                        Mode = DrugArousalMode.SleepPreventing | DrugArousalMode.PassOutResistance | DrugArousalMode.Stimulant,
+                        CheckBonusPerIntensity = 0.10,
+                        SleepIntensityThreshold = 0.75,
+                        KnockoutIntensityThreshold = 1.00,
+                        PainPassOutThresholdMultiplier = 1.20,
+                        StunUnconsciousThresholdMultiplier = 1.15,
+                        AnesthesiaUnconsciousThresholdMultiplier = 1.05,
+                        StaminaRegenMultiplier = 1.25,
+                        StaminaCostMultiplier = 0.90
+                    }.DatabaseString),
+                (DrugType.Dependence, 0.20,
+                    new DrugDependenceAdditionalInfo
+                    {
+                        ExposureGainPerGram = 0.45,
+                        ExposureDecayPerDay = 0.20,
+                        ToleranceThreshold = 8.0,
+                        MinimumToleranceMultiplier = 0.45,
+                        WithdrawalThreshold = 4.0,
+                        WithdrawalDecayPerDay = 0.30,
+                        AffectedDrugTypes = [DrugType.StaminaRegen, DrugType.Adrenaline, DrugType.NeedRate, DrugType.Arousal],
+                        WithdrawalCheckPenalty = -0.08,
+                        WithdrawalHungerMultiplier = 1.20,
+                        WithdrawalThirstMultiplier = 1.10,
+                        WithdrawalStaminaRegenMultiplier = 0.75,
+                        WithdrawalStaminaCostMultiplier = 1.20,
+                        WithdrawalNauseaIntensity = 0.10,
+                        WithdrawalRageIntensity = 0.10,
+                        SleepPreventionThreshold = 0.0
+                    }.DatabaseString),
                 (DrugType.ThermalImbalance, 0.05, string.Empty));
             AddDrug("Foxglove Tincture", 0.5, 0.06, DrugVector.Ingested,
                 (DrugType.OrganFunction, 0.25,
@@ -2196,14 +2250,47 @@ Please answer #3primitive#F, #3pre-modern#0, or #3modern#F: ",
             AddDrug("Poppy Latex Draught", 0.8, 0.09, DrugVector.Ingested,
                 (DrugType.Analgesic, 0.85, string.Empty),
                 (DrugType.Pacifism, 0.10, string.Empty),
+                (DrugType.Arousal, 0.25,
+                    new ArousalAdditionalInfo
+                    {
+                        Mode = DrugArousalMode.SleepInducing | DrugArousalMode.Sedative,
+                        CheckBonusPerIntensity = -0.05,
+                        SleepIntensityThreshold = 0.70,
+                        KnockoutIntensityThreshold = 1.20,
+                        PainPassOutThresholdMultiplier = 1.00,
+                        StunUnconsciousThresholdMultiplier = 1.00,
+                        AnesthesiaUnconsciousThresholdMultiplier = 0.90,
+                        StaminaRegenMultiplier = 0.90,
+                        StaminaCostMultiplier = 1.05
+                    }.DatabaseString),
                 (DrugType.Nausea, 0.20, string.Empty));
             AddDrug("Henbane Smoke", 0.7, 0.07, DrugVector.Inhaled,
                 (DrugType.Anesthesia, 0.35, string.Empty),
+                (DrugType.Arousal, 0.30,
+                    new ArousalAdditionalInfo
+                    {
+                        Mode = DrugArousalMode.SleepInducing | DrugArousalMode.Sedative,
+                        CheckBonusPerIntensity = -0.08,
+                        SleepIntensityThreshold = 0.65,
+                        KnockoutIntensityThreshold = 1.10,
+                        PainPassOutThresholdMultiplier = 0.95,
+                        StunUnconsciousThresholdMultiplier = 0.95,
+                        AnesthesiaUnconsciousThresholdMultiplier = 0.85,
+                        StaminaRegenMultiplier = 0.85,
+                        StaminaCostMultiplier = 1.10
+                    }.DatabaseString),
                 (DrugType.VisionImpairment, 0.30, string.Empty),
                 (DrugType.Nausea, 0.20, string.Empty));
             AddDrug("Yarrow Styptic", 0.6, 0.12, DrugVector.Touched,
                 (DrugType.HealingRate, 0.16,
                     new HealingRateAdditionalInfo { HealingRateIntensity = 0.08, HealingDifficultyIntensity = 0.0 }.DatabaseString),
+                (DrugType.Coagulation, 0.70,
+                    new CoagulationAdditionalInfo
+                    {
+                        ExternalBleedingMultiplier = 0.40,
+                        WoundReopenMultiplier = 0.50,
+                        InternalBleedingMultiplier = 0.80
+                    }.DatabaseString),
                 (DrugType.Analgesic, 0.12, string.Empty));
         }
 
@@ -2212,6 +2299,45 @@ Please answer #3primitive#F, #3pre-modern#0, or #3modern#F: ",
             AddDrug("Laudanum", 0.9, 0.10, DrugVector.Ingested,
                 (DrugType.Analgesic, 1.05, string.Empty),
                 (DrugType.Pacifism, 0.15, string.Empty),
+                (DrugType.Respiration, 0.45,
+                    new RespirationAdditionalInfo
+                    {
+                        BreathingDriveMultiplier = 0.70,
+                        HypoxiaDamageMultiplier = 1.25,
+                        AirwayToleranceMultiplier = 0.90
+                    }.DatabaseString),
+                (DrugType.Arousal, 0.45,
+                    new ArousalAdditionalInfo
+                    {
+                        Mode = DrugArousalMode.SleepInducing | DrugArousalMode.Sedative,
+                        CheckBonusPerIntensity = -0.12,
+                        SleepIntensityThreshold = 0.60,
+                        KnockoutIntensityThreshold = 1.10,
+                        PainPassOutThresholdMultiplier = 1.00,
+                        StunUnconsciousThresholdMultiplier = 0.95,
+                        AnesthesiaUnconsciousThresholdMultiplier = 0.85,
+                        StaminaRegenMultiplier = 0.85,
+                        StaminaCostMultiplier = 1.10
+                    }.DatabaseString),
+                (DrugType.Dependence, 0.45,
+                    new DrugDependenceAdditionalInfo
+                    {
+                        ExposureGainPerGram = 0.85,
+                        ExposureDecayPerDay = 0.12,
+                        ToleranceThreshold = 6.0,
+                        MinimumToleranceMultiplier = 0.35,
+                        WithdrawalThreshold = 3.0,
+                        WithdrawalDecayPerDay = 0.20,
+                        AffectedDrugTypes = [DrugType.Analgesic, DrugType.Pacifism, DrugType.Respiration, DrugType.Arousal],
+                        WithdrawalCheckPenalty = -0.12,
+                        WithdrawalHungerMultiplier = 1.15,
+                        WithdrawalThirstMultiplier = 1.20,
+                        WithdrawalStaminaRegenMultiplier = 0.75,
+                        WithdrawalStaminaCostMultiplier = 1.20,
+                        WithdrawalNauseaIntensity = 0.35,
+                        WithdrawalRageIntensity = 0.05,
+                        SleepPreventionThreshold = 0.20
+                    }.DatabaseString),
                 (DrugType.Nausea, 0.25, string.Empty));
             AddDrug("Ether Anaesthetic", 1.0, 0.08, DrugVector.Inhaled,
                 (DrugType.Anesthesia, 0.80, string.Empty),
@@ -2242,6 +2368,13 @@ Please answer #3primitive#F, #3pre-modern#0, or #3modern#F: ",
             AddDrug("Bronchial Smoke", 0.7, 0.08, DrugVector.Inhaled,
                 (DrugType.OrganFunction, 0.30,
                     new OrganFunctionAdditionalInfo { OrganTypes = [BodypartTypeEnum.Lung, BodypartTypeEnum.Trachea] }.DatabaseString),
+                (DrugType.Respiration, 0.55,
+                    new RespirationAdditionalInfo
+                    {
+                        BreathingDriveMultiplier = 1.20,
+                        HypoxiaDamageMultiplier = 0.85,
+                        AirwayToleranceMultiplier = 1.40
+                    }.DatabaseString),
                 (DrugType.VisionImpairment, 0.05, string.Empty));
         }
 
@@ -2252,6 +2385,45 @@ Please answer #3primitive#F, #3pre-modern#0, or #3modern#F: ",
             Drug opioid = AddDrug("Opioid Analgesic", 0.9, 0.10, DrugVector.Injected | DrugVector.Ingested,
                 (DrugType.Analgesic, 1.35, string.Empty),
                 (DrugType.Pacifism, 0.15, string.Empty),
+                (DrugType.Respiration, 0.55,
+                    new RespirationAdditionalInfo
+                    {
+                        BreathingDriveMultiplier = 0.65,
+                        HypoxiaDamageMultiplier = 1.35,
+                        AirwayToleranceMultiplier = 0.90
+                    }.DatabaseString),
+                (DrugType.Arousal, 0.35,
+                    new ArousalAdditionalInfo
+                    {
+                        Mode = DrugArousalMode.SleepInducing | DrugArousalMode.Sedative,
+                        CheckBonusPerIntensity = -0.08,
+                        SleepIntensityThreshold = 0.70,
+                        KnockoutIntensityThreshold = 1.10,
+                        PainPassOutThresholdMultiplier = 1.00,
+                        StunUnconsciousThresholdMultiplier = 0.95,
+                        AnesthesiaUnconsciousThresholdMultiplier = 0.85,
+                        StaminaRegenMultiplier = 0.90,
+                        StaminaCostMultiplier = 1.05
+                    }.DatabaseString),
+                (DrugType.Dependence, 0.60,
+                    new DrugDependenceAdditionalInfo
+                    {
+                        ExposureGainPerGram = 1.00,
+                        ExposureDecayPerDay = 0.10,
+                        ToleranceThreshold = 5.0,
+                        MinimumToleranceMultiplier = 0.30,
+                        WithdrawalThreshold = 2.5,
+                        WithdrawalDecayPerDay = 0.18,
+                        AffectedDrugTypes = [DrugType.Analgesic, DrugType.Pacifism, DrugType.Respiration, DrugType.Arousal],
+                        WithdrawalCheckPenalty = -0.15,
+                        WithdrawalHungerMultiplier = 1.20,
+                        WithdrawalThirstMultiplier = 1.25,
+                        WithdrawalStaminaRegenMultiplier = 0.70,
+                        WithdrawalStaminaCostMultiplier = 1.25,
+                        WithdrawalNauseaIntensity = 0.45,
+                        WithdrawalRageIntensity = 0.10,
+                        SleepPreventionThreshold = 0.20
+                    }.DatabaseString),
                 (DrugType.Nausea, 0.20, string.Empty));
             Drug muscleRelaxant = AddDrug("Muscle Relaxant", 0.7, 0.08, DrugVector.Injected,
                 (DrugType.Paralysis, 0.85, string.Empty));
@@ -2279,10 +2451,37 @@ Please answer #3primitive#F, #3pre-modern#0, or #3modern#F: ",
             AddDrug("Adrenaline Shot", 0.7, 0.08, DrugVector.Injected,
                 (DrugType.Adrenaline, 1.0, string.Empty),
                 (DrugType.StaminaRegen, 0.70, string.Empty),
+                (DrugType.Respiration, 0.30,
+                    new RespirationAdditionalInfo
+                    {
+                        BreathingDriveMultiplier = 1.25,
+                        HypoxiaDamageMultiplier = 0.90,
+                        AirwayToleranceMultiplier = 1.10
+                    }.DatabaseString),
+                (DrugType.Arousal, 0.50,
+                    new ArousalAdditionalInfo
+                    {
+                        Mode = DrugArousalMode.SleepPreventing | DrugArousalMode.PassOutResistance | DrugArousalMode.Stimulant,
+                        CheckBonusPerIntensity = 0.12,
+                        SleepIntensityThreshold = 0.75,
+                        KnockoutIntensityThreshold = 1.00,
+                        PainPassOutThresholdMultiplier = 1.25,
+                        StunUnconsciousThresholdMultiplier = 1.20,
+                        AnesthesiaUnconsciousThresholdMultiplier = 1.10,
+                        StaminaRegenMultiplier = 1.35,
+                        StaminaCostMultiplier = 0.85
+                    }.DatabaseString),
                 (DrugType.ThermalImbalance, 0.20, string.Empty));
             AddDrug("Bronchodilator", 0.7, 0.12, DrugVector.Inhaled | DrugVector.Ingested,
                 (DrugType.OrganFunction, 0.60,
-                    new OrganFunctionAdditionalInfo { OrganTypes = [BodypartTypeEnum.Lung, BodypartTypeEnum.Trachea] }.DatabaseString));
+                    new OrganFunctionAdditionalInfo { OrganTypes = [BodypartTypeEnum.Lung, BodypartTypeEnum.Trachea] }.DatabaseString),
+                (DrugType.Respiration, 0.75,
+                    new RespirationAdditionalInfo
+                    {
+                        BreathingDriveMultiplier = 1.20,
+                        HypoxiaDamageMultiplier = 0.75,
+                        AirwayToleranceMultiplier = 1.60
+                    }.DatabaseString));
             AddDrug("Cardiac Support Agent", 0.7, 0.08, DrugVector.Injected,
                 (DrugType.OrganFunction, 0.60,
                     new OrganFunctionAdditionalInfo { OrganTypes = [BodypartTypeEnum.Heart] }.DatabaseString));
@@ -2298,6 +2497,29 @@ Please answer #3primitive#F, #3pre-modern#0, or #3modern#F: ",
                     new NeutraliseSpecificDrugAdditionalInfo
                     {
                         NeutralisedIds = [opioid.Id, generalAnaesthetic.Id, muscleRelaxant.Id]
+                    }.DatabaseString),
+                (DrugType.Respiration, 0.60,
+                    new RespirationAdditionalInfo
+                    {
+                        BreathingDriveMultiplier = 1.50,
+                        HypoxiaDamageMultiplier = 0.70,
+                        AirwayToleranceMultiplier = 1.20
+                    }.DatabaseString));
+            AddDrug("Clotting Agent", 0.7, 0.12, DrugVector.Injected | DrugVector.Touched,
+                (DrugType.Coagulation, 1.00,
+                    new CoagulationAdditionalInfo
+                    {
+                        ExternalBleedingMultiplier = 0.30,
+                        WoundReopenMultiplier = 0.40,
+                        InternalBleedingMultiplier = 0.60
+                    }.DatabaseString));
+            AddDrug("Anticoagulant", 0.7, 0.12, DrugVector.Injected | DrugVector.Ingested,
+                (DrugType.Coagulation, 1.00,
+                    new CoagulationAdditionalInfo
+                    {
+                        ExternalBleedingMultiplier = 1.80,
+                        WoundReopenMultiplier = 1.60,
+                        InternalBleedingMultiplier = 1.50
                     }.DatabaseString));
         }
 

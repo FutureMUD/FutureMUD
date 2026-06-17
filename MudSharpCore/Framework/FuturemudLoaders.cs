@@ -2723,6 +2723,7 @@ For information on the syntax to use in emotes (such as those included in bracke
                                       .Include(x => x.Character.PerceiverMerits)
                                       .Include(x => x.Character.Body.PerceiverMerits)
                                       .Include(x => x.Character.Body.BodiesDrugDoses)
+                                      .Include(x => x.Character.Body.BodiesDrugExposures)
                                       .Include(x => x.Character.Body.BodiesProsthetics)
                                       .Include(x => x.Character.Body.BodiesImplants)
                                       .Include(x => x.Character.HooksPerceivables)

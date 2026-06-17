@@ -31,7 +31,7 @@ public sealed class AgricultureSeeder : IDatabaseSeeder
 
 	private sealed record CropSeed(string Name, string Description, string Category, int Growth, int Window,
 		int MinMoisture, int MaxMoisture, int MinTemp, int MaxTemp, AgricultureCommodityYield[] Outputs,
-		bool Perennial = false, int HarvestCycle = 0);
+		bool Perennial = false, int HarvestCycle = 0, IReadOnlyCollection<string>? PlantingGroups = null);
 
 	private sealed record WoodlandSeed(string Name, string Description, string Type, int Establishment, int Cycle,
 		AgricultureCommodityYield[] Outputs);
@@ -85,6 +85,11 @@ public sealed class AgricultureSeeder : IDatabaseSeeder
 
 	private static IReadOnlyCollection<string> PlantingGroupsFor(CropSeed definition)
 	{
+		if (definition.PlantingGroups is not null)
+		{
+			return definition.PlantingGroups;
+		}
+
 		return definition.Name switch
 		{
 			"Wheat" or "Barley" or "Rye" or "Oats" or "Quinoa" or "Field Beans" or "Peas" or "Lentils" or
@@ -122,14 +127,17 @@ public sealed class AgricultureSeeder : IDatabaseSeeder
 		return definition.Name switch
 		{
 			"Cucumbers" or "Pumpkins" or "Squash" or "Bottle Gourds" or "Melons" or "Watermelons" or
-				"Kiwifruit" or "Passionfruit" => (AgriculturePollinationDependency.Required, 1, 2),
+				"Egusi Melons" or "Chayote" or "Fluted Pumpkins" or "Vanilla" or "Kiwifruit" or
+				"Passionfruit" => (AgriculturePollinationDependency.Required, 1, 2),
 			"Apples" or "Pears" or "Peaches" or "Plums" or "Cherries" or "Almonds" or "Apricots" or
-				"Blueberries" or "Raspberries" or "Blackberries" or "Strawberries" or "Cacao" =>
+				"Blueberries" or "Raspberries" or "Blackberries" or "Strawberries" or "Cranberries" or
+				"Cacao" =>
 				(AgriculturePollinationDependency.Strong, 1, 2),
 			"Figs" or "Oranges" or "Lemons" or "Limes" or "Grapefruits" or "Mandarins" or "Mangoes" or
 				"Avocados" or "Pomegranates" or "Quinces" or "Persimmons" or "Mulberries" or "Chestnuts" or
 				"Pecans" or "Macadamias" or "Guavas" or "Lychees" or "Papayas" or "Coffee" or "Tea" or
-				"Sunflower" or "Safflower" or "Sesame" or "Cotton" =>
+				"Tomatillos" or "Nopal Cactus" or "Pineapples" or "Yerba Mate" or "Currants" or
+				"Artichokes" or "Sunflower" or "Safflower" or "Sesame" or "Cotton" =>
 				(AgriculturePollinationDependency.Beneficial, 0, 1),
 			_ => (AgriculturePollinationDependency.None, 0, 0)
 		};
@@ -182,7 +190,42 @@ public sealed class AgricultureSeeder : IDatabaseSeeder
 		("Stony Alluvial Fan", "A coarse alluvial fan or wash with sharp drainage, gravel, and low fine topsoil.", [AgricultureFieldUse.Fallow, AgricultureFieldUse.Crop, AgricultureFieldUse.Pasture], [(AgricultureScoreType.Moisture, 25), (AgricultureScoreType.Drainage, 85), (AgricultureScoreType.Nutrients, 25), (AgricultureScoreType.Salinity, 10), (AgricultureScoreType.Topsoil, 30), (AgricultureScoreType.Tilth, 20), (AgricultureScoreType.Rockiness, 70), (AgricultureScoreType.Weeds, 35), (AgricultureScoreType.Pests, 15), (AgricultureScoreType.Fence, 5), (AgricultureScoreType.Pasture, 20), (AgricultureScoreType.Condition, 20)]),
 		("Eroded Hillslope", "A depleted slope with lost topsoil, exposed stone, and continuing erosion risk.", [AgricultureFieldUse.Fallow, AgricultureFieldUse.Pasture, AgricultureFieldUse.Orchard], [(AgricultureScoreType.Moisture, 35), (AgricultureScoreType.Drainage, 70), (AgricultureScoreType.Nutrients, 20), (AgricultureScoreType.Salinity, 5), (AgricultureScoreType.Topsoil, 20), (AgricultureScoreType.Tilth, 15), (AgricultureScoreType.Rockiness, 65), (AgricultureScoreType.Weeds, 45), (AgricultureScoreType.Pests, 15), (AgricultureScoreType.Fence, 5), (AgricultureScoreType.Pasture, 25), (AgricultureScoreType.Condition, 15)]),
 		("Lateritic Scrubland", "A tropical lateritic scrub profile with weathered low-fertility soil and hard seasonal limits.", [AgricultureFieldUse.Fallow, AgricultureFieldUse.Pasture, AgricultureFieldUse.Orchard, AgricultureFieldUse.Woodland], [(AgricultureScoreType.Moisture, 55), (AgricultureScoreType.Drainage, 60), (AgricultureScoreType.Nutrients, 20), (AgricultureScoreType.Salinity, 5), (AgricultureScoreType.Topsoil, 35), (AgricultureScoreType.Tilth, 20), (AgricultureScoreType.Rockiness, 35), (AgricultureScoreType.Weeds, 65), (AgricultureScoreType.Pests, 45), (AgricultureScoreType.Fence, 5), (AgricultureScoreType.Pasture, 30), (AgricultureScoreType.Condition, 25)]),
-		("Apiary Yard", "A managed beeyard profile for placing hives alongside fallow ground, crops, orchards, pasture, or woodland.", [AgricultureFieldUse.Fallow, AgricultureFieldUse.Crop, AgricultureFieldUse.Orchard, AgricultureFieldUse.Pasture, AgricultureFieldUse.Woodland], [(AgricultureScoreType.Moisture, 50), (AgricultureScoreType.Drainage, 55), (AgricultureScoreType.Nutrients, 50), (AgricultureScoreType.Salinity, 5), (AgricultureScoreType.Topsoil, 55), (AgricultureScoreType.Tilth, 35), (AgricultureScoreType.Rockiness, 20), (AgricultureScoreType.Weeds, 45), (AgricultureScoreType.Pests, 25), (AgricultureScoreType.Fence, 40), (AgricultureScoreType.Pasture, 45), (AgricultureScoreType.Condition, 60)])
+		("Apiary Yard", "A managed beeyard profile for placing hives alongside fallow ground, crops, orchards, pasture, or woodland.", [AgricultureFieldUse.Fallow, AgricultureFieldUse.Crop, AgricultureFieldUse.Orchard, AgricultureFieldUse.Pasture, AgricultureFieldUse.Woodland], [(AgricultureScoreType.Moisture, 50), (AgricultureScoreType.Drainage, 55), (AgricultureScoreType.Nutrients, 50), (AgricultureScoreType.Salinity, 5), (AgricultureScoreType.Topsoil, 55), (AgricultureScoreType.Tilth, 35), (AgricultureScoreType.Rockiness, 20), (AgricultureScoreType.Weeds, 45), (AgricultureScoreType.Pests, 25), (AgricultureScoreType.Fence, 40), (AgricultureScoreType.Pasture, 45), (AgricultureScoreType.Condition, 60)]),
+		("Exhausted Cropland", "A nearly ruined cultivated field with depleted soil, weak tilth, heavy weeds, and little resilience.", [AgricultureFieldUse.Fallow, AgricultureFieldUse.Crop], [(AgricultureScoreType.Moisture, 45), (AgricultureScoreType.Drainage, 45), (AgricultureScoreType.Nutrients, 12), (AgricultureScoreType.Salinity, 20), (AgricultureScoreType.Topsoil, 18), (AgricultureScoreType.Tilth, 15), (AgricultureScoreType.Rockiness, 35), (AgricultureScoreType.Weeds, 78), (AgricultureScoreType.Pests, 48), (AgricultureScoreType.Fence, 18), (AgricultureScoreType.Pasture, 18), (AgricultureScoreType.Condition, 14)]),
+		("Borderline Cropping Patch", "A poor but still usable small field that can carry hardy crops after careful work.", [AgricultureFieldUse.Fallow, AgricultureFieldUse.Crop], [(AgricultureScoreType.Moisture, 42), (AgricultureScoreType.Drainage, 50), (AgricultureScoreType.Nutrients, 25), (AgricultureScoreType.Salinity, 15), (AgricultureScoreType.Topsoil, 30), (AgricultureScoreType.Tilth, 26), (AgricultureScoreType.Rockiness, 38), (AgricultureScoreType.Weeds, 62), (AgricultureScoreType.Pests, 35), (AgricultureScoreType.Fence, 20), (AgricultureScoreType.Pasture, 25), (AgricultureScoreType.Condition, 28)]),
+		("Poor Tenant Field", "A low-quality worked field with thin soil, broken boundaries, and uneven preparation.", [AgricultureFieldUse.Fallow, AgricultureFieldUse.Crop, AgricultureFieldUse.Pasture], [(AgricultureScoreType.Moisture, 48), (AgricultureScoreType.Drainage, 52), (AgricultureScoreType.Nutrients, 34), (AgricultureScoreType.Salinity, 10), (AgricultureScoreType.Topsoil, 38), (AgricultureScoreType.Tilth, 32), (AgricultureScoreType.Rockiness, 30), (AgricultureScoreType.Weeds, 55), (AgricultureScoreType.Pests, 30), (AgricultureScoreType.Fence, 25), (AgricultureScoreType.Pasture, 32), (AgricultureScoreType.Condition, 36)]),
+		("Average Worked Field", "A plain middle-quality cultivated field with fair soil, serviceable tilth, and ordinary weed pressure.", [AgricultureFieldUse.Fallow, AgricultureFieldUse.Crop], [(AgricultureScoreType.Moisture, 55), (AgricultureScoreType.Drainage, 58), (AgricultureScoreType.Nutrients, 52), (AgricultureScoreType.Salinity, 10), (AgricultureScoreType.Topsoil, 58), (AgricultureScoreType.Tilth, 52), (AgricultureScoreType.Rockiness, 22), (AgricultureScoreType.Weeds, 38), (AgricultureScoreType.Pests, 26), (AgricultureScoreType.Fence, 38), (AgricultureScoreType.Pasture, 35), (AgricultureScoreType.Condition, 55)]),
+		("Well-Worked Open Field", "A productive open-field strip with good tilth, adequate fertility, and maintained boundaries.", [AgricultureFieldUse.Fallow, AgricultureFieldUse.Crop], [(AgricultureScoreType.Moisture, 58), (AgricultureScoreType.Drainage, 62), (AgricultureScoreType.Nutrients, 65), (AgricultureScoreType.Salinity, 8), (AgricultureScoreType.Topsoil, 68), (AgricultureScoreType.Tilth, 66), (AgricultureScoreType.Rockiness, 16), (AgricultureScoreType.Weeds, 30), (AgricultureScoreType.Pests, 24), (AgricultureScoreType.Fence, 48), (AgricultureScoreType.Pasture, 35), (AgricultureScoreType.Condition, 68)]),
+		("Manured Market Garden", "An intensively manured vegetable plot with rich soil, good tilth, fencing, and moderate pest pressure.", [AgricultureFieldUse.Fallow, AgricultureFieldUse.Crop], [(AgricultureScoreType.Moisture, 65), (AgricultureScoreType.Drainage, 66), (AgricultureScoreType.Nutrients, 82), (AgricultureScoreType.Salinity, 12), (AgricultureScoreType.Topsoil, 78), (AgricultureScoreType.Tilth, 78), (AgricultureScoreType.Rockiness, 8), (AgricultureScoreType.Weeds, 28), (AgricultureScoreType.Pests, 38), (AgricultureScoreType.Fence, 62), (AgricultureScoreType.Pasture, 15), (AgricultureScoreType.Condition, 76)]),
+		("Irrigated Goodfield", "A productive irrigated field with strong moisture, fertility, and condition but mild salt risk.", [AgricultureFieldUse.Fallow, AgricultureFieldUse.Crop], [(AgricultureScoreType.Moisture, 78), (AgricultureScoreType.Drainage, 62), (AgricultureScoreType.Nutrients, 72), (AgricultureScoreType.Salinity, 25), (AgricultureScoreType.Topsoil, 75), (AgricultureScoreType.Tilth, 68), (AgricultureScoreType.Rockiness, 10), (AgricultureScoreType.Weeds, 32), (AgricultureScoreType.Pests, 32), (AgricultureScoreType.Fence, 55), (AgricultureScoreType.Pasture, 28), (AgricultureScoreType.Condition, 76)]),
+		("Deep Loam Showpiece", "A near-ideal deep loam field with strong topsoil, fertility, tilth, and dependable condition.", [AgricultureFieldUse.Fallow, AgricultureFieldUse.Crop, AgricultureFieldUse.Pasture], [(AgricultureScoreType.Moisture, 66), (AgricultureScoreType.Drainage, 72), (AgricultureScoreType.Nutrients, 84), (AgricultureScoreType.Salinity, 5), (AgricultureScoreType.Topsoil, 90), (AgricultureScoreType.Tilth, 82), (AgricultureScoreType.Rockiness, 6), (AgricultureScoreType.Weeds, 20), (AgricultureScoreType.Pests, 18), (AgricultureScoreType.Fence, 60), (AgricultureScoreType.Pasture, 55), (AgricultureScoreType.Condition, 86)]),
+		("Estate Model Farm", "An elite managed farm profile with strong fencing, tidy condition, and broad mixed-use potential.", [AgricultureFieldUse.Fallow, AgricultureFieldUse.Crop, AgricultureFieldUse.Orchard, AgricultureFieldUse.Pasture], [(AgricultureScoreType.Moisture, 66), (AgricultureScoreType.Drainage, 70), (AgricultureScoreType.Nutrients, 82), (AgricultureScoreType.Salinity, 6), (AgricultureScoreType.Topsoil, 84), (AgricultureScoreType.Tilth, 80), (AgricultureScoreType.Rockiness, 8), (AgricultureScoreType.Weeds, 18), (AgricultureScoreType.Pests, 20), (AgricultureScoreType.Fence, 82), (AgricultureScoreType.Pasture, 65), (AgricultureScoreType.Condition, 88)]),
+		("Paradise Garden", "An exceptional irrigated garden-orchard profile with excellent positives and very few ordinary limits.", [AgricultureFieldUse.Fallow, AgricultureFieldUse.Crop, AgricultureFieldUse.Orchard, AgricultureFieldUse.Pasture], [(AgricultureScoreType.Moisture, 82), (AgricultureScoreType.Drainage, 78), (AgricultureScoreType.Nutrients, 92), (AgricultureScoreType.Salinity, 4), (AgricultureScoreType.Topsoil, 92), (AgricultureScoreType.Tilth, 88), (AgricultureScoreType.Rockiness, 4), (AgricultureScoreType.Weeds, 12), (AgricultureScoreType.Pests, 16), (AgricultureScoreType.Fence, 78), (AgricultureScoreType.Pasture, 72), (AgricultureScoreType.Condition, 94)]),
+		("Overcropped Plantation", "A worn plantation field with persistent pests, depleted topsoil, and tired perennial stock.", [AgricultureFieldUse.Fallow, AgricultureFieldUse.Orchard, AgricultureFieldUse.Crop], [(AgricultureScoreType.Moisture, 62), (AgricultureScoreType.Drainage, 55), (AgricultureScoreType.Nutrients, 28), (AgricultureScoreType.Salinity, 14), (AgricultureScoreType.Topsoil, 34), (AgricultureScoreType.Tilth, 35), (AgricultureScoreType.Rockiness, 18), (AgricultureScoreType.Weeds, 58), (AgricultureScoreType.Pests, 72), (AgricultureScoreType.Fence, 34), (AgricultureScoreType.Pasture, 20), (AgricultureScoreType.Condition, 25)]),
+		("Neglected Orchard", "An old orchard with weak fencing, high weeds and pests, and trees that need pruning or grafting.", [AgricultureFieldUse.Fallow, AgricultureFieldUse.Orchard, AgricultureFieldUse.Woodland], [(AgricultureScoreType.Moisture, 58), (AgricultureScoreType.Drainage, 55), (AgricultureScoreType.Nutrients, 42), (AgricultureScoreType.Salinity, 8), (AgricultureScoreType.Topsoil, 60), (AgricultureScoreType.Tilth, 25), (AgricultureScoreType.Rockiness, 24), (AgricultureScoreType.Weeds, 76), (AgricultureScoreType.Pests, 68), (AgricultureScoreType.Fence, 16), (AgricultureScoreType.Pasture, 28), (AgricultureScoreType.Condition, 24)]),
+		("Waterlogged Former Paddy", "A former wet-rice field with too much standing water, poor drainage, and vigorous weeds.", [AgricultureFieldUse.Fallow, AgricultureFieldUse.Crop], [(AgricultureScoreType.Moisture, 96), (AgricultureScoreType.Drainage, 12), (AgricultureScoreType.Nutrients, 55), (AgricultureScoreType.Salinity, 18), (AgricultureScoreType.Topsoil, 58), (AgricultureScoreType.Tilth, 28), (AgricultureScoreType.Rockiness, 4), (AgricultureScoreType.Weeds, 78), (AgricultureScoreType.Pests, 54), (AgricultureScoreType.Fence, 18), (AgricultureScoreType.Pasture, 20), (AgricultureScoreType.Condition, 24)]),
+		("Loess Plateau Plot", "A dry loess-field profile with deep silt topsoil, weak moisture, and erosion sensitivity.", [AgricultureFieldUse.Fallow, AgricultureFieldUse.Crop, AgricultureFieldUse.Pasture], [(AgricultureScoreType.Moisture, 34), (AgricultureScoreType.Drainage, 72), (AgricultureScoreType.Nutrients, 58), (AgricultureScoreType.Salinity, 8), (AgricultureScoreType.Topsoil, 78), (AgricultureScoreType.Tilth, 54), (AgricultureScoreType.Rockiness, 12), (AgricultureScoreType.Weeds, 38), (AgricultureScoreType.Pests, 22), (AgricultureScoreType.Fence, 28), (AgricultureScoreType.Pasture, 35), (AgricultureScoreType.Condition, 50)]),
+		("Black Earth Steppe Field", "A fertile steppe field with deep dark soil, moderate moisture risk, and low boundary investment.", [AgricultureFieldUse.Fallow, AgricultureFieldUse.Crop, AgricultureFieldUse.Pasture], [(AgricultureScoreType.Moisture, 46), (AgricultureScoreType.Drainage, 64), (AgricultureScoreType.Nutrients, 82), (AgricultureScoreType.Salinity, 8), (AgricultureScoreType.Topsoil, 88), (AgricultureScoreType.Tilth, 60), (AgricultureScoreType.Rockiness, 8), (AgricultureScoreType.Weeds, 42), (AgricultureScoreType.Pests, 28), (AgricultureScoreType.Fence, 22), (AgricultureScoreType.Pasture, 62), (AgricultureScoreType.Condition, 66)]),
+		("Volcanic Ash Garden", "A young volcanic-soil garden with rich minerals, sharp drainage, and some stony roughness.", [AgricultureFieldUse.Fallow, AgricultureFieldUse.Crop, AgricultureFieldUse.Orchard], [(AgricultureScoreType.Moisture, 56), (AgricultureScoreType.Drainage, 76), (AgricultureScoreType.Nutrients, 78), (AgricultureScoreType.Salinity, 5), (AgricultureScoreType.Topsoil, 62), (AgricultureScoreType.Tilth, 58), (AgricultureScoreType.Rockiness, 42), (AgricultureScoreType.Weeds, 34), (AgricultureScoreType.Pests, 24), (AgricultureScoreType.Fence, 35), (AgricultureScoreType.Pasture, 28), (AgricultureScoreType.Condition, 62)]),
+		("Monsoon Rice Terrace", "A terraced wet-field profile for rice or aquatic crops under strong seasonal water management.", [AgricultureFieldUse.Fallow, AgricultureFieldUse.Crop], [(AgricultureScoreType.Moisture, 92), (AgricultureScoreType.Drainage, 32), (AgricultureScoreType.Nutrients, 66), (AgricultureScoreType.Salinity, 12), (AgricultureScoreType.Topsoil, 68), (AgricultureScoreType.Tilth, 56), (AgricultureScoreType.Rockiness, 12), (AgricultureScoreType.Weeds, 54), (AgricultureScoreType.Pests, 46), (AgricultureScoreType.Fence, 28), (AgricultureScoreType.Pasture, 18), (AgricultureScoreType.Condition, 58)]),
+		("Chinampa Garden", "A highly fertile wetland raised-field garden with abundant moisture, nutrients, weeds, and pests.", [AgricultureFieldUse.Fallow, AgricultureFieldUse.Crop], [(AgricultureScoreType.Moisture, 88), (AgricultureScoreType.Drainage, 52), (AgricultureScoreType.Nutrients, 88), (AgricultureScoreType.Salinity, 8), (AgricultureScoreType.Topsoil, 82), (AgricultureScoreType.Tilth, 76), (AgricultureScoreType.Rockiness, 4), (AgricultureScoreType.Weeds, 62), (AgricultureScoreType.Pests, 54), (AgricultureScoreType.Fence, 38), (AgricultureScoreType.Pasture, 20), (AgricultureScoreType.Condition, 72)]),
+		("Andean Waru-Waru Raised Field", "A highland raised-field profile with cold wet soils, good drainage islands, and resilient topsoil.", [AgricultureFieldUse.Fallow, AgricultureFieldUse.Crop, AgricultureFieldUse.Pasture], [(AgricultureScoreType.Moisture, 78), (AgricultureScoreType.Drainage, 58), (AgricultureScoreType.Nutrients, 62), (AgricultureScoreType.Salinity, 6), (AgricultureScoreType.Topsoil, 70), (AgricultureScoreType.Tilth, 58), (AgricultureScoreType.Rockiness, 20), (AgricultureScoreType.Weeds, 46), (AgricultureScoreType.Pests, 28), (AgricultureScoreType.Fence, 32), (AgricultureScoreType.Pasture, 45), (AgricultureScoreType.Condition, 62)]),
+		("Sahel Millet Field", "A dry Sahelian millet field with low moisture, fair drainage, and modest fertility.", [AgricultureFieldUse.Fallow, AgricultureFieldUse.Crop, AgricultureFieldUse.Pasture], [(AgricultureScoreType.Moisture, 24), (AgricultureScoreType.Drainage, 70), (AgricultureScoreType.Nutrients, 32), (AgricultureScoreType.Salinity, 12), (AgricultureScoreType.Topsoil, 38), (AgricultureScoreType.Tilth, 42), (AgricultureScoreType.Rockiness, 18), (AgricultureScoreType.Weeds, 36), (AgricultureScoreType.Pests, 28), (AgricultureScoreType.Fence, 20), (AgricultureScoreType.Pasture, 38), (AgricultureScoreType.Condition, 42)]),
+		("Flood Recession Field", "An alluvial flood-recession field rich after floods but difficult to hold in stable condition.", [AgricultureFieldUse.Fallow, AgricultureFieldUse.Crop, AgricultureFieldUse.Pasture], [(AgricultureScoreType.Moisture, 82), (AgricultureScoreType.Drainage, 38), (AgricultureScoreType.Nutrients, 78), (AgricultureScoreType.Salinity, 10), (AgricultureScoreType.Topsoil, 76), (AgricultureScoreType.Tilth, 48), (AgricultureScoreType.Rockiness, 8), (AgricultureScoreType.Weeds, 58), (AgricultureScoreType.Pests, 44), (AgricultureScoreType.Fence, 20), (AgricultureScoreType.Pasture, 48), (AgricultureScoreType.Condition, 54)]),
+		("Savannah Yam Mounds", "A West or Central African mound-field profile with good tilth pockets and heavy weed pressure.", [AgricultureFieldUse.Fallow, AgricultureFieldUse.Crop, AgricultureFieldUse.Orchard], [(AgricultureScoreType.Moisture, 58), (AgricultureScoreType.Drainage, 62), (AgricultureScoreType.Nutrients, 56), (AgricultureScoreType.Salinity, 6), (AgricultureScoreType.Topsoil, 60), (AgricultureScoreType.Tilth, 64), (AgricultureScoreType.Rockiness, 20), (AgricultureScoreType.Weeds, 66), (AgricultureScoreType.Pests, 52), (AgricultureScoreType.Fence, 24), (AgricultureScoreType.Pasture, 30), (AgricultureScoreType.Condition, 54)]),
+		("Slash-and-Burn Swidden", "A fresh swidden clearing with short-term fertility, weak fencing, and fast weed return.", [AgricultureFieldUse.Fallow, AgricultureFieldUse.Crop, AgricultureFieldUse.Woodland], [(AgricultureScoreType.Moisture, 68), (AgricultureScoreType.Drainage, 58), (AgricultureScoreType.Nutrients, 72), (AgricultureScoreType.Salinity, 5), (AgricultureScoreType.Topsoil, 52), (AgricultureScoreType.Tilth, 42), (AgricultureScoreType.Rockiness, 26), (AgricultureScoreType.Weeds, 70), (AgricultureScoreType.Pests, 58), (AgricultureScoreType.Fence, 8), (AgricultureScoreType.Pasture, 22), (AgricultureScoreType.Condition, 42)]),
+		("Forest Garden Clearing", "A humid agroforestry clearing with strong moisture, mixed perennial potential, and vigorous pests.", [AgricultureFieldUse.Fallow, AgricultureFieldUse.Crop, AgricultureFieldUse.Orchard, AgricultureFieldUse.Woodland], [(AgricultureScoreType.Moisture, 78), (AgricultureScoreType.Drainage, 56), (AgricultureScoreType.Nutrients, 66), (AgricultureScoreType.Salinity, 5), (AgricultureScoreType.Topsoil, 72), (AgricultureScoreType.Tilth, 42), (AgricultureScoreType.Rockiness, 18), (AgricultureScoreType.Weeds, 72), (AgricultureScoreType.Pests, 62), (AgricultureScoreType.Fence, 12), (AgricultureScoreType.Pasture, 30), (AgricultureScoreType.Condition, 56)]),
+		("Kraal-Manured Garden", "A compound garden enriched by night-penned livestock, with rich nutrients and modest fence wear.", [AgricultureFieldUse.Fallow, AgricultureFieldUse.Crop, AgricultureFieldUse.Pasture], [(AgricultureScoreType.Moisture, 54), (AgricultureScoreType.Drainage, 58), (AgricultureScoreType.Nutrients, 88), (AgricultureScoreType.Salinity, 10), (AgricultureScoreType.Topsoil, 64), (AgricultureScoreType.Tilth, 60), (AgricultureScoreType.Rockiness, 14), (AgricultureScoreType.Weeds, 42), (AgricultureScoreType.Pests, 42), (AgricultureScoreType.Fence, 48), (AgricultureScoreType.Pasture, 46), (AgricultureScoreType.Condition, 64)]),
+		("Desert Wadi Field", "An arid floodwater field with low ordinary moisture but useful silt and oasis potential.", [AgricultureFieldUse.Fallow, AgricultureFieldUse.Crop, AgricultureFieldUse.Orchard, AgricultureFieldUse.Pasture], [(AgricultureScoreType.Moisture, 28), (AgricultureScoreType.Drainage, 66), (AgricultureScoreType.Nutrients, 58), (AgricultureScoreType.Salinity, 22), (AgricultureScoreType.Topsoil, 54), (AgricultureScoreType.Tilth, 48), (AgricultureScoreType.Rockiness, 28), (AgricultureScoreType.Weeds, 26), (AgricultureScoreType.Pests, 22), (AgricultureScoreType.Fence, 28), (AgricultureScoreType.Pasture, 28), (AgricultureScoreType.Condition, 46)]),
+		("Mangrove Rice Polder", "A difficult coastal rice polder with high water, high salinity, poor drainage, and reclamation needs.", [AgricultureFieldUse.Fallow, AgricultureFieldUse.Crop], [(AgricultureScoreType.Moisture, 92), (AgricultureScoreType.Drainage, 18), (AgricultureScoreType.Nutrients, 56), (AgricultureScoreType.Salinity, 72), (AgricultureScoreType.Topsoil, 52), (AgricultureScoreType.Tilth, 34), (AgricultureScoreType.Rockiness, 6), (AgricultureScoreType.Weeds, 58), (AgricultureScoreType.Pests, 44), (AgricultureScoreType.Fence, 20), (AgricultureScoreType.Pasture, 12), (AgricultureScoreType.Condition, 28)]),
+		("Reclaimed Peat Field", "A drained peat or marsh field with wet organic soil, low condition, and amendment needs.", [AgricultureFieldUse.Fallow, AgricultureFieldUse.Crop, AgricultureFieldUse.Pasture], [(AgricultureScoreType.Moisture, 82), (AgricultureScoreType.Drainage, 28), (AgricultureScoreType.Nutrients, 34), (AgricultureScoreType.Salinity, 8), (AgricultureScoreType.Topsoil, 58), (AgricultureScoreType.Tilth, 30), (AgricultureScoreType.Rockiness, 4), (AgricultureScoreType.Weeds, 66), (AgricultureScoreType.Pests, 38), (AgricultureScoreType.Fence, 24), (AgricultureScoreType.Pasture, 42), (AgricultureScoreType.Condition, 24)]),
+		("Salt-Affected Irrigated Field", "An irrigation-degraded dryland field with useful moisture but severe salinity pressure.", [AgricultureFieldUse.Fallow, AgricultureFieldUse.Crop, AgricultureFieldUse.Pasture], [(AgricultureScoreType.Moisture, 72), (AgricultureScoreType.Drainage, 50), (AgricultureScoreType.Nutrients, 48), (AgricultureScoreType.Salinity, 78), (AgricultureScoreType.Topsoil, 50), (AgricultureScoreType.Tilth, 46), (AgricultureScoreType.Rockiness, 12), (AgricultureScoreType.Weeds, 42), (AgricultureScoreType.Pests, 30), (AgricultureScoreType.Fence, 32), (AgricultureScoreType.Pasture, 32), (AgricultureScoreType.Condition, 30)]),
+		("Laterite Upland Garden", "A tropical upland garden with lateritic low fertility, thin topsoil, and heavy weed competition.", [AgricultureFieldUse.Fallow, AgricultureFieldUse.Crop, AgricultureFieldUse.Orchard], [(AgricultureScoreType.Moisture, 58), (AgricultureScoreType.Drainage, 62), (AgricultureScoreType.Nutrients, 24), (AgricultureScoreType.Salinity, 6), (AgricultureScoreType.Topsoil, 32), (AgricultureScoreType.Tilth, 30), (AgricultureScoreType.Rockiness, 34), (AgricultureScoreType.Weeds, 70), (AgricultureScoreType.Pests, 52), (AgricultureScoreType.Fence, 16), (AgricultureScoreType.Pasture, 24), (AgricultureScoreType.Condition, 30)]),
+		("Cold Boreal Clearing", "A cold northern clearing with short-season moisture, low nutrients, and mixed crop-pasture potential.", [AgricultureFieldUse.Fallow, AgricultureFieldUse.Crop, AgricultureFieldUse.Pasture, AgricultureFieldUse.Woodland], [(AgricultureScoreType.Moisture, 62), (AgricultureScoreType.Drainage, 54), (AgricultureScoreType.Nutrients, 30), (AgricultureScoreType.Salinity, 4), (AgricultureScoreType.Topsoil, 44), (AgricultureScoreType.Tilth, 32), (AgricultureScoreType.Rockiness, 32), (AgricultureScoreType.Weeds, 42), (AgricultureScoreType.Pests, 18), (AgricultureScoreType.Fence, 22), (AgricultureScoreType.Pasture, 40), (AgricultureScoreType.Condition, 38)]),
+		("Karst Terrace", "A dry limestone terrace with high drainage and rockiness but some orchard and crop potential.", [AgricultureFieldUse.Fallow, AgricultureFieldUse.Crop, AgricultureFieldUse.Orchard, AgricultureFieldUse.Pasture], [(AgricultureScoreType.Moisture, 34), (AgricultureScoreType.Drainage, 82), (AgricultureScoreType.Nutrients, 38), (AgricultureScoreType.Salinity, 8), (AgricultureScoreType.Topsoil, 32), (AgricultureScoreType.Tilth, 38), (AgricultureScoreType.Rockiness, 70), (AgricultureScoreType.Weeds, 36), (AgricultureScoreType.Pests, 18), (AgricultureScoreType.Fence, 34), (AgricultureScoreType.Pasture, 30), (AgricultureScoreType.Condition, 42)]),
+		("Windblown Sand Field", "A sandy coastal or desert field with sharp drainage, poor nutrients, thin topsoil, and salt risk.", [AgricultureFieldUse.Fallow, AgricultureFieldUse.Crop, AgricultureFieldUse.Pasture], [(AgricultureScoreType.Moisture, 26), (AgricultureScoreType.Drainage, 92), (AgricultureScoreType.Nutrients, 18), (AgricultureScoreType.Salinity, 34), (AgricultureScoreType.Topsoil, 18), (AgricultureScoreType.Tilth, 32), (AgricultureScoreType.Rockiness, 4), (AgricultureScoreType.Weeds, 32), (AgricultureScoreType.Pests, 16), (AgricultureScoreType.Fence, 12), (AgricultureScoreType.Pasture, 22), (AgricultureScoreType.Condition, 22)]),
+		("Hurricane-Damaged Plantation", "A storm-damaged plantation with broken fences, poor condition, pests, and regrowth pressure.", [AgricultureFieldUse.Fallow, AgricultureFieldUse.Orchard, AgricultureFieldUse.Crop], [(AgricultureScoreType.Moisture, 76), (AgricultureScoreType.Drainage, 44), (AgricultureScoreType.Nutrients, 50), (AgricultureScoreType.Salinity, 14), (AgricultureScoreType.Topsoil, 58), (AgricultureScoreType.Tilth, 30), (AgricultureScoreType.Rockiness, 18), (AgricultureScoreType.Weeds, 72), (AgricultureScoreType.Pests, 66), (AgricultureScoreType.Fence, 8), (AgricultureScoreType.Pasture, 18), (AgricultureScoreType.Condition, 18)]),
+		("Frost Pocket Field", "A cool valley-bottom field with good soil and moisture but poor condition from recurring frost risk.", [AgricultureFieldUse.Fallow, AgricultureFieldUse.Crop, AgricultureFieldUse.Pasture], [(AgricultureScoreType.Moisture, 70), (AgricultureScoreType.Drainage, 52), (AgricultureScoreType.Nutrients, 58), (AgricultureScoreType.Salinity, 6), (AgricultureScoreType.Topsoil, 68), (AgricultureScoreType.Tilth, 50), (AgricultureScoreType.Rockiness, 14), (AgricultureScoreType.Weeds, 40), (AgricultureScoreType.Pests, 20), (AgricultureScoreType.Fence, 32), (AgricultureScoreType.Pasture, 42), (AgricultureScoreType.Condition, 34)])
 	];
 
 	private static readonly CropSeed[] Crops =
@@ -280,7 +323,48 @@ public sealed class AgricultureSeeder : IDatabaseSeeder
 		new("Weld", "A cool-season yellow dye crop grown for flowering stems and leaves.", "industrial", 120, 18, 25, 70, 0, 32, [Yield("weld", 900000), Yield("vegetation", 250000)]),
 		new("Alkanet", "A dryland dye herb grown for purple-red roots.", "industrial", 240, 28, 20, 60, 2, 36, [Yield("alkanet root", 650000), Yield("vegetation", 200000)]),
 		new("Indigo", "A hot-climate dye crop grown for leaves used in blue dye production.", "industrial", 130, 20, 35, 85, 16, 40, [Yield("indigo crop", 1200000), Yield("vegetation", 400000)]),
-		new("Woad", "A cool-season dye crop grown for blue-dye leaves in temperate fields.", "industrial", 110, 18, 35, 80, 0, 30, [Yield("woad leaves", 1000000), Yield("vegetation", 300000)])
+		new("Woad", "A cool-season dye crop grown for blue-dye leaves in temperate fields.", "industrial", 110, 18, 35, 80, 0, 30, [Yield("woad leaves", 1000000), Yield("vegetation", 300000)]),
+		new("Tepary Beans", "A drought-tolerant bean crop for arid and semi-arid warm-season agriculture.", "pulse", 85, 14, 15, 55, 12, 42, [Yield("tepary bean", 900000), Yield("straw", 350000)], PlantingGroups: WarmSeasonPlanting),
+		new("Lima Beans", "A warm-season bean crop for tropical, subtropical, and garden-field settings.", "pulse", 95, 16, 35, 80, 14, 38, [Yield("lima bean", 1300000), Yield("straw", 450000)], PlantingGroups: WarmSeasonPlanting),
+		new("Runner Beans", "A vigorous climbing bean crop for warm gardens and trellised field edges.", "pulse", 95, 18, 35, 80, 10, 34, [Yield("runner bean", 1200000), Yield("straw", 400000)], PlantingGroups: WarmSeasonPlanting),
+		new("Wild Rice", "A wetland grain crop suited to marsh margins, lakes, and managed water plots.", "grain", 120, 18, 70, 100, 8, 32, [Yield("wild rice", 1300000), Yield("straw", 600000)], PlantingGroups: WarmSeasonPlanting),
+		new("Groundnut", "A native American tuber legume grown for starchy groundnut tubers.", "root", 130, 20, 45, 85, 8, 34, [Yield("groundnut tuber", 1600000), Yield("vegetation", 500000)], PlantingGroups: WarmSeasonPlanting),
+		new("Camas", "A cool-season bulb crop grown for edible camas bulbs in meadow and upland plots.", "root", 160, 18, 35, 75, -5, 28, [Yield("camas bulb", 900000), Yield("vegetation", 250000)], PlantingGroups: CoolSeasonPlanting),
+		new("Prairie Turnip", "A hardy dryland root crop for plains and marginal warm-season fields.", "root", 110, 16, 15, 55, 5, 36, [Yield("prairie turnip", 950000), Yield("vegetation", 250000)], PlantingGroups: WarmSeasonPlanting),
+		new("Tomatillos", "A warm garden crop grown for tart husked fruits.", "vegetable", 85, 18, 35, 80, 12, 35, [Yield("tomatillo", 1800000)], PlantingGroups: WarmSeasonPlanting),
+		new("Chayote", "A warm humid cucurbit vine grown for crisp green fruits.", "vegetable", 115, 22, 50, 95, 14, 38, [Yield("chayote", 3000000), Yield("vegetation", 600000)], PlantingGroups: WarmSeasonPlanting),
+		new("Jicama", "A long-season warm root crop grown for crunchy edible storage roots.", "root", 150, 20, 35, 80, 16, 40, [Yield("jicama", 1800000), Yield("vegetation", 350000)], PlantingGroups: HotLongSeasonPlanting),
+		new("Maca", "A cool Andean root crop suited to highland short-season fields.", "root", 135, 18, 30, 75, -5, 24, [Yield("maca root", 800000), Yield("vegetation", 250000)], PlantingGroups: CoolSeasonPlanting),
+		new("Yacon", "A cool to mild Andean root crop grown for sweet crisp tubers.", "root", 145, 20, 35, 80, 2, 30, [Yield("yacon root", 1500000), Yield("vegetation", 400000)], PlantingGroups: CoolSeasonPlanting),
+		new("Arracacha", "A long-season Andean root crop for warm highland gardens.", "root", 180, 24, 40, 85, 10, 32, [Yield("arracacha root", 1600000), Yield("vegetation", 350000)], PlantingGroups: HotLongSeasonPlanting),
+		new("Tarwi", "A cool Andean lupin crop grown for protein-rich beans.", "pulse", 130, 18, 30, 75, -2, 28, [Yield("tarwi bean", 1000000), Yield("straw", 350000)], PlantingGroups: CoolSeasonPlanting),
+		new("Ahipa", "A warm Andean leguminous root crop for edible storage roots.", "root", 130, 18, 35, 80, 8, 34, [Yield("ahipa root", 1000000), Yield("vegetation", 300000)], PlantingGroups: WarmSeasonPlanting),
+		new("Enset", "A highland African starch crop grown for bulky false-banana pseudostem starch.", "starch", 240, 30, 50, 95, 8, 32, [Yield("enset starch", 2500000), Yield("vegetation", 1400000)], PlantingGroups: HotLongSeasonPlanting),
+		new("Ethiopian Oats", "A cool highland oat crop for grain and straw.", "grain", 100, 16, 35, 80, -2, 28, [Yield("ethiopian oat", 1500000), Yield("straw", 800000)], PlantingGroups: CoolSeasonPlanting),
+		new("Guinea Millet", "A warm West African millet crop for dryland grain fields.", "grain", 95, 16, 20, 65, 12, 40, [Yield("guinea millet", 1200000), Yield("straw", 600000)], PlantingGroups: WarmSeasonPlanting),
+		new("Egusi Melons", "A warm African cucurbit crop grown mainly for oil-rich seeds.", "oilseed", 105, 18, 35, 85, 14, 40, [Yield("egusi seed", 750000), Yield("vegetation", 500000)], PlantingGroups: WarmSeasonPlanting),
+		new("Roselle", "A hot-season hibiscus crop grown for calyces, leaves, and useful fibre.", "industrial", 120, 20, 40, 90, 16, 42, [Yield("roselle", 1000000), Yield("vegetation", 450000)], PlantingGroups: HotLongSeasonPlanting),
+		new("African Yam Beans", "A West African pulse and tuber crop for warm mixed fields.", "pulse", 130, 20, 35, 85, 12, 38, [Yield("african yam bean", 900000), Yield("straw", 350000)], PlantingGroups: WarmSeasonPlanting),
+		new("Kersting's Groundnuts", "A drought-tolerant West African pulse crop with modest fodder value.", "pulse", 95, 16, 20, 65, 12, 40, [Yield("kersting groundnut", 750000), Yield("hay", 350000)], PlantingGroups: WarmSeasonPlanting),
+		new("Lablab Beans", "A tropical pulse and fodder bean for warm fields and pasture edges.", "pulse", 110, 18, 30, 80, 12, 40, [Yield("lablab bean", 1000000), Yield("hay", 500000)], PlantingGroups: WarmSeasonPlanting),
+		new("Fluted Pumpkins", "A warm African vegetable crop grown for leaves and edible seeds.", "vegetable", 100, 18, 45, 90, 15, 40, [Yield("fluted pumpkin leaf", 1200000), Yield("pumpkin seed", 350000)], PlantingGroups: WarmSeasonPlanting),
+		new("Jute Mallow", "A hot-season leafy vegetable crop for humid gardens and market plots.", "vegetable", 60, 12, 45, 95, 18, 42, [Yield("jute mallow", 900000)], PlantingGroups: HotLongSeasonPlanting),
+		new("African Eggplants", "A warm garden-egg crop for African market gardens and tropical plots.", "vegetable", 95, 18, 35, 85, 14, 38, [Yield("garden egg", 1800000)], PlantingGroups: WarmSeasonPlanting),
+		new("Spinach", "A cool-season leafy vegetable for market gardens and household plots.", "vegetable", 45, 10, 35, 80, -2, 24, [Yield("spinach", 900000)], PlantingGroups: CoolSeasonPlanting),
+		new("Kale", "A hardy cool-season brassica crop for leaves and winter greens.", "vegetable", 75, 16, 35, 85, -5, 28, [Yield("kale", 1400000)], PlantingGroups: CoolSeasonPlanting),
+		new("Chard", "A cool-season beet-relative crop grown for broad edible leaves.", "vegetable", 65, 14, 35, 85, 0, 30, [Yield("chard", 1200000)], PlantingGroups: CoolSeasonPlanting),
+		new("Celery", "A cool, moisture-loving market-garden crop for crisp stalks.", "vegetable", 110, 18, 55, 95, 2, 26, [Yield("celery", 1200000)], PlantingGroups: CoolSeasonPlanting),
+		new("Parsnips", "A cool-season root crop that sweetens in cold ground.", "root", 125, 20, 35, 85, -5, 26, [Yield("parsnip", 1800000), Yield("vegetation", 300000)], PlantingGroups: CoolSeasonPlanting),
+		new("Radishes", "A fast cool-season root crop useful for kitchen gardens and market plots.", "root", 35, 8, 35, 80, -2, 26, [Yield("radish", 900000), Yield("vegetation", 200000)], PlantingGroups: CoolSeasonPlanting),
+		new("Leeks", "A hardy cool-season allium crop for winter and spring harvest.", "vegetable", 120, 20, 35, 85, -5, 28, [Yield("leek", 1200000), Yield("vegetation", 200000)], PlantingGroups: CoolSeasonPlanting),
+		new("Rutabagas", "A cool-season food and fodder root crop for later medieval and early modern settings.", "root", 110, 18, 35, 85, -5, 28, [Yield("rutabaga", 2200000), Yield("vegetation", 350000)], PlantingGroups: CoolSeasonPlanting),
+		new("Chicory", "A cool-season leaf and root crop for bitter greens or roasted-root use.", "vegetable", 100, 18, 30, 80, -2, 28, [Yield("chicory", 900000), Yield("vegetation", 250000)], PlantingGroups: CoolSeasonPlanting),
+		new("Sainfoin", "A cool-season fodder legume grown for hay and soil-improving leys.", "fodder", 90, 16, 25, 75, -5, 30, [Yield("sainfoin hay", 1600000), Yield("hay", 600000)], PlantingGroups: CoolSeasonPlanting),
+		new("Clover", "A cool-season ley and fodder crop for hay, rotation, and green manure.", "fodder", 80, 16, 35, 85, -5, 30, [Yield("clover hay", 1800000), Yield("hay", 700000)], PlantingGroups: CoolSeasonPlanting),
+		new("Mangelwurzel", "A cool-season fodder beet crop for stock feed and early industrial agriculture.", "root", 130, 20, 35, 85, -2, 28, [Yield("mangelwurzel", 2600000), Yield("vegetation", 400000)], PlantingGroups: CoolSeasonPlanting),
+		new("Poppy Seed", "A neutral oilseed and spice crop grown for culinary poppy seed.", "oilseed", 100, 16, 25, 75, -2, 30, [Yield("poppy seed", 450000), Yield("straw", 350000)], PlantingGroups: CoolSeasonPlanting),
+		new("Melons", "A warm cucurbit crop for table melons such as cantaloupe and honeydew.", "vegetable", 95, 18, 35, 85, 12, 38, [Yield("cantaloupe", 2500000), Yield("honeydew", 2500000)], PlantingGroups: WarmSeasonPlanting),
+		new("Watermelons", "A warm African-origin cucurbit crop for large sweet watermelons.", "vegetable", 100, 18, 35, 85, 14, 40, [Yield("watermelon", 6500000)], PlantingGroups: WarmSeasonPlanting)
 	];
 
 	private static readonly CropSeed[] Orchards =
@@ -334,35 +418,163 @@ public sealed class AgricultureSeeder : IDatabaseSeeder
 		new("Nutmeg", "A tropical spice-tree crop for nutmeg seed and mace.", "orchard", 1460, 30, 65, 100, 18, 38, [Yield("nutmeg", 900000)], true, 300),
 		new("Henna", "A hot dry-climate dye shrub grown for orange-red leaves.", "orchard", 730, 24, 15, 60, 14, 42, [Yield("henna leaf", 900000), Yield("vegetation", 200000)], true, 220),
 		new("Kola Nuts", "A humid tropical kola tree crop for stimulant nuts.", "orchard", 1460, 30, 60, 95, 18, 38, [Yield("kola nut", 1200000)], true, 300),
-		new("Tamarinds", "A drought-tolerant tropical tamarind tree crop for sour-sweet pods.", "orchard", 1095, 28, 20, 70, 12, 42, [Yield("tamarind", 5000000)], true, 260)
+		new("Tamarinds", "A drought-tolerant tropical tamarind tree crop for sour-sweet pods.", "orchard", 1095, 28, 20, 70, 12, 42, [Yield("tamarind", 5000000)], true, 260),
+		new("Nopal Cactus", "A dryland cactus bed grown for edible pads and prickly pear fruit.", "orchard", 730, 28, 10, 55, 8, 45, [Yield("nopal pad", 1200000), Yield("prickly pear fruit", 2200000)], Perennial: true, HarvestCycle: 180, PlantingGroups: MediterraneanPerennialPlanting),
+		new("Agave", "An arid perennial agave plantation for leaves and coarse leaf fibre.", "orchard", 1095, 32, 10, 55, 8, 45, [Yield("agave leaf", 1800000), Yield("agave fibre", 350000)], Perennial: true, HarvestCycle: 365, PlantingGroups: MediterraneanPerennialPlanting),
+		new("Henequen", "A tropical henequen plantation grown for strong leaf fibre.", "orchard", 1095, 30, 20, 70, 16, 42, [Yield("henequen fibre", 700000)], Perennial: true, HarvestCycle: 300, PlantingGroups: TropicalPerennialPlanting),
+		new("Pineapples", "A tropical bromeliad plantation crop grown for sweet pineapples.", "orchard", 540, 28, 35, 85, 16, 40, [Yield("pineapple", 6500000)], Perennial: true, HarvestCycle: 300, PlantingGroups: TropicalPerennialPlanting),
+		new("Vanilla", "A humid tropical orchid-vine plantation crop grown for aromatic vanilla pods.", "orchard", 1095, 30, 65, 100, 18, 38, [Yield("vanilla", 500000)], Perennial: true, HarvestCycle: 300, PlantingGroups: TropicalPerennialPlanting),
+		new("Yerba Mate", "A subtropical beverage shrub crop for harvested yerba mate leaves.", "orchard", 1095, 28, 45, 90, 8, 34, [Yield("yerba mate leaf", 1500000)], Perennial: true, HarvestCycle: 220, PlantingGroups: TropicalPerennialPlanting),
+		new("Cranberries", "A cool wetland perennial berry crop for bogs and wet raised beds.", "orchard", 730, 20, 65, 100, -8, 28, [Yield("cranberry", 2200000)], Perennial: true, HarvestCycle: 220, PlantingGroups: DormantPerennialPlanting),
+		new("Blueberries", "An acid-soil temperate perennial berry crop for shrubs and wet uplands.", "orchard", 730, 20, 45, 90, -10, 30, [Yield("blueberry", 2500000)], Perennial: true, HarvestCycle: 220, PlantingGroups: DormantPerennialPlanting),
+		new("Raspberries", "A cool-temperate cane fruit crop for bramble beds.", "orchard", 540, 20, 35, 85, -10, 32, [Yield("raspberry", 2200000)], Perennial: true, HarvestCycle: 180, PlantingGroups: DormantPerennialPlanting),
+		new("Blackberries", "A hardy bramble crop for cane fruit hedges and managed berry beds.", "orchard", 540, 20, 30, 85, -10, 34, [Yield("blackberry", 2600000)], Perennial: true, HarvestCycle: 180, PlantingGroups: DormantPerennialPlanting),
+		new("Strawberries", "A perennial bed crop grown for low sweet berries.", "orchard", 365, 18, 35, 85, -5, 32, [Yield("strawberry", 2000000)], Perennial: true, HarvestCycle: 150, PlantingGroups: DormantPerennialPlanting),
+		new("Oil Palms", "A humid tropical palm plantation crop grown for palm fruit and oil material.", "orchard", 1460, 35, 60, 100, 18, 42, [Yield("palm fruit", 6500000), Yield("palm oil crop", 1200000)], Perennial: true, HarvestCycle: 300, PlantingGroups: TropicalPerennialPlanting),
+		new("Shea Trees", "A savanna parkland tree crop grown for shea nuts.", "orchard", 1825, 35, 25, 75, 14, 42, [Yield("shea nut", 1800000)], Perennial: true, HarvestCycle: 300, PlantingGroups: TropicalPerennialPlanting),
+		new("Baobabs", "A dry tropical tree crop grown for baobab fruit and edible leaves.", "orchard", 1825, 35, 15, 70, 14, 45, [Yield("baobab fruit", 3500000), Yield("baobab leaf", 700000)], Perennial: true, HarvestCycle: 300, PlantingGroups: TropicalPerennialPlanting),
+		new("Raffia Palms", "A wet tropical palm crop grown for raffia fibre and palm fronds.", "orchard", 1460, 35, 65, 100, 18, 42, [Yield("raffia fibre", 900000), Yield("palm frond", 1800000)], Perennial: true, HarvestCycle: 300, PlantingGroups: TropicalPerennialPlanting),
+		new("Hops", "A hardy perennial bine crop grown for brewing hop cones.", "orchard", 730, 24, 35, 85, -10, 32, [Yield("hop", 650000)], Perennial: true, HarvestCycle: 180, PlantingGroups: DormantPerennialPlanting),
+		new("Artichokes", "A Mediterranean perennial vegetable bed grown for edible flower buds.", "orchard", 365, 20, 25, 75, 0, 35, [Yield("artichoke", 1500000)], Perennial: true, HarvestCycle: 150, PlantingGroups: MediterraneanPerennialPlanting),
+		new("Asparagus", "A long-lived cool-season asparagus bed for spring shoots.", "orchard", 730, 18, 30, 80, -10, 30, [Yield("asparagus", 1000000)], Perennial: true, HarvestCycle: 120, PlantingGroups: DormantPerennialPlanting),
+		new("Rhubarb", "A hardy perennial kitchen-garden bed grown for tart stalks.", "orchard", 365, 18, 35, 85, -10, 28, [Yield("rhubarb", 1400000)], Perennial: true, HarvestCycle: 150, PlantingGroups: DormantPerennialPlanting),
+		new("Currants", "A cool-temperate perennial shrub crop for clusters of tart currants.", "orchard", 730, 20, 35, 85, -10, 30, [Yield("currant", 1500000)], Perennial: true, HarvestCycle: 180, PlantingGroups: DormantPerennialPlanting)
 	];
 
 	private static readonly HerdSeed[] Herds =
 	[
-		new("Cattle Herd", "A generic cattle, aurochs, buffalo, or large grazing herd.", 1.0, 1.0, 100,
+		new("Cattle Herd", "A cattle herd managed for milk, grazing pressure, and manure.", 1.0, 1.0, 100,
 		[
 			Yield("milk", 3500, RawMilkTagName),
 			Yield("feces", 2500, ManureCommodityTagName)
 		]),
-		new("Sheep or Goat Flock", "A generic flock of sheep, goats, or other small browsers.", 0.2, 0.3, 100,
+		new("Oxen Team", "A team of draft oxen whose routine field value is work and manure.", 1.0, 0.95, 100,
+		[
+			Yield("feces", 2400, ManureCommodityTagName)
+		]),
+		new("Buffalo Herd", "A buffalo herd suited to wet pasture, milk collection, and manure recovery.", 1.1, 1.05, 100,
+		[
+			Yield("milk", 3200, RawMilkTagName),
+			Yield("feces", 2700, ManureCommodityTagName)
+		]),
+		new("Bison Herd", "A hardy bison herd for frontier or steppe ranching pasture.", 1.1, 1.05, 100,
+		[
+			Yield("feces", 2600, ManureCommodityTagName)
+		]),
+		new("Sheep Flock", "A sheep flock managed for milk, fleece, and manure.", 0.2, 0.25, 100,
 		[
 			Yield("milk", 900, RawMilkTagName),
 			Yield("wool", 450, RawTextileFibreTagName),
 			Yield("feces", 700, ManureCommodityTagName)
 		]),
-		new("Pig Herd", "A generic pig, boar, or omnivorous rooting herd.", 0.4, 0.45, 100,
+		new("Goat Herd", "A goat herd managed as small browsing stock for milk, fibre, and manure.", 0.2, 0.25, 100,
+		[
+			Yield("milk", 800, RawMilkTagName),
+			Yield("wool", 180, RawTextileFibreTagName),
+			Yield("feces", 650, ManureCommodityTagName)
+		]),
+		new("Pig Herd", "A pig herd managed as rooting omnivorous livestock with manure recovery.", 0.4, 0.45, 100,
 		[
 			Yield("feces", 1800, ManureCommodityTagName)
 		]),
-		new("Horse Herd", "A generic horse, pony, ass, onager, or other equine herd for mobile pastoral cultures.", 0.8, 0.8, 100,
+		new("Horse Herd", "A horse herd for equine pasture, mare's milk, and manure.", 0.8, 0.8, 100,
 		[
 			Yield("milk", 1200, RawMilkTagName),
 			Yield("feces", 1600, ManureCommodityTagName)
 		]),
-		new("Poultry Flock", "A generic flock of chickens, ducks, geese, or similar fowl.", 0.03, 0.05, 100,
+		new("Donkey Herd", "A donkey herd for hardy dryland equine pasture, milk, and manure.", 0.55, 0.55, 100,
+		[
+			Yield("milk", 650, RawMilkTagName),
+			Yield("feces", 1100, ManureCommodityTagName)
+		]),
+		new("Mule Team", "A mule team whose routine pasture output is manure rather than milk or fibre.", 0.65, 0.65, 100,
+		[
+			Yield("feces", 1300, ManureCommodityTagName)
+		]),
+		new("Camel Herd", "A dryland camel herd managed for milk, fibre, and manure.", 0.9, 0.8, 100,
+		[
+			Yield("milk", 1800, RawMilkTagName),
+			Yield("wool", 250, RawTextileFibreTagName),
+			Yield("feces", 1600, ManureCommodityTagName)
+		]),
+		new("Llama Herd", "A llama herd for Andean pasture, pack-stock fibre, and manure.", 0.35, 0.35, 100,
+		[
+			Yield("wool", 220, RawTextileFibreTagName),
+			Yield("feces", 700, ManureCommodityTagName)
+		]),
+		new("Alpaca Herd", "An alpaca herd managed chiefly for fine fibre and manure.", 0.25, 0.25, 100,
+		[
+			Yield("wool", 260, RawTextileFibreTagName),
+			Yield("feces", 520, ManureCommodityTagName)
+		]),
+		new("Reindeer Herd", "A cold-climate reindeer herd for pastoral milk and manure.", 0.45, 0.45, 100,
+		[
+			Yield("milk", 700, RawMilkTagName),
+			Yield("feces", 900, ManureCommodityTagName)
+		]),
+		new("Rabbit Warren", "A small livestock rabbit warren for manure and occasional fibre settings.", 0.05, 0.06, 100,
+		[
+			Yield("wool", 35, RawTextileFibreTagName),
+			Yield("feces", 80, ManureCommodityTagName)
+		]),
+		new("Guinea Pig Run", "A small Andean guinea pig run with modest manure output.", 0.02, 0.03, 100,
+		[
+			Yield("feces", 35, ManureCommodityTagName)
+		]),
+		new("Chicken Flock", "A chicken flock managed for eggs and manure.", 0.03, 0.05, 100,
 		[
 			Yield("egg", 60, EggProductTagName),
 			Yield("feces", 45, ManureCommodityTagName)
+		]),
+		new("Duck Flock", "A duck flock managed for eggs and wet-yard manure.", 0.04, 0.06, 100,
+		[
+			Yield("egg", 75, EggProductTagName),
+			Yield("feces", 55, ManureCommodityTagName)
+		]),
+		new("Goose Flock", "A goose flock managed for larger eggs and grazing-yard manure.", 0.06, 0.08, 100,
+		[
+			Yield("egg", 90, EggProductTagName),
+			Yield("feces", 70, ManureCommodityTagName)
+		]),
+		new("Turkey Flock", "A turkey flock managed for eggs and manure.", 0.08, 0.09, 100,
+		[
+			Yield("egg", 80, EggProductTagName),
+			Yield("feces", 75, ManureCommodityTagName)
+		]),
+		new("Pigeon Loft", "A pigeon loft managed for small eggs and manure-rich droppings.", 0.01, 0.015, 100,
+		[
+			Yield("egg", 15, EggProductTagName),
+			Yield("feces", 25, ManureCommodityTagName)
+		]),
+		new("Quail Covey", "A quail covey managed for small eggs and light manure.", 0.01, 0.015, 100,
+		[
+			Yield("egg", 18, EggProductTagName),
+			Yield("feces", 18, ManureCommodityTagName)
+		]),
+		new("Pheasant Pen", "A pheasant pen managed for gamebird eggs and manure.", 0.03, 0.04, 100,
+		[
+			Yield("egg", 35, EggProductTagName),
+			Yield("feces", 30, ManureCommodityTagName)
+		]),
+		new("Peafowl Flock", "A peafowl flock managed as ornamental fowl with modest eggs and manure.", 0.06, 0.07, 100,
+		[
+			Yield("egg", 45, EggProductTagName),
+			Yield("feces", 45, ManureCommodityTagName)
+		]),
+		new("Ostrich Flock", "An ostrich flock managed for large eggs and manure on open pasture.", 0.25, 0.3, 100,
+		[
+			Yield("egg", 450, EggProductTagName),
+			Yield("feces", 300, ManureCommodityTagName)
+		]),
+		new("Emu Flock", "An emu flock managed for large eggs and dryland manure.", 0.2, 0.25, 100,
+		[
+			Yield("egg", 350, EggProductTagName),
+			Yield("feces", 250, ManureCommodityTagName)
+		]),
+		new("Rhea Flock", "A rhea flock managed for large eggs and South American pasture manure.", 0.18, 0.22, 100,
+		[
+			Yield("egg", 320, EggProductTagName),
+			Yield("feces", 220, ManureCommodityTagName)
 		])
 	];
 
@@ -378,7 +590,47 @@ public sealed class AgricultureSeeder : IDatabaseSeeder
 		new("Pine Timber Stand", "A softwood timber stand grown for pine logs, poles, and fuel.", "timber", 540, 2555, [Yield("pine", 8500000), Yield("firewood", 2000000)]),
 		new("Cedar Timber Stand", "A managed cedar stand for aromatic softwood timber.", "timber", 650, 3285, [Yield("cedar", 7000000), Yield("firewood", 1600000)]),
 		new("Pollarded Willow Grove", "A pollarded willow grove cut above browsing height for poles and fuel.", "pollard", 240, 730, [Yield("willow", 3200000), Yield("firewood", 1000000)]),
-		new("Fruitwood Pollard Grove", "A pollarded mixed fruitwood grove that yields prunings, light timber, and modest fruitwood.", "pollard", 300, 900, [Yield("applewood", 1500000), Yield("pearwood", 1000000), Yield("firewood", 1000000)])
+		new("Fruitwood Pollard Grove", "A pollarded mixed fruitwood grove that yields prunings, light timber, and modest fruitwood.", "pollard", 300, 900, [Yield("applewood", 1500000), Yield("pearwood", 1000000), Yield("firewood", 1000000)]),
+		new("Ash Coppice", "A temperate ash coppice cut for tool handles, poles, and fuelwood.", "coppice", 220, 730, [Yield("ash", 2600000), Yield("firewood", 900000)]),
+		new("Sweet Chestnut Coppice", "A chestnut coppice for durable poles, nuts, and firewood in temperate or Mediterranean settings.", "coppice", 300, 900, [Yield("chestnut", 2500000), Yield("firewood", 900000)]),
+		new("Beech Timber Stand", "A cool temperate beech timber stand for hardwood and firewood.", "timber", 650, 3285, [Yield("beech", 7000000), Yield("firewood", 1800000)]),
+		new("Birch Coppice", "A boreal or cool temperate birch coppice for light wood and kindling.", "coppice", 180, 540, [Yield("birch", 2200000), Yield("firewood", 800000)]),
+		new("Alder Carr", "A wet alder carr managed for water-tolerant poles and fuel.", "wetland", 240, 730, [Yield("alder", 2400000), Yield("firewood", 900000)]),
+		new("Poplar Plantation", "A river-valley poplar plantation for fast light timber and fuel.", "plantation", 300, 1095, [Yield("poplar", 4200000), Yield("firewood", 1200000)]),
+		new("Elm Pollard Grove", "A temperate elm pollard grove cut above browsing height for poles and fuel.", "pollard", 300, 900, [Yield("elm", 2600000), Yield("firewood", 900000)]),
+		new("Linden Coppice", "A temperate linden coppice for light wood, bast, and fuel.", "coppice", 240, 730, [Yield("linden", 2200000), Yield("firewood", 700000)]),
+		new("Maple Sugarbush", "A North American maple grove managed for sap, timber, and firewood.", "extraction", 730, 365, [Yield("maple", 1500000), Yield("maple sap", 450000), Yield("firewood", 600000)]),
+		new("Osier Willow Bed", "A wet osier willow bed grown for basketry rods, wicker material, and fuel.", "fibre", 120, 240, [Yield("willow", 1800000), Yield("wicker", 450000), Yield("firewood", 400000)]),
+		new("Reedbed Thatch Stand", "A wetland reedbed managed for thatch, matting reeds, and green vegetation.", "thatch", 90, 180, [Yield("reed", 1500000), Yield("vegetation", 350000)]),
+		new("Cork Oak Woodland", "A Mediterranean cork oak woodland for cork bark, oak wood, and fuel.", "tannin", 730, 1095, [Yield("oak", 2500000), Yield("cork bark", 500000), Yield("firewood", 800000)]),
+		new("Aleppo Pine Resin Stand", "A Mediterranean pine stand managed for resin, light timber, and fuel.", "resin", 540, 1095, [Yield("pine", 3000000), Yield("pine resin", 220000), Yield("firewood", 900000)]),
+		new("Holm Oak Dehesa", "A Mediterranean holm oak parkland that yields oak wood, acorns, and fuel.", "silvopasture", 730, 900, [Yield("oak", 2200000), Yield("acorn", 600000), Yield("firewood", 800000)]),
+		new("Mastic Scrub", "A Mediterranean mastic scrub managed for aromatic resin and small fuelwood.", "resin", 365, 730, [Yield("mastic resin", 90000), Yield("firewood", 350000)]),
+		new("Acacia Gum Grove", "A Sahelian acacia grove tapped for gum arabic with light firewood output.", "gum", 540, 730, [Yield("acacia", 1600000), Yield("gum arabic", 180000), Yield("firewood", 500000)]),
+		new("Shea Parkland", "A West African shea parkland managed as agroforestry for nuts and fuel.", "parkland", 730, 365, [Yield("shea nut", 1000000), Yield("firewood", 500000)]),
+		new("Baobab Parkland", "An African savanna baobab parkland for fruit, leaves, and modest fuel.", "parkland", 730, 365, [Yield("baobab fruit", 1400000), Yield("baobab leaf", 350000), Yield("firewood", 350000)]),
+		new("Raffia Palm Grove", "A wet tropical raffia palm grove for fibre, fronds, and light fuel.", "fibre", 540, 365, [Yield("raffia fibre", 550000), Yield("palm frond", 1300000), Yield("firewood", 350000)]),
+		new("Mopane Coppice", "A southern African mopane coppice for durable fuelwood and poles.", "fuelwood", 300, 730, [Yield("mopane", 2200000), Yield("firewood", 1100000)]),
+		new("Miombo Fuelwood Stand", "A miombo woodland stand managed mostly for fuelwood and light timber.", "fuelwood", 420, 900, [Yield("miombo wood", 2200000), Yield("firewood", 1200000)]),
+		new("Mangrove Coppice", "A saline tropical mangrove coppice for wetland fuelwood and poles.", "wetland", 420, 730, [Yield("mangrove wood", 2200000), Yield("firewood", 900000)]),
+		new("Frankincense Grove", "A Horn of Africa or Arabian grove tapped for frankincense resin.", "resin", 730, 365, [Yield("frankincense resin", 120000), Yield("firewood", 300000)]),
+		new("Myrrh Scrub", "A dryland myrrh scrub tapped for resin and light brushwood.", "resin", 540, 365, [Yield("myrrh resin", 90000), Yield("firewood", 250000)]),
+		new("Teak Plantation", "A tropical teak plantation for high-value timber and secondary fuel.", "timber", 730, 3650, [Yield("teak", 8500000), Yield("firewood", 1600000)]),
+		new("Sandalwood Plantation", "A warm sandalwood plantation for aromatic timber and fuel.", "timber", 730, 3285, [Yield("sandalwood", 3500000), Yield("firewood", 800000)]),
+		new("Eucalyptus Fuelwood Plantation", "A fast-growing eucalyptus plantation for fuelwood, poles, and rough timber.", "fuelwood", 300, 900, [Yield("eucalyptus", 4500000), Yield("firewood", 1800000)]),
+		new("Rubber Tree Plantation", "A tropical rubber tree plantation tapped for latex with secondary timber.", "plantation", 1095, 365, [Yield("rubber", 400000), Yield("latex", 500000), Yield("firewood", 600000)]),
+		new("Rattan Cane Brake", "A Southeast Asian rattan brake managed for cane, rattan, and light fuel.", "fibre", 240, 540, [Yield("rattan", 1400000), Yield("cane", 650000), Yield("firewood", 300000)]),
+		new("Mulberry Coppice", "An East Asian mulberry coppice for silkworm fodder leaves, wood, and fuel.", "coppice", 240, 365, [Yield("mulberry leaf", 1200000), Yield("mulberry wood", 800000), Yield("firewood", 300000)]),
+		new("Agarwood Plantation", "A humid tropical agarwood plantation for aromatic heartwood and light fuel.", "resin", 730, 2555, [Yield("agarwood", 1200000), Yield("firewood", 350000)]),
+		new("Mesquite Coppice", "An arid American mesquite coppice for fuelwood and thorny poles.", "fuelwood", 240, 540, [Yield("mesquite", 1800000), Yield("firewood", 900000)]),
+		new("Hickory Timber Stand", "A North American hickory timber stand for strong hardwood and fuel.", "timber", 650, 3285, [Yield("hickory", 7000000), Yield("firewood", 1800000)]),
+		new("Black Walnut Stand", "A North American black walnut stand for timber, dye hulls, and fuel.", "timber", 730, 3285, [Yield("walnut", 6500000), Yield("walnut hull", 180000), Yield("firewood", 1400000)]),
+		new("Brazil Nut Forest Grove", "An Amazonian forest grove managed for Brazil nuts and light fuelwood.", "parkland", 1095, 365, [Yield("brazil nut", 1200000), Yield("firewood", 300000)]),
+		new("Moso Bamboo Grove", "An East Asian moso bamboo grove for large poles and edible green growth.", "coppice", 120, 180, [Yield("bamboo", 4500000), Yield("vegetation", 600000)]),
+		new("Clumping Bamboo Brake", "A tropical clumping bamboo brake for canes, poles, and green biomass.", "coppice", 120, 180, [Yield("bamboo", 3200000), Yield("vegetation", 500000)]),
+		new("Tannin Bark Oakwood", "An oakwood managed for bark, galls, tannin products, and fuel.", "tannin", 540, 900, [Yield("oak", 2200000), Yield("oak bark", 450000), Yield("oak gall", 140000), Yield("firewood", 700000)]),
+		new("Charcoal Coppice", "A general coppice stand cut and burned for charcoal and firewood.", "charcoal", 300, 730, [Yield("firewood", 1500000), Yield("charcoal", 600000)]),
+		new("Mixed Hedgerow", "A mixed field-boundary hedgerow for shelter, fencing rods, browse, and firewood.", "shelterbelt", 240, 365, [Yield("hazel", 700000), Yield("willow", 500000), Yield("firewood", 350000)])
 	];
 
 	private static readonly AgricultureFieldUse[] ApiaryAllowedUses =
@@ -414,7 +666,52 @@ public sealed class AgricultureSeeder : IDatabaseSeeder
 		new("Install Apiary", "Place hives and a stand so bees can establish alongside the field's existing use.", AgricultureOperationType.InstallApiary, AgricultureTargetType.None, AgricultureFieldUse.Fallow, AgricultureFieldUse.Fallow, 48.0, [(AgricultureScoreType.Condition, 1)], AllowedUses: ApiaryAllowedUses, ApiaryInstallHiveCount: 2, ApiaryPollinationRadius: 2),
 		new("Tend Apiary", "Inspect and tend the hives, calming the colony and reducing pest pressure near the field.", AgricultureOperationType.TendApiary, AgricultureTargetType.None, AgricultureFieldUse.Fallow, AgricultureFieldUse.Fallow, 16.0, [(AgricultureScoreType.Pests, -2), (AgricultureScoreType.Condition, 1)], AllowedUses: ApiaryAllowedUses, ApiaryTendHealthDelta: 8, ApiaryTendStoresDelta: 4, ApiaryTendYieldDelta: 8),
 		new("Harvest Apiary", "Harvest honeycomb, honey, and wax from a healthy apiary without changing the field's use.", AgricultureOperationType.HarvestApiary, AgricultureTargetType.None, AgricultureFieldUse.Fallow, AgricultureFieldUse.Fallow, 24.0, [(AgricultureScoreType.Pests, 1)], AllowedUses: ApiaryAllowedUses, ApiaryYieldMultiplier: 1.0, ApiaryYieldCost: 45, ApiaryOutputs: [Yield("honeycomb", 60000, RawHoneycombTagName), Yield("honey", 30000, PressedHoneyTagName), Yield("beeswax", 6000, RenderedBeeswaxTagName)]),
-		new("Remove Apiary", "Remove the hives and stand from the field while leaving the primary field use alone.", AgricultureOperationType.RemoveApiary, AgricultureTargetType.None, AgricultureFieldUse.Fallow, AgricultureFieldUse.Fallow, 16.0, [], AllowedUses: ApiaryAllowedUses)
+		new("Remove Apiary", "Remove the hives and stand from the field while leaving the primary field use alone.", AgricultureOperationType.RemoveApiary, AgricultureTargetType.None, AgricultureFieldUse.Fallow, AgricultureFieldUse.Fallow, 16.0, [], AllowedUses: ApiaryAllowedUses),
+		new("Harrow Field", "Break clods and level a prepared fallow field with lighter soil disturbance than ploughing.", AgricultureOperationType.Improve, AgricultureTargetType.None, AgricultureFieldUse.Fallow, AgricultureFieldUse.Fallow, 48.0, [(AgricultureScoreType.Tilth, 4), (AgricultureScoreType.Weeds, -2), (AgricultureScoreType.Moisture, -1)]),
+		new("Hoe Rows", "Hand-hoe crop rows to suppress weeds and keep the growing field tidy.", AgricultureOperationType.Improve, AgricultureTargetType.None, AgricultureFieldUse.Crop, AgricultureFieldUse.Crop, 64.0, [(AgricultureScoreType.Weeds, -5), (AgricultureScoreType.Tilth, 1), (AgricultureScoreType.Condition, 1)]),
+		new("Ridge and Furrow", "Shape fallow ground into ridges and furrows to improve drainage and workable tilth.", AgricultureOperationType.Improve, AgricultureTargetType.None, AgricultureFieldUse.Fallow, AgricultureFieldUse.Fallow, 120.0, [(AgricultureScoreType.Drainage, 4), (AgricultureScoreType.Tilth, 3), (AgricultureScoreType.Moisture, -1)]),
+		new("Break Prairie Sod", "Cut dense pasture sod into rough fallow ground ready for further preparation.", AgricultureOperationType.Clear, AgricultureTargetType.None, AgricultureFieldUse.Pasture, AgricultureFieldUse.Fallow, 360.0, [(AgricultureScoreType.Tilth, 6), (AgricultureScoreType.Weeds, -4), (AgricultureScoreType.Topsoil, -1), (AgricultureScoreType.Condition, -1)]),
+		new("Deep Dig Garden", "Deep-dig a small garden plot to improve tilth, mix soil layers, and tidy condition.", AgricultureOperationType.Improve, AgricultureTargetType.None, AgricultureFieldUse.Fallow, AgricultureFieldUse.Fallow, 160.0, [(AgricultureScoreType.Tilth, 6), (AgricultureScoreType.Topsoil, 1), (AgricultureScoreType.Condition, 1)]),
+		new("Mulch Field", "Apply organic cover around a growing crop to hold moisture and suppress weeds.", AgricultureOperationType.Improve, AgricultureTargetType.None, AgricultureFieldUse.Crop, AgricultureFieldUse.Crop, 72.0, [(AgricultureScoreType.Moisture, 4), (AgricultureScoreType.Weeds, -2), (AgricultureScoreType.Topsoil, 1)]),
+		new("Earth Up Root Crop", "Draw soil around root-crop rows to improve cover, tilth, and crop condition.", AgricultureOperationType.Improve, AgricultureTargetType.None, AgricultureFieldUse.Crop, AgricultureFieldUse.Crop, 56.0, [(AgricultureScoreType.Tilth, 2), (AgricultureScoreType.Weeds, -2), (AgricultureScoreType.Condition, 1)]),
+		new("Dig Irrigation Channels", "Dig new irrigation channels across fallow land to bring controlled water to the field.", AgricultureOperationType.Improve, AgricultureTargetType.None, AgricultureFieldUse.Fallow, AgricultureFieldUse.Fallow, 280.0, [(AgricultureScoreType.Moisture, 6), (AgricultureScoreType.Drainage, 2), (AgricultureScoreType.Salinity, 1), (AgricultureScoreType.Condition, 1)]),
+		new("Maintain Irrigation Channels", "Clear silt and weeds from irrigation channels serving an active crop.", AgricultureOperationType.Improve, AgricultureTargetType.None, AgricultureFieldUse.Crop, AgricultureFieldUse.Crop, 96.0, [(AgricultureScoreType.Moisture, 3), (AgricultureScoreType.Weeds, -1), (AgricultureScoreType.Condition, 1)]),
+		new("Flood Paddy", "Flood and manage a paddy-style crop field for water-loving crops.", AgricultureOperationType.Improve, AgricultureTargetType.None, AgricultureFieldUse.Crop, AgricultureFieldUse.Crop, 72.0, [(AgricultureScoreType.Moisture, 8), (AgricultureScoreType.Weeds, -3), (AgricultureScoreType.Salinity, 1)]),
+		new("Build Bunds", "Build low bunds on fallow ground to retain water and shape wet-field management.", AgricultureOperationType.Improve, AgricultureTargetType.None, AgricultureFieldUse.Fallow, AgricultureFieldUse.Fallow, 160.0, [(AgricultureScoreType.Moisture, 5), (AgricultureScoreType.Drainage, -2), (AgricultureScoreType.Condition, 1)]),
+		new("Build Terraces", "Construct terraces on fallow sloping land to hold topsoil and improve drainage control.", AgricultureOperationType.Improve, AgricultureTargetType.None, AgricultureFieldUse.Fallow, AgricultureFieldUse.Fallow, 520.0, [(AgricultureScoreType.Topsoil, 3), (AgricultureScoreType.Drainage, 3), (AgricultureScoreType.Rockiness, -2), (AgricultureScoreType.Condition, 2)]),
+		new("Maintain Terraces", "Repair terrace edges and drains around an established orchard or vineyard.", AgricultureOperationType.Improve, AgricultureTargetType.None, AgricultureFieldUse.Orchard, AgricultureFieldUse.Orchard, 160.0, [(AgricultureScoreType.Topsoil, 1), (AgricultureScoreType.Drainage, 2), (AgricultureScoreType.Condition, 2)]),
+		new("Spread Compost", "Spread compost over fallow ground to build fertility and tilth.", AgricultureOperationType.Improve, AgricultureTargetType.None, AgricultureFieldUse.Fallow, AgricultureFieldUse.Fallow, 96.0, [(AgricultureScoreType.Nutrients, 6), (AgricultureScoreType.Tilth, 2), (AgricultureScoreType.Weeds, 1)]),
+		new("Spread Manure", "Spread manure over fallow ground for a strong but messy fertility boost.", AgricultureOperationType.Improve, AgricultureTargetType.None, AgricultureFieldUse.Fallow, AgricultureFieldUse.Fallow, 96.0, [(AgricultureScoreType.Nutrients, 7), (AgricultureScoreType.Weeds, 2), (AgricultureScoreType.Pests, 1)]),
+		new("Apply Lime", "Apply lime or similar amendment where a generic condition and fertility lift is appropriate.", AgricultureOperationType.Improve, AgricultureTargetType.None, AgricultureFieldUse.Fallow, AgricultureFieldUse.Fallow, 80.0, [(AgricultureScoreType.Condition, 2), (AgricultureScoreType.Nutrients, 1), (AgricultureScoreType.Tilth, 1)]),
+		new("Apply Wood Ash", "Apply wood ash as a historical amendment that adds nutrients but slightly raises salt pressure.", AgricultureOperationType.Improve, AgricultureTargetType.None, AgricultureFieldUse.Fallow, AgricultureFieldUse.Fallow, 72.0, [(AgricultureScoreType.Nutrients, 3), (AgricultureScoreType.Condition, 1), (AgricultureScoreType.Salinity, 1)]),
+		new("Sow Green Manure", "Sow a green-manure cover on fallow land to hold weeds and begin rebuilding soil.", AgricultureOperationType.Improve, AgricultureTargetType.None, AgricultureFieldUse.Fallow, AgricultureFieldUse.Fallow, 64.0, [(AgricultureScoreType.Nutrients, 2), (AgricultureScoreType.Weeds, -2), (AgricultureScoreType.Pasture, 2)]),
+		new("Incorporate Green Manure", "Turn green manure into fallow soil for a stronger fertility and tilth gain.", AgricultureOperationType.Improve, AgricultureTargetType.None, AgricultureFieldUse.Fallow, AgricultureFieldUse.Fallow, 96.0, [(AgricultureScoreType.Nutrients, 5), (AgricultureScoreType.Tilth, 2), (AgricultureScoreType.Weeds, -1)]),
+		new("Rest Field", "Leave fallow land resting under light management to recover condition and modest fertility.", AgricultureOperationType.Improve, AgricultureTargetType.None, AgricultureFieldUse.Fallow, AgricultureFieldUse.Fallow, 48.0, [(AgricultureScoreType.Condition, 3), (AgricultureScoreType.Weeds, 2), (AgricultureScoreType.Nutrients, 1)]),
+		new("Flush Salts", "Move water through salt-affected fallow ground to reduce salinity at the cost of wetness.", AgricultureOperationType.Improve, AgricultureTargetType.None, AgricultureFieldUse.Fallow, AgricultureFieldUse.Fallow, 180.0, [(AgricultureScoreType.Salinity, -8), (AgricultureScoreType.Moisture, 3), (AgricultureScoreType.Drainage, -1)]),
+		new("Install Tile Drainage", "Install early-industrial tile drains on fallow land for a major drainage improvement.", AgricultureOperationType.Improve, AgricultureTargetType.None, AgricultureFieldUse.Fallow, AgricultureFieldUse.Fallow, 640.0, [(AgricultureScoreType.Drainage, 10), (AgricultureScoreType.Moisture, -5), (AgricultureScoreType.Condition, 2)]),
+		new("Build Surface Drains", "Cut surface drains and ditches on fallow land to remove excess water.", AgricultureOperationType.Improve, AgricultureTargetType.None, AgricultureFieldUse.Fallow, AgricultureFieldUse.Fallow, 240.0, [(AgricultureScoreType.Drainage, 6), (AgricultureScoreType.Moisture, -3), (AgricultureScoreType.Condition, 1)]),
+		new("Add Topsoil", "Import and spread topsoil over damaged fallow ground.", AgricultureOperationType.Improve, AgricultureTargetType.None, AgricultureFieldUse.Fallow, AgricultureFieldUse.Fallow, 480.0, [(AgricultureScoreType.Topsoil, 6), (AgricultureScoreType.Tilth, 2), (AgricultureScoreType.Rockiness, -1)]),
+		new("Stabilise Erosion", "Stabilise eroding pasture with small earthworks, plant cover, and repair labour.", AgricultureOperationType.Improve, AgricultureTargetType.None, AgricultureFieldUse.Pasture, AgricultureFieldUse.Pasture, 240.0, [(AgricultureScoreType.Topsoil, 3), (AgricultureScoreType.Condition, 2), (AgricultureScoreType.Weeds, 1)]),
+		new("Clear Brush", "Cut back brush and woody regrowth from managed woodland to return it to fallow use.", AgricultureOperationType.Clear, AgricultureTargetType.None, AgricultureFieldUse.Woodland, AgricultureFieldUse.Fallow, 220.0, [(AgricultureScoreType.Weeds, -8), (AgricultureScoreType.Pasture, 1), (AgricultureScoreType.Condition, -1)], WoodlandYieldMultiplier: 0.1, WoodlandYieldCost: 10),
+		new("Remove Stumps", "Dig out stumps and roots from fallow ground after clearing woodland or scrub.", AgricultureOperationType.Improve, AgricultureTargetType.None, AgricultureFieldUse.Fallow, AgricultureFieldUse.Fallow, 320.0, [(AgricultureScoreType.Rockiness, -3), (AgricultureScoreType.Tilth, 4), (AgricultureScoreType.Weeds, -3)]),
+		new("Controlled Burn", "Burn rough pasture or brush under control to reduce weeds and pests while costing topsoil.", AgricultureOperationType.Improve, AgricultureTargetType.None, AgricultureFieldUse.Pasture, AgricultureFieldUse.Pasture, 160.0, [(AgricultureScoreType.Weeds, -8), (AgricultureScoreType.Pests, -2), (AgricultureScoreType.Nutrients, 2), (AgricultureScoreType.Topsoil, -2)]),
+		new("Control Field Pests", "Perform general pest control on an active crop field.", AgricultureOperationType.Improve, AgricultureTargetType.None, AgricultureFieldUse.Crop, AgricultureFieldUse.Crop, 72.0, [(AgricultureScoreType.Pests, -8), (AgricultureScoreType.Condition, 1)]),
+		new("Net Orchard", "Net or protect an orchard against birds and small crop thieves.", AgricultureOperationType.Improve, AgricultureTargetType.None, AgricultureFieldUse.Orchard, AgricultureFieldUse.Orchard, 120.0, [(AgricultureScoreType.Pests, -6), (AgricultureScoreType.Condition, 1)]),
+		new("Graft Orchard", "Graft or replace scion wood in an orchard to improve long-term condition.", AgricultureOperationType.Improve, AgricultureTargetType.None, AgricultureFieldUse.Orchard, AgricultureFieldUse.Orchard, 180.0, [(AgricultureScoreType.Condition, 3), (AgricultureScoreType.Pests, 1)]),
+		new("Prune Orchard", "Prune and train an orchard as focused perennial maintenance.", AgricultureOperationType.Improve, AgricultureTargetType.None, AgricultureFieldUse.Orchard, AgricultureFieldUse.Orchard, 96.0, [(AgricultureScoreType.Condition, 2), (AgricultureScoreType.Weeds, -2), (AgricultureScoreType.Pests, -2)]),
+		new("Improve Pasture", "Improve pasture sward and grazing value with general labour and light reseeding.", AgricultureOperationType.Improve, AgricultureTargetType.None, AgricultureFieldUse.Pasture, AgricultureFieldUse.Pasture, 120.0, [(AgricultureScoreType.Pasture, 6), (AgricultureScoreType.Weeds, -2), (AgricultureScoreType.Condition, 1)]),
+		new("Reseed Pasture", "Reseed poor pasture to rebuild grazing cover at a modest nutrient cost.", AgricultureOperationType.Improve, AgricultureTargetType.None, AgricultureFieldUse.Pasture, AgricultureFieldUse.Pasture, 160.0, [(AgricultureScoreType.Pasture, 8), (AgricultureScoreType.Nutrients, -1), (AgricultureScoreType.Weeds, -3)]),
+		new("Build Stockyard", "Build a stockyard or handling pen to improve pasture infrastructure.", AgricultureOperationType.Improve, AgricultureTargetType.None, AgricultureFieldUse.Pasture, AgricultureFieldUse.Pasture, 300.0, [(AgricultureScoreType.Fence, 8), (AgricultureScoreType.Condition, 1), (AgricultureScoreType.Pasture, -1)]),
+		new("Repair Watering Point", "Repair a watering point or trough serving pasture stock.", AgricultureOperationType.Improve, AgricultureTargetType.None, AgricultureFieldUse.Pasture, AgricultureFieldUse.Pasture, 120.0, [(AgricultureScoreType.Moisture, 2), (AgricultureScoreType.Pasture, 2), (AgricultureScoreType.Condition, 1)]),
+		new("Pollard Trees", "Pollard managed woodland trees to harvest poles while preserving the stand.", AgricultureOperationType.Improve, AgricultureTargetType.None, AgricultureFieldUse.Woodland, AgricultureFieldUse.Woodland, 140.0, [(AgricultureScoreType.Condition, 1), (AgricultureScoreType.Pests, -1)], WoodlandYieldMultiplier: 0.35, WoodlandYieldCost: 35),
+		new("Tap Resin", "Tap resin or gum trees in managed woodland with only slight stand stress.", AgricultureOperationType.Improve, AgricultureTargetType.None, AgricultureFieldUse.Woodland, AgricultureFieldUse.Woodland, 80.0, [(AgricultureScoreType.Condition, -1)], WoodlandYieldMultiplier: 0.2, WoodlandYieldCost: 20),
+		new("Strip Tannin Bark", "Strip bark from a managed tannin woodland for bark products at a condition cost.", AgricultureOperationType.Improve, AgricultureTargetType.None, AgricultureFieldUse.Woodland, AgricultureFieldUse.Woodland, 120.0, [(AgricultureScoreType.Condition, -2)], WoodlandYieldMultiplier: 0.3, WoodlandYieldCost: 30),
+		new("Charcoal Burn", "Burn a managed coppice or fuelwood stand to release charcoal-like woodland products.", AgricultureOperationType.Improve, AgricultureTargetType.None, AgricultureFieldUse.Woodland, AgricultureFieldUse.Woodland, 180.0, [(AgricultureScoreType.Nutrients, -1), (AgricultureScoreType.Condition, -1)], WoodlandYieldMultiplier: 0.35, WoodlandYieldCost: 35),
+		new("Gather Woodland Products", "Gather non-timber woodland products such as nuts, bark, reeds, leaves, gum, or resin.", AgricultureOperationType.Improve, AgricultureTargetType.None, AgricultureFieldUse.Woodland, AgricultureFieldUse.Woodland, 64.0, [], WoodlandYieldMultiplier: 0.15, WoodlandYieldCost: 15),
+		new("Plant Shelterbelt", "Plant a shelterbelt or windbreak as a managed woodland field use.", AgricultureOperationType.Woodland, AgricultureTargetType.Woodland, AgricultureFieldUse.Fallow, AgricultureFieldUse.Woodland, 360.0, [(AgricultureScoreType.Moisture, 1), (AgricultureScoreType.Weeds, -2), (AgricultureScoreType.Condition, 2)]),
+		new("Lay Hedgerow", "Lay or repair a hedgerow along pasture boundaries for fencing and pest shelter balance.", AgricultureOperationType.Improve, AgricultureTargetType.None, AgricultureFieldUse.Pasture, AgricultureFieldUse.Pasture, 200.0, [(AgricultureScoreType.Fence, 5), (AgricultureScoreType.Pests, -1), (AgricultureScoreType.Weeds, 1)]),
+		new("Build Raised Beds", "Build raised beds on fallow ground for wetland gardens, market plots, or waru-waru style fields.", AgricultureOperationType.Improve, AgricultureTargetType.None, AgricultureFieldUse.Fallow, AgricultureFieldUse.Fallow, 220.0, [(AgricultureScoreType.Drainage, 5), (AgricultureScoreType.Tilth, 4), (AgricultureScoreType.Moisture, -2)]),
+		new("Kraal Night Penning", "Use night-penned stock to manure pasture while wearing grazing and fencing slightly.", AgricultureOperationType.Improve, AgricultureTargetType.None, AgricultureFieldUse.Pasture, AgricultureFieldUse.Pasture, 96.0, [(AgricultureScoreType.Nutrients, 6), (AgricultureScoreType.Pasture, -2), (AgricultureScoreType.Fence, -1)])
 	];
 
 	public static IReadOnlyCollection<string> StockCommodityOutputMaterialsForTesting =>

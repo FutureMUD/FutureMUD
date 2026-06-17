@@ -5,10 +5,11 @@ Run `AgricultureSeeder` after core utility progs exist. It installs:
 
 - stock field profiles for arable fields, garden beds, orchards/groves, pasture, wet fields, rocky fields, saline coastal fields, and managed woodland
 - additional cultivated, marginal, natural, and unimproved field profiles for paddies, dryland fields, terraces, floodplains, old fallows, scrub, woodland clearings, marshes, saline edges, heavy clay, eroded slopes, and similar land-expansion starting points
-- specific annual crop and perennial orchard/vineyard/plantation definitions with seed requirements, commodity outputs, and concrete pollination metadata, including broad temperate, tropical, dryland, wetland, archaic, and regional crop examples
-- generic herd definitions with secondary product outputs for milk, wool, eggs, and manure, including horse herds for pastoral milk
-- specific managed woodland definitions with commodity outputs, including dye woodland products
-- stock operations, including woodland and herd yield multipliers, yield costs, and apiary install, tend, harvest, and removal operations
+- a cultivated-field quality ladder from exhausted cropland through average, manured, irrigated, estate-quality, and paradise-garden profiles, plus international profiles such as chinampas, Andean raised fields, Sahel millet fields, monsoon rice terraces, mangrove rice polders, desert wadis, slash-and-burn swiddens, kraal-manured gardens, and laterite upland gardens
+- specific annual crop and perennial orchard/vineyard/plantation definitions with seed requirements, commodity outputs, and concrete pollination metadata, including broad temperate, tropical, dryland, wetland, archaic, Americas, African, and medieval-to-early-industrial crop examples
+- species-specific herd definitions with secondary product outputs for milk, wool, eggs, and manure, including cattle, oxen, buffalo, bison, sheep, goats, pigs, horses, donkeys, mules, camels, llamas, alpacas, reindeer, rabbits, guinea pigs, common poultry, game birds, peafowl, ostriches, emus, and rheas
+- specific managed woodland definitions with commodity outputs, including dye, gum, resin, tannin, thatch, fibre/cane, parkland, shelterbelt, charcoal, wetland, temperate coppice, American stand, African parkland, and tropical timber products
+- stock operations, including woodland and herd yield multipliers, yield costs, apiary install/tend/harvest/removal operations, and land-management families for soil preparation, weed control, irrigation, drainage, salinity remediation, fertility amendment, erosion control, raised beds and terracing, pasture infrastructure, orchard care, woodland management, and land clearing or reclamation
 - local project templates with agriculture completion actions, seed stock material requirements, apiary installation requirements, deliberately substantial labour requirements, and Farming-based supervision labour
 
 The stock package is idempotent. Reruns refresh stock-owned rows by stable names instead of duplicating them.
@@ -178,7 +179,7 @@ Drawdown requires the herd definition to have an NPC template. Builders may sele
 
 Driving a herd moves abstract animals from the current field into an adjacent field through the named exit. Omit the count, or use `all`, to move the whole herd. The destination field must already exist, support pasture use, and be fallow or pasture. Herders can drive animals into unowned fields or fields they are authorised to use, which allows wild grazing grounds and semi-nomadic pastoral movement without making owned fields freely available.
 
-Herd definitions can also define per-head secondary commodity outputs. Stock herds use this to provide raw milk, wool, eggs, and manure; the horse herd is the stock pastoral milk source for kumis-facing cultures. Fed herds build secondary yield potential on the daily tick, and `Collect Herd Products` releases the configured commodities without changing the pasture use.
+Herd definitions can also define per-head secondary commodity outputs. Stock herds use this to provide raw milk, wool, eggs, and manure from species-specific definitions rather than mixed livestock placeholders; the horse herd remains the stock pastoral milk source for kumis-facing cultures. Fed herds build secondary yield potential on the daily tick, and `Collect Herd Products` releases the configured commodities without changing the pasture use.
 
 ## Managed Woodland
 Managed woodland is a field use rather than a separate subsystem. Builders can represent:
@@ -192,7 +193,7 @@ Orchards, vineyards, nut groves, and plantation crops use the separate `Orchard`
 
 Use woodland definitions for growth cadence and operations for planting, coppicing, thinning, felling, and clearing.
 
-Stock woodland definitions also define commodity outputs. Woodland operations can release a fraction of the stand's products and consume part of the stand's current yield, so coppicing, thinning, felling, and clearing can all be tuned separately. The stock dye woodland examples cover kermes grain, orchil lichen, and lac dye cake as managed woodland products.
+Stock woodland definitions also define commodity outputs. Woodland operations can release a fraction of the stand's products and consume part of the stand's current yield, so coppicing, thinning, felling, tapping, bark stripping, gathering, charcoal burning, and clearing can all be tuned separately. The stock examples cover dye products such as kermes grain, orchil lichen, and lac dye cake, plus gum, resin, bark, thatch, fibre/cane, charcoal, parkland nuts and fruit, wetland woods, shelterbelts, and tropical timber as managed woodland products.
 
 Crafts can use the `field` craft input when a craft should require a local field state rather than a loose commodity pile. This is useful for actions such as collecting firewood, cutting poles, tapping or gathering from a managed grove, or any craft that should require a particular crop, orchard, or woodland, minimum health, minimum yield, and optionally consume some of that yield.
 

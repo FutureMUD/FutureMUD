@@ -10,6 +10,7 @@ using MudSharp.FutureProg;
 using MudSharp.Health;
 using MudSharp.Models;
 using MudSharp.RPG.Checks;
+using Moq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -405,6 +406,98 @@ public class HealthSeederTests
                 AssertSkillAvailabilityProgShape(knowledge.CanAcquireProg);
             }
         }
+    }
+
+    [TestMethod]
+    public void SeedData_DrugExpansionPayloads_AreSeeded()
+    {
+        using (FuturemudDatabaseContext context = BuildHealthSeederInstallContext())
+        {
+            HealthSeeder seeder = new();
+            seeder.SeedData(context, new Dictionary<string, string>
+            {
+                ["techlevel"] = "primitive"
+            });
+
+            MudSharp.Health.Drug yarrow = RuntimeDrug(context, "Yarrow Styptic");
+            CoagulationAdditionalInfo yarrowCoagulation =
+                yarrow.AdditionalInfoFor<CoagulationAdditionalInfo>(DrugType.Coagulation);
+            Assert.AreEqual(0.40, yarrowCoagulation.ExternalBleedingMultiplier);
+            Assert.AreEqual(0.50, yarrowCoagulation.WoundReopenMultiplier);
+
+            MudSharp.Health.Drug ephedra = RuntimeDrug(context, "Ephedra Brew");
+            NeedRateAdditionalInfo ephedraNeeds =
+                ephedra.AdditionalInfoFor<NeedRateAdditionalInfo>(DrugType.NeedRate);
+            Assert.AreEqual(0.70, ephedraNeeds.HungerMultiplier);
+            Assert.IsTrue(ephedraNeeds.AppliesToPassive);
+            Assert.IsTrue(ephedra.AdditionalInfoFor<ArousalAdditionalInfo>(DrugType.Arousal).Mode
+                .HasFlag(DrugArousalMode.SleepPreventing));
+            CollectionAssert.Contains(ephedra.AdditionalInfoFor<DrugDependenceAdditionalInfo>(DrugType.Dependence)
+                .AffectedDrugTypes, DrugType.NeedRate);
+        }
+
+        using (FuturemudDatabaseContext context = BuildHealthSeederInstallContext())
+        {
+            HealthSeeder seeder = new();
+            seeder.SeedData(context, new Dictionary<string, string>
+            {
+                ["techlevel"] = "pre-modern"
+            });
+
+            MudSharp.Health.Drug laudanum = RuntimeDrug(context, "Laudanum");
+            Assert.AreEqual(0.70,
+                laudanum.AdditionalInfoFor<RespirationAdditionalInfo>(DrugType.Respiration)
+                    .BreathingDriveMultiplier);
+            Assert.IsTrue(laudanum.AdditionalInfoFor<ArousalAdditionalInfo>(DrugType.Arousal).Mode
+                .HasFlag(DrugArousalMode.SleepInducing));
+            CollectionAssert.Contains(laudanum.AdditionalInfoFor<DrugDependenceAdditionalInfo>(DrugType.Dependence)
+                .AffectedDrugTypes, DrugType.Analgesic);
+
+            MudSharp.Health.Drug bronchialSmoke = RuntimeDrug(context, "Bronchial Smoke");
+            Assert.AreEqual(1.40,
+                bronchialSmoke.AdditionalInfoFor<RespirationAdditionalInfo>(DrugType.Respiration)
+                    .AirwayToleranceMultiplier);
+        }
+
+        using (FuturemudDatabaseContext context = BuildHealthSeederInstallContext())
+        {
+            HealthSeeder seeder = new();
+            seeder.SeedData(context, new Dictionary<string, string>
+            {
+                ["techlevel"] = "modern"
+            });
+
+            MudSharp.Health.Drug opioid = RuntimeDrug(context, "Opioid Analgesic");
+            Assert.AreEqual(0.65,
+                opioid.AdditionalInfoFor<RespirationAdditionalInfo>(DrugType.Respiration)
+                    .BreathingDriveMultiplier);
+            CollectionAssert.Contains(opioid.AdditionalInfoFor<DrugDependenceAdditionalInfo>(DrugType.Dependence)
+                .AffectedDrugTypes, DrugType.Respiration);
+
+            MudSharp.Health.Drug bronchodilator = RuntimeDrug(context, "Bronchodilator");
+            Assert.AreEqual(1.60,
+                bronchodilator.AdditionalInfoFor<RespirationAdditionalInfo>(DrugType.Respiration)
+                    .AirwayToleranceMultiplier);
+
+            MudSharp.Health.Drug clottingAgent = RuntimeDrug(context, "Clotting Agent");
+            Assert.AreEqual(0.30,
+                clottingAgent.AdditionalInfoFor<CoagulationAdditionalInfo>(DrugType.Coagulation)
+                    .ExternalBleedingMultiplier);
+
+            MudSharp.Health.Drug anticoagulant = RuntimeDrug(context, "Anticoagulant");
+            Assert.AreEqual(1.80,
+                anticoagulant.AdditionalInfoFor<CoagulationAdditionalInfo>(DrugType.Coagulation)
+                    .ExternalBleedingMultiplier);
+        }
+    }
+
+    private static MudSharp.Health.Drug RuntimeDrug(FuturemudDatabaseContext context, string name)
+    {
+        Drug model = context.Drugs
+            .Include(x => x.DrugsIntensities)
+            .Single(x => x.Name == name);
+
+        return new MudSharp.Health.Drug(model, new Mock<MudSharp.Framework.IFuturemud>().Object);
     }
 
     private static void AssertSkillAvailabilityProgShape(DbFutureProg prog)

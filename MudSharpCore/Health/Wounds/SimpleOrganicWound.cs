@@ -1572,7 +1572,7 @@ public class SimpleOrganicWound : PerceivedItem, IWound
                               PercentageExternalBloodlossPerWoundSeverity *
                               Bodypart.BleedModifier *
                               (beingBounds.Any() ? Gameworld.GetStaticDouble("BoundBleedingMultiplier") : 1);
-        double bleeding = bleedPercentage * currentBloodLitres;
+        double bleeding = bleedPercentage * currentBloodLitres * OrganicBleedingMultiplier(ch, x => x.ExternalBleedingMultiplier);
         if (bleeding <= 0.0)
         {
             return BleedResult.NoBleed;
@@ -1636,11 +1636,15 @@ public class SimpleOrganicWound : PerceivedItem, IWound
 
     private BleedResult HandleTraumaControlledBleeding(ExertionLevel activityExertionLevel)
     {
+        var reopenMultiplier = _parent is ICharacter ch
+            ? OrganicBleedingMultiplier(ch, x => x.WoundReopenMultiplier)
+            : 1.0;
         if (activityExertionLevel > ExertionLevel.Normal &&
             Dice.Roll(1, 100) <
             ((int)activityExertionLevel + (int)Severity -
              Gameworld.GetStaticInt("TraumaBleedReopenSeverityExertionOffset")) *
-            Gameworld.GetStaticInt("TraumaBleedReopenChancePerStep"))
+            Gameworld.GetStaticInt("TraumaBleedReopenChancePerStep") *
+            reopenMultiplier)
         {
             _bleedStatus = BleedStatus.Bleeding;
             _cleaned = false;
@@ -1660,11 +1664,15 @@ public class SimpleOrganicWound : PerceivedItem, IWound
 
     private BleedResult HandleClosedBleeding(ExertionLevel activityExertionLevel)
     {
+        var reopenMultiplier = _parent is ICharacter ch
+            ? OrganicBleedingMultiplier(ch, x => x.WoundReopenMultiplier)
+            : 1.0;
         if (activityExertionLevel > ExertionLevel.Heavy &&
             Dice.Roll(1, 100) <
             ((int)activityExertionLevel + (int)Severity -
              Gameworld.GetStaticInt("ClosedWoundReopenSeverityExertionOffset")) *
-            Gameworld.GetStaticInt("ClosedWoundReopenChancePerStep"))
+            Gameworld.GetStaticInt("ClosedWoundReopenChancePerStep") *
+            reopenMultiplier)
         {
             _bleedStatus = BleedStatus.TraumaControlled;
             Parent.OutputHandler.Handle(
@@ -1683,13 +1691,23 @@ public class SimpleOrganicWound : PerceivedItem, IWound
     {
         if (_bleedStatus == BleedStatus.Bleeding)
         {
+            var multiplier = _parent is ICharacter ch
+                ? OrganicBleedingMultiplier(ch, x => x.ExternalBleedingMultiplier)
+                : 1.0;
             return Math.Max(0, (int)Severity + (int)activityExertionLevel -
                                 Gameworld.GetStaticInt("ExternalBleedingSeverityExertionOffset")) *
                    PercentageExternalBloodlossPerWoundSeverity * Bodypart.BleedModifier *
-                   bloodTotal;
+                   bloodTotal * multiplier;
         }
 
         return 0;
+    }
+
+    private static double OrganicBleedingMultiplier(ICharacter character, Func<IBleedingModifierEffect, double> selector)
+    {
+        return character.Body.EffectsOfType<IBleedingModifierEffect>()
+                        .Where(x => x.Applies())
+                        .Aggregate(1.0, (current, effect) => current * selector(effect));
     }
 
     public double Exert(ExertionType exertion)

@@ -36,8 +36,9 @@ public class BlowholeBreather : IBreathingStrategy
             return false;
         }
 
+        double airwayTolerance = body.RespirationAirwayToleranceMultiplier();
         double lungFunction = body.OrganFunction<LungProto>();
-        if (lungFunction < 0.5)
+        if (lungFunction < 0.5 / airwayTolerance)
         {
             return false;
         }
@@ -47,7 +48,7 @@ public class BlowholeBreather : IBreathingStrategy
                                  .Select(x => x.BloodlossTotal)
                                  .DefaultIfEmpty(0)
                                  .Sum();
-        if (airwayBleeding > 0.3)
+        if (airwayBleeding > 0.3 * airwayTolerance)
         {
             return false;
         }
@@ -66,7 +67,7 @@ public class BlowholeBreather : IBreathingStrategy
         }
 
         double anasthesia = body.EffectsOfType<Anesthesia>().Select(x => x.IntensityPerGramMass).Sum();
-        return !(anasthesia >= 5.0);
+        return !(anasthesia >= 5.0 * body.RespirationBreathingDriveMultiplier());
     }
 
     public void Breathe(IBody body)

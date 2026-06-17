@@ -47,8 +47,9 @@ public class LungBreather : IBreathingStrategy
             return false;
         }
 
+        double airwayTolerance = body.RespirationAirwayToleranceMultiplier();
         double lungFunction = body.OrganFunction<LungProto>();
-        if (lungFunction < 0.5)
+        if (lungFunction < 0.5 / airwayTolerance)
         {
             return false;
         }
@@ -58,7 +59,7 @@ public class LungBreather : IBreathingStrategy
                                  .Select(x => x.BloodlossTotal)
                                  .DefaultIfEmpty(0)
                                  .Sum();
-        if (airwayBleeding > 0.3)
+        if (airwayBleeding > 0.3 * airwayTolerance)
         {
             return false;
         }
@@ -70,7 +71,7 @@ public class LungBreather : IBreathingStrategy
         }
 
         double anasthesia = body.EffectsOfType<Anesthesia>().Select(x => x.IntensityPerGramMass).Sum();
-        return !(anasthesia >= 5.0);
+        return !(anasthesia >= 5.0 * body.RespirationBreathingDriveMultiplier());
     }
 
     public void Breathe(IBody body)

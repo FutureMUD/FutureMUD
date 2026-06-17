@@ -19,6 +19,23 @@ public partial class Body
 {
     #region Drugs
 
+    private const string DrugDependenceEnabledStaticConfiguration = "DrugDependenceEnabled";
+    private const string DrugCoagulationMinimumMultiplierStaticConfiguration = "DrugCoagulationMinimumMultiplier";
+    private const string DrugCoagulationMaximumMultiplierStaticConfiguration = "DrugCoagulationMaximumMultiplier";
+    private const string DrugRespirationMinimumMultiplierStaticConfiguration = "DrugRespirationMinimumMultiplier";
+    private const string DrugRespirationMaximumMultiplierStaticConfiguration = "DrugRespirationMaximumMultiplier";
+
+    private sealed class DrugExposureRecord
+    {
+        public required IDrug Drug { get; init; }
+        public double Exposure { get; set; }
+        public double PeakExposure { get; set; }
+        public double WithdrawalIntensity { get; set; }
+        public DateTime LastUpdatedAtUtc { get; set; }
+    }
+
+    private readonly List<DrugExposureRecord> _drugExposureRecords = new();
+
     private void ApplyThermalImbalanceProgress(double progress)
     {
         if (progress == 0.0 ||
@@ -100,6 +117,29 @@ public partial class Body
 
     private bool _drugTickOn;
 
+    internal static bool DependenceRecordRequiresHeartbeat(double exposure, double peakExposure,
+        double withdrawalIntensity)
+    {
+        return exposure > 0.0 ||
+               peakExposure > 0.0 ||
+               withdrawalIntensity > 0.0;
+    }
+
+    internal static double DependenceActiveDoseGainForHeartbeat(double activeGrams, double exposureGainPerGram,
+        TimeSpan elapsedSinceLastPersistedUpdate)
+    {
+        // Active drug doses are not metabolised for offline time, so dependence gain follows the same one-heartbeat model.
+        _ = elapsedSinceLastPersistedUpdate;
+        return activeGrams <= 0.0 ? 0.0 : activeGrams * exposureGainPerGram;
+    }
+
+    private bool HasDependenceRecordsNeedingHeartbeat()
+    {
+        return Gameworld.GetStaticBool(DrugDependenceEnabledStaticConfiguration) &&
+               _drugExposureRecords.Any(x =>
+                   DependenceRecordRequiresHeartbeat(x.Exposure, x.PeakExposure, x.WithdrawalIntensity));
+    }
+
     public void CheckDrugTick()
     {
         if (!IsActiveCharacterBody)
@@ -108,7 +148,9 @@ public partial class Body
             return;
         }
 
+        var needsDependenceHeartbeat = HasDependenceRecordsNeedingHeartbeat();
         if (_activeDrugDosages.Any() || _latentDrugDosages.Any() || NeedsModel.AlcoholLitres > 0.0 ||
+            needsDependenceHeartbeat ||
             CombinedEffectsOfType<ICauseDrugEffect>().Any())
         {
             if (_drugTickOn)
@@ -124,7 +166,9 @@ public partial class Body
             return;
         }
 
+        needsDependenceHeartbeat = HasDependenceRecordsNeedingHeartbeat();
         if (!_activeDrugDosages.Any() && !_latentDrugDosages.Any() && NeedsModel.AlcoholLitres <= 0.0 &&
+            !needsDependenceHeartbeat &&
             !CombinedEffectsOfType<ICauseDrugEffect>().Any() && _drugTickOn)
         {
             EndDrugTick();
@@ -151,6 +195,7 @@ public partial class Body
         }
 
         ProcessLatentDrugs();
+        UpdateDrugDependenceExposure();
         ApplyDrugEffects();
         MetaboliseActiveDrugs();
         CheckHealthStatus();
@@ -209,6 +254,224 @@ public partial class Body
         }
     }
 
+    private DrugDependenceAdditionalInfo DependenceInfoFor(IDrug drug)
+    {
+        return drug.DrugTypes.Contains(DrugType.Dependence)
+            ? drug.AdditionalInfoFor<DrugDependenceAdditionalInfo>(DrugType.Dependence)
+            : null;
+    }
+
+    private DrugExposureRecord ExposureRecordFor(IDrug drug)
+    {
+        DrugExposureRecord record = _drugExposureRecords.FirstOrDefault(x => x.Drug.Id == drug.Id);
+        if (record is not null)
+        {
+            return record;
+        }
+
+        record = new DrugExposureRecord
+        {
+            Drug = drug,
+            LastUpdatedAtUtc = DateTime.UtcNow
+        };
+        _drugExposureRecords.Add(record);
+        DrugsChanged = true;
+        return record;
+    }
+
+    private void UpdateDrugDependenceExposure()
+    {
+        if (!Gameworld.GetStaticBool(DrugDependenceEnabledStaticConfiguration))
+        {
+            EffectHandler.RemoveAllEffects<DrugWithdrawalEffect>(fireRemovalAction: true);
+            Actor.RemoveAllEffects(x => x.IsEffectType<DrugWithdrawalSleepPreventionEffect>(), true);
+            return;
+        }
+
+        var now = DateTime.UtcNow;
+        var activeDependentDrugs = ActiveDrugDosages
+                                   .Select(x => x.Drug)
+                                   .Where(x => DependenceInfoFor(x) is not null)
+                                   .Distinct()
+                                   .ToList();
+        foreach (var drug in activeDependentDrugs)
+        {
+            ExposureRecordFor(drug);
+        }
+
+        foreach (var record in _drugExposureRecords.ToList())
+        {
+            var info = DependenceInfoFor(record.Drug);
+            if (info is null)
+            {
+                _drugExposureRecords.Remove(record);
+                DrugsChanged = true;
+                continue;
+            }
+
+            var elapsed = record.LastUpdatedAtUtc == default
+                ? TimeSpan.FromSeconds(10.0)
+                : now - record.LastUpdatedAtUtc;
+            if (elapsed < TimeSpan.Zero)
+            {
+                elapsed = TimeSpan.FromSeconds(10.0);
+            }
+
+            var elapsedDays = Math.Max(elapsed.TotalDays, 10.0 / 86400.0);
+            record.LastUpdatedAtUtc = now;
+
+            record.Exposure = Math.Max(0.0, record.Exposure - info.ExposureDecayPerDay * elapsedDays);
+            record.PeakExposure = Math.Max(record.Exposure,
+                Math.Max(0.0, record.PeakExposure - info.ExposureDecayPerDay * 0.25 * elapsedDays));
+
+            var activeGrams = ActiveDrugDosages
+                              .Where(x => x.Drug.Id == record.Drug.Id)
+                              .Sum(x => x.Grams);
+            if (activeGrams > 0.0)
+            {
+                record.Exposure += DependenceActiveDoseGainForHeartbeat(activeGrams, info.ExposureGainPerGram,
+                    elapsed);
+                record.PeakExposure = Math.Max(record.PeakExposure, record.Exposure);
+            }
+
+            if (record.Exposure >= info.WithdrawalThreshold)
+            {
+                record.WithdrawalIntensity = 0.0;
+            }
+            else if (record.PeakExposure >= info.WithdrawalThreshold && activeGrams <= 0.0)
+            {
+                var onsetIntensity = Math.Min(1.0,
+                    (info.WithdrawalThreshold - record.Exposure) / Math.Max(info.WithdrawalThreshold, 0.0001));
+                record.WithdrawalIntensity = Math.Max(record.WithdrawalIntensity, onsetIntensity);
+                record.WithdrawalIntensity = Math.Max(0.0,
+                    record.WithdrawalIntensity - info.WithdrawalDecayPerDay * elapsedDays);
+            }
+            else
+            {
+                record.WithdrawalIntensity = Math.Max(0.0,
+                    record.WithdrawalIntensity - info.WithdrawalDecayPerDay * elapsedDays);
+            }
+
+            if (record.Exposure <= 0.0 &&
+                record.PeakExposure <= 0.0 &&
+                record.WithdrawalIntensity <= 0.0 &&
+                activeGrams <= 0.0)
+            {
+                _drugExposureRecords.Remove(record);
+            }
+
+            DrugsChanged = true;
+        }
+
+        ApplyWithdrawalEffects();
+    }
+
+    private void ApplyWithdrawalEffects()
+    {
+        var activeWithdrawalRecords = _drugExposureRecords
+                                      .Where(x => x.WithdrawalIntensity > 0.0)
+                                      .Select(x => (Record: x, Info: DependenceInfoFor(x.Drug)))
+                                      .Where(x => x.Info is not null)
+                                      .ToList();
+        if (!activeWithdrawalRecords.Any())
+        {
+            EffectHandler.RemoveAllEffects<DrugWithdrawalEffect>(fireRemovalAction: true);
+            Actor.RemoveAllEffects(x => x.IsEffectType<DrugWithdrawalSleepPreventionEffect>(), true);
+            return;
+        }
+
+        var withdrawal = EffectsOfType<DrugWithdrawalEffect>().FirstOrDefault();
+        if (withdrawal is null)
+        {
+            withdrawal = new DrugWithdrawalEffect(this);
+            EffectHandler.AddEffect(withdrawal);
+        }
+
+        withdrawal.DrugIntensities.Clear();
+        withdrawal.WithdrawalIntensity = activeWithdrawalRecords.Sum(x => x.Record.WithdrawalIntensity);
+        withdrawal.CheckBonus = activeWithdrawalRecords.Sum(x =>
+            x.Info.WithdrawalCheckPenalty * x.Record.WithdrawalIntensity);
+        withdrawal.HungerMultiplier = activeWithdrawalRecords.Aggregate(1.0,
+            (current, item) => WeightedMultiplier(current, item.Info.WithdrawalHungerMultiplier,
+                item.Record.WithdrawalIntensity));
+        withdrawal.ThirstMultiplier = activeWithdrawalRecords.Aggregate(1.0,
+            (current, item) => WeightedMultiplier(current, item.Info.WithdrawalThirstMultiplier,
+                item.Record.WithdrawalIntensity));
+        withdrawal.StaminaRegenMultiplier = activeWithdrawalRecords.Aggregate(1.0,
+            (current, item) => WeightedMultiplier(current, item.Info.WithdrawalStaminaRegenMultiplier,
+                item.Record.WithdrawalIntensity));
+        withdrawal.StaminaCostMultiplier = activeWithdrawalRecords.Aggregate(1.0,
+            (current, item) => WeightedMultiplier(current, item.Info.WithdrawalStaminaCostMultiplier,
+                item.Record.WithdrawalIntensity));
+
+        var nausea = activeWithdrawalRecords.Sum(x => x.Info.WithdrawalNauseaIntensity * x.Record.WithdrawalIntensity);
+        if (nausea > 0.0)
+        {
+            withdrawal.DrugIntensities[DrugType.Nausea] = nausea;
+        }
+
+        var rage = activeWithdrawalRecords.Sum(x => x.Info.WithdrawalRageIntensity * x.Record.WithdrawalIntensity);
+        if (rage > 0.0)
+        {
+            withdrawal.DrugIntensities[DrugType.Rage] = rage;
+        }
+
+        var preventSleep = activeWithdrawalRecords.Any(x =>
+            x.Info.SleepPreventionThreshold > 0.0 &&
+            x.Record.WithdrawalIntensity >= x.Info.SleepPreventionThreshold);
+        var sleepBlock = Actor.EffectsOfType<DrugWithdrawalSleepPreventionEffect>().FirstOrDefault();
+        if (preventSleep && sleepBlock is null)
+        {
+            Actor.AddEffect(new DrugWithdrawalSleepPreventionEffect(Actor));
+        }
+        else if (!preventSleep && sleepBlock is not null)
+        {
+            Actor.RemoveEffect(sleepBlock, true);
+        }
+    }
+
+    private double ToleranceMultiplierForDrugType(IDrug drug, DrugType drugType)
+    {
+        if (!Gameworld.GetStaticBool(DrugDependenceEnabledStaticConfiguration))
+        {
+            return 1.0;
+        }
+
+        var info = DependenceInfoFor(drug);
+        if (info is null ||
+            info.ToleranceThreshold <= 0.0 ||
+            info.MinimumToleranceMultiplier >= 1.0 ||
+            info.AffectedDrugTypes.Any() && !info.AffectedDrugTypes.Contains(drugType))
+        {
+            return 1.0;
+        }
+
+        var record = _drugExposureRecords.FirstOrDefault(x => x.Drug.Id == drug.Id);
+        if (record is null || record.Exposure <= info.ToleranceThreshold)
+        {
+            return 1.0;
+        }
+
+        var thresholdSteps = Math.Min(1.0,
+            (record.Exposure - info.ToleranceThreshold) / Math.Max(info.ToleranceThreshold, 0.0001));
+        return 1.0 - (1.0 - info.MinimumToleranceMultiplier) * thresholdSteps;
+    }
+
+    private double IntensityPerGramMass(double value)
+    {
+        return value / (Weight * Gameworld.UnitManager.BaseWeightToKilograms * 0.001);
+    }
+
+    private static double WeightedMultiplier(double current, double configuredMultiplier, double intensity)
+    {
+        return current * Math.Max(0.0, 1.0 + (configuredMultiplier - 1.0) * intensity);
+    }
+
+    private static double ClampMultiplier(double value, double minimum, double maximum)
+    {
+        return Math.Max(minimum, Math.Min(maximum, value));
+    }
+
     private void ApplyDrugEffects()
     {
         DoubleCounter<DrugType> neutralisingEffects = new();
@@ -242,12 +505,16 @@ public partial class Body
             }
         }
 
+        List<IDrugEffectResistanceMerit> resistanceMerits = Actor.Merits.OfType<IDrugEffectResistanceMerit>().Where(x => x.Applies(Actor)).ToList();
+
         // Sum impacts from effects
         foreach (ICauseDrugEffect effect in CombinedEffectsOfType<ICauseDrugEffect>())
         {
             foreach (DrugType drugType in effect.AffectedDrugTypes)
             {
-                effectIntensities[drugType] += effect.AddedIntensity(Actor, drugType);
+                effectIntensities[drugType] += effect.AddedIntensity(Actor, drugType) *
+                                               resistanceMerits.Aggregate(1.0,
+                                                   (sum, x) => sum * x.ModifierForDrugType(drugType));
             }
         }
 
@@ -257,6 +524,31 @@ public partial class Body
         DoubleCounter<BodypartTypeEnum> organFunctionMods = new();
         PlanarStateAdditionalInfo planarStateInfo = null;
         double planarStateIntensity = 0.0;
+        double coagulationExternalMultiplier = 1.0;
+        double coagulationReopenMultiplier = 1.0;
+        double coagulationInternalMultiplier = 1.0;
+        double respirationDriveMultiplier = 1.0;
+        double respirationHypoxiaMultiplier = 1.0;
+        double respirationAirwayMultiplier = 1.0;
+        double needHungerMultiplier = 1.0;
+        double needThirstMultiplier = 1.0;
+        double needDrunkennessMultiplier = 1.0;
+        bool needAppliesPassive = false;
+        bool needAppliesActive = false;
+        List<(CoagulationAdditionalInfo Info, double Intensity)> coagulationContributions = new();
+        List<(RespirationAdditionalInfo Info, double Intensity)> respirationContributions = new();
+        List<(NeedRateAdditionalInfo Info, double Intensity)> needRateContributions = new();
+        List<(ArousalAdditionalInfo Info, double Intensity)> arousalContributions = new();
+        DrugArousalMode arousalMode = DrugArousalMode.None;
+        double arousalIntensity = 0.0;
+        double arousalCheckBonus = 0.0;
+        double arousalPainThresholdMultiplier = 1.0;
+        double arousalStunThresholdMultiplier = 1.0;
+        double arousalAnesthesiaThresholdMultiplier = 1.0;
+        double arousalStaminaRegenMultiplier = 1.0;
+        double arousalStaminaCostMultiplier = 1.0;
+        double arousalSleepThreshold = double.MaxValue;
+        double arousalKnockoutThreshold = double.MaxValue;
         List<ISpecificDrugResistanceMerit> specificMerits = Actor.Merits.OfType<ISpecificDrugResistanceMerit>().Where(x => x.Applies(Actor)).ToList();
         foreach ((IDrug drug, double grams) in drugIntensities)
         {
@@ -280,6 +572,18 @@ public partial class Body
                     continue;
                 }
 
+                if (drugEffect == DrugType.Dependence)
+                {
+                    continue;
+                }
+
+                var adjustedEffectIntensity =
+                    drug.IntensityForType(drugEffect) *
+                    adjustedgrams *
+                    ToleranceMultiplierForDrugType(drug, drugEffect) *
+                    resistanceMerits.Aggregate(1.0, (sum, x) => sum * x.ModifierForDrugType(drugEffect));
+                var adjustedEffectIntensityPerGramMass = IntensityPerGramMass(adjustedEffectIntensity);
+
                 if (drugEffect == DrugType.MagicAbility)
                 {
                     List<IMagicCapability> capabilities = drug.AdditionalInfoFor<MagicAbilityAdditionalInfo>(DrugType.MagicAbility)
@@ -288,22 +592,22 @@ public partial class Body
                                                        .ToList();
                     foreach (IMagicCapability capability in capabilities)
                     {
-                        magicCapabilities[capability] += drug.IntensityForType(DrugType.MagicAbility) * adjustedgrams;
+                        magicCapabilities[capability] += adjustedEffectIntensity;
                     }
                 }
 
                 if (drugEffect == DrugType.HealingRate)
                 {
                     HealingRateAdditionalInfo split = drug.AdditionalInfoFor<HealingRateAdditionalInfo>(DrugType.HealingRate);
-                    healingRateIntensity += split.HealingRateIntensity * (drug.IntensityForType(drugEffect) * adjustedgrams);
-                    healingDifficultyIntensity += split.HealingDifficultyIntensity * (drug.IntensityForType(drugEffect) * adjustedgrams);
+                    healingRateIntensity += split.HealingRateIntensity * adjustedEffectIntensity;
+                    healingDifficultyIntensity += split.HealingDifficultyIntensity * adjustedEffectIntensity;
                 }
 
                 if (drugEffect == DrugType.BodypartDamage)
                 {
                     foreach (BodypartTypeEnum organ in drug.AdditionalInfoFor<BodypartDamageAdditionalInfo>(DrugType.BodypartDamage).BodypartTypes)
                     {
-                        damagedOrgans[organ] += drug.IntensityForType(drugEffect) * adjustedgrams;
+                        damagedOrgans[organ] += adjustedEffectIntensity;
                     }
                 }
 
@@ -311,29 +615,123 @@ public partial class Body
                 {
                     foreach (BodypartTypeEnum organ in drug.AdditionalInfoFor<OrganFunctionAdditionalInfo>(DrugType.OrganFunction).OrganTypes)
                     {
-                        organFunctionMods[organ] += drug.IntensityForType(drugEffect) * adjustedgrams;
+                        organFunctionMods[organ] += adjustedEffectIntensity;
                     }
                 }
 
                 if (drugEffect == DrugType.PlanarState)
                 {
-                    var intensity = drug.IntensityForType(drugEffect) * adjustedgrams;
-                    if (intensity > planarStateIntensity)
+                    if (adjustedEffectIntensity > planarStateIntensity)
                     {
-                        planarStateIntensity = intensity;
+                        planarStateIntensity = adjustedEffectIntensity;
                         planarStateInfo = drug.AdditionalInfoFor<PlanarStateAdditionalInfo>(DrugType.PlanarState);
                     }
                 }
 
-                effectIntensities[drugEffect] += drug.IntensityForType(drugEffect) * adjustedgrams;
+                if (drugEffect == DrugType.Coagulation)
+                {
+                    var info = drug.AdditionalInfoFor<CoagulationAdditionalInfo>(DrugType.Coagulation);
+                    coagulationContributions.Add((info, adjustedEffectIntensityPerGramMass));
+                }
+
+                if (drugEffect == DrugType.Respiration)
+                {
+                    var info = drug.AdditionalInfoFor<RespirationAdditionalInfo>(DrugType.Respiration);
+                    respirationContributions.Add((info, adjustedEffectIntensityPerGramMass));
+                }
+
+                if (drugEffect == DrugType.NeedRate)
+                {
+                    var info = drug.AdditionalInfoFor<NeedRateAdditionalInfo>(DrugType.NeedRate);
+                    needRateContributions.Add((info, adjustedEffectIntensityPerGramMass));
+                }
+
+                if (drugEffect == DrugType.Arousal)
+                {
+                    var info = drug.AdditionalInfoFor<ArousalAdditionalInfo>(DrugType.Arousal);
+                    arousalContributions.Add((info, adjustedEffectIntensityPerGramMass));
+                }
+
+                effectIntensities[drugEffect] += adjustedEffectIntensity;
             }
         }
 
-        // Apply resistance merits
-        List<IDrugEffectResistanceMerit> resistanceMerits = Actor.Merits.OfType<IDrugEffectResistanceMerit>().Where(x => x.Applies(Actor)).ToList();
-        foreach (KeyValuePair<DrugType, double> effect in effectIntensities.ToArray())
+        double NetIntensityScale(DrugType type)
         {
-            effectIntensities[effect.Key] = effect.Value * resistanceMerits.Aggregate(1.0, (sum, x) => sum * x.ModifierForDrugType(effect.Key));
+            var total = effectIntensities.ValueOrDefault(type);
+            return total <= 0.0
+                ? 0.0
+                : Math.Max(0.0, (total - neutralisingEffects.ValueOrDefault(type)) / total);
+        }
+
+        foreach (var (info, rawIntensity) in coagulationContributions)
+        {
+            var intensity = rawIntensity * NetIntensityScale(DrugType.Coagulation);
+            coagulationExternalMultiplier = WeightedMultiplier(coagulationExternalMultiplier,
+                info.ExternalBleedingMultiplier, intensity);
+            coagulationReopenMultiplier = WeightedMultiplier(coagulationReopenMultiplier,
+                info.WoundReopenMultiplier, intensity);
+            coagulationInternalMultiplier = WeightedMultiplier(coagulationInternalMultiplier,
+                info.InternalBleedingMultiplier, intensity);
+        }
+
+        foreach (var (info, rawIntensity) in respirationContributions)
+        {
+            var intensity = rawIntensity * NetIntensityScale(DrugType.Respiration);
+            respirationDriveMultiplier = WeightedMultiplier(respirationDriveMultiplier,
+                info.BreathingDriveMultiplier, intensity);
+            respirationHypoxiaMultiplier = WeightedMultiplier(respirationHypoxiaMultiplier,
+                info.HypoxiaDamageMultiplier, intensity);
+            respirationAirwayMultiplier = WeightedMultiplier(respirationAirwayMultiplier,
+                info.AirwayToleranceMultiplier, intensity);
+        }
+
+        foreach (var (info, rawIntensity) in needRateContributions)
+        {
+            var intensity = rawIntensity * NetIntensityScale(DrugType.NeedRate);
+            if (intensity <= 0.0)
+            {
+                continue;
+            }
+
+            needHungerMultiplier = WeightedMultiplier(needHungerMultiplier, info.HungerMultiplier, intensity);
+            needThirstMultiplier = WeightedMultiplier(needThirstMultiplier, info.ThirstMultiplier, intensity);
+            needDrunkennessMultiplier = WeightedMultiplier(needDrunkennessMultiplier,
+                info.DrunkennessMultiplier, intensity);
+            needAppliesPassive |= info.AppliesToPassive;
+            needAppliesActive |= info.AppliesToActive;
+        }
+
+        foreach (var (info, rawIntensity) in arousalContributions)
+        {
+            var intensity = rawIntensity * NetIntensityScale(DrugType.Arousal);
+            if (intensity <= 0.0)
+            {
+                continue;
+            }
+
+            arousalMode |= info.Mode;
+            arousalIntensity += intensity;
+            arousalCheckBonus += info.CheckBonusPerIntensity * intensity;
+            arousalPainThresholdMultiplier = WeightedMultiplier(arousalPainThresholdMultiplier,
+                info.PainPassOutThresholdMultiplier, intensity);
+            arousalStunThresholdMultiplier = WeightedMultiplier(arousalStunThresholdMultiplier,
+                info.StunUnconsciousThresholdMultiplier, intensity);
+            arousalAnesthesiaThresholdMultiplier = WeightedMultiplier(arousalAnesthesiaThresholdMultiplier,
+                info.AnesthesiaUnconsciousThresholdMultiplier, intensity);
+            arousalStaminaRegenMultiplier = WeightedMultiplier(arousalStaminaRegenMultiplier,
+                info.StaminaRegenMultiplier, intensity);
+            arousalStaminaCostMultiplier = WeightedMultiplier(arousalStaminaCostMultiplier,
+                info.StaminaCostMultiplier, intensity);
+            if (info.Mode.HasFlag(DrugArousalMode.SleepInducing))
+            {
+                arousalSleepThreshold = Math.Min(arousalSleepThreshold, info.SleepIntensityThreshold);
+            }
+
+            if (info.Mode.HasFlag(DrugArousalMode.Knockout))
+            {
+                arousalKnockoutThreshold = Math.Min(arousalKnockoutThreshold, info.KnockoutIntensityThreshold);
+            }
         }
 
         // Apply individual effects
@@ -643,6 +1041,170 @@ public partial class Body
 
                         break;
                     }
+                case DrugType.Coagulation:
+                    {
+                        if (effect.Value - neutralisingEffects.ValueOrDefault(effect.Key) <= 0.0)
+                        {
+                            break;
+                        }
+
+                        var coagulationEffect = EffectsOfType<DrugCoagulationEffect>().FirstOrDefault();
+                        if (coagulationEffect is null)
+                        {
+                            coagulationEffect = new DrugCoagulationEffect(this);
+                            EffectHandler.AddEffect(coagulationEffect);
+                        }
+
+                        coagulationEffect.ExternalBleedingMultiplier = ClampMultiplier(coagulationExternalMultiplier,
+                            Gameworld.GetStaticDouble(DrugCoagulationMinimumMultiplierStaticConfiguration),
+                            Gameworld.GetStaticDouble(DrugCoagulationMaximumMultiplierStaticConfiguration));
+                        coagulationEffect.WoundReopenMultiplier = ClampMultiplier(coagulationReopenMultiplier,
+                            Gameworld.GetStaticDouble(DrugCoagulationMinimumMultiplierStaticConfiguration),
+                            Gameworld.GetStaticDouble(DrugCoagulationMaximumMultiplierStaticConfiguration));
+                        coagulationEffect.InternalBleedingMultiplier = ClampMultiplier(coagulationInternalMultiplier,
+                            Gameworld.GetStaticDouble(DrugCoagulationMinimumMultiplierStaticConfiguration),
+                            Gameworld.GetStaticDouble(DrugCoagulationMaximumMultiplierStaticConfiguration));
+                        break;
+                    }
+                case DrugType.Respiration:
+                    {
+                        if (effect.Value - neutralisingEffects.ValueOrDefault(effect.Key) <= 0.0)
+                        {
+                            break;
+                        }
+
+                        var respirationEffect = EffectsOfType<DrugRespirationEffect>().FirstOrDefault();
+                        if (respirationEffect is null)
+                        {
+                            respirationEffect = new DrugRespirationEffect(this);
+                            EffectHandler.AddEffect(respirationEffect);
+                        }
+
+                        respirationEffect.BreathingDriveMultiplier = ClampMultiplier(respirationDriveMultiplier,
+                            Gameworld.GetStaticDouble(DrugRespirationMinimumMultiplierStaticConfiguration),
+                            Gameworld.GetStaticDouble(DrugRespirationMaximumMultiplierStaticConfiguration));
+                        respirationEffect.HypoxiaDamageMultiplier = ClampMultiplier(respirationHypoxiaMultiplier,
+                            Gameworld.GetStaticDouble(DrugRespirationMinimumMultiplierStaticConfiguration),
+                            Gameworld.GetStaticDouble(DrugRespirationMaximumMultiplierStaticConfiguration));
+                        respirationEffect.AirwayToleranceMultiplier = ClampMultiplier(respirationAirwayMultiplier,
+                            Gameworld.GetStaticDouble(DrugRespirationMinimumMultiplierStaticConfiguration),
+                            Gameworld.GetStaticDouble(DrugRespirationMaximumMultiplierStaticConfiguration));
+                        break;
+                    }
+                case DrugType.NeedRate:
+                    {
+                        if (effect.Value - neutralisingEffects.ValueOrDefault(effect.Key) <= 0.0)
+                        {
+                            break;
+                        }
+
+                        var needRateEffect = EffectsOfType<DrugNeedRateEffect>().FirstOrDefault();
+                        if (needRateEffect is null)
+                        {
+                            needRateEffect = new DrugNeedRateEffect(this);
+                            EffectHandler.AddEffect(needRateEffect);
+                        }
+
+                        needRateEffect.HungerMultiplier = needHungerMultiplier;
+                        needRateEffect.ThirstMultiplier = needThirstMultiplier;
+                        needRateEffect.DrunkennessMultiplier = needDrunkennessMultiplier;
+                        needRateEffect.AppliesToPassive = needAppliesPassive;
+                        needRateEffect.AppliesToActive = needAppliesActive;
+                        break;
+                    }
+                case DrugType.Arousal:
+                    {
+                        if (effect.Value - neutralisingEffects.ValueOrDefault(effect.Key) <= 0.0)
+                        {
+                            break;
+                        }
+
+                        var hasThresholdEffect =
+                            Math.Abs(arousalCheckBonus) > 0.0 ||
+                            Math.Abs(arousalPainThresholdMultiplier - 1.0) > 0.0001 ||
+                            Math.Abs(arousalStunThresholdMultiplier - 1.0) > 0.0001 ||
+                            Math.Abs(arousalAnesthesiaThresholdMultiplier - 1.0) > 0.0001 ||
+                            Math.Abs(arousalStaminaRegenMultiplier - 1.0) > 0.0001 ||
+                            Math.Abs(arousalStaminaCostMultiplier - 1.0) > 0.0001;
+                        var arousalEffect = EffectsOfType<DrugArousalEffect>().FirstOrDefault();
+                        if (hasThresholdEffect)
+                        {
+                            if (arousalEffect is null)
+                            {
+                                arousalEffect = new DrugArousalEffect(this);
+                                EffectHandler.AddEffect(arousalEffect);
+                            }
+
+                            arousalEffect.Intensity = arousalIntensity;
+                            arousalEffect.CheckBonusPerIntensity = arousalIntensity > 0.0
+                                ? arousalCheckBonus / arousalIntensity
+                                : 0.0;
+                            arousalEffect.PainPassOutThresholdMultiplier = arousalPainThresholdMultiplier;
+                            arousalEffect.StunUnconsciousThresholdMultiplier = arousalStunThresholdMultiplier;
+                            arousalEffect.AnesthesiaUnconsciousThresholdMultiplier =
+                                arousalAnesthesiaThresholdMultiplier;
+                            arousalEffect.StaminaRegenMultiplier = arousalStaminaRegenMultiplier;
+                            arousalEffect.StaminaCostMultiplier = arousalStaminaCostMultiplier;
+                        }
+                        else if (arousalEffect is not null)
+                        {
+                            EffectHandler.RemoveEffect(arousalEffect, true);
+                        }
+
+                        var sleepEffect = Actor.EffectsOfType<DrugSleepEffect>().FirstOrDefault();
+                        if (arousalMode.HasFlag(DrugArousalMode.SleepInducing) &&
+                            arousalIntensity >= arousalSleepThreshold &&
+                            sleepEffect is null)
+                        {
+                            Actor.AddEffect(new DrugSleepEffect(Actor));
+                        }
+                        else if ((!arousalMode.HasFlag(DrugArousalMode.SleepInducing) ||
+                                  arousalIntensity < arousalSleepThreshold) &&
+                                 sleepEffect is not null)
+                        {
+                            Actor.RemoveEffect(sleepEffect, true);
+                        }
+
+                        var sleepPreventionEffect = Actor.EffectsOfType<DrugSleepPreventionEffect>().FirstOrDefault();
+                        if (arousalMode.HasFlag(DrugArousalMode.SleepPreventing) &&
+                            sleepPreventionEffect is null)
+                        {
+                            Actor.AddEffect(new DrugSleepPreventionEffect(Actor));
+                        }
+                        else if (!arousalMode.HasFlag(DrugArousalMode.SleepPreventing) &&
+                                 sleepPreventionEffect is not null)
+                        {
+                            Actor.RemoveEffect(sleepPreventionEffect, true);
+                        }
+
+                        var passOutEffect = EffectsOfType<DrugPassOutResistanceEffect>().FirstOrDefault();
+                        if (arousalMode.HasFlag(DrugArousalMode.PassOutResistance) &&
+                            passOutEffect is null)
+                        {
+                            EffectHandler.AddEffect(new DrugPassOutResistanceEffect(this));
+                        }
+                        else if (!arousalMode.HasFlag(DrugArousalMode.PassOutResistance) &&
+                                 passOutEffect is not null)
+                        {
+                            EffectHandler.RemoveEffect(passOutEffect, true);
+                        }
+
+                        var knockoutEffect = EffectsOfType<DrugKnockoutEffect>().FirstOrDefault();
+                        if (arousalMode.HasFlag(DrugArousalMode.Knockout) &&
+                            arousalIntensity >= arousalKnockoutThreshold &&
+                            knockoutEffect is null)
+                        {
+                            EffectHandler.AddEffect(new DrugKnockoutEffect(this));
+                        }
+                        else if ((!arousalMode.HasFlag(DrugArousalMode.Knockout) ||
+                                  arousalIntensity < arousalKnockoutThreshold) &&
+                                 knockoutEffect is not null)
+                        {
+                            EffectHandler.RemoveEffect(knockoutEffect, true);
+                        }
+
+                        break;
+                    }
             }
         }
 
@@ -739,6 +1301,34 @@ public partial class Body
             EffectHandler.RemoveAllEffects<DrugInducedPlanarStateEffect>(fireRemovalAction: true);
         }
 
+        if (effectIntensities.ValueOrDefault(DrugType.Coagulation) -
+            neutralisingEffects.ValueOrDefault(DrugType.Coagulation) <= 0.0)
+        {
+            EffectHandler.RemoveAllEffects<DrugCoagulationEffect>(fireRemovalAction: true);
+        }
+
+        if (effectIntensities.ValueOrDefault(DrugType.Respiration) -
+            neutralisingEffects.ValueOrDefault(DrugType.Respiration) <= 0.0)
+        {
+            EffectHandler.RemoveAllEffects<DrugRespirationEffect>(fireRemovalAction: true);
+        }
+
+        if (effectIntensities.ValueOrDefault(DrugType.NeedRate) -
+            neutralisingEffects.ValueOrDefault(DrugType.NeedRate) <= 0.0)
+        {
+            EffectHandler.RemoveAllEffects<DrugNeedRateEffect>(fireRemovalAction: true);
+        }
+
+        if (effectIntensities.ValueOrDefault(DrugType.Arousal) -
+            neutralisingEffects.ValueOrDefault(DrugType.Arousal) <= 0.0)
+        {
+            EffectHandler.RemoveAllEffects<DrugArousalEffect>(fireRemovalAction: true);
+            EffectHandler.RemoveAllEffects<DrugPassOutResistanceEffect>(fireRemovalAction: true);
+            EffectHandler.RemoveAllEffects<DrugKnockoutEffect>(fireRemovalAction: true);
+            Actor.RemoveAllEffects(x => x.IsEffectType<DrugSleepEffect>(), true);
+            Actor.RemoveAllEffects(x => x.IsEffectType<DrugSleepPreventionEffect>(), true);
+        }
+
         if (!applicableCapabilities.Any())
         {
             EffectHandler.RemoveAllEffects<DrugInducedMagicCapability>(fireRemovalAction: true);
@@ -811,6 +1401,33 @@ public partial class Body
             }
 
             dbitem.Grams = item.Grams;
+        }
+
+        List<BodyDrugExposure> exposuresToDelete =
+            body.BodiesDrugExposures
+                .Where(x => !_drugExposureRecords.Any(y => y.Drug.Id == x.DrugId))
+                .ToList();
+        foreach (var exposure in exposuresToDelete)
+        {
+            body.BodiesDrugExposures.Remove(exposure);
+        }
+
+        foreach (var item in _drugExposureRecords)
+        {
+            BodyDrugExposure dbitem = body.BodiesDrugExposures.FirstOrDefault(x => x.DrugId == item.Drug.Id);
+            if (dbitem is null)
+            {
+                dbitem = new BodyDrugExposure
+                {
+                    DrugId = item.Drug.Id
+                };
+                body.BodiesDrugExposures.Add(dbitem);
+            }
+
+            dbitem.Exposure = item.Exposure;
+            dbitem.PeakExposure = item.PeakExposure;
+            dbitem.WithdrawalIntensity = item.WithdrawalIntensity;
+            dbitem.LastUpdatedAtUtc = item.LastUpdatedAtUtc;
         }
 
         DrugsChanged = false;

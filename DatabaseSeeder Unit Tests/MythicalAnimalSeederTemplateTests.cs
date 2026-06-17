@@ -1133,14 +1133,14 @@ public class MythicalAnimalSeederTemplateTests
         Assert.IsNotNull(dragon.DescriptionVariants);
         Assert.AreEqual(3, ParagraphCount(MythicalAnimalSeeder.BuildRaceDescriptionForTesting(dragon)));
         Assert.AreEqual(3, ParagraphCount(MythicalAnimalSeeder.BuildEthnicityDescriptionForTesting(dragon)));
-        StringAssert.Contains(MythicalAnimalSeeder.BuildRaceDescriptionForTesting(dragon), "broad wings, curving horns");
+        StringAssert.Contains(MythicalAnimalSeeder.BuildRaceDescriptionForTesting(dragon), "sovereign presences wherever they settle");
         StringAssert.Contains(MythicalAnimalSeeder.BuildEthnicityDescriptionForTesting(dragon), "overlapping scales");
 
         MythicalAnimalSeeder.MythicalRaceTemplate centaur = MythicalAnimalSeeder.TemplatesForTesting["Centaur"];
         Assert.IsNotNull(centaur.OverlayDescriptionVariants);
         Assert.AreEqual(3, ParagraphCount(MythicalAnimalSeeder.BuildRaceDescriptionForTesting(centaur)));
         Assert.AreEqual(3, ParagraphCount(MythicalAnimalSeeder.BuildEthnicityDescriptionForTesting(centaur)));
-        StringAssert.Contains(MythicalAnimalSeeder.BuildRaceDescriptionForTesting(centaur), "powerful equine lower body");
+        StringAssert.Contains(MythicalAnimalSeeder.BuildRaceDescriptionForTesting(centaur), "Centaurs combine human torsos and arms with four-legged equine bodies");
         StringAssert.Contains(MythicalAnimalSeeder.BuildEthnicityDescriptionForTesting(centaur), "broad horse-frame");
     }
 }

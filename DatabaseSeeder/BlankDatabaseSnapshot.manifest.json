@@ -1,5 +1,5 @@
 {
   "ProductVersion": "2.3.0.0",
-  "LatestMigrationId": "20260523000000_CommoditySpoilageRules",
-  "GeneratedUtc": "2026-05-23T00:00:00Z"
+  "LatestMigrationId": "20260616135417_DrugExpansionDependenceExposures",
+  "GeneratedUtc": "2026-06-16T13:54:17Z"
 }

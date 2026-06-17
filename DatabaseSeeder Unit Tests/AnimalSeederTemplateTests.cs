@@ -1241,7 +1241,7 @@ public class AnimalSeederTemplateTests
     {
         string dogRaceDescription = AnimalSeeder.BuildRaceDescriptionForTesting(AnimalSeeder.RaceTemplatesForTesting["Dog"]);
         Assert.AreEqual(3, ParagraphCount(dogRaceDescription));
-        StringAssert.Contains(dogRaceDescription, "Adults are most often represented");
+        StringAssert.Contains(dogRaceDescription, "Dogs are social canids shaped by long association with settlements");
 
         string dogEthnicityDescription = AnimalSeeder.BuildEthnicityDescriptionForTesting("Dog", "Retriever");
         Assert.AreEqual(3, ParagraphCount(dogEthnicityDescription));

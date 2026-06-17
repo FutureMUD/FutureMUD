@@ -244,7 +244,7 @@ public class RobotSeederTemplateTests
         RobotSeeder.RobotRaceTemplate robotHumanoid = RobotSeeder.TemplatesForTesting["Robot Humanoid"];
         Assert.AreEqual(3, ParagraphCount(RobotSeeder.BuildRaceDescriptionForTesting(robotHumanoid)));
         Assert.AreEqual(3, ParagraphCount(RobotSeeder.BuildEthnicityDescriptionForTesting(robotHumanoid)));
-        StringAssert.Contains(RobotSeeder.BuildRaceDescriptionForTesting(robotHumanoid), "articulated plated chassis");
+        StringAssert.Contains(RobotSeeder.BuildRaceDescriptionForTesting(robotHumanoid), "made to share tools, doors, clothing and equipment with people");
 
         RobotSeeder.RobotRaceTemplate cyborg = RobotSeeder.TemplatesForTesting["Cyborg"];
         Assert.AreEqual(3, ParagraphCount(RobotSeeder.BuildRaceDescriptionForTesting(cyborg)));

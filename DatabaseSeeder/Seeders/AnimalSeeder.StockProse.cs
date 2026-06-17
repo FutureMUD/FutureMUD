@@ -149,16 +149,7 @@ public partial class AnimalSeeder
 
     internal static string BuildRaceDescriptionForTesting(AnimalRaceTemplate template)
     {
-        AnimalDescriptionVariant primaryAdult = GetPrimaryAdultVariant(template.DescriptionPack);
-        AnimalDescriptionVariant secondaryAdult = GetSecondaryAdultVariant(template.DescriptionPack) ?? primaryAdult;
-        string summary = string.IsNullOrWhiteSpace(template.Description)
-            ? $"{template.Name}s are stock {template.Adjective.ToLowerInvariant()} animals seeded for the default FutureMUD catalogue."
-            : $"{SeederDescriptionHelpers.EnsureTrailingPeriod(template.Description)} Adults are most often represented as {primaryAdult.ShortDescription}.";
-        return SeederDescriptionHelpers.JoinParagraphs(
-            summary,
-            primaryAdult.FullDescription,
-            BuildAnimalInteractionParagraph(template.Name, secondaryAdult.FullDescription)
-        );
+        return template.Description;
     }
 
     internal static string BuildEthnicityDescriptionForTesting(string raceName, string ethnicityName)

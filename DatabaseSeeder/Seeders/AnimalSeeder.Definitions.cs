@@ -139,7 +139,7 @@ public partial class AnimalSeeder
     internal sealed record AnimalRaceTemplate(
         string Name,
         string Adjective,
-        string? Description,
+        string Description,
         string BodyKey,
         SizeCategory Size,
         bool CanClimb,

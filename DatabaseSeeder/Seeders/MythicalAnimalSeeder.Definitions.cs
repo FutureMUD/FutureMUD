@@ -310,7 +310,13 @@ public partial class MythicalAnimalSeeder
                 SizeCategory.VeryLarge,
                 "Horse",
                 GreatBeast(),
-                "Dragons are immense, winged reptiles with claws, horns and a powerful tail.",
+                """
+                Dragons are immense horned reptiles whose wings, claws and scaled hides make them sovereign presences wherever they settle. Their size alone would make them dangerous, but the deeper threat lies in the sense that every movement is chosen by a mind older and colder than an ordinary beast's.
+
+                Heat, hoarded treasure, scorched stone and old territorial memory gather naturally around them. A dragon's lair is rarely just a den; it becomes a centre of fear, tribute, rumour and calculation, because people must decide whether to placate it, hunt it or keep far beyond the reach of its shadow.
+
+                They work best as apex powers rather than simple monsters. A dragon may be tyrant, oracle, disaster, patron or sleeping peril, but even a peaceful one makes the surrounding country feel negotiated rather than free.
+                """,
                 "In most worlds dragons stand apart from ordinary beasts, looming over landscapes as apex predators, hoard-lords, or living catastrophes that lesser peoples must placate, evade, or confront with great preparation.",
                 Variants(
                     ("a horn-crowned dragon",
@@ -349,7 +355,13 @@ public partial class MythicalAnimalSeeder
                 SizeCategory.Large,
                 "Big Felid",
                 Beast(),
-                "Griffins combine an eagle's head and wings with a leonine hindbody and foreclaws.",
+                """
+                Griffins unite the hooked beak, bright eyes and broad wings of a raptor with the hindquarters and pouncing force of a great cat. The result is not a patched-together animal, but a proud aerial hunter whose body looks equally suited to cliff wind and violent impact.
+
+                They claim high places with the confidence of creatures that see roads, herds and armies from above. Their talons make them dangerous in the first instant of contact, while the leonine part of the body gives them enough weight and courage to hold prey or intruder once grounded.
+
+                Where griffins are known, they tend to gather meanings of vigilance, nobility and territorial wrath. They may serve as sacred beasts, heraldic emblems, royal mounts or wild threats, but they never feel tame in the ordinary sense.
+                """,
                 "Griffins often fill the role of proud sky-hunters and sacred or royal beasts, creatures that dominate high crags and open skies while also appearing in heraldry, legend and elite riding traditions.",
                 Variants(
                     ("a hooked-beaked griffin",
@@ -375,7 +387,13 @@ public partial class MythicalAnimalSeeder
                 SizeCategory.Large,
                 "Horse",
                 Beast(),
-                "Hippogriffs blend an eagle's forequarters and wings with an equine lower body.",
+                """
+                Hippogriffs are eagle-fronted, winged equine beasts, carrying the alert violence of a raptor on a frame large enough for the saddle. Their grace can make them look approachable until the beak, talons and sudden lunging balance remind the observer that this is no ordinary horse.
+
+                Their power sits in transition: a gallop can become a launch, a turn of the neck can become a strike, and the animal's proud carriage can change without warning into prey-focused urgency. They seem made for open slopes, hard winds and riders who understand that respect matters more than reins.
+
+                They occupy the border between wild mount and dangerous sky-beast. In settled hands they become prestige animals, scouts and cavalry wonders; in the wild they remain territorial grazers with enough predatory blood to punish careless confidence.
+                """,
                 "Hippogriffs often occupy the boundary between wild mount and dangerous aerial grazer, prized by riders who can tame them and feared by travellers who mistake their grace for docility.",
                 Variants(
                     ("a keen-eyed hippogriff",
@@ -399,7 +417,13 @@ public partial class MythicalAnimalSeeder
                 SizeCategory.Large,
                 "Horse",
                 GreatBeast(),
-                "Unicorns are horse-like beings distinguished by a single spiralled horn and uncanny grace.",
+                """
+                Unicorns are horse-like beings marked by a single spiralled horn and an unnerving purity of motion. The familiar equine outline makes the strangeness sharper, because the creature seems almost ordinary until its gaze, stillness and flawless poise begin to feel deliberate.
+
+                The horn turns the body into a sign as much as a weapon. Around a unicorn, sanctuaries, moonlit glades and guarded springs feel less like scenery than rightful territory, as though the beast belongs to places where violence has to justify itself.
+
+                They are rarely treated as livestock, even when they can be approached. A unicorn may be mount, omen, guardian or prize, but it carries a moral pressure into the scene: the crude reach for it, the wary give way, and the worthy are measured before they are allowed near.
+                """,
                 "Unicorns are usually treated less as livestock than as numinous presences, creatures tied to sanctuaries, omens, purity traditions, and stories in which the worthy may approach what the crude can never catch.",
                 Variants(
                     ("a spiralled-horn unicorn",
@@ -425,7 +449,13 @@ public partial class MythicalAnimalSeeder
                 SizeCategory.Large,
                 "Horse",
                 GreatBeast(),
-                "Pegasi are winged horses capable of powerful, sustained flight.",
+                """
+                Pegasi are winged horses built for both gallop and sky. Their deep chests, powerful shoulders and feathered wings give the familiar nobility of an equine body a startling vertical promise, as if a pasture animal had learned to refuse the ground.
+
+                They are creatures of open air, long approaches and difficult capture. The wings are not decoration; they change everything about how the animal flees, threatens, courts and chooses its range, giving even a quiet pegasus a sense of stored lift.
+
+                Among people, pegasi become noble mounts, courier beasts, sacred herd animals or symbols of freedom that are harder to keep than to admire. In the wild, they remain strong-willed sky-grazers whose beauty does not erase their strength.
+                """,
                 "Pegasi are commonly imagined as noble aerial mounts and heraldic wonders, but in the wild they remain strong-willed creatures whose flight ranges and herd instincts make them difficult to manage.",
                 Variants(
                     ("a feather-winged pegasus",
@@ -455,7 +485,13 @@ public partial class MythicalAnimalSeeder
                 SizeCategory.Large,
                 "Large Canid",
                 GreatBeast(),
-                "Wargs are oversized, wolf-like predators bred toward savagery, endurance and a frightening, almost deliberate malice.",
+                """
+                Wargs are oversized wolf-like predators with harsh intelligence in the eyes and a body pushed toward endurance, pursuit and mauling force. They look close enough to wolves to be recognised, but too heavy, deliberate and malicious to be mistaken for natural pack animals.
+
+                Their strength lies in discipline as much as size. A warg reads the ground, the herd and the frightened line of retreat with predatory economy, making it valuable to raiders and terrifying to travellers who hear howls beyond the firelight.
+
+                They fit war camps, dark hunts and borderlands where fear is cultivated as a weapon. Whether bred, cursed or simply born monstrous, a warg makes the night feel organised against anyone moving through it.
+                """,
                 "Wargs usually occupy the role of war-beasts and terror-hounds, creatures associated with raiders, dark hunts and borderland fear rather than with any tame place in ordinary husbandry.",
                 Variants(
                     ("a long-fanged warg",
@@ -478,7 +514,13 @@ public partial class MythicalAnimalSeeder
                 SizeCategory.VeryLarge,
                 "Large Canid",
                 GreatBeast(),
-                "Dire-wolves are colossal wolf-beasts, broader, heavier and markedly more dangerous than even wargs.",
+                """
+                Dire-wolves are colossal wolf-beasts, broader and heavier than wargs and built to bring down prey by weight as much as speed. Their heads are massive, their paws large enough to leave frightening tracks, and their presence turns a howl into a tactical fact.
+
+                They belong to winter timber, deep ravines and long pursuit across country where exhaustion kills before the jaws arrive. A dire-wolf does not need supernatural ornament to feel mythic; scale, pack confidence and relentless motion are enough.
+
+                They serve as pack-lords, wilderness punishments and the kind of predator that changes travel routes. A single dire-wolf is a crisis; a pack suggests that the land itself has chosen teeth.
+                """,
                 "Dire-wolves fill the mythic niche of winter pack-lords and devastating pursuit predators, the sort of beasts that turn tracks, howls and dark tree lines into immediate threats.",
                 Variants(
                     ("a hulking dire-wolf",
@@ -501,7 +543,13 @@ public partial class MythicalAnimalSeeder
                 SizeCategory.VeryLarge,
                 "Bear",
                 GreatBeast(),
-                "Dire-bears are towering ursine horrors of immense mass, deep fur and ruinous claw strength.",
+                """
+                Dire-bears are immense ursine horrors, thick with fur, shoulder mass and ruinous claws. They retain the blunt solidity of ordinary bears, but expanded until every gesture feels capable of breaking timber, stone or bone.
+
+                Their menace is not speed or cunning display, but occupying space with total physical certainty. Caves, old forests and mountain passes feel different when a dire-bear claims them, because retreat becomes the sensible shape of survival.
+
+                They make excellent ancient den-lords, forest tyrants and frontier nightmares. People may speak of them as spirits of wilderness anger or simply as animals too large to reason with; either reading works once one is close enough to smell it.
+                """,
                 "Dire-bears usually stand in myth as ancient den-lords, forest tyrants and unstoppable wilderness threats whose mere presence can empty roads, camps and frontier holdings.",
                 Variants(
                     ("a mountain-sized dire-bear",
@@ -525,7 +573,13 @@ public partial class MythicalAnimalSeeder
                 "Human Male",
                 "Human Female",
                 StandardHumanoid(),
-                "Minotaurs are broad, horned humanoids with a bestial cast to their features and physiques.",
+                """
+                Minotaurs are broad horned humanoids whose bodies carry the force of a bull without surrendering personhood. Heavy brows, deep chests, thick necks and sweeping horns make them immediately imposing, especially in enclosed places where their charge has nowhere to dissipate.
+
+                They are shaped for labour, intimidation and brutal close fighting, but their mythic strength is also architectural. Corridors, gates, arenas and maze-like strongholds suit them because their sheer build makes every narrow passage feel contested.
+
+                A minotaur can be warrior, guardian, exile, citizen or monster depending on the society around it. What remains constant is the pressure of contained force: a person whose physical presence makes diplomacy, fear and violence share the same room.
+                """,
                 "Minotaurs are commonly cast as warriors, guardians and dwellers of enclosed strongholds, their size and imposing presence making them natural figures of labour, soldiery and intimidation in mythic societies.",
                 [
                     Attack("Horn Gore", ItemQuality.Standard, "rhorn", "lhorn"),
@@ -550,7 +604,13 @@ public partial class MythicalAnimalSeeder
                 SizeCategory.VeryLarge,
                 "Horse",
                 GreatBeast(),
-                "Eastern dragons are long, sinuous drakes that prowl on four clawed limbs without relying on wings for flight.",
+                """
+                Eastern dragons are long, sinuous drakes whose clawed limbs and flowing bodies carry majesty without the need for wings. Their motion suggests river current, cloud-drift and coiled strength, with ornament and scale arranged into a profile of ancient authority.
+
+                They feel less like hoard-bound beasts than powers of movement and season. Waterways, storms, imperial courts and mountain cloud can all become natural theatres for them, because their shape implies rulership over change rather than simple predation.
+
+                Where one appears, people tend to read omen before animal. An eastern dragon may bless, threaten, test, advise or destroy, but it arrives with the gravity of something that has watched dynasties, floods and vows outlive their makers.
+                """,
                 "Eastern dragons often appear as imperial, spiritual or elemental beings rather than mere monsters, entwined with rivers, weather, dynasties and the idea of ancient, watchful power.",
                 Variants(
                     ("a long-bodied eastern dragon",
@@ -580,7 +640,13 @@ public partial class MythicalAnimalSeeder
                 "Human Male",
                 "Human Female",
                 LongLivedHumanoid(),
-                "Naga are humanoid from the waist up, with serpentine lower bodies and a sinuous, coiled bearing.",
+                """
+                Nagas are serpent-bodied people, humanoid from the waist up and powerful through the coiling length below. Their posture is courtly and dangerous at once, because the same body that can recline in ceremony can also strike, bind and rise with sudden force.
+
+                They suit river temples, marsh courts, old libraries and thresholds where patience is a political weapon. Scales, careful hands, still eyes and low-centred movement make them feel grounded in water, stone and ritual rather than ordinary settlement life.
+
+                As a people, naga can be nobles, guardians, scholars, sorcerers or hidden neighbours. Their danger is not merely venom or strength, but the impression that they think in longer coils than those who bargain with them.
+                """,
                 "Naga usually occupy the role of riverine nobles, temple guardians or old marsh powers, creatures whose poise and patience make them feel as political and ceremonial as they are dangerous.",
                 [
                     Attack("Carnivore Bite", ItemQuality.Standard, "mouth"),
@@ -604,7 +670,13 @@ public partial class MythicalAnimalSeeder
                 "Human Male",
                 "Human Female",
                 LongLivedHumanoid(),
-                "Merfolk have human torsos and arms paired with powerful piscine tails built for swimming.",
+                """
+                Mermaids and merfolk join recognisably human torsos and arms to powerful piscine tails. The form is intimate and alien at once: a person from the shoulders upward, a creature of current, scale and depth below.
+
+                For them, land feels temporary. Hands can trade, beckon, rescue or threaten, but the tail belongs to reefs, kelp-dark water and long movement beneath the surface, where ordinary human grace would fail almost immediately.
+
+                They are shoreline enigmas, sea-dwellers, raiders, singers, traders and guardians depending on the culture that knows them. A merfolk presence turns any meeting at the water's edge into an exchange between two incompatible homes.
+                """,
                 "Merfolk usually fill the mythic niche of sea-dwellers, reef guardians and shoreline enigmas, engaging with landfolk through trade, song, rescue, raiding or careful distance depending on the setting.",
                 [
                     Attack("Carnivore Bite", ItemQuality.Bad, "mouth"),
@@ -626,7 +698,13 @@ public partial class MythicalAnimalSeeder
                 SizeCategory.Large,
                 "Big Felid",
                 GreatBeast(),
-                "Manticores are broad-winged leonine predators with a venomous tail-spike.",
+                """
+                Manticores are leonine winged predators armed with a venomous tail-spike. The body promises layered danger: claws at the first rush, jaws at close range, wings for sudden approach, and a tail that keeps threatening even when the front of the beast is checked.
+
+                They belong to badlands, lonely heights, caravan roads and ruined watchposts where rumour travels faster than certainty. Their silhouette is memorable enough that witnesses embroider it, but the practical facts are simple: a manticore can reach, maul and poison from too many angles.
+
+                They work as nightmare apex predators rather than ordinary wildlife. Hunters, travellers and border guards learn to treat each reported sighting as serious, because underestimating one means being wrong only once.
+                """,
                 "Manticores occupy the role of nightmare apex predators, the sort of thing that turns caravan routes, borderlands and lonely heights into places where every rumour deserves to be believed.",
                 Variants(
                     ("a stinger-tailed manticore",
@@ -659,7 +737,13 @@ public partial class MythicalAnimalSeeder
                 SizeCategory.Large,
                 "Raptor",
                 GreatBeast(),
-                "Wyverns are draconic two-legged fliers, all leathery wings, grasping talons and snapping jaws.",
+                """
+                Wyverns are two-legged draconic fliers, leaner and more openly predatory than true dragons. Leathery wings, taloned legs, snapping jaws and a lashing tail give them a stripped-down brutality, as if every part of the body exists for diving, seizing and tearing.
+
+                They favour cliffs, ruins, dry ranges and hard open air where altitude decides survival. A wyvern does not carry the patient authority of a dragon; it carries the hunger of something that wants the high ground and punishes anything crossing below it.
+
+                They are raiders of herds, terror of lonely roads and vicious trophies for those who claim to master the sky. Their role is simple but potent: flight made savage enough to alter how people move through exposed country.
+                """,
                 "Wyverns are often treated as brutal cousins to true dragons, less regal but no less feared, and they commonly dominate cliffs, ruins and badlands where flight and aggression decide territory.",
                 Variants(
                     ("a taloned wyvern",
@@ -686,7 +770,13 @@ public partial class MythicalAnimalSeeder
                 SizeCategory.Large,
                 "Raptor",
                 GreatBeast(),
-                "Fell beasts are vast, carrion-winged reptilian mounts with long necks, grasping talons and a hateful predatory bearing.",
+                """
+                Fell beasts are vast carrion-winged reptilian mounts with gaunt necks, grasping talons and a hateful downward focus. They look less like noble drakes than battlefield nightmares made to carry terror over walls and ranks.
+
+                The silhouette suggests endurance under burden as much as predation. A fell beast can circle, stoop, snatch and bear a rider through smoke or storm, but nothing about it feels domesticated; obedience seems wrung from fear, cruelty or a darker bond.
+
+                They suit black cavalry, mountain eyries and ominous flights over threatened lands. Even without a rider, one makes the sky feel occupied by hostile intent.
+                """,
                 "Fell beasts fit dark-rider, war-mount and aerial terror roles, giving builders a ready stock creature for evil cavalry, mountain eyries, siege scouting or ominous flights over threatened lands.",
                 Variants(
                     ("a carrion-winged fell beast",
@@ -713,7 +803,13 @@ public partial class MythicalAnimalSeeder
                 SizeCategory.Normal,
                 "Raptor",
                 GreatBeast(),
-                "Phoenixes are radiant birds of fire and ash, here seeded without any resurrection-specific mechanics.",
+                """
+                Phoenixes are radiant firebirds whose beauty carries heat, ash and renewal in equal measure. They resemble great raptors or ceremonial birds, but light clings to them in a way that makes ordinary plumage seem dull and temporary.
+
+                Their importance is symbolic before it is tactical. Feathers, ember-bright eyes and furnace-coloured wings make the phoenix a walking omen of endings that refuse to stay ended, even where no literal rebirth is assumed.
+
+                They may be sacred beasts, fire-spirits, rare predators or living signs kept far from common touch. A phoenix is beautiful enough to draw reverence and dangerous enough to punish anyone who mistakes beauty for safety.
+                """,
                 "Phoenixes fill the symbolic role of sacred fire, omen and renewal, but even stripped of miraculous mechanics they remain rare, intimidating creatures whose beauty does not make them safe.",
                 Variants(
                     ("a radiant phoenix",
@@ -736,7 +832,13 @@ public partial class MythicalAnimalSeeder
                 SizeCategory.Normal,
                 "Serpent",
                 GreatBeast(),
-                "Basilisks are immense, sinister serpents famed for their malignant aspect and deadly bite.",
+                """
+                Basilisks are immense sinister serpents whose stillness feels malignant rather than merely patient. Their coils have the weight of old venom, and their gaze makes the air around them feel unsafe even before the strike comes.
+
+                They belong to ruins, tombs, dry wells and desolate ground where life has already learned to keep its distance. A basilisk does not need to be enormous in every telling; what matters is the concentrated impression of poison, curse and predatory certainty.
+
+                They serve as lurking calamities, not animals to be studied casually. Tracks, shed skin or the silence of nearby creatures can be enough to make sensible travellers turn back.
+                """,
                 "Basilisks are classic terror-beasts of ruins, tombs and desolate places, remembered less as animals to study than as lurking calamities whose presence can poison whole stretches of land or memory.",
                 Variants(
                     ("a heavy-coiled basilisk",
@@ -759,7 +861,13 @@ public partial class MythicalAnimalSeeder
                 SizeCategory.Small,
                 "Small Bird",
                 Beast(),
-                "Cockatrices are vicious little reptilian birds with pecking beaks and slashing talons.",
+                """
+                Cockatrices are vicious little reptilian birds, all stabbing beak, clawed feet and spiteful motion. Their size makes them easy to underestimate, which is part of their danger around farms, granaries, yards and broken stone.
+
+                They carry the nuisance energy of barnyard fowl twisted into something sharper and less forgiving. Scaled patches, stiff feathers and restless pecking give them a half-domestic, half-monstrous quality that makes them especially unwelcome near food stores or children.
+
+                They work as invasive pests, cursed omens and small hazards that multiply into real trouble. A cockatrice rarely dominates a landscape, but it can make a familiar corner of that landscape feel treacherous.
+                """,
                 "Cockatrices fill the ecological niche of invasive, spiteful scavenger-predators in many stories, and their small size only makes them more troublesome around farms, granaries and rocky ruins.",
                 Variants(
                     ("a reptilian cockatrice",
@@ -782,7 +890,13 @@ public partial class MythicalAnimalSeeder
                 SizeCategory.Large,
                 "Giant Insect",
                 GreatBeast(),
-                "Giant beetles are heavily armoured insects enlarged to the scale of mounts or siege vermin, with crushing mandibles and hard chitin plates.",
+                """
+                Giant beetles are armoured insects enlarged until chitin becomes architecture. Heavy shells, crushing mandibles and deliberate movement give them the presence of living siege equipment rather than ordinary vermin.
+
+                Their strength is blunt resilience. Blades, claws and panic all meet the same hard casing, while the beetle continues forward with a slow insistence that makes cramped tunnels or courtyards feel smaller by the moment.
+
+                They can be dungeon vermin, battlefield beasts, uncanny mounts or labour creatures kept by societies willing to live beside huge clicking mandibles. Whether feared or harnessed, they are valued for being difficult to stop.
+                """,
                 "Giant beetles commonly fill the role of living battering creatures, dungeon vermin or uncanny beasts of burden, valued and feared for the same brute resilience that makes them hard to kill.",
                 Variants(
                     ("a plate-backed giant beetle",
@@ -804,7 +918,13 @@ public partial class MythicalAnimalSeeder
                 SizeCategory.Large,
                 "Giant Insect",
                 GreatBeast(),
-                "Giant ants are outsized eusocial insects with chitinous bodies, crushing mandibles and the relentless purpose of a colony made monstrous.",
+                """
+                Giant ants are eusocial insects made monstrous, their segmented bodies and crushing jaws driven by the tireless logic of a colony. An individual is alarming; the thought of many moving with the same purpose is worse.
+
+                They turn soil, tunnels and earthen walls into organised territory. Antennae, mandibles and disciplined motion make them feel less like wandering beasts than extensions of a hidden command beneath the ground.
+
+                They suit hive warrens, siege tunnels and landscapes where numbers matter more than heroics. People fear giant ants not only because they bite, but because their labour can reshape the battlefield before anyone notices.
+                """,
                 "Giant ants commonly fill the niche of hive-tunnel vermin, uncanny labour-beasts and living siege pests, creatures whose discipline and numbers can make even simple burrows feel militarised.",
                 Variants(
                     ("an iron-jawed giant ant",
@@ -826,7 +946,13 @@ public partial class MythicalAnimalSeeder
                 SizeCategory.Large,
                 "Giant Insect",
                 GreatBeast(),
-                "Giant mantises are towering predatory insects whose grasping forelegs and triangular heads make them look like ambush made flesh.",
+                """
+                Giant mantises are towering predatory insects whose folded forelegs look like weapons held in prayer. Their triangular heads and rigid patience give them a terrible stillness, as though the entire body has become a trap waiting for permission to close.
+
+                Camouflage, height and sudden reach define them. A giant mantis can vanish among trees, carved pillars or tall reeds until movement betrays prey, then convert silence into violence in a single precise strike.
+
+                They work as garden horrors, temple guardians, jungle ambushers and sacred predators in cultures that respect patience as a form of cruelty. Their danger lies in how little warning they need.
+                """,
                 "Giant mantises usually occupy the niche of patient killer-beasts and temple-garden horrors, creatures remembered for stillness, sudden violence and an unnerving impression of intent.",
                 Variants(
                     ("a scythe-limbed giant mantis",
@@ -849,7 +975,13 @@ public partial class MythicalAnimalSeeder
                 SizeCategory.Large,
                 "Giant Arachnid",
                 GreatBeast(),
-                "Giant spiders are monstrous web-spinners with long stabbing legs, clustered eyes and fangs large enough to punch through armour gaps.",
+                """
+                Giant spiders are monstrous web-spinners with long stabbing legs, clustered eyes and fangs too large to dismiss as mere nuisance. The whole shape is built for patience, angles and the sudden conversion of stillness into murder.
+
+                Silk changes the territory around them. Ruins, caverns and forest canopies become layered with paths, snares and hidden retreats, so that the spider's presence is felt before the spider itself appears.
+
+                They are lair predators and ambush horrors, especially effective where visibility is broken and ceilings matter. A giant spider turns architecture and woodland into a question: what has already been prepared above you?
+                """,
                 "Giant spiders commonly fill the niche of ambush horrors and lair-predators, creatures that turn ruins, caverns and forest canopies into places people cross only with dread.",
                 Variants(
                     ("a web-dark giant spider",
@@ -873,7 +1005,13 @@ public partial class MythicalAnimalSeeder
                 SizeCategory.Large,
                 "Giant Scorpion",
                 GreatBeast(),
-                "Giant scorpions are armoured arachnid horrors with grasping pedipalps and a venom-laden tail arched high above the body.",
+                """
+                Giant scorpions are armoured arachnid horrors with broad pincers and a venomous tail carried like a drawn spear. Every part of the animal advertises threat, from the low plated body to the slow deliberate lift of the stinger.
+
+                They suit dry ruins, desert flats and stone hollows where a patient ambusher can wait in heat and shadow. Their claws make escape difficult, while the tail keeps danger poised even when the front of the creature is occupied.
+
+                They are apex vermin of harsh places, useful as guardian beasts only to those willing to risk being remembered as fools. A giant scorpion makes open ground feel like a kill zone.
+                """,
                 "Giant scorpions usually occupy the niche of desert apex vermin and ruin-haunters, monstrous ambush predators whose claws and tail make even open ground feel like a kill zone.",
                 Variants(
                     ("a barbed giant scorpion",
@@ -900,7 +1038,13 @@ public partial class MythicalAnimalSeeder
                 SizeCategory.Large,
                 "Giant Centipede",
                 GreatBeast(),
-                "Giant centipedes are long, many-legged horrors with rippling segmented bodies and venomous-looking mandibles large enough to tear flesh.",
+                """
+                Giant centipedes are elongated predators of chitin, rippling legs and venomous mouthparts. Their movement is often the most disturbing part: a wave of limbs carrying a narrow hunger forward through gaps that look too small for anything so large.
+
+                They belong to cracks, culverts, root-tangles and buried passages where length is an advantage and panic favours the creature behind you. The head appears first, but the body keeps coming, making pursuit feel almost endless.
+
+                They serve as tunnel terrors and ruin-crawlers, less majestic than dragons and more intimate in their horror. A giant centipede makes darkness feel crowded.
+                """,
                 "Giant centipedes fill the role of burrowing terror and ruin-crawler, the sort of subterranean menace that turns cracks, culverts and cellar dark into things worth fearing.",
                 Variants(
                     ("a rippling giant centipede",
@@ -922,7 +1066,13 @@ public partial class MythicalAnimalSeeder
                 SizeCategory.Large,
                 "Giant Worm",
                 GreatBeast(),
-                "Giant worms are immense burrowers of ringed flesh and grinding mouths, built to tunnel through earth and swallow prey whole.",
+                """
+                Giant worms are immense burrowers of ringed flesh and grinding mouths, built for soil, pressure and appetite. They have little of a predator's elegance, but their simple forward hunger is frightening because the ground itself becomes their cover.
+
+                Their passage leaves churned earth, collapsed galleries and sudden holes where safety used to be. The absence of eyes or expression makes them worse, turning them into a muscular event rather than an animal with moods to read.
+
+                They work as subterranean hazards, chthonic monsters and living disasters beneath farms, roads and fortifications. A giant worm does not need malice to be ruinous; movement is enough.
+                """,
                 "Giant worms fill the role of chthonic hazard and living natural disaster, the sort of subterranean terror that makes roads, farms and city foundations feel provisional at best.",
                 Variants(
                     ("a burrowing giant worm",
@@ -946,7 +1096,13 @@ public partial class MythicalAnimalSeeder
                 SizeCategory.VeryLarge,
                 "Colossal Worm",
                 GreatBeast(),
-                "Colossal worms are vast subterranean predators whose tunnel-boring bulk and circular jaws make them feel more like moving geology than living flesh.",
+                """
+                Colossal worms are vast subterranean predators whose bulk makes them feel like moving geology. Their circular jaws, endless ringed bodies and tunnel-boring strength place them beyond ordinary hunting into the realm of landscape-scale danger.
+
+                Where one moves, roads buckle, wells vanish and fortifications discover that foundations are only promises made to the earth. Its body is so large that people may meet the effects of its passage long before they understand there is a creature beneath them.
+
+                They are land-swallowing behemoths and siege-breaking terrors. A colossal worm changes the question from how to kill a monster to whether the ground can be trusted at all.
+                """,
                 "Colossal worms occupy the mythic niche of land-swallowing behemoths and siege-breaking burrowers, creatures large enough to turn settlement and battlefield alike into unstable ground.",
                 Variants(
                     ("a land-swallowing colossal worm",
@@ -970,7 +1126,13 @@ public partial class MythicalAnimalSeeder
                 SizeCategory.VeryLarge,
                 "Giant Centipede",
                 GreatBeast(),
-                "Ankhegs are immense burrowing arthropods with powerful mandibles and corrosive acid they can spit at prey or intruders.",
+                """
+                Ankhegs are immense burrowing arthropods with plated bodies, powerful mandibles and corrosive acid. They combine the tunnelling threat of a subterranean beast with the ranged danger of something that can spit ruin before closing to bite.
+
+                Their territory is marked by sudden sinkholes, cut roots, acrid residue and earthworks that look too purposeful for weather. When an ankheg erupts from below, armour and walls feel less reassuring than they did moments earlier.
+
+                They fit farmland horror, siege vermin and buried border threats. An ankheg makes ordinary ground defensive terrain for the monster, not for those standing on it.
+                """,
                 "Ankhegs usually occupy the niche of siege vermin and subterranean apex predators, monstrous tunnelers whose acid and sudden eruptions make farmland, roads and fortifications feel insecure.",
                 Variants(
                     ("an acid-spitting ankheg",
@@ -993,7 +1155,13 @@ public partial class MythicalAnimalSeeder
                 SizeCategory.Large,
                 "Horse",
                 GreatBeast(),
-                "Hippocamps marry an equine forebody to a powerful fish-tail suited to open water.",
+                """
+                Hippocamps are aquatic myth-beasts with equine forebodies flowing into powerful fish-tails. Their lifted necks and horse-like chests suggest pride and trainability, while the tail places their true strength in surf, current and open water.
+
+                They make the sea feel rideable without making it tame. A hippocamp can rear among waves, tow through foam or vanish beneath green water, carrying the familiar dignity of a horse into a medium that refuses ordinary hooves.
+
+                They serve as sacred sea-herd animals, ceremonial mounts and elusive prizes for coastal peoples. Their presence turns harbours, reefs and beaches into places where pageantry and danger share the tide.
+                """,
                 "Hippocamps often serve as steeds, sacred sea-herd animals or elusive prizes for coastal peoples, their strange shape making them valuable to myth, pageantry and any culture that dreams of riding the surf.",
                 Variants(
                     ("a sea-tailed hippocamp",
@@ -1017,7 +1185,13 @@ public partial class MythicalAnimalSeeder
                 "Human Male",
                 "Human Female",
                 LongLivedHumanoid(),
-                "Selkies are graceful seal-folk who can move comfortably between shore and sea.",
+                """
+                Selkies are graceful seal-folk who move between shore and sea, carrying the softness of human society and the sleek reserve of cold water in the same body. Even in human shape, they often seem oriented toward tide, rock and departure.
+
+                Their strangeness is liminal rather than monstrous. Smooth movement, watchful eyes and sea-born composure mark them as people of coves and islands, at home in the spaces where landfolk become uncertain and the water takes over.
+
+                They are traders, kin, lovers, exiles, rescuers or secretive neighbours depending on the coast that knows them. A selkie brings with them the ache of two homes and the knowledge that neither fully releases its claim.
+                """,
                 "Selkies usually inhabit the role of liminal coastal people, bound to coves, islands and cold waters, where they are known through trade, kinship, secrecy and stories of departure and return.",
                 [
                     Attack("Carnivore Bite", ItemQuality.Bad, "mouth"),
@@ -1039,7 +1213,13 @@ public partial class MythicalAnimalSeeder
                 "Human Male",
                 "Human Female",
                 LongLivedHumanoid(),
-                "Myconids are humanoid fungal folk with broad caps, soft flesh and an unsettlingly quiet demeanor.",
+                """
+                Myconids are humanoid fungal folk with cap-like heads, spongy flesh and a silence that feels communal rather than empty. They seem grown into personhood rather than born in the ordinary animal sense.
+
+                Spores, damp darkness and patient exchange shape their presence. A myconid settlement is likely to feel less like a town than a living network of shared breath, hidden messages and slow decisions made beneath stone.
+
+                They serve as underworld neighbours, spore-keepers, strange diplomats and eerie communities whose customs follow biology before politics. They are not automatically hostile, but they are never entirely familiar.
+                """,
                 "Myconids usually occupy the mythic niche of hidden underworld communities, patient spore-keepers and eerie but not always hostile neighbours whose alien biology shapes every custom they keep.",
                 Variants(
                     ("a cap-headed myconid",
@@ -1066,7 +1246,13 @@ public partial class MythicalAnimalSeeder
                 "Human Male",
                 "Human Female",
                 LongLivedHumanoid(),
-                "Plantfolk are humanoid vegetative beings of bark, fibre and leaf.",
+                """
+                Plantfolk are humanoid vegetative beings of bark, fibre, stem and leaf. They stand close enough to personhood to speak, work and remember, yet every surface of them suggests growth rather than flesh.
+
+                Season, light and soil matter to them in ways ordinary cultures cannot ignore. Their gestures may seem slow or deliberate, but the patience is not emptiness; it is the rhythm of something that measures change by rooting, blooming and withering.
+
+                They can be gardeners, wardens, elders, wanderers or whole societies shaped by climate and place. A plantfolk presence makes the natural world feel less like a backdrop and more like a participant with a face.
+                """,
                 "Plantfolk often stand in myth as wardens, gardeners, slow-speaking elders or embodiments of a place itself, with social rhythms shaped by season, light, soil and patient memory.",
                 Variants(
                     ("a bark-skinned plantfolk",
@@ -1089,7 +1275,13 @@ public partial class MythicalAnimalSeeder
                 "Large Ungulate",
                 "Large Ungulate",
                 LongLivedHumanoid(),
-                "Ents are towering treefolk of bark, root and living wood whose movements feel ponderous only until they decide to act.",
+                """
+                Ents are towering treefolk of bark, root and living wood, so large that personhood has to be read through the shape of trunk, branch and slow intent. Their movements feel ponderous only until one remembers how much mass is moving.
+
+                They carry old forest memory in every knot, leaf and root-heavy limb. Knots, leaves, moss and root-heavy feet suggest seasons survived, fires remembered and paths watched long after shorter-lived peoples forgot why they mattered.
+
+                They are wardens, shepherds and terrifying avengers of woodland places. An ent makes any forest negotiation feel unequal, because the other party may be speaking for centuries of patience.
+                """,
                 "Ents usually fill the role of ancient wardens, forest shepherds and patient but terrifying avengers, beings whose scale and age make most mortal concerns seem brief and hurried.",
                 Variants(
                     ("a bark-armoured ent",
@@ -1117,7 +1309,13 @@ public partial class MythicalAnimalSeeder
                 SizeCategory.Large,
                 "Large Ungulate",
                 GreatBeast(),
-                "Huorns are dark, half-wild tree-beings: less openly personlike than ents, but still capable of movement, hunger and terrible intent.",
+                """
+                Huorns are dark half-wild tree-beings, less openly social than ents and harder to distinguish from hostile woodland until they move. The silhouette keeps the ambiguity of trunks and branches while adding hunger, anger and slow pursuit.
+
+                They make stillness threatening. A huorn may stand like a tree for long stretches, then drag root and limb into motion with the terrible suggestion that the forest has decided to walk after all.
+
+                They are old-wood hazards, angry guardians and marching trees for places where the boundary between plant and person has gone wrong. Travellers fear huorns because the safest-looking grove may already be watching.
+                """,
                 "Huorns work as dangerous old-forest hazards, angry woodland guardians and uncanny marching trees for games that want tree-shepherd ecology without making every awakened tree a social NPC.",
                 Variants(
                     ("a shadowed huorn",
@@ -1146,7 +1344,13 @@ public partial class MythicalAnimalSeeder
                 "Human Male",
                 "Human Female",
                 LongLivedHumanoid(),
-                "Dryads are graceful tree-spirits whose forms remain recognisably humanoid while still carrying the living marks of bark, bloom and leaf.",
+                """
+                Dryads are graceful tree-spirits whose humanoid forms carry bark-grain, leaf, blossom and the poise of living wood. Their beauty is not decorative alone; it is inseparable from place, season and the fierce intimacy of a chosen grove.
+
+                They often seem less like visitors than expressions of the trees around them. A dryad's mood can make a glade feel welcoming, judging or dangerous, and even gentle movement may echo wind through branches rather than ordinary flesh.
+
+                They are grove-keepers, emissaries, tempters, guardians and spirits of rooted memory. To deal with a dryad is rarely to deal with one person only; it is to meet a place in human shape.
+                """,
                 "Dryads usually occupy the niche of grove-keepers, emissaries of old forests and alluring but dangerous spirits of place, balancing beauty, patience and a fierce protectiveness toward their homes.",
                 [
                     Attack("Jab", ItemQuality.Bad, "rhand", "lhand"),
@@ -1171,7 +1375,13 @@ public partial class MythicalAnimalSeeder
                 "Human Male",
                 "Human Female",
                 LongLivedHumanoid(),
-                "Owlkin are feathered, winged people with a keen gaze and a marked avian cast.",
+                """
+                Owlkin are feathered, winged people with broad faces, intense eyes and the quiet authority of nocturnal hunters. Their avian cast marks them without erasing their personhood, giving them a body suited to silence, height and sudden attention.
+
+                They belong naturally to roosts, towers, cliff settlements, night libraries and sentry posts. Feathers soften their outline, but the eyes sharpen it again, making their stillness feel observant rather than passive.
+
+                As a people, owlkin can be scholars, scouts, hunters, judges or watchful neighbours. Their presence brings the habits of the night into social space: patience, listening and the sense that little has gone unnoticed.
+                """,
                 "Owlkin commonly fill the role of nocturnal scholars, hunters and sentries, their cultural identity often bound to keen perception, silence, altitude and a strong sense of territory.",
                 [
                     Attack("Jab", ItemQuality.Standard, "rhand", "lhand"),
@@ -1201,7 +1411,13 @@ public partial class MythicalAnimalSeeder
                 "Human Male",
                 "Human Female",
                 LongLivedHumanoid(),
-                "Avian people are broad-winged birdfolk whose forms remain largely humanoid aside from their wings and avian features.",
+                """
+                Avian people are broad-winged birdfolk whose forms remain largely humanoid while carrying feathers, wings and birdlike lines of face or limb. They read as citizens of height and air rather than monsters, but the body changes every assumption about movement.
+
+                Roosting space, weather, lift and vantage shape how they live. Their wings are practical anatomy and social fact at once, influencing architecture, clothing, labour, defence and the politics of who controls the high places.
+
+                They can be aerial scouts, couriers, artisans, soldiers or whole cultures organised around wind and vertical distance. An avian person makes a room feel built too low unless it has learned to include the sky.
+                """,
                 "Avian peoples usually read as aerial citizens rather than monsters, with cultures oriented toward roosting space, wind, lookout duties and the practical consequences of living with wings and height.",
                 [
                     Attack("Jab", ItemQuality.Standard, "rhand", "lhand"),
@@ -1231,7 +1447,13 @@ public partial class MythicalAnimalSeeder
                 "Horse",
                 "Horse",
                 LongLivedHumanoid(),
-                "Centaurs combine human torsos and arms with a four-legged equine lower body.",
+                """
+                Centaurs combine human torsos and arms with four-legged equine bodies, creating people whose scale, speed and stability differ sharply from ordinary humanoids. They are not riders and mounts fused for convenience; they are a complete body with its own balance and dignity.
+
+                Open country suits them because distance answers the form. A centaur's stride changes travel, warfare, grazing, architecture and social etiquette, while the human upper body keeps tools, speech and gesture fully in play.
+
+                They are natural nomads, outriders, herders, border guardians or settled peoples who must build the world to their own measure. A centaur makes the horizon feel socially relevant.
+                """,
                 "Centaurs are frequently cast as nomads, outriders and peoples of open country, their societies shaped by speed, horizon, herd memory and a bodily scale that changes how they build, travel and fight.",
                 [
                     Attack("Hoof Stomp", ItemQuality.Good, "rfhoof", "lfhoof", "rrhoof", "lrhoof"),
@@ -1253,7 +1475,13 @@ public partial class MythicalAnimalSeeder
                 SizeCategory.Large,
                 "Horse",
                 GreatBeast(),
-                "Pegacorns combine the broad wings of a pegasus with the spiralled horn of a unicorn.",
+                """
+                Pegacorns combine the wings of a pegasus with the spiralled horn of a unicorn, giving the equine form both skyward power and sacred focus. They look almost impossible even beside other mythic horses, as if two separate omens had agreed to share one body.
+
+                The wings promise speed, escape and command of open air; the horn adds judgment, sanctity and the danger of being chosen or refused. Around a pegacorn, ceremony comes easily because the creature already looks like a rare event.
+
+                They serve as impossible mounts, heraldic wonders and signs of extraordinary favour. A pegacorn should feel scarce, coveted and difficult to approach without turning the encounter into a test.
+                """,
                 "Pegacorns occupy the rarest and most ceremonial niche of the winged equines, appearing in myths as omens, impossible mounts and embodiments of wonder that blend swiftness with sanctity.",
                 Variants(
                     ("a horned winged pegacorn",
@@ -1283,7 +1511,13 @@ public partial class MythicalAnimalSeeder
                 SizeCategory.Large,
                 "Horse",
                 GreatBeast(),
-                "Qilin are antlered or horned auspicious beasts, often imagined with deerlike grace, scaled hides and a solemn supernatural presence.",
+                """
+                Qilin are auspicious horned beasts of deerlike grace, scaled ornament and solemn presence. The form balances gentleness and authority, giving the impression that each step has been considered before the hoof touches ground.
+
+                They carry the atmosphere of wise rule, sacred warning and restrained power. Horn, mane, scale and gaze make them beautiful, but not tame; a qilin's calm feels conditional on the moral shape of what stands before it.
+
+                They are omens, guardian beasts and rare signs that a place or person has drawn numinous attention. A qilin encounter should feel less like spotting wildlife and more like being quietly weighed.
+                """,
                 "Qilin commonly fill the role of sacred omens, guardian beasts and symbols of wise rule, appearing less as ordinary mounts than as rare signs that a place or person has drawn the attention of the numinous world.",
                 Variants(
                     ("a scale-maned qilin",
@@ -1309,7 +1543,13 @@ public partial class MythicalAnimalSeeder
                 SizeCategory.Large,
                 "Raptor",
                 GreatBeast(),
-                "Garudas are immense mythic birds of prey, radiant and fierce, with the bearing of divine hunters rather than ordinary animals.",
+                """
+                Garuda are immense mythic birds of prey with radiant bearing and devastating talons. They resemble raptors raised into sacred stature, every feathered line sharpened toward speed, height and violent purpose.
+
+                Their nature is bound to sky guardianship and serpent-slaying force. A garuda does not merely fly above the world; it watches from a domain where coils, lies and ground-bound threats can be seen and struck from impossible angles.
+
+                They may be royal messengers, divine hunters, protectors or terrifying enemies. Wherever they appear, the sky becomes an active power rather than empty distance.
+                """,
                 "Garudas are often cast as serpent-slayers, sky guardians and royal or sacred messengers, creatures whose aerial dominance makes them both protectors and devastating enemies.",
                 Variants(
                     ("a radiant garuda",
@@ -1333,7 +1573,13 @@ public partial class MythicalAnimalSeeder
                 SizeCategory.Large,
                 "Raptor",
                 GreatBeast(),
-                "Giant eagles are immense, keen-eyed raptors with the size and bearing to serve as sky-lords rather than ordinary birds.",
+                """
+                Giant eagles are immense keen-eyed raptors with the size and bearing to rule high thermals and remote eyries. Their wings can cast moving shadow over the ground, while their talons make the distance between sky and prey suddenly irrelevant.
+
+                They carry a fierce intelligence without needing humanoid expression. The hooked beak, gold-bright gaze and broad shoulders suggest a creature that understands territory, debt and insult in its own uncompromising way.
+
+                They can be noble allies, proud mounts, mountain powers or dangerous hunters. A giant eagle changes travel and warfare simply by existing above them.
+                """,
                 "Giant eagles are useful as noble aerial allies, remote mountain powers, dangerous rescue mounts or proud territorial hunters who can reshape travel and warfare wherever they nest.",
                 Variants(
                     ("a broad-winged giant eagle",
@@ -1363,7 +1609,13 @@ public partial class MythicalAnimalSeeder
                 SizeCategory.Large,
                 "Bear",
                 Beast(),
-                "Bunyips are ominous waterhole beasts, imagined as heavy, lurking predators of swamp, billabong and reed-choked dark.",
+                """
+                Bunyips are ominous waterhole beasts of swamp, billabong and reed-choked dark. Their forms are usually heavy, wet and half-hidden, defined as much by what the water conceals as by what the witness manages to see.
+
+                They make drinking places dangerous. Mud, ripples, sudden silence and the smell of stagnant water can all become part of the bunyip's presence, turning a practical stop on a journey into a boundary with the unknown.
+
+                They work as regional monsters, warning stories and wetland predators tied to places where settlement thins out. A bunyip should make shallow water feel deep enough to have intentions.
+                """,
                 "Bunyips work well as regional monsters tied to dangerous wetlands, warning stories and places where ordinary drinking water becomes a boundary between settlement and the unknown.",
                 Variants(
                     ("a mud-dark bunyip",
@@ -1387,7 +1639,13 @@ public partial class MythicalAnimalSeeder
                 SizeCategory.VeryLarge,
                 "Giant Worm",
                 GreatBeast(),
-                "Yacumama are enormous river serpents, vast enough in legend to make waterways themselves feel alive and hungry.",
+                """
+                Yacumama are enormous river serpents so vast that the waterway around them can seem alive. Their coils and head belong to flood, depth and moving current rather than the scale of ordinary snakes.
+
+                They are most frightening when only partly perceived: a swell against the current, a wake without a boat, a bank crumbling where no animal should be large enough to touch it. The river becomes both habitat and body.
+
+                They are guardians, devourers and mythic terrors of great waters. A yacumama encounter turns travel by canoe, ferry or riverbank into the question of whether the river permits passage.
+                """,
                 "Yacumama fit as mythic guardians or terrors of Amazonian-scale rivers, embodying flood, depth and the fear that the water below a canoe might move with its own will.",
                 Variants(
                     ("a river-vast yacumama",
@@ -1467,12 +1725,7 @@ public partial class MythicalAnimalSeeder
 
     internal static string BuildRaceDescriptionForTesting(MythicalRaceTemplate template)
     {
-        StockDescriptionVariant? supportingVariant = (template.DescriptionVariants ?? template.OverlayDescriptionVariants)?.FirstOrDefault();
-        return SeederDescriptionHelpers.JoinParagraphs(
-            SeederDescriptionHelpers.EnsureTrailingPeriod(template.Description),
-            supportingVariant?.FullDescription ?? $"This race is represented by the {template.Name} stock catalogue.",
-            SeederDescriptionHelpers.EnsureTrailingPeriod(template.RoleDescription)
-        );
+        return template.Description;
     }
 
     internal static string BuildEthnicityDescriptionForTesting(MythicalRaceTemplate template)

@@ -9,7 +9,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class BlankDatabaseSnapshotTests
 {
-	private const string LatestMigrationId = "20260523000000_CommoditySpoilageRules";
+	private const string LatestMigrationId = "20260616135417_DrugExpansionDependenceExposures";
 
     [TestMethod]
     public void CommittedBlankSnapshotManifest_TracksLatestMigration()

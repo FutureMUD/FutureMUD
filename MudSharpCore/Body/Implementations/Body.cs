@@ -861,6 +861,24 @@ public partial class Body : PerceiverItem, IBody
             }
         }
 
+        foreach (BodyDrugExposure exposure in body.BodiesDrugExposures)
+        {
+            var drug = Gameworld.Drugs.Get(exposure.DrugId);
+            if (drug is null)
+            {
+                continue;
+            }
+
+            _drugExposureRecords.Add(new DrugExposureRecord
+            {
+                Drug = drug,
+                Exposure = exposure.Exposure,
+                PeakExposure = exposure.PeakExposure,
+                WithdrawalIntensity = exposure.WithdrawalIntensity,
+                LastUpdatedAtUtc = exposure.LastUpdatedAtUtc
+            });
+        }
+
         CurrentStamina = body.CurrentStamina;
         CurrentBloodVolumeLitres = body.CurrentBloodVolume;
         // TotalBloodVolume depends on Character, so Character is responsible for setting it

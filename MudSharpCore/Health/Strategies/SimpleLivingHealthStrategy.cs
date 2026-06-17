@@ -10,6 +10,7 @@ using MudSharp.Form.Material;
 using MudSharp.Framework;
 using MudSharp.Framework.Units;
 using MudSharp.GameItems;
+using MudSharp.Health.Breathing;
 using MudSharp.Health.Wounds;
 using MudSharp.Models;
 using MudSharp.PerceptionEngine;
@@ -572,7 +573,12 @@ public class SimpleLivingHealthStrategy : BaseHealthStrategy
             }
 
             List<IInternalBleedingEffect> internalBleeders = charOwner.Body.EffectsOfType<IInternalBleedingEffect>().ToList();
-            double internalBleeding = internalBleeders.Sum(x => x.BloodlossPerTick);
+            double internalBleedingMultiplier = charOwner.Body.EffectsOfType<IBleedingModifierEffect>()
+                                                         .Where(x => x.Applies())
+                                                         .Aggregate(1.0,
+                                                             (current, effect) => current *
+                                                                 effect.InternalBleedingMultiplier);
+            double internalBleeding = internalBleeders.Sum(x => x.BloodlossPerTick * internalBleedingMultiplier);
             if (internalBleeding > 0)
             {
                 bool message = !thing.EffectsOfType<ISuppressBleedMessage>().Any() && charOwner.IsBreathing;
@@ -602,7 +608,7 @@ public class SimpleLivingHealthStrategy : BaseHealthStrategy
                         continue;
                     }
 
-                    effect.BloodlossTotal += effect.BloodlossPerTick;
+                    effect.BloodlossTotal += effect.BloodlossPerTick * internalBleedingMultiplier;
                     if (effect.Organ is LungProto)
                     {
                         airwayBlood += effect.BloodlossTotal;
@@ -697,11 +703,14 @@ public class SimpleLivingHealthStrategy : BaseHealthStrategy
                        double.Parse(charOwner.Gameworld.GetStaticConfiguration("HypoxiaFromHydratePerVolume"));
         }
 
+        double respirationHypoxiaMultiplier = charOwner.Body.RespirationHypoxiaDamageMultiplier();
         if (charOwner.NeedsToBreathe && !charOwner.CanBreathe)
         {
             charOwner.OutputHandler.Send("You can't breathe! You are suffocating!");
             foreach (IOrganProto organ in charOwner.Body.Organs)
             {
+                double suffocationDamage = respirationHypoxiaMultiplier * organ.HypoxiaDamagePerTick;
+                double totalHypoxiaDamage = respirationHypoxiaMultiplier * (organ.HypoxiaDamagePerTick + hypoxia);
                 IWound hypoxiaWound =
                     charOwner.Body.Wounds.FirstOrDefault(
                         x => x.Bodypart == organ && x.DamageType == DamageType.Hypoxia);
@@ -710,24 +719,25 @@ public class SimpleLivingHealthStrategy : BaseHealthStrategy
                     charOwner.Body.SufferDamage(new Damage
                     {
                         ActorOrigin = charOwner,
-                        DamageAmount = organ.HypoxiaDamagePerTick,
+                        DamageAmount = suffocationDamage,
                         DamageType = DamageType.Hypoxia,
                         Bodypart = organ,
-                        PainAmount = organ.HypoxiaDamagePerTick,
+                        PainAmount = suffocationDamage,
                         PenetrationOutcome = Outcome.NotTested
                     });
                     continue;
                 }
 
-                hypoxiaWound.OriginalDamage += organ.HypoxiaDamagePerTick + hypoxia;
-                hypoxiaWound.CurrentPain = hypoxiaWound.OriginalDamage + hypoxia;
-                hypoxiaWound.CurrentDamage = hypoxiaWound.OriginalDamage + hypoxia;
+                hypoxiaWound.OriginalDamage += totalHypoxiaDamage;
+                hypoxiaWound.CurrentPain = hypoxiaWound.OriginalDamage + respirationHypoxiaMultiplier * hypoxia;
+                hypoxiaWound.CurrentDamage = hypoxiaWound.OriginalDamage + respirationHypoxiaMultiplier * hypoxia;
             }
         }
         else if (hypoxia > 0)
         {
             foreach (IOrganProto organ in charOwner.Body.Organs)
             {
+                double hypoxiaDamage = respirationHypoxiaMultiplier * hypoxia;
                 IWound hypoxiaWound =
                     charOwner.Body.Wounds.FirstOrDefault(
                         x => x.Bodypart == organ && x.DamageType == DamageType.Hypoxia);
@@ -736,18 +746,18 @@ public class SimpleLivingHealthStrategy : BaseHealthStrategy
                     charOwner.Body.SufferDamage(new Damage
                     {
                         ActorOrigin = charOwner,
-                        DamageAmount = organ.HypoxiaDamagePerTick,
+                        DamageAmount = hypoxiaDamage,
                         DamageType = DamageType.Hypoxia,
                         Bodypart = organ,
-                        PainAmount = organ.HypoxiaDamagePerTick,
+                        PainAmount = hypoxiaDamage,
                         PenetrationOutcome = Outcome.NotTested
                     });
                     continue;
                 }
 
-                hypoxiaWound.OriginalDamage += hypoxia;
-                hypoxiaWound.CurrentPain = hypoxia;
-                hypoxiaWound.CurrentDamage = hypoxia;
+                hypoxiaWound.OriginalDamage += hypoxiaDamage;
+                hypoxiaWound.CurrentPain = hypoxiaDamage;
+                hypoxiaWound.CurrentDamage = hypoxiaDamage;
             }
         }
 
@@ -1026,27 +1036,38 @@ public class SimpleLivingHealthStrategy : BaseHealthStrategy
             return HealthTickResult.Unconscious;
         }
 
-        double maxStun = MaximumStunExpression.Evaluate(charOwner);
-        double maxPain = MaximumPainExpression.Evaluate(charOwner);
+        var consciousnessModifiers = charOwner.Body.EffectsOfType<IConsciousnessThresholdModifierEffect>()
+                                          .Where(x => x.Applies())
+                                          .ToList();
+        var painPassOutThresholdMultiplier = consciousnessModifiers.Aggregate(1.0,
+            (current, effect) => current * effect.PainPassOutThresholdMultiplier);
+        var stunUnconsciousThresholdMultiplier = consciousnessModifiers.Aggregate(1.0,
+            (current, effect) => current * effect.StunUnconsciousThresholdMultiplier);
+        var anesthesiaUnconsciousThresholdMultiplier = consciousnessModifiers.Aggregate(1.0,
+            (current, effect) => current * effect.AnesthesiaUnconsciousThresholdMultiplier);
+        double maxStun = MaximumStunExpression.Evaluate(charOwner) * stunUnconsciousThresholdMultiplier;
+        double maxPain = MaximumPainExpression.Evaluate(charOwner) * painPassOutThresholdMultiplier;
 
-        if (thing.Wounds.Sum(x => x.CurrentPain) >= maxPain)
+        if (thing.Wounds.Sum(x => x.CurrentPain) >= maxPain &&
+            !charOwner.Body.EffectsOfType<IPreventPassOut>().Any(x => x.Applies()))
         {
             return HealthTickResult.PassOut;
         }
 
-        if (thing.Wounds.Sum(x => x.CurrentStun) >= maxStun)
+        if (thing.Wounds.Sum(x => x.CurrentStun) >= maxStun &&
+            !charOwner.Body.EffectsOfType<IPreventPassOut>().Any(x => x.Applies()))
         {
             return HealthTickResult.Unconscious;
         }
 
         double anasthesia =
             charOwner.Body.EffectsOfType<Anesthesia>().Select(x => x.IntensityPerGramMass).DefaultIfEmpty(0).Sum();
-        if (anasthesia >= AnesthesiaDeathThreshold)
+        if (anasthesia >= AnesthesiaDeathThreshold * anesthesiaUnconsciousThresholdMultiplier)
         {
             return HealthTickResult.Dead;
         }
 
-        return anasthesia >= AnesthesiaUnconsciousThreshold
+        return anasthesia >= AnesthesiaUnconsciousThreshold * anesthesiaUnconsciousThresholdMultiplier
             ? HealthTickResult.Unconscious
             : HealthTickResult.None;
     }

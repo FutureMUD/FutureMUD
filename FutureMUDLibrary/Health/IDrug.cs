@@ -107,6 +107,88 @@ namespace MudSharp.Health
         public override string DatabaseString => $"{State} {PlaneId} {VisibleToDefaultPlane}";
     }
 
+    public class CoagulationAdditionalInfo : DrugAdditionalInfo
+    {
+        public required double ExternalBleedingMultiplier { get; set; }
+        public required double WoundReopenMultiplier { get; set; }
+        public required double InternalBleedingMultiplier { get; set; }
+
+        public override string DatabaseString =>
+            $"{ExternalBleedingMultiplier.ToString("R", System.Globalization.CultureInfo.InvariantCulture)} {WoundReopenMultiplier.ToString("R", System.Globalization.CultureInfo.InvariantCulture)} {InternalBleedingMultiplier.ToString("R", System.Globalization.CultureInfo.InvariantCulture)}";
+    }
+
+    public class RespirationAdditionalInfo : DrugAdditionalInfo
+    {
+        public required double BreathingDriveMultiplier { get; set; }
+        public required double HypoxiaDamageMultiplier { get; set; }
+        public required double AirwayToleranceMultiplier { get; set; }
+
+        public override string DatabaseString =>
+            $"{BreathingDriveMultiplier.ToString("R", System.Globalization.CultureInfo.InvariantCulture)} {HypoxiaDamageMultiplier.ToString("R", System.Globalization.CultureInfo.InvariantCulture)} {AirwayToleranceMultiplier.ToString("R", System.Globalization.CultureInfo.InvariantCulture)}";
+    }
+
+    public class NeedRateAdditionalInfo : DrugAdditionalInfo
+    {
+        public required double HungerMultiplier { get; set; }
+        public required double ThirstMultiplier { get; set; }
+        public required double DrunkennessMultiplier { get; set; }
+        public required bool AppliesToPassive { get; set; }
+        public required bool AppliesToActive { get; set; }
+
+        public override string DatabaseString =>
+            $"{HungerMultiplier.ToString("R", System.Globalization.CultureInfo.InvariantCulture)} {ThirstMultiplier.ToString("R", System.Globalization.CultureInfo.InvariantCulture)} {DrunkennessMultiplier.ToString("R", System.Globalization.CultureInfo.InvariantCulture)} {AppliesToPassive} {AppliesToActive}";
+    }
+
+    [Flags]
+    public enum DrugArousalMode
+    {
+        None = 0,
+        SleepInducing = 1 << 0,
+        SleepPreventing = 1 << 1,
+        PassOutResistance = 1 << 2,
+        Knockout = 1 << 3,
+        Stimulant = 1 << 4,
+        Sedative = 1 << 5
+    }
+
+    public class ArousalAdditionalInfo : DrugAdditionalInfo
+    {
+        public required DrugArousalMode Mode { get; set; }
+        public required double CheckBonusPerIntensity { get; set; }
+        public required double SleepIntensityThreshold { get; set; }
+        public required double KnockoutIntensityThreshold { get; set; }
+        public required double PainPassOutThresholdMultiplier { get; set; }
+        public required double StunUnconsciousThresholdMultiplier { get; set; }
+        public required double AnesthesiaUnconsciousThresholdMultiplier { get; set; }
+        public required double StaminaRegenMultiplier { get; set; }
+        public required double StaminaCostMultiplier { get; set; }
+
+        public override string DatabaseString =>
+            $"{(int)Mode} {CheckBonusPerIntensity.ToString("R", System.Globalization.CultureInfo.InvariantCulture)} {SleepIntensityThreshold.ToString("R", System.Globalization.CultureInfo.InvariantCulture)} {KnockoutIntensityThreshold.ToString("R", System.Globalization.CultureInfo.InvariantCulture)} {PainPassOutThresholdMultiplier.ToString("R", System.Globalization.CultureInfo.InvariantCulture)} {StunUnconsciousThresholdMultiplier.ToString("R", System.Globalization.CultureInfo.InvariantCulture)} {AnesthesiaUnconsciousThresholdMultiplier.ToString("R", System.Globalization.CultureInfo.InvariantCulture)} {StaminaRegenMultiplier.ToString("R", System.Globalization.CultureInfo.InvariantCulture)} {StaminaCostMultiplier.ToString("R", System.Globalization.CultureInfo.InvariantCulture)}";
+    }
+
+    public class DrugDependenceAdditionalInfo : DrugAdditionalInfo
+    {
+        public required double ExposureGainPerGram { get; set; }
+        public required double ExposureDecayPerDay { get; set; }
+        public required double ToleranceThreshold { get; set; }
+        public required double MinimumToleranceMultiplier { get; set; }
+        public required double WithdrawalThreshold { get; set; }
+        public required double WithdrawalDecayPerDay { get; set; }
+        public required List<DrugType> AffectedDrugTypes { get; set; }
+        public required double WithdrawalCheckPenalty { get; set; }
+        public required double WithdrawalHungerMultiplier { get; set; }
+        public required double WithdrawalThirstMultiplier { get; set; }
+        public required double WithdrawalStaminaRegenMultiplier { get; set; }
+        public required double WithdrawalStaminaCostMultiplier { get; set; }
+        public required double WithdrawalNauseaIntensity { get; set; }
+        public required double WithdrawalRageIntensity { get; set; }
+        public required double SleepPreventionThreshold { get; set; }
+
+        public override string DatabaseString =>
+            $"{ExposureGainPerGram.ToString("R", System.Globalization.CultureInfo.InvariantCulture)} {ExposureDecayPerDay.ToString("R", System.Globalization.CultureInfo.InvariantCulture)} {ToleranceThreshold.ToString("R", System.Globalization.CultureInfo.InvariantCulture)} {MinimumToleranceMultiplier.ToString("R", System.Globalization.CultureInfo.InvariantCulture)} {WithdrawalThreshold.ToString("R", System.Globalization.CultureInfo.InvariantCulture)} {WithdrawalDecayPerDay.ToString("R", System.Globalization.CultureInfo.InvariantCulture)} {WithdrawalCheckPenalty.ToString("R", System.Globalization.CultureInfo.InvariantCulture)} {WithdrawalHungerMultiplier.ToString("R", System.Globalization.CultureInfo.InvariantCulture)} {WithdrawalThirstMultiplier.ToString("R", System.Globalization.CultureInfo.InvariantCulture)} {WithdrawalStaminaRegenMultiplier.ToString("R", System.Globalization.CultureInfo.InvariantCulture)} {WithdrawalStaminaCostMultiplier.ToString("R", System.Globalization.CultureInfo.InvariantCulture)} {WithdrawalNauseaIntensity.ToString("R", System.Globalization.CultureInfo.InvariantCulture)} {WithdrawalRageIntensity.ToString("R", System.Globalization.CultureInfo.InvariantCulture)} {SleepPreventionThreshold.ToString("R", System.Globalization.CultureInfo.InvariantCulture)}|{AffectedDrugTypes.Select(x => ((int)x).ToString(System.Globalization.CultureInfo.InvariantCulture)).ListToCommaSeparatedValues(" ")}";
+    }
+
     public interface IDrug : IEditableItem, IProgVariable
     {
         DrugVector DrugVectors { get; }

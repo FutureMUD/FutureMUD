@@ -102,6 +102,7 @@ namespace MudSharp.Database
         public virtual DbSet<Board> Boards { get; set; }
         public virtual DbSet<Models.Body> Bodies { get; set; }
         public virtual DbSet<BodyDrugDose> BodiesDrugDoses { get; set; }
+        public virtual DbSet<BodyDrugExposure> BodiesDrugExposures { get; set; }
         public virtual DbSet<BodiesGameItems> BodiesGameItems { get; set; }
         public virtual DbSet<BodiesImplants> BodiesImplants { get; set; }
         public virtual DbSet<BodiesProsthetics> BodiesProsthetics { get; set; }

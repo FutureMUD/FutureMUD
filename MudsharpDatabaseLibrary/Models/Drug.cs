@@ -8,6 +8,7 @@ namespace MudSharp.Models
         public Drug()
         {
             BodiesDrugDoses = new HashSet<BodyDrugDose>();
+            BodiesDrugExposures = new HashSet<BodyDrugExposure>();
             DrugsIntensities = new HashSet<DrugIntensity>();
             Liquids = new HashSet<Liquid>();
         }
@@ -19,6 +20,7 @@ namespace MudSharp.Models
         public double RelativeMetabolisationRate { get; set; }
 
         public virtual ICollection<BodyDrugDose> BodiesDrugDoses { get; set; }
+        public virtual ICollection<BodyDrugExposure> BodiesDrugExposures { get; set; }
         public virtual ICollection<DrugIntensity> DrugsIntensities { get; set; }
         public virtual ICollection<Liquid> Liquids { get; set; }
     }

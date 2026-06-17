@@ -332,123 +332,45 @@ When adding a new delivery mechanism:
 5. Include originator objects when later removal or grouping matters.
 6. Add a seeded example only when the content package owns both the drug and the delivery wrapper.
 
-## Expansion Ideas
-These are strong candidates for future drug-effect families. They are deliberately framed as runtime slices rather than only content ideas, because each one opens a health-system interaction that the current effect catalogue does not model directly.
+## Implemented Expansion Families
+The following effect families are first-class drug types. They use the same `IDrug` intensity model as older effects, with structured `DrugAdditionalInfo` payloads where a single scalar is not enough.
 
 ### Coagulation And Bleeding Control
-Add a `DrugType.Coagulation` family for hemostatic and anticoagulant drugs.
+`DrugType.Coagulation` creates a `DrugCoagulationEffect` that implements `IBleedingModifierEffect`.
 
-Runtime shape:
-
-- Add a concrete `DrugCoagulationEffect` and an `IBleedingModifierEffect` interface.
-- Query the interface from external organic wound bleeding, trauma-controlled wound reopen checks, closed-wound failure checks, and `InternalBleeding`.
-- Treat positive intensity as clotting support and negative intensity as anticoagulation, or use payload mode flags if builder-facing clarity is preferred.
-- Keep the effect body-mass-normalised like most existing scalar drug effects.
-- No-op for bodies without blood, bodies whose race has no `BloodLiquid`, non-organic wound types that do not bleed, and bodies with no active bleeding or reopen checks to modify.
-
-Content enabled:
-
-- Injectable clotting agents for battlefield medicine.
-- Poisoned blades that keep wounds bleeding.
-- Venoms that create dangerous internal bleeding without adding direct cellular damage every heartbeat.
-- Low-tech styptic powders, yarrow preparations, and alchemical blood thinners.
-
-Implementation notes:
-
-- The main health-system update is the new query point, not the drug builder surface.
-- Internal bleeding should use a multiplier on `BloodlossPerTick` rather than a direct wound-state rewrite so active bleeding still owns its own lifecycle.
-- Static settings should cap maximum clotting and anticoagulant multipliers to avoid zero-risk healing or runaway blood loss.
+- Payload: external bleeding, wound reopen, and internal bleeding multipliers.
+- Runtime hooks: `SimpleOrganicWound` external bleeding, wound reopen checks, `PeekBleed`, and internal-bleeding totals in living health strategies.
+- Scope: organic bleeding only. Synthetic and robot leakage is intentionally unchanged.
+- Caps: `DrugCoagulationMinimumMultiplier` and `DrugCoagulationMaximumMultiplier` default to `0.25x` and `3.0x`.
 
 ### Respiratory Drive And Hypoxia Modulation
-Add a respiratory drug family for stimulants, depressants, bronchodilators, airway relaxants, and antitoxins.
+`DrugType.Respiration` creates a `DrugRespirationEffect` that implements `IRespirationModifierEffect`.
 
-Runtime shape:
-
-- Add a `DrugType.Respiration` family and a concrete `DrugRespirationEffect`.
-- Add an `IRespirationModifierEffect` interface used by breathing strategies and hypoxia damage paths.
-- Model at least three payload knobs: breathing-drive multiplier, hypoxia-damage multiplier, and airway/obstruction support.
-- Let depressants reduce breathing drive and increase hypoxia risk; let stimulants or bronchodilators improve marginal breathing without bypassing hard impossibilities.
-- No-op for `NeedsToBreathe == false`, dead bodies, non-living strategies that do not run breathing, or bodies already in normal equilibrium when the configured mode only affects crisis states.
-
-Content enabled:
-
-- Opioid-style respiratory depressants that are dangerous when mixed with anesthesia.
-- Emergency respiratory stimulants for overdose recovery.
-- Smoke, gas, or venom antitoxins that reduce hypoxia pressure.
-- Asthma-like bronchodilator inhalers without needing a full disease subsystem first.
-
-Implementation notes:
-
-- The first pass can make the hook a no-op unless the body cannot breathe, is not breathing, or is taking hypoxia damage.
-- This is a good place to document a respiratory equilibrium rule: drugs modify the consequences of being out of equilibrium, but do not create free oxygen or make an unbreathable atmosphere breathable.
-- If a later disease system adds bronchospasm or airway inflammation, it should use the same interface rather than a separate drug-only check.
+- Payload: breathing-drive, hypoxia-damage, and airway-tolerance multipliers.
+- Runtime hooks: lung, blowhole, and gill breathers use breathing-drive modifiers around anesthesia/depressant thresholds; lung and blowhole breathers use airway support for marginal lung/airway bleeding thresholds; living health strategies apply hypoxia damage multipliers.
+- Hard limits: drugs do not create breathable fluid, replace missing organs, replace heart function, or bypass `IStopBreathing`.
+- Caps: `DrugRespirationMinimumMultiplier` and `DrugRespirationMaximumMultiplier` default to `0.25x` and `3.0x`.
 
 ### Metabolic And Need-Rate Drugs
-Add a `DrugType.NeedRate` family that reuses the existing `INeedRateEffect` pattern already used by spell effects.
+`DrugType.NeedRate` creates a `DrugNeedRateEffect` that implements `INeedRateEffect`.
 
-Runtime shape:
-
-- Add a `NeedRateAdditionalInfo` payload with hunger, thirst, and drunkenness multipliers plus passive/active applicability flags.
-- Add `DrugNeedRateEffect : Effect, INeedRateEffect`.
-- Have `Body.ApplyDrugEffects()` aggregate the strongest or multiplied payload values and create/update/remove the effect like other scalar overlays.
-- No-op for `NoNeeds` models, dead/no-needs characters, and any need axis omitted by payload.
-
-Content enabled:
-
-- Appetite suppressants and appetite stimulants.
-- Diuretics or dehydration poisons.
-- Hangover treatments that increase alcohol cleanup pressure through the needs/drunkenness model.
-- Performance stimulants that trade stamina or wakefulness for thirst and hunger pressure.
-
-Implementation notes:
-
-- This is one of the cheapest high-value additions because the health-adjacent interface already exists.
-- Builder payload commands should display multipliers as percentages to match current health-strategy builder conventions.
-- Seeder examples should include one benign medicine and one toxic or illicit example so builders see both directions.
+- Payload: hunger, thirst, and drunkenness multipliers plus passive/active applicability flags.
+- Runtime hooks: active and passive needs models consume the effect through their existing multiplier paths.
+- Scope: `NoNeedsModel` remains a natural no-op.
 
 ### Sleep, Wakefulness, And Consciousness Thresholds
-Add a sleep/arousal drug family separate from `Anesthesia`.
+`DrugType.Arousal` creates one or more drug-caused arousal effects depending on its payload.
 
-Runtime shape:
-
-- Add a `DrugType.Arousal` or `DrugType.SleepWakefulness` family.
-- Add an `ArousalAdditionalInfo` payload with mode flags such as sedative, stimulant, sleep-inducing, sleep-preventing, passout-threshold modifier, and recovery-threshold modifier.
-- Add `DrugInducedArousalEffect`, reusing existing interfaces where possible: `ISleepEffect`, `IPreventSleepEffect`, `ICheckBonusEffect`, and a new consciousness-threshold modifier interface if needed.
-- No-op for bodies whose current health strategy does not evaluate consciousness, for no-needs/dead bodies where sleep is irrelevant, and for modes that only apply when the character is near a passout/unconsciousness threshold.
-
-Content enabled:
-
-- Sedatives and tranquilizers that make sleep easier without the broad penalties of anesthesia.
-- Stimulants that prevent sleep and temporarily resist passing out.
-- Knockout drugs that push a marginal target into sleep or unconsciousness.
-- Counteragents that help a patient wake after anesthesia or poison.
-
-Implementation notes:
-
-- Keep this separate from `Anesthesia`: anesthesia is broad check suppression and surgical unconsciousness flavor, while arousal controls sleep/wake state and threshold pressure.
-- Score and health text should only appear past meaningful intensity thresholds to avoid noisy status output for mild caffeine-like content.
-- Forced sleep should respect combat, posture, and existing state-transition rules rather than directly setting character state from the drug effect.
+- Payload: mode flags, check modifier, sleep and knockout thresholds, pain/stun/anesthesia consciousness threshold multipliers, and stamina regeneration/cost multipliers.
+- Modes: `SleepInducing`, `SleepPreventing`, `PassOutResistance`, `Knockout`, `Stimulant`, and `Sedative`.
+- Runtime hooks: sleep-inducing drugs use normal sleep transitions when legal; sleep-preventing drugs block voluntary sleep with a clear prevention effect; pass-out resistance reuses `IPreventPassOut`; knockout mode uses the existing loss-of-consciousness health-status path.
+- Protection: stimulants do not remove magical sleep or `NoWake` effects.
 
 ### Tolerance, Dependence, And Withdrawal
-Add a persistent exposure-history layer for drugs that opt in to tolerance or dependence.
+`DrugType.Dependence` is metadata rather than a direct moment-to-moment drug effect. It creates per-body exposure history for drugs that explicitly opt in.
 
-Runtime shape:
-
-- Add dependence metadata to drugs through a `DrugDependenceAdditionalInfo` payload or a separate opt-in table if the model becomes broader than one `DrugType`.
-- Track exposure from active and latent drug heartbeats by body, concrete drug, and optionally effect family.
-- Use exposure to modify effective intensity, metabolisation, or both before `Body.ApplyDrugEffects()` expands grams into effect intensities.
-- Create withdrawal effects when exposure decays below a configured threshold after sustained use.
-- No-op for drugs without dependence metadata, non-persisted temporary bodies if the implementation cannot safely persist history, and worlds that disable the feature through static configuration.
-
-Content enabled:
-
-- Tolerance to painkillers, sedatives, stimulants, alcohol-like content, and magical enhancers.
-- Withdrawal nausea, pain sensitivity, irritability, insomnia, tremors, stamina penalties, or check penalties.
-- Treatment content such as tapering medications and antagonist drugs.
-- Setting-specific addiction arcs without hard-coding a single addiction model.
-
-Implementation notes:
-
-- Withdrawal should express itself through existing effect pathways where possible: nausea, pain sensitivity, sleep disruption, rage or pacifism pressure, stamina regeneration penalties, need-rate changes, and general check penalties.
-- The persistence design should avoid saving every heartbeat as a row. Prefer one compact exposure record per body/drug or body/effect family with last-updated time and accumulated exposure.
-- Builder UX should make this opt-in and conservative, because persistent dependence is a large gameplay commitment for live worlds.
+- Payload: exposure gain/decay, tolerance threshold, minimum effectiveness, withdrawal onset/decay, affected drug types, and withdrawal symptoms.
+- Persistence: `Bodies_DrugExposures` stores one row per `BodyId + DrugId` with exposure, peak exposure, withdrawal intensity, and last updated UTC time.
+- Runtime hooks: drug heartbeats decay exposure from `LastUpdatedAtUtc`, add exposure from active matching doses, reduce effective intensity for configured affected effect types, and create withdrawal effects when exposure drops below onset after prior dependence.
+- Withdrawal expression: symptoms reuse existing pathways such as check modifiers, need-rate effects, stamina multipliers, nausea, rage, and sleep prevention.
+- Caps and gates: `DrugDependenceEnabled` disables the feature globally. Minimum tolerance effectiveness defaults to at least `25%` unless a drug explicitly configures a lower floor.

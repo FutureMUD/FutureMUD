@@ -10196,4 +10196,21 @@ CREATE UNIQUE INDEX `IX_CommoditySpoilageRules_Name` ON `CommoditySpoilageRules`
 INSERT INTO `__EFMigrationsHistory` (`MigrationId`, `ProductVersion`)
 VALUES ('20260523000000_CommoditySpoilageRules', '9.0.11');
 
+CREATE TABLE `Bodies_DrugExposures` (
+    `BodyId` bigint(20) NOT NULL,
+    `DrugId` bigint(20) NOT NULL,
+    `Exposure` double NOT NULL,
+    `PeakExposure` double NOT NULL,
+    `WithdrawalIntensity` double NOT NULL,
+    `LastUpdatedAtUtc` datetime NOT NULL,
+    CONSTRAINT `PRIMARY` PRIMARY KEY (`BodyId`, `DrugId`),
+    CONSTRAINT `FK_Bodies_DrugExposures_Bodies` FOREIGN KEY (`BodyId`) REFERENCES `Bodies` (`Id`) ON DELETE CASCADE,
+    CONSTRAINT `FK_Bodies_DrugExposures_Drugs` FOREIGN KEY (`DrugId`) REFERENCES `Drugs` (`Id`) ON DELETE CASCADE
+) CHARACTER SET=utf8mb4;
+
+CREATE INDEX `FK_Bodies_DrugExposures_Drugs_idx` ON `Bodies_DrugExposures` (`DrugId`);
+
+INSERT INTO `__EFMigrationsHistory` (`MigrationId`, `ProductVersion`)
+VALUES ('20260616135417_DrugExpansionDependenceExposures', '9.0.11');
+
 COMMIT;

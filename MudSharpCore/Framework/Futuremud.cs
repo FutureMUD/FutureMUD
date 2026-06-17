@@ -1672,6 +1672,7 @@ public sealed partial class Futuremud : IFuturemud, IDisposable
                                                  .Include(x => x.PerceiverMerits)
                                                  .Include(x => x.Body.PerceiverMerits)
                                                  .Include(x => x.Body.BodiesDrugDoses)
+                                                 .Include(x => x.Body.BodiesDrugExposures)
                                                  .Include(x => x.Body.BodiesProsthetics)
                                                  .Include(x => x.Body.BodiesImplants)
                                                  .Include(x => x.HooksPerceivables)

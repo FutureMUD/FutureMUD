@@ -88,8 +88,74 @@ Set an effect intensity to `0%` or less to remove that effect type.
 | `VisionImpairment` | Reduced vision multiplier | None |
 | `ThermalImbalance` | Heat/cold imbalance pressure through the shared temperature model | None |
 | `PlanarState` | Manifested or noncorporeal planar overlay | `drug set type planar <corporeal|noncorporeal> [plane] [visible]` |
+| `Coagulation` | Hemostatic and anticoagulant bleeding modifiers | `drug set type coagulation <external%> <reopen%> <internal%>` |
+| `Respiration` | Breathing-drive, hypoxia, and airway-support modifiers | `drug set type respiration <drive%> <hypoxia%> <airway%>` |
+| `NeedRate` | Hunger, thirst, and drunkenness-rate modifiers | `drug set type needrate <hunger%> <thirst%> <drunkenness%> <passive\|active\|both>` |
+| `Arousal` | Sleep, wakefulness, pass-out resistance, knockout, and consciousness thresholds | `drug set type arousal <mode\|check\|sleep\|knockout\|thresholds\|stamina> ...` |
+| `Dependence` | Persistent exposure, tolerance, and withdrawal metadata | `drug set type dependence <exposure\|tolerance\|withdrawal\|affected\|symptoms> ...` |
 
 The required extra setup commands only work after you add a matching effect intensity.
+
+## Expansion Payload Commands
+Add the effect family first:
+
+```text
+drug set type intensity Coagulation 70%
+```
+
+Then configure its payload.
+
+Coagulation uses multipliers. Values below `100%` reduce bleeding or reopen risk; values above `100%` increase them:
+
+```text
+drug set type coagulation 40% 50% 80%
+drug set type coagulation 180% 160% 150%
+```
+
+Respiration also uses multipliers. `drive` improves or depresses breathing drive, `hypoxia` changes hypoxia damage, and `airway` supports or worsens marginal airway thresholds:
+
+```text
+drug set type respiration 120% 75% 160%
+drug set type respiration 65% 135% 90%
+```
+
+Respiration drugs cannot make an unbreathable environment breathable and cannot replace missing organs, heart function, or effects that stop breathing.
+
+Need-rate drugs use multipliers plus an applicability mode:
+
+```text
+drug set type needrate 70% 120% 90% both
+drug set type needrate 100% 140% 100% active
+```
+
+Arousal drugs are edited one field at a time:
+
+```text
+drug set type arousal mode SleepInducing
+drug set type arousal mode Sedative
+drug set type arousal check -10%
+drug set type arousal sleep 0.60
+drug set type arousal knockout 1.10
+drug set type arousal thresholds 100% 95% 85%
+drug set type arousal stamina 85% 110%
+```
+
+`mode` toggles a flag. Valid flags are `SleepInducing`, `SleepPreventing`, `PassOutResistance`, `Knockout`, `Stimulant`, and `Sedative`.
+
+Dependence drugs are also edited one field at a time:
+
+```text
+drug set type dependence exposure 1.00 0.10
+drug set type dependence tolerance 5.00 30%
+drug set type dependence withdrawal 2.50 0.18
+drug set type dependence affected Analgesic
+drug set type dependence affected Respiration
+drug set type dependence symptoms -15% 120% 125% 70% 125% 45% 10% 0.20
+```
+
+The `symptoms` values are check modifier, hunger multiplier, thirst multiplier, stamina regeneration multiplier, stamina cost multiplier, nausea intensity, rage intensity, and sleep-prevention threshold.
+
+Dependence is persistent gameplay state. Use it for drugs where tolerance and withdrawal are intended story or balance consequences, not as a default for every medicine.
 
 ## Potency And Duration
 There are three separate knobs:

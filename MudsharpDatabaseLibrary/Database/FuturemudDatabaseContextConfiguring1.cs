@@ -1354,6 +1354,33 @@ namespace MudSharp.Database
                     .HasConstraintName("FK_Bodies_DrugDoses_Drugs");
             });
 
+            modelBuilder.Entity<BodyDrugExposure>(entity =>
+            {
+                entity.HasKey(e => new { e.BodyId, e.DrugId })
+                    .HasName("PRIMARY");
+
+                entity.ToTable("Bodies_DrugExposures");
+
+                entity.HasIndex(e => e.DrugId)
+                    .HasDatabaseName("FK_Bodies_DrugExposures_Drugs_idx");
+
+                entity.Property(e => e.BodyId).HasColumnType("bigint(20)");
+
+                entity.Property(e => e.DrugId).HasColumnType("bigint(20)");
+
+                entity.Property(e => e.LastUpdatedAtUtc).HasColumnType("datetime");
+
+                entity.HasOne(d => d.Body)
+                    .WithMany(p => p.BodiesDrugExposures)
+                    .HasForeignKey(d => d.BodyId)
+                    .HasConstraintName("FK_Bodies_DrugExposures_Bodies");
+
+                entity.HasOne(d => d.Drug)
+                    .WithMany(p => p.BodiesDrugExposures)
+                    .HasForeignKey(d => d.DrugId)
+                    .HasConstraintName("FK_Bodies_DrugExposures_Drugs");
+            });
+
             modelBuilder.Entity<BodiesGameItems>(entity =>
             {
                 entity.HasKey(e => new { e.BodyId, e.GameItemId })

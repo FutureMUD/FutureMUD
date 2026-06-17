@@ -12,6 +12,7 @@ using MudSharp.Framework;
 using MudSharp.Framework.Units;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Interfaces;
+using MudSharp.Health.Breathing;
 using MudSharp.Health.Wounds;
 using MudSharp.Models;
 using MudSharp.PerceptionEngine;
@@ -800,7 +801,12 @@ public class ComplexLivingHealthStrategy : BaseHealthStrategy
 
 
             List<IInternalBleedingEffect> internalBleeders = charOwner.Body.EffectsOfType<IInternalBleedingEffect>().ToList();
-            double internalBleeding = internalBleeders.Sum(x => x.BloodlossPerTick);
+            double internalBleedingMultiplier = charOwner.Body.EffectsOfType<IBleedingModifierEffect>()
+                                                         .Where(x => x.Applies())
+                                                         .Aggregate(1.0,
+                                                             (current, effect) => current *
+                                                                 effect.InternalBleedingMultiplier);
+            double internalBleeding = internalBleeders.Sum(x => x.BloodlossPerTick * internalBleedingMultiplier);
             if (internalBleeding > 0)
             {
                 isBleeding = true;
@@ -830,7 +836,7 @@ public class ComplexLivingHealthStrategy : BaseHealthStrategy
                         continue;
                     }
 
-                    effect.BloodlossTotal += effect.BloodlossPerTick;
+                    effect.BloodlossTotal += effect.BloodlossPerTick * internalBleedingMultiplier;
                     if (effect.Organ is LungProto)
                     {
                         airwayBlood += effect.BloodlossTotal;
@@ -1014,6 +1020,7 @@ public class ComplexLivingHealthStrategy : BaseHealthStrategy
                 ? CprHypoxiaMultiplier
                 : 1.0);
 
+        multiplier *= charOwner.Body.RespirationHypoxiaDamageMultiplier();
         if (multiplier > 0.0 && (oxygenHypoxia > 0 || hypoxia > 0))
         {
             foreach (IOrganProto organ in charOwner.Body.Organs)
@@ -1607,10 +1614,19 @@ public class ComplexLivingHealthStrategy : BaseHealthStrategy
             return HealthTickResult.Unconscious;
         }
 
-        double maxStun = MaximumStunExpression.Evaluate(charOwner);
+        var consciousnessModifiers = charOwner.Body.EffectsOfType<IConsciousnessThresholdModifierEffect>()
+                                          .Where(x => x.Applies())
+                                          .ToList();
+        var painPassOutThresholdMultiplier = consciousnessModifiers.Aggregate(1.0,
+            (current, effect) => current * effect.PainPassOutThresholdMultiplier);
+        var stunUnconsciousThresholdMultiplier = consciousnessModifiers.Aggregate(1.0,
+            (current, effect) => current * effect.StunUnconsciousThresholdMultiplier);
+        var anesthesiaUnconsciousThresholdMultiplier = consciousnessModifiers.Aggregate(1.0,
+            (current, effect) => current * effect.AnesthesiaUnconsciousThresholdMultiplier);
+        double maxStun = MaximumStunExpression.Evaluate(charOwner) * stunUnconsciousThresholdMultiplier;
         double painRatio = charOwner.Wounds.Sum(x => x.CurrentPain) /
                         MaximumPainExpression.Evaluate(charOwner);
-        if (painRatio >= PainPassOutThreshold && !charOwner.Body.EffectsOfType<IPreventPassOut>().Any(x => x.Applies()))
+        if (painRatio >= PainPassOutThreshold * painPassOutThresholdMultiplier && !charOwner.Body.EffectsOfType<IPreventPassOut>().Any(x => x.Applies()))
         {
             return HealthTickResult.PassOut;
         }
@@ -1624,7 +1640,7 @@ public class ComplexLivingHealthStrategy : BaseHealthStrategy
         double anasthesia =
             charOwner.Body.EffectsOfType<Anesthesia>().Select(x => x.IntensityPerGramMass).DefaultIfEmpty(0).Sum();
 
-        if (anasthesia >= AnesthesiaUnconsciousThreshold)
+        if (anasthesia >= AnesthesiaUnconsciousThreshold * anesthesiaUnconsciousThresholdMultiplier)
         {
             return HealthTickResult.Unconscious;
         }

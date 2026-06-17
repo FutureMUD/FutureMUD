@@ -9,6 +9,7 @@ namespace MudSharp.Models
         public Body()
         {
             BodiesDrugDoses = new HashSet<BodyDrugDose>();
+            BodiesDrugExposures = new HashSet<BodyDrugExposure>();
             BodiesGameItems = new HashSet<BodiesGameItems>();
             BodiesImplants = new HashSet<BodiesImplants>();
             BodiesProsthetics = new HashSet<BodiesProsthetics>();
@@ -55,6 +56,7 @@ namespace MudSharp.Models
         public virtual Race Race { get; set; }
         public virtual EntityDescriptionPattern ShortDescriptionPattern { get; set; }
         public virtual ICollection<BodyDrugDose> BodiesDrugDoses { get; set; }
+        public virtual ICollection<BodyDrugExposure> BodiesDrugExposures { get; set; }
         public virtual ICollection<BodiesGameItems> BodiesGameItems { get; set; }
         public virtual ICollection<BodiesImplants> BodiesImplants { get; set; }
         public virtual ICollection<BodiesProsthetics> BodiesProsthetics { get; set; }

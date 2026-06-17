@@ -47,7 +47,7 @@ public class GillBreather : IBreathingStrategy
         }
 
         double anasthesia = body.EffectsOfType<Anesthesia>().Select(x => x.IntensityPerGramMass).Sum();
-        return !(anasthesia >= 5.0);
+        return !(anasthesia >= 5.0 * body.RespirationBreathingDriveMultiplier());
     }
 
     public void Breathe(IBody body)

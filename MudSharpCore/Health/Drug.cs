@@ -37,7 +37,7 @@ public class Drug : SaveableItem, IDrug
                 {
                     DrugType = (int)item.Key,
                     RelativeIntensity = item.Value.Multiplier,
-                    AdditionalEffects = item.Value.ExtraInfo.DatabaseString
+                    AdditionalEffects = item.Value.ExtraInfo?.DatabaseString
                 };
                 dbitem.DrugsIntensities.Add(dbmult);
             }
@@ -54,7 +54,7 @@ public class Drug : SaveableItem, IDrug
         DrugVectors = rhs.DrugVectors;
         IntensityPerGram = rhs.IntensityPerGram;
         RelativeMetabolisationRate = rhs.RelativeMetabolisationRate;
-        foreach (KeyValuePair<DrugType, (double Multiplier, DrugAdditionalInfo ExtraInfo)> item in DrugTypeMulipliers)
+        foreach (KeyValuePair<DrugType, (double Multiplier, DrugAdditionalInfo ExtraInfo)> item in rhs.DrugTypeMulipliers)
         {
             DrugTypeMulipliers[item.Key] = (item.Value.Multiplier, AdditionalInfoFor(item.Key, item.Value.ExtraInfo.DatabaseString));
         }
@@ -184,6 +184,79 @@ public class Drug : SaveableItem, IDrug
                         VisibleToDefaultPlane = bool.TryParse(parts.ElementAtOrDefault(2), out var visible) && visible
                     };
                 }
+            case DrugType.Coagulation:
+                {
+                    var parts = SplitStoredParts(extra);
+                    return new CoagulationAdditionalInfo
+                    {
+                        ExternalBleedingMultiplier = ParseStoredDouble(parts, 0, 0.5),
+                        WoundReopenMultiplier = ParseStoredDouble(parts, 1, 0.5),
+                        InternalBleedingMultiplier = ParseStoredDouble(parts, 2, 0.5)
+                    };
+                }
+            case DrugType.Respiration:
+                {
+                    var parts = SplitStoredParts(extra);
+                    return new RespirationAdditionalInfo
+                    {
+                        BreathingDriveMultiplier = ParseStoredDouble(parts, 0, 1.5),
+                        HypoxiaDamageMultiplier = ParseStoredDouble(parts, 1, 0.75),
+                        AirwayToleranceMultiplier = ParseStoredDouble(parts, 2, 1.5)
+                    };
+                }
+            case DrugType.NeedRate:
+                {
+                    var parts = SplitStoredParts(extra);
+                    return new NeedRateAdditionalInfo
+                    {
+                        HungerMultiplier = ParseStoredDouble(parts, 0, 1.0),
+                        ThirstMultiplier = ParseStoredDouble(parts, 1, 1.0),
+                        DrunkennessMultiplier = ParseStoredDouble(parts, 2, 1.0),
+                        AppliesToPassive = ParseStoredBool(parts, 3, true),
+                        AppliesToActive = ParseStoredBool(parts, 4, true)
+                    };
+                }
+            case DrugType.Arousal:
+                {
+                    var parts = SplitStoredParts(extra);
+                    return new ArousalAdditionalInfo
+                    {
+                        Mode = (DrugArousalMode)ParseStoredInt(parts, 0, 0),
+                        CheckBonusPerIntensity = ParseStoredDouble(parts, 1, 0.0),
+                        SleepIntensityThreshold = ParseStoredDouble(parts, 2, 0.75),
+                        KnockoutIntensityThreshold = ParseStoredDouble(parts, 3, 1.0),
+                        PainPassOutThresholdMultiplier = ParseStoredDouble(parts, 4, 1.0),
+                        StunUnconsciousThresholdMultiplier = ParseStoredDouble(parts, 5, 1.0),
+                        AnesthesiaUnconsciousThresholdMultiplier = ParseStoredDouble(parts, 6, 1.0),
+                        StaminaRegenMultiplier = ParseStoredDouble(parts, 7, 1.0),
+                        StaminaCostMultiplier = ParseStoredDouble(parts, 8, 1.0)
+                    };
+                }
+            case DrugType.Dependence:
+                {
+                    var split = (extra ?? string.Empty).Split('|', 2);
+                    var parts = SplitStoredParts(split.ElementAtOrDefault(0));
+                    return new DrugDependenceAdditionalInfo
+                    {
+                        ExposureGainPerGram = ParseStoredDouble(parts, 0, 1.0),
+                        ExposureDecayPerDay = ParseStoredDouble(parts, 1, 0.1),
+                        ToleranceThreshold = ParseStoredDouble(parts, 2, 10.0),
+                        MinimumToleranceMultiplier = ParseStoredDouble(parts, 3, 0.25),
+                        WithdrawalThreshold = ParseStoredDouble(parts, 4, 5.0),
+                        WithdrawalDecayPerDay = ParseStoredDouble(parts, 5, 0.25),
+                        WithdrawalCheckPenalty = ParseStoredDouble(parts, 6, -1.0),
+                        WithdrawalHungerMultiplier = ParseStoredDouble(parts, 7, 1.1),
+                        WithdrawalThirstMultiplier = ParseStoredDouble(parts, 8, 1.1),
+                        WithdrawalStaminaRegenMultiplier = ParseStoredDouble(parts, 9, 0.8),
+                        WithdrawalStaminaCostMultiplier = ParseStoredDouble(parts, 10, 1.1),
+                        WithdrawalNauseaIntensity = ParseStoredDouble(parts, 11, 0.5),
+                        WithdrawalRageIntensity = ParseStoredDouble(parts, 12, 0.0),
+                        SleepPreventionThreshold = ParseStoredDouble(parts, 13, 0.5),
+                        AffectedDrugTypes = ParseStoredIntList(split.ElementAtOrDefault(1) ?? string.Empty)
+                                            .Cast<DrugType>()
+                                            .ToList()
+                    };
+                }
             case DrugType.NeutraliseSpecificDrug:
                 return new NeutraliseSpecificDrugAdditionalInfo()
                 {
@@ -192,6 +265,37 @@ public class Drug : SaveableItem, IDrug
             default:
                 return null;
         }
+    }
+
+    private static string[] SplitStoredParts(string extra)
+    {
+        return (extra ?? string.Empty).Split(' ', StringSplitOptions.RemoveEmptyEntries);
+    }
+
+    private static int ParseStoredInt(string[] parts, int index, int defaultValue)
+    {
+        return int.TryParse(parts.ElementAtOrDefault(index), NumberStyles.Integer, CultureInfo.InvariantCulture,
+            out var value)
+            ? value
+            : defaultValue;
+    }
+
+    private static double ParseStoredDouble(string[] parts, int index, double defaultValue)
+    {
+        return double.TryParse(parts.ElementAtOrDefault(index), NumberStyles.Float, CultureInfo.InvariantCulture,
+            out var value)
+            ? value
+            : defaultValue;
+    }
+
+    private static bool ParseStoredBool(string[] parts, int index, bool defaultValue)
+    {
+        return bool.TryParse(parts.ElementAtOrDefault(index), out var value) ? value : defaultValue;
+    }
+
+    private static int CountRemainingArguments(StringStack command)
+    {
+        return command.RemainingArgument.Split(' ', StringSplitOptions.RemoveEmptyEntries).Length;
     }
 
     private static List<int> ParseStoredIntList(string extra)
@@ -240,7 +344,12 @@ The following options require a matching intensity for the type before using the
 	#3type neutralise <type>#0 - toggles neutralising a drug type
 	#3type neutralisespecific <drug>#0 - toggles neutralising a specific drug
 	#3type planar <corporeal|noncorporeal> [plane] [visible]#0 - configures planar state
-	#3type healingrate <rate%> <difficulty%> - sets healing rate / difficulty bonuses";
+	#3type healingrate <rate%> <difficulty%>#0 - sets healing rate / difficulty bonuses
+	#3type coagulation <external%> <reopen%> <internal%>#0 - sets bleeding multipliers
+	#3type respiration <drive%> <hypoxia%> <airway%>#0 - sets respiratory support/depression
+	#3type needrate <hunger%> <thirst%> <drunkenness%> <passive|active|both>#0 - sets need rate multipliers
+	#3type arousal <mode|check|sleep|knockout|thresholds|stamina> ...#0 - configures sleep/wake effects
+	#3type dependence <exposure|tolerance|withdrawal|affected|symptoms> ...#0 - configures tolerance and withdrawal";
 
     /// <inheritdoc />
     public bool BuildingCommand(ICharacter actor, StringStack command)
@@ -295,6 +404,25 @@ The following options require a matching intensity for the type before using the
             case "plane":
             case "corporeality":
                 return BuildingCommandPlanar(actor, command);
+            case "coagulation":
+            case "coag":
+            case "bleeding":
+                return BuildingCommandCoagulation(actor, command);
+            case "respiration":
+            case "breathing":
+            case "hypoxia":
+                return BuildingCommandRespiration(actor, command);
+            case "needrate":
+            case "needs":
+                return BuildingCommandNeedRate(actor, command);
+            case "arousal":
+            case "sleepwake":
+            case "consciousness":
+                return BuildingCommandArousal(actor, command);
+            case "dependence":
+            case "dependency":
+            case "withdrawal":
+                return BuildingCommandDependence(actor, command);
             default:
                 return false;
         }
@@ -350,6 +478,396 @@ The following options require a matching intensity for the type before using the
         Changed = true;
         actor.OutputHandler.Send($"This drug now applies a {state.ColourValue()} planar state on {(plane?.Name ?? "the default plane").ColourName()}.");
         return true;
+    }
+
+    private bool BuildingCommandCoagulation(ICharacter actor, StringStack command)
+    {
+        if (!DrugTypeMulipliers.ContainsKey(DrugType.Coagulation))
+        {
+            actor.OutputHandler.Send("This drug does not contain a coagulation effect intensity. You must set that first.");
+            return false;
+        }
+
+        if (CountRemainingArguments(command) < 3)
+        {
+            actor.OutputHandler.Send("You must specify external bleeding, reopen chance and internal bleeding multipliers.");
+            return false;
+        }
+
+        if (!command.PopSpeech().TryParsePercentage(actor.Account.Culture, out var external))
+        {
+            actor.OutputHandler.Send($"The text {command.Last.ColourCommand()} is not a valid percentage.");
+            return false;
+        }
+
+        if (!command.PopSpeech().TryParsePercentage(actor.Account.Culture, out var reopen))
+        {
+            actor.OutputHandler.Send($"The text {command.Last.ColourCommand()} is not a valid percentage.");
+            return false;
+        }
+
+        if (!command.PopSpeech().TryParsePercentage(actor.Account.Culture, out var internalBleeding))
+        {
+            actor.OutputHandler.Send($"The text {command.Last.ColourCommand()} is not a valid percentage.");
+            return false;
+        }
+
+        DrugTypeMulipliers[DrugType.Coagulation] = (DrugTypeMulipliers[DrugType.Coagulation].Multiplier,
+            new CoagulationAdditionalInfo
+            {
+                ExternalBleedingMultiplier = external,
+                WoundReopenMultiplier = reopen,
+                InternalBleedingMultiplier = internalBleeding
+            });
+        Changed = true;
+        actor.OutputHandler.Send(
+            $"This drug now modifies bleeding by external {external.ToStringP2Colour(actor)}, reopen {reopen.ToStringP2Colour(actor)} and internal {internalBleeding.ToStringP2Colour(actor)} per intensity.");
+        return true;
+    }
+
+    private bool BuildingCommandRespiration(ICharacter actor, StringStack command)
+    {
+        if (!DrugTypeMulipliers.ContainsKey(DrugType.Respiration))
+        {
+            actor.OutputHandler.Send("This drug does not contain a respiration effect intensity. You must set that first.");
+            return false;
+        }
+
+        if (CountRemainingArguments(command) < 3)
+        {
+            actor.OutputHandler.Send("You must specify breathing drive, hypoxia damage and airway tolerance multipliers.");
+            return false;
+        }
+
+        if (!command.PopSpeech().TryParsePercentage(actor.Account.Culture, out var drive))
+        {
+            actor.OutputHandler.Send($"The text {command.Last.ColourCommand()} is not a valid percentage.");
+            return false;
+        }
+
+        if (!command.PopSpeech().TryParsePercentage(actor.Account.Culture, out var hypoxia))
+        {
+            actor.OutputHandler.Send($"The text {command.Last.ColourCommand()} is not a valid percentage.");
+            return false;
+        }
+
+        if (!command.PopSpeech().TryParsePercentage(actor.Account.Culture, out var airway))
+        {
+            actor.OutputHandler.Send($"The text {command.Last.ColourCommand()} is not a valid percentage.");
+            return false;
+        }
+
+        DrugTypeMulipliers[DrugType.Respiration] = (DrugTypeMulipliers[DrugType.Respiration].Multiplier,
+            new RespirationAdditionalInfo
+            {
+                BreathingDriveMultiplier = drive,
+                HypoxiaDamageMultiplier = hypoxia,
+                AirwayToleranceMultiplier = airway
+            });
+        Changed = true;
+        actor.OutputHandler.Send(
+            $"This drug now modifies respiration by drive {drive.ToStringP2Colour(actor)}, hypoxia {hypoxia.ToStringP2Colour(actor)} and airway {airway.ToStringP2Colour(actor)} per intensity.");
+        return true;
+    }
+
+    private bool BuildingCommandNeedRate(ICharacter actor, StringStack command)
+    {
+        if (!DrugTypeMulipliers.ContainsKey(DrugType.NeedRate))
+        {
+            actor.OutputHandler.Send("This drug does not contain a need rate effect intensity. You must set that first.");
+            return false;
+        }
+
+        if (CountRemainingArguments(command) < 4)
+        {
+            actor.OutputHandler.Send("You must specify hunger, thirst, drunkenness and passive|active|both.");
+            return false;
+        }
+
+        if (!command.PopSpeech().TryParsePercentage(actor.Account.Culture, out var hunger))
+        {
+            actor.OutputHandler.Send($"The text {command.Last.ColourCommand()} is not a valid percentage.");
+            return false;
+        }
+
+        if (!command.PopSpeech().TryParsePercentage(actor.Account.Culture, out var thirst))
+        {
+            actor.OutputHandler.Send($"The text {command.Last.ColourCommand()} is not a valid percentage.");
+            return false;
+        }
+
+        if (!command.PopSpeech().TryParsePercentage(actor.Account.Culture, out var drunk))
+        {
+            actor.OutputHandler.Send($"The text {command.Last.ColourCommand()} is not a valid percentage.");
+            return false;
+        }
+
+        var mode = command.PopSpeech();
+        if (!mode.EqualToAny("passive", "active", "both"))
+        {
+            actor.OutputHandler.Send("The applicability must be passive, active or both.");
+            return false;
+        }
+
+        DrugTypeMulipliers[DrugType.NeedRate] = (DrugTypeMulipliers[DrugType.NeedRate].Multiplier,
+            new NeedRateAdditionalInfo
+            {
+                HungerMultiplier = hunger,
+                ThirstMultiplier = thirst,
+                DrunkennessMultiplier = drunk,
+                AppliesToPassive = mode.EqualToAny("passive", "both"),
+                AppliesToActive = mode.EqualToAny("active", "both")
+            });
+        Changed = true;
+        actor.OutputHandler.Send(
+            $"This drug now modifies need rates by hunger {hunger.ToStringP2Colour(actor)}, thirst {thirst.ToStringP2Colour(actor)} and drunkenness {drunk.ToStringP2Colour(actor)} for {mode.ColourValue()} changes.");
+        return true;
+    }
+
+    private bool BuildingCommandArousal(ICharacter actor, StringStack command)
+    {
+        if (!DrugTypeMulipliers.ContainsKey(DrugType.Arousal))
+        {
+            actor.OutputHandler.Send("This drug does not contain an arousal effect intensity. You must set that first.");
+            return false;
+        }
+
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send("Do you want to edit arousal mode, check, sleep, knockout, thresholds or stamina?");
+            return false;
+        }
+
+        var extra = AdditionalInfoFor<ArousalAdditionalInfo>(DrugType.Arousal);
+        switch (command.PopForSwitch())
+        {
+            case "mode":
+                if (command.IsFinished)
+                {
+                    actor.OutputHandler.Send($"Which arousal mode do you want to toggle? Valid modes are {Enum.GetValues<DrugArousalMode>().Where(x => x != DrugArousalMode.None).ListToColouredString()}.");
+                    return false;
+                }
+
+                if (!command.SafeRemainingArgument.TryParseEnum<DrugArousalMode>(out var mode) || mode == DrugArousalMode.None)
+                {
+                    actor.OutputHandler.Send($"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid arousal mode.");
+                    return false;
+                }
+
+                extra.Mode = extra.Mode.HasFlag(mode) ? extra.Mode & ~mode : extra.Mode | mode;
+                Changed = true;
+                actor.OutputHandler.Send($"This drug now has the following arousal modes: {extra.Mode.DescribeEnum().ColourValue()}.");
+                return true;
+            case "check":
+            case "bonus":
+                if (command.IsFinished)
+                {
+                    actor.OutputHandler.Send("What check bonus or penalty should this arousal effect apply per intensity?");
+                    return false;
+                }
+
+                if (!command.SafeRemainingArgument.TryParsePercentage(actor.Account.Culture, out var check))
+                {
+                    actor.OutputHandler.Send($"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid percentage.");
+                    return false;
+                }
+
+                extra.CheckBonusPerIntensity = check;
+                Changed = true;
+                actor.OutputHandler.Send($"This drug now applies a check modifier of {check.ToBonusPercentageString(actor)} per arousal intensity.");
+                return true;
+            case "sleep":
+                if (command.IsFinished || !double.TryParse(command.SafeRemainingArgument, NumberStyles.Float,
+                        actor.Account.Culture, out var sleep))
+                {
+                    actor.OutputHandler.Send("You must specify the arousal intensity threshold for inducing sleep.");
+                    return false;
+                }
+
+                extra.SleepIntensityThreshold = sleep;
+                Changed = true;
+                actor.OutputHandler.Send($"This drug now induces sleep at arousal intensity {sleep.ToString("N2", actor).ColourValue()}.");
+                return true;
+            case "knockout":
+                if (command.IsFinished || !double.TryParse(command.SafeRemainingArgument, NumberStyles.Float,
+                        actor.Account.Culture, out var knockout))
+                {
+                    actor.OutputHandler.Send("You must specify the arousal intensity threshold for knocking someone out.");
+                    return false;
+                }
+
+                extra.KnockoutIntensityThreshold = knockout;
+                Changed = true;
+                actor.OutputHandler.Send($"This drug now knocks people out at arousal intensity {knockout.ToString("N2", actor).ColourValue()}.");
+                return true;
+            case "thresholds":
+                if (CountRemainingArguments(command) < 3)
+                {
+                    actor.OutputHandler.Send("You must specify pain pass-out, stun unconsciousness and anesthesia unconsciousness threshold multipliers.");
+                    return false;
+                }
+
+                if (!command.PopSpeech().TryParsePercentage(actor.Account.Culture, out var pain) ||
+                    !command.PopSpeech().TryParsePercentage(actor.Account.Culture, out var stun) ||
+                    !command.PopSpeech().TryParsePercentage(actor.Account.Culture, out var anesthesia))
+                {
+                    actor.OutputHandler.Send("All three threshold values must be percentages.");
+                    return false;
+                }
+
+                extra.PainPassOutThresholdMultiplier = pain;
+                extra.StunUnconsciousThresholdMultiplier = stun;
+                extra.AnesthesiaUnconsciousThresholdMultiplier = anesthesia;
+                Changed = true;
+                actor.OutputHandler.Send(
+                    $"This drug now modifies thresholds by pain {pain.ToStringP2Colour(actor)}, stun {stun.ToStringP2Colour(actor)} and anesthesia {anesthesia.ToStringP2Colour(actor)}.");
+                return true;
+            case "stamina":
+                if (CountRemainingArguments(command) < 2)
+                {
+                    actor.OutputHandler.Send("You must specify stamina regeneration and stamina cost multipliers.");
+                    return false;
+                }
+
+                if (!command.PopSpeech().TryParsePercentage(actor.Account.Culture, out var regen) ||
+                    !command.PopSpeech().TryParsePercentage(actor.Account.Culture, out var cost))
+                {
+                    actor.OutputHandler.Send("Both stamina values must be percentages.");
+                    return false;
+                }
+
+                extra.StaminaRegenMultiplier = regen;
+                extra.StaminaCostMultiplier = cost;
+                Changed = true;
+                actor.OutputHandler.Send(
+                    $"This drug now modifies stamina by regen {regen.ToStringP2Colour(actor)} and cost {cost.ToStringP2Colour(actor)}.");
+                return true;
+        }
+
+        actor.OutputHandler.Send("Do you want to edit arousal mode, check, sleep, knockout, thresholds or stamina?");
+        return false;
+    }
+
+    private bool BuildingCommandDependence(ICharacter actor, StringStack command)
+    {
+        if (!DrugTypeMulipliers.ContainsKey(DrugType.Dependence))
+        {
+            actor.OutputHandler.Send("This drug does not contain a dependence metadata intensity. You must set that first.");
+            return false;
+        }
+
+        if (command.IsFinished)
+        {
+            actor.OutputHandler.Send("Do you want to edit dependence exposure, tolerance, withdrawal, affected or symptoms?");
+            return false;
+        }
+
+        var extra = AdditionalInfoFor<DrugDependenceAdditionalInfo>(DrugType.Dependence);
+        switch (command.PopForSwitch())
+        {
+            case "exposure":
+                if (CountRemainingArguments(command) < 2 ||
+                    !double.TryParse(command.PopSpeech(), NumberStyles.Float, actor.Account.Culture, out var gain) ||
+                    !double.TryParse(command.PopSpeech(), NumberStyles.Float, actor.Account.Culture, out var decay))
+                {
+                    actor.OutputHandler.Send("You must specify exposure gain per gram and exposure decay per day.");
+                    return false;
+                }
+
+                extra.ExposureGainPerGram = gain;
+                extra.ExposureDecayPerDay = decay;
+                Changed = true;
+                actor.OutputHandler.Send($"This drug now gains dependence exposure at {gain.ToString("N2", actor).ColourValue()} per gram and decays at {decay.ToString("N2", actor).ColourValue()} per day.");
+                return true;
+            case "tolerance":
+                if (CountRemainingArguments(command) < 2 ||
+                    !double.TryParse(command.PopSpeech(), NumberStyles.Float, actor.Account.Culture, out var threshold) ||
+                    !command.PopSpeech().TryParsePercentage(actor.Account.Culture, out var minimum))
+                {
+                    actor.OutputHandler.Send("You must specify tolerance threshold and minimum effectiveness percentage.");
+                    return false;
+                }
+
+                extra.ToleranceThreshold = threshold;
+                extra.MinimumToleranceMultiplier = minimum;
+                Changed = true;
+                actor.OutputHandler.Send($"This drug now begins tolerance at {threshold.ToString("N2", actor).ColourValue()} exposure and cannot reduce effectiveness below {minimum.ToStringP2Colour(actor)}.");
+                return true;
+            case "withdrawal":
+                if (CountRemainingArguments(command) < 2 ||
+                    !double.TryParse(command.PopSpeech(), NumberStyles.Float, actor.Account.Culture, out var withdrawal) ||
+                    !double.TryParse(command.PopSpeech(), NumberStyles.Float, actor.Account.Culture, out var withdrawalDecay))
+                {
+                    actor.OutputHandler.Send("You must specify withdrawal threshold and withdrawal decay per day.");
+                    return false;
+                }
+
+                extra.WithdrawalThreshold = withdrawal;
+                extra.WithdrawalDecayPerDay = withdrawalDecay;
+                Changed = true;
+                actor.OutputHandler.Send($"This drug now starts withdrawal below {withdrawal.ToString("N2", actor).ColourValue()} exposure and decays withdrawal at {withdrawalDecay.ToString("N2", actor).ColourValue()} per day.");
+                return true;
+            case "affected":
+                if (command.IsFinished)
+                {
+                    actor.OutputHandler.Send($"Which drug type should tolerance affect? Valid choices are {Enum.GetValues<DrugType>().ListToColouredString()}.");
+                    return false;
+                }
+
+                if (!command.SafeRemainingArgument.TryParseEnum<DrugType>(out var affected))
+                {
+                    actor.OutputHandler.Send($"The text {command.SafeRemainingArgument.ColourCommand()} is not a valid drug type.");
+                    return false;
+                }
+
+                if (extra.AffectedDrugTypes.Contains(affected))
+                {
+                    extra.AffectedDrugTypes.Remove(affected);
+                    actor.OutputHandler.Send($"Tolerance will no longer affect {affected.DescribeEnum().ColourValue()} effects.");
+                }
+                else
+                {
+                    extra.AffectedDrugTypes.Add(affected);
+                    actor.OutputHandler.Send($"Tolerance will now affect {affected.DescribeEnum().ColourValue()} effects.");
+                }
+
+                Changed = true;
+                return true;
+            case "symptoms":
+                if (CountRemainingArguments(command) < 8)
+                {
+                    actor.OutputHandler.Send("You must specify check, hunger, thirst, stamina regen, stamina cost, nausea, rage and sleep prevention threshold values.");
+                    return false;
+                }
+
+                if (!command.PopSpeech().TryParsePercentage(actor.Account.Culture, out var check) ||
+                    !command.PopSpeech().TryParsePercentage(actor.Account.Culture, out var hunger) ||
+                    !command.PopSpeech().TryParsePercentage(actor.Account.Culture, out var thirst) ||
+                    !command.PopSpeech().TryParsePercentage(actor.Account.Culture, out var staminaRegen) ||
+                    !command.PopSpeech().TryParsePercentage(actor.Account.Culture, out var staminaCost) ||
+                    !command.PopSpeech().TryParsePercentage(actor.Account.Culture, out var nausea) ||
+                    !command.PopSpeech().TryParsePercentage(actor.Account.Culture, out var rage) ||
+                    !double.TryParse(command.PopSpeech(), NumberStyles.Float, actor.Account.Culture, out var sleepThreshold))
+                {
+                    actor.OutputHandler.Send("All symptom modifiers except sleep threshold must be percentages, and sleep threshold must be a number.");
+                    return false;
+                }
+
+                extra.WithdrawalCheckPenalty = check;
+                extra.WithdrawalHungerMultiplier = hunger;
+                extra.WithdrawalThirstMultiplier = thirst;
+                extra.WithdrawalStaminaRegenMultiplier = staminaRegen;
+                extra.WithdrawalStaminaCostMultiplier = staminaCost;
+                extra.WithdrawalNauseaIntensity = nausea;
+                extra.WithdrawalRageIntensity = rage;
+                extra.SleepPreventionThreshold = sleepThreshold;
+                Changed = true;
+                actor.OutputHandler.Send("This drug's withdrawal symptom profile has been updated.");
+                return true;
+        }
+
+        actor.OutputHandler.Send("Do you want to edit dependence exposure, tolerance, withdrawal, affected or symptoms?");
+        return false;
     }
 
     private bool BuildingCommandDamage(ICharacter actor, StringStack command)
@@ -642,6 +1160,66 @@ The following options require a matching intensity for the type before using the
                         VisibleToDefaultPlane = false
                     });
                     break;
+                case DrugType.Coagulation:
+                    DrugTypeMulipliers[type] = (value, new CoagulationAdditionalInfo
+                    {
+                        ExternalBleedingMultiplier = 0.5,
+                        WoundReopenMultiplier = 0.5,
+                        InternalBleedingMultiplier = 0.5
+                    });
+                    break;
+                case DrugType.Respiration:
+                    DrugTypeMulipliers[type] = (value, new RespirationAdditionalInfo
+                    {
+                        BreathingDriveMultiplier = 1.5,
+                        HypoxiaDamageMultiplier = 0.75,
+                        AirwayToleranceMultiplier = 1.5
+                    });
+                    break;
+                case DrugType.NeedRate:
+                    DrugTypeMulipliers[type] = (value, new NeedRateAdditionalInfo
+                    {
+                        HungerMultiplier = 1.0,
+                        ThirstMultiplier = 1.0,
+                        DrunkennessMultiplier = 1.0,
+                        AppliesToPassive = true,
+                        AppliesToActive = true
+                    });
+                    break;
+                case DrugType.Arousal:
+                    DrugTypeMulipliers[type] = (value, new ArousalAdditionalInfo
+                    {
+                        Mode = DrugArousalMode.None,
+                        CheckBonusPerIntensity = 0.0,
+                        SleepIntensityThreshold = 0.75,
+                        KnockoutIntensityThreshold = 1.0,
+                        PainPassOutThresholdMultiplier = 1.0,
+                        StunUnconsciousThresholdMultiplier = 1.0,
+                        AnesthesiaUnconsciousThresholdMultiplier = 1.0,
+                        StaminaRegenMultiplier = 1.0,
+                        StaminaCostMultiplier = 1.0
+                    });
+                    break;
+                case DrugType.Dependence:
+                    DrugTypeMulipliers[type] = (value, new DrugDependenceAdditionalInfo
+                    {
+                        ExposureGainPerGram = 1.0,
+                        ExposureDecayPerDay = 0.1,
+                        ToleranceThreshold = 10.0,
+                        MinimumToleranceMultiplier = 0.25,
+                        WithdrawalThreshold = 5.0,
+                        WithdrawalDecayPerDay = 0.25,
+                        AffectedDrugTypes = [],
+                        WithdrawalCheckPenalty = -1.0,
+                        WithdrawalHungerMultiplier = 1.1,
+                        WithdrawalThirstMultiplier = 1.1,
+                        WithdrawalStaminaRegenMultiplier = 0.8,
+                        WithdrawalStaminaCostMultiplier = 1.1,
+                        WithdrawalNauseaIntensity = 0.5,
+                        WithdrawalRageIntensity = 0.0,
+                        SleepPreventionThreshold = 0.5
+                    });
+                    break;
                 default:
                     DrugTypeMulipliers[type] = (value, null);
                     break;
@@ -814,6 +1392,26 @@ The following options require a matching intensity for the type before using the
                     PlanarStateAdditionalInfo planar = (PlanarStateAdditionalInfo)effect.Value.ExtraInfo;
                     sb.AppendLine($" - {planar.State.ColourValue()} on {(Gameworld.Planes.Get(planar.PlaneId)?.Name ?? "default").ColourName()}{(planar.VisibleToDefaultPlane ? ", visible to default plane".ColourCommand() : string.Empty)}");
                     break;
+                case DrugType.Coagulation:
+                    var coag = (CoagulationAdditionalInfo)effect.Value.ExtraInfo;
+                    sb.AppendLine($" - External {coag.ExternalBleedingMultiplier.ToStringP2Colour(voyeur)}, Reopen {coag.WoundReopenMultiplier.ToStringP2Colour(voyeur)}, Internal {coag.InternalBleedingMultiplier.ToStringP2Colour(voyeur)}");
+                    break;
+                case DrugType.Respiration:
+                    var respiration = (RespirationAdditionalInfo)effect.Value.ExtraInfo;
+                    sb.AppendLine($" - Drive {respiration.BreathingDriveMultiplier.ToStringP2Colour(voyeur)}, Hypoxia {respiration.HypoxiaDamageMultiplier.ToStringP2Colour(voyeur)}, Airway {respiration.AirwayToleranceMultiplier.ToStringP2Colour(voyeur)}");
+                    break;
+                case DrugType.NeedRate:
+                    var needRate = (NeedRateAdditionalInfo)effect.Value.ExtraInfo;
+                    sb.AppendLine($" - Hunger {needRate.HungerMultiplier.ToStringP2Colour(voyeur)}, Thirst {needRate.ThirstMultiplier.ToStringP2Colour(voyeur)}, Drunk {needRate.DrunkennessMultiplier.ToStringP2Colour(voyeur)}, {(needRate.AppliesToPassive ? "passive".ColourValue() : string.Empty)} {(needRate.AppliesToActive ? "active".ColourValue() : string.Empty)}");
+                    break;
+                case DrugType.Arousal:
+                    var arousal = (ArousalAdditionalInfo)effect.Value.ExtraInfo;
+                    sb.AppendLine($" - Modes {arousal.Mode.DescribeEnum().ColourValue()}, Check {arousal.CheckBonusPerIntensity.ToBonusPercentageString(voyeur)}, Sleep {arousal.SleepIntensityThreshold.ToString("N2", voyeur).ColourValue()}, Knockout {arousal.KnockoutIntensityThreshold.ToString("N2", voyeur).ColourValue()}");
+                    break;
+                case DrugType.Dependence:
+                    var dependence = (DrugDependenceAdditionalInfo)effect.Value.ExtraInfo;
+                    sb.AppendLine($" - Tolerance at {dependence.ToleranceThreshold.ToString("N2", voyeur).ColourValue()} to minimum {dependence.MinimumToleranceMultiplier.ToStringP2Colour(voyeur)}, withdrawal below {dependence.WithdrawalThreshold.ToString("N2", voyeur).ColourValue()}, affected {(dependence.AffectedDrugTypes.Any() ? dependence.AffectedDrugTypes.ListToColouredString() : "all own effects".ColourValue())}");
+                    break;
                 default:
                     sb.AppendLine();
                     break;
@@ -858,6 +1456,26 @@ The following options require a matching intensity for the type before using the
                 PlanarStateAdditionalInfo planar = AdditionalInfoFor<PlanarStateAdditionalInfo>(DrugType.PlanarState);
                 return
                     $"PlanarState {planar.State} on {Gameworld.Planes.Get(planar.PlaneId)?.Name ?? "default"} @ {IntensityForType(type).ToString("N4", voyeur)}";
+            case DrugType.Coagulation:
+                CoagulationAdditionalInfo coag = AdditionalInfoFor<CoagulationAdditionalInfo>(DrugType.Coagulation);
+                return
+                    $"Coagulation external {coag.ExternalBleedingMultiplier.ToStringP2(voyeur)}, reopen {coag.WoundReopenMultiplier.ToStringP2(voyeur)}, internal {coag.InternalBleedingMultiplier.ToStringP2(voyeur)} @ {IntensityForType(type).ToString("N4", voyeur)}";
+            case DrugType.Respiration:
+                RespirationAdditionalInfo respiration = AdditionalInfoFor<RespirationAdditionalInfo>(DrugType.Respiration);
+                return
+                    $"Respiration drive {respiration.BreathingDriveMultiplier.ToStringP2(voyeur)}, hypoxia {respiration.HypoxiaDamageMultiplier.ToStringP2(voyeur)}, airway {respiration.AirwayToleranceMultiplier.ToStringP2(voyeur)} @ {IntensityForType(type).ToString("N4", voyeur)}";
+            case DrugType.NeedRate:
+                NeedRateAdditionalInfo needRate = AdditionalInfoFor<NeedRateAdditionalInfo>(DrugType.NeedRate);
+                return
+                    $"NeedRate hunger {needRate.HungerMultiplier.ToStringP2(voyeur)}, thirst {needRate.ThirstMultiplier.ToStringP2(voyeur)}, drunk {needRate.DrunkennessMultiplier.ToStringP2(voyeur)} @ {IntensityForType(type).ToString("N4", voyeur)}";
+            case DrugType.Arousal:
+                ArousalAdditionalInfo arousal = AdditionalInfoFor<ArousalAdditionalInfo>(DrugType.Arousal);
+                return
+                    $"Arousal modes {arousal.Mode.DescribeEnum()} @ {IntensityForType(type).ToString("N4", voyeur)}";
+            case DrugType.Dependence:
+                DrugDependenceAdditionalInfo dependence = AdditionalInfoFor<DrugDependenceAdditionalInfo>(DrugType.Dependence);
+                return
+                    $"Dependence tolerance {dependence.ToleranceThreshold.ToString("N2", voyeur)}, withdrawal {dependence.WithdrawalThreshold.ToString("N2", voyeur)} @ {IntensityForType(type).ToString("N4", voyeur)}";
         }
 
         return $"{type.DescribeEnum()} @ {IntensityForType(type).ToString("N4", voyeur)}";
@@ -895,6 +1513,7 @@ The following options require a matching intensity for the type before using the
             case "types":
                 return new CollectionVariable(DrugTypes.Select(x => new TextVariable(x.DescribeEnum())).ToList(),
                     ProgVariableTypes.Text);
+            case "intensities":
             case "itensities":
                 return new CollectionVariable(DrugTypes.Select(x => new NumberVariable(IntensityForType(x))).ToList(),
                     ProgVariableTypes.Number);
@@ -910,11 +1529,12 @@ The following options require a matching intensity for the type before using the
             { "id", ProgVariableTypes.Number },
             { "name", ProgVariableTypes.Text },
             { "intensitypergram", ProgVariableTypes.Number },
-            { "metabolisationrate", ProgVariableTypes.Text | ProgVariableTypes.Collection },
+            { "metabolisationrate", ProgVariableTypes.Number },
             { "metabolizationrate", ProgVariableTypes.Number },
             { "vectors", ProgVariableTypes.Text | ProgVariableTypes.Collection },
             { "types", ProgVariableTypes.Text | ProgVariableTypes.Collection },
-            { "intensities", ProgVariableTypes.Number | ProgVariableTypes.Collection }
+            { "intensities", ProgVariableTypes.Number | ProgVariableTypes.Collection },
+            { "itensities", ProgVariableTypes.Number | ProgVariableTypes.Collection }
         };
     }
 
@@ -932,7 +1552,8 @@ The following options require a matching intensity for the type before using the
             { "metabolizationrate", "An alias for the metabolisationrate property" },
             { "vectors", "The potential vectors for the drug affecting someone" },
             { "types", "The drug effect types contained in this drug" },
-            { "intensities", "The intensities for each drug type, ordered the same way as the 'types' property" }
+            { "intensities", "The intensities for each drug type, ordered the same way as the 'types' property" },
+            { "itensities", "Deprecated alias for the intensities property" }
         };
     }
 

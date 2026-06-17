@@ -22,5 +22,10 @@
         ThermalImbalance = 18,
         Antifungal = 19,
         PlanarState = 20,
+        Coagulation = 21,
+        Respiration = 22,
+        NeedRate = 23,
+        Arousal = 24,
+        Dependence = 25,
     }
 }

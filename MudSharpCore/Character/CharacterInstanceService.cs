@@ -513,6 +513,11 @@ public static class CharacterInstanceService
 		}
 	}
 
+	public static bool CanStaffPossessNpcTarget(ICharacter target)
+	{
+		return !target.IsPlayerCharacter && !target.Identity.PrimaryInstance.IsPlayerCharacter;
+	}
+
 	public static CharacterInstanceOperationResult ValidateSecondarySpawnOptions(
 		SecondaryCharacterInstanceSpawnOptions options)
 	{

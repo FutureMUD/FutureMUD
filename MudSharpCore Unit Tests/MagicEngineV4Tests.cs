@@ -5,6 +5,7 @@ using Moq;
 using MudSharp.Body.Traits;
 using MudSharp.Character;
 using MudSharp.Commands.Modules;
+using MudSharp.Community;
 using MudSharp.Construction;
 using MudSharp.Effects;
 using MudSharp.Effects.Concrete;
@@ -17,6 +18,7 @@ using MudSharp.Magic.Powers;
 using MudSharp.Magic.SpellEffects;
 using MudSharp.Magic.SpellTriggers;
 using MudSharp.Models;
+using MudSharp.Movement;
 using MudSharp.RPG.Checks;
 using System;
 using System.Collections.Generic;
@@ -232,6 +234,32 @@ public class MagicEngineV4Tests
 
 		Assert.AreEqual("5", saved.Element("Priority")!.Value);
 		Assert.AreEqual("false-face", saved.Element("OverrideKey")!.Value);
+		Assert.AreEqual(IllusionAudienceScope.Caster.ToString(), saved.Element("AudienceScope")!.Value);
+	}
+
+	[TestMethod]
+	public void SubjectiveDescriptionEffect_RoundTripsAudienceScopeFields()
+	{
+		var viewerProg = CreateProg(2, true);
+		var gameworld = CreateGameworld(progs: [CreateProg(0, true).Object, viewerProg.Object]);
+		var spell = CreateSpellMock(gameworld.Object);
+		var effect = SpellEffectFactory.LoadEffect(new XElement("Effect",
+			new XAttribute("type", "subjectivedesc"),
+			new XElement("Description", new XCData("A false face.")),
+			new XElement("FixedViewer", false),
+			new XElement("AudienceScope", IllusionAudienceScope.SameZone.ToString()),
+			new XElement("ClanId", 5L),
+			new XElement("ViewerProg", 2L),
+			new XElement("Priority", 5),
+			new XElement("OverrideKey", new XCData("false-face")),
+			new XElement("ApplicabilityProg", 0)), spell.Object);
+
+		var saved = effect.SaveToXml();
+
+		Assert.AreEqual(IllusionAudienceScope.SameZone.ToString(), saved.Element("AudienceScope")!.Value);
+		Assert.AreEqual("5", saved.Element("ClanId")!.Value);
+		Assert.AreEqual("2", saved.Element("ViewerProg")!.Value);
+		Assert.AreEqual("false", saved.Element("FixedViewer")!.Value.ToLowerInvariant());
 	}
 
 	[TestMethod]
@@ -245,6 +273,116 @@ public class MagicEngineV4Tests
 
 		Assert.AreEqual(7, effect.OverridePriority);
 		Assert.AreEqual("mask", effect.OverrideKey);
+	}
+
+	[TestMethod]
+	public void RuntimeSubjectiveDescriptionEffect_AudienceScopesApply()
+	{
+		var gameworld = CreateGameworld();
+		var zoneOne = CreateZone(1);
+		var zoneTwo = CreateZone(2);
+		var cellOne = CreateCell(10, gameworld.Object, zoneOne.Object);
+		var cellTwo = CreateCell(11, gameworld.Object, zoneOne.Object);
+		var cellThree = CreateCell(12, gameworld.Object, zoneTwo.Object);
+		var caster = CreateCharacter(1, gameworld.Object, cellOne.Object);
+		var target = CreateCharacter(2, gameworld.Object, cellOne.Object);
+		var sameCellViewer = CreateCharacter(3, gameworld.Object, cellOne.Object);
+		var sameZoneViewer = CreateCharacter(4, gameworld.Object, cellTwo.Object);
+		var otherZoneViewer = CreateCharacter(5, gameworld.Object, cellThree.Object);
+		var partyViewer = CreateCharacter(6, gameworld.Object, cellTwo.Object);
+		var clanViewer = CreateCharacter(7, gameworld.Object, cellTwo.Object);
+		var clanOutsider = CreateCharacter(8, gameworld.Object, cellTwo.Object);
+		var falseViewerProg = CreateProg(4, false);
+		gameworld.SetupGet(x => x.FutureProgs).Returns(CreateCollectionMock(CreateProg(0, true).Object, falseViewerProg.Object).Object);
+		gameworld.SetupGet(x => x.Actors).Returns(CreateCollectionMock(caster.Object, target.Object, sameCellViewer.Object,
+			sameZoneViewer.Object, otherZoneViewer.Object, partyViewer.Object, clanViewer.Object, clanOutsider.Object).Object);
+		gameworld.SetupGet(x => x.Characters).Returns(CreateCollectionMock(caster.Object, target.Object, sameCellViewer.Object,
+			sameZoneViewer.Object, otherZoneViewer.Object, partyViewer.Object, clanViewer.Object, clanOutsider.Object).Object);
+		var party = new Mock<IParty>();
+		party.SetupGet(x => x.CharacterMembers).Returns([caster.Object, partyViewer.Object]);
+		partyViewer.SetupGet(x => x.Party).Returns(party.Object);
+		var clan = CreateClan(25);
+		clanViewer.SetupGet(x => x.ClanMemberships).Returns([CreateClanMembership(clan.Object).Object]);
+		clanOutsider.SetupGet(x => x.ClanMemberships).Returns([]);
+		var parent = CreateParent();
+
+		SpellSubjectiveDescriptionEffect Effect(IllusionAudienceScope scope, long? clanId = null,
+			IFutureProg? viewerProg = null)
+		{
+			return new SpellSubjectiveDescriptionEffect(target.Object, parent.Object,
+				MudSharp.Form.Shape.DescriptionType.Full, "A false face.", scope, caster.Object.Id, target.Object.Id,
+				clanId, viewerProg: viewerProg);
+		}
+
+		Assert.IsTrue(Effect(IllusionAudienceScope.Caster).OverrideApplies(caster.Object, MudSharp.Form.Shape.DescriptionType.Full));
+		Assert.IsFalse(Effect(IllusionAudienceScope.Caster).OverrideApplies(sameCellViewer.Object, MudSharp.Form.Shape.DescriptionType.Full));
+		Assert.IsTrue(Effect(IllusionAudienceScope.Target).OverrideApplies(target.Object, MudSharp.Form.Shape.DescriptionType.Full));
+		Assert.IsTrue(Effect(IllusionAudienceScope.Everyone).OverrideApplies(otherZoneViewer.Object, MudSharp.Form.Shape.DescriptionType.Full));
+		Assert.IsTrue(Effect(IllusionAudienceScope.SameCell).OverrideApplies(sameCellViewer.Object, MudSharp.Form.Shape.DescriptionType.Full));
+		Assert.IsFalse(Effect(IllusionAudienceScope.SameCell).OverrideApplies(sameZoneViewer.Object, MudSharp.Form.Shape.DescriptionType.Full));
+		Assert.IsTrue(Effect(IllusionAudienceScope.SameZone).OverrideApplies(sameZoneViewer.Object, MudSharp.Form.Shape.DescriptionType.Full));
+		Assert.IsFalse(Effect(IllusionAudienceScope.SameZone).OverrideApplies(otherZoneViewer.Object, MudSharp.Form.Shape.DescriptionType.Full));
+		Assert.IsTrue(Effect(IllusionAudienceScope.Party).OverrideApplies(partyViewer.Object, MudSharp.Form.Shape.DescriptionType.Full));
+		Assert.IsFalse(Effect(IllusionAudienceScope.Party).OverrideApplies(clanOutsider.Object, MudSharp.Form.Shape.DescriptionType.Full));
+		Assert.IsTrue(Effect(IllusionAudienceScope.Clan, clan.Object.Id).OverrideApplies(clanViewer.Object, MudSharp.Form.Shape.DescriptionType.Full));
+		Assert.IsFalse(Effect(IllusionAudienceScope.Clan, clan.Object.Id).OverrideApplies(clanOutsider.Object, MudSharp.Form.Shape.DescriptionType.Full));
+		Assert.IsFalse(Effect(IllusionAudienceScope.Everyone, viewerProg: falseViewerProg.Object)
+			.OverrideApplies(sameCellViewer.Object, MudSharp.Form.Shape.DescriptionType.Full));
+	}
+
+	[TestMethod]
+	public void SpellPhantomIllusionEffect_PresentsOnlyToEligibleViewers()
+	{
+		var gameworld = CreateGameworld();
+		var zoneOne = CreateZone(1);
+		var zoneTwo = CreateZone(2);
+		var room = CreateCell(10, gameworld.Object, zoneOne.Object);
+		var localViewer = CreateCharacter(3, gameworld.Object, room.Object);
+		var distantViewer = CreateCharacter(4, gameworld.Object, CreateCell(11, gameworld.Object, zoneTwo.Object).Object);
+		var parent = CreateParent();
+		var effect = new SpellPhantomIllusionEffect(room.Object, parent.Object, "A silver arch flickers here.",
+			IllusionAudienceScope.SameCell, 1L, room.Object.Id, null, priority: 9, illusionKey: "silver-arch",
+			colour: Telnet.BoldCyan);
+
+		Assert.IsInstanceOfType(effect, typeof(IDescriptionAdditionEffect));
+		Assert.IsTrue(effect.DescriptionAdditionApplies(localViewer.Object));
+		Assert.IsFalse(effect.DescriptionAdditionApplies(distantViewer.Object));
+		StringAssert.Contains(effect.GetAdditionalText(localViewer.Object, false), "A silver arch flickers here.");
+		Assert.AreEqual(9, effect.IllusionPriority);
+		Assert.AreEqual("silver-arch", effect.IllusionKey);
+		Assert.IsFalse(typeof(IPerceivable).IsAssignableFrom(effect.GetType()));
+	}
+
+	[TestMethod]
+	public void DispelMagicEffect_MatchesPhantomIllusionAndSharedIllusionKey()
+	{
+		var gameworld = CreateGameworld();
+		var zone = CreateZone(1);
+		var room = CreateCell(10, gameworld.Object, zone.Object);
+		var caster = CreateCharacter(1, gameworld.Object, room.Object);
+		var spell = CreateSpellMock(gameworld.Object);
+		var parent = new MagicSpellParent(room.Object, spell.Object, caster.Object);
+		var phantom = new SpellPhantomIllusionEffect(room.Object, parent, "A silver arch flickers here.",
+			IllusionAudienceScope.Everyone, caster.Object.Id, room.Object.Id, null, illusionKey: "silver-arch");
+		parent.AddSpellEffect(phantom);
+		var method = typeof(DispelMagicEffect).GetMethod("MatchesParent",
+			BindingFlags.Instance | BindingFlags.NonPublic)!;
+		var effectKeyDispel = SpellEffectFactory.LoadEffect(new XElement("Effect",
+			new XAttribute("type", "dispelmagic"),
+			new XElement("EffectKey", new XCData("phantomillusion")),
+			new XElement("IllusionKey", new XCData(string.Empty))), spell.Object);
+		var illusionKeyDispel = SpellEffectFactory.LoadEffect(new XElement("Effect",
+			new XAttribute("type", "dispelmagic"),
+			new XElement("EffectKey", new XCData("any")),
+			new XElement("IllusionKey", new XCData("silver-arch"))), spell.Object);
+		var wrongKeyDispel = SpellEffectFactory.LoadEffect(new XElement("Effect",
+			new XAttribute("type", "dispelmagic"),
+			new XElement("EffectKey", new XCData("any")),
+			new XElement("IllusionKey", new XCData("wrong-key"))), spell.Object);
+
+		Assert.AreEqual(true, method.Invoke(effectKeyDispel, [caster.Object, parent]));
+		Assert.AreEqual(true, method.Invoke(illusionKeyDispel, [caster.Object, parent]));
+		Assert.AreEqual(false, method.Invoke(wrongKeyDispel, [caster.Object, parent]));
 	}
 
 	[TestMethod]
@@ -546,6 +684,9 @@ public class MagicEngineV4Tests
 		gameworld.SetupGet(x => x.FutureProgs).Returns(CreateCollectionMock(progList).Object);
 		gameworld.SetupGet(x => x.MagicSchools).Returns(CreateCollectionMock(CreateSchool().Object).Object);
 		gameworld.SetupGet(x => x.Traits).Returns(CreateCollectionMock(CreateTrait().Object).Object);
+		gameworld.SetupGet(x => x.Actors).Returns(CreateCollectionMock<ICharacter>().Object);
+		gameworld.SetupGet(x => x.Characters).Returns(CreateCollectionMock<ICharacter>().Object);
+		gameworld.SetupGet(x => x.Clans).Returns(CreateCollectionMock<IClan>().Object);
 		gameworld.SetupGet(x => x.AlwaysTrueProg).Returns(progList.FirstOrDefault(x => x.Id == 0) ?? CreateProg(0, true).Object);
 		gameworld.SetupGet(x => x.AlwaysFalseProg).Returns(CreateProg(3, false).Object);
 		gameworld.SetupGet(x => x.UniversalErrorTextProg).Returns(progList.FirstOrDefault(x => x.Id == 0) ?? CreateProg(0, true).Object);
@@ -585,13 +726,56 @@ public class MagicEngineV4Tests
 		return prog;
 	}
 
-	private static Mock<ICharacter> CreateCharacter(long id, IFuturemud gameworld)
+	private static Mock<IZone> CreateZone(long id)
+	{
+		var zone = new Mock<IZone>();
+		zone.SetupGet(x => x.Id).Returns(id);
+		zone.SetupGet(x => x.Name).Returns($"Zone {id}");
+		return zone;
+	}
+
+	private static Mock<ICell> CreateCell(long id, IFuturemud gameworld, IZone zone)
+	{
+		var cell = new Mock<ICell>();
+		cell.SetupGet(x => x.Id).Returns(id);
+		cell.SetupGet(x => x.Name).Returns($"Cell {id}");
+		cell.SetupGet(x => x.FrameworkItemType).Returns("Cell");
+		cell.SetupGet(x => x.Gameworld).Returns(gameworld);
+		cell.SetupGet(x => x.Location).Returns(cell.Object);
+		cell.SetupGet(x => x.Zone).Returns(zone);
+		return cell;
+	}
+
+	private static Mock<IClan> CreateClan(long id)
+	{
+		var clan = new Mock<IClan>();
+		clan.SetupGet(x => x.Id).Returns(id);
+		clan.SetupGet(x => x.Name).Returns($"Clan {id}");
+		clan.SetupGet(x => x.FullName).Returns($"Clan {id}");
+		clan.SetupGet(x => x.Alias).Returns($"clan{id}");
+		return clan;
+	}
+
+	private static Mock<IClanMembership> CreateClanMembership(IClan clan)
+	{
+		var membership = new Mock<IClanMembership>();
+		membership.SetupGet(x => x.Clan).Returns(clan);
+		membership.SetupGet(x => x.IsArchivedMembership).Returns(false);
+		return membership;
+	}
+
+	private static Mock<ICharacter> CreateCharacter(long id, IFuturemud gameworld, ICell? location = null)
 	{
 		var character = new Mock<ICharacter>();
 		character.SetupGet(x => x.Id).Returns(id);
 		character.SetupGet(x => x.Name).Returns($"Character {id}");
 		character.SetupGet(x => x.FrameworkItemType).Returns("Character");
 		character.SetupGet(x => x.Gameworld).Returns(gameworld);
+		if (location is not null)
+		{
+			character.SetupGet(x => x.Location).Returns(location);
+		}
+		character.SetupGet(x => x.ClanMemberships).Returns([]);
 		return character;
 	}
 
@@ -612,12 +796,12 @@ public class MagicEngineV4Tests
 		return parent;
 	}
 
-	private static Mock<IMagicSpell> CreateSpellMock()
+	private static Mock<IMagicSpell> CreateSpellMock(IFuturemud? gameworld = null)
 	{
 		var spell = new Mock<IMagicSpell>();
 		spell.SetupGet(x => x.Id).Returns(1);
 		spell.SetupGet(x => x.Name).Returns("V4 Spell");
-		spell.SetupGet(x => x.Gameworld).Returns(CreateGameworld().Object);
+		spell.SetupGet(x => x.Gameworld).Returns(gameworld ?? CreateGameworld().Object);
 		spell.SetupGet(x => x.School).Returns(CreateSchool().Object);
 		spell.SetupProperty(x => x.Changed);
 		return spell;

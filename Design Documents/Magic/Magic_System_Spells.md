@@ -455,8 +455,8 @@ General dispels use `dispelmagic`. It can either remove matching spell-parent ef
 - magic school, optionally including child schools
 - caster policy: own, any, or others
 - magic tag and optional tag value
-- approved effect key such as `spell`, `invisibility`, `flight`, `levitation`, `featherfall`, `burning`, `trackmark`, `magictag`, `itemenchant`, `portal`, `planarstate`, `roomward`, `personalward`, `exitbarrier`, `subjectivedesc`, `transformform`, `possessbody`, `seizebody`, `possesscorpse`, `animatecorpse`, `projectile`, `crafttool`, `powerfuel`, or `itemevent`
-- keyed subjective illusions through `illusion <key>`
+- approved effect key such as `spell`, `invisibility`, `flight`, `levitation`, `featherfall`, `burning`, `trackmark`, `magictag`, `itemenchant`, `portal`, `planarstate`, `roomward`, `personalward`, `exitbarrier`, `subjectivedesc`, `phantomillusion`, `transformform`, `possessbody`, `seizebody`, `possesscorpse`, `animatecorpse`, `projectile`, `crafttool`, `powerfuel`, or `itemevent`
+- keyed subjective or phantom illusions through `illusion <key>`
 - optional strength contest
 
 The default policy is caster-owned cleanup. Hostile dispels must be explicitly configured with hostile matching and then travel through the ordinary spell targeting, ward, and resistance flow.
@@ -473,8 +473,13 @@ The Engine V4 psionic/perception slice adds:
 
 - contextual interdiction tags from `magictag`, so tag-aware wards can inspect spell metadata rather than only school/subschool.
 - `roomtagward` / `personaltagward`, which reuse ward coverage and fail/reflect modes but match `magictag` key/value metadata.
-- subjective-description priority and illusion keys on `subjectivedesc` / `subjectivesdesc`.
-- `dispelmagic illusion <key>`, which targets keyed subjective-description effects through the general dispel flow.
+- subjective-description priority, illusion keys, audience scopes, clan gates, and viewer FutureProg gates on `subjectivedesc` / `subjectivesdesc`.
+- `phantomillusion`, which adds non-interactive room LOOK text for scoped viewers without creating targetable actors, items, or perceivables.
+- `dispelmagic illusion <key>`, which targets keyed subjective-description and phantom room illusions through the general dispel flow.
+
+Illusion audience scopes are shared between `subjectivedesc`, `subjectivesdesc`, and `phantomillusion`: `caster`, `target`, `everyone`, `samecell`, `samezone`, `party`, and `clan`. `viewerprog <prog|none>` can add a boolean FutureProg gate with parameters `(perceivable)`, `(perceivable, perceiver)`, or `(perceivable, perceiver, character)`, where the optional character is the caster when available. `clan <which|none>` supplies the clan id for `scope clan`. Existing `FixedViewer` XML remains valid; `FixedViewer=true` loads as `scope caster`, while `FixedViewer=false` loads as `scope everyone`.
+
+`phantomillusion` is deliberately presentation-only. It lives as an `IDescriptionAdditionEffect` on the room/cell, stacks after ordinary room addenda by priority and effect id, and is only visible in room LOOK output for eligible viewers. It cannot be found by normal target resolution, combat targeting, inventory handling, or emote token lookup because it never creates a physical perceivable.
 
 The persistent sensory/combat slice adds:
 
@@ -641,7 +646,7 @@ Important implementation note:
 | `vicinity` | `CastingTriggerVicinity` | Casts across a vicinity target set |
 
 ## Current Implemented Spell Effect Types
-The V4 spell-side catalogue adds 2 tag-aware ward tokens: `roomtagward` and `personaltagward`. The persistent sensory/combat slice adds `burning`, `ignite`, `trackmark`, and `tracktrail`. The body-instance slices add `astralprojection`, `createcopy`, `createclone`, `possessbody`, `seizebody`, `possesscorpse`, and `animatecorpse`.
+The V4 spell-side catalogue adds 2 tag-aware ward tokens: `roomtagward` and `personaltagward`. The persistent sensory/combat slice adds `burning`, `ignite`, `trackmark`, and `tracktrail`. The body-instance slices add `astralprojection`, `createcopy`, `createclone`, `possessbody`, `seizebody`, `possesscorpse`, and `animatecorpse`. The objective/group-scoped illusion slice adds audience-scoped subjective descriptions and `phantomillusion`.
 
 | Token | Class | Summary |
 | --- | --- | --- |
@@ -696,6 +701,7 @@ The V4 spell-side catalogue adds 2 tag-aware ward tokens: `roomtagward` and `per
 | `pacifism` | `PacifismSpellEffect` | Applies pacifism |
 | `personalward` | `PersonalWardEffect` | Applies a school-based personal ward that can fail or reflect matching incoming or outgoing magic |
 | `personaltagward` | `PersonalTagWardEffect` | Applies a personal ward that fails or reflects matching incoming or outgoing magic by `magictag` key/value |
+| `phantomillusion` | `PhantomIllusionEffect` | Adds non-interactive phantom room LOOK text for eligible scoped viewers, with priority, colour, viewer-prog, clan, and illusion-key controls |
 | `planarstate` | `PlanarStateSpellEffect` | Applies a corporeal or noncorporeal planar overlay to the target |
 | `planeshift` | `PlanarStateSpellEffect` | Moves the target into a configured corporeal or noncorporeal planar state |
 | `paralysis` | `ParalysisEffect` | Applies magical paralysis through the forced-paralysis hook |
@@ -746,8 +752,8 @@ The V4 spell-side catalogue adds 2 tag-aware ward tokens: `roomtagward` and `per
 | `trackmark` | `TrackMarkEffect` | Alters a character's future visual and olfactory tracks and can mark created tracks with a magical trace |
 | `tracktrail` | `TrackMarkEffect` | Builder/load alias for `trackmark` |
 | `transference` | `TransferenceEffect` | Swaps the caster and target character locations, optionally including followers and room layers |
-| `subjectivedesc` | `SubjectiveDescriptionEffect` | Adds caster-scoped subjective full-description replacement with priority and optional illusion key |
-| `subjectivesdesc` | `SubjectiveSDescEffect` | Adds caster-scoped subjective short-description replacement with priority and optional illusion key |
+| `subjectivedesc` | `SubjectiveDescriptionEffect` | Adds audience-scoped subjective full-description replacement with priority, optional clan/viewer-prog gates, and optional illusion key |
+| `subjectivesdesc` | `SubjectiveSDescEffect` | Adds audience-scoped subjective short-description replacement with priority, optional clan/viewer-prog gates, and optional illusion key |
 | `transformform` | `TransformFormEffect` | Ensures or reuses a keyed alternate body form and applies a priority-ranked forced transformation demand |
 | `waterbreathing` | `WaterBreathingEffect` | Grants additional breathable fluids |
 | `weatherchange` | `WeatherChangeEffect` | Changes weather |

@@ -5,6 +5,7 @@ using MudSharp.Accounts;
 using MudSharp.Body.Position.PositionStates;
 using MudSharp.Character;
 using MudSharp.Commands;
+using MudSharp.Community;
 using MudSharp.Construction;
 using MudSharp.Effects.Concrete.SpellEffects;
 using MudSharp.Effects.Interfaces;
@@ -1656,14 +1657,14 @@ public class SubjectiveDescriptionEffect : IMagicSpellEffectTemplate
 			(root, spell) => new SubjectiveDescriptionEffect(root, spell, DescriptionType.Short));
 		SpellEffectFactory.RegisterBuilderFactory("subjectivedesc",
 			(commands, spell) => BuilderFactory(commands, spell, DescriptionType.Full, "subjectivedesc"),
-			"Overrides the full description for a fixed perceiver",
+			"Overrides the full description for scoped viewers",
 			HelpText,
 			false,
 			true,
 			CompatibleTriggers());
 		SpellEffectFactory.RegisterBuilderFactory("subjectivesdesc",
 			(commands, spell) => BuilderFactory(commands, spell, DescriptionType.Short, "subjectivesdesc"),
-			"Overrides the short description for a fixed perceiver",
+			"Overrides the short description for scoped viewers",
 			HelpText,
 			false,
 			true,
@@ -1684,6 +1685,9 @@ public class SubjectiveDescriptionEffect : IMagicSpellEffectTemplate
 			new XAttribute("type", effectType),
 			new XElement("Description", new XCData(type == DescriptionType.Short ? "someone altered by magic" : "They appear different through magic.")),
 			new XElement("FixedViewer", true),
+			new XElement("AudienceScope", IllusionAudienceScope.Caster.ToString()),
+			new XElement("ClanId", 0L),
+			new XElement("ViewerProg", 0L),
 			new XElement("ApplicabilityProg", 0),
 			new XElement("Priority", 0),
 			new XElement("OverrideKey", new XCData(string.Empty))
@@ -1697,6 +1701,10 @@ public class SubjectiveDescriptionEffect : IMagicSpellEffectTemplate
 		EffectType = root.Attribute("type")?.Value ?? (type == DescriptionType.Short ? "subjectivesdesc" : "subjectivedesc");
 		Description = root.Element("Description")?.Value ?? string.Empty;
 		FixedViewer = bool.Parse(root.Element("FixedViewer")?.Value ?? "true");
+		AudienceScope = ParseAudienceScope(root.Element("AudienceScope")?.Value, FixedViewer);
+		FixedViewer = AudienceScope == IllusionAudienceScope.Caster;
+		ClanId = long.TryParse(root.Element("ClanId")?.Value, out var clanId) && clanId > 0L ? clanId : null;
+		ViewerProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("ViewerProg")?.Value ?? "0"));
 		ApplicabilityProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("ApplicabilityProg")?.Value ?? "0"));
 		Priority = int.Parse(root.Element("Priority")?.Value ?? "0");
 		OverrideKey = root.Element("OverrideKey")?.Value ?? string.Empty;
@@ -1708,6 +1716,9 @@ public class SubjectiveDescriptionEffect : IMagicSpellEffectTemplate
 	public string EffectType { get; }
 	public string Description { get; private set; }
 	public bool FixedViewer { get; private set; }
+	public IllusionAudienceScope AudienceScope { get; private set; }
+	public long? ClanId { get; private set; }
+	public IFutureProg? ViewerProg { get; private set; }
 	public IFutureProg? ApplicabilityProg { get; private set; }
 	public int Priority { get; private set; }
 	public string OverrideKey { get; private set; }
@@ -1718,6 +1729,9 @@ public class SubjectiveDescriptionEffect : IMagicSpellEffectTemplate
 			new XAttribute("type", EffectType),
 			new XElement("Description", new XCData(Description)),
 			new XElement("FixedViewer", FixedViewer),
+			new XElement("AudienceScope", AudienceScope.ToString()),
+			new XElement("ClanId", ClanId ?? 0L),
+			new XElement("ViewerProg", ViewerProg?.Id ?? 0L),
 			new XElement("ApplicabilityProg", ApplicabilityProg?.Id ?? 0),
 			new XElement("Priority", Priority),
 			new XElement("OverrideKey", new XCData(OverrideKey))
@@ -1733,7 +1747,7 @@ public class SubjectiveDescriptionEffect : IMagicSpellEffectTemplate
 	{
 		return target is not null
 			? new SpellSubjectiveDescriptionEffect(target, parent, DescriptionType, Description,
-				FixedViewer ? caster.Id : 0, ApplicabilityProg, Priority, OverrideKey)
+				AudienceScope, caster.Id, target.Id, ClanId, ApplicabilityProg, ViewerProg, Priority, OverrideKey)
 			: null;
 	}
 
@@ -1743,6 +1757,9 @@ public class SubjectiveDescriptionEffect : IMagicSpellEffectTemplate
 
 	#3description <text>#0 - sets the replacement description
 	#3fixedviewer#0 - toggles whether only the caster sees it
+	#3scope <caster|target|everyone|samecell|samezone|party|clan>#0 - sets who can see the illusion
+	#3clan <which|none>#0 - sets the clan for clan-scoped illusions
+	#3viewerprog <prog|none>#0 - gates individual viewers
 	#3prog <prog|none>#0 - gates whether the override applies
 	#3priority <number>#0 - sets override priority; higher priorities win
 	#3key <text|none>#0 - sets an optional illusion/dispel key";
@@ -1758,7 +1775,14 @@ public class SubjectiveDescriptionEffect : IMagicSpellEffectTemplate
 				break;
 			case "fixedviewer":
 				FixedViewer = !FixedViewer;
+				AudienceScope = FixedViewer ? IllusionAudienceScope.Caster : IllusionAudienceScope.Everyone;
 				break;
+			case "scope":
+				return BuildingCommandScope(actor, command);
+			case "clan":
+				return BuildingCommandClan(actor, command);
+			case "viewerprog":
+				return BuildingCommandViewerProg(actor, command);
 			case "priority":
 				if (!int.TryParse(command.SafeRemainingArgument, out var value))
 				{
@@ -1803,15 +1827,343 @@ public class SubjectiveDescriptionEffect : IMagicSpellEffectTemplate
 		return true;
 	}
 
+	private bool BuildingCommandScope(ICharacter actor, StringStack command)
+	{
+		if (!command.SafeRemainingArgument.TryParseEnum(out IllusionAudienceScope value))
+		{
+			actor.OutputHandler.Send($"Valid illusion scopes are {Enum.GetValues<IllusionAudienceScope>().Select(x => x.DescribeEnum().ColourValue()).ListToString()}.");
+			return false;
+		}
+
+		AudienceScope = value;
+		FixedViewer = AudienceScope == IllusionAudienceScope.Caster;
+		Spell.Changed = true;
+		actor.OutputHandler.Send($"This subjective description illusion will now use the {AudienceScope.DescribeEnum().ColourValue()} audience scope.");
+		return true;
+	}
+
+	private bool BuildingCommandClan(ICharacter actor, StringStack command)
+	{
+		if (command.SafeRemainingArgument.EqualToAny("none", "clear", "0"))
+		{
+			ClanId = null;
+			Spell.Changed = true;
+			actor.OutputHandler.Send("This subjective description illusion no longer has a clan audience restriction.");
+			return true;
+		}
+
+		var clan = Gameworld.Clans.GetClan(command.SafeRemainingArgument);
+		if (clan is null)
+		{
+			actor.OutputHandler.Send("There is no such clan.");
+			return false;
+		}
+
+		ClanId = clan.Id;
+		Spell.Changed = true;
+		actor.OutputHandler.Send($"This subjective description illusion will now use {clan.FullName.ColourName()} for clan-scoped audiences.");
+		return true;
+	}
+
+	private bool BuildingCommandViewerProg(ICharacter actor, StringStack command)
+	{
+		if (command.SafeRemainingArgument.EqualTo("none"))
+		{
+			ViewerProg = null;
+			Spell.Changed = true;
+			actor.OutputHandler.Send("This subjective description illusion no longer has a viewer FutureProg gate.");
+			return true;
+		}
+
+		ViewerProg = new ProgLookupFromBuilderInput(actor, command.SafeRemainingArgument,
+			ProgVariableTypes.Boolean,
+			[
+				[ProgVariableTypes.Perceivable],
+				[ProgVariableTypes.Perceivable, ProgVariableTypes.Perceiver],
+				[ProgVariableTypes.Perceivable, ProgVariableTypes.Perceiver, ProgVariableTypes.Character]
+			]).LookupProg();
+		if (ViewerProg is null)
+		{
+			return false;
+		}
+
+		Spell.Changed = true;
+		actor.OutputHandler.Send($"This subjective description illusion now uses {ViewerProg.MXPClickableFunctionName()} as its viewer gate.");
+		return true;
+	}
+
 	public string Show(ICharacter actor)
 	{
 		return SpellEffectPresentation.Describe(actor,
 			DescriptionType == DescriptionType.Short ? "Subjective SDesc" : "Subjective Description",
 			("Fixed Viewer", FixedViewer.ToColouredString()),
+			("Audience Scope", AudienceScope.DescribeEnum().ColourValue()),
+			("Clan", ClanId.HasValue ? $"#{ClanId.Value.ToString("N0", actor)}".ColourValue() : "none".ColourError()),
+			("Viewer Prog", ViewerProg?.MXPClickableFunctionName() ?? "None".ColourError()),
 			("Priority", Priority.ToString("N0", actor).ColourValue()),
 			("Override Key", string.IsNullOrWhiteSpace(OverrideKey) ? "none".ColourError() : OverrideKey.ColourValue()),
 			("Applicability Prog", ApplicabilityProg?.MXPClickableFunctionName() ?? "None".ColourError()),
 			("Description", Description.ColourValue())
+		);
+	}
+
+	private static IllusionAudienceScope ParseAudienceScope(string? text, bool fixedViewer)
+	{
+		if (string.IsNullOrWhiteSpace(text))
+		{
+			return fixedViewer ? IllusionAudienceScope.Caster : IllusionAudienceScope.Everyone;
+		}
+
+		return text.TryParseEnum(out IllusionAudienceScope value)
+			? value
+			: fixedViewer
+				? IllusionAudienceScope.Caster
+				: IllusionAudienceScope.Everyone;
+	}
+}
+
+public class PhantomIllusionEffect : IMagicSpellEffectTemplate
+{
+	public static void RegisterFactory()
+	{
+		SpellEffectFactory.RegisterLoadTimeFactory("phantomillusion",
+			(root, spell) => new PhantomIllusionEffect(root, spell));
+		SpellEffectFactory.RegisterBuilderFactory("phantomillusion",
+			(commands, spell) => BuilderFactory(commands, spell),
+			"Adds non-interactive phantom text to room descriptions",
+			HelpText,
+			false,
+			true,
+			CompatibleTriggers());
+	}
+
+	private static string[] CompatibleTriggers()
+	{
+		return SpellTriggerFactory.MagicTriggerTypes
+		                          .Where(x => SpellTriggerFactory.BuilderInfoForType(x).TargetTypes is "room" or "rooms")
+		                          .ToArray();
+	}
+
+	private static (IMagicSpellEffectTemplate Trigger, string Error) BuilderFactory(StringStack commands,
+		IMagicSpell spell)
+	{
+		return (new PhantomIllusionEffect(new XElement("Effect",
+			new XAttribute("type", "phantomillusion"),
+			new XElement("Text", new XCData("Something unreal shimmers here.")),
+			new XElement("AudienceScope", IllusionAudienceScope.Everyone.ToString()),
+			new XElement("ClanId", 0L),
+			new XElement("ViewerProg", 0L),
+			new XElement("Priority", 0),
+			new XElement("IllusionKey", new XCData(string.Empty)),
+			new XElement("Colour", "none")
+		), spell), string.Empty);
+	}
+
+	private PhantomIllusionEffect(XElement root, IMagicSpell spell)
+	{
+		Spell = spell;
+		Text = root.Element("Text")?.Value ?? string.Empty;
+		var scopeText = root.Element("AudienceScope")?.Value;
+		AudienceScope = !string.IsNullOrWhiteSpace(scopeText) && scopeText.TryParseEnum(out IllusionAudienceScope scope)
+			? scope
+			: IllusionAudienceScope.Everyone;
+		ClanId = long.TryParse(root.Element("ClanId")?.Value, out var clanId) && clanId > 0L ? clanId : null;
+		ViewerProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("ViewerProg")?.Value ?? "0"));
+		Priority = int.Parse(root.Element("Priority")?.Value ?? "0");
+		IllusionKey = root.Element("IllusionKey")?.Value ?? string.Empty;
+		var colourText = root.Element("Colour")?.Value ?? "none";
+		Colour = colourText.EqualTo("none") ? null : Telnet.GetColour(colourText);
+	}
+
+	public IMagicSpell Spell { get; }
+	public IFuturemud Gameworld => Spell.Gameworld;
+	public string Text { get; private set; }
+	public IllusionAudienceScope AudienceScope { get; private set; }
+	public long? ClanId { get; private set; }
+	public IFutureProg? ViewerProg { get; private set; }
+	public int Priority { get; private set; }
+	public string IllusionKey { get; private set; }
+	public ANSIColour? Colour { get; private set; }
+	public bool IsInstantaneous => false;
+	public bool RequiresTarget => true;
+
+	public XElement SaveToXml()
+	{
+		return new XElement("Effect",
+			new XAttribute("type", "phantomillusion"),
+			new XElement("Text", new XCData(Text)),
+			new XElement("AudienceScope", AudienceScope.ToString()),
+			new XElement("ClanId", ClanId ?? 0L),
+			new XElement("ViewerProg", ViewerProg?.Id ?? 0L),
+			new XElement("Priority", Priority),
+			new XElement("IllusionKey", new XCData(IllusionKey)),
+			new XElement("Colour", Colour?.Name ?? "none")
+		);
+	}
+
+	public bool IsCompatibleWithTrigger(IMagicTrigger types) => types.TargetTypes is "room" or "rooms";
+
+	public IMagicSpellEffect? GetOrApplyEffect(ICharacter caster, IPerceivable? target, OpposedOutcomeDegree outcome,
+		SpellPower power, IMagicSpellEffectParent parent, SpellAdditionalParameter[] additionalParameters)
+	{
+		return target is ICell cell
+			? new SpellPhantomIllusionEffect(cell, parent, Text, AudienceScope, caster.Id, cell.Id, ClanId, null,
+				ViewerProg, Priority, IllusionKey, Colour)
+			: null;
+	}
+
+	public IMagicSpellEffectTemplate Clone() => new PhantomIllusionEffect(SaveToXml(), Spell);
+
+	public const string HelpText = @"You can use the following options with this effect:
+
+	#3text <description>#0 - sets the phantom room text
+	#3scope <caster|target|everyone|samecell|samezone|party|clan>#0 - sets who can see the illusion
+	#3clan <which|none>#0 - sets the clan for clan-scoped illusions
+	#3viewerprog <prog|none>#0 - gates individual viewers
+	#3priority <number>#0 - sets stacking priority; higher priorities are shown first
+	#3key <text|none>#0 - sets an optional illusion/dispel key
+	#3colour <ansi|none>#0 - sets an optional ANSI colour for the phantom text";
+
+	public bool BuildingCommand(ICharacter actor, StringStack command)
+	{
+		switch (command.PopSpeech().ToLowerInvariant())
+		{
+			case "text":
+			case "description":
+			case "desc":
+				Text = command.SafeRemainingArgument;
+				break;
+			case "scope":
+				return BuildingCommandScope(actor, command);
+			case "clan":
+				return BuildingCommandClan(actor, command);
+			case "viewerprog":
+				return BuildingCommandViewerProg(actor, command);
+			case "priority":
+				if (!int.TryParse(command.SafeRemainingArgument, out var value))
+				{
+					actor.OutputHandler.Send("You must enter a valid whole number priority.");
+					return false;
+				}
+
+				Priority = value;
+				break;
+			case "key":
+			case "illusionkey":
+				IllusionKey = command.SafeRemainingArgument.EqualTo("none")
+					? string.Empty
+					: command.SafeRemainingArgument;
+				break;
+			case "colour":
+			case "color":
+				return BuildingCommandColour(actor, command);
+			default:
+				actor.OutputHandler.Send(HelpText.SubstituteANSIColour());
+				return false;
+		}
+
+		Spell.Changed = true;
+		actor.OutputHandler.Send("The phantom illusion effect has been updated.");
+		return true;
+	}
+
+	private bool BuildingCommandScope(ICharacter actor, StringStack command)
+	{
+		if (!command.SafeRemainingArgument.TryParseEnum(out IllusionAudienceScope value))
+		{
+			actor.OutputHandler.Send($"Valid illusion scopes are {Enum.GetValues<IllusionAudienceScope>().Select(x => x.DescribeEnum().ColourValue()).ListToString()}.");
+			return false;
+		}
+
+		AudienceScope = value;
+		Spell.Changed = true;
+		actor.OutputHandler.Send($"This phantom illusion will now use the {AudienceScope.DescribeEnum().ColourValue()} audience scope.");
+		return true;
+	}
+
+	private bool BuildingCommandClan(ICharacter actor, StringStack command)
+	{
+		if (command.SafeRemainingArgument.EqualToAny("none", "clear", "0"))
+		{
+			ClanId = null;
+			Spell.Changed = true;
+			actor.OutputHandler.Send("This phantom illusion no longer has a clan audience restriction.");
+			return true;
+		}
+
+		var clan = Gameworld.Clans.GetClan(command.SafeRemainingArgument);
+		if (clan is null)
+		{
+			actor.OutputHandler.Send("There is no such clan.");
+			return false;
+		}
+
+		ClanId = clan.Id;
+		Spell.Changed = true;
+		actor.OutputHandler.Send($"This phantom illusion will now use {clan.FullName.ColourName()} for clan-scoped audiences.");
+		return true;
+	}
+
+	private bool BuildingCommandViewerProg(ICharacter actor, StringStack command)
+	{
+		if (command.SafeRemainingArgument.EqualTo("none"))
+		{
+			ViewerProg = null;
+			Spell.Changed = true;
+			actor.OutputHandler.Send("This phantom illusion no longer has a viewer FutureProg gate.");
+			return true;
+		}
+
+		ViewerProg = new ProgLookupFromBuilderInput(actor, command.SafeRemainingArgument,
+			ProgVariableTypes.Boolean,
+			[
+				[ProgVariableTypes.Perceivable],
+				[ProgVariableTypes.Perceivable, ProgVariableTypes.Perceiver],
+				[ProgVariableTypes.Perceivable, ProgVariableTypes.Perceiver, ProgVariableTypes.Character]
+			]).LookupProg();
+		if (ViewerProg is null)
+		{
+			return false;
+		}
+
+		Spell.Changed = true;
+		actor.OutputHandler.Send($"This phantom illusion now uses {ViewerProg.MXPClickableFunctionName()} as its viewer gate.");
+		return true;
+	}
+
+	private bool BuildingCommandColour(ICharacter actor, StringStack command)
+	{
+		if (command.SafeRemainingArgument.EqualToAny("none", "clear", "0"))
+		{
+			Colour = null;
+			Spell.Changed = true;
+			actor.OutputHandler.Send("This phantom illusion no longer applies an extra colour.");
+			return true;
+		}
+
+		var colour = Telnet.GetColour(command.SafeRemainingArgument);
+		if (colour is null)
+		{
+			actor.OutputHandler.Send($"Invalid colour. Options: {Telnet.GetColourOptions.ListToLines(true)}");
+			return false;
+		}
+
+		Colour = colour;
+		Spell.Changed = true;
+		actor.OutputHandler.Send($"This phantom illusion will now use {colour.Name.Colour(colour)}.");
+		return true;
+	}
+
+	public string Show(ICharacter actor)
+	{
+		return SpellEffectPresentation.Describe(actor, "Phantom Illusion",
+			("Audience Scope", AudienceScope.DescribeEnum().ColourValue()),
+			("Clan", ClanId.HasValue ? $"#{ClanId.Value.ToString("N0", actor)}".ColourValue() : "none".ColourError()),
+			("Viewer Prog", ViewerProg?.MXPClickableFunctionName() ?? "None".ColourError()),
+			("Priority", Priority.ToString("N0", actor).ColourValue()),
+			("Illusion Key", string.IsNullOrWhiteSpace(IllusionKey) ? "none".ColourError() : IllusionKey.ColourValue()),
+			("Colour", Colour?.Name.Colour(Colour) ?? "none".ColourError()),
+			("Text", Text.ColourValue())
 		);
 	}
 }

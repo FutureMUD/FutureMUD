@@ -40,7 +40,8 @@ public class MagicPhase3Tests
 		"portalnetwork",
 		"forcecommand",
 		"subjectivedesc",
-		"subjectivesdesc"
+		"subjectivesdesc",
+		"phantomillusion"
 	];
 
 	[TestInitialize]
@@ -228,6 +229,16 @@ public class MagicPhase3Tests
 		yield return new XElement("Effect", new XAttribute("type", "subjectivesdesc"),
 			new XElement("Description", new XCData("someone changed")), new XElement("FixedViewer", true),
 			new XElement("ApplicabilityProg", 0));
+		yield return new XElement("Effect", new XAttribute("type", "subjectivedesc"),
+			new XElement("Description", new XCData("A clan-only false face.")), new XElement("FixedViewer", false),
+			new XElement("AudienceScope", IllusionAudienceScope.Clan.ToString()), new XElement("ClanId", 25L),
+			new XElement("ViewerProg", 0L), new XElement("ApplicabilityProg", 0), new XElement("Priority", 12),
+			new XElement("OverrideKey", new XCData("clan-mask")));
+		yield return new XElement("Effect", new XAttribute("type", "phantomillusion"),
+			new XElement("Text", new XCData("A ghostly door hangs in the air.")),
+			new XElement("AudienceScope", IllusionAudienceScope.SameCell.ToString()), new XElement("ClanId", 0L),
+			new XElement("ViewerProg", 0L), new XElement("Priority", 4),
+			new XElement("IllusionKey", new XCData("ghost-door")), new XElement("Colour", "bold cyan"));
 	}
 
 	private static Mock<IMagicSpellEffectParent> CreateParent()

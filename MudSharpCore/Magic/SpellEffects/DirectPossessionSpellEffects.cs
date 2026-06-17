@@ -1,5 +1,6 @@
 #nullable enable
 
+using MudSharp.Accounts;
 using MudSharp.Character;
 using MudSharp.Effects.Concrete;
 using MudSharp.Effects.Concrete.SpellEffects;
@@ -15,6 +16,14 @@ using System.Linq;
 using System.Xml.Linq;
 
 namespace MudSharp.Magic.SpellEffects;
+
+internal static class DirectPossessionSecurity
+{
+	internal static bool HasProtectedStaffAuthority(ICharacter character)
+	{
+		return character.PermissionLevel >= PermissionLevel.JuniorAdmin;
+	}
+}
 
 public sealed class SeizeBodySpellEffect : IMagicSpellEffectTemplate
 {
@@ -145,7 +154,7 @@ public sealed class SeizeBodySpellEffect : IMagicSpellEffectTemplate
 			return null;
 		}
 
-		if (!_allowAdmins && targetCharacter.IsAdministrator())
+		if (!_allowAdmins && HasProtectedStaffAuthority(targetCharacter))
 		{
 			caster.OutputHandler.Send("This spell is not configured to seize administrator avatars.");
 			return null;
@@ -280,6 +289,11 @@ public sealed class SeizeBodySpellEffect : IMagicSpellEffectTemplate
 			("Collapse Echo", DirectPossessionBuilderHelpers.DescribeEcho(_collapseEcho, DefaultCollapseEcho)),
 			("Backlash", DirectPossessionBuilderHelpers.DescribeEcho(_backlashEcho, string.Empty))
 		);
+	}
+
+	internal static bool HasProtectedStaffAuthority(ICharacter character)
+	{
+		return DirectPossessionSecurity.HasProtectedStaffAuthority(character);
 	}
 
 	private bool TryGetAnchor(ICharacter caster, out ICharacter anchor)
@@ -458,7 +472,7 @@ public sealed class PossessCorpseSpellEffect : IMagicSpellEffectTemplate
 			return null;
 		}
 
-		if (!_allowAdmins && corpse.OriginalCharacter.IsAdministrator())
+		if (!_allowAdmins && DirectPossessionSecurity.HasProtectedStaffAuthority(corpse.OriginalCharacter))
 		{
 			caster.OutputHandler.Send("This spell is not configured to animate administrator avatars.");
 			return null;
@@ -803,7 +817,7 @@ public sealed class AnimateCorpseSpellEffect : IMagicSpellEffectTemplate
 			return null;
 		}
 
-		if (!_allowAdmins && corpse.OriginalCharacter.IsAdministrator())
+		if (!_allowAdmins && DirectPossessionSecurity.HasProtectedStaffAuthority(corpse.OriginalCharacter))
 		{
 			caster.OutputHandler.Send("This spell is not configured to animate administrator avatars.");
 			return null;

@@ -2,6 +2,7 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using MudSharp.Accounts;
 using MudSharp.Body;
 using MudSharp.Character;
 using MudSharp.Character.Heritage;
@@ -501,6 +502,24 @@ public class BodyFormProvisioningTests
 		Assert.IsTrue(animateInfo.MatchingTriggers.Any());
 		Assert.IsFalse(animateInfo.Instant);
 		Assert.IsTrue(animateInfo.RequiresTarget);
+	}
+
+	[TestMethod]
+	public void DirectPossessionSecurity_HasProtectedStaffAuthority_UsesPermissionLevelWithoutAdminSight()
+	{
+		var player = new Mock<ICharacter>();
+		player.Setup(x => x.PermissionLevel).Returns(PermissionLevel.Player);
+
+		var guide = new Mock<ICharacter>();
+		guide.Setup(x => x.PermissionLevel).Returns(PermissionLevel.Guide);
+
+		var juniorAdmin = new Mock<ICharacter>();
+		juniorAdmin.Setup(x => x.PermissionLevel).Returns(PermissionLevel.JuniorAdmin);
+		juniorAdmin.Setup(x => x.IsAdministrator(It.IsAny<PermissionLevel>())).Returns(false);
+
+		Assert.IsFalse(SeizeBodySpellEffect.HasProtectedStaffAuthority(player.Object));
+		Assert.IsFalse(SeizeBodySpellEffect.HasProtectedStaffAuthority(guide.Object));
+		Assert.IsTrue(SeizeBodySpellEffect.HasProtectedStaffAuthority(juniorAdmin.Object));
 	}
 
 	[TestMethod]

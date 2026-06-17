@@ -62,7 +62,13 @@ public partial class RobotSeeder
             ["Robot Humanoid"] = new(
                 "Robot Humanoid",
                 "Robot Humanoid",
-                "A humanoid robotic chassis designed to retain broad compatibility with standard humanoid clothing, armour, and equipment.",
+                """
+                Robot humanoids are humanoid robotic chassis made to share tools, doors, clothing and equipment with people. They read as machine bodies first, with their silhouette and materials making intended function obvious before any label is needed.
+
+                Their construction emphasises general service, labour, security and companionship. Plates, joints, sensors, tracks, wheels, limbs or tool-heads feel like designed anatomy rather than decorative additions.
+
+                They belong naturally in technological societies as labourers, guards, servants, drones, companions or threats. Individual units may be polished, battered, autonomous or closely controlled, but the chassis line feels like a real part of the world rather than an isolated device.
+                """,
                 "These general-purpose chassis sit at the practical centre of a robot ecosystem, taking on service, labour, security and companionship roles wherever a society wants machine bodies that can share tools and spaces with people.",
                 "Humanoid",
                 false,
@@ -92,7 +98,13 @@ public partial class RobotSeeder
             ["Spider Crawler Robot"] = new(
                 "Spider Crawler Robot",
                 "Spider Crawler Robot",
-                "A humanoid upper chassis mounted on a sprawling multi-legged crawler base.",
+                """
+                Spider crawler robots are humanoid upper chassis mounted on a sprawling multi-legged crawler base. They read as machine bodies first, with their silhouette and materials making intended function obvious before any label is needed.
+
+                Their construction emphasises maintenance, hazardous access and intimidating patrol work where stability matters. Plates, joints, sensors, tracks, wheels, limbs or tool-heads feel like designed anatomy rather than decorative additions.
+
+                They belong naturally in technological societies as labourers, guards, servants, drones, companions or threats. Individual units may be polished, battered, autonomous or closely controlled, but the chassis line feels like a real part of the world rather than an isolated device.
+                """,
                 "Spider crawler frames suit environments where balance, stability and low-profile mobility matter more than social comfort, making them natural fits for maintenance, hazardous access and intimidating patrol work.",
                 "Robot Humanoid",
                 false,
@@ -129,7 +141,13 @@ public partial class RobotSeeder
             ["Circular Saw Robot"] = new(
                 "Circular Saw Robot",
                 "Circular Saw Robot",
-                "A worker-frame robot with integrated circular saw hand attachments in place of normal manipulators.",
+                """
+                Circular saw robots are worker-frame robots with circular saw assemblies replacing normal manipulators. They read as machine bodies first, with their silhouette and materials making intended function obvious before any label is needed.
+
+                Their construction emphasises industrial cutting, salvage and demolition where finesse is secondary to dangerous utility. Plates, joints, sensors, tracks, wheels, limbs or tool-heads feel like designed anatomy rather than decorative additions.
+
+                They belong naturally in technological societies as labourers, guards, servants, drones, companions or threats. Individual units may be polished, battered, autonomous or closely controlled, but the chassis line feels like a real part of the world rather than an isolated device.
+                """,
                 "Circular saw frames belong in industrial yards, salvage crews and demolition teams, where builders trade finesse for brute cutting power and accept that anyone meeting the machine will read it as dangerous first.",
                 "Robot Humanoid",
                 false,
@@ -159,7 +177,13 @@ public partial class RobotSeeder
             ["Pneumatic Hammer Robot"] = new(
                 "Pneumatic Hammer Robot",
                 "Pneumatic Hammer Robot",
-                "A demolition robot with paired pneumatic hammer hand attachments.",
+                """
+                Pneumatic hammer robots are demolition robots with paired pneumatic hammer arms. They read as machine bodies first, with their silhouette and materials making intended function obvious before any label is needed.
+
+                Their construction emphasises breaching, wrecking and impact-heavy labour. Plates, joints, sensors, tracks, wheels, limbs or tool-heads feel like designed anatomy rather than decorative additions.
+
+                They belong naturally in technological societies as labourers, guards, servants, drones, companions or threats. Individual units may be polished, battered, autonomous or closely controlled, but the chassis line feels like a real part of the world rather than an isolated device.
+                """,
                 "Pneumatic hammer frames are purpose-built for heavy breaching and wrecking work, the kind of robot deployed when collateral noise and violent impact matter less than getting through hard material quickly.",
                 "Robot Humanoid",
                 false,
@@ -189,7 +213,13 @@ public partial class RobotSeeder
             ["Sword-Hand Robot"] = new(
                 "Sword-Hand Robot",
                 "Sword-Hand Robot",
-                "A martial chassis with monoblade sword hands replacing both palms.",
+                """
+                Sword-hand robots are martial robots whose palms are replaced by monoblade sword assemblies. They read as machine bodies first, with their silhouette and materials making intended function obvious before any label is needed.
+
+                Their construction emphasises close combat, ceremonial menace and intimidation. Plates, joints, sensors, tracks, wheels, limbs or tool-heads feel like designed anatomy rather than decorative additions.
+
+                They belong naturally in technological societies as labourers, guards, servants, drones, companions or threats. Individual units may be polished, battered, autonomous or closely controlled, but the chassis line feels like a real part of the world rather than an isolated device.
+                """,
                 "Sword-hand frames are openly martial machines, used where intimidation, close combat and ceremonial menace are more important than subtlety or compatibility with ordinary civilian work.",
                 "Robot Humanoid",
                 false,
@@ -219,7 +249,13 @@ public partial class RobotSeeder
             ["Winged Robot"] = new(
                 "Winged Robot",
                 "Winged Robot",
-                "A humanoid robot fitted with broad articulated wings for lift and wing-buffet attacks.",
+                """
+                Winged robots are humanoid robots fitted with broad articulated wings. They read as machine bodies first, with their silhouette and materials making intended function obvious before any label is needed.
+
+                Their construction emphasises courier work, scouting, prestige guardianship and forceful spatial control. Plates, joints, sensors, tracks, wheels, limbs or tool-heads feel like designed anatomy rather than decorative additions.
+
+                They belong naturally in technological societies as labourers, guards, servants, drones, companions or threats. Individual units may be polished, battered, autonomous or closely controlled, but the chassis line feels like a real part of the world rather than an isolated device.
+                """,
                 "Winged frames serve couriers, scouts and prestige guardians that need a striking silhouette as much as mobility, and they blur the line between practical machine and deliberate display piece.",
                 "Robot Humanoid",
                 false,
@@ -254,7 +290,13 @@ public partial class RobotSeeder
             ["Jet Robot"] = new(
                 "Jet Robot",
                 "Jet Robot",
-                "A humanoid robot with paired vector-thrust jet pods replacing biological-style wings.",
+                """
+                Jet robots are humanoid robots with paired vector-thrust jet pods. They read as machine bodies first, with their silhouette and materials making intended function obvious before any label is needed.
+
+                Their construction emphasises rapid response, pursuit and dramatic high-speed repositioning. Plates, joints, sensors, tracks, wheels, limbs or tool-heads feel like designed anatomy rather than decorative additions.
+
+                They belong naturally in technological societies as labourers, guards, servants, drones, companions or threats. Individual units may be polished, battered, autonomous or closely controlled, but the chassis line feels like a real part of the world rather than an isolated device.
+                """,
                 "Jet-backed frames are specialised pursuit and rapid-response machines, built for speed, aggressive repositioning and the kind of dramatic deployment that reminds onlookers they are watching hardware rather than a person.",
                 "Robot Humanoid",
                 false,
@@ -287,7 +329,13 @@ public partial class RobotSeeder
             ["Mandible Robot"] = new(
                 "Mandible Robot",
                 "Mandible Robot",
-                "A predatory humanoid robot whose lower face houses heavy shearing mandibles.",
+                """
+                Mandible robots are predator-coded humanoid robots with heavy shearing mandibles in the lower face. They read as machine bodies first, with their silhouette and materials making intended function obvious before any label is needed.
+
+                Their construction emphasises capture, fear, close work and deliberately unsettling observation. Plates, joints, sensors, tracks, wheels, limbs or tool-heads feel like designed anatomy rather than decorative additions.
+
+                They belong naturally in technological societies as labourers, guards, servants, drones, companions or threats. Individual units may be polished, battered, autonomous or closely controlled, but the chassis line feels like a real part of the world rather than an isolated device.
+                """,
                 "Mandible-faced frames are predator-coded by design, used where fear, capture or brutal close work matter, and they show how readily robot aesthetics can be tuned to unsettle organic observers.",
                 "Robot Humanoid",
                 false,
@@ -318,7 +366,13 @@ public partial class RobotSeeder
             ["Wheeled Robot"] = new(
                 "Wheeled Robot",
                 "Wheeled Robot",
-                "A humanoid robot mounted on paired wheel assemblies instead of conventional lower legs and feet.",
+                """
+                Wheeled robots are humanoid robots mounted on paired wheel assemblies instead of lower legs. They read as machine bodies first, with their silhouette and materials making intended function obvious before any label is needed.
+
+                Their construction emphasises warehouses, corridors and smooth artificial environments. Plates, joints, sensors, tracks, wheels, limbs or tool-heads feel like designed anatomy rather than decorative additions.
+
+                They belong naturally in technological societies as labourers, guards, servants, drones, companions or threats. Individual units may be polished, battered, autonomous or closely controlled, but the chassis line feels like a real part of the world rather than an isolated device.
+                """,
                 "Wheeled humanoid frames make sense in warehouses, corridors and other smooth artificial environments where speed and endurance matter more than stairs, rubble or natural terrain.",
                 "Robot Humanoid",
                 false,
@@ -350,7 +404,13 @@ public partial class RobotSeeder
             ["Tracked Robot"] = new(
                 "Tracked Robot",
                 "Tracked Robot",
-                "A humanoid robot whose lower body is replaced by compact armoured track pods.",
+                """
+                Tracked robots are humanoid robots whose lower bodies are compact armoured track pods. They read as machine bodies first, with their silhouette and materials making intended function obvious before any label is needed.
+
+                Their construction emphasises rough service, security and engineering in debris-heavy spaces. Plates, joints, sensors, tracks, wheels, limbs or tool-heads feel like designed anatomy rather than decorative additions.
+
+                They belong naturally in technological societies as labourers, guards, servants, drones, companions or threats. Individual units may be polished, battered, autonomous or closely controlled, but the chassis line feels like a real part of the world rather than an isolated device.
+                """,
                 "Tracked humanoid frames are ruggedised for security, engineering and rough-service environments, favouring traction and persistence over grace whenever terrain or debris would defeat a simpler machine.",
                 "Robot Humanoid",
                 false,
@@ -382,7 +442,13 @@ public partial class RobotSeeder
             ["Cyborg"] = new(
                 "Cyborg",
                 "Cyborg Humanoid",
-                "A human-passing cybernetic chassis with synthetic flesh styling over a wholly robotic internal design.",
+                """
+                Cyborgs are human-passing cybernetic bodies with synthetic flesh over robotic internals. They read as machine bodies first, with their silhouette and materials making intended function obvious before any label is needed.
+
+                Their construction emphasises social infiltration, uneasy personhood and machine life in human institutions. Plates, joints, sensors, tracks, wheels, limbs or tool-heads feel like designed anatomy rather than decorative additions.
+
+                They belong naturally in technological societies as labourers, guards, servants, drones, companions or threats. Individual units may be polished, battered, autonomous or closely controlled, but the chassis line feels like a real part of the world rather than an isolated device.
+                """,
                 "Cyborg lines occupy the uneasy social space between person and platform, useful wherever a machine must move through human institutions unnoticed or where a mechanical being is deliberately made to look almost, but not quite, organic.",
                 "Human",
                 true,
@@ -412,7 +478,13 @@ public partial class RobotSeeder
             ["Roomba Robot"] = new(
                 "Roomba Robot",
                 "Roomba Robot",
-                "A compact disc-shaped maintenance robot that hustles about on low drive wheels.",
+                """
+                Roomba robots are compact disc-shaped maintenance robots on low drive wheels. They read as machine bodies first, with their silhouette and materials making intended function obvious before any label is needed.
+
+                Their construction emphasises floor care, vent work and the quiet labour that keeps facilities functioning. Plates, joints, sensors, tracks, wheels, limbs or tool-heads feel like designed anatomy rather than decorative additions.
+
+                They belong naturally in technological societies as labourers, guards, servants, drones, companions or threats. Individual units may be polished, battered, autonomous or closely controlled, but the chassis line feels like a real part of the world rather than an isolated device.
+                """,
                 "These compact maintenance units belong wherever floors, vents and under-furniture spaces need constant machine attention, and they exemplify the low-status but ubiquitous labour that keeps larger facilities functioning.",
                 null,
                 false,
@@ -441,7 +513,13 @@ public partial class RobotSeeder
             ["Tracked Utility Robot"] = new(
                 "Tracked Utility Robot",
                 "Tracked Utility Robot",
-                "A low-slung utility robot that moves on compact rubberised tracks instead of wheels.",
+                """
+                Tracked utility robots are low-slung utility robots moving on compact rubberised tracks. They read as machine bodies first, with their silhouette and materials making intended function obvious before any label is needed.
+
+                Their construction emphasises dirty service spaces, broken flooring and practical field maintenance. Plates, joints, sensors, tracks, wheels, limbs or tool-heads feel like designed anatomy rather than decorative additions.
+
+                They belong naturally in technological societies as labourers, guards, servants, drones, companions or threats. Individual units may be polished, battered, autonomous or closely controlled, but the chassis line feels like a real part of the world rather than an isolated device.
+                """,
                 "Tracked utility units are the practical answer for dirty or uneven service spaces, used where a low maintenance drone still needs enough grip and toughness to cross debris, mud or broken flooring.",
                 null,
                 false,
@@ -470,7 +548,13 @@ public partial class RobotSeeder
             ["Robot Dog"] = new(
                 "Robot Dog",
                 "Robot Dog",
-                "A quadruped robotic hound with articulated paws, a sensor-snouted head, and a durable service frame.",
+                """
+                Robot dogs are quadruped robotic hounds with articulated paws and sensor-snouted heads. They read as machine bodies first, with their silhouette and materials making intended function obvious before any label is needed.
+
+                Their construction emphasises patrol, tracking, companionship and guard work. Plates, joints, sensors, tracks, wheels, limbs or tool-heads feel like designed anatomy rather than decorative additions.
+
+                They belong naturally in technological societies as labourers, guards, servants, drones, companions or threats. Individual units may be polished, battered, autonomous or closely controlled, but the chassis line feels like a real part of the world rather than an isolated device.
+                """,
                 "Robotic hounds fill the familiar roles of patrol animal, tracker and companion machine, exploiting a shape people already understand while replacing fur and instinct with plating, sensors and obedient routines.",
                 null,
                 false,
@@ -504,7 +588,13 @@ public partial class RobotSeeder
             ["Robot Cockroach"] = new(
                 "Robot Cockroach",
                 "Robot Cockroach",
-                "A tiny insectoid robot with a chitinous shell, twitching antennae, and razor mandibles.",
+                """
+                Robot cockroaches are tiny insectoid robots with segmented shells, antennae and mandibles. They read as machine bodies first, with their silhouette and materials making intended function obvious before any label is needed.
+
+                Their construction emphasises inspection, infiltration and survival in cramped hostile places. Plates, joints, sensors, tracks, wheels, limbs or tool-heads feel like designed anatomy rather than decorative additions.
+
+                They belong naturally in technological societies as labourers, guards, servants, drones, companions or threats. Individual units may be polished, battered, autonomous or closely controlled, but the chassis line feels like a real part of the world rather than an isolated device.
+                """,
                 "Robot cockroaches belong to the world of inspection, infiltration and survival in cramped places, useful precisely because they can go where people and larger machines are unwelcome or unable to follow.",
                 null,
                 false,
@@ -537,12 +627,7 @@ public partial class RobotSeeder
 
     internal static string BuildRaceDescriptionForTesting(RobotRaceTemplate template)
     {
-        StockDescriptionVariant? supportingVariant = (template.DescriptionVariants ?? template.OverlayDescriptionVariants)?.FirstOrDefault();
-        return SeederDescriptionHelpers.JoinParagraphs(
-            SeederDescriptionHelpers.EnsureTrailingPeriod(template.Description),
-            supportingVariant?.FullDescription ?? $"This stock robot line is represented by the {template.Name} chassis catalogue.",
-            SeederDescriptionHelpers.EnsureTrailingPeriod(template.RoleDescription)
-        );
+        return template.Description;
     }
 
     internal static string BuildEthnicityDescriptionForTesting(RobotRaceTemplate template)

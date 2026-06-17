@@ -166,6 +166,37 @@ public class CharacterInstanceServiceTests
 	}
 
 	[TestMethod]
+	public void CanStaffPossessNpcTarget_RejectsNonPlayerSecondaryForPlayerIdentity()
+	{
+		var primary = new Mock<ICharacterInstance>();
+		primary.SetupGet(x => x.IsPlayerCharacter).Returns(true);
+		var identity = new Mock<ICharacterIdentity>();
+		identity.SetupGet(x => x.PrimaryInstance).Returns(primary.Object);
+		var scriptedAiSecondary = new Mock<ICharacter>();
+		scriptedAiSecondary.SetupGet(x => x.Identity).Returns(identity.Object);
+		scriptedAiSecondary.SetupGet(x => x.IsPlayerCharacter).Returns(false);
+
+		var result = CharacterInstanceService.CanStaffPossessNpcTarget(scriptedAiSecondary.Object);
+
+		Assert.IsFalse(result);
+	}
+
+	[TestMethod]
+	public void CanStaffPossessNpcTarget_AllowsNpcIdentity()
+	{
+		var npc = BuildNpc();
+		var primary = new Mock<ICharacterInstance>();
+		primary.SetupGet(x => x.IsPlayerCharacter).Returns(false);
+		var identity = new Mock<ICharacterIdentity>();
+		identity.SetupGet(x => x.PrimaryInstance).Returns(primary.Object);
+		npc.SetupGet(x => x.Identity).Returns(identity.Object);
+
+		var result = CharacterInstanceService.CanStaffPossessNpcTarget(npc.Object);
+
+		Assert.IsTrue(result);
+	}
+
+	[TestMethod]
 	public void ValidateSecondarySpawnOptions_PlayerFocusable_RejectsNpcs()
 	{
 		var npc = BuildNpc();

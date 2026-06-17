@@ -120,6 +120,7 @@ Safety notes:
 
 - One live embodied instance per body is enforced.
 - Secondary instances remain out of `Gameworld.Characters`, `Gameworld.NPCs`, `Gameworld.Actors`, and cached actor collections.
+- Staff `possess` treats PC-owned secondaries, including `scriptai` bodies, as player-identity actors and does not allow NPC possession to take control of them.
 - Retiring a secondary does not kill the primary identity.
 - Temporary secondaries should be retired after manual tests when the MUD will keep running.
 - `cloneinventory` is for deliberate staff or scripted scenarios only. Ordinary copy and clone spells do not copy inventory by default.

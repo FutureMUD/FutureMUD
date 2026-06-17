@@ -2763,7 +2763,7 @@ Note: most often you will want to use the #3TRAITEXPRESSION#0 command to edit th
             return;
         }
 
-        if (target.IsPlayerCharacter)
+        if (!CharacterInstanceService.CanStaffPossessNpcTarget(target))
         {
             actor.Send("You can only possess NPCs.");
             return;

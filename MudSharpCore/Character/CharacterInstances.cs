@@ -311,13 +311,14 @@ public partial class Character
 		EnsureProvisionedFormBodyVitals(body);
 		var controlPolicy = (CharacterInstanceControlPolicy)instance.ControlPolicy;
 		var instanceKind = (CharacterInstanceKind)instance.InstanceKind;
-		var materialised = this is INPC &&
-		                   controlPolicy == CharacterInstanceControlPolicy.NpcAiControlled
-			? (ICharacterInstance)new NpcCharacterInstance(this, instance, body)
-			: controlPolicy == CharacterInstanceControlPolicy.ScriptOnly ||
-			  instanceKind == CharacterInstanceKind.ScriptedAi
-				? new ScriptedAiCharacterInstance(this, instance, body)
-				: new PassiveCharacterInstance(this, instance, body);
+		var materialised =
+			this is INPC && controlPolicy == CharacterInstanceControlPolicy.NpcAiControlled
+				? (ICharacterInstance)new NpcCharacterInstance(this, instance, body)
+				: controlPolicy == CharacterInstanceControlPolicy.ScriptOnly ||
+				  instanceKind == CharacterInstanceKind.ScriptedAi ||
+				  instanceKind == CharacterInstanceKind.AnimatedCorpse
+					? new ScriptedAiCharacterInstance(this, instance, body)
+					: new PassiveCharacterInstance(this, instance, body);
 		_secondaryInstances.RemoveAll(x => ReferenceEquals(x, materialised) || x.InstanceId == materialised.InstanceId);
 		_secondaryInstances.Add(materialised);
 		if (materialised.IsEmbodied && materialised.Location is not null)

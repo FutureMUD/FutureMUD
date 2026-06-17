@@ -116,11 +116,12 @@ Compatibility load aliases are registered for older persisted rows and display-n
 | `vicinity` | `CastingTriggerVicinity` | Spell trigger | Static `RegisterFactory` in `MudSharpCore/Magic/SpellTriggers/CastingTriggerVicinity.cs` via `SpellTriggerFactory` | Yes | Casts across a vicinity target set |
 
 ## Spell Effect Types
-V4 added 2 builder-creatable tag-aware ward effect tokens: `roomtagward` and `personaltagward`. The V5a persistent sensory/combat slice adds 4 builder-creatable tokens: `burning`, `ignite`, `trackmark`, and `tracktrail`. The multi-body V1 slice adds `astralprojection`, `createcopy`, and `createclone` as spell-owned simultaneous instance effects.
+V4 added 2 builder-creatable tag-aware ward effect tokens: `roomtagward` and `personaltagward`. The V5a persistent sensory/combat slice adds 4 builder-creatable tokens: `burning`, `ignite`, `trackmark`, and `tracktrail`. The body-instance slices add `astralprojection`, `createcopy`, `createclone`, `possessbody`, `seizebody`, `possesscorpse`, and `animatecorpse` as spell-owned simultaneous, possessed-shell, direct live-body, corpse-possession, or AI corpse-animation instance effects.
 
 | Builder/runtime token | Class | Subsystem | Where registered or dispatched | Builder-creatable | Purpose |
 | --- | --- | --- | --- | --- | --- |
 | `astralprojection` | `AstralProjectionSpellEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/AstralProjectionSpellEffect.cs` via `SpellEffectFactory` | Yes | Ensures or reuses a keyed astral form, spawns a temporary player-focusable secondary instance, applies astral planar presence, anchors the primary body, and collapses only the projection when the spell ends |
+| `animatecorpse` | `AnimateCorpseSpellEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/DirectPossessionSpellEffects.cs` via `SpellEffectFactory` | Yes | Animates a corpse item's `OriginalBody` as a temporary scripted-AI `AnimatedCorpse` actor with configured AIs, hides and restores the same corpse item, and supports `dispelmagic effect animatecorpse` from either the hidden corpse effect or animated actor proxy |
 | `blindness` | `BlindnessEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/BlindnessEffect.cs` via `SpellEffectFactory` | Yes | Applies blindness |
 | `boost` | `TraitBoostEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/TraitBoostEffect.cs` via `SpellEffectFactory` | Yes | Boosts a trait |
 | `bodybackup` | `BodyBackupSpellEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/BodyBackupSpellEffect.cs` via `SpellEffectFactory` | Yes | Ensures or reuses a keyed alternate body form and readies it as a death backup with configurable non-final remains context and transfer echoes |
@@ -174,6 +175,8 @@ V4 added 2 builder-creatable tag-aware ward effect tokens: `roomtagward` and `pe
 | `poison` | `PoisonEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/StandaloneStatusSpellEffects.Configured.cs` via `SpellEffectFactory` | Yes | Applies a configurable spell-owned drug payload |
 | `portal` | `PortalSpellEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/MagicPhase3Effects.cs` via `SpellEffectFactory` | Yes | Creates effect-owned paired transient exits between the caster's room and a target room, room anchor, or item/object anchor |
 | `portalnetwork` | `PortalTopologySpellEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/PortalTopologySpellEffect.cs` via `SpellEffectFactory` | Yes | Creates or updates durable portal/rune topology endpoints and optionally explicit links inside a `MagicPortalNetwork` |
+| `possessbody` | `PossessBodySpellEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/PossessBodySpellEffect.cs` via `SpellEffectFactory` | Yes | Creates a caster-owned, player-focusable possessed shell from a non-player character target, with anchor/source-target metadata and `dispelmagic effect possessbody` cleanup |
+| `possesscorpse` | `PossessCorpseSpellEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/DirectPossessionSpellEffects.cs` via `SpellEffectFactory` | Yes | Animates a corpse item's `OriginalBody` as a temporary `PossessedCorpse` actor, hides and restores the same corpse item, and supports `dispelmagic effect possesscorpse` from either the hidden corpse effect or animated actor proxy |
 | `rage` | `RageSpellEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/RageSpellEffect.cs` via `SpellEffectFactory` | Yes | Applies rage |
 | `relocate` | `RelocateEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/RelocateEffect.cs` via `SpellEffectFactory` | Yes | Relocates a target |
 | `removeblindness` | `RemoveBlindnessEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/BlindnessEffect.cs` via `SpellEffectFactory` | Yes | Removes spell-owned blindness effects |
@@ -203,6 +206,7 @@ V4 added 2 builder-creatable tag-aware ward effect tokens: `roomtagward` and `pe
 | `roomtagward` | `RoomTagWardEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/TagWardSpellEffects.cs` via `SpellEffectFactory` | Yes | Applies a room ward that fails or reflects matching incoming or outgoing magic by `magictag` key/value |
 | `roomtemperature` | `RoomTemperatureEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/RoomTemperatureEffect.cs` via `SpellEffectFactory` | Yes | Alters room temperature |
 | `selfdamage` | `SelfDamageEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/SelfDamageEffect.cs` via `SpellEffectFactory` | Yes | Damages the caster |
+| `seizebody` | `SeizeBodySpellEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/DirectPossessionSpellEffects.cs` via `SpellEffectFactory` | Yes | Temporarily moves the caster's controller into a living target body, parks PC victims in a bound spectator context, pauses/restores NPC control, and supports `dispelmagic effect seizebody` |
 | `silence` | `SilenceEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/StandaloneStatusSpellEffects.cs` via `SpellEffectFactory` | Yes | Applies vocal silence without blocking telepathy |
 | `sleep` | `SleepEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/StandaloneStatusSpellEffects.cs` via `SpellEffectFactory` | Yes | Forces magical sleep and keeps the target asleep until the last such effect ends |
 | `spellarmour` | `SpellArmourEffect` | Spell effect | Static `RegisterFactory` in `MudSharpCore/Magic/SpellEffects/SpellArmourEffect.cs` via `SpellEffectFactory` | Yes | Applies spell-owned magical armour using the shared armour configuration stack |
@@ -297,6 +301,27 @@ V5b adds durable psionic trace/trail V1 without adding new builder power tokens.
 | --- | --- | --- |
 | `PsionicTrace` | `PsionicTraceEffect` | Saveable timed effect that records recent magical or psychic activity on involved characters and source cells, including source, optional target, school, power, activity kind, timestamp, duration, read difficulty, and fallback identity text; `trace` re-evaluates current reader-specific `mindconceal` before displaying the source |
 
+## Engine V6 Body-Control Support Types
+
+The V6 possession slices extend the multi-instance model without making hostile possession persistent across reboot.
+
+| Token or API | Class or interface | Role |
+| --- | --- | --- |
+| `PossessedCorpse` | `CharacterInstanceKind.PossessedCorpse` | Temporary character-instance kind for animated corpse actors using the corpse's `OriginalBody` and `PlayerRemoteCommandable` control policy |
+| `AnimatedCorpse` | `CharacterInstanceKind.AnimatedCorpse` | Temporary character-instance kind for AI-controlled corpse actors using the corpse's `OriginalBody` and `ScriptOnly` control policy |
+| `SpellLiveBodyPossession` | `SpellLiveBodyPossessionEffect` | Runtime saved-effect child for `seizebody`; stores anchor, target, body, source spell, persistence policy, and cleanup echoes |
+| `SpellCorpsePossession` | `SpellCorpsePossessionEffect` | Runtime saved-effect child for `possesscorpse`; stores hidden corpse item, animated actor, original location/layer, source spell, and restore echoes |
+| `SpellAnimatedCorpse` | `SpellAnimatedCorpseEffect` | Runtime saved-effect child for `animatecorpse`; stores hidden corpse item, animated actor, original location/layer, source spell, configured AI ids, and restore echoes |
+| `CorpsePossessionDispelProxy` | `CorpsePossessionDispelProxyEffect` | Actor-side proxy effect so `dispelmagic effect possesscorpse` cast at the animated corpse can remove the spell parent stored on the hidden corpse item |
+| `CorpseAnimationDispelProxy` | `CorpseAnimationDispelProxyEffect` | Actor-side proxy effect so `dispelmagic effect animatecorpse` cast at the animated corpse can remove the spell parent stored on the hidden corpse item |
+| n/a | `ILiveBodyPossessionEffect` | Public effect contract for staff/FutureProg/audit checks on live-body possession |
+| n/a | `ICorpsePossessionEffect` | Public effect contract for staff/FutureProg/audit checks on corpse possession and orphan restore |
+| n/a | `IAnimatedCorpseEffect` | Public effect contract for staff/FutureProg/audit checks on AI corpse animation and orphan restore |
+| n/a | `IDispelMagicProxyEffect` | Public proxy contract that exposes additional dispel targets from a perceived actor to a hidden owning effect |
+| n/a | `IPossessionDispelProxyEffect` | Possession-specific proxy marker layered on the generic dispel proxy contract |
+| n/a | `PossessionControlService` | Shared controller-swap and cleanup helper for caster anchors, PC victim spectator contexts, NPC restoration, nested-possession rejection, and death/logout/dispel cleanup |
+| n/a | `PossessionVictimContext` | Bound spectator `IControllable` context for hostile PC victims while another controller commands their body |
+
 ## Notes
 - Schools are first-class records rather than subtype-driven types, so they are documented in the overview and backbone docs rather than listed here as a type family.
 - Powers, triggers, and spell effects are all current-state inventories of registered runtime implementations.
@@ -306,6 +331,7 @@ V5b adds durable psionic trace/trail V1 without adding new builder power tokens.
 - `transformform` is the current builder-creatable spell effect for cached alternate-form provisioning and scripted transformation, including optional transformation emotes, first-creation description-pattern defaults, and configurable forced-transformation priority metadata.
 - `bodybackup` uses the same cached form-provisioning model for sleeves or clones, but readies the form as a non-permanent death-transfer target instead of forcing an immediate transformation.
 - `astralprojection`, `createcopy`, and `createclone` use the simultaneous body instance model. They provision or reuse owned dormant forms, spawn secondary cell-local actors, and keep identity/account/logout semantics anchored to the primary character.
+- `possessbody` remains the owned possessed-shell model for non-player source targets. `seizebody` is the direct live-body possession model, including PC targets via `PossessionVictimContext`. `possesscorpse` is the same-corpse-item player-commanded corpse possession model, while `animatecorpse` is the same-corpse-item AI zombie model; both use hidden corpse item effects plus animated-actor proxy effects for dispel routing.
 - Wind spell support extends the runtime movement layer with `IFly.CanContinueFlying`, target-specific fall prevention, fall-damage mitigation, exit-path forced movement, precise invisibility removal, and caster/target transference.
 - Persistent sensory/combat spell support adds spell-owned burn-over-time and trackmark effects without making generic `OnFire` or ordinary movement tracks magic-specific.
 - V4 psionic and perception support adds 9 power tokens, tag-aware wards, contextual interdiction tags, illusion priority/key matching, speech babbling, remote audible observation, and non-command psionic traffic/coercion delivery. The Old SOI parity slice adds 7 more psionic power tokens plus seeded variable checks for danger sense, empathy, hex, clairvoyance, prescience, sensitivity, and psychic bolt.

@@ -52,12 +52,18 @@ public sealed class ScriptedAiCharacterInstance : Character, IArtificialIntellig
 	private void LoadArtificialIntelligencesFromMetadata()
 	{
 		_AIs.Clear();
-		if (!CharacterInstanceMetadata.TryGetScriptedAiMetadata(InstanceEffectData, out var metadata))
+		var aiIds =
+			CharacterInstanceMetadata.TryGetAnimatedCorpseMetadata(InstanceEffectData, out var animatedMetadata)
+				? animatedMetadata.ArtificialIntelligenceIds
+				: CharacterInstanceMetadata.TryGetScriptedAiMetadata(InstanceEffectData, out var metadata)
+					? metadata.ArtificialIntelligenceIds
+					: Array.Empty<long>();
+		if (aiIds.Count == 0)
 		{
 			return;
 		}
 
-		foreach (var aiId in metadata.ArtificialIntelligenceIds)
+		foreach (var aiId in aiIds)
 		{
 			var ai = Gameworld.AIs.Get(aiId);
 			if (ai is not null && !_AIs.Contains(ai))
@@ -70,14 +76,31 @@ public sealed class ScriptedAiCharacterInstance : Character, IArtificialIntellig
 	private void PersistArtificialIntelligenceMetadata()
 	{
 		CharacterInstanceMetadata.TryGetScriptedAiMetadata(InstanceEffectData, out var metadata);
-		var form = Identity.Forms.FirstOrDefault(x => ReferenceEquals(x.Body, Body));
-		SetInstanceEffectData(CharacterInstanceMetadata.CreateScriptedAiEffectData(
-			Identity.Id,
-			PrimaryInstance.InstanceId,
-			Body.Id,
-			form?.Alias ?? metadata.FormKey,
-			_AIs.Select(x => x.Id),
-			metadata.CloneInventory));
+		if (InstanceKind == CharacterInstanceKind.AnimatedCorpse &&
+		    CharacterInstanceMetadata.TryGetAnimatedCorpseMetadata(InstanceEffectData, out var animatedMetadata))
+		{
+			SetInstanceEffectData(CharacterInstanceMetadata.CreateAnimatedCorpseEffectData(
+				animatedMetadata.AnchorCharacterId,
+				animatedMetadata.AnchorInstanceId,
+				animatedMetadata.CorpseItemId,
+				animatedMetadata.OriginalCharacterId,
+				animatedMetadata.OriginalBodyId,
+				animatedMetadata.SourceSpellId,
+				_AIs.Select(x => x.Id),
+				animatedMetadata.PersistencePolicy));
+		}
+		else
+		{
+			var form = Identity.Forms.FirstOrDefault(x => ReferenceEquals(x.Body, Body));
+			SetInstanceEffectData(CharacterInstanceMetadata.CreateScriptedAiEffectData(
+				Identity.Id,
+				PrimaryInstance.InstanceId,
+				Body.Id,
+				form?.Alias ?? metadata.FormKey,
+				_AIs.Select(x => x.Id),
+				metadata.CloneInventory));
+		}
+
 		Changed = true;
 		Save();
 	}
@@ -231,6 +254,18 @@ public sealed class ScriptedAiCharacterInstance : Character, IArtificialIntellig
 		}
 
 		ReleaseEventSubscriptions();
+		if (DeathPolicy == CharacterInstanceDeathPolicy.CollapseToAnchor ||
+		    InstanceKind == CharacterInstanceKind.AnimatedCorpse)
+		{
+			Combat?.LeaveCombat(this);
+			Movement?.CancelForMoverOnly(this);
+			CombatTarget = null;
+			SetInstanceStateAndStatus(CharacterState.Dead, CharacterStatus.Deceased);
+			CharacterInstanceService.Retire(this, out _, deleteTemporaryRows: true, deathRetirement: true);
+			Changed = true;
+			return null;
+		}
+
 		IGameItem? remains = null;
 		var oldLocation = Location;
 		var oldLayer = RoomLayer;

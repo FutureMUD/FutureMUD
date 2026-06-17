@@ -135,6 +135,81 @@ public class CharacterInstanceServiceTests
 	}
 
 	[TestMethod]
+	public void CreatePossessedBodySpawnOptions_SetsPossessionPoliciesAndMetadata()
+	{
+		var pc = BuildPlayerCharacter();
+		pc.SetupGet(x => x.Id).Returns(14);
+		pc.SetupGet(x => x.InstanceId).Returns(141);
+		var form = BuildForm(252, "borrowed shell");
+		var location = new Mock<ICell>();
+
+		var options = CharacterInstanceService.CreatePossessedBodySpawnOptions(pc.Object, form.Object,
+			location.Object, RoomLayer.GroundLevel, 515, 616, 717, "possessed-body:515");
+
+		Assert.AreEqual(CharacterInstanceKind.PossessedBody, options.InstanceKind);
+		Assert.AreEqual(CharacterInstanceControlPolicy.PlayerFocusable, options.ControlPolicy);
+		Assert.AreEqual(CharacterInstanceDeathPolicy.CollapseToAnchor, options.DeathPolicy);
+		Assert.AreEqual(CharacterInstancePerceptionPolicy.OrdinaryEmbodied, options.PerceptionPolicy);
+		Assert.AreEqual(CharacterInstancePersistencePolicy.DespawnOnReboot, options.PersistencePolicy);
+		Assert.AreEqual("borrowed shell", options.InstanceName);
+		Assert.IsTrue(CharacterInstanceMetadata.TryGetPossessedBodyMetadata(options.EffectData, out var metadata));
+		Assert.AreEqual(14, metadata.AnchorCharacterId);
+		Assert.AreEqual(141, metadata.AnchorInstanceId);
+		Assert.AreEqual(252, metadata.ShellBodyId);
+		Assert.AreEqual(515, metadata.SourceTargetCharacterId);
+		Assert.AreEqual(616, metadata.SourceTargetInstanceId);
+		Assert.AreEqual(717, metadata.SourceSpellId);
+		Assert.AreEqual("possessed-body:515", metadata.FormKey);
+		Assert.AreEqual(CharacterInstancePersistencePolicy.DespawnOnReboot, metadata.PersistencePolicy);
+	}
+
+	[TestMethod]
+	public void PossessedCorpseMetadata_RoundTripsCorpseProvenance()
+	{
+		var data = CharacterInstanceMetadata.CreatePossessedCorpseEffectData(
+			14,
+			141,
+			515,
+			616,
+			717,
+			818,
+			CharacterInstancePersistencePolicy.TemporaryEffectBound);
+
+		Assert.IsTrue(CharacterInstanceMetadata.TryGetPossessedCorpseMetadata(data, out var metadata));
+		Assert.AreEqual(14, metadata.AnchorCharacterId);
+		Assert.AreEqual(141, metadata.AnchorInstanceId);
+		Assert.AreEqual(515, metadata.CorpseItemId);
+		Assert.AreEqual(616, metadata.OriginalCharacterId);
+		Assert.AreEqual(717, metadata.OriginalBodyId);
+		Assert.AreEqual(818, metadata.SourceSpellId);
+		Assert.AreEqual(CharacterInstancePersistencePolicy.TemporaryEffectBound, metadata.PersistencePolicy);
+	}
+
+	[TestMethod]
+	public void AnimatedCorpseMetadata_RoundTripsCorpseProvenanceAndAIs()
+	{
+		var data = CharacterInstanceMetadata.CreateAnimatedCorpseEffectData(
+			14,
+			141,
+			515,
+			616,
+			717,
+			818,
+			new long[] { 1, 2, 1 },
+			CharacterInstancePersistencePolicy.TemporaryEffectBound);
+
+		Assert.IsTrue(CharacterInstanceMetadata.TryGetAnimatedCorpseMetadata(data, out var metadata));
+		Assert.AreEqual(14, metadata.AnchorCharacterId);
+		Assert.AreEqual(141, metadata.AnchorInstanceId);
+		Assert.AreEqual(515, metadata.CorpseItemId);
+		Assert.AreEqual(616, metadata.OriginalCharacterId);
+		Assert.AreEqual(717, metadata.OriginalBodyId);
+		Assert.AreEqual(818, metadata.SourceSpellId);
+		CollectionAssert.AreEqual(new long[] { 1, 2 }, metadata.ArtificialIntelligenceIds.ToArray());
+		Assert.AreEqual(CharacterInstancePersistencePolicy.TemporaryEffectBound, metadata.PersistencePolicy);
+	}
+
+	[TestMethod]
 	public void CreateScriptedAiSpawnOptions_SetsAiPoliciesAndMetadata()
 	{
 		var pc = BuildPlayerCharacter();
@@ -247,6 +322,27 @@ public class CharacterInstanceServiceTests
 		Assert.IsTrue(result.Success);
 		Assert.AreEqual(CharacterInstanceKind.ScriptedAi, options.InstanceKind);
 		Assert.AreEqual(CharacterInstanceControlPolicy.ScriptOnly, options.ControlPolicy);
+	}
+
+	[TestMethod]
+	public void ValidateSecondarySpawnOptions_AnimatedCorpseScriptOnly_AllowsPlayerCharacters()
+	{
+		var pc = BuildPlayerCharacter();
+		var form = BuildForm();
+		var location = new Mock<ICell>();
+		var options = new SecondaryCharacterInstanceSpawnOptions
+		{
+			Owner = pc.Object,
+			Form = form.Object,
+			Location = location.Object,
+			RoomLayer = RoomLayer.GroundLevel,
+			InstanceKind = CharacterInstanceKind.AnimatedCorpse,
+			ControlPolicy = CharacterInstanceControlPolicy.ScriptOnly
+		};
+
+		var result = CharacterInstanceService.ValidateSecondarySpawnOptions(options);
+
+		Assert.IsTrue(result.Success);
 	}
 
 	private static Mock<ICharacter> BuildPlayerCharacter()

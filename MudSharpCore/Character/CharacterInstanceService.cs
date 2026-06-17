@@ -244,6 +244,252 @@ public static class CharacterInstanceService
 		};
 	}
 
+	public static SecondaryCharacterInstanceSpawnOptions CreatePossessedBodySpawnOptions(
+		ICharacter owner,
+		ICharacterForm form,
+		ICell location,
+		RoomLayer roomLayer,
+		long sourceTargetCharacterId,
+		long sourceTargetInstanceId,
+		long sourceSpellId,
+		string formKey,
+		CharacterInstancePersistencePolicy persistencePolicy = CharacterInstancePersistencePolicy.DespawnOnReboot)
+	{
+		return new SecondaryCharacterInstanceSpawnOptions
+		{
+			Owner = owner,
+			Form = form,
+			Location = location,
+			RoomLayer = roomLayer,
+			InstanceKind = CharacterInstanceKind.PossessedBody,
+			ControlPolicy = CharacterInstanceControlPolicy.PlayerFocusable,
+			DeathPolicy = CharacterInstanceDeathPolicy.CollapseToAnchor,
+			PerceptionPolicy = CharacterInstancePerceptionPolicy.OrdinaryEmbodied,
+			PersistencePolicy = persistencePolicy,
+			InstanceName = form.Alias,
+			EffectData = CharacterInstanceMetadata.CreatePossessedBodyEffectData(
+				owner.Id,
+				owner.InstanceId,
+				form.Body.Id,
+				sourceTargetCharacterId,
+				sourceTargetInstanceId,
+				sourceSpellId,
+				formKey,
+				persistencePolicy)
+		};
+	}
+
+	public static CharacterInstanceOperationResult SpawnPossessedCorpseInstance(
+		ICharacter owner,
+		IBody body,
+		ICell location,
+		RoomLayer roomLayer,
+		long anchorCharacterId,
+		long anchorInstanceId,
+		long corpseItemId,
+		long sourceSpellId,
+		CharacterInstancePersistencePolicy persistencePolicy = CharacterInstancePersistencePolicy.TemporaryEffectBound)
+	{
+		if (owner.Identity is not Character identity)
+		{
+			return new CharacterInstanceOperationResult(false, "The corpse's original character is not loaded.");
+		}
+
+		if (body is null)
+		{
+			return new CharacterInstanceOperationResult(false, "The corpse does not have an original body.");
+		}
+
+		if (location is null)
+		{
+			return new CharacterInstanceOperationResult(false, "There is no valid location for the possessed corpse.");
+		}
+
+		foreach (var loaded in identity.Instances.OfType<Character>()
+		                                .Where(x => ReferenceEquals(x.Body, body) && x.IsEmbodied)
+		                                .ToList())
+		{
+			if (!loaded.State.IsDead() && !loaded.State.HasFlag(CharacterState.Stasis))
+			{
+				return new CharacterInstanceOperationResult(false,
+					"That corpse body already has a live embodied instance.");
+			}
+
+			loaded.SetInstanceEmbodied(false);
+			loaded.SetInstanceControllable(false);
+			loaded.Save();
+		}
+
+		using (new FMDB())
+		{
+			var dbchar = FMDB.Context.Characters.Find(identity.Id);
+			if (dbchar is null)
+			{
+				return new CharacterInstanceOperationResult(false,
+					"The corpse's original character could not be found in the database.");
+			}
+
+			foreach (var existing in FMDB.Context.CharacterInstances
+			                             .Where(x => x.BodyId == body.Id && x.IsEmbodied)
+			                             .ToList())
+			{
+				var state = (CharacterState)existing.State;
+				if (!state.IsDead() && !state.HasFlag(CharacterState.Stasis))
+				{
+					return new CharacterInstanceOperationResult(false,
+						"That corpse body already has a live embodied instance.");
+				}
+
+				existing.IsEmbodied = false;
+				existing.IsControllable = false;
+			}
+
+			var dbinstance = new MudSharp.Models.CharacterInstance
+			{
+				CharacterId = identity.Id,
+				Character = dbchar,
+				BodyId = body.Id,
+				InstanceName = "possessed corpse",
+				InstanceKind = (int)CharacterInstanceKind.PossessedCorpse,
+				ControlPolicy = (int)CharacterInstanceControlPolicy.PlayerRemoteCommandable,
+				DeathPolicy = (int)CharacterInstanceDeathPolicy.CollapseToAnchor,
+				PerceptionPolicy = (int)CharacterInstancePerceptionPolicy.OrdinaryEmbodied,
+				PersistencePolicy = (int)persistencePolicy,
+				LocationId = location.Id,
+				RoomLayer = (int)roomLayer,
+				PositionId = (int)PositionStanding.Instance.Id,
+				PositionModifier = (int)PositionModifier.None,
+				PositionEmote = string.Empty,
+				State = (int)CharacterState.Awake,
+				Status = (int)CharacterStatus.Active,
+				IsPrimary = false,
+				IsEmbodied = true,
+				IsControllable = true,
+				CreatedDateTime = DateTime.UtcNow,
+				EffectData = CharacterInstanceMetadata.CreatePossessedCorpseEffectData(
+					anchorCharacterId,
+					anchorInstanceId,
+					corpseItemId,
+					CharacterInstanceIdentityComparer.IdentityId(owner),
+					body.Id,
+					sourceSpellId,
+					persistencePolicy)
+			};
+			FMDB.Context.CharacterInstances.Add(dbinstance);
+			FMDB.Context.SaveChanges();
+
+			var materialised = identity.MaterialiseSecondaryInstance(dbinstance, body);
+			return new CharacterInstanceOperationResult(true, "Possessed corpse instance spawned.", materialised);
+		}
+	}
+
+	public static CharacterInstanceOperationResult SpawnAnimatedCorpseInstance(
+		ICharacter owner,
+		IBody body,
+		ICell location,
+		RoomLayer roomLayer,
+		long anchorCharacterId,
+		long anchorInstanceId,
+		long corpseItemId,
+		long sourceSpellId,
+		IEnumerable<IArtificialIntelligence> artificialIntelligences,
+		CharacterInstancePersistencePolicy persistencePolicy = CharacterInstancePersistencePolicy.TemporaryEffectBound)
+	{
+		if (owner.Identity is not Character identity)
+		{
+			return new CharacterInstanceOperationResult(false, "The corpse's original character is not loaded.");
+		}
+
+		if (body is null)
+		{
+			return new CharacterInstanceOperationResult(false, "The corpse does not have an original body.");
+		}
+
+		if (location is null)
+		{
+			return new CharacterInstanceOperationResult(false, "There is no valid location for the animated corpse.");
+		}
+
+		var ais = artificialIntelligences.Where(x => x is not null).Distinct().ToList();
+		foreach (var loaded in identity.Instances.OfType<Character>()
+		                                .Where(x => ReferenceEquals(x.Body, body) && x.IsEmbodied)
+		                                .ToList())
+		{
+			if (!loaded.State.IsDead() && !loaded.State.HasFlag(CharacterState.Stasis))
+			{
+				return new CharacterInstanceOperationResult(false,
+					"That corpse body already has a live embodied instance.");
+			}
+
+			loaded.SetInstanceEmbodied(false);
+			loaded.SetInstanceControllable(false);
+			loaded.Save();
+		}
+
+		using (new FMDB())
+		{
+			var dbchar = FMDB.Context.Characters.Find(identity.Id);
+			if (dbchar is null)
+			{
+				return new CharacterInstanceOperationResult(false,
+					"The corpse's original character could not be found in the database.");
+			}
+
+			foreach (var existing in FMDB.Context.CharacterInstances
+			                             .Where(x => x.BodyId == body.Id && x.IsEmbodied)
+			                             .ToList())
+			{
+				var state = (CharacterState)existing.State;
+				if (!state.IsDead() && !state.HasFlag(CharacterState.Stasis))
+				{
+					return new CharacterInstanceOperationResult(false,
+						"That corpse body already has a live embodied instance.");
+				}
+
+				existing.IsEmbodied = false;
+				existing.IsControllable = false;
+			}
+
+			var dbinstance = new MudSharp.Models.CharacterInstance
+			{
+				CharacterId = identity.Id,
+				Character = dbchar,
+				BodyId = body.Id,
+				InstanceName = "animated corpse",
+				InstanceKind = (int)CharacterInstanceKind.AnimatedCorpse,
+				ControlPolicy = (int)CharacterInstanceControlPolicy.ScriptOnly,
+				DeathPolicy = (int)CharacterInstanceDeathPolicy.CollapseToAnchor,
+				PerceptionPolicy = (int)CharacterInstancePerceptionPolicy.OrdinaryEmbodied,
+				PersistencePolicy = (int)persistencePolicy,
+				LocationId = location.Id,
+				RoomLayer = (int)roomLayer,
+				PositionId = (int)PositionStanding.Instance.Id,
+				PositionModifier = (int)PositionModifier.None,
+				PositionEmote = string.Empty,
+				State = (int)CharacterState.Awake,
+				Status = (int)CharacterStatus.Active,
+				IsPrimary = false,
+				IsEmbodied = true,
+				IsControllable = true,
+				CreatedDateTime = DateTime.UtcNow,
+				EffectData = CharacterInstanceMetadata.CreateAnimatedCorpseEffectData(
+					anchorCharacterId,
+					anchorInstanceId,
+					corpseItemId,
+					CharacterInstanceIdentityComparer.IdentityId(owner),
+					body.Id,
+					sourceSpellId,
+					ais.Select(x => x.Id),
+					persistencePolicy)
+			};
+			FMDB.Context.CharacterInstances.Add(dbinstance);
+			FMDB.Context.SaveChanges();
+
+			var materialised = identity.MaterialiseSecondaryInstance(dbinstance, body);
+			return new CharacterInstanceOperationResult(true, "Animated corpse instance spawned.", materialised);
+		}
+	}
+
 	public static CharacterInstanceOperationResult ValidateSecondarySpawnMode(ICharacter owner,
 		SecondaryCharacterInstanceSpawnMode mode)
 	{
@@ -287,7 +533,7 @@ public static class CharacterInstanceService
 		}
 
 		if (options.ControlPolicy == CharacterInstanceControlPolicy.ScriptOnly &&
-		    options.InstanceKind == CharacterInstanceKind.ScriptedAi)
+		    options.InstanceKind is CharacterInstanceKind.ScriptedAi or CharacterInstanceKind.AnimatedCorpse)
 		{
 			return new CharacterInstanceOperationResult(true, string.Empty);
 		}
@@ -734,6 +980,24 @@ public static class CharacterInstanceService
 			return true;
 		}
 
+		if (removeOwningEffects && RemovePossessedBodyEffectsForShell(secondary))
+		{
+			whyNot = string.Empty;
+			return true;
+		}
+
+		if (removeOwningEffects && PossessionControlService.RemoveCorpsePossessionEffectsForAnimatedInstance(secondary))
+		{
+			whyNot = string.Empty;
+			return true;
+		}
+
+		if (removeOwningEffects && PossessionControlService.RemoveAnimatedCorpseEffectsForAnimatedInstance(secondary))
+		{
+			whyNot = string.Empty;
+			return true;
+		}
+
 		CharacterInstanceFocusService.TryReturnFocusToPrimary(
 			secondary,
 			"Your focus returns to your primary body as the secondary instance fades from control.",
@@ -744,7 +1008,11 @@ public static class CharacterInstanceService
 		ClearVehicleBindings(secondary, deletePersistentHitches: true);
 		ClearArenaBindings(secondary);
 
-		if (secondary is INPC npc)
+		if (secondary is ScriptedAiCharacterInstance scriptedAi)
+		{
+			scriptedAi.ReleaseEventSubscriptions();
+		}
+		else if (secondary is INPC npc)
 		{
 			npc.ReleaseEventSubscriptions();
 		}
@@ -806,6 +1074,54 @@ public static class CharacterInstanceService
 		return true;
 	}
 
+	public static bool AnyPossessedBodyEffectsForAnchor(ICharacter anchor,
+		Predicate<IPossessedBodyEffect>? predicate = null)
+	{
+		return PossessedBodyEffectOwners(anchor.Gameworld)
+		       .Any(x => x.EffectsOfType<IPossessedBodyEffect>(effect =>
+			       PossessedBodyEffectMatchesAnchor(effect, anchor) &&
+			       (predicate?.Invoke(effect) ?? true)).Any());
+	}
+
+	public static bool RemovePossessedBodyEffectsForAnchor(ICharacter anchor,
+		Predicate<IPossessedBodyEffect>? predicate = null)
+	{
+		return RemovePossessedBodyEffects(anchor.Gameworld, effect =>
+			PossessedBodyEffectMatchesAnchor(effect, anchor) &&
+			(predicate?.Invoke(effect) ?? true));
+	}
+
+	public static bool RemovePossessedBodyEffectsForShell(ICharacterInstance shell)
+	{
+		return RemovePossessedBodyEffects(shell.Gameworld, effect => effect.ShellInstanceId == shell.InstanceId);
+	}
+
+	private static IEnumerable<ICharacter> PossessedBodyEffectOwners(IFuturemud gameworld)
+	{
+		return gameworld.Actors
+		                .Concat(gameworld.CachedActors)
+		                .Where(x => x is not null)
+		                .Distinct()
+		                .ToList();
+	}
+
+	private static bool RemovePossessedBodyEffects(IFuturemud gameworld, Predicate<IPossessedBodyEffect> predicate)
+	{
+		var removed = false;
+		foreach (var actor in PossessedBodyEffectOwners(gameworld))
+		{
+			removed |= actor.RemoveAllEffects(predicate, true);
+		}
+
+		return removed;
+	}
+
+	private static bool PossessedBodyEffectMatchesAnchor(IPossessedBodyEffect effect, ICharacter anchor)
+	{
+		return effect.AnchorCharacterId == CharacterInstanceIdentityComparer.IdentityId(anchor) &&
+		       (effect.AnchorInstanceId == 0 || effect.AnchorInstanceId == anchor.InstanceId);
+	}
+
 	public static void UnloadLoadedSecondariesForOwnerLogout(ICharacter owner)
 	{
 		if (owner.Identity is not Character identity)
@@ -835,7 +1151,11 @@ public static class CharacterInstanceService
 		CharacterInstanceFocusService.TryReturnFocusToPrimary(secondary, string.Empty, false, suppressAutoLook: true);
 		LeaveCurrentProject(secondary);
 		ClearArenaBindings(secondary);
-		if (secondary is INPC npc)
+		if (secondary is ScriptedAiCharacterInstance scriptedAi)
+		{
+			scriptedAi.ReleaseEventSubscriptions();
+		}
+		else if (secondary is INPC npc)
 		{
 			npc.ReleaseEventSubscriptions();
 		}

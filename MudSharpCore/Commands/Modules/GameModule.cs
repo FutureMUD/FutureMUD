@@ -95,12 +95,12 @@ internal class GameModule : Module<ICharacter>
         actor.OutputHandler.Send(sb.ToString());
     }
 
-    [PlayerCommand("Command", "command")]
-    [HelpInfo("command",
-        "This command is used to issue commands to NPCs that you are authorised to issue commands to. Commands can be issued even when you can't see your target or are unconscious. The syntax is COMMAND <target> <input that you want them to enter>.",
-        AutoHelp.HelpArgOrNoArg)]
-    protected static void Command(ICharacter actor, string command)
-    {
+	[PlayerCommand("Command", "command")]
+	[HelpInfo("command",
+		"This command is used to issue commands to NPCs and AI-controlled characters that you are authorised to issue commands to. Commands can be issued even when you can't see your target or are unconscious. The syntax is COMMAND <target> <input that you want them to enter>.",
+		AutoHelp.HelpArgOrNoArg)]
+	protected static void Command(ICharacter actor, string command)
+	{
         StringStack ss = new(command.RemoveFirstWord());
         ICharacter target = actor.TargetActor(ss.PopSpeech(),
             PerceiveIgnoreFlags.IgnoreConsciousness | PerceiveIgnoreFlags.IgnoreDark);
@@ -116,10 +116,11 @@ internal class GameModule : Module<ICharacter>
             return;
         }
 
-        if (!(target is INPC npc) || !npc.HandlesEvent(Events.EventType.CommandIssuedToCharacter))
-        {
-            if (actor.CanSee(target))
-            {
+		if (target is not IArtificialIntelligenceControlledCharacter controlled ||
+		    !controlled.HandlesEvent(Events.EventType.CommandIssuedToCharacter))
+		{
+			if (actor.CanSee(target))
+			{
                 actor.Send($"You can't issue commands to {target.HowSeen(actor)}.");
             }
             else
@@ -127,11 +128,11 @@ internal class GameModule : Module<ICharacter>
                 actor.Send("You don't see anyone like that to issue a command to.");
             }
 
-            return;
-        }
+			return;
+		}
 
-        npc.HandleEvent(Events.EventType.CommandIssuedToCharacter, target, actor, ss.RemainingArgument);
-    }
+		controlled.HandleEvent(Events.EventType.CommandIssuedToCharacter, target, actor, ss.RemainingArgument);
+	}
 
     [PlayerCommand("Notify", "notify")]
     [HelpInfo("notify", @"The #3notify#0 command is used to let other people know that you are online and available for roleplay, and respond to such notifications.
@@ -1213,6 +1214,13 @@ The syntax is #3tagsearch <tag>#0.", AutoHelp.HelpArgOrNoArg)]
         }
 
 
+        var currentActorNoQuit = actor.CombinedEffectsOfType<INoQuitEffect>().FirstOrDefault(x => x.Applies());
+        if (currentActorNoQuit is not null)
+        {
+            actor.OutputHandler?.Send(currentActorNoQuit.NoQuitReason);
+            return;
+        }
+
         var logoutActor = CharacterInstanceFocusService.GetLogoutIdentityActor(actor);
         if (!actor.IsAdministrator() && !logoutActor.Location.SafeQuit)
         {
@@ -1220,7 +1228,7 @@ The syntax is #3tagsearch <tag>#0.", AutoHelp.HelpArgOrNoArg)]
             return;
         }
 
-        if (logoutActor.CombinedEffectsOfType<INoQuitEffect>().Any(x => x.Applies()))
+        if (!ReferenceEquals(actor, logoutActor) && logoutActor.CombinedEffectsOfType<INoQuitEffect>().Any(x => x.Applies()))
         {
             actor.OutputHandler?.Send(logoutActor.CombinedEffectsOfType<INoQuitEffect>().First(x => x.Applies())
                                            .NoQuitReason);

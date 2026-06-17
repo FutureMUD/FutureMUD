@@ -50,6 +50,10 @@ public class DispelMagicEffect : IMagicSpellEffectTemplate
 			{ "exitbarrier", x => x is SpellExitBarrierEffect },
 			{ "subjectivedesc", x => x is SpellSubjectiveDescriptionEffect },
 			{ "transformform", x => x is SpellTransformFormEffect },
+			{ "possessbody", x => x is IPossessedBodyEffect },
+			{ "seizebody", x => x is ILiveBodyPossessionEffect },
+			{ "possesscorpse", x => x is ICorpsePossessionEffect },
+			{ "animatecorpse", x => x is IAnimatedCorpseEffect },
 			{ "projectile", x => x is IMagicProjectilePayloadEffect },
 			{ "crafttool", x => x is IMagicCraftToolEnhancementEffect },
 			{ "powerfuel", x => x is IMagicPowerOrFuelEnhancementEffect },
@@ -169,18 +173,28 @@ public class DispelMagicEffect : IMagicSpellEffectTemplate
 			return null;
 		}
 
-		var parents = target.EffectsOfType<MagicSpellParent>(x =>
-			MatchesParent(caster, x) &&
-			MatchesContest(power, outcome, x)).ToList();
-		foreach (var effect in parents)
+		var targets = target
+		              .EffectsOfType<IDispelMagicProxyEffect>()
+		              .SelectMany(x => x.AdditionalDispelTargets)
+		              .Where(x => x is not null)
+		              .Prepend(target)
+		              .Distinct()
+		              .ToList();
+		foreach (var dispelTarget in targets)
 		{
-			if (Mode == DispelMagicMode.Remove)
+			var parents = dispelTarget.EffectsOfType<MagicSpellParent>(x =>
+				MatchesParent(caster, x) &&
+				MatchesContest(power, outcome, x)).ToList();
+			foreach (var effect in parents)
 			{
-				target.RemoveEffect(effect, true);
-				continue;
-			}
+				if (Mode == DispelMagicMode.Remove)
+				{
+					dispelTarget.RemoveEffect(effect, true);
+					continue;
+				}
 
-			target.RemoveDuration(effect, ShortenDuration, true);
+				dispelTarget.RemoveDuration(effect, ShortenDuration, true);
+			}
 		}
 
 		return null;
@@ -295,7 +309,7 @@ public class DispelMagicEffect : IMagicSpellEffectTemplate
 	#3school <id|name|none>#0 - restricts matching to a magic school
 	#3tag <tag> [value]#0 - restricts matching to a magic tag, optionally including value
 	#3tag none#0 - clears tag matching
-	#3effect <key>#0 - restricts matching to an approved key: any, spell, invisibility, flight, levitation, featherfall, burning, trackmark, magictag, itemenchant, portal, planarstate, roomward, personalward, tagward, exitbarrier, subjectivedesc, transformform, projectile, crafttool, powerfuel, itemevent
+	#3effect <key>#0 - restricts matching to an approved key: any, spell, invisibility, flight, levitation, featherfall, burning, trackmark, magictag, itemenchant, portal, planarstate, roomward, personalward, tagward, exitbarrier, subjectivedesc, transformform, possessbody, seizebody, possesscorpse, animatecorpse, projectile, crafttool, powerfuel, itemevent
 	#3illusion <key|none>#0 - restricts matching to a subjective illusion key
 	#3contest#0 - toggles strength-contested dispel matching
 	#3bonus <amount>#0 - sets the flat strength bonus or penalty for contested dispels";

@@ -415,6 +415,219 @@ public class BodyFormProvisioningTests
 	}
 
 	[TestMethod]
+	public void SpellEffectFactory_RegistersPossessBodyEffect()
+	{
+		Assert.IsTrue(SpellEffectFactory.MagicEffectTypes.Contains("possessbody"));
+		var info = SpellEffectFactory.BuilderInfoForType("possessbody");
+		Assert.IsTrue(info.BuilderHelp.Contains("formkey"));
+		Assert.IsTrue(info.BuilderHelp.Contains("possessionecho"));
+		Assert.IsTrue(info.BuilderHelp.Contains("targetecho"));
+		Assert.IsTrue(info.BuilderHelp.Contains("roomecho"));
+		Assert.IsTrue(info.BuilderHelp.Contains("collapseecho"));
+		Assert.IsTrue(info.MatchingTriggers.Any());
+		Assert.IsFalse(info.Instant);
+		Assert.IsTrue(info.RequiresTarget);
+	}
+
+	[TestMethod]
+	public void SpellEffectFactory_PossessBodyBuilderDefaultsAndXmlRoundTripsConfiguredValues()
+	{
+		var context = CreateCopyCloneSpellContext();
+
+		var (built, error) =
+			SpellEffectFactory.LoadEffectFromBuilderInput("possessbody", new StringStack(string.Empty),
+				context.Spell.Object);
+
+		Assert.AreEqual(string.Empty, error);
+		var defaultXml = built.SaveToXml();
+		Assert.AreEqual("possessbody", defaultXml.Attribute("type")?.Value);
+		Assert.AreEqual("possessed-body", defaultXml.Element("FormKey")?.Value);
+		Assert.AreEqual(PossessBodySpellEffect.DefaultPossessionEcho, defaultXml.Element("PossessionEcho")?.Value);
+		Assert.AreEqual(PossessBodySpellEffect.DefaultRoomEcho, defaultXml.Element("RoomEcho")?.Value);
+		Assert.AreEqual(PossessBodySpellEffect.DefaultCollapseEcho, defaultXml.Element("CollapseEcho")?.Value);
+
+		var effect = SpellEffectFactory.LoadEffect(new XElement("Effect",
+			new XAttribute("type", "possessbody"),
+			new XElement("FormKey", "shadow-possession"),
+			new XElement("SortOrder", 12),
+			new XElement("PossessionEcho", new XCData("You enter the stolen shape.")),
+			new XElement("TargetEcho", new XCData("Something pulls free of you.")),
+			new XElement("RoomEcho", new XCData("@ stiffen|stiffens with another will.")),
+			new XElement("CollapseEcho", new XCData("You recoil to yourself.")),
+			new XElement("BacklashEcho", new XCData("A bitter echo follows."))), context.Spell.Object);
+
+		var saved = effect.SaveToXml();
+
+		Assert.AreEqual("shadow-possession", saved.Element("FormKey")?.Value);
+		Assert.AreEqual("12", saved.Element("SortOrder")?.Value);
+		Assert.AreEqual("You enter the stolen shape.", saved.Element("PossessionEcho")?.Value);
+		Assert.AreEqual("Something pulls free of you.", saved.Element("TargetEcho")?.Value);
+		Assert.AreEqual("@ stiffen|stiffens with another will.", saved.Element("RoomEcho")?.Value);
+		Assert.AreEqual("You recoil to yourself.", saved.Element("CollapseEcho")?.Value);
+		Assert.AreEqual("A bitter echo follows.", saved.Element("BacklashEcho")?.Value);
+	}
+
+	[TestMethod]
+	public void SpellEffectFactory_RegistersDirectPossessionEffects()
+	{
+		Assert.IsTrue(SpellEffectFactory.MagicEffectTypes.Contains("seizebody"));
+		var seizeInfo = SpellEffectFactory.BuilderInfoForType("seizebody");
+		Assert.IsTrue(seizeInfo.BuilderHelp.Contains("possessionecho"));
+		Assert.IsTrue(seizeInfo.BuilderHelp.Contains("victimecho"));
+		Assert.IsTrue(seizeInfo.BuilderHelp.Contains("targetecho"));
+		Assert.IsTrue(seizeInfo.BuilderHelp.Contains("allowadmins"));
+		Assert.IsTrue(seizeInfo.MatchingTriggers.Any());
+		Assert.IsFalse(seizeInfo.Instant);
+		Assert.IsTrue(seizeInfo.RequiresTarget);
+
+		Assert.IsTrue(SpellEffectFactory.MagicEffectTypes.Contains("possesscorpse"));
+		var corpseInfo = SpellEffectFactory.BuilderInfoForType("possesscorpse");
+		Assert.IsTrue(corpseInfo.BuilderHelp.Contains("possessionecho"));
+		Assert.IsTrue(corpseInfo.BuilderHelp.Contains("targetecho"));
+		Assert.IsTrue(corpseInfo.BuilderHelp.Contains("restoreecho"));
+		Assert.IsTrue(corpseInfo.BuilderHelp.Contains("allowfinal"));
+		Assert.IsTrue(corpseInfo.BuilderHelp.Contains("allowskeletal"));
+		Assert.IsTrue(corpseInfo.MatchingTriggers.Any());
+		Assert.IsFalse(corpseInfo.Instant);
+		Assert.IsTrue(corpseInfo.RequiresTarget);
+
+		Assert.IsTrue(SpellEffectFactory.MagicEffectTypes.Contains("animatecorpse"));
+		var animateInfo = SpellEffectFactory.BuilderInfoForType("animatecorpse");
+		Assert.IsTrue(animateInfo.BuilderHelp.Contains("ai add"));
+		Assert.IsTrue(animateInfo.BuilderHelp.Contains("targetecho"));
+		Assert.IsTrue(animateInfo.BuilderHelp.Contains("restoreecho"));
+		Assert.IsTrue(animateInfo.BuilderHelp.Contains("allowfinal"));
+		Assert.IsTrue(animateInfo.BuilderHelp.Contains("allowskeletal"));
+		Assert.IsTrue(animateInfo.MatchingTriggers.Any());
+		Assert.IsFalse(animateInfo.Instant);
+		Assert.IsTrue(animateInfo.RequiresTarget);
+	}
+
+	[TestMethod]
+	public void SpellEffectFactory_DirectPossessionBuilderDefaultsAndXmlRoundTrip()
+	{
+		var context = CreateCopyCloneSpellContext();
+
+		var (seize, seizeError) =
+			SpellEffectFactory.LoadEffectFromBuilderInput("seizebody", new StringStack(string.Empty),
+				context.Spell.Object);
+		var (corpse, corpseError) =
+			SpellEffectFactory.LoadEffectFromBuilderInput("possesscorpse", new StringStack(string.Empty),
+				context.Spell.Object);
+		var (animate, animateError) =
+			SpellEffectFactory.LoadEffectFromBuilderInput("animatecorpse", new StringStack(string.Empty),
+				context.Spell.Object);
+
+		Assert.AreEqual(string.Empty, seizeError);
+		Assert.AreEqual(string.Empty, corpseError);
+		Assert.AreEqual(string.Empty, animateError);
+		var seizeXml = seize.SaveToXml();
+		Assert.AreEqual("seizebody", seizeXml.Attribute("type")?.Value);
+		Assert.AreEqual(bool.TrueString.ToLowerInvariant(), seizeXml.Element("AllowPCs")?.Value.ToLowerInvariant());
+		Assert.AreEqual(bool.TrueString.ToLowerInvariant(), seizeXml.Element("AllowNPCs")?.Value.ToLowerInvariant());
+		Assert.AreEqual(bool.FalseString.ToLowerInvariant(), seizeXml.Element("AllowAdmins")?.Value.ToLowerInvariant());
+		Assert.AreEqual(SeizeBodySpellEffect.DefaultVictimEcho, seizeXml.Element("VictimEcho")?.Value);
+		Assert.AreEqual(SeizeBodySpellEffect.DefaultVictimEndEcho, seizeXml.Element("VictimEndEcho")?.Value);
+
+		var corpseXml = corpse.SaveToXml();
+		Assert.AreEqual("possesscorpse", corpseXml.Attribute("type")?.Value);
+		Assert.AreEqual(bool.TrueString.ToLowerInvariant(), corpseXml.Element("AllowFinal")?.Value.ToLowerInvariant());
+		Assert.AreEqual(bool.FalseString.ToLowerInvariant(), corpseXml.Element("AllowSkeletal")?.Value.ToLowerInvariant());
+		Assert.AreEqual(PossessCorpseSpellEffect.DefaultRestoreEcho, corpseXml.Element("RestoreEcho")?.Value);
+
+		var animateXml = animate.SaveToXml();
+		Assert.AreEqual("animatecorpse", animateXml.Attribute("type")?.Value);
+		Assert.AreEqual(bool.TrueString.ToLowerInvariant(), animateXml.Element("AllowFinal")?.Value.ToLowerInvariant());
+		Assert.AreEqual(bool.FalseString.ToLowerInvariant(), animateXml.Element("AllowSkeletal")?.Value.ToLowerInvariant());
+		Assert.AreEqual(AnimateCorpseSpellEffect.DefaultRestoreEcho, animateXml.Element("RestoreEcho")?.Value);
+		Assert.AreEqual(0, animateXml.Element("ArtificialIntelligences")?.Elements("AI").Count());
+
+		var loadedSeize = SpellEffectFactory.LoadEffect(new XElement("Effect",
+			new XAttribute("type", "seizebody"),
+			new XElement("AllowPCs", false),
+			new XElement("AllowNPCs", true),
+			new XElement("AllowAdmins", true),
+			new XElement("PossessionEcho", new XCData("You seize the limbs.")),
+			new XElement("VictimEcho", new XCData("You are locked behind your eyes.")),
+			new XElement("VictimEndEcho", new XCData("You can move again.")),
+			new XElement("TargetEcho", new XCData("Your nerves burn.")),
+			new XElement("RoomEcho", new XCData("@ lurch|lurches under alien control.")),
+			new XElement("CollapseEcho", new XCData("You return.")),
+			new XElement("BacklashEcho", new XCData("The stolen pulse fades."))), context.Spell.Object);
+
+		var loadedSeizeXml = loadedSeize.SaveToXml();
+		Assert.AreEqual(bool.FalseString.ToLowerInvariant(),
+			loadedSeizeXml.Element("AllowPCs")?.Value.ToLowerInvariant());
+		Assert.AreEqual(bool.TrueString.ToLowerInvariant(),
+			loadedSeizeXml.Element("AllowAdmins")?.Value.ToLowerInvariant());
+		Assert.AreEqual("You seize the limbs.", loadedSeizeXml.Element("PossessionEcho")?.Value);
+		Assert.AreEqual("You are locked behind your eyes.", loadedSeizeXml.Element("VictimEcho")?.Value);
+		Assert.AreEqual("You can move again.", loadedSeizeXml.Element("VictimEndEcho")?.Value);
+		Assert.AreEqual("Your nerves burn.", loadedSeizeXml.Element("TargetEcho")?.Value);
+		Assert.AreEqual("@ lurch|lurches under alien control.", loadedSeizeXml.Element("RoomEcho")?.Value);
+		Assert.AreEqual("The stolen pulse fades.", loadedSeizeXml.Element("BacklashEcho")?.Value);
+
+		var loadedCorpse = SpellEffectFactory.LoadEffect(new XElement("Effect",
+			new XAttribute("type", "possesscorpse"),
+			new XElement("AllowPCs", true),
+			new XElement("AllowNPCs", false),
+			new XElement("AllowAdmins", true),
+			new XElement("AllowFinal", false),
+			new XElement("AllowSkeletal", true),
+			new XElement("PossessionEcho", new XCData("The dead body obeys.")),
+			new XElement("TargetEcho", new XCData("The corpse twitches.")),
+			new XElement("RoomEcho", new XCData("@ rise|rises with dead hands.")),
+			new XElement("CollapseEcho", new XCData("The dead weight drops.")),
+			new XElement("BacklashEcho", new XCData("Cold dirt follows you.")),
+			new XElement("RestoreEcho", new XCData("@ fold|folds into $1."))), context.Spell.Object);
+
+		var loadedCorpseXml = loadedCorpse.SaveToXml();
+		Assert.AreEqual(bool.FalseString.ToLowerInvariant(),
+			loadedCorpseXml.Element("AllowNPCs")?.Value.ToLowerInvariant());
+		Assert.AreEqual(bool.FalseString.ToLowerInvariant(),
+			loadedCorpseXml.Element("AllowFinal")?.Value.ToLowerInvariant());
+		Assert.AreEqual(bool.TrueString.ToLowerInvariant(),
+			loadedCorpseXml.Element("AllowSkeletal")?.Value.ToLowerInvariant());
+		Assert.AreEqual("The dead body obeys.", loadedCorpseXml.Element("PossessionEcho")?.Value);
+		Assert.AreEqual("The corpse twitches.", loadedCorpseXml.Element("TargetEcho")?.Value);
+		Assert.AreEqual("@ rise|rises with dead hands.", loadedCorpseXml.Element("RoomEcho")?.Value);
+		Assert.AreEqual("The dead weight drops.", loadedCorpseXml.Element("CollapseEcho")?.Value);
+		Assert.AreEqual("Cold dirt follows you.", loadedCorpseXml.Element("BacklashEcho")?.Value);
+		Assert.AreEqual("@ fold|folds into $1.", loadedCorpseXml.Element("RestoreEcho")?.Value);
+
+		var loadedAnimate = SpellEffectFactory.LoadEffect(new XElement("Effect",
+			new XAttribute("type", "animatecorpse"),
+			new XElement("AllowPCs", true),
+			new XElement("AllowNPCs", false),
+			new XElement("AllowAdmins", true),
+			new XElement("AllowFinal", false),
+			new XElement("AllowSkeletal", true),
+			new XElement("ArtificialIntelligences",
+				new XElement("AI", new XAttribute("id", 11)),
+				new XElement("AI", new XAttribute("id", 12))),
+			new XElement("TargetEcho", new XCData("The corpse twitches.")),
+			new XElement("RoomEcho", new XCData("@ rise|rises hungry.")),
+			new XElement("CollapseEcho", new XCData("@ fall|falls inert.")),
+			new XElement("RestoreEcho", new XCData("@ fold|folds into $1."))), context.Spell.Object);
+
+		var loadedAnimateXml = loadedAnimate.SaveToXml();
+		Assert.AreEqual(bool.FalseString.ToLowerInvariant(),
+			loadedAnimateXml.Element("AllowNPCs")?.Value.ToLowerInvariant());
+		Assert.AreEqual(bool.FalseString.ToLowerInvariant(),
+			loadedAnimateXml.Element("AllowFinal")?.Value.ToLowerInvariant());
+		Assert.AreEqual(bool.TrueString.ToLowerInvariant(),
+			loadedAnimateXml.Element("AllowSkeletal")?.Value.ToLowerInvariant());
+		CollectionAssert.AreEqual(new[] { "11", "12" },
+			loadedAnimateXml.Element("ArtificialIntelligences")?.Elements("AI")
+			                .Select(x => x.Attribute("id")?.Value)
+			                .ToArray());
+		Assert.AreEqual("The corpse twitches.", loadedAnimateXml.Element("TargetEcho")?.Value);
+		Assert.AreEqual("@ rise|rises hungry.", loadedAnimateXml.Element("RoomEcho")?.Value);
+		Assert.AreEqual("@ fall|falls inert.", loadedAnimateXml.Element("CollapseEcho")?.Value);
+		Assert.AreEqual("@ fold|folds into $1.", loadedAnimateXml.Element("RestoreEcho")?.Value);
+	}
+
+	[TestMethod]
 	public void SpellEffectFactory_MagicalCopyAndPhysicalCloneBuilderDefaults()
 	{
 		var context = CreateCopyCloneSpellContext();

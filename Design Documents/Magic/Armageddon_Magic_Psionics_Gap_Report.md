@@ -20,12 +20,13 @@ and the current runtime implementations under `MudSharpCore/Magic`.
 - `Native now` means the behaviour can be authored today with existing spell effects or power types and no new C# runtime type.
 - `Builder+Prog now` means the behaviour can be reached today with existing magic primitives plus FutureProg logic, NPC/item prototypes, or on-load content scaffolding. These are "close enough" paths, not always exact one-to-one reproductions.
 - `Needs engine primitive` means the current magic surface is missing a concrete trigger, target type, spell effect, power type, hook, or formula, but the existing character, room, item, perception, combat, plane, or form systems are enough to host it. These are implementation tasks, not architectural blockers.
-- `Needs supporting system` means the effect cannot be represented honestly until a broader runtime model is added or reworked. Examples include simultaneous active bodies, objective multi-viewer illusions, or world-specific metaphysics.
+- `Needs supporting system` means the effect cannot be represented honestly until a broader runtime model is added or reworked. Examples include send-shadow identity/control semantics, objective multi-viewer illusions, or world-specific metaphysics.
 - Existing powers count as valid coverage even when Armageddon exposed the original ability as a spell. If you want strict `cast`-spell parity rather than "same subsystem can do it", several defensive entries would slide from `Native now` to `Needs engine primitive`.
 - A handful of Armageddon entries are under-specified in the dump (`Daylight`, `Empower`, `Drown`, `Cause Disease`, `Acid Spray`, some passive psionics). The first pass counted those conservatively unless the name clearly mapped to an existing FutureMUD primitive.
 - The original first-pass counts used a single `Needs engine work` bucket. This revision keeps those historical lists in the appendix, but current planning uses the two-way split above.
 - Status reviewed on 2026-05-28 against `Magic_System_Implemented_Types.md`, `Magic_System_Spells.md`, `Magic_System_Powers.md`, and the registered runtime types under `MudSharpCore/Magic`. Exact family-by-family counts were not recomputed in this pass; the stale top-line counts have therefore been removed from the planning sections. V4 added 9 builder-registered psionic power tokens and 2 builder-registered tag-aware ward effect tokens. The 2026-05-05 Old SOI parity slice added 7 more builder-registered psionic power tokens: `dangersense`, `empathy`, `hex`, `clairvoyance`, `prescience`, `sensitivity`, and `psychicbolt`. The 2026-05-28 persistent sensory/combat slice added 4 builder-registered spell-effect tokens: `burning`, `ignite`, `trackmark`, and `tracktrail`. The 2026-06-01 V5b trace slice added a saveable psionic trace effect and shared notifier-driven trace creation without adding new power tokens.
-- Status updated on 2026-06-16: the multi-body V1 work adds simultaneous body instances, `astralprojection`, `createcopy`, `createclone`, and staff/FutureProg instance spawning. Older references to body-left-behind projection as a missing supporting system now apply only to richer possession, send-shadow, possessed-corpse control, and campaign-specific recognition/consequence policy.
+- Status updated on 2026-06-16: the multi-body V1 work adds simultaneous body instances, `astralprojection`, `createcopy`, `createclone`, and staff/FutureProg instance spawning. Older references to body-left-behind projection as a missing supporting system now apply only to send-shadow/shadow-identity control, campaign-specific recognition/consequence policy, and other non-standard control models beyond the implemented instance layer.
+- Status updated on 2026-06-17: the V6a possession slice adds `possessbody`, a target-character spell effect that creates a caster-owned, player-focusable possessed shell derived from a non-player character target. The V6b direct-possession slice adds `seizebody` for temporary spell-bound hostile control of a live body, including PC targets through a bound spectator context, `possesscorpse` for player-commanded corpse possession that restores the same corpse item through its `OriginalBody`, and `animatecorpse` for AI-controlled zombie-style corpse animation with builder-selected AIs. Remaining possession gaps are send-shadow/shadow-identity policy, automatic recognition/liability surfaces, and campaign-specific consequences beyond these primitives.
 
 ## Executive Summary
 
@@ -35,7 +36,7 @@ The major correction from the old report is that "requires engine work" is no lo
 | --- | --- | --- |
 | Buildable now | Existing spell effects, powers, triggers, planes, body forms, tags, wards, portals, or progs can author the behaviour today. | `Ethereal`, simple `Planeshift`, `Mark`, basic `Portal`, `Thoughtsense`, `Immersion`, `Conceal`, `Glyph`, `Vampiric Blade` |
 | Needs engine primitive | A new effect, power, hook, or formula is needed, but the surrounding model already exists. | open/close exit mutation, exact `Identify`/`Dead Speak`/`Recite` UX, source-specific anti-status or metaphysical wrappers |
-| Needs supporting system | The spell implies a runtime model that FutureMUD does not yet have. | possession and possessed-corpse control, objective multi-viewer illusions, land/elemental relationship metaphysics |
+| Needs supporting system | The spell implies a runtime model that FutureMUD does not yet have. | send-shadow identity/control semantics, objective multi-viewer illusions, land/elemental relationship metaphysics |
 
 Key takeaways:
 
@@ -43,8 +44,8 @@ Key takeaways:
 - The current system is strong at direct damage, healing, stamina/need adjustment, item or liquid conjuration, NPC summoning, invisibility, telepathy, self-only magical armour, planar state shifts, persistent burn/track spell effects, and single-active-body transformation.
 - Previous phases closed three medium-difficulty primitive gaps: local exit targeting, prog-resolved summon-style remote targeting, and reusable room or personal wards with shared spell and power interception.
 - The plane and body-form work moves several old blockers into the buildable bucket: `Ethereal`, `Detect Ethereal`, `Dispel Ethereal`, simple `Planeshift`, ghostly manifestation, and polymorph-style transformations can now use first-class effects rather than bespoke tags.
-- The biggest remaining architecture blockers are objective or group-scoped illusion policy, world-specific metaphysics, and possession/send-shadow rules beyond the implemented simultaneous-instance foundation. Durable portal topology V1, durable psionic trace V1, astral projection, magical copies, and physical clones are now implemented.
-- Psionics are now better covered than the first pass suggested. The current mind-link stack handles contact, barriers, mind-looking, audits, expulsion, sense, messaging, direct mental attacks, passive thought/feeling traffic, identity concealment, active and residual trace inspection, psionic hearing, clairaudience, clairvoyance, language comprehension, babbling, magical or psychic sensitivity, danger sense, empathy, hexes, prescient board questions, emotion/thought injection, stun-only psychic bolts, and non-command coerce modes. Projection-style powers still need supporting-system work.
+- The biggest remaining architecture blockers are objective or group-scoped illusion policy, world-specific metaphysics, and send-shadow/shadow-identity rules beyond the implemented simultaneous-instance, possessed-shell, live-possession, corpse-possession, and AI corpse-animation foundations. Durable portal topology V1, durable psionic trace V1, astral projection, magical copies, physical clones, non-PC possessed shells, hostile live-body control, same-corpse-item possession, and zombie-style corpse animation are now implemented.
+- Psionics are now better covered than the first pass suggested. The current mind-link stack handles contact, barriers, mind-looking, audits, expulsion, sense, messaging, direct mental attacks, passive thought/feeling traffic, identity concealment, active and residual trace inspection, psionic hearing, clairaudience, clairvoyance, language comprehension, babbling, magical or psychic sensitivity, danger sense, empathy, hexes, prescient board questions, emotion/thought injection, stun-only psychic bolts, and non-command coerce modes. Projection and possession-style content can now use the body-instance and direct-possession spell primitives where the spell layer is appropriate; a separate psionic-native send-shadow or shadow-identity model would still need supporting-system work.
 
 ## Current Family Themes
 
@@ -54,11 +55,11 @@ Key takeaways:
 | Water | healing, need/liquid manipulation, poison/disease application and removal, poison detection, silence, water breathing | exact `Drown` semantics if not just hypoxia/damage | land/relationship metaphysics for `Oasis` / `Determine Relationship` if they must model Armageddon's setting rules |
 | Earth / Stone | armour, trait boosts, sand walls, golems, item repair/damage/destruction, spell-owned sleep | `Burrow` if it needs temporary room creation or hidden exits, `Rewind` delayed callbacks, statue/item-form edge cases | persistent constructed burrow topology if burrows must become real world structure |
 | Wind | invisibility, teleport/relocate, local exit movement, walls, flight status, feather fall | `Hands Of Wind` if it needs special long-range forced movement, `Transference` swap semantics | none obvious from the current report |
-| Shadow | blindness, cure blindness, darkness, curse/fear/infravision, ethereal states, dispel ethereal, hero/sword item magic, astral-style projection if authored with `astralprojection` or `createcopy` | richer fear/curse variants if source-specific rules are needed | send-shadow possession/control rules if the shadow should act with different ownership or identity policy |
+| Shadow | blindness, cure blindness, darkness, curse/fear/infravision, ethereal states, dispel ethereal, hero/sword item magic, astral-style projection if authored with `astralprojection` or `createcopy`, NPC-derived possessed shells through `possessbody`, hostile live-body control through `seizebody`, player-commanded corpse possession through `possesscorpse`, AI corpse animation through `animatecorpse` | richer fear/curse variants if source-specific rules are needed | send-shadow rules if the shadow is a separate identity, objective shadow actor, or recognition/liability policy rather than one of the implemented body-control primitives |
 | Lightning | direct attacks, stamina effects, paralysis, footprint-style magical track marking | source-specific lightning wrappers only if content needs more than existing damage/status/trackmark primitives | none obvious from the current report |
-| Void | wards, portals, marks/runes, corpse preservation/consumption/spawn, resource drains, item enchantments, strength-contested dispel matching, body-left-behind projection and clone/copy effects | exact `Identify`/`Dead Speak`/`Recite` surfaces if they need first-class UX | possession, setting-specific `Solace` / `Dragon Bane` / `Cathexis` |
+| Void | wards, portals, marks/runes, corpse preservation/consumption/spawn, resource drains, item enchantments, strength-contested dispel matching, body-left-behind projection and clone/copy effects, NPC-derived possessed shells through `possessbody`, direct live-body possession through `seizebody`, same-corpse-item player possession through `possesscorpse`, same-corpse-item AI animation through `animatecorpse` | exact `Identify`/`Dead Speak`/`Recite` surfaces if they need first-class UX | setting-specific `Solace` / `Dragon Bane` / `Cathexis`, plus any recognition or liability model beyond the implemented possession metadata |
 | Unspecified / incomplete magic | `Puddle`; `Cause Disease` if the dump only requires disease application | `Acid Spray`, exact `Drown` if not covered by existing damage/need/breathing primitives | source clarification may be needed before classification |
-| Psionics | contact, barriers, locate/probe/expel/sense, mindblast, rejuvenate, dome, telepathy, passive traffic, identity concealment, active link and residual trace inspection, `Trace`, `Hear`, `Clairaudience`, `Clairvoyance`, `Allspeak`, `Babble`, `Magicksense`, `Danger Sense`, `Empathy`, `Hex`, `Prescience`, `Sensitivity`, `Psychic Bolt`, `Project Emotion`, `Suggest`, `Coerce`, animal/wild contact variants via `connectmind` eligibility progs, and projection-style content through the multi-body instance layer | content-specific `Cathexis`, `Mindwipe`, or beast/wild wrappers if they require unique UX beyond existing links and policy hooks | possession-style remote control and objective multi-viewer illusion state |
+| Psionics | contact, barriers, locate/probe/expel/sense, mindblast, rejuvenate, dome, telepathy, passive traffic, identity concealment, active link and residual trace inspection, `Trace`, `Hear`, `Clairaudience`, `Clairvoyance`, `Allspeak`, `Babble`, `Magicksense`, `Danger Sense`, `Empathy`, `Hex`, `Prescience`, `Sensitivity`, `Psychic Bolt`, `Project Emotion`, `Suggest`, `Coerce`, animal/wild contact variants via `connectmind` eligibility progs, projection-style content through the multi-body instance layer, NPC-derived possessed shells through `possessbody`, and spell-backed direct possession/corpse animation through `seizebody` / `possesscorpse` / `animatecorpse` | content-specific `Cathexis`, `Mindwipe`, beast/wild wrappers, or psionic-native possession wrappers if they require unique UX beyond existing spells, links, and policy hooks | objective multi-viewer illusion state, or send-shadow identity/control if it is not modelled as one of the implemented body-instance or possession spell effects |
 
 ## Where FutureMUD Is Already Strong
 
@@ -76,6 +77,10 @@ The current system already has good coverage for:
 - planar state changes through `planarstate`, `planeshift`, `removeplanarstate`, planar merits, planar drugs, and planar FutureProg helpers
 - spell-driven alternate body forms through `transformform`, including stable form keys, first-creation race or description defaults, trauma handling, transformation echoes, and forced-transformation priority
 - simultaneous body spell effects through `astralprojection`, `createcopy`, and `createclone`, including keyed form provisioning, player-focusable secondaries where configured, planar/intangible projection rules, and non-final secondary death/collapse semantics
+- first-slice possession through `possessbody`, which creates a caster-owned, player-focusable possessed shell from a non-player character target, stores anchor/source-target metadata, supports `dispelmagic effect possessbody`, and collapses the shell on effect removal, caster death/logout, source-target death/logout, or shell retirement
+- hostile live-body control through `seizebody`, including PC targets moved into a bound spectator context, NPC controller/AI restoration, possession metadata, and `dispelmagic effect seizebody`
+- corpse possession through `possesscorpse`, which hides the corpse item, animates its `OriginalBody` as a temporary `PossessedCorpse` actor, proxies dispel attempts from the actor to the hidden corpse effect, and restores the same mutated corpse item at collapse
+- AI corpse animation through `animatecorpse`, which hides the corpse item, animates its `OriginalBody` as a temporary `AnimatedCorpse` scripted-AI actor with builder-selected AIs such as commandable or aggressive, proxies dispel attempts from the actor to the hidden corpse effect, and restores the same mutated corpse item at collapse
 - information-bearing spell metadata through `magictag` / `removemagictag` and FutureProg helpers `hasmagictag`, `magictagvalue`, `magictagvalues`, and `magictags`
 - item/corpse magic through `itemdamage`, `destroyitem`, `itemenchant`, `corpsemark`, `corpsepreserve`, `corpseconsume`, and `corpsespawn`, including projectile, craft-tool, powered-item, fuel-use, and item event hooks for enchantments
 - general spell cleanup through `dispelmagic`, including remove or shorten modes and criteria for caster policy, spell, school/subschool, magic tags, and approved effect/interface keys
@@ -128,7 +133,7 @@ Deferred from V1 but later resolved in V2: general dispel/shorten support, porta
 
 Deferred from V1 but later resolved in V4: advanced non-command coercion policy and subjective illusion priority/dispel keys.
 
-Deferred from V1 and still relevant: objective or group-scoped illusions and true possession/projection. Durable portal/rune topology was later resolved in V5 topology work; timed durable trace consequences were later resolved in V5b.
+Deferred from V1 and still relevant: objective or group-scoped illusions and send-shadow/shadow-identity interpretations beyond the V6a/V6b possession primitives. Durable portal/rune topology was later resolved in V5 topology work; timed durable trace consequences were later resolved in V5b.
 
 ### Engine V2: dispels, richer enchantments, portal inspection, and psionic identity
 
@@ -142,7 +147,7 @@ Completed on 2026-05-02.
 
 Deferred from V2 but later resolved in V3 or V4: strength-contested dispel formulas, richer subjective-illusion priority and dispel policy, advanced non-command coercion primitives, and tag-aware ward matching.
 
-Deferred from V2 and still relevant: objective or group-scoped illusion state and possession/non-owned remote-control policy on top of the simultaneous-body foundation. Persistent gate/rune topology, timed residual traces, and same-identity projection/copy/clone instances were resolved in later slices.
+Deferred from V2 and still relevant: objective or group-scoped illusion state and possession-adjacent recognition, liability, or send-shadow policy on top of the simultaneous-body foundation. Persistent gate/rune topology, timed residual traces, same-identity projection/copy/clone instances, live-body control, and same-corpse-item animation were resolved in later slices.
 
 ### Engine V4: psionic and perception policy layer
 
@@ -176,7 +181,7 @@ Completed on 2026-06-01.
 - Added base power trace configuration for enabled state, duration, read difficulty, and trace description. Existing XML without trace fields loads with tracing disabled for compatibility.
 - Extended `trace <target>` so active link output remains first, followed by residual traces when present.
 
-This closes timed durable psionic trace/trail V1 without adding a permanent staff ledger or solving objective illusions, possession/projection, or world-specific metaphysics.
+This closes timed durable psionic trace/trail V1 without adding a permanent staff ledger or solving objective illusions, send-shadow/shadow-identity control, automatic possession consequence policy, or world-specific metaphysics.
 
 ## Current Reclassification From Planes And Body Forms
 
@@ -189,7 +194,7 @@ The old blocker list bundled "ethereal", "projection", "possession", "planeshift
 | Planeshift | Simple "target moves to configured plane/state" is first-class with `planeshift`. | Destination safety formulas or extra transition effects. | Multi-step planar travel graphs, unsafe destination modelling, or durable portal networks that should survive beyond an effect duration. |
 | Shadowwalk-style movement | If the behaviour is "enter a shadow/astral/ethereal plane and move normally", use plane definitions plus `planeshift`. | Minor movement/detection wrappers around plane shifting. | Remote projection, leaving a body behind, or moving a second body independently. |
 | Polymorph, animal form, statue-like form, or spirit form | Use `transformform` for single-active-body transformation, with `Additional Body Form` merits for intrinsic or racial forms. | Turning a target into a true item-like state, or adding extra form metadata synchronisation. | Two bodies acting at once, using a corpse as the exact vessel, or descriptor handoff between independent bodies. |
-| Possession, disembodying, and send-shadow projection | Simplified content can use `planeshift` or `transformform` where the original character becomes the new form/state. | A future possession/projection effect can be built after the model exists. | True possession and projection require simultaneous presence, command routing, source-body vulnerability, disconnect handling, staff visibility, inventory rules, and death semantics. |
+| Possession, disembodying, and send-shadow projection | Simplified content can use `planeshift` or `transformform` where the original character becomes the new form/state. Same-identity projection/copy/clone use `astralprojection`, `createcopy`, or `createclone`; NPC-derived possessed shells use `possessbody`; hostile live-body control uses `seizebody`; player-commanded corpse possession uses `possesscorpse`; AI corpse animation uses `animatecorpse`. | Richer recognition, liability, or staff-facing consequence surfaces need first-class policy if content requires more than possession metadata. | Send-shadow or shadow-identity interpretations still need supporting policy when the shadow is a distinct actor/identity rather than an implemented body instance, shell, live body, or corpse vessel. |
 | Marks, runes, anchors, and hidden magical facts | Use `magictag` / `removemagictag` plus the magic-tag FutureProg helpers. `portal` can consume caster-owned room or item/object anchors, and active portal/anchor state is inspectable with `magic portals` and `magic anchors`. | Behavioural effects should get first-class support when the tag would be pretending to be combat, movement, item damage, resource changes, or perception. | Persistent rune networks, standing portals, and durable world-topology edits if saved effects and transient exits are not sufficient. |
 
 ## Main Gaps By Primitive
@@ -366,7 +371,7 @@ Remaining limitations:
 
 ### 7. Body transformation, dual-body, possession, and projection mechanics
 
-Status: multi-body V1 foundation implemented; possession policy still open.
+Status: multi-body V1 foundation, V6a NPC-derived possessed shells, and V6b direct live-body/corpse possession plus AI corpse animation are implemented; send-shadow/shadow-identity policy and automatic consequence attribution remain open.
 
 The `transformform` spell effect and the multiple-body-form system now give FutureMUD a first-class answer for temporary or persistent single-active-body transformations. This supports spells that can honestly be represented as "the character becomes a different body for a duration" rather than "the character controls another body while the original remains elsewhere."
 
@@ -380,16 +385,20 @@ This now unlocks or materially improves:
 - magical mirror-image style copies through `createcopy`
 - tangible physical clones through `createclone`
 - staff or FutureProg-created secondary instances for event content
+- caster-owned possessed shells derived from NPC targets through `possessbody`
+- hostile control of living bodies, including PCs, through `seizebody`
+- corpse animation that hides and restores the same corpse item through `possesscorpse`
+- zombie-style AI corpse animation that hides and restores the same corpse item through `animatecorpse`
 
-The remaining hard cases are still not just timed effects. They need a coherent answer for agency, ownership, consent, recognition, inventory, death, disconnects, and admin visibility when the secondary actor is not simply a body owned by the same identity.
+The remaining hard cases are still not just timed effects. They need a coherent answer for recognition, criminal responsibility, social attribution, and admin-facing policy when the fiction wants consequences to attach to the possessor, the physical body, a separate shadow identity, or a campaign-specific metaphysical actor.
 
 Remaining work:
 
-- Needs supporting system or policy: `Send Shadow`, possession-style `Shadowwalk`, and `Possess Corpse` where control, criminal responsibility, recognition, or ownership differs from the same-identity projection/copy/clone model.
+- Needs supporting system or policy: `Send Shadow` and possession-style `Shadowwalk` where control, criminal responsibility, recognition, or ownership differs from the same-identity projection/copy/clone model, the V6a caster-owned possessed-shell model, or the V6b direct live/corpse possession and AI corpse-animation model.
 - Needs engine primitive or content clarification: `Burrow`, if it only needs temporary room creation or hidden exits rather than true world-topology persistence.
 - Needs supporting system if interpreted durably: pieces of `Portal` and `Planeshift` that require persistent topology or plane travel graphs rather than changing the target's current planar presence.
 
-`Shadowwalk`, `Disembody`, and `Planeshift` should be split by intended semantics. If they mean "change this target's planar presence", they are buildable through planar effects. If they mean "leave one body behind and operate another same-identity form", they can use `astralprojection`, `createcopy`, `createclone`, or the staff/FutureProg instance spawning surface. If they mean "possess another body, corpse, shadow, or identity", they remain future policy work.
+`Shadowwalk`, `Disembody`, and `Planeshift` should be split by intended semantics. If they mean "change this target's planar presence", they are buildable through planar effects. If they mean "leave one body behind and operate another same-identity form", they can use `astralprojection`, `createcopy`, `createclone`, or the staff/FutureProg instance spawning surface. If they mean "create a caster-owned shell derived from a non-player target", they can use `possessbody`. If they mean "directly possess another live body", they can use `seizebody`. If they mean "personally command and later restore the same corpse item", they can use `possesscorpse`. If they mean "raise the same corpse item as an AI zombie", they can use `animatecorpse`. If they mean "a shadow or disembodied identity acts with its own recognition and liability model", they remain future policy work.
 
 ### 8. Subjective perception, coercive psionics, and passive mind traffic
 
@@ -431,7 +440,7 @@ It does not yet cover:
 That means the remaining work splits cleanly:
 
 - Needs engine primitive: none from the V4 psionic/perception policy slice. Content-specific `Cathexis`, `Mindwipe`, or beast/wild wrappers may still need dedicated UX if progs and existing link effects are not enough.
-- Needs supporting system: possession-style psionics, permanent trace consequence ledgers if traces must outlive timed effects, and objective multi-viewer illusions if they need a general perception-overlay framework.
+- Needs supporting system: psionic-native send-shadow/shadow-identity control if it cannot be authored with the existing spell possession effects, permanent trace consequence ledgers if traces must outlive timed effects, and objective multi-viewer illusions if they need a general perception-overlay framework.
 
 ## Future Work
 
@@ -450,7 +459,7 @@ These tasks should be ordinary implementation work inside the existing magic, pe
 
 These are the remaining true blockers. They should not be represented as one-off spell effects until the supporting model exists.
 
-- Possession and non-owned remote control: `Send Shadow`, possession-style `Shadowwalk`, and `Possess Corpse` need ownership, consent, recognition, criminal responsibility, and control policy beyond the same-identity simultaneous body instance foundation. Body-left-behind projection, magical copies, and physical clones now use the multi-body V1 instance layer.
+- Possession and non-owned remote control: V6a implements `possessbody` for caster-owned, player-focusable shells derived from non-player character targets. V6b implements `seizebody` for hostile live-body control, including PCs via a bound spectator context, `possesscorpse` for same-corpse-item player possession/restoration, and `animatecorpse` for same-corpse-item AI zombie animation/restoration. `Send Shadow`, direct possession-style `Shadowwalk`, and campaign-specific recognition, consent, criminal responsibility, and liability attribution remain policy work beyond the same-identity simultaneous body instance foundation and the V6 possession primitives.
 - Durable portal/rune topology: implemented as DB-backed `MagicPortalNetworks`, endpoints, and explicit links that materialise into topology-managed transient exits. V1 covers standing room gates, directly placed rune/portal objects, builder repair, and spell-created topology. One-way links and mobile/carried rune endpoints remain future extensions.
 - Objective or group-scoped illusions: if illusions must alter room state for multiple observers, stack with other illusions, and expose consistent dispel/priority rules, they need a general perception-overlay policy rather than only `subjectivedesc` / `subjectivesdesc`.
 - World-specific metaphysics: `Determine Relationship`, `Solace`, `Dragon Bane`, `Cathexis`, and richer `Planeshift` interpretations need a model for land/elemental relationships, plane travel graphs, and any clan/tribe/identity consequences.
@@ -499,7 +508,7 @@ Status: implemented on 2026-06-01.
 
 V5 and later slices should tackle the remaining architecture blockers after V3/V4 make the easy and medium gaps boring:
 
-- possession and non-owned remote-control policy on top of the simultaneous-body foundation
+- send-shadow, shadow-identity, and non-owned remote-control policy beyond the simultaneous-body foundation and V6 possession primitives
 - objective or group-scoped illusion state that changes room facts for multiple observers
 - permanent psionic trace consequence ledgers, only if content needs traces to survive beyond the timed V5b effect
 - persistent rune/gate/portal topology is now implemented for explicit bidirectional networks; future work is limited to one-way links or mobile/carried rune endpoint semantics if content needs them
@@ -568,11 +577,11 @@ These are the parity items with the most engine-level uncertainty.
    - `Shadowwalk`
    - `Possess Corpse`
    - `Disembody`
-   - Status: single-active-body transformations are now supported through `transformform`; true projection and possession remain blocked.
+   - Status: single-active-body transformations are supported through `transformform`; same-identity body-left-behind projection/copy/clone are supported through `astralprojection`, `createcopy`, and `createclone`; NPC-derived possessed shells are supported through `possessbody`; direct live-body control, including PCs, is supported through `seizebody`; player-commanded same-corpse-item possession is supported through `possesscorpse`; AI same-corpse-item animation is supported through `animatecorpse`.
    - Design questions:
      - Is the projected self a second body, a descriptor handoff, or a temporary NPC shell?
      - What happens to inventory, combat, death, and disconnects?
-     - How do staff see the true relationship between source body and projection?
+     - How do staff and policy systems attribute recognition, legal responsibility, and social consequences when the fiction uses a separate shadow identity or campaign-specific possession metaphysics?
 
 2. Portal topology and marked-anchor travel.
    - `Mark`
@@ -610,7 +619,7 @@ These are the parity items with the most engine-level uncertainty.
 
 ## Engine V2 Shipped Runtime Slice
 
-Engine V2 shipped the deeper parity layer before simultaneous-body possession or projection. The later multi-body V1 work adds same-identity body-left-behind projection, magical copies, physical clones, and staff/FutureProg-created secondary instances; possession and non-owned remote control remain future work.
+Engine V2 shipped the deeper parity layer before simultaneous-body possession or projection. The later multi-body V1 work adds same-identity body-left-behind projection, magical copies, physical clones, and staff/FutureProg-created secondary instances. V6a adds caster-owned, NPC-derived possessed shells through `possessbody`; V6b adds live-body possession through `seizebody`, player-commanded corpse possession through `possesscorpse`, and AI corpse animation through `animatecorpse`. Send-shadow identity control and campaign-specific consequence attribution remain future work.
 
 1. General dispel and effect shortening.
    - `dispelmagic` can remove or shorten matching spell-parent effects.
@@ -639,7 +648,9 @@ Engine V2 shipped the deeper parity layer before simultaneous-body possession or
 
 6. Later multi-body V1 update.
    - Same-identity body-left-behind projection, magical copies, physical clones, and staff/FutureProg-created secondary instances are now implemented through the simultaneous body instance layer.
-   - True possession, send-shadow control, and possessed-corpse rules remain out of scope until ownership, consent, recognition, and identity-liability policy is designed.
+   - V6a `possessbody` creates caster-owned, player-focusable possessed shells from non-player character targets and collapses them with the owning spell effect.
+   - V6b `seizebody` directly controls living bodies, including PC targets through a bound spectator context; `possesscorpse` lets the caster command a corpse's `OriginalBody`; and `animatecorpse` raises that `OriginalBody` as an AI-controlled zombie. Both corpse effects restore the same corpse item afterward.
+   - Send-shadow control, shadow-identity recognition, and automatic identity-liability attribution remain out of scope until campaign policy is designed.
 
 ## Recommended Next Shipping Slice After Engine V2
 
@@ -648,7 +659,7 @@ Engine V3 shipped the small edge-status slice that sat outside Engine V2: poison
 - durable portal/rune topology V1 is available for standing gate networks; use future slices only for one-way links, mobile rune objects, or richer safety policy
 - richer illusion stacking and perception policy
 - permanent psionic trace consequence ledgers only if the timed V5b model proves insufficient
-- possession and non-owned remote-control policy on top of the simultaneous-body foundation
+- send-shadow and non-owned remote-control policy beyond the simultaneous-body foundation and V6 possession primitives
 
 ## Appendix: Classification By Family
 
@@ -706,4 +717,4 @@ This appendix is the historical family-by-family classification from the first p
 
 - Native now: `Contact`, `Barrier`, `Locate`, `Probe`, `Expel`, `Sense Presence`, `Mindblast`, `Mesmerize`, `Rejuvenate`, `Dome`, `Trace`, `Allspeak`, `Hear`, `Clairaudience`, `Suggest`, `Babble`, `Coerce`, `Magicksense`, `Thoughtsense`, and `Immersion`
 - Builder+Prog now: `Empathy`, `Masquerade`, `Illusion`, `Disorient`, `Clairvoyance`, `Imitate`, `Project`, `Vanish`, `Beast Affinity`, `Wild Contact`, and `Wild Barrier`
-- Historical needs engine work still requiring content-specific decision or broader systems: `Cathexis`, `Mindwipe`, `Shadowwalk`, and true projection/possession interpretations
+- Historical needs engine work still requiring content-specific decision or broader systems: `Cathexis`, `Mindwipe`, direct `Shadowwalk` shadow-identity control, and full non-owned possession interpretations beyond the implemented V6 possession primitives

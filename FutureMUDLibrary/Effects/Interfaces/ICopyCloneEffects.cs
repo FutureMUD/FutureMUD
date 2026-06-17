@@ -1,5 +1,7 @@
 using MudSharp.Character;
 using MudSharp.Effects;
+using MudSharp.Framework;
+using System.Collections.Generic;
 
 #nullable enable
 
@@ -28,3 +30,63 @@ public interface IPhysicalCloneEffect : IEffectSubtype
 	bool PlayerFocusable { get; }
 	CharacterInstancePersistencePolicy PersistencePolicy { get; }
 }
+
+public interface IPossessedBodyEffect : IEffectSubtype
+{
+	long AnchorCharacterId { get; }
+	long AnchorInstanceId { get; }
+	long ShellInstanceId { get; }
+	long ShellBodyId { get; }
+	long SourceTargetCharacterId { get; }
+	long SourceTargetInstanceId { get; }
+	long SourceSpellId { get; }
+	string FormKey { get; }
+	CharacterInstancePersistencePolicy PersistencePolicy { get; }
+}
+
+public interface ILiveBodyPossessionEffect : IEffectSubtype
+{
+	long AnchorCharacterId { get; }
+	long AnchorInstanceId { get; }
+	long TargetCharacterId { get; }
+	long TargetInstanceId { get; }
+	long TargetBodyId { get; }
+	long SourceSpellId { get; }
+	CharacterInstancePersistencePolicy PersistencePolicy { get; }
+}
+
+public interface ICorpsePossessionEffect : IEffectSubtype
+{
+	long AnchorCharacterId { get; }
+	long AnchorInstanceId { get; }
+	long CorpseItemId { get; }
+	long OriginalCharacterId { get; }
+	long OriginalBodyId { get; }
+	long AnimatedInstanceId { get; }
+	long OriginalLocationId { get; }
+	int OriginalRoomLayer { get; }
+	long SourceSpellId { get; }
+	CharacterInstancePersistencePolicy PersistencePolicy { get; }
+}
+
+public interface IAnimatedCorpseEffect : IEffectSubtype
+{
+	long AnchorCharacterId { get; }
+	long AnchorInstanceId { get; }
+	long CorpseItemId { get; }
+	long OriginalCharacterId { get; }
+	long OriginalBodyId { get; }
+	long AnimatedInstanceId { get; }
+	long OriginalLocationId { get; }
+	int OriginalRoomLayer { get; }
+	long SourceSpellId { get; }
+	IReadOnlyCollection<long> ArtificialIntelligenceIds { get; }
+	CharacterInstancePersistencePolicy PersistencePolicy { get; }
+}
+
+public interface IDispelMagicProxyEffect : IEffectSubtype
+{
+	IEnumerable<IPerceivable> AdditionalDispelTargets { get; }
+}
+
+public interface IPossessionDispelProxyEffect : IDispelMagicProxyEffect;

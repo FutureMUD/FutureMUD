@@ -430,13 +430,19 @@ The `transformform` builder effect currently supports:
 The `bodybackup` builder effect uses the same stable form provisioning idea for clone or sleeve magic, but it does not force a transformation while active. It readies the keyed form at the recipient's current cell and room layer as a non-permanent death-transfer target. Builders can configure the provisioned race/ethnicity/gender/alias/sort order, backup priority, non-final old-body remains context, whether the backup is consumed on use, and old-location, new-location, and self echoes.
 
 ### Simultaneous body instance spell effects
-The multi-body V1 slice adds three spell effects that create additional active world actors instead of switching the caster's only current body:
+The multi-body and possession slices add spell effects that create additional active world actors instead of switching the caster's only current body:
 
 - `astralprojection` provisions or reuses a keyed astral form, spawns a temporary player-focusable secondary instance at the anchor's current cell/layer, applies astral planar presence, anchors the primary body according to the configured anchor policy, and collapses only the projection when the effect ends.
 - `createcopy` provisions or reuses a keyed magical-copy form, spawns a cell-local secondary instance, optionally makes it player-focusable, optionally applies an intangible/planar presentation, never copies inventory implicitly, and collapses without creating body remains.
 - `createclone` provisions or reuses a keyed physical-clone form, spawns a tangible cell-local secondary instance, optionally makes it player-focusable, uses body-local inventory only, and treats clone death as non-final for the owning identity.
+- `possessbody` targets a non-player character and provisions or reuses a caster-owned possessed-shell form keyed by the source target. It copies the target body's race, ethnicity, gender, short description, and full description into the shell, spawns the shell at the target's current cell/layer as a player-focusable `PossessedBody` instance, and stores anchor/source-target metadata for cleanup and audit. It rejects player characters, guests, dead targets, and already-active possessed shells for the same caster.
+- `seizebody` targets a living character and temporarily moves the caster's controller into the target's actual body. NPC control is paused and restored on cleanup; PC victims are moved into a bound spectator context that receives possession status messages without command authority. It rejects guests, self/same-identity targets, dead targets, administrators unless configured, nested possession, and casters already sustaining another possession.
+- `possesscorpse` targets a visible corpse item with an `OriginalBody`, hides that item, spawns a temporary `PossessedCorpse` actor under the corpse's original identity using the same body, and restores the same mutated corpse item at the animated actor's final cell/layer when the spell ends. It rejects nested possession, already-hidden/possessed corpse items, unsupported skeletal/final-remains policies, and unavailable original bodies.
+- `animatecorpse` targets a visible corpse item with an `OriginalBody`, hides that item, spawns a temporary `AnimatedCorpse` scripted-AI actor under the corpse's original identity using the same body, attaches builder-selected AIs such as commandable or aggressive, and restores the same mutated corpse item at the animated actor's final cell/layer when the spell ends. It rejects already-animated/possessed corpse items, unsupported skeletal/final-remains policies, unavailable original bodies, and effects with no configured AIs.
 
-All three effects reuse the same owned-form provisioning conventions as `transformform`: stable `formkey`, first-creation race/ethnicity/gender/alias/sort defaults, and optional description replacement patterns. Unlike `transformform`, these effects materialise a non-primary `CharacterInstance` row and a loaded cell-local actor that remains out of the global character, NPC, and actor caches.
+The same-identity effects reuse the same owned-form provisioning conventions as `transformform`: stable `formkey`, first-creation race/ethnicity/gender/alias/sort defaults, and optional description replacement patterns. `possessbody` derives its shell demographics and descriptions from the target each time the target-keyed form is ensured. Unlike `transformform`, these effects materialise a non-primary `CharacterInstance` row and a loaded cell-local actor that remains out of the global character, NPC, and actor caches. `seizebody` and `possesscorpse` instead use the direct possession control service: the caster's controller is attached to a non-owned live or corpse actor, the caster remains anchored to their primary body, and cleanup is driven by the owning spell effect.
+
+`possessbody` remains the safe shell model for NPC-derived vessels. Use `seizebody` when the fiction requires direct control of an actual living body, including hostile PC possession. Use `possesscorpse` when the fiction requires the caster to command the same corpse item as a possessed vessel. Use `animatecorpse` when the fiction requires a zombie-like NPC with configured AIs. Both corpse effects hide and restore the same corpse item rather than producing a second set of remains. These effects are temporary, spell-bound, non-persistent across reboot, and collapse on dispel, relevant death/logout cleanup, or actor retirement.
 
 Builder-facing examples and command sequences are in [Multiple Body Forms and Instances Builder Guide](../Characters/Multiple_Body_Forms_and_Instances_Builder_Guide.md).
 
@@ -449,8 +455,8 @@ General dispels use `dispelmagic`. It can either remove matching spell-parent ef
 - magic school, optionally including child schools
 - caster policy: own, any, or others
 - magic tag and optional tag value
-- approved effect key such as `spell`, `invisibility`, `flight`, `levitation`, `featherfall`, `burning`, `trackmark`, `magictag`, `itemenchant`, `portal`, `planarstate`, `roomward`, `personalward`, `exitbarrier`, `subjectivedesc`, `transformform`, `projectile`, `crafttool`, `powerfuel`, or `itemevent`
-- keyed subjective illusions through `illusion <key>`
+- approved effect key such as `spell`, `invisibility`, `flight`, `levitation`, `featherfall`, `burning`, `trackmark`, `magictag`, `itemenchant`, `portal`, `planarstate`, `roomward`, `personalward`, `exitbarrier`, `subjectivedesc`, `phantomillusion`, `transformform`, `possessbody`, `seizebody`, `possesscorpse`, `animatecorpse`, `projectile`, `crafttool`, `powerfuel`, or `itemevent`
+- keyed subjective or phantom illusions through `illusion <key>`
 - optional strength contest
 
 The default policy is caster-owned cleanup. Hostile dispels must be explicitly configured with hostile matching and then travel through the ordinary spell targeting, ward, and resistance flow.
@@ -467,8 +473,13 @@ The Engine V4 psionic/perception slice adds:
 
 - contextual interdiction tags from `magictag`, so tag-aware wards can inspect spell metadata rather than only school/subschool.
 - `roomtagward` / `personaltagward`, which reuse ward coverage and fail/reflect modes but match `magictag` key/value metadata.
-- subjective-description priority and illusion keys on `subjectivedesc` / `subjectivesdesc`.
-- `dispelmagic illusion <key>`, which targets keyed subjective-description effects through the general dispel flow.
+- subjective-description priority, illusion keys, audience scopes, clan gates, and viewer FutureProg gates on `subjectivedesc` / `subjectivesdesc`.
+- `phantomillusion`, which adds non-interactive room LOOK text for scoped viewers without creating targetable actors, items, or perceivables.
+- `dispelmagic illusion <key>`, which targets keyed subjective-description and phantom room illusions through the general dispel flow.
+
+Illusion audience scopes are shared between `subjectivedesc`, `subjectivesdesc`, and `phantomillusion`: `caster`, `target`, `everyone`, `samecell`, `samezone`, `party`, and `clan`. `viewerprog <prog|none>` can add a boolean FutureProg gate with parameters `(perceivable)`, `(perceivable, perceiver)`, or `(perceivable, perceiver, character)`, where the optional character is the caster when available. `clan <which|none>` supplies the clan id for `scope clan`. Existing `FixedViewer` XML remains valid; `FixedViewer=true` loads as `scope caster`, while `FixedViewer=false` loads as `scope everyone`.
+
+`phantomillusion` is deliberately presentation-only. It lives as an `IDescriptionAdditionEffect` on the room/cell, stacks after ordinary room addenda by priority and effect id, and is only visible in room LOOK output for eligible viewers. It cannot be found by normal target resolution, combat targeting, inventory handling, or emote token lookup because it never creates a physical perceivable.
 
 The persistent sensory/combat slice adds:
 
@@ -503,9 +514,13 @@ Current recipe guidance:
 - Shadow or astral walking without a left-behind body: use plane definitions plus `planeshift` when the caster becomes the walker.
 - Astral projection with a left-behind body: use `astralprojection` and configure its form, plane, anchor policy, and echoes.
 - Magical mirror images or tangible clones: use `createcopy` or `createclone` depending on whether the secondary should collapse illusion-style or behave as a body-local physical clone.
+- First-slice possession of a non-player target: use `possessbody` when the caster should focus a caster-owned shell derived from the target's body demographics and descriptions.
+- Direct hostile control of a live body: use `seizebody` when the caster should command the target's actual body, with PC victims held in the bound spectator context and NPC controllers restored afterward.
+- Player-commanded corpse possession preserving the same corpse item: use `possesscorpse` when the corpse item should be hidden while the caster commands its mutated `OriginalBody`, then restored when the effect collapses.
+- AI zombie animation preserving the same corpse item: use `animatecorpse` when the corpse item should be hidden while its mutated `OriginalBody` rises as a temporary scripted-AI actor with configured AIs, then restored when the effect collapses.
 - Polymorph: use `transformform` with a stable `FormKey` and first-creation body-form defaults.
 
-Still-deferred boundary: possession and broader send-shadow control rules require additional policy for ownership, consent, recognition, and command authority. Body-left-behind projection, magical copies, and physical clones are implemented through the simultaneous-body model, with command routing, source-body vulnerability, inventory rules, death semantics, reconnect behavior, and admin observability handled by the instance layer.
+Still-deferred boundary: broader send-shadow control, shadow-identity recognition, and campaign-specific legal/social responsibility require policy beyond the current possession metadata. Body-left-behind projection, magical copies, physical clones, NPC-derived possessed shells, direct live-body possession, same-corpse-item possession, and AI corpse animation are implemented through the body-instance and possession-control layers, with command routing, source-body vulnerability, reconnect behavior, dispel cleanup, and admin observability handled by those layers where applicable.
 
 ### Material workflow
 Material requirements are authored through the spell's inventory plan:
@@ -631,11 +646,12 @@ Important implementation note:
 | `vicinity` | `CastingTriggerVicinity` | Casts across a vicinity target set |
 
 ## Current Implemented Spell Effect Types
-The V4 spell-side catalogue adds 2 tag-aware ward tokens: `roomtagward` and `personaltagward`. The persistent sensory/combat slice adds `burning`, `ignite`, `trackmark`, and `tracktrail`.
+The V4 spell-side catalogue adds 2 tag-aware ward tokens: `roomtagward` and `personaltagward`. The persistent sensory/combat slice adds `burning`, `ignite`, `trackmark`, and `tracktrail`. The body-instance slices add `astralprojection`, `createcopy`, `createclone`, `possessbody`, `seizebody`, `possesscorpse`, and `animatecorpse`. The objective/group-scoped illusion slice adds audience-scoped subjective descriptions and `phantomillusion`.
 
 | Token | Class | Summary |
 | --- | --- | --- |
 | `astralprojection` | `AstralProjectionSpellEffect` | Ensures or reuses a keyed astral form, spawns a temporary focusable projection, and anchors the primary body |
+| `animatecorpse` | `AnimateCorpseSpellEffect` | Animates a corpse item's `OriginalBody` as a temporary AI-controlled `AnimatedCorpse` actor with configured AIs and restores the same corpse item when the effect ends |
 | `blindness` | `BlindnessEffect` | Applies blindness |
 | `boost` | `TraitBoostEffect` | Boosts a trait |
 | `bodybackup` | `BodyBackupSpellEffect` | Ensures or reuses a keyed alternate body form and readies it as a death backup with configurable non-final remains context and transfer echoes |
@@ -685,11 +701,14 @@ The V4 spell-side catalogue adds 2 tag-aware ward tokens: `roomtagward` and `per
 | `pacifism` | `PacifismSpellEffect` | Applies pacifism |
 | `personalward` | `PersonalWardEffect` | Applies a school-based personal ward that can fail or reflect matching incoming or outgoing magic |
 | `personaltagward` | `PersonalTagWardEffect` | Applies a personal ward that fails or reflects matching incoming or outgoing magic by `magictag` key/value |
+| `phantomillusion` | `PhantomIllusionEffect` | Adds non-interactive phantom room LOOK text for eligible scoped viewers, with priority, colour, viewer-prog, clan, and illusion-key controls |
 | `planarstate` | `PlanarStateSpellEffect` | Applies a corporeal or noncorporeal planar overlay to the target |
 | `planeshift` | `PlanarStateSpellEffect` | Moves the target into a configured corporeal or noncorporeal planar state |
 | `paralysis` | `ParalysisEffect` | Applies magical paralysis through the forced-paralysis hook |
 | `poison` | `PoisonEffect` | Applies a configurable spell-owned drug payload |
 | `portal` | `PortalSpellEffect` | Creates an effect-owned paired transient portal between the caster's room and a target room, room anchor, or item/object anchor |
+| `possessbody` | `PossessBodySpellEffect` | Creates a caster-owned, player-focusable possessed shell derived from a non-player character target |
+| `possesscorpse` | `PossessCorpseSpellEffect` | Animates a corpse item's `OriginalBody` as a temporary `PossessedCorpse` actor and restores the same corpse item when the effect ends |
 | `rage` | `RageSpellEffect` | Applies rage |
 | `relocate` | `RelocateEffect` | Relocates a target |
 | `removeblindness` | `RemoveBlindnessEffect` | Removes spell-owned blindness effects |
@@ -720,6 +739,7 @@ The V4 spell-side catalogue adds 2 tag-aware ward tokens: `roomtagward` and `per
 | `roomtagward` | `RoomTagWardEffect` | Applies a room ward that fails or reflects matching incoming or outgoing magic by `magictag` key/value |
 | `roomtemperature` | `RoomTemperatureEffect` | Alters room temperature |
 | `selfdamage` | `SelfDamageEffect` | Damages the caster |
+| `seizebody` | `SeizeBodySpellEffect` | Temporarily transfers caster command into a living target body, with PC spectator context and NPC control restoration |
 | `silence` | `SilenceEffect` | Applies vocal silence without blocking telepathy |
 | `sleep` | `SleepEffect` | Forces magical sleep |
 | `spellarmour` | `SpellArmourEffect` | Applies spell-owned magical armour using the shared armour configuration |
@@ -732,8 +752,8 @@ The V4 spell-side catalogue adds 2 tag-aware ward tokens: `roomtagward` and `per
 | `trackmark` | `TrackMarkEffect` | Alters a character's future visual and olfactory tracks and can mark created tracks with a magical trace |
 | `tracktrail` | `TrackMarkEffect` | Builder/load alias for `trackmark` |
 | `transference` | `TransferenceEffect` | Swaps the caster and target character locations, optionally including followers and room layers |
-| `subjectivedesc` | `SubjectiveDescriptionEffect` | Adds caster-scoped subjective full-description replacement with priority and optional illusion key |
-| `subjectivesdesc` | `SubjectiveSDescEffect` | Adds caster-scoped subjective short-description replacement with priority and optional illusion key |
+| `subjectivedesc` | `SubjectiveDescriptionEffect` | Adds audience-scoped subjective full-description replacement with priority, optional clan/viewer-prog gates, and optional illusion key |
+| `subjectivesdesc` | `SubjectiveSDescEffect` | Adds audience-scoped subjective short-description replacement with priority, optional clan/viewer-prog gates, and optional illusion key |
 | `transformform` | `TransformFormEffect` | Ensures or reuses a keyed alternate body form and applies a priority-ranked forced transformation demand |
 | `waterbreathing` | `WaterBreathingEffect` | Grants additional breathable fluids |
 | `weatherchange` | `WeatherChangeEffect` | Changes weather |

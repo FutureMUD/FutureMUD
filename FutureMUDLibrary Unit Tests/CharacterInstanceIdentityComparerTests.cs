@@ -106,7 +106,7 @@ public class CharacterInstanceIdentityComparerTests
 	}
 
 	[TestMethod]
-	public void SameIdentityAndPhysicalInstance_PhaseFourToEightKinds_KeepIdentityAndInstanceDistinct()
+	public void SameIdentityAndPhysicalInstance_PhaseFourToNineKinds_KeepIdentityAndInstanceDistinct()
 	{
 		var primary = CreateCharacter(10, 10, 100, CharacterInstanceKind.Primary);
 		foreach (var kind in new[]
@@ -116,7 +116,11 @@ public class CharacterInstanceIdentityComparerTests
 			         CharacterInstanceKind.MagicalCopy,
 			         CharacterInstanceKind.PhysicalClone,
 			         CharacterInstanceKind.Puppet,
-			         CharacterInstanceKind.RemoteShell
+			         CharacterInstanceKind.PossessedBody,
+			         CharacterInstanceKind.RemoteShell,
+			         CharacterInstanceKind.ScriptedAi,
+			         CharacterInstanceKind.PossessedCorpse,
+			         CharacterInstanceKind.AnimatedCorpse
 		         })
 		{
 			var secondary = CreateCharacter(20 + (int)kind, 10, 200 + (int)kind, kind);

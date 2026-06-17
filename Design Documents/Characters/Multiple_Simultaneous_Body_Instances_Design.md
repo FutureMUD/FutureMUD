@@ -250,6 +250,9 @@ public enum CharacterInstanceKind
     Puppet = 4,
     PossessedBody = 5,
     RemoteShell = 6,
+    ScriptedAi = 7,
+    PossessedCorpse = 8,
+    AnimatedCorpse = 9,
     Other = 99
 }
 ```
@@ -1211,7 +1214,16 @@ bindshell
   Prepares a remote shell instance.
 
 possessbody
-  Transfers control/focus to another instance/body under policy.
+  Creates a caster-owned possessed shell derived from a non-player target.
+
+seizebody
+  Transfers hostile control into a living target's actual body under spell-bound policy.
+
+possesscorpse
+  Animates a corpse item's OriginalBody as a temporary possessed corpse actor and restores the same corpse item afterward.
+
+animatecorpse
+  Animates a corpse item's OriginalBody as a temporary scripted-AI corpse actor with configured AIs and restores the same corpse item afterward.
 ```
 
 ---
@@ -1820,9 +1832,18 @@ V1 reflection:
 
 Phase 12 plus the final documentation and smoke-test pass makes the multi-instance architecture V1-foundation ready. The system now supports one durable identity with multiple loaded, cell-local physical actors; staff-created passive/focusable/scripted-AI instances; NPC AI secondaries; astral projection; magical copies; physical clones; physical-instance persistence in the highest-risk legacy actor-reference surfaces; explicit helper APIs for identity-vs-instance decisions; and a builder runbook that describes how to author and test the feature. Later work should be treated as feature expansion rather than architectural prerequisite.
 
+Post-V1 direct possession slice, June 17, 2026:
+
+- Added: `seizebody` is the direct live-body possession effect. It does not create a new body instance; instead it uses the shared possession-control service to move the caster's controller into the target's actual live body, while preserving the caster's primary body as the anchor. NPC targets have their prior controller/AI restored on cleanup. PC victims are moved into `PossessionVictimContext`, a bound spectator command context that can receive possession start/end/status messages without regaining body command authority.
+- Added: `possesscorpse` is the same-corpse-item possession effect. It hides the target corpse item, spawns a temporary `CharacterInstanceKind.PossessedCorpse` actor under the corpse's original identity using the corpse's `OriginalBody`, attaches caster control with `PlayerRemoteCommandable`, and restores the same corpse item when the effect collapses. Actor death/retirement does not create duplicate remains; the hidden corpse item is reinserted at the animated actor's final location/layer when available, falling back to the recorded original location.
+- Added: `animatecorpse` is the same-corpse-item AI animation effect. It hides the target corpse item, spawns a temporary `CharacterInstanceKind.AnimatedCorpse` actor under the corpse's original identity using the corpse's `OriginalBody`, attaches builder-selected AIs through the scripted-AI instance metadata, and restores the same corpse item when the effect collapses. Actor death/retirement does not create duplicate remains; the hidden corpse item is reinserted at the animated actor's final location/layer when available, falling back to the recorded original location.
+- Added: `CorpsePossessionDispelProxyEffect` and `CorpseAnimationDispelProxyEffect` let `dispelmagic effect possesscorpse` or `dispelmagic effect animatecorpse` cast at the animated actor route back to the hidden corpse item that owns the spell effect. Live-body possession uses `dispelmagic effect seizebody`.
+- Added: `PossessionControlService` centralizes nested-possession rejection, anchor possession checks, controller swaps, PC spectator contexts, NPC restore, death/logout/dispel cleanup, and effect-owner discovery. This keeps direct possession on top of the existing controller and instance infrastructure rather than adding a parallel command stack.
+- Boundary: these effects are temporary, spell-bound, and non-persistent across reboot. Live possession collapses on load/logout/death cleanup. Hidden corpse items with no active possessed or animated actor restore to their recorded location. Legal/criminal responsibility still follows the physical actor by default; possession and animation metadata is exposed for staff/FutureProg policy, but automatic recognition or liability reassignment remains a content/policy layer.
+
 Post-V1 design work:
 
-Future phases can still add richer gameplay and deeper audits: body-specific legal personhood, disguise-aware identity discovery, observer memory and recognition decay, projection-specific criminal evidence, per-clone social consequences, channel/telepathy policy configuration, player-facing recognition controls, and broader FutureProg convenience APIs. Those are now content and policy layers on top of the V1 foundation rather than blockers for simultaneous body instances.
+Future phases can still add richer gameplay and deeper audits: body-specific legal personhood, disguise-aware identity discovery, observer memory and recognition decay, projection- or possession-specific criminal evidence, per-clone social consequences, send-shadow/shadow-identity control policy, channel/telepathy policy configuration, player-facing recognition controls, and broader FutureProg convenience APIs. Those are now content and policy layers on top of the V1 foundation and V6 possession primitives rather than blockers for simultaneous body instances.
 
 ---
 

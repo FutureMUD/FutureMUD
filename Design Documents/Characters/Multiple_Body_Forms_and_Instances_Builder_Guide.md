@@ -5,7 +5,7 @@
 This guide is for builders and staff who want to author, test, or troubleshoot characters with more than one possible body. It covers both related systems:
 
 - **Multiple body forms**: one character identity owns several bodies, but only one is active at a time. This is used for ordinary transformations, racial alternate forms, curses, and exclusive body switching.
-- **Multiple simultaneous instances**: one character identity has more than one active world actor at the same time. This is used for passive bodies, player focus switching, NPC or scripted AI secondaries, astral projection, magical copies, and physical clones.
+- **Multiple simultaneous instances**: one character identity has more than one active world actor at the same time. This is used for passive bodies, player focus switching, NPC or scripted AI secondaries, astral projection, magical copies, physical clones, possessed shells, live-body possession, player-commanded corpse possession, and AI-animated corpse vessels.
 
 The most important design rule is:
 
@@ -39,6 +39,10 @@ Use instances when the character has more than one active body at once.
 | A spell creates an astral body | `astralprojection` spell effect | Creates a temporary player-focusable projection with planar rules. |
 | A spell creates an illusion-style duplicate | `createcopy` spell effect | Can be passive or focusable, tangible or planar/intangible. |
 | A spell creates a tangible clone | `createclone` spell effect | Tangible body-local clone. Inventory is not copied implicitly. |
+| A spell creates a possessed shell from an NPC | `possessbody` spell effect | Creates a caster-owned, player-focusable shell derived from a non-player character target. |
+| A spell directly controls a living body | `seizebody` spell effect | Moves the caster's controller into the target's actual body; PC victims become bound spectators. |
+| A spell lets the caster command a corpse vessel | `possesscorpse` spell effect | Hides the corpse item, animates its `OriginalBody`, and restores the same corpse item afterward. |
+| A spell raises a corpse as an AI zombie | `animatecorpse` spell effect | Hides the corpse item, animates its `OriginalBody` as a temporary scripted-AI actor, attaches configured AIs, and restores the same corpse item afterward. |
 | A prog creates a body instance | `SpawnBodyInstance(...)` | Best for scripted events, staff smoke tests, and content hooks. |
 
 ## Builder Command Reference
@@ -305,6 +309,90 @@ backlashecho <text>|default|none
 
 Clones are tangible, body-local actors. They do not copy inventory unless a separate staff or scripted path explicitly does so.
 
+### `possessbody`
+
+Creates a temporary player-focusable possessed shell from a non-player character target. This is the safest possession-like option when the caster should drive a caster-owned body derived from the target rather than taking over the target's actual body.
+
+Builder options:
+
+```text
+formkey <text>
+sort <number>|clear
+possessionecho <text>|default|none
+targetecho <text>|default|none
+roomecho <text>|default|none
+collapseecho <text>|default|none
+backlashecho <text>|default|none
+```
+
+Possessed shells are temporary, player-focusable, collapse with the owning spell effect, and are cleaned up on caster death/logout, source-target death/logout, dispel, or shell retirement.
+
+### `seizebody`
+
+Temporarily gives the caster command of a living target's actual body. PC victims are moved into a bound spectator context until the spell ends; NPC targets have their previous controller/AI restored on cleanup.
+
+Builder options:
+
+```text
+possessionecho <text>|default|none
+victimecho <text>|default|none
+victimend <text>|default|none
+targetecho <text>|default|none
+roomecho <text>|default|none
+collapseecho <text>|default|none
+backlashecho <text>|default|none
+allowpcs
+allownpcs
+allowadmins
+```
+
+`seizebody` requires a non-guest PC caster focused on their primary body. It rejects self/same-identity targets, dead or unembodied targets, nested possession, administrator targets unless explicitly allowed, and casters already sustaining live or corpse possession. It is temporary and can be removed with `dispelmagic effect seizebody`.
+
+### `possesscorpse`
+
+Animates a visible corpse item by hiding the item and spawning a temporary `PossessedCorpse` actor using the corpse's `OriginalBody`. When the effect ends, the animated actor is retired without producing duplicate remains and the same corpse item is reinserted at the actor's final cell/layer when available.
+
+Builder options:
+
+```text
+possessionecho <text>|default|none
+targetecho <text>|default|none
+roomecho <text>|default|none
+collapseecho <text>|default|none
+backlashecho <text>|default|none
+restoreecho <text>|default|none
+allowpcs
+allownpcs
+allowadmins
+allowfinal
+allowskeletal
+```
+
+`possesscorpse` requires a non-guest PC caster focused on their primary body and a visible corpse item with an `OriginalBody`. It rejects nested possession, already-hidden or already-possessed corpse items, unsupported final/skeletal remains policies, and corpse vessels without a resolvable location. It can be removed with `dispelmagic effect possesscorpse`; dispelling the animated corpse actor follows the proxy effect back to the hidden corpse item.
+
+### `animatecorpse`
+
+Animates a visible corpse item as a temporary AI-controlled actor using the corpse's `OriginalBody`. The corpse item is hidden while the actor exists, and the same corpse item is restored afterward with the mutated body state intact. This is the zombie-style path: the caster does not command the body directly; the configured AIs do.
+
+Builder options:
+
+```text
+ai add <which>
+ai remove <which>
+ai clear
+targetecho <text>|default|none
+roomecho <text>|default|none
+collapseecho <text>|default|none
+restoreecho <text>|default|none
+allowpcs
+allownpcs
+allowadmins
+allowfinal
+allowskeletal
+```
+
+`animatecorpse` requires at least one ready AI and a visible corpse item with an `OriginalBody`. It rejects already-animated or possessed corpse items, unsupported final/skeletal remains policies, and corpse vessels without a resolvable location. It can be removed with `dispelmagic effect animatecorpse`; dispelling the animated actor follows the proxy effect back to the hidden corpse item.
+
 ## Worked Example 1: Staff Adds And Tests A Dog Form
 
 Use this when you want an exclusive transformation, not a simultaneous body.
@@ -455,7 +543,111 @@ Expected result:
 - Copy collapse creates no corpse.
 - Clone death creates clone-specific remains and does not final-kill the identity.
 
-## Worked Example 6: Prog-Created Passive Instance
+## Worked Example 6: First-Slice Possessed Body
+
+```text
+magic spell effect add possessbody
+magic spell effect set formkey borrowed
+magic spell effect set possessionecho default
+magic spell effect set roomecho default
+magic spell effect set collapseecho default
+```
+
+Expected result:
+
+- The caster must be a player character focused on their primary body.
+- The target must be a living non-player character.
+- The effect creates a caster-owned, focusable shell derived from the target.
+- The target's actual live body remains owned by the target identity.
+- Dispelling `possessbody`, target death/logout, caster death/logout, or shell retirement collapses the shell.
+
+## Worked Example 7: Direct Live-Body Possession
+
+```text
+magic spell effect add seizebody
+magic spell effect set possessionecho default
+magic spell effect set victimecho default
+magic spell effect set victimend default
+magic spell effect set roomecho default
+magic spell effect set collapseecho default
+```
+
+Optional policy switches:
+
+```text
+magic spell effect set allowpcs
+magic spell effect set allownpcs
+magic spell effect set allowadmins
+```
+
+Expected result:
+
+- The caster must be a non-guest PC focused on their primary body.
+- The target's actual body becomes the caster's command context.
+- PC victims can receive spectator/status messages but cannot command their body until the spell ends.
+- NPC controllers/AI are restored when the spell collapses.
+- `dispelmagic effect seizebody`, caster death/logout, target death/logout, or cleanup removes the possession and returns the caster to their primary body where possible.
+
+## Worked Example 8: Corpse Possession
+
+```text
+magic spell effect add possesscorpse
+magic spell effect set possessionecho default
+magic spell effect set roomecho default
+magic spell effect set restoreecho default
+magic spell effect set collapseecho default
+```
+
+Optional policy switches:
+
+```text
+magic spell effect set allowpcs
+magic spell effect set allownpcs
+magic spell effect set allowadmins
+magic spell effect set allowfinal
+magic spell effect set allowskeletal
+```
+
+Expected result:
+
+- The target must be a visible corpse item with an `OriginalBody`.
+- The corpse item is hidden while the possessed corpse actor exists.
+- The caster commands a temporary `PossessedCorpse` actor through the corpse's original body.
+- When the spell collapses, the actor is retired without duplicate remains and the same corpse item returns with the mutated body state.
+- `dispelmagic effect possesscorpse` works on the hidden corpse effect and through the animated actor's proxy.
+
+## Worked Example 8A: AI Zombie Corpse Animation
+
+Use this when the spell should raise a corpse as an NPC-style actor, not put the caster in direct control.
+
+```text
+magic spell effect add animatecorpse
+magic spell effect set ai add commandable
+magic spell effect set ai add aggressive
+magic spell effect set roomecho default
+magic spell effect set restoreecho default
+magic spell effect set collapseecho default
+```
+
+Optional policy switches:
+
+```text
+magic spell effect set allowpcs
+magic spell effect set allownpcs
+magic spell effect set allowadmins
+magic spell effect set allowfinal
+magic spell effect set allowskeletal
+```
+
+Expected result:
+
+- The target must be a visible corpse item with an `OriginalBody`.
+- The corpse item is hidden while the animated corpse actor exists.
+- The actor is a temporary `AnimatedCorpse` scripted-AI instance with the configured AIs attached.
+- When the spell collapses or the actor dies, the actor is retired without duplicate remains and the same corpse item returns with the mutated body state.
+- `dispelmagic effect animatecorpse` works on the hidden corpse effect and through the animated actor's proxy.
+
+## Worked Example 9: Prog-Created Passive Instance
 
 Create a simple prog:
 
@@ -481,7 +673,7 @@ Expected result:
 - The primary remains focused.
 - The secondary is passive and temporary by default.
 
-## Worked Example 7: Evil Twin Scripted AI
+## Worked Example 10: Evil Twin Scripted AI
 
 This is a deliberate staff smoke-test scenario: a PC identity gets a second AI-controlled body that attacks the primary. It is not a normal player-facing feature.
 
@@ -602,6 +794,13 @@ self echoes are not duplicated
 focus returns on expiry, death, retire, logout, and reboot cleanup
 material interaction is blocked when planar/intangible
 inventory is not copied unless explicitly configured by staff/prog
+dispelmagic effect possessbody collapses possessed shells
+dispelmagic effect seizebody restores live-body controllers
+dispelmagic effect possesscorpse restores the hidden corpse item
+dispelmagic effect animatecorpse restores the hidden corpse item
+PC victims can only use the bound spectator context during seizebody
+possesscorpse returns the same corpse item rather than creating duplicate remains
+animatecorpse returns the same corpse item rather than creating duplicate remains
 ```
 
 ## Related Documents

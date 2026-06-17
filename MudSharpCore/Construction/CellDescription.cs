@@ -2,6 +2,7 @@
 using MudSharp.Character;
 using MudSharp.Climate;
 using MudSharp.Economy;
+using MudSharp.Effects;
 using MudSharp.Effects.Concrete;
 using MudSharp.Effects.Interfaces;
 using MudSharp.Form.Shape;
@@ -361,6 +362,17 @@ public partial class Cell
         return description;
     }
 
+    private static IEnumerable<IDescriptionAdditionEffect> OrderDescriptionAdditionEffects(IEnumerable<IDescriptionAdditionEffect> effects)
+    {
+        var effectList = effects.ToList();
+        return effectList
+            .Where(x => x is not IIllusionEffect)
+            .Concat(effectList
+                .Where(x => x is IIllusionEffect)
+                .OrderByDescending(x => ((IIllusionEffect)x).IllusionPriority)
+                .ThenBy(x => (x as IEffect)?.Id ?? 0L));
+    }
+
     private string CellFullDescription(IPerceiver voyeur, bool proper, bool colour, PerceiveIgnoreFlags flags,
         ICellOverlay overlay)
     {
@@ -408,7 +420,7 @@ public partial class Cell
                     $"{(character?.Account.TabRoomDescriptions == true ? "\t" : "")}{weather.WeatherRoomAddendum.SubstituteANSIColour()}");
             }
 
-            foreach (IDescriptionAdditionEffect effect in Zone.EffectsOfType<IDescriptionAdditionEffect>(x => x.DescriptionAdditionApplies(voyeur)))
+            foreach (IDescriptionAdditionEffect effect in OrderDescriptionAdditionEffects(Zone.EffectsOfType<IDescriptionAdditionEffect>(x => x.DescriptionAdditionApplies(voyeur))))
             {
                 string text = effect.GetAdditionalText(voyeur, colour);
                 if (string.IsNullOrWhiteSpace(text))
@@ -420,7 +432,7 @@ public partial class Cell
                 descSubSB.AppendLine($"{(character?.Account.TabRoomDescriptions == true ? "\t" : "")}{text}");
             }
 
-            foreach (IDescriptionAdditionEffect effect in EffectsOfType<IDescriptionAdditionEffect>(x => x.DescriptionAdditionApplies(voyeur)))
+            foreach (IDescriptionAdditionEffect effect in OrderDescriptionAdditionEffects(EffectsOfType<IDescriptionAdditionEffect>(x => x.DescriptionAdditionApplies(voyeur))))
             {
                 string text = effect.GetAdditionalText(voyeur, colour);
                 if (string.IsNullOrWhiteSpace(text))
@@ -456,13 +468,13 @@ public partial class Cell
                 descSubSB.Append(weather.WeatherRoomAddendum.SubstituteANSIColour());
             }
 
-            foreach (IDescriptionAdditionEffect effect in Zone.EffectsOfType<IDescriptionAdditionEffect>(x => x.DescriptionAdditionApplies(voyeur)))
+            foreach (IDescriptionAdditionEffect effect in OrderDescriptionAdditionEffects(Zone.EffectsOfType<IDescriptionAdditionEffect>(x => x.DescriptionAdditionApplies(voyeur))))
             {
                 descSubSB.Append(" ");
                 descSubSB.AppendLine(effect.GetAdditionalText(voyeur, colour));
             }
 
-            foreach (IDescriptionAdditionEffect effect in EffectsOfType<IDescriptionAdditionEffect>(x => x.DescriptionAdditionApplies(voyeur)))
+            foreach (IDescriptionAdditionEffect effect in OrderDescriptionAdditionEffects(EffectsOfType<IDescriptionAdditionEffect>(x => x.DescriptionAdditionApplies(voyeur))))
             {
                 descSubSB.Append(" ");
                 descSubSB.AppendLine(effect.GetAdditionalText(voyeur, colour));

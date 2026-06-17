@@ -54,7 +54,12 @@ public partial class Character
             RemoveAllEffects<IAstralProjectionEffect>(x => x.AnchorInstanceId == InstanceId, true);
             RemoveAllEffects<IMagicalCopyEffect>(x => x.AnchorInstanceId == InstanceId, true);
             RemoveAllEffects<IPhysicalCloneEffect>(x => x.AnchorInstanceId == InstanceId, true);
+            CharacterInstanceService.RemovePossessedBodyEffectsForAnchor(this);
+            PossessionControlService.RemovePossessionEffectsForAnchor(this);
         }
+
+        RemoveAllEffects<IPossessedBodyEffect>(x => x.SourceTargetInstanceId == InstanceId, true);
+        PossessionControlService.RemoveLiveBodyPossessionEffectsForTarget(this);
 
         if (TryTransferToBodyBackupOnDeath(out IGameItem backupRemains))
         {

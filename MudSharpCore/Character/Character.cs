@@ -2350,6 +2350,8 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
 
     public virtual bool Quit(bool silent = false)
     {
+        RemoveAllEffects<IPossessedBodyEffect>(x => x.SourceTargetInstanceId == InstanceId, true);
+        PossessionControlService.RemoveLiveBodyPossessionEffectsForTarget(this);
         if (IsPrimaryInstance)
         {
             RemoveAllEffects<IAstralProjectionEffect>(x => x.AnchorInstanceId == InstanceId, true);
@@ -2361,6 +2363,9 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
                 x => x.AnchorInstanceId == InstanceId &&
                      x.PersistencePolicy != CharacterInstancePersistencePolicy.Persistent,
                 true);
+            CharacterInstanceService.RemovePossessedBodyEffectsForAnchor(this,
+                x => x.PersistencePolicy != CharacterInstancePersistencePolicy.Persistent);
+            PossessionControlService.RemovePossessionEffectsForAnchor(this);
             CharacterInstanceService.UnloadLoadedSecondariesForOwnerLogout(this);
             SetFocusedInstance(null);
         }
@@ -2444,6 +2449,9 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
             RemoveAllEffects<IPhysicalCloneEffect>(
                 x => Instances.All(y => y.InstanceId != x.CloneInstanceId),
                 true);
+            CharacterInstanceService.RemovePossessedBodyEffectsForAnchor(this,
+                x => Instances.All(y => y.InstanceId != x.ShellInstanceId));
+            PossessionControlService.RemovePossessionEffectsForAnchor(this);
             SetFocusedInstance(null);
         }
 

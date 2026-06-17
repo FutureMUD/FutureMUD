@@ -42,6 +42,38 @@ public sealed record PhysicalCloneInstanceMetadata(
 	CharacterInstancePersistencePolicy PersistencePolicy
 );
 
+public sealed record PossessedBodyInstanceMetadata(
+	long AnchorCharacterId,
+	long AnchorInstanceId,
+	long ShellBodyId,
+	long SourceTargetCharacterId,
+	long SourceTargetInstanceId,
+	long SourceSpellId,
+	string FormKey,
+	CharacterInstancePersistencePolicy PersistencePolicy
+);
+
+public sealed record PossessedCorpseInstanceMetadata(
+	long AnchorCharacterId,
+	long AnchorInstanceId,
+	long CorpseItemId,
+	long OriginalCharacterId,
+	long OriginalBodyId,
+	long SourceSpellId,
+	CharacterInstancePersistencePolicy PersistencePolicy
+);
+
+public sealed record AnimatedCorpseInstanceMetadata(
+	long AnchorCharacterId,
+	long AnchorInstanceId,
+	long CorpseItemId,
+	long OriginalCharacterId,
+	long OriginalBodyId,
+	long SourceSpellId,
+	IReadOnlyList<long> ArtificialIntelligenceIds,
+	CharacterInstancePersistencePolicy PersistencePolicy
+);
+
 public sealed record ScriptedAiInstanceMetadata(
 	long AnchorCharacterId,
 	long AnchorInstanceId,
@@ -125,6 +157,89 @@ public static class CharacterInstanceMetadata
 				new XAttribute("FormKey", formKey),
 				new XAttribute("PlayerFocusable", playerFocusable),
 				new XAttribute("PersistencePolicy", persistencePolicy.ToString())
+			)
+		).ToString(SaveOptions.DisableFormatting);
+	}
+
+	public static string CreatePossessedBodyEffectData(
+		long anchorCharacterId,
+		long anchorInstanceId,
+		long shellBodyId,
+		long sourceTargetCharacterId,
+		long sourceTargetInstanceId,
+		long sourceSpellId,
+		string formKey,
+		CharacterInstancePersistencePolicy persistencePolicy)
+	{
+		return new XElement(
+			"Effects",
+			new XElement(
+				"PossessedBody",
+				new XAttribute("AnchorCharacterId", anchorCharacterId.ToString(CultureInfo.InvariantCulture)),
+				new XAttribute("AnchorInstanceId", anchorInstanceId.ToString(CultureInfo.InvariantCulture)),
+				new XAttribute("ShellBodyId", shellBodyId.ToString(CultureInfo.InvariantCulture)),
+				new XAttribute("SourceTargetCharacterId",
+					sourceTargetCharacterId.ToString(CultureInfo.InvariantCulture)),
+				new XAttribute("SourceTargetInstanceId",
+					sourceTargetInstanceId.ToString(CultureInfo.InvariantCulture)),
+				new XAttribute("SourceSpellId", sourceSpellId.ToString(CultureInfo.InvariantCulture)),
+				new XAttribute("FormKey", formKey),
+				new XAttribute("PersistencePolicy", persistencePolicy.ToString())
+			)
+		).ToString(SaveOptions.DisableFormatting);
+	}
+
+	public static string CreatePossessedCorpseEffectData(
+		long anchorCharacterId,
+		long anchorInstanceId,
+		long corpseItemId,
+		long originalCharacterId,
+		long originalBodyId,
+		long sourceSpellId,
+		CharacterInstancePersistencePolicy persistencePolicy)
+	{
+		return new XElement(
+			"Effects",
+			new XElement(
+				"PossessedCorpse",
+				new XAttribute("AnchorCharacterId", anchorCharacterId.ToString(CultureInfo.InvariantCulture)),
+				new XAttribute("AnchorInstanceId", anchorInstanceId.ToString(CultureInfo.InvariantCulture)),
+				new XAttribute("CorpseItemId", corpseItemId.ToString(CultureInfo.InvariantCulture)),
+				new XAttribute("OriginalCharacterId", originalCharacterId.ToString(CultureInfo.InvariantCulture)),
+				new XAttribute("OriginalBodyId", originalBodyId.ToString(CultureInfo.InvariantCulture)),
+				new XAttribute("SourceSpellId", sourceSpellId.ToString(CultureInfo.InvariantCulture)),
+				new XAttribute("PersistencePolicy", persistencePolicy.ToString())
+			)
+		).ToString(SaveOptions.DisableFormatting);
+	}
+
+	public static string CreateAnimatedCorpseEffectData(
+		long anchorCharacterId,
+		long anchorInstanceId,
+		long corpseItemId,
+		long originalCharacterId,
+		long originalBodyId,
+		long sourceSpellId,
+		IEnumerable<long> artificialIntelligenceIds,
+		CharacterInstancePersistencePolicy persistencePolicy)
+	{
+		return new XElement(
+			"Effects",
+			new XElement(
+				"AnimatedCorpse",
+				new XAttribute("AnchorCharacterId", anchorCharacterId.ToString(CultureInfo.InvariantCulture)),
+				new XAttribute("AnchorInstanceId", anchorInstanceId.ToString(CultureInfo.InvariantCulture)),
+				new XAttribute("CorpseItemId", corpseItemId.ToString(CultureInfo.InvariantCulture)),
+				new XAttribute("OriginalCharacterId", originalCharacterId.ToString(CultureInfo.InvariantCulture)),
+				new XAttribute("OriginalBodyId", originalBodyId.ToString(CultureInfo.InvariantCulture)),
+				new XAttribute("SourceSpellId", sourceSpellId.ToString(CultureInfo.InvariantCulture)),
+				new XAttribute("PersistencePolicy", persistencePolicy.ToString()),
+				new XElement(
+					"ArtificialIntelligences",
+					artificialIntelligenceIds
+						.Distinct()
+						.Select(x => new XElement("AI",
+							new XAttribute("Id", x.ToString(CultureInfo.InvariantCulture)))))
 			)
 		).ToString(SaveOptions.DisableFormatting);
 	}
@@ -299,6 +414,137 @@ public static class CharacterInstanceMetadata
 		return true;
 	}
 
+	public static bool TryGetPossessedBodyMetadata(
+		string? effectData,
+		out PossessedBodyInstanceMetadata metadata)
+	{
+		metadata = new PossessedBodyInstanceMetadata(0, 0, 0, 0, 0, 0, string.Empty,
+			CharacterInstancePersistencePolicy.DespawnOnReboot);
+		var element = GetMetadataElement(effectData, "PossessedBody");
+		if (element is null)
+		{
+			return false;
+		}
+
+		if (!TryGetLong(element, "AnchorCharacterId", out var anchorCharacterId) ||
+		    !TryGetLong(element, "AnchorInstanceId", out var anchorInstanceId) ||
+		    !TryGetLong(element, "ShellBodyId", out var shellBodyId) ||
+		    !TryGetLong(element, "SourceTargetCharacterId", out var sourceTargetCharacterId) ||
+		    !TryGetLong(element, "SourceTargetInstanceId", out var sourceTargetInstanceId) ||
+		    !TryGetLong(element, "SourceSpellId", out var sourceSpellId))
+		{
+			return false;
+		}
+
+		if (!Enum.TryParse<CharacterInstancePersistencePolicy>(
+			    (string?)element.Attribute("PersistencePolicy") ??
+			    CharacterInstancePersistencePolicy.DespawnOnReboot.ToString(),
+			    true,
+			    out var persistencePolicy))
+		{
+			persistencePolicy = CharacterInstancePersistencePolicy.DespawnOnReboot;
+		}
+
+		metadata = new PossessedBodyInstanceMetadata(
+			anchorCharacterId,
+			anchorInstanceId,
+			shellBodyId,
+			sourceTargetCharacterId,
+			sourceTargetInstanceId,
+			sourceSpellId,
+			(string?)element.Attribute("FormKey") ?? string.Empty,
+			persistencePolicy
+		);
+		return true;
+	}
+
+	public static bool TryGetPossessedCorpseMetadata(
+		string? effectData,
+		out PossessedCorpseInstanceMetadata metadata)
+	{
+		metadata = new PossessedCorpseInstanceMetadata(0, 0, 0, 0, 0, 0,
+			CharacterInstancePersistencePolicy.DespawnOnReboot);
+		var element = GetMetadataElement(effectData, "PossessedCorpse");
+		if (element is null)
+		{
+			return false;
+		}
+
+		if (!TryGetLong(element, "AnchorCharacterId", out var anchorCharacterId) ||
+		    !TryGetLong(element, "AnchorInstanceId", out var anchorInstanceId) ||
+		    !TryGetLong(element, "CorpseItemId", out var corpseItemId) ||
+		    !TryGetLong(element, "OriginalCharacterId", out var originalCharacterId) ||
+		    !TryGetLong(element, "OriginalBodyId", out var originalBodyId) ||
+		    !TryGetLong(element, "SourceSpellId", out var sourceSpellId))
+		{
+			return false;
+		}
+
+		if (!Enum.TryParse<CharacterInstancePersistencePolicy>(
+			    (string?)element.Attribute("PersistencePolicy") ??
+			    CharacterInstancePersistencePolicy.DespawnOnReboot.ToString(),
+			    true,
+			    out var persistencePolicy))
+		{
+			persistencePolicy = CharacterInstancePersistencePolicy.DespawnOnReboot;
+		}
+
+		metadata = new PossessedCorpseInstanceMetadata(
+			anchorCharacterId,
+			anchorInstanceId,
+			corpseItemId,
+			originalCharacterId,
+			originalBodyId,
+			sourceSpellId,
+			persistencePolicy
+		);
+		return true;
+	}
+
+	public static bool TryGetAnimatedCorpseMetadata(
+		string? effectData,
+		out AnimatedCorpseInstanceMetadata metadata)
+	{
+		metadata = new AnimatedCorpseInstanceMetadata(0, 0, 0, 0, 0, 0, Array.Empty<long>(),
+			CharacterInstancePersistencePolicy.DespawnOnReboot);
+		var element = GetMetadataElement(effectData, "AnimatedCorpse");
+		if (element is null)
+		{
+			return false;
+		}
+
+		if (!TryGetLong(element, "AnchorCharacterId", out var anchorCharacterId) ||
+		    !TryGetLong(element, "AnchorInstanceId", out var anchorInstanceId) ||
+		    !TryGetLong(element, "CorpseItemId", out var corpseItemId) ||
+		    !TryGetLong(element, "OriginalCharacterId", out var originalCharacterId) ||
+		    !TryGetLong(element, "OriginalBodyId", out var originalBodyId) ||
+		    !TryGetLong(element, "SourceSpellId", out var sourceSpellId))
+		{
+			return false;
+		}
+
+		if (!Enum.TryParse<CharacterInstancePersistencePolicy>(
+			    (string?)element.Attribute("PersistencePolicy") ??
+			    CharacterInstancePersistencePolicy.DespawnOnReboot.ToString(),
+			    true,
+			    out var persistencePolicy))
+		{
+			persistencePolicy = CharacterInstancePersistencePolicy.DespawnOnReboot;
+		}
+
+		metadata = new AnimatedCorpseInstanceMetadata(
+			anchorCharacterId,
+			anchorInstanceId,
+			corpseItemId,
+			originalCharacterId,
+			originalBodyId,
+			sourceSpellId,
+			GetArtificialIntelligenceIds(element),
+			persistencePolicy
+		);
+		return true;
+	}
+
 	public static bool TryGetScriptedAiMetadata(
 		string? effectData,
 		out ScriptedAiInstanceMetadata metadata)
@@ -317,27 +563,12 @@ public static class CharacterInstanceMetadata
 			return false;
 		}
 
-		var aiIds = new List<long>();
-		foreach (var aiElement in element.Element("ArtificialIntelligences")?.Elements("AI") ??
-		                          Enumerable.Empty<XElement>())
-		{
-			if (long.TryParse(
-				    (string?)aiElement.Attribute("Id"),
-				    NumberStyles.Integer,
-				    CultureInfo.InvariantCulture,
-				    out var value) &&
-			    !aiIds.Contains(value))
-			{
-				aiIds.Add(value);
-			}
-		}
-
 		metadata = new ScriptedAiInstanceMetadata(
 			anchorCharacterId,
 			anchorInstanceId,
 			bodyId,
 			(string?)element.Attribute("FormKey") ?? string.Empty,
-			aiIds,
+			GetArtificialIntelligenceIds(element),
 			TryGetBool(element, "CloneInventory")
 		);
 		return true;
@@ -363,6 +594,26 @@ public static class CharacterInstanceMetadata
 		return root.Name == elementName
 			? root
 			: root.Element(elementName);
+	}
+
+	private static IReadOnlyList<long> GetArtificialIntelligenceIds(XElement element)
+	{
+		var aiIds = new List<long>();
+		foreach (var aiElement in element.Element("ArtificialIntelligences")?.Elements("AI") ??
+		                          Enumerable.Empty<XElement>())
+		{
+			if (long.TryParse(
+				    (string?)aiElement.Attribute("Id"),
+				    NumberStyles.Integer,
+				    CultureInfo.InvariantCulture,
+				    out var value) &&
+			    !aiIds.Contains(value))
+			{
+				aiIds.Add(value);
+			}
+		}
+
+		return aiIds;
 	}
 
 	private static bool TryGetBool(XElement element, string attribute)

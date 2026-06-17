@@ -325,6 +325,30 @@ public class CoreDataSeederMaterialTests
         Assert.AreEqual((int)MaterialBehaviourType.Wood, walnutWood.BehaviourType);
         Assert.AreEqual((int)MaterialBehaviourType.Food, walnutNut.BehaviourType);
         Assert.IsTrue(walnutNut.MaterialsTags.Any(x => x.Tag.Name == "Agriculture Seedable"));
+
+        Dictionary<string, string[]> representativeNewMaterials = new(StringComparer.InvariantCultureIgnoreCase)
+        {
+            ["tepary bean"] = ["Food Crop", "Agriculture Seedable"],
+            ["vanilla"] = ["Spice", "Agriculture Seedable"],
+            ["henequen fibre"] = ["Fiber Crop", "Agriculture Seedable"],
+            ["pineapple"] = ["Fruit", "Agriculture Seedable"],
+            ["gum arabic"] = ["Natural Materials"],
+            ["mangrove wood"] = ["Hardwood"],
+            ["charcoal"] = ["Manufactured Materials"]
+        };
+
+        foreach (KeyValuePair<string, string[]> expectation in representativeNewMaterials)
+        {
+            MudSharp.Models.Material material = context.Materials
+                .Include(x => x.MaterialsTags)
+                .ThenInclude(x => x.Tag)
+                .Single(x => x.Name == expectation.Key);
+            foreach (string tag in expectation.Value)
+            {
+                Assert.IsTrue(material.MaterialsTags.Any(x => x.Tag.Name == tag),
+                    $"{expectation.Key} should be tagged {tag}.");
+            }
+        }
     }
 
     [TestMethod]

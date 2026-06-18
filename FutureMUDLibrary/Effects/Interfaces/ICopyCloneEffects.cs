@@ -84,6 +84,14 @@ public interface IAnimatedCorpseEffect : IEffectSubtype
 	CharacterInstancePersistencePolicy PersistencePolicy { get; }
 }
 
+public interface IDeadSpeakEffect : IAnimatedCorpseEffect
+{
+	long LinkedCharacterId { get; }
+	long LinkedInstanceId { get; }
+	double RelayChance { get; }
+	string ReciteEcho { get; }
+}
+
 public interface IDispelMagicProxyEffect : IEffectSubtype
 {
 	IEnumerable<IPerceivable> AdditionalDispelTargets { get; }

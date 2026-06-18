@@ -439,10 +439,11 @@ The multi-body and possession slices add spell effects that create additional ac
 - `seizebody` targets a living character and temporarily moves the caster's controller into the target's actual body. NPC control is paused and restored on cleanup; PC victims are moved into a bound spectator context that receives possession status messages without command authority. It rejects guests, self/same-identity targets, dead targets, staff-authority targets at JuniorAdmin or above unless configured, nested possession, and casters already sustaining another possession.
 - `possesscorpse` targets a visible corpse item with an `OriginalBody`, hides that item, spawns a temporary `PossessedCorpse` actor under the corpse's original identity using the same body, and restores the same mutated corpse item at the animated actor's final cell/layer when the spell ends. It rejects nested possession, already-hidden/possessed corpse items, staff-authority original characters at JuniorAdmin or above unless configured, unsupported skeletal/final-remains policies, and unavailable original bodies.
 - `animatecorpse` targets a visible corpse item with an `OriginalBody`, hides that item, spawns a temporary `AnimatedCorpse` scripted-AI actor under the corpse's original identity using the same body, attaches builder-selected AIs such as commandable or aggressive, and restores the same mutated corpse item at the animated actor's final cell/layer when the spell ends. It rejects already-animated/possessed corpse items, staff-authority original characters at JuniorAdmin or above unless configured, unsupported skeletal/final-remains policies, unavailable original bodies, and effects with no configured AIs.
+- `deadspeak` targets a visible corpse item with an `OriginalBody`, hides that item, spawns a temporary `AnimatedCorpse` actor under the corpse's original identity using the same body, and installs a speech relay on that actor. A required link FutureProg returns the character whose heard speech is recited through the corpse. The same corpse item is restored at the animated actor's final cell/layer when the spell ends.
 
 The same-identity effects reuse the same owned-form provisioning conventions as `transformform`: stable `formkey`, first-creation race/ethnicity/gender/alias/sort defaults, and optional description replacement patterns. `possessbody` derives its shell demographics and descriptions from the target each time the target-keyed form is ensured. Unlike `transformform`, these effects materialise a non-primary `CharacterInstance` row and a loaded cell-local actor that remains out of the global character, NPC, and actor caches. `seizebody` and `possesscorpse` instead use the direct possession control service: the caster's controller is attached to a non-owned live or corpse actor, the caster remains anchored to their primary body, and cleanup is driven by the owning spell effect.
 
-`possessbody` remains the safe shell model for NPC-derived vessels. Use `seizebody` when the fiction requires direct control of an actual living body, including hostile PC possession. Use `possesscorpse` when the fiction requires the caster to command the same corpse item as a possessed vessel. Use `animatecorpse` when the fiction requires a zombie-like NPC with configured AIs. Both corpse effects hide and restore the same corpse item rather than producing a second set of remains. These effects are temporary, spell-bound, non-persistent across reboot, and collapse on dispel, relevant death/logout cleanup, or actor retirement.
+`possessbody` remains the safe shell model for NPC-derived vessels. Use `seizebody` when the fiction requires direct control of an actual living body, including hostile PC possession. Use `possesscorpse` when the fiction requires the caster to command the same corpse item as a possessed vessel. Use `animatecorpse` when the fiction requires a zombie-like NPC with configured AIs. Use `deadspeak` when the fiction requires a corpse's original body to become a temporary speech proxy without giving it AI or player command. The corpse effects hide and restore the same corpse item rather than producing a second set of remains. These effects are temporary, spell-bound, non-persistent across reboot, and collapse on dispel, relevant death/logout cleanup, or actor retirement.
 
 Builder-facing examples and command sequences are in [Multiple Body Forms and Instances Builder Guide](../Characters/Multiple_Body_Forms_and_Instances_Builder_Guide.md).
 
@@ -455,7 +456,7 @@ General dispels use `dispelmagic`. It can either remove matching spell-parent ef
 - magic school, optionally including child schools
 - caster policy: own, any, or others
 - magic tag and optional tag value
-- approved effect key such as `spell`, `invisibility`, `flight`, `levitation`, `featherfall`, `burning`, `trackmark`, `magictag`, `itemenchant`, `portal`, `planarstate`, `roomward`, `personalward`, `exitbarrier`, `subjectivedesc`, `phantomillusion`, `transformform`, `possessbody`, `seizebody`, `possesscorpse`, `animatecorpse`, `projectile`, `crafttool`, `powerfuel`, or `itemevent`
+- approved effect key such as `spell`, `invisibility`, `flight`, `levitation`, `featherfall`, `burning`, `trackmark`, `magictag`, `itemenchant`, `portal`, `planarstate`, `roomward`, `personalward`, `exitbarrier`, `subjectivedesc`, `phantomillusion`, `transformform`, `possessbody`, `seizebody`, `possesscorpse`, `animatecorpse`, `identify`, `reciteproxy`, `deadspeak`, `projectile`, `crafttool`, `powerfuel`, or `itemevent`
 - keyed subjective or phantom illusions through `illusion <key>`
 - optional strength contest
 
@@ -480,6 +481,12 @@ The Engine V4 psionic/perception slice adds:
 Illusion audience scopes are shared between `subjectivedesc`, `subjectivesdesc`, and `phantomillusion`: `caster`, `target`, `everyone`, `samecell`, `samezone`, `party`, and `clan`. `viewerprog <prog|none>` can add a boolean FutureProg gate with parameters `(perceivable)`, `(perceivable, perceiver)`, or `(perceivable, perceiver, character)`, where the optional character is the caster when available. `clan <which|none>` supplies the clan id for `scope clan`. Existing `FixedViewer` XML remains valid; `FixedViewer=true` loads as `scope caster`, while `FixedViewer=false` loads as `scope everyone`.
 
 `phantomillusion` is deliberately presentation-only. It lives as an `IDescriptionAdditionEffect` on the room/cell, stacks after ordinary room addenda by priority and effect id, and is only visible in room LOOK output for eligible viewers. It cannot be found by normal target resolution, combat targeting, inventory handling, or emote token lookup because it never creates a physical perceivable.
+
+The information and recitation slice adds:
+
+- `identify`, which applies an `IIdentifyLookEffect` to a character. When that character LOOKs at another character, a required text FutureProg is called with `(target)` or `(target, caster)`. Null or blank output is ignored; nonblank text is appended as an extra LOOK line.
+- `reciteproxy`, which applies an `IReciteProxyEffect` to a character. A required character-returning link FutureProg called with `(caster)` or `(caster, proxy)` selects the source character whose speech should be relayed. The proxy listens to ordinary speech witness events and emits a normal language-aware `LanguageOutput` with configurable relay chance and pre-language emote.
+- `deadspeak`, which combines the same-corpse-item animation lifecycle with `reciteproxy` semantics. A required character-returning link FutureProg called with `(caster)` or `(caster, corpse)` selects whose heard speech is recited through the animated corpse.
 
 The persistent sensory/combat slice adds:
 
@@ -518,9 +525,10 @@ Current recipe guidance:
 - Direct hostile control of a live body: use `seizebody` when the caster should command the target's actual body, with PC victims held in the bound spectator context and NPC controllers restored afterward.
 - Player-commanded corpse possession preserving the same corpse item: use `possesscorpse` when the corpse item should be hidden while the caster commands its mutated `OriginalBody`, then restored when the effect collapses.
 - AI zombie animation preserving the same corpse item: use `animatecorpse` when the corpse item should be hidden while its mutated `OriginalBody` rises as a temporary scripted-AI actor with configured AIs, then restored when the effect collapses.
+- Dead-speech animation preserving the same corpse item: use `deadspeak` when the corpse item should be hidden while its mutated `OriginalBody` rises as a temporary speech proxy for a link-prog-selected speaker, then restored when the effect collapses.
 - Polymorph: use `transformform` with a stable `FormKey` and first-creation body-form defaults.
 
-Still-deferred boundary: broader send-shadow control, shadow-identity recognition, and campaign-specific legal/social responsibility require policy beyond the current possession metadata. Body-left-behind projection, magical copies, physical clones, NPC-derived possessed shells, direct live-body possession, same-corpse-item possession, and AI corpse animation are implemented through the body-instance and possession-control layers, with command routing, source-body vulnerability, reconnect behavior, dispel cleanup, and admin observability handled by those layers where applicable.
+Still-deferred boundary: broader send-shadow control, shadow-identity recognition, and campaign-specific legal/social responsibility require policy beyond the current possession metadata. Body-left-behind projection, magical copies, physical clones, NPC-derived possessed shells, direct live-body possession, same-corpse-item possession, AI corpse animation, and dead-speech corpse animation are implemented through the body-instance and possession-control layers, with command routing, source-body vulnerability, reconnect behavior, dispel cleanup, and admin observability handled by those layers where applicable.
 
 ### Material workflow
 Material requirements are authored through the spell's inventory plan:
@@ -646,7 +654,7 @@ Important implementation note:
 | `vicinity` | `CastingTriggerVicinity` | Casts across a vicinity target set |
 
 ## Current Implemented Spell Effect Types
-The V4 spell-side catalogue adds 2 tag-aware ward tokens: `roomtagward` and `personaltagward`. The persistent sensory/combat slice adds `burning`, `ignite`, `trackmark`, and `tracktrail`. The body-instance slices add `astralprojection`, `createcopy`, `createclone`, `possessbody`, `seizebody`, `possesscorpse`, and `animatecorpse`. The objective/group-scoped illusion slice adds audience-scoped subjective descriptions and `phantomillusion`.
+The V4 spell-side catalogue adds 2 tag-aware ward tokens: `roomtagward` and `personaltagward`. The persistent sensory/combat slice adds `burning`, `ignite`, `trackmark`, and `tracktrail`. The body-instance slices add `astralprojection`, `createcopy`, `createclone`, `possessbody`, `seizebody`, `possesscorpse`, and `animatecorpse`. The objective/group-scoped illusion slice adds audience-scoped subjective descriptions and `phantomillusion`. The information and recitation slice adds `identify`, `reciteproxy`, and `deadspeak`.
 
 | Token | Class | Summary |
 | --- | --- | --- |
@@ -667,6 +675,7 @@ The V4 spell-side catalogue adds 2 tag-aware ward tokens: `roomtagward` and `per
 | `cureblindness` | `RemoveBlindnessEffect` | Builder/load alias for `removeblindness` |
 | `damage` | `DamageEffect` | Deals damage |
 | `deafness` | `DeafnessEffect` | Applies deafness |
+| `deadspeak` | `DeadSpeakSpellEffect` | Animates a corpse item's `OriginalBody` as a temporary speech proxy and restores the same corpse item when the effect ends |
 | `detectethereal` | `DetectEtherealEffect` | Grants ethereal visual and sensing perception |
 | `detectinvisible` | `DetectInvisibleEffect` | Grants magical vision that can pierce ordinary invisibility |
 | `detectmagick` | `DetectMagickEffect` | Grants magical sensing and visible aura readouts in ordinary descriptions |
@@ -690,6 +699,7 @@ The V4 spell-side catalogue adds 2 tag-aware ward tokens: `roomtagward` and `per
 | `insomnia` | `InsomniaEffect` | Prevents voluntary and magical sleep |
 | `invisibility` | `InvisibilityEffect` | Applies invisibility |
 | `ignite` | `BurningEffect` | Builder/load alias for `burning` |
+| `identify` | `IdentifySpellEffect` | Adds optional prog-driven lines to character LOOK output for the affected viewer |
 | `itemdamage` | `ItemDamageEffect` | Damages an item with configured damage, pain, stun, and damage type |
 | `itemenchant` | `ItemEnchantEffect` | Adds aura/glow, weapon/armour bonuses, projectile payload bonuses, craft-tool bonuses, power/fuel modifiers, and optional item event progs |
 | `levitate` | `LevitationEffect` | Suspends a character or item, optionally moves it to a configured room layer, and prevents falling while active |
@@ -710,6 +720,7 @@ The V4 spell-side catalogue adds 2 tag-aware ward tokens: `roomtagward` and `per
 | `possessbody` | `PossessBodySpellEffect` | Creates a caster-owned, player-focusable possessed shell derived from a non-player character target |
 | `possesscorpse` | `PossessCorpseSpellEffect` | Animates a corpse item's `OriginalBody` as a temporary `PossessedCorpse` actor and restores the same corpse item when the effect ends |
 | `rage` | `RageSpellEffect` | Applies rage |
+| `reciteproxy` | `ReciteProxySpellEffect` | Causes a character to relay a linked character's heard speech through normal language-aware output |
 | `relocate` | `RelocateEffect` | Relocates a target |
 | `removeblindness` | `RemoveBlindnessEffect` | Removes spell-owned blindness effects |
 | `removecomprehendlanguage` | `RemoveComprehendLanguageEffect` | Removes magical language-comprehension effects |

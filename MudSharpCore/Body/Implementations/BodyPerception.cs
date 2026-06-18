@@ -557,6 +557,14 @@ public partial class Body
                           (current, component) =>
                               $"{current}\n\t{component.GetAdditionalText(voyeur, true)}");
 
+		if (voyeur is ICharacter viewer)
+		{
+			text = viewer.EffectsOfType<IIdentifyLookEffect>()
+			             .Select(x => x.GetLookText(Actor))
+			             .Where(x => !string.IsNullOrWhiteSpace(x))
+			             .Aggregate(text, (current, line) => $"{current}\n\t{line}");
+		}
+
         ResolveSurfaceLiquidDrying();
         var (coating, absorb) = LiquidAbsorbtionAmounts;
         var surfaceText = SurfaceLiquidState.GetAdditionalText(coating, absorb, voyeur, true);

@@ -78,6 +78,8 @@ These are implemented by `ActiveProject.RegisterFutureProgCompiler()` and return
 | `prog` | `ProgAction` | Executes a FutureProg when the phase completes |
 | `skilluse` | `SkillUseAction` | Grants one or more free skill checks to the project owner when the phase completes |
 | `agriculture` | `AgricultureOperationAction` | Applies a field operation from `AgricultureProjectContext` when a local agriculture project completes |
+| `commodityoutput` | `CommodityOutputProjectAction` | Creates a commodity pile in the active project location or owner fallback location when the phase completes |
+| `resourcediscovery` | `ResourceDiscoveryProjectAction` | Creates one configured visible resource marker in the active project location, gated by an optional location tag and duplicate-prevention tag |
 
 ### Labour impact types
 | Builder keyword | Runtime type | Purpose |
@@ -351,6 +353,8 @@ Each impact now chooses whether its minimum-hours gate is measured against:
 Healing-impact minimum-hours gating is now applied consistently to infection chance in the same way it is already applied to healing-rate and healing-check modifiers.
 
 The free skill-check action uses `CheckType.ProjectSkillUseAction`.
+
+The commodity-output action uses `CommodityGameItemComponentProto.CreateNewCommodity(...)` so it works with the system commodity prototype instead of manually loading an item prototype. It persists a solid material, positive mass, optional pile tag, optional indirect quantity display, optional local echo, and fixed commodity characteristics.
 
 ## Extending the System
 Start in `FutureMUDLibrary` if the new feature needs a new public contract. Concrete implementations belong in `MudSharpCore`.

@@ -186,6 +186,29 @@ public static class SeederMetadataRegistry
                 UpdateSummary: "Reruns refresh stock field profiles, crops, herds, woodlands, operations, and project-backed labour templates without duplicating rows.",
                 OwnershipSummary: "Stock agriculture content is tracked by stable profile, crop, herd, woodland, operation, and project names."
             ),
+            nameof(PrimaryProductionSeeder) => new SeederMetadata(
+                SeederRepeatabilityMode.Idempotent,
+                SeederUpdateCapability.RepairExisting,
+                [
+                    Requirement("The Core seeder must have created at least one account.", context => context.Accounts.Any()),
+                    Requirement("Core utility progs must include AlwaysTrue.", context => context.FutureProgs.Any(x => x.FunctionName == "AlwaysTrue")),
+                    Requirement("Primary production tags and materials must already exist.", context =>
+                        context.Tags.Any(x => x.Name == "Primary Production Commodity") &&
+                        context.Tags.Any(x => x.Name == "Visible Resource Deposit") &&
+                        context.Materials.Any(x => x.Name == "hematite") &&
+                        context.Materials.Any(x => x.Name == "charcoal")),
+                    Requirement("The Item seeder must have installed primary-production visible resource props.", context =>
+                        context.GameItemProtos.Any(x => x.UniqueName == "primary_production_hematite_deposit") &&
+                        context.GameItemProtos.Any(x => x.UniqueName == "primary_production_bloomery_furnace")),
+                    Requirement("Required stock traits must already exist.", context =>
+                        HasTrait(context, "Labouring", "Labourer", "Laboring", "Laborer") &&
+                        HasTrait(context, "Masonry", "Stonecraft", "Stoneworking", "Mason") &&
+                        HasTrait(context, "Smelting", "Smelter"))
+                ],
+                RerunSummary: "Reruns reuse stock primary-production local project templates by deterministic names.",
+                UpdateSummary: "Reruns refresh stock project definitions, labour, material requirements, and resource/commodity actions without duplicating templates.",
+                OwnershipSummary: "Stock primary-production project content is tracked by the Stock Primary Production project-name prefix."
+            ),
             nameof(CookingSeeder) => new SeederMetadata(
                 SeederRepeatabilityMode.Idempotent,
                 SeederUpdateCapability.InstallMissing,
@@ -477,5 +500,17 @@ public static class SeederMetadataRegistry
     private static SeederPrerequisite Requirement(string description, Func<FuturemudDatabaseContext, bool> predicate)
     {
         return new SeederPrerequisite(description, predicate);
+    }
+
+    private static bool HasTrait(FuturemudDatabaseContext context, params string[] aliases)
+    {
+        return context.TraitDefinitions
+            .AsEnumerable()
+            .Any(x => aliases.Any(alias => NormaliseName(x.Name) == NormaliseName(alias)));
+    }
+
+    private static string NormaliseName(string text)
+    {
+        return new string(text.Where(char.IsLetterOrDigit).ToArray()).ToLowerInvariant();
     }
 }

@@ -303,10 +303,40 @@ Use:
 | `prog` | Executes a FutureProg when the phase completes | `prog <prog>` |
 | `skilluse` | Grants free checks against a trait when the phase completes | `trait`, `checks`, `difficulty` |
 | `agriculture` | Applies a field operation linked through `AgricultureProjectContext` | normally created through `field start` |
+| `commodityoutput` | Creates a commodity pile in the active project location or owner fallback location | `material`, `weight`, `tag`, `indirect`, `echo`, `characteristic` |
+| `resourcediscovery` | Reveals a configured visible resource marker in the active local-project location, with optional required location tag and duplicate prevention | `locationtag`, `item`, `duplicate`, `echo`, `alreadyecho`, `failureecho` |
 
 Current implementation warning:
 - actions execute in ascending `sort` order
 - ties fall back to stable id order
+- `commodityoutput` requires a solid material and positive mass before submit; optional characteristics are fixed output values, not wildcard input filters
+- `resourcediscovery` creates one configured item prototype in the project cell; it is for visible marker props, not for creating rooms or exits
+
+### Optional site-creation completion progs
+Stock primary-production projects stop at resource markers and commodity outputs. Builders can still create site-expansion projects, such as opening a mine adit or extending a quarry, by adding a `prog` completion action to a local project.
+
+The completion prog must accept one `project` parameter. It can read:
+- `project.location` for the current local project cell
+- `project.owner` for the initiating character
+- `project.workers` for the characters currently assigned when the phase completes
+
+Relevant room-building FutureProg helpers include:
+- `CreateOverlay(builder, name)` to create a new editable overlay package
+- `ReviseOverlay(package, builder)` to open a revision of an existing current overlay package
+- `CreateCell(package, zone, template)` or `CreateRoom(package, zone, template)` to create the new room
+- `NameCell(cell, package, name)` and `DescribeCell(cell, package, description)` to set presentation
+- `SetIndoorsNoLight(cell, package)` and `SetTerrain(cell, package, terrain)` to configure mine-like interiors
+- `LinkCells(origin, destination, package, direction)` to connect the project location to the new cell
+- `ApproveOverlay(package, builder, comment)` to approve the package when the workflow should publish immediately
+
+Recommended workflow:
+1. Clone or author a local project that represents the work.
+2. Add commodity outputs and byproducts first, so material rewards are independent of world topology.
+3. Add a final `prog` action with a higher sort order.
+4. In the prog, resolve the builder-chosen overlay package, zone, template room, direction, and approval policy explicitly.
+5. Leave the overlay under design if the game requires normal builder review before topology changes enter play.
+
+This is intentionally not seeded as a generic stock project. Overlay package names, template rooms, exit directions, terrain choices, and approval policy are world-specific, and a setting-neutral seeder cannot infer them safely.
 
 ## Compact Type Keyword Reference
 ### Project families
@@ -315,7 +345,7 @@ Current implementation warning:
 | Project | `personal`, `local` |
 | Labour | `simple`, `endless`, `supervision` |
 | Material | `simple`, `commodity`, `commoditytag` |
-| Action | `prog`, `skilluse`, `agriculture` |
+| Action | `prog`, `skilluse`, `agriculture`, `commodityoutput`, `resourcediscovery` |
 | Impact | `trait`, `healing`, `job`, `cap` |
 
 ## Troubleshooting

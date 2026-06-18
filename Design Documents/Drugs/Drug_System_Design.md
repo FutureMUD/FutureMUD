@@ -60,7 +60,9 @@ The content-facing companion is [Drug Builder Guide](./Drug_Builder_Guide.md).
 - `PlanarState`
 
 ## Additional Info Payloads
-Most drug types only need a scalar intensity. These drug types have extra payload classes in `IDrug.cs`:
+Most drug types only need a scalar intensity. For those scalar-only effects, the runtime `ExtraInfo` payload is
+intentionally `null` and is persisted as a null `AdditionalEffects` value; load, save, and clone paths should preserve
+that null rather than inventing placeholder metadata. These drug types have extra payload classes in `IDrug.cs`:
 
 | Drug type | Payload | Stored meaning |
 | --- | --- | --- |

@@ -2,9 +2,9 @@
 
 ## Purpose
 
-This document defines a seeded-content package for primary production chains outside the existing agriculture, hunting, and finished-goods craft packages. The target systems are mining, quarrying, charcoal burning, metallurgical production, building-material production, and related intermediate processing.
+This document defines a seeded-content package for primary production chains outside the existing agriculture, hunting, and finished-goods craft packages. The target systems are prospecting, mining, quarrying, charcoal burning, metallurgical production, building-material production, and related intermediate industry.
 
-The package is intended to make the economy move through bulk commodities, durable tools, repair work, and multi-stage handoffs. It should not simply add finished metal weapons, armour, furniture, or buildings. It should create the upstream economic matter that other characters, crafts, shops, projects, and settlements consume.
+The package is intended to make the economy move through bulk commodities, durable tools, repair work, site discovery, and multi-stage handoffs. It should not simply add finished metal weapons, armour, furniture, or buildings. It should create the upstream economic matter that other characters, crafts, shops, projects, and settlements consume.
 
 The design assumes the current FutureMUD distinction between:
 
@@ -12,16 +12,19 @@ The design assumes the current FutureMUD distinction between:
 - **Projects**: larger work, group work, cell-bound work, or work that should persist and advance over project ticks.
 - **Commodities**: bulk material piles that are the preferred handoff unit between production stages.
 - **Items**: durable tools, apparatus, fixtures, containers, finished goods, or special objects.
+- **Sites and markers**: room/cell state, tags, or non-holdable props that represent discoverable and exploitable primary resources.
 
 ## Design Goals
 
 1. Use commodities as the default output for raw and intermediate goods.
-2. Create many handoff points where miners, haulers, charcoal burners, smelters, masons, carpenters, smiths, potters, glassworkers, and builders can each contribute part of the chain.
-3. Use local projects for extraction, firing, smelting, quarrying, shaft work, and other multi-person or long-running work.
-4. Use crafts for short bench-scale transformations, tool maintenance, sorting, trimming, mixing, dressing, and stock preparation.
+2. Create many handoff points where prospectors, miners, haulers, charcoal burners, smelters, masons, carpenters, smiths, potters, glassworkers, salt workers, tar burners, and builders can each contribute part of the chain.
+3. Use local projects for prospecting, extraction, firing, smelting, quarrying, shaft work, and other multi-person or long-running work.
+4. Use crafts for short bench-scale transformations, tool maintenance, sorting, trimming, washing, mixing, dressing, and stock preparation.
 5. Add enough durable tools and apparatus to create demand for repair, replacement, sharpening, hauling, and workshop infrastructure.
-6. Keep the first implementation concrete and data-driven rather than implementing a full geology, depletion, hazard, or industrial plant simulation.
-7. Preserve era flexibility by seeding a preindustrial baseline first, with later industrial extensions clearly separated.
+6. Support discovery gameplay before extraction. A room may contain a hidden mineral resource tag or marker; prospecting work can reveal it as a visible surface deposit or known site.
+7. Keep the first implementation concrete and data-driven rather than implementing full geology, depletion, hazards, or industrial plant simulation.
+8. Preserve era flexibility by seeding a preindustrial baseline first, with later industrial extensions clearly separated.
+9. Keep seeder responsibilities layered. Item prototypes and crafts can live with ItemSeeder partials, while project templates, discovery progs, and primary-production domain records can live in a dedicated primary-production package.
 
 ## Non-Goals For The First Pass
 
@@ -33,8 +36,9 @@ The first implementation should not attempt to build all of the following system
 - A full industrial revolution plant model with steam engines, coke blast furnaces, rolling mills, puddling furnaces, Bessemer converters, or powered machinery.
 - Automatic world generation of ore deposits or quarry sites.
 - Complex environmental impacts such as tailings pollution, forestry depletion, or watershed damage.
+- A complete pre-built world or starting town with all resource sites already placed.
 
-Those are good later extensions, but the first pass should create useful content with the current craft, project, material, tag, and commodity models.
+Those are good later extensions, but the first pass should create useful content with the current craft, project, material, tag, commodity, item, and FutureProg models.
 
 ## Current-System Fit
 
@@ -42,10 +46,10 @@ Those are good later extensions, but the first pass should create useful content
 
 Agriculture already covers fields, crops, herds, apiaries, and managed woodland. It also already uses projects for field operations and commodities for harvested products. Primary production should not duplicate that system. Instead:
 
-- Managed woodlands can supply timber, poles, brushwood, bark, firewood, charcoal wood, resin, gum, and similar plant commodities.
-- Primary production can consume those woodland commodities to produce charcoal, lime, fired brick, smelted metal, and other industrial feedstocks.
+- Managed woodlands can supply timber, poles, brushwood, bark, firewood, charcoal wood, resin, gum, fibre, thatch, and similar plant commodities.
+- Primary production can consume those woodland commodities to produce charcoal, potash, tar, pitch, lime, fired brick, smelted metal, glass stock, and other industrial feedstocks.
 - Agriculture remains the system for growing trees and managing woodland yield.
-- Primary production is the system for turning woodland yield into fuel and industrial materials.
+- Primary production is the system for turning woodland yield into fuel, alkali, waterproofing compounds, and industrial materials.
 
 ### Craft Boundary
 
@@ -62,6 +66,9 @@ Crafts should handle small work with one worker and a short duration. Examples:
 - Mix mortar.
 - Temper clay body.
 - Mould bricks.
+- Leach ash into lye.
+- Boil brine into salt.
+- Render pine tar into pitch.
 - Repair a tool handle.
 - Sharpen a pick or chisel.
 
@@ -71,6 +78,8 @@ Crafts already support commodity inputs and commodity products. This makes them 
 
 Projects should handle larger or persistent work. Examples:
 
+- Prospect a landscape for mineral signs.
+- Expose a surface deposit.
 - Open a mine working.
 - Drive an adit.
 - Sink a shaft.
@@ -84,9 +93,101 @@ Projects should handle larger or persistent work. Examples:
 - Smelt an iron bloom.
 - Smelt copper, tin, lead, or silver ore.
 - Operate a glass furnace batch.
+- Operate a salt pan or brine boiling house.
+- Burn a tar kiln.
+- Cut and dry peat turves.
 - Dig a new chamber or connect a new room by completion prog.
 
-Local projects are the default because the work belongs to a location. Personal projects are useful only for off-site planning, paperwork, or jobs that abstract a workplace rather than simulating the cell.
+Local projects are the default because the work belongs to a location. Personal projects are useful only for off-site planning, paperwork, employment abstraction, or jobs that abstract a workplace rather than simulating the cell.
+
+### Discovery Boundary
+
+Prospecting should sit before extraction. A room can contain a resource marker that is not necessarily visible to ordinary players. Prospecting projects can reveal those resources through one of two mechanisms:
+
+1. **Room/cell resource tags**: the room has a hidden or builder-authored tag such as `Mineral Resource - Hematite`, `Mineral Resource - Cassiterite`, or `Mineral Resource - Limestone`. A prospecting completion action or helper prog checks those tags and creates a visible result if one is found.
+2. **Hidden marker props**: the room contains a non-holdable, non-destroyable, hidden or builder-only prop representing the underlying deposit. Prospecting changes it, reveals it, or creates a public-facing deposit prop.
+
+The preferred long-term model is cell resource tags plus optional visible deposit props. The lowest-risk first pass is visible/non-visible marker props if cell tags are not currently supported.
+
+## Seeder Architecture And Dependencies
+
+### Recommendation
+
+Do not turn `ItemSeeder` into a monolithic pre-built world seeder. Instead, treat primary production as a layered content package:
+
+1. **Foundational data layer**: tags, materials, aliases, and any required static configuration.
+2. **Item and craft catalogue layer**: durable tools, apparatus, props, and commodity-transforming crafts. This can be implemented as `ItemSeeder` partials because the existing item/craft catalogue already lives there.
+3. **Primary production domain layer**: local project templates, prospecting project templates, helper FutureProgs, resource discovery conventions, and domain documentation. This should be a dedicated `PrimaryProductionSeeder` or equivalent package.
+4. **World placement layer**: optional pre-built mines, quarries, resource rooms, sample settlements, market placements, and demonstration areas. This should be a later `WorldStarterSeeder`, `PrebuiltWorldSeeder`, or scenario-specific seeder, not part of the reusable item catalogue.
+
+This preserves the useful parts of `ItemSeeder` without making every game install the same pre-built mines, quarries, and industrial geography.
+
+### Why Not Make ItemSeeder The World Seeder?
+
+`ItemSeeder` is a good place for reusable item prototypes and craft recipes. It is a poor place for geography, room-specific resources, or live world placement because:
+
+- Item prototypes and crafts should be reusable across many games and eras.
+- World placement depends on zones, rooms, overlay packages, terrain, local climate, economy, and builder intent.
+- A monolithic item/world seeder would acquire difficult dependencies and become harder to rerun safely.
+- Prospecting resources should be placeable by builders in specific rooms rather than globally assumed.
+- Some games may want the tools and crafts but not the stock project templates or sample mines.
+- Some games may want primary production projects but not a pre-built settlement.
+
+### Preferred File Ownership
+
+Recommended file layout:
+
+```text
+Design Documents/Seeding/Primary_Production_Seeder_Design_Reference.md
+DatabaseSeeder/Seeders/ItemSeeder.Rework.PrimaryProductionTools.cs
+DatabaseSeeder/Seeders/ItemSeederCrafting.PrimaryProduction.cs
+DatabaseSeeder/Seeders/PrimaryProductionSeeder.cs
+DatabaseSeeder/Seeders/PrimaryProductionSeeder.Projects.cs
+DatabaseSeeder/Seeders/PrimaryProductionSeeder.Progs.cs
+DatabaseSeeder Unit Tests/PrimaryProductionSeederTests.cs
+DatabaseSeeder Unit Tests/ItemSeederPrimaryProductionCraftingTests.cs
+MudSharpCore/Work/Projects/Actions/CommodityOutputAction.cs
+```
+
+If a future world starter package is added:
+
+```text
+DatabaseSeeder/Seeders/WorldStarterSeeder.PrimaryProductionSites.cs
+Design Documents/Seeding/World_Starter_Primary_Production_Sites.md
+```
+
+### Seeder Dependency Order
+
+Recommended dependency order:
+
+1. `CoreDataSeeder` or equivalent foundational package.
+2. `UsefulSeeder` for common tags, item components, utility progs, and starter infrastructure.
+3. `SkillPackageSeeder` or `SkillSeeder` for the traits used by projects and crafts.
+4. `AgricultureSeeder` if woodland outputs are expected to feed charcoal, tar, potash, timber, or bark chains. This can be optional if primary production also accepts generic wood/firewood commodities.
+5. `ItemSeeder` primary-production partials for tools, apparatus, props, and crafts.
+6. `PrimaryProductionSeeder` for prospecting projects, extraction projects, smelting projects, kiln projects, and helper progs.
+7. `EconomySeeder` or a later economy pass if shops, jobs, market categories, or populations should buy/sell the outputs.
+8. Optional world starter/scenario seeder for placing actual hidden resource tags, visible deposit props, sample quarries, mines, kilns, and workshops.
+
+### Proposed Metadata For PrimaryProductionSeeder
+
+`PrimaryProductionSeeder` should be idempotent and repair-capable, similar to other stock content packages.
+
+Suggested prerequisites:
+
+- Core account exists.
+- Core utility progs such as `AlwaysTrue` exist.
+- Primary production tags have been installed by UsefulSeeder or this package's tag phase.
+- Required materials exist.
+- Required traits exist or fallback traits are available.
+- Commodity project output action is registered before project definitions are installed.
+- Primary production item/craft prototypes exist if project material requirements refer to their tags.
+
+Suggested metadata summary:
+
+- **Repeatability**: idempotent.
+- **Update capability**: repair existing stock-owned definitions.
+- **Ownership**: stock primary production content is tracked by stable tag names, material names, item stable references, craft names, project names, and helper FutureProg names.
 
 ## Required Engine Addition
 
@@ -152,6 +253,172 @@ Add tests that prove:
 - Project completion creates an `ICommodity` with expected material, weight, tag, and characteristics.
 - Existing `prog`, `skilluse`, and `agriculture` actions continue to load unchanged.
 
+## Optional Engine Addition: Resource Discovery
+
+Prospecting can be implemented with existing `prog` project actions if FutureProg can inspect the project location, detect cell tags or marker props, and load/reveal a deposit prop. If that is not currently practical, add a native project action with builder keyword:
+
+```text
+resourcediscovery
+```
+
+### Resource Discovery Action Behaviour
+
+On completion:
+
+1. Inspect the local project location.
+2. Search for hidden resource tags or hidden resource marker props.
+3. If no matching resource is found, send a failure/no-discovery echo and optionally create a small sample of ordinary stone or soil.
+4. If a resource is found, create or reveal a non-holdable deposit prop such as `hematite surface deposits`.
+5. Optionally add a discovered/prospected tag to the room or prop.
+6. Optionally grant a small commodity sample, such as `2 kg hematite ore` with `Sample Ore Commodity`.
+7. Prevent duplicate visible deposit props for the same resource in the same room unless the builder explicitly permits multiple discoveries.
+
+### Resource Discovery Action Data Fields
+
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| ResourceRootTagId | tag id | yes | Parent tag such as `Mineral Resource`. |
+| DepositPropMap | XML map | yes | Maps resource tags to stable prop references or output descriptions. |
+| SampleMaterialMap | XML map | no | Maps resource tags to sample commodity material. |
+| SampleWeight | mass | no | Optional small sample output. |
+| SuccessEcho | text | no | Echo for successful discovery. |
+| FailureEcho | text | no | Echo for no discovery. |
+| RevealExisting | bool | no | Reveals an existing hidden marker instead of loading a new prop. |
+| AddDiscoveredTag | bool | no | Adds a discovered tag to the room or prop if supported. |
+
+This action is optional for the first pass. The first implementation may instead seed a helper FutureProg called `Stock Primary Production - Reveal Mineral Resource` and use ordinary `prog` completion actions.
+
+## Resource Discovery And Prospecting Model
+
+### Core Concept
+
+A room can have an underlying primary resource that players do not automatically know about. A project-based prospecting sequence turns hidden builder knowledge into visible player-facing economic opportunity.
+
+Example:
+
+```text
+Room has hidden/builder resource marker:
+  Mineral Resource - Hematite
+
+Players start:
+  Primary Production - Prospect for Iron Deposits
+
+On completion:
+  if hematite resource exists, create visible prop:
+    hematite surface deposits
+
+Players can then start:
+  Primary Production - Open a Hematite Working
+  Primary Production - Sink a Shaft for Hematite
+  Primary Production - Extract Hematite Ore
+```
+
+### Resource Tag Hierarchy
+
+Add resource-site tags separate from commodity-stage tags.
+
+| Tag | Parent | Purpose |
+| --- | --- | --- |
+| Primary Production Resource | Primary Production | Root for cell or prop resource markers. |
+| Mineral Resource | Primary Production Resource | Any underground/surface mineral resource. |
+| Stone Resource | Primary Production Resource | Quarryable stone resources. |
+| Clay Resource | Primary Production Resource | Clay pits and ceramic feedstocks. |
+| Salt Resource | Primary Production Resource | Brine, salt pan, rock salt. |
+| Fuel Resource | Primary Production Resource | Coal, peat, oil shale, bitumen, etc. |
+| Alkali Resource | Primary Production Resource | Natron, soda, potash-relevant deposits. |
+| Pigment Resource | Primary Production Resource | Ochre, cinnabar, malachite pigment, etc. |
+| Sulfur Resource | Primary Production Resource | Sulfur or pyrite resources. |
+| Hematite Resource | Mineral Resource | Hematite-bearing site. |
+| Limonite Resource | Mineral Resource | Limonite/bog iron-bearing site. |
+| Magnetite Resource | Mineral Resource | Magnetite-bearing site. |
+| Cassiterite Resource | Mineral Resource | Tin ore site. |
+| Malachite Resource | Mineral Resource | Copper carbonate site. |
+| Galena Resource | Mineral Resource | Lead/silver-bearing site. |
+| Native Copper Resource | Mineral Resource | Native copper site. |
+| Gold-Bearing Gravel Resource | Mineral Resource | Placer gold site. |
+| Limestone Resource | Stone Resource | Limestone quarry/lime site. |
+| Sandstone Resource | Stone Resource | Sandstone quarry site. |
+| Granite Resource | Stone Resource | Granite quarry site. |
+| Slate Resource | Stone Resource | Slate quarry site. |
+| Marble Resource | Stone Resource | Marble quarry site. |
+| Clay Pit Resource | Clay Resource | Clay extraction site. |
+| Silica Sand Resource | Stone Resource | Glass sand site. |
+| Rock Salt Resource | Salt Resource | Rock salt mine site. |
+| Brine Spring Resource | Salt Resource | Brine extraction site. |
+| Peat Bog Resource | Fuel Resource | Peat cutting site. |
+| Coal Seam Resource | Fuel Resource | Coal mining site. |
+| Bitumen Seep Resource | Fuel Resource | Bitumen/asphalt collection site. |
+| Natron Resource | Alkali Resource | Natron deposit. |
+| Ochre Resource | Pigment Resource | Ochre pigment site. |
+| Sulfur Deposit Resource | Sulfur Resource | Sulfur collection/mining site. |
+
+### Visible Deposit Props
+
+Prospecting should create visible props that players can look at and use as a launching point for further projects. These props should be non-holdable and indestructible by default. If the item system requires a component to make a static room prop, add or reuse an appropriate fixture/scenery component. Otherwise, omit `Holdable` and omit `Destroyable`.
+
+| Stable Reference | Sdesc | Tags | Description Role |
+| --- | --- | --- | --- |
+| primary_production_hematite_surface_deposits | hematite surface deposits | Visible Resource Deposit, Hematite Resource | Red-black ironstone staining and exposed nodules. |
+| primary_production_limonite_surface_deposits | limonite surface deposits | Visible Resource Deposit, Limonite Resource | Brown iron-rich crusts and bog ore signs. |
+| primary_production_cassiterite_surface_deposits | cassiterite surface deposits | Visible Resource Deposit, Cassiterite Resource | Heavy dark grains or pebbles in stream gravels. |
+| primary_production_malachite_surface_deposits | malachite-stained copper deposits | Visible Resource Deposit, Malachite Resource | Green-stained copper-bearing stone. |
+| primary_production_galena_surface_deposits | galena-bearing surface deposits | Visible Resource Deposit, Galena Resource | Heavy grey lead ore signs. |
+| primary_production_gold_bearing_gravel | gold-bearing gravel | Visible Resource Deposit, Gold-Bearing Gravel Resource | Placer gravels for panning and washing. |
+| primary_production_limestone_outcrop | a limestone outcrop | Visible Resource Deposit, Limestone Resource | Quarry and lime feedstock. |
+| primary_production_slate_outcrop | a slate outcrop | Visible Resource Deposit, Slate Resource | Slate quarry site. |
+| primary_production_clay_bank | a workable clay bank | Visible Resource Deposit, Clay Pit Resource | Clay extraction site. |
+| primary_production_brine_spring | a brine spring | Visible Resource Deposit, Brine Spring Resource | Salt production site. |
+| primary_production_peat_cutting | a peat cutting | Visible Resource Deposit, Peat Bog Resource | Peat fuel site. |
+| primary_production_natron_flats | natron-crusted flats | Visible Resource Deposit, Natron Resource | Alkali collection site. |
+| primary_production_ochre_bank | an ochre-stained bank | Visible Resource Deposit, Ochre Resource | Pigment source. |
+
+### Prospecting Project Series
+
+Prospecting should be a series, not a single action. The series should scale from general survey through targeted discovery to development.
+
+| Project | Purpose | Inputs | Output/Effect |
+| --- | --- | --- | --- |
+| Primary Production - Survey Mineral Signs | General prospecting in a plausible room. | Labour, surveying tools optional. | Reveals broad evidence or no evidence. |
+| Primary Production - Prospect for Iron Deposits | Search for hematite, limonite, magnetite, bog iron. | Labouring/Mining, hammer, basket. | Reveals iron deposit prop or sample. |
+| Primary Production - Prospect for Tin Deposits | Search for cassiterite, usually stream gravels or hard rock. | Labouring/Mining, pan/trough. | Reveals cassiterite deposit or sample. |
+| Primary Production - Prospect for Copper Deposits | Search for malachite/native copper/copper ore. | Labouring/Mining, hammer. | Reveals copper deposit or sample. |
+| Primary Production - Prospect for Lead And Silver Deposits | Search for galena/silver-bearing signs. | Labouring/Mining. | Reveals galena deposit or sample. |
+| Primary Production - Prospect for Quarry Stone | Search for quarryable stone. | Masonry/Labouring, hammer, measuring cord. | Reveals outcrop prop. |
+| Primary Production - Prospect for Clay | Search banks, pits, or floodplains. | Labouring/Pottery. | Reveals clay bank prop. |
+| Primary Production - Prospect for Salt Or Brine | Search flats, springs, coastal pans, or rock salt. | Labouring/Survival. | Reveals brine spring, salt pan, or rock salt deposit. |
+| Primary Production - Prospect for Fuel Deposits | Search for peat, coal, bitumen. | Labouring/Mining/Survival. | Reveals fuel resource prop. |
+| Primary Production - Assay A Mineral Sample | Confirm value of a discovered resource. | Small commodity sample, tools, fire/acid if available. | Produces named sample or unlocks extraction fiction. |
+
+The first pass can make the specific projects mechanically similar and vary only target resource tags, skill, difficulty, tools, and output props.
+
+### Mine Development After Discovery
+
+Once a visible deposit prop exists, players can start development projects:
+
+```text
+Visible surface deposit
+  -> project: open shallow working
+  -> project: shore working
+  -> project: sink shaft or drive adit
+  -> project: extract ore from working face
+  -> project/craft chain: break, sort, wash, roast, smelt
+```
+
+Development projects should require either:
+
+- the visible deposit prop in the room,
+- a discovered/prospected room tag, or
+- a resource marker item with the correct resource tag.
+
+### Tag Versus Prop Decision
+
+Use both if possible:
+
+- **Tag** stores the underlying truth: this room has hematite, cassiterite, clay, limestone, brine, etc.
+- **Prop** exposes that truth to players: `hematite surface deposits` is something they can see, inspect, and use as an obvious project anchor.
+
+If only one can be implemented in the first pass, prefer visible/non-visible props because they are easier for players and builders to understand. If room/cell tags already exist or are easy to add, prefer tags plus props.
+
 ## Data Model And Naming Conventions
 
 ### Stable References
@@ -171,6 +438,8 @@ Every seeded item prototype, craft, project, knowledge, and helper prog should u
 
 Tags are global and often builder-facing. Avoid short ambiguous names like `Raw Ore` or `Fuel` unless the hierarchy clearly disambiguates them. Prefer names such as:
 
+- `Hematite Resource`
+- `Visible Resource Deposit`
 - `Primary Production Ore Commodity`
 - `Raw Ore Commodity`
 - `Roasted Ore Commodity`
@@ -178,7 +447,7 @@ Tags are global and often builder-facing. Avoid short ambiguous names like `Raw 
 - `Rough Stone Block Commodity`
 - `Quicklime Commodity`
 
-If a tag will be used as a broad functional category, put it under a primary production root. If a tag will be used by crafts to distinguish a processing stage, put it under a commodity-stage root.
+If a tag will be used as a broad functional category, put it under a primary production root. If a tag will be used by crafts to distinguish a processing stage, put it under a commodity-stage root. If a tag will be used by prospecting, put it under a resource-site root.
 
 ### Material Naming
 
@@ -196,6 +465,13 @@ Material names should be plain lower-case material names where consistent with t
 - `prepared clay`
 - `green brick`
 - `fired brick`
+- `rock salt`
+- `brine salt`
+- `potash`
+- `pine tar`
+- `pitch`
+- `peat`
+- `ochre pigment`
 
 Use aliases for common variants and spellings, for example:
 
@@ -203,6 +479,8 @@ Use aliases for common variants and spellings, for example:
 - `galena` as alias for `lead ore` or separate material if desired.
 - `haematite` as alias for `hematite ore`.
 - `lime` as alias for `quicklime` only if the ambiguity is acceptable.
+- `sea coal` as alias for `coal`.
+- `turf` as alias for `peat` or `dried peat`.
 
 ## Tag Catalogue
 
@@ -222,7 +500,29 @@ Add these under `Functions / Material Functions` or a new `Primary Production` c
 | Primary Production Metal Stock | Primary Production | Blooms, billets, ingots, bars, and similar metal feedstocks. |
 | Primary Production Binder | Primary Production | Lime, mortar, plaster, cement-like materials. |
 | Primary Production Glass Stock | Primary Production | Glass batch and intermediate glass stock. |
+| Primary Production Salt | Primary Production | Salt, brine, and salt-production feedstocks. |
+| Primary Production Alkali | Primary Production | Potash, soda ash, natron, lye-related feedstocks. |
+| Primary Production Tar And Pitch | Primary Production | Tar, pitch, resin, bitumen, waterproofing feedstocks. |
+| Primary Production Pigment | Primary Production | Mineral pigment and paint feedstocks. |
+| Primary Production Refractory | Primary Production | Fireclay, crucible clay, furnace lining, firebrick. |
 | Primary Production Waste | Primary Production | Slag, tailings, rubble, wasters, spoil. |
+
+### Resource Site Tags
+
+Add these under `Primary Production Resource` as described in the prospecting model.
+
+| Tag | Parent | Purpose |
+| --- | --- | --- |
+| Primary Production Resource | Primary Production | Root for room/cell/prop resource markers. |
+| Mineral Resource | Primary Production Resource | Mineral extraction resources. |
+| Stone Resource | Primary Production Resource | Quarry resources. |
+| Clay Resource | Primary Production Resource | Clay resources. |
+| Salt Resource | Primary Production Resource | Salt and brine resources. |
+| Fuel Resource | Primary Production Resource | Peat, coal, bitumen, and other fuel resources. |
+| Alkali Resource | Primary Production Resource | Natron, soda, potash-related deposits. |
+| Pigment Resource | Primary Production Resource | Mineral pigment resources. |
+| Visible Resource Deposit | Primary Production Resource | Player-facing discovered resource prop. |
+| Hidden Resource Marker | Primary Production Resource | Builder/engine marker if prop-based discovery is used. |
 
 ### Commodity Stage Tags
 
@@ -231,6 +531,7 @@ Add these under `Functions / Material Functions / Primary Production` or under a
 | Tag | Parent | Purpose |
 | --- | --- | --- |
 | Primary Production Commodity | Primary Production | Root for commodity-pile process states. |
+| Sample Ore Commodity | Primary Production Commodity | Small sample recovered during prospecting. |
 | Raw Ore Commodity | Primary Production Commodity | Unprocessed ore from a mine face. |
 | Broken Ore Commodity | Primary Production Commodity | Ore broken small enough for sorting or washing. |
 | Sorted Ore Commodity | Primary Production Commodity | Hand-sorted ore. |
@@ -239,6 +540,7 @@ Add these under `Functions / Material Functions / Primary Production` or under a
 | Ore Tailings Commodity | Primary Production Commodity | Waste from washing and sorting. |
 | Mine Spoil Commodity | Primary Production Commodity | Waste rock and spoil from mine projects. |
 | Charcoal Fuel Commodity | Primary Production Commodity | Industrial charcoal output. |
+| Peat Fuel Commodity | Primary Production Commodity | Dried peat/turf fuel. |
 | Coal Fuel Commodity | Primary Production Commodity | Coal fuel output, for later eras. |
 | Coke Fuel Commodity | Primary Production Commodity | Coke fuel output, for industrial-era chains. |
 | Bloom Commodity | Primary Production Commodity | Bloomery output before consolidation. |
@@ -259,6 +561,15 @@ Add these under `Functions / Material Functions / Primary Production` or under a
 | Roof Tile Commodity | Primary Production Commodity | Fired or green roof tile stock as configured. |
 | Glass Batch Commodity | Primary Production Commodity | Mixed raw material batch for glassmaking. |
 | Glass Blank Commodity | Primary Production Commodity | Melted or formed glass stock. |
+| Salt Commodity | Primary Production Commodity | Produced salt. |
+| Brine Commodity | Primary Production Commodity | Concentrated brine if modelled as solid-equivalent commodity; otherwise use liquid. |
+| Potash Commodity | Primary Production Commodity | Potash or alkali stock. |
+| Lye Commodity | Primary Production Commodity | Lye stock if represented as commodity; otherwise use liquid. |
+| Tar Commodity | Primary Production Commodity | Wood tar or pine tar. |
+| Pitch Commodity | Primary Production Commodity | Boiled pitch. |
+| Pigment Commodity | Primary Production Commodity | Mineral pigment stock. |
+| Fireclay Commodity | Primary Production Commodity | Refractory clay stock. |
+| Crucible Clay Commodity | Primary Production Commodity | Refractory clay body. |
 
 ### Tool And Apparatus Tags
 
@@ -267,6 +578,7 @@ Add these under `Functions / Tools` or a `Primary Production Tools` child.
 | Tag | Parent | Purpose |
 | --- | --- | --- |
 | Mining Tool | Tools | Picks, gad, wedge, shovel, windlass. |
+| Prospecting Tool | Tools | Hammers, pans, sample bags, surveying tools. |
 | Quarrying Tool | Tools | Stone hammers, chisels, wedges, lifting tools. |
 | Masonry Tool | Tools | Dressing and measuring tools. |
 | Charcoal Burning Tool | Tools | Rakes, shovels, clamp tools. |
@@ -274,6 +586,11 @@ Add these under `Functions / Tools` or a `Primary Production Tools` child.
 | Smelting Tool | Tools | Bellows, tongs, crucibles, moulds, furnace tools. |
 | Hauling Tool | Tools | Baskets, barrows, sledges, panniers. |
 | Surveying Tool | Tools | Plumb bob, measuring cord, straightedge. |
+| Saltworking Tool | Tools | Rakes, pans, boiling vessels, salt baskets. |
+| Tar Burning Tool | Tools | Tar kiln, pitch kettle, tar rake. |
+| Alkali Tool | Tools | Ash hopper, leaching tub, evaporating pan. |
+| Peat Cutting Tool | Tools | Peat spade, turf knife, drying rack. |
+| Pigment Processing Tool | Tools | Mortar, pestle, grinding slab, washing bowl. |
 
 ## Material Catalogue
 
@@ -287,7 +604,7 @@ Add these under `Functions / Tools` or a `Primary Production Tools` child.
 | limonite ore | Primary Production Ore | brown iron ore | Common hydrated iron ore. |
 | magnetite ore | Primary Production Ore | black iron ore | Dense iron ore. |
 | copper ore | Primary Production Ore | ore copper | Generic copper ore. |
-| malachite ore | Primary Production Ore | malachite | Copper carbonate ore. |
+| malachite ore | Primary Production Ore, Primary Production Pigment | malachite | Copper carbonate ore and pigment. |
 | tin ore | Primary Production Ore | cassiterite, ore tin | Tin source for bronze. |
 | lead ore | Primary Production Ore | galena, ore lead | Lead and silver-bearing ore. |
 | silver ore | Primary Production Ore | ore silver | Generic silver ore. |
@@ -299,11 +616,14 @@ Add these under `Functions / Tools` or a `Primary Production Tools` child.
 | Material | Tags | Aliases | Notes |
 | --- | --- | --- | --- |
 | charcoal | Primary Production Fuel, Hot Fire | hardwood charcoal | Core preindustrial industrial fuel. |
+| peat | Primary Production Fuel | turf | Cut wet peat. |
+| dried peat | Primary Production Fuel | dry turf, peat fuel | Usable peat fuel commodity. |
 | coal | Primary Production Fuel, Hot Fire | mineral coal, sea coal | Later medieval/industrial fuel. |
 | coke | Primary Production Fuel, Hot Fire | coked coal | Industrial extension. |
-| limestone flux | Primary Production Flux | flux, limestone | If exact limestone is already a material, consider using limestone + tag rather than adding this. |
-| potash | Primary Production Flux, Primary Production Glass Stock | pearl ash | Glass and soap feedstock. |
-| soda ash | Primary Production Flux, Primary Production Glass Stock | natron, soda | Glass and chemical feedstock. |
+| limestone flux | Primary Production Flux | flux, limestone | If exact limestone exists, consider using limestone + tag rather than adding this. |
+| potash | Primary Production Flux, Primary Production Glass Stock, Primary Production Alkali | pearl ash | Glass, soap, dyeing, and alkali feedstock. |
+| soda ash | Primary Production Flux, Primary Production Glass Stock, Primary Production Alkali | natron, soda | Glass and chemical feedstock. |
+| natron | Primary Production Alkali, Primary Production Glass Stock | natural soda | Ancient/medieval alkali deposit. |
 
 ### Metallurgical Intermediates
 
@@ -340,21 +660,48 @@ Implementation note: if base metals such as copper, tin, lead, bronze, brass, wr
 | gypsum | Primary Production Binder | plaster stone | Plaster feedstock. |
 | plaster | Primary Production Binder | gypsum plaster | Finished plaster stock. |
 | clay | Primary Production Clay | potter's clay | Base clay feedstock. |
+| fireclay | Primary Production Clay, Primary Production Refractory | refractory clay | Furnaces, crucibles, firebrick. |
 | prepared clay | Primary Production Clay | clay body | Tempered clay ready for forming. |
 | green brick | Primary Production Clay | unfired brick | Unfired brick stock. |
 | fired brick | Primary Production Stone, Primary Production Clay | brick | Fired masonry unit. |
+| firebrick | Primary Production Refractory, Primary Production Stone | refractory brick | Furnace and kiln lining. |
 | roof tile | Primary Production Stone, Primary Production Clay | tile | Fired roofing material. |
 | glass batch | Primary Production Glass Stock | batch | Mixed glass raw feedstock. |
 | glass blank | Primary Production Glass Stock | glass stock | Generic glassworking stock. |
+
+### Salt, Alkali, Tar, Pitch, And Pigments
+
+| Material | Tags | Aliases | Notes |
+| --- | --- | --- | --- |
+| rock salt | Primary Production Salt | halite | Mined salt. |
+| sea salt | Primary Production Salt | salt | Evaporated sea salt. |
+| brine salt | Primary Production Salt | boiled salt | Salt from brine boiling. |
+| lye | Primary Production Alkali | caustic lye | May already exist as a liquid/material; reuse if present. |
+| wood ash | Primary Production Alkali, Primary Production Waste | ash | Feedstock for lye and potash. |
+| pine tar | Primary Production Tar And Pitch | wood tar, tar | Waterproofing and naval stores. |
+| pitch | Primary Production Tar And Pitch | boiled pitch | Thickened tar/pitch. |
+| resin | Primary Production Tar And Pitch | pine resin | Woodland output and tar input. |
+| bitumen | Primary Production Tar And Pitch, Primary Production Fuel | asphalt | Natural seep or mineral pitch. |
+| ochre pigment | Primary Production Pigment | ochre | Generic pigment if colour-specific versions are not used. |
+| red ochre pigment | Primary Production Pigment | red ochre | Iron oxide pigment. |
+| yellow ochre pigment | Primary Production Pigment | yellow ochre | Iron oxide pigment. |
+| malachite pigment | Primary Production Pigment | green earth, malachite green | Copper pigment. |
+| azurite pigment | Primary Production Pigment | blue copper pigment | Optional blue pigment. |
+| cinnabar pigment | Primary Production Pigment | vermilion ore | Pigment and mercury source if later modelled. |
+| sulfur | Primary Production Pigment, Primary Production Ore | brimstone | Alchemy, medicine, gunpowder later. |
+| saltpeter | Primary Production Alkali | nitre, niter, potassium nitrate | Gunpowder and chemistry later. |
 
 ## Tool And Apparatus Catalogue
 
 The following tools should be seeded as durable item prototypes. Exact component choices should follow existing item authoring patterns for tools, holdables, wearables, containers, furniture, and destroyables.
 
-### Mining And Hauling Tools
+### Prospecting, Mining, And Hauling Tools
 
 | Stable Reference | Sdesc | Tags | Notes |
 | --- | --- | --- | --- |
+| primary_production_prospecting_hammer | a prospecting hammer | Prospecting Tool, Mining Tool | Small hammer for samples and outcrops. |
+| primary_production_sample_bag | a set of sample bags | Prospecting Tool, Container | Holds ore samples. |
+| primary_production_gold_pan | a shallow prospecting pan | Prospecting Tool | Placer prospecting and washing. |
 | primary_production_mining_pick | a mining pick | Mining Tool, Digging, Tool | Main extraction tool. |
 | primary_production_mattock | a heavy mattock | Mining Tool, Digging, Tool | Soil, clay, and shallow workings. |
 | primary_production_shovel | a broad iron shovel | Mining Tool, Hauling Tool, Digging | Spoil, ore, lime, charcoal. |
@@ -388,7 +735,7 @@ The following tools should be seeded as durable item prototypes. Exact component
 | primary_production_lifting_tongs | a pair of lifting tongs | Quarrying Tool, Hauling Tool | Moving stone blocks. |
 | primary_production_block_and_tackle | a block and tackle | Hauling Tool | Project room tool. |
 
-### Charcoal, Kiln, And Furnace Tools
+### Charcoal, Kiln, Furnace, Salt, Alkali, And Tar Tools
 
 | Stable Reference | Sdesc | Tags | Notes |
 | --- | --- | --- | --- |
@@ -408,6 +755,18 @@ The following tools should be seeded as durable item prototypes. Exact component
 | primary_production_brick_clamp_site | a prepared brick clamp site | Kiln Tool | Room fixture or marker. |
 | primary_production_bloomery_furnace | a clay bloomery furnace | Smelting Tool | Room fixture. |
 | primary_production_smelting_furnace | a clay smelting furnace | Smelting Tool | Room fixture. |
+| primary_production_salt_pan | a broad salt pan | Saltworking Tool | Evaporating salt water or brine. |
+| primary_production_brine_bucket | a brine bucket | Saltworking Tool, Container | Brine handling. |
+| primary_production_salt_rake | a salt rake | Saltworking Tool | Raking crystals. |
+| primary_production_ash_hopper | an ash hopper | Alkali Tool | Leaching ash. |
+| primary_production_leaching_tub | a leaching tub | Alkali Tool | Lye/potash process. |
+| primary_production_evaporating_pan | an evaporating pan | Alkali Tool, Saltworking Tool | Concentration by boiling. |
+| primary_production_tar_kiln | a clay-lined tar kiln | Tar Burning Tool | Pine tar production. |
+| primary_production_pitch_kettle | an iron pitch kettle | Tar Burning Tool | Boiling tar into pitch. |
+| primary_production_peat_spade | a peat spade | Peat Cutting Tool | Cutting turves. |
+| primary_production_turf_knife | a turf knife | Peat Cutting Tool | Cutting and trimming peat. |
+| primary_production_pigment_mortar | a stone pigment mortar | Pigment Processing Tool | Grinding pigments. |
+| primary_production_grinding_slab | a pigment grinding slab | Pigment Processing Tool | Mineral pigment processing. |
 
 ## Knowledge And Skill Coverage
 
@@ -416,6 +775,7 @@ Create one broad knowledge package and then specialised knowledge packages where
 | Knowledge | Purpose |
 | --- | --- |
 | Primary Production Fundamentals | Shared knowledge for basic extraction, hauling, fuel, and material prep. |
+| Primary Prospecting | Survey, resource signs, samples, and assay work. |
 | Primary Mining | Mining projects and ore extraction. |
 | Primary Quarrying | Quarrying and rough block production. |
 | Primary Charcoal Burning | Charcoal clamp projects and fuel handling. |
@@ -423,6 +783,11 @@ Create one broad knowledge package and then specialised knowledge packages where
 | Primary Smelting | Ore smelting, bloomery, and non-ferrous smelting. |
 | Primary Masonry Materials | Stone dressing, aggregate, mortar, plaster. |
 | Primary Glass Batch | Glass batch preparation and furnace stock. |
+| Primary Saltworking | Salt pans, brine boiling, and rock salt extraction. |
+| Primary Alkali Making | Ash leaching, potash, lye, soda/natron collection. |
+| Primary Tar And Pitch | Resin collection, tar kilns, and pitch boiling. |
+| Primary Pigment Processing | Mineral pigment extraction, washing, and grinding. |
+| Primary Peat Cutting | Cutting, drying, and stacking peat fuel. |
 
 Use existing traits where possible:
 
@@ -436,6 +801,7 @@ Use existing traits where possible:
 | Carpentry | Timber props, barrows, shoring, clamps. |
 | Pottery | Clay body, bricks, tiles, kiln work. |
 | Glassworking | Glass batch and glass furnace chains. |
+| Survival | Salt pans, peat cutting, pitch/tar work, prospecting fallback. |
 | Supervising | Foreman and master-worker project labour. |
 | Civil Engineering | Surveying, shaft/adit projects, large quarry projects if enabled. |
 
@@ -443,7 +809,36 @@ If the skill package does not always seed `Mining`, do not make first-pass stock
 
 ## Chain Design
 
-### Chain A: Woodland To Charcoal
+### Chain A: Prospecting To Mine Development
+
+Purpose: make mining start with discovery, not just immediate extraction.
+
+```text
+room has hidden resource tag or marker
+  -> project: survey mineral signs
+  -> project: prospect for specific resource family
+  -> visible prop: hematite surface deposits, cassiterite gravels, galena outcrop, etc.
+  -> project: assay sample
+  -> project: open shallow working / sink shaft / drive adit
+  -> project: extract raw ore
+```
+
+Recommended discovery outputs:
+
+| Resource | Visible Prop | Optional Commodity Sample |
+| --- | --- | --- |
+| Hematite Resource | hematite surface deposits | hematite ore, Sample Ore Commodity |
+| Cassiterite Resource | cassiterite surface deposits | tin ore, Sample Ore Commodity |
+| Malachite Resource | malachite-stained copper deposits | malachite ore, Sample Ore Commodity |
+| Galena Resource | galena-bearing surface deposits | lead ore, Sample Ore Commodity |
+| Gold-Bearing Gravel Resource | gold-bearing gravel | gold ore or placer concentrate sample |
+| Limestone Resource | limestone outcrop | limestone sample or no commodity |
+| Clay Pit Resource | workable clay bank | clay sample |
+| Brine Spring Resource | brine spring | brine/salt sample |
+| Peat Bog Resource | peat cutting signs | peat sample |
+| Ochre Resource | ochre-stained bank | ochre pigment sample |
+
+### Chain B: Woodland To Charcoal
 
 Purpose: turn managed woodland outputs into high-value industrial fuel.
 
@@ -461,7 +856,7 @@ First-pass outputs:
 | Output | Material | Tag |
 | --- | --- | --- |
 | Charcoal | charcoal | Charcoal Fuel Commodity |
-| Ash | ash if material exists, otherwise charcoal or wood ash material | Primary Production Waste |
+| Ash | ash or wood ash | Primary Production Waste / Alkali feedstock |
 | Charcoal fines | charcoal | Charcoal Fuel Commodity or Primary Production Waste |
 
 Recommended project:
@@ -470,7 +865,7 @@ Recommended project:
 | --- | --- | --- |
 | Primary Production - Burn a Charcoal Clamp | local | 60-120 kg charcoal from 250-500 kg wood input. |
 
-### Chain B: Mining And Ore Preparation
+### Chain C: Mining And Ore Preparation
 
 Purpose: create raw ore commodities and process them into smelt-ready feedstock.
 
@@ -518,7 +913,7 @@ Recommended preparation crafts:
 | wash sorted ore | sorted ore + water access | washed ore + tailings |
 | roast washed ore | washed ore + charcoal/fuel | roasted ore |
 
-### Chain C: Bloomery Iron
+### Chain D: Bloomery Iron
 
 Purpose: provide a preindustrial iron path without requiring blast furnaces.
 
@@ -541,7 +936,7 @@ Recommended projects and crafts:
 | Craft | draw wrought iron bar stock | wrought iron billet, forge tools | wrought iron bar stock |
 | Craft | make iron tool blank stock | wrought iron billet | Tool Blank Stock commodity |
 
-### Chain D: Non-Ferrous Smelting And Alloying
+### Chain E: Non-Ferrous Smelting And Alloying
 
 Purpose: support copper, bronze, brass, lead, pewter, silver, and precious metal chains.
 
@@ -567,7 +962,7 @@ roasted lead ore
 
 First pass should seed copper, tin, lead, and bronze. Brass and silver refining can be a second pass if needed.
 
-### Chain E: Quarrying And Masonry Stone
+### Chain F: Quarrying And Masonry Stone
 
 Purpose: produce building stone, rubble, aggregate, and dressed blocks.
 
@@ -600,10 +995,10 @@ Recommended projects:
 | Primary Production - Clear a Quarry Face | rubble or no output; unlocks site fiction. |
 | Primary Production - Quarry Limestone Blocks | rough limestone blocks + rubble. |
 | Primary Production - Quarry Sandstone Blocks | rough sandstone blocks + rubble. |
-| Primary Production - Quarry Granite Blocks | rough granite blocks + rubble. |
+| Primary Production - Quarry Granite Blocks | rough granite block + rubble. |
 | Primary Production - Quarry Slate | slate block or roof slate commodity. |
 
-### Chain F: Lime, Mortar, Plaster, And Binders
+### Chain G: Lime, Mortar, Plaster, And Binders
 
 Purpose: create construction binders from stone and fuel.
 
@@ -630,9 +1025,9 @@ First-pass crafts/projects:
 | Craft | mix lime mortar | slaked lime, sand | lime mortar |
 | Craft | calcine gypsum plaster | gypsum, fuel | plaster |
 
-### Chain G: Clay, Bricks, Tiles, And Kilns
+### Chain H: Clay, Bricks, Tiles, Refractory, And Kilns
 
-Purpose: support building materials and kiln economies.
+Purpose: support building materials, furnace construction, and kiln economies.
 
 ```text
 clay + sand/straw/grog temper
@@ -642,6 +1037,11 @@ clay + sand/straw/grog temper
   -> green brick or green tile commodity
   -> project: fire brick clamp or kiln
   -> fired brick / roof tile commodity + wasters
+
+fireclay + grog
+  -> craft: prepare refractory clay body
+  -> crucible clay or firebrick clay commodity
+  -> craft/project: mould crucibles / firebricks / furnace linings
 ```
 
 First-pass crafts/projects:
@@ -653,8 +1053,11 @@ First-pass crafts/projects:
 | Craft | mould roof tiles | prepared clay, tile mould | roof tile or green tile |
 | Project | Primary Production - Fire a Brick Clamp | green bricks, fuel | fired bricks, wasters |
 | Project | Primary Production - Fire Roof Tiles | green tiles, fuel | roof tiles, wasters |
+| Craft | prepare refractory clay | fireclay, grog, water | crucible clay or firebrick body |
+| Craft | mould clay crucibles | crucible clay, mould | unfired crucibles or crucible stock |
+| Project | Fire Refractory Bricks | green firebricks, fuel | firebrick |
 
-### Chain H: Glass Batch And Glass Stock
+### Chain I: Glass Batch And Glass Stock
 
 Purpose: supply glassworking with upstream raw materials rather than direct finished glass.
 
@@ -674,7 +1077,7 @@ First-pass crafts/projects:
 | Craft | prepare soda-lime glass batch | sand, soda ash/potash, lime | glass batch |
 | Project | Fire a glass furnace batch | glass batch, charcoal/fuel, furnace | glass blank |
 
-### Chain I: Timber Stock And Mine Support
+### Chain J: Timber Stock And Mine Support
 
 Purpose: connect agriculture woodland to mining, quarrying, construction, and transport.
 
@@ -688,6 +1091,126 @@ timber / poles / logs
 ```
 
 Some of this may already exist in household or carpentry packages. Reuse existing timber stock tags and crafts when possible. Add only the mine/quarry-specific support outputs needed for shoring and hauling.
+
+### Chain K: Salt And Brine
+
+Purpose: create salt for food preservation, medicine, tanning, trade, and later chemical chains.
+
+```text
+salt resource
+  -> project: prospect for salt or brine
+  -> visible prop: brine spring, salt pan, rock salt seam
+  -> project/craft: collect brine or mine rock salt
+  -> craft/project: boil brine or evaporate salt pan
+  -> salt commodity
+```
+
+First-pass salt processes:
+
+| Type | Name | Inputs | Outputs |
+| --- | --- | --- | --- |
+| Project | Prospect for Salt Or Brine | salt resource room | brine spring / salt deposit prop |
+| Project | Work a Salt Pan | salt pan resource, labour | sea salt commodity |
+| Project | Boil Brine For Salt | brine, fuel, salt pan | brine salt commodity |
+| Project | Mine Rock Salt | rock salt resource, mining tools | rock salt commodity |
+| Craft | crush rock salt | rock salt commodity | salt commodity |
+
+### Chain L: Ash, Alkali, Potash, Lye, And Natron
+
+Purpose: supply glassmaking, soap, dyeing, leather work, washing, and chemical processes.
+
+```text
+wood ash / plant ash / natron deposit
+  -> craft: leach ash
+  -> lye or alkali liquor
+  -> craft/project: evaporate lye
+  -> potash commodity
+  -> craft: calcine potash if needed
+  -> refined potash / pearl ash
+```
+
+First-pass alkali processes:
+
+| Type | Name | Inputs | Outputs |
+| --- | --- | --- | --- |
+| Craft | leach wood ash | wood ash, water, ash hopper | lye or weak alkali stock |
+| Craft | evaporate lye to potash | lye, fuel, pan | potash commodity |
+| Project | Collect Natron | natron resource, labour | natron / soda ash commodity |
+| Craft | refine soda ash | natron/soda, water/fuel optional | soda ash commodity |
+
+If lye is better represented as a liquid in the current material system, use liquid outputs for lye and commodity outputs for potash/soda ash.
+
+### Chain M: Tar, Pitch, Resin, And Bitumen
+
+Purpose: support shipbuilding, waterproofing, torches, roofing, sealed containers, roads, and repair work.
+
+```text
+resinous wood / pine roots / resin
+  -> project: burn tar kiln
+  -> pine tar commodity
+  -> craft: boil tar into pitch
+  -> pitch commodity
+
+bitumen seep
+  -> project/craft: collect bitumen
+  -> bitumen commodity
+```
+
+First-pass tar and pitch processes:
+
+| Type | Name | Inputs | Outputs |
+| --- | --- | --- | --- |
+| Project | Burn a Tar Kiln | resinous wood, fuel, tar kiln | pine tar, charcoal/ash byproduct |
+| Craft | boil tar into pitch | pine tar, fuel, pitch kettle | pitch |
+| Project | Collect Bitumen | bitumen seep resource | bitumen commodity |
+| Craft | prepare pitch sealant | pitch, fibre/ash optional | prepared pitch commodity |
+
+### Chain N: Peat, Coal, And Fuel Extension
+
+Purpose: add regional fuel diversity and later industrial paths.
+
+```text
+peat bog / coal seam
+  -> prospect for fuel deposits
+  -> project: cut peat / mine coal
+  -> commodity: wet peat or coal
+  -> project/craft: dry peat / grade coal
+  -> fuel commodity
+  -> later: coke ovens for industrial extension
+```
+
+First-pass fuel processes:
+
+| Type | Name | Inputs | Outputs |
+| --- | --- | --- | --- |
+| Project | Cut Peat Turves | peat bog resource, peat tools | wet peat commodity |
+| Project | Dry Peat Turves | wet peat, drying area | dried peat fuel commodity |
+| Project | Mine Coal | coal seam resource, mining tools | coal fuel commodity |
+| Project | Burn Coke | coal, coke oven, fuel | coke fuel commodity |
+
+Coal and coke can be tagged as later medieval/industrial if era separation is required.
+
+### Chain O: Mineral Pigments
+
+Purpose: feed painting, dyes, inks, cosmetics, heraldry, writing, and luxury crafts.
+
+```text
+ochre/malachite/azurite/cinnabar resource
+  -> prospect pigment source
+  -> collect pigment earth or ore
+  -> wash, dry, grind
+  -> pigment commodity
+```
+
+First-pass pigment processes:
+
+| Type | Name | Inputs | Outputs |
+| --- | --- | --- | --- |
+| Project | Collect Ochre Earth | ochre bank resource | ochre pigment stock |
+| Craft | wash ochre pigment | ochre stock, water | washed pigment |
+| Craft | grind mineral pigment | pigment stock, grinding slab | fine pigment commodity |
+| Craft | prepare malachite pigment | malachite ore, grinder | malachite pigment |
+| Craft | prepare lampblack pigment | soot/charcoal, oil/water binder optional | black pigment |
 
 ## Project Catalogue
 
@@ -703,8 +1226,8 @@ Phase 1: Prepare the site
 
 Phase 2: Do the main work
 - Mandatory labour: miners, quarrymen, burners, furnace tenders, bellows workers, haulers.
-- Optional endless labour: tending fire, hauling spoil, pumping water, carrying fuel.
-- Materials: fuel, ore, flux, green bricks, limestone, etc.
+- Optional endless labour: tending fire, pumping water, hauling spoil, carrying fuel.
+- Materials: fuel, ore, flux, green bricks, limestone, brine, ash, resinous wood, etc.
 
 Phase 3: Clear and recover output
 - Mandatory labour: sorting, hauling, drawing, unloading.
@@ -715,8 +1238,13 @@ Projects can have multiple completion actions. Use multiple commodity outputs fo
 
 ### Priority 1 Projects
 
-| Project Name | Skill/Trait | Key Inputs | Main Output | Notes |
+| Project Name | Skill/Trait | Key Inputs | Main Output/Effect | Notes |
 | --- | --- | --- | --- | --- |
+| Primary Production - Survey Mineral Signs | Labouring, Mining, Survival | prospecting hammer, sample bags optional | discovery echo or broad clue | First step before targeted prospecting. |
+| Primary Production - Prospect for Iron Deposits | Labouring or Mining | prospecting tools | hematite/limonite/magnetite/bog iron deposit prop or sample | Opens iron chain. |
+| Primary Production - Prospect for Tin Deposits | Labouring or Mining | pan, hammer | cassiterite deposit prop or sample | Opens bronze chain. |
+| Primary Production - Prospect for Copper Deposits | Labouring or Mining | hammer, sample bags | malachite/copper deposit prop or sample | Opens copper/bronze chain. |
+| Primary Production - Prospect for Quarry Stone | Masonry or Labouring | mason's hammer, measuring cord | quarry outcrop prop | Opens quarry chain. |
 | Primary Production - Burn a Charcoal Clamp | Labouring or Charcoal Burning | firewood/charcoal wood, earth/clay if modelled, charcoal rake | charcoal | High priority because it fuels many chains. |
 | Primary Production - Extract Iron Ore | Labouring or Mining | mining pick, baskets, supports optional | raw iron ore, mine spoil | Basic mine extraction. |
 | Primary Production - Extract Copper Ore | Labouring or Mining | mining tools | raw copper ore, mine spoil | Bronze path. |
@@ -725,14 +1253,18 @@ Projects can have multiple completion actions. Use multiple commodity outputs fo
 | Primary Production - Quarry Sandstone Blocks | Masonry or Labouring | quarry tools | rough sandstone block, rubble | Common building stone. |
 | Primary Production - Burn a Lime Kiln | Masonry or Labouring | limestone, charcoal, lime kiln | quicklime | Construction binder path. |
 | Primary Production - Fire a Brick Clamp | Pottery or Labouring | green bricks, fuel, clamp/kiln | fired bricks, wasters | Building materials. |
-| Primary Production - Smelt an Iron Bloom | Smelting or Blacksmithing | roasted iron ore, charcoal, flux, bloomery | iron bloom, slag | Important but should require more setup. |
+| Primary Production - Smelt an Iron Bloom | Smelting or Blacksmithing | roasted iron ore, charcoal, flux, bloomery | iron bloom, slag | Important but should require setup. |
 | Primary Production - Smelt Copper Ore | Smelting | roasted copper ore, charcoal, flux | copper ingot/commodity, slag | Bronze path. |
 | Primary Production - Smelt Tin Ore | Smelting | washed tin ore, charcoal | tin ingot/commodity, slag | Bronze path. |
+| Primary Production - Boil Brine For Salt | Saltworking or Labouring | brine, fuel, salt pan | salt | Food preservation and trade. |
+| Primary Production - Burn a Tar Kiln | Labouring or Survival | resinous wood, tar kiln | pine tar | Waterproofing and shipbuilding. |
+| Primary Production - Cut Peat Turves | Labouring or Survival | peat bog resource, peat tools | wet peat | Regional fuel. |
 
 ### Priority 2 Projects
 
-| Project Name | Skill/Trait | Key Inputs | Main Output | Notes |
+| Project Name | Skill/Trait | Key Inputs | Main Output/Effect | Notes |
 | --- | --- | --- | --- | --- |
+| Primary Production - Assay A Mineral Sample | Mining or Smelting | sample ore, tools | confirmation, refined sample, or knowledge gate | Optional gate between prospecting and extraction. |
 | Primary Production - Open a Shallow Mine Working | Labouring, Mining, Civil Engineering | timber props, rope, picks, shovels | optional mine marker or no output | Site-development project. |
 | Primary Production - Shore a Mine Working | Carpentry or Labouring | timber props, beams, rope | optional safety marker | Consumes wood and creates maintenance loop. |
 | Primary Production - Drive an Adit | Mining, Civil Engineering | tools, timber, hauling gear | new room via prog, spoil | Use completion prog if builder config exists. |
@@ -742,6 +1274,12 @@ Projects can have multiple completion actions. Use multiple commodity outputs fo
 | Primary Production - Fire Roof Tiles | Pottery | green tiles, fuel | roof tiles, wasters | Building path. |
 | Primary Production - Fire a Glass Furnace Batch | Glassworking | glass batch, charcoal, furnace | glass blank | Glass upstream path. |
 | Primary Production - Smelt Lead Ore | Smelting | roasted lead ore, charcoal | lead ingot, slag | Lead and silver path. |
+| Primary Production - Work a Salt Pan | Saltworking or Labouring | salt pan resource | sea salt | Coastal/arid chain. |
+| Primary Production - Collect Natron | Labouring or Survival | natron flats resource | natron/soda ash | Glass/alkali chain. |
+| Primary Production - Dry Peat Turves | Labouring | wet peat, drying area | dried peat fuel | Fuel chain. |
+| Primary Production - Mine Coal | Mining | coal seam resource, mining tools | coal | Later medieval/industrial. |
+| Primary Production - Collect Ochre Earth | Labouring or Pigment Processing | ochre resource | ochre pigment stock | Pigment chain. |
+| Primary Production - Collect Bitumen | Labouring | bitumen seep resource | bitumen | Waterproofing/road material. |
 
 ### Site-Creation Projects
 
@@ -754,10 +1292,23 @@ Candidate site projects:
 | Drive A New Mine Chamber | create new room from template, link to current mine room | Requires builder-supplied overlay package, zone, and template room. |
 | Sink A Shaft Downward | create lower room and vertical exit | Needs exit-link helper prog and safe builder constraints. |
 | Open A Quarry Bench | create quarry bench room or add marker item | Could be marker-only in first pass. |
+| Open A Salt Gallery | create salt mine room or marker item | For rock salt deposits. |
+| Cut A Peat Field | create or reveal a peat cutting marker | Could remain marker-only. |
 
-Because `CreateCell` requires an overlay package and zone, the first stock package should not assume a universal package exists. Provide example progs and documentation, but keep room creation as optional builder configuration unless the seeder can safely create a stock package and template.
+Because room creation requires overlay-package and zone context, the first stock package should not assume a universal package exists. Provide example progs and documentation, but keep room creation as optional builder configuration unless the seeder can safely create a stock package and template.
 
 ## Craft Catalogue
+
+### Prospecting And Sample Crafts
+
+| Craft | Category | Skill | Inputs | Tools | Products |
+| --- | --- | --- | --- | --- | --- |
+| chip mineral sample | Primary Production / Prospecting | Mining or Labouring | visible deposit prop or ore commodity if supported | prospecting hammer | sample ore commodity |
+| pan placer gravel | Primary Production / Prospecting | Mining or Survival | gold-bearing gravel commodity | gold pan, water | sorted gold-bearing concentrate |
+| assay iron sample | Primary Production / Prospecting | Mining or Smelting | sample iron ore | hammer, small hearth optional | identified sample or refined sample |
+| assay copper sample | Primary Production / Prospecting | Mining or Smelting | sample copper ore | hammer, small hearth optional | identified sample or refined sample |
+
+If crafts cannot target static props as inputs cleanly, keep sample extraction as project output rather than a craft.
 
 ### Ore Preparation Crafts
 
@@ -792,14 +1343,29 @@ Repeat the same pattern for copper, tin, lead, and silver where appropriate. Use
 | mix lime mortar | Primary Production / Binders | Masonry | slaked lime, sand, water | mortar trough, shovel | lime mortar |
 | calcine gypsum plaster | Primary Production / Binders | Masonry | gypsum, fuel | kiln/hearth | plaster |
 
-### Clay, Brick, Tile, And Glass Crafts
+### Clay, Brick, Tile, Refractory, And Glass Crafts
 
 | Craft | Category | Skill | Inputs | Tools | Products |
 | --- | --- | --- | --- | --- | --- |
 | temper clay body | Primary Production / Clay | Pottery | clay, sand/straw/grog, water | trough | prepared clay |
 | mould green bricks | Primary Production / Brickmaking | Pottery or Labouring | prepared clay | brick mould | green bricks |
 | mould roof tiles | Primary Production / Tilemaking | Pottery | prepared clay | tile mould | green roof tiles |
-| prepare glass batch | Primary Production / Glass | Glassworking | sand, soda ash/potash, lime | mixing trough | glass batch |
+| prepare refractory clay | Primary Production / Refractory | Pottery or Smelting | fireclay, grog, water | trough | refractory clay body |
+| mould clay crucibles | Primary Production / Refractory | Pottery or Smelting | refractory clay body | crucible mould | clay crucibles or crucible stock |
+| prepare soda-lime glass batch | Primary Production / Glass | Glassworking | sand, soda ash/potash, lime | mixing trough | glass batch |
+
+### Salt, Alkali, Tar, Peat, And Pigment Crafts
+
+| Craft | Category | Skill | Inputs | Tools | Products |
+| --- | --- | --- | --- | --- | --- |
+| crush rock salt | Primary Production / Salt | Labouring | rock salt | hammer or millstone | salt commodity |
+| leach wood ash | Primary Production / Alkali | Labouring or Survival | wood ash, water | ash hopper, leaching tub | lye or alkali stock |
+| evaporate lye to potash | Primary Production / Alkali | Labouring | lye/alkali stock, fuel | evaporating pan | potash commodity |
+| boil tar into pitch | Primary Production / Tar And Pitch | Labouring or Survival | pine tar, fuel | pitch kettle | pitch commodity |
+| prepare pitch sealant | Primary Production / Tar And Pitch | Labouring | pitch, fibre/ash optional | kettle or mixing tool | prepared pitch commodity |
+| grind ochre pigment | Primary Production / Pigment | Painting or Labouring | ochre stock | grinding slab | fine pigment commodity |
+| prepare malachite pigment | Primary Production / Pigment | Painting or Labouring | malachite ore | mortar, grinding slab | malachite pigment commodity |
+| cut dried peat blocks | Primary Production / Peat | Labouring | dried peat | turf knife | peat fuel commodity |
 
 ### Tool Maintenance Crafts
 
@@ -811,6 +1377,8 @@ Repeat the same pattern for copper, tin, lead, and silver where appropriate. Use
 | repair ore basket | Primary Production / Tool Maintenance | Basketry | target basket, basketry splint | awl optional | repaired basket condition |
 | patch bellows leather | Primary Production / Tool Maintenance | Leatherworking | target bellows, leather panel | awl, needle | repaired bellows condition |
 | replace shovel handle | Primary Production / Tool Maintenance | Carpentry | target shovel, handle stock | woodworking tools | repaired shovel condition |
+| patch salt pan | Primary Production / Tool Maintenance | Blacksmithing or Tinkering | target salt pan, metal patch stock | hammer, rivets | repaired pan condition |
+| repair tar kiln lining | Primary Production / Tool Maintenance | Pottery or Masonry | target kiln, clay/fireclay | trowel | repaired kiln condition |
 
 If repair input support is awkward in the seeder helpers, defer these to a second pass but keep tool durability consumption in the production crafts/projects.
 
@@ -822,6 +1390,7 @@ The following quantities are deliberately approximate. They are intended for gam
 
 | Process | Input | Main Output | Byproduct |
 | --- | --- | --- | --- |
+| Prospecting | 2-4 project-hours | visible resource prop or 1-2 kg sample | no-discovery echo if none |
 | Burn charcoal clamp | 300 kg wood | 75 kg charcoal | 10 kg ash/fines |
 | Extract ore | 2-4 project-hours | 100-200 kg raw ore | 50-150 kg spoil |
 | Quarry stone blocks | 4-8 project-hours | 250-500 kg rough stone | 100-300 kg rubble |
@@ -830,11 +1399,16 @@ The following quantities are deliberately approximate. They are intended for gam
 | Smelt iron bloom | 80 kg roasted ore + 60 kg charcoal + flux | 20 kg iron bloom | 25 kg slag |
 | Smelt copper ore | 80 kg roasted ore + 50 kg charcoal + flux | 8-15 kg copper stock | 30 kg slag |
 | Smelt tin ore | 50 kg washed ore + 25 kg charcoal | 5-10 kg tin stock | 15 kg slag |
+| Boil brine | 100 kg brine equivalent + fuel | 5-15 kg salt | spent brine/ash optional |
+| Burn tar kiln | 200 kg resinous wood | 20-40 kg pine tar | charcoal/ash byproduct |
+| Cut peat | 4 project-hours | 150 kg wet peat | none |
+| Dry peat | 150 kg wet peat | 75 kg dried peat | spoil/wastage optional |
 
 ### Suggested Craft Batch Sizes
 
 | Craft | Input | Output |
 | --- | --- | --- |
+| chip sample | deposit prop or raw ore | 1 kg sample ore |
 | break ore | 20 kg raw ore | 18 kg broken ore + 2 kg waste |
 | sort ore | 20 kg broken ore | 12 kg sorted ore + 8 kg tailings |
 | wash ore | 20 kg sorted ore | 16 kg washed ore + 4 kg tailings |
@@ -845,55 +1419,75 @@ The following quantities are deliberately approximate. They are intended for gam
 | mix mortar | 10 kg slaked lime + 30 kg sand + water | 40 kg lime mortar |
 | temper clay | 30 kg clay + temper + water | 35 kg prepared clay |
 | mould bricks | 35 kg prepared clay | 30 kg green brick stock |
+| leach ash | 20 kg ash + water | 10 kg lye/alkali stock |
+| evaporate potash | 10 kg alkali stock + fuel | 2-4 kg potash |
+| boil tar to pitch | 20 kg pine tar + fuel | 12-15 kg pitch |
+| grind pigment | 5 kg pigment stone | 4 kg pigment commodity |
 
 ## Player-Facing Workflows
 
-### Example: Iron Production
+### Example: Prospecting And Iron Production
 
 ```text
-1. Miners work a local extraction project and produce raw iron ore.
-2. Labourers break, sort, and wash the raw ore through short crafts.
-3. A smelter roasts the ore if the ore family requires it.
-4. A smelting crew runs a bloomery project with roasted ore, charcoal, and flux.
-5. The project produces iron bloom and slag commodities.
-6. A smith consolidates bloom into wrought iron billet.
-7. A smith draws billets into bar stock, weapon stock, tool stock, or armour stock.
-8. Existing finished-good crafts consume the stock.
+1. A builder marks a hillside room with `Hematite Resource` or places a hidden hematite resource marker.
+2. Prospectors run `Primary Production - Survey Mineral Signs`.
+3. Prospectors run `Primary Production - Prospect for Iron Deposits`.
+4. The project reveals `hematite surface deposits` and may produce a small sample.
+5. Miners run `Primary Production - Open a Shallow Mine Working` or `Sink a Shaft for Hematite`.
+6. Miners work a local extraction project and produce raw iron ore.
+7. Labourers break, sort, and wash the raw ore through short crafts.
+8. A smelter roasts the ore if the ore family requires it.
+9. A smelting crew runs a bloomery project with roasted ore, charcoal, and flux.
+10. The project produces iron bloom and slag commodities.
+11. A smith consolidates bloom into wrought iron billet.
+12. A smith draws billets into bar stock, weapon stock, tool stock, or armour stock.
+13. Existing finished-good crafts consume the stock.
 ```
 
 ### Example: Stone Building Material
 
 ```text
-1. Quarry workers run a local quarry project and produce rough limestone blocks and rubble.
-2. Masons dress rough blocks into dressed block commodities.
-3. Labourers break rubble into aggregate.
-4. Kiln workers burn limestone into quicklime.
-5. Masons slake quicklime and mix mortar.
-6. Construction projects consume dressed blocks, aggregate, and mortar.
+1. Prospectors find a limestone outcrop.
+2. Quarry workers clear the quarry face.
+3. Quarry workers run a local quarry project and produce rough limestone blocks and rubble.
+4. Masons dress rough blocks into dressed block commodities.
+5. Labourers break rubble into aggregate.
+6. Kiln workers burn limestone into quicklime.
+7. Masons slake quicklime and mix mortar.
+8. Construction projects consume dressed blocks, aggregate, and mortar.
 ```
 
-### Example: Brick And Mortar
+### Example: Salt And Preservation
 
 ```text
-1. Workers dig or acquire clay.
-2. Potters temper clay body.
-3. Brickmakers mould green bricks.
-4. A local firing project consumes green bricks and fuel.
-5. Fired bricks enter the market as a commodity.
-6. Builders combine fired bricks with mortar in later construction projects.
+1. Prospectors discover a brine spring or rock salt deposit.
+2. Salt workers operate a pan, boiling house, or salt gallery project.
+3. The project produces salt as a commodity.
+4. Cooks, butchers, tanners, doctors, traders, or alchemists consume the salt in downstream crafts.
+```
+
+### Example: Tar, Pitch, And Waterproofing
+
+```text
+1. Woodland workers produce resinous wood, resin, or pine roots.
+2. Tar burners run a local tar kiln project.
+3. The project produces pine tar.
+4. A short craft boils tar into pitch.
+5. Pitch feeds shipbuilding, waterproof containers, roofing, torches, road work, and repair crafts.
 ```
 
 ## Implementation Plan
 
 ### Phase 0: Audit Existing Content
 
-1. Search existing materials for ores, charcoal, coal, stone, quicklime, lime, mortar, clay, brick, glass batch, slag, ingots, billets, and stock tags.
-2. Search existing tags for ore, fuel, textile stock, household craft stock, military stock, construction materials, tools, and hot fire tags.
-3. Search existing item prototypes for furnaces, kilns, anvils, bellows, hammers, picks, shovels, baskets, barrows, ropes, and masonry tools.
-4. Record what can be reused and what must be added.
-5. Do not duplicate materials or tags. Prefer adding aliases and tags to existing materials.
+1. Search existing materials for ores, charcoal, coal, stone, quicklime, lime, mortar, clay, brick, glass batch, slag, ingots, billets, salt, potash, lye, tar, pitch, peat, pigments, sulfur, and stock tags.
+2. Search existing tags for ore, fuel, textile stock, household craft stock, military stock, construction materials, tools, hot fire tags, mining tags, quarrying tags, and cell/room tag support.
+3. Search existing item prototypes for furnaces, kilns, anvils, bellows, hammers, picks, shovels, baskets, barrows, ropes, masonry tools, salt pans, tar kilns, ash hoppers, and pigment tools.
+4. Search for existing support for tags on rooms/cells/locations. If absent, decide between prop-based resource markers and a small cell tag feature.
+5. Record what can be reused and what must be added.
+6. Do not duplicate materials or tags. Prefer adding aliases and tags to existing materials.
 
-Deliverable: a short audit section in the PR description and any tests that document reused dependencies.
+Deliverable: a short audit section in the PR description and tests that document reused dependencies.
 
 ### Phase 1: Engine Support
 
@@ -903,47 +1497,55 @@ Deliverable: a short audit section in the PR description and any tests that docu
 4. Add completion behaviour to create and place the commodity pile.
 5. Add tests for action registration, XML persistence, validation, and completion output.
 6. Update project system documentation to include the new action.
-
-This is the only required engine change for the first content pass.
+7. Audit whether room/cell tags exist. If they exist, document how prospecting progs/actions should inspect them. If they do not exist, choose one:
+   - add minimal room/cell tag support, or
+   - implement resource discovery via hidden/non-holdable marker props.
+8. If FutureProg cannot cleanly reveal resource tags/props, add a small `resourcediscovery` project action as described above.
 
 ### Phase 2: Tags And Materials
 
-1. Add primary-production material-function tags to `UsefulSeeder.Tags.cs`.
-2. Add commodity stage tags to `UsefulSeeder.Tags.cs`.
-3. Add tool tags for mining, quarrying, masonry, kiln, smelting, charcoal burning, hauling, and surveying.
-4. Add or update materials in `CoreDataSeeder.Materials.cs`.
-5. Add aliases for common spellings and historical names.
-6. Add unit tests verifying all tags and materials exist and have expected parent/tag relationships.
+1. Add primary-production material-function tags to `UsefulSeeder.Tags.cs` or the appropriate tag seeding partial.
+2. Add resource-site tags for mineral, stone, clay, salt, fuel, alkali, pigment, and visible deposits.
+3. Add commodity stage tags.
+4. Add tool tags for prospecting, mining, quarrying, masonry, kiln, smelting, charcoal burning, hauling, saltworking, alkali work, tar burning, peat cutting, and pigment processing.
+5. Add or update materials in `CoreDataSeeder.Materials.cs` or the appropriate material package.
+6. Add aliases for common spellings and historical names.
+7. Add unit tests verifying all tags and materials exist and have expected parent/tag relationships.
 
-### Phase 3: Tools And Apparatus
+### Phase 3: Tools, Apparatus, And Resource Props
 
-1. Add durable item prototypes for priority mining, quarrying, masonry, hauling, kiln, charcoal, and smelting tools.
-2. Ensure tools carry functional tags so crafts and projects can require tool families rather than exact prototypes where possible.
-3. Ensure durable tools have destroyable/tool components appropriate to existing item authoring practice.
-4. Add containers or carrying aids for ore baskets, sacks, and barrows where existing components support it.
-5. Add static apparatus prototypes for room tools or fixtures such as lime kilns, bloomery furnaces, charcoal clamp sites, windlasses, and large bellows.
-6. Add tests verifying prototypes resolve by stable reference and carry expected tags/components.
+1. Add durable item prototypes for priority prospecting, mining, quarrying, masonry, hauling, kiln, charcoal, smelting, salt, alkali, tar, peat, and pigment tools.
+2. Add visible deposit prop prototypes for hematite, limonite, cassiterite, malachite, galena, gold-bearing gravel, limestone, slate, clay, brine, peat, natron, ochre, sulfur, and bitumen.
+3. Ensure visible deposit props are non-holdable and indestructible. If the item system needs a fixture/scenery component, add or reuse one.
+4. Ensure tools carry functional tags so crafts and projects can require tool families rather than exact prototypes where possible.
+5. Ensure durable tools have destroyable/tool components appropriate to existing item authoring practice.
+6. Add containers or carrying aids for ore baskets, sample bags, sacks, pans, and barrows where existing components support it.
+7. Add static apparatus prototypes for room tools or fixtures such as lime kilns, bloomery furnaces, charcoal clamp sites, salt pans, tar kilns, windlasses, and large bellows.
+8. Add tests verifying prototypes resolve by stable reference and carry expected tags/components.
 
 ### Phase 4: Commodity Crafts
 
 1. Add helper methods for commodity-input and commodity-product craft definitions if not already convenient.
-2. Seed ore preparation crafts for iron, copper, tin, and lead.
-3. Seed binder crafts for quicklime, slaked lime, mortar, and plaster.
-4. Seed clay and brick preparation crafts.
-5. Seed stone dressing and aggregate crafts.
-6. Seed bloom consolidation and basic metal stock crafts.
-7. Seed glass batch preparation.
-8. Add craft tests for representative chains.
+2. Seed prospecting/sample crafts where item/prop targeting is practical.
+3. Seed ore preparation crafts for iron, copper, tin, and lead.
+4. Seed binder crafts for quicklime, slaked lime, mortar, and plaster.
+5. Seed clay, brick, tile, refractory, and glass batch preparation crafts.
+6. Seed stone dressing and aggregate crafts.
+7. Seed bloom consolidation and basic metal stock crafts.
+8. Seed salt, alkali, tar/pitch, peat, and pigment crafts.
+9. Add craft tests for representative chains.
 
 ### Phase 5: Local Projects
 
 1. Add local project seed helpers if there is no reusable project-seeding helper outside AgricultureSeeder.
-2. Seed priority local projects for charcoal, ore extraction, quarrying, lime burning, brick firing, and smelting.
-3. Use commodity material requirements for bulk inputs.
-4. Use `commodityoutput` actions for outputs and byproducts.
-5. Use `simple` labour for ordinary work and `supervision` labour for foremen/master workers.
-6. Use `skilluse` actions sparingly where the project should grant learning at completion.
-7. Add project tests verifying seeded project definitions load, validate, submit, and expose expected phases, materials, labour roles, and actions.
+2. Seed prospecting projects for mineral signs, iron, tin, copper, lead/silver, quarry stone, clay, salt/brine, fuel, alkali, pigment, and sulfur resources.
+3. Seed priority local projects for charcoal, ore extraction, quarrying, lime burning, brick firing, smelting, salt boiling, tar burning, peat cutting, and pigment collection.
+4. Use commodity material requirements for bulk inputs.
+5. Use `commodityoutput` actions for outputs and byproducts.
+6. Use `prog` or `resourcediscovery` actions for prospecting discovery effects.
+7. Use `simple` labour for ordinary work and `supervision` labour for foremen/master workers.
+8. Use `skilluse` actions sparingly where the project should grant learning at completion.
+9. Add project tests verifying seeded project definitions load, validate, submit, and expose expected phases, materials, labour roles, and actions.
 
 ### Phase 6: Optional Site-Creation Progs
 
@@ -958,23 +1560,8 @@ This is the only required engine change for the first content pass.
 2. Add a builder workflow section or separate guide if project/craft setup commands are important.
 3. Cross-reference agriculture woodland outputs and downstream medieval/antiquity crafting packages.
 4. Add PR notes explaining what is complete and what is left for future work.
-
-## Suggested File Layout
-
-Recommended new and modified files:
-
-```text
-Design Documents/Seeding/Primary_Production_Seeder_Design_Reference.md
-DatabaseSeeder/Seeders/ItemSeeder.Rework.PrimaryProductionTools.cs
-DatabaseSeeder/Seeders/ItemSeederCrafting.PrimaryProduction.cs
-DatabaseSeeder/Seeders/PrimaryProductionSeeder.cs
-DatabaseSeeder/Seeders/PrimaryProductionSeeder.Projects.cs
-DatabaseSeeder Unit Tests/PrimaryProductionSeederTests.cs
-DatabaseSeeder Unit Tests/ItemSeederPrimaryProductionCraftingTests.cs
-MudSharpCore/Work/Projects/Actions/CommodityOutputAction.cs
-```
-
-If the repository style prefers all craft content under `ItemSeeder`, keep craft and tool seeders there. If primary-production projects become substantial, use a dedicated `PrimaryProductionSeeder` for project definitions and leave item/craft prototype work in `ItemSeeder` partials.
+5. Add seeder metadata for `PrimaryProductionSeeder` if it becomes a standalone seeder.
+6. Add a future world-starter note for placing example resource sites.
 
 ## Tests And Acceptance Criteria
 
@@ -985,31 +1572,39 @@ If the repository style prefers all craft content under `ItemSeeder`, keep craft
 - A completed local project creates the correct commodity in the project cell.
 - A completed personal project creates the correct commodity in the owner location or a documented fallback location.
 - Invalid action definitions fail submit validation.
+- Prospecting can check room/cell tags or marker props through either helper progs or a native resource discovery action.
+- Prospecting does not create duplicate visible resource props unless explicitly configured.
 
 ### Data Acceptance
 
 - All new tags seed idempotently and have expected parents.
 - All new materials seed idempotently, have expected aliases, and carry expected material tags.
 - All new item prototypes resolve by stable reference.
+- All new visible deposit props resolve by stable reference and are non-holdable/indestructible or equivalent.
 - All new crafts resolve their materials, tags, tools, products, knowledge, and traits.
 - All new projects resolve their materials, tags, labour traits, actions, and phase requirements.
-- At least one full iron chain can be validated from extraction project output to wrought iron billet.
-- At least one full stone/lime chain can be validated from quarry project output to lime mortar.
-- At least one full clay/brick chain can be validated from prepared clay to fired brick.
+- At least one full prospecting chain can be validated from hidden resource marker to visible deposit prop.
+- At least one full iron chain can be validated from prospecting to wrought iron billet.
+- At least one full stone/lime chain can be validated from quarry discovery to lime mortar.
+- At least one full clay/brick chain can be validated from clay discovery to fired brick.
+- At least one non-original industry chain, such as salt, tar/pitch, potash, peat, or pigment, can be validated end-to-end.
 
 ### Gameplay Acceptance
 
 A fresh seeded game should allow builders to set up a basic production settlement where:
 
-1. Woodlands or timber stock feed charcoal production.
-2. Charcoal feeds lime, brick, glass, and smelting work.
-3. Mines create raw ores as commodities.
-4. Ore preparation crafts create smelt-ready ore.
-5. Smelting projects create metal intermediates.
-6. Smithing and other downstream crafts can consume metal stock.
-7. Quarries create rough stone and rubble.
-8. Masons and builders can transform quarry outputs into dressed stone, aggregate, lime, and mortar.
-9. Tools wear, break, and need maintenance or replacement.
+1. Builders can mark rooms as containing hidden resources.
+2. Prospectors can discover those resources and create visible deposit props.
+3. Woodlands or timber stock feed charcoal, potash, and tar production.
+4. Charcoal feeds lime, brick, glass, and smelting work.
+5. Mines create raw ores as commodities.
+6. Ore preparation crafts create smelt-ready ore.
+7. Smelting projects create metal intermediates.
+8. Smithing and other downstream crafts can consume metal stock.
+9. Quarries create rough stone and rubble.
+10. Masons and builders can transform quarry outputs into dressed stone, aggregate, lime, and mortar.
+11. Salt, tar, alkali, peat, and pigment chains create useful non-metal industries.
+12. Tools wear, break, and need maintenance or replacement.
 
 ## Future Work
 
@@ -1024,6 +1619,8 @@ Introduce a `PrimaryProductionSite` or generic `ResourceSite` model attached to 
 - stability
 - water ingress
 - ventilation
+- overburden
+- discovered state
 - legal owner or claim
 - permitted project templates
 
@@ -1042,6 +1639,9 @@ Add project impacts or completion effects for:
 - tool injury
 - furnace explosions
 - exhaustion and heat stress
+- salt pan scalds
+- tar burns
+- alkali chemical burns
 
 This should be built after the basic economy works, because hazards need careful balance and good player feedback.
 
@@ -1061,6 +1661,8 @@ Add later chains:
 - concrete aggregate
 - steam-powered pumps and hoists
 - powered crushers and stamps
+- chemical alkali processes
+- sulfuric acid chambers
 
 These should be tagged by era and should not replace the preindustrial baseline.
 
@@ -1077,11 +1679,14 @@ Once construction projects are ready, consume these commodities directly:
 - plaster
 - glass blanks or panes
 - iron nails, clamps, straps, hinges
+- pitch, tar, bitumen, and sealants
+- salt and alkali where relevant to preservation or specialist works
 
 ### Market And Employment Integration
 
 Add economy seeder entries or job templates for:
 
+- prospector
 - miner
 - quarryman
 - charcoal burner
@@ -1091,11 +1696,30 @@ Add economy seeder entries or job templates for:
 - furnace tender
 - ore washer
 - mason
+- salt worker
+- tar burner
+- peat cutter
+- pigment grinder
 - haulier
 - mine foreman
 - quarry master
 
 Where ongoing job integration uses personal projects, keep the actual production projects local and physical wherever possible.
+
+### Pre-Built World Seeder
+
+If FutureMUD wants a stronger out-of-the-box world, add a separate pre-built world/scenario seeder that depends on primary production but is not the same package. It could place:
+
+- a sample iron outcrop
+- a sample clay bank
+- a sample limestone quarry
+- a sample woodland/charcoal site
+- a sample brine spring or salt pan
+- a sample peat bog
+- a sample workshop district
+- market buyers and sellers for key commodities
+
+This should remain optional, because resource placement is world design rather than general content design.
 
 ## Implementation Notes For Codex Agents
 
@@ -1104,6 +1728,8 @@ Where ongoing job integration uses personal projects, keep the actual production
 - Do not duplicate existing materials, tags, tools, furnaces, or stock commodities.
 - Prefer exact material reuse plus commodity pile tags over creating many near-duplicate materials.
 - Keep project outputs as bulk material commodities, not individual finished items.
+- Keep prospecting discovery separate from extraction output.
+- Use visible resource props as player-facing anchors even if room tags store the hidden truth.
 - Keep first-pass projects deterministic and easy to test.
 - Use multiple project phases to create handoff, supervision, and material-supply opportunities.
 - Add tests before expanding the catalogue too widely.

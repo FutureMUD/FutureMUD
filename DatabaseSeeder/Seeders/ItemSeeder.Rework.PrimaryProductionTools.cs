@@ -1,0 +1,342 @@
+#nullable enable
+
+using MudSharp.Form.Material;
+using MudSharp.GameItems;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace DatabaseSeeder.Seeders;
+
+public partial class ItemSeeder
+{
+	private const string PrimaryProductionMarketToolTag = "Market / Professional Tools / Standard Tools";
+	private const string PrimaryProductionTagRoot = "Functions / Material Functions / Primary Production";
+	private const string PrimaryProductionResourceRoot = PrimaryProductionTagRoot + " / Primary Production Resource";
+	private const string PrimaryProductionToolRoot = "Functions / Tools";
+
+	private static readonly string[] PrimaryProductionFixtureComponents = [];
+
+	private void SeedPrimaryProductionToolsAndProps()
+	{
+		SeedEraItemSpecs(PrimaryProductionItemSpecs());
+	}
+
+	private static IReadOnlyList<EraItemSpec> PrimaryProductionItemSpecs()
+	{
+		return
+		[
+			Tool("primary_production_prospecting_hammer", "hammer", "a prospecting hammer",
+				"This compact iron hammer has a narrow pick, a flat striking face, and a haft short enough for chipping samples from outcrops.",
+				SizeCategory.Small, ItemQuality.Standard, 820.0, 18.0m, "wrought iron", MaterialBehaviourType.Metal,
+				[ToolTag("Prospecting Tool"), ToolTag("Mining Tool"), ToolTag("Surveying Tool")], ["Holdable", "Destroyable_Weapon"]),
+			Tool("primary_production_sample_bag", "bag", "a set of labelled sample bags",
+				"These small linen bags are marked with tied slips for keeping ore chips, sand, clay, salt, and pigment samples separate.",
+				SizeCategory.Small, ItemQuality.Standard, 420.0, 12.0m, "linen", MaterialBehaviourType.Fabric,
+				[ToolTag("Prospecting Tool"), ToolTag("Surveying Tool"), ToolTag("Hauling Tool")], ["Holdable", "Container_Sack", "Destroyable_Misc"]),
+			Tool("primary_production_gold_pan", "pan", "a shallow prospecting pan",
+				"This shallow wooden pan has a darkened inner face and a broad lip for washing placer gravel, tin sand, and heavy mineral traces.",
+				SizeCategory.Small, ItemQuality.Standard, 650.0, 14.0m, "oak", MaterialBehaviourType.Wood,
+				[ToolTag("Prospecting Tool")], ["Holdable", "Destroyable_Misc"]),
+			Tool("primary_production_surveying_cord", "cord", "a knotted surveying cord",
+				"This heavy hemp cord is knotted at regular intervals and paired with small pegs for measuring cuts, shafts, trenches, and quarry faces.",
+				SizeCategory.Small, ItemQuality.Standard, 520.0, 10.0m, "hemp", MaterialBehaviourType.Plant,
+				[ToolTag("Surveying Tool"), ToolTag("Prospecting Tool")], ["Holdable", "Destroyable_Misc"]),
+			Tool("primary_production_mining_pick", "pick", "a heavy iron mining pick",
+				"This iron mining pick has one pointed beak and one chisel edge set onto a thick wooden haft for breaking ore and hard ground.",
+				SizeCategory.Normal, ItemQuality.Standard, 3600.0, 36.0m, "wrought iron", MaterialBehaviourType.Metal,
+				[ToolTag("Mining Tool")], ["Holdable", "Destroyable_Weapon"]),
+			Tool("primary_production_mattock", "mattock", "a heavy mining mattock",
+				"This mattock has a broad digging blade opposite a pointed pick, useful for stripping clay, peat, gravel, and shallow overburden.",
+				SizeCategory.Normal, ItemQuality.Standard, 4200.0, 34.0m, "wrought iron", MaterialBehaviourType.Metal,
+				[ToolTag("Mining Tool"), ToolTag("Peat Cutting Tool")], ["Holdable", "Destroyable_Weapon"]),
+			Tool("primary_production_shovel", "shovel", "a broad iron work shovel",
+				"This broad iron shovel has a long haft and battered blade for shifting spoil, charcoal, lime, ore, sand, ash, and wet clay.",
+				SizeCategory.Normal, ItemQuality.Standard, 2400.0, 24.0m, "wrought iron", MaterialBehaviourType.Metal,
+				[ToolTag("Mining Tool"), ToolTag("Hauling Tool"), ToolTag("Charcoal Burning Tool"), ToolTag("Kiln Tool"), ToolTag("Alkali Tool")], ["Holdable", "Destroyable_Misc"]),
+			Tool("primary_production_mining_gad", "gad", "an iron mining gad",
+				"This short iron gad is a stout wedge-point tool for opening seams, splitting stubborn stone, and working beside a hammer.",
+				SizeCategory.Small, ItemQuality.Standard, 1150.0, 16.0m, "wrought iron", MaterialBehaviourType.Metal,
+				[ToolTag("Mining Tool"), ToolTag("Quarrying Tool")], ["Holdable", "Destroyable_HeavyMetal"]),
+			Tool("primary_production_wedge_set", "wedges", "a set of iron quarry wedges",
+				"These matched iron wedges are sized for drilled slots and quarry seams, with scarred heads from repeated sledge blows.",
+				SizeCategory.Small, ItemQuality.Standard, 2600.0, 30.0m, "wrought iron", MaterialBehaviourType.Metal,
+				[ToolTag("Mining Tool"), ToolTag("Quarrying Tool")], ["Holdable", "Destroyable_HeavyMetal"]),
+			Tool("primary_production_sledgehammer", "sledgehammer", "a heavy iron sledgehammer",
+				"This two-handed iron sledgehammer has a long haft and broad faces for driving quarry wedges and breaking oversized ore.",
+				SizeCategory.Normal, ItemQuality.Standard, 5200.0, 38.0m, "wrought iron", MaterialBehaviourType.Metal,
+				[ToolTag("Mining Tool"), ToolTag("Quarrying Tool"), ToolTag("Masonry Tool")], ["Holdable", "Destroyable_Weapon"]),
+			Tool("primary_production_crowbar", "crowbar", "an iron crowbar",
+				"This long iron crowbar has a hooked beak and flattened point for shifting slabs, levering timbers, and freeing stone blocks.",
+				SizeCategory.Normal, ItemQuality.Standard, 3400.0, 28.0m, "wrought iron", MaterialBehaviourType.Metal,
+				[ToolTag("Mining Tool"), ToolTag("Quarrying Tool"), ToolTag("Hauling Tool")], ["Holdable", "Destroyable_HeavyMetal"]),
+			Tool("primary_production_ore_basket", "basket", "a wicker ore basket",
+				"This stout wicker basket has rope handles and a reinforced base for hauling ore, rubble, charcoal, clay, salt, or slag in small loads.",
+				SizeCategory.Normal, ItemQuality.Standard, 1800.0, 14.0m, "reed", MaterialBehaviourType.Plant,
+				[ToolTag("Hauling Tool"), ToolTag("Mining Tool")], ["Holdable", "Container_Open_Bin", "Destroyable_Misc"]),
+			Tool("primary_production_ore_sack", "sack", "a coarse ore sack",
+				"This coarse hemp sack is patched and dust-stained, useful for carrying sorted ore, charcoal, lime, pigment earth, or salt.",
+				SizeCategory.Normal, ItemQuality.Standard, 900.0, 8.0m, "hemp", MaterialBehaviourType.Plant,
+				[ToolTag("Hauling Tool"), ToolTag("Mining Tool")], ["Holdable", "Container_Sack", "Destroyable_Misc"]),
+			Tool("primary_production_hand_barrow", "barrow", "a wooden hand-barrow",
+				"This two-handled timber barrow is built for two workers to carry blocks, ore baskets, kiln fuel, spoil, or dressed stone.",
+				SizeCategory.Large, ItemQuality.Standard, 14500.0, 42.0m, "oak", MaterialBehaviourType.Wood,
+				[ToolTag("Hauling Tool"), "Functions / Tools / Construction Tools"], ["Holdable", "Destroyable_Furniture"]),
+			Tool("primary_production_wheelbarrow", "wheelbarrow", "a wooden wheelbarrow",
+				"This wooden wheelbarrow has a single solid wheel, iron-banded handles, and a deep tray for moving heavy primary-production stock.",
+				SizeCategory.Large, ItemQuality.Standard, 18500.0, 55.0m, "oak", MaterialBehaviourType.Wood,
+				[ToolTag("Hauling Tool"), "Functions / Tools / Construction Tools / Wheelbarrow"], ["Holdable", "Container_Open_Bin", "Destroyable_Furniture"]),
+			Tool("primary_production_hemp_rope_coil", "rope", "a coil of heavy hemp rope",
+				"This coil of thick hemp rope is tar-darkened in places and strong enough for hauling, shoring, hoisting, and mine work.",
+				SizeCategory.Normal, ItemQuality.Standard, 5600.0, 22.0m, "hemp", MaterialBehaviourType.Plant,
+				[ToolTag("Hauling Tool"), ToolTag("Mining Tool")], ["Holdable", "Destroyable_Misc"]),
+			Tool("primary_production_timber_prop", "prop", "a rough timber mine prop",
+				"This rough timber prop is cut square and left long for shoring shallow headings, shaft collars, and temporary quarry shelters.",
+				SizeCategory.Large, ItemQuality.Standard, 14000.0, 18.0m, "oak", MaterialBehaviourType.Wood,
+				[ToolTag("Mining Tool"), ToolTag("Hauling Tool"), "Market / Construction Materials"], ["Holdable", "Destroyable_Furniture"]),
+			Tool("primary_production_masons_hammer", "hammer", "a mason's hammer",
+				"This iron mason's hammer has a square face and chisel peen for dressing stone, knocking corners from blocks, and trimming rubble.",
+				SizeCategory.Small, ItemQuality.Standard, 1100.0, 22.0m, "wrought iron", MaterialBehaviourType.Metal,
+				[ToolTag("Masonry Tool"), ToolTag("Quarrying Tool")], ["Holdable", "Destroyable_Weapon"]),
+			Tool("primary_production_point_chisel", "chisel", "a point stone chisel",
+				"This point chisel is forged for rough dressing, picking a face from stone, and following quarry marks.",
+				SizeCategory.Small, ItemQuality.Standard, 620.0, 12.0m, "wrought iron", MaterialBehaviourType.Metal,
+				[ToolTag("Masonry Tool"), ToolTag("Quarrying Tool")], ["Holdable", "Destroyable_HeavyMetal"]),
+			Tool("primary_production_flat_chisel", "chisel", "a flat stone chisel",
+				"This flat stone chisel has a broad edge for finishing faces, trimming joints, and squaring rough building blocks.",
+				SizeCategory.Small, ItemQuality.Standard, 700.0, 14.0m, "wrought iron", MaterialBehaviourType.Metal,
+				[ToolTag("Masonry Tool"), ToolTag("Quarrying Tool")], ["Holdable", "Destroyable_HeavyMetal"]),
+			Tool("primary_production_charcoal_rake", "rake", "a long charcoal rake",
+				"This long iron-toothed rake has a scorched handle for opening clamps, pulling coals, and managing hot charcoal beds.",
+				SizeCategory.Normal, ItemQuality.Standard, 2100.0, 20.0m, "wrought iron", MaterialBehaviourType.Metal,
+				[ToolTag("Charcoal Burning Tool"), ToolTag("Kiln Tool")], ["Holdable", "Destroyable_Misc"]),
+			Tool("primary_production_firing_shovel", "shovel", "a long firing shovel",
+				"This long firing shovel has a narrow blade for feeding charcoal, coke, or peat into kilns, furnaces, and clamps.",
+				SizeCategory.Normal, ItemQuality.Standard, 2600.0, 26.0m, "wrought iron", MaterialBehaviourType.Metal,
+				[ToolTag("Kiln Tool"), ToolTag("Charcoal Burning Tool"), ToolTag("Smelting Tool")], ["Holdable", "Destroyable_Misc"]),
+			Tool("primary_production_crucible_tongs", "tongs", "a pair of crucible tongs",
+				"These long iron tongs have curved jaws for lifting crucibles, pots, moulds, heated blooms, and furnace charge baskets.",
+				SizeCategory.Normal, ItemQuality.Standard, 1700.0, 32.0m, "wrought iron", MaterialBehaviourType.Metal,
+				[ToolTag("Smelting Tool"), "Functions / Tools / Smelting Tools / Crucible Tongs"], ["Holdable", "Destroyable_Misc"]),
+			Tool("primary_production_slag_skimmer", "skimmer", "an iron slag skimmer",
+				"This long iron skimmer has a flattened perforated blade for drawing slag, dross, and ash from furnace mouths and crucibles.",
+				SizeCategory.Normal, ItemQuality.Standard, 1850.0, 28.0m, "wrought iron", MaterialBehaviourType.Metal,
+				[ToolTag("Smelting Tool"), "Functions / Tools / Smelting Tools / Slag Skimmer"], ["Holdable", "Destroyable_Misc"]),
+			Tool("primary_production_crucible_mould", "mould", "a clay ingot mould",
+				"This heavy clay mould has shallow channels for casting simple ingots, billets, or test buttons from small crucible heats.",
+				SizeCategory.Small, ItemQuality.Standard, 2400.0, 16.0m, "fire clay", MaterialBehaviourType.Ceramic,
+				[ToolTag("Smelting Tool"), ToolTag("Kiln Tool")], ["Holdable", "Destroyable_Misc"]),
+			Tool("primary_production_salt_rake", "rake", "a salt-working rake",
+				"This wooden salt rake has a broad flat head for dragging crystals from pans, flats, and shallow evaporation beds.",
+				SizeCategory.Normal, ItemQuality.Standard, 1300.0, 16.0m, "oak", MaterialBehaviourType.Wood,
+				[ToolTag("Saltworking Tool")], ["Holdable", "Destroyable_Misc"]),
+			Tool("primary_production_ash_hopper", "hopper", "a timber ash hopper",
+				"This timber ash hopper narrows toward a plug hole and is lined for leaching wood ash into a crude alkali liquor.",
+				SizeCategory.Large, ItemQuality.Standard, 22000.0, 42.0m, "oak", MaterialBehaviourType.Wood,
+				[ToolTag("Alkali Tool")], ["Holdable", "Container_Open_Bin", "Destroyable_Furniture"]),
+			Tool("primary_production_pitch_kettle", "kettle", "an iron pitch kettle",
+				"This blackened iron kettle has a bail handle and thick sides for boiling tar into pitch over a managed fire.",
+				SizeCategory.Normal, ItemQuality.Standard, 7800.0, 44.0m, "wrought iron", MaterialBehaviourType.Metal,
+				[ToolTag("Tar Burning Tool"), ToolTag("Kiln Tool")], ["Holdable", "Destroyable_HeavyMetal"]),
+			Tool("primary_production_turf_knife", "knife", "a long turf knife",
+				"This long turf knife has a narrow iron blade and squared side edge for cutting peat turves cleanly from a wet bog face.",
+				SizeCategory.Small, ItemQuality.Standard, 980.0, 18.0m, "wrought iron", MaterialBehaviourType.Metal,
+				[ToolTag("Peat Cutting Tool")], ["Holdable", "Destroyable_Weapon"]),
+			Tool("primary_production_pigment_grinding_slab", "slab", "a pigment grinding slab",
+				"This shallow stone slab is stained red, yellow, green, and black from grinding ochre, malachite, charcoal, and other mineral pigments.",
+				SizeCategory.Normal, ItemQuality.Standard, 5200.0, 20.0m, "stone", MaterialBehaviourType.Stone,
+				[ToolTag("Pigment Processing Tool")], ["Holdable", "Destroyable_Misc"]),
+			Tool("primary_production_mortar_and_pestle", "mortar", "a stone mortar and pestle",
+				"This stone mortar and pestle is sturdy enough for ore samples, pigment lumps, salt, ash, and refractory clay temper.",
+				SizeCategory.Small, ItemQuality.Standard, 2800.0, 22.0m, "stone", MaterialBehaviourType.Stone,
+				[ToolTag("Pigment Processing Tool"), ToolTag("Prospecting Tool"), ToolTag("Alkali Tool")], ["Holdable", "Destroyable_Misc"]),
+
+			Resource("primary_production_hematite_deposit", "outcrop", "a red hematite outcrop",
+				"This exposed seam of red and dark ironstone stains the surrounding rock and shows fresh chip marks where samples can be taken.",
+				"hematite", MaterialBehaviourType.Ore, "Hematite Resource"),
+			Resource("primary_production_limonite_deposit", "outcrop", "a brown limonite outcrop",
+				"This crumbly brown ironstone outcrop is streaked with ochre-yellow earth and damp mineral crusts.",
+				"limonite ore", MaterialBehaviourType.Ore, "Limonite Resource"),
+			Resource("primary_production_cassiterite_deposit", "gravel", "a dark cassiterite gravel bed",
+				"This dark heavy gravel collects in a shallow runnel, with black tin-stone grains visible among the sand and pebbles.",
+				"cassiterite", MaterialBehaviourType.Ore, "Cassiterite Resource"),
+			Resource("primary_production_malachite_deposit", "outcrop", "a green malachite-stained outcrop",
+				"Green copper stains creep through this broken rock face, with soft malachite crusts in cracks and pockets.",
+				"malachite", MaterialBehaviourType.Ore, "Malachite Resource"),
+			Resource("primary_production_galena_deposit", "outcrop", "a glittering galena vein",
+				"This heavy grey vein breaks with a cubed glitter, carrying the dull shine of lead ore and possible silver traces.",
+				"galena", MaterialBehaviourType.Ore, "Galena Resource"),
+			Resource("primary_production_native_copper_deposit", "outcrop", "a native copper showing",
+				"This weathered rock face shows green stains and occasional dull coppery knots where native metal has surfaced.",
+				"native copper", MaterialBehaviourType.Metal, "Native Copper Resource"),
+			Resource("primary_production_gold_bearing_gravel_deposit", "gravel", "a gold-bearing gravel bar",
+				"This bend of dense gravel shows dark heavy sand and tiny yellow flecks in protected pockets near the waterline.",
+				"gravel", MaterialBehaviourType.Stone, "Gold-Bearing Gravel Resource"),
+			Resource("primary_production_limestone_outcrop", "outcrop", "a pale limestone outcrop",
+				"This pale limestone outcrop breaks in clean ledges, suitable for quarry blocks, lime burning, and rough fieldstone.",
+				"limestone", MaterialBehaviourType.Stone, "Limestone Resource", "Stone Resource"),
+			Resource("primary_production_slate_outcrop", "outcrop", "a layered slate outcrop",
+				"This dark layered slate splits into thin plates along the exposed face, with loose flakes gathered below it.",
+				"slate", MaterialBehaviourType.Stone, "Slate Resource", "Stone Resource"),
+			Resource("primary_production_clay_bank", "bank", "a workable clay bank",
+				"This damp clay bank shows smooth cut faces, puddled seams, and pockets of fine clay suitable for bricks, tiles, and pottery.",
+				"clay", MaterialBehaviourType.Soil, "Clay Pit Resource", "Clay Resource"),
+			Resource("primary_production_brine_spring", "spring", "a crusted brine spring",
+				"This slow spring leaves white salt crust along the stones and a bitter mineral smell where brine seeps up from below.",
+				"salt", MaterialBehaviourType.Powder, "Brine Spring Resource", "Salt Resource"),
+			Resource("primary_production_peat_bog", "bog", "a cuttable peat bog",
+				"This black wet peat face has fibrous layers and squared test cuts where turves can be lifted and dried for fuel.",
+				"peat", MaterialBehaviourType.Soil, "Peat Bog Resource", "Fuel Resource"),
+			Resource("primary_production_natron_flat", "flat", "a pale natron-crusted flat",
+				"This dry flat is crusted with pale alkaline salts, with brittle plates lifting where the ground has baked hard.",
+				"natron", MaterialBehaviourType.Powder, "Natron Resource", "Alkali Resource"),
+			Resource("primary_production_ochre_bank", "bank", "an ochre-stained earth bank",
+				"This earth bank is streaked red and yellow with iron-rich pigment, staining hands and tools with a powdery colour.",
+				"ochre pigment", MaterialBehaviourType.Powder, "Ochre Resource", "Pigment Resource"),
+			Resource("primary_production_sulfur_deposit", "deposit", "a yellow sulfur deposit",
+				"This yellow mineral crust smells sharp and bitter, collecting in brittle patches around warm cracks and pale stone.",
+				"sulfur", MaterialBehaviourType.Powder, "Sulfur Deposit Resource", "Sulfur Resource"),
+			Resource("primary_production_bitumen_seep", "seep", "a black bitumen seep",
+				"Black sticky bitumen oozes through this patch of ground, trapping dust and grit in a glossy tar-like skin.",
+				"bitumen", MaterialBehaviourType.Grease, "Bitumen Seep Resource", "Fuel Resource"),
+
+			Apparatus("primary_production_bloomery_furnace", "furnace", "a clay bloomery furnace",
+				"This shaft furnace is built from clay and stone, with tuyere holes, a slag pit, and a scorched mouth for charging ore and charcoal.",
+				SizeCategory.Enormous, ItemQuality.Standard, 180000.0, 120.0m, "fire clay", MaterialBehaviourType.Ceramic,
+				[ToolTag("Smelting Tool"), ToolTag("Kiln Tool"), "Functions / Tools / Smelting Tools / Smelting Furnace"]),
+			Apparatus("primary_production_lime_kiln", "kiln", "a stone lime kiln",
+				"This squat stone lime kiln has a draw arch, charging crown, and scorched lining for burning limestone into quicklime.",
+				SizeCategory.Enormous, ItemQuality.Standard, 260000.0, 140.0m, "limestone", MaterialBehaviourType.Stone,
+				[ToolTag("Kiln Tool"), ToolTag("Masonry Tool")]),
+			Apparatus("primary_production_brick_clamp", "clamp", "a prepared brick clamp",
+				"This prepared clamp stacks green bricks with fuel gaps, ash beds, and temporary daubing ready for firing.",
+				SizeCategory.Enormous, ItemQuality.Standard, 220000.0, 90.0m, "green brick", MaterialBehaviourType.Ceramic,
+				[ToolTag("Kiln Tool")]),
+			Apparatus("primary_production_charcoal_clamp_site", "clamp", "a charcoal clamp site",
+				"This charcoal clamp site has a raked floor, blackened earth, turf covers, and vents ready for a slow covered burn.",
+				SizeCategory.Enormous, ItemQuality.Standard, 90000.0, 50.0m, "clay", MaterialBehaviourType.Soil,
+				[ToolTag("Charcoal Burning Tool")]),
+			Apparatus("primary_production_salt_pan", "pan", "a broad iron salt pan",
+				"This broad shallow iron pan is mounted low for boiling brine or seawater down into usable salt.",
+				SizeCategory.VeryLarge, ItemQuality.Standard, 56000.0, 85.0m, "wrought iron", MaterialBehaviourType.Metal,
+				[ToolTag("Saltworking Tool"), ToolTag("Kiln Tool")]),
+			Apparatus("primary_production_tar_kiln", "kiln", "a covered tar kiln",
+				"This covered tar kiln slopes toward a collection channel where resinous wood can be burned slowly for tar.",
+				SizeCategory.Enormous, ItemQuality.Standard, 150000.0, 95.0m, "stone", MaterialBehaviourType.Stone,
+				[ToolTag("Tar Burning Tool"), ToolTag("Kiln Tool")]),
+			Apparatus("primary_production_mine_windlass", "windlass", "a timber mine windlass",
+				"This timber windlass has a rope drum, crank handles, and a braced frame for raising ore baskets, spoil, tools, and water from a shaft.",
+				SizeCategory.Huge, ItemQuality.Standard, 38000.0, 75.0m, "oak", MaterialBehaviourType.Wood,
+				[ToolTag("Mining Tool"), ToolTag("Hauling Tool")]),
+			Apparatus("primary_production_furnace_bellows", "bellows", "a large furnace bellows",
+				"These large leather bellows are mounted in a timber frame and fitted with a clay tuyere sleeve for driving air into furnaces.",
+				SizeCategory.Large, ItemQuality.Standard, 16000.0, 70.0m, "leather", MaterialBehaviourType.Leather,
+				[ToolTag("Smelting Tool"), "Functions / Tools / Metalworking Tools / Bellows", "Functions / Tools / Smelting Tools / Furnace Bellows"]),
+			Apparatus("primary_production_glass_furnace", "furnace", "a small glass furnace",
+				"This small glass furnace has a domed chamber, working mouth, and hot shelf for melting soda-lime glass batch into usable blanks.",
+				SizeCategory.Enormous, ItemQuality.Standard, 210000.0, 160.0m, "firebrick", MaterialBehaviourType.Ceramic,
+				[ToolTag("Kiln Tool"), ToolTag("Smelting Tool")]),
+			Apparatus("primary_production_peat_drying_rack", "rack", "a peat drying rack",
+				"This open timber rack keeps cut peat turves raised from wet ground while air dries them into usable fuel.",
+				SizeCategory.Large, ItemQuality.Standard, 12000.0, 25.0m, "oak", MaterialBehaviourType.Wood,
+				[ToolTag("Peat Cutting Tool"), ToolTag("Hauling Tool")])
+		];
+	}
+
+	internal static IReadOnlyCollection<string> PrimaryProductionItemStableReferencesForTesting =>
+		PrimaryProductionItemSpecs()
+			.Select(x => x.StableReference)
+			.ToArray();
+
+	internal static IReadOnlyCollection<EraItemSpecTestData> PrimaryProductionItemSpecsForTesting =>
+		PrimaryProductionItemSpecs()
+			.Select(x => new EraItemSpecTestData(
+				x.StableReference,
+				x.Noun,
+				x.ShortDescription,
+				x.FullDescription,
+				x.Size,
+				x.Quality,
+				x.WeightInGrams,
+				x.Cost,
+				x.Material,
+				x.MaterialType,
+				x.Tags,
+				x.Components,
+				x.BuilderNotes))
+			.ToArray();
+
+	private static EraItemSpec Tool(string stableReference, string noun, string shortDescription,
+		string fullDescription, SizeCategory size, ItemQuality quality, double weightInGrams, decimal cost,
+		string material, MaterialBehaviourType materialType, string[] tags, string[] components)
+	{
+		return new EraItemSpec(
+			stableReference,
+			noun,
+			shortDescription,
+			fullDescription,
+			size,
+			quality,
+			weightInGrams,
+			cost,
+			material,
+			materialType,
+			[HistoricRootTagPath, PrimaryProductionMarketToolTag, .. tags],
+			components,
+			"Primary production portable tool or carrying aid.");
+	}
+
+	private static EraItemSpec Resource(string stableReference, string noun, string shortDescription,
+		string fullDescription, string material, MaterialBehaviourType materialType, string resourceTag,
+		string? parentResourceTag = null)
+	{
+		var tags = parentResourceTag is null
+			? new[] { ResourceTag("Visible Resource Deposit"), ResourceTag(resourceTag) }
+			: [ResourceTag("Visible Resource Deposit"), ResourceTag(parentResourceTag), ResourceTag(resourceTag)];
+
+		return new EraItemSpec(
+			stableReference,
+			noun,
+			shortDescription,
+			fullDescription,
+			SizeCategory.Enormous,
+			ItemQuality.Standard,
+			250000.0,
+			0.0m,
+			material,
+			materialType,
+			[HistoricRootTagPath, .. tags],
+			PrimaryProductionFixtureComponents,
+			"Visible resource deposit prop. It intentionally has no Holdable or Destroyable component so it behaves as a fixed site marker.");
+	}
+
+	private static EraItemSpec Apparatus(string stableReference, string noun, string shortDescription,
+		string fullDescription, SizeCategory size, ItemQuality quality, double weightInGrams, decimal cost,
+		string material, MaterialBehaviourType materialType, string[] tags)
+	{
+		return new EraItemSpec(
+			stableReference,
+			noun,
+			shortDescription,
+			fullDescription,
+			size,
+			quality,
+			weightInGrams,
+			cost,
+			material,
+			materialType,
+			[HistoricRootTagPath, PrimaryProductionMarketToolTag, .. tags],
+			PrimaryProductionFixtureComponents,
+			"Primary production static apparatus. It intentionally has no Holdable component so builders can place it as a room fixture.");
+	}
+
+	private static string ToolTag(string tag)
+	{
+		return $"{PrimaryProductionToolRoot} / {tag}";
+	}
+
+	private static string ResourceTag(string tag)
+	{
+		return $"{PrimaryProductionResourceRoot} / {tag}";
+	}
+}

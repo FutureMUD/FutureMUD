@@ -688,6 +688,167 @@ public partial class CoreDataSeeder
 		EnsureAlias(materials["sheep leather"], "sheepskin", "sheepskin leather");
 		EnsureAlias(materials["lacquer"], "urushi");
 
+		AddMaterial("limonite ore", MaterialBehaviourType.Ore, 4.0, false, 10000, 200000, 0.0, 0.14, 0.0001, 500,
+			"Primary Production Ore", "Iron Ore");
+		AddMaterial("bog iron ore", MaterialBehaviourType.Ore, 3.2, false, 10000, 160000, 0.0, 0.14, 0.0001, 500,
+			"Primary Production Ore", "Iron Ore");
+		AddMaterial("iron bloom", MaterialBehaviourType.Metal, 7.0, false, 80000, 0, 0.0, 17.9, 14500000, 500,
+			"Primary Production Metal Stock", "Iron Age");
+		AddMaterial("wrought iron billet", MaterialBehaviourType.Metal, 7.74, false, 107000, 0, 0.0, 17.9, 14500000, 500,
+			"Primary Production Metal Stock", "Iron Age");
+		AddMaterial("slag", MaterialBehaviourType.Stone, 2.8, false, 10000, 200000, 0.0, 0.14, 0.0001, 500,
+			"Primary Production Waste");
+		AddMaterial("dried peat", MaterialBehaviourType.Soil, 0.45, true, 100, 5000, 0.0, 0.10, 0.0001, 500,
+			"Primary Production Fuel");
+		AddMaterial("coal", MaterialBehaviourType.Stone, 1.35, false, 10000, 200000, 0.0, 0.25, 0.0001, 900,
+			"Primary Production Fuel", "Hot Fire");
+		AddMaterial("coke", MaterialBehaviourType.Stone, 0.85, false, 10000, 200000, 0.0, 0.20, 0.0001, 900,
+			"Primary Production Fuel", "Hot Fire");
+		AddMaterial("stone rubble", MaterialBehaviourType.Stone, 2.4, false, 10000, 120000, 0.0, 0.14, 0.0001, 500,
+			"Primary Production Waste", "Primary Production Aggregate");
+		AddMaterial("gravel", MaterialBehaviourType.Stone, 1.8, false, 10000, 120000, 0.0, 0.14, 0.0001, 500,
+			"Primary Production Aggregate");
+		AddMaterial("prepared clay", MaterialBehaviourType.Soil, 1.25, false, 100, 5000, 0.0, 0.14, 0.0001, 500,
+			"Primary Production Clay");
+		AddMaterial("green brick", MaterialBehaviourType.Soil, 1.8, false, 1000, 10000, 0.0, 0.14, 0.0001, 500,
+			"Primary Production Clay");
+		AddMaterial("fired brick", MaterialBehaviourType.Ceramic, 1.9, false, 40000, 100000, 0.0, 0.002, 0.0001, 500,
+			"Primary Production Stone", "Primary Production Clay", "Ceramic");
+		AddMaterial("roof tile", MaterialBehaviourType.Ceramic, 1.9, false, 40000, 100000, 0.0, 0.002, 0.0001, 500,
+			"Primary Production Stone", "Primary Production Clay", "Ceramic");
+		AddMaterial("glass batch", MaterialBehaviourType.Powder, 1.6, false, 1000, 1000, 0.0, 0.14, 0.0001, 500,
+			"Primary Production Glass Stock");
+		AddMaterial("glass blank", MaterialBehaviourType.Ceramic, 2.5, false, 33000, 90000, 0.0, 1.0, 0.0001, 840,
+			"Primary Production Glass Stock", "Glass");
+		AddMaterial("potash", MaterialBehaviourType.Powder, 0.975, false, 1000, 1000, 0.0, 0.14, 0.0001, 500,
+			"Primary Production Flux", "Primary Production Glass Stock", "Primary Production Alkali");
+		AddMaterial("natron", MaterialBehaviourType.Powder, 0.975, false, 1000, 1000, 0.0, 0.14, 0.0001, 500,
+			"Primary Production Alkali", "Primary Production Glass Stock");
+		AddMaterial("bitumen", MaterialBehaviourType.Paste, 1.1, false, 8000, 12000, 0.0, 0.12, 0.0001, 1600,
+			"Primary Production Tar And Pitch", "Primary Production Fuel");
+		AddMaterial("malachite pigment", MaterialBehaviourType.Powder, 1.9, false, 1000, 1000, 0.0, 0.14, 0.0001, 500,
+			"Primary Production Pigment", "Textile Dye");
+		AddMaterial("azurite pigment", MaterialBehaviourType.Powder, 2.8, false, 1000, 1000, 0.0, 0.14, 0.0001, 500,
+			"Primary Production Pigment", "Textile Dye");
+		AddMaterial("cinnabar pigment", MaterialBehaviourType.Powder, 3.5, false, 1000, 1000, 0.0, 0.14, 0.0001, 500,
+			"Primary Production Pigment", "Textile Dye");
+
+		EnsureTag(materials["hematite"], "Primary Production Ore");
+		EnsureTag(materials["magnetite"], "Primary Production Ore");
+		EnsureTag(materials["cassiterite"], "Primary Production Ore");
+		EnsureTag(materials["galena"], "Primary Production Ore");
+		EnsureTag(materials["malachite"], "Primary Production Ore");
+		EnsureTag(materials["malachite"], "Primary Production Pigment");
+		EnsureTag(materials["native copper"], "Primary Production Ore");
+		EnsureTag(materials["azurite"], "Primary Production Ore");
+		EnsureTag(materials["azurite"], "Primary Production Pigment");
+		EnsureTag(materials["cinnabar"], "Primary Production Ore");
+		EnsureTag(materials["cinnabar"], "Primary Production Pigment");
+		EnsureTag(materials["halite"], "Primary Production Salt");
+		EnsureTag(materials["limestone"], "Primary Production Stone");
+		EnsureTag(materials["limestone"], "Primary Production Flux");
+		EnsureTag(materials["sandstone"], "Primary Production Stone");
+		EnsureTag(materials["granite"], "Primary Production Stone");
+		EnsureTag(materials["slate"], "Primary Production Stone");
+		EnsureTag(materials["marble"], "Primary Production Stone");
+		EnsureTag(materials["basalt"], "Primary Production Stone");
+		EnsureTag(materials["sand"], "Primary Production Aggregate");
+		EnsureTag(materials["sand"], "Primary Production Glass Stock");
+		EnsureTag(materials["clay"], "Primary Production Clay");
+		EnsureTag(materials["fire clay"], "Primary Production Clay");
+		EnsureTag(materials["fire clay"], "Primary Production Refractory");
+		EnsureTag(materials["brick"], "Primary Production Stone");
+		EnsureTag(materials["brick"], "Primary Production Clay");
+		EnsureTag(materials["firebrick"], "Primary Production Stone");
+		EnsureTag(materials["firebrick"], "Primary Production Refractory");
+		EnsureTag(materials["glass"], "Primary Production Glass Stock");
+		EnsureTag(materials["charcoal"], "Primary Production Fuel");
+		EnsureTag(materials["charcoal"], "Hot Fire");
+		EnsureTag(materials["peat"], "Primary Production Fuel");
+		EnsureTag(materials["calcium oxide"], "Primary Production Binder");
+		EnsureTag(materials["slaked lime"], "Primary Production Binder");
+		EnsureTag(materials["calcium hydroxide"], "Primary Production Binder");
+		EnsureTag(materials["mortar"], "Primary Production Binder");
+		EnsureTag(materials["plaster"], "Primary Production Binder");
+		EnsureTag(materials["gypsum"], "Primary Production Binder");
+		EnsureTag(materials["soda ash"], "Primary Production Flux");
+		EnsureTag(materials["soda ash"], "Primary Production Glass Stock");
+		EnsureTag(materials["soda ash"], "Primary Production Alkali");
+		EnsureTag(materials["lye"], "Primary Production Alkali");
+		EnsureTag(materials["wood ash"], "Primary Production Alkali");
+		EnsureTag(materials["wood ash"], "Primary Production Waste");
+		EnsureTag(materials["tar"], "Primary Production Tar And Pitch");
+		EnsureTag(materials["pitch"], "Primary Production Tar And Pitch");
+		EnsureTag(materials["resin"], "Primary Production Tar And Pitch");
+		EnsureTag(materials["ochre pigment"], "Primary Production Pigment");
+		EnsureTag(materials["red ochre pigment"], "Primary Production Pigment");
+		EnsureTag(materials["yellow ochre pigment"], "Primary Production Pigment");
+		EnsureTag(materials["sulfur"], "Primary Production Pigment");
+		EnsureTag(materials["sulfur"], "Primary Production Ore");
+		EnsureTag(materials["brimstone"], "Primary Production Pigment");
+		EnsureTag(materials["brimstone"], "Primary Production Ore");
+		EnsureTag(materials["saltpeter"], "Primary Production Alkali");
+		EnsureTag(materials["wrought iron"], "Primary Production Metal Stock");
+		EnsureTag(materials["sponge iron"], "Primary Production Metal Stock");
+		EnsureTag(materials["copper"], "Primary Production Metal Stock");
+		EnsureTag(materials["tin"], "Primary Production Metal Stock");
+		EnsureTag(materials["lead"], "Primary Production Metal Stock");
+		EnsureTag(materials["bronze"], "Primary Production Metal Stock");
+		EnsureTag(materials["brass"], "Primary Production Metal Stock");
+
+		EnsureAlias(materials["hematite"], "hematite ore", "haematite", "red iron ore");
+		EnsureAlias(materials["magnetite"], "magnetite ore", "black iron ore");
+		EnsureAlias(materials["cassiterite"], "tin ore", "ore tin");
+		EnsureAlias(materials["galena"], "lead ore", "ore lead");
+		EnsureAlias(materials["malachite"], "malachite ore", "copper carbonate ore");
+		EnsureAlias(materials["native copper"], "native copper ore");
+		EnsureAlias(materials["halite"], "rock salt");
+		EnsureAlias(materials["salt"], "sea salt", "brine salt", "boiled salt");
+		EnsureAlias(materials["peat"], "turf");
+		EnsureAlias(materials["dried peat"], "dry turf", "peat fuel");
+		EnsureAlias(materials["coal"], "mineral coal", "sea coal");
+		EnsureAlias(materials["coke"], "coked coal");
+		EnsureAlias(materials["limestone"], "chalk", "lime stone", "limestone flux");
+		EnsureAlias(materials["sandstone"], "building sandstone");
+		EnsureAlias(materials["granite"], "hardstone");
+		EnsureAlias(materials["marble"], "building marble");
+		EnsureAlias(materials["basalt"], "traprock");
+		EnsureAlias(materials["slate"], "roofing slate");
+		EnsureAlias(materials["stone rubble"], "rubble");
+		EnsureAlias(materials["gravel"], "aggregate");
+		EnsureAlias(materials["sand"], "silica sand");
+		EnsureAlias(materials["calcium oxide"], "quicklime", "burnt lime");
+		EnsureAlias(materials["slaked lime"], "hydrated lime");
+		EnsureAlias(materials["mortar"], "lime mortar");
+		EnsureAlias(materials["gypsum"], "plaster stone");
+		EnsureAlias(materials["plaster"], "gypsum plaster");
+		EnsureAlias(materials["clay"], "potter's clay");
+		EnsureAlias(materials["fire clay"], "fireclay", "refractory clay");
+		EnsureAlias(materials["prepared clay"], "clay body");
+		EnsureAlias(materials["green brick"], "unfired brick");
+		EnsureAlias(materials["fired brick"], "brick");
+		EnsureAlias(materials["firebrick"], "refractory brick");
+		EnsureAlias(materials["roof tile"], "tile");
+		EnsureAlias(materials["glass batch"], "batch");
+		EnsureAlias(materials["glass blank"], "glass stock");
+		EnsureAlias(materials["potash"], "pearl ash");
+		EnsureAlias(materials["soda ash"], "soda");
+		EnsureAlias(materials["natron"], "natural soda");
+		EnsureAlias(materials["lye"], "caustic lye");
+		EnsureAlias(materials["wood ash"], "ash");
+		EnsureAlias(materials["tar"], "pine tar", "wood tar");
+		EnsureAlias(materials["pitch"], "boiled pitch");
+		EnsureAlias(materials["resin"], "pine resin");
+		EnsureAlias(materials["bitumen"], "asphalt");
+		EnsureAlias(materials["ochre pigment"], "ochre");
+		EnsureAlias(materials["malachite pigment"], "malachite green", "green earth");
+		EnsureAlias(materials["azurite pigment"], "blue copper pigment");
+		EnsureAlias(materials["cinnabar pigment"], "vermilion ore");
+		EnsureAlias(materials["saltpeter"], "nitre", "niter", "potassium nitrate");
+		EnsureAlias(materials["iron bloom"], "bloom");
+		EnsureAlias(materials["wrought iron billet"], "iron billet");
+		EnsureAlias(materials["slag"], "furnace slag");
+
 		EnsureAlias(materials["PTFE"], "teflon");
 		EnsureAlias(materials["silicone rubber"], "silicone");
 		EnsureAlias(materials["ethylene-vinyl acetate"], "eva");
@@ -719,6 +880,27 @@ public partial class CoreDataSeeder
         }
 
         AddTag("Materials", null);
+        AddTag("Functions", null);
+        AddTag("Material Functions", "Functions");
+        AddTag("Hot Fire", "Material Functions");
+        AddTag("Primary Production", "Material Functions");
+        AddTag("Primary Production Ore", "Primary Production");
+        AddTag("Primary Production Flux", "Primary Production");
+        AddTag("Primary Production Fuel", "Primary Production");
+        AddTag("Primary Production Stone", "Primary Production");
+        AddTag("Primary Production Clay", "Primary Production");
+        AddTag("Primary Production Aggregate", "Primary Production");
+        AddTag("Primary Production Metal Stock", "Primary Production");
+        AddTag("Primary Production Binder", "Primary Production");
+        AddTag("Primary Production Glass Stock", "Primary Production");
+        AddTag("Primary Production Salt", "Primary Production");
+        AddTag("Primary Production Alkali", "Primary Production");
+        AddTag("Primary Production Tar And Pitch", "Primary Production");
+        AddTag("Primary Production Pigment", "Primary Production");
+        AddTag("Primary Production Refractory", "Primary Production");
+        AddTag("Primary Production Waste", "Primary Production");
+        AddTag("Primary Production Resource", "Primary Production");
+        AddTag("Primary Production Commodity", "Primary Production");
         AddTag("Simplified", "Materials");
         AddTag("Animal Product", "Materials");
         AddTag("Apiary Product", "Animal Product");

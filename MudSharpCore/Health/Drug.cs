@@ -56,7 +56,12 @@ public class Drug : SaveableItem, IDrug
         RelativeMetabolisationRate = rhs.RelativeMetabolisationRate;
         foreach (KeyValuePair<DrugType, (double Multiplier, DrugAdditionalInfo ExtraInfo)> item in rhs.DrugTypeMulipliers)
         {
-            DrugTypeMulipliers[item.Key] = (item.Value.Multiplier, AdditionalInfoFor(item.Key, item.Value.ExtraInfo.DatabaseString));
+            DrugTypeMulipliers[item.Key] = (
+                item.Value.Multiplier,
+                item.Value.ExtraInfo is null
+                    ? null
+                    : AdditionalInfoFor(item.Key, item.Value.ExtraInfo.DatabaseString)
+            );
         }
 
         DoDatabaseInsert();

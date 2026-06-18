@@ -265,6 +265,53 @@ public partial class CoreDataSeeder
 		EnsureAlias(materials["egyptian blue frit"], "egyptian blue", "blue frit");
 		EnsureAlias(materials["bone black pigment"], "bone black");
 
+		AddMaterial("bog iron ore", MaterialBehaviourType.Ore, 3.4, false, 10000, 200000, 0.05, 0.14, 0.0001,
+			500, "Iron Ore");
+		AddMaterial("magnetite sand", MaterialBehaviourType.Ore, 4.2, false, 10000, 200000, 0.0, 0.14, 0.0001,
+			500, "Iron Ore");
+		AddMaterial("placer gold concentrate", MaterialBehaviourType.Ore, 3.8, false, 10000, 200000, 0.0, 0.14,
+			0.0001, 500, "Gold Ore");
+		AddMaterial("rock salt", MaterialBehaviourType.Stone, 2.1, false, 10000, 200000, 0.0, 0.14, 0.0001,
+			500, "Economically Useful Stone");
+		AddMaterial("volcanic ash", MaterialBehaviourType.Powder, 0.9, false, 1000, 1000, 0.0, 0.14, 0.0001,
+			500, "Natural Materials");
+		AddMaterial("shell lime", MaterialBehaviourType.Powder, 0.975, false, 1000, 1000, 0.0, 0.14, 0.0001,
+			500, "Manufactured Materials");
+		AddMaterial("coral", MaterialBehaviourType.Shell, 1.2, true, 20000, 50000, 2.0, 0.14, 0.0001, 500,
+			"Natural Materials");
+		AddMaterial("coral lime", MaterialBehaviourType.Powder, 0.975, false, 1000, 1000, 0.0, 0.14, 0.0001,
+			500, "Manufactured Materials");
+		AddMaterial("greenstone", MaterialBehaviourType.Stone, 3.0, false, 60000000, 200000, 0.0, 0.14,
+			0.0001, 500, "Gemstone");
+		AddMaterial("copperas", MaterialBehaviourType.Powder, 1.9, false, 1000, 1000, 0.0, 0.14, 0.0001, 500,
+			"Economically Useful Stone");
+		AddMaterial("potash", MaterialBehaviourType.Powder, 0.975, false, 1000, 1000, 0.0, 0.14, 0.0001, 500,
+			"Manufactured Materials");
+		AddMaterial("barilla plant", MaterialBehaviourType.Plant, 0.8, true, 1000, 1000, 0.0, 0.14, 0.0001, 500,
+			"Natural Materials");
+		AddMaterial("barilla ash", MaterialBehaviourType.Powder, 0.975, false, 1000, 1000, 0.0, 0.14, 0.0001,
+			500, "Manufactured Materials");
+		AddMaterial("kelp ash", MaterialBehaviourType.Powder, 0.975, false, 1000, 1000, 0.0, 0.14, 0.0001,
+			500, "Manufactured Materials");
+
+		EnsureTag(materials["native gold"], "Native Gold Ore");
+		EnsureTag(materials["native nickel"], "Native Nickel Ore");
+		RemoveTag(materials["native gold"], "Native Nickel Ore");
+		RemoveTag(materials["native nickel"], "Native Gold Ore");
+		EnsureTag(materials["volcanic ash"], "Economically Useful Stone");
+		EnsureTag(materials["pozzolanic ash"], "Economically Useful Stone");
+		EnsureTag(materials["plaster"], "Manufactured Materials");
+		EnsureTag(materials["soda ash"], "Manufactured Materials");
+		EnsureAlias(materials["halite"], "rock salt");
+		EnsureAlias(materials["rock salt"], "halite");
+		EnsureAlias(materials["kaolinite"], "kaolin");
+		EnsureAlias(materials["kaolinite clay"], "kaolin clay");
+		EnsureAlias(materials["pozzolanic ash"], "pozzolana", "pozzolan");
+		EnsureAlias(materials["volcanic ash"], "pozzolana ash", "pozzolanic volcanic ash");
+		EnsureAlias(materials["greenstone"], "pounamu");
+		EnsureAlias(materials["copperas"], "vitriol", "green vitriol");
+		EnsureAlias(materials["seaweed"], "kelp");
+
 		foreach (var name in new[]
 		{
 			"flatbread", "biscuit", "cracker", "cake", "muffin", "bagel", "bun", "tortilla", "croissant",

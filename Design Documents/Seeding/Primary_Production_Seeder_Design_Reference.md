@@ -189,11 +189,30 @@ Suggested metadata summary:
 - **Update capability**: repair existing stock-owned definitions.
 - **Ownership**: stock primary production content is tracked by stable tag names, material names, item stable references, craft names, project names, and helper FutureProg names.
 
-## Required Engine Addition
+## Implemented Resource Method Expansion
+
+The current implementation uses existing craft imports, local project definitions, visible deposit item prototypes, resource tags, and generated FutureProg helpers. It does not require a new project action in order to create commodity outputs; extraction project completion progs call `loadcommodity(material, weight, tag)` and place the resulting commodity pile at the project location.
+
+The stock resource-method package now covers:
+
+- **Resource tags and visible deposit props** for bog iron, magnetite sands, native copper, azurite, chalcopyrite, placer gold, rock salt, salt pan, kaolin, volcanic ash/pozzolana, shell lime, coral lime, jade/greenstone, obsidian, turquoise, lapis, alum, saltpeter, and vitriol/copperas.
+- **Prospecting projects** for every stock resource. These reveal a visible deposit prop only when the current cell already has the matching hidden resource tag.
+- **Extraction projects** for every stock resource. These are gated by either the hidden resource tag on the cell or the visible deposit prop in the cell; they are not globally startable.
+- **Commodity outputs** that distinguish deposit form and grade with commodity tags where the current commodity model allows it: bog iron ore, magnetite sand, native copper ore, copper carbonate ore, copper sulphide ore, placer concentrate, rock salt, solar salt, kaolin, pozzolana, shell/coral lime feedstock, gemstone roughs, alum, saltpeter, copperas, raw ore grade tags, and bloom/alkali/binder tags.
+- **Regional methodology craft chains** for bog iron bloomery work, iron-sand/tatara preparation, solar salt pan raking, shell/coral lime burning and slaking, obsidian/greenstone quarrying, and potash/barilla/kelp ash alkali production.
+
+Semantic corrections in the implemented package:
+
+- Soda-lime glass batch consumes `Soda Ash Commodity` rather than treating soda ash as `Potash Commodity`.
+- Gypsum plaster calcination outputs `Plaster Commodity`, under `Binder Commodity`, rather than `Mortar Commodity`.
+- The generic `Primary Production - Survey Mineral Signs` project reports only broad mineral clues and does not reveal hematite or any other specific resource by default.
+- Extraction projects use resource-gated `CanInitiateProg` helpers and a matching `WhyCannotInitiateProg`.
+
+## Deferred Engine Addition
 
 ### Project Action: commodityoutput
 
-The current project action set can run progs, grant skill checks, or apply agriculture operations. Primary production needs a first-class project action that creates commodity piles directly.
+The current project action set can run progs, grant skill checks, or apply agriculture operations. Primary production can work today by using generated FutureProg completion helpers, but a first-class project action that creates commodity piles directly would still be a cleaner long-term builder-facing tool.
 
 Add a new project completion action with builder keyword:
 

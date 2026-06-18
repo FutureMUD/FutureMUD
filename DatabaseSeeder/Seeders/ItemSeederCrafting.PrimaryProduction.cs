@@ -111,6 +111,65 @@ public partial class ItemSeeder
 			DefineOreWashing("iron", "hematite"),
 			DefineOreRoasting("iron", "hematite"),
 
+			Define(
+				"sort and roast bog iron ore",
+				"Primary Production / Regional Iron",
+				"Smelting",
+				20,
+				Difficulty.Normal,
+				"Bog Iron Bloomery",
+				"sort bog iron nodules and roast them for bloomery smelting",
+				[CommodityInput(8000.0, "bog iron ore", "Bog Iron Ore Commodity"), CommodityInput(1500.0, "charcoal", "Charcoal Fuel Commodity")],
+				[HeldTool("Mining Tool"), RoomTool("Kiln Tool")],
+				[CommodityOutput(6200.0, "bog iron ore", "Roasted Ore Commodity")],
+				[CommodityOutput(1500.0, "stone rubble", "Ore Tailings Commodity")]),
+
+			Define(
+				"smelt bog iron bloomery charge",
+				"Primary Production / Regional Iron",
+				"Smelting",
+				30,
+				Difficulty.Hard,
+				"Bog Iron Bloomery",
+				"smelt roasted bog iron ore in a bloomery furnace",
+				[
+					CommodityInput(12000.0, "bog iron ore", "Roasted Ore Commodity"),
+					CommodityInput(9000.0, "charcoal", "Charcoal Fuel Commodity"),
+					CommodityInput(1500.0, "calcium oxide", "Quicklime Commodity")
+				],
+				[RoomTool("Smelting Tool"), RoomTool("Kiln Tool"), HeldTool("Smelting Tool")],
+				[CommodityOutput(4200.0, "iron bloom", "Iron Bloom Commodity")],
+				[CommodityOutput(4500.0, "slag", "Slag Commodity")]),
+
+			Define(
+				"wash magnetite iron sands",
+				"Primary Production / Regional Iron",
+				"Labouring",
+				15,
+				Difficulty.Normal,
+				"Iron Sand Preparation",
+				"wash magnetite-rich iron sand into a smeltable concentrate",
+				[CommodityInput(9000.0, "magnetite sand", "Magnetite Sand Commodity"), WaterUse(8.0)],
+				[HeldTool("Mining Tool"), RoomTool("Mining Tool")],
+				[CommodityOutput(6200.0, "magnetite sand", "Washed Ore Commodity")],
+				[CommodityOutput(2200.0, "sand", "Ore Tailings Commodity")]),
+
+			Define(
+				"smelt tatara iron sands",
+				"Primary Production / Regional Iron",
+				"Smelting",
+				35,
+				Difficulty.Hard,
+				"Iron Sand Preparation",
+				"smelt washed magnetite iron sand in a tatara-style furnace",
+				[
+					CommodityInput(12000.0, "magnetite sand", "Washed Ore Commodity"),
+					CommodityInput(16000.0, "charcoal", "Charcoal Fuel Commodity")
+				],
+				[RoomTool("Smelting Tool"), RoomTool("Kiln Tool"), HeldTool("Smelting Tool")],
+				[CommodityOutput(3600.0, "iron bloom", "Iron Bloom Commodity")],
+				[CommodityOutput(6000.0, "slag", "Slag Commodity")]),
+
 			DefineOrePreparation("copper", "malachite", true),
 			DefineOreSorting("copper", "malachite"),
 			DefineOreWashing("copper", "malachite"),
@@ -150,6 +209,32 @@ public partial class ItemSeeder
 				[HeldTool("Masonry Tool"), HeldTool("Quarrying Tool")],
 				[CommodityOutput(24000.0, "sandstone", "Dressed Stone Block Commodity")],
 				[CommodityOutput(6000.0, "stone rubble", "Stone Rubble Commodity")]),
+
+			Define(
+				"quarry obsidian blade cores",
+				"Primary Production / Regional Stone",
+				"Masonry",
+				25,
+				Difficulty.Hard,
+				"Obsidian Quarrying",
+				"quarry obsidian rough into blade-core stock",
+				[CommodityInput(8000.0, "obsidian", "Obsidian Rough Commodity")],
+				[HeldTool("Quarrying Tool"), HeldTool("Masonry Tool")],
+				[CommodityOutput(5200.0, "obsidian", "Obsidian Rough Commodity")],
+				[CommodityOutput(2200.0, "stone rubble", "Stone Rubble Commodity")]),
+
+			Define(
+				"split greenstone adze blanks",
+				"Primary Production / Regional Stone",
+				"Masonry",
+				25,
+				Difficulty.Hard,
+				"Greenstone Quarrying",
+				"split greenstone rough into adze blank stock",
+				[CommodityInput(9000.0, "greenstone", "Greenstone Rough Commodity")],
+				[HeldTool("Quarrying Tool"), HeldTool("Masonry Tool")],
+				[CommodityOutput(5600.0, "greenstone", "Greenstone Rough Commodity")],
+				[CommodityOutput(2600.0, "stone rubble", "Stone Rubble Commodity")]),
 
 			Define(
 				"break rubble into aggregate",
@@ -204,8 +289,34 @@ public partial class ItemSeeder
 				"calcine gypsum into plaster stock",
 				[CommodityInput(8000.0, "gypsum"), CommodityInput(2000.0, "charcoal", "Charcoal Fuel Commodity")],
 				[RoomTool("Kiln Tool")],
-				[CommodityOutput(6500.0, "plaster", "Mortar Commodity")],
+				[CommodityOutput(6500.0, "plaster", "Plaster Commodity")],
 				[CommodityOutput(1000.0, "stone rubble", "Primary Production Waste")]),
+
+			Define(
+				"burn shell quicklime",
+				"Primary Production / Binders",
+				"Masonry",
+				20,
+				Difficulty.Normal,
+				"Shell Lime",
+				"burn shell lime feedstock into quicklime",
+				[CommodityInput(8000.0, "shell", "Shell Lime Commodity"), CommodityInput(2500.0, "charcoal", "Charcoal Fuel Commodity")],
+				[RoomTool("Kiln Tool")],
+				[CommodityOutput(4200.0, "calcium oxide", "Quicklime Commodity")],
+				[CommodityOutput(1500.0, "stone rubble", "Primary Production Waste")]),
+
+			Define(
+				"burn coral quicklime",
+				"Primary Production / Binders",
+				"Masonry",
+				20,
+				Difficulty.Normal,
+				"Coral Lime",
+				"burn coral lime feedstock into quicklime",
+				[CommodityInput(9000.0, "coral", "Coral Lime Commodity"), CommodityInput(2600.0, "charcoal", "Charcoal Fuel Commodity")],
+				[RoomTool("Kiln Tool")],
+				[CommodityOutput(4600.0, "calcium oxide", "Quicklime Commodity")],
+				[CommodityOutput(1600.0, "stone rubble", "Primary Production Waste")]),
 
 			Define(
 				"temper clay body",
@@ -282,7 +393,7 @@ public partial class ItemSeeder
 				"mix sand, soda, and lime into glass batch",
 				[
 					CommodityInput(7000.0, "sand", "Aggregate Commodity"),
-					CommodityInput(1500.0, "soda ash", "Potash Commodity"),
+					CommodityInput(1500.0, "soda ash", "Soda Ash Commodity"),
 					CommodityInput(1500.0, "calcium oxide", "Quicklime Commodity")
 				],
 				[HeldTool("Kiln Tool")],
@@ -372,6 +483,19 @@ public partial class ItemSeeder
 				[CommodityOutput(500.0, "stone rubble", "Primary Production Waste")]),
 
 			Define(
+				"rake solar salt pan",
+				"Primary Production / Salt",
+				"Labouring",
+				10,
+				Difficulty.Easy,
+				"Solar Salt",
+				"rake and grade solar-pan salt crystals",
+				[CommodityInput(8000.0, "salt", "Salt Commodity")],
+				[HeldTool("Saltworking Tool"), RoomTool("Saltworking Tool")],
+				[CommodityOutput(7200.0, "salt", "Salt Commodity")],
+				[CommodityOutput(500.0, "salt", "Primary Production Waste")]),
+
+			Define(
 				"leach wood ash",
 				"Primary Production / Alkali",
 				"Surviving",
@@ -396,6 +520,58 @@ public partial class ItemSeeder
 				[RoomTool("Alkali Tool"), RoomTool("Kiln Tool")],
 				[CommodityOutput(1400.0, "potash", "Potash Commodity")],
 				[CommodityOutput(500.0, "wood ash", "Primary Production Waste")]),
+
+			Define(
+				"burn barilla plants to ash",
+				"Primary Production / Alkali",
+				"Surviving",
+				15,
+				Difficulty.Normal,
+				"Alkali",
+				"burn barilla plants into mineral-rich ash",
+				[CommodityInput(10000.0, "barilla plant"), CommodityInput(1500.0, "charcoal", "Charcoal Fuel Commodity")],
+				[RoomTool("Alkali Tool"), HeldTool("Alkali Tool")],
+				[CommodityOutput(2200.0, "barilla ash", "Barilla Ash Commodity")],
+				[CommodityOutput(900.0, "wood ash", "Primary Production Waste")]),
+
+			Define(
+				"burn kelp to ash",
+				"Primary Production / Alkali",
+				"Surviving",
+				15,
+				Difficulty.Normal,
+				"Alkali",
+				"burn dried kelp into alkali ash",
+				[CommodityInput(10000.0, "seaweed"), CommodityInput(1500.0, "charcoal", "Charcoal Fuel Commodity")],
+				[RoomTool("Alkali Tool"), HeldTool("Alkali Tool")],
+				[CommodityOutput(2000.0, "kelp ash", "Kelp Ash Commodity")],
+				[CommodityOutput(800.0, "wood ash", "Primary Production Waste")]),
+
+			Define(
+				"wash kelp ash alkali",
+				"Primary Production / Alkali",
+				"Labouring",
+				15,
+				Difficulty.Normal,
+				"Alkali",
+				"wash kelp ash into soda-rich alkali liquor and salts",
+				[CommodityInput(3000.0, "kelp ash", "Kelp Ash Commodity"), WaterUse(8.0)],
+				[RoomTool("Alkali Tool"), HeldTool("Alkali Tool")],
+				[CommodityOutput(1600.0, "soda ash", "Soda Ash Commodity")],
+				[CommodityOutput(600.0, "wood ash", "Primary Production Waste")]),
+
+			Define(
+				"calcine barilla ash soda",
+				"Primary Production / Alkali",
+				"Labouring",
+				15,
+				Difficulty.Normal,
+				"Alkali",
+				"calcine barilla ash into soda ash stock",
+				[CommodityInput(3000.0, "barilla ash", "Barilla Ash Commodity"), CommodityInput(1200.0, "charcoal", "Charcoal Fuel Commodity")],
+				[RoomTool("Alkali Tool"), RoomTool("Kiln Tool")],
+				[CommodityOutput(1700.0, "soda ash", "Soda Ash Commodity")],
+				[CommodityOutput(700.0, "wood ash", "Primary Production Waste")]),
 
 			Define(
 				"boil tar into pitch",

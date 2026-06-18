@@ -1,17 +1,58 @@
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using MudSharp.Database;
 using MudSharp.Framework;
 using MudSharp.FutureProg;
 using MudSharp.Health;
 using MudSharp.Models;
+using System;
 using System.Collections;
 using System.Linq;
+using System.Reflection;
 
 namespace MudSharp_Unit_Tests;
 
 [TestClass]
 public class DrugMetadataTests
 {
+    private sealed record FMDBState(FuturemudDatabaseContext Context, object Connection, uint InstanceCount);
+
+    private static FuturemudDatabaseContext BuildContext()
+    {
+        DbContextOptions<FuturemudDatabaseContext> options = new DbContextOptionsBuilder<FuturemudDatabaseContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .ConfigureWarnings(x => x.Ignore(InMemoryEventId.TransactionIgnoredWarning))
+            .Options;
+        return new FuturemudDatabaseContext(options);
+    }
+
+    private static FMDBState CaptureFMDBState()
+    {
+        return new FMDBState(
+            (FuturemudDatabaseContext)typeof(FMDB).GetProperty("Context", BindingFlags.Public | BindingFlags.Static)!
+                .GetValue(null),
+            typeof(FMDB).GetProperty("Connection", BindingFlags.Public | BindingFlags.Static)!.GetValue(null),
+            (uint)typeof(FMDB).GetProperty("InstanceCount", BindingFlags.NonPublic | BindingFlags.Static)!
+                .GetValue(null)!);
+    }
+
+    private static void RestoreFMDBState(FMDBState state)
+    {
+        typeof(FMDB).GetProperty("Context", BindingFlags.Public | BindingFlags.Static)!.SetValue(null, state.Context);
+        typeof(FMDB).GetProperty("Connection", BindingFlags.Public | BindingFlags.Static)!.SetValue(null, state.Connection);
+        typeof(FMDB).GetProperty("InstanceCount", BindingFlags.NonPublic | BindingFlags.Static)!
+            .SetValue(null, state.InstanceCount);
+    }
+
+    private static void PrimeFMDB(FuturemudDatabaseContext context)
+    {
+        typeof(FMDB).GetProperty("Context", BindingFlags.Public | BindingFlags.Static)!.SetValue(null, context);
+        typeof(FMDB).GetProperty("Connection", BindingFlags.Public | BindingFlags.Static)!.SetValue(null, null);
+        typeof(FMDB).GetProperty("InstanceCount", BindingFlags.NonPublic | BindingFlags.Static)!.SetValue(null, 1u);
+    }
+
     [TestMethod]
     public void DrugAdditionalInfo_LoadsEmptyAndLegacyFixedPointIdLists()
     {
@@ -179,5 +220,46 @@ public class DrugMetadataTests
 
         CollectionAssert.AreEqual(intensities, legacyAlias);
         CollectionAssert.AreEqual(new object[] { 0.25m, 0.75m }, intensities);
+    }
+
+    [TestMethod]
+    public void Clone_ScalarOnlyEffects_PreserveNullAdditionalInfo()
+    {
+        FMDBState state = CaptureFMDBState();
+        using FuturemudDatabaseContext context = BuildContext();
+        try
+        {
+            PrimeFMDB(context);
+            MudSharp.Models.Drug model = new()
+            {
+                Id = 1,
+                Name = "simple analgesic",
+                DrugVectors = (int)DrugVector.Ingested,
+                IntensityPerGram = 1.0,
+                RelativeMetabolisationRate = 1.0
+            };
+            model.DrugsIntensities.Add(new DrugIntensity
+            {
+                DrugType = (int)DrugType.Analgesic,
+                RelativeIntensity = 0.5
+            });
+            MudSharp.Health.Drug drug = new(model, new Mock<IFuturemud>().Object);
+
+            MudSharp.Health.Drug clone = (MudSharp.Health.Drug)drug.Clone("simple analgesic copy");
+
+            Assert.AreEqual("simple analgesic copy", clone.Name);
+            Assert.AreEqual(0.5, clone.IntensityForType(DrugType.Analgesic));
+            Assert.IsNull(clone.DrugTypeMulipliers[DrugType.Analgesic].ExtraInfo);
+
+            MudSharp.Models.Drug persisted = context.Drugs
+                .Include(x => x.DrugsIntensities)
+                .Single();
+            Assert.AreEqual("simple analgesic copy", persisted.Name);
+            Assert.IsNull(persisted.DrugsIntensities.Single().AdditionalEffects);
+        }
+        finally
+        {
+            RestoreFMDBState(state);
+        }
     }
 }

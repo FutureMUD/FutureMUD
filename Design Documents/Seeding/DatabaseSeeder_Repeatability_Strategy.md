@@ -58,6 +58,7 @@ For source-only catalogue fixes, prefer invariant tests that scan the seed defin
 - `UsefulSeeder` now exposes its AI examples as one repeatable stock package question instead of the older `ai` / `ai2` split, and that package installs or refreshes stock-owned AI examples by stable names, including the `BasicMount` stock `MountAI` definition used by mount-capable NPC imports.
 - `CoreDataSeeder` now owns the stock terrain catalogue, terrain-tag taxonomy, and stock terrain forage-profile backfill so terrain-aware packages and animal grazing systems can rely on default terrain yield capacities without an extra prompt.
 - `AgricultureSeeder` installs repair-capable stock agriculture profiles, crop/herd/woodland definitions, operations, and backing local project templates by stable names, including broad stock coverage for common crops and rough land-expansion profiles.
+- `PrimaryProductionSeeder` installs repair-capable stock primary-production local projects by deterministic project names, using stock visible resource props, commodity outputs, and bulk commodity requirements.
 - `StockMeritsSeeder` now provides a repair-capable stock merits and flaws package built around stable merit names and tag-driven helper FutureProgs.
 - `ItemSeeder` craft authoring now inserts missing stock craft rows by `Name + Category` and skips matching existing craft rows without adding duplicate phases, inputs, tools, or products. This is a narrow stock-craft install-missing behavior, not full `ItemSeeder` repeatability.
 - Shared answer reuse is no longer combat-only. The live shared-answer wave covers combat message style, damage randomness, human health model, and non-human health model.
@@ -91,6 +92,7 @@ For source-only catalogue fixes, prefer invariant tests that scan the seed defin
 | `MythicalAnimalSeeder` | 302 | Requires human and animal body frameworks, corpse models, characteristic profiles, and non-human strategies | `MayAlreadyBeInstalled` only when all stock mythic races exist | Non-human health model, damage randomness, and combat message style are now shareable | Installs incrementally and skips existing stock mythic races | Install-missing only | `Idempotent` / `InstallMissing` | Medium | Document exact skip behavior and preserve as repeatable package |
 | `RobotSeeder` | 305 | Requires humanoid and animal body frameworks, characteristic profiles, corpse models, tool tags, progs, and prerequisite attacks | `MayAlreadyBeInstalled` only when all tracked robot content exists | None | Installs incrementally and skips existing stock robot records | Install-missing only | `Idempotent` / `InstallMissing` | Medium | Document exact skip behavior and preserve as repeatable package |
 | `ItemSeeder` | 400 | Requires Useful item component prerequisites | Always `ReadyToInstall` once prerequisites exist | None | Large item content remains broadly one-shot; `AddCraft` now installs missing stock craft rows by `Name + Category` and skips matching existing rows without duplicating children | Stock craft rows only: install missing / skip existing. No item-prototype repair or full craft refresh | Overall `OneShot`; craft rows have limited `InstallMissing` behavior | High | Keep the craft-row skip behavior narrow and create explicit stock package ownership before declaring broader ItemSeeder repeatability |
+| `PrimaryProductionSeeder` | 420 | Requires account, `AlwaysTrue`, primary-production tags/materials, primary-production visible resource props, bloomery apparatus, and stock labour traits | Deterministic stock-key check on `Stock Primary Production: ` project names | None | Upserts stock prospecting, extraction, quarrying, kiln, smelting, salt, tar, peat, pigment, and coal local project templates by deterministic names | Repairs stock-owned project definitions, labour, material requirements, and actions in place | `Idempotent` / `RepairExisting` | Medium | Keep resource-site placement builder-owned and expand database-backed rerun coverage after more primary-production chains ship |
 | `LawSeeder` | 5000 | Requires account and currency | Deterministic stock-key check within legal authorities | None | Upserts named authorities, legal classes, witness profiles, enforcement groups, and stock laws by stable names | Repairs seeded package in place | `Idempotent` / `RepairExisting` | Medium | Add same-authority rerun tests and confirm live runtime references stay intact |
 
 ## Current Buckets
@@ -109,6 +111,7 @@ For source-only catalogue fixes, prefer invariant tests that scan the seed defin
 - `WeatherSeeder`
 - `ArenaSeeder`
 - `AgricultureSeeder`
+- `PrimaryProductionSeeder`
 - `LawSeeder`
 
 ### Additive but originally ambiguous

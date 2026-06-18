@@ -463,6 +463,11 @@ namespace DatabaseSeeder.Seeders
                 return "shared historic foundation stock";
             }
 
+            if (stableReference.StartsWith("primary_production_", StringComparison.InvariantCultureIgnoreCase))
+            {
+                return "primary production tools and site-prop stock";
+            }
+
             if (stableReference.StartsWith("medieval_food_", StringComparison.InvariantCultureIgnoreCase))
             {
                 return "medieval food and beverage stock";
@@ -657,6 +662,7 @@ namespace DatabaseSeeder.Seeders
                 eras.Contains("medieval", StringComparison.InvariantCultureIgnoreCase))
             {
                 SeedHistoricCommonWorkshopItems();
+                SeedPrimaryProductionToolsAndProps();
             }
 
             if (eras.Contains("antiquity", StringComparison.InvariantCultureIgnoreCase))

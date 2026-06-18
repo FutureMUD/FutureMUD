@@ -2362,6 +2362,7 @@ return ""You need at least {minimumTraitValue.Value.ToString(System.Globalizatio
 		_nextId = _context!.Crafts.Select(x => x.Id).ToList().DefaultIfEmpty(0).Max(x => x) + 1;
 
 		SeedHistoricFoundationCrafts();
+		SeedPrimaryProductionCommodityCrafts();
 		SeedAntiquityHellenicClothingCrafts();
 		SeedAntiquityEgyptianClothingCrafts();
 		SeedAntiquityRomanClothingCrafts();

@@ -1476,9 +1476,129 @@ The following quantities are deliberately approximate. They are intended for gam
 5. Pitch feeds shipbuilding, waterproof containers, roofing, torches, road work, and repair crafts.
 ```
 
+## Implementation Progress
+
+### Phase 0 Audit - Completed 2026-06-18
+
+The initial audit found that the first implementation can reuse several existing foundations rather than inventing parallel content:
+
+- `CoreDataSeeder.Materials.cs` already seeds core ores and industrial feedstocks including hematite, magnetite, cassiterite, galena, malachite, native copper, limestone, clay, fire clay, peat, salt, brick, glass, mortar, pitch, tar, charcoal, lye, slaked lime, calcium oxide, calcium hydroxide, sulfur, wrought iron, and sponge iron.
+- `UsefulSeeder.Tags.cs` already supplies broad stock and tool roots including `Material Functions`, `Ore Deposit`, `Hot Fire`, `Household Craft Stock`, `Prepared Pitch`, `Glass Batch`, `Tool Blank Stock`, `Tools`, `Hammer`, `Chisel`, `Wheelbarrow`, `Professional Tools`, `Construction Materials`, `Stone Blocks`, `Aggregate`, and `Lime`.
+- `ICell` already implements `IHaveTags`, `Cell` already persists tags through `CellsTags`, and FutureProg `istagged` already supports `ProgVariableTypes.Location`. Active projects expose `project.location`, so prospecting discovery can use cell resource tags through ordinary `prog` project actions.
+- The lowest-risk discovery model for this pass is therefore cell resource tags plus visible/non-holdable deposit props. A native `resourcediscovery` action is deferred until a real builder workflow gap appears.
+
+Reusable dependencies are covered by `PrimaryProductionSeederSourceTests`, which intentionally checks source seams rather than generated database rows for this audit phase.
+
+### Phase 1 Engine Support - Completed 2026-06-18
+
+The project engine now has a first-class `commodityoutput` completion action:
+
+- `CommodityOutputProjectAction` persists `MaterialId`, `Weight`, optional `TagId`, optional `UseIndirectDescription`, optional `Echo`, and fixed commodity `Characteristics` under the project action XML definition.
+- `ProjectFactory.CreateAction`, `ProjectFactory.LoadAction`, and `ProjectFactory.ValidActionTypes` register `commodityoutput` alongside the existing `prog`, `skilluse`, and `agriculture` actions.
+- Completion creates the pile through `CommodityGameItemComponentProto.CreateNewCommodity(...)`, adds it to the gameworld, places it in the active project's concrete location when available, falls back to the owner location for personal/interface-only cases, chooses the first active worker's room layer in that cell, and emits the configured or generic local echo.
+- Builder commands are implemented for `material`, `weight`, `tag`, `indirect`, `echo`, and fixed output `characteristic` pairs.
+- `CanSubmit` validates missing/stale materials, non-positive mass, and stale configured tags.
+- `Projects_System_Overview.md` and `Projects_System_Builder_Workflows.md` now list the new action and its builder commands.
+
+The Phase 0 discovery decision still holds: cell tags plus ordinary `prog` project actions are sufficient for first-pass prospecting, so no native `resourcediscovery` action was added in this phase.
+
+Phase 1 behaviour is covered by `CommodityOutputProjectActionTests`, including action registration, existing action type loading, XML round-trip, validation, and actual commodity creation through the commodity factory.
+
+### Phase 2 Tags And Materials - Completed 2026-06-18
+
+The foundational tag and material layer is now seeded:
+
+- `UsefulSeeder.Tags.cs` now adds the primary-production material-function hierarchy, resource-site tags, commodity process-state tags, and functional tool-family tags under existing roots.
+- `CoreDataSeeder.Materials.cs` now also creates the primary-production material-function roots during base material seeding because `CoreDataSeeder` applies material tags before `UsefulSeeder` runs. This keeps material tagging self-contained and lets `UsefulSeeder` reuse the same names later without duplication.
+- Existing canonical material names are retained where they already existed. Common ore, historical, and builder-friendly names such as `hematite ore`, `haematite`, `tin ore`, `lead ore`, `rock salt`, `quicklime`, `fireclay`, `pine tar`, and `nitre` are aliases rather than duplicate materials.
+- New process-state and missing feedstock materials cover limonite ore, bog iron ore, iron bloom, wrought iron billet, slag, dried peat, coal, coke, stone rubble, gravel, prepared clay, green brick, fired brick, roof tile, glass batch, glass blank, potash, natron, bitumen, and mineral pigments.
+
+The main design decision in this phase was seeding-order related rather than domain related: primary-production tag roots must exist before materials are tagged, so the core material seeder owns the minimum base hierarchy while the useful tag seeder owns the broader reusable catalogue. `PrimaryProductionSeederSourceTests` now verifies both source paths.
+
+### Phase 3 Tools, Apparatus, And Resource Props - Completed 2026-06-18
+
+The reusable item layer is now seeded through `ItemSeeder.Rework.PrimaryProductionTools.cs` and is wired into the shared historic item install path for antiquity and medieval selections:
+
+- Portable durable tools now cover prospecting, surveying, mining, quarrying, masonry, hauling, charcoal burning, kiln work, smelting, saltworking, alkali work, tar/pitch work, peat cutting, and pigment processing.
+- Carrying aids now include sample bags, ore baskets, ore sacks, a hand-barrow, a wheelbarrow, rope, timber props, and process containers such as the ash hopper.
+- Visible resource deposit props now cover hematite, limonite, cassiterite, malachite, galena, native copper, gold-bearing gravel, limestone, slate, clay, brine, peat, natron, ochre, sulfur, and bitumen.
+- Static apparatus prototypes now cover a bloomery furnace, lime kiln, brick clamp, charcoal clamp site, salt pan, tar kiln, mine windlass, furnace bellows, glass furnace, and peat drying rack.
+- Portable tools reuse existing `Holdable`, `Destroyable_*`, and `Container_*` component prototypes. Visible deposits and static apparatus intentionally have no `Holdable` component; visible deposits also omit `Destroyable_*`, making them fixed/non-gettable first-pass site markers without adding a new scenery component.
+
+The main design decision in this phase was to avoid adding a new fixture/scenery component until the runtime needs one. The existing item model can already represent non-gettable props by omitting `Holdable`, so Phase 3 uses that lower-risk pattern and records the convention in each stock item's builder notes. `PrimaryProductionSeederSourceTests` now verifies stable references, component choices, functional tags, resource tags, and the dispatcher hook.
+
+### Phase 4 Commodity Crafts - Completed 2026-06-18
+
+The reusable craft layer is now seeded through `ItemSeederCrafting.PrimaryProduction.cs` and is wired immediately after `SeedHistoricFoundationCrafts()` in the shared craft seeder:
+
+- The catalogue adds deterministic `primary production - ...` craft names under `Primary Production / ...` categories and gates them behind `Primary Production - Historic Commodity Work` knowledge.
+- Ore-preparation crafts now cover sample assay plus break, sort, wash, and roast chains for iron, copper, tin, and lead ores.
+- Masonry and binder crafts now cover dressed limestone and sandstone blocks, aggregate, slaked lime, lime mortar, and gypsum plaster.
+- Clay, brick, tile, refractory, and glass batch crafts now cover prepared clay, green bricks, roof tile stock, crucible clay stock, and soda-lime glass batch.
+- Metal stock crafts now cover iron bloom consolidation, wrought iron bar stock, copper ingots, tin ingots, and bronze billet stock.
+- Salt, alkali, tar/pitch, peat, and pigment crafts now cover crushed salt, lye, potash, pitch, prepared pitch sealant, ochre pigment, malachite pigment, and peat fuel blocks.
+- Craft imports use exact material commodities plus process-stage pile tags. For example, `hematite` remains the material while `Raw Ore Commodity`, `Washed Ore Commodity`, and `Roasted Ore Commodity` describe the process state.
+
+Two design decisions came up during review. First, visible resource props are not used as direct craft inputs because consuming a marker prop would remove the discovered site. Sample extraction from a deposit remains a Phase 5 project responsibility where a project can output sample commodities without destroying the marker. Second, the stock skill alias list does not yet include dedicated `Mining`, `Saltworking`, or `Pigment Processing` traits, so the first-pass craft gates use stable existing traits such as `Labouring`, `Surviving`, `Masonry`, `Pottery`, `Smelting`, `Blacksmithing`, `Glassworking`, and `Painting`; functional tool tags carry the more specific domain requirements.
+
+Phase 4 is covered by `PrimaryProductionSeederSourceTests`, which verifies the craft dispatcher hook, deterministic names, representative chain coverage, commodity tags, functional tool tags, and safe trait gates. A targeted `DatabaseSeeder` build and filtered `PrimaryProductionSeederSourceTests` pass both succeeded after the phase.
+
+### Phase 5 Local Projects - Completed 2026-06-18
+
+The local project layer is now seeded through a dedicated `PrimaryProductionSeeder` package rather than another `ItemSeeder` partial:
+
+- `PrimaryProductionSeeder` is an idempotent rerunnable seeder with sort order `420`, after the item/craft package that provides visible resource props and apparatus prototypes.
+- Stock project templates use deterministic names under the `Stock Primary Production: ` prefix and are tracked as seeder-owned stock templates.
+- Prospecting templates now cover broad mineral signs, iron, tin, copper, lead/silver, quarry stone, clay, salt/brine, fuel, alkali, pigment earth, sulfur, and bitumen seeps.
+- Production templates now cover charcoal burning, ore extraction, quarrying, lime burning, brick and tile firing, iron/copper/tin smelting, brine salt, natron collection, glass-furnace batch firing, tar burning, peat cutting, ochre collection, bitumen collection, and coal mining.
+- Bulk consumed inputs use `commodity` or `commoditytag` project material requirements. Durable tools and apparatus are described in the labour/project text but are not consumed as `simple` material requirements because the current material requirement model deletes supplied items.
+- Completion outputs use `commodityoutput` actions for commodity products and byproducts such as raw ores, mine spoil, rough blocks, quicklime, fired bricks, metal intermediates, slag, salt, tar, peat fuel, pigments, and coal.
+
+This phase included a small design review correction. The earlier assumption that ordinary FutureProgs were enough for visible resource discovery did not hold cleanly once stock project templates needed duplicate-safe prop creation. The engine now includes a native `resourcediscovery` project action. It checks an optional required location tag, avoids duplicates by configured marker tag or prototype, creates the configured visible marker prototype in the project cell, and emits configurable success/already-present/failure echoes. `ProjectFactory` registers `resourcediscovery` for builder and seeded-template use.
+
+Phase 5 is covered by `ResourceDiscoveryProjectActionTests`, the earlier `CommodityOutputProjectActionTests`, and `PrimaryProductionSeederSourceTests`. The targeted core project-action test filter, targeted `DatabaseSeeder` build, and filtered primary-production seeder tests all passed after the phase.
+
+### Phase 6 Optional Site-Creation Progs - Completed 2026-06-18
+
+Site-creation remains a builder-configured optional workflow rather than seeded stock content:
+
+- The engine already has the necessary FutureProg functions for builder-authored topology changes: `CreateOverlay`, `ReviseOverlay`, `CreateCell`/`CreateRoom`, `NameCell`/`NameRoom`, `DescribeCell`/`DescribeRoom`, `SetIndoorsNoLight`, `SetTerrain`, `LinkCells`, and `ApproveOverlay`.
+- A project `prog` action can execute a FutureProg that accepts a single `project` parameter, so builders can attach a local-project completion prog that reads `project.location`, creates a new cell in a chosen editable overlay package, links it to the project location, and optionally approves the package.
+- The primary-production seeder does not seed these FutureProgs or site-creation projects because it cannot safely infer the builder account, overlay package/revision policy, zone, template room, direction, terrain, naming convention, or approval policy for a host game's world.
+- Builders who want mine-adit or quarry-extension projects should clone a stock extraction project, add a `prog` action after its commodity outputs, and bind that action to a world-specific completion prog.
+
+This was a design-review phase rather than a runtime expansion. Seeding a generic topology-changing project would be materially worse for correctness and maintainability because it would hard-code worldbuilding choices in a setting-neutral content package. The builder workflow is now documented in `Projects_System_Builder_Workflows.md`, and `PrimaryProductionSeederSourceTests` guards the decision that the stock package documents this path without seeding unsafe topology modifiers.
+
+### Phase 7 Documentation And Integration - Completed 2026-06-18
+
+The final implemented names and integration points are now documented:
+
+- Engine action keywords: `commodityoutput` and `resourcediscovery`.
+- Seeder package: `PrimaryProductionSeeder`, sort order `420`, package name `Primary Production`, stock project prefix `Stock Primary Production: `, metadata mode `Idempotent` / `RepairExisting`.
+- Craft knowledge: `Primary Production - Historic Commodity Work`.
+- Craft categories: `Primary Production / Prospecting`, `Ore Preparation`, `Masonry`, `Binders`, `Clay`, `Brickmaking`, `Tilemaking`, `Refractory`, `Glass`, `Ironworking`, `Non-Ferrous`, `Alloying`, `Salt`, `Alkali`, `Tar And Pitch`, `Pigment`, and `Peat`.
+- Project action testing surfaces: `CommodityOutputProjectActionTests`, `ResourceDiscoveryProjectActionTests`, and `PrimaryProductionSeederSourceTests`.
+- Builder workflow docs: `Projects_System_Overview.md` and `Projects_System_Builder_Workflows.md` now list `commodityoutput`, `resourcediscovery`, and optional site-creation completion progs.
+- Repeatability docs: `DatabaseSeeder_Repeatability_Strategy.md` now lists `PrimaryProductionSeeder` as a repair-capable stock project package.
+- Final review aligned `PrimaryProductionSeeder` metadata prerequisites with the seeder's labour-trait alias handling so installer assessment and runtime installation agree.
+
+Integration notes:
+
+- Agriculture woodland outputs can feed the primary-production chains. Stock agriculture already includes resin/gum, fibre/cane, thatch, parkland, shelterbelt, fuelwood, and charcoal woodland examples; primary production consumes fuel wood, charcoal, resinous wood/tarwood, wood ash, tar, pitch, potash, and related commodities for charcoal, alkali, tar/pitch, glass, lime, brick, and smelting workflows.
+- The downstream antiquity and medieval content packages should treat primary-production outputs as reusable upstream stock rather than reseeding parallel materials. Useful examples include wrought iron billets, metal ingots, bronze billet stock, quicklime, slaked lime, mortar, glass batch, fired brick, roof tile stock, pitch, potash, salt, pigments, coal, and peat fuel.
+- Future world-starter packages should place resource-site tags on real cells, then optionally place visible resource props where the world begins with known deposits. Recommended starter tags include ore resources, quarry stone, clay pit, brine spring, peat bog, natron, ochre, sulfur, bitumen, and coal.
+
+PR notes:
+
+- Complete: core project actions, primary-production tag/material foundations, tools/resource props/static apparatus, commodity crafts, rerunnable project templates, metadata, and builder documentation.
+- Complete by design, not seeded: optional topology-changing site-creation progs. Builders can attach them to local projects with a `prog` action when their world has concrete overlay, zone, template-room, direction, and approval choices.
+- Future work: richer live seeder integration tests against a seeded database, dedicated mining/saltworking/pigment traits if the skill package grows them, broader ore/resource varieties, and a fixture/scenery component only if the item runtime develops a stronger need than non-holdable stock props.
+
 ## Implementation Plan
 
 ### Phase 0: Audit Existing Content
+
+Status: completed 2026-06-18. See "Phase 0 Audit" above and `PrimaryProductionSeederSourceTests`.
 
 1. Search existing materials for ores, charcoal, coal, stone, quicklime, lime, mortar, clay, brick, glass batch, slag, ingots, billets, salt, potash, lye, tar, pitch, peat, pigments, sulfur, and stock tags.
 2. Search existing tags for ore, fuel, textile stock, household craft stock, military stock, construction materials, tools, hot fire tags, mining tags, quarrying tags, and cell/room tag support.
@@ -1490,6 +1610,8 @@ The following quantities are deliberately approximate. They are intended for gam
 Deliverable: a short audit section in the PR description and tests that document reused dependencies.
 
 ### Phase 1: Engine Support
+
+Status: completed 2026-06-18. See "Phase 1 Engine Support" above and `CommodityOutputProjectActionTests`.
 
 1. Add `CommodityOutputProjectAction` under `MudSharpCore/Work/Projects/Actions`.
 2. Register `commodityoutput` in `ProjectFactory.CreateAction`, `ProjectFactory.LoadAction`, and `ProjectFactory.ValidActionTypes`.
@@ -1504,6 +1626,8 @@ Deliverable: a short audit section in the PR description and tests that document
 
 ### Phase 2: Tags And Materials
 
+Status: completed 2026-06-18. See "Phase 2 Tags And Materials" above and `PrimaryProductionSeederSourceTests`.
+
 1. Add primary-production material-function tags to `UsefulSeeder.Tags.cs` or the appropriate tag seeding partial.
 2. Add resource-site tags for mineral, stone, clay, salt, fuel, alkali, pigment, and visible deposits.
 3. Add commodity stage tags.
@@ -1513,6 +1637,8 @@ Deliverable: a short audit section in the PR description and tests that document
 7. Add unit tests verifying all tags and materials exist and have expected parent/tag relationships.
 
 ### Phase 3: Tools, Apparatus, And Resource Props
+
+Status: completed 2026-06-18. See "Phase 3 Tools, Apparatus, And Resource Props" above and `PrimaryProductionSeederSourceTests`.
 
 1. Add durable item prototypes for priority prospecting, mining, quarrying, masonry, hauling, kiln, charcoal, smelting, salt, alkali, tar, peat, and pigment tools.
 2. Add visible deposit prop prototypes for hematite, limonite, cassiterite, malachite, galena, gold-bearing gravel, limestone, slate, clay, brine, peat, natron, ochre, sulfur, and bitumen.
@@ -1524,6 +1650,8 @@ Deliverable: a short audit section in the PR description and tests that document
 8. Add tests verifying prototypes resolve by stable reference and carry expected tags/components.
 
 ### Phase 4: Commodity Crafts
+
+Status: completed 2026-06-18. See "Phase 4 Commodity Crafts" above and `PrimaryProductionSeederSourceTests`.
 
 1. Add helper methods for commodity-input and commodity-product craft definitions if not already convenient.
 2. Seed prospecting/sample crafts where item/prop targeting is practical.
@@ -1537,6 +1665,8 @@ Deliverable: a short audit section in the PR description and tests that document
 
 ### Phase 5: Local Projects
 
+Status: completed 2026-06-18. See "Phase 5 Local Projects" above, `ResourceDiscoveryProjectActionTests`, and `PrimaryProductionSeederSourceTests`.
+
 1. Add local project seed helpers if there is no reusable project-seeding helper outside AgricultureSeeder.
 2. Seed prospecting projects for mineral signs, iron, tin, copper, lead/silver, quarry stone, clay, salt/brine, fuel, alkali, pigment, and sulfur resources.
 3. Seed priority local projects for charcoal, ore extraction, quarrying, lime burning, brick firing, smelting, salt boiling, tar burning, peat cutting, and pigment collection.
@@ -1549,12 +1679,16 @@ Deliverable: a short audit section in the PR description and tests that document
 
 ### Phase 6: Optional Site-Creation Progs
 
+Status: completed 2026-06-18. See "Phase 6 Optional Site-Creation Progs" above and `PrimaryProductionSeederSourceTests`.
+
 1. Add example FutureProgs for creating a mine chamber from a template room if the repository has a safe pattern for seeding such progs.
 2. Keep site-creation projects optional unless the seeder can reliably determine overlay package, zone, and template room.
 3. Document the builder workflow for attaching a completion prog to a local project.
 4. Do not block the first primary-production package on this feature.
 
 ### Phase 7: Documentation And Integration
+
+Status: completed 2026-06-18. See "Phase 7 Documentation And Integration" above and `PrimaryProductionSeederSourceTests`.
 
 1. Update this design reference with any final implemented names.
 2. Add a builder workflow section or separate guide if project/craft setup commands are important.

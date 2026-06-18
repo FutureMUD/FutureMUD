@@ -175,6 +175,99 @@ namespace DatabaseSeeder.Seeders
             AddTag(context, "Jewellery Bead Stock", "Jewellery Craft Stock");
             AddTag(context, "Jewellery Setting Stock", "Jewellery Craft Stock");
 
+            AddTag(context, "Primary Production", "Material Functions");
+            AddTag(context, "Primary Production Ore", "Primary Production");
+            AddTag(context, "Primary Production Flux", "Primary Production");
+            AddTag(context, "Primary Production Fuel", "Primary Production");
+            AddTag(context, "Primary Production Stone", "Primary Production");
+            AddTag(context, "Primary Production Clay", "Primary Production");
+            AddTag(context, "Primary Production Aggregate", "Primary Production");
+            AddTag(context, "Primary Production Metal Stock", "Primary Production");
+            AddTag(context, "Primary Production Binder", "Primary Production");
+            AddTag(context, "Primary Production Glass Stock", "Primary Production");
+            AddTag(context, "Primary Production Salt", "Primary Production");
+            AddTag(context, "Primary Production Alkali", "Primary Production");
+            AddTag(context, "Primary Production Tar And Pitch", "Primary Production");
+            AddTag(context, "Primary Production Pigment", "Primary Production");
+            AddTag(context, "Primary Production Refractory", "Primary Production");
+            AddTag(context, "Primary Production Waste", "Primary Production");
+
+            AddTag(context, "Primary Production Resource", "Primary Production");
+            AddTag(context, "Mineral Resource", "Primary Production Resource");
+            AddTag(context, "Stone Resource", "Primary Production Resource");
+            AddTag(context, "Clay Resource", "Primary Production Resource");
+            AddTag(context, "Salt Resource", "Primary Production Resource");
+            AddTag(context, "Fuel Resource", "Primary Production Resource");
+            AddTag(context, "Alkali Resource", "Primary Production Resource");
+            AddTag(context, "Pigment Resource", "Primary Production Resource");
+            AddTag(context, "Sulfur Resource", "Primary Production Resource");
+            AddTag(context, "Visible Resource Deposit", "Primary Production Resource");
+            AddTag(context, "Hidden Resource Marker", "Primary Production Resource");
+            AddTag(context, "Hematite Resource", "Mineral Resource");
+            AddTag(context, "Limonite Resource", "Mineral Resource");
+            AddTag(context, "Magnetite Resource", "Mineral Resource");
+            AddTag(context, "Cassiterite Resource", "Mineral Resource");
+            AddTag(context, "Malachite Resource", "Mineral Resource");
+            AddTag(context, "Galena Resource", "Mineral Resource");
+            AddTag(context, "Native Copper Resource", "Mineral Resource");
+            AddTag(context, "Gold-Bearing Gravel Resource", "Mineral Resource");
+            AddTag(context, "Limestone Resource", "Stone Resource");
+            AddTag(context, "Sandstone Resource", "Stone Resource");
+            AddTag(context, "Granite Resource", "Stone Resource");
+            AddTag(context, "Slate Resource", "Stone Resource");
+            AddTag(context, "Marble Resource", "Stone Resource");
+            AddTag(context, "Clay Pit Resource", "Clay Resource");
+            AddTag(context, "Silica Sand Resource", "Stone Resource");
+            AddTag(context, "Rock Salt Resource", "Salt Resource");
+            AddTag(context, "Brine Spring Resource", "Salt Resource");
+            AddTag(context, "Peat Bog Resource", "Fuel Resource");
+            AddTag(context, "Coal Seam Resource", "Fuel Resource");
+            AddTag(context, "Bitumen Seep Resource", "Fuel Resource");
+            AddTag(context, "Natron Resource", "Alkali Resource");
+            AddTag(context, "Ochre Resource", "Pigment Resource");
+            AddTag(context, "Sulfur Deposit Resource", "Sulfur Resource");
+
+            AddTag(context, "Primary Production Commodity", "Primary Production");
+            AddTag(context, "Sample Ore Commodity", "Primary Production Commodity");
+            AddTag(context, "Raw Ore Commodity", "Primary Production Commodity");
+            AddTag(context, "Broken Ore Commodity", "Primary Production Commodity");
+            AddTag(context, "Sorted Ore Commodity", "Primary Production Commodity");
+            AddTag(context, "Washed Ore Commodity", "Primary Production Commodity");
+            AddTag(context, "Roasted Ore Commodity", "Primary Production Commodity");
+            AddTag(context, "Ore Tailings Commodity", "Primary Production Commodity");
+            AddTag(context, "Mine Spoil Commodity", "Primary Production Commodity");
+            AddTag(context, "Charcoal Fuel Commodity", "Primary Production Commodity");
+            AddTag(context, "Peat Fuel Commodity", "Primary Production Commodity");
+            AddTag(context, "Coal Fuel Commodity", "Primary Production Commodity");
+            AddTag(context, "Coke Fuel Commodity", "Primary Production Commodity");
+            AddTag(context, "Bloom Commodity", "Primary Production Commodity");
+            AddTag(context, "Slag Commodity", "Primary Production Commodity");
+            AddTag(context, "Metal Ingot Commodity", "Primary Production Commodity");
+            AddTag(context, "Metal Billet Commodity", "Primary Production Commodity");
+            AddTag(context, "Metal Bar Stock Commodity", "Primary Production Commodity");
+            AddTag(context, "Rough Stone Block Commodity", "Primary Production Commodity");
+            AddTag(context, "Dressed Stone Block Commodity", "Primary Production Commodity");
+            AddTag(context, "Stone Rubble Commodity", "Primary Production Commodity");
+            AddTag(context, "Aggregate Commodity", "Primary Production Commodity");
+            AddTag(context, "Quicklime Commodity", "Primary Production Commodity");
+            AddTag(context, "Slaked Lime Commodity", "Primary Production Commodity");
+            AddTag(context, "Mortar Commodity", "Primary Production Commodity");
+            AddTag(context, "Prepared Clay Commodity", "Primary Production Commodity");
+            AddTag(context, "Green Brick Commodity", "Primary Production Commodity");
+            AddTag(context, "Fired Brick Commodity", "Primary Production Commodity");
+            AddTag(context, "Roof Tile Commodity", "Primary Production Commodity");
+            AddTag(context, "Glass Batch Commodity", "Primary Production Commodity");
+            AddTag(context, "Glass Blank Commodity", "Primary Production Commodity");
+            AddTag(context, "Salt Commodity", "Primary Production Commodity");
+            AddTag(context, "Brine Commodity", "Primary Production Commodity");
+            AddTag(context, "Potash Commodity", "Primary Production Commodity");
+            AddTag(context, "Lye Commodity", "Primary Production Commodity");
+            AddTag(context, "Tar Commodity", "Primary Production Commodity");
+            AddTag(context, "Pitch Commodity", "Primary Production Commodity");
+            AddTag(context, "Pigment Commodity", "Primary Production Commodity");
+            AddTag(context, "Fireclay Commodity", "Primary Production Commodity");
+            AddTag(context, "Crucible Clay Commodity", "Primary Production Commodity");
+
             AddTag(context, "Repairing", "Functions");
             AddTag(context, "Sharpening", "Functions");
 
@@ -308,6 +401,21 @@ namespace DatabaseSeeder.Seeders
 
             // Tools
             AddTag(context, "Tools", "Functions");
+
+            AddTag(context, "Mining Tool", "Tools");
+            AddTag(context, "Prospecting Tool", "Tools");
+            AddTag(context, "Quarrying Tool", "Tools");
+            AddTag(context, "Masonry Tool", "Tools");
+            AddTag(context, "Charcoal Burning Tool", "Tools");
+            AddTag(context, "Kiln Tool", "Tools");
+            AddTag(context, "Smelting Tool", "Tools");
+            AddTag(context, "Hauling Tool", "Tools");
+            AddTag(context, "Surveying Tool", "Tools");
+            AddTag(context, "Saltworking Tool", "Tools");
+            AddTag(context, "Tar Burning Tool", "Tools");
+            AddTag(context, "Alkali Tool", "Tools");
+            AddTag(context, "Peat Cutting Tool", "Tools");
+            AddTag(context, "Pigment Processing Tool", "Tools");
 
             // Cleanup / Normalisation - Generic Tool Functions
             AddTag(context, "Fastening Tools", "Tools");

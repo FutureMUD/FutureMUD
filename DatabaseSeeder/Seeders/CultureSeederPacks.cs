@@ -103,18 +103,31 @@ public partial class CultureSeeder
             }
         }
 
-        switch (questionAnswers["culturepacks"].ToLowerInvariant())
+        switch (NormalizeCulturePackAnswer(questionAnswers["culturepacks"]))
         {
-            case "earth-modern":
+            case "earthmodern":
+            case "modern":
                 SeedEarthModern(questionAnswers);
                 return;
-            case "earth-medievaleurope":
-                SeedMedievalEurope(questionAnswers);
+            case "earthdarkagesandmedieval":
+            case "darkagesandmedieval":
+                SeedDarkAgesAndMedieval(questionAnswers);
                 return;
-            case "earth-antiquity":
+            case "earthrenaissanceeurope":
+            case "renaissanceeurope":
+            case "earthmedievaleurope":
+            case "medievaleurope":
+                SeedRenaissanceEurope(questionAnswers);
+                return;
+            case "earthrenaissanceworldexpansion":
+            case "renaissanceworldexpansion":
+                SeedRenaissanceWorldExpansion(questionAnswers);
+                return;
+            case "earthantiquity":
+            case "antiquity":
                 SeedRepublicanRome(questionAnswers);
                 return;
-            case "middle-earth":
+            case "middleearth":
                 SeedMiddleEarth(questionAnswers);
                 return;
         }
@@ -138,9 +151,8 @@ public partial class CultureSeeder
         }
     }
 
-    public void SeedMedievalEurope(IReadOnlyDictionary<string, string> questionAnswers)
+    public void SeedRenaissanceEurope(IReadOnlyDictionary<string, string> questionAnswers)
     {
-        // TODO
         if (questionAnswers["seednames"].EqualToAny("y", "yes"))
         {
             SeedMedievalEuropeNames();

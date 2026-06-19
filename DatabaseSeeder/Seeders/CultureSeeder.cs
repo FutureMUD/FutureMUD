@@ -20,7 +20,9 @@ The FutureMUD Database Seeder currently has the following culture packs, which i
 
 #BEarth-Modern#F: This culture pack includes ethnicities, cultures, languages, scripts and accents from the modern Earth
 #BEarth-Antiquity#F: This culture pack includes languages, scripts and accents from European antiquity at roughly the time of the late republic
-#BEarth-MedievalEurope#F: This culture pack includes ethnicities, names, languages, scripts and accents from Medieval Europe (and surrounds), roughly 15th century
+#BEarth-DarkAgesAndMedieval#F: This culture pack includes ethnicities, names and cultures from the Dark Ages and Medieval period, roughly 500-1400
+#BEarth-RenaissanceEurope#F: This culture pack includes ethnicities, names, languages, scripts and accents from Renaissance Europe (and surrounds), roughly 15th century
+#BEarth-RenaissanceWorldExpansion#F: This companion pack adds late-fifteenth-century ethnicities, cultures and names from the Middle East, Asia and Africa
 #BMiddle-Earth#F: This culture pack includes races, ethnicities, cultures, languages, scripts and dialects from J.R.R. Tolkien's Middle-Earth
 
 #1Note: Even if you choose none of the above, some useful culture-related defaults will be installed to make things easier for you#F
@@ -28,14 +30,22 @@ The FutureMUD Database Seeder currently has the following culture packs, which i
 You can either use 'none' to select none of the above, or use one of the pack names to install that pack.",
                 (context, answers) => true, (text, context) =>
                 {
-                    if (!text.EqualToAny("none", "earth-modern", "earth-medievaleurope", "earth-antiquity",
-                            "middle-earth")) { return (false, "You must select one of the pack names, or use 'none' to select none of them."); } return (true, string.Empty);
+                    if (NormalizeCulturePackAnswer(text) is not ("none" or "earthmodern" or "modern" or
+                            "earthantiquity" or "antiquity" or "earthdarkagesandmedieval" or
+                            "darkagesandmedieval" or "earthrenaissanceeurope" or "renaissanceeurope" or
+                            "earthmedievaleurope" or "medievaleurope" or "earthrenaissanceworldexpansion" or
+                            "renaissanceworldexpansion" or "middleearth"))
+                    {
+                        return (false, "You must select one of the pack names, or use 'none' to select none of them.");
+                    }
+
+                    return (true, string.Empty);
                 }),
 
             ("seednames",
                 @"Would you like to install the naming cultures and random name generators from your chosen culture pack?
 
-Please answer #3yes#f or #3no#f. ", (context, answers) => true,
+Please answer #3yes#f or #3no#f. ", (context, answers) => CulturePackInstallsOptionalContent(answers),
                 (text, context) =>
                 {
                     if (!text.EqualToAny("yes", "y", "no", "n")) { return (false, "Please choose yes or no."); } return (true, string.Empty);
@@ -44,7 +54,7 @@ Please answer #3yes#f or #3no#f. ", (context, answers) => true,
             ("seedlanguages",
                 @"Would you like to install the languages, accents, and scripts from your chosen culture pack?
 
-Please answer #3yes#f or #3no#f. ", (context, answers) => true,
+Please answer #3yes#f or #3no#f. ", (context, answers) => CulturePackSupportsLanguages(answers),
                 (text, context) =>
                 {
                     if (!text.EqualToAny("yes", "y", "no", "n")) { return (false, "Please choose yes or no."); } return (true, string.Empty);
@@ -53,12 +63,38 @@ Please answer #3yes#f or #3no#f. ", (context, answers) => true,
             ("seedheritage",
                 @"Would you like to install the races, ethnicities and cultures from your chosen culture pack?
 
-Please answer #3yes#f or #3no#f. ", (context, answers) => true,
+Please answer #3yes#f or #3no#f. ", (context, answers) => CulturePackInstallsOptionalContent(answers),
                 (text, context) =>
                 {
                     if (!text.EqualToAny("yes", "y", "no", "n")) { return (false, "Please choose yes or no."); } return (true, string.Empty);
                 })
         };
+
+    private static string NormalizeCulturePackAnswer(string answer)
+    {
+        return answer.Replace("-", string.Empty)
+            .Replace(" ", string.Empty)
+            .ToLowerInvariant();
+    }
+
+    private static bool CulturePackInstallsOptionalContent(IReadOnlyDictionary<string, string> answers)
+    {
+        return !answers.TryGetValue("culturepacks", out var answer) ||
+               NormalizeCulturePackAnswer(answer) != "none";
+    }
+
+    private static bool CulturePackSupportsLanguages(IReadOnlyDictionary<string, string> answers)
+    {
+        if (!answers.TryGetValue("culturepacks", out var answer))
+        {
+            return true;
+        }
+
+        return NormalizeCulturePackAnswer(answer) is "earthmodern" or "modern" or
+            "earthantiquity" or "antiquity" or "earthrenaissanceeurope" or
+            "renaissanceeurope" or "earthmedievaleurope" or "medievaleurope" or
+            "middleearth";
+    }
 
 	public string SeedData(FuturemudDatabaseContext context, IReadOnlyDictionary<string, string> questionAnswers)
 	{

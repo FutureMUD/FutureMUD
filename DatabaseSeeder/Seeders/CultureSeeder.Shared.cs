@@ -20,7 +20,9 @@ public partial class CultureSeeder
         "Simple",
         "Given and Family",
         "Given and Patronym",
-        "Given and Toponym"
+        "Given and Toponym",
+        "Medieval Early Anglo-Saxon",
+        "Renaissance Armenian"
     ];
 
     private static readonly string[] StockRandomProfileMarkers =
@@ -31,7 +33,9 @@ public partial class CultureSeeder
         "Dog (Male)",
         "Dog (Female)",
         "Elephant (Male)",
-        "Elephant (Female)"
+        "Elephant (Female)",
+        "Medieval Early Anglo-Saxon Male",
+        "Renaissance Armenian Male"
     ];
 
     private static readonly string[] StockCulturePackageMarkers =
@@ -41,7 +45,9 @@ public partial class CultureSeeder
         "Westron",
         "Germanic",
         "Roman",
-        "Gondorian"
+        "Gondorian",
+        "Early Anglo-Saxon",
+        "Late Medieval Armenian"
     ];
 
     private static readonly string[] ChargenSizeProgMarkers =

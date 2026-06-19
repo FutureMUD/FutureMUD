@@ -23,6 +23,71 @@ namespace MudSharp_Unit_Tests;
 public class CultureSeederNameAndHeightDefaultTests
 {
 	[TestMethod]
+	public void CultureSeeder_CulturePackQuestion_AdvertisesRenamedHistoricalPacks()
+	{
+		using FuturemudDatabaseContext context = BuildContext();
+		CultureSeeder seeder = new();
+		var question = seeder.SeederQuestions.Single(x => x.Id == "culturepacks");
+
+		StringAssert.Contains(question.Question, "#BEarth-DarkAgesAndMedieval#F");
+		StringAssert.Contains(question.Question, "#BEarth-RenaissanceEurope#F");
+		StringAssert.Contains(question.Question, "#BEarth-RenaissanceWorldExpansion#F");
+		Assert.IsFalse(question.Question.Contains("#BEarth-MedievalEurope#F", StringComparison.Ordinal));
+
+		Assert.IsTrue(question.Validator("earth-darkagesandmedieval", context).Success);
+		Assert.IsTrue(question.Validator("dark ages and medieval", context).Success);
+		Assert.IsTrue(question.Validator("earth-renaissanceeurope", context).Success);
+		Assert.IsTrue(question.Validator("earth-renaissanceworldexpansion", context).Success);
+		Assert.IsTrue(question.Validator("earth-medievaleurope", context).Success,
+			"The old package key should remain a hidden compatibility alias for saved answers.");
+	}
+
+	[TestMethod]
+	public void CultureSeeder_EyeShapeProfiles_DoNotUseTypoFallback()
+	{
+		foreach (string file in new[]
+		{
+			"CultureSeederHeritage.cs",
+			"CultureSeeder.DarkAgesAndMedieval.cs",
+			"CultureSeeder.RenaissanceWorldExpansion.cs"
+		})
+		{
+			string source = File.ReadAllText(GetSourcePath("DatabaseSeeder", "Seeders", file));
+			Assert.IsFalse(source.Contains("Sa" + "pe", StringComparison.Ordinal), $"{file} should use Shape, not the known typo.");
+		}
+	}
+
+	[TestMethod]
+	public void DarkAgesAndMedievalNameSeeder_ValidatesAndSeedsGeneratedCatalogue()
+	{
+		using FuturemudDatabaseContext context = BuildContext();
+		CultureSeeder seeder = new();
+		SetSeederContext(seeder, context);
+
+		InvokePrivate(seeder, "SeedDarkAgesAndMedievalNames");
+
+		AssertCultureHasReadyCompatibleProfile(context, "Medieval Early Anglo-Saxon", Gender.Male);
+		AssertCultureHasReadyCompatibleProfile(context, "Medieval Heian Kamakura Japanese", Gender.Female);
+		AssertProfileHasMinimumElementCount(context, "Medieval Early Anglo-Saxon Male", NameUsage.BirthName, 50);
+		AssertProfileHasMinimumElementCount(context, "Medieval Heian Kamakura Japanese Female", NameUsage.BirthName, 50);
+	}
+
+	[TestMethod]
+	public void RenaissanceWorldExpansionNameSeeder_ValidatesAndSeedsGeneratedCatalogue()
+	{
+		using FuturemudDatabaseContext context = BuildContext();
+		CultureSeeder seeder = new();
+		SetSeederContext(seeder, context);
+
+		InvokePrivate(seeder, "SeedRenaissanceWorldExpansionNames");
+
+		AssertCultureHasReadyCompatibleProfile(context, "Renaissance Armenian", Gender.Male);
+		AssertCultureHasReadyCompatibleProfile(context, "Renaissance Amazigh", Gender.Female);
+		AssertProfileHasMinimumElementCount(context, "Renaissance Armenian Male", NameUsage.BirthName, 50);
+		AssertProfileHasMinimumElementCount(context, "Renaissance Amazigh Female", NameUsage.BirthName, 50);
+	}
+
+	[TestMethod]
 	public void MedievalLevantineAndMorrocanNameRegexes_UsePrintableSpacesForPatronyms()
 	{
 		string source = File.ReadAllText(Path.Combine(

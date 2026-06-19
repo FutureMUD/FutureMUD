@@ -140,11 +140,6 @@ public partial class CultureSeeder
 #endif
         }
 
-        if (profile.Equals("All Eye Shapes", StringComparison.OrdinalIgnoreCase) &&
-            _profiles.ContainsKey("all eye sapes"))
-        {
-            profile = "All Eye Sapes";
-        }
 
         if (!_profiles.ContainsKey(profile))
         {
@@ -155,7 +150,6 @@ public partial class CultureSeeder
 #endif
         }
 
-        CharacteristicProfile foundProfile = _profiles[profile];
 
         if (_ethnicities[ethnicity].EthnicitiesCharacteristics
             .Any(x => x.CharacteristicDefinition == _definitions[feature]))
@@ -167,7 +161,7 @@ public partial class CultureSeeder
         {
             Ethnicity = _ethnicities[ethnicity],
             CharacteristicDefinition = _definitions[feature],
-            CharacteristicProfile = _profiles[profile.ToLowerInvariant()]
+            CharacteristicProfile = _profiles[profile]
         });
     }
 

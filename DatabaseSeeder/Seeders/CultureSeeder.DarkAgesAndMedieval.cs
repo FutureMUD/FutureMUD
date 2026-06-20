@@ -180,7 +180,7 @@ public partial class CultureSeeder
 
 	private string ResolveMedievalPeriodNameCulture(MedievalPeriodSeed seed)
 	{
-		if (_context.NameCultures.Any(x => x.Name.Equals(seed.NameCultureName, StringComparison.OrdinalIgnoreCase)))
+		if (_context.NameCultures.AsEnumerable().Any(x => x.Name.Equals(seed.NameCultureName, StringComparison.OrdinalIgnoreCase)))
 		{
 			return seed.NameCultureName;
 		}

@@ -960,7 +960,8 @@ public sealed class PrimaryProductionSeeder : IDatabaseSeeder
 			{
 				ProjectId = project.Id,
 				ProjectRevisionNumber = project.RevisionNumber,
-				PhaseNumber = 1
+				PhaseNumber = 1,
+				Description = seed.Description
 			};
 			context.ProjectPhases.Add(phase);
 			context.SaveChanges();

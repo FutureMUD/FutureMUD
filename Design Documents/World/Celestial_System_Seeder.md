@@ -27,8 +27,11 @@ The seeder now gives calendar-aware epoch guidance instead of assuming Gregorian
 - It resolves the chosen calendar and formats examples using that calendar's authored date style
 - pressing `Enter` on an epoch question accepts the displayed suggested default
 - start-of-year prompts use the first day of the first month in the selected calendar's current year
-- the Earth moon prompt uses day 21 of the first month in the selected calendar's current year as the stock full-moon reference
+- the Earth moon prompt uses day 21 of the selected calendar year as the stock full-moon reference
 - the Ganymede prompt uses the first day of the first month in the selected calendar's current year as the stock epoch-aligned reference
+- all TimeSeeder calendar modes, including the astronomical and historical calendars, must produce non-empty suggested epoch defaults for the sun, moon, Jupiter-facing sun, and Ganymede prompts
+
+Moon and planetary-moon package prompts should give the same quality of context as the Earth-facing sun prompts. The Earth moon questions should explain lunar phases, full-moon reference dates, and why the moon calendar usually matches the Earth-facing sun calendar. The gas giant package questions should explain that the package is a Ganymede viewpoint, that all four linked objects share one calendar, and that its sun and moon epoch dates keep the Jupiter, Ganymede, and Sol views coherent.
 
 Typical examples are:
 
@@ -39,7 +42,7 @@ Typical examples are:
 For the stock packages, the suggested defaults are:
 
 - Earth-facing sun: first day of the first month
-- Earth moon: day 21 of the first month
+- Earth moon: day 21 of the selected calendar year
 - Jupiter-facing sun: first day of the first month
 - Ganymede: first day of the first month
 

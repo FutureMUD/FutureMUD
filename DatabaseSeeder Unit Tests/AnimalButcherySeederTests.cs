@@ -179,6 +179,11 @@ public class AnimalButcherySeederTests
 
 	private static void SeedCorePrerequisites(FuturemudDatabaseContext context)
 	{
+		SeedCorePrerequisites(context, "Butchery");
+	}
+
+	private static void SeedCorePrerequisites(FuturemudDatabaseContext context, string butcheryTraitName)
+	{
 		context.Accounts.Add(new Account
 		{
 			Id = 1,
@@ -243,7 +248,7 @@ public class AnimalButcherySeederTests
 		context.TraitDefinitions.Add(new TraitDefinition
 		{
 			Id = 1,
-			Name = "Butchery",
+			Name = butcheryTraitName,
 			Type = 0,
 			OwnerScope = 0,
 			TraitGroup = "Crafting",
@@ -272,6 +277,12 @@ public class AnimalButcherySeederTests
 			IsHiddenFromPlayers = false
 		});
 
+		context.SaveChanges();
+	}
+
+	private static void RenameButcheryTrait(FuturemudDatabaseContext context, string name)
+	{
+		context.TraitDefinitions.Single().Name = name;
 		context.SaveChanges();
 	}
 
@@ -490,6 +501,21 @@ public class AnimalButcherySeederTests
 		{
 			Assert.IsNull(context.Races.Single(x => x.Name == raceName).RaceButcheryProfileId, raceName);
 		}
+	}
+
+	[TestMethod]
+	public void SeedData_FullCatalogue_AcceptsGerundButcheringSkillName()
+	{
+		using var context = BuildContext();
+		SeedFullCatalogueContext(context);
+		RenameButcheryTrait(context, "Butchering");
+		var seeder = new AnimalButcherySeeder();
+
+		Assert.AreEqual(ShouldSeedResult.ReadyToInstall, seeder.ShouldSeedData(context));
+		seeder.SeedData(context, new Dictionary<string, string>());
+
+		Assert.IsTrue(context.RaceButcheryProfilesBreakdownChecks.All(x => x.TraitDefinitionId == 1));
+		Assert.AreEqual(ShouldSeedResult.MayAlreadyBeInstalled, seeder.ShouldSeedData(context));
 	}
 
 	[TestMethod]

@@ -22,6 +22,7 @@ public sealed class AnimalButcherySeeder : IDatabaseSeeder
 	private const int MaximumStockItemPrototypeCount = 220;
 
 	private const string ButcheryOutputTag = "Butchery Output";
+	private static readonly string[] ButcheryTraitAliases = ["Butchery", "Butchering"];
 	private const string RawMeatCutTag = "Raw Meat Cut";
 	private const string RawHideTag = "Raw Hide";
 	private const string OffalTag = "Offal";
@@ -231,7 +232,7 @@ It creates reusable butchery outputs, raw carcass cuts, hides, glands, trophies 
 		       context.Materials.Any(x => x.Name == "meat") &&
 		       context.Materials.Any(x => x.Name == "bone") &&
 		       context.Materials.Any(x => x.Name == "animal skin") &&
-		       context.TraitDefinitions.Any(x => x.Name == "Butchery") &&
+		       ResolveButcheryTrait(context) is not null &&
 		       context.Races.Any() &&
 		       context.BodyProtos.Any();
 	}
@@ -1255,7 +1256,8 @@ It creates reusable butchery outputs, raw carcass cuts, hides, glands, trophies 
 			.Include(x => x.RaceButcheryProfilesSkinningEmotes)
 			.Include(x => x.RaceButcheryProfilesButcheryProducts)
 			.ToDictionary(x => x.Name, x => x, StringComparer.OrdinalIgnoreCase);
-		var trait = context.TraitDefinitions.First(x => x.Name == "Butchery");
+		var trait = ResolveButcheryTrait(context) ??
+		            throw new InvalidOperationException("Animal butchery requires the Butchery or Butchering trait.");
 		var cutting = context.Tags.First(x => x.Name == "Cutting");
 		var results = new Dictionary<string, RaceButcheryProfile>(StringComparer.OrdinalIgnoreCase);
 
@@ -1420,6 +1422,18 @@ It creates reusable butchery outputs, raw carcass cuts, hides, glands, trophies 
 	private static bool IsStockProfile(RaceButcheryProfile? profile)
 	{
 		return profile is not null && profile.Name.StartsWith(StockPrefix, StringComparison.OrdinalIgnoreCase);
+	}
+
+	private static TraitDefinition? ResolveButcheryTrait(FuturemudDatabaseContext context)
+	{
+		return context.TraitDefinitions
+		              .AsEnumerable()
+		              .FirstOrDefault(x => ButcheryTraitAliases.Any(alias => NormaliseName(x.Name) == NormaliseName(alias)));
+	}
+
+	private static string NormaliseName(string text)
+	{
+		return new string(text.Where(char.IsLetterOrDigit).ToArray()).ToLowerInvariant();
 	}
 
 	internal sealed record StockButcheryMaterialSpec(

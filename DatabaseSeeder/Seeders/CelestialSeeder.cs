@@ -117,35 +117,55 @@ What epoch date do you want to use?",
             (context, answers) => AnswerIsYes(answers, "installsun"),
             ValidateDate),
         ("installmoon",
-            @"Do you want to install the Earth's Moon package? This installs the planetary moon plus the matching Earth and Sol moon-view celestials.",
+            @"Do you want to install an Earth Moon package? This option assumes an Earth-like planet with a single large natural satellite, and installs the moon plus the linked Earth and Sun objects needed for moon-surface sky views.
+
+Use this if your game should have lunar phases, full/new moon event helpers, or areas that can be viewed from the moon looking back at the parent planet and sun.
+
+Please answer #3yes#F or #3no#F: ",
             (context, answers) => AnswerIsYes(answers, "installsun") || HasSingleEarthSunCandidate(context),
             ValidateYesNo),
         ("mooncalendar",
-            @"Which calendar should the Earth Moon package be tied to?",
+            @"Which calendar should the Earth Moon package be tied to for lunar phase and orbital calculations?
+
+This should usually be the same calendar used by your Earth-facing sun, so solar and lunar events are expressed in the same date system. Please specify a calendar name or ID: ",
             (context, answers) => AnswerIsYes(answers, "installmoon"),
             ValidateCalendar),
         ("moonname",
-            @"What name would you like to give to your moon?",
+            @"What name would you like to give to the Earth-facing moon? For example, for Earth's moon you might enter 'The Moon', 'Luna', or another setting-specific name.
+
+Your choice: ",
             (context, answers) => AnswerIsYes(answers, "installmoon"),
             (answer, context) => (true, string.Empty)),
         ("moonepoch",
-            @"What epoch date should be used for the moon? This is a date that is known to be a full moon. For the stock Earth moon package, the suggested default is the 21st day of the year in the calendar you selected.",
+            @"What epoch date should be used for the Earth-facing moon? This is the full-moon reference date used to line up lunar phase calculations.
+
+For the stock Earth moon package, the suggested default is the 21st day of the year in the calendar you selected.",
             (context, answers) => AnswerIsYes(answers, "installmoon"),
             ValidateDate),
         ("installgasgiantmoon",
-            @"Do you want to install the Gas Giant Moon package? This installs a Jupiter-facing Sun, Ganymede, Jupiter-from-Ganymede, and Sol-from-Ganymede.",
+            @"Do you want to install the Gas Giant Moon package? This option models a habitable viewpoint on Ganymede, with Jupiter dominating the sky and Sol appearing as the distant sun.
+
+It installs four linked objects: a Jupiter-facing Sun, Ganymede as the local moon/world, Jupiter-from-Ganymede, and Sol-from-Ganymede. Use it for science-fiction or alien sky examples rather than an Earth surface.
+
+Please answer #3yes#F or #3no#F: ",
             (context, answers) => true,
             ValidateYesNo),
         ("gasgiantcalendar",
-            @"Which calendar should the Gas Giant Moon package be tied to?",
+            @"Which calendar should the Gas Giant Moon package be tied to for the Jupiter-facing sun, Ganymede phase, and moon-surface sky calculations?
+
+All four linked objects in this package use the same calendar. Please specify a calendar name or ID: ",
             (context, answers) => AnswerIsYes(answers, "installgasgiantmoon"),
             ValidateCalendar),
         ("gasgiantsunepoch",
-            @"What epoch date should be used for the Jupiter-facing Sun? This should be the start-of-year epoch for your chosen calendar.",
+            @"What epoch date should be used for the Jupiter-facing Sun? This aligns the distant solar orbit with the selected calendar.
+
+For the stock gas giant package, use the start-of-year epoch for your chosen calendar unless you have a custom astronomy reference date.",
             (context, answers) => AnswerIsYes(answers, "installgasgiantmoon"),
             ValidateDate),
         ("gasgiantmoonepoch",
-            @"What epoch date should be used for Ganymede? This should be a date that is known to be a full Ganymede as seen from Jupiter. The stock package uses an epoch-aligned default at the start of the selected calendar year.",
+            @"What epoch date should be used for Ganymede? This is the phase reference for Ganymede as seen from Jupiter, and it keeps the linked Jupiter and Sol views coherent.
+
+The stock package uses an epoch-aligned default at the start of the selected calendar year.",
             (context, answers) => AnswerIsYes(answers, "installgasgiantmoon"),
             ValidateDate)
     ];
@@ -499,16 +519,36 @@ The selected calendar is {info.CalendarName}.
 
     private static List<string> SplitDateParts(string value)
     {
-        return Regex.Split(value, @"[-/\\\s]+")
+        return Regex.Split(value, GetDateSeparatorPattern(value))
             .Where(x => !string.IsNullOrWhiteSpace(x))
             .ToList();
     }
 
     private static List<string> SplitDateSeparators(string value)
     {
-        return Regex.Matches(value, @"[-/\\\s]+")
+        return Regex.Matches(value, GetDateSeparatorPattern(value))
             .Select(x => x.Value)
             .ToList();
+    }
+
+    private static string GetDateSeparatorPattern(string value)
+    {
+        if (value.Contains('/'))
+        {
+            return @"/+";
+        }
+
+        if (value.Contains('\\'))
+        {
+            return @"\\+";
+        }
+
+        if (Regex.IsMatch(value, @"\s"))
+        {
+            return @"\s+";
+        }
+
+        return @"-+";
     }
 
     private static int FindYearIndex(IReadOnlyList<string> parts)

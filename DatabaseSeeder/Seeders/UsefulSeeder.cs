@@ -137,6 +137,105 @@ public partial class UsefulSeeder : IDatabaseSeeder
         "SolidFuelHeaterCooler_WoodStove"
     ];
 
+    private const string StockTagPackageMarker = "Aluminothermic Welding Portion";
+
+    private static readonly string[] StockRangedCoverPackageMarkers =
+    [
+        "Corridor Doorway",
+        "Large Crater",
+        "Chunk of Rubble",
+        "Bush",
+        "Refuse Heap",
+        "Stone Wall",
+        "Rubble Wall",
+        "Small Rock",
+        "Large Rock",
+        "Fallen Log",
+        "Pile of Crates",
+        "Barrel Stack",
+        "Low Hedge",
+        "Thick Hedge",
+        "Tall Grass",
+        "Shrubs",
+        "Vehicle",
+        "Broken Vehicle",
+        "Collapsed Building",
+        "Window Frame",
+        "Ruined Wall",
+        "Stalagmites",
+        "Pile of Junk",
+        "Pile of Bones",
+        "Dead Body",
+        "Sand Dune",
+        "Snow Drift",
+        "Fallen Statue",
+        "Street Corner",
+        "Alley Trash Bin",
+        "Park Bench",
+        "Street Lamp",
+        "Old Well",
+        "Rock Outcropping",
+        "Fallen Tree",
+        "Fallen Pillar",
+        "Thick Smoke",
+        "Dense Fog",
+        "Tall Reeds",
+        "Thick Seaweed",
+        "Dense Vegetation",
+        "Boulder Cluster",
+        "Abandoned Cart",
+        "Bushy Tree",
+        "Shrubbery",
+        "Counter",
+        "Desk",
+        "Staircase",
+        "Corner"
+    ];
+
+    private static readonly IReadOnlyDictionary<string, string[]> StockRangedCoverNamesByTerrainTag =
+        new Dictionary<string, string[]>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["Urban"] =
+            [
+                "Corridor Doorway",
+                "Window Frame",
+                "Corner",
+                "Street Corner",
+                "Alley Trash Bin"
+            ],
+            ["Rural"] =
+            [
+                "Tree",
+                "Bush",
+                "Bushy Tree",
+                "Shrubbery",
+                "Fallen Log",
+                "Fallen Tree",
+                "Old Well"
+            ],
+            ["Terrestrial"] =
+            [
+                "Uneven Ground",
+                "Large Crater",
+                "Stone Wall",
+                "Rubble Wall",
+                "Small Rock",
+                "Large Rock",
+                "Boulder Cluster",
+                "Rock Outcropping",
+                "Sand Dune",
+                "Snow Drift",
+                "Low Hedge",
+                "Thick Hedge",
+                "Tall Grass",
+                "Shrubs",
+                "Fallen Pillar"
+            ],
+            ["Aquatic"] = ["Thick Seaweed"],
+            ["Littoral"] = ["Sand Dune", "Tall Reeds"],
+            ["Riparian"] = ["Tall Reeds", "Dense Vegetation"]
+        };
+
     public bool SafeToRunMoreThanOnce => true;
 
     public IEnumerable<(string Id, string Question,
@@ -155,7 +254,8 @@ public partial class UsefulSeeder : IDatabaseSeeder
                 }),
             ("covers",
                 "Do you want to install a collection of simple ranged covers?\n\nPlease answer #3yes#f or #3no#f: ",
-                (context, questions) => context.RangedCovers.Count() <= 1,
+                (context, questions) => context.Terrains.Count() > 1 &&
+                                        ClassifyRangedCoverPackagePresence(context) != ShouldSeedResult.MayAlreadyBeInstalled,
                 (answer, context) =>
                 {
                         if (answer.EqualToAny("yes", "y", "no", "n")) { return (true, string.Empty); } return (false, "Invalid answer");
@@ -295,13 +395,12 @@ public partial class UsefulSeeder : IDatabaseSeeder
             ClassifyAiPackagePresence(context),
             ClassifyItemPackagePresence(context),
             ClassifyModernPackagePresence(context),
-            context.Tags.Any(x => x.Name == "Functions")
-                ? ShouldSeedResult.MayAlreadyBeInstalled
-                : ShouldSeedResult.ReadyToInstall
+            ClassifyTagPackagePresence(context)
         ];
 
         if (context.Terrains.Count() > 1)
         {
+            packageStates.Add(ClassifyRangedCoverPackagePresence(context));
             packageStates.Add(ClassifyAutobuilderPackagePresence(context));
         }
 
@@ -334,6 +433,7 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
     internal static IReadOnlyCollection<string> StockAiExampleNamesForTesting => StockAiExampleNames;
     internal static IReadOnlyCollection<string> StockItemMarkersForTesting => StockItemMarkers;
     internal static IReadOnlyCollection<string> StockModernItemMarkersForTesting => StockModernItemMarkers;
+    internal static IReadOnlyCollection<string> StockRangedCoverPackageMarkersForTesting => StockRangedCoverPackageMarkers;
 
     internal static ShouldSeedResult ClassifyItemPackagePresence(FuturemudDatabaseContext context)
     {
@@ -357,6 +457,40 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
         return SeederRepeatabilityHelper.ClassifyByPresence(presenceChecks);
     }
 
+    internal static ShouldSeedResult ClassifyTagPackagePresence(FuturemudDatabaseContext context)
+    {
+        return context.Tags.Any(x => x.Name == StockTagPackageMarker)
+            ? ShouldSeedResult.MayAlreadyBeInstalled
+            : ShouldSeedResult.ReadyToInstall;
+    }
+
+    internal static ShouldSeedResult ClassifyRangedCoverPackagePresence(FuturemudDatabaseContext context)
+    {
+        HashSet<string> stockCoverNames = new(StockRangedCoverPackageMarkers, StringComparer.OrdinalIgnoreCase);
+        Dictionary<string, RangedCover> packageCovers = context.RangedCovers
+            .AsEnumerable()
+            .Where(x => stockCoverNames.Contains(x.Name))
+            .ToDictionary(x => x.Name, x => x, StringComparer.OrdinalIgnoreCase);
+
+        List<bool> presenceChecks = StockRangedCoverPackageMarkers
+            .Select(packageCovers.ContainsKey)
+            .ToList();
+
+        foreach (Terrain terrain in context.Terrains.ToList())
+        {
+            foreach (string coverName in GetStockRangedCoverNamesForTerrain(context, terrain)
+                         .Where(stockCoverNames.Contains)
+                         .Distinct(StringComparer.OrdinalIgnoreCase))
+            {
+                presenceChecks.Add(packageCovers.TryGetValue(coverName, out RangedCover? cover) &&
+                                   context.TerrainsRangedCovers.Any(x =>
+                                       x.TerrainId == terrain.Id &&
+                                       x.RangedCoverId == cover.Id));
+            }
+        }
+
+        return SeederRepeatabilityHelper.ClassifyByPresence(presenceChecks);
+    }
     private static ShouldSeedResult CombinePackageStates(params ShouldSeedResult[] packageStates)
     {
         if (packageStates.All(x => x == ShouldSeedResult.ReadyToInstall))
@@ -416,6 +550,30 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
         return cover;
     }
 
+    private static IEnumerable<string> GetStockRangedCoverNamesForTerrain(FuturemudDatabaseContext context, Terrain terrain)
+    {
+        Dictionary<long, string> tagsById = context.Tags.ToDictionary(x => x.Id, x => x.Name);
+        List<string> tagNames = terrain.TagInformation?.Split(',', StringSplitOptions.RemoveEmptyEntries)
+            .Select(x => long.TryParse(x, out long val) && tagsById.ContainsKey(val)
+                ? tagsById[val]
+                : null)
+            .OfType<string>()
+            .ToList() ?? new List<string>();
+
+        foreach (string tag in tagNames)
+        {
+            if (!StockRangedCoverNamesByTerrainTag.TryGetValue(tag, out string[]? names))
+            {
+                continue;
+            }
+
+            foreach (string name in names)
+            {
+                yield return name;
+            }
+        }
+    }
+
     private void SeedTerrainAutobuilder(FuturemudDatabaseContext context,
             IReadOnlyDictionary<string, string> questionAnswers, ICollection<string> errors)
     {
@@ -424,12 +582,6 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 
     private void SeedRangedCovers(FuturemudDatabaseContext context, ICollection<string> errors)
     {
-        if (context.RangedCovers.Any())
-        {
-            errors.Add("Detected that ranged covers were already installed. Did not seed any covers.");
-            return;
-        }
-
         List<(string Name, int Type, int Extent, int Position, string Desc, string Action, int Max, bool Moving)> covers = new()
         {
                         ("Uneven Ground", 0, 0, 6, "prone, using the uneven ground as cover", "$0 go|goes prone and begin|begins to use the uneven ground as cover", 0, true),
@@ -491,73 +643,27 @@ Inside the package there are a few numbered #D""Core Item Packages""#3. The reas
 
         foreach ((string Name, int Type, int Extent, int Position, string Desc, string Action, int Max, bool Moving) item in covers)
         {
-            context.RangedCovers.Add(new RangedCover
-            {
-                Name = item.Name,
-                CoverType = item.Type,
-                CoverExtent = item.Extent,
-                HighestPositionState = item.Position,
-                DescriptionString = item.Desc,
-                ActionDescriptionString = item.Action,
-                MaximumSimultaneousCovers = item.Max,
-                CoverStaysWhileMoving = item.Moving
-            });
+            CreateOrGetRangedCover(context, item.Name, item.Type, item.Extent, item.Position, item.Desc, item.Action, item.Max,
+                item.Moving);
         }
         context.SaveChanges();
 
-        Dictionary<string, RangedCover> coversByName = context.RangedCovers.ToDictionary(x => x.Name, x => x);
-        Dictionary<long, string> tagsById = context.Tags.ToDictionary(x => x.Id, x => x.Name);
-
-        Dictionary<string, string[]> coversForTags = new()
-        {
-            ["Urban"] = new[]
-                {
-                                "Corridor Doorway", "Window Frame",
-                                "Corner", "Street Corner", "Alley Trash Bin"
-                        },
-            ["Rural"] = new[]
-                {
-                                "Tree", "Bush", "Bushy Tree", "Shrubbery", "Fallen Log", "Fallen Tree",
-                                "Old Well"
-                        },
-            ["Terrestrial"] = new[]
-                {
-                                "Uneven Ground", "Large Crater", "Stone Wall", "Rubble Wall", "Small Rock",
-                                "Large Rock", "Boulder Cluster", "Rock Outcropping", "Sand Dune", "Snow Drift",
-                                "Low Hedge", "Thick Hedge", "Tall Grass", "Shrubs", "Fallen Pillar"
-                        },
-            ["Aquatic"] = new[] { "Thick Seaweed" },
-            ["Littoral"] = new[] { "Sand Dune", "Tall Reeds" },
-            ["Riparian"] = new[] { "Tall Reeds", "Dense Vegetation" }
-        };
+        Dictionary<string, RangedCover> coversByName = context.RangedCovers.ToDictionary(x => x.Name, x => x, StringComparer.OrdinalIgnoreCase);
 
         foreach (Terrain? terrain in context.Terrains.ToList())
         {
-			List<string> tagNames = terrain.TagInformation?.Split(',', StringSplitOptions.RemoveEmptyEntries)
-					.Select(x => long.TryParse(x, out long val) && tagsById.ContainsKey(val)
-							? tagsById[val]
-							: null)
-					.OfType<string>()
-					.ToList() ?? new List<string>();
-
             HashSet<long> coverIds = new();
-			foreach (string tag in tagNames)
-			{
-				if (!coversForTags.TryGetValue(tag, out string[]? names))
+            foreach (string name in GetStockRangedCoverNamesForTerrain(context, terrain))
+            {
+                if (coversByName.TryGetValue(name, out RangedCover? cover))
                 {
-                    continue;
-                }
-
-                foreach (string name in names)
-                {
-                    if (coversByName.TryGetValue(name, out RangedCover? cover))
-                    {
-                        coverIds.Add(cover.Id);
-                    }
+                    coverIds.Add(cover.Id);
                 }
             }
 
-            foreach (long id in coverIds)
+            foreach (long id in coverIds.Where(id => !context.TerrainsRangedCovers.Any(x =>
+                         x.TerrainId == terrain.Id &&
+                         x.RangedCoverId == id)))
             {
                 context.TerrainsRangedCovers.Add(new TerrainsRangedCovers
                 {

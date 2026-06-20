@@ -19,6 +19,35 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class CelestialSeederTests
 {
+    private static readonly string[] EpochSuggestionCalendarModes =
+    [
+        "gregorian-us",
+        "gregorian-uk",
+        "gregorian-us-ce",
+        "gregorian-uk-ce",
+        "julian",
+        "latin-7day",
+        "latin-8day",
+        "latin-ancient",
+        "middle-earth",
+        "tranquility",
+        "republicain",
+        "mission",
+        "seasonal-360",
+        "islamic-hijri",
+        "hebrew",
+        "old-persian",
+        "babylonian",
+        "chinese-minguo",
+        "chinese-lunisolar",
+        "korean-dangi",
+        "korean-modern",
+        "korean-lunisolar",
+        "japanese-koki",
+        "japanese-modern",
+        "japanese-lunisolar"
+    ];
+
     private static FuturemudDatabaseContext BuildContext()
     {
         DbContextOptions<FuturemudDatabaseContext> options = new DbContextOptionsBuilder<FuturemudDatabaseContext>()
@@ -276,6 +305,51 @@ public class CelestialSeederTests
         Assert.AreEqual(ShouldSeedResult.ExtraPackagesAvailable, seeder.ShouldSeedData(context));
     }
 
+    [TestMethod]
+    public void SeederQuestions_MoonAndGasGiantPromptsGiveSupportingContext()
+    {
+        Dictionary<string, string> questions = new CelestialSeeder().SeederQuestions
+            .ToDictionary(x => x.Id, x => x.Question, StringComparer.OrdinalIgnoreCase);
+
+        StringAssert.Contains(questions["installmoon"], "lunar phases");
+        StringAssert.Contains(questions["installmoon"], "moon-surface sky views");
+        StringAssert.Contains(questions["mooncalendar"], "same calendar used by your Earth-facing sun");
+        StringAssert.Contains(questions["moonname"], "The Moon");
+        StringAssert.Contains(questions["installgasgiantmoon"], "Jupiter dominating the sky");
+        StringAssert.Contains(questions["gasgiantcalendar"], "All four linked objects");
+        StringAssert.Contains(questions["gasgiantsunepoch"], "distant solar orbit");
+        StringAssert.Contains(questions["gasgiantmoonepoch"], "keeps the linked Jupiter and Sol views coherent");
+    }
+
+    [TestMethod]
+    public void ResolveEpochDisplays_AllSupportedTimeSeederCalendarModes_ProvideSuggestedDefaults()
+    {
+        foreach (string mode in EpochSuggestionCalendarModes)
+        {
+            using FuturemudDatabaseContext context = BuildContext();
+            long calendarId = SeedCalendar(context, mode, "1200", mode == "middle-earth" ? "3" : null);
+            string calendarAnswer = calendarId.ToString(System.Globalization.CultureInfo.InvariantCulture);
+            Dictionary<string, string> answers = new(StringComparer.OrdinalIgnoreCase)
+            {
+                ["suncalendar"] = calendarAnswer,
+                ["mooncalendar"] = calendarAnswer,
+                ["gasgiantcalendar"] = calendarAnswer
+            };
+
+            ConsoleQuestionDisplay sun = CelestialSeeder.ResolveSunEpochDisplay(context, answers);
+            ConsoleQuestionDisplay moon = CelestialSeeder.ResolveMoonEpochDisplay(context, answers);
+            ConsoleQuestionDisplay gasGiantSun = CelestialSeeder.ResolveGasGiantSunEpochDisplay(context, answers);
+            ConsoleQuestionDisplay gasGiantMoon = CelestialSeeder.ResolveGasGiantMoonEpochDisplay(context, answers);
+
+            Assert.IsFalse(string.IsNullOrWhiteSpace(sun.DefaultAnswer), $"{mode}: sun default missing.");
+            Assert.IsFalse(string.IsNullOrWhiteSpace(moon.DefaultAnswer), $"{mode}: moon default missing.");
+            Assert.IsFalse(string.IsNullOrWhiteSpace(gasGiantSun.DefaultAnswer), $"{mode}: gas giant sun default missing.");
+            Assert.IsFalse(string.IsNullOrWhiteSpace(gasGiantMoon.DefaultAnswer), $"{mode}: gas giant moon default missing.");
+            StringAssert.Contains(sun.Prompt, "The selected calendar is");
+            StringAssert.Contains(moon.Prompt, "21st day of the year");
+            StringAssert.Contains(gasGiantMoon.Prompt, "epoch-aligned");
+        }
+    }
     [TestMethod]
     public void ResolveSunEpochDisplay_GregorianCalendar_ShowsCalendarSpecificExampleAndDefault()
     {

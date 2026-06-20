@@ -194,6 +194,21 @@ public class PrimaryProductionSeederTests
 		AssertContains(materials, "RemoveTag(materials[\"native nickel\"], \"Native Gold Ore\")");
 	}
 
+	[TestMethod]
+	public void PrimaryProductionProjectPhases_SetDescriptionBeforeFirstSave()
+	{
+		string source = ReadSource("DatabaseSeeder", "Seeders", "PrimaryProductionSeeder.cs");
+		string ensurePhase = SliceFrom(source, "private static ProjectPhase EnsurePhase", "private static void EnsurePrimaryLabour");
+
+		int descriptionIndex = ensurePhase.IndexOf("Description = seed.Description", StringComparison.Ordinal);
+		int addIndex = ensurePhase.IndexOf("context.ProjectPhases.Add(phase);", StringComparison.Ordinal);
+		int saveIndex = ensurePhase.IndexOf("context.SaveChanges();", StringComparison.Ordinal);
+
+		Assert.IsTrue(descriptionIndex >= 0, "New project phases must have their required description populated.");
+		Assert.IsTrue(descriptionIndex < addIndex, "ProjectPhase.Description should be assigned before the phase is added.");
+		Assert.IsTrue(descriptionIndex < saveIndex, "ProjectPhase.Description should be assigned before the first SaveChanges.");
+	}
+
 	private static void AssertContains(string source, string expected)
 	{
 		Assert.IsTrue(source.Contains(expected, StringComparison.Ordinal),

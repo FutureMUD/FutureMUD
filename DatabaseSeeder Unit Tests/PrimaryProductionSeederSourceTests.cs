@@ -716,7 +716,7 @@ public class PrimaryProductionSeederSourceTests
 			"Slag Commodity",
 			"Metal Ingot Commodity",
 			"Salt Commodity",
-			"Potash Commodity",
+			"Soda Ash Commodity",
 			"Glass Blank Commodity",
 			"Tar Commodity",
 			"Peat Fuel Commodity",

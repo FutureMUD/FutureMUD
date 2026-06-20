@@ -11,6 +11,7 @@ using MudSharp.Health;
 using MudSharp.Models;
 using MudSharp.RPG.Checks;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
 using MaterialBehaviourType = MudSharp.Form.Material.MaterialBehaviourType;
@@ -116,6 +117,93 @@ public class UsefulSeederItemPackageTests
 		context.SaveChanges();
 	}
 
+	private static Dictionary<string, string> BuildUsefulAnswers(string covers = "no")
+	{
+		return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+		{
+			["ai"] = "no",
+			["covers"] = covers,
+			["items"] = "no",
+			["modernitems"] = "no",
+			["tags"] = "no",
+			["autobuilder"] = "no",
+			["hints"] = "no",
+			["dreams"] = "no"
+		};
+	}
+
+	private static Terrain CreateTerrain(long id, string name, string tagInformation)
+	{
+		return new Terrain
+		{
+			Id = id,
+			Name = name,
+			HideDifficulty = 0,
+			SpotDifficulty = 0,
+			InfectionType = 0,
+			InfectionVirulence = 0,
+			InfectionMultiplier = 0,
+			StaminaCost = 0,
+			TerrainANSIColour = "7",
+			TerrainEditorColour = "#FFFFFFFF",
+			TerrainBehaviourMode = "outdoors",
+			DefaultTerrain = id == 1,
+			MovementRate = 1,
+			ForagableProfileId = 0,
+			AtmosphereType = "Gas",
+			DefaultCellOutdoorsType = 0,
+			GravityModel = 0,
+			TerrainEditorText = name[..Math.Min(2, name.Length)],
+			CanHaveTracks = false,
+			TrackIntensityMultiplierVisual = 1.0,
+			TrackIntensityMultiplierOlfactory = 1.0,
+			TagInformation = tagInformation
+		};
+	}
+
+	private static void SeedRangedCoverTerrainPrerequisites(FuturemudDatabaseContext context)
+	{
+		Tag urban = CreateTag(101, "Urban");
+		Tag rural = CreateTag(102, "Rural");
+		Tag terrestrial = CreateTag(103, "Terrestrial");
+		context.Tags.AddRange(urban, rural, terrestrial);
+		context.Terrains.AddRange(
+			CreateTerrain(1, "City Street", urban.Id.ToString()),
+			CreateTerrain(2, "Country Field", $"{rural.Id},{terrestrial.Id}"));
+		context.SaveChanges();
+	}
+
+	private static void SeedItemPackageCoverOverlap(FuturemudDatabaseContext context)
+	{
+		string[] names =
+		[
+			"Uneven Ground",
+			"Upright Table",
+			"Overturned Table",
+			"Smoke",
+			"Sandbag",
+			"Tree"
+		];
+
+		long id = context.RangedCovers.Any() ? context.RangedCovers.Max(x => x.Id) + 1 : 1;
+		foreach (string name in names)
+		{
+			context.RangedCovers.Add(new RangedCover
+			{
+				Id = id++,
+				Name = name,
+				CoverType = 0,
+				CoverExtent = 0,
+				HighestPositionState = 1,
+				DescriptionString = name,
+				ActionDescriptionString = name,
+				MaximumSimultaneousCovers = 0,
+				CoverStaysWhileMoving = false
+			});
+		}
+
+		context.SaveChanges();
+	}
 	private static GameItemComponentProto CreateComponentMarker(long id, string name, string type = "Test")
 	{
 		return new GameItemComponentProto
@@ -344,6 +432,58 @@ public class UsefulSeederItemPackageTests
 		Assert.AreEqual(ShouldSeedResult.MayAlreadyBeInstalled, UsefulSeeder.ClassifyItemPackagePresence(context));
 	}
 
+	[TestMethod]
+	public void ClassifyTagPackagePresence_FunctionsTagWithoutUsefulMarker_ReturnsReadyToInstall()
+	{
+		using FuturemudDatabaseContext context = BuildContext();
+		SeedGeneralPrerequisites(context);
+		context.Tags.Add(CreateTag(10, "Functions"));
+		context.SaveChanges();
+
+		Assert.AreEqual(ShouldSeedResult.ReadyToInstall, UsefulSeeder.ClassifyTagPackagePresence(context));
+
+		context.Tags.Add(CreateTag(11, "Aluminothermic Welding Portion"));
+		context.SaveChanges();
+
+		Assert.AreEqual(ShouldSeedResult.MayAlreadyBeInstalled, UsefulSeeder.ClassifyTagPackagePresence(context));
+	}
+
+	[TestMethod]
+	public void ClassifyRangedCoverPackagePresence_ItemPackageCoverOverlapOnly_ReturnsReadyToInstall()
+	{
+		using FuturemudDatabaseContext context = BuildContext();
+		SeedGeneralPrerequisites(context);
+		SeedRangedCoverTerrainPrerequisites(context);
+		SeedItemPackageCoverOverlap(context);
+
+		Assert.AreEqual(ShouldSeedResult.ReadyToInstall, UsefulSeeder.ClassifyRangedCoverPackagePresence(context));
+	}
+
+	[TestMethod]
+	public void SeedData_CoversWithExistingItemPackageCoverRows_AddsMissingCoversAndLinks()
+	{
+		using FuturemudDatabaseContext context = BuildContext();
+		SeedGeneralPrerequisites(context);
+		SeedRangedCoverTerrainPrerequisites(context);
+		SeedItemPackageCoverOverlap(context);
+		UsefulSeeder seeder = new();
+
+		var coversQuestion = seeder.SeederQuestions.Single(x => x.Id == "covers");
+		Assert.IsTrue(coversQuestion.Filter(context, BuildUsefulAnswers()));
+
+		string result = seeder.SeedData(context, BuildUsefulAnswers(covers: "yes"));
+
+		Assert.AreEqual("The operation completed successfully.", result);
+		Assert.AreEqual(1, context.RangedCovers.Count(x => x.Name == "Smoke"));
+		Assert.AreEqual(1, context.RangedCovers.Count(x => x.Name == "Corridor Doorway"));
+
+		Terrain cityStreet = context.Terrains.Single(x => x.Name == "City Street");
+		RangedCover doorway = context.RangedCovers.Single(x => x.Name == "Corridor Doorway");
+		Assert.IsTrue(context.TerrainsRangedCovers.Any(x =>
+			x.TerrainId == cityStreet.Id &&
+			x.RangedCoverId == doorway.Id));
+		Assert.AreEqual(ShouldSeedResult.MayAlreadyBeInstalled, UsefulSeeder.ClassifyRangedCoverPackagePresence(context));
+	}
 	[TestMethod]
 	public void SeedLockAndWaterSourceCoverageForTesting_RerunDoesNotDuplicateAndCreatesPublicVariants()
 	{

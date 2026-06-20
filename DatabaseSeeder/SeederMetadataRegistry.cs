@@ -368,8 +368,8 @@ public static class SeederMetadataRegistry
                         context.Materials.Any(x => x.Name == "meat") &&
                         context.Materials.Any(x => x.Name == "bone") &&
                         context.Materials.Any(x => x.Name == "animal skin")),
-                    Requirement("The Butchery skill and at least one stock animal race must already exist.", context =>
-                        context.TraitDefinitions.Any(x => x.Name == "Butchery") &&
+                    Requirement("The Butchery/Butchering skill and at least one stock animal race must already exist.", context =>
+                        HasTrait(context, "Butchery", "Butchering") &&
                         context.Races.Any())
                 ],
                 RerunSummary: "Reruns reuse stock animal butchery item, product and profile names, then attach missing eligible stock races.",

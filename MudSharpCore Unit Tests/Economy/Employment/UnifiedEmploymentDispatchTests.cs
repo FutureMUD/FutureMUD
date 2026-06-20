@@ -3681,6 +3681,112 @@ public class UnifiedEmploymentDispatchTests
 	}
 
 	[TestMethod]
+	public void EmploymentPersistence_LoadsInventoryActionStepsWithNullSourceLocationPayloads()
+	{
+		var fmdbState = CaptureFMDBState();
+		using var context = BuildContext();
+		try
+		{
+			PrimeFMDB(context);
+			var currency = Currency();
+			var gameworld = Gameworld(currency.Object, new Dictionary<long, ICharacter>());
+			var board = new MudSharp.Models.Board
+			{
+				Id = 370,
+				Name = "stale employment board",
+				ShowOnLogin = false
+			};
+			var hostState = new MudSharp.Models.EmploymentHostState
+			{
+				Id = 371,
+				HostType = EmploymentHostType.Shop.ToString(),
+				HostId = 372,
+				BoardId = board.Id,
+				Board = board,
+				CreatedAt = DateTime.UtcNow,
+				LastUpdatedAt = DateTime.UtcNow
+			};
+			var plan = new MudSharp.Models.EmploymentActionPlanRecord
+			{
+				Id = 373,
+				EmploymentHostState = hostState,
+				EmploymentHostStateId = hostState.Id,
+				Name = "stale inventory plan"
+			};
+			plan.Steps.Add(new MudSharp.Models.EmploymentActionStepRecord
+			{
+				Id = 374,
+				EmploymentActionPlan = plan,
+				EmploymentActionPlanId = plan.Id,
+				SortOrder = 0,
+				StepType = (int)EmploymentActionStepType.GetItemsById,
+				RequiredAuthority = (long)EmploymentAuthority.ManageDeliveryRoutes,
+				RequiredCapabilities = string.Empty,
+				Description = "legacy get item step",
+				BoardText = "{\"Quantity\":1,\"ItemPrototypeIds\":[9001],\"SourceLocationIds\":null}"
+			});
+			plan.Steps.Add(new MudSharp.Models.EmploymentActionStepRecord
+			{
+				Id = 375,
+				EmploymentActionPlan = plan,
+				EmploymentActionPlanId = plan.Id,
+				SortOrder = 1,
+				StepType = (int)EmploymentActionStepType.GetItemsByTag,
+				RequiredAuthority = (long)EmploymentAuthority.ManageDeliveryRoutes,
+				RequiredCapabilities = string.Empty,
+				Description = "legacy get tag step",
+				BoardText = "{\"Quantity\":2,\"TagName\":\"linen\",\"SourceLocationIds\":null}"
+			});
+			plan.Steps.Add(new MudSharp.Models.EmploymentActionStepRecord
+			{
+				Id = 376,
+				EmploymentActionPlan = plan,
+				EmploymentActionPlanId = plan.Id,
+				SortOrder = 2,
+				StepType = (int)EmploymentActionStepType.GetCommodity,
+				RequiredAuthority = (long)EmploymentAuthority.ManageDeliveryRoutes,
+				RequiredCapabilities = string.Empty,
+				Description = "legacy get commodity step",
+				BoardText = "{\"RequiredWeight\":5.0,\"MaterialName\":\"iron\",\"TagName\":\"ingot\",\"Characteristics\":null,\"SourceLocationIds\":null}"
+			});
+			context.Boards.Add(board);
+			context.EmploymentHostStates.Add(hostState);
+			context.EmploymentActionPlans.Add(plan);
+			context.EmploymentActiveTasks.Add(new MudSharp.Models.EmploymentActiveTaskRecord
+			{
+				Id = 377,
+				PublicId = Guid.NewGuid().ToString("D"),
+				EmploymentHostState = hostState,
+				EmploymentHostStateId = hostState.Id,
+				Name = "stale inventory task",
+				EmploymentActionPlan = plan,
+				EmploymentActionPlanId = plan.Id,
+				Status = (int)EmploymentTaskStatus.Pending,
+				CorrelationId = Guid.NewGuid().ToString("D"),
+				IdempotencyKey = "stale-inventory-task"
+			});
+			context.SaveChanges();
+
+			IEmploymentHost reloadedHost = new PersistedEmploymentHost(372, "Stale Stock Shop", gameworld.Object,
+				currency.Object);
+			var steps = reloadedHost.Employment.TaskBoard.ActiveTasks.Single().ActionPlan.Steps;
+
+			Assert.AreEqual(3, steps.Count);
+			Assert.AreEqual(9001, ((GetItemsByIdActionStep)steps[0]).ItemPrototypeIds.Single());
+			Assert.AreEqual(0, ((GetItemsByIdActionStep)steps[0]).SourceLocations.Count);
+			Assert.AreEqual("linen", ((GetItemsByTagActionStep)steps[1]).TagName);
+			Assert.AreEqual(0, ((GetItemsByTagActionStep)steps[1]).SourceLocations.Count);
+			Assert.AreEqual("iron", ((GetCommodityActionStep)steps[2]).MaterialName);
+			Assert.AreEqual(0, ((GetCommodityActionStep)steps[2]).Characteristics.Count);
+			Assert.AreEqual(0, ((GetCommodityActionStep)steps[2]).SourceLocations.Count);
+		}
+		finally
+		{
+			RestoreFMDBState(fmdbState);
+		}
+	}
+
+	[TestMethod]
 	public void EmploymentPersistence_RoundTripsCatalogueShellAndAuditActionSteps()
 	{
 		var fmdbState = CaptureFMDBState();

@@ -127,10 +127,7 @@ public sealed class EmploymentHostState : IEmploymentHostState
 			}
 		}
 
-		if (offer.Compensation.IsPaid && offer.Compensation.NominalAmount <= 0.0M)
-		{
-			throw new InvalidOperationException("Paid employment contracts must have a positive effective rate.");
-		}
+		ValidateCompensation(offer.Compensation, "employment contracts");
 
 		var contract = new EmploymentContract(
 			Interlocked.Increment(ref _nextContractId),
@@ -200,6 +197,38 @@ public sealed class EmploymentHostState : IEmploymentHostState
 			$"Ended {concrete.Employee.Name}'s {concrete.Role.DescribeEnum()} contract: {reason.DescribeEnum()}.",
 			concrete.Employee.Gameworld);
 	}
+
+	public IReadOnlyCollection<IEmploymentContract> EvaluateContractLifecycle(DateTimeOffset now)
+	{
+		var expired = _contracts
+		              .OfType<EmploymentContract>()
+		              .Where(x => x.Status is EmploymentStatus.Active or EmploymentStatus.Suspended)
+		              .Where(x => x.Duration.DurationType == EmploymentDurationType.FixedTerm)
+		              .Where(x => x.Duration.Length.HasValue)
+		              .Where(x => x.StartedAt.Add(x.Duration.Length!.Value) <= now)
+		              .ToList();
+		foreach (var contract in expired)
+		{
+			var endedAt = contract.StartedAt.Add(contract.Duration.Length!.Value);
+			contract.End(EmploymentTerminationReason.Expired, endedAt);
+			_persistence?.SaveContractEnded(contract);
+			EmploymentRegister.Record(
+				EmploymentRegisterEntryType.ContractEnded,
+				null,
+				$"Expired {contract.Employee.HowSeen(contract.Employee, colour: false)}'s {contract.Role} contract after its fixed term ended.");
+			Host.DebugEmployment(
+				$"Expired {contract.Employee.Name}'s {contract.Role.DescribeEnum()} contract after its fixed term ended.",
+				contract.Employee.Gameworld);
+		}
+
+		if (expired.Any())
+		{
+			TaskBoard.AuditActiveTaskAssignments();
+		}
+
+		return expired;
+	}
+
 
 	public bool HasAuthority(ICharacter actor, EmploymentAuthority authority)
 	{
@@ -291,10 +320,7 @@ public sealed class EmploymentHostState : IEmploymentHostState
 			throw new InvalidOperationException("Job openings must have at least one available position.");
 		}
 
-		if (definition.Compensation.IsPaid && definition.Compensation.NominalAmount <= 0.0M)
-		{
-			throw new InvalidOperationException("Paid job openings must advertise a positive effective rate.");
-		}
+		ValidateCompensation(definition.Compensation, "job openings");
 
 		var opening = new JobOpening(
 			Interlocked.Increment(ref _nextJobOpeningId),
@@ -382,17 +408,11 @@ public sealed class EmploymentHostState : IEmploymentHostState
 			throw new InvalidOperationException("Job openings must have at least one available position.");
 		}
 
-		if (definition.Compensation.IsPaid && definition.Compensation.NominalAmount <= 0.0M)
-		{
-			throw new InvalidOperationException("Paid job openings must advertise a positive effective rate.");
-		}
+		ValidateCompensation(definition.Compensation, "job openings");
 
-		var acceptedApplications = _applications.Count(x =>
-			x.Opening.Id == concrete.Id &&
-			x.Status == JobApplicationStatus.Accepted);
-		if (definition.MaxPositions < acceptedApplications)
+		if (definition.MaxPositions < concrete.OccupiedPositions)
 		{
-			throw new InvalidOperationException("A job opening cannot be reduced below its accepted application count.");
+			throw new InvalidOperationException("A job opening cannot be reduced below its occupied position or accepted application count.");
 		}
 
 		concrete.Modify(definition);
@@ -414,6 +434,16 @@ public sealed class EmploymentHostState : IEmploymentHostState
 			throw new InvalidOperationException("That job opening does not belong to this host.");
 		}
 
+		var candidateIdentityId = CharacterInstanceIdentityComparer.IdentityId(candidate.Candidate);
+		var existingPending = _applications.FirstOrDefault(x =>
+			x.Opening.Id == concrete.Id &&
+			CharacterInstanceIdentityComparer.IdentityId(x.Candidate) == candidateIdentityId &&
+			x.Status == JobApplicationStatus.Pending);
+		if (existingPending is not null)
+		{
+			return existingPending;
+		}
+
 		var status = JobApplicationStatus.Pending;
 		string? decisionReason = null;
 		if (!concrete.AcceptsApplications)
@@ -433,7 +463,9 @@ public sealed class EmploymentHostState : IEmploymentHostState
 			candidate.Candidate,
 			EmploymentClock.CurrentInstant(Host),
 			status,
-			decisionReason);
+			decisionReason,
+			concrete.RevisionNumber,
+			candidate);
 		_applications.Add(application);
 		_persistence?.SaveApplication(application);
 		EmploymentRegister.Record(
@@ -476,11 +508,32 @@ public sealed class EmploymentHostState : IEmploymentHostState
 		}
 
 		var opening = concrete.Opening;
-		if (_applications.Count(x =>
-			    x.Opening.Id == opening.Id &&
-			    x.Status == JobApplicationStatus.Accepted) >= opening.MaxPositions)
+		if (!opening.AcceptsApplications)
 		{
-			throw new InvalidOperationException("That employment opening has already reached its accepted application capacity.");
+			throw new InvalidOperationException("That employment opening is no longer accepting applications or has reached its accepted application capacity.");
+		}
+
+		if (opening.RevisionNumber != concrete.OfferedOpeningRevision)
+		{
+			throw new InvalidOperationException("That employment opening's terms have changed since the application was submitted; the candidate must apply again before it can be accepted.");
+		}
+
+		var paymentMethod = opening.PaymentMethod;
+		if (concrete.CandidateProfile is not null)
+		{
+			if (!EmploymentCandidateMatcher.IsMatch(opening, concrete.CandidateProfile, out var reason))
+			{
+				throw new InvalidOperationException($"The candidate no longer matches that employment opening: {reason}");
+			}
+
+			var paymentSelection = EmploymentPaymentSelector.SelectPaymentMethod(opening, concrete.CandidateProfile,
+				opening.PaymentMethod.BankAccount);
+			if (!paymentSelection.Success || paymentSelection.PaymentMethod is null)
+			{
+				throw new InvalidOperationException($"The candidate no longer has an acceptable payment method: {paymentSelection.Reason}");
+			}
+
+			paymentMethod = paymentSelection.PaymentMethod;
 		}
 
 		var contract = Hire(concrete.Candidate, new EmploymentOffer(
@@ -488,8 +541,14 @@ public sealed class EmploymentHostState : IEmploymentHostState
 			opening.Compensation,
 			opening.Schedule,
 			opening.Duration,
-			opening.PaymentMethod,
+			paymentMethod,
 			opening.Authority), authorisedBy);
+		if (contract is EmploymentContract employmentContract)
+		{
+			employmentContract.SetOrigin(opening.Id, concrete.Id);
+			_persistence?.SaveContract(employmentContract);
+		}
+
 		concrete.Decide(JobApplicationStatus.Accepted, "Accepted by a manager.");
 		_persistence?.SaveApplication(concrete);
 		EmploymentRegister.Record(
@@ -531,6 +590,24 @@ public sealed class EmploymentHostState : IEmploymentHostState
 			authorisedBy.Gameworld);
 	}
 
+	private static void ValidateCompensation(CompensationTerms compensation, string targetDescription)
+	{
+		if (!SupportsPeriodicPayroll(compensation.Cadence))
+		{
+			throw new InvalidOperationException($"{compensation.Cadence.DescribeEnum()} compensation for {targetDescription} requires explicit earning records before it can be used by employment payroll.");
+		}
+
+		if (compensation.IsPaid && compensation.NominalAmount <= 0.0M)
+		{
+			throw new InvalidOperationException($"Paid {targetDescription} must have a positive effective rate.");
+		}
+	}
+
+	private static bool SupportsPeriodicPayroll(PayCadence cadence)
+	{
+		return cadence is PayCadence.Unpaid or PayCadence.Hourly or PayCadence.Daily or PayCadence.Weekly or PayCadence.Salary;
+	}
+
 	private EmploymentAuthoritySet AuthorityFor(ICharacter actor)
 	{
 		var actorIdentityId = CharacterInstanceIdentityComparer.IdentityId(actor);
@@ -547,7 +624,8 @@ public sealed class EmploymentContract : IEmploymentContract
 	public EmploymentContract(long id, IEmploymentHost employer, ICharacter employee, EmploymentRole role,
 		EmploymentStatus status, EmploymentAuthoritySet authority, CompensationTerms compensation,
 		WorkSchedule schedule, EmploymentDuration duration, PaymentMethod paymentMethod, DateTimeOffset startedAt,
-		DateTimeOffset? endsAt, EmploymentTerminationReason? endReason)
+		DateTimeOffset? endsAt, EmploymentTerminationReason? endReason, long? originOpeningId = null,
+		long? originApplicationId = null)
 	{
 		Id = id;
 		Employer = employer;
@@ -562,6 +640,8 @@ public sealed class EmploymentContract : IEmploymentContract
 		StartedAt = startedAt;
 		EndsAt = endsAt;
 		EndReason = endReason;
+		OriginOpeningId = originOpeningId;
+		OriginApplicationId = originApplicationId;
 	}
 
 	public long Id { get; }
@@ -577,6 +657,14 @@ public sealed class EmploymentContract : IEmploymentContract
 	public DateTimeOffset StartedAt { get; }
 	public DateTimeOffset? EndsAt { get; private set; }
 	public EmploymentTerminationReason? EndReason { get; private set; }
+	public long? OriginOpeningId { get; private set; }
+	public long? OriginApplicationId { get; private set; }
+
+	internal void SetOrigin(long openingId, long applicationId)
+	{
+		OriginOpeningId = openingId;
+		OriginApplicationId = applicationId;
+	}
 
 	public void End(EmploymentTerminationReason reason, DateTimeOffset endedAt)
 	{
@@ -595,7 +683,8 @@ public sealed class JobOpening : IJobOpening
 {
 	public JobOpening(long id, IEmploymentHost employer, EmploymentRole role, JobRequirementSet requirements,
 		CompensationTerms compensation, WorkSchedule schedule, EmploymentDuration duration, JobOpeningStatus status,
-		int maxPositions, bool npcApplicationsOnly, PaymentMethod paymentMethod, EmploymentAuthoritySet authority)
+		int maxPositions, bool npcApplicationsOnly, PaymentMethod paymentMethod, EmploymentAuthoritySet authority,
+		int revisionNumber = 1)
 	{
 		Id = id;
 		Employer = employer;
@@ -609,6 +698,7 @@ public sealed class JobOpening : IJobOpening
 		NpcApplicationsOnly = npcApplicationsOnly;
 		PaymentMethod = paymentMethod;
 		Authority = authority;
+		RevisionNumber = revisionNumber;
 	}
 
 	public long Id { get; }
@@ -623,16 +713,21 @@ public sealed class JobOpening : IJobOpening
 	public bool NpcApplicationsOnly { get; private set; }
 	public PaymentMethod PaymentMethod { get; private set; }
 	public EmploymentAuthoritySet Authority { get; private set; }
+	public int RevisionNumber { get; private set; }
+
+	public int OccupiedPositions =>
+		Employer.EmploymentContracts.Count(x =>
+			x.OriginOpeningId == Id &&
+			x.Status is EmploymentStatus.Active or EmploymentStatus.Suspended);
 
 	public bool AcceptsApplications =>
 		Status == JobOpeningStatus.Open &&
-		Employer.Employment.Applications.Count(x =>
-			x.Opening.Id == Id &&
-			x.Status == JobApplicationStatus.Accepted) < MaxPositions;
+		OccupiedPositions < MaxPositions;
 
 	public void Close()
 	{
 		Status = JobOpeningStatus.Closed;
+		RevisionNumber++;
 	}
 
 	public void Modify(JobOpeningDefinition definition)
@@ -646,13 +741,15 @@ public sealed class JobOpening : IJobOpening
 		NpcApplicationsOnly = definition.NpcApplicationsOnly;
 		PaymentMethod = definition.PaymentMethod;
 		Authority = definition.Authority;
+		RevisionNumber++;
 	}
 }
 
 public sealed class EmploymentApplication : IEmploymentApplication
 {
 	public EmploymentApplication(long id, IJobOpening opening, ICharacter candidate, DateTimeOffset appliedAt,
-		JobApplicationStatus status, string? decisionReason)
+		JobApplicationStatus status, string? decisionReason, int offeredOpeningRevision,
+		EmploymentCandidateProfile? candidateProfile = null)
 	{
 		Id = id;
 		Opening = opening;
@@ -660,6 +757,8 @@ public sealed class EmploymentApplication : IEmploymentApplication
 		AppliedAt = appliedAt;
 		Status = status;
 		DecisionReason = decisionReason;
+		OfferedOpeningRevision = offeredOpeningRevision;
+		CandidateProfile = candidateProfile;
 	}
 
 	public long Id { get; }
@@ -667,6 +766,8 @@ public sealed class EmploymentApplication : IEmploymentApplication
 	public ICharacter Candidate { get; }
 	public DateTimeOffset AppliedAt { get; }
 	public JobApplicationStatus Status { get; private set; }
+	public int OfferedOpeningRevision { get; }
+	internal EmploymentCandidateProfile? CandidateProfile { get; }
 	public string? DecisionReason { get; private set; }
 
 	public void Decide(JobApplicationStatus status, string? reason)
@@ -791,6 +892,17 @@ public sealed class EmploymentPayroll : IEmploymentPayroll
 		       .ToList();
 	}
 
+	public IReadOnlyCollection<IEmploymentPayable> OutstandingLiabilitiesFor(ICharacter employee)
+	{
+		var employeeIdentityId = CharacterInstanceIdentityComparer.IdentityId(employee);
+		return _payables
+		       .Where(x => x.EmployeeId == employeeIdentityId)
+		       .Where(x => x.Status == EmploymentPayableStatus.Accrued)
+		       .OrderBy(x => x.DueAt)
+		       .ThenBy(x => x.Id)
+		       .ToList();
+	}
+
 	public IReadOnlyCollection<IEmploymentPayable> EvaluatePayroll()
 	{
 		return EvaluatePayroll(EmploymentClock.CurrentInstant(_state.Host));
@@ -798,6 +910,7 @@ public sealed class EmploymentPayroll : IEmploymentPayroll
 
 	public IReadOnlyCollection<IEmploymentPayable> EvaluatePayroll(DateTimeOffset now)
 	{
+		_state.EvaluateContractLifecycle(now);
 		var created = new List<IEmploymentPayable>();
 		foreach (var contract in _state.EmploymentContracts
 		                               .Where(x => x.Status is EmploymentStatus.Active or EmploymentStatus.Ended)
@@ -861,6 +974,14 @@ public sealed class EmploymentPayroll : IEmploymentPayroll
 					continue;
 				}
 
+				var payableAmount = AmountForPeriod(amount, contract.Compensation.Cadence, contract.Schedule,
+					periodStart, periodEnd, periodLength.Value);
+				if (!payableAmount.IsPositive)
+				{
+					periodStart = periodEnd;
+					continue;
+				}
+
 				var payable = new EmploymentPayable(
 					_state.NextPayableId(),
 					Guid.NewGuid(),
@@ -869,7 +990,7 @@ public sealed class EmploymentPayroll : IEmploymentPayroll
 					contract.Employee.Id,
 					contract.Employee.Name,
 					contract.Role,
-					AmountForPeriod(amount, contract.Compensation.Cadence, periodStart, periodEnd, periodLength.Value),
+					payableAmount,
 					contract.Compensation.Cadence,
 					contract.PaymentMethod,
 					periodStart,
@@ -908,6 +1029,21 @@ public sealed class EmploymentPayroll : IEmploymentPayroll
 		       .Max();
 	}
 
+	public int MaximumOverdueDaysFor(ICharacter employee)
+	{
+		return MaximumOverdueDaysFor(employee, EmploymentClock.CurrentInstant(_state.Host));
+	}
+
+	public int MaximumOverdueDaysFor(ICharacter employee, DateTimeOffset now)
+	{
+		var employeeIdentityId = CharacterInstanceIdentityComparer.IdentityId(employee);
+		return _payables
+		       .Where(x => x.EmployeeId == employeeIdentityId)
+		       .Select(x => x.DaysOverdue(now))
+		       .DefaultIfEmpty()
+		       .Max();
+	}
+
 	public bool TrySettlePayables(IEnumerable<IEmploymentPayable> payables, ICharacter? actor, bool makeClaimable,
 		string reason, out string message)
 	{
@@ -925,8 +1061,18 @@ public sealed class EmploymentPayroll : IEmploymentPayroll
 			return false;
 		}
 
-		var accruedAmounts = targets
+		var accruedTargets = targets
 		                     .Where(x => x.Status == EmploymentPayableStatus.Accrued)
+		                     .ToList();
+		foreach (var payable in accruedTargets)
+		{
+			if (!EmploymentFinanceService.CanDisbursePayroll(_state.Host, payable, out message))
+			{
+				return false;
+			}
+		}
+
+		var accruedAmounts = accruedTargets
 		                     .GroupBy(x => x.Amount.Currency.Id)
 		                     .Select(x => new MoneyAmount(x.First().Amount.Currency, x.Sum(y => y.Amount.Amount)))
 		                     .ToList();
@@ -938,22 +1084,18 @@ public sealed class EmploymentPayroll : IEmploymentPayroll
 			}
 		}
 
-		foreach (var amount in accruedAmounts)
-		{
-			if (!EmploymentFinanceService.TrySettlePayroll(_state.Host, actor, amount, Guid.NewGuid(), out message))
-			{
-				return false;
-			}
-		}
-
 		var newlyFunded = 0;
 		var settled = 0;
 		var now = EmploymentClock.CurrentInstant(_state.Host);
 		foreach (var payable in targets)
 		{
 			var wasAccrued = payable.Status == EmploymentPayableStatus.Accrued;
-			if (makeClaimable && IsActiveCashEmployee(payable.EmployeeId) &&
-			    payable.PaymentMethod.MethodKind == PaymentMethodKind.Cash)
+			if (wasAccrued && !EmploymentFinanceService.TryDisbursePayroll(_state.Host, actor, payable, out message))
+			{
+				return false;
+			}
+
+			if (makeClaimable && payable.PaymentMethod.MethodKind == PaymentMethodKind.Cash)
 			{
 				if (payable.Status == EmploymentPayableStatus.Accrued)
 				{
@@ -966,7 +1108,6 @@ public sealed class EmploymentPayroll : IEmploymentPayroll
 				payable.MarkSettled(now, reason);
 				settled++;
 			}
-
 			_persistence?.SavePayableState(payable);
 			if (wasAccrued)
 			{
@@ -1053,12 +1194,6 @@ public sealed class EmploymentPayroll : IEmploymentPayroll
 		return true;
 	}
 
-	private bool IsActiveCashEmployee(long employeeId)
-	{
-		return _state.EmploymentContracts.Any(x =>
-			x.Employee.Id == employeeId &&
-			x.Status == EmploymentStatus.Active);
-	}
 
 	private static TimeSpan? PeriodLength(PayCadence cadence)
 	{
@@ -1072,13 +1207,13 @@ public sealed class EmploymentPayroll : IEmploymentPayroll
 		};
 	}
 
-	private static MoneyAmount AmountForPeriod(MoneyAmount rate, PayCadence cadence, DateTimeOffset periodStart,
-		DateTimeOffset periodEnd, TimeSpan nominalPeriodLength)
+	private static MoneyAmount AmountForPeriod(MoneyAmount rate, PayCadence cadence, WorkSchedule schedule,
+		DateTimeOffset periodStart, DateTimeOffset periodEnd, TimeSpan nominalPeriodLength)
 	{
 		var elapsed = periodEnd - periodStart;
 		var amount = cadence switch
 		{
-			PayCadence.Hourly => rate.Amount * (decimal)elapsed.TotalHours,
+			PayCadence.Hourly => rate.Amount * (decimal)schedule.ScheduledDurationWithin(periodStart, periodEnd).TotalHours,
 			PayCadence.Daily or PayCadence.Weekly or PayCadence.Salary
 				when elapsed < nominalPeriodLength && nominalPeriodLength > TimeSpan.Zero =>
 				rate.Amount * (decimal)(elapsed.TotalSeconds / nominalPeriodLength.TotalSeconds),
@@ -1204,6 +1339,11 @@ public sealed class EmploymentRegister : IEmploymentRegister
 	}
 
 	public IReadOnlyCollection<IEmploymentRegisterEntry> Entries => _entries;
+
+	internal void AddForCompatibilityLoad(IEnumerable<IEmploymentRegisterEntry> entries)
+	{
+		_entries.AddRange(entries);
+	}
 
 	public IEmploymentRegisterEntry Record(EmploymentRegisterEntryType entryType, ICharacter? actor,
 		string description, Guid? correlationId = null)

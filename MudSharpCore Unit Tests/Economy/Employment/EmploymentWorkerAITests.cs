@@ -7,6 +7,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using MudSharp.Accounts;
 using MudSharp.Arenas;
+using MudSharp.RPG.Knowledge;
+using MudSharp.Body.Traits;
 using MudSharp.Body;
 using MudSharp.Character;
 using MudSharp.Character.Name;
@@ -156,6 +158,63 @@ public class EmploymentWorkerAITests
 	}
 
 	[TestMethod]
+	public void EmploymentWorkerAI_UnemployedNpcUsesRealSkillKnowledgeAndTagRequirements()
+	{
+		var currency = Currency();
+		var workplace = Cell(23, "guild shop");
+		var host = Shop(23, "guild shop", currency.Object, workplace.Object);
+		var requirements = new JobRequirementSet(
+			[new SkillRequirement("haggling", 25.0)],
+			[new KnowledgeRequirement("market law")],
+			[new AICapabilityRequirement(EmploymentAICapability.CanPurchaseCommodities)],
+			[new TagRequirement("trait:haggling")]);
+		host.State.CreateJobOpening(Opening(currency.Object, 20.0M, requirements), null);
+		var gameworld = Gameworld(shops: [host.Shop.Object], currencies: [currency.Object]);
+		var worker = Character(23, "Worker", gameworld.Object, workplace.Object);
+		worker.SetupGet(x => x.CharacterTraits).Returns([Trait("Haggling", 50.0)]);
+		worker.SetupGet(x => x.Knowledges).Returns([Knowledge("Market Law")]);
+		var ai = LoadAI(gameworld.Object, """
+		                                  <Definition>
+		                                    <ReservationWage>10</ReservationWage>
+		                                    <AcceptedPaymentMethods><Method>Cash</Method></AcceptedPaymentMethods>
+		                                    <Capabilities><Capability>CanPurchaseCommodities</Capability></Capabilities>
+		                                  </Definition>
+		                                  """);
+
+		var acted = ai.HandleMinuteTick(worker.Object);
+
+		Assert.IsTrue(acted);
+		var application = host.State.Applications.Single();
+		Assert.AreEqual(JobApplicationStatus.Pending, application.Status);
+	}
+
+	[TestMethod]
+	public void EmploymentWorkerAI_RanksOpeningsByNormalisedEffectivePay()
+	{
+		var currency = Currency();
+		var workplace = Cell(24, "market");
+		var hourlyHost = Shop(24, "hourly shop", currency.Object, workplace.Object);
+		var weeklyHost = Shop(25, "weekly shop", currency.Object, workplace.Object);
+		hourlyHost.State.CreateJobOpening(Opening(currency.Object, 20.0M, cadence: PayCadence.Hourly), null);
+		weeklyHost.State.CreateJobOpening(Opening(currency.Object, 400.0M, cadence: PayCadence.Weekly), null);
+		var gameworld = Gameworld(shops: [weeklyHost.Shop.Object, hourlyHost.Shop.Object], currencies: [currency.Object]);
+		var worker = Character(24, "Worker", gameworld.Object, workplace.Object).Object;
+		var ai = LoadAI(gameworld.Object, """
+		                                  <Definition>
+		                                    <ReservationWage>0</ReservationWage>
+		                                    <AcceptedPaymentMethods><Method>Cash</Method></AcceptedPaymentMethods>
+		                                    <Capabilities><Capability>CanDeliverItems</Capability></Capabilities>
+		                                  </Definition>
+		                                  """);
+
+		var acted = ai.HandleMinuteTick(worker);
+
+		Assert.IsTrue(acted);
+		Assert.AreEqual(1, hourlyHost.State.Applications.Count);
+		Assert.AreEqual(0, weeklyHost.State.Applications.Count);
+	}
+
+	[TestMethod]
 	public void EmploymentHostState_PendingNpcApplicationEchoesToPresentManagersProprietorsAndAdmins()
 	{
 		var currency = Currency();
@@ -284,6 +343,34 @@ public class EmploymentWorkerAITests
 			x.EntryType == EmploymentRegisterEntryType.EmployeeResignedUnpaid));
 		gameworld.Verify(x => x.DebugMessage(It.Is<string>(text => text.Contains("unpaid wages"))),
 			Times.AtLeastOnce);
+	}
+
+	[TestMethod]
+	public void EmploymentWorkerAI_DoesNotQuitForAnotherEmployeesOverduePayroll()
+	{
+		var currency = Currency();
+		var workplace = Cell(142, "stable");
+		var stable = Stable(142, "specific arrears stable", currency.Object, workplace.Object);
+		var gameworld = Gameworld(stables: [stable.Stable.Object], currencies: [currency.Object]);
+		var worker = Character(142, "Worker", gameworld.Object, workplace.Object).Object;
+		var coworker = Character(143, "Coworker", gameworld.Object, workplace.Object).Object;
+		var workerContract = stable.State.Hire(worker, Offer(currency.Object, EmploymentRole.Employee), null);
+		var coworkerContract = stable.State.Hire(coworker, Offer(currency.Object, EmploymentRole.Employee), null);
+		AddPayable(stable.State, coworkerContract, currency.Object, DateTimeOffset.UtcNow.AddDays(-8.0));
+		var ai = LoadAI(gameworld.Object, """
+		                                  <Definition>
+		                                    <MaximumUnpaidOverdueDays>7</MaximumUnpaidOverdueDays>
+		                                    <AcceptedPaymentMethods><Method>Cash</Method></AcceptedPaymentMethods>
+		                                    <Capabilities><Capability>CanDeliverItems</Capability></Capabilities>
+		                                  </Definition>
+		                                  """);
+
+		ai.HandleMinuteTick(worker);
+
+		Assert.AreEqual(EmploymentStatus.Active, workerContract.Status);
+		Assert.IsNull(workerContract.EndReason);
+		Assert.IsFalse(stable.State.EmploymentRegister.Entries.Any(x =>
+			x.EntryType == EmploymentRegisterEntryType.EmployeeResignedUnpaid));
 	}
 
 	[TestMethod]
@@ -648,6 +735,66 @@ public class EmploymentWorkerAITests
 			x.EntryType == EmploymentRegisterEntryType.ActiveTaskBlocked));
 		gameworld.Verify(x => x.DebugMessage(It.Is<string>(text => text.Contains("missing"))),
 			Times.AtLeastOnce);
+	}
+
+	[TestMethod]
+	public void EmploymentWorkerAI_ClaimsHighestPriorityPendingTaskBeforeAlphabeticalTask()
+	{
+		var currency = Currency();
+		var workplace = Cell(37, "office");
+		var host = Shop(37, "priority shop", currency.Object, workplace.Object);
+		var gameworld = Gameworld(shops: [host.Shop.Object], currencies: [currency.Object]);
+		var worker = Character(37, "Worker", gameworld.Object, workplace.Object).Object;
+		host.State.Hire(worker, Offer(currency.Object, EmploymentRole.Employee, EmploymentAuthority.AssignTasks), null);
+		var low = host.State.TaskBoard.CreateActiveTask(
+			"a low priority report",
+			new EmploymentActionPlan([new CataloguedActionShellStep("report", "low priority report")]),
+			null,
+			priority: 1);
+		var high = host.State.TaskBoard.CreateActiveTask(
+			"z high priority report",
+			new EmploymentActionPlan([new CataloguedActionShellStep("report", "high priority report")]),
+			null,
+			priority: 10);
+		var ai = LoadAI(gameworld.Object);
+
+		Assert.IsTrue(ai.HandleMinuteTick(worker));
+
+		Assert.AreEqual(EmploymentTaskStatus.Completed, high.Status, high.BlockedReason);
+		Assert.AreEqual(worker.Id, high.AssignedEmployee?.Id);
+		Assert.AreEqual(EmploymentTaskStatus.Pending, low.Status, low.BlockedReason);
+		Assert.IsNull(low.AssignedEmployee);
+	}
+
+	[TestMethod]
+	public void EmploymentWorkerAI_ChoosesHigherPriorityPendingTaskAcrossActiveHosts()
+	{
+		var currency = Currency();
+		var workplace = Cell(38, "office");
+		var lowHost = Shop(38, "alpha shop", currency.Object, workplace.Object);
+		var highHost = Shop(39, "zeta shop", currency.Object, workplace.Object);
+		var gameworld = Gameworld(shops: [lowHost.Shop.Object, highHost.Shop.Object], currencies: [currency.Object]);
+		var worker = Character(38, "Worker", gameworld.Object, workplace.Object).Object;
+		lowHost.State.Hire(worker, Offer(currency.Object, EmploymentRole.Employee, EmploymentAuthority.AssignTasks), null);
+		highHost.State.Hire(worker, Offer(currency.Object, EmploymentRole.Employee, EmploymentAuthority.AssignTasks), null);
+		var low = lowHost.State.TaskBoard.CreateActiveTask(
+			"a low priority report",
+			new EmploymentActionPlan([new CataloguedActionShellStep("report", "low priority report")]),
+			null,
+			priority: 1);
+		var high = highHost.State.TaskBoard.CreateActiveTask(
+			"z high priority report",
+			new EmploymentActionPlan([new CataloguedActionShellStep("report", "high priority report")]),
+			null,
+			priority: 10);
+		var ai = LoadAI(gameworld.Object);
+
+		Assert.IsTrue(ai.HandleMinuteTick(worker));
+
+		Assert.AreEqual(EmploymentTaskStatus.Completed, high.Status, high.BlockedReason);
+		Assert.AreEqual(worker.Id, high.AssignedEmployee?.Id);
+		Assert.AreEqual(EmploymentTaskStatus.Pending, low.Status, low.BlockedReason);
+		Assert.IsNull(low.AssignedEmployee);
 	}
 
 	[TestMethod]
@@ -1033,12 +1180,32 @@ public class EmploymentWorkerAITests
 		return character;
 	}
 
-	private static JobOpeningDefinition Opening(ICurrency currency, decimal amount)
+	private static ITrait Trait(string name, double value, TraitType traitType = TraitType.Skill)
+	{
+		var definition = new Mock<ITraitDefinition>();
+		definition.SetupGet(x => x.Name).Returns(name);
+		definition.SetupGet(x => x.TraitType).Returns(traitType);
+		definition.SetupGet(x => x.Hidden).Returns(false);
+		var trait = new Mock<ITrait>();
+		trait.SetupGet(x => x.Definition).Returns(definition.Object);
+		trait.SetupGet(x => x.Value).Returns(value);
+		trait.SetupGet(x => x.Hidden).Returns(false);
+		return trait.Object;
+	}
+
+	private static IKnowledge Knowledge(string name)
+	{
+		var knowledge = new Mock<IKnowledge>();
+		knowledge.SetupGet(x => x.Name).Returns(name);
+		return knowledge.Object;
+	}
+	private static JobOpeningDefinition Opening(ICurrency currency, decimal amount,
+		JobRequirementSet? requirements = null, PayCadence cadence = PayCadence.Hourly)
 	{
 		return new JobOpeningDefinition(
 			EmploymentRole.Employee,
-			JobRequirementSet.None,
-			Pay(currency, amount),
+			requirements ?? JobRequirementSet.None,
+			Pay(currency, amount, cadence),
 			WorkSchedule.AnyTime,
 			EmploymentDuration.Indefinite,
 			1,
@@ -1071,12 +1238,13 @@ public class EmploymentWorkerAITests
 			[PaymentMethodKind.Cash]);
 	}
 
-	private static CompensationTerms Pay(ICurrency currency, decimal amount = 10.0M)
+	private static CompensationTerms Pay(ICurrency currency, decimal amount = 10.0M,
+		PayCadence cadence = PayCadence.Hourly)
 	{
 		return new CompensationTerms(
 			new MoneyAmount(currency, amount),
 			null,
-			PayCadence.Hourly,
+			cadence,
 			new MoneyAmount(currency, amount),
 			PaymentSource.HostCash);
 	}

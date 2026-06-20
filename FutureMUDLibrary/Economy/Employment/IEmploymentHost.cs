@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using MudSharp.Character;
 using MudSharp.Community.Boards;
@@ -65,6 +66,7 @@ public interface IEmploymentHostState
 	bool CanEmploy(ICharacter candidate, EmploymentRole role, out string reason);
 	IEmploymentContract Hire(ICharacter candidate, EmploymentOffer offer, ICharacter? authorisedBy);
 	void Fire(IEmploymentContract contract, EmploymentTerminationReason reason, ICharacter? authorisedBy);
+	IReadOnlyCollection<IEmploymentContract> EvaluateContractLifecycle(DateTimeOffset now);
 	bool HasAuthority(ICharacter actor, EmploymentAuthority authority);
 	void SetContractAuthority(IEmploymentContract contract, EmploymentAuthoritySet authority, ICharacter authorisedBy);
 	IJobOpening CreateJobOpening(JobOpeningDefinition definition, ICharacter? authorisedBy);

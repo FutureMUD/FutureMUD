@@ -5,6 +5,7 @@ using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Framework;
 using MudSharp.GameItems;
+using MudSharp.Vehicles;
 
 #nullable enable
 
@@ -96,30 +97,48 @@ public sealed record EmploymentConditionExpressionEvaluation(
 
 public enum EmploymentActionStepType
 {
+	SupplierSelection,
 	Purchase,
 	MoveOrDeliver,
 	CraftTrigger,
 	Command,
 	BankDeposit,
 	BankWithdrawal,
+	AccountTransfer,
+	HostSettlement,
 	StoreAccountPayment,
 	BoardPost,
 	GetItemsById,
 	GetItemsByTag,
 	GetCommodity,
 	DeliverItems,
+	ShopStockTransfer,
+	AuctionLotListing,
+	AuctionSettlement,
+	AuctionClaim,
+	ArenaEventAdministration,
 	CataloguedShell,
 	LoadItems,
 	UnloadItems,
 	ReturnAsset,
 	VehicleOperation,
+	StableAnimalOperation,
 	TaxPayment,
 	ShopFloatAdjustment,
+	ShopCashReconciliation,
 	PhysicalFloat,
 	CraftStation,
 	PayrollSettlement,
 	PriceChange,
-	JobOpeningAdministration
+	ShopStocktake,
+	ShopDealAdministration,
+	JobOpeningAdministration,
+	ScheduledRuleAdministration,
+	ActiveTaskAdministration,
+	ManagerGoalAdministration,
+	BankAdministration,
+	StableAdministration,
+	HotelAdministration
 }
 
 public enum EmploymentActionStepStatus
@@ -128,7 +147,7 @@ public enum EmploymentActionStepStatus
 	InProgress,
 	Completed,
 	Failed,
-	Blocked
+	Blocked,
 }
 
 public enum EmploymentItemSelectorKind
@@ -314,6 +333,122 @@ public sealed record EmploymentTaskAssignmentAuditResult(
 	EmploymentTaskAssignmentAuditOutcome Outcome,
 	string Reason);
 
+public enum EmploymentTaskSourceKind
+{
+	Manual,
+	ScheduledRule,
+	ManagerGoal,
+	HostSystem
+}
+
+public enum EmploymentPrincipalKind
+{
+	Character,
+	EmploymentContract,
+	ScheduledRule,
+	ManagerGoal,
+	HostSystem,
+	Implementor
+}
+
+public sealed record EmploymentPrincipal(
+	EmploymentPrincipalKind Kind,
+	long? CharacterId = null,
+	long? EmploymentContractId = null,
+	Guid? ScheduledRuleId = null,
+	long? ManagerGoalId = null,
+	string? Label = null)
+{
+	public static EmploymentPrincipal ForCharacter(ICharacter character) =>
+		new(EmploymentPrincipalKind.Character, CharacterId: character.Id, Label: character.Name);
+
+	public static EmploymentPrincipal ForScheduledRule(IEmploymentScheduledTaskRule rule) =>
+		new(EmploymentPrincipalKind.ScheduledRule, ScheduledRuleId: rule.Id, Label: rule.Name);
+
+	public static EmploymentPrincipal ForManagerGoal(IManagerGoal goal) =>
+		new(EmploymentPrincipalKind.ManagerGoal, ManagerGoalId: goal.Id, Label: goal.GoalType.DescribeEnum());
+
+	public static EmploymentPrincipal HostSystem(string label) =>
+		new(EmploymentPrincipalKind.HostSystem, Label: label);
+}
+
+public sealed record EmploymentAuthorisationLimit(long CurrencyId, decimal Amount);
+
+public sealed record EmploymentAuthorisationGrant(
+	Guid Id,
+	EmploymentPrincipal IssuerPrincipal,
+	EmploymentAuthoritySet Authority,
+	IReadOnlyDictionary<long, decimal> AmountLimits,
+	bool AllowsUnboundedFinancialSteps,
+	DateTimeOffset IssuedAt,
+	DateTimeOffset? ExpiresAt,
+	Guid CorrelationId,
+	IReadOnlySet<string> PaymentSourceScopes,
+	IReadOnlySet<string> CounterpartyScopes)
+{
+	public IReadOnlyCollection<EmploymentAuthorisationLimit> Limits =>
+		AmountLimits.Select(x => new EmploymentAuthorisationLimit(x.Key, x.Value)).ToList();
+
+	public bool CoversAuthority(EmploymentAuthoritySet requiredAuthority)
+	{
+		return Authority.ContainsAll(requiredAuthority);
+	}
+
+	public bool Covers(MoneyAmount amount, IReadOnlyDictionary<long, decimal> alreadyUsed)
+	{
+		if (!AmountLimits.TryGetValue(amount.Currency.Id, out var limit))
+		{
+			return AllowsUnboundedFinancialSteps;
+		}
+
+		return limit - alreadyUsed.GetValueOrDefault(amount.Currency.Id) >= amount.Amount;
+	}
+
+	public bool CoversPaymentSource(string? paymentSourceScope)
+	{
+		return CoversScope(PaymentSourceScopes, paymentSourceScope);
+	}
+
+	public bool CoversCounterparty(string? counterpartyScope)
+	{
+		return CoversScope(CounterpartyScopes, counterpartyScope);
+	}
+
+	private static bool CoversScope(IReadOnlySet<string> allowedScopes, string? scope)
+	{
+		if (allowedScopes.Count == 0)
+		{
+			return true;
+		}
+
+		if (string.IsNullOrWhiteSpace(scope))
+		{
+			return false;
+		}
+
+		return allowedScopes.Contains(NormaliseScope(scope));
+	}
+
+	public static string NormaliseScope(string scope)
+	{
+		return scope.Trim().ToLowerInvariant();
+	}
+}
+
+public sealed record EmploymentTaskProvenance(
+	EmploymentTaskSourceKind SourceKind,
+	Guid? SourceRuleId,
+	long? SourceGoalId,
+	EmploymentPrincipal CreatedByPrincipal,
+	EmploymentPrincipal AuthorisedByPrincipal,
+	EmploymentAuthorisationGrant AuthorisationGrant,
+	int Priority,
+	DateTimeOffset CreatedAt,
+	DateTimeOffset? DueAt = null,
+	DateTimeOffset? AssignedAt = null,
+	DateTimeOffset? StartedAt = null,
+	DateTimeOffset? CompletedAt = null);
+
 public interface IEmploymentActiveTask
 {
 	Guid Id { get; }
@@ -327,6 +462,17 @@ public interface IEmploymentActiveTask
 	IReadOnlyList<EmploymentActionStepOperationalState> StepOperationalStates { get; }
 	Guid CorrelationId { get; }
 	string IdempotencyKey { get; }
+	EmploymentTaskProvenance Provenance { get; }
+	EmploymentTaskSourceKind SourceKind { get; }
+	Guid? SourceRuleId { get; }
+	long? SourceGoalId { get; }
+	EmploymentPrincipal CreatedByPrincipal { get; }
+	EmploymentPrincipal AuthorisedByPrincipal { get; }
+	EmploymentAuthorisationGrant AuthorisationGrant { get; }
+	int Priority { get; }
+	DateTimeOffset CreatedAt { get; }
+	DateTimeOffset? DueAt { get; }
+	DateTimeOffset? AssignedAt { get; }
 }
 
 public interface IEmploymentScheduledTaskRule
@@ -388,8 +534,12 @@ public interface IEmploymentTaskBoard
 		EmploymentActionPlan actionPlan, TimeSpan cooldown, ICharacter? authorisedBy);
 	bool CancelScheduledRuleTemplate(IEmploymentScheduledRuleTemplate template, ICharacter? cancelledBy, string reason);
 	IEmploymentActiveTask CreateActiveTask(string name, EmploymentActionPlan actionPlan, ICharacter? authorisedBy,
-		Guid? correlationId = null, string? idempotencyKey = null);
+		Guid? correlationId = null, string? idempotencyKey = null, int priority = 0, DateTimeOffset? dueAt = null,
+		EmploymentTaskProvenance? provenance = null);
 	bool CancelActiveTask(IEmploymentActiveTask task, ICharacter? cancelledBy, string reason);
+	bool RetryActiveTask(IEmploymentActiveTask task, ICharacter? retriedBy, string reason);
+	bool RequeueActiveTask(IEmploymentActiveTask task, ICharacter? requeuedBy, string reason);
+	bool AssignActiveTask(IEmploymentActiveTask task, ICharacter employee, IEmploymentTaskContext context, ICharacter? assignedBy, string reason);
 	bool CancelScheduledRule(IEmploymentScheduledTaskRule rule, ICharacter? cancelledBy, string reason);
 	bool PauseScheduledRule(IEmploymentScheduledTaskRule rule, ICharacter? pausedBy, string reason);
 	bool ResumeScheduledRule(IEmploymentScheduledTaskRule rule, ICharacter? resumedBy, string reason);
@@ -429,6 +579,9 @@ public interface IEmploymentTaskContext
 		string? destinationContainerTag, out string reason,
 		out EmploymentActionStepOperationalState operationalState);
 	IReadOnlyCollection<IGameItem> LoadedTaskItems(ICharacter actor, IGameItem container);
+	bool CanAssignVehicle(ICharacter actor, IVehicle vehicle, out string reason);
+	bool TryAssignVehicle(ICharacter actor, IVehicle vehicle, out string reason,
+		out EmploymentActionStepOperationalState operationalState);
 	bool CanReserveFunds(MoneyAmount amount, out string reason);
 	bool TryReserveFunds(MoneyAmount amount, ICharacter actor, string description, out string reason,
 		out EmploymentActionStepOperationalState operationalState);
@@ -440,6 +593,12 @@ public interface IEmploymentTaskContext
 	bool TryBankDeposit(ICharacter actor, MoneyAmount amount, out string reason,
 		out EmploymentActionStepOperationalState operationalState);
 	bool TryBankWithdrawal(ICharacter actor, MoneyAmount amount, out string reason,
+		out EmploymentActionStepOperationalState operationalState);
+	bool CanBankTransfer(string targetAccountKey, MoneyAmount amount, out string reason);
+	bool TryBankTransfer(ICharacter actor, string targetAccountKey, MoneyAmount amount, out string reason,
+		out EmploymentActionStepOperationalState operationalState);
+	bool CanHostSettlement(string targetHostKey, MoneyAmount amount, out string reason);
+	bool TryHostSettlement(ICharacter actor, string targetHostKey, MoneyAmount amount, out string reason,
 		out EmploymentActionStepOperationalState operationalState);
 	bool CanPurchase(IEmploymentActionStep step, out string reason);
 	bool TryPurchase(ICharacter actor, IEmploymentActionStep step, out string reason,
@@ -493,11 +652,88 @@ public enum PriceChangeActionKind
 	MarketCategory
 }
 
+public enum ShopStocktakeScope
+{
+	All,
+	Merchandise
+}
+
+public enum ShopDealAdministrationActionKind
+{
+	Create,
+	Modify,
+	Cancel
+}
+
+public enum ArenaEventAdministrationActionKind
+{
+	Create,
+	Transition,
+	Abort
+}
+
+public enum BankAdministrationActionKind
+{
+	ReserveAudit,
+	ReserveDeposit,
+	ReserveWithdrawal,
+	AccountCredit,
+	AccountStatus,
+	AccountClose,
+	BranchPost,
+	BranchCourier
+}
+
+public enum StableAdministrationActionKind
+{
+	CareInspect,
+	CareFeed,
+	CareGroom,
+	CareExercise,
+	FeeAssessment,
+	StayReconciliation,
+	AccountReconciliation
+}
+
+public enum HotelAdministrationActionKind
+{
+	RoomInspect,
+	RoomClean,
+	RoomReady,
+	RoomMaintenance,
+	LostPropertyCheck,
+	LostPropertyAudit,
+	PatronBalanceAudit
+}
+
 public enum JobOpeningAdministrationActionKind
 {
 	Create,
 	Close,
 	Modify
+}
+
+public enum ScheduledRuleAdministrationActionKind
+{
+	Pause,
+	Resume,
+	Cancel,
+	Evaluate
+}
+
+public enum ActiveTaskAdministrationActionKind
+{
+	Retry,
+	Requeue,
+	Assign,
+	Cancel
+}
+
+public enum ManagerGoalAdministrationActionKind
+{
+	Evaluate,
+	Cancel,
+	Reactivate
 }
 
 public enum ManagerGoalType
@@ -527,20 +763,46 @@ public enum ManagerGoalStatus
 	Suspended,
 	Completed,
 	Cancelled,
-	Blocked
+	Blocked,
+	Satisfied,
+	Failed
+}
+
+public sealed record ManagerGoalRiskLimits(
+	int? MaximumActiveTasks = 1,
+	int? MaximumActionSteps = null,
+	bool AllowsUnboundedFinancialSteps = false)
+{
+	public static ManagerGoalRiskLimits Default { get; } = new();
+}
+
+public sealed record ManagerGoalPolicy
+{
+	public ManagerGoalPolicy(IReadOnlyCollection<MoneyAmount>? budgetLimits = null,
+		ManagerGoalRiskLimits? riskLimits = null)
+	{
+		BudgetLimits = budgetLimits ?? Array.Empty<MoneyAmount>();
+		RiskLimits = riskLimits ?? ManagerGoalRiskLimits.Default;
+	}
+
+	public static ManagerGoalPolicy Default { get; } = new();
+	public IReadOnlyCollection<MoneyAmount> BudgetLimits { get; init; }
+	public ManagerGoalRiskLimits RiskLimits { get; init; }
 }
 
 public sealed record ManagerGoalConfiguration(
 	string Description,
 	EmploymentActionPlan? ActionPlan = null,
-	IReadOnlyCollection<IEmploymentTaskCondition>? Conditions = null);
+	IReadOnlyCollection<IEmploymentTaskCondition>? Conditions = null,
+	EmploymentConditionExpression? ConditionExpression = null);
 
 public sealed record ManagerGoalDefinition(
 	ManagerGoalType GoalType,
 	EmploymentAuthoritySet RequiredAuthority,
 	ManagerGoalConfiguration Configuration,
 	int Priority,
-	TimeSpan EvaluationCadence);
+	TimeSpan EvaluationCadence,
+	ManagerGoalPolicy? Policy = null);
 
 public interface IManagerGoal
 {
@@ -552,6 +814,7 @@ public interface IManagerGoal
 	ManagerGoalConfiguration Configuration { get; }
 	int Priority { get; }
 	TimeSpan EvaluationCadence { get; }
+	ManagerGoalPolicy Policy { get; }
 	DateTimeOffset? LastEvaluatedAt { get; }
 	string? LastEvaluationResult { get; }
 	Guid CorrelationId { get; }
@@ -562,5 +825,7 @@ public interface IManagerGoalBoard
 	IReadOnlyCollection<IManagerGoal> Goals { get; }
 	IManagerGoal CreateGoal(ManagerGoalDefinition definition, ICharacter authorisedBy);
 	void CancelGoal(IManagerGoal goal, ICharacter cancelledBy, string reason);
+	bool ReactivateGoal(IManagerGoal goal, ICharacter reactivatedBy, string reason);
+	IReadOnlyCollection<IEmploymentActiveTask> EvaluateGoal(IManagerGoal goal, IEmploymentTaskContext context, DateTimeOffset now);
 	IReadOnlyCollection<IEmploymentActiveTask> EvaluateGoals(IEmploymentTaskContext context, DateTimeOffset now);
 }

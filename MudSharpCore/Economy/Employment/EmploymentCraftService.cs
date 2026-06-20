@@ -21,6 +21,7 @@ internal static class EmploymentCraftService
 	private const string CraftPayloadVersion = "craft-v2";
 	private const string CraftStationPayloadVersion = "craft-station-v1";
 	private const string CraftReservationDurationMinutesSetting = "EmploymentCraftReservationDurationMinutes";
+	private const string CraftStationCapacitySetting = "EmploymentCraftStationReservationCapacity";
 	private const double DefaultReservationDurationMinutes = 30.0;
 	private static readonly JsonSerializerOptions CraftStateJsonOptions = new()
 	{
@@ -77,8 +78,20 @@ internal static class EmploymentCraftService
 		var hasPriorState = TryGetPriorCraftState(context, craft, out var priorState);
 		if (MatchingActiveCraft(actor, craft) is { } active)
 		{
+			if (active.Component.HasFailed)
+			{
+				if (!hasPriorState)
+				{
+					reason = "Craft " + craft.Name + " has failed, but this task has no prior employment craft state to identify salvage safely.";
+					return false;
+				}
+
+				return TryRecoverFailedCraft(context, actor, craft, priorState, out reason, out operationalState);
+			}
+
 			if (!TryCreateOrRefreshCraftState(context, actor, craft, active.Component,
 				    hasPriorState ? priorState.PreExistingItemIds : PriorItemIds(context, actor.Location),
+				    hasPriorState ? priorState.TaskInputItemIds : CurrentTaskInputItemIds(context, actor),
 				    hasPriorState ? priorState : null,
 				    out var refreshedState, out reason))
 			{
@@ -94,6 +107,11 @@ internal static class EmploymentCraftService
 		{
 			if (TryResolveActiveCraftItem(actor, priorState.ActiveItemId, craft, out var activeComponent))
 			{
+				if (activeComponent.HasFailed)
+				{
+					return TryRecoverFailedCraft(context, actor, craft, priorState, out reason, out operationalState);
+				}
+
 				var canResume = craft.CanResumeCraft(actor, activeComponent);
 				if (!canResume.Success)
 				{
@@ -102,7 +120,7 @@ internal static class EmploymentCraftService
 				}
 
 				if (!TryCreateOrRefreshCraftState(context, actor, craft, activeComponent,
-					    priorState.PreExistingItemIds, priorState, out var refreshedState, out reason))
+					    priorState.PreExistingItemIds, priorState.TaskInputItemIds, priorState, out var refreshedState, out reason))
 				{
 					return false;
 				}
@@ -122,8 +140,8 @@ internal static class EmploymentCraftService
 		}
 
 		var preExistingItemIds = PriorItemIds(context, actor.Location);
-		if (!TryCreateOrRefreshCraftState(context, actor, craft, null, preExistingItemIds, null,
-			    out var reservedState, out reason))
+		if (!TryCreateOrRefreshCraftState(context, actor, craft, null, preExistingItemIds,
+			    CurrentTaskInputItemIds(context, actor), null, out var reservedState, out reason))
 		{
 			return false;
 		}
@@ -202,7 +220,8 @@ internal static class EmploymentCraftService
 		}
 
 		var station = CreateStationReservation(actor, stationSelector);
-		if (!TryApplyStationReservationLock(context.CurrentTask, actor.Gameworld, station, out reason))
+		var stationCapacity = StationReservationCapacity(actor.Gameworld);
+		if (!TryApplyStationReservationLock(context.CurrentTask, actor.Gameworld, station, stationCapacity, out reason))
 		{
 			operationalState = EmploymentActionStepOperationalState.Empty;
 			return false;
@@ -211,7 +230,7 @@ internal static class EmploymentCraftService
 		operationalState = new EmploymentActionStepOperationalState(
 			OperationalPayload: $"Craft station validated: {station.Description}",
 			ReservationReference: station.ExpiresAt > DateTimeOffset.MinValue
-				? $"craft-station expires={station.ExpiresAt:O}"
+				? $"craft-station capacity={stationCapacity:N0};expires={station.ExpiresAt:O}"
 				: null,
 			RouteResult: station.CellId is not null ? $"cell={station.CellId.Value:F0}" : null,
 			CraftJobReference: SerializeStationState(station));
@@ -288,14 +307,17 @@ internal static class EmploymentCraftService
 				: "legacy";
 			var active = craftState.ActiveItemId > 0
 				? $"active #{craftState.ActiveItemId:N0}, "
-				: string.Empty;
+			: string.Empty;
 			var station = craftState.Station is not null
 				? $", station {craftState.Station.Description}"
-				: string.Empty;
+			: string.Empty;
 			var output = craftState.OutputItemIds.Any()
 				? $", outputs {craftState.OutputItemIds.Select(x => $"#{x:N0}").ListToString()}"
-				: string.Empty;
-			return $"{craftState.CraftName} r{craftState.Revision:N0} ({active}{itemCount:N0} reserved item(s), expires {expires}{station}{output})";
+			: string.Empty;
+		var taskInputs = craftState.TaskInputItemIds.Any()
+			? $", task inputs {craftState.TaskInputItemIds.Select(x => $"#{x:N0}").ListToString()}"
+			: string.Empty;
+		return $"{craftState.CraftName} r{craftState.Revision:N0} ({active}{itemCount:N0} reserved item(s), expires {expires}{station}{output}{taskInputs})";
 		}
 
 		if (TryParseStationState(craftReference, out var stationState))
@@ -359,7 +381,7 @@ internal static class EmploymentCraftService
 
 	private static bool TryCreateOrRefreshCraftState(EmploymentTaskContext context, ICharacter actor, ICraft craft,
 		IActiveCraftGameItemComponent? component, IReadOnlyCollection<long> preExistingItemIds,
-		CraftState? priorState, out CraftState state, out string reason)
+		IReadOnlyCollection<long> taskInputItemIds, CraftState? priorState, out CraftState state, out string reason)
 	{
 		var now = DateTimeOffset.UtcNow;
 		var shouldRefresh = priorState?.Reservation is null ||
@@ -389,6 +411,7 @@ internal static class EmploymentCraftService
 			craft.Name,
 			component?.Parent.Id ?? priorState?.ActiveItemId ?? 0L,
 			preExistingItemIds.Any() ? preExistingItemIds : priorState?.PreExistingItemIds ?? [],
+			taskInputItemIds.Any() ? taskInputItemIds : priorState?.TaskInputItemIds ?? [],
 			shouldRefresh ? now : priorState!.ReservedAt,
 			shouldRefresh ? now.Add(duration) : priorState!.ExpiresAt,
 			reservation,
@@ -453,11 +476,59 @@ internal static class EmploymentCraftService
 		return true;
 	}
 
+	private static bool TryRecoverFailedCraft(EmploymentTaskContext context, ICharacter actor, ICraft craft,
+		CraftState state, out string reason, out EmploymentActionStepOperationalState operationalState)
+	{
+		var location = actor.Location;
+		var salvage = location is null
+			? new List<IGameItem>()
+			: context.AvailableItems(location)
+			         .Where(x => !state.PreExistingItemIds.Contains(x.Id))
+			         .Where(x => x.GetItemType<IActiveCraftGameItemComponent>() is null)
+			         .DistinctBy(x => x.Id)
+			         .ToList();
+		if (salvage.Any() &&
+		    !context.TryCollectTaskItems(actor, salvage.Select(x => (x, location!)).ToList(), out reason))
+		{
+			operationalState = EmploymentActionStepOperationalState.Empty;
+			return false;
+		}
+
+		var failedState = state with
+		{
+			ActiveItemId = 0,
+			OutputItemIds = salvage.Select(x => x.Id).ToList()
+		};
+		reason = salvage.Any()
+			? "Craft " + craft.Name + " failed; adopted " + salvage.Count.ToString("N0") + " salvage item(s) into task custody for manager review."
+			: "Craft " + craft.Name + " failed with no visible salvage for manager review.";
+		context.RecordRegister(EmploymentRegisterEntryType.AuditActionRecorded, actor, reason,
+			context.CurrentTask?.CorrelationId);
+		operationalState = new EmploymentActionStepOperationalState(
+			OperationalPayload: "craft-status=failed",
+			SelectedResources: salvage.Any()
+				? EmploymentTaskContext.FormatTaskItemCustody("collect",
+					CharacterInstanceIdentityComparer.PhysicalInstanceKey(actor), salvage)
+				: null,
+			FailureDiagnostic: reason,
+			CraftJobReference: SerializeCraftState(failedState));
+		ReleaseCraftReservations(context.CurrentTask, actor.Gameworld);
+		return true;
+	}
+
 	private static IReadOnlyCollection<long> PriorItemIds(EmploymentTaskContext context, ICell? location)
 	{
 		return location is null
 			? []
 			: context.AvailableItems(location).Select(x => x.Id).Distinct().ToList();
+	}
+
+	private static IReadOnlyCollection<long> CurrentTaskInputItemIds(EmploymentTaskContext context, ICharacter actor)
+	{
+		return context.CarriedTaskItems(actor)
+		              .Select(x => x.Id)
+		              .Distinct()
+		              .ToList();
 	}
 
 	private static TimeSpan ReservationDuration(ICharacter actor)
@@ -469,6 +540,17 @@ internal static class EmploymentCraftService
 		}
 
 		return TimeSpan.FromMinutes(minutes);
+	}
+
+	private static int StationReservationCapacity(IFuturemud? gameworld)
+	{
+		var configured = gameworld?.GetStaticDouble(CraftStationCapacitySetting) ?? 0.0;
+		if (!double.IsFinite(configured) || configured <= 0.0)
+		{
+			return 1;
+		}
+
+		return Math.Max(1, (int)Math.Floor(configured));
 	}
 
 	private static CraftStationReservation CreateStationReservation(ICharacter actor, string stationSelector)
@@ -575,7 +657,7 @@ internal static class EmploymentCraftService
 	}
 
 	private static bool TryApplyStationReservationLock(IEmploymentActiveTask? task, IFuturemud? gameworld,
-		CraftStationReservation station, out string reason)
+		CraftStationReservation station, int stationCapacity, out string reason)
 	{
 		reason = string.Empty;
 		if (task is null ||
@@ -592,11 +674,15 @@ internal static class EmploymentCraftService
 			return false;
 		}
 
-		var conflictingReservation = ActiveReservationEffects(item)
-		                             .FirstOrDefault(x => x.CorrelationId != task.CorrelationId);
-		if (conflictingReservation is not null)
+		var conflictingReservations = ActiveReservationEffects(item)
+		                              .Where(x => x.CorrelationId != task.CorrelationId)
+		                              .ToList();
+		if (conflictingReservations.Count >= stationCapacity)
 		{
-			reason = $"{item.Name} is already reserved for employment task {conflictingReservation.TaskName}.";
+			var taskNames = conflictingReservations.Select(x => x.TaskName).Distinct().ListToString();
+			var occupancy = $"{conflictingReservations.Count.ToString("N0")}/{stationCapacity.ToString("N0")}";
+			var taskSuffix = string.IsNullOrWhiteSpace(taskNames) ? "." : $" by {taskNames}.";
+			reason = $"{item.Name} has {occupancy} employment craft station reservations in use{taskSuffix}";
 			return false;
 		}
 
@@ -728,6 +814,7 @@ internal static class EmploymentCraftService
 				state = candidate with
 				{
 					PreExistingItemIds = candidate.PreExistingItemIds ?? [],
+					TaskInputItemIds = candidate.TaskInputItemIds ?? [],
 					OutputItemIds = candidate.OutputItemIds ?? [],
 					Reservation = NormaliseReservation(candidate.Reservation)
 				};
@@ -772,6 +859,7 @@ internal static class EmploymentCraftService
 			craft?.Name ?? $"craft #{craftId:N0}",
 			activeItemId,
 			preExisting,
+			[],
 			DateTimeOffset.MinValue,
 			DateTimeOffset.MinValue,
 			null,
@@ -827,6 +915,7 @@ internal static class EmploymentCraftService
 		string CraftName,
 		long ActiveItemId,
 		IReadOnlyCollection<long> PreExistingItemIds,
+		IReadOnlyCollection<long> TaskInputItemIds,
 		DateTimeOffset ReservedAt,
 		DateTimeOffset ExpiresAt,
 		CraftResourceReservation? Reservation,

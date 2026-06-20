@@ -67,7 +67,8 @@ public enum EmploymentAuthority
 	PayTaxes = 1 << 20,
 	PostToHostBoard = 1 << 21,
 	ModerateHostBoard = 1 << 22,
-	ManagePayroll = 1 << 23
+	ManagePayroll = 1 << 23,
+	SettleHostAccounts = 1 << 24
 }
 
 public readonly record struct EmploymentAuthoritySet(EmploymentAuthority Authorities)
@@ -97,7 +98,8 @@ public readonly record struct EmploymentAuthoritySet(EmploymentAuthority Authori
 		EmploymentAuthority.PayTaxes |
 		EmploymentAuthority.PostToHostBoard |
 		EmploymentAuthority.ModerateHostBoard |
-		EmploymentAuthority.ManagePayroll);
+		EmploymentAuthority.ManagePayroll |
+		EmploymentAuthority.SettleHostAccounts);
 
 	public bool Contains(EmploymentAuthority authority)
 	{
@@ -226,6 +228,43 @@ public sealed record CompensationTerms(
 public sealed record WorkSchedule(string Description, TimeSpan? StartsAt = null, TimeSpan? EndsAt = null)
 {
 	public static WorkSchedule AnyTime { get; } = new("Any time");
+
+	public bool HasScheduledWindow => StartsAt.HasValue && EndsAt.HasValue;
+
+	public TimeSpan ScheduledDurationWithin(DateTimeOffset periodStart, DateTimeOffset periodEnd)
+	{
+		if (periodEnd <= periodStart)
+		{
+			return TimeSpan.Zero;
+		}
+
+		if (!HasScheduledWindow)
+		{
+			return periodEnd - periodStart;
+		}
+
+		var total = TimeSpan.Zero;
+		var startDate = periodStart.Date.AddDays(-1.0);
+		var endDate = periodEnd.Date.AddDays(1.0);
+		for (var date = startDate; date <= endDate; date = date.AddDays(1.0))
+		{
+			var scheduledStart = new DateTimeOffset(date + StartsAt!.Value, periodStart.Offset);
+			var scheduledEnd = new DateTimeOffset(date + EndsAt!.Value, periodStart.Offset);
+			if (scheduledEnd <= scheduledStart)
+			{
+				scheduledEnd = scheduledEnd.AddDays(1.0);
+			}
+
+			var overlapStart = scheduledStart > periodStart ? scheduledStart : periodStart;
+			var overlapEnd = scheduledEnd < periodEnd ? scheduledEnd : periodEnd;
+			if (overlapEnd > overlapStart)
+			{
+				total += overlapEnd - overlapStart;
+			}
+		}
+
+		return total;
+	}
 }
 
 public enum EmploymentDurationType
@@ -270,6 +309,8 @@ public interface IEmploymentContract
 	DateTimeOffset StartedAt { get; }
 	DateTimeOffset? EndsAt { get; }
 	EmploymentTerminationReason? EndReason { get; }
+	long? OriginOpeningId { get; }
+	long? OriginApplicationId { get; }
 }
 
 public interface IJobOpening
@@ -286,6 +327,8 @@ public interface IJobOpening
 	JobOpeningStatus Status { get; }
 	int MaxPositions { get; }
 	bool NpcApplicationsOnly { get; }
+	int RevisionNumber { get; }
+	int OccupiedPositions { get; }
 	bool AcceptsApplications { get; }
 }
 
@@ -327,6 +370,7 @@ public interface IEmploymentApplication
 	ICharacter Candidate { get; }
 	DateTimeOffset AppliedAt { get; }
 	JobApplicationStatus Status { get; }
+	int OfferedOpeningRevision { get; }
 	string? DecisionReason { get; }
 }
 
@@ -336,10 +380,13 @@ public enum EmploymentLedgerEntryType
 	Purchase,
 	BankDeposit,
 	BankWithdrawal,
+	AccountTransfer,
+	HostSettlement,
 	StoreAccountPayment,
 	TaxPayment,
 	PaymentAuthorisation,
-	ExistingFinancialRecordReuse
+	ExistingFinancialRecordReuse,
+	BankAccountCredit
 }
 
 public interface IEmploymentLedgerEntry
@@ -399,8 +446,11 @@ public interface IEmploymentPayroll
 	IReadOnlyCollection<IEmploymentPayable> EvaluatePayroll();
 	IReadOnlyCollection<IEmploymentPayable> EvaluatePayroll(DateTimeOffset now);
 	IReadOnlyCollection<IEmploymentPayable> ClaimablePayablesFor(ICharacter employee);
+	IReadOnlyCollection<IEmploymentPayable> OutstandingLiabilitiesFor(ICharacter employee);
 	int MaximumOverdueDays();
 	int MaximumOverdueDays(DateTimeOffset now);
+	int MaximumOverdueDaysFor(ICharacter employee);
+	int MaximumOverdueDaysFor(ICharacter employee, DateTimeOffset now);
 	bool TrySettlePayables(IEnumerable<IEmploymentPayable> payables, ICharacter? actor, bool makeClaimable,
 		string reason, out string message);
 	bool TryClaimPayable(IEmploymentPayable payable, ICharacter actor, out string message);

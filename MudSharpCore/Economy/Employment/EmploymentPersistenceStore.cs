@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -14,6 +15,7 @@ using MudSharp.Economy.Currency;
 using MudSharp.Economy.Property;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
+using MudSharp.TimeAndDate;
 using MudSharp.Vehicles;
 using DbActionPlan = MudSharp.Models.EmploymentActionPlanRecord;
 using DbActionStep = MudSharp.Models.EmploymentActionStepRecord;
@@ -84,6 +86,28 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 	private sealed record DeliverItemsStepPayload(long DestinationCellId, long? ContainerId = null,
 		string? ContainerTag = null, ItemSelectorPayload? ContainerSelector = null);
 
+	private sealed record ShopStockTransferStepPayload(long SourceShopId, long TargetShopId, long TargetMerchandiseId,
+		long DestinationCellId, long? ContainerId = null, string? ContainerTag = null,
+		ItemSelectorPayload? ContainerSelector = null);
+
+	private sealed record AuctionLotListingStepPayload(long AuctionHouseId, ItemSelectorPayload ItemSelector,
+		long ReserveCurrencyId, decimal ReserveAmount, long? BuyoutCurrencyId = null, decimal? BuyoutAmount = null,
+		long? DurationTicks = null);
+
+	private sealed record AuctionSettlementStepPayload(long AuctionHouseId, long? AssetId = null,
+		string? AssetType = null, string? AssetName = null);
+
+	private sealed record AuctionClaimStepPayload(long AuctionHouseId, long AssetId, string AssetType,
+		string? AssetName = null);
+
+	private sealed record ArenaEventAdministrationStepPayload(string Operation, long ArenaId,
+		long? EventTypeId = null, string? EventTypeName = null, long? EventId = null, string? EventName = null,
+		DateTime? ScheduledForUtc = null, string? TargetState = null, string? Reason = null);
+
+	private sealed record BankAdministrationStepPayload(string Operation, long BankId, long? CurrencyId = null,
+		decimal? Amount = null, string? AccountSelector = null, string? TargetStatus = null,
+		long? SourceBranchId = null, long? DestinationBranchId = null, string? Reason = null);
+
 	private sealed record LoadItemsStepPayload(long? ContainerId = null, string? ContainerTag = null,
 		long? TargetLocationId = null, ItemSelectorPayload? ContainerSelector = null);
 
@@ -94,10 +118,19 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 		long? DestinationContainerId, string? DestinationContainerTag, ItemSelectorPayload? ContainerSelector = null,
 		ItemSelectorPayload? DestinationContainerSelector = null);
 
-	private sealed record VehicleOperationStepPayload(long VehicleId, long CargoSpaceId);
+	private sealed record VehicleOperationStepPayload(long VehicleId, long? CargoSpaceId = null, string Operation = "cargo");
+
+	private sealed record StableAnimalOperationStepPayload(string Operation, long? MountId = null, long? StableId = null,
+		long? StayId = null, long? DestinationCellId = null, bool WaiveFees = false);
+
+	private sealed record StableAdministrationStepPayload(string Operation, long StableId, long? StayId = null,
+		long? AccountId = null, string? Note = null);
+
+	private sealed record HotelAdministrationStepPayload(string Operation, long PropertyId, long? RoomCellId = null,
+		long? LostPropertyBundleId = null, long? PatronId = null, string? PatronSelector = null, string? Note = null);
 
 	private sealed record CataloguedActionShellPayload(string ActionKey, string Description, long? TargetLocationId,
-		long? AmountCurrencyId = null, decimal? Amount = null);
+		long? AmountCurrencyId = null, decimal? Amount = null, IReadOnlyList<long>? RouteStopIds = null);
 
 	private sealed record PurchaseStepPayload(int Quantity, string MerchandiseSelector, string SupplierSelector,
 		long CurrencyId, decimal? MaximumAmount, string? KeywordFilter,
@@ -113,6 +146,10 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 	private sealed record PriceChangeStepPayload(string Kind, string MerchandiseSelector, long? CurrencyId,
 		decimal? ExactPrice, string MarketSelector, string CategorySelector, double SupplyImpact, double DemandImpact,
 		double FlatPriceImpact, string InfluenceName, long? DurationTicks, string? UntilText);
+
+	private sealed record ShopDealAdministrationStepPayload(string Operation, string Name, string DealType,
+		string TargetType, string? TargetSelector, decimal PriceAdjustmentPercentage, int MinimumQuantity,
+		string Applicability, long? EligibilityProgId, bool IsCumulative, string? Expiry, string? DealSelector);
 
 	private sealed record JobOpeningDefinitionPayload(
 		string Role,
@@ -139,8 +176,26 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 	private sealed record PaymentMethodPayload(string MethodKind, long? BankAccountId, long? PaymentItemId,
 		string? PaymentItemType, string? Notes);
 
+	private sealed record EmploymentCandidateProfilePayload(decimal ReservationWage, long? ReservationWageCurrencyId,
+		Dictionary<string, double> Skills, List<string> Knowledges,
+		List<EmploymentAICapability> Capabilities, List<string> Tags,
+		List<PaymentMethodKind> AcceptedPaymentMethods);
+
 	private sealed record JobOpeningAdministrationStepPayload(string Operation, long? OpeningId,
 		JobOpeningDefinitionPayload? Definition, string Reason);
+
+	private sealed record ShopStocktakeStepPayload(string Scope, string? MerchandiseSelector, string? MerchandiseName);
+
+	private sealed record ScheduledRuleAdministrationStepPayload(string Operation, string RuleId, string RuleName,
+		string Reason, string? ManualKey);
+
+	private sealed record ActiveTaskAdministrationStepPayload(string Operation, string TaskId, string TaskName,
+		long? EmployeeId, string? EmployeeName, string Reason);
+
+	private sealed record ManagerGoalAdministrationStepPayload(string Operation, long GoalId, string GoalName,
+		string Reason);
+
+	private const string DeprecatedMarketPriceCompatibilityMarker = "Deprecated employment market-price action";
 
 	private readonly IEmploymentHost _host;
 	private readonly IFuturemud _gameworld;
@@ -203,12 +258,17 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 	{
 		WithContext(context =>
 		{
-			if (context.EmploymentContracts.Any(x => x.RuntimeId == contract.Id && x.EmploymentHostStateId == StateId))
+			var dbitem = context.EmploymentContracts
+			                    .FirstOrDefault(x => x.RuntimeId == contract.Id && x.EmploymentHostStateId == StateId);
+			if (dbitem is null)
 			{
-				return;
+				context.EmploymentContracts.Add(ToRecord(contract));
+			}
+			else
+			{
+				WriteContractRecord(dbitem, contract);
 			}
 
-			context.EmploymentContracts.Add(ToRecord(contract));
 			Touch(context);
 			context.SaveChanges();
 		});
@@ -226,9 +286,7 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 			}
 			else
 			{
-				dbitem.Status = (int)contract.Status;
-				dbitem.EndsAt = contract.EndsAt?.UtcDateTime;
-				dbitem.EndReason = contract.EndReason.HasValue ? (int)contract.EndReason.Value : null;
+				WriteContractRecord(dbitem, contract);
 			}
 
 			Touch(context);
@@ -248,7 +306,7 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 			}
 			else
 			{
-				dbitem.Authority = (long)contract.Authority.Authorities;
+				WriteContractRecord(dbitem, contract);
 			}
 
 			Touch(context);
@@ -277,6 +335,7 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 				dbitem.MaxPositions = opening.MaxPositions;
 				dbitem.NpcApplicationsOnly = opening.NpcApplicationsOnly;
 				dbitem.Authority = (long)opening.Authority.Authorities;
+				dbitem.RevisionNumber = opening.RevisionNumber;
 				WriteTerms(dbitem, opening.Compensation, opening.Schedule, opening.Duration, opening.PaymentMethod);
 				context.EmploymentJobOpeningRequirements.RemoveRange(dbitem.Requirements);
 				dbitem.Requirements.Clear();
@@ -323,6 +382,8 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 			{
 				existing.Status = (int)application.Status;
 				existing.DecisionReason = application.DecisionReason;
+				existing.OfferedOpeningRevision = application.OfferedOpeningRevision;
+				existing.CandidateProfileJson = SerializeCandidateProfile(application.CandidateProfile);
 				Touch(context);
 				context.SaveChanges();
 				return;
@@ -335,7 +396,9 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 				CandidateId = CharacterInstanceIdentityComparer.IdentityId(application.Candidate),
 				AppliedAt = application.AppliedAt.UtcDateTime,
 				Status = (int)application.Status,
-				DecisionReason = application.DecisionReason
+				DecisionReason = application.DecisionReason,
+				OfferedOpeningRevision = application.OfferedOpeningRevision,
+				CandidateProfileJson = SerializeCandidateProfile(application.CandidateProfile)
 			});
 			Touch(context);
 			context.SaveChanges();
@@ -801,7 +864,7 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 		                          .OfType<IManagerGoal>()
 		                          .ToList();
 
-		return new EmploymentHostState(
+		var hostState = new EmploymentHostState(
 			host,
 			board,
 			this,
@@ -816,6 +879,177 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 			managerGoals,
 			conditionPredicates,
 			scheduledRuleTemplates);
+		ApplyDeprecatedMarketPriceCompatibility(context, hostState, registerEntries);
+		return hostState;
+	}
+
+	private void ApplyDeprecatedMarketPriceCompatibility(FuturemudDatabaseContext context, EmploymentHostState state,
+		List<EmploymentRegisterEntry> registerEntries)
+	{
+		var newEntries = new List<EmploymentRegisterEntry>();
+
+		foreach (var rule in state.TaskBoard.ScheduledRules.OfType<EmploymentScheduledTaskRule>())
+		{
+			var deprecatedSteps = DeprecatedMarketPriceSteps(rule.ActionPlan).ToList();
+			if (!deprecatedSteps.Any() || rule.Status == EmploymentScheduledRuleStatus.Paused)
+			{
+				continue;
+			}
+
+			var reason = DeprecatedMarketPriceCompatibilityReport($"scheduled rule {rule.Name}", deprecatedSteps);
+			rule.Pause();
+			var dbitem = context.EmploymentScheduledTaskRules
+			                    .FirstOrDefault(x => x.PublicId == rule.Id.ToString("D"));
+			if (dbitem is not null)
+			{
+				dbitem.Status = (int)EmploymentScheduledRuleStatus.Paused;
+			}
+
+			newEntries.Add(AddCompatibilityRegisterEntry(context, EmploymentRegisterEntryType.ScheduledRulePaused,
+				reason, rule.Id));
+		}
+
+		foreach (var task in state.TaskBoard.ActiveTasks.OfType<EmploymentActiveTask>())
+		{
+			var deprecatedSteps = DeprecatedMarketPriceSteps(task.ActionPlan).ToList();
+			if (!deprecatedSteps.Any() ||
+			    task.Status is EmploymentTaskStatus.Completed or EmploymentTaskStatus.Cancelled or EmploymentTaskStatus.Failed ||
+			    task.Status == EmploymentTaskStatus.Blocked &&
+			    task.BlockedReason?.Contains(DeprecatedMarketPriceCompatibilityMarker,
+				    StringComparison.InvariantCultureIgnoreCase) == true)
+			{
+				continue;
+			}
+
+			var reason = DeprecatedMarketPriceCompatibilityReport($"active task {task.Name}", deprecatedSteps);
+			if (task.Status == EmploymentTaskStatus.Blocked && !string.IsNullOrWhiteSpace(task.BlockedReason))
+			{
+				reason = $"{reason} Previous blocked reason: {task.BlockedReason}";
+			}
+
+			task.BlockForCompatibilityLoad(reason);
+			var dbitem = context.EmploymentActiveTasks
+			                    .FirstOrDefault(x => x.PublicId == task.Id.ToString("D"));
+			if (dbitem is not null)
+			{
+				dbitem.Status = (int)EmploymentTaskStatus.Blocked;
+				dbitem.BlockedReason = reason;
+			}
+
+			newEntries.Add(AddCompatibilityRegisterEntry(context, EmploymentRegisterEntryType.ActiveTaskBlocked,
+				reason, task.CorrelationId));
+		}
+
+		foreach (var goal in state.ManagerGoalBoard.Goals.OfType<ManagerGoal>())
+		{
+			var deprecatedSteps = DeprecatedMarketPriceSteps(goal.Configuration.ActionPlan).ToList();
+			if (!deprecatedSteps.Any() ||
+			    goal.Status is ManagerGoalStatus.Completed or ManagerGoalStatus.Cancelled ||
+			    goal.Status == ManagerGoalStatus.Blocked &&
+			    goal.LastEvaluationResult?.Contains(DeprecatedMarketPriceCompatibilityMarker,
+				    StringComparison.InvariantCultureIgnoreCase) == true)
+			{
+				continue;
+			}
+
+			var now = EmploymentClock.CurrentInstant(_host);
+			var reason = DeprecatedMarketPriceCompatibilityReport($"manager goal #{goal.Id:N0} ({goal.GoalType.DescribeEnum()})",
+				deprecatedSteps);
+			if (!string.IsNullOrWhiteSpace(goal.LastEvaluationResult))
+			{
+				reason = $"{reason} Previous goal result: {goal.LastEvaluationResult}";
+			}
+
+			goal.BlockForCompatibilityLoad(now, reason);
+			var dbitem = context.EmploymentManagerGoals
+			                    .FirstOrDefault(x => x.RuntimeId == goal.Id && x.EmploymentHostStateId == StateId);
+			if (dbitem is not null)
+			{
+				dbitem.Status = (int)ManagerGoalStatus.Blocked;
+				dbitem.LastEvaluatedAt = now.UtcDateTime;
+				dbitem.LastEvaluationResult = reason;
+			}
+
+			newEntries.Add(AddCompatibilityRegisterEntry(context, EmploymentRegisterEntryType.AuditActionRecorded,
+				reason, goal.CorrelationId));
+		}
+
+		if (!newEntries.Any())
+		{
+			return;
+		}
+
+		registerEntries.AddRange(newEntries);
+		if (state.EmploymentRegister is EmploymentRegister register)
+		{
+			register.AddForCompatibilityLoad(newEntries);
+		}
+
+		Touch(context);
+		context.SaveChanges();
+	}
+
+	private static IEnumerable<DeprecatedMarketPriceChangeActionStep> DeprecatedMarketPriceSteps(
+		EmploymentActionPlan? actionPlan)
+	{
+		return actionPlan?.Steps.OfType<DeprecatedMarketPriceChangeActionStep>() ??
+		       Enumerable.Empty<DeprecatedMarketPriceChangeActionStep>();
+	}
+
+	private string DeprecatedMarketPriceCompatibilityReport(string owner,
+		IReadOnlyCollection<DeprecatedMarketPriceChangeActionStep> steps)
+	{
+		var details = steps
+		              .Select((step, index) => DescribeDeprecatedMarketPriceStep(step, index + 1));
+		return $"{DeprecatedMarketPriceCompatibilityMarker} requires builder review. Host {_host.EmploymentHostName}; {owner}; {string.Join("; ", details)}";
+	}
+
+	private static string DescribeDeprecatedMarketPriceStep(DeprecatedMarketPriceChangeActionStep step, int number)
+	{
+		var payload = TryDeserializeActionPayload<PriceChangeStepPayload>(step.OriginalPayload);
+		if (payload is null)
+		{
+			return $"step {number}: original payload unavailable; diagnostic {step.Diagnostic}";
+		}
+
+		return $"step {number}: market {DisplayCompatibilityValue(payload.MarketSelector)}, category {DisplayCompatibilityValue(payload.CategorySelector)}, impacts supply {payload.SupplyImpact}, demand {payload.DemandImpact}, flat {payload.FlatPriceImpact}, influence {DisplayCompatibilityValue(payload.InfluenceName)}, expiry {DeprecatedMarketPriceExpiry(payload)}";
+	}
+
+	private static string DeprecatedMarketPriceExpiry(PriceChangeStepPayload payload)
+	{
+		if (!string.IsNullOrWhiteSpace(payload.UntilText))
+		{
+			return payload.UntilText.Trim();
+		}
+
+		return payload.DurationTicks.HasValue ? TimeSpan.FromTicks(payload.DurationTicks.Value).ToString() : "none";
+	}
+
+	private static string DisplayCompatibilityValue(string? text)
+	{
+		return string.IsNullOrWhiteSpace(text) ? "(not recorded)" : text.Trim();
+	}
+
+	private EmploymentRegisterEntry AddCompatibilityRegisterEntry(FuturemudDatabaseContext context,
+		EmploymentRegisterEntryType entryType, string description, Guid correlationId)
+	{
+		var entry = new EmploymentRegisterEntry(
+			correlationId,
+			entryType,
+			_host,
+			null,
+			description,
+			EmploymentClock.CurrentInstant(_host));
+		context.EmploymentRegisterEntries.Add(new DbRegisterEntry
+		{
+			EmploymentHostStateId = StateId,
+			CorrelationId = entry.CorrelationId.ToString("D"),
+			EntryType = (int)entry.EntryType,
+			ActorId = null,
+			Description = entry.Description,
+			RecordedAt = entry.RecordedAt.UtcDateTime
+		});
+		return entry;
 	}
 
 	private static IFuturemud? ResolveGameworld(IEmploymentHost host)
@@ -913,17 +1147,24 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 		var record = new DbContract
 		{
 			RuntimeId = contract.Id,
-			EmploymentHostStateId = StateId,
-			EmployeeId = CharacterInstanceIdentityComparer.IdentityId(contract.Employee),
-			Role = (int)contract.Role,
-			Status = (int)contract.Status,
-			Authority = (long)contract.Authority.Authorities,
-			StartedAt = contract.StartedAt.UtcDateTime,
-			EndsAt = contract.EndsAt?.UtcDateTime,
-			EndReason = contract.EndReason.HasValue ? (int)contract.EndReason.Value : null
+			EmploymentHostStateId = StateId
 		};
-		WriteTerms(record, contract.Compensation, contract.Schedule, contract.Duration, contract.PaymentMethod);
+		WriteContractRecord(record, contract);
 		return record;
+	}
+
+	private static void WriteContractRecord(DbContract record, EmploymentContract contract)
+	{
+		record.EmployeeId = CharacterInstanceIdentityComparer.IdentityId(contract.Employee);
+		record.Role = (int)contract.Role;
+		record.Status = (int)contract.Status;
+		record.Authority = (long)contract.Authority.Authorities;
+		record.StartedAt = contract.StartedAt.UtcDateTime;
+		record.EndsAt = contract.EndsAt?.UtcDateTime;
+		record.EndReason = contract.EndReason.HasValue ? (int)contract.EndReason.Value : null;
+		record.OriginOpeningId = contract.OriginOpeningId;
+		record.OriginApplicationId = contract.OriginApplicationId;
+		WriteTerms(record, contract.Compensation, contract.Schedule, contract.Duration, contract.PaymentMethod);
 	}
 
 	private DbJobOpening ToRecord(JobOpening opening)
@@ -936,7 +1177,8 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 			Status = (int)opening.Status,
 			MaxPositions = opening.MaxPositions,
 			NpcApplicationsOnly = opening.NpcApplicationsOnly,
-			Authority = (long)opening.Authority.Authorities
+			Authority = (long)opening.Authority.Authorities,
+			RevisionNumber = opening.RevisionNumber
 		};
 		WriteTerms(record, opening.Compensation, opening.Schedule, opening.Duration, opening.PaymentMethod);
 		return record;
@@ -1080,7 +1322,9 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 			ToPaymentMethod(record),
 			EmploymentClock.NormaliseLoadedInstant(_host, record.StartedAt),
 			EmploymentClock.NormaliseLoadedInstant(_host, record.EndsAt),
-			record.EndReason.HasValue ? (EmploymentTerminationReason)record.EndReason.Value : null);
+			record.EndReason.HasValue ? (EmploymentTerminationReason)record.EndReason.Value : null,
+			record.OriginOpeningId,
+			record.OriginApplicationId);
 	}
 
 	private JobOpening? ToJobOpening(DbJobOpening record)
@@ -1097,7 +1341,8 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 			record.MaxPositions,
 			record.NpcApplicationsOnly,
 			ToPaymentMethod(record),
-			new EmploymentAuthoritySet((EmploymentAuthority)record.Authority));
+			new EmploymentAuthoritySet((EmploymentAuthority)record.Authority),
+			Math.Max(1, record.RevisionNumber));
 	}
 
 	private EmploymentApplication? ToApplication(DbApplication record, IReadOnlyDictionary<long, JobOpening> openings)
@@ -1119,7 +1364,49 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 			candidate,
 			ToOffset(record.AppliedAt),
 			(JobApplicationStatus)record.Status,
-			record.DecisionReason);
+			record.DecisionReason,
+			Math.Max(1, record.OfferedOpeningRevision),
+			DeserializeCandidateProfile(record.CandidateProfileJson, candidate));
+	}
+
+	private static string? SerializeCandidateProfile(EmploymentCandidateProfile? profile)
+	{
+		if (profile is null)
+		{
+			return null;
+		}
+
+		return JsonSerializer.Serialize(new EmploymentCandidateProfilePayload(
+			profile.ReservationWage,
+			profile.ReservationWageCurrency?.Id,
+			profile.Skills.ToDictionary(x => x.Key, x => x.Value, StringComparer.InvariantCultureIgnoreCase),
+			profile.Knowledges.ToList(),
+			profile.Capabilities.ToList(),
+			profile.Tags.ToList(),
+			profile.AcceptedPaymentMethods.ToList()));
+	}
+
+	private EmploymentCandidateProfile? DeserializeCandidateProfile(string? text, ICharacter candidate)
+	{
+		var payload = TryDeserializeActionPayload<EmploymentCandidateProfilePayload>(text);
+		if (payload is null)
+		{
+			return null;
+		}
+
+		var currency = payload.ReservationWageCurrencyId.HasValue
+			? _gameworld.Currencies.Get(payload.ReservationWageCurrencyId.Value)
+			: null;
+		return new EmploymentCandidateProfile(
+			candidate,
+			payload.ReservationWage,
+			new Dictionary<string, double>(payload.Skills ?? new Dictionary<string, double>(),
+				StringComparer.InvariantCultureIgnoreCase),
+			new HashSet<string>(payload.Knowledges ?? [], StringComparer.InvariantCultureIgnoreCase),
+			new HashSet<EmploymentAICapability>(payload.Capabilities ?? []),
+			new HashSet<string>(payload.Tags ?? [], StringComparer.InvariantCultureIgnoreCase),
+			payload.AcceptedPaymentMethods ?? [],
+			currency);
 	}
 
 	private EmploymentPayable? ToPayable(DbPayable record)
@@ -1283,6 +1570,8 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 
 		return (EmploymentActionStepType)record.StepType switch
 		{
+			EmploymentActionStepType.SupplierSelection =>
+				ToSupplierSelectionStep(record),
 			EmploymentActionStepType.Purchase when TryDeserializeActionPayload<PurchaseStepPayload>(record.BoardText) is { } purchasePayload =>
 				ToPurchaseStep(purchasePayload, record.ExistingFinancialRecord),
 			EmploymentActionStepType.Purchase when amount is not null =>
@@ -1297,6 +1586,10 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 				new BankDepositActionStep(amount, record.ExistingFinancialRecord),
 			EmploymentActionStepType.BankWithdrawal when amount is not null =>
 				new BankWithdrawalActionStep(amount, record.ExistingFinancialRecord),
+			EmploymentActionStepType.AccountTransfer when amount is not null =>
+				new BankAccountTransferActionStep(record.AccountName ?? string.Empty, amount, record.ExistingFinancialRecord),
+			EmploymentActionStepType.HostSettlement when amount is not null =>
+				new HostSettlementActionStep(record.AccountName ?? string.Empty, amount, record.ExistingFinancialRecord),
 			EmploymentActionStepType.StoreAccountPayment when amount is not null =>
 				new StoreAccountPaymentActionStep(record.AccountName ?? string.Empty, amount, record.ExistingFinancialRecord),
 			EmploymentActionStepType.BoardPost =>
@@ -1309,6 +1602,22 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 				ToGetCommodityStep(record),
 			EmploymentActionStepType.DeliverItems =>
 				ToDeliverItemsStep(record, destination),
+			EmploymentActionStepType.ShopStockTransfer =>
+				ToShopStockTransferStep(record),
+			EmploymentActionStepType.AuctionLotListing =>
+				ToAuctionLotListingStep(record),
+			EmploymentActionStepType.AuctionSettlement =>
+				ToAuctionSettlementStep(record),
+			EmploymentActionStepType.AuctionClaim =>
+				ToAuctionClaimStep(record),
+			EmploymentActionStepType.ArenaEventAdministration =>
+				ToArenaEventAdministrationStep(record),
+			EmploymentActionStepType.BankAdministration =>
+				ToBankAdministrationStep(record),
+			EmploymentActionStepType.StableAdministration =>
+				ToStableAdministrationStep(record),
+			EmploymentActionStepType.HotelAdministration =>
+				ToHotelAdministrationStep(record),
 			EmploymentActionStepType.LoadItems =>
 				ToLoadItemsStep(record),
 			EmploymentActionStepType.UnloadItems =>
@@ -1317,6 +1626,8 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 				ToReturnAssetStep(record),
 			EmploymentActionStepType.VehicleOperation =>
 				ToVehicleOperationStep(record),
+			EmploymentActionStepType.StableAnimalOperation =>
+				ToStableAnimalOperationStep(record),
 			EmploymentActionStepType.CataloguedShell =>
 				ToCataloguedShellStep(record, destination),
 			EmploymentActionStepType.TaxPayment =>
@@ -1324,6 +1635,8 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 			EmploymentActionStepType.PayrollSettlement =>
 				new PayrollSettlementActionStep(record.AccountName ?? record.CommandArguments ?? "all",
 					record.Description),
+			EmploymentActionStepType.ShopCashReconciliation =>
+				new ShopCashReconciliationActionStep(record.Description),
 			EmploymentActionStepType.ShopFloatAdjustment =>
 				ToShopFloatAdjustmentStep(record),
 			EmploymentActionStepType.PhysicalFloat =>
@@ -1332,12 +1645,33 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 				new CraftStationActionStep(record.Description ?? "here"),
 			EmploymentActionStepType.PriceChange =>
 				ToPriceChangeStep(record),
+			EmploymentActionStepType.ShopStocktake =>
+				ToShopStocktakeStep(record),
+			EmploymentActionStepType.ShopDealAdministration =>
+				ToShopDealAdministrationStep(record),
 			EmploymentActionStepType.JobOpeningAdministration =>
 				ToJobOpeningAdministrationStep(record),
+			EmploymentActionStepType.ScheduledRuleAdministration =>
+				ToScheduledRuleAdministrationStep(record),
+			EmploymentActionStepType.ActiveTaskAdministration =>
+				ToActiveTaskAdministrationStep(record),
+			EmploymentActionStepType.ManagerGoalAdministration =>
+				ToManagerGoalAdministrationStep(record),
 			_ => null
 		};
 	}
 
+	private SupplierSelectionActionStep? ToSupplierSelectionStep(DbActionStep record)
+	{
+		var payload = TryDeserializeActionPayload<PurchaseStepPayload>(record.BoardText);
+		if (payload is null)
+		{
+			return null;
+		}
+
+		var purchase = ToPurchaseStep(payload, null);
+		return purchase?.IsExecutablePurchase == true ? new SupplierSelectionActionStep(purchase) : null;
+	}
 	private PurchaseActionStep? ToPurchaseStep(PurchaseStepPayload payload, string? existingFinancialRecord)
 	{
 		var currency = _gameworld.Currencies.Get(payload.CurrencyId);
@@ -1392,7 +1726,17 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 			ToItemSelector(payload.TargetSelector));
 	}
 
-	private PriceChangeActionStep? ToPriceChangeStep(DbActionStep record)
+	private ShopStocktakeActionStep? ToShopStocktakeStep(DbActionStep record)
+	{
+		var payload = TryDeserializeActionPayload<ShopStocktakeStepPayload>(record.BoardText);
+		if (payload is null || !payload.Scope.TryParseEnum<ShopStocktakeScope>(out var scope))
+		{
+			return null;
+		}
+
+		return new ShopStocktakeActionStep(scope, payload.MerchandiseSelector, payload.MerchandiseName);
+	}
+	private IEmploymentActionStep? ToPriceChangeStep(DbActionStep record)
 	{
 		var payload = TryDeserializeActionPayload<PriceChangeStepPayload>(record.BoardText);
 		if (payload is null || !payload.Kind.TryParseEnum<PriceChangeActionKind>(out var kind))
@@ -1406,17 +1750,69 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 			                                       ToMoney(payload.CurrencyId, payload.ExactPrice) is { } amount =>
 				new PriceChangeActionStep(payload.MerchandiseSelector, amount),
 			PriceChangeActionKind.MarketCategory =>
-				new PriceChangeActionStep(
-					payload.MarketSelector,
-					payload.CategorySelector,
-					payload.SupplyImpact,
-					payload.DemandImpact,
-					payload.FlatPriceImpact,
-					payload.InfluenceName,
-					payload.DurationTicks.HasValue ? TimeSpan.FromTicks(payload.DurationTicks.Value) : null,
-					payload.UntilText),
+				new DeprecatedMarketPriceChangeActionStep(
+					"Employment market-price actions are deprecated and require builder review before replacement with merchandise repricing or native shop deals.",
+					record.BoardText),
 			_ => null
 		};
+	}
+
+	private ShopDealAdministrationActionStep? ToShopDealAdministrationStep(DbActionStep record)
+	{
+		var payload = TryDeserializeActionPayload<ShopDealAdministrationStepPayload>(record.BoardText);
+		if (payload is null || !payload.Operation.TryParseEnum<ShopDealAdministrationActionKind>(out var operation))
+		{
+			return null;
+		}
+
+		if (operation == ShopDealAdministrationActionKind.Cancel)
+		{
+			var selector = payload.DealSelector ?? payload.Name;
+			return string.IsNullOrWhiteSpace(selector) ? null : new ShopDealAdministrationActionStep(selector);
+		}
+
+		if (!payload.DealType.TryParseEnum<ShopDealType>(out var dealType) ||
+		    !payload.TargetType.TryParseEnum<ShopDealTargetType>(out var targetType) ||
+		    !payload.Applicability.TryParseEnum<ShopDealApplicability>(out var applicability))
+		{
+			return null;
+		}
+
+		var expiry = string.IsNullOrWhiteSpace(payload.Expiry)
+			? MudDateTime.Never
+			: MudDateTime.FromStoredStringOrFallback(payload.Expiry, _gameworld,
+				StoredMudDateTimeFallback.Never, "EmploymentActionStep", null, payload.Name, "ShopDealExpiry");
+		var prog = payload.EligibilityProgId.HasValue ? _gameworld.FutureProgs.Get(payload.EligibilityProgId.Value) : null;
+		if (operation == ShopDealAdministrationActionKind.Modify)
+		{
+			var selector = payload.DealSelector ?? payload.Name;
+			return string.IsNullOrWhiteSpace(selector)
+				? null
+				: new ShopDealAdministrationActionStep(
+					selector,
+					payload.Name,
+					dealType,
+					targetType,
+					payload.TargetSelector,
+					payload.PriceAdjustmentPercentage,
+					payload.MinimumQuantity,
+					applicability,
+					prog,
+					payload.IsCumulative,
+					expiry);
+		}
+
+		return new ShopDealAdministrationActionStep(
+			payload.Name,
+			dealType,
+			targetType,
+			payload.TargetSelector,
+			payload.PriceAdjustmentPercentage,
+			payload.MinimumQuantity,
+			applicability,
+			prog,
+			payload.IsCumulative,
+			expiry);
 	}
 
 	private JobOpeningAdministrationActionStep? ToJobOpeningAdministrationStep(DbActionStep record)
@@ -1436,6 +1832,48 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 		return payload.OpeningId.HasValue
 			? new JobOpeningAdministrationActionStep(operation, payload.OpeningId.Value, definition, payload.Reason)
 			: null;
+	}
+
+	private ScheduledRuleAdministrationActionStep? ToScheduledRuleAdministrationStep(DbActionStep record)
+	{
+		var payload = TryDeserializeActionPayload<ScheduledRuleAdministrationStepPayload>(record.BoardText);
+		if (payload is null ||
+		    !payload.Operation.TryParseEnum<ScheduledRuleAdministrationActionKind>(out var operation) ||
+		    !Guid.TryParse(payload.RuleId, out var ruleId))
+		{
+			return null;
+		}
+
+		return new ScheduledRuleAdministrationActionStep(operation, ruleId, payload.RuleName, payload.Reason,
+			payload.ManualKey);
+	}
+
+	private ActiveTaskAdministrationActionStep? ToActiveTaskAdministrationStep(DbActionStep record)
+	{
+		var payload = TryDeserializeActionPayload<ActiveTaskAdministrationStepPayload>(record.BoardText);
+		if (payload is null ||
+		    !payload.Operation.TryParseEnum<ActiveTaskAdministrationActionKind>(out var operation) ||
+		    !Guid.TryParse(payload.TaskId, out var taskId))
+		{
+			return null;
+		}
+
+		return new ActiveTaskAdministrationActionStep(operation, taskId, payload.TaskName,
+			payload.EmployeeId, payload.EmployeeName, payload.Reason);
+	}
+
+	private ManagerGoalAdministrationActionStep? ToManagerGoalAdministrationStep(DbActionStep record)
+	{
+		var payload = TryDeserializeActionPayload<ManagerGoalAdministrationStepPayload>(record.BoardText);
+		if (payload is null ||
+		    !payload.Operation.TryParseEnum<ManagerGoalAdministrationActionKind>(out var operation) ||
+		    payload.GoalId <= 0)
+		{
+			return null;
+		}
+
+		return new ManagerGoalAdministrationActionStep(operation, payload.GoalId, payload.GoalName,
+			payload.Reason);
 	}
 
 	private GetItemsByIdActionStep? ToGetItemsByIdStep(DbActionStep record)
@@ -1486,6 +1924,133 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 			ToItemSelector(payload?.ContainerSelector, payload?.ContainerId, payload?.ContainerTag));
 	}
 
+	private ShopStockTransferActionStep? ToShopStockTransferStep(DbActionStep record)
+	{
+		var payload = TryDeserializeActionPayload<ShopStockTransferStepPayload>(record.BoardText);
+		if (payload is null)
+		{
+			return null;
+		}
+
+		if (_gameworld.Shops.Get(payload.SourceShopId) is not IPermanentShop sourceShop ||
+		    _gameworld.Shops.Get(payload.TargetShopId) is not IPermanentShop targetShop)
+		{
+			return null;
+		}
+
+		var destination = _gameworld.Cells.Get(payload.DestinationCellId);
+		var merchandise = targetShop.Merchandises.FirstOrDefault(x => x.Id == payload.TargetMerchandiseId);
+		if (destination is null || merchandise is null)
+		{
+			return null;
+		}
+
+		return new ShopStockTransferActionStep(sourceShop, targetShop, merchandise, destination,
+			ToItemSelector(payload.ContainerSelector, payload.ContainerId, payload.ContainerTag));
+	}
+
+	private AuctionLotListingActionStep? ToAuctionLotListingStep(DbActionStep record)
+	{
+		var payload = TryDeserializeActionPayload<AuctionLotListingStepPayload>(record.BoardText);
+		if (payload is null)
+		{
+			return null;
+		}
+
+		var auctionHouse = _gameworld.AuctionHouses.Get(payload.AuctionHouseId);
+		var reserve = ToMoney(payload.ReserveCurrencyId, payload.ReserveAmount);
+		var buyout = ToMoney(payload.BuyoutCurrencyId, payload.BuyoutAmount);
+		var selector = ToItemSelector(payload.ItemSelector);
+		if (auctionHouse is null || reserve is null || selector is null)
+		{
+			return null;
+		}
+
+		return new AuctionLotListingActionStep(auctionHouse, selector, reserve, buyout,
+			payload.DurationTicks.HasValue ? TimeSpan.FromTicks(payload.DurationTicks.Value) : null);
+	}
+
+	private AuctionSettlementActionStep? ToAuctionSettlementStep(DbActionStep record)
+	{
+		var payload = TryDeserializeActionPayload<AuctionSettlementStepPayload>(record.BoardText);
+		if (payload is null)
+		{
+			return null;
+		}
+
+		var auctionHouse = _gameworld.AuctionHouses.Get(payload.AuctionHouseId);
+		return auctionHouse is null
+			? null
+			: new AuctionSettlementActionStep(auctionHouse, payload.AssetId, payload.AssetType, payload.AssetName);
+	}
+
+	private AuctionClaimActionStep? ToAuctionClaimStep(DbActionStep record)
+	{
+		var payload = TryDeserializeActionPayload<AuctionClaimStepPayload>(record.BoardText);
+		if (payload is null)
+		{
+			return null;
+		}
+
+		var auctionHouse = _gameworld.AuctionHouses.Get(payload.AuctionHouseId);
+		return auctionHouse is null
+			? null
+			: new AuctionClaimActionStep(auctionHouse, payload.AssetId, payload.AssetType, payload.AssetName);
+	}
+
+	private ArenaEventAdministrationActionStep? ToArenaEventAdministrationStep(DbActionStep record)
+	{
+		var payload = TryDeserializeActionPayload<ArenaEventAdministrationStepPayload>(record.BoardText);
+		if (payload is null || !payload.Operation.TryParseEnum<ArenaEventAdministrationActionKind>(out var operation))
+		{
+			return null;
+		}
+
+		var arena = _gameworld.CombatArenas.Get(payload.ArenaId);
+		if (arena is null)
+		{
+			return null;
+		}
+
+		var targetState = !string.IsNullOrWhiteSpace(payload.TargetState) &&
+		                  payload.TargetState.TryParseEnum<ArenaEventState>(out var parsedState)
+			? parsedState
+			: (ArenaEventState?)null;
+		return new ArenaEventAdministrationActionStep(arena, operation, payload.EventTypeId, payload.EventTypeName,
+			payload.EventId, payload.EventName, payload.ScheduledForUtc, targetState, payload.Reason);
+	}
+
+	private BankAdministrationActionStep? ToBankAdministrationStep(DbActionStep record)
+	{
+		var payload = TryDeserializeActionPayload<BankAdministrationStepPayload>(record.BoardText);
+		if (payload is null || !payload.Operation.TryParseEnum<BankAdministrationActionKind>(out var operation))
+		{
+			return null;
+		}
+
+		var bank = _gameworld.Banks.Get(payload.BankId);
+		if (bank is null)
+		{
+			return null;
+		}
+
+		var amount = payload.Amount.HasValue ? ToMoney(payload.CurrencyId, payload.Amount) : null;
+		BankAccountStatus? status = null;
+		if (!string.IsNullOrWhiteSpace(payload.TargetStatus))
+		{
+			if (!payload.TargetStatus.TryParseEnum<BankAccountStatus>(out var parsedStatus))
+			{
+				return null;
+			}
+
+			status = parsedStatus;
+		}
+
+		var sourceBranch = payload.SourceBranchId.HasValue ? _gameworld.Cells.Get(payload.SourceBranchId.Value) : null;
+		var destinationBranch = payload.DestinationBranchId.HasValue ? _gameworld.Cells.Get(payload.DestinationBranchId.Value) : null;
+		return new BankAdministrationActionStep(bank, operation, amount, payload.AccountSelector, status,
+			sourceBranch, destinationBranch, payload.Reason);
+	}
 	private LoadItemsActionStep? ToLoadItemsStep(DbActionStep record)
 	{
 		var payload = TryDeserializeActionPayload<LoadItemsStepPayload>(record.BoardText);
@@ -1542,10 +2107,86 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 		}
 
 		var vehicle = _gameworld.Vehicles.Get(payload.VehicleId);
-		var cargo = vehicle?.CargoSpaces.FirstOrDefault(x => x.Id == payload.CargoSpaceId);
-		return vehicle is null || cargo is null ? null : new VehicleOperationActionStep(vehicle, cargo);
+		if (vehicle is null)
+		{
+			return null;
+		}
+
+		if (payload.Operation.EqualTo("assign") || payload.CargoSpaceId is null)
+		{
+			return new VehicleOperationActionStep(vehicle);
+		}
+
+		var cargo = vehicle.CargoSpaces.FirstOrDefault(x => x.Id == payload.CargoSpaceId.Value);
+		return cargo is null ? null : new VehicleOperationActionStep(vehicle, cargo);
 	}
 
+	private StableAnimalOperationActionStep? ToStableAnimalOperationStep(DbActionStep record)
+	{
+		var payload = TryDeserializeActionPayload<StableAnimalOperationStepPayload>(record.BoardText);
+		if (payload is null || !payload.Operation.TryParseEnum<EmploymentAnimalOperationKind>(out var operation))
+		{
+			return null;
+		}
+
+		var mount = payload.MountId.HasValue ? _gameworld.TryGetCharacter(payload.MountId.Value, true) : null;
+		var stable = payload.StableId.HasValue ? _gameworld.Stables.Get(payload.StableId.Value) : null;
+		var stay = payload.StayId.HasValue && stable is not null
+			? stable.Stays.FirstOrDefault(x => x.Id == payload.StayId.Value)
+			: null;
+		var destination = payload.DestinationCellId.HasValue ? _gameworld.Cells.Get(payload.DestinationCellId.Value) : null;
+		return new StableAnimalOperationActionStep(operation, mount, stable, stay, destination, payload.WaiveFees);
+	}
+
+	private StableAdministrationActionStep? ToStableAdministrationStep(DbActionStep record)
+	{
+		var payload = TryDeserializeActionPayload<StableAdministrationStepPayload>(record.BoardText);
+		if (payload is null || !payload.Operation.TryParseEnum<StableAdministrationActionKind>(out var operation))
+		{
+			return null;
+		}
+
+		var stable = _gameworld.Stables.Get(payload.StableId);
+		if (stable is null)
+		{
+			return null;
+		}
+
+		var stay = payload.StayId.HasValue
+			? stable.Stays.FirstOrDefault(x => x.Id == payload.StayId.Value)
+			: null;
+		var account = payload.AccountId.HasValue
+			? stable.StableAccounts.FirstOrDefault(x => x.Id == payload.AccountId.Value)
+			: null;
+		return new StableAdministrationActionStep(stable, operation, stay, account, payload.Note);
+	}
+
+	private HotelAdministrationActionStep? ToHotelAdministrationStep(DbActionStep record)
+	{
+		var payload = TryDeserializeActionPayload<HotelAdministrationStepPayload>(record.BoardText);
+		if (payload is null || !payload.Operation.TryParseEnum<HotelAdministrationActionKind>(out var operation))
+		{
+			return null;
+		}
+
+		var hotel = _gameworld.Properties.Get(payload.PropertyId)?.Hotel;
+		if (hotel is null)
+		{
+			return null;
+		}
+
+		var room = payload.RoomCellId.HasValue
+			? hotel.Rooms.FirstOrDefault(x => x.Cell.Id == payload.RoomCellId.Value)
+			: null;
+		var lost = payload.LostPropertyBundleId.HasValue
+			? hotel.Property.HotelLostProperties.FirstOrDefault(x => x.BundleId == payload.LostPropertyBundleId.Value)
+			: null;
+		var balance = payload.PatronId.HasValue
+			? hotel.Property.HotelPatronBalances.FirstOrDefault(x => x.PatronId == payload.PatronId.Value)
+			: null;
+		return new HotelAdministrationActionStep(hotel, operation, room, lost, balance, payload.PatronSelector,
+			payload.Note);
+	}
 	private EmploymentItemSelector? ToItemSelector(ItemSelectorPayload? payload, long? legacyItemId = null,
 		string? legacyTag = null)
 	{
@@ -1715,11 +2356,16 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 		var amount = payload?.Amount is not null
 			? ToMoney(payload.AmountCurrencyId, payload.Amount)
 			: ToMoney(record.AmountCurrencyId, record.Amount);
+		var routeStopIds = payload?.RouteStopIds;
+		var routeStops = routeStopIds is { Count: > 0 }
+			? ResolveCells(routeStopIds).ToList()
+			: new List<ICell>();
 		return new CataloguedActionShellStep(
 			actionKey,
 			payload?.Description ?? record.Description ?? actionKey,
 			amount,
-			destination);
+			destination,
+			routeStops);
 	}
 
 	private IEnumerable<ICell> ResolveCells(IEnumerable<long> ids)
@@ -1766,6 +2412,23 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 
 		switch (step)
 		{
+			case SupplierSelectionActionStep supplier:
+				var supplierPurchase = supplier.Purchase;
+				record.Description = $"supplier {supplierPurchase.PurchaseDescription}";
+				record.AmountCurrencyId = supplierPurchase.Amount.Currency.Id;
+				record.Amount = supplierPurchase.Amount.Amount;
+				record.BoardText = SerializeActionPayload(new PurchaseStepPayload(
+					supplierPurchase.Quantity ?? 0,
+					supplierPurchase.MerchandiseSelector ?? string.Empty,
+					supplierPurchase.SupplierSelector ?? "any",
+					supplierPurchase.Amount.Currency.Id,
+					supplierPurchase.MaximumAmount?.Amount,
+					supplierPurchase.KeywordFilter,
+					supplierPurchase.TargetKind.ToString(),
+					FromItemSelector(supplierPurchase.ItemSelector),
+					supplierPurchase.CommodityWeight,
+					supplierPurchase.CommodityDescriptor));
+				break;
 			case PurchaseActionStep purchase:
 				record.Description = purchase.PurchaseDescription;
 				record.AmountCurrencyId = purchase.Amount.Currency.Id;
@@ -1812,6 +2475,18 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 				record.Amount = withdrawal.Amount.Amount;
 				record.ExistingFinancialRecord = withdrawal.ExistingFinancialRecord;
 				break;
+			case BankAccountTransferActionStep transfer:
+				record.AccountName = transfer.TargetAccountKey;
+				record.AmountCurrencyId = transfer.Amount.Currency.Id;
+				record.Amount = transfer.Amount.Amount;
+				record.ExistingFinancialRecord = transfer.ExistingFinancialRecord;
+				break;
+			case HostSettlementActionStep settlement:
+				record.AccountName = settlement.TargetHostKey;
+				record.AmountCurrencyId = settlement.Amount.Currency.Id;
+				record.Amount = settlement.Amount.Amount;
+				record.ExistingFinancialRecord = settlement.ExistingFinancialRecord;
+				break;
 			case StoreAccountPaymentActionStep account:
 				record.AccountName = account.AccountName;
 				record.AmountCurrencyId = account.Amount.Currency.Id;
@@ -1856,6 +2531,83 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 					deliver.ContainerTag,
 					FromItemSelector(deliver.ContainerSelector)));
 				break;
+			case ShopStockTransferActionStep stockTransfer:
+				record.Description = $"transfer stock to {stockTransfer.TargetShop.Name}";
+				record.DestinationCellId = stockTransfer.Destination.Id;
+				record.BoardText = SerializeActionPayload(new ShopStockTransferStepPayload(
+					stockTransfer.SourceShop.Id,
+					stockTransfer.TargetShop.Id,
+					stockTransfer.TargetMerchandise.Id,
+					stockTransfer.Destination.Id,
+					stockTransfer.Container?.Id,
+					stockTransfer.ContainerTag,
+					FromItemSelector(stockTransfer.ContainerSelector)));
+				break;
+			case AuctionLotListingActionStep auctionList:
+				record.Description = $"list auction lot at {auctionList.AuctionHouse.Name}";
+				record.BoardText = SerializeActionPayload(new AuctionLotListingStepPayload(
+					auctionList.AuctionHouse.Id,
+					FromItemSelector(auctionList.ItemSelector)!,
+					auctionList.ReservePrice.Currency.Id,
+					auctionList.ReservePrice.Amount,
+					auctionList.BuyoutPrice?.Currency.Id,
+					auctionList.BuyoutPrice?.Amount,
+					auctionList.Duration?.Ticks));
+				break;
+			case AuctionSettlementActionStep auctionSettlement:
+				record.Description = auctionSettlement.SettleAllDue
+					? $"settle due auction lots at {auctionSettlement.AuctionHouse.Name}"
+					: $"settle auction lot {auctionSettlement.AssetName ?? auctionSettlement.AssetId?.ToString("F0", CultureInfo.InvariantCulture)}";
+				record.BoardText = SerializeActionPayload(new AuctionSettlementStepPayload(
+					auctionSettlement.AuctionHouse.Id,
+					auctionSettlement.AssetId,
+					auctionSettlement.AssetType,
+					auctionSettlement.AssetName));
+				break;
+			case AuctionClaimActionStep auctionClaim:
+				record.Description = $"claim auction lot {auctionClaim.AssetName ?? auctionClaim.AssetId.ToString("F0", CultureInfo.InvariantCulture)}";
+				record.BoardText = SerializeActionPayload(new AuctionClaimStepPayload(
+					auctionClaim.AuctionHouse.Id,
+					auctionClaim.AssetId,
+					auctionClaim.AssetType,
+					auctionClaim.AssetName));
+				break;
+			case BankAdministrationActionStep bankAdmin:
+				record.AmountCurrencyId = bankAdmin.Amount?.Currency.Id;
+				record.Amount = bankAdmin.Amount?.Amount;
+				record.AccountName = bankAdmin.AccountSelector;
+				record.Description = bankAdmin.Reason;
+				record.ExecutionCellId = bankAdmin.SourceBranch?.Id;
+				record.DestinationCellId = bankAdmin.DestinationBranch?.Id;
+				record.BoardText = SerializeActionPayload(new BankAdministrationStepPayload(
+					bankAdmin.Operation.ToString(),
+					bankAdmin.Bank.Id,
+					bankAdmin.Amount?.Currency.Id,
+					bankAdmin.Amount?.Amount,
+					bankAdmin.AccountSelector,
+					bankAdmin.TargetStatus?.ToString(),
+					bankAdmin.SourceBranch?.Id,
+					bankAdmin.DestinationBranch?.Id,
+					bankAdmin.Reason));
+				break;			case ArenaEventAdministrationActionStep arenaEvent:
+				record.Description = arenaEvent.Operation switch
+				{
+					ArenaEventAdministrationActionKind.Create => $"create arena event {arenaEvent.EventTypeName ?? arenaEvent.EventTypeId?.ToString("F0", CultureInfo.InvariantCulture)}",
+					ArenaEventAdministrationActionKind.Transition => $"move arena event {arenaEvent.EventName ?? arenaEvent.EventId?.ToString("F0", CultureInfo.InvariantCulture)} to {arenaEvent.TargetState}",
+					ArenaEventAdministrationActionKind.Abort => $"abort arena event {arenaEvent.EventName ?? arenaEvent.EventId?.ToString("F0", CultureInfo.InvariantCulture)}",
+					_ => "manage arena event"
+				};
+				record.BoardText = SerializeActionPayload(new ArenaEventAdministrationStepPayload(
+					arenaEvent.Operation.ToString(),
+					arenaEvent.Arena.Id,
+					arenaEvent.EventTypeId,
+					arenaEvent.EventTypeName,
+					arenaEvent.EventId,
+					arenaEvent.EventName,
+					arenaEvent.ScheduledForUtc,
+					arenaEvent.TargetState?.ToString(),
+					arenaEvent.Reason));
+				break;
 			case LoadItemsActionStep load:
 				record.Description = "load task items";
 				record.DestinationCellId = load.TargetLocation?.Id;
@@ -1887,11 +2639,47 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 					FromItemSelector(returnAsset.DestinationContainerSelector)));
 				break;
 			case VehicleOperationActionStep vehicle:
-				record.Description = $"select cargo {vehicle.CargoSpace.Name} on {vehicle.Vehicle.Name}";
+				record.Description = vehicle.AssignsDriver
+					? $"assign driver to {vehicle.Vehicle.Name}"
+					: $"select cargo {vehicle.CargoSpace!.Name} on {vehicle.Vehicle.Name}";
 				record.DestinationCellId = vehicle.Vehicle.Location?.Id;
 				record.BoardText = SerializeActionPayload(new VehicleOperationStepPayload(
 					vehicle.Vehicle.Id,
-					vehicle.CargoSpace.Id));
+					vehicle.CargoSpace?.Id,
+					vehicle.AssignsDriver ? "assign" : "cargo"));
+				break;
+			case StableAnimalOperationActionStep animal:
+				record.Description = $"{animal.Operation.DescribeEnum()} animal operation";
+				record.DestinationCellId = animal.Destination?.Id ?? animal.Stable?.Location.Id ?? animal.Mount?.Location.Id;
+				record.BoardText = SerializeActionPayload(new StableAnimalOperationStepPayload(
+					animal.Operation.ToString(),
+					animal.Mount is null ? null : CharacterInstanceIdentityComparer.IdentityId(animal.Mount),
+					animal.Stable?.Id,
+					animal.Stay?.Id,
+					animal.Destination?.Id,
+					animal.WaiveFees));
+				break;
+			case StableAdministrationActionStep stableAdmin:
+				record.Description = $"{stableAdmin.Operation} stable administration";
+				record.DestinationCellId = stableAdmin.Stable.Location.Id;
+				record.BoardText = SerializeActionPayload(new StableAdministrationStepPayload(
+					stableAdmin.Operation.ToString(),
+					stableAdmin.Stable.Id,
+					stableAdmin.Stay?.Id,
+					stableAdmin.Account?.Id,
+					stableAdmin.Note));
+				break;
+			case HotelAdministrationActionStep hotelAdmin:
+				record.Description = $"{hotelAdmin.Operation} hotel administration";
+				record.DestinationCellId = hotelAdmin.Room?.Cell.Id;
+				record.BoardText = SerializeActionPayload(new HotelAdministrationStepPayload(
+					hotelAdmin.Operation.ToString(),
+					hotelAdmin.Hotel.Property.Id,
+					hotelAdmin.Room?.Cell.Id,
+					hotelAdmin.LostProperty?.BundleId,
+					hotelAdmin.PatronBalance?.PatronId,
+					hotelAdmin.PatronSelector,
+					hotelAdmin.Note));
 				break;
 			case CataloguedActionShellStep shell:
 				record.CommandName = shell.ActionKey;
@@ -1904,7 +2692,8 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 					shell.ActionDescription,
 					shell.TargetLocation?.Id,
 					shell.Amount?.Currency.Id,
-					shell.Amount?.Amount));
+					shell.Amount?.Amount,
+					shell.RouteStops.Count == 0 ? null : shell.RouteStops.Select(x => x.Id).ToArray()));
 				break;
 			case TaxPaymentActionStep tax:
 				record.Description = "pay supported host taxes";
@@ -1914,6 +2703,9 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 			case PayrollSettlementActionStep payroll:
 				record.Description = payroll.Reason;
 				record.AccountName = payroll.Selector;
+				break;
+			case ShopCashReconciliationActionStep cashReconciliation:
+				record.Description = cashReconciliation.Note;
 				break;
 			case ShopFloatAdjustmentActionStep shopFloat:
 				record.Description = shopFloat.FillRegister ? "fill shop float" : "skim shop float";
@@ -1936,10 +2728,22 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 					physicalFloat.TargetKind,
 					FromItemSelector(physicalFloat.TargetSelector)));
 				break;
+			case DeprecatedMarketPriceChangeActionStep deprecated:
+				record.Description = "deprecated market price action";
+				record.BoardText = deprecated.OriginalPayload;
+				break;
+			case ShopStocktakeActionStep stocktake:
+				record.Description = stocktake.Scope == ShopStocktakeScope.All
+					? "Stocktake all merchandise"
+					: $"Stocktake merchandise {stocktake.MerchandiseName ?? stocktake.MerchandiseSelector}";
+				record.AccountName = stocktake.MerchandiseSelector;
+				record.BoardText = SerializeActionPayload(new ShopStocktakeStepPayload(
+					stocktake.Scope.ToString(),
+					stocktake.MerchandiseSelector,
+					stocktake.MerchandiseName));
+				break;
 			case PriceChangeActionStep price:
-				record.Description = price.PriceChangeKind == PriceChangeActionKind.Merchandise
-					? $"price merchandise {price.MerchandiseSelector}"
-					: $"price market {price.MarketSelector} category {price.CategorySelector}";
+				record.Description = $"price merchandise {price.MerchandiseSelector}";
 				record.AmountCurrencyId = price.ExactPrice?.Currency.Id;
 				record.Amount = price.ExactPrice?.Amount;
 				record.BoardText = SerializeActionPayload(new PriceChangeStepPayload(
@@ -1947,14 +2751,36 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 					price.MerchandiseSelector,
 					price.ExactPrice?.Currency.Id,
 					price.ExactPrice?.Amount,
-					price.MarketSelector,
-					price.CategorySelector,
-					price.SupplyImpact,
-					price.DemandImpact,
-					price.FlatPriceImpact,
-					price.InfluenceName,
-					price.Duration?.Ticks,
-					price.UntilText));
+					string.Empty,
+					string.Empty,
+					0.0,
+					0.0,
+					0.0,
+					string.Empty,
+					null,
+					null));
+				break;
+			case ShopDealAdministrationActionStep deal:
+				record.Description = deal.Operation switch
+				{
+					ShopDealAdministrationActionKind.Create => $"shop deal create {deal.Name}",
+					ShopDealAdministrationActionKind.Modify => $"shop deal modify {deal.DealSelector}",
+					_ => $"shop deal cancel {deal.DealSelector}"
+				};
+				record.AccountName = deal.Operation == ShopDealAdministrationActionKind.Create ? deal.Name : deal.DealSelector;
+				record.BoardText = SerializeActionPayload(new ShopDealAdministrationStepPayload(
+					deal.Operation.ToString(),
+					deal.Name,
+					deal.DealType.ToString(),
+					deal.TargetType.ToString(),
+					deal.TargetSelector,
+					deal.PriceAdjustmentPercentage,
+					deal.MinimumQuantity,
+					deal.Applicability.ToString(),
+					deal.EligibilityProg?.Id,
+					deal.IsCumulative,
+					deal.Expiry.Date is null ? null : deal.Expiry.GetDateTimeString(),
+					deal.DealSelector));
 				break;
 			case JobOpeningAdministrationActionStep opening:
 				record.Description = $"{opening.Operation} job opening";
@@ -1964,6 +2790,36 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 					opening.OpeningId,
 					opening.Definition is null ? null : FromJobOpeningDefinition(opening.Definition),
 					opening.Reason));
+				break;
+			case ScheduledRuleAdministrationActionStep ruleAdmin:
+				record.Description = $"{ruleAdmin.Operation} scheduled rule {ruleAdmin.RuleName}";
+				record.AccountName = ruleAdmin.RuleId.ToString("D");
+				record.BoardText = SerializeActionPayload(new ScheduledRuleAdministrationStepPayload(
+					ruleAdmin.Operation.ToString(),
+					ruleAdmin.RuleId.ToString("D"),
+					ruleAdmin.RuleName,
+					ruleAdmin.Reason,
+					ruleAdmin.ManualKey));
+				break;
+			case ActiveTaskAdministrationActionStep taskAdmin:
+				record.Description = $"{taskAdmin.Operation} active task {taskAdmin.TaskName}";
+				record.AccountName = taskAdmin.TaskId.ToString("D");
+				record.BoardText = SerializeActionPayload(new ActiveTaskAdministrationStepPayload(
+					taskAdmin.Operation.ToString(),
+					taskAdmin.TaskId.ToString("D"),
+					taskAdmin.TaskName,
+					taskAdmin.EmployeeId,
+					taskAdmin.EmployeeName,
+					taskAdmin.Reason));
+				break;
+			case ManagerGoalAdministrationActionStep goalAdmin:
+				record.Description = $"{goalAdmin.Operation} manager goal {goalAdmin.GoalName}";
+				record.AccountName = goalAdmin.GoalId.ToString("F0", CultureInfo.InvariantCulture);
+				record.BoardText = SerializeActionPayload(new ManagerGoalAdministrationStepPayload(
+					goalAdmin.Operation.ToString(),
+					goalAdmin.GoalId,
+					goalAdmin.GoalName,
+					goalAdmin.Reason));
 				break;
 		}
 
@@ -2082,6 +2938,7 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 				record.Conditions.OrderBy(x => x.SortOrder).Select(ToCondition).OfType<IEmploymentTaskCondition>().ToList()),
 			record.Priority,
 			TimeSpan.FromTicks(record.EvaluationCadenceTicks),
+			ManagerGoalPolicy.Default,
 			ToNullableOffset(record.LastEvaluatedAt),
 			record.LastEvaluationResult,
 			correlationId,

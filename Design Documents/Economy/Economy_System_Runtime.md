@@ -364,7 +364,7 @@ Verified runtime parts include:
 - `IEmploymentHost` and host-state shells for shops, auction houses, combat arenas, banks, stables, and durable hotel roots
 - persisted employment host state keyed by host type and host id
 - persisted staff `IBoard` references for host communication, separate from task routing
-- employment contracts, job openings, applications, compensation terms, payment methods, delegated authority, payroll liabilities, manager goals, scheduled rules, action plans, active tasks, step operational state, employment register rows, and employment ledger rows
+- employment contracts, job openings, runtime opening revision/application profile guards, applications, compensation terms, payment methods, delegated authority, payroll liabilities, manager goals, scheduled rules, action plans, active tasks, step operational state, employment register rows, and employment ledger rows
 - `EmploymentWorkerAI` for NPC application, workplace travel, task claiming, action-step execution, payroll claiming, and arrears-driven resignation
 - shared `employment` command adapters plus local host aliases on `shop`, `stable`, `bank`, `auction`, `arena`, and `roomrent`
 - scheduled-rule authoring and condition catalogues for manual, time, stock, account, item, commodity, shop-account, register-float, tax, and weather conditions
@@ -375,7 +375,7 @@ Current operational boundaries:
 - task routing uses `IEmploymentTaskBoard`; the staff `IBoard` is only an employee/manager communication surface
 - financial actions require delegated authority plus explicit authorisation/reservation state and write employment audit evidence while reusing native finance records where available
 - executable shop-purchase tasks must be completed at a supplier shop location; commodity merchandise stays on the weighted purchase path and is not eligible for count-priced merchandise or item-selector purchases
-- payroll settlement debits backed employer funds before payables become claimable or settled; hosts without a native finance adapter must explicitly expose a currency-backed finance surface
+- payroll accrual expires fixed-term contracts before evaluation, uses explicit schedule windows for hourly guaranteed-hours contracts, rejects unsupported paid cadences until explicit earning records exist, worker resignation uses employee-specific arrears, and settlement validates every accrued payable destination before funds move, debits backed employer funds before cash payables become claimable, and credits employee or specified bank-account payables through native bank transactions; hosts without a native finance adapter must explicitly expose a currency-backed finance surface
 - item movement uses inventory plans where possible, with narrow fallbacks for behaviours the inventory-plan API does not model cleanly; physical employment logistics are constrained to the host's work locations and physical cash steps only consume task-custody currency piles
 - worker AI does not autonomously retry active tasks once they enter `Blocked`; blocked logistics tasks preserve any task-item custody for manager review instead of producing repeated delivery attempts
 - proprietor contracts cannot be terminated by non-admin managers, and manager goals must require the combined authority of the declared goal, its conditions, and its action plan
@@ -488,7 +488,7 @@ The current shop price flow is:
 Important current detail:
 
 - the shop API already exposes a detailed-price surface and a deals surface
-- volume deals are not yet implemented even though the API shape anticipates them
+- native `ShopDeal` pricing supports sale and volume deals; employment automation can create, modify, and cancel those shop-owned deals without mutating market influences
 
 ### Autopay and Financial Period Closure
 Two loops matter operationally:

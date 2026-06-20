@@ -150,13 +150,13 @@ public static class EmploymentManagerGoalCatalog
 			ManagerGoalType.AdjustPricesForProfit,
 			"goals draft new pricemargin <description>",
 			EmploymentAuthority.AdjustPrices,
-			"Maintains profitability targets by creating executable merchandise base-price changes or category-level market influence adjustments.",
+			"Maintains profitability targets by creating executable merchandise base-price changes or native shop deal actions.",
 			Examples(
 				"goals condition marketprice merch <id|name> effective below <amount>",
 				"goals condition marketprice merch <id|name> multiplier above <amount>"),
 			Examples(
 				"goals step price merch <id|name> <amount>",
-				"goals step price market host category <category> [supply <pct>] [demand <pct>] [flat <pct>]",
+				"goals step sale create seasonal sale target all adjustment -10% expires 7 days",
 				"goals step board Pricing = Review listed merchandise prices."),
 			Aliases("pricing", "prices", "margin", "profitmargin")),
 		Definition("staffing", EmploymentManagerGoalCategory.Administration,

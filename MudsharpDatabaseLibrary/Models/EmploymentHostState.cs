@@ -73,6 +73,8 @@ public partial class EmploymentContractRecord
 	public DateTime StartedAt { get; set; }
 	public DateTime? EndsAt { get; set; }
 	public int? EndReason { get; set; }
+	public long? OriginOpeningId { get; set; }
+	public long? OriginApplicationId { get; set; }
 
 	public virtual EmploymentHostState EmploymentHostState { get; set; } = null!;
 }
@@ -111,6 +113,7 @@ public partial class EmploymentJobOpeningRecord
 	public long? PaymentItemId { get; set; }
 	public string? PaymentItemType { get; set; }
 	public string? PaymentNotes { get; set; }
+	public int RevisionNumber { get; set; }
 
 	public virtual EmploymentHostState EmploymentHostState { get; set; } = null!;
 	public virtual ICollection<EmploymentJobOpeningRequirement> Requirements { get; set; }
@@ -138,6 +141,8 @@ public partial class EmploymentApplicationRecord
 	public DateTime AppliedAt { get; set; }
 	public int Status { get; set; }
 	public string? DecisionReason { get; set; }
+	public int OfferedOpeningRevision { get; set; }
+	public string? CandidateProfileJson { get; set; }
 
 	public virtual EmploymentJobOpeningRecord EmploymentJobOpening { get; set; } = null!;
 }

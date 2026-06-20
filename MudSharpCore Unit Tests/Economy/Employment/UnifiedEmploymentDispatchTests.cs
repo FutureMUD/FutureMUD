@@ -34,6 +34,7 @@ using MudSharp.NPC;
 using MudSharp.NPC.AI;
 using MudSharp.TimeAndDate;
 using MudSharp.TimeAndDate.Date;
+using MudSharp.Vehicles;
 using MudSharp.Work.Crafts;
 
 #nullable enable
@@ -166,6 +167,54 @@ public class UnifiedEmploymentDispatchTests
 	}
 
 	[TestMethod]
+	public void EmploymentLegacyBridgeReporter_ReportsReadOnlyLegacyAndNewDivergence()
+	{
+		var currency = Currency();
+		var legacyWorker = Character(30, "Legacy Worker").Object;
+		var newWorker = Character(31, "New Worker").Object;
+		var manager = Character(32, "Manager").Object;
+		var (shop, state) = ShopHost(30, "bridge shop", currency.Object, null);
+		state.Hire(manager, Offer(currency.Object, EmploymentRole.Manager), null);
+		state.Hire(newWorker, Offer(currency.Object, EmploymentRole.Employee), null);
+		var legacyListing = new Mock<IJobListing>();
+		var legacyJob = new Mock<IActiveJob>();
+		legacyListing.SetupGet(x => x.Id).Returns(30);
+		legacyListing.SetupGet(x => x.Name).Returns("legacy shop job");
+		legacyListing.SetupGet(x => x.Employer).Returns(shop.Object);
+		legacyListing.SetupGet(x => x.ActiveJobs).Returns([legacyJob.Object]);
+		legacyJob.SetupGet(x => x.Id).Returns(30);
+		legacyJob.SetupGet(x => x.Name).Returns("legacy shop job");
+		legacyJob.SetupGet(x => x.Listing).Returns(legacyListing.Object);
+		legacyJob.SetupGet(x => x.Character).Returns(legacyWorker);
+		legacyJob.SetupGet(x => x.IsJobComplete).Returns(false);
+		var jobListings = new All<IJobListing>();
+		jobListings.Add(legacyListing.Object);
+		var activeJobs = new All<IActiveJob>();
+		activeJobs.Add(legacyJob.Object);
+		var gameworld = Gameworld(
+			currency.Object,
+			new Dictionary<long, ICharacter> { [legacyWorker.Id] = legacyWorker, [newWorker.Id] = newWorker, [manager.Id] = manager },
+			shopsToAdd: [shop.Object]);
+		gameworld.SetupGet(x => x.JobListings).Returns(jobListings);
+		gameworld.SetupGet(x => x.ActiveJobs).Returns(activeJobs);
+
+		var report = EmploymentLegacyBridgeReporter.Build(gameworld.Object);
+
+		Assert.AreEqual(1, report.EmploymentHostCount);
+		Assert.AreEqual(2, report.ActiveEmploymentContractCount);
+		Assert.AreEqual(1, report.LegacyJobListingCount);
+		Assert.AreEqual(1, report.ActiveLegacyJobCount);
+		Assert.IsTrue(report.Divergences.Any(x =>
+			x.Kind == EmploymentLegacyBridgeDivergenceKind.LegacyActiveJobWithoutContract &&
+			x.Character.Contains("Legacy Worker")));
+		Assert.IsTrue(report.Divergences.Any(x =>
+			x.Kind == EmploymentLegacyBridgeDivergenceKind.EmploymentContractWithoutLegacyJob &&
+			x.Character.Contains("New Worker")));
+		Assert.AreEqual(1, activeJobs.Count());
+		Assert.AreEqual(2, state.EmploymentContracts.Count);
+	}
+
+	[TestMethod]
 	public void PaymentSelection_PrefersBankAccountFallsBackToCashAndCanFail()
 	{
 		var currency = Currency();
@@ -231,6 +280,166 @@ public class UnifiedEmploymentDispatchTests
 	}
 
 	[TestMethod]
+	public void Payroll_HourlyScheduledShiftAccruesScheduledHoursRatherThanElapsedContractHours()
+	{
+		var currency = Currency();
+		var (shop, state) = ShopHost(407, "scheduled shop", currency.Object, null);
+		IEmploymentHost host = shop.Object;
+		var employee = Character(11, "Employee").Object;
+		var compensation = new CompensationTerms(
+			new MoneyAmount(currency.Object, 10.0M),
+			null,
+			PayCadence.Hourly,
+			new MoneyAmount(currency.Object, 10.0M),
+			PaymentSource.HostCash);
+		var contract = state.Hire(employee, new EmploymentOffer(
+			EmploymentRole.Employee,
+			compensation,
+			new WorkSchedule("Day shift", TimeSpan.FromHours(9.0), TimeSpan.FromHours(17.0)),
+			EmploymentDuration.Indefinite,
+			new PaymentMethod(PaymentMethodKind.Cash),
+			EmploymentAuthoritySet.Empty), null);
+
+		var created = host.Payroll.EvaluatePayroll(contract.StartedAt.AddDays(1.0).AddMinutes(1.0));
+
+		Assert.AreEqual(1, created.Count);
+		var payable = created.Single();
+		Assert.AreEqual(80.0M, payable.Amount.Amount);
+		Assert.AreEqual(PayCadence.Hourly, payable.Cadence);
+		Assert.AreEqual(TimeSpan.FromDays(1.0), payable.PayPeriodEnd - payable.PayPeriodStart);
+	}
+
+	[TestMethod]
+	public void Payroll_RejectsUnsupportedCadencesWithoutExplicitEarnings()
+	{
+		var currency = Currency();
+		foreach (var cadence in new[] { PayCadence.PerTask, PayCadence.Commission, PayCadence.Mixed })
+		{
+			var (_, state) = ShopHost(450 + (int)cadence, $"unsupported {cadence}", currency.Object, null);
+			var employee = Character(80 + (int)cadence, "Employee").Object;
+			var compensation = new CompensationTerms(
+				new MoneyAmount(currency.Object, 10.0M),
+				null,
+				cadence,
+				new MoneyAmount(currency.Object, 10.0M),
+				PaymentSource.HostCash);
+
+			var contractException = Assert.ThrowsException<InvalidOperationException>(() => state.Hire(employee, new EmploymentOffer(
+				EmploymentRole.Employee,
+				compensation,
+				WorkSchedule.AnyTime,
+				EmploymentDuration.Indefinite,
+				new PaymentMethod(PaymentMethodKind.Cash),
+				EmploymentAuthoritySet.Empty), null));
+			StringAssert.Contains(contractException.Message, "explicit earning records");
+
+			var openingException = Assert.ThrowsException<InvalidOperationException>(() => state.CreateJobOpening(
+				new JobOpeningDefinition(
+					EmploymentRole.Employee,
+					JobRequirementSet.None,
+					compensation,
+					WorkSchedule.AnyTime,
+					EmploymentDuration.Indefinite,
+					1,
+					true,
+					new PaymentMethod(PaymentMethodKind.Cash),
+					EmploymentAuthoritySet.Empty), null));
+			StringAssert.Contains(openingException.Message, "explicit earning records");
+		}
+	}
+
+	[TestMethod]
+	public void Payroll_EvaluateExpiresFixedTermAndAccruesFinalPartialPay()
+	{
+		var currency = Currency();
+		var (shop, state) = ShopHost(408, "fixed term shop", currency.Object, null);
+		IEmploymentHost host = shop.Object;
+		var employee = Character(12, "Employee").Object;
+		var compensation = new CompensationTerms(
+			new MoneyAmount(currency.Object, 10.0M),
+			null,
+			PayCadence.Daily,
+			new MoneyAmount(currency.Object, 10.0M),
+			PaymentSource.HostCash);
+		var contract = state.Hire(employee, new EmploymentOffer(
+			EmploymentRole.Employee,
+			compensation,
+			WorkSchedule.AnyTime,
+			new EmploymentDuration(EmploymentDurationType.FixedTerm, TimeSpan.FromHours(12.0)),
+			new PaymentMethod(PaymentMethodKind.Cash),
+			EmploymentAuthoritySet.Empty), null);
+
+		var created = host.Payroll.EvaluatePayroll(contract.StartedAt.AddDays(1.0));
+
+		Assert.AreEqual(EmploymentStatus.Ended, contract.Status);
+		Assert.AreEqual(EmploymentTerminationReason.Expired, contract.EndReason);
+		Assert.AreEqual(contract.StartedAt.AddHours(12.0), contract.EndsAt);
+		Assert.AreEqual(1, created.Count);
+		var payable = created.Single();
+		Assert.AreEqual(5.0M, payable.Amount.Amount);
+		Assert.AreEqual(contract.EndsAt, payable.PayPeriodEnd);
+		Assert.IsTrue(host.EmploymentRegister.Entries.Any(x =>
+			x.EntryType == EmploymentRegisterEntryType.ContractEnded));
+	}
+
+	[TestMethod]
+	public void EmploymentHostOperationsScheduler_EvaluatesRulesGoalsPayrollAndLifecycle()
+	{
+		var currency = Currency();
+		IEmploymentHost host = new TestEmploymentHost("operations shop", currency.Object);
+		var manager = Character(1, "Manager").Object;
+		var employee = Character(2, "Employee").Object;
+		host.Hire(manager, new EmploymentOffer(
+			EmploymentRole.Manager,
+			new CompensationTerms(null, null, PayCadence.Unpaid, null, PaymentSource.HostCash),
+			WorkSchedule.AnyTime,
+			EmploymentDuration.Indefinite,
+			new PaymentMethod(PaymentMethodKind.Cash),
+			EmploymentAuthority.CreateScheduledRules |
+			EmploymentAuthority.CreateManagerGoals |
+			EmploymentAuthority.AssignTasks), null);
+		var compensation = new CompensationTerms(
+			new MoneyAmount(currency.Object, 10.0M),
+			null,
+			PayCadence.Daily,
+			new MoneyAmount(currency.Object, 10.0M),
+			PaymentSource.HostCash);
+		var contract = host.Hire(employee, new EmploymentOffer(
+			EmploymentRole.Employee,
+			compensation,
+			WorkSchedule.AnyTime,
+			new EmploymentDuration(EmploymentDurationType.FixedTerm, TimeSpan.FromHours(12.0)),
+			new PaymentMethod(PaymentMethodKind.Cash),
+			EmploymentAuthoritySet.Empty), null);
+		host.TaskBoard.CreateScheduledRule(
+			"scheduled report",
+			"scheduled-report",
+			[],
+			new EmploymentActionPlan([new CataloguedActionShellStep("report", "scheduled work")]),
+			TimeSpan.FromHours(1.0),
+			manager);
+		host.ManagerGoalBoard.CreateGoal(new ManagerGoalDefinition(
+			ManagerGoalType.MaintainHotelOperations,
+			EmploymentAuthority.AssignTasks,
+			new ManagerGoalConfiguration("goal report", new EmploymentActionPlan([
+				new CataloguedActionShellStep("report", "goal work")
+			])),
+			5,
+			TimeSpan.Zero), manager);
+
+		var result = EmploymentHostOperationsScheduler.EvaluateHost(host, contract.StartedAt.AddDays(1.0));
+
+		Assert.AreEqual(1, result.ScheduledRuleTaskCount);
+		Assert.AreEqual(1, result.ManagerGoalTaskCount);
+		Assert.AreEqual(1, result.PayableCount);
+		Assert.AreEqual(1, result.ContractEndCount);
+		Assert.AreEqual(EmploymentStatus.Ended, contract.Status);
+		Assert.AreEqual(EmploymentTerminationReason.Expired, contract.EndReason);
+		Assert.IsTrue(result.ScheduledRuleTasks.Single().SourceKind == EmploymentTaskSourceKind.ScheduledRule);
+		Assert.IsTrue(result.ManagerGoalTasks.Single().SourceKind == EmploymentTaskSourceKind.ManagerGoal);
+	}
+
+	[TestMethod]
 	public void Payroll_SettlementRequiresBackedEmployerFunds()
 	{
 		VirtualCashLedger.ClearInMemoryForTests();
@@ -259,6 +468,111 @@ public class UnifiedEmploymentDispatchTests
 		Assert.IsFalse(settled);
 		StringAssert.Contains(message, "available for payroll settlement");
 		Assert.IsTrue(host.Payroll.Payables.All(x => x.Status == EmploymentPayableStatus.Accrued));
+	}
+
+	[TestMethod]
+	public void Payroll_BankSettlementDebitsEmployerAndCreditsEmployeeAccount()
+	{
+		VirtualCashLedger.ClearInMemoryForTests();
+		var currency = Currency();
+		var employeeAccount = BankAccount(currency.Object, 5.0M, 1_000.0M);
+		var (shop, state) = ShopHost(403, "payroll shop", currency.Object, null);
+		IEmploymentHost host = shop.Object;
+		var employee = Character(11, "Employee").Object;
+		var compensation = new CompensationTerms(
+			new MoneyAmount(currency.Object, 10.0M),
+			null,
+			PayCadence.Daily,
+			new MoneyAmount(currency.Object, 10.0M),
+			PaymentSource.HostCash);
+		var contract = state.Hire(employee, new EmploymentOffer(
+			EmploymentRole.Employee,
+			compensation,
+			WorkSchedule.AnyTime,
+			EmploymentDuration.Indefinite,
+			new PaymentMethod(PaymentMethodKind.EmployeeBankAccount, employeeAccount.Object),
+			EmploymentAuthoritySet.Empty), null);
+		host.Payroll.EvaluatePayroll(contract.StartedAt.AddDays(1).AddMinutes(1));
+		VirtualCashLedger.Credit(shop.Object, currency.Object, 10.0M, null, shop.Object,
+			"Seed", "Seed payroll balance");
+
+		Assert.IsTrue(host.Payroll.TrySettlePayables(host.Payroll.OutstandingLiabilities, null, false,
+			"Bank payroll.", out var message), message);
+
+		Assert.AreEqual(EmploymentPayableStatus.Settled, host.Payroll.Payables.Single().Status);
+		Assert.AreEqual(0.0M, VirtualCashLedger.Balance(shop.Object, currency.Object));
+		Assert.AreEqual(15.0M, employeeAccount.Object.CurrentBalance);
+		Assert.AreEqual(1_010.0M, employeeAccount.Object.Bank.CurrencyReserves[currency.Object]);
+		Assert.IsTrue(host.BusinessLedger.Entries.Any(x => x.EntryType == EmploymentLedgerEntryType.Wage));
+		Assert.IsTrue(host.EmploymentRegister.Entries.Any(x => x.EntryType == EmploymentRegisterEntryType.WageSettled));
+	}
+
+	[TestMethod]
+	public void Payroll_FailedBankDestinationLeavesPayableOutstandingAndFundsUntouched()
+	{
+		VirtualCashLedger.ClearInMemoryForTests();
+		var currency = Currency();
+		var (shop, state) = ShopHost(404, "payroll shop", currency.Object, null);
+		IEmploymentHost host = shop.Object;
+		var employee = Character(12, "Employee").Object;
+		var compensation = new CompensationTerms(
+			new MoneyAmount(currency.Object, 10.0M),
+			null,
+			PayCadence.Daily,
+			new MoneyAmount(currency.Object, 10.0M),
+			PaymentSource.HostCash);
+		var contract = state.Hire(employee, new EmploymentOffer(
+			EmploymentRole.Employee,
+			compensation,
+			WorkSchedule.AnyTime,
+			EmploymentDuration.Indefinite,
+			new PaymentMethod(PaymentMethodKind.EmployeeBankAccount),
+			EmploymentAuthoritySet.Empty), null);
+		host.Payroll.EvaluatePayroll(contract.StartedAt.AddDays(1).AddMinutes(1));
+		VirtualCashLedger.Credit(shop.Object, currency.Object, 10.0M, null, shop.Object,
+			"Seed", "Seed payroll balance");
+
+		var settled = host.Payroll.TrySettlePayables(host.Payroll.OutstandingLiabilities, null, false,
+			"Bank payroll.", out var message);
+
+		Assert.IsFalse(settled);
+		StringAssert.Contains(message, "destination bank account");
+		Assert.AreEqual(EmploymentPayableStatus.Accrued, host.Payroll.Payables.Single().Status);
+		Assert.AreEqual(10.0M, VirtualCashLedger.Balance(shop.Object, currency.Object));
+	}
+
+	[TestMethod]
+	public void Payroll_FormerEmployeeCashSettlementCanBecomeClaimable()
+	{
+		VirtualCashLedger.ClearInMemoryForTests();
+		var currency = Currency();
+		var (shop, state) = ShopHost(405, "payroll shop", currency.Object, null);
+		IEmploymentHost host = shop.Object;
+		var employee = Character(13, "Employee").Object;
+		var compensation = new CompensationTerms(
+			new MoneyAmount(currency.Object, 10.0M),
+			null,
+			PayCadence.Daily,
+			new MoneyAmount(currency.Object, 10.0M),
+			PaymentSource.HostCash);
+		var contract = state.Hire(employee, new EmploymentOffer(
+			EmploymentRole.Employee,
+			compensation,
+			WorkSchedule.AnyTime,
+			EmploymentDuration.Indefinite,
+			new PaymentMethod(PaymentMethodKind.Cash),
+			EmploymentAuthoritySet.Empty), null);
+		host.Payroll.EvaluatePayroll(contract.StartedAt.AddDays(1).AddMinutes(1));
+		host.Fire(contract, EmploymentTerminationReason.Resigned, null);
+		VirtualCashLedger.Credit(shop.Object, currency.Object, 10.0M, null, shop.Object,
+			"Seed", "Seed payroll balance");
+
+		Assert.IsTrue(host.Payroll.TrySettlePayables(host.Payroll.OutstandingLiabilities, null, true,
+			"Fund cash payroll.", out var message), message);
+
+		Assert.AreEqual(EmploymentPayableStatus.ReadyToClaim, host.Payroll.Payables.Single().Status);
+		Assert.AreEqual(0.0M, VirtualCashLedger.Balance(shop.Object, currency.Object));
+		StringAssert.Contains(message, "ready for employee claim");
 	}
 
 	[TestMethod]
@@ -315,6 +629,559 @@ public class UnifiedEmploymentDispatchTests
 		Assert.AreEqual(1, first.Count);
 		Assert.AreEqual(0, second.Count);
 		Assert.AreEqual(EmploymentActionStepStatus.Pending, first.Single().StepStates.Single());
+	}
+
+	[TestMethod]
+	public void ScheduledRuleAdministrationActionStep_PausesRuleThroughTaskBoard()
+	{
+		var currency = Currency();
+		IEmploymentHost host = new TestEmploymentHost("shop", currency.Object);
+		var manager = Character(21, "Manager").Object;
+		host.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.AssignTasks |
+			EmploymentAuthority.CreateScheduledRules |
+			EmploymentAuthority.ModifyScheduledRules |
+			EmploymentAuthority.PostToHostBoard), null);
+		var rule = host.TaskBoard.CreateScheduledRule("pause target", "pause-target",
+			[],
+			new EmploymentActionPlan([new BoardPostActionStep("Pause", "Should not spawn.")]),
+			TimeSpan.Zero,
+			manager);
+		var step = new ScheduledRuleAdministrationActionStep(
+			ScheduledRuleAdministrationActionKind.Pause,
+			rule.Id,
+			rule.Name,
+			"Pause while stocktaking.");
+		var task = host.TaskBoard.CreateActiveTask("pause scheduled rule", new EmploymentActionPlan([step]), manager);
+		((EmploymentActiveTask)task).Assign(manager);
+		var context = new EmploymentTaskContext(host);
+		var dispatcher = new EmploymentTaskDispatcher();
+
+		var result = dispatcher.AdvanceTask(task, context);
+
+		Assert.IsTrue(result.Success, result.Message);
+		Assert.AreEqual(EmploymentScheduledRuleStatus.Paused, rule.Status);
+		Assert.AreEqual(EmploymentTaskStatus.Completed, task.Status);
+		StringAssert.Contains(task.StepOperationalStates.Single().OperationalPayload!, "rule:pause=");
+		Assert.IsTrue(host.EmploymentRegister.Entries.Any(x => x.EntryType == EmploymentRegisterEntryType.ScheduledRulePaused));
+	}
+
+	[TestMethod]
+	public void ScheduledRuleAdministrationActionStep_EvaluatesRuleWithManualTrigger()
+	{
+		var currency = Currency();
+		IEmploymentHost host = new TestEmploymentHost("shop", currency.Object);
+		var manager = Character(22, "Manager").Object;
+		host.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.AssignTasks |
+			EmploymentAuthority.CreateScheduledRules |
+			EmploymentAuthority.ModifyScheduledRules |
+			EmploymentAuthority.PostToHostBoard), null);
+		var rule = host.TaskBoard.CreateScheduledRule("manual restock", "manual-restock",
+			[new ManualOrderCondition("restock-now")],
+			new EmploymentActionPlan([new BoardPostActionStep("Restock", "Restock now.")]),
+			TimeSpan.Zero,
+			manager);
+		var step = new ScheduledRuleAdministrationActionStep(
+			ScheduledRuleAdministrationActionKind.Evaluate,
+			rule.Id,
+			rule.Name,
+			manualKey: "restock-now");
+		var adminTask = host.TaskBoard.CreateActiveTask("evaluate scheduled rule", new EmploymentActionPlan([step]), manager);
+		((EmploymentActiveTask)adminTask).Assign(manager);
+		var context = new EmploymentTaskContext(host);
+		var dispatcher = new EmploymentTaskDispatcher();
+
+		var result = dispatcher.AdvanceTask(adminTask, context);
+
+		Assert.IsTrue(result.Success, result.Message);
+		Assert.AreEqual(EmploymentTaskStatus.Completed, adminTask.Status);
+		var spawned = host.TaskBoard.ActiveTasks.Single(x => x.SourceRuleId == rule.Id);
+		Assert.AreEqual(EmploymentTaskSourceKind.ScheduledRule, spawned.SourceKind);
+		Assert.AreEqual(rule.Id, spawned.SourceRuleId);
+		StringAssert.Contains(adminTask.StepOperationalStates.Single().OperationalPayload!, "spawned=1");
+		StringAssert.Contains(adminTask.StepOperationalStates.Single().OperationalPayload!, "manual=restock-now");
+		Assert.IsTrue(host.EmploymentRegister.Entries.Any(x => x.EntryType == EmploymentRegisterEntryType.ScheduledRuleEvaluated));
+		Assert.IsTrue(host.EmploymentRegister.Entries.Any(x => x.EntryType == EmploymentRegisterEntryType.AuditActionRecorded &&
+			x.Description.Contains("Evaluated scheduled task rule manual restock", StringComparison.OrdinalIgnoreCase)));
+	}
+
+	[TestMethod]
+	public void ManagerGoalAdministrationActionStep_EvaluatesGoalThroughGoalBoard()
+	{
+		var currency = Currency();
+		IEmploymentHost host = new TestEmploymentHost("shop", currency.Object);
+		var manager = Character(41, "Manager").Object;
+		host.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.AssignTasks |
+			EmploymentAuthority.CreateManagerGoals |
+			EmploymentAuthority.ModifyManagerGoals |
+			EmploymentAuthority.PostToHostBoard), null);
+		var goal = host.ManagerGoalBoard.CreateGoal(new ManagerGoalDefinition(
+			ManagerGoalType.MaintainHotelOperations,
+			EmploymentAuthority.PostToHostBoard,
+			new ManagerGoalConfiguration("post room notice", new EmploymentActionPlan([
+				new BoardPostActionStep("Rooms", "Room work required.")
+			])),
+			1,
+			TimeSpan.Zero), manager);
+		var step = new ManagerGoalAdministrationActionStep(
+			ManagerGoalAdministrationActionKind.Evaluate,
+			goal.Id,
+			goal.Configuration.Description);
+		var adminTask = (EmploymentActiveTask)host.TaskBoard.CreateActiveTask("evaluate manager goal",
+			new EmploymentActionPlan([step]), manager);
+		adminTask.Assign(manager);
+		var context = new EmploymentTaskContext(host);
+		var dispatcher = new EmploymentTaskDispatcher();
+
+		var result = dispatcher.AdvanceTask(adminTask, context);
+
+		Assert.IsTrue(result.Success, result.Message);
+		Assert.AreEqual(EmploymentTaskStatus.Completed, adminTask.Status);
+		var spawned = host.TaskBoard.ActiveTasks.Single(x => x.SourceGoalId == goal.Id);
+		Assert.AreEqual(EmploymentTaskSourceKind.ManagerGoal, spawned.SourceKind);
+		Assert.AreEqual(goal.Id, spawned.SourceGoalId);
+		StringAssert.Contains(adminTask.StepOperationalStates.Single().OperationalPayload!, "goal:evaluate=1");
+		StringAssert.Contains(adminTask.StepOperationalStates.Single().OperationalPayload!, "spawned=1");
+		Assert.IsTrue(host.EmploymentRegister.Entries.Any(x => x.EntryType == EmploymentRegisterEntryType.ManagerGoalEvaluated));
+		Assert.IsTrue(host.EmploymentRegister.Entries.Any(x => x.EntryType == EmploymentRegisterEntryType.AuditActionRecorded &&
+			x.Description.Contains("Evaluated manager goal", StringComparison.OrdinalIgnoreCase)));
+	}
+
+	[TestMethod]
+	public void ManagerGoalAdministrationActionStep_ReactivatesBlockedGoalAndKeepsCancelledTerminal()
+	{
+		var currency = Currency();
+		IEmploymentHost host = new TestEmploymentHost("shop", currency.Object);
+		var manager = Character(42, "Manager").Object;
+		host.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.AssignTasks |
+			EmploymentAuthority.CreateManagerGoals |
+			EmploymentAuthority.ModifyManagerGoals |
+			EmploymentAuthority.PostToHostBoard), null);
+		var goal = host.ManagerGoalBoard.CreateGoal(new ManagerGoalDefinition(
+			ManagerGoalType.MaintainHotelOperations,
+			EmploymentAuthority.PostToHostBoard,
+			new ManagerGoalConfiguration("post room notice", new EmploymentActionPlan([
+				new BoardPostActionStep("Rooms", "Room work required.")
+			])),
+			1,
+			TimeSpan.Zero), manager);
+		((ManagerGoal)goal).Block("Waiting on manager review.");
+		var adminTask = (EmploymentActiveTask)host.TaskBoard.CreateActiveTask("recover manager goal",
+			new EmploymentActionPlan([
+				new ManagerGoalAdministrationActionStep(
+					ManagerGoalAdministrationActionKind.Reactivate,
+					goal.Id,
+					goal.Configuration.Description,
+					"Manager review complete."),
+				new ManagerGoalAdministrationActionStep(
+					ManagerGoalAdministrationActionKind.Cancel,
+					goal.Id,
+					goal.Configuration.Description,
+					"Replaced by a new goal.")
+			]), manager);
+		adminTask.Assign(manager);
+		var context = new EmploymentTaskContext(host);
+		var dispatcher = new EmploymentTaskDispatcher();
+
+		var reactivate = dispatcher.AdvanceTask(adminTask, context);
+		var cancel = dispatcher.AdvanceTask(adminTask, context);
+		var reactivateCancelled = new ManagerGoalAdministrationActionStep(
+			ManagerGoalAdministrationActionKind.Reactivate,
+			goal.Id,
+			goal.Configuration.Description,
+			"Do not reopen cancelled work.");
+
+		Assert.IsTrue(reactivate.Success, reactivate.Message);
+		Assert.IsTrue(cancel.Success, cancel.Message);
+		Assert.AreEqual(ManagerGoalStatus.Cancelled, goal.Status);
+		Assert.AreEqual(EmploymentTaskStatus.Completed, adminTask.Status);
+		Assert.IsFalse(reactivateCancelled.CanExecute(context, manager, out var reason));
+		StringAssert.Contains(reason, "cannot be reactivated");
+		StringAssert.Contains(adminTask.StepOperationalStates[0].OperationalPayload!, "goal:reactivate=1");
+		StringAssert.Contains(adminTask.StepOperationalStates[1].OperationalPayload!, "goal:cancel=1");
+	}
+
+	[TestMethod]
+	public void ActiveTaskAdministrationActionStep_CancelsTargetTaskThroughBoard()
+	{
+		var currency = Currency();
+		IEmploymentHost host = new TestEmploymentHost("shop", currency.Object);
+		var manager = Character(31, "Manager").Object;
+		host.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.AssignTasks |
+			EmploymentAuthority.CancelTasks), null);
+		var target = host.TaskBoard.CreateActiveTask("obsolete report",
+			new EmploymentActionPlan([new CataloguedActionShellStep("report", "obsolete work")]), manager);
+		var step = new ActiveTaskAdministrationActionStep(
+			ActiveTaskAdministrationActionKind.Cancel,
+			target.Id,
+			target.Name,
+			reason: "No longer needed.");
+		var adminTask = (EmploymentActiveTask)host.TaskBoard.CreateActiveTask("cancel obsolete report",
+			new EmploymentActionPlan([step]), manager);
+		adminTask.Assign(manager);
+		var context = new EmploymentTaskContext(host);
+		var dispatcher = new EmploymentTaskDispatcher();
+
+		var result = dispatcher.AdvanceTask(adminTask, context);
+
+		Assert.IsTrue(result.Success, result.Message);
+		Assert.AreEqual(EmploymentTaskStatus.Cancelled, target.Status);
+		Assert.AreEqual(EmploymentTaskStatus.Completed, adminTask.Status);
+		StringAssert.Contains(adminTask.StepOperationalStates.Single().OperationalPayload!, "taskadmin:cancel=");
+		Assert.IsTrue(host.EmploymentRegister.Entries.Any(x => x.EntryType == EmploymentRegisterEntryType.ActiveTaskCancelled));
+	}
+
+	[TestMethod]
+	public void ActiveTaskAdministrationActionStep_RetriesBlockedTaskAndClearsFailure()
+	{
+		var currency = Currency();
+		IEmploymentHost host = new TestEmploymentHost("shop", currency.Object);
+		var manager = Character(32, "Manager").Object;
+		host.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.AssignTasks), null);
+		var target = (EmploymentActiveTask)host.TaskBoard.CreateActiveTask("blocked report",
+			new EmploymentActionPlan([new CataloguedActionShellStep("report", "blocked work")]), manager);
+		target.MarkStep(0, EmploymentActionStepStatus.Blocked,
+			new EmploymentActionStepOperationalState(FailureDiagnostic: "blocked by manager review"));
+		target.Block("blocked by manager review");
+		var step = new ActiveTaskAdministrationActionStep(
+			ActiveTaskAdministrationActionKind.Retry,
+			target.Id,
+			target.Name,
+			reason: "Manager cleared the blocker.");
+		var adminTask = (EmploymentActiveTask)host.TaskBoard.CreateActiveTask("retry blocked report",
+			new EmploymentActionPlan([step]), manager);
+		adminTask.Assign(manager);
+		var context = new EmploymentTaskContext(host);
+		var dispatcher = new EmploymentTaskDispatcher();
+
+		var result = dispatcher.AdvanceTask(adminTask, context);
+
+		Assert.IsTrue(result.Success, result.Message);
+		Assert.AreEqual(EmploymentTaskStatus.Pending, target.Status);
+		Assert.AreEqual(EmploymentActionStepStatus.Pending, target.StepStates.Single());
+		Assert.IsTrue(string.IsNullOrWhiteSpace(target.StepOperationalStates.Single().FailureDiagnostic));
+		Assert.IsTrue(host.EmploymentRegister.Entries.Any(x => x.EntryType == EmploymentRegisterEntryType.ActiveTaskRequeued));
+	}
+
+	[TestMethod]
+	public void ActiveTaskAdministrationActionStep_RequeuesAndAssignsTargetTask()
+	{
+		var currency = Currency();
+		IEmploymentHost host = new TestEmploymentHost("shop", currency.Object);
+		var manager = Character(33, "Manager").Object;
+		var firstWorker = Character(34, "First Worker").Object;
+		var secondWorker = Character(35, "Second Worker").Object;
+		host.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.AssignTasks |
+			EmploymentAuthority.HireEmployees), null);
+		host.Hire(firstWorker, Offer(currency.Object, EmploymentRole.Employee,
+			EmploymentAuthority.AssignTasks), manager);
+		host.Hire(secondWorker, Offer(currency.Object, EmploymentRole.Employee,
+			EmploymentAuthority.AssignTasks), manager);
+		var target = (EmploymentActiveTask)host.TaskBoard.CreateActiveTask("assigned report",
+			new EmploymentActionPlan([new CataloguedActionShellStep("report", "assigned work")]), manager);
+		target.Assign(firstWorker);
+		var adminTask = (EmploymentActiveTask)host.TaskBoard.CreateActiveTask("rebalance report",
+			new EmploymentActionPlan([
+				new ActiveTaskAdministrationActionStep(
+					ActiveTaskAdministrationActionKind.Requeue,
+					target.Id,
+					target.Name,
+					reason: "Release for reassignment."),
+				new ActiveTaskAdministrationActionStep(
+					ActiveTaskAdministrationActionKind.Assign,
+					target.Id,
+					target.Name,
+					secondWorker.Id,
+					secondWorker.Name,
+					"Assign to available worker.")
+			]), manager);
+		adminTask.Assign(manager);
+		var context = new EmploymentTaskContext(host);
+		var dispatcher = new EmploymentTaskDispatcher();
+
+		var requeue = dispatcher.AdvanceTask(adminTask, context);
+		var assign = dispatcher.AdvanceTask(adminTask, context);
+
+		Assert.IsTrue(requeue.Success, requeue.Message);
+		Assert.IsTrue(assign.Success, assign.Message);
+		Assert.AreEqual(EmploymentTaskStatus.Assigned, target.Status);
+		Assert.AreSame(secondWorker, target.AssignedEmployee);
+		Assert.AreEqual(EmploymentTaskStatus.Completed, adminTask.Status);
+		Assert.IsTrue(host.EmploymentRegister.Entries.Any(x => x.EntryType == EmploymentRegisterEntryType.ActiveTaskRequeued));
+		Assert.IsTrue(host.EmploymentRegister.Entries.Any(x => x.EntryType == EmploymentRegisterEntryType.ActiveTaskAssigned));
+	}
+
+	[TestMethod]
+	public void ArenaEventAdministrationActionStep_CreatesNativeArenaEventAndRecordsAudit()
+	{
+		var currency = Currency();
+		var arena = new Mock<ICombatArena>();
+		var state = new EmploymentHostState(arena.Object);
+		arena.SetupGet(x => x.Id).Returns(400);
+		arena.SetupGet(x => x.Name).Returns("red sands");
+		arena.SetupGet(x => x.FrameworkItemType).Returns("CombatArena");
+		arena.SetupGet(x => x.EmploymentHostName).Returns("red sands");
+		arena.SetupGet(x => x.EmploymentHostType).Returns(EmploymentHostType.Arena);
+		arena.SetupGet(x => x.Market).Returns((IMarket?)null);
+		arena.SetupGet(x => x.Employment).Returns(state);
+		arena.SetupGet(x => x.EmploymentRegister).Returns(state.EmploymentRegister);
+		arena.SetupGet(x => x.TaskBoard).Returns(state.TaskBoard);
+		arena.SetupGet(x => x.ManagerGoalBoard).Returns(state.ManagerGoalBoard);
+		arena.SetupGet(x => x.Payroll).Returns(state.Payroll);
+		arena.Setup(x => x.HasAuthority(It.IsAny<ICharacter>(), It.IsAny<EmploymentAuthority>()))
+		      .Returns((ICharacter actor, EmploymentAuthority authority) => state.HasAuthority(actor, authority));
+
+		var eventType = new Mock<IArenaEventType>();
+		eventType.SetupGet(x => x.Id).Returns(401);
+		eventType.SetupGet(x => x.Name).Returns("trial bout");
+		eventType.SetupGet(x => x.Arena).Returns(arena.Object);
+		var scheduled = new DateTime(2099, 1, 1, 10, 0, 0, DateTimeKind.Utc);
+		var created = new Mock<IArenaEvent>();
+		created.SetupGet(x => x.Id).Returns(402);
+		created.SetupGet(x => x.Name).Returns("trial bout #1");
+		created.SetupGet(x => x.State).Returns(ArenaEventState.Scheduled);
+		arena.SetupGet(x => x.EventTypes).Returns([eventType.Object]);
+		arena.SetupGet(x => x.ActiveEvents).Returns(Array.Empty<IArenaEvent>());
+		arena.Setup(x => x.IsReadyToHost(eventType.Object)).Returns((true, string.Empty));
+		arena.Setup(x => x.CreateEvent(eventType.Object, scheduled, It.IsAny<IEnumerable<IArenaReservation>?>()))
+		      .Returns(created.Object);
+
+		var manager = Character(40, "Arena Manager").Object;
+		state.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.AssignTasks | EmploymentAuthority.CreateScheduledRules), null);
+		var task = (EmploymentActiveTask)state.TaskBoard.CreateActiveTask("create arena event",
+			new EmploymentActionPlan([new ArenaEventAdministrationActionStep(arena.Object, eventType.Object, scheduled)]),
+			manager);
+		task.Assign(manager);
+		var context = new EmploymentTaskContext(arena.Object);
+		var dispatcher = new EmploymentTaskDispatcher();
+
+		var result = dispatcher.AdvanceTask(task, context);
+
+		Assert.IsTrue(result.Success, result.Message);
+		Assert.AreEqual(EmploymentTaskStatus.Completed, task.Status);
+		arena.Verify(x => x.CreateEvent(eventType.Object, scheduled, It.IsAny<IEnumerable<IArenaReservation>?>()), Times.Once);
+		StringAssert.Contains(task.StepOperationalStates.Single().SelectedResources!, "arenaevent:create");
+		Assert.IsTrue(state.EmploymentRegister.Entries.Any(x => x.EntryType == EmploymentRegisterEntryType.AuditActionRecorded));
+	}
+
+	[TestMethod]
+	public void ArenaEventAdministrationActionStep_TransitionsAndAbortsNativeArenaEvent()
+	{
+		var currency = Currency();
+		var lifecycle = new Mock<IArenaLifecycleService>();
+		var gameworld = Gameworld(currency.Object, new Dictionary<long, ICharacter>());
+		gameworld.SetupGet(x => x.ArenaLifecycleService).Returns(lifecycle.Object);
+		var arena = new Mock<ICombatArena>();
+		var state = new EmploymentHostState(arena.Object);
+		arena.SetupGet(x => x.Id).Returns(410);
+		arena.SetupGet(x => x.Name).Returns("red sands");
+		arena.SetupGet(x => x.FrameworkItemType).Returns("CombatArena");
+		arena.SetupGet(x => x.EmploymentHostName).Returns("red sands");
+		arena.SetupGet(x => x.EmploymentHostType).Returns(EmploymentHostType.Arena);
+		arena.SetupGet(x => x.Market).Returns((IMarket?)null);
+		arena.SetupGet(x => x.Employment).Returns(state);
+		arena.SetupGet(x => x.EmploymentRegister).Returns(state.EmploymentRegister);
+		arena.SetupGet(x => x.TaskBoard).Returns(state.TaskBoard);
+		arena.SetupGet(x => x.ManagerGoalBoard).Returns(state.ManagerGoalBoard);
+		arena.SetupGet(x => x.Payroll).Returns(state.Payroll);
+		arena.Setup(x => x.HasAuthority(It.IsAny<ICharacter>(), It.IsAny<EmploymentAuthority>()))
+		      .Returns((ICharacter actor, EmploymentAuthority authority) => state.HasAuthority(actor, authority));
+
+		var currentState = ArenaEventState.Scheduled;
+		var arenaEvent = new Mock<IArenaEvent>();
+		arenaEvent.SetupGet(x => x.Id).Returns(411);
+		arenaEvent.SetupGet(x => x.Name).Returns("trial bout #2");
+		arenaEvent.SetupGet(x => x.Arena).Returns(arena.Object);
+		arenaEvent.SetupGet(x => x.State).Returns(() => currentState);
+		arena.SetupGet(x => x.ActiveEvents).Returns([arenaEvent.Object]);
+		lifecycle.Setup(x => x.Transition(arenaEvent.Object, ArenaEventState.Preparing))
+		         .Callback(() => currentState = ArenaEventState.Preparing);
+		var manager = Character(41, "Arena Manager", gameworld: gameworld.Object).Object;
+		arena.Setup(x => x.AbortEvent(arenaEvent.Object, "rain delay", manager))
+		      .Callback(() => currentState = ArenaEventState.Aborted);
+		state.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.AssignTasks | EmploymentAuthority.ModifyScheduledRules), null);
+		var task = (EmploymentActiveTask)state.TaskBoard.CreateActiveTask("manage arena event",
+			new EmploymentActionPlan([
+				new ArenaEventAdministrationActionStep(arena.Object, arenaEvent.Object, ArenaEventState.Preparing),
+				new ArenaEventAdministrationActionStep(arena.Object, arenaEvent.Object, "rain delay")
+			]), manager);
+		task.Assign(manager);
+		var context = new EmploymentTaskContext(arena.Object);
+		var dispatcher = new EmploymentTaskDispatcher();
+
+		var phase = dispatcher.AdvanceTask(task, context);
+		var abort = dispatcher.AdvanceTask(task, context);
+
+		Assert.IsTrue(phase.Success, phase.Message);
+		Assert.IsTrue(abort.Success, abort.Message);
+		Assert.AreEqual(EmploymentTaskStatus.Completed, task.Status);
+		lifecycle.Verify(x => x.Transition(arenaEvent.Object, ArenaEventState.Preparing), Times.Once);
+		arena.Verify(x => x.AbortEvent(arenaEvent.Object, "rain delay", manager), Times.Once);
+		StringAssert.Contains(task.StepOperationalStates[0].OperationalPayload!, "arenaevent:phase");
+		StringAssert.Contains(task.StepOperationalStates[1].OperationalPayload!, "arenaevent:abort");
+	}
+
+	[TestMethod]
+	public void ShopStocktakeActionStep_RecordsNativeShopStocktake()
+	{
+		var currency = Currency();
+		var (shop, state) = ShopHost(50, "Stocktake Shop", currency.Object, null);
+		var manager = Character(43, "Manager").Object;
+		state.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.AssignTasks | EmploymentAuthority.ManageStockRules), null);
+		var itemMerchandise = new Mock<IMerchandise>();
+		itemMerchandise.SetupGet(x => x.Id).Returns(101);
+		itemMerchandise.SetupGet(x => x.Name).Returns("linen bundle");
+		itemMerchandise.SetupGet(x => x.ListDescription).Returns("linen bundle");
+		itemMerchandise.SetupGet(x => x.MerchandiseType).Returns(MerchandiseType.Item);
+		itemMerchandise.SetupGet(x => x.Shop).Returns(shop.Object);
+		var commodityMerchandise = new Mock<IMerchandise>();
+		commodityMerchandise.SetupGet(x => x.Id).Returns(102);
+		commodityMerchandise.SetupGet(x => x.Name).Returns("grain sacks");
+		commodityMerchandise.SetupGet(x => x.ListDescription).Returns("grain sacks");
+		commodityMerchandise.SetupGet(x => x.MerchandiseType).Returns(MerchandiseType.Commodity);
+		commodityMerchandise.SetupGet(x => x.Shop).Returns(shop.Object);
+		shop.SetupGet(x => x.Merchandises).Returns([itemMerchandise.Object, commodityMerchandise.Object]);
+		shop.Setup(x => x.StocktakeMerchandise(itemMerchandise.Object)).Returns((3, 5));
+		shop.Setup(x => x.StocktakeMerchandiseWeight(commodityMerchandise.Object)).Returns((12.5, 20.0));
+		var task = state.TaskBoard.CreateActiveTask("stocktake shop",
+			new EmploymentActionPlan([
+				new ShopStocktakeActionStep(ShopStocktakeScope.Merchandise, "101", "linen bundle"),
+				new ShopStocktakeActionStep()
+			]), manager);
+		var dispatcher = new EmploymentTaskDispatcher();
+		var context = new EmploymentTaskContext(shop.Object);
+		var profile = Profile(manager, 1.0M, PaymentMethodKind.Cash, Caps());
+
+		Assert.IsTrue(dispatcher.TryAssignTask(task, [profile], context, out var reason), reason);
+		var targeted = dispatcher.AdvanceTask(task, context);
+		var full = dispatcher.AdvanceTask(task, context);
+
+		Assert.IsTrue(targeted.Success, targeted.Message);
+		Assert.IsTrue(full.Success, full.Message);
+		Assert.AreEqual(EmploymentTaskStatus.Completed, task.Status);
+		shop.Verify(x => x.StocktakeMerchandise(itemMerchandise.Object), Times.Exactly(2));
+		shop.Verify(x => x.StocktakeMerchandiseWeight(commodityMerchandise.Object), Times.Once);
+		StringAssert.Contains(task.StepOperationalStates[0].OperationalPayload!, "stocktake:merchandise=101");
+		StringAssert.Contains(task.StepOperationalStates[0].OperationalPayload!, "101:count:3.00:5.00");
+		StringAssert.Contains(task.StepOperationalStates[1].OperationalPayload!, "101:count:3.00:5.00");
+		StringAssert.Contains(task.StepOperationalStates[1].OperationalPayload!, "102:weight:12.50:20.00");
+		Assert.IsTrue(shop.Object.EmploymentRegister.Entries.Any(x =>
+			x.EntryType == EmploymentRegisterEntryType.AuditActionRecorded &&
+			x.Description.Contains("Stocktook", StringComparison.OrdinalIgnoreCase)));
+	}
+
+	[TestMethod]
+	public void ShopCashReconciliationActionStep_RecordsNativeCashCheck()
+	{
+		var currency = Currency();
+		var (shop, state) = ShopHost(52, "Cash Shop", currency.Object, null);
+		var manager = Character(45, "Manager").Object;
+		state.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.AssignTasks |
+			EmploymentAuthority.ApprovePurchases |
+			EmploymentAuthority.DepositBusinessCash |
+			EmploymentAuthority.WithdrawBusinessCash), null);
+		var expectedCash = 12.0M;
+		shop.SetupGet(x => x.ExpectedCashBalance).Returns(() => expectedCash);
+		shop.SetupSet(x => x.ExpectedCashBalance = It.IsAny<decimal>())
+		    .Callback<decimal>(value => expectedCash = value);
+		shop.SetupGet(x => x.CashBalance).Returns(5.0M);
+		var pile = new Mock<ICurrencyPile>();
+		pile.SetupGet(x => x.Currency).Returns(currency.Object);
+		pile.SetupGet(x => x.TotalValue).Returns(9.0M);
+		shop.Setup(x => x.GetCurrencyPilesForShop()).Returns([pile.Object]);
+		shop.Setup(x => x.CheckFloat()).Callback(() => expectedCash = 14.0M);
+		var task = state.TaskBoard.CreateActiveTask("cash check",
+			new EmploymentActionPlan([new ShopCashReconciliationActionStep("closing count")]), manager);
+		var dispatcher = new EmploymentTaskDispatcher();
+		var context = new EmploymentTaskContext(shop.Object);
+		var profile = Profile(manager, 1.0M, PaymentMethodKind.Cash,
+			Caps(EmploymentAICapability.CanHandleCash));
+
+		Assert.IsTrue(dispatcher.TryAssignTask(task, [profile], context, out var reason), reason);
+		var result = dispatcher.AdvanceTask(task, context);
+
+		Assert.IsTrue(result.Success, result.Message);
+		Assert.AreEqual(EmploymentTaskStatus.Completed, task.Status);
+		shop.Verify(x => x.CheckFloat(), Times.Once);
+		StringAssert.Contains(task.StepOperationalStates[0].OperationalPayload!, "expected=12.00");
+		StringAssert.Contains(task.StepOperationalStates[0].OperationalPayload!, "virtual=5.00");
+		StringAssert.Contains(task.StepOperationalStates[0].OperationalPayload!, "physical=9.00");
+		StringAssert.Contains(task.StepOperationalStates[0].OperationalPayload!, "variance=2.00");
+		StringAssert.Contains(task.StepOperationalStates[0].OperationalPayload!, "adjusted=14.00");
+		StringAssert.Contains(task.StepOperationalStates[0].OperationalPayload!, "aftervariance=0.00");
+		Assert.IsTrue(shop.Object.EmploymentRegister.Entries.Any(x =>
+			x.EntryType == EmploymentRegisterEntryType.AuditActionRecorded &&
+			x.Description.Contains("Reconciled cash", StringComparison.OrdinalIgnoreCase)));
+	}
+
+	[TestMethod]
+	public void SupplierSelectionActionStep_RecordsCheapestSupplierPreview()
+	{
+		var currency = Currency();
+		var (buyer, state) = ShopHost(51, "Buyer Shop", currency.Object, null);
+		var supplierLocation = Cell(610, "supplier market").Object;
+		var (cheapSupplier, _) = ShopHost(61, "Cheap Supplier", currency.Object, null);
+		var (expensiveSupplier, _) = ShopHost(62, "Expensive Supplier", currency.Object, null);
+		var cheapMerchandise = Merchandise(611, "apple");
+		var expensiveMerchandise = Merchandise(612, "apple");
+		cheapMerchandise.SetupGet(x => x.ListDescription).Returns("apple");
+		expensiveMerchandise.SetupGet(x => x.ListDescription).Returns("apple");
+		cheapMerchandise.SetupGet(x => x.MerchandiseType).Returns(MerchandiseType.Item);
+		expensiveMerchandise.SetupGet(x => x.MerchandiseType).Returns(MerchandiseType.Item);
+		cheapMerchandise.SetupGet(x => x.Shop).Returns(cheapSupplier.Object);
+		expensiveMerchandise.SetupGet(x => x.Shop).Returns(expensiveSupplier.Object);
+		var cheapStock = Item(613, "cheap apples");
+		var expensiveStock = Item(614, "expensive apples");
+		cheapStock.SetupGet(x => x.Quantity).Returns(3);
+		expensiveStock.SetupGet(x => x.Quantity).Returns(3);
+		cheapSupplier.SetupGet(x => x.CurrentLocations).Returns([supplierLocation]);
+		expensiveSupplier.SetupGet(x => x.CurrentLocations).Returns([supplierLocation]);
+		cheapSupplier.SetupGet(x => x.Merchandises).Returns([cheapMerchandise.Object]);
+		expensiveSupplier.SetupGet(x => x.Merchandises).Returns([expensiveMerchandise.Object]);
+		cheapSupplier.Setup(x => x.StockedItems(cheapMerchandise.Object)).Returns([cheapStock.Object]);
+		expensiveSupplier.Setup(x => x.StockedItems(expensiveMerchandise.Object)).Returns([expensiveStock.Object]);
+		cheapSupplier.Setup(x => x.PriceForMerchandise(It.IsAny<ICharacter?>(), cheapMerchandise.Object, 2)).Returns(5.0M);
+		expensiveSupplier.Setup(x => x.PriceForMerchandise(It.IsAny<ICharacter?>(), expensiveMerchandise.Object, 2)).Returns(8.0M);
+		var managerMock = Character(44, "Manager");
+		var manager = managerMock.Object;
+		var gameworld = Gameworld(currency.Object, new Dictionary<long, ICharacter> { [manager.Id] = manager },
+			[supplierLocation], shopsToAdd: [cheapSupplier.Object, expensiveSupplier.Object]);
+		buyer.As<IHaveFuturemud>().SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		managerMock.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		state.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.AssignTasks | EmploymentAuthority.ManageStockRules), null);
+		var task = state.TaskBoard.CreateActiveTask("find apples",
+			new EmploymentActionPlan([
+				new SupplierSelectionActionStep(new PurchaseActionStep(2, "apple", "any", currency.Object,
+					new MoneyAmount(currency.Object, 10.0M)))
+			]), manager);
+		var dispatcher = new EmploymentTaskDispatcher();
+		var context = new EmploymentTaskContext(buyer.Object);
+		var profile = Profile(manager, 1.0M, PaymentMethodKind.Cash,
+			Caps(EmploymentAICapability.CanPurchaseCommodities));
+
+		Assert.IsTrue(dispatcher.TryAssignTask(task, [profile], context, out var reason), reason);
+		var result = dispatcher.AdvanceTask(task, context);
+
+		Assert.IsTrue(result.Success, result.Message);
+		Assert.AreEqual(EmploymentTaskStatus.Completed, task.Status);
+		StringAssert.Contains(task.StepOperationalStates[0].OperationalPayload!, "supplier=61");
+		StringAssert.Contains(task.StepOperationalStates[0].OperationalPayload!, "merchandise=611");
+		StringAssert.Contains(task.StepOperationalStates[0].OperationalPayload!, "price=5.00");
+		StringAssert.Contains(task.StepOperationalStates[0].SelectedResources!, "610:supplier market");
+		Assert.IsTrue(buyer.Object.EmploymentRegister.Entries.Any(x =>
+			x.EntryType == EmploymentRegisterEntryType.AuditActionRecorded &&
+			x.Description.Contains("Selected supplier Cheap Supplier", StringComparison.OrdinalIgnoreCase)));
 	}
 
 	[TestMethod]
@@ -515,6 +1382,61 @@ public class UnifiedEmploymentDispatchTests
 	}
 
 	[TestMethod]
+	public void Dispatcher_RequeuesStepBoundaryForEligibleCraftWorkerWhenNoCustodyExists()
+	{
+		var currency = Currency();
+		IEmploymentHost host = new TestEmploymentHost("workshop", currency.Object);
+		var planner = Character(1, "Planner");
+		var crafter = Character(2, "Crafter");
+		var manager = Character(3, "Manager");
+		var workshop = Cell(31, "workshop").Object;
+		var gameworld = Gameworld(currency.Object, new Dictionary<long, ICharacter>
+		{
+			[planner.Object.Id] = planner.Object,
+			[crafter.Object.Id] = crafter.Object,
+			[manager.Object.Id] = manager.Object
+		}, [workshop]);
+		planner.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		planner.SetupGet(x => x.Location).Returns(workshop);
+		crafter.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		crafter.SetupGet(x => x.Location).Returns(workshop);
+		manager.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		manager.SetupGet(x => x.Location).Returns(workshop);
+		host.Hire(planner.Object, Offer(currency.Object, EmploymentRole.Employee,
+			EmploymentAuthority.AssignTasks), null);
+		host.Hire(crafter.Object, Offer(currency.Object, EmploymentRole.Employee,
+			EmploymentAuthority.ManageCraftRules), null);
+		host.Hire(manager.Object, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.AssignTasks | EmploymentAuthority.ManageCraftRules), null);
+		var task = host.TaskBoard.CreateActiveTask("plan then craft",
+			new EmploymentActionPlan([
+				new CataloguedActionShellStep("report", "materials are ready"),
+				new CraftStationActionStep("here")
+			]),
+			manager.Object);
+		var dispatcher = new EmploymentTaskDispatcher();
+		var context = new EmploymentTaskContext(host);
+		var plannerProfile = Profile(planner.Object, 1.0M, PaymentMethodKind.Cash, Caps());
+		var crafterProfile = Profile(crafter.Object, 1.0M, PaymentMethodKind.Cash,
+			Caps(EmploymentAICapability.CanCraft));
+
+		Assert.IsTrue(dispatcher.TryAssignTask(task, [plannerProfile], context, out var assignReason), assignReason);
+		Assert.AreSame(planner.Object, task.AssignedEmployee);
+
+		var report = dispatcher.AdvanceTask(task, context);
+
+		Assert.IsTrue(report.Success, report.Message);
+		Assert.AreEqual(EmploymentTaskStatus.Pending, task.Status);
+		Assert.IsNull(task.AssignedEmployee);
+		Assert.IsTrue(host.EmploymentRegister.Entries.Any(x =>
+			x.EntryType == EmploymentRegisterEntryType.ActiveTaskRequeued &&
+			x.CorrelationId == task.CorrelationId));
+		Assert.IsTrue(dispatcher.TryAssignTask(task, [crafterProfile], context, out var craftAssignReason),
+			craftAssignReason);
+		Assert.AreSame(crafter.Object, task.AssignedEmployee);
+	}
+
+	[TestMethod]
 	public void TaskAssignmentAudit_RequeuesWhenEmployeeIsFiredBeforePhysicalCustody()
 	{
 		var currency = Currency();
@@ -707,6 +1629,110 @@ public class UnifiedEmploymentDispatchTests
 	}
 
 	[TestMethod]
+	public void BankAdministrationActionStep_ReserveMovementsMutateNativeReservesAndAudit()
+	{
+		VirtualCashLedger.ClearInMemoryForTests();
+		var currency = Currency();
+		var reserves = new DecimalCounter<ICurrency> { [currency.Object] = 100.0M };
+		var (bank, state, audit) = BankHost(44, "Finance Bank", currency.Object, reserves);
+		var manager = Character(1, "Manager").Object;
+		state.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.AssignTasks |
+			EmploymentAuthority.ApprovePurchases |
+			EmploymentAuthority.DepositBusinessCash |
+			EmploymentAuthority.WithdrawBusinessCash), null);
+		VirtualCashLedger.Credit(bank.Object, currency.Object, 25.0M, null, null, "Seed", "Seed bank cash counterbalance");
+		var task = state.TaskBoard.CreateActiveTask("bank reserve movement",
+			new EmploymentActionPlan([
+				new CataloguedActionShellStep("authorise", "bank reserve movement", new MoneyAmount(currency.Object, 15.0M)),
+				new BankAdministrationActionStep(bank.Object, BankAdministrationActionKind.ReserveDeposit,
+					new MoneyAmount(currency.Object, 10.0M)),
+				new BankAdministrationActionStep(bank.Object, BankAdministrationActionKind.ReserveWithdrawal,
+					new MoneyAmount(currency.Object, 5.0M))
+			]),
+			manager);
+		var dispatcher = new EmploymentTaskDispatcher();
+		var context = new EmploymentTaskContext(bank.Object);
+		var profile = Profile(manager, 1.0M, PaymentMethodKind.Cash,
+			Caps(EmploymentAICapability.CanHandleCash));
+
+		Assert.IsTrue(dispatcher.TryAssignTask(task, [profile], context, out var reason), reason);
+		while (task.Status is not EmploymentTaskStatus.Completed and not EmploymentTaskStatus.Failed)
+		{
+			var result = dispatcher.AdvanceTask(task, context);
+			Assert.IsTrue(result.Success, result.Message);
+		}
+
+		Assert.AreEqual(105.0M, bank.Object.CurrencyReserves[currency.Object]);
+		Assert.AreEqual(20.0M, VirtualCashLedger.Balance(bank.Object, currency.Object));
+		Assert.IsTrue(audit.Any(x => x.Contains("Deposited", StringComparison.OrdinalIgnoreCase)));
+		Assert.IsTrue(audit.Any(x => x.Contains("Withdrew", StringComparison.OrdinalIgnoreCase)));
+		Assert.IsTrue(state.BusinessLedger.Entries.Any(x => x.EntryType == EmploymentLedgerEntryType.BankDeposit));
+		Assert.IsTrue(state.BusinessLedger.Entries.Any(x => x.EntryType == EmploymentLedgerEntryType.BankWithdrawal));
+		Assert.AreEqual(2, state.EmploymentRegister.Entries.Count(x =>
+			x.EntryType == EmploymentRegisterEntryType.PaymentAuthorisationUsed));
+		StringAssert.Contains(task.StepOperationalStates[1].OperationalPayload!, "bankadmin:reserve-deposit");
+		StringAssert.Contains(task.StepOperationalStates[2].OperationalPayload!, "bankadmin:reserve-withdrawal");
+	}
+
+	[TestMethod]
+	public void BankAdministrationActionStep_AccountAndBranchActionsUseNativeBankAudit()
+	{
+		var currency = Currency();
+		var account = BankAccount(currency.Object, 10.0M, accountNumber: 123, accountName: "customer ledger");
+		var branchA = Cell(701, "north branch").Object;
+		var branchB = Cell(702, "south branch").Object;
+		var gameworld = Gameworld(currency.Object, new Dictionary<long, ICharacter>(), [branchA, branchB],
+			bankAccountsToAdd: [account.Object]);
+		var (bank, state, audit) = BankHost(45, "Branch Bank", currency.Object,
+			accounts: [account.Object], branches: [branchA, branchB], gameworld: gameworld.Object);
+		var manager = Character(2, "Manager", gameworld: gameworld.Object).Object;
+		state.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.AssignTasks |
+			EmploymentAuthority.ApprovePurchases |
+			EmploymentAuthority.UseStoreAccount |
+			EmploymentAuthority.ManageDeliveryRoutes), null);
+		var task = state.TaskBoard.CreateActiveTask("bank account and branch work",
+			new EmploymentActionPlan([
+				new CataloguedActionShellStep("authorise", "account correction", new MoneyAmount(currency.Object, 7.0M)),
+				new BankAdministrationActionStep(bank.Object, BankAdministrationActionKind.AccountCredit,
+					new MoneyAmount(currency.Object, 7.0M), account.Object.AccountReference, reason: "fee reversal"),
+				new BankAdministrationActionStep(bank.Object, BankAdministrationActionKind.AccountStatus,
+					accountSelector: account.Object.AccountReference, targetStatus: BankAccountStatus.Suspended, reason: "fraud review"),
+				new BankAdministrationActionStep(bank.Object, BankAdministrationActionKind.AccountClose,
+					accountSelector: account.Object.AccountReference, reason: "customer request"),
+				new BankAdministrationActionStep(bank.Object, BankAdministrationActionKind.BranchPost,
+					sourceBranch: branchA, reason: "teller roster posted"),
+				new BankAdministrationActionStep(bank.Object, BankAdministrationActionKind.BranchCourier,
+					sourceBranch: branchA, destinationBranch: branchB, reason: "sealed reserve bag logged")
+			]),
+			manager);
+		var dispatcher = new EmploymentTaskDispatcher();
+		var context = new EmploymentTaskContext(bank.Object);
+		var profile = Profile(manager, 1.0M, PaymentMethodKind.Cash,
+			Caps(EmploymentAICapability.CanUseBankAccount, EmploymentAICapability.CanDeliverItems));
+
+		Assert.IsTrue(dispatcher.TryAssignTask(task, [profile], context, out var reason), reason);
+		while (task.Status is not EmploymentTaskStatus.Completed and not EmploymentTaskStatus.Failed)
+		{
+			var result = dispatcher.AdvanceTask(task, context);
+			Assert.IsTrue(result.Success, result.Message);
+		}
+
+		Assert.AreEqual(17.0M, account.Object.CurrentBalance);
+		Assert.AreEqual(BankAccountStatus.Closed, account.Object.AccountStatus);
+		account.Verify(x => x.DoAccountCredit(7.0M, "fee reversal"), Times.Once);
+		account.Verify(x => x.SetStatus(BankAccountStatus.Suspended), Times.Once);
+		account.Verify(x => x.SetStatus(BankAccountStatus.Closed), Times.Once);
+		Assert.AreEqual(5, audit.Count);
+		Assert.IsTrue(state.BusinessLedger.Entries.Any(x => x.EntryType == EmploymentLedgerEntryType.BankAccountCredit));
+		Assert.AreEqual(5, state.EmploymentRegister.Entries.Count(x =>
+			x.EntryType == EmploymentRegisterEntryType.AuditActionRecorded));
+		StringAssert.Contains(task.StepOperationalStates[4].OperationalPayload!, "bankadmin:branch-post");
+		StringAssert.Contains(task.StepOperationalStates[5].OperationalPayload!, "bankadmin:branch-courier");
+	}
+
+	[TestMethod]
 	public void EmploymentFinanceSteps_ReserveAndMoveNativeBankAndVirtualCash()
 	{
 		VirtualCashLedger.ClearInMemoryForTests();
@@ -752,6 +1778,305 @@ public class UnifiedEmploymentDispatchTests
 		Assert.IsTrue(task.StepOperationalStates[2].TransactionReference?.Contains("TST:123") == true);
 		Assert.IsTrue(task.StepOperationalStates[2].ReservationReference?.Contains("op=consume") == true);
 		Assert.IsTrue(task.StepOperationalStates[4].TransactionReference?.Contains("TST:123") == true);
+	}
+
+	[TestMethod]
+	public void EmploymentFinanceSteps_TransfersBetweenNativeBankAccounts()
+	{
+		VirtualCashLedger.ClearInMemoryForTests();
+		var currency = Currency();
+		var sourceAccount = BankAccount(currency.Object, 25.0M, 1_000.0M, id: 901, accountNumber: 123,
+			accountName: "operating");
+		var targetAccount = BankAccount(currency.Object, 3.0M, 1_000.0M, id: 902, accountNumber: 456,
+			accountName: "supplier");
+		var (shop, state) = ShopHost(144, "Transfer Shop", currency.Object, sourceAccount.Object);
+		var gameworld = Gameworld(currency.Object, new Dictionary<long, ICharacter>(),
+			bankAccountsToAdd: [sourceAccount.Object, targetAccount.Object]);
+		shop.As<IHaveFuturemud>().SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		var manager = Character(1, "Manager", gameworld: gameworld.Object).Object;
+		state.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.AssignTasks |
+			EmploymentAuthority.ApprovePurchases |
+			EmploymentAuthority.ManageStockRules |
+			EmploymentAuthority.UseStoreAccount), null);
+		var task = state.TaskBoard.CreateActiveTask("account transfer",
+			new EmploymentActionPlan([
+				new CataloguedActionShellStep("authorise", "supplier transfer", new MoneyAmount(currency.Object, 10.0M)),
+				new CataloguedActionShellStep("reserve", "supplier transfer", new MoneyAmount(currency.Object, 10.0M)),
+				new BankAccountTransferActionStep(targetAccount.Object.AccountReference,
+					new MoneyAmount(currency.Object, 10.0M), "transfer-native-1")
+			]),
+			manager);
+		var dispatcher = new EmploymentTaskDispatcher();
+		var context = new EmploymentTaskContext(shop.Object);
+		var profile = Profile(manager, 1.0M, PaymentMethodKind.Cash,
+			Caps(EmploymentAICapability.CanUseBankAccount));
+
+		Assert.IsTrue(dispatcher.TryAssignTask(task, [profile], context, out var reason), reason);
+		while (task.Status is not EmploymentTaskStatus.Completed and not EmploymentTaskStatus.Failed)
+		{
+			var result = dispatcher.AdvanceTask(task, context);
+			Assert.IsTrue(result.Success, result.Message);
+		}
+
+		Assert.AreEqual(EmploymentTaskStatus.Completed, task.Status);
+		Assert.AreEqual(15.0M, sourceAccount.Object.CurrentBalance);
+		Assert.AreEqual(13.0M, targetAccount.Object.CurrentBalance);
+		sourceAccount.Verify(x => x.WithdrawFromTransfer(10.0M, "TST", 456,
+			It.Is<string>(reference => reference.Contains("employment account transfer"))), Times.Once);
+		targetAccount.Verify(x => x.DepositFromTransfer(10.0M, "TST", 123,
+			It.Is<string>(reference => reference.Contains("employment account transfer"))), Times.Once);
+		Assert.IsTrue(state.BusinessLedger.Entries.Any(x => x.EntryType == EmploymentLedgerEntryType.AccountTransfer));
+		Assert.IsTrue(state.BusinessLedger.Entries.Any(x => x.EntryType == EmploymentLedgerEntryType.ExistingFinancialRecordReuse));
+		Assert.IsTrue(state.EmploymentRegister.Entries.Any(x => x.EntryType == EmploymentRegisterEntryType.PaymentAuthorisationUsed));
+		Assert.IsTrue(task.StepOperationalStates[2].TransactionReference?.Contains("TST:123->TST:456") == true);
+		Assert.IsTrue(task.StepOperationalStates[2].ReservationReference?.Contains("op=consume") == true);
+	}
+
+	[TestMethod]
+	public void EmploymentFinanceSteps_BlocksTransferToDifferentCurrencyAccount()
+	{
+		VirtualCashLedger.ClearInMemoryForTests();
+		var currency = Currency();
+		var foreignCurrency = Currency(2, "foreign credits");
+		var sourceAccount = BankAccount(currency.Object, 25.0M, 1_000.0M, id: 901, accountNumber: 123,
+			accountName: "operating");
+		var targetAccount = BankAccount(foreignCurrency.Object, 3.0M, 1_000.0M, id: 902, accountNumber: 456,
+			bankCode: "FGN", accountName: "foreign supplier");
+		var (shop, state) = ShopHost(145, "Currency Transfer Shop", currency.Object, sourceAccount.Object);
+		var gameworld = Gameworld(currency.Object, new Dictionary<long, ICharacter>(),
+			bankAccountsToAdd: [sourceAccount.Object, targetAccount.Object]);
+		shop.As<IHaveFuturemud>().SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		var manager = Character(1, "Manager", gameworld: gameworld.Object).Object;
+		state.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.AssignTasks |
+			EmploymentAuthority.ApprovePurchases |
+			EmploymentAuthority.ManageStockRules |
+			EmploymentAuthority.UseStoreAccount), null);
+		var task = state.TaskBoard.CreateActiveTask("blocked account transfer",
+			new EmploymentActionPlan([
+				new CataloguedActionShellStep("authorise", "supplier transfer", new MoneyAmount(currency.Object, 10.0M)),
+				new CataloguedActionShellStep("reserve", "supplier transfer", new MoneyAmount(currency.Object, 10.0M)),
+				new BankAccountTransferActionStep(targetAccount.Object.AccountReference,
+					new MoneyAmount(currency.Object, 10.0M))
+			]),
+			manager);
+		var dispatcher = new EmploymentTaskDispatcher();
+		var context = new EmploymentTaskContext(shop.Object);
+		var profile = Profile(manager, 1.0M, PaymentMethodKind.Cash,
+			Caps(EmploymentAICapability.CanUseBankAccount));
+
+		Assert.IsTrue(dispatcher.TryAssignTask(task, [profile], context, out var reason), reason);
+		Assert.IsTrue(dispatcher.AdvanceTask(task, context).Success);
+		Assert.IsTrue(dispatcher.AdvanceTask(task, context).Success);
+		var transfer = dispatcher.AdvanceTask(task, context);
+
+		Assert.IsFalse(transfer.Success);
+		StringAssert.Contains(transfer.Message, "foreign credits");
+		Assert.AreEqual(EmploymentTaskStatus.Blocked, task.Status);
+		Assert.AreEqual(25.0M, sourceAccount.Object.CurrentBalance);
+		Assert.AreEqual(3.0M, targetAccount.Object.CurrentBalance);
+		Assert.IsFalse(state.BusinessLedger.Entries.Any(x => x.EntryType == EmploymentLedgerEntryType.AccountTransfer));
+		sourceAccount.Verify(x => x.WithdrawFromTransfer(It.IsAny<decimal>(), It.IsAny<string>(), It.IsAny<int>(),
+			It.IsAny<string>()), Times.Never);
+		targetAccount.Verify(x => x.DepositFromTransfer(It.IsAny<decimal>(), It.IsAny<string>(), It.IsAny<int>(),
+			It.IsAny<string>()), Times.Never);
+	}
+
+	[TestMethod]
+	public void EmploymentFinanceSteps_BlocksTransferWhenGrantCounterpartyDoesNotMatch()
+	{
+		VirtualCashLedger.ClearInMemoryForTests();
+		var currency = Currency();
+		var sourceAccount = BankAccount(currency.Object, 25.0M, 1_000.0M, id: 911, accountNumber: 123,
+			accountName: "operating");
+		var allowedAccount = BankAccount(currency.Object, 3.0M, 1_000.0M, id: 912, accountNumber: 456,
+			accountName: "approved supplier");
+		var targetAccount = BankAccount(currency.Object, 7.0M, 1_000.0M, id: 913, accountNumber: 789,
+			accountName: "unapproved supplier");
+		var (shop, state) = ShopHost(150, "Scoped Transfer Shop", currency.Object, sourceAccount.Object);
+		var gameworld = Gameworld(currency.Object, new Dictionary<long, ICharacter>(),
+			bankAccountsToAdd: [sourceAccount.Object, allowedAccount.Object, targetAccount.Object]);
+		shop.As<IHaveFuturemud>().SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		var manager = Character(1, "Manager", gameworld: gameworld.Object).Object;
+		state.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.AssignTasks |
+			EmploymentAuthority.ApprovePurchases |
+			EmploymentAuthority.ManageStockRules |
+			EmploymentAuthority.UseStoreAccount), null);
+		var actionPlan = new EmploymentActionPlan([
+			new CataloguedActionShellStep("reserve", "supplier transfer", new MoneyAmount(currency.Object, 10.0M)),
+			new BankAccountTransferActionStep(targetAccount.Object.AccountReference,
+				new MoneyAmount(currency.Object, 10.0M))
+		]);
+		var correlationId = Guid.NewGuid();
+		var provenance = ScopedFinancialProvenance(manager, actionPlan, correlationId, currency.Object, 10.0M,
+			[$"host:shop:{shop.Object.Id}:linked-bank-account"],
+			[$"bank-account:{allowedAccount.Object.AccountReference}"]);
+		var task = state.TaskBoard.CreateActiveTask("blocked scoped transfer", actionPlan, manager, correlationId,
+			provenance: provenance);
+		var dispatcher = new EmploymentTaskDispatcher();
+		var context = new EmploymentTaskContext(shop.Object);
+		var profile = Profile(manager, 1.0M, PaymentMethodKind.Cash,
+			Caps(EmploymentAICapability.CanUseBankAccount));
+
+		Assert.IsTrue(dispatcher.TryAssignTask(task, [profile], context, out var reason), reason);
+		Assert.IsTrue(dispatcher.AdvanceTask(task, context).Success);
+		var transfer = dispatcher.AdvanceTask(task, context);
+
+		Assert.IsFalse(transfer.Success);
+		StringAssert.Contains(transfer.Message, "requires an auditable payment authorisation");
+		Assert.AreEqual(EmploymentTaskStatus.Blocked, task.Status);
+		Assert.AreEqual(25.0M, sourceAccount.Object.CurrentBalance);
+		Assert.AreEqual(7.0M, targetAccount.Object.CurrentBalance);
+		sourceAccount.Verify(x => x.WithdrawFromTransfer(It.IsAny<decimal>(), It.IsAny<string>(), It.IsAny<int>(),
+			It.IsAny<string>()), Times.Never);
+		targetAccount.Verify(x => x.DepositFromTransfer(It.IsAny<decimal>(), It.IsAny<string>(), It.IsAny<int>(),
+			It.IsAny<string>()), Times.Never);
+	}
+
+	[TestMethod]
+	public void EmploymentFinanceSteps_SettlesFundsBetweenEmploymentHosts()
+	{
+		VirtualCashLedger.ClearInMemoryForTests();
+		var currency = Currency();
+		var (sourceShop, sourceState) = ShopHost(146, "Source Shop", currency.Object, null);
+		var (targetShop, targetState) = ShopHost(147, "Target Shop", currency.Object, null);
+		var gameworld = Gameworld(currency.Object, new Dictionary<long, ICharacter>(), shopsToAdd: [targetShop.Object]);
+		sourceShop.As<IHaveFuturemud>().SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		targetShop.As<IHaveFuturemud>().SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		var manager = Character(1, "Manager", gameworld: gameworld.Object).Object;
+		sourceState.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.AssignTasks |
+			EmploymentAuthority.ApprovePurchases |
+			EmploymentAuthority.ManageStockRules |
+			EmploymentAuthority.SettleHostAccounts), null);
+		VirtualCashLedger.Credit(sourceShop.Object, currency.Object, 25.0M, null, null, "Seed", "Seed balance");
+		var task = sourceState.TaskBoard.CreateActiveTask("host settlement",
+			new EmploymentActionPlan([
+				new CataloguedActionShellStep("authorise", "host settlement", new MoneyAmount(currency.Object, 12.0M)),
+				new CataloguedActionShellStep("reserve", "host settlement", new MoneyAmount(currency.Object, 12.0M)),
+				new HostSettlementActionStep("shop:Target Shop", new MoneyAmount(currency.Object, 12.0M),
+					"settlement-native-1")
+			]),
+			manager);
+		var dispatcher = new EmploymentTaskDispatcher();
+		var context = new EmploymentTaskContext(sourceShop.Object);
+		var profile = Profile(manager, 1.0M, PaymentMethodKind.Cash,
+			Caps(EmploymentAICapability.CanUseBankAccount));
+
+		Assert.IsTrue(dispatcher.TryAssignTask(task, [profile], context, out var reason), reason);
+		while (task.Status is not EmploymentTaskStatus.Completed and not EmploymentTaskStatus.Failed)
+		{
+			var result = dispatcher.AdvanceTask(task, context);
+			Assert.IsTrue(result.Success, result.Message);
+		}
+
+		Assert.AreEqual(EmploymentTaskStatus.Completed, task.Status);
+		Assert.AreEqual(13.0M, VirtualCashLedger.Balance(sourceShop.Object, currency.Object));
+		Assert.AreEqual(12.0M, VirtualCashLedger.Balance(targetShop.Object, currency.Object));
+		Assert.IsTrue(sourceState.BusinessLedger.Entries.Any(x => x.EntryType == EmploymentLedgerEntryType.HostSettlement));
+		Assert.IsTrue(targetState.BusinessLedger.Entries.Any(x =>
+			x.EntryType == EmploymentLedgerEntryType.HostSettlement && x.CorrelationId == task.CorrelationId));
+		Assert.IsTrue(sourceState.BusinessLedger.Entries.Any(x => x.EntryType == EmploymentLedgerEntryType.ExistingFinancialRecordReuse));
+		Assert.IsTrue(sourceState.EmploymentRegister.Entries.Any(x => x.EntryType == EmploymentRegisterEntryType.PaymentAuthorisationUsed));
+		Assert.IsTrue(targetState.EmploymentRegister.Entries.Any(x =>
+			x.EntryType == EmploymentRegisterEntryType.AuditActionRecorded && x.CorrelationId == task.CorrelationId));
+		Assert.IsTrue(task.StepOperationalStates[2].TransactionReference?.Contains("Source Shop->Target Shop") == true);
+		Assert.IsTrue(task.StepOperationalStates[2].ReservationReference?.Contains("op=consume") == true);
+	}
+
+	[TestMethod]
+	public void EmploymentFinanceSteps_BlocksSettlementToDifferentCurrencyHost()
+	{
+		VirtualCashLedger.ClearInMemoryForTests();
+		var currency = Currency();
+		var foreignCurrency = Currency(2, "foreign credits");
+		var (sourceShop, sourceState) = ShopHost(148, "Source Currency Shop", currency.Object, null);
+		var (targetShop, targetState) = ShopHost(149, "Foreign Target Shop", foreignCurrency.Object, null);
+		var gameworld = Gameworld(currency.Object, new Dictionary<long, ICharacter>(), shopsToAdd: [targetShop.Object]);
+		sourceShop.As<IHaveFuturemud>().SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		targetShop.As<IHaveFuturemud>().SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		var manager = Character(1, "Manager", gameworld: gameworld.Object).Object;
+		sourceState.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.AssignTasks |
+			EmploymentAuthority.ApprovePurchases |
+			EmploymentAuthority.ManageStockRules |
+			EmploymentAuthority.SettleHostAccounts), null);
+		VirtualCashLedger.Credit(sourceShop.Object, currency.Object, 25.0M, null, null, "Seed", "Seed balance");
+		var task = sourceState.TaskBoard.CreateActiveTask("blocked host settlement",
+			new EmploymentActionPlan([
+				new CataloguedActionShellStep("authorise", "host settlement", new MoneyAmount(currency.Object, 12.0M)),
+				new CataloguedActionShellStep("reserve", "host settlement", new MoneyAmount(currency.Object, 12.0M)),
+				new HostSettlementActionStep("shop:Foreign Target Shop", new MoneyAmount(currency.Object, 12.0M))
+			]),
+			manager);
+		var dispatcher = new EmploymentTaskDispatcher();
+		var context = new EmploymentTaskContext(sourceShop.Object);
+		var profile = Profile(manager, 1.0M, PaymentMethodKind.Cash,
+			Caps(EmploymentAICapability.CanUseBankAccount));
+
+		Assert.IsTrue(dispatcher.TryAssignTask(task, [profile], context, out var reason), reason);
+		Assert.IsTrue(dispatcher.AdvanceTask(task, context).Success);
+		Assert.IsTrue(dispatcher.AdvanceTask(task, context).Success);
+		var settlement = dispatcher.AdvanceTask(task, context);
+
+		Assert.IsFalse(settlement.Success);
+		StringAssert.Contains(settlement.Message, "foreign credits");
+		Assert.AreEqual(EmploymentTaskStatus.Blocked, task.Status);
+		Assert.AreEqual(25.0M, VirtualCashLedger.Balance(sourceShop.Object, currency.Object));
+		Assert.AreEqual(0.0M, VirtualCashLedger.Balance(targetShop.Object, foreignCurrency.Object));
+		Assert.IsFalse(sourceState.BusinessLedger.Entries.Any(x => x.EntryType == EmploymentLedgerEntryType.HostSettlement));
+		Assert.IsFalse(targetState.BusinessLedger.Entries.Any(x => x.EntryType == EmploymentLedgerEntryType.HostSettlement));
+	}
+
+	[TestMethod]
+	public void EmploymentFinanceSteps_BlocksSettlementWhenGrantCounterpartyDoesNotMatch()
+	{
+		VirtualCashLedger.ClearInMemoryForTests();
+		var currency = Currency();
+		var (sourceShop, sourceState) = ShopHost(151, "Scoped Source Shop", currency.Object, null);
+		var (allowedShop, allowedState) = ShopHost(152, "Approved Target Shop", currency.Object, null);
+		var (targetShop, targetState) = ShopHost(153, "Unapproved Target Shop", currency.Object, null);
+		var gameworld = Gameworld(currency.Object, new Dictionary<long, ICharacter>(),
+			shopsToAdd: [allowedShop.Object, targetShop.Object]);
+		sourceShop.As<IHaveFuturemud>().SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		allowedShop.As<IHaveFuturemud>().SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		targetShop.As<IHaveFuturemud>().SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		var manager = Character(1, "Manager", gameworld: gameworld.Object).Object;
+		sourceState.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.AssignTasks |
+			EmploymentAuthority.ApprovePurchases |
+			EmploymentAuthority.ManageStockRules |
+			EmploymentAuthority.SettleHostAccounts), null);
+		VirtualCashLedger.Credit(sourceShop.Object, currency.Object, 25.0M, null, null, "Seed", "Seed balance");
+		var actionPlan = new EmploymentActionPlan([
+			new CataloguedActionShellStep("reserve", "host settlement", new MoneyAmount(currency.Object, 12.0M)),
+			new HostSettlementActionStep("shop:Unapproved Target Shop", new MoneyAmount(currency.Object, 12.0M))
+		]);
+		var correlationId = Guid.NewGuid();
+		var provenance = ScopedFinancialProvenance(manager, actionPlan, correlationId, currency.Object, 12.0M,
+			[$"host:shop:{sourceShop.Object.Id}:available-funds"],
+			[$"employment-host:shop:{allowedShop.Object.Name}"]);
+		var task = sourceState.TaskBoard.CreateActiveTask("blocked scoped settlement", actionPlan, manager,
+			correlationId, provenance: provenance);
+		var dispatcher = new EmploymentTaskDispatcher();
+		var context = new EmploymentTaskContext(sourceShop.Object);
+		var profile = Profile(manager, 1.0M, PaymentMethodKind.Cash,
+			Caps(EmploymentAICapability.CanUseBankAccount));
+
+		Assert.IsTrue(dispatcher.TryAssignTask(task, [profile], context, out var reason), reason);
+		Assert.IsTrue(dispatcher.AdvanceTask(task, context).Success);
+		var settlement = dispatcher.AdvanceTask(task, context);
+
+		Assert.IsFalse(settlement.Success);
+		StringAssert.Contains(settlement.Message, "requires an auditable payment authorisation");
+		Assert.AreEqual(EmploymentTaskStatus.Blocked, task.Status);
+		Assert.AreEqual(25.0M, VirtualCashLedger.Balance(sourceShop.Object, currency.Object));
+		Assert.AreEqual(0.0M, VirtualCashLedger.Balance(targetShop.Object, currency.Object));
+		Assert.IsFalse(sourceState.BusinessLedger.Entries.Any(x => x.EntryType == EmploymentLedgerEntryType.HostSettlement));
+		Assert.IsFalse(targetState.BusinessLedger.Entries.Any(x => x.EntryType == EmploymentLedgerEntryType.HostSettlement));
+		Assert.IsFalse(allowedState.BusinessLedger.Entries.Any(x => x.EntryType == EmploymentLedgerEntryType.HostSettlement));
 	}
 
 	[TestMethod]
@@ -1310,9 +2635,15 @@ public class UnifiedEmploymentDispatchTests
 		Assert.AreEqual(0, context.CarriedTaskItems(manager).Count);
 		CollectionAssert.AreEquivalent(new[] { saddle.Id, bridle.Id }, context.LoadedTaskItems(manager, crate).Select(x => x.Id).ToArray());
 		StringAssert.Contains(task.StepOperationalStates[1].LoadedAssets, $"container={crate.Id}");
+		StringAssert.Contains(task.StepOperationalStates[1].ReservationReference, "op=reserve");
+		StringAssert.Contains(task.StepOperationalStates[1].ReservationReference, $"container={crate.Id}");
+		StringAssert.Contains(task.StepOperationalStates[1].ReservationReference, "count=2");
 
 		var unload = dispatcher.AdvanceTask(task, context);
 		Assert.IsTrue(unload.Success);
+		StringAssert.Contains(task.StepOperationalStates[2].ReservationReference, "op=consume");
+		StringAssert.Contains(task.StepOperationalStates[2].ReservationReference, $"container={crate.Id}");
+		StringAssert.Contains(task.StepOperationalStates[2].ReservationReference, "count=2");
 		CollectionAssert.AreEquivalent(new[] { saddle.Id, bridle.Id }, context.CarriedTaskItems(manager).Select(x => x.Id).ToArray());
 		Assert.AreEqual(EmploymentTaskStatus.Completed, task.Status);
 	}
@@ -1377,6 +2708,86 @@ public class UnifiedEmploymentDispatchTests
 		Assert.AreEqual(0, shop.Shop.Object.Board.Posts.Count());
 		Assert.IsTrue(shop.State.EmploymentRegister.Entries.Any(x => x.EntryType == EmploymentRegisterEntryType.ActiveTaskCreated));
 		Assert.IsTrue(shop.State.EmploymentRegister.Entries.Any(x => x.EntryType == EmploymentRegisterEntryType.ActiveTaskCompleted));
+	}
+
+	[TestMethod]
+	public void ShopEmploymentTaskService_CreatesExternalStockTransferWithPairedEvidence()
+	{
+		var currency = Currency();
+		var managerMock = Character(1, "Manager");
+		var manager = managerMock.Object;
+		var sourceStockroomItems = new List<IGameItem>();
+		var sourceShopfrontItems = new List<IGameItem>();
+		var targetStockroomItems = new List<IGameItem>();
+		var targetShopfrontItems = new List<IGameItem>();
+		var sourceStockroom = PhysicalCell(80, "source stockroom", sourceStockroomItems).Object;
+		var sourceShopfront = PhysicalCell(81, "source shopfront", sourceShopfrontItems).Object;
+		var targetStockroom = PhysicalCell(82, "target stockroom", targetStockroomItems).Object;
+		var targetShopfront = PhysicalCell(83, "target shopfront", targetShopfrontItems).Object;
+		var targetContents = new List<IGameItem>();
+		var targetContainer = ContainerItem(804, "transfer crate", [targetStockroom], [], targetContents).Object;
+		targetStockroomItems.Add(targetContainer);
+		var movedItemMock = Item(800, "linen bundle", trueLocations: [sourceStockroom], prototypeId: 9000);
+		var movedItem = movedItemMock.Object;
+		sourceStockroomItems.Add(movedItem);
+		var sourceMerchandise = Merchandise(801, "source linen");
+		var targetMerchandise = Merchandise(802, "target linen");
+		targetMerchandise.Setup(x => x.IsMerchandiseFor(movedItem, true)).Returns(true);
+		var source = PermanentShop(900, "source shop", currency.Object, manager,
+			EmploymentAuthority.AssignTasks | EmploymentAuthority.ManageDeliveryRoutes,
+			sourceStockroom, [sourceShopfront], [], [sourceMerchandise.Object], [movedItem]);
+		var target = PermanentShop(901, "target shop", currency.Object, manager,
+			EmploymentAuthority.ManageDeliveryRoutes,
+			targetStockroom, [targetShopfront], [targetContainer], [targetMerchandise.Object], []);
+		var gameworld = Gameworld(currency.Object, new Dictionary<long, ICharacter> { [manager.Id] = manager },
+			[sourceStockroom, sourceShopfront, targetStockroom, targetShopfront],
+			new Dictionary<long, IGameItem> { [movedItem.Id] = movedItem, [targetContainer.Id] = targetContainer },
+			shopsToAdd: [source.Shop.Object, target.Shop.Object]);
+		managerMock.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		movedItemMock.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		var stockEffects = new List<ItemOnDisplayInShop>
+		{
+			new(movedItem, source.Shop.Object, sourceMerchandise.Object)
+		};
+		movedItemMock.Setup(x => x.EffectsOfType<ItemOnDisplayInShop>()).Returns(() => stockEffects.ToList());
+		source.Shop.Setup(x => x.DisposeFromStock(manager, movedItem))
+		      .Callback(() => stockEffects.RemoveAll(x => x.Shop?.Id == source.Shop.Object.Id));
+		target.Shop.Setup(x => x.AddToStock(manager, movedItem, targetMerchandise.Object))
+		      .Callback(() => stockEffects.Add(new ItemOnDisplayInShop(movedItem, target.Shop.Object,
+			      targetMerchandise.Object)));
+		var service = new ShopEmploymentTaskService();
+
+		var created = service.TryCreateStockTransferTask(manager, source.Shop.Object, sourceMerchandise.Object, 1,
+			target.Shop.Object, targetMerchandise.Object, out var task, out var message, targetStockroom,
+			targetContainer);
+
+		Assert.IsTrue(created, message);
+		Assert.IsNotNull(task);
+		Assert.AreEqual(EmploymentActionStepType.GetItemsById, task.ActionPlan.Steps[0].StepType);
+		Assert.AreEqual(EmploymentActionStepType.ShopStockTransfer, task.ActionPlan.Steps[1].StepType);
+		Assert.IsTrue(target.State.EmploymentRegister.Entries.Any(x =>
+			x.EntryType == EmploymentRegisterEntryType.ActiveTaskCreated && x.CorrelationId == task.CorrelationId));
+
+		var dispatcher = new EmploymentTaskDispatcher();
+		var context = service.CreatePhysicalTransferContext(source.Shop.Object, target.Shop.Object);
+		var profile = Profile(manager, 1.0M, PaymentMethodKind.Cash, Caps(EmploymentAICapability.CanDeliverItems));
+		Assert.IsTrue(dispatcher.TryAssignTask(task, [profile], context, out var reason), reason);
+		Assert.IsTrue(dispatcher.AdvanceTask(task, context).Success);
+		Assert.IsTrue(dispatcher.AdvanceTask(task, context).Success);
+
+		Assert.AreEqual(EmploymentTaskStatus.Completed, task.Status);
+		Assert.AreEqual(0, sourceStockroomItems.Count);
+		CollectionAssert.AreEquivalent(new[] { movedItem.Id }, context.ContainedItems(targetContainer).Select(x => x.Id).ToArray());
+		source.Shop.Verify(x => x.DisposeFromStock(manager, movedItem), Times.Once);
+		target.Shop.Verify(x => x.AddToStock(manager, movedItem, targetMerchandise.Object), Times.Once);
+		Assert.IsFalse(stockEffects.Any(x => x.Shop?.Id == source.Shop.Object.Id));
+		Assert.IsTrue(stockEffects.Any(x => x.Shop?.Id == target.Shop.Object.Id &&
+		                                x.Merchandise?.Id == targetMerchandise.Object.Id));
+		Assert.IsTrue(source.State.EmploymentRegister.Entries.Any(x =>
+			x.EntryType == EmploymentRegisterEntryType.AuditActionRecorded && x.CorrelationId == task.CorrelationId));
+		Assert.IsTrue(target.State.EmploymentRegister.Entries.Any(x =>
+			x.EntryType == EmploymentRegisterEntryType.AuditActionRecorded && x.CorrelationId == task.CorrelationId));
+		StringAssert.Contains(task.StepOperationalStates[1].OperationalPayload!, "stocktransfer:source=900;target=901");
 	}
 
 	[TestMethod]
@@ -1457,6 +2868,47 @@ public class UnifiedEmploymentDispatchTests
 	}
 
 	[TestMethod]
+	public void ManagerGoals_EvaluateByPriorityAndStampSpawnedTaskProvenance()
+	{
+		var currency = Currency();
+		IEmploymentHost host = new TestEmploymentHost("hotel", currency.Object);
+		var manager = Character(1, "Manager").Object;
+		host.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.CreateManagerGoals | EmploymentAuthority.PostToHostBoard), null);
+		var low = host.ManagerGoalBoard.CreateGoal(new ManagerGoalDefinition(
+			ManagerGoalType.MaintainHotelOperations,
+			EmploymentAuthority.PostToHostBoard,
+			new ManagerGoalConfiguration("a low priority notice", new EmploymentActionPlan([
+				new BoardPostActionStep("Rooms", "Low priority work.")
+			])),
+			1,
+			TimeSpan.Zero), manager);
+		var high = host.ManagerGoalBoard.CreateGoal(new ManagerGoalDefinition(
+			ManagerGoalType.MaintainHotelOperations,
+			EmploymentAuthority.PostToHostBoard,
+			new ManagerGoalConfiguration("z high priority notice", new EmploymentActionPlan([
+				new BoardPostActionStep("Rooms", "High priority work.")
+			])),
+			9,
+			TimeSpan.Zero), manager);
+
+		var tasks = host.ManagerGoalBoard.EvaluateGoals(new EmploymentTaskContext(host), DateTimeOffset.UtcNow).ToList();
+
+		Assert.AreEqual(2, tasks.Count);
+		Assert.AreEqual("z high priority notice", tasks[0].Name);
+		Assert.AreEqual("a low priority notice", tasks[1].Name);
+		Assert.AreEqual(9, tasks[0].Priority);
+		Assert.AreEqual(1, tasks[1].Priority);
+		Assert.AreEqual(EmploymentTaskSourceKind.ManagerGoal, tasks[0].SourceKind);
+		Assert.AreEqual(high.Id, tasks[0].SourceGoalId);
+		Assert.AreEqual(EmploymentPrincipalKind.ManagerGoal, tasks[0].CreatedByPrincipal.Kind);
+		Assert.AreEqual(EmploymentPrincipalKind.ManagerGoal, tasks[0].AuthorisedByPrincipal.Kind);
+		Assert.AreEqual(EmploymentPrincipalKind.ManagerGoal, tasks[0].AuthorisationGrant.IssuerPrincipal.Kind);
+		Assert.AreEqual(high.CorrelationId, tasks[0].AuthorisationGrant.CorrelationId);
+		Assert.AreEqual(low.Id, tasks[1].SourceGoalId);
+	}
+
+	[TestMethod]
 	public void ManagerGoals_CannotUnderDeclareActionPlanAuthority()
 	{
 		var currency = Currency();
@@ -1474,6 +2926,285 @@ public class UnifiedEmploymentDispatchTests
 			TimeSpan.Zero);
 
 		Assert.ThrowsException<InvalidOperationException>(() => host.ManagerGoalBoard.CreateGoal(definition, limited));
+	}
+
+	[TestMethod]
+	public void ManagerGoals_RejectBudgetPolicyExceededAtCreation()
+	{
+		var currency = Currency();
+		IEmploymentHost host = new TestEmploymentHost("hotel", currency.Object);
+		var manager = Character(1, "Manager").Object;
+		host.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.CreateManagerGoals |
+			EmploymentAuthority.DepositBusinessCash), null);
+		var definition = new ManagerGoalDefinition(
+			ManagerGoalType.MaintainHotelOperations,
+			EmploymentAuthority.DepositBusinessCash,
+			new ManagerGoalConfiguration("deposit float", new EmploymentActionPlan([
+				new BankDepositActionStep(new MoneyAmount(currency.Object, 15.0M))
+			])),
+			1,
+			TimeSpan.Zero,
+			new ManagerGoalPolicy([new MoneyAmount(currency.Object, 10.0M)]));
+
+		var exception = Assert.ThrowsException<InvalidOperationException>(() =>
+			host.ManagerGoalBoard.CreateGoal(definition, manager));
+
+		StringAssert.Contains(exception.Message, "budget");
+		Assert.AreEqual(0, host.ManagerGoalBoard.Goals.Count);
+	}
+
+	[TestMethod]
+	public void ManagerGoals_RejectActionPlanExceedingStepRiskLimit()
+	{
+		var currency = Currency();
+		IEmploymentHost host = new TestEmploymentHost("hotel", currency.Object);
+		var manager = Character(1, "Manager").Object;
+		host.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.CreateManagerGoals |
+			EmploymentAuthority.PostToHostBoard), null);
+		var definition = new ManagerGoalDefinition(
+			ManagerGoalType.MaintainHotelOperations,
+			EmploymentAuthority.PostToHostBoard,
+			new ManagerGoalConfiguration("post two notices", new EmploymentActionPlan([
+				new BoardPostActionStep("Notice One", "Check the front room."),
+				new BoardPostActionStep("Notice Two", "Check the stock room.")
+			])),
+			1,
+			TimeSpan.Zero,
+			new ManagerGoalPolicy(null, new ManagerGoalRiskLimits(MaximumActionSteps: 1)));
+
+		var exception = Assert.ThrowsException<InvalidOperationException>(() =>
+			host.ManagerGoalBoard.CreateGoal(definition, manager));
+
+		StringAssert.Contains(exception.Message, "risk limit");
+		Assert.AreEqual(0, host.ManagerGoalBoard.Goals.Count);
+	}
+
+	[TestMethod]
+	public void ManagerGoals_RiskLimitSkipsWhenActiveTaskLimitReached()
+	{
+		var currency = Currency();
+		IEmploymentHost host = new TestEmploymentHost("hotel", currency.Object);
+		var manager = Character(1, "Manager").Object;
+		host.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.CreateManagerGoals |
+			EmploymentAuthority.PostToHostBoard), null);
+		var goal = host.ManagerGoalBoard.CreateGoal(new ManagerGoalDefinition(
+			ManagerGoalType.MaintainHotelOperations,
+			EmploymentAuthority.PostToHostBoard,
+			new ManagerGoalConfiguration("post room notice", new EmploymentActionPlan([
+				new BoardPostActionStep("Rooms", "Room work required.")
+			])),
+			1,
+			TimeSpan.Zero,
+			new ManagerGoalPolicy(null, new ManagerGoalRiskLimits(MaximumActiveTasks: 1))), manager);
+		var context = new EmploymentTaskContext(host);
+		var now = DateTimeOffset.UtcNow;
+
+		var first = host.ManagerGoalBoard.EvaluateGoals(context, now);
+		var second = host.ManagerGoalBoard.EvaluateGoals(context, now.AddMinutes(1));
+
+		Assert.AreEqual(1, first.Count);
+		Assert.AreEqual(0, second.Count);
+		Assert.AreEqual(1, host.TaskBoard.ActiveTasks.Count);
+		StringAssert.Contains(goal.LastEvaluationResult!, "Risk limit permits");
+	}
+
+	[TestMethod]
+	public void ManagerGoals_MarkSatisfiedAndReactivateWhenConditionsBecomeTrue()
+	{
+		var currency = Currency();
+		IEmploymentHost host = new TestEmploymentHost("hotel", currency.Object);
+		var manager = Character(1, "Manager").Object;
+		host.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.CreateManagerGoals |
+			EmploymentAuthority.PostToHostBoard), null);
+		var goal = host.ManagerGoalBoard.CreateGoal(new ManagerGoalDefinition(
+			ManagerGoalType.MaintainHotelOperations,
+			EmploymentAuthority.PostToHostBoard,
+			new ManagerGoalConfiguration("post room notice", new EmploymentActionPlan([
+				new BoardPostActionStep("Rooms", "Room work required.")
+			]), [new ManualOrderCondition("rooms-needed")]),
+			1,
+			TimeSpan.Zero), manager);
+		var context = new EmploymentTaskContext(host);
+		var now = DateTimeOffset.UtcNow;
+
+		var idle = host.ManagerGoalBoard.EvaluateGoals(context, now);
+
+		Assert.AreEqual(0, idle.Count);
+		Assert.AreEqual(ManagerGoalStatus.Satisfied, goal.Status);
+		StringAssert.Contains(goal.LastEvaluationResult!, "Manual order rooms-needed is not active");
+
+		context.SetManualOrder("rooms-needed", true);
+		var spawned = host.ManagerGoalBoard.EvaluateGoals(context, now.AddMinutes(1));
+
+		Assert.AreEqual(1, spawned.Count);
+		Assert.AreEqual(ManagerGoalStatus.Active, goal.Status);
+		StringAssert.Contains(goal.LastEvaluationResult!, "Created active task");
+	}
+
+	[TestMethod]
+	public void ManagerGoals_RichConditionExpressionSupportsOrAndReactivation()
+	{
+		var currency = Currency();
+		IEmploymentHost host = new TestEmploymentHost("hotel", currency.Object);
+		var manager = Character(1, "Manager").Object;
+		host.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.CreateManagerGoals |
+			EmploymentAuthority.PostToHostBoard), null);
+		var goal = host.ManagerGoalBoard.CreateGoal(new ManagerGoalDefinition(
+			ManagerGoalType.MaintainHotelOperations,
+			EmploymentAuthority.PostToHostBoard,
+			new ManagerGoalConfiguration("post optional room notice", new EmploymentActionPlan([
+				new BoardPostActionStep("Rooms", "Optional room work required.")
+			]),
+			[
+				new ManualOrderCondition("primary-room-work"),
+				new ManualOrderCondition("fallback-room-work")
+			],
+			EmploymentConditionExpression.Any([
+				EmploymentConditionExpression.Condition(1),
+				EmploymentConditionExpression.Condition(2)
+			])),
+			1,
+			TimeSpan.Zero), manager);
+		var context = new EmploymentTaskContext(host);
+		var now = DateTimeOffset.UtcNow;
+
+		var idle = host.ManagerGoalBoard.EvaluateGoals(context, now);
+
+		Assert.AreEqual(0, idle.Count);
+		Assert.AreEqual(ManagerGoalStatus.Satisfied, goal.Status);
+		StringAssert.Contains(goal.LastEvaluationResult!, "Manual order primary-room-work is not active");
+
+		context.SetManualOrder("fallback-room-work", true);
+		var spawned = host.ManagerGoalBoard.EvaluateGoals(context, now.AddMinutes(1));
+
+		Assert.AreEqual(1, spawned.Count);
+		Assert.AreEqual(ManagerGoalStatus.Active, goal.Status);
+		Assert.AreEqual(goal.Id, spawned.Single().SourceGoalId);
+		StringAssert.Contains(goal.LastEvaluationResult!, "Created active task");
+	}
+
+	[TestMethod]
+	public void ManagerGoals_RejectInvalidConditionExpressionAtCreation()
+	{
+		var currency = Currency();
+		IEmploymentHost host = new TestEmploymentHost("hotel", currency.Object);
+		var manager = Character(1, "Manager").Object;
+		host.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.CreateManagerGoals |
+			EmploymentAuthority.PostToHostBoard), null);
+		var definition = new ManagerGoalDefinition(
+			ManagerGoalType.MaintainHotelOperations,
+			EmploymentAuthority.PostToHostBoard,
+			new ManagerGoalConfiguration("post room notice", new EmploymentActionPlan([
+				new BoardPostActionStep("Rooms", "Room work required.")
+			]), [new ManualOrderCondition("rooms-needed")], EmploymentConditionExpression.Condition(2)),
+			1,
+			TimeSpan.Zero);
+
+		var exception = Assert.ThrowsException<InvalidOperationException>(() =>
+			host.ManagerGoalBoard.CreateGoal(definition, manager));
+
+		StringAssert.Contains(exception.Message, "does not exist");
+		Assert.AreEqual(0, host.ManagerGoalBoard.Goals.Count);
+	}
+
+	[TestMethod]
+	public void ManagerGoals_FailWhenSpawnedTaskFails()
+	{
+		var currency = Currency();
+		IEmploymentHost host = new TestEmploymentHost("hotel", currency.Object);
+		var manager = Character(1, "Manager").Object;
+		host.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.CreateManagerGoals |
+			EmploymentAuthority.PostToHostBoard), null);
+		var goal = host.ManagerGoalBoard.CreateGoal(new ManagerGoalDefinition(
+			ManagerGoalType.MaintainHotelOperations,
+			EmploymentAuthority.PostToHostBoard,
+			new ManagerGoalConfiguration("post room notice", new EmploymentActionPlan([
+				new BoardPostActionStep("Rooms", "Room work required.")
+			])),
+			1,
+			TimeSpan.Zero), manager);
+		var context = new EmploymentTaskContext(host);
+		var now = DateTimeOffset.UtcNow;
+		var task = (EmploymentActiveTask)host.ManagerGoalBoard.EvaluateGoals(context, now).Single();
+
+		task.MarkStep(0, EmploymentActionStepStatus.Failed,
+			new EmploymentActionStepOperationalState(FailureDiagnostic: "notice delivery failed"));
+		var followUp = host.ManagerGoalBoard.EvaluateGoals(context, now.AddMinutes(1));
+
+		Assert.AreEqual(0, followUp.Count);
+		Assert.AreEqual(ManagerGoalStatus.Failed, goal.Status);
+		StringAssert.Contains(goal.LastEvaluationResult!, "notice delivery failed");
+	}
+
+	[TestMethod]
+	public void ManagerGoals_FailWhenNoActionPlanIsAvailable()
+	{
+		var currency = Currency();
+		IEmploymentHost host = new TestEmploymentHost("hotel", currency.Object);
+		var manager = Character(1, "Manager").Object;
+		host.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.CreateManagerGoals), null);
+		var goal = host.ManagerGoalBoard.CreateGoal(new ManagerGoalDefinition(
+			ManagerGoalType.MaintainHotelOperations,
+			EmploymentAuthority.None,
+			new ManagerGoalConfiguration("empty goal"),
+			1,
+			TimeSpan.Zero), manager);
+
+		var tasks = host.ManagerGoalBoard.EvaluateGoals(new EmploymentTaskContext(host), DateTimeOffset.UtcNow);
+
+		Assert.AreEqual(0, tasks.Count);
+		Assert.AreEqual(ManagerGoalStatus.Failed, goal.Status);
+		StringAssert.Contains(goal.LastEvaluationResult!, "no action plan");
+	}
+
+	[TestMethod]
+	public void ManagerGoals_CraftMaterialsSpawnReplenishmentTaskWhenCommodityBelowThreshold()
+	{
+		var currency = Currency();
+		var manager = Character(1, "Manager").Object;
+		var stockroom = Cell(920, "materials store").Object;
+		var shopfront = Cell(921, "workshop floor").Object;
+		var shop = PermanentShop(30, "workshop", currency.Object, manager,
+			EmploymentAuthority.CreateManagerGoals |
+			EmploymentAuthority.ManageStockRules |
+			EmploymentAuthority.ApprovePurchases |
+			EmploymentAuthority.ManageDeliveryRoutes,
+			stockroom, [shopfront], [], [], []);
+		IEmploymentHost host = shop.Shop.Object;
+		var amount = new MoneyAmount(currency.Object, 10.0M);
+		var materialKey = CommodityThresholdCondition.CreateKey("iron", null,
+			new Dictionary<string, string>(), stockroom.Id, null);
+		var definition = new ManagerGoalDefinition(
+			ManagerGoalType.MaintainCraftMaterialSupply,
+			new EmploymentAuthoritySet(EmploymentAuthority.ManageStockRules |
+				EmploymentAuthority.ApprovePurchases |
+				EmploymentAuthority.ManageDeliveryRoutes),
+			new ManagerGoalConfiguration("replenish iron materials", new EmploymentActionPlan([
+				new CataloguedActionShellStep("authorise", "buy iron materials", amount),
+				new CataloguedActionShellStep("reserve", "buy iron materials", amount),
+				new PurchaseActionStep("iron commodity stock", amount)
+			]), [new CommodityThresholdCondition(materialKey, 5.0M, true)]),
+			3,
+			TimeSpan.FromMinutes(5));
+		host.ManagerGoalBoard.CreateGoal(definition, manager);
+		var context = new EmploymentTaskContext(host);
+		context.SetAvailableItems(stockroom, []);
+
+		var tasks = host.ManagerGoalBoard.EvaluateGoals(context, DateTimeOffset.UtcNow).ToList();
+
+		Assert.AreEqual(1, tasks.Count);
+		Assert.AreEqual(EmploymentTaskSourceKind.ManagerGoal, tasks.Single().SourceKind);
+		Assert.AreEqual(ManagerGoalType.MaintainCraftMaterialSupply, host.ManagerGoalBoard.Goals.Single().GoalType);
+		Assert.IsInstanceOfType(tasks.Single().ActionPlan.Steps[2], typeof(PurchaseActionStep));
+		Assert.AreEqual(3, tasks.Single().Priority);
 	}
 
 	[TestMethod]
@@ -1686,6 +3417,159 @@ public class UnifiedEmploymentDispatchTests
 	}
 
 	[TestMethod]
+	public void EmploymentPersistence_RoundTripsApplicationContractOriginsForOpeningCapacity()
+	{
+		var fmdbState = CaptureFMDBState();
+		using var context = BuildContext();
+		try
+		{
+			PrimeFMDB(context);
+			var currency = Currency();
+			var manager = Character(181, "Manager").Object;
+			var first = Character(182, "First Applicant").Object;
+			var second = Character(183, "Second Applicant").Object;
+			var characters = new Dictionary<long, ICharacter>
+			{
+				[manager.Id] = manager,
+				[first.Id] = first,
+				[second.Id] = second
+			};
+			var gameworld = Gameworld(currency.Object, characters);
+			IEmploymentHost host = new PersistedEmploymentHost(181, "Capacity Shop", gameworld.Object, currency.Object);
+			host.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+				EmploymentAuthority.CreateJobOpenings | EmploymentAuthority.HireEmployees), null);
+			var opening = host.Employment.CreateJobOpening(Opening(currency.Object), manager);
+			var firstApplication = host.Employment.Apply(opening, Profile(first, 1.0M, PaymentMethodKind.Cash,
+				Caps(EmploymentAICapability.CanPurchaseCommodities),
+				new Dictionary<string, double> { ["haggling"] = 40.0 }));
+			var secondApplication = host.Employment.Apply(opening, Profile(second, 1.0M, PaymentMethodKind.Cash,
+				Caps(EmploymentAICapability.CanPurchaseCommodities),
+				new Dictionary<string, double> { ["haggling"] = 40.0 }));
+			host.Employment.AcceptApplication(firstApplication, manager);
+
+			var reloadedHost = new PersistedEmploymentHost(181, "Capacity Shop", gameworld.Object, currency.Object);
+			var reloaded = reloadedHost.Employment;
+			var reloadedOpening = reloaded.JobOpenings.Single();
+			var reloadedContract = reloaded.EmploymentContracts.Single(x => x.Employee.Id == first.Id);
+			var reloadedSecondApplication = reloaded.Applications.Single(x => x.Id == secondApplication.Id);
+
+			Assert.AreEqual(reloadedOpening.Id, reloadedContract.OriginOpeningId);
+			Assert.AreEqual(firstApplication.Id, reloadedContract.OriginApplicationId);
+			Assert.AreEqual(1, reloadedOpening.OccupiedPositions);
+			Assert.IsFalse(reloadedOpening.AcceptsApplications);
+			var ex = Assert.ThrowsException<InvalidOperationException>(() =>
+				reloaded.AcceptApplication(reloadedSecondApplication, manager));
+			StringAssert.Contains(ex.Message, "capacity");
+		}
+		finally
+		{
+			RestoreFMDBState(fmdbState);
+		}
+	}
+
+	[TestMethod]
+	public void EmploymentPersistence_RoundTripsPendingApplicationRevisionAndCandidateProfile()
+	{
+		var fmdbState = CaptureFMDBState();
+		using var context = BuildContext();
+		try
+		{
+			PrimeFMDB(context);
+			var currency = Currency();
+			var manager = Character(184, "Manager").Object;
+			var applicant = Character(185, "Applicant").Object;
+			var characters = new Dictionary<long, ICharacter>
+			{
+				[manager.Id] = manager,
+				[applicant.Id] = applicant
+			};
+			var gameworld = Gameworld(currency.Object, characters);
+			IEmploymentHost host = new PersistedEmploymentHost(184, "Snapshot Shop", gameworld.Object, currency.Object);
+			host.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+				EmploymentAuthority.CreateJobOpenings | EmploymentAuthority.ModifyJobOpenings | EmploymentAuthority.HireEmployees), null);
+			var definition = Opening(currency.Object);
+			var opening = host.Employment.CreateJobOpening(definition, manager);
+			var application = host.Employment.Apply(opening, Profile(applicant, 1.0M, PaymentMethodKind.Cash,
+				Caps(EmploymentAICapability.CanPurchaseCommodities),
+				new Dictionary<string, double> { ["haggling"] = 40.0 }));
+			host.Employment.ModifyJobOpening(opening, definition with { MaxPositions = 2 }, manager, "revision test");
+
+			var reloadedHost = new PersistedEmploymentHost(184, "Snapshot Shop", gameworld.Object, currency.Object);
+			var reloaded = reloadedHost.Employment;
+			var reloadedOpening = reloaded.JobOpenings.Single();
+			var reloadedApplication = reloaded.Applications.Single();
+			var profile = (EmploymentCandidateProfile?)reloadedApplication.GetType()
+			                                                       .GetProperty("CandidateProfile",
+				                                                       BindingFlags.Instance | BindingFlags.NonPublic)!
+			                                                       .GetValue(reloadedApplication);
+
+			Assert.AreEqual(2, reloadedOpening.RevisionNumber);
+			Assert.AreEqual(application.OfferedOpeningRevision, reloadedApplication.OfferedOpeningRevision);
+			Assert.IsNotNull(profile);
+			Assert.AreEqual(40.0, profile!.Skills["haggling"]);
+			Assert.IsTrue(profile.AcceptedPaymentMethods.Contains(PaymentMethodKind.Cash));
+			var ex = Assert.ThrowsException<InvalidOperationException>(() =>
+				reloaded.AcceptApplication(reloadedApplication, manager));
+			StringAssert.Contains(ex.Message, "terms have changed");
+		}
+		finally
+		{
+			RestoreFMDBState(fmdbState);
+		}
+	}
+	[TestMethod]
+	public void EmploymentPersistence_LoadedTasksWithoutPersistedGrantFailClosedForFinancialAuthority()
+	{
+		var fmdbState = CaptureFMDBState();
+		using var context = BuildContext();
+		try
+		{
+			PrimeFMDB(context);
+			var currency = Currency();
+			var manager = Character(171, "Manager").Object;
+			var characters = new Dictionary<long, ICharacter>
+			{
+				[manager.Id] = manager
+			};
+			var gameworld = Gameworld(currency.Object, characters);
+			IEmploymentHost host = new PersistedEmploymentHost(171, "Grant Shop", gameworld.Object, currency.Object);
+			host.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+				EmploymentAuthority.AssignTasks |
+				EmploymentAuthority.ApprovePurchases |
+				EmploymentAuthority.DepositBusinessCash), null);
+			host.TaskBoard.CreateActiveTask("persisted deposit",
+				new EmploymentActionPlan([
+					new CataloguedActionShellStep("authorise", "deposit approval", new MoneyAmount(currency.Object, 5.0M)),
+					new BankDepositActionStep(new MoneyAmount(currency.Object, 5.0M))
+				]),
+				manager);
+
+			IEmploymentHost reloadedHost = new PersistedEmploymentHost(171, "Grant Shop", gameworld.Object, currency.Object);
+			var reloadedTask = reloadedHost.TaskBoard.ActiveTasks.Single();
+			var dispatcher = new EmploymentTaskDispatcher();
+			var taskContext = new EmploymentTaskContext(reloadedHost);
+			var profile = Profile(manager, 1.0M, PaymentMethodKind.Cash,
+				Caps(EmploymentAICapability.CanUseBankAccount, EmploymentAICapability.CanHandleCash));
+
+			Assert.AreEqual(EmploymentTaskSourceKind.HostSystem, reloadedTask.SourceKind);
+			Assert.AreEqual(EmploymentAuthority.None, reloadedTask.AuthorisationGrant.Authority.Authorities);
+			Assert.IsFalse(reloadedTask.AuthorisationGrant.AllowsUnboundedFinancialSteps);
+			Assert.AreEqual(0, reloadedTask.AuthorisationGrant.AmountLimits.Count);
+			Assert.IsTrue(dispatcher.TryAssignTask(reloadedTask, [profile], taskContext, out var reason), reason);
+			Assert.IsTrue(dispatcher.AdvanceTask(reloadedTask, taskContext).Success);
+			var deposit = dispatcher.AdvanceTask(reloadedTask, taskContext);
+
+			Assert.IsFalse(deposit.Success);
+			StringAssert.Contains(deposit.Message, "requires an auditable payment authorisation");
+			Assert.AreEqual(EmploymentTaskStatus.Blocked, reloadedTask.Status);
+		}
+		finally
+		{
+			RestoreFMDBState(fmdbState);
+		}
+	}
+
+	[TestMethod]
 	public void EmploymentPersistence_RoundTripsPayrollLiabilitiesAndSettledWageLedgerRows()
 	{
 		var fmdbState = CaptureFMDBState();
@@ -1807,16 +3691,66 @@ public class UnifiedEmploymentDispatchTests
 			var currency = Currency();
 			var manager = Character(260, "Manager").Object;
 			var destination = Cell(810, "sales floor").Object;
+			var staging = Cell(811, "staging room").Object;
+			var arena = new Mock<ICombatArena>();
+			arena.SetupGet(x => x.Id).Returns(812);
+			arena.SetupGet(x => x.Name).Returns("persisted arena");
+			arena.SetupGet(x => x.FrameworkItemType).Returns("CombatArena");
+			var eventType = new Mock<IArenaEventType>();
+			eventType.SetupGet(x => x.Id).Returns(813);
+			eventType.SetupGet(x => x.Name).Returns("persisted arena bout");
+			eventType.SetupGet(x => x.Arena).Returns(arena.Object);
+			var scheduledArenaEvent = new DateTime(2099, 2, 1, 10, 0, 0, DateTimeKind.Utc);
+			var bankReserves = new DecimalCounter<ICurrency> { [currency.Object] = 50.0M };
+			var (bank, _, _) = BankHost(814, "persisted bank", currency.Object, bankReserves);
+			var stableCell = Cell(815, "persisted stable stall").Object;
+			var stable = new Mock<IStable>();
+			stable.SetupGet(x => x.Id).Returns(816);
+			stable.SetupGet(x => x.Name).Returns("persisted stable");
+			stable.SetupGet(x => x.FrameworkItemType).Returns("Stable");
+			stable.SetupGet(x => x.Location).Returns(stableCell);
+			var stableStay = new Mock<IStableStay>();
+			stableStay.SetupGet(x => x.Id).Returns(817);
+			stableStay.SetupGet(x => x.Stable).Returns(stable.Object);
+			stableStay.SetupGet(x => x.IsActive).Returns(true);
+			var stableAccount = new Mock<IStableAccount>();
+			stableAccount.SetupGet(x => x.Id).Returns(818);
+			stableAccount.SetupGet(x => x.Name).Returns("stable ledger");
+			stableAccount.SetupGet(x => x.AccountName).Returns("stable ledger");
+			stableAccount.SetupGet(x => x.Stable).Returns(stable.Object);
+			stable.SetupGet(x => x.Stays).Returns([stableStay.Object]);
+			stable.SetupGet(x => x.ActiveStays).Returns([stableStay.Object]);
+			stable.SetupGet(x => x.StableAccounts).Returns([stableAccount.Object]);
+			var hotelRoomCell = Cell(819, "persisted hotel room").Object;
+			var property = new Mock<IProperty>();
+			property.SetupGet(x => x.Id).Returns(820);
+			property.SetupGet(x => x.Name).Returns("persisted inn");
+			var hotel = new Mock<IHotel>();
+			hotel.SetupGet(x => x.Id).Returns(821);
+			hotel.SetupGet(x => x.Name).Returns("persisted inn hotel");
+			hotel.SetupGet(x => x.FrameworkItemType).Returns("Hotel");
+			hotel.SetupGet(x => x.Property).Returns(property.Object);
+			property.SetupGet(x => x.Hotel).Returns(hotel.Object);
+			var hotelRoom = new Mock<IHotelRoom>();
+			hotelRoom.SetupGet(x => x.Name).Returns("persisted room");
+			hotelRoom.SetupGet(x => x.Cell).Returns(hotelRoomCell);
+			var lostProperty = new Mock<IHotelLostProperty>();
+			lostProperty.SetupGet(x => x.BundleId).Returns(822);
+			lostProperty.SetupGet(x => x.Description).Returns("persisted valise");
+			lostProperty.SetupGet(x => x.Status).Returns(HotelLostPropertyStatus.Held);
+			hotel.SetupGet(x => x.Rooms).Returns([hotelRoom.Object]);
+			property.SetupGet(x => x.HotelLostProperties).Returns([lostProperty.Object]);
+			property.SetupGet(x => x.HotelPatronBalances).Returns([]);
 			var characters = new Dictionary<long, ICharacter>
 			{
 				[manager.Id] = manager
 			};
-			var gameworld = Gameworld(currency.Object, characters, [destination]);
+			var gameworld = Gameworld(currency.Object, characters, [staging, destination, stableCell, hotelRoomCell], combatArenasToAdd: [arena.Object], banksToAdd: [bank.Object], stablesToAdd: [stable.Object], propertiesToAdd: [property.Object]);
 			IEmploymentHost host = new PersistedEmploymentHost(261, "Audit Shop", gameworld.Object, currency.Object);
 			host.Hire(manager, Offer(currency.Object, EmploymentRole.Manager, EmploymentAuthoritySet.All.Authorities), null);
 			var task = host.TaskBoard.CreateActiveTask("catalogue actions",
 				new EmploymentActionPlan([
-					new CataloguedActionShellStep("route", "check the delivery route", destination),
+					new CataloguedActionShellStep("route", "check the delivery route", [staging, destination]),
 					new CataloguedActionShellStep("report", "stock counted"),
 					new CommandActionStep("say", "hello", destination),
 					new BoardPostActionStep("Notice", "Check the shelves."),
@@ -1829,7 +3763,18 @@ public class UnifiedEmploymentDispatchTests
 					new ShopFloatAdjustmentActionStep(true, new MoneyAmount(currency.Object, 1.0M)),
 					new PhysicalFloatActionStep(PhysicalFloatOperation.Issue, new MoneyAmount(currency.Object, 1.0M), "bank"),
 					new CraftStationActionStep("here"),
-					new MovementDeliveryActionStep("move to the sales floor", destination)
+					new MovementDeliveryActionStep("move to the sales floor", destination),
+					new ArenaEventAdministrationActionStep(arena.Object, eventType.Object, scheduledArenaEvent),
+					new BankAdministrationActionStep(bank.Object, BankAdministrationActionKind.ReserveDeposit,
+						new MoneyAmount(currency.Object, 6.0M)),
+					new StableAdministrationActionStep(stable.Object, StableAdministrationActionKind.CareGroom,
+						stay: stableStay.Object, note: "brush down"),
+					new StableAdministrationActionStep(stable.Object, StableAdministrationActionKind.AccountReconciliation,
+						account: stableAccount.Object, note: "ledger review"),
+					new HotelAdministrationActionStep(hotel.Object, HotelAdministrationActionKind.RoomReady,
+						room: hotelRoom.Object, note: "guest ready"),
+					new HotelAdministrationActionStep(hotel.Object, HotelAdministrationActionKind.LostPropertyAudit,
+						lostProperty: lostProperty.Object, note: "owner match")
 				]),
 				manager);
 			var dispatcher = new EmploymentTaskDispatcher();
@@ -1847,15 +3792,18 @@ public class UnifiedEmploymentDispatchTests
 			var routeResult = dispatcher.AdvanceTask(task, taskContext);
 			Assert.IsTrue(routeResult.Success);
 			StringAssert.Contains(task.StepOperationalStates[0].RouteResult, "delivery route");
+			StringAssert.Contains(task.StepOperationalStates[0].RouteResult, "stops=811,810");
+			StringAssert.Contains(task.StepOperationalStates[0].SelectedResources, "operation=route");
 
 			var reloadedHost = new PersistedEmploymentHost(261, "Audit Shop", gameworld.Object, currency.Object);
 			var reloadedTask = reloadedHost.Employment.TaskBoard.ActiveTasks.Single();
 			var steps = reloadedTask.ActionPlan.Steps;
 
-			Assert.AreEqual(14, steps.Count);
+			Assert.AreEqual(20, steps.Count);
 			Assert.IsInstanceOfType(steps[0], typeof(CataloguedActionShellStep));
 			Assert.AreEqual("route", ((CataloguedActionShellStep)steps[0]).ActionKey);
 			Assert.AreSame(destination, ((CataloguedActionShellStep)steps[0]).TargetLocation);
+			CollectionAssert.AreEqual(new[] { staging.Id, destination.Id }, ((CataloguedActionShellStep)steps[0]).RouteStops.Select(x => x.Id).ToArray());
 			StringAssert.Contains(reloadedTask.StepOperationalStates[0].RouteResult, "delivery route");
 			Assert.IsInstanceOfType(steps[2], typeof(CommandActionStep));
 			Assert.AreSame(destination, ((CommandActionStep)steps[2]).ExecutionLocation);
@@ -1870,6 +3818,33 @@ public class UnifiedEmploymentDispatchTests
 			Assert.IsInstanceOfType(steps[11], typeof(PhysicalFloatActionStep));
 			Assert.IsInstanceOfType(steps[12], typeof(CraftStationActionStep));
 			Assert.IsInstanceOfType(steps[13], typeof(MovementDeliveryActionStep));
+			Assert.IsInstanceOfType(steps[14], typeof(ArenaEventAdministrationActionStep));
+			Assert.AreSame(arena.Object, ((ArenaEventAdministrationActionStep)steps[14]).Arena);
+			Assert.IsInstanceOfType(steps[15], typeof(BankAdministrationActionStep));
+			var reloadedBankAdmin = (BankAdministrationActionStep)steps[15];
+			Assert.AreSame(bank.Object, reloadedBankAdmin.Bank);
+			Assert.AreEqual(BankAdministrationActionKind.ReserveDeposit, reloadedBankAdmin.Operation);
+			Assert.AreEqual(6.0M, reloadedBankAdmin.Amount!.Amount);
+			Assert.IsInstanceOfType(steps[16], typeof(StableAdministrationActionStep));
+			var reloadedStableCare = (StableAdministrationActionStep)steps[16];
+			Assert.AreSame(stable.Object, reloadedStableCare.Stable);
+			Assert.AreSame(stableStay.Object, reloadedStableCare.Stay);
+			Assert.AreEqual(StableAdministrationActionKind.CareGroom, reloadedStableCare.Operation);
+			Assert.AreEqual("brush down", reloadedStableCare.Note);
+			Assert.IsInstanceOfType(steps[17], typeof(StableAdministrationActionStep));
+			var reloadedStableAccount = (StableAdministrationActionStep)steps[17];
+			Assert.AreSame(stableAccount.Object, reloadedStableAccount.Account);
+			Assert.AreEqual(StableAdministrationActionKind.AccountReconciliation, reloadedStableAccount.Operation);
+			Assert.IsInstanceOfType(steps[18], typeof(HotelAdministrationActionStep));
+			var reloadedHotelRoom = (HotelAdministrationActionStep)steps[18];
+			Assert.AreSame(hotel.Object, reloadedHotelRoom.Hotel);
+			Assert.AreSame(hotelRoom.Object, reloadedHotelRoom.Room);
+			Assert.AreEqual(HotelAdministrationActionKind.RoomReady, reloadedHotelRoom.Operation);
+			Assert.AreEqual("guest ready", reloadedHotelRoom.Note);
+			Assert.IsInstanceOfType(steps[19], typeof(HotelAdministrationActionStep));
+			var reloadedHotelLost = (HotelAdministrationActionStep)steps[19];
+			Assert.AreSame(lostProperty.Object, reloadedHotelLost.LostProperty);
+			Assert.AreEqual(HotelAdministrationActionKind.LostPropertyAudit, reloadedHotelLost.Operation);
 		}
 		finally
 		{
@@ -1926,6 +3901,757 @@ public class UnifiedEmploymentDispatchTests
 	}
 
 	[TestMethod]
+	public void RouteBatchStep_RecordsMultiStopAllocationAndBlocksOversizedPlans()
+	{
+		var currency = Currency();
+		IEmploymentHost host = new TestEmploymentHost("shop", currency.Object);
+		var manager = Character(1, "Manager").Object;
+		var stopOne = Cell(850, "north stall").Object;
+		var stopTwo = Cell(851, "south stall").Object;
+		host.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.AssignTasks | EmploymentAuthority.ManageDeliveryRoutes), null);
+		var dispatcher = new EmploymentTaskDispatcher();
+		var context = new EmploymentTaskContext(host);
+		var profile = Profile(manager, 1.0M, PaymentMethodKind.Cash,
+			Caps(EmploymentAICapability.CanDeliverItems));
+		var task = host.TaskBoard.CreateActiveTask("daily delivery batch",
+			new EmploymentActionPlan([new CataloguedActionShellStep("routebatch",
+				"total 100 each 40 daily carrot route", [stopOne, stopTwo])]),
+			manager);
+
+		Assert.IsTrue(dispatcher.TryAssignTask(task, [profile], context, out var reason), reason);
+		var result = dispatcher.AdvanceTask(task, context);
+
+		Assert.IsTrue(result.Success, result.Message);
+		StringAssert.Contains(task.StepOperationalStates[0].SelectedResources, "operation=routebatch");
+		StringAssert.Contains(task.StepOperationalStates[0].SelectedResources, "stops=850,851");
+		StringAssert.Contains(task.StepOperationalStates[0].SelectedResources, "total=100");
+		StringAssert.Contains(task.StepOperationalStates[0].SelectedResources, "each=40");
+		StringAssert.Contains(task.StepOperationalStates[0].SelectedResources, "planned=80");
+		StringAssert.Contains(task.StepOperationalStates[0].SelectedResources, "remainder=20");
+		StringAssert.Contains(task.StepOperationalStates[0].RouteResult, "daily carrot route");
+
+		var oversized = host.TaskBoard.CreateActiveTask("oversized delivery batch",
+			new EmploymentActionPlan([new CataloguedActionShellStep("routebatch",
+				"total 50 each 30 oversized carrot route", [stopOne, stopTwo])]),
+			manager);
+
+		Assert.IsFalse(dispatcher.TryAssignTask(oversized, [profile], context, out reason,
+			blockWhenNoCandidateMatches: false));
+		StringAssert.Contains(reason, "allocates");
+	}
+
+	[TestMethod]
+	public void TripCheckStep_RecordsTransportPoliciesAndPathChecksStops()
+	{
+		var currency = Currency();
+		IEmploymentHost host = new TestEmploymentHost("shop", currency.Object);
+		var manager = Character(1, "Manager").Object;
+		var stopOne = Cell(852, "north road").Object;
+		var stopTwo = Cell(853, "river depot").Object;
+		host.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.AssignTasks | EmploymentAuthority.ManageDeliveryRoutes), null);
+		var dispatcher = new EmploymentTaskDispatcher();
+		var context = new EmploymentTaskContext(host);
+		var profile = Profile(manager, 1.0M, PaymentMethodKind.Cash,
+			Caps(EmploymentAICapability.CanDeliverItems));
+		var task = host.TaskBoard.CreateActiveTask("dawn transport check",
+			new EmploymentActionPlan([new CataloguedActionShellStep("tripcheck",
+				"fuel topped feed packed maintenance inspected rest scheduled dawn route", [stopOne, stopTwo])]),
+			manager);
+
+		Assert.IsTrue(dispatcher.TryAssignTask(task, [profile], context, out var reason), reason);
+		var result = dispatcher.AdvanceTask(task, context);
+
+		Assert.IsTrue(result.Success, result.Message);
+		StringAssert.Contains(task.StepOperationalStates[0].SelectedResources, "operation=tripcheck");
+		StringAssert.Contains(task.StepOperationalStates[0].SelectedResources, "fuel=topped");
+		StringAssert.Contains(task.StepOperationalStates[0].SelectedResources, "feed=packed");
+		StringAssert.Contains(task.StepOperationalStates[0].SelectedResources, "maintenance=inspected");
+		StringAssert.Contains(task.StepOperationalStates[0].SelectedResources, "rest=scheduled");
+		StringAssert.Contains(task.StepOperationalStates[0].SelectedResources, "stops=852,853");
+		StringAssert.Contains(task.StepOperationalStates[0].RouteResult, "dawn route");
+
+		var blocked = host.TaskBoard.CreateActiveTask("blocked transport check",
+			new EmploymentActionPlan([new CataloguedActionShellStep("tripcheck",
+				"fuel topped feed packed maintenance inspected rest scheduled blocked route", [stopOne])]),
+			manager);
+		context.SetPathBlocked(stopOne);
+
+		Assert.IsFalse(dispatcher.TryAssignTask(blocked, [profile], context, out reason,
+			blockWhenNoCandidateMatches: false));
+		StringAssert.Contains(reason, "cannot path");
+	}
+
+	[TestMethod]
+	public void CataloguedInspectStep_RecordsTaskCustodyItemIds()
+	{
+		var currency = Currency();
+		IEmploymentHost host = new TestEmploymentHost("workshop", currency.Object);
+		var manager = Character(1, "Manager").Object;
+		var source = Cell(840, "workbench").Object;
+		var widget = Item(841, "finished widget", prototypeId: 9001);
+		host.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.AssignTasks | EmploymentAuthority.ManageDeliveryRoutes | EmploymentAuthority.ManageCraftRules), null);
+		var task = host.TaskBoard.CreateActiveTask("inspect widget",
+			new EmploymentActionPlan([
+				new GetItemsByIdActionStep(1, [widget.Object.Prototype.Id], [source]),
+				new CataloguedActionShellStep("inspect", "check seams and finish")
+			]),
+			manager);
+		var dispatcher = new EmploymentTaskDispatcher();
+		var context = new EmploymentTaskContext(host);
+		context.SetAvailableItems(source, [widget.Object]);
+		var profile = Profile(manager, 1.0M, PaymentMethodKind.Cash,
+			Caps(EmploymentAICapability.CanDeliverItems, EmploymentAICapability.CanCraft));
+		Assert.IsTrue(dispatcher.TryAssignTask(task, [profile], context, out var reason), reason);
+		Assert.IsTrue(dispatcher.AdvanceTask(task, context).Success);
+
+		var inspect = dispatcher.AdvanceTask(task, context);
+
+		Assert.IsTrue(inspect.Success, inspect.Message);
+		Assert.AreEqual(EmploymentTaskStatus.Completed, task.Status);
+		StringAssert.Contains(task.StepOperationalStates[1].OperationalPayload, "check seams and finish");
+		StringAssert.Contains(task.StepOperationalStates[1].SelectedResources, "operation=inspect");
+		StringAssert.Contains(task.StepOperationalStates[1].SelectedResources, widget.Object.Id.ToString("F0"));
+		CollectionAssert.AreEquivalent(new[] { widget.Object.Id }, context.CarriedTaskItems(manager).Select(x => x.Id).ToArray());
+	}
+
+	[TestMethod]
+	public void CataloguedBatchStep_RecordsDemandStoragePlanAndBlocksOversizedBatches()
+	{
+		var currency = Currency();
+		IEmploymentHost host = new TestEmploymentHost("workshop", currency.Object);
+		var manager = Character(1, "Manager").Object;
+		host.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.AssignTasks | EmploymentAuthority.ManageCraftRules), null);
+		var dispatcher = new EmploymentTaskDispatcher();
+		var context = new EmploymentTaskContext(host);
+		var profile = Profile(manager, 1.0M, PaymentMethodKind.Cash, Caps(EmploymentAICapability.CanCraft));
+		var task = host.TaskBoard.CreateActiveTask("batch linen",
+			new EmploymentActionPlan([
+				new CataloguedActionShellStep("batch", "demand 12 storage 8 size 6 linen shirts before market day")
+			]),
+			manager);
+
+		Assert.IsTrue(dispatcher.TryAssignTask(task, [profile], context, out var reason), reason);
+		var result = dispatcher.AdvanceTask(task, context);
+
+		Assert.IsTrue(result.Success, result.Message);
+		Assert.AreEqual(EmploymentTaskStatus.Completed, task.Status);
+		StringAssert.Contains(task.StepOperationalStates[0].OperationalPayload, "demand=12");
+		StringAssert.Contains(task.StepOperationalStates[0].OperationalPayload, "storage=8");
+		StringAssert.Contains(task.StepOperationalStates[0].OperationalPayload, "size=6");
+		StringAssert.Contains(task.StepOperationalStates[0].SelectedResources, "operation=batch");
+
+		var oversized = host.TaskBoard.CreateActiveTask("oversized batch",
+			new EmploymentActionPlan([
+				new CataloguedActionShellStep("batch", "demand 12 storage 8 size 9 too many shirts")
+			]),
+			manager);
+
+		Assert.IsFalse(dispatcher.TryAssignTask(oversized, [profile], context, out reason,
+			blockWhenNoCandidateMatches: false));
+		StringAssert.Contains(reason, "storage capacity");
+	}
+
+	[TestMethod]
+	public void VehicleAssignStep_RecordsDriverVehicleAndBlocksCompetingActiveAssignment()
+	{
+		var currency = Currency();
+		IEmploymentHost host = new TestEmploymentHost("transport yard", currency.Object);
+		var driver = Character(1, "Driver").Object;
+		var secondDriver = Character(2, "Second Driver").Object;
+		var yard = Cell(900, "transport yard").Object;
+		var vehicle = new Mock<IVehicle>();
+		vehicle.SetupGet(x => x.Id).Returns(901);
+		vehicle.SetupGet(x => x.Name).Returns("delivery wagon");
+		vehicle.SetupGet(x => x.FrameworkItemType).Returns("Vehicle");
+		vehicle.SetupGet(x => x.Disabled).Returns(false);
+		vehicle.SetupGet(x => x.Destroyed).Returns(false);
+		vehicle.SetupGet(x => x.Location).Returns(yard);
+		host.Hire(driver, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.AssignTasks | EmploymentAuthority.ManageDeliveryRoutes), null);
+		host.Hire(secondDriver, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.AssignTasks | EmploymentAuthority.ManageDeliveryRoutes), null);
+		var task = host.TaskBoard.CreateActiveTask("assign wagon",
+			new EmploymentActionPlan([
+				new VehicleOperationActionStep(vehicle.Object),
+				new CataloguedActionShellStep("report", "wagon assigned")
+			]),
+			driver);
+		var dispatcher = new EmploymentTaskDispatcher();
+		var context = new EmploymentTaskContext(host);
+		var driverProfile = Profile(driver, 1.0M, PaymentMethodKind.Cash, Caps(EmploymentAICapability.CanUseVehicles));
+
+		Assert.IsTrue(dispatcher.TryAssignTask(task, [driverProfile], context, out var reason), reason);
+		var assignment = dispatcher.AdvanceTask(task, context);
+
+		Assert.IsTrue(assignment.Success, assignment.Message);
+		Assert.AreEqual(EmploymentTaskStatus.InProgress, task.Status);
+		StringAssert.Contains(task.StepOperationalStates[0].SelectedResources, "operation=vehicleassign");
+		StringAssert.Contains(task.StepOperationalStates[0].SelectedResources, "vehicle=901");
+		StringAssert.Contains(task.StepOperationalStates[0].SelectedResources, "driver=1");
+
+		var competing = host.TaskBoard.CreateActiveTask("competing wagon",
+			new EmploymentActionPlan([new VehicleOperationActionStep(vehicle.Object)]),
+			secondDriver);
+		var secondProfile = Profile(secondDriver, 1.0M, PaymentMethodKind.Cash,
+			Caps(EmploymentAICapability.CanUseVehicles));
+
+		Assert.IsFalse(dispatcher.TryAssignTask(competing, [secondProfile], context, out reason,
+			blockWhenNoCandidateMatches: false));
+		StringAssert.Contains(reason, "already assigned");
+
+		var report = dispatcher.AdvanceTask(task, context);
+		Assert.IsTrue(report.Success, report.Message);
+		Assert.AreEqual(EmploymentTaskStatus.Completed, task.Status);
+		var released = host.TaskBoard.CreateActiveTask("released wagon",
+			new EmploymentActionPlan([new VehicleOperationActionStep(vehicle.Object)]),
+			secondDriver);
+		Assert.IsTrue(dispatcher.TryAssignTask(released, [secondProfile], context, out reason), reason);
+	}
+
+	[TestMethod]
+	public void TaskAssignmentAudit_RequeuesWhenAssignedVehicleBecomesUnavailable()
+	{
+		var currency = Currency();
+		IEmploymentHost host = new TestEmploymentHost("transport yard", currency.Object);
+		var driverMock = Character(1, "Driver");
+		var driver = driverMock.Object;
+		var yard = Cell(920, "transport yard").Object;
+		var vehicleDestroyed = false;
+		var vehicle = new Mock<IVehicle>();
+		vehicle.SetupGet(x => x.Id).Returns(921);
+		vehicle.SetupGet(x => x.Name).Returns("delivery wagon");
+		vehicle.SetupGet(x => x.FrameworkItemType).Returns("Vehicle");
+		vehicle.SetupGet(x => x.Disabled).Returns(false);
+		vehicle.SetupGet(x => x.Destroyed).Returns(() => vehicleDestroyed);
+		vehicle.SetupGet(x => x.Location).Returns(yard);
+		var vehicles = new All<IVehicle>();
+		vehicles.Add(vehicle.Object);
+		var gameworld = Gameworld(currency.Object, new Dictionary<long, ICharacter>
+		{
+			[driver.Id] = driver
+		}, [yard]);
+		gameworld.SetupGet(x => x.Vehicles).Returns(vehicles);
+		driverMock.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		driverMock.SetupGet(x => x.Location).Returns(yard);
+		driverMock.SetupGet(x => x.State).Returns(CharacterState.Awake);
+		host.Hire(driver, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.AssignTasks | EmploymentAuthority.ManageDeliveryRoutes), null);
+		var task = host.TaskBoard.CreateActiveTask("assign wagon",
+			new EmploymentActionPlan([
+				new VehicleOperationActionStep(vehicle.Object),
+				new CataloguedActionShellStep("report", "wagon assigned")
+			]),
+			driver);
+		var dispatcher = new EmploymentTaskDispatcher();
+		var context = new EmploymentTaskContext(host);
+		var profile = Profile(driver, 1.0M, PaymentMethodKind.Cash, Caps(EmploymentAICapability.CanUseVehicles));
+
+		Assert.IsTrue(dispatcher.TryAssignTask(task, [profile], context, out var reason), reason);
+		Assert.IsTrue(dispatcher.AdvanceTask(task, context).Success);
+		vehicleDestroyed = true;
+		var audit = host.TaskBoard.AuditActiveTaskAssignments();
+
+		Assert.AreEqual(EmploymentTaskStatus.Pending, task.Status);
+		Assert.IsNull(task.AssignedEmployee);
+		Assert.AreEqual(1, audit.Count);
+		Assert.AreEqual(EmploymentTaskAssignmentAuditOutcome.Requeued, audit.Single().Outcome);
+		StringAssert.Contains(audit.Single().Reason, "destroyed");
+		Assert.IsTrue(host.EmploymentRegister.Entries.Any(x =>
+			x.EntryType == EmploymentRegisterEntryType.ActiveTaskRequeued &&
+			x.CorrelationId == task.CorrelationId));
+	}
+
+	[TestMethod]
+	public void TaskAssignmentAudit_BlocksWhenVehicleUnavailableWithTaskItemCustody()
+	{
+		var currency = Currency();
+		IEmploymentHost host = new TestEmploymentHost("transport yard", currency.Object);
+		var driverMock = Character(1, "Driver");
+		var driver = driverMock.Object;
+		var yard = Cell(922, "transport yard").Object;
+		var stockroom = Cell(923, "stockroom").Object;
+		var body = new Mock<MudSharp.Body.IBody>();
+		var item = Item(924, "cargo crate", prototypeId: 925);
+		item.SetupGet(x => x.InInventoryOf).Returns(body.Object);
+		driverMock.SetupGet(x => x.Body).Returns(body.Object);
+		driverMock.SetupGet(x => x.Inventory).Returns([item.Object]);
+		var vehicleDestroyed = false;
+		var vehicle = new Mock<IVehicle>();
+		vehicle.SetupGet(x => x.Id).Returns(926);
+		vehicle.SetupGet(x => x.Name).Returns("freight wagon");
+		vehicle.SetupGet(x => x.FrameworkItemType).Returns("Vehicle");
+		vehicle.SetupGet(x => x.Disabled).Returns(false);
+		vehicle.SetupGet(x => x.Destroyed).Returns(() => vehicleDestroyed);
+		vehicle.SetupGet(x => x.Location).Returns(yard);
+		var vehicles = new All<IVehicle>();
+		vehicles.Add(vehicle.Object);
+		var gameworld = Gameworld(currency.Object, new Dictionary<long, ICharacter>
+		{
+			[driver.Id] = driver
+		}, [yard, stockroom], new Dictionary<long, IGameItem>
+		{
+			[item.Object.Id] = item.Object
+		});
+		gameworld.SetupGet(x => x.Vehicles).Returns(vehicles);
+		driverMock.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		driverMock.SetupGet(x => x.Location).Returns(stockroom);
+		driverMock.SetupGet(x => x.State).Returns(CharacterState.Awake);
+		host.Hire(driver, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.AssignTasks | EmploymentAuthority.ManageDeliveryRoutes), null);
+		var task = host.TaskBoard.CreateActiveTask("collect cargo",
+			new EmploymentActionPlan([
+				new VehicleOperationActionStep(vehicle.Object),
+				new GetItemsByIdActionStep(1, [925], [stockroom]),
+				new CataloguedActionShellStep("report", "cargo collected")
+			]),
+			driver);
+		var dispatcher = new EmploymentTaskDispatcher();
+		var context = new EmploymentTaskContext(host);
+		context.SetAvailableItems(stockroom, [item.Object]);
+		var profile = Profile(driver, 1.0M, PaymentMethodKind.Cash,
+			Caps(EmploymentAICapability.CanUseVehicles, EmploymentAICapability.CanDeliverItems));
+
+		Assert.IsTrue(dispatcher.TryAssignTask(task, [profile], context, out var reason), reason);
+		Assert.IsTrue(dispatcher.AdvanceTask(task, context).Success);
+		Assert.IsTrue(dispatcher.AdvanceTask(task, context).Success);
+		vehicleDestroyed = true;
+		var audit = host.TaskBoard.AuditActiveTaskAssignments();
+
+		Assert.AreEqual(EmploymentTaskStatus.Blocked, task.Status);
+		Assert.AreSame(driver, task.AssignedEmployee);
+		Assert.AreEqual(1, audit.Count);
+		Assert.AreEqual(EmploymentTaskAssignmentAuditOutcome.Blocked, audit.Single().Outcome);
+		StringAssert.Contains(task.BlockedReason, "destroyed");
+		StringAssert.Contains(task.BlockedReason, "physical task items");
+	}
+
+	[TestMethod]
+	public void TaskAssignmentAudit_RequeuesWhenAssignedAnimalBecomesUnavailable()
+	{
+		var currency = Currency();
+		IEmploymentHost host = new TestEmploymentHost("stable", currency.Object);
+		var handlerMock = Character(1, "Handler");
+		var handler = handlerMock.Object;
+		var yard = Cell(930, "yard").Object;
+		var paddock = Cell(931, "paddock").Object;
+		var mountState = CharacterState.Awake;
+		var mount = new Mock<ICharacter>();
+		mount.SetupGet(x => x.Id).Returns(932);
+		mount.SetupGet(x => x.Name).Returns("bay mare");
+		mount.SetupGet(x => x.FrameworkItemType).Returns("Character");
+		mount.SetupGet(x => x.State).Returns(() => mountState);
+		mount.SetupGet(x => x.Location).Returns(yard);
+		mount.Setup(x => x.CanEverBeMounted(handler)).Returns(true);
+		mount.Setup(x => x.CanBeMountedBy(handler)).Returns(true);
+		var gameworld = Gameworld(currency.Object, new Dictionary<long, ICharacter>
+		{
+			[handler.Id] = handler,
+			[mount.Object.Id] = mount.Object
+		}, [yard, paddock]);
+		handlerMock.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		handlerMock.SetupGet(x => x.Location).Returns(yard);
+		handlerMock.SetupGet(x => x.State).Returns(CharacterState.Awake);
+		host.Hire(handler, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.AssignTasks | EmploymentAuthority.ManageDeliveryRoutes), null);
+		var task = host.TaskBoard.CreateActiveTask("lead mount",
+			new EmploymentActionPlan([
+				new StableAnimalOperationActionStep(EmploymentAnimalOperationKind.Lead, mount.Object, destination: paddock),
+				new CataloguedActionShellStep("report", "mare moved")
+			]),
+			handler);
+		var dispatcher = new EmploymentTaskDispatcher();
+		var context = new EmploymentTaskContext(host);
+		var profile = Profile(handler, 1.0M, PaymentMethodKind.Cash,
+			Caps(EmploymentAICapability.CanManageStableAnimals));
+
+		Assert.IsTrue(dispatcher.TryAssignTask(task, [profile], context, out var reason), reason);
+		Assert.IsTrue(dispatcher.AdvanceTask(task, context).Success);
+		mountState = CharacterState.Dead;
+		var audit = host.TaskBoard.AuditActiveTaskAssignments();
+
+		Assert.AreEqual(EmploymentTaskStatus.Pending, task.Status);
+		Assert.AreEqual(1, audit.Count);
+		Assert.AreEqual(EmploymentTaskAssignmentAuditOutcome.Requeued, audit.Single().Outcome);
+		StringAssert.Contains(audit.Single().Reason, "dead");
+	}
+
+	[TestMethod]
+	public void TaskAssignmentAudit_RequeuesWhenRecordedRouteDestinationIsMissing()
+	{
+		var currency = Currency();
+		IEmploymentHost host = new TestEmploymentHost("transport yard", currency.Object);
+		var driverMock = Character(1, "Driver");
+		var driver = driverMock.Object;
+		var destination = Cell(940, "dock").Object;
+		var gameworld = Gameworld(currency.Object, new Dictionary<long, ICharacter>
+		{
+			[driver.Id] = driver
+		});
+		driverMock.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		driverMock.SetupGet(x => x.Location).Returns(destination);
+		driverMock.SetupGet(x => x.State).Returns(CharacterState.Awake);
+		host.Hire(driver, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.AssignTasks | EmploymentAuthority.ManageDeliveryRoutes), null);
+		var task = host.TaskBoard.CreateActiveTask("plan route",
+			new EmploymentActionPlan([
+				new CataloguedActionShellStep("route", "dock run", [destination]),
+				new CataloguedActionShellStep("report", "route planned")
+			]),
+			driver);
+		var dispatcher = new EmploymentTaskDispatcher();
+		var context = new EmploymentTaskContext(host);
+		var profile = Profile(driver, 1.0M, PaymentMethodKind.Cash, Caps(EmploymentAICapability.CanDeliverItems));
+
+		Assert.IsTrue(dispatcher.TryAssignTask(task, [profile], context, out var reason), reason);
+		Assert.IsTrue(dispatcher.AdvanceTask(task, context).Success);
+		var audit = host.TaskBoard.AuditActiveTaskAssignments();
+
+		Assert.AreEqual(EmploymentTaskStatus.Pending, task.Status);
+		Assert.AreEqual(1, audit.Count);
+		Assert.AreEqual(EmploymentTaskAssignmentAuditOutcome.Requeued, audit.Single().Outcome);
+		StringAssert.Contains(audit.Single().Reason, "destination");
+	}
+
+	[TestMethod]
+	public void VehicleCargoStep_SelectsCompartmentProjectionAndChecksCarriedCapacity()
+	{
+		var currency = Currency();
+		IEmploymentHost host = new TestEmploymentHost("transport yard", currency.Object);
+		var driver = Character(1, "Driver").Object;
+		var source = Cell(902, "warehouse").Object;
+		var yard = Cell(903, "wagon bay").Object;
+		host.Hire(driver, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.AssignTasks | EmploymentAuthority.ManageDeliveryRoutes), null);
+
+		Mock<IVehicle> Vehicle(long id, string name)
+		{
+			var vehicle = new Mock<IVehicle>();
+			vehicle.SetupGet(x => x.Id).Returns(id);
+			vehicle.SetupGet(x => x.Name).Returns(name);
+			vehicle.SetupGet(x => x.FrameworkItemType).Returns("Vehicle");
+			vehicle.SetupGet(x => x.Disabled).Returns(false);
+			vehicle.SetupGet(x => x.Destroyed).Returns(false);
+			vehicle.SetupGet(x => x.Location).Returns(yard);
+			return vehicle;
+		}
+
+		Mock<IVehicleCargoSpace> CargoSpace(IVehicle vehicle, long id, string name, long compartmentId,
+			IGameItem projection)
+		{
+			var compartment = new Mock<IVehicleCompartmentPrototype>();
+			compartment.SetupGet(x => x.Id).Returns(compartmentId);
+			compartment.SetupGet(x => x.Name).Returns("main compartment");
+			compartment.SetupGet(x => x.FrameworkItemType).Returns("VehicleCompartmentPrototype");
+			var prototype = new Mock<IVehicleCargoSpacePrototype>();
+			prototype.SetupGet(x => x.Id).Returns(id + 1_000);
+			prototype.SetupGet(x => x.Name).Returns($"{name} prototype");
+			prototype.SetupGet(x => x.FrameworkItemType).Returns("VehicleCargoSpacePrototype");
+			prototype.SetupGet(x => x.Compartment).Returns(compartment.Object);
+			var cargoSpace = new Mock<IVehicleCargoSpace>();
+			cargoSpace.SetupGet(x => x.Id).Returns(id);
+			cargoSpace.SetupGet(x => x.Name).Returns(name);
+			cargoSpace.SetupGet(x => x.FrameworkItemType).Returns("VehicleCargoSpace");
+			cargoSpace.SetupGet(x => x.Vehicle).Returns(vehicle);
+			cargoSpace.SetupGet(x => x.Prototype).Returns(prototype.Object);
+			cargoSpace.SetupGet(x => x.ProjectionItem).Returns(projection);
+			cargoSpace.SetupGet(x => x.ProjectionItemId).Returns(projection.Id);
+			cargoSpace.SetupGet(x => x.IsDisabled).Returns(false);
+			var accessReason = string.Empty;
+			cargoSpace.Setup(x => x.CanAccess(It.IsAny<ICharacter>(), out accessReason)).Returns(true);
+			return cargoSpace;
+		}
+
+		var wagon = Vehicle(900, "delivery wagon");
+		var cargoItem = Item(904, "cargo crate").Object;
+		var cargoHold = ContainerItem(905, "wagon cargo hold", [yard], [], []).Object;
+		var cargoSpace = CargoSpace(wagon.Object, 906, "rear hold", 907, cargoHold);
+		var context = new EmploymentTaskContext(host);
+		context.SetAvailableItems(source, [cargoItem]);
+		context.SetItemTags(cargoItem, "freight");
+		var plan = new EmploymentActionPlan([
+			new GetItemsByTagActionStep(1, "freight", [source]),
+			new VehicleOperationActionStep(wagon.Object, cargoSpace.Object)
+		]);
+		var task = host.TaskBoard.CreateActiveTask("select cargo hold", plan, driver);
+		var dispatcher = new EmploymentTaskDispatcher();
+		var profile = Profile(driver, 1.0M, PaymentMethodKind.Cash,
+			Caps(EmploymentAICapability.CanDeliverItems, EmploymentAICapability.CanUseVehicles));
+
+		Assert.IsTrue(dispatcher.TryAssignTask(task, [profile], context, out var reason), reason);
+		Assert.IsTrue(dispatcher.AdvanceTask(task, context).Success);
+		var cargoSelection = dispatcher.AdvanceTask(task, context);
+
+		Assert.IsTrue(cargoSelection.Success, cargoSelection.Message);
+		Assert.AreEqual(EmploymentTaskStatus.Completed, task.Status);
+		StringAssert.Contains(task.StepOperationalStates[1].SelectedResources, "operation=vehiclecargo");
+		StringAssert.Contains(task.StepOperationalStates[1].SelectedResources, "vehicle=900");
+		StringAssert.Contains(task.StepOperationalStates[1].SelectedResources, "cargo=906");
+		StringAssert.Contains(task.StepOperationalStates[1].SelectedResources, "compartment=907");
+		StringAssert.Contains(task.StepOperationalStates[1].SelectedResources, "projection=905");
+		StringAssert.Contains(task.StepOperationalStates[1].SelectedResources, "capacity=checked");
+		StringAssert.Contains(task.StepOperationalStates[1].SelectedResources, "carried=1");
+		CollectionAssert.AreEquivalent(new[] { cargoItem.Id }, context.CarriedTaskItems(driver).Select(x => x.Id).ToArray());
+
+		var oversizedItem = Item(908, "oversized cargo crate").Object;
+		var blockedProjection = Item(909, "small side box", [yard]);
+		var rejectingContainer = new Mock<IContainer>();
+		rejectingContainer.Setup(x => x.CanPut(oversizedItem)).Returns(false);
+		blockedProjection.Setup(x => x.GetItemType<IContainer>()).Returns(rejectingContainer.Object);
+		var blockedWagon = Vehicle(910, "small delivery cart");
+		var blockedCargoSpace = CargoSpace(blockedWagon.Object, 911, "side box", 912, blockedProjection.Object);
+		var blockedContext = new EmploymentTaskContext(host);
+		blockedContext.SetAvailableItems(source, [oversizedItem]);
+		blockedContext.SetItemTags(oversizedItem, "oversized");
+		var blockedTask = host.TaskBoard.CreateActiveTask("reject cargo hold", new EmploymentActionPlan([
+			new GetItemsByTagActionStep(1, "oversized", [source]),
+			new VehicleOperationActionStep(blockedWagon.Object, blockedCargoSpace.Object)
+		]), driver);
+
+		Assert.IsTrue(dispatcher.TryAssignTask(blockedTask, [profile], blockedContext, out reason), reason);
+		Assert.IsTrue(dispatcher.AdvanceTask(blockedTask, blockedContext).Success);
+		var blockedSelection = dispatcher.AdvanceTask(blockedTask, blockedContext);
+
+		Assert.IsFalse(blockedSelection.Success);
+		StringAssert.Contains(blockedSelection.Message, "cannot contain oversized cargo crate");
+	}
+
+	[TestMethod]
+	public void StableAnimalOperationSteps_RecordLeadRideLodgeAndReturnEvidence()
+	{
+		var currency = Currency();
+		IEmploymentHost host = new TestEmploymentHost("stable", currency.Object);
+		var handler = Character(1, "Handler").Object;
+		var yard = Cell(910, "yard").Object;
+		var paddock = Cell(911, "paddock").Object;
+		var stableCell = Cell(912, "stable stall").Object;
+		var mount = new Mock<ICharacter>();
+		mount.SetupGet(x => x.Id).Returns(913);
+		mount.SetupGet(x => x.Name).Returns("bay mare");
+		mount.SetupGet(x => x.FrameworkItemType).Returns("Character");
+		mount.SetupGet(x => x.Location).Returns(yard);
+		mount.Setup(x => x.CanEverBeMounted(handler)).Returns(true);
+		mount.Setup(x => x.CanBeMountedBy(handler)).Returns(true);
+		mount.Setup(x => x.WhyCannotBeMountedBy(handler)).Returns("not mountable");
+		mount.Setup(x => x.Mount(handler)).Returns(true);
+		var stable = new Mock<IStable>();
+		stable.SetupGet(x => x.Id).Returns(914);
+		stable.SetupGet(x => x.Name).Returns("north stable");
+		stable.SetupGet(x => x.FrameworkItemType).Returns("Stable");
+		stable.SetupGet(x => x.Location).Returns(stableCell);
+		var stay = new Mock<IStableStay>();
+		stay.SetupGet(x => x.Id).Returns(915);
+		stay.SetupGet(x => x.Stable).Returns(stable.Object);
+		stay.SetupGet(x => x.Mount).Returns(mount.Object);
+		stay.SetupGet(x => x.MountId).Returns(mount.Object.Id);
+		stay.SetupGet(x => x.MountInstanceId).Returns((long?)null);
+		stay.SetupGet(x => x.IsActive).Returns(true);
+		stable.SetupGet(x => x.Stays).Returns([stay.Object]);
+		stable.Setup(x => x.CanLodge(handler, mount.Object)).Returns((true, string.Empty));
+		stable.Setup(x => x.Lodge(handler, mount.Object)).Returns(stay.Object);
+		host.Hire(handler, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.AssignTasks | EmploymentAuthority.ManageDeliveryRoutes), null);
+		var task = host.TaskBoard.CreateActiveTask("manage mount",
+			new EmploymentActionPlan([
+				new StableAnimalOperationActionStep(EmploymentAnimalOperationKind.Lead, mount.Object, destination: paddock),
+				new StableAnimalOperationActionStep(EmploymentAnimalOperationKind.Ride, mount.Object),
+				new StableAnimalOperationActionStep(EmploymentAnimalOperationKind.Lodge, mount.Object, stable.Object),
+				new StableAnimalOperationActionStep(EmploymentAnimalOperationKind.Return, stable: stable.Object,
+					stay: stay.Object, waiveFees: true)
+			]),
+			handler);
+		var dispatcher = new EmploymentTaskDispatcher();
+		var context = new EmploymentTaskContext(host);
+		var profile = Profile(handler, 1.0M, PaymentMethodKind.Cash,
+			Caps(EmploymentAICapability.CanManageStableAnimals));
+
+		Assert.IsTrue(dispatcher.TryAssignTask(task, [profile], context, out var reason), reason);
+		for (var i = 0; i < 4; i++)
+		{
+			var result = dispatcher.AdvanceTask(task, context);
+			Assert.IsTrue(result.Success, result.Message);
+		}
+
+		Assert.AreEqual(EmploymentTaskStatus.Completed, task.Status);
+		StringAssert.Contains(task.StepOperationalStates[0].SelectedResources, "operation=animallead");
+		StringAssert.Contains(task.StepOperationalStates[0].SelectedResources, "destination=911");
+		StringAssert.Contains(task.StepOperationalStates[2].SelectedResources, "operation=animallodge");
+		StringAssert.Contains(task.StepOperationalStates[2].SelectedResources, "stay=915");
+		StringAssert.Contains(task.StepOperationalStates[3].SelectedResources, "operation=animalreturn");
+		mount.Verify(x => x.Mount(handler), Times.Once);
+		stable.Verify(x => x.Lodge(handler, mount.Object), Times.Once);
+		stable.Verify(x => x.Release(handler, stay.Object, true), Times.Once);
+	}
+
+
+	[TestMethod]
+	public void StableAdministrationActionSteps_AssessFeesAndRecordCareEvidence()
+	{
+		var currency = Currency();
+		var stableCell = Cell(950, "stable stall").Object;
+		var stable = new Mock<IStable>();
+		stable.SetupGet(x => x.Id).Returns(951);
+		stable.SetupGet(x => x.Name).Returns("north stable");
+		stable.SetupGet(x => x.FrameworkItemType).Returns("Stable");
+		stable.SetupGet(x => x.EmploymentHostName).Returns("north stable");
+		stable.SetupGet(x => x.EmploymentHostType).Returns(EmploymentHostType.Stable);
+		stable.SetupGet(x => x.Market).Returns((IMarket?)null);
+		stable.SetupGet(x => x.Currency).Returns(currency.Object);
+		stable.SetupGet(x => x.Location).Returns(stableCell);
+		var state = new EmploymentHostState(stable.Object);
+		stable.SetupGet(x => x.Employment).Returns(state);
+		stable.SetupGet(x => x.BusinessLedger).Returns(state.BusinessLedger);
+		stable.SetupGet(x => x.EmploymentRegister).Returns(state.EmploymentRegister);
+		stable.SetupGet(x => x.TaskBoard).Returns(state.TaskBoard);
+		stable.SetupGet(x => x.ManagerGoalBoard).Returns(state.ManagerGoalBoard);
+		stable.SetupGet(x => x.Payroll).Returns(state.Payroll);
+		stable.SetupGet(x => x.EmploymentContracts).Returns(() => state.EmploymentContracts);
+		stable.SetupGet(x => x.JobOpenings).Returns(() => state.JobOpenings);
+		stable.Setup(x => x.HasAuthority(It.IsAny<ICharacter>(), It.IsAny<EmploymentAuthority>()))
+		      .Returns((ICharacter actor, EmploymentAuthority authority) => state.HasAuthority(actor, authority));
+		var owing = 4.0M;
+		var stay = new Mock<IStableStay>();
+		stay.SetupGet(x => x.Id).Returns(952);
+		stay.SetupGet(x => x.Name).Returns("bay mare stay");
+		stay.SetupGet(x => x.Stable).Returns(stable.Object);
+		stay.SetupGet(x => x.IsActive).Returns(true);
+		stay.SetupGet(x => x.AmountOwing).Returns(() => owing);
+		var account = new Mock<IStableAccount>();
+		account.SetupGet(x => x.Id).Returns(953);
+		account.SetupGet(x => x.Name).Returns("account1");
+		account.SetupGet(x => x.AccountName).Returns("account1");
+		account.SetupGet(x => x.Stable).Returns(stable.Object);
+		account.SetupGet(x => x.Currency).Returns(currency.Object);
+		account.SetupGet(x => x.Balance).Returns(12.0M);
+		account.SetupGet(x => x.CreditAvailable).Returns(30.0M);
+		stable.SetupGet(x => x.Stays).Returns([stay.Object]);
+		stable.SetupGet(x => x.ActiveStays).Returns([stay.Object]);
+		stable.SetupGet(x => x.StableAccounts).Returns([account.Object]);
+		stable.Setup(x => x.AssessFees(stay.Object)).Callback(() => owing += 5.0M);
+		var manager = Character(1, "Stable Manager").Object;
+		state.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.AssignTasks |
+			EmploymentAuthority.ManageDeliveryRoutes |
+			EmploymentAuthority.UseStoreAccount), null);
+		var task = state.TaskBoard.CreateActiveTask("stable administration",
+			new EmploymentActionPlan([
+				new StableAdministrationActionStep(stable.Object, StableAdministrationActionKind.CareFeed,
+					stay: stay.Object, note: "hay ration topped"),
+				new StableAdministrationActionStep(stable.Object, StableAdministrationActionKind.FeeAssessment,
+					stay: stay.Object, note: "daily fee"),
+				new StableAdministrationActionStep(stable.Object, StableAdministrationActionKind.FeeAssessment,
+					note: "daily sweep"),
+				new StableAdministrationActionStep(stable.Object, StableAdministrationActionKind.AccountReconciliation,
+					account: account.Object, note: "monthly check")
+			]),
+			manager);
+		var dispatcher = new EmploymentTaskDispatcher();
+		var context = new EmploymentTaskContext(stable.Object);
+		var profile = Profile(manager, 1.0M, PaymentMethodKind.Cash,
+			Caps(EmploymentAICapability.CanManageStableAnimals));
+
+		Assert.IsTrue(dispatcher.TryAssignTask(task, [profile], context, out var reason), reason);
+		while (task.Status is not EmploymentTaskStatus.Completed and not EmploymentTaskStatus.Failed)
+		{
+			var result = dispatcher.AdvanceTask(task, context);
+			Assert.IsTrue(result.Success, result.Message);
+		}
+
+		Assert.AreEqual(9.0M, owing);
+		stable.Verify(x => x.AssessFees(stay.Object), Times.Once);
+		stable.Verify(x => x.AssessAllActiveStays(), Times.Once);
+		Assert.AreEqual(4, state.EmploymentRegister.Entries.Count(x =>
+			x.EntryType == EmploymentRegisterEntryType.AuditActionRecorded));
+		StringAssert.Contains(task.StepOperationalStates[0].OperationalPayload!, "stableadmin:CareFeed");
+		StringAssert.Contains(task.StepOperationalStates[1].SelectedResources, "stay=952");
+		StringAssert.Contains(task.StepOperationalStates[3].SelectedResources, "account=953");
+	}
+
+	[TestMethod]
+	public void HotelAdministrationActionSteps_CheckLostPropertyAndRecordRoomEvidence()
+	{
+		var currency = Currency();
+		var property = new Mock<IProperty>();
+		property.SetupGet(x => x.Id).Returns(960);
+		property.SetupGet(x => x.Name).Returns("harbour house");
+		var hotel = new Mock<IHotel>();
+		hotel.SetupGet(x => x.Id).Returns(9600);
+		hotel.SetupGet(x => x.Name).Returns("harbour house hotel");
+		hotel.SetupGet(x => x.FrameworkItemType).Returns("Hotel");
+		hotel.SetupGet(x => x.EmploymentHostName).Returns("harbour house hotel");
+		hotel.SetupGet(x => x.EmploymentHostType).Returns(EmploymentHostType.Hotel);
+		hotel.SetupGet(x => x.Market).Returns((IMarket?)null);
+		hotel.SetupGet(x => x.Currency).Returns(currency.Object);
+		hotel.SetupGet(x => x.Property).Returns(property.Object);
+		property.SetupGet(x => x.Hotel).Returns(hotel.Object);
+		var state = new EmploymentHostState(hotel.Object);
+		hotel.SetupGet(x => x.Employment).Returns(state);
+		hotel.SetupGet(x => x.BusinessLedger).Returns(state.BusinessLedger);
+		hotel.SetupGet(x => x.EmploymentRegister).Returns(state.EmploymentRegister);
+		hotel.SetupGet(x => x.TaskBoard).Returns(state.TaskBoard);
+		hotel.SetupGet(x => x.ManagerGoalBoard).Returns(state.ManagerGoalBoard);
+		hotel.SetupGet(x => x.Payroll).Returns(state.Payroll);
+		hotel.SetupGet(x => x.EmploymentContracts).Returns(() => state.EmploymentContracts);
+		hotel.SetupGet(x => x.JobOpenings).Returns(() => state.JobOpenings);
+		hotel.Setup(x => x.HasAuthority(It.IsAny<ICharacter>(), It.IsAny<EmploymentAuthority>()))
+		     .Returns((ICharacter actor, EmploymentAuthority authority) => state.HasAuthority(actor, authority));
+		var roomCell = Cell(961, "blue room").Object;
+		var room = new Mock<IHotelRoom>();
+		room.SetupGet(x => x.Name).Returns("blue room");
+		room.SetupGet(x => x.Cell).Returns(roomCell);
+		room.SetupGet(x => x.Property).Returns(property.Object);
+		hotel.SetupGet(x => x.Rooms).Returns([room.Object]);
+		var lost = new Mock<IHotelLostProperty>();
+		lost.SetupGet(x => x.BundleId).Returns(962);
+		lost.SetupGet(x => x.Description).Returns("forgotten valise");
+		lost.SetupGet(x => x.Status).Returns(HotelLostPropertyStatus.Held);
+		var balance = new Mock<IHotelPatronBalance>();
+		balance.SetupGet(x => x.PatronId).Returns(963);
+		balance.SetupGet(x => x.Balance).Returns(17.5M);
+		property.SetupGet(x => x.HotelLostProperties).Returns([lost.Object]);
+		property.SetupGet(x => x.HotelPatronBalances).Returns([balance.Object]);
+		var manager = Character(1, "Hotel Manager").Object;
+		state.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.AssignTasks |
+			EmploymentAuthority.ManageDeliveryRoutes |
+			EmploymentAuthority.UseStoreAccount), null);
+		var task = state.TaskBoard.CreateActiveTask("hotel administration",
+			new EmploymentActionPlan([
+				new HotelAdministrationActionStep(hotel.Object, HotelAdministrationActionKind.RoomClean,
+					room: room.Object, note: "linen refreshed"),
+				new HotelAdministrationActionStep(hotel.Object, HotelAdministrationActionKind.LostPropertyCheck,
+					note: "retention sweep"),
+				new HotelAdministrationActionStep(hotel.Object, HotelAdministrationActionKind.LostPropertyAudit,
+					lostProperty: lost.Object, note: "owner matched"),
+				new HotelAdministrationActionStep(hotel.Object, HotelAdministrationActionKind.PatronBalanceAudit,
+					patronBalance: balance.Object, patronSelector: "963", note: "monthly check")
+			]),
+			manager);
+		var dispatcher = new EmploymentTaskDispatcher();
+		var context = new EmploymentTaskContext(hotel.Object);
+		var profile = Profile(manager, 1.0M, PaymentMethodKind.Cash,
+			Caps(EmploymentAICapability.CanManageHotelRooms));
+
+		Assert.IsTrue(dispatcher.TryAssignTask(task, [profile], context, out var reason), reason);
+		while (task.Status is not EmploymentTaskStatus.Completed and not EmploymentTaskStatus.Failed)
+		{
+			var result = dispatcher.AdvanceTask(task, context);
+			Assert.IsTrue(result.Success, result.Message);
+		}
+
+		property.Verify(x => x.CheckHotelLostProperty(), Times.Once);
+		Assert.AreEqual(4, state.EmploymentRegister.Entries.Count(x =>
+			x.EntryType == EmploymentRegisterEntryType.AuditActionRecorded));
+		StringAssert.Contains(task.StepOperationalStates[0].OperationalPayload!, "hoteladmin:RoomClean");
+		StringAssert.Contains(task.StepOperationalStates[0].SelectedResources, "room=961");
+		StringAssert.Contains(task.StepOperationalStates[2].SelectedResources, "lost=962");
+		StringAssert.Contains(task.StepOperationalStates[3].SelectedResources, "patron=963");
+	}
+
+	[TestMethod]
 	public void CataloguedAuthoriseStep_AuthorisesLaterFinancialSteps()
 	{
 		var currency = Currency();
@@ -1951,6 +4677,58 @@ public class UnifiedEmploymentDispatchTests
 		Assert.IsTrue(purchaseResult.Success);
 		Assert.AreEqual(EmploymentTaskStatus.Completed, task.Status);
 		Assert.IsTrue(host.BusinessLedger.Entries.Any(x => x.EntryType == EmploymentLedgerEntryType.Purchase));
+	}
+
+	[TestMethod]
+	public void CataloguedAuthoriseStep_DoesNotSelfAuthoriseWithoutTaskGrant()
+	{
+		var currency = Currency();
+		IEmploymentHost host = new TestEmploymentHost("shop", currency.Object);
+		var manager = Character(1, "Manager").Object;
+		host.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.AssignTasks | EmploymentAuthority.ApprovePurchases), null);
+		var correlationId = Guid.NewGuid();
+		var principal = EmploymentPrincipal.ForCharacter(manager);
+		var provenance = new EmploymentTaskProvenance(
+			EmploymentTaskSourceKind.Manual,
+			null,
+			null,
+			principal,
+			principal,
+			new EmploymentAuthorisationGrant(
+				Guid.NewGuid(),
+				principal,
+				EmploymentAuthority.AssignTasks,
+				new Dictionary<long, decimal>(),
+				false,
+				DateTimeOffset.UtcNow,
+				null,
+				correlationId,
+				new HashSet<string>(StringComparer.InvariantCultureIgnoreCase),
+				new HashSet<string>(StringComparer.InvariantCultureIgnoreCase)),
+			0,
+			DateTimeOffset.UtcNow);
+		var task = host.TaskBoard.CreateActiveTask("self authorised purchase",
+			new EmploymentActionPlan([
+				new CataloguedActionShellStep("authorise", "approve thread purchase", new MoneyAmount(currency.Object, 10.0M)),
+				new PurchaseActionStep("purchase thread", new MoneyAmount(currency.Object, 5.0M))
+			]),
+			manager,
+			correlationId,
+			provenance: provenance);
+		var dispatcher = new EmploymentTaskDispatcher();
+		var context = new EmploymentTaskContext(host);
+		var profile = Profile(manager, 1.0M, PaymentMethodKind.Cash,
+			Caps(EmploymentAICapability.CanPurchaseCommodities));
+
+		Assert.IsTrue(dispatcher.TryAssignTask(task, [profile], context, out var reason), reason);
+		Assert.IsTrue(dispatcher.AdvanceTask(task, context).Success);
+		var purchaseResult = dispatcher.AdvanceTask(task, context);
+
+		Assert.IsFalse(purchaseResult.Success);
+		StringAssert.Contains(purchaseResult.Message, "requires an auditable payment authorisation");
+		Assert.AreEqual(EmploymentTaskStatus.Blocked, task.Status);
+		Assert.IsFalse(host.BusinessLedger.Entries.Any(x => x.EntryType == EmploymentLedgerEntryType.Purchase));
 	}
 
 	[TestMethod]
@@ -2148,8 +4926,58 @@ public class UnifiedEmploymentDispatchTests
 
 		Assert.IsFalse(context.TryUseCraftStation(manager.Object, "forge", out var reason, out _));
 
-		StringAssert.Contains(reason, "already reserved");
+		StringAssert.Contains(reason, "1/1 employment craft station reservations");
 		station.Verify(x => x.AddEffect(It.IsAny<MudSharp.Effects.IEffect>(), It.IsAny<TimeSpan>()), Times.Never);
+	}
+
+	[TestMethod]
+	public void EmploymentCraftReservations_CraftStationCapacityAllowsConfiguredConcurrentReservations()
+	{
+		var currency = Currency();
+		var manager = Character(1, "Manager");
+		var cell = Cell(10, "workshop").Object;
+		var station = Item(303, "shared forge");
+		var addedEffects = new List<EmploymentCraftReservationEffect>();
+		var gameworld = Gameworld(currency.Object, new Dictionary<long, ICharacter>
+		{
+			[manager.Object.Id] = manager.Object
+		}, [cell], new Dictionary<long, IGameItem>
+		{
+			[station.Object.Id] = station.Object
+		});
+		gameworld.Setup(x => x.GetStaticDouble("EmploymentCraftReservationDurationMinutes")).Returns(7.0);
+		gameworld.Setup(x => x.GetStaticDouble("EmploymentCraftStationReservationCapacity")).Returns(2.0);
+		manager.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		manager.SetupGet(x => x.Location).Returns(cell);
+		manager.Setup(x => x.TargetLocalOrHeldItem("forge")).Returns(station.Object);
+		station.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		station.Setup(x => x.AddEffect(It.IsAny<MudSharp.Effects.IEffect>(), It.IsAny<TimeSpan>()))
+		       .Callback<MudSharp.Effects.IEffect, TimeSpan>((effect, _) =>
+		       {
+			       addedEffects.Add((EmploymentCraftReservationEffect)effect);
+		       });
+		var existingReservation = new EmploymentCraftReservationEffect(
+			station.Object,
+			Guid.NewGuid(),
+			Guid.NewGuid(),
+			"other craft task",
+			"craft station forge",
+			DateTimeOffset.UtcNow.AddMinutes(5));
+		SetupCraftReservationEffects(station, [existingReservation]);
+		IEmploymentHost host = new TestEmploymentHost("shop", currency.Object);
+		host.Hire(manager.Object, Offer(currency.Object, EmploymentRole.Manager,
+			EmploymentAuthority.AssignTasks | EmploymentAuthority.ManageCraftRules), null);
+		var task = host.TaskBoard.CreateActiveTask("reserve shared forge",
+			new EmploymentActionPlan([new CraftStationActionStep("forge")]),
+			manager.Object);
+		var context = new EmploymentTaskContext(host);
+		context.HydrateTaskState(task, 0);
+
+		Assert.IsTrue(context.TryUseCraftStation(manager.Object, "forge", out var reason, out var state), reason);
+
+		Assert.AreEqual(1, addedEffects.Count);
+		Assert.AreEqual(task.CorrelationId, addedEffects.Single().CorrelationId);
+		Assert.IsTrue(state.ReservationReference?.Contains("capacity=2") == true);
 	}
 
 	[TestMethod]
@@ -2309,6 +5137,187 @@ public class UnifiedEmploymentDispatchTests
 		Assert.AreEqual(1, addedEffects.Count);
 		Assert.AreEqual(task.CorrelationId, addedEffects.Single().CorrelationId);
 		AssertReservationCleanup(reservedInput, inputPredicates, task);
+	}
+
+	[TestMethod]
+	public void EmploymentCraftProductionChains_RecordPriorOutputsAsNextCraftInputs()
+	{
+		var currency = Currency();
+		var crafter = Character(1, "Crafter");
+		var cell = Cell(10, "workshop").Object;
+		var intermediate = Item(701, "intermediate blank");
+		var firstActiveItem = Item(702, "first active craft");
+		var secondActiveItem = Item(703, "second active craft");
+		var activeEffects = new List<IActiveCraftEffect>();
+
+		Mock<ICraft> CreateChainCraft(long id, string name, IGameItem activeItem)
+		{
+			var craft = new Mock<ICraft>();
+			craft.SetupGet(x => x.Id).Returns(id);
+			craft.SetupGet(x => x.Name).Returns(name);
+			craft.SetupGet(x => x.FrameworkItemType).Returns("Craft");
+			craft.SetupGet(x => x.RevisionNumber).Returns(1);
+			craft.SetupGet(x => x.Status).Returns(RevisionStatus.Current);
+			craft.Setup(x => x.AppearInCraftsList(crafter.Object)).Returns(true);
+			craft.Setup(x => x.CanDoCraft(crafter.Object, It.IsAny<IActiveCraftGameItemComponent>(), true, false))
+			     .Returns((true, string.Empty));
+			craft.Setup(x => x.CreateResourceReservation(
+					crafter.Object,
+					It.IsAny<IActiveCraftGameItemComponent>(),
+					It.IsAny<int>(),
+					It.IsAny<int>()))
+			     .Returns((true, string.Empty, new CraftResourceReservation(
+				     id,
+				     1,
+				     name,
+				     1,
+				     int.MaxValue,
+				     [],
+				     [])));
+			var component = new Mock<IActiveCraftGameItemComponent>();
+			component.SetupGet(x => x.Craft).Returns(craft.Object);
+			component.SetupGet(x => x.Parent).Returns(activeItem);
+			component.SetupGet(x => x.Phase).Returns(1);
+			component.SetupGet(x => x.HasFinished).Returns(false);
+			var effect = new Mock<IActiveCraftEffect>();
+			effect.SetupGet(x => x.Component).Returns(component.Object);
+			craft.Setup(x => x.BeginCraft(crafter.Object))
+			     .Callback(() => activeEffects.Add(effect.Object));
+			return craft;
+		}
+
+		var firstCraft = CreateChainCraft(601, "make blank", firstActiveItem.Object);
+		var secondCraft = CreateChainCraft(602, "finish blank", secondActiveItem.Object);
+		var crafts = new RevisableAll<ICraft>();
+		crafts.Add(firstCraft.Object);
+		crafts.Add(secondCraft.Object);
+		var gameworld = Gameworld(currency.Object, new Dictionary<long, ICharacter>
+		{
+			[crafter.Object.Id] = crafter.Object
+		}, [cell], new Dictionary<long, IGameItem>
+		{
+			[intermediate.Object.Id] = intermediate.Object
+		});
+		gameworld.SetupGet(x => x.Crafts).Returns(crafts);
+		gameworld.Setup(x => x.GetStaticDouble("EmploymentCraftReservationDurationMinutes")).Returns(7.0);
+		crafter.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		crafter.SetupGet(x => x.Location).Returns(cell);
+		crafter.SetupGet(x => x.State).Returns(CharacterState.Awake);
+		crafter.SetupGet(x => x.Effects).Returns([]);
+		crafter.Setup(x => x.EffectsOfType<IActiveCraftEffect>(It.IsAny<Predicate<IActiveCraftEffect>>()))
+		       .Returns((Predicate<IActiveCraftEffect> predicate) => activeEffects
+		           .Where(x => predicate?.Invoke(x) ?? true)
+		           .ToList());
+		IEmploymentHost host = new TestEmploymentHost("workshop", currency.Object);
+		host.Hire(crafter.Object, Offer(currency.Object, EmploymentRole.Employee,
+			EmploymentAuthority.AssignTasks | EmploymentAuthority.ManageCraftRules), null);
+		var task = (EmploymentActiveTask)host.TaskBoard.CreateActiveTask("chain crafts",
+			new EmploymentActionPlan([
+				new CraftTriggerActionStep("make blank"),
+				new CraftTriggerActionStep("finish blank")
+			]),
+			crafter.Object);
+		var context = new EmploymentTaskContext(host);
+		context.HydrateTaskState(task, 0);
+		Assert.IsTrue(context.TryStartCraft(crafter.Object, "make blank", out var reason, out var firstStart), reason);
+		task.MarkStep(0, EmploymentActionStepStatus.InProgress, firstStart);
+		activeEffects.Clear();
+		context.SetAvailableItems(cell, [intermediate.Object]);
+		context.HydrateTaskState(task, 0);
+
+		Assert.IsTrue(context.TryStartCraft(crafter.Object, "make blank", out reason, out var firstComplete), reason);
+		task.MarkStep(0, EmploymentActionStepStatus.Completed, firstComplete);
+		context.HydrateTaskState(task, 1);
+
+		CollectionAssert.AreEquivalent(new[] { intermediate.Object.Id }, context.CarriedTaskItems(crafter.Object).Select(x => x.Id).ToArray());
+		Assert.IsTrue(context.TryStartCraft(crafter.Object, "finish blank", out reason, out var secondStart), reason);
+		StringAssert.Contains(secondStart.CraftJobReference, "TaskInputItemIds");
+		StringAssert.Contains(secondStart.CraftJobReference, intermediate.Object.Id.ToString("F0"));
+	}
+
+	[TestMethod]
+	public void EmploymentCraftRecovery_FailedActiveCraftAdoptsSalvageAndFailsTask()
+	{
+		var currency = Currency();
+		var crafter = Character(1, "Crafter");
+		var cell = Cell(10, "workshop").Object;
+		var salvage = Item(801, "warped blank");
+		var activeItem = Item(802, "active craft");
+		var activeEffects = new List<IActiveCraftEffect>();
+		var failed = false;
+		var craft = new Mock<ICraft>();
+		craft.SetupGet(x => x.Id).Returns(701);
+		craft.SetupGet(x => x.Name).Returns("risky craft");
+		craft.SetupGet(x => x.FrameworkItemType).Returns("Craft");
+		craft.SetupGet(x => x.RevisionNumber).Returns(1);
+		craft.SetupGet(x => x.Status).Returns(RevisionStatus.Current);
+		craft.Setup(x => x.AppearInCraftsList(crafter.Object)).Returns(true);
+		craft.Setup(x => x.CanDoCraft(crafter.Object, It.IsAny<IActiveCraftGameItemComponent>(), true, false))
+		     .Returns((true, string.Empty));
+		craft.Setup(x => x.CreateResourceReservation(
+				crafter.Object,
+				It.IsAny<IActiveCraftGameItemComponent>(),
+				It.IsAny<int>(),
+				It.IsAny<int>()))
+		     .Returns((true, string.Empty, new CraftResourceReservation(
+			     craft.Object.Id,
+			     craft.Object.RevisionNumber,
+			     craft.Object.Name,
+			     1,
+			     int.MaxValue,
+			     [],
+			     [])));
+		var component = new Mock<IActiveCraftGameItemComponent>();
+		component.SetupGet(x => x.Craft).Returns(craft.Object);
+		component.SetupGet(x => x.Parent).Returns(activeItem.Object);
+		component.SetupGet(x => x.Phase).Returns(1);
+		component.SetupGet(x => x.HasFinished).Returns(false);
+		component.SetupGet(x => x.HasFailed).Returns(() => failed);
+		var effect = new Mock<IActiveCraftEffect>();
+		effect.SetupGet(x => x.Component).Returns(component.Object);
+		craft.Setup(x => x.BeginCraft(crafter.Object))
+		     .Callback(() => activeEffects.Add(effect.Object));
+		var crafts = new RevisableAll<ICraft>();
+		crafts.Add(craft.Object);
+		var gameworld = Gameworld(currency.Object, new Dictionary<long, ICharacter>
+		{
+			[crafter.Object.Id] = crafter.Object
+		}, [cell], new Dictionary<long, IGameItem>
+		{
+			[salvage.Object.Id] = salvage.Object
+		});
+		gameworld.SetupGet(x => x.Crafts).Returns(crafts);
+		gameworld.Setup(x => x.GetStaticDouble("EmploymentCraftReservationDurationMinutes")).Returns(7.0);
+		crafter.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		crafter.SetupGet(x => x.Location).Returns(cell);
+		crafter.SetupGet(x => x.State).Returns(CharacterState.Awake);
+		crafter.SetupGet(x => x.Effects).Returns([]);
+		crafter.Setup(x => x.EffectsOfType<IActiveCraftEffect>(It.IsAny<Predicate<IActiveCraftEffect>>()))
+		       .Returns((Predicate<IActiveCraftEffect> predicate) => activeEffects
+		           .Where(x => predicate?.Invoke(x) ?? true)
+		           .ToList());
+		IEmploymentHost host = new TestEmploymentHost("workshop", currency.Object);
+		host.Hire(crafter.Object, Offer(currency.Object, EmploymentRole.Employee,
+			EmploymentAuthority.AssignTasks | EmploymentAuthority.ManageCraftRules), null);
+		var task = host.TaskBoard.CreateActiveTask("recover craft",
+			new EmploymentActionPlan([new CraftTriggerActionStep("risky craft")]),
+			crafter.Object);
+		var dispatcher = new EmploymentTaskDispatcher();
+		var context = new EmploymentTaskContext(host);
+		var profile = Profile(crafter.Object, 1.0M, PaymentMethodKind.Cash, Caps(EmploymentAICapability.CanCraft));
+		Assert.IsTrue(dispatcher.TryAssignTask(task, [profile], context, out var reason), reason);
+		Assert.IsTrue(dispatcher.AdvanceTask(task, context).Success);
+		failed = true;
+		context.SetAvailableItems(cell, [salvage.Object]);
+
+		var recovered = dispatcher.AdvanceTask(task, context);
+
+		Assert.IsFalse(recovered.Success);
+		Assert.IsTrue(recovered.Completed);
+		Assert.AreEqual(EmploymentTaskStatus.Failed, task.Status);
+		CollectionAssert.AreEquivalent(new[] { salvage.Object.Id }, context.CarriedTaskItems(crafter.Object).Select(x => x.Id).ToArray());
+		StringAssert.Contains(task.StepOperationalStates[0].OperationalPayload, "craft-status=failed");
+		StringAssert.Contains(task.StepOperationalStates[0].FailureDiagnostic, "salvage");
 	}
 
 	[TestMethod]
@@ -2499,16 +5508,49 @@ public class UnifiedEmploymentDispatchTests
 		return type.HasElementType && type.GetElementType() is { } elementType && ContainsType(elementType, target);
 	}
 
-	private static Mock<ICurrency> Currency()
+	private static Mock<ICurrency> Currency(long id = 1, string name = "test dollars")
 	{
 		var currency = new Mock<ICurrency>();
-		currency.SetupGet(x => x.Id).Returns(1);
-		currency.SetupGet(x => x.Name).Returns("test dollars");
+		currency.SetupGet(x => x.Id).Returns(id);
+		currency.SetupGet(x => x.Name).Returns(name);
 		currency.Setup(x => x.Describe(It.IsAny<decimal>(), It.IsAny<CurrencyDescriptionPatternType>()))
-		        .Returns((decimal amount, CurrencyDescriptionPatternType _) => $"{amount:N2} test dollars");
+		        .Returns((decimal amount, CurrencyDescriptionPatternType _) => $"{amount:N2} {name}");
 		return currency;
 	}
 
+	private static EmploymentTaskProvenance ScopedFinancialProvenance(ICharacter actor, EmploymentActionPlan actionPlan,
+		Guid correlationId, ICurrency currency, decimal amount, IEnumerable<string> paymentSourceScopes,
+		IEnumerable<string> counterpartyScopes)
+	{
+		var principal = EmploymentPrincipal.ForCharacter(actor);
+		var now = DateTimeOffset.UtcNow;
+		return new EmploymentTaskProvenance(
+			EmploymentTaskSourceKind.Manual,
+			null,
+			null,
+			principal,
+			principal,
+			new EmploymentAuthorisationGrant(
+				Guid.NewGuid(),
+				principal,
+				actionPlan.RequiredAuthority,
+				new Dictionary<long, decimal> { [currency.Id] = amount },
+				false,
+				now,
+				null,
+				correlationId,
+				ScopeSet(paymentSourceScopes),
+				ScopeSet(counterpartyScopes)),
+			0,
+			now);
+	}
+
+	private static HashSet<string> ScopeSet(IEnumerable<string> scopes)
+	{
+		return scopes
+		       .Select(EmploymentAuthorisationGrant.NormaliseScope)
+		       .ToHashSet(StringComparer.InvariantCultureIgnoreCase);
+	}
 	private static (Mock<IShop> Shop, IEmploymentHostState State) ShopHost(long id, string name, ICurrency currency,
 		IBankAccount? bankAccount)
 	{
@@ -2536,25 +5578,72 @@ public class UnifiedEmploymentDispatchTests
 		return (shop, state);
 	}
 
-	private static Mock<IBankAccount> BankAccount(ICurrency currency, decimal balance, decimal reserves = 1_000.0M)
+	private static (Mock<IBank> Bank, IEmploymentHostState State, List<string> Audit) BankHost(long id, string name,
+		ICurrency currency, DecimalCounter<ICurrency>? reserves = null, IEnumerable<IBankAccount>? accounts = null,
+		IEnumerable<ICell>? branches = null, IFuturemud? gameworld = null)
+	{
+		var bank = new Mock<IBank>();
+		bank.SetupGet(x => x.Id).Returns(id);
+		bank.SetupGet(x => x.Name).Returns(name);
+		bank.SetupGet(x => x.FrameworkItemType).Returns("Bank");
+		bank.SetupGet(x => x.EmploymentHostName).Returns(name);
+		bank.SetupGet(x => x.EmploymentHostType).Returns(EmploymentHostType.Bank);
+		bank.SetupGet(x => x.Market).Returns((IMarket?)null);
+		bank.SetupGet(x => x.Code).Returns("TST");
+		bank.SetupGet(x => x.PrimaryCurrency).Returns(currency);
+		var reserveCounter = reserves ?? new DecimalCounter<ICurrency> { [currency] = 0.0M };
+		bank.SetupGet(x => x.CurrencyReserves).Returns(reserveCounter);
+		bank.SetupGet(x => x.BankAccounts).Returns(accounts ?? []);
+		bank.SetupGet(x => x.BranchLocations).Returns(branches ?? []);
+		bank.SetupProperty(x => x.Changed);
+		if (gameworld is not null)
+		{
+			bank.As<IHaveFuturemud>().SetupGet(x => x.Gameworld).Returns(gameworld);
+		}
+
+		var audit = new List<string>();
+		bank.Setup(x => x.RecordManagerAuditLog(It.IsAny<ICharacter>(), It.IsAny<string>()))
+		    .Callback<ICharacter, string>((_, detail) => audit.Add(detail));
+		var state = new EmploymentHostState(bank.Object);
+		bank.SetupGet(x => x.Employment).Returns(state);
+		bank.SetupGet(x => x.BusinessLedger).Returns(state.BusinessLedger);
+		bank.SetupGet(x => x.EmploymentRegister).Returns(state.EmploymentRegister);
+		bank.SetupGet(x => x.TaskBoard).Returns(state.TaskBoard);
+		bank.SetupGet(x => x.ManagerGoalBoard).Returns(state.ManagerGoalBoard);
+		bank.SetupGet(x => x.Payroll).Returns(state.Payroll);
+		bank.SetupGet(x => x.EmploymentContracts).Returns(() => state.EmploymentContracts);
+		bank.SetupGet(x => x.JobOpenings).Returns(() => state.JobOpenings);
+		bank.Setup(x => x.HasAuthority(It.IsAny<ICharacter>(), It.IsAny<EmploymentAuthority>()))
+		    .Returns((ICharacter actor, EmploymentAuthority authority) => state.HasAuthority(actor, authority));
+		return (bank, state, audit);
+	}
+
+	private static Mock<IBankAccount> BankAccount(ICurrency currency, decimal balance, decimal reserves = 1_000.0M,
+		long id = 901, int accountNumber = 123, string bankCode = "TST", string? accountName = null,
+		BankAccountStatus status = BankAccountStatus.Active, long bankId = 900)
 	{
 		var currentBalance = balance;
+		var accountStatus = status;
 		var currencyReserves = new DecimalCounter<ICurrency>
 		{
 			[currency] = reserves
 		};
 		var bank = new Mock<IBank>();
-		bank.SetupGet(x => x.Id).Returns(900);
+		bank.SetupGet(x => x.Id).Returns(bankId);
 		bank.SetupGet(x => x.Name).Returns("test bank");
 		bank.SetupGet(x => x.FrameworkItemType).Returns("Bank");
+		bank.SetupGet(x => x.Code).Returns(bankCode);
 		bank.SetupGet(x => x.PrimaryCurrency).Returns(currency);
 		bank.SetupGet(x => x.CurrencyReserves).Returns(currencyReserves);
 		bank.SetupProperty(x => x.Changed);
 		var account = new Mock<IBankAccount>();
-		account.SetupGet(x => x.Id).Returns(901);
-		account.SetupGet(x => x.Name).Returns("test account");
+		account.SetupGet(x => x.Id).Returns(id);
+		account.SetupGet(x => x.Name).Returns(accountName ?? $"test account {id:N0}");
 		account.SetupGet(x => x.FrameworkItemType).Returns("BankAccount");
-		account.SetupGet(x => x.AccountReference).Returns("TST:123");
+		account.SetupGet(x => x.AccountNumber).Returns(accountNumber);
+		account.SetupGet(x => x.AccountReference).Returns($"{bankCode.ToUpperInvariant()}:{accountNumber}");
+		account.SetupGet(x => x.NameWithAlias).Returns($"{bankCode.ToUpperInvariant()}:{accountNumber} [{accountName ?? $"test account {id:N0}"}]");
+		account.SetupGet(x => x.AccountStatus).Returns(() => accountStatus);
 		account.SetupGet(x => x.Currency).Returns(currency);
 		account.SetupGet(x => x.Bank).Returns(bank.Object);
 		account.SetupGet(x => x.CurrentBalance).Returns(() => currentBalance);
@@ -2562,6 +5651,11 @@ public class UnifiedEmploymentDispatchTests
 		account.Setup(x => x.CanWithdraw(It.IsAny<decimal>(), It.IsAny<bool>()))
 		       .Returns((decimal amount, bool ignoreReserves) =>
 		       {
+			       if (accountStatus != BankAccountStatus.Active)
+			       {
+				       return (false, $"That account is currently {accountStatus.DescribeEnum()}.");
+			       }
+
 			       if (amount > currentBalance)
 			       {
 				       return (false, "Your account has insufficient funds for that withdrawal.");
@@ -2578,10 +5672,18 @@ public class UnifiedEmploymentDispatchTests
 		       .Callback<decimal, string>((amount, _) => currentBalance -= amount);
 		account.Setup(x => x.DepositFromTransaction(It.IsAny<decimal>(), It.IsAny<string>()))
 		       .Callback<decimal, string>((amount, _) => currentBalance += amount);
+		account.Setup(x => x.DoAccountCredit(It.IsAny<decimal>(), It.IsAny<string>()))
+		       .Callback<decimal, string>((amount, _) => currentBalance += amount);
+		account.Setup(x => x.SetStatus(It.IsAny<BankAccountStatus>()))
+		       .Callback<BankAccountStatus>(newStatus => accountStatus = newStatus);
+		account.Setup(x => x.WithdrawFromTransfer(It.IsAny<decimal>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<string>()))
+		       .Callback<decimal, string, int, string>((amount, _, _, _) => currentBalance -= amount);
+		account.Setup(x => x.DepositFromTransfer(It.IsAny<decimal>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<string>()))
+		       .Callback<decimal, string, int, string>((amount, _, _, _) => currentBalance += amount);
 		return account;
 	}
 
-	private static Mock<ICharacter> Character(long id, string name, bool administrator = false)
+	private static Mock<ICharacter> Character(long id, string name, bool administrator = false, IFuturemud? gameworld = null)
 	{
 		var personalName = new Mock<IPersonalName>();
 		personalName.Setup(x => x.GetName(It.IsAny<NameStyle>())).Returns(name);
@@ -2590,6 +5692,10 @@ public class UnifiedEmploymentDispatchTests
 		character.SetupGet(x => x.Name).Returns(name);
 		character.SetupGet(x => x.PersonalName).Returns(personalName.Object);
 		character.SetupGet(x => x.CurrentName).Returns(personalName.Object);
+		if (gameworld is not null)
+		{
+			character.SetupGet(x => x.Gameworld).Returns(gameworld);
+		}
 		character.Setup(x => x.HowSeen(
 				It.IsAny<IPerceiver>(),
 				It.IsAny<bool>(),
@@ -2631,6 +5737,7 @@ public class UnifiedEmploymentDispatchTests
 		cell.SetupGet(x => x.Id).Returns(id);
 		cell.SetupGet(x => x.Name).Returns(name);
 		cell.SetupGet(x => x.GameItems).Returns(Array.Empty<IGameItem>());
+		cell.Setup(x => x.GetFriendlyReference(It.IsAny<IPerceiver>())).Returns(name);
 		return cell;
 	}
 
@@ -2813,10 +5920,14 @@ public class UnifiedEmploymentDispatchTests
 		shop.SetupGet(x => x.EmploymentHostType).Returns(MudSharp.Economy.Employment.EmploymentHostType.Shop);
 		shop.SetupGet(x => x.Market).Returns((IMarket?)null);
 		shop.SetupGet(x => x.Currency).Returns(currency);
+		var shopfrontList = shopfronts.ToList();
+		var displayContainerList = displayContainers.ToList();
+		var merchandiseList = merchandises.ToList();
 		shop.SetupGet(x => x.StockroomCell).Returns(stockroom);
-		shop.SetupGet(x => x.ShopfrontCells).Returns(shopfronts.ToList());
-		shop.SetupGet(x => x.DisplayContainers).Returns(displayContainers.ToList());
-		shop.SetupGet(x => x.Merchandises).Returns(merchandises.ToList());
+		shop.SetupGet(x => x.ShopfrontCells).Returns(shopfrontList);
+		shop.SetupGet(x => x.AllShopCells).Returns(() => shopfrontList.Concat(new[] { stockroom }).DistinctBy(x => x.Id).ToList());
+		shop.SetupGet(x => x.DisplayContainers).Returns(displayContainerList);
+		shop.SetupGet(x => x.Merchandises).Returns(merchandiseList);
 		var employment = new EmploymentHostState(shop.Object);
 		shop.SetupGet(x => x.Employment).Returns(employment);
 		shop.SetupGet(x => x.TaskBoard).Returns(employment.TaskBoard);
@@ -2828,7 +5939,7 @@ public class UnifiedEmploymentDispatchTests
 		shop.Setup(x => x.HasAuthority(It.IsAny<ICharacter>(), It.IsAny<EmploymentAuthority>()))
 		    .Returns((ICharacter actor, EmploymentAuthority authority) => employment.HasAuthority(actor, authority));
 		shop.Setup(x => x.StockedItems(It.IsAny<IMerchandise>()))
-		    .Returns((IMerchandise merchandise) => stockedItems.Where(x => merchandises.Any(y => y.Id == merchandise.Id)).ToList());
+		    .Returns((IMerchandise merchandise) => stockedItems.Where(x => merchandiseList.Any(y => y.Id == merchandise.Id)).ToList());
 		employment.Hire(manager, Offer(currency, EmploymentRole.Manager, managerAuthority), null);
 		return new PermanentShopFixture(shop, employment);
 	}
@@ -2926,12 +6037,44 @@ public class UnifiedEmploymentDispatchTests
 	}
 
 	private static Mock<IFuturemud> Gameworld(ICurrency currency, IReadOnlyDictionary<long, ICharacter> characters,
-		IEnumerable<ICell>? cellsToAdd = null, IReadOnlyDictionary<long, IGameItem>? items = null)
+		IEnumerable<ICell>? cellsToAdd = null, IReadOnlyDictionary<long, IGameItem>? items = null,
+		IEnumerable<IBankAccount>? bankAccountsToAdd = null, IEnumerable<IShop>? shopsToAdd = null,
+		IEnumerable<ICombatArena>? combatArenasToAdd = null, IEnumerable<IBank>? banksToAdd = null,
+		IEnumerable<IStable>? stablesToAdd = null, IEnumerable<IProperty>? propertiesToAdd = null)
 	{
 		var boards = new All<IBoard>();
 		var currencies = new All<ICurrency>();
 		currencies.Add(currency);
 		var bankAccounts = new All<IBankAccount>();
+		foreach (var account in bankAccountsToAdd ?? [])
+		{
+			bankAccounts.Add(account);
+		}
+		var shops = new All<IShop>();
+		foreach (var shop in shopsToAdd ?? [])
+		{
+			shops.Add(shop);
+		}
+		var combatArenas = new All<ICombatArena>();
+		foreach (var arena in combatArenasToAdd ?? [])
+		{
+			combatArenas.Add(arena);
+		}
+		var banks = new All<IBank>();
+		foreach (var bank in banksToAdd ?? [])
+		{
+			banks.Add(bank);
+		}
+		var stables = new All<IStable>();
+		foreach (var stable in stablesToAdd ?? [])
+		{
+			stables.Add(stable);
+		}
+		var properties = new All<IProperty>();
+		foreach (var property in propertiesToAdd ?? [])
+		{
+			properties.Add(property);
+		}
 		var cells = new All<ICell>();
 		foreach (var cell in cellsToAdd ?? [])
 		{
@@ -2943,6 +6086,11 @@ public class UnifiedEmploymentDispatchTests
 		gameworld.SetupGet(x => x.Boards).Returns(boards);
 		gameworld.SetupGet(x => x.Currencies).Returns(currencies);
 		gameworld.SetupGet(x => x.BankAccounts).Returns(bankAccounts);
+		gameworld.SetupGet(x => x.Shops).Returns(shops);
+		gameworld.SetupGet(x => x.CombatArenas).Returns(combatArenas);
+		gameworld.SetupGet(x => x.Banks).Returns(banks);
+		gameworld.SetupGet(x => x.Stables).Returns(stables);
+		gameworld.SetupGet(x => x.Properties).Returns(properties);
 		gameworld.SetupGet(x => x.Cells).Returns(cells);
 		gameworld.SetupGet(x => x.Calendars).Returns(calendars);
 		gameworld.Setup(x => x.Add(It.IsAny<IBoard>())).Callback<IBoard>(board => boards.Add(board));

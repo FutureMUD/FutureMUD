@@ -101,6 +101,8 @@ public partial class FuturemudDatabaseContext
 			entity.Property(e => e.StartedAt).HasColumnType("datetime");
 			entity.Property(e => e.EndsAt).HasColumnType("datetime");
 			entity.Property(e => e.EndReason).HasColumnType("int(11)");
+			entity.Property(e => e.OriginOpeningId).HasColumnType("bigint(20)");
+			entity.Property(e => e.OriginApplicationId).HasColumnType("bigint(20)");
 
 			entity.HasOne(e => e.EmploymentHostState)
 			      .WithMany(e => e.Contracts)
@@ -129,6 +131,7 @@ public partial class FuturemudDatabaseContext
 			entity.Property(e => e.MaxPositions).HasColumnType("int(11)");
 			entity.Property(e => e.NpcApplicationsOnly).HasColumnType("bit(1)");
 			entity.Property(e => e.Authority).HasColumnType("bigint(20)");
+			entity.Property(e => e.RevisionNumber).HasColumnType("int(11)").HasDefaultValue(1);
 			ConfigureCompensationColumns(entity);
 			ConfigureScheduleColumns(entity);
 			ConfigureDurationColumns(entity);
@@ -182,6 +185,8 @@ public partial class FuturemudDatabaseContext
 			entity.Property(e => e.AppliedAt).HasColumnType("datetime");
 			entity.Property(e => e.Status).HasColumnType("int(11)");
 			entity.Property(e => e.DecisionReason).OptionalString("mediumtext");
+			entity.Property(e => e.OfferedOpeningRevision).HasColumnType("int(11)").HasDefaultValue(1);
+			entity.Property(e => e.CandidateProfileJson).OptionalString("mediumtext");
 
 			entity.HasOne(e => e.EmploymentJobOpening)
 			      .WithMany(e => e.Applications)

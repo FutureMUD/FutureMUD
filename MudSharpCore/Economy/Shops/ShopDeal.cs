@@ -94,6 +94,59 @@ public class ShopDeal : LateInitialisingItem, IShopDeal
         Expiry.Date is not null &&
         Shop.EconomicZone.ZoneForTimePurposes.DateTime() >= Expiry;
 
+    public void Configure(ShopDealType dealType, ShopDealTargetType targetType, IMerchandise? targetMerchandise,
+        ITag? targetTag, decimal priceAdjustmentPercentage, int minimumQuantity,
+        ShopDealApplicability applicability, IFutureProg? eligibilityProg, bool isCumulative, MudDateTime expiry)
+    {
+        Configure(Name, dealType, targetType, targetMerchandise, targetTag, priceAdjustmentPercentage,
+            minimumQuantity, applicability, eligibilityProg, isCumulative, expiry);
+    }
+
+    public void Configure(string name, ShopDealType dealType, ShopDealTargetType targetType,
+        IMerchandise? targetMerchandise, ITag? targetTag, decimal priceAdjustmentPercentage, int minimumQuantity,
+        ShopDealApplicability applicability, IFutureProg? eligibilityProg, bool isCumulative, MudDateTime expiry)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            throw new InvalidOperationException("Shop deals require a name.");
+        }
+
+        if (dealType == ShopDealType.Volume && minimumQuantity < 2)
+        {
+            throw new InvalidOperationException("Volume deals require a minimum quantity of 2 or more.");
+        }
+
+        if (targetType == ShopDealTargetType.Merchandise && targetMerchandise is null)
+        {
+            throw new InvalidOperationException("Merchandise-targeted shop deals require a merchandise record.");
+        }
+
+        if (targetType == ShopDealTargetType.Merchandise && targetMerchandise!.Shop != Shop)
+        {
+            throw new InvalidOperationException("Merchandise-targeted shop deals can only target merchandise belonging to the shop.");
+        }
+
+        if (targetType == ShopDealTargetType.ItemTag && targetTag is null)
+        {
+            throw new InvalidOperationException("Tag-targeted shop deals require a tag.");
+        }
+
+        _name = name.Trim();
+        DealType = dealType;
+        TargetType = targetType;
+        _targetMerchandise = targetType == ShopDealTargetType.Merchandise ? targetMerchandise : null;
+        _targetMerchandiseId = _targetMerchandise?.Id;
+        _targetTag = targetType == ShopDealTargetType.ItemTag ? targetTag : null;
+        _targetTagId = _targetTag?.Id;
+        PriceAdjustmentPercentage = priceAdjustmentPercentage;
+        MinimumQuantity = dealType == ShopDealType.Volume ? minimumQuantity : 0;
+        Applicability = applicability;
+        _eligibilityProg = eligibilityProg;
+        IsCumulative = isCumulative;
+        Expiry = expiry;
+        Changed = true;
+    }
+
     public bool AppliesToMerchandise(IMerchandise merchandise)
     {
         return TargetType switch

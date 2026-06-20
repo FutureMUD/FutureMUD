@@ -223,6 +223,110 @@ public class AuctionHouseSettlementTests
 	}
 
 	[TestMethod]
+	public void SettleFinishedAuctions_DueLot_CompletesAndPaysNetSellerProceeds()
+	{
+		var house = CreateAuctionHouse(out var profitsAccount, out var payoutAccount, out _);
+		Mock<ICharacter> seller = new();
+		seller.SetupGet(x => x.Id).Returns(67L);
+		seller.SetupGet(x => x.Name).Returns("Seller");
+		seller.SetupGet(x => x.FrameworkItemType).Returns("Character");
+
+		Mock<ICharacter> bidder = new();
+		bidder.SetupGet(x => x.Id).Returns(68L);
+		bidder.SetupGet(x => x.Name).Returns("Bidder");
+		bidder.SetupGet(x => x.FrameworkItemType).Returns("Character");
+
+		Mock<IGameItem> asset = new();
+		asset.SetupGet(x => x.Id).Returns(74L);
+		asset.SetupGet(x => x.Name).Returns("cup");
+		asset.SetupGet(x => x.FrameworkItemType).Returns("GameItem");
+		asset.Setup(x => x.HowSeen(It.IsAny<IPerceiver>(), It.IsAny<bool>(), It.IsAny<DescriptionType>(),
+				It.IsAny<bool>(), It.IsAny<PerceiveIgnoreFlags>()))
+		     .Returns("a cup");
+
+		AuctionItem lot = new()
+		{
+			Asset = asset.Object,
+			Seller = seller.Object,
+			PayoutTarget = payoutAccount.Object,
+			MinimumPrice = 100.0M,
+			ListingDateTime = MudDateTime.Never,
+			FinishingDateTime = MudDateTime.Never
+		};
+
+		house.AddAuctionItem(lot);
+		house.AddBid(lot, new AuctionBid
+		{
+			Bidder = bidder.Object,
+			Bid = 200.0M,
+			BidDateTime = MudDateTime.Never
+		});
+
+		var settled = house.SettleFinishedAuctions();
+
+		Assert.AreEqual(1, settled.Count);
+		Assert.AreSame(lot, settled.Single());
+		Assert.AreEqual(0, house.ActiveAuctionItems.Count());
+		Assert.AreSame(lot, house.UnclaimedItems.Single().AuctionItem);
+		Assert.AreEqual(30.0M, house.CashBalance);
+		profitsAccount.Verify(x => x.Deposit(It.IsAny<decimal>()), Times.Never);
+		payoutAccount.Verify(x => x.DepositFromTransaction(170.0M, It.IsAny<string>()), Times.Once);
+		var result = house.AuctionResults.Single();
+		Assert.IsTrue(result.Sold);
+		Assert.IsTrue(result.PaidOutAtTime);
+	}
+
+	[TestMethod]
+	public void SettleAuctionItem_AuctionHouseOwnedLotWithoutBank_TreatsSelfPayoutAsPaid()
+	{
+		var house = CreateAuctionHouse(out var profitsAccount, out var payoutAccount, out _, linkedProfitsAccount: false);
+		Assert.IsNull(house.ProfitsBankAccount);
+
+		Mock<ICharacter> bidder = new();
+		bidder.SetupGet(x => x.Id).Returns(69L);
+		bidder.SetupGet(x => x.Name).Returns("Bidder");
+		bidder.SetupGet(x => x.FrameworkItemType).Returns("Character");
+
+		Mock<IGameItem> asset = new();
+		asset.SetupGet(x => x.Id).Returns(75L);
+		asset.SetupGet(x => x.Name).Returns("lamp");
+		asset.SetupGet(x => x.FrameworkItemType).Returns("GameItem");
+		asset.Setup(x => x.HowSeen(It.IsAny<IPerceiver>(), It.IsAny<bool>(), It.IsAny<DescriptionType>(),
+				It.IsAny<bool>(), It.IsAny<PerceiveIgnoreFlags>()))
+		     .Returns("a lamp");
+
+		AuctionItem lot = new()
+		{
+			Asset = asset.Object,
+			Seller = house,
+			PayoutTarget = house,
+			MinimumPrice = 100.0M,
+			ListingDateTime = MudDateTime.Never,
+			FinishingDateTime = MudDateTime.Never
+		};
+
+		house.AddAuctionItem(lot);
+		house.AddBid(lot, new AuctionBid
+		{
+			Bidder = bidder.Object,
+			Bid = 200.0M,
+			BidDateTime = MudDateTime.Never
+		});
+
+		Assert.IsTrue(house.SettleAuctionItem(lot, out var reason), reason);
+
+		Assert.AreEqual(0, house.ActiveAuctionItems.Count());
+		Assert.AreSame(lot, house.UnclaimedItems.Single().AuctionItem);
+		Assert.AreEqual(200.0M, house.CashBalance);
+		Assert.AreEqual(0.0M, house.BidderRefundsOwed[bidder.Object.Id]);
+		profitsAccount.Verify(x => x.Deposit(It.IsAny<decimal>()), Times.Never);
+		payoutAccount.Verify(x => x.DepositFromTransaction(It.IsAny<decimal>(), It.IsAny<string>()), Times.Never);
+		var result = house.AuctionResults.Single();
+		Assert.IsTrue(result.Sold);
+		Assert.IsTrue(result.PaidOutAtTime);
+	}
+
+	[TestMethod]
 	public void BuyoutItem_CashPayoutTargetWithOwnedBank_QueuesCashCollection()
 	{
 		var house = CreateAuctionHouse(out _, out var payoutAccount, out _);

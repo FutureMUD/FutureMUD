@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using MudSharp.Character;
@@ -17,6 +18,7 @@ using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Prototypes;
 using MudSharp.NPC;
 using MudSharp.NPC.AI;
+using MudSharp.Vehicles;
 
 #nullable enable
 
@@ -46,13 +48,16 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 	private readonly List<CommodityProfile> _commodityProfiles = new();
 	private readonly HashSet<long> _transportBundleIds = new();
 	private readonly bool _usePhysicalItemMovement;
+	private readonly HashSet<long> _additionalLogisticsLocationIds;
 	private IEmploymentActiveTask? _currentTask;
 	private int _currentStepIndex;
 
-	public EmploymentTaskContext(IEmploymentHost employer, bool usePhysicalItemMovement = false)
+	public EmploymentTaskContext(IEmploymentHost employer, bool usePhysicalItemMovement = false,
+		IEnumerable<ICell>? additionalLogisticsLocations = null)
 	{
 		Employer = employer;
 		_usePhysicalItemMovement = usePhysicalItemMovement;
+		_additionalLogisticsLocationIds = additionalLogisticsLocations?.Select(x => x.Id).ToHashSet() ?? [];
 	}
 
 	public IEmploymentHost Employer { get; }
@@ -132,7 +137,8 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 	{
 		return !HasHostLogisticsBoundary ||
 		       location is null ||
-		       Employer.EmploymentHostLocations().Any(x => x.Id == location.Id);
+		       Employer.EmploymentHostLocations().Any(x => x.Id == location.Id) ||
+		       _additionalLogisticsLocationIds.Contains(location.Id);
 	}
 
 	private bool TryRequireHostLogisticsLocation(ICell? location, string action, out string reason)
@@ -194,6 +200,57 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 	public IReadOnlyCollection<IGameItem> LoadedTaskItems(ICharacter actor, IGameItem container)
 	{
 		return ResolveLoadedTaskItems(actor, container).DistinctBy(x => x.Id).ToList();
+	}
+
+	public bool CanAssignVehicle(ICharacter actor, IVehicle vehicle, out string reason)
+	{
+		if (vehicle.Disabled || vehicle.Destroyed)
+		{
+			reason = $"{vehicle.Name} is not available for employment vehicle work.";
+			return false;
+		}
+
+		var vehicleLocation = vehicle.Location;
+		if (vehicleLocation is null)
+		{
+			reason = $"{vehicle.Name} is not currently at a reachable location.";
+			return false;
+		}
+
+		if (!CanPath(actor, vehicleLocation))
+		{
+			reason = "The assigned employee cannot path to the vehicle.";
+			return false;
+		}
+
+		if (TryGetActiveVehicleAssignment(vehicle.Id, out var taskName, out var driverId))
+		{
+			reason = $"{vehicle.Name} is already assigned to employment task {taskName} by driver #{driverId:N0}.";
+			return false;
+		}
+
+		reason = string.Empty;
+		return true;
+	}
+
+	public bool TryAssignVehicle(ICharacter actor, IVehicle vehicle, out string reason,
+		out EmploymentActionStepOperationalState operationalState)
+	{
+		operationalState = EmploymentActionStepOperationalState.Empty;
+		if (!CanAssignVehicle(actor, vehicle, out reason))
+		{
+			return false;
+		}
+
+		var actorId = CharacterInstanceIdentityComparer.PhysicalInstanceKey(actor);
+		operationalState = new EmploymentActionStepOperationalState(
+			OperationalPayload: $"vehicle-status=assigned;vehicle={vehicle.Id:F0};driver={actorId:F0}",
+			SelectedResources: FormatVehicleAssignment(vehicle.Id, actorId));
+		RecordRegister(EmploymentRegisterEntryType.AuditActionRecorded, actor,
+			$"Assigned vehicle {vehicle.Name} to driver {actor.Name} for employment vehicle work.",
+			CurrentTask?.CorrelationId);
+		reason = string.Empty;
+		return true;
 	}
 
 	public void HydrateTaskState(IEmploymentActiveTask task, int currentStepIndex)
@@ -341,6 +398,28 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 		return EmploymentFinanceService.TryBankWithdrawal(this, actor, amount, out reason, out operationalState);
 	}
 
+	public bool CanBankTransfer(string targetAccountKey, MoneyAmount amount, out string reason)
+	{
+		return EmploymentFinanceService.CanBankTransfer(this, targetAccountKey, amount, out reason);
+	}
+
+	public bool TryBankTransfer(ICharacter actor, string targetAccountKey, MoneyAmount amount, out string reason,
+		out EmploymentActionStepOperationalState operationalState)
+	{
+		return EmploymentFinanceService.TryBankTransfer(this, actor, targetAccountKey, amount, out reason,
+			out operationalState);
+	}
+	public bool CanHostSettlement(string targetHostKey, MoneyAmount amount, out string reason)
+	{
+		return EmploymentFinanceService.CanHostSettlement(this, targetHostKey, amount, out reason);
+	}
+
+	public bool TryHostSettlement(ICharacter actor, string targetHostKey, MoneyAmount amount, out string reason,
+		out EmploymentActionStepOperationalState operationalState)
+	{
+		return EmploymentFinanceService.TryHostSettlement(this, actor, targetHostKey, amount, out reason,
+			out operationalState);
+	}
 	public bool CanPurchase(IEmploymentActionStep step, out string reason)
 	{
 		return EmploymentFinanceService.CanPurchase(this, step, out reason);
@@ -726,7 +805,8 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 			RemoveCarriedTaskItems(actor, loadedItems);
 			RecordContainerContents(targetContainer, loadedItems);
 			operationalState = new EmploymentActionStepOperationalState(
-				LoadedAssets: FormatLoadedAssets("load", targetContainer.Id, loadedItems));
+				LoadedAssets: FormatLoadedAssets("load", targetContainer.Id, loadedItems),
+				ReservationReference: FormatLoadReservation("reserve", targetContainer.Id, loadedItems));
 			return true;
 		}
 
@@ -742,7 +822,8 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 		RecordContainerContents(targetContainer, loaded);
 		carried.Clear();
 		operationalState = new EmploymentActionStepOperationalState(
-			LoadedAssets: FormatLoadedAssets("load", targetContainer.Id, loaded));
+			LoadedAssets: FormatLoadedAssets("load", targetContainer.Id, loaded),
+			ReservationReference: FormatLoadReservation("reserve", targetContainer.Id, loaded));
 		reason = string.Empty;
 		return true;
 	}
@@ -769,7 +850,8 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 			AddCarriedTaskItems(actor, unloadedItems);
 			RemoveContainerContents(sourceContainer, unloadedItems);
 			operationalState = new EmploymentActionStepOperationalState(
-				LoadedAssets: FormatLoadedAssets("unload", sourceContainer.Id, unloadedItems));
+				LoadedAssets: FormatLoadedAssets("unload", sourceContainer.Id, unloadedItems),
+				ReservationReference: FormatLoadReservation("consume", sourceContainer.Id, unloadedItems));
 			return true;
 		}
 
@@ -784,7 +866,8 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 		RemoveContainerContents(sourceContainer, loadedItems);
 		AddCarriedTaskItems(actor, loadedItems);
 		operationalState = new EmploymentActionStepOperationalState(
-			LoadedAssets: FormatLoadedAssets("unload", sourceContainer.Id, loadedItems));
+			LoadedAssets: FormatLoadedAssets("unload", sourceContainer.Id, loadedItems),
+			ReservationReference: FormatLoadReservation("consume", sourceContainer.Id, loadedItems));
 		reason = string.Empty;
 		return true;
 	}
@@ -1154,6 +1237,12 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 		return $"operation={operation};container={containerId};items={items.Select(x => x.Id.ToString("F0")).ListToCommaSeparatedValues()}";
 	}
 
+	private string FormatLoadReservation(string operation, long containerId, IEnumerable<IGameItem> items)
+	{
+		var itemIds = items.Select(x => x.Id).Distinct().ToList();
+		return $"op={operation};type=load;task={CurrentTask?.Id.ToString("D") ?? string.Empty};container={containerId};items={itemIds.Select(x => x.ToString("F0")).ListToCommaSeparatedValues()};count={itemIds.Count.ToString(CultureInfo.InvariantCulture)}";
+	}
+
 	internal static string FormatTaskItemCustody(string operation, long actorId, IEnumerable<IGameItem> items,
 		IEnumerable<long>? transportBundleIds = null)
 	{
@@ -1167,6 +1256,67 @@ public sealed class EmploymentTaskContext : IEmploymentTaskContext
 		return bundleIds.Any()
 			? $"{result};bundles={bundleIds.Select(x => x.ToString("F0")).ListToCommaSeparatedValues()}"
 			: result;
+	}
+
+	private bool TryGetActiveVehicleAssignment(long vehicleId, out string taskName, out long driverId)
+	{
+		taskName = string.Empty;
+		driverId = 0;
+		foreach (var task in Employer.TaskBoard.ActiveTasks.Where(x =>
+			         x.Status is EmploymentTaskStatus.Pending or EmploymentTaskStatus.Assigned or
+				         EmploymentTaskStatus.InProgress or EmploymentTaskStatus.Blocked))
+		{
+			if (CurrentTask is not null && task.CorrelationId == CurrentTask.CorrelationId)
+			{
+				continue;
+			}
+
+			for (var i = 0; i < task.StepOperationalStates.Count; i++)
+			{
+				if (i >= task.StepStates.Count || task.StepStates[i] != EmploymentActionStepStatus.Completed)
+				{
+					continue;
+				}
+
+				if (!TryParseVehicleAssignment(task.StepOperationalStates[i].SelectedResources, out var assignedVehicleId,
+					    out var assignedDriverId) ||
+				    assignedVehicleId != vehicleId)
+				{
+					continue;
+				}
+
+				taskName = task.Name;
+				driverId = assignedDriverId;
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	internal static string FormatVehicleAssignment(long vehicleId, long driverId)
+	{
+		return $"operation=vehicleassign;vehicle={vehicleId:F0};driver={driverId:F0}";
+	}
+
+	internal static bool TryParseVehicleAssignment(string? text, out long vehicleId, out long driverId)
+	{
+		vehicleId = 0;
+		driverId = 0;
+		if (string.IsNullOrWhiteSpace(text) ||
+		    !text.Contains("operation=vehicleassign", StringComparison.InvariantCultureIgnoreCase))
+		{
+			return false;
+		}
+
+		var parts = text.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+		                .Select(x => x.Split('=', 2, StringSplitOptions.TrimEntries))
+		                .Where(x => x.Length == 2)
+		                .ToDictionary(x => x[0], x => x[1], StringComparer.InvariantCultureIgnoreCase);
+		return parts.TryGetValue("vehicle", out var vehicleText) &&
+		       long.TryParse(vehicleText, out vehicleId) &&
+		       parts.TryGetValue("driver", out var driverText) &&
+		       long.TryParse(driverText, out driverId);
 	}
 
 	internal static bool TryParseTaskItemCustody(string? text, out string operation, out long actorId,
@@ -2842,6 +2992,183 @@ public sealed class EmploymentTaskBoard : IEmploymentTaskBoard
 		return actor?.HowSeen(actor, colour: false) ?? "No actor";
 	}
 
+	private static EmploymentPrincipal PrincipalForActor(ICharacter? actor, string fallbackLabel)
+	{
+		return actor is null ? EmploymentPrincipal.HostSystem(fallbackLabel) : EmploymentPrincipal.ForCharacter(actor);
+	}
+
+	internal static EmploymentTaskProvenance CreateTaskProvenance(IEmploymentHost employer,
+		EmploymentActionPlan actionPlan, Guid correlationId, EmploymentTaskSourceKind sourceKind,
+		EmploymentPrincipal createdByPrincipal, EmploymentPrincipal authorisedByPrincipal, int priority,
+		DateTimeOffset createdAt, DateTimeOffset? dueAt = null, Guid? sourceRuleId = null,
+		long? sourceGoalId = null)
+	{
+		var (limits, allowsUnboundedFinancialSteps, paymentSourceScopes, counterpartyScopes) =
+			AuthorisationLimitsFor(employer, actionPlan);
+		var grant = new EmploymentAuthorisationGrant(
+			Guid.NewGuid(),
+			authorisedByPrincipal,
+			actionPlan.RequiredAuthority,
+			limits,
+			allowsUnboundedFinancialSteps,
+			createdAt,
+			null,
+			correlationId,
+			paymentSourceScopes,
+			counterpartyScopes);
+
+		return new EmploymentTaskProvenance(
+			sourceKind,
+			sourceRuleId,
+			sourceGoalId,
+			createdByPrincipal,
+			authorisedByPrincipal,
+			grant,
+			priority,
+			createdAt,
+			dueAt);
+	}
+
+	internal static EmploymentTaskProvenance CreateCompatibilityTaskProvenance(Guid correlationId,
+		IEmploymentHost employer, string creatorLabel, string authoriserLabel)
+	{
+		var createdAt = EmploymentClock.CurrentInstant(employer);
+		var createdBy = EmploymentPrincipal.HostSystem(creatorLabel);
+		var authorisedBy = EmploymentPrincipal.HostSystem(authoriserLabel);
+		var grant = new EmploymentAuthorisationGrant(
+			Guid.NewGuid(),
+			authorisedBy,
+			EmploymentAuthoritySet.Empty,
+			new Dictionary<long, decimal>(),
+			false,
+			createdAt,
+			null,
+			correlationId,
+			new HashSet<string>(StringComparer.InvariantCultureIgnoreCase),
+			new HashSet<string>(StringComparer.InvariantCultureIgnoreCase));
+
+		return new EmploymentTaskProvenance(
+			EmploymentTaskSourceKind.HostSystem,
+			null,
+			null,
+			createdBy,
+			authorisedBy,
+			grant,
+			0,
+			createdAt);
+	}
+
+	private static (IReadOnlyDictionary<long, decimal> Limits, bool AllowsUnboundedFinancialSteps,
+		IReadOnlySet<string> PaymentSourceScopes, IReadOnlySet<string> CounterpartyScopes)
+		AuthorisationLimitsFor(IEmploymentHost employer, EmploymentActionPlan actionPlan)
+	{
+		var limits = new Dictionary<long, decimal>();
+		var paymentSourceScopes = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
+		var counterpartyScopes = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
+		var allowsUnboundedFinancialSteps = false;
+		foreach (var authorisation in actionPlan.Steps
+		                                     .OfType<CataloguedActionShellStep>()
+		                                     .Where(x => x.ActionKey.EqualTo("authorise")))
+		{
+			if (authorisation.Amount is null)
+			{
+				allowsUnboundedFinancialSteps = true;
+				continue;
+			}
+
+			limits[authorisation.Amount.Currency.Id] =
+				limits.GetValueOrDefault(authorisation.Amount.Currency.Id) + authorisation.Amount.Amount;
+		}
+
+		foreach (var step in actionPlan.Steps.Where(x => x.RequiresPaymentAuthorisation))
+		{
+			var scopes = FinancialAuthorisationScopesFor(employer, step);
+			AddFinancialScope(paymentSourceScopes, scopes.PaymentSourceScope);
+			AddFinancialScope(counterpartyScopes, scopes.CounterpartyScope);
+		}
+
+		return (limits, allowsUnboundedFinancialSteps, paymentSourceScopes, counterpartyScopes);
+	}
+
+	internal sealed record EmploymentFinancialAuthorisationScopes(string? PaymentSourceScope, string? CounterpartyScope);
+
+	private static void AddFinancialScope(HashSet<string> scopes, string? scope)
+	{
+		if (string.IsNullOrWhiteSpace(scope))
+		{
+			return;
+		}
+
+		scopes.Add(EmploymentAuthorisationGrant.NormaliseScope(scope));
+	}
+
+	internal static EmploymentFinancialAuthorisationScopes FinancialAuthorisationScopesFor(IEmploymentHost employer,
+		IEmploymentActionStep step)
+	{
+		return step switch
+		{
+			PurchaseActionStep purchase => new EmploymentFinancialAuthorisationScopes(
+				HostScope(employer, "available-funds"),
+				$"purchase:{purchase.TargetKind}:{purchase.SupplierSelector ?? "any"}:{purchase.PurchaseDescription}"),
+			BankDepositActionStep => new EmploymentFinancialAuthorisationScopes(
+				HostScope(employer, "virtual-cash"),
+				HostScope(employer, "linked-bank-account")),
+			BankWithdrawalActionStep => new EmploymentFinancialAuthorisationScopes(
+				HostScope(employer, "linked-bank-account"),
+				HostScope(employer, "virtual-cash")),
+			BankAccountTransferActionStep transfer => new EmploymentFinancialAuthorisationScopes(
+				HostScope(employer, "linked-bank-account"),
+				$"bank-account:{transfer.TargetAccountKey}"),
+			BankAdministrationActionStep bankAdmin => bankAdmin.Operation switch
+			{
+				BankAdministrationActionKind.ReserveDeposit => new EmploymentFinancialAuthorisationScopes(
+					HostScope(employer, "virtual-cash"),
+					HostScope(employer, "bank-reserve")),
+				BankAdministrationActionKind.ReserveWithdrawal => new EmploymentFinancialAuthorisationScopes(
+					HostScope(employer, "bank-reserve"),
+					HostScope(employer, "virtual-cash")),
+				BankAdministrationActionKind.AccountCredit => new EmploymentFinancialAuthorisationScopes(
+					HostScope(employer, "account-service"),
+					$"bank-account:{bankAdmin.AccountSelector}"),
+				_ => new EmploymentFinancialAuthorisationScopes(null, null)
+			},
+			HostSettlementActionStep settlement => new EmploymentFinancialAuthorisationScopes(
+				HostScope(employer, "available-funds"),
+				$"employment-host:{settlement.TargetHostKey}"),
+			StoreAccountPaymentActionStep storePayment => new EmploymentFinancialAuthorisationScopes(
+				HostScope(employer, "available-funds"),
+				$"store-account:{storePayment.AccountName}"),
+			TaxPaymentActionStep => new EmploymentFinancialAuthorisationScopes(
+				HostScope(employer, "available-funds"),
+				$"tax-authority:{employer.FrameworkItemType}:{employer.Id}"),
+			ShopFloatAdjustmentActionStep shopFloat => shopFloat.FillRegister
+				? new EmploymentFinancialAuthorisationScopes(HostScope(employer, "virtual-cash"), HostScope(employer, "cash-register"))
+				: new EmploymentFinancialAuthorisationScopes(HostScope(employer, "cash-register"), HostScope(employer, "virtual-cash")),
+			PhysicalFloatActionStep physicalFloat => physicalFloat.Operation switch
+			{
+				PhysicalFloatOperation.Issue => new EmploymentFinancialAuthorisationScopes(
+					HostScope(employer, $"physical-float-source:{physicalFloat.TargetKind}"),
+					$"task-custody:{physicalFloat.Operation}"),
+				PhysicalFloatOperation.Return => new EmploymentFinancialAuthorisationScopes(
+					$"task-custody:{physicalFloat.Operation}",
+					HostScope(employer, $"physical-float-target:{physicalFloat.TargetKind}")),
+				PhysicalFloatOperation.Settle => new EmploymentFinancialAuthorisationScopes(
+					$"task-custody:{physicalFloat.Operation}",
+					HostScope(employer, "virtual-cash")),
+				_ => new EmploymentFinancialAuthorisationScopes(null, null)
+			},
+			CataloguedActionShellStep shell => new EmploymentFinancialAuthorisationScopes(
+				HostScope(employer, $"catalogued:{shell.ActionKey}"),
+				$"catalogued:{shell.ActionKey}:{shell.ActionDescription}"),
+			_ => new EmploymentFinancialAuthorisationScopes(null, null)
+		};
+	}
+
+	private static string HostScope(IEmploymentHost employer, string scope)
+	{
+		return $"host:{employer.FrameworkItemType}:{employer.Id}:{scope}";
+	}
+
 	public IEmploymentScheduledTaskRule CreateScheduledRule(string name, string idempotencyKey,
 		IEnumerable<IEmploymentTaskCondition> conditions, EmploymentActionPlan actionPlan, TimeSpan cooldown,
 		ICharacter? authorisedBy)
@@ -3012,7 +3339,8 @@ public sealed class EmploymentTaskBoard : IEmploymentTaskBoard
 	}
 
 	public IEmploymentActiveTask CreateActiveTask(string name, EmploymentActionPlan actionPlan, ICharacter? authorisedBy,
-		Guid? correlationId = null, string? idempotencyKey = null)
+		Guid? correlationId = null, string? idempotencyKey = null, int priority = 0, DateTimeOffset? dueAt = null,
+		EmploymentTaskProvenance? provenance = null)
 	{
 		if (!IsAuthorised(authorisedBy, EmploymentAuthority.AssignTasks))
 		{
@@ -3025,7 +3353,19 @@ public sealed class EmploymentTaskBoard : IEmploymentTaskBoard
 			throw new InvalidOperationException($"{ActorName(authorisedBy)} is not authorised to create tasks with {actionPlan.RequiredAuthority.Authorities.DescribeEnum()} authority for {_host.EmploymentHostName}.");
 		}
 
-		var task = new EmploymentActiveTask(_host, name, actionPlan, correlationId ?? Guid.NewGuid(), _persistence)
+		var actualCorrelationId = correlationId ?? Guid.NewGuid();
+		var createdAt = EmploymentClock.CurrentInstant(_host);
+		var taskProvenance = provenance ?? CreateTaskProvenance(
+			_host,
+			actionPlan,
+			actualCorrelationId,
+			authorisedBy is null ? EmploymentTaskSourceKind.HostSystem : EmploymentTaskSourceKind.Manual,
+			PrincipalForActor(authorisedBy, "Host system task creator"),
+			PrincipalForActor(authorisedBy, "Host system task authoriser"),
+			priority,
+			createdAt,
+			dueAt);
+		var task = new EmploymentActiveTask(_host, name, actionPlan, actualCorrelationId, _persistence, taskProvenance)
 		{
 			IdempotencyKey = string.IsNullOrWhiteSpace(idempotencyKey) ? string.Empty : idempotencyKey.Trim()
 		};
@@ -3060,6 +3400,153 @@ public sealed class EmploymentTaskBoard : IEmploymentTaskBoard
 		_host.EmploymentRegister.Record(EmploymentRegisterEntryType.ActiveTaskCancelled, cancelledBy,
 			$"Cancelled active task {task.Name}: {reason}", task.CorrelationId);
 		_host.DebugEmployment($"Cancelled active task {task.Name}: {reason}", cancelledBy?.Gameworld);
+		return true;
+	}
+
+	public bool RetryActiveTask(IEmploymentActiveTask task, ICharacter? retriedBy, string reason)
+	{
+		if (!IsAuthorised(retriedBy, EmploymentAuthority.AssignTasks))
+		{
+			throw new InvalidOperationException($"{ActorName(retriedBy)} is not authorised to retry tasks for {_host.EmploymentHostName}.");
+		}
+
+		if (task is not EmploymentActiveTask concrete || !_activeTasks.Contains(task))
+		{
+			return false;
+		}
+
+		if (task.Status is not EmploymentTaskStatus.Blocked and not EmploymentTaskStatus.Failed)
+		{
+			return false;
+		}
+
+		if (TryBlockAdministrativeCustodyRisk(concrete, retriedBy, "retry", out _))
+		{
+			return false;
+		}
+
+		reason = string.IsNullOrWhiteSpace(reason) ? "Retried by a manager." : reason.Trim();
+		if (!concrete.RequeueForAdministration(reason, clearCurrentFailure: true, allowFailedStep: true))
+		{
+			return false;
+		}
+
+		_host.EmploymentRegister.Record(EmploymentRegisterEntryType.ActiveTaskRequeued, retriedBy,
+			$"Retried active task {task.Name}: {reason}", task.CorrelationId);
+		_host.DebugEmployment($"Retried active task {task.Name}: {reason}", retriedBy?.Gameworld);
+		return true;
+	}
+
+	public bool RequeueActiveTask(IEmploymentActiveTask task, ICharacter? requeuedBy, string reason)
+	{
+		if (!IsAuthorised(requeuedBy, EmploymentAuthority.AssignTasks))
+		{
+			throw new InvalidOperationException($"{ActorName(requeuedBy)} is not authorised to requeue tasks for {_host.EmploymentHostName}.");
+		}
+
+		if (task is not EmploymentActiveTask concrete || !_activeTasks.Contains(task))
+		{
+			return false;
+		}
+
+		if (task.Status is EmploymentTaskStatus.Completed or EmploymentTaskStatus.Cancelled or EmploymentTaskStatus.Failed)
+		{
+			return false;
+		}
+
+		if (TryBlockAdministrativeCustodyRisk(concrete, requeuedBy, "requeue", out _))
+		{
+			return false;
+		}
+
+		reason = string.IsNullOrWhiteSpace(reason) ? "Requeued by a manager." : reason.Trim();
+		if (!concrete.RequeueForAdministration(reason, clearCurrentFailure: false, allowFailedStep: false))
+		{
+			return false;
+		}
+
+		_host.EmploymentRegister.Record(EmploymentRegisterEntryType.ActiveTaskRequeued, requeuedBy,
+			$"Requeued active task {task.Name}: {reason}", task.CorrelationId);
+		_host.DebugEmployment($"Requeued active task {task.Name}: {reason}", requeuedBy?.Gameworld);
+		return true;
+	}
+
+	public bool AssignActiveTask(IEmploymentActiveTask task, ICharacter employee, IEmploymentTaskContext context,
+		ICharacter? assignedBy, string reason)
+	{
+		if (!IsAuthorised(assignedBy, EmploymentAuthority.AssignTasks))
+		{
+			throw new InvalidOperationException($"{ActorName(assignedBy)} is not authorised to assign tasks for {_host.EmploymentHostName}.");
+		}
+
+		if (task is not EmploymentActiveTask concrete || !_activeTasks.Contains(task))
+		{
+			return false;
+		}
+
+		if (task.Status is EmploymentTaskStatus.Completed or EmploymentTaskStatus.Cancelled or EmploymentTaskStatus.Failed)
+		{
+			return false;
+		}
+
+		if (!_host.EmploymentContracts.Any(x => x.Employee.Id == employee.Id && x.Status == EmploymentStatus.Active))
+		{
+			return false;
+		}
+
+		var nextStepIndex = concrete.NextStepIndex;
+		if (nextStepIndex < 0 || nextStepIndex >= task.ActionPlan.Steps.Count)
+		{
+			return false;
+		}
+
+		if (task.AssignedEmployee is not null &&
+		    task.AssignedEmployee.Id != employee.Id &&
+		    TryBlockAdministrativeCustodyRisk(concrete, assignedBy, "reassign", out _))
+		{
+			return false;
+		}
+
+		context.HydrateTaskState(task, nextStepIndex);
+		var nextStep = task.ActionPlan.Steps[nextStepIndex];
+		if (!nextStep.CanExecute(context, employee, out var stepReason))
+		{
+			concrete.Block(stepReason);
+			_host.EmploymentRegister.Record(EmploymentRegisterEntryType.ActiveTaskBlocked, assignedBy,
+				$"Could not assign active task {task.Name} to {employee.Name}: {stepReason}", task.CorrelationId);
+			_host.DebugEmployment($"Could not assign active task {task.Name} to {employee.Name}: {stepReason}",
+				assignedBy?.Gameworld);
+			return false;
+		}
+
+		reason = string.IsNullOrWhiteSpace(reason) ? "Assigned by a manager." : reason.Trim();
+		if (task.AssignedEmployee is not null && task.AssignedEmployee.Id != employee.Id)
+		{
+			concrete.RequeueForAdministration(reason, clearCurrentFailure: false, allowFailedStep: false);
+			_host.EmploymentRegister.Record(EmploymentRegisterEntryType.ActiveTaskRequeued, assignedBy,
+				$"Released {task.Name} for reassignment: {reason}", task.CorrelationId);
+		}
+
+		concrete.Assign(employee);
+		_host.EmploymentRegister.Record(EmploymentRegisterEntryType.ActiveTaskAssigned, employee,
+			$"Assigned task {task.Name} by {ActorName(assignedBy)}: {reason}", task.CorrelationId);
+		_host.DebugEmployment($"Assigned active task {task.Name} to {employee.Name}: {reason}", assignedBy?.Gameworld);
+		return true;
+	}
+
+	private bool TryBlockAdministrativeCustodyRisk(EmploymentActiveTask task, ICharacter? actor, string operation,
+		out string reason)
+	{
+		if (!TryGetUnsecuredTaskItemCustodyReason(task, out var custodyReason))
+		{
+			reason = string.Empty;
+			return false;
+		}
+
+		reason = $"Cannot {operation} active task {task.Name}: {custodyReason}";
+		task.Block(reason);
+		_host.EmploymentRegister.Record(EmploymentRegisterEntryType.ActiveTaskBlocked, actor, reason, task.CorrelationId);
+		_host.DebugEmployment(reason, actor?.Gameworld);
 		return true;
 	}
 
@@ -3138,6 +3625,32 @@ public sealed class EmploymentTaskBoard : IEmploymentTaskBoard
 
 	public IReadOnlyCollection<EmploymentTaskAssignmentAuditResult> AuditActiveTaskAssignments()
 	{
+		EmploymentTaskAssignmentAuditResult ResolveAssignmentProblem(EmploymentActiveTask task, string reason)
+		{
+			if (TryGetUnsecuredTaskItemCustodyReason(task, out var itemReason))
+			{
+				var blockedReason =
+					$"{reason} {itemReason}";
+				task.Block(blockedReason);
+				_host.EmploymentRegister.Record(EmploymentRegisterEntryType.ActiveTaskBlocked, task.AssignedEmployee,
+					blockedReason, task.CorrelationId);
+				_host.DebugEmployment($"Suspended active task {task.Name}: {blockedReason}",
+					task.AssignedEmployee?.Gameworld);
+				return new EmploymentTaskAssignmentAuditResult(task.Id, task.Name,
+					EmploymentTaskAssignmentAuditOutcome.Blocked, blockedReason);
+			}
+
+			var requeueReason = $"{reason} The task has been returned to pending for reassignment.";
+			var previousEmployee = task.AssignedEmployee;
+			task.ReleaseAssignment(requeueReason);
+			_host.EmploymentRegister.Record(EmploymentRegisterEntryType.ActiveTaskRequeued, previousEmployee,
+				requeueReason, task.CorrelationId);
+			_host.DebugEmployment($"Requeued active task {task.Name}: {requeueReason}",
+				previousEmployee?.Gameworld);
+			return new EmploymentTaskAssignmentAuditResult(task.Id, task.Name,
+				EmploymentTaskAssignmentAuditOutcome.Requeued, requeueReason);
+		}
+
 		var results = new List<EmploymentTaskAssignmentAuditResult>();
 		foreach (var task in _activeTasks.OfType<EmploymentActiveTask>()
 		                                 .Where(x => x.Status is EmploymentTaskStatus.Assigned or
@@ -3163,34 +3676,18 @@ public sealed class EmploymentTaskBoard : IEmploymentTaskBoard
 				continue;
 			}
 
+			if (TryGetLogisticsResourceAuditReason(task, out var logisticsReason))
+			{
+				results.Add(ResolveAssignmentProblem(task, logisticsReason));
+				continue;
+			}
+
 			if (!TryGetAssignmentAuditReason(task, out var reason))
 			{
 				continue;
 			}
 
-			if (TryGetUnsecuredTaskItemCustodyReason(task, out var itemReason))
-			{
-				var blockedReason =
-					$"{reason} {itemReason}";
-				task.Block(blockedReason);
-				_host.EmploymentRegister.Record(EmploymentRegisterEntryType.ActiveTaskBlocked, task.AssignedEmployee,
-					blockedReason, task.CorrelationId);
-				_host.DebugEmployment($"Suspended active task {task.Name}: {blockedReason}",
-					task.AssignedEmployee?.Gameworld);
-				results.Add(new EmploymentTaskAssignmentAuditResult(task.Id, task.Name,
-					EmploymentTaskAssignmentAuditOutcome.Blocked, blockedReason));
-				continue;
-			}
-
-			var requeueReason = $"{reason} The task has been returned to pending for reassignment.";
-			var previousEmployee = task.AssignedEmployee;
-			task.ReleaseAssignment(requeueReason);
-			_host.EmploymentRegister.Record(EmploymentRegisterEntryType.ActiveTaskRequeued, previousEmployee,
-				requeueReason, task.CorrelationId);
-			_host.DebugEmployment($"Requeued active task {task.Name}: {requeueReason}",
-				previousEmployee?.Gameworld);
-			results.Add(new EmploymentTaskAssignmentAuditResult(task.Id, task.Name,
-				EmploymentTaskAssignmentAuditOutcome.Requeued, requeueReason));
+			results.Add(ResolveAssignmentProblem(task, reason));
 		}
 
 		return results;
@@ -3232,7 +3729,19 @@ public sealed class EmploymentTaskBoard : IEmploymentTaskBoard
 			return [];
 		}
 
-		var task = new EmploymentActiveTask(_host, concrete.Name, concrete.ActionPlan, Guid.NewGuid(), _persistence)
+		var correlationId = Guid.NewGuid();
+		var rulePrincipal = EmploymentPrincipal.ForScheduledRule(concrete);
+		var task = new EmploymentActiveTask(_host, concrete.Name, concrete.ActionPlan, correlationId, _persistence,
+			CreateTaskProvenance(
+				_host,
+				concrete.ActionPlan,
+				correlationId,
+				EmploymentTaskSourceKind.ScheduledRule,
+				rulePrincipal,
+				rulePrincipal,
+				0,
+				now,
+				sourceRuleId: concrete.Id))
 		{
 			IdempotencyKey = concrete.IdempotencyKey
 		};
@@ -3321,6 +3830,214 @@ public sealed class EmploymentTaskBoard : IEmploymentTaskBoard
 		return false;
 	}
 
+	private bool TryGetLogisticsResourceAuditReason(EmploymentActiveTask task, out string reason)
+	{
+		reason = string.Empty;
+		var gameworld = task.AssignedEmployee?.Gameworld ?? (_host as IHaveFuturemud)?.Gameworld;
+		if (gameworld is null)
+		{
+			return false;
+		}
+
+		var checkedVehicles = new HashSet<long>();
+		var checkedMounts = new HashSet<long>();
+		var checkedStables = new HashSet<long>();
+		var checkedDestinations = new HashSet<long>();
+		for (var i = 0; i < task.ActionPlan.Steps.Count && i < task.StepStates.Count; i++)
+		{
+			if (task.StepStates[i] != EmploymentActionStepStatus.Completed)
+			{
+				continue;
+			}
+
+			var state = task.StepOperationalStates.ElementAtOrDefault(i);
+			if (!TryParseOperationalKeyValues(state?.SelectedResources, out var values) ||
+			    !values.TryGetValue("operation", out var operation))
+			{
+				continue;
+			}
+
+			if (operation.EqualToAny("vehicleassign", "vehiclecargo") &&
+			    TryGetLongValue(values, "vehicle", out var vehicleId) &&
+			    checkedVehicles.Add(vehicleId) &&
+			    !TryValidateAssignedVehicle(gameworld, vehicleId, out reason))
+			{
+				return true;
+			}
+
+			if (operation.EqualToAny("animallead", "animalride", "animallodge", "animalreturn"))
+			{
+				if ((TryGetLongValue(values, "mount", out var mountId) ||
+				     TryGetLongValue(values, "originalmount", out mountId)) &&
+				    checkedMounts.Add(mountId) &&
+				    !TryValidateAssignedAnimal(gameworld, mountId, out reason))
+				{
+					return true;
+				}
+
+				if (TryGetLongValue(values, "stable", out var stableId) &&
+				    checkedStables.Add(stableId) &&
+				    !TryValidateStable(gameworld, stableId, out reason))
+				{
+					return true;
+				}
+			}
+
+			foreach (var destinationId in LogisticsDestinationIds(values))
+			{
+				if (checkedDestinations.Add(destinationId) &&
+				    !TryValidateLogisticsDestination(gameworld, destinationId, out reason))
+				{
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
+	private static bool TryValidateAssignedVehicle(IFuturemud gameworld, long vehicleId, out string reason)
+	{
+		reason = string.Empty;
+		var vehicle = gameworld.Vehicles?.Get(vehicleId);
+		if (vehicle is null)
+		{
+			reason = $"Assigned vehicle #{vehicleId:N0} is no longer loaded in the world.";
+			return false;
+		}
+
+		if (vehicle.Destroyed)
+		{
+			reason = $"Assigned vehicle {vehicle.Name} (#{vehicleId:N0}) is destroyed.";
+			return false;
+		}
+
+		if (vehicle.Disabled)
+		{
+			reason = $"Assigned vehicle {vehicle.Name} (#{vehicleId:N0}) is disabled.";
+			return false;
+		}
+
+		if (vehicle.Location is null)
+		{
+			reason = $"Assigned vehicle {vehicle.Name} (#{vehicleId:N0}) no longer has a valid location.";
+			return false;
+		}
+
+		return true;
+	}
+
+	private static bool TryValidateAssignedAnimal(IFuturemud gameworld, long animalId, out string reason)
+	{
+		reason = string.Empty;
+		var animal = gameworld.TryGetCharacter(animalId, true);
+		if (animal is null)
+		{
+			reason = $"Assigned animal #{animalId:N0} is no longer loaded in the world.";
+			return false;
+		}
+
+		if (animal.State.IsDead())
+		{
+			reason = $"Assigned animal {animal.Name} (#{animalId:N0}) is dead.";
+			return false;
+		}
+
+		if (animal.State.IsInStatis())
+		{
+			reason = $"Assigned animal {animal.Name} (#{animalId:N0}) is in stasis.";
+			return false;
+		}
+
+		if (animal.Location is null)
+		{
+			reason = $"Assigned animal {animal.Name} (#{animalId:N0}) no longer has a valid location.";
+			return false;
+		}
+
+		return true;
+	}
+
+	private static bool TryValidateStable(IFuturemud gameworld, long stableId, out string reason)
+	{
+		reason = string.Empty;
+		var stable = gameworld.Stables?.Get(stableId);
+		if (stable is null)
+		{
+			reason = $"Assigned stable #{stableId:N0} is no longer loaded in the world.";
+			return false;
+		}
+
+		if (stable.Location is null)
+		{
+			reason = $"Assigned stable {stable.Name} (#{stableId:N0}) no longer has a valid location.";
+			return false;
+		}
+
+		return true;
+	}
+
+	private static bool TryValidateLogisticsDestination(IFuturemud gameworld, long destinationId, out string reason)
+	{
+		reason = string.Empty;
+		if (gameworld.Cells?.Get(destinationId) is not null)
+		{
+			return true;
+		}
+
+		reason = $"Recorded logistics destination #{destinationId:N0} is no longer loaded in the world.";
+		return false;
+	}
+
+	private static IEnumerable<long> LogisticsDestinationIds(IReadOnlyDictionary<string, string> values)
+	{
+		foreach (var key in new[] { "destination", "final" })
+		{
+			if (TryGetLongValue(values, key, out var id))
+			{
+				yield return id;
+			}
+		}
+
+		if (!values.TryGetValue("stops", out var stops) ||
+		    stops.EqualTo("none"))
+		{
+			yield break;
+		}
+
+		foreach (var part in stops.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+		{
+			if (long.TryParse(part, NumberStyles.Integer, CultureInfo.InvariantCulture, out var id))
+			{
+				yield return id;
+			}
+		}
+	}
+
+	private static bool TryParseOperationalKeyValues(string? text, out Dictionary<string, string> values)
+	{
+		values = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
+		if (string.IsNullOrWhiteSpace(text))
+		{
+			return false;
+		}
+
+		foreach (var pair in text.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+		                         .Select(x => x.Split('=', 2, StringSplitOptions.TrimEntries))
+		                         .Where(x => x.Length == 2 && !string.IsNullOrWhiteSpace(x[0])))
+		{
+			values[pair[0]] = pair[1];
+		}
+
+		return values.Count > 0;
+	}
+
+	private static bool TryGetLongValue(IReadOnlyDictionary<string, string> values, string key, out long value)
+	{
+		value = 0;
+		return values.TryGetValue(key, out var text) &&
+		       long.TryParse(text, NumberStyles.Integer, CultureInfo.InvariantCulture, out value);
+	}
 	private bool TryGetResourceCustodyAuditReason(EmploymentActiveTask task, out string reason)
 	{
 		reason = string.Empty;
@@ -3673,20 +4390,26 @@ public sealed class EmploymentActiveTask : IEmploymentActiveTask
 	private readonly List<EmploymentActionStepOperationalState> _stepOperationalStates;
 	private readonly IEmploymentPersistenceStore? _persistence;
 
-	public EmploymentActiveTask(IEmploymentHost employer, string name, EmploymentActionPlan actionPlan, Guid correlationId)
+	public EmploymentActiveTask(IEmploymentHost employer, string name, EmploymentActionPlan actionPlan, Guid correlationId,
+		EmploymentTaskProvenance? provenance = null)
 	{
 		Id = Guid.NewGuid();
 		Employer = employer;
 		Name = name;
 		ActionPlan = actionPlan;
 		CorrelationId = correlationId;
+		Provenance = provenance ?? EmploymentTaskBoard.CreateCompatibilityTaskProvenance(
+			correlationId,
+			employer,
+			"Legacy active task creator",
+			"Legacy active task authoriser");
 		_stepStates = actionPlan.Steps.Select(_ => EmploymentActionStepStatus.Pending).ToList();
 		_stepOperationalStates = actionPlan.Steps.Select(_ => EmploymentActionStepOperationalState.Empty).ToList();
 	}
 
 	internal EmploymentActiveTask(IEmploymentHost employer, string name, EmploymentActionPlan actionPlan,
-		Guid correlationId, IEmploymentPersistenceStore? persistence)
-		: this(employer, name, actionPlan, correlationId)
+		Guid correlationId, IEmploymentPersistenceStore? persistence, EmploymentTaskProvenance? provenance = null)
+		: this(employer, name, actionPlan, correlationId, provenance)
 	{
 		_persistence = persistence;
 	}
@@ -3696,7 +4419,7 @@ public sealed class EmploymentActiveTask : IEmploymentActiveTask
 		IEnumerable<EmploymentActionStepStatus> stepStates,
 		IEnumerable<EmploymentActionStepOperationalState> stepOperationalStates,
 		Guid correlationId, string idempotencyKey,
-		IEmploymentPersistenceStore persistence)
+		IEmploymentPersistenceStore persistence, EmploymentTaskProvenance? provenance = null)
 	{
 		Id = id;
 		Employer = employer;
@@ -3708,6 +4431,11 @@ public sealed class EmploymentActiveTask : IEmploymentActiveTask
 		CorrelationId = correlationId;
 		IdempotencyKey = idempotencyKey;
 		_persistence = persistence;
+		Provenance = provenance ?? EmploymentTaskBoard.CreateCompatibilityTaskProvenance(
+			correlationId,
+			employer,
+			"Loaded active task creator",
+			"Loaded active task authoriser");
 		_stepStates = stepStates.ToList();
 		if (_stepStates.Count != actionPlan.Steps.Count)
 		{
@@ -3732,6 +4460,17 @@ public sealed class EmploymentActiveTask : IEmploymentActiveTask
 	public IReadOnlyList<EmploymentActionStepOperationalState> StepOperationalStates => _stepOperationalStates;
 	public Guid CorrelationId { get; }
 	public string IdempotencyKey { get; init; } = string.Empty;
+	public EmploymentTaskProvenance Provenance { get; private set; }
+	public EmploymentTaskSourceKind SourceKind => Provenance.SourceKind;
+	public Guid? SourceRuleId => Provenance.SourceRuleId;
+	public long? SourceGoalId => Provenance.SourceGoalId;
+	public EmploymentPrincipal CreatedByPrincipal => Provenance.CreatedByPrincipal;
+	public EmploymentPrincipal AuthorisedByPrincipal => Provenance.AuthorisedByPrincipal;
+	public EmploymentAuthorisationGrant AuthorisationGrant => Provenance.AuthorisationGrant;
+	public int Priority => Provenance.Priority;
+	public DateTimeOffset CreatedAt => Provenance.CreatedAt;
+	public DateTimeOffset? DueAt => Provenance.DueAt;
+	public DateTimeOffset? AssignedAt => Provenance.AssignedAt;
 
 	public int NextStepIndex => _stepStates.FindIndex(x => x is EmploymentActionStepStatus.Pending or EmploymentActionStepStatus.InProgress or EmploymentActionStepStatus.Blocked);
 
@@ -3740,6 +4479,7 @@ public sealed class EmploymentActiveTask : IEmploymentActiveTask
 		AssignedEmployee = employee;
 		Status = EmploymentTaskStatus.Assigned;
 		BlockedReason = null;
+		Provenance = Provenance with { AssignedAt = EmploymentClock.CurrentInstant(Employer) };
 		_persistence?.SaveActiveTaskState(this);
 	}
 
@@ -3750,6 +4490,12 @@ public sealed class EmploymentActiveTask : IEmploymentActiveTask
 		_persistence?.SaveActiveTaskState(this);
 	}
 
+	internal void BlockForCompatibilityLoad(string reason)
+	{
+		Status = EmploymentTaskStatus.Blocked;
+		BlockedReason = reason;
+	}
+
 	public void Cancel(string reason)
 	{
 		Status = EmploymentTaskStatus.Cancelled;
@@ -3757,6 +4503,36 @@ public sealed class EmploymentActiveTask : IEmploymentActiveTask
 		_persistence?.SaveActiveTaskState(this);
 	}
 
+	public bool RequeueForAdministration(string reason, bool clearCurrentFailure, bool allowFailedStep)
+	{
+		var index = _stepStates.FindIndex(x =>
+			x is EmploymentActionStepStatus.Pending or EmploymentActionStepStatus.InProgress or EmploymentActionStepStatus.Blocked ||
+			allowFailedStep && x == EmploymentActionStepStatus.Failed);
+		if (index < 0 || index >= _stepStates.Count)
+		{
+			return false;
+		}
+
+		if (_stepStates[index] == EmploymentActionStepStatus.Failed && !allowFailedStep)
+		{
+			return false;
+		}
+
+		if (_stepStates[index] is EmploymentActionStepStatus.InProgress or EmploymentActionStepStatus.Blocked or EmploymentActionStepStatus.Failed)
+		{
+			_stepStates[index] = EmploymentActionStepStatus.Pending;
+			_stepOperationalStates[index] = clearCurrentFailure
+				? _stepOperationalStates[index].WithoutFailure()
+				: _stepOperationalStates[index].WithFailure(reason);
+		}
+
+		AssignedEmployee = null;
+		Status = EmploymentTaskStatus.Pending;
+		BlockedReason = reason;
+		Provenance = Provenance with { AssignedAt = null };
+		_persistence?.SaveActiveTaskState(this);
+		return true;
+	}
 	public void ReleaseAssignment(string reason)
 	{
 		var index = NextStepIndex;
@@ -3790,11 +4566,18 @@ public sealed class EmploymentActiveTask : IEmploymentActiveTask
 		}
 
 		_stepOperationalStates[index] = mergedState;
+		var now = EmploymentClock.CurrentInstant(Employer);
+		if (status is EmploymentActionStepStatus.InProgress or EmploymentActionStepStatus.Completed &&
+		    Provenance.StartedAt is null)
+		{
+			Provenance = Provenance with { StartedAt = now };
+		}
 
 		if (_stepStates.All(x => x == EmploymentActionStepStatus.Completed))
 		{
 			Status = EmploymentTaskStatus.Completed;
 			BlockedReason = null;
+			Provenance = Provenance with { CompletedAt = now };
 		}
 		else if (status == EmploymentActionStepStatus.Failed)
 		{
@@ -3836,18 +4619,6 @@ public sealed class EmploymentTaskDispatcher
 				continue;
 			}
 
-			var missingCapabilities = task.ActionPlan.RequiredCapabilities
-			                          .Where(x => !candidate.Capabilities.Contains(x))
-			                          .ToList();
-			if (missingCapabilities.Any())
-			{
-				rejectionReasons.Add(
-					$"{candidate.Candidate.Name}: missing {missingCapabilities.Select(x => x.DescribeEnum()).ListToString()} capability");
-				context.Employer.DebugEmployment(
-					$"Skipped {candidate.Candidate.Name} for task {task.Name}: missing required AI capabilities.");
-				continue;
-			}
-
 			var nextStepIndex = concrete.NextStepIndex;
 			if (nextStepIndex < 0)
 			{
@@ -3856,8 +4627,21 @@ public sealed class EmploymentTaskDispatcher
 				continue;
 			}
 
+			var nextStep = task.ActionPlan.Steps[nextStepIndex];
+			var missingCapabilities = nextStep.RequiredCapabilities
+			                          .Where(x => !candidate.Capabilities.Contains(x))
+			                          .ToList();
+			if (missingCapabilities.Any())
+			{
+				rejectionReasons.Add(
+					$"{candidate.Candidate.Name}: missing {missingCapabilities.Select(x => x.DescribeEnum()).ListToString()} capability");
+				context.Employer.DebugEmployment(
+					$"Skipped {candidate.Candidate.Name} for task {task.Name}: missing required AI capabilities for step {nextStepIndex + 1:N0}.");
+				continue;
+			}
+
 			context.HydrateTaskState(task, nextStepIndex);
-			if (!task.ActionPlan.Steps[nextStepIndex].CanExecute(context, candidate.Candidate, out var stepReason))
+			if (!nextStep.CanExecute(context, candidate.Candidate, out var stepReason))
 			{
 				rejectionReasons.Add($"{candidate.Candidate.Name}: {stepReason}");
 				context.Employer.DebugEmployment(
@@ -3962,6 +4746,16 @@ public sealed class EmploymentTaskDispatcher
 		context.Employer.DebugEmployment(
 			$"{task.AssignedEmployee.Name} {(result.Success ? "completed" : "did not complete")} step {index + 1:N0} of task {task.Name}: {result.Message}",
 			task.AssignedEmployee.Gameworld);
+		if (result.Success &&
+		    result.Completed &&
+		    concrete.Status is not EmploymentTaskStatus.Completed and not EmploymentTaskStatus.Failed &&
+		    TryReleaseAssignmentForNextStep(concrete, context, out var previousEmployee, out var requeueReason))
+		{
+			context.RecordRegister(EmploymentRegisterEntryType.ActiveTaskRequeued, previousEmployee,
+				requeueReason, task.CorrelationId);
+			context.Employer.DebugEmployment(requeueReason, previousEmployee?.Gameworld);
+		}
+
 		if (concrete.Status == EmploymentTaskStatus.Completed)
 		{
 			EmploymentCraftService.ReleaseCraftReservations(concrete, task.AssignedEmployee.Gameworld);
@@ -3977,6 +4771,42 @@ public sealed class EmploymentTaskDispatcher
 		return result;
 	}
 
+	private static bool TryReleaseAssignmentForNextStep(EmploymentActiveTask task, IEmploymentTaskContext context,
+		out ICharacter? previousEmployee, out string reason)
+	{
+		previousEmployee = task.AssignedEmployee;
+		reason = string.Empty;
+		if (previousEmployee is null)
+		{
+			return false;
+		}
+
+		var nextStepIndex = task.NextStepIndex;
+		if (nextStepIndex < 0 || nextStepIndex >= task.ActionPlan.Steps.Count)
+		{
+			return false;
+		}
+
+		context.HydrateTaskState(task, nextStepIndex);
+		ApplyDurablePaymentAuthorisations(task, context, nextStepIndex);
+		context.HydrateTaskState(task, nextStepIndex);
+		var nextStep = task.ActionPlan.Steps[nextStepIndex];
+		if (nextStep.CanExecute(context, previousEmployee, out _))
+		{
+			return false;
+		}
+
+		if (context.CarriedTaskItems(previousEmployee).Any())
+		{
+			return false;
+		}
+
+		reason =
+			$"Released {previousEmployee.Name} from task {task.Name} after step {nextStepIndex:N0} because step {nextStepIndex + 1:N0} requires another worker.";
+		task.ReleaseAssignment(reason);
+		return true;
+	}
+
 	private static void ApplyDurablePaymentAuthorisations(EmploymentActiveTask task, IEmploymentTaskContext context,
 		int currentStepIndex)
 	{
@@ -3986,7 +4816,34 @@ public sealed class EmploymentTaskDispatcher
 			return;
 		}
 
-		var authorised = new Dictionary<long, decimal>();
+		if (TaskGrantAuthorisesStep(task, currentStep, currentStepIndex))
+		{
+			context.AuthorisePaymentFor(currentStep, null, task.CorrelationId, recordRegister: false);
+		}
+	}
+
+	private static bool TaskGrantAuthorisesStep(EmploymentActiveTask task, IEmploymentActionStep currentStep,
+		int currentStepIndex)
+	{
+		var grant = task.AuthorisationGrant;
+		if (!grant.CoversAuthority(currentStep.RequiredAuthority))
+		{
+			return false;
+		}
+
+		var scopes = EmploymentTaskBoard.FinancialAuthorisationScopesFor(task.Employer, currentStep);
+		if (!grant.CoversPaymentSource(scopes.PaymentSourceScope) ||
+		    !grant.CoversCounterparty(scopes.CounterpartyScope))
+		{
+			return false;
+		}
+
+		if (!TryGetFinancialStepAmount(currentStep, out var currentAmount))
+		{
+			return grant.AllowsUnboundedFinancialSteps;
+		}
+
+		var alreadyUsed = new Dictionary<long, decimal>();
 		for (var i = 0; i < currentStepIndex; i++)
 		{
 			if (task.StepStates[i] != EmploymentActionStepStatus.Completed)
@@ -3995,38 +4852,18 @@ public sealed class EmploymentTaskDispatcher
 			}
 
 			var step = task.ActionPlan.Steps[i];
-			if (step is CataloguedActionShellStep { ActionKey: "authorise", Amount: null })
+			if (!step.RequiresPaymentAuthorisation || !TryGetFinancialStepAmount(step, out var spent))
 			{
-				context.AuthorisePaymentFor(currentStep, task.AssignedEmployee, task.CorrelationId,
-					recordRegister: false);
-				return;
-			}
-
-			if (step is CataloguedActionShellStep { ActionKey: "authorise", Amount: not null } authorisation)
-			{
-				authorised[authorisation.Amount.Currency.Id] =
-					authorised.GetValueOrDefault(authorisation.Amount.Currency.Id) + authorisation.Amount.Amount;
 				continue;
 			}
 
-			if (step.RequiresPaymentAuthorisation && TryGetFinancialStepAmount(step, out var spent))
-			{
-				authorised[spent.Currency.Id] = authorised.GetValueOrDefault(spent.Currency.Id) - spent.Amount;
-			}
+			alreadyUsed[spent.Currency.Id] = alreadyUsed.GetValueOrDefault(spent.Currency.Id) + spent.Amount;
 		}
 
-		if (!TryGetFinancialStepAmount(currentStep, out var currentAmount))
-		{
-			return;
-		}
-
-		if (authorised.GetValueOrDefault(currentAmount.Currency.Id) >= currentAmount.Amount)
-		{
-			context.AuthorisePaymentFor(currentStep, task.AssignedEmployee, task.CorrelationId, recordRegister: false);
-		}
+		return grant.Covers(currentAmount, alreadyUsed);
 	}
 
-	private static bool TryGetFinancialStepAmount(IEmploymentActionStep step, out MoneyAmount amount)
+	internal static bool TryGetFinancialStepAmount(IEmploymentActionStep step, out MoneyAmount amount)
 	{
 		switch (step)
 		{
@@ -4044,6 +4881,15 @@ public sealed class EmploymentTaskDispatcher
 				return true;
 			case BankWithdrawalActionStep withdrawal:
 				amount = withdrawal.Amount;
+				return true;
+			case BankAccountTransferActionStep transfer:
+				amount = transfer.Amount;
+				return true;
+			case BankAdministrationActionStep { Amount: not null } bankAdmin when bankAdmin.RequiresPaymentAuthorisation:
+				amount = bankAdmin.Amount;
+				return true;
+			case HostSettlementActionStep settlement:
+				amount = settlement.Amount;
 				return true;
 			case StoreAccountPaymentActionStep storePayment:
 				amount = storePayment.Amount;
@@ -4091,7 +4937,13 @@ public sealed class ManagerGoalBoard : IManagerGoalBoard
 
 	public IManagerGoal CreateGoal(ManagerGoalDefinition definition, ICharacter authorisedBy)
 	{
-		var requiredAuthority = RequiredAuthorityFor(definition);
+		var conditions = definition.Configuration.Conditions?.ToList() ?? [];
+		if (!EmploymentConditionExpressionEvaluator.Validate(definition.Configuration.ConditionExpression, conditions, _host.TaskBoard, out var expressionReason))
+		{
+			throw new InvalidOperationException(expressionReason);
+		}
+
+		var requiredAuthority = RequiredAuthorityFor(definition, _host.TaskBoard);
 		if (!_host.HasAuthority(authorisedBy, EmploymentAuthority.CreateManagerGoals))
 		{
 			throw new InvalidOperationException($"{authorisedBy.HowSeen(authorisedBy, colour: false)} is not authorised to create manager goals for {_host.EmploymentHostName}.");
@@ -4104,6 +4956,12 @@ public sealed class ManagerGoalBoard : IManagerGoalBoard
 			throw new InvalidOperationException("A manager cannot create a goal that requires authority they do not possess.");
 		}
 
+		var policy = definition.Policy ?? ManagerGoalPolicy.Default;
+		if (!TryValidateGoalPolicy(definition.Configuration.ActionPlan, policy, out var policyReason))
+		{
+			throw new InvalidOperationException(policyReason);
+		}
+
 		var goal = new ManagerGoal(
 			Interlocked.Increment(ref _nextId),
 			_host,
@@ -4113,6 +4971,7 @@ public sealed class ManagerGoalBoard : IManagerGoalBoard
 			definition.Configuration,
 			definition.Priority,
 			definition.EvaluationCadence,
+			policy,
 			Guid.NewGuid(),
 			_persistence);
 		_goals.Add(goal);
@@ -4124,14 +4983,14 @@ public sealed class ManagerGoalBoard : IManagerGoalBoard
 		return goal;
 	}
 
-	private static EmploymentAuthoritySet RequiredAuthorityFor(ManagerGoalDefinition definition)
+	private static EmploymentAuthoritySet RequiredAuthorityFor(ManagerGoalDefinition definition, IEmploymentTaskBoard taskBoard)
 	{
 		var authority = definition.RequiredAuthority.Authorities |
 		                (definition.Configuration.ActionPlan?.RequiredAuthority.Authorities ?? EmploymentAuthority.None);
-		foreach (var condition in definition.Configuration.Conditions ?? [])
-		{
-			authority |= RequiredGoalConditionAuthority(condition.RequiredAuthority.Authorities);
-		}
+		var conditions = definition.Configuration.Conditions?.ToList() ?? [];
+		authority |= RequiredGoalConditionAuthority(EmploymentConditionExpressionEvaluator
+			.RequiredAuthority(definition.Configuration.ConditionExpression, conditions, taskBoard)
+			.Authorities);
 
 		return new EmploymentAuthoritySet(authority);
 	}
@@ -4159,56 +5018,240 @@ public sealed class ManagerGoalBoard : IManagerGoalBoard
 		_host.DebugEmployment($"Cancelled manager goal #{concrete.Id:N0}: {reason}", cancelledBy.Gameworld);
 	}
 
+	public bool ReactivateGoal(IManagerGoal goal, ICharacter reactivatedBy, string reason)
+	{
+		if (goal is not ManagerGoal concrete || !ReferenceEquals(concrete.Employer, _host))
+		{
+			return false;
+		}
+
+		if (!_host.HasAuthority(reactivatedBy, EmploymentAuthority.ModifyManagerGoals))
+		{
+			throw new InvalidOperationException($"{reactivatedBy.HowSeen(reactivatedBy, colour: false)} is not authorised to reactivate manager goals for {_host.EmploymentHostName}.");
+		}
+
+		if (concrete.Status is ManagerGoalStatus.Cancelled or ManagerGoalStatus.Completed)
+		{
+			return false;
+		}
+
+		concrete.MarkActive(EmploymentClock.CurrentInstant(_host), reason);
+		_host.EmploymentRegister.Record(EmploymentRegisterEntryType.ManagerGoalEvaluated, reactivatedBy, reason,
+			concrete.CorrelationId);
+		_host.DebugEmployment($"Reactivated manager goal #{concrete.Id:N0}: {reason}", reactivatedBy.Gameworld);
+		return true;
+	}
+
 	public IReadOnlyCollection<IEmploymentActiveTask> EvaluateGoals(IEmploymentTaskContext context, DateTimeOffset now)
 	{
 		var tasks = new List<IEmploymentActiveTask>();
-		foreach (var goal in _goals.OfType<ManagerGoal>().Where(x => x.Status == ManagerGoalStatus.Active))
+		foreach (var goal in _goals
+		                     .OfType<ManagerGoal>()
+		                     .Where(x => x.Status is ManagerGoalStatus.Active or ManagerGoalStatus.Satisfied)
+		                     .OrderByDescending(x => x.Priority)
+		                     .ThenBy(x => x.Id))
 		{
-			if (goal.LastEvaluatedAt.HasValue && now - goal.LastEvaluatedAt.Value < goal.EvaluationCadence)
-			{
-				_host.DebugEmployment($"Skipped manager goal #{goal.Id:N0}: evaluation cadence has not elapsed.");
-				continue;
-			}
-
-			if (goal.Configuration.Conditions?.All(x => x.IsSatisfied(context, now, out _)) == false)
-			{
-				goal.MarkEvaluated(now, "Conditions were not satisfied.");
-				_host.EmploymentRegister.Record(EmploymentRegisterEntryType.ManagerGoalEvaluated, null,
-					goal.LastEvaluationResult!, goal.CorrelationId);
-				_host.DebugEmployment($"Manager goal #{goal.Id:N0} did not create work: {goal.LastEvaluationResult}");
-				continue;
-			}
-
-			if (goal.Configuration.ActionPlan is null)
-			{
-				goal.MarkEvaluated(now, "Goal had no action plan to create.");
-				_host.EmploymentRegister.Record(EmploymentRegisterEntryType.ManagerGoalEvaluated, null,
-					goal.LastEvaluationResult!, goal.CorrelationId);
-				_host.DebugEmployment($"Manager goal #{goal.Id:N0} did not create work: {goal.LastEvaluationResult}");
-				continue;
-			}
-
-			var idempotencyKey = GoalIdempotencyKey(goal);
-			if (_host.TaskBoard.HasBlockingActiveTask(idempotencyKey))
-			{
-				goal.MarkEvaluated(now,
-					$"An active task for manager goal #{goal.Id:N0} already exists.");
-				_host.EmploymentRegister.Record(EmploymentRegisterEntryType.ManagerGoalEvaluated, null,
-					goal.LastEvaluationResult!, goal.CorrelationId);
-				_host.DebugEmployment($"Manager goal #{goal.Id:N0} did not create work: {goal.LastEvaluationResult}");
-				continue;
-			}
-
-			var task = _host.TaskBoard.CreateActiveTask(goal.Configuration.Description, goal.Configuration.ActionPlan, null,
-				goal.CorrelationId, idempotencyKey);
-			tasks.Add(task);
-			goal.MarkEvaluated(now, $"Created active task {task.Name}.");
-			_host.EmploymentRegister.Record(EmploymentRegisterEntryType.ManagerGoalEvaluated, null,
-				goal.LastEvaluationResult!, goal.CorrelationId);
-			_host.DebugEmployment($"Manager goal #{goal.Id:N0} created active task {task.Name}.");
+			tasks.AddRange(EvaluateGoal(goal, context, now));
 		}
 
 		return tasks;
+	}
+
+	public IReadOnlyCollection<IEmploymentActiveTask> EvaluateGoal(IManagerGoal goal, IEmploymentTaskContext context,
+		DateTimeOffset now)
+	{
+		if (goal is not ManagerGoal concrete || !ReferenceEquals(concrete.Employer, _host))
+		{
+			return [];
+		}
+
+		if (concrete.Status is not ManagerGoalStatus.Active and not ManagerGoalStatus.Satisfied)
+		{
+			return [];
+		}
+
+		if (concrete.LastEvaluatedAt.HasValue && now - concrete.LastEvaluatedAt.Value < concrete.EvaluationCadence)
+		{
+			_host.DebugEmployment($"Skipped manager goal #{concrete.Id:N0}: evaluation cadence has not elapsed.");
+			return [];
+		}
+
+		if (TryGetFailedTaskForGoal(concrete, out var failedTask))
+		{
+			concrete.Fail(now,
+				$"Spawned task {failedTask.Name} failed: {TerminalTaskDiagnostic(failedTask)}");
+			_host.EmploymentRegister.Record(EmploymentRegisterEntryType.ManagerGoalEvaluated, null,
+				concrete.LastEvaluationResult!, concrete.CorrelationId);
+			_host.DebugEmployment($"Manager goal #{concrete.Id:N0} failed: {concrete.LastEvaluationResult}");
+			return [];
+		}
+
+		if (!GoalConditionsSatisfied(concrete, context, now, out var conditionReason))
+		{
+			concrete.MarkSatisfied(now, $"Goal is satisfied: {conditionReason}");
+			_host.EmploymentRegister.Record(EmploymentRegisterEntryType.ManagerGoalEvaluated, null,
+				concrete.LastEvaluationResult!, concrete.CorrelationId);
+			_host.DebugEmployment($"Manager goal #{concrete.Id:N0} is satisfied: {concrete.LastEvaluationResult}");
+			return [];
+		}
+
+		if (concrete.Status == ManagerGoalStatus.Satisfied)
+		{
+			concrete.MarkActive(now, "Conditions now require work.");
+		}
+
+		if (concrete.Configuration.ActionPlan is null)
+		{
+			concrete.Fail(now, "Goal had no action plan to create.");
+			_host.EmploymentRegister.Record(EmploymentRegisterEntryType.ManagerGoalEvaluated, null,
+				concrete.LastEvaluationResult!, concrete.CorrelationId);
+			_host.DebugEmployment($"Manager goal #{concrete.Id:N0} failed: {concrete.LastEvaluationResult}");
+			return [];
+		}
+
+		if (!TryValidateGoalPolicy(concrete.Configuration.ActionPlan, concrete.Policy, out var policyReason))
+		{
+			concrete.Block(policyReason);
+			_host.EmploymentRegister.Record(EmploymentRegisterEntryType.ManagerGoalEvaluated, null,
+				concrete.LastEvaluationResult!, concrete.CorrelationId);
+			_host.DebugEmployment($"Manager goal #{concrete.Id:N0} was blocked: {concrete.LastEvaluationResult}");
+			return [];
+		}
+
+		if (concrete.Policy.RiskLimits.MaximumActiveTasks is { } maximumActiveTasks &&
+		    ActiveTaskCountFor(concrete) >= maximumActiveTasks)
+		{
+			concrete.MarkEvaluated(now,
+				$"Risk limit permits {maximumActiveTasks.ToString("N0", CultureInfo.InvariantCulture)} active task(s), and that limit is already reached.");
+			_host.EmploymentRegister.Record(EmploymentRegisterEntryType.ManagerGoalEvaluated, null,
+				concrete.LastEvaluationResult!, concrete.CorrelationId);
+			_host.DebugEmployment($"Manager goal #{concrete.Id:N0} did not create work: {concrete.LastEvaluationResult}");
+			return [];
+		}
+
+		var idempotencyKey = GoalIdempotencyKey(concrete);
+		if (_host.TaskBoard.HasBlockingActiveTask(idempotencyKey))
+		{
+			concrete.MarkEvaluated(now,
+				$"An active task for manager goal #{concrete.Id:N0} already exists.");
+			_host.EmploymentRegister.Record(EmploymentRegisterEntryType.ManagerGoalEvaluated, null,
+				concrete.LastEvaluationResult!, concrete.CorrelationId);
+			_host.DebugEmployment($"Manager goal #{concrete.Id:N0} did not create work: {concrete.LastEvaluationResult}");
+			return [];
+		}
+
+		var goalPrincipal = EmploymentPrincipal.ForManagerGoal(concrete);
+		var task = _host.TaskBoard.CreateActiveTask(concrete.Configuration.Description, concrete.Configuration.ActionPlan, null,
+			concrete.CorrelationId, idempotencyKey, concrete.Priority, provenance: EmploymentTaskBoard.CreateTaskProvenance(
+				_host,
+				concrete.Configuration.ActionPlan,
+				concrete.CorrelationId,
+				EmploymentTaskSourceKind.ManagerGoal,
+				goalPrincipal,
+				goalPrincipal,
+				concrete.Priority,
+				now,
+				sourceGoalId: concrete.Id));
+		concrete.MarkEvaluated(now, $"Created active task {task.Name}.");
+		_host.EmploymentRegister.Record(EmploymentRegisterEntryType.ManagerGoalEvaluated, null,
+			concrete.LastEvaluationResult!, concrete.CorrelationId);
+		_host.DebugEmployment($"Manager goal #{concrete.Id:N0} created active task {task.Name}.");
+		return [task];
+	}
+
+	private int ActiveTaskCountFor(IManagerGoal goal)
+	{
+		return _host.TaskBoard.ActiveTasks.Count(x =>
+			x.SourceGoalId == goal.Id &&
+			x.Status is EmploymentTaskStatus.Pending or EmploymentTaskStatus.Assigned or
+				EmploymentTaskStatus.InProgress or EmploymentTaskStatus.Blocked);
+	}
+
+	private bool TryGetFailedTaskForGoal(IManagerGoal goal, out IEmploymentActiveTask failedTask)
+	{
+		failedTask = _host.TaskBoard.ActiveTasks
+			.Where(x => x.SourceGoalId == goal.Id && x.Status == EmploymentTaskStatus.Failed)
+			.OrderByDescending(x => x.CreatedAt)
+			.FirstOrDefault()!;
+		return failedTask is not null;
+	}
+
+	private static string TerminalTaskDiagnostic(IEmploymentActiveTask task)
+	{
+		if (!string.IsNullOrWhiteSpace(task.BlockedReason))
+		{
+			return task.BlockedReason;
+		}
+
+		return task.StepOperationalStates
+			.Select(x => x.FailureDiagnostic)
+			.LastOrDefault(x => !string.IsNullOrWhiteSpace(x)) ??
+			"No failure diagnostic was recorded.";
+	}
+
+	private static bool GoalConditionsSatisfied(IManagerGoal goal, IEmploymentTaskContext context, DateTimeOffset now,
+		out string reason)
+	{
+		var conditions = goal.Configuration.Conditions?.ToList() ?? [];
+		var result = EmploymentConditionExpressionEvaluator.Evaluate(
+			goal.Configuration.ConditionExpression,
+			conditions,
+			context,
+			now);
+		reason = result.Reason;
+		return result.Satisfied;
+	}
+
+
+	internal static bool TryValidateGoalPolicy(EmploymentActionPlan? actionPlan, ManagerGoalPolicy policy,
+		out string reason)
+	{
+		reason = string.Empty;
+		if (actionPlan is null)
+		{
+			return true;
+		}
+
+		if (policy.RiskLimits.MaximumActionSteps is { } maximumActionSteps &&
+		    actionPlan.Steps.Count > maximumActionSteps)
+		{
+			reason = $"Manager goal risk limit permits {maximumActionSteps.ToString("N0", CultureInfo.InvariantCulture)} action step(s), but the plan has {actionPlan.Steps.Count.ToString("N0", CultureInfo.InvariantCulture)}.";
+			return false;
+		}
+
+		var totals = new Dictionary<long, (ICurrency Currency, decimal Amount)>();
+		foreach (var step in actionPlan.Steps.Where(x => x.RequiresPaymentAuthorisation))
+		{
+			if (!EmploymentTaskDispatcher.TryGetFinancialStepAmount(step, out var amount))
+			{
+				if (policy.RiskLimits.AllowsUnboundedFinancialSteps)
+				{
+					continue;
+				}
+
+				reason = $"Manager goal risk limit does not allow unbounded financial step {step.StepType.DescribeEnum()}.";
+				return false;
+			}
+
+			var existing = totals.GetValueOrDefault(amount.Currency.Id, (Currency: amount.Currency, Amount: 0.0M));
+			totals[amount.Currency.Id] = (amount.Currency, existing.Amount + amount.Amount);
+		}
+
+		var budgets = policy.BudgetLimits
+		                    .GroupBy(x => x.Currency.Id)
+		                    .ToDictionary(x => x.Key, x => x.First());
+		foreach (var (currencyId, total) in totals)
+		{
+			if (!budgets.TryGetValue(currencyId, out var budget) || total.Amount <= budget.Amount)
+			{
+				continue;
+			}
+
+			reason = $"Manager goal budget for {total.Currency.Name} is {budget.Amount.ToString("N2", CultureInfo.InvariantCulture)}, but the action plan requires {total.Amount.ToString("N2", CultureInfo.InvariantCulture)}.";
+			return false;
+		}
+
+		return true;
 	}
 
 	private static string GoalIdempotencyKey(IManagerGoal goal)
@@ -4223,7 +5266,7 @@ public sealed class ManagerGoal : IManagerGoal
 
 	public ManagerGoal(long id, IEmploymentHost employer, ManagerGoalType goalType,
 		EmploymentAuthoritySet requiredAuthority, ManagerGoalStatus status, ManagerGoalConfiguration configuration,
-		int priority, TimeSpan evaluationCadence, Guid correlationId)
+		int priority, TimeSpan evaluationCadence, ManagerGoalPolicy? policy, Guid correlationId)
 	{
 		Id = id;
 		Employer = employer;
@@ -4233,22 +5276,23 @@ public sealed class ManagerGoal : IManagerGoal
 		Configuration = configuration;
 		Priority = priority;
 		EvaluationCadence = evaluationCadence;
+		Policy = policy ?? ManagerGoalPolicy.Default;
 		CorrelationId = correlationId;
 	}
 
 	internal ManagerGoal(long id, IEmploymentHost employer, ManagerGoalType goalType,
 		EmploymentAuthoritySet requiredAuthority, ManagerGoalStatus status, ManagerGoalConfiguration configuration,
-		int priority, TimeSpan evaluationCadence, Guid correlationId, IEmploymentPersistenceStore? persistence)
-		: this(id, employer, goalType, requiredAuthority, status, configuration, priority, evaluationCadence, correlationId)
+		int priority, TimeSpan evaluationCadence, ManagerGoalPolicy? policy, Guid correlationId, IEmploymentPersistenceStore? persistence)
+		: this(id, employer, goalType, requiredAuthority, status, configuration, priority, evaluationCadence, policy, correlationId)
 	{
 		_persistence = persistence;
 	}
 
 	internal ManagerGoal(long id, IEmploymentHost employer, ManagerGoalType goalType,
 		EmploymentAuthoritySet requiredAuthority, ManagerGoalStatus status, ManagerGoalConfiguration configuration,
-		int priority, TimeSpan evaluationCadence, DateTimeOffset? lastEvaluatedAt, string? lastEvaluationResult,
+		int priority, TimeSpan evaluationCadence, ManagerGoalPolicy? policy, DateTimeOffset? lastEvaluatedAt, string? lastEvaluationResult,
 		Guid correlationId, IEmploymentPersistenceStore persistence)
-		: this(id, employer, goalType, requiredAuthority, status, configuration, priority, evaluationCadence, correlationId)
+		: this(id, employer, goalType, requiredAuthority, status, configuration, priority, evaluationCadence, policy, correlationId)
 	{
 		LastEvaluatedAt = lastEvaluatedAt;
 		LastEvaluationResult = lastEvaluationResult;
@@ -4263,6 +5307,7 @@ public sealed class ManagerGoal : IManagerGoal
 	public ManagerGoalConfiguration Configuration { get; }
 	public int Priority { get; }
 	public TimeSpan EvaluationCadence { get; }
+	public ManagerGoalPolicy Policy { get; }
 	public DateTimeOffset? LastEvaluatedAt { get; private set; }
 	public string? LastEvaluationResult { get; private set; }
 	public Guid CorrelationId { get; }
@@ -4274,10 +5319,49 @@ public sealed class ManagerGoal : IManagerGoal
 		_persistence?.SaveManagerGoalState(this);
 	}
 
+	public void MarkActive(DateTimeOffset now, string result)
+	{
+		Status = ManagerGoalStatus.Active;
+		LastEvaluatedAt = now;
+		LastEvaluationResult = result;
+		_persistence?.SaveManagerGoalState(this);
+	}
+
+	public void MarkSatisfied(DateTimeOffset now, string result)
+	{
+		Status = ManagerGoalStatus.Satisfied;
+		LastEvaluatedAt = now;
+		LastEvaluationResult = result;
+		_persistence?.SaveManagerGoalState(this);
+	}
+
+	public void Fail(DateTimeOffset now, string reason)
+	{
+		Status = ManagerGoalStatus.Failed;
+		LastEvaluatedAt = now;
+		LastEvaluationResult = reason;
+		_persistence?.SaveManagerGoalState(this);
+	}
+
 	public void Cancel(string reason)
 	{
 		Status = ManagerGoalStatus.Cancelled;
 		LastEvaluationResult = reason;
 		_persistence?.SaveManagerGoalState(this);
+	}
+
+	public void Block(string reason)
+	{
+		Status = ManagerGoalStatus.Blocked;
+		LastEvaluatedAt = EmploymentClock.CurrentInstant(Employer);
+		LastEvaluationResult = reason;
+		_persistence?.SaveManagerGoalState(this);
+	}
+
+	internal void BlockForCompatibilityLoad(DateTimeOffset now, string reason)
+	{
+		Status = ManagerGoalStatus.Blocked;
+		LastEvaluatedAt = now;
+		LastEvaluationResult = reason;
 	}
 }

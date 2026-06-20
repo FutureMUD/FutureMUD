@@ -1,4 +1,4 @@
-﻿using JetBrains.Annotations;
+using JetBrains.Annotations;
 using MudSharp.Character;
 using MudSharp.Community;
 using MudSharp.Construction;
@@ -291,6 +291,11 @@ public partial class AuctionHouse : SaveableItem, IAuctionHouse, IPostCharacterL
     private bool TryPaySellerTarget(IFrameworkItem payoutTarget, decimal amount, string assetDescription)
     {
         if (amount <= 0.0M || payoutTarget == null)
+        {
+            return true;
+        }
+
+        if (payoutTarget is IAuctionHouse auctionHouse && auctionHouse.Id == Id)
         {
             return true;
         }
@@ -698,6 +703,38 @@ public partial class AuctionHouse : SaveableItem, IAuctionHouse, IPostCharacterL
     {
         _unclaimedItems.RemoveAll(x => x.AuctionItem == item);
         Changed = true;
+    }
+
+    public bool SettleAuctionItem(AuctionItem item, out string reason)
+    {
+        if (!_activeAuctionItems.Contains(item))
+        {
+            reason = "That auction lot is not active at this auction house.";
+            return false;
+        }
+
+        var now = EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime;
+        if (item.FinishingDateTime > now)
+        {
+            reason = "That auction lot has not reached its finishing time.";
+            return false;
+        }
+
+        CompleteAuction(item, CurrentAuctionBid(item), now);
+        reason = string.Empty;
+        return true;
+    }
+
+    public IReadOnlyCollection<AuctionItem> SettleFinishedAuctions()
+    {
+        var now = EconomicZone.FinancialPeriodReferenceCalendar.CurrentDateTime;
+        var finished = ActiveAuctionItems.Where(x => x.FinishingDateTime <= now).ToList();
+        foreach (var item in finished)
+        {
+            CompleteAuction(item, CurrentAuctionBid(item), now);
+        }
+
+        return finished;
     }
 
     public bool ClaimRefund(ICharacter actor)

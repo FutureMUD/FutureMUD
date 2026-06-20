@@ -1904,7 +1904,7 @@ internal sealed class EmploymentScheduledRuleAuthoringService
 		       templates.FirstOrDefault(x => x.Name.StartsWith(selector, StringComparison.InvariantCultureIgnoreCase));
 	}
 
-	private static bool TryParseConditionExpression(string text, IReadOnlyList<IEmploymentTaskCondition> conditions,
+	internal static bool TryParseConditionExpression(string text, IReadOnlyList<IEmploymentTaskCondition> conditions,
 		IEmploymentTaskBoard board, out EmploymentConditionExpression expression, out string message)
 	{
 		expression = null!;

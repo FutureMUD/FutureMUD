@@ -366,6 +366,7 @@ public class ImplementorModule : Module<ICharacter>
 	#3heartbeat hour|minute|second|5second|10second|30second#0 - manually triggers a heartbeat
 	#3payroll [days]#0 - runs employment payroll accrual for all employment hosts as if that many days had elapsed
 	#3payroll claim <character|all>#0 - forces EmploymentWorkerAI payroll-claim evaluation now
+	#3employment legacy#0 - reports legacy job/new employment-host contract divergence
 	#3freezetime#0 - freezes all in game clocks
 	#3unfreezetime#0 - resumes all in game clocks
 	#3weatherstats <controller> [years <n>] [burnin <n>] [seed <n>] [file <basename>]#0 - runs a non-destructive Monte Carlo weather analysis and writes multiple CSVs", AutoHelp.HelpArgOrNoArg)]
@@ -397,6 +398,10 @@ public class ImplementorModule : Module<ICharacter>
             case "employmentpayroll":
             case "emppayroll":
                 DebugEmploymentPayroll(actor, ss);
+                return;
+            case "employment":
+            case "emp":
+                DebugEmployment(actor, ss);
                 return;
             case "sql":
                 DebugSql(actor, ss);
@@ -503,6 +508,22 @@ public class ImplementorModule : Module<ICharacter>
     }
 
     private const int MaximumEmploymentPayrollDebugDays = 31;
+
+    private static void DebugEmployment(ICharacter actor, StringStack ss)
+    {
+        switch (ss.PopSpeech().CollapseString().ToLowerInvariant())
+        {
+            case "legacy":
+            case "divergence":
+            case "bridge":
+                var report = EmploymentLegacyBridgeReporter.Build(actor.Gameworld);
+                actor.OutputHandler.Send(EmploymentLegacyBridgeReporter.Render(report, actor));
+                return;
+            default:
+                actor.OutputHandler.Send($"The syntax is {"impdebug employment legacy".ColourCommand()}.");
+                return;
+        }
+    }
 
     private static void DebugEmploymentPayroll(ICharacter actor, StringStack ss)
     {

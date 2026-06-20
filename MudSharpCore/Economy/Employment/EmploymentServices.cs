@@ -14,7 +14,7 @@ public static class EmploymentCandidateMatcher
 	{
 		foreach (var requirement in opening.Requirements.Skills)
 		{
-			if (!candidate.Skills.TryGetValue(requirement.SkillName, out var value) || value < requirement.MinimumValue)
+			if (!TryGetSkill(candidate, requirement.SkillName, out var value) || value < requirement.MinimumValue)
 			{
 				reason = $"Candidate lacks required skill {requirement.SkillName}.";
 				return false;
@@ -23,7 +23,7 @@ public static class EmploymentCandidateMatcher
 
 		foreach (var requirement in opening.Requirements.Knowledges)
 		{
-			if (!candidate.Knowledges.Contains(requirement.KnowledgeName))
+			if (!ContainsCaseInsensitive(candidate.Knowledges, requirement.KnowledgeName))
 			{
 				reason = $"Candidate lacks required knowledge {requirement.KnowledgeName}.";
 				return false;
@@ -41,7 +41,7 @@ public static class EmploymentCandidateMatcher
 
 		foreach (var requirement in opening.Requirements.Tags)
 		{
-			if (!candidate.Tags.Contains(requirement.TagName))
+			if (!ContainsCaseInsensitive(candidate.Tags, requirement.TagName))
 			{
 				reason = $"Candidate lacks required tag {requirement.TagName}.";
 				return false;
@@ -55,7 +55,7 @@ public static class EmploymentCandidateMatcher
 		}
 
 		if (opening.Compensation.Cadence != PayCadence.Unpaid &&
-		    IsBelowReservationWage(opening.Compensation, candidate))
+		    IsBelowReservationWage(opening, candidate))
 		{
 			reason = "Offer is below the candidate's reservation wage.";
 			return false;
@@ -65,14 +65,41 @@ public static class EmploymentCandidateMatcher
 		return true;
 	}
 
-	private static bool IsBelowReservationWage(CompensationTerms compensation, EmploymentCandidateProfile candidate)
+	private static bool TryGetSkill(EmploymentCandidateProfile candidate, string skillName, out double value)
+	{
+		if (candidate.Skills.TryGetValue(skillName, out value))
+		{
+			return true;
+		}
+
+		foreach (var skill in candidate.Skills)
+		{
+			if (!skill.Key.Equals(skillName, StringComparison.InvariantCultureIgnoreCase))
+			{
+				continue;
+			}
+
+			value = skill.Value;
+			return true;
+		}
+
+		value = 0.0;
+		return false;
+	}
+
+	private static bool ContainsCaseInsensitive(IEnumerable<string> values, string value)
+	{
+		return values.Any(x => x.Equals(value, StringComparison.InvariantCultureIgnoreCase));
+	}
+
+	private static bool IsBelowReservationWage(IJobOpening opening, EmploymentCandidateProfile candidate)
 	{
 		if (candidate.ReservationWage <= 0.0M)
 		{
 			return false;
 		}
 
-		var offered = compensation.FixedRate ?? compensation.MinimumEffectivePay;
+		var offered = EmploymentCompensationEvaluator.EffectiveHourlyRate(opening.Compensation);
 		if (offered is not null && candidate.ReservationWageCurrency is not null)
 		{
 			var offeredGlobal = offered.Amount * offered.Currency.BaseCurrencyToGlobalBaseCurrencyConversion;
@@ -81,7 +108,50 @@ public static class EmploymentCandidateMatcher
 			return offeredGlobal < reservationGlobal;
 		}
 
-		return compensation.NominalAmount < candidate.ReservationWage;
+		return (offered?.Amount ?? EmploymentCompensationEvaluator.EffectiveHourlyAmount(opening.Compensation)) <
+		       candidate.ReservationWage;
+	}
+}
+
+public static class EmploymentCompensationEvaluator
+{
+	private const decimal DefaultDailyHours = 8.0M;
+	private const decimal DefaultWeeklyHours = 40.0M;
+	private const decimal DefaultSalaryHours = DefaultDailyHours * 30.0M;
+
+	public static MoneyAmount? EffectiveHourlyRate(CompensationTerms compensation)
+	{
+		var amount = compensation.FixedRate ?? compensation.MinimumEffectivePay;
+		return amount is null
+			? null
+			: amount with { Amount = EffectiveHourlyAmount(amount.Amount, compensation.Cadence) };
+	}
+
+	public static decimal EffectiveHourlyAmount(CompensationTerms compensation)
+	{
+		return EffectiveHourlyRate(compensation)?.Amount ?? 0.0M;
+	}
+
+	public static decimal EffectiveHourlyGlobalAmount(CompensationTerms compensation)
+	{
+		var rate = EffectiveHourlyRate(compensation);
+		return rate is null
+			? 0.0M
+			: rate.Amount * rate.Currency.BaseCurrencyToGlobalBaseCurrencyConversion;
+	}
+
+	public static decimal EffectiveHourlyAmount(decimal amount, PayCadence cadence)
+	{
+		return cadence switch
+		{
+			PayCadence.Unpaid => 0.0M,
+			PayCadence.Hourly => amount,
+			PayCadence.Daily => amount / DefaultDailyHours,
+			PayCadence.Weekly => amount / DefaultWeeklyHours,
+			PayCadence.Salary => amount / DefaultSalaryHours,
+			PayCadence.PerTask or PayCadence.Commission or PayCadence.Mixed => amount,
+			_ => amount
+		};
 	}
 }
 

@@ -1,4 +1,4 @@
-﻿using MoreLinq.Extensions;
+using MoreLinq.Extensions;
 using MudSharp.Character;
 using MudSharp.Character.Name;
 using MudSharp.Community;
@@ -1292,6 +1292,14 @@ public partial class Bank : SaveableItem, IBank, ILazyLoadDuringIdleTime
 
             return _auditLogs;
         }
+    }
+
+    public void RecordManagerAuditLog(ICharacter manager, string detail)
+    {
+        InitialiseAuditLogs();
+        _auditLogs.Add(new BankManagerAuditLog(this, manager,
+            EconomicZone.ZoneForTimePurposes.DateTime(EconomicZone.FinancialPeriodReferenceCalendar),
+            detail));
     }
 
     public void AddAccount(IBankAccount newAccount)

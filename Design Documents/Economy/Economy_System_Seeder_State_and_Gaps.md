@@ -294,8 +294,8 @@ The remaining seeder problem is not runtime viability. It is that probate and mo
 The current shop runtime exposes deal-related surfaces, but:
 
 - `ShowDeals()` currently reports "Coming soon."
-- price methods contain explicit `TODO` markers for volume deals
-- detailed price info currently always reports no live volume deals
+- native shop-deal price methods now support volume deals; remaining seeded-content work is richer default examples and regression coverage for authored deal catalogues
+- detailed price info should be re-audited against live native volume deals so builder-facing reporting stays in sync with the implemented `ShopDeal` runtime
 
 This matters because the API and UI shape imply a capability that the runtime does not yet actually provide.
 

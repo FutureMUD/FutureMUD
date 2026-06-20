@@ -1,4 +1,4 @@
-﻿using MudSharp.Character;
+using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Economy.Currency;
 using MudSharp.Economy.Employment;
@@ -61,7 +61,8 @@ namespace MudSharp.Economy
         void RemoveManager(ICharacter manager);
         bool IsManager(ICharacter actor);
         IEnumerable<IBankManagerAuditLog> AuditLogs { get; }
-        void ManagerCommand(ICharacter manager, StringStack command);
+		void RecordManagerAuditLog(ICharacter manager, string detail);
+		void ManagerCommand(ICharacter manager, StringStack command);
         void ReferenceDateOnDateChanged();
     }
 }

@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using MudSharp.Character;
+using MudSharp.Economy.Currency;
 using MudSharp.Economy.Employment;
 using MudSharp.Effects.Concrete;
 using MudSharp.Framework;
@@ -27,6 +28,7 @@ internal sealed class EmploymentManagerGoalDraft
 		RequiredAuthority = goalDefinition.DefaultRequiredAuthority;
 		Priority = 1;
 		EvaluationCadence = TimeSpan.FromHours(1);
+		Policy = ManagerGoalPolicy.Default;
 	}
 
 	public EmploymentManagerGoalDraft(IEmploymentHost host, IManagerGoal goal, string? description = null)
@@ -41,6 +43,8 @@ internal sealed class EmploymentManagerGoalDraft
 		RequiredAuthority = goal.RequiredAuthority;
 		Priority = goal.Priority;
 		EvaluationCadence = goal.EvaluationCadence;
+		ConditionExpression = goal.Configuration.ConditionExpression;
+		Policy = goal.Policy;
 		_conditions.AddRange(goal.Configuration.Conditions ?? []);
 		_steps.AddRange(goal.Configuration.ActionPlan?.Steps ?? []);
 	}
@@ -52,6 +56,8 @@ internal sealed class EmploymentManagerGoalDraft
 	public EmploymentAuthoritySet RequiredAuthority { get; private set; }
 	public int Priority { get; private set; }
 	public TimeSpan EvaluationCadence { get; private set; }
+	public EmploymentConditionExpression? ConditionExpression { get; private set; }
+	public ManagerGoalPolicy Policy { get; private set; }
 	public IReadOnlyList<IEmploymentTaskCondition> Conditions => _conditions;
 	public IReadOnlyList<IEmploymentActionStep> Steps => _steps;
 
@@ -82,6 +88,16 @@ internal sealed class EmploymentManagerGoalDraft
 		EvaluationCadence = cadence;
 	}
 
+	public void SetPolicy(ManagerGoalPolicy policy)
+	{
+		Policy = policy;
+	}
+
+	public void SetConditionExpression(EmploymentConditionExpression? expression)
+	{
+		ConditionExpression = expression;
+	}
+
 	public void AddCondition(IEmploymentTaskCondition condition)
 	{
 		_conditions.Add(condition);
@@ -100,6 +116,7 @@ internal sealed class EmploymentManagerGoalDraft
 		}
 
 		_conditions.RemoveAt(index);
+		ConditionExpression = null;
 		return true;
 	}
 
@@ -114,6 +131,11 @@ internal sealed class EmploymentManagerGoalDraft
 		return true;
 	}
 
+	public EmploymentActionPlan? ToActionPlan()
+	{
+		return _steps.Any() ? new EmploymentActionPlan(_steps) : null;
+	}
+
 	public ManagerGoalDefinition ToDefinition()
 	{
 		return new ManagerGoalDefinition(
@@ -121,10 +143,12 @@ internal sealed class EmploymentManagerGoalDraft
 			RequiredAuthority,
 			new ManagerGoalConfiguration(
 				Description,
-				_steps.Any() ? new EmploymentActionPlan(_steps) : null,
-				_conditions.ToList()),
+				ToActionPlan(),
+				_conditions.ToList(),
+				ConditionExpression),
 			Priority,
-			EvaluationCadence);
+			EvaluationCadence,
+			Policy);
 	}
 }
 
@@ -339,6 +363,150 @@ internal sealed class EmploymentManagerGoalAuthoringService
 		return true;
 	}
 
+	public bool TrySetDraftExpression(ICharacter actor, IEmploymentHost host, string text, out string message)
+	{
+		if (!TryRequireCreateGoals(actor, host, out message))
+		{
+			return false;
+		}
+
+		var draft = DraftFor(actor, host);
+		if (draft is null)
+		{
+			message = $"You do not have an active manager goal draft for {host.EmploymentHostName.ColourName()}.";
+			return false;
+		}
+
+		if (!EmploymentScheduledRuleAuthoringService.TryParseConditionExpression(text, draft.Conditions, host.TaskBoard,
+				out var expression, out message))
+		{
+			return false;
+		}
+
+		var authority = EmploymentConditionExpressionEvaluator.RequiredAuthority(expression, draft.Conditions, host.TaskBoard);
+		if (!TryRequireAuthority(actor, host, RequiredGoalConditionAuthority(authority.Authorities), out message))
+		{
+			return false;
+		}
+
+		draft.SetConditionExpression(expression);
+		message = $"You set the manager goal condition expression to {EmploymentScheduledRuleAuthoringService.DescribeConditionExpression(expression, draft.Conditions).ColourCommand()}.";
+		return true;
+	}
+
+	public bool TrySetDraftBudget(ICharacter actor, IEmploymentHost host, string text, out string message)
+	{
+		if (!TryRequireCreateGoals(actor, host, out message))
+		{
+			return false;
+		}
+
+		var draft = DraftFor(actor, host);
+		if (draft is null)
+		{
+			message = $"You do not have an active manager goal draft for {host.EmploymentHostName.ColourName()}.";
+			return false;
+		}
+
+		if (text.EqualToAny("none", "clear", "off", "unlimited"))
+		{
+			draft.SetPolicy(new ManagerGoalPolicy([], draft.Policy.RiskLimits));
+			message = "You clear the manager goal draft budget limits.";
+			return true;
+		}
+
+		if (!TryParseMoney(host, text, out var budget, out message))
+		{
+			return false;
+		}
+
+		var policy = new ManagerGoalPolicy([budget], draft.Policy.RiskLimits);
+		if (!ManagerGoalBoard.TryValidateGoalPolicy(draft.ToActionPlan(), policy, out var policyReason))
+		{
+			message = policyReason;
+			return false;
+		}
+
+		draft.SetPolicy(policy);
+		message = $"You set the manager goal draft budget limit to {DescribeMoney(budget)}.";
+		return true;
+	}
+
+	public bool TrySetDraftRiskLimit(ICharacter actor, IEmploymentHost host, StringStack input, out string message)
+	{
+		if (!TryRequireCreateGoals(actor, host, out message))
+		{
+			return false;
+		}
+
+		var draft = DraftFor(actor, host);
+		if (draft is null)
+		{
+			message = $"You do not have an active manager goal draft for {host.EmploymentHostName.ColourName()}.";
+			return false;
+		}
+
+		if (input.IsFinished)
+		{
+			message = "Manager goal risk limits use: goals draft risk tasks <count|none>, goals draft risk steps <count|none>, or goals draft risk unbounded <on|off>.";
+			return false;
+		}
+
+		var limit = input.PopSpeech();
+		var risk = draft.Policy.RiskLimits;
+		ManagerGoalRiskLimits updated;
+		switch (limit.ToLowerInvariant())
+		{
+			case "tasks":
+			case "task":
+			case "activetasks":
+			case "active":
+				if (!TryParseOptionalCount(input, actor, 0, out var maximumActiveTasks, out message))
+				{
+					return false;
+				}
+
+				updated = risk with { MaximumActiveTasks = maximumActiveTasks };
+				break;
+			case "steps":
+			case "step":
+			case "actions":
+			case "actionsteps":
+				if (!TryParseOptionalCount(input, actor, 1, out var maximumActionSteps, out message))
+				{
+					return false;
+				}
+
+				updated = risk with { MaximumActionSteps = maximumActionSteps };
+				break;
+			case "unbounded":
+			case "unboundedfinancial":
+			case "financial":
+				if (input.IsFinished || !TryParseBoolean(input.PopSpeech(), out var allowsUnbounded))
+				{
+					message = "Use on/off, true/false, yes/no, or allow/block for the unbounded financial risk limit.";
+					return false;
+				}
+
+				updated = risk with { AllowsUnboundedFinancialSteps = allowsUnbounded };
+				break;
+			default:
+				message = "Manager goal risk limits use: tasks, steps, or unbounded.";
+				return false;
+		}
+
+		var policy = new ManagerGoalPolicy(draft.Policy.BudgetLimits, updated);
+		if (!ManagerGoalBoard.TryValidateGoalPolicy(draft.ToActionPlan(), policy, out var policyReason))
+		{
+			message = policyReason;
+			return false;
+		}
+
+		draft.SetPolicy(policy);
+		message = $"You set the manager goal draft risk limits to {DescribeRiskLimits(updated)}.";
+		return true;
+	}
+
 	public bool TrySetDraftAuthority(ICharacter actor, IEmploymentHost host, StringStack input, out string message)
 	{
 		if (!TryRequireCreateGoals(actor, host, out message))
@@ -422,6 +590,13 @@ internal sealed class EmploymentManagerGoalAuthoringService
 		}
 
 		draft.AddStep(step);
+		if (!ManagerGoalBoard.TryValidateGoalPolicy(draft.ToActionPlan(), draft.Policy, out var policyReason))
+		{
+			draft.RemoveStep(draft.Steps.Count - 1);
+			message = policyReason;
+			return false;
+		}
+
 		message = $"You add a manager goal action: {EmploymentTaskAuthoringService.DescribeStep(step, actor)}.";
 		return true;
 	}
@@ -575,6 +750,9 @@ internal sealed class EmploymentManagerGoalAuthoringService
 		sb.AppendLine($"Required Authority: {DescribeAuthority(draft.RequiredAuthority.Authorities)}");
 		sb.AppendLine($"Priority: {draft.Priority.ToString("N0", actor).ColourValue()}");
 		sb.AppendLine($"Cadence: {draft.EvaluationCadence.Describe(actor).ColourValue()}");
+		sb.AppendLine($"Budget Limits: {DescribeBudgetLimits(draft.Policy.BudgetLimits)}");
+		sb.AppendLine($"Risk Limits: {DescribeRiskLimits(draft.Policy.RiskLimits)}");
+		sb.AppendLine($"Condition Expression: {EmploymentScheduledRuleAuthoringService.DescribeConditionExpression(draft.ConditionExpression, draft.Conditions).ColourCommand()}");
 		sb.AppendLine();
 		AppendConditionList(sb, actor, host, draft.Conditions);
 		sb.AppendLine();
@@ -597,6 +775,9 @@ internal sealed class EmploymentManagerGoalAuthoringService
 		sb.AppendLine($"Required Authority: {DescribeAuthority(goal.RequiredAuthority.Authorities)}");
 		sb.AppendLine($"Priority: {goal.Priority.ToString("N0", actor).ColourValue()}");
 		sb.AppendLine($"Cadence: {goal.EvaluationCadence.Describe(actor).ColourValue()}");
+		sb.AppendLine($"Budget Limits: {DescribeBudgetLimits(goal.Policy.BudgetLimits)}");
+		sb.AppendLine($"Risk Limits: {DescribeRiskLimits(goal.Policy.RiskLimits)}");
+		sb.AppendLine($"Condition Expression: {EmploymentScheduledRuleAuthoringService.DescribeConditionExpression(goal.Configuration.ConditionExpression, goal.Configuration.Conditions?.ToList() ?? []).ColourCommand()}");
 		sb.AppendLine($"Last Evaluated: {(goal.LastEvaluatedAt.HasValue ? EmploymentClock.DescribeInstant(host, goal.LastEvaluatedAt.Value, actor).ColourValue() : "never".ColourValue())}");
 		sb.AppendLine($"Last Result: {(string.IsNullOrWhiteSpace(goal.LastEvaluationResult) ? "none".ColourValue() : goal.LastEvaluationResult)}");
 		sb.AppendLine();
@@ -670,6 +851,7 @@ internal sealed class EmploymentManagerGoalAuthoringService
 		var sb = new StringBuilder();
 		sb.AppendLine($"You create manager goal #{goal.Id.ToString("N0", actor).ColourValue()} {goal.Configuration.Description.ColourName()} with {conditionCount.ToString("N0", actor).ColourValue()} condition{(conditionCount == 1 ? string.Empty : "s")} and {stepCount.ToString("N0", actor).ColourValue()} step{(stepCount == 1 ? string.Empty : "s")}.");
 		sb.AppendLine($"Type: {goal.GoalType.DescribeEnum().ColourName()} | Priority: {goal.Priority.ToString("N0", actor).ColourValue()} | Cadence: {goal.EvaluationCadence.Describe(actor).ColourValue()}");
+		sb.AppendLine($"Budget Limits: {DescribeBudgetLimits(goal.Policy.BudgetLimits)} | Risk Limits: {DescribeRiskLimits(goal.Policy.RiskLimits)}");
 		return sb.ToString();
 	}
 
@@ -914,6 +1096,92 @@ internal sealed class EmploymentManagerGoalAuthoringService
 		}
 
 		return duration > TimeSpan.Zero;
+	}
+
+	private static bool TryParseMoney(IEmploymentHost host, string text, out MoneyAmount amount, out string message)
+	{
+		amount = null!;
+		var currency = EmploymentTaskAuthoringService.ResolveHostCurrency(host);
+		if (currency is null)
+		{
+			message = "This employment host does not expose a currency for manager goal budgets.";
+			return false;
+		}
+
+		if (string.IsNullOrWhiteSpace(text) || !currency.TryGetBaseCurrency(text, out var parsed) || parsed <= 0.0M)
+		{
+			message = $"Budget limits use a positive amount in {currency.Name.ColourName()}.";
+			return false;
+		}
+
+		amount = new MoneyAmount(currency, parsed);
+		message = string.Empty;
+		return true;
+	}
+
+	private static string DescribeMoney(MoneyAmount amount)
+	{
+		return amount.Currency.Describe(amount.Amount, CurrencyDescriptionPatternType.ShortDecimal).ColourValue();
+	}
+
+	private static string DescribeBudgetLimits(IReadOnlyCollection<MoneyAmount> budgets)
+	{
+		return budgets.Any()
+			? budgets.Select(DescribeMoney).ListToString()
+			: "none".ColourValue();
+	}
+
+	private static bool TryParseOptionalCount(StringStack input, ICharacter actor, int minimum, out int? value,
+		out string message)
+	{
+		value = null;
+		if (input.IsFinished)
+		{
+			message = "Which limit value do you want to set?";
+			return false;
+		}
+
+		var text = input.PopSpeech();
+		if (text.EqualToAny("none", "unlimited", "clear", "off"))
+		{
+			message = string.Empty;
+			return true;
+		}
+
+		if (!int.TryParse(text, NumberStyles.Integer, actor, out var count) || count < minimum)
+		{
+			message = $"Use a whole number of at least {minimum.ToString("N0", actor).ColourValue()}, or none.";
+			return false;
+		}
+
+		value = count;
+		message = string.Empty;
+		return true;
+	}
+
+	private static bool TryParseBoolean(string text, out bool value)
+	{
+		var normalised = text.CollapseString().ToLowerInvariant();
+		value = normalised switch
+		{
+			"on" or "true" or "yes" or "y" or "allow" or "allowed" => true,
+			"off" or "false" or "no" or "n" or "block" or "blocked" => false,
+			_ => false
+		};
+
+		return normalised.EqualToAny("on", "true", "yes", "y", "allow", "allowed", "off", "false", "no", "n", "block", "blocked");
+	}
+
+	private static string DescribeRiskLimits(ManagerGoalRiskLimits risk)
+	{
+		var activeTasks = risk.MaximumActiveTasks.HasValue
+			? risk.MaximumActiveTasks.Value.ToString("N0", CultureInfo.InvariantCulture)
+			: "unlimited";
+		var actionSteps = risk.MaximumActionSteps.HasValue
+			? risk.MaximumActionSteps.Value.ToString("N0", CultureInfo.InvariantCulture)
+			: "unlimited";
+		var unboundedFinancial = risk.AllowsUnboundedFinancialSteps ? "allowed" : "blocked";
+		return $"active tasks {activeTasks.ColourValue()}, action steps {actionSteps.ColourValue()}, unbounded financial {unboundedFinancial.ColourValue()}";
 	}
 
 	private static string DescribeCapabilities(IReadOnlySet<EmploymentAICapability> capabilities)

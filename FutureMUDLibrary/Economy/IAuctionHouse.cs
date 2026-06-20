@@ -1,4 +1,4 @@
-﻿using JetBrains.Annotations;
+using JetBrains.Annotations;
 using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Economy.Employment;
@@ -206,6 +206,8 @@ namespace MudSharp.Economy
         void AddBid(AuctionItem item, AuctionBid bid, string sourceKind = "Cash");
         void BuyoutItem(AuctionItem item, AuctionBid bid, string sourceKind = "Cash");
         void ClaimItem(AuctionItem item);
+        bool SettleAuctionItem(AuctionItem item, out string reason);
+        IReadOnlyCollection<AuctionItem> SettleFinishedAuctions();
         bool ClaimRefund(ICharacter actor);
         decimal CurrentBid(AuctionItem item);
         void CancelItem(AuctionItem item);

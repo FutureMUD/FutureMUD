@@ -36,6 +36,9 @@ internal static class EmploymentFinanceService
 	private sealed record PurchaseTarget(IShop Shop, IMerchandise Merchandise, decimal Price, int Quantity,
 		string? KeywordFilter, IReadOnlyList<IGameItem> ExactStockItems, double? CommodityWeight = null);
 
+	internal sealed record EmploymentPurchaseTargetPreview(IShop Shop, IMerchandise Merchandise, decimal Price, int Quantity,
+		double? CommodityWeight, IReadOnlyCollection<ICell> Locations);
+
 	private sealed class EmploymentFundsPayment : IPaymentMethod
 	{
 		private readonly FinanceHost _finance;
@@ -287,6 +290,106 @@ internal static class EmploymentFinanceService
 		return true;
 	}
 
+	public static bool TryBankTransfer(EmploymentTaskContext context, ICharacter actor, string targetAccountKey,
+		MoneyAmount amount, out string reason, out EmploymentActionStepOperationalState operationalState)
+	{
+		operationalState = EmploymentActionStepOperationalState.Empty;
+		if (!CanBankTransfer(context, targetAccountKey, amount, out reason))
+		{
+			return false;
+		}
+
+		if (!TryResolveBankFinanceHost(context, amount, out var finance, out reason))
+		{
+			return false;
+		}
+
+		if (!TryResolveTargetBankAccount(context, targetAccountKey, amount, out var targetAccount, out reason))
+		{
+			return false;
+		}
+
+		if (!TryBuildReservationConsumption(context, amount, out var consumptionPayload, out reason))
+		{
+			return false;
+		}
+
+		var sourceAccount = finance.BankAccount!;
+		var reference = TransactionReference(context, $"employment account transfer to {targetAccount.AccountReference}");
+		sourceAccount.WithdrawFromTransfer(amount.Amount, targetAccount.Bank.Code, targetAccount.AccountNumber, reference);
+		targetAccount.DepositFromTransfer(amount.Amount, sourceAccount.Bank.Code, sourceAccount.AccountNumber, reference);
+		if (sourceAccount.Bank.Id != targetAccount.Bank.Id)
+		{
+			sourceAccount.Bank.CurrencyReserves[amount.Currency] -= amount.Amount;
+			sourceAccount.Bank.Changed = true;
+			targetAccount.Bank.CurrencyReserves[amount.Currency] += amount.Amount;
+			targetAccount.Bank.Changed = true;
+		}
+
+		context.RecordLedger(EmploymentLedgerEntryType.AccountTransfer, actor, amount,
+			$"Transferred employer bank funds from linked bank account {sourceAccount.AccountReference} to {targetAccount.AccountReference}: {reference}.",
+			context.CurrentTask?.CorrelationId);
+		context.RecordRegister(EmploymentRegisterEntryType.PaymentAuthorisationUsed, actor,
+			$"Transferred {amount.Currency.Describe(amount.Amount, CurrencyDescriptionPatternType.ShortDecimal)} from linked bank account {sourceAccount.AccountReference} to {targetAccount.AccountReference}.",
+			context.CurrentTask?.CorrelationId);
+		operationalState = new EmploymentActionStepOperationalState(
+			TransactionReference: $"{sourceAccount.AccountReference}->{targetAccount.AccountReference}: {reference}",
+			ReservationReference: consumptionPayload);
+		reason = string.Empty;
+		return true;
+	}
+	public static bool TryHostSettlement(EmploymentTaskContext context, ICharacter actor, string targetHostKey,
+		MoneyAmount amount, out string reason, out EmploymentActionStepOperationalState operationalState)
+	{
+		operationalState = EmploymentActionStepOperationalState.Empty;
+		if (!CanHostSettlement(context, targetHostKey, amount, out reason))
+		{
+			return false;
+		}
+
+		if (!TryResolveFinanceHost(context.Employer, amount, out var sourceFinance, out reason))
+		{
+			return false;
+		}
+
+		if (!TryResolveTargetEmploymentHost(context, targetHostKey, out var targetHost, out reason) ||
+		    !TryResolveFinanceHost(targetHost, amount, out var targetFinance, out reason))
+		{
+			return false;
+		}
+
+		if (!TryBuildReservationConsumption(context, amount, out var consumptionPayload, out reason))
+		{
+			return false;
+		}
+
+		var reference = TransactionReference(context, $"employment host settlement to {targetHost.EmploymentHostName}");
+		var mudDateTime = EmploymentClock.CurrentDateTime(context.Employer);
+		if (!DebitAvailable(sourceFinance, amount.Amount, actor, targetFinance.Owner, "HostSettlement", reference,
+			    mudDateTime, out reason))
+		{
+			return false;
+		}
+
+		CreditVirtual(targetFinance, amount.Amount, actor, sourceFinance.Owner, "HostSettlement", reference, mudDateTime);
+		context.RecordLedger(EmploymentLedgerEntryType.HostSettlement, actor, amount,
+			$"Settled employer funds from {context.Employer.EmploymentHostName} to {targetHost.EmploymentHostName}: {reference}.",
+			context.CurrentTask?.CorrelationId);
+		context.RecordRegister(EmploymentRegisterEntryType.PaymentAuthorisationUsed, actor,
+			$"Settled {amount.Currency.Describe(amount.Amount, CurrencyDescriptionPatternType.ShortDecimal)} from {context.Employer.EmploymentHostName} to {targetHost.EmploymentHostName}.",
+			context.CurrentTask?.CorrelationId);
+		targetHost.BusinessLedger.Record(EmploymentLedgerEntryType.HostSettlement, actor, amount,
+			$"Received employment host settlement from {context.Employer.EmploymentHostName}: {reference}.",
+			context.CurrentTask?.CorrelationId);
+		targetHost.EmploymentRegister.Record(EmploymentRegisterEntryType.AuditActionRecorded, actor,
+			$"Received {amount.Currency.Describe(amount.Amount, CurrencyDescriptionPatternType.ShortDecimal)} settlement from {context.Employer.EmploymentHostName}: {reference}.",
+			context.CurrentTask?.CorrelationId);
+		operationalState = new EmploymentActionStepOperationalState(
+			TransactionReference: $"{context.Employer.EmploymentHostName}->{targetHost.EmploymentHostName}: {reference}",
+			ReservationReference: consumptionPayload);
+		reason = string.Empty;
+		return true;
+	}
 	public static bool CanPurchase(EmploymentTaskContext context, IEmploymentActionStep step, out string reason)
 	{
 		if (step is not PurchaseActionStep purchase || !purchase.IsExecutablePurchase)
@@ -1074,6 +1177,91 @@ internal static class EmploymentFinanceService
 		return false;
 	}
 
+	public static bool CanBankTransfer(EmploymentTaskContext context, string targetAccountKey, MoneyAmount amount,
+		out string reason)
+	{
+		if (amount.Amount <= 0.0M)
+		{
+			reason = "Bank transfer steps must use a positive amount.";
+			return false;
+		}
+
+		if (!TryResolveBankFinanceHost(context, amount, out var finance, out reason))
+		{
+			return false;
+		}
+
+		if (!HasReservedFunds(context, amount, out reason))
+		{
+			return false;
+		}
+
+		if (!TryResolveTargetBankAccount(context, targetAccountKey, amount, out var targetAccount, out reason))
+		{
+			return false;
+		}
+
+		var sourceAccount = finance.BankAccount!;
+		if (targetAccount.Id == sourceAccount.Id)
+		{
+			reason = "Employment bank transfers cannot transfer funds from an account to itself.";
+			return false;
+		}
+
+		var canWithdraw = sourceAccount.CanWithdraw(amount.Amount, false);
+		if (canWithdraw.Truth)
+		{
+			reason = string.Empty;
+			return true;
+		}
+
+		reason = canWithdraw.Error;
+		return false;
+	}
+	public static bool CanHostSettlement(EmploymentTaskContext context, string targetHostKey, MoneyAmount amount,
+		out string reason)
+	{
+		if (amount.Amount <= 0.0M)
+		{
+			reason = "Host settlement steps must use a positive amount.";
+			return false;
+		}
+
+		if (!TryResolveFinanceHost(context.Employer, amount, out var sourceFinance, out reason))
+		{
+			return false;
+		}
+
+		if (!HasReservedFunds(context, amount, out reason))
+		{
+			return false;
+		}
+
+		if (!TryResolveTargetEmploymentHost(context, targetHostKey, out var targetHost, out reason))
+		{
+			return false;
+		}
+
+		if (targetHost.EmploymentHostType == context.Employer.EmploymentHostType && targetHost.Id == context.Employer.Id)
+		{
+			reason = "Employment host settlements cannot settle funds from a host to itself.";
+			return false;
+		}
+
+		if (!TryResolveFinanceHost(targetHost, amount, out _, out reason))
+		{
+			return false;
+		}
+
+		if (AvailableFunds(context, sourceFinance, amount.Currency) >= amount.Amount)
+		{
+			reason = string.Empty;
+			return true;
+		}
+
+		reason = $"{context.Employer.EmploymentHostName} does not have enough available funds for this settlement.";
+		return false;
+	}
 	public static bool TryGetConditionBalance(EmploymentTaskContext context, string accountKey, out decimal balance,
 		out string reason)
 	{
@@ -1141,6 +1329,80 @@ internal static class EmploymentFinanceService
 			$"employment payroll settlement {correlationId:D}", EmploymentClock.CurrentDateTime(host), out reason);
 	}
 
+	internal static bool CanDisbursePayroll(IEmploymentHost host, EmploymentPayable payable, out string reason)
+	{
+		if (!TryResolveFinanceHost(host, payable.Amount, out _, out reason))
+		{
+			return false;
+		}
+
+		switch (payable.PaymentMethod.MethodKind)
+		{
+			case PaymentMethodKind.Cash:
+				reason = string.Empty;
+				return true;
+			case PaymentMethodKind.EmployeeBankAccount:
+			case PaymentMethodKind.SpecifiedBankAccount:
+				var account = payable.PaymentMethod.BankAccount;
+				if (account is null)
+				{
+					reason = "The wage payment method does not have a destination bank account.";
+					return false;
+				}
+
+				if (account.Currency.Id != payable.Amount.Currency.Id)
+				{
+					reason = $"The destination bank account uses {account.Currency.Name}, but the payable is in {payable.Amount.Currency.Name}.";
+					return false;
+				}
+
+				reason = string.Empty;
+				return true;
+			default:
+				reason = $"Employment wage disbursement by {payable.PaymentMethod.MethodKind.DescribeEnum()} is not implemented yet; the payable remains outstanding.";
+				return false;
+		}
+	}
+
+	internal static bool TryDisbursePayroll(IEmploymentHost host, ICharacter? actor, EmploymentPayable payable,
+		out string reason)
+	{
+		if (!CanDisbursePayroll(host, payable, out reason))
+		{
+			return false;
+		}
+
+		if (!TryResolveFinanceHost(host, payable.Amount, out var finance, out reason))
+		{
+			return false;
+		}
+
+		var reference = $"employment payroll settlement {payable.CorrelationId:D}";
+		switch (payable.PaymentMethod.MethodKind)
+		{
+			case PaymentMethodKind.Cash:
+				return DebitAvailable(finance, payable.Amount.Amount, actor, finance.Owner, "Payroll", reference,
+					EmploymentClock.CurrentDateTime(host), out reason);
+			case PaymentMethodKind.EmployeeBankAccount:
+			case PaymentMethodKind.SpecifiedBankAccount:
+				var account = payable.PaymentMethod.BankAccount!;
+				if (!DebitAvailable(finance, payable.Amount.Amount, actor, account, "Payroll", reference,
+					    EmploymentClock.CurrentDateTime(host), out reason))
+				{
+					return false;
+				}
+
+				account.DepositFromTransaction(payable.Amount.Amount, reference);
+				account.Bank.CurrencyReserves[payable.Amount.Currency] += payable.Amount.Amount;
+				account.Bank.Changed = true;
+				reason = string.Empty;
+				return true;
+			default:
+				reason = $"Employment wage disbursement by {payable.PaymentMethod.MethodKind.DescribeEnum()} is not implemented yet; the payable remains outstanding.";
+				return false;
+		}
+	}
+
 	internal static IReadOnlyCollection<ICell> PurchaseLocationHints(IEmploymentTaskContext context, ICharacter? actor,
 		PurchaseActionStep purchase)
 	{
@@ -1157,6 +1419,37 @@ internal static class EmploymentFinanceService
 		       .ToList();
 	}
 
+	internal static bool TryPreviewPurchaseTarget(EmploymentTaskContext context, PurchaseActionStep purchase,
+		out EmploymentPurchaseTargetPreview preview, out string reason)
+	{
+		preview = null!;
+		if (!purchase.IsExecutablePurchase)
+		{
+			reason = "This supplier step does not identify a concrete purchase target.";
+			return false;
+		}
+
+		if (!TryResolvePurchaseTarget(context, null, purchase, out var target, out reason))
+		{
+			return false;
+		}
+
+		if (purchase.MaximumAmount is not null && purchase.MaximumAmount.Amount < target.Price)
+		{
+			reason = $"The cheapest matching supplier price is {target.Shop.Currency.Describe(target.Price, CurrencyDescriptionPatternType.ShortDecimal)}, above the maximum of {purchase.MaximumAmount.Currency.Describe(purchase.MaximumAmount.Amount, CurrencyDescriptionPatternType.ShortDecimal)}.";
+			return false;
+		}
+
+		preview = new EmploymentPurchaseTargetPreview(
+			target.Shop,
+			target.Merchandise,
+			target.Price,
+			target.Quantity,
+			target.CommodityWeight,
+			target.Shop.CurrentLocations.Where(x => x is not null).DistinctBy(x => x.Id).ToList());
+		reason = string.Empty;
+		return true;
+	}
 	private static bool TryResolvePurchaseTarget(EmploymentTaskContext context, ICharacter? actor,
 		PurchaseActionStep purchase, out PurchaseTarget target, out string reason)
 	{
@@ -1494,6 +1787,98 @@ internal static class EmploymentFinanceService
 		return true;
 	}
 
+	private static bool TryResolveTargetEmploymentHost(EmploymentTaskContext context, string targetHostKey,
+		out IEmploymentHost host, out string reason)
+	{
+		host = null!;
+		var gameworld = (context.Employer as IHaveFuturemud)?.Gameworld;
+		if (gameworld is null)
+		{
+			reason = $"{context.Employer.EmploymentHostName} cannot resolve employment hosts for settlement steps.";
+			return false;
+		}
+
+		var parts = targetHostKey.Split(':', 2, StringSplitOptions.TrimEntries);
+		if (parts.Length != 2 || string.IsNullOrWhiteSpace(parts[0]) || string.IsNullOrWhiteSpace(parts[1]))
+		{
+			reason = "Host settlement targets must be stored as '<host type>:<id|name>'.";
+			return false;
+		}
+
+		var hostType = parts[0].CollapseString().ToLowerInvariant();
+		var identifier = parts[1];
+		IEmploymentHost? resolved = hostType switch
+		{
+			"shop" or "store" => (IEmploymentHost?)gameworld.Shops.GetByIdOrName(identifier),
+			"auction" or "auctionhouse" => (IEmploymentHost?)gameworld.AuctionHouses.GetByIdOrName(identifier),
+			"arena" or "combatarena" => (IEmploymentHost?)gameworld.CombatArenas.GetByIdOrName(identifier),
+			"bank" => (IEmploymentHost?)gameworld.Banks.GetByIdOrName(identifier),
+			"stable" => (IEmploymentHost?)gameworld.Stables.GetByIdOrName(identifier),
+			"hotel" => gameworld.Properties.GetByIdOrName(identifier)?.Hotel,
+			_ => null
+		};
+		if (resolved is null)
+		{
+			reason = $"There is no {parts[0]} employment host matching {identifier}.";
+			return false;
+		}
+
+		host = resolved;
+		reason = string.Empty;
+		return true;
+	}
+	private static bool TryResolveTargetBankAccount(EmploymentTaskContext context, string targetAccountKey,
+		MoneyAmount amount, out IBankAccount account, out string reason)
+	{
+		account = null!;
+		var gameworld = (context.Employer as IHaveFuturemud)?.Gameworld;
+		if (gameworld is null)
+		{
+			reason = $"{context.Employer.EmploymentHostName} cannot resolve bank accounts for employment transfer steps.";
+			return false;
+		}
+
+		var selector = targetAccountKey.Trim();
+		if (string.IsNullOrWhiteSpace(selector))
+		{
+			reason = "Which target bank account should this transfer use?";
+			return false;
+		}
+
+		IBankAccount? resolved = null;
+		var numericSelector = selector.TrimStart('#');
+		if (long.TryParse(numericSelector, NumberStyles.Integer, CultureInfo.InvariantCulture, out var accountId))
+		{
+			resolved = gameworld.BankAccounts.Get(accountId);
+		}
+
+		resolved ??= gameworld.BankAccounts.FirstOrDefault(x => x.AccountReference.EqualTo(selector));
+		resolved ??= gameworld.BankAccounts.FirstOrDefault(x => x.Name.EqualTo(selector));
+		resolved ??= gameworld.BankAccounts.FirstOrDefault(x =>
+			x.Name.StartsWith(selector, StringComparison.InvariantCultureIgnoreCase));
+		if (resolved is null)
+		{
+			reason = $"There is no bank account matching {selector}.";
+			return false;
+		}
+
+		account = resolved;
+		if (account.AccountStatus != BankAccountStatus.Active)
+		{
+			reason = $"Bank account {account.AccountReference} is {account.AccountStatus.DescribeEnum()} and cannot receive employment transfers.";
+			return false;
+		}
+
+		if (account.Currency.Id != amount.Currency.Id)
+		{
+			reason =
+				$"Bank account {account.AccountReference} uses {account.Currency.Name}, but this transfer is for {amount.Currency.Name}.";
+			return false;
+		}
+
+		reason = string.Empty;
+		return true;
+	}
 	private static bool TryResolveFinanceHost(IEmploymentHost host, MoneyAmount? amount, out FinanceHost finance,
 		out string reason)
 	{

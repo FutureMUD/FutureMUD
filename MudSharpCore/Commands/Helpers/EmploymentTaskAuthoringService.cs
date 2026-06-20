@@ -9,10 +9,15 @@ using MudSharp.Construction;
 using MudSharp.Economy;
 using MudSharp.Economy.Currency;
 using MudSharp.Economy.Employment;
+using MudSharp.Economy.Property;
+using MudSharp.Economy.Shops;
+using MudSharp.FutureProg;
 using MudSharp.Effects.Concrete;
 using MudSharp.Framework;
 using MudSharp.GameItems;
 using MudSharp.TimeAndDate;
+using MudSharp.TimeAndDate.Date;
+using MudSharp.TimeAndDate.Time;
 using MudSharp.Vehicles;
 
 #nullable enable
@@ -374,7 +379,7 @@ internal sealed class EmploymentTaskAuthoringService
 	{
 		sb.AppendLine($"\t{action.Key.ColourCommand()} - {action.Status.DescribeEnum().ColourValue()} - {action.Summary}");
 		sb.AppendLine($"\t\tSyntax: {action.Syntax.ColourCommand()}");
-		sb.AppendLine($"\t\tAuthority: {action.RequiredAuthority.Authorities.DescribeEnum().ColourName()} | AI: {DescribeCapabilities(action.RequiredCapabilities)} | Payment Authorisation: {action.RequiresPaymentAuthorisation.ToColouredString()} | Financial: {action.IsFinancial.ToColouredString()}");
+		sb.AppendLine($"\t\tAuthority: {action.RequiredAuthority.Authorities.DescribeEnum().ColourName()} | AI: {DescribeCapabilities(action.RequiredCapabilities)} | Payment Authorisation: {action.RequiresPaymentAuthorisation.ToColouredString()} | Financial: {action.IsFinancial.ToColouredString()} | Sources: {action.InvocationSources.DescribeEnum().ColourName()}");
 		if (action.Status == EmploymentActionCatalogStatus.AuditOnlyShell)
 		{
 			sb.AppendLine("\t\tAudit-only: records register or ledger evidence but does not mutate the external subsystem.".ColourError());
@@ -436,30 +441,65 @@ internal sealed class EmploymentTaskAuthoringService
 			"gettag" or "tag" => TryParseGetTag(actor, input, out step, out message),
 			"commodity" or "material" => TryParseCommodity(actor, input, out step, out message),
 			"deliver" or "delivery" => TryParseDeliver(actor, input, out step, out message),
+			"stocktransfer" or "transferstock" or "stockmove" =>
+				TryParseShopStockTransfer(actor, host, input, out step, out message),
+			"auctionlist" or "lotlist" or "listauction" =>
+				TryParseAuctionLotListing(actor, host, input, out step, out message),
+			"auctionsettle" or "settleauction" or "lotsettle" =>
+				TryParseAuctionSettlement(actor, host, input, out step, out message),
+			"auctionclaim" or "claimauction" or "lotclaim" =>
+				TryParseAuctionClaim(actor, host, input, out step, out message),
+			"arenaevent" or "event" or "arenaadmin" or "arenaeventadmin" =>
+				TryParseArenaEventAdministration(actor, host, input, out step, out message),
+			"bankadmin" or "bank" or "bankreserve" or "bankaccount" =>
+				TryParseBankAdministration(actor, host, input, out step, out message),
+			"stableadmin" or "stablecare" or "stablereconcile" =>
+				TryParseStableAdministration(actor, host, input, out step, out message),
+			"hoteladmin" or "hotelroom" or "hotelreconcile" =>
+				TryParseHotelAdministration(actor, host, input, out step, out message),
 			"load" or "loaditems" => TryParseLoad(actor, input, out step, out message),
 			"unload" or "unloaditems" => TryParseUnload(actor, input, out step, out message),
 			"return" or "returncontainer" => TryParseReturn(actor, input, out step, out message),
 			"vehicle" or "cargo" => TryParseVehicle(actor, input, out step, out message),
+			"animal" or "mount" or "stableanimal" => TryParseAnimal(actor, input, out step, out message),
 			"move" => TryParseMove(actor, input, out step, out message),
 			"board" => TryParseBoard(input, out step, out message),
 			"command" => TryParseCommand(actor, input, out step, out message),
+			"supplier" or "findsupplier" or "suppliercheck" or "source" =>
+				TryParseSupplierSelection(actor, host, input, out step, out message),
 			"purchase" => TryParsePurchase(actor, host, input, out step, out message),
 			"bankdeposit" => TryParseBankDeposit(host, input, out step, out message),
 			"bankwithdraw" => TryParseBankWithdraw(host, input, out step, out message),
+			"transfer" => TryParseBankTransfer(host, input, out step, out message),
+			"settle" => TryParseHostSettlement(host, input, out step, out message),
 			"storepay" => TryParseStorePay(host, input, out step, out message),
 			"paytax" => TryParsePayTax(host, input, out step, out message),
 			"payroll" => TryParsePayrollSettlement(input, out step, out message),
+			"cashreconcile" or "reconcilecash" or "cashcheck" or "tillcheck" =>
+				TryParseCashReconciliation(host, input, out step, out message),
 			"float" => TryParseShopFloat(actor, host, input, out step, out message),
 			"physicalfloat" or "cashtrip" or "employeefloat" =>
 				TryParsePhysicalFloat(actor, host, input, out step, out message),
+			"stocktake" or "stockcount" or "inventorycount" =>
+				TryParseShopStocktake(actor, host, input, out step, out message),
 			"price" or "pricing" => TryParsePriceChange(actor, host, input, out step, out message),
+			"sale" or "deal" or "shopdeal" => TryParseShopDealAdministration(actor, host, input, out step, out message),
 			"jobopening" or "opening" or "job" =>
 				TryParseJobOpeningAdministration(actor, host, input, out step, out message),
+			"rule" or "scheduledrule" or "schedulerule" =>
+				TryParseScheduledRuleAdministration(actor, host, input, out step, out message),
+			"admintask" or "taskadmin" or "taskctl" =>
+				TryParseActiveTaskAdministration(actor, host, input, out step, out message),
+			"goal" or "managergoal" or "goaladmin" =>
+				TryParseManagerGoalAdministration(actor, host, input, out step, out message),
 			"craft" => TryParseCraft(input, out step, out message),
 			"station" => TryParseCraftStation(input, out step, out message),
 			"report" or "authorise" or "reserve" or "release" or "select" or "estimate" =>
 				TryParseGenericShell(host, definition!.Key, input, out step, out message),
 			"route" => TryParseRoute(actor, input, out step, out message),
+			"routebatch" or "deliverybatch" or "multistop" => TryParseRouteBatch(actor, input, out step, out message),
+			"tripcheck" or "routepolicy" or "logisticspolicy" or "logisticscheck" =>
+				TryParseTripCheck(actor, input, out step, out message),
 			_ => UnknownStepType(stepType, out step, out message)
 		};
 	}
@@ -700,6 +740,1221 @@ internal sealed class EmploymentTaskAuthoringService
 		return true;
 	}
 
+	private static bool TryParseShopStockTransfer(ICharacter actor, IEmploymentHost host, StringStack input,
+		out IEmploymentActionStep step, out string message)
+	{
+		step = null!;
+		if (host is not IPermanentShop sourceShop)
+		{
+			message = "Stock transfer steps can only be authored for permanent shop employment hosts.";
+			return false;
+		}
+
+		if (input.IsFinished || !input.PopSpeech().EqualTo("to"))
+		{
+			message = $"Stock transfer steps use the syntax: {"tasks step stocktransfer to <shop id|name|self> merch <target merchandise id|name> [destination <here|cell id>] [container <selector>]".ColourCommand()}.";
+			return false;
+		}
+
+		if (input.IsFinished)
+		{
+			message = "Which shop should receive this stock transfer?";
+			return false;
+		}
+
+		var targetShopSelector = input.PopSpeech();
+		var targetShop = targetShopSelector.EqualToAny("self", "source", "here")
+			? sourceShop
+			: actor.Gameworld.Shops.GetByIdOrName(targetShopSelector) as IPermanentShop;
+		if (targetShop is null)
+		{
+			message = $"There is no permanent shop matching {targetShopSelector.ColourCommand()}.";
+			return false;
+		}
+
+		if (input.IsFinished || !input.PopSpeech().EqualToAny("merch", "merchandise", "as"))
+		{
+			message = "Which target merchandise should receive the transferred stock?";
+			return false;
+		}
+
+		if (input.IsFinished)
+		{
+			message = "Which target merchandise should receive the transferred stock?";
+			return false;
+		}
+
+		var merchandiseSelector = input.PopSpeech();
+		var targetMerchandise = ResolveShopStocktakeMerchandise(targetShop, merchandiseSelector);
+		if (targetMerchandise is null)
+		{
+			message = $"There is no merchandise belonging to {targetShop.Name.ColourName()} matching {merchandiseSelector.ColourCommand()}.";
+			return false;
+		}
+
+		var destination = targetShop.StockroomCell ?? targetShop.ShopfrontCells.FirstOrDefault();
+		EmploymentItemSelector? containerSelector = null;
+		while (!input.IsFinished)
+		{
+			var option = input.PopSpeech();
+			if (option.EqualToAny("destination", "dest", "at"))
+			{
+				if (input.IsFinished)
+				{
+					message = "Which destination should this stock transfer use?";
+					return false;
+				}
+
+				if (!TryResolveLocation(actor, input.PopSpeech(), out var parsedDestination, out message))
+				{
+					return false;
+				}
+
+				destination = parsedDestination;
+				continue;
+			}
+
+			if (option.EqualTo("container"))
+			{
+				if (containerSelector is not null)
+				{
+					message = "Specify only one stock-transfer destination container selector.";
+					return false;
+				}
+
+				if (!TryParseItemSelector(actor, input, "stock-transfer destination container", out containerSelector,
+					    out message))
+				{
+					return false;
+				}
+
+				continue;
+			}
+
+			if (option.EqualTo("containertag"))
+			{
+				if (containerSelector is not null)
+				{
+					message = "Specify only one stock-transfer destination container selector.";
+					return false;
+				}
+
+				if (input.IsFinished)
+				{
+					message = "Which container tag do you want to transfer stock into?";
+					return false;
+				}
+
+				if (!TryParseTagSelector(actor, input.PopSpeech(), "stock-transfer destination container",
+					    out containerSelector, out message))
+				{
+					return false;
+				}
+
+				continue;
+			}
+
+			message = $"The stock transfer option {option.ColourCommand()} is not valid.";
+			return false;
+		}
+
+		if (destination is null)
+		{
+			message = $"{targetShop.Name.ColourName()} does not have a stockroom or shopfront destination.";
+			return false;
+		}
+
+		if (!targetShop.AllShopCells.Any(x => x.Id == destination.Id))
+		{
+			message = "Stock transfer steps must deliver to one of the target shop's locations.";
+			return false;
+		}
+
+		step = new ShopStockTransferActionStep(sourceShop, targetShop, targetMerchandise, destination,
+			containerSelector);
+		message = string.Empty;
+		return true;
+	}
+
+	private static bool TryParseAuctionLotListing(ICharacter actor, IEmploymentHost host, StringStack input,
+		out IEmploymentActionStep step, out string message)
+	{
+		step = null!;
+		if (host is not IAuctionHouse auctionHouse)
+		{
+			message = "Auction lot listing steps can only be used from auction-house employment hosts.";
+			return false;
+		}
+
+		if (!TryParseItemSelector(actor, input, "auction lot item", out var selector, out message) || selector is null)
+		{
+			return false;
+		}
+
+		if (input.IsFinished || !input.PopSpeech().EqualTo("reserve"))
+		{
+			message = $"Auction lot listing steps use the syntax: {"tasks step auctionlist <item selector> reserve <amount> [buyout <amount>] [duration <timespan>]".ColourCommand()}.";
+			return false;
+		}
+
+		var reserveTokens = PopTokensUntilAny(input, ["buyout", "duration"]).ToList();
+		if (!TryParseMoney(host, string.Join(" ", reserveTokens), out var reserve, out message))
+		{
+			return false;
+		}
+
+		MoneyAmount? buyout = null;
+		TimeSpan? duration = null;
+		while (!input.IsFinished)
+		{
+			var keyword = input.PopSpeech().CollapseString().ToLowerInvariant();
+			switch (keyword)
+			{
+				case "buyout":
+					var buyoutTokens = PopTokensUntilAny(input, ["duration"]).ToList();
+					if (!TryParseMoney(host, string.Join(" ", buyoutTokens), out var parsedBuyout, out message))
+					{
+						return false;
+					}
+
+					buyout = parsedBuyout;
+					break;
+				case "duration":
+				case "time":
+					var durationText = input.SafeRemainingArgument.Trim();
+					if (string.IsNullOrWhiteSpace(durationText) ||
+					    !TimeSpan.TryParse(durationText, actor, out var parsedDuration) || parsedDuration <= TimeSpan.Zero)
+					{
+						message = "Auction listing duration must be a positive time span.";
+						return false;
+					}
+
+					duration = parsedDuration;
+					ConsumeRemaining(input);
+					break;
+				default:
+					message = $"Unknown auction listing option {keyword.ColourCommand()}.";
+					return false;
+			}
+		}
+
+		step = new AuctionLotListingActionStep(auctionHouse, selector, reserve, buyout, duration);
+		message = string.Empty;
+		return true;
+	}
+
+	private static bool TryParseAuctionSettlement(ICharacter actor, IEmploymentHost host, StringStack input,
+		out IEmploymentActionStep step, out string message)
+	{
+		step = null!;
+		if (host is not IAuctionHouse auctionHouse)
+		{
+			message = "Auction settlement steps can only be used from auction-house employment hosts.";
+			return false;
+		}
+
+		if (input.IsFinished)
+		{
+			step = new AuctionSettlementActionStep(auctionHouse, null, null, null);
+			message = string.Empty;
+			return true;
+		}
+
+		var mode = input.PopSpeech();
+		if (mode.EqualToAny("due", "all"))
+		{
+			ConsumeRemaining(input);
+			step = new AuctionSettlementActionStep(auctionHouse, null, null, null);
+			message = string.Empty;
+			return true;
+		}
+
+		var target = mode.EqualTo("lot") || mode.EqualTo("item")
+			? input.SafeRemainingArgument.Trim()
+			: string.Join(" ", new[] { mode }.Concat(PopRemainingTokens(input))).Trim();
+		if (string.IsNullOrWhiteSpace(target))
+		{
+			message = "Which auction lot should this settlement step target?";
+			return false;
+		}
+
+		var lot = ResolveActiveAuctionLot(actor, auctionHouse, target);
+		if (lot is null)
+		{
+			message = $"There is no active auction lot matching {target.ColourCommand()}.";
+			return false;
+		}
+
+		ConsumeRemaining(input);
+		step = new AuctionSettlementActionStep(auctionHouse, lot);
+		message = string.Empty;
+		return true;
+	}
+
+	private static bool TryParseAuctionClaim(ICharacter actor, IEmploymentHost host, StringStack input,
+		out IEmploymentActionStep step, out string message)
+	{
+		step = null!;
+		if (host is not IAuctionHouse auctionHouse)
+		{
+			message = "Auction claim steps can only be used from auction-house employment hosts.";
+			return false;
+		}
+
+		var target = input.SafeRemainingArgument.Trim();
+		if (string.IsNullOrWhiteSpace(target))
+		{
+			message = $"Auction claim steps use the syntax: {"tasks step auctionclaim <asset id|keyword>".ColourCommand()}.";
+			return false;
+		}
+
+		var lot = ResolveUnclaimedAuctionLot(actor, auctionHouse, target);
+		if (lot is null)
+		{
+			message = $"There is no unclaimed auction lot matching {target.ColourCommand()}.";
+			return false;
+		}
+
+		ConsumeRemaining(input);
+		step = new AuctionClaimActionStep(auctionHouse, lot);
+		message = string.Empty;
+		return true;
+	}
+
+	private static AuctionItem? ResolveActiveAuctionLot(ICharacter actor, IAuctionHouse auctionHouse, string target)
+	{
+		var listings = auctionHouse.ActiveAuctionItems.ToList();
+		return ResolveAuctionItem(actor, listings, target);
+	}
+
+	private static UnclaimedAuctionItem? ResolveUnclaimedAuctionLot(ICharacter actor, IAuctionHouse auctionHouse,
+		string target)
+	{
+		var unclaimed = auctionHouse.UnclaimedItems.ToList();
+		var item = ResolveAuctionItem(actor, unclaimed.Select(x => x.AuctionItem), target);
+		return item is null ? null : unclaimed.FirstOrDefault(x => ReferenceEquals(x.AuctionItem, item));
+	}
+
+	private static AuctionItem? ResolveAuctionItem(ICharacter actor, IEnumerable<AuctionItem> items, string target)
+	{
+		if (string.IsNullOrWhiteSpace(target))
+		{
+			return null;
+		}
+
+		var list = items.ToList();
+		if (long.TryParse(target, out var id))
+		{
+			return list.FirstOrDefault(x => x.Asset.Id == id || x.Item?.Id == id);
+		}
+
+		return list.GetFromItemListByKeyword(target, actor) ??
+		       list.FirstOrDefault(x => x.Asset.Name.Equals(target, StringComparison.InvariantCultureIgnoreCase)) ??
+		       list.FirstOrDefault(x => x.Asset.Name.StartsWith(target, StringComparison.InvariantCultureIgnoreCase)) ??
+		       list.FirstOrDefault(x => x.Asset.Name.Contains(target, StringComparison.InvariantCultureIgnoreCase));
+	}
+
+	private static bool TryParseBankAdministration(ICharacter actor, IEmploymentHost host, StringStack input,
+		out IEmploymentActionStep step, out string message)
+	{
+		step = null!;
+		if (host is not IBank bank)
+		{
+			message = "Bank administration steps can only be drafted for bank employment hosts.";
+			return false;
+		}
+
+		if (input.IsFinished)
+		{
+			message = $"Bank administration steps use the syntax: {"tasks step bankadmin reserve audit|deposit <amount>|withdraw <amount> OR bankadmin account credit <account> <amount> for <reason>|status <account> <active|suspended|locked> [reason]|close <account> <reason> OR bankadmin branch post <here|cell id> <note>|courier <from> to <to> <note>".ColourCommand()}";
+			return false;
+		}
+
+		switch (input.PopForSwitch())
+		{
+			case "reserve":
+			case "reserves":
+				return TryParseBankReserveAdministration(bank, host, input, out step, out message);
+			case "account":
+			case "accounts":
+				return TryParseBankAccountAdministration(bank, host, input, out step, out message);
+			case "branch":
+			case "branches":
+				return TryParseBankBranchAdministration(actor, bank, input, out step, out message);
+			case "audit":
+			case "balance":
+				step = new BankAdministrationActionStep(bank, BankAdministrationActionKind.ReserveAudit);
+				message = string.Empty;
+				return true;
+			default:
+				message = "Bank administration steps must target reserve, account, or branch work.";
+				return false;
+		}
+	}
+
+	private static bool TryParseBankReserveAdministration(IBank bank, IEmploymentHost host, StringStack input,
+		out IEmploymentActionStep step, out string message)
+	{
+		step = null!;
+		if (input.IsFinished)
+		{
+			message = $"Bank reserve administration uses the syntax: {"bankadmin reserve audit|deposit <amount>|withdraw <amount>".ColourCommand()}";
+			return false;
+		}
+
+		switch (input.PopForSwitch())
+		{
+			case "audit":
+			case "balance":
+			case "check":
+				step = new BankAdministrationActionStep(bank, BankAdministrationActionKind.ReserveAudit);
+				message = string.Empty;
+				return true;
+			case "deposit":
+			case "depositcash":
+				if (!TryParseMoney(host, input.SafeRemainingArgument, out var deposit, out message))
+				{
+					return false;
+				}
+
+				ConsumeRemaining(input);
+				step = new BankAdministrationActionStep(bank, BankAdministrationActionKind.ReserveDeposit, deposit);
+				message = string.Empty;
+				return true;
+			case "withdraw":
+			case "withdrawal":
+			case "withdrawcash":
+				if (!TryParseMoney(host, input.SafeRemainingArgument, out var withdrawal, out message))
+				{
+					return false;
+				}
+
+				ConsumeRemaining(input);
+				step = new BankAdministrationActionStep(bank, BankAdministrationActionKind.ReserveWithdrawal, withdrawal);
+				message = string.Empty;
+				return true;
+			default:
+				message = "Bank reserve administration must be audit, deposit, or withdraw.";
+				return false;
+		}
+	}
+
+	private static bool TryParseBankAccountAdministration(IBank bank, IEmploymentHost host, StringStack input,
+		out IEmploymentActionStep step, out string message)
+	{
+		step = null!;
+		if (input.IsFinished)
+		{
+			message = $"Bank account administration uses the syntax: {"bankadmin account credit <account> <amount> for <reason>|status <account> <active|suspended|locked> [reason]|close <account> <reason>".ColourCommand()}";
+			return false;
+		}
+
+		switch (input.PopForSwitch())
+		{
+			case "credit":
+			{
+				if (input.IsFinished)
+				{
+					message = "Which bank account should be credited?";
+					return false;
+				}
+
+				var accountSelector = input.PopSpeech();
+				var amountTokens = PopTokensUntil(input, "for").ToList();
+				if (!amountTokens.Any() || input.IsFinished || !input.PopSpeech().EqualTo("for"))
+				{
+					message = $"Bank account credit steps use the syntax: {"bankadmin account credit <account> <amount> for <reason>".ColourCommand()}";
+					return false;
+				}
+
+				if (!TryParseMoney(host, string.Join(" ", amountTokens), out var amount, out message))
+				{
+					return false;
+				}
+
+				var reason = input.SafeRemainingArgument.Trim();
+				if (string.IsNullOrWhiteSpace(reason))
+				{
+					message = "What audit reason should be recorded for the bank account credit?";
+					return false;
+				}
+
+				ConsumeRemaining(input);
+				step = new BankAdministrationActionStep(bank, BankAdministrationActionKind.AccountCredit, amount,
+					accountSelector, reason: reason);
+				message = string.Empty;
+				return true;
+			}
+			case "status":
+			{
+				if (input.IsFinished)
+				{
+					message = "Which bank account status should be changed?";
+					return false;
+				}
+
+				var accountSelector = input.PopSpeech();
+				if (input.IsFinished)
+				{
+					message = "What status should the account be set to?";
+					return false;
+				}
+
+				if (!TryParseBankAccountStatus(input.PopSpeech(), out var status))
+				{
+					message = $"Bank account status must be {new[] { "active", "suspended", "locked" }.Select(x => x.ColourCommand()).ListToString(conjunction: "or ")}.";
+					return false;
+				}
+
+				var reason = input.SafeRemainingArgument.Trim();
+				ConsumeRemaining(input);
+				step = new BankAdministrationActionStep(bank, BankAdministrationActionKind.AccountStatus,
+					accountSelector: accountSelector, targetStatus: status, reason: reason);
+				message = string.Empty;
+				return true;
+			}
+			case "close":
+			{
+				if (input.IsFinished)
+				{
+					message = "Which bank account should be closed?";
+					return false;
+				}
+
+				var accountSelector = input.PopSpeech();
+				var reason = input.SafeRemainingArgument.Trim();
+				if (string.IsNullOrWhiteSpace(reason))
+				{
+					message = "What audit reason should be recorded for closing the bank account?";
+					return false;
+				}
+
+				ConsumeRemaining(input);
+				step = new BankAdministrationActionStep(bank, BankAdministrationActionKind.AccountClose,
+					accountSelector: accountSelector, reason: reason);
+				message = string.Empty;
+				return true;
+			}
+			default:
+				message = "Bank account administration must be credit, status, or close.";
+				return false;
+		}
+	}
+
+	private static bool TryParseBankBranchAdministration(ICharacter actor, IBank bank, StringStack input,
+		out IEmploymentActionStep step, out string message)
+	{
+		step = null!;
+		if (input.IsFinished)
+		{
+			message = $"Bank branch administration uses the syntax: {"bankadmin branch post <here|cell id> <note>|courier <from> to <to> <note>".ColourCommand()}";
+			return false;
+		}
+
+		switch (input.PopForSwitch())
+		{
+			case "post":
+			case "staff":
+			case "teller":
+			{
+				if (input.IsFinished)
+				{
+					message = "Which bank branch should receive this post evidence?";
+					return false;
+				}
+
+				if (!TryResolveLocation(actor, input.PopSpeech(), out var branch, out message))
+				{
+					return false;
+				}
+
+				var note = input.SafeRemainingArgument.Trim();
+				if (string.IsNullOrWhiteSpace(note))
+				{
+					message = "What branch staffing or teller note should be recorded?";
+					return false;
+				}
+
+				ConsumeRemaining(input);
+				step = new BankAdministrationActionStep(bank, BankAdministrationActionKind.BranchPost,
+					sourceBranch: branch, reason: note);
+				message = string.Empty;
+				return true;
+			}
+			case "courier":
+			case "run":
+			{
+				if (input.IsFinished)
+				{
+					message = "Which branch should the courier run start from?";
+					return false;
+				}
+
+				if (!TryResolveLocation(actor, input.PopSpeech(), out var source, out message))
+				{
+					return false;
+				}
+
+				if (input.IsFinished || !input.PopSpeech().EqualTo("to"))
+				{
+					message = $"Bank branch courier steps use the syntax: {"bankadmin branch courier <from> to <to> <note>".ColourCommand()}";
+					return false;
+				}
+
+				if (input.IsFinished || !TryResolveLocation(actor, input.PopSpeech(), out var destination, out message))
+				{
+					return false;
+				}
+
+				var note = input.SafeRemainingArgument.Trim();
+				if (string.IsNullOrWhiteSpace(note))
+				{
+					message = "What courier note should be recorded?";
+					return false;
+				}
+
+				ConsumeRemaining(input);
+				step = new BankAdministrationActionStep(bank, BankAdministrationActionKind.BranchCourier,
+					sourceBranch: source, destinationBranch: destination, reason: note);
+				message = string.Empty;
+				return true;
+			}
+			default:
+				message = "Bank branch administration must be post or courier.";
+				return false;
+		}
+	}
+
+	private static bool TryParseBankAccountStatus(string text, out BankAccountStatus status)
+	{
+		switch (text.ToLowerInvariant())
+		{
+			case "active":
+				status = BankAccountStatus.Active;
+				return true;
+			case "suspended":
+			case "suspend":
+				status = BankAccountStatus.Suspended;
+				return true;
+			case "locked":
+			case "lock":
+				status = BankAccountStatus.Locked;
+				return true;
+			default:
+				status = default;
+				return false;
+		}
+	}
+	private static bool TryParseStableAdministration(ICharacter actor, IEmploymentHost host, StringStack input,
+		out IEmploymentActionStep step, out string message)
+	{
+		step = null!;
+		if (host is not IStable stable)
+		{
+			message = "Stable administration steps can only be drafted for stable employment hosts.";
+			return false;
+		}
+
+		if (input.IsFinished)
+		{
+			message = $"Stable administration uses: {"stableadmin care <inspect|feed|groom|exercise> <stay id> <note> OR stableadmin fees <all|stay id> [note] OR stableadmin stay <stay id> <note> OR stableadmin account <account id|name> <note>".ColourCommand()}";
+			return false;
+		}
+
+		switch (input.PopForSwitch())
+		{
+			case "care":
+			case "welfare":
+			{
+				if (input.IsFinished || !TryParseStableCareKind(input.PopSpeech(), out var operation))
+				{
+					message = "Stable care action must be inspect, feed, groom, or exercise.";
+					return false;
+				}
+
+				if (input.IsFinished)
+				{
+					message = "Which stable stay should this action target?";
+					return false;
+				}
+
+				if (!TryResolveStableStay(stable, input.PopSpeech(), out var stay, out message))
+				{
+					return false;
+				}
+
+				var note = input.SafeRemainingArgument.Trim();
+				if (string.IsNullOrWhiteSpace(note))
+				{
+					message = "What stable care note should be recorded?";
+					return false;
+				}
+
+				ConsumeRemaining(input);
+				step = new StableAdministrationActionStep(stable, operation, stay: stay, note: note);
+				message = string.Empty;
+				return true;
+			}
+			case "fees":
+			case "fee":
+			case "assess":
+			{
+				IStableStay? stay = null;
+				if (!input.IsFinished)
+				{
+					var selector = input.PopSpeech();
+					if (!selector.EqualTo("all"))
+					{
+						if (!TryResolveStableStay(stable, selector, out stay, out message))
+						{
+							return false;
+						}
+					}
+				}
+
+				var note = input.SafeRemainingArgument.Trim();
+				ConsumeRemaining(input);
+				step = new StableAdministrationActionStep(stable, StableAdministrationActionKind.FeeAssessment,
+					stay: stay, note: note);
+				message = string.Empty;
+				return true;
+			}
+			case "stay":
+			case "ticket":
+			{
+				if (input.IsFinished)
+				{
+					message = "Which stable stay should this action target?";
+					return false;
+				}
+
+				if (!TryResolveStableStay(stable, input.PopSpeech(), out var stay, out message))
+				{
+					return false;
+				}
+
+				var note = input.SafeRemainingArgument.Trim();
+				if (string.IsNullOrWhiteSpace(note))
+				{
+					message = "What stay or ticket reconciliation note should be recorded?";
+					return false;
+				}
+
+				ConsumeRemaining(input);
+				step = new StableAdministrationActionStep(stable, StableAdministrationActionKind.StayReconciliation,
+					stay: stay, note: note);
+				message = string.Empty;
+				return true;
+			}
+			case "account":
+			case "acct":
+			{
+				if (input.IsFinished)
+				{
+					message = "Which stable account should this action target?";
+					return false;
+				}
+
+				if (!TryResolveStableAccount(stable, input.PopSpeech(), out var account, out message))
+				{
+					return false;
+				}
+
+				var note = input.SafeRemainingArgument.Trim();
+				if (string.IsNullOrWhiteSpace(note))
+				{
+					message = "What account reconciliation note should be recorded?";
+					return false;
+				}
+
+				ConsumeRemaining(input);
+				step = new StableAdministrationActionStep(stable, StableAdministrationActionKind.AccountReconciliation,
+					account: account, note: note);
+				message = string.Empty;
+				return true;
+			}
+			default:
+				message = "Stable administration must target care, fees, stay, or account work.";
+				return false;
+		}
+	}
+
+	private static bool TryParseStableCareKind(string text, out StableAdministrationActionKind operation)
+	{
+		switch (text.ToLowerInvariant())
+		{
+			case "inspect":
+			case "inspection":
+				operation = StableAdministrationActionKind.CareInspect;
+				return true;
+			case "feed":
+			case "feeding":
+				operation = StableAdministrationActionKind.CareFeed;
+				return true;
+			case "groom":
+			case "grooming":
+				operation = StableAdministrationActionKind.CareGroom;
+				return true;
+			case "exercise":
+			case "exercised":
+				operation = StableAdministrationActionKind.CareExercise;
+				return true;
+			default:
+				operation = default;
+				return false;
+		}
+	}
+
+	private static bool TryResolveStableStay(IStable stable, string selector, out IStableStay stay, out string message)
+	{
+		stay = null!;
+		if (!long.TryParse(selector, NumberStyles.Integer, CultureInfo.InvariantCulture, out var id))
+		{
+			message = "Stable stay selectors must be numeric stay ids in this slice.";
+			return false;
+		}
+
+		stay = stable.ActiveStays.FirstOrDefault(x => x.Id == id)!;
+		if (stay is null)
+		{
+			message = $"There is no active stable stay #{id.ToString("N0", CultureInfo.InvariantCulture)} at {stable.Name.ColourName()}.";
+			return false;
+		}
+
+		message = string.Empty;
+		return true;
+	}
+
+	private static bool TryResolveStableAccount(IStable stable, string selector, out IStableAccount account,
+		out string message)
+	{
+		account = stable.AccountByName(selector)!;
+		if (account is null)
+		{
+			message = $"There is no stable account matching {selector.ColourCommand()} at {stable.Name.ColourName()}.";
+			return false;
+		}
+
+		message = string.Empty;
+		return true;
+	}
+
+	private static bool TryParseHotelAdministration(ICharacter actor, IEmploymentHost host, StringStack input,
+		out IEmploymentActionStep step, out string message)
+	{
+		step = null!;
+		if (host is not IHotel hotel)
+		{
+			message = "Hotel administration steps can only be drafted for hotel employment hosts.";
+			return false;
+		}
+
+		if (input.IsFinished)
+		{
+			message = $"Hotel administration uses: {"hoteladmin room <inspect|clean|ready|maintenance> <room id|name|here> <note> OR hoteladmin lost check [note]|audit <lost #> <note> OR hoteladmin balance <patron id|name> <note>".ColourCommand()}";
+			return false;
+		}
+
+		switch (input.PopForSwitch())
+		{
+			case "room":
+			{
+				if (input.IsFinished || !TryParseHotelRoomKind(input.PopSpeech(), out var operation))
+				{
+					message = "Hotel room action must be inspect, clean, ready, or maintenance.";
+					return false;
+				}
+
+				if (input.IsFinished)
+				{
+					message = "Which hotel room should this action target?";
+					return false;
+				}
+
+				if (!TryResolveHotelRoom(actor, hotel, input.PopSpeech(), out var room, out message))
+				{
+					return false;
+				}
+
+				var note = input.SafeRemainingArgument.Trim();
+				if (string.IsNullOrWhiteSpace(note))
+				{
+					message = "What room note should be recorded?";
+					return false;
+				}
+
+				ConsumeRemaining(input);
+				step = new HotelAdministrationActionStep(hotel, operation, room: room, note: note);
+				message = string.Empty;
+				return true;
+			}
+			case "lost":
+			case "lostproperty":
+			{
+				if (input.IsFinished)
+				{
+					message = "Hotel lost-property actions must be check or audit.";
+					return false;
+				}
+
+				switch (input.PopForSwitch())
+				{
+					case "check":
+					case "sweep":
+						var note = input.SafeRemainingArgument.Trim();
+						ConsumeRemaining(input);
+						step = new HotelAdministrationActionStep(hotel, HotelAdministrationActionKind.LostPropertyCheck,
+							note: note);
+						message = string.Empty;
+						return true;
+					case "audit":
+					case "inspect":
+						if (input.IsFinished)
+						{
+							message = "Which lost-property bundle should be audited?";
+							return false;
+						}
+
+						if (!TryResolveHotelLostProperty(hotel, input.PopSpeech(), out var lost, out message))
+						{
+							return false;
+						}
+
+						var auditNote = input.SafeRemainingArgument.Trim();
+						if (string.IsNullOrWhiteSpace(auditNote))
+						{
+							message = "What lost-property audit note should be recorded?";
+							return false;
+						}
+
+						ConsumeRemaining(input);
+						step = new HotelAdministrationActionStep(hotel, HotelAdministrationActionKind.LostPropertyAudit,
+							lostProperty: lost, note: auditNote);
+						message = string.Empty;
+						return true;
+					default:
+						message = "Hotel lost-property actions must be check or audit.";
+						return false;
+				}
+			}
+			case "balance":
+			case "patron":
+			{
+				if (input.IsFinished)
+				{
+					message = "Which patron balance should be audited?";
+					return false;
+				}
+
+				var selector = input.PopSpeech();
+				if (!TryResolveHotelPatronBalance(hotel, selector, out var balance, out message))
+				{
+					return false;
+				}
+
+				var note = input.SafeRemainingArgument.Trim();
+				if (string.IsNullOrWhiteSpace(note))
+				{
+					message = "What patron-balance note should be recorded?";
+					return false;
+				}
+
+				ConsumeRemaining(input);
+				step = new HotelAdministrationActionStep(hotel, HotelAdministrationActionKind.PatronBalanceAudit,
+					patronBalance: balance, patronSelector: selector, note: note);
+				message = string.Empty;
+				return true;
+			}
+			default:
+				message = "Hotel administration must target room, lost-property, or patron-balance work.";
+				return false;
+		}
+	}
+
+	private static bool TryParseHotelRoomKind(string text, out HotelAdministrationActionKind operation)
+	{
+		switch (text.ToLowerInvariant())
+		{
+			case "inspect":
+			case "inspection":
+				operation = HotelAdministrationActionKind.RoomInspect;
+				return true;
+			case "clean":
+			case "cleaning":
+				operation = HotelAdministrationActionKind.RoomClean;
+				return true;
+			case "ready":
+			case "readiness":
+				operation = HotelAdministrationActionKind.RoomReady;
+				return true;
+			case "maintenance":
+			case "maintain":
+				operation = HotelAdministrationActionKind.RoomMaintenance;
+				return true;
+			default:
+				operation = default;
+				return false;
+		}
+	}
+
+	private static bool TryResolveHotelRoom(ICharacter actor, IHotel hotel, string selector, out IHotelRoom room,
+		out string message)
+	{
+		room = null!;
+		if (selector.EqualTo("here"))
+		{
+			room = hotel.Rooms.FirstOrDefault(x => x.Cell.Id == actor.Location.Id)!;
+		}
+		else if (long.TryParse(selector, NumberStyles.Integer, CultureInfo.InvariantCulture, out var cellId))
+		{
+			room = hotel.Rooms.FirstOrDefault(x => x.Cell.Id == cellId)!;
+		}
+		else
+		{
+			room = hotel.Rooms.FirstOrDefault(x => x.Name.EqualTo(selector)) ??
+			       hotel.Rooms.FirstOrDefault(x => x.Name.StartsWith(selector, StringComparison.InvariantCultureIgnoreCase))!;
+		}
+
+		if (room is null)
+		{
+			message = $"There is no hotel room matching {selector.ColourCommand()} at {hotel.Name.ColourName()}.";
+			return false;
+		}
+
+		message = string.Empty;
+		return true;
+	}
+
+	private static bool TryResolveHotelLostProperty(IHotel hotel, string selector, out IHotelLostProperty lost,
+		out string message)
+	{
+		lost = null!;
+		if (!int.TryParse(selector, NumberStyles.Integer, CultureInfo.InvariantCulture, out var index) || index <= 0)
+		{
+			message = "Lost-property selectors are 1-based list numbers in this slice.";
+			return false;
+		}
+
+		lost = hotel.Property.HotelLostProperties.ElementAtOrDefault(index - 1)!;
+		if (lost is null)
+		{
+			message = $"There is no lost-property record #{index.ToString("N0", CultureInfo.InvariantCulture)} at {hotel.Name.ColourName()}.";
+			return false;
+		}
+
+		message = string.Empty;
+		return true;
+	}
+
+	private static bool TryResolveHotelPatronBalance(IHotel hotel, string selector, out IHotelPatronBalance balance,
+		out string message)
+	{
+		if (long.TryParse(selector, NumberStyles.Integer, CultureInfo.InvariantCulture, out var patronId))
+		{
+			balance = hotel.Property.HotelPatronBalances.FirstOrDefault(x => x.PatronId == patronId)!;
+		}
+		else
+		{
+			balance = hotel.Property.HotelPatronBalances.FirstOrDefault(x => x.Patron?.Name.EqualTo(selector) == true) ??
+			          hotel.Property.HotelPatronBalances.FirstOrDefault(x => x.Patron?.Name.StartsWith(selector, StringComparison.InvariantCultureIgnoreCase) == true)!;
+		}
+
+		if (balance is null)
+		{
+			message = $"There is no patron balance matching {selector.ColourCommand()} at {hotel.Name.ColourName()}.";
+			return false;
+		}
+
+		message = string.Empty;
+		return true;
+	}
+	private static bool TryParseArenaEventAdministration(ICharacter actor, IEmploymentHost host, StringStack input,
+		out IEmploymentActionStep step, out string message)
+	{
+		step = null!;
+		if (host is not ICombatArena arena)
+		{
+			message = "Arena event steps can only be used from combat arena employment hosts.";
+			return false;
+		}
+
+		if (input.IsFinished)
+		{
+			message = $"Arena event steps use the syntax: {"tasks step arenaevent create <event type id|name> at <date/time> OR arenaevent phase <event id|name> <state> OR arenaevent abort <event id|name> <reason>".ColourCommand()}.";
+			return false;
+		}
+
+		var operation = input.PopSpeech().CollapseString().ToLowerInvariant();
+		switch (operation)
+		{
+			case "create":
+			case "schedule":
+			case "new":
+			{
+				var typeText = string.Join(" ", PopTokensUntilAny(input, ["at", "when", "for"])).Trim();
+				if (string.IsNullOrWhiteSpace(typeText) || input.IsFinished || !input.PopSpeech().EqualToAny("at", "when", "for"))
+				{
+					message = $"Arena event creation uses the syntax: {"tasks step arenaevent create <event type id|name> at <date/time>".ColourCommand()}.";
+					return false;
+				}
+
+				if (!DateUtilities.TryParseDateTimeOrRelative(input.SafeRemainingArgument, actor.Account, true,
+					    out var scheduledForUtc))
+				{
+					message = "That is not a valid arena event date/time.";
+					return false;
+				}
+
+				var eventType = ResolveArenaEventType(arena, typeText);
+				if (eventType is null)
+				{
+					message = $"There is no arena event type matching {typeText.ColourCommand()} for {arena.Name.ColourName()}.";
+					return false;
+				}
+
+				ConsumeRemaining(input);
+				step = new ArenaEventAdministrationActionStep(arena, eventType, scheduledForUtc);
+				message = string.Empty;
+				return true;
+			}
+			case "phase":
+			case "state":
+			case "transition":
+			case "advance":
+			{
+				var tokens = PopRemainingTokens(input).ToList();
+				if (tokens.Count < 2)
+				{
+					message = $"Arena event phase steps use the syntax: {"tasks step arenaevent phase <event id|name> <state>".ColourCommand()}.";
+					return false;
+				}
+
+				var stateText = tokens[^1];
+				var eventTokens = tokens.Take(tokens.Count - 1).ToList();
+				if (eventTokens.Count > 1 && eventTokens[^1].EqualToAny("to", "state", "phase"))
+				{
+					eventTokens.RemoveAt(eventTokens.Count - 1);
+				}
+
+				var eventText = string.Join(" ", eventTokens).Trim();
+				if (string.IsNullOrWhiteSpace(eventText) || !TryParseArenaEventState(stateText, out var targetState))
+				{
+					message = $"Arena event phase steps use the syntax: {"tasks step arenaevent phase <event id|name> <state>".ColourCommand()}.";
+					return false;
+				}
+
+				var arenaEvent = ResolveArenaEvent(arena, eventText);
+				if (arenaEvent is null)
+				{
+					message = $"There is no active arena event matching {eventText.ColourCommand()} for {arena.Name.ColourName()}.";
+					return false;
+				}
+
+				step = new ArenaEventAdministrationActionStep(arena, arenaEvent, targetState);
+				message = string.Empty;
+				return true;
+			}
+			case "abort":
+			case "cancel":
+			{
+				if (input.IsFinished)
+				{
+					message = $"Arena event abort steps use the syntax: {"tasks step arenaevent abort <event id|name> <reason>".ColourCommand()}.";
+					return false;
+				}
+
+				var eventText = input.PopSpeech();
+				var reason = input.SafeRemainingArgument.Trim();
+				if (string.IsNullOrWhiteSpace(reason))
+				{
+					message = "Arena event abort steps require a reason after the event selector.";
+					return false;
+				}
+
+				var arenaEvent = ResolveArenaEvent(arena, eventText);
+				if (arenaEvent is null)
+				{
+					message = $"There is no active arena event matching {eventText.ColourCommand()} for {arena.Name.ColourName()}.";
+					return false;
+				}
+
+				ConsumeRemaining(input);
+				step = new ArenaEventAdministrationActionStep(arena, arenaEvent, reason);
+				message = string.Empty;
+				return true;
+			}
+			default:
+				message = $"Unknown arena event operation {operation.ColourCommand()}. Use create, phase, or abort.";
+				return false;
+		}
+	}
+
+	private static IArenaEventType? ResolveArenaEventType(ICombatArena arena, string target)
+	{
+		if (long.TryParse(target.TrimStart('#'), out var id))
+		{
+			return arena.EventTypes.FirstOrDefault(x => x.Id == id);
+		}
+
+		return arena.EventTypes.FirstOrDefault(x => x.Name.EqualTo(target)) ??
+		       arena.EventTypes.FirstOrDefault(x => x.Name.StartsWith(target, StringComparison.InvariantCultureIgnoreCase));
+	}
+
+	private static IArenaEvent? ResolveArenaEvent(ICombatArena arena, string target)
+	{
+		if (long.TryParse(target.TrimStart('#'), out var id))
+		{
+			return arena.ActiveEvents.FirstOrDefault(x => x.Id == id);
+		}
+
+		return arena.ActiveEvents.FirstOrDefault(x => x.Name.EqualTo(target)) ??
+		       arena.ActiveEvents.FirstOrDefault(x => x.Name.StartsWith(target, StringComparison.InvariantCultureIgnoreCase));
+	}
+
+	private static bool TryParseArenaEventState(string text, out ArenaEventState state)
+	{
+		state = ArenaEventState.Draft;
+		if (text.TryParseEnum(out state))
+		{
+			return true;
+		}
+
+		switch (text.CollapseString().ToLowerInvariant())
+		{
+			case "registration":
+			case "open":
+			case "regopen":
+				state = ArenaEventState.RegistrationOpen;
+				return true;
+			case "prep":
+			case "preparation":
+				state = ArenaEventState.Preparing;
+				return true;
+			case "stage":
+				state = ArenaEventState.Staged;
+				return true;
+			case "fight":
+			case "combat":
+				state = ArenaEventState.Live;
+				return true;
+			case "resolve":
+				state = ArenaEventState.Resolving;
+				return true;
+			case "clean":
+				state = ArenaEventState.Cleanup;
+				return true;
+			case "complete":
+				state = ArenaEventState.Completed;
+				return true;
+			case "abort":
+			case "cancelled":
+				state = ArenaEventState.Aborted;
+				return true;
+			default:
+				return false;
+		}
+	}
+
 	private static bool TryParseLoad(ICharacter actor, StringStack input, out IEmploymentActionStep step,
 		out string message)
 	{
@@ -729,10 +1984,18 @@ internal sealed class EmploymentTaskAuthoringService
 				return false;
 			}
 
-			if (input.IsFinished || !TryResolveLocation(actor, input.PopSpeech(), out location, out message))
+			if (input.IsFinished)
+			{
+				message = "Which destination should this load step use?";
+				return false;
+			}
+
+			if (!TryResolveLocation(actor, input.PopSpeech(), out var destination, out message))
 			{
 				return false;
 			}
+
+			location = destination;
 		}
 
 		if (!input.IsFinished)
@@ -764,10 +2027,18 @@ internal sealed class EmploymentTaskAuthoringService
 				return false;
 			}
 
-			if (input.IsFinished || !TryResolveLocation(actor, input.PopSpeech(), out location, out message))
+			if (input.IsFinished)
+			{
+				message = "Which destination should this unload step use?";
+				return false;
+			}
+
+			if (!TryResolveLocation(actor, input.PopSpeech(), out var destination, out message))
 			{
 				return false;
 			}
+
+			location = destination;
 		}
 
 		if (!input.IsFinished)
@@ -867,19 +2138,224 @@ internal sealed class EmploymentTaskAuthoringService
 		return true;
 	}
 
+	private static bool TryParseAnimal(ICharacter actor, StringStack input, out IEmploymentActionStep step,
+		out string message)
+	{
+		step = null!;
+		if (input.IsFinished)
+		{
+			message = AnimalStepSyntax();
+			return false;
+		}
+
+		var operation = input.PopSpeech();
+		switch (operation.ToLowerInvariant())
+		{
+			case "lead":
+			{
+				if (input.IsFinished)
+				{
+					message = "Which animal should this lead step manage?";
+					return false;
+				}
+
+				var mountText = input.PopSpeech();
+				if (input.IsFinished || !input.PopSpeech().EqualTo("to"))
+				{
+					message = $"Animal lead steps use the syntax: {"tasks step animal lead <mount id|name> to <here|cell id>".ColourCommand()}";
+					return false;
+				}
+
+				if (input.IsFinished)
+				{
+					message = "Which destination should this lead step use?";
+					return false;
+				}
+
+				if (!TryResolveLocation(actor, input.PopSpeech(), out var destination, out message))
+				{
+					return false;
+				}
+
+				if (!input.IsFinished)
+				{
+					message = $"Could not understand the extra text {input.SafeRemainingArgument.ColourCommand()} in the animal lead step.";
+					return false;
+				}
+
+				if (!TryResolveEmploymentMount(actor, mountText, out var mount, out message))
+				{
+					return false;
+				}
+
+				step = new StableAnimalOperationActionStep(EmploymentAnimalOperationKind.Lead, mount, destination: destination);
+				message = string.Empty;
+				return true;
+			}
+			case "ride":
+			{
+				var mountText = input.SafeRemainingArgument.Trim();
+				if (string.IsNullOrWhiteSpace(mountText))
+				{
+					message = $"Animal ride steps use the syntax: {"tasks step animal ride <mount id|name>".ColourCommand()}";
+					return false;
+				}
+
+				ConsumeRemaining(input);
+				if (!TryResolveEmploymentMount(actor, mountText, out var mount, out message))
+				{
+					return false;
+				}
+
+				step = new StableAnimalOperationActionStep(EmploymentAnimalOperationKind.Ride, mount);
+				message = string.Empty;
+				return true;
+			}
+			case "lodge":
+			{
+				if (input.IsFinished)
+				{
+					message = "Which animal should this lodge step manage?";
+					return false;
+				}
+
+				var mountText = input.PopSpeech();
+				if (input.IsFinished || !input.PopSpeech().EqualTo("at"))
+				{
+					message = $"Animal lodge steps use the syntax: {"tasks step animal lodge <mount id|name> at <stable id|name>".ColourCommand()}";
+					return false;
+				}
+
+				var stableText = input.SafeRemainingArgument.Trim();
+				if (string.IsNullOrWhiteSpace(stableText))
+				{
+					message = "Which stable should lodge this animal?";
+					return false;
+				}
+
+				ConsumeRemaining(input);
+				if (!TryResolveEmploymentMount(actor, mountText, out var mount, out message) ||
+				    !TryResolveStable(actor, stableText, out var stable, out message))
+				{
+					return false;
+				}
+
+				step = new StableAnimalOperationActionStep(EmploymentAnimalOperationKind.Lodge, mount, stable);
+				message = string.Empty;
+				return true;
+			}
+			case "return":
+			{
+				if (input.IsFinished || !long.TryParse(input.PopSpeech(), out var stayId))
+				{
+					message = $"Animal return steps use the syntax: {"tasks step animal return <stay id> from <stable id|name> [waive]".ColourCommand()}";
+					return false;
+				}
+
+				if (input.IsFinished || !input.PopSpeech().EqualTo("from"))
+				{
+					message = $"Animal return steps use the syntax: {"tasks step animal return <stay id> from <stable id|name> [waive]".ColourCommand()}";
+					return false;
+				}
+
+				var stableText = input.SafeRemainingArgument.Trim();
+				var waiveFees = false;
+				if (stableText.EndsWith(" waive", StringComparison.InvariantCultureIgnoreCase))
+				{
+					waiveFees = true;
+					stableText = stableText[..^6].Trim();
+				}
+
+				if (string.IsNullOrWhiteSpace(stableText))
+				{
+					message = "Which stable should return this animal?";
+					return false;
+				}
+
+				ConsumeRemaining(input);
+				if (!TryResolveStable(actor, stableText, out var stable, out message))
+				{
+					return false;
+				}
+
+				var stay = stable.Stays.FirstOrDefault(x => x.Id == stayId);
+				if (stay is null)
+				{
+					message = $"Stable {stable.Name.ColourName()} has no stay with id {stayId.ToString("N0", actor).ColourValue()}.";
+					return false;
+				}
+
+				step = new StableAnimalOperationActionStep(EmploymentAnimalOperationKind.Return, stable: stable,
+					stay: stay, waiveFees: waiveFees);
+				message = string.Empty;
+				return true;
+			}
+			default:
+				message = AnimalStepSyntax();
+				return false;
+		}
+	}
+
+	private static string AnimalStepSyntax()
+	{
+		return $"Animal steps use the syntax: {"tasks step animal lead <mount id|name> to <here|cell id>".ColourCommand()}, {"animal ride <mount id|name>".ColourCommand()}, {"animal lodge <mount id|name> at <stable id|name>".ColourCommand()}, or {"animal return <stay id> from <stable id|name> [waive]".ColourCommand()}";
+	}
+
+	private static bool TryResolveEmploymentMount(ICharacter actor, string text, out ICharacter mount, out string message)
+	{
+		mount = null!;
+		if (long.TryParse(text, out var id))
+		{
+			mount = actor.Gameworld.TryGetCharacter(id, true);
+		}
+		else
+		{
+			mount = actor.Gameworld.Characters.GetByIdOrName(text) ?? actor.Gameworld.Characters.GetByPersonalName(text);
+		}
+
+		if (mount is null)
+		{
+			message = $"There is no animal or mount matching {text.ColourCommand()}.";
+			return false;
+		}
+
+		message = string.Empty;
+		return true;
+	}
+
+	private static bool TryResolveStable(ICharacter actor, string text, out IStable stable, out string message)
+	{
+		stable = actor.Gameworld.Stables.GetByIdOrName(text)!;
+		if (stable is null)
+		{
+			message = $"There is no stable matching {text.ColourCommand()}.";
+			return false;
+		}
+
+		message = string.Empty;
+		return true;
+	}
+
 	private static bool TryParseVehicle(ICharacter actor, StringStack input, out IEmploymentActionStep step,
 		out string message)
 	{
 		step = null!;
-		if (input.IsFinished || !input.PopSpeech().EqualTo("cargo"))
+		if (input.IsFinished)
 		{
-			message = $"Vehicle steps use the syntax: {"tasks step vehicle cargo <vehicle id|exterior item id> <cargo id|cargo name>".ColourCommand()}";
+			message = $"Vehicle steps use the syntax: {"tasks step vehicle assign <vehicle id|exterior item id>".ColourCommand()} or {"tasks step vehicle cargo <vehicle id|exterior item id> <cargo id|cargo name>".ColourCommand()}";
+			return false;
+		}
+
+		var operation = input.PopSpeech();
+		if (!operation.EqualToAny("assign", "driver", "cargo"))
+		{
+			message = $"Vehicle steps use the syntax: {"tasks step vehicle assign <vehicle id|exterior item id>".ColourCommand()} or {"tasks step vehicle cargo <vehicle id|exterior item id> <cargo id|cargo name>".ColourCommand()}";
 			return false;
 		}
 
 		if (input.IsFinished || !long.TryParse(input.PopSpeech(), out var vehicleId))
 		{
-			message = "Which vehicle id or exterior item id should this cargo step select?";
+			message = "Which vehicle id or exterior item id should this vehicle step select?";
 			return false;
 		}
 
@@ -888,6 +2364,19 @@ internal sealed class EmploymentTaskAuthoringService
 		{
 			message = $"There is no vehicle or vehicle exterior item with id {vehicleId.ToString("N0", actor).ColourValue()}.";
 			return false;
+		}
+
+		if (operation.EqualToAny("assign", "driver"))
+		{
+			if (!input.IsFinished)
+			{
+				message = $"Could not understand the extra text {input.SafeRemainingArgument.ColourCommand()} in the vehicle assignment step.";
+				return false;
+			}
+
+			step = new VehicleOperationActionStep(vehicle);
+			message = string.Empty;
+			return true;
 		}
 
 		if (input.IsFinished)
@@ -1002,6 +2491,25 @@ internal sealed class EmploymentTaskAuthoringService
 		return true;
 	}
 
+	private static bool TryParseSupplierSelection(ICharacter actor, IEmploymentHost host, StringStack input,
+		out IEmploymentActionStep step, out string message)
+	{
+		step = null!;
+		if (!TryParsePurchase(actor, host, input, out var parsed, out message))
+		{
+			return false;
+		}
+
+		if (parsed is not PurchaseActionStep purchase || !purchase.IsExecutablePurchase)
+		{
+			message = $"Supplier steps use the executable purchase-target syntax: {"tasks step supplier <quantity> <merchandise id|name> from <shop id|name|any> [max <amount>]".ColourCommand()}.";
+			return false;
+		}
+
+		step = new SupplierSelectionActionStep(purchase);
+		message = string.Empty;
+		return true;
+	}
 	private static bool TryParsePurchase(ICharacter actor, IEmploymentHost host, StringStack input, out IEmploymentActionStep step,
 		out string message)
 	{
@@ -1224,6 +2732,69 @@ internal sealed class EmploymentTaskAuthoringService
 		return true;
 	}
 
+	private static bool TryParseBankTransfer(IEmploymentHost host, StringStack input, out IEmploymentActionStep step,
+		out string message)
+	{
+		step = null!;
+		var amountTokens = PopTokensUntil(input, "to").ToList();
+		if (!amountTokens.Any() || input.IsFinished || !input.PopSpeech().EqualTo("to"))
+		{
+			message = $"Bank transfer steps use the syntax: {"tasks step transfer <amount> to <bank account id|bankcode:account|alias>".ColourCommand()}";
+			return false;
+		}
+
+		if (!TryParseMoney(host, string.Join(" ", amountTokens), out var amount, out message))
+		{
+			return false;
+		}
+
+		var targetAccountKey = input.SafeRemainingArgument.Trim();
+		if (string.IsNullOrWhiteSpace(targetAccountKey))
+		{
+			message = "Which target bank account should this transfer use?";
+			return false;
+		}
+
+		ConsumeRemaining(input);
+		step = new BankAccountTransferActionStep(targetAccountKey, amount);
+		message = string.Empty;
+		return true;
+	}
+	private static bool TryParseHostSettlement(IEmploymentHost host, StringStack input, out IEmploymentActionStep step,
+		out string message)
+	{
+		step = null!;
+		var amountTokens = PopTokensUntil(input, "to").ToList();
+		if (!amountTokens.Any() || input.IsFinished || !input.PopSpeech().EqualTo("to"))
+		{
+			message = $"Host settlement steps use the syntax: {"tasks step settle <amount> to <host type> <id|name>".ColourCommand()}";
+			return false;
+		}
+
+		if (!TryParseMoney(host, string.Join(" ", amountTokens), out var amount, out message))
+		{
+			return false;
+		}
+
+		if (input.IsFinished)
+		{
+			message = "Which target employment host type should this settlement use?";
+			return false;
+		}
+
+		var hostType = input.PopSpeech();
+		var identifier = input.SafeRemainingArgument.Trim();
+		if (string.IsNullOrWhiteSpace(identifier))
+		{
+			message = "Which target employment host should this settlement use?";
+			return false;
+		}
+
+		ConsumeRemaining(input);
+		step = new HostSettlementActionStep($"{hostType.CollapseString().ToLowerInvariant()}:{identifier}", amount);
+		message = string.Empty;
+		return true;
+	}
 	private static bool TryParseStorePay(IEmploymentHost host, StringStack input, out IEmploymentActionStep step,
 		out string message)
 	{
@@ -1359,6 +2930,22 @@ internal sealed class EmploymentTaskAuthoringService
 		return true;
 	}
 
+	private static bool TryParseCashReconciliation(IEmploymentHost host, StringStack input,
+		out IEmploymentActionStep step, out string message)
+	{
+		step = null!;
+		if (host is not IShop)
+		{
+			message = "Cash reconciliation steps can only be authored for shop employment hosts.";
+			return false;
+		}
+
+		var note = input.SafeRemainingArgument.Trim();
+		ConsumeRemaining(input);
+		step = new ShopCashReconciliationActionStep(note);
+		message = string.Empty;
+		return true;
+	}
 	private static bool TryParseShopFloat(ICharacter actor, IEmploymentHost host, StringStack input,
 		out IEmploymentActionStep step, out string message)
 	{
@@ -1486,13 +3073,425 @@ internal sealed class EmploymentTaskAuthoringService
 		return true;
 	}
 
+	private static bool TryParseManagerGoalAdministration(ICharacter actor, IEmploymentHost host, StringStack input,
+		out IEmploymentActionStep step, out string message)
+	{
+		step = null!;
+		if (input.IsFinished)
+		{
+			message = $"Manager-goal administration steps use the syntax: {"tasks step goal evaluate|cancel|reactivate <#|type|description> [reason]".ColourCommand()}.";
+			return false;
+		}
+
+		var operationText = input.PopSpeech().CollapseString().ToLowerInvariant();
+		ManagerGoalAdministrationActionKind operation;
+		switch (operationText)
+		{
+			case "evaluate":
+			case "eval":
+			case "run":
+				operation = ManagerGoalAdministrationActionKind.Evaluate;
+				break;
+			case "cancel":
+			case "delete":
+			case "remove":
+				operation = ManagerGoalAdministrationActionKind.Cancel;
+				break;
+			case "reactivate":
+			case "activate":
+			case "resume":
+			case "retry":
+			case "unblock":
+				operation = ManagerGoalAdministrationActionKind.Reactivate;
+				break;
+			default:
+				message = $"Unknown manager-goal administration operation {operationText.ColourCommand()}. Use {"evaluate".ColourCommand()}, {"cancel".ColourCommand()}, or {"reactivate".ColourCommand()}.";
+				return false;
+		}
+
+		if (input.IsFinished)
+		{
+			message = "Which manager goal should this step administer?";
+			return false;
+		}
+
+		var selector = input.PopSpeech();
+		var goal = ResolveManagerGoalForStep(host, selector);
+		if (goal is null)
+		{
+			message = $"There is no manager goal matching {selector.ColourCommand()}.";
+			return false;
+		}
+
+		var reason = input.SafeRemainingArgument.Trim();
+		if (string.IsNullOrWhiteSpace(reason))
+		{
+			reason = null;
+		}
+
+		ConsumeRemaining(input);
+		step = new ManagerGoalAdministrationActionStep(operation, goal.Id, goal.Configuration.Description, reason);
+		message = string.Empty;
+		return true;
+	}
+
+	private static IManagerGoal? ResolveManagerGoalForStep(IEmploymentHost host, string selector)
+	{
+		var goals = host.ManagerGoalBoard.Goals
+			.OrderBy(x => x.Priority)
+			.ThenBy(x => x.Id)
+			.ToList();
+		if (!goals.Any())
+		{
+			return null;
+		}
+
+		selector = selector.Trim();
+		if (TryParseCommandNumber(selector, out var id))
+		{
+			return goals.FirstOrDefault(x => x.Id == id);
+		}
+
+		var definition = EmploymentManagerGoalCatalog.Get(selector);
+		if (definition is not null)
+		{
+			return goals.FirstOrDefault(x => x.GoalType == definition.GoalType && x.Status == ManagerGoalStatus.Active) ??
+			       goals.FirstOrDefault(x => x.GoalType == definition.GoalType);
+		}
+
+		return goals.FirstOrDefault(x => x.GoalType.ToString().EqualTo(selector)) ??
+		       goals.FirstOrDefault(x => x.Configuration.Description.EqualTo(selector)) ??
+		       goals.FirstOrDefault(x => x.Configuration.Description.StartsWith(selector, StringComparison.InvariantCultureIgnoreCase));
+	}
+
+	private static bool TryParseActiveTaskAdministration(ICharacter actor, IEmploymentHost host, StringStack input,
+		out IEmploymentActionStep step, out string message)
+	{
+		step = null!;
+		if (input.IsFinished)
+		{
+			message = $"Active-task administration steps use the syntax: {"tasks step admintask retry|requeue|cancel <#|name|id> [reason]".ColourCommand()} or {"tasks step admintask assign <#|name|id> to <employee id|name> [reason]".ColourCommand()}.";
+			return false;
+		}
+
+		var operationText = input.PopSpeech().CollapseString().ToLowerInvariant();
+		ActiveTaskAdministrationActionKind operation;
+		switch (operationText)
+		{
+			case "retry":
+			case "rerun":
+				operation = ActiveTaskAdministrationActionKind.Retry;
+				break;
+			case "requeue":
+			case "release":
+			case "unassign":
+				operation = ActiveTaskAdministrationActionKind.Requeue;
+				break;
+			case "assign":
+			case "reassign":
+				operation = ActiveTaskAdministrationActionKind.Assign;
+				break;
+			case "cancel":
+			case "abort":
+				operation = ActiveTaskAdministrationActionKind.Cancel;
+				break;
+			default:
+				message = $"Unknown active-task administration operation {operationText.ColourCommand()}. Use {"retry".ColourCommand()}, {"requeue".ColourCommand()}, {"assign".ColourCommand()}, or {"cancel".ColourCommand()}.";
+				return false;
+		}
+
+		if (input.IsFinished)
+		{
+			message = "Which active task should this step administer?";
+			return false;
+		}
+
+		var selector = input.PopSpeech();
+		var task = ResolveActiveTaskForStep(host, selector);
+		if (task is null)
+		{
+			message = $"There is no active employment task matching {selector.ColourCommand()}.";
+			return false;
+		}
+
+		long? employeeId = null;
+		string? employeeName = null;
+		if (operation == ActiveTaskAdministrationActionKind.Assign)
+		{
+			if (input.IsFinished || !input.PopSpeech().EqualTo("to"))
+			{
+				message = $"Active-task assignment steps use the syntax: {"tasks step admintask assign <#|name|id> to <employee id|name> [reason]".ColourCommand()}.";
+				return false;
+			}
+
+			if (input.IsFinished)
+			{
+				message = "Which employee should this task be assigned to?";
+				return false;
+			}
+
+			var employeeSelector = input.PopSpeech();
+			var employee = ResolveActiveTaskEmployeeForStep(host, actor, employeeSelector);
+			if (employee is null)
+			{
+				message = $"There is no active employee matching {employeeSelector.ColourCommand()}.";
+				return false;
+			}
+
+			employeeId = employee.Id;
+			employeeName = employee.Name;
+		}
+
+		var reason = input.SafeRemainingArgument.Trim();
+		if (string.IsNullOrWhiteSpace(reason))
+		{
+			reason = null;
+		}
+
+		ConsumeRemaining(input);
+		step = new ActiveTaskAdministrationActionStep(operation, task.Id, task.Name, employeeId, employeeName, reason);
+		message = string.Empty;
+		return true;
+	}
+
+	private static IEmploymentActiveTask? ResolveActiveTaskForStep(IEmploymentHost host, string selector)
+	{
+		var tasks = host.TaskBoard.ActiveTasks
+			.OrderBy(x => x.Name)
+			.ToList();
+		if (!tasks.Any())
+		{
+			return null;
+		}
+
+		selector = selector.Trim();
+		if (selector.StartsWith("#") && int.TryParse(selector[1..], out var number))
+		{
+			return number > 0 && number <= tasks.Count ? tasks[number - 1] : null;
+		}
+
+		if (Guid.TryParse(selector, out var id))
+		{
+			return tasks.FirstOrDefault(x => x.Id == id);
+		}
+
+		return tasks.FirstOrDefault(x => x.Name.EqualTo(selector)) ??
+		       tasks.FirstOrDefault(x => x.Name.StartsWith(selector, StringComparison.InvariantCultureIgnoreCase));
+	}
+
+	private static ICharacter? ResolveActiveTaskEmployeeForStep(IEmploymentHost host, ICharacter actor, string selector)
+	{
+		selector = selector.Trim();
+		if (TryParseCommandNumber(selector, out var id))
+		{
+			return host.EmploymentContracts
+			           .Where(x => x.Status == EmploymentStatus.Active)
+			           .Select(x => x.Employee)
+			           .FirstOrDefault(x => x.Id == id) ??
+			       actor.Gameworld?.TryGetCharacter(id, true);
+		}
+
+		return host.EmploymentContracts
+		           .Where(x => x.Status == EmploymentStatus.Active)
+		           .Select(x => x.Employee)
+		           .FirstOrDefault(x => x.Name.EqualTo(selector)) ??
+		       host.EmploymentContracts
+		           .Where(x => x.Status == EmploymentStatus.Active)
+		           .Select(x => x.Employee)
+		           .FirstOrDefault(x => x.Name.StartsWith(selector, StringComparison.InvariantCultureIgnoreCase));
+	}
+
+	private static bool TryParseScheduledRuleAdministration(ICharacter actor, IEmploymentHost host, StringStack input,
+		out IEmploymentActionStep step, out string message)
+	{
+		step = null!;
+		if (input.IsFinished)
+		{
+			message = $"Scheduled-rule administration steps use the syntax: {"tasks step rule pause|resume|cancel <#|name|id> [reason]".ColourCommand()} or {"tasks step rule evaluate <#|name|id> [manual <key>]".ColourCommand()}.";
+			return false;
+		}
+
+		var operationText = input.PopSpeech().CollapseString().ToLowerInvariant();
+		ScheduledRuleAdministrationActionKind operation;
+		switch (operationText)
+		{
+			case "pause":
+			case "suspend":
+				operation = ScheduledRuleAdministrationActionKind.Pause;
+				break;
+			case "resume":
+			case "activate":
+			case "unpause":
+				operation = ScheduledRuleAdministrationActionKind.Resume;
+				break;
+			case "cancel":
+			case "delete":
+			case "remove":
+				operation = ScheduledRuleAdministrationActionKind.Cancel;
+				break;
+			case "evaluate":
+			case "eval":
+			case "run":
+				operation = ScheduledRuleAdministrationActionKind.Evaluate;
+				break;
+			default:
+				message = $"Unknown scheduled-rule administration operation {operationText.ColourCommand()}. Use {"pause".ColourCommand()}, {"resume".ColourCommand()}, {"cancel".ColourCommand()}, or {"evaluate".ColourCommand()}.";
+				return false;
+		}
+
+		if (input.IsFinished)
+		{
+			message = "Which scheduled rule should this step administer?";
+			return false;
+		}
+
+		var selector = input.PopSpeech();
+		var rule = ResolveScheduledRuleForStep(host, selector);
+		if (rule is null)
+		{
+			message = $"There is no scheduled employment rule matching {selector.ColourCommand()}.";
+			return false;
+		}
+
+		string? manualKey = null;
+		string? reason = null;
+		if (operation == ScheduledRuleAdministrationActionKind.Evaluate)
+		{
+			if (!input.IsFinished)
+			{
+				var keyword = input.PopSpeech();
+				if (!keyword.EqualTo("manual"))
+				{
+					message = $"Scheduled-rule evaluate steps use the syntax: {"tasks step rule evaluate <#|name|id> [manual <key>]".ColourCommand()}.";
+					return false;
+				}
+
+				manualKey = input.SafeRemainingArgument.Trim();
+				if (string.IsNullOrWhiteSpace(manualKey))
+				{
+					message = "Which manual trigger key should this evaluation use?";
+					return false;
+				}
+			}
+		}
+		else
+		{
+			reason = input.SafeRemainingArgument.Trim();
+			if (string.IsNullOrWhiteSpace(reason))
+			{
+				reason = null;
+			}
+		}
+
+		ConsumeRemaining(input);
+		step = new ScheduledRuleAdministrationActionStep(operation, rule.Id, rule.Name, reason, manualKey);
+		message = string.Empty;
+		return true;
+	}
+
+	private static IEmploymentScheduledTaskRule? ResolveScheduledRuleForStep(IEmploymentHost host, string selector)
+	{
+		var rules = host.TaskBoard.ScheduledRules
+			.OrderBy(x => x.Name)
+			.ToList();
+		if (!rules.Any())
+		{
+			return null;
+		}
+
+		selector = selector.Trim();
+		if (selector.StartsWith("#") && int.TryParse(selector[1..], out var number))
+		{
+			return number > 0 && number <= rules.Count ? rules[number - 1] : null;
+		}
+
+		if (Guid.TryParse(selector, out var id))
+		{
+			return rules.FirstOrDefault(x => x.Id == id);
+		}
+
+		return rules.FirstOrDefault(x => x.Name.EqualTo(selector)) ??
+		       rules.FirstOrDefault(x => x.Name.StartsWith(selector, StringComparison.InvariantCultureIgnoreCase));
+	}
+
+	private static bool TryParseShopStocktake(ICharacter actor, IEmploymentHost host, StringStack input,
+		out IEmploymentActionStep step, out string message)
+	{
+		step = null!;
+		if (host is not IShop shop)
+		{
+			message = "Stocktake steps can only be authored for shop employment hosts.";
+			return false;
+		}
+
+		if (input.IsFinished)
+		{
+			message = $"Stocktake steps use the syntax: {"tasks step stocktake all".ColourCommand()} or {"tasks step stocktake merch <id|name>".ColourCommand()}.";
+			return false;
+		}
+
+		var mode = input.PopSpeech();
+		if (mode.EqualTo("all"))
+		{
+			if (!input.IsFinished)
+			{
+				message = $"Stocktake-all steps use the syntax: {"tasks step stocktake all".ColourCommand()}.";
+				return false;
+			}
+
+			step = new ShopStocktakeActionStep();
+			message = string.Empty;
+			return true;
+		}
+
+		string selector;
+		if (mode.EqualToAny("merch", "merchandise", "item"))
+		{
+			selector = input.SafeRemainingArgument.Trim();
+			if (string.IsNullOrWhiteSpace(selector))
+			{
+				message = "Which merchandise should this stocktake step count?";
+				return false;
+			}
+		}
+		else
+		{
+			selector = string.Join(" ", new[] { mode, input.SafeRemainingArgument }.Where(x => !string.IsNullOrWhiteSpace(x))).Trim();
+		}
+
+		var merchandise = ResolveShopStocktakeMerchandise(shop, selector);
+		if (merchandise is null)
+		{
+			message = $"There is no merchandise belonging to {shop.Name.ColourName()} matching {selector.ColourCommand()}.";
+			return false;
+		}
+
+		ConsumeRemaining(input);
+		step = new ShopStocktakeActionStep(ShopStocktakeScope.Merchandise,
+			merchandise.Id.ToString("F0", CultureInfo.InvariantCulture), merchandise.Name);
+		message = string.Empty;
+		return true;
+	}
+
+	private static IMerchandise? ResolveShopStocktakeMerchandise(IShop shop, string selector)
+	{
+		if (long.TryParse(selector.TrimStart('#'), out var id))
+		{
+			return shop.Merchandises.FirstOrDefault(x => x.Id == id);
+		}
+
+		return shop.Merchandises.GetByIdOrName(selector) ??
+		       shop.Merchandises.FirstOrDefault(x =>
+			       x.Name.EqualTo(selector) ||
+			       x.ListDescription.EqualTo(selector));
+	}
 	private static bool TryParsePriceChange(ICharacter actor, IEmploymentHost host, StringStack input,
 		out IEmploymentActionStep step, out string message)
 	{
 		step = null!;
 		if (input.IsFinished)
 		{
-			message = $"Price steps use the syntax: {"tasks step price merch <id|name> <amount>".ColourCommand()} or {"tasks step price market <host|market> category <category> [supply <pct>] [demand <pct>] [flat <pct>] [duration <timespan>|until <date|never>]".ColourCommand()}.";
+			message = $"Price steps use the syntax: {"tasks step price merch <id|name> <amount>".ColourCommand()}.";
 			return false;
 		}
 
@@ -1510,105 +3509,335 @@ internal sealed class EmploymentTaskAuthoringService
 			return true;
 		}
 
-		if (!mode.EqualTo("market"))
+		if (mode.EqualTo("market"))
 		{
-			message = $"Unknown price mode {mode.ColourCommand()}. Use {"merch".ColourCommand()} or {"market".ColourCommand()}.";
+			message = "Employment market-price actions are deprecated. Use merchandise repricing or native shop deal actions instead.";
 			return false;
 		}
 
-		var marketTokens = PopTokensUntil(input, "category").ToList();
-		if (input.IsFinished || !input.PopSpeech().EqualTo("category"))
+		message = $"Unknown price mode {mode.ColourCommand()}. Use {"merch".ColourCommand()}.";
+		return false;
+	}
+
+	private static bool TryParseShopDealAdministration(ICharacter actor, IEmploymentHost host, StringStack input,
+		out IEmploymentActionStep step, out string message)
+	{
+		step = null!;
+		if (host is not IShop shop)
 		{
-			message = $"Market price steps use the syntax: {"tasks step price market <host|market id|name> category <category> [supply <pct>] [demand <pct>] [flat <pct>] [duration <timespan>|until <date|never>]".ColourCommand()}.";
+			message = "Shop deal steps can only be authored for shop employment hosts.";
 			return false;
 		}
 
-		var categoryTokens = new List<string>();
-		while (!input.IsFinished && !IsPriceMarketOption(input.PeekSpeech()))
+		if (input.IsFinished)
 		{
-			categoryTokens.Add(input.PopSpeech());
-		}
-
-		if (!categoryTokens.Any())
-		{
-			message = "Which market category should this price influence affect?";
+			message = $"Shop deal steps use the syntax: {"tasks step sale create <name> target all|merchandise <which>|tag <which> adjustment <signed %> [type sale|volume <quantity>] [applies sell|buy|both] [eligibility none|<prog>] [cumulative true|false] [expires never|<datetime|duration>]".ColourCommand()} or {"tasks step sale modify <deal id|name> target ... adjustment ...".ColourCommand()} or {"tasks step sale cancel <deal id|name>".ColourCommand()}.";
 			return false;
 		}
 
-		double supply = 0.0;
-		double demand = 0.0;
-		double flat = 0.0;
-		string? name = null;
-		TimeSpan? duration = null;
-		string? until = null;
+		var operation = input.PopSpeech().CollapseString().ToLowerInvariant();
+		switch (operation)
+		{
+			case "create":
+			case "new":
+				return TryParseShopDealCreate(actor, shop, input, out step, out message);
+			case "modify":
+			case "edit":
+				return TryParseShopDealModify(actor, shop, input, out step, out message);
+			case "cancel":
+			case "delete":
+			case "remove":
+				var selector = input.SafeRemainingArgument.Trim();
+				if (string.IsNullOrWhiteSpace(selector))
+				{
+					message = "Which shop deal do you want to cancel?";
+					return false;
+				}
+
+				step = new ShopDealAdministrationActionStep(selector);
+				message = string.Empty;
+				return true;
+			default:
+				message = $"Unknown shop deal operation {operation.ColourCommand()}. Use {"create".ColourCommand()}, {"modify".ColourCommand()}, or {"cancel".ColourCommand()}.";
+				return false;
+		}
+	}
+
+	private static bool TryParseShopDealCreate(ICharacter actor, IShop shop, StringStack input,
+		out IEmploymentActionStep step, out string message)
+	{
+		step = null!;
+		var name = string.Join(" ", PopTokensUntil(input, "target")).Trim();
+		if (string.IsNullOrWhiteSpace(name) || input.IsFinished || !input.PopSpeech().EqualTo("target"))
+		{
+			message = $"Shop deal create steps use the syntax: {"tasks step sale create <name> target all|merchandise <which>|tag <which> adjustment <signed %> ...".ColourCommand()}.";
+			return false;
+		}
+
+		if (input.IsFinished)
+		{
+			message = "Should this deal target all merchandise, one merchandise record, or a tag?";
+			return false;
+		}
+
+		var targetMode = input.PopSpeech().CollapseString().ToLowerInvariant();
+		ShopDealTargetType targetType;
+		string? targetSelector = null;
+		switch (targetMode)
+		{
+			case "all":
+				targetType = ShopDealTargetType.AllMerchandise;
+				break;
+			case "merch":
+			case "merchandise":
+				targetType = ShopDealTargetType.Merchandise;
+				targetSelector = string.Join(" ", PopTokensUntilAny(input, ShopDealCreateOptions)).Trim();
+				if (string.IsNullOrWhiteSpace(targetSelector))
+				{
+					message = "Which merchandise record should this shop deal target?";
+					return false;
+				}
+
+				break;
+			case "tag":
+				targetType = ShopDealTargetType.ItemTag;
+				targetSelector = string.Join(" ", PopTokensUntilAny(input, ShopDealCreateOptions)).Trim();
+				if (string.IsNullOrWhiteSpace(targetSelector))
+				{
+					message = "Which tag should this shop deal target?";
+					return false;
+				}
+
+				break;
+			default:
+				message = $"Unknown shop deal target {targetMode.ColourCommand()}. Use {"all".ColourCommand()}, {"merchandise".ColourCommand()}, or {"tag".ColourCommand()}.";
+				return false;
+		}
+
+		var dealType = ShopDealType.Sale;
+		var minimumQuantity = 0;
+		decimal? adjustment = null;
+		var applicability = ShopDealApplicability.Sell;
+		IFutureProg? eligibilityProg = null;
+		var cumulative = true;
+		var expiry = MudDateTime.Never;
+
 		while (!input.IsFinished)
 		{
 			var option = input.PopSpeech().CollapseString().ToLowerInvariant();
 			switch (option)
 			{
-				case "supply":
-					if (input.IsFinished || !input.PopSpeech().TryParsePercentage(actor.Account.Culture, out supply))
+				case "adjustment":
+				case "discount":
+				case "modifier":
+					if (input.IsFinished || !input.PopSpeech().TryParsePercentageDecimal(actor.Account.Culture, out var parsedAdjustment))
 					{
-						message = "What percentage supply impact should this market influence use?";
+						message = "What signed percentage adjustment should this shop deal use?";
 						return false;
 					}
+
+					adjustment = parsedAdjustment;
 					break;
-				case "demand":
-					if (input.IsFinished || !input.PopSpeech().TryParsePercentage(actor.Account.Culture, out demand))
+				case "type":
+					if (input.IsFinished)
 					{
-						message = "What percentage demand impact should this market influence use?";
+						message = "Should this be a sale deal or a volume deal?";
 						return false;
 					}
+
+					var type = input.PopSpeech().CollapseString().ToLowerInvariant();
+					if (type.EqualTo("sale"))
+					{
+						dealType = ShopDealType.Sale;
+						minimumQuantity = 0;
+						break;
+					}
+
+					if (type.EqualTo("volume"))
+					{
+						if (input.IsFinished || !int.TryParse(input.PopSpeech(), out minimumQuantity) || minimumQuantity < 2)
+						{
+							message = "Volume shop deals require a minimum quantity of 2 or more.";
+							return false;
+						}
+
+						dealType = ShopDealType.Volume;
+						break;
+					}
+
+					message = $"Unknown shop deal type {type.ColourCommand()}. Use {"sale".ColourCommand()} or {"volume <quantity>".ColourCommand()}.";
+					return false;
+				case "volume":
+					if (input.IsFinished || !int.TryParse(input.PopSpeech(), out minimumQuantity) || minimumQuantity < 2)
+					{
+						message = "Volume shop deals require a minimum quantity of 2 or more.";
+						return false;
+					}
+
+					dealType = ShopDealType.Volume;
 					break;
-				case "flat":
-					if (input.IsFinished || !input.PopSpeech().TryParsePercentage(actor.Account.Culture, out flat))
+				case "applies":
+				case "scope":
+					if (input.IsFinished || !TryParseShopDealApplicability(input.PopSpeech(), out applicability))
 					{
-						message = "What flat percentage price impact should this market influence use?";
+						message = "Should this shop deal apply to sell, buy, or both prices?";
 						return false;
 					}
+
 					break;
-				case "name":
-					name = string.Join(" ", PopTokensUntilAny(input, PriceMarketOptions)).Trim();
-					if (string.IsNullOrWhiteSpace(name))
+				case "eligibility":
+				case "prog":
+					var progText = string.Join(" ", PopTokensUntilAny(input, ShopDealCreateOptions)).Trim();
+					if (!TryParseShopDealEligibility(actor, progText, out eligibilityProg, out message))
 					{
-						message = "What name should this employment-generated market influence use?";
 						return false;
 					}
+
 					break;
-				case "duration":
-					var durationText = string.Join(" ", PopTokensUntilAny(input, PriceMarketOptions)).Trim();
-					if (!TryParseTimeSpan(actor, durationText, out var parsedDuration))
+				case "cumulative":
+				case "stack":
+					if (input.IsFinished || IsShopDealCreateOption(input.PeekSpeech()))
 					{
-						message = $"Could not parse {durationText.ColourCommand()} as a duration.";
+						cumulative = true;
+						break;
+					}
+
+					if (!TryParseBoolean(input.PopSpeech(), out cumulative))
+					{
+						message = "Should this shop deal be cumulative? Use true or false.";
 						return false;
 					}
-					duration = parsedDuration;
+
 					break;
-				case "until":
-					until = string.Join(" ", PopTokensUntilAny(input, PriceMarketOptions)).Trim();
-					if (string.IsNullOrWhiteSpace(until))
+				case "expires":
+				case "expiry":
+					var expiryText = string.Join(" ", PopTokensUntilAny(input, ShopDealCreateOptions)).Trim();
+					if (!TryParseShopDealExpiry(actor, shop, expiryText, out expiry, out message))
 					{
-						message = "What date should this market influence apply until?";
 						return false;
 					}
+
 					break;
 				default:
-					message = $"Unknown market price option {option.ColourCommand()}.";
+					message = $"Unknown shop deal option {option.ColourCommand()}.";
 					return false;
 			}
 		}
 
-		step = new PriceChangeActionStep(
-			marketTokens.Any() ? string.Join(" ", marketTokens) : "host",
-			string.Join(" ", categoryTokens),
-			supply,
-			demand,
-			flat,
-			name,
-			duration,
-			until);
+		if (!adjustment.HasValue)
+		{
+			message = "Shop deal create steps require an adjustment percentage.";
+			return false;
+		}
+
+		step = new ShopDealAdministrationActionStep(name, dealType, targetType, targetSelector,
+			adjustment.Value, minimumQuantity, applicability, eligibilityProg, cumulative, expiry);
 		message = string.Empty;
 		return true;
+	}
+
+	private static bool TryParseShopDealModify(ICharacter actor, IShop shop, StringStack input,
+		out IEmploymentActionStep step, out string message)
+	{
+		step = null!;
+		var selector = string.Join(" ", PopTokensUntil(input, "target")).Trim();
+		if (string.IsNullOrWhiteSpace(selector) || input.IsFinished || !input.PopSpeech().EqualTo("target"))
+		{
+			message = $"Shop deal modify steps use the syntax: {"tasks step sale modify <deal id|name> target all|merchandise <which>|tag <which> adjustment <signed %> ...".ColourCommand()}.";
+			return false;
+		}
+
+		var createInput = new StringStack($"{selector} target {input.SafeRemainingArgument}");
+		if (!TryParseShopDealCreate(actor, shop, createInput, out var parsedStep, out message))
+		{
+			message = message.Replace("create", "modify", StringComparison.InvariantCultureIgnoreCase);
+			return false;
+		}
+
+		if (parsedStep is not ShopDealAdministrationActionStep parsed)
+		{
+			message = "The shop deal modify step could not be parsed.";
+			return false;
+		}
+
+		step = new ShopDealAdministrationActionStep(selector, string.Empty, parsed.DealType, parsed.TargetType,
+			parsed.TargetSelector, parsed.PriceAdjustmentPercentage, parsed.MinimumQuantity, parsed.Applicability,
+			parsed.EligibilityProg, parsed.IsCumulative, parsed.Expiry);
+		message = string.Empty;
+		return true;
+	}
+
+	private static bool TryParseShopDealEligibility(ICharacter actor, string text, out IFutureProg? prog,
+		out string message)
+	{
+		prog = null;
+		if (string.IsNullOrWhiteSpace(text) || text.EqualToAny("none", "clear", "off"))
+		{
+			message = string.Empty;
+			return true;
+		}
+
+		prog = new ProgLookupFromBuilderInput(actor, text, ProgVariableTypes.Boolean,
+			new[]
+			{
+				ProgVariableTypes.Character,
+				ProgVariableTypes.Shop,
+				ProgVariableTypes.Merchandise,
+				ProgVariableTypes.Number,
+				ProgVariableTypes.MudDateTime
+			}).LookupProg();
+		message = prog is null ? $"There is no matching eligibility prog for {text.ColourCommand()}." : string.Empty;
+		return prog is not null;
+	}
+
+	private static bool TryParseShopDealExpiry(ICharacter actor, IShop shop, string text, out MudDateTime expiry,
+		out string message)
+	{
+		expiry = MudDateTime.Never;
+		if (string.IsNullOrWhiteSpace(text) || text.EqualToAny("never", "none", "off", "clear"))
+		{
+			message = string.Empty;
+			return true;
+		}
+
+		if (MudTimeSpan.TryParse(text, actor, out var duration))
+		{
+			expiry = shop.EconomicZone.ZoneForTimePurposes.DateTime() + duration;
+			message = string.Empty;
+			return true;
+		}
+
+		if (MudDateTime.TryParse(text, shop.EconomicZone.FinancialPeriodReferenceCalendar,
+			    shop.EconomicZone.FinancialPeriodReferenceClock, actor, out expiry, out message))
+		{
+			return true;
+		}
+
+		return false;
+	}
+
+	private static bool TryParseShopDealApplicability(string text, out ShopDealApplicability applicability)
+	{
+		if (text.EqualTo("sell"))
+		{
+			applicability = ShopDealApplicability.Sell;
+			return true;
+		}
+
+		if (text.EqualTo("buy"))
+		{
+			applicability = ShopDealApplicability.Buy;
+			return true;
+		}
+
+		if (text.EqualTo("both"))
+		{
+			applicability = ShopDealApplicability.Both;
+			return true;
+		}
+
+		applicability = ShopDealApplicability.Sell;
+		return false;
 	}
 
 	private static bool TryParseJobOpeningAdministration(ICharacter actor, IEmploymentHost host, StringStack input,
@@ -1937,7 +4166,7 @@ internal sealed class EmploymentTaskAuthoringService
 		step = null!;
 		if (input.IsFinished || !input.PopSpeech().EqualTo("to"))
 		{
-			message = $"Route planning steps use the syntax: {"tasks step route to <here|cell id> [description]".ColourCommand()}";
+			message = $"Route planning steps use the syntax: {"tasks step route to <here|cell id> [then <here|cell id> ...] [description]".ColourCommand()}";
 			return false;
 		}
 
@@ -1952,11 +4181,220 @@ internal sealed class EmploymentTaskAuthoringService
 			return false;
 		}
 
+		var routeStops = new List<ICell> { destination };
+		while (!input.IsFinished && input.PeekSpeech().EqualToAny("then", "via", "and"))
+		{
+			input.PopSpeech();
+			if (input.IsFinished)
+			{
+				message = "Which route stop should come after the route connector?";
+				return false;
+			}
+
+			if (!TryResolveLocation(actor, input.PopSpeech(), out var routeStop, out message))
+			{
+				return false;
+			}
+
+			routeStops.Add(routeStop);
+		}
+
 		var description = input.IsFinished
-			? $"route to {destination.GetFriendlyReference(actor)}"
+			? $"route through {string.Join(" -> ", routeStops.Select(x => x.GetFriendlyReference(actor)))}"
 			: input.SafeRemainingArgument.Trim();
 		ConsumeRemaining(input);
-		step = new CataloguedActionShellStep("route", description, destination);
+		step = new CataloguedActionShellStep("route", description, routeStops);
+		message = string.Empty;
+		return true;
+	}
+
+	private static bool TryParseRouteBatch(ICharacter actor, StringStack input, out IEmploymentActionStep step,
+		out string message)
+	{
+		step = null!;
+		if (input.IsFinished || !input.PopSpeech().EqualTo("total"))
+		{
+			message = $"Route batch steps use the syntax: {"tasks step routebatch total <quantity> each <quantity> to <here|cell id> [then <here|cell id> ...] <rationale>".ColourCommand()}";
+			return false;
+		}
+
+		if (input.IsFinished || !decimal.TryParse(input.PopSpeech(), NumberStyles.Number, actor, out var totalQuantity) || totalQuantity <= 0.0M)
+		{
+			message = "Route batch steps need a positive total quantity after total.";
+			return false;
+		}
+
+		if (input.IsFinished || !input.PopSpeech().EqualToAny("each", "per", "perstop"))
+		{
+			message = "Route batch steps need an each quantity after the total quantity.";
+			return false;
+		}
+
+		if (input.IsFinished || !decimal.TryParse(input.PopSpeech(), NumberStyles.Number, actor, out var perStopQuantity) || perStopQuantity <= 0.0M)
+		{
+			message = "Route batch steps need a positive per-stop quantity after each.";
+			return false;
+		}
+
+		if (input.IsFinished || !input.PopSpeech().EqualTo("to"))
+		{
+			message = "Route batch steps need the to keyword before the first route stop.";
+			return false;
+		}
+
+		if (input.IsFinished)
+		{
+			message = "Which first destination should this route batch target?";
+			return false;
+		}
+
+		if (!TryResolveLocation(actor, input.PopSpeech(), out var destination, out message))
+		{
+			return false;
+		}
+
+		var routeStops = new List<ICell> { destination };
+		while (!input.IsFinished && input.PeekSpeech().EqualToAny("then", "via", "and"))
+		{
+			input.PopSpeech();
+			if (input.IsFinished)
+			{
+				message = "Which route stop should come after the route batch connector?";
+				return false;
+			}
+
+			if (!TryResolveLocation(actor, input.PopSpeech(), out var routeStop, out message))
+			{
+				return false;
+			}
+
+			routeStops.Add(routeStop);
+		}
+
+		if (routeStops.Count < 2)
+		{
+			message = "Route batch steps need at least two route stops.";
+			return false;
+		}
+
+		var rationale = input.SafeRemainingArgument.Trim();
+		if (string.IsNullOrWhiteSpace(rationale))
+		{
+			message = "Route batch steps need a short rationale after the final route stop.";
+			return false;
+		}
+
+		ConsumeRemaining(input);
+		var description = $"total {totalQuantity.ToString("0.###", CultureInfo.InvariantCulture)} each {perStopQuantity.ToString("0.###", CultureInfo.InvariantCulture)} {rationale}";
+		step = new CataloguedActionShellStep("routebatch", description, routeStops);
+		message = string.Empty;
+		return true;
+	}
+
+	private static bool TryParseTripCheck(ICharacter actor, StringStack input, out IEmploymentActionStep step,
+		out string message)
+	{
+		step = null!;
+		if (!TryParseTripCheckPolicy(input, "fuel", out var fuelPolicy, out message, "refuel"))
+		{
+			return false;
+		}
+
+		if (!TryParseTripCheckPolicy(input, "feed", out var feedPolicy, out message, "fodder"))
+		{
+			return false;
+		}
+
+		if (!TryParseTripCheckPolicy(input, "maintenance", out var maintenancePolicy, out message, "maint", "service"))
+		{
+			return false;
+		}
+
+		if (!TryParseTripCheckPolicy(input, "rest", out var restPolicy, out message, "break"))
+		{
+			return false;
+		}
+
+		var routeStops = new List<ICell>();
+		if (!input.IsFinished && input.PeekSpeech().EqualTo("to"))
+		{
+			input.PopSpeech();
+			if (input.IsFinished)
+			{
+				message = "Which first destination should this trip check target?";
+				return false;
+			}
+
+			if (!TryResolveLocation(actor, input.PopSpeech(), out var destination, out message))
+			{
+				return false;
+			}
+
+			routeStops.Add(destination);
+			while (!input.IsFinished && input.PeekSpeech().EqualToAny("then", "via", "and"))
+			{
+				input.PopSpeech();
+				if (input.IsFinished)
+				{
+					message = "Which route stop should come after the trip check connector?";
+					return false;
+				}
+
+				if (!TryResolveLocation(actor, input.PopSpeech(), out var routeStop, out message))
+				{
+					return false;
+				}
+
+				routeStops.Add(routeStop);
+			}
+		}
+
+		var rationale = input.SafeRemainingArgument.Trim();
+		if (string.IsNullOrWhiteSpace(rationale))
+		{
+			message = "Trip check steps need a short rationale after the rest policy or final route stop.";
+			return false;
+		}
+
+		ConsumeRemaining(input);
+		var description = $"fuel {fuelPolicy} feed {feedPolicy} maintenance {maintenancePolicy} rest {restPolicy} {rationale}";
+		step = routeStops.Count == 0
+			? new CataloguedActionShellStep("tripcheck", description)
+			: new CataloguedActionShellStep("tripcheck", description, routeStops);
+		message = string.Empty;
+		return true;
+	}
+
+	private static bool TryParseTripCheckPolicy(StringStack input, string keyword, out string value, out string message,
+		params string[] aliases)
+	{
+		value = string.Empty;
+		if (input.IsFinished)
+		{
+			message = $"Trip check steps need a {keyword} policy.";
+			return false;
+		}
+
+		var actualKeyword = input.PopSpeech();
+		if (!actualKeyword.EqualTo(keyword) && !aliases.Any(x => actualKeyword.EqualTo(x)))
+		{
+			message = $"Trip check steps use the syntax: {"tasks step tripcheck fuel <policy> feed <policy> maintenance <policy> rest <policy> [to <here|cell id> [then <here|cell id> ...]] <rationale>".ColourCommand()}";
+			return false;
+		}
+
+		if (input.IsFinished)
+		{
+			message = $"Trip check steps need a {keyword} policy value.";
+			return false;
+		}
+
+		value = input.PopSpeech().Trim();
+		if (string.IsNullOrWhiteSpace(value))
+		{
+			message = $"Trip check steps need a {keyword} policy value.";
+			return false;
+		}
+
 		message = string.Empty;
 		return true;
 	}
@@ -2135,14 +4573,21 @@ internal sealed class EmploymentTaskAuthoringService
 		return true;
 	}
 
-	private static readonly string[] PriceMarketOptions =
+	private static readonly string[] ShopDealCreateOptions =
 	[
-		"supply",
-		"demand",
-		"flat",
-		"name",
-		"duration",
-		"until"
+		"adjustment",
+		"discount",
+		"modifier",
+		"type",
+		"volume",
+		"applies",
+		"scope",
+		"eligibility",
+		"prog",
+		"cumulative",
+		"stack",
+		"expires",
+		"expiry"
 	];
 
 	private static readonly string[] JobOpeningDefinitionKeywords =
@@ -2765,13 +5210,13 @@ internal sealed class EmploymentTaskAuthoringService
 			return true;
 		}
 
-		if (text.EqualTo("yes") || text.EqualTo("y"))
+		if (text.EqualToAny("yes", "y", "on"))
 		{
 			value = true;
 			return true;
 		}
 
-		if (text.EqualTo("no") || text.EqualTo("n"))
+		if (text.EqualToAny("no", "n", "off"))
 		{
 			value = false;
 			return true;
@@ -2844,11 +5289,10 @@ internal sealed class EmploymentTaskAuthoringService
 		return options.Any(x => text.EqualTo(x));
 	}
 
-	private static bool IsPriceMarketOption(string text)
+	private static bool IsShopDealCreateOption(string text)
 	{
-		return PriceMarketOptions.Any(x => text.EqualTo(x));
+		return ShopDealCreateOptions.Any(x => text.EqualTo(x));
 	}
-
 	private static bool IsJobOpeningDefinitionKeyword(string text)
 	{
 		return JobOpeningDefinitionKeywords.Any(x => text.EqualTo(x));
@@ -3065,6 +5509,12 @@ internal sealed class EmploymentTaskAuthoringService
 				$"deposit {DescribeMoney(deposit.Amount)} of employer virtual cash into the linked bank account",
 			BankWithdrawalActionStep withdrawal =>
 				$"withdraw {DescribeMoney(withdrawal.Amount)} from the linked bank account into employer virtual cash",
+			BankAccountTransferActionStep transfer =>
+				$"transfer {DescribeMoney(transfer.Amount)} from the linked bank account to {transfer.TargetAccountKey.ColourName()}",
+			BankAdministrationActionStep bankAdmin =>
+				DescribeBankAdministrationStep(bankAdmin, actor),
+			HostSettlementActionStep settlement =>
+				$"settle {DescribeMoney(settlement.Amount)} from this host to {settlement.TargetHostKey.ColourName()}",
 			StoreAccountPaymentActionStep account =>
 				$"pay {DescribeMoney(account.Amount)} to store account {account.AccountName.ColourName()}",
 			TaxPaymentActionStep tax =>
@@ -3073,14 +5523,34 @@ internal sealed class EmploymentTaskAuthoringService
 					: $"pay supported host taxes up to {DescribeMoney(tax.MaximumAmount)}",
 			PayrollSettlementActionStep payroll =>
 				$"settle payroll payables matching {payroll.Selector.ColourCommand()}",
+			ShopCashReconciliationActionStep cashReconciliation =>
+				DescribeCashReconciliationStep(cashReconciliation),
 			ShopFloatAdjustmentActionStep shopFloat =>
 				$"{(shopFloat.FillRegister ? "fill" : "skim")} shop cash-register float by {DescribeMoney(shopFloat.Amount)}{(shopFloat.RegisterSelector is null ? string.Empty : $" at {DescribeItemSelector(shopFloat.RegisterSelector, actor)}")}",
 			PhysicalFloatActionStep physicalFloat =>
 				DescribePhysicalFloatStep(physicalFloat, actor),
+			SupplierSelectionActionStep supplier =>
+				DescribeSupplierSelectionStep(supplier, actor),
+			DeprecatedMarketPriceChangeActionStep deprecated =>
+				deprecated.Diagnostic.ColourError(),
+			ShopStocktakeActionStep stocktake =>
+				DescribeShopStocktakeStep(stocktake, actor),
 			PriceChangeActionStep price =>
 				DescribePriceChangeStep(price, actor),
+			ShopDealAdministrationActionStep deal =>
+				DescribeShopDealAdministrationStep(deal, actor),
 			JobOpeningAdministrationActionStep opening =>
 				DescribeJobOpeningAdministrationStep(opening, actor),
+			ScheduledRuleAdministrationActionStep rule =>
+				DescribeScheduledRuleAdministrationStep(rule, actor),
+			ActiveTaskAdministrationActionStep task =>
+				DescribeActiveTaskAdministrationStep(task, actor),
+			ManagerGoalAdministrationActionStep goal =>
+				DescribeManagerGoalAdministrationStep(goal, actor),
+			StableAdministrationActionStep stable =>
+				DescribeStableAdministrationStep(stable),
+			HotelAdministrationActionStep hotel =>
+				DescribeHotelAdministrationStep(hotel),
 			BoardPostActionStep board =>
 				$"post {board.Title.ColourName()} to the host staff communication board",
 			CataloguedActionShellStep shell =>
@@ -3093,15 +5563,117 @@ internal sealed class EmploymentTaskAuthoringService
 				$"go to {DescribeLocations(commodity.SourceLocations, actor)} and collect {commodity.RequiredWeight.ToString("N2", actor).ColourValue()} weight of {commodity.MaterialName.ColourCommand()} commodity{(string.IsNullOrWhiteSpace(commodity.TagName) ? string.Empty : $" tagged {commodity.TagName.ColourCommand()}")}{DescribeCharacteristics(commodity.Characteristics)}",
 			DeliverItemsActionStep deliver =>
 				$"go to {deliver.Destination.GetFriendlyReference(actor).ColourName()} and deliver all carried task items{DescribeDeliveryContainer(deliver, actor)}",
+			ShopStockTransferActionStep transfer =>
+				$"go to {transfer.Destination.GetFriendlyReference(actor).ColourName()} and transfer carried stock to {transfer.TargetShop.Name.ColourName()} as {transfer.TargetMerchandise.Name.ColourName()}{DescribeStockTransferContainer(transfer, actor)}",
+			AuctionLotListingActionStep auctionList =>
+				$"list {DescribeItemSelector(auctionList.ItemSelector, actor)} on {auctionList.AuctionHouse.Name.ColourName()} with reserve {DescribeMoney(auctionList.ReservePrice)}{(auctionList.BuyoutPrice is null ? string.Empty : $" and buyout {DescribeMoney(auctionList.BuyoutPrice)}")}",
+			AuctionSettlementActionStep auctionSettlement =>
+				auctionSettlement.SettleAllDue
+					? $"settle due auction lots at {auctionSettlement.AuctionHouse.Name.ColourName()}"
+					: $"settle auction lot {(auctionSettlement.AssetName ?? auctionSettlement.AssetId?.ToString("N0", actor) ?? "?").ColourName()} at {auctionSettlement.AuctionHouse.Name.ColourName()}",
+			AuctionClaimActionStep auctionClaim =>
+				$"claim auction lot {(auctionClaim.AssetName ?? auctionClaim.AssetId.ToString("N0", actor)).ColourName()} from {auctionClaim.AuctionHouse.Name.ColourName()} into task custody",
+			ArenaEventAdministrationActionStep arenaEvent =>
+				DescribeArenaEventAdministrationStep(arenaEvent, actor),
 			LoadItemsActionStep load =>
 				$"go to {DescribeOptionalLocation(load.TargetLocation, load.TargetContainer, actor)} and load all carried task items into {DescribeItemSelector(load.TargetContainerSelector, actor)}",
 			UnloadItemsActionStep unload =>
 				$"go to {DescribeOptionalLocation(unload.SourceLocation, unload.SourceContainer, actor)} and unload task-loaded items from {DescribeItemSelector(unload.SourceContainerSelector, actor)}",
 			ReturnAssetActionStep returnAsset =>
 				$"return container {DescribeItemSelector(returnAsset.ContainerSelector, actor)} to {returnAsset.Destination.GetFriendlyReference(actor).ColourName()}{DescribeReturnDestinationContainer(returnAsset, actor)}",
+			StableAnimalOperationActionStep animal =>
+				DescribeStableAnimalOperationStep(animal, actor),
+			VehicleOperationActionStep { AssignsDriver: true } vehicle =>
+				$"assign {vehicle.Vehicle.Name.ColourName()} to the task driver",
 			VehicleOperationActionStep vehicle =>
-				$"validate cargo space {vehicle.CargoSpace.Name.ColourName()} on {vehicle.Vehicle.Name.ColourName()}",
+				$"validate cargo space {vehicle.CargoSpace!.Name.ColourName()} on {vehicle.Vehicle.Name.ColourName()}",
 			_ => step.StepType.DescribeEnum().ColourName()
+		};
+	}
+
+	private static string DescribeStableAdministrationStep(StableAdministrationActionStep stable)
+	{
+		return stable.Operation switch
+		{
+			StableAdministrationActionKind.CareInspect => $"record stable inspection evidence for stay #{stable.Stay?.Id.ToString("N0") ?? "?"}",
+			StableAdministrationActionKind.CareFeed => $"record stable feeding evidence for stay #{stable.Stay?.Id.ToString("N0") ?? "?"}",
+			StableAdministrationActionKind.CareGroom => $"record stable grooming evidence for stay #{stable.Stay?.Id.ToString("N0") ?? "?"}",
+			StableAdministrationActionKind.CareExercise => $"record stable exercise evidence for stay #{stable.Stay?.Id.ToString("N0") ?? "?"}",
+			StableAdministrationActionKind.FeeAssessment when stable.Stay is null => $"assess fees for all active stays at {stable.Stable.Name.ColourName()}",
+			StableAdministrationActionKind.FeeAssessment => $"assess fees for stable stay #{stable.Stay?.Id.ToString("N0") ?? "?"} at {stable.Stable.Name.ColourName()}",
+			StableAdministrationActionKind.StayReconciliation => $"record stable stay reconciliation for stay #{stable.Stay?.Id.ToString("N0") ?? "?"}",
+			StableAdministrationActionKind.AccountReconciliation => $"record stable account reconciliation for {stable.Account?.AccountName.ColourName() ?? "?".ColourError()}",
+			_ => "administer stable operations"
+		};
+	}
+
+	private static string DescribeHotelAdministrationStep(HotelAdministrationActionStep hotel)
+	{
+		return hotel.Operation switch
+		{
+			HotelAdministrationActionKind.RoomInspect => $"record hotel room inspection evidence for {hotel.Room?.Name.ColourName() ?? "?".ColourError()}",
+			HotelAdministrationActionKind.RoomClean => $"record hotel room cleaning evidence for {hotel.Room?.Name.ColourName() ?? "?".ColourError()}",
+			HotelAdministrationActionKind.RoomReady => $"record hotel room readiness evidence for {hotel.Room?.Name.ColourName() ?? "?".ColourError()}",
+			HotelAdministrationActionKind.RoomMaintenance => $"record hotel room maintenance evidence for {hotel.Room?.Name.ColourName() ?? "?".ColourError()}",
+			HotelAdministrationActionKind.LostPropertyCheck => $"check lost-property expiry for {hotel.Hotel.Name.ColourName()}",
+			HotelAdministrationActionKind.LostPropertyAudit => $"record lost-property audit for {hotel.LostProperty?.Description.ColourName() ?? "?".ColourError()}",
+			HotelAdministrationActionKind.PatronBalanceAudit => $"record patron-balance audit for {hotel.PatronSelector?.ColourName() ?? hotel.PatronBalance?.PatronId.ToString("N0").ColourName() ?? "?".ColourError()}",
+			_ => "administer hotel operations"
+		};
+	}
+	private static string DescribeBankAdministrationStep(BankAdministrationActionStep bankAdmin, ICharacter actor)
+	{
+		var amount = bankAdmin.Amount is null ? string.Empty : DescribeMoney(bankAdmin.Amount);
+		return bankAdmin.Operation switch
+		{
+			BankAdministrationActionKind.ReserveAudit => $"audit native reserves for {bankAdmin.Bank.Name.ColourName()}",
+			BankAdministrationActionKind.ReserveDeposit => $"deposit {amount} from bank employment virtual cash into {bankAdmin.Bank.Name.ColourName()} reserves",
+			BankAdministrationActionKind.ReserveWithdrawal => $"withdraw {amount} from {bankAdmin.Bank.Name.ColourName()} reserves into bank employment virtual cash",
+			BankAdministrationActionKind.AccountCredit => $"credit bank account {bankAdmin.AccountSelector?.ColourName() ?? "?".ColourError()} by {amount}: {bankAdmin.Reason}",
+			BankAdministrationActionKind.AccountStatus => $"set bank account {bankAdmin.AccountSelector?.ColourName() ?? "?".ColourError()} to {bankAdmin.TargetStatus?.DescribeEnum().ColourName() ?? "?".ColourError()}",
+			BankAdministrationActionKind.AccountClose => $"close bank account {bankAdmin.AccountSelector?.ColourName() ?? "?".ColourError()}: {bankAdmin.Reason}",
+			BankAdministrationActionKind.BranchPost => $"record bank branch post at {bankAdmin.SourceBranch?.GetFriendlyReference(actor).ColourName() ?? "?".ColourError()}: {bankAdmin.Reason}",
+			BankAdministrationActionKind.BranchCourier => $"record bank branch courier from {bankAdmin.SourceBranch?.GetFriendlyReference(actor).ColourName() ?? "?".ColourError()} to {bankAdmin.DestinationBranch?.GetFriendlyReference(actor).ColourName() ?? "?".ColourError()}: {bankAdmin.Reason}",
+			_ => "administer bank operations"
+		};
+	}
+	private static string DescribeArenaEventAdministrationStep(ArenaEventAdministrationActionStep arenaEvent, ICharacter actor)
+	{
+		return arenaEvent.Operation switch
+		{
+			ArenaEventAdministrationActionKind.Create =>
+				$"create arena event {DescribeArenaEventReference(arenaEvent.EventTypeName, arenaEvent.EventTypeId, actor)} at {arenaEvent.Arena.Name.ColourName()} for {DescribeArenaEventDate(arenaEvent.ScheduledForUtc, actor)}",
+			ArenaEventAdministrationActionKind.Transition =>
+				$"move arena event {DescribeArenaEventReference(arenaEvent.EventName, arenaEvent.EventId, actor)} at {arenaEvent.Arena.Name.ColourName()} to {arenaEvent.TargetState?.DescribeEnum().ColourValue() ?? "?".ColourError()}",
+			ArenaEventAdministrationActionKind.Abort =>
+				$"abort arena event {DescribeArenaEventReference(arenaEvent.EventName, arenaEvent.EventId, actor)} at {arenaEvent.Arena.Name.ColourName()}: {arenaEvent.Reason}",
+			_ => "manage arena event"
+		};
+	}
+
+	private static string DescribeArenaEventReference(string? name, long? id, ICharacter actor)
+	{
+		if (!string.IsNullOrWhiteSpace(name))
+		{
+			return name.ColourName();
+		}
+
+		return id.HasValue ? id.Value.ToString("N0", actor).ColourValue() : "?".ColourError();
+	}
+
+	private static string DescribeArenaEventDate(DateTime? scheduledForUtc, ICharacter actor)
+	{
+		return scheduledForUtc.HasValue ? scheduledForUtc.Value.ToString("f", actor).ColourValue() : "?".ColourError();
+	}
+	private static string DescribeStableAnimalOperationStep(StableAnimalOperationActionStep animal, ICharacter actor)
+	{
+		return animal.Operation switch
+		{
+			EmploymentAnimalOperationKind.Lead => $"lead {animal.Mount?.Name.ColourName() ?? "an animal".ColourName()} to {animal.Destination?.GetFriendlyReference(actor).ColourName() ?? "a destination".ColourName()}",
+			EmploymentAnimalOperationKind.Ride => $"ride {animal.Mount?.Name.ColourName() ?? "an animal".ColourName()}",
+			EmploymentAnimalOperationKind.Lodge => $"lodge {animal.Mount?.Name.ColourName() ?? "an animal".ColourName()} at {animal.Stable?.Name.ColourName() ?? "a stable".ColourName()}",
+			EmploymentAnimalOperationKind.Return => $"return stable stay #{animal.Stay?.Id.ToString("N0", actor).ColourValue() ?? "?"} from {animal.Stable?.Name.ColourName() ?? "a stable".ColourName()}",
+			_ => animal.Operation.DescribeEnum().ColourName()
 		};
 	}
 
@@ -3117,6 +5689,8 @@ internal sealed class EmploymentTaskAuthoringService
 			"select" => $"record selection: {shell.ActionDescription}",
 			"estimate" => $"record estimate: {shell.ActionDescription}",
 			"route" => $"record route plan: {shell.ActionDescription}",
+			"routebatch" => $"record multi-stop route batch: {shell.ActionDescription}",
+			"tripcheck" => $"record transport policy check: {shell.ActionDescription}",
 			_ => $"record {shell.ActionKey.ColourCommand()} action: {shell.ActionDescription}"
 		};
 		return shell.TargetLocation is null
@@ -3124,6 +5698,10 @@ internal sealed class EmploymentTaskAuthoringService
 			: $"go to {shell.TargetLocation.GetFriendlyReference(actor).ColourName()} and {description}";
 	}
 
+	private static string DescribeSupplierSelectionStep(SupplierSelectionActionStep supplier, ICharacter actor)
+	{
+		return $"find supplier for {DescribePurchaseStep(supplier.Purchase, actor)}";
+	}
 	private static string DescribePurchaseStep(PurchaseActionStep purchase, ICharacter actor)
 	{
 		var target = purchase.TargetKind switch
@@ -3138,6 +5716,12 @@ internal sealed class EmploymentTaskAuthoringService
 		return $"buy {target} from {(purchase.SupplierSelector ?? "any").ColourName()}{(purchase.MaximumAmount is null ? string.Empty : $" up to {DescribeMoney(purchase.MaximumAmount)}")}";
 	}
 
+	private static string DescribeCashReconciliationStep(ShopCashReconciliationActionStep cashReconciliation)
+	{
+		return string.IsNullOrWhiteSpace(cashReconciliation.Note)
+			? "reconcile shop cash against expected float"
+			: $"reconcile shop cash against expected float: {cashReconciliation.Note.ColourCommand()}";
+	}
 	private static string DescribePhysicalFloatStep(PhysicalFloatActionStep physicalFloat, ICharacter actor)
 	{
 		var amount = physicalFloat.Amount is null ? "all".ColourCommand() : DescribeMoney(physicalFloat.Amount);
@@ -3153,25 +5737,85 @@ internal sealed class EmploymentTaskAuthoringService
 		};
 	}
 
+	private static string DescribeManagerGoalAdministrationStep(ManagerGoalAdministrationActionStep goal,
+		ICharacter actor)
+	{
+		var target = $"{goal.GoalName.ColourName()} (#{goal.GoalId.ToString("N0", actor).ColourCommand()})";
+		return goal.Operation switch
+		{
+			ManagerGoalAdministrationActionKind.Evaluate => $"evaluate manager goal {target}",
+			ManagerGoalAdministrationActionKind.Cancel => $"cancel manager goal {target}",
+			ManagerGoalAdministrationActionKind.Reactivate => $"reactivate manager goal {target}",
+			_ => $"administer manager goal {target}"
+		};
+	}
+
+	private static string DescribeActiveTaskAdministrationStep(ActiveTaskAdministrationActionStep task,
+		ICharacter actor)
+	{
+		var target = $"{task.TaskName.ColourName()} ({task.TaskId.ToString("D").ColourCommand()})";
+		return task.Operation switch
+		{
+			ActiveTaskAdministrationActionKind.Retry => $"retry active task {target}",
+			ActiveTaskAdministrationActionKind.Requeue => $"requeue active task {target}",
+			ActiveTaskAdministrationActionKind.Cancel => $"cancel active task {target}",
+			ActiveTaskAdministrationActionKind.Assign => $"assign active task {target} to {(task.EmployeeName ?? task.EmployeeId?.ToString("N0", actor) ?? "?").ColourName()}",
+			_ => $"administer active task {target}"
+		};
+	}
+
+	private static string DescribeScheduledRuleAdministrationStep(ScheduledRuleAdministrationActionStep rule,
+		ICharacter actor)
+	{
+		var target = $"{rule.RuleName} ({rule.RuleId:D})".ColourName();
+		return rule.Operation switch
+		{
+			ScheduledRuleAdministrationActionKind.Pause => $"pause scheduled rule {target}",
+			ScheduledRuleAdministrationActionKind.Resume => $"resume scheduled rule {target}",
+			ScheduledRuleAdministrationActionKind.Cancel => $"cancel scheduled rule {target}",
+			ScheduledRuleAdministrationActionKind.Evaluate => string.IsNullOrWhiteSpace(rule.ManualKey)
+				? $"evaluate scheduled rule {target}"
+				: $"evaluate scheduled rule {target} with manual trigger {rule.ManualKey.ColourCommand()}",
+			_ => $"administer scheduled rule {target}"
+		};
+	}
+
+	private static string DescribeShopStocktakeStep(ShopStocktakeActionStep stocktake, ICharacter actor)
+	{
+		return stocktake.Scope == ShopStocktakeScope.All
+			? "stocktake all shop merchandise"
+			: $"stocktake merchandise {(stocktake.MerchandiseName ?? stocktake.MerchandiseSelector ?? "?").ColourName()}";
+	}
 	private static string DescribePriceChangeStep(PriceChangeActionStep price, ICharacter actor)
 	{
-		if (price.PriceChangeKind == PriceChangeActionKind.Merchandise)
+		return $"set merchandise {price.MerchandiseSelector.ColourName()} base price to {DescribeMoney(price.ExactPrice!)}";
+	}
+
+	private static string DescribeShopDealAdministrationStep(ShopDealAdministrationActionStep deal, ICharacter actor)
+	{
+		if (deal.Operation == ShopDealAdministrationActionKind.Cancel)
 		{
-			return $"set merchandise {price.MerchandiseSelector.ColourName()} base price to {DescribeMoney(price.ExactPrice!)}";
+			return $"cancel shop deal {deal.DealSelector.ColourCommand()}";
 		}
 
-		var impacts = new[]
+		var operation = deal.Operation == ShopDealAdministrationActionKind.Modify
+			? $"modify shop deal {deal.DealSelector.ColourCommand()} as"
+			: "create";
+		var name = string.IsNullOrWhiteSpace(deal.Name) ? "existing name".ColourValue() : deal.Name.ColourName();
+		var target = deal.TargetType switch
 		{
-			$"supply {price.SupplyImpact.ToBonusPercentageString(actor)}",
-			$"demand {price.DemandImpact.ToBonusPercentageString(actor)}",
-			$"flat {price.FlatPriceImpact.ToBonusPercentageString(actor)}"
+			ShopDealTargetType.AllMerchandise => "all merchandise".ColourValue(),
+			ShopDealTargetType.Merchandise => $"merchandise {deal.TargetSelector?.ColourName() ?? "?".ColourError()}",
+			ShopDealTargetType.ItemTag => $"tag {deal.TargetSelector?.ColourCommand() ?? "?".ColourError()}",
+			_ => deal.TargetType.DescribeEnum().ColourName()
 		};
-		var expiry = price.Duration.HasValue
-			? $" for {price.Duration.Value.Describe(actor)}"
-			: string.IsNullOrWhiteSpace(price.UntilText)
-				? string.Empty
-				: $" until {price.UntilText.ColourValue()}";
-		return $"set market influence {price.InfluenceName.ColourName()} on {price.MarketSelector.ColourName()} category {price.CategorySelector.ColourName()} ({impacts.ListToString()}){expiry}";
+		var type = deal.DealType == ShopDealType.Volume
+			? $"volume {deal.MinimumQuantity.ToString("N0", actor).ColourValue()}+"
+			: "sale".ColourName();
+		var expiry = deal.Expiry.Date is null
+			? "never".ColourValue()
+			: deal.Expiry.ToString(CalendarDisplayMode.Short, TimeDisplayTypes.Short).ColourValue();
+		return $"{operation} {type} shop deal {name} targeting {target} with {ShopDeal.DescribePercentage(deal.PriceAdjustmentPercentage, actor)}, applies {deal.Applicability.DescribeEnum().ColourName()}, expires {expiry}";
 	}
 
 	private static string DescribeJobOpeningAdministrationStep(JobOpeningAdministrationActionStep opening,
@@ -3194,6 +5838,7 @@ internal sealed class EmploymentTaskAuthoringService
 		return step switch
 		{
 			CataloguedActionShellStep shell => shell.Definition,
+			SupplierSelectionActionStep => EmploymentActionCatalog.Get("supplier"),
 			PurchaseActionStep => EmploymentActionCatalog.Get("purchase"),
 			MovementDeliveryActionStep => EmploymentActionCatalog.Get("move"),
 			CraftTriggerActionStep => EmploymentActionCatalog.Get("craft"),
@@ -3201,18 +5846,35 @@ internal sealed class EmploymentTaskAuthoringService
 			CommandActionStep => EmploymentActionCatalog.Get("command"),
 			BankDepositActionStep => EmploymentActionCatalog.Get("bankdeposit"),
 			BankWithdrawalActionStep => EmploymentActionCatalog.Get("bankwithdraw"),
+			BankAccountTransferActionStep => EmploymentActionCatalog.Get("transfer"),
+			BankAdministrationActionStep => EmploymentActionCatalog.Get("bankadmin"),
+			HostSettlementActionStep => EmploymentActionCatalog.Get("settle"),
 			StoreAccountPaymentActionStep => EmploymentActionCatalog.Get("storepay"),
 			TaxPaymentActionStep => EmploymentActionCatalog.Get("paytax"),
 			PayrollSettlementActionStep => EmploymentActionCatalog.Get("payroll"),
+			ShopCashReconciliationActionStep => EmploymentActionCatalog.Get("cashreconcile"),
 			ShopFloatAdjustmentActionStep => EmploymentActionCatalog.Get("float"),
 			PhysicalFloatActionStep => EmploymentActionCatalog.Get("physicalfloat"),
+			DeprecatedMarketPriceChangeActionStep => EmploymentActionCatalog.Get("price"),
+			ShopStocktakeActionStep => EmploymentActionCatalog.Get("stocktake"),
 			PriceChangeActionStep => EmploymentActionCatalog.Get("price"),
+			ShopDealAdministrationActionStep => EmploymentActionCatalog.Get("sale"),
 			JobOpeningAdministrationActionStep => EmploymentActionCatalog.Get("jobopening"),
+			ScheduledRuleAdministrationActionStep => EmploymentActionCatalog.Get("rule"),
+			ActiveTaskAdministrationActionStep => EmploymentActionCatalog.Get("admintask"),
+			ManagerGoalAdministrationActionStep => EmploymentActionCatalog.Get("goal"),
+			StableAdministrationActionStep => EmploymentActionCatalog.Get("stableadmin"),
+			HotelAdministrationActionStep => EmploymentActionCatalog.Get("hoteladmin"),
 			BoardPostActionStep => EmploymentActionCatalog.Get("board"),
 			GetItemsByIdActionStep => EmploymentActionCatalog.Get("getid"),
 			GetItemsByTagActionStep => EmploymentActionCatalog.Get("gettag"),
 			GetCommodityActionStep => EmploymentActionCatalog.Get("commodity"),
 			DeliverItemsActionStep => EmploymentActionCatalog.Get("deliver"),
+			ShopStockTransferActionStep => EmploymentActionCatalog.Get("stocktransfer"),
+			AuctionLotListingActionStep => EmploymentActionCatalog.Get("auctionlist"),
+			AuctionSettlementActionStep => EmploymentActionCatalog.Get("auctionsettle"),
+			AuctionClaimActionStep => EmploymentActionCatalog.Get("auctionclaim"),
+			ArenaEventAdministrationActionStep => EmploymentActionCatalog.Get("arenaevent"),
 			LoadItemsActionStep => EmploymentActionCatalog.Get("load"),
 			UnloadItemsActionStep => EmploymentActionCatalog.Get("unload"),
 			ReturnAssetActionStep => EmploymentActionCatalog.Get("return"),
@@ -3306,6 +5968,13 @@ internal sealed class EmploymentTaskAuthoringService
 		return characteristics.Any()
 			? $" with {characteristics.Select(x => $"{x.Key.ColourCommand()}={x.Value.ColourCommand()}").ListToString()}"
 			: string.Empty;
+	}
+
+	private static string DescribeStockTransferContainer(ShopStockTransferActionStep transfer, ICharacter actor)
+	{
+		return transfer.ContainerSelector is null
+			? string.Empty
+			: $" into {DescribeItemSelector(transfer.ContainerSelector, actor)}";
 	}
 
 	private static string DescribeDeliveryContainer(DeliverItemsActionStep deliver, ICharacter actor)

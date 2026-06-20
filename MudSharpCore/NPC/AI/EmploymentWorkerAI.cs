@@ -4,7 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Xml.Linq;
 using MudSharp.Arenas;
+using MudSharp.Body.Traits;
 using MudSharp.Character;
+using MudSharp.RPG.Knowledge;
+using MudSharp.CharacterCreation.Roles;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Economy;
@@ -545,8 +548,17 @@ public class EmploymentWorkerAI : PathingAIBase
 		              .Where(x => !HasRecentRejectedApplication(candidate, x.Host, x.Opening))
 		              .Where(x => EmploymentCandidateMatcher.IsMatch(x.Opening, profile, out _))
 		              .Where(x => HostReputationAcceptable(candidate, x.Host))
-		              .Where(x => CanReach(candidate, PrimaryWorkCell(x.Host)))
-		              .OrderByDescending(x => x.Opening.Compensation.NominalAmount)
+		              .Select(x => (x.Host, x.Opening, WorkCell: PrimaryWorkCell(x.Host)))
+		              .Where(x => CanReach(candidate, x.WorkCell))
+		              .Select(x => (
+			              x.Host,
+			              x.Opening,
+			              EffectivePay: EmploymentCompensationEvaluator.EffectiveHourlyGlobalAmount(x.Opening.Compensation),
+			              OverdueDays: EmployerOverdueDays(x.Host),
+			              CommuteDistance: CommuteDistance(candidate, x.WorkCell)))
+		              .OrderByDescending(x => x.EffectivePay)
+		              .ThenBy(x => x.OverdueDays)
+		              .ThenBy(x => x.CommuteDistance)
 		              .ThenBy(x => x.Host.EmploymentHostName)
 		              .FirstOrDefault();
 
@@ -572,13 +584,11 @@ public class EmploymentWorkerAI : PathingAIBase
 			return;
 		}
 
-		var context = new EmploymentTaskContext(host, usePhysicalItemMovement: true);
 		var now = EmploymentClock.CurrentInstant(host);
-		DebugWorker(worker, $"evaluating scheduled rules and manager goals for {host.EmploymentHostName}.");
-		var scheduledTasks = host.TaskBoard.EvaluateScheduledRules(context, now);
-		var goalTasks = host.ManagerGoalBoard.EvaluateGoals(context, now);
+		DebugWorker(worker, $"evaluating central host operations for {host.EmploymentHostName}.");
+		var result = EmploymentHostOperationsScheduler.EvaluateHost(host, now, usePhysicalItemMovement: true);
 		DebugWorker(worker,
-			$"host evaluation for {host.EmploymentHostName} spawned {scheduledTasks.Count:N0} scheduled task(s) and {goalTasks.Count:N0} manager-goal task(s).");
+			$"host evaluation for {host.EmploymentHostName} spawned {result.ScheduledRuleTaskCount:N0} scheduled task(s), {result.ManagerGoalTaskCount:N0} manager-goal task(s), accrued {result.PayableCount:N0} payable(s), and ended {result.ContractEndCount:N0} contract(s).");
 		worker.AddEffect(new EmploymentWorkerHostEvaluationEffect(worker, host), TimeSpan.FromMinutes(1));
 	}
 
@@ -591,12 +601,12 @@ public class EmploymentWorkerAI : PathingAIBase
 				$"payroll evaluation for {host.EmploymentHostName} accrued {created.Count:N0} payable(s).");
 		}
 
-		if (!host.Payroll.OutstandingLiabilities.Any())
+		if (!host.Payroll.OutstandingLiabilitiesFor(worker).Any())
 		{
 			return false;
 		}
 
-		var overdueDays = host.Payroll.MaximumOverdueDays();
+		var overdueDays = host.Payroll.MaximumOverdueDaysFor(worker);
 		if (overdueDays < MaximumUnpaidOverdueDays)
 		{
 			return false;
@@ -714,7 +724,10 @@ public class EmploymentWorkerAI : PathingAIBase
 			var profile = BuildCandidateProfile(worker);
 			foreach (var pending in host.TaskBoard.ActiveTasks
 			                            .Where(x => x.Status == EmploymentTaskStatus.Pending)
-			                            .OrderBy(x => x.Name))
+			                            .OrderByDescending(x => x.Priority)
+			                            .ThenBy(x => x.DueAt ?? DateTimeOffset.MaxValue)
+			                            .ThenBy(x => x.CreatedAt)
+			                            .ThenBy(x => x.Id))
 			{
 				context = ContextFor(worker, host, pending);
 				if (!_dispatcher.TryAssignTask(pending, [profile], context, out var assignReason,
@@ -785,24 +798,117 @@ public class EmploymentWorkerAI : PathingAIBase
 		       .Where(host => host.EmploymentContracts.Any(x =>
 			       x.Employee.Id == worker.Id &&
 			       x.Status == EmploymentStatus.Active))
-		       .OrderByDescending(host => host.TaskBoard.ActiveTasks.Any(x =>
-			       x.AssignedEmployee?.Id == worker.Id &&
-			       x.Status is EmploymentTaskStatus.Assigned or EmploymentTaskStatus.InProgress or EmploymentTaskStatus.Blocked))
-		       .ThenBy(host => host.EmploymentHostName)
+		       .Select(host => (
+			       Host: host,
+			       AssignedWork: HasAssignedWork(worker, host),
+			       PendingWork: TaskingEnabled ? HighestPriorityPendingTask(host) : null))
+		       .OrderByDescending(x => x.AssignedWork)
+		       .ThenByDescending(x => x.PendingWork?.Priority ?? int.MinValue)
+		       .ThenBy(x => x.PendingWork?.DueAt ?? DateTimeOffset.MaxValue)
+		       .ThenBy(x => x.PendingWork?.CreatedAt ?? DateTimeOffset.MaxValue)
+		       .ThenBy(x => x.PendingWork?.Id ?? Guid.Empty)
+		       .ThenBy(x => x.Host.EmploymentHostName)
+		       .Select(x => x.Host)
 		       .FirstOrDefault();
+	}
+
+	private static bool HasAssignedWork(ICharacter worker, IEmploymentHost host)
+	{
+		return host.TaskBoard.ActiveTasks.Any(x =>
+			x.AssignedEmployee?.Id == worker.Id &&
+			x.Status is EmploymentTaskStatus.Assigned or EmploymentTaskStatus.InProgress or EmploymentTaskStatus.Blocked);
+	}
+
+	private static IEmploymentActiveTask? HighestPriorityPendingTask(IEmploymentHost host)
+	{
+		return host.TaskBoard.ActiveTasks
+		           .Where(x => x.Status == EmploymentTaskStatus.Pending)
+		           .OrderByDescending(x => x.Priority)
+		           .ThenBy(x => x.DueAt ?? DateTimeOffset.MaxValue)
+		           .ThenBy(x => x.CreatedAt)
+		           .ThenBy(x => x.Id)
+		           .FirstOrDefault();
 	}
 
 	private EmploymentCandidateProfile BuildCandidateProfile(ICharacter candidate)
 	{
+		var skills = (candidate.CharacterTraits ?? Array.Empty<ITrait>())
+		             .Where(x => x.Definition is not null)
+		             .Where(x => !x.Hidden && !x.Definition.Hidden)
+		             .Where(x => x.Definition.TraitType is TraitType.Skill or TraitType.DerivedSkill or TraitType.TheoreticalSkill)
+		             .GroupBy(x => x.Definition.Name, StringComparer.InvariantCultureIgnoreCase)
+		             .ToDictionary(x => x.Key, x => x.Max(y => y.Value), StringComparer.InvariantCultureIgnoreCase);
+		var knowledges = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
+		foreach (var knowledge in candidate.Knowledges ?? Array.Empty<IKnowledge>())
+		{
+			AddCandidateToken(knowledges, knowledge.Name);
+		}
+
+		var tags = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase);
+		AddCandidateTag(tags, "race", candidate.Race);
+		AddCandidateTag(tags, "ethnicity", candidate.Ethnicity);
+		AddCandidateTag(tags, "culture", candidate.Culture);
+		foreach (var role in candidate.Roles ?? Array.Empty<IChargenRole>())
+		{
+			AddCandidateTag(tags, "role", role);
+		}
+
+		foreach (var skill in skills.Keys)
+		{
+			AddCandidateTag(tags, "skill", skill);
+			AddCandidateTag(tags, "trait", skill);
+		}
+
+		foreach (var knowledge in knowledges)
+		{
+			AddCandidateTag(tags, "knowledge", knowledge);
+		}
+
+		if (candidate is IHaveTags tagged)
+		{
+			foreach (var tag in tagged.Tags ?? Array.Empty<ITag>())
+			{
+				AddCandidateTag(tags, "tag", tag.Name);
+				AddCandidateTag(tags, "tag", tag.FullName);
+			}
+		}
+
 		return new EmploymentCandidateProfile(
 			candidate,
 			ReservationWage,
-			new Dictionary<string, double>(),
-			new HashSet<string>(),
+			skills,
+			knowledges,
 			new HashSet<EmploymentAICapability>(_capabilities),
-			new HashSet<string>(),
+			tags,
 			_acceptedPaymentMethods.ToList(),
 			Currency);
+	}
+
+	private static void AddCandidateTag(ISet<string> tags, string category, IFrameworkItem? item)
+	{
+		AddCandidateTag(tags, category, item?.Name);
+	}
+
+	private static void AddCandidateTag(ISet<string> tags, string category, string? value)
+	{
+		if (string.IsNullOrWhiteSpace(value))
+		{
+			return;
+		}
+
+		var trimmed = value.Trim();
+		tags.Add(trimmed);
+		tags.Add($"{category}:{trimmed}");
+	}
+
+	private static void AddCandidateToken(ISet<string> tokens, string? value)
+	{
+		if (string.IsNullOrWhiteSpace(value))
+		{
+			return;
+		}
+
+		tokens.Add(value.Trim());
 	}
 
 	private ICurrency? DefaultCurrency()
@@ -993,11 +1099,32 @@ public class EmploymentWorkerAI : PathingAIBase
 		return false;
 	}
 
+	private static int EmployerOverdueDays(IEmploymentHost host)
+	{
+		return host.Payroll.OutstandingLiabilities.Any()
+			? host.Payroll.MaximumOverdueDays()
+			: 0;
+	}
+
+	private int CommuteDistance(ICharacter worker, ICell? cell)
+	{
+		if (cell is null || ReferenceEquals(worker.Location, cell))
+		{
+			return 0;
+		}
+
+		var path = worker.PathBetween(cell, MaxPathRange, GetSuitabilityFunction(worker))?.ToList() ?? new List<ICellExit>();
+		return path.Any() ? path.Count : int.MaxValue;
+	}
+
 	private bool CanReach(ICharacter worker, ICell? cell)
 	{
-		return cell is null ||
-		       ReferenceEquals(worker.Location, cell) ||
-		       worker.PathBetween(cell, MaxPathRange, GetSuitabilityFunction(worker)).Any();
+		if (cell is null || ReferenceEquals(worker.Location, cell))
+		{
+			return true;
+		}
+
+		return worker.PathBetween(cell, MaxPathRange, GetSuitabilityFunction(worker))?.Any() == true;
 	}
 
 	private static ICell? PrimaryWorkCell(IEmploymentHost host)

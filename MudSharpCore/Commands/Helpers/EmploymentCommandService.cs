@@ -2113,6 +2113,24 @@ internal sealed class EmploymentCommandService
 					out var cadenceMessage);
 				actor.OutputHandler.Send(cadenceMessage);
 				return;
+			case "budget":
+			case "budgets":
+				_managerGoalAuthoring.TrySetDraftBudget(actor, host, input.SafeRemainingArgument,
+					out var budgetMessage);
+				actor.OutputHandler.Send(budgetMessage);
+				return;
+			case "risk":
+			case "limit":
+			case "limits":
+				_managerGoalAuthoring.TrySetDraftRiskLimit(actor, host, input, out var riskMessage);
+				actor.OutputHandler.Send(riskMessage);
+				return;
+			case "expression":
+			case "expr":
+				_managerGoalAuthoring.TrySetDraftExpression(actor, host, input.SafeRemainingArgument,
+					out var expressionMessage);
+				actor.OutputHandler.Send(expressionMessage);
+				return;
 			case "authority":
 			case "authorities":
 				_managerGoalAuthoring.TrySetDraftAuthority(actor, host, input, out var authorityMessage);
@@ -2847,7 +2865,7 @@ Communication and audit:
 	#3employment <host type> <host> goals#0 - lists and manages manager goals
 	#3employment <host type> <host> goals types [all|category|type]#0 - shows manager goal type help
 	#3employment <host type> <host> goals show <##|type|description>#0 - shows a manager goal
-	#3employment <host type> <host> goals draft new|copy|show|type|description|priority|cadence|authority|removecondition|removestep|discard|finalise ...#0 - drafts and edits manager goals
+	#3employment <host type> <host> goals draft new|copy|show|type|description|priority|cadence|budget|risk|expression|authority|removecondition|removestep|discard|finalise ...#0 - drafts and edits manager goals
 	#3employment <host type> <host> goals condition <condition>#0 - adds a condition to the current manager-goal draft
 	#3employment <host type> <host> goals step <action syntax>#0 - adds an action step to the current manager-goal draft
 	#3employment <host type> <host> goals cancel <##|type|description> [reason]#0 - cancels a manager goal

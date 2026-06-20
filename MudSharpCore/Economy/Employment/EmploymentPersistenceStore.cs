@@ -73,7 +73,7 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 		public long[]? LegacyItemIds { get; set; }
 		public long[] SourceLocationIds { get; set; } = [];
 		[JsonIgnore]
-		public long[] ResolvedItemPrototypeIds => ItemPrototypeIds.Length > 0 ? ItemPrototypeIds : LegacyItemIds ?? [];
+		public long[] ResolvedItemPrototypeIds => ItemPrototypeIds is { Length: > 0 } ? ItemPrototypeIds : LegacyItemIds ?? [];
 	}
 
 	private sealed record GetItemsByTagStepPayload(int Quantity, string TagName, long[] SourceLocationIds);
@@ -2368,8 +2368,13 @@ public sealed class EmploymentPersistenceStore : IEmploymentPersistenceStore
 			routeStops);
 	}
 
-	private IEnumerable<ICell> ResolveCells(IEnumerable<long> ids)
+	private IEnumerable<ICell> ResolveCells(IEnumerable<long>? ids)
 	{
+		if (ids is null)
+		{
+			yield break;
+		}
+
 		foreach (var id in ids)
 		{
 			var cell = _gameworld.Cells.Get(id);

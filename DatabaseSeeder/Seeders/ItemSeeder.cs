@@ -81,7 +81,9 @@ The items and crafts are fairly universal and of approximately medieval to renei
     private Dictionary<string, FutureProg> _progs = new(StringComparer.InvariantCultureIgnoreCase);
     private DictionaryWithDefault<string, TraitDefinition> _traits = new(StringComparer.OrdinalIgnoreCase);
     private Dictionary<string, GameItemProto> _items = new(StringComparer.InvariantCultureIgnoreCase);
+	private Dictionary<string, Craft> _craftsByNameAndCategory = new(StringComparer.OrdinalIgnoreCase);
     private long _nextId = 1;
+	private bool _deferCraftProductSave;
 
     private FuturemudDatabaseContext? _context;
     private IReadOnlyDictionary<string, string>? _questionAnswers;
@@ -152,6 +154,12 @@ The items and crafts are fairly universal and of approximately medieval to renei
                 _items[item.UniqueName] = item;
             }
         }
+
+		_craftsByNameAndCategory = _context.Crafts.Local
+			.AsEnumerable()
+			.Concat(_context.Crafts.AsEnumerable())
+			.GroupBy(x => CraftLookupKey(x.Name, x.Category), StringComparer.OrdinalIgnoreCase)
+			.ToDictionary(x => x.Key, x => x.OrderBy(craft => craft.Id).First(), StringComparer.OrdinalIgnoreCase);
     }
 
     MudSharp.Models.GameItemProto? CreateItemLegacy(string noun, string sdesc, string? ldesc, string fdesc, SizeCategory size, ItemQuality quality, double weightInGrams, decimal inherentCost, bool skinnable, bool hideFromPlayers, string material, IEnumerable<string> tags, IEnumerable<string> components)

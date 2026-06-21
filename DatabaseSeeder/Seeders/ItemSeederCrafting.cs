@@ -130,6 +130,7 @@ public partial class ItemSeeder
 		["Surviving", "Survival"],
 		["Animal Breeding", "Husbandry"],
 		["Beekeeping", "Beekeeper"],
+		["Medicine", "First Aid", "Healing", "Patient Care", "Diagnosis", "Surgery", "Pharmacology", "Herbalism"],
 		["Law", "Lawyer"],
 		["Labouring", "Labourer", "Laboring", "Laborer"],
 		["Supervising", "Supervisor"],
@@ -1920,6 +1921,7 @@ return ""There is no useful clay that is accessible in the biome you're in.""");
             IsPracticalCheck = true
         };
 		_context!.Crafts.Add(dbitem);
+		_craftsByNameAndCategory[CraftLookupKey(dbitem.Name, dbitem.Category)] = dbitem;
         int i = 1;
         foreach (CraftPhaseSpec phase in spec.Phases)
         {
@@ -1960,7 +1962,10 @@ return ""There is no useful clay that is accessible in the biome you're in.""");
             dbitem.CraftProducts.Add(ConvertToProduct(dbitem, product));
         }
 
-		_context.SaveChanges();
+		if (!_deferCraftProductSave)
+		{
+			_context.SaveChanges();
+		}
         return dbitem;
 	}
 
@@ -1970,14 +1975,16 @@ return ""There is no useful clay that is accessible in the biome you're in.""");
         return match.Product == 0 ? null : Math.Max(0, match.Input - 1);
     }
 
+	private static string CraftLookupKey(string name, string category)
+	{
+		return $"{name.Trim()}\u001F{category.Trim()}";
+	}
+
 	private Craft? FindExistingCraft(string name, string category)
 	{
-		return _context!.Crafts.Local.AsEnumerable().FirstOrDefault(x =>
-			       x.Name.Equals(name, StringComparison.OrdinalIgnoreCase) &&
-			       x.Category.Equals(category, StringComparison.OrdinalIgnoreCase)) ??
-		       _context.Crafts.AsEnumerable().FirstOrDefault(x =>
-			       x.Name.Equals(name, StringComparison.OrdinalIgnoreCase) &&
-			       x.Category.Equals(category, StringComparison.OrdinalIgnoreCase));
+		return _craftsByNameAndCategory.TryGetValue(CraftLookupKey(name, category), out Craft? craft)
+			? craft
+			: null;
 	}
 
 	private IReadOnlyList<CraftValidationError> ValidateCraftSpec(CraftDefinitionSpec spec)
@@ -2173,6 +2180,14 @@ return ""There is no useful clay that is accessible in the biome you're in.""");
 		return text.Replace(@"\", @"\\").Replace("\"", "\\\"");
 	}
 
+	private void SaveFutureProgsIfRequired(params FutureProg[] progs)
+	{
+		if (progs.Any(prog => _context!.Entry(prog).State == EntityState.Added))
+		{
+			_context!.SaveChanges();
+		}
+	}
+
 	private FutureProg EnsureAlwaysTrueProg()
 	{
 		return EnsureFutureProg("AlwaysTrue", "Utility", "General", ProgVariableTypes.Boolean, "",
@@ -2219,7 +2234,10 @@ return ""There is no useful clay that is accessible in the biome you're in.""");
 		knowledge.LearningSessionsRequired = Math.Max(1, learningSessionsRequired);
 		knowledge.CanAcquireProg = alwaysTrueProg;
 		knowledge.CanLearnProg = alwaysTrueProg;
-		_context.SaveChanges();
+		if (_context.Entry(knowledge).State == EntityState.Added)
+		{
+			_context.SaveChanges();
+		}
 		return knowledge;
 	}
 
@@ -2241,7 +2259,7 @@ return ""There is no useful clay that is accessible in the biome you're in.""");
 			[(ProgVariableTypes.Character, "ch")], booleanText);
 		FutureProg whyCannotUseProg = EnsureFutureProg($"ItemSeederWhyCannotUse{suffix}", "Crafting", "Access", ProgVariableTypes.Text, "",
 			[(ProgVariableTypes.Character, "ch")], whyText);
-		_context!.SaveChanges();
+		SaveFutureProgsIfRequired(appearProg, canUseProg, whyCannotUseProg);
 		return (appearProg, canUseProg, whyCannotUseProg, trait);
 	}
 
@@ -2289,7 +2307,7 @@ return ""You need at least {minimumTraitValue.Value.ToString(System.Globalizatio
 			[(ProgVariableTypes.Character, "ch")], booleanText);
 		FutureProg whyCannotUseProg = EnsureFutureProg($"ItemSeederWhyCannotUse{suffix}", "Crafting", "Access", ProgVariableTypes.Text, "",
 			[(ProgVariableTypes.Character, "ch")], whyText);
-		_context!.SaveChanges();
+		SaveFutureProgsIfRequired(appearProg, canUseProg, whyCannotUseProg);
 		return (appearProg, canUseProg, whyCannotUseProg, trait, knowledge);
 	}
 
@@ -2361,43 +2379,52 @@ return ""You need at least {minimumTraitValue.Value.ToString(System.Globalizatio
         // Reset nextID
 		_nextId = _context!.Crafts.Select(x => x.Id).ToList().DefaultIfEmpty(0).Max(x => x) + 1;
 
-		SeedHistoricFoundationCrafts();
-		SeedPrimaryProductionCommodityCrafts();
-		SeedAntiquityHellenicClothingCrafts();
-		SeedAntiquityEgyptianClothingCrafts();
-		SeedAntiquityRomanClothingCrafts();
-		SeedAntiquityCelticClothingCrafts();
-		SeedAntiquityGermanicClothingCrafts();
-		SeedAntiquityKushiteClothingCrafts();
-		SeedAntiquityPunicClothingCrafts();
-		SeedAntiquityPersianClothingCrafts();
-		SeedAntiquityEtruscanClothingCrafts();
-		SeedAntiquityAnatolianClothingCrafts();
-		SeedAntiquityScythianSarmatianClothingCrafts();
-		SeedAntiquityEquipmentCrafts();
-		SeedAntiquityJewelleryCrafts();
-		SeedAntiquityWritingCrafts();
-		SeedAntiquityMedicalCrafts();
-		SeedAntiquityFurnitureAndContainerCrafts();
-		SeedAntiquityRepairKitCrafts();
-		SeedAntiquityLeatherPreparationCrafts();
-		SeedAntiquityLeatherClothingCrafts();
-		SeedAntiquityLeatherArmourCrafts();
-		SeedAntiquityLeatherContainerCrafts();
-		SeedAntiquityLeatherFurnishingCrafts();
-		SeedAntiquityApiaryCrafts();
-		SeedAntiquityAgriculturalProcessingCrafts();
-		SeedAntiquityFoodCrafts();
-		SeedMedievalProductionChainCrafts();
-		SeedMedievalClothingCrafts();
-		SeedMedievalEquipmentCrafts();
-		SeedMedievalWritingAdministrationCrafts();
-		SeedMedievalMedicalApothecaryCrafts();
-		SeedMedievalJewelleryDevotionalCrafts();
-		SeedMedievalFurnitureAndContainerCrafts();
-		SeedMedievalFoodBeverageCrafts();
-		SeedMedievalRepairKitCrafts();
-		SeedMedievalComponentGapCrafts();
+		var previousDeferCraftProductSave = _deferCraftProductSave;
+		_deferCraftProductSave = true;
+		try
+		{
+			SeedHistoricFoundationCrafts();
+			SeedPrimaryProductionCommodityCrafts();
+			SeedAntiquityHellenicClothingCrafts();
+			SeedAntiquityEgyptianClothingCrafts();
+			SeedAntiquityRomanClothingCrafts();
+			SeedAntiquityCelticClothingCrafts();
+			SeedAntiquityGermanicClothingCrafts();
+			SeedAntiquityKushiteClothingCrafts();
+			SeedAntiquityPunicClothingCrafts();
+			SeedAntiquityPersianClothingCrafts();
+			SeedAntiquityEtruscanClothingCrafts();
+			SeedAntiquityAnatolianClothingCrafts();
+			SeedAntiquityScythianSarmatianClothingCrafts();
+			SeedAntiquityEquipmentCrafts();
+			SeedAntiquityJewelleryCrafts();
+			SeedAntiquityWritingCrafts();
+			SeedAntiquityMedicalCrafts();
+			SeedAntiquityFurnitureAndContainerCrafts();
+			SeedAntiquityRepairKitCrafts();
+			SeedAntiquityLeatherPreparationCrafts();
+			SeedAntiquityLeatherClothingCrafts();
+			SeedAntiquityLeatherArmourCrafts();
+			SeedAntiquityLeatherContainerCrafts();
+			SeedAntiquityLeatherFurnishingCrafts();
+			SeedAntiquityApiaryCrafts();
+			SeedAntiquityAgriculturalProcessingCrafts();
+			SeedAntiquityFoodCrafts();
+			SeedMedievalProductionChainCrafts();
+			SeedMedievalClothingCrafts();
+			SeedMedievalEquipmentCrafts();
+			SeedMedievalWritingAdministrationCrafts();
+			SeedMedievalMedicalApothecaryCrafts();
+			SeedMedievalJewelleryDevotionalCrafts();
+			SeedMedievalFurnitureAndContainerCrafts();
+			SeedMedievalFoodBeverageCrafts();
+			SeedMedievalRepairKitCrafts();
+			SeedMedievalComponentGapCrafts();
+		}
+		finally
+		{
+			_deferCraftProductSave = previousDeferCraftProductSave;
+		}
 	}
 
 	private void SeedCraftsLegacy()

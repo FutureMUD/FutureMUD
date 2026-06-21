@@ -219,6 +219,25 @@ public class CoreDataSeederMaterialTests
         Assert.IsTrue(context.Tags.Any(x => x.Name == "Raw Milk"));
         Assert.IsTrue(context.Tags.Any(x => x.Name == "Egg Product"));
         Assert.IsTrue(context.Tags.Any(x => x.Name == "Manure Product"));
+
+        var butcheryTagParents = context.Tags
+            .Include(x => x.Parent)
+            .Where(x => new[]
+            {
+                "Butchery Output",
+                "Raw Meat Cut",
+                "Raw Hide",
+                "Offal",
+                "Trophy Part",
+                "Venom Organ",
+                "Crafting Animal Product"
+            }.Contains(x.Name))
+            .ToDictionary(x => x.Name, x => x.Parent?.Name, StringComparer.OrdinalIgnoreCase);
+        Assert.AreEqual("Animal Product", butcheryTagParents["Butchery Output"]);
+        foreach (var tagName in butcheryTagParents.Keys.Where(x => x != "Butchery Output"))
+        {
+            Assert.AreEqual("Butchery Output", butcheryTagParents[tagName], $"{tagName} should be grouped under the butchery output bridge tag.");
+        }
         Assert.IsTrue(milk.MaterialsTags.Any(x => x.Tag.Name == "Raw Milk"));
         Assert.IsTrue(egg.MaterialsTags.Any(x => x.Tag.Name == "Egg Product"));
         Assert.IsTrue(wool.MaterialsTags.Any(x => x.Tag.Name == "Raw Wool"));

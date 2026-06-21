@@ -203,6 +203,56 @@ public class ItemSeederAntiquityFoodCraftingTests
 	}
 
 	[TestMethod]
+	public void AntiquityFoodCrafting_BridgesAnimalButcheryOutputsIntoCommodityPipeline()
+	{
+		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.AntiquityFood.cs");
+		var butcherySource = ReadSource("DatabaseSeeder", "Seeders", "AnimalButcherySeeder.cs");
+		var coreMaterialSource = ReadSource("DatabaseSeeder", "Seeders", "CoreDataSeeder.Materials.cs");
+		var hierarchySource = ReadSource("Design Documents", "Data", "SeededTagHierarchy.csv");
+
+		foreach (var expected in new[]
+		         {
+			         "private const string RawMeatCutTag = \"Raw Meat Cut\";",
+			         "private const string OffalTag = \"Offal\";"
+		         })
+		{
+			AssertContains(butcherySource, expected);
+		}
+
+		foreach (var expected in new[]
+		         {
+			         "AddTag(\"Butchery Output\", \"Animal Product\")",
+			         "AddTag(\"Raw Meat Cut\", \"Butchery Output\")",
+			         "AddTag(\"Offal\", \"Butchery Output\")"
+		         })
+		{
+			AssertContains(coreMaterialSource, expected);
+		}
+
+		foreach (var expected in new[]
+		         {
+			         "Materials / Animal Product / Butchery Output / Raw Meat Cut",
+			         "Materials / Animal Product / Butchery Output / Offal"
+		         })
+		{
+			AssertContains(hierarchySource, expected);
+		}
+
+		foreach (var expected in new[]
+		         {
+			         "break down raw meat cuts",
+			         "Tag - 1x an item with the Raw Meat Cut tag",
+			         "break down raw offal",
+			         "Tag - 1x an item with the Offal tag",
+			         "CommodityProduct - {FormatCommodityAmount(2500.0)} of meat commodity; tag Raw Meat Commodity",
+			         "CommodityProduct - {FormatCommodityAmount(1200.0)} of meat commodity; tag Raw Meat Commodity"
+		         })
+		{
+			AssertContains(craftSource, expected);
+		}
+	}
+
+	[TestMethod]
 	public void AntiquityFoodCrafting_UsesSpecialisedAgriculturalAndBeverageSkills()
 	{
 		var skillSource = ReadSource("DatabaseSeeder", "Seeders", "SkillPackageSeeder.cs");

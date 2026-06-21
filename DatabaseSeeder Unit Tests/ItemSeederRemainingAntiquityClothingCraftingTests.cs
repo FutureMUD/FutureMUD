@@ -170,7 +170,7 @@ public class ItemSeederRemainingAntiquityClothingCraftingTests
 		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.Antiquity.cs");
 		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.Antiquity.cs");
 		var stableReferenceSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.cs");
-		var designSource = ReadSource("Design Documents", "Crafting", "Antiquity_Hellenic_Clothing_Crafting_Suite.md");
+		var designSource = ReadSource("Design Documents", "Seeding", "Antiquity_Hellenic_Clothing_Crafting_Suite.md");
 
 		foreach (var stableReference in SupplementalClothingStableReferences)
 		{
@@ -329,7 +329,7 @@ public class ItemSeederRemainingAntiquityClothingCraftingTests
 	[TestMethod]
 	public void AntiquityClothingDesignDocument_DocumentsRemainingCultureSlices()
 	{
-		var designSource = ReadSource("Design Documents", "Crafting", "Antiquity_Hellenic_Clothing_Crafting_Suite.md");
+		var designSource = ReadSource("Design Documents", "Seeding", "Antiquity_Hellenic_Clothing_Crafting_Suite.md");
 
 		foreach (var expected in new[]
 		{

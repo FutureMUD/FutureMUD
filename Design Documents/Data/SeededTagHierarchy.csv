@@ -1309,6 +1309,13 @@ Beverage Serving Vessel	Vessels	Food and Drink / Vessels / Beverage Serving Vess
 Fermenting Vessel	Vessels	Food and Drink / Vessels / Fermenting Vessel
 Materials		Materials
 Animal Product	Materials	Materials / Animal Product
+Butchery Output	Animal Product	Materials / Animal Product / Butchery Output
+Raw Meat Cut	Butchery Output	Materials / Animal Product / Butchery Output / Raw Meat Cut
+Raw Hide	Butchery Output	Materials / Animal Product / Butchery Output / Raw Hide
+Offal	Butchery Output	Materials / Animal Product / Butchery Output / Offal
+Trophy Part	Butchery Output	Materials / Animal Product / Butchery Output / Trophy Part
+Venom Organ	Butchery Output	Materials / Animal Product / Butchery Output / Venom Organ
+Crafting Animal Product	Butchery Output	Materials / Animal Product / Butchery Output / Crafting Animal Product
 Apiary Product	Animal Product	Materials / Animal Product / Apiary Product
 Pressed Honey	Apiary Product	Materials / Animal Product / Apiary Product / Pressed Honey
 Raw Honeycomb	Apiary Product	Materials / Animal Product / Apiary Product / Raw Honeycomb

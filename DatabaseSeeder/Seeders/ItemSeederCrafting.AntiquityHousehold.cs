@@ -74,7 +74,7 @@ public partial class ItemSeeder
 
 	private static readonly string[] AntiquityHouseholdCeramicMaterials =
 	[
-		"ceramic", "earthenware", "fired clay", "terracotta"
+		"ceramic", "earthenware", "fired clay", "terracotta", "tile"
 	];
 
 	private static readonly string[] AntiquityHouseholdGlassMaterials =
@@ -956,7 +956,7 @@ public partial class ItemSeeder
 		]);
 
 	private static AntiquityHouseholdCraftPath HouseholdGeneralPath() => new(
-		"Crafting", "Crafting", AncientHouseholdCraftingKnowledge, "General", "Household Craft Stock", "make",
+		"Crafting", "Masonry", AncientHouseholdCraftingKnowledge, "General", "Household Craft Stock", "make",
 		"making", 15, Difficulty.Normal,
 		[]);
 

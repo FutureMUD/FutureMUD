@@ -32,7 +32,7 @@ public partial class ItemSeeder
 			"finishing a clay serving amphora",
 			"a clay serving amphora being finished",
 			AncientCeramicVesselmakingKnowledge,
-			"Ceramics",
+			"Pottery",
 			20,
 			Difficulty.Normal,
 			SimpleFoodPhases("$0 turn|turns $i1 on $t1 and smooth|smooths the shoulders with $t2.",
@@ -58,7 +58,7 @@ public partial class ItemSeeder
 			"lining a fermenting amphora",
 			"a fermenting amphora being lined with pitch",
 			AncientCeramicVesselmakingKnowledge,
-			"Ceramics",
+			"Pottery",
 			25,
 			Difficulty.Normal,
 			SimpleFoodPhases("$0 shape|shapes the mouth and belly of $i1 on $t1, smoothing it with $t2.",
@@ -81,7 +81,7 @@ public partial class ItemSeeder
 	private void SeedAntiquityFoodProcessingCrafts()
 	{
 		var cooking = _traits["Cooking"] ?? _traits["Cook"] ?? _traits["Surviving"] ?? _traits["Survival"] ?? _traits.First().Value;
-		var farming = _traits["Farming"] ?? _traits["Agriculture"] ?? cooking;
+		var farming = _traits["Farming"] ?? cooking;
 		var threshing = _traits["Threshing"] ?? _traits["Thresher"] ?? farming;
 		var milling = _traits["Milling"] ?? _traits["Miller"] ?? cooking;
 		var brewing = _traits["Brewing"] ?? _traits["Brewer"] ?? cooking;
@@ -248,8 +248,8 @@ public partial class ItemSeeder
 
 	private void SeedAntiquityButcheryFoodCrafts()
 	{
-		var cooking = _traits["Cooking"] ?? _traits["Cook"] ?? _traits["Butchering"] ?? _traits["Butcher"] ?? _traits.First().Value;
-		var butchery = _traits["Butchering"] ?? _traits["Butcher"] ?? cooking;
+		var cooking = _traits["Cooking"] ?? _traits["Cook"] ?? _traits["Butchering"] ?? _traits["Butchery"] ?? _traits.First().Value;
+		var butchery = _traits["Butchering"] ?? _traits["Butchery"] ?? cooking;
 
 		AddCraft("break down raw meat cuts", "Food Processing", "break raw carcass cuts into meat commodity",
 			"breaking down meat cuts", "a raw meat breakdown task", "HasButchering", null, null, null, butchery,

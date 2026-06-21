@@ -403,6 +403,30 @@ public class ItemSeederAntiquityRemainingCraftingTests
 	}
 
 	[TestMethod]
+	public void ItemSeederCrafts_RequestedSkillNamesResolveAgainstStockSkillPackage()
+	{
+		var skillSource = ReadSource("DatabaseSeeder", "Seeders", "SkillPackageSeeder.cs");
+		var craftRoot = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.cs");
+		var craftSource = ReadSeederSources("ItemSeederCrafting*.cs");
+
+		var supportedSkillNames = ExtractSkillPackageNames(skillSource);
+		supportedSkillNames.UnionWith(ExtractStockSkillPackageTraitAliases(craftRoot));
+
+		var requestedSkillNames = ExtractItemCraftSkillRequests(craftSource);
+		var unresolved = requestedSkillNames
+			.Where(x => !supportedSkillNames.Contains(x))
+			.OrderBy(x => x, StringComparer.OrdinalIgnoreCase)
+			.ToList();
+
+		Assert.AreEqual(0, unresolved.Count,
+			$"Every item-seeder craft skill request should resolve to a stock Skill Package skill or supported stock alias. Missing: {string.Join(", ", unresolved)}");
+		Assert.IsFalse(requestedSkillNames.Contains("Crafting"),
+			"Crafting is a skill category/decorator name in the stock package, not an actual seeded skill.");
+		Assert.IsFalse(craftSource.Contains("\"Crafting\", \"Crafting\", AncientHouseholdCraftingKnowledge", StringComparison.Ordinal),
+			"The household fallback craft path must use a concrete seeded skill rather than the Crafting category name.");
+	}
+
+	[TestMethod]
 	public void AntiquityCrafting_LitWorkshopItemsHaveMorphTargetsTimersAndToolTags()
 	{
 		var createItemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.cs");
@@ -809,6 +833,233 @@ public class ItemSeederAntiquityRemainingCraftingTests
 				@"""(?<stable>(?:antiquity|adjacent_antiquity|jewellery)_[a-z0-9]+(?:_[a-z0-9]+)+)""")
 			.Select(x => x.Groups["stable"].Value)
 			.ToHashSet(StringComparer.OrdinalIgnoreCase);
+	}
+
+	private static HashSet<string> ExtractSkillPackageNames(string source)
+	{
+		var names = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+		foreach (Match match in Regex.Matches(source,
+			         @"new\s+SkillDetails\(\s*""(?<gerund>[^""]+)""\s*,\s*""(?<imperative>[^""]+)"""))
+		{
+			names.Add(match.Groups["gerund"].Value);
+			names.Add(match.Groups["imperative"].Value);
+		}
+
+		return names;
+	}
+
+	private static HashSet<string> ExtractStockSkillPackageTraitAliases(string source)
+	{
+		var marker = source.IndexOf("StockSkillPackageTraitAliases", StringComparison.Ordinal);
+		Assert.IsTrue(marker >= 0, "Could not find StockSkillPackageTraitAliases.");
+		var end = source.IndexOf("];", marker, StringComparison.Ordinal);
+		Assert.IsTrue(end > marker, "Could not find the end of StockSkillPackageTraitAliases.");
+		var aliasBlock = source[marker..end];
+
+		return Regex.Matches(aliasBlock, @"""(?<name>[^""]+)""")
+			.Select(x => x.Groups["name"].Value)
+			.ToHashSet(StringComparer.OrdinalIgnoreCase);
+	}
+
+	private static HashSet<string> ExtractItemCraftSkillRequests(string source)
+	{
+		var names = Regex.Matches(source, @"_traits\[""(?<name>[^""]+)""\]")
+			.Select(x => x.Groups["name"].Value)
+			.Where(x => !string.IsNullOrWhiteSpace(x))
+			.ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+		foreach (var argumentList in ExtractInvocationArgumentLists(source, "AddCraft"))
+		{
+			var arguments = SplitTopLevelArguments(argumentList).ToArray();
+			if (arguments.Length > 10 && arguments[10].StartsWith("Difficulty.", StringComparison.Ordinal))
+			{
+				AddTraitReferences(arguments[9], names);
+				continue;
+			}
+
+			if (arguments.Length > 8 && arguments[8].StartsWith("Difficulty.", StringComparison.Ordinal))
+			{
+				AddStringLiteralTrait(arguments[6], names);
+				continue;
+			}
+
+			if (arguments.Length > 7 && arguments[7].StartsWith("Difficulty.", StringComparison.Ordinal))
+			{
+				AddStringLiteralTrait(arguments[5], names);
+			}
+		}
+
+		foreach (var argumentList in ExtractInvocationArgumentLists(source, "AddAntiquityCraft"))
+		{
+			var arguments = SplitTopLevelArguments(argumentList).ToArray();
+			if (arguments.Length > 6)
+			{
+				AddStringLiteralTrait(arguments[6], names);
+			}
+		}
+
+		foreach (var helperName in new[]
+		         {
+			         "AddAntiquityHeatSourceCraft",
+			         "AddAntiquityEquipmentCommodityCraft",
+			         "AddAntiquityJewelleryCommodityCraft",
+			         "AddAntiquityMedicalCommodityCraft",
+			         "AddAntiquityHouseholdCommodityCraft",
+			         "AddAntiquityWritingCommodityCraft"
+		         })
+		{
+			foreach (var argumentList in ExtractInvocationArgumentLists(source, helperName))
+			{
+				var arguments = SplitTopLevelArguments(argumentList).ToArray();
+				if (arguments.Length > 2)
+				{
+					AddStringLiteralTrait(arguments[2], names);
+				}
+			}
+		}
+
+		return names;
+	}
+
+	private static void AddTraitReferences(string source, HashSet<string> names)
+	{
+		foreach (Match match in Regex.Matches(source, @"_traits\[""(?<name>[^""]+)""\]"))
+		{
+			if (!string.IsNullOrWhiteSpace(match.Groups["name"].Value))
+			{
+				names.Add(match.Groups["name"].Value);
+			}
+		}
+
+		AddStringLiteralTrait(source, names);
+	}
+
+	private static void AddStringLiteralTrait(string argument, HashSet<string> names)
+	{
+		var match = Regex.Match(argument.Trim(), @"^""(?<name>(?:\\.|[^""\\])*)""$");
+		if (match.Success && !string.IsNullOrWhiteSpace(match.Groups["name"].Value))
+		{
+			names.Add(match.Groups["name"].Value);
+		}
+	}
+
+	private static IEnumerable<string> ExtractInvocationArgumentLists(string source, string methodName)
+	{
+		foreach (Match match in Regex.Matches(source, $@"\b{Regex.Escape(methodName)}\s*\("))
+		{
+			var openParen = source.IndexOf('(', match.Index);
+			var depth = 0;
+			var inString = false;
+			var escaped = false;
+			for (var i = openParen; i < source.Length; i++)
+			{
+				var ch = source[i];
+				if (inString)
+				{
+					if (escaped)
+					{
+						escaped = false;
+					}
+					else if (ch == '\\')
+					{
+						escaped = true;
+					}
+					else if (ch == '"')
+					{
+						inString = false;
+					}
+
+					continue;
+				}
+
+				if (ch == '"')
+				{
+					inString = true;
+					continue;
+				}
+
+				if (ch == '(')
+				{
+					depth++;
+					continue;
+				}
+
+				if (ch != ')')
+				{
+					continue;
+				}
+
+				depth--;
+				if (depth == 0)
+				{
+					yield return source[(openParen + 1)..i];
+					break;
+				}
+			}
+		}
+	}
+
+	private static IEnumerable<string> SplitTopLevelArguments(string arguments)
+	{
+		var start = 0;
+		var parenDepth = 0;
+		var bracketDepth = 0;
+		var braceDepth = 0;
+		var inString = false;
+		var escaped = false;
+
+		for (var i = 0; i < arguments.Length; i++)
+		{
+			var ch = arguments[i];
+			if (inString)
+			{
+				if (escaped)
+				{
+					escaped = false;
+				}
+				else if (ch == '\\')
+				{
+					escaped = true;
+				}
+				else if (ch == '"')
+				{
+					inString = false;
+				}
+
+				continue;
+			}
+
+			switch (ch)
+			{
+				case '"':
+					inString = true;
+					break;
+				case '(':
+					parenDepth++;
+					break;
+				case ')':
+					parenDepth--;
+					break;
+				case '[':
+					bracketDepth++;
+					break;
+				case ']':
+					bracketDepth--;
+					break;
+				case '{':
+					braceDepth++;
+					break;
+				case '}':
+					braceDepth--;
+					break;
+				case ',' when parenDepth == 0 && bracketDepth == 0 && braceDepth == 0:
+					yield return arguments[start..i].Trim();
+					start = i + 1;
+					break;
+			}
+		}
+
+		yield return arguments[start..].Trim();
 	}
 
 	private static string ReadSeederSources(string pattern)

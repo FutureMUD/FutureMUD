@@ -545,6 +545,35 @@ public class ItemSeederAddCraftTests
 	}
 
 	[TestMethod]
+	public void ItemSeeder_AddCraft_KnowledgeGateResolvesMedicineFromSplitMedicalSkills()
+	{
+		using FuturemudDatabaseContext context = BuildContext();
+		SeedPrerequisites(context);
+		AddSkillTrait(context, 9, "First Aid");
+
+		var craft = new ItemSeeder().AddKnowledgeGatedCraftFromImportsForTesting(
+			context,
+			"test medical knowledge alias craft",
+			"Testing",
+			"Ancient Medical Treatment Supplies",
+			"Medicine",
+			20,
+			BasicPhases(),
+			BasicInputs(),
+			BasicTools(),
+			BasicProducts(),
+			[],
+			knowledgeSubtype: "Treatment Supplies"
+		);
+
+		Assert.AreEqual(9, craft.CheckTraitId);
+		Assert.AreEqual("First Aid", craft.CheckTrait.Name);
+		var appear = context.FutureProgs.Single(x =>
+			x.FunctionName == "ItemSeederAppearKnowledgeAncientMedicalTreatmentSuppliesFirstAid20");
+		Assert.IsTrue(appear.FunctionText.Contains(@"ToTrait(""9"")"));
+	}
+
+	[TestMethod]
 	public void ItemSeeder_AddCraft_KnowledgeGateUpsertsKnowledgeAndChecksKnowledgeOnly()
 	{
 		using FuturemudDatabaseContext context = BuildContext();

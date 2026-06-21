@@ -115,7 +115,7 @@ public class ItemSeederAntiquityRemainingCraftingTests
 		var equipmentCraftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.AntiquityEquipment.cs");
 		var componentSource = ReadSource("DatabaseSeeder", "Seeders", "UsefulSeeder.ItemComponents.cs");
 		var componentCatalogue = ReadSource("Design Documents", "Data", "Seeded_Item_Components.json");
-		var equipmentDoc = ReadSource("Design Documents", "Crafting", "Antiquity_Equipment_Crafting_Suite.md");
+		var equipmentDoc = ReadSource("Design Documents", "Seeding", "Antiquity_Equipment_Crafting_Suite.md");
 
 		AssertContains(reworkRoot, "SeedAntiquityRepairKits();");
 		AssertContains(craftRoot, "SeedAntiquityRepairKitCrafts();");
@@ -175,7 +175,7 @@ public class ItemSeederAntiquityRemainingCraftingTests
 		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.AntiquityJewellery.cs");
 		var tagSource = ReadSource("DatabaseSeeder", "Seeders", "UsefulSeeder.Tags.cs");
 		var tagHierarchy = ReadSource("Design Documents", "Data", "SeededTagHierarchy.csv");
-		var jewelleryDoc = ReadSource("Design Documents", "Crafting", "Antiquity_Jewellery_Crafting_Suite.md");
+		var jewelleryDoc = ReadSource("Design Documents", "Seeding", "Antiquity_Jewellery_Crafting_Suite.md");
 
 		var jewelleryItems = ParseItemsInMethod(itemSource, "SeedAntiquityJewellery");
 		Assert.AreEqual(162, jewelleryItems.Count, "The jewellery craft catalogue should track the current stock jewellery set.");
@@ -481,12 +481,12 @@ public class ItemSeederAntiquityRemainingCraftingTests
 	{
 		var craftSource = ReadSeederSources("ItemSeederCrafting.Antiquity*.cs");
 		var docsSource =
-			ReadSource("Design Documents", "Crafting", "Antiquity_Equipment_Crafting_Suite.md") +
-			ReadSource("Design Documents", "Crafting", "Antiquity_Food_Beverage_Crafting_Suite.md") +
-			ReadSource("Design Documents", "Crafting", "Antiquity_Furniture_Container_Crafting_Suite.md") +
-			ReadSource("Design Documents", "Crafting", "Antiquity_Jewellery_Crafting_Suite.md") +
-			ReadSource("Design Documents", "Crafting", "Antiquity_Writing_Implements_Crafting_Suite.md") +
-			ReadSource("Design Documents", "Crafting", "Antiquity_Medical_Crafting_Suite.md");
+			ReadSource("Design Documents", "Seeding", "Antiquity_Equipment_Crafting_Suite.md") +
+			ReadSource("Design Documents", "Seeding", "Antiquity_Food_Beverage_Crafting_Suite.md") +
+			ReadSource("Design Documents", "Seeding", "Antiquity_Furniture_Container_Crafting_Suite.md") +
+			ReadSource("Design Documents", "Seeding", "Antiquity_Jewellery_Crafting_Suite.md") +
+			ReadSource("Design Documents", "Seeding", "Antiquity_Writing_Implements_Crafting_Suite.md") +
+			ReadSource("Design Documents", "Seeding", "Antiquity_Medical_Crafting_Suite.md");
 
 		var producedTags = ExtractLiteralCommodityProductTags(craftSource);
 		var consumedTags = ExtractLiteralCommodityInputTags(craftSource);
@@ -541,7 +541,7 @@ public class ItemSeederAntiquityRemainingCraftingTests
 	[TestMethod]
 	public void AntiquityCrafting_CatalogueAuditDocumentsSecondPassResolution()
 	{
-		var auditDoc = ReadSource("Design Documents", "Crafting", "Antiquity_Crafting_Audit.md");
+		var auditDoc = ReadSource("Design Documents", "Seeding", "Antiquity_Crafting_Audit.md");
 
 		foreach (var expected in new[]
 		{
@@ -1075,7 +1075,7 @@ public class ItemSeederAntiquityRemainingCraftingTests
 	{
 		var sourceRoot = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", ".."));
 		return string.Concat(Directory
-			.EnumerateFiles(Path.Combine(sourceRoot, "Design Documents", "Crafting"), pattern)
+			.EnumerateFiles(Path.Combine(sourceRoot, "Design Documents", "Seeding"), pattern)
 			.OrderBy(x => x, StringComparer.OrdinalIgnoreCase)
 			.Select(File.ReadAllText));
 	}

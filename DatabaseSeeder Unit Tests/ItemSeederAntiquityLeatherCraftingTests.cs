@@ -216,8 +216,13 @@ public class ItemSeederAntiquityLeatherCraftingTests
 	{
 		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeederCrafting.Antiquity.cs");
 		var butcherySource = ReadSource("DatabaseSeeder", "Seeders", "AnimalButcherySeeder.cs");
+		var coreMaterialSource = ReadSource("DatabaseSeeder", "Seeders", "CoreDataSeeder.Materials.cs");
+		var hierarchySource = ReadSource("Design Documents", "Data", "SeededTagHierarchy.csv");
 
 		AssertContains(butcherySource, "private const string RawHideTag = \"Raw Hide\";");
+		AssertContains(coreMaterialSource, "AddTag(\"Butchery Output\", \"Animal Product\")");
+		AssertContains(coreMaterialSource, "AddTag(\"Raw Hide\", \"Butchery Output\")");
+		AssertContains(hierarchySource, "Materials / Animal Product / Butchery Output / Raw Hide");
 
 		foreach (var expected in new[]
 		         {
@@ -358,7 +363,7 @@ public class ItemSeederAntiquityLeatherCraftingTests
 	[TestMethod]
 	public void AntiquityDesignDocument_DocumentsFullLeatherSlice()
 	{
-		var designSource = ReadSource("Design Documents", "Crafting", "Antiquity_Hellenic_Clothing_Crafting_Suite.md");
+		var designSource = ReadSource("Design Documents", "Seeding", "Antiquity_Hellenic_Clothing_Crafting_Suite.md");
 
 		foreach (var expected in new[]
 		{
@@ -367,6 +372,7 @@ public class ItemSeederAntiquityLeatherCraftingTests
 			"`Leathermaking`",
 			"`Leatherworking`",
 			"`Leather Commodity`",
+			"`Raw Hide`",
 			"`Prepared Hide`",
 			"`Tanned Leather`",
 			"`Leather Sole`",

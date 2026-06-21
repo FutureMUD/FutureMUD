@@ -950,6 +950,13 @@ public partial class CoreDataSeeder
         AddTag("Primary Production Commodity", "Primary Production");
         AddTag("Simplified", "Materials");
         AddTag("Animal Product", "Materials");
+        AddTag("Butchery Output", "Animal Product");
+        AddTag("Raw Meat Cut", "Butchery Output");
+        AddTag("Raw Hide", "Butchery Output");
+        AddTag("Offal", "Butchery Output");
+        AddTag("Trophy Part", "Butchery Output");
+        AddTag("Venom Organ", "Butchery Output");
+        AddTag("Crafting Animal Product", "Butchery Output");
         AddTag("Apiary Product", "Animal Product");
         AddTag("Raw Honeycomb", "Apiary Product");
         AddTag("Pressed Honey", "Apiary Product");

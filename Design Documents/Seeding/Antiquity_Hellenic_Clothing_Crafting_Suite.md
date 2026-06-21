@@ -93,7 +93,7 @@ The leather commodity hierarchy is also seeded under `Material Functions`:
 - `Leather Scale`
 - `Sealed Leather Panel`
 
-`Prepared Hide` is produced from commodities tagged `Animal Skin`. `Tanned Leather` carries the colour characteristics from the prepared hide, and the cut sole, strap, thong, panel, hardened-panel, scale, and sealed-panel commodities copy those characteristics forward so variable leather items can inherit their colour from the leather stock.
+`Raw Hide` item outputs from Animal Butchery can be broken down into raw `Animal Skin` commodity stock. `Prepared Hide` is produced from commodities tagged `Animal Skin`. `Tanned Leather` carries the colour characteristics from the prepared hide, and the cut sole, strap, thong, panel, hardened-panel, scale, and sealed-panel commodities copy those characteristics forward so variable leather items can inherit their colour from the leather stock.
 
 ## Tool Prototypes
 
@@ -408,6 +408,7 @@ Upstream crafts:
 
 | Craft | Inputs | Tools | Products |
 | --- | --- | --- | --- |
+| Break down raw hides into tanning stock | 1 item tagged `Raw Hide` | Tanning beam, hide scraper | 1.6kg animal skin commodity |
 | Scrape and dehair animal hides | 1.6kg material tagged `Animal Skin`, 2L `Water` | Tanning beam, hide scraper, dehairing knife | 1.2kg `Prepared Hide` |
 | Tan prepared hides into leather | 1.2kg `Prepared Hide`, 3L `Water`, 2L liquid tagged `Tanning Agent` | Tanning rack, tanning paddle, brain-tanning bucket | 1kg `Tanned Leather` |
 | Cut leather soles | 700g `Tanned Leather` | Leather gouge, edge beveller | 560g `Leather Sole` |

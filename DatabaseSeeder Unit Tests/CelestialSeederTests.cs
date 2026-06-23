@@ -345,11 +345,130 @@ public class CelestialSeederTests
             Assert.IsFalse(string.IsNullOrWhiteSpace(moon.DefaultAnswer), $"{mode}: moon default missing.");
             Assert.IsFalse(string.IsNullOrWhiteSpace(gasGiantSun.DefaultAnswer), $"{mode}: gas giant sun default missing.");
             Assert.IsFalse(string.IsNullOrWhiteSpace(gasGiantMoon.DefaultAnswer), $"{mode}: gas giant moon default missing.");
-            StringAssert.Contains(sun.Prompt, "The selected calendar is");
+            StringAssert.Contains(sun.Prompt, "Selected calendar");
             StringAssert.Contains(moon.Prompt, "21st day of the year");
             StringAssert.Contains(gasGiantMoon.Prompt, "epoch-aligned");
         }
     }
+
+    [TestMethod]
+    public void Questions_InitialInstallExposeGuidedDefaultsAndCalendarList()
+    {
+        using FuturemudDatabaseContext context = BuildContext();
+        SeedPrerequisites(context);
+        Dictionary<string, SeederQuestion> questions = ((IDatabaseSeeder)new CelestialSeeder()).Questions
+            .ToDictionary(x => x.Id, StringComparer.OrdinalIgnoreCase);
+
+        ConsoleQuestionDisplay installSun = questions["installsun"].ResolveDisplay(context, new Dictionary<string, string>());
+        StringAssert.Contains(installSun.Prompt, "#DCelestial Package: Earth-facing Sun#F");
+        StringAssert.Contains(installSun.Prompt, "#ARecommended:#F choose #3yes#F");
+        Assert.AreEqual("yes", installSun.DefaultAnswer);
+        Assert.AreEqual("yes", questions["installsun"].DefaultAnswerResolver!(context, new Dictionary<string, string>()));
+
+        ConsoleQuestionDisplay sunCalendar = questions["suncalendar"].ResolveDisplay(context, new Dictionary<string, string>
+        {
+            ["installsun"] = "yes"
+        });
+        StringAssert.Contains(sunCalendar.Prompt, "#BAvailable calendars:#F");
+        StringAssert.Contains(sunCalendar.Prompt, "#61#F - #ATest Calendar#F");
+        StringAssert.Contains(sunCalendar.Prompt, "current date #21-1-1#F");
+        Assert.AreEqual("1", sunCalendar.DefaultAnswer);
+
+        ConsoleQuestionDisplay sunName = questions["sunname"].ResolveDisplay(context, new Dictionary<string, string>
+        {
+            ["installsun"] = "yes"
+        });
+        StringAssert.Contains(sunName.Prompt, "#DName: Earth-facing Sun#F");
+        Assert.AreEqual("The Sun", sunName.DefaultAnswer);
+
+        ConsoleQuestionDisplay gasGiant = questions["installgasgiantmoon"].ResolveDisplay(context, new Dictionary<string, string>());
+        StringAssert.Contains(gasGiant.Prompt, "#DOptional Package: Gas Giant Moon#F");
+        StringAssert.Contains(gasGiant.Prompt, "#ARecommended:#F choose #3no#F");
+        Assert.AreEqual("no", gasGiant.DefaultAnswer);
+    }
+
+    [TestMethod]
+    public void Questions_InferCalendarDefaultsFromPreviousCelestialChoices()
+    {
+        using FuturemudDatabaseContext context = BuildContext();
+        SeedPrerequisites(context);
+        Dictionary<string, SeederQuestion> questions = ((IDatabaseSeeder)new CelestialSeeder()).Questions
+            .ToDictionary(x => x.Id, StringComparer.OrdinalIgnoreCase);
+
+        Dictionary<string, string> moonAnswers = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["installsun"] = "yes",
+            ["suncalendar"] = "test",
+            ["installmoon"] = "yes"
+        };
+        ConsoleQuestionDisplay moonCalendar = questions["mooncalendar"].ResolveDisplay(context, moonAnswers);
+        StringAssert.Contains(moonCalendar.Prompt, "Use the same calendar as the Earth-facing Sun");
+        Assert.AreEqual("test", moonCalendar.DefaultAnswer);
+        Assert.AreEqual("test", questions["mooncalendar"].DefaultAnswerResolver!(context, moonAnswers));
+
+        ConsoleQuestionDisplay moonName = questions["moonname"].ResolveDisplay(context, moonAnswers);
+        StringAssert.Contains(moonName.Prompt, "#DName: Earth's Moon#F");
+        Assert.AreEqual("The Moon", moonName.DefaultAnswer);
+
+        Dictionary<string, string> gasGiantAnswers = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["suncalendar"] = "test",
+            ["mooncalendar"] = "1",
+            ["installgasgiantmoon"] = "yes"
+        };
+        ConsoleQuestionDisplay gasGiantCalendar = questions["gasgiantcalendar"].ResolveDisplay(context, gasGiantAnswers);
+        StringAssert.Contains(gasGiantCalendar.Prompt, "Reusing your previous celestial calendar");
+        Assert.AreEqual("1", gasGiantCalendar.DefaultAnswer);
+        Assert.AreEqual("1", questions["gasgiantcalendar"].DefaultAnswerResolver!(context, gasGiantAnswers));
+    }
+
+    [TestMethod]
+    public void QuestionFilters_SkipInstalledPackagesAndRedundantDetailPrompts()
+    {
+        using FuturemudDatabaseContext context = BuildContext();
+        SeedPrerequisites(context);
+        CelestialSeeder seeder = new();
+        Dictionary<string, SeederQuestion> questions = ((IDatabaseSeeder)seeder).Questions
+            .ToDictionary(x => x.Id, StringComparer.OrdinalIgnoreCase);
+
+        Assert.IsTrue(questions["installsun"].Filter(context, new Dictionary<string, string>()));
+        Assert.IsFalse(questions["installmoon"].Filter(context, new Dictionary<string, string>()));
+        Assert.IsTrue(questions["installgasgiantmoon"].Filter(context, new Dictionary<string, string>()));
+        Assert.IsTrue(questions["installmoon"].Filter(context, new Dictionary<string, string>
+        {
+            ["installsun"] = "yes"
+        }));
+
+        seeder.SeedData(context, BuildAnswers(installSun: true));
+
+        Assert.IsFalse(questions["installsun"].Filter(context, new Dictionary<string, string>()));
+        Assert.IsFalse(questions["suncalendar"].Filter(context, new Dictionary<string, string>
+        {
+            ["installsun"] = "yes"
+        }));
+        Assert.IsTrue(questions["installmoon"].Filter(context, new Dictionary<string, string>()));
+        Assert.IsTrue(questions["mooncalendar"].Filter(context, new Dictionary<string, string>
+        {
+            ["installmoon"] = "yes"
+        }));
+
+        seeder.SeedData(context, BuildAnswers(installMoon: true));
+
+        Assert.IsFalse(questions["installmoon"].Filter(context, new Dictionary<string, string>()));
+        Assert.IsFalse(questions["mooncalendar"].Filter(context, new Dictionary<string, string>
+        {
+            ["installmoon"] = "yes"
+        }));
+
+        seeder.SeedData(context, BuildAnswers(installGasGiant: true));
+
+        Assert.IsFalse(questions["installgasgiantmoon"].Filter(context, new Dictionary<string, string>()));
+        Assert.IsFalse(questions["gasgiantcalendar"].Filter(context, new Dictionary<string, string>
+        {
+            ["installgasgiantmoon"] = "yes"
+        }));
+    }
+
     [TestMethod]
     public void ResolveSunEpochDisplay_GregorianCalendar_ShowsCalendarSpecificExampleAndDefault()
     {

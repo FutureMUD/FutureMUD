@@ -84,6 +84,38 @@ public static class SeederQuestionRegistry
                 SharedAnswerKey: "economy-shopper-scale",
                 AutoReuseLastAnswer: true
             ),
+            [BuildKey(nameof(CelestialSeeder), "installsun")] = new(
+                DefaultAnswerResolver: CelestialSeeder.ResolveInstallSunDefault,
+                DisplayResolver: CelestialSeeder.ResolveInstallSunDisplay
+            ),
+            [BuildKey(nameof(CelestialSeeder), "suncalendar")] = new(
+                DefaultAnswerResolver: CelestialSeeder.ResolveSunCalendarDefault,
+                DisplayResolver: CelestialSeeder.ResolveSunCalendarDisplay
+            ),
+            [BuildKey(nameof(CelestialSeeder), "sunname")] = new(
+                DefaultAnswerResolver: CelestialSeeder.ResolveSunNameDefault,
+                DisplayResolver: CelestialSeeder.ResolveSunNameDisplay
+            ),
+            [BuildKey(nameof(CelestialSeeder), "installmoon")] = new(
+                DefaultAnswerResolver: CelestialSeeder.ResolveInstallMoonDefault,
+                DisplayResolver: CelestialSeeder.ResolveInstallMoonDisplay
+            ),
+            [BuildKey(nameof(CelestialSeeder), "mooncalendar")] = new(
+                DefaultAnswerResolver: CelestialSeeder.ResolveMoonCalendarDefault,
+                DisplayResolver: CelestialSeeder.ResolveMoonCalendarDisplay
+            ),
+            [BuildKey(nameof(CelestialSeeder), "moonname")] = new(
+                DefaultAnswerResolver: CelestialSeeder.ResolveMoonNameDefault,
+                DisplayResolver: CelestialSeeder.ResolveMoonNameDisplay
+            ),
+            [BuildKey(nameof(CelestialSeeder), "installgasgiantmoon")] = new(
+                DefaultAnswerResolver: CelestialSeeder.ResolveInstallGasGiantDefault,
+                DisplayResolver: CelestialSeeder.ResolveInstallGasGiantDisplay
+            ),
+            [BuildKey(nameof(CelestialSeeder), "gasgiantcalendar")] = new(
+                DefaultAnswerResolver: CelestialSeeder.ResolveGasGiantCalendarDefault,
+                DisplayResolver: CelestialSeeder.ResolveGasGiantCalendarDisplay
+            ),
             [BuildKey(nameof(CelestialSeeder), "sunepoch")] = new(
                 DefaultAnswerResolver: CelestialSeeder.ResolveSunEpochDefault,
                 DisplayResolver: CelestialSeeder.ResolveSunEpochDisplay

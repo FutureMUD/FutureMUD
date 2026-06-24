@@ -3825,6 +3825,11 @@
         "Component Type":  "PencilSharpener"
     },
     {
+        "Component Name":  "Pill_Anticoagulant",
+        "Component Description":  "Turns an item into a pill containing Anticoagulant.",
+        "Component Type":  "Pill"
+    },
+    {
         "Component Name":  "Pill_Antiemetic",
         "Component Description":  "Turns an item into a pill containing Antiemetic.",
         "Component Type":  "Pill"
@@ -3907,6 +3912,11 @@
     {
         "Component Name":  "Pill_Opioid_Analgesic",
         "Component Description":  "Turns an item into a pill containing Opioid Analgesic.",
+        "Component Type":  "Pill"
+    },
+    {
+        "Component Name":  "Pill_Poppy_Latex_Draught",
+        "Component Description":  "Turns an item into a pill containing Poppy Latex Draught.",
         "Component Type":  "Pill"
     },
     {
@@ -4555,6 +4565,16 @@
         "Component Type":  "Smokeable"
     },
     {
+        "Component Name":  "Smokeable_Bronchial_Smoke",
+        "Component Description":  "Turns an item into an inhaled remedy delivering Bronchial Smoke.",
+        "Component Type":  "Smokeable"
+    },
+    {
+        "Component Name":  "Smokeable_Bronchodilator",
+        "Component Description":  "Turns an item into an inhaled remedy delivering Bronchodilator.",
+        "Component Type":  "Smokeable"
+    },
+    {
         "Component Name":  "Smokeable_Cigar",
         "Component Description":  "Turns an item into a longer-burning smokeable tobacco cigar.",
         "Component Type":  "Smokeable"
@@ -4562,6 +4582,26 @@
     {
         "Component Name":  "Smokeable_Cigarillo",
         "Component Description":  "Turns an item into a compact smokeable cigarillo.",
+        "Component Type":  "Smokeable"
+    },
+    {
+        "Component Name":  "Smokeable_Ether_Anaesthetic",
+        "Component Description":  "Turns an item into an inhaled remedy delivering Ether Anaesthetic.",
+        "Component Type":  "Smokeable"
+    },
+    {
+        "Component Name":  "Smokeable_General_Anaesthetic",
+        "Component Description":  "Turns an item into an inhaled remedy delivering General Anaesthetic.",
+        "Component Type":  "Smokeable"
+    },
+    {
+        "Component Name":  "Smokeable_Henbane_Smoke",
+        "Component Description":  "Turns an item into an inhaled remedy delivering Henbane Smoke.",
+        "Component Type":  "Smokeable"
+    },
+    {
+        "Component Name":  "Smokeable_Mandrake_Draught",
+        "Component Description":  "Turns an item into an inhaled remedy delivering Mandrake Draught.",
         "Component Type":  "Smokeable"
     },
     {
@@ -4770,6 +4810,11 @@
         "Component Type":  "Toggle Switch"
     },
     {
+        "Component Name":  "TopicalCream_Aloe_Burn_Salve",
+        "Component Description":  "Turns an item into a topical cream delivering Aloe Burn Salve.",
+        "Component Type":  "TopicalCream"
+    },
+    {
         "Component Name":  "TopicalCream_Antibiotic_Ointment",
         "Component Description":  "Turns an item into a topical cream delivering Antibiotic Ointment.",
         "Component Type":  "TopicalCream"
@@ -4782,6 +4827,11 @@
     {
         "Component Name":  "TopicalCream_Burn_Gel",
         "Component Description":  "Turns an item into a topical cream delivering Burn Gel.",
+        "Component Type":  "TopicalCream"
+    },
+    {
+        "Component Name":  "TopicalCream_Clotting_Agent",
+        "Component Description":  "Turns an item into a topical cream delivering Clotting Agent.",
         "Component Type":  "TopicalCream"
     },
     {
@@ -4817,6 +4867,11 @@
     {
         "Component Name":  "TopicalCream_Mould_Poultice",
         "Component Description":  "Turns an item into a topical cream delivering Mould Poultice.",
+        "Component Type":  "TopicalCream"
+    },
+    {
+        "Component Name":  "TopicalCream_Yarrow_Styptic",
+        "Component Description":  "Turns an item into a topical cream delivering Yarrow Styptic.",
         "Component Type":  "TopicalCream"
     },
     {

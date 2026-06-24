@@ -174,6 +174,7 @@ public partial class CultureSeeder
         if (questionAnswers["seednames"].EqualToAny("y", "yes"))
         {
             SeedLatinNames(_context);
+            SeedAntiquityAdditionalNameCultures();
         }
 
         if (questionAnswers["seedlanguages"].EqualToAny("y", "yes"))

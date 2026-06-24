@@ -108,6 +108,17 @@ public class CultureSeederNameAndHeightDefaultTests
 	}
 
 	[TestMethod]
+	public void RomanHeritageCultures_LinkToAdditionalAntiquityNameCulturesWithFallbacks()
+	{
+		string source = File.ReadAllText(GetSourcePath("DatabaseSeeder", "Seeders", "CultureSeederHeritage.cs"));
+
+		StringAssert.Contains(source, "ResolveAntiquityNameCulture(\"Numidian-Mauretanian\", \"Punic\")");
+		StringAssert.Contains(source, "ResolveAntiquityNameCulture(\"Illyrian-Pannonian\", \"Hellenic\")");
+		StringAssert.Contains(source, "ResolveAntiquityNameCulture(\"Thracian-Dacian\", \"Hellenic\")");
+		StringAssert.Contains(source, "ResolveAntiquityNameCulture(\"Antiquity Levantine\", \"Hellenic\")");
+	}
+
+	[TestMethod]
 	public void CultureRaceAttributeProfilesForTesting_SecondPassFantasyDefaults_AreDistinct()
 	{
 		IReadOnlyDictionary<string, NonHumanAttributeProfile> profiles =
@@ -269,6 +280,7 @@ public class CultureSeederNameAndHeightDefaultTests
 		SetSeederContext(seeder, context);
 
 		InvokePrivate(seeder, "SeedLatinNames", context);
+		InvokePrivate(seeder, "SeedAntiquityAdditionalNameCultures");
 
 		foreach ((string cultureName, Gender gender) in AntiquityExpectedNameCultureProfiles())
 		{
@@ -286,6 +298,12 @@ public class CultureSeederNameAndHeightDefaultTests
 		AssertProfileHasWeightedElement(context, "Kushite Female", NameUsage.BirthName, "Amanirenas", 100);
 		AssertProfileHasWeightedElement(context, "Etruscan Female", NameUsage.BirthName, "Thanchvil", 100);
 		AssertProfileHasWeightedElement(context, "Scythian-Sarmatian Male", NameUsage.BirthName, "Idanthyrsus", 100);
+		AssertProfileHasWeightedElement(context, "Illyrian-Pannonian Male", NameUsage.BirthName, "Bato", 100);
+		AssertProfileHasWeightedElement(context, "Thracian-Dacian Female", NameUsage.BirthName, "Bendis", 100);
+		AssertProfileHasWeightedElement(context, "Antiquity Levantine Male", NameUsage.Patronym, "bar-Abgar", 100);
+		AssertProfileHasWeightedElement(context, "Numidian-Mauretanian Female", NameUsage.FamilyGroupName, "Massylii", 100);
+		Assert.IsFalse(context.RandomNameProfiles.Any(x => x.Name == "Levantine Male"),
+			"Roman Antiquity names should not overwrite the medieval Levantine random profile.");
 		AssertProfileDoesNotHaveElement(context, "Germanic Male", NameUsage.BirthName, "Aelfgifu");
 	}
 
@@ -297,6 +315,7 @@ public class CultureSeederNameAndHeightDefaultTests
 		SetSeederContext(seeder, context);
 
 		InvokePrivate(seeder, "SeedLatinNames", context);
+		InvokePrivate(seeder, "SeedAntiquityAdditionalNameCultures");
 
 		foreach (DbNameCulture culture in context.NameCultures.ToList())
 		{
@@ -615,6 +634,14 @@ public class CultureSeederNameAndHeightDefaultTests
 		yield return ("Scythian-Sarmatian", Gender.Female);
 		yield return ("Kushite", Gender.Male);
 		yield return ("Kushite", Gender.Female);
+		yield return ("Illyrian-Pannonian", Gender.Male);
+		yield return ("Illyrian-Pannonian", Gender.Female);
+		yield return ("Thracian-Dacian", Gender.Male);
+		yield return ("Thracian-Dacian", Gender.Female);
+		yield return ("Antiquity Levantine", Gender.Male);
+		yield return ("Antiquity Levantine", Gender.Female);
+		yield return ("Numidian-Mauretanian", Gender.Male);
+		yield return ("Numidian-Mauretanian", Gender.Female);
 	}
 
 	private static IEnumerable<(string ProfileName, NameUsage Usage, int MinimumCount)> AntiquityProfileElementMinimums()
@@ -637,6 +664,14 @@ public class CultureSeederNameAndHeightDefaultTests
 		yield return ("Scythian-Sarmatian Female", NameUsage.BirthName, 10);
 		yield return ("Kushite Male", NameUsage.BirthName, 20);
 		yield return ("Kushite Female", NameUsage.BirthName, 15);
+		yield return ("Illyrian-Pannonian Male", NameUsage.BirthName, 50);
+		yield return ("Illyrian-Pannonian Female", NameUsage.BirthName, 50);
+		yield return ("Thracian-Dacian Male", NameUsage.BirthName, 50);
+		yield return ("Thracian-Dacian Female", NameUsage.BirthName, 50);
+		yield return ("Antiquity Levantine Male", NameUsage.BirthName, 50);
+		yield return ("Antiquity Levantine Female", NameUsage.BirthName, 50);
+		yield return ("Numidian-Mauretanian Male", NameUsage.BirthName, 50);
+		yield return ("Numidian-Mauretanian Female", NameUsage.BirthName, 50);
 	}
 
 	private static IReadOnlyDictionary<string, (string Male, string Female)> MedievalExpectedMappings()

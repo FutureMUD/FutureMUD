@@ -13,7 +13,10 @@ using MudSharp.RPG.Checks;
 using Moq;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text.Json;
+using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using Drug = MudSharp.Models.Drug;
 using DbFutureProg = MudSharp.Models.FutureProg;
@@ -545,6 +548,29 @@ public class HealthSeederTests
     }
 
     [TestMethod]
+    public void SeededItemComponentCatalogue_IncludesHealthDrugDeliveryComponents()
+    {
+        var healthSource = ReadSource("DatabaseSeeder", "Seeders", "HealthSeeder.cs");
+        var componentCatalogue = ReadSource("Design Documents", "Data", "Seeded_Item_Components.json");
+
+        using var document = JsonDocument.Parse(componentCatalogue);
+        var catalogueNames = document.RootElement
+            .EnumerateArray()
+            .Select(x => x.GetProperty("Component Name").GetString() ?? string.Empty)
+            .Where(x => x.Length > 0)
+            .ToHashSet(StringComparer.Ordinal);
+
+        var missing = ExpectedHealthDrugDeliveryComponentNames(healthSource)
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(x => x)
+            .Where(x => !catalogueNames.Contains(x))
+            .ToArray();
+
+        Assert.AreEqual(0, missing.Length,
+            $"Missing HealthSeeder delivery components from Seeded_Item_Components.json: {string.Join(", ", missing)}");
+    }
+
+    [TestMethod]
     public void ShouldSeedData_ModernTierInstallWithoutOtherTiers_ReturnsMayAlreadyInstalled()
     {
         using FuturemudDatabaseContext context = BuildContext();
@@ -642,5 +668,50 @@ public class HealthSeederTests
 
         HealthSeeder seeder = new();
         Assert.AreEqual(ShouldSeedResult.MayAlreadyBeInstalled, seeder.ShouldSeedData(context));
+    }
+
+    private static IEnumerable<string> ExpectedHealthDrugDeliveryComponentNames(string source)
+    {
+        foreach (System.Text.RegularExpressions.Match match in Regex.Matches(source,
+                     @"AddDrug\(""(?<name>[^""]+)"",\s*[^,]+,\s*[^,]+,\s*(?<vectors>DrugVector\.[^,]+),",
+                     RegexOptions.Multiline))
+        {
+            var drugName = match.Groups["name"].Value;
+            var vectors = match.Groups["vectors"].Value;
+            var componentName = SanitizeHealthDrugComponentName(drugName);
+
+            if (vectors.Contains("Ingested", StringComparison.Ordinal))
+            {
+                yield return $"Pill_{componentName}";
+            }
+
+            if (vectors.Contains("Touched", StringComparison.Ordinal))
+            {
+                yield return $"TopicalCream_{componentName}";
+            }
+
+            if (vectors.Contains("Inhaled", StringComparison.Ordinal))
+            {
+                yield return $"Smokeable_{componentName}";
+            }
+        }
+    }
+
+    private static string SanitizeHealthDrugComponentName(string text)
+    {
+        return new string(text.Select(x => char.IsLetterOrDigit(x) ? x : '_').ToArray())
+            .Trim('_')
+            .Replace("__", "_");
+    }
+
+    private static string ReadSource(params string[] parts)
+    {
+        return File.ReadAllText(Path.GetFullPath(Path.Combine(
+            AppContext.BaseDirectory,
+            "..",
+            "..",
+            "..",
+            "..",
+            Path.Combine(parts))));
     }
 }

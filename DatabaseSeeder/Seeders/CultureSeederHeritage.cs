@@ -2503,6 +2503,21 @@ public partial class CultureSeeder
         AddEthnicityVariable("Gallilean", "Skin Colour", "swarthy_skin");
     }
 
+    private string ResolveAntiquityNameCulture(string preferred, string fallback)
+    {
+        if (_context.NameCultures.AsEnumerable().Any(x => x.Name.Equals(preferred, StringComparison.OrdinalIgnoreCase)))
+        {
+            return preferred;
+        }
+
+        if (_context.NameCultures.AsEnumerable().Any(x => x.Name.Equals(fallback, StringComparison.OrdinalIgnoreCase)))
+        {
+            return fallback;
+        }
+
+        return "Simple";
+    }
+
     private void SeedRomanHeritageCultures()
     {
 
@@ -2561,7 +2576,7 @@ Its identity is layered, with local cults and dynastic memories existing beside 
 
 It is urban, commercial and seafaring, with strong traditions of merchant households, harbour life, Semitic speech, temple service and exchange with North African, Iberian, Sicilian and Greek neighbours.");
 
-		AddCulture("Numidian-Mauretanian", "Punic",
+		AddCulture("Numidian-Mauretanian", ResolveAntiquityNameCulture("Numidian-Mauretanian", "Punic"),
 			@"Numidian and Mauretanian culture belongs to the inland and frontier peoples of North Africa who live between pastoral, mounted, village and urban worlds.
 
 Its communities are tied to local kings, tribal confederations, seasonal movement, horse culture and exchange with Punic cities, Roman provinces and desert-edge peoples.");
@@ -2611,17 +2626,17 @@ It is less urban than the Mediterranean world but rich in oral tradition, status
 
 It is a broad and varied world rather than a single nation, marked by kinship, oath loyalty, seasonal farming, herding, trading contacts and a high value placed on personal reputation.");
 
-		AddCulture("Illyrian-Pannonian", "Hellenic",
+		AddCulture("Illyrian-Pannonian", ResolveAntiquityNameCulture("Illyrian-Pannonian", "Hellenic"),
 			@"Illyrian and Pannonian culture belongs to the Adriatic, Balkan and Danubian peoples whose communities bridge coastal trade, mountain herding, river frontiers and martial service.
 
 Its identity is local and tribal before it is imperial, with strong ties to clan, district, harbour, hill settlement and the mixed influences of Greek, Roman, Celtic and inland Balkan neighbours.");
 
-		AddCulture("Thracian-Dacian", "Hellenic",
+		AddCulture("Thracian-Dacian", ResolveAntiquityNameCulture("Thracian-Dacian", "Hellenic"),
 			@"Thracian and Dacian culture belongs to the peoples north and east of the Greek and Macedonian world, where hill forts, horsemen, goldwork, tattooing traditions, music, local kings and warrior followings are prominent.
 
 It is a frontier culture of villages, sanctuaries and strong chiefs, shaped by contact with Greeks, Persians, Celts, Scythians and Rome while retaining its own regional customs.");
 
-		AddCulture("Levantine", "Hellenic",
+		AddCulture("Levantine", ResolveAntiquityNameCulture("Antiquity Levantine", "Hellenic"),
 			@"Levantine culture belongs to the cities, ports and inland towns of Syria, Phoenicia, Arabia and neighbouring lands, where caravan trade, temples, local dynasties and Greek civic forms meet.
 
 It is multilingual, mercantile and cosmopolitan, with households and cities shaped by Semitic speech, Hellenistic public life, desert routes, sea trade and old local cults.");

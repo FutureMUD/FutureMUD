@@ -2505,55 +2505,136 @@ public partial class CultureSeeder
 
     private void SeedRomanHeritageCultures()
     {
-        AddCulture("Patrician", "Roman",
-            @"Patricians are those Romans who are descended from one of the original 100 ""Fathers"" (Patres) who were founding members of the first senate of Rome, appointed by Romulus himself.
 
-These Romans enjoy privileges that cannot be bought; the right to hold certain high offices like Consul and Censor, as well as membership in one of Rome's many priesthoods. Depending on the era, Plebians (non-Patrician citizens) have the right to hold some of these offices but as Patricians hold a near-monopoly on power in the Roman Senate, they do tend to keep all but the most prominent Plebians out of power.
+		AddCulture("Roman", "Roman",
+			@"Roman culture is the civic culture of the city and its citizens, shaped by Latin speech, household gods, public law, military service, patronage and the honour of belonging to the Roman people.
 
-The children of a marriage between a Patrician and a Plebian are considered Patricians; accordingly, there are strong social taboos and even laws against the intermarriage of the classes. Nonetheless, Patrician families generally have the power to make such things happen if it is their desire to do so.");
-        AddCulture("Roman-Born Citizen", "Roman",
-            @"Those born within the territory of the eternal city but not descending from the Patrician class are the Roman-Born Plebians. While not as privileged as the Patricians, the Plebians have significant rights of their own and even many powers and privileges that non-Romans cannot earn by any means.
+It is at once urban and agricultural, practical and ritual-conscious, with sharp expectations around family authority, public reputation, debt, oath, inheritance and duty to the state.");
 
-Plebians have the right to vote in the Tribal assemblies and also elect Tribunes, who have the power of veto in the Senate. They are also entitled to a dole that takes care of most of their daily needs - depending on the era, the dole might be grain, bread, pork, olive oil and wine.
+		AddCulture("Patrician", "Roman",
+			@"Patrician culture belongs to the old aristocratic houses of Rome, where ancestry, public honour, priestly obligation and command of dependants stand at the centre of social life.
 
-Plebians can be elected into most of the lower magistrate positions on the Cursus Honorum, and are also entitled to join the Roman Legions.");
-        AddCulture("Latin Ally", "Roman",
-            @"The Latin allies are other Latin-speaking Itallic peoples who are not considered part of Rome proper. This includes many prominent cities like Neapolis, Asculum, Mediolanium, Ariminium and Capua, and all the subject tribal groupings like Samnites, Oscans, Umbrians, Etruscans, Sabines, Sardinians, and Siccilians.
+Its members are raised among patrons, clients, household cults, marriage alliances and public offices, and are expected to understand Roman tradition as both privilege and responsibility.");
 
-By the late republic these peoples are considered citizens of Rome, although they generally do not participate in the governance of the Imperium as a whole - only rarely are their citizens allowed to join the Cursus Honorum or the Senatorial classes.
+		AddCulture("Latin Italic", "Roman",
+			@"Latin and Italic culture belongs to the towns and peoples of Italia whose civic life is closely tied to Rome while still preserving local memories, cults, dialects and aristocratic traditions.
 
-Still, Latin Allies enjoy many privileges that others do not - for example, Roman Citizens do not pay many taxes, and generally have immunity from capital punishment (being able to choose exile instead).");
-        AddCulture("Provincial Elite", "Roman",
-            @"The Roman Imperium is a sprawling, multi-ethnic empire of enormous scope, and although the Romans certainly reserve all the best positions such as governorships and other magistrates for themselves, there is still a great need for the cooperation, financial support and organisation of local elites.
+It is a culture of municipal pride, farming estates, allied service, local patrons and the steady negotiation between Roman public forms and older Italic identity.");
 
-These local elites are typically given a form of Roman Citizenship and Romanise to some extent, but they retain important cultural ties with the local population. They can thus be relied upon to conduct important state business of the governor's behalf - a most profitable endeavour.
+		AddCulture("Provincial Roman", "Roman",
+			@"Provincial Roman culture belongs to established families outside Italia whose public lives are shaped by Roman law, Latin civic forms and imperial patronage while remaining rooted in their own cities and regions.
 
-Provincial elite walk a delicate balance between pleasing their ever-changing retinue of Roman masters and keeping the locals from revolting.");
-        AddCulture("Romanised Barbarian", "Roman",
-            @"Within the borders of the Roman Empire, as well as in the neighbouring client kingdoms, there is a great tendency for people to ""Romanise"", which means to adopt the Roman language, laws and way of life. The Romans themselves greatly encourage this process, and many Romanised Barbarians find increased opportunities for economic advancement and participation in the Empire.
+Its members move between local kinship, temple and council traditions on one side and Roman contracts, offices, manners and status symbols on the other.");
 
-There is a certain stigma associated with Romanising amongst the more traditional elements of the Barbarian society and they will often face some ostracism from their un-Romanised kin and exclusion from traditional cultural institutions - but this is the point.
+		AddCulture("Romanised Barbarian", "Roman",
+			@"Romanised barbarian culture is found among people of non-Roman origin who have adopted Roman names, language, law, dress and habits of public life.
 
-Romanised Barbarians adopt Roman names and depending on the era they may be able to achieve some form of citizenship.");
-        AddCulture("Unassimilated Gaul", "Gaulish Male", "Gaulish Female", @"");
-        AddCulture("Unassimilated Celtic", "Celtic Male", "Celtic Female", @"");
-        AddCulture("Unassimilated Punic", "Punic", @"");
-        AddCulture("Unassimilated German", "Germanic Male", "Germanic Female", @"");
-        AddCulture("Unassimilated Etruscan", "Etruscan", @"");
-        AddCulture("Unassimilated Egyptian", "Egyptian", @"");
-        AddCulture("Unassimilated Kushite", "Kushite", @"");
-        AddCulture("Unassimilated Persian", "Ancient Persian", @"");
-        AddCulture("Unassimilated Anatolian", "Anatolian", @"");
-        AddCulture("Unassimilated Scythian-Sarmatian", "Scythian-Sarmatian", @"");
-        AddCulture("Hellenic", "Hellenic", @"");
-        AddCulture("Syrian", "Hellenic", @"");
-        AddCulture("Jewish", "Jewish Male", "Jewish Female", @"");
-        AddCulture("Freed Slave", "Roman", @"");
-        AddCulture("Slave", "Slave", @"");
+It is often ambitious and outward-looking, using Roman forms to cross boundaries of trade, service and status while still carrying traces of another household tradition.");
 
-    }
+		AddCulture("Freed Slave", "Roman",
+			@"Freedperson culture is shaped by the transition from enslavement into dependent liberty, especially in the households, workshops and commercial networks of Roman towns.
 
-    private (Liquid BloodLiquid, Liquid SweatLiquid, Material
+It values patronage, skilled work, careful respectability, family formation and the visible signs of a status that has been won but remains closely watched.");
+
+		AddCulture("Slave", "Slave",
+			@"Enslaved Mediterranean culture is not an ancestry but a shared condition formed in estates, workshops, mines, ships, farms and urban households across the ancient world.
+
+People within it may come from many peoples, but daily life is shaped by imposed service, household hierarchy, survival, private loyalties and the customs preserved among fellow captives.");
+
+		AddCulture("Etruscan", "Etruscan",
+			@"Etruscan culture belongs to the old cities of northern and central Italia, where aristocratic houses, temple ritual, divination, feasting and tomb memory remain central to public identity.
+
+It shares many exchanges with Rome and the wider Mediterranean while retaining a strong sense of local city tradition and ancestral prestige.");
+
+		AddCulture("Hellenic", "Hellenic",
+			@"Hellenic culture belongs to Greek-speaking cities and settlements joined by shared language, civic identity, public cult, athletic display, theatre, philosophy and memory of the old poleis.
+
+It is diverse rather than uniform, ranging from island and coastal traders to inland aristocracies, but it commonly treats education, public speech, honour and city life as markers of refinement.");
+
+		AddCulture("Anatolian", "Anatolian",
+			@"Anatolian culture belongs to the cities, valleys and uplands of Asia Minor where older local peoples live among Greek civic forms, Persian inheritances and long-distance trade.
+
+Its identity is layered, with local cults and dynastic memories existing beside Hellenic city life, caravan routes, fortified towns and the influence of neighbouring empires.");
+
+		AddCulture("Punic", "Punic",
+			@"Punic culture belongs to the Phoenician-descended cities and coastal communities of the western Mediterranean, especially those shaped by Carthage and its maritime world.
+
+It is urban, commercial and seafaring, with strong traditions of merchant households, harbour life, Semitic speech, temple service and exchange with North African, Iberian, Sicilian and Greek neighbours.");
+
+		AddCulture("Numidian-Mauretanian", "Punic",
+			@"Numidian and Mauretanian culture belongs to the inland and frontier peoples of North Africa who live between pastoral, mounted, village and urban worlds.
+
+Its communities are tied to local kings, tribal confederations, seasonal movement, horse culture and exchange with Punic cities, Roman provinces and desert-edge peoples.");
+
+		AddCulture("Egyptian", "Egyptian",
+			@"Egyptian culture belongs to the Nile valley, where ancient temple traditions, river agriculture, scribal memory and local village life remain deeply rooted despite foreign dynasties and Greek-speaking cities.
+
+It is ordered around the river, the fields, the gods, the dead and the enduring prestige of a land with a very long memory of kingship and sacred custom.");
+
+		AddCulture("Kushite", "Kushite",
+			@"Kushite culture belongs to the Nile lands south of Egypt, shaped by royal courts, temple centres, river routes, pastoral wealth, ironworking and exchange across the Red Sea and African interior.
+
+It shares old connections with Egypt while maintaining its own dynastic, religious and artistic traditions.");
+
+		AddCulture("Persian", "Ancient Persian",
+			@"Persian culture belongs to the Iranian courts, towns and estates shaped by royal service, cavalry traditions, noble households, formal dress, gardens, roads and imperial memory.
+
+It values loyalty, hospitality, horsemanship, lineage and the disciplined manners of people accustomed to living within large kingdoms and long-distance administration.");
+
+		AddCulture("Scythian-Sarmatian", "Scythian-Sarmatian",
+			@"Scythian-Sarmatian culture belongs to the mounted peoples of the steppe and Black Sea frontier, where herds, horses, wagons, kin groups and warrior reputation shape daily life.
+
+It is mobile, martial and prestige-conscious, with strong traditions of riding, feasting, gift exchange, animal ornament and negotiated relationships with settled towns and empires.");
+
+		AddCulture("Celtic", "Celtic Male", "Celtic Female",
+			@"Celtic culture belongs to a broad family of western and central peoples joined by related speech, aristocratic households, warrior reputation, feasting, oath bonds and skilled metalwork.
+
+It varies sharply by region, from Atlantic communities to inland chiefdoms and Roman-border towns, but it commonly values kinship, honour, hospitality and the standing of local leaders.");
+
+		AddCulture("Gaulish", "Gaulish Male", "Gaulish Female",
+			@"Gaulish culture belongs to the communities of Gaul and the Alpine borderlands, where towns, hillforts, farms, sanctuaries and aristocratic warbands link local peoples into wider tribal confederations.
+
+It is a culture of patrons, clients, feasts, crafts, trade roads and regional rivalries, with strong memories of independence even where Roman influence is already close.");
+
+		AddCulture("Iberian Celtic", "Celtic Male", "Celtic Female",
+			@"Iberian Celtic culture belongs to the western and interior peoples of Iberia, where fortified settlements, pastoral wealth, mining regions, local warrior elites and Mediterranean trade meet.
+
+Its communities are shaped by kinship, hill country, metal wealth, old law, local cults and long contact with Phoenician, Greek, Carthaginian and Roman neighbours.");
+
+		AddCulture("Insular Celtic", "Celtic Male", "Celtic Female",
+			@"Insular Celtic culture belongs to the peoples of Britain, Hibernia and the northern islands, where kin groups, cattle wealth, local kings, druids, bards and warrior retinues carry public memory.
+
+It is less urban than the Mediterranean world but rich in oral tradition, status display, hospitality, feuding, sacred places and regional identities.");
+
+		AddCulture("Germanic", "Germanic Male", "Germanic Female",
+			@"Germanic culture belongs to the peoples of the northern forests, coasts and riverlands beyond and along the Roman frontier, where households, free assemblies, retinues and war leaders hold public life together.
+
+It is a broad and varied world rather than a single nation, marked by kinship, oath loyalty, seasonal farming, herding, trading contacts and a high value placed on personal reputation.");
+
+		AddCulture("Illyrian-Pannonian", "Hellenic",
+			@"Illyrian and Pannonian culture belongs to the Adriatic, Balkan and Danubian peoples whose communities bridge coastal trade, mountain herding, river frontiers and martial service.
+
+Its identity is local and tribal before it is imperial, with strong ties to clan, district, harbour, hill settlement and the mixed influences of Greek, Roman, Celtic and inland Balkan neighbours.");
+
+		AddCulture("Thracian-Dacian", "Hellenic",
+			@"Thracian and Dacian culture belongs to the peoples north and east of the Greek and Macedonian world, where hill forts, horsemen, goldwork, tattooing traditions, music, local kings and warrior followings are prominent.
+
+It is a frontier culture of villages, sanctuaries and strong chiefs, shaped by contact with Greeks, Persians, Celts, Scythians and Rome while retaining its own regional customs.");
+
+		AddCulture("Levantine", "Hellenic",
+			@"Levantine culture belongs to the cities, ports and inland towns of Syria, Phoenicia, Arabia and neighbouring lands, where caravan trade, temples, local dynasties and Greek civic forms meet.
+
+It is multilingual, mercantile and cosmopolitan, with households and cities shaped by Semitic speech, Hellenistic public life, desert routes, sea trade and old local cults.");
+
+		AddCulture("Judean", "Jewish Male", "Jewish Female",
+			@"Judean culture belongs to the communities centred on the God of Israel, ancestral law, Sabbath observance, purity custom, scripture, household discipline and the memory of kingdom and exile.
+
+It is at home in villages, towns and diaspora communities alike, maintaining a strong boundary between itself and neighbouring peoples while also living through trade, empire and local accommodation.");
+
+
+	}
+
+	private (Liquid BloodLiquid, Liquid SweatLiquid, Material
         DriedBlood, Material DriedSweat) CreateBloodAndSweat(string racialDescriptor)
     {
         Material driedBlood = SeederRepeatabilityHelper.EnsureNamedEntity(

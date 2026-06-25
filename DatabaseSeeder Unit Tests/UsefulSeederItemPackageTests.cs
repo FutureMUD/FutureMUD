@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 
 using DatabaseSeeder;
 using DatabaseSeeder.Seeders;
@@ -340,7 +340,9 @@ public class UsefulSeederItemPackageTests
 		context.Tags.AddRange(
 			CreateTag(1, "Armour"),
 			CreateTag(2, "Weapons"),
-			CreateTag(3, "Tools"));
+			CreateTag(3, "Tools"),
+			CreateTag(4, "Cordage"),
+			CreateTag(5, "Composite Bow"));
 
 		context.TraitDefinitions.AddRange(
 			CreateSkill(101, "Tailoring"),
@@ -351,7 +353,12 @@ public class UsefulSeederItemPackageTests
 			CreateSkill(106, "Masonry"),
 			CreateSkill(107, "Pottery"),
 			CreateSkill(108, "Scrimshawing"),
-			CreateSkill(109, "Salvaging"));
+			CreateSkill(109, "Salvaging"),
+			CreateSkill(110, "Glassworking"),
+			CreateSkill(111, "Papermaking"),
+			CreateSkill(112, "Lacquering"),
+			CreateSkill(113, "Ropemaking"),
+			CreateSkill(114, "Bowmaking"));
 
 		context.Materials.AddRange(
 			CreateMaterial(201, "linen", MaterialBehaviourType.Fabric),
@@ -370,7 +377,15 @@ public class UsefulSeederItemPackageTests
 			CreateMaterial(214, "tooth", MaterialBehaviourType.Tooth),
 			CreateMaterial(215, "scale", MaterialBehaviourType.Scale),
 			CreateMaterial(216, "claw", MaterialBehaviourType.Claw),
-			CreateMaterial(217, "beak", MaterialBehaviourType.Beak));
+			CreateMaterial(217, "beak", MaterialBehaviourType.Beak),
+			CreateMaterial(218, "glass", MaterialBehaviourType.Paste),
+			CreateMaterial(219, "silicate glass", MaterialBehaviourType.Paste),
+			CreateMaterial(220, "soda-lime glass", MaterialBehaviourType.Paste),
+			CreateMaterial(221, "lead glass", MaterialBehaviourType.Paste),
+			CreateMaterial(222, "paper", MaterialBehaviourType.Plant),
+			CreateMaterial(223, "parchment", MaterialBehaviourType.Skin),
+			CreateMaterial(224, "papyrus", MaterialBehaviourType.Plant),
+			CreateMaterial(225, "lacquer", MaterialBehaviourType.Grease));
 		context.SaveChanges();
 	}
 
@@ -1035,7 +1050,22 @@ public class UsefulSeederItemPackageTests
 			"Repair_Ceramic_Poor",
 			"Repair_Hard_Organic",
 			"Repair_Hard_Organic_Good",
-			"Repair_Hard_Organic_Poor"
+			"Repair_Hard_Organic_Poor",
+            "Repair_Glass",
+            "Repair_Glass_Good",
+            "Repair_Glass_Poor",
+            "Repair_Paper",
+            "Repair_Paper_Good",
+            "Repair_Paper_Poor",
+            "Repair_Lacquer",
+            "Repair_Lacquer_Good",
+            "Repair_Lacquer_Poor",
+            "Repair_Cordage",
+            "Repair_Cordage_Good",
+            "Repair_Cordage_Poor",
+            "Repair_Composite_Bow",
+            "Repair_Composite_Bow_Good",
+            "Repair_Composite_Bow_Poor"
 		})
 		{
 			Assert.AreEqual(1, context.GameItemComponentProtos.Count(x => x.Name == name), $"Expected one component named {name}.");
@@ -1064,6 +1094,32 @@ public class UsefulSeederItemPackageTests
 			"beak", "bone", "claw", "horn", "scale", "shell", "tooth");
 		AssertRepairKitDefinition(context, "Repair_Hard_Organic_Poor", "Scrimshawing", WoundSeverity.Severe, 600.0, -1.0,
 			"beak", "bone", "claw", "horn", "scale", "shell", "tooth");
+
+        AssertRepairKitDefinition(context, "Repair_Glass", "Glassworking", WoundSeverity.Grievous, 1000.0, 0.0,
+            "glass", "lead glass", "silicate glass", "soda-lime glass");
+        AssertRepairKitDefinition(context, "Repair_Glass_Good", "Glassworking", WoundSeverity.Horrifying, 1500.0, 1.0,
+            "glass", "lead glass", "silicate glass", "soda-lime glass");
+        AssertRepairKitDefinition(context, "Repair_Glass_Poor", "Glassworking", WoundSeverity.Severe, 600.0, -1.0,
+            "glass", "lead glass", "silicate glass", "soda-lime glass");
+
+        AssertRepairKitDefinition(context, "Repair_Paper", "Papermaking", WoundSeverity.Grievous, 1000.0, 0.0,
+            "paper", "papyrus", "parchment");
+        AssertRepairKitDefinition(context, "Repair_Paper_Good", "Papermaking", WoundSeverity.Horrifying, 1500.0, 1.0,
+            "paper", "papyrus", "parchment");
+        AssertRepairKitDefinition(context, "Repair_Paper_Poor", "Papermaking", WoundSeverity.Severe, 600.0, -1.0,
+            "paper", "papyrus", "parchment");
+
+        AssertRepairKitDefinition(context, "Repair_Lacquer", "Lacquering", WoundSeverity.Grievous, 1000.0, 0.0, "lacquer");
+        AssertRepairKitDefinition(context, "Repair_Lacquer_Good", "Lacquering", WoundSeverity.Horrifying, 1500.0, 1.0, "lacquer");
+        AssertRepairKitDefinition(context, "Repair_Lacquer_Poor", "Lacquering", WoundSeverity.Severe, 600.0, -1.0, "lacquer");
+
+        AssertRepairKitTagDefinition(context, "Repair_Cordage", "Ropemaking", WoundSeverity.Grievous, 1000.0, 0.0, "Cordage");
+        AssertRepairKitTagDefinition(context, "Repair_Cordage_Good", "Ropemaking", WoundSeverity.Horrifying, 1500.0, 1.0, "Cordage");
+        AssertRepairKitTagDefinition(context, "Repair_Cordage_Poor", "Ropemaking", WoundSeverity.Severe, 600.0, -1.0, "Cordage");
+
+        AssertRepairKitTagDefinition(context, "Repair_Composite_Bow", "Bowmaking", WoundSeverity.Grievous, 1000.0, 0.0, "Composite Bow");
+        AssertRepairKitTagDefinition(context, "Repair_Composite_Bow_Good", "Bowmaking", WoundSeverity.Horrifying, 1500.0, 1.0, "Composite Bow");
+        AssertRepairKitTagDefinition(context, "Repair_Composite_Bow_Poor", "Bowmaking", WoundSeverity.Severe, 600.0, -1.0, "Composite Bow");
 	}
 
 	[TestMethod]
@@ -1154,6 +1210,21 @@ public class UsefulSeederItemPackageTests
 		CollectionAssert.AreEqual(expectedMaterials.OrderBy(x => x, StringComparer.OrdinalIgnoreCase).ToArray(), materialNames);
 	}
 
+
+    private static void AssertRepairKitTagDefinition(FuturemudDatabaseContext context, string componentName, string traitName,
+        WoundSeverity maximumSeverity, double repairPoints, double checkBonus, string expectedTag)
+    {
+        var component = context.GameItemComponentProtos.Single(x => x.Name == componentName);
+        XElement definition = XElement.Parse(component.Definition);
+        Assert.AreEqual((int)maximumSeverity, (int)definition.Element("MaximumSeverity")!);
+        Assert.AreEqual(repairPoints, (double)definition.Element("RepairPoints")!);
+        Assert.AreEqual(context.TraitDefinitions.Single(x => x.Name == traitName).Id, (long)definition.Element("CheckTrait")!);
+        Assert.AreEqual(checkBonus, (double)definition.Element("CheckBonus")!);
+        Assert.AreEqual(0, definition.Element("Materials")!.Elements("Material").Count(), $"{componentName} should use tag restrictions only.");
+
+        long tagId = (long)definition.Element("Tags")!.Elements("Tag").Single();
+        Assert.AreEqual(context.Tags.Single(x => x.Name == expectedTag).Id, tagId);
+    }
 	private static double ModifierFor(GameItemComponentProto component, long traitId)
 	{
 		XElement modifier = XElement.Parse(component.Definition)

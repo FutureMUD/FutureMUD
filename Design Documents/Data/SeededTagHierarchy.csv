@@ -1,4 +1,4 @@
-Tag name	Tag parent name	Tag hierarchy
+﻿Tag name	Tag parent name	Tag hierarchy
 Consumables		Consumables
 Armouring Rings	Consumables	Consumables / Armouring Rings
 Armouring Scales	Consumables	Consumables / Armouring Scales
@@ -1885,3 +1885,17 @@ Space	Extraterrestrial	Terrain / Wild / Extraterrestrial / Space
 Littoral	Wild	Terrain / Wild / Littoral
 Riparian	Wild	Terrain / Wild / Riparian
 Terrestrial	Wild	Terrain / Wild / Terrestrial
+Medicine	Liquids	Materials / Liquids / Medicine
+Fumigation	Medical Treatment	Functions / Medical Treatment / Fumigation
+Styptic	Medical Treatment	Functions / Medical Treatment / Styptic
+Antidote	Medical Treatment	Functions / Medical Treatment / Antidote
+Apothecary Goods	Medicine	Market / Medicine / Apothecary Goods
+Glass	Repairing	Functions / Repairing / Glass
+Paper and Parchment	Repairing	Functions / Repairing / Paper and Parchment
+Lacquerware	Repairing	Functions / Repairing / Lacquerware
+Cordage	Repairing	Functions / Repairing / Cordage
+Composite Bow	Repairing	Functions / Repairing / Composite Bow
+Repair Supplies	Market	Market / Repair Supplies
+General Repair Supplies	Repair Supplies	Market / Repair Supplies / General Repair Supplies
+Specialist Repair Supplies	Repair Supplies	Market / Repair Supplies / Specialist Repair Supplies
+Weapon and Armour Repair Supplies	Repair Supplies	Market / Repair Supplies / Weapon and Armour Repair Supplies

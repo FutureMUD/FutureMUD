@@ -6774,4 +6774,169 @@
         "Component Description":  "Lets a records archive box be sealed for storage or chain-of-custody control.",
         "Component Type":  "Sealable"
     }
-]
+,
+    {
+        "Component Name":  "TopicalCream_Alum_Styptic",
+        "Component Description":  "Turns an item into a topical cream delivering Alum Styptic.",
+        "Component Type":  "TopicalCream"
+    },
+    {
+        "Component Name":  "Pill_Theriac_Electuary",
+        "Component Description":  "Turns an item into a pill containing Theriac Electuary.",
+        "Component Type":  "Pill"
+    },
+    {
+        "Component Name":  "Smokeable_Soporific_Fumes",
+        "Component Description":  "Turns an item into an inhaled remedy delivering Soporific Fumes.",
+        "Component Type":  "Smokeable"
+    },
+    {
+        "Component Name":  "LContainer_Medicine_Vial_30ml",
+        "Component Description":  "Turns an item into a 30ml opaque medicine vial.",
+        "Component Type":  "Liquid Container"
+    },
+    {
+        "Component Name":  "LContainer_Medicine_Bottle_100ml",
+        "Component Description":  "Turns an item into a 100ml opaque medicine bottle.",
+        "Component Type":  "Liquid Container"
+    },
+    {
+        "Component Name":  "LContainer_Medicine_Flask_250ml",
+        "Component Description":  "Turns an item into a 250ml opaque medicine flask.",
+        "Component Type":  "Liquid Container"
+    },
+    {
+        "Component Name":  "LContainer_Medicine_Willow_Bark_Tea_250ml",
+        "Component Description":  "Turns an item into a sealed 250ml willow-bark tea medicine flask.",
+        "Component Type":  "Liquid Container"
+    },
+    {
+        "Component Name":  "LContainer_Medicine_Mandrake_Draught_100ml",
+        "Component Description":  "Turns an item into a sealed 100ml mandrake draught medicine bottle.",
+        "Component Type":  "Liquid Container"
+    },
+    {
+        "Component Name":  "LContainer_Medicine_Mint_Infusion_250ml",
+        "Component Description":  "Turns an item into a sealed 250ml mint infusion medicine flask.",
+        "Component Type":  "Liquid Container"
+    },
+    {
+        "Component Name":  "LContainer_Medicine_Ephedra_Brew_250ml",
+        "Component Description":  "Turns an item into a sealed 250ml ephedra brew medicine flask.",
+        "Component Type":  "Liquid Container"
+    },
+    {
+        "Component Name":  "LContainer_Medicine_Foxglove_Tincture_30ml",
+        "Component Description":  "Turns an item into a sealed 30ml foxglove tincture medicine vial.",
+        "Component Type":  "Liquid Container"
+    },
+    {
+        "Component Name":  "LContainer_Medicine_Poppy_Latex_Draught_100ml",
+        "Component Description":  "Turns an item into a sealed 100ml poppy-latex draught medicine bottle.",
+        "Component Type":  "Liquid Container"
+    },
+    {
+        "Component Name":  "LContainer_Medicine_Mint_and_Ginger_Tonic_250ml",
+        "Component Description":  "Turns an item into a sealed 250ml mint and ginger tonic medicine flask.",
+        "Component Type":  "Liquid Container"
+    },
+    {
+        "Component Name":  "LContainer_Medicine_Theriac_Syrup_100ml",
+        "Component Description":  "Turns an item into a sealed 100ml theriac syrup medicine bottle.",
+        "Component Type":  "Liquid Container"
+    },
+    {
+        "Component Name":  "IncenseBurner_Mandrake_Draught",
+        "Component Description":  "Turns an item into a medical fumigation burner dosing Mandrake Draught.",
+        "Component Type":  "IncenseBurner"
+    },
+    {
+        "Component Name":  "IncenseBurner_Henbane_Smoke",
+        "Component Description":  "Turns an item into a medical fumigation burner dosing Henbane Smoke.",
+        "Component Type":  "IncenseBurner"
+    },
+    {
+        "Component Name":  "IncenseBurner_Bronchial_Smoke",
+        "Component Description":  "Turns an item into a medical fumigation burner dosing Bronchial Smoke.",
+        "Component Type":  "IncenseBurner"
+    },
+    {
+        "Component Name":  "IncenseBurner_Soporific_Fumes",
+        "Component Description":  "Turns an item into a medical fumigation burner dosing Soporific Fumes.",
+        "Component Type":  "IncenseBurner"
+    },
+    {
+        "Component Name":  "Repair_Glass_Poor",
+        "Component Description":  "Turns an item into a poor-quality repair kit that repairs glass items",
+        "Component Type":  "RepairKit"
+    },
+    {
+        "Component Name":  "Repair_Glass",
+        "Component Description":  "Turns an item into a repair kit that repairs glass items",
+        "Component Type":  "RepairKit"
+    },
+    {
+        "Component Name":  "Repair_Glass_Good",
+        "Component Description":  "Turns an item into a good-quality repair kit that repairs glass items",
+        "Component Type":  "RepairKit"
+    },
+    {
+        "Component Name":  "Repair_Paper_Poor",
+        "Component Description":  "Turns an item into a poor-quality repair kit that repairs paper, parchment and papyrus items",
+        "Component Type":  "RepairKit"
+    },
+    {
+        "Component Name":  "Repair_Paper",
+        "Component Description":  "Turns an item into a repair kit that repairs paper, parchment and papyrus items",
+        "Component Type":  "RepairKit"
+    },
+    {
+        "Component Name":  "Repair_Paper_Good",
+        "Component Description":  "Turns an item into a good-quality repair kit that repairs paper, parchment and papyrus items",
+        "Component Type":  "RepairKit"
+    },
+    {
+        "Component Name":  "Repair_Lacquer_Poor",
+        "Component Description":  "Turns an item into a poor-quality repair kit that repairs lacquerware items",
+        "Component Type":  "RepairKit"
+    },
+    {
+        "Component Name":  "Repair_Lacquer",
+        "Component Description":  "Turns an item into a repair kit that repairs lacquerware items",
+        "Component Type":  "RepairKit"
+    },
+    {
+        "Component Name":  "Repair_Lacquer_Good",
+        "Component Description":  "Turns an item into a good-quality repair kit that repairs lacquerware items",
+        "Component Type":  "RepairKit"
+    },
+    {
+        "Component Name":  "Repair_Cordage_Poor",
+        "Component Description":  "Turns an item into a poor-quality repair kit that repairs cordage items",
+        "Component Type":  "RepairKit"
+    },
+    {
+        "Component Name":  "Repair_Cordage",
+        "Component Description":  "Turns an item into a repair kit that repairs cordage items",
+        "Component Type":  "RepairKit"
+    },
+    {
+        "Component Name":  "Repair_Cordage_Good",
+        "Component Description":  "Turns an item into a good-quality repair kit that repairs cordage items",
+        "Component Type":  "RepairKit"
+    },
+    {
+        "Component Name":  "Repair_Composite_Bow_Poor",
+        "Component Description":  "Turns an item into a poor-quality repair kit that repairs composite bows",
+        "Component Type":  "RepairKit"
+    },
+    {
+        "Component Name":  "Repair_Composite_Bow",
+        "Component Description":  "Turns an item into a repair kit that repairs composite bows",
+        "Component Type":  "RepairKit"
+    },
+    {
+        "Component Name":  "Repair_Composite_Bow_Good",
+        "Component Description":  "Turns an item into a good-quality repair kit that repairs composite bows",
+        "Component Type":  "RepairKit"
+    }]

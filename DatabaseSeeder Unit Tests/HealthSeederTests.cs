@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MudSharp.Database;
 using MudSharp.FutureProg;
+using LiquidInjectionConsequence = MudSharp.Form.Material.LiquidInjectionConsequence;
 using MudSharp.Health;
 using MudSharp.Models;
 using MudSharp.RPG.Checks;
@@ -101,8 +102,21 @@ public class HealthSeederTests
             new Tag { Id = 2, Name = "Bonesaw" },
             new Tag { Id = 3, Name = "Forceps" },
             new Tag { Id = 4, Name = "Scalpel" },
-            new Tag { Id = 5, Name = "Surgical Suture Needle" });
+            new Tag { Id = 5, Name = "Surgical Suture Needle" },
+            new Tag { Id = 6, Name = "Fumigation Stock" });
+        AddFumigationStockTagPath(context, 7);
         context.SaveChanges();
+    }
+
+    private static Tag AddFumigationStockTagPath(FuturemudDatabaseContext context, long firstId)
+    {
+        Tag functions = new() { Id = firstId, Name = "Functions" };
+        Tag materialFunctions = new() { Id = firstId + 1, Name = "Material Functions", Parent = functions, ParentId = functions.Id };
+        Tag medicalCraftStock = new() { Id = firstId + 2, Name = "Medical Craft Stock", Parent = materialFunctions, ParentId = materialFunctions.Id };
+        Tag fumigationStock = new() { Id = firstId + 3, Name = "Fumigation Stock", Parent = medicalCraftStock, ParentId = medicalCraftStock.Id };
+
+        context.Tags.AddRange(functions, materialFunctions, medicalCraftStock, fumigationStock);
+        return fumigationStock;
     }
 
     private static FuturemudDatabaseContext BuildHealthSeederInstallContext()
@@ -127,7 +141,9 @@ public class HealthSeederTests
             new Tag { Id = 2, Name = "Bonesaw" },
             new Tag { Id = 3, Name = "Forceps" },
             new Tag { Id = 4, Name = "Scalpel" },
-            new Tag { Id = 5, Name = "Surgical Suture Needle" });
+            new Tag { Id = 5, Name = "Surgical Suture Needle" },
+            new Tag { Id = 6, Name = "Fumigation Stock" });
+        AddFumigationStockTagPath(context, 7);
 
         BodyProto humanoidBody = CreateBody(1, "Humanoid");
         BodyProto organicHumanoidBody = CreateBody(2, "Organic Humanoid");
@@ -153,8 +169,63 @@ public class HealthSeederTests
             "rfhock", "lfhock", "ruhindleg", "luhindleg", "rrknee", "rlknee",
             "rlhindleg", "llhindleg", "rrhock", "lrhock");
 
+        SeedCarrierLiquids(context);
         context.SaveChanges();
         return context;
+    }
+
+    private static void SeedCarrierLiquids(FuturemudDatabaseContext context)
+    {
+        context.Liquids.AddRange(
+            CreateCarrierLiquid(1, "water", 0.0, 1.0, "clear water", "clear water"),
+            CreateCarrierLiquid(2, "tea", 0.0, 0.98, "dark tea", "brown"),
+            CreateCarrierLiquid(3, "watered red wine", 0.04, 0.90, "watered red wine", "dark red"),
+            CreateCarrierLiquid(4, "white wine", 0.11, 0.85, "white wine", "pale yellow"));
+    }
+
+    private static Liquid CreateCarrierLiquid(long id, string name, double alcohol, double water, string description, string displayColour)
+    {
+        return new Liquid
+        {
+            Id = id,
+            Name = name,
+            Description = description,
+            LongDescription = $"Some {description} is here.",
+            TasteText = description,
+            VagueTasteText = description,
+            SmellText = description,
+            VagueSmellText = description,
+            TasteIntensity = 1.0,
+            SmellIntensity = 1.0,
+            AlcoholLitresPerLitre = alcohol,
+            WaterLitresPerLitre = water,
+            FoodSatiatedHoursPerLitre = 0.0,
+            DrinkSatiatedHoursPerLitre = 1.0,
+            Viscosity = 1.0,
+            Density = 1000.0,
+            Organic = true,
+            ThermalConductivity = 0.6,
+            ElectricalConductivity = 0.0,
+            SpecificHeatCapacity = 4.2,
+            IgnitionPoint = null,
+            FreezingPoint = 0.0,
+            BoilingPoint = 100.0,
+            CountAsQuality = 0,
+            DisplayColour = displayColour,
+            DampDescription = "damp",
+            WetDescription = "wet",
+            DrenchedDescription = "drenched",
+            DampShortDescription = "damp",
+            WetShortDescription = "wet",
+            DrenchedShortDescription = "drenched",
+            SolventVolumeRatio = 1.0,
+            DrugGramsPerUnitVolume = 0.0,
+            InjectionConsequence = (int)LiquidInjectionConsequence.Harmful,
+            ResidueVolumePercentage = 0.0,
+            RelativeEnthalpy = 0.0,
+            LeaveResidueInRooms = false,
+            SurfaceReactionInfo = string.Empty
+        };
     }
 
     private static BodyProto CreateBody(long id, string name)
@@ -338,6 +409,7 @@ public class HealthSeederTests
     [DataTestMethod]
     [DataRow("primitive")]
     [DataRow("pre-modern")]
+    [DataRow("medieval")]
     [DataRow("modern")]
     public void SeedData_AllTechLevels_ProducesValidSurgicalProcedureDefinitions(string techLevel)
     {
@@ -371,6 +443,13 @@ public class HealthSeederTests
                 ["Animal Medicine"] = "HealthCanPickBroadMedicalKnowledgeAtChargen"
             },
             ["pre-modern"] = new Dictionary<string, string>
+            {
+                ["Chiurgery"] = "HealthCanPickSurgicalKnowledgeAtChargen",
+                ["Physical Medicine"] = "HealthCanPickBroadMedicalKnowledgeAtChargen",
+                ["Veterinary Medicine"] = "HealthCanPickCareKnowledgeAtChargen",
+                ["Veterinary Chiurgery"] = "HealthCanPickSurgicalKnowledgeAtChargen"
+            },
+            ["medieval"] = new Dictionary<string, string>
             {
                 ["Chiurgery"] = "HealthCanPickSurgicalKnowledgeAtChargen",
                 ["Physical Medicine"] = "HealthCanPickBroadMedicalKnowledgeAtChargen",
@@ -492,6 +571,72 @@ public class HealthSeederTests
                 anticoagulant.AdditionalInfoFor<CoagulationAdditionalInfo>(DrugType.Coagulation)
                     .ExternalBleedingMultiplier);
         }
+    }
+
+    [TestMethod]
+    public void SeedData_MedievalTier_SeedsDrugsLiquidsVesselsAndIncense()
+    {
+        using FuturemudDatabaseContext context = BuildHealthSeederInstallContext();
+        HealthSeeder seeder = new();
+
+        seeder.SeedData(context, new Dictionary<string, string>
+        {
+            ["techlevel"] = "medieval"
+        });
+
+        string[] expectedDrugs =
+        [
+            "Willow Bark Tea", "Mandrake Draught", "Honey Poultice", "Garlic Salve", "Mint Infusion",
+            "Ephedra Brew", "Foxglove Tincture", "Aloe Burn Salve", "Poppy Latex Draught", "Henbane Smoke",
+            "Yarrow Styptic", "Mint and Ginger Tonic", "Herbal Burn Salve", "Bronchial Smoke",
+            "Alum Styptic", "Theriac Electuary", "Soporific Fumes"
+        ];
+        CollectionAssert.AreEquivalent(expectedDrugs, context.Drugs.Select(x => x.Name).OrderBy(x => x).ToArray());
+
+        Assert.AreEqual(0.45, RuntimeDrug(context, "Alum Styptic")
+            .AdditionalInfoFor<CoagulationAdditionalInfo>(DrugType.Coagulation).ExternalBleedingMultiplier);
+        CollectionAssert.Contains(RuntimeDrug(context, "Theriac Electuary")
+            .AdditionalInfoFor<NeutraliseDrugAdditionalInfo>(DrugType.NeutraliseDrugEffect).NeutralisedTypes, DrugType.BodypartDamage);
+        Assert.AreEqual(0.80, RuntimeDrug(context, "Soporific Fumes")
+            .AdditionalInfoFor<RespirationAdditionalInfo>(DrugType.Respiration).BreathingDriveMultiplier);
+        Assert.AreEqual(0.65, RuntimeDrug(context, "Poppy Latex Draught")
+            .AdditionalInfoFor<DrugDependenceAdditionalInfo>(DrugType.Dependence).ExposureGainPerGram);
+
+        Tag medicineTag = context.Tags.Single(x => x.Name == "Medicine" && x.Parent != null && x.Parent.Name == "Liquids");
+        Liquid theriac = context.Liquids.Single(x => x.Name == "theriac syrup");
+        Assert.AreEqual(context.Drugs.Single(x => x.Name == "Theriac Electuary").Id, theriac.DrugId);
+        Assert.AreEqual(5.0, theriac.DrugGramsPerUnitVolume);
+        Assert.AreEqual((int)LiquidInjectionConsequence.Harmful, theriac.InjectionConsequence);
+        Assert.IsTrue(context.LiquidsTags.Any(x => x.LiquidId == theriac.Id && x.TagId == medicineTag.Id));
+        Assert.AreEqual(8, context.Liquids.Count(x => x.LiquidsTags.Any(y => y.TagId == medicineTag.Id)));
+
+        GameItemComponentProto theriacVessel = context.GameItemComponentProtos.Single(x => x.Name == "LContainer_Medicine_Theriac_Syrup_100ml");
+        XElement theriacDefinition = XElement.Parse(theriacVessel.Definition);
+        Assert.AreEqual("Liquid Container", theriacVessel.Type);
+        Assert.AreEqual(0.10, (double)theriacDefinition.Attribute("LiquidCapacity")!);
+        Assert.AreEqual(theriac.Id, (long)theriacDefinition.Attribute("DefaultLiquid")!);
+
+        GameItemComponentProto incense = context.GameItemComponentProtos.Single(x => x.Name == "IncenseBurner_Soporific_Fumes");
+        XElement incenseDefinition = XElement.Parse(incense.Definition);
+        Assert.AreEqual("IncenseBurner", incense.Type);
+        Tag fumigationStock = context.Tags.Single(x => x.Name == "Fumigation Stock" && x.Parent != null && x.Parent.Name == "Medical Craft Stock");
+        Assert.AreEqual(fumigationStock.Id, (long)incenseDefinition.Element("FuelTag")!);
+        Assert.AreEqual(context.Drugs.Single(x => x.Name == "Soporific Fumes").Id, (long)incenseDefinition.Element("Drug")!);
+        Assert.AreEqual(30, (int)incenseDefinition.Element("DrugPulseSeconds")!);
+        Assert.AreEqual(0.003, (double)incenseDefinition.Element("GramsPerPulse")!);
+    }
+
+    [TestMethod]
+    public void SeederQuestions_MedievalWithoutFumigationStock_IsRejected()
+    {
+        using FuturemudDatabaseContext context = BuildContext();
+        HealthSeeder seeder = new();
+        var techQuestion = seeder.SeederQuestions.Single(x => x.Id == "techlevel");
+
+        (bool success, string error) = techQuestion.Validator("medieval", context);
+
+        Assert.IsFalse(success);
+        StringAssert.Contains(error, "Fumigation Stock");
     }
 
     private static MudSharp.Health.Drug RuntimeDrug(FuturemudDatabaseContext context, string name)

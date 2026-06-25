@@ -3,6 +3,7 @@
 using MudSharp.Body;
 using MudSharp.Combat;
 using MudSharp.Database;
+using MudSharp.Form.Material;
 using MudSharp.Framework;
 using MudSharp.FutureProg;
 using MudSharp.GameItems.Inventory;
@@ -27,6 +28,7 @@ namespace DatabaseSeeder.Seeders
             "Scalpel",
             "Surgical Suture Needle"
         ];
+        private const string FumigationStockTagPath = "Functions / Material Functions / Medical Craft Stock / Fumigation Stock";
         private static readonly string[] PrimitiveHealthKnowledges = ["Medicine"];
         private static readonly string[] PreModernHealthKnowledges = ["Chiurgery", "Physical Medicine"];
         private static readonly string[] ModernHealthKnowledges = ["Diagnostic Medicine", "Clinical Medicine", "Surgery"];
@@ -119,6 +121,16 @@ namespace DatabaseSeeder.Seeders
             "Herbal Burn Salve",
             "Bronchial Smoke"
         ];
+        private static readonly string[] MedievalHealthDrugs =
+        [
+            .. PrimitiveHealthDrugs,
+            "Mint and Ginger Tonic",
+            "Herbal Burn Salve",
+            "Bronchial Smoke",
+            "Alum Styptic",
+            "Theriac Electuary",
+            "Soporific Fumes"
+        ];
         private static readonly string[] ModernHealthDrugs =
         [
             "General Anaesthetic",
@@ -129,6 +141,39 @@ namespace DatabaseSeeder.Seeders
             "Antibiotic Ointment",
             "Antifungal Course",
             "Burn Gel"
+        ];
+
+        private static readonly string[] MedievalMedicinalLiquids =
+        [
+            "willow bark tea",
+            "mandrake draught",
+            "mint infusion",
+            "ephedra brew",
+            "foxglove tincture",
+            "poppy latex draught",
+            "mint and ginger tonic",
+            "theriac syrup"
+        ];
+        private static readonly string[] MedievalMedicineVesselComponents =
+        [
+            "LContainer_Medicine_Vial_30ml",
+            "LContainer_Medicine_Bottle_100ml",
+            "LContainer_Medicine_Flask_250ml",
+            "LContainer_Medicine_Willow_Bark_Tea_250ml",
+            "LContainer_Medicine_Mandrake_Draught_100ml",
+            "LContainer_Medicine_Mint_Infusion_250ml",
+            "LContainer_Medicine_Ephedra_Brew_250ml",
+            "LContainer_Medicine_Foxglove_Tincture_30ml",
+            "LContainer_Medicine_Poppy_Latex_Draught_100ml",
+            "LContainer_Medicine_Mint_and_Ginger_Tonic_250ml",
+            "LContainer_Medicine_Theriac_Syrup_100ml"
+        ];
+        private static readonly string[] MedievalIncenseComponents =
+        [
+            "IncenseBurner_Mandrake_Draught",
+            "IncenseBurner_Henbane_Smoke",
+            "IncenseBurner_Bronchial_Smoke",
+            "IncenseBurner_Soporific_Fumes"
         ];
 
         private static readonly string[] HumanArmParts =
@@ -224,16 +269,19 @@ namespace DatabaseSeeder.Seeders
 
 	#Bprimitive#0 - no replantation, transplantation, resection or implants
 	#Bpre-modern#0 - no replantation, transplantation or implants
+	#Bmedieval#0 - pre-modern procedures with medieval treatment drugs, liquids and fumigation stock
 	#Bmodern#0 - all surgical procedures
 
-Please answer #3primitive#F, #3pre-modern#0, or #3modern#F: ",
+Please answer #3primitive#F, #3pre-modern#0, #3medieval#0, or #3modern#F: ",
                     (context, answers) => true,
                     (answer, context) =>
                     {
                         return NormaliseTechLevel(answer) switch
                         {
                             "primitive" or "pre-modern" or "modern" => (true, string.Empty),
-                            _ => (false, "Please answer #3primitive#F, #3pre-modern#0, or #3modern#F.")
+                            "medieval" when TagPathExists(context, FumigationStockTagPath) => (true, string.Empty),
+                            "medieval" => (false, "The #3medieval#0 health package requires the #3Functions / Material Functions / Medical Craft Stock / Fumigation Stock#0 tag. Run the useful tag seed first, then select medieval."),
+                            _ => (false, "Please answer #3primitive#F, #3pre-modern#0, #3medieval#0, or #3modern#F.")
                         };
                     })
             };
@@ -332,7 +380,16 @@ Please answer #3primitive#F, #3pre-modern#0, or #3modern#F: ",
             SeedKnowledges();
             SeedSurgery();
             SeedDrugs();
+            if (SelectedTechLevel == "medieval")
+            {
+                SeedMedievalMedicinalLiquids();
+            }
             SeedDrugDeliveryExamples();
+            if (SelectedTechLevel == "medieval")
+            {
+                SeedMedievalMedicineVessels();
+                SeedMedievalIncenseComponents();
+            }
             context.SaveChanges();
             context.Database.CommitTransaction();
 
@@ -360,6 +417,7 @@ Please answer #3primitive#F, #3pre-modern#0, or #3modern#F: ",
             {
                 ClassifyTierPresence(context, "primitive"),
                 ClassifyTierPresence(context, "pre-modern"),
+                ClassifyTierPresence(context, "medieval"),
                 ClassifyTierPresence(context, "modern")
             };
 
@@ -383,6 +441,28 @@ Please answer #3primitive#F, #3pre-modern#0, or #3modern#F: ",
             _context.SaveChanges();
         }
 
+        private static bool TagPathExists(FuturemudDatabaseContext context, string path)
+        {
+            string[] names = path
+                .Split('/', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+            Tag? parent = null;
+
+            foreach (string name in names)
+            {
+                parent = context.Tags
+                    .AsEnumerable()
+                    .FirstOrDefault(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase) &&
+                                         ((parent is null && x.ParentId is null) ||
+                                          (parent is not null && (x.ParentId == parent.Id || ReferenceEquals(x.Parent, parent)))));
+                if (parent is null)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
         private static string NormaliseTechLevel(string answer)
         {
             return answer.Trim().ToLowerInvariant() switch
@@ -391,6 +471,7 @@ Please answer #3primitive#F, #3pre-modern#0, or #3modern#F: ",
                 "pre-modern" => "pre-modern",
                 "premodern" => "pre-modern",
                 "pre modern" => "pre-modern",
+                "medieval" => "medieval",
                 "modern" => "modern",
                 _ => string.Empty
             };
@@ -447,6 +528,7 @@ Please answer #3primitive#F, #3pre-modern#0, or #3modern#F: ",
                         "This knowledge covers the fieldcraft and practical treatment techniques used to diagnose and stabilise injured mammals.");
                     break;
 
+                case "medieval":
                 case "pre-modern":
                     AddKnowledge(
                         "Chiurgery",
@@ -549,6 +631,7 @@ Please answer #3primitive#F, #3pre-modern#0, or #3modern#F: ",
                     SeedPrimitiveHumanSurgery();
                     SeedPrimitiveVeterinarySurgery();
                     break;
+                case "medieval":
                 case "pre-modern":
                     SeedPreModernHumanSurgery();
                     SeedPreModernVeterinarySurgery();
@@ -1923,6 +2006,9 @@ Please answer #3primitive#F, #3pre-modern#0, or #3modern#F: ",
                 case "pre-modern":
                     SeedPreModernDrugs();
                     break;
+                case "medieval":
+                    SeedMedievalDrugs();
+                    break;
                 case "modern":
                     SeedModernDrugs();
                     break;
@@ -1931,11 +2017,59 @@ Please answer #3primitive#F, #3pre-modern#0, or #3modern#F: ",
             _context.SaveChanges();
         }
 
+        private GameItemComponentProto UpsertStockComponent(Account account, DateTime now, ref long nextId, string type, string name,
+            string description, XElement definition)
+        {
+            GameItemComponentProto? component = _context.GameItemComponentProtos.Local
+                .FirstOrDefault(x => x.Name == name) ??
+                _context.GameItemComponentProtos
+                    .AsEnumerable()
+                    .FirstOrDefault(x => x.Name == name);
+            if (component is null)
+            {
+                EditableItem editableItem = new()
+                {
+                    RevisionNumber = 0,
+                    RevisionStatus = 4,
+                    BuilderAccountId = account.Id,
+                    BuilderDate = now,
+                    BuilderComment = "Auto-generated by the system",
+                    ReviewerAccountId = account.Id,
+                    ReviewerComment = "Auto-generated by the system",
+                    ReviewerDate = now
+                };
+                _context.EditableItems.Add(editableItem);
+                component = new GameItemComponentProto
+                {
+                    Id = nextId++,
+                    RevisionNumber = 0,
+                    EditableItem = editableItem
+                };
+                _context.GameItemComponentProtos.Add(component);
+            }
+
+            component.Type = type;
+            component.Name = name;
+            component.Description = description;
+            component.Definition = definition.ToString();
+            return component;
+        }
+
+        private long NextGameItemComponentProtoId()
+        {
+            return _context.GameItemComponentProtos
+                .AsEnumerable()
+                .Select(x => x.Id)
+                .Concat(_context.GameItemComponentProtos.Local.Select(x => x.Id))
+                .DefaultIfEmpty(0)
+                .Max() + 1;
+        }
+
         private void SeedDrugDeliveryExamples()
         {
             Account account = _context.Accounts.First();
             DateTime now = DateTime.UtcNow;
-            long nextId = _context.GameItemComponentProtos.Any() ? _context.GameItemComponentProtos.Max(x => x.Id) + 1 : 1;
+            long nextId = NextGameItemComponentProtoId();
 
             void UpsertComponent(string type, string name, string description, XElement definition)
             {
@@ -2039,6 +2173,8 @@ Please answer #3primitive#F, #3pre-modern#0, or #3modern#F: ",
             List<string> expectedDrugDeliveryMarkers = ExpectedDrugDeliveryMarkersForTier(context, techLevel)
                 .Distinct(StringComparer.OrdinalIgnoreCase)
                 .ToList();
+            List<string> expectedLiquids = ExpectedLiquidsForTier(techLevel).ToList();
+            List<string> expectedAdditionalComponents = ExpectedAdditionalComponentsForTier(techLevel).ToList();
 
             HashSet<string> existingKnowledges = context.Knowledges
                 .Where(x => expectedKnowledges.Contains(x.Name))
@@ -2056,13 +2192,23 @@ Please answer #3primitive#F, #3pre-modern#0, or #3modern#F: ",
                 .Where(x => expectedDrugDeliveryMarkers.Contains(x.Name))
                 .Select(x => x.Name)
                 .ToHashSet(StringComparer.OrdinalIgnoreCase);
+            HashSet<string> existingLiquids = context.Liquids
+                .Where(x => expectedLiquids.Contains(x.Name))
+                .Select(x => x.Name)
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+            HashSet<string> existingAdditionalComponents = context.GameItemComponentProtos
+                .Where(x => expectedAdditionalComponents.Contains(x.Name))
+                .Select(x => x.Name)
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
             return SeederRepeatabilityHelper.ClassifyByPresence(
             [
                 .. expectedKnowledges.Select(existingKnowledges.Contains),
                 .. expectedProcedures.Select(existingProcedures.Contains),
                 .. expectedDrugs.Select(existingDrugs.Contains),
-                .. expectedDrugDeliveryMarkers.Select(existingDrugDeliveryMarkers.Contains)
+                .. expectedDrugDeliveryMarkers.Select(existingDrugDeliveryMarkers.Contains),
+                .. expectedLiquids.Select(existingLiquids.Contains),
+                .. expectedAdditionalComponents.Select(existingAdditionalComponents.Contains)
             ]);
         }
 
@@ -2072,6 +2218,7 @@ Please answer #3primitive#F, #3pre-modern#0, or #3modern#F: ",
             {
                 "primitive" => PrimitiveHealthKnowledges,
                 "pre-modern" => PreModernHealthKnowledges,
+                "medieval" => PreModernHealthKnowledges,
                 "modern" => ModernHealthKnowledges,
                 _ => []
             })
@@ -2088,6 +2235,7 @@ Please answer #3primitive#F, #3pre-modern#0, or #3modern#F: ",
             {
                 "primitive" => PrimitiveVeterinaryKnowledges,
                 "pre-modern" => PreModernVeterinaryKnowledges,
+                "medieval" => PreModernVeterinaryKnowledges,
                 "modern" => ModernVeterinaryKnowledges,
                 _ => []
             })
@@ -2102,6 +2250,7 @@ Please answer #3primitive#F, #3pre-modern#0, or #3modern#F: ",
             {
                 "primitive" => PrimitiveHealthDrugs,
                 "pre-modern" => PreModernHealthDrugs,
+                "medieval" => MedievalHealthDrugs,
                 "modern" => ModernHealthDrugs,
                 _ => []
             };
@@ -2113,6 +2262,7 @@ Please answer #3primitive#F, #3pre-modern#0, or #3modern#F: ",
             {
                 "primitive" => PrimitiveHealthProcedures,
                 "pre-modern" => PreModernHealthProcedures,
+                "medieval" => PreModernHealthProcedures,
                 "modern" => ModernHealthProcedures,
                 _ => []
             })
@@ -2129,12 +2279,25 @@ Please answer #3primitive#F, #3pre-modern#0, or #3modern#F: ",
             {
                 "primitive" => PrimitiveVeterinaryProcedures,
                 "pre-modern" => PreModernVeterinaryProcedures,
+                "medieval" => PreModernVeterinaryProcedures,
                 "modern" => ModernVeterinaryProcedures,
                 _ => []
             })
             {
                 yield return veterinaryProcedure;
             }
+        }
+
+        private static IEnumerable<string> ExpectedLiquidsForTier(string techLevel)
+        {
+            return techLevel == "medieval" ? MedievalMedicinalLiquids : [];
+        }
+
+        private static IEnumerable<string> ExpectedAdditionalComponentsForTier(string techLevel)
+        {
+            return techLevel == "medieval"
+                ? [.. MedievalMedicineVesselComponents, .. MedievalIncenseComponents]
+                : [];
         }
 
         private static IEnumerable<string> ExpectedDrugDeliveryMarkersForTier(FuturemudDatabaseContext context, string techLevel)
@@ -2162,6 +2325,338 @@ Please answer #3primitive#F, #3pre-modern#0, or #3modern#F: ",
             }
         }
 
+        private Tag EnsureTagPath(string path)
+        {
+            string[] names = path
+                .Split('/', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+            Tag? parent = null;
+            long nextId = _context.Tags.Any() ? _context.Tags.Max(x => x.Id) + 1 : 1;
+
+            foreach (string name in names)
+            {
+                Tag? tag = _context.Tags
+                    .AsEnumerable()
+                    .FirstOrDefault(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase) &&
+                                         ((parent is null && x.ParentId is null) ||
+                                          (parent is not null && x.ParentId == parent.Id)));
+                if (tag is null)
+                {
+                    tag = new Tag
+                    {
+                        Id = nextId++,
+                        Name = name,
+                        Parent = parent,
+                        ParentId = parent?.Id,
+                        ShouldSeeProg = AlwaysTrueProg,
+                        ShouldSeeProgId = AlwaysTrueProg.Id
+                    };
+                    _context.Tags.Add(tag);
+                }
+
+                _tags[name] = tag;
+                parent = tag;
+            }
+
+            _context.SaveChanges();
+            return parent ?? throw new InvalidOperationException($"Could not resolve tag path {path}.");
+        }
+
+        private void SeedMedievalMedicinalLiquids()
+        {
+            Tag medicineTag = EnsureTagPath("Materials / Liquids / Medicine");
+            UpsertMedievalMedicinalLiquid("willow bark tea", "tea", "Willow Bark Tea", 2.0,
+                "a bitter willow-bark medicinal tea",
+                "A cup of bitter willow-bark medicinal tea rests here.",
+                "bitter, tannic willow bark",
+                "bitter herbal tea",
+                "steeped bark and tea leaves",
+                "herbal tea",
+                "brown", medicineTag);
+            UpsertMedievalMedicinalLiquid("mandrake draught", "watered red wine", "Mandrake Draught", 2.5,
+                "a dark mandrake draught",
+                "A dark mandrake draught lies here, smelling of roots and watered wine.",
+                "earthy mandrake and sour wine",
+                "earthy medicinal wine",
+                "mandrake root and thin wine",
+                "medicinal wine",
+                "dark red", medicineTag);
+            UpsertMedievalMedicinalLiquid("mint infusion", "tea", "Mint Infusion", 2.0,
+                "a cooling mint infusion",
+                "A cooling mint infusion has been prepared here.",
+                "cool mint and mild tea",
+                "mint tea",
+                "fresh mint leaves",
+                "mint",
+                "green", medicineTag);
+            UpsertMedievalMedicinalLiquid("ephedra brew", "tea", "Ephedra Brew", 2.0,
+                "a sharp ephedra brew",
+                "A sharp ephedra brew sits here with a bracing herbal scent.",
+                "sharp green stems and bitter tea",
+                "sharp herbal tea",
+                "bracing ephedra stems",
+                "bracing herbs",
+                "yellow green", medicineTag);
+            UpsertMedievalMedicinalLiquid("foxglove tincture", "white wine", "Foxglove Tincture", 2.0,
+                "a pale foxglove tincture",
+                "A small measure of pale foxglove tincture rests here.",
+                "floral bitterness and wine",
+                "bitter medicinal wine",
+                "white wine and foxglove flowers",
+                "floral medicine",
+                "pale yellow", medicineTag);
+            UpsertMedievalMedicinalLiquid("poppy latex draught", "watered red wine", "Poppy Latex Draught", 2.5,
+                "a cloudy poppy-latex draught",
+                "A cloudy poppy-latex draught has been mixed here.",
+                "chalky poppy latex and thin wine",
+                "chalky medicinal wine",
+                "poppy latex and watered wine",
+                "poppy medicine",
+                "cloudy red", medicineTag);
+            UpsertMedievalMedicinalLiquid("mint and ginger tonic", "tea", "Mint and Ginger Tonic", 2.0,
+                "a warming mint and ginger tonic",
+                "A warming mint and ginger tonic gives off a clean herbal scent.",
+                "mint, ginger and mild tea",
+                "mint and ginger tea",
+                "mint leaves and ginger root",
+                "mint and ginger",
+                "golden green", medicineTag);
+            UpsertMedievalMedicinalLiquid("theriac syrup", "water", "Theriac Electuary", 5.0,
+                "a thick theriac syrup",
+                "A thick theriac syrup clings darkly to its vessel here.",
+                "heavy honeyed spices and bitter medicine",
+                "sweet bitter syrup",
+                "honey, spices and resinous medicine",
+                "spiced syrup",
+                "dark amber", medicineTag);
+            _context.SaveChanges();
+        }
+
+        private void UpsertMedievalMedicinalLiquid(string name, string carrierName, string drugName, double gramsPerLitre,
+            string description, string longDescription, string tasteText, string vagueTasteText, string smellText,
+            string vagueSmellText, string displayColour, Tag medicineTag)
+        {
+            Liquid carrier = _context.Liquids.First(x => x.Name == carrierName);
+            Drug drug = _context.Drugs.First(x => x.Name == drugName);
+            Liquid liquid = SeederRepeatabilityHelper.EnsureNamedEntity(
+                _context.Liquids,
+                name,
+                x => x.Name,
+                () =>
+                {
+                    Liquid created = new();
+                    _context.Liquids.Add(created);
+                    return created;
+                });
+
+            CopyCarrierLiquid(carrier, liquid);
+            liquid.Name = name;
+            liquid.Description = description;
+            liquid.LongDescription = longDescription;
+            liquid.TasteText = tasteText;
+            liquid.VagueTasteText = vagueTasteText;
+            liquid.SmellText = smellText;
+            liquid.VagueSmellText = vagueSmellText;
+            liquid.TasteIntensity = Math.Max(carrier.TasteIntensity, 1.0);
+            liquid.SmellIntensity = Math.Max(carrier.SmellIntensity, 1.0);
+            liquid.DisplayColour = displayColour;
+            liquid.Drug = drug;
+            liquid.DrugId = drug.Id;
+            liquid.DrugGramsPerUnitVolume = gramsPerLitre;
+            liquid.InjectionConsequence = (int)LiquidInjectionConsequence.Harmful;
+            _context.SaveChanges();
+
+            if (!_context.LiquidsTags.Any(x => x.LiquidId == liquid.Id && x.TagId == medicineTag.Id))
+            {
+                _context.LiquidsTags.Add(new LiquidsTags
+                {
+                    LiquidId = liquid.Id,
+                    TagId = medicineTag.Id,
+                    Liquid = liquid,
+                    Tag = medicineTag
+                });
+            }
+        }
+
+        private static void CopyCarrierLiquid(Liquid carrier, Liquid liquid)
+        {
+            liquid.AlcoholLitresPerLitre = carrier.AlcoholLitresPerLitre;
+            liquid.WaterLitresPerLitre = carrier.WaterLitresPerLitre;
+            liquid.FoodSatiatedHoursPerLitre = carrier.FoodSatiatedHoursPerLitre;
+            liquid.DrinkSatiatedHoursPerLitre = carrier.DrinkSatiatedHoursPerLitre;
+            liquid.Viscosity = carrier.Viscosity;
+            liquid.Density = carrier.Density;
+            liquid.Organic = carrier.Organic;
+            liquid.ThermalConductivity = carrier.ThermalConductivity;
+            liquid.ElectricalConductivity = carrier.ElectricalConductivity;
+            liquid.SpecificHeatCapacity = carrier.SpecificHeatCapacity;
+            liquid.IgnitionPoint = carrier.IgnitionPoint;
+            liquid.FreezingPoint = carrier.FreezingPoint;
+            liquid.BoilingPoint = carrier.BoilingPoint;
+            liquid.DraughtProgId = carrier.DraughtProgId;
+            liquid.SolventId = carrier.SolventId;
+            liquid.CountAsId = carrier.CountAsId;
+            liquid.CountAsQuality = carrier.CountAsQuality;
+            liquid.DampDescription = carrier.DampDescription;
+            liquid.WetDescription = carrier.WetDescription;
+            liquid.DrenchedDescription = carrier.DrenchedDescription;
+            liquid.DampShortDescription = carrier.DampShortDescription;
+            liquid.WetShortDescription = carrier.WetShortDescription;
+            liquid.DrenchedShortDescription = carrier.DrenchedShortDescription;
+            liquid.SolventVolumeRatio = carrier.SolventVolumeRatio;
+            liquid.DriedResidueId = carrier.DriedResidueId;
+            liquid.ResidueVolumePercentage = carrier.ResidueVolumePercentage;
+            liquid.RelativeEnthalpy = carrier.RelativeEnthalpy;
+            liquid.GasFormId = carrier.GasFormId;
+            liquid.LeaveResidueInRooms = carrier.LeaveResidueInRooms;
+            liquid.SurfaceReactionInfo = carrier.SurfaceReactionInfo ?? string.Empty;
+        }
+
+        private void SeedMedievalMedicineVessels()
+        {
+            Account account = _context.Accounts.First();
+            DateTime now = DateTime.UtcNow;
+            long nextId = NextGameItemComponentProtoId();
+
+            AddMedicineVessel("LContainer_Medicine_Vial_30ml", "Turns an item into a 30ml opaque medicine vial.", 0.03, 60, null, account, now, ref nextId);
+            AddMedicineVessel("LContainer_Medicine_Bottle_100ml", "Turns an item into a 100ml opaque medicine bottle.", 0.10, 200, null, account, now, ref nextId);
+            AddMedicineVessel("LContainer_Medicine_Flask_250ml", "Turns an item into a 250ml opaque medicine flask.", 0.25, 500, null, account, now, ref nextId);
+            AddMedicineVessel("LContainer_Medicine_Willow_Bark_Tea_250ml", "Turns an item into a sealed 250ml willow-bark tea medicine flask.", 0.25, 500, "willow bark tea", account, now, ref nextId);
+            AddMedicineVessel("LContainer_Medicine_Mandrake_Draught_100ml", "Turns an item into a sealed 100ml mandrake draught medicine bottle.", 0.10, 200, "mandrake draught", account, now, ref nextId);
+            AddMedicineVessel("LContainer_Medicine_Mint_Infusion_250ml", "Turns an item into a sealed 250ml mint infusion medicine flask.", 0.25, 500, "mint infusion", account, now, ref nextId);
+            AddMedicineVessel("LContainer_Medicine_Ephedra_Brew_250ml", "Turns an item into a sealed 250ml ephedra brew medicine flask.", 0.25, 500, "ephedra brew", account, now, ref nextId);
+            AddMedicineVessel("LContainer_Medicine_Foxglove_Tincture_30ml", "Turns an item into a sealed 30ml foxglove tincture medicine vial.", 0.03, 60, "foxglove tincture", account, now, ref nextId);
+            AddMedicineVessel("LContainer_Medicine_Poppy_Latex_Draught_100ml", "Turns an item into a sealed 100ml poppy-latex draught medicine bottle.", 0.10, 200, "poppy latex draught", account, now, ref nextId);
+            AddMedicineVessel("LContainer_Medicine_Mint_and_Ginger_Tonic_250ml", "Turns an item into a sealed 250ml mint and ginger tonic medicine flask.", 0.25, 500, "mint and ginger tonic", account, now, ref nextId);
+            AddMedicineVessel("LContainer_Medicine_Theriac_Syrup_100ml", "Turns an item into a sealed 100ml theriac syrup medicine bottle.", 0.10, 200, "theriac syrup", account, now, ref nextId);
+        }
+
+        private void AddMedicineVessel(string name, string description, double capacity, double weightLimit,
+            string? defaultLiquidName, Account account, DateTime now, ref long nextId)
+        {
+            long defaultLiquidId = defaultLiquidName is null
+                ? 0
+                : _context.Liquids.First(x => x.Name == defaultLiquidName).Id;
+            UpsertStockComponent(account, now, ref nextId, "Liquid Container", name, description,
+                new XElement("Definition",
+                    new XAttribute("LiquidCapacity", capacity),
+                    new XAttribute("Closable", true),
+                    new XAttribute("Transparent", false),
+                    new XAttribute("WeightLimit", weightLimit),
+                    new XAttribute("OnceOnly", false),
+                    new XAttribute("AdjustQuantityProg", 0),
+                    new XAttribute("DefaultLiquid", defaultLiquidId),
+                    new XAttribute("CanBeEmptiedWhenInRoom", true)));
+        }
+
+        private void SeedMedievalIncenseComponents()
+        {
+            Tag fuelTag = EnsureTagPath(FumigationStockTagPath);
+            Account account = _context.Accounts.First();
+            DateTime now = DateTime.UtcNow;
+            long nextId = NextGameItemComponentProtoId();
+
+            AddMedievalIncenseComponent("IncenseBurner_Mandrake_Draught", "Mandrake Draught", 0.003, fuelTag, account, now, ref nextId);
+            AddMedievalIncenseComponent("IncenseBurner_Henbane_Smoke", "Henbane Smoke", 0.003, fuelTag, account, now, ref nextId);
+            AddMedievalIncenseComponent("IncenseBurner_Bronchial_Smoke", "Bronchial Smoke", 0.005, fuelTag, account, now, ref nextId);
+            AddMedievalIncenseComponent("IncenseBurner_Soporific_Fumes", "Soporific Fumes", 0.003, fuelTag, account, now, ref nextId);
+        }
+
+        private void AddMedievalIncenseComponent(string name, string drugName, double gramsPerPulse, Tag fuelTag,
+            Account account, DateTime now, ref long nextId)
+        {
+            Drug drug = _context.Drugs.First(x => x.Name == drugName);
+            UpsertStockComponent(account, now, ref nextId, "IncenseBurner", name,
+                $"Turns an item into a medical fumigation burner dosing {drugName}.",
+                new XElement("Definition",
+                    new XElement("FuelTag", fuelTag.Id),
+                    new XElement("MaximumFuelWeight", 250.0),
+                    new XElement("SecondsPerUnitWeight", 60.0),
+                    new XElement("ScentRange", 1),
+                    new XElement("DrugRange", 0),
+                    new XElement("DrugPulseSeconds", 30),
+                    new XElement("LingeringMultiplier", 5.0),
+                    new XElement("SourceScentDescription", new XCData("A measured curl of medicinal smoke coils around the burner.")),
+                    new XElement("DistantScentDescription", new XCData("A faint medicinal smoke drifts in from nearby.")),
+                    new XElement("ScentDifficulty", (int)Difficulty.Normal),
+                    new XElement("Drug", drug.Id),
+                    new XElement("GramsPerPulse", gramsPerPulse)));
+        }
+
+        private void SeedMedievalDrugs()
+        {
+            SeedPrimitiveDrugs();
+            AddMintAndGingerTonic();
+            AddHerbalBurnSalve();
+            AddBronchialSmoke();
+            AddDrug("Alum Styptic", 0.60, 0.12, DrugVector.Touched,
+                (DrugType.Coagulation, 0.70,
+                    new CoagulationAdditionalInfo
+                    {
+                        ExternalBleedingMultiplier = 0.45,
+                        WoundReopenMultiplier = 0.55,
+                        InternalBleedingMultiplier = 0.90
+                    }.DatabaseString));
+            AddDrug("Theriac Electuary", 0.65, 0.12, DrugVector.Ingested,
+                (DrugType.NeutraliseDrugEffect, 0.45,
+                    new NeutraliseDrugAdditionalInfo { NeutralisedTypes = [DrugType.Nausea, DrugType.Paralysis, DrugType.BodypartDamage] }.DatabaseString),
+                (DrugType.Analgesic, 0.10, string.Empty),
+                (DrugType.Nausea, 0.08, string.Empty));
+            AddDrug("Soporific Fumes", 0.85, 0.07, DrugVector.Inhaled,
+                (DrugType.Anesthesia, 0.45, string.Empty),
+                (DrugType.Arousal, 0.35,
+                    new ArousalAdditionalInfo
+                    {
+                        Mode = DrugArousalMode.SleepInducing | DrugArousalMode.Sedative,
+                        CheckBonusPerIntensity = -0.10,
+                        SleepIntensityThreshold = 0.60,
+                        KnockoutIntensityThreshold = 1.10,
+                        PainPassOutThresholdMultiplier = 0.95,
+                        StunUnconsciousThresholdMultiplier = 0.95,
+                        AnesthesiaUnconsciousThresholdMultiplier = 0.85,
+                        StaminaRegenMultiplier = 0.85,
+                        StaminaCostMultiplier = 1.10
+                    }.DatabaseString),
+                (DrugType.Respiration, 0.25,
+                    new RespirationAdditionalInfo
+                    {
+                        BreathingDriveMultiplier = 0.80,
+                        HypoxiaDamageMultiplier = 1.20,
+                        AirwayToleranceMultiplier = 0.90
+                    }.DatabaseString),
+                (DrugType.Nausea, 0.20, string.Empty),
+                (DrugType.VisionImpairment, 0.15, string.Empty));
+        }
+
+        private void AddMintAndGingerTonic()
+        {
+            AddDrug("Mint and Ginger Tonic", 0.5, 0.18, DrugVector.Ingested,
+                (DrugType.NeutraliseDrugEffect, 0.55,
+                    new NeutraliseDrugAdditionalInfo { NeutralisedTypes = [DrugType.Nausea] }.DatabaseString));
+        }
+
+        private void AddHerbalBurnSalve()
+        {
+            AddDrug("Herbal Burn Salve", 0.7, 0.12, DrugVector.Touched,
+                (DrugType.Analgesic, 0.20, string.Empty),
+                (DrugType.HealingRate, 0.25,
+                    new HealingRateAdditionalInfo { HealingRateIntensity = 0.15, HealingDifficultyIntensity = 1.0 }.DatabaseString));
+        }
+
+        private void AddBronchialSmoke()
+        {
+            AddDrug("Bronchial Smoke", 0.7, 0.08, DrugVector.Inhaled,
+                (DrugType.OrganFunction, 0.30,
+                    new OrganFunctionAdditionalInfo { OrganTypes = [BodypartTypeEnum.Lung, BodypartTypeEnum.Trachea] }.DatabaseString),
+                (DrugType.Respiration, 0.55,
+                    new RespirationAdditionalInfo
+                    {
+                        BreathingDriveMultiplier = 1.20,
+                        HypoxiaDamageMultiplier = 0.85,
+                        AirwayToleranceMultiplier = 1.40
+                    }.DatabaseString),
+                (DrugType.VisionImpairment, 0.05, string.Empty));
+        }
+
         private void SeedPrimitiveDrugs()
         {
             AddDrug("Willow Bark Tea", 0.8, 0.15, DrugVector.Ingested,
@@ -2180,6 +2675,13 @@ Please answer #3primitive#F, #3pre-modern#0, or #3modern#F: ",
                         AnesthesiaUnconsciousThresholdMultiplier = 0.85,
                         StaminaRegenMultiplier = 0.90,
                         StaminaCostMultiplier = 1.10
+                    }.DatabaseString),
+                (DrugType.Respiration, 0.20,
+                    new RespirationAdditionalInfo
+                    {
+                        BreathingDriveMultiplier = 0.85,
+                        HypoxiaDamageMultiplier = 1.10,
+                        AirwayToleranceMultiplier = 0.95
                     }.DatabaseString),
                 (DrugType.Nausea, 0.30, string.Empty),
                 (DrugType.VisionImpairment, 0.25, string.Empty));
@@ -2263,6 +2765,32 @@ Please answer #3primitive#F, #3pre-modern#0, or #3modern#F: ",
                         StaminaRegenMultiplier = 0.90,
                         StaminaCostMultiplier = 1.05
                     }.DatabaseString),
+                (DrugType.Respiration, 0.35,
+                    new RespirationAdditionalInfo
+                    {
+                        BreathingDriveMultiplier = 0.78,
+                        HypoxiaDamageMultiplier = 1.20,
+                        AirwayToleranceMultiplier = 0.95
+                    }.DatabaseString),
+                (DrugType.Dependence, 0.30,
+                    new DrugDependenceAdditionalInfo
+                    {
+                        ExposureGainPerGram = 0.65,
+                        ExposureDecayPerDay = 0.15,
+                        ToleranceThreshold = 7.0,
+                        MinimumToleranceMultiplier = 0.40,
+                        WithdrawalThreshold = 3.50,
+                        WithdrawalDecayPerDay = 0.25,
+                        AffectedDrugTypes = [DrugType.Analgesic, DrugType.Pacifism, DrugType.Arousal, DrugType.Respiration],
+                        WithdrawalCheckPenalty = -0.08,
+                        WithdrawalHungerMultiplier = 1.10,
+                        WithdrawalThirstMultiplier = 1.15,
+                        WithdrawalStaminaRegenMultiplier = 0.80,
+                        WithdrawalStaminaCostMultiplier = 1.15,
+                        WithdrawalNauseaIntensity = 0.25,
+                        WithdrawalRageIntensity = 0.05,
+                        SleepPreventionThreshold = 0.15
+                    }.DatabaseString),
                 (DrugType.Nausea, 0.20, string.Empty));
             AddDrug("Henbane Smoke", 0.7, 0.07, DrugVector.Inhaled,
                 (DrugType.Anesthesia, 0.35, string.Empty),
@@ -2278,6 +2806,13 @@ Please answer #3primitive#F, #3pre-modern#0, or #3modern#F: ",
                         AnesthesiaUnconsciousThresholdMultiplier = 0.85,
                         StaminaRegenMultiplier = 0.85,
                         StaminaCostMultiplier = 1.10
+                    }.DatabaseString),
+                (DrugType.Respiration, 0.30,
+                    new RespirationAdditionalInfo
+                    {
+                        BreathingDriveMultiplier = 0.80,
+                        HypoxiaDamageMultiplier = 1.15,
+                        AirwayToleranceMultiplier = 0.90
                     }.DatabaseString),
                 (DrugType.VisionImpairment, 0.30, string.Empty),
                 (DrugType.Nausea, 0.20, string.Empty));
@@ -2351,9 +2886,7 @@ Please answer #3primitive#F, #3pre-modern#0, or #3modern#F: ",
                 (DrugType.Antibiotic, 0.22, string.Empty),
                 (DrugType.Antifungal, 0.12, string.Empty),
                 (DrugType.Nausea, 0.08, string.Empty));
-            AddDrug("Mint and Ginger Tonic", 0.5, 0.18, DrugVector.Ingested,
-                (DrugType.NeutraliseDrugEffect, 0.55,
-                    new NeutraliseDrugAdditionalInfo { NeutralisedTypes = [DrugType.Nausea] }.DatabaseString));
+            AddMintAndGingerTonic();
             AddDrug("Digitalis Tincture", 0.5, 0.05, DrugVector.Ingested,
                 (DrugType.OrganFunction, 0.40,
                     new OrganFunctionAdditionalInfo { OrganTypes = [BodypartTypeEnum.Heart] }.DatabaseString),
@@ -2361,21 +2894,8 @@ Please answer #3primitive#F, #3pre-modern#0, or #3modern#F: ",
             AddDrug("Curare Paste", 0.6, 0.06, DrugVector.Touched | DrugVector.Injected,
                 (DrugType.Paralysis, 0.60, string.Empty),
                 (DrugType.Nausea, 0.10, string.Empty));
-            AddDrug("Herbal Burn Salve", 0.7, 0.12, DrugVector.Touched,
-                (DrugType.Analgesic, 0.20, string.Empty),
-                (DrugType.HealingRate, 0.25,
-                    new HealingRateAdditionalInfo { HealingRateIntensity = 0.15, HealingDifficultyIntensity = 1.0 }.DatabaseString));
-            AddDrug("Bronchial Smoke", 0.7, 0.08, DrugVector.Inhaled,
-                (DrugType.OrganFunction, 0.30,
-                    new OrganFunctionAdditionalInfo { OrganTypes = [BodypartTypeEnum.Lung, BodypartTypeEnum.Trachea] }.DatabaseString),
-                (DrugType.Respiration, 0.55,
-                    new RespirationAdditionalInfo
-                    {
-                        BreathingDriveMultiplier = 1.20,
-                        HypoxiaDamageMultiplier = 0.85,
-                        AirwayToleranceMultiplier = 1.40
-                    }.DatabaseString),
-                (DrugType.VisionImpairment, 0.05, string.Empty));
+            AddHerbalBurnSalve();
+            AddBronchialSmoke();
         }
 
         private void SeedModernDrugs()

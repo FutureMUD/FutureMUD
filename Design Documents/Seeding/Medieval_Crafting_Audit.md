@@ -1,4 +1,4 @@
-# Medieval ItemSeeder Rebuild Audit
+﻿# Medieval ItemSeeder Rebuild Audit
 
 The medieval `ItemSeeder.Rework` item and craft implementation was reset to launch stubs for a from-scratch rebuild. The rebuild has now begun with direct seeded clothing, household goods and furniture, military-goods prototypes, and writing/book/document prototypes.
 
@@ -53,6 +53,17 @@ The live medieval writing, books, and documents item source is intentionally dir
 - Full descriptions live in `Design Documents/Seeding/FutureMUD_Medieval_Writing_Books_Documents_FDesc_Catalogue.csv`.
 - Each writing, book, document, seal, container, scribal-tool, and writing-support prototype is represented by exactly one `CreateItem(...)` call in `SeedMedievalWritingAdministrationAndDocuments`.
 - Writing and administration crafts are not rebuilt yet; `SeedMedievalWritingAdministrationCrafts` remains a no-op.
+
+## Active Treatment, Drug, and Repair Dependencies
+
+The live medieval medical and specialist-repair dependency source is implemented, but final medieval treatment item `CreateItem(...)` rows are intentionally deferred:
+
+- Design metadata lives in `Design Documents/Seeding/FutureMUD_Medieval_Treatment_Drugs_Repair_Kits_Design_Reference.md`.
+- Medieval health-tier seeding, medicinal liquids, medicine vessels, and fumigation components live in `DatabaseSeeder/Seeders/HealthSeeder.cs`.
+- Specialist glass, paper, lacquer, cordage, and composite-bow repair kit components live in `DatabaseSeeder/Seeders/UsefulSeeder.ItemComponents.cs`.
+- Supporting tag paths live in `DatabaseSeeder/Seeders/UsefulSeeder.Tags.cs` and the path-aware HealthSeeder liquid-tag helper.
+- Maintained exports are synchronized in `Design Documents/Data/Seeded_Item_Components.json`, `Seeded_Liquids.json`, `Item_Component_Types.json`, and `SeededTagHierarchy.csv`.
+- Final stocked medieval apothecary and repair-supply item rows remain a later item-catalogue workstream.
 
 ## Shared Historic Foundations
 

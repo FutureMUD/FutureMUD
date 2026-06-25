@@ -31,7 +31,7 @@ public class EconomySeeder : IDatabaseSeeder
             ["Nourishment"] = ["Staple Food", "Standard Food", "Luxury Food", "Seasonings", "Salt", "Spices"],
             ["Domestic Heating"] = ["Combustion Heating", "Oil Heating", "Electric Heating"],
             ["Lighting"] = ["Candles", "Torches", "Lamps"],
-            ["Medicine"] = ["Simple Medicine", "Standard Medicine", "High-Quality Medicine", "Herbal Medicine", "Treatment Supplies", "Surgical Supplies", "Prosthetics and Mobility"],
+            ["Medicine"] = ["Simple Medicine", "Standard Medicine", "High-Quality Medicine", "Herbal Medicine", "Apothecary Goods", "Treatment Supplies", "Surgical Supplies", "Prosthetics and Mobility"],
             ["Writing Materials"] = ["Wax Tablets", "Papyrus", "Parchment", "Paper", "Ink", "Clay Tablets", "Writing Implements", "Document Containers", "Scrolls", "Codices"],
             ["Clothing"] = ["Simple Clothing", "Standard Clothing", "Luxury Clothing", "Winter Clothing", "Military Uniforms"],
             ["Intoxicants"] = ["Beer", "Wine", "Mead", "Spirits"],
@@ -114,9 +114,10 @@ public class EconomySeeder : IDatabaseSeeder
 		{
 			["Medicine"] =
 			[
-				("Simple Medicine", 0.35m),
+				("Simple Medicine", 0.30m),
 				("Treatment Supplies", 0.20m),
 				("Herbal Medicine", 0.16m),
+				("Apothecary Goods", 0.05m),
 				("Standard Medicine", 0.14m),
 				("Surgical Supplies", 0.07m),
 				("Prosthetics and Mobility", 0.05m),

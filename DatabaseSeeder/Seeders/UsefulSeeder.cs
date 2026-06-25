@@ -1,4 +1,4 @@
-using MudSharp.Body;
+﻿using MudSharp.Body;
 using MudSharp.Body.Traits;
 using MudSharp.Construction;
 using MudSharp.Database;
@@ -89,7 +89,9 @@ public partial class UsefulSeeder : IDatabaseSeeder
         "Container_Document_Pouch",
         "Container_Archive_Chest",
         "IncenseBurner_Antiquity_BronzeCenser",
-        "OfferingReceiver_Antiquity_HouseholdAltar"
+        "OfferingReceiver_Antiquity_HouseholdAltar",
+        "Repair_Glass",
+        "Repair_Composite_Bow"
     ];
 
     private static readonly string[] StockModernItemMarkers =

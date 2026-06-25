@@ -15,16 +15,21 @@ namespace DatabaseSeeder.Seeders
 
         private void AddTag(FuturemudDatabaseContext context, string name, string parent)
         {
-            if (_tags.TryGetValue(name, out _))
+            Tag? parentTag = string.IsNullOrWhiteSpace(parent) ? null : _tags[parent];
+            bool ParentMatches(Tag tag) => parentTag is null
+                ? tag.ParentId is null && tag.Parent is null
+                : tag.ParentId == parentTag.Id || ReferenceEquals(tag.Parent, parentTag);
+
+            if (_tags.TryGetValue(name, out Tag? cached) && ParentMatches(cached))
             {
                 return;
             }
 
-            var existing = context.Tags.Local
-                                  .FirstOrDefault(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase)) ??
-                           context.Tags
-                                  .AsEnumerable()
-                                  .FirstOrDefault(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+            Tag? existing = context.Tags.Local
+                                  .FirstOrDefault(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase) && ParentMatches(x)) ??
+                            context.Tags
+                                   .AsEnumerable()
+                                   .FirstOrDefault(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase) && ParentMatches(x));
             if (existing is not null)
             {
                 _tags[name] = existing;
@@ -34,7 +39,8 @@ namespace DatabaseSeeder.Seeders
             Tag tag = new()
             {
                 Name = name,
-                Parent = _tags[parent]
+                Parent = parentTag,
+                ParentId = parentTag?.Id > 0 ? parentTag.Id : null
             };
             _tags[name] = tag;
             context.Tags.Add(tag);
@@ -360,6 +366,11 @@ namespace DatabaseSeeder.Seeders
             AddTag(context, "Crucible Clay Commodity", "Primary Production Commodity");
 
             AddTag(context, "Repairing", "Functions");
+            AddTag(context, "Glass", "Repairing");
+            AddTag(context, "Paper and Parchment", "Repairing");
+            AddTag(context, "Lacquerware", "Repairing");
+            AddTag(context, "Cordage", "Repairing");
+            AddTag(context, "Composite Bow", "Repairing");
             AddTag(context, "Sharpening", "Functions");
 
             AddTag(context, "Medical Treatment", "Functions");
@@ -372,6 +383,9 @@ namespace DatabaseSeeder.Seeders
             AddTag(context, "Prosthetic", "Medical Treatment");
             AddTag(context, "Mobility Aid", "Medical Treatment");
             AddTag(context, "Herbal Remedy", "Medical Treatment");
+            AddTag(context, "Fumigation", "Medical Treatment");
+            AddTag(context, "Styptic", "Medical Treatment");
+            AddTag(context, "Antidote", "Medical Treatment");
 
             // Functional catalogue roles distinct from market/pricing categories
             AddTag(context, "Military Equipment", "Functions");
@@ -1638,6 +1652,7 @@ namespace DatabaseSeeder.Seeders
             AddTag(context, "Standard Medicine", "Medicine");
             AddTag(context, "High-Quality Medicine", "Medicine");
             AddTag(context, "Herbal Medicine", "Medicine");
+            AddTag(context, "Apothecary Goods", "Medicine");
             AddTag(context, "Treatment Supplies", "Medicine");
             AddTag(context, "Surgical Supplies", "Medicine");
             AddTag(context, "Prosthetics and Mobility", "Medicine");
@@ -1661,6 +1676,11 @@ namespace DatabaseSeeder.Seeders
             AddTag(context, "Simple Tools", "Professional Tools");
             AddTag(context, "Standard Tools", "Professional Tools");
             AddTag(context, "High-Quality Tools", "Professional Tools");
+
+            AddTag(context, "Repair Supplies", "Market");
+            AddTag(context, "General Repair Supplies", "Repair Supplies");
+            AddTag(context, "Specialist Repair Supplies", "Repair Supplies");
+            AddTag(context, "Weapon and Armour Repair Supplies", "Repair Supplies");
 
             AddTag(context, "Raw Materials", "Market");
             AddTag(context, "Lumber", "Raw Materials");

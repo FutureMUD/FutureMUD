@@ -1,4 +1,4 @@
-[
+﻿[
     {
         "Liquid Name":  "amber ale",
         "Tags":  [
@@ -489,4 +489,52 @@
 
                  ]
     }
-]
+,
+    {
+        "Liquid Name":  "willow bark tea",
+        "Tags":  [
+                     "Materials / Liquids / Medicine"
+                 ]
+    },
+    {
+        "Liquid Name":  "mandrake draught",
+        "Tags":  [
+                     "Materials / Liquids / Medicine"
+                 ]
+    },
+    {
+        "Liquid Name":  "mint infusion",
+        "Tags":  [
+                     "Materials / Liquids / Medicine"
+                 ]
+    },
+    {
+        "Liquid Name":  "ephedra brew",
+        "Tags":  [
+                     "Materials / Liquids / Medicine"
+                 ]
+    },
+    {
+        "Liquid Name":  "foxglove tincture",
+        "Tags":  [
+                     "Materials / Liquids / Medicine"
+                 ]
+    },
+    {
+        "Liquid Name":  "poppy latex draught",
+        "Tags":  [
+                     "Materials / Liquids / Medicine"
+                 ]
+    },
+    {
+        "Liquid Name":  "mint and ginger tonic",
+        "Tags":  [
+                     "Materials / Liquids / Medicine"
+                 ]
+    },
+    {
+        "Liquid Name":  "theriac syrup",
+        "Tags":  [
+                     "Materials / Liquids / Medicine"
+                 ]
+    }]

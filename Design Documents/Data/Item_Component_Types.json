@@ -1473,4 +1473,13 @@
                                 "IZeroGravityTetherItem"
                             ]
     }
-]
+,
+    {
+        "Component Type Name":  "IncenseBurner",
+        "Component Type Description":  "A lightable container that burns tagged fuel into ambient scent and optional inhaled drug pulses",
+        "Exclusive Types":  [
+                                "IIncenseBurner",
+                                "IContainer",
+                                "ILightable"
+                            ]
+    }]

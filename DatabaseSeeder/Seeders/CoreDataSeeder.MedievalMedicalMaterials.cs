@@ -90,6 +90,25 @@ public sealed class CoreDataMedievalMedicalMaterialsSeeder : IDatabaseSeeder
 			});
 		}
 
+		void ReleaseAliasFromOtherMaterials(string alias, string reservedMaterialName)
+		{
+			foreach (var material in materials.Values)
+			{
+				if (material.Name.Equals(reservedMaterialName, StringComparison.InvariantCultureIgnoreCase))
+				{
+					continue;
+				}
+
+				foreach (var relation in material.MaterialAliases
+					         .Where(x => x.Alias.Equals(alias, StringComparison.InvariantCultureIgnoreCase))
+					         .ToList())
+				{
+					material.MaterialAliases.Remove(relation);
+					context.MaterialAliases.Remove(relation);
+				}
+			}
+		}
+
 		void AddMaterial(string name, MaterialBehaviourType type, double relativeDensity, bool organic,
 			double shearStrength, double impactStrength, double absorbency, double thermalConductivity,
 			double electricalConductivity, double specificHeatCapacity, params string[] materialTags)
@@ -122,6 +141,8 @@ public sealed class CoreDataMedievalMedicalMaterialsSeeder : IDatabaseSeeder
 				EnsureTag(material, tag);
 			}
 		}
+
+		ReleaseAliasFromOtherMaterials("alum", "alum");
 
 		AddMaterial("alum", MaterialBehaviourType.Powder, 1.7, false, 1000, 1000, 0.0, 0.14, 0.0001, 500,
 			"Textile Mordant");

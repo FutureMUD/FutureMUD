@@ -27,7 +27,7 @@ Primary implementation files:
 - `DatabaseSeeder/Seeders/UsefulSeeder.ItemComponents.cs`
 - `DatabaseSeeder/Seeders/UsefulSeeder.Tags.cs`
 - `DatabaseSeeder/Seeders/UsefulSeeder.cs`
-- `DatabaseSeeder/Seeders/CoreDataSeeder.MedievalMedicalMaterials.cs`
+- `DatabaseSeeder/Seeders/CoreDataSeeder.Materials.cs`
 
 Maintained export files:
 

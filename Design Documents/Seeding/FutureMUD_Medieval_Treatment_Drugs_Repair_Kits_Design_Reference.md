@@ -1,8 +1,8 @@
 ﻿# FutureMUD Medieval Treatment Drugs and Repair Kits Design Reference
 
-Status: implemented for dependency workstreams A-E. Final medieval treatment-item catalogue rows remain out of scope for this document and belong to a later Workstream F item-catalogue pass.
+Status: implemented for dependency workstreams A-E; core material gap resolved for Workstream F. Final medieval treatment-item catalogue rows remain out of scope for this document and belong to the next item-catalogue pass.
 
-This document records the implemented repo-local version of the attached `FutureMUD_Medieval_Treatment_Drugs_Repair_Kits_Design_Reference_v1.md` reference. It is the current source of truth for the enabling stock data that medieval medical and specialist-repair items depend on.
+This document records the implemented repo-local version of the medieval treatment, drug and repair-kit reference. It is the current source of truth for the enabling stock data that medieval medical and specialist-repair items depend on.
 
 ## Implementation Scope
 
@@ -17,6 +17,7 @@ The implemented slice covers:
 - Curated medical `IncenseBurner` component prototypes for fumigation stock.
 - Specialist repair-kit component prototypes for glass, paper/parchment, lacquerware, cordage and composite bows.
 - Supporting tag hierarchy and maintained export catalogue updates.
+- Exact core material support for named medieval medical stock that should not be substituted with generic abstractions.
 
 ## Runtime Sources
 
@@ -26,6 +27,7 @@ Primary implementation files:
 - `DatabaseSeeder/Seeders/UsefulSeeder.ItemComponents.cs`
 - `DatabaseSeeder/Seeders/UsefulSeeder.Tags.cs`
 - `DatabaseSeeder/Seeders/UsefulSeeder.cs`
+- `DatabaseSeeder/Seeders/CoreDataSeeder.MedievalMedicalMaterials.cs`
 
 Maintained export files:
 
@@ -33,6 +35,36 @@ Maintained export files:
 - `Design Documents/Data/Seeded_Liquids.json`
 - `Design Documents/Data/Item_Component_Types.json`
 - `Design Documents/Data/SeededTagHierarchy.csv`
+- `Design Documents/Data/Seeded_Materials.json`
+
+## Core Material Gap Closure
+
+The catalogue-authoring review identified seven materials that were previously called out as things to avoid or substitute with broader stock materials. These should instead be authored as exact core materials because they are visible stock identities in medieval medical items.
+
+Required exact material additions:
+
+- `alum`
+- `ephedra`
+- `foxglove`
+- `gut`
+- `henbane`
+- `mandrake`
+- `yarrow`
+
+These are now part of the catalogue contract. Use them directly where a final item is meant to be that named medical stock. Do not substitute the above with `herb`, `leaf`, `spice`, `salt`, `sinew`, or similar broad abstractions except for generic blends, neutral carriers, or packaging.
+
+Recommended material usage for catalogue rows:
+
+| Use | Exact material guidance |
+| --- | --- |
+| Yarrow styptic pads or loose yarrow | Use `yarrow`. |
+| Mandrake draught stock, smoke stock, or root packets | Use `mandrake`. |
+| Henbane smoke or fumigation stock | Use `henbane`. |
+| Foxglove tincture stock | Use `foxglove`. |
+| Ephedra brew stock | Use `ephedra`. |
+| Alum styptic powder or mordant-like mineral medicine stock | Use `alum`. |
+| Gut sutures and surgical thread | Use `gut`. |
+| Generic mixed herbs or unnamed bundles | Use `herb`, `leaf`, or `spice` only when the item identity is intentionally generic. |
 
 ## Medieval Health Seeder Contract
 
@@ -97,6 +129,10 @@ Restriction model:
 - Cordage kits require the `Functions / Repairing / Cordage` tag.
 - Composite bow kits require the `Functions / Repairing / Composite Bow` tag.
 
-## Deferred Workstream F
+## Workstream F Catalogue Authoring Notes
 
-This reference intentionally does not define final `CreateItem(...)` catalogue rows for stocked medieval medicine or repair-supply items. A later medieval item-catalogue pass should use these stock components, liquids, tags and repair-kit prototypes as prerequisites.
+The final item-catalogue pass should create ordinary `CreateItem(...)` rows only. It must not reseed drugs, liquids, tags, item components or component types.
+
+Catalogue rows should validate exact material names against `Seeded_Materials.json`, including the seven core medical additions above. The catalogue should also use the already-seeded drug wrappers, medicine-vessel components, fumigation components and repair-kit components by exact component name.
+
+This reference intentionally does not define final `CreateItem(...)` catalogue rows for stocked medieval medicine or repair-supply items. The next medieval item-catalogue pass should use these stock components, liquids, tags, exact materials and repair-kit prototypes as prerequisites.

@@ -79,6 +79,25 @@ public partial class CoreDataSeeder
 			}
 		}
 
+		void ReleaseAliasFromOtherMaterials(string alias, string reservedMaterialName)
+		{
+			foreach (var material in materials.Values)
+			{
+				if (material.Name.Equals(reservedMaterialName, StringComparison.InvariantCultureIgnoreCase))
+				{
+					continue;
+				}
+
+				foreach (var relation in material.MaterialAliases
+					         .Where(x => x.Alias.Equals(alias, StringComparison.InvariantCultureIgnoreCase))
+					         .ToList())
+				{
+					material.MaterialAliases.Remove(relation);
+					context.MaterialAliases.Remove(relation);
+				}
+			}
+		}
+
 		void RenameMaterial(string currentName, string newName, params string[] aliases)
 		{
 			var material = materials[currentName];
@@ -211,6 +230,29 @@ public partial class CoreDataSeeder
 			"Textile Dye", "Stone");
 		AddMaterial("alum mordant", MaterialBehaviourType.Powder, 1.7, false, 1000, 1000, 0.0, 0.14, 0.0001, 500,
 			"Textile Mordant");
+		AddMaterial("alum", MaterialBehaviourType.Powder, 1.7, false, 1000, 1000, 0.0, 0.14, 0.0001, 500,
+			"Textile Mordant");
+		AddMaterial("ephedra", MaterialBehaviourType.Plant, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500,
+			"Herb");
+		AddMaterial("foxglove", MaterialBehaviourType.Plant, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500,
+			"Herb");
+		AddMaterial("gut", MaterialBehaviourType.Remains, 1.1, true, 9000, 9000, 0.35, 0.45, 0.0001, 2500,
+			"Animal Product", "Crafting Animal Product");
+		AddMaterial("henbane", MaterialBehaviourType.Plant, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500,
+			"Herb");
+		AddMaterial("mandrake", MaterialBehaviourType.Plant, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500,
+			"Herb");
+		AddMaterial("yarrow", MaterialBehaviourType.Plant, 1.0, true, 1000, 1000, 0.0, 0.14, 0.0001, 500,
+			"Herb");
+		EnsureTag(materials["alum"], "Textile Mordant");
+		EnsureTag(materials["ephedra"], "Herb");
+		EnsureTag(materials["foxglove"], "Herb");
+		EnsureTag(materials["gut"], "Animal Product");
+		EnsureTag(materials["gut"], "Crafting Animal Product");
+		EnsureTag(materials["henbane"], "Herb");
+		EnsureTag(materials["mandrake"], "Herb");
+		EnsureTag(materials["yarrow"], "Herb");
+		ReleaseAliasFromOtherMaterials("alum", "alum");
 		foreach (var name in new[]
 		         {
 			         "woad leaves", "weld", "kermes grain", "alkanet root", "henna leaf", "pomegranate rind",
@@ -245,7 +287,6 @@ public partial class CoreDataSeeder
 		EnsureAlias(materials["madder root"], "madder");
 		EnsureAlias(materials["indigo dye cake"], "indigo");
 		EnsureAlias(materials["ochre pigment"], "ochre");
-		EnsureAlias(materials["alum mordant"], "alum");
 		EnsureAlias(materials["saffron"], "crocus");
 		EnsureAlias(materials["woad leaves"], "woad", "isatis");
 		EnsureAlias(materials["weld"], "dyer's weld", "dyers weld", "dyer's rocket");

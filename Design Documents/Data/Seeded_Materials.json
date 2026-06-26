@@ -115,6 +115,12 @@
                  ]
     },
     {
+        "Material Name":  "alum",
+        "Tags":  [
+                     "Materials / Textile Mordant"
+                 ]
+    },
+    {
         "Material Name":  "aluminium",
         "Tags":  [
                      "Materials / Manufactured Materials / Manufactured Metal / Modern Age"
@@ -1751,6 +1757,12 @@
                  ]
     },
     {
+        "Material Name":  "ephedra",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Herb"
+                 ]
+    },
+    {
         "Material Name":  "epoxy resin",
         "Tags":  [
                      "Materials / Manufactured Materials / Plastic"
@@ -1948,6 +1960,12 @@
         "Material Name":  "food",
         "Tags":  [
                      "Materials / Natural Materials / Food"
+                 ]
+    },
+    {
+        "Material Name":  "foxglove",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Herb"
                  ]
     },
     {
@@ -2214,6 +2232,13 @@
                  ]
     },
     {
+        "Material Name":  "gut",
+        "Tags":  [
+                     "Materials / Animal Product",
+                     "Materials / Animal Product / Butchery Output / Crafting Animal Product"
+                 ]
+    },
+    {
         "Material Name":  "gypsum",
         "Tags":  [
                      "Materials / Natural Materials / Stone / Economically Useful Stone / Gypsum"
@@ -2253,6 +2278,12 @@
         "Material Name":  "hemp",
         "Tags":  [
                      "Materials / Manufactured Materials / Fabric / Natural Fiber Fabric"
+                 ]
+    },
+    {
+        "Material Name":  "henbane",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Herb"
                  ]
     },
     {
@@ -2839,6 +2870,12 @@
         "Material Name":  "mana",
         "Tags":  [
                      "Materials / Elemental Materials"
+                 ]
+    },
+    {
+        "Material Name":  "mandrake",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Herb"
                  ]
     },
     {
@@ -5334,6 +5371,12 @@
         "Material Name":  "yam",
         "Tags":  [
                      "Materials / Natural Materials / Food / Vegetable"
+                 ]
+    },
+    {
+        "Material Name":  "yarrow",
+        "Tags":  [
+                     "Materials / Natural Materials / Food / Herb"
                  ]
     },
     {

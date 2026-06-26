@@ -12,8 +12,10 @@ using MudSharp.Framework.Save;
 using MudSharp.Models;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text.Json;
 
 namespace MudSharp_Unit_Tests;
 
@@ -305,6 +307,95 @@ public class CoreDataSeederMaterialTests
 		}
 	}
 
+	[TestMethod]
+	public void SeedMaterials_SeedsMedievalMedicalMaterialsAndReleasesAlumAlias()
+	{
+		using FuturemudDatabaseContext context = BuildContext();
+		SeedMaterials(context);
+
+		Dictionary<string, (MaterialBehaviourType Behaviour, string[] Tags)> expectations = new(StringComparer.InvariantCultureIgnoreCase)
+		{
+			["alum"] = (MaterialBehaviourType.Powder, ["Textile Mordant"]),
+			["ephedra"] = (MaterialBehaviourType.Plant, ["Herb"]),
+			["foxglove"] = (MaterialBehaviourType.Plant, ["Herb"]),
+			["gut"] = (MaterialBehaviourType.Remains, ["Animal Product", "Crafting Animal Product"]),
+			["henbane"] = (MaterialBehaviourType.Plant, ["Herb"]),
+			["mandrake"] = (MaterialBehaviourType.Plant, ["Herb"]),
+			["yarrow"] = (MaterialBehaviourType.Plant, ["Herb"])
+		};
+
+		Dictionary<string, MudSharp.Models.Material> materials = context.Materials
+			.Include(x => x.MaterialAliases)
+			.Include(x => x.MaterialsTags)
+			.ThenInclude(x => x.Tag)
+			.AsEnumerable()
+			.Where(x => expectations.ContainsKey(x.Name) || x.Name == "alum mordant")
+			.ToDictionary(x => x.Name, StringComparer.InvariantCultureIgnoreCase);
+
+		foreach (KeyValuePair<string, (MaterialBehaviourType Behaviour, string[] Tags)> expectation in expectations)
+		{
+			Assert.IsTrue(materials.TryGetValue(expectation.Key, out MudSharp.Models.Material? material),
+				$"{expectation.Key} should be seeded.");
+			Assert.IsNotNull(material);
+			Assert.AreEqual((int)expectation.Value.Behaviour, material!.BehaviourType,
+				$"{expectation.Key} should use the expected material behaviour.");
+
+			foreach (string tag in expectation.Value.Tags)
+			{
+				Assert.IsTrue(material.MaterialsTags.Any(x => x.Tag.Name == tag),
+					$"{expectation.Key} should be tagged as {tag}.");
+			}
+		}
+
+		Assert.IsTrue(materials.ContainsKey("alum mordant"), "alum mordant should still be seeded.");
+		Assert.IsFalse(materials["alum mordant"].MaterialAliases.Any(x => x.Alias == "alum"),
+			"alum should be reserved for the exact alum material, not as an alum mordant alias.");
+	}
+
+	[TestMethod]
+	public void SeededMaterialsCatalogue_IncludesMedievalMedicalMaterials()
+	{
+		var catalogueSource = ReadSource("Design Documents", "Data", "Seeded_Materials.json");
+		using var catalogue = JsonDocument.Parse(catalogueSource);
+
+		var entries = catalogue.RootElement
+			.EnumerateArray()
+			.ToDictionary(
+				x => x.GetProperty("Material Name").GetString()!,
+				x => x.GetProperty("Tags").EnumerateArray().Select(y => y.GetString()!).ToArray(),
+				StringComparer.InvariantCultureIgnoreCase);
+
+		Dictionary<string, string[]> expectations = new(StringComparer.InvariantCultureIgnoreCase)
+		{
+			["alum"] = ["Materials / Textile Mordant"],
+			["ephedra"] = ["Materials / Natural Materials / Food / Herb"],
+			["foxglove"] = ["Materials / Natural Materials / Food / Herb"],
+			["gut"] =
+			[
+				"Materials / Animal Product",
+				"Materials / Animal Product / Butchery Output / Crafting Animal Product"
+			],
+			["henbane"] = ["Materials / Natural Materials / Food / Herb"],
+			["mandrake"] = ["Materials / Natural Materials / Food / Herb"],
+			["yarrow"] = ["Materials / Natural Materials / Food / Herb"]
+		};
+
+		foreach (var expectation in expectations)
+		{
+			Assert.IsTrue(entries.TryGetValue(expectation.Key, out var tags),
+				$"Seeded_Materials.json should include {expectation.Key}.");
+			Assert.IsNotNull(tags);
+			foreach (var tag in expectation.Value)
+			{
+				Assert.IsTrue(tags!.Contains(tag),
+					$"Seeded_Materials.json should tag {expectation.Key} as {tag}.");
+			}
+		}
+
+		Assert.IsFalse(File.Exists(SourcePath("Design Documents", "Data", "Seeded_Materials_Medieval_Medical_Additions.json")),
+			"Medieval medical material additions should be integrated into Seeded_Materials.json, not kept as a supplement.");
+	}
+
     [TestMethod]
     public void SeedMaterials_IncludesAllAgricultureCommodityOutputs()
     {
@@ -397,4 +488,20 @@ public class CoreDataSeederMaterialTests
         Assert.AreEqual(soapyWater.Id, context.Liquids.Single(x => x.Name == "olive oil").SolventId);
         Assert.AreEqual(detergent.Id, context.Liquids.Single(x => x.Name == "kerosene").SolventId);
     }
+
+	private static string ReadSource(params string[] parts)
+	{
+		return File.ReadAllText(SourcePath(parts));
+	}
+
+	private static string SourcePath(params string[] parts)
+	{
+		return Path.GetFullPath(Path.Combine(
+			AppContext.BaseDirectory,
+			"..",
+			"..",
+			"..",
+			"..",
+			Path.Combine(parts)));
+	}
 }

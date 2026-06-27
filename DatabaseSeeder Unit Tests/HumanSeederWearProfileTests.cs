@@ -22,25 +22,44 @@ public class HumanSeederWearProfileTests
 	private sealed record ParsedDirectWearProfile(string Name, IReadOnlyDictionary<string, ParsedWearPart> Parts);
 
 	[TestMethod]
-	public void AdditionalHumanWearProfiles_ExpandCatalogueWithinRequestedRange()
+	public void AdditionalHumanWearProfiles_IncludeMedievalJewelleryDependencyProfiles()
 	{
 		IReadOnlyList<string> issues = HumanSeeder.ValidateAdditionalHumanWearProfilesForTesting();
 		Assert.AreEqual(0, issues.Count, string.Join(Environment.NewLine, issues));
-
-		int baseline = HumanSeeder.HumanWearProfileBaselineCountForTesting;
-		int expansion = HumanSeeder.HumanWearProfileExpansionCountForTesting;
-		int minimum = (int)Math.Ceiling(baseline * 0.10);
-		int maximum = (int)Math.Floor(baseline * 0.20);
-
-		Assert.IsTrue(expansion >= minimum,
-			$"Expected at least {minimum} new wear profiles for a 10% expansion of {baseline}.");
-		Assert.IsTrue(expansion <= maximum,
-			$"Expected no more than {maximum} new wear profiles for a 20% expansion of {baseline}.");
 
 		List<string> names = HumanSeeder.AdditionalHumanWearProfileNamesForTesting.ToList();
 		string[] expectedNames =
 		[
 			"Headband",
+			"Brooch",
+			"Brooches",
+			"Pin",
+			"Badge",
+			"Hairpin",
+			"Hairpins",
+			"Hair Comb",
+			"Hair Combs",
+			"Hair Ornament",
+			"Hair Ornaments",
+			"Temple Rings",
+			"Circlet",
+			"Diadem",
+			"Coronet",
+			"Crown",
+			"Chaplet",
+			"Wreath",
+			"Head Garland",
+			"Forehead Ornament",
+			"Neck Garland",
+			"Torc",
+			"Neck Ring",
+			"Wrist Garland",
+			"Ankle Garland",
+			"Waist Chain",
+			"Girdle Ornament",
+			"Belt Ornament",
+			"Belt Plaques",
+			"Waist Ornament",
 			"Turban",
 			"Veil",
 			"Blindfold",
@@ -65,6 +84,48 @@ public class HumanSeederWearProfileTests
 		];
 
 		CollectionAssert.AreEquivalent(expectedNames, names);
+
+		string[] requiredComponents =
+		[
+			"Wear_Brooch",
+			"Wear_Brooches",
+			"Wear_Pin",
+			"Wear_Badge",
+			"Wear_Hairpin",
+			"Wear_Hairpins",
+			"Wear_Hair_Comb",
+			"Wear_Hair_Combs",
+			"Wear_Hair_Ornament",
+			"Wear_Hair_Ornaments",
+			"Wear_Temple_Rings",
+			"Wear_Circlet",
+			"Wear_Diadem",
+			"Wear_Coronet",
+			"Wear_Crown",
+			"Wear_Chaplet",
+			"Wear_Wreath",
+			"Wear_Head_Garland",
+			"Wear_Neck_Garland",
+			"Wear_Wrist_Garland",
+			"Wear_Ankle_Garland",
+			"Wear_Torc",
+			"Wear_Neck_Ring",
+			"Wear_Waist_Chain",
+			"Wear_Girdle_Ornament",
+			"Wear_Belt_Ornament",
+			"Wear_Belt_Plaques",
+			"Wear_Waist_Ornament",
+			"Wear_Forehead_Ornament"
+		];
+
+		HashSet<string> generatedComponentNames = names
+		                                         .Select(x => $"Wear_{x.Replace(' ', '_')}")
+		                                         .ToHashSet(StringComparer.OrdinalIgnoreCase);
+		foreach (string componentName in requiredComponents)
+		{
+			Assert.IsTrue(generatedComponentNames.Contains(componentName),
+				$"{componentName} should be generated from an additional human wear profile.");
+		}
 	}
 
 	[TestMethod]

@@ -426,6 +426,46 @@ namespace DatabaseSeeder.Seeders
             AddTag(context, "Anklets", "Jewellery");
             AddTag(context, "Earrings", "Jewellery");
             AddTag(context, "Piercings", "Jewellery");
+            AddTag(context, "Armlets", "Jewellery");
+            AddTag(context, "Badges", "Jewellery");
+            AddTag(context, "Bead Strings", "Jewellery");
+            AddTag(context, "Belt Ornaments", "Jewellery");
+            AddTag(context, "Belt Plaques", "Jewellery");
+            AddTag(context, "Brooches", "Jewellery");
+            AddTag(context, "Chaplets", "Jewellery");
+            AddTag(context, "Chokers", "Jewellery");
+            AddTag(context, "Circlets", "Jewellery");
+            AddTag(context, "Coronets", "Jewellery");
+            AddTag(context, "Crowns", "Jewellery");
+            AddTag(context, "Diadems", "Jewellery");
+            AddTag(context, "Forehead Ornaments", "Jewellery");
+            AddTag(context, "Garlands", "Jewellery");
+            AddTag(context, "Girdle Ornaments", "Jewellery");
+            AddTag(context, "Hair Ornaments", "Jewellery");
+            AddTag(context, "Head Ornaments", "Jewellery");
+            AddTag(context, "Neck Garlands", "Jewellery");
+            AddTag(context, "Neck Rings", "Jewellery");
+            AddTag(context, "Pendants", "Jewellery");
+            AddTag(context, "Pins", "Jewellery");
+            AddTag(context, "Temple Rings", "Jewellery");
+            AddTag(context, "Toe Rings", "Jewellery");
+            AddTag(context, "Torcs", "Jewellery");
+            AddTag(context, "Waist Chains", "Jewellery");
+            AddTag(context, "Waist Ornaments", "Jewellery");
+            AddTag(context, "Wreaths", "Jewellery");
+            AddTag(context, "Ear Studs", "Piercings");
+            AddTag(context, "Nose Rings", "Piercings");
+            AddTag(context, "Nose Studs", "Piercings");
+            AddTag(context, "Dried Garlands", "Garlands");
+            AddTag(context, "Flower Garlands", "Garlands");
+            AddTag(context, "Fresh Garlands", "Garlands");
+            AddTag(context, "Herb Garlands", "Garlands");
+            AddTag(context, "Leaf Garlands", "Garlands");
+            AddTag(context, "Dried Wreaths", "Wreaths");
+            AddTag(context, "Flower Wreaths", "Wreaths");
+            AddTag(context, "Fresh Wreaths", "Wreaths");
+            AddTag(context, "Herb Wreaths", "Wreaths");
+            AddTag(context, "Leaf Wreaths", "Wreaths");
 
             // Separation
             AddTag(context, "Separation", "Functions");
@@ -1579,6 +1619,20 @@ namespace DatabaseSeeder.Seeders
             AddTag(context, "Winter Clothing", "Clothing");
             AddTag(context, "Military Uniforms", "Clothing");
 
+            AddTag(context, "Jewellery", "Market");
+            AddTag(context, "Children's Jewellery", "Jewellery");
+            AddTag(context, "Commoner Jewellery", "Jewellery");
+            AddTag(context, "Court Jewellery", "Jewellery");
+            AddTag(context, "Ephemeral Jewellery", "Jewellery");
+            AddTag(context, "Festival Jewellery", "Jewellery");
+            AddTag(context, "Luxury Jewellery", "Jewellery");
+            AddTag(context, "Merchant Jewellery", "Jewellery");
+            AddTag(context, "Noble Jewellery", "Jewellery");
+            AddTag(context, "Professional Jewellery", "Jewellery");
+            AddTag(context, "Regalia", "Jewellery");
+            AddTag(context, "Simple Jewellery", "Jewellery");
+            AddTag(context, "Standard Jewellery", "Jewellery");
+
             AddTag(context, "Domestic Heating", "Market");
             AddTag(context, "Combustion Heating", "Domestic Heating");
             AddTag(context, "Oil Heating", "Domestic Heating");
@@ -1821,6 +1875,12 @@ namespace DatabaseSeeder.Seeders
             AddTag(context, "Mould Brick", "Consumables");
             #endregion
 
+            context.SaveChanges();
+        }
+
+        internal void SeedTagsForTesting(FuturemudDatabaseContext context)
+        {
+            SeedTags(context, new List<string>());
             context.SaveChanges();
         }
     }

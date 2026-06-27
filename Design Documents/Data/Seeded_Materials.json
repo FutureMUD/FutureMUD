@@ -5415,5 +5415,208 @@
         "Tags":  [
                      "Materials / Natural Materials / Food / Vegetable"
                  ]
+    },
+    {
+        "Material Name":  "coral",
+        "Tags":  [
+                     "Materials / Animal Product / Shell",
+                     "Materials / Natural Materials"
+                 ]
+    },
+    {
+        "Material Name":  "rock crystal",
+        "Tags":  [
+                     "Materials / Natural Materials / Stone / Economically Useful Stone / Gemstone"
+                 ]
+    },
+    {
+        "Material Name":  "faience",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Ceramic / Faience"
+                 ]
+    },
+    {
+        "Material Name":  "enamel",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Glass / Enamel",
+                     "Materials / Manufactured Materials / Glass"
+                 ]
+    },
+    {
+        "Material Name":  "niello",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Manufactured Metal / Inlay Material",
+                     "Materials / Manufactured Materials / Manufactured Metal / Medieval Age"
+                 ]
+    },
+    {
+        "Material Name":  "silver-gilt",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Manufactured Metal / Gilded Metal",
+                     "Materials / Manufactured Materials / Manufactured Metal / Precious Metal",
+                     "Materials / Manufactured Materials / Manufactured Metal / Medieval Age"
+                 ]
+    },
+    {
+        "Material Name":  "gilded bronze",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Manufactured Metal / Gilded Metal",
+                     "Materials / Manufactured Materials / Manufactured Metal / Bronze Age"
+                 ]
+    },
+    {
+        "Material Name":  "gilded copper",
+        "Tags":  [
+                     "Materials / Manufactured Materials / Manufactured Metal / Gilded Metal",
+                     "Materials / Manufactured Materials / Manufactured Metal / Bronze Age"
+                 ]
+    },
+    {
+        "Material Name":  "mother-of-pearl",
+        "Tags":  [
+                     "Materials / Animal Product / Shell",
+                     "Materials / Natural Materials / Stone / Economically Useful Stone / Gemstone"
+                 ]
+    },
+    {
+        "Material Name":  "nacre",
+        "Tags":  [
+                     "Materials / Animal Product / Shell",
+                     "Materials / Natural Materials / Stone / Economically Useful Stone / Gemstone"
+                 ]
+    },
+    {
+        "Material Name":  "cowrie shell",
+        "Tags":  [
+                     "Materials / Animal Product / Shell"
+                 ]
+    },
+    {
+        "Material Name":  "conch shell",
+        "Tags":  [
+                     "Materials / Animal Product / Shell"
+                 ]
+    },
+    {
+        "Material Name":  "tortoiseshell",
+        "Tags":  [
+                     "Materials / Animal Product / Tortoiseshell",
+                     "Materials / Animal Product"
+                 ]
+    },
+    {
+        "Material Name":  "flower",
+        "Tags":  [
+                     "Materials / Natural Materials / Vegetation / Flower"
+                 ]
+    },
+    {
+        "Material Name":  "fresh flower",
+        "Tags":  [
+                     "Materials / Natural Materials / Vegetation / Flower"
+                 ]
+    },
+    {
+        "Material Name":  "wilted flower",
+        "Tags":  [
+                     "Materials / Natural Materials / Vegetation / Flower"
+                 ]
+    },
+    {
+        "Material Name":  "dried flower",
+        "Tags":  [
+                     "Materials / Natural Materials / Vegetation / Flower / Dried Flower"
+                 ]
+    },
+    {
+        "Material Name":  "petal",
+        "Tags":  [
+                     "Materials / Natural Materials / Vegetation / Flower"
+                 ]
+    },
+    {
+        "Material Name":  "dried petal",
+        "Tags":  [
+                     "Materials / Natural Materials / Vegetation / Flower / Dried Flower"
+                 ]
+    },
+    {
+        "Material Name":  "rose",
+        "Tags":  [
+                     "Materials / Natural Materials / Vegetation / Flower"
+                 ]
+    },
+    {
+        "Material Name":  "violet",
+        "Tags":  [
+                     "Materials / Natural Materials / Vegetation / Flower"
+                 ]
+    },
+    {
+        "Material Name":  "daisy",
+        "Tags":  [
+                     "Materials / Natural Materials / Vegetation / Flower"
+                 ]
+    },
+    {
+        "Material Name":  "jasmine",
+        "Tags":  [
+                     "Materials / Natural Materials / Vegetation / Flower"
+                 ]
+    },
+    {
+        "Material Name":  "lotus flower",
+        "Tags":  [
+                     "Materials / Natural Materials / Vegetation / Flower"
+                 ]
+    },
+    {
+        "Material Name":  "marigold",
+        "Tags":  [
+                     "Materials / Natural Materials / Vegetation / Flower"
+                 ]
+    },
+    {
+        "Material Name":  "lily",
+        "Tags":  [
+                     "Materials / Natural Materials / Vegetation / Flower"
+                 ]
+    },
+    {
+        "Material Name":  "chrysanthemum",
+        "Tags":  [
+                     "Materials / Natural Materials / Vegetation / Flower"
+                 ]
+    },
+    {
+        "Material Name":  "blossom",
+        "Tags":  [
+                     "Materials / Natural Materials / Vegetation / Flower"
+                 ]
+    },
+    {
+        "Material Name":  "ivy",
+        "Tags":  [
+                     "Materials / Natural Materials / Vegetation / Leaf"
+                 ]
+    },
+    {
+        "Material Name":  "laurel",
+        "Tags":  [
+                     "Materials / Natural Materials / Vegetation / Leaf"
+                 ]
+    },
+    {
+        "Material Name":  "rush",
+        "Tags":  [
+                     "Materials / Natural Materials / Vegetation / Rush"
+                 ]
+    },
+    {
+        "Material Name":  "straw",
+        "Tags":  [
+                     "Materials / Natural Materials / Vegetation",
+                     "Materials / Natural Materials / Agricultural Crop"
+                 ]
     }
 ]

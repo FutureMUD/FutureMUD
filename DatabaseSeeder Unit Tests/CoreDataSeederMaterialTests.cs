@@ -396,6 +396,152 @@ public class CoreDataSeederMaterialTests
 			"Medieval medical material additions should be integrated into Seeded_Materials.json, not kept as a supplement.");
 	}
 
+	[TestMethod]
+	public void SeedMaterials_SeedsMedievalJewelleryMaterialsWithExpectedTags()
+	{
+		using FuturemudDatabaseContext context = BuildContext();
+		SeedMaterials(context);
+
+		Dictionary<string, (MaterialBehaviourType Behaviour, string[] Tags)> expectations =
+			new(StringComparer.InvariantCultureIgnoreCase)
+			{
+				["coral"] = (MaterialBehaviourType.Shell, ["Shell"]),
+				["rock crystal"] = (MaterialBehaviourType.Stone, ["Gemstone"]),
+				["faience"] = (MaterialBehaviourType.Ceramic, ["Faience"]),
+				["enamel"] = (MaterialBehaviourType.Ceramic, ["Enamel", "Glass"]),
+				["niello"] = (MaterialBehaviourType.Metal, ["Inlay Material"]),
+				["silver-gilt"] = (MaterialBehaviourType.Metal, ["Gilded Metal", "Precious Metal"]),
+				["gilded bronze"] = (MaterialBehaviourType.Metal, ["Gilded Metal"]),
+				["gilded copper"] = (MaterialBehaviourType.Metal, ["Gilded Metal"]),
+				["mother-of-pearl"] = (MaterialBehaviourType.Shell, ["Shell", "Gemstone"]),
+				["nacre"] = (MaterialBehaviourType.Shell, ["Shell", "Gemstone"]),
+				["cowrie shell"] = (MaterialBehaviourType.Shell, ["Shell"]),
+				["conch shell"] = (MaterialBehaviourType.Shell, ["Shell"]),
+				["tortoiseshell"] = (MaterialBehaviourType.Shell, ["Tortoiseshell"]),
+				["flower"] = (MaterialBehaviourType.Plant, ["Flower"]),
+				["fresh flower"] = (MaterialBehaviourType.Plant, ["Flower"]),
+				["wilted flower"] = (MaterialBehaviourType.Plant, ["Flower"]),
+				["dried flower"] = (MaterialBehaviourType.Plant, ["Dried Flower"]),
+				["petal"] = (MaterialBehaviourType.Plant, ["Flower"]),
+				["dried petal"] = (MaterialBehaviourType.Plant, ["Dried Flower"]),
+				["rose"] = (MaterialBehaviourType.Plant, ["Flower"]),
+				["violet"] = (MaterialBehaviourType.Plant, ["Flower"]),
+				["daisy"] = (MaterialBehaviourType.Plant, ["Flower"]),
+				["jasmine"] = (MaterialBehaviourType.Plant, ["Flower"]),
+				["lotus flower"] = (MaterialBehaviourType.Plant, ["Flower"]),
+				["marigold"] = (MaterialBehaviourType.Plant, ["Flower"]),
+				["lily"] = (MaterialBehaviourType.Plant, ["Flower"]),
+				["chrysanthemum"] = (MaterialBehaviourType.Plant, ["Flower"]),
+				["blossom"] = (MaterialBehaviourType.Plant, ["Flower"]),
+				["ivy"] = (MaterialBehaviourType.Plant, ["Leaf"]),
+				["laurel"] = (MaterialBehaviourType.Plant, ["Leaf"]),
+				["rush"] = (MaterialBehaviourType.Plant, ["Rush"]),
+				["straw"] = (MaterialBehaviourType.Plant, ["Vegetation"])
+			};
+
+		Dictionary<string, MudSharp.Models.Material> materials = context.Materials
+			.Include(x => x.MaterialAliases)
+			.Include(x => x.MaterialsTags)
+			.ThenInclude(x => x.Tag)
+			.AsEnumerable()
+			.Where(x => expectations.ContainsKey(x.Name))
+			.ToDictionary(x => x.Name, StringComparer.InvariantCultureIgnoreCase);
+
+		foreach (KeyValuePair<string, (MaterialBehaviourType Behaviour, string[] Tags)> expectation in expectations)
+		{
+			Assert.IsTrue(materials.TryGetValue(expectation.Key, out MudSharp.Models.Material? material),
+				$"{expectation.Key} should be seeded.");
+			Assert.IsNotNull(material);
+			Assert.AreEqual((int)expectation.Value.Behaviour, material!.BehaviourType,
+				$"{expectation.Key} should use the expected material behaviour.");
+
+			foreach (string tag in expectation.Value.Tags)
+			{
+				Assert.IsTrue(material.MaterialsTags.Any(x => x.Tag.Name == tag),
+					$"{expectation.Key} should be tagged as {tag}.");
+			}
+		}
+
+		(string Material, string Alias)[] expectedAliases =
+		[
+			("mother-of-pearl", "mother of pearl"),
+			("rock crystal", "clear quartz"),
+			("silver-gilt", "vermeil"),
+			("gilded bronze", "gilt bronze"),
+			("gilded copper", "gilt copper"),
+			("cowrie shell", "cowrie"),
+			("conch shell", "conch")
+		];
+
+		foreach ((string material, string alias) in expectedAliases)
+		{
+			Assert.IsTrue(context.MaterialAliases.Any(x => x.Material.Name == material && x.Alias == alias),
+				$"{material} should have the {alias} alias.");
+		}
+	}
+
+	[TestMethod]
+	public void SeededMaterialsCatalogue_IncludesMedievalJewelleryMaterials()
+	{
+		var catalogueSource = ReadSource("Design Documents", "Data", "Seeded_Materials.json");
+		using var catalogue = JsonDocument.Parse(catalogueSource);
+
+		var entries = catalogue.RootElement
+			.EnumerateArray()
+			.ToDictionary(
+				x => x.GetProperty("Material Name").GetString()!,
+				x => x.GetProperty("Tags").EnumerateArray().Select(y => y.GetString()!).ToArray(),
+				StringComparer.InvariantCultureIgnoreCase);
+
+		Dictionary<string, string[]> expectations = new(StringComparer.InvariantCultureIgnoreCase)
+		{
+			["coral"] = ["Materials / Animal Product / Shell"],
+			["rock crystal"] = ["Materials / Natural Materials / Stone / Economically Useful Stone / Gemstone"],
+			["faience"] = ["Materials / Manufactured Materials / Ceramic / Faience"],
+			["enamel"] = ["Materials / Manufactured Materials / Glass / Enamel"],
+			["niello"] = ["Materials / Manufactured Materials / Manufactured Metal / Inlay Material"],
+			["silver-gilt"] = ["Materials / Manufactured Materials / Manufactured Metal / Gilded Metal"],
+			["gilded bronze"] = ["Materials / Manufactured Materials / Manufactured Metal / Gilded Metal"],
+			["gilded copper"] = ["Materials / Manufactured Materials / Manufactured Metal / Gilded Metal"],
+			["mother-of-pearl"] = ["Materials / Animal Product / Shell"],
+			["nacre"] = ["Materials / Animal Product / Shell"],
+			["cowrie shell"] = ["Materials / Animal Product / Shell"],
+			["conch shell"] = ["Materials / Animal Product / Shell"],
+			["tortoiseshell"] = ["Materials / Animal Product / Tortoiseshell"],
+			["flower"] = ["Materials / Natural Materials / Vegetation / Flower"],
+			["fresh flower"] = ["Materials / Natural Materials / Vegetation / Flower"],
+			["wilted flower"] = ["Materials / Natural Materials / Vegetation / Flower"],
+			["dried flower"] = ["Materials / Natural Materials / Vegetation / Flower / Dried Flower"],
+			["petal"] = ["Materials / Natural Materials / Vegetation / Flower"],
+			["dried petal"] = ["Materials / Natural Materials / Vegetation / Flower / Dried Flower"],
+			["rose"] = ["Materials / Natural Materials / Vegetation / Flower"],
+			["violet"] = ["Materials / Natural Materials / Vegetation / Flower"],
+			["daisy"] = ["Materials / Natural Materials / Vegetation / Flower"],
+			["jasmine"] = ["Materials / Natural Materials / Vegetation / Flower"],
+			["lotus flower"] = ["Materials / Natural Materials / Vegetation / Flower"],
+			["marigold"] = ["Materials / Natural Materials / Vegetation / Flower"],
+			["lily"] = ["Materials / Natural Materials / Vegetation / Flower"],
+			["chrysanthemum"] = ["Materials / Natural Materials / Vegetation / Flower"],
+			["blossom"] = ["Materials / Natural Materials / Vegetation / Flower"],
+			["ivy"] = ["Materials / Natural Materials / Vegetation / Leaf"],
+			["laurel"] = ["Materials / Natural Materials / Vegetation / Leaf"],
+			["rush"] = ["Materials / Natural Materials / Vegetation / Rush"],
+			["straw"] = ["Materials / Natural Materials / Vegetation"]
+		};
+
+		foreach (var expectation in expectations)
+		{
+			Assert.IsTrue(entries.TryGetValue(expectation.Key, out var tags),
+				$"Seeded_Materials.json should include {expectation.Key}.");
+			Assert.IsNotNull(tags);
+			foreach (var tag in expectation.Value)
+			{
+				Assert.IsTrue(tags!.Contains(tag),
+					$"Seeded_Materials.json should tag {expectation.Key} as {tag}.");
+			}
+		}
+	}
+
     [TestMethod]
     public void SeedMaterials_IncludesAllAgricultureCommodityOutputs()
     {

@@ -322,6 +322,54 @@ public partial class CoreDataSeeder
 			"Natural Materials");
 		AddMaterial("coral lime", MaterialBehaviourType.Powder, 0.975, false, 1000, 1000, 0.0, 0.14, 0.0001,
 			500, "Manufactured Materials");
+		AddMaterial("rock crystal", MaterialBehaviourType.Stone, 2.65, false, 60000000, 200000, 0.0, 0.14,
+			0.0001, 500, "Gemstone");
+		AddMaterial("faience", MaterialBehaviourType.Ceramic, 1.9, false, 40000, 100000, 0.0, 0.002, 0.0001,
+			500, "Faience");
+		AddMaterial("enamel", MaterialBehaviourType.Ceramic, 2.5, false, 33000, 90000, 0.0, 1.0, 0.0001, 840,
+			"Enamel", "Glass");
+		AddMaterial("niello", MaterialBehaviourType.Metal, 6.0, false, 10500, 0, 0.0, 17.9, 14500000, 500,
+			"Inlay Material", "Medieval Age");
+		AddMaterial("silver-gilt", MaterialBehaviourType.Metal, 12.0, false, 85000, 0, 0.0, 17.9, 14500000,
+			500, "Gilded Metal", "Precious Metal", "Medieval Age");
+		AddMaterial("gilded bronze", MaterialBehaviourType.Metal, 9.0, false, 314000, 0, 0.0, 17.9, 14500000,
+			500, "Gilded Metal", "Bronze Age");
+		AddMaterial("gilded copper", MaterialBehaviourType.Metal, 9.2, false, 68000, 0, 0.0, 17.9, 14500000,
+			500, "Gilded Metal", "Bronze Age");
+		AddMaterial("mother-of-pearl", MaterialBehaviourType.Shell, 1.2, true, 20000, 50000, 2.0, 0.14, 0.0001,
+			500, "Shell", "Gemstone");
+		AddMaterial("nacre", MaterialBehaviourType.Shell, 1.2, true, 20000, 50000, 2.0, 0.14, 0.0001, 500,
+			"Shell", "Gemstone");
+		AddMaterial("cowrie shell", MaterialBehaviourType.Shell, 1.2, true, 20000, 50000, 2.0, 0.14, 0.0001,
+			500, "Shell");
+		AddMaterial("conch shell", MaterialBehaviourType.Shell, 1.2, true, 20000, 50000, 2.0, 0.14, 0.0001,
+			500, "Shell");
+		AddMaterial("tortoiseshell", MaterialBehaviourType.Shell, 1.2, true, 20000, 50000, 2.0, 0.14, 0.0001,
+			500, "Tortoiseshell", "Animal Product");
+		foreach (var name in new[]
+		         {
+			         "flower", "fresh flower", "wilted flower", "petal", "rose", "violet", "daisy", "jasmine",
+			         "lotus flower", "marigold", "lily", "chrysanthemum", "blossom"
+		         })
+		{
+			AddMaterial(name, MaterialBehaviourType.Plant, 0.2, true, 1000, 1000, 0.1, 0.08, 0.0001, 500,
+				"Flower");
+		}
+
+		foreach (var name in new[] { "dried flower", "dried petal" })
+		{
+			AddMaterial(name, MaterialBehaviourType.Plant, 0.2, true, 1000, 1000, 0.1, 0.08, 0.0001, 500,
+				"Dried Flower");
+		}
+
+		foreach (var name in new[] { "ivy", "laurel" })
+		{
+			AddMaterial(name, MaterialBehaviourType.Plant, 0.4, true, 5000, 5000, 0.1, 0.08, 0.0001, 500,
+				"Leaf");
+		}
+
+		AddMaterial("rush", MaterialBehaviourType.Plant, 0.3, true, 5000, 5000, 0.1, 0.08, 0.0001, 500,
+			"Rush");
 		AddMaterial("greenstone", MaterialBehaviourType.Stone, 3.0, false, 60000000, 200000, 0.0, 0.14,
 			0.0001, 500, "Gemstone");
 		AddMaterial("copperas", MaterialBehaviourType.Powder, 1.9, false, 1000, 1000, 0.0, 0.14, 0.0001, 500,
@@ -352,6 +400,21 @@ public partial class CoreDataSeeder
 		EnsureAlias(materials["greenstone"], "pounamu");
 		EnsureAlias(materials["copperas"], "vitriol", "green vitriol");
 		EnsureAlias(materials["seaweed"], "kelp");
+		EnsureTag(materials["coral"], "Shell");
+		EnsureAlias(materials["rock crystal"], "crystal", "clear quartz");
+		EnsureAlias(materials["faience"], "fayence");
+		EnsureAlias(materials["enamel"], "enamel inlay");
+		EnsureAlias(materials["niello"], "niello inlay");
+		EnsureAlias(materials["silver-gilt"], "gilt silver", "vermeil");
+		EnsureAlias(materials["gilded bronze"], "gilt bronze");
+		EnsureAlias(materials["gilded copper"], "gilt copper");
+		EnsureAlias(materials["mother-of-pearl"], "mother of pearl");
+		EnsureAlias(materials["nacre"], "nacreous shell");
+		EnsureAlias(materials["cowrie shell"], "cowrie");
+		EnsureAlias(materials["conch shell"], "conch");
+		EnsureAlias(materials["tortoiseshell"], "turtle shell");
+		EnsureAlias(materials["rush"], "rushes");
+		EnsureAlias(materials["laurel"], "bay laurel");
 
 		foreach (var name in new[]
 		{
@@ -1007,10 +1070,16 @@ public partial class CoreDataSeeder
         AddTag("Raw Wool", "Pastoral Product");
         AddTag("Egg Product", "Pastoral Product");
         AddTag("Manure Product", "Pastoral Product");
+        AddTag("Shell", "Animal Product");
+        AddTag("Tortoiseshell", "Animal Product");
         AddTag("Natural Materials", "Materials");
         AddTag("Manufactured Materials", "Materials");
         AddTag("Stone", "Natural Materials");
         AddTag("Vegetation", "Natural Materials");
+        AddTag("Flower", "Vegetation");
+        AddTag("Dried Flower", "Flower");
+        AddTag("Leaf", "Vegetation");
+        AddTag("Rush", "Vegetation");
         AddTag("Economically Useful Stone", "Stone");
         AddTag("Feldspar", "Economically Useful Stone");
         AddTag("Calcite", "Economically Useful Stone");
@@ -1078,6 +1147,8 @@ public partial class CoreDataSeeder
         AddTag("Cast Metal", "Manufactured Metal");
         AddTag("Forged Metal", "Manufactured Metal");
         AddTag("Precious Metal", "Manufactured Metal");
+        AddTag("Gilded Metal", "Manufactured Metal");
+        AddTag("Inlay Material", "Manufactured Metal");
         AddTag("Soil", "Natural Materials");
         AddTag("Wood", "Natural Materials");
         AddTag("Hardwood", "Wood");
@@ -1107,6 +1178,8 @@ public partial class CoreDataSeeder
         AddTag("Synthetic Fiber Fabric", "Fabric");
         AddTag("Blended Fiber Fabric", "Fabric");
         AddTag("Ceramic", "Manufactured Materials");
+        AddTag("Faience", "Ceramic");
+        AddTag("Enamel", "Glass");
         AddTag("Plastic", "Manufactured Materials");
         AddTag("Elastomer", "Materials");
         AddTag("Elemental Materials", "Materials");

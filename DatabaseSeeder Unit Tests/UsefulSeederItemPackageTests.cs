@@ -117,6 +117,73 @@ public class UsefulSeederItemPackageTests
 		context.SaveChanges();
 	}
 
+	private static void SeedVariablePrerequisites(FuturemudDatabaseContext context)
+	{
+		(string Name, string Pattern)[] definitions =
+		[
+			("Colour", "colou?r"),
+			("Colour1", "colou?r1"),
+			("Colour2", "colou?r2"),
+			("Colour3", "colou?r3"),
+			("Fine Colour", "^finecolou?r(ed)?$"),
+			("Drab Colour", "^(drabcolou?r|drobcolor)$"),
+			("Gem", "^gem(colou?r)?$"),
+			("Fine Gem", "^finegem(colou?r)?$"),
+			("Common Stone", "^(common)?stone$"),
+			("Jewellery Motif", "^motif$"),
+			("Flower", "^flower$"),
+			("Metal Finish", "^finish$"),
+			("Bead Pattern", "^beadpattern$"),
+			("Jewellery Shape", "^shape$"),
+			("Inlay Style", "^inlay$")
+		];
+
+		foreach ((string name, string pattern) in definitions)
+		{
+			context.CharacteristicDefinitions.Add(new CharacteristicDefinition
+			{
+				Type = 2,
+				Name = name,
+				Pattern = pattern,
+				Description = name,
+				Model = "standard"
+			});
+		}
+
+		context.SaveChanges();
+
+		(string Profile, string Definition)[] profiles =
+		[
+			("All_Colours", "Colour"),
+			("Basic_Colours", "Colour"),
+			("Fine_Colours", "Colour"),
+			("Drab_Colours", "Colour"),
+			("Gem_Colours", "Gem"),
+			("Fine_Gem_Colours", "Fine Gem"),
+			("Common_Stones", "Common Stone"),
+			("Jewellery_Motifs", "Jewellery Motif"),
+			("Jewellery_Flowers", "Flower"),
+			("Jewellery_Metal_Finishes", "Metal Finish"),
+			("Jewellery_Bead_Patterns", "Bead Pattern"),
+			("Jewellery_Shapes", "Jewellery Shape"),
+			("Jewellery_Inlay_Styles", "Inlay Style")
+		];
+
+		foreach ((string profile, string definition) in profiles)
+		{
+			context.CharacteristicProfiles.Add(new CharacteristicProfile
+			{
+				Name = profile,
+				Type = profile == "All_Colours" ? "all" : "Standard",
+				Definition = "<Definition/>",
+				TargetDefinitionId = context.CharacteristicDefinitions.Single(x => x.Name == definition).Id,
+				Description = profile
+			});
+		}
+
+		context.SaveChanges();
+	}
+
 	private static Dictionary<string, string> BuildUsefulAnswers(string covers = "no")
 	{
 		return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
@@ -427,7 +494,9 @@ public class UsefulSeederItemPackageTests
 		Assert.IsTrue(UsefulSeeder.StockItemMarkersForTesting.Contains("Medieval_Parchment_Sheet_Surface"));
 		Assert.IsTrue(UsefulSeeder.StockItemMarkersForTesting.Contains("Medieval_Wax_Tablet_Surface"));
 		Assert.IsTrue(UsefulSeeder.StockItemMarkersForTesting.Contains("Medieval_Quill_Pen"));
+		Assert.IsTrue(UsefulSeeder.StockItemMarkersForTesting.Contains("Variable_JewelleryMotif"));
 		Assert.IsTrue(UsefulSeeder.StockItemMarkersForTesting.Contains("SealStamp_Medieval_BronzeSignet"));
+		Assert.IsTrue(UsefulSeeder.StockItemMarkersForTesting.Contains("SealStamp_Medieval_RingSignet"));
 		Assert.IsTrue(UsefulSeeder.StockItemMarkersForTesting.Contains("Medieval_Parchment_Codex_40_Page"));
 		Assert.IsTrue(UsefulSeeder.StockItemMarkersForTesting.Contains("Container_Document_Pouch"));
 		Assert.IsTrue(UsefulSeeder.StockItemMarkersForTesting.Contains("Container_Archive_Chest"));
@@ -445,6 +514,42 @@ public class UsefulSeederItemPackageTests
 		context.SaveChanges();
 
 		Assert.AreEqual(ShouldSeedResult.MayAlreadyBeInstalled, UsefulSeeder.ClassifyItemPackagePresence(context));
+	}
+
+	[TestMethod]
+	public void SeedVariablesForTesting_CreatesMedievalJewelleryVariableComponents()
+	{
+		using FuturemudDatabaseContext context = BuildContext();
+		SeedGeneralPrerequisites(context);
+		SeedVariablePrerequisites(context);
+		UsefulSeeder seeder = new();
+
+		seeder.SeedVariablesForTesting(context);
+		seeder.SeedVariablesForTesting(context);
+
+		(string Component, string Profile, string Definition, string Token)[] expectedVariables =
+		[
+			("Variable_JewelleryMotif", "Jewellery_Motifs", "Jewellery Motif", "$motif"),
+			("Variable_Flower", "Jewellery_Flowers", "Flower", "$flower"),
+			("Variable_MetalFinish", "Jewellery_Metal_Finishes", "Metal Finish", "$finish"),
+			("Variable_BeadPattern", "Jewellery_Bead_Patterns", "Bead Pattern", "$beadpattern"),
+			("Variable_JewelleryShape", "Jewellery_Shapes", "Jewellery Shape", "$shape"),
+			("Variable_InlayStyle", "Jewellery_Inlay_Styles", "Inlay Style", "$inlay")
+		];
+
+		foreach ((string componentName, string profileName, string definitionName, string token) in expectedVariables)
+		{
+			GameItemComponentProto component = context.GameItemComponentProtos.Single(x => x.Name == componentName);
+			Assert.AreEqual("Variable", component.Type);
+			StringAssert.Contains(component.Description, token);
+
+			XElement definition = XElement.Parse(component.Definition);
+			XElement characteristic = definition.Element("Characteristic")!;
+			Assert.AreEqual(context.CharacteristicProfiles.Single(x => x.Name == profileName).Id,
+				(long)characteristic.Attribute("Profile")!);
+			Assert.AreEqual(context.CharacteristicDefinitions.Single(x => x.Name == definitionName).Id,
+				(long)characteristic.Attribute("Value")!);
+		}
 	}
 
 	[TestMethod]
@@ -731,6 +836,10 @@ public class UsefulSeederItemPackageTests
 			"SealStamp_Antiquity_BronzeSignet",
 			"SealStamp_Antiquity_CylinderSeal",
 			"SealStamp_Medieval_BronzeSignet",
+			"SealStamp_Medieval_RingSignet",
+			"SealStamp_Medieval_PersonalSignetRing",
+			"SealStamp_Medieval_MerchantSignetRing",
+			"SealStamp_Medieval_NobleSignetRing",
 			"SealStamp_Medieval_IronSealMatrix",
 			"SealStamp_Medieval_BrassOfficeSeal",
 			"SealStamp_Medieval_LeadSealMatrix",
@@ -845,6 +954,10 @@ public class UsefulSeederItemPackageTests
 			(string)Definition("SealStamp_Antiquity_BronzeSignet").Element("SealDesign")!);
 		Assert.AreEqual("a brass office seal bearing an institutional device",
 			(string)Definition("SealStamp_Medieval_BrassOfficeSeal").Element("SealDesign")!);
+		Assert.AreEqual("a noble signet ring bearing a heraldic device and motto",
+			(string)Definition("SealStamp_Medieval_NobleSignetRing").Element("SealDesign")!);
+		Assert.AreEqual("gold",
+			(string)Definition("SealStamp_Medieval_NobleSignetRing").Element("StampMaterial")!);
 		Assert.IsTrue(Definition("Sealable_Envelope").Element("AllowedMedia")!.Elements("Medium")
 		                                      .Any(x => (string)x == "wax"));
 		Assert.IsTrue(context.GameItemComponentProtos.Count(x => x.Type == "Sealable") >= 30);

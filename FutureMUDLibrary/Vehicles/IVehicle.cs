@@ -52,6 +52,9 @@ public interface IVehicle : IFrameworkItem, IHaveFuturemud, ISaveable
 	void HandleExteriorItemForceMoved();
 	void ForceDisembark(ICharacter actor, bool cancelMovement = true);
 	void ForceDisembarkAll();
+	IVehicleAccessState GrantAccess(ICharacter character, string accessTag, int accessLevel);
+	bool RevokeAccess(long accessStateId);
+	int RevokeAccess(ICharacter character, string accessTag = null);
 	void LinkExteriorItem(IGameItem item);
 	void SynchroniseExteriorItemToLocation();
 	IEnumerable<IWound> SufferDamage(IDamage damage);
@@ -149,6 +152,7 @@ public interface IVehicleTowLink : IFrameworkItem
 	bool IsManuallyDisabled { get; }
 	bool IsBroken { get; }
 	string WhyInvalid { get; }
+	void SetDisabled(bool disabled);
 }
 
 public interface IVehicleDamageZone : IFrameworkItem
@@ -160,5 +164,6 @@ public interface IVehicleDamageZone : IFrameworkItem
 	IEnumerable<IWound> Wounds { get; }
 	void AddDamage(double amount);
 	void SetStatus(VehicleSystemStatus status);
+	void RecalculateDamageFromWounds();
 	void ClearWoundsAndDamage();
 }

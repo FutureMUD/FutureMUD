@@ -7,11 +7,12 @@ This runbook gives a staff-facing, in-game verification path for the current veh
 The goal is to verify the supported vehicle shapes end to end:
 
 - `ItemScale` vehicles with an exterior item, one driver slot, one control station, boarding, driving, and disembarking.
-- `RoomContainer` vehicles with compartments, access points, cargo projections, install points, damage effects, and towing.
+- `RoomContainer` vehicles with compartments, access points, cargo projections, install points, damage effects, towing, and operational readiness diagnostics.
 - `CellExit` movement through ordinary adjacent cell exits, using either `drive <direction>` or normal movement commands while controlling a vehicle.
-- Active character/mount hitches where a person, animal, or mount pulls a vehicle tow point or leads another hitched character.
+- Active character/mount hitches where a person, animal, or mount pulls a vehicle tow point, leads another hitched character, or pulls a vehicle that itself has downstream vehicle tow links.
+- Operational readiness checks for access grants, module condition, fuel/power candidates, player repair, and tow-stress catastrophe recovery.
 
-`RoomScale`, route movement, coordinate movement, player-facing vehicle repair gameplay, dynamic trailer breakage, persistent parked mount harness diagnostics, and richer fuel or power networks are not fully supported by this runbook.
+`RoomScale`, route movement, coordinate movement, rich ownership or lease policy, rich parked-harness administration, and broad fuel or power network topology are not fully supported by this runbook.
 
 ## Prerequisites
 
@@ -35,6 +36,7 @@ comp list container
 comp list +trunk
 comp list dragaid
 comp list hitchgear
+comp list repairkit
 ```
 
 The runbook uses:
@@ -42,6 +44,7 @@ The runbook uses:
 - `Holdable` for crate, towbar, and installable module test items.
 - `Container_Trunk` for the cargo projection item.
 - `HitchGear_TowBar`, `HitchGear_Yoke`, `HitchGear_Harness`, `HitchGear_Rope`, or a legacy `DragAid` component for hitch tests. New content should prefer `HitchGear`.
+- `Repair_Metal`, `Repair_Wood`, `Repair_Universal`, or another material-compatible `RepairKit` component for player-facing exterior repair tests.
 
 If `Container_Trunk` is not installed, use any current component prototype of type `Container` instead.
 
@@ -63,6 +66,8 @@ comp set name QA Vehicle Engine Installable
 comp set desc Makes a QA test engine installable in vehicle engine mounts.
 comp set mount engine
 comp set role engine
+comp set mincondition 40%
+comp set movementcondition 60%
 comp edit submit fresh vehicle runbook module component
 comp review <component id>
 accept edit fresh vehicle runbook module component
@@ -72,7 +77,7 @@ Record the approved component id as `<engine-installable-component-id>`.
 
 Expected result:
 
-- Both type-help commands show the same vehicle installable help, including `mount <type>` and `role <role>`.
+- Both type-help commands show the same vehicle installable help, including `mount <type>`, `role <role>`, `mincondition <percent>`, and `movementcondition <percent>`.
 - `comp edit new vehicle installable` opens a `Vehicle Installable` component, not a `Vehicle Exterior` component.
 - `comp set` or `comp set ?` while editing the component shows the type-specific help instead of the generic "does not yet have specific help" message.
 
@@ -128,6 +133,7 @@ Build these item prototypes before creating vehicles:
 | `<crate-proto>` | cargo contents | noun `crate`, sdesc `a QA test crate`, size `small`, weight `5 kg` | `Holdable` |
 | `<cart-hull-proto>` | mount-pulled cart exterior item | noun `cart`, sdesc `a QA test hand cart`, size `normal`, weight `120 kg` | none |
 | `<yoke-proto>` | optional mount hitch aid | noun `yoke`, sdesc `a QA test yoke`, size `normal`, weight `8 kg` | `Holdable`, `HitchGear_Yoke` or `HitchGear_Harness` |
+| `<repair-kit-proto>` | exterior and hitch-item repair | noun `kit`, sdesc `a QA test repair kit`, size `small`, weight `2 kg` | `Holdable`, `Repair_Metal` for metal hulls or `Repair_Universal` for broad smoke tests |
 
 After `vehicleproto set exterior`, `vehicleproto set access add`, or `vehicleproto set cargo add`, try this negative test:
 
@@ -209,6 +215,10 @@ vehicleproto set cargo add <cabin-compartment-id> <access-point-id> <trunk-proto
 vehicleproto set installpoint add <access-point-id> engine engine true engine bay
 vehicleproto set tow add none hitch tow 2000 rear hitch
 vehicleproto set tow add none hitch towed 2000 front hitch
+vehicleproto set tow <rear-tow-point-id> stress warning 90%
+vehicleproto set tow <rear-tow-point-id> stress failstart 95%
+vehicleproto set tow <rear-tow-point-id> stress maxchance 25%
+vehicleproto set tow <rear-tow-point-id> stress damage 2%
 vehicleproto set movement role <movement-profile-id> engine
 vehicleproto set movement access <movement-profile-id>
 vehicleproto set movement tow <movement-profile-id>
@@ -230,10 +240,22 @@ Notes:
 - `vehicleproto set cargo add` automatically attaches the `Vehicle Cargo Space` projection component to `<trunk-proto>`, but the trunk item prototype must already have a normal container component.
 - The movement profile role requirement means the car should not drive until the engine module is installed.
 
-Verify access and module gating:
+Verify access grants, access projections, and module gating:
 
 ```text
 vehicle show <vehicle id>
+vehicle access <vehicle id> list
+vehicle access <vehicle id> grant <your character> board 1
+vehicle access <vehicle id> grant <your character> control 2
+vehicle access <vehicle id> grant <your character> service 2
+vehicle access <vehicle id> grant <your character> repair 2
+vehicle access <vehicle id> grant <your character> hitch 2
+vehicle access <vehicle id> list
+vehicle access preset list
+vehicle access preset show crew
+vehicle access <vehicle id> apply crew <your character>
+vehicle audit here access
+vehicle audit here readiness
 embark car driver
 open hatch@car
 embark car driver via hatch
@@ -256,9 +278,14 @@ uninstall engine@car
 
 Expected result:
 
+- `vehicle access list` shows no rows as permissive, then shows each explicit grant after the `grant` commands. Admin characters still bypass operational access checks; use a non-admin test character if you want to verify denial.
+- `vehicle access preset list|show` displays reusable presets from static configuration, and `vehicle access <vehicle> apply crew <character>` creates the expected board/control/service/hitch grants without adding a new access schema.
+- `vehicle audit here access` reports permissive access when no rows exist and exact access findings once rows exist; `vehicle audit here readiness` reports the same readiness reasons shown by `vehicle show`.
+- Once access rows exist, unlisted non-admin characters are blocked from board/control/service/repair/hitch actions with the readiness reason.
 - Boarding is blocked while the required access point is closed.
 - Opening `hatch@car` allows boarding.
 - Movement is blocked until the required `engine` role is installed.
+- Installed modules below their `movementcondition` threshold do not count for movement and appear in `vehicle show` readiness diagnostics.
 - Closing the hatch allows movement when the movement profile requires access points closed.
 - `drive north` and ordinary direction commands both invoke delayed vehicle movement while you control the car.
 - `engine@car` resolves as an installed module projection.
@@ -281,14 +308,18 @@ Expected result:
 - Cargo contents are normal item/container state.
 - If the trunk requires the hatch access point, closed or inaccessible access should block ordinary cargo use.
 
-Verify damage linkage and admin repair:
+Verify damage linkage, player repair, and admin repair:
 
 ```text
+item load <repair-kit-proto>
+get kit
 vehicle show <vehicle id>
 wound car none slashing 60
 vehicle show <vehicle id>
 open hatch@car
 embark car driver via hatch
+repair car with kit
+vehicle show <vehicle id>
 vehicle repair <vehicle id> damage all
 vehicle show <vehicle id>
 open hatch@car
@@ -300,9 +331,11 @@ drive north
 Expected result:
 
 - Exterior item damage creates vehicle-zone wounds.
-- `vehicle show` reports damage-zone status and effective damage disables.
+- `vehicle show` reports damage-zone status, effective damage disables, operational readiness, and repair hints.
 - Access, cargo, installation, tow, and movement profile effects are blocked while the damage effect is active.
-- `vehicle repair <vehicle> damage all` clears the damage-derived disables without clearing any manually disabled flags.
+- `repair car with kit` uses the ordinary item repair flow; after the repair effect completes or removes a wound, linked vehicle damage zones recalculate from remaining wounds.
+- If the kit cannot repair the vehicle material, damage type, severity, or remaining repair points, the ordinary repair command explains why.
+- `vehicle repair <vehicle> damage all` clears the damage-derived disables through the same recalculation path without clearing any manually disabled flags.
 
 ## Tow Train Test
 
@@ -333,12 +366,81 @@ unhitch front@trailer
 
 Expected result:
 
-- Hitching non-direct tow points requires a compatible hitch item to be held.
+- Hitching non-direct tow points requires a compatible hitch item to be held and hitch access when explicit vehicle access rows exist.
 - The hitch item is dropped into the tow train's location, receives an in-use/no-get effect, and is persisted on the tow link.
 - Movement moves the full recursive tow train and occupants together.
+- `vehicle show` reports invalid links and warns about valid but stressed links near their effective tow-point capacity.
+- Tow-point stress settings on `vehicleproto set tow <id> stress ...` override the global static tow-stress defaults for links that use that point.
 - If the hitch item is removed from the train location, destroyed, or deleted, movement should block and `vehicle show` should report an invalid tow-link cause.
 - `unhitch <vehicle>` removes all links involving that vehicle, while `unhitch <towpoint>@<vehicle>` removes only links using that point.
 
+### Tow Catastrophe And Recovery Check
+
+Tow catastrophe is probabilistic and only applies to valid but strained links. To smoke-test the recovery path, use a trailer or cargo load that brings a link above 95% of its effective tow-point capacity, then attempt movement a few times in a safe test area:
+
+```text
+vehicle show <car vehicle id>
+drive north
+vehicle show <car vehicle id>
+repair towbar with kit
+vehicle repair <car vehicle id> hitch all
+vehicle recover <car vehicle id> hitch fix
+vehicle fleet here recover hitch
+vehicle show <car vehicle id>
+unhitch front@trailer
+```
+
+Expected result:
+
+- Hard invalid states still fail before any catastrophe roll: missing gear, destroyed gear, missing endpoints, over-capacity links, incompatible tow points, cycles, duplicate incoming links, and blocked exits.
+- A stressed but valid link may catastrophically fail before movement and before fuel or power is consumed.
+- On catastrophe, the room receives a failure echo, the hitch item or linked exteriors take shearing damage, persistent links are disabled, transient hitch/drag effects are cleared, and reserved hitch items are released.
+- `vehicle show` reports the disabled link and recovery hint.
+- After physical repair, `vehicle repair <vehicle> hitch all` or `vehicle recover <vehicle> hitch fix` re-enables only links that pass unified graph validation; otherwise it leaves the link disabled with the validation reason.
+- `vehicle fleet here recover hitch` reports the same hitch recovery findings across all vehicles in the current cell without applying fixes unless `fix` is included.
+
+## Route-Ready Operations Smoke Test
+
+After creating at least one car and one trailer, verify the closeout staff tools:
+
+```text
+vehicle audit here all
+vehicle audit zone resources
+vehicle audit prototype <vehicle proto id> hitch
+vehicle fleet here access apply crew <your character>
+vehicle fleet here access grant <your character> repair 2
+vehicle fleet here access revoke <your character> repair
+vehicle fleet here recover all
+vehicle fleet here recover hitch fix
+```
+
+Expected result:
+
+- Scope selectors cover vehicles in the current cell, current zone, a vehicle prototype family, or all loaded vehicles.
+- Audit output groups findings by vehicle and uses the same subsystem and reason vocabulary as `vehicle show`.
+- Fleet access operations batch the same grant, revoke, apply, and clone behaviours as single-vehicle `vehicle access` commands.
+- Recovery commands report projection, install, and hitch findings; `fix` only mutates validated persistent hitch/tow links and leaves hard-invalid links disabled with their exact validation reason.
+
+For route and automation scripting, verify these built-in FutureProg function names are available in your local FutureProg function help/listing workflow:
+
+```text
+isvehicle(item)
+vehiclecanboard(character, item)
+vehiclecancontrol(character, item)
+vehiclecanservice(character, item)
+vehiclecanrepair(character, item)
+vehiclecanhitch(character, item)
+vehiclecanstart(character, item)
+vehiclereadinessreason(character, item, "start")
+vehicletrainweight(item)
+vehicletowstress(item)
+```
+
+Expected result:
+
+- The readiness predicates accept vehicle exterior items and return cell-exit operational readiness without requiring route movement to exist.
+- `vehiclereadinessreason` returns blank text when ready and the same blocking reason shown by commands when not ready.
+- `vehicletrainweight` and `vehicletowstress` expose the unified hitch graph's effective train weight and highest stress ratio for route preflight progs.
 ## Mount-Hitched Cart Test
 
 This is now an active movement hitch, not a persisted vehicle-to-vehicle tow link. It is intended for live scenes such as a horse pulling a cart, an ox team pulling a wagon, or a person pulling a hand cart. The relationship uses the normal drag/movement system, so it is cleared by `unhitch`, `stop`, drag invalidation, reboot, or ordinary effect cleanup. Use persisted vehicle tow links for parked trailer chains between vehicles.
@@ -422,13 +524,36 @@ Expected result:
 
 - A hitched character/mount can itself be the source for another hitch, so chains such as `horse -> ox -> cart` can move through normal cell exits.
 - Each target can only have one incoming drag/hitch link, and each source can only pull one target at a time.
-- Movement still uses normal character and mount movement validation. Combat, blocking position changes, closed required vehicle access, damage-disabled tow points, or insufficient drag capacity should block the hitch or movement.
+- Movement still uses normal character and mount movement validation. Combat, blocking position changes, missing hitch access, closed required vehicle access, damage-disabled tow points, invalid downstream trains, tow catastrophe, or insufficient drag capacity should block the hitch or movement.
 
 Current limitations:
 
-- Active character/mount hitches are not persisted reboot-safe tow-link records and do not appear as durable tow links in `vehicle show`.
-- A character/mount hitch cannot currently pull a vehicle that already has persisted vehicle-to-vehicle tow links.
+- PC-inclusive active character/mount hitches are not persisted reboot-safe tow-link records. NPC-only hitches can persist through `VehicleHitchLinks`, while live PC hitches are recovered only as ordinary transient effects during that session.
+- A character/mount hitch can pull a vehicle that already has downstream vehicle-to-vehicle tow links. Movement preflight checks the whole unified train for total weight, exit size, damage-disabled tow points, incompatible or missing hitch gear, duplicate incoming links, and cycles.
 - The hitch item is reserved with a no-get effect while the active link exists. NPC-only persistent hitches save the hitch item id; PC-inclusive hitches remain transient and are cleared by reboot.
+
+Optional mixed-train check:
+
+```text
+item load <towbar-proto>
+get towbar
+hitch rear@cart front@trailer with towbar
+vehicle show <cart vehicle id>
+hitch horse shafts@cart
+north
+vehicle show <cart vehicle id>
+vehicle show <trailer vehicle id>
+south
+unhitch horse
+unhitch front@trailer
+```
+
+Expected result:
+
+- The horse/mount pulls the cart and the cart's downstream trailer together through ordinary character movement.
+- The cart and trailer canonical locations update to the destination cell.
+- The towbar and any loose character-hitch item move with the chain unless they are worn/carried by an endpoint.
+- If the combined train is too heavy, a hitch item is missing/destroyed, a linked vehicle cannot fit through the exit, or a valid stressed link catastrophically fails, movement is blocked before any vehicle or hitch item moves.
 
 ## Negative Tests
 
@@ -465,6 +590,11 @@ get bicycle
 disembark
 ```
 
+```text
+vehicle access <vehicle id> grant <other-character> board 1
+vehicle access <vehicle id> list
+```
+
 Expected result:
 
 - Generic item loading of a vehicle exterior shell is blocked.
@@ -472,6 +602,7 @@ Expected result:
 - Driving with required access points open is blocked.
 - Damage-linked systems are reported as disabled in `vehicle show`; in this runbook's car prototype, the body damage zone disables access, cargo, install, tow, and movement together.
 - Admin damage repair restores damage-derived access and movement if the only blocking cause was damage-derived disablement.
+- A non-admin character with only `board` access can board when projection access allows it, but cannot control, install/uninstall, repair, hitch, or unhitch until granted the matching level 2 tag or `all`.
 - Occupied vehicle exteriors cannot be picked up or normally repositioned.
 
 ## Edge Case Checks
@@ -526,13 +657,14 @@ Expected result: if the connection itself blocks movement, driving is rejected w
 The current implementation should be considered fully supported for:
 
 - simple `ItemScale` vehicles that board one or more occupants, expose a driver station, and move through cell exits;
-- `RoomContainer` vehicles represented by one exterior item, with authored compartments, slots, stations, access projections, cargo projections, installation points, damage effects, tow points, and cell-exit movement;
-- recursive tow trains made from cell-visible vehicles, provided they stay within cell-exit movement and use simple co-located hitch items;
-- active mount/character-pulled carts, wagons, rickshaws, hand carts, and similar vehicle exteriors while the hitch is a live movement effect and not expected to persist through reboot.
+- `RoomContainer` vehicles represented by one exterior item, with authored compartments, slots, stations, access projections, cargo projections, installation points, damage effects, tow points, operational readiness checks, and cell-exit movement;
+- recursive tow trains made from cell-visible vehicles, provided they stay within cell-exit movement and use co-located compatible hitch items;
+- active mount/character-pulled carts, wagons, rickshaws, hand carts, and similar vehicle exteriors, including carts with downstream vehicle tow links, while the hitch is a live movement effect or an eligible NPC-only persistent hitch;
+- player-facing exterior repair through ordinary repair kits, admin damage/hitch recovery, and tow catastrophe recovery for the current cell-exit movement model.
 
 The current implementation should not yet be considered fully supported for:
 
 - route-based buses, trains, or ferries;
 - coordinate-positioned vehicles;
 - aircraft, spacecraft, elevators, or ships with large moving interiors;
-- vehicles that need reboot-persistent mount harness records, rich player repair gameplay, dynamic crash/catastrophe handling, or detailed fuel/power topology.
+- vehicles that need rich ownership or lease policy, rich parked-harness administration, or detailed fuel/power topology beyond installed module candidates.

@@ -6,16 +6,21 @@ using MudSharp.Body;
 using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
+using MudSharp.Commands.Modules;
 using MudSharp.Effects.Concrete;
+using MudSharp.Effects;
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Interfaces;
+using MudSharp.Movement;
 using MudSharp.PerceptionEngine;
 using MudSharp.Vehicles;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using DB = MudSharp.Models;
 
 namespace MudSharp_Unit_Tests;
@@ -578,20 +583,225 @@ public class VehicleTowServiceTests
 		Assert.AreEqual("A linked towed vehicle is also attached to another towing vehicle.", reason);
 	}
 
+	[TestMethod]
+	public void CanAddCharacterVehicleHitch_WithVehicleTowTrain_UsesRecursiveTrainAndSucceeds()
+	{
+		var graph = new VehicleHitchGraphService();
+		var location = new Mock<ICell>().Object;
+		var actor = CreateActor();
+		actor.SetupGet(x => x.Id).Returns(100);
+		actor.SetupGet(x => x.Location).Returns(location);
+		actor.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
+		var cart = CreateVehicle(1, "cart", location, weight: 30.0);
+		var trailer = CreateVehicle(2, "trailer", location, weight: 25.0);
+		var characterTowPoint = CreateTowPoint(11, "shafts", canTow: false, canBeTowed: true,
+			maxWeight: 100.0, towType: "hand");
+		var cartRearPoint = CreateTowPoint(12, "rear hitch", canTow: true, canBeTowed: false,
+			maxWeight: 100.0, towType: "pin");
+		var trailerPoint = CreateTowPoint(13, "front ring", canTow: false, canBeTowed: true,
+			maxWeight: 100.0, towType: "pin");
+		cart.Prototype.SetupGet(x => x.TowPoints).Returns([characterTowPoint.Object, cartRearPoint.Object]);
+		trailer.Prototype.SetupGet(x => x.TowPoints).Returns([trailerPoint.Object]);
+		AddLink(20, cart, cartRearPoint, trailer, trailerPoint,
+			hitchItem: CreateHitchItem(50, location, HitchGearRole.TowBar).Object);
+
+		var result = graph.CanAddCharacterVehicleHitch(actor.Object, actor.Object, cart.Vehicle.Object,
+			characterTowPoint.Object, null, null, out var reason);
+
+		Assert.IsTrue(result, reason);
+		Assert.AreEqual(string.Empty, reason);
+	}
+
+	[TestMethod]
+	public void CanAddCharacterVehicleHitch_WithVehicleTowTrain_UsesTrainWeightForTowPointLimit()
+	{
+		var graph = new VehicleHitchGraphService();
+		var location = new Mock<ICell>().Object;
+		var actor = CreateActor();
+		actor.SetupGet(x => x.Id).Returns(100);
+		actor.SetupGet(x => x.Location).Returns(location);
+		actor.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
+		var cart = CreateVehicle(1, "cart", location, weight: 30.0);
+		var trailer = CreateVehicle(2, "trailer", location, weight: 25.0);
+		var characterTowPoint = CreateTowPoint(11, "shafts", canTow: false, canBeTowed: true,
+			maxWeight: 40.0, towType: "hand");
+		var cartRearPoint = CreateTowPoint(12, "rear hitch", canTow: true, canBeTowed: false,
+			maxWeight: 100.0, towType: "pin");
+		var trailerPoint = CreateTowPoint(13, "front ring", canTow: false, canBeTowed: true,
+			maxWeight: 100.0, towType: "pin");
+		cart.Prototype.SetupGet(x => x.TowPoints).Returns([characterTowPoint.Object, cartRearPoint.Object]);
+		trailer.Prototype.SetupGet(x => x.TowPoints).Returns([trailerPoint.Object]);
+		AddLink(20, cart, cartRearPoint, trailer, trailerPoint,
+			hitchItem: CreateHitchItem(50, location, HitchGearRole.TowBar).Object);
+
+		var result = graph.CanAddCharacterVehicleHitch(actor.Object, actor.Object, cart.Vehicle.Object,
+			characterTowPoint.Object, null, null, out var reason);
+
+		Assert.IsFalse(result);
+		StringAssert.Contains(reason, "target train weighs 55.00");
+	}
+
+	[TestMethod]
+	public void CanDragVehicleTrain_WithIncomingCharacterHitch_MovesDownstreamVehiclesAndHitchItems()
+	{
+		var graph = new VehicleHitchGraphService();
+		var location = new Mock<ICell>().Object;
+		var destination = new Mock<ICell>();
+		var gameworld = new Mock<IFuturemud>();
+		var cart = CreateVehicle(1, "cart", location, weight: 30.0, gameworld: gameworld.Object);
+		var trailer = CreateVehicle(2, "trailer", location, weight: 25.0, gameworld: gameworld.Object);
+		var characterTowPoint = CreateTowPoint(11, "shafts", canTow: false, canBeTowed: true,
+			maxWeight: 100.0, towType: "hand");
+		var cartRearPoint = CreateTowPoint(12, "rear hitch", canTow: true, canBeTowed: false,
+			maxWeight: 100.0, towType: "pin");
+		var trailerPoint = CreateTowPoint(13, "front ring", canTow: false, canBeTowed: true,
+			maxWeight: 100.0, towType: "pin");
+		cart.Prototype.SetupGet(x => x.TowPoints).Returns([characterTowPoint.Object, cartRearPoint.Object]);
+		trailer.Prototype.SetupGet(x => x.TowPoints).Returns([trailerPoint.Object]);
+		var legacyHitchItem = CreateHitchItem(51, location, HitchGearRole.TowBar);
+		AddLink(20, cart, cartRearPoint, trailer, trailerPoint, hitchItem: legacyHitchItem.Object);
+		var incomingHitchItem = CreateHitchItem(50, location, HitchGearRole.Rope);
+		var source = CreateActor();
+		source.SetupGet(x => x.Id).Returns(100);
+		source.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		source.SetupGet(x => x.Location).Returns(location);
+		source.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
+		var hitch = new CharacterHitch(source.Object, cart.Vehicle.Object.ExteriorItem, 1.0,
+			characterTowPoint.Object.Id, hitchItemId: incomingHitchItem.Object.Id);
+		var hitches = new[] { hitch };
+		source.Setup(x => x.EffectsOfType<CharacterHitch>(It.IsAny<Predicate<CharacterHitch>>()))
+		      .Returns((Predicate<CharacterHitch> predicate) =>
+			      predicate is null ? hitches : hitches.Where(x => predicate(x)));
+		source.Setup(x => x.EffectsOfType<Dragging>(It.IsAny<Predicate<Dragging>>()))
+		      .Returns(Enumerable.Empty<Dragging>());
+		var actors = new All<ICharacter> { source.Object };
+		var vehicles = new All<IVehicle> { cart.Vehicle.Object, trailer.Vehicle.Object };
+		gameworld.SetupGet(x => x.Actors).Returns(actors);
+		gameworld.SetupGet(x => x.Vehicles).Returns(vehicles);
+		gameworld.Setup(x => x.TryGetItem(incomingHitchItem.Object.Id, true)).Returns(incomingHitchItem.Object);
+		var exit = CreateExit(location, destination.Object, SizeCategory.Huge);
+
+		var result = graph.CanDragVehicleTrain(gameworld.Object, cart.Vehicle.Object, exit.Object,
+			[source.Object], out var plan, out var reason);
+
+		Assert.IsTrue(result, reason);
+		CollectionAssert.AreEqual(new[] { 1L, 2L }, plan.Vehicles.Select(x => x.Id).ToArray());
+		Assert.IsTrue(plan.Links.Any(x => x.Kind == VehicleHitchGraphLinkKind.TransientCharacterHitch));
+		Assert.IsTrue(plan.Links.Any(x => x.Kind == VehicleHitchGraphLinkKind.LegacyVehicleTow));
+		CollectionAssert.AreEquivalent(new[] { 50L, 51L }, plan.HitchItems.Select(x => x.Id).ToArray());
+
+		graph.CompleteVehicleTrainMove(plan, destination.Object, RoomLayer.GroundLevel, exit.Object, null,
+			cart.Vehicle.Object);
+
+		cart.Vehicle.Verify(x => x.MoveToCell(It.IsAny<ICell>(), It.IsAny<RoomLayer>(), It.IsAny<ICellExit>(),
+			It.IsAny<IMovement>()), Times.Never);
+		trailer.Vehicle.Verify(x => x.MoveToCell(destination.Object, RoomLayer.GroundLevel, exit.Object, null),
+			Times.Once);
+		destination.Verify(x => x.Insert(incomingHitchItem.Object, true), Times.Once);
+		destination.Verify(x => x.Insert(legacyHitchItem.Object, true), Times.Once);
+	}
+
+	[TestMethod]
+	public void ApplyCharacterHitch_TransientActorHeldGear_DropsGearBeforeGraphValidation()
+	{
+		var graph = new VehicleHitchGraphService();
+		var location = new Mock<ICell>().Object;
+		var destination = new Mock<ICell>().Object;
+		var gameworld = new Mock<IFuturemud>();
+		var output = new Mock<IOutputHandler>();
+		var actor = CreateActor();
+		output.SetupGet(x => x.Perceiver).Returns(actor.Object);
+		actor.SetupGet(x => x.Id).Returns(100);
+		actor.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		actor.SetupGet(x => x.Location).Returns(location);
+		actor.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
+		actor.SetupGet(x => x.OutputHandler).Returns(output.Object);
+
+		var source = CreateActor();
+		source.SetupGet(x => x.Id).Returns(101);
+		source.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		source.SetupGet(x => x.Location).Returns(location);
+		source.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
+		source.SetupGet(x => x.PersistencePolicy).Returns(CharacterInstancePersistencePolicy.DespawnOnReboot);
+		var sourceEffects = new List<IEffect>();
+		source.Setup(x => x.AddEffect(It.IsAny<IEffect>()))
+		      .Callback<IEffect>(sourceEffects.Add);
+		source.Setup(x => x.EffectsOfType<CharacterHitch>(It.IsAny<Predicate<CharacterHitch>>()))
+		      .Returns((Predicate<CharacterHitch> predicate) =>
+			      sourceEffects.OfType<CharacterHitch>().Where(x => predicate?.Invoke(x) ?? true));
+		source.Setup(x => x.EffectsOfType<Dragging>(It.IsAny<Predicate<Dragging>>()))
+		      .Returns((Predicate<Dragging> predicate) =>
+			      sourceEffects.OfType<Dragging>().Where(x => predicate?.Invoke(x) ?? true));
+
+		var cart = CreateVehicle(1, "cart", location, weight: 30.0, gameworld: gameworld.Object);
+		var targetPoint = CreateTowPoint(11, "shafts", canTow: false, canBeTowed: true,
+			maxWeight: 100.0, towType: "rope");
+		cart.Prototype.SetupGet(x => x.TowPoints).Returns([targetPoint.Object]);
+
+		var gear = new Mock<IHitchGear>();
+		gear.SetupGet(x => x.Roles).Returns(HitchGearRole.Rope);
+		gear.SetupGet(x => x.MaximumTowedWeight).Returns(100.0);
+		gear.SetupGet(x => x.EffortMultiplier).Returns(1.0);
+		gear.SetupGet(x => x.MaximumUsers).Returns(1);
+		IBody? carriedBy = actor.Object.Body;
+		var hitchItem = new Mock<IGameItem>();
+		hitchItem.SetupGet(x => x.Id).Returns(50);
+		hitchItem.SetupGet(x => x.Name).Returns("a rope");
+		hitchItem.SetupGet(x => x.Location).Returns(location);
+		hitchItem.SetupProperty(x => x.RoomLayer, RoomLayer.GroundLevel);
+		hitchItem.SetupGet(x => x.InInventoryOf).Returns(() => carriedBy!);
+		hitchItem.Setup(x => x.GetItemType<IHitchGear>()).Returns(gear.Object);
+		hitchItem.Setup(x => x.GetItemType<IDragAid>()).Returns(gear.Object);
+		hitchItem.Setup(x => x.AffectedBy<HitchGearInUse>()).Returns(false);
+		hitchItem.Setup(x => x.HowSeen(It.IsAny<IPerceiver>(), It.IsAny<bool>(), It.IsAny<DescriptionType>(),
+			It.IsAny<bool>(), It.IsAny<PerceiveIgnoreFlags>())).Returns("a rope");
+		var actorBody = Mock.Get(actor.Object.Body);
+		actorBody.SetupGet(x => x.ExternalItems)
+		         .Returns(() => carriedBy == actor.Object.Body
+			         ? new[] { hitchItem.Object }
+			         : Enumerable.Empty<IGameItem>());
+		actorBody.Setup(x => x.Drop(hitchItem.Object, 0, false, null, true))
+		         .Callback(() => carriedBy = null);
+
+		var actors = new All<ICharacter> { source.Object };
+		var vehicles = new All<IVehicle> { cart.Vehicle.Object };
+		gameworld.SetupGet(x => x.Actors).Returns(actors);
+		gameworld.SetupGet(x => x.Vehicles).Returns(vehicles);
+		gameworld.Setup(x => x.TryGetItem(hitchItem.Object.Id, true)).Returns(hitchItem.Object);
+		var method = typeof(VehicleModule).GetMethod("ApplyCharacterHitch",
+			BindingFlags.Static | BindingFlags.NonPublic)!;
+
+		method.Invoke(null, [actor.Object, source.Object, cart.Vehicle.Object.ExteriorItem, cart.Vehicle.Object,
+			targetPoint.Object, hitchItem.Object, gear.Object]);
+
+		actorBody.Verify(x => x.Drop(hitchItem.Object, 0, false, null, true), Times.Once);
+		Assert.IsNull(carriedBy);
+		var exit = CreateExit(location, destination, SizeCategory.Huge);
+		var result = graph.CanDragVehicleTrain(gameworld.Object, cart.Vehicle.Object, exit.Object,
+			[source.Object], out _, out var reason);
+
+		Assert.IsTrue(result, reason);
+	}
+
 	private static Mock<ICharacter> CreateActor()
 	{
 		var body = new Mock<IBody>();
 		body.Setup(x => x.CanDrop(It.IsAny<IGameItem>(), 0)).Returns(true);
+		body.SetupGet(x => x.ExternalItems).Returns([]);
 		var actor = new Mock<ICharacter>();
 		actor.SetupGet(x => x.Body).Returns(body.Object);
+		actor.SetupGet(x => x.MaximumDragWeight).Returns(1000.0);
+		actor.Setup(x => x.HowSeen(It.IsAny<IPerceiver>(), It.IsAny<bool>(), It.IsAny<DescriptionType>(),
+			It.IsAny<bool>(), It.IsAny<PerceiveIgnoreFlags>())).Returns("a test actor");
 		return actor;
 	}
 
 	private static VehicleHarness CreateVehicle(long id, string name, ICell location, double weight = 10.0,
-		SizeCategory size = SizeCategory.Normal)
+		SizeCategory size = SizeCategory.Normal, IFuturemud? gameworld = null)
 	{
 		var links = new List<IVehicleTowLink>();
 		var exterior = new Mock<IGameItem>();
+		exterior.SetupGet(x => x.Id).Returns(id * 100L);
 		exterior.SetupGet(x => x.Weight).Returns(weight);
 		exterior.SetupGet(x => x.Size).Returns(size);
 		exterior.Setup(x => x.HowSeen(It.IsAny<IPerceiver>(), It.IsAny<bool>(), It.IsAny<DescriptionType>(),
@@ -611,6 +821,14 @@ public class VehicleTowServiceTests
 		vehicle.SetupGet(x => x.AccessPoints).Returns([]);
 		vehicle.SetupGet(x => x.Installations).Returns([]);
 		vehicle.SetupGet(x => x.Prototype).Returns(prototype.Object);
+		if (gameworld is not null)
+		{
+			vehicle.SetupGet(x => x.Gameworld).Returns(gameworld);
+		}
+
+		var exteriorComponent = new Mock<IVehicleExterior>();
+		exteriorComponent.SetupGet(x => x.Vehicle).Returns(vehicle.Object);
+		exterior.Setup(x => x.GetItemType<IVehicleExterior>()).Returns(exteriorComponent.Object);
 		vehicle.Setup(x => x.DamageDisabledReason(It.IsAny<VehicleDamageEffectTargetType>(), It.IsAny<long?>()))
 		       .Returns(string.Empty);
 		return new VehicleHarness(vehicle, links, prototype);

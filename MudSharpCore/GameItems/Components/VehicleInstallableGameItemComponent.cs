@@ -44,11 +44,48 @@ public class VehicleInstallableGameItemComponent : GameItemComponent, IVehicleIn
 	public override IGameItemComponentProto Prototype => _prototype;
 	public string MountType => _prototype.MountType;
 	public string Role => _prototype.Role;
+	public double MinimumFunctionalCondition => _prototype.MinimumFunctionalCondition;
+	public double MinimumMovementCondition => _prototype.MinimumMovementCondition;
 	public bool IsInstalled => Installation is not null;
 
 	public IVehicleInstallation? Installation => _vehicleId is null || _installationId is null
 		? null
 		: Gameworld.Vehicles.Get(_vehicleId.Value)?.Installations.FirstOrDefault(x => x.Id == _installationId.Value);
+
+	public bool IsFunctional(out string reason)
+	{
+		if (Parent.Deleted || Parent.Destroyed)
+		{
+			reason = "the installed module is destroyed";
+			return false;
+		}
+
+		if (Parent.Condition < MinimumFunctionalCondition)
+		{
+			reason = $"the installed module is only at {Parent.Condition:P2} condition and requires {MinimumFunctionalCondition:P2}";
+			return false;
+		}
+
+		reason = string.Empty;
+		return true;
+	}
+
+	public bool IsFunctionalForMovement(out string reason)
+	{
+		if (!IsFunctional(out reason))
+		{
+			return false;
+		}
+
+		if (Parent.Condition < MinimumMovementCondition)
+		{
+			reason = $"the installed module is only at {Parent.Condition:P2} condition and requires {MinimumMovementCondition:P2} for movement";
+			return false;
+		}
+
+		reason = string.Empty;
+		return true;
+	}
 
 	public void LinkInstallation(IVehicleInstallation installation)
 	{
@@ -79,7 +116,7 @@ public class VehicleInstallableGameItemComponent : GameItemComponent, IVehicleIn
 	{
 		if (type == DescriptionType.Evaluate)
 		{
-			return $"{description}\n\nIt is a {MountType.ColourCommand()} vehicle module{(string.IsNullOrWhiteSpace(Role) ? "" : $" for {Role.ColourCommand()}")}.";
+			return $"{description}\n\nIt is a {MountType.ColourCommand()} vehicle module{(string.IsNullOrWhiteSpace(Role) ? "" : $" for {Role.ColourCommand()}")}{(MinimumFunctionalCondition > 0.0 ? $". It requires {MinimumFunctionalCondition:P2} condition to function" : "")}{(MinimumMovementCondition > MinimumFunctionalCondition ? $" and {MinimumMovementCondition:P2} condition for movement" : "")}.";
 		}
 
 		if (type == DescriptionType.Full && Installation is not null)

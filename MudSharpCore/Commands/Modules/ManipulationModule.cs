@@ -74,6 +74,7 @@ internal class ManipulationModule : Module<ICharacter>
 	public override int CommandsDisplayOrder => 5;
 
 	public static ManipulationModule Instance { get; } = new();
+	private static readonly IVehicleOperationalReadinessService VehicleReadinessService = new VehicleOperationalReadinessService();
 
 	private static string JoinArguments(IEnumerable<string> arguments)
 	{
@@ -4460,6 +4461,12 @@ Use quotes around multi-word offering or focus names.", AutoHelp.HelpArg)]
             return;
         }
 
+        if (!VehicleReadinessService.CanPerformAction(vehicle, character, VehicleOperationalAction.Service, out var accessResult))
+        {
+            character.Send(accessResult.Reason);
+            return;
+        }
+
         IVehicleInstallation installation = null;
         if (!ss.IsFinished)
         {
@@ -4775,6 +4782,12 @@ Use quotes around multi-word offering or focus names.", AutoHelp.HelpArg)]
         if (installation is null)
         {
             character.Send("{0} is not installed in a vehicle.", moduleItem.HowSeen(character, true));
+            return;
+        }
+
+        if (!VehicleReadinessService.CanPerformAction(installation.Vehicle, character, VehicleOperationalAction.Service, out var accessResult))
+        {
+            character.Send(accessResult.Reason);
             return;
         }
 

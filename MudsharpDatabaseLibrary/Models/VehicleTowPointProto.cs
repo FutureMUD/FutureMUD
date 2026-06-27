@@ -13,6 +13,10 @@ public class VehicleTowPointProto
 	public bool CanBeTowed { get; set; }
 	public double MaximumTowedWeight { get; set; }
 	public double CharacterPullMultiplier { get; set; }
+	public double? TowStressWarningRatio { get; set; }
+	public double? TowStressFailureStartRatio { get; set; }
+	public double? TowStressMaximumFailureChance { get; set; }
+	public double? TowStressDamageMultiplier { get; set; }
 	public int DisplayOrder { get; set; }
 
 	public virtual VehicleProto VehicleProto { get; set; }

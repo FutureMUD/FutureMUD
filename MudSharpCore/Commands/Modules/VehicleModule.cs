@@ -30,6 +30,9 @@ internal class VehicleModule : Module<ICharacter>
 	public static VehicleModule Instance { get; } = new();
 	private static readonly IVehicleTowService TowService = new VehicleTowService();
 	private static readonly IVehicleHitchService HitchService = new VehicleHitchService();
+	private static readonly IVehicleHitchGraphService HitchGraphService = new VehicleHitchGraphService();
+	private static readonly IVehicleOperationalReadinessService OperationalReadinessService = new VehicleOperationalReadinessService(HitchGraphService);
+	private static readonly IVehicleFleetOperationsService FleetOperationsService = new VehicleFleetOperationsService(OperationalReadinessService, HitchGraphService);
 
 	private const string EmbarkHelp = @"The #3embark#0 command lets you board a vehicle exterior item.
 
@@ -180,6 +183,13 @@ Syntax:
 			return;
 		}
 
+		if (!CanUseVehicleForAction(actor, sourceVehicle, VehicleOperationalAction.Hitch, out var accessReason) ||
+		    !CanUseVehicleForAction(actor, targetVehicle, VehicleOperationalAction.Hitch, out accessReason))
+		{
+			actor.OutputHandler.Send(accessReason);
+			return;
+		}
+
 		if (sourceVehicle.ExteriorItem?.AffectedBy<Dragging.DragTarget>() == true)
 		{
 			actor.OutputHandler.Send($"{sourceVehicle.ExteriorItem.HowSeen(actor, true)} is already being pulled or dragged.");
@@ -288,6 +298,12 @@ Syntax:
 			if (targetVehicle.ExteriorItem is null)
 			{
 				actor.OutputHandler.Send("That vehicle does not have a linked exterior item.");
+				return;
+			}
+
+			if (!CanUseVehicleForAction(actor, targetVehicle, VehicleOperationalAction.Hitch, out var accessReason))
+			{
+				actor.OutputHandler.Send(accessReason);
 				return;
 			}
 
@@ -415,6 +431,15 @@ Syntax:
 			return;
 		}
 
+		foreach (var linkedVehicle in links.SelectMany(x => new[] { x.SourceVehicle, x.TargetVehicle }).Where(x => x is not null).Cast<IVehicle>().DistinctBy(x => x.Id))
+		{
+			if (!CanUseVehicleForAction(actor, linkedVehicle, VehicleOperationalAction.Hitch, out var accessReason))
+			{
+				actor.OutputHandler.Send(accessReason);
+				return;
+			}
+		}
+
 		using (new FMDB())
 		{
 			foreach (var link in links)
@@ -476,6 +501,13 @@ Syntax:
 
 	private static bool RemoveCharacterHitchesTargeting(ICharacter actor, IPerceivable target, long? targetTowPointId = null)
 	{
+		if (target is IGameItem item && item.GetItemType<IVehicleExterior>()?.Vehicle is { } vehicle &&
+		    !CanUseVehicleForAction(actor, vehicle, VehicleOperationalAction.Hitch, out var accessReason))
+		{
+			actor.OutputHandler.Send(accessReason);
+			return true;
+		}
+
 		var persistentLinks = HitchService.LinksInvolving(actor.Gameworld, target)
 		                                .Where(x => targetTowPointId is null ||
 		                                            x.TargetTowPointPrototypeId == targetTowPointId ||
@@ -505,6 +537,24 @@ Syntax:
 
 		actor.OutputHandler.Handle(new EmoteOutput(new Emote("@ unhitch|unhitches $1.", actor, actor, target)));
 		return true;
+	}
+
+	private static bool CanUseVehicleForAction(ICharacter actor, IVehicle vehicle, VehicleOperationalAction action, out string reason)
+	{
+		if (vehicle is null)
+		{
+			reason = "There is no such vehicle.";
+			return false;
+		}
+
+		if (OperationalReadinessService.CanPerformAction(vehicle, actor, action, out var result))
+		{
+			reason = string.Empty;
+			return true;
+		}
+
+		reason = result.Reason;
+		return false;
 	}
 
 	private static ICharacter ResolveHitchCharacter(ICharacter actor, string text)
@@ -581,13 +631,13 @@ Syntax:
 		return false;
 	}
 
-	private static bool PersistentHitchItemIsOnEndpoint(ICharacter source, IPerceivable target, IGameItem hitchItem)
+	private static bool CharacterHitchItemIsOnEndpoint(ICharacter source, IPerceivable target, IGameItem hitchItem)
 	{
 		return source.Body.ExternalItems.Any(x => x.Id == hitchItem.Id) ||
 		       (target as ICharacter)?.Body.ExternalItems.Any(x => x.Id == hitchItem.Id) == true;
 	}
 
-	private static bool PreparePersistentCharacterHitchItem(ICharacter actor, ICharacter source, IPerceivable target,
+	private static bool PrepareCharacterHitchItem(ICharacter actor, ICharacter source, IPerceivable target,
 		IGameItem hitchItem, out string reason)
 	{
 		if (hitchItem is null)
@@ -602,7 +652,7 @@ Syntax:
 			return false;
 		}
 
-		if (PersistentHitchItemIsOnEndpoint(source, target, hitchItem))
+		if (CharacterHitchItemIsOnEndpoint(source, target, hitchItem))
 		{
 			reason = string.Empty;
 			return true;
@@ -642,15 +692,15 @@ Syntax:
 	private static void ApplyCharacterHitch(ICharacter actor, ICharacter source, IPerceivable target,
 		IVehicle targetVehicle, IVehicleTowPointPrototype targetTowPoint, IGameItem hitchItem, IDragAid dragAid)
 	{
+		if (!PrepareCharacterHitchItem(actor, source, target, hitchItem, out var hitchItemReason))
+		{
+			actor.OutputHandler.Send(hitchItemReason);
+			return;
+		}
+
 		long? persistentLinkId = null;
 		if (HitchService.CanPersistCharacterHitch(source, target, out _))
 		{
-			if (!PreparePersistentCharacterHitchItem(actor, source, target, hitchItem, out var hitchItemReason))
-			{
-				actor.OutputHandler.Send(hitchItemReason);
-				return;
-			}
-
 			var link = HitchService.CreatePersistentCharacterHitch(actor, source, target, targetVehicle, targetTowPoint,
 				hitchItem, out var persistentReason);
 			if (link is null)
@@ -829,82 +879,8 @@ Syntax:
 			return false;
 		}
 
-		if (targetVehicle.Destroyed)
-		{
-			reason = "Destroyed vehicles cannot be hitched.";
-			return false;
-		}
-
-		if (!targetTowPoint.CanBeTowed)
-		{
-			reason = "That tow point cannot be towed.";
-			return false;
-		}
-
-		if (targetVehicle.Location != source.Location || targetVehicle.RoomLayer != source.RoomLayer)
-		{
-			reason = "The vehicle must be in the same location and layer.";
-			return false;
-		}
-
-		if (!RequiredTowPointAccessAvailable(actor, targetVehicle, targetTowPoint, out reason))
-		{
-			return false;
-		}
-
-		if (targetVehicle.TowLinks.Any())
-		{
-			reason = "Character hitches cannot currently pull a vehicle that already has vehicle tow links.";
-			return false;
-		}
-
-		if (targetVehicle.IsDisabledByDamage(VehicleDamageEffectTargetType.TowPoint, targetTowPoint.Id))
-		{
-			reason = $"{targetTowPoint.Name} is disabled because {targetVehicle.DamageDisabledReason(VehicleDamageEffectTargetType.TowPoint, targetTowPoint.Id)}.";
-			return false;
-		}
-
-		if (targetVehicle.ExteriorItem?.AffectedBy<Dragging.DragTarget>() == true)
-		{
-			reason = $"{targetVehicle.ExteriorItem.HowSeen(actor, true)} is already being pulled or dragged.";
-			return false;
-		}
-
-		if (targetVehicle.ExteriorItem is null)
-		{
-			reason = "That vehicle does not have a linked exterior item.";
-			return false;
-		}
-
-		if (HitchGearRules.TowPointRequiresHitchItem(targetTowPoint) && hitchItem is null)
-		{
-			reason = $"That {targetTowPoint.TowType.ColourCommand()} tow point requires a hitch item. Use #3with <item>#0.".SubstituteANSIColour();
-			return false;
-		}
-
-		if (actor.Gameworld.VehicleHitchLinks?.Any(x =>
-			    x.TargetType == VehicleHitchEndpointType.Vehicle &&
-			    x.TargetVehicleId == targetVehicle.Id) == true)
-		{
-			reason = $"{targetVehicle.ExteriorItem.HowSeen(actor, true)} already has a persistent hitch link.";
-			return false;
-		}
-
-		var weight = targetVehicle.ExteriorItem.Weight;
-		if (weight > targetTowPoint.MaximumTowedWeight)
-		{
-			reason = $"That tow point can only handle {targetTowPoint.MaximumTowedWeight.ToString("N2", actor)} weight, but the vehicle weighs {weight.ToString("N2", actor)}.";
-			return false;
-		}
-
-		if (hitchItem is not null &&
-		    !HitchGearRules.GearCompatible(hitchItem, weight, out reason, targetTowPoint))
-		{
-			return false;
-		}
-
-		return CanPullWeight(actor, source, targetVehicle.ExteriorItem, dragAid, targetTowPoint.CharacterPullMultiplier,
-			out reason);
+		return HitchGraphService.CanAddCharacterVehicleHitch(actor, source, targetVehicle, targetTowPoint, hitchItem,
+			dragAid, out reason);
 	}
 
 	private static bool RequiredTowPointAccessAvailable(ICharacter actor, IVehicle vehicle,
@@ -1102,6 +1078,24 @@ Syntax:
 	#3vehicle show <id|name>#0
 	#3vehicle repair <id|name>#0
 	#3vehicle repair <id|name> damage <zone|all>#0
+	#3vehicle repair <id|name> hitch <link|all>#0
+	#3vehicle access <id|name> list#0
+	#3vehicle access <id|name> grant <character> <board|control|service|repair|hitch|all> <1-3>#0
+	#3vehicle access <id|name> revoke <character|row id> [tag]#0
+	#3vehicle access <id|name> apply <preset> <character>#0
+	#3vehicle access <id|name> clone <source vehicle>#0
+	#3vehicle access preset list|show <name>#0
+	#3vehicle access preset set <name> <board|control|service|repair|hitch|all> <1-3>#0
+	#3vehicle access preset remove <name> <tag>#0
+	#3vehicle access preset delete <name>#0
+	#3vehicle access preset reset <name|all>#0
+	#3vehicle audit <here|zone|prototype <id|name>|all> [readiness|access|resources|hitch|damage|recovery|all]#0
+	#3vehicle recover <id|name> [projection|install|hitch|all] [fix]#0
+	#3vehicle fleet <here|zone|prototype <id|name>|all> access apply <preset> <character>#0
+	#3vehicle fleet <scope> access grant <character> <tag> <1-3>#0
+	#3vehicle fleet <scope> access revoke <character|row id> [tag]#0
+	#3vehicle fleet <scope> access clone <source vehicle>#0
+	#3vehicle fleet <scope> recover <projection|install|hitch|all> [fix]#0
 	#3vehicle relink <id|name> <item id|local item>#0";
 
 	[PlayerCommand("Vehicle", "vehicle")]
@@ -1123,6 +1117,18 @@ Syntax:
 			case "repair":
 			case "diagnose":
 				VehicleRepair(actor, ss);
+				return;
+			case "access":
+				VehicleAccess(actor, ss);
+				return;
+			case "audit":
+				VehicleAudit(actor, ss);
+				return;
+			case "recover":
+				VehicleRecover(actor, ss);
+				return;
+			case "fleet":
+				VehicleFleet(actor, ss);
 				return;
 			case "relink":
 				VehicleRelink(actor, ss);
@@ -1155,6 +1161,658 @@ Syntax:
 		}
 
 		actor.OutputHandler.Send(ShowVehicle(actor, vehicle));
+	}
+
+	private static void VehicleAccess(ICharacter actor, StringStack ss)
+	{
+		if (ss.PeekSpeech().EqualTo("preset"))
+		{
+			ss.PopSpeech();
+			VehicleAccessPreset(actor, ss);
+			return;
+		}
+
+		var vehicle = actor.Gameworld.Vehicles.GetByIdOrName(ss.PopSpeech());
+		if (vehicle is null)
+		{
+			actor.OutputHandler.Send("There is no such vehicle.");
+			return;
+		}
+
+		switch (ss.PopSpeech().ToLowerInvariant())
+		{
+			case "":
+			case "list":
+				VehicleAccessList(actor, vehicle);
+				return;
+			case "grant":
+				VehicleAccessGrant(actor, vehicle, ss);
+				return;
+			case "revoke":
+				VehicleAccessRevoke(actor, vehicle, ss);
+				return;
+			case "apply":
+				VehicleAccessApply(actor, vehicle, ss);
+				return;
+			case "clone":
+				VehicleAccessClone(actor, vehicle, ss);
+				return;
+			default:
+				actor.OutputHandler.Send("Use #3vehicle access <vehicle> list|grant|revoke|apply|clone#0 or #3vehicle access preset <action>#0.".SubstituteANSIColour());
+				return;
+		}
+	}
+
+	private static void VehicleAccessList(ICharacter actor, IVehicle vehicle)
+	{
+		var sb = new StringBuilder();
+		sb.AppendLine($"Access grants for {vehicle.Name.ColourName()}:");
+		if (!vehicle.AccessStates.Any())
+		{
+			sb.AppendLine("\tNone - default vehicle access is permissive.");
+			actor.OutputHandler.Send(sb.ToString());
+			return;
+		}
+
+		foreach (var access in vehicle.AccessStates.OrderBy(x => x.Id))
+		{
+			sb.AppendLine($"\t#{access.Id.ToString("N0", actor)} {access.Character?.RenderStaffActorReference() ?? "missing character".ColourError()} tag {access.AccessTag.ColourCommand()} level {access.AccessLevel.ToString("N0", actor).ColourValue()}");
+		}
+
+		actor.OutputHandler.Send(sb.ToString());
+	}
+
+	private static void VehicleAccessGrant(ICharacter actor, IVehicle vehicle, StringStack ss)
+	{
+		var target = ResolveAccessCharacter(actor, ss.PopSpeech());
+		if (target is null)
+		{
+			actor.OutputHandler.Send("There is no such character.");
+			return;
+		}
+
+		var tag = ss.PopSpeech().ToLowerInvariant();
+		if (!ValidVehicleAccessTag(tag))
+		{
+			actor.OutputHandler.Send("Access tags must be one of board, control, service, repair, hitch, or all.");
+			return;
+		}
+
+		if (!int.TryParse(ss.PopSpeech(), out var level) || level < 1 || level > 3)
+		{
+			actor.OutputHandler.Send("Access level must be 1, 2, or 3.");
+			return;
+		}
+
+		var row = vehicle.GrantAccess(target, tag, level);
+		actor.OutputHandler.Send($"You grant {target.RenderStaffActorReference()} {tag.ColourCommand()} access level {level.ToString("N0", actor).ColourValue()} on {vehicle.Name.ColourName()} (row #{row.Id.ToString("N0", actor)}).");
+	}
+
+	private static void VehicleAccessRevoke(ICharacter actor, IVehicle vehicle, StringStack ss)
+	{
+		var targetText = ss.PopSpeech();
+		if (string.IsNullOrWhiteSpace(targetText))
+		{
+			actor.OutputHandler.Send("Which access row or character do you want to revoke?");
+			return;
+		}
+
+		if (long.TryParse(targetText, out var rowId))
+		{
+			actor.OutputHandler.Send(vehicle.RevokeAccess(rowId)
+				? $"You revoke vehicle access row #{rowId.ToString("N0", actor)} from {vehicle.Name.ColourName()}."
+				: "There is no such access row on that vehicle.");
+			return;
+		}
+
+		var target = ResolveAccessCharacter(actor, targetText);
+		if (target is null)
+		{
+			actor.OutputHandler.Send("There is no such character or access row.");
+			return;
+		}
+
+		var tag = ss.SafeRemainingArgument;
+		if (!string.IsNullOrWhiteSpace(tag) && !ValidVehicleAccessTag(tag))
+		{
+			actor.OutputHandler.Send("Access tags must be one of board, control, service, repair, hitch, or all.");
+			return;
+		}
+
+		var count = vehicle.RevokeAccess(target, tag);
+		actor.OutputHandler.Send(count > 0
+			? $"You revoke {count.ToString("N0", actor).ColourValue()} access grant{(count == 1 ? "" : "s")} for {target.RenderStaffActorReference()} on {vehicle.Name.ColourName()}."
+			: "There were no matching access grants to revoke.");
+	}
+
+	private static void VehicleAccessPreset(ICharacter actor, StringStack ss)
+	{
+		switch (ss.PopSpeech().ToLowerInvariant())
+		{
+			case "":
+			case "list":
+				VehicleAccessPresetList(actor);
+				return;
+			case "show":
+				VehicleAccessPresetShow(actor, ss.SafeRemainingArgument);
+				return;
+			case "set":
+				VehicleAccessPresetSet(actor, ss);
+				return;
+			case "remove":
+			case "deletegrant":
+				VehicleAccessPresetRemove(actor, ss);
+				return;
+			case "delete":
+				VehicleAccessPresetDelete(actor, ss.SafeRemainingArgument);
+				return;
+			case "reset":
+				VehicleAccessPresetReset(actor, ss.SafeRemainingArgument);
+				return;
+			default:
+				actor.OutputHandler.Send("Use #3vehicle access preset list|show|set|remove|delete|reset#0.".SubstituteANSIColour());
+				return;
+		}
+	}
+
+	private static void VehicleAccessPresetList(ICharacter actor)
+	{
+		var presets = FleetOperationsService.AccessPresets(actor.Gameworld).OrderBy(x => x.Name).ToList();
+		var sb = new StringBuilder();
+		sb.AppendLine("Vehicle access presets:");
+		foreach (var preset in presets)
+		{
+			sb.AppendLine($"\t{preset.Name.ColourName()}: {DescribeAccessPresetGrants(actor, preset)}");
+		}
+
+		actor.OutputHandler.Send(sb.ToString());
+	}
+
+	private static void VehicleAccessPresetShow(ICharacter actor, string name)
+	{
+		if (!FleetOperationsService.TryGetAccessPreset(actor.Gameworld, name, out var preset, out var reason) || preset is null)
+		{
+			actor.OutputHandler.Send(reason);
+			return;
+		}
+
+		actor.OutputHandler.Send($"Vehicle access preset {preset.Name.ColourName()}: {DescribeAccessPresetGrants(actor, preset)}");
+	}
+
+	private static void VehicleAccessPresetSet(ICharacter actor, StringStack ss)
+	{
+		var name = ss.PopSpeech().ToLowerInvariant();
+		if (string.IsNullOrWhiteSpace(name))
+		{
+			actor.OutputHandler.Send("Which preset do you want to change?");
+			return;
+		}
+
+		var tag = ss.PopSpeech().ToLowerInvariant();
+		if (!ValidVehicleAccessTag(tag))
+		{
+			actor.OutputHandler.Send("Access tags must be one of board, control, service, repair, hitch, or all.");
+			return;
+		}
+
+		if (!int.TryParse(ss.PopSpeech(), out var level) || level < 1 || level > 3)
+		{
+			actor.OutputHandler.Send("Access level must be 1, 2, or 3.");
+			return;
+		}
+
+		FleetOperationsService.TryGetAccessPreset(actor.Gameworld, name, out var existing, out _);
+		var grants = (existing?.Grants ?? [])
+		             .Where(x => !x.AccessTag.EqualTo(tag))
+		             .Append(new VehicleAccessPresetGrant(tag, level))
+		             .OrderBy(x => x.AccessTag)
+		             .ToList();
+		var preset = FleetOperationsService.SaveAccessPreset(actor.Gameworld, name, grants);
+		actor.OutputHandler.Send($"Vehicle access preset {preset.Name.ColourName()} is now {DescribeAccessPresetGrants(actor, preset)}.");
+	}
+
+	private static void VehicleAccessPresetRemove(ICharacter actor, StringStack ss)
+	{
+		var name = ss.PopSpeech().ToLowerInvariant();
+		if (!FleetOperationsService.TryGetAccessPreset(actor.Gameworld, name, out var preset, out var reason) || preset is null)
+		{
+			actor.OutputHandler.Send(reason);
+			return;
+		}
+
+		var tag = ss.PopSpeech().ToLowerInvariant();
+		if (!ValidVehicleAccessTag(tag))
+		{
+			actor.OutputHandler.Send("Which valid access tag do you want to remove?");
+			return;
+		}
+
+		var grants = preset.Grants.Where(x => !x.AccessTag.EqualTo(tag)).ToList();
+		if (grants.Count == preset.Grants.Count)
+		{
+			actor.OutputHandler.Send("That preset does not contain such a grant.");
+			return;
+		}
+
+		preset = FleetOperationsService.SaveAccessPreset(actor.Gameworld, preset.Name, grants);
+		actor.OutputHandler.Send($"Vehicle access preset {preset.Name.ColourName()} is now {DescribeAccessPresetGrants(actor, preset)}.");
+	}
+
+	private static void VehicleAccessPresetDelete(ICharacter actor, string name)
+	{
+		if (!FleetOperationsService.DeleteAccessPreset(actor.Gameworld, name, out var reason))
+		{
+			actor.OutputHandler.Send(reason);
+			return;
+		}
+
+		actor.OutputHandler.Send($"You delete the vehicle access preset {name.ColourName()}.");
+	}
+
+	private static void VehicleAccessPresetReset(ICharacter actor, string name)
+	{
+		if (string.IsNullOrWhiteSpace(name))
+		{
+			actor.OutputHandler.Send("Which preset do you want to reset?");
+			return;
+		}
+
+		if (name.EqualTo("all"))
+		{
+			var presets = FleetOperationsService.ResetAllAccessPresets(actor.Gameworld);
+			actor.OutputHandler.Send($"You reset {presets.Count.ToString("N0", actor).ColourValue()} vehicle access presets to defaults.");
+			return;
+		}
+
+		var preset = FleetOperationsService.ResetAccessPreset(actor.Gameworld, name);
+		actor.OutputHandler.Send($"Vehicle access preset {preset.Name.ColourName()} is now {DescribeAccessPresetGrants(actor, preset)}.");
+	}
+
+	private static string DescribeAccessPresetGrants(ICharacter actor, VehicleAccessPreset preset)
+	{
+		return preset.Grants.Any()
+			? preset.Grants.OrderBy(x => x.AccessTag).Select(x => $"{x.AccessTag.ColourCommand()}:{x.AccessLevel.ToString("N0", actor).ColourValue()}").ListToString()
+			: "no grants".Colour(Telnet.Yellow);
+	}
+
+	private static void VehicleAccessApply(ICharacter actor, IVehicle vehicle, StringStack ss)
+	{
+		var presetName = ss.PopSpeech();
+		if (!FleetOperationsService.TryGetAccessPreset(actor.Gameworld, presetName, out var preset, out var reason) || preset is null)
+		{
+			actor.OutputHandler.Send(reason);
+			return;
+		}
+
+		var target = ResolveAccessCharacter(actor, ss.SafeRemainingArgument);
+		if (target is null)
+		{
+			actor.OutputHandler.Send("There is no such character.");
+			return;
+		}
+
+		var result = FleetOperationsService.ApplyAccessPreset(vehicle, target, preset);
+		actor.OutputHandler.Send($"You apply {preset.Name.ColourName()} access to {target.RenderStaffActorReference()} on {vehicle.Name.ColourName()}, setting {result.Grants.Count.ToString("N0", actor).ColourValue()} grant{(result.Grants.Count == 1 ? "" : "s")}.");
+	}
+
+	private static void VehicleAccessClone(ICharacter actor, IVehicle vehicle, StringStack ss)
+	{
+		var source = actor.Gameworld.Vehicles.GetByIdOrName(ss.SafeRemainingArgument);
+		if (source is null)
+		{
+			actor.OutputHandler.Send("There is no such source vehicle.");
+			return;
+		}
+
+		var count = FleetOperationsService.CloneAccess(vehicle, source);
+		actor.OutputHandler.Send($"You clone {count.ToString("N0", actor).ColourValue()} access grant{(count == 1 ? "" : "s")} from {source.Name.ColourName()} to {vehicle.Name.ColourName()}.");
+	}
+
+	private static void VehicleAudit(ICharacter actor, StringStack ss)
+	{
+		if (!ResolveVehicleScope(actor, ss, out var vehicles, out var reason))
+		{
+			actor.OutputHandler.Send(reason);
+			return;
+		}
+
+		if (!TryParseFleetAuditMode(ss.PopSpeech(), out var mode))
+		{
+			actor.OutputHandler.Send("Audit mode must be readiness, access, resources, hitch, damage, recovery, or all.");
+			return;
+		}
+
+		DescribeFleetAudit(actor, FleetOperationsService.Audit(vehicles, actor, mode), mode);
+	}
+
+	private static void VehicleRecover(ICharacter actor, StringStack ss)
+	{
+		var vehicle = actor.Gameworld.Vehicles.GetByIdOrName(ss.PopSpeech());
+		if (vehicle is null)
+		{
+			actor.OutputHandler.Send("There is no such vehicle.");
+			return;
+		}
+
+		var modeText = ss.PopSpeech();
+		var apply = false;
+		if (modeText.EqualTo("fix"))
+		{
+			apply = true;
+			modeText = string.Empty;
+		}
+
+		if (!TryParseRecoveryMode(modeText, out var mode))
+		{
+			actor.OutputHandler.Send("Recovery mode must be projection, install, hitch, or all.");
+			return;
+		}
+
+		apply |= ss.PopSpeech().EqualTo("fix");
+		DescribeRecoveryResults(actor, [FleetOperationsService.Recover(vehicle, mode, apply)], apply);
+	}
+
+	private static void VehicleFleet(ICharacter actor, StringStack ss)
+	{
+		if (!ResolveVehicleScope(actor, ss, out var vehicles, out var reason))
+		{
+			actor.OutputHandler.Send(reason);
+			return;
+		}
+
+		var vehicleList = vehicles.DistinctBy(x => x.Id).ToList();
+		if (!vehicleList.Any())
+		{
+			actor.OutputHandler.Send("That scope does not contain any vehicles.");
+			return;
+		}
+
+		switch (ss.PopSpeech().ToLowerInvariant())
+		{
+			case "audit":
+				if (!TryParseFleetAuditMode(ss.PopSpeech(), out var mode))
+				{
+					actor.OutputHandler.Send("Audit mode must be readiness, access, resources, hitch, damage, recovery, or all.");
+					return;
+				}
+
+				DescribeFleetAudit(actor, FleetOperationsService.Audit(vehicleList, actor, mode), mode);
+				return;
+			case "recover":
+				VehicleFleetRecover(actor, vehicleList, ss);
+				return;
+			case "access":
+				VehicleFleetAccess(actor, vehicleList, ss);
+				return;
+			default:
+				actor.OutputHandler.Send("Use #3vehicle fleet <scope> access|recover|audit#0.".SubstituteANSIColour());
+				return;
+		}
+	}
+
+	private static void VehicleFleetAccess(ICharacter actor, IReadOnlyList<IVehicle> vehicles, StringStack ss)
+	{
+		switch (ss.PopSpeech().ToLowerInvariant())
+		{
+			case "apply":
+				VehicleFleetAccessApply(actor, vehicles, ss);
+				return;
+			case "grant":
+				VehicleFleetAccessGrant(actor, vehicles, ss);
+				return;
+			case "revoke":
+				VehicleFleetAccessRevoke(actor, vehicles, ss);
+				return;
+			case "clone":
+				VehicleFleetAccessClone(actor, vehicles, ss);
+				return;
+			default:
+				actor.OutputHandler.Send("Use #3vehicle fleet <scope> access apply|grant|revoke|clone#0.".SubstituteANSIColour());
+				return;
+		}
+	}
+
+	private static void VehicleFleetAccessApply(ICharacter actor, IReadOnlyList<IVehicle> vehicles, StringStack ss)
+	{
+		var presetName = ss.PopSpeech();
+		if (!FleetOperationsService.TryGetAccessPreset(actor.Gameworld, presetName, out var preset, out var reason) || preset is null)
+		{
+			actor.OutputHandler.Send(reason);
+			return;
+		}
+
+		var target = ResolveAccessCharacter(actor, ss.SafeRemainingArgument);
+		if (target is null)
+		{
+			actor.OutputHandler.Send("There is no such character.");
+			return;
+		}
+
+		var count = vehicles.Sum(vehicle => FleetOperationsService.ApplyAccessPreset(vehicle, target, preset).Grants.Count);
+		actor.OutputHandler.Send($"You apply {preset.Name.ColourName()} access to {target.RenderStaffActorReference()} on {vehicles.Count.ToString("N0", actor).ColourValue()} vehicle{(vehicles.Count == 1 ? "" : "s")}, setting {count.ToString("N0", actor).ColourValue()} grant{(count == 1 ? "" : "s")}.");
+	}
+
+	private static void VehicleFleetAccessGrant(ICharacter actor, IReadOnlyList<IVehicle> vehicles, StringStack ss)
+	{
+		var target = ResolveAccessCharacter(actor, ss.PopSpeech());
+		if (target is null)
+		{
+			actor.OutputHandler.Send("There is no such character.");
+			return;
+		}
+
+		var tag = ss.PopSpeech().ToLowerInvariant();
+		if (!ValidVehicleAccessTag(tag))
+		{
+			actor.OutputHandler.Send("Access tags must be one of board, control, service, repair, hitch, or all.");
+			return;
+		}
+
+		if (!int.TryParse(ss.PopSpeech(), out var level) || level < 1 || level > 3)
+		{
+			actor.OutputHandler.Send("Access level must be 1, 2, or 3.");
+			return;
+		}
+
+		foreach (var vehicle in vehicles)
+		{
+			vehicle.GrantAccess(target, tag, level);
+		}
+
+		actor.OutputHandler.Send($"You grant {target.RenderStaffActorReference()} {tag.ColourCommand()} access level {level.ToString("N0", actor).ColourValue()} on {vehicles.Count.ToString("N0", actor).ColourValue()} vehicle{(vehicles.Count == 1 ? "" : "s")}.");
+	}
+
+	private static void VehicleFleetAccessRevoke(ICharacter actor, IReadOnlyList<IVehicle> vehicles, StringStack ss)
+	{
+		var targetText = ss.PopSpeech();
+		if (string.IsNullOrWhiteSpace(targetText))
+		{
+			actor.OutputHandler.Send("Which access row or character do you want to revoke?");
+			return;
+		}
+
+		var count = 0;
+		if (long.TryParse(targetText, out var rowId))
+		{
+			count = vehicles.Count(vehicle => vehicle.RevokeAccess(rowId));
+			actor.OutputHandler.Send(count > 0
+				? $"You revoke access row #{rowId.ToString("N0", actor)} from {count.ToString("N0", actor).ColourValue()} vehicle{(count == 1 ? "" : "s")} in the scope."
+				: "There was no matching access row in that vehicle scope.");
+			return;
+		}
+
+		var target = ResolveAccessCharacter(actor, targetText);
+		if (target is null)
+		{
+			actor.OutputHandler.Send("There is no such character or access row.");
+			return;
+		}
+
+		var tag = ss.SafeRemainingArgument;
+		if (!string.IsNullOrWhiteSpace(tag) && !ValidVehicleAccessTag(tag))
+		{
+			actor.OutputHandler.Send("Access tags must be one of board, control, service, repair, hitch, or all.");
+			return;
+		}
+
+		count = vehicles.Sum(vehicle => vehicle.RevokeAccess(target, tag));
+		actor.OutputHandler.Send(count > 0
+			? $"You revoke {count.ToString("N0", actor).ColourValue()} access grant{(count == 1 ? "" : "s")} for {target.RenderStaffActorReference()} across {vehicles.Count.ToString("N0", actor).ColourValue()} vehicle{(vehicles.Count == 1 ? "" : "s")}."
+			: "There were no matching access grants to revoke.");
+	}
+
+	private static void VehicleFleetAccessClone(ICharacter actor, IReadOnlyList<IVehicle> vehicles, StringStack ss)
+	{
+		var source = actor.Gameworld.Vehicles.GetByIdOrName(ss.SafeRemainingArgument);
+		if (source is null)
+		{
+			actor.OutputHandler.Send("There is no such source vehicle.");
+			return;
+		}
+
+		var targets = vehicles.Where(x => x.Id != source.Id).ToList();
+		var count = targets.Sum(vehicle => FleetOperationsService.CloneAccess(vehicle, source));
+		actor.OutputHandler.Send($"You clone {count.ToString("N0", actor).ColourValue()} access grant{(count == 1 ? "" : "s")} from {source.Name.ColourName()} to {targets.Count.ToString("N0", actor).ColourValue()} vehicle{(targets.Count == 1 ? "" : "s")}.");
+	}
+
+	private static void VehicleFleetRecover(ICharacter actor, IReadOnlyList<IVehicle> vehicles, StringStack ss)
+	{
+		var modeText = ss.PopSpeech();
+		var apply = false;
+		if (modeText.EqualTo("fix"))
+		{
+			apply = true;
+			modeText = string.Empty;
+		}
+
+		if (!TryParseRecoveryMode(modeText, out var mode))
+		{
+			actor.OutputHandler.Send("Recovery mode must be projection, install, hitch, or all.");
+			return;
+		}
+
+		apply |= ss.PopSpeech().EqualTo("fix");
+		DescribeRecoveryResults(actor, vehicles.Select(x => FleetOperationsService.Recover(x, mode, apply)).ToList(), apply);
+	}
+
+	private static bool ResolveVehicleScope(ICharacter actor, StringStack ss, out IReadOnlyList<IVehicle> vehicles,
+		out string reason)
+	{
+		vehicles = [];
+		reason = string.Empty;
+		switch (ss.PopSpeech().ToLowerInvariant())
+		{
+			case "here":
+				vehicles = actor.Gameworld.Vehicles.Where(x => x.Location == actor.Location).ToList();
+				return true;
+			case "zone":
+				vehicles = actor.Gameworld.Vehicles.Where(x => x.Location?.Zone == actor.Location?.Zone).ToList();
+				return true;
+			case "prototype":
+			case "proto":
+				var proto = actor.Gameworld.VehiclePrototypes.GetByIdOrName(ss.PopSpeech());
+				if (proto is null)
+				{
+					reason = "There is no such vehicle prototype.";
+					return false;
+				}
+
+				vehicles = actor.Gameworld.Vehicles.Where(x => x.Prototype.Id == proto.Id).ToList();
+				return true;
+			case "all":
+				vehicles = actor.Gameworld.Vehicles.ToList();
+				return true;
+			default:
+				reason = "Vehicle scope must be here, zone, prototype <id|name>, or all.";
+				return false;
+		}
+	}
+
+	private static bool TryParseFleetAuditMode(string text, out VehicleFleetAuditMode mode)
+	{
+		mode = VehicleFleetAuditMode.All;
+		if (string.IsNullOrWhiteSpace(text))
+		{
+			return true;
+		}
+
+		return Enum.TryParse(text, true, out mode) && Enum.IsDefined(mode);
+	}
+
+	private static bool TryParseRecoveryMode(string text, out VehicleRecoveryMode mode)
+	{
+		mode = VehicleRecoveryMode.All;
+		if (string.IsNullOrWhiteSpace(text))
+		{
+			return true;
+		}
+
+		return Enum.TryParse(text, true, out mode) && Enum.IsDefined(mode);
+	}
+
+	private static void DescribeFleetAudit(ICharacter actor, VehicleFleetAuditResult audit, VehicleFleetAuditMode mode)
+	{
+		var sb = new StringBuilder();
+		sb.AppendLine($"Vehicle {mode.DescribeEnum().ColourName()} audit for {audit.Vehicles.Count.ToString("N0", actor).ColourValue()} vehicle{(audit.Vehicles.Count == 1 ? "" : "s")}:" );
+		if (!audit.Findings.Any())
+		{
+			sb.AppendLine("\tNo findings.".Colour(Telnet.Green));
+			actor.OutputHandler.Send(sb.ToString());
+			return;
+		}
+
+		foreach (var vehicleGroup in audit.Findings.GroupBy(x => x.Vehicle).OrderBy(x => x.Key.Id))
+		{
+			sb.AppendLine($"\t#{vehicleGroup.Key.Id.ToString("N0", actor)} {vehicleGroup.Key.Name.ColourName()}:");
+			foreach (var finding in vehicleGroup.OrderByDescending(x => x.Severity).ThenBy(x => x.Subsystem))
+			{
+				sb.AppendLine($"\t\t{finding.Severity.DescribeEnum().ColourValue()} {finding.Subsystem.DescribeEnum().ColourName()}: {finding.Reason}{(string.IsNullOrWhiteSpace(finding.Hint) ? string.Empty : $" Hint: {finding.Hint.ColourCommand()}")}");
+			}
+		}
+
+		actor.OutputHandler.Send(sb.ToString());
+	}
+
+	private static void DescribeRecoveryResults(ICharacter actor, IReadOnlyList<VehicleRecoveryResult> results, bool applied)
+	{
+		var sb = new StringBuilder();
+		sb.AppendLine($"Vehicle recovery {(applied ? "fix" : "audit").ColourName()} for {results.Count.ToString("N0", actor).ColourValue()} vehicle{(results.Count == 1 ? "" : "s")}:" );
+		if (results.All(x => !x.Findings.Any()))
+		{
+			sb.AppendLine("\tNo recovery findings.".Colour(Telnet.Green));
+			actor.OutputHandler.Send(sb.ToString());
+			return;
+		}
+
+		foreach (var result in results.Where(x => x.Findings.Any()).OrderBy(x => x.Vehicle.Id))
+		{
+			sb.AppendLine($"\t#{result.Vehicle.Id.ToString("N0", actor)} {result.Vehicle.Name.ColourName()}:");
+			foreach (var finding in result.Findings.OrderByDescending(x => x.Severity).ThenBy(x => x.Subsystem))
+			{
+				sb.AppendLine($"\t\t{finding.Severity.DescribeEnum().ColourValue()} {finding.Subsystem.DescribeEnum().ColourName()} {finding.Action.DescribeEnum().ColourCommand()}: {finding.Reason}{(string.IsNullOrWhiteSpace(finding.Hint) ? string.Empty : $" Hint: {finding.Hint.ColourCommand()}")}");
+			}
+		}
+
+		actor.OutputHandler.Send(sb.ToString());
+	}
+	private static ICharacter ResolveAccessCharacter(ICharacter actor, string text)
+	{
+		if (string.IsNullOrWhiteSpace(text))
+		{
+			return null;
+		}
+
+		if (long.TryParse(text, out var id))
+		{
+			return actor.Gameworld.TryGetCharacter(id, true);
+		}
+
+		return actor.TargetActor(text) ?? actor.Gameworld.Characters.GetByIdOrName(text);
+	}
+
+	private static bool ValidVehicleAccessTag(string tag)
+	{
+		return tag.EqualToAny("board", "control", "service", "repair", "hitch", "all");
 	}
 
 	private static string ShowVehicle(ICharacter actor, IVehicle vehicle)
@@ -1214,7 +1872,61 @@ Syntax:
 		sb.AppendLine(vehicle.DamageZones.Any()
 			? vehicle.DamageZones.Select(x => $"\t#{x.Id.ToString("N0", actor)} {x.Name.ColourName()} {x.Status.DescribeEnum().ColourValue()} damage {x.CurrentDamage.ToString("N2", actor).ColourValue()}/{x.Prototype.MaximumDamage.ToString("N2", actor).ColourValue()} wounds {x.Wounds.Count().ToString("N0", actor).ColourValue()}").ListToString(separator: "\n", conjunction: "", twoItemJoiner: "\n")
 			: "\tNone");
+		sb.AppendLine();
+		AppendOperationalReadiness(actor, vehicle, sb);
 		return sb.ToString();
+	}
+
+	private static void AppendOperationalReadiness(ICharacter actor, IVehicle vehicle, StringBuilder sb)
+	{
+		var movementProfile = vehicle.Prototype.MovementProfiles
+		                         .Where(x => x.MovementType == VehicleMovementProfileType.CellExit)
+		                         .OrderByDescending(x => x.IsDefault)
+		                         .FirstOrDefault();
+		var report = OperationalReadinessService.BuildReport(vehicle, actor, null, movementProfile);
+		sb.AppendLine("Operational Readiness:");
+		sb.AppendLine(vehicle.AccessStates.Any()
+			? $"\tAccess: {vehicle.AccessStates.Count().ToString("N0", actor).ColourValue()} explicit grant{(vehicle.AccessStates.Count() == 1 ? "" : "s")}; unlisted characters are blocked."
+			: "\tAccess: default permissive (no explicit grants).".Colour(Telnet.Green));
+
+		if (movementProfile is not null)
+		{
+			sb.AppendLine($"\tMovement Profile: {movementProfile.Name.ColourName()} (#{movementProfile.Id.ToString("N0", actor)})");
+		}
+
+		foreach (var module in report.Modules.Where(x => !x.IsFunctionalForMovement))
+		{
+			sb.AppendLine($"\tModule {module.Installation.Prototype.Name.ColourName()}: {module.Reason.Colour(Telnet.Yellow)}");
+		}
+
+		AppendResourceCandidates(actor, sb, "Fuel", report.FuelCandidates);
+		AppendResourceCandidates(actor, sb, "Power", report.PowerCandidates);
+
+		if (!report.Issues.Any())
+		{
+			sb.AppendLine("\tNo readiness warnings or blockers detected.".Colour(Telnet.Green));
+			return;
+		}
+
+		foreach (var issue in report.Issues.OrderByDescending(x => x.Severity).ThenBy(x => x.Subsystem))
+		{
+			sb.AppendLine($"\t{issue.Severity.DescribeEnum().ColourValue()} {issue.Subsystem.DescribeEnum().ColourName()}: {issue.Reason}{(string.IsNullOrWhiteSpace(issue.RepairHint) ? string.Empty : $" Hint: {issue.RepairHint.ColourCommand()}")}");
+		}
+	}
+
+	private static void AppendResourceCandidates(ICharacter actor, StringBuilder sb, string label,
+		IReadOnlyList<VehicleResourceCandidate> candidates)
+	{
+		if (!candidates.Any())
+		{
+			return;
+		}
+
+		sb.AppendLine($"\t{label} Candidates:");
+		foreach (var candidate in candidates)
+		{
+			sb.AppendLine($"\t\t{(candidate.Item is null ? candidate.Installation.Prototype.Name.ColourName() : candidate.Item.HowSeen(actor))}: {(candidate.Available ? "ready".Colour(Telnet.Green) : candidate.Reason.Colour(Telnet.Yellow))}");
+		}
 	}
 
 	private static string DisabledCause(ICharacter actor, bool manualDisabled, IVehicle vehicle,
@@ -1253,42 +1965,16 @@ Syntax:
 
 	private static string TowLinkDisabledCause(ICharacter actor, IVehicleTowLink link)
 	{
-		if (!link.IsDisabled)
-		{
-			return string.Empty;
-		}
-
-		if (!string.IsNullOrWhiteSpace(link.WhyInvalid))
-		{
-			return $" invalid ({link.WhyInvalid})".Colour(Telnet.Red);
-		}
-
-		var causes = new List<string>();
-		if (link.IsManuallyDisabled)
-		{
-			causes.Add("manual");
-		}
-
-		var sourceDamage = link.SourceVehicle?.DamageZonesDisabling(VehicleDamageEffectTargetType.TowPoint, link.SourceTowPoint.Id).ToList();
-		if (sourceDamage?.Any() == true)
-		{
-			causes.Add($"source damage {sourceDamage.Select(x => $"{x.Name} {x.Status.DescribeEnum()}").ListToString()}");
-		}
-
-		var targetDamage = link.TargetVehicle?.DamageZonesDisabling(VehicleDamageEffectTargetType.TowPoint, link.TargetTowPoint.Id).ToList();
-		if (targetDamage?.Any() == true)
-		{
-			causes.Add($"target damage {targetDamage.Select(x => $"{x.Name} {x.Status.DescribeEnum()}").ListToString()}");
-		}
-
-		return $" disabled ({causes.ListToString()})".Colour(Telnet.Red);
+		return TowService.ValidateLink(link, out var reason)
+			? string.Empty
+			: $" invalid ({reason})".Colour(Telnet.Red);
 	}
 
 	private static string DescribeHitchLink(ICharacter actor, IVehicleHitchLink link)
 	{
 		var hitchItem = link.HitchItem;
 		return
-			$"\t#{link.Id.ToString("N0", actor)} {DescribeHitchEndpoint(actor, link.SourceType, link.SourceVehicle, link.SourceCharacter, link.SourceTowPoint)} -> {DescribeHitchEndpoint(actor, link.TargetType, link.TargetVehicle, link.TargetCharacter, link.TargetTowPoint)} hitch {(hitchItem is null ? "none".ColourError() : hitchItem.HowSeen(actor))}{HitchLinkDisabledCause(link)}";
+			$"\t#{link.Id.ToString("N0", actor)} {DescribeHitchEndpoint(actor, link.SourceType, link.SourceVehicle, link.SourceCharacter, link.SourceTowPoint)} -> {DescribeHitchEndpoint(actor, link.TargetType, link.TargetVehicle, link.TargetCharacter, link.TargetTowPoint)} hitch {(hitchItem is null ? "none".ColourError() : hitchItem.HowSeen(actor))}{HitchLinkDisabledCause(actor, link)}";
 	}
 
 	private static string DescribeHitchEndpoint(ICharacter actor, VehicleHitchEndpointType type, IVehicle vehicle,
@@ -1303,8 +1989,22 @@ Syntax:
 		};
 	}
 
-	private static string HitchLinkDisabledCause(IVehicleHitchLink link)
+	private static string HitchLinkDisabledCause(ICharacter actor, IVehicleHitchLink link)
 	{
+		var perceivable = (IPerceivable)link.SourceVehicle?.ExteriorItem ??
+		                  link.SourceCharacter ??
+		                  (IPerceivable)link.TargetVehicle?.ExteriorItem ??
+		                  link.TargetCharacter;
+		var graphLink = perceivable is null
+			? null
+			: HitchGraphService.LinksInvolving(actor.Gameworld, perceivable)
+			                  .FirstOrDefault(x => x.Kind == VehicleHitchGraphLinkKind.PersistentHitch &&
+			                                       x.WrappedLink?.Id == link.Id);
+		if (graphLink is not null && !HitchGraphService.ValidateLink(graphLink, out var graphReason))
+		{
+			return $" invalid ({graphReason})".Colour(Telnet.Red);
+		}
+
 		if (!link.IsDisabled)
 		{
 			return string.Empty;
@@ -1321,6 +2021,22 @@ Syntax:
 	private static void VehicleRepair(ICharacter actor, StringStack ss)
 	{
 		var text = ss.SafeRemainingArgument;
+		var hitchIndex = text.IndexOf(" hitch ", StringComparison.InvariantCultureIgnoreCase);
+		if (hitchIndex > 0)
+		{
+			var vehicleText = text[..hitchIndex].Trim();
+			var linkText = text[(hitchIndex + 7)..].Trim();
+			var hitchVehicle = actor.Gameworld.Vehicles.GetByIdOrName(vehicleText);
+			if (hitchVehicle is null)
+			{
+				actor.OutputHandler.Send("There is no such vehicle.");
+				return;
+			}
+
+			VehicleRepairHitch(actor, hitchVehicle, linkText);
+			return;
+		}
+
 		var damageIndex = text.IndexOf(" damage ", StringComparison.InvariantCultureIgnoreCase);
 		if (damageIndex > 0)
 		{
@@ -1362,6 +2078,77 @@ Syntax:
 		vehicle.SynchroniseExteriorItemToLocation();
 		actor.Gameworld.SaveManager.Flush();
 		actor.OutputHandler.Send($"You repair the vehicle/item projection link for {vehicle.Name.ColourName()}.");
+	}
+
+	private static void VehicleRepairHitch(ICharacter actor, IVehicle vehicle, string linkText)
+	{
+		if (vehicle.ExteriorItem is null)
+		{
+			actor.OutputHandler.Send("That vehicle has no exterior item, so its hitch graph cannot be inspected.");
+			return;
+		}
+
+		var links = HitchGraphService.LinksInvolving(actor.Gameworld, vehicle.ExteriorItem)
+		                             .Where(x => x.Kind is VehicleHitchGraphLinkKind.LegacyVehicleTow or VehicleHitchGraphLinkKind.PersistentHitch)
+		                             .ToList();
+		if (!links.Any())
+		{
+			actor.OutputHandler.Send("That vehicle has no persistent hitch or tow links.");
+			return;
+		}
+
+		IEnumerable<VehicleHitchGraphLink> selected;
+		if (linkText.EqualTo("all"))
+		{
+			selected = links;
+		}
+		else if (long.TryParse(linkText, out var linkId))
+		{
+			selected = links.Where(x => x.WrappedLink?.Id == linkId).ToList();
+		}
+		else
+		{
+			actor.OutputHandler.Send("Specify a hitch link id or #3all#0.".SubstituteANSIColour());
+			return;
+		}
+
+		var selectedList = selected.ToList();
+		if (!selectedList.Any())
+		{
+			actor.OutputHandler.Send("There is no matching persistent hitch or tow link on that vehicle.");
+			return;
+		}
+
+		var repaired = new List<VehicleHitchGraphLink>();
+		var failed = new List<string>();
+		foreach (var link in selectedList)
+		{
+			if (OperationalReadinessService.RepairHitchLink(link, out var reason))
+			{
+				repaired.Add(link);
+				continue;
+			}
+
+			failed.Add($"#{link.WrappedLink?.Id.ToString("N0", actor) ?? "0"}: {reason}");
+		}
+
+		var sb = new StringBuilder();
+		if (repaired.Any())
+		{
+			sb.AppendLine($"You repair {repaired.Count.ToString("N0", actor).ColourValue()} persistent hitch/tow link{(repaired.Count == 1 ? "" : "s")} for {vehicle.Name.ColourName()}.");
+		}
+
+		if (failed.Any())
+		{
+			sb.AppendLine("Some links could not be restored:");
+			foreach (var failure in failed)
+			{
+				sb.AppendLine($"\t{failure}");
+			}
+		}
+
+		actor.Gameworld.SaveManager.Flush();
+		actor.OutputHandler.Send(sb.ToString());
 	}
 
 	private static void VehicleRepairDamage(ICharacter actor, IVehicle vehicle, string zoneText)

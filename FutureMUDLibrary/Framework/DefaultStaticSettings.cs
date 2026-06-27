@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -28,6 +28,11 @@ public static class DefaultStaticSettings
             { "DefaultNonCardinalExitForDwellings", "1"},
             { "DisableCraftQualityCalculation", "false"},
             { "EmploymentCraftReservationDurationMinutes", "30"},
+            { "VehicleAccessPresets", "passenger=board:1;operator=board:1,control:2;mechanic=board:1,service:2,repair:2;hitcher=board:1,hitch:2;crew=board:1,control:2,service:2,hitch:2;owner=all:3"},
+            { "VehicleTowStressWarningRatio", "0.90"},
+            { "VehicleTowStressFailureStartRatio", "0.95"},
+            { "VehicleTowStressMaximumFailureChance", "0.25"},
+            { "VehicleTowStressDamageMultiplier", "0.02"},
             { "LookingForTracksTimeExpression", "10"},
             { "MaximumLandmarkDirectionsDistance", "20"},
             { "RangeCountingMode", "pythagoreanround"},

@@ -1739,6 +1739,14 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable
                     link.IsDisabled = true;
                 }
 
+                var hitchLinks = FMDB.Context.VehicleHitchLinks
+                                      .Where(x => x.HitchItemId == Id && !x.IsDisabled)
+                                      .ToList();
+                foreach (var link in hitchLinks)
+                {
+                    link.IsDisabled = true;
+                }
+
                 Models.GameItem dbitem = FMDB.Context.GameItems.Find(Id);
                 if (dbitem != null)
                 {

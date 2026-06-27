@@ -293,6 +293,10 @@ public partial class FuturemudDatabaseContext
 			entity.Property(e => e.CanBeTowed).HasColumnType("bit(1)");
 			entity.Property(e => e.MaximumTowedWeight).HasColumnType("double");
 			entity.Property(e => e.CharacterPullMultiplier).HasColumnType("double").HasDefaultValue(1.0);
+			entity.Property(e => e.TowStressWarningRatio).HasColumnType("double");
+			entity.Property(e => e.TowStressFailureStartRatio).HasColumnType("double");
+			entity.Property(e => e.TowStressMaximumFailureChance).HasColumnType("double");
+			entity.Property(e => e.TowStressDamageMultiplier).HasColumnType("double");
 			entity.Property(e => e.DisplayOrder).HasColumnType("int(11)");
 
 			entity.HasOne(d => d.VehicleProto)

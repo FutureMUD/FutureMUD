@@ -30,6 +30,7 @@ internal class VehicleModule : Module<ICharacter>
 	public static VehicleModule Instance { get; } = new();
 	private static readonly IVehicleTowService TowService = new VehicleTowService();
 	private static readonly IVehicleHitchService HitchService = new VehicleHitchService();
+	private static readonly IVehicleHitchGraphService HitchGraphService = new VehicleHitchGraphService();
 
 	private const string EmbarkHelp = @"The #3embark#0 command lets you board a vehicle exterior item.
 
@@ -581,13 +582,13 @@ Syntax:
 		return false;
 	}
 
-	private static bool PersistentHitchItemIsOnEndpoint(ICharacter source, IPerceivable target, IGameItem hitchItem)
+	private static bool CharacterHitchItemIsOnEndpoint(ICharacter source, IPerceivable target, IGameItem hitchItem)
 	{
 		return source.Body.ExternalItems.Any(x => x.Id == hitchItem.Id) ||
 		       (target as ICharacter)?.Body.ExternalItems.Any(x => x.Id == hitchItem.Id) == true;
 	}
 
-	private static bool PreparePersistentCharacterHitchItem(ICharacter actor, ICharacter source, IPerceivable target,
+	private static bool PrepareCharacterHitchItem(ICharacter actor, ICharacter source, IPerceivable target,
 		IGameItem hitchItem, out string reason)
 	{
 		if (hitchItem is null)
@@ -602,7 +603,7 @@ Syntax:
 			return false;
 		}
 
-		if (PersistentHitchItemIsOnEndpoint(source, target, hitchItem))
+		if (CharacterHitchItemIsOnEndpoint(source, target, hitchItem))
 		{
 			reason = string.Empty;
 			return true;
@@ -642,15 +643,15 @@ Syntax:
 	private static void ApplyCharacterHitch(ICharacter actor, ICharacter source, IPerceivable target,
 		IVehicle targetVehicle, IVehicleTowPointPrototype targetTowPoint, IGameItem hitchItem, IDragAid dragAid)
 	{
+		if (!PrepareCharacterHitchItem(actor, source, target, hitchItem, out var hitchItemReason))
+		{
+			actor.OutputHandler.Send(hitchItemReason);
+			return;
+		}
+
 		long? persistentLinkId = null;
 		if (HitchService.CanPersistCharacterHitch(source, target, out _))
 		{
-			if (!PreparePersistentCharacterHitchItem(actor, source, target, hitchItem, out var hitchItemReason))
-			{
-				actor.OutputHandler.Send(hitchItemReason);
-				return;
-			}
-
 			var link = HitchService.CreatePersistentCharacterHitch(actor, source, target, targetVehicle, targetTowPoint,
 				hitchItem, out var persistentReason);
 			if (link is null)
@@ -829,82 +830,8 @@ Syntax:
 			return false;
 		}
 
-		if (targetVehicle.Destroyed)
-		{
-			reason = "Destroyed vehicles cannot be hitched.";
-			return false;
-		}
-
-		if (!targetTowPoint.CanBeTowed)
-		{
-			reason = "That tow point cannot be towed.";
-			return false;
-		}
-
-		if (targetVehicle.Location != source.Location || targetVehicle.RoomLayer != source.RoomLayer)
-		{
-			reason = "The vehicle must be in the same location and layer.";
-			return false;
-		}
-
-		if (!RequiredTowPointAccessAvailable(actor, targetVehicle, targetTowPoint, out reason))
-		{
-			return false;
-		}
-
-		if (targetVehicle.TowLinks.Any())
-		{
-			reason = "Character hitches cannot currently pull a vehicle that already has vehicle tow links.";
-			return false;
-		}
-
-		if (targetVehicle.IsDisabledByDamage(VehicleDamageEffectTargetType.TowPoint, targetTowPoint.Id))
-		{
-			reason = $"{targetTowPoint.Name} is disabled because {targetVehicle.DamageDisabledReason(VehicleDamageEffectTargetType.TowPoint, targetTowPoint.Id)}.";
-			return false;
-		}
-
-		if (targetVehicle.ExteriorItem?.AffectedBy<Dragging.DragTarget>() == true)
-		{
-			reason = $"{targetVehicle.ExteriorItem.HowSeen(actor, true)} is already being pulled or dragged.";
-			return false;
-		}
-
-		if (targetVehicle.ExteriorItem is null)
-		{
-			reason = "That vehicle does not have a linked exterior item.";
-			return false;
-		}
-
-		if (HitchGearRules.TowPointRequiresHitchItem(targetTowPoint) && hitchItem is null)
-		{
-			reason = $"That {targetTowPoint.TowType.ColourCommand()} tow point requires a hitch item. Use #3with <item>#0.".SubstituteANSIColour();
-			return false;
-		}
-
-		if (actor.Gameworld.VehicleHitchLinks?.Any(x =>
-			    x.TargetType == VehicleHitchEndpointType.Vehicle &&
-			    x.TargetVehicleId == targetVehicle.Id) == true)
-		{
-			reason = $"{targetVehicle.ExteriorItem.HowSeen(actor, true)} already has a persistent hitch link.";
-			return false;
-		}
-
-		var weight = targetVehicle.ExteriorItem.Weight;
-		if (weight > targetTowPoint.MaximumTowedWeight)
-		{
-			reason = $"That tow point can only handle {targetTowPoint.MaximumTowedWeight.ToString("N2", actor)} weight, but the vehicle weighs {weight.ToString("N2", actor)}.";
-			return false;
-		}
-
-		if (hitchItem is not null &&
-		    !HitchGearRules.GearCompatible(hitchItem, weight, out reason, targetTowPoint))
-		{
-			return false;
-		}
-
-		return CanPullWeight(actor, source, targetVehicle.ExteriorItem, dragAid, targetTowPoint.CharacterPullMultiplier,
-			out reason);
+		return HitchGraphService.CanAddCharacterVehicleHitch(actor, source, targetVehicle, targetTowPoint, hitchItem,
+			dragAid, out reason);
 	}
 
 	private static bool RequiredTowPointAccessAvailable(ICharacter actor, IVehicle vehicle,
@@ -1253,42 +1180,16 @@ Syntax:
 
 	private static string TowLinkDisabledCause(ICharacter actor, IVehicleTowLink link)
 	{
-		if (!link.IsDisabled)
-		{
-			return string.Empty;
-		}
-
-		if (!string.IsNullOrWhiteSpace(link.WhyInvalid))
-		{
-			return $" invalid ({link.WhyInvalid})".Colour(Telnet.Red);
-		}
-
-		var causes = new List<string>();
-		if (link.IsManuallyDisabled)
-		{
-			causes.Add("manual");
-		}
-
-		var sourceDamage = link.SourceVehicle?.DamageZonesDisabling(VehicleDamageEffectTargetType.TowPoint, link.SourceTowPoint.Id).ToList();
-		if (sourceDamage?.Any() == true)
-		{
-			causes.Add($"source damage {sourceDamage.Select(x => $"{x.Name} {x.Status.DescribeEnum()}").ListToString()}");
-		}
-
-		var targetDamage = link.TargetVehicle?.DamageZonesDisabling(VehicleDamageEffectTargetType.TowPoint, link.TargetTowPoint.Id).ToList();
-		if (targetDamage?.Any() == true)
-		{
-			causes.Add($"target damage {targetDamage.Select(x => $"{x.Name} {x.Status.DescribeEnum()}").ListToString()}");
-		}
-
-		return $" disabled ({causes.ListToString()})".Colour(Telnet.Red);
+		return TowService.ValidateLink(link, out var reason)
+			? string.Empty
+			: $" invalid ({reason})".Colour(Telnet.Red);
 	}
 
 	private static string DescribeHitchLink(ICharacter actor, IVehicleHitchLink link)
 	{
 		var hitchItem = link.HitchItem;
 		return
-			$"\t#{link.Id.ToString("N0", actor)} {DescribeHitchEndpoint(actor, link.SourceType, link.SourceVehicle, link.SourceCharacter, link.SourceTowPoint)} -> {DescribeHitchEndpoint(actor, link.TargetType, link.TargetVehicle, link.TargetCharacter, link.TargetTowPoint)} hitch {(hitchItem is null ? "none".ColourError() : hitchItem.HowSeen(actor))}{HitchLinkDisabledCause(link)}";
+			$"\t#{link.Id.ToString("N0", actor)} {DescribeHitchEndpoint(actor, link.SourceType, link.SourceVehicle, link.SourceCharacter, link.SourceTowPoint)} -> {DescribeHitchEndpoint(actor, link.TargetType, link.TargetVehicle, link.TargetCharacter, link.TargetTowPoint)} hitch {(hitchItem is null ? "none".ColourError() : hitchItem.HowSeen(actor))}{HitchLinkDisabledCause(actor, link)}";
 	}
 
 	private static string DescribeHitchEndpoint(ICharacter actor, VehicleHitchEndpointType type, IVehicle vehicle,
@@ -1303,8 +1204,22 @@ Syntax:
 		};
 	}
 
-	private static string HitchLinkDisabledCause(IVehicleHitchLink link)
+	private static string HitchLinkDisabledCause(ICharacter actor, IVehicleHitchLink link)
 	{
+		var perceivable = (IPerceivable)link.SourceVehicle?.ExteriorItem ??
+		                  link.SourceCharacter ??
+		                  (IPerceivable)link.TargetVehicle?.ExteriorItem ??
+		                  link.TargetCharacter;
+		var graphLink = perceivable is null
+			? null
+			: HitchGraphService.LinksInvolving(actor.Gameworld, perceivable)
+			                  .FirstOrDefault(x => x.Kind == VehicleHitchGraphLinkKind.PersistentHitch &&
+			                                       x.WrappedLink?.Id == link.Id);
+		if (graphLink is not null && !HitchGraphService.ValidateLink(graphLink, out var graphReason))
+		{
+			return $" invalid ({graphReason})".Colour(Telnet.Red);
+		}
+
 		if (!link.IsDisabled)
 		{
 			return string.Empty;

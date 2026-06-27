@@ -9,9 +9,9 @@ The goal is to verify the supported vehicle shapes end to end:
 - `ItemScale` vehicles with an exterior item, one driver slot, one control station, boarding, driving, and disembarking.
 - `RoomContainer` vehicles with compartments, access points, cargo projections, install points, damage effects, and towing.
 - `CellExit` movement through ordinary adjacent cell exits, using either `drive <direction>` or normal movement commands while controlling a vehicle.
-- Active character/mount hitches where a person, animal, or mount pulls a vehicle tow point or leads another hitched character.
+- Active character/mount hitches where a person, animal, or mount pulls a vehicle tow point, leads another hitched character, or pulls a vehicle that itself has downstream vehicle tow links.
 
-`RoomScale`, route movement, coordinate movement, player-facing vehicle repair gameplay, dynamic trailer breakage, persistent parked mount harness diagnostics, and richer fuel or power networks are not fully supported by this runbook.
+`RoomScale`, route movement, coordinate movement, player-facing vehicle repair gameplay, dynamic trailer breakage/catastrophe, rich parked-harness administration, and richer fuel or power networks are not fully supported by this runbook.
 
 ## Prerequisites
 
@@ -426,9 +426,32 @@ Expected result:
 
 Current limitations:
 
-- Active character/mount hitches are not persisted reboot-safe tow-link records and do not appear as durable tow links in `vehicle show`.
-- A character/mount hitch cannot currently pull a vehicle that already has persisted vehicle-to-vehicle tow links.
+- PC-inclusive active character/mount hitches are not persisted reboot-safe tow-link records. NPC-only hitches can persist through `VehicleHitchLinks`, while live PC hitches are recovered only as ordinary transient effects during that session.
+- A character/mount hitch can pull a vehicle that already has downstream vehicle-to-vehicle tow links. Movement preflight checks the whole unified train for total weight, exit size, damage-disabled tow points, incompatible or missing hitch gear, duplicate incoming links, and cycles.
 - The hitch item is reserved with a no-get effect while the active link exists. NPC-only persistent hitches save the hitch item id; PC-inclusive hitches remain transient and are cleared by reboot.
+
+Optional mixed-train check:
+
+```text
+item load <towbar-proto>
+get towbar
+hitch rear@cart front@trailer with towbar
+vehicle show <cart vehicle id>
+hitch horse shafts@cart
+north
+vehicle show <cart vehicle id>
+vehicle show <trailer vehicle id>
+south
+unhitch horse
+unhitch front@trailer
+```
+
+Expected result:
+
+- The horse/mount pulls the cart and the cart's downstream trailer together through ordinary character movement.
+- The cart and trailer canonical locations update to the destination cell.
+- The towbar and any loose character-hitch item move with the chain unless they are worn/carried by an endpoint.
+- If the combined train is too heavy, a hitch item is missing/destroyed, or a linked vehicle cannot fit through the exit, movement is blocked before any vehicle or hitch item moves.
 
 ## Negative Tests
 
@@ -528,11 +551,11 @@ The current implementation should be considered fully supported for:
 - simple `ItemScale` vehicles that board one or more occupants, expose a driver station, and move through cell exits;
 - `RoomContainer` vehicles represented by one exterior item, with authored compartments, slots, stations, access projections, cargo projections, installation points, damage effects, tow points, and cell-exit movement;
 - recursive tow trains made from cell-visible vehicles, provided they stay within cell-exit movement and use simple co-located hitch items;
-- active mount/character-pulled carts, wagons, rickshaws, hand carts, and similar vehicle exteriors while the hitch is a live movement effect and not expected to persist through reboot.
+- active mount/character-pulled carts, wagons, rickshaws, hand carts, and similar vehicle exteriors, including carts with downstream vehicle tow links, while the hitch is a live movement effect or an eligible NPC-only persistent hitch.
 
 The current implementation should not yet be considered fully supported for:
 
 - route-based buses, trains, or ferries;
 - coordinate-positioned vehicles;
 - aircraft, spacecraft, elevators, or ships with large moving interiors;
-- vehicles that need reboot-persistent mount harness records, rich player repair gameplay, dynamic crash/catastrophe handling, or detailed fuel/power topology.
+- vehicles that need rich parked-harness administration, player repair gameplay, dynamic crash/catastrophe handling, or detailed fuel/power topology.

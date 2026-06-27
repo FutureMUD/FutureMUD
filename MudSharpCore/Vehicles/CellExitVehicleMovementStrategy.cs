@@ -13,14 +13,20 @@ namespace MudSharp.Vehicles;
 public class CellExitVehicleMovementStrategy : IVehicleMovementStrategy
 {
 	private readonly IVehicleTowService _towService;
+	private readonly IVehicleHitchGraphService _graphService;
 
-	public CellExitVehicleMovementStrategy() : this(new VehicleTowService())
+	public CellExitVehicleMovementStrategy() : this(new VehicleTowService(), new VehicleHitchGraphService())
 	{
 	}
 
-	public CellExitVehicleMovementStrategy(IVehicleTowService towService)
+	public CellExitVehicleMovementStrategy(IVehicleTowService towService) : this(towService, new VehicleHitchGraphService())
+	{
+	}
+
+	public CellExitVehicleMovementStrategy(IVehicleTowService towService, IVehicleHitchGraphService graphService)
 	{
 		_towService = towService;
+		_graphService = graphService;
 	}
 
 	public VehicleMovementProfileType MovementType => VehicleMovementProfileType.CellExit;
@@ -106,12 +112,12 @@ public class CellExitVehicleMovementStrategy : IVehicleMovementStrategy
 			return false;
 		}
 
-		if (!_towService.CanMoveTowTrain(vehicle, exit, out var towTrain, out reason))
+		if (!_graphService.CanMoveVehicleTrain(vehicle.Gameworld, vehicle, exit, out var movePlan, out reason))
 		{
 			return false;
 		}
 
-		foreach (var linkedVehicle in towTrain.DefaultIfEmpty(vehicle))
+		foreach (var linkedVehicle in movePlan.Vehicles.DefaultIfEmpty(vehicle))
 		{
 			if (linkedVehicle.ExteriorItem?.PreventsMovement() != true)
 			{
@@ -169,7 +175,7 @@ public class CellExitVehicleMovementStrategy : IVehicleMovementStrategy
 
 		if (profile.RequiresTowLinksClosed)
 		{
-			var invalidTowLink = _towService.TowLinksFrom(vehicle).FirstOrDefault(x => x.IsDisabled);
+			var invalidTowLink = movePlan.Links.FirstOrDefault(x => x.IsDisabled);
 			if (invalidTowLink is not null)
 			{
 				reason = "One of that vehicle's tow links is disabled.";
@@ -213,12 +219,12 @@ public class CellExitVehicleMovementStrategy : IVehicleMovementStrategy
 		}
 
 		transition = exit.MovementTransition(actor);
-		if (!_towService.CanMoveTowTrain(vehicle, exit, out var train, out reason))
+		if (!_graphService.CanMoveVehicleTrain(vehicle.Gameworld, vehicle, exit, out var movePlan, out reason))
 		{
 			return false;
 		}
 
-		towTrain = train.ToList();
+		towTrain = movePlan.Vehicles.ToList();
 		reason = string.Empty;
 		return true;
 	}
@@ -247,13 +253,18 @@ public class CellExitVehicleMovementStrategy : IVehicleMovementStrategy
 		(CellMovementTransition TransitionType, RoomLayer TargetLayer) transition, IMovement movement = null)
 	{
 		var vehicles = towTrain.Any() ? towTrain : [vehicle];
-		var towLinks = _towService.TowLinksFrom(vehicle).ToList();
 		ConsumeMovementRequirements(vehicle);
+		if (_graphService.CanMoveVehicleTrain(vehicle.Gameworld, vehicle, exit, out var movePlan, out _))
+		{
+			_graphService.CompleteVehicleTrainMove(movePlan, exit.Destination, transition.TargetLayer, exit, movement);
+			return;
+		}
+
 		foreach (var linkedVehicle in vehicles)
 		{
 			linkedVehicle.MoveToCell(exit.Destination, transition.TargetLayer, exit, movement);
 		}
-		MoveHitchItems(towLinks, exit.Destination, transition.TargetLayer);
+		MoveHitchItems(_towService.TowLinksFrom(vehicle), exit.Destination, transition.TargetLayer);
 	}
 
 	private static IVehicleMovementProfilePrototype MovementProfile(IVehicle vehicle)

@@ -10,6 +10,7 @@ using MudSharp.Events;
 using MudSharp.Framework;
 using MudSharp.Framework.Scheduling;
 using MudSharp.GameItems;
+using MudSharp.GameItems.Interfaces;
 using MudSharp.Health;
 using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Lists;
@@ -17,6 +18,7 @@ using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.RPG.Checks;
 using MudSharp.RPG.Law;
+using MudSharp.Vehicles;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,6 +32,9 @@ namespace MudSharp.Movement;
 
 public class Movement : IMovement
 {
+    private readonly IVehicleHitchGraphService _vehicleHitchGraphService = new VehicleHitchGraphService();
+    private readonly Dictionary<long, VehicleHitchGraphMovePlan> _vehicleDragMovePlans = new();
+
     #region Implementation of IMovement
 
     /// <inheritdoc />
@@ -904,7 +909,30 @@ public class Movement : IMovement
                 (x.Character.MaximumDragWeight - x.Character.Body.ExternalItems.Sum(y => y.Weight)) *
                 (x.Aid?.EffortMultiplier ?? 1.0));
             IHaveWeight weightThing = (IHaveWeight)target;
-            var effectiveWeight = weightThing.Weight / pullMultiplier;
+            var targetWeight = weightThing.Weight;
+            if (target is IGameItem targetItem &&
+                targetItem.GetItemType<IVehicleExterior>()?.Vehicle is { } draggedVehicle)
+            {
+                if (!_vehicleHitchGraphService.CanDragVehicleTrain(_originalMover.Gameworld, draggedVehicle, Exit,
+                        draggers.Select(x => x.Character), out var movePlan, out var graphReason))
+                {
+                    foreach (Dragger dragger in draggers)
+                    {
+                        TurnaroundTrack(dragger.Character);
+                    }
+
+                    dragLeader.OutputHandler.Handle(new EmoteOutput(new Emote(
+                        $"@{(Helpers.Any() ? " and &0's helpers cannot" : " cannot")} drag $1 {Exit.OutboundMovementSuffix}: {graphReason}.",
+                        dragLeader, dragLeader, target), flags: OutputFlags.InnerWrap));
+                    CancelForMoverOnly(dragLeader);
+                    continue;
+                }
+
+                _vehicleDragMovePlans[draggedVehicle.Id] = movePlan;
+                targetWeight = movePlan.TotalWeight;
+            }
+
+            var effectiveWeight = targetWeight / pullMultiplier;
             if (dragCapacity >= effectiveWeight)
             {
                 continue;
@@ -930,10 +958,24 @@ public class Movement : IMovement
         {
             if (target is IGameItem targetItem)
             {
+                var draggedVehicle = targetItem.GetItemType<IVehicleExterior>()?.Vehicle;
+                VehicleHitchGraphMovePlan? movePlan = null;
+                if (draggedVehicle is not null &&
+                    !_vehicleDragMovePlans.TryGetValue(draggedVehicle.Id, out movePlan))
+                {
+                    _vehicleHitchGraphService.CanDragVehicleTrain(_originalMover.Gameworld, draggedVehicle, Exit,
+                        Draggers, out movePlan, out _);
+                }
+
                 Exit.Origin.Extract(targetItem);
                 targetItem.RoomLayer = Draggers.First().RoomLayer;
                 Exit.Destination.Insert(targetItem, true);
                 targetItem.ForceMove();
+                if (draggedVehicle is not null && movePlan is not null)
+                {
+                    _vehicleHitchGraphService.CompleteVehicleTrainMove(movePlan, Exit.Destination, targetItem.RoomLayer,
+                        Exit, this, draggedVehicle);
+                }
             }
         }
 

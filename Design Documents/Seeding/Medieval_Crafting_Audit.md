@@ -1,4 +1,4 @@
-﻿# Medieval ItemSeeder Rebuild Audit
+# Medieval ItemSeeder Rebuild Audit
 
 The medieval `ItemSeeder.Rework` item and craft implementation was reset to launch stubs for a from-scratch rebuild. The rebuild has now begun with direct seeded clothing, household goods and furniture, military-goods prototypes, and writing/book/document prototypes.
 
@@ -7,13 +7,17 @@ The medieval `ItemSeeder.Rework` item and craft implementation was reset to laun
 - `ItemSeeder.Rework.cs` still dispatches the medieval item launch methods when the `medieval` era is selected.
 - `ItemSeederCrafting.cs` still dispatches the medieval craft launch methods.
 - `SeedMedievalClothing` contains the direct clothing item `CreateItem(...)` calls.
-- `SeedMedievalHouseholdFurniture` contains the direct household goods, furniture, lighting, vessel, water-source, door, lock, and decoration `CreateItem(...)` calls.
+- `SeedMedievalContainers` contains the direct household, trade, personal, and furniture-container `CreateItem(...)` calls.
+- `SeedMedievalDoorsLocksAndStrongboxes` contains the direct door, gate, grate, lock, latch, key, and lock-hardware `CreateItem(...)` calls.
+- `SeedMedievalFoodAndBeverageItems` contains the direct food-service, tableware, and household-vessel `CreateItem(...)` calls.
+- `SeedMedievalJewelleryAndDevotionalGoods` contains the direct religious container and devotional furnishing `CreateItem(...)` calls.
+- `SeedMedievalHouseholdFurniture` contains the direct furniture, lighting, heating, water-source, washing-fixture, and decoration `CreateItem(...)` calls.
 - `SeedMedievalWeaponsShieldsAccessories` contains the direct melee weapon, ranged weapon, ammunition, and thrown-weapon `CreateItem(...)` calls.
 - `SeedMedievalArmour` contains the direct armour, horse tack, barding, shield, and military support-gear `CreateItem(...)` calls.
 - `SeedMedievalWritingAdministrationAndDocuments` contains the direct writing-surface, book, document, seal, container, scribal-tool, and writing-support `CreateItem(...)` calls.
 - `SeedMedievalMedicalAndApothecaryItems` contains the direct treatment, apothecary, drug-delivery, mobility, casualty-transport, and prosthetic `CreateItem(...)` calls.
 - `SeedMedievalRepairKits` contains the direct repair-kit and repair-supply `CreateItem(...)` calls.
-- The remaining `ItemSeeder.Rework.Medieval*.cs` category files are currently no-op launch points only.
+- `SeedMedievalHouseholdCraftTools` and `SeedMedievalComponentGapItems` are currently no-op launch points only.
 - `ItemSeederCrafting.Medieval.cs` currently contains no-op medieval craft launch points only.
 - The old authored outfit catalogue, explicit culture catalogue, generated helper/data model, and medieval craft helper families have been removed.
 
@@ -41,9 +45,9 @@ The live medieval military item source is intentionally direct-call only:
 
 The live medieval household goods and furniture item source is intentionally direct-call only:
 
-- Item prototypes live in `DatabaseSeeder/Seeders/ItemSeeder.Rework.MedievalFurniture.cs`.
+- Item prototypes live across `DatabaseSeeder/Seeders/ItemSeeder.Rework.MedievalContainers.cs`, `DatabaseSeeder/Seeders/ItemSeeder.Rework.MedievalDoorsLocksStrongboxes.cs`, `DatabaseSeeder/Seeders/ItemSeeder.Rework.MedievalFood.cs`, `DatabaseSeeder/Seeders/ItemSeeder.Rework.MedievalFurniture.cs`, and `DatabaseSeeder/Seeders/ItemSeeder.Rework.MedievalJewellery.cs`.
 - Catalogue metadata lives in `Design Documents/Seeding/Medieval_Household_Goods_Furniture_Seeder_Design_Reference.md`.
-- Each household-goods prototype is represented by exactly one `CreateItem(...)` call in `SeedMedievalHouseholdFurniture`.
+- Each household-goods prototype is represented by exactly one `CreateItem(...)` call in its owning medieval household method.
 - Furniture and container crafts are not rebuilt yet; `SeedMedievalFurnitureAndContainerCrafts` remains a no-op.
 
 ## Active Writing, Books, and Documents Source

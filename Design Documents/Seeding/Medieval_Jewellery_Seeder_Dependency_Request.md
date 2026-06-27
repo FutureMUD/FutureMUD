@@ -4,6 +4,12 @@ This file is a Codex-facing dependency checklist for the medieval decorative jew
 
 The intended consumer is an implementation agent working in the FutureMUD codebase. The list below intentionally uses the longer/full dependency set rather than the minimal unblocker set.
 
+## Implementation status
+
+Implemented in the seeder dependency pass. The required wearable component names are now generated from human wear profiles, with existing exact equivalents retained for already-supported jewellery such as rings, bracelets, anklets, earrings, necklaces, chokers, armlets, toe rings, waist wear, nose rings, and headband-like ornaments. Functional signet-ring seal behaviour is represented by the four requested `SealStamp_Medieval_*SignetRing` / `SealStamp_Medieval_RingSignet` components, which can be combined with `Wear_Ring` rows when a signet should mechanically apply seals.
+
+The finished-jewellery function tags, piercing refinements, optional garland and wreath refinements, and `Market / Jewellery` branch have been added to `UsefulSeeder` and the maintained `SeededTagHierarchy.csv` export. Required jewellery materials have been added as solid materials; `coral` and `straw` are also represented in the maintained material export, `mother-of-pearl` and `nacre` are both seeded as exact shell materials, and plant/floral material taxonomy follows the existing `Materials / Natural Materials / Vegetation` convention rather than introducing a separate `Plant Product` branch. The requested optional variable components are seeded as `Variable_JewelleryMotif`, `Variable_Flower`, `Variable_MetalFinish`, `Variable_BeadPattern`, `Variable_JewelleryShape`, and `Variable_InlayStyle`.
+
 ## Purpose
 
 The medieval jewellery reference targets about 400 decorative personal-adornment item prototypes across commoner, merchant, professional, noble, court, child/apprentice, festival, and ephemeral organic jewellery.

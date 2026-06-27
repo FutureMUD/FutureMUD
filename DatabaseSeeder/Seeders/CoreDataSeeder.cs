@@ -3878,6 +3878,60 @@ return IsAdmin(@ch)",
             Model = "standard"
         };
         context.CharacteristicDefinitions.Add(commonStoneDef);
+        CharacteristicDefinition jewelleryMotifDef = new()
+        {
+            Type = 2,
+            Name = "Jewellery Motif",
+            Pattern = "^motif$",
+            Description = "A medieval jewellery variable for decorative motifs such as $motif.",
+            Model = "standard"
+        };
+        context.CharacteristicDefinitions.Add(jewelleryMotifDef);
+        CharacteristicDefinition flowerDef = new()
+        {
+            Type = 2,
+            Name = "Flower",
+            Pattern = "^flower$",
+            Description = "A medieval jewellery variable for flower and garland values such as $flower.",
+            Model = "standard"
+        };
+        context.CharacteristicDefinitions.Add(flowerDef);
+        CharacteristicDefinition metalFinishDef = new()
+        {
+            Type = 2,
+            Name = "Metal Finish",
+            Pattern = "^finish$",
+            Description = "A medieval jewellery variable for metal finish values such as $finish.",
+            Model = "standard"
+        };
+        context.CharacteristicDefinitions.Add(metalFinishDef);
+        CharacteristicDefinition beadPatternDef = new()
+        {
+            Type = 2,
+            Name = "Bead Pattern",
+            Pattern = "^beadpattern$",
+            Description = "A medieval jewellery variable for bead arrangement values such as $beadpattern.",
+            Model = "standard"
+        };
+        context.CharacteristicDefinitions.Add(beadPatternDef);
+        CharacteristicDefinition jewelleryShapeDef = new()
+        {
+            Type = 2,
+            Name = "Jewellery Shape",
+            Pattern = "^shape$",
+            Description = "A medieval jewellery variable for visible jewellery shape values such as $shape.",
+            Model = "standard"
+        };
+        context.CharacteristicDefinitions.Add(jewelleryShapeDef);
+        CharacteristicDefinition inlayStyleDef = new()
+        {
+            Type = 2,
+            Name = "Inlay Style",
+            Pattern = "^inlay$",
+            Description = "A medieval jewellery variable for inlay and surface decoration values such as $inlay.",
+            Model = "standard"
+        };
+        context.CharacteristicDefinitions.Add(inlayStyleDef);
         context.SaveChanges();
 
         // Colours
@@ -9046,6 +9100,95 @@ return IsAdmin(@ch)",
             "slate"
         ];
 
+        string[] jewelleryMotifs =
+        [
+            "rosette",
+            "vine scroll",
+            "leaf",
+            "knotwork",
+            "interlace",
+            "geometric",
+            "star",
+            "crescent",
+            "sunburst",
+            "cross",
+            "heraldic beast",
+            "floral spray",
+            "beaded border",
+            "filigree"
+        ];
+
+        string[] flowers =
+        [
+            "rose",
+            "violet",
+            "daisy",
+            "jasmine",
+            "lotus flower",
+            "marigold",
+            "lily",
+            "chrysanthemum",
+            "blossom",
+            "ivy",
+            "laurel"
+        ];
+
+        string[] metalFinishes =
+        [
+            "polished",
+            "burnished",
+            "brushed",
+            "hammered",
+            "chased",
+            "engraved",
+            "gilded",
+            "silver-gilt",
+            "blackened",
+            "nielloed",
+            "enameled"
+        ];
+
+        string[] beadPatterns =
+        [
+            "single strand",
+            "double strand",
+            "alternating beads",
+            "graduated beads",
+            "clustered beads",
+            "knotted intervals",
+            "spaced pendants",
+            "symmetrical drops"
+        ];
+
+        string[] jewelleryShapes =
+        [
+            "round",
+            "oval",
+            "crescent",
+            "teardrop",
+            "lozenge",
+            "quatrefoil",
+            "rosette",
+            "cabochon",
+            "disc",
+            "plaque",
+            "hoop",
+            "spiral"
+        ];
+
+        string[] inlayStyles =
+        [
+            "flush inlay",
+            "raised inlay",
+            "cloisonne",
+            "champleve",
+            "niello",
+            "enamel",
+            "mosaic",
+            "wire inlay",
+            "shell inlay"
+        ];
+
         void AddCharacteristicValues(CharacteristicDefinition definition, IEnumerable<string> values)
         {
             var valueIndex = 1;
@@ -9158,6 +9301,12 @@ return IsAdmin(@ch)",
         AddCharacteristicValues(gemDef, gemColours);
         AddCharacteristicValues(fineGemDef, fineGemColours);
         AddCharacteristicValues(commonStoneDef, commonStones);
+        AddCharacteristicValues(jewelleryMotifDef, jewelleryMotifs);
+        AddCharacteristicValues(flowerDef, flowers);
+        AddCharacteristicValues(metalFinishDef, metalFinishes);
+        AddCharacteristicValues(beadPatternDef, beadPatterns);
+        AddCharacteristicValues(jewelleryShapeDef, jewelleryShapes);
+        AddCharacteristicValues(inlayStyleDef, inlayStyles);
 
         context.CharacteristicProfiles.Add(new CharacteristicProfile
         {
@@ -9220,6 +9369,60 @@ return IsAdmin(@ch)",
             Definition = BuildCharacteristicProfileDefinition(commonStones),
             TargetDefinitionId = commonStoneDef.Id,
             Description = "All of the values from the RPI Engine's $commonstone variable"
+        });
+
+        context.CharacteristicProfiles.Add(new CharacteristicProfile
+        {
+            Name = "Jewellery_Motifs",
+            Type = "Standard",
+            Definition = BuildCharacteristicProfileDefinition(jewelleryMotifs),
+            TargetDefinitionId = jewelleryMotifDef.Id,
+            Description = "Common medieval jewellery motifs for the $motif variable"
+        });
+
+        context.CharacteristicProfiles.Add(new CharacteristicProfile
+        {
+            Name = "Jewellery_Flowers",
+            Type = "Standard",
+            Definition = BuildCharacteristicProfileDefinition(flowers),
+            TargetDefinitionId = flowerDef.Id,
+            Description = "Common flowers and garland plants for the $flower variable"
+        });
+
+        context.CharacteristicProfiles.Add(new CharacteristicProfile
+        {
+            Name = "Jewellery_Metal_Finishes",
+            Type = "Standard",
+            Definition = BuildCharacteristicProfileDefinition(metalFinishes),
+            TargetDefinitionId = metalFinishDef.Id,
+            Description = "Common metal finishes for the $finish variable"
+        });
+
+        context.CharacteristicProfiles.Add(new CharacteristicProfile
+        {
+            Name = "Jewellery_Bead_Patterns",
+            Type = "Standard",
+            Definition = BuildCharacteristicProfileDefinition(beadPatterns),
+            TargetDefinitionId = beadPatternDef.Id,
+            Description = "Common bead arrangements for the $beadpattern variable"
+        });
+
+        context.CharacteristicProfiles.Add(new CharacteristicProfile
+        {
+            Name = "Jewellery_Shapes",
+            Type = "Standard",
+            Definition = BuildCharacteristicProfileDefinition(jewelleryShapes),
+            TargetDefinitionId = jewelleryShapeDef.Id,
+            Description = "Common jewellery shapes for the $shape variable"
+        });
+
+        context.CharacteristicProfiles.Add(new CharacteristicProfile
+        {
+            Name = "Jewellery_Inlay_Styles",
+            Type = "Standard",
+            Definition = BuildCharacteristicProfileDefinition(inlayStyles),
+            TargetDefinitionId = inlayStyleDef.Id,
+            Description = "Common jewellery inlay styles for the $inlay variable"
         });
 
         context.CharacteristicProfiles.Add(new CharacteristicProfile

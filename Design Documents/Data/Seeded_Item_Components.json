@@ -5100,6 +5100,36 @@
         "Component Type":  "Variable"
     },
     {
+        "Component Name":  "Variable_JewelleryMotif",
+        "Component Description":  "Gives an item a random variable called $motif from the Jewellery_Motifs list.",
+        "Component Type":  "Variable"
+    },
+    {
+        "Component Name":  "Variable_Flower",
+        "Component Description":  "Gives an item a random variable called $flower from the Jewellery_Flowers list.",
+        "Component Type":  "Variable"
+    },
+    {
+        "Component Name":  "Variable_MetalFinish",
+        "Component Description":  "Gives an item a random variable called $finish from the Jewellery_Metal_Finishes list.",
+        "Component Type":  "Variable"
+    },
+    {
+        "Component Name":  "Variable_BeadPattern",
+        "Component Description":  "Gives an item a random variable called $beadpattern from the Jewellery_Bead_Patterns list.",
+        "Component Type":  "Variable"
+    },
+    {
+        "Component Name":  "Variable_JewelleryShape",
+        "Component Description":  "Gives an item a random variable called $shape from the Jewellery_Shapes list.",
+        "Component Type":  "Variable"
+    },
+    {
+        "Component Name":  "Variable_InlayStyle",
+        "Component Description":  "Gives an item a random variable called $inlay from the Jewellery_Inlay_Styles list.",
+        "Component Type":  "Variable"
+    },
+    {
         "Component Name":  "Variable_RpiMixedVariables",
         "Component Description":  "Gives an imported RPI item the common colour, fine colour, drab colour, gem, fine gem, and common stone variables.",
         "Component Type":  "Variable"
@@ -5302,6 +5332,151 @@
     {
         "Component Name":  "Wear_Bandolier",
         "Component Description":  "Permits the item to be worn in the Bandolier wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Brooch",
+        "Component Description":  "Permits the item to be worn in the Brooch wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Brooches",
+        "Component Description":  "Permits the item to be worn in the Brooches wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Pin",
+        "Component Description":  "Permits the item to be worn in the Pin wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Badge",
+        "Component Description":  "Permits the item to be worn in the Badge wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Hairpin",
+        "Component Description":  "Permits the item to be worn in the Hairpin wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Hairpins",
+        "Component Description":  "Permits the item to be worn in the Hairpins wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Hair_Comb",
+        "Component Description":  "Permits the item to be worn in the Hair Comb wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Hair_Combs",
+        "Component Description":  "Permits the item to be worn in the Hair Combs wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Hair_Ornament",
+        "Component Description":  "Permits the item to be worn in the Hair Ornament wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Hair_Ornaments",
+        "Component Description":  "Permits the item to be worn in the Hair Ornaments wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Temple_Rings",
+        "Component Description":  "Permits the item to be worn in the Temple Rings wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Circlet",
+        "Component Description":  "Permits the item to be worn in the Circlet wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Diadem",
+        "Component Description":  "Permits the item to be worn in the Diadem wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Coronet",
+        "Component Description":  "Permits the item to be worn in the Coronet wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Crown",
+        "Component Description":  "Permits the item to be worn in the Crown wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Chaplet",
+        "Component Description":  "Permits the item to be worn in the Chaplet wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Wreath",
+        "Component Description":  "Permits the item to be worn in the Wreath wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Head_Garland",
+        "Component Description":  "Permits the item to be worn in the Head Garland wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Neck_Garland",
+        "Component Description":  "Permits the item to be worn in the Neck Garland wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Wrist_Garland",
+        "Component Description":  "Permits the item to be worn in the Wrist Garland wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Ankle_Garland",
+        "Component Description":  "Permits the item to be worn in the Ankle Garland wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Torc",
+        "Component Description":  "Permits the item to be worn in the Torc wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Neck_Ring",
+        "Component Description":  "Permits the item to be worn in the Neck Ring wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Waist_Chain",
+        "Component Description":  "Permits the item to be worn in the Waist Chain wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Girdle_Ornament",
+        "Component Description":  "Permits the item to be worn in the Girdle Ornament wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Belt_Ornament",
+        "Component Description":  "Permits the item to be worn in the Belt Ornament wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Belt_Plaques",
+        "Component Description":  "Permits the item to be worn in the Belt Plaques wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Waist_Ornament",
+        "Component Description":  "Permits the item to be worn in the Waist Ornament wear configuration",
+        "Component Type":  "Wearable"
+    },
+    {
+        "Component Name":  "Wear_Forehead_Ornament",
+        "Component Description":  "Permits the item to be worn in the Forehead Ornament wear configuration",
         "Component Type":  "Wearable"
     },
     {
@@ -6612,6 +6787,26 @@
     {
         "Component Name":  "SealStamp_Medieval_BronzeSignet",
         "Component Description":  "Turns an item into a medieval bronze signet seal stamp.",
+        "Component Type":  "SealStamp"
+    },
+    {
+        "Component Name":  "SealStamp_Medieval_RingSignet",
+        "Component Description":  "Turns a wearable ring into a medieval signet seal stamp.",
+        "Component Type":  "SealStamp"
+    },
+    {
+        "Component Name":  "SealStamp_Medieval_PersonalSignetRing",
+        "Component Description":  "Turns a wearable ring into a personal medieval signet seal stamp.",
+        "Component Type":  "SealStamp"
+    },
+    {
+        "Component Name":  "SealStamp_Medieval_MerchantSignetRing",
+        "Component Description":  "Turns a wearable ring into a merchant medieval signet seal stamp.",
+        "Component Type":  "SealStamp"
+    },
+    {
+        "Component Name":  "SealStamp_Medieval_NobleSignetRing",
+        "Component Description":  "Turns a wearable ring into a noble medieval signet seal stamp.",
         "Component Type":  "SealStamp"
     },
     {

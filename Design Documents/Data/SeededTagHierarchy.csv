@@ -1114,6 +1114,46 @@ Earrings	Jewellery	Functions / Worn Items / Jewellery / Earrings
 Necklaces	Jewellery	Functions / Worn Items / Jewellery / Necklaces
 Piercings	Jewellery	Functions / Worn Items / Jewellery / Piercings
 Rings	Jewellery	Functions / Worn Items / Jewellery / Rings
+Armlets	Jewellery	Functions / Worn Items / Jewellery / Armlets
+Badges	Jewellery	Functions / Worn Items / Jewellery / Badges
+Bead Strings	Jewellery	Functions / Worn Items / Jewellery / Bead Strings
+Belt Ornaments	Jewellery	Functions / Worn Items / Jewellery / Belt Ornaments
+Belt Plaques	Jewellery	Functions / Worn Items / Jewellery / Belt Plaques
+Brooches	Jewellery	Functions / Worn Items / Jewellery / Brooches
+Chaplets	Jewellery	Functions / Worn Items / Jewellery / Chaplets
+Chokers	Jewellery	Functions / Worn Items / Jewellery / Chokers
+Circlets	Jewellery	Functions / Worn Items / Jewellery / Circlets
+Coronets	Jewellery	Functions / Worn Items / Jewellery / Coronets
+Crowns	Jewellery	Functions / Worn Items / Jewellery / Crowns
+Diadems	Jewellery	Functions / Worn Items / Jewellery / Diadems
+Ear Studs	Piercings	Functions / Worn Items / Jewellery / Piercings / Ear Studs
+Forehead Ornaments	Jewellery	Functions / Worn Items / Jewellery / Forehead Ornaments
+Garlands	Jewellery	Functions / Worn Items / Jewellery / Garlands
+Dried Garlands	Garlands	Functions / Worn Items / Jewellery / Garlands / Dried Garlands
+Flower Garlands	Garlands	Functions / Worn Items / Jewellery / Garlands / Flower Garlands
+Fresh Garlands	Garlands	Functions / Worn Items / Jewellery / Garlands / Fresh Garlands
+Herb Garlands	Garlands	Functions / Worn Items / Jewellery / Garlands / Herb Garlands
+Leaf Garlands	Garlands	Functions / Worn Items / Jewellery / Garlands / Leaf Garlands
+Girdle Ornaments	Jewellery	Functions / Worn Items / Jewellery / Girdle Ornaments
+Hair Ornaments	Jewellery	Functions / Worn Items / Jewellery / Hair Ornaments
+Head Ornaments	Jewellery	Functions / Worn Items / Jewellery / Head Ornaments
+Neck Garlands	Jewellery	Functions / Worn Items / Jewellery / Neck Garlands
+Neck Rings	Jewellery	Functions / Worn Items / Jewellery / Neck Rings
+Nose Rings	Piercings	Functions / Worn Items / Jewellery / Piercings / Nose Rings
+Nose Studs	Piercings	Functions / Worn Items / Jewellery / Piercings / Nose Studs
+Pendants	Jewellery	Functions / Worn Items / Jewellery / Pendants
+Pins	Jewellery	Functions / Worn Items / Jewellery / Pins
+Temple Rings	Jewellery	Functions / Worn Items / Jewellery / Temple Rings
+Toe Rings	Jewellery	Functions / Worn Items / Jewellery / Toe Rings
+Torcs	Jewellery	Functions / Worn Items / Jewellery / Torcs
+Waist Chains	Jewellery	Functions / Worn Items / Jewellery / Waist Chains
+Waist Ornaments	Jewellery	Functions / Worn Items / Jewellery / Waist Ornaments
+Wreaths	Jewellery	Functions / Worn Items / Jewellery / Wreaths
+Dried Wreaths	Wreaths	Functions / Worn Items / Jewellery / Wreaths / Dried Wreaths
+Flower Wreaths	Wreaths	Functions / Worn Items / Jewellery / Wreaths / Flower Wreaths
+Fresh Wreaths	Wreaths	Functions / Worn Items / Jewellery / Wreaths / Fresh Wreaths
+Herb Wreaths	Wreaths	Functions / Worn Items / Jewellery / Wreaths / Herb Wreaths
+Leaf Wreaths	Wreaths	Functions / Worn Items / Jewellery / Wreaths / Leaf Wreaths
 Legwear	Worn Items	Functions / Worn Items / Legwear
 Scarves	Worn Items	Functions / Worn Items / Scarves
 Socks	Worn Items	Functions / Worn Items / Socks
@@ -1135,6 +1175,19 @@ Military Uniforms	Clothing	Market / Clothing / Military Uniforms
 Simple Clothing	Clothing	Market / Clothing / Simple Clothing
 Standard Clothing	Clothing	Market / Clothing / Standard Clothing
 Winter Clothing	Clothing	Market / Clothing / Winter Clothing
+Jewellery	Market	Market / Jewellery
+Children's Jewellery	Jewellery	Market / Jewellery / Children's Jewellery
+Commoner Jewellery	Jewellery	Market / Jewellery / Commoner Jewellery
+Court Jewellery	Jewellery	Market / Jewellery / Court Jewellery
+Ephemeral Jewellery	Jewellery	Market / Jewellery / Ephemeral Jewellery
+Festival Jewellery	Jewellery	Market / Jewellery / Festival Jewellery
+Luxury Jewellery	Jewellery	Market / Jewellery / Luxury Jewellery
+Merchant Jewellery	Jewellery	Market / Jewellery / Merchant Jewellery
+Noble Jewellery	Jewellery	Market / Jewellery / Noble Jewellery
+Professional Jewellery	Jewellery	Market / Jewellery / Professional Jewellery
+Regalia	Jewellery	Market / Jewellery / Regalia
+Simple Jewellery	Jewellery	Market / Jewellery / Simple Jewellery
+Standard Jewellery	Jewellery	Market / Jewellery / Standard Jewellery
 Communications	Market	Market / Communications
 Courier Services	Communications	Market / Communications / Courier Services
 Messenger Services	Communications	Market / Communications / Messenger Services

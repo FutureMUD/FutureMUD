@@ -11,6 +11,8 @@ The medieval `ItemSeeder.Rework` item and craft implementation was reset to laun
 - `SeedMedievalWeaponsShieldsAccessories` contains the direct melee weapon, ranged weapon, ammunition, and thrown-weapon `CreateItem(...)` calls.
 - `SeedMedievalArmour` contains the direct armour, horse tack, barding, shield, and military support-gear `CreateItem(...)` calls.
 - `SeedMedievalWritingAdministrationAndDocuments` contains the direct writing-surface, book, document, seal, container, scribal-tool, and writing-support `CreateItem(...)` calls.
+- `SeedMedievalMedicalAndApothecaryItems` contains the direct treatment, apothecary, drug-delivery, mobility, casualty-transport, and prosthetic `CreateItem(...)` calls.
+- `SeedMedievalRepairKits` contains the direct repair-kit and repair-supply `CreateItem(...)` calls.
 - The remaining `ItemSeeder.Rework.Medieval*.cs` category files are currently no-op launch points only.
 - `ItemSeederCrafting.Medieval.cs` currently contains no-op medieval craft launch points only.
 - The old authored outfit catalogue, explicit culture catalogue, generated helper/data model, and medieval craft helper families have been removed.
@@ -54,16 +56,18 @@ The live medieval writing, books, and documents item source is intentionally dir
 - Each writing, book, document, seal, container, scribal-tool, and writing-support prototype is represented by exactly one `CreateItem(...)` call in `SeedMedievalWritingAdministrationAndDocuments`.
 - Writing and administration crafts are not rebuilt yet; `SeedMedievalWritingAdministrationCrafts` remains a no-op.
 
-## Active Treatment, Drug, and Repair Dependencies
+## Active Treatment, Drug, and Repair Source
 
-The live medieval medical and specialist-repair dependency source is implemented, but final medieval treatment item `CreateItem(...)` rows are intentionally deferred:
+The live medieval treatment, drug-delivery, mobility, prosthetic, and specialist-repair source is intentionally direct-call only:
 
-- Design metadata lives in `Design Documents/Seeding/FutureMUD_Medieval_Treatment_Drugs_Repair_Kits_Design_Reference.md`.
+- Item prototypes live in `DatabaseSeeder/Seeders/ItemSeeder.Rework.MedievalMedical.cs` and `DatabaseSeeder/Seeders/ItemSeeder.Rework.MedievalRepairKits.cs`.
+- Merged design metadata and final catalogue rows live in `Design Documents/Seeding/FutureMUD_Medieval_Treatment_Drugs_Repair_Kits_Design_Reference.md`.
+- Each treatment, apothecary, drug-delivery, mobility, prosthetic, repair-kit, and repair-supply prototype is represented by exactly one `CreateItem(...)` call in its owning method.
 - Medieval health-tier seeding, medicinal liquids, medicine vessels, and fumigation components live in `DatabaseSeeder/Seeders/HealthSeeder.cs`.
 - Specialist glass, paper, lacquer, cordage, and composite-bow repair kit components live in `DatabaseSeeder/Seeders/UsefulSeeder.ItemComponents.cs`.
 - Supporting tag paths live in `DatabaseSeeder/Seeders/UsefulSeeder.Tags.cs` and the path-aware HealthSeeder liquid-tag helper.
-- Maintained exports are synchronized in `Design Documents/Data/Seeded_Item_Components.json`, `Seeded_Liquids.json`, `Item_Component_Types.json`, and `SeededTagHierarchy.csv`.
-- Final stocked medieval apothecary and repair-supply item rows remain a later item-catalogue workstream.
+- Maintained exports are synchronized in `Design Documents/Data/Seeded_Item_Components.json`, `Seeded_Liquids.json`, `Item_Component_Types.json`, `Seeded_Materials.json`, and `SeededTagHierarchy.csv`.
+- Treatment, drug, and repair crafts are not rebuilt yet; `SeedMedievalMedicalApothecaryCrafts` and `SeedMedievalRepairKitCrafts` remain no-op methods.
 
 ## Shared Historic Foundations
 

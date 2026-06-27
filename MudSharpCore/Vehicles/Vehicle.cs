@@ -27,6 +27,7 @@ public class Vehicle : SaveableItem, IVehicle
 	private readonly List<IVehicleTowLink> _towLinks = new();
 	private readonly List<IVehicleDamageZone> _damageZones = new();
 	private readonly CellExitVehicleMovementStrategy _cellExitMovementStrategy = new();
+	private readonly IVehicleOperationalReadinessService _operationalReadinessService = new VehicleOperationalReadinessService();
 	private long _prototypeId;
 	private int _prototypeRevision;
 	private long? _exteriorItemId;
@@ -239,9 +240,9 @@ public class Vehicle : SaveableItem, IVehicle
 			return false;
 		}
 
-		if (_accessStates.Any() && !_accessStates.Any(x => x.Character?.SameIdentity(actor) == true))
+		if (!_operationalReadinessService.CanPerformAction(this, actor, VehicleOperationalAction.Board, out var accessResult))
 		{
-			reason = "You do not have access to board that vehicle.";
+			reason = accessResult.Reason;
 			return false;
 		}
 
@@ -422,6 +423,104 @@ public class Vehicle : SaveableItem, IVehicle
 		Changed = true;
 	}
 
+	public IVehicleAccessState GrantAccess(ICharacter character, string accessTag, int accessLevel)
+	{
+		if (character is null)
+		{
+			throw new ArgumentNullException(nameof(character));
+		}
+
+		accessTag = NormaliseAccessTag(accessTag);
+		accessLevel = Math.Clamp(accessLevel, 1, 3);
+		var characterId = CharacterInstanceIdentityComparer.IdentityId(character);
+		DB.VehicleAccessState dbitem;
+		using (new FMDB())
+		{
+			dbitem = FMDB.Context.VehicleAccessStates.FirstOrDefault(x =>
+				x.VehicleId == Id && x.CharacterId == characterId && x.AccessTag == accessTag);
+			if (dbitem is null)
+			{
+				dbitem = new DB.VehicleAccessState
+				{
+					VehicleId = Id,
+					CharacterId = characterId,
+					AccessTag = accessTag,
+					AccessLevel = accessLevel
+				};
+				FMDB.Context.VehicleAccessStates.Add(dbitem);
+			}
+			else
+			{
+				dbitem.AccessLevel = accessLevel;
+			}
+
+			FMDB.Context.SaveChanges();
+		}
+
+		_accessStates.RemoveAll(x => x.Id == dbitem.Id);
+		var runtime = new VehicleAccessState(this, dbitem);
+		_accessStates.Add(runtime);
+		return runtime;
+	}
+
+	public bool RevokeAccess(long accessStateId)
+	{
+		var removed = false;
+		using (new FMDB())
+		{
+			var dbitem = FMDB.Context.VehicleAccessStates.Find(accessStateId);
+			if (dbitem is not null && dbitem.VehicleId == Id)
+			{
+				FMDB.Context.VehicleAccessStates.Remove(dbitem);
+				FMDB.Context.SaveChanges();
+				removed = true;
+			}
+		}
+
+		if (removed)
+		{
+			_accessStates.RemoveAll(x => x.Id == accessStateId);
+		}
+
+		return removed;
+	}
+
+	public int RevokeAccess(ICharacter character, string accessTag = null)
+	{
+		if (character is null)
+		{
+			return 0;
+		}
+
+		accessTag = string.IsNullOrWhiteSpace(accessTag) ? null : NormaliseAccessTag(accessTag);
+		var characterId = CharacterInstanceIdentityComparer.IdentityId(character);
+		List<long> ids;
+		using (new FMDB())
+		{
+			var rows = FMDB.Context.VehicleAccessStates
+			               .Where(x => x.VehicleId == Id && x.CharacterId == characterId)
+			               .ToList();
+			if (!string.IsNullOrWhiteSpace(accessTag))
+			{
+				rows = rows.Where(x => x.AccessTag == accessTag).ToList();
+			}
+
+			ids = rows.Select(x => x.Id).ToList();
+			if (rows.Any())
+			{
+				FMDB.Context.VehicleAccessStates.RemoveRange(rows);
+				FMDB.Context.SaveChanges();
+			}
+		}
+
+		_accessStates.RemoveAll(x => ids.Contains(x.Id));
+		return ids.Count;
+	}
+
+	private static string NormaliseAccessTag(string accessTag)
+	{
+		return string.IsNullOrWhiteSpace(accessTag) ? "all" : accessTag.Trim().ToLowerInvariant();
+	}
 	private void SetStationaryAfterForcedExteriorChange()
 	{
 		_locationType = VehicleLocationType.Cell;

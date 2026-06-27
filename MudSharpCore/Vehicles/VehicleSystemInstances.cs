@@ -482,7 +482,7 @@ public class VehicleTowLink : FrameworkItem, IVehicleTowLink
 	private readonly long _targetTowPointProtoId;
 	private readonly long? _hitchItemId;
 	private IGameItem? _hitchItem;
-	private readonly bool _isDisabled;
+	private bool _isDisabled;
 
 	public VehicleTowLink(IFuturemud gameworld, DB.VehicleTowLink dbitem)
 	{
@@ -526,6 +526,25 @@ public class VehicleTowLink : FrameworkItem, IVehicleTowLink
 	public bool IsManuallyDisabled => _isDisabled;
 	public bool IsBroken => !string.IsNullOrWhiteSpace(WhyInvalid);
 	public bool IsDisabled => IsBroken;
+
+	public void SetDisabled(bool disabled)
+	{
+		if (_isDisabled == disabled)
+		{
+			return;
+		}
+
+		_isDisabled = disabled;
+		using (new FMDB())
+		{
+			var dbitem = FMDB.Context.VehicleTowLinks.Find(Id);
+			if (dbitem is not null)
+			{
+				dbitem.IsDisabled = disabled;
+				FMDB.Context.SaveChanges();
+			}
+		}
+	}
 
 	public string WhyInvalid
 	{
@@ -639,7 +658,7 @@ public class VehicleHitchLink : FrameworkItem, IVehicleHitchLink
 	private readonly long? _targetCharacterInstanceId;
 	private readonly long? _targetTowPointProtoId;
 	private readonly long? _hitchItemId;
-	private readonly bool _isDisabled;
+	private bool _isDisabled;
 	private readonly DateTime _createdDateTime;
 	private IGameItem? _hitchItem;
 
@@ -719,6 +738,25 @@ public class VehicleHitchLink : FrameworkItem, IVehicleHitchLink
 
 	public bool IsBroken => !string.IsNullOrWhiteSpace(WhyInvalid);
 
+
+	public void SetDisabled(bool disabled)
+	{
+		if (_isDisabled == disabled)
+		{
+			return;
+		}
+
+		_isDisabled = disabled;
+		using (new FMDB())
+		{
+			var dbitem = FMDB.Context.VehicleHitchLinks.Find(Id);
+			if (dbitem is not null)
+			{
+				dbitem.IsDisabled = disabled;
+				FMDB.Context.SaveChanges();
+			}
+		}
+	}
 	public string WhyInvalid
 	{
 		get
@@ -1006,6 +1044,28 @@ public class VehicleDamageZone : FrameworkItem, IVehicleDamageZone
 			var dbitem = FMDB.Context.VehicleDamageZones.Find(Id);
 			if (dbitem is not null)
 			{
+				dbitem.Status = (int)_status;
+				FMDB.Context.SaveChanges();
+			}
+		}
+	}
+
+	public void RecalculateDamageFromWounds()
+	{
+		_wounds.RemoveAll(x => x.Severity == WoundSeverity.None);
+		_currentDamage = Math.Max(0.0, _wounds.Sum(x => x.CurrentDamage));
+		_status = _currentDamage >= Prototype.DestroyedThreshold
+			? VehicleSystemStatus.Destroyed
+			: _currentDamage >= Prototype.DisabledThreshold
+				? VehicleSystemStatus.Disabled
+				: VehicleSystemStatus.Functional;
+
+		using (new FMDB())
+		{
+			var dbitem = FMDB.Context.VehicleDamageZones.Find(Id);
+			if (dbitem is not null)
+			{
+				dbitem.CurrentDamage = _currentDamage;
 				dbitem.Status = (int)_status;
 				FMDB.Context.SaveChanges();
 			}

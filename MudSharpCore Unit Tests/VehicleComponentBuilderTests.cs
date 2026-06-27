@@ -49,6 +49,8 @@ public class VehicleComponentBuilderTests
 		Assert.IsFalse(string.IsNullOrWhiteSpace(help));
 		StringAssert.Contains(help, "mount <type>");
 		StringAssert.Contains(help, "role <role>");
+		StringAssert.Contains(help, "mincondition <percent>");
+		StringAssert.Contains(help, "movementcondition <percent>");
 	}
 
 	[DataTestMethod]
@@ -66,6 +68,25 @@ public class VehicleComponentBuilderTests
 		Assert.IsNotNull(proto);
 		StringAssert.Contains(proto!.ShowBuildingHelp, expectedHelp);
 		Assert.AreNotEqual("This component does not yet have specific help.", proto.ShowBuildingHelp);
+	}
+
+	[TestMethod]
+	public void VehicleInstallableComponentProto_LoadsConditionThresholds()
+	{
+		var gameworld = new Mock<IFuturemud>();
+		var definition = new XElement("Definition",
+			new XElement("MountType", "engine"),
+			new XElement("Role", "drive"),
+			new XElement("MinimumFunctionalCondition", 0.25),
+			new XElement("MinimumMovementCondition", 0.60));
+
+		var proto = new GameItemComponentManager().GetProto(
+			CreateComponentProto("Vehicle Installable", definition.ToString(SaveOptions.DisableFormatting)),
+			gameworld.Object) as VehicleInstallableGameItemComponentProto;
+
+		Assert.IsNotNull(proto);
+		Assert.AreEqual(0.25, proto!.MinimumFunctionalCondition);
+		Assert.AreEqual(0.60, proto.MinimumMovementCondition);
 	}
 
 	[TestMethod]

@@ -33,6 +33,7 @@ namespace MudSharp.Movement;
 public class Movement : IMovement
 {
     private readonly IVehicleHitchGraphService _vehicleHitchGraphService = new VehicleHitchGraphService();
+    private readonly IVehicleOperationalReadinessService _vehicleOperationalReadinessService = new VehicleOperationalReadinessService();
     private readonly Dictionary<long, VehicleHitchGraphMovePlan> _vehicleDragMovePlans = new();
 
     #region Implementation of IMovement
@@ -910,6 +911,7 @@ public class Movement : IMovement
                 (x.Aid?.EffortMultiplier ?? 1.0));
             IHaveWeight weightThing = (IHaveWeight)target;
             var targetWeight = weightThing.Weight;
+            VehicleHitchGraphMovePlan? draggedVehicleMovePlan = null;
             if (target is IGameItem targetItem &&
                 targetItem.GetItemType<IVehicleExterior>()?.Vehicle is { } draggedVehicle)
             {
@@ -928,6 +930,7 @@ public class Movement : IMovement
                     continue;
                 }
 
+                draggedVehicleMovePlan = movePlan;
                 _vehicleDragMovePlans[draggedVehicle.Id] = movePlan;
                 targetWeight = movePlan.TotalWeight;
             }
@@ -935,6 +938,22 @@ public class Movement : IMovement
             var effectiveWeight = targetWeight / pullMultiplier;
             if (dragCapacity >= effectiveWeight)
             {
+                if (draggedVehicleMovePlan is not null)
+                {
+                    var catastrophe = _vehicleOperationalReadinessService.RollTowCatastrophe(draggedVehicleMovePlan, dragLeader);
+                    if (catastrophe.Catastrophe)
+                    {
+                        foreach (Dragger dragger in draggers)
+                        {
+                            TurnaroundTrack(dragger.Character);
+                        }
+
+                        Exit.Origin.HandleRoomEcho(catastrophe.Reason, OriginLayer);
+                        Cancel();
+                        return;
+                    }
+                }
+
                 continue;
             }
 

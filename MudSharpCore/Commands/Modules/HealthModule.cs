@@ -1,4 +1,4 @@
-﻿using MailKit;
+using MailKit;
 using MudSharp.Accounts;
 using MudSharp.Body;
 using MudSharp.Body.PartProtos;
@@ -21,6 +21,7 @@ using MudSharp.PerceptionEngine.Outputs;
 using MudSharp.PerceptionEngine.Parsers;
 using MudSharp.RPG.Checks;
 using MudSharp.RPG.Knowledge;
+using MudSharp.Vehicles;
 using Org.BouncyCastle.Asn1.X509.Qualified;
 using System;
 using System.Collections.Generic;
@@ -38,6 +39,7 @@ internal class HealthModule : Module<ICharacter>
     }
 
     public static HealthModule Instance { get; } = new();
+    private static readonly IVehicleOperationalReadinessService VehicleReadinessService = new VehicleOperationalReadinessService();
 
     [PlayerCommand("CPR", "cpr")]
     [NoHideCommand]
@@ -864,6 +866,14 @@ The syntaxes available include:
         if (target == null)
         {
             actor.OutputHandler.Send("You don't see anything like that to repair.");
+            return;
+        }
+
+        var vehicle = (target as IGameItem)?.GetItemType<IVehicleExterior>()?.Vehicle;
+        if (vehicle is not null &&
+            !VehicleReadinessService.CanPerformAction(vehicle, actor, VehicleOperationalAction.Repair, out var accessResult))
+        {
+            actor.OutputHandler.Send(accessResult.Reason);
             return;
         }
 

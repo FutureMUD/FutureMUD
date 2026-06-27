@@ -57,6 +57,17 @@ public sealed record VehicleHitchGraphTrainMember(
 	int Depth,
 	VehicleHitchGraphLink? IncomingLink);
 
+public sealed record VehicleHitchGraphTowStress(
+	VehicleHitchGraphLink Link,
+	IVehicle? TargetVehicle,
+	double EffectiveWeight,
+	double Capacity,
+	double StressRatio,
+	bool IsWarning,
+	bool CanFail,
+	double FailureChance,
+	string Reason);
+
 public sealed record VehicleHitchGraphMovePlan(
 	IVehicle RootVehicle,
 	IReadOnlyList<VehicleHitchGraphTrainMember> Members,
@@ -73,6 +84,8 @@ public interface IVehicleHitchGraphService
 	IReadOnlyList<VehicleHitchGraphLink> LinksInvolving(IFuturemud? gameworld, IPerceivable perceivable);
 	IReadOnlyList<IVehicle> VehicleTrainFrom(IFuturemud? gameworld, IVehicle root);
 	IReadOnlyList<VehicleHitchGraphLink> VehicleTrainLinksFrom(IFuturemud? gameworld, IVehicle root);
+	bool TryBuildVehicleTrain(IFuturemud? gameworld, IVehicle root, out VehicleHitchGraphMovePlan movePlan,
+		out string reason, bool allowRootIncoming = false);
 	double VehicleTrainWeight(IFuturemud? gameworld, IVehicle root);
 	bool ValidateLink(VehicleHitchGraphLink link, out string reason);
 	bool CanAddVehicleTowLink(ICharacter actor, IVehicle sourceVehicle, IVehicleTowPointPrototype sourceTowPoint,
@@ -85,6 +98,8 @@ public interface IVehicleHitchGraphService
 		IEnumerable<ICharacter> allowedPullers, out VehicleHitchGraphMovePlan movePlan, out string reason);
 	bool IsTowPointInUse(IFuturemud? gameworld, IVehicle vehicle, IVehicleTowPointPrototype towPoint,
 		IVehicleTowLink? exceptLegacyLink = null);
+	IReadOnlyList<VehicleHitchGraphTowStress> EvaluateTowStress(VehicleHitchGraphMovePlan movePlan,
+		double warningRatio = 0.90, double failureStartRatio = 0.95, double maximumFailureChance = 0.25);
 	void CompleteVehicleTrainMove(VehicleHitchGraphMovePlan movePlan, ICell destination, RoomLayer layer,
 		ICellExit exit, IMovement? movement = null, IVehicle? alreadyMovedVehicle = null);
 }

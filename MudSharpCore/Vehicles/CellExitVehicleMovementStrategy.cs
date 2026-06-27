@@ -14,6 +14,7 @@ public class CellExitVehicleMovementStrategy : IVehicleMovementStrategy
 {
 	private readonly IVehicleTowService _towService;
 	private readonly IVehicleHitchGraphService _graphService;
+	private readonly IVehicleOperationalReadinessService _readinessService;
 
 	public CellExitVehicleMovementStrategy() : this(new VehicleTowService(), new VehicleHitchGraphService())
 	{
@@ -24,9 +25,16 @@ public class CellExitVehicleMovementStrategy : IVehicleMovementStrategy
 	}
 
 	public CellExitVehicleMovementStrategy(IVehicleTowService towService, IVehicleHitchGraphService graphService)
+		: this(towService, graphService, new VehicleOperationalReadinessService(graphService))
+	{
+	}
+
+	public CellExitVehicleMovementStrategy(IVehicleTowService towService, IVehicleHitchGraphService graphService,
+		IVehicleOperationalReadinessService readinessService)
 	{
 		_towService = towService;
 		_graphService = graphService;
+		_readinessService = readinessService;
 	}
 
 	public VehicleMovementProfileType MovementType => VehicleMovementProfileType.CellExit;
@@ -72,6 +80,12 @@ public class CellExitVehicleMovementStrategy : IVehicleMovementStrategy
 			return false;
 		}
 
+		if (!_readinessService.CanPerformAction(vehicle, actor, VehicleOperationalAction.Control, out var accessResult))
+		{
+			reason = accessResult.Reason;
+			return false;
+		}
+
 		if (vehicle.Location != exit.Origin)
 		{
 			reason = "The vehicle is not at the origin of that exit.";
@@ -90,10 +104,7 @@ public class CellExitVehicleMovementStrategy : IVehicleMovementStrategy
 			return false;
 		}
 
-		var profile = vehicle.Prototype.MovementProfiles
-		                     .Where(x => x.MovementType == VehicleMovementProfileType.CellExit)
-		                     .OrderByDescending(x => x.IsDefault)
-		                     .FirstOrDefault();
+		var profile = MovementProfile(vehicle);
 		if (profile is null)
 		{
 			reason = "That vehicle cannot move through normal cell exits.";
@@ -141,35 +152,28 @@ public class CellExitVehicleMovementStrategy : IVehicleMovementStrategy
 
 		var missingRequiredInstallation = vehicle.Installations
 		                                        .FirstOrDefault(x => x.Prototype.RequiredForMovement &&
-		                                                             (x.IsDisabled || x.InstalledItem is null));
+		                                                             !_readinessService.IsInstallationFunctionalForMovement(x, out _));
 		if (missingRequiredInstallation is not null)
 		{
-			reason = $"{missingRequiredInstallation.Prototype.Name} must have a functional module installed before the vehicle can move.";
+			_readinessService.IsInstallationFunctionalForMovement(missingRequiredInstallation, out var moduleReason);
+			reason = $"{missingRequiredInstallation.Prototype.Name} must have a functional module installed before the vehicle can move: {moduleReason}.";
 			return false;
 		}
 
-		if (!string.IsNullOrWhiteSpace(profile.RequiredInstalledRole) &&
-		    !vehicle.Installations.Any(x => !x.IsDisabled &&
-		                                   x.InstalledItem?.GetItemType<IVehicleInstallable>()?.Role.EqualTo(profile.RequiredInstalledRole) == true))
+		if (!_readinessService.HasFunctionalRole(vehicle, profile.RequiredInstalledRole, out reason))
 		{
-			reason = $"That vehicle requires a functional {profile.RequiredInstalledRole.ColourCommand()} module to move.";
 			return false;
 		}
 
-		if (profile.RequiredPowerSpikeInWatts > 0.0 &&
-		    !vehicle.Installations
-		            .Select(x => x.InstalledItem?.GetItemType<IProducePower>())
-		            .Where(x => x is not null)
-		            .Any(x => x.CanDrawdownSpike(profile.RequiredPowerSpikeInWatts)))
+		if (!_readinessService.HasPower(vehicle, profile, out var powerCandidates, out reason))
 		{
-			reason = "That vehicle does not have enough available power to move.";
+			reason = DescribeResourceFailure(actor, reason, powerCandidates);
 			return false;
 		}
 
-		if (profile.FuelLiquidId is not null && profile.FuelVolumePerMove > 0.0 &&
-		    !FuelContainers(vehicle, profile).Any())
+		if (!_readinessService.HasFuel(vehicle, profile, out var fuelCandidates, out reason))
 		{
-			reason = "That vehicle does not have enough configured fuel to move.";
+			reason = DescribeResourceFailure(actor, reason, fuelCandidates);
 			return false;
 		}
 
@@ -224,6 +228,14 @@ public class CellExitVehicleMovementStrategy : IVehicleMovementStrategy
 			return false;
 		}
 
+		var catastrophe = _readinessService.RollTowCatastrophe(movePlan, actor);
+		if (catastrophe.Catastrophe)
+		{
+			reason = catastrophe.Reason;
+			exit.Origin.HandleRoomEcho(catastrophe.Reason, vehicle.RoomLayer);
+			return false;
+		}
+
 		towTrain = movePlan.Vehicles.ToList();
 		reason = string.Empty;
 		return true;
@@ -253,7 +265,12 @@ public class CellExitVehicleMovementStrategy : IVehicleMovementStrategy
 		(CellMovementTransition TransitionType, RoomLayer TargetLayer) transition, IMovement movement = null)
 	{
 		var vehicles = towTrain.Any() ? towTrain : [vehicle];
-		ConsumeMovementRequirements(vehicle);
+		var profile = MovementProfile(vehicle);
+		if (profile is not null)
+		{
+			_readinessService.ConsumeMovementResources(vehicle, profile);
+		}
+
 		if (_graphService.CanMoveVehicleTrain(vehicle.Gameworld, vehicle, exit, out var movePlan, out _))
 		{
 			_graphService.CompleteVehicleTrainMove(movePlan, exit.Destination, transition.TargetLayer, exit, movement);
@@ -275,40 +292,12 @@ public class CellExitVehicleMovementStrategy : IVehicleMovementStrategy
 		              .FirstOrDefault();
 	}
 
-	private static IEnumerable<ILiquidContainer> FuelContainers(IVehicle vehicle, IVehicleMovementProfilePrototype profile)
+	private static string DescribeResourceFailure(ICharacter actor, string reason, IReadOnlyList<VehicleResourceCandidate> candidates)
 	{
-		if (profile.FuelLiquidId is null || profile.FuelVolumePerMove <= 0.0)
-		{
-			return Enumerable.Empty<ILiquidContainer>();
-		}
-
-		return vehicle.Installations
-		              .Where(x => !x.IsDisabled)
-		              .Select(x => x.InstalledItem)
-		              .Where(x => x is not null)
-		              .SelectMany(x => x.GetItemTypes<ILiquidContainer>())
-		              .Where(x => x.LiquidVolume >= profile.FuelVolumePerMove &&
-		                          x.LiquidMixture?.Instances.Any(y => y.Liquid.Id == profile.FuelLiquidId.Value) == true);
-	}
-
-	private static void ConsumeMovementRequirements(IVehicle vehicle)
-	{
-		var profile = MovementProfile(vehicle);
-		if (profile is null)
-		{
-			return;
-		}
-
-		if (profile.RequiredPowerSpikeInWatts > 0.0)
-		{
-			vehicle.Installations
-			       .Select(x => x.InstalledItem?.GetItemType<IProducePower>())
-			       .FirstOrDefault(x => x?.CanDrawdownSpike(profile.RequiredPowerSpikeInWatts) == true)
-			       ?.DrawdownSpike(profile.RequiredPowerSpikeInWatts);
-		}
-
-		var fuel = FuelContainers(vehicle, profile).FirstOrDefault();
-		fuel?.ReduceLiquidQuantity(profile.FuelVolumePerMove, null, "movement fuel consumption");
+		var failed = candidates.Where(x => !x.Available && !string.IsNullOrWhiteSpace(x.Reason)).ToList();
+		return failed.Any()
+			? $"{reason} {failed.Select(x => $"{(x.Item?.HowSeen(actor) ?? x.Installation.Prototype.Name)}: {x.Reason}").ListToString()}"
+			: reason;
 	}
 
 	private static string TowEchoSuffix(IEnumerable<IVehicle> towedVehicles, ICharacter actor)

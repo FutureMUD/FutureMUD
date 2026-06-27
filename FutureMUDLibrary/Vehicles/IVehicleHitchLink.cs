@@ -32,4 +32,5 @@ public interface IVehicleHitchLink : IFrameworkItem, IHaveFuturemud
 	IGameItem? HitchItem { get; }
 	bool IsBroken { get; }
 	string WhyInvalid { get; }
+	void SetDisabled(bool disabled);
 }

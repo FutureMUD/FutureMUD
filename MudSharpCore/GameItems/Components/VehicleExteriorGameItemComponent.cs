@@ -196,6 +196,11 @@ public class VehicleExteriorGameItemComponent : GameItemComponent, IVehicleExter
 		{
 			wound.Delete();
 		}
+
+		foreach (var zone in Vehicle?.DamageZones ?? Enumerable.Empty<IVehicleDamageZone>())
+		{
+			zone.RecalculateDamageFromWounds();
+		}
 	}
 
 	public void CureAllWounds()

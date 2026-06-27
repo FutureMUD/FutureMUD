@@ -50,6 +50,73 @@ public class VehicleHitchGraphService : IVehicleHitchGraphService
 		return VehicleTrainFrom(gameworld, root).Sum(x => x.ExteriorItem?.Weight ?? 0.0);
 	}
 
+	public bool TryBuildVehicleTrain(IFuturemud? gameworld, IVehicle root, out VehicleHitchGraphMovePlan movePlan,
+		out string reason, bool allowRootIncoming = false)
+	{
+		if (root is null)
+		{
+			movePlan = EmptyMovePlan(null);
+			reason = "There is no such vehicle.";
+			return false;
+		}
+
+		if (!TryBuildVehicleTrain(gameworld ?? root.Gameworld, root, out var members, out var links, out reason))
+		{
+			movePlan = EmptyMovePlan(root);
+			return false;
+		}
+
+		if (!ValidateTrainGraph(root, members, links, out reason, allowRootIncoming))
+		{
+			movePlan = EmptyMovePlan(root);
+			return false;
+		}
+
+		movePlan = BuildMovePlan(root, members, links);
+		reason = string.Empty;
+		return true;
+	}
+
+	public IReadOnlyList<VehicleHitchGraphTowStress> EvaluateTowStress(VehicleHitchGraphMovePlan movePlan,
+		double warningRatio = 0.90, double failureStartRatio = 0.95, double maximumFailureChance = 0.25)
+	{
+		if (movePlan is null)
+		{
+			return [];
+		}
+
+		var results = new List<VehicleHitchGraphTowStress>();
+		foreach (var link in movePlan.Links)
+		{
+			var targetVehicle = link.Target.Vehicle;
+			if (targetVehicle is null)
+			{
+				continue;
+			}
+
+			var capacity = LinkCapacity(link);
+			if (capacity <= 0.0)
+			{
+				continue;
+			}
+
+			var effectiveWeight = DownstreamWeight(movePlan, targetVehicle);
+			var ratio = effectiveWeight / capacity;
+			var isWarning = ratio >= warningRatio;
+			var canFail = ratio >= failureStartRatio;
+			var failureChance = canFail
+				? Math.Clamp((ratio - failureStartRatio) / Math.Max(0.0001, 1.0 - failureStartRatio), 0.0, 1.0) * maximumFailureChance
+				: 0.0;
+			var reason = isWarning
+				? $"{targetVehicle.Name} is pulling {effectiveWeight:N2} weight against a {capacity:N2} hitch capacity ({ratio:P0})."
+				: string.Empty;
+			results.Add(new VehicleHitchGraphTowStress(link, targetVehicle, effectiveWeight, capacity, ratio,
+				isWarning, canFail, failureChance, reason));
+		}
+
+		return results;
+	}
+
 	public bool ValidateLink(VehicleHitchGraphLink link, out string reason)
 	{
 		if (link is null)
@@ -509,6 +576,18 @@ public class VehicleHitchGraphService : IVehicleHitchGraphService
 			}
 		}
 
+		if (!ValidateTrainGraph(root, members, links, out reason, allowRootIncoming))
+		{
+			return false;
+		}
+
+		reason = string.Empty;
+		return true;
+	}
+
+	private bool ValidateTrainGraph(IVehicle root, IReadOnlyList<VehicleHitchGraphTrainMember> members,
+		IReadOnlyList<VehicleHitchGraphLink> links, out string reason, bool allowRootIncoming = false)
+	{
 		foreach (var link in links)
 		{
 			if (!ValidateLink(link, out var linkReason))
@@ -839,6 +918,50 @@ public class VehicleHitchGraphService : IVehicleHitchGraphService
 		}
 	}
 
+	private static double LinkCapacity(VehicleHitchGraphLink link)
+	{
+		var capacities = new List<double>();
+		if (link.Source.Vehicle is not null && link.Source.TowPoint is not null)
+		{
+			capacities.Add(link.Source.TowPoint.MaximumTowedWeight);
+		}
+
+		if (link.Source.NodeType == VehicleHitchGraphNodeType.Character && link.Target.TowPoint is not null)
+		{
+			capacities.Add(link.Target.TowPoint.MaximumTowedWeight);
+		}
+
+		return capacities.Where(x => x > 0.0).DefaultIfEmpty(0.0).Min();
+	}
+
+	private static double DownstreamWeight(VehicleHitchGraphMovePlan movePlan, IVehicle targetVehicle)
+	{
+		return movePlan.Members
+		               .Where(x => IsDownstreamOf(movePlan, x.Vehicle, targetVehicle))
+		               .Sum(x => x.Vehicle.ExteriorItem?.Weight ?? 0.0);
+	}
+
+	private static bool IsDownstreamOf(VehicleHitchGraphMovePlan movePlan, IVehicle candidate, IVehicle ancestor)
+	{
+		if (SameVehicle(candidate, ancestor))
+		{
+			return true;
+		}
+
+		var member = movePlan.Members.FirstOrDefault(x => SameVehicle(x.Vehicle, candidate));
+		while (member?.IncomingLink?.Source.Vehicle is not null)
+		{
+			var source = member.IncomingLink.Source.Vehicle;
+			if (SameVehicle(source, ancestor))
+			{
+				return true;
+			}
+
+			member = movePlan.Members.FirstOrDefault(x => SameVehicle(x.Vehicle, source));
+		}
+
+		return false;
+	}
 	private VehicleHitchGraphMovePlan BuildMovePlan(IVehicle root, IReadOnlyList<VehicleHitchGraphTrainMember> members,
 		IReadOnlyList<VehicleHitchGraphLink> links)
 	{

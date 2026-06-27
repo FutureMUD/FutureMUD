@@ -4,6 +4,7 @@ using MudSharp.Framework;
 using MudSharp.Framework.Revision;
 using MudSharp.GameItems.Components;
 using MudSharp.GameItems.Interfaces;
+using System;
 using System.Xml.Linq;
 
 namespace MudSharp.GameItems.Prototypes;
@@ -12,6 +13,8 @@ public class VehicleInstallableGameItemComponentProto : GameItemComponentProto, 
 {
 	public string MountType { get; private set; } = "generic";
 	public string Role { get; private set; } = string.Empty;
+	public double MinimumFunctionalCondition { get; private set; } = 0.0;
+	public double MinimumMovementCondition { get; private set; } = 0.0;
 
 	public VehicleInstallableGameItemComponentProto(IFuturemud gameworld, IAccount originator)
 		: base(gameworld, originator, "Vehicle Installable")
@@ -47,13 +50,33 @@ public class VehicleInstallableGameItemComponentProto : GameItemComponentProto, 
 	{
 		MountType = root.Element("MountType")?.Value ?? "generic";
 		Role = root.Element("Role")?.Value ?? string.Empty;
+		MinimumFunctionalCondition = ParseCondition(
+			root.Element("MinimumFunctionalCondition")?.Value ?? root.Element("mincondition")?.Value,
+			0.0);
+		MinimumMovementCondition = ParseCondition(
+			root.Element("MinimumMovementCondition")?.Value ?? root.Element("movementcondition")?.Value,
+			MinimumFunctionalCondition);
+	}
+
+	private static double ParseCondition(string text, double fallback)
+	{
+		if (string.IsNullOrWhiteSpace(text))
+		{
+			return fallback;
+		}
+
+		return double.TryParse(text, out var value)
+			? Math.Clamp(value, 0.0, 1.0)
+			: fallback;
 	}
 
 	protected override string SaveToXml()
 	{
 		return new XElement("Definition",
 			new XElement("MountType", MountType),
-			new XElement("Role", Role)
+			new XElement("Role", Role),
+			new XElement("MinimumFunctionalCondition", MinimumFunctionalCondition),
+			new XElement("MinimumMovementCondition", MinimumMovementCondition)
 		).ToString();
 	}
 
@@ -63,6 +86,8 @@ public class VehicleInstallableGameItemComponentProto : GameItemComponentProto, 
 
 Mount Type: {MountType.ColourCommand()}
 Role: {(string.IsNullOrWhiteSpace(Role) ? "none".ColourError() : Role.ColourCommand())}
+Functional Condition: {MinimumFunctionalCondition.ToStringP2Colour(actor)}
+Movement Condition: {MinimumMovementCondition.ToStringP2Colour(actor)}
 
 This item can be installed in vehicle installation points with a matching mount type.";
 	}
@@ -92,6 +117,14 @@ This item can be installed in vehicle installation points with a matching mount 
 				return BuildingCommandMount(actor, command);
 			case "role":
 				return BuildingCommandRole(actor, command);
+			case "mincondition":
+			case "condition":
+			case "functional":
+				return BuildingCommandMinimumCondition(actor, command, false);
+			case "movementcondition":
+			case "movecondition":
+			case "movement":
+				return BuildingCommandMinimumCondition(actor, command, true);
 			default:
 				return base.BuildingCommand(actor, command);
 		}
@@ -121,11 +154,42 @@ This item can be installed in vehicle installation points with a matching mount 
 		return true;
 	}
 
+	private bool BuildingCommandMinimumCondition(ICharacter actor, StringStack command, bool movement)
+	{
+		if (command.IsFinished || !command.SafeRemainingArgument.TryParsePercentage(actor.Account.Culture, out var value))
+		{
+			actor.OutputHandler.Send("You must specify a condition percentage.");
+			return false;
+		}
+
+		value = Math.Clamp(value, 0.0, 1.0);
+		if (movement)
+		{
+			MinimumMovementCondition = value;
+			actor.OutputHandler.Send($"This module now requires {value.ToStringP2Colour(actor)} condition to count for vehicle movement.");
+		}
+		else
+		{
+			MinimumFunctionalCondition = value;
+			if (MinimumMovementCondition < value)
+			{
+				MinimumMovementCondition = value;
+			}
+
+			actor.OutputHandler.Send($"This module now requires {value.ToStringP2Colour(actor)} condition to function.");
+		}
+
+		Changed = true;
+		return true;
+	}
+
 	private const string BuildingHelpText =
 		@"You can use the following options with this component:
 
 	#3name <name>#0 - sets the component name
 	#3desc <description>#0 - sets the component description
 	#3mount <type>#0 - sets the vehicle installation mount type
-	#3role <role>#0 - sets the optional vehicle role this module fulfils";
+	#3role <role>#0 - sets the optional vehicle role this module fulfils
+	#3mincondition <percent>#0 - sets the minimum item condition required to function
+	#3movementcondition <percent>#0 - sets the minimum item condition required for movement";
 }

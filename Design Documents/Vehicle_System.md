@@ -13,7 +13,7 @@ This keeps vehicle logic out of component XML while preserving normal item-world
 
 ## Current Implementation Status
 
-Phase 1 and the first four Phase 2 vehicle-systems slices are present:
+Phase 1 and the first five Phase 2 vehicle-systems slices are present:
 
 - Vehicle domain interfaces: `IVehiclePrototype`, `IVehicle`, `IVehicleMovementStrategy`, `IVehicleMovementState`, `IVehicleOccupancy`, and `IVehicleAccessState`.
 - Vehicle enums: `VehicleScale`, `VehicleLocationType`, `VehicleOccupantSlotType`, `VehicleMovementProfileType`, and `VehicleMovementStatus`.
@@ -31,7 +31,11 @@ Phase 1 and the first four Phase 2 vehicle-systems slices are present:
 - Active character/mount hitching through the normal drag movement system, including character-to-character chains and character/mount-to-vehicle tow-point hitches with physical connector gear for non-direct tow points.
 - Tow point authoring includes a character pull multiplier that scales effective pull capacity for mounts, animals, or people pulling that vehicle point.
 - Persistent mixed hitch graph foundation: `VehicleHitchEndpointType`, `IVehicleHitchLink`, `IVehicleHitchService`, `VehicleHitchLinks` EF schema, runtime invalid-link diagnostics, gameworld registry/load order, and reboot projection into active `CharacterHitch`/`Dragging` effects.
-- Unified hitch graph traversal through `IVehicleHitchGraphService`, covering legacy `VehicleTowLinks`, persistent mixed `VehicleHitchLinks`, and live transient `CharacterHitch`/`Dragging` effects for validation, train weight, tow-point usage, movement preflight, and hitch item relocation.
+- Unified hitch graph traversal through `IVehicleHitchGraphService`, covering legacy `VehicleTowLinks`, persistent mixed `VehicleHitchLinks`, and live transient `CharacterHitch`/`Dragging` effects for validation, train weight, tow-point usage, movement preflight, hitch item relocation, and tow-stress evaluation.
+- Operational readiness checks through `IVehicleOperationalReadinessService`, covering board/control/service/repair/hitch access, module condition, movement roles, fuel, power, repair hints, and tow-stress catastrophe mutation.
+- `VehicleAccessStates` now provide simple persisted character grants without a new schema: `board`, `control`, `service`, `repair`, `hitch`, and `all` tags with level 1 boarding, level 2 operational actions, and level 3 all-action access.
+- Admin `vehicle access <vehicle> list|grant|revoke` commands manage those persisted grants; no access rows remains permissive for compatibility, and existing projection lock/key behaviour is unchanged.
+- Vehicle installable modules are condition-aware through `mincondition` and `movementcondition` XML fields with backward-compatible zero-threshold defaults.
 - `vehicle show` includes mixed persistent hitch links involving that vehicle and reports invalid causes without requiring endpoint load success.
 - Exterior item wound override that routes hull damage into vehicle damage zones and persists vehicle/zone ids on wounds.
 - Damage-zone effects that disable linked access points, cargo spaces, installation points, tow points, movement profiles, or whole-vehicle movement at configured damage statuses.
@@ -42,8 +46,8 @@ Phase 1 and the first four Phase 2 vehicle-systems slices are present:
 
 The following areas are deliberately scaffolded rather than fully built:
 
-- Rich access rules beyond explicit persisted access rows.
-- Dynamic tow breakage/catastrophe, rich access-device authoring, player-facing repair workflows, and fuller fuel/power networks.
+- Rich physical access-device authoring, ownership, lease, and fleet policy systems beyond explicit persisted access rows and existing projection locks.
+- Fuller fuel, power, electrical, and liquid network topology beyond installed candidate modules.
 - Route, coordinate, and `RoomScale` movement.
 - Dedicated FutureProg vehicle functions.
 - Interior cell networks for `RoomScale` vehicles.
@@ -267,12 +271,13 @@ Boarding rules currently check:
 - the actor is on the vehicle's canonical room layer
 - the requested slot exists
 - the slot has remaining capacity
-- explicit access rows allow the actor when access rows exist
+- operational readiness access grants allow the actor when access rows exist
 - if access points exist, an open, unlocked, enabled access point must reach the selected slot
 
 Driving rules currently check:
 
 - the actor is the vehicle controller
+- operational readiness access grants allow control when access rows exist
 - the actor is in the same canonical cell and room layer as the vehicle
 - the vehicle is at the exit origin
 - the vehicle prototype has a `CellExit` movement profile
@@ -281,9 +286,9 @@ Driving rules currently check:
 - the exit has a viable movement transition for the driver
 - the vehicle is not disabled or destroyed
 - required access points are closed
-- required installed modules and roles are present
-- configured fuel and power are available
-- recursive tow-train links are valid, tow points are not damage-disabled, hitch items are co-located, and all towed vehicles fit through the exit
+- required installed modules and roles are present, correctly typed, enabled, not destroyed, and above their movement condition thresholds
+- configured fuel and power are available from functional installed candidate modules
+- recursive tow-train links are valid, tow points are not damage-disabled, hitch items are co-located, all towed vehicles fit through the exit, and any valid strained link survives the tow-stress catastrophe preflight
 
 When a controller enters an ordinary movement command, character movement redirects it to vehicle movement before walking movement is attempted. This means a bicycle rider can type `north` instead of `drive north`; the explicit `drive` command remains available for clarity. Vehicle movement uses the normal movement pipeline shape: it sets the actor's current `IMovement`, applies a movement delay, supports turn-around cancellation and queued follow-up movement commands, marks the vehicle as moving while in transit, and resolves the movement after the scheduled step.
 
@@ -303,7 +308,7 @@ Supported forms:
 - `unhitch <vehicle>`
 - `unhitch <towpoint@vehicle>`
 
-For vehicle targets, the target tow point must be authored as `towed` or `both`, must not be damage-disabled, must pass required access checks, and the vehicle must be in the same cell and layer. Tow point types `hand`, `manual`, `direct`, `none`, and `pull` are treated as direct hitches that do not require a connector item. Other tow point types, such as `hitch`, `yoke`, `harness`, `rope`, or `chain`, require `with <item>` and the named item must expose `IHitchGear` or legacy `IDragAid`. New content should use `IHitchGear` so the item declares a compatible role such as tow bar, yoke, harness, rope, chain, traces, or lead rope.
+For vehicle targets, the target tow point must be authored as `towed` or `both`, must not be damage-disabled, must pass hitch access checks, and the vehicle must be in the same cell and layer. Tow point types `hand`, `manual`, `direct`, `none`, and `pull` are treated as direct hitches that do not require a connector item. Other tow point types, such as `hitch`, `yoke`, `harness`, `rope`, or `chain`, require `with <item>` and the named item must expose `IHitchGear` or legacy `IDragAid`. New content should use `IHitchGear` so the item declares a compatible role such as tow bar, yoke, harness, rope, chain, traces, or lead rope.
 
 Pull capacity is:
 
@@ -319,7 +324,7 @@ Character-to-character links can form chains, so a leader can pull or lead anoth
 
 ### Persistent Hitch Graph Plan
 
-Status: implemented for NPC/vehicle and NPC/NPC persistent character-root hitches, plus unified runtime traversal across legacy vehicle tow links, persistent mixed hitch links, and transient live drag/hitch effects.
+Status: implemented for NPC/vehicle and NPC/NPC persistent character-root hitches, plus unified runtime traversal across legacy vehicle tow links, persistent mixed hitch links, transient live drag/hitch effects, tow-stress evaluation, and movement completion helpers.
 
 The Phase 2 runtime now has a shared directed hitch graph that covers vehicle-to-vehicle, character-to-vehicle, character-to-character, and eventually vehicle-to-character links with one validation service. The graph preserves the existing live command syntax, keeps the existing persistence tables, and moves eligible NPC/vehicle character-root hitches out of purely transient `CharacterHitch` and `Dragging` effects.
 
@@ -349,7 +354,7 @@ The persistent hitch service owns or has implemented the first slice of:
 Still to complete around the unified service:
 
 - hitch consent through trust-ally, mount-control/mountable logic, helplessness, or `accept` as service-level rules rather than command-local rules
-- dynamic trailer breakage/catastrophe, richer hitch item mechanics, and deeper admin repair operations
+- richer hitch item mechanics, richer catastrophe tuning surfaces, and broader recovery UX
 
 The implementation sequence is:
 
@@ -359,8 +364,34 @@ The implementation sequence is:
 4. Implemented: persist NPC/vehicle and NPC/NPC character hitches after consent or direct-authority validation.
 5. Implemented: keep PC-inclusive hitches transient and add quit/timeout guards while active.
 6. Implemented for cell-exit movement: character-root dragged vehicle exteriors and vehicle-root driving both preflight through the graph and move downstream vehicles/hitch items.
-7. Partially implemented: `vehicle show` reports mixed hitch links and graph-derived invalid causes, and `unhitch` removes persistent mixed links by character, vehicle, or tow point; richer admin repair remains planned.
-8. Partially implemented: missing-endpoint, PC-transient, hitch-item, cycle, recursive train, and unified movement regression tests are present; reboot and richer admin-repair tests remain planned.
+7. Implemented for current scope: `vehicle show` reports mixed hitch links, graph-derived invalid causes, tow stress, and operational readiness; `unhitch` removes persistent mixed links by character, vehicle, or tow point; admin `vehicle repair <vehicle> hitch <link|all>` can re-enable validated persistent links after repair.
+8. Partially implemented: missing-endpoint, PC-transient, hitch-item, cycle, recursive train, tow-stress, access, module-condition, and unified movement regression tests are present; reboot recovery tests remain planned.
+
+### Operational Readiness And Repair
+
+Status: implemented for the cell-exit vehicle slice.
+
+`IVehicleOperationalReadinessService` is the shared runtime preflight for vehicle operation. It is intentionally narrow: it does not add new access tables, new repair commands for players, route movement, coordinate movement, or `RoomScale` behaviour. Instead, it normalises existing access rows, projection locks, install points, damage zones, hitch graph links, fuel modules, power modules, and repair-kit flows into one set of actionable diagnostics.
+
+Access readiness uses `VehicleAccessStates` as character grants:
+
+- no access rows means the legacy permissive behaviour remains in place
+- administrators bypass operational access checks
+- `board` at level 1 permits boarding
+- `control`, `service`, `repair`, and `hitch` at level 2 permit driving/control handoff, install/uninstall, repair preflight, and hitch/unhitch operations respectively
+- `all` or any level 3 row permits all operational vehicle actions
+
+This access model is checked by boarding, control/driving, install/uninstall, hitch/unhitch, and vehicle exterior repair preflight. It does not replace normal lock/key behaviour on projected access items; locked hatches still behave like locked hatches.
+
+Module readiness extends `IVehicleInstallable` with `MinimumFunctionalCondition`, `MinimumMovementCondition`, `IsFunctional`, and `IsFunctionalForMovement`. Existing component XML remains valid because missing condition fields default to `0%`. New builders can set `mincondition <percent>` and `movementcondition <percent>` on the vehicle installable component prototype. Movement-required modules and required roles count only when the install point is enabled, the module item exists, the installable role matches, the item is not deleted or destroyed, and item condition meets the configured movement threshold.
+
+Fuel and power readiness reports every installed candidate considered by movement. Candidates can fail for disabled install points, missing modules, low condition, wrong fuel, insufficient volume, switched-off/no-power state, or insufficient spike capacity. Fuel and power are consumed only after access, movement, tow, and catastrophe preflight succeeds.
+
+Player-facing repair reuses the existing item repair command: `repair <vehicle exterior> with <kit>`. When vehicle exterior wounds are repaired or removed, all linked damage zones recalculate from their remaining wounds and their status downgrades back toward functional according to the authored damage thresholds. Admin `vehicle repair <vehicle> damage <zone|all>` clears selected vehicle-zone wounds through the same recalculation helpers and still preserves manual disabled flags. Admin `vehicle repair <vehicle> hitch <link|all>` re-enables catastrophe-disabled persistent tow or hitch links only when graph validation passes.
+
+Tow catastrophe is only evaluated for valid but strained graph links. Hard invalid states still fail closed before movement: cycles, missing endpoints, missing/destroyed/incompatible gear, duplicate incoming links, duplicate tow-point use, over maximum towed weight, damage-disabled tow points, and blocked exits. Valid links warn at 90% of effective capacity; failure rolls begin at 95% and scale to a maximum 25% chance at capacity. A catastrophe aborts the movement before fuel or power consumption, echoes the failure, damages the hitch item when available or the linked vehicle exteriors otherwise, disables persistent links, clears transient hitch/drag effects, and releases reserved hitch items. Recovery is deliberately explicit: repair damaged items or vehicle exteriors, then `unhitch` and re-hitch, or use admin `vehicle repair <vehicle> hitch <link|all>` for validated persistent links.
+
+`vehicle show` now includes an operational readiness section with access, modules, fuel, power, damage, repair hints, invalid projection/link reasons, and tow-stress warnings.
 
 ## Vehicle Scales
 
@@ -407,7 +438,7 @@ It moves a vehicle between adjacent cells through normal exits.
 
 Current validation:
 
-- actor must be the controller
+- actor must be the controller and must have control access when explicit access rows exist
 - actor must be in the same canonical cell and room layer as the vehicle
 - vehicle must be at the exit origin
 - vehicle prototype must support `CellExit`
@@ -417,7 +448,9 @@ Current validation:
 - exit transition must be viable
 - vehicle must not be disabled or destroyed
 - configured access points that must be closed are closed
-- required modules, roles, fuel, power, damage-linked systems, and recursive tow-train links are valid
+- required modules and roles must be installed, enabled, correctly typed, not destroyed, and above their movement condition thresholds
+- fuel and power candidates must be functional and have the required resource or spike capacity
+- recursive tow-train links must be graph-valid, fit through the exit, remain within hard tow capacities, and survive any tow-stress catastrophe roll
 
 Current movement behaviour:
 
@@ -430,8 +463,8 @@ Current movement behaviour:
 - move the exterior item to the destination cell and target layer
 - invoke exterior `IConnectable` force-move cleanup so cables, chargers, and similar independent connections do not remain logically connected across cells
 - move co-located occupants to the destination cell and layer as participants in the vehicle movement, clearing any stale occupancy records that are no longer co-located with the vehicle
-- consume configured fuel and power
-- move all recursively towed vehicles, hitch items, and occupants
+- consume configured fuel and power only after all access, movement, tow, and catastrophe preflight succeeds
+- move all recursively towed vehicles, hitch items, and occupants exactly once through the unified hitch graph
 - mark vehicle as `Cell` and `Stationary`
 - clear current exit and destination fields
 - emit destination echo with the same visible-rider versus vehicle-only distinction
@@ -446,8 +479,12 @@ Current commands:
 
 - `vehicle list`
 - `vehicle show <id|name>`
+- `vehicle access <id|name> list`
+- `vehicle access <id|name> grant <character> <board|control|service|repair|hitch|all> <1-3>`
+- `vehicle access <id|name> revoke <character|row id> [tag]`
 - `vehicle repair <id|name>`
 - `vehicle repair <id|name> damage <zone|all>`
+- `vehicle repair <id|name> hitch <link|all>`
 - `vehicle relink <id|name> <item id|local item>`
 
 `vehicle show` distinguishes canonical vehicle state from item projection state:
@@ -459,12 +496,16 @@ Current commands:
 - component `VehicleId`
 - projection synchronisation status
 - current occupants and controller
-- access point, cargo, installation, tow-link, and damage-zone state
+- access point, cargo, installation, tow-link, hitch-link, and damage-zone state
 - manual versus damage-derived disable causes for projected systems
 
 `vehicle repair` restores the bidirectional vehicle/item component link for the current exterior item and synchronises the exterior item to the canonical vehicle location.
 
-`vehicle repair <vehicle> damage <zone|all>` clears the selected vehicle damage-zone wounds and damage status. It does not clear manual disabled flags on access points, cargo spaces, installations, or tow links.
+`vehicle repair <vehicle> damage <zone|all>` clears the selected vehicle damage-zone wounds and recalculates damage status. It does not clear manual disabled flags on access points, cargo spaces, installations, or tow links.
+
+`vehicle repair <vehicle> hitch <link|all>` re-enables persistent tow or hitch links after physical repairs only if unified graph validation passes. Invalid links stay disabled and report the validation reason.
+
+`vehicle access <vehicle>` manages persisted character grants. Use `list` to see current rows, `grant` to add or update an action tag and level, and `revoke` to remove by row id or by character and optional tag.
 
 `vehicle relink` allows an admin to attach a vehicle to a replacement exterior item that already has the vehicle exterior component.
 
@@ -508,11 +549,11 @@ Currently covered by implementation:
 - Access point projections implement normal open/close/lockable item behaviour while storing canonical state on `VehicleAccessPoint`.
 - Cargo projections gate normal container components through vehicle access rules.
 - Installed modules use `VehicleInstallableGameItemComponent` and existing `install` / `uninstall` commands.
-- Movement can be blocked by disabled/destroyed zones, damage-linked movement profiles, open must-close access points, missing modules, missing roles, insufficient fuel, insufficient power, and invalid recursive tow trains.
+- Movement can be blocked by access denial, disabled/destroyed zones, damage-linked movement profiles, open must-close access points, missing or low-condition modules, missing roles, insufficient fuel, insufficient power, invalid recursive tow trains, or tow-stress catastrophe.
 - Exterior item damage creates vehicle-zone wounds rather than ordinary exterior item wounds.
 - Damage-zone effects disable linked access, cargo, installation, tow-point, movement-profile, or whole-vehicle movement targets.
-- Admin `vehicle repair <vehicle> damage <zone|all>` clears vehicle damage-zone wounds/status while preserving manually disabled system flags.
-- Hitch/unhitch persists tow links, validates recursive tow trains, records required physical hitch items for non-direct tow points, reserves those items while linked, and moves all linked towed vehicles.
+- Generic `repair <vehicle exterior> with <kit>` and admin `vehicle repair <vehicle> damage <zone|all>` recalculate vehicle damage-zone status from remaining wounds while preserving manually disabled system flags.
+- Hitch/unhitch persists tow links, validates recursive tow trains, records required physical hitch items for non-direct tow points, reserves those items while linked, evaluates valid strained links for catastrophe, and moves all linked towed vehicles.
 - Active character/mount hitches let characters or mounts pull another character or a vehicle tow point through ordinary cell-exit movement, with `IHitchGear` or legacy `IDragAid` items for non-direct tow points and tow-point pull multipliers.
 - Character/mount hitches can pull a vehicle that itself has downstream vehicle tow links; capacity, tow-point limits, hitch gear, exit size, damage, duplicate incoming links, and cycle checks use the whole unified train.
 - Dragging a vehicle exterior through an ordinary movement command moves downstream towed vehicles and co-located hitch items exactly once, while the root vehicle still reconciles from the exterior item's movement.
@@ -520,9 +561,9 @@ Currently covered by implementation:
 Still to implement:
 
 - Full player-facing vehicle deletion/destruction lifecycle beyond the current exterior-item fail-safe disembark behaviour.
-- Rich access control authoring and enforcement.
+- Rich physical access-device authoring, ownership, lease, and fleet policy tooling beyond simple character grants.
 - Terrain/layer restrictions beyond the existing exit transition rules.
-- Player-facing repair workflows, rich trailer mechanics, and fuller fuel/power topologies.
+- Richer hitch item mechanics, catastrophe tuning/admin surfaces, and fuller fuel/power network topologies.
 - Route, coordinate 2D, coordinate 3D, and RoomScale systems.
 
 For a fresh-world manual verification path, including the supporting item and component prototype authoring steps, see [Vehicle System Fresh MUD Test Runbook](./Vehicle_System_Fresh_MUD_Test_Runbook.md).
@@ -548,7 +589,7 @@ Scope:
 
 ### Phase 2: Vehicle Systems
 
-Status: partially implemented.
+Status: implemented for cell-exit operational readiness; partially implemented for broader vehicle-system maturity.
 
 Implemented scope:
 
@@ -566,18 +607,23 @@ Implemented scope:
 - active character/mount hitches and character hitch chains for live mount-drawn carts, hand-pulled vehicles, and similar cell-exit movement scenes
 - persistent mixed hitch graph for NPC/vehicle character-root hitches with typed endpoints, nullable load-safe references, registry loading, active runtime recovery, and invalid-link diagnostics
 - unified hitch graph validation and movement preflight across legacy tow links, persistent mixed hitch links, and transient live drag/hitch effects
+- operational readiness service for board/control/service/repair/hitch permissions, module condition, required roles, fuel, power, repair hints, and tow-stress catastrophe mutation
+- admin `vehicle access` grant/revoke/list commands backed by existing `VehicleAccessStates`
+- condition-aware vehicle installable component XML and builder commands for functional and movement thresholds
+- player-facing exterior repair through ordinary repair kits, with vehicle damage-zone recalculation
+- admin hitch repair that re-enables persistent links only after unified graph validation passes
+- `vehicle show` readiness diagnostics covering access, modules, fuel, power, damage, repair hints, invalid links, and tow stress
 
 Remaining Phase 2 scope:
 
-- richer access-device authoring and permissions
-- module health/function checks beyond installed/disabled state
-- fuller fuel/power topology support
-- dynamic trailer breakage/catastrophe and richer hitch item mechanics
-- player-facing repair workflows and deeper builder diagnostics for all system records
+- rich physical access-device authoring, ownership, lease, and fleet policy tooling beyond simple character grants
+- fuller fuel, power, electrical, and liquid network topology support beyond installed candidate modules
+- richer hitch item mechanics, catastrophe tuning/admin surfaces, and broader recovery UX
+- deletion/destruction lifecycle polish and deeper builder diagnostics for all system records
 
-Recommended next major slice: **Phase 2 Operational Readiness And Repair**. This should keep the system on cell-exit movement and make vehicles reliable for fresh-MUD rollout before route, coordinate, or `RoomScale` work. The slice should deliver builder-facing access-device authoring, explicit control/permission diagnostics, module health and installed-role checks that can degrade from damage, richer fuel/power network validation, player-facing repair/maintenance workflows, and dynamic hitch/tow failure behaviour driven by the unified hitch graph. Acceptance should focus on owners being able to build, damage, repair, fuel, power, lock, unlock, hitch, tow, and diagnose a small vehicle fleet without code changes.
+Recommended next major slice: **Phase 2 Closeout - Route-Ready Operations**. This should still keep the system on cell-exit vehicles, but finish the authoring and diagnostics that route movement would otherwise amplify: access-device presets and fleet policy, richer fuel/power topology, explicit catastrophe tuning, deletion/destruction recovery, staff audit commands, and FutureProg predicates for vehicle readiness. Acceptance should focus on staff being able to author, inspect, script, and support a small vehicle fleet in live play without code changes.
 
-This is recommended before Phase 3 route movement because route automation will multiply every remaining operational edge case. Once operational readiness is stable, route movement can treat vehicles as dependable runtime actors instead of carrying unfinished access, repair, and power semantics forward into scheduled transit.
+This is recommended before Phase 3 route movement because scheduled transit needs dependable operational predicates. Once route-ready operations are stable, Phase 3 can build route networks and schedules on top of vehicles that already know whether they can board, start, move, consume resources, recover from damage, and report why not.
 
 Cargo and installed systems should reuse existing item/container/component infrastructure, but the vehicle decides which compartment or attachment point exposes each item capability.
 

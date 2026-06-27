@@ -215,6 +215,10 @@ vehicleproto set cargo add <cabin-compartment-id> <access-point-id> <trunk-proto
 vehicleproto set installpoint add <access-point-id> engine engine true engine bay
 vehicleproto set tow add none hitch tow 2000 rear hitch
 vehicleproto set tow add none hitch towed 2000 front hitch
+vehicleproto set tow <rear-tow-point-id> stress warning 90%
+vehicleproto set tow <rear-tow-point-id> stress failstart 95%
+vehicleproto set tow <rear-tow-point-id> stress maxchance 25%
+vehicleproto set tow <rear-tow-point-id> stress damage 2%
 vehicleproto set movement role <movement-profile-id> engine
 vehicleproto set movement access <movement-profile-id>
 vehicleproto set movement tow <movement-profile-id>
@@ -247,6 +251,11 @@ vehicle access <vehicle id> grant <your character> service 2
 vehicle access <vehicle id> grant <your character> repair 2
 vehicle access <vehicle id> grant <your character> hitch 2
 vehicle access <vehicle id> list
+vehicle access preset list
+vehicle access preset show crew
+vehicle access <vehicle id> apply crew <your character>
+vehicle audit here access
+vehicle audit here readiness
 embark car driver
 open hatch@car
 embark car driver via hatch
@@ -270,6 +279,8 @@ uninstall engine@car
 Expected result:
 
 - `vehicle access list` shows no rows as permissive, then shows each explicit grant after the `grant` commands. Admin characters still bypass operational access checks; use a non-admin test character if you want to verify denial.
+- `vehicle access preset list|show` displays reusable presets from static configuration, and `vehicle access <vehicle> apply crew <character>` creates the expected board/control/service/hitch grants without adding a new access schema.
+- `vehicle audit here access` reports permissive access when no rows exist and exact access findings once rows exist; `vehicle audit here readiness` reports the same readiness reasons shown by `vehicle show`.
 - Once access rows exist, unlisted non-admin characters are blocked from board/control/service/repair/hitch actions with the readiness reason.
 - Boarding is blocked while the required access point is closed.
 - Opening `hatch@car` allows boarding.
@@ -359,6 +370,7 @@ Expected result:
 - The hitch item is dropped into the tow train's location, receives an in-use/no-get effect, and is persisted on the tow link.
 - Movement moves the full recursive tow train and occupants together.
 - `vehicle show` reports invalid links and warns about valid but stressed links near their effective tow-point capacity.
+- Tow-point stress settings on `vehicleproto set tow <id> stress ...` override the global static tow-stress defaults for links that use that point.
 - If the hitch item is removed from the train location, destroyed, or deleted, movement should block and `vehicle show` should report an invalid tow-link cause.
 - `unhitch <vehicle>` removes all links involving that vehicle, while `unhitch <towpoint>@<vehicle>` removes only links using that point.
 
@@ -372,6 +384,8 @@ drive north
 vehicle show <car vehicle id>
 repair towbar with kit
 vehicle repair <car vehicle id> hitch all
+vehicle recover <car vehicle id> hitch fix
+vehicle fleet here recover hitch
 vehicle show <car vehicle id>
 unhitch front@trailer
 ```
@@ -382,8 +396,51 @@ Expected result:
 - A stressed but valid link may catastrophically fail before movement and before fuel or power is consumed.
 - On catastrophe, the room receives a failure echo, the hitch item or linked exteriors take shearing damage, persistent links are disabled, transient hitch/drag effects are cleared, and reserved hitch items are released.
 - `vehicle show` reports the disabled link and recovery hint.
-- After physical repair, `vehicle repair <vehicle> hitch all` re-enables only links that pass unified graph validation; otherwise it leaves the link disabled with the validation reason.
+- After physical repair, `vehicle repair <vehicle> hitch all` or `vehicle recover <vehicle> hitch fix` re-enables only links that pass unified graph validation; otherwise it leaves the link disabled with the validation reason.
+- `vehicle fleet here recover hitch` reports the same hitch recovery findings across all vehicles in the current cell without applying fixes unless `fix` is included.
 
+## Route-Ready Operations Smoke Test
+
+After creating at least one car and one trailer, verify the closeout staff tools:
+
+```text
+vehicle audit here all
+vehicle audit zone resources
+vehicle audit prototype <vehicle proto id> hitch
+vehicle fleet here access apply crew <your character>
+vehicle fleet here access grant <your character> repair 2
+vehicle fleet here access revoke <your character> repair
+vehicle fleet here recover all
+vehicle fleet here recover hitch fix
+```
+
+Expected result:
+
+- Scope selectors cover vehicles in the current cell, current zone, a vehicle prototype family, or all loaded vehicles.
+- Audit output groups findings by vehicle and uses the same subsystem and reason vocabulary as `vehicle show`.
+- Fleet access operations batch the same grant, revoke, apply, and clone behaviours as single-vehicle `vehicle access` commands.
+- Recovery commands report projection, install, and hitch findings; `fix` only mutates validated persistent hitch/tow links and leaves hard-invalid links disabled with their exact validation reason.
+
+For route and automation scripting, verify these built-in FutureProg function names are available in your local FutureProg function help/listing workflow:
+
+```text
+isvehicle(item)
+vehiclecanboard(character, item)
+vehiclecancontrol(character, item)
+vehiclecanservice(character, item)
+vehiclecanrepair(character, item)
+vehiclecanhitch(character, item)
+vehiclecanstart(character, item)
+vehiclereadinessreason(character, item, "start")
+vehicletrainweight(item)
+vehicletowstress(item)
+```
+
+Expected result:
+
+- The readiness predicates accept vehicle exterior items and return cell-exit operational readiness without requiring route movement to exist.
+- `vehiclereadinessreason` returns blank text when ready and the same blocking reason shown by commands when not ready.
+- `vehicletrainweight` and `vehicletowstress` expose the unified hitch graph's effective train weight and highest stress ratio for route preflight progs.
 ## Mount-Hitched Cart Test
 
 This is now an active movement hitch, not a persisted vehicle-to-vehicle tow link. It is intended for live scenes such as a horse pulling a cart, an ox team pulling a wagon, or a person pulling a hand cart. The relationship uses the normal drag/movement system, so it is cleared by `unhitch`, `stop`, drag invalidation, reboot, or ordinary effect cleanup. Use persisted vehicle tow links for parked trailer chains between vehicles.

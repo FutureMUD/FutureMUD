@@ -80,6 +80,14 @@ public class VehicleHitchGraphService : IVehicleHitchGraphService
 	public IReadOnlyList<VehicleHitchGraphTowStress> EvaluateTowStress(VehicleHitchGraphMovePlan movePlan,
 		double warningRatio = 0.90, double failureStartRatio = 0.95, double maximumFailureChance = 0.25)
 	{
+		return EvaluateTowStress(movePlan,
+			new VehicleTowStressPolicy(warningRatio, failureStartRatio, maximumFailureChance,
+				VehicleTowStressPolicy.Default.DamageMultiplier, "call defaults"));
+	}
+
+	public IReadOnlyList<VehicleHitchGraphTowStress> EvaluateTowStress(VehicleHitchGraphMovePlan movePlan,
+		VehicleTowStressPolicy defaultPolicy)
+	{
 		if (movePlan is null)
 		{
 			return [];
@@ -100,18 +108,19 @@ public class VehicleHitchGraphService : IVehicleHitchGraphService
 				continue;
 			}
 
+			var policy = ResolveTowStressPolicy(link, defaultPolicy);
 			var effectiveWeight = DownstreamWeight(movePlan, targetVehicle);
 			var ratio = effectiveWeight / capacity;
-			var isWarning = ratio >= warningRatio;
-			var canFail = ratio >= failureStartRatio;
+			var isWarning = ratio >= policy.WarningRatio;
+			var canFail = ratio >= policy.FailureStartRatio;
 			var failureChance = canFail
-				? Math.Clamp((ratio - failureStartRatio) / Math.Max(0.0001, 1.0 - failureStartRatio), 0.0, 1.0) * maximumFailureChance
+				? Math.Clamp((ratio - policy.FailureStartRatio) / Math.Max(0.0001, 1.0 - policy.FailureStartRatio), 0.0, 1.0) * policy.MaximumFailureChance
 				: 0.0;
 			var reason = isWarning
-				? $"{targetVehicle.Name} is pulling {effectiveWeight:N2} weight against a {capacity:N2} hitch capacity ({ratio:P0})."
+				? $"{targetVehicle.Name} is pulling {effectiveWeight:N2} weight against a {capacity:N2} hitch capacity ({ratio:P0}; {policy.Source})."
 				: string.Empty;
 			results.Add(new VehicleHitchGraphTowStress(link, targetVehicle, effectiveWeight, capacity, ratio,
-				isWarning, canFail, failureChance, reason));
+				isWarning, canFail, failureChance, reason, policy));
 		}
 
 		return results;
@@ -916,6 +925,55 @@ public class VehicleHitchGraphService : IVehicleHitchGraphService
 		{
 			links.Add(link);
 		}
+	}
+
+	private static VehicleTowStressPolicy ResolveTowStressPolicy(VehicleHitchGraphLink link,
+		VehicleTowStressPolicy defaultPolicy)
+	{
+		var towPoints = new[] { link.Source.TowPoint, link.Target.TowPoint }
+			.Where(x => x is not null)
+			.Cast<IVehicleTowPointPrototype>()
+			.ToList();
+		if (!towPoints.Any())
+		{
+			return defaultPolicy;
+		}
+
+		var warning = towPoints
+			.Select(x => x.TowStressWarningRatio)
+			.Where(x => x.HasValue)
+			.Select(x => x!.Value)
+			.DefaultIfEmpty(defaultPolicy.WarningRatio)
+			.Min();
+		var failureStart = towPoints
+			.Select(x => x.TowStressFailureStartRatio)
+			.Where(x => x.HasValue)
+			.Select(x => x!.Value)
+			.DefaultIfEmpty(defaultPolicy.FailureStartRatio)
+			.Min();
+		var maximumChance = towPoints
+			.Select(x => x.TowStressMaximumFailureChance)
+			.Where(x => x.HasValue)
+			.Select(x => x!.Value)
+			.DefaultIfEmpty(defaultPolicy.MaximumFailureChance)
+			.Max();
+		var damageMultiplier = towPoints
+			.Select(x => x.TowStressDamageMultiplier)
+			.Where(x => x.HasValue)
+			.Select(x => x!.Value)
+			.DefaultIfEmpty(defaultPolicy.DamageMultiplier)
+			.Max();
+		var overrideSources = towPoints
+			.Where(x => x.TowStressWarningRatio.HasValue || x.TowStressFailureStartRatio.HasValue ||
+			            x.TowStressMaximumFailureChance.HasValue || x.TowStressDamageMultiplier.HasValue)
+			.Select(x => x.Name)
+			.Distinct()
+			.ToList();
+		var source = overrideSources.Any()
+			? $"tow-point policy ({overrideSources.ListToString()})"
+			: defaultPolicy.Source;
+		return new VehicleTowStressPolicy(warning, Math.Max(warning, failureStart), Math.Clamp(maximumChance, 0.0, 1.0),
+			Math.Max(0.0, damageMultiplier), source);
 	}
 
 	private static double LinkCapacity(VehicleHitchGraphLink link)

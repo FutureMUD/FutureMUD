@@ -95,6 +95,10 @@ public interface IVehicleTowPointPrototype : IFrameworkItem
 	bool CanBeTowed { get; }
 	double MaximumTowedWeight { get; }
 	double CharacterPullMultiplier { get; }
+	double? TowStressWarningRatio { get; }
+	double? TowStressFailureStartRatio { get; }
+	double? TowStressMaximumFailureChance { get; }
+	double? TowStressDamageMultiplier { get; }
 	int DisplayOrder { get; }
 }
 

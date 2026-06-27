@@ -1,6 +1,7 @@
 #nullable enable
 
 using MudSharp.Character;
+using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Effects.Concrete;
 using MudSharp.Framework;
@@ -24,6 +25,23 @@ public class VehicleOperationalReadinessService : IVehicleOperationalReadinessSe
 	public VehicleOperationalReadinessService(IVehicleHitchGraphService graphService)
 	{
 		_graphService = graphService;
+	}
+
+	public VehicleTowStressPolicy TowStressPolicy(IFuturemud? gameworld)
+	{
+		if (gameworld is null)
+		{
+			return VehicleTowStressPolicy.Default;
+		}
+
+		var warning = Math.Clamp(gameworld.GetStaticDouble("VehicleTowStressWarningRatio"), 0.0, 1.0);
+		var failureStart = Math.Clamp(gameworld.GetStaticDouble("VehicleTowStressFailureStartRatio"), 0.0, 1.0);
+		return new VehicleTowStressPolicy(
+			warning,
+			Math.Max(warning, failureStart),
+			Math.Clamp(gameworld.GetStaticDouble("VehicleTowStressMaximumFailureChance"), 0.0, 1.0),
+			Math.Max(0.0, gameworld.GetStaticDouble("VehicleTowStressDamageMultiplier")),
+			"static configuration");
 	}
 
 	public bool CanPerformAction(IVehicle vehicle, ICharacter actor, VehicleOperationalAction action,
@@ -173,37 +191,9 @@ public class VehicleOperationalReadinessService : IVehicleOperationalReadinessSe
 	public bool HasFuel(IVehicle vehicle, IVehicleMovementProfilePrototype profile,
 		out IReadOnlyList<VehicleResourceCandidate> candidates, out string reason)
 	{
-		if (profile.FuelLiquidId is null || profile.FuelVolumePerMove <= 0.0)
-		{
-			candidates = [];
-			reason = string.Empty;
-			return true;
-		}
-
-		var fuelLiquidId = profile.FuelLiquidId.Value;
-		var results = new List<VehicleResourceCandidate>();
-		foreach (var installation in vehicle.Installations)
-		{
-			var item = installation.InstalledItem;
-			if (!IsInstallationFunctionalForMovement(installation, out var moduleReason))
-			{
-				results.Add(new VehicleResourceCandidate(installation, item, "fuel", false, moduleReason));
-				continue;
-			}
-
-			var containers = item!.GetItemTypes<ILiquidContainer>().ToList();
-			if (!containers.Any())
-			{
-				results.Add(new VehicleResourceCandidate(installation, item, "fuel", false, "the module is not a fuel container"));
-				continue;
-			}
-
-			var usable = HasUsableFuel(containers, fuelLiquidId, profile.FuelVolumePerMove, out var fuelReason);
-			results.Add(new VehicleResourceCandidate(installation, item, "fuel", usable, fuelReason));
-		}
-
-		candidates = results;
-		if (results.Any(x => x.Available))
+		var plan = BuildResourcePlan(vehicle, profile);
+		candidates = plan.FuelCandidates;
+		if (plan.HasFuel)
 		{
 			reason = string.Empty;
 			return true;
@@ -213,24 +203,97 @@ public class VehicleOperationalReadinessService : IVehicleOperationalReadinessSe
 		return false;
 	}
 
-	private static bool HasUsableFuel(IEnumerable<ILiquidContainer> containers, long fuelLiquidId, double requiredVolume,
-		out string reason)
+	public bool HasPower(IVehicle vehicle, IVehicleMovementProfilePrototype profile,
+		out IReadOnlyList<VehicleResourceCandidate> candidates, out string reason)
 	{
-		var containerList = containers.ToList();
-		if (containerList.All(x => FuelVolume(x, fuelLiquidId) <= 0.0))
+		var plan = BuildResourcePlan(vehicle, profile);
+		candidates = plan.PowerCandidates;
+		if (plan.HasPower)
 		{
-			reason = "the module contains the wrong fuel";
-			return false;
+			reason = string.Empty;
+			return true;
 		}
 
-		if (containerList.All(x => FuelVolume(x, fuelLiquidId) < requiredVolume))
+		reason = "That vehicle does not have enough available power to move.";
+		return false;
+	}
+
+	public VehicleResourceReadinessPlan BuildResourcePlan(IVehicle vehicle, IVehicleMovementProfilePrototype profile)
+	{
+		var fuelCandidates = new List<VehicleResourceCandidate>();
+		var powerCandidates = new List<VehicleResourceCandidate>();
+		var uses = new List<VehicleResourceUse>();
+		var reasons = new List<string>();
+
+		var hasFuel = profile.FuelLiquidId is null || profile.FuelVolumePerMove <= 0.0;
+		if (!hasFuel)
 		{
-			reason = "the module does not contain enough configured fuel";
-			return false;
+			var fuelLiquidId = profile.FuelLiquidId!.Value;
+			foreach (var installation in vehicle.Installations)
+			{
+				var item = installation.InstalledItem;
+				if (!IsInstallationFunctionalForMovement(installation, out var moduleReason))
+				{
+					fuelCandidates.Add(new VehicleResourceCandidate(installation, item, "fuel", false, moduleReason));
+					continue;
+				}
+
+				var containers = item!.GetItemTypes<ILiquidContainer>().ToList();
+				if (!containers.Any())
+				{
+					fuelCandidates.Add(new VehicleResourceCandidate(installation, item, "fuel", false, "the module is not a fuel container"));
+					continue;
+				}
+
+				var usableContainer = containers.FirstOrDefault(x => FuelVolume(x, fuelLiquidId) >= profile.FuelVolumePerMove);
+				if (usableContainer is not null)
+				{
+					fuelCandidates.Add(new VehicleResourceCandidate(installation, item, "fuel", true, string.Empty));
+					if (uses.All(x => x.ResourceType != VehicleResourceUseType.Fuel))
+					{
+						uses.Add(new VehicleResourceUse(VehicleResourceUseType.Fuel, installation, item, usableContainer,
+							fuelLiquidId, profile.FuelVolumePerMove, null, 0.0, string.Empty));
+					}
+					continue;
+				}
+
+				var fuelReason = containers.All(x => FuelVolume(x, fuelLiquidId) <= 0.0)
+					? "the module contains the wrong fuel"
+					: "the module does not contain enough configured fuel";
+				fuelCandidates.Add(new VehicleResourceCandidate(installation, item, "fuel", false, fuelReason));
+			}
+
+			hasFuel = uses.Any(x => x.ResourceType == VehicleResourceUseType.Fuel);
+			if (!hasFuel)
+			{
+				reasons.Add("That vehicle does not have enough configured fuel to move.");
+			}
 		}
 
-		reason = string.Empty;
-		return true;
+		var hasPower = profile.RequiredPowerSpikeInWatts <= 0.0;
+		if (!hasPower)
+		{
+			foreach (var installation in vehicle.Installations)
+			{
+				var usable = TryGetUsablePowerProducer(installation, profile.RequiredPowerSpikeInWatts, out var item,
+					out var producer, out var candidateReason);
+				powerCandidates.Add(new VehicleResourceCandidate(installation, item, "power", usable, candidateReason));
+				if (usable && uses.All(x => x.ResourceType != VehicleResourceUseType.Power))
+				{
+					uses.Add(new VehicleResourceUse(VehicleResourceUseType.Power, installation, item, null, null, 0.0,
+						producer, profile.RequiredPowerSpikeInWatts, string.Empty));
+				}
+			}
+
+			hasPower = uses.Any(x => x.ResourceType == VehicleResourceUseType.Power);
+			if (!hasPower)
+			{
+				reasons.Add("That vehicle does not have enough available power to move.");
+			}
+		}
+
+		return new VehicleResourceReadinessPlan(vehicle, profile, uses, fuelCandidates, powerCandidates, hasFuel, hasPower,
+			reasons.ListToString(separator: " ", conjunction: "", twoItemJoiner: " "));
 	}
 
 	private static double FuelVolume(ILiquidContainer container, long fuelLiquidId)
@@ -263,35 +326,6 @@ public class VehicleOperationalReadinessService : IVehicleOperationalReadinessSe
 		}
 
 		container.LiquidMixture = mixture;
-	}
-
-	public bool HasPower(IVehicle vehicle, IVehicleMovementProfilePrototype profile,
-		out IReadOnlyList<VehicleResourceCandidate> candidates, out string reason)
-	{
-		if (profile.RequiredPowerSpikeInWatts <= 0.0)
-		{
-			candidates = [];
-			reason = string.Empty;
-			return true;
-		}
-
-		var results = new List<VehicleResourceCandidate>();
-		foreach (var installation in vehicle.Installations)
-		{
-			var usable = TryGetUsablePowerProducer(installation, profile.RequiredPowerSpikeInWatts, out var item,
-				out _, out var candidateReason);
-			results.Add(new VehicleResourceCandidate(installation, item, "power", usable, candidateReason));
-		}
-
-		candidates = results;
-		if (results.Any(x => x.Available))
-		{
-			reason = string.Empty;
-			return true;
-		}
-
-		reason = "That vehicle does not have enough available power to move.";
-		return false;
 	}
 
 	private bool TryGetUsablePowerProducer(IVehicleInstallation installation, double requiredPowerSpikeInWatts,
@@ -335,32 +369,188 @@ public class VehicleOperationalReadinessService : IVehicleOperationalReadinessSe
 
 	public void ConsumeMovementResources(IVehicle vehicle, IVehicleMovementProfilePrototype profile)
 	{
-		if (profile.RequiredPowerSpikeInWatts > 0.0)
+		var plan = BuildResourcePlan(vehicle, profile);
+		if (plan.IsSatisfied)
 		{
-			vehicle.Installations
-			       .Select(x => TryGetUsablePowerProducer(x, profile.RequiredPowerSpikeInWatts, out _, out var producer, out _)
-				       ? producer
-				       : null)
-			       .FirstOrDefault(x => x is not null)
-			       ?.DrawdownSpike(profile.RequiredPowerSpikeInWatts);
+			ConsumeMovementResources(plan);
+		}
+	}
+
+	public void ConsumeMovementResources(VehicleResourceReadinessPlan plan)
+	{
+		foreach (var use in plan.Uses)
+		{
+			switch (use.ResourceType)
+			{
+				case VehicleResourceUseType.Power:
+					use.PowerProducer?.DrawdownSpike(use.PowerSpikeInWatts);
+					break;
+				case VehicleResourceUseType.Fuel when use.FuelContainer is not null && use.FuelLiquidId is not null:
+					ConsumeFuel(use.FuelContainer, use.FuelLiquidId.Value, use.FuelVolume);
+					break;
+			}
+		}
+	}
+
+	public VehicleMovementReadinessResult BuildMovementReadiness(VehicleMovementReadinessRequest request)
+	{
+		var issues = new List<VehicleOperationalIssue>();
+		VehicleMovementReadinessResult Fail(string reason, VehicleHitchGraphMovePlan? plan = null,
+			VehicleResourceReadinessPlan? resourcePlan = null)
+		{
+			issues.Add(new VehicleOperationalIssue(VehicleOperationalSubsystem.Movement,
+				VehicleOperationalSeverity.Blocking, request.Vehicle?.Id, request.Vehicle?.Name ?? "vehicle", reason, string.Empty));
+			return new VehicleMovementReadinessResult(false, reason, plan, resourcePlan, issues);
 		}
 
-		if (profile.FuelLiquidId is null || profile.FuelVolumePerMove <= 0.0)
+		var vehicle = request.Vehicle;
+		var actor = request.Actor;
+		var exit = request.Exit;
+		if (vehicle is null)
 		{
-			return;
+			return Fail("There is no such vehicle.");
 		}
 
-		var fuelLiquidId = profile.FuelLiquidId.Value;
-		var fuelContainer = vehicle.Installations
-		                           .Where(x => IsInstallationFunctionalForMovement(x, out _))
-		                           .Select(x => x.InstalledItem)
-		                           .Where(x => x is not null)
-		                           .SelectMany(x => x!.GetItemTypes<ILiquidContainer>())
-		                           .FirstOrDefault(x => FuelVolume(x, fuelLiquidId) >= profile.FuelVolumePerMove);
-		if (fuelContainer is not null)
+		if (actor is null)
 		{
-			ConsumeFuel(fuelContainer, fuelLiquidId, profile.FuelVolumePerMove);
+			return Fail("There is no such driver.");
 		}
+
+		if (vehicle.Destroyed)
+		{
+			return Fail("That vehicle is destroyed and cannot move.");
+		}
+
+		if (vehicle.Disabled)
+		{
+			var damageReason = vehicle.DamageDisabledReason(VehicleDamageEffectTargetType.WholeVehicleMovement, null);
+			return Fail(string.IsNullOrWhiteSpace(damageReason)
+				? "That vehicle is disabled and cannot move."
+				: $"That vehicle cannot move because {damageReason}.");
+		}
+
+		if (vehicle.Controller != actor)
+		{
+			return Fail("You must be in control of the vehicle to move it.");
+		}
+
+		if (!CanPerformAction(vehicle, actor, VehicleOperationalAction.Control, out var accessResult))
+		{
+			return Fail(accessResult.Reason);
+		}
+
+		if (actor.Location != vehicle.Location)
+		{
+			return Fail("You must be in the same location as the vehicle to move it.");
+		}
+
+		if (actor.RoomLayer != vehicle.RoomLayer)
+		{
+			return Fail("You must be on the same room layer as the vehicle to move it.");
+		}
+
+		var profile = request.MovementProfile ?? MovementProfile(vehicle);
+		if (profile is null)
+		{
+			return Fail("That vehicle cannot move through normal cell exits.");
+		}
+
+		if (vehicle.IsDisabledByDamage(VehicleDamageEffectTargetType.MovementProfile, profile.Id))
+		{
+			return Fail($"That movement profile is disabled because {vehicle.DamageDisabledReason(VehicleDamageEffectTargetType.MovementProfile, profile.Id)}.");
+		}
+
+		VehicleHitchGraphMovePlan movePlan;
+		string reason;
+		if (exit is null)
+		{
+			if (!_graphService.TryBuildVehicleTrain(vehicle.Gameworld, vehicle, out movePlan, out reason))
+			{
+				return Fail(reason);
+			}
+		}
+		else
+		{
+			if (vehicle.Location != exit.Origin)
+			{
+				return Fail("The vehicle is not at the origin of that exit.");
+			}
+
+			if (vehicle.ExteriorItem is not null && exit.Exit.MaximumSizeToEnter < vehicle.ExteriorItem.Size)
+			{
+				return Fail("That exit is too small for the vehicle.");
+			}
+
+			if (!_graphService.CanMoveVehicleTrain(vehicle.Gameworld, vehicle, exit, out movePlan, out reason))
+			{
+				return Fail(reason);
+			}
+		}
+
+		foreach (var linkedVehicle in movePlan.Vehicles.DefaultIfEmpty(vehicle))
+		{
+			if (linkedVehicle.ExteriorItem?.PreventsMovement() != true)
+			{
+				continue;
+			}
+
+			return Fail(linkedVehicle.ExteriorItem.WhyPreventsMovement(actor), movePlan);
+		}
+
+		if (profile.RequiresAccessPointsClosed || vehicle.AccessPoints.Any(x => x.Prototype.MustBeClosedForMovement))
+		{
+			var openAccess = vehicle.AccessPoints.FirstOrDefault(x =>
+				x.IsOpen && (profile.RequiresAccessPointsClosed || x.Prototype.MustBeClosedForMovement));
+			if (openAccess is not null)
+			{
+				return Fail($"{openAccess.Name} must be closed before the vehicle can move.", movePlan);
+			}
+		}
+
+		var missingRequiredInstallation = vehicle.Installations
+		                                        .FirstOrDefault(x => x.Prototype.RequiredForMovement &&
+		                                                             !IsInstallationFunctionalForMovement(x, out _));
+		if (missingRequiredInstallation is not null)
+		{
+			IsInstallationFunctionalForMovement(missingRequiredInstallation, out var moduleReason);
+			return Fail($"{missingRequiredInstallation.Prototype.Name} must have a functional module installed before the vehicle can move: {moduleReason}.", movePlan);
+		}
+
+		if (!HasFunctionalRole(vehicle, profile.RequiredInstalledRole, out reason))
+		{
+			return Fail(reason, movePlan);
+		}
+
+		var resourcePlan = BuildResourcePlan(vehicle, profile);
+		if (!resourcePlan.HasPower)
+		{
+			return Fail(DescribeResourceFailure(actor, "That vehicle does not have enough available power to move.", resourcePlan.PowerCandidates), movePlan, resourcePlan);
+		}
+
+		if (!resourcePlan.HasFuel)
+		{
+			return Fail(DescribeResourceFailure(actor, "That vehicle does not have enough configured fuel to move.", resourcePlan.FuelCandidates), movePlan, resourcePlan);
+		}
+
+		if (profile.RequiresTowLinksClosed)
+		{
+			var invalidTowLink = movePlan.Links.FirstOrDefault(x => x.IsDisabled);
+			if (invalidTowLink is not null)
+			{
+				return Fail("One of that vehicle's tow links is disabled.", movePlan, resourcePlan);
+			}
+		}
+
+		if (exit is not null)
+		{
+			var transition = exit.MovementTransition(actor);
+			if (transition.TransitionType == CellMovementTransition.NoViableTransition)
+			{
+				return Fail("That exit is not a viable transition from your current position.", movePlan, resourcePlan);
+			}
+		}
+
+		return new VehicleMovementReadinessResult(true, string.Empty, movePlan, resourcePlan, issues);
 	}
 
 	public VehicleOperationalReadinessReport BuildReport(IVehicle vehicle, ICharacter voyeur,
@@ -371,12 +561,15 @@ public class VehicleOperationalReadinessService : IVehicleOperationalReadinessSe
 		IReadOnlyList<VehicleResourceCandidate> power = [];
 		if (movementProfile is not null)
 		{
-			HasFuel(vehicle, movementProfile, out fuel, out _);
-			HasPower(vehicle, movementProfile, out power, out _);
+			var resourcePlan = BuildResourcePlan(vehicle, movementProfile);
+			fuel = resourcePlan.FuelCandidates;
+			power = resourcePlan.PowerCandidates;
 		}
 
 		movePlan ??= BuildCurrentMovePlan(vehicle);
-		IReadOnlyList<VehicleHitchGraphTowStress> stress = movePlan is null ? [] : _graphService.EvaluateTowStress(movePlan);
+		IReadOnlyList<VehicleHitchGraphTowStress> stress = movePlan is null
+			? []
+			: _graphService.EvaluateTowStress(movePlan, TowStressPolicy(vehicle.Gameworld));
 		var issues = new List<VehicleOperationalIssue>();
 
 		foreach (var zone in vehicle.DamageZones.Where(x => x.Status != VehicleSystemStatus.Functional || x.CurrentDamage > 0.0))
@@ -416,7 +609,7 @@ public class VehicleOperationalReadinessService : IVehicleOperationalReadinessSe
 
 	public VehicleTowCatastropheResult RollTowCatastrophe(VehicleHitchGraphMovePlan movePlan, ICharacter actor)
 	{
-		var stress = _graphService.EvaluateTowStress(movePlan)
+		var stress = _graphService.EvaluateTowStress(movePlan, TowStressPolicy(movePlan.RootVehicle.Gameworld))
 		                          .Where(x => x.CanFail && x.FailureChance > 0.0)
 		                          .OrderByDescending(x => x.StressRatio)
 		                          .ToList();
@@ -429,7 +622,7 @@ public class VehicleOperationalReadinessService : IVehicleOperationalReadinessSe
 
 			var damagedItems = new List<IGameItem>();
 			var damagedVehicles = new List<IVehicle>();
-			var damageAmount = Math.Max(1.0, candidate.EffectiveWeight * 0.02);
+			var damageAmount = Math.Max(1.0, candidate.EffectiveWeight * candidate.Policy.DamageMultiplier);
 			var damage = new Damage
 			{
 				DamageType = DamageType.Shearing,
@@ -517,6 +710,23 @@ public class VehicleOperationalReadinessService : IVehicleOperationalReadinessSe
 				reason = "Only persistent hitch or tow links can be repaired.";
 				return false;
 		}
+	}
+
+	private static IVehicleMovementProfilePrototype? MovementProfile(IVehicle vehicle)
+	{
+		return vehicle.Prototype.MovementProfiles
+		              .Where(x => x.MovementType == VehicleMovementProfileType.CellExit)
+		              .OrderByDescending(x => x.IsDefault)
+		              .FirstOrDefault();
+	}
+
+	private static string DescribeResourceFailure(ICharacter actor, string reason,
+		IReadOnlyList<VehicleResourceCandidate> candidates)
+	{
+		var failed = candidates.Where(x => !x.Available && !string.IsNullOrWhiteSpace(x.Reason)).ToList();
+		return failed.Any()
+			? $"{reason} {failed.Select(x => $"{(x.Item?.HowSeen(actor) ?? x.Installation.Prototype.Name)}: {x.Reason}").ListToString()}"
+			: reason;
 	}
 
 	private VehicleHitchGraphMovePlan? BuildCurrentMovePlan(IVehicle vehicle)

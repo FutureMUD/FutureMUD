@@ -69,6 +69,49 @@ public sealed record VehicleResourceCandidate(
 	bool Available,
 	string Reason);
 
+public enum VehicleResourceUseType
+{
+	Fuel,
+	Power
+}
+
+public sealed record VehicleResourceUse(
+	VehicleResourceUseType ResourceType,
+	IVehicleInstallation Installation,
+	IGameItem? Item,
+	ILiquidContainer? FuelContainer,
+	long? FuelLiquidId,
+	double FuelVolume,
+	IProducePower? PowerProducer,
+	double PowerSpikeInWatts,
+	string Reason);
+
+public sealed record VehicleResourceReadinessPlan(
+	IVehicle Vehicle,
+	IVehicleMovementProfilePrototype Profile,
+	IReadOnlyList<VehicleResourceUse> Uses,
+	IReadOnlyList<VehicleResourceCandidate> FuelCandidates,
+	IReadOnlyList<VehicleResourceCandidate> PowerCandidates,
+	bool HasFuel,
+	bool HasPower,
+	string Reason)
+{
+	public bool IsSatisfied => HasFuel && HasPower;
+}
+
+public sealed record VehicleMovementReadinessRequest(
+	IVehicle Vehicle,
+	ICharacter Actor,
+	ICellExit? Exit,
+	IVehicleMovementProfilePrototype? MovementProfile = null);
+
+public sealed record VehicleMovementReadinessResult(
+	bool CanMove,
+	string Reason,
+	VehicleHitchGraphMovePlan? MovePlan,
+	VehicleResourceReadinessPlan? ResourcePlan,
+	IReadOnlyList<VehicleOperationalIssue> Issues);
+
 public sealed record VehicleTowCatastropheResult(
 	bool Catastrophe,
 	VehicleHitchGraphTowStress? Stress,
@@ -96,7 +139,11 @@ public interface IVehicleOperationalReadinessService
 		out IReadOnlyList<VehicleResourceCandidate> candidates, out string reason);
 	bool HasPower(IVehicle vehicle, IVehicleMovementProfilePrototype profile,
 		out IReadOnlyList<VehicleResourceCandidate> candidates, out string reason);
+	VehicleResourceReadinessPlan BuildResourcePlan(IVehicle vehicle, IVehicleMovementProfilePrototype profile);
 	void ConsumeMovementResources(IVehicle vehicle, IVehicleMovementProfilePrototype profile);
+	void ConsumeMovementResources(VehicleResourceReadinessPlan plan);
+	VehicleMovementReadinessResult BuildMovementReadiness(VehicleMovementReadinessRequest request);
+	VehicleTowStressPolicy TowStressPolicy(IFuturemud? gameworld);
 	VehicleOperationalReadinessReport BuildReport(IVehicle vehicle, ICharacter voyeur,
 		VehicleHitchGraphMovePlan? movePlan = null, IVehicleMovementProfilePrototype? movementProfile = null);
 	VehicleTowCatastropheResult RollTowCatastrophe(VehicleHitchGraphMovePlan movePlan, ICharacter actor);

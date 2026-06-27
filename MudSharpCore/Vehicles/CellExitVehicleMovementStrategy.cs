@@ -41,161 +41,16 @@ public class CellExitVehicleMovementStrategy : IVehicleMovementStrategy
 
 	public bool CanMove(IVehicle vehicle, ICharacter actor, ICellExit exit, out string reason)
 	{
-		if (vehicle is null)
-		{
-			reason = "There is no such vehicle.";
-			return false;
-		}
-
-		if (actor is null)
-		{
-			reason = "There is no such driver.";
-			return false;
-		}
-
 		if (exit is null)
 		{
 			reason = "There is no such exit.";
 			return false;
 		}
 
-		if (vehicle.Destroyed)
-		{
-			reason = "That vehicle is destroyed and cannot move.";
-			return false;
-		}
-
-		if (vehicle.Disabled)
-		{
-			var damageReason = vehicle.DamageDisabledReason(VehicleDamageEffectTargetType.WholeVehicleMovement, null);
-			reason = string.IsNullOrWhiteSpace(damageReason)
-				? "That vehicle is disabled and cannot move."
-				: $"That vehicle cannot move because {damageReason}.";
-			return false;
-		}
-
-		if (vehicle.Controller != actor)
-		{
-			reason = "You must be in control of the vehicle to move it.";
-			return false;
-		}
-
-		if (!_readinessService.CanPerformAction(vehicle, actor, VehicleOperationalAction.Control, out var accessResult))
-		{
-			reason = accessResult.Reason;
-			return false;
-		}
-
-		if (vehicle.Location != exit.Origin)
-		{
-			reason = "The vehicle is not at the origin of that exit.";
-			return false;
-		}
-
-		if (actor.Location != vehicle.Location)
-		{
-			reason = "You must be in the same location as the vehicle to move it.";
-			return false;
-		}
-
-		if (actor.RoomLayer != vehicle.RoomLayer)
-		{
-			reason = "You must be on the same room layer as the vehicle to move it.";
-			return false;
-		}
-
-		var profile = MovementProfile(vehicle);
-		if (profile is null)
-		{
-			reason = "That vehicle cannot move through normal cell exits.";
-			return false;
-		}
-
-		if (vehicle.IsDisabledByDamage(VehicleDamageEffectTargetType.MovementProfile, profile.Id))
-		{
-			reason = $"That movement profile is disabled because {vehicle.DamageDisabledReason(VehicleDamageEffectTargetType.MovementProfile, profile.Id)}.";
-			return false;
-		}
-
-		if (vehicle.ExteriorItem is not null && exit.Exit.MaximumSizeToEnter < vehicle.ExteriorItem.Size)
-		{
-			reason = "That exit is too small for the vehicle.";
-			return false;
-		}
-
-		if (!_graphService.CanMoveVehicleTrain(vehicle.Gameworld, vehicle, exit, out var movePlan, out reason))
-		{
-			return false;
-		}
-
-		foreach (var linkedVehicle in movePlan.Vehicles.DefaultIfEmpty(vehicle))
-		{
-			if (linkedVehicle.ExteriorItem?.PreventsMovement() != true)
-			{
-				continue;
-			}
-
-			reason = linkedVehicle.ExteriorItem.WhyPreventsMovement(actor);
-			return false;
-		}
-
-		if (profile.RequiresAccessPointsClosed || vehicle.AccessPoints.Any(x => x.Prototype.MustBeClosedForMovement))
-		{
-			var openAccess = vehicle.AccessPoints.FirstOrDefault(x =>
-				x.IsOpen && (profile.RequiresAccessPointsClosed || x.Prototype.MustBeClosedForMovement));
-			if (openAccess is not null)
-			{
-				reason = $"{openAccess.Name} must be closed before the vehicle can move.";
-				return false;
-			}
-		}
-
-		var missingRequiredInstallation = vehicle.Installations
-		                                        .FirstOrDefault(x => x.Prototype.RequiredForMovement &&
-		                                                             !_readinessService.IsInstallationFunctionalForMovement(x, out _));
-		if (missingRequiredInstallation is not null)
-		{
-			_readinessService.IsInstallationFunctionalForMovement(missingRequiredInstallation, out var moduleReason);
-			reason = $"{missingRequiredInstallation.Prototype.Name} must have a functional module installed before the vehicle can move: {moduleReason}.";
-			return false;
-		}
-
-		if (!_readinessService.HasFunctionalRole(vehicle, profile.RequiredInstalledRole, out reason))
-		{
-			return false;
-		}
-
-		if (!_readinessService.HasPower(vehicle, profile, out var powerCandidates, out reason))
-		{
-			reason = DescribeResourceFailure(actor, reason, powerCandidates);
-			return false;
-		}
-
-		if (!_readinessService.HasFuel(vehicle, profile, out var fuelCandidates, out reason))
-		{
-			reason = DescribeResourceFailure(actor, reason, fuelCandidates);
-			return false;
-		}
-
-		if (profile.RequiresTowLinksClosed)
-		{
-			var invalidTowLink = movePlan.Links.FirstOrDefault(x => x.IsDisabled);
-			if (invalidTowLink is not null)
-			{
-				reason = "One of that vehicle's tow links is disabled.";
-				return false;
-			}
-		}
-
-		var transition = exit.MovementTransition(actor);
-		if (transition.TransitionType == CellMovementTransition.NoViableTransition)
-		{
-			reason = "That exit is not a viable transition from your current position.";
-			return false;
-		}
-
-		reason = string.Empty;
-		return true;
+		var profile = vehicle is null ? null : MovementProfile(vehicle);
+		var result = _readinessService.BuildMovementReadiness(new VehicleMovementReadinessRequest(vehicle, actor, exit, profile));
+		reason = result.Reason;
+		return result.CanMove;
 	}
 
 	public bool Move(IVehicle vehicle, ICharacter actor, ICellExit exit)
@@ -217,18 +72,22 @@ public class CellExitVehicleMovementStrategy : IVehicleMovementStrategy
 	{
 		towTrain = [];
 		transition = (CellMovementTransition.NoViableTransition, RoomLayer.GroundLevel);
-		if (!CanMove(vehicle, actor, exit, out reason))
+		if (exit is null)
 		{
+			reason = "There is no such exit.";
+			return false;
+		}
+
+		var profile = vehicle is null ? null : MovementProfile(vehicle);
+		var readiness = _readinessService.BuildMovementReadiness(new VehicleMovementReadinessRequest(vehicle, actor, exit, profile));
+		if (!readiness.CanMove || readiness.MovePlan is null)
+		{
+			reason = readiness.Reason;
 			return false;
 		}
 
 		transition = exit.MovementTransition(actor);
-		if (!_graphService.CanMoveVehicleTrain(vehicle.Gameworld, vehicle, exit, out var movePlan, out reason))
-		{
-			return false;
-		}
-
-		var catastrophe = _readinessService.RollTowCatastrophe(movePlan, actor);
+		var catastrophe = _readinessService.RollTowCatastrophe(readiness.MovePlan, actor);
 		if (catastrophe.Catastrophe)
 		{
 			reason = catastrophe.Reason;
@@ -236,7 +95,7 @@ public class CellExitVehicleMovementStrategy : IVehicleMovementStrategy
 			return false;
 		}
 
-		towTrain = movePlan.Vehicles.ToList();
+		towTrain = readiness.MovePlan.Vehicles.ToList();
 		reason = string.Empty;
 		return true;
 	}
@@ -265,7 +124,7 @@ public class CellExitVehicleMovementStrategy : IVehicleMovementStrategy
 		(CellMovementTransition TransitionType, RoomLayer TargetLayer) transition, IMovement movement = null)
 	{
 		var vehicles = towTrain.Any() ? towTrain : [vehicle];
-		var profile = MovementProfile(vehicle);
+		var profile = vehicle is null ? null : MovementProfile(vehicle);
 		if (profile is not null)
 		{
 			_readinessService.ConsumeMovementResources(vehicle, profile);

@@ -239,6 +239,67 @@ public class VehicleOperationalReadinessServiceTests
 	}
 
 	[TestMethod]
+	public void BuildResourcePlan_ReadyFuelAndPower_AreConsumedOnlyFromSelectedUses()
+	{
+		var service = new VehicleOperationalReadinessService();
+		var vehicle = CreateVehicle("cart", []);
+		var container = CreateLiquidContainer((100, 2.0), (99, 10.0));
+		var fuelInstallation = CreateInstallation(vehicle.Object, CreateModuleItem(containers: [container.Object]).Object);
+		var producer = new Mock<IProducePower>();
+		producer.SetupGet(x => x.ProducingPower).Returns(true);
+		producer.Setup(x => x.CanDrawdownSpike(25.0)).Returns(true);
+		producer.Setup(x => x.DrawdownSpike(25.0)).Returns(true);
+		var switchable = new Mock<IOnOff>();
+		switchable.SetupGet(x => x.SwitchedOn).Returns(true);
+		var powerInstallation = CreateInstallation(vehicle.Object,
+			CreateModuleItem(producer: producer.Object, onOff: switchable.Object).Object);
+		vehicle.SetupGet(x => x.Installations).Returns([fuelInstallation.Object, powerInstallation.Object]);
+		var profile = CreateMovementProfile(requiredPowerSpikeInWatts: 25.0, fuelLiquidId: 100,
+			fuelVolumePerMove: 1.0);
+
+		var plan = service.BuildResourcePlan(vehicle.Object, profile.Object);
+		service.ConsumeMovementResources(plan);
+
+		Assert.IsTrue(plan.IsSatisfied);
+		Assert.IsTrue(plan.Uses.Any(x => x.ResourceType == VehicleResourceUseType.Fuel && x.FuelContainer == container.Object));
+		Assert.IsTrue(plan.Uses.Any(x => x.ResourceType == VehicleResourceUseType.Power && x.PowerProducer == producer.Object));
+		Assert.AreEqual(1.0, LiquidAmount(container.Object, 100), 0.001);
+		Assert.AreEqual(10.0, LiquidAmount(container.Object, 99), 0.001);
+		producer.Verify(x => x.DrawdownSpike(25.0), Times.Once);
+	}
+
+	[TestMethod]
+	public void EvaluateTowStress_TowPointOverride_UsesOverridePolicy()
+	{
+		var graph = new VehicleHitchGraphService();
+		var source = CreateStressVehicle(1, "tractor", 10.0);
+		var target = CreateStressVehicle(2, "trailer", 90.0);
+		var sourcePoint = CreateTowPoint(31, "rear hitch", canTow: true, canBeTowed: false, maxWeight: 100.0);
+		sourcePoint.SetupGet(x => x.TowStressWarningRatio).Returns(0.50);
+		sourcePoint.SetupGet(x => x.TowStressFailureStartRatio).Returns(0.80);
+		sourcePoint.SetupGet(x => x.TowStressMaximumFailureChance).Returns(0.40);
+		sourcePoint.SetupGet(x => x.TowStressDamageMultiplier).Returns(0.08);
+		var targetPoint = CreateTowPoint(32, "front ring", canTow: false, canBeTowed: true, maxWeight: 100.0);
+		var link = new VehicleHitchGraphLink("test", VehicleHitchGraphLinkKind.LegacyVehicleTow,
+			new VehicleHitchGraphEndpoint(VehicleHitchGraphNodeType.Vehicle, source.Object, null, sourcePoint.Object),
+			new VehicleHitchGraphEndpoint(VehicleHitchGraphNodeType.Vehicle, target.Object, null, targetPoint.Object),
+			null, null, false, false, string.Empty, null);
+		var plan = new VehicleHitchGraphMovePlan(source.Object,
+		[
+			new VehicleHitchGraphTrainMember(source.Object, 0, null),
+			new VehicleHitchGraphTrainMember(target.Object, 1, link)
+		], [link], [], 100.0);
+
+		var stress = graph.EvaluateTowStress(plan, VehicleTowStressPolicy.Default).Single();
+
+		Assert.IsTrue(stress.IsWarning);
+		Assert.IsTrue(stress.CanFail);
+		Assert.AreEqual(0.40, stress.Policy.MaximumFailureChance, 0.001);
+		Assert.AreEqual(0.08, stress.Policy.DamageMultiplier, 0.001);
+		Assert.AreEqual(0.20, stress.FailureChance, 0.001);
+		StringAssert.Contains(stress.Policy.Source, "rear hitch");
+	}
+	[TestMethod]
 	public void RepairHitchLink_ValidTargetWithIncomingLink_Succeeds()
 	{
 		var service = new VehicleOperationalReadinessService();

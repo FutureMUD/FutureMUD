@@ -350,7 +350,7 @@ public class VehiclePrototype : EditableItem, IVehiclePrototype
 		sb.AppendLine();
 		sb.AppendLine("Tow Points:");
 		sb.AppendLine(_towPoints.Any()
-			? _towPoints.Select(x => $"\t#{x.Id.ToString("N0", actor)} {x.Name.ColourName()} [{x.TowType.ColourCommand()}] {(x.CanTow ? "tow".Colour(Telnet.Green) : "")}{(x.CanBeTowed ? " towed".Colour(Telnet.Green) : "")} max {x.MaximumTowedWeight.ToString("N2", actor).ColourValue()} pull x{x.CharacterPullMultiplier.ToString("N2", actor).ColourValue()}").ListToString(separator: "\n", conjunction: "", twoItemJoiner: "\n")
+			? _towPoints.Select(x => $"\t#{x.Id.ToString("N0", actor)} {x.Name.ColourName()} [{x.TowType.ColourCommand()}] {(x.CanTow ? "tow".Colour(Telnet.Green) : "")}{(x.CanBeTowed ? " towed".Colour(Telnet.Green) : "")} max {x.MaximumTowedWeight.ToString("N2", actor).ColourValue()} pull x{x.CharacterPullMultiplier.ToString("N2", actor).ColourValue()}{TowStressSummary(actor, x)}").ListToString(separator: "\n", conjunction: "", twoItemJoiner: "\n")
 			: "\tNone");
 		sb.AppendLine();
 		sb.AppendLine("Damage Zones:");
@@ -360,6 +360,27 @@ public class VehiclePrototype : EditableItem, IVehiclePrototype
 		return sb.ToString();
 	}
 
+	private static string TowStressSummary(ICharacter actor, IVehicleTowPointPrototype towPoint)
+	{
+		var parts = new List<string>();
+		if (towPoint.TowStressWarningRatio is not null)
+		{
+			parts.Add($"warn {towPoint.TowStressWarningRatio.Value.ToStringP2Colour(actor)}");
+		}
+		if (towPoint.TowStressFailureStartRatio is not null)
+		{
+			parts.Add($"fail {towPoint.TowStressFailureStartRatio.Value.ToStringP2Colour(actor)}");
+		}
+		if (towPoint.TowStressMaximumFailureChance is not null)
+		{
+			parts.Add($"chance {towPoint.TowStressMaximumFailureChance.Value.ToStringP2Colour(actor)}");
+		}
+		if (towPoint.TowStressDamageMultiplier is not null)
+		{
+			parts.Add($"damage x{towPoint.TowStressDamageMultiplier.Value.ToString("N2", actor).ColourValue()}");
+		}
+		return parts.Any() ? $" stress [{parts.ListToString()}]" : string.Empty;
+	}
 	private string DescribeDamageZoneEffect(ICharacter actor, IVehicleDamageZoneEffectPrototype effect)
 	{
 		var target = effect.TargetPrototypeId is null
@@ -453,6 +474,8 @@ public class VehiclePrototype : EditableItem, IVehiclePrototype
 	#3installpoint add <access id|none> <mount type> <required role|none> <required true|false> <name>#0 - adds an install point
 	#3installpoint remove <id>#0 - removes an install point
 	#3tow add <access id|none> <tow type> <tow|towed|both> <max weight> [pull <multiplier>] <name>#0 - adds a tow point
+	#3tow <id> stress <warning|failstart|maxchance|damage> <value>#0 - sets tow-stress tuning
+	#3tow <id> stress reset#0 - clears tow-stress tuning overrides
 	#3tow remove <id>#0 - removes a tow point
 	#3damage add <max damage> <hit weight> <disable threshold> <destroy threshold> <disables movement true|false> <name>#0 - adds a damage zone
 	#3damage <zone id> effect add <wholemovement|movement|access|cargo|install|tow> <id|all> [disabled|destroyed]#0 - adds a damage effect
@@ -1342,7 +1365,8 @@ public class VehiclePrototype : EditableItem, IVehiclePrototype
 
 	private bool BuildingCommandTowPoint(ICharacter actor, StringStack command)
 	{
-		switch (command.PopSpeech().ToLowerInvariant())
+		var commandText = command.PopSpeech();
+		switch (commandText.ToLowerInvariant())
 		{
 			case "add":
 			case "new":
@@ -1351,9 +1375,130 @@ public class VehiclePrototype : EditableItem, IVehiclePrototype
 			case "delete":
 				return RemoveChildDefinition(actor, command, ctx => ctx.VehicleTowPointProtos, _towPoints, "tow point");
 			default:
+				if (long.TryParse(commandText, out var id))
+				{
+					var towPoint = _towPoints.FirstOrDefault(x => x.Id == id);
+					if (towPoint is null)
+					{
+						actor.OutputHandler.Send("There is no such tow point.");
+						return false;
+					}
+
+					return BuildingCommandTowPointChild(actor, command, towPoint);
+				}
+
 				actor.OutputHandler.Send(BuildingHelp.SubstituteANSIColour());
 				return false;
 		}
+	}
+
+	private bool BuildingCommandTowPointChild(ICharacter actor, StringStack command,
+		IVehicleTowPointPrototype towPoint)
+	{
+		switch (command.PopSpeech().ToLowerInvariant())
+		{
+			case "stress":
+				return BuildingCommandTowPointStress(actor, command, towPoint);
+			default:
+				actor.OutputHandler.Send(BuildingHelp.SubstituteANSIColour());
+				return false;
+		}
+	}
+
+	private bool BuildingCommandTowPointStress(ICharacter actor, StringStack command,
+		IVehicleTowPointPrototype towPoint)
+	{
+		var setting = command.PopSpeech().ToLowerInvariant();
+		if (setting.EqualTo("reset"))
+		{
+			using (new FMDB())
+			{
+				var dbitem = FMDB.Context.VehicleTowPointProtos.Find(towPoint.Id);
+				if (dbitem is null || dbitem.VehicleProtoId != Id || dbitem.VehicleProtoRevision != RevisionNumber)
+				{
+					actor.OutputHandler.Send("There is no such tow point.");
+					return false;
+				}
+
+				dbitem.TowStressWarningRatio = null;
+				dbitem.TowStressFailureStartRatio = null;
+				dbitem.TowStressMaximumFailureChance = null;
+				dbitem.TowStressDamageMultiplier = null;
+				FMDB.Context.SaveChanges();
+			}
+
+			ReloadChildDefinitions();
+			actor.OutputHandler.Send($"You clear tow-stress overrides for {towPoint.Name.ColourName()}.");
+			return true;
+		}
+
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("What value do you want to set for that tow-stress setting?");
+			return false;
+		}
+
+		double value;
+		var text = command.SafeRemainingArgument;
+		if (setting.EqualToAny("warning", "warn", "failstart", "failure", "maxchance", "chance"))
+		{
+			if (!text.TryParsePercentage(actor.Account.Culture, out value) || value < 0.0 || value > 1.0)
+			{
+				actor.OutputHandler.Send($"Enter a percentage between {0.ToStringP2Colour(actor)} and {1.ToStringP2Colour(actor)}.");
+				return false;
+			}
+		}
+		else if (setting.EqualTo("damage"))
+		{
+			if (!text.TryParsePercentage(actor.Account.Culture, out value) || value < 0.0)
+			{
+				actor.OutputHandler.Send("Enter a non-negative damage multiplier, e.g. #32%#0 or #30.02#0.".SubstituteANSIColour());
+				return false;
+			}
+		}
+		else
+		{
+			actor.OutputHandler.Send("Choose warning, failstart, maxchance, damage, or reset.");
+			return false;
+		}
+
+		using (new FMDB())
+		{
+			var dbitem = FMDB.Context.VehicleTowPointProtos.Find(towPoint.Id);
+			if (dbitem is null || dbitem.VehicleProtoId != Id || dbitem.VehicleProtoRevision != RevisionNumber)
+			{
+				actor.OutputHandler.Send("There is no such tow point.");
+				return false;
+			}
+
+			switch (setting)
+			{
+				case "warning":
+				case "warn":
+					dbitem.TowStressWarningRatio = value;
+					break;
+				case "failstart":
+				case "failure":
+					dbitem.TowStressFailureStartRatio = value;
+					break;
+				case "maxchance":
+				case "chance":
+					dbitem.TowStressMaximumFailureChance = value;
+					break;
+				case "damage":
+					dbitem.TowStressDamageMultiplier = value;
+					break;
+				default:
+					actor.OutputHandler.Send("Choose warning, failstart, maxchance, damage, or reset.");
+					return false;
+			}
+
+			FMDB.Context.SaveChanges();
+		}
+
+		ReloadChildDefinitions();
+		actor.OutputHandler.Send($"You update tow-stress tuning for {towPoint.Name.ColourName()}.");
+		return true;
 	}
 
 	private bool BuildingCommandTowPointAdd(ICharacter actor, StringStack command)
@@ -1961,6 +2106,10 @@ public class VehiclePrototype : EditableItem, IVehiclePrototype
 					CanBeTowed = tow.CanBeTowed,
 					MaximumTowedWeight = tow.MaximumTowedWeight,
 					CharacterPullMultiplier = tow.CharacterPullMultiplier,
+					TowStressWarningRatio = tow.TowStressWarningRatio,
+					TowStressFailureStartRatio = tow.TowStressFailureStartRatio,
+					TowStressMaximumFailureChance = tow.TowStressMaximumFailureChance,
+					TowStressDamageMultiplier = tow.TowStressDamageMultiplier,
 					DisplayOrder = tow.DisplayOrder
 				};
 				FMDB.Context.VehicleTowPointProtos.Add(dbtow);
@@ -2251,6 +2400,10 @@ public class VehicleTowPointPrototype : FrameworkItem, IVehicleTowPointPrototype
 		CanBeTowed = dbitem.CanBeTowed;
 		MaximumTowedWeight = dbitem.MaximumTowedWeight;
 		CharacterPullMultiplier = dbitem.CharacterPullMultiplier <= 0.0 ? 1.0 : dbitem.CharacterPullMultiplier;
+		TowStressWarningRatio = dbitem.TowStressWarningRatio;
+		TowStressFailureStartRatio = dbitem.TowStressFailureStartRatio;
+		TowStressMaximumFailureChance = dbitem.TowStressMaximumFailureChance;
+		TowStressDamageMultiplier = dbitem.TowStressDamageMultiplier;
 		DisplayOrder = dbitem.DisplayOrder;
 	}
 
@@ -2262,6 +2415,10 @@ public class VehicleTowPointPrototype : FrameworkItem, IVehicleTowPointPrototype
 	public bool CanBeTowed { get; }
 	public double MaximumTowedWeight { get; }
 	public double CharacterPullMultiplier { get; }
+	public double? TowStressWarningRatio { get; }
+	public double? TowStressFailureStartRatio { get; }
+	public double? TowStressMaximumFailureChance { get; }
+	public double? TowStressDamageMultiplier { get; }
 	public int DisplayOrder { get; }
 }
 

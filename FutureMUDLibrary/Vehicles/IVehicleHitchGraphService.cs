@@ -57,6 +57,16 @@ public sealed record VehicleHitchGraphTrainMember(
 	int Depth,
 	VehicleHitchGraphLink? IncomingLink);
 
+public sealed record VehicleTowStressPolicy(
+	double WarningRatio,
+	double FailureStartRatio,
+	double MaximumFailureChance,
+	double DamageMultiplier,
+	string Source)
+{
+	public static VehicleTowStressPolicy Default { get; } = new(0.90, 0.95, 0.25, 0.02, "default");
+}
+
 public sealed record VehicleHitchGraphTowStress(
 	VehicleHitchGraphLink Link,
 	IVehicle? TargetVehicle,
@@ -66,7 +76,8 @@ public sealed record VehicleHitchGraphTowStress(
 	bool IsWarning,
 	bool CanFail,
 	double FailureChance,
-	string Reason);
+	string Reason,
+	VehicleTowStressPolicy Policy);
 
 public sealed record VehicleHitchGraphMovePlan(
 	IVehicle RootVehicle,
@@ -100,6 +111,8 @@ public interface IVehicleHitchGraphService
 		IVehicleTowLink? exceptLegacyLink = null);
 	IReadOnlyList<VehicleHitchGraphTowStress> EvaluateTowStress(VehicleHitchGraphMovePlan movePlan,
 		double warningRatio = 0.90, double failureStartRatio = 0.95, double maximumFailureChance = 0.25);
+	IReadOnlyList<VehicleHitchGraphTowStress> EvaluateTowStress(VehicleHitchGraphMovePlan movePlan,
+		VehicleTowStressPolicy defaultPolicy);
 	void CompleteVehicleTrainMove(VehicleHitchGraphMovePlan movePlan, ICell destination, RoomLayer layer,
 		ICellExit exit, IMovement? movement = null, IVehicle? alreadyMovedVehicle = null);
 }

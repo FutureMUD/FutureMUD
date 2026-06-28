@@ -111,10 +111,14 @@ public class ItemSeederMedievalCraftingTests
 		foreach (var (fileName, methodName) in MedievalItemLaunchers
 			         .Where(x => !x.Value.Equals("SeedMedievalClothing", StringComparison.Ordinal))
 			         .Where(x => !x.Value.Equals("SeedMedievalHouseholdFurniture", StringComparison.Ordinal))
+			         .Where(x => !x.Value.Equals("SeedMedievalContainers", StringComparison.Ordinal))
+			         .Where(x => !x.Value.Equals("SeedMedievalDoorsLocksAndStrongboxes", StringComparison.Ordinal))
+			         .Where(x => !x.Value.Equals("SeedMedievalFoodAndBeverageItems", StringComparison.Ordinal))
 			         .Where(x => !x.Value.Equals("SeedMedievalArmour", StringComparison.Ordinal))
 			         .Where(x => !x.Value.Equals("SeedMedievalWeaponsShieldsAccessories", StringComparison.Ordinal))
 			         .Where(x => !x.Value.Equals("SeedMedievalWritingAdministrationAndDocuments", StringComparison.Ordinal))
 			         .Where(x => !x.Value.Equals("SeedMedievalMedicalAndApothecaryItems", StringComparison.Ordinal))
+			         .Where(x => !x.Value.Equals("SeedMedievalJewelleryAndDevotionalGoods", StringComparison.Ordinal))
 			         .Where(x => !x.Value.Equals("SeedMedievalRepairKits", StringComparison.Ordinal)))
 		{
 			var source = ReadSource("DatabaseSeeder", "Seeders", fileName);
@@ -124,10 +128,14 @@ public class ItemSeederMedievalCraftingTests
 		var medievalItemSource = ReadMedievalItemSources(
 			"ItemSeeder.Rework.MedievalClothing.cs",
 			"ItemSeeder.Rework.MedievalFurniture.cs",
+			"ItemSeeder.Rework.MedievalContainers.cs",
+			"ItemSeeder.Rework.MedievalDoorsLocksStrongboxes.cs",
+			"ItemSeeder.Rework.MedievalFood.cs",
 			"ItemSeeder.Rework.MedievalArmour.cs",
 			"ItemSeeder.Rework.MedievalWeapons.cs",
 			"ItemSeeder.Rework.MedievalWriting.cs",
 			"ItemSeeder.Rework.MedievalMedical.cs",
+			"ItemSeeder.Rework.MedievalJewellery.cs",
 			"ItemSeeder.Rework.MedievalRepairKits.cs");
 		foreach (var forbidden in new[]
 		{
@@ -142,6 +150,74 @@ public class ItemSeederMedievalCraftingTests
 		{
 			Assert.IsFalse(medievalItemSource.Contains(forbidden, StringComparison.Ordinal),
 				$"Medieval item launch stubs should not retain retired source token {forbidden}.");
+		}
+	}
+
+	[TestMethod]
+	public void MedievalJewellerySeeder_ImplementsReferenceCatalogueWithDirectCreateItemCalls()
+	{
+		var jewellerySource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.MedievalJewellery.cs");
+		var designReference = ReadSource("Design Documents", "Seeding", "Medieval_Jewellery_Seeder_Design_Reference.md");
+		var itemCatalogue = ReadSource("Design Documents", "Seeding", "FutureMUD_Medieval_Jewellery_Item_Catalogue_Full.csv");
+		var fdescCatalogue = ReadSource("Design Documents", "Seeding", "FutureMUD_Medieval_Jewellery_FDesc_Catalogue.csv");
+
+		var designReferences = Regex.Matches(
+				designReference,
+				@"^\| `(?<ref>medieval_jewellery_[^`]+)` \|",
+				RegexOptions.Multiline | RegexOptions.CultureInvariant)
+			.Cast<Match>()
+			.Select(x => x.Groups["ref"].Value)
+			.ToArray();
+		var itemCatalogueReferences = Regex.Matches(
+				itemCatalogue,
+				@"(?:^|,)(?<ref>medieval_jewellery_[^,\r\n]+),",
+				RegexOptions.Multiline | RegexOptions.CultureInvariant)
+			.Cast<Match>()
+			.Select(x => x.Groups["ref"].Value)
+			.ToArray();
+		var fdescReferences = Regex.Matches(
+				fdescCatalogue,
+				@"^(?<ref>medieval_jewellery_[^,\r\n]+),",
+				RegexOptions.Multiline | RegexOptions.CultureInvariant)
+			.Cast<Match>()
+			.Select(x => x.Groups["ref"].Value)
+			.ToArray();
+		var sourceReferences = Regex.Matches(
+				jewellerySource,
+				@"CreateItem\s*\(\s*""(?<ref>medieval_jewellery_[^""]+)""",
+				RegexOptions.Multiline | RegexOptions.CultureInvariant)
+			.Cast<Match>()
+			.Select(x => x.Groups["ref"].Value)
+			.ToArray();
+
+		Assert.AreEqual(400, designReferences.Length,
+			"The medieval jewellery design reference should contain the full 400-item catalogue.");
+		CollectionAssert.AreEqual(designReferences, itemCatalogueReferences,
+			"The full item catalogue should stay in the same order as the design reference.");
+		CollectionAssert.AreEqual(designReferences, fdescReferences,
+			"The fdesc catalogue should stay in the same order as the design reference.");
+		CollectionAssert.AreEqual(designReferences, sourceReferences,
+			"SeedMedievalJewelleryAndDevotionalGoods should contain exactly one direct CreateItem call for each jewellery reference.");
+		Assert.AreEqual(sourceReferences.Length, sourceReferences.Distinct(StringComparer.OrdinalIgnoreCase).Count(),
+			"Each medieval jewellery item should be created exactly once.");
+		AssertContains(jewellerySource, @"""SealStamp_Medieval_NobleSignetRing""");
+		AssertContains(jewellerySource, "System.TimeSpan.FromHours(6.0)");
+		AssertContains(jewellerySource, "System.TimeSpan.FromDays(1.0)");
+
+		foreach (var forbidden in new[]
+		{
+			"foreach",
+			"for (",
+			"Dictionary<",
+			"IReadOnly",
+			"record ",
+			"BuildMedieval",
+			"SeedEraItemSpecs(",
+			"EnsureMedieval"
+		})
+		{
+			Assert.IsFalse(jewellerySource.Contains(forbidden, StringComparison.Ordinal),
+				$"SeedMedievalJewelleryAndDevotionalGoods should remain direct CreateItem calls without helper catalogue token {forbidden}.");
 		}
 	}
 
@@ -349,17 +425,27 @@ public class ItemSeederMedievalCraftingTests
 	[TestMethod]
 	public void MedievalFurnitureSeeder_ImplementsReferenceCatalogueWithDirectCreateItemCalls()
 	{
-		var furnitureSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder.Rework.MedievalFurniture.cs");
+		var householdSource = string.Join(Environment.NewLine,
+			new[]
+			{
+				"ItemSeeder.Rework.MedievalContainers.cs",
+				"ItemSeeder.Rework.MedievalDoorsLocksStrongboxes.cs",
+				"ItemSeeder.Rework.MedievalFood.cs",
+				"ItemSeeder.Rework.MedievalFurniture.cs",
+				"ItemSeeder.Rework.MedievalJewellery.cs"
+			}
+			.Select(x => ReadSource("DatabaseSeeder", "Seeders", x)));
 		var sourceReferences = Regex.Matches(
-				furnitureSource,
+				householdSource,
 				@"CreateItem\s*\(\s*""(?<ref>medieval_[^""]+)""",
 				RegexOptions.Multiline | RegexOptions.CultureInvariant)
 			.Cast<Match>()
 			.Select(x => x.Groups["ref"].Value)
+			.Where(x => !x.StartsWith("medieval_jewellery_", StringComparison.Ordinal))
 			.ToArray();
 
 		Assert.AreEqual(1751, sourceReferences.Length,
-			"SeedMedievalHouseholdFurniture should contain exactly one direct CreateItem call for each source catalogue row.");
+			"The medieval household goods split should contain exactly one direct CreateItem call for each source catalogue row.");
 		Assert.AreEqual(sourceReferences.Length, sourceReferences.Distinct(StringComparer.OrdinalIgnoreCase).Count(),
 			"Each medieval household item should be created exactly once.");
 
@@ -374,8 +460,8 @@ public class ItemSeederMedievalCraftingTests
 			"EnsureMedieval"
 		})
 		{
-			Assert.IsFalse(furnitureSource.Contains(forbidden, StringComparison.Ordinal),
-				$"SeedMedievalHouseholdFurniture should remain direct CreateItem calls without helper catalogue token {forbidden}.");
+			Assert.IsFalse(householdSource.Contains(forbidden, StringComparison.Ordinal),
+				$"Medieval household goods should remain direct CreateItem calls without helper catalogue token {forbidden}.");
 		}
 	}
 
@@ -504,6 +590,8 @@ public class ItemSeederMedievalCraftingTests
 				"Medieval_Crafting_Audit.md",
 				"Medieval_Clothing_Seeder_Design_Reference.md",
 				"Medieval_Household_Goods_Furniture_Seeder_Design_Reference.md",
+				"Medieval_Jewellery_Seeder_Dependency_Request.md",
+				"Medieval_Jewellery_Seeder_Design_Reference.md",
 				"Medieval_Military_Seeder_Design_Reference.md"
 			},
 			medievalDocs,
@@ -519,6 +607,7 @@ public class ItemSeederMedievalCraftingTests
 		AssertContains(indexSource, "[Medieval ItemSeeder Rebuild Audit](./Seeding/Medieval_Crafting_Audit.md)");
 		AssertContains(indexSource, "[Medieval Clothing Seeder Design Reference](./Seeding/Medieval_Clothing_Seeder_Design_Reference.md)");
 		AssertContains(indexSource, "[Medieval Household Goods and Furniture Seeder Design Reference](./Seeding/Medieval_Household_Goods_Furniture_Seeder_Design_Reference.md)");
+		AssertContains(indexSource, "[Medieval Jewellery Seeder Design Reference](./Seeding/Medieval_Jewellery_Seeder_Design_Reference.md)");
 		AssertContains(indexSource, "[Medieval Military Seeder Design Reference](./Seeding/Medieval_Military_Seeder_Design_Reference.md)");
 		AssertContains(indexSource, "[Medieval Writing, Books, and Documents Seeder Design Reference](./Seeding/FutureMUD_Medieval_Writing_Books_Documents_Design_Reference.md)");
 		AssertContains(indexSource, "[Medieval Treatment Items, Drugs, and Repair Kits Design Reference](./Seeding/FutureMUD_Medieval_Treatment_Drugs_Repair_Kits_Design_Reference.md)");
@@ -530,7 +619,7 @@ public class ItemSeederMedievalCraftingTests
 
 		var auditSource = ReadSource("Design Documents", "Seeding", "Medieval_Crafting_Audit.md");
 		AssertContains(auditSource, "`SeedMedievalClothing` contains the direct clothing item `CreateItem(...)` calls.");
-		AssertContains(auditSource, "`SeedMedievalHouseholdFurniture` contains the direct household goods");
+		AssertContains(auditSource, "`SeedMedievalHouseholdFurniture` contains the direct furniture");
 		AssertContains(auditSource, "Medieval_Clothing_Seeder_Design_Reference.md");
 		AssertContains(auditSource, "Medieval_Clothing_FDesc_Catalogue.csv");
 		AssertContains(auditSource, "Medieval_Household_Goods_Furniture_Seeder_Design_Reference.md");
@@ -539,6 +628,7 @@ public class ItemSeederMedievalCraftingTests
 		AssertContains(auditSource, "`SeedMedievalArmour` contains the direct armour, horse tack, barding, shield, and military support-gear `CreateItem(...)` calls.");
 		AssertContains(auditSource, "`SeedMedievalWritingAdministrationAndDocuments` contains the direct writing-surface, book, document, seal, container, scribal-tool, and writing-support `CreateItem(...)` calls.");
 		AssertContains(auditSource, "`SeedMedievalMedicalAndApothecaryItems` contains the direct treatment, apothecary, drug-delivery, mobility, casualty-transport, and prosthetic `CreateItem(...)` calls.");
+		AssertContains(auditSource, "`SeedMedievalJewelleryAndDevotionalGoods` contains the direct decorative jewellery");
 		AssertContains(auditSource, "`SeedMedievalRepairKits` contains the direct repair-kit and repair-supply `CreateItem(...)` calls.");
 		AssertContains(auditSource, "Medieval_Military_Seeder_Design_Reference.md");
 		AssertContains(auditSource, "ItemSeeder.Rework.MedievalWeapons.cs");
@@ -549,6 +639,9 @@ public class ItemSeederMedievalCraftingTests
 		AssertContains(auditSource, "FutureMUD_Medieval_Treatment_Drugs_Repair_Kits_Design_Reference.md");
 		AssertContains(auditSource, "ItemSeeder.Rework.MedievalMedical.cs");
 		AssertContains(auditSource, "ItemSeeder.Rework.MedievalRepairKits.cs");
+		AssertContains(auditSource, "Medieval_Jewellery_Seeder_Design_Reference.md");
+		AssertContains(auditSource, "FutureMUD_Medieval_Jewellery_Item_Catalogue_Full.csv");
+		AssertContains(auditSource, "FutureMUD_Medieval_Jewellery_FDesc_Catalogue.csv");
 		AssertContains(auditSource, "ItemSeeder.Rework.HistoricFoundation.cs");
 		AssertContains(auditSource, "ItemSeederCrafting.HistoricFoundation.cs");
 		Assert.IsFalse(auditSource.Contains("Medieval_Outfit_Catalogue.md", StringComparison.Ordinal),

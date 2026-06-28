@@ -153,7 +153,7 @@ public class Patrol : SaveableItem, IPatrol
             member.RemoveAllEffects<PatrolMemberEffect>(fireRemovalAction: true);
         }
 
-        PatrolLeader.Party?.Disband();
+        PatrolLeader?.Party?.Disband();
         LegalAuthority.PatrolController.ReportPatrolComplete(this);
         Delete();
     }

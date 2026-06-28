@@ -2,9 +2,13 @@
 using MudSharp.Accounts;
 using MudSharp.Celestial;
 using MudSharp.Character;
+using MudSharp.Character.Name;
+using MudSharp.Construction;
 using MudSharp.Economy.Currency;
 using MudSharp.Effects.Concrete;
 using MudSharp.Framework;
+using MudSharp.NPC;
+using MudSharp.NPC.AI;
 using MudSharp.RPG.Law;
 using System;
 using System.Collections.Generic;
@@ -38,6 +42,7 @@ public class LegalModule : Module<ICharacter>
 	#3legal laws [<legal authority>]#0 - shows all the laws
 	#3legal classes [<legal authority>]#0 - shows all the classes
 	#3legal enforcements [<legal authority>]#0 - shows all enforcer authorities
+	#3legal roster [<legal authority>|<zone>]#0 - shows the enforcer roster and patrol eligibility
 	#3legal patrols [<legal authority>]#0 - shows all patrol routes
 	#3legal cancelpatrol <legal authority> <patrol>#0 - cancels an active patrol
 
@@ -102,6 +107,10 @@ You can also use the following options to change the properties of an authority 
             case "enforcements":
                 LegalAuthorityEnforcements(actor, ss);
                 return;
+            case "roster":
+            case "enforcers":
+                LegalAuthorityEnforcerRoster(actor, ss);
+                return;
             case "patrols":
                 LegalAuthorityPatrols(actor, ss);
                 return;
@@ -128,6 +137,218 @@ You can also use the following options to change the properties of an authority 
         }
 
         actor.OutputHandler.Send(LegalAuthorityHelpText.SubstituteANSIColour());
+    }
+
+    private static void LegalAuthorityEnforcerRoster(ICharacter actor, StringStack ss)
+    {
+        ILegalAuthority editing = actor.CombinedEffectsOfType<BuilderEditingEffect<ILegalAuthority>>().FirstOrDefault()?.EditingItem;
+        ShowEnforcerRoster(actor, ss, editing);
+    }
+
+    private static List<ILegalAuthority> GetLegalAuthoritiesForEnforcerRoster(ICharacter actor, StringStack ss,
+        ILegalAuthority defaultAuthority)
+    {
+        if (ss.IsFinished)
+        {
+            if (defaultAuthority is not null)
+            {
+                return new List<ILegalAuthority> { defaultAuthority };
+            }
+
+            return actor.Gameworld.LegalAuthorities.ToList();
+        }
+
+        string targetText = ss.SafeRemainingArgument;
+        ILegalAuthority legal = actor.Gameworld.LegalAuthorities.GetByIdOrName(targetText);
+        if (legal is not null)
+        {
+            return new List<ILegalAuthority> { legal };
+        }
+
+        IZone zone = actor.Gameworld.Zones.GetByIdOrName(targetText);
+        if (zone is null)
+        {
+            actor.OutputHandler.Send(
+                $"The text {targetText.ColourCommand()} is not a valid legal authority or enforcement zone.");
+            return null;
+        }
+
+        List<ILegalAuthority> authorities = actor.Gameworld.LegalAuthorities
+                                                 .Where(x => x.EnforcementZones.Contains(zone))
+                                                 .ToList();
+        if (!authorities.Any())
+        {
+            actor.OutputHandler.Send(
+                $"The zone {zone.Name.ColourName()} is not an enforcement zone for any legal authority.");
+            return null;
+        }
+
+        return authorities;
+    }
+
+    private static bool HasEnforcerAI(ICharacter enforcer)
+    {
+        return enforcer is INPC npc && npc.AIs.Any(x => x is EnforcerAI);
+    }
+
+    private static IPatrol ActivePatrolForEnforcer(ILegalAuthority legal, ICharacter enforcer)
+    {
+        return legal.Patrols.FirstOrDefault(x => x.PatrolMembers.ContainsPhysicalInstance(enforcer));
+    }
+
+    private static string WhyCannotJoinPatrolPool(ILegalAuthority legal, ICharacter enforcer)
+    {
+        if (enforcer is not INPC)
+        {
+            return "not an NPC; automatic patrols only use NPCs";
+        }
+
+        if (!HasEnforcerAI(enforcer))
+        {
+            return "does not have an Enforcer AI";
+        }
+
+        if (!enforcer.AffectedBy<EnforcerEffect>(legal))
+        {
+            return "not currently on duty for this authority";
+        }
+
+        if (legal.GetEnforcementAuthority(enforcer) is null)
+        {
+            return "does not currently match any enforcement authority";
+        }
+
+        IPatrol activePatrol = ActivePatrolForEnforcer(legal, enforcer);
+        if (activePatrol is not null)
+        {
+            return $"already assigned to {activePatrol.PatrolRoute.Name} ({activePatrol.PatrolPhase.DescribeEnum()})";
+        }
+
+        return string.Empty;
+    }
+
+    private static bool IsInPatrolPool(ILegalAuthority legal, ICharacter enforcer)
+    {
+        return string.IsNullOrEmpty(WhyCannotJoinPatrolPool(legal, enforcer));
+    }
+
+    private static IEnumerable<ICharacter> EnforcerRosterCandidates(ICharacter actor, ILegalAuthority legal)
+    {
+        List<ICharacter> activePatrolMembers = legal.Patrols
+                                                   .SelectMany(x => x.PatrolMembers)
+                                                   .DistinctPhysicalInstances()
+                                                   .ToList();
+
+        return actor.Gameworld.Actors
+                    .Where(x =>
+                        x.AffectedBy<EnforcerEffect>(legal) ||
+                        activePatrolMembers.ContainsPhysicalInstance(x) ||
+                        legal.GetEnforcementAuthority(x) is not null)
+                    .DistinctPhysicalInstances();
+    }
+
+    private static string DescribeEnforcerRosterAuthority(ILegalAuthority legal, ICharacter enforcer)
+    {
+        IEnforcementAuthority currentAuthority = legal.GetEnforcementAuthority(enforcer);
+        if (currentAuthority is not null)
+        {
+            return currentAuthority.Name.ColourName();
+        }
+
+        EnforcerEffect effect = enforcer.EffectsOfType<EnforcerEffect>(x => x.LegalAuthority == legal).FirstOrDefault();
+        return effect?.EnforcementAuthority?.Name.ColourError() ?? "None".ColourError();
+    }
+
+    private static string DescribeEnforcerRosterPatrol(ILegalAuthority legal, ICharacter enforcer)
+    {
+        IPatrol activePatrol = ActivePatrolForEnforcer(legal, enforcer);
+        if (activePatrol is null)
+        {
+            return "None";
+        }
+
+        return $"{activePatrol.PatrolRoute.Name.ColourName()} ({activePatrol.PatrolPhase.DescribeEnum().ColourValue()})";
+    }
+
+    private static void ShowEnforcerRoster(ICharacter actor, StringStack ss, ILegalAuthority defaultAuthority = null)
+    {
+        List<ILegalAuthority> authorities = GetLegalAuthoritiesForEnforcerRoster(actor, ss, defaultAuthority);
+        if (authorities is null)
+        {
+            return;
+        }
+
+        StringBuilder sb = new();
+        foreach (ILegalAuthority legal in authorities)
+        {
+            List<(ICharacter Enforcer, bool OnDuty, bool InPool, string Authority, string Location, string Patrol, string Status)> rows =
+                EnforcerRosterCandidates(actor, legal)
+                    .Select(x =>
+                    {
+                        string whyNot = WhyCannotJoinPatrolPool(legal, x);
+                        bool inPool = string.IsNullOrEmpty(whyNot);
+                        return (
+                            Enforcer: x,
+                            OnDuty: x.AffectedBy<EnforcerEffect>(legal),
+                            InPool: inPool,
+                            Authority: DescribeEnforcerRosterAuthority(legal, x),
+                            Location: x.Location?.GetFriendlyReference(actor) ?? "Nowhere".ColourError(),
+                            Patrol: DescribeEnforcerRosterPatrol(legal, x),
+                            Status: inPool ? "eligible for patrol pool".ColourValue() : whyNot.ColourError()
+                        );
+                    })
+                    .OrderByDescending(x => x.InPool)
+                    .ThenByDescending(x => x.OnDuty)
+                    .ThenBy(x => x.Authority.StripANSIColour())
+                    .ThenBy(x => x.Enforcer.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreCanSee).StripANSIColour())
+                    .ToList();
+
+            if (sb.Length > 0)
+            {
+                sb.AppendLine();
+            }
+
+            sb.AppendLine($"Enforcer Roster for {legal.Name} Authority".GetLineWithTitleInner(actor, Telnet.BoldBlue, Telnet.BoldWhite));
+            sb.AppendLine();
+            sb.AppendLine($"Enforcement Zones: {legal.EnforcementZones.Select(x => x.Name.ColourName()).DefaultIfEmpty("None".ColourError()).ListToString()}");
+            sb.AppendLine($"Configured Authorities: {legal.EnforcementAuthorities.Select(x => x.Name.ColourName()).DefaultIfEmpty("None".ColourError()).ListToString()}");
+            sb.AppendLine($"On Duty: {rows.Count(x => x.OnDuty).ToStringN0Colour(actor)}");
+            sb.AppendLine($"In Patrol Pool: {rows.Count(x => x.InPool).ToStringN0Colour(actor)}");
+            sb.AppendLine($"Assigned To Patrols: {rows.Count(x => x.Patrol != "None").ToStringN0Colour(actor)}");
+            sb.AppendLine();
+            sb.AppendLine(StringUtilities.GetTextTable(
+                from item in rows
+                select new List<string>
+                {
+                    item.Enforcer.Id.ToStringN0(actor),
+                    item.Enforcer.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreCanSee),
+                    item.OnDuty.ToColouredString(),
+                    item.InPool.ToColouredString(),
+                    item.Authority
+                },
+                new List<string>
+                {
+                    "Id",
+                    "Enforcer",
+                    "Duty",
+                    "Pool",
+                    "Authority"
+                },
+                actor,
+                Telnet.Magenta,
+                1,
+                true));
+            sb.AppendLine();
+            sb.AppendLine("Patrol Pool Details:");
+            foreach (var item in rows)
+            {
+                sb.AppendLine(
+                    $"\t#{item.Enforcer.Id.ToStringN0(actor)} {item.Enforcer.PersonalName.GetName(NameStyle.FullName).ColourName()}: Location {item.Location}; Patrol {item.Patrol}; Status {item.Status}"
+                        .Wrap(actor.InnerLineFormatLength, "\t"));
+            }
+        }
+
+        actor.OutputHandler.Send(sb.ToString());
     }
 
     private static void LegalCancelPatrol(ICharacter actor, StringStack ss)
@@ -583,7 +804,7 @@ You can also use the following options to change the properties of an authority 
                           .Where(x =>
                               x.AffectedBy<EnforcerEffect>(legal))
                           .ToList();
-            List<ICharacter> freeEnforcers = enforcers.Where(x => legal.Patrols.All(y => !y.PatrolMembers.ContainsPhysicalInstance(x))).ToList();
+            List<ICharacter> freeEnforcers = enforcers.Where(x => IsInPatrolPool(legal, x)).ToList();
             CollectionDictionary<IEnforcementAuthority, ICharacter> enforcerCounts = new();
             foreach (IGrouping<IEnforcementAuthority, ICharacter> group in freeEnforcers.GroupBy(x => legal.GetEnforcementAuthority(x)))
             {
@@ -626,10 +847,30 @@ You can also use the following options to change the properties of an authority 
                 sb.AppendLine($"Strategy: {patrol.PatrolStrategy.Name.ColourValue()}");
                 sb.AppendLine($"Required Enforcers: {patrol.PatrollerNumbers.Select(x => $"{x.Value.ToStringN0(actor)} {x.Key.Name.Pluralise(x.Value != 1).ColourName()}").ListToString()}");
                 sb.AppendLine($"Is Ready: {patrol.IsReady.ToColouredString()}");
-                sb.AppendLine($"Should Begin: {patrol.ShouldBeginPatrol().ToColouredString()}");
+                string whyCannotBegin = patrol.WhyCannotBeginPatrol();
+                sb.AppendLine($"Should Begin: {string.IsNullOrEmpty(whyCannotBegin).ToColouredString()}");
+                if (!string.IsNullOrEmpty(whyCannotBegin))
+                {
+                    sb.AppendLine($"Reason: {whyCannotBegin.ColourError()}");
+                }
             }
         }
 
         actor.OutputHandler.Send(sb.ToString());
+    }
+
+    [PlayerCommand("ShowEnforcers", "showenforcers")]
+    [CommandPermission(PermissionLevel.JuniorAdmin)]
+    [HelpInfo("showenforcers", @"The #3showenforcers#0 command shows the enforcer roster for a legal authority or enforcement zone, including who is on duty, who is currently eligible for the automatic patrol pool, where they are, and why any listed enforcer cannot join a patrol.
+
+The syntax is:
+
+	#3showenforcers#0 - shows all legal authorities
+	#3showenforcers <legal authority>#0 - shows one legal authority
+	#3showenforcers <zone>#0 - shows authorities that enforce a zone", AutoHelp.HelpArgOrNoArg)]
+    protected static void ShowEnforcers(ICharacter actor, string command)
+    {
+        StringStack ss = new(command.RemoveFirstWord());
+        ShowEnforcerRoster(actor, ss);
     }
 }

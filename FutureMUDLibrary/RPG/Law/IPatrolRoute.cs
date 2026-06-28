@@ -23,5 +23,6 @@ namespace MudSharp.RPG.Law
         IPatrolStrategy PatrolStrategy { get; }
         bool IsReady { get; }
         bool ShouldBeginPatrol();
+        string WhyCannotBeginPatrol();
     }
 }

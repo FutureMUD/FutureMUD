@@ -163,16 +163,62 @@ public class PatrolRoute : SaveableItem, IPatrolRoute, IEditableItem
 
     public bool ShouldBeginPatrol()
     {
-        return
-            IsReady &&
-            PatrolNodes.Any() &&
-            PatrolStrategy is not ICrimeTargetedPatrolStrategy &&
-            PatrolStrategy is not CorpseRecoveryPatrolStrategy &&
-            (PatrolStrategy as IConfigurablePatrolStrategy)?.ReadyToBegin(this) != false &&
-            StartPatrolProg?.Execute<bool?>() != false &&
-            PatrollerNumbers.Any() &&
-            LegalAuthority.EnforcementZones.Any() &&
-            TimeOfDays.Contains(LegalAuthority.EnforcementZones.First().CurrentTimeOfDay);
+        return string.IsNullOrEmpty(WhyCannotBeginPatrol());
+    }
+
+    public string WhyCannotBeginPatrol()
+    {
+        if (!IsReady)
+        {
+            return "the route is not marked ready";
+        }
+
+        if (!PatrolNodes.Any())
+        {
+            return "the route has no patrol nodes";
+        }
+
+        if (PatrolStrategy is ICrimeTargetedPatrolStrategy)
+        {
+            return "crime-targeted routes wait for a matching reported crime";
+        }
+
+        if (PatrolStrategy is CorpseRecoveryPatrolStrategy)
+        {
+            return "corpse recovery routes wait for a pending corpse recovery report";
+        }
+
+        if (PatrolStrategy is IConfigurablePatrolStrategy configurable)
+        {
+            var strategyReason = configurable.WhyCannotBegin(this);
+            if (!string.IsNullOrEmpty(strategyReason))
+            {
+                return strategyReason;
+            }
+        }
+
+        if (StartPatrolProg?.Execute<bool?>() == false)
+        {
+            return "the start patrol prog returned false";
+        }
+
+        if (!PatrollerNumbers.Any())
+        {
+            return "the route does not require any enforcers";
+        }
+
+        if (!LegalAuthority.EnforcementZones.Any())
+        {
+            return "the legal authority has no enforcement zones";
+        }
+
+        var currentTimeOfDay = LegalAuthority.EnforcementZones.First().CurrentTimeOfDay;
+        if (!TimeOfDays.Contains(currentTimeOfDay))
+        {
+            return $"the current time of day ({currentTimeOfDay.Describe()}) is not one of the route's allowed times";
+        }
+
+        return string.Empty;
     }
 
     public int Priority { get; protected set; }

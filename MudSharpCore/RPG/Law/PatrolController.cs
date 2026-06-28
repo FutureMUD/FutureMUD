@@ -1,6 +1,8 @@
 ﻿using MudSharp.Character;
 using MudSharp.Effects.Concrete;
 using MudSharp.Framework;
+using MudSharp.NPC;
+using MudSharp.NPC.AI;
 using MudSharp.RPG.Law.PatrolStrategies;
 using MudSharp.Server;
 using System;
@@ -55,6 +57,8 @@ public class PatrolController : IPatrolController
             LegalAuthority.Gameworld.NPCs
                           .Where(x =>
                               x.AffectedBy<EnforcerEffect>(LegalAuthority) &&
+                              x is INPC npc &&
+                              npc.AIs.Any(y => y is EnforcerAI) &&
                               LegalAuthority.GetEnforcementAuthority(x) is not null &&
                               LegalAuthority.Patrols.All(y => !y.PatrolMembers.ContainsPhysicalInstance(x))
                           )

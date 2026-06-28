@@ -2051,7 +2051,7 @@ The syntax is simply #3returnbail#0.", AutoHelp.HelpArg)]
 
 Once you have engaged a lawyer, they will automatically attend your trial and defend you. The fee paid is taken immediately and cannot be refunded.
 
-You must either be in custody or otherwise at the jurisdiction's prison location to use this command.
+You must either be in custody, in one of the jurisdiction's remand cells, or otherwise at the jurisdiction's prison location to use this command.
 
 The syntax is as follows:
 
@@ -2071,6 +2071,11 @@ The syntax is as follows:
         if (ss.IsFinished || ss.PeekSpeech().EqualTo("me"))
         {
             who = actor;
+            if (!ss.IsFinished)
+            {
+                ss.PopSpeech();
+            }
+
             if (actor.AffectedBy<HasLegalCounsel>())
             {
                 actor.OutputHandler.Send("You already have legal counsel. You must fire your legal counsel before you can engage a new one.");
@@ -2089,19 +2094,23 @@ The syntax is as follows:
         }
         else
         {
-            jurisdiction = actor.Gameworld.LegalAuthorities.FirstOrDefault(x => x.PrisonLocation == actor.Location);
+            jurisdiction = actor.Gameworld.LegalAuthorities.FirstOrDefault(x =>
+                x.PrisonLocation == actor.Location ||
+                x.IsInRemandCell(actor));
             if (jurisdiction is null)
             {
-                actor.OutputHandler.Send($"You are not at the prison location of any legal jurisdiction.");
+                actor.OutputHandler.Send($"You are not at the prison location or in a remand cell of any legal jurisdiction.");
                 return;
             }
 
             List<ICharacter> prisoners = jurisdiction.CellLocations.SelectMany(x => x.Characters)
-                                        .Where(x => x.AffectedBy<AwaitingSentencing>(jurisdiction)).ToList();
+                                        .Where(x => x.AffectedBy<AwaitingSentencing>(jurisdiction))
+                                        .Where(x => !x.AffectedBy<HasLegalCounsel>())
+                                        .ToList();
             string whoText = ss.PopSpeech();
             if (whoText.EqualTo("list"))
             {
-                if (prisoners.All(x => x.AffectedBy<HasLegalCounsel>()))
+                if (!prisoners.Any())
                 {
                     actor.OutputHandler.Send("There are no prisoners in the cells who do not have a lawyer engaged.");
                     return;
@@ -2123,7 +2132,7 @@ The syntax is as follows:
             if (who is null)
             {
                 actor.OutputHandler.Send(
-                    $"There is no such prisoner who does not have legal representation currently on remand. Please see {"ENGAGELAWYER LIST".MXPSend("bailout list")} for a list of prisoners needing legal counsel.");
+                    $"There is no such prisoner who does not have legal representation currently on remand. Please see {"ENGAGELAWYER LIST".MXPSend("engagelawyer list")} for a list of prisoners needing legal counsel.");
                 return;
             }
 
@@ -2396,6 +2405,49 @@ The syntax is as follows:
         return string.Empty;
     }
 
+    private static string DescribeTrialDocketChargeSummary(IEnumerable<ICrime> crimes, IFormatProvider voyeur)
+    {
+        List<string> summaries = crimes
+                                 .GroupBy(x => x.Name)
+                                 .OrderByDescending(x => x.Count())
+                                 .ThenBy(x => x.Key)
+                                 .Select(x => x.Count() == 1 ? x.Key : $"{x.Key} x{x.Count().ToStringN0(voyeur)}")
+                                 .ToList();
+        if (!summaries.Any())
+        {
+            return "None";
+        }
+
+        List<string> visible = summaries.Take(3).ToList();
+        if (summaries.Count > visible.Count)
+        {
+            visible.Add($"{(summaries.Count - visible.Count).ToStringN0(voyeur)} more");
+        }
+
+        return visible.ListToString();
+    }
+
+    private static string DescribeTrialDocketCrimeIds(IEnumerable<ICrime> crimes, IFormatProvider voyeur)
+    {
+        List<string> ids = crimes
+                           .OrderBy(x => x.RealTimeOfCrime)
+                           .Select(x => $"#{x.Id.ToStringN0(voyeur)}")
+                           .ToList();
+        if (!ids.Any())
+        {
+            return "None";
+        }
+
+        const int maximumVisibleIds = 8;
+        List<string> visible = ids.Take(maximumVisibleIds).ToList();
+        if (ids.Count > visible.Count)
+        {
+            visible.Add($"+{(ids.Count - visible.Count).ToStringN0(voyeur)} more");
+        }
+
+        return visible.ListToString();
+    }
+
     private static void TrialDocket(ICharacter actor, StringStack ss)
     {
         List<ILegalAuthority> authorities = JudgementAuthorities(actor);
@@ -2451,8 +2503,8 @@ The syntax is as follows:
                     defendant.PersonalName.GetName(NameStyle.FullName),
                     DescribeTrialDocketStatus(defendant, authority),
                     DescribeTrialDocketSince(defendant, authority),
-                    crimes.Select(x => x.Id.ToStringN0(actor)).ListToString(),
-                    crimes.Select(x => x.Name).Distinct().ListToString(),
+                    crimes.Count.ToStringN0(actor),
+                    DescribeTrialDocketChargeSummary(crimes, actor),
                     priors.ToStringN0(actor)
                 },
                 new List<string>
@@ -2461,13 +2513,24 @@ The syntax is as follows:
                     "Name",
                     "Status",
                     "Since/Due",
-                    "Crime IDs",
-                    "Charges",
+                    "Open",
+                    "Charge Summary",
                     "Priors"
                 },
                 actor,
                 Telnet.Red
             ));
+            sb.AppendLine();
+            sb.AppendLine("Charge IDs by Defendant:");
+            foreach (ICharacter defendant in defendants)
+            {
+                List<ICrime> crimes = authority.KnownCrimesForIndividual(defendant)
+                                               .OrderBy(x => x.RealTimeOfCrime)
+                                               .ToList();
+                sb.AppendLine(
+                    $"\t{defendant.PersonalName.GetName(NameStyle.FullName).ColourName()}: {DescribeTrialDocketCrimeIds(crimes, actor)}"
+                        .Wrap(actor.InnerLineFormatLength, "\t"));
+            }
             sb.AppendLine();
             sb.AppendLine("Use #3crimeinfo <id>#0 for charge details, #3rapsheet <visible target>#0 for full local history, and #3trial summon <target>#0 from the courtroom to begin a PC-held trial.".SubstituteANSIColour());
             sb.AppendLine();

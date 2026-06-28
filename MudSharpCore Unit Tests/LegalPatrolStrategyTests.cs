@@ -92,6 +92,24 @@ public class LegalPatrolStrategyTests
 		StringAssert.Contains(detainedBlock, "if (!leader.CouldMove(false, null).Success)");
 	}
 
+	[TestMethod]
+	public void PatrolRouteDiagnostics_ShouldExposeReasonWhenInactiveRouteCannotBegin()
+	{
+		string routeInterfaceSource = File.ReadAllText(GetLibrarySourcePath("RPG", "Law", "IPatrolRoute.cs"));
+		string configurableStrategySource = File.ReadAllText(GetLibrarySourcePath("RPG", "Law", "IConfigurablePatrolStrategy.cs"));
+		string routeSource = File.ReadAllText(GetCoreSourcePath("RPG", "Law", "PatrolRoute.cs"));
+		string executionStrategySource = File.ReadAllText(GetCoreSourcePath("RPG", "Law", "PatrolStrategies", "ExecutionPatrolStrategy.cs"));
+		string legalModuleSource = File.ReadAllText(GetCoreSourcePath("Commands", "Modules", "LegalModule.cs"));
+
+		StringAssert.Contains(routeInterfaceSource, "string WhyCannotBeginPatrol();");
+		StringAssert.Contains(configurableStrategySource, "string WhyCannotBegin(IPatrolRoute patrol)");
+		StringAssert.Contains(routeSource, "public string WhyCannotBeginPatrol()");
+		StringAssert.Contains(routeSource, "crime-targeted routes wait for a matching reported crime");
+		StringAssert.Contains(routeSource, "the start patrol prog returned false");
+		StringAssert.Contains(executionStrategySource, "there is no due condemned prisoner for this authority");
+		StringAssert.Contains(legalModuleSource, "Reason: {whyCannotBegin.ColourError()}");
+	}
+
 	private static Mock<ICrime> CreateCrime(CrimeTypes crimeType, DateTime realTime, bool known)
 	{
 		var law = new Mock<ILaw>();
@@ -121,6 +139,20 @@ public class LegalPatrolStrategyTests
 				"..",
 				"..",
 				"MudSharpCore"
+			}.Concat(segments).ToArray()));
+	}
+
+	private static string GetLibrarySourcePath(params string[] segments)
+	{
+		return Path.GetFullPath(Path.Combine(
+			new[]
+			{
+				AppContext.BaseDirectory,
+				"..",
+				"..",
+				"..",
+				"..",
+				"FutureMUDLibrary"
 			}.Concat(segments).ToArray()));
 	}
 }

@@ -1,836 +1,510 @@
 # FutureMUD Medieval Jewellery Seeder Design Reference
 
-This document defines the research framing, scope, component strategy, culture coverage, item-category plan, and first-pass catalogue architecture for decorative medieval jewellery in the FutureMUD Item Seeder.
+This post-catalogue edition defines the decorative medieval jewellery package for the FutureMUD Item Seeder. It covers personal adornment across the existing 500AD-1300AD medieval culture slice and includes the full 400-row item-catalogue plan. The companion CSV `FutureMUD_Medieval_Jewellery_FDesc_Catalogue.csv` carries the player-facing full descriptions keyed by `unique_reference`.
 
-It is focused on **decorative personal adornment**. Religious furnishings, devotional containers, ritual supplies, scripture supports, reliquaries, prayer tools, pilgrim badges, explicitly sacred amulets, and other devotional/religious goods belong to the existing religious-goods branch or a later devotional-personal-items branch. The jewellery branch may include socially meaningful, heraldic, civic, courtly, family, guild, romantic, seasonal, and festival jewellery, but base prototypes should not encode religious function or sacred text.
-
-## Dependency review status
-
-The previous dependency request has now been implemented on `master` and this design reference has been revised to treat those dependencies as **available implementation vocabulary**, not future gaps.
-
-The current master dependency pass provides:
-
-- precise wearable component profiles for brooches, paired brooches, pins, badges, hairpins, hair combs, hair ornaments, temple rings, circlets, diadems, coronets, crowns, chaplets, wreaths, head garlands, neck garlands, wrist garlands, ankle garlands, torcs, neck rings, waist chains, girdle ornaments, belt ornaments, belt plaques, waist ornaments, and forehead ornaments;
-- ring-compatible medieval signet seal-stamp component prototypes for mechanically functional signet rings;
-- finished-jewellery function tags, piercing refinements, garland/wreath refinements, and a full `Market / Jewellery` branch;
-- solid-material support for coral, rock crystal, faience, enamel, niello, silver-gilt, gilded bronze, gilded copper, mother-of-pearl, nacre, cowrie shell, conch shell, tortoiseshell, flowers, petals, and named floral/leaf materials;
-- optional jewellery variable components for motifs, flowers, metal finish, bead pattern, jewellery shape, and inlay style.
-
-Therefore the full 400-row catalogue should not skip brooches, pins, badges, hair ornaments, circlets, garlands, wreaths, temple rings, torcs, or waist ornaments. They are now first-class targets.
+It is focused on **decorative personal adornment**. Religious furnishings, devotional containers, ritual supplies, scripture supports, reliquaries, prayer tools, pilgrim badges, explicitly sacred amulets, and other devotional/religious goods belong to the existing religious-goods branch or a personal-devotional branch. The jewellery branch includes secular, social, heraldic-ready, civic, courtly, family, guild, romantic, seasonal, festival, and ephemeral jewellery without encoding sacred function in the base prototypes.
 
 ## Executive summary
 
-- Total target unique item prototypes for the first full catalogue: **about 400**.
-- This document prepares the item-creation pass. It does not enumerate every final `CreateItem(...)` row.
-- The catalogue should cover commoner adornment, urban and merchant jewellery, professional and guild display pieces, elite and high-noble jewellery, courtly display jewellery, child/apprentice jewellery, courtship and wedding gifts, and short-lived organic adornment such as fresh garlands, flower chaplets, herb bracelets, leaf wreaths, and blossom ankle garlands.
-- The branch uses the same **500AD-1300AD** medieval world slice as the clothing, household, writing, and military references.
-- The branch should be **shared-first**. Regional items are justified where visible form, body slot, material, social use, or craft tradition meaningfully differs. Skins should carry local motifs, household marks, guild marks, exact flower choices, exact gemstones, heraldry, inscriptions, and fantasy-world naming.
-- All ordinary jewellery items are finished goods, skinnable, player-visible, and portable. Most should include `Holdable`, one precise wearable component, and one appropriate destroyable component.
-- Decorative jewellery should not receive `Armour_*`, `Insulation_*`, container, lock, weapon, light-source, identity-obscuring, or trait-changing components unless a later mechanical branch explicitly designs that behaviour.
-- Functional signet rings are now possible, but should be deliberate: a decorative signet-like ring uses `Wear_Ring`; a functional sealing ring uses `Wear_Ring` plus an appropriate `SealStamp_Medieval_*` component only when the item should actually apply seals.
-- Fresh organic jewellery should normally use timed morph targets when authored: fresh item -> wilted item -> dried item where the dried target is worth retaining.
-- The catalogue should deliberately include cheap and temporary pieces. Medieval jewellery should not be only noble gemstone jewellery; ordinary adornment, festival display, keepsakes, trade beads, copper rings, shell strings, bone beads, coloured glass, and fresh flowers are important for social texture.
-
-## Scope and era model
-
-- Chronological band: **500AD to 1300AD**.
-- Geographic coverage: Britain and Ireland; Scandinavia and the North Sea; western, central, and southern Europe; Iberia; Byzantium; the Levant; Egypt and North Africa; the Eurasian steppe; Rus/Novgorod; northern and southern India; China; Korea; and Japan.
-- Historical inspiration families: Early Anglo-Saxon, Anglo-Danish, Norse / Viking Age, Norman, Anglo-Norman, High English / British, Irish / Gaelic, Scottish / Gaelic-Lowland, Carolingian / Frankish, Capetian French, Holy Roman Empire / German, Christian Iberian, Andalusian, Byzantine, Abbasid, Fatimid, Seljuk / Ayyubid-Mamluk, Magyar, Rus / Novgorod, Steppe Turkic / Mongol, North Indian / Rajput, South Indian / Chola, Song China, Goryeo Korea, Heian / Kamakura Japan. These labels are builder-facing organizational buckets, not public item wording.
-- Resolution: standard jewellery prototypes rather than museum-taxonomy subtypes. The default rows should be credible as unskinned objects; skins can provide exact motifs, owner marks, heraldry, enamel patterning, gemstone choices, workshop marks, rank marks, dynastic signs, textile colours, flower species, and world-specific naming.
-- Culture labels are used to ensure design coverage. They should not be mechanically inserted into `noun`, `sdesc`, or `fdesc` unless the object term itself is useful and period-appropriate.
-- Coverage deliberately excludes late medieval and Renaissance jewellery forms that primarily belong after 1300, such as mature Tudor and later early-modern pendant forms, post-medieval gimmal-ring fashion, Renaissance hat jewels, elaborate late chivalric livery badges, and modern jewellery categories.
-
-### Culture coverage table
-
-| Inspiration family | Reference anchor | Coverage boundary | Jewellery-design focus |
-|---|---:|---|---|
-| Early Anglo-Saxon | c. 800AD | lowland England before sustained Anglo-Danish synthesis | bead strings, simple finger rings, disc brooches, pins, glass beads, amber, bone, bronze, silver, and elite garnet-like display |
-| Anglo-Danish | c. 950AD | late Anglo-Saxon England under strong Scandinavian settlement influence | mixed North-Sea bead strings, arm rings, rings, paired brooches, pins, silver display, amber, glass, and imported beadwork |
-| Norse / Viking Age | c. 950AD | Scandinavia and diaspora settlements before the close of the Viking Age | paired brooches, bead festoons, arm rings, neck rings, torcs, finger rings, amber, glass, silver, bronze, and portable wealth display |
-| Norman | c. 1066AD | ducal Normandy and conquest-generation Norman sphere | simple rings, ring brooches, cloak pins, belt ornaments, modest silver/gilt display, and elite gems without later court extravagance |
-| Anglo-Norman | c. 1150AD | post-Conquest England and Norman-influenced Britain | annular brooches, small rings, signet-like rings, courtly necklaces, girdle ornaments, enamel-like colour language, and urban merchant jewellery |
-| High English / British | c. 1250AD | high medieval England and Welsh March/British court-facing styles | signet rings, gem rings, annular brooches, jewelled belt ornaments, chains, circlets, courtly pins, civic badges, and fine silver or gold merchant jewellery |
-| Irish / Gaelic | c. 1100AD | Gaelic Ireland before strong late-medieval English tailoring influence | penannular and ring-brooch families, cloak pins, amber and glass beads, silver rings, torc-like collars where conservative, and elite interlace-ready display |
-| Scottish / Gaelic-Lowland | c. 1250AD | medieval Scotland across Gaelic and Lowland spheres | brooches, cloak pins, ring pins, simple rings, amber and glass, silver display, and Lowland court jewellery overlapping western European forms |
-| Carolingian / Frankish | c. 800AD | Frankish court and common household practice under Carolingian influence | brooches, belt ornaments, glass beads, bronze and silver rings, elite gold, garnet-like stones, and courtly necklace or pendant forms kept non-devotional |
-| Capetian French | c. 1200AD | northern and central French high medieval sphere | courtly rings, chains, circlets, annular brooches, gem settings, enamel, silver-gilt, gold, and noble love or household tokens |
-| Holy Roman Empire / German | c. 1200AD | German-speaking imperial regions and neighbouring central European towns | rings, brooches, chains, civic and guild ornaments, belt plaques, silver and goldsmith display, and merchant-class jewellery |
-| Christian Iberian | c. 1200AD | Leonese, Castilian, Aragonese, Navarrese, and neighbouring Christian Iberian contexts | rings, earrings, filigree-like metalwork, court necklaces, belt ornaments, glass and precious stones, and western-Islamicate overlap without religious coding |
-| Andalusian | c. 1100AD | al-Andalus and western Islamic Iberia | earrings, bracelets, anklets, necklaces, filigree-like work, coloured glass, pearls, coral, gold, silver, and urban luxury jewellery |
-| Byzantine | c. 1000AD | middle Byzantine Constantinopolitan and provincial contexts | gold rings, earrings, necklaces, pearl and glass display, enamel panels, courtly chains, bracelets, diadems, and high-status ornament that stays decorative rather than liturgical |
-| Abbasid | c. 850AD | Baghdad-centred early medieval Islamic urban and scholarly contexts | urban luxury rings, earrings, bracelets, anklets, filigree-like and granulated-looking metalwork, pearls, glass, gold, silver, and merchant display |
-| Fatimid | c. 1050AD | Fatimid Egypt and North African urban/textile contexts | gold earrings, bracelets, bead strings, anklets, pearls, glass, coral, and fine urban jewellery suitable for warm-climate textile outfits |
-| Seljuk / Ayyubid-Mamluk | c. 1200AD | Anatolia, Syria, Egypt, and crusading-era eastern Mediterranean | rings, armlets, bracelets, anklets, earrings, pendants, belt ornaments, turquoise-like and carnelian-like colour, gold, silver, and mounted-elite display |
-| Magyar | c. 950AD | Carpathian Basin Magyar and steppe-to-central-Europe context | belt ornaments, temple rings, earrings, silver rings, pendants, beads, and mobile elite display |
-| Rus / Novgorod | c. 1100AD | Kievan Rus and Novgorod-facing northern Slavic/Norse-Byzantine intersections | temple rings, bead strings, pendant necklaces, rings, bracelets, silver, glass, amber, and Byzantine-influenced elite pieces |
-| Steppe Turkic / Mongol | c. 1200AD | Inner Eurasian mounted steppe before and during early imperial Mongol expansion | belt plaques, hair ornaments, temple ornaments, silver earrings, rings, bead strings, non-magical amulet-shaped ornaments, and portable elite display |
-| North Indian / Rajput | c. 1100AD | north and north-western Indian contexts before heavy late Sultanate/Mughal tailoring dominance | bangles, anklets, toe rings, nose rings, earrings, necklaces, forehead ornaments, head ornaments, gold, silver, pearls, glass, conch shell, and fresh festival garlands |
-| South Indian / Chola | c. 1050AD | Chola and neighbouring south Indian temple and court environments | gold necklaces, bangles, anklets, toe rings, ear ornaments, forehead ornaments, head ornaments, pearls, gems, conch shell, jasmine, lotus, marigold, and warm-climate court or festival adornment |
-| Song China | c. 1100AD | Northern and Southern Song domestic, urban, and court baseline | hairpins, combs, hair ornaments, jade and gold ornaments, earrings where useful, bead strings, pendants, restrained court pieces, and scholar-household display |
-| Goryeo Korea | c. 1150AD | Goryeo-period Korean court, Buddhist, and scholarly baseline | hairpins, hair ornaments, rings, pendants, beads, jade-like stones, gilt metal, and restrained elite display |
-| Heian / Kamakura Japan | c. 1200AD | late Heian to early Kamakura court, temple, and warrior contexts | hair ornaments, combs, cords, bead strings, understated court ornaments, metal and lacquer-like visual treatment, and limited ring or earring use unless setting skins justify it |
-
-### Religious and devotional boundary table
-
-| Object family | Catalogue treatment | Notes and limits |
-|---|---|---|
-| Decorative rings, necklaces, bracelets, anklets, earrings, chains, circlets, bead strings, brooches, pins, badges, hair ornaments, waist ornaments, wreaths, and garlands | In scope | These are the core of this branch when their base purpose is adornment, status, fashion, affection, household identity, festival display, secular authority, or decorative rank. |
-| Secular signet rings and seal-like rings | In scope with caution | A non-functional decorative signet ring can be ordinary jewellery. A mechanically functional signet ring may combine `Wear_Ring` with `SealStamp_Medieval_RingSignet`, `SealStamp_Medieval_PersonalSignetRing`, `SealStamp_Medieval_MerchantSignetRing`, or `SealStamp_Medieval_NobleSignetRing` when seal behaviour is deliberately intended. |
-| Secular badges, household badges, civic badges, and guild/professional badges | In scope | Use `Wear_Badge` and keep exact household, civic, livery, guild, and heraldic signs in skins unless they change behaviour. |
-| Pilgrim badges, prayer beads, rosaries, relic pendants, reliquary lockets, explicitly sacred amulets, votive jewellery, scripture-inscribed charms | Out of scope for this branch | These belong to the devotional/religious branch or a later personal-devotional branch. Do not duplicate them here merely because they are wearable. |
-| Magical amulets, protective talismans, curse rings, healing gems, luck charms, disguise jewels | Out of scope by default | Decorative forms may exist, but no base row should imply magical or trait-changing behaviour unless a later fantasy mechanics branch approves it. |
-| Coins, bullion, raw gemstones, jewellery wire, loose settings, bead stock | Mostly out of scope | Finished jewellery belongs here. Raw craft stock belongs under material/crafting supply branches and may use jewellery craft-stock tags. |
-
-### Social and lifecycle coverage table
-
-| Social band or lifecycle | Catalogue intent | Example public forms |
-|---|---|---|
-| Rural and commoner adornment | Cheap, local, repairable, improvised, and seasonal pieces | copper ring, bone bead string, wooden bead necklace, shell bracelet, braided cord anklet, herb wreath, leaf garland |
-| Urban commoner and apprentice adornment | Slightly neater but still inexpensive goods | coloured glass necklace, brass bracelet, pewter ring, ribbon choker, small glass earrings, simple festival circlet |
-| Merchant and craft-guild display | Durable, visible, respectable jewellery with secular status | silver ring, stamped signet ring, merchant chain, guild-coloured bead string, brass belt plaque string, enamel-coloured brooch |
-| Lesser gentry and professional elites | Fine pieces without royal extravagance | silver-gilt necklace, garnet-like ring, pearl earrings, fine armlet, gem-set bracelet, decorative girdle ornament |
-| High nobility and court display | Rare, expensive, symbolic, and high-craft pieces | gold circlet, gemstone collar, jewelled chain, pearl necklace, heavy gold ring, enamelled diadem |
-| Festival, courtship, wedding, and household gift jewellery | Socially meaningful but not automatically religious | love-knot ring, paired bracelets, wreath, token necklace, household-colour bead string, bridal garland |
-| Ephemeral organic adornment | Short-lived pieces with morph targets where useful | fresh flower garland, herb bracelet, leaf crown, blossom anklet, festival wreath, dried garland |
-| Child and apprentice jewellery | Smaller, cheaper, safer-feeling pieces | tiny copper ring, wooden bead necklace, cord bracelet, shell anklet, coloured glass bead string |
-
-## Shared-first branch architecture
-
-### Default rule
-
-Create shared prototypes wherever the object can plausibly serve many cultures with only presentation changes. Most simple rings, copper rings, brass rings, silver rings, bead necklaces, glass bead strings, bone bracelets, shell bracelets, simple earrings, fresh garlands, leaf wreaths, gold chains, gem rings, brooches, pins, badges, and pearl necklaces should begin as shared prototypes.
-
-### When to create a culture-specific or regional item
-
-Create a separate regional or culture-family item when one or more of the following is true:
-
-- The body slot or component differs, such as nose ring, toe ring, paired anklets, armlet, temple rings, hairpin set, forehead ornament, waist chain, or neck garland.
-- The visible silhouette differs enough that a skin would mislead, such as a torc, paired oval brooches, temple rings, hairpin sets, broad bangles, coronets, diadems, or court circlets.
-- The primary material changes behaviour or major visual identity, such as metal versus glass versus bone versus leaf versus fresh flower.
-- The item is a culturally important jewellery system rather than decoration only, such as North-Sea bead-and-brooch sets, South Asian bangle/anklet/toe-ring sets, steppe belt-plaque display, Byzantine pearl-and-gold court ornaments, or East Asian hair ornaments.
-- The item fills a social or gameplay gap: commoner affordability, merchant respectability, high-noble rank display, festival ephemerality, child/apprentice scale, court gift exchange, or functional sealing.
-
-### What skins should carry instead
-
-Do not create new base prototypes merely for:
-
-- local fantasy-culture names
-- exact owner, household, clan, dynasty, guild, retinue, or court marks
-- heraldic devices
-- love mottoes
-- exact gemstone colour variation when a variable gem component can carry it
-- exact enamel patterning
-- religious meaning that should live in a devotional branch
-- floral species where `Variable_Flower` or skins can carry the exact flower without changing behaviour
-- decorative inscriptions without behaviour change
-- richer polish on an otherwise identical item
-
-### Shared category naming policy
-
-The recommended unique-reference prefix is `medieval_jewellery_`. Use additional stable sub-prefixes for work packages when useful:
-
-- `medieval_jewellery_ring_...`
-- `medieval_jewellery_neck_...`
-- `medieval_jewellery_wrist_...`
-- `medieval_jewellery_ankle_...`
-- `medieval_jewellery_ear_...`
-- `medieval_jewellery_head_...`
-- `medieval_jewellery_brooch_...`
-- `medieval_jewellery_pin_...`
-- `medieval_jewellery_badge_...`
-- `medieval_jewellery_hair_...`
-- `medieval_jewellery_waist_...`
-- `medieval_jewellery_garland_...`
-- `medieval_jewellery_regional_<family>_...`
-
-Keep identifiers lowercase snake case. Do not encode a real-world culture label into public `sdesc`; the unique reference can use builder-facing buckets when needed.
-
-## Seeder and project grounding rules
-
-- Use the project-standard `CreateItem(...)` seeder call shape during implementation.
-- `uniqueReference` values use lowercase snake case ASCII and should remain stable once accepted.
-- `noun` is compact and singular, usually the object form: `ring`, `necklace`, `chain`, `bracelet`, `bangle`, `armlet`, `anklet`, `earring`, `stud`, `choker`, `circlet`, `wreath`, `garland`, `brooch`, `pin`, `badge`, `pendant`, `bead-string`, `hairpin`, `comb`, `torc`, `diadem`, `coronet`, or `waist-chain` where appropriate.
-- `sdesc` is player-facing, concise, and normally begins with `a`, `an`, or `a pair of`. It should not end with a full stop.
-- `ldesc` is normally `null` for ordinary portable jewellery, allowing the default room display to apply.
-- `fdesc` is player-facing in-world prose: shape, visible material, polish, colour, setting, stone, beadwork, links, hinges, pins, clasps, twist, knotwork, stamped marks, surface wear, and how the item would sit when worn.
-- `material` must be an exact seeded solid material. Liquids and gases are not substitutes for solid primary materials.
-- `tags` must be exact seeded hierarchical tag paths.
-- `components` must be exact seeded component prototype names.
-- `inherentCost` is denominated in farthings. Use whole-farthing values unless a fractional farthing is deliberately intended.
-- Ordinary decorative jewellery should be skinnable and player-visible.
-- Ordinary portable jewellery should include `Holdable`.
-- No ordinary jewellery row should use a destroyed-item reference, hidden-player flag, non-skinnable flag, or long description by default.
-- Only ephemeral jewellery should normally use morph targets, morph emotes, or morph timers.
-
-## Component support strategy
-
-### Current supported jewellery wear slots
-
-The seeded component inventory now directly supports the following jewellery-relevant wearable components. Use these exact component names rather than approximating with hats, headbands, generic waist wear, or inert objects.
-
-| Jewellery form | Preferred component(s) | Notes |
-|---|---|---|
-| Finger rings | `Wear_Ring` | Use for decorative rings, love rings, signet-like rings, gem rings, and simple metal bands. |
-| Functional signet rings | `Wear_Ring` plus one `SealStamp_Medieval_*` component | Add seal-stamp behaviour only when the ring should actually apply seals. |
-| Necklaces and chains | `Wear_Necklace` | Use for bead strings, chains, pendants, loose collars, and many ordinary neck ornaments. |
-| Chokers and close collars | `Wear_Choker` | Use for narrow collars, close bead strings, ribbon chokers, and tight court necklaces. |
-| Torcs and rigid neck rings | `Wear_Torc`, `Wear_Neck_Ring` | Use `Wear_Torc` for torc-like forms and `Wear_Neck_Ring` for more generic rigid neck rings. |
-| Bracelets and bangles | `Wear_Bracelet`, `Wear_Bracelets` | Use singular or paired components according to the item description. |
-| Armlets | `Wear_Armlet` | Use for upper-arm ornaments, arm rings, and armlet rows. |
-| Anklets | `Wear_Anklet`, `Wear_Anklets` | Use singular or paired anklets. |
-| Earrings | `Wear_Earring`, `Wear_Earrings` | Use singular or paired earrings. Paired earrings should normally use the plural component. |
-| Nose rings and nose studs | `Wear_Nose_Ring` | Use for South Asian and other culturally justified rows; do not make it a universal default. |
-| Toe rings | `Wear_Toe_Ring` | Use mainly for South Asian-inspired rows unless a local fantasy setting expands the form. |
-| Brooches | `Wear_Brooch`, `Wear_Brooches` | Use for annular, ring, disc, penannular, paired oval, and court brooch forms. |
-| Pins | `Wear_Pin` | Use for cloak pins, ring pins, dress pins, straight pins, and ornamental garment pins. |
-| Badges | `Wear_Badge` | Use for secular household, civic, love, merchant, guild, and livery-adjacent badges. Keep pilgrim badges out of this branch. |
-| Hairpins | `Wear_Hairpin`, `Wear_Hairpins` | Use for single, paired, and set-like hairpin ornaments. |
-| Hair combs | `Wear_Hair_Comb`, `Wear_Hair_Combs` | Use for comb-backed hair ornaments, including tortoiseshell, wood, ivory, and metal combs. |
-| Generic hair ornaments | `Wear_Hair_Ornament`, `Wear_Hair_Ornaments` | Use for plaques, hair tablets, hair rings, and hard-to-classify hair jewellery. |
-| Temple rings | `Wear_Temple_Rings` | Use for Rus/Novgorod, Magyar, Slavic, and steppe temple-ring-like ornaments. |
-| Circlets | `Wear_Circlet` | Use for light metal circlets, pearl circlets, fine head jewellery, and court circlets. |
-| Diadems | `Wear_Diadem` | Use for narrow elite forehead/head ornaments. |
-| Coronets | `Wear_Coronet` | Use for lesser noble head regalia and high-status display without full crown language. |
-| Crowns | `Wear_Crown` | Use sparingly for true crown/regalia pieces if the item catalogue wants accessible regalia. |
-| Chaplets | `Wear_Chaplet` | Use for ribbon, leaf, flower, and festival chaplets. |
-| Wreaths | `Wear_Wreath` | Use for leaf wreaths, laurel-style wreaths, ivy wreaths, dried wreaths, and festival wreaths. |
-| Head garlands | `Wear_Head_Garland` | Use for head-worn flower garlands and blossom garlands. |
-| Neck garlands | `Wear_Neck_Garland` | Use for neck-worn flower garlands, South Asian festival garlands, and court/festival garlands. |
-| Wrist garlands | `Wear_Wrist_Garland` | Use for flower wrist garlands, herb wrist garlands, and festival bracelet-garlands. |
-| Ankle garlands | `Wear_Ankle_Garland` | Use for blossom anklets and festival ankle adornment. |
-| Waist chains | `Wear_Waist_Chain` | Use for decorative waist chains. Do not add belt capacity. |
-| Girdle ornaments | `Wear_Girdle_Ornament` | Use for dangling girdle ornaments, girdle jewels, and decorative girdle mounts. |
-| Belt ornaments and belt plaques | `Wear_Belt_Ornament`, `Wear_Belt_Plaques` | Use for jewellery-like belt-mounted display pieces. Do not use `Belt_*` unless attachment capacity is intended. |
-| Generic waist ornaments | `Wear_Waist_Ornament` | Use for waist jewellery that is not specifically a chain, belt plaque, or girdle jewel. |
-| Forehead ornaments | `Wear_Forehead_Ornament` | Use for South Asian head jewellery, forehead pendants, brow ornaments, and cautious court head ornaments. |
-| Brow or lip rings | `Wear_Brow_Ring`, `Wear_Lip_Ring` | Not ordinary defaults for the strict 500-1300 culture set. Reserve for fantasy/local variants or explicitly justified regional content. |
-
-### Signet-ring seal-stamp components
-
-Use these only when the ring should actually apply seals. A purely decorative signet-like ring should not carry a seal-stamp component.
-
-| Component | Use |
-|---|---|
-| `SealStamp_Medieval_RingSignet` | Generic functional wearable signet ring. |
-| `SealStamp_Medieval_PersonalSignetRing` | Personal or household signet ring. |
-| `SealStamp_Medieval_MerchantSignetRing` | Merchant, professional, notarial, guild, or trade signet ring. |
-| `SealStamp_Medieval_NobleSignetRing` | Noble, court, or high-status signet ring. |
-
-Seal designs, owner names, devices, guild signs, and heraldry should live in skins, seal metadata, or written content rather than being hardcoded into base rows.
-
-### Ordinary component pattern
-
-Most mechanically wearable jewellery rows should use:
-
-- `Holdable`
-- exactly one wearable component, except for functional signet rings that may additionally use one seal-stamp component
-- exactly one destroyable component
-- optional variable components where the public descriptions use their tokens
-
-Most intentionally loose, display-only, or craft-stock-adjacent ornaments should use:
-
-- `Holdable`
-- exactly one destroyable component
-- optional variable components
-
-Do not add armour, insulation, pockets, containers, locks, writing surfaces, sealable targets, light sources, weapon components, or trait-changing components to ordinary decorative jewellery.
-
-### Destroyable component mapping
-
-| Material or object family | Default destroyable component | Notes |
-|---|---|---|
-| Gold, silver, brass, bronze, copper, electrum, pewter, iron, steel, silver-gilt, gilded bronze, gilded copper, niello-dominant ornaments, and other dense metal jewellery | `Destroyable_HeavyMetal` | Use even for small objects when the item is primarily metal. |
-| Glass bead strings, fragile glass earrings, lead-glass pieces, enamel-dominant ornaments, faience beads, and fragile inlay-dominant rows | `Destroyable_Glassware` | A metal ring with a glass, enamel, or faience detail can still use `Destroyable_HeavyMetal`. |
-| Bone, horn, ivory, shell, cowrie shell, conch shell, mother-of-pearl, nacre, tortoiseshell, leather cord, wood, linen, silk, hemp, thread, leaf, herb, flower, petal, rush, and straw pieces | `Destroyable_Misc` or `Destroyable_Clothing` | `Destroyable_Misc` is usually adequate. Use `Destroyable_Clothing` only for textile-dominant wearable bands, ribbons, or fabric ornaments. |
-| Paper or parchment festival tokens | `Destroyable_Paper` | Only for intentionally paper/parchment ornaments. |
-
-### Ephemeral and morphing implementation rules
-
-Fresh organic jewellery is a narrow exception to the no-morph default.
-
-- Fresh garlands, wreaths, herb bracelets, flower strings, blossom anklets, and chaplets should normally have a wilted or dried morph target.
-- The morph target should be authored before fresh variants that point to it.
-- Use `morphToUniqueReference`, `morphEmote`, and `morphTimer` only when the row should automatically age.
-- A simple policy is: fresh -> wilted after 6-24 in-game hours; wilted -> dried after 1-3 in-game days only if a dried version is useful as an object.
-- Use exact seeded materials such as `flower`, `fresh flower`, `wilted flower`, `dried flower`, `petal`, `dried petal`, `rose`, `violet`, `daisy`, `jasmine`, `lotus flower`, `marigold`, `lily`, `chrysanthemum`, `blossom`, `ivy`, `laurel`, `rush`, or `straw` where appropriate.
-- Fresh organic jewellery should have low cost and low weight. It should remain skinnable so local flowers, colours, festival meanings, and symbolic associations can be supplied without new behaviour rows.
-
-Example morph pattern, not final item text:
-
-1. `medieval_jewellery_garland_wilted_flower_chaplet` as the first morph target.
-2. `medieval_jewellery_garland_dried_flower_chaplet` as the optional final retained object.
-3. `medieval_jewellery_garland_fresh_flower_chaplet` morphs to the wilted target after a moderate timer.
-4. Public `fdesc` describes visible freshness only; the morph emote handles wilting.
-
-## Player-facing description rules
-
-- Do not mention skins, base prototypes, standard implementations, seeder mechanics, builders, archaeology, uncertainty, or component implementation in `noun`, `sdesc`, `ldesc`, or `fdesc`.
-- Public text should describe visible form and material: band, hoop, link, bead, wire, pin, catch, hinge, clasp, setting, bezel, cabochon, pendant loop, chain, tablet, plaque, brooch pin, hairpin point, comb teeth, filigree-like twist, stamped pattern, punched dotting, enamel colour, niello-dark inlay, faience glaze, glass inlay, pearl-like bead, polished surface, tarnish, wear, cord, knot, woven thread, fresh petals, wilted stems, or drying leaves.
-- Public text should avoid real-world culture labels such as Anglo-Saxon, Norse, Norman, Frankish, Byzantine, Abbasid, Fatimid, Seljuk, Rus, Mongol, Indian, Chinese, Korean, or Japanese unless the object term itself is widely intelligible and appropriate.
-- Form names are acceptable when they identify the visible object rather than a people. Examples: `ring`, `necklace`, `chain`, `bead string`, `bracelet`, `bangle`, `armlet`, `anklet`, `earring`, `nose ring`, `toe ring`, `choker`, `circlet`, `garland`, `wreath`, `chaplet`, `brooch`, `pin`, `badge`, `pendant`, `collar`, `torc`, `diadem`, `coronet`, `hairpin`, `comb`, `temple ring`, `forehead ornament`, `girdle ornament`, `waist chain`, and `belt plaque`.
-- Do not make every item elite. Commoner descriptions should allow rough edges, simple wire, plain cord, mismatched beads, bone polish, shell chips, copper tarnish, and local material.
-- Avoid gender-default naming. Do not create unmarked `ring` plus marked `woman's ring` unless gender is visible in the object form. Builder-facing manifests can place jewellery in gendered outfit plans, but public item text should usually prefer form and social context.
-- Do not claim an item is sacred, protective, blessed, magical, royal by law, poison-bearing, a key, a seal, a coin purse, a storage locket, or a hiding place unless mechanics and branch scope support that claim.
-- Inscriptions should be handled by skins, writing blocks, seal metadata, or another content system. Avoid embedding exact readable text in base `fdesc` unless a deliberate writing block is used.
-
-## Skin strategy
-
-- All finished decorative jewellery should normally be skinnable.
-- A skin can override presentation fields and quality without changing behaviour.
-- Skins should carry high-variance presentation: exact gemstones, glass colours, enamel colour, local fantasy names, workshop marks, heraldic devices, clan or household signs, guild marks, love knots, owner marks, dynastic emblems, animal motifs, foliage motifs, border patterns, knotwork, granulation-like texture, filigree-like wire patterning, stamped marks, bead ordering, court colours, flower species, festival associations, and decorative inscriptions.
-- Default unskinned items still need to be credible standalone objects. Skinability must not excuse bland base descriptions.
-- Player-facing base descriptions should never say that a skin may later change the appearance.
-- For jewellery whose exact cultural name is important but not universal, put that name in the skin rather than the base row unless the form itself is the only clear player-facing noun.
-
-## Colour, gem, and variable policy
-
-Use variables when the same behaviour and construction can support multiple visible materials, colours, motifs, stones, or floral variants.
-
-| Variable component | Token(s) | Jewellery use |
-|---|---|---|
-| `Variable_CommonStone` | `$commonstone`, `$stone` | Ordinary cabochons, glass-like stones, agate-like stones, bead strings, trade stones, and low-to-mid value jewellery. |
-| `Variable_Gem` | `$gemcolor`, `$gem` | General gemstone jewellery where a broad gem vocabulary is desired. Good for merchant, gentry, and elite pieces that should vary by stone. |
-| `Variable_FineGem` | `$finegemcolor` | High noble, court, royal, very fine, or rare gemstone jewellery. Use sparingly. |
-| `Variable_BasicColour` | `$colour` | Textile cords, ribbons, simple enamel-like paint, fresh garland colours, and ordinary coloured glass where basic colour words suffice. |
-| `Variable_FineColour` | `$colour`, `$finecolor` | Elite enamel panels, court ribbons, fine textile backing, special festival colours, and richer colour vocabulary. |
-| `Variable_2BasicColour` | `$colour1`, `$colour2` | Simple two-colour bead strings, cords, or festival garlands. |
-| `Variable_2FineColour` | `$colour1`, `$colour2` | Elite two-colour bead, enamel, or ribbon-backed jewellery. |
-| `Variable_JewelleryMotif` | `$motif` | Decorative motifs on rings, brooches, pins, badges, chains, plaques, and circlets. |
-| `Variable_Flower` | `$flower` | Fresh garlands, chaplets, wreaths, flower bracelets, blossom anklets, and festival garlands. |
-| `Variable_MetalFinish` | `$finish` | Metal rings, bracelets, brooches, chains, badges, pins, plaques, and belt ornaments. |
-| `Variable_BeadPattern` | `$beadpattern` | Bead strings, necklaces, bracelets, anklets, temple ornaments, and mixed bead rows. |
-| `Variable_JewelleryShape` | `$shape` | Brooches, badges, pendants, plaques, beads, ring settings, and small enamel panels. |
-| `Variable_InlayStyle` | `$inlay` | Enamel panels, niello-like lines, glass inlay, shell inlay, and decorative inlay language. |
-| `Variable_DrabColour` and `Variable_2DrabColour` | `$colour`, `$drabcolor`, `$colour1`, `$colour2` | Only for intentionally tarnished, old, grimy, neglected, or poor-condition ornaments. Do not use as the default for simple common jewellery. |
-
-Variable usage must be grammatical. Examples:
-
-- `a $gem silver ring`
-- `a $commonstone bead necklace`
-- `a $colour braided cord bracelet`
-- `a $colour1 and $colour2 glass bead string`
-- `a fine $finegemcolor gold circlet`
-- `a $motif silver brooch`
-- `a $flower neck garland`
-- `a $finish bronze pin`
-- `a $beadpattern glass bead necklace`
-- `a $shape enamel badge`
-- `a $inlay silver-gilt hairpin`
-
-Where the stone or ornament materially changes the primary material, create separate rows only if behaviour or category changes. A gold ring set with amber should usually use `gold` as primary material and mention amber in `fdesc` or a variable. A necklace made mostly of amber beads should use `amber` as primary material.
-
-## Materials, sizes, quality, and cost assumptions
-
-### Recommended primary materials
-
-Use exact seeded material names. Suitable currently seeded materials include:
-
-- Metals: `gold`, `silver`, `sterling silver`, `silver-gilt`, `copper`, `brass`, `bronze`, `gilded bronze`, `gilded copper`, `electrum`, `pewter`, `lead`, `wrought iron`, `mild steel`, `carbon steel`, `niello`.
-- Gemstones and stones: `agate`, `amber`, `amethyst`, `aquamarine`, `aventurine`, `beryl`, `bloodstone`, `carnelian`, `chalcedony`, `citrine`, `diamond`, `emerald`, `garnet`, `jade`, `jasper`, `lapis lazuli`, `moonstone`, `onyx`, `opal`, `pearl`, `quartz`, `rock crystal`, `rose quartz`, `ruby`, `sapphire`, `smoky quartz`, `sunstone`, `topaz`, `turquoise`, `zircon`, and other exact seeded gemstone names.
-- Shell, hard organic, and animal-derived ornament: `coral`, `mother-of-pearl`, `nacre`, `cowrie shell`, `conch shell`, `tortoiseshell`, `bone`, `horn`, `ivory`, `shell`, `jet`.
-- Organic and low-cost materials: `leather`, `linen`, `silk`, `hemp`, `wool`, `leaf`, `lavender`, `chamomile`, `safflower`, `sunflower`, `flower`, `fresh flower`, `wilted flower`, `dried flower`, `petal`, `dried petal`, `rose`, `violet`, `daisy`, `jasmine`, `lotus flower`, `marigold`, `lily`, `chrysanthemum`, `blossom`, `ivy`, `laurel`, `rush`, `straw`, `wood`, `boxwood`, `rosewood`, `sandalwood`, `willow`, `bamboo`.
-- Glass and ceramic-like materials: `glass`, `soda-lime glass`, `lead glass`, `faience`, `enamel`, `ceramic`, `porcelain` where form and period support them.
-
-Aliases may exist for some materials, but item rows should use canonical exact material names. Prefer `silver-gilt` over `vermeil`, `gilded bronze` over `gilt bronze`, `gilded copper` over `gilt copper`, `mother-of-pearl` over `mother of pearl`, `cowrie shell` over `cowrie`, and `conch shell` over `conch` in the `material` field.
-
-### Primary material policy
-
-Primary material represents the dominant substance or behaviour-relevant body of the item, not every decorative inclusion.
-
-- Metal ring with stone: primary material is usually the metal.
-- Brooch made from silver-gilt: primary material can be `silver-gilt`.
-- Gilded copper badge: primary material can be `gilded copper`.
-- Niello-inlaid silver ring: primary material is usually `silver`; `niello` can appear in `fdesc` or as an inlay-style variable unless the item is niello-dominant craft stock.
-- Bead necklace dominated by glass beads: primary material can be `glass`.
-- Amber bead string: primary material can be `amber`.
-- Pearl necklace: primary material can be `pearl`.
-- Coral bead necklace: primary material can be `coral`.
-- Mother-of-pearl hair comb or shell-inlay pendant: primary material can be `mother-of-pearl` when shell is dominant.
-- Floral wreath or garland: primary material can be `fresh flower`, a specific flower, `ivy`, `laurel`, `rush`, or `straw` according to visible dominance and morph state.
-- Cord bracelet with a tiny metal charm: primary material is usually the cord material, such as `hemp`, `linen`, or `leather`.
-
-### Size and weight assumptions
-
-Most jewellery is `Tiny`, `VerySmall`, or `Small`.
-
-| Form | Typical size | Typical weight range |
-|---|---|---:|
-| Finger ring, toe ring, small stud | `Tiny` | 2-25g |
-| Ordinary earring or pair of earrings | `Tiny` or `VerySmall` | 3-60g |
-| Simple bracelet, bangle, armlet, anklet | `VerySmall` or `Small` | 15-250g |
-| Heavy arm ring, torc-like collar, court chain | `Small` | 100-800g |
-| Necklace, bead string, choker | `VerySmall` or `Small` | 20-350g |
-| Brooch, pin, badge | `Tiny`, `VerySmall`, or `Small` | 10-250g |
-| Hairpin, hair comb, temple rings | `Tiny`, `VerySmall`, or `Small` | 10-250g |
-| Circlet, diadem, chaplet, fresh garland, wreath | `Small` | 25-400g |
-| High regalia, coronet, crown, or heavy noble collar | `Small` or rarely `Normal` | 300-1500g |
-
-### Quality assumptions
-
-- `Poor`, `Substandard`, or `Standard`: cheap, roughly made, improvised, worn, commoner, apprentice, rural, or aged jewellery.
-- `Standard`: ordinary market jewellery and most simple metal/glass/bone/shell pieces.
-- `Good`: respectable merchant, professional, gentry, fine craft, imported, or carefully finished jewellery.
-- `VeryGood`: high noble, court, rare gemstone, exceptional craft, or highly visible status jewellery.
-- `Great` and above: very rare. Reserve for exceptional regalia, named treasures, special event pieces, or a later legendary/fantasy pass.
-
-### Cost assumptions
-
-Costs are relative seeder baselines in farthings, not universal market prices.
-
-| Band | Typical cost range | Examples |
-|---|---:|---|
-| Ephemeral organic | 1-8m | fresh flower garland, herb bracelet, festival wreath |
-| Cheap commoner | 2-24m | copper ring, bone bead bracelet, shell anklet, wooden bead necklace |
-| Ordinary urban | 12-72m | glass bead necklace, brass bangle, pewter ring, simple earrings |
-| Merchant / professional | 48-240m | silver ring, silver bracelet, small pearl earrings, respectable chain |
-| Lesser noble / gentry | 180-960m | silver-gilt necklace, gold ring, gem-set bracelet, fine circlet |
-| High noble / court | 960-5000m+ | jewelled gold chain, pearl collar, gemstone circlet, heavy noble regalia |
-
-Metal and gemstone values should dominate cost more than weight. A tiny gold gem ring can cost far more than a heavy bronze armlet.
-
-## Tagging policy
-
-Use exact seeded tag paths. Finished decorative jewellery should use a jewellery function tag and one `Market / Jewellery` tag whenever possible. Do not classify finished jewellery as household wares unless it is also deliberately a household good.
-
-### Core jewellery function tags
-
-Use one or more of these exact function tags according to form:
-
-```text
-Functions / Worn Items / Jewellery
-Functions / Worn Items / Jewellery / Anklets
-Functions / Worn Items / Jewellery / Armlets
-Functions / Worn Items / Jewellery / Badges
-Functions / Worn Items / Jewellery / Bead Strings
-Functions / Worn Items / Jewellery / Belt Ornaments
-Functions / Worn Items / Jewellery / Belt Plaques
-Functions / Worn Items / Jewellery / Bracelets
-Functions / Worn Items / Jewellery / Brooches
-Functions / Worn Items / Jewellery / Chaplets
-Functions / Worn Items / Jewellery / Chokers
-Functions / Worn Items / Jewellery / Circlets
-Functions / Worn Items / Jewellery / Coronets
-Functions / Worn Items / Jewellery / Crowns
-Functions / Worn Items / Jewellery / Diadems
-Functions / Worn Items / Jewellery / Earrings
-Functions / Worn Items / Jewellery / Forehead Ornaments
-Functions / Worn Items / Jewellery / Garlands
-Functions / Worn Items / Jewellery / Girdle Ornaments
-Functions / Worn Items / Jewellery / Hair Ornaments
-Functions / Worn Items / Jewellery / Head Ornaments
-Functions / Worn Items / Jewellery / Neck Garlands
-Functions / Worn Items / Jewellery / Neck Rings
-Functions / Worn Items / Jewellery / Necklaces
-Functions / Worn Items / Jewellery / Pendants
-Functions / Worn Items / Jewellery / Pins
-Functions / Worn Items / Jewellery / Piercings
-Functions / Worn Items / Jewellery / Rings
-Functions / Worn Items / Jewellery / Temple Rings
-Functions / Worn Items / Jewellery / Toe Rings
-Functions / Worn Items / Jewellery / Torcs
-Functions / Worn Items / Jewellery / Waist Chains
-Functions / Worn Items / Jewellery / Waist Ornaments
-Functions / Worn Items / Jewellery / Wreaths
-```
-
-### Piercing sub-tags
-
-```text
-Functions / Worn Items / Jewellery / Piercings / Ear Studs
-Functions / Worn Items / Jewellery / Piercings / Nose Rings
-Functions / Worn Items / Jewellery / Piercings / Nose Studs
-```
-
-### Garland and wreath refinements
-
-Use these where an ephemeral or seasonal row benefits from finer search/classification:
-
-```text
-Functions / Worn Items / Jewellery / Garlands / Dried Garlands
-Functions / Worn Items / Jewellery / Garlands / Flower Garlands
-Functions / Worn Items / Jewellery / Garlands / Fresh Garlands
-Functions / Worn Items / Jewellery / Garlands / Herb Garlands
-Functions / Worn Items / Jewellery / Garlands / Leaf Garlands
-Functions / Worn Items / Jewellery / Wreaths / Dried Wreaths
-Functions / Worn Items / Jewellery / Wreaths / Flower Wreaths
-Functions / Worn Items / Jewellery / Wreaths / Fresh Wreaths
-Functions / Worn Items / Jewellery / Wreaths / Herb Wreaths
-Functions / Worn Items / Jewellery / Wreaths / Leaf Wreaths
-```
-
-### Market tags
-
-Use one or more of these exact market tags according to social band and value:
-
-```text
-Market / Jewellery
-Market / Jewellery / Children's Jewellery
-Market / Jewellery / Commoner Jewellery
-Market / Jewellery / Court Jewellery
-Market / Jewellery / Ephemeral Jewellery
-Market / Jewellery / Festival Jewellery
-Market / Jewellery / Luxury Jewellery
-Market / Jewellery / Merchant Jewellery
-Market / Jewellery / Noble Jewellery
-Market / Jewellery / Professional Jewellery
-Market / Jewellery / Regalia
-Market / Jewellery / Simple Jewellery
-Market / Jewellery / Standard Jewellery
-```
-
-Market usage guidance:
-
-- `Market / Jewellery / Simple Jewellery`: cheap copper, bone, shell, wood, cord, common glass, rush, straw, and simple commoner rows.
-- `Market / Jewellery / Standard Jewellery`: ordinary market jewellery, pewter/brass/bronze rows, modest glass or silver rows.
-- `Market / Jewellery / Luxury Jewellery`: precious metals, gems, pearls, fine craft, elite merchant pieces, and gentry jewellery.
-- `Market / Jewellery / Court Jewellery`: court chains, circlets, diadems, high-status gold/gem rows, and formal display pieces.
-- `Market / Jewellery / Festival Jewellery`: fresh garlands, flower chaplets, ribbons, courtship pieces, and seasonal rows.
-- `Market / Jewellery / Children's Jewellery`: child-sized bead strings, tiny rings, cord bracelets, and harmless small adornments.
-- `Market / Jewellery / Merchant Jewellery`: respectable urban display pieces, signet-like rings, merchant chains, guild-colour bead strings.
-- `Market / Jewellery / Noble Jewellery`: high noble but not necessarily royal pieces.
-- `Market / Jewellery / Regalia`: rare crowns, coronets, symbolic court collars, and regalia-adjacent rows.
-- `Market / Jewellery / Ephemeral Jewellery`: short-lived organic pieces with morph targets or festival disposability.
-
-Do not use `Functions / Material Functions / Jewellery Craft Stock` tags for finished jewellery. Those tags are for raw or intermediate jewellery-making stock, such as wire, settings, beads, and metal stock.
-
-## Historical and design assumptions by inspiration family
-
-### Early Anglo-Saxon
-
-Reference anchor: c. 800AD. Support common bead strings, simple rings, copper or bronze pieces, glass and amber-like beads, disc brooches, pins, and elite gold/silver/garnet-like display. Public descriptions should focus on round shapes, punched decoration, inlay colour, and practical pin backs rather than ethnic labels.
-
-### Anglo-Danish
-
-Reference anchor: c. 950AD. Use a hybrid North-Sea vocabulary: bead strings, arm rings, simple rings, silver and bronze ornaments, glass beads, amber, brooches, paired brooches, and clothing ornaments. Hangerok-related brooches should not be duplicated from clothing unless the separate object matters to gameplay.
-
-### Norse / Viking Age
-
-Reference anchor: c. 950AD. This family needs bead festoons, arm rings, neck rings, torcs, simple finger rings, amber and glass bead strings, silver display pieces, and paired brooch silhouettes. Jewellery may be economically meaningful as portable wealth, but public descriptions should not call pieces currency unless they have currency behaviour.
-
-### Norman
-
-Reference anchor: c. 1066AD. The Norman plan should be restrained compared with later Capetian and High English jewellery: rings, simple brooches, cloak pins, belt fittings, silver or gilded ornament, and a few elite gem pieces. Avoid high-late-medieval livery badges and elaborate court jewels as defaults.
-
-### Anglo-Norman
-
-Reference anchor: c. 1150AD. Increase urban and court variety: annular brooches, ring brooches, simple signet-like rings, small chains, necklaces, girdle ornaments, glass or gem settings, and respectable merchant jewellery. Keep sacred badges and pilgrim signs outside this decorative branch.
-
-### High English / British
-
-Reference anchor: c. 1250AD. This branch supports the later end of the medieval slice: signet-like rings, functional signet rings where intended, gold rings, gem rings, annular brooches, fine chains, circlets, girdle ornaments, secular household badges, and high-noble display. Heraldry belongs mostly in skins.
-
-### Irish / Gaelic
-
-Reference anchor: c. 1100AD. Brooches, ring pins, penannular forms, cloak fasteners, amber/glass beads, silver rings, and torc-like collars are key visual anchors. Public text should use visible forms such as `ring brooch`, `cloak pin`, `bead necklace`, or `silver armlet` rather than culture labels.
-
-### Scottish / Gaelic-Lowland
-
-Reference anchor: c. 1250AD. Use both Gaelic cloak-fastener traditions and Lowland court/urban jewellery. Include silver brooches, rings, amber or glass bead strings, practical pins, merchant pieces, and noble pieces. Avoid projecting later specifically early-modern forms backwards.
-
-### Carolingian / Frankish
-
-Reference anchor: c. 800AD. Include brooches, belt ornaments, bead strings, simple rings, elite gold, garnet-like colour, silver and bronze pieces, and courtly display. Commoner pieces should remain mostly glass, bronze, copper, bone, shell, and cord.
-
-### Capetian French
-
-Reference anchor: c. 1200AD. This family can carry rich western court jewellery: gem rings, gold chains, silver-gilt necklaces, fine brooches, delicate circlets, love-token rings, and courtly belt ornaments. Avoid later fourteenth- and fifteenth-century extremes.
-
-### Holy Roman Empire / German
-
-Reference anchor: c. 1200AD. Use strong urban and court goldsmithing cues: rings, chains, brooches, civic ornaments, silver/gilt display, enamel colour, niello-like detail, and merchant-class respectability. Guild marks and city symbols should usually be skins.
-
-### Christian Iberian
-
-Reference anchor: c. 1200AD. The jewellery plan should sit between western European and Islamicate forms: earrings, rings, necklaces, bracelets, girdle ornaments, coloured glass, filigree-like wire, pearls, and gold/silver urban jewellery. Public base text should avoid dynastic or religious claims.
-
-### Andalusian
-
-Reference anchor: c. 1100AD. Include urban luxury jewellery: earrings, necklaces, bracelets, anklets, rings, filigree-like and granulated-looking work, pearls, coral, coloured glass, and gold or silver pieces. Keep religious inscriptions and devotional amulets out of base rows.
-
-### Byzantine
-
-Reference anchor: c. 1000AD. The family should have high-status gold, pearls, glass inlay, enamel panels, earrings, necklaces, bracelets, rings, court chains, diadems, and circlets. Decorative crosses and reliquary pendants belong elsewhere unless the item is deliberately secularized by skin.
-
-### Abbasid
-
-Reference anchor: c. 850AD. Include court and urban jewellery: rings, earrings, bracelets, anklets, bead strings, pearls, glass, gold, silver, and fine wire-like detail. Scholarly or official signet usage can be handled by decorative signet rings or functional signet-ring components where mechanical stamping is intended.
-
-### Fatimid
-
-Reference anchor: c. 1050AD. Warm-climate urban jewellery should emphasize earrings, bracelets, anklets, necklaces, beads, pearls, coral, glass, gold, and silver. Add merchant and court versions without making all pieces devotional or ceremonial.
-
-### Seljuk / Ayyubid-Mamluk
-
-Reference anchor: c. 1200AD. Include mounted-elite and urban jewellery: rings, armlets, bracelets, anklets, pendants, belt ornaments, chains, earrings, turquoise-like and carnelian-like colour, silver, and gold. The catalogue should support both practical travel display and courtly luxury.
-
-### Magyar
-
-Reference anchor: c. 950AD. Focus on mobile elite display: belt plaques, pendant ornaments, earrings, silver rings, temple rings, beads, and animal or geometric motif skins. Use the waist and belt ornament components for jewellery-like display rather than functional belt capacity.
-
-### Rus / Novgorod
-
-Reference anchor: c. 1100AD. Use bead strings, temple rings, silver rings, pendants, bracelets, amber, glass, and Byzantine-influenced elite forms. Cold-climate layers should not prevent visible jewellery; many items can be displayed at neck, wrist, ear, temple, or head.
-
-### Steppe Turkic / Mongol
-
-Reference anchor: c. 1200AD. Focus on portable wealth and mounted display: belt ornaments, belt plaques, earrings, rings, beads, pendants, silver and gilt pieces, head ornaments, and hair ornaments. Avoid magical talisman mechanics even where shapes look amulet-like.
-
-### North Indian / Rajput
-
-Reference anchor: c. 1100AD. This family needs broad jewellery coverage across body slots: necklaces, earrings, bangles, bracelets, anklets, toe rings, nose rings, forehead ornaments, head ornaments, pearls, gold, silver, glass, conch shell, and fresh garlands. This is one of the strongest justifications for `Wear_Nose_Ring`, `Wear_Toe_Ring`, `Wear_Forehead_Ornament`, paired bracelets, paired anklets, and neck garlands.
-
-### South Indian / Chola
-
-Reference anchor: c. 1050AD. Use gold-heavy court and temple-adjacent decorative forms while keeping devotional function out of the base rows: layered necklaces, bangles, anklets, toe rings, earrings, forehead ornaments, head ornaments, pearls, gems, conch shell, jasmine, lotus, marigold, and fresh flower garlands. Floral jewellery should be represented as short-lived morphing objects where useful.
-
-### Song China
-
-Reference anchor: c. 1100AD. Rings are less central than hair and head ornaments, pins, combs, pendants, jade-like pieces, gold, and restrained bead strings. Use the hairpin, hair comb, hair ornament, circlet, and forehead ornament components where they fit visible form.
-
-### Goryeo Korea
-
-Reference anchor: c. 1150AD. Include restrained court ornaments, hairpins, hair ornaments, pendants, jade-like stones, beads, rings where useful, and gilt metal. Avoid overproducing western-style ring and necklace forms for this family.
-
-### Heian / Kamakura Japan
-
-Reference anchor: c. 1200AD. Jewellery coverage should emphasize hair ornaments, combs, cords, bead strings, small pendants, and understated elite display rather than abundant finger rings. Use hairpin, hair comb, hair ornament, and head ornament slots where appropriate.
-
-## Category implementation rules
+- Total accepted/planned decorative jewellery item prototypes in this catalogue: **400**.
+- The catalogue covers commoner adornment, urban and merchant jewellery, professional and guild display pieces, elite and high-noble jewellery, courtly display jewellery, child/apprentice jewellery, courtship and wedding gifts, brooches and fasteners, hair/head ornaments, waist ornaments, and short-lived organic adornment such as fresh garlands, flower chaplets, herb bracelets, leaf wreaths, and blossom ankle garlands.
+- All ordinary jewellery rows are finished goods, skinnable, player-visible, portable, and include `Holdable`, exactly one ordinary wearable component, and exactly one destroyable component unless a functional signet ring deliberately also carries one seal-stamp component.
+- Functional signet rings are included only where mechanical seal behaviour is intended. Decorative signet-like rings remain ordinary `Wear_Ring` jewellery.
+- Fresh organic jewellery rows are paired with wilted and dried morph targets where useful. The row notes record the intended morph chain; seeder calls use those references.
+- Player-facing `fdesc` values are maintained in the companion CSV rather than repeated in the markdown table, following the pattern used by other large seeder references.
+
+## Source and authoring rules applied
+
+- `unique_reference` values are lowercase snake case, stable, and prefixed with `medieval_jewellery_`.
+- `sdesc` values are concise, player-facing, and do not end with full stops.
+- `fdesc` values in the CSV are individually written, in-world descriptions focusing on visible construction, shape, colour, finish, wear, and material without unsupported mechanics.
+- `material` values are exact seeded solid materials; liquids and gases are not used as substitutes for solid primary materials.
+- `tags` use exact seeded jewellery and market tag paths.
+- `components` use exact seeded item component prototype names. Ordinary rows use one wearable component and one destroyable component; signet rows may additionally use one `SealStamp_Medieval_*` component.
+- Ordinary rows do not use armour, insulation, container, lock, weapon, light-source, identity-obscuring, hidden-storage, or trait-changing components.
+
+## Catalogue distribution
+
+| Category | Row count |
+|---|---:|
+| Shared commoner and ephemeral adornment | 52 |
+| Rings and signet-like rings | 55 |
+| Neck adornment | 54 |
+| Wrist, arm, ankle, and toe adornment | 58 |
+| Earrings and culturally justified piercings | 34 |
+| Brooches, pins, badges, and fasteners | 58 |
+| Head ornaments, hair ornaments, circlets, wreaths, and garlands | 45 |
+| Waist ornaments, belt plaques, hanging ornaments, and court chains | 26 |
+| Elite sets, regional statement pieces, and rare court goods | 18 |
+| **Total** | **400** |
+
+## Item catalogue
+
+The table below is the full 400-row planning catalogue. `Components` and `Tags` use `<br>` separators for readability. Full descriptions are in `FutureMUD_Medieval_Jewellery_FDesc_Catalogue.csv`, keyed by `unique_reference`.
+
+### Shared commoner and ephemeral adornment
+
+| Unique reference | SDesc | Noun | Material | Size / Quality | Weight / Cost | Components | Tags | Morph | Notes |
+|---|---|---|---|---|---:|---|---|---|---|
+| `medieval_jewellery_common_twisted_copper_ring` | a twisted copper ring | `ring` | `copper` | `Tiny` / `Standard` | 8.0g / 6.0m | `Holdable`<br>`Wear_Ring`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Rings`<br>`Market / Jewellery / Commoner Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_common_plain_bone_ring` | a plain bone ring | `ring` | `bone` | `Tiny` / `Standard` | 6.0g / 4.0m | `Holdable`<br>`Wear_Ring`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Rings`<br>`Market / Jewellery / Simple Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_common_horn_bead_bracelet` | a horn bead bracelet | `bracelet` | `horn` | `VerySmall` / `Standard` | 34.0g / 8.0m | `Holdable`<br>`Wear_Bracelet`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Bracelets`<br>`Market / Jewellery / Commoner Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_common_wooden_bead_necklace` | a wooden bead necklace | `necklace` | `wood` | `VerySmall` / `Standard` | 42.0g / 6.0m | `Holdable`<br>`Wear_Necklace`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Necklaces`<br>`Market / Jewellery / Simple Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_common_shell_chip_bracelet` | a shell chip bracelet | `bracelet` | `shell` | `VerySmall` / `Standard` | 26.0g / 7.0m | `Holdable`<br>`Wear_Bracelet`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Bracelets`<br>`Market / Jewellery / Commoner Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_common_cowrie_shell_anklet` | a cowrie shell anklet | `anklet` | `cowrie shell` | `VerySmall` / `Standard` | 30.0g / 9.0m | `Holdable`<br>`Wear_Anklet`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Anklets`<br>`Market / Jewellery / Commoner Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_common_braided_hemp_bracelet` | a braided hemp bracelet | `bracelet` | `hemp` | `VerySmall` / `Standard` | 12.0g / 2.0m | `Holdable`<br>`Wear_Bracelet`<br>`Destroyable_Clothing` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Bracelets`<br>`Market / Jewellery / Simple Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_common_knotted_wool_wristband` | a knotted wool wristband | `bracelet` | `wool` | `VerySmall` / `Standard` | 16.0g / 2.0m | `Holdable`<br>`Wear_Bracelet`<br>`Destroyable_Clothing` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Bracelets`<br>`Market / Jewellery / Simple Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_common_small_wooden_child_ring` | a small wooden child ring | `ring` | `boxwood` | `Tiny` / `Standard` | 4.0g / 3.0m | `Holdable`<br>`Wear_Ring`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Rings`<br>`Market / Jewellery / Children's Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_common_clay_coloured_faience_bead_string` | a clay-coloured faience bead string | `necklace` | `faience` | `VerySmall` / `Standard` | 55.0g / 16.0m | `Holdable`<br>`Wear_Necklace`<br>`Destroyable_Glassware` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Necklaces`<br>`Market / Jewellery / Commoner Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_common_little_shell_child_necklace` | a little shell child necklace | `necklace` | `shell` | `VerySmall` / `Standard` | 28.0g / 5.0m | `Holdable`<br>`Wear_Necklace`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Necklaces`<br>`Market / Jewellery / Children's Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_common_rush_woven_finger_ring` | a rush-woven finger ring | `ring` | `rush` | `Tiny` / `Standard` | 3.0g / 1.0m | `Holdable`<br>`Wear_Ring`<br>`Destroyable_Clothing` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Rings`<br>`Market / Jewellery / Ephemeral Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_common_straw_festival_ring` | a straw festival ring | `ring` | `straw` | `Tiny` / `Standard` | 2.0g / 1.0m | `Holdable`<br>`Wear_Ring`<br>`Destroyable_Clothing` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Rings`<br>`Market / Jewellery / Ephemeral Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_common_leather_token_bracelet` | a leather token bracelet | `bracelet` | `leather` | `VerySmall` / `Standard` | 18.0g / 5.0m | `Holdable`<br>`Wear_Bracelet`<br>`Destroyable_Clothing` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Bracelets`<br>`Market / Jewellery / Commoner Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_common_jet_bead_keepsake_string` | a jet bead keepsake string | `necklace` | `jet` | `VerySmall` / `Standard` | 44.0g / 22.0m | `Holdable`<br>`Wear_Necklace`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Necklaces`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_common_small_amber_bead_charm` | a small amber bead charm | `pendant` | `amber` | `Tiny` / `Standard` | 10.0g / 18.0m | `Holdable`<br>`Wear_Necklace`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Necklaces`<br>`Market / Jewellery / Commoner Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_garland_dried_flower_neck_garland` | a dried flower neck garland | `garland` | `dried flower` | `VerySmall` / `Substandard` | 24.0g / 1.0m | `Holdable`<br>`Wear_Neck_Garland`<br>`Destroyable_Clothing` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Neck Garlands`<br>`Market / Jewellery / Ephemeral Jewellery` | — | Final dried morph target for a short-lived organic jewellery chain. |
+| `medieval_jewellery_garland_wilted_flower_neck_garland` | a wilted flower neck garland | `garland` | `wilted flower` | `VerySmall` / `Poor` | 28.0g / 1.0m | `Holdable`<br>`Wear_Neck_Garland`<br>`Destroyable_Clothing` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Neck Garlands`<br>`Market / Jewellery / Ephemeral Jewellery` | morphs to `medieval_jewellery_garland_dried_flower_neck_garland` after 1-3 in-game days | Intermediate wilted morph target; can dry further if retained. |
+| `medieval_jewellery_garland_fresh_flower_neck_garland` | a fresh flower neck garland | `garland` | `fresh flower` | `VerySmall` / `Standard` | 30.0g / 3.0m | `Holdable`<br>`Wear_Neck_Garland`<br>`Destroyable_Clothing` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Neck Garlands`<br>`Functions / Worn Items / Jewellery / Garlands / Fresh Garlands`<br>`Market / Jewellery / Festival Jewellery` | morphs to `medieval_jewellery_garland_wilted_flower_neck_garland` after 6-24 in-game hours | Fresh short-lived organic jewellery; use the listed timed morph target. |
+| `medieval_jewellery_garland_dried_jasmine_garland` | a dried jasmine garland | `garland` | `dried flower` | `VerySmall` / `Substandard` | 24.0g / 1.0m | `Holdable`<br>`Wear_Neck_Garland`<br>`Destroyable_Clothing` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Neck Garlands`<br>`Market / Jewellery / Ephemeral Jewellery` | — | Final dried morph target for a short-lived organic jewellery chain. |
+| `medieval_jewellery_garland_wilted_jasmine_garland` | a wilted jasmine garland | `garland` | `wilted flower` | `VerySmall` / `Poor` | 28.0g / 1.0m | `Holdable`<br>`Wear_Neck_Garland`<br>`Destroyable_Clothing` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Neck Garlands`<br>`Market / Jewellery / Ephemeral Jewellery` | morphs to `medieval_jewellery_garland_dried_jasmine_garland` after 1-3 in-game days | Intermediate wilted morph target; can dry further if retained. |
+| `medieval_jewellery_garland_fresh_jasmine_garland` | a fresh jasmine garland | `garland` | `jasmine` | `VerySmall` / `Standard` | 30.0g / 3.0m | `Holdable`<br>`Wear_Neck_Garland`<br>`Destroyable_Clothing` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Neck Garlands`<br>`Functions / Worn Items / Jewellery / Garlands / Fresh Garlands`<br>`Market / Jewellery / Festival Jewellery` | morphs to `medieval_jewellery_garland_wilted_jasmine_garland` after 6-24 in-game hours | Fresh short-lived organic jewellery; use the listed timed morph target. |
+| `medieval_jewellery_garland_dried_marigold_garland` | a dried marigold garland | `garland` | `dried flower` | `VerySmall` / `Substandard` | 24.0g / 1.0m | `Holdable`<br>`Wear_Neck_Garland`<br>`Destroyable_Clothing` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Neck Garlands`<br>`Market / Jewellery / Ephemeral Jewellery` | — | Final dried morph target for a short-lived organic jewellery chain. |
+| `medieval_jewellery_garland_wilted_marigold_garland` | a wilted marigold garland | `garland` | `wilted flower` | `VerySmall` / `Poor` | 28.0g / 1.0m | `Holdable`<br>`Wear_Neck_Garland`<br>`Destroyable_Clothing` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Neck Garlands`<br>`Market / Jewellery / Ephemeral Jewellery` | morphs to `medieval_jewellery_garland_dried_marigold_garland` after 1-3 in-game days | Intermediate wilted morph target; can dry further if retained. |
+| `medieval_jewellery_garland_fresh_marigold_garland` | a fresh marigold garland | `garland` | `marigold` | `VerySmall` / `Standard` | 30.0g / 3.0m | `Holdable`<br>`Wear_Neck_Garland`<br>`Destroyable_Clothing` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Neck Garlands`<br>`Functions / Worn Items / Jewellery / Garlands / Fresh Garlands`<br>`Market / Jewellery / Festival Jewellery` | morphs to `medieval_jewellery_garland_wilted_marigold_garland` after 6-24 in-game hours | Fresh short-lived organic jewellery; use the listed timed morph target. |
+| `medieval_jewellery_garland_dried_rose_chaplet` | a dried rose chaplet | `chaplet` | `dried flower` | `VerySmall` / `Substandard` | 24.0g / 1.0m | `Holdable`<br>`Wear_Chaplet`<br>`Destroyable_Clothing` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Chaplets`<br>`Market / Jewellery / Ephemeral Jewellery` | — | Final dried morph target for a short-lived organic jewellery chain. |
+| `medieval_jewellery_garland_wilted_rose_chaplet` | a wilted rose chaplet | `chaplet` | `wilted flower` | `VerySmall` / `Poor` | 28.0g / 1.0m | `Holdable`<br>`Wear_Chaplet`<br>`Destroyable_Clothing` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Chaplets`<br>`Market / Jewellery / Ephemeral Jewellery` | morphs to `medieval_jewellery_garland_dried_rose_chaplet` after 1-3 in-game days | Intermediate wilted morph target; can dry further if retained. |
+| `medieval_jewellery_garland_fresh_rose_chaplet` | a fresh rose chaplet | `chaplet` | `rose` | `VerySmall` / `Standard` | 30.0g / 3.0m | `Holdable`<br>`Wear_Chaplet`<br>`Destroyable_Clothing` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Chaplets`<br>`Functions / Worn Items / Jewellery / Garlands / Fresh Garlands`<br>`Market / Jewellery / Festival Jewellery` | morphs to `medieval_jewellery_garland_wilted_rose_chaplet` after 6-24 in-game hours | Fresh short-lived organic jewellery; use the listed timed morph target. |
+| `medieval_jewellery_garland_dried_ivy_wreath` | a dried ivy wreath | `wreath` | `ivy` | `VerySmall` / `Substandard` | 24.0g / 1.0m | `Holdable`<br>`Wear_Wreath`<br>`Destroyable_Clothing` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Wreaths`<br>`Functions / Worn Items / Jewellery / Wreaths / Dried Wreaths`<br>`Market / Jewellery / Ephemeral Jewellery` | — | Final dried morph target for a short-lived organic jewellery chain. |
+| `medieval_jewellery_garland_wilted_ivy_wreath` | a wilted ivy wreath | `wreath` | `ivy` | `VerySmall` / `Poor` | 28.0g / 1.0m | `Holdable`<br>`Wear_Wreath`<br>`Destroyable_Clothing` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Wreaths`<br>`Functions / Worn Items / Jewellery / Wreaths / Flower Wreaths`<br>`Market / Jewellery / Ephemeral Jewellery` | morphs to `medieval_jewellery_garland_dried_ivy_wreath` after 1-3 in-game days | Intermediate wilted morph target; can dry further if retained. |
+| `medieval_jewellery_garland_fresh_ivy_wreath` | a fresh ivy wreath | `wreath` | `ivy` | `VerySmall` / `Standard` | 30.0g / 3.0m | `Holdable`<br>`Wear_Wreath`<br>`Destroyable_Clothing` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Wreaths`<br>`Functions / Worn Items / Jewellery / Wreaths / Fresh Wreaths`<br>`Market / Jewellery / Festival Jewellery` | morphs to `medieval_jewellery_garland_wilted_ivy_wreath` after 6-24 in-game hours | Fresh short-lived organic jewellery; use the listed timed morph target. |
+| `medieval_jewellery_garland_dried_laurel_wreath` | a dried laurel wreath | `wreath` | `laurel` | `VerySmall` / `Substandard` | 24.0g / 1.0m | `Holdable`<br>`Wear_Wreath`<br>`Destroyable_Clothing` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Wreaths`<br>`Functions / Worn Items / Jewellery / Wreaths / Dried Wreaths`<br>`Market / Jewellery / Ephemeral Jewellery` | — | Final dried morph target for a short-lived organic jewellery chain. |
+| `medieval_jewellery_garland_wilted_laurel_wreath` | a wilted laurel wreath | `wreath` | `laurel` | `VerySmall` / `Poor` | 28.0g / 1.0m | `Holdable`<br>`Wear_Wreath`<br>`Destroyable_Clothing` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Wreaths`<br>`Functions / Worn Items / Jewellery / Wreaths / Flower Wreaths`<br>`Market / Jewellery / Ephemeral Jewellery` | morphs to `medieval_jewellery_garland_dried_laurel_wreath` after 1-3 in-game days | Intermediate wilted morph target; can dry further if retained. |
+| `medieval_jewellery_garland_fresh_laurel_wreath` | a fresh laurel wreath | `wreath` | `laurel` | `VerySmall` / `Standard` | 30.0g / 3.0m | `Holdable`<br>`Wear_Wreath`<br>`Destroyable_Clothing` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Wreaths`<br>`Functions / Worn Items / Jewellery / Wreaths / Fresh Wreaths`<br>`Market / Jewellery / Festival Jewellery` | morphs to `medieval_jewellery_garland_wilted_laurel_wreath` after 6-24 in-game hours | Fresh short-lived organic jewellery; use the listed timed morph target. |
+| `medieval_jewellery_garland_dried_violet_wrist_garland` | a dried violet wrist garland | `garland` | `dried flower` | `VerySmall` / `Substandard` | 24.0g / 1.0m | `Holdable`<br>`Wear_Wrist_Garland`<br>`Destroyable_Clothing` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Garlands`<br>`Functions / Worn Items / Jewellery / Garlands / Dried Garlands`<br>`Market / Jewellery / Ephemeral Jewellery` | — | Final dried morph target for a short-lived organic jewellery chain. |
+| `medieval_jewellery_garland_wilted_violet_wrist_garland` | a wilted violet wrist garland | `garland` | `wilted flower` | `VerySmall` / `Poor` | 28.0g / 1.0m | `Holdable`<br>`Wear_Wrist_Garland`<br>`Destroyable_Clothing` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Garlands`<br>`Functions / Worn Items / Jewellery / Garlands / Flower Garlands`<br>`Market / Jewellery / Ephemeral Jewellery` | morphs to `medieval_jewellery_garland_dried_violet_wrist_garland` after 1-3 in-game days | Intermediate wilted morph target; can dry further if retained. |
+| `medieval_jewellery_garland_fresh_violet_wrist_garland` | a fresh violet wrist garland | `garland` | `violet` | `VerySmall` / `Standard` | 30.0g / 3.0m | `Holdable`<br>`Wear_Wrist_Garland`<br>`Destroyable_Clothing` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Garlands`<br>`Functions / Worn Items / Jewellery / Garlands / Fresh Garlands`<br>`Market / Jewellery / Festival Jewellery` | morphs to `medieval_jewellery_garland_wilted_violet_wrist_garland` after 6-24 in-game hours | Fresh short-lived organic jewellery; use the listed timed morph target. |
+| `medieval_jewellery_garland_dried_blossom_anklet` | a dried blossom anklet | `anklet` | `dried flower` | `VerySmall` / `Substandard` | 24.0g / 1.0m | `Holdable`<br>`Wear_Ankle_Garland`<br>`Destroyable_Clothing` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Garlands`<br>`Functions / Worn Items / Jewellery / Garlands / Dried Garlands`<br>`Market / Jewellery / Ephemeral Jewellery` | — | Final dried morph target for a short-lived organic jewellery chain. |
+| `medieval_jewellery_garland_wilted_blossom_anklet` | a wilted blossom anklet | `anklet` | `wilted flower` | `VerySmall` / `Poor` | 28.0g / 1.0m | `Holdable`<br>`Wear_Ankle_Garland`<br>`Destroyable_Clothing` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Garlands`<br>`Functions / Worn Items / Jewellery / Garlands / Flower Garlands`<br>`Market / Jewellery / Ephemeral Jewellery` | morphs to `medieval_jewellery_garland_dried_blossom_anklet` after 1-3 in-game days | Intermediate wilted morph target; can dry further if retained. |
+| `medieval_jewellery_garland_fresh_blossom_anklet` | a fresh blossom anklet | `anklet` | `blossom` | `VerySmall` / `Standard` | 30.0g / 3.0m | `Holdable`<br>`Wear_Ankle_Garland`<br>`Destroyable_Clothing` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Garlands`<br>`Functions / Worn Items / Jewellery / Garlands / Fresh Garlands`<br>`Market / Jewellery / Festival Jewellery` | morphs to `medieval_jewellery_garland_wilted_blossom_anklet` after 6-24 in-game hours | Fresh short-lived organic jewellery; use the listed timed morph target. |
+| `medieval_jewellery_garland_dried_daisy_head_garland` | a dried daisy head garland | `garland` | `dried flower` | `VerySmall` / `Substandard` | 24.0g / 1.0m | `Holdable`<br>`Wear_Head_Garland`<br>`Destroyable_Clothing` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Garlands`<br>`Functions / Worn Items / Jewellery / Garlands / Dried Garlands`<br>`Market / Jewellery / Ephemeral Jewellery` | — | Final dried morph target for a short-lived organic jewellery chain. |
+| `medieval_jewellery_garland_wilted_daisy_head_garland` | a wilted daisy head garland | `garland` | `wilted flower` | `VerySmall` / `Poor` | 28.0g / 1.0m | `Holdable`<br>`Wear_Head_Garland`<br>`Destroyable_Clothing` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Garlands`<br>`Functions / Worn Items / Jewellery / Garlands / Flower Garlands`<br>`Market / Jewellery / Ephemeral Jewellery` | morphs to `medieval_jewellery_garland_dried_daisy_head_garland` after 1-3 in-game days | Intermediate wilted morph target; can dry further if retained. |
+| `medieval_jewellery_garland_fresh_daisy_head_garland` | a fresh daisy head garland | `garland` | `daisy` | `VerySmall` / `Standard` | 30.0g / 3.0m | `Holdable`<br>`Wear_Head_Garland`<br>`Destroyable_Clothing` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Garlands`<br>`Functions / Worn Items / Jewellery / Garlands / Fresh Garlands`<br>`Market / Jewellery / Festival Jewellery` | morphs to `medieval_jewellery_garland_wilted_daisy_head_garland` after 6-24 in-game hours | Fresh short-lived organic jewellery; use the listed timed morph target. |
+| `medieval_jewellery_garland_dried_lotus_garland` | a dried lotus garland | `garland` | `dried flower` | `VerySmall` / `Substandard` | 24.0g / 1.0m | `Holdable`<br>`Wear_Neck_Garland`<br>`Destroyable_Clothing` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Neck Garlands`<br>`Market / Jewellery / Ephemeral Jewellery` | — | Final dried morph target for a short-lived organic jewellery chain. |
+| `medieval_jewellery_garland_wilted_lotus_garland` | a wilted lotus garland | `garland` | `wilted flower` | `VerySmall` / `Poor` | 28.0g / 1.0m | `Holdable`<br>`Wear_Neck_Garland`<br>`Destroyable_Clothing` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Neck Garlands`<br>`Market / Jewellery / Ephemeral Jewellery` | morphs to `medieval_jewellery_garland_dried_lotus_garland` after 1-3 in-game days | Intermediate wilted morph target; can dry further if retained. |
+| `medieval_jewellery_garland_fresh_lotus_garland` | a fresh lotus garland | `garland` | `lotus flower` | `VerySmall` / `Standard` | 30.0g / 3.0m | `Holdable`<br>`Wear_Neck_Garland`<br>`Destroyable_Clothing` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Neck Garlands`<br>`Functions / Worn Items / Jewellery / Garlands / Fresh Garlands`<br>`Market / Jewellery / Festival Jewellery` | morphs to `medieval_jewellery_garland_wilted_lotus_garland` after 6-24 in-game hours | Fresh short-lived organic jewellery; use the listed timed morph target. |
+| `medieval_jewellery_garland_dried_lily_chaplet` | a dried lily chaplet | `chaplet` | `dried flower` | `VerySmall` / `Substandard` | 24.0g / 1.0m | `Holdable`<br>`Wear_Chaplet`<br>`Destroyable_Clothing` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Chaplets`<br>`Market / Jewellery / Ephemeral Jewellery` | — | Final dried morph target for a short-lived organic jewellery chain. |
+| `medieval_jewellery_garland_wilted_lily_chaplet` | a wilted lily chaplet | `chaplet` | `wilted flower` | `VerySmall` / `Poor` | 28.0g / 1.0m | `Holdable`<br>`Wear_Chaplet`<br>`Destroyable_Clothing` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Chaplets`<br>`Market / Jewellery / Ephemeral Jewellery` | morphs to `medieval_jewellery_garland_dried_lily_chaplet` after 1-3 in-game days | Intermediate wilted morph target; can dry further if retained. |
+| `medieval_jewellery_garland_fresh_lily_chaplet` | a fresh lily chaplet | `chaplet` | `lily` | `VerySmall` / `Standard` | 30.0g / 3.0m | `Holdable`<br>`Wear_Chaplet`<br>`Destroyable_Clothing` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Chaplets`<br>`Functions / Worn Items / Jewellery / Garlands / Fresh Garlands`<br>`Market / Jewellery / Festival Jewellery` | morphs to `medieval_jewellery_garland_wilted_lily_chaplet` after 6-24 in-game hours | Fresh short-lived organic jewellery; use the listed timed morph target. |
+| `medieval_jewellery_garland_dried_chamomile_wrist_garland` | a dried chamomile wrist garland | `garland` | `dried flower` | `VerySmall` / `Substandard` | 24.0g / 1.0m | `Holdable`<br>`Wear_Wrist_Garland`<br>`Destroyable_Clothing` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Garlands`<br>`Functions / Worn Items / Jewellery / Garlands / Dried Garlands`<br>`Market / Jewellery / Ephemeral Jewellery` | — | Final dried morph target for a short-lived organic jewellery chain. |
+| `medieval_jewellery_garland_wilted_chamomile_wrist_garland` | a wilted chamomile wrist garland | `garland` | `wilted flower` | `VerySmall` / `Poor` | 28.0g / 1.0m | `Holdable`<br>`Wear_Wrist_Garland`<br>`Destroyable_Clothing` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Garlands`<br>`Functions / Worn Items / Jewellery / Garlands / Flower Garlands`<br>`Market / Jewellery / Ephemeral Jewellery` | morphs to `medieval_jewellery_garland_dried_chamomile_wrist_garland` after 1-3 in-game days | Intermediate wilted morph target; can dry further if retained. |
+| `medieval_jewellery_garland_fresh_chamomile_wrist_garland` | a fresh chamomile wrist garland | `garland` | `chamomile` | `VerySmall` / `Standard` | 30.0g / 3.0m | `Holdable`<br>`Wear_Wrist_Garland`<br>`Destroyable_Clothing` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Garlands`<br>`Functions / Worn Items / Jewellery / Garlands / Fresh Garlands`<br>`Market / Jewellery / Festival Jewellery` | morphs to `medieval_jewellery_garland_wilted_chamomile_wrist_garland` after 6-24 in-game hours | Fresh short-lived organic jewellery; use the listed timed morph target. |
 
 ### Rings and signet-like rings
 
-- Rings are the safest and most broadly supported jewellery category because `Wear_Ring` exists.
-- Include common copper and bronze rings, simple iron rings, bone rings, silver rings, gold rings, gem rings, love-token rings, merchant signet-like rings, functional signet rings, and court rings.
-- Decorative signet-like rings use only `Wear_Ring`.
-- Functional signet rings use `Wear_Ring` plus exactly one appropriate `SealStamp_Medieval_*` component.
-- Do not promise legal authority, seal compatibility, or ownership recognition unless the row includes seal-stamp behaviour and the relevant presentation exists in skin, metadata, or written content.
-- Gem-set rings should generally use the metal as primary material and use `Variable_CommonStone`, `Variable_Gem`, or `Variable_FineGem` for visible stones.
+| Unique reference | SDesc | Noun | Material | Size / Quality | Weight / Cost | Components | Tags | Morph | Notes |
+|---|---|---|---|---|---:|---|---|---|---|
+| `medieval_jewellery_ring_thin_copper_ring` | a thin copper ring | `ring` | `copper` | `Tiny` / `Standard` | 7.0g / 5.0m | `Holdable`<br>`Wear_Ring`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Rings`<br>`Market / Jewellery / Simple Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_ring_hammered_bronze_ring` | a hammered bronze ring | `ring` | `bronze` | `Tiny` / `Standard` | 12.0g / 10.0m | `Holdable`<br>`Wear_Ring`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Rings`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_ring_plain_pewter_ring` | a plain pewter ring | `ring` | `pewter` | `Tiny` / `Standard` | 10.0g / 7.0m | `Holdable`<br>`Wear_Ring`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Rings`<br>`Market / Jewellery / Simple Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_ring_brass_twist_ring` | a brass twist ring | `ring` | `brass` | `Tiny` / `Standard` | 13.0g / 12.0m | `Holdable`<br>`Wear_Ring`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Rings`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_ring_narrow_iron_ring` | a narrow iron ring | `ring` | `wrought iron` | `Tiny` / `Standard` | 11.0g / 4.0m | `Holdable`<br>`Wear_Ring`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Rings`<br>`Market / Jewellery / Simple Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_ring_silver_wire_ring` | a silver wire ring | `ring` | `silver` | `Tiny` / `Good` | 9.0g / 42.0m | `Holdable`<br>`Wear_Ring`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Rings`<br>`Market / Jewellery / Merchant Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_ring_sterling_silver_band` | a sterling silver band | `ring` | `sterling silver` | `Tiny` / `Good` | 11.0g / 58.0m | `Holdable`<br>`Wear_Ring`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Rings`<br>`Market / Jewellery / Merchant Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_ring_silver_gilt_finger_ring` | a silver-gilt finger ring | `ring` | `silver-gilt` | `Tiny` / `Good` | 12.0g / 160.0m | `Holdable`<br>`Wear_Ring`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Rings`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_ring_small_gold_ring` | a small gold ring | `ring` | `gold` | `Tiny` / `Good` | 9.0g / 260.0m | `Holdable`<br>`Wear_Ring`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Rings`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_ring_electrum_finger_ring` | an electrum finger ring | `ring` | `electrum` | `Tiny` / `Good` | 10.0g / 210.0m | `Holdable`<br>`Wear_Ring`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Rings`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_ring_carved_bone_ring` | a carved bone ring | `ring` | `bone` | `Tiny` / `Standard` | 5.0g / 8.0m | `Holdable`<br>`Wear_Ring`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Rings`<br>`Market / Jewellery / Commoner Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_ring_dark_jet_ring` | a dark jet ring | `ring` | `jet` | `Tiny` / `Standard` | 7.0g / 28.0m | `Holdable`<br>`Wear_Ring`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Rings`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_ring_amber_set_bronze_ring` | an amber-set bronze ring | `ring` | `bronze` | `Tiny` / `Good` | 16.0g / 70.0m | `Holdable`<br>`Wear_Ring`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Rings`<br>`Market / Jewellery / Merchant Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_ring_coral_set_silver_ring` | a coral-set silver ring | `ring` | `silver` | `Tiny` / `Good` | 14.0g / 110.0m | `Holdable`<br>`Wear_Ring`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Rings`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_ring_garnet_set_gold_ring` | a garnet-set gold ring | `ring` | `gold` | `Tiny` / `VeryGood` | 13.0g / 420.0m | `Holdable`<br>`Wear_Ring`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Rings`<br>`Market / Jewellery / Noble Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_ring_carnelisilver_ring` | a carnelian silver ring | `ring` | `silver` | `Tiny` / `Good` | 15.0g / 95.0m | `Holdable`<br>`Wear_Ring`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Rings`<br>`Market / Jewellery / Merchant Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_ring_turquoise_brass_ring` | a turquoise brass ring | `ring` | `brass` | `Tiny` / `Good` | 14.0g / 55.0m | `Holdable`<br>`Wear_Ring`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Rings`<br>`Market / Jewellery / Merchant Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_ring_rock_crystal_ring` | a rock crystal ring | `ring` | `silver` | `Tiny` / `Good` | 14.0g / 150.0m | `Holdable`<br>`Wear_Ring`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Rings`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_ring_lapis_signet_like_ring` | a lapis signet-like ring | `ring` | `silver` | `Tiny` / `Good` | 18.0g / 130.0m | `Holdable`<br>`Wear_Ring`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Rings`<br>`Market / Jewellery / Merchant Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_ring_jade_thumb_ring` | a jade thumb ring | `ring` | `jade` | `Tiny` / `Good` | 22.0g / 120.0m | `Holdable`<br>`Wear_Ring`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Rings`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_ring_agate_bead_ring` | an agate bead ring | `ring` | `agate` | `Tiny` / `Standard` | 10.0g / 35.0m | `Holdable`<br>`Wear_Ring`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Rings`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_ring_bloodstone_signet_ring` | a bloodstone signet ring | `ring` | `silver` | `Tiny` / `Good` | 18.0g / 115.0m | `Holdable`<br>`Wear_Ring`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Rings`<br>`Market / Jewellery / Merchant Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_ring_moonstone_gold_ring` | a moonstone gold ring | `ring` | `gold` | `Tiny` / `VeryGood` | 13.0g / 360.0m | `Holdable`<br>`Wear_Ring`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Rings`<br>`Market / Jewellery / Noble Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_ring_onyx_silver_ring` | an onyx silver ring | `ring` | `silver` | `Tiny` / `Good` | 14.0g / 90.0m | `Holdable`<br>`Wear_Ring`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Rings`<br>`Market / Jewellery / Merchant Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_ring_rose_quartz_love_ring` | a rose quartz love ring | `ring` | `silver` | `Tiny` / `Good` | 13.0g / 75.0m | `Holdable`<br>`Wear_Ring`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Rings`<br>`Market / Jewellery / Merchant Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_ring_amethyst_court_ring` | an amethyst court ring | `ring` | `gold` | `Tiny` / `VeryGood` | 15.0g / 480.0m | `Holdable`<br>`Wear_Ring`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Rings`<br>`Market / Jewellery / Noble Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_ring_sapphire_court_ring` | a sapphire court ring | `ring` | `gold` | `Tiny` / `VeryGood` | 14.0g / 720.0m | `Holdable`<br>`Wear_Ring`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Rings`<br>`Market / Jewellery / Noble Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_ring_emerald_court_ring` | an emerald court ring | `ring` | `gold` | `Tiny` / `VeryGood` | 14.0g / 760.0m | `Holdable`<br>`Wear_Ring`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Rings`<br>`Market / Jewellery / Noble Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_ring_ruby_court_ring` | a ruby court ring | `ring` | `gold` | `Tiny` / `VeryGood` | 14.0g / 780.0m | `Holdable`<br>`Wear_Ring`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Rings`<br>`Market / Jewellery / Noble Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_ring_motif_bronze_ring` | a $motif bronze ring | `ring` | `bronze` | `Tiny` / `Good` | 12.0g / 24.0m | `Holdable`<br>`Wear_Ring`<br>`Destroyable_HeavyMetal`<br>`Variable_JewelleryMotif` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Rings`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_ring_motif_silver_ring` | a $motif silver ring | `ring` | `silver` | `Tiny` / `Good` | 12.0g / 75.0m | `Holdable`<br>`Wear_Ring`<br>`Destroyable_HeavyMetal`<br>`Variable_JewelleryMotif` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Rings`<br>`Market / Jewellery / Merchant Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_ring_motif_silver_gilt_ring` | a $motif silver-gilt ring | `ring` | `silver-gilt` | `Tiny` / `Good` | 12.0g / 180.0m | `Holdable`<br>`Wear_Ring`<br>`Destroyable_HeavyMetal`<br>`Variable_JewelleryMotif` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Rings`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_ring_motif_gold_ring` | a $motif gold ring | `ring` | `gold` | `Tiny` / `Good` | 12.0g / 390.0m | `Holdable`<br>`Wear_Ring`<br>`Destroyable_HeavyMetal`<br>`Variable_JewelleryMotif` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Rings`<br>`Market / Jewellery / Noble Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_ring_motif_brass_ring` | a $motif brass ring | `ring` | `brass` | `Tiny` / `Good` | 12.0g / 28.0m | `Holdable`<br>`Wear_Ring`<br>`Destroyable_HeavyMetal`<br>`Variable_JewelleryMotif` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Rings`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_ring_motif_copper_ring` | a $motif copper ring | `ring` | `copper` | `Tiny` / `Standard` | 12.0g / 12.0m | `Holdable`<br>`Wear_Ring`<br>`Destroyable_HeavyMetal`<br>`Variable_JewelleryMotif` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Rings`<br>`Market / Jewellery / Commoner Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_ring_plain_merchant_signet_ring` | a plain merchant signet ring | `ring` | `silver` | `Tiny` / `Good` | 18.0g / 130.0m | `Holdable`<br>`Wear_Ring`<br>`Destroyable_HeavyMetal`<br>`SealStamp_Medieval_MerchantSignetRing` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Rings`<br>`Market / Jewellery / Merchant Jewellery` | — | Functional signet row; seal device belongs in skin or component metadata. |
+| `medieval_jewellery_ring_personal_seal_ring` | a personal seal ring | `ring` | `bronze` | `Tiny` / `Good` | 18.0g / 90.0m | `Holdable`<br>`Wear_Ring`<br>`Destroyable_HeavyMetal`<br>`SealStamp_Medieval_PersonalSignetRing` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Rings`<br>`Market / Jewellery / Merchant Jewellery` | — | Functional signet row; seal device belongs in skin or component metadata. |
+| `medieval_jewellery_ring_noble_signet_ring` | a noble signet ring | `ring` | `gold` | `Tiny` / `Good` | 18.0g / 520.0m | `Holdable`<br>`Wear_Ring`<br>`Destroyable_HeavyMetal`<br>`SealStamp_Medieval_NobleSignetRing` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Rings`<br>`Market / Jewellery / Noble Jewellery` | — | Functional signet row; seal device belongs in skin or component metadata. |
+| `medieval_jewellery_ring_ring_signet_of_silver_gilt` | a ring signet of silver-gilt | `ring` | `silver-gilt` | `Tiny` / `Good` | 18.0g / 240.0m | `Holdable`<br>`Wear_Ring`<br>`Destroyable_HeavyMetal`<br>`SealStamp_Medieval_RingSignet` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Rings`<br>`Market / Jewellery / Luxury Jewellery` | — | Functional signet row; seal device belongs in skin or component metadata. |
+| `medieval_jewellery_ring_brass_trade_signet_ring` | a brass trade signet ring | `ring` | `brass` | `Tiny` / `Good` | 18.0g / 76.0m | `Holdable`<br>`Wear_Ring`<br>`Destroyable_HeavyMetal`<br>`SealStamp_Medieval_MerchantSignetRing` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Rings`<br>`Market / Jewellery / Merchant Jewellery` | — | Functional signet row; seal device belongs in skin or component metadata. |
+| `medieval_jewellery_ring_bronze_household_signet` | a bronze household signet | `ring` | `bronze` | `Tiny` / `Good` | 18.0g / 85.0m | `Holdable`<br>`Wear_Ring`<br>`Destroyable_HeavyMetal`<br>`SealStamp_Medieval_PersonalSignetRing` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Rings`<br>`Market / Jewellery / Merchant Jewellery` | — | Functional signet row; seal device belongs in skin or component metadata. |
+| `medieval_jewellery_ring_child_sized_copper_ring` | a child-sized copper ring | `ring` | `copper` | `Tiny` / `Standard` | 4.0g / 3.0m | `Holdable`<br>`Wear_Ring`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Rings`<br>`Market / Jewellery / Children's Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_ring_paired_courtship_ring` | a paired courtship ring | `ring` | `silver` | `Tiny` / `Good` | 10.0g / 64.0m | `Holdable`<br>`Wear_Ring`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Rings`<br>`Market / Jewellery / Merchant Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_ring_knotwork_love_ring` | a knotwork love ring | `ring` | `silver` | `Tiny` / `Good` | 11.0g / 72.0m | `Holdable`<br>`Wear_Ring`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Rings`<br>`Market / Jewellery / Merchant Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_ring_blackened_niello_ring` | a blackened niello ring | `ring` | `silver` | `Tiny` / `Good` | 12.0g / 130.0m | `Holdable`<br>`Wear_Ring`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Rings`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_ring_gilded_copper_ring` | a gilded copper ring | `ring` | `gilded copper` | `Tiny` / `Standard` | 12.0g / 38.0m | `Holdable`<br>`Wear_Ring`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Rings`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_ring_gilded_bronze_ring` | a gilded bronze ring | `ring` | `gilded bronze` | `Tiny` / `Standard` | 13.0g / 46.0m | `Holdable`<br>`Wear_Ring`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Rings`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_ring_mother_of_pearl_ring` | a mother-of-pearl ring | `ring` | `mother-of-pearl` | `Tiny` / `Good` | 8.0g / 110.0m | `Holdable`<br>`Wear_Ring`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Rings`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_ring_conch_shell_ring` | a conch shell ring | `ring` | `conch shell` | `Tiny` / `Standard` | 7.0g / 18.0m | `Holdable`<br>`Wear_Ring`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Rings`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_ring_cowrie_shell_ring` | a cowrie shell ring | `ring` | `cowrie shell` | `Tiny` / `Standard` | 6.0g / 10.0m | `Holdable`<br>`Wear_Ring`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Rings`<br>`Market / Jewellery / Commoner Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_ring_double_wire_silver_ring` | a double wire silver ring | `ring` | `silver` | `Tiny` / `Good` | 10.0g / 70.0m | `Holdable`<br>`Wear_Ring`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Rings`<br>`Market / Jewellery / Merchant Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_ring_heavy_gold_thumb_ring` | a heavy gold thumb ring | `ring` | `gold` | `Tiny` / `Good` | 24.0g / 650.0m | `Holdable`<br>`Wear_Ring`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Rings`<br>`Market / Jewellery / Noble Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_ring_stamped_brass_ring` | a stamped brass ring | `ring` | `brass` | `Tiny` / `Standard` | 10.0g / 18.0m | `Holdable`<br>`Wear_Ring`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Rings`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_ring_finish_silver_ring` | a $finish silver ring | `ring` | `silver` | `Tiny` / `Good` | 12.0g / 82.0m | `Holdable`<br>`Wear_Ring`<br>`Destroyable_HeavyMetal`<br>`Variable_MetalFinish` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Rings`<br>`Market / Jewellery / Merchant Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_ring_shape_gem_ring` | a $shape gem ring | `ring` | `silver` | `Tiny` / `Good` | 14.0g / 145.0m | `Holdable`<br>`Wear_Ring`<br>`Destroyable_HeavyMetal`<br>`Variable_JewelleryShape`<br>`Variable_Gem` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Rings`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
 
-### Necklaces, chains, chokers, collars, neck rings, and torcs
+### Neck adornment
 
-- Use `Wear_Necklace` for most necklaces, chains, pendants, bead strings, and loose collars.
-- Use `Wear_Choker` for close-fitting collars, ribbons, and short bead strings.
-- Use `Wear_Torc` for torc-like rigid collars.
-- Use `Wear_Neck_Ring` for non-torc rigid neck rings.
-- Use `Wear_Neck_Garland` for flower, leaf, and festival garlands worn around the neck.
-- Include common bead strings, cord necklaces, shell necklaces, glass beads, amber beads, coral bead necklaces, pearl necklaces, silver chains, gold chains, gem collars, and court display collars.
-- Religious pendants, cross pendants, scripture pendants, relic lockets, and prayer beads are not part of this branch.
+| Unique reference | SDesc | Noun | Material | Size / Quality | Weight / Cost | Components | Tags | Morph | Notes |
+|---|---|---|---|---|---:|---|---|---|---|
+| `medieval_jewellery_neck_blue_glass_bead_necklace` | a blue glass bead necklace | `necklace` | `glass` | `VerySmall` / `Standard` | 70.0g / 34.0m | `Holdable`<br>`Wear_Necklace`<br>`Destroyable_Glassware` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Necklaces`<br>`Functions / Worn Items / Jewellery / Bead Strings`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_neck_faience_bead_necklace` | a faience bead necklace | `necklace` | `faience` | `VerySmall` / `Standard` | 70.0g / 28.0m | `Holdable`<br>`Wear_Necklace`<br>`Destroyable_Glassware` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Necklaces`<br>`Functions / Worn Items / Jewellery / Bead Strings`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_neck_amber_bead_necklace` | an amber bead necklace | `necklace` | `amber` | `VerySmall` / `Good` | 70.0g / 120.0m | `Holdable`<br>`Wear_Necklace`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Necklaces`<br>`Functions / Worn Items / Jewellery / Bead Strings`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_neck_jet_bead_necklace` | a jet bead necklace | `necklace` | `jet` | `VerySmall` / `Standard` | 70.0g / 42.0m | `Holdable`<br>`Wear_Necklace`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Necklaces`<br>`Functions / Worn Items / Jewellery / Bead Strings`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_neck_coral_bead_necklace` | a coral bead necklace | `necklace` | `coral` | `VerySmall` / `Good` | 70.0g / 150.0m | `Holdable`<br>`Wear_Necklace`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Necklaces`<br>`Functions / Worn Items / Jewellery / Bead Strings`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_neck_bone_bead_necklace` | a bone bead necklace | `necklace` | `bone` | `VerySmall` / `Standard` | 70.0g / 12.0m | `Holdable`<br>`Wear_Necklace`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Necklaces`<br>`Functions / Worn Items / Jewellery / Bead Strings`<br>`Market / Jewellery / Commoner Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_neck_horn_bead_necklace` | a horn bead necklace | `necklace` | `horn` | `VerySmall` / `Standard` | 70.0g / 14.0m | `Holdable`<br>`Wear_Necklace`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Necklaces`<br>`Functions / Worn Items / Jewellery / Bead Strings`<br>`Market / Jewellery / Commoner Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_neck_cowrie_shell_necklace` | a cowrie shell necklace | `necklace` | `cowrie shell` | `VerySmall` / `Standard` | 70.0g / 16.0m | `Holdable`<br>`Wear_Necklace`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Necklaces`<br>`Functions / Worn Items / Jewellery / Bead Strings`<br>`Market / Jewellery / Commoner Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_neck_conch_shell_necklace` | a conch shell necklace | `necklace` | `conch shell` | `VerySmall` / `Standard` | 70.0g / 24.0m | `Holdable`<br>`Wear_Necklace`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Necklaces`<br>`Functions / Worn Items / Jewellery / Bead Strings`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_neck_mother_of_pearl_necklace` | a mother-of-pearl necklace | `necklace` | `mother-of-pearl` | `VerySmall` / `Good` | 70.0g / 130.0m | `Holdable`<br>`Wear_Necklace`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Necklaces`<br>`Functions / Worn Items / Jewellery / Bead Strings`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_neck_small_pearl_necklace` | a small pearl necklace | `necklace` | `pearl` | `VerySmall` / `Good` | 70.0g / 240.0m | `Holdable`<br>`Wear_Necklace`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Necklaces`<br>`Functions / Worn Items / Jewellery / Bead Strings`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_neck_lapis_bead_necklace` | a lapis bead necklace | `necklace` | `lapis lazuli` | `VerySmall` / `Good` | 70.0g / 180.0m | `Holdable`<br>`Wear_Necklace`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Necklaces`<br>`Functions / Worn Items / Jewellery / Bead Strings`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_neck_carnelibead_necklace` | a carnelian bead necklace | `necklace` | `carnelian` | `VerySmall` / `Good` | 70.0g / 90.0m | `Holdable`<br>`Wear_Necklace`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Necklaces`<br>`Functions / Worn Items / Jewellery / Bead Strings`<br>`Market / Jewellery / Merchant Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_neck_turquoise_bead_necklace` | a turquoise bead necklace | `necklace` | `turquoise` | `VerySmall` / `Good` | 70.0g / 150.0m | `Holdable`<br>`Wear_Necklace`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Necklaces`<br>`Functions / Worn Items / Jewellery / Bead Strings`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_neck_jade_bead_necklace` | a jade bead necklace | `necklace` | `jade` | `VerySmall` / `Good` | 70.0g / 210.0m | `Holdable`<br>`Wear_Necklace`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Necklaces`<br>`Functions / Worn Items / Jewellery / Bead Strings`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_neck_rock_crystal_necklace` | a rock crystal necklace | `necklace` | `rock crystal` | `VerySmall` / `Good` | 70.0g / 170.0m | `Holdable`<br>`Wear_Necklace`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Necklaces`<br>`Functions / Worn Items / Jewellery / Bead Strings`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_neck_agate_bead_string` | an agate bead string | `necklace` | `agate` | `VerySmall` / `Standard` | 70.0g / 46.0m | `Holdable`<br>`Wear_Necklace`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Necklaces`<br>`Functions / Worn Items / Jewellery / Bead Strings`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_neck_jasper_bead_string` | a jasper bead string | `necklace` | `jasper` | `VerySmall` / `Standard` | 70.0g / 42.0m | `Holdable`<br>`Wear_Necklace`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Necklaces`<br>`Functions / Worn Items / Jewellery / Bead Strings`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_neck_chalcedony_bead_string` | a chalcedony bead string | `necklace` | `chalcedony` | `VerySmall` / `Standard` | 70.0g / 48.0m | `Holdable`<br>`Wear_Necklace`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Necklaces`<br>`Functions / Worn Items / Jewellery / Bead Strings`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_neck_quartz_bead_string` | a quartz bead string | `necklace` | `quartz` | `VerySmall` / `Standard` | 70.0g / 34.0m | `Holdable`<br>`Wear_Necklace`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Necklaces`<br>`Functions / Worn Items / Jewellery / Bead Strings`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_neck_plain_bronze_chain` | a plain bronze chain | `chain` | `bronze` | `VerySmall` / `Good` | 55.0g / 44.0m | `Holdable`<br>`Wear_Necklace`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Necklaces`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_neck_narrow_silver_chain` | a narrow silver chain | `chain` | `silver` | `VerySmall` / `Good` | 48.0g / 115.0m | `Holdable`<br>`Wear_Necklace`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Necklaces`<br>`Market / Jewellery / Merchant Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_neck_gold_link_chain` | a gold link chain | `chain` | `gold` | `VerySmall` / `Good` | 62.0g / 520.0m | `Holdable`<br>`Wear_Necklace`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Necklaces`<br>`Market / Jewellery / Noble Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_neck_silver_gilt_collar_chain` | a silver-gilt collar chain | `chain` | `silver-gilt` | `VerySmall` / `Good` | 80.0g / 260.0m | `Holdable`<br>`Wear_Necklace`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Necklaces`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_neck_brass_merchant_chain` | a brass merchant chain | `chain` | `brass` | `VerySmall` / `Good` | 70.0g / 76.0m | `Holdable`<br>`Wear_Necklace`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Necklaces`<br>`Market / Jewellery / Merchant Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_neck_heavy_court_chain` | a heavy court chain | `chain` | `gold` | `VerySmall` / `Good` | 160.0g / 1100.0m | `Holdable`<br>`Wear_Necklace`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Necklaces`<br>`Market / Jewellery / Court Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_neck_double_strand_silver_necklace` | a double-strand silver necklace | `necklace` | `silver` | `VerySmall` / `Good` | 82.0g / 180.0m | `Holdable`<br>`Wear_Necklace`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Necklaces`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_neck_small_pendant_chain` | a small pendant chain | `chain` | `silver` | `VerySmall` / `Good` | 42.0g / 88.0m | `Holdable`<br>`Wear_Necklace`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Necklaces`<br>`Market / Jewellery / Merchant Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_neck_leather_token_necklace` | a leather token necklace | `necklace` | `leather` | `VerySmall` / `Good` | 28.0g / 8.0m | `Holdable`<br>`Wear_Necklace`<br>`Destroyable_Clothing` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Necklaces`<br>`Market / Jewellery / Commoner Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_neck_silk_cord_necklace` | a silk cord necklace | `necklace` | `silk` | `VerySmall` / `Good` | 18.0g / 18.0m | `Holdable`<br>`Wear_Necklace`<br>`Destroyable_Clothing` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Necklaces`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_neck_hemp_cord_pendant_string` | a hemp cord pendant string | `necklace` | `hemp` | `VerySmall` / `Standard` | 12.0g / 3.0m | `Holdable`<br>`Wear_Necklace`<br>`Destroyable_Clothing` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Necklaces`<br>`Market / Jewellery / Simple Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_neck_gold_pendant_necklace` | a gold pendant necklace | `necklace` | `gold` | `VerySmall` / `Good` | 55.0g / 460.0m | `Holdable`<br>`Wear_Necklace`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Necklaces`<br>`Market / Jewellery / Noble Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_neck_silver_crescent_pendant` | a silver crescent pendant | `pendant` | `silver` | `VerySmall` / `Good` | 22.0g / 70.0m | `Holdable`<br>`Wear_Necklace`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Necklaces`<br>`Market / Jewellery / Merchant Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_neck_rock_crystal_pendant` | a rock crystal pendant | `pendant` | `rock crystal` | `VerySmall` / `Good` | 24.0g / 140.0m | `Holdable`<br>`Wear_Necklace`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Necklaces`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_neck_black_jet_choker` | a black jet choker | `choker` | `jet` | `VerySmall` / `Standard` | 40.0g / 38.0m | `Holdable`<br>`Wear_Choker`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Chokers`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_neck_red_silk_choker` | a red silk choker | `choker` | `silk` | `VerySmall` / `Standard` | 16.0g / 20.0m | `Holdable`<br>`Wear_Choker`<br>`Destroyable_Clothing` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Chokers`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_neck_silver_close_collar` | a silver close collar | `choker` | `silver` | `VerySmall` / `Good` | 65.0g / 150.0m | `Holdable`<br>`Wear_Choker`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Chokers`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_neck_cowrie_shell_choker` | a cowrie shell choker | `choker` | `cowrie shell` | `VerySmall` / `Standard` | 38.0g / 14.0m | `Holdable`<br>`Wear_Choker`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Chokers`<br>`Market / Jewellery / Commoner Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_neck_gold_bead_choker` | a gold bead choker | `choker` | `gold` | `VerySmall` / `Good` | 58.0g / 430.0m | `Holdable`<br>`Wear_Choker`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Chokers`<br>`Market / Jewellery / Noble Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_neck_coral_choker` | a coral choker | `choker` | `coral` | `VerySmall` / `Good` | 52.0g / 145.0m | `Holdable`<br>`Wear_Choker`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Chokers`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_neck_beadpattern_glass_choker` | a $beadpattern glass choker | `choker` | `glass` | `VerySmall` / `Standard` | 46.0g / 34.0m | `Holdable`<br>`Wear_Choker`<br>`Destroyable_Glassware`<br>`Variable_BeadPattern` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Chokers`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_neck_pearl_court_choker` | a pearl court choker | `choker` | `pearl` | `VerySmall` / `Good` | 50.0g / 360.0m | `Holdable`<br>`Wear_Choker`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Chokers`<br>`Market / Jewellery / Court Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_neck_bronze_neck_ring` | a bronze neck ring | `torc` | `bronze` | `Small` / `Good` | 150.0g / 62.0m | `Holdable`<br>`Wear_Neck_Ring`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Neck Rings`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_neck_twisted_silver_torc` | a twisted silver torc | `torc` | `silver` | `Small` / `Good` | 220.0g / 280.0m | `Holdable`<br>`Wear_Torc`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Torcs`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_neck_heavy_gold_torc` | a heavy gold torc | `torc` | `gold` | `Small` / `Good` | 260.0g / 1250.0m | `Holdable`<br>`Wear_Torc`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Torcs`<br>`Market / Jewellery / Noble Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_neck_iron_neck_ring` | an iron neck ring | `torc` | `wrought iron` | `Small` / `Standard` | 180.0g / 30.0m | `Holdable`<br>`Wear_Neck_Ring`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Neck Rings`<br>`Market / Jewellery / Commoner Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_neck_gilded_bronze_neck_ring` | a gilded bronze neck ring | `torc` | `gilded bronze` | `Small` / `Good` | 170.0g / 170.0m | `Holdable`<br>`Wear_Neck_Ring`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Neck Rings`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_neck_plain_copper_torc` | a plain copper torc | `torc` | `copper` | `Small` / `Good` | 140.0g / 46.0m | `Holdable`<br>`Wear_Torc`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Torcs`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_neck_amber_ended_silver_torc` | an amber-ended silver torc | `torc` | `silver` | `Small` / `Good` | 210.0g / 360.0m | `Holdable`<br>`Wear_Torc`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Torcs`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_neck_bone_token_pendant` | a bone token pendant | `pendant` | `bone` | `Tiny` / `Standard` | 12.0g / 7.0m | `Holdable`<br>`Wear_Necklace`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Necklaces`<br>`Functions / Worn Items / Jewellery / Pendants`<br>`Market / Jewellery / Commoner Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_neck_carved_amber_pendant` | a carved amber pendant | `pendant` | `amber` | `Tiny` / `Standard` | 18.0g / 34.0m | `Holdable`<br>`Wear_Necklace`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Necklaces`<br>`Functions / Worn Items / Jewellery / Pendants`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_neck_turquoise_pendant` | a turquoise pendant | `pendant` | `turquoise` | `Tiny` / `Good` | 16.0g / 72.0m | `Holdable`<br>`Wear_Necklace`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Necklaces`<br>`Functions / Worn Items / Jewellery / Pendants`<br>`Market / Jewellery / Merchant Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_neck_jade_pendant` | a jade pendant | `pendant` | `jade` | `Tiny` / `Good` | 22.0g / 180.0m | `Holdable`<br>`Wear_Necklace`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Necklaces`<br>`Functions / Worn Items / Jewellery / Pendants`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_neck_niello_inlaid_pendant` | a niello-inlaid pendant | `pendant` | `silver` | `Tiny` / `Good` | 20.0g / 150.0m | `Holdable`<br>`Wear_Necklace`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Necklaces`<br>`Functions / Worn Items / Jewellery / Pendants`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
 
-### Bracelets, bangles, armlets, anklets, toe rings, and garlands
+### Wrist, arm, ankle, and toe adornment
 
-- Use `Wear_Bracelet` or `Wear_Bracelets` for wrist ornaments.
-- Use `Wear_Armlet` for upper-arm rings and armlets.
-- Use `Wear_Anklet` or `Wear_Anklets` for ankle ornaments.
-- Use `Wear_Toe_Ring` for toe rings, mainly in South Asian-inspired rows.
-- Use `Wear_Wrist_Garland` and `Wear_Ankle_Garland` for flower/herb wrist and ankle garlands.
-- Include common cord bracelets, copper bracelets, bone bracelets, shell bracelets, glass bangles, brass bangles, silver bracelets, gold bangles, arm rings, paired anklets, toe rings, and elite gem-set pieces.
-- South Asian coverage should include bangles, anklets, toe rings, nose rings, and garlands as major categories rather than minor variants.
+| Unique reference | SDesc | Noun | Material | Size / Quality | Weight / Cost | Components | Tags | Morph | Notes |
+|---|---|---|---|---|---:|---|---|---|---|
+| `medieval_jewellery_limb_copper_wire_bracelet` | a copper wire bracelet | `bracelet` | `copper` | `VerySmall` / `Standard` | 24.0g / 8.0m | `Holdable`<br>`Wear_Bracelet`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Bracelets`<br>`Market / Jewellery / Commoner Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_limb_bronze_cuff_bracelet` | a bronze cuff bracelet | `bracelet` | `bronze` | `VerySmall` / `Standard` | 70.0g / 38.0m | `Holdable`<br>`Wear_Bracelet`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Bracelets`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_limb_brass_bangle` | a brass bangle | `bangle` | `brass` | `VerySmall` / `Standard` | 55.0g / 30.0m | `Holdable`<br>`Wear_Bracelet`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Bracelets`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_limb_silver_bracelet` | a silver bracelet | `bracelet` | `silver` | `VerySmall` / `Good` | 48.0g / 92.0m | `Holdable`<br>`Wear_Bracelet`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Bracelets`<br>`Market / Jewellery / Merchant Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_limb_silver_gilt_bracelet` | a silver-gilt bracelet | `bracelet` | `silver-gilt` | `VerySmall` / `Good` | 62.0g / 210.0m | `Holdable`<br>`Wear_Bracelet`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Bracelets`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_limb_gold_bracelet` | a gold bracelet | `bracelet` | `gold` | `VerySmall` / `Good` | 60.0g / 440.0m | `Holdable`<br>`Wear_Bracelet`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Bracelets`<br>`Market / Jewellery / Noble Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_limb_bone_bead_bracelet` | a bone bead bracelet | `bracelet` | `bone` | `VerySmall` / `Standard` | 22.0g / 8.0m | `Holdable`<br>`Wear_Bracelet`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Bracelets`<br>`Market / Jewellery / Commoner Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_limb_shell_bead_bracelet` | a shell bead bracelet | `bracelet` | `shell` | `VerySmall` / `Standard` | 24.0g / 9.0m | `Holdable`<br>`Wear_Bracelet`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Bracelets`<br>`Market / Jewellery / Commoner Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_limb_coral_bead_bracelet` | a coral bead bracelet | `bracelet` | `coral` | `VerySmall` / `Good` | 32.0g / 85.0m | `Holdable`<br>`Wear_Bracelet`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Bracelets`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_limb_jet_bead_bracelet` | a jet bead bracelet | `bracelet` | `jet` | `VerySmall` / `Standard` | 30.0g / 26.0m | `Holdable`<br>`Wear_Bracelet`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Bracelets`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_limb_glass_bead_bracelet` | a glass bead bracelet | `bracelet` | `glass` | `VerySmall` / `Standard` | 28.0g / 18.0m | `Holdable`<br>`Wear_Bracelet`<br>`Destroyable_Glassware` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Bracelets`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_limb_faience_bead_bracelet` | a faience bead bracelet | `bracelet` | `faience` | `VerySmall` / `Standard` | 30.0g / 20.0m | `Holdable`<br>`Wear_Bracelet`<br>`Destroyable_Glassware` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Bracelets`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_limb_leather_cord_bracelet` | a leather cord bracelet | `bracelet` | `leather` | `VerySmall` / `Standard` | 14.0g / 5.0m | `Holdable`<br>`Wear_Bracelet`<br>`Destroyable_Clothing` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Bracelets`<br>`Market / Jewellery / Commoner Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_limb_silk_knot_bracelet` | a silk knot bracelet | `bracelet` | `silk` | `VerySmall` / `Standard` | 10.0g / 16.0m | `Holdable`<br>`Wear_Bracelet`<br>`Destroyable_Clothing` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Bracelets`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_limb_paired_bronze_bracelet_set` | a paired bronze bracelet set | `bracelet` | `bronze` | `VerySmall` / `Standard` | 90.0g / 70.0m | `Holdable`<br>`Wear_Bracelets`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Bracelets`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_limb_paired_silver_bracelet_set` | a paired silver bracelet set | `bracelet` | `silver` | `VerySmall` / `Good` | 84.0g / 180.0m | `Holdable`<br>`Wear_Bracelets`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Bracelets`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_limb_motif_brass_bracelet` | a $motif brass bracelet | `bracelet` | `brass` | `VerySmall` / `Standard` | 48.0g / 42.0m | `Holdable`<br>`Wear_Bracelet`<br>`Destroyable_HeavyMetal`<br>`Variable_JewelleryMotif` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Bracelets`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_limb_finish_silver_bracelet` | a $finish silver bracelet | `bracelet` | `silver` | `VerySmall` / `Good` | 46.0g / 100.0m | `Holdable`<br>`Wear_Bracelet`<br>`Destroyable_HeavyMetal`<br>`Variable_MetalFinish` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Bracelets`<br>`Market / Jewellery / Merchant Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_limb_narrow_glass_bangle` | a narrow glass bangle | `bangle` | `glass` | `VerySmall` / `Standard` | 35.0g / 18.0m | `Holdable`<br>`Wear_Bracelet`<br>`Destroyable_Glassware` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Bracelets`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_limb_blue_faience_bangle` | a blue faience bangle | `bangle` | `faience` | `VerySmall` / `Standard` | 42.0g / 24.0m | `Holdable`<br>`Wear_Bracelet`<br>`Destroyable_Glassware` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Bracelets`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_limb_conch_shell_bangle` | a conch shell bangle | `bangle` | `conch shell` | `VerySmall` / `Standard` | 38.0g / 22.0m | `Holdable`<br>`Wear_Bracelet`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Bracelets`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_limb_mother_of_pearl_bangle` | a mother-of-pearl bangle | `bangle` | `mother-of-pearl` | `VerySmall` / `Good` | 34.0g / 90.0m | `Holdable`<br>`Wear_Bracelet`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Bracelets`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_limb_plain_gold_bangle` | a plain gold bangle | `bangle` | `gold` | `VerySmall` / `Good` | 55.0g / 400.0m | `Holdable`<br>`Wear_Bracelet`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Bracelets`<br>`Market / Jewellery / Noble Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_limb_red_coral_bangle` | a red coral bangle | `bangle` | `coral` | `VerySmall` / `Good` | 45.0g / 125.0m | `Holdable`<br>`Wear_Bracelet`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Bracelets`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_limb_paired_glass_bangle_set` | a paired glass bangle set | `bangle` | `glass` | `VerySmall` / `Standard` | 70.0g / 34.0m | `Holdable`<br>`Wear_Bracelets`<br>`Destroyable_Glassware` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Bracelets`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_limb_paired_gold_bangle_set` | a paired gold bangle set | `bangle` | `gold` | `VerySmall` / `Good` | 110.0g / 780.0m | `Holdable`<br>`Wear_Bracelets`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Bracelets`<br>`Market / Jewellery / Noble Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_limb_paired_conch_bangle_set` | a paired conch bangle set | `bangle` | `conch shell` | `VerySmall` / `Standard` | 80.0g / 44.0m | `Holdable`<br>`Wear_Bracelets`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Bracelets`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_limb_silver_gilt_bangle` | a silver-gilt bangle | `bangle` | `silver-gilt` | `VerySmall` / `Good` | 52.0g / 180.0m | `Holdable`<br>`Wear_Bracelet`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Bracelets`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_limb_gilded_copper_bangle` | a gilded copper bangle | `bangle` | `gilded copper` | `VerySmall` / `Standard` | 50.0g / 48.0m | `Holdable`<br>`Wear_Bracelet`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Bracelets`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_limb_jade_bangle` | a jade bangle | `bangle` | `jade` | `VerySmall` / `Good` | 60.0g / 180.0m | `Holdable`<br>`Wear_Bracelet`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Bracelets`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_limb_bronze_upper_arm_armlet` | a bronze upper-arm armlet | `armlet` | `bronze` | `Small` / `Good` | 120.0g / 58.0m | `Holdable`<br>`Wear_Armlet`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Armlets`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_limb_silver_armlet` | a silver armlet | `armlet` | `silver` | `Small` / `Good` | 105.0g / 220.0m | `Holdable`<br>`Wear_Armlet`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Armlets`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_limb_gold_armlet` | a gold armlet | `armlet` | `gold` | `Small` / `Good` | 115.0g / 760.0m | `Holdable`<br>`Wear_Armlet`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Armlets`<br>`Market / Jewellery / Noble Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_limb_leather_upper_arm_band` | a leather upper-arm band | `armlet` | `leather` | `Small` / `Standard` | 35.0g / 10.0m | `Holdable`<br>`Wear_Armlet`<br>`Destroyable_Clothing` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Armlets`<br>`Market / Jewellery / Commoner Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_limb_horn_armlet` | a horn armlet | `armlet` | `horn` | `Small` / `Good` | 60.0g / 26.0m | `Holdable`<br>`Wear_Armlet`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Armlets`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_limb_gilded_bronze_armlet` | a gilded bronze armlet | `armlet` | `gilded bronze` | `Small` / `Good` | 100.0g / 150.0m | `Holdable`<br>`Wear_Armlet`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Armlets`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_limb_motif_silver_armlet` | a $motif silver armlet | `armlet` | `silver` | `Small` / `Good` | 110.0g / 240.0m | `Holdable`<br>`Wear_Armlet`<br>`Destroyable_HeavyMetal`<br>`Variable_JewelleryMotif` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Armlets`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_limb_coral_set_armlet` | a coral-set armlet | `armlet` | `silver` | `Small` / `Good` | 125.0g / 360.0m | `Holdable`<br>`Wear_Armlet`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Armlets`<br>`Market / Jewellery / Noble Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_limb_steppe_silver_arm_ring` | a steppe silver arm ring | `armlet` | `silver` | `Small` / `Good` | 130.0g / 260.0m | `Holdable`<br>`Wear_Armlet`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Armlets`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_limb_heavy_bronze_arm_ring` | a heavy bronze arm ring | `armlet` | `bronze` | `Small` / `Good` | 150.0g / 70.0m | `Holdable`<br>`Wear_Armlet`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Armlets`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_limb_copper_anklet` | a copper anklet | `anklet` | `copper` | `VerySmall` / `Standard` | 42.0g / 10.0m | `Holdable`<br>`Wear_Anklet`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Anklets`<br>`Market / Jewellery / Commoner Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_limb_paired_brass_anklet_set` | a paired brass anklet set | `anklet` | `brass` | `VerySmall` / `Standard` | 95.0g / 46.0m | `Holdable`<br>`Wear_Anklets`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Anklets`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_limb_paired_silver_anklet_set` | a paired silver anklet set | `anklet` | `silver` | `VerySmall` / `Good` | 88.0g / 160.0m | `Holdable`<br>`Wear_Anklets`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Anklets`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_limb_bell_less_bronze_anklet` | a bell-less bronze anklet | `anklet` | `bronze` | `VerySmall` / `Standard` | 54.0g / 28.0m | `Holdable`<br>`Wear_Anklet`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Anklets`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_limb_cowrie_shell_anklet_string` | a cowrie shell anklet string | `anklet` | `cowrie shell` | `VerySmall` / `Standard` | 38.0g / 12.0m | `Holdable`<br>`Wear_Anklet`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Anklets`<br>`Market / Jewellery / Commoner Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_limb_conch_shell_anklet` | a conch shell anklet | `anklet` | `conch shell` | `VerySmall` / `Standard` | 42.0g / 20.0m | `Holdable`<br>`Wear_Anklet`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Anklets`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_limb_gold_court_anklet` | a gold court anklet | `anklet` | `gold` | `VerySmall` / `Good` | 62.0g / 420.0m | `Holdable`<br>`Wear_Anklet`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Anklets`<br>`Market / Jewellery / Noble Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_limb_glass_bead_anklet` | a glass bead anklet | `anklet` | `glass` | `VerySmall` / `Standard` | 36.0g / 18.0m | `Holdable`<br>`Wear_Anklet`<br>`Destroyable_Glassware` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Anklets`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_limb_coral_bead_anklet` | a coral bead anklet | `anklet` | `coral` | `VerySmall` / `Good` | 40.0g / 80.0m | `Holdable`<br>`Wear_Anklet`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Anklets`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_limb_braided_hemp_anklet` | a braided hemp anklet | `anklet` | `hemp` | `VerySmall` / `Standard` | 18.0g / 2.0m | `Holdable`<br>`Wear_Anklet`<br>`Destroyable_Clothing` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Anklets`<br>`Market / Jewellery / Simple Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_limb_plain_silver_toe_ring` | a plain silver toe ring | `ring` | `silver` | `Tiny` / `Standard` | 5.0g / 22.0m | `Holdable`<br>`Wear_Toe_Ring`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Toe Rings`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_limb_paired_silver_toe_ring_set` | a paired silver toe-ring set | `ring` | `silver` | `Tiny` / `Standard` | 10.0g / 42.0m | `Holdable`<br>`Wear_Toe_Ring`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Toe Rings`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_limb_copper_toe_ring` | a copper toe ring | `ring` | `copper` | `Tiny` / `Standard` | 4.0g / 5.0m | `Holdable`<br>`Wear_Toe_Ring`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Toe Rings`<br>`Market / Jewellery / Commoner Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_limb_gold_toe_ring` | a gold toe ring | `ring` | `gold` | `Tiny` / `Good` | 5.0g / 90.0m | `Holdable`<br>`Wear_Toe_Ring`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Toe Rings`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_limb_shell_set_toe_ring` | a shell-set toe ring | `ring` | `silver` | `Tiny` / `Standard` | 6.0g / 30.0m | `Holdable`<br>`Wear_Toe_Ring`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Toe Rings`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_limb_brass_toe_ring` | a brass toe ring | `ring` | `brass` | `Tiny` / `Standard` | 5.0g / 8.0m | `Holdable`<br>`Wear_Toe_Ring`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Toe Rings`<br>`Market / Jewellery / Commoner Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_limb_tiny_pearl_toe_ring` | a tiny pearl toe ring | `ring` | `silver` | `Tiny` / `Good` | 5.0g / 70.0m | `Holdable`<br>`Wear_Toe_Ring`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Toe Rings`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_limb_motif_toe_ring` | a $motif toe ring | `ring` | `silver` | `Tiny` / `Standard` | 5.0g / 35.0m | `Holdable`<br>`Wear_Toe_Ring`<br>`Destroyable_HeavyMetal`<br>`Variable_JewelleryMotif` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Toe Rings`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
 
-### Earrings and piercings
+### Earrings and culturally justified piercings
 
-- Use `Wear_Earring` and `Wear_Earrings` for ordinary earrings.
-- Use `Wear_Nose_Ring` for nose rings and nose studs where culturally justified.
-- Use `Wear_Toe_Ring` for toe rings where culturally justified.
-- Avoid default use of `Wear_Brow_Ring`, `Wear_Lip_Ring`, `Wear_Bellybutton_Ring`, `Wear_Nipple_Ring`, `Wear_Tongue_Ring`, and `Wear_Penis_Ring` in the strict 500-1300 catalogue unless a fantasy/local expansion asks for them.
-- Include studs, hoops, pendant earrings, bead earrings, pearl earrings, simple wire earrings, and elite gold or gem earrings.
+| Unique reference | SDesc | Noun | Material | Size / Quality | Weight / Cost | Components | Tags | Morph | Notes |
+|---|---|---|---|---|---:|---|---|---|---|
+| `medieval_jewellery_ear_pair_of_copper_hoop_earrings` | a pair of copper hoop earrings | `earring` | `copper` | `Tiny` / `Standard` | 10.0g / 8.0m | `Holdable`<br>`Wear_Earrings`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Earrings`<br>`Market / Jewellery / Commoner Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_ear_pair_of_bronze_hoop_earrings` | a pair of bronze hoop earrings | `earring` | `bronze` | `Tiny` / `Standard` | 14.0g / 16.0m | `Holdable`<br>`Wear_Earrings`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Earrings`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_ear_pair_of_silver_hoop_earrings` | a pair of silver hoop earrings | `earring` | `silver` | `Tiny` / `Good` | 12.0g / 58.0m | `Holdable`<br>`Wear_Earrings`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Earrings`<br>`Market / Jewellery / Merchant Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_ear_pair_of_gold_hoop_earrings` | a pair of gold hoop earrings | `earring` | `gold` | `Tiny` / `Good` | 11.0g / 210.0m | `Holdable`<br>`Wear_Earrings`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Earrings`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_ear_pair_of_pearl_drop_earrings` | a pair of pearl drop earrings | `earring` | `pearl` | `Tiny` / `Good` | 9.0g / 180.0m | `Holdable`<br>`Wear_Earrings`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Earrings`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_ear_pair_of_coral_drop_earrings` | a pair of coral drop earrings | `earring` | `coral` | `Tiny` / `Good` | 12.0g / 120.0m | `Holdable`<br>`Wear_Earrings`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Earrings`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_ear_pair_of_glass_bead_earrings` | a pair of glass bead earrings | `earring` | `glass` | `Tiny` / `Standard` | 10.0g / 18.0m | `Holdable`<br>`Wear_Earrings`<br>`Destroyable_Glassware` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Earrings`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_ear_pair_of_amber_bead_earrings` | a pair of amber bead earrings | `earring` | `amber` | `Tiny` / `Good` | 10.0g / 48.0m | `Holdable`<br>`Wear_Earrings`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Earrings`<br>`Market / Jewellery / Merchant Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_ear_pair_of_turquoise_earrings` | a pair of turquoise earrings | `earring` | `turquoise` | `Tiny` / `Good` | 10.0g / 120.0m | `Holdable`<br>`Wear_Earrings`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Earrings`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_ear_pair_of_garnet_earrings` | a pair of garnet earrings | `earring` | `garnet` | `Tiny` / `Good` | 8.0g / 260.0m | `Holdable`<br>`Wear_Earrings`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Earrings`<br>`Market / Jewellery / Noble Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_ear_pair_of_silver_wire_earrings` | a pair of silver wire earrings | `earring` | `silver` | `Tiny` / `Good` | 7.0g / 50.0m | `Holdable`<br>`Wear_Earrings`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Earrings`<br>`Market / Jewellery / Merchant Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_ear_pair_of_gilded_bronze_earrings` | a pair of gilded bronze earrings | `earring` | `gilded bronze` | `Tiny` / `Standard` | 12.0g / 44.0m | `Holdable`<br>`Wear_Earrings`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Earrings`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_ear_single_bronze_earring` | a single bronze earring | `earring` | `bronze` | `Tiny` / `Standard` | 5.0g / 7.0m | `Holdable`<br>`Wear_Earring`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Earrings`<br>`Market / Jewellery / Commoner Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_ear_single_silver_earring` | a single silver earring | `earring` | `silver` | `Tiny` / `Standard` | 5.0g / 24.0m | `Holdable`<br>`Wear_Earring`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Earrings`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_ear_single_gold_earring` | a single gold earring | `earring` | `gold` | `Tiny` / `Good` | 5.0g / 95.0m | `Holdable`<br>`Wear_Earring`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Earrings`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_ear_pair_of_conch_shell_earrings` | a pair of conch shell earrings | `earring` | `conch shell` | `Tiny` / `Standard` | 9.0g / 18.0m | `Holdable`<br>`Wear_Earrings`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Earrings`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_ear_pair_of_cowrie_earrings` | a pair of cowrie earrings | `earring` | `cowrie shell` | `Tiny` / `Standard` | 8.0g / 10.0m | `Holdable`<br>`Wear_Earrings`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Earrings`<br>`Market / Jewellery / Commoner Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_ear_pair_of_mother_of_pearl_earrings` | a pair of mother-of-pearl earrings | `earring` | `mother-of-pearl` | `Tiny` / `Good` | 8.0g / 90.0m | `Holdable`<br>`Wear_Earrings`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Earrings`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_ear_pair_of_jade_earrings` | a pair of jade earrings | `earring` | `jade` | `Tiny` / `Good` | 10.0g / 120.0m | `Holdable`<br>`Wear_Earrings`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Earrings`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_ear_pair_of_lapis_bead_earrings` | a pair of lapis bead earrings | `earring` | `lapis lazuli` | `Tiny` / `Good` | 9.0g / 110.0m | `Holdable`<br>`Wear_Earrings`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Earrings`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_ear_pair_of_carneliearrings` | a pair of carnelian earrings | `earring` | `carnelian` | `Tiny` / `Good` | 9.0g / 65.0m | `Holdable`<br>`Wear_Earrings`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Earrings`<br>`Market / Jewellery / Merchant Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_ear_pair_of_rock_crystal_earrings` | a pair of rock crystal earrings | `earring` | `rock crystal` | `Tiny` / `Good` | 8.0g / 100.0m | `Holdable`<br>`Wear_Earrings`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Earrings`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_ear_pair_of_enamelled_earrings` | a pair of enamelled earrings | `earring` | `enamel` | `Tiny` / `Good` | 10.0g / 130.0m | `Holdable`<br>`Wear_Earrings`<br>`Destroyable_Glassware` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Earrings`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_ear_pair_of_shape_earrings` | a pair of $shape earrings | `earring` | `silver` | `Tiny` / `Good` | 10.0g / 78.0m | `Holdable`<br>`Wear_Earrings`<br>`Destroyable_HeavyMetal`<br>`Variable_JewelleryShape` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Earrings`<br>`Market / Jewellery / Merchant Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_ear_small_gold_nose_ring` | a small gold nose ring | `nose ring` | `gold` | `Tiny` / `Good` | 4.0g / 110.0m | `Holdable`<br>`Wear_Nose_Ring`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Piercings / Nose Rings`<br>`Functions / Worn Items / Jewellery / Piercings`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_ear_silver_nose_ring` | a silver nose ring | `nose ring` | `silver` | `Tiny` / `Standard` | 4.0g / 36.0m | `Holdable`<br>`Wear_Nose_Ring`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Piercings / Nose Rings`<br>`Functions / Worn Items / Jewellery / Piercings`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_ear_pearl_nose_stud` | a pearl nose stud | `stud` | `pearl` | `Tiny` / `Good` | 3.0g / 70.0m | `Holdable`<br>`Wear_Nose_Ring`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Piercings / Nose Rings`<br>`Functions / Worn Items / Jewellery / Piercings`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_ear_tiny_turquoise_nose_stud` | a tiny turquoise nose stud | `stud` | `turquoise` | `Tiny` / `Good` | 3.0g / 58.0m | `Holdable`<br>`Wear_Nose_Ring`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Piercings / Nose Rings`<br>`Functions / Worn Items / Jewellery / Piercings`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_ear_copper_nose_ring` | a copper nose ring | `nose ring` | `copper` | `Tiny` / `Standard` | 4.0g / 6.0m | `Holdable`<br>`Wear_Nose_Ring`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Piercings / Nose Rings`<br>`Functions / Worn Items / Jewellery / Piercings`<br>`Market / Jewellery / Commoner Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_ear_flower_shaped_nose_stud` | a flower-shaped nose stud | `stud` | `gold` | `Tiny` / `Good` | 3.0g / 95.0m | `Holdable`<br>`Wear_Nose_Ring`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Piercings / Nose Rings`<br>`Functions / Worn Items / Jewellery / Piercings`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_ear_motif_silver_nose_ring` | a $motif silver nose ring | `nose ring` | `silver` | `Tiny` / `Standard` | 4.0g / 45.0m | `Holdable`<br>`Wear_Nose_Ring`<br>`Destroyable_HeavyMetal`<br>`Variable_JewelleryMotif` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Piercings / Nose Rings`<br>`Functions / Worn Items / Jewellery / Piercings`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_ear_pair_of_silver_ear_studs` | a pair of silver ear studs | `stud` | `silver` | `Tiny` / `Good` | 5.0g / 42.0m | `Holdable`<br>`Wear_Earrings`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Earrings`<br>`Functions / Worn Items / Jewellery / Piercings / Ear Studs`<br>`Market / Jewellery / Merchant Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_ear_pair_of_glass_ear_studs` | a pair of glass ear studs | `stud` | `glass` | `Tiny` / `Standard` | 5.0g / 12.0m | `Holdable`<br>`Wear_Earrings`<br>`Destroyable_Glassware` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Earrings`<br>`Functions / Worn Items / Jewellery / Piercings / Ear Studs`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_ear_pair_of_gold_ear_studs` | a pair of gold ear studs | `stud` | `gold` | `Tiny` / `Good` | 5.0g / 120.0m | `Holdable`<br>`Wear_Earrings`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Earrings`<br>`Functions / Worn Items / Jewellery / Piercings / Ear Studs`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
 
 ### Brooches, pins, badges, and fasteners
 
-- Brooches and pins are historically central and are now mechanically supported.
-- Use `Wear_Brooch` for single brooches and `Wear_Brooches` for paired brooch sets.
-- Use `Wear_Pin` for cloak pins, ring pins, straight pins, dress pins, and decorative garment pins.
-- Use `Wear_Badge` for secular badges.
-- Descriptions may mention a pin, catch, shank, boss, terminal, hinge, clasp, and back where visible. Do not promise hidden storage, locking, or legal status without components.
-- Exclude pilgrim badges and devotional badges from this decorative branch.
-- Include secular badges, household badges, love badges, ring brooches, annular brooches, disc brooches, cloak pins, strap-end ornaments, and courtly jewelled pins where appropriate.
+| Unique reference | SDesc | Noun | Material | Size / Quality | Weight / Cost | Components | Tags | Morph | Notes |
+|---|---|---|---|---|---:|---|---|---|---|
+| `medieval_jewellery_brooch_plain_bronze_ring_brooch` | a plain bronze ring brooch | `brooch` | `bronze` | `VerySmall` / `Standard` | 42.0g / 28.0m | `Holdable`<br>`Wear_Brooch`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Brooches`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_brooch_silver_annular_brooch` | a silver annular brooch | `brooch` | `silver` | `VerySmall` / `Good` | 38.0g / 85.0m | `Holdable`<br>`Wear_Brooch`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Brooches`<br>`Market / Jewellery / Merchant Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_brooch_gilded_copper_disc_brooch` | a gilded copper disc brooch | `brooch` | `gilded copper` | `VerySmall` / `Standard` | 48.0g / 48.0m | `Holdable`<br>`Wear_Brooch`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Brooches`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_brooch_garnet_coloured_brooch` | a garnet-coloured brooch | `brooch` | `gold` | `VerySmall` / `Good` | 46.0g / 420.0m | `Holdable`<br>`Wear_Brooch`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Brooches`<br>`Market / Jewellery / Noble Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_brooch_glass_inlaid_brooch` | a glass-inlaid brooch | `brooch` | `bronze` | `VerySmall` / `Good` | 50.0g / 90.0m | `Holdable`<br>`Wear_Brooch`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Brooches`<br>`Market / Jewellery / Merchant Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_brooch_penannular_silver_brooch` | a penannular silver brooch | `brooch` | `silver` | `VerySmall` / `Good` | 70.0g / 180.0m | `Holdable`<br>`Wear_Brooch`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Brooches`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_brooch_heavy_cloak_brooch` | a heavy cloak brooch | `brooch` | `bronze` | `VerySmall` / `Standard` | 85.0g / 50.0m | `Holdable`<br>`Wear_Brooch`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Brooches`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_brooch_paired_oval_brooch_set` | a paired oval brooch set | `brooch` | `bronze` | `VerySmall` / `Standard` | 150.0g / 110.0m | `Holdable`<br>`Wear_Brooches`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Brooches`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_brooch_paired_silver_brooch_set` | a paired silver brooch set | `brooch` | `silver` | `VerySmall` / `Good` | 130.0g / 260.0m | `Holdable`<br>`Wear_Brooches`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Brooches`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_brooch_small_pewter_brooch` | a small pewter brooch | `brooch` | `pewter` | `VerySmall` / `Standard` | 30.0g / 16.0m | `Holdable`<br>`Wear_Brooch`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Brooches`<br>`Market / Jewellery / Commoner Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_brooch_brass_ring_brooch` | a brass ring brooch | `brooch` | `brass` | `VerySmall` / `Standard` | 40.0g / 24.0m | `Holdable`<br>`Wear_Brooch`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Brooches`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_brooch_enamel_disc_brooch` | an enamel disc brooch | `brooch` | `enamel` | `VerySmall` / `Good` | 44.0g / 130.0m | `Holdable`<br>`Wear_Brooch`<br>`Destroyable_Glassware` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Brooches`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_brooch_niello_inlaid_silver_brooch` | a niello-inlaid silver brooch | `brooch` | `silver` | `VerySmall` / `Good` | 46.0g / 150.0m | `Holdable`<br>`Wear_Brooch`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Brooches`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_brooch_jet_mourning_brooch` | a jet mourning brooch | `brooch` | `jet` | `VerySmall` / `Standard` | 32.0g / 46.0m | `Holdable`<br>`Wear_Brooch`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Brooches`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_brooch_amber_faced_brooch` | an amber-faced brooch | `brooch` | `bronze` | `VerySmall` / `Good` | 48.0g / 85.0m | `Holdable`<br>`Wear_Brooch`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Brooches`<br>`Market / Jewellery / Merchant Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_brooch_coral_set_brooch` | a coral-set brooch | `brooch` | `silver` | `VerySmall` / `Good` | 44.0g / 150.0m | `Holdable`<br>`Wear_Brooch`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Brooches`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_brooch_lapis_set_court_brooch` | a lapis-set court brooch | `brooch` | `gold` | `VerySmall` / `Good` | 50.0g / 520.0m | `Holdable`<br>`Wear_Brooch`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Brooches`<br>`Market / Jewellery / Noble Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_brooch_rock_crystal_brooch` | a rock crystal brooch | `brooch` | `silver` | `VerySmall` / `Good` | 42.0g / 170.0m | `Holdable`<br>`Wear_Brooch`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Brooches`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_brooch_simple_bone_brooch` | a simple bone brooch | `brooch` | `bone` | `VerySmall` / `Standard` | 24.0g / 8.0m | `Holdable`<br>`Wear_Brooch`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Brooches`<br>`Market / Jewellery / Commoner Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_brooch_horn_cloak_brooch` | a horn cloak brooch | `brooch` | `horn` | `VerySmall` / `Standard` | 28.0g / 12.0m | `Holdable`<br>`Wear_Brooch`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Brooches`<br>`Market / Jewellery / Commoner Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_brooch_shell_faced_brooch` | a shell-faced brooch | `brooch` | `shell` | `VerySmall` / `Standard` | 30.0g / 22.0m | `Holdable`<br>`Wear_Brooch`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Brooches`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_brooch_mother_of_pearl_brooch` | a mother-of-pearl brooch | `brooch` | `mother-of-pearl` | `VerySmall` / `Good` | 28.0g / 95.0m | `Holdable`<br>`Wear_Brooch`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Brooches`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_brooch_motif_bronze_brooch` | a $motif bronze brooch | `brooch` | `bronze` | `VerySmall` / `Standard` | 42.0g / 36.0m | `Holdable`<br>`Wear_Brooch`<br>`Destroyable_HeavyMetal`<br>`Variable_JewelleryMotif` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Brooches`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_brooch_shape_silver_brooch` | a $shape silver brooch | `brooch` | `silver` | `VerySmall` / `Good` | 42.0g / 90.0m | `Holdable`<br>`Wear_Brooch`<br>`Destroyable_HeavyMetal`<br>`Variable_JewelleryShape` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Brooches`<br>`Market / Jewellery / Merchant Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_brooch_inlay_gold_brooch` | a $inlay gold brooch | `brooch` | `gold` | `VerySmall` / `Good` | 46.0g / 560.0m | `Holdable`<br>`Wear_Brooch`<br>`Destroyable_HeavyMetal`<br>`Variable_InlayStyle` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Brooches`<br>`Market / Jewellery / Noble Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_brooch_finish_brass_brooch` | a $finish brass brooch | `brooch` | `brass` | `VerySmall` / `Standard` | 40.0g / 34.0m | `Holdable`<br>`Wear_Brooch`<br>`Destroyable_HeavyMetal`<br>`Variable_MetalFinish` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Brooches`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_brooch_trefoil_like_bronze_brooch` | a trefoil-like bronze brooch | `brooch` | `bronze` | `VerySmall` / `Standard` | 45.0g / 38.0m | `Holdable`<br>`Wear_Brooch`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Brooches`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_brooch_broad_silver_cloak_brooch` | a broad silver cloak brooch | `brooch` | `silver` | `VerySmall` / `Good` | 80.0g / 210.0m | `Holdable`<br>`Wear_Brooch`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Brooches`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_brooch_little_copper_dress_brooch` | a little copper dress brooch | `brooch` | `copper` | `VerySmall` / `Standard` | 24.0g / 12.0m | `Holdable`<br>`Wear_Brooch`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Brooches`<br>`Market / Jewellery / Commoner Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_brooch_fine_gold_court_brooch` | a fine gold court brooch | `brooch` | `gold` | `VerySmall` / `Good` | 52.0g / 760.0m | `Holdable`<br>`Wear_Brooch`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Brooches`<br>`Market / Jewellery / Court Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_pin_bronze_cloak_pin` | a bronze cloak pin | `pin` | `bronze` | `Tiny` / `Standard` | 30.0g / 18.0m | `Holdable`<br>`Wear_Pin`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Pins`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_pin_silver_cloak_pin` | a silver cloak pin | `pin` | `silver` | `Tiny` / `Good` | 28.0g / 62.0m | `Holdable`<br>`Wear_Pin`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Pins`<br>`Market / Jewellery / Merchant Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_pin_iron_dress_pin` | an iron dress pin | `pin` | `wrought iron` | `Tiny` / `Standard` | 20.0g / 5.0m | `Holdable`<br>`Wear_Pin`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Pins`<br>`Market / Jewellery / Commoner Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_pin_bone_garment_pin` | a bone garment pin | `pin` | `bone` | `Tiny` / `Standard` | 16.0g / 4.0m | `Holdable`<br>`Wear_Pin`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Pins`<br>`Market / Jewellery / Commoner Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_pin_brass_ring_pin` | a brass ring pin | `pin` | `brass` | `Tiny` / `Standard` | 26.0g / 18.0m | `Holdable`<br>`Wear_Pin`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Pins`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_pin_gold_headed_pin` | a gold-headed pin | `pin` | `gold` | `Tiny` / `Good` | 24.0g / 180.0m | `Holdable`<br>`Wear_Pin`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Pins`<br>`Market / Jewellery / Noble Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_pin_pearl_headed_pin` | a pearl-headed pin | `pin` | `pearl` | `Tiny` / `Good` | 18.0g / 90.0m | `Holdable`<br>`Wear_Pin`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Pins`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_pin_glass_headed_pin` | a glass-headed pin | `pin` | `glass` | `Tiny` / `Standard` | 18.0g / 16.0m | `Holdable`<br>`Wear_Pin`<br>`Destroyable_Glassware` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Pins`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_pin_rock_crystal_pin` | a rock crystal pin | `pin` | `rock crystal` | `Tiny` / `Good` | 20.0g / 105.0m | `Holdable`<br>`Wear_Pin`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Pins`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_pin_carved_horn_pin` | a carved horn pin | `pin` | `horn` | `Tiny` / `Standard` | 18.0g / 8.0m | `Holdable`<br>`Wear_Pin`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Pins`<br>`Market / Jewellery / Commoner Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_pin_motif_silver_pin` | a $motif silver pin | `pin` | `silver` | `Tiny` / `Good` | 22.0g / 70.0m | `Holdable`<br>`Wear_Pin`<br>`Destroyable_HeavyMetal`<br>`Variable_JewelleryMotif` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Pins`<br>`Market / Jewellery / Merchant Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_pin_finish_bronze_pin` | a $finish bronze pin | `pin` | `bronze` | `Tiny` / `Standard` | 24.0g / 24.0m | `Holdable`<br>`Wear_Pin`<br>`Destroyable_HeavyMetal`<br>`Variable_MetalFinish` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Pins`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_pin_long_brass_veil_pin` | a long brass veil pin | `pin` | `brass` | `Tiny` / `Standard` | 22.0g / 16.0m | `Holdable`<br>`Wear_Pin`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Pins`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_pin_narrow_ivory_hair_pin` | a narrow ivory hair pin | `pin` | `ivory` | `Tiny` / `Good` | 18.0g / 80.0m | `Holdable`<br>`Wear_Pin`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Pins`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_pin_copper_fastening_pin` | a copper fastening pin | `pin` | `copper` | `Tiny` / `Standard` | 20.0g / 7.0m | `Holdable`<br>`Wear_Pin`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Pins`<br>`Market / Jewellery / Commoner Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_pin_silver_gilt_court_pin` | a silver-gilt court pin | `pin` | `silver-gilt` | `Tiny` / `Good` | 26.0g / 210.0m | `Holdable`<br>`Wear_Pin`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Pins`<br>`Market / Jewellery / Court Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_badge_stamped_brass_badge` | a stamped brass badge | `badge` | `brass` | `Tiny` / `Good` | 24.0g / 22.0m | `Holdable`<br>`Wear_Badge`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Badges`<br>`Market / Jewellery / Professional Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_badge_pewter_household_badge` | a pewter household badge | `badge` | `pewter` | `Tiny` / `Standard` | 22.0g / 14.0m | `Holdable`<br>`Wear_Badge`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Badges`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_badge_silver_guild_badge` | a silver guild badge | `badge` | `silver` | `Tiny` / `Good` | 24.0g / 80.0m | `Holdable`<br>`Wear_Badge`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Badges`<br>`Market / Jewellery / Merchant Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_badge_copper_love_badge` | a copper love badge | `badge` | `copper` | `Tiny` / `Standard` | 18.0g / 10.0m | `Holdable`<br>`Wear_Badge`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Badges`<br>`Market / Jewellery / Commoner Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_badge_enamel_civic_badge` | an enamel civic badge | `badge` | `enamel` | `Tiny` / `Good` | 26.0g / 90.0m | `Holdable`<br>`Wear_Badge`<br>`Destroyable_Glassware` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Badges`<br>`Market / Jewellery / Merchant Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_badge_gilded_bronze_badge` | a gilded bronze badge | `badge` | `gilded bronze` | `Tiny` / `Good` | 28.0g / 110.0m | `Holdable`<br>`Wear_Badge`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Badges`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_badge_small_lead_token_badge` | a small lead token badge | `badge` | `lead` | `Tiny` / `Standard` | 20.0g / 6.0m | `Holdable`<br>`Wear_Badge`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Badges`<br>`Market / Jewellery / Commoner Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_badge_motif_court_badge` | a $motif court badge | `badge` | `silver-gilt` | `Tiny` / `Good` | 30.0g / 240.0m | `Holdable`<br>`Wear_Badge`<br>`Destroyable_HeavyMetal`<br>`Variable_JewelleryMotif` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Badges`<br>`Market / Jewellery / Court Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_badge_shape_brass_badge` | a $shape brass badge | `badge` | `brass` | `Tiny` / `Good` | 24.0g / 30.0m | `Holdable`<br>`Wear_Badge`<br>`Destroyable_HeavyMetal`<br>`Variable_JewelleryShape` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Badges`<br>`Market / Jewellery / Professional Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_badge_mother_of_pearl_badge` | a mother-of-pearl badge | `badge` | `mother-of-pearl` | `Tiny` / `Good` | 20.0g / 80.0m | `Holdable`<br>`Wear_Badge`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Badges`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_badge_niello_silver_badge` | a niello silver badge | `badge` | `silver` | `Tiny` / `Good` | 26.0g / 125.0m | `Holdable`<br>`Wear_Badge`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Badges`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_badge_gold_household_badge` | a gold household badge | `badge` | `gold` | `Tiny` / `Good` | 30.0g / 420.0m | `Holdable`<br>`Wear_Badge`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Badges`<br>`Market / Jewellery / Noble Jewellery` | — | Finished decorative jewellery prototype. |
 
-### Head ornaments, circlets, diadems, coronets, crowns, garlands, hair ornaments, and combs
+### Head ornaments, hair ornaments, circlets, wreaths, and garlands
 
-- Use `Wear_Circlet` for light metal circlets, pearl circlets, and most court head rings.
-- Use `Wear_Diadem` for narrow high-status forehead/head ornaments.
-- Use `Wear_Coronet` for lesser noble head regalia.
-- Use `Wear_Crown` sparingly for true crown/regalia pieces.
-- Use `Wear_Chaplet`, `Wear_Wreath`, `Wear_Head_Garland`, and `Wear_Forehead_Ornament` where the form fits.
-- Use `Wear_Hairpin`, `Wear_Hairpins`, `Wear_Hair_Comb`, `Wear_Hair_Combs`, `Wear_Hair_Ornament`, and `Wear_Hair_Ornaments` for hair jewellery.
-- Include simple leaf wreaths, flower garlands, ribbon chaplets, brass circlets, silver circlets, gold circlets, pearl circlets, high noble gem circlets, tortoiseshell combs, jade-like hairpins, and gold hair ornaments.
-- Floral and leafy head ornaments are a major way to include commoner and festival jewellery.
+| Unique reference | SDesc | Noun | Material | Size / Quality | Weight / Cost | Components | Tags | Morph | Notes |
+|---|---|---|---|---|---:|---|---|---|---|
+| `medieval_jewellery_head_bronze_hairpin` | a bronze hairpin | `hairpin` | `bronze` | `Tiny` / `Standard` | 18.0g / 18.0m | `Holdable`<br>`Wear_Hairpin`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Hair Ornaments`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_head_silver_hairpin` | a silver hairpin | `hairpin` | `silver` | `Tiny` / `Good` | 16.0g / 65.0m | `Holdable`<br>`Wear_Hairpin`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Hair Ornaments`<br>`Market / Jewellery / Merchant Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_head_gold_hairpin` | a gold hairpin | `hairpin` | `gold` | `Tiny` / `Good` | 16.0g / 260.0m | `Holdable`<br>`Wear_Hairpin`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Hair Ornaments`<br>`Market / Jewellery / Noble Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_head_jade_hairpin` | a jade hairpin | `hairpin` | `jade` | `Tiny` / `Good` | 20.0g / 140.0m | `Holdable`<br>`Wear_Hairpin`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Hair Ornaments`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_head_tortoiseshell_hairpin` | a tortoiseshell hairpin | `hairpin` | `tortoiseshell` | `Tiny` / `Good` | 12.0g / 70.0m | `Holdable`<br>`Wear_Hairpin`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Hair Ornaments`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_head_bamboo_hairpin` | a bamboo hairpin | `hairpin` | `bamboo` | `Tiny` / `Standard` | 8.0g / 8.0m | `Holdable`<br>`Wear_Hairpin`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Hair Ornaments`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_head_pair_of_silver_hairpins` | a pair of silver hairpins | `hairpin` | `silver` | `Tiny` / `Good` | 32.0g / 140.0m | `Holdable`<br>`Wear_Hairpins`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Hair Ornaments`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_head_pair_of_jade_hairpins` | a pair of jade hairpins | `hairpin` | `jade` | `Tiny` / `Good` | 36.0g / 260.0m | `Holdable`<br>`Wear_Hairpins`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Hair Ornaments`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_head_boxwood_hair_comb` | a boxwood hair comb | `comb` | `boxwood` | `VerySmall` / `Standard` | 25.0g / 20.0m | `Holdable`<br>`Wear_Hair_Comb`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Hair Ornaments`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_head_tortoiseshell_hair_comb` | a tortoiseshell hair comb | `comb` | `tortoiseshell` | `VerySmall` / `Good` | 22.0g / 110.0m | `Holdable`<br>`Wear_Hair_Comb`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Hair Ornaments`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_head_mother_of_pearl_comb` | a mother-of-pearl comb | `comb` | `mother-of-pearl` | `VerySmall` / `Good` | 24.0g / 120.0m | `Holdable`<br>`Wear_Hair_Comb`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Hair Ornaments`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_head_pair_of_ivory_hair_combs` | a pair of ivory hair combs | `comb` | `ivory` | `VerySmall` / `Good` | 42.0g / 180.0m | `Holdable`<br>`Wear_Hair_Combs`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Hair Ornaments`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_head_gold_hair_ornament` | a gold hair ornament | `ornament` | `gold` | `Tiny` / `Good` | 20.0g / 320.0m | `Holdable`<br>`Wear_Hair_Ornament`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Hair Ornaments`<br>`Market / Jewellery / Noble Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_head_silver_hair_plaque` | a silver hair plaque | `ornament` | `silver` | `Tiny` / `Good` | 22.0g / 95.0m | `Holdable`<br>`Wear_Hair_Ornament`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Hair Ornaments`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_head_motif_hair_ornament` | a $motif hair ornament | `ornament` | `silver-gilt` | `Tiny` / `Good` | 24.0g / 240.0m | `Holdable`<br>`Wear_Hair_Ornament`<br>`Destroyable_HeavyMetal`<br>`Variable_JewelleryMotif` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Hair Ornaments`<br>`Market / Jewellery / Court Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_head_silk_tied_hair_ornament` | a silk-tied hair ornament | `ornament` | `silk` | `Tiny` / `Standard` | 12.0g / 24.0m | `Holdable`<br>`Wear_Hair_Ornament`<br>`Destroyable_Clothing` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Hair Ornaments`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_head_lacquered_bamboo_hair_comb` | a lacquered bamboo hair comb | `comb` | `bamboo` | `VerySmall` / `Good` | 20.0g / 55.0m | `Holdable`<br>`Wear_Hair_Comb`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Hair Ornaments`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_head_pair_of_bronze_temple_rings` | a pair of bronze temple rings | `ring` | `bronze` | `VerySmall` / `Standard` | 42.0g / 28.0m | `Holdable`<br>`Wear_Temple_Rings`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Temple Rings`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_head_pair_of_silver_temple_rings` | a pair of silver temple rings | `ring` | `silver` | `VerySmall` / `Good` | 40.0g / 120.0m | `Holdable`<br>`Wear_Temple_Rings`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Temple Rings`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_head_pair_of_wire_temple_rings` | a pair of wire temple rings | `ring` | `copper` | `VerySmall` / `Standard` | 32.0g / 14.0m | `Holdable`<br>`Wear_Temple_Rings`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Temple Rings`<br>`Market / Jewellery / Commoner Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_head_pair_of_pearl_temple_rings` | a pair of pearl temple rings | `ring` | `pearl` | `VerySmall` / `Good` | 34.0g / 170.0m | `Holdable`<br>`Wear_Temple_Rings`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Temple Rings`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_head_pair_of_gilt_temple_rings` | a pair of gilt temple rings | `ring` | `gilded bronze` | `VerySmall` / `Good` | 44.0g / 130.0m | `Holdable`<br>`Wear_Temple_Rings`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Temple Rings`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_head_pair_of_bead_hung_temple_rings` | a pair of bead-hung temple rings | `ring` | `glass` | `VerySmall` / `Standard` | 46.0g / 36.0m | `Holdable`<br>`Wear_Temple_Rings`<br>`Destroyable_Glassware` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Temple Rings`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_head_plain_brass_circlet` | a plain brass circlet | `circlet` | `brass` | `VerySmall` / `Good` | 70.0g / 46.0m | `Holdable`<br>`Wear_Circlet`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Circlets`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_head_silver_circlet` | a silver circlet | `circlet` | `silver` | `VerySmall` / `Good` | 75.0g / 180.0m | `Holdable`<br>`Wear_Circlet`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Circlets`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_head_pearl_circlet` | a pearl circlet | `circlet` | `pearl` | `VerySmall` / `VeryGood` | 62.0g / 360.0m | `Holdable`<br>`Wear_Circlet`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Circlets`<br>`Market / Jewellery / Court Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_head_gold_circlet` | a gold circlet | `circlet` | `gold` | `VerySmall` / `VeryGood` | 80.0g / 620.0m | `Holdable`<br>`Wear_Circlet`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Circlets`<br>`Market / Jewellery / Noble Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_head_garnet_set_diadem` | a garnet-set diadem | `diadem` | `gold` | `VerySmall` / `VeryGood` | 95.0g / 820.0m | `Holdable`<br>`Wear_Diadem`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Diadems`<br>`Market / Jewellery / Noble Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_head_enamelled_diadem` | an enamelled diadem | `diadem` | `enamel` | `VerySmall` / `VeryGood` | 80.0g / 480.0m | `Holdable`<br>`Wear_Diadem`<br>`Destroyable_Glassware` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Diadems`<br>`Market / Jewellery / Court Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_head_silver_gilt_coronet` | a silver-gilt coronet | `coronet` | `silver-gilt` | `Small` / `VeryGood` | 140.0g / 900.0m | `Holdable`<br>`Wear_Coronet`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Coronets`<br>`Market / Jewellery / Noble Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_head_small_gold_coronet` | a small gold coronet | `coronet` | `gold` | `Small` / `VeryGood` | 150.0g / 1400.0m | `Holdable`<br>`Wear_Coronet`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Coronets`<br>`Market / Jewellery / Regalia` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_head_court_crown` | a court crown | `crown` | `gold` | `Small` / `VeryGood` | 450.0g / 3500.0m | `Holdable`<br>`Wear_Crown`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Crowns`<br>`Market / Jewellery / Regalia` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_head_jade_forehead_ornament` | a jade forehead ornament | `ornament` | `jade` | `VerySmall` / `Good` | 28.0g / 160.0m | `Holdable`<br>`Wear_Forehead_Ornament`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Forehead Ornaments`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_head_gold_forehead_pendant` | a gold forehead pendant | `ornament` | `gold` | `VerySmall` / `VeryGood` | 35.0g / 320.0m | `Holdable`<br>`Wear_Forehead_Ornament`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Forehead Ornaments`<br>`Market / Jewellery / Noble Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_head_pearl_forehead_ornament` | a pearl forehead ornament | `ornament` | `pearl` | `VerySmall` / `VeryGood` | 30.0g / 240.0m | `Holdable`<br>`Wear_Forehead_Ornament`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Forehead Ornaments`<br>`Market / Jewellery / Court Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_head_silk_ribbon_chaplet` | a silk ribbon chaplet | `chaplet` | `silk` | `VerySmall` / `Standard` | 22.0g / 18.0m | `Holdable`<br>`Wear_Chaplet`<br>`Destroyable_Clothing` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Chaplets`<br>`Market / Jewellery / Festival Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_head_fresh_flower_chaplet` | a fresh flower chaplet | `chaplet` | `fresh flower` | `VerySmall` / `Standard` | 30.0g / 3.0m | `Holdable`<br>`Wear_Chaplet`<br>`Destroyable_Clothing` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Chaplets`<br>`Market / Jewellery / Festival Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_head_woven_straw_chaplet` | a woven straw chaplet | `chaplet` | `straw` | `VerySmall` / `Standard` | 16.0g / 1.0m | `Holdable`<br>`Wear_Chaplet`<br>`Destroyable_Clothing` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Chaplets`<br>`Market / Jewellery / Ephemeral Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_head_laurel_festival_wreath` | a laurel festival wreath | `wreath` | `laurel` | `VerySmall` / `Standard` | 35.0g / 4.0m | `Holdable`<br>`Wear_Wreath`<br>`Destroyable_Clothing` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Wreaths`<br>`Market / Jewellery / Festival Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_head_ivy_head_wreath` | an ivy head wreath | `wreath` | `ivy` | `VerySmall` / `Standard` | 34.0g / 3.0m | `Holdable`<br>`Wear_Wreath`<br>`Destroyable_Clothing` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Wreaths`<br>`Market / Jewellery / Festival Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_head_fresh_blossom_head_garland` | a fresh blossom head garland | `garland` | `blossom` | `VerySmall` / `Standard` | 32.0g / 4.0m | `Holdable`<br>`Wear_Head_Garland`<br>`Destroyable_Clothing` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Garlands`<br>`Market / Jewellery / Festival Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_head_jasmine_head_garland` | a jasmine head garland | `garland` | `jasmine` | `VerySmall` / `Standard` | 28.0g / 5.0m | `Holdable`<br>`Wear_Head_Garland`<br>`Destroyable_Clothing` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Garlands`<br>`Market / Jewellery / Festival Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_head_marigold_head_garland` | a marigold head garland | `garland` | `marigold` | `VerySmall` / `Standard` | 34.0g / 5.0m | `Holdable`<br>`Wear_Head_Garland`<br>`Destroyable_Clothing` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Garlands`<br>`Market / Jewellery / Festival Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_head_flower_head_garland` | a $flower head garland | `garland` | `fresh flower` | `VerySmall` / `Standard` | 32.0g / 4.0m | `Holdable`<br>`Wear_Head_Garland`<br>`Destroyable_Clothing`<br>`Variable_Flower` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Garlands`<br>`Market / Jewellery / Festival Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_head_dried_flower_wreath` | a dried flower wreath | `wreath` | `dried flower` | `VerySmall` / `Standard` | 24.0g / 1.0m | `Holdable`<br>`Wear_Wreath`<br>`Destroyable_Clothing` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Wreaths`<br>`Market / Jewellery / Ephemeral Jewellery` | — | Finished decorative jewellery prototype. |
 
-### Waist ornaments, chains, plaques, and girdle jewellery
+### Waist ornaments, belt plaques, hanging ornaments, and court chains
 
-- Decorative belts already overlap with clothing. This branch should include clearly jewellery-like waist ornaments: waist chains, dangling plaques, girdle jewel mounts, decorative belt plaques, and belt-mounted display pieces.
-- Use `Wear_Waist_Chain` for complete waist chains.
-- Use `Wear_Girdle_Ornament` for girdle jewels and dangling girdle ornaments.
-- Use `Wear_Belt_Ornament` for a single belt-mounted ornament.
-- Use `Wear_Belt_Plaques` for plaque arrays.
-- Use `Wear_Waist_Ornament` as the fallback waist-jewellery slot.
-- Do not use `Belt_2`, `Belt_4`, `Belt_6`, or `Belt_Large` unless the item is a functional belt designed to carry beltable items. Most jewellery waist chains are not functional belts.
-- Do not use `Beltable` unless the item should attach to a belt as a separate beltable object.
+| Unique reference | SDesc | Noun | Material | Size / Quality | Weight / Cost | Components | Tags | Morph | Notes |
+|---|---|---|---|---|---:|---|---|---|---|
+| `medieval_jewellery_waist_bronze_waist_chain` | a bronze waist chain | `chain` | `bronze` | `VerySmall` / `Standard` | 110.0g / 60.0m | `Holdable`<br>`Wear_Waist_Chain`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Waist Chains`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_waist_silver_waist_chain` | a silver waist chain | `chain` | `silver` | `VerySmall` / `Good` | 95.0g / 180.0m | `Holdable`<br>`Wear_Waist_Chain`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Waist Chains`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_waist_gold_waist_chain` | a gold waist chain | `chain` | `gold` | `VerySmall` / `Good` | 110.0g / 620.0m | `Holdable`<br>`Wear_Waist_Chain`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Waist Chains`<br>`Market / Jewellery / Noble Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_waist_brass_merchant_waist_chain` | a brass merchant waist chain | `chain` | `brass` | `VerySmall` / `Good` | 120.0g / 85.0m | `Holdable`<br>`Wear_Waist_Chain`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Waist Chains`<br>`Market / Jewellery / Merchant Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_waist_coral_hung_waist_chain` | a coral-hung waist chain | `chain` | `silver` | `VerySmall` / `Good` | 105.0g / 240.0m | `Holdable`<br>`Wear_Waist_Chain`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Waist Chains`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_waist_bell_less_silver_girdle_chain` | a bell-less silver girdle chain | `chain` | `silver` | `VerySmall` / `Good` | 100.0g / 190.0m | `Holdable`<br>`Wear_Waist_Chain`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Waist Chains`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_waist_finish_bronze_waist_chain` | a $finish bronze waist chain | `chain` | `bronze` | `VerySmall` / `Standard` | 110.0g / 70.0m | `Holdable`<br>`Wear_Waist_Chain`<br>`Destroyable_HeavyMetal`<br>`Variable_MetalFinish` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Waist Chains`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_waist_silk_tied_waist_chain` | a silk-tied waist chain | `chain` | `silk` | `VerySmall` / `Standard` | 35.0g / 24.0m | `Holdable`<br>`Wear_Waist_Chain`<br>`Destroyable_Clothing` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Waist Chains`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_waist_silver_girdle_ornament` | a silver girdle ornament | `ornament` | `silver` | `VerySmall` / `Good` | 45.0g / 120.0m | `Holdable`<br>`Wear_Girdle_Ornament`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Girdle Ornaments`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_waist_brass_girdle_ornament` | a brass girdle ornament | `ornament` | `brass` | `VerySmall` / `Standard` | 50.0g / 34.0m | `Holdable`<br>`Wear_Girdle_Ornament`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Girdle Ornaments`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_waist_gold_girdle_pendant` | a gold girdle pendant | `ornament` | `gold` | `VerySmall` / `Good` | 52.0g / 350.0m | `Holdable`<br>`Wear_Girdle_Ornament`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Girdle Ornaments`<br>`Market / Jewellery / Noble Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_waist_enamel_girdle_mount` | an enamel girdle mount | `ornament` | `enamel` | `VerySmall` / `Good` | 42.0g / 110.0m | `Holdable`<br>`Wear_Girdle_Ornament`<br>`Destroyable_Glassware` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Girdle Ornaments`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_waist_coral_girdle_ornament` | a coral girdle ornament | `ornament` | `coral` | `VerySmall` / `Good` | 36.0g / 95.0m | `Holdable`<br>`Wear_Girdle_Ornament`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Girdle Ornaments`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_waist_pewter_girdle_tag` | a pewter girdle tag | `ornament` | `pewter` | `VerySmall` / `Standard` | 36.0g / 12.0m | `Holdable`<br>`Wear_Girdle_Ornament`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Girdle Ornaments`<br>`Market / Jewellery / Commoner Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_waist_motif_girdle_ornament` | a $motif girdle ornament | `ornament` | `silver` | `VerySmall` / `Good` | 44.0g / 90.0m | `Holdable`<br>`Wear_Girdle_Ornament`<br>`Destroyable_HeavyMetal`<br>`Variable_JewelleryMotif` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Girdle Ornaments`<br>`Market / Jewellery / Merchant Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_waist_silver_gilt_girdle_jewel` | a silver-gilt girdle jewel | `ornament` | `silver-gilt` | `VerySmall` / `Good` | 54.0g / 260.0m | `Holdable`<br>`Wear_Girdle_Ornament`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Girdle Ornaments`<br>`Market / Jewellery / Court Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_waist_bronze_belt_ornament` | a bronze belt ornament | `ornament` | `bronze` | `VerySmall` / `Standard` | 32.0g / 24.0m | `Holdable`<br>`Wear_Belt_Ornament`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Belt Ornaments`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_waist_brass_belt_jewel` | a brass belt jewel | `ornament` | `brass` | `VerySmall` / `Good` | 30.0g / 38.0m | `Holdable`<br>`Wear_Belt_Ornament`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Belt Ornaments`<br>`Market / Jewellery / Merchant Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_waist_silver_belt_ornament` | a silver belt ornament | `ornament` | `silver` | `VerySmall` / `Good` | 28.0g / 80.0m | `Holdable`<br>`Wear_Belt_Ornament`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Belt Ornaments`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_waist_gilded_copper_belt_mount` | a gilded copper belt mount | `ornament` | `gilded copper` | `VerySmall` / `Standard` | 34.0g / 40.0m | `Holdable`<br>`Wear_Belt_Ornament`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Belt Ornaments`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_waist_shape_belt_ornament` | a $shape belt ornament | `ornament` | `silver-gilt` | `VerySmall` / `Good` | 36.0g / 190.0m | `Holdable`<br>`Wear_Belt_Ornament`<br>`Destroyable_HeavyMetal`<br>`Variable_JewelleryShape` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Belt Ornaments`<br>`Market / Jewellery / Court Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_waist_set_of_bronze_belt_plaques` | a set of bronze belt plaques | `plaque` | `bronze` | `VerySmall` / `Standard` | 130.0g / 86.0m | `Holdable`<br>`Wear_Belt_Plaques`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Belt Plaques`<br>`Market / Jewellery / Standard Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_waist_set_of_silver_belt_plaques` | a set of silver belt plaques | `plaque` | `silver` | `VerySmall` / `Good` | 120.0g / 240.0m | `Holdable`<br>`Wear_Belt_Plaques`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Belt Plaques`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_waist_set_of_gilded_belt_plaques` | a set of gilded belt plaques | `plaque` | `gilded bronze` | `VerySmall` / `Good` | 125.0g / 180.0m | `Holdable`<br>`Wear_Belt_Plaques`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Belt Plaques`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_waist_steppe_belt_plaque_set` | a steppe belt plaque set | `plaque` | `silver` | `VerySmall` / `Good` | 140.0g / 280.0m | `Holdable`<br>`Wear_Belt_Plaques`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Belt Plaques`<br>`Market / Jewellery / Luxury Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_waist_leather_waist_ornament` | a leather waist ornament | `ornament` | `leather` | `VerySmall` / `Standard` | 40.0g / 10.0m | `Holdable`<br>`Wear_Waist_Ornament`<br>`Destroyable_Clothing` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Waist Ornaments`<br>`Market / Jewellery / Commoner Jewellery` | — | Finished decorative jewellery prototype. |
 
-### Bead strings and commoner jewellery
+### Elite sets, regional statement pieces, and rare court goods
 
-- Include a wide range of cheap bead and cord rows.
-- Beads may be glass, faience, bone, shell, cowrie shell, conch shell, wood, amber, jet, clay/ceramic, coral, or stone.
-- Commoner items should often be `Standard`, `Substandard`, or `Poor`, but should still be visually interesting.
-- Avoid making commoner jewellery only shabby. Many inexpensive pieces can be neat, colourful, and meaningful.
+| Unique reference | SDesc | Noun | Material | Size / Quality | Weight / Cost | Components | Tags | Morph | Notes |
+|---|---|---|---|---|---:|---|---|---|---|
+| `medieval_jewellery_elite_jewelled_gold_court_collar` | a jewelled gold court collar | `collar` | `gold` | `Small` / `VeryGood` | 320.0g / 2400.0m | `Holdable`<br>`Wear_Necklace`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Necklaces`<br>`Market / Jewellery / Court Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_elite_pearl_and_gold_collar` | a pearl and gold collar | `collar` | `gold` | `Small` / `VeryGood` | 260.0g / 1900.0m | `Holdable`<br>`Wear_Necklace`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Necklaces`<br>`Market / Jewellery / Court Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_elite_gemstone_circlet` | a gemstone circlet | `circlet` | `gold` | `VerySmall` / `VeryGood` | 120.0g / 1800.0m | `Holdable`<br>`Wear_Circlet`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Circlets`<br>`Market / Jewellery / Regalia` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_elite_sapphire_diadem` | a sapphire diadem | `diadem` | `gold` | `VerySmall` / `VeryGood` | 110.0g / 2200.0m | `Holdable`<br>`Wear_Diadem`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Diadems`<br>`Market / Jewellery / Regalia` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_elite_ruby_coronet` | a ruby coronet | `coronet` | `gold` | `Small` / `VeryGood` | 170.0g / 2600.0m | `Holdable`<br>`Wear_Coronet`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Coronets`<br>`Market / Jewellery / Regalia` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_elite_great_pearl_court_chain` | a great pearl court chain | `chain` | `pearl` | `VerySmall` / `VeryGood` | 210.0g / 1600.0m | `Holdable`<br>`Wear_Necklace`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Necklaces`<br>`Market / Jewellery / Court Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_elite_silver_gilt_noble_brooch` | a silver-gilt noble brooch | `brooch` | `silver-gilt` | `VerySmall` / `VeryGood` | 95.0g / 520.0m | `Holdable`<br>`Wear_Brooch`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Brooches`<br>`Market / Jewellery / Noble Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_elite_garnet_cloison_like_brooch` | a garnet cloison-like brooch | `brooch` | `gold` | `VerySmall` / `VeryGood` | 88.0g / 900.0m | `Holdable`<br>`Wear_Brooch`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Brooches`<br>`Market / Jewellery / Noble Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_elite_lapis_court_badge` | a lapis court badge | `badge` | `gold` | `VerySmall` / `VeryGood` | 70.0g / 620.0m | `Holdable`<br>`Wear_Badge`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Badges`<br>`Market / Jewellery / Court Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_elite_gold_temple_ring_set` | a gold temple-ring set | `ring` | `gold` | `Tiny` / `VeryGood` | 80.0g / 740.0m | `Holdable`<br>`Wear_Temple_Rings`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Temple Rings`<br>`Market / Jewellery / Noble Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_elite_jade_court_hairpin_set` | a jade court hairpin set | `hairpin` | `jade` | `VerySmall` / `VeryGood` | 48.0g / 420.0m | `Holdable`<br>`Wear_Hairpins`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Hair Ornaments`<br>`Market / Jewellery / Court Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_elite_tortoiseshell_court_comb` | a tortoiseshell court comb | `comb` | `tortoiseshell` | `VerySmall` / `VeryGood` | 32.0g / 220.0m | `Holdable`<br>`Wear_Hair_Comb`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Hair Ornaments`<br>`Market / Jewellery / Court Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_elite_heavy_silver_torc` | a heavy silver torc | `torc` | `silver` | `VerySmall` / `VeryGood` | 320.0g / 520.0m | `Holdable`<br>`Wear_Torc`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Torcs`<br>`Market / Jewellery / Noble Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_elite_enamelled_gold_bracelet` | an enamelled gold bracelet | `bracelet` | `gold` | `VerySmall` / `VeryGood` | 85.0g / 650.0m | `Holdable`<br>`Wear_Bracelet`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Bracelets`<br>`Market / Jewellery / Noble Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_elite_pearl_forehead_chain` | a pearl forehead chain | `ornament` | `pearl` | `VerySmall` / `VeryGood` | 44.0g / 420.0m | `Holdable`<br>`Wear_Forehead_Ornament`<br>`Destroyable_Misc` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Forehead Ornaments`<br>`Market / Jewellery / Court Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_elite_noble_gold_waist_chain` | a noble gold waist chain | `chain` | `gold` | `VerySmall` / `VeryGood` | 180.0g / 1300.0m | `Holdable`<br>`Wear_Waist_Chain`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Waist Chains`<br>`Market / Jewellery / Noble Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_elite_court_girdle_jewel` | a court girdle jewel | `ornament` | `gold` | `VerySmall` / `VeryGood` | 72.0g / 720.0m | `Holdable`<br>`Wear_Girdle_Ornament`<br>`Destroyable_HeavyMetal` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Girdle Ornaments`<br>`Market / Jewellery / Court Jewellery` | — | Finished decorative jewellery prototype. |
+| `medieval_jewellery_elite_royal_seal_signet_ring` | a royal seal signet ring | `ring` | `gold` | `Tiny` / `VeryGood` | 26.0g / 1100.0m | `Holdable`<br>`Wear_Ring`<br>`Destroyable_HeavyMetal`<br>`SealStamp_Medieval_NobleSignetRing` | `Functions / Worn Items / Jewellery`<br>`Functions / Worn Items / Jewellery / Rings`<br>`Market / Jewellery / Regalia` | — | Finished decorative jewellery prototype. |
 
-### Merchant, guild, and professional jewellery
+## Validation target
 
-- Merchant and guild pieces should be respectable, legible, and durable without always being noble luxury.
-- Suitable forms include silver rings, brass chains, merchant signet rings, guild-colour bead strings, stamped bracelets, small brooches, badges, belt plaques, and neat necklaces.
-- Guild marks and exact professional signs should mostly be skins. Base rows can use generic phrases such as `a stamped silver ring`, `a merchant signet ring`, or `a brass merchant chain`.
+- Catalogue row count is exactly 400.
+- Every row has a unique lowercase snake-case `unique_reference`.
+- Every row has a companion CSV `fdesc`.
+- Every row is skinnable, player-visible, portable, and uses `Holdable`.
+- Every row uses exact seeded solid material names, exact item component names, and exact jewellery/market tag paths.
+- Ordinary rows use exactly one wearable component and exactly one destroyable component.
+- Functional signet rings are the only rows that intentionally add a seal-stamp component beyond wearable/destroyable/variable support.
+- Fresh organic rows point to wilted morph targets; wilted rows point to dried targets where retained.
+- Public text avoids culture labels, unsupported devotional claims, magic, hidden storage, armour value, lock behaviour, and identity-obscuring behaviour.
 
-### Noble, court, and regalia-adjacent jewellery
+## Companion CSV
 
-- High noble jewellery should not crowd out common pieces, but it must be present.
-- Include gold rings, gem rings, pearl earrings, gem necklaces, gold bracelets, jewelled circlets, diadems, coronets, court chains, and heavy collars.
-- Use `VeryGood` sparingly; reserve `Great` for a handful of exceptional regalia-like prototypes if the later implementation wants them.
-- Do not create explicit royal crowns as default everyday jewellery unless the MUD wants accessible regalia objects. A `gold circlet`, `fine coronet`, or `jewelled diadem` is usually a safer base row than a named crown.
+`FutureMUD_Medieval_Jewellery_FDesc_Catalogue.csv` has these columns:
 
-### Child, apprentice, festival, and courtship jewellery
+```text
+unique_reference,sdesc,fdesc
+```
 
-- Include smaller and cheaper pieces that help populate social scenes: child bead necklaces, cord bracelets, shell anklets, tiny copper rings, festival wreaths, paired courtship bracelets, token rings, and seasonal garlands.
-- Courtship and wedding pieces may be decorative and secular. Avoid religious vow language or sacred ceremony claims.
-- Fresh festival pieces should use morphs where useful.
-
-## Catalogue distribution target
-
-The first complete implementation should aim for about 400 item prototypes. A useful starting distribution is:
-
-| Category | Target rows | Notes |
-|---|---:|---|
-| Shared commoner and ephemeral adornment | 52 | cord, shell, bone, wood, flower, leaf, herb, rush, straw, glass, cheap copper, child/apprentice pieces |
-| Rings and signet-like rings | 55 | simple rings, gem rings, love rings, merchant signets, functional signets, court rings |
-| Neck adornment | 54 | bead strings, necklaces, chokers, chains, collars, neck rings, torcs, pendants without devotional meaning |
-| Wrist, arm, ankle, and toe adornment | 58 | bracelets, bangles, armlets, anklets, toe rings, cord bands, elite sets, wrist/ankle garlands |
-| Earrings and culturally justified piercings | 34 | studs, hoops, pendant earrings, paired earrings, nose rings, nose studs, toe rings |
-| Brooches, pins, badges, and fasteners | 58 | wearable brooches, paired brooches, pins, secular badges, love badges, court pins |
-| Head ornaments, hair ornaments, circlets, wreaths, and garlands | 45 | circlets, diadems, coronets, hairpins, combs, head garlands, wreaths, chaplets |
-| Waist ornaments, belt plaques, hanging ornaments, and court chains | 26 | waist chains, girdle ornaments, belt plaques, belt ornaments, waist ornaments |
-| Elite sets, regional statement pieces, and rare court goods | 18 | limited very high value items; avoid overproducing regalia |
-| **Total** | **400** | Adjust during implementation if balance demands it. |
-
-### Suggested work packages
-
-| Pass | Target focus | Approximate rows |
-|---|---|---:|
-| 1 | Shared cheap/commoner jewellery, bead strings, simple rings, organic garlands | 45 |
-| 2 | Shared rings, merchant signets, functional signet rings, gem rings | 45 |
-| 3 | Necklaces, chokers, chains, collars, neck rings, torcs, bead strings | 45 |
-| 4 | Bracelets, bangles, armlets, anklets, toe rings, garland bands | 45 |
-| 5 | Earrings and culturally justified piercings | 30 |
-| 6 | Brooches, paired brooches, pins, badges, and fasteners | 50 |
-| 7 | Head ornaments, circlets, diadems, coronets, garlands, hairpins, combs | 45 |
-| 8 | Regional shared groups: northern, western, Mediterranean, Islamicate, South Asian, East Asian, steppe | 65 |
-| 9 | High noble, court, regalia-adjacent, and rare elite jewellery | 25 |
-| 10 | Review, balance, duplicate removal, tag/material validation, and ephemeral morph validation | 5-10 net additions or replacements |
-
-## Builder-facing jewellery set manifests
-
-This branch does not need clothing-style outfit manifests for every culture, but the implementation should support builder-facing jewellery sets. These sets are optional scene-building collections rather than mandatory clothing outfits.
-
-### Commoner festival set
-
-- fresh flower chaplet
-- braided cord bracelet
-- shell bead necklace
-- copper ring
-- wilted garland morph target
-
-### Urban merchant set
-
-- stamped silver ring
-- functional or decorative merchant signet ring
-- brass merchant chain
-- glass bead necklace
-- neat silver bracelet
-- small secular badge or brooch
-
-### Northern elite set
-
-- silver arm ring
-- amber bead necklace
-- gem-set ring
-- ornate cloak brooch
-- paired brooches where culturally suitable
-- silver bead string
-
-### Western court set
-
-- gold gem ring
-- pearl earrings
-- silver-gilt necklace
-- fine circlet
-- jewelled brooch
-- court pin or badge
-
-### Islamicate urban luxury set
-
-- gold earrings
-- silver filigree-like bracelet
-- pearl necklace
-- gem-set ring
-- paired anklets
-- coral or coloured-glass bead string
-
-### South Asian festival set
-
-- fresh flower neck garland
-- paired bangles
-- paired anklets
-- nose ring or nose stud
-- toe ring
-- forehead ornament
-- gold bead necklace
-
-### East Asian court ornament set
-
-- jade-like pendant
-- gilt hairpin
-- decorative hair comb
-- restrained bead string
-- delicate gold ring where useful
-- court head ornament if slot behaviour fits
-
-### Steppe and caravan display set
-
-- silver earrings
-- belt plaque ornament
-- bead necklace
-- silver ring
-- pendant chain
-- temple-ring or hair ornament where culturally suitable
-
-## Implementation validation checklist
-
-Before emitting any `CreateItem(...)` row for this branch, confirm:
-
-- The item is decorative jewellery or secular personal adornment, not devotional/religious goods.
-- The `uniqueReference` is lowercase snake case and begins with a stable jewellery prefix.
-- `noun`, `sdesc`, and `fdesc` are public, in-world, concise, and culture-neutral unless the form name itself is useful.
-- `ldesc` is `null` unless the row is deliberately a display fixture, which should be rare or out of branch.
-- `material` exactly matches a seeded solid material.
-- Every tag exactly matches `SeededTagHierarchy.csv`.
-- Finished jewellery uses appropriate exact jewellery/function tags and a `Market / Jewellery` tag.
-- The item uses `Holdable` unless there is a specific reason not to.
-- The item uses exactly one destroyable component.
-- A wearable component is used where the item is meant to be worn.
-- Functional signet rings use exactly one seal-stamp component and should not pretend to carry a specific owner/device unless metadata, skin, or writing supports it.
-- No ordinary jewellery row receives `Armour_*`, `Insulation_*`, `Container_*`, `LockingContainer_*`, `Sealable_*`, `Light`, `Weapon`, identity-obscuring, hidden-storage, or trait-changing components by default.
-- Variable components match variables actually used in public descriptions.
-- Ephemeral items have valid morph targets, timers, and morph emotes when they are meant to age.
-- Costs and weights are plausible relative to material, size, and status.
-- Skinnable is normally `true`; `hideFromPlayers` is normally `false`.
-
-## Remaining implementation questions
-
-These questions do not block the full 400-row item creation pass, but they should be resolved while authoring the final catalogue:
-
-1. Which signet rings should be mechanically functional versus decorative only?
-2. Should high noble regalia use ordinary public market tags, `Market / Jewellery / Regalia`, or a later rare/admin treasure policy?
-3. What default morph timers should be used for fresh flowers in the target MUD's time scale?
-4. Should the devotional branch later reuse `Wear_Badge`, `Wear_Brooch`, `Wear_Neck_Garland`, or `Wear_Ring` for pilgrim badges, prayer garlands, reliquary pendants, and sacred rings, or should devotional wearables receive a separate reference?
-5. Should any region-specific jewellery sets be implemented as grouped craft outputs or left as individual item rows plus builder manifests?
-
-## First-pass conclusion
-
-The medieval jewellery branch should make the world feel socially inhabited rather than merely wealthy. The 400-row target should include rough copper rings beside gold gem rings, shell bracelets beside court pearls, fresh garlands beside formal circlets, merchant signets beside child bead strings, and everyday brooches beside court badges. The dependency pass has removed the earlier component/tag/material blockers, so the implementation should now use precise jewellery components, dedicated jewellery tags, dedicated jewellery market tags, exact solid materials, and honest mechanics rather than substitutions.
+The CSV is the source of player-facing full descriptions for the corresponding seeder calls.

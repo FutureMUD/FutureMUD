@@ -54,6 +54,7 @@ This folder is organised by subsystem so implementation notes, builder workflows
 - [Medieval Clothing Seeder Design Reference](./Seeding/Medieval_Clothing_Seeder_Design_Reference.md)
 - [Medieval Military Seeder Design Reference](./Seeding/Medieval_Military_Seeder_Design_Reference.md)
 - [Medieval Household Goods and Furniture Seeder Design Reference](./Seeding/Medieval_Household_Goods_Furniture_Seeder_Design_Reference.md)
+- [Medieval Jewellery Seeder Design Reference](./Seeding/Medieval_Jewellery_Seeder_Design_Reference.md)
 - [Medieval Writing, Books, and Documents Seeder Design Reference](./Seeding/FutureMUD_Medieval_Writing_Books_Documents_Design_Reference.md)
 - [Medieval Treatment Items, Drugs, and Repair Kits Design Reference](./Seeding/FutureMUD_Medieval_Treatment_Drugs_Repair_Kits_Design_Reference.md)
 - [Butchering System](./Crafting/Butchering_System.md)

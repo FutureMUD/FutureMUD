@@ -1,6 +1,6 @@
 # Medieval ItemSeeder Rebuild Audit
 
-The medieval `ItemSeeder.Rework` item and craft implementation was reset to launch stubs for a from-scratch rebuild. The rebuild has now begun with direct seeded clothing, household goods and furniture, military-goods prototypes, and writing/book/document prototypes.
+The medieval `ItemSeeder.Rework` item and craft implementation was reset to launch stubs for a from-scratch rebuild. The rebuild has now begun with direct seeded clothing, household goods and furniture, military-goods prototypes, writing/book/document prototypes, treatment and repair prototypes, and decorative jewellery prototypes.
 
 ## Current Runtime State
 
@@ -10,7 +10,7 @@ The medieval `ItemSeeder.Rework` item and craft implementation was reset to laun
 - `SeedMedievalContainers` contains the direct household, trade, personal, and furniture-container `CreateItem(...)` calls.
 - `SeedMedievalDoorsLocksAndStrongboxes` contains the direct door, gate, grate, lock, latch, key, and lock-hardware `CreateItem(...)` calls.
 - `SeedMedievalFoodAndBeverageItems` contains the direct food-service, tableware, and household-vessel `CreateItem(...)` calls.
-- `SeedMedievalJewelleryAndDevotionalGoods` contains the direct religious container and devotional furnishing `CreateItem(...)` calls.
+- `SeedMedievalJewelleryAndDevotionalGoods` contains the direct decorative jewellery, religious container, and devotional furnishing `CreateItem(...)` calls.
 - `SeedMedievalHouseholdFurniture` contains the direct furniture, lighting, heating, water-source, washing-fixture, and decoration `CreateItem(...)` calls.
 - `SeedMedievalWeaponsShieldsAccessories` contains the direct melee weapon, ranged weapon, ammunition, and thrown-weapon `CreateItem(...)` calls.
 - `SeedMedievalArmour` contains the direct armour, horse tack, barding, shield, and military support-gear `CreateItem(...)` calls.
@@ -49,6 +49,17 @@ The live medieval household goods and furniture item source is intentionally dir
 - Catalogue metadata lives in `Design Documents/Seeding/Medieval_Household_Goods_Furniture_Seeder_Design_Reference.md`.
 - Each household-goods prototype is represented by exactly one `CreateItem(...)` call in its owning medieval household method.
 - Furniture and container crafts are not rebuilt yet; `SeedMedievalFurnitureAndContainerCrafts` remains a no-op.
+
+## Active Decorative Jewellery Source
+
+The live medieval decorative jewellery item source is intentionally direct-call only:
+
+- Decorative jewellery item prototypes live in `DatabaseSeeder/Seeders/ItemSeeder.Rework.MedievalJewellery.cs`.
+- Jewellery design metadata lives in `Design Documents/Seeding/Medieval_Jewellery_Seeder_Design_Reference.md`.
+- Full structured item rows live in `Design Documents/Seeding/FutureMUD_Medieval_Jewellery_Item_Catalogue_Full.csv`.
+- Full descriptions live in `Design Documents/Seeding/FutureMUD_Medieval_Jewellery_FDesc_Catalogue.csv`.
+- Each decorative jewellery prototype is represented by exactly one `CreateItem(...)` call in `SeedMedievalJewelleryAndDevotionalGoods`.
+- Jewellery and devotional crafts are not rebuilt yet; `SeedMedievalJewelleryDevotionalCrafts` remains a no-op.
 
 ## Active Writing, Books, and Documents Source
 

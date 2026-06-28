@@ -10,4 +10,8 @@ public interface IConfigurablePatrolStrategy : IPatrolStrategy
 	string ShowConfiguration(ICharacter actor, IPatrolRoute patrol);
 	string SaveStrategyData();
 	bool ReadyToBegin(IPatrolRoute patrol);
+	string WhyCannotBegin(IPatrolRoute patrol)
+	{
+		return ReadyToBegin(patrol) ? string.Empty : "The patrol strategy's configuration is not ready.";
+	}
 }

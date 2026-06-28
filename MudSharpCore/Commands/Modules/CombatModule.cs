@@ -1394,7 +1394,8 @@ The syntax:
                 }
             }
 
-            if (CrimeExtensions.HandleCrimesAndLawfulActing(actor, CrimeTypes.AttemptedMurder, target))
+            if (!actor.IsLawfulEnforcementActionAgainst(target, CrimeTypes.AttemptedMurder) &&
+                CrimeExtensions.HandleCrimesAndLawfulActing(actor, CrimeTypes.AttemptedMurder, target))
             {
                 return;
             }
@@ -1410,8 +1411,11 @@ The syntax:
                     actor, target, weapon.Parent)));
             actor.AddEffect(new PreparingCoupDeGrace(actor, weapon, wattack, target) { Emote = emote },
                 TimeSpan.FromSeconds(25));
-            CrimeExtensions.CheckPossibleCrimeAllAuthorities(actor, CrimeTypes.AttemptedMurder, target, weapon.Parent,
-                "");
+            if (!actor.IsLawfulEnforcementActionAgainst(target, CrimeTypes.AttemptedMurder))
+            {
+                CrimeExtensions.CheckPossibleCrimeAllAuthorities(actor, CrimeTypes.AttemptedMurder, target, weapon.Parent,
+                    "");
+            }
             return;
         }
 
@@ -2088,7 +2092,8 @@ The syntax for this command is #3hit <target>#0.", AutoHelp.HelpArgOrNoArg)]
             return;
         }
 
-        if (CrimeExtensions.HandleCrimesAndLawfulActing(actor, CrimeTypes.Assault, target))
+        if (!actor.IsLawfulEnforcementActionAgainst(target, CrimeTypes.Assault) &&
+            CrimeExtensions.HandleCrimesAndLawfulActing(actor, CrimeTypes.Assault, target))
         {
             return;
         }
@@ -2882,7 +2887,8 @@ The syntax is as follows:
                 return;
             }
 
-            if (CrimeExtensions.HandleCrimesAndLawfulActing(actor, CrimeTypes.AssaultWithADeadlyWeapon,
+            if (!actor.IsLawfulEnforcementActionAgainst((ICharacter)aiming.Aim.Target, CrimeTypes.AssaultWithADeadlyWeapon) &&
+                CrimeExtensions.HandleCrimesAndLawfulActing(actor, CrimeTypes.AssaultWithADeadlyWeapon,
                     (ICharacter)aiming.Aim.Target))
             {
                 return;

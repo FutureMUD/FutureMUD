@@ -167,10 +167,32 @@ public class ExecutionPatrolStrategy : PatrolStrategyBase, IConfigurablePatrolSt
 
 	public bool ReadyToBegin(IPatrolRoute patrol)
 	{
-		return GetExecutionLocation(patrol) is not null &&
-			   ConfigurationIsComplete() &&
-			   patrol.LegalAuthority.Patrols.All(x => x.PatrolStrategy.Name != Name) &&
-			   SelectDueCondemned(patrol.LegalAuthority) is not null;
+		return string.IsNullOrEmpty(WhyCannotBegin(patrol));
+	}
+
+	public string WhyCannotBegin(IPatrolRoute patrol)
+	{
+		if (GetExecutionLocation(patrol) is null)
+		{
+			return "the first patrol node must be the execution location";
+		}
+
+		if (!ConfigurationIsComplete())
+		{
+			return "the execution method configuration is incomplete";
+		}
+
+		if (patrol.LegalAuthority.Patrols.Any(x => x.PatrolStrategy.Name == Name))
+		{
+			return "there is already an active execution patrol for this authority";
+		}
+
+		if (SelectDueCondemned(patrol.LegalAuthority) is null)
+		{
+			return "there is no due condemned prisoner for this authority";
+		}
+
+		return string.Empty;
 	}
 
 	private bool ConfigurationIsComplete()

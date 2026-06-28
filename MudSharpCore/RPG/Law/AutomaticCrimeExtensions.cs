@@ -24,6 +24,11 @@ public static class AutomaticCrimeExtensions
 	public static bool HandleCrimeAndLawfulActing(IFuturemud gameworld, ICharacter criminal, CrimeTypes crime,
 		ICharacter victim = null, IGameItem target = null, string additionalInformation = "", ICell crimeLocation = null)
 	{
+		if (victim is not null && criminal.IsLawfulEnforcementActionAgainst(victim, crime))
+		{
+			return false;
+		}
+
 		if (criminal.IsAdministrator())
 		{
 			return false;
@@ -47,6 +52,11 @@ public static class AutomaticCrimeExtensions
 	public static bool CheckWouldBeACrime(IFuturemud gameworld, ICharacter criminal, CrimeTypes crime,
 		ICharacter victim = null, IGameItem target = null, string additionalInformation = "", ICell crimeLocation = null)
 	{
+		if (victim is not null && criminal.IsLawfulEnforcementActionAgainst(victim, crime))
+		{
+			return false;
+		}
+
 		foreach (var authority in gameworld.LegalAuthorities)
 		{
 			var isCrime = crimeLocation is null
@@ -65,6 +75,11 @@ public static class AutomaticCrimeExtensions
 		ICharacter victim = null, IGameItem target = null, string additionalInformation = "",
 		IEnumerable<ICharacter> witnesses = null, bool notifyVictim = true, ICell crimeLocation = null)
 	{
+		if (victim is not null && criminal.IsLawfulEnforcementActionAgainst(victim, crime))
+		{
+			return;
+		}
+
 		foreach (var authority in gameworld.LegalAuthorities)
 		{
 			if (crimeLocation is null)

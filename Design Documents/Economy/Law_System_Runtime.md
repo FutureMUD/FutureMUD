@@ -107,12 +107,14 @@ A PC judge is any enforcer whose enforcement authority has `CanConvict` for the 
 Judge-facing trial commands:
 
 - `trial`: shows the active trial in the current room.
-- `trial docket [jurisdiction]`: lists defendants awaiting trial for the judge's jurisdictions, including remand/bail/trial status, charge IDs, charge names, and prior local convictions.
+- `trial docket [jurisdiction]`: lists defendants awaiting trial for the judge's jurisdictions, including remand/bail/trial status, open charge counts, a compact charge-name summary, wrapped charge ID details, and prior local convictions.
 - `trial summon <target>`: from the jurisdiction courtroom, calls a remand prisoner or present defendant before the court and begins a PC-held trial.
 - `convict <target> <crime> <sentence>`: records a guilty verdict and sentence for one charge.
 - `acquit <target> <crime>`: records a not-guilty verdict for one charge.
 
 `trial summon` uses the same court-transfer mechanics and player-facing emotes as the sheriff's automated trial fetch. It clears remand and enforcer-custody state for that jurisdiction, creates a manual `OnTrial`, and moves the defendant to the court if they are being held in a remand cell. Defendants on bail or at large after bail revocation must first return to custody.
+
+`trial docket` keeps the main table compact by showing the number of open charges and a short grouped charge summary. Charge IDs are printed below the table by defendant and wrapped to the judge's output width, so defendants with many charges do not force the table beyond the terminal.
 
 While any `OnTrial` exists in the court for a legal authority, sheriff patrols will not fetch a new automatic trial for that authority. NPC judge AI also ignores manual trials, so a PC-held trial will not be taken over by the automated judge. Once the PC judge has finalised all known charges with `convict` or `acquit`, the manual trial state is removed and the defendant is released, sent to prison, or sent to holding for execution according to the recorded sentences.
 
@@ -125,6 +127,14 @@ When bail is posted, the `OnBail` effect records a return deadline. The deadline
 When the return deadline expires, the bail heartbeat attempts to record a `ViolateBail` crime, revokes the bail effect, and forfeits the recorded bail on the pending crimes. The defendant becomes arrestable again through ordinary enforcement because the underlying crimes are no longer marked as bailed, but the system does not teleport, summon, try, or convict them while they are at large.
 
 The `trial docket` command distinguishes active bail from bail-revoked at-large defendants so PC judges can see why a person is not currently summonable.
+
+Prisoners can engage legal counsel while physically held in a remand cell, and advocates can hire counsel for remand prisoners from a remand cell as well as from the legal authority's prison location. `engagelawyer list` only lists remand prisoners who do not already have counsel.
+
+## Patrol Route Diagnostics
+
+Inactive patrol-route output reports both whether the route should begin and, when it should not, the first blocking reason. Reasons include routes not marked ready, missing patrol nodes, crime-targeted or corpse-recovery routes waiting for a trigger, strategy-specific configuration or target blockers, a false start prog, no required enforcers, no enforcement zones, or a current time of day outside the route schedule.
+
+The `showenforcers [authority|zone]` admin command reports the enforcer roster for a legal authority or any authority that enforces a specified zone. It includes on-duty state, patrol-pool eligibility, enforcement-authority match, current location, active patrol assignment, and the first reason a listed enforcer cannot be selected for patrol dispatch. The patrol pool requires an NPC with an `EnforcerAI`, an active `EnforcerEffect` for that legal authority, a currently matching enforcement authority, and no active patrol assignment.
 
 ## Crime-Driven Patrol Dispatch
 
@@ -151,6 +161,8 @@ Reactive patrol configuration:
 - `duration <timespan>` controls how long the increased-presence patrol remains active.
 
 Violent-crime classification includes assaults, deadly assaults, battery, murder-family offences, torture, grievous bodily harm, intimidation, resisting arrest, arson, extortion, sexual violence, kidnapping, slavery, animal cruelty, mayhem, and rioting.
+
+When a patrol is actively enforcing a known crime, patrol members are treated as acting under that enforcement authority only against the active target. Assault, battery, and grievous bodily harm reporting is suppressed for arrest-capable enforcement; deadly-force, attempted-murder, murder-family, and mayhem reporting is suppressed only when the active law's enforcement strategy permits lethal force. Execution patrols receive the same protection against their condemned target while the execution no-quit escort is active. This is deliberately narrow: unrelated targets, stale patrol fights, and off-duty enforcer violence still pass through the ordinary automatic crime hooks.
 
 ### Investigation Patrols
 

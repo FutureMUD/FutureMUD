@@ -586,7 +586,10 @@ public partial class Character
         {
             if (target is ICharacter tch)
             {
-                CrimeExtensions.CheckPossibleCrimeAllAuthorities(this, CrimeTypes.Assault, tch, null, "");
+                if (!this.IsLawfulEnforcementActionAgainst(tch, CrimeTypes.Assault))
+                {
+                    CrimeExtensions.CheckPossibleCrimeAllAuthorities(this, CrimeTypes.Assault, tch, null, "");
+                }
             }
             else if (target is IGameItem item)
             {

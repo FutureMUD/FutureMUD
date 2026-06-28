@@ -429,8 +429,12 @@ public class EnforcerAI : ArtificialIntelligenceBase
             return true;
         }
 
-        // Pause AI while moving or in combat
-        if (enforcer.Movement != null || enforcer.Combat != null)
+        // Pause AI while moving or in unrelated combat
+        if (enforcer.Movement != null ||
+            enforcer.Combat != null &&
+            enforcer.CombinedEffectsOfType<PatrolMemberEffect>().All(x =>
+                x.Patrol?.ActiveEnforcementTarget is null ||
+                enforcer.CombatTarget != x.Patrol.ActiveEnforcementTarget))
         {
             return true;
         }

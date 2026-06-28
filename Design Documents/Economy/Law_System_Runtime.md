@@ -152,6 +152,8 @@ Reactive patrol configuration:
 
 Violent-crime classification includes assaults, deadly assaults, battery, murder-family offences, torture, grievous bodily harm, intimidation, resisting arrest, arson, extortion, sexual violence, kidnapping, slavery, animal cruelty, mayhem, and rioting.
 
+When a patrol is actively enforcing a known crime, patrol members are treated as acting under that enforcement authority only against the active target. Assault, battery, and grievous bodily harm reporting is suppressed for arrest-capable enforcement; deadly-force, attempted-murder, murder-family, and mayhem reporting is suppressed only when the active law's enforcement strategy permits lethal force. Execution patrols receive the same protection against their condemned target while the execution no-quit escort is active. This is deliberately narrow: unrelated targets, stale patrol fights, and off-duty enforcer violence still pass through the ordinary automatic crime hooks.
+
 ### Investigation Patrols
 
 The `InvestigationPatrol` strategy dispatches to reported crimes whose trial evidence is still weak: crimes with an unknown criminal identity or incomplete recorded suspect characteristics. The patrol travels to the crime scene, spends its configured search time there, records investigative evidence, and returns.

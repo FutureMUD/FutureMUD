@@ -304,8 +304,11 @@ public abstract class RangedWeaponAttackBase : CombatMoveBase, IRangedWeaponAtta
 
         if (targetChar is not null)
         {
-            CrimeExtensions.CheckPossibleCrimeAllAuthorities(Assailant, CrimeTypes.AssaultWithADeadlyWeapon, targetChar,
-                null, "");
+            if (!Assailant.IsLawfulEnforcementActionAgainst(targetChar, CrimeTypes.AssaultWithADeadlyWeapon))
+            {
+                CrimeExtensions.CheckPossibleCrimeAllAuthorities(Assailant, CrimeTypes.AssaultWithADeadlyWeapon, targetChar,
+                    null, "");
+            }
         }
         else
         {

@@ -10,6 +10,7 @@ using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Effects.Concrete;
 using MudSharp.Effects.Interfaces;
+using MudSharp.Form.Shape;
 using MudSharp.Framework;
 using MudSharp.Movement;
 using MudSharp.PerceptionEngine;
@@ -114,6 +115,49 @@ public class MovementTests
     }
 
     [TestMethod]
+    public void DescribeBeginMove_DraggedCharacter_DoesNotAlsoShowWalking()
+    {
+        Mock<IFuturemud> gameworld = new();
+        gameworld.Setup(x => x.GetStaticDouble("MaximumMoveTimeMilliseconds")).Returns(1000.0);
+
+        Mock<ICharacter> voyeur = CreateVisibleCharacter("Voyeur", gameworld.Object);
+        Mock<ICharacter> dragger = CreateVisibleCharacter("Enforcer", gameworld.Object);
+        Mock<ICharacter> target = CreateVisibleCharacter("Prisoner", gameworld.Object);
+        Mock<IMoveSpeed> walking = new();
+        walking.SetupGet(x => x.PresentParticiple).Returns("walking");
+        walking.SetupGet(x => x.FirstPersonVerb).Returns("walk");
+        walking.SetupGet(x => x.ThirdPersonVerb).Returns("walks");
+        dragger.SetupGet(x => x.CurrentSpeed).Returns(walking.Object);
+        target.SetupGet(x => x.CurrentSpeed).Returns(walking.Object);
+        voyeur.Setup(x => x.CanSee(dragger.Object, It.IsAny<PerceiveIgnoreFlags>())).Returns(true);
+        voyeur.Setup(x => x.CanSee(target.Object, It.IsAny<PerceiveIgnoreFlags>())).Returns(true);
+        dragger.Setup(x => x.HowSeen(voyeur.Object, false, DescriptionType.Short, true, PerceiveIgnoreFlags.None))
+               .Returns("the enforcer");
+        target.Setup(x => x.HowSeen(voyeur.Object, false, DescriptionType.Short, true, PerceiveIgnoreFlags.None))
+              .Returns("the prisoner");
+
+        Mock<ICellExit> exit = new();
+        exit.SetupGet(x => x.OutboundMovementSuffix).Returns("towards the north");
+        Dragging dragging = new(dragger.Object, null!, target.Object);
+        Movement movement = new(
+            dragger.Object,
+            null!,
+            [dragger.Object],
+            Enumerable.Empty<ICharacter>(),
+            Enumerable.Empty<ICharacter>(),
+            Enumerable.Empty<ICharacter>(),
+            [target.Object],
+            [dragging],
+            exit.Object);
+
+        string description = movement.DescribeBeginMove(voyeur.Object);
+
+        StringAssert.Contains(description, "The enforcer begins dragging the prisoner towards the north.");
+        Assert.IsFalse(description.Contains("the prisoner begins walking"),
+            "Dragged characters should not be echoed as voluntary walkers.");
+    }
+
+    [TestMethod]
     public void FinalStep_ZeroGravityMoverStartsDrift()
     {
         (Movement? movement, Mock<ICharacter>? mover, Mock<ICellExit>? exit, Mock<ICell>? destination, Queue<string>? queuedCommands) = CreateMovementWithMover();
@@ -208,6 +252,23 @@ public class MovementTests
         character.Setup(x => x.EffectsOfType<Dragging>()).Returns([]);
         character.Setup(x => x.Equals(It.IsAny<ICharacter>()))
             .Returns<ICharacter>(other => ReferenceEquals(other, character.Object));
+        return character;
+    }
+
+    private static Mock<ICharacter> CreateVisibleCharacter(string name, IFuturemud gameworld)
+    {
+        var character = new Mock<ICharacter>();
+        character.SetupGet(x => x.Name).Returns(name);
+        character.SetupGet(x => x.FrameworkItemType).Returns("Character");
+        character.SetupGet(x => x.Gameworld).Returns(gameworld);
+        character.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
+        character.SetupGet(x => x.RidingMount).Returns((ICharacter?)null);
+        character.SetupGet(x => x.Riders).Returns([]);
+        character.Setup(x => x.EffectsOfType<ISneakEffect>(It.IsAny<Predicate<ISneakEffect>>()))
+            .Returns(Enumerable.Empty<ISneakEffect>());
+        character.Setup(x => x.AffectedBy<ISneakMoveEffect>(It.IsAny<Predicate<ISneakMoveEffect>>()))
+            .Returns(false);
+        character.Setup(x => x.IsSelf(It.IsAny<IPerceivable>())).Returns<IPerceivable>(other => ReferenceEquals(other, character.Object));
         return character;
     }
 }

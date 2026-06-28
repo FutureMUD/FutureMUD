@@ -226,6 +226,73 @@ public class AutomaticCrimeExtensionsTests
 	}
 
 	[TestMethod]
+	public void IsLawfulEnforcementActionAgainst_ActiveArrestTarget_AllowsAssaultButNotMurder()
+	{
+		Mock<IFuturemud> gameworld = CreateGameworld(out _, out _, out _);
+		Mock<ICell> location = CreateCell(1L, CreateZone(10L).Object);
+		Mock<ICharacter> enforcer = CreateCharacter(20L, gameworld.Object, location.Object);
+		Mock<ICharacter> suspect = CreateCharacter(30L, gameworld.Object, location.Object);
+		Mock<IPatrol> patrol = CreatePatrol(enforcer.Object, suspect.Object, EnforcementStrategy.ArrestAndDetain);
+		PatrolMemberEffect effect = new(enforcer.Object, patrol.Object);
+		enforcer.Setup(x => x.CombinedEffectsOfType<PatrolMemberEffect>()).Returns([effect]);
+		suspect.Setup(x => x.EffectsOfType<ExecutionPatrolNoQuit>(It.IsAny<Predicate<ExecutionPatrolNoQuit>>()))
+		       .Returns(Enumerable.Empty<ExecutionPatrolNoQuit>());
+
+		Assert.IsTrue(enforcer.Object.IsLawfulEnforcementActionAgainst(suspect.Object, CrimeTypes.Assault));
+		Assert.IsFalse(enforcer.Object.IsLawfulEnforcementActionAgainst(suspect.Object, CrimeTypes.Murder));
+	}
+
+	[TestMethod]
+	public void CheckGreviousBodilyHarmForWound_LawfulArrestEnforcement_DoesNotReportCrime()
+	{
+		Mock<IFuturemud> gameworld = CreateGameworld(out Mock<ILegalAuthority> authority, out _, out _);
+		Mock<ICell> location = CreateCell(1L, CreateZone(10L).Object);
+		Mock<ICharacter> enforcer = CreateCharacter(20L, gameworld.Object, location.Object);
+		Mock<ICharacter> suspect = CreateCharacter(30L, gameworld.Object, location.Object);
+		Mock<IPatrol> patrol = CreatePatrol(enforcer.Object, suspect.Object, EnforcementStrategy.ArrestAndDetain);
+		PatrolMemberEffect effect = new(enforcer.Object, patrol.Object);
+		enforcer.Setup(x => x.CombinedEffectsOfType<PatrolMemberEffect>()).Returns([effect]);
+		suspect.Setup(x => x.EffectsOfType<ExecutionPatrolNoQuit>(It.IsAny<Predicate<ExecutionPatrolNoQuit>>()))
+		       .Returns(Enumerable.Empty<ExecutionPatrolNoQuit>());
+		Mock<IWound> wound = new();
+		wound.SetupGet(x => x.Parent).Returns(suspect.Object);
+		wound.SetupGet(x => x.ActorOrigin).Returns(enforcer.Object);
+		wound.SetupGet(x => x.Severity).Returns(WoundSeverity.Grievous);
+		wound.SetupGet(x => x.DamageType).Returns(DamageType.Crushing);
+
+		AutomaticCrimeExtensions.CheckGreviousBodilyHarmForWound(wound.Object);
+
+		authority.Verify(x => x.CheckPossibleCrime(It.IsAny<ICharacter>(), CrimeTypes.GreviousBodilyHarm,
+			It.IsAny<ICharacter>(), It.IsAny<IGameItem>(), It.IsAny<string>(),
+			It.IsAny<IEnumerable<ICharacter>>(), It.IsAny<bool>(), It.IsAny<ICell>()), Times.Never);
+	}
+
+	[TestMethod]
+	public void CheckMurderForDeath_LawfulLethalEnforcement_DoesNotReportCrime()
+	{
+		Mock<IFuturemud> gameworld = CreateGameworld(out Mock<ILegalAuthority> authority, out _, out _);
+		Mock<ICell> deathLocation = CreateCell(1L, CreateZone(10L).Object);
+		Mock<ICharacter> enforcer = CreateCharacter(20L, gameworld.Object, deathLocation.Object);
+		Mock<ICharacter> suspect = CreateCharacter(30L, gameworld.Object, deathLocation.Object);
+		Mock<IPatrol> patrol = CreatePatrol(enforcer.Object, suspect.Object, EnforcementStrategy.LethalForceArrestAndDetain);
+		PatrolMemberEffect effect = new(enforcer.Object, patrol.Object);
+		enforcer.Setup(x => x.CombinedEffectsOfType<PatrolMemberEffect>()).Returns([effect]);
+		suspect.Setup(x => x.EffectsOfType<ExecutionPatrolNoQuit>(It.IsAny<Predicate<ExecutionPatrolNoQuit>>()))
+		       .Returns(Enumerable.Empty<ExecutionPatrolNoQuit>());
+		Mock<IWound> wound = CreateMurderWound(enforcer.Object, null!, WoundSeverity.Horrifying,
+			DateTime.UtcNow.AddMinutes(-5), false);
+		Mock<IBody> body = new();
+		body.SetupGet(x => x.Wounds).Returns([wound.Object]);
+		suspect.SetupGet(x => x.Body).Returns(body.Object);
+
+		AutomaticCrimeExtensions.CheckMurderForDeath(suspect.Object);
+
+		authority.Verify(x => x.CheckPossibleCrime(It.IsAny<ICharacter>(), CrimeTypes.Murder,
+			It.IsAny<ICharacter>(), It.IsAny<IGameItem>(), It.IsAny<string>(),
+			It.IsAny<IEnumerable<ICharacter>>(), It.IsAny<bool>(), It.IsAny<ICell>()), Times.Never);
+	}
+
+	[TestMethod]
 	public void CheckLawfulMovement_TrespassingWouldBeCrime_BlocksMovement()
 	{
 		Mock<IFuturemud> gameworld = CreateGameworld(out Mock<ILegalAuthority> authority, out All<IProperty> properties,
@@ -429,6 +496,20 @@ public class AutomaticCrimeExtensionsTests
 		property.SetupGet(x => x.PropertyLocations).Returns(new[] { location });
 		property.Setup(x => x.HotelRoomForCell(It.IsAny<ICell>())).Returns((IHotelRoom)null!);
 		return property;
+	}
+
+	private static Mock<IPatrol> CreatePatrol(ICharacter enforcer, ICharacter target, EnforcementStrategy strategy)
+	{
+		Mock<ILaw> law = new();
+		law.SetupGet(x => x.EnforcementStrategy).Returns(strategy);
+		Mock<ICrime> crime = new();
+		crime.SetupGet(x => x.Law).Returns(law.Object);
+		Mock<IPatrol> patrol = new();
+		patrol.SetupGet(x => x.Id).Returns(200L);
+		patrol.SetupGet(x => x.PatrolMembers).Returns([enforcer]);
+		patrol.SetupGet(x => x.ActiveEnforcementTarget).Returns(target);
+		patrol.SetupGet(x => x.ActiveEnforcementCrime).Returns(crime.Object);
+		return patrol;
 	}
 
 	private static Mock<IGameItem> CreateItem(long id, string name)

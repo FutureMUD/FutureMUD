@@ -582,7 +582,7 @@ public class Movement : IMovement
                          .ToList();
         foreach (Dragging effect in DragEffects)
         {
-            List<ICharacter> draggers = Draggers.Concat(Helpers).Where(x => effect.CharacterDraggers.Contains(x) && voyeur.CanSee(x))
+            List<ICharacter> draggers = Draggers.Concat(Helpers).Where(x => effect.CharacterDraggers.ContainsPhysicalInstance(x) && voyeur.CanSee(x))
                                    .ToList();
             if (!draggers.Any())
             {
@@ -590,7 +590,7 @@ public class Movement : IMovement
             }
 
             sb.AppendLine($"{draggers.Select(x => x.RidingMount is not null ? $"{x.HowSeen(voyeur)} (riding {x.RidingMount.HowSeen(voyeur)})" : x.HowSeen(voyeur)).ListToString()} {(draggers.Count == 1 ? "drags" : "drag")} {effect.Target.HowSeen(voyeur)} {suffix}.".Proper());
-            seenMovers.RemoveAll(x => draggers.Contains(x));
+            RemoveDraggingParticipantsFromSeenMovers(seenMovers, draggers, effect.Target);
         }
 
         if (seenMovers.Count > 0)
@@ -630,7 +630,7 @@ public class Movement : IMovement
                          .ToList();
         foreach (Dragging effect in DragEffects)
         {
-            List<ICharacter> draggers = Draggers.Concat(Helpers).Where(x => effect.CharacterDraggers.Contains(x) && voyeur.CanSee(x))
+            List<ICharacter> draggers = Draggers.Concat(Helpers).Where(x => effect.CharacterDraggers.ContainsPhysicalInstance(x) && voyeur.CanSee(x))
                                    .ToList();
             if (!draggers.Any())
             {
@@ -638,7 +638,7 @@ public class Movement : IMovement
             }
 
             sb.AppendLine($"{draggers.Select(x => x.RidingMount is not null ? $"{x.HowSeen(voyeur)} (riding {x.RidingMount.HowSeen(voyeur)})" : x.HowSeen(voyeur)).ListToString()} {(draggers.Count == 1 && !draggers.First().IsSelf(voyeur) ? "begins" : "begin")} dragging {effect.Target.HowSeen(voyeur)} {suffix}.".Proper());
-            seenMovers.RemoveAll(x => draggers.Contains(x));
+            RemoveDraggingParticipantsFromSeenMovers(seenMovers, draggers, effect.Target);
         }
 
         if (seenMovers.Count > 0)
@@ -675,7 +675,7 @@ public class Movement : IMovement
                          .ToList();
         foreach (Dragging effect in DragEffects)
         {
-            List<ICharacter> draggers = Draggers.Concat(Helpers).Where(x => effect.CharacterDraggers.Contains(x) && voyeur.CanSee(x))
+            List<ICharacter> draggers = Draggers.Concat(Helpers).Where(x => effect.CharacterDraggers.ContainsPhysicalInstance(x) && voyeur.CanSee(x))
                                    .ToList();
             if (!draggers.Any())
             {
@@ -683,7 +683,7 @@ public class Movement : IMovement
             }
 
             sb.AppendLine($"{draggers.Select(x => x.RidingMount is not null ? $"{x.HowSeen(voyeur)} (riding {x.RidingMount.HowSeen(voyeur)})" : x.HowSeen(voyeur)).ListToString()} {(draggers.Count == 1 ? "is" : "are")} dragging {effect.Target.HowSeen(voyeur)} {suffix}.".Proper());
-            seenMovers.RemoveAll(x => draggers.Contains(x));
+            RemoveDraggingParticipantsFromSeenMovers(seenMovers, draggers, effect.Target);
         }
 
         if (seenMovers.Count > 0)
@@ -707,6 +707,12 @@ public class Movement : IMovement
         }
 
         return sb.ToString().StripANSIColour().Colour(Telnet.Yellow);
+    }
+
+    private static void RemoveDraggingParticipantsFromSeenMovers(List<ICharacter> seenMovers, IEnumerable<ICharacter> draggers, IPerceivable target)
+    {
+        seenMovers.RemoveAll(x => draggers.ContainsPhysicalInstance(x) ||
+                                  CharacterInstanceIdentityComparer.SamePhysicalInstanceOrBody(x, target));
     }
 
     /// <inheritdoc />

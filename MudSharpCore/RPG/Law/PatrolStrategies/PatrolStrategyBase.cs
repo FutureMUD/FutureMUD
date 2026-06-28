@@ -207,6 +207,14 @@ public abstract class PatrolStrategyBase : IPatrolStrategy
         }
     }
 
+    private static void LeaveCombatIfAble(ICharacter member)
+    {
+        if (member.Combat?.CanFreelyLeaveCombat(member) == true)
+        {
+            member.Combat.LeaveCombat(member);
+        }
+    }
+
     protected virtual void PatrolTickActiveEnforcement(IPatrol patrol)
     {
         ICharacter criminal = patrol.ActiveEnforcementTarget;
@@ -245,6 +253,11 @@ public abstract class PatrolStrategyBase : IPatrolStrategy
         if (patrol.PatrolMembers.Any(x => x.CombinedEffectsOfType<Dragging>().Any(x => x.Target == criminal)))
         {
             // Get rest of team to join drag
+            foreach (ICharacter member in patrol.PatrolMembers)
+            {
+                LeaveCombatIfAble(member);
+            }
+
             if (!leader.CouldMove(false, null).Success)
             {
                 return;
@@ -327,21 +340,27 @@ public abstract class PatrolStrategyBase : IPatrolStrategy
         if (criminal.IsHelpless)
         {
             // Grab the criminal
-            ICharacter random = patrol.PatrolMembers.GetRandomElement();
-            if (random.Combat?.CanFreelyLeaveCombat(random) == true)
+            ICharacter random = patrol.PatrolMembers
+                                       .Where(x => x.ColocatedWith(criminal))
+                                       .Where(x => x.State.IsAble())
+                                       .FirstOrDefault(x => x.SamePhysicalInstance(leader)) ??
+                                patrol.PatrolMembers
+                                      .Where(x => x.ColocatedWith(criminal))
+                                      .Where(x => x.State.IsAble())
+                                      .GetRandomElement();
+            if (random is null)
             {
-                random.Combat?.LeaveCombat(random);
+                return;
             }
+
+            LeaveCombatIfAble(random);
 
             random.ExecuteCommand($"drag {random.BestKeywordFor(criminal)}");
             if (random.CombinedEffectsOfType<Dragging>().Any(x => x.Target == criminal))
             {
                 foreach (ICharacter other in patrol.PatrolMembers.Where(x => !x.SamePhysicalInstance(random)))
                 {
-                    if (other.Combat?.CanFreelyLeaveCombat(other) == true)
-                    {
-                        other.Combat?.LeaveCombat(other);
-                    }
+                    LeaveCombatIfAble(other);
 
                     other.ExecuteCommand($"drag help {other.BestKeywordFor(random)}");
                 }

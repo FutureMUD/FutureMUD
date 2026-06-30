@@ -1,12 +1,14 @@
 # FutureMUD Medieval Industry Chain Prerequisite Addendum
 
 **Status:** implemented prerequisite-foundation addendum for the medieval craft rebuild.
-**Date:** 28 June 2026.  
+**Date:** 28 June 2026.
 **Applies to:** `FutureMUD_Medieval_Industry_Chain_Craft_Design_Reference.md`.
 
 This addendum records the accepted review caveats for the medieval craft-rebuild design. Where this document conflicts with the initial industry-chain reference, this document should be treated as the newer policy until the main reference is folded forward.
 
 **Implementation note, 30 June 2026:** The shared prerequisite pass now seeds general `HandTool` component prototypes for the recommended medieval tool families in `UsefulSeeder`, adds missing lapidary, jewellery, and apothecary tool tag branches, expands the stock skill package with repeated medieval industry specialties that were still absent, synchronizes the maintained seeded component and tag exports, and updates the current medieval crafting audit with the prerequisite-routing columns below. Primary-production source gaps called out here, especially gemstone rough and extractive commodities, are already owned by the current primary-production seeder and its tests.
+
+The synchronized maintained data exports are `Design Documents/Data/Seeded_Item_Components.json` for the new `Tool_*_General` `HandTool` prototypes and `Design Documents/Data/SeededTagHierarchy.csv` for the new lapidary, jewellery, and apothecary tool tag paths. No `Item_Component_Types.json`, `Seeded_Materials.json`, `Seeded_Liquids.json`, or `Seeded_Gases.json` changes were required by this pass because it added no new component type, material, liquid, or gas.
 
 ---
 
@@ -37,7 +39,7 @@ This applies especially to tool behaviour. A medieval craft tool may still be ma
 - the craft pass assumes that component prototype exists; and
 - tests validate the component prototype and tag path together.
 
-The initial design reference currently notes that the seed data has a `HandTool` component type but not a broad catalogue of ordinary `HandTool_*` or `Tool_*` prototypes. That should now be read as a prerequisite recommendation, not as a reason to rely permanently on tag-only matching. The craft rebuild should include a UsefulSeeder component-prototype pass for ordinary medieval tool profiles where `HandTool` behaviour is useful.
+The seed data has a `HandTool` component type and now includes broad ordinary `Tool_*_General` prototypes for the medieval tool families below. These prototypes should be treated as shared prerequisite data for physical tool items that need `HandTool` runtime behaviour, while craft matching should continue to use exact functional tag paths.
 
 ### Recommended tool component families
 

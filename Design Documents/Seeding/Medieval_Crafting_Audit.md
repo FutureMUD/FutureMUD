@@ -51,6 +51,14 @@ resolution_status
 ```
 
 Use `owning_resolution_pass` to route missing prerequisites to the shared owner before finished medieval craft authoring consumes them, for example `UsefulSeeder item component pass`, `UsefulSeeder tag pass`, `Primary production seeder`, `Agriculture seeder`, `Butchery seeder`, `Forage seeder`, or `Skill package seeder`.
+## Shared Prerequisite Data Sync
+
+The medieval industry prerequisite pass is reflected in the maintained data documents as follows:
+
+- `Design Documents/Data/Seeded_Item_Components.json` includes the shared `Tool_*_General` `HandTool` prototypes seeded by `UsefulSeeder.ItemComponents.cs`.
+- `Design Documents/Data/SeededTagHierarchy.csv` includes the new `Functions / Tools / Apothecary Tools`, `Functions / Tools / Jewellery Tools`, and `Functions / Tools / Lapidary Tools` branches and their child paths.
+- `Item_Component_Types.json`, `Seeded_Materials.json`, `Seeded_Liquids.json`, and `Seeded_Gases.json` were checked and did not require changes for this pass because no new component type, material, liquid, or gas was introduced.
+- `SkillPackageSeeder.cs` now includes the repeated medieval industry prerequisite skills `Goldsmithing`, `Glassblowing`, `Lapidary`, `Fulling`, `Parchmentmaking`, `Papermaking`, `Bookbinding`, `Calligraphy`, `Scribing`, `Woodblock Printing`, and `Quarrying`; there is no separate maintained skill-package data export under `Design Documents/Data`.
 
 ## Active Clothing Source
 

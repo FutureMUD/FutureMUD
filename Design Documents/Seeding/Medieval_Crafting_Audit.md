@@ -21,6 +21,37 @@ The medieval `ItemSeeder.Rework` item and craft implementation was reset to laun
 - `ItemSeederCrafting.Medieval.cs` currently contains no-op medieval craft launch points only.
 - The old authored outfit catalogue, explicit culture catalogue, generated helper/data model, and medieval craft helper families have been removed.
 
+## Prerequisite Routing Audit Shape
+
+The medieval craft-completeness audit now tracks prerequisite ownership as well as finished-item craft coverage. Any generated or maintained audit table for the craft rebuild should include these columns:
+
+```text
+stable_reference
+item_source_file
+craft_name
+craft_method
+immediate_inputs
+missing_input_crafts
+terminal_inputs
+terminal_source_class
+terminal_source_owner
+missing_terminal_source
+required_tools
+missing_tool_items
+missing_tool_components
+missing_tool_tags
+missing_component_types
+missing_component_prototypes
+missing_materials
+missing_tags
+required_skill
+missing_skill_package_entry
+owning_resolution_pass
+resolution_status
+```
+
+Use `owning_resolution_pass` to route missing prerequisites to the shared owner before finished medieval craft authoring consumes them, for example `UsefulSeeder item component pass`, `UsefulSeeder tag pass`, `Primary production seeder`, `Agriculture seeder`, `Butchery seeder`, `Forage seeder`, or `Skill package seeder`.
+
 ## Active Clothing Source
 
 The live medieval clothing item source is intentionally direct-call only:

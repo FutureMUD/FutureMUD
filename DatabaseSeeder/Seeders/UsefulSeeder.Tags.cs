@@ -983,6 +983,24 @@ namespace DatabaseSeeder.Seeders
             AddTag(context, "Forge Bellows", "Weaponsmithing Tools");
             AddTag(context, "Grindstone", "Weaponsmithing Tools");
 
+            // Lapidary and jewellery
+            AddTag(context, "Lapidary Tools", "Tools");
+            AddTag(context, "Lapidary Saw", "Lapidary Tools");
+            AddTag(context, "Lapidary Wheel", "Lapidary Tools");
+            AddTag(context, "Lapidary Polisher", "Lapidary Tools");
+            AddTag(context, "Cabochon Dop Stick", "Lapidary Tools");
+            AddTag(context, "Bead Drill", "Lapidary Tools");
+            AddTag(context, "Gem Drill", "Lapidary Tools");
+
+            AddTag(context, "Jewellery Tools", "Tools");
+            AddTag(context, "Jeweller's Anvil", "Jewellery Tools");
+            AddTag(context, "Jeweller's Drawplate", "Jewellery Tools");
+            AddTag(context, "Jeweller's Burnisher", "Jewellery Tools");
+            AddTag(context, "Jeweller's Stakes", "Jewellery Tools");
+            AddTag(context, "Crimping Pliers", "Jewellery Tools");
+            AddTag(context, "Stone Setting Tools", "Jewellery Tools");
+            AddTag(context, "Wire Pliers", "Jewellery Tools");
+
             #region Butcher Tools
             AddTag(context, "Butcher Tools", "Tools");
 
@@ -1383,6 +1401,17 @@ namespace DatabaseSeeder.Seeders
             AddTag(context, "Aquatint Dust Box", "Engraving Tools");
             AddTag(context, "Plate Warming Brazier", "Engraving Tools");
             AddTag(context, "Copperplate Wiping Muslin", "Engraving Tools");
+
+            // Apothecary Tools
+            AddTag(context, "Apothecary Tools", "Tools");
+            AddTag(context, "Apothecary Mortar", "Apothecary Tools");
+            AddTag(context, "Apothecary Pestle", "Apothecary Tools");
+            AddTag(context, "Apothecary Strainer", "Apothecary Tools");
+            AddTag(context, "Apothecary Spatula", "Apothecary Tools");
+            AddTag(context, "Preparation Board", "Apothecary Tools");
+            AddTag(context, "Pill Tile", "Apothecary Tools");
+            AddTag(context, "Herb Chopper", "Apothecary Tools");
+            AddTag(context, "Medicine Spoon", "Apothecary Tools");
 
             // Medical Tools
             AddTag(context, "Medical Tools", "Tools");

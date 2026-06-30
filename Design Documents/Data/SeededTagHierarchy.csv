@@ -276,6 +276,15 @@ Winnowing Basket	Agricultural Tools	Functions / Tools / Agricultural Tools / Win
 Winnowing Fork	Agricultural Tools	Functions / Tools / Agricultural Tools / Winnowing Fork
 Winnowing Tray	Agricultural Tools	Functions / Tools / Agricultural Tools / Winnowing Tray
 Yoke	Agricultural Tools	Functions / Tools / Agricultural Tools / Yoke
+Apothecary Tools	Tools	Functions / Tools / Apothecary Tools
+Apothecary Mortar	Apothecary Tools	Functions / Tools / Apothecary Tools / Apothecary Mortar
+Apothecary Pestle	Apothecary Tools	Functions / Tools / Apothecary Tools / Apothecary Pestle
+Apothecary Spatula	Apothecary Tools	Functions / Tools / Apothecary Tools / Apothecary Spatula
+Apothecary Strainer	Apothecary Tools	Functions / Tools / Apothecary Tools / Apothecary Strainer
+Herb Chopper	Apothecary Tools	Functions / Tools / Apothecary Tools / Herb Chopper
+Medicine Spoon	Apothecary Tools	Functions / Tools / Apothecary Tools / Medicine Spoon
+Pill Tile	Apothecary Tools	Functions / Tools / Apothecary Tools / Pill Tile
+Preparation Board	Apothecary Tools	Functions / Tools / Apothecary Tools / Preparation Board
 Armouring Tools	Tools	Functions / Tools / Armouring Tools
 Armourer's Anvil	Armouring Tools	Functions / Tools / Armouring Tools / Armourer's Anvil
 Armourer's Forming Bags	Armouring Tools	Functions / Tools / Armouring Tools / Armourer's Forming Bags
@@ -626,6 +635,14 @@ Miniature Detail Brush	Illumination Tools	Functions / Tools / Illumination Tools
 Palette Slab	Illumination Tools	Functions / Tools / Illumination Tools / Palette Slab
 Pigment Muller	Illumination Tools	Functions / Tools / Illumination Tools / Pigment Muller
 Pigment Shell	Illumination Tools	Functions / Tools / Illumination Tools / Pigment Shell
+Jewellery Tools	Tools	Functions / Tools / Jewellery Tools
+Crimping Pliers	Jewellery Tools	Functions / Tools / Jewellery Tools / Crimping Pliers
+Jeweller's Anvil	Jewellery Tools	Functions / Tools / Jewellery Tools / Jeweller's Anvil
+Jeweller's Burnisher	Jewellery Tools	Functions / Tools / Jewellery Tools / Jeweller's Burnisher
+Jeweller's Drawplate	Jewellery Tools	Functions / Tools / Jewellery Tools / Jeweller's Drawplate
+Jeweller's Stakes	Jewellery Tools	Functions / Tools / Jewellery Tools / Jeweller's Stakes
+Stone Setting Tools	Jewellery Tools	Functions / Tools / Jewellery Tools / Stone Setting Tools
+Wire Pliers	Jewellery Tools	Functions / Tools / Jewellery Tools / Wire Pliers
 Lacquerwork Tools	Tools	Functions / Tools / Lacquerwork Tools
 Gold Powder Tube	Lacquerwork Tools	Functions / Tools / Lacquerwork Tools / Gold Powder Tube
 Lacquer Drying Cabinet	Lacquerwork Tools	Functions / Tools / Lacquerwork Tools / Lacquer Drying Cabinet
@@ -634,6 +651,13 @@ Lacquer Polishing Stone	Lacquerwork Tools	Functions / Tools / Lacquerwork Tools 
 Lacquer Spatula	Lacquerwork Tools	Functions / Tools / Lacquerwork Tools / Lacquer Spatula
 Lacquerer's Brush	Lacquerwork Tools	Functions / Tools / Lacquerwork Tools / Lacquerer's Brush
 Powder Sifter Tray	Lacquerwork Tools	Functions / Tools / Lacquerwork Tools / Powder Sifter Tray
+Lapidary Tools	Tools	Functions / Tools / Lapidary Tools
+Bead Drill	Lapidary Tools	Functions / Tools / Lapidary Tools / Bead Drill
+Cabochon Dop Stick	Lapidary Tools	Functions / Tools / Lapidary Tools / Cabochon Dop Stick
+Gem Drill	Lapidary Tools	Functions / Tools / Lapidary Tools / Gem Drill
+Lapidary Polisher	Lapidary Tools	Functions / Tools / Lapidary Tools / Lapidary Polisher
+Lapidary Saw	Lapidary Tools	Functions / Tools / Lapidary Tools / Lapidary Saw
+Lapidary Wheel	Lapidary Tools	Functions / Tools / Lapidary Tools / Lapidary Wheel
 Layout Tools	Tools	Functions / Tools / Layout Tools
 Ruler	Layout Tools	Functions / Tools / Layout Tools / Ruler
 Construction Ruler	Ruler	Functions / Tools / Layout Tools / Ruler / Construction Ruler

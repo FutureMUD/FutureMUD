@@ -1,10 +1,12 @@
 # FutureMUD Medieval Industry Chain Prerequisite Addendum
 
-**Status:** review addendum for PR #420.  
+**Status:** implemented prerequisite-foundation addendum for the medieval craft rebuild.
 **Date:** 28 June 2026.  
 **Applies to:** `FutureMUD_Medieval_Industry_Chain_Craft_Design_Reference.md`.
 
 This addendum records the accepted review caveats for the medieval craft-rebuild design. Where this document conflicts with the initial industry-chain reference, this document should be treated as the newer policy until the main reference is folded forward.
+
+**Implementation note, 30 June 2026:** The shared prerequisite pass now seeds general `HandTool` component prototypes for the recommended medieval tool families in `UsefulSeeder`, adds missing lapidary, jewellery, and apothecary tool tag branches, expands the stock skill package with repeated medieval industry specialties that were still absent, synchronizes the maintained seeded component and tag exports, and updates the current medieval crafting audit with the prerequisite-routing columns below. Primary-production source gaps called out here, especially gemstone rough and extractive commodities, are already owned by the current primary-production seeder and its tests.
 
 ---
 

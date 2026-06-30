@@ -532,7 +532,7 @@ public class Crime : LateInitialisingItem, ICrime
             case CrimeTypes.Torture:
                 return $"tortured {victimDesc}{locationAddendum}";
             case CrimeTypes.GreviousBodilyHarm:
-                return $"caused grevious bodily harm to {victimDesc}{locationAddendum}";
+                return $"caused grievous bodily harm to {victimDesc}{locationAddendum}";
             case CrimeTypes.Theft:
                 return $"stole {thirdPartyDesc} from {victimDesc}{locationAddendum}";
             case CrimeTypes.Fraud:
@@ -686,9 +686,7 @@ public class Crime : LateInitialisingItem, ICrime
 
     public string DescribeCrimeAtTrial(IPerceiver voyeur)
     {
-        string victimDesc =
-            Victim?.PersonalName.GetName(NameStyle.FullName) ??
-            "unnamed victims";
+        string victimDesc = DescribeVictimAtTrial(Victim);
         string locationAddendum =
             CrimeLocation != null ?
                 $" at {CrimeLocation.CurrentOverlay.CellName}" :
@@ -697,6 +695,12 @@ public class Crime : LateInitialisingItem, ICrime
         return
             DescribeCrimeInternal(voyeur, victimDesc, locationAddendum, thirdPartyDesc)
                 .Replace("was ", "$1|were|was ");
+    }
+
+    private static string DescribeVictimAtTrial(ICharacter? victim)
+    {
+        string? name = victim?.PersonalName.GetName(NameStyle.FullName);
+        return string.IsNullOrWhiteSpace(name) ? "an unnamed victim" : name;
     }
 
     public string DescribeCrime(IPerceiver voyeur)

@@ -7,12 +7,15 @@ using MudSharp.Construction;
 using MudSharp.Effects;
 using MudSharp.Effects.Concrete;
 using MudSharp.Framework;
+using MudSharp.Framework.Save;
 using MudSharp.FutureProg;
+using MudSharp.PerceptionEngine;
 using MudSharp.RPG.Law;
 using MudSharp.TimeAndDate;
 using System;
 using System.Collections.Generic;
 using System.Xml.Linq;
+using DbCrime = MudSharp.Models.Crime;
 
 namespace MudSharp_Unit_Tests;
 
@@ -152,5 +155,49 @@ public class LegalTrialFlowTests
 
 		Assert.IsTrue(authority.Object.IsInRemandCell(character.Object));
 		Assert.IsFalse(authority.Object.IsInRemandCell(otherCharacter.Object));
+	}
+
+	[TestMethod]
+	public void CrimeDescribeCrimeAtTrial_MissingVictim_ShouldUseUnnamedVictim()
+	{
+		Mock<ICellOverlay> overlay = new();
+		overlay.SetupGet(x => x.CellName).Returns("The Entrance to Easy Street");
+
+		Mock<ICell> location = new();
+		location.SetupGet(x => x.Id).Returns(1L);
+		location.SetupGet(x => x.CurrentOverlay).Returns(overlay.Object);
+
+		All<ICell> cells = new();
+		cells.Add(location.Object);
+
+		Mock<IFuturemud> gameworld = new();
+		gameworld.SetupGet(x => x.Cells).Returns(cells);
+		gameworld.SetupGet(x => x.SaveManager).Returns(new Mock<ISaveManager>().Object);
+
+		Mock<ILaw> law = new();
+		law.SetupGet(x => x.Id).Returns(10L);
+		law.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		law.SetupGet(x => x.CrimeType).Returns(CrimeTypes.GreviousBodilyHarm);
+
+		Crime crime = new(new DbCrime
+		{
+			Id = 20L,
+			LawId = 10L,
+			CriminalId = 30L,
+			VictimId = 40L,
+			LocationId = 1L,
+			TimeOfCrime = MudDateTime.Never.GetDateTimeString(),
+			RealTimeOfCrime = DateTime.UtcNow,
+			CriminalShortDescription = "a defendant",
+			CriminalFullDescription = "A defendant is here.",
+			CriminalCharacteristics = string.Empty,
+			WitnessIds = string.Empty
+		}, law.Object, gameworld.Object);
+
+		string description = crime.DescribeCrimeAtTrial(new Mock<IPerceiver>().Object);
+
+		StringAssert.Contains(description,
+			"caused grievous bodily harm to an unnamed victim at The Entrance to Easy Street");
+		Assert.IsFalse(description.Contains("to at", StringComparison.OrdinalIgnoreCase));
 	}
 }

@@ -21,6 +21,9 @@ public class LegalCommandPresentationTests
 		StringAssert.Contains(block, ".Where(x => !x.AffectedBy<HasLegalCounsel>())");
 		StringAssert.Contains(block, "in a remand cell");
 		StringAssert.Contains(block, "\"ENGAGELAWYER LIST\".MXPSend(\"engagelawyer list\")");
+		StringAssert.Contains(block, "PrisonerBelongingsBundles(jurisdiction, actor)");
+		StringAssert.Contains(block, "actor.Body.ExternalItems.Concat(remandBelongings)");
+		StringAssert.Contains(block, "remand belongings");
 	}
 
 	[TestMethod]

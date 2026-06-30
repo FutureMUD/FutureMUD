@@ -1666,7 +1666,7 @@ return true",
         law.CanBeAppliedAutomatically = context.Automatic;
         law.CanBeArrested = context.CanBeArrested;
         law.CanBeOfferedBail = context.CanBeOfferedBail;
-        law.DoNotAutomaticallyApplyRepeats = context.NoRepeats;
+        law.DoNotAutomaticallyApplyRepeats = context.NoRepeats || (context.Automatic && type.IsViolentCrime());
         law.EnforcementPriority = DefaultEnforcementPriority(type);
         law.ActivePeriod = DefaultActivePeriod(type).TotalSeconds;
         law.EnforcementStrategy = enforcement.DescribeEnum();

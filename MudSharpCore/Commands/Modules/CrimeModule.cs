@@ -2057,7 +2057,7 @@ The syntax is as follows:
 
 	#3engagelawyer list#0 - see a list of people who could have lawyers engaged
 	#3engagelawyer me|<target>#0 - see a list of lawyers you could hire
-	#3engagelawyer me|<target> <which> [<bank account>] - engage a specific lawyer, paying with either cash or a bank account", AutoHelp.HelpArgOrNoArg)]
+	#3engagelawyer me|<target> <which> [<bank account>] - engage a specific lawyer, paying with either cash, remand belongings cash, or a bank account", AutoHelp.HelpArgOrNoArg)]
     protected static void EngageLawyer(ICharacter actor, string input)
     {
         StringStack ss = new(input.RemoveFirstWord());
@@ -2219,17 +2219,28 @@ The syntax is as follows:
         }
         else
         {
-            OtherCashPayment payment = new(jurisdiction.Currency, actor);
-            if (payment.AccessibleMoneyForPayment() < fee)
+            List<IGameItem> remandBelongings = actor == who && jurisdiction.IsInRemandCell(actor)
+                ? PrisonerBelongingsBundles(jurisdiction, actor).ToList()
+                : new List<IGameItem>();
+            OtherCashPayment payment = remandBelongings.Any()
+                ? new OtherCashPayment(jurisdiction.Currency, actor, actor.Body.ExternalItems.Concat(remandBelongings))
+                : new OtherCashPayment(jurisdiction.Currency, actor);
+            decimal accessible = payment.AccessibleMoneyForPayment();
+            if (accessible < fee)
             {
+                string availableText = remandBelongings.Any()
+                    ? "available between your carried cash and your remand belongings"
+                    : "holding";
                 actor.OutputHandler.Send(
-                    $"You aren't holding enough money to pay {jurisdiction.Currency.Describe(fee, CurrencyDescriptionPatternType.Short).ColourValue()} in legal fees.\nYou are only holding {jurisdiction.Currency.Describe(payment.AccessibleMoneyForPayment(), CurrencyDescriptionPatternType.Short).ColourValue()}.");
+                    $"You don't have enough money to pay {jurisdiction.Currency.Describe(fee, CurrencyDescriptionPatternType.Short).ColourValue()} in legal fees.\nYou are only {availableText} {jurisdiction.Currency.Describe(accessible, CurrencyDescriptionPatternType.Short).ColourValue()}.");
                 return;
             }
 
             payment.TakePayment(fee);
             lawyerBankAccount?.DepositFromTransaction(fee, $"Lawyer fee for {who.PersonalName.GetName(NameStyle.FullName)}");
-            actionText = "with cash";
+            actionText = remandBelongings.Any()
+                ? "with cash from &0's carried money or remand belongings"
+                : "with cash";
         }
 
         if (actor == who)
@@ -2244,6 +2255,13 @@ The syntax is as follows:
 
         target.AddEffect(new Lawyering(target, jurisdiction) { EngagedByCharacter = who });
         who.AddEffect(new HasLegalCounsel(who, target));
+    }
+
+    private static IEnumerable<IGameItem> PrisonerBelongingsBundles(ILegalAuthority jurisdiction, ICharacter prisoner)
+    {
+        return jurisdiction.PrisonerBelongingsStorageLocation?.GameItems
+                           .Where(x => x.AffectedBy<PrisonerBelongings>(prisoner)) ??
+               Enumerable.Empty<IGameItem>();
     }
 
     [PlayerCommand("PayFine", "payfine")]

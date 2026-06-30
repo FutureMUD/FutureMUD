@@ -11,15 +11,27 @@ namespace MudSharp.Economy.Payment;
 
 public class OtherCashPayment : CashPayment
 {
+    private readonly IReadOnlyCollection<IGameItem> _paymentItems = Array.Empty<IGameItem>();
+    private readonly bool _useCustomPaymentItems;
+
     public OtherCashPayment(ICurrency currency, ICharacter actor) : base(currency, actor)
     {
     }
+
+    public OtherCashPayment(ICurrency currency, ICharacter actor, IEnumerable<IGameItem> paymentItems) : this(currency,
+        actor)
+    {
+        _paymentItems = paymentItems.ToList();
+        _useCustomPaymentItems = true;
+    }
+
+    protected override IEnumerable<IGameItem> PaymentItems => _useCustomPaymentItems ? _paymentItems : base.PaymentItems;
 
     #region Overrides of CashPayment
 
     public override void TakePayment(decimal price)
     {
-        IEnumerable<ICurrencyPile> currency = Actor.Body.ExternalItems.RecursiveGetItems<ICurrencyPile>(true);
+        IEnumerable<ICurrencyPile> currency = PaymentItems.RecursiveGetItems<ICurrencyPile>(true);
         Dictionary<ICurrencyPile, Dictionary<ICoin, int>> targetCoins = Currency.FindCurrency(currency, price);
         decimal value = targetCoins.Sum(x => x.Value.Sum(y => y.Value * y.Key.Value));
         IEnumerable<IGameItem> containers = targetCoins.SelectNotNull(x => x.Key.Parent.ContainedIn).Distinct();

@@ -27,6 +27,8 @@ namespace MudSharp.RPG.Law;
 
 public partial class LegalAuthority : SaveableItem, ILegalAuthority
 {
+    private static readonly TimeSpan AutomaticRepeatSuppressionWindow = TimeSpan.FromMinutes(10);
+
     public LegalAuthority(string name, ICurrency currency, IFuturemud gameworld)
     {
         Gameworld = gameworld;
@@ -705,19 +707,9 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
             }
 
             var criminalIdentityId = CharacterInstanceIdentityComparer.IdentityId(criminal);
-            if (law.DoNotAutomaticallyApplyRepeats && _unknownCrimesLookup[criminalIdentityId]
-                                                      .Concat(_knownCrimesLookup[criminalIdentityId]).Any(x =>
-                                                          x.Law.Id == law.Id &&
-                                                          x.Victim == victim &&
-                                                          (item is null
-                                                              ? x.ThirdPartyId is null
-                                                              : x.ThirdPartyId == item.Id &&
-                                                                string.Equals(x.ThirdPartyFrameworkItemType,
-                                                                    item.FrameworkItemType,
-                                                                    StringComparison.OrdinalIgnoreCase)) &&
-                                                          x.CrimeLocation == location &&
-                                                          DateTime.UtcNow - x.RealTimeOfCrime < TimeSpan.FromMinutes(10)
-                                                      ))
+            if (ShouldSuppressAutomaticRepeatCrime(law,
+                    _unknownCrimesLookup[criminalIdentityId].Concat(_knownCrimesLookup[criminalIdentityId]), victim,
+                    item, location, DateTime.UtcNow))
             {
                 continue;
             }
@@ -745,6 +737,68 @@ public partial class LegalAuthority : SaveableItem, ILegalAuthority
         }
 
         return crimes;
+    }
+
+    internal static bool ShouldSuppressAutomaticRepeatCrime(ILaw law, IEnumerable<ICrime> existingCrimes,
+        ICharacter victim, IGameItem item, ICell location, DateTime now)
+    {
+        bool suppressViolentEncounterRepeats = law.CrimeType.IsViolentCrime() && victim is not null;
+        if (!law.DoNotAutomaticallyApplyRepeats && !suppressViolentEncounterRepeats)
+        {
+            return false;
+        }
+
+        long? victimId = victim is null ? null : CharacterInstanceIdentityComparer.IdentityId(victim);
+        return existingCrimes.Any(x =>
+            IsRepeatCrimeMatch(law, x, victimId, item, location, now, suppressViolentEncounterRepeats));
+    }
+
+    private static bool IsRepeatCrimeMatch(ILaw law, ICrime existingCrime, long? victimId, IGameItem item,
+        ICell location, DateTime now, bool suppressViolentEncounterRepeats)
+    {
+        if (existingCrime.Law?.Id != law.Id)
+        {
+            return false;
+        }
+
+        TimeSpan age = now - existingCrime.RealTimeOfCrime;
+        if (age < TimeSpan.Zero || age >= AutomaticRepeatSuppressionWindow)
+        {
+            return false;
+        }
+
+        if (existingCrime.VictimId != victimId)
+        {
+            return false;
+        }
+
+        if (suppressViolentEncounterRepeats)
+        {
+            return true;
+        }
+
+        if (!SameCrimeItem(existingCrime, item))
+        {
+            return false;
+        }
+
+        return SameCrimeLocation(existingCrime.CrimeLocation, location);
+    }
+
+    private static bool SameCrimeItem(ICrime existingCrime, IGameItem item)
+    {
+        return item is null
+            ? existingCrime.ThirdPartyId is null
+            : existingCrime.ThirdPartyId == item.Id &&
+              string.Equals(existingCrime.ThirdPartyFrameworkItemType, item.FrameworkItemType,
+                  StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool SameCrimeLocation(ICell existingLocation, ICell location)
+    {
+        return existingLocation is null || location is null
+            ? existingLocation is null && location is null
+            : existingLocation == location || existingLocation.Id == location.Id;
     }
 
     public bool WouldBeACrime(ICharacter criminal, CrimeTypes crime, ICharacter victim, IGameItem item,

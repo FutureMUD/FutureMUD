@@ -6,7 +6,7 @@ This document records the current runtime behavior of the legal authority, sente
 
 ## Automatic Crime Application
 
-Automatic enforcement is opt-in per law. A law only applies from coded hooks when `law auto` is enabled, the offender and victim legal-class filters pass, and the optional law prog returns true. `law repeat` controls whether repeated automatic applications against the same law, target, object, and location are suppressed for the short repeat window.
+Automatic enforcement is opt-in per law. A law only applies from coded hooks when `law auto` is enabled, the offender and victim legal-class filters pass, and the optional law prog returns true. `law repeat` controls whether repeated automatic applications against the same law, target, object, and location are suppressed for the short repeat window. Violent victim-targeted automatic crimes are additionally treated as encounter repeats for the same offender and victim during that window, so a single fight does not create fresh assault or grievous-bodily-harm counts for every blow, weapon, or room transition.
 
 Automatic crime hooks now pass a context text string to the crime record and to law progs that opt into the extended signatures. Existing law prog signatures continue to receive the crime name as their text argument. Builders can use the extended `text text` signatures to receive both the crime name and the automatic context.
 
@@ -128,7 +128,7 @@ When the return deadline expires, the bail heartbeat attempts to record a `Viola
 
 The `trial docket` command distinguishes active bail from bail-revoked at-large defendants so PC judges can see why a person is not currently summonable.
 
-Prisoners can engage legal counsel while physically held in a remand cell, and advocates can hire counsel for remand prisoners from a remand cell as well as from the legal authority's prison location. `engagelawyer list` only lists remand prisoners who do not already have counsel.
+Prisoners can engage legal counsel while physically held in a remand cell, and advocates can hire counsel for remand prisoners from a remand cell as well as from the legal authority's prison location. `engagelawyer list` only lists remand prisoners who do not already have counsel. When a remand prisoner hires counsel for themselves without specifying a bank account, the cash payment can draw from their carried cash and from the prison-belongings bundle stored for that legal authority, allowing legal fees to be paid from money confiscated during remand intake.
 
 ## Patrol Route Diagnostics
 

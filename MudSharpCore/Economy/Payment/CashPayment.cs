@@ -2,6 +2,7 @@
 using MudSharp.Economy.Currency;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Interfaces;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace MudSharp.Economy.Payment;
@@ -16,6 +17,8 @@ public abstract class CashPayment : IPaymentMethod
 
     public ICurrency Currency { get; set; }
     public ICharacter Actor { get; set; }
+
+    protected virtual IEnumerable<IGameItem> PaymentItems => Actor.Body.ExternalItems;
 
     protected static decimal CountAccessibleMoney(IGameItem item, ICurrency whichCurrency, bool respectGetRules)
     {
@@ -40,7 +43,7 @@ public abstract class CashPayment : IPaymentMethod
 
     public decimal AccessibleMoneyForPayment()
     {
-        return Actor.Body.ExternalItems.Sum(x => CountAccessibleMoney(x, Currency, true));
+        return PaymentItems.Sum(x => CountAccessibleMoney(x, Currency, true));
     }
 
     public abstract void TakePayment(decimal price);

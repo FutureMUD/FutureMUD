@@ -450,6 +450,34 @@ public class SeederRepeatabilityHelperTests
     }
 
     [TestMethod]
+    public void LawSeeder_SeedData_AutomaticViolentLawsSuppressRepeats()
+    {
+        using FuturemudDatabaseContext context = BuildContext();
+        AddLawSeederPrerequisites(context);
+
+        SeedLawSeeder(context);
+
+        CrimeTypes[] violentCrimeTypes =
+        [
+            CrimeTypes.Assault,
+            CrimeTypes.GreviousBodilyHarm,
+            CrimeTypes.Murder
+        ];
+
+        foreach (CrimeTypes crimeType in violentCrimeTypes)
+        {
+            List<Law> laws = context.Laws
+                                    .Where(x => x.CrimeType == (int)crimeType)
+                                    .Where(x => x.CanBeAppliedAutomatically)
+                                    .ToList();
+
+            Assert.IsTrue(laws.Any(), $"Expected at least one automatic law for {crimeType}.");
+            Assert.IsTrue(laws.All(x => x.DoNotAutomaticallyApplyRepeats),
+                $"Expected automatic {crimeType} laws to suppress repeated applications.");
+        }
+    }
+
+    [TestMethod]
     public void LawSeeder_SeedData_Tiered_SplitsVictimBasedCrimesAndLeavesVictimlessCrimesFlat()
     {
         using FuturemudDatabaseContext context = BuildContext();
